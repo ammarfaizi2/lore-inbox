@@ -1,62 +1,112 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316223AbSHOA5H>; Wed, 14 Aug 2002 20:57:07 -0400
+	id <S316408AbSHOA7a>; Wed, 14 Aug 2002 20:59:30 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316235AbSHOA5H>; Wed, 14 Aug 2002 20:57:07 -0400
-Received: from central.caverock.net.nz ([210.55.207.1]:23827 "EHLO
-	central.caverock.net.nz") by vger.kernel.org with ESMTP
-	id <S316223AbSHOA5G>; Wed, 14 Aug 2002 20:57:06 -0400
-Date: Thu, 15 Aug 2002 11:45:40 +1200 (NZST)
-From: Eric Gillespie <viking@flying-brick.caverock.net.nz>
-To: Edward Coffey <ecoffey@alphalink.com.au>
-cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: devfs_find_and_unregister fix (was Re: Linux 2.5.31)
-In-Reply-To: <20020814093927.GA361@spunk>
-Message-ID: <Pine.LNX.4.21.0208151142390.1877-100000@brick.flying-brick.caverock.net.nz>
+	id <S316437AbSHOA7a>; Wed, 14 Aug 2002 20:59:30 -0400
+Received: from CPE-203-51-32-20.nsw.bigpond.net.au ([203.51.32.20]:47856 "EHLO
+	e4.eyal.emu.id.au") by vger.kernel.org with ESMTP
+	id <S316430AbSHOA72>; Wed, 14 Aug 2002 20:59:28 -0400
+Message-ID: <3D5AFDD6.3178894D@eyal.emu.id.au>
+Date: Thu, 15 Aug 2002 11:03:18 +1000
+From: Eyal Lebedinsky <eyal@eyal.emu.id.au>
+Organization: Eyal at Home
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Alan Cox <alan@redhat.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.4.20-pre2-ac1
+References: <200208141634.g7EGYGO29387@devserv.devel.redhat.com>
+Content-Type: multipart/mixed;
+ boundary="------------4AE8B87AF110A1B00FE726DB"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 14 Aug 2002, Edward Coffey wrote:
+This is a multi-part message in MIME format.
+--------------4AE8B87AF110A1B00FE726DB
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 
-:On Wed, Aug 14, 2002 at 08:09:05PM +1200, Eric Gillespie wrote:
-:> 
-:> In reply to:
-:> ecoffey at alphalink dot com dot au
-:> >devfs problem, make modules_install fails with
-:> > if [ -r System.map ]; then /sbin/depmod -ae -F System.map 2.5.31; fi
-:> >depmod: *** Unresolved symbols in
-:> >/lib/modules/2.5.31/kernel/sound/core/snd.o
-:> >depmod: devfs_find_and_unregister
-:> 
-:> fs/devfs/base.c,  Line 2315, add this:
-:> 
-:> --- fs/devfs/base_orig.c	Wed Aug 14 20:02:09 2002
-:> +++ fs/devfs/base.c	Tue Aug 13 18:51:23 2002
-:> @@ -2312,6 +2312,7 @@
-:>  EXPORT_SYMBOL(devfs_mk_symlink);
-:>  EXPORT_SYMBOL(devfs_mk_dir);
-:>  EXPORT_SYMBOL(devfs_get_handle);
-:> +EXPORT_SYMBOL(devfs_find_and_unregister);
-:>  EXPORT_SYMBOL(devfs_get_flags);
-:>  EXPORT_SYMBOL(devfs_set_flags);
-:>  EXPORT_SYMBOL(devfs_get_maj_min);
-:
-:Thanks :?) 
-:
+To build it I needed the following patches:
 
-Whoops - it's a patch file - sorry.  You know how to patch?
-Basically, the line number is mentioned, as well as the lines to ADD.
+- Makefile
+	Has wrong EXTRAVERSION
 
-I notice someone else on the list put the same thing up, so this is only
-duplication <grin> - my apologies if I threw you off guard.
+- mm/swap_state.c
+	Improper use of PAGE_BUG() macro
 
-I'll CC: this to the kernel list too, just so they know I read it too 8-)
+- drivers/isdn/hisax/st5481.h
+	Usage of '...' in macro, not always compatible with prevailing
+	versions of gcc. We all know the story though... I just disabled
+	all the special macros for now
 
--- 
- /|   _,.:*^*:.,   |\           Cheers from the Viking family, 
-| |_/'  viking@ `\_| |            including Pippin, our cat
-|    flying-brick    | $FunnyMail  Bilbo   : Now far ahead the Road has gone,
- \_.caverock.net.nz_/     5.39    in LOTR  : Let others follow it who can!
+--
+Eyal Lebedinsky (eyal@eyal.emu.id.au) <http://samba.org/eyal/>
+--------------4AE8B87AF110A1B00FE726DB
+Content-Type: text/plain; charset=us-ascii;
+ name="2.4.20-pre2-ac1-Makefile.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="2.4.20-pre2-ac1-Makefile.patch"
+
+--- linux/Makefile.orig	Thu Aug 15 10:30:15 2002
++++ linux/Makefile	Thu Aug 15 10:04:08 2002
+@@ -1,7 +1,7 @@
+ VERSION = 2
+ PATCHLEVEL = 4
+ SUBLEVEL = 20
+-EXTRAVERSION = -pre1-ac3
++EXTRAVERSION = -pre2-ac1
+ 
+ KERNELRELEASE=$(VERSION).$(PATCHLEVEL).$(SUBLEVEL)$(EXTRAVERSION)
+ 
+
+--------------4AE8B87AF110A1B00FE726DB
+Content-Type: text/plain; charset=us-ascii;
+ name="2.4.20-pre2-ac1-mm.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="2.4.20-pre2-ac1-mm.patch"
+
+--- linux/mm/swap_state.c.orig	Thu Aug 15 10:28:06 2002
++++ linux/mm/swap_state.c	Thu Aug 15 10:28:18 2002
+@@ -152,7 +152,7 @@
+ 		BUG();
+ 
+ 	if (unlikely(!block_flushpage(page, 0)))
+-		PAGE_BUG();	/* an anonymous page cannot have page->buffers set */
++		PAGE_BUG(page);	/* an anonymous page cannot have page->buffers set */
+ 
+ 	entry.val = page->index;
+ 
+
+--------------4AE8B87AF110A1B00FE726DB
+Content-Type: text/plain; charset=us-ascii;
+ name="2.4.20-pre2-ac1-st5481.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="2.4.20-pre2-ac1-st5481.patch"
+
+--- linux/drivers/isdn/hisax/st5481.h.orig	Thu Aug 15 10:38:11 2002
++++ linux/drivers/isdn/hisax/st5481.h	Thu Aug 15 10:39:25 2002
+@@ -218,14 +218,11 @@
+ 
+ #define L1_EVENT_COUNT (EV_TIMER3 + 1)
+ 
+-#define ERR(format, arg...) \
+-printk(KERN_ERR __FILE__ ": %s: " format "\n" , __FUNCTION__, ## arg)
++#define ERR(format, arg...) 0
+ 
+-#define WARN(format, arg...) \
+-printk(KERN_WARNING __FILE__ ": %s: " format "\n" , __FUNCTION__, ## arg)
++#define WARN(format, arg...) 0
+ 
+-#define INFO(format, arg...) \
+-printk(KERN_INFO __FILE__ ": %s: " format "\n" , __FUNCTION__, ## arg)
++#define INFO(format, arg...) 0
+ 
+ #include "st5481_hdlc.h"
+ #include "fsm.h"
+
+--------------4AE8B87AF110A1B00FE726DB--
 

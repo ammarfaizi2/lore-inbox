@@ -1,55 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262061AbUKJWGM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262122AbUKJWJy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262061AbUKJWGM (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 10 Nov 2004 17:06:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262063AbUKJWGM
+	id S262122AbUKJWJy (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 10 Nov 2004 17:09:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262063AbUKJWJy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 Nov 2004 17:06:12 -0500
-Received: from fed1rmmtao04.cox.net ([68.230.241.35]:21440 "EHLO
-	fed1rmmtao04.cox.net") by vger.kernel.org with ESMTP
-	id S262061AbUKJWGK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 Nov 2004 17:06:10 -0500
-Date: Wed, 10 Nov 2004 15:06:08 -0700
-From: Tom Rini <trini@kernel.crashing.org>
-To: Kumar Gala <galak@somerset.sps.mot.com>
-Cc: akpm@osdl.org, linuxppc-dev@ozlabs.org, paulus@samba.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH][PPC32] Update cpu_spec for performance monitor counters, C99, and e500 userland CPU features
-Message-ID: <20041110220608.GB26631@smtp.west.cox.net>
-References: <Pine.LNX.4.61.0411092016370.16462@blarg.somerset.sps.mot.com>
+	Wed, 10 Nov 2004 17:09:54 -0500
+Received: from e35.co.us.ibm.com ([32.97.110.133]:58607 "EHLO
+	e35.co.us.ibm.com") by vger.kernel.org with ESMTP id S262120AbUKJWJY
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 10 Nov 2004 17:09:24 -0500
+Subject: Re: Externalize SLIT table
+From: Matthew Dobson <colpatch@us.ibm.com>
+Reply-To: colpatch@us.ibm.com
+To: Erich Focht <efocht@hpce.nec.com>
+Cc: Mark Goodwin <markgw@sgi.com>, Jack Steiner <steiner@sgi.com>,
+       Takayoshi Kochi <t-kochi@bq.jp.nec.com>, linux-ia64@vger.kernel.org,
+       LKML <linux-kernel@vger.kernel.org>
+In-Reply-To: <200411101945.34003.efocht@hpce.nec.com>
+References: <20041103205655.GA5084@sgi.com>
+	 <1100044724.3980.23.camel@arrakis>
+	 <Pine.LNX.4.61.0411101532350.15897@woolami.melbourne.sgi.com>
+	 <200411101945.34003.efocht@hpce.nec.com>
+Content-Type: text/plain
+Organization: IBM LTC
+Message-Id: <1100124559.6811.4.camel@arrakis>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.61.0411092016370.16462@blarg.somerset.sps.mot.com>
-User-Agent: Mutt/1.5.6+20040907i
+X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7) 
+Date: Wed, 10 Nov 2004 14:09:20 -0800
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Nov 09, 2004 at 08:30:43PM -0600, Kumar Gala wrote:
+On Wed, 2004-11-10 at 10:45, Erich Focht wrote:
+> On Wednesday 10 November 2004 06:05, Mark Goodwin wrote:
+> > On a system that has nodes with multiple sockets (each supporting
+> > multiple cores or HT "CPUs" sharing some level of cache), when the
+> > scheduler needs to migrate a task it would first choose a CPU
+> > sharing the same cache, then a CPU on the same node, then an
+> > off-node CPU (i.e. falling back to node distance).
+> 
+> This should be done by correctly setting up the sched domains. It's
+> not a question of exporting useless or redundant information to user
+> space.
+> 
+> The need for some (any) cpu-to-cpu metrics initially brought up by
+> Jack seemed mainly motivated by existing user space tools for
+> constructing cpusets (maybe in PBS). I think it is a tolerable effort
+> to introduce in user space an inlined function or macro doing
+> something like
+>    cpu_metric(i,j) := node_metric(cpu_node(i),cpu_node(j))
+> 
+> It keeps the kernel free of misleading information which might just
+> slightly make cpusets construction more comfortable. In user space you
+> have the full freedom to enhance your metrics when getting more
+> details about the next generation cpus.
 
-> Andrew,
-> 
-> This patch replaces the previous patch for adding performance monitor 
-> counters to cpu_spec.
-> 
-> -
-> 
-> Adds the number of performance monitor counters on each PowerPC processor 
-> has to the cpu table.  Makes oprofile support a bit cleaner since we dont 
-> need a case statement on processor version to determine the number of 
-> counters.
-> 
-> Reformatted cpu_spec to use C99 initialization.
-> 
-> Added userland CPU features for SPE, Embedded Floating Point Single 
-> precision, and Embedded Floating Point Double precision on e500.
-> 
-> Signed-off-by: Kumar Gala <kumar.gala@freescale.com> 
-[snip]
+Good point, Erich.  I don't think there is any desperate need for
+CPU-to-CPU distances to be exported to userspace right now.  If that is
+incorrect and someone really needs a particular distance metric to be
+exported by the kernel, we can look into that and export the required
+info.  For now I think the Node-to-Node distance information is enough. 
+-Matt
 
-Now that we're doing C99 inits, can we just drop the empty fields
-finally (And if __setup_cpu_8xx really is empty, just kill it) ?
-
--- 
-Tom Rini
-http://gate.crashing.org/~trini/

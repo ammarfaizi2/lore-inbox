@@ -1,130 +1,35 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265640AbUAPTdN (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 16 Jan 2004 14:33:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265645AbUAPTdM
+	id S265726AbUAPTjE (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 16 Jan 2004 14:39:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265732AbUAPTjE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 16 Jan 2004 14:33:12 -0500
-Received: from shadow02.cubit.at ([80.78.231.91]:17380 "EHLO
-	skeletor.netshadow.at") by vger.kernel.org with ESMTP
-	id S265640AbUAPTdD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 16 Jan 2004 14:33:03 -0500
-Message-ID: <00cc01c3dc67$87fc58b0$02bfa8c0@kuecken>
-From: "Andreas Unterkircher" <unki@netshadow.at>
-To: <linux-kernel@vger.kernel.org>
-Cc: <Claude.PARISOT@wanadoo.fr>
-References: <40083A5F.4060802@wanadoo.fr>
-Subject: Re: DMA problem 
-Date: Fri, 16 Jan 2004 20:32:50 +0100
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2800.1158
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1165
+	Fri, 16 Jan 2004 14:39:04 -0500
+Received: from bay1-f117.bay1.hotmail.com ([65.54.245.117]:8714 "EHLO
+	hotmail.com") by vger.kernel.org with ESMTP id S265726AbUAPTjB
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 16 Jan 2004 14:39:01 -0500
+X-Originating-IP: [66.96.64.38]
+X-Originating-Email: [highwind747@hotmail.com]
+From: "raymond jennings" <highwind747@hotmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: [IDEA] - run-length compaction of block numbers
+Date: Fri, 16 Jan 2004 11:38:59 -0800
+Mime-Version: 1.0
+Content-Type: text/plain; format=flowed
+Message-ID: <BAY1-F117hxeH6PC8MS00006f92@hotmail.com>
+X-OriginalArrivalTime: 16 Jan 2004 19:38:59.0969 (UTC) FILETIME=[6372E710:01C3DC68]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Is it possible that your ide-cable can't handle the higher dma speeds
-and makes errors? is it udma compatible? have you looked for a
-firmware update for the burner @ www.plextor.com?
+Is there any value in creating a new filesystem that encodes long contiguous 
+blocks as a single block run instead of multiple block numbers?  A long file 
+may use only a few block runs instead of many block numbers if there is 
+little fragmentation (usually the case).  Also dynamic allocation of 
+inodes...etc.  The details are long; anyone interested can e-mail me 
+privately.
 
-andreas
-
-
------ Original Message ----- 
-From: "claude parisot" <Claude.PARISOT@wanadoo.fr>
-To: <linux-kernel@vger.kernel.org>
-Cc: <Claude.PARISOT@wanadoo.fr>
-Sent: Friday, January 16, 2004 8:24 PM
-Subject: DMA problem
-
-
->   Hello !
->
-> Sorry to post a seconfd message on the list, I am only trying
-> to get an answern for this - it seems so - DMA-problem ??
->
->
-> I have some
-> problems with a brand new Plextor-drive, PX-W5224TA/T3B, I cannot
-> mount any CD or burn a CDR or CD-RW, except if I disable DMA with
-> following command :# hdparm -d0 /dev/hdd , a little bit annoying,
-> isn't it ?
->
-> If I insert a cdrom in the drive the led doesn't go out, it flashes
-> as usual but it stays green.
->
-> It seems to be a DMA-problem or a kernel-bug ???
-> Its only a supposition, I am a Linux-newbie, and I am looking
-> for an explanation and a solution ....
->
-> By mounting a cdrom I get following error messages :
->
-> Jan 11 20:46:00 ishwara kernel: scsi : aborting command due to timeout
-> : pid 102, scsi0, channel 0, id 1, lun 0 0x28 00 00 00 00 10 00 00 01 00
-> Jan 11 20:46:00 ishwara kernel: hdd: error waiting for DMA
-> Jan 11 20:46:00 ishwara kernel: hdd: dma timeout retry: status=0x7f {
-> DriveReady DeviceFault SeekComplete DataRequest CorrectedError Index
-> Error } Jan 11 20:46:00 ishwara kernel: hdd: dma timeout retry:
-> error=0x7f Jan 11 20:46:00 ishwara kernel: hdd: DMA disabled
-> Jan 11 20:46:00 ishwara kernel: hdd: ATAPI reset complete
-> Jan 11 20:46:00 ishwara kernel: hdd: irq timeout: status=0x80 { Busy }
-> Jan 11 20:46:00 ishwara kernel: hdd: ATAPI reset complete
-> Jan 11 20:46:00 ishwara kernel: hdd: irq timeout: status=0x80 { Busy }
-> Jan 11 20:46:00 ishwara kernel: hdd: ATAPI reset complete
-> Jan 11 20:46:07 ishwara kernel: hdd: irq timeout: status=0x80 { Busy }
-> Jan 11 20:46:07 ishwara kernel: scsi0 channel 0 : resetting for second
-> half of retries. Jan 11 20:46:07 ishwara kernel: SCSI bus is being reset
-> for host 0 channel 0. Jan 11 20:46:07 ishwara kernel: hdd: status
-> timeout: status=0x80 { Busy } Jan 11 20:46:07 ishwara kernel: hdd: drive
-> not ready for command Jan 11 20:46:07 ishwara kernel: hdd: ATAPI reset
-> complete Jan 11 20:46:32 ishwara kernel: scsi : aborting command due to
-> timeout : pid 103, scsi0, channel 0, id 1, lun 0 0x28 00 00 00 00 10 00
-> rive not ready for command
->
-> And then I have a freeze or at least a blocking of the sysem.
-> I have to reboot.
->
-> Could someone give me an explanation of what is happening and a way to
-> solve the problem .... is this a kernel-bug ? Or an incompatibility
-> between the motherboard and the drive ??
->
-> If you choose to help me, please don't be to esoteric, as I already
-> said, I am a newbie.
->
-> Please, could you Cc all answers to the adress :
->
-> Claude.PARISOT@wanadoo.fr
->
-> My apologizes for my english ....
->
->
-> Claude
->
-> System : Pentium 2,8C
-> Asus P4P800 DeLuxe
-> Intel I865PE
->
->
->
->
->
->
->
->
->
->
->
->
->
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
->
->
+_________________________________________________________________
+Rethink your business approach for the new year with the helpful tips here. 
+http://special.msn.com/bcentral/prep04.armx
 

@@ -1,16 +1,16 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319489AbSH2Wgp>; Thu, 29 Aug 2002 18:36:45 -0400
+	id <S319447AbSH2WUL>; Thu, 29 Aug 2002 18:20:11 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319380AbSH2Wfj>; Thu, 29 Aug 2002 18:35:39 -0400
-Received: from smtpout.mac.com ([204.179.120.89]:56516 "EHLO smtpout.mac.com")
-	by vger.kernel.org with ESMTP id <S319371AbSH2Vvm>;
-	Thu, 29 Aug 2002 17:51:42 -0400
-Message-Id: <200208292156.g7TLu5ZH003829@smtp-relay02.mac.com>
+	id <S319394AbSH2Vwy>; Thu, 29 Aug 2002 17:52:54 -0400
+Received: from smtpout.mac.com ([204.179.120.88]:17401 "EHLO smtpout.mac.com")
+	by vger.kernel.org with ESMTP id <S319391AbSH2Vwj>;
+	Thu, 29 Aug 2002 17:52:39 -0400
+Message-Id: <200208292157.g7TLv1KN026489@smtp-relay03.mac.com>
 Date: Thu, 29 Aug 2002 21:56:27 +0200
 Mime-Version: 1.0 (Apple Message framework v482)
 Content-Type: text/plain; charset=US-ASCII; format=flowed
-Subject: [PATCH] 17/41 sound/oss/maestro.c - convert cli to spinlocks
+Subject: [PATCH] 24/41 sound/oss/sys_timer.c - convert cli to spinlocks
 From: pwaechtler@mac.com
 To: linux-kernel@vger.kernel.org
 Content-Transfer-Encoding: 7bit
@@ -19,59 +19,57 @@ X-Mailer: Apple Mail (2.482)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---- vanilla-2.5.32/sound/oss/maestro.c	Sat Aug 10 00:08:29 2002
-+++ linux-2.5-cli-oss/sound/oss/maestro.c	Tue Aug 13 20:29:28 2002
-@@ -2552,12 +2552,12 @@
-         case SNDCTL_DSP_RESET:
- 		if (file->f_mode & FMODE_WRITE) {
- 			stop_dac(s);
--			synchronize_irq();
-+			synchronize_irq(s->card->pcidev->irq);
- 			s->dma_dac.swptr = s->dma_dac.hwptr = s->dma_dac.count = s->dma_dac.total_bytes = 0;
- 		}
- 		if (file->f_mode & FMODE_READ) {
- 			stop_adc(s);
--			synchronize_irq();
-+			synchronize_irq(s->card->pcidev->irq);
- 			s->dma_adc.swptr = s->dma_adc.hwptr = s->dma_adc.count = s->dma_adc.total_bytes = 0;
- 		}
- 		return 0;
-@@ -3682,8 +3682,7 @@
- 	unsigned long flags;
- 	int i,j;
+--- vanilla-2.5.32/sound/oss/sys_timer.c	Sat Apr 20 18:25:21 2002
++++ linux-2.5-cli-oss/sound/oss/sys_timer.c	Thu Aug 15 14:30:00 2002
+@@ -15,6 +15,7 @@
+  * Thomas Sailer   : ioctl code reworked (vmalloc/vfree removed)
+  * Andrew Veliath  : adapted tmr2ticks from level 1 sequencer (avoid overflow)
+  */
++#include <linux/spinlock.h>
+ #include "sound_config.h"
  
--	save_flags(flags); 
--	cli(); /* over-kill */
-+	spin_lock_irqsave(&card->lock,flags); /* over-kill */
+ static volatile int opened = 0, tmr_running = 0;
+@@ -26,7 +27,7 @@
+ static unsigned long prev_event_time;
  
- 	M_printk("maestro: apm in dev %p\n",card);
+ static void     poll_def_tmr(unsigned long dummy);
+-
++static spinlock_t lock=SPIN_LOCK_UNLOCKED;
  
-@@ -3711,7 +3710,7 @@
+ static struct timer_list def_tmr =
+ {function: poll_def_tmr};
+@@ -62,6 +63,7 @@
  
- 	card->in_suspend++;
+ 		  if (tmr_running)
+ 		    {
++				spin_lock(&lock);
+ 			    tmr_ctr++;
+ 			    curr_ticks = ticks_offs + tmr2ticks(tmr_ctr);
  
--	restore_flags(flags);
-+	spin_unlock_irqrestore(&card->lock,flags);
- 
- 	/* we trust in the bios to power down the chip on suspend.
- 	 * XXX I'm also not sure that in_suspend will protect
-@@ -3725,8 +3724,7 @@
- 	unsigned long flags;
- 	int i;
+@@ -70,6 +72,7 @@
+ 				      next_event_time = (unsigned long) -1;
+ 				      sequencer_timer(0);
+ 			      }
++				spin_unlock(&lock);
+ 		    }
+ 	  }
+ }
+@@ -79,15 +82,14 @@
+ {
+ 	unsigned long   flags;
  
 -	save_flags(flags);
--	cli(); /* over-kill */
-+	spin_lock_irqsave(&card->lock,flags); /* over-kill */
- 
- 	card->in_suspend = 0;
- 
-@@ -3779,7 +3777,7 @@
- 		}
- 	}
- 
+-	cli();
++	spin_lock_irqsave(&lock,flags);
+ 	tmr_offs = 0;
+ 	ticks_offs = 0;
+ 	tmr_ctr = 0;
+ 	next_event_time = (unsigned long) -1;
+ 	prev_event_time = 0;
+ 	curr_ticks = 0;
 -	restore_flags(flags);
-+	spin_unlock_irqrestore(&card->lock,flags);
++	spin_unlock_irqrestore(&lock,flags);
+ }
  
- 	/* all right, we think things are ready, 
- 		wake up people who were using the device
+ static int
 

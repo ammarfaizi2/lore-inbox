@@ -1,77 +1,120 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271710AbTGYFNU (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 25 Jul 2003 01:13:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271924AbTGYFNU
+	id S271704AbTGYFY0 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 25 Jul 2003 01:24:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271716AbTGYFY0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 25 Jul 2003 01:13:20 -0400
-Received: from ppp-217-133-42-200.cust-adsl.tiscali.it ([217.133.42.200]:53633
-	"EHLO x30.random") by vger.kernel.org with ESMTP id S271710AbTGYFNT
+	Fri, 25 Jul 2003 01:24:26 -0400
+Received: from adsl-66-159-224-106.dslextreme.com ([66.159.224.106]:51206 "EHLO
+	zork.ruvolo.net") by vger.kernel.org with ESMTP id S271704AbTGYFYX
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 25 Jul 2003 01:13:19 -0400
-Date: Fri, 25 Jul 2003 01:28:18 -0400
-From: Andrea Arcangeli <andrea@suse.de>
-To: "Sergey S. Kostyliov" <rathamahata@php4.ru>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.4.22pre6aa1
-Message-ID: <20030725052818.GA6440@x30.random>
-References: <200307231521.15897.rathamahata@php4.ru>
+	Fri, 25 Jul 2003 01:24:23 -0400
+Date: Thu, 24 Jul 2003 22:39:20 -0700
+From: Chris Ruvolo <chris+lkml@ruvolo.net>
+To: Ben Collins <bcollins@debian.org>
+Cc: Sam Bromley <sbromley@cogeco.ca>, Torrey Hoffman <thoffman@arnor.net>,
+       gaxt <gaxt@rogers.com>, Linux Kernel <linux-kernel@vger.kernel.org>,
+       linux firewire devel <linux1394-devel@lists.sourceforge.net>
+Subject: Re: Firewire
+Message-ID: <20030725053920.GH23196@ruvolo.net>
+Mail-Followup-To: Ben Collins <bcollins@debian.org>,
+	Sam Bromley <sbromley@cogeco.ca>,
+	Torrey Hoffman <thoffman@arnor.net>, gaxt <gaxt@rogers.com>,
+	Linux Kernel <linux-kernel@vger.kernel.org>,
+	linux firewire devel <linux1394-devel@lists.sourceforge.net>
+References: <3F1FE06A.5030305@rogers.com> <20030724223522.GA23196@ruvolo.net> <20030724223615.GN1512@phunnypharm.org> <20030724230928.GB23196@ruvolo.net> <1059095616.1897.34.camel@torrey.et.myrio.com> <20030725012723.GF23196@ruvolo.net> <20030725012908.GT1512@phunnypharm.org> <1059103424.24427.108.camel@daedalus.samhome.net> <20030725041234.GX1512@phunnypharm.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="2oox5VnwalALFvA7"
 Content-Disposition: inline
-In-Reply-To: <200307231521.15897.rathamahata@php4.ru>
-User-Agent: Mutt/1.4i
-X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
-X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
+In-Reply-To: <20030725041234.GX1512@phunnypharm.org>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jul 23, 2003 at 03:21:15PM +0400, Sergey S. Kostyliov wrote:
-> Hello Andrea,
-> 
-> This is during `swapoff -a`, on a heavily loaded box:
-> 
-> ksymoops 2.4.9 on i686 2.4.22-pre6aa1.  Options used
->      -V (default)
->      -k /proc/ksyms (default)
->      -l /proc/modules (default)
->      -o /lib/modules/2.4.22-pre6aa1/ (default)
->      -m /usr/src/linux/System.map (default)
-> 
-> Warning: You did not tell me where to find symbol information.  I will
-> assume that the log matches the kernel and modules that are running
-> right now and I'll use the default options above for symbol resolution.
-> If the current kernel and/or modules do not match the log, you can get
-> more accurate output by telling me the kernel version and where to find
-> map, modules, ksyms etc.  ksymoops -h explains the options.
-> 
-> Error (regular_file): read_system_map stat /usr/src/linux/System.map failed
-> ksymoops: No such file or directory
-> kernel BUG at shmem.c:490!
 
-hmm, 2.4.22pre6aa1 was the first 2.4 largepages port to the >=22pre
-shmfs backport from 2.5. It could be a bug in 2.5, or a bug present only
-in the backport of the 2.5 code to 22pre, or even a bug only present in
--aa due the largepage patch ported on top of the backport included in
-22pre. I'll have a closer look at it tomorrow. The place where it
-crashed is:
+--2oox5VnwalALFvA7
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-	BUG_ON(inode->i_blocks);
+On Fri, Jul 25, 2003 at 12:12:34AM -0400, Ben Collins wrote:
+> Please compile with debug enabled so I can get all the output. Also,
+> update using this patch instead of my last one.
 
-it might be only a minor accounting issue. It needs some auditing.
+The list looks empty.
+-Chris
 
-I'm afraid you're the first one testing the shmfs backport in 22pre +
-the largepage support patch in my tree with a big app doing swapoff at
-the same time.
+ohci1394: $Rev: 986 $ Ben Collins <bcollins@debian.org>
+PCI: Found IRQ 10 for device 0000:00:0b.0
+ohci1394_0: Remapped memory spaces reg 0xc897a000
+ohci1394_0: Soft reset finished
+ohci1394_0: Iso contexts reg: 000000a8 implemented: 000000ff
+ohci1394_0: 8 iso receive contexts available
+ohci1394_0: Iso contexts reg: 00000098 implemented: 000000ff
+ohci1394_0: 8 iso transmit contexts available
+ohci1394_0: GUID: 00110600:00006a85
+ohci1394_0: Receive DMA ctx=0 initialized
+ohci1394_0: Receive DMA ctx=0 initialized
+ohci1394_0: Transmit DMA ctx=0 initialized
+ohci1394_0: Transmit DMA ctx=1 initialized
+ohci1394_0: OHCI-1394 1.0 (PCI): IRQ=[10]  MMIO=[db001000-db0017ff]  Max Packet=[2048]
+ohci1394_0: request csr_rom address: c3d64000
+ohci1394_0: IntEvent: 00030010
+ohci1394_0: irq_handler: Bus reset requested
+ohci1394_0: Cancel request received
+ohci1394_0: Got RQPkt interrupt status=0x00008409
+ohci1394_0: SelfID interrupt received (phyid 0, root)
+ohci1394_0: SelfID packet 0x807f8956 received
+ieee1394: Including SelfID 0x56897f80
+ohci1394_0: SelfID for this node is 0x807f8956
+ohci1394_0: SelfID complete
+ohci1394_0: PhyReqFilter=ffffffffffffffff
+ieee1394: selfid_complete called with successful SelfID stage ... irm_id: 0xFFC0 node_id: 0xFFC0
+ieee1394: NodeMgr: Processing host reset for knodemgrd_0
+ohci1394_0: Single packet rcv'd
+ohci1394_0: Got phy packet ctx=0 ... discarded
+ieee1394: Initiating ConfigROM request for node 00:1023
+ieee1394: send packet local: ffc00140 ffc0ffff f0000400
+ieee1394: received packet: ffc00140 ffc0ffff f0000400
+ieee1394: send packet local: ffc00160 ffc00000 00000000 60f30404
+ieee1394: received packet: ffc00160 ffc00000 00000000 60f30404
+ieee1394: TLABEL: Checking for tlabel 0
+ieee1394: unsolicited response packet received - np
+ieee1394: contents: ffc00160 ffc00000 00000000 60f30404
+ieee1394: send packet local: ffc00540 ffc0ffff f0000400
+ieee1394: received packet: ffc00540 ffc0ffff f0000400
+ieee1394: send packet local: ffc00560 ffc00000 00000000 60f30404
+ieee1394: received packet: ffc00560 ffc00000 00000000 60f30404
+ieee1394: TLABEL: Checking for tlabel 1
+ieee1394: unsolicited response packet received - np
+ieee1394: contents: ffc00560 ffc00000 00000000 60f30404
+ieee1394: send packet local: ffc00940 ffc0ffff f0000400
+ieee1394: received packet: ffc00940 ffc0ffff f0000400
+ieee1394: send packet local: ffc00960 ffc00000 00000000 60f30404
+ieee1394: received packet: ffc00960 ffc00000 00000000 60f30404
+ieee1394: TLABEL: Checking for tlabel 2
+ieee1394: unsolicited response packet received - np
+ieee1394: contents: ffc00960 ffc00000 00000000 60f30404
+ieee1394: ConfigROM quadlet transaction error for node 00:1023
+ieee1394: send packet 100: ffff0100 ffc0ffff f0000234 1f0000c0
+ohci1394_0: Inserting packet for node 63:1023, tlabel=0, tcode=0x0, speed=0
+ohci1394_0: Starting transmit DMA ctx=0
+ohci1394_0: IntEvent: 00000001
+ohci1394_0: Got reqTxComplete interrupt status=0x00008011
+ohci1394_0: Packet sent to node 63 tcode=0x0 tLabel=0x00 ack=0x11 spd=0 data=0x1F0000C0 ctx=0
 
-Are you using bigpages btw?
 
-thank you very much for the feedback,
+--2oox5VnwalALFvA7
+Content-Type: application/pgp-signature
+Content-Disposition: inline
 
-Andrea
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.6 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
 
-PS. shall this give us relevant problems in the debugging/auditing, I'll
-just give you a patch to backout the backport and go back to the shmfs
-code in 2.4.21rc8aa1 that is running rock solid in production with
-largepages (I doubt you need the loop device on top of shmfs anyways). I
-prefer not to spend much time on new 2.4 features.
+iD8DBQE/IMKIKO6EG1hc77ERAp83AKDwR69Qr8DUq5Oy1Lpk5IipgAJ4pACfYE61
+EC04ZT2wdomIsSdFdiGKVbI=
+=2FZb
+-----END PGP SIGNATURE-----
+
+--2oox5VnwalALFvA7--

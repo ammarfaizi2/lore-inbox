@@ -1,49 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265019AbTF2T5h (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 29 Jun 2003 15:57:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265013AbTF2T5h
+	id S264884AbTF2UFt (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 29 Jun 2003 16:05:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264898AbTF2UFt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 29 Jun 2003 15:57:37 -0400
-Received: from slimnet.xs4all.nl ([194.109.194.192]:30445 "EHLO
-	gatekeeper.slim") by vger.kernel.org with ESMTP id S264358AbTF2Twh
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 29 Jun 2003 15:52:37 -0400
-Subject: [Linux 2.5.73] SCSI Write protect not properly detected
-From: Jurgen Kramer <gtm.kramer@inter.nl.net>
-To: linux-kernel@vger.kernel.org
-Content-Type: text/plain
-Message-Id: <1056917213.4001.5.camel@paragon.slim>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.0 (1.4.0-1) 
-Date: 29 Jun 2003 22:06:53 +0200
+	Sun, 29 Jun 2003 16:05:49 -0400
+Received: from post.pl ([212.85.96.51]:38157 "HELO matrix01b.home.net.pl")
+	by vger.kernel.org with SMTP id S264884AbTF2UFm (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 29 Jun 2003 16:05:42 -0400
+Message-ID: <3EFF4A70.2010505@post.pl>
+Date: Sun, 29 Jun 2003 22:22:08 +0200
+From: "Leonard Milcin Jr." <thervoy@post.pl>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3.1) Gecko/20030618 Debian/1.3.1-3
+X-Accept-Language: en
+MIME-Version: 1.0
+To: LKML <linux-kernel@vger.kernel.org>
+Subject: Re: File System conversion -- ideas
+References: <200306291011.h5TABQXB000391@81-2-122-30.bradfords.org.uk> <20030629132807.GA25170@mail.jlokier.co.uk> <3EFEEEC3.30505@sktc.net> <200306291431080580.01CF24BF@smtp.comcast.net> <3EFF4443.8080507@sktc.net>
+In-Reply-To: <3EFF4443.8080507@sktc.net>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+David D. Hagood wrote:
+> Funny how, having never used LVM you have an opinion about it.
+> 
+> I have. I have done EXACTLY what I described.
+> 
+> First of all, do you REALLY think my way is any less failure prone, 
+> especially in the presence of the possiblilty of power failure than any 
+> other method? My method preserves a mountable, valid file system at each 
+> step of the way - the resized downward of the old file system, the 
+> resize upward of the new, the file copy.
+> 
+> Secondly, if you are REALLY concerned about the manual aspect of what I 
+> suggested, you can write a simple shell script to do the work.
+> 
+> Third of all, the longest parts of the process I describe will be the 
+> resize downward of the old file system and the copy of the data - the 
+> LVM parts of this operation are pretty damn quick.
 
-With 2.5.73 the write protect on my SCSI MO drive (via Firewire IDE
-enclosure) is not being detected properly. It always says the
-write protect is off. The drive itself is properly being detected as
-an Optical disk.
+Yes, and I think it is the right way to follow. If we ensure, that each 
+of described steps preserves filesystem integrity we could automate this 
+thus getting what was described in initial idea but simpler. Yet better 
+- there is code that solves nearly all problems, there is only need to 
+automate fiddling with partitions and LVM, so end user will see this as 
+real transparent :-)
 
-<snip>
-SCSI device sdf: 605846 2048-byte hdwr sectors (1241 MB)
-sdf: Write Protect is off
-sdf: Mode Sense: 00 56 03 80
-sdf: cache data unavailable
-sdf: assuming drive cache: write through
- sdf: sdf1
-Attached scsi removable disk sdf at scsi2, channel 0, id 0, lun 0
-
-With 2.4 it works properly:
-
-SCSI device sdf: 605846 2048-byte hdwr sectors (1241 MB)
-sdf: Write Protect is on
- sdf: sdf1
-
-Cheers,
-
-Jurgen
+-- 
+"Unix IS user friendly... It's just selective about who its friends are."
+                                                        -- Tollef Fog Heen
 

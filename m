@@ -1,49 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264261AbTKTCEM (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 19 Nov 2003 21:04:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264262AbTKTCEL
+	id S264297AbTKTCNG (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 19 Nov 2003 21:13:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264299AbTKTCNG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 19 Nov 2003 21:04:11 -0500
-Received: from fw.osdl.org ([65.172.181.6]:21995 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S264261AbTKTCEJ (ORCPT
+	Wed, 19 Nov 2003 21:13:06 -0500
+Received: from holomorphy.com ([199.26.172.102]:39595 "EHLO holomorphy")
+	by vger.kernel.org with ESMTP id S264297AbTKTCNC (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 19 Nov 2003 21:04:09 -0500
-Date: Wed, 19 Nov 2003 18:09:43 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: pinotj@club-internet.fr
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [Oops]  i386 mm/slab.c (cache_flusharray)
-Message-Id: <20031119180943.5d4f7774.akpm@osdl.org>
-In-Reply-To: <mnet1.1069293035.2246.pinotj@club-internet.fr>
-References: <mnet1.1069293035.2246.pinotj@club-internet.fr>
-X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
+	Wed, 19 Nov 2003 21:13:02 -0500
+Date: Wed, 19 Nov 2003 18:12:58 -0800
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@24x7linux.com, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.0-test9-mm4 (only) and vmware
+Message-ID: <20031120021258.GB22764@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	Andrew Morton <akpm@osdl.org>, linux-kernel@24x7linux.com,
+	linux-kernel@vger.kernel.org
+References: <20031119181518.0a43c673.vmlinuz386@yahoo.com.ar> <20031120002119.GA7875@localhost> <20031119170233.2619ba81.akpm@osdl.org> <20031120011209.GZ22764@holomorphy.com> <20031119175803.65d7dc99.akpm@osdl.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20031119175803.65d7dc99.akpm@osdl.org>
+Organization: The Domain of Holomorphy
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-pinotj@club-internet.fr wrote:
->
-> kernel BUG at mm/slab.c:1957!
->  ---
-> 
->  >Don't know, sorry.
-> 
->  Is there any thing I can do to help figure out where does the problem comes from ? 
+William Lee Irwin III <wli@holomorphy.com> wrote:
+>>  Here it is.
 
-Well it's interesting that it is repeatable.
+On Wed, Nov 19, 2003 at 05:58:03PM -0800, Andrew Morton wrote:
+> All the world's an x86 ;)
+> This whole patch is getting rather large.
+> ARM is doing weird stuff.
 
-First thing to do is to eliminate hardware failures:
+I just realized this can all be done in one line by setting the initial
+value of ret to VM_FAULT_MINOR in do_no_page(). The ->nopage() methods
+not updated will give off compiler warnings and since they think their
+third arguments are ordinary integers, they won't update the referenced
+content, and the initializer of VM_FAULT_MINOR then comes into play.
 
-1: Is the oops always the same, or does the machine crash in other ways,
-   with different backtraces?
 
-2: Try running memtest86 on that machine for 12 hours or more.
+-- wli
 
-3: Can the problem be reproduced on other machines?
 
-4: try a different compiler version.
-
-Thanks.
+diff -prauN mm4-2.6.0-test9-1/mm/memory.c mm4-2.6.0-test9-default-2/mm/memory.c
+--- mm4-2.6.0-test9-1/mm/memory.c	2003-11-19 00:07:15.000000000 -0800
++++ mm4-2.6.0-test9-default-2/mm/memory.c	2003-11-19 18:08:49.000000000 -0800
+@@ -1424,7 +1424,7 @@ do_no_page(struct mm_struct *mm, struct 
+ 	pte_t entry;
+ 	struct pte_chain *pte_chain;
+ 	int sequence = 0;
+-	int ret;
++	int ret = VM_FAULT_MINOR;
+ 
+ 	if (!vma->vm_ops || !vma->vm_ops->nopage)
+ 		return do_anonymous_page(mm, vma, page_table,

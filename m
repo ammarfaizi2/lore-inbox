@@ -1,51 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290074AbSAQRPE>; Thu, 17 Jan 2002 12:15:04 -0500
+	id <S290075AbSAQRSF>; Thu, 17 Jan 2002 12:18:05 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290075AbSAQROz>; Thu, 17 Jan 2002 12:14:55 -0500
-Received: from boden.synopsys.com ([204.176.20.19]:58327 "HELO
-	boden.synopsys.com") by vger.kernel.org with SMTP
-	id <S290074AbSAQROo>; Thu, 17 Jan 2002 12:14:44 -0500
-Date: Thu, 17 Jan 2002 18:14:34 +0100
-From: Alex Riesen <riesen@synopsys.COM>
-To: linux-kernel@vger.kernel.org
-Subject: 2.5.2: swapon failing with errno=0 (sys_swapon) (repost)
-Message-ID: <20020117181434.A13576@riesen-pc.gr05.synopsys.com>
-Reply-To: riesen@synopsys.COM
-Mail-Followup-To: linux-kernel@vger.kernel.org
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.23i
+	id <S290078AbSAQRRy>; Thu, 17 Jan 2002 12:17:54 -0500
+Received: from zikova.cvut.cz ([147.32.235.100]:51716 "EHLO zikova.cvut.cz")
+	by vger.kernel.org with ESMTP id <S290075AbSAQRRe>;
+	Thu, 17 Jan 2002 12:17:34 -0500
+From: "Petr Vandrovec" <VANDROVE@vc.cvut.cz>
+Organization: CC CTU Prague
+To: Christoph Pittracher <pitt@gmx.at>
+Date: Thu, 17 Jan 2002 18:16:47 +0100
+MIME-Version: 1.0
+Content-type: text/plain; charset=US-ASCII
+Content-transfer-encoding: 7BIT
+Subject: Re: ncpfs input/output error
+CC: linux-kernel@vger.kernel.org
+X-mailer: Pegasus Mail v3.50
+Message-ID: <F2BDF7440AF@vcnet.vc.cvut.cz>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I'm not cc'ing someone personally (because i don't know
-whom to address), so i just repost the patch, in case
-noone have seen it. The thing really disabled swap,
-although maybe noone is really need it for 2.5.2 ;)
+On 17 Jan 02 at 17:48, Christoph Pittracher wrote:
+> 
+> read(3, "\337\375\337\341\273\257\344\n\264\0302%\231\337\233\261"..., 
+> 512)
+> = 512
+> write(4, "\337\375\337\341\273\257\344\n\264\0302%\231\337\233\261"..., 
+> 512)
+> = -1 EIO (Input/output error)
+> [...]
+> 
+> I don't know why this write fails...
+> Any hints?
 
-repost:
-Tried to use 2.5.2. And got the message from swapon:
-swapon: /dev/hda6: Success
+You should see some complaints in kernel log, or, maybe, on server's 
+console. In kernel log you should see some 'NCP server not responding' or
+'ncp_rpc_call: recv error = NN'. Or maybe you are getting 'An NCP request
+with an invalid security signature was received from user <you> at
+<your address>. Possible intruder or network corruption.'
 
-strace showed some strange return value from swapon(2),
-looking like a pointer.
+You also must not send SIGKILL to processes which are in the middle of
+NCP transaction. Because of ncpfs does not use its own thread (or bh)
+to implement NCP ping-pong protocol, connection becomes invalid after
+such action, as ping-pong was not successfully completed.
 
-The patch will cure the problem, though i'm not sure
-about the reasons setting the error to pointer.
-Are the kernel pointers handled specially in errors?
--alex
-
---- linux/mm/swapfile.c Mon Jan 14 18:38:36 2002
-+++ linux/mm/swapfile.c-        Thu Jan 17 08:50:28 2002
-@@ -904,7 +904,7 @@
-        swap_file = filp_open(name, O_RDWR, 0);
-        putname(name);
-        error = PTR_ERR(swap_file);
--       if (error)
-+       if (IS_ERR(swap_file))
-                goto bad_swap_2;
- 
-        p->swap_file = swap_file;
-
+Are you sure that you do not have directory restriction
+on your directory, and that you are not running some ipxripd which
+could remove route to server from your routing tables?
+                                                Best regards,
+                                                    Petr Vandrovec
+                                                    vandrove@vc.cvut.cz
+                                                    
+P.S.: It is possible to create 2GB file full of data on ncpfs with 2.4.17, 
+or 4GB file with few patches here...

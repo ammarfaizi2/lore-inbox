@@ -1,46 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135378AbRDRVsj>; Wed, 18 Apr 2001 17:48:39 -0400
+	id <S135386AbRDRVvj>; Wed, 18 Apr 2001 17:51:39 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135380AbRDRVsa>; Wed, 18 Apr 2001 17:48:30 -0400
-Received: from fmfdns02.fm.intel.com ([132.233.247.11]:15325 "EHLO
-	thalia.fm.intel.com") by vger.kernel.org with ESMTP
-	id <S135378AbRDRVsM>; Wed, 18 Apr 2001 17:48:12 -0400
-Message-ID: <4148FEAAD879D311AC5700A0C969E89006CDDD9D@orsmsx35.jf.intel.com>
-From: "Grover, Andrew" <andrew.grover@intel.com>
-To: "'John Fremlin'" <chief@bandits.org>
-Cc: "'Simon Richter'" <Simon.Richter@phobos.fachschaften.tu-muenchen.de>,
-        "Acpi-PM (E-mail)" <linux-power@phobos.fachschaften.tu-muenchen.de>,
-        "'Pavel Machek'" <pavel@suse.cz>,
-        Andreas Ferber <aferber@techfak.uni-bielefeld.de>,
-        linux-kernel@vger.kernel.org
-Subject: RE: Let init know user wants to shutdown
-Date: Wed, 18 Apr 2001 14:46:16 -0700
+	id <S135389AbRDRVvT>; Wed, 18 Apr 2001 17:51:19 -0400
+Received: from leibniz.math.psu.edu ([146.186.130.2]:41715 "EHLO math.psu.edu")
+	by vger.kernel.org with ESMTP id <S135386AbRDRVvK>;
+	Wed, 18 Apr 2001 17:51:10 -0400
+Date: Wed, 18 Apr 2001 17:51:08 -0400 (EDT)
+From: Alexander Viro <viro@math.psu.edu>
+To: Erik Mouw <J.A.K.Mouw@ITS.TUDelft.NL>
+cc: Linux kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] proc_mknod() should check the mode parameter
+In-Reply-To: <20010418222826.N6985@arthur.ubicom.tudelft.nl>
+Message-ID: <Pine.GSO.4.21.0104181749060.15153-100000@weyl.math.psu.edu>
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> From: John Fremlin [mailto:chief@bandits.org]
-> [...]
+
+
+On Wed, 18 Apr 2001, Erik Mouw wrote:
+
+> Hi all,
 > 
-> > Fair enough. I don't think I would be out of line to say that our
-> > resources are focused on enabling full ACPI functionality for Linux,
-> > including a full-featured PM policy daemon. That said, I don't think
-> > there's anything precluding the use of another daemon (or whatever)
-> > from using the ACPI driver's interface.
-> 
-> ACPI != PM. I don't see why ACPI details should be exposed to PM
-> interface at all.
+> While documenting the procfs interface (more of that later), I came
+> across proc_mknod() which is supposed to be used to create devices in
+> the procfs. IMHO it should therefore check if the mode parameter
+> contains S_IFBLK or S_IFCHR.
 
-ACPI has by far the richest set of capabilities. It is a superset of APM.
-Therefore a combined APM/ACPI interface is going to look a lot like an ACPI
-interface.
-
-IMHO an abstracted interface at this point is overengineering. Maybe later
-it will make sense, though.
-
-Regards -- Andy
+Why? All callers of proc_mknod() are in the kernel and they should
+know better. I could understand
+	if (....)
+		BUG();
+but silently doing nothing is really odd.
 

@@ -1,68 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262373AbUKKW1M@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262374AbUKKWbL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262373AbUKKW1M (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 11 Nov 2004 17:27:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262374AbUKKW1L
+	id S262374AbUKKWbL (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 11 Nov 2004 17:31:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262376AbUKKWbL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 11 Nov 2004 17:27:11 -0500
-Received: from mail.il.fontys.nl ([145.85.127.32]:46035 "EHLO
-	mordor.il.fontys.nl") by vger.kernel.org with ESMTP id S262373AbUKKW1G
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 11 Nov 2004 17:27:06 -0500
-From: "Ed Schouten" <ed@il.fontys.nl>
-Date: Thu, 11 Nov 2004 23:23:21 +0100
-To: Florian Heinz <heinz@cronon-ag.de>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: a.out issue
-Message-ID: <20041111222321.GE15081@il.fontys.nl>
-References: <20041111220906.GA1670@dereference.de>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="hTiIB9CRvBOLTyqY"
-Content-Disposition: inline
-In-Reply-To: <20041111220906.GA1670@dereference.de>
-X-Message-Flag: Please upgrade your mailreader to Mozilla Thunderbird at http://www.mozilla.org/
-User-Agent: Mutt/1.5.6i
+	Thu, 11 Nov 2004 17:31:11 -0500
+Received: from fw.osdl.org ([65.172.181.6]:52461 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S262374AbUKKWbF (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 11 Nov 2004 17:31:05 -0500
+Date: Thu, 11 Nov 2004 14:30:45 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Len Brown <len.brown@intel.com>
+cc: Arnaldo Carvalho de Melo <acme@conectiva.com.br>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Natalie Protasevich <Natalie.Protasevich@UNISYS.com>
+Subject: Re: [PATCH] fix  platform_rename_gsi related ia32 build breakage
+In-Reply-To: <1100211749.5510.753.camel@d845pe>
+Message-ID: <Pine.LNX.4.58.0411111427050.2301@ppc970.osdl.org>
+References: <4192A959.9020806@conectiva.com.br>  <4192A9BF.2080606@conectiva.com.br>
+ <4192ADF4.1050907@conectiva.com.br>  <Pine.LNX.4.58.0411101621020.2301@ppc970.osdl.org>
+ <1100211749.5510.753.camel@d845pe>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---hTiIB9CRvBOLTyqY
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
 
-Hello Florian,
+On Thu, 11 Nov 2004, Len Brown wrote:
+> 
+> I used a function pointer here because the same kernel binary must be
+> able to run on an ES7000 or a non-ES7000, so the compile-time inline
+> idiom doesn't work. 
 
-On Thu 11 Nov 2004 11:09 PM, Florian Heinz wrote:
-> try executing this binary:
-> perl -e'print"\x07\x01".("\x00"x13)."\xc0".("\x00"x16)'>eout
-> (it may be neccessary to turn memory overcommit on before)
->=20
-> This should result in a kernel-oops.
-> Doing this in a loop will eat fd's and memory.
+Sure it does. Do something like this in a header file
 
-No oops over here:
+	static inline int translate_irq_number(...)
+	{
+		#ifdef CONFIG_ACPI_BOOT
+			return fn_ptr_xxx();
+		#else
+			return irq;
+		#endif
+	}
 
-Linux penguin 2.6.9 #1 SMP Wed Oct 20 16:11:52 CEST 2004 i686 AMD Athlon(tm=
-) MP 2200+ AuthenticAMD GNU/Linux
+which means that yes, it uses the function pointer when it is meaningful, 
+but if there is no point, the code just goes away.
 
-Yours sincerely,
---=20
- Ed Schouten <ed@il.fontys.nl>
- Website: http://g-rave.nl/
- GPG key: finger ed@il.fontys.nl
+> If you read this far and have suggestions for a more descriptive name
+> than platform_rename_gsi(), just let me know.
 
---hTiIB9CRvBOLTyqY
-Content-Type: application/pgp-signature
-Content-Disposition: inline
+At _least_ write out what the hell "gsi" is.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.6 (GNU/Linux)
+TLA's are bad. "gsi" apparently isn't the Geological Survey of Ireland, 
+but that's all I can tell from google.
 
-iD8DBQFBk+ZZyx16ydahrz4RAr8MAKCoD8hlkt52nssm4utj9gilwO9FMgCgrM0I
-e+dLPDO5topQY5Tnj++wuls=
-=2ZCj
------END PGP SIGNATURE-----
-
---hTiIB9CRvBOLTyqY--
+		Linus

@@ -1,44 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264382AbTLBUhs (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 2 Dec 2003 15:37:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264363AbTLBUey
+	id S264345AbTLBUxl (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 2 Dec 2003 15:53:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264369AbTLBUxl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 2 Dec 2003 15:34:54 -0500
-Received: from mail3.ithnet.com ([217.64.64.7]:33941 "HELO
-	heather-ng.ithnet.com") by vger.kernel.org with SMTP
-	id S264352AbTLBUcb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 2 Dec 2003 15:32:31 -0500
-X-Sender-Authentication: net64
-Date: Tue, 2 Dec 2003 21:32:28 +0100
-From: Stephan von Krawczynski <skraw@ithnet.com>
-To: gene.heskett@verizon.net
-Cc: torvalds@osdl.org, jbglaw@lug-owl.de, linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.4 future
-Message-Id: <20031202213228.5747cbfe.skraw@ithnet.com>
-In-Reply-To: <200312021439.52933.gene.heskett@verizon.net>
-References: <Pine.LNX.4.44.0312011212090.13692-100000@logos.cnet>
-	<20031202184513.GU16507@lug-owl.de>
-	<Pine.LNX.4.58.0312021101440.1519@home.osdl.org>
-	<200312021439.52933.gene.heskett@verizon.net>
-Organization: ith Kommunikationstechnik GmbH
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Tue, 2 Dec 2003 15:53:41 -0500
+Received: from mx1.verat.net ([217.26.64.139]:43725 "EHLO mx1.verat.net")
+	by vger.kernel.org with ESMTP id S264345AbTLBUxh (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 2 Dec 2003 15:53:37 -0500
+From: snpe <snpe@snpe.co.yu>
+To: Wilmer van der Gaast <lintux@lintux.cx>, Patrick McHardy <kaber@trash.net>
+Subject: Re: 2.4.23 masquerading broken?
+Date: Tue, 2 Dec 2003 20:18:03 +0000
+User-Agent: KMail/1.5.2
+Cc: linux-kernel@vger.kernel.org,
+       Netfilter Development Mailinglist 
+	<netfilter-devel@lists.netfilter.org>
+References: <20031202165653.GJ615@gaast.net> <3FCCCB02.5070203@trash.net> <20031202173358.GK615@gaast.net>
+In-Reply-To: <20031202173358.GK615@gaast.net>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200312022018.03078.snpe@snpe.co.yu>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2 Dec 2003 14:39:52 -0500
-Gene Heskett <gene.heskett@verizon.net> wrote:
+It work for me
+(2.4.23 with linux abi, gcc 3.2 from RedHat 8.0 - netfilter like modules)
+regards
+Haris Peco
+On Tuesday 02 December 2003 05:33 pm, Wilmer van der Gaast wrote:
+> Patrick McHardy (kaber@trash.net) wrote:
+> > Can you check the ringbuffer for error messages ? What happens
+> > to the packets when masquerading fails ?
+>
+> Hmm. Damn, forgot about the syslogs completely. :-(
+>
+> Dec  2 16:42:30 tosca kernel: MASQUERADE: Route sent us somewhere else.
+> Dec  2 16:42:44 tosca last message repeated 11 times
+> Dec  2 16:42:47 tosca kernel: NET: 1 messages suppressed.
+> Dec  2 16:42:47 tosca kernel: MASQUERADE: Route sent us somewhere else.
+> Dec  2 16:42:51 tosca kernel: NET: 5 messages suppressed.
+> Dec  2 16:42:51 tosca kernel: MASQUERADE: Route sent us somewhere else.
+> Dec  2 16:42:57 tosca kernel: NET: 4 messages suppressed.
+> Dec  2 16:42:57 tosca kernel: MASQUERADE: Route sent us somewhere else.
+>
+> And, well, it goes on like that. dmesg is full of messages like this.
+>
+> The packages seem to get lost completely. At least I don't see them
+> going out on eth1 (where they should go to).
+>
+>
+> Wilmer van der Gaast.
 
-> [...]
-> Its not your emails (as Linus) to nvidia that will fix that, but a 
-> concerted effort, emailing them for a resolution from everyone who 
-> owns one of their products _might_ eventually make a difference.
-
-Make the difference yourself: don't buy such products. I stopped some time ago
-and I am very happy with _my choice_, not relying on theirs'.
-
-Regards,
-Stephan

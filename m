@@ -1,91 +1,64 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131111AbRCGXOI>; Wed, 7 Mar 2001 18:14:08 -0500
+	id <S131236AbRCGXb7>; Wed, 7 Mar 2001 18:31:59 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131198AbRCGXN6>; Wed, 7 Mar 2001 18:13:58 -0500
-Received: from horus.its.uow.edu.au ([130.130.68.25]:20879 "EHLO
-	horus.its.uow.edu.au") by vger.kernel.org with ESMTP
-	id <S131111AbRCGXNp>; Wed, 7 Mar 2001 18:13:45 -0500
-Message-ID: <3AA6C080.99D35298@uow.edu.au>
-Date: Wed, 07 Mar 2001 23:13:04 +0000
-From: Andrew Morton <andrewm@uow.edu.au>
-X-Mailer: Mozilla 4.61 [en] (X11; I; Linux 2.4.1-pre10 i686)
-X-Accept-Language: en
+	id <S131237AbRCGXbk>; Wed, 7 Mar 2001 18:31:40 -0500
+Received: from mizar.cs.uml.edu ([129.63.32.36]:3844 "EHLO mizar.cs.uml.edu")
+	by vger.kernel.org with ESMTP id <S131236AbRCGXb2>;
+	Wed, 7 Mar 2001 18:31:28 -0500
+From: "Albert D. Cahalan" <acahalan@cs.uml.edu>
+Message-Id: <200103072330.f27NU6w01196@mizar.cs.uml.edu>
+Subject: Re: Process vs. Threads
+To: helgehaf@idb.hist.no (Helge Hafting)
+Date: Wed, 7 Mar 2001 18:30:06 -0500 (EST)
+Cc: greg@linuxpower.cx (Gregory Maxwell), linux-kernel@vger.kernel.org
+In-Reply-To: <3AA5F8E1.AC570516@idb.hist.no> from "Helge Hafting" at Mar 07, 2001 10:01:21 AM
+X-Mailer: ELM [version 2.5 PL2]
 MIME-Version: 1.0
-To: Jeff Garzik <jgarzik@mandrakesoft.com>
-CC: Linux Knernel Mailing List <linux-kernel@vger.kernel.org>,
-        Linus Torvalds <torvalds@transmeta.com>, Alan Cox <alan@redhat.com>,
-        "David S. Miller" <davem@redhat.com>, netdev@oss.sgi.com,
-        Arjan van de Ven <arjan@fenrus.demon.nl>
-Subject: Re: [PATCH] RFC: fix ethernet device initialization
-In-Reply-To: <3AA6A570.57FF2D36@mandrakesoft.com>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jeff Garzik wrote:
-> 
-> People from time to time point out a wart in ethernet initialization:
-> 
+Helge Hafting writes:
+> Gregory Maxwell wrote:
 
-They sure do.  You were away at the time, but I had a 94 file,
-140k patch late last year which fixed all this.  It's
-at
+>> There are no threads in Linux.
+>> All tasks are processes.
+>> Processes can share any or none of a vast set of resources.
+>
+> Is there a way a user program can find out what resources 
+> are shared among which processes? 
+>
+> That would allow enhancing ps, top, etc to
+> report memory usage correctly.
 
-	http://www.uow.edu.au/~andrewm/linux/netdevice.patch
+I already looked into this. Sorry, it can not be done.
 
-and the design doc is at
+Linux briefly had the code needed to support threads properly.
+Linus added it with the warning that it would be removed if he
+didn't get enough feedback. Well I have a real job, and the code
+was gone before the weekend! Look around near 2.4.0-test8 maybe.
 
-	http://www.uow.edu.au/~andrewm/linux/netdevice2.txt
+For proper thread support:
 
->From a quick look, I think the only substantive difference
-here is that my `prepare_etherdev()' function allocates
-and reserves the device's name (eth0), but prevents it
-from being available in netdevice namespace lookups.  This
-was done because lots of drivers wanted to do:
+First you need the concept of a thread group. This groups tasks
+together similar to the way they form process groups and sessions.
 
-	init_etherdev();	(Replaced with prepare_etherdev())
-	printk("%s: something", dev->name);
+Then for proper POSIX thread support, you need a flag to indicate
+some awkward POSIX-mandated signal behavior within a thread group.
 
-The changes to dev.c and net_init.c were fairly subtle
-and took some thinking about - we should revisit them
-if you want to go ahead with this.
+Then for proper ps and top output, you need a reasonably efficient
+way to grab all threads as a group. This could be as simple as
+ensuring that /proc directory reads return related tasks together.
+This works too:   /proc/42/threads/98 -> ../../98
 
-The patch all worked OK, was back-compatible with unaltered
-drivers, and indeed altered all the drivers.  But it kind of
-got lost.  Too big, too late and dev_probe_lock() was there.
+Severely non-POSIX threads are just not going to do anything sane,
+unless thread groups get automatically wrapped around any threads
+that share resources. So if 50 shares memory with 67, and 50 shares
+the filesystem with 82, then 67 and 82 are non-POSIX threads of the
+same non-POSIX process even if they share nothing with each other.
 
-Now, Arjan says that this race is causing oopses.  This
-surprises me, because current kernels have the the dev_probe_lock()
-hack which I put in.  This fixes the problem for PCI and Cardbus
-drivers. The ISA drivers generally use the dev->init() technique
-which is not racy.  There isn't a lot left over.  Arjan?  Which driver?
-
-The other reason I'm surprised that it's causing oopses: most
-racy drivers do this:
-
-xxx_probe()
-{
-	init_etherdev();
-	<initialisation - takes 10s of milliseconds and can sleep>
-	dev->open = xxx_open;
-	return;
-}
-
-So the vastly most probably failure mode if the race occurs 
-is this: the interface is opened while dev->open is NULL.
-This won't oops.  Sure, the interface is screwed because
-the open() routine hasn't been called, but it should hang
-in there.  A subsequent close() of the interface *will*
-call dev->close, and I guess the driver is likely to get
-upset if its close() routine is called without a corresponding
-open().
-
-Yes, we can fix this if we want, and kill off dev_probe_lock().
-It'll only take a few days.  Do we want?  If not, we can
-extend the dev_probe_lock() thing to cover probes for
-other busses.  USB, I guess.
-
-
--
+Automatic wrapping works much better, assuming it doesn't also cause
+the awkward POSIX signal behavior by default. Tasks should need to
+explicitly request the extra suffering.

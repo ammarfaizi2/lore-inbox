@@ -1,66 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266200AbUIIVUV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266292AbUIIV1X@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266200AbUIIVUV (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Sep 2004 17:20:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267625AbUIIVUG
+	id S266292AbUIIV1X (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Sep 2004 17:27:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267588AbUIIVQ6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Sep 2004 17:20:06 -0400
-Received: from fw.osdl.org ([65.172.181.6]:24795 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S266200AbUIIVFg (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Sep 2004 17:05:36 -0400
-Date: Thu, 9 Sep 2004 14:05:11 -0700
-From: Chris Wright <chrisw@osdl.org>
-To: Stephen Smalley <sds@epoch.ncsc.mil>,
-       William Lee Irwin III <wli@holomorphy.com>,
-       Andrew Morton <akpm@osdl.org>, lkml <linux-kernel@vger.kernel.org>,
-       Albert Cahalan <albert@users.sourceforge.net>,
-       "Martin J. Bligh" <mbligh@aracnet.com>, Paul Jackson <pj@sgi.com>,
-       James Morris <jmorris@redhat.com>, Chris Wright <chrisw@osdl.org>
-Subject: Re: [1/1][PATCH] nproc v2: netlink access to /proc information
-Message-ID: <20040909140511.D1924@build.pdx.osdl.net>
-References: <20040908184130.GA12691@k3.hellgate.ch> <1094730811.22014.8.camel@moss-spartans.epoch.ncsc.mil> <20040909172200.GX3106@holomorphy.com> <20040909175342.GA27518@k3.hellgate.ch> <1094760065.22014.328.camel@moss-spartans.epoch.ncsc.mil> <20040909205531.GA17088@k3.hellgate.ch>
+	Thu, 9 Sep 2004 17:16:58 -0400
+Received: from the-village.bc.nu ([81.2.110.252]:16556 "EHLO
+	localhost.localdomain") by vger.kernel.org with ESMTP
+	id S267625AbUIIVMd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 9 Sep 2004 17:12:33 -0400
+Subject: Re: [patch] voluntary-preempt-2.6.9-rc1-bk12-R6
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Ingo Molnar <mingo@elte.hu>, rlrevell@joe-job.com,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       felipe_alfaro@linuxmail.org, mista.tapas@gmx.net, kr@cybsft.com,
+       Mark_H_Johnson@Raytheon.com
+In-Reply-To: <20040909130526.2b015999.akpm@osdl.org>
+References: <20040903120957.00665413@mango.fruits.de>
+	 <20040904195141.GA6208@elte.hu> <20040905140249.GA23502@elte.hu>
+	 <20040906110626.GA32320@elte.hu>
+	 <1094626562.1362.99.camel@krustophenia.net> <20040909192924.GA1672@elte.hu>
+	 <20040909130526.2b015999.akpm@osdl.org>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Message-Id: <1094760584.15210.1.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20040909205531.GA17088@k3.hellgate.ch>; from rl@hellgate.ch on Thu, Sep 09, 2004 at 10:55:31PM +0200
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
+Date: Thu, 09 Sep 2004 21:09:57 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Roger Luethi (rl@hellgate.ch) wrote:
-> On Thu, 09 Sep 2004 16:01:06 -0400, Stephen Smalley wrote:
-> > > For the same reason, I'm not comfortable with implementing SELinux type
-> > > access controls myself. How about:
-> > > 
-> > > config NPROC
-> > > 	depends on !SECURITY_SELINUX
-> > > 
-> > > Adding access control later won't be a problem for anyone who groks
-> > > SELinux.
-> > 
-> [...]
-> > Most obvious place to hook would be nproc_ps_get_task; we could then
-> > perform a check based on the sender's credentials and the target task's
-> > credentials, and simply return NULL if permission is not granted for
-> > that pair, thus skipping that task as if it didn't exist.  That requires
-> > propagating the sender's credentials down to that function.
-> > 
-> > Untested patch below.
+On Iau, 2004-09-09 at 21:05, Andrew Morton wrote:
+> I did a patch a while back which switches the swapspace allocator over to
+> perform program-virtual-address clustering, but it didn't help much in
+> brief testing and I haven't got back onto it.
 > 
-> I used a somewhat different approach in my development tree (not
-> SELinuxy, though): Most fields were world readable, some required
-> credentials.
-> 
-> I don't have any strong feelings on access control, so I'd be happy
-> with any mechanism that doesn't completely botch performance. Anyway,
-> I do not consider lack of access controls to be a showstopper.
+> And contrary to my above assertion, I don't think it'll help latency ;)
 
-Some of these things become quite sensitive, esp across setuid, etc.
-For prototyping, I agree, not a showstopper.  For merging, it should be
-figured out properly.
+I would still expect the only thing to materially improve swap latency
+to be a log structured swap, possibly with a cleaner which tidies
+together pages that are referenced together.
 
-thanks,
--chris
--- 
-Linux Security Modules     http://lsm.immunix.org     http://lsm.bkbits.net
+
+You also want contiguous runs of at least 64K and probaly a lot more on
+bigger memory systems. 
+

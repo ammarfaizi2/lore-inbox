@@ -1,233 +1,88 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264668AbUGIOEV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264677AbUGIOGk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264668AbUGIOEV (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 Jul 2004 10:04:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264677AbUGIOEV
+	id S264677AbUGIOGk (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 Jul 2004 10:06:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264693AbUGIOGk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 Jul 2004 10:04:21 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:54951 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S264665AbUGIOD5 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 Jul 2004 10:03:57 -0400
-Date: Fri, 9 Jul 2004 10:01:47 -0400
-Message-Id: <200407091401.i69E1lUf005545@redrum.boston.redhat.com>
-From: Peter Martuccelli <peterm@redhat.com>
-To: davidm@hpl.hp.com
-Cc: akpm@osdl.org, faith@redhat.com, linux-ia64@vger.kernel.org,
-       linux-kernel@vger.kernel.org, ray.lanza@hp.com, peterm@redhat.com
-Subject: [PATCH] Updated IA64 audit support
+	Fri, 9 Jul 2004 10:06:40 -0400
+Received: from wavehammer.waldi.eu.org ([82.139.196.55]:11209 "EHLO
+	wavehammer.waldi.eu.org") by vger.kernel.org with ESMTP
+	id S264677AbUGIOGg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 9 Jul 2004 10:06:36 -0400
+Date: Fri, 9 Jul 2004 16:06:30 +0200
+From: Bastian Blank <bastian@waldi.eu.org>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Linux Kernel ML <linux-kernel@vger.kernel.org>
+Subject: [PATCH] s390 - mark IPv6 support for QETH as broken
+Message-ID: <20040709140630.GA27350@wavehammer.waldi.eu.org>
+Mail-Followup-To: Bastian Blank <bastian@waldi.eu.org>,
+	Andrew Morton <akpm@osdl.org>,
+	Linux Kernel ML <linux-kernel@vger.kernel.org>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="QKdGvSO+nmPlgiQ/"
+Content-Disposition: inline
+User-Agent: Mutt/1.5.6+20040523i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-Hello David,
+--QKdGvSO+nmPlgiQ/
+Content-Type: multipart/mixed; boundary="7JfCtLOvnd9MIVvH"
+Content-Disposition: inline
 
-I updated the patch to use the IS_IA32_PROCESS() macro, and
-removed trailing white-space as requested.  Retested with the
-changes, no issues to report. An updated patch follows.  Let
-me know if there are any other issues.
 
-Please CC me directly with with any follow up posts.
+--7JfCtLOvnd9MIVvH
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Regards,
+Hi Andrew
 
-Peter
+The attached patch marks IPv6 support for QETH broken, it is known to
+need an extra patch to compile which was submitted one year ago but
+never accepted.
 
-diffstat:
- arch/ia64/ia32/ia32_entry.S    |    8 ++++---
- arch/ia64/kernel/entry.S       |   10 +++++----
- arch/ia64/kernel/ivt.S         |    7 ++++--
- arch/ia64/kernel/ptrace.c      |   42 +++++++++++++++++++++++++++++++++++++++--
- include/asm-ia64/thread_info.h |    5 +++-
- init/Kconfig                   |    2 -
- 6 files changed, 61 insertions(+), 13 deletions(-)
+Bastian
 
-diff -Naurp linux-2.6.7-pristine/arch/ia64/ia32/ia32_entry.S linux-2.6.7/arch/ia64/ia32/ia32_entry.S
---- linux-2.6.7-pristine/arch/ia64/ia32/ia32_entry.S	2004-06-16 16:32:05.000000000 -0400
-+++ linux-2.6.7/arch/ia64/ia32/ia32_entry.S	2004-07-07 14:11:34.000000000 -0400
-@@ -110,7 +110,9 @@ GLOBAL_ENTRY(ia32_ret_from_clone)
- 	ld4 r2=[r2]
- 	;;
- 	mov r8=0
--	tbit.nz p6,p0=r2,TIF_SYSCALL_TRACE
-+	and r2=_TIF_SYSCALL_TRACEAUDIT,r2
-+	;;
-+	cmp.ne p6,p0=r2,r0
- (p6)	br.cond.spnt .ia32_strace_check_retval
- 	;;					// prevent RAW on r8
- END(ia32_ret_from_clone)
-@@ -142,7 +144,7 @@ GLOBAL_ENTRY(ia32_trace_syscall)
- 	adds r2=IA64_PT_REGS_R8_OFFSET+16,sp
- 	;;
- 	st8 [r2]=r3				// initialize return code to -ENOSYS
--	br.call.sptk.few rp=syscall_trace	// give parent a chance to catch syscall args
-+	br.call.sptk.few rp=syscall_trace_enter	// give parent a chance to catch syscall args
- .ret2:	// Need to reload arguments (they may be changed by the tracing process)
- 	adds r2=IA64_PT_REGS_R1_OFFSET+16,sp	// r2 = &pt_regs.r1
- 	adds r3=IA64_PT_REGS_R13_OFFSET+16,sp	// r3 = &pt_regs.r13
-@@ -170,7 +172,7 @@ GLOBAL_ENTRY(ia32_trace_syscall)
- 	adds r2=IA64_PT_REGS_R8_OFFSET+16,sp	// r2 = &pt_regs.r8
- 	;;
- 	st8.spill [r2]=r8			// store return value in slot for r8
--	br.call.sptk.few rp=syscall_trace	// give parent a chance to catch return value
-+	br.call.sptk.few rp=syscall_trace_leave	// give parent a chance to catch return value
- .ret4:	alloc r2=ar.pfs,0,0,0,0			// drop the syscall argument frame
- 	br.cond.sptk.many ia64_leave_kernel
- END(ia32_trace_syscall)
-diff -Naurp linux-2.6.7-pristine/arch/ia64/kernel/entry.S linux-2.6.7/arch/ia64/kernel/entry.S
---- linux-2.6.7-pristine/arch/ia64/kernel/entry.S	2004-06-16 16:32:05.000000000 -0400
-+++ linux-2.6.7/arch/ia64/kernel/entry.S	2004-07-07 14:11:34.000000000 -0400
-@@ -506,7 +506,7 @@ GLOBAL_ENTRY(ia64_trace_syscall)
- 	;;
-  	stf.spill [r16]=f10
-  	stf.spill [r17]=f11
--	br.call.sptk.many rp=syscall_trace // give parent a chance to catch syscall args
-+	br.call.sptk.many rp=syscall_trace_enter // give parent a chance to catch syscall args
- 	adds r16=PT(F6)+16,sp
- 	adds r17=PT(F7)+16,sp
- 	;;
-@@ -546,7 +546,7 @@ GLOBAL_ENTRY(ia64_trace_syscall)
- .strace_save_retval:
- .mem.offset 0,0; st8.spill [r2]=r8		// store return value in slot for r8
- .mem.offset 8,0; st8.spill [r3]=r10		// clear error indication in slot for r10
--	br.call.sptk.many rp=syscall_trace // give parent a chance to catch return value
-+	br.call.sptk.many rp=syscall_trace_leave // give parent a chance to catch return value
- .ret3:	br.cond.sptk ia64_leave_syscall
- 
- strace_error:
-@@ -573,7 +573,7 @@ GLOBAL_ENTRY(ia64_strace_leave_kernel)
- 	 */
- 	nop.m 0
- 	nop.i 0
--	br.call.sptk.many rp=syscall_trace // give parent a chance to catch return value
-+	br.call.sptk.many rp=syscall_trace_leave // give parent a chance to catch return value
- }
- .ret4:	br.cond.sptk ia64_leave_kernel
- END(ia64_strace_leave_kernel)
-@@ -599,7 +599,9 @@ GLOBAL_ENTRY(ia64_ret_from_clone)
- 	ld4 r2=[r2]
- 	;;
- 	mov r8=0
--	tbit.nz p6,p0=r2,TIF_SYSCALL_TRACE
-+	and r2=_TIF_SYSCALL_TRACEAUDIT,r2
-+	;;
-+	cmp.ne p6,p0=r2,r0
- (p6)	br.cond.spnt .strace_check_retval
- 	;;					// added stop bits to prevent r8 dependency
- END(ia64_ret_from_clone)
-diff -Naurp linux-2.6.7-pristine/arch/ia64/kernel/ivt.S linux-2.6.7/arch/ia64/kernel/ivt.S
---- linux-2.6.7-pristine/arch/ia64/kernel/ivt.S	2004-06-16 16:32:05.000000000 -0400
-+++ linux-2.6.7/arch/ia64/kernel/ivt.S	2004-07-07 14:11:34.000000000 -0400
-@@ -752,7 +752,9 @@ ENTRY(break_fault)
- 	;;
- 	ld4 r2=[r2]				// r2 = current_thread_info()->flags
- 	;;
--	tbit.z p8,p0=r2,TIF_SYSCALL_TRACE
-+	and r2=_TIF_SYSCALL_TRACEAUDIT,r2	// mask trace or audit
-+	;;
-+	cmp.eq p8,p0=r2,r0
- 	mov b6=r20
- 	;;
- (p8)	br.call.sptk.many b6=b6			// ignore this return addr
-@@ -1573,10 +1575,11 @@ ENTRY(dispatch_to_ia32_handler)
- 	ld4 r2=[r2]		// r2 = current_thread_info()->flags
- 	;;
- 	ld8 r16=[r16]
--	tbit.z p8,p0=r2,TIF_SYSCALL_TRACE
-+	and r2=_TIF_SYSCALL_TRACEAUDIT,r2	// mask trace or audit
- 	;;
- 	mov b6=r16
- 	movl r15=ia32_ret_from_syscall
-+	cmp.eq p8,p0=r2,r0
- 	;;
- 	mov rp=r15
- (p8)	br.call.sptk.many b6=b6
-diff -Naurp linux-2.6.7-pristine/arch/ia64/kernel/ptrace.c linux-2.6.7/arch/ia64/kernel/ptrace.c
---- linux-2.6.7-pristine/arch/ia64/kernel/ptrace.c	2004-06-16 16:32:05.000000000 -0400
-+++ linux-2.6.7/arch/ia64/kernel/ptrace.c	2004-07-08 17:36:47.000000000 -0400
-@@ -1447,9 +1447,8 @@ sys_ptrace (long request, pid_t pid, uns
- 	return ret;
- }
- 
--/* "asmlinkage" so the input arguments are preserved... */
- 
--asmlinkage void
-+void
- syscall_trace (void)
- {
- 	if (!test_thread_flag(TIF_SYSCALL_TRACE))
-@@ -1472,3 +1471,42 @@ syscall_trace (void)
- 		current->exit_code = 0;
- 	}
- }
-+
-+/* "asmlinkage" so the input arguments are preserved... */
-+
-+asmlinkage void
-+syscall_trace_enter (long arg0, long arg1, long arg2, long arg3,
-+	  long arg4, long arg5, long arg6, long arg7, long stack)
-+{
-+	struct pt_regs *regs = (struct pt_regs *) &stack;
-+	long syscall;
-+
-+	if (unlikely(current->audit_context)) {
-+		if (IS_IA32_PROCESS(regs))
-+			syscall = regs->r1;
-+		else
-+			syscall = regs->r15;
-+
-+		audit_syscall_entry(current, syscall, arg0, arg1, arg2, arg3);
-+	}
-+
-+	if (test_thread_flag(TIF_SYSCALL_TRACE)
-+	    && (current->ptrace & PT_PTRACED))
-+		syscall_trace();
-+}
-+
-+/* "asmlinkage" so the input arguments are preserved... */
-+
-+asmlinkage void
-+syscall_trace_leave (long arg0, long arg1, long arg2, long arg3,
-+	  long arg4, long arg5, long arg6, long arg7, long stack)
-+{
-+	struct pt_regs *regs = (struct pt_regs *) &stack;
-+
-+	if (unlikely(current->audit_context))
-+		audit_syscall_exit(current, regs->r8);
-+
-+	if (test_thread_flag(TIF_SYSCALL_TRACE)
-+	    && (current->ptrace & PT_PTRACED))
-+		syscall_trace();
-+}
-diff -Naurp linux-2.6.7-pristine/include/asm-ia64/thread_info.h linux-2.6.7/include/asm-ia64/thread_info.h
---- linux-2.6.7-pristine/include/asm-ia64/thread_info.h	2004-06-16 16:32:09.000000000 -0400
-+++ linux-2.6.7/include/asm-ia64/thread_info.h	2004-07-07 14:11:34.000000000 -0400
-@@ -73,12 +73,15 @@ struct thread_info {
- #define TIF_SIGPENDING		1	/* signal pending */
- #define TIF_NEED_RESCHED	2	/* rescheduling necessary */
- #define TIF_SYSCALL_TRACE	3	/* syscall trace active */
-+#define TIF_SYSCALL_AUDIT	4	/* syscall auditing active */
- #define TIF_POLLING_NRFLAG	16	/* true if poll_idle() is polling TIF_NEED_RESCHED */
- 
- #define TIF_WORK_MASK		0x7	/* like TIF_ALLWORK_BITS but sans TIF_SYSCALL_TRACE */
--#define TIF_ALLWORK_MASK	0xf	/* bits 0..3 are "work to do on user-return" bits */
-+#define TIF_ALLWORK_MASK	0x1f	/* bits 0..4 are "work to do on user-return" bits */
- 
- #define _TIF_SYSCALL_TRACE	(1 << TIF_SYSCALL_TRACE)
-+#define _TIF_SYSCALL_AUDIT	(1 << TIF_SYSCALL_AUDIT)
-+#define _TIF_SYSCALL_TRACEAUDIT	(_TIF_SYSCALL_TRACE|_TIF_SYSCALL_AUDIT)
- #define _TIF_NOTIFY_RESUME	(1 << TIF_NOTIFY_RESUME)
- #define _TIF_SIGPENDING		(1 << TIF_SIGPENDING)
- #define _TIF_NEED_RESCHED	(1 << TIF_NEED_RESCHED)
-diff -Naurp linux-2.6.7-pristine/init/Kconfig linux-2.6.7/init/Kconfig
---- linux-2.6.7-pristine/init/Kconfig	2004-06-16 16:33:52.000000000 -0400
-+++ linux-2.6.7/init/Kconfig	2004-07-07 14:11:34.000000000 -0400
-@@ -149,7 +149,7 @@ config AUDIT
- 
- config AUDITSYSCALL
- 	bool "Enable system-call auditing support"
--	depends on AUDIT && (X86 || PPC64 || ARCH_S390)
-+	depends on AUDIT && (X86 || PPC64 || ARCH_S390 || IA64)
- 	default y if SECURITY_SELINUX
- 	default n
+--=20
+The heart is not a logical organ.
+		-- Dr. Janet Wallace, "The Deadly Years", stardate 3479.4
+
+--7JfCtLOvnd9MIVvH
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: attachment; filename=diff
+Content-Transfer-Encoding: quoted-printable
+
+diff -urN kernel-source-2.6.7.orig/drivers/s390/net/Kconfig kernel-source-2=
+=2E6.7/drivers/s390/net/Kconfig
+--- kernel-source-2.6.7.orig/drivers/s390/net/Kconfig	2004-06-16 05:19:53.0=
+00000000 +0000
++++ kernel-source-2.6.7/drivers/s390/net/Kconfig	2004-07-09 13:47:13.000000=
+000 +0000
+@@ -71,7 +71,7 @@
+=20
+ config QETH_IPV6
+ 	bool "IPv6 support for gigabit ethernet"
+-	depends on (QETH =3D IPV6) || (QETH && IPV6 =3D 'y')
++	depends on ((QETH =3D IPV6) || (QETH && IPV6 =3D 'y')) && BROKEN
  	help
+ 	  If CONFIG_QETH is switched on, this option will include IPv6
+ 	  support in the qeth device driver.
+
+--7JfCtLOvnd9MIVvH--
+
+--QKdGvSO+nmPlgiQ/
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+
+iEYEARECAAYFAkDupmYACgkQnw66O/MvCNEhhwCfXYgl8rLyTWgwBVY/BNq//qkl
+0FMAnAwUZHpLdk83k5hDlDt97/OWbKw9
+=ksx8
+-----END PGP SIGNATURE-----
+
+--QKdGvSO+nmPlgiQ/--

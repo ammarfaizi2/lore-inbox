@@ -1,44 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271125AbTHLVc7 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Aug 2003 17:32:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271140AbTHLVc7
+	id S271161AbTHLViM (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Aug 2003 17:38:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271177AbTHLViL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Aug 2003 17:32:59 -0400
-Received: from mail3.ithnet.com ([217.64.64.7]:25265 "HELO
-	heather-ng.ithnet.com") by vger.kernel.org with SMTP
-	id S271125AbTHLVc6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Aug 2003 17:32:58 -0400
-X-Sender-Authentication: SMTPafterPOP by <info@euro-tv.de> from 217.64.64.14
-Date: Tue, 12 Aug 2003 23:32:56 +0200
-From: Stephan von Krawczynski <skraw@ithnet.com>
-To: Lucas Correia Villa Real <lucasvr@gobolinux.org>
+	Tue, 12 Aug 2003 17:38:11 -0400
+Received: from galaxy.lunarpages.com ([64.235.234.165]:22977 "EHLO
+	galaxy.lunarpages.com") by vger.kernel.org with ESMTP
+	id S271161AbTHLViD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 12 Aug 2003 17:38:03 -0400
+Message-ID: <30027.165.89.84.90.1060724334.squirrel@www.genebrew.com>
+In-Reply-To: <20030812211816.GA22799@atrey.karlin.mff.cuni.cz>
+References: <3F3954EB.1080406@gmx.net> 
+     <20030812211816.GA22799@atrey.karlin.mff.cuni.cz>
+Date: Tue, 12 Aug 2003 17:38:54 -0400 (EDT)
+Subject: Re: Possible fix for NFORCE2 IDE hangups
+From: "Rahul Karnik" <rahul@genebrew.com>
+To: "Karel Kulhavy" <clock@atrey.karlin.mff.cuni.cz>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.4.21 + Reiserfs + NFS oops
-Message-Id: <20030812233256.21c80830.skraw@ithnet.com>
-In-Reply-To: <200308121440.24983.lucasvr@gobolinux.org>
-References: <200308121440.24983.lucasvr@gobolinux.org>
-Organization: ith Kommunikationstechnik GmbH
-X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+User-Agent: SquirrelMail/1.4.0
+MIME-Version: 1.0
+Content-Type: text/plain;charset=iso-8859-1
+X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
+X-AntiAbuse: Primary Hostname - galaxy.lunarpages.com
+X-AntiAbuse: Original Domain - vger.kernel.org
+X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
+X-AntiAbuse: Sender Address Domain - genebrew.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 12 Aug 2003 14:40:24 -0300
-Lucas Correia Villa Real <lucasvr@gobolinux.org> wrote:
 
-> Hi,
-> 
-> I have been trying to export an reiserfs partition on NFS. I can mount it 
-> remotely and even create files on it, but I always got a kernel oops when 
-> trying to remove any file. I have also tryied to export another partition, 
-> formatted as ext2 (but keeping my root fs as reiserfs), but the problem has 
-> persisted.
+>> Last weekend I disabled the use of the APIC (the system now uses XT-PIC)
+>> and this seems to fix the problem. The system ran stable with UDMA100
+>> enabled for the last 4 days.
+>
+> Did the famous "spurious interrupt" messages go away too?
 
-Have you tried to compile your kernel with another compiler (i.e. not gcc 3.2.X) ?
+Running without APIC here on an MSI board I still get that message. But I
+also get that same message on a bunch of different computers and it is not
+harmful, so I don't worry too much about it.
 
-Regards,
-Stephan
-
+Thanks,
+Rahul
+--
+Rahul Karnik
+rahul@genebrew.com

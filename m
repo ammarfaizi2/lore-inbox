@@ -1,50 +1,33 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262694AbTKPKqG (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 16 Nov 2003 05:46:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262695AbTKPKqG
+	id S262695AbTKPLOH (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 16 Nov 2003 06:14:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262705AbTKPLOH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 16 Nov 2003 05:46:06 -0500
-Received: from mail004.syd.optusnet.com.au ([211.29.132.145]:24989 "EHLO
-	mail004.syd.optusnet.com.au") by vger.kernel.org with ESMTP
-	id S262694AbTKPKqD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 16 Nov 2003 05:46:03 -0500
-Message-ID: <3FB75569.6040408@tudorejo.org>
-Date: Sun, 16 Nov 2003 21:46:01 +1100
-From: Tudor <tudor@tudorejo.org>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5) Gecko/20031024 Debian/1.5-2
-X-Accept-Language: en
-MIME-Version: 1.0
+	Sun, 16 Nov 2003 06:14:07 -0500
+Received: from attila.bofh.it ([213.92.8.2]:24783 "EHLO attila.bofh.it")
+	by vger.kernel.org with ESMTP id S262695AbTKPLOG (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 16 Nov 2003 06:14:06 -0500
+Date: Sun, 16 Nov 2003 12:13:56 +0100
+From: "Marco d'Itri" <md@Linux.IT>
 To: linux-kernel@vger.kernel.org
-Subject: Matrox Acceleration Probably_Just_Cosmetic Bug
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Subject: Re: irq 15: nobody cared! with KT600 chipset and 2.6.0-test9
+Message-ID: <20031116111356.GA2762@wonderland.linux.it>
+References: <20031115104328.GB1897@wonderland.linux.it>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20031115104328.GB1897@wonderland.linux.it>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi there,
+On Nov 15, Marco d'Itri <md@Linux.IT> wrote:
 
-Stewart Smith told me that this is where I report strange Linux Kernel bugs.
+ >This is an ASUS A7V600 motherboard.
+I verified that it works fine with a 2.4.x kernel.
 
-I'm running make menuconfig on 2.6.0-test9
-I've come across a strange cosmetic bug under:
-Device Drivers->Graphics Support
-
-If you select "Matrox Acceleration" either built in or as module there 
-are two options:
-- G100/G200/G400/G450/G500 support
-and
-- G100/G200/G400 support
-
-If you select the first, the second disappears.
-If you select the second, the first stays.
-
-I have a G400, so this is a bit confusing.
-
-Hope this helps somebody.  :-)
-
-Keep up the good work.
-
-Cheers,
-Tudor.
-
+-- 
+ciao, |
+Marco | [3076 ruo6xtkZ/r.TQ]

@@ -1,45 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277266AbRJDXuc>; Thu, 4 Oct 2001 19:50:32 -0400
+	id <S277275AbRJDXvm>; Thu, 4 Oct 2001 19:51:42 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277270AbRJDXuW>; Thu, 4 Oct 2001 19:50:22 -0400
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:44039 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S277266AbRJDXuK>; Thu, 4 Oct 2001 19:50:10 -0400
-Date: Thu, 4 Oct 2001 16:50:13 -0700 (PDT)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Mike Kravetz <kravetz@us.ibm.com>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: Context switch times
-In-Reply-To: <20011004164102.E1245@w-mikek2.des.beaverton.ibm.com>
-Message-ID: <Pine.LNX.4.33.0110041647130.975-100000@penguin.transmeta.com>
+	id <S277271AbRJDXvc>; Thu, 4 Oct 2001 19:51:32 -0400
+Received: from garrincha.netbank.com.br ([200.203.199.88]:26377 "HELO
+	netbank.com.br") by vger.kernel.org with SMTP id <S277270AbRJDXvM>;
+	Thu, 4 Oct 2001 19:51:12 -0400
+Date: Thu, 4 Oct 2001 20:51:21 -0300 (BRST)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: <riel@imladris.rielhome.conectiva>
+To: Roger Larsson <roger.larsson@skelleftea.mail.telia.com>
+Cc: <linux-kernel@vger.kernel.org>, Linus Torvalds <torvalds@transmeta.com>
+Subject: Re: [DATAPOINT] how max_readahead settings affect streaming throughput
+In-Reply-To: <200110042306.f94N69W22095@mailb.telia.com>
+Message-ID: <Pine.LNX.4.33L.0110042049450.4835-100000@imladris.rielhome.conectiva>
+X-spambait: aardvark@kernelnewbies.org
+X-spammeplease: aardvark@nl.linux.org
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, 5 Oct 2001, Roger Larsson wrote:
 
-On Thu, 4 Oct 2001, Mike Kravetz wrote:
+> I question the decision to use 124 kB as default read ahead maximum.
 
-> On Thu, Oct 04, 2001 at 10:42:37PM +0000, Linus Torvalds wrote:
-> > Could we try to hit just two? Probably, but it doesn't really matter,
-> > though: to make the lmbench scheduler benchmark go at full speed, you
-> > want to limit it to _one_ CPU, which is not sensible in real-life
-> > situations.
->
-> Can you clarify?  I agree that tuning the system for the best LMbench
-> performance is not a good thing to do!  However, in general on an
-> 8 CPU system with only 2 'active' tasks I would think limiting the
-> tasks to 2 CPUs would be desirable for cache effects.
+> The example cited was a FTP server serving 100 clients. With standard
+> readahead it would give 12.8 MB readahead
 
-Yes, limiting to 2 CPU's probably gets better cache behaviour, and it
-might be worth looking into why it doesn't. The CPU affinity _should_
-prioritize it down to two, but I haven't thought through your theory about
-IPI latency.
+	[snip]
 
-However, the reason 2.2.x does so well is that in 2.2.x it will stay on
-_once_ CPU if I remember correctly. We basically tuned the scheduler for
-lmbench, and not much else.
+Ideally the readahead code would scale itself to use as much
+memory is available, but no more and without putting pressure
+on the working set too much.
 
-		Linus
+I have some ideas on how to implement this and will start
+testing them as soon as I have a nice test program for this.
+
+regards,
+
+Rik
+-- 
+DMCA, SSSCA, W3C?  Who cares?  http://thefreeworld.net/  (volunteers needed)
+
+http://www.surriel.com/		http://distro.conectiva.com/
 

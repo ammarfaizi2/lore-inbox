@@ -1,41 +1,110 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269781AbUJMS42@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269786AbUJMTAW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269781AbUJMS42 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 13 Oct 2004 14:56:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269784AbUJMS42
+	id S269786AbUJMTAW (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 13 Oct 2004 15:00:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269790AbUJMTAR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 13 Oct 2004 14:56:28 -0400
-Received: from zcars04f.nortelnetworks.com ([47.129.242.57]:4784 "EHLO
-	zcars04f.nortelnetworks.com") by vger.kernel.org with ESMTP
-	id S269781AbUJMS41 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 13 Oct 2004 14:56:27 -0400
-Message-ID: <416D7A0E.50503@nortelnetworks.com>
-Date: Wed, 13 Oct 2004 12:55:10 -0600
-X-Sybari-Space: 00000000 00000000 00000000 00000000
-From: Chris Friesen <cfriesen@nortelnetworks.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040113
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Matthias Urlichs <smurf@smurf.noris.de>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: single linked list header in kernel?
-References: <416C1F48.4040407@nortelnetworks.com> <pan.2004.10.13.05.50.46.937470@smurf.noris.de> <416D4255.9080501@nortelnetworks.com> <pan.2004.10.13.18.25.41.367757@smurf.noris.de>
-In-Reply-To: <pan.2004.10.13.18.25.41.367757@smurf.noris.de>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Wed, 13 Oct 2004 15:00:17 -0400
+Received: from ts2-075.twistspace.com ([217.71.122.75]:21644 "EHLO entmoot.nl")
+	by vger.kernel.org with ESMTP id S269786AbUJMS6e (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 13 Oct 2004 14:58:34 -0400
+Subject: Re: waiting on a condition
+From: Martijn Sipkema <martijn@entmoot.nl>
+To: "Peter W. Morreale" <morreale@radiantdata.com>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <416D49FF.10003@radiantdata.com>
+References: <02bb01c4b138$8a786f10$161b14ac@boromir>
+	 <416D49FF.10003@radiantdata.com>
+Content-Type: text/plain
+Message-Id: <1097701040.4648.11.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Wed, 13 Oct 2004 22:58:43 +0200
 Content-Transfer-Encoding: 7bit
+X-MailScanner-Information: Please contact the ISP for more information
+X-MailScanner: Found to be clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Matthias Urlichs wrote:
+On Wed, 2004-10-13 at 17:30, Peter W. Morreale wrote:
+> Have you looked at the wait_event() family yet?       Adapting that 
+> methodolgy might
+> suit your needs.
 
-> I dunno, though -- open-coding a singly-linked list isn't that much of a
-> problem; compared to a doubly-linked one, there's simply fewer things that
-> can go horribly wrong. :-/
+wait_event() seems to be what I was looking for; I don't really like the
+condition being an argument.
 
-True.  This is likely why it hasn't yet been done.
+> I don't know much about preemption yet, however I suspect it would be a 
+> bug to allow
+> preemption while the spinlock was held.  In other words, you might need 
+> to do something like
+> 
+> disable preemption
+> spinlock
+> rc = condition
+> spin_unlock
+> enable preemption
+> if (rc)
+> ...
+> 
+> In other words, perform the test on the condition outside of the 
+> critical region protected by the spin lock.
 
-I wonder how many places use the double-linked lists because they're there, not 
-because they actually need them.  If its significant, there could be some space 
-savings due to only needing one pointer rather than two.
+Well, that wasn't what I meant exactly. I was looking for a standard
+way to wait on a condition so that it would still work when spinlocks
+are converted to mutexes such as these new RT patches seem to do;
+wait_event() seens to provide this, although I like to POSIX mutex/cond
+semantics better.
 
-Chris
+
+--ms
+
+
+P.S. I seem to have been removed from the LKML right after posting
+my question (it was the last message I received). Is there something
+terribly stupid I may have done? Was the question _that_ stupid?
+
+
+
+> -PWM
+> 
+> 
+> Martijn Sipkema wrote:
+> 
+> >L.S.
+> >
+> >I'd like to do something similar as can be done using a POSIX condition
+> >variable in the kernel, i.e. wait for some condition to become true. The
+> >pthread_cond_wait() function allows atomically unlocking a mutex and
+> >waiting on a condition. I think I should do something like:
+> >(the condition is updated from an interrupt handler)
+> >
+> >disable interrupts
+> >acquire spinlock
+> >if condition not satisfied
+> >    add task to wait queue
+> >    set task to sleep
+> >release spinlock
+> >restore interrupts
+> >schedule
+> >
+> >Now, this will only work with preemption disabled within the critical
+> >section. How would something like this be done whith preemption
+> >enabled?
+> >
+> >
+> >--ms
+> >
+> >
+> >
+> >
+> >-
+> >To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> >the body of a message to majordomo@vger.kernel.org
+> >More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> >Please read the FAQ at  http://www.tux.org/lkml/
+> >
+> >  
+> >
+

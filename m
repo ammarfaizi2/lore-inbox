@@ -1,39 +1,34 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261333AbTEAOme (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 May 2003 10:42:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261336AbTEAOme
+	id S261351AbTEAOoU (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 May 2003 10:44:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261355AbTEAOoU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 May 2003 10:42:34 -0400
-Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:33432
-	"EHLO lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
-	id S261333AbTEAOm3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 May 2003 10:42:29 -0400
-Subject: Re: Tyan 2466 SMP locks hard with 2.4.20 + heavy disk i/o yet runs
-	2.2.* without problems
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Dirk Eddelbuettel <edd@debian.org>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20030501135228.GA19643@sonny.eddelbuettel.com>
-References: <20030501135228.GA19643@sonny.eddelbuettel.com>
-Content-Type: text/plain
+	Thu, 1 May 2003 10:44:20 -0400
+Received: from relay02.valueweb.net ([216.219.253.236]:15850 "EHLO
+	relay02.valueweb.net") by vger.kernel.org with ESMTP
+	id S261351AbTEAOoT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 1 May 2003 10:44:19 -0400
+Message-ID: <3EB1358C.1020808@coyotegulch.com>
+Date: Thu, 01 May 2003 10:56:12 -0400
+From: Scott Robert Ladd <coyote@coyotegulch.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3) Gecko/20030430 Debian/1.3-5
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: /dev Questions
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Organization: 
-Message-Id: <1051797371.21446.12.camel@dhcp22.swansea.linux.org.uk>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
-Date: 01 May 2003 14:56:12 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Iau, 2003-05-01 at 14:52, Dirk Eddelbuettel wrote:
-> Performance under 2.4.20 with ext3 + win4lin patch
->   - "Stable" until disk-heavy operation causes freeze, typically within 
->     two to three days
->   - Heavy disk use (full backup writing, diff against big tarball, bonnie++) 
->     freeze the machine hard, no ping, no sign of live
->   + memtest86 shows no problem with the ram
+Why does /dev include devices that do not exist?
 
-If you don't have a PS/2 mouse plugged into the box add one. If that
-doens't help duplicate the crash without win4lin.
+Wouldn't it be friendlier to only list existing devices?
+
+Or am I missing something obvious?
+
+-- 
+Scott Robert Ladd
+Coyote Gulch Productions (http://www.coyotegulch.com)
 

@@ -1,72 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312938AbSHGV2A>; Wed, 7 Aug 2002 17:28:00 -0400
+	id <S313563AbSHGVgT>; Wed, 7 Aug 2002 17:36:19 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312558AbSHGV2A>; Wed, 7 Aug 2002 17:28:00 -0400
-Received: from zianet.com ([204.134.124.201]:33183 "HELO zianet.com")
-	by vger.kernel.org with SMTP id <S312938AbSHGV17>;
-	Wed, 7 Aug 2002 17:27:59 -0400
-Message-ID: <3D51940A.60805@zianet.com>
-Date: Wed, 07 Aug 2002 15:41:30 -0600
-From: kwijibo@zianet.com
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1b) Gecko/20020802
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Roland Kuhn <rkuhn@e18.physik.tu-muenchen.de>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: kernel BUG at tg3.c:1557
-References: <Pine.LNX.4.44.0208072149190.3705-100000@pc40.e18.physik.tu-muenchen.de>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S313087AbSHGVgT>; Wed, 7 Aug 2002 17:36:19 -0400
+Received: from rj.SGI.COM ([192.82.208.96]:4567 "EHLO rj.sgi.com")
+	by vger.kernel.org with ESMTP id <S313181AbSHGVgQ>;
+	Wed, 7 Aug 2002 17:36:16 -0400
+Date: Wed, 7 Aug 2002 14:39:49 -0700
+From: Jesse Barnes <jbarnes@sgi.com>
+To: Rik van Riel <riel@conectiva.com.br>
+Cc: linux-kernel@vger.kernel.org, jmacd@namesys.com, phillips@arcor.de,
+       rml@tech9.net
+Subject: Re: [PATCH] lock assertion macros for 2.5.30
+Message-ID: <20020807213949.GA27258@sgi.com>
+Mail-Followup-To: Rik van Riel <riel@conectiva.com.br>,
+	linux-kernel@vger.kernel.org, jmacd@namesys.com, phillips@arcor.de,
+	rml@tech9.net
+References: <20020807210855.GA27182@sgi.com> <Pine.LNX.4.44L.0208071814250.23404-100000@imladris.surriel.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.44L.0208071814250.23404-100000@imladris.surriel.com>
+User-Agent: Mutt/1.3.27i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ok, I just tried it with a 3GB file transfer, still
-held up.  Only thing I see different from what you have is
-I have it running on the Thunder 2468, I have one more 7850,
-and its just stock 2.4.19.  I think the big factor would be the 2466
-vs the 2468 however.  I believe they both have the same chipset.
+On Wed, Aug 07, 2002 at 06:21:07PM -0300, Rik van Riel wrote:
+> On Wed, 7 Aug 2002, Jesse Barnes wrote:
+> > macro worked before?  I could just remove all those checks in the scsi
+> > code I guess.
+> 
+> That would be a better option.
 
-Steve
+Ok.
 
-Roland Kuhn wrote:
+> The MUST_NOT_HOLD basically means the kernel will OOPS the
+> moment the lock is contended.
 
->On Wed, 7 Aug 2002 kwijibo@zianet.com wrote:
->
->  
->
->>I just tried this on a dual Athlon box with two 7850's in it
->>and a 3C996B-T as well.  Lucky for me though, this
->>error did not show up.  I transfered/received two 800MB files
->>to the RAID and it held up ok.  What driver version are you
->>using? Or even kernel version.
->>
->>    
->>
->Tyan Tiger (2466) v1.02
->3ware 7850 (software revision 7.5)
->3C996B-T (runs with 33Mhz, don't know why)
->2*Athlon MP 1900+
->kernel 2.4.19 vanilla
->
->The script to reproduce this copies simultanously from the disk to the 
->network and back. Be sure to really hit the disk: 800MB did not show the 
->error in my case, if all was in RAM.
->
->Ciao,
->					Roland
->
->+---------------------------+-------------------------+
->|    TU Muenchen            |                         |
->|    Physik-Department E18  |  Raum    3558           |
->|    James-Franck-Str.      |  Telefon 089/289-12592  |
->|    85747 Garching         |                         |
->+---------------------------+-------------------------+
->
->
->
->  
->
+I think those macros were intended to enforce lock ordering in the
+scsi layer (though I'm not sure).  At any rate, there are much better
+ways to enforce proper lock ordering, and the scsi layer could be
+updated when/if we get one.
 
+> If you want to detect lock recursion on the same CPU, I'd
+> suggest the following:
+> ...
 
+Of course, that's what the lockmetering code does, IIRC, but I think
+that's a feature for a seperate patch.
 
+Thanks,
+Jesse

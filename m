@@ -1,82 +1,70 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280165AbRJaLwC>; Wed, 31 Oct 2001 06:52:02 -0500
+	id <S280179AbRJaLzq>; Wed, 31 Oct 2001 06:55:46 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280177AbRJaLvv>; Wed, 31 Oct 2001 06:51:51 -0500
-Received: from firebird.planetinternet.be ([195.95.34.5]:19986 "EHLO
-	firebird.planetinternet.be") by vger.kernel.org with ESMTP
-	id <S280165AbRJaLvq>; Wed, 31 Oct 2001 06:51:46 -0500
-Date: Wed, 31 Oct 2001 12:52:05 +0100
-From: Kurt Roeckx <Q@ping.be>
-To: Ian Maclaine-cross <iml@ilm.mech.unsw.edu.au>
-Cc: linux-kernel@vger.kernel.org, Ian Maclaine-cross <iml@debian.org>
-Subject: Re: PROBLEM: Linux updates RTC secretly when clock synchronizes
-Message-ID: <20011031125204.A1126@ping.be>
-In-Reply-To: <20011031113312.A8738@ilm.mech.unsw.edu.au> <20011031020538.A354@ping.be> <20011031135507.A9129@ilm.mech.unsw.edu.au>
+	id <S280178AbRJaLzd>; Wed, 31 Oct 2001 06:55:33 -0500
+Received: from bartender.antefacto.net ([193.120.245.19]:8832 "EHLO
+	localhost.localdomain") by vger.kernel.org with ESMTP
+	id <S280179AbRJaLzW>; Wed, 31 Oct 2001 06:55:22 -0500
+Date: Wed, 31 Oct 2001 11:55:28 +0000
+From: "John P. Looney" <john@antefacto.com>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Linux Bared - Project
+Message-ID: <20011031115527.A2112@antefacto.com>
+Reply-To: john@antefacto.com
+Mail-Followup-To: linux-kernel@vger.kernel.org
+In-Reply-To: <3BDBB21F0003A917@iso2.vistocorporation.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="opJtzjQTFsWo+cga"
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20011031135507.A9129@ilm.mech.unsw.edu.au>; from iml@ilm.mech.unsw.edu.au on Wed, Oct 31, 2001 at 01:55:07PM +1100
+User-Agent: Mutt/1.3.16i
+In-Reply-To: <3BDBB21F0003A917@iso2.vistocorporation.com>; from linuxlist@visto.com on Tue, Oct 30, 2001 at 07:53:15PM -0800
+X-OS: Red Hat Linux 7.2/Linux 2.4.131afo
+X-URL: http://www.redbrick.dcu.ie/~valen
+X-GnuPG-publickey: http://www.redbrick.dcu.ie/~valen/public.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Oct 31, 2001 at 01:55:07PM +1100, Ian Maclaine-cross wrote:
-> On Wed, Oct 31, 2001 at 02:05:38AM +0100, Kurt Roeckx wrote:
-> > On Wed, Oct 31, 2001 at 11:33:12AM +1100, Ian Maclaine-cross wrote:
-> > > 
-> > > PROBLEM: Linux updates RTC secretly when clock synchronizes.
-> > > 
-> > > When /usr/sbin/ntpd synchronizes the Linux kernel (or system) clock
-> > > using the Network Time Protocol the kernel time is accurate to a few
-> > > milliseconds. Linux then sets the Real Time (or Hardware or CMOS)
-> > > Clock to this time at approximately 11 minute intervals. Typical RTCs
-> > > drift less than 10 s/day so rebooting causes only millisecond errors.
-> 
-> When the machine reboots from a power interruption Internet connection
-> may be unavailable (usual here). Ntpd can start synchronized to an RTC
-> but time is inaccurate because hwclock has not adjusted it. When
-> Internet connection reestablishes ntpd notices the time conflict and
-> terminates.  Human intervention or cron lines can run ntpdate and then
-> restart ntpd. This results in time of low quality.
 
-I'm not really sure about this, but I think you need a *high*
-offset, like in the order of an hour, before ntpd refused to
-adjust.  I know it happely does 5 minutes.
+--opJtzjQTFsWo+cga
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-> There are lots of high quality and cost hardware solutions.  The
-> solution in my first post was a very small kernel patch to add an
-> 11 minute update log so hwclock etc could adjust the time.  Any
-> comments on my patch?
+On Tue, Oct 30, 2001 at 07:53:15PM -0800, rohit prasad mentioned:
+> Hi,
+>=20
+>  That may be quite right but.=20
+> This is a project itself that I am required to work on and get Linux up a=
+n working with the barest minimum / the only required modules.
+> Any information about the way I could do that will be great
 
-Note that hwclock does not adjust the clock if the error is
-smaller than 1 second, or it already wrote to the RTC is the past 
-23 hours.
+ The "Linux from Scratch" project has detailed documentation on building
+minimal Linux systems.
 
-It would only help if your box was down for more then a day.  In
-that case it probably also drifted for more then a second.
+ http://www.linuxfromscratch.org/
 
-I don't know how to set up ntpd to synch to the RTC clock, but I
-doubt it would take the drift it has into account.
+Kate
 
-Also note that in case the kernel writes the time to the RTC
-clock, hwclock can't calculate the drift it has properly because
-it is calculated the time it writes to the RTC.
-
-What you probably want to do is disable the kernel writing the
-time to the RTC, and let hwclock do write the time to the RTC so
-it can calculate the drift properly, and adjust for it during
-startup.
-
-Ntpd will also adjust the frequency of the system clock, and you
-should get a reasonable accurate time.
+--=20
+_______________________________________
+John Looney             Chief Scientist
+a n t e f a c t o     t: +353 1 8586004
+www.antefacto.com     f: +353 1 8586014
 
 
-Btw: Last time I looked at it (util-linux-2.11h), the calculation
-of the driftfactor in hwclock was still pretty inaccurate.  I
-once did send patch for it, but it doesn't seem to be included.
-There also is an adjtime.patch included you could use.
+--opJtzjQTFsWo+cga
+Content-Type: application/pgp-signature
+Content-Disposition: inline
 
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.6 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
 
-Kurt
+iD8DBQE73+avYBVPvqzGrWgRAmDzAJ9uZXmz+3JZHz6eL4jhN09nKuctbACgqNCN
+8bG0AmpEo6gDHp58alNQJQs=
+=hyMT
+-----END PGP SIGNATURE-----
 
+--opJtzjQTFsWo+cga--

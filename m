@@ -1,49 +1,3005 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263595AbTDNSO1 (for <rfc822;willy@w.ods.org>); Mon, 14 Apr 2003 14:14:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263630AbTDNSO0 (for <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Apr 2003 14:14:26 -0400
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:58635 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id S263595AbTDNRs1 (for <rfc822;linux-kernel@vger.kernel.org>); Mon, 14 Apr 2003 13:48:27 -0400
-Date: Mon, 14 Apr 2003 11:00:27 -0700 (PDT)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Joel Becker <Joel.Becker@oracle.com>
-cc: Andries.Brouwer@cwi.nl, <akpm@digeo.com>, <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] kdevt-diff
-In-Reply-To: <20030414175141.GS4917@ca-server1.us.oracle.com>
-Message-ID: <Pine.LNX.4.44.0304141056450.19302-100000@home.transmeta.com>
+	id S263608AbTDNSEh (for <rfc822;willy@w.ods.org>); Mon, 14 Apr 2003 14:04:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263639AbTDNSEg (for <rfc822;linux-kernel-outgoing>);
+	Mon, 14 Apr 2003 14:04:36 -0400
+Received: from d12lmsgate-5.de.ibm.com ([194.196.100.238]:26348 "EHLO
+	d12lmsgate-5.de.ibm.com") by vger.kernel.org with ESMTP
+	id S263608AbTDNRpg (for <rfc822;linux-kernel@vger.kernel.org>); Mon, 14 Apr 2003 13:45:36 -0400
+From: Martin Schwidefsky <schwidefsky@de.ibm.com>
+Organization: IBM Deutschland GmbH
+To: linux-kernel@vger.kernel.org, torvalds@transmeta.com
+Subject: [PATCH] s390 (12/16): s390/s390x unification - part 3.
+Date: Mon, 14 Apr 2003 19:53:11 +0200
+User-Agent: KMail/1.5.1
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200304141953.11975.schwidefsky@de.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Merge s390x and s390 to one architecture.
 
-On Mon, 14 Apr 2003, Joel Becker wrote:
->
-> On Mon, Apr 14, 2003 at 12:45:36AM +0200, Andries.Brouwer@cwi.nl wrote:
-> > The structure here is 8+8, except when more bits are
-> > present, in which case it is 16+16, except when more bits
-> > are present, in which case it is 32+32.
-> 
-> 	Why complicate things?  Is it that bad?  We'd all have to know
-> about the mess when dealing with userspace.
+diffstat:
+ compat_signal.c  |  644 +++++++++++++++++++++++++++++
+ compat_wrapper.S | 1211 +++++++++++++++++++++++++++++++++++++++++++++++++++++++
+ cpcmd.c          |   47 +-
+ debug.c          |   14 
+ entry.S          |  269 ------------
+ entry64.S        |  710 ++++++++++++++++++++++++++++++++
+ 6 files changed, 2613 insertions(+), 282 deletions(-)
 
-Well, the thing is, we absolutely _do_ need to have the 8+8 split, in
-order to make old devices look the same old way for old binaries.
-
-And the 32+32 split is what the new maximum would be, so ..
-
-The 16+16 split is not strictly necessary, but Andries pointed out to me
-that there are filesystems etc external storage that only support a 32-bit
-opaque dev_t, so we'd need to marshall the device number _some_ way for
-them anyway, and having a standard way to do that is better than having
-everybody come up with their own variations.
-
-(My prefernce for the 32-bit version would be 12+20 bits, but it's not a
-very strong one, and it doesn't really matter for the kernel proper, so I
-think Andries who has been tirelessly working on this for five years or
-more gets the final say on it).
-
-		Linus
+diff -urN linux-2.5.67/arch/s390/kernel/compat_signal.c linux-2.5.67-s390/arch/s390/kernel/compat_signal.c
+--- linux-2.5.67/arch/s390/kernel/compat_signal.c	Thu Jan  1 01:00:00 1970
++++ linux-2.5.67-s390/arch/s390/kernel/compat_signal.c	Mon Apr 14 19:11:56 2003
+@@ -0,0 +1,644 @@
++/*
++ *  arch/s390/kernel/signal32.c
++ *
++ *  S390 version
++ *    Copyright (C) 2000 IBM Deutschland Entwicklung GmbH, IBM Corporation
++ *    Author(s): Denis Joseph Barrow (djbarrow@de.ibm.com,barrow_dj@yahoo.com)
++ *               Gerhard Tonn (ton@de.ibm.com)                  
++ *
++ *  Copyright (C) 1991, 1992  Linus Torvalds
++ *
++ *  1997-11-28  Modified for POSIX.1b signals by Richard Henderson
++ */
++
++#include <linux/config.h>
++#include <linux/compat.h>
++#include <linux/sched.h>
++#include <linux/mm.h>
++#include <linux/smp.h>
++#include <linux/smp_lock.h>
++#include <linux/kernel.h>
++#include <linux/signal.h>
++#include <linux/errno.h>
++#include <linux/wait.h>
++#include <linux/ptrace.h>
++#include <linux/unistd.h>
++#include <linux/stddef.h>
++#include <linux/tty.h>
++#include <linux/personality.h>
++#include <linux/binfmts.h>
++#include <asm/ucontext.h>
++#include <asm/uaccess.h>
++#include <asm/lowcore.h>
++#include "compat_linux.h"
++#include "compat_ptrace.h"
++
++#define _BLOCKABLE (~(sigmask(SIGKILL) | sigmask(SIGSTOP)))
++
++typedef struct 
++{
++	__u8 callee_used_stack[__SIGNAL_FRAMESIZE32];
++	struct sigcontext32 sc;
++	_sigregs32 sregs;
++	__u8 retcode[S390_SYSCALL_SIZE];
++} sigframe32;
++
++typedef struct 
++{
++	__u8 callee_used_stack[__SIGNAL_FRAMESIZE32];
++	__u8 retcode[S390_SYSCALL_SIZE];
++	struct siginfo32 info;
++	struct ucontext32 uc;
++} rt_sigframe32;
++
++asmlinkage int FASTCALL(do_signal(struct pt_regs *regs, sigset_t *oldset));
++
++int do_signal32(struct pt_regs *regs, sigset_t *oldset);
++
++int copy_siginfo_to_user32(siginfo_t32 *to, siginfo_t *from)
++{
++	int err;
++
++	if (!access_ok (VERIFY_WRITE, to, sizeof(siginfo_t32)))
++		return -EFAULT;
++
++	/* If you change siginfo_t structure, please be sure
++	   this code is fixed accordingly.
++	   It should never copy any pad contained in the structure
++	   to avoid security leaks, but must copy the generic
++	   3 ints plus the relevant union member.  
++	   This routine must convert siginfo from 64bit to 32bit as well
++	   at the same time.  */
++	err = __put_user(from->si_signo, &to->si_signo);
++	err |= __put_user(from->si_errno, &to->si_errno);
++	err |= __put_user((short)from->si_code, &to->si_code);
++	if (from->si_code < 0)
++		err |= __copy_to_user(&to->_sifields._pad, &from->_sifields._pad, SI_PAD_SIZE);
++	else {
++		switch (from->si_code >> 16) {
++		case __SI_KILL >> 16:
++			err |= __put_user(from->si_pid, &to->si_pid);
++			err |= __put_user(from->si_uid, &to->si_uid);
++			break;
++		case __SI_CHLD >> 16:
++			err |= __put_user(from->si_pid, &to->si_pid);
++			err |= __put_user(from->si_uid, &to->si_uid);
++			err |= __put_user(from->si_utime, &to->si_utime);
++			err |= __put_user(from->si_stime, &to->si_stime);
++			err |= __put_user(from->si_status, &to->si_status);
++			break;
++		case __SI_FAULT >> 16:
++			err |= __put_user((unsigned long) from->si_addr,
++					  &to->si_addr);
++			break;
++		case __SI_POLL >> 16:
++		case __SI_TIMER >> 16:
++			err |= __put_user(from->si_band, &to->si_band);
++			err |= __put_user(from->si_fd, &to->si_fd);
++			break;
++		default:
++			break;
++		/* case __SI_RT: This is not generated by the kernel as of now.  */
++		}
++	}
++	return err;
++}
++
++/*
++ * Atomically swap in the new signal mask, and wait for a signal.
++ */
++asmlinkage int
++sys32_sigsuspend(struct pt_regs * regs,int history0, int history1, old_sigset_t mask)
++{
++	sigset_t saveset;
++
++	mask &= _BLOCKABLE;
++	spin_lock_irq(&current->sighand->siglock);
++	saveset = current->blocked;
++	siginitset(&current->blocked, mask);
++	recalc_sigpending();
++	spin_unlock_irq(&current->sighand->siglock);
++	regs->gprs[2] = -EINTR;
++
++	while (1) {
++		set_current_state(TASK_INTERRUPTIBLE);
++		schedule();
++		if (do_signal32(regs, &saveset))
++			return -EINTR;
++	}
++}
++
++asmlinkage int
++sys32_rt_sigsuspend(struct pt_regs * regs,compat_sigset_t *unewset, size_t sigsetsize)
++{
++	sigset_t saveset, newset;
++	compat_sigset_t set32;
++
++	/* XXX: Don't preclude handling different sized sigset_t's.  */
++	if (sigsetsize != sizeof(sigset_t))
++		return -EINVAL;
++
++	if (copy_from_user(&set32, unewset, sizeof(set32)))
++		return -EFAULT;
++	switch (_NSIG_WORDS) {
++	case 4: newset.sig[3] = set32.sig[6] + (((long)set32.sig[7]) << 32);
++	case 3: newset.sig[2] = set32.sig[4] + (((long)set32.sig[5]) << 32);
++	case 2: newset.sig[1] = set32.sig[2] + (((long)set32.sig[3]) << 32);
++	case 1: newset.sig[0] = set32.sig[0] + (((long)set32.sig[1]) << 32);
++	}
++        sigdelsetmask(&newset, ~_BLOCKABLE);
++
++        spin_lock_irq(&current->sighand->siglock);
++        saveset = current->blocked;
++        current->blocked = newset;
++        recalc_sigpending();
++        spin_unlock_irq(&current->sighand->siglock);
++        regs->gprs[2] = -EINTR;
++
++        while (1) {
++                set_current_state(TASK_INTERRUPTIBLE);
++                schedule();
++                if (do_signal32(regs, &saveset))
++                        return -EINTR;
++        }
++}                                                         
++
++asmlinkage int
++sys32_sigaction(int sig, const struct old_sigaction32 *act,
++		 struct old_sigaction32 *oact)
++{
++        struct k_sigaction new_ka, old_ka;
++        int ret;
++
++        if (act) {
++		compat_old_sigset_t mask;
++		if (verify_area(VERIFY_READ, act, sizeof(*act)) ||
++		    __get_user((unsigned long)new_ka.sa.sa_handler, &act->sa_handler) ||
++		    __get_user((unsigned long)new_ka.sa.sa_restorer, &act->sa_restorer))
++			return -EFAULT;
++		__get_user(new_ka.sa.sa_flags, &act->sa_flags);
++		__get_user(mask, &act->sa_mask);
++		siginitset(&new_ka.sa.sa_mask, mask);
++        }
++
++        ret = do_sigaction(sig, act ? &new_ka : NULL, oact ? &old_ka : NULL);
++
++	if (!ret && oact) {
++		if (verify_area(VERIFY_WRITE, oact, sizeof(*oact)) ||
++		    __put_user((unsigned long)old_ka.sa.sa_handler, &oact->sa_handler) ||
++		    __put_user((unsigned long)old_ka.sa.sa_restorer, &oact->sa_restorer))
++			return -EFAULT;
++		__put_user(old_ka.sa.sa_flags, &oact->sa_flags);
++		__put_user(old_ka.sa.sa_mask.sig[0], &oact->sa_mask);
++        }
++
++	return ret;
++}
++
++int
++do_sigaction(int sig, const struct k_sigaction *act, struct k_sigaction *oact);
++
++asmlinkage long 
++sys32_rt_sigaction(int sig, const struct sigaction32 *act,
++	   struct sigaction32 *oact,  size_t sigsetsize)
++{
++	struct k_sigaction new_ka, old_ka;
++	int ret;
++	compat_sigset_t set32;
++
++	/* XXX: Don't preclude handling different sized sigset_t's.  */
++	if (sigsetsize != sizeof(compat_sigset_t))
++		return -EINVAL;
++
++	if (act) {
++		ret = get_user((unsigned long)new_ka.sa.sa_handler, &act->sa_handler);
++		ret |= __copy_from_user(&set32, &act->sa_mask,
++					sizeof(compat_sigset_t));
++		switch (_NSIG_WORDS) {
++		case 4: new_ka.sa.sa_mask.sig[3] = set32.sig[6]
++				| (((long)set32.sig[7]) << 32);
++		case 3: new_ka.sa.sa_mask.sig[2] = set32.sig[4]
++				| (((long)set32.sig[5]) << 32);
++		case 2: new_ka.sa.sa_mask.sig[1] = set32.sig[2]
++				| (((long)set32.sig[3]) << 32);
++		case 1: new_ka.sa.sa_mask.sig[0] = set32.sig[0]
++				| (((long)set32.sig[1]) << 32);
++		}
++		ret |= __get_user(new_ka.sa.sa_flags, &act->sa_flags);
++		
++		if (ret)
++			return -EFAULT;
++	}
++
++	ret = do_sigaction(sig, act ? &new_ka : NULL, oact ? &old_ka : NULL);
++
++	if (!ret && oact) {
++		switch (_NSIG_WORDS) {
++		case 4:
++			set32.sig[7] = (old_ka.sa.sa_mask.sig[3] >> 32);
++			set32.sig[6] = old_ka.sa.sa_mask.sig[3];
++		case 3:
++			set32.sig[5] = (old_ka.sa.sa_mask.sig[2] >> 32);
++			set32.sig[4] = old_ka.sa.sa_mask.sig[2];
++		case 2:
++			set32.sig[3] = (old_ka.sa.sa_mask.sig[1] >> 32);
++			set32.sig[2] = old_ka.sa.sa_mask.sig[1];
++		case 1:
++			set32.sig[1] = (old_ka.sa.sa_mask.sig[0] >> 32);
++			set32.sig[0] = old_ka.sa.sa_mask.sig[0];
++		}
++		ret = put_user((unsigned long)old_ka.sa.sa_handler, &oact->sa_handler);
++		ret |= __copy_to_user(&oact->sa_mask, &set32,
++				      sizeof(compat_sigset_t));
++		ret |= __put_user(old_ka.sa.sa_flags, &oact->sa_flags);
++	}
++
++	return ret;
++}
++
++asmlinkage int
++sys32_sigaltstack(const stack_t32 *uss, stack_t32 *uoss, struct pt_regs *regs)
++{
++	stack_t kss, koss;
++	int ret, err = 0;
++	mm_segment_t old_fs = get_fs();
++
++	if (uss) {
++		if (!access_ok(VERIFY_READ, uss, sizeof(*uss)))
++			return -EFAULT;
++		err |= __get_user((unsigned long) kss.ss_sp, &uss->ss_sp);
++		err |= __get_user(kss.ss_size, &uss->ss_size);
++		err |= __get_user(kss.ss_flags, &uss->ss_flags);
++		if (err)
++			return -EFAULT;
++	}
++
++	set_fs (KERNEL_DS);
++	ret = do_sigaltstack(uss ? &kss : NULL , uoss ? &koss : NULL, regs->gprs[15]);
++	set_fs (old_fs);
++
++	if (!ret && uoss) {
++		if (!access_ok(VERIFY_WRITE, uoss, sizeof(*uoss)))
++			return -EFAULT;
++		err |= __put_user((unsigned long) koss.ss_sp, &uoss->ss_sp);
++		err |= __put_user(koss.ss_size, &uoss->ss_size);
++		err |= __put_user(koss.ss_flags, &uoss->ss_flags);
++		if (err)
++			return -EFAULT;
++	}
++	return ret;
++}
++
++static int save_sigregs32(struct pt_regs *regs,_sigregs32 *sregs)
++{
++	_s390_regs_common32 regs32;
++	int err, i;
++
++	regs32.psw.mask = PSW32_USER_BITS |
++		((__u32)(regs->psw.mask >> 32) & PSW32_MASK_CC);
++	regs32.psw.addr = PSW32_ADDR_AMODE31 | (__u32) regs->psw.addr;
++	for (i = 0; i < NUM_GPRS; i++)
++		regs32.gprs[i] = (__u32) regs->gprs[i];
++	memcpy(regs32.acrs, regs->acrs, sizeof(regs32.acrs));
++	err = __copy_to_user(&sregs->regs, &regs32, sizeof(regs32));
++	if (err)
++		return err;
++	save_fp_regs(&current->thread.fp_regs);
++	/* s390_fp_regs and _s390_fp_regs32 are the same ! */
++	return __copy_to_user(&sregs->fpregs, &current->thread.fp_regs,
++			      sizeof(_s390_fp_regs32));
++}
++
++static int restore_sigregs32(struct pt_regs *regs,_sigregs32 *sregs)
++{
++	_s390_regs_common32 regs32;
++	int err, i;
++
++	err = __copy_from_user(&regs32, &sregs->regs, sizeof(regs32));
++	if (err)
++		return err;
++	regs->psw.mask = PSW_USER32_BITS |
++		(__u64)(regs32.psw.mask & PSW32_MASK_CC) << 32;
++	regs->psw.addr = (__u64)(regs32.psw.addr & PSW32_ADDR_INSN);
++	for (i = 0; i < NUM_GPRS; i++)
++		regs->gprs[i] = (__u64) regs32.gprs[i];
++	memcpy(regs->acrs, regs32.acrs, sizeof(regs32.acrs));
++
++	err = __copy_from_user(&current->thread.fp_regs, &sregs->fpregs,
++			       sizeof(_s390_fp_regs32));
++	current->thread.fp_regs.fpc &= FPC_VALID_MASK;
++	if (err)
++		return err;
++
++	restore_fp_regs(&current->thread.fp_regs);
++	regs->trap = -1;	/* disable syscall checks */
++	return 0;
++}
++
++asmlinkage long sys32_sigreturn(struct pt_regs *regs)
++{
++	sigframe32 *frame = (sigframe32 *)regs->gprs[15];
++	sigset_t set;
++
++	if (verify_area(VERIFY_READ, frame, sizeof(*frame)))
++		goto badframe;
++	if (__copy_from_user(&set.sig, &frame->sc.oldmask, _SIGMASK_COPY_SIZE32))
++		goto badframe;
++
++	sigdelsetmask(&set, ~_BLOCKABLE);
++	spin_lock_irq(&current->sighand->siglock);
++	current->blocked = set;
++	recalc_sigpending();
++	spin_unlock_irq(&current->sighand->siglock);
++
++	if (restore_sigregs32(regs, &frame->sregs))
++		goto badframe;
++
++	return regs->gprs[2];
++
++badframe:
++	force_sig(SIGSEGV, current);
++	return 0;
++}	
++
++asmlinkage long sys32_rt_sigreturn(struct pt_regs *regs)
++{
++	rt_sigframe32 *frame = (rt_sigframe32 *)regs->gprs[15];
++	sigset_t set;
++	stack_t st;
++	__u32 ss_sp;
++	int err;
++	mm_segment_t old_fs = get_fs();
++
++	if (verify_area(VERIFY_READ, frame, sizeof(*frame)))
++		goto badframe;
++	if (__copy_from_user(&set, &frame->uc.uc_sigmask, sizeof(set)))
++		goto badframe;
++
++	sigdelsetmask(&set, ~_BLOCKABLE);
++	spin_lock_irq(&current->sighand->siglock);
++	current->blocked = set;
++	recalc_sigpending();
++	spin_unlock_irq(&current->sighand->siglock);
++
++	if (restore_sigregs32(regs, &frame->uc.uc_mcontext))
++		goto badframe;
++
++	err = __get_user(ss_sp, &frame->uc.uc_stack.ss_sp);
++	st.ss_sp = (void *) A((unsigned long)ss_sp);
++	err |= __get_user(st.ss_size, &frame->uc.uc_stack.ss_size);
++	err |= __get_user(st.ss_flags, &frame->uc.uc_stack.ss_flags);
++	if (err)
++		goto badframe; 
++
++	/* It is more difficult to avoid calling this function than to
++	   call it and ignore errors.  */
++	set_fs (KERNEL_DS);   
++	do_sigaltstack(&st, NULL, regs->gprs[15]);
++	set_fs (old_fs);
++
++	return regs->gprs[2];
++
++badframe:
++        force_sig(SIGSEGV, current);
++        return 0;
++}	
++
++/*
++ * Set up a signal frame.
++ */
++
++
++/*
++ * Determine which stack to use..
++ */
++static inline void *
++get_sigframe(struct k_sigaction *ka, struct pt_regs * regs, size_t frame_size)
++{
++	unsigned long sp;
++
++	/* Default to using normal stack */
++	sp = (unsigned long) A(regs->gprs[15]);
++
++	/* This is the X/Open sanctioned signal stack switching.  */
++	if (ka->sa.sa_flags & SA_ONSTACK) {
++		if (! on_sig_stack(sp))
++			sp = current->sas_ss_sp + current->sas_ss_size;
++	}
++
++	/* This is the legacy signal stack switching. */
++	else if (!user_mode(regs) &&
++		 !(ka->sa.sa_flags & SA_RESTORER) &&
++		 ka->sa.sa_restorer) {
++		sp = (unsigned long) ka->sa.sa_restorer;
++	}
++
++	return (void *)((sp - frame_size) & -8ul);
++}
++
++static inline int map_signal(int sig)
++{
++	if (current_thread_info()->exec_domain
++	    && current_thread_info()->exec_domain->signal_invmap
++	    && sig < 32)
++		return current_thread_info()->exec_domain->signal_invmap[sig];
++        else
++		return sig;
++}
++
++static void setup_frame32(int sig, struct k_sigaction *ka,
++			sigset_t *set, struct pt_regs * regs)
++{
++	sigframe32 *frame = get_sigframe(ka, regs, sizeof(sigframe32));
++	if (!access_ok(VERIFY_WRITE, frame, sizeof(sigframe32)))
++		goto give_sigsegv;
++
++	if (__copy_to_user(&frame->sc.oldmask, &set->sig, _SIGMASK_COPY_SIZE32))
++		goto give_sigsegv;
++
++	if (save_sigregs32(regs, &frame->sregs))
++		goto give_sigsegv;
++	if (__put_user((unsigned long) &frame->sregs, &frame->sc.sregs))
++		goto give_sigsegv;
++
++	/* Set up to return from userspace.  If provided, use a stub
++	   already in userspace.  */
++	if (ka->sa.sa_flags & SA_RESTORER) {
++		regs->gprs[14] = (__u64) ka->sa.sa_restorer;
++	} else {
++		regs->gprs[14] = (__u64) frame->retcode;
++		if (__put_user(S390_SYSCALL_OPCODE | __NR_sigreturn,
++		               (u16 *)(frame->retcode)))
++			goto give_sigsegv;
++        }
++
++	/* Set up backchain. */
++	if (__put_user(regs->gprs[15], (unsigned int *) frame))
++		goto give_sigsegv;
++
++	/* Set up registers for signal handler */
++	regs->gprs[15] = (__u64) frame;
++	regs->psw.addr = (__u64) ka->sa.sa_handler;
++	regs->psw.mask = PSW_USER32_BITS;
++
++	regs->gprs[2] = map_signal(sig);
++	regs->gprs[3] = (__u64) &frame->sc;
++
++	/* We forgot to include these in the sigcontext.
++	   To avoid breaking binary compatibility, they are passed as args. */
++	regs->gprs[4] = current->thread.trap_no;
++	regs->gprs[5] = current->thread.prot_addr;
++	return;
++
++give_sigsegv:
++	if (sig == SIGSEGV)
++		ka->sa.sa_handler = SIG_DFL;
++	force_sig(SIGSEGV, current);
++}
++
++static void setup_rt_frame32(int sig, struct k_sigaction *ka, siginfo_t *info,
++			   sigset_t *set, struct pt_regs * regs)
++{
++	int err = 0;
++	rt_sigframe32 *frame = get_sigframe(ka, regs, sizeof(rt_sigframe32));
++	if (!access_ok(VERIFY_WRITE, frame, sizeof(rt_sigframe32)))
++		goto give_sigsegv;
++
++	if (copy_siginfo_to_user32(&frame->info, info))
++		goto give_sigsegv;
++
++	/* Create the ucontext.  */
++	err |= __put_user(0, &frame->uc.uc_flags);
++	err |= __put_user(0, &frame->uc.uc_link);
++	err |= __put_user(current->sas_ss_sp, &frame->uc.uc_stack.ss_sp);
++	err |= __put_user(sas_ss_flags(regs->gprs[15]),
++	                  &frame->uc.uc_stack.ss_flags);
++	err |= __put_user(current->sas_ss_size, &frame->uc.uc_stack.ss_size);
++	err |= save_sigregs32(regs, &frame->uc.uc_mcontext);
++	err |= __copy_to_user(&frame->uc.uc_sigmask, set, sizeof(*set));
++	if (err)
++		goto give_sigsegv;
++
++	/* Set up to return from userspace.  If provided, use a stub
++	   already in userspace.  */
++	if (ka->sa.sa_flags & SA_RESTORER) {
++		regs->gprs[14] = (__u64) ka->sa.sa_restorer;
++	} else {
++		regs->gprs[14] = (__u64) frame->retcode;
++		err |= __put_user(S390_SYSCALL_OPCODE | __NR_rt_sigreturn,
++		                  (u16 *)(frame->retcode));
++	}
++
++	/* Set up backchain. */
++	if (__put_user(regs->gprs[15], (unsigned int *) frame))
++		goto give_sigsegv;
++
++	/* Set up registers for signal handler */
++	regs->gprs[15] = (__u64) frame;
++	regs->psw.addr = (__u64) ka->sa.sa_handler;
++	regs->psw.mask = PSW_USER32_BITS;
++
++	regs->gprs[2] = map_signal(sig);
++	regs->gprs[3] = (__u64) &frame->info;
++	regs->gprs[4] = (__u64) &frame->uc;
++	return;
++
++give_sigsegv:
++	if (sig == SIGSEGV)
++		ka->sa.sa_handler = SIG_DFL;
++	force_sig(SIGSEGV, current);
++}
++
++/*
++ * OK, we're invoking a handler
++ */	
++
++static void
++handle_signal32(unsigned long sig, siginfo_t *info, sigset_t *oldset,
++	struct pt_regs * regs)
++{
++	struct k_sigaction *ka = &current->sighand->action[sig-1];
++
++	/* Are we from a system call? */
++	if (regs->trap == __LC_SVC_OLD_PSW) {
++		/* If so, check system call restarting.. */
++		switch (regs->gprs[2]) {
++			case -ERESTARTNOHAND:
++				regs->gprs[2] = -EINTR;
++				break;
++
++			case -ERESTARTSYS:
++				if (!(ka->sa.sa_flags & SA_RESTART)) {
++					regs->gprs[2] = -EINTR;
++					break;
++				}
++			/* fallthrough */
++			case -ERESTARTNOINTR:
++				regs->gprs[2] = regs->orig_gpr2;
++				regs->psw.addr -= 2;
++		}
++	}
++
++	/* Set up the stack frame */
++	if (ka->sa.sa_flags & SA_SIGINFO)
++		setup_rt_frame32(sig, ka, info, oldset, regs);
++	else
++		setup_frame32(sig, ka, oldset, regs);
++
++	if (ka->sa.sa_flags & SA_ONESHOT)
++		ka->sa.sa_handler = SIG_DFL;
++
++	if (!(ka->sa.sa_flags & SA_NODEFER)) {
++		spin_lock_irq(&current->sighand->siglock);
++		sigorsets(&current->blocked,&current->blocked,&ka->sa.sa_mask);
++		sigaddset(&current->blocked,sig);
++		recalc_sigpending();
++		spin_unlock_irq(&current->sighand->siglock);
++	}
++}
++
++/*
++ * Note that 'init' is a special process: it doesn't get signals it doesn't
++ * want to handle. Thus you cannot kill init even with a SIGKILL even by
++ * mistake.
++ *
++ * Note that we go through the signals twice: once to check the signals that
++ * the kernel can handle, and then we build all the user-level signal handling
++ * stack-frames in one go after that.
++ */
++int do_signal32(struct pt_regs *regs, sigset_t *oldset)
++{
++	siginfo_t info;
++	int signr;
++
++	/*
++	 * We want the common case to go fast, which
++	 * is why we may in certain cases get here from
++	 * kernel mode. Just return without doing anything
++	 * if so.
++	 */
++	if (!user_mode(regs))
++		return 1;
++
++	if (!oldset)
++		oldset = &current->blocked;
++
++	signr = get_signal_to_deliver(&info, regs, NULL);
++	if (signr > 0) {
++		/* Whee!  Actually deliver the signal.  */
++		handle_signal32(signr, &info, oldset, regs);
++		return 1;
++	}
++
++	/* Did we come from a system call? */
++	if ( regs->trap == __LC_SVC_OLD_PSW /* System Call! */ ) {
++		/* Restart the system call - no handlers present */
++		if (regs->gprs[2] == -ERESTARTNOHAND ||
++		    regs->gprs[2] == -ERESTARTSYS ||
++		    regs->gprs[2] == -ERESTARTNOINTR) {
++			regs->gprs[2] = regs->orig_gpr2;
++			regs->psw.addr -= 2;
++		}
++	}
++	return 0;
++}
+diff -urN linux-2.5.67/arch/s390/kernel/compat_wrapper.S linux-2.5.67-s390/arch/s390/kernel/compat_wrapper.S
+--- linux-2.5.67/arch/s390/kernel/compat_wrapper.S	Thu Jan  1 01:00:00 1970
++++ linux-2.5.67-s390/arch/s390/kernel/compat_wrapper.S	Mon Apr 14 19:11:56 2003
+@@ -0,0 +1,1211 @@
++/*
++*  arch/s390/kernel/sys_wrapper31.S
++*    wrapper for 31 bit compatible system calls.
++*
++*  S390 version
++*    Copyright (C) 2000 IBM Deutschland Entwicklung GmbH, IBM Corporation
++*    Author(s): Gerhard Tonn (ton@de.ibm.com),
++*/ 
++
++	.globl  sys32_exit_wrapper 
++sys32_exit_wrapper:
++	lgfr	%r2,%r2			# int
++	jg	sys_exit		# branch to sys_exit
++    
++	.globl  sys32_read_wrapper 
++sys32_read_wrapper:
++	llgfr	%r2,%r2			# unsigned int
++	llgtr	%r3,%r3			# char *
++	llgfr	%r4,%r4			# size_t
++	jg	sys32_read		# branch to sys_read
++
++	.globl  sys32_write_wrapper 
++sys32_write_wrapper:
++	llgfr	%r2,%r2			# unsigned int
++	llgtr	%r3,%r3			# const char *
++	llgfr	%r4,%r4			# size_t
++	jg	sys32_write		# branch to system call
++
++	.globl  sys32_open_wrapper 
++sys32_open_wrapper:
++	llgtr	%r2,%r2			# const char *
++	lgfr	%r3,%r3			# int
++	lgfr	%r4,%r4			# int
++	jg	sys_open		# branch to system call
++
++	.globl  sys32_close_wrapper 
++sys32_close_wrapper:
++	llgfr	%r2,%r2			# unsigned int
++	jg	sys_close		# branch to system call
++
++	.globl  sys32_creat_wrapper 
++sys32_creat_wrapper:
++	llgtr	%r2,%r2			# const char *
++	lgfr	%r3,%r3			# int
++	jg	sys_creat		# branch to system call
++
++	.globl  sys32_link_wrapper 
++sys32_link_wrapper:
++	llgtr	%r2,%r2			# const char *
++	llgtr	%r3,%r3			# const char *
++	jg	sys_link		# branch to system call
++
++	.globl  sys32_unlink_wrapper 
++sys32_unlink_wrapper:
++	llgtr	%r2,%r2			# const char *
++	jg	sys_unlink		# branch to system call
++
++	.globl  sys32_chdir_wrapper 
++sys32_chdir_wrapper:
++	llgtr	%r2,%r2			# const char *
++	jg	sys_chdir		# branch to system call
++
++	.globl  sys32_time_wrapper 
++sys32_time_wrapper:
++	llgtr	%r2,%r2			# int *
++	jg	sys_time		# branch to system call
++
++	.globl  sys32_mknod_wrapper 
++sys32_mknod_wrapper:
++	llgtr	%r2,%r2			# const char *
++	lgfr	%r3,%r3			# int 
++	llgfr	%r4,%r4			# dev
++	jg	sys_mknod		# branch to system call
++
++	.globl  sys32_chmod_wrapper 
++sys32_chmod_wrapper:
++	llgtr	%r2,%r2			# const char *
++	llgfr	%r3,%r3			# mode_t
++	jg	sys_chmod		# branch to system call
++
++	.globl  sys32_lchown16_wrapper 
++sys32_lchown16_wrapper:
++	llgtr	%r2,%r2			# const char *
++	llgfr	%r3,%r3			# __kernel_old_uid_emu31_t 
++	llgfr	%r4,%r4			# __kernel_old_uid_emu31_t 
++	jg	sys32_lchown16		# branch to system call
++
++	.globl  sys32_lseek_wrapper 
++sys32_lseek_wrapper:
++	llgfr	%r2,%r2			# unsigned int
++	lgfr	%r3,%r3			# off_t
++	llgfr	%r4,%r4			# unsigned int
++	jg	sys_lseek		# branch to system call
++
++#sys32_getpid_wrapper				# void 
++
++	.globl  sys32_mount_wrapper 
++sys32_mount_wrapper:
++	llgtr	%r2,%r2			# char *
++	llgtr	%r3,%r3			# char *
++	llgtr	%r4,%r4			# char *
++	llgfr	%r5,%r5			# unsigned long
++	llgtr	%r6,%r6			# void *
++	jg	sys32_mount		# branch to system call
++
++	.globl  sys32_oldumount_wrapper 
++sys32_oldumount_wrapper:
++	llgtr	%r2,%r2			# char *
++	jg	sys_oldumount		# branch to system call
++
++	.globl  sys32_setuid16_wrapper 
++sys32_setuid16_wrapper:
++	llgfr	%r2,%r2			# __kernel_old_uid_emu31_t 
++	jg	sys32_setuid16		# branch to system call
++
++#sys32_getuid16_wrapper			# void 
++
++	.globl  sys32_ptrace_wrapper 
++sys32_ptrace_wrapper:
++	lgfr	%r2,%r2			# long
++	lgfr	%r3,%r3			# long
++	llgtr	%r4,%r4			# long
++	llgfr	%r5,%r5			# long
++	jg	sys_ptrace		# branch to system call
++
++	.globl  sys32_alarm_wrapper 
++sys32_alarm_wrapper:
++	llgtr	%r2,%r2			# unsigned int
++	jg	sys_alarm		# branch to system call
++
++#sys32_pause_wrapper			# void 
++
++	.globl  compat_sys_utime_wrapper 
++compat_sys_utime_wrapper:
++	llgtr	%r2,%r2			# char *
++	llgtr	%r3,%r3			# struct compat_utimbuf *
++	jg	compat_sys_utime		# branch to system call
++
++	.globl  sys32_access_wrapper 
++sys32_access_wrapper:
++	llgtr	%r2,%r2			# const char *
++	lgfr	%r3,%r3			# int
++	jg	sys_access		# branch to system call
++
++	.globl  sys32_nice_wrapper 
++sys32_nice_wrapper:
++	lgfr	%r2,%r2			# int
++	jg	sys_nice		# branch to system call
++
++#sys32_sync_wrapper			# void 
++
++	.globl  sys32_kill_wrapper 
++sys32_kill_wrapper:
++	lgfr	%r2,%r2			# int
++	lgfr	%r3,%r3			# int
++	jg	sys_kill		# branch to system call
++
++	.globl  sys32_rename_wrapper 
++sys32_rename_wrapper:
++	llgtr	%r2,%r2			# const char *
++	llgtr	%r3,%r3			# const char *
++	jg	sys_rename		# branch to system call
++
++	.globl  sys32_mkdir_wrapper 
++sys32_mkdir_wrapper:
++	llgtr	%r2,%r2			# const char *
++	lgfr	%r3,%r3			# int
++	jg	sys_mkdir		# branch to system call
++
++	.globl  sys32_rmdir_wrapper 
++sys32_rmdir_wrapper:
++	llgtr	%r2,%r2			# const char *
++	jg	sys_rmdir		# branch to system call
++
++	.globl  sys32_dup_wrapper 
++sys32_dup_wrapper:
++	llgfr	%r2,%r2			# unsigned int
++	jg	sys_dup			# branch to system call
++
++	.globl  sys32_pipe_wrapper 
++sys32_pipe_wrapper:
++	llgtr	%r2,%r2			# u32 *
++	jg	sys_pipe		# branch to system call
++
++	.globl  compat_sys_times_wrapper 
++compat_sys_times_wrapper:
++	llgtr	%r2,%r2			# struct compat_tms *
++	jg	compat_sys_times	# branch to system call
++
++	.globl  sys32_brk_wrapper 
++sys32_brk_wrapper:
++	llgtr	%r2,%r2			# unsigned long
++	jg	sys_brk			# branch to system call
++
++	.globl  sys32_setgid16_wrapper 
++sys32_setgid16_wrapper:
++	llgfr	%r2,%r2			# __kernel_old_gid_emu31_t 
++	jg	sys32_setgid16		# branch to system call
++
++#sys32_getgid16_wrapper			# void 
++
++	.globl sys32_signal_wrapper
++sys32_signal_wrapper:
++	lgfr	%r2,%r2			# int 
++	llgfr	%r3,%r3			# __sighandler_t 
++	jg	sys_signal
++
++#sys32_geteuid16_wrapper		# void 
++
++#sys32_getegid16_wrapper		# void 
++
++	.globl  sys32_acct_wrapper 
++sys32_acct_wrapper:
++	llgtr	%r2,%r2			# char *
++	jg	sys_acct		# branch to system call
++
++	.globl  sys32_umount_wrapper 
++sys32_umount_wrapper:
++	llgtr	%r2,%r2			# char *
++	lgfr	%r3,%r3			# int
++	jg	sys_umount		# branch to system call
++
++	.globl  sys32_ioctl_wrapper 
++sys32_ioctl_wrapper:
++	llgfr	%r2,%r2			# unsigned int
++	llgfr	%r3,%r3			# unsigned int
++	llgfr	%r4,%r4			# unsigned int
++	jg	sys32_ioctl		# branch to system call
++
++	.globl  compat_sys_fcntl_wrapper 
++compat_sys_fcntl_wrapper:
++	llgfr	%r2,%r2			# unsigned int
++	llgfr	%r3,%r3			# unsigned int 
++	llgfr	%r4,%r4			# unsigned long
++	jg	compat_sys_fcntl	# branch to system call
++
++	.globl  sys32_setpgid_wrapper 
++sys32_setpgid_wrapper:
++	lgfr	%r2,%r2			# pid_t
++	lgfr	%r3,%r3			# pid_t
++	jg	sys_setpgid		# branch to system call
++
++	.globl  sys32_umask_wrapper 
++sys32_umask_wrapper:
++	lgfr	%r3,%r3			# int
++	jg	sys_umask		# branch to system call
++
++	.globl  sys32_chroot_wrapper 
++sys32_chroot_wrapper:
++	llgtr	%r2,%r2			# char *
++	jg	sys_chroot		# branch to system call
++
++	.globl sys32_ustat_wrapper
++sys32_ustat_wrapper:
++	llgfr	%r2,%r2			# dev_t 
++	llgtr	%r3,%r3			# struct ustat *
++	jg	sys_ustat
++
++	.globl  sys32_dup2_wrapper 
++sys32_dup2_wrapper:
++	llgfr	%r2,%r2			# unsigned int
++	llgfr	%r3,%r3			# unsigned int
++	jg	sys_dup2		# branch to system call
++
++#sys32_getppid_wrapper			# void 
++
++#sys32_getpgrp_wrapper			# void 
++
++#sys32_setsid_wrapper			# void 
++
++	.globl  sys32_sigaction_wrapper
++sys32_sigaction_wrapper:
++	lgfr	%r2,%r2			# int 
++	llgtr	%r3,%r3			# const struct old_sigaction *
++	jg	sys32_sigaction		# branch to system call
++
++	.globl  sys32_setreuid16_wrapper 
++sys32_setreuid16_wrapper:
++	llgfr	%r2,%r2			# __kernel_old_uid_emu31_t 
++	llgfr	%r3,%r3			# __kernel_old_uid_emu31_t 
++	jg	sys32_setreuid16	# branch to system call
++
++	.globl  sys32_setregid16_wrapper 
++sys32_setregid16_wrapper:
++	llgfr	%r2,%r2			# __kernel_old_gid_emu31_t 
++	llgfr	%r3,%r3			# __kernel_old_gid_emu31_t 
++	jg	sys32_setregid16	# branch to system call
++
++#sys32_sigsuspend_wrapper		# done in sigsuspend_glue 
++
++	.globl  compat_sys_sigpending_wrapper 
++compat_sys_sigpending_wrapper:
++	llgtr	%r2,%r2			# compat_old_sigset_t *
++	jg	compat_sys_sigpending	# branch to system call
++
++	.globl  sys32_sethostname_wrapper 
++sys32_sethostname_wrapper:
++	llgtr	%r2,%r2			# char *
++	lgfr	%r3,%r3			# int
++	jg	sys_sethostname		# branch to system call
++
++	.globl  sys32_setrlimit_wrapper 
++sys32_setrlimit_wrapper:
++	llgfr	%r2,%r2			# unsigned int
++	llgtr	%r3,%r3			# struct rlimit_emu31 *
++	jg	sys32_setrlimit		# branch to system call
++
++	.globl  sys32_old_getrlimit_wrapper 
++sys32_old_getrlimit_wrapper:
++	llgfr	%r2,%r2			# unsigned int
++	llgtr	%r3,%r3			# struct rlimit_emu31 *
++	jg	sys32_old_getrlimit	# branch to system call
++
++	.globl  sys32_getrlimit_wrapper 
++sys32_getrlimit_wrapper:
++	llgfr	%r2,%r2			# unsigned int
++	llgtr	%r3,%r3			# struct rlimit_emu31 *
++	jg	sys32_getrlimit		# branch to system call
++
++	.globl  sys32_mmap2_wrapper 
++sys32_mmap2_wrapper:
++	llgtr	%r2,%r2			# struct mmap_arg_struct_emu31 *
++	jg	sys32_mmap2			# branch to system call
++
++	.globl  sys32_getrusage_wrapper 
++sys32_getrusage_wrapper:
++	lgfr	%r2,%r2			# int
++	llgtr	%r3,%r3			# struct rusage_emu31 *
++	jg	sys32_getrusage		# branch to system call
++
++	.globl  sys32_gettimeofday_wrapper 
++sys32_gettimeofday_wrapper:
++	llgtr	%r2,%r2			# struct timeval_emu31 *
++	llgtr	%r3,%r3			# struct timezone *
++	jg	sys32_gettimeofday	# branch to system call
++
++	.globl  sys32_settimeofday_wrapper 
++sys32_settimeofday_wrapper:
++	llgtr	%r2,%r2			# struct timeval_emu31 *
++	llgtr	%r3,%r3			# struct timezone *
++	jg	sys32_settimeofday	# branch to system call
++
++	.globl  sys32_getgroups16_wrapper 
++sys32_getgroups16_wrapper:
++	lgfr	%r2,%r2			# int
++	llgtr	%r3,%r3			# __kernel_old_gid_emu31_t *
++	jg	sys32_getgroups16	# branch to system call
++
++	.globl  sys32_setgroups16_wrapper 
++sys32_setgroups16_wrapper:
++	lgfr	%r2,%r2			# int
++	llgtr	%r3,%r3			# __kernel_old_gid_emu31_t *
++	jg	sys32_setgroups16	# branch to system call
++
++	.globl  sys32_symlink_wrapper 
++sys32_symlink_wrapper:
++	llgtr	%r2,%r2			# const char *
++	llgtr	%r3,%r3			# const char *
++	jg	sys_symlink		# branch to system call
++
++	.globl  sys32_readlink_wrapper 
++sys32_readlink_wrapper:
++	llgtr	%r2,%r2			# const char *
++	llgtr	%r3,%r3			# char *
++	lgfr	%r4,%r4			# int
++	jg	sys_readlink		# branch to system call
++
++	.globl  sys32_uselib_wrapper 
++sys32_uselib_wrapper:
++	llgtr	%r2,%r2			# const char *
++	jg	sys_uselib		# branch to system call
++
++	.globl  sys32_swapon_wrapper 
++sys32_swapon_wrapper:
++	llgtr	%r2,%r2			# const char *
++	lgfr	%r3,%r3			# int
++	jg	sys_swapon		# branch to system call
++
++	.globl  sys32_reboot_wrapper 
++sys32_reboot_wrapper:
++	lgfr	%r2,%r2			# int
++	lgfr	%r3,%r3			# int
++	llgfr	%r4,%r4			# unsigned int
++	llgtr	%r5,%r5			# void *
++	jg	sys_reboot		# branch to system call
++
++	.globl  old32_readdir_wrapper 
++old32_readdir_wrapper:
++	llgfr	%r2,%r2			# unsigned int
++	llgtr	%r3,%r3			# void *
++	llgfr	%r4,%r4			# unsigned int
++	jg	old32_readdir		# branch to system call
++
++	.globl  old32_mmap_wrapper 
++old32_mmap_wrapper:
++	llgtr	%r2,%r2			# struct mmap_arg_struct_emu31 *
++	jg	old32_mmap		# branch to system call
++
++	.globl  sys32_munmap_wrapper 
++sys32_munmap_wrapper:
++	llgfr	%r2,%r2			# unsigned long
++	llgfr	%r3,%r3			# size_t 
++	jg	sys_munmap		# branch to system call
++
++	.globl  sys32_truncate_wrapper 
++sys32_truncate_wrapper:
++	llgtr	%r2,%r2			# const char *
++	llgfr	%r3,%r3			# unsigned long
++	jg	sys_truncate		# branch to system call
++
++	.globl  sys32_ftruncate_wrapper 
++sys32_ftruncate_wrapper:
++	llgfr	%r2,%r2			# unsigned int
++	llgfr	%r3,%r3			# unsigned long
++	jg	sys_ftruncate		# branch to system call
++
++	.globl  sys32_fchmod_wrapper 
++sys32_fchmod_wrapper:
++	llgfr	%r2,%r2			# unsigned int
++	llgfr	%r3,%r3			# mode_t
++	jg	sys_fchmod		# branch to system call
++
++	.globl  sys32_fchown16_wrapper 
++sys32_fchown16_wrapper:
++	llgfr	%r2,%r2			# unsigned int
++	llgtr	%r3,%r3			# __kernel_old_uid_emu31_t *
++	llgtr	%r4,%r4			# __kernel_old_gid_emu31_t *
++	jg	sys32_fchown16		# branch to system call
++
++	.globl  sys32_getpriority_wrapper 
++sys32_getpriority_wrapper:
++	lgfr	%r2,%r2			# int
++	lgfr	%r3,%r3			# int
++	jg	sys_getpriority		# branch to system call
++
++	.globl  sys32_setpriority_wrapper 
++sys32_setpriority_wrapper:
++	lgfr	%r2,%r2			# int
++	lgfr	%r3,%r3			# int
++	lgfr	%r4,%r4			# int
++	jg	sys_setpriority		# branch to system call
++
++	.globl  compat_sys_statfs_wrapper 
++compat_sys_statfs_wrapper:
++	llgtr	%r2,%r2			# char *
++	llgtr	%r3,%r3			# struct compat_statfs *
++	jg	compat_sys_statfs	# branch to system call
++
++	.globl  compat_sys_fstatfs_wrapper 
++compat_sys_fstatfs_wrapper:
++	llgfr	%r2,%r2			# unsigned int
++	llgtr	%r3,%r3			# struct compat_statfs *
++	jg	compat_sys_fstatfs	# branch to system call
++
++	.globl  compat_sys_socketcall_wrapper 
++compat_sys_socketcall_wrapper:
++	lgfr	%r2,%r2			# int
++	llgtr	%r3,%r3			# u32 *
++	jg	compat_sys_socketcall	# branch to system call
++
++	.globl  sys32_syslog_wrapper 
++sys32_syslog_wrapper:
++	lgfr	%r2,%r2			# int
++	llgtr	%r3,%r3			# char *
++	lgfr	%r4,%r4			# int
++	jg	sys_syslog		# branch to system call
++
++	.globl  compat_sys_setitimer_wrapper 
++compat_sys_setitimer_wrapper:
++	lgfr	%r2,%r2			# int
++	llgtr	%r3,%r3			# struct itimerval_emu31 *
++	llgtr	%r4,%r4			# struct itimerval_emu31 *
++	jg	compat_sys_setitimer	# branch to system call
++
++	.globl  compat_sys_getitimer_wrapper 
++compat_sys_getitimer_wrapper:
++	lgfr	%r2,%r2			# int
++	llgtr	%r3,%r3			# struct itimerval_emu31 *
++	jg	compat_sys_getitimer	# branch to system call
++
++	.globl  compat_sys_newstat_wrapper 
++compat_sys_newstat_wrapper:
++	llgtr	%r2,%r2			# char *
++	llgtr	%r3,%r3			# struct stat_emu31 *
++	jg	compat_sys_newstat	# branch to system call
++
++	.globl  compat_sys_newlstat_wrapper 
++compat_sys_newlstat_wrapper:
++	llgtr	%r2,%r2			# char *
++	llgtr	%r3,%r3			# struct stat_emu31 *
++	jg	compat_sys_newlstat	# branch to system call
++
++	.globl  compat_sys_newfstat_wrapper 
++compat_sys_newfstat_wrapper:
++	llgfr	%r2,%r2			# unsigned int
++	llgtr	%r3,%r3			# struct stat_emu31 *
++	jg	compat_sys_newfstat	# branch to system call
++
++#sys32_vhangup_wrapper			# void 
++
++	.globl  sys32_wait4_wrapper 
++sys32_wait4_wrapper:
++	lgfr	%r2,%r2			# pid_t
++	llgtr	%r3,%r3			# unsigned int *
++	lgfr	%r4,%r4			# int
++	llgtr	%r5,%r5			# struct rusage *
++	jg	sys32_wait4		# branch to system call
++
++	.globl  sys32_swapoff_wrapper 
++sys32_swapoff_wrapper:
++	llgtr	%r2,%r2			# const char *
++	jg	sys_swapoff		# branch to system call
++
++	.globl  sys32_sysinfo_wrapper 
++sys32_sysinfo_wrapper:
++	llgtr	%r2,%r2			# struct sysinfo_emu31 *
++	jg	sys32_sysinfo		# branch to system call
++
++	.globl  sys32_ipc_wrapper 
++sys32_ipc_wrapper:
++	llgfr	%r2,%r2			# uint
++	lgfr	%r3,%r3			# int
++	lgfr	%r4,%r4			# int
++	lgfr	%r5,%r5			# int
++	llgtr	%r6,%r6			# void *
++	jg	sys32_ipc		# branch to system call
++
++	.globl  sys32_fsync_wrapper 
++sys32_fsync_wrapper:
++	llgfr	%r2,%r2			# unsigned int
++	jg	sys_fsync		# branch to system call
++
++#sys32_sigreturn_wrapper		# done in sigreturn_glue 
++
++#sys32_clone_wrapper			# done in clone_glue 
++
++	.globl  sys32_setdomainname_wrapper 
++sys32_setdomainname_wrapper:
++	llgtr	%r2,%r2			# char *
++	lgfr	%r3,%r3			# int
++	jg	sys_setdomainname	# branch to system call
++
++	.globl  sys32_newuname_wrapper 
++sys32_newuname_wrapper:
++	llgtr	%r2,%r2			# struct new_utsname *
++	jg	s390x_newuname		# branch to system call
++
++	.globl  sys32_adjtimex_wrapper 
++sys32_adjtimex_wrapper:
++	llgtr	%r2,%r2			# struct timex_emu31 *
++	jg	sys32_adjtimex		# branch to system call
++
++	.globl  sys32_mprotect_wrapper 
++sys32_mprotect_wrapper:
++	llgtr	%r2,%r2			# unsigned long (actually pointer
++	llgfr	%r3,%r3			# size_t
++	llgfr	%r4,%r4			# unsigned long
++	jg	sys_mprotect		# branch to system call
++
++	.globl  compat_sys_sigprocmask_wrapper 
++compat_sys_sigprocmask_wrapper:
++	lgfr	%r2,%r2			# int
++	llgtr	%r3,%r3			# compat_old_sigset_t *
++	llgtr	%r4,%r4			# compat_old_sigset_t *
++	jg	compat_sys_sigprocmask		# branch to system call
++
++	.globl  sys32_init_module_wrapper 
++sys32_init_module_wrapper:
++	llgtr	%r2,%r2			# const char *
++	llgtr	%r3,%r3			# struct module *
++	jg	sys32_init_module	# branch to system call
++
++	.globl  sys32_delete_module_wrapper 
++sys32_delete_module_wrapper:
++	llgtr	%r2,%r2			# const char *
++	jg	sys32_delete_module	# branch to system call
++
++	.globl  sys32_quotactl_wrapper 
++sys32_quotactl_wrapper:
++	lgfr	%r2,%r2			# int
++	llgtr	%r3,%r3			# const char *
++	lgfr	%r4,%r4			# int
++	llgtr	%r5,%r5			# caddr_t
++	jg	sys_quotactl		# branch to system call
++
++	.globl  sys32_getpgid_wrapper 
++sys32_getpgid_wrapper:
++	lgfr	%r2,%r2			# pid_t
++	jg	sys_getpgid		# branch to system call
++
++	.globl  sys32_fchdir_wrapper 
++sys32_fchdir_wrapper:
++	llgfr	%r2,%r2			# unsigned int
++	jg	sys_fchdir		# branch to system call
++
++	.globl  sys32_bdflush_wrapper 
++sys32_bdflush_wrapper:
++	lgfr	%r2,%r2			# int
++	lgfr	%r3,%r3			# long
++	jg	sys_bdflush		# branch to system call
++
++	.globl  sys32_sysfs_wrapper 
++sys32_sysfs_wrapper:
++	lgfr	%r2,%r2			# int
++	llgfr	%r3,%r3			# unsigned long
++	llgfr	%r4,%r4			# unsigned long
++	jg	sys_sysfs		# branch to system call
++
++	.globl  sys32_personality_wrapper 
++sys32_personality_wrapper:
++	llgfr	%r2,%r2			# unsigned long
++	jg	s390x_personality	# branch to system call
++
++	.globl  sys32_setfsuid16_wrapper 
++sys32_setfsuid16_wrapper:
++	llgfr	%r2,%r2			# __kernel_old_uid_emu31_t 
++	jg	sys32_setfsuid16	# branch to system call
++
++	.globl  sys32_setfsgid16_wrapper 
++sys32_setfsgid16_wrapper:
++	llgfr	%r2,%r2			# __kernel_old_gid_emu31_t 
++	jg	sys32_setfsgid16	# branch to system call
++
++	.globl  sys32_llseek_wrapper 
++sys32_llseek_wrapper:
++	llgfr	%r2,%r2			# unsigned int
++	llgfr	%r3,%r3			# unsigned long
++	llgfr	%r4,%r4			# unsigned long
++	llgtr	%r5,%r5			# loff_t *
++	llgfr	%r6,%r6			# unsigned int
++	jg	sys_llseek		# branch to system call
++
++	.globl  sys32_getdents_wrapper 
++sys32_getdents_wrapper:
++	llgfr	%r2,%r2			# unsigned int
++	llgtr	%r3,%r3			# void *
++	llgfr	%r4,%r4			# unsigned int
++	jg	sys32_getdents		# branch to system call
++
++	.globl  sys32_select_wrapper 
++sys32_select_wrapper:
++	lgfr	%r2,%r2			# int
++	llgtr	%r3,%r3			# fd_set *
++	llgtr	%r4,%r4			# fd_set *
++	llgtr	%r5,%r5			# fd_set *
++	llgtr	%r6,%r6			# struct timeval_emu31 *
++	jg	sys32_select		# branch to system call
++
++	.globl  sys32_flock_wrapper 
++sys32_flock_wrapper:
++	llgfr	%r2,%r2			# unsigned int
++	llgfr	%r3,%r3			# unsigned int
++	jg	sys_flock		# branch to system call
++
++	.globl  sys32_msync_wrapper 
++sys32_msync_wrapper:
++	llgfr	%r2,%r2			# unsigned long
++	llgfr	%r3,%r3			# size_t
++	lgfr	%r4,%r4			# int
++	jg	sys_msync		# branch to system call
++
++	.globl  sys32_readv_wrapper 
++sys32_readv_wrapper:
++	llgfr	%r2,%r2			# unsigned long
++	llgtr	%r3,%r3			# const struct iovec_emu31 *
++	llgfr	%r4,%r4			# unsigned long
++	jg	sys32_readv		# branch to system call
++
++	.globl  sys32_writev_wrapper 
++sys32_writev_wrapper:
++	llgfr	%r2,%r2			# unsigned long
++	llgtr	%r3,%r3			# const struct iovec_emu31 *
++	llgfr	%r4,%r4			# unsigned long
++	jg	sys32_writev		# branch to system call
++
++	.globl  sys32_getsid_wrapper 
++sys32_getsid_wrapper:
++	lgfr	%r2,%r2			# pid_t
++	jg	sys_getsid		# branch to system call
++
++	.globl  sys32_fdatasync_wrapper 
++sys32_fdatasync_wrapper:
++	llgfr	%r2,%r2			# unsigned int
++	jg	sys_fdatasync		# branch to system call
++
++#sys32_sysctl_wrapper			# tbd 
++
++	.globl  sys32_mlock_wrapper 
++sys32_mlock_wrapper:
++	llgfr	%r2,%r2			# unsigned long
++	llgfr	%r3,%r3			# size_t
++	jg	sys_mlock		# branch to system call
++
++	.globl  sys32_munlock_wrapper 
++sys32_munlock_wrapper:
++	llgfr	%r2,%r2			# unsigned long
++	llgfr	%r3,%r3			# size_t
++	jg	sys_munlock		# branch to system call
++
++	.globl  sys32_mlockall_wrapper 
++sys32_mlockall_wrapper:
++	lgfr	%r2,%r2			# int
++	jg	sys_mlockall		# branch to system call
++
++#sys32_munlockall_wrapper		# void 
++
++	.globl  sys32_sched_setparam_wrapper 
++sys32_sched_setparam_wrapper:
++	lgfr	%r2,%r2			# pid_t
++	llgtr	%r3,%r3			# struct sched_param *
++	jg	sys_sched_setparam	# branch to system call
++
++	.globl  sys32_sched_getparam_wrapper 
++sys32_sched_getparam_wrapper:
++	lgfr	%r2,%r2			# pid_t
++	llgtr	%r3,%r3			# struct sched_param *
++	jg	sys_sched_getparam	# branch to system call
++
++	.globl  sys32_sched_setscheduler_wrapper 
++sys32_sched_setscheduler_wrapper:
++	lgfr	%r2,%r2			# pid_t
++	lgfr	%r3,%r3			# int
++	llgtr	%r4,%r4			# struct sched_param *
++	jg	sys_sched_setscheduler	# branch to system call
++
++	.globl  sys32_sched_getscheduler_wrapper 
++sys32_sched_getscheduler_wrapper:
++	lgfr	%r2,%r2			# pid_t
++	jg	sys_sched_getscheduler	# branch to system call
++
++#sys32_sched_yield_wrapper		# void 
++
++	.globl  sys32_sched_get_priority_max_wrapper 
++sys32_sched_get_priority_max_wrapper:
++	lgfr	%r2,%r2			# int
++	jg	sys_sched_get_priority_max	# branch to system call
++
++	.globl  sys32_sched_get_priority_min_wrapper 
++sys32_sched_get_priority_min_wrapper:
++	lgfr	%r2,%r2			# int
++	jg	sys_sched_get_priority_min	# branch to system call
++
++	.globl  sys32_sched_rr_get_interval_wrapper 
++sys32_sched_rr_get_interval_wrapper:
++	lgfr	%r2,%r2			# pid_t
++	llgtr	%r3,%r3			# struct compat_timespec *
++	jg	sys32_sched_rr_get_interval	# branch to system call
++
++	.globl  compat_sys_nanosleep_wrapper 
++compat_sys_nanosleep_wrapper:
++	llgtr	%r2,%r2			# struct compat_timespec *
++	llgtr	%r3,%r3			# struct compat_timespec *
++	jg	compat_sys_nanosleep		# branch to system call
++
++	.globl  sys32_mremap_wrapper 
++sys32_mremap_wrapper:
++	llgfr	%r2,%r2			# unsigned long
++	llgfr	%r3,%r3			# unsigned long
++	llgfr	%r4,%r4			# unsigned long
++	llgfr	%r5,%r5			# unsigned long
++	llgfr	%r6,%r6			# unsigned long
++	jg	sys_mremap		# branch to system call
++
++	.globl  sys32_setresuid16_wrapper 
++sys32_setresuid16_wrapper:
++	llgfr	%r2,%r2			# __kernel_old_uid_emu31_t 
++	llgfr	%r3,%r3			# __kernel_old_uid_emu31_t 
++	llgfr	%r4,%r4			# __kernel_old_uid_emu31_t 
++	jg	sys32_setresuid16	# branch to system call
++
++	.globl  sys32_getresuid16_wrapper 
++sys32_getresuid16_wrapper:
++	llgtr	%r2,%r2			# __kernel_old_uid_emu31_t *
++	llgtr	%r3,%r3			# __kernel_old_uid_emu31_t *
++	llgtr	%r4,%r4			# __kernel_old_uid_emu31_t *
++	jg	sys32_getresuid16	# branch to system call
++
++	.globl  sys32_poll_wrapper 
++sys32_poll_wrapper:
++	llgtr	%r2,%r2			# struct pollfd * 
++	llgfr	%r3,%r3			# unsigned int 
++	lgfr	%r4,%r4			# long 
++	jg	sys_poll		# branch to system call
++
++	.globl  sys32_nfsservctl_wrapper 
++sys32_nfsservctl_wrapper:
++	lgfr	%r2,%r2			# int 
++	llgtr	%r3,%r3			# struct nfsctl_arg_emu31 * 
++	llgtr	%r4,%r4			# union nfsctl_res_emu31 * 
++	jg	sys32_nfsservctl	# branch to system call
++
++	.globl  sys32_setresgid16_wrapper 
++sys32_setresgid16_wrapper:
++	llgfr	%r2,%r2			# __kernel_old_gid_emu31_t 
++	llgfr	%r3,%r3			# __kernel_old_gid_emu31_t 
++	llgfr	%r4,%r4			# __kernel_old_gid_emu31_t 
++	jg	sys32_setresgid16	# branch to system call
++
++	.globl  sys32_getresgid16_wrapper 
++sys32_getresgid16_wrapper:
++	llgtr	%r2,%r2			# __kernel_old_gid_emu31_t *
++	llgtr	%r3,%r3			# __kernel_old_gid_emu31_t *
++	llgtr	%r4,%r4			# __kernel_old_gid_emu31_t *
++	jg	sys32_getresgid16	# branch to system call
++
++	.globl  sys32_prctl_wrapper 
++sys32_prctl_wrapper:
++	lgfr	%r2,%r2			# int
++	llgfr	%r3,%r3			# unsigned long
++	llgfr	%r4,%r4			# unsigned long
++	llgfr	%r5,%r5			# unsigned long
++	llgfr	%r6,%r6			# unsigned long
++	jg	sys_prctl		# branch to system call
++
++#sys32_rt_sigreturn_wrapper		# done in rt_sigreturn_glue 
++
++	.globl  sys32_rt_sigaction_wrapper 
++sys32_rt_sigaction_wrapper:
++	lgfr	%r2,%r2			# int
++	llgtr	%r3,%r3			# const struct sigaction_emu31 *
++	llgtr	%r4,%r4			# const struct sigaction_emu31 *
++	llgfr	%r5,%r5			# size_t
++	jg	sys32_rt_sigaction	# branch to system call
++
++	.globl  sys32_rt_sigprocmask_wrapper 
++sys32_rt_sigprocmask_wrapper:
++	lgfr	%r2,%r2			# int
++	llgtr	%r3,%r3			# old_sigset_emu31 *
++	llgtr	%r4,%r4			# old_sigset_emu31 *
++	jg	sys32_rt_sigprocmask	# branch to system call
++
++	.globl  sys32_rt_sigpending_wrapper 
++sys32_rt_sigpending_wrapper:
++	llgtr	%r2,%r2			# sigset_emu31 *
++	llgfr	%r3,%r3			# size_t
++	jg	sys32_rt_sigpending	# branch to system call
++
++	.globl  sys32_rt_sigtimedwait_wrapper 
++sys32_rt_sigtimedwait_wrapper:
++	llgtr	%r2,%r2			# const sigset_emu31_t *
++	llgtr	%r3,%r3			# siginfo_emu31_t *
++	llgtr	%r4,%r4			# const struct compat_timespec *
++	llgfr	%r5,%r5			# size_t
++	jg	sys32_rt_sigtimedwait	# branch to system call
++
++	.globl  sys32_rt_sigqueueinfo_wrapper 
++sys32_rt_sigqueueinfo_wrapper:
++	lgfr	%r2,%r2			# int
++	lgfr	%r3,%r3			# int
++	llgtr	%r4,%r4			# siginfo_emu31_t *
++	jg	sys32_rt_sigqueueinfo	# branch to system call
++
++#sys32_rt_sigsuspend_wrapper		# done in rt_sigsuspend_glue 
++
++	.globl  sys32_pread64_wrapper 
++sys32_pread64_wrapper:
++	llgfr	%r2,%r2			# unsigned int
++	llgtr	%r3,%r3			# char *
++	llgfr	%r4,%r4			# size_t
++	llgfr	%r5,%r5			# u32
++	llgfr	%r6,%r6			# u32
++	jg	sys32_pread64		# branch to system call
++
++	.globl  sys32_pwrite64_wrapper 
++sys32_pwrite64_wrapper:
++	llgfr	%r2,%r2			# unsigned int
++	llgtr	%r3,%r3			# const char *
++	llgfr	%r4,%r4			# size_t
++	llgfr	%r5,%r5			# u32
++	llgfr	%r6,%r6			# u32
++	jg	sys32_pwrite64		# branch to system call
++
++	.globl  sys32_chown16_wrapper 
++sys32_chown16_wrapper:
++	llgtr	%r2,%r2			# const char *
++	llgfr	%r3,%r3			# __kernel_old_uid_emu31_t 
++	llgfr	%r4,%r4			# __kernel_old_gid_emu31_t 
++	jg	sys32_chown16		# branch to system call
++
++	.globl  sys32_getcwd_wrapper 
++sys32_getcwd_wrapper:
++	llgtr	%r2,%r2			# char *
++	llgfr	%r3,%r3			# unsigned long
++	jg	sys_getcwd		# branch to system call
++
++	.globl  sys32_capget_wrapper 
++sys32_capget_wrapper:
++	llgtr	%r2,%r2			# cap_user_header_t
++	llgtr	%r3,%r3			# cap_user_data_t
++	jg	sys_capget		# branch to system call
++
++	.globl  sys32_capset_wrapper 
++sys32_capset_wrapper:
++	llgtr	%r2,%r2			# cap_user_header_t
++	llgtr	%r3,%r3			# const cap_user_data_t
++	jg	sys_capset		# branch to system call
++
++	.globl sys32_sigaltstack_wrapper
++sys32_sigaltstack_wrapper:
++	llgtr	%r2,%r2			# const stack_emu31_t * 
++	llgtr	%r3,%r3			# stack_emu31_t * 
++	jg	sys32_sigaltstack
++
++	.globl  sys32_sendfile_wrapper 
++sys32_sendfile_wrapper:
++	lgfr	%r2,%r2			# int
++	lgfr	%r3,%r3			# int
++	llgtr	%r4,%r4			# __kernel_off_emu31_t *
++	llgfr	%r5,%r5			# size_t
++	jg	sys32_sendfile		# branch to system call
++
++#sys32_vfork_wrapper			# done in vfork_glue 
++
++	.globl  sys32_truncate64_wrapper 
++sys32_truncate64_wrapper:
++	llgtr	%r2,%r2			# const char *
++	lgfr	%r3,%r3			# s32 
++	llgfr	%r4,%r4			# u32 
++	jg	sys32_truncate64	# branch to system call
++
++	.globl  sys32_ftruncate64_wrapper 
++sys32_ftruncate64_wrapper:
++	llgfr	%r2,%r2			# unsigned int
++	lgfr	%r3,%r3			# s32 
++	llgfr	%r4,%r4			# u32 
++	jg	sys32_ftruncate64	# branch to system call
++
++	.globl sys32_lchown_wrapper	
++sys32_lchown_wrapper:
++	llgtr	%r2,%r2			# const char *
++	llgfr	%r3,%r3			# uid_t
++	llgfr	%r4,%r4			# gid_t
++	jg	sys_lchown		# branch to system call
++
++#sys32_getuid_wrapper			# void			 
++#sys32_getgid_wrapper			# void 
++#sys32_geteuid_wrapper			# void 
++#sys32_getegid_wrapper			# void 
++
++	.globl sys32_setreuid_wrapper
++sys32_setreuid_wrapper:
++	llgfr	%r2,%r2			# uid_t
++	llgfr	%r3,%r3			# uid_t
++	jg	sys_setreuid		# branch to system call
++
++	.globl sys32_setregid_wrapper
++sys32_setregid_wrapper:
++	llgfr	%r2,%r2			# gid_t
++	llgfr	%r3,%r3			# gid_t
++	jg	sys_setregid		# branch to system call
++
++	.globl  sys32_getgroups_wrapper 
++sys32_getgroups_wrapper:
++	lgfr	%r2,%r2			# int
++	llgtr	%r3,%r3			# gid_t *
++	jg	sys_getgroups		# branch to system call
++
++	.globl  sys32_setgroups_wrapper 
++sys32_setgroups_wrapper:
++	lgfr	%r2,%r2			# int
++	llgtr	%r3,%r3			# gid_t *
++	jg	sys_setgroups		# branch to system call
++
++	.globl sys32_fchown_wrapper	
++sys32_fchown_wrapper:
++	llgfr	%r2,%r2			# unsigned int
++	llgfr	%r3,%r3			# uid_t
++	llgfr	%r4,%r4			# gid_t
++	jg	sys_fchown		# branch to system call
++
++	.globl sys32_setresuid_wrapper	
++sys32_setresuid_wrapper:
++	llgfr	%r2,%r2			# uid_t
++	llgfr	%r3,%r3			# uid_t
++	llgfr	%r4,%r4			# uid_t
++	jg	sys_setresuid		# branch to system call
++
++	.globl sys32_getresuid_wrapper	
++sys32_getresuid_wrapper:
++	llgtr	%r2,%r2			# uid_t *
++	llgtr	%r3,%r3			# uid_t *
++	llgtr	%r4,%r4			# uid_t *
++	jg	sys_getresuid		# branch to system call
++
++	.globl sys32_setresgid_wrapper	
++sys32_setresgid_wrapper:
++	llgfr	%r2,%r2			# gid_t
++	llgfr	%r3,%r3			# gid_t
++	llgfr	%r4,%r4			# gid_t
++	jg	sys_setresgid		# branch to system call
++
++	.globl sys32_getresgid_wrapper	
++sys32_getresgid_wrapper:
++	llgtr	%r2,%r2			# gid_t *
++	llgtr	%r3,%r3			# gid_t *
++	llgtr	%r4,%r4			# gid_t *
++	jg	sys_getresgid		# branch to system call
++
++	.globl sys32_chown_wrapper	
++sys32_chown_wrapper:
++	llgtr	%r2,%r2			# const char *
++	llgfr	%r3,%r3			# uid_t
++	llgfr	%r4,%r4			# gid_t
++	jg	sys_chown		# branch to system call
++
++	.globl sys32_setuid_wrapper	
++sys32_setuid_wrapper:
++	llgfr	%r2,%r2			# uid_t
++	jg	sys_setuid		# branch to system call
++
++	.globl sys32_setgid_wrapper	
++sys32_setgid_wrapper:
++	llgfr	%r2,%r2			# gid_t
++	jg	sys_setgid		# branch to system call
++
++	.globl sys32_setfsuid_wrapper	
++sys32_setfsuid_wrapper:
++	llgfr	%r2,%r2			# uid_t
++	jg	sys_setfsuid		# branch to system call
++
++	.globl sys32_setfsgid_wrapper	
++sys32_setfsgid_wrapper:
++	llgfr	%r2,%r2			# gid_t
++	jg	sys_setfsgid		# branch to system call
++
++	.globl  sys32_pivot_root_wrapper 
++sys32_pivot_root_wrapper:
++	llgtr	%r2,%r2			# const char *
++	llgtr	%r3,%r3			# const char *
++	jg	sys_pivot_root		# branch to system call
++
++	.globl  sys32_mincore_wrapper 
++sys32_mincore_wrapper:
++	llgfr	%r2,%r2			# unsigned long
++	llgfr	%r3,%r3			# size_t
++	llgtr	%r4,%r4			# unsigned char *
++	jg	sys_mincore		# branch to system call
++
++	.globl  sys32_madvise_wrapper 
++sys32_madvise_wrapper:
++	llgfr	%r2,%r2			# unsigned long
++	llgfr	%r3,%r3			# size_t
++	lgfr	%r4,%r4			# int
++	jg	sys_madvise		# branch to system call
++
++	.globl  sys32_getdents64_wrapper 
++sys32_getdents64_wrapper:
++	llgfr	%r2,%r2			# unsigned int
++	llgtr	%r3,%r3			# void *
++	llgfr	%r4,%r4			# unsigned int
++	jg	sys_getdents64		# branch to system call
++
++	.globl  compat_sys_fcntl64_wrapper 
++compat_sys_fcntl64_wrapper:
++	llgfr	%r2,%r2			# unsigned int
++	llgfr	%r3,%r3			# unsigned int 
++	llgfr	%r4,%r4			# unsigned long
++	jg	compat_sys_fcntl64	# branch to system call
++
++	.globl	sys32_stat64_wrapper
++sys32_stat64_wrapper:
++	llgtr	%r2,%r2			# char *
++	llgtr	%r3,%r3			# struct stat64 *
++	llgfr	%r4,%r4			# long
++	jg	sys32_stat64		# branch to system call
++
++	.globl	sys32_lstat64_wrapper
++sys32_lstat64_wrapper:
++	llgtr	%r2,%r2			# char *
++	llgtr	%r3,%r3			# struct stat64 *
++	llgfr	%r4,%r4			# long
++	jg	sys32_lstat64		# branch to system call
++
++	.globl	sys32_stime_wrapper
++sys32_stime_wrapper:
++	llgtr	%r2,%r2			# int *
++	jg	sys_stime		# branch to system call
++
++	.globl  sys32_sysctl_wrapper
++sys32_sysctl_wrapper:
++	llgtr   %r2,%r2                 # struct __sysctl_args32 *
++	jg      sys32_sysctl
++
++	.globl	sys32_fstat64_wrapper
++sys32_fstat64_wrapper:
++	llgfr	%r2,%r2			# unsigned long
++	llgtr	%r3,%r3			# struct stat64 *
++	llgfr	%r4,%r4			# long
++	jg	sys32_fstat64		# branch to system call
++
++	.globl  compat_sys_futex_wrapper 
++compat_sys_futex_wrapper:
++	llgtr	%r2,%r2			# u32 *
++	lgfr	%r3,%r3			# int
++	lgfr	%r4,%r4			# int
++	llgtr	%r5,%r5			# struct compat_timespec *
++	jg	compat_sys_futex	# branch to system call
++
++	.globl	sys32_setxattr_wrapper
++sys32_setxattr_wrapper:
++	llgtr	%r2,%r2			# char *
++	llgtr	%r3,%r3			# char *
++	llgtr	%r4,%r4			# void *
++	llgfr	%r5,%r5			# size_t
++	lgfr	%r6,%r6			# int
++	jg	sys_setxattr
++
++	.globl	sys32_lsetxattr_wrapper
++sys32_lsetxattr_wrapper:
++	llgtr	%r2,%r2			# char *
++	llgtr	%r3,%r3			# char *
++	llgtr	%r4,%r4			# void *
++	llgfr	%r5,%r5			# size_t
++	lgfr	%r6,%r6			# int
++	jg	sys_lsetxattr
++
++	.globl	sys32_fsetxattr_wrapper
++sys32_fsetxattr_wrapper:
++	lgfr	%r2,%r2			# int
++	llgtr	%r3,%r3			# char *
++	llgtr	%r4,%r4			# void *
++	llgfr	%r5,%r5			# size_t
++	lgfr	%r6,%r6			# int
++	jg	sys_fsetxattr
++
++	.globl	sys32_getxattr_wrapper
++sys32_getxattr_wrapper:
++	llgtr	%r2,%r2			# char *
++	llgtr	%r3,%r3			# char *
++	llgtr	%r4,%r4			# void *
++	llgfr	%r5,%r5			# size_t
++	jg	sys_getxattr
++
++	.globl	sys32_lgetxattr_wrapper
++sys32_lgetxattr_wrapper:
++	llgtr	%r2,%r2			# char *
++	llgtr	%r3,%r3			# char *
++	llgtr	%r4,%r4			# void *
++	llgfr	%r5,%r5			# size_t
++	jg	sys_lgetxattr
++
++	.globl	sys32_fgetxattr_wrapper
++sys32_fgetxattr_wrapper:
++	lgfr	%r2,%r2			# int
++	llgtr	%r3,%r3			# char *
++	llgtr	%r4,%r4			# void *
++	llgfr	%r5,%r5			# size_t
++	jg	sys_fgetxattr
++
++	.globl	sys32_listxattr_wrapper
++sys32_listxattr_wrapper:
++	llgtr	%r2,%r2			# char *
++	llgtr	%r3,%r3			# char *
++	llgfr	%r4,%r4			# size_t
++	jg	sys_listxattr
++
++	.globl	sys32_llistxattr_wrapper
++sys32_llistxattr_wrapper:
++	llgtr	%r2,%r2			# char *
++	llgtr	%r3,%r3			# char *
++	llgfr	%r4,%r4			# size_t
++	jg	sys_llistxattr
++
++	.globl	sys32_flistxattr_wrapper
++sys32_flistxattr_wrapper:
++	lgfr	%r2,%r2			# int
++	llgtr	%r3,%r3			# char *
++	llgfr	%r4,%r4			# size_t
++	jg	sys_flistxattr
++
++	.globl	sys32_removexattr_wrapper
++sys32_removexattr_wrapper:
++	llgtr	%r2,%r2			# char *
++	llgtr	%r3,%r3			# char *
++	jg	sys_removexattr
++
++	.globl	sys32_lremovexattr_wrapper
++sys32_lremovexattr_wrapper:
++	llgtr	%r2,%r2			# char *
++	llgtr	%r3,%r3			# char *
++	jg	sys_lremovexattr
++
++	.globl	sys32_fremovexattr_wrapper
++sys32_fremovexattr_wrapper:
++	lgfr	%r2,%r2			# int
++	llgtr	%r3,%r3			# char *
++	jg	sys_fremovexattr
++
++	.globl	sys32_sched_setaffinity_wrapper
++sys32_sched_setaffinity_wrapper:
++	lgfr	%r2,%r2			# int
++	llgfr	%r3,%r3			# unsigned int
++	llgtr	%r4,%r4			# unsigned long *
++	jg	sys32_sched_setaffinity
++
++	.globl	sys32_sched_getaffinity_wrapper
++sys32_sched_getaffinity_wrapper:
++	lgfr	%r2,%r2			# int
++	llgfr	%r3,%r3			# unsigned int
++	llgtr	%r4,%r4			# unsigned long *
++	jg	sys32_sched_getaffinity
++
++	.globl  sys32_exit_group_wrapper
++sys32_exit_group_wrapper:
++	lgfr	%r2,%r2			# int
++	jg	sys_exit_group		# branch to system call
++
++	.globl  sys32_set_tid_address_wrapper
++sys32_set_tid_address_wrapper:
++	llgtr	%r2,%r2			# int *
++	jg	sys_set_tid_address	# branch to system call
+diff -urN linux-2.5.67/arch/s390/kernel/cpcmd.c linux-2.5.67-s390/arch/s390/kernel/cpcmd.c
+--- linux-2.5.67/arch/s390/kernel/cpcmd.c	Mon Apr  7 19:31:15 2003
++++ linux-2.5.67-s390/arch/s390/kernel/cpcmd.c	Mon Apr 14 19:11:56 2003
+@@ -10,19 +10,26 @@
+ #include <linux/kernel.h>
+ #include <linux/string.h>
+ #include <asm/ebcdic.h>
++#include <linux/spinlock.h>
+ #include <asm/cpcmd.h>
++#include <asm/system.h>
++
++static spinlock_t cpcmd_lock = SPIN_LOCK_UNLOCKED;
++static char cpcmd_buf[128];
+ 
+ void cpcmd(char *cmd, char *response, int rlen)
+ {
+         const int mask = 0x40000000L;
+-        char obuffer[128];
+-        int olen;
++	unsigned long flags;
++        int cmdlen;
+ 
+-        olen = strlen(cmd);
+-        strcpy(obuffer, cmd);
+-        ASCEBC(obuffer,olen);
++	spin_lock_irqsave(&cpcmd_lock, flags);
++        cmdlen = strlen(cmd);
++        strcpy(cpcmd_buf, cmd);
++        ASCEBC(cpcmd_buf, cmdlen);
+ 
+         if (response != NULL && rlen > 0) {
++#ifndef CONFIG_ARCH_S390X
+                 asm volatile ("LRA   2,0(%0)\n\t"
+                               "LR    4,%1\n\t"
+                               "O     4,%4\n\t"
+@@ -30,17 +37,43 @@
+                               "LR    5,%3\n\t"
+                               ".long 0x83240008 # Diagnose 83\n\t"
+                               : /* no output */
+-                              : "a" (obuffer), "d" (olen),
++                              : "a" (cpcmd_buf), "d" (cmdlen),
++                                "a" (response), "d" (rlen), "m" (mask)
++                              : "2", "3", "4", "5" );
++#else /* CONFIG_ARCH_S390X */
++                asm volatile ("   lrag  2,0(%0)\n"
++                              "   lgr   4,%1\n"
++                              "   o     4,%4\n"
++                              "   lrag  3,0(%2)\n"
++                              "   lgr   5,%3\n"
++                              "   sam31\n"
++                              "   .long 0x83240008 # Diagnose 83\n"
++                              "   sam64"
++                              : /* no output */
++                              : "a" (cpcmd_buf), "d" (cmdlen),
+                                 "a" (response), "d" (rlen), "m" (mask)
+                               : "2", "3", "4", "5" );
++#endif /* CONFIG_ARCH_S390X */
+                 EBCASC(response, rlen);
+         } else {
++#ifndef CONFIG_ARCH_S390X
+                 asm volatile ("LRA   2,0(%0)\n\t"
+                               "LR    3,%1\n\t"
+                               ".long 0x83230008 # Diagnose 83\n\t"
+                               : /* no output */
+-                              : "a" (obuffer), "d" (olen)
++                              : "a" (cpcmd_buf), "d" (cmdlen)
++                              : "2", "3"  );
++#else /* CONFIG_ARCH_S390X */
++                asm volatile ("   lrag  2,0(%0)\n"
++                              "   lgr   3,%1\n"
++                              "   sam31\n"
++                              "   .long 0x83230008 # Diagnose 83\n"
++                              "   sam64"
++                              : /* no output */
++                              : "a" (cpcmd_buf), "d" (cmdlen)
+                               : "2", "3"  );
++#endif /* CONFIG_ARCH_S390X */
+         }
++	spin_unlock_irqrestore(&cpcmd_lock, flags);
+ }
+ 
+diff -urN linux-2.5.67/arch/s390/kernel/debug.c linux-2.5.67-s390/arch/s390/kernel/debug.c
+--- linux-2.5.67/arch/s390/kernel/debug.c	Mon Apr  7 19:30:42 2003
++++ linux-2.5.67-s390/arch/s390/kernel/debug.c	Mon Apr 14 19:11:56 2003
+@@ -16,7 +16,6 @@
+ #include <linux/errno.h>
+ #include <linux/slab.h>
+ #include <linux/ctype.h>
+-#include <linux/version.h>
+ #include <asm/uaccess.h>
+ #include <asm/semaphore.h>
+ 
+@@ -1111,17 +1110,10 @@
+ 		except_str = "*";
+ 	else
+ 		except_str = "-";
+-	caller = (unsigned long) entry->caller;
+-#if defined(CONFIG_ARCH_S390X)
+-	rc += sprintf(out_buf, "%02i %011lu:%06lu %1u %1s %02i %016lx  ",
++	caller = ((unsigned long) entry->caller) & PSW_ADDR_INSN;
++	rc += sprintf(out_buf, "%02i %011lu:%06lu %1u %1s %02i %p  ",
+ 		      area, time_val.tv_sec, time_val.tv_usec, level,
+-		      except_str, entry->id.fields.cpuid, caller);
+-#else
+-	caller &= 0x7fffffff;
+-	rc += sprintf(out_buf, "%02i %011lu:%06lu %1u %1s %02i %08lx  ",
+-		      area, time_val.tv_sec, time_val.tv_usec, level,
+-		      except_str, entry->id.fields.cpuid, caller);
+-#endif
++		      except_str, entry->id.fields.cpuid, (void *) caller);
+ 	return rc;
+ }
+ 
+diff -urN linux-2.5.67/arch/s390/kernel/entry.S linux-2.5.67-s390/arch/s390/kernel/entry.S
+--- linux-2.5.67/arch/s390/kernel/entry.S	Mon Apr 14 19:11:52 2003
++++ linux-2.5.67-s390/arch/s390/kernel/entry.S	Mon Apr 14 19:11:56 2003
+@@ -364,271 +364,12 @@
+         l       %r1,BASED(.Lsigaltstack)
+         br      %r1                   # branch to sys_sigreturn
+ 
+-	.globl  sys_call_table	
++
++#define SYSCALL(esa,esame,emu)	.long esa
++	.globl  sys_call_table
+ sys_call_table:
+-        .long  sys_ni_syscall            /* 0 */
+-        .long  sys_exit
+-        .long  sys_fork_glue
+-        .long  sys_read
+-        .long  sys_write
+-        .long  sys_open                  /* 5 */
+-        .long  sys_close
+-        .long  sys_restart_syscall
+-        .long  sys_creat
+-        .long  sys_link
+-        .long  sys_unlink                /* 10 */
+-        .long  sys_execve_glue
+-        .long  sys_chdir
+-        .long  sys_time
+-        .long  sys_mknod
+-        .long  sys_chmod                /* 15 */
+-        .long  sys_lchown16
+-        .long  sys_ni_syscall           /* old break syscall holder */
+-        .long  sys_ni_syscall           /* old stat syscall holder */
+-        .long  sys_lseek
+-        .long  sys_getpid               /* 20 */
+-        .long  sys_mount
+-        .long  sys_oldumount
+-        .long  sys_setuid16
+-        .long  sys_getuid16
+-        .long  sys_stime                /* 25 */
+-        .long  sys_ptrace
+-        .long  sys_alarm
+-        .long  sys_ni_syscall           /* old fstat syscall holder */
+-        .long  sys_pause
+-        .long  sys_utime                /* 30 */
+-        .long  sys_ni_syscall           /* old stty syscall holder */
+-        .long  sys_ni_syscall           /* old gtty syscall holder */
+-        .long  sys_access
+-        .long  sys_nice
+-        .long  sys_ni_syscall           /* 35 */  /* old ftime syscall holder */
+-        .long  sys_sync
+-        .long  sys_kill
+-        .long  sys_rename
+-        .long  sys_mkdir
+-        .long  sys_rmdir                /* 40 */
+-        .long  sys_dup
+-        .long  sys_pipe
+-        .long  sys_times
+-        .long  sys_ni_syscall           /* old prof syscall holder */
+-        .long  sys_brk                  /* 45 */
+-        .long  sys_setgid16
+-        .long  sys_getgid16
+-        .long  sys_signal
+-        .long  sys_geteuid16
+-        .long  sys_getegid16            /* 50 */
+-        .long  sys_acct
+-        .long  sys_umount
+-        .long  sys_ni_syscall           /* old lock syscall holder */
+-        .long  sys_ioctl
+-        .long  sys_fcntl                /* 55 */
+-        .long  sys_ni_syscall           /* old mpx syscall holder */
+-        .long  sys_setpgid
+-        .long  sys_ni_syscall           /* old ulimit syscall holder */
+-        .long  sys_ni_syscall           /* old uname syscall holder */
+-        .long  sys_umask                /* 60 */
+-        .long  sys_chroot
+-        .long  sys_ustat
+-        .long  sys_dup2
+-        .long  sys_getppid
+-        .long  sys_getpgrp              /* 65 */
+-        .long  sys_setsid
+-        .long  sys_sigaction
+-        .long  sys_ni_syscall           /* old sgetmask syscall holder */
+-        .long  sys_ni_syscall           /* old ssetmask syscall holder */
+-        .long  sys_setreuid16           /* 70 */
+-        .long  sys_setregid16
+-        .long  sys_sigsuspend_glue
+-        .long  sys_sigpending
+-        .long  sys_sethostname
+-        .long  sys_setrlimit            /* 75 */
+-        .long  sys_old_getrlimit
+-        .long  sys_getrusage
+-        .long  sys_gettimeofday
+-        .long  sys_settimeofday
+-        .long  sys_getgroups16          /* 80 */
+-        .long  sys_setgroups16
+-        .long  sys_ni_syscall           /* old select syscall holder */
+-        .long  sys_symlink
+-        .long  sys_ni_syscall           /* old lstat syscall holder */
+-        .long  sys_readlink             /* 85 */
+-        .long  sys_uselib
+-        .long  sys_swapon
+-        .long  sys_reboot
+-        .long  sys_ni_syscall           /* old readdir syscall holder */
+-        .long  old_mmap                 /* 90 */
+-        .long  sys_munmap
+-        .long  sys_truncate
+-        .long  sys_ftruncate
+-        .long  sys_fchmod
+-        .long  sys_fchown16              /* 95 */
+-        .long  sys_getpriority
+-        .long  sys_setpriority
+-        .long  sys_ni_syscall            /* old profil syscall holder */
+-        .long  sys_statfs
+-        .long  sys_fstatfs               /* 100 */
+-        .long  sys_ioperm
+-        .long  sys_socketcall
+-        .long  sys_syslog
+-        .long  sys_setitimer
+-        .long  sys_getitimer             /* 105 */
+-        .long  sys_newstat
+-        .long  sys_newlstat
+-        .long  sys_newfstat
+-        .long  sys_ni_syscall            /* old uname syscall holder */
+-        .long  sys_ni_syscall            /* 110 */ /* iopl for i386 */
+-        .long  sys_vhangup
+-        .long  sys_ni_syscall            /* old "idle" system call */
+-        .long  sys_ni_syscall            /* vm86old for i386 */
+-        .long  sys_wait4
+-        .long  sys_swapoff               /* 115 */
+-        .long  sys_sysinfo
+-        .long  sys_ipc
+-        .long  sys_fsync
+-        .long  sys_sigreturn_glue
+-        .long  sys_clone_glue            /* 120 */
+-        .long  sys_setdomainname
+-        .long  sys_newuname
+-        .long  sys_ni_syscall            /* modify_ldt for i386 */
+-        .long  sys_adjtimex
+-        .long  sys_mprotect              /* 125 */
+-        .long  sys_sigprocmask
+-        .long  sys_ni_syscall		 /* old "create module" */
+-        .long  sys_init_module
+-        .long  sys_delete_module
+-        .long  sys_ni_syscall		 /* 130: old get_kernel_syms */
+-        .long  sys_quotactl
+-        .long  sys_getpgid
+-        .long  sys_fchdir
+-        .long  sys_bdflush
+-        .long  sys_sysfs                 /* 135 */
+-        .long  sys_personality
+-        .long  sys_ni_syscall            /* for afs_syscall */
+-        .long  sys_setfsuid16
+-        .long  sys_setfsgid16
+-        .long  sys_llseek                /* 140 */
+-        .long  sys_getdents
+-        .long  sys_select
+-        .long  sys_flock
+-        .long  sys_msync
+-        .long  sys_readv                 /* 145 */
+-        .long  sys_writev
+-        .long  sys_getsid
+-        .long  sys_fdatasync
+-        .long  sys_sysctl
+-        .long  sys_mlock                 /* 150 */
+-        .long  sys_munlock
+-        .long  sys_mlockall
+-        .long  sys_munlockall
+-        .long  sys_sched_setparam
+-        .long  sys_sched_getparam        /* 155 */
+-        .long  sys_sched_setscheduler
+-        .long  sys_sched_getscheduler
+-        .long  sys_sched_yield
+-        .long  sys_sched_get_priority_max
+-        .long  sys_sched_get_priority_min  /* 160 */
+-        .long  sys_sched_rr_get_interval
+-        .long  sys_nanosleep
+-        .long  sys_mremap
+-        .long  sys_setresuid16
+-        .long  sys_getresuid16           /* 165 */
+-        .long  sys_ni_syscall            /* for vm86 */
+-        .long  sys_ni_syscall		 /* old sys_query_module */
+-        .long  sys_poll
+-        .long  sys_nfsservctl
+-        .long  sys_setresgid16           /* 170 */
+-        .long  sys_getresgid16
+-        .long  sys_prctl
+-        .long  sys_rt_sigreturn_glue
+-        .long  sys_rt_sigaction
+-        .long  sys_rt_sigprocmask        /* 175 */
+-        .long  sys_rt_sigpending
+-        .long  sys_rt_sigtimedwait
+-        .long  sys_rt_sigqueueinfo
+-        .long  sys_rt_sigsuspend_glue
+-        .long  sys_pread64               /* 180 */
+-        .long  sys_pwrite64
+-        .long  sys_chown16
+-        .long  sys_getcwd
+-        .long  sys_capget
+-        .long  sys_capset                /* 185 */
+-        .long  sys_sigaltstack_glue
+-        .long  sys_sendfile
+-        .long  sys_ni_syscall            /* streams1 */
+-        .long  sys_ni_syscall            /* streams2 */
+-        .long  sys_vfork_glue            /* 190 */
+-        .long  sys_getrlimit
+-	.long  sys_mmap2
+-        .long  sys_truncate64
+-        .long  sys_ftruncate64
+-        .long  sys_stat64                /* 195 */
+-        .long  sys_lstat64
+-        .long  sys_fstat64
+-	.long  sys_lchown
+-	.long  sys_getuid
+-	.long  sys_getgid		 /* 200 */
+-	.long  sys_geteuid
+-	.long  sys_getegid
+-	.long  sys_setreuid
+-	.long  sys_setregid
+-	.long  sys_getgroups             /* 205 */
+-	.long  sys_setgroups
+-	.long  sys_fchown
+-	.long  sys_setresuid
+-	.long  sys_getresuid
+-	.long  sys_setresgid             /* 210 */
+-	.long  sys_getresgid
+-	.long  sys_chown
+-	.long  sys_setuid
+-	.long  sys_setgid
+-	.long  sys_setfsuid              /* 215 */
+-	.long  sys_setfsgid
+-        .long  sys_pivot_root
+-        .long  sys_mincore
+-        .long  sys_madvise
+-	.long  sys_getdents64		 /* 220 */
+-        .long  sys_fcntl64 
+-	.long  sys_readahead
+-	.long  sys_sendfile64
+-	.long  sys_setxattr
+-	.long  sys_lsetxattr		 /* 225 */
+-	.long  sys_fsetxattr
+-	.long  sys_getxattr
+-	.long  sys_lgetxattr
+-	.long  sys_fgetxattr
+-	.long  sys_listxattr		 /* 230 */
+-	.long  sys_llistxattr
+-	.long  sys_flistxattr
+-	.long  sys_removexattr
+-	.long  sys_lremovexattr
+-	.long  sys_fremovexattr		 /* 235 */
+-	.long  sys_gettid
+-	.long  sys_tkill
+-	.long  sys_futex
+-	.long  sys_sched_setaffinity
+-	.long  sys_sched_getaffinity	 /* 240 */
+-	.long  sys_ni_syscall
+-	.long  sys_ni_syscall		 /* reserved for TUX */
+-	.long  sys_io_setup
+-	.long  sys_io_destroy
+-	.long  sys_io_getevents		 /* 245 */
+-	.long  sys_io_submit
+-	.long  sys_io_cancel
+-	.long  sys_exit_group
+-	.long  sys_epoll_create
+-	.long  sys_epoll_ctl		 /* 250 */
+-	.long  sys_epoll_wait
+-	.long  sys_set_tid_address
+-	.long  sys_fadvise64
+-	.long  sys_timer_create
+-	.long  sys_timer_settime	 /* 255 */
+-	.long  sys_timer_gettime
+-	.long  sys_timer_getoverrun
+-	.long  sys_timer_delete
+-	.long  sys_clock_settime
+-	.long  sys_clock_gettime
+-	.long  sys_clock_getres
+-	.long  sys_clock_nanosleep
++#include "syscalls.S"
++#undef SYSCALL
+ 
+ /*
+  * Program check handler routine
+diff -urN linux-2.5.67/arch/s390/kernel/entry64.S linux-2.5.67-s390/arch/s390/kernel/entry64.S
+--- linux-2.5.67/arch/s390/kernel/entry64.S	Thu Jan  1 01:00:00 1970
++++ linux-2.5.67-s390/arch/s390/kernel/entry64.S	Mon Apr 14 19:11:56 2003
+@@ -0,0 +1,710 @@
++/*
++ *  arch/s390/kernel/entry.S
++ *    S390 low-level entry points.
++ *
++ *  S390 version
++ *    Copyright (C) 1999,2000 IBM Deutschland Entwicklung GmbH, IBM Corporation
++ *    Author(s): Martin Schwidefsky (schwidefsky@de.ibm.com),
++ *               Hartmut Penner (hp@de.ibm.com),
++ *               Denis Joseph Barrow (djbarrow@de.ibm.com,barrow_dj@yahoo.com),
++ */
++
++#include <linux/sys.h>
++#include <linux/linkage.h>
++#include <linux/config.h>
++#include <asm/cache.h>
++#include <asm/lowcore.h>
++#include <asm/errno.h>
++#include <asm/ptrace.h>
++#include <asm/thread_info.h>
++#include <asm/offsets.h>
++#include <asm/unistd.h>
++
++/*
++ * Stack layout for the system_call stack entry.
++ * The first few entries are identical to the user_regs_struct.
++ */
++SP_PTREGS    =  STACK_FRAME_OVERHEAD 
++SP_PSW       =  STACK_FRAME_OVERHEAD + PT_PSWMASK
++SP_R0        =  STACK_FRAME_OVERHEAD + PT_GPR0
++SP_R1        =  STACK_FRAME_OVERHEAD + PT_GPR1
++SP_R2        =  STACK_FRAME_OVERHEAD + PT_GPR2
++SP_R3        =  STACK_FRAME_OVERHEAD + PT_GPR3
++SP_R4        =  STACK_FRAME_OVERHEAD + PT_GPR4
++SP_R5        =  STACK_FRAME_OVERHEAD + PT_GPR5
++SP_R6        =  STACK_FRAME_OVERHEAD + PT_GPR6
++SP_R7        =  STACK_FRAME_OVERHEAD + PT_GPR7
++SP_R8        =  STACK_FRAME_OVERHEAD + PT_GPR8
++SP_R9        =  STACK_FRAME_OVERHEAD + PT_GPR9
++SP_R10       =  STACK_FRAME_OVERHEAD + PT_GPR10
++SP_R11       =  STACK_FRAME_OVERHEAD + PT_GPR11
++SP_R12       =  STACK_FRAME_OVERHEAD + PT_GPR12
++SP_R13       =  STACK_FRAME_OVERHEAD + PT_GPR13
++SP_R14       =  STACK_FRAME_OVERHEAD + PT_GPR14
++SP_R15       =  STACK_FRAME_OVERHEAD + PT_GPR15
++SP_AREGS     =  STACK_FRAME_OVERHEAD + PT_ACR0
++SP_ORIG_R2   =  STACK_FRAME_OVERHEAD + PT_ORIGGPR2
++/* Now the additional entries */
++SP_TRAP      =  (SP_ORIG_R2+GPR_SIZE)
++SP_SIZE      =  (SP_TRAP+4)
++
++_TIF_WORK_SVC = (_TIF_SIGPENDING | _TIF_NEED_RESCHED | _TIF_RESTART_SVC)
++_TIF_WORK_INT = (_TIF_SIGPENDING | _TIF_NEED_RESCHED)
++
++/*
++ * Register usage in interrupt handlers:
++ *    R9  - pointer to current task structure
++ *    R13 - pointer to literal pool
++ *    R14 - return register for function calls
++ *    R15 - kernel stack pointer
++ */
++
++        .macro  SAVE_ALL psworg,sync     # system entry macro
++        stmg    %r14,%r15,__LC_SAVE_AREA
++	stam    %a2,%a4,__LC_SAVE_AREA+16
++	larl	%r14,.Lconst
++        tm      \psworg+1,0x01           # test problem state bit
++	.if	\sync
++        jz      1f                       # skip stack setup save
++	.else
++	jnz	0f			 # from user -> load kernel stack
++	lg	%r14,__LC_ASYNC_STACK	 # are we already on the async. stack ?
++	slgr	%r14,%r15
++	srag	%r14,%r14,14
++	larl	%r14,.Lconst
++	jz	1f
++	lg	%r15,__LC_ASYNC_STACK	 # load async. stack
++	j	1f
++	.endif
++0:	lg      %r15,__LC_KERNEL_STACK   # problem state -> load ksp
++	lam	%a2,%a4,.Lc_ac-.Lconst(%r14)
++1:      aghi    %r15,-SP_SIZE            # make room for registers & psw
++        nill    %r15,0xfff8              # align stack pointer to 8
++        stmg    %r0,%r13,SP_R0(%r15)     # store gprs 0-13 to kernel stack
++        stg     %r2,SP_ORIG_R2(%r15)     # store original content of gpr 2
++        mvc     SP_R14(16,%r15),__LC_SAVE_AREA # move r14 and r15 to stack
++        stam    %a0,%a15,SP_AREGS(%r15)  # store access registers to kst.
++        mvc     SP_AREGS+8(12,%r15),__LC_SAVE_AREA+16 # store ac. regs
++        mvc     SP_PSW(16,%r15),\psworg  # move user PSW to stack
++	mvc	SP_TRAP(4,%r15),.L\psworg-.Lconst(%r14) # store trap ind.
++        xc      0(8,%r15),0(%r15)        # clear back chain
++        .endm
++
++        .macro  RESTORE_ALL sync         # system exit macro
++        mvc     __LC_RETURN_PSW(16),SP_PSW(%r15) # move user PSW to lowcore
++        lam     %a0,%a15,SP_AREGS(%r15)  # load the access registers
++        lmg     %r0,%r15,SP_R0(%r15)     # load gprs 0-15 of user
++        ni      __LC_RETURN_PSW+1,0xfd   # clear wait state bit
++        lpswe   __LC_RETURN_PSW          # back to caller
++        .endm
++
++        .macro  GET_THREAD_INFO
++	lg	%r9,__LC_KERNEL_STACK    # load pointer to task_struct to %r9
++	aghi	%r9,-16384
++        .endm
++
++
++/*
++ * Scheduler resume function, called by switch_to
++ *  gpr2 = (task_struct *) prev
++ *  gpr3 = (task_struct *) next
++ * Returns:
++ *  gpr2 = prev
++ */
++        .globl  resume
++resume:
++	tm	__THREAD_per+4(%r3),0xe8 # is the new process using per ?
++	jz	resume_noper		# if not we're fine
++        stctg   %c9,%c11,48(%r15)       # We are using per stuff
++        clc     __THREAD_per(24,%r3),48(%r15)
++        je      resume_noper            # we got away without bashing TLB's
++        lctlg   %c9,%c11,__THREAD_per(%r3)	# Nope we didn't
++resume_noper:
++        stmg    %r6,%r15,48(%r15)       # store resume registers of prev task
++	stg	%r15,__THREAD_ksp(%r2)	# store kernel stack to prev->tss.ksp
++	lg	%r15,__THREAD_ksp(%r3)	# load kernel stack from next->tss.ksp
++        stam    %a2,%a2,__THREAD_ar2(%r2)	# store kernel access reg. 2
++        stam    %a4,%a4,__THREAD_ar4(%r2)	# store kernel access reg. 4
++        lam     %a2,%a2,__THREAD_ar2(%r3)	# load kernel access reg. 2
++        lam     %a4,%a4,__THREAD_ar4(%r3)	# load kernel access reg. 4
++        lmg     %r6,%r15,48(%r15)       # load resume registers of next task
++	lg	%r3,__THREAD_info(%r3)  # load thread_info from task struct
++	aghi	%r3,16384
++	stg	%r3,__LC_KERNEL_STACK	# __LC_KERNEL_STACK = new kernel stack
++	br	%r14
++
++/*
++ * do_softirq calling function. We want to run the softirq functions on the
++ * asynchronous interrupt stack.
++ */
++	.global do_call_softirq
++do_call_softirq:
++	stmg	%r12,%r15,48(%r15)
++	lgr	%r12,%r15
++	lg	%r0,__LC_ASYNC_STACK
++	slgr    %r0,%r15
++	srag	%r0,%r0,14
++	je	0f
++	lg	%r15,__LC_ASYNC_STACK
++0:	aghi	%r15,-STACK_FRAME_OVERHEAD
++	stg	%r12,0(%r15)		# store back chain
++	brasl	%r14,do_softirq
++	lmg	%r12,%r15,48(%r12)
++	br	%r14
++	
++/*
++ * SVC interrupt handler routine. System calls are synchronous events and
++ * are executed with interrupts enabled.
++ */
++
++	.globl  system_call
++system_call:
++        SAVE_ALL __LC_SVC_OLD_PSW,1
++	llgh    %r7,__LC_SVC_INT_CODE # get svc number from lowcore
++	stosm   48(%r15),0x03     # reenable interrupts
++        GET_THREAD_INFO           # load pointer to task_struct to R9
++        slag    %r7,%r7,2         # *4 and test for svc 0
++	jnz	sysc_do_restart
++	# svc 0: system call number in %r1
++	clg	%r1,.Lnr_syscalls-.Lconst(%r14)
++	jnl	sysc_do_restart
++	slag    %r7,%r1,2         # svc 0: system call number in %r1
++sysc_do_restart:
++	larl    %r10,sys_call_table
++#ifdef CONFIG_S390_SUPPORT
++        tm      SP_PSW+3(%r15),0x01  # are we running in 31 bit mode ?
++        jo      sysc_noemu
++	larl    %r10,sys_call_table_emu  # use 31 bit emulation system calls
++sysc_noemu:
++#endif
++	tm	__TI_flags+7(%r9),_TIF_SYSCALL_TRACE
++        lgf     %r8,0(%r7,%r10)   # load address of system call routine
++        jo      sysc_tracesys
++        basr    %r14,%r8          # call sys_xxxx
++        stg     %r2,SP_R2(%r15)   # store return value (change R2 on stack)
++                                  # ATTENTION: check sys_execve_glue before
++                                  # changing anything here !!
++
++sysc_return:
++	stnsm   48(%r15),0xfc     # disable I/O and ext. interrupts
++	tm	__TI_flags+7(%r9),_TIF_WORK_SVC
++	jnz	sysc_work         # there is work to do (signals etc.)
++sysc_leave:
++        RESTORE_ALL 1
++
++#
++# recheck if there is more work to do
++#
++sysc_work_loop:
++	stnsm   48(%r15),0xfc     # disable I/O and ext. interrupts
++        GET_THREAD_INFO           # load pointer to task_struct to R9
++	tm	__TI_flags+7(%r9),_TIF_WORK_SVC
++	jz	sysc_leave        # there is no work to do
++#
++# One of the work bits is on. Find out which one.
++# Checked are: _TIF_SIGPENDING and _TIF_NEED_RESCHED
++#
++sysc_work:
++	tm	__TI_flags+7(%r9),_TIF_NEED_RESCHED
++	jo	sysc_reschedule
++	tm	__TI_flags+7(%r9),_TIF_SIGPENDING
++	jo	sysc_sigpending
++	tm	__TI_flags+7(%r9),_TIF_RESTART_SVC
++	jo	sysc_restart
++	j	sysc_leave
++
++#
++# _TIF_NEED_RESCHED is set, call schedule
++#	
++sysc_reschedule:        
++	stosm   48(%r15),0x03     # reenable interrupts
++	larl    %r14,sysc_work_loop
++        jg      schedule            # return point is sysc_return
++
++#
++# _TIF_SIGPENDING is set, call do_signal
++#
++sysc_sigpending:     
++	stosm   48(%r15),0x03     # reenable interrupts
++        la      %r2,SP_PTREGS(%r15) # load pt_regs
++        sgr     %r3,%r3           # clear *oldset
++	brasl	%r14,do_signal    # call do_signal
++	stnsm   48(%r15),0xfc     # disable I/O and ext. interrupts
++	j	sysc_leave        # out of here, do NOT recheck
++
++#
++# _TIF_RESTART_SVC is set, set up registers and restart svc
++#
++sysc_restart:
++	ni	__TI_flags+3(%r9),255-_TIF_RESTART_SVC # clear TIF_RESTART_SVC
++	stosm	48(%r15),0x03          # reenable interrupts
++	lg	%r7,SP_R2(%r15)        # load new svc number
++        slag    %r7,%r7,3              # *8
++	mvc	SP_R2(8,%r15),SP_ORIG_R2(%r15) # restore first argument
++	lmg	%r2,%r6,SP_R2(%r15)    # load svc arguments
++	j	sysc_do_restart        # restart svc
++
++#
++# call syscall_trace before and after system call
++# special linkage: %r12 contains the return address for trace_svc
++#
++sysc_tracesys:
++	srl	%r7,3
++	stg     %r7,SP_R2(%r15)
++        brasl   %r14,syscall_trace
++	larl	%r1,.Lnr_syscalls
++	clc	SP_R2(8,%r15),0(%r1)
++	jl	sysc_tracego
++	lg	%r7,SP_R2(%r15)   # strace might have changed the
++	sll     %r7,3             #  system call
++	lgf	%r8,0(%r7,%r10)
++sysc_tracego:
++	lmg     %r3,%r6,SP_R3(%r15)
++	lg      %r2,SP_ORIG_R2(%r15)
++        basr    %r14,%r8            # call sys_xxx
++        stg     %r2,SP_R2(%r15)     # store return value
++	tm	__TI_flags+7(%r9),_TIF_SYSCALL_TRACE
++        jno     sysc_return
++	larl	%r14,sysc_return    # return point is sysc_return
++	jg	syscall_trace
++
++#
++# a new process exits the kernel with ret_from_fork
++#
++        .globl  ret_from_fork
++ret_from_fork:  
++        GET_THREAD_INFO           # load pointer to task_struct to R9
++	larl    %r14,sysc_return
++        jg      schedule_tail     # return to sysc_return
++
++#
++# clone, fork, vfork, exec and sigreturn need glue,
++# because they all expect pt_regs as parameter,
++# but are called with different parameter.
++# return-address is set up above
++#
++sys_clone_glue: 
++        la      %r2,SP_PTREGS(%r15)    # load pt_regs
++        jg      sys_clone              # branch to sys_clone
++
++#ifdef CONFIG_S390_SUPPORT
++sys32_clone_glue: 
++        la      %r2,SP_PTREGS(%r15)    # load pt_regs
++        jg      sys32_clone            # branch to sys32_clone
++#endif
++
++sys_fork_glue:  
++        la      %r2,SP_PTREGS(%r15)    # load pt_regs
++        jg      sys_fork               # branch to sys_fork
++
++sys_vfork_glue: 
++        la      %r2,SP_PTREGS(%r15)    # load pt_regs
++        jg      sys_vfork              # branch to sys_vfork
++
++sys_execve_glue:        
++        la      %r2,SP_PTREGS(%r15)   # load pt_regs
++	lgr     %r12,%r14             # save return address
++        brasl   %r14,sys_execve       # call sys_execve
++        ltgr    %r2,%r2               # check if execve failed
++        bnz     0(%r12)               # it did fail -> store result in gpr2
++        b       6(%r12)               # SKIP STG 2,SP_R2(15) in
++                                      # system_call/sysc_tracesys
++#ifdef CONFIG_S390_SUPPORT
++sys32_execve_glue:        
++        la      %r2,SP_PTREGS(%r15)   # load pt_regs
++	lgr     %r12,%r14             # save return address
++        brasl   %r14,sys32_execve     # call sys32_execve
++        ltgr    %r2,%r2               # check if execve failed
++        bnz     0(%r12)               # it did fail -> store result in gpr2
++        b       6(%r12)               # SKIP STG 2,SP_R2(15) in
++                                      # system_call/sysc_tracesys
++#endif
++
++sys_sigreturn_glue:     
++        la      %r2,SP_PTREGS(%r15)   # load pt_regs as parameter
++        jg      sys_sigreturn         # branch to sys_sigreturn
++
++#ifdef CONFIG_S390_SUPPORT
++sys32_sigreturn_glue:     
++        la      %r2,SP_PTREGS(%r15)   # load pt_regs as parameter
++        jg      sys32_sigreturn       # branch to sys32_sigreturn
++#endif
++
++sys_rt_sigreturn_glue:     
++        la      %r2,SP_PTREGS(%r15)   # load pt_regs as parameter
++        jg      sys_rt_sigreturn      # branch to sys_sigreturn
++
++#ifdef CONFIG_S390_SUPPORT
++sys32_rt_sigreturn_glue:     
++        la      %r2,SP_PTREGS(%r15)   # load pt_regs as parameter
++        jg      sys32_rt_sigreturn    # branch to sys32_sigreturn
++#endif
++
++#
++# sigsuspend and rt_sigsuspend need pt_regs as an additional
++# parameter and they have to skip the store of %r2 into the
++# user register %r2 because the return value was set in 
++# sigsuspend and rt_sigsuspend already and must not be overwritten!
++#
++
++sys_sigsuspend_glue:    
++        lgr     %r5,%r4               # move mask back
++        lgr     %r4,%r3               # move history1 parameter
++        lgr     %r3,%r2               # move history0 parameter
++        la      %r2,SP_PTREGS(%r15)   # load pt_regs as first parameter
++	la      %r14,6(%r14)          # skip store of return value
++        jg      sys_sigsuspend        # branch to sys_sigsuspend
++
++#ifdef CONFIG_S390_SUPPORT
++sys32_sigsuspend_glue:    
++	llgfr	%r4,%r4               # unsigned long			
++        lgr     %r5,%r4               # move mask back
++	lgfr	%r3,%r3               # int			
++        lgr     %r4,%r3               # move history1 parameter
++	lgfr	%r2,%r2               # int			
++        lgr     %r3,%r2               # move history0 parameter
++        la      %r2,SP_PTREGS(%r15)   # load pt_regs as first parameter
++	la      %r14,6(%r14)          # skip store of return value
++        jg      sys32_sigsuspend      # branch to sys32_sigsuspend
++#endif
++
++sys_rt_sigsuspend_glue: 
++        lgr     %r4,%r3               # move sigsetsize parameter
++        lgr     %r3,%r2               # move unewset parameter
++        la      %r2,SP_PTREGS(%r15)   # load pt_regs as first parameter
++	la      %r14,6(%r14)          # skip store of return value
++        jg      sys_rt_sigsuspend     # branch to sys_rt_sigsuspend
++
++#ifdef CONFIG_S390_SUPPORT
++sys32_rt_sigsuspend_glue: 
++	llgfr	%r3,%r3               # size_t			
++        lgr     %r4,%r3               # move sigsetsize parameter
++	llgtr	%r2,%r2               # sigset_emu31_t *
++        lgr     %r3,%r2               # move unewset parameter
++        la      %r2,SP_PTREGS(%r15)   # load pt_regs as first parameter
++	la      %r14,6(%r14)          # skip store of return value
++        jg      sys32_rt_sigsuspend   # branch to sys32_rt_sigsuspend
++#endif
++
++sys_sigaltstack_glue:
++        la      %r4,SP_PTREGS(%r15)   # load pt_regs as parameter
++        jg      sys_sigaltstack       # branch to sys_sigreturn
++
++#ifdef CONFIG_S390_SUPPORT
++sys32_sigaltstack_glue:
++        la      %r4,SP_PTREGS(%r15)   # load pt_regs as parameter
++        jg      sys32_sigaltstack_wrapper # branch to sys_sigreturn
++#endif
++
++#define SYSCALL(esa,esame,emu)	.long esame
++	.globl  sys_call_table	
++sys_call_table:
++#include "syscalls.S"
++#undef SYSCALL
++
++#ifdef CONFIG_S390_SUPPORT
++
++#define SYSCALL(esa,esame,emu)	.long emu
++	.globl  sys_call_table_emu
++sys_call_table_emu:
++#include "syscalls.S"
++#undef SYSCALL
++#endif
++
++/*
++ * Program check handler routine
++ */
++
++        .globl  pgm_check_handler
++pgm_check_handler:
++/*
++ * First we need to check for a special case:
++ * Single stepping an instruction that disables the PER event mask will
++ * cause a PER event AFTER the mask has been set. Example: SVC or LPSW.
++ * For a single stepped SVC the program check handler gets control after
++ * the SVC new PSW has been loaded. But we want to execute the SVC first and
++ * then handle the PER event. Therefore we update the SVC old PSW to point
++ * to the pgm_check_handler and branch to the SVC handler after we checked
++ * if we have to load the kernel stack register.
++ * For every other possible cause for PER event without the PER mask set
++ * we just ignore the PER event (FIXME: is there anything we have to do
++ * for LPSW?).
++ */
++        tm      __LC_PGM_INT_CODE+1,0x80 # check whether we got a per exception
++        jnz     pgm_per                  # got per exception -> special case
++	SAVE_ALL __LC_PGM_OLD_PSW,1
++	lgf     %r3,__LC_PGM_ILC	 # load program interruption code
++	lghi	%r8,0x7f
++	ngr	%r8,%r3
++        sll     %r8,3
++	GET_THREAD_INFO
++        larl    %r1,pgm_check_table
++        lg      %r1,0(%r8,%r1)		 # load address of handler routine
++        la      %r2,SP_PTREGS(%r15)	 # address of register-save area
++	larl	%r14,sysc_return
++        br      %r1			 # branch to interrupt-handler
++
++#
++# handle per exception
++#
++pgm_per:
++        tm      __LC_PGM_OLD_PSW,0x40    # test if per event recording is on
++        jnz     pgm_per_std              # ok, normal per event from user space
++# ok its one of the special cases, now we need to find out which one
++        clc     __LC_PGM_OLD_PSW(16),__LC_SVC_NEW_PSW
++        je      pgm_svcper
++# no interesting special case, ignore PER event
++	lpswe   __LC_PGM_OLD_PSW
++
++#
++# Normal per exception
++#
++pgm_per_std:
++	SAVE_ALL __LC_PGM_OLD_PSW,1
++	GET_THREAD_INFO
++	lghi    %r4,0x7f
++	lgf     %r3,__LC_PGM_ILC	 # load program interruption code
++        nr      %r4,%r3			 # clear per-event-bit and ilc
++        je      pgm_per_only		 # only per of per+check ?
++        sll     %r4,3
++        larl    %r1,pgm_check_table
++        lg      %r1,0(%r4,%r1)		 # load address of handler routine
++        la      %r2,SP_PTREGS(%r15)	 # address of register-save area
++        basr    %r14,%r1		 # branch to interrupt-handler
++pgm_per_only:
++        la      %r2,SP_PTREGS(15)	 # address of register-save area
++        larl    %r14,sysc_return	 # load adr. of system return
++        jg      handle_per_exception
++
++#
++# it was a single stepped SVC that is causing all the trouble
++#
++pgm_svcper:
++	SAVE_ALL __LC_SVC_OLD_PSW,1
++	llgh    %r8,__LC_SVC_INT_CODE # get svc number from lowcore
++	stosm   48(%r15),0x03     # reenable interrupts
++        GET_THREAD_INFO           # load pointer to task_struct to R9
++	slag	%r7,%r7,2         # *4 and test for svc 0
++	jnz	pgm_svcstd
++	# svc 0: system call number in %r1
++	clg	%r1,.Lnr_syscalls-.Lconst(%r14)
++	slag	%r7,%r1,2
++pgm_svcstd:
++	larl    %r7,sys_call_table
++#ifdef CONFIG_S390_SUPPORT
++        tm      SP_PSW+3(%r15),0x01  # are we running in 31 bit mode ?
++        jo      pgm_svcper_noemu
++	larl    %r7,sys_call_table_emu # use 31 bit emulation system calls
++pgm_svcper_noemu:
++#endif
++	tm	__TI_flags+3(%r9),_TIF_SYSCALL_TRACE
++        lgf     %r8,0(%r8,%r7)    # load address of system call routine
++        jo      pgm_tracesys
++        basr    %r14,%r8          # call sys_xxxx
++        stg     %r2,SP_R2(%r15)   # store return value (change R2 on stack)
++                                  # ATTENTION: check sys_execve_glue before
++                                  # changing anything here !!
++
++pgm_svcret:
++	tm	__TI_flags+3(%r9),_TIF_SIGPENDING
++	jo	pgm_svcper_nosig
++        la      %r2,SP_PTREGS(%r15) # load pt_regs
++        sgr     %r3,%r3             # clear *oldset
++	brasl	%r14,do_signal
++	
++pgm_svcper_nosig:
++	lhi     %r0,__LC_PGM_OLD_PSW     # set trap indication back to pgm_chk
++	st      %r0,SP_TRAP(%r15)
++        la      %r2,SP_PTREGS(15) # address of register-save area
++        larl    %r14,sysc_return  # load adr. of system return
++        jg      handle_per_exception
++#
++# call trace before and after sys_call
++#
++pgm_tracesys:
++	lgfr	%r7,%r7
++	stg	%r7,SP_R2(%r15)
++        brasl   %r14,syscall_trace
++	clc	SP_R2(8,%r15),.Lnr_syscalls
++	jnl     pgm_svc_go
++	lg      %r2,SP_R2(%r15)
++	sllg    %r2,%r2,3           # strace wants to change the syscall
++	lgf	%r8,0(%r2,%r7)
++pgm_svc_go:
++	lmg     %r3,%r6,SP_R3(%r15)
++	lg      %r2,SP_ORIG_R2(%r15)
++        basr    %r14,%r8            # call sys_xxx
++        stg     %r2,SP_R2(%r15)     # store return value
++	tm	__TI_flags+7(%r9),_TIF_SYSCALL_TRACE
++        jno     pgm_svcret
++	larl	%r14,pgm_svcret     # return point is sysc_return
++	jg	syscall_trace
++
++/*
++ * IO interrupt handler routine
++ */
++        .globl io_int_handler
++io_int_handler:
++        SAVE_ALL __LC_IO_OLD_PSW,0
++        GET_THREAD_INFO                # load pointer to task_struct to R9
++        la      %r2,SP_PTREGS(%r15)    # address of register-save area
++	llgh    %r3,__LC_SUBCHANNEL_NR # load subchannel number
++        llgf    %r4,__LC_IO_INT_PARM   # load interruption parm
++        llgf    %r5,__LC_IO_INT_WORD   # load interruption word
++	brasl   %r14,do_IRQ            # call standard irq handler
++
++io_return:
++        tm      SP_PSW+1(%r15),0x01    # returning to user ?
++#ifdef CONFIG_PREEMPT
++	jno     io_preempt             # no -> check for preemptive scheduling
++#else
++        jno     io_leave               # no-> skip resched & signal
++#endif
++	tm	__TI_flags+7(%r9),_TIF_WORK_INT
++	jnz	io_work                # there is work to do (signals etc.)
++io_leave:
++        RESTORE_ALL 0
++
++#ifdef CONFIG_PREEMPT
++io_preempt:
++	icm	%r0,15,__TI_precount(%r9)	
++	jnz     io_leave
++io_resume_loop:
++	tm	__TI_flags+7(%r9),_TIF_NEED_RESCHED
++	jno	io_leave
++	larl    %r1,.Lc_pactive
++	mvc     __TI_precount(4,%r9),0(%r1)
++	# hmpf, we are on the async. stack but to call schedule
++	# we have to move the interrupt frame to the process stack
++	lg	%r1,SP_R15(%r15)
++	aghi	%r1,-SP_SIZE
++	nill	%r1,0xfff8
++	mvc	SP_PTREGS(SP_SIZE-SP_PTREGS,%r1),SP_PTREGS(%r15)
++        xc      0(8,%r1),0(%r1)        # clear back chain
++	lgr	%r15,%r1
++        stosm   48(%r15),0x03          # reenable interrupts
++	brasl   %r14,schedule          # call schedule
++        stnsm   48(%r15),0xfc          # disable I/O and ext. interrupts
++        GET_THREAD_INFO                # load pointer to task_struct to R9
++	xc      __TI_precount(4,%r9),__TI_precount(%r9)
++	j	io_resume_loop
++#endif
++
++#
++# recheck if there is more work to do
++#
++io_work_loop:
++        stnsm   48(%r15),0xfc          # disable I/O and ext. interrupts
++        GET_THREAD_INFO                # load pointer to task_struct to R9
++	tm	__TI_flags+7(%r9),_TIF_WORK_INT
++	jz	io_leave               # there is no work to do
++#
++# One of the work bits is on. Find out which one.
++# Checked are: _TIF_SIGPENDING and _TIF_NEED_RESCHED
++#
++io_work:
++	tm	__TI_flags+7(%r9),_TIF_NEED_RESCHED
++	jo	io_reschedule
++	tm	__TI_flags+7(%r9),_TIF_SIGPENDING
++	jo	io_sigpending
++	j	io_leave
++
++#
++# _TIF_NEED_RESCHED is set, call schedule
++#	
++io_reschedule:        
++        stosm   48(%r15),0x03       # reenable interrupts
++	larl    %r14,io_work_loop
++        jg      schedule            # call scheduler
++
++#
++# _TIF_SIGPENDING is set, call do_signal
++#
++io_sigpending:     
++        stosm   48(%r15),0x03       # reenable interrupts
++        la      %r2,SP_PTREGS(%r15) # load pt_regs
++        slgr    %r3,%r3             # clear *oldset
++	brasl	%r14,do_signal      # call do_signal
++        stnsm   48(%r15),0xfc       # disable I/O and ext. interrupts
++	j	sysc_leave          # out of here, do NOT recheck
++
++/*
++ * External interrupt handler routine
++ */
++        .globl  ext_int_handler
++ext_int_handler:
++        SAVE_ALL __LC_EXT_OLD_PSW,0
++        GET_THREAD_INFO                # load pointer to task_struct to R9
++	llgh	%r6,__LC_EXT_INT_CODE  # get interruption code
++	lgr	%r1,%r6		       # calculate index = code & 0xff
++	nill	%r1,0xff
++	sll	%r1,3
++	larl	%r7,ext_int_hash
++	lg	%r7,0(%r1,%r7)	       # get first list entry for hash value
++	ltgr	%r7,%r7		       # == NULL ?
++	jz	io_return	       # yes, nothing to do, exit
++ext_int_loop:
++	ch	%r6,16(%r7)	       # compare external interrupt code
++	jne	ext_int_next
++	lg	%r1,8(%r7)	       # get handler address
++	la	%r2,SP_PTREGS(%r15)    # address of register-save area
++	lgr	%r3,%r6		       # interruption code
++	basr	%r14,%r1	       # call handler
++ext_int_next:
++	lg	%r7,0(%r7)	       # next list entry
++	ltgr	%r7,%r7
++	jnz	ext_int_loop
++	j	io_return
++
++/*
++ * Machine check handler routines
++ */
++        .globl mcck_int_handler
++mcck_int_handler:
++        SAVE_ALL __LC_MCK_OLD_PSW,0
++	brasl   %r14,s390_do_machine_check
++mcck_return:
++        RESTORE_ALL 0
++
++#ifdef CONFIG_SMP
++/*
++ * Restart interruption handler, kick starter for additional CPUs
++ */
++        .globl restart_int_handler
++restart_int_handler:
++        lg      %r15,__LC_SAVE_AREA+120 # load ksp
++        lghi    %r10,__LC_CREGS_SAVE_AREA
++        lctlg   %c0,%c15,0(%r10) # get new ctl regs
++        lghi    %r10,__LC_AREGS_SAVE_AREA
++        lam     %a0,%a15,0(%r10)
++        stosm   0(%r15),0x04           # now we can turn dat on
++        lmg     %r6,%r15,48(%r15)      # load registers from clone
++	jg      start_secondary
++#else
++/*
++ * If we do not run with SMP enabled, let the new CPU crash ...
++ */
++        .globl restart_int_handler
++restart_int_handler:
++        basr    %r1,0
++restart_base:
++        lpswe   restart_crash-restart_base(%r1)
++        .align 8
++restart_crash:
++        .long  0x000a0000,0x00000000,0x00000000,0x00000000
++restart_go:
++#endif
++
++/*
++ * Integer constants
++ */
++               .align 4
++.Lconst:
++.Lc_ac:        .long  0,0,1
++.Lc_pactive:   .long  PREEMPT_ACTIVE
++.L0x0130:      .long  0x0130
++.L0x0140:      .long  0x0140
++.L0x0150:      .long  0x0150
++.L0x0160:      .long  0x0160
++.L0x0170:      .long  0x0170
++.Lnr_syscalls: .long  NR_syscalls
 

@@ -1,123 +1,94 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265134AbUFGXsv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265132AbUFGX61@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265134AbUFGXsv (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Jun 2004 19:48:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265132AbUFGXsv
+	id S265132AbUFGX61 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Jun 2004 19:58:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265135AbUFGX61
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Jun 2004 19:48:51 -0400
-Received: from relay2.EECS.Berkeley.EDU ([169.229.60.28]:6109 "EHLO
-	relay2.EECS.Berkeley.EDU") by vger.kernel.org with ESMTP
-	id S265134AbUFGXsr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Jun 2004 19:48:47 -0400
-Subject: Finding user/kernel pointer bugs
-From: "Robert T. Johnson" <rtjohnso@eecs.berkeley.edu>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: Al Viro <viro@math.psu.edu>, Linux Kernel <linux-kernel@vger.kernel.org>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.5 
-Date: 07 Jun 2004 16:48:44 -0700
-Message-Id: <1086652124.14180.5.camel@dooby.cs.berkeley.edu>
-Mime-Version: 1.0
+	Mon, 7 Jun 2004 19:58:27 -0400
+Received: from bhhdoa.org.au ([216.17.101.199]:54023 "EHLO bhhdoa.org.au")
+	by vger.kernel.org with ESMTP id S265132AbUFGX6Y (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 7 Jun 2004 19:58:24 -0400
+Message-ID: <1086644098.40c4df826be23@vds.kolivas.org>
+Date: Tue,  8 Jun 2004 07:34:58 +1000
+From: Con Kolivas <kernel@kolivas.org>
+To: Phy Prabab <phyprabab@yahoo.com>
+Cc: Linux Kernel Mailinglist <linux-kernel@vger.kernel.org>,
+       Zwane Mwaikambo <zwane@linuxpower.ca>,
+       William Lee Irwin III <wli@holomorphy.com>
+Subject: Re: [PATCH] Staircase Scheduler v6.3 for 2.6.7-rc2
+References: <20040607214034.27475.qmail@web51807.mail.yahoo.com>
+In-Reply-To: <20040607214034.27475.qmail@web51807.mail.yahoo.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+User-Agent: Internet Messaging Program (IMP) 3.2.2
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I notice that recently Linus, Al Viro, and others have put a huge
-effort into annotating the kernel to find user/kernel pointer bugs
-with sparse.  Despite this work, fewer than 1000 of the almost 13000
-source files in Linux 2.6.7-rc3 contain any annotations at all.
-Because of this, I think you might be interested in our tool for
-finding user/kernel pointer bugs, CQual.  CQual could save 
-months of work annotating the rest of the kernel.
+Quoting Phy Prabab <phyprabab@yahoo.com>:
 
-Like sparse, cqual uses annotations to find bugs in software.  I
-don't intend for cqual to replace sparse, but for the specific problem
-of user/kernel pointer bugs, I believe that cqual provides better
-results with less work from programmers.  The main features of cqual
-are:
+> OOOPPPSSSS....
+> 
+> I need to make a correction on my previous data.  I
+> had inadvertantly turned off interactivity and also
+> increased the compute time to 100.  I confirmed that
+> just setting interactivity off, does not solve my
+> problem:
+> 
+> 2.6.7-rc3-s63 (0 @ /proc/sys/kernel/interactive):
+> A:  37.30user 40.56system 1:42.01elapsed 76%CPU
+> B:  37.29user 40.35system 1:23.87elapsed 92%CPU
+> C:  37.30user 40.56system 1:36.01elapsed 81%CPU
+> 
+> 2.6.7-rc3-s63 (0 @ /proc/sys/kernel/interactive & 1
+> /proc/sys/kernel/compute):
+> A:  37.28user 40.36system 1:25.60elapsed 90%CPU
+> B:  37.22user 40.35system 1:22.17elapsed 94%CPU
+> C:  37.27user 40.35system 1:24.71elapsed 91%CPU
+> 
+> The question here, noticing that user and kernel time
+> are the same, where is the dead time coming from and
+> why is it sooooo much more deterministic with compute
+> time at 100 vs 10?  Maybe I am misinterpreting the
+> data, but this suggests to me that something is going
+> awry (ping-pong, no settle, ???) within the kernl?
+> 
+> 
+> Also please note the degredation between
+> 2.6.7-rc2-bk8-s63:
+> 
+> A:  35.57user 38.18system 1:20.28elapsed 91%CPU
+> B:  35.54user 38.40system 1:19.48elapsed 93%CPU
+> C:  35.48user 38.28system 1:20.94elapsed 91%CPU
+> 
+> Interesting how much more time is spent in both user
+> and kernel space between the two kernels.  Also note
+> that 2.4.x exhibits even greater delta:
+> 
+> A:  28.32user 29.51system 1:01.17elapsed 93%CPU
+> B:  28.54user 29.40system 1:01.48elapsed 92%CPU
+> B:  28.23user 28.80system 1:00.21elapsed 94%CPU
+> 
+> Could anyone suggest a way to understand why the
+> difference between the 2.6 kernels and the 2.4
+> kernels?
+> 
+> Thank you for your time.
+> Phy
+> 
+Hi.
 
-- cqual requires _very few_ annotations.  
+How repeatable are the numbers normally? Some idea of what it is you're
+benchmarking may also help in understanding the problem; locking may be an
+issue with what you're benchmarking and out-of-order scheduling is not as
+forgiving of poor locking. Extending the RR_INTERVAL and turning off
+interactivity makes it more in-order and more forgiving of poor locking or
+yield().
 
-  CQual infers most annotations from a few base annotations provided
-  by programmers.  In theory, it's possible to check the entire kernel
-  with fewer than 300 annotations.  In practice, cqual only requires
-  header files to be annotated.
+Compute==1 setting inactivates interactivity anyway, but that's not really
+relevant to your figures since you had set interactive 0 when you set compute
+1.
 
-- cqual requires _zero_ annotations in device drivers.
-
-  Once the generic driver interfaces have been annotated, all device
-  drivers can be checked against these annotations without any further
-  effort.  This is critical, since annotating the thousands of device
-  drivers in linux will be extremely difficult and take months.
-
-- cqual can verify more code than sparse.
-
-  CQual allows some struct instances to have user pointer fields and
-  some to have kernel pointer fields, and it automatically figures out
-  which are which.  This means some code that sparse erroneously
-  reports as buggy will pass through cqual without warning.  The only
-  way to get this sort of code to check with sparse is to have two
-  redundant structure definitions: one holding user pointers and the
-  other holding kernel pointers.  This sort of code duplication will
-  lead to its own host of code maintainence problems.  Thus, the
-  ability to check more code not only reduces the false positive rate,
-  it results in more maintainable code.
-
-  CQual supports other features, such as polymorphism, that also allow
-  it to verify more code.
-
-- cqual doesn't require numerous casts.
-
-  Casts are extra annotations that pose yet another annotation burden
-  on the programmer.  Even worse, they can silently suppress
-  legitimate warning messages.  CQual requires far fewer casts than
-  sparse, so it's easier to use and less error prone.
-
-- cqual doesn't miss any bugs.
-
-  If cqual says code is free of user/kernel pointer bugs, then it is.
-
-- cqual works with the kernel build system
-
-  CQual ships with a script, "kqual", that makes it behave like a
-  drop-in replacement for sparse in the kernel build system.
-
-- cqual is open source (GPL).
-
-  It's hosted on sourceforge and available from 
-  http://www.cs.umd.edu/~jfoster/cqual/
-
-I've already used cqual to find numerous real user/kernel pointer
-bugs in the Linux kernel.  You can read about these results in the
-paper: http://www.cs.berkeley.edu/~rtjohnso/papers/cquk.ps
-
-I look forward to receiving feedback from kernel developers on cqual.
-In the long run, I hope to see cqual become the default tool for
-finding user/kernel pointer bugs in Linux.  Again, cqual cannot
-replace sparse, because sparse performs many checks that cqual does
-not, but for user/kernel pointer bugs, cqual gives better results with 
-far, far fewer annotations.  Thanks for your feedback.
-
-Best,
-Rob Johnson
-
-P.S. As an example, cqual has already found bugs in
-
-drivers/char/drm/gamma_dma.c
-drivers/scsi/cpqfcTSinit.c
-drivers/usb/vicam.c
-drivers/usb/w9968cf.c
-drivers/pcmcia/{[dc]s,bulkmem}.c
-drivers/i2c/i2c-dev.c
-fs/ncpfs/ioctl.c
-drivers/net/wan/cosa.c
-drivers/net/wan/sbni.c
-drivers/net/bonding.c
-drivers/video/fbcon.c
-drivers/i2c/i2c-dev.c
-drivers/message/i2o/i2o_config.c
-drivers/char/joystick.c
-
-and probably a few others that I've forgotten.
-
+Con
 

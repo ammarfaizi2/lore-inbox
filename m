@@ -1,51 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265145AbSJPQDY>; Wed, 16 Oct 2002 12:03:24 -0400
+	id <S265134AbSJPQFJ>; Wed, 16 Oct 2002 12:05:09 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265148AbSJPQDY>; Wed, 16 Oct 2002 12:03:24 -0400
-Received: from ns.suse.de ([213.95.15.193]:10770 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id <S265145AbSJPQDV> convert rfc822-to-8bit;
-	Wed, 16 Oct 2002 12:03:21 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Andreas Gruenbacher <agruen@suse.de>
-Organization: SuSE Linux AG
-To: "Theodore Ts'o" <tytso@mit.edu>, Christoph Hellwig <hch@infradead.org>,
-       torvalds@transmeta.com, Andrew Morton <akpm@digeo.com>
-Subject: Re: [PATCH 1/5] Add POSIX Access Control Lists to ext2/3
-Date: Wed, 16 Oct 2002 18:09:16 +0200
-User-Agent: KMail/1.4.3
-References: <E181a3b-0006Nu-00@snap.thunk.org> <20021016141103.A8393@infradead.org> <20021016155012.GA8210@think.thunk.org>
-In-Reply-To: <20021016155012.GA8210@think.thunk.org>
-Cc: linux-kernel@vger.kernel.org
+	id <S265135AbSJPQFJ>; Wed, 16 Oct 2002 12:05:09 -0400
+Received: from packet.digeo.com ([12.110.80.53]:54527 "EHLO packet.digeo.com")
+	by vger.kernel.org with ESMTP id <S265134AbSJPQFI>;
+	Wed, 16 Oct 2002 12:05:08 -0400
+Message-ID: <3DAD8F91.FA93860E@digeo.com>
+Date: Wed, 16 Oct 2002 09:10:57 -0700
+From: Andrew Morton <akpm@digeo.com>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.5.42 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <200210161809.17015.agruen@suse.de>
+To: Arjan van de Ven <arjanv@fenrus.demon.nl>
+CC: Linus Torvalds <torvalds@transmeta.com>, Ingo Molnar <mingo@elte.hu>,
+       NPT library mailing list <phil-list@redhat.com>,
+       linux-kernel@vger.kernel.org, linux-mm@kvack.org
+Subject: Re: [patch] mmap-speedup-2.5.42-C3
+References: <Pine.LNX.4.44.0210160751260.2181-100000@home.transmeta.com> <1034783351.4287.2.camel@localhost.localdomain>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 16 Oct 2002 16:10:57.0814 (UTC) FILETIME=[9CB97360:01C2752E]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 16 October 2002 17:50, Theodore Ts'o wrote:
-> On Wed, Oct 16, 2002 at 02:11:04PM +0100, Christoph Hellwig wrote:
-> > Ted, please either go _always_ through the {get,set}_posix_acl methods
-> > or never.  Currently XFS doesn't know and doesn't want to know
-> > about the so called "egenric ACL representation" used by ext2/ext3.  With
-> > theses methods we'd have to add it to XFS which is fine for me as long as
-> > it the representation generally used for working with ACLs.  That would
-> > mean we'd have to add new syscall or at least VFS-level hooks to the
-> > xattr code.
->
-> Fine.  I'll just yank the {get,set}_posix_acl methods for now.  The
-> inode methods were only needed for the NFS code (see Andreas' comments
-> about the xattr interfaces being problematical for VFS support).
->
-> However, the reality is that at this point, we probably won't have
-> time to get support in for the NFS server ACL before feature freeze,
-> and changing the interface to ACL's (never mind the headaches of
-> trying to agree to a new syscall interface at this late date), given
-> the deployed userspace tools, just doesn't seem to be realistic.
+Arjan van de Ven wrote:
+> 
+> On Wed, 2002-10-16 at 16:52, Linus Torvalds wrote:
+> \
+> > > i think it should be unrelated to the mmap patch. In any case, Andrew
+> > > added the mmap-speedup patch to 2.5.43-mm1, so we'll hear about this
+> > > pretty soon.
+> >
+> > There's at least one Oops-report on linux-kernel on 2.5.43-mm1, where the
+> > oops traceback was somewhere in munmap().
+> >
+> > Sounds like there are bugs there.
+> 
+> could be the shared pagetable stuff just as well ;(
+> 
 
-The pain of not having the NFS ACL hack is only moderate; it only affects 
-interoperability of older systems with a feature that wasn't there before, 
-and even then the effects aren't dramatic. We could live without it for a 
-while, but I'll see if I code that up in time too.
-
---Andreas.
+Yes, Matt had shared pagetables enabled.  That code is not stable yet.

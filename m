@@ -1,65 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267494AbUHXLYU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267514AbUHXLbl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267494AbUHXLYU (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 Aug 2004 07:24:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267486AbUHXLYU
+	id S267514AbUHXLbl (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 Aug 2004 07:31:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267515AbUHXLbl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 Aug 2004 07:24:20 -0400
-Received: from delerium.kernelslacker.org ([81.187.208.145]:42155 "EHLO
-	delerium.codemonkey.org.uk") by vger.kernel.org with ESMTP
-	id S267532AbUHXLXF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 Aug 2004 07:23:05 -0400
-Date: Tue, 24 Aug 2004 12:22:45 +0100
-From: Dave Jones <davej@redhat.com>
-To: Andi Kleen <ak@suse.de>
-Cc: torvalds@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: Fix MTRR strings definition.
-Message-ID: <20040824112245.GA7847@redhat.com>
-Mail-Followup-To: Dave Jones <davej@redhat.com>, Andi Kleen <ak@suse.de>,
-	torvalds@osdl.org, linux-kernel@vger.kernel.org
-References: <20040823232320.GA1875@redhat.com> <20040824081729.311ee677.ak@suse.de> <20040824110001.GD28237@redhat.com> <20040824131735.3980c21a.ak@suse.de>
+	Tue, 24 Aug 2004 07:31:41 -0400
+Received: from facesaver.epoch.ncsc.mil ([144.51.25.10]:40365 "EHLO
+	epoch.ncsc.mil") by vger.kernel.org with ESMTP id S267514AbUHXLbi
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 24 Aug 2004 07:31:38 -0400
+Subject: Re: [PATCH][7/7] add xattr support to ramfs
+From: Stephen Smalley <sds@epoch.ncsc.mil>
+To: Greg KH <greg@kroah.com>
+Cc: Christoph Hellwig <hch@infradead.org>, James Morris <jmorris@redhat.com>,
+       Andrew Morton <akpm@osdl.org>,
+       Alexander Viro <viro@parcelfarce.linux.theplanet.co.uk>,
+       lkml <linux-kernel@vger.kernel.org>
+In-Reply-To: <20040823205942.GA3370@kroah.com>
+References: <Xine.LNX.4.44.0408231420100.13728-100000@thoron.boston.redhat.com>
+	 <Xine.LNX.4.44.0408231421200.13728-100000@thoron.boston.redhat.com>
+	 <20040823212623.A20995@infradead.org>
+	 <1093292789.27211.279.camel@moss-spartans.epoch.ncsc.mil>
+	 <20040823205942.GA3370@kroah.com>
+Content-Type: text/plain
+Organization: National Security Agency
+Message-Id: <1093346824.1800.34.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040824131735.3980c21a.ak@suse.de>
-User-Agent: Mutt/1.4.1i
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
+Date: Tue, 24 Aug 2004 07:27:04 -0400
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Aug 24, 2004 at 01:17:35PM +0200, Andi Kleen wrote:
+On Mon, 2004-08-23 at 16:59, Greg KH wrote:
+> On Mon, Aug 23, 2004 at 04:26:29PM -0400, Stephen Smalley wrote:
+> > On Mon, 2004-08-23 at 16:26, Christoph Hellwig wrote:
+> > > On Mon, Aug 23, 2004 at 02:22:20PM -0400, James Morris wrote:
+> > > > This patch adds xattr support to tmpfs, and a security xattr handler.
+> > > > Original patch from: Chris PeBenito <pebenito@gentoo.org>
+> > > 
+> > > What's the point on doing this for ramfs?  And if you really want this
+> > > the implementation could be shared with tmpfs easily and put into xattr.c
+> > 
+> > For udev.
+> 
+> What's wrong with using a tmpfs for udev in such situations that xattrs
+> are needed?  udev does not require ramfs at all.  In fact, why not just
+> use a ext2 or ext3 partition for /dev instead today, if you really need
+> it?
 
- > > The extern definitions no longer exist.
- > Your patch was: 
+It makes no difference to me whether we use ramfs or tmpfs (I'd favor
+tmpfs myself); just trying to get Fedora rawhide working again with
+SELinux, and it happens to be using udev with ramfs for reasons unknown
+to me.  Whatever filesystem is used, udev has to be able to set the
+security attribute on the device nodes in it, so that SELinux can
+properly mediate access.  Using ext2 in the short term would likely
+work, but is obviously not ideal long term, and having security
+attribute support for tmpfs would be useful for other uses of tmpfs
+(with SELinux) as well.  Likewise, if ramfs has any significant usage,
+then it would be good if we could have security attribute support for it
+so that it can be labeled and access controlled properly.
 
-Oops. I missed the x86-64 one as I thought you killed that when you
-killed the i386 one.
+-- 
+Stephen Smalley <sds@epoch.ncsc.mil>
+National Security Agency
 
-		Dave
-
- > --- latest-FC2/include/asm-x86_64/mtrr.h~	2004-08-24 00:20:17.377436336 +0100
- > +++ latest-FC2/include/asm-x86_64/mtrr.h	2004-08-24 00:21:04.137327752 +0100
- > @@ -69,6 +69,19 @@
- >  #define MTRR_TYPE_WRBACK     6
- >  #define MTRR_NUM_TYPES       7
- >  
- > +#ifdef MTRR_NEED_STRINGS
- > +static char *mtrr_strings[MTRR_NUM_TYPES] =
- > ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
- > +{
- > +	"uncachable",		/* 0 */
- > +	"write-combining",	/* 1 */
- > +	"?",			/* 2 */
- > +	"?",			/* 3 */
- > +	"write-through",	/* 4 */
- > +	"write-protect",	/* 5 */
- > +	"write-back",		/* 6 */
- > +};
- > +#endif
- > +
- >  #ifdef __KERNEL__
- >  
- >  extern char *mtrr_strings[MTRR_NUM_TYPES];
- > ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
- > 
- > -Andi
----end quoted text---

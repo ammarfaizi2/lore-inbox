@@ -1,49 +1,72 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271369AbTG2J6g (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 29 Jul 2003 05:58:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271371AbTG2J6f
+	id S271363AbTG2Juf (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 29 Jul 2003 05:50:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271369AbTG2Jtw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 29 Jul 2003 05:58:35 -0400
-Received: from scrub.xs4all.nl ([194.109.195.176]:16900 "EHLO scrub.xs4all.nl")
-	by vger.kernel.org with ESMTP id S271369AbTG2J6d (ORCPT
+	Tue, 29 Jul 2003 05:49:52 -0400
+Received: from aneto.able.es ([212.97.163.22]:28101 "EHLO aneto.able.es")
+	by vger.kernel.org with ESMTP id S271363AbTG2JsX (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 29 Jul 2003 05:58:33 -0400
-Date: Tue, 29 Jul 2003 11:58:20 +0200 (CEST)
-From: Roman Zippel <zippel@linux-m68k.org>
-X-X-Sender: roman@serv
-To: Michael Hunold <hunold@convergence.de>
-cc: linux-kernel@vger.kernel.org, <alan@lxorguk.ukuu.org.uk>,
-       <torvalds@osdl.org>
-Subject: Re: [PATCH 1/6] [DVB] Kconfig and Makefile updates
-In-Reply-To: <10594710302828@convergence.de>
-Message-ID: <Pine.LNX.4.44.0307291153340.717-100000@serv>
-References: <10594710302828@convergence.de>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Tue, 29 Jul 2003 05:48:23 -0400
+Date: Tue, 29 Jul 2003 11:48:20 +0200
+From: "J.A. Magallon" <jamagallon@able.es>
+To: Tomas Szepe <szepe@pinerecords.com>
+Cc: "J.A. Magallon" <jamagallon@able.es>, Kurt Wall <kwall@kurtwerks.com>,
+       Luiz Capitulino <lcapitulino@prefeitura.sp.gov.br>,
+       linux-kernel@vger.kernel.org
+Subject: Re: 2.6-test2: gcc-3.3.1 warning.
+Message-ID: <20030729094820.GC28348@werewolf.able.es>
+References: <1059396053.442.2.camel@lorien> <20030728225017.GJ32673@louise.pinerecords.com> <20030729002221.GD263@kurtwerks.com> <20030729045512.GM32673@louise.pinerecords.com> <20030729092857.GA28348@werewolf.able.es> <20030729093521.GA1286@louise.pinerecords.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Disposition: inline
+Content-Transfer-Encoding: 7BIT
+In-Reply-To: <20030729093521.GA1286@louise.pinerecords.com>; from szepe@pinerecords.com on Tue, Jul 29, 2003 at 11:35:21 +0200
+X-Mailer: Balsa 2.0.13
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
 
-On Tue, 29 Jul 2003, Michael Hunold wrote:
+On 07.29, Tomas Szepe wrote:
+> > On 07.29, Tomas Szepe wrote:
+> >
+> > Then why are we all calling current kernel 2.4.22 instead of
+2.4.21.90 ?
+> 
+> WE aren't.
+> 
+> www.kerne.org:
+> The latest stable version of the Linux kernel is: 2.4.21
+> The latest prepatch for the stable Linux kernel tree is: 2.4.22-pre8
 
->  config VIDEO_SAA7146
->          tristate
-> -        default y if DVB_AV7110=y || DVB_BUDGET=y || DVB_BUDGET_AV=y || VIDEO_MXB=y || VIDEO_DPC=y
-> -        default m if DVB_AV7110=m || DVB_BUDGET=m || DVB_BUDGET_AV=m || VIDEO_MXB=m || VIDEO_DPC=m
-> -        depends on VIDEO_DEV && PCI
-> +        default y if DVB_AV7110=y || DVB_BUDGET=y || DVB_BUDGET_AV=y || VIDEO_MXB=y || VIDEO_DPC=y || VIDEO_HEXIUM_ORION=y || VIDEO_HEXIUM_GEMINI=y
-> +        default m if DVB_AV7110=m || DVB_BUDGET=m || DVB_BUDGET_AV=m || VIDEO_MXB=m || VIDEO_DPC=m || VIDEO_HEXIUM_ORION=m || VIDEO_HEXIUM_GEMINI=m
-> +        depends on VIDEO_DEV && PCI && I2C
+So what it this -------------------------------------------^^^^^^ ??
+If people talks to you about 2.4.22, sure you understand at the first
+glance tyey talk about the -pre of 2.4.22.
 
-You can change this also into:
+> The latest snapshot for the stable Linux kernel tree is: 2.4.21-bk20
+> 
+> > OK, the full name would be gcc-3.3.1-prerelease-of-20030720.
+> 
+> Yeah, it doesn't really surprise me it's all the same to Mandrake
+people.
+> 
 
-config VIDEO_SAA7146
-	def_tristate DVB_AV7110 || DVB_BUDGET || DVB_BUDGET_AV || \
-		     VIDEO_MXB || VIDEO_DPC || VIDEO_HEXIUM_ORION || \
-		     VIDEO_HEXIUM_GEMINI
-	depends on VIDEO_DEV && PCI && I2C
+What about Mandrake people ? Whats wrong with testing prerelease
+software ?
+I hope you just use release kernels, -pres are only for Mandrake people
+;)
+I would understand you if it were a bug in the compiler, if it it cried
+against obviously correct code, but it just says
+that the assembler syntax is old and you should change it.
 
-bye, Roman
+Any ways, let it be. You just will have to hurry when real 3.3.1 or 3.4
+gets out, and then two thousand people complaint instead of two couples.
 
+-- 
+J.A. Magallon <jamagallon@able.es>      \                 Software is
+like sex:
+werewolf.able.es                         \           It's better when
+it's free
+Mandrake Linux release 9.2 (Cooker) for i586
+Linux 2.4.22-pre8-jam1m (gcc 3.3.1 (Mandrake Linux 9.2 3.3.1-0.6mdk))

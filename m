@@ -1,54 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265093AbTF3Puw (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 30 Jun 2003 11:50:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265128AbTF3Puv
+	id S265176AbTF3P4U (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 30 Jun 2003 11:56:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265234AbTF3P4U
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 30 Jun 2003 11:50:51 -0400
-Received: from mail.hometree.net ([212.34.181.120]:18819 "EHLO
-	mail.hometree.net") by vger.kernel.org with ESMTP id S265093AbTF3Pul
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 30 Jun 2003 11:50:41 -0400
-To: linux-kernel@vger.kernel.org
-Path: not-for-mail
-From: "Henning P. Schmiedehausen" <hps@intermeta.de>
-Newsgroups: hometree.linux.kernel
-Subject: Re: File System conversion -- ideas
-Date: Mon, 30 Jun 2003 16:05:00 +0000 (UTC)
-Organization: INTERMETA - Gesellschaft fuer Mehrwertdienste mbH
-Message-ID: <bdpn3c$te5$1@tangens.hometree.net>
-References: <200306291011.h5TABQXB000391@81-2-122-30.bradfords.org.uk> <20030629132807.GA25170@mail.jlokier.co.uk> <3EFEEEC3.30505@sktc.net>
-Reply-To: hps@intermeta.de
-NNTP-Posting-Host: forge.intermeta.de
-X-Trace: tangens.hometree.net 1056989100 30149 212.34.181.4 (30 Jun 2003 16:05:00 GMT)
-X-Complaints-To: news@intermeta.de
-NNTP-Posting-Date: Mon, 30 Jun 2003 16:05:00 +0000 (UTC)
-X-Copyright: (C) 1996-2003 Henning Schmiedehausen
-X-No-Archive: yes
-User-Agent: nn/6.6.5
+	Mon, 30 Jun 2003 11:56:20 -0400
+Received: from dm5-224.slc.aros.net ([66.219.220.224]:46467 "EHLO cyprus")
+	by vger.kernel.org with ESMTP id S265176AbTF3P4T (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 30 Jun 2003 11:56:19 -0400
+Message-ID: <3F0060FD.2010203@aros.net>
+Date: Mon, 30 Jun 2003 10:10:37 -0600
+From: Lou Langholtz <ldl@aros.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20030225
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Paul.Clements@steeleye.com
+Cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@digeo.com>,
+       Pavel Machek <pavel@ucw.cz>, viro@parcelfarce.linux.theplanet.co.uk
+Subject: Re: [RFC][PATCH] nbd driver for 2.5+: fix locking issues with ioctl
+ UI
+References: <Pine.LNX.4.10.10306261014360.412-100000@clements.sc.steeleye.com>
+In-Reply-To: <Pine.LNX.4.10.10306261014360.412-100000@clements.sc.steeleye.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"David D. Hagood" <wowbagger@sktc.net> writes:
+Paul Clements wrote:
 
->For example, suppose you have a 60G disk, 55G of data, in ext2, and you 
->wish to convert to ReiserFS.
+>. . .
+>That's not an unreasonable thing to do...it'd be a much more minor change.
+>I guess I'm just having a hard time seeing the benefit of rearranging
+>all this code. Unless there's some substantial benefit, it seems wiser
+>to keep the changes as minimal as possible...after all, the current code
+>does work.
+>. . .
+>
+Sorry for the confusion. I think you're looking at the nbd code more 
+from the standpoint of fixing problem areas and integration with the 
+changes from 2.5. I've had my eye meanwhile on a more robust 
+implemenation and enhanced design. The difference being that what I've 
+submitted so far are just the changes I've needed along that path which 
+also achieve the former target. But the changes clearly aren't ideal for 
+the former perspective - in not being minimalistic changes. Just nobody 
+else has completely fixed problematic areas of the driver liking locking 
+races so I figure if the code also fixes these problematic areas it's 
+worth sharing with this audience. YMMV of course.
 
->Step 1: Shrink the volume to 55G. This requires a "shrink disk" utility 
->for the source file system (which exists for the major file systems in 
->use today).
-
-You have a 6 GB file. You lose. :-)
-
-	Regards
-		Henning
-
--- 
-Dipl.-Inf. (Univ.) Henning P. Schmiedehausen          INTERMETA GmbH
-hps@intermeta.de        +49 9131 50 654 0   http://www.intermeta.de/
-
-Java, perl, Solaris, Linux, xSP Consulting, Web Services 
-freelance consultant -- Jakarta Turbine Development  -- hero for hire
-
---- Quote of the week: "It is pointless to tell people anything when
-you know that they won't process the message." --- Jonathan Revusky

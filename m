@@ -1,64 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261251AbUKEXMs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261253AbUKEXNZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261251AbUKEXMs (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 5 Nov 2004 18:12:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261253AbUKEXMs
+	id S261253AbUKEXNZ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 5 Nov 2004 18:13:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261257AbUKEXNY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 5 Nov 2004 18:12:48 -0500
-Received: from fw.osdl.org ([65.172.181.6]:4261 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S261251AbUKEXMn (ORCPT
+	Fri, 5 Nov 2004 18:13:24 -0500
+Received: from petasus.ch.intel.com ([143.182.124.5]:43446 "EHLO
+	petasus.ch.intel.com") by vger.kernel.org with ESMTP
+	id S261253AbUKEXNV convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 5 Nov 2004 18:12:43 -0500
-Date: Fri, 5 Nov 2004 15:12:16 -0800 (PST)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Grzegorz Kulewski <kangur@polcom.net>
-cc: Chris Wedgwood <cw@f00f.org>, Andries Brouwer <aebr@win.tue.nl>,
-       Adam Heath <doogie@debian.org>, Christoph Hellwig <hch@infradead.org>,
-       Timothy Miller <miller@techsource.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] change Kconfig entry for RAMFS (Was: Re: support of
- older compilers)
-In-Reply-To: <Pine.LNX.4.60.0411052319160.3255@alpha.polcom.net>
-Message-ID: <Pine.LNX.4.58.0411051506590.2223@ppc970.osdl.org>
-References: <Pine.LNX.4.58.0411031706350.1229@gradall.private.brainfood.com>
- <20041103233029.GA16982@taniwha.stupidest.org>
- <Pine.LNX.4.58.0411041050040.1229@gradall.private.brainfood.com>
- <Pine.LNX.4.58.0411041133210.2187@ppc970.osdl.org>
- <Pine.LNX.4.58.0411041546160.1229@gradall.private.brainfood.com>
- <Pine.LNX.4.58.0411041353360.2187@ppc970.osdl.org>
- <Pine.LNX.4.58.0411041734100.1229@gradall.private.brainfood.com>
- <Pine.LNX.4.58.0411041544220.2187@ppc970.osdl.org> <20041105014146.GA7397@pclin040.win.tue.nl>
- <Pine.LNX.4.58.0411050739190.2187@ppc970.osdl.org> <20041105195045.GA16766@taniwha.stupidest.org>
- <Pine.LNX.4.58.0411051203470.2223@ppc970.osdl.org>
- <Pine.LNX.4.60.0411052242090.3255@alpha.polcom.net>
- <Pine.LNX.4.58.0411051406200.2223@ppc970.osdl.org>
- <Pine.LNX.4.60.0411052319160.3255@alpha.polcom.net>
+	Fri, 5 Nov 2004 18:13:21 -0500
+X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
+Content-class: urn:content-classes:message
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Subject: KSTK_EIP and KSTK_ESP
+Date: Fri, 5 Nov 2004 16:13:10 -0700
+Message-ID: <C863B68032DED14E8EBA9F71EB8FE4C20542CA19@azsmsx406>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: KSTK_EIP and KSTK_ESP
+Thread-Index: AcTDjQQ7W72syMm+QfuJCaPlPzAL7A==
+From: "Hanson, Jonathan M" <jonathan.m.hanson@intel.com>
+To: <linux-kernel@vger.kernel.org>
+X-OriginalArrivalTime: 05 Nov 2004 23:13:12.0397 (UTC) FILETIME=[058A47D0:01C4C38D]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+	I'm trying to figure out the magic that's going on in KSTK_EIP
+and KSTK_ESP, which are defined as macros in
+include/asm-i386/processor.h for a 2.4 kernel. Here are their
+definitions below:
 
+#define KSTK_EIP(tsk) (((unsigned long *)(4096 + (unsigned
+long)(tsk)))[1019])
+#define KSTK_ESP(tsk) (((unsigned long *)(4096 + (unsigned
+long)(tsk)))[1022])
 
-On Sat, 6 Nov 2004, Grzegorz Kulewski wrote:
-> 
-> Probably, but it looks like it does not display in menuconfig and it is 
-> set by default. I understand that it is a good example, but it should be 
-> disabled by default I think... Or at least it should show in menuconfig. 
-> And I do not know why embedded environments want to use ramfs more 
-> than tmpfs. Swap is not needed for tmpfs and even if device has no swap it 
-> can be oomed because of ramfs too.
+I know that the memory allocated to the process to hold its descriptor
+and stack by the kernel is two pages. Both of the above macros appear to
+go half-way up the allocated memory and then skip to the offsets of 1019
+and 1022, respectively, down the allocated memory.
+	Can someone explain the structure of the memory that these two
+macros are accessing? Specifically, where do the 1019 and 1022 offsets
+come from? Also, what other things are stored at other offsets? Where is
+this stack structure defined?
+	Thanks you for your help in advance.
 
-Ehh. tmpfs _is_ ramfs in the embedded world. Take a look into 
-mm/tiny-shmem.c, notice how it just calls it tmpfs and uses ramfs.
-
-> Will you accept this patch:
-
-Nope. See above. You're breaking a dependency here.
-
-So at the very least you'd need to make the Kconfig understand the 
-dependency on ramfs.
-
-Also, don't shout in help-files. Nobody likes shouting. 
-
-		Linus

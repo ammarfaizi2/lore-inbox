@@ -1,44 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131368AbQKQJqz>; Fri, 17 Nov 2000 04:46:55 -0500
+	id <S131231AbQKQJvF>; Fri, 17 Nov 2000 04:51:05 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131529AbQKQJqq>; Fri, 17 Nov 2000 04:46:46 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:60687 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S131368AbQKQJqa>;
-	Fri, 17 Nov 2000 04:46:30 -0500
-From: Russell King <rmk@arm.linux.org.uk>
-Message-Id: <200011170051.eAH0pvr18387@flint.arm.linux.org.uk>
-Subject: Re: [PATCH] pcmcia event thread. (fwd)
-To: alan@lxorguk.ukuu.org.uk (Alan Cox)
-Date: Fri, 17 Nov 2000 00:51:57 +0000 (GMT)
-Cc: jgarzik@mandrakesoft.com (Jeff Garzik),
-        dwmw2@infradead.org (David Woodhouse),
-        dhinds@valinux.com (David Hinds), torvalds@transmeta.com,
-        tytso@valinux.com, linux-kernel@vger.kernel.org
-In-Reply-To: <E13wRag-0007ym-00@the-village.bc.nu> from "Alan Cox" at Nov 16, 2000 04:08:43 PM
-X-Location: london.england.earth.mulky-way.universe
-X-Mailer: ELM [version 2.5 PL3]
+	id <S131485AbQKQJuz>; Fri, 17 Nov 2000 04:50:55 -0500
+Received: from as3-3-4.ml.g.bonet.se ([194.236.33.69]:61188 "EHLO
+	tellus.mine.nu") by vger.kernel.org with ESMTP id <S131231AbQKQJui>;
+	Fri, 17 Nov 2000 04:50:38 -0500
+Date: Fri, 17 Nov 2000 10:20:35 +0100 (CET)
+From: Tobias Ringstrom <tori@tellus.mine.nu>
+To: Jeff Garzik <jgarzik@mandrakesoft.com>
+cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [CFT] dmfe.c network driver update for 2.4
+In-Reply-To: <3A145806.FF5F0066@mandrakesoft.com>
+Message-ID: <Pine.LNX.4.21.0011171018130.24487-100000@svea.tellus>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox writes:
-> >From a practical point of view that currently means 'delete Linus tree pcmcia
-> regardless of what you are doing' since the modules from David Hinds and Linus
-> pcmcia are not 100% binary compatible for all cases.
+On Thu, 16 Nov 2000, Jeff Garzik wrote:
 
-However, deleting that code would render a significant number of ARM platforms
-without PCMCIA support, which would be real bad.
-   _____
-  |_____| ------------------------------------------------- ---+---+-
-  |   |         Russell King        rmk@arm.linux.org.uk      --- ---
-  | | | | http://www.arm.linux.org.uk/personal/aboutme.html   /  /  |
-  | +-+-+                                                     --- -+-
-  /   |               THE developer of ARM Linux              |+| /|\
- /  | | |                                                     ---  |
-    +-+-+ -------------------------------------------------  /\\\  |
+> The kernel driver APIs are designed so that SMP and UP cases are equally
+> high-performance, and portable beyond the x86 platform.
+> 
+> Pretty much all ISA and PCI drivers need to be portable and SMP safe...
+> if not so, it's a bug.  That said, there is certainly more motivation to
+> make a popular PCI driver is SMP safe than an older ISA driver.  And
+> portability is [IMHO] less of a priority than SMP safety, though it
+> depends on the hardware being supported.
+
+How about adding an ifdef CONFIG_SMP then print ugly warning to all known
+SMP unsafe drivers? A message could be printed booth at compile and load
+time.
+
+/Tobias
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

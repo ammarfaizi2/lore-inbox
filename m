@@ -1,44 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290819AbSAaBsi>; Wed, 30 Jan 2002 20:48:38 -0500
+	id <S290823AbSAaBvS>; Wed, 30 Jan 2002 20:51:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290821AbSAaBs2>; Wed, 30 Jan 2002 20:48:28 -0500
-Received: from dsl-213-023-038-145.arcor-ip.net ([213.23.38.145]:12184 "EHLO
-	starship.berlin") by vger.kernel.org with ESMTP id <S290819AbSAaBsN>;
-	Wed, 30 Jan 2002 20:48:13 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Daniel Phillips <phillips@bonn-fries.net>
-To: Joe Thornber <thornber@fib011235813.fsnet.co.uk>,
-        linux-kernel@vger.kernel.org, linux-lvm@sistina.com,
-        lvm-devel@sistina.com
-Subject: Re: [ANNOUNCE] LVM reimplementation ready for beta testing
-Date: Thu, 31 Jan 2002 02:53:10 +0100
-X-Mailer: KMail [version 1.3.2]
-In-Reply-To: <20020130202254.A7364@fib011235813.fsnet.co.uk>
-In-Reply-To: <20020130202254.A7364@fib011235813.fsnet.co.uk>
+	id <S290822AbSAaBu6>; Wed, 30 Jan 2002 20:50:58 -0500
+Received: from ns1.intercarve.net ([216.254.127.221]:14601 "HELO
+	ceramicfrog.intercarve.net") by vger.kernel.org with SMTP
+	id <S290821AbSAaBuw>; Wed, 30 Jan 2002 20:50:52 -0500
+Date: Wed, 30 Jan 2002 20:48:08 -0500 (EST)
+From: "Drew P. Vogel" <dvogel@intercarve.net>
+To: Dave Jones <davej@suse.de>
+Cc: <linux-kernel@vger.kernel.org>
+Subject: Re: Public patch penguin
+In-Reply-To: <20020130191937.N24012@suse.de>
+Message-ID: <Pine.LNX.4.33.0201302042550.11522-100000@northface.intercarve.net>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <E16W6PW-0000K0-00@starship.berlin>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On January 30, 2002 09:22 pm, Joe Thornber wrote:
-> The new kernel driver (known as "device-mapper") supports volume
-> management in general and is no longer Linux LVM specific.
-> As such it is a separate package from LVM2 which you will need
-> to download and install before building LVM2.
-> 
->  ftp://ftp.sistina.com/pub/LVM2/device-mapper/device-mapper-beta1.tgz
+> It's been done before with various levels of success. Some would
+> like it, others (myself included) would likely not use it.
+> I've said it before, and I'll say it again. Any tool which requires
+> me to start up a web browser to do something productive is a major
+> nuisance.
 
-Hi, thanks a lot for this fine gift.  One small point: I downloaded these
-files right away of course, then I renamed device-mapper-beta1.tgz as
-LVM2-mapper-beta1.tgz, so I'd be able to find these things in my (very
-full) download directory.  What do you think about doing it that way at
-source?
+Honestly I feel the same. Unfortunately installing new tools to do this is
+also a larger task than should be required. Personally, I would like a
+public ftp archive for patches to reside. I don't have a
+machine/connection I can open up ftp though.
 
-> The userland tools are available from here:
-> 
->  ftp://ftp.sistina.com/pub/LVM2/tools/LVM2.0-beta1.tgz
+--Drew Vogel
 
--- 
-Daniel
+

@@ -1,36 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317716AbSGVSzp>; Mon, 22 Jul 2002 14:55:45 -0400
+	id <S317730AbSGVTJ1>; Mon, 22 Jul 2002 15:09:27 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317718AbSGVSzo>; Mon, 22 Jul 2002 14:55:44 -0400
-Received: from mnh-1-07.mv.com ([207.22.10.39]:64260 "EHLO ccure.karaya.com")
-	by vger.kernel.org with ESMTP id <S317716AbSGVSzo>;
-	Mon, 22 Jul 2002 14:55:44 -0400
-Message-Id: <200207222002.PAA04143@ccure.karaya.com>
-X-Mailer: exmh version 2.0.2
-To: Christoph Hellwig <hch@infradead.org>
-Cc: torvalds@transmeta.com, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] UML - part 1 of 2 
-In-Reply-To: Your message of "Mon, 22 Jul 2002 18:38:44 +0100."
-             <20020722183844.A8526@infradead.org> 
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Mon, 22 Jul 2002 15:02:41 -0500
-From: Jeff Dike <jdike@karaya.com>
+	id <S317748AbSGVTJ1>; Mon, 22 Jul 2002 15:09:27 -0400
+Received: from chaos.analogic.com ([204.178.40.224]:23680 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP
+	id <S317730AbSGVTJ0>; Mon, 22 Jul 2002 15:09:26 -0400
+Date: Mon, 22 Jul 2002 15:13:31 -0400 (EDT)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+Reply-To: root@chaos.analogic.com
+To: Ernst Lehmann <lehmann@acheron.franken.de>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Problems with AMD 768 IDE support
+In-Reply-To: <1027364446.26894.2.camel@hadley>
+Message-ID: <Pine.LNX.3.95.1020722150712.11545A-100000@chaos.analogic.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-hch@infradead.org said:
-> The fastcall definition should go into an asm/ header instead of such
-> hacks.. 
+On 22 Jul 2002, Ernst Lehmann wrote:
 
-And I'm supposed to fix this as part of the UML patch?
+> Hi,
+> 
+> I have here a Dual-Athlon Box, with a AMD760MPX Chipset and AMD768 IDE.
+> 
+> In the base 2.4.18 kernel there seems to be no support for the
+> IDE-Chipset
 
-> the disk accounting stuff is also bogus - instead of wasting ram with
-> huge array it should rather be dynamically-allocated in a per-disk
-> structure..
+It is supposed to be 'standard'. If you enable:
 
-And this too?
+CONFIG_IDE=y
+CONFIG_BLK_DEV_MODES=y
+CONFIG_BLK_DEV_HD=y
+... it should work. The amd74xx was seperate, it was a "Viper" chip-set.
+I believe that the newer AMD Chip-Sets are generic.
 
-				Jeff
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.4.18 on an i686 machine (797.90 BogoMips).
+The US military has given us many words, FUBAR, SNAFU, now ENRON.
+Yes, top management were graduates of West Point and Annapolis.
 

@@ -1,132 +1,37 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315427AbSELVnD>; Sun, 12 May 2002 17:43:03 -0400
+	id <S315430AbSELVoD>; Sun, 12 May 2002 17:44:03 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315430AbSELVnC>; Sun, 12 May 2002 17:43:02 -0400
-Received: from infa.abo.fi ([130.232.208.126]:28431 "EHLO infa.abo.fi")
-	by vger.kernel.org with ESMTP id <S315427AbSELVnB>;
-	Sun, 12 May 2002 17:43:01 -0400
-Date: Mon, 13 May 2002 00:42:56 +0300
-From: Marcus Alanen <marcus@infa.abo.fi>
-Message-Id: <200205122142.AAA26566@infa.abo.fi>
-To: Weimer@CERT.Uni-Stuttgart.DE, linux-kernel@vger.kernel.org
+	id <S315432AbSELVoA>; Sun, 12 May 2002 17:44:00 -0400
+Received: from server0011.freedom2surf.net ([194.106.56.14]:45878 "EHLO
+	server0011.freedom2surf.net") by vger.kernel.org with ESMTP
+	id <S315430AbSELVn7>; Sun, 12 May 2002 17:43:59 -0400
+Date: Sun, 12 May 2002 22:51:51 +0100
+From: Ian Molton <spyro@armlinux.org>
+To: Florian Weimer <Weimer@CERT.Uni-Stuttgart.DE>
+Cc: linux-kernel@vger.kernel.org
 Subject: Re: Changelogs on kernel.org
+Message-Id: <20020512225151.2d0e12df.spyro@armlinux.org>
 In-Reply-To: <873cwx2hi4.fsf@CERT.Uni-Stuttgart.DE>
+Organization: The Dragon Roost
+X-Mailer: Sylpheed version 0.7.6 (GTK+ 1.2.10; )
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In mailing-lists.linux-kernel, you wrote:
->torvalds@transmeta.com (Linus Torvalds) writes:
->
->> Perl is the obvious choice for doing transformations like these.  Is
->> anybody willing to write a perl script that does the "sort by author"
->> thing?
+On Sun, 12 May 2002 23:17:23 +0200
+Florian Weimer <Weimer@CERT.Uni-Stuttgart.DE> wrote:
 
-[snip]
-Basically the same, this treats each patch separately:
+> IMHO, it doesn't make much sense.
 
-#!/usr/bin/perl
+pull out the whitespace and put a bullet point in front of each entry.
 
-use strict;
+Hm.
 
-my %people = ();
-my $addr = "";
-my @cur = ();
+Geez, Im starting to sound like management... All I need now is a
+whiteboard and some indellible non-indellible marker pens :-)
 
-sub append_item() {
-	if (!$addr) { return; }
-	if (!$people{$addr}) { @{$people{$addr}} = (); }
-	push @{$people{$addr}}, [@cur];
-
-	@cur = ();
-}
-
-while (<>) {
-	# Match address
-	if (/^<(.+)>/) {
-		# Add old item (if any) before beginning new
-		append_item();
-		$addr = $1;
-	} elsif ($addr) {
-		# Add line to patch
-		push @cur, $_;
-	} else {
-		# Header information
-		print
-	}
-}
-
-
-sub print_items($) {
-	my @items = @{$people{$_[0]}};
-	# Vain attempt to sort patches from one address
-	@items = sort @items;
-	while ($_ = shift @items) {
-		# Item separator
-		print "        --------------------------------------------------------------\n";
-		print @$_;
-	}
-}
-
-append_item();
-foreach $addr (sort keys %people) {
-	print "<$addr>\n";
-	print_items($addr);
-	print "\n";
-}
-
-
-Output:
-
-
-Summary of changes from v2.5.14 to v2.5.15
-============================================
-
-<acme@brinquedo.oo.ps>
-        --------------------------------------------------------------
-        - remove spurious spaces and tabs at end of lines
-        - make sure if, while, for, switch has a space before the opening '('
-        - make sure no line has more than 80 chars
-        - move initializations to the declaration line where possible
-        - bitwise, logical and arithmetic operators have spaces before and after,
-          improving readability of complex expressions
-        - remove uneeded () in returns
-        - other minor cleanups
-
-
-<acme@conectiva.com.br>
-        --------------------------------------------------------------
-        net/ipv4/arp.c:
-        - htons cleanups
-        - remove duplicated code
-        - apply CodingStyle
-
-...
-...
-<davej@suse.de>
-        --------------------------------------------------------------
-        [PATCH] capabilities for mtrr driver.
-
-
-        --------------------------------------------------------------
-        [PATCH] region handling cleanup
-
-        Done by William Stinson.
-        Adds error handling to request_region() calls,
-        and converts some old check_region() calls too.
-
-        --------------------------------------------------------------
-        [PATCH] region handling cleanup
-
-        Done by William Stinson.
-        Adds error handling to request_region() calls,
-        and converts some old check_region() calls too.
-...
-...
-
-
-
-
--- 
-Marcus Alanen
-maalanen@abo.fi
+I really dont care that much. I just like to read changelogs, not decode
+them.

@@ -1,70 +1,60 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287874AbSA3BXy>; Tue, 29 Jan 2002 20:23:54 -0500
+	id <S287868AbSA3B3o>; Tue, 29 Jan 2002 20:29:44 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287868AbSA3BXo>; Tue, 29 Jan 2002 20:23:44 -0500
-Received: from tomts19-srv.bellnexxia.net ([209.226.175.73]:40934 "EHLO
-	tomts19-srv.bellnexxia.net") by vger.kernel.org with ESMTP
-	id <S287858AbSA3BXg>; Tue, 29 Jan 2002 20:23:36 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Ed Tomlinson <tomlins@cam.org>
-Organization: me
-To: Linus Torvalds <torvalds@transmeta.com>
-Subject: Re: A modest proposal -- We need a patch penguin
-Date: Tue, 29 Jan 2002 20:23:08 -0500
-X-Mailer: KMail [version 1.3.2]
+	id <S287858AbSA3B3e>; Tue, 29 Jan 2002 20:29:34 -0500
+Received: from adsl-187-220.38-151.net24.it ([151.38.220.187]:23055 "EHLO
+	karis.localdomain") by vger.kernel.org with ESMTP
+	id <S287872AbSA3B3W>; Tue, 29 Jan 2002 20:29:22 -0500
+Message-Id: <200201300132.g0U1WDB24547@karis.localdomain>
+Date: Wed, 30 Jan 2002 02:32:13 +0100
+From: Francesco Munda <syylk@tiscalinet.it>
+To: Padraig Brady <padraig@antefacto.com>
 Cc: linux-kernel@vger.kernel.org
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <20020130012308.B37AA6FB3@oscar.casa.dyndns.org>
+Subject: Re: A modest proposal -- We need a patch penguin
+In-Reply-To: <3C56943E.60405@antefacto.com>
+In-Reply-To: <200201282213.g0SMDcU25653@snark.thyrsus.com>
+	<200201290137.g0T1bwB24120@karis.localdomain>
+	<3C56943E.60405@antefacto.com>
+X-Mailer: Sylpheed version 0.7.0 (GTK+ 1.2.6; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus Torvalds wrote:
- 
-> On Tue, 29 Jan 2002, Rob Landley wrote:
->> > >
->> > > Then why not give the subsystem maintainers patch permissions on your
->> > > tree. Sort of like committers.  The problem people have is that
->> > > you're dropping patches from those ten-twenty people you trust.
->> >
->> > No. Ask them, and they will (I bet) pretty uniformly tell you that I'm
->> > _not_ dropping their patches (although I'm sometimes critical of them,
->> > and will tell them that they do not get applied).
->>
->> Andre Hedrick, Eric Raymond, Rik van Riel, Michael Elizabeth Chastain,
->> Axel Boldt...
+On Tue, 29 Jan 2002 12:23:26 +0000
+Padraig Brady <padraig@antefacto.com> wrote:
+
+> Currently the way I see it [should be] currently is:
 > 
-> NONE of those are in the ten-twenty people group.
+> [cut-n-pasted graph]
 > 
-> How many people do you think fits in a small group? Hint. It sure isn't
-> all 300 on the maintainers list.
-> 
->> Ah.  So being listed in the maintainers list doesn't mean someone is
->> actually a maintainer it makes sense to forward patches to?
-> 
-> Sure it does.
-> 
-> It just doesn't mean that they should send stuff to _me_.
+> I.E. Linus just gets input from the combiners which
+> test logic from the maintainers in combination. Also
+> random hackers should input to the combiners and not Linus
+> if there isn't an appropriate maintainer for their code.
 
-This is the salient point.  I have been reading lkml for about two years 
-and it was not an obivous one...  
+Quite descriptive and useful, thanks.
 
-> Did you not understand my point about scalability?  I can work with a
-> limited number of people, and those people can work with _their_ limited
-> number of people etc etc.
+Let me raise a point. And extend your graph:
 
-Why not arange the MAINTAINERS file so everyone knows the path you would
-like patches to follow?  If everyone understands they should first try
-lkml or the MAINTAINER and, once the MAINTAINER and/or lkml agree, the patch 
-should be sent (by the MAINTAINER if he/she was involved) to a trustee who 
-vets it again and sends it on to you.
+random hackers
+| | | | | | |
+| maintainers -< subsys testers
+| | | |
+combiners -< tree testers
+| |
+Linus
 
-Why not formalize the list of 'trustees' in the MAINTAINER files?  
+Who you call combiners... How many of them should release independent trees
+to be thrown at us test-dogs? My point of view is neither the hacker, nor the
+maintainer nor the combiner one. Nor Linus, thank god! :) It's the guy who
+risks his filesystem integrity with some 2.X.Y-preZ-testW-QQ-KK kernel.
 
-IMO people will happily work with your procedures, but they _do_ have to 
-understand them - not always an easy task.
- 
-<grin>
+How many crosspatched sources I should look at, to try my luck with?
 
-Ed Tomlinson
+Have fun,
+
+-- Francesco
+

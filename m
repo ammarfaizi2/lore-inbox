@@ -1,40 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261819AbUKHFZv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261843AbUKHF2H@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261819AbUKHFZv (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 8 Nov 2004 00:25:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261820AbUKHFZv
+	id S261843AbUKHF2H (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 8 Nov 2004 00:28:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261841AbUKHF2G
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 Nov 2004 00:25:51 -0500
-Received: from services110.cs.uwaterloo.ca ([129.97.152.166]:46477 "EHLO
-	services110.cs.uwaterloo.ca") by vger.kernel.org with ESMTP
-	id S261819AbUKHFZr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 Nov 2004 00:25:47 -0500
-Date: Mon, 8 Nov 2004 00:25:44 -0500 (EST)
-From: Suihong Liang <s2liang@cs.uwaterloo.ca>
-X-X-Sender: s2liang@hopper.math.uwaterloo.ca
-To: linux-kernel@vger.kernel.org
-Subject: acquireing IP address via DHCP
-Message-ID: <Pine.GSO.4.58.0411072331590.10082@hopper.math.uwaterloo.ca>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-Miltered: at rhadamanthus by Joe's j-chkmail ("http://j-chkmail.ensmp.fr")!
+	Mon, 8 Nov 2004 00:28:06 -0500
+Received: from adsl-63-197-226-105.dsl.snfc21.pacbell.net ([63.197.226.105]:14990
+	"EHLO cheetah.davemloft.net") by vger.kernel.org with ESMTP
+	id S261837AbUKHF1w (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 8 Nov 2004 00:27:52 -0500
+Date: Sun, 7 Nov 2004 21:12:20 -0800
+From: "David S. Miller" <davem@davemloft.net>
+To: Willy Tarreau <willy@w.ods.org>
+Cc: bunk@stusta.de, marcelo.tosatti@cyclades.com, laforge@netfilter.org,
+       linux-kernel@vger.kernel.org, chas@cmf.nrl.navy.mil,
+       linux-atm-general@lists.sourceforge.net, linux-net@vger.kernel.org
+Subject: Re: 2.4.28-rc2: net/atm/proc.c compile error
+Message-Id: <20041107211220.053a2a1b.davem@davemloft.net>
+In-Reply-To: <20041108051522.GA17729@alpha.home.local>
+References: <20041107173753.GB30130@logos.cnet>
+	<20041107214246.GY14308@stusta.de>
+	<20041107174247.559be214.davem@davemloft.net>
+	<20041108051522.GA17729@alpha.home.local>
+X-Mailer: Sylpheed version 0.9.99 (GTK+ 1.2.10; sparc-unknown-linux-gnu)
+X-Face: "_;p5u5aPsO,_Vsx"^v-pEq09'CU4&Dc1$fQExov$62l60cgCc%FnIwD=.UF^a>?5'9Kn[;433QFVV9M..2eN.@4ZWPGbdi<=?[:T>y?SD(R*-3It"Vj:)"dP
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Mon, 8 Nov 2004 06:15:22 +0100
+Willy Tarreau <willy@w.ods.org> wrote:
 
-I have a question about WLAN: how does Linux recognize that it has entered
-a 802.11 network? and how does it acquire an IP address via DHCP
-automatically?
+> #define CREATE_ENTRY(name) \
+>     name = create_proc_entry(#name,0,atm_proc_root); \
+>     if (!name) goto cleanup; \
+>     name->data = atm_##name##_info; \
+>     name->proc_fops = &proc_spec_atm_operations; \
+>     name->owner = THIS_MODULE
+> ...
+> 623: #if defined(CONFIG_ATM_LANE) || defined(CONFIG_ATM_LANE_MODULE)
+> 624:        CREATE_ENTRY(lec);
+> 625: #endif
+> 
+> That's why your grep did not find it ;-)
 
-I've successfully configured the DHCP server and the mobile host to work
-together. However I want to know the detailed procesures carried out, such
-as how scan/authentication/association is triggered, how dhclient is
-triggered?
+Indeed, good catch.
 
-My machine is a RH9 with kernel 2.4.26 or 2.6.7 (wireless extensions
-used), and the wireless adapter is Linksys WUSB11 v2.8 (driver from
-http://at76c503a.berlios.de/).
+> Is it enough to remove these 3 lines ?
 
-Any information'd be appreciated.
-suihong
+No, it isn't, I'll fix this up.

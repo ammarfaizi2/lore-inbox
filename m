@@ -1,55 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261831AbTILSgz (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 12 Sep 2003 14:36:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261810AbTILSfs
+	id S261821AbTILSfe (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 12 Sep 2003 14:35:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261810AbTILSd5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 Sep 2003 14:35:48 -0400
-Received: from mailgw.cvut.cz ([147.32.3.235]:10984 "EHLO mailgw.cvut.cz")
-	by vger.kernel.org with ESMTP id S261809AbTILSeF (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 Sep 2003 14:34:05 -0400
-From: "Petr Vandrovec" <VANDROVE@vc.cvut.cz>
-Organization: CC CTU Prague
-To: Zwane Mwaikambo <zwane@linuxpower.ca>
-Date: Fri, 12 Sep 2003 20:33:24 +0200
+	Fri, 12 Sep 2003 14:33:57 -0400
+Received: from fed1mtao04.cox.net ([68.6.19.241]:33748 "EHLO
+	fed1mtao04.cox.net") by vger.kernel.org with ESMTP id S261809AbTILSdE
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 12 Sep 2003 14:33:04 -0400
+Message-ID: <3F621165.8040207@cox.net>
+Date: Fri, 12 Sep 2003 11:33:09 -0700
+From: "Kevin P. Fleming" <kpfleming@cox.net>
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.4) Gecko/20030624
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-type: text/plain; charset=US-ASCII
-Content-transfer-encoding: 7BIT
-Subject: Re: Another keyboard woes with 2.6.0...
-Cc: vojtech@suse.cz, linux-kernel@vger.kernel.org
-X-mailer: Pegasus Mail v3.50
-Message-ID: <2F284368A@vcnet.vc.cvut.cz>
+To: LKML <linux-kernel@vger.kernel.org>
+Subject: Re: 2.6.0-test5 _IOR/_IOW changes are breaking userspace
+References: <3F620E7B.4090706@cox.net>
+In-Reply-To: <3F620E7B.4090706@cox.net>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 12 Sep 03 at 13:45, Zwane Mwaikambo wrote:
+Kevin P. Fleming wrote:
 
-> On Fri, 12 Sep 2003, Petr Vandrovec wrote:
+> The worst part is that the 
+> changes required to get the apps to compile are incompatible with all 
+> previous kernel headers.
 > 
-> >    I have MicroStar MS-9211 box with connected to the KVM switch
-> > MasterView CS-1016, which is connected to the some Chicony
-> > keyboard. 2.4.x kernel works without problem, but when 2.6.0
-> > starts, immediately after input device driver is initialized it starts
-> > thinking that F7 key is held down, and it stays that way until
-> > I hit some other key to stop autorepeat... What debugging I
-> > can do for you to get rid of screen full of '^[[18~' ? /bin/login
-> > continuously complains about username being too long :-(
-> 
-> Hi Petr,
->     I have the same problem with an Avocent SwitchView and Keytronic 
-> keyboard, although it doesn't sound as bad as your problem. Occasionally 
-> some keys just repeat until i press another key. I'm not quite sure what 
-> kind of information Vojtech would like. The machine is 440BX based and 
-> kernel is 2.6.0-test3-mm1
 
-Andries is already gathering info for this one. This problem (missed
-key release) happens to me on all systems I have (Athlon + via, P3 + i440BX,
-P4 + 845...), most often when I do alt+right-arrow for walking through
-consoles (and for Andries: hitting key stops this, otherwise it 
-endlessly switches all VTs around, and while kernel thinks that key
-is down, keyboard actually does not generate any IRQs, so keyboard knows
-that all keys are released).
-                                                Petr
-                                                
+It seems I overreacted here a bit, mea culpa...
+
+It may just be that the new headers are enforcing proper usage, and 
+that the applications that won't compile are actually broken. I did 
+not originally suspect this given the provenance of the applications I 
+was dealing with, but I guess everyone makes mistakes, myself included :-)
 

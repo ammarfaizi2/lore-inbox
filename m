@@ -1,13 +1,13 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132484AbQKDHSz>; Sat, 4 Nov 2000 02:18:55 -0500
+	id <S132546AbQKDH1l>; Sat, 4 Nov 2000 02:27:41 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132500AbQKDHSp>; Sat, 4 Nov 2000 02:18:45 -0500
-Received: from panic.ohr.gatech.edu ([130.207.47.194]:25099 "EHLO
-	havoc.gtf.org") by vger.kernel.org with ESMTP id <S132484AbQKDHSd>;
-	Sat, 4 Nov 2000 02:18:33 -0500
-Message-ID: <3A03B843.37E774FA@mandrakesoft.com>
-Date: Sat, 04 Nov 2000 02:18:27 -0500
+	id <S132535AbQKDH1a>; Sat, 4 Nov 2000 02:27:30 -0500
+Received: from panic.ohr.gatech.edu ([130.207.47.194]:28939 "EHLO
+	havoc.gtf.org") by vger.kernel.org with ESMTP id <S132500AbQKDH1V>;
+	Sat, 4 Nov 2000 02:27:21 -0500
+Message-ID: <3A03BA36.3296AF2D@mandrakesoft.com>
+Date: Sat, 04 Nov 2000 02:26:46 -0500
 From: Jeff Garzik <jgarzik@mandrakesoft.com>
 Organization: MandrakeSoft
 X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.2.18pre18 i686)
@@ -23,27 +23,18 @@ Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 Linus Torvalds wrote:
-> 
-> On Sat, 4 Nov 2000, Jeff Garzik wrote:
-> > > So fix the stupid API.
-> > >
-> > > The above is just idiocy.
-> >
-> > We're pretty much stuck with the API, until we look at merging ALSA in
-> > 2.5.x.  Broken API or not, OSS is a mature API, and there are
-> > spec-correct apps that depend on this behavior.
-> 
 > Considering that about 100% of the sound drivers do not follow that
 > particular API damage anyway (they can't, as has been pointed out: the
 > driver doesn't even receive enough information to be _able_ to follow the
 > documented API), I doubt that there are all that many programs that depend
 > on it.
-> 
-> Yes, some drivers apparently _try_ to follow the spec to some degree, but
-> we should just change the documentation asap.
 
-Fine with me.  Allows for some driver simplification, and it only
-applies to the lesser-used recording stuff at any rate.
+While I'm thinking about the subject..  even after updating the API, the
+drivers still need to know what events to poll for.
+
+AFAIK 99% of the drivers currently select to block on
+read/write/read+write based on file->f_mode, which works, but isn't
+really correct.
 
 	Jeff
 

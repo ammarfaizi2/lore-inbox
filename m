@@ -1,74 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S311454AbSC1CFr>; Wed, 27 Mar 2002 21:05:47 -0500
+	id <S311463AbSC1CQZ>; Wed, 27 Mar 2002 21:16:25 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S311463AbSC1CFi>; Wed, 27 Mar 2002 21:05:38 -0500
-Received: from ip68-7-112-74.sd.sd.cox.net ([68.7.112.74]:24325 "EHLO
-	clpanic.kennet.coplanar.net") by vger.kernel.org with ESMTP
-	id <S311454AbSC1CFb>; Wed, 27 Mar 2002 21:05:31 -0500
-Message-ID: <00c901c1d5fc$ec682e50$7e0aa8c0@bridge>
-From: "Jeremy Jackson" <jerj@coplanar.net>
-To: "Andre Hedrick" <andre@linux-ide.org>,
-        "Benjamin LaHaise" <bcrl@redhat.com>
-Cc: "Erik Andersen" <andersen@codepoet.org>, "Jos Hulzink" <josh@stack.nl>,
-        "jw schultz" <jw@pegasys.ws>, <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.10.10203271632530.6006-100000@master.linux-ide.org>
-Subject: Re: IDE and hot-swap disk caddies
-Date: Wed, 27 Mar 2002 18:02:50 -0800
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 5.50.4807.1700
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4807.1700
+	id <S311519AbSC1CQP>; Wed, 27 Mar 2002 21:16:15 -0500
+Received: from adsl-63-194-239-202.dsl.lsan03.pacbell.net ([63.194.239.202]:59381
+	"EHLO mmp-linux.matchmail.com") by vger.kernel.org with ESMTP
+	id <S311463AbSC1CQI>; Wed, 27 Mar 2002 21:16:08 -0500
+Date: Wed, 27 Mar 2002 18:17:31 -0800
+From: Mike Fedyk <mfedyk@matchmail.com>
+To: Matthew Kirkwood <matthew@hairy.beasts.org>, Andi Kleen <ak@suse.de>,
+        linux-kernel@vger.kernel.org
+Subject: Re: Filesystem benchmarks: ext2 vs ext3 vs jfs vs minix
+Message-ID: <20020328021731.GC8627@matchmail.com>
+Mail-Followup-To: Matthew Kirkwood <matthew@hairy.beasts.org>,
+	Andi Kleen <ak@suse.de>, linux-kernel@vger.kernel.org
+In-Reply-To: <p73y9ge3xww.fsf@oldwotan.suse.de> <Pine.LNX.4.33.0203271419230.28110-100000@sphinx.mythic-beasts.com> <20020327180247.GU21133@turbolinux.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.27i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This has been an interesting thread.  A few observations:
+On Wed, Mar 27, 2002 at 11:02:47AM -0700, Andreas Dilger wrote:
+> On Mar 27, 2002  14:47 +0000, Matthew Kirkwood wrote:
+> > Postgres doesn't pre-allocate datafiles.  They reckon it's not
+> > their job to implement a filesystem, and I'm inclined to agree.
+> > They do prefer fdatasync on datafiles and (I think) O_DATASYNC
+> > for their journal files where available, but I haven't checked
+> > that my build is doing that.
+> 
+> If the I/O is normally sync driven, you should consider testing ext3
+> with "data=journal".  While this seems counterintuitive because it is
+> writing the data to disk twice, it can often be faster in real-world
+> "bursty" environments because the sync I/O goes to the journal in one
+> contiguous write, and it can then be written to the rest of the fs
+> asynchronously safely. 
 
--the hdparm utility source dist includes a utility to activate the
-Special Hardware in an ? laptop.  So there's the electrical
-end taken care of.  The success of it the rest of the way
-is made possible by (Linux) OS IDE hotswap support.
-Having the OS part working well is a prerequisite for other
-hardware/vendor specific magic utilities.  My compaq
-laptop docs with a base station, which has the electrical
-stuff for hot dock.  I sure wish I could use the IDE in the
-base station under Linux after I dock...
+Don't forget to have enough extra memory so that it can have time to do
+those async writes later.
 
--some very cheap IDE swap bays have a mechanical interlock
-with the power switch.  Your turn the key, and the drive shuts
-off, before you can pull it out.  power sequencing solved? don't
-know about ATA133 on something this cheap though. Stll,
-*very* useful for cloning drives, backup, sysadmin type stuff.
-Just don't forget to tristate before you power off.  The expensive
-stuff lets the OS control those two steps.  Kind of like the
-difference between Mac/Sparc floppy power eject and PC
-manual eject.  I'll still use the manual method, and save myself
-hours doing workstation backup and cloning; as long as it exists :)
+When is ext3 going to get high and low watermarks?
 
--PCMCIA has electrical hot swap support...?
-
-Lots of reasons to support it, with a warning.
-
-Jeremy
-
------ Original Message -----
-From: "Andre Hedrick" <andre@linux-ide.org>
-> Power is one issue and another is shock on the buss, there are more.
-> Get the power wrong (grounding order) and you pull current off the ribbon.
-> Pull current of the ribbon, you blue-smoke the other device and or the
-> host.  Fail to invoke a tristate block at the device in a master/slave and
-> you introduce shock and and data corrution.
->
-> Have I made it work in linux in the past safely yes, did it take special
-> hardware you bet.  Can you get it OTC, no.  Is is still findable not sure.
-> Is there a proper demand that I could go back to the known chip maker and
-> board maker to get them to bring it off the shelf, I doubt it.
->
-> All the users in Linux (to date) are not a big enough customer base.
-> If you think it is big enough, look at the shipping numbers.
-> I did this once back in earlier 2000 and got burned as did two companies.
-
+Currently it hits a (50%?) high usage level and then sync writes the entire
+journal contents. :(  Has that changed?

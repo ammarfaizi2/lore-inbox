@@ -1,42 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267361AbUG1XIj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267326AbUG1XMR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267361AbUG1XIj (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 Jul 2004 19:08:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267184AbUG1XHd
+	id S267326AbUG1XMR (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 Jul 2004 19:12:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266531AbUG1XMP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 Jul 2004 19:07:33 -0400
-Received: from fed1rmmtao07.cox.net ([68.230.241.32]:62100 "EHLO
-	fed1rmmtao07.cox.net") by vger.kernel.org with ESMTP
-	id S267317AbUG1XGg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 Jul 2004 19:06:36 -0400
-Date: Wed, 28 Jul 2004 16:06:35 -0700
-From: Tom Rini <trini@kernel.crashing.org>
-To: Olaf Hering <olh@suse.de>
-Cc: Arjan van de Ven <arjanv@redhat.com>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org, linuxppc-dev@lists.linuxppc.org
-Subject: Re: [PATCH] fix zlib debug in ppc boot header
-Message-ID: <20040728230635.GC16468@smtp.west.cox.net>
-References: <20040728112222.GA7670@suse.de> <1091014495.2795.25.camel@laptop.fenrus.com> <20040728150145.GK10891@smtp.west.cox.net> <20040728153633.GA21105@suse.de>
+	Wed, 28 Jul 2004 19:12:15 -0400
+Received: from fw.osdl.org ([65.172.181.6]:43187 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S267326AbUG1XLd (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 28 Jul 2004 19:11:33 -0400
+Date: Wed, 28 Jul 2004 16:14:48 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Pavel Machek <pavel@ucw.cz>
+Cc: mochel@digitalimplant.org, akpm@zip.com.au, linux-kernel@vger.kernel.org
+Subject: Re: -mm swsusp: do not default to platform/firmware
+Message-Id: <20040728161448.336183e2.akpm@osdl.org>
+In-Reply-To: <20040728222445.GA18210@elf.ucw.cz>
+References: <20040728222445.GA18210@elf.ucw.cz>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i586-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040728153633.GA21105@suse.de>
-User-Agent: Mutt/1.5.6+20040523i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jul 28, 2004 at 05:36:33PM +0200, Olaf Hering wrote:
+Pavel Machek <pavel@ucw.cz> wrote:
+>
+> -mm swsusp now defaults to platform/firmware suspend... That's
+> certainly unexpected, changes behaviour from previous version, and
+> only works on one of three machines I have here. I'd like the default
+> to be changed back.
 
-> 
->  On Wed, Jul 28, Tom Rini wrote:
-> 
-> > Olaf, has having this code work for you ever been useful?  Thanks.
-> 
-> The debug stuff? Sure. Now I know we have to improve the memcpy
-> alignment handling. But thats a different story.
+You overestimate my knowledge of suspend stuff.  AFAICT the current -mm
+default is to enter ACPI sleep state via the BIOS rather than via Linux's
+ACPI driver.  Correct?
 
-Can you please elaborate?  Thanks.
+If not, then what?
 
--- 
-Tom Rini
-http://gate.crashing.org/~trini/
+If so, then why do we feel this change is needed, and why did Pat change things?
+
+My major concern here is that Pat may have made that change to get suitable
+coverage testing for new code paths, and we wouldn't want to undo that right away.
+

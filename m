@@ -1,36 +1,30 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S273112AbRIOXFI>; Sat, 15 Sep 2001 19:05:08 -0400
+	id <S273115AbRIOXUK>; Sat, 15 Sep 2001 19:20:10 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S273115AbRIOXE6>; Sat, 15 Sep 2001 19:04:58 -0400
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:33796 "EHLO
+	id <S273116AbRIOXUB>; Sat, 15 Sep 2001 19:20:01 -0400
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:37892 "EHLO
 	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S273112AbRIOXEo>; Sat, 15 Sep 2001 19:04:44 -0400
-Subject: Re: Random Sig'11 in XF864 with kernel > 2.2.x
-To: jhingber@ix.netcom.com (Jeffrey Ingber)
-Date: Sun, 16 Sep 2001 00:09:43 +0100 (BST)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <1000588153.7474.3.camel@DESK-2> from "Jeffrey Ingber" at Sep 15, 2001 05:09:09 PM
+	id <S273115AbRIOXTo>; Sat, 15 Sep 2001 19:19:44 -0400
+Subject: Re: Athlon: Try this (was: Re: Athlon bug stomping #2)
+To: tegeran@home.com
+Date: Sun, 16 Sep 2001 00:23:42 +0100 (BST)
+Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), VDA@port.imtp.ilyichevsk.odessa.ua,
+        VANDROVE@vc.cvut.cz (Petr Vandrovec), linux-kernel@vger.kernel.org
+In-Reply-To: <01091510441001.00174@c779218-a> from "Nicholas Knight" at Sep 15, 2001 10:44:10 AM
 X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-Id: <E15iOZD-0002w2-00@the-village.bc.nu>
+Message-Id: <E15iOmk-0002xB-00@the-village.bc.nu>
 From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> The random Sig 11's are observed in the stock XFree86 4.x drivers with
-> none of the 'extras' enabled, such as DRI on several sets of video cards
-> (Matrox and ATI).  I can run both UP and SMP kernels in the 2.2 series
-> and 2.4 UP kernels with unlimited uptimes.  However, switching to a 2.4
-> SMP kernel will cause random Sig 11's in X, seemingly irregardless of
-> video card/vendor.=20
+> Not being a developer or guru on the internal software workings of the 
+> hardware here, I have to ask, does this clear up some bug, or does it 
+> disable the optimizations causing the problem? Is this a *fix* or a 
+> band-aid?
 
-I'm aware of the reports. Its very hard to figure out what might be
-involved. Later 2.4 kernels we have fixed the odd possible candidate where
-segment registers or LDT propogation on SMP might go awry but nothing that
-really explains the X11 ones and whether they are PCI/AGP setup , power
-management or kernel bug triggered
+Without documentation - who knows
 
-Alan

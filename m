@@ -1,68 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267737AbUIXDMT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266845AbUIWUhs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267737AbUIXDMT (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Sep 2004 23:12:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267702AbUIXDML
+	id S266845AbUIWUhs (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Sep 2004 16:37:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266837AbUIWUhF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Sep 2004 23:12:11 -0400
-Received: from shawidc-mo1.cg.shawcable.net ([24.71.223.10]:22858 "EHLO
-	pd3mo2so.prod.shaw.ca") by vger.kernel.org with ESMTP
-	id S267325AbUIXDIa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Sep 2004 23:08:30 -0400
-Date: Thu, 23 Sep 2004 21:07:59 -0600
-From: Robert Hancock <hancockr@shaw.ca>
-Subject: Re: PCI Burst
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Message-id: <003901c4a1e3$b2ae1de0$6601a8c0@northbrook>
-MIME-version: 1.0
-X-MIMEOLE: Produced By Microsoft MimeOLE V6.00.2900.2180
-X-Mailer: Microsoft Outlook Express 6.00.2900.2180
-Content-type: text/plain; reply-type=original; charset=iso-8859-1; format=flowed
-Content-transfer-encoding: 7bit
-X-Priority: 3
-X-MSMail-priority: Normal
-References: <fa.qb32f1i.oj0poe@ifi.uio.no>
+	Thu, 23 Sep 2004 16:37:05 -0400
+Received: from baikonur.stro.at ([213.239.196.228]:22215 "EHLO
+	baikonur.stro.at") by vger.kernel.org with ESMTP id S266808AbUIWUZf
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 23 Sep 2004 16:25:35 -0400
+Subject: [patch 15/26]  char/mxser: replace 	schedule_timeout() with msleep_interruptible()
+To: akpm@digeo.com
+Cc: linux-kernel@vger.kernel.org, janitor@sternwelten.at, nacc@us.ibm.com
+From: janitor@sternwelten.at
+Date: Thu, 23 Sep 2004 22:25:35 +0200
+Message-ID: <E1CAa9o-0008PB-9g@sputnik>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Two things that I'd check, that the memory range shows up as prefetchable 
-(i.e. in lspci) and also that the memory region is mapped with ioremap and 
-not ioremap_nocache. Also, what's the region defined as in /proc/mtrr? I 
-think it has to be mapped as write-back for burst reads to work. When the 
-CPU reads in a cache line in that memory range from the bus, that should 
-hopefully get passed through as a burst read on the PCI bus, but that may be 
-chipset-dependent.
-
-Getting PIO-mode PCI reads and writes like this to work efficiently seems a 
-rather difficult thing to do..
 
 
------ Original Message ----- 
-From: "Brian McGrew" <Brian@doubledimension.com>
-Newsgroups: fa.linux.kernel
-To: <linux-kernel@vger.kernel.org>
-Sent: Thursday, September 23, 2004 7:22 PM
-Subject: PCI Burst
 
+Any comments would be appreciated.
 
-> Running RedHat 7.3 with the 2.4.20 kernel.
->
-> How do I enable PCI burst mode for reading and writing on the PCI bus?  We 
-> mmap 128MB per board that we install and now that we've added our 
-> addressing to the /proc/mtrr file, we can burst on write but we're not 
-> seeing any burst on the read.
->
-> Any ideas?
->
-> -brian
->
-> Brian D. McGrew {brian@doubledimension.com || pacemakertaker@rock.com }
-> ---
->> Failure is not an option; it is included with every Microsoft product.
->
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/ 
+Description: Use msleep_interruptible() instead of schedule_timeout() to
+guarantee the task delays as expected.
 
+Signed-off-by: Nishanth Aravamudan <nacc@us.ibm.com>
+
+Signed-off-by: Maximilian Attems <janitor@sternwelten.at>
+---
+
+ linux-2.6.9-rc2-bk7-max/drivers/char/mxser.c |    4 ++--
+ 1 files changed, 2 insertions(+), 2 deletions(-)
+
+diff -puN drivers/char/mxser.c~msleep_interruptible-drivers_char_mxser drivers/char/mxser.c
+--- linux-2.6.9-rc2-bk7/drivers/char/mxser.c~msleep_interruptible-drivers_char_mxser	2004-09-21 21:08:14.000000000 +0200
++++ linux-2.6.9-rc2-bk7-max/drivers/char/mxser.c	2004-09-21 21:08:14.000000000 +0200
+@@ -59,6 +59,7 @@
+ #include <linux/smp_lock.h>
+ #include <linux/pci.h>
+ #include <linux/init.h>
++#include <linux/delay.h>
+ 
+ #include <asm/system.h>
+ #include <asm/io.h>
+@@ -820,8 +821,7 @@ static void mxser_close(struct tty_struc
+ 	info->tty = NULL;
+ 	if (info->blocked_open) {
+ 		if (info->close_delay) {
+-			set_current_state(TASK_INTERRUPTIBLE);
+-			schedule_timeout(info->close_delay);
++			msleep_interruptible(jiffies_to_msecs(info->close_delay));
+ 		}
+ 		wake_up_interruptible(&info->open_wait);
+ 	}
+_

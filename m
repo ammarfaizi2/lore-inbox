@@ -1,49 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317659AbSGUIUV>; Sun, 21 Jul 2002 04:20:21 -0400
+	id <S317661AbSGUIXx>; Sun, 21 Jul 2002 04:23:53 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317661AbSGUIUV>; Sun, 21 Jul 2002 04:20:21 -0400
-Received: from louise.pinerecords.com ([212.71.160.16]:21771 "EHLO
-	louise.pinerecords.com") by vger.kernel.org with ESMTP
-	id <S317659AbSGUIUU>; Sun, 21 Jul 2002 04:20:20 -0400
-Date: Sun, 21 Jul 2002 10:23:14 +0200
-From: Tomas Szepe <szepe@pinerecords.com>
+	id <S317663AbSGUIXx>; Sun, 21 Jul 2002 04:23:53 -0400
+Received: from moutvdom00.kundenserver.de ([195.20.224.149]:13896 "EHLO
+	moutvdom00.kundenserver.de") by vger.kernel.org with ESMTP
+	id <S317661AbSGUIXw>; Sun, 21 Jul 2002 04:23:52 -0400
+Date: Sun, 21 Jul 2002 02:26:48 -0600 (MDT)
+From: Thunder from the hill <thunder@ngforever.de>
+X-X-Sender: thunder@hawkeye.luckynet.adm
 To: Mike Galbraith <efault@gmx.de>
-Cc: Thunder from the hill <thunder@ngforever.de>,
+cc: Thunder from the hill <thunder@ngforever.de>,
+       Tomas Szepe <szepe@pinerecords.com>,
        Andre Hedrick <andre@linux-ide.org>,
        Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>,
        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
 Subject: Re: Give Bartlomiej a break!  (Re: Impressions of IDE 98?)
-Message-ID: <20020721082314.GE14352@louise.pinerecords.com>
-References: <5.1.0.14.2.20020721085320.00b962b0@pop.gmx.net> <5.1.0.14.2.20020721094805.00b9e5c8@pop.gmx.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
 In-Reply-To: <5.1.0.14.2.20020721094805.00b9e5c8@pop.gmx.net>
-User-Agent: Mutt/1.4i
-X-OS: GNU/Linux 2.4.19-pre10/sparc SMP
-X-Uptime: 46 days, 21:49
+Message-ID: <Pine.LNX.4.44.0207210222021.3309-100000@hawkeye.luckynet.adm>
+X-Location: Dorndorf; Germany
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> >On Sun, 21 Jul 2002, Mike Galbraith wrote:
-> >> Since I know spit about IDE/ATA/ATAPI/SCSI, I'll keep my mouth shut and
-> >> leave judgement/"voting" to those who fully understand the technical 
-> >issues.
-> >
-> >You probably shouldn't. Technical decisions should be made by technicians,
-> >but decisions about the technicians should be made by the human resources
-> >dept., and since we claim to be a constitutional monarchy, we might try
-> >out a democratic decision...
-> 
-> No, I'm absolutely sure I'm doing the right thing.
+Hi,
 
-Well you don't necessarily have to be an IDE guru to realize something's
-wrong when you see a bloke constantly breaking the subsystem, practically
-never fixing it up himself, disappearing for a month w/o saying a word
-after having fried 2.5.25 completely and not really caring about what
-others have to say about the code.
+On Sun, 21 Jul 2002, Mike Galbraith wrote:
+> Regarding constitutional monarchy, that's high-grade horse shit.  LT has
+                                                                    ^^
 
-And you've noticed the IDE 2.4 forward-port, right?
+>From Jargon File (4.3.0, 30 APR 2001) [jargon]:
 
-T.
+  Linus /leen'us'/ or /lin'us'/, not /li:'nus/ Linus Torvalds, the author
+     of {Linux}. Nobody in the hacker culture has been as readily recognized
+     by first name alone since Ken (Thompson).
+
+So I think calling him LT is way, way wrong if you think he's worth the 
+comparison to ken.
+
+> always been the benevolent dictator [1] of his tree.
+
+That's nothing that's speaking against the monarchy. However, I think he's 
+still bound to do things that he just has to do, because otherwise he'd be 
+hung ;-)
+
+							Regards,
+							Thunder
+-- 
+(Use http://www.ebb.org/ungeek if you can't decode)
+------BEGIN GEEK CODE BLOCK------
+Version: 3.12
+GCS/E/G/S/AT d- s++:-- a? C++$ ULAVHI++++$ P++$ L++++(+++++)$ E W-$
+N--- o?  K? w-- O- M V$ PS+ PE- Y- PGP+ t+ 5+ X+ R- !tv b++ DI? !D G
+e++++ h* r--- y- 
+------END GEEK CODE BLOCK------
+

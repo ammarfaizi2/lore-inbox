@@ -1,57 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262423AbUK3Xq3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262428AbUK3Xry@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262423AbUK3Xq3 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 Nov 2004 18:46:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262431AbUK3Xn7
+	id S262428AbUK3Xry (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 Nov 2004 18:47:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262426AbUK3Xqf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 Nov 2004 18:43:59 -0500
-Received: from zcars04f.nortelnetworks.com ([47.129.242.57]:4999 "EHLO
-	zcars04f.nortelnetworks.com") by vger.kernel.org with ESMTP
-	id S262449AbUK3XmF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 Nov 2004 18:42:05 -0500
-Message-ID: <41AD03F7.6020803@nortelnetworks.com>
-Date: Tue, 30 Nov 2004 17:36:23 -0600
-X-Sybari-Space: 00000000 00000000 00000000 00000000
-From: Chris Friesen <cfriesen@nortelnetworks.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040113
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Al Viro <viro@parcelfarce.linux.theplanet.co.uk>
-CC: Mariusz Mazur <mmazur@kernel.pl>, Sam Ravnborg <sam@ravnborg.org>,
-       Linus Torvalds <torvalds@osdl.org>,
-       David Woodhouse <dwmw2@infradead.org>,
-       Alexandre Oliva <aoliva@redhat.com>, Paul Mackerras <paulus@samba.org>,
-       Greg KH <greg@kroah.com>, Matthew Wilcox <matthew@wil.cx>,
-       David Howells <dhowells@redhat.com>, hch@infradead.org,
-       linux-kernel@vger.kernel.org, libc-hacker@sources.redhat.com
-Subject: Re: [RFC] Splitting kernel headers and deprecating __KERNEL__
-References: <19865.1101395592@redhat.com> <Pine.LNX.4.58.0411301243000.22796@ppc970.osdl.org> <20041130223359.GA15443@mars.ravnborg.org> <200411302344.21907.mmazur@kernel.pl> <20041130230325.GY26051@parcelfarce.linux.theplanet.co.uk>
-In-Reply-To: <20041130230325.GY26051@parcelfarce.linux.theplanet.co.uk>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Tue, 30 Nov 2004 18:46:35 -0500
+Received: from mail11.bluewin.ch ([195.186.18.61]:8918 "EHLO mail11.bluewin.ch")
+	by vger.kernel.org with ESMTP id S262446AbUK3Xpg (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 30 Nov 2004 18:45:36 -0500
+Date: Wed, 1 Dec 2004 00:45:26 +0100
+From: Roger Luethi <rl@hellgate.ch>
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>
+Subject: Re: [PATCH 2.6] via-rhine: WOL band-aid
+Message-ID: <20041130234526.GA32741@k3.hellgate.ch>
+References: <20041130224014.GD29947@k3.hellgate.ch> <41ACFFA0.2030904@pobox.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <41ACFFA0.2030904@pobox.com>
+X-Operating-System: Linux 2.6.10-rc2-bk11 on i686
+X-GPG-Fingerprint: 92 F4 DC 20 57 46 7B 95  24 4E 9E E7 5A 54 DC 1B
+X-GPG: 1024/80E744BD wwwkeys.ch.pgp.net
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Al Viro wrote:
-> On Tue, Nov 30, 2004 at 11:44:21PM +0100, Mariusz Mazur wrote:
+On Tue, 30 Nov 2004 18:17:52 -0500, Jeff Garzik wrote:
+> I don't object to the patch, but I wonder if anything can be done to 
+> reduce the usage of "magic numbers" (numeric rather than named constants)?
 
->>Wrong. These dirs must be linked to /usr/include so they must have more 
->>meaningfull names.
-> 
-> 
-> WTF?  I've got a dozen kernel trees hanging around, which one (and WTF any,
-> while we are at it) should be "linked to"?
+That's a non-trivial task if you want to do it properly. There be dragons.
+Magic numbers may be evil but at least they are honest and convenient.
 
-Just my point of view, but I'd love to have /usr/include/linux and 
-/usr/include/asm linked to the headers for the currently running kernel.
-
-For a while I was playing with adding a bunch of new syscalls, and it sure would 
-have been nice to be able to just include <asm/unistd.h> and get the up-to-date 
-syscalls for whatever kernel I happened to be running.
-
-I've since switched to using a device node and doing ioctl() calls to get around 
-this, but the issue still stands as I need to either import the ioctl() command 
-numbers and data types, or else I have to duplicate the header in userspace and 
-keep the two versions up to date.
-
-Chris
+Roger

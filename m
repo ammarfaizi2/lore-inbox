@@ -1,72 +1,60 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S279144AbRKMVIp>; Tue, 13 Nov 2001 16:08:45 -0500
+	id <S279166AbRKMVMP>; Tue, 13 Nov 2001 16:12:15 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S279156AbRKMVIf>; Tue, 13 Nov 2001 16:08:35 -0500
-Received: from rtlab.med.cornell.edu ([140.251.145.175]:15503 "HELO
-	openlab.rtlab.org") by vger.kernel.org with SMTP id <S279144AbRKMVIZ> convert rfc822-to-8bit;
-	Tue, 13 Nov 2001 16:08:25 -0500
-Date: Tue, 13 Nov 2001 16:08:24 -0500 (EST)
-From: "Calin A. Culianu" <calin@ajvar.org>
-To: Martin Eriksson <nitrax@giron.wox.org>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: Re: What Athlon chipset is most stable in Linux?
-In-Reply-To: <001201c16c45$dc2b6820$0201a8c0@HOMER>
-Message-ID: <Pine.LNX.4.30.0111131559580.8219-100000@rtlab.med.cornell.edu>
+	id <S279156AbRKMVMG>; Tue, 13 Nov 2001 16:12:06 -0500
+Received: from unknown.Level3.net ([63.210.233.154]:29715 "EHLO
+	cinshrexc01.shermfin.com") by vger.kernel.org with ESMTP
+	id <S279166AbRKMVL7>; Tue, 13 Nov 2001 16:11:59 -0500
+Message-ID: <35F52ABC3317D511A55300D0B73EB8056FCC0A@cinshrexc01.shermfin.com>
+From: "Rechenberg, Andrew" <ARechenberg@shermanfinancialgroup.com>
+To: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
+Cc: "Banasik, Bob" <BBanasik@shermanfinancialgroup.com>
+Subject: kupdated high load with heavy disk I/O
+Date: Tue, 13 Nov 2001 16:11:50 -0500
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=X-UNKNOWN
-Content-Transfer-Encoding: 8BIT
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 13 Nov 2001, Martin Eriksson wrote:
+Hello,
 
-> I'm hearing rumours about my University wanting to set up a cluster with AMD
-> Athlon XP+DDR computers, so I wonder what chipset is most stable under
-> Linux?
->
-> I assume it's the AMD DDR chipset, but I want to be pretty sure.
->
-> Btw, do compilators currently optimize for the third floating-point unit in
-> Athlon XP processors?
+I have read some previous threads about kupdated consuming 99% of CPU under
+intense disk I/O in kernel 2.4.x on the archives of this list (April 2001),
+but have yet to find any suggestions or fixes.  I am currently experiencing
+the same issue and was wondering if anyone has any thoughts or suggestions
+on the issue.  I am not subscribed to the list so would you please CC: me
+directly on any responses?  Thank you.
 
-Well, here's my little anecdote:
+The issue that I am having is that when there is a heavy amount a disk I/O,
+the box becomes slightly unresponsive and kupdated is using 99.9% in 'top.'
+Sometimes the box appears to totally lock up.  If one waits several seconds
+to a couple of minutes the system appears to 'unlock' and runs sluggishly
+for a while.  This cycle will repeat itself until the I/O subsides.
 
-We bought 33 1.4 GHz AMD Athlons (non-XP) with the slightly deprecated VIA
-KT266 Chipset (Spacewalker AK31 motherboards.. not exactly the Lexus of
-the M/B world but oh well)..
+The issue appears in kernel 2.4.14 compiled directly from source from
+kernel.org with no patches.  These problems manifest themselves with only
+one user doing heavy disk I/O.  The normal user load on the box can run
+between 350-450 users so this behavior would be unacceptable because the
+application that is being run is interactive.  With 450 users, and the same
+process running on a 2.2 kernel the performance of the box is great, with
+only a very slightly noticeable slow down.
 
-Anyway, after trying various (2.4) kernel versions, both with and without
-the new VM, both with and without Alan's magik, I can say that the only
-way we got 99% uptime on these systems (as opposed to like the 70% uptime
-I was getting from random kernel oopses) was to turn any Athlon and/or
-Pentium optimizations off when compiling the kernel.  With any form of
-compilation for a CPU >386, the kernel would crash on at least 2 of the
-boxes per day.  The oops stack trace seemed to always indicate a crash
-when in the paging code.. so it was a virtual memory problem? (I can only
-speculate and I haven't bothered to investigate much further).  I am not
-sure if I encountered some unknown bug in my motherboard that needs some
-yet undiscovered workaround or what.  All I can say is stay away from the
-KT266 chipset (however the newer KT266A seems to work fine based on what I
-have seen and am told) if you can.  But then again I may be crazy and/or
-there may be workarounds or bios fixes for my problem, if it was really
-kernel-related. (I suspect it was, but haven't bothered to figure out
-exactly how to reproduce it so as to submit a patch.. the systems would
-crash randomly and invesitigating it futher seemed onerous).
+I am running the Informix database UniVerse version 9.6.2.4 on a 4 processor
+700MHz Xeon Dell PowerEdge 6400.  The disk subsystem is controlled by a PERC
+2/DC RAID card with 128MB on-board cache (megaraid driver compiled directly
+in to the kernel).  Data array is on 5 36GB 10K Ultra160 disks in a RAID5
+configuration.  The box has 4GB RAM, but is only using 2GB due to the move
+back to the 2.2 kernel.
 
--Calin
+If you need any more detailed info, please let me know.  Any help on this
+problem would be immensely appreciated.  Thanks in advance.
 
->
-> _____________________________________________________
-> |  Martin Eriksson <nitrax@giron.wox.org>
-> |  MSc CSE student, department of Computing Science
-> |  Umeå University, Sweden
->
->
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
->
-
+Regards,
+Andrew Rechenberg
+Network Team, Sherman Financial Group
+arechenberg@shermanfinancialgroup.com
+Phone: 513.677.7809
+Fax:   513.677.7838

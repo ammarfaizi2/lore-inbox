@@ -1,178 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261732AbSL3WgQ>; Mon, 30 Dec 2002 17:36:16 -0500
+	id <S265947AbSL3Wly>; Mon, 30 Dec 2002 17:41:54 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262506AbSL3WgQ>; Mon, 30 Dec 2002 17:36:16 -0500
-Received: from port-212-202-185-174.reverse.qdsl-home.de ([212.202.185.174]:5770
-	"EHLO el-zoido.localnet") by vger.kernel.org with ESMTP
-	id <S261732AbSL3WgN>; Mon, 30 Dec 2002 17:36:13 -0500
-Date: Mon, 30 Dec 2002 23:45:05 +0100 (CET)
-From: Patrick McHardy <kaber@trash.net>
-To: alan@lxorguk.ukuu.org.uk
-cc: linux-kernel@vger.kernel.org
-Subject: 2.4.21-pre2 Oops in i810_audio.c
-Message-ID: <Pine.LNX.4.44.0212302329460.20422-300000@el-zoido.localnet>
-MIME-Version: 1.0
-Content-Type: MULTIPART/MIXED; BOUNDARY="-1463811840-1465977082-1041288305=:20422"
+	id <S266010AbSL3Wly>; Mon, 30 Dec 2002 17:41:54 -0500
+Received: from havoc.daloft.com ([64.213.145.173]:8421 "EHLO havoc.gtf.org")
+	by vger.kernel.org with ESMTP id <S265947AbSL3Wlx>;
+	Mon, 30 Dec 2002 17:41:53 -0500
+Date: Mon, 30 Dec 2002 17:50:12 -0500
+From: Jeff Garzik <jgarzik@pobox.com>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Greg KH <greg@kroah.com>, Jaroslav Kysela <perex@suse.cz>,
+       Adam Belay <ambx1@neo.rr.com>, LKML <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] pnp & pci structure cleanups
+Message-ID: <20021230225012.GA19633@gtf.org>
+References: <Pine.LNX.4.33.0212291228200.532-100000@pnote.perex-int.cz> <20021230221212.GE32324@kroah.com> <1041289960.13684.180.camel@irongate.swansea.linux.org.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1041289960.13684.180.camel@irongate.swansea.linux.org.uk>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  This message is in MIME format.  The first part should be readable text,
-  while the remaining parts are likely unreadable without MIME-aware tools.
-  Send mail to mime@docserver.cac.washington.edu for more info.
+On Mon, Dec 30, 2002 at 11:12:40PM +0000, Alan Cox wrote:
+> On Mon, 2002-12-30 at 22:12, Greg KH wrote:
+> > Yeah!  Thanks for taking these fields out of pci.h, I really appreciate
+> > it.  I'll send this on to Linus in a bit.
+> 
+> Argh I was using those to implement a test "pci_compatible" driver so
+> that you could feed new pci idents to old drivers. Oh well 
 
----1463811840-1465977082-1041288305=:20422
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Note that we need a way to do field replacement of PCI id tables.
 
-Hi Alan,
+I've been harping on that to various ears for years :)
 
-i810_audio oopses in 2.4.21-pre2, i also tried 2.4.20-ac2 some time ago 
-but i don't have the oops handy. There seem to be too different problems,
-the first one is ac97_codec recognizing my codec as a softmodem (it works 
-fine with 2.4.18), the second is i810_audio:i810_set_dac_channels doesn't 
-check if state->card->ac97_codec[0] is NULL. 
+<tangent>
+I also want to add PCI revision id and mask to struct pci_device_id.
+</tangent>
 
-Attached you'll find dmesg and ksymoops output.
-I don't know how much i810_audio/ac97_codec from 2.4.21-pre2 and 
-2.4.20-ac2 differ, just tell me if you need the resulting Oops from -ac.
-
-Regards,
-Patrick
+	Jeff
 
 
----1463811840-1465977082-1041288305=:20422
-Content-Type: TEXT/PLAIN; charset=US-ASCII; name=dmesg
-Content-Transfer-Encoding: BASE64
-Content-ID: <Pine.LNX.4.44.0212302345050.20422@el-zoido.localnet>
-Content-Description: 
-Content-Disposition: attachment; filename=dmesg
 
-SW50ZWwgODEwICsgQUM5NyBBdWRpbywgdmVyc2lvbiAwLjI0LCAxODo0Mjo0
-OSBEZWMgMzAgMjAwMg0KUENJOiBGb3VuZCBJUlEgNSBmb3IgZGV2aWNlIDAw
-OjAwLjENClBDSTogU2hhcmluZyBJUlEgNSB3aXRoIDAwOjAwLjINClBDSTog
-U2hhcmluZyBJUlEgNSB3aXRoIDAwOjA4LjENClBDSTogU2V0dGluZyBsYXRl
-bmN5IHRpbWVyIG9mIGRldmljZSAwMDowMC4xIHRvIDY0DQppODEwOiBJbnRl
-bCA0NDBNWCBmb3VuZCBhdCBJTyAweDg0MDAgYW5kIDB4ODIwMCwgTUVNIDB4
-MDAwMCBhbmQgMHgwMDAwLCBJUlEgNQ0KaTgxMF9hdWRpbzogQXVkaW8gQ29u
-dHJvbGxlciBzdXBwb3J0cyAyIGNoYW5uZWxzLg0KaTgxMF9hdWRpbzogRGVm
-YXVsdGluZyB0byBiYXNlIDIgY2hhbm5lbCBtb2RlLg0KaTgxMF9hdWRpbzog
-UmVzZXR0aW5nIGNvbm5lY3Rpb24gMA0KYWM5N19jb2RlYzogQUM5NyBNb2Rl
-bSBjb2RlYywgaWQ6IENYVDY2IChVbmtub3duKQ0KaTgxMF9hdWRpbzogY29k
-ZWMgMCBpcyBhbiBBQzk3IDEuMCBzb2Z0bW9kZW0gLSBza2lwcGluZy4NCmk4
-MTBfc2V0X2RhY19jaGFubmVsczogY29kZWM9MDAwMDAwMDANClVuYWJsZSB0
-byBoYW5kbGUga2VybmVsIE5VTEwgcG9pbnRlciBkZXJlZmVyZW5jZSBhdCB2
-aXJ0dWFsIGFkZHJlc3MgMDAwMDAwMDANCiBwcmludGluZyBlaXA6DQpjODgw
-ZTFiYw0KKnBkZSA9IDAwMDAwMDAwDQpPb3BzOiAwMDAwDQpDUFU6ICAgIDAN
-CkVJUDogICAgMDAxMDpbPGM4ODBlMWJjPl0gICAgTm90IHRhaW50ZWQNCkVG
-TEFHUzogMDAwMTAyODINCmVheDogMDAwMDAwMjYgICBlYng6IDAwMDAwMDAw
-ICAgZWN4OiAwMDAwMDAwMCAgIGVkeDogMDAwMDAwMDENCmVzaTogMDAwMDAw
-MDIgICBlZGk6IGMxMTk4NDYwICAgZWJwOiAwMDAwMDAwMCAgIGVzcDogYzdj
-MjllNmMNCmRzOiAwMDE4ICAgZXM6IDAwMTggICBzczogMDAxOA0KUHJvY2Vz
-cyBtb2Rwcm9iZSAocGlkOiA0MSwgc3RhY2twYWdlPWM3YzI5MDAwKQ0KU3Rh
-Y2s6IGM4ODBiMzJmIDAwMDAwMDAwIDAwMDAwMDJhIGM4ODBmOWMwIDAwMDAw
-MDAwIGMxMTk4NDk4IGM4ODEwNjc4IGMxMTk4NDYwIA0KICAgICAgIGM4ODBl
-YWQ3IGMxMTk4NDYwIDAwMDAwMDAyIGMxMTk4NDYwIGZmZmZmZmZmIDAwMDAw
-MDAwIGM4ODEwNWYwIGM4ODEwNjc4IA0KICAgICAgIGMxMWQ5ODAwIDAwMDAw
-MDAwIGMxMTk4NDYwIGM3Y2U5NDAwIDAwMDAwMDAwIGM3Y2U5NWY0IDAwMDAw
-MDAwIDAwMDAwMDAxIA0KQ2FsbCBUcmFjZTogICAgWzxjODgwYjMyZj5dIFs8
-Yzg4MGY5YzA+XSBbPGM4ODEwNjc4Pl0gWzxjODgwZWFkNz5dIFs8Yzg4MTA1
-ZjA+XQ0KICBbPGM4ODEwNjc4Pl0gWzxjODgwZjIxYj5dIFs8Yzg4MTA2Nzg+
-XSBbPGM4ODEwODgwPl0gWzxjMDE5NWQ4MT5dIFs8Yzg4MTA2Nzg+XQ0KICBb
-PGM4ODEwODgwPl0gWzxjMDE5NWRlND5dIFs8Yzg4MTA4ODA+XSBbPGM4ODBm
-N2E0Pl0gWzxjODgxMDg4MD5dIFs8Yzg4MTAzMjA+XQ0KICBbPGMwMTE2OTcx
-Pl0gWzxjODgwYjA2MD5dIFs8YzAxMDZiYzc+XQ0KDQpDb2RlOiA4YiAwMSA4
-YSA1NCAyNCAwOCA4MyBiOCAzYyAwMiAwMCAwMCAwMCA3NCAwYyAwZiBiNiBj
-MiA1MCA1MSANCiANCg==
----1463811840-1465977082-1041288305=:20422
-Content-Type: TEXT/PLAIN; charset=US-ASCII; name=ksymoops
-Content-Transfer-Encoding: BASE64
-Content-ID: <Pine.LNX.4.44.0212302345051.20422@el-zoido.localnet>
-Content-Description: 
-Content-Disposition: attachment; filename=ksymoops
-
-a3N5bW9vcHMgMi40LjYgb24gaTY4NiAyLjQuMjEtcHJlMi4gIE9wdGlvbnMg
-dXNlZA0KICAgICAtViAoZGVmYXVsdCkNCiAgICAgLWsgL3Byb2Mva3N5bXMg
-KGRlZmF1bHQpDQogICAgIC1sIC9wcm9jL21vZHVsZXMgKGRlZmF1bHQpDQog
-ICAgIC1vIC9saWIvbW9kdWxlcy8yLjQuMjEtcHJlMi8gKGRlZmF1bHQpDQog
-ICAgIC1tIC9ib290L1N5c3RlbS5tYXAtMi40LjIxLXByZTIgKGRlZmF1bHQp
-DQoNCldhcm5pbmc6IFlvdSBkaWQgbm90IHRlbGwgbWUgd2hlcmUgdG8gZmlu
-ZCBzeW1ib2wgaW5mb3JtYXRpb24uICBJIHdpbGwNCmFzc3VtZSB0aGF0IHRo
-ZSBsb2cgbWF0Y2hlcyB0aGUga2VybmVsIGFuZCBtb2R1bGVzIHRoYXQgYXJl
-IHJ1bm5pbmcNCnJpZ2h0IG5vdyBhbmQgSSdsbCB1c2UgdGhlIGRlZmF1bHQg
-b3B0aW9ucyBhYm92ZSBmb3Igc3ltYm9sIHJlc29sdXRpb24uDQpJZiB0aGUg
-Y3VycmVudCBrZXJuZWwgYW5kL29yIG1vZHVsZXMgZG8gbm90IG1hdGNoIHRo
-ZSBsb2csIHlvdSBjYW4gZ2V0DQptb3JlIGFjY3VyYXRlIG91dHB1dCBieSB0
-ZWxsaW5nIG1lIHRoZSBrZXJuZWwgdmVyc2lvbiBhbmQgd2hlcmUgdG8gZmlu
-ZA0KbWFwLCBtb2R1bGVzLCBrc3ltcyBldGMuICBrc3ltb29wcyAtaCBleHBs
-YWlucyB0aGUgb3B0aW9ucy4NCg0KYWM5N19jb2RlYzogQUM5NyBNb2RlbSBj
-b2RlYywgaWQ6IENYVDY2IChVbmtub3duKQ0KVW5hYmxlIHRvIGhhbmRsZSBr
-ZXJuZWwgTlVMTCBwb2ludGVyIGRlcmVmZXJlbmNlIGF0IHZpcnR1YWwgYWRk
-cmVzcyAwMDAwMDAwMA0KYzg4MGUxYmMNCipwZGUgPSAwMDAwMDAwMA0KT29w
-czogMDAwMA0KQ1BVOiAgICAwDQpFSVA6ICAgIDAwMTA6WzxjODgwZTFiYz5d
-ICAgIE5vdCB0YWludGVkDQpVc2luZyBkZWZhdWx0cyBmcm9tIGtzeW1vb3Bz
-IC10IGVsZjMyLWkzODYgLWEgaTM4Ng0KRUZMQUdTOiAwMDAxMDI4Mg0KZWF4
-OiAwMDAwMDAyNiAgIGVieDogMDAwMDAwMDAgICBlY3g6IDAwMDAwMDAwICAg
-ZWR4OiAwMDAwMDAwMQ0KZXNpOiAwMDAwMDAwMiAgIGVkaTogYzExOTg0NjAg
-ICBlYnA6IDAwMDAwMDAwICAgZXNwOiBjN2MyOWU2Yw0KZHM6IDAwMTggICBl
-czogMDAxOCAgIHNzOiAwMDE4DQpQcm9jZXNzIG1vZHByb2JlIChwaWQ6IDQx
-LCBzdGFja3BhZ2U9YzdjMjkwMDApDQpTdGFjazogYzg4MGIzMmYgMDAwMDAw
-MDAgMDAwMDAwMmEgYzg4MGY5YzAgMDAwMDAwMDAgYzExOTg0OTggYzg4MTA2
-NzggYzExOTg0NjAgDQogICAgICAgYzg4MGVhZDcgYzExOTg0NjAgMDAwMDAw
-MDIgYzExOTg0NjAgZmZmZmZmZmYgMDAwMDAwMDAgYzg4MTA1ZjAgYzg4MTA2
-NzggDQogICAgICAgYzExZDk4MDAgMDAwMDAwMDAgYzExOTg0NjAgYzdjZTk0
-MDAgMDAwMDAwMDAgYzdjZTk1ZjQgMDAwMDAwMDAgMDAwMDAwMDEgDQpDYWxs
-IFRyYWNlOiAgICBbPGM4ODBiMzJmPl0gWzxjODgwZjljMD5dIFs8Yzg4MTA2
-Nzg+XSBbPGM4ODBlYWQ3Pl0gWzxjODgxMDVmMD5dDQogIFs8Yzg4MTA2Nzg+
-XSBbPGM4ODBmMjFiPl0gWzxjODgxMDY3OD5dIFs8Yzg4MTA4ODA+XSBbPGMw
-MTk1ZDgxPl0gWzxjODgxMDY3OD5dDQogIFs8Yzg4MTA4ODA+XSBbPGMwMTk1
-ZGU0Pl0gWzxjODgxMDg4MD5dIFs8Yzg4MGY3YTQ+XSBbPGM4ODEwODgwPl0g
-WzxjODgxMDMyMD5dDQogIFs8YzAxMTY5NzE+XSBbPGM4ODBiMDYwPl0gWzxj
-MDEwNmJjNz5dDQpDb2RlOiA4YiAwMSA4YSA1NCAyNCAwOCA4MyBiOCAzYyAw
-MiAwMCAwMCAwMCA3NCAwYyAwZiBiNiBjMiA1MCA1MSANCg0KDQo+PkVJUDsg
-Yzg4MGUxYmMgPFtpODEwX2F1ZGlvXWk4MTBfYWM5N19nZXQrNC8zMD4gICA8
-PT09PT0NCg0KPj5lZGk7IGMxMTk4NDYwIDxfZW5kK2YwYThkMC84NTcyNGQw
-Pg0KPj5lc3A7IGM3YzI5ZTZjIDxfZW5kKzc5OWMyZGMvODU3MjRkMD4NCg0K
-VHJhY2U7IGM4ODBiMzJmIDxbaTgxMF9hdWRpb11pODEwX3NldF9kYWNfY2hh
-bm5lbHMrMjcvNzg+DQpUcmFjZTsgYzg4MGY5YzAgPFtpODEwX2F1ZGlvXV9f
-bW9kdWxlX3BjaV9kZXZpY2Vfc2l6ZSsxOC9hN2I+DQpUcmFjZTsgYzg4MTA2
-NzggPFtpODEwX2F1ZGlvXWk4MTBfcGNpX3RibCszOC8xNmM+DQpUcmFjZTsg
-Yzg4MGVhZDcgPFtpODEwX2F1ZGlvXWk4MTBfY29uZmlndXJlX2Nsb2NraW5n
-K2RiLzM4ND4NClRyYWNlOyBjODgxMDVmMCA8W2k4MTBfYXVkaW9dY2FyZF9u
-YW1lcyswLzI4Pg0KVHJhY2U7IGM4ODEwNjc4IDxbaTgxMF9hdWRpb11pODEw
-X3BjaV90YmwrMzgvMTZjPg0KVHJhY2U7IGM4ODBmMjFiIDxbaTgxMF9hdWRp
-b11pODEwX3Byb2JlKzQ5Yi81Zjg+DQpUcmFjZTsgYzg4MTA2NzggPFtpODEw
-X2F1ZGlvXWk4MTBfcGNpX3RibCszOC8xNmM+DQpUcmFjZTsgYzg4MTA4ODAg
-PFtpODEwX2F1ZGlvXWk4MTBfcGNpX2RyaXZlciswLzI3Pg0KVHJhY2U7IGMw
-MTk1ZDgxIDxwY2lfYW5ub3VuY2VfZGV2aWNlKzM1LzUwPg0KVHJhY2U7IGM4
-ODEwNjc4IDxbaTgxMF9hdWRpb11pODEwX3BjaV90YmwrMzgvMTZjPg0KVHJh
-Y2U7IGM4ODEwODgwIDxbaTgxMF9hdWRpb11pODEwX3BjaV9kcml2ZXIrMC8y
-Nz4NClRyYWNlOyBjMDE5NWRlNCA8cGNpX3JlZ2lzdGVyX2RyaXZlcis0OC82
-MD4NClRyYWNlOyBjODgxMDg4MCA8W2k4MTBfYXVkaW9daTgxMF9wY2lfZHJp
-dmVyKzAvMjc+DQpUcmFjZTsgYzg4MGY3YTQgPFtpODEwX2F1ZGlvXWk4MTBf
-aW5pdF9tb2R1bGUrMjQvYTA+DQpUcmFjZTsgYzg4MTA4ODAgPFtpODEwX2F1
-ZGlvXWk4MTBfcGNpX2RyaXZlciswLzI3Pg0KVHJhY2U7IGM4ODEwMzIwIDxb
-aTgxMF9hdWRpb11fX21vZHVsZV9wY2lfZGV2aWNlX3NpemUrOTc4L2E3Yj4N
-ClRyYWNlOyBjMDExNjk3MSA8c3lzX2luaXRfbW9kdWxlKzU2OS82MjA+DQpU
-cmFjZTsgYzg4MGIwNjAgPFtpODEwX2F1ZGlvXWk4MTBfYWxsb2NfcGNtX2No
-YW5uZWwrMC8zND4NClRyYWNlOyBjMDEwNmJjNyA8c3lzdGVtX2NhbGwrMzMv
-Mzg+DQoNCkNvZGU7ICBjODgwZTFiYyA8W2k4MTBfYXVkaW9daTgxMF9hYzk3
-X2dldCs0LzMwPg0KMDAwMDAwMDAgPF9FSVA+Og0KQ29kZTsgIGM4ODBlMWJj
-IDxbaTgxMF9hdWRpb11pODEwX2FjOTdfZ2V0KzQvMzA+ICAgPD09PT09DQog
-ICAwOiAgIDhiIDAxICAgICAgICAgICAgICAgICAgICAgbW92ICAgICglZWN4
-KSwlZWF4ICAgPD09PT09DQpDb2RlOyAgYzg4MGUxYmUgPFtpODEwX2F1ZGlv
-XWk4MTBfYWM5N19nZXQrNi8zMD4NCiAgIDI6ICAgOGEgNTQgMjQgMDggICAg
-ICAgICAgICAgICBtb3YgICAgMHg4KCVlc3AsMSksJWRsDQpDb2RlOyAgYzg4
-MGUxYzIgPFtpODEwX2F1ZGlvXWk4MTBfYWM5N19nZXQrYS8zMD4NCiAgIDY6
-ICAgODMgYjggM2MgMDIgMDAgMDAgMDAgICAgICBjbXBsICAgJDB4MCwweDIz
-YyglZWF4KQ0KQ29kZTsgIGM4ODBlMWM5IDxbaTgxMF9hdWRpb11pODEwX2Fj
-OTdfZ2V0KzExLzMwPg0KICAgZDogICA3NCAwYyAgICAgICAgICAgICAgICAg
-ICAgIGplICAgICAxYiA8X0VJUCsweDFiPg0KQ29kZTsgIGM4ODBlMWNiIDxb
-aTgxMF9hdWRpb11pODEwX2FjOTdfZ2V0KzEzLzMwPg0KICAgZjogICAwZiBi
-NiBjMiAgICAgICAgICAgICAgICAgIG1vdnpibCAlZGwsJWVheA0KQ29kZTsg
-IGM4ODBlMWNlIDxbaTgxMF9hdWRpb11pODEwX2FjOTdfZ2V0KzE2LzMwPg0K
-ICAxMjogICA1MCAgICAgICAgICAgICAgICAgICAgICAgIHB1c2ggICAlZWF4
-DQpDb2RlOyAgYzg4MGUxY2YgPFtpODEwX2F1ZGlvXWk4MTBfYWM5N19nZXQr
-MTcvMzA+DQogIDEzOiAgIDUxICAgICAgICAgICAgICAgICAgICAgICAgcHVz
-aCAgICVlY3gNCg0KDQoxIHdhcm5pbmcgaXNzdWVkLiAgUmVzdWx0cyBtYXkg
-bm90IGJlIHJlbGlhYmxlLg0K
----1463811840-1465977082-1041288305=:20422--

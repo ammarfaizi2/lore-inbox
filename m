@@ -1,58 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269200AbUI2XcC@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269205AbUI2Xgr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269200AbUI2XcC (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 29 Sep 2004 19:32:02 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269198AbUI2X3x
+	id S269205AbUI2Xgr (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 29 Sep 2004 19:36:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269196AbUI2Xgq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 29 Sep 2004 19:29:53 -0400
-Received: from fw.osdl.org ([65.172.181.6]:47232 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S269207AbUI2X3S (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 29 Sep 2004 19:29:18 -0400
-Date: Wed, 29 Sep 2004 16:29:08 -0700 (PDT)
-From: Judith Lebzelter <judith@osdl.org>
-To: <linux-aio@kvack.org>
-cc: <linux-kernel@vger.kernel.org>, <akpm@osdl.org>
-Subject: OSDL aio-stress results on latest kernels show buffered random read
- issue
-Message-ID: <Pine.LNX.4.33.0409291621170.4332-100000@osdlab.pdx.osdl.net>
+	Wed, 29 Sep 2004 19:36:46 -0400
+Received: from e33.co.us.ibm.com ([32.97.110.131]:44929 "EHLO
+	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S269205AbUI2Xe2
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 29 Sep 2004 19:34:28 -0400
+Date: Wed, 29 Sep 2004 16:35:31 -0700
+From: Hanna Linder <hannal@us.ibm.com>
+To: linux-kernel@vger.kernel.org
+cc: kernel-janitors@lists.osdl.org, hannal@us.ibm.com, greg@kroah.com
+Subject: [PATCH 2.6.9-rc2-mm4 ibmphp_core.c][6/8] replace pci_get_device with pci_dev_present
+Message-ID: <25390000.1096500931@w-hlinder.beaverton.ibm.com>
+X-Mailer: Mulberry/2.2.1 (Linux/x86)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello;
 
-I am running aio-stress on the most recent kernels and have
-found that on linux-2.6.8, 2.6.9-rc2 and 2.6.9-rc2-mm4 the
-performance of buffered random reads is poor compared to the
-buffered random writes:
+This can be converted to pci_dev_present as the dev returned is never used.
+Compile tested.
 
-               2.6.8      2.6.9-rc2     2.6.9-rc2-mm4
-             --------------------------------------------
-random write 35.66 MB/s   34.80 MB/s    29.89 MB/s
-random read   7.69 MB/s    7.50 MB/s     7.68 MB/s
+Hanna Linder
+IBM Linux Technology Center
 
-** 2CPU hosts with striped Megaraid. 1G RAM. 4G File.
+Signed-off-by: Hanna Linder <hannal@us.ibm.com>
 
-
-This shows up on our 4CPU host as well. (striped AACRAID.4G
-RAM. 8G File):
-             2.6.9-rc2     2.6.9-rc2-mm4   2.6.9-rc2-mm1
-             -------------------------------------------
-random write 31.36 MB/s     18.92 MB/s      18.97 MB/s
-random read  11.13 MB/s      9.74 MB/s      11.05 MB/s
-
-
-There seems to be an issue with the reads.  Usually, reads
-should be at least as fast as writes of the same type.
-
-Also, there seems to be a substantial drop-off in the performance
-of AIO buffered-random writes in the mm kernels. (14% on 2CPU,
-40% on 4CPU)
-
-Regards;
-Judith Lebzelter
-OSDL
-
+diff -Nrup linux-2.6.9-rc2-mm4cln/drivers/pci/hotplug/ibmphp_core.c linux-2.6.9-rc2-mm4patch2/drivers/pci/hotplug/ibmphp_core.c
+--- linux-2.6.9-rc2-mm4cln/drivers/pci/hotplug/ibmphp_core.c	2004-09-28 14:58:50.000000000 -0700
++++ linux-2.6.9-rc2-mm4patch2/drivers/pci/hotplug/ibmphp_core.c	2004-09-29 15:39:39.385406240 -0700
+@@ -838,8 +838,11 @@ static int set_bus (struct slot * slot_c
+ 	int rc;
+ 	u8 speed;
+ 	u8 cmd = 0x0;
+-	struct pci_dev *dev = NULL;
+ 	int retval;
++	static struct pci_device_id ciobx[] = {
++		{ PCI_DEVICE(PCI_VENDOR_ID_SERVERWORKS, 0x0101) },
++	        { },
++	};	
+ 
+ 	debug ("%s - entry slot # %d\n", __FUNCTION__, slot_cur->number);
+ 	if (SET_BUS_STATUS (slot_cur->ctrl) && is_bus_empty (slot_cur)) {
+@@ -886,8 +889,7 @@ static int set_bus (struct slot * slot_c
+ 				break;
+ 			case BUS_SPEED_133:
+ 				/* This is to take care of the bug in CIOBX chip */
+-				while ((dev = pci_get_device(PCI_VENDOR_ID_SERVERWORKS,
+-							      0x0101, dev)) != NULL)
++				if(pci_dev_present(ciobx))
+ 					ibmphp_hpc_writeslot (slot_cur, HPC_BUS_100PCIXMODE);
+ 				cmd = HPC_BUS_133PCIXMODE;
+ 				break;
 

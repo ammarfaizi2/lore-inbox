@@ -1,71 +1,69 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264497AbTKNC1i (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 13 Nov 2003 21:27:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264498AbTKNC1i
+	id S264503AbTKNDCa (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 13 Nov 2003 22:02:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264504AbTKNDCa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 13 Nov 2003 21:27:38 -0500
-Received: from razorbill.mail.pas.earthlink.net ([207.217.121.248]:64927 "EHLO
-	razorbill.mail.pas.earthlink.net") by vger.kernel.org with ESMTP
-	id S264497AbTKNC1h convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 13 Nov 2003 21:27:37 -0500
-From: Guy <fsos_guy@earthlink.net>
-Organization: C
-To: Nick Piggin <piggin@cyberone.com.au>
-Subject: Re: 2.6 scheduler and "fast user switching"
-Date: Thu, 13 Nov 2003 19:58:36 -0500
-User-Agent: KMail/1.5.4
-Cc: linux-kernel@vger.kernel.org
-References: <200311130430.06882.fsos_guy@earthlink.net> <3FB366DB.80508@cyberone.com.au> <200311131611.51951.fsos_guy@earthlink.net>
-In-Reply-To: <200311131611.51951.fsos_guy@earthlink.net>
+	Thu, 13 Nov 2003 22:02:30 -0500
+Received: from x35.xmailserver.org ([69.30.125.51]:16000 "EHLO
+	x35.xmailserver.org") by vger.kernel.org with ESMTP id S264503AbTKNDC3
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 13 Nov 2003 22:02:29 -0500
+X-AuthUser: davidel@xmailserver.org
+Date: Thu, 13 Nov 2003 19:01:40 -0800 (PST)
+From: Davide Libenzi <davidel@xmailserver.org>
+X-X-Sender: davide@bigblue.dev.mdolabs.com
+To: Larry McVoy <lm@bitmover.com>
+cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: kernel.bkbits.net off the air
+In-Reply-To: <20031113172015.GA23754@work.bitmover.com>
+Message-ID: <Pine.LNX.4.44.0311131854540.2095-100000@bigblue.dev.mdolabs.com>
 MIME-Version: 1.0
-Content-Type: Text/Plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Description: clearsigned data
-Content-Disposition: inline
-Message-Id: <200311131958.40404.fsos_guy@earthlink.net>
-X-ELNK-Trace: d501ffacebf681585e89bb4777695beb702e37df12b9c9ef27617fd7ccf92de439d518124c83bcb0350badd9bab72f9c350badd9bab72f9c350badd9bab72f9c
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 13 November 2003 16:11, Guy wrote:
-> On Thursday 13 November 2003 06:11, Nick Piggin wrote:
-> > Guy wrote:
-> > >A} My default security is that only 'root' can perform nice
-> > > with negative values. I am reluctant to play with security
-> > > for such a crticial command.
-> >
-> > Debian does this for you. I guess X runs as suid root anyway
-> > so its not a big security problem.
->
-> See comment above. PBSAK
+On Thu, 13 Nov 2003, Larry McVoy wrote:
 
->From http://members.optusnet.com.au/ckolivas/kernel
+> On Thu, Nov 13, 2003 at 09:14:27AM -0800, Davide Libenzi wrote:
+> > On Thu, 13 Nov 2003, Larry McVoy wrote:
+> > 
+> > > I suppose it sounds like we don't want to give out more free engineering
+> > > but let's put things into perspective.  The CVS server has about 6 users.
+> > > It's cost us a pile of money to build and support that technology.
+> > > For 6 users.  On the other hand, there are thousands if not tens of
+> > 
+> > Larry, if there are really six users (i'm one of them, rsync) among 
+> > pserver and rsync access, I am the first to tell you shut it down. It is 
+> > not worth. On the other hand IIRC it was you that, when Pavel showed up 
+> > with the bitbucket hack to extract metadata from BK, volunteered to do it 
+> > internally inside BM. Do I remember correctly?
+> 
+> Not really, the revision history of the CVS gateway predates Pavel's so-called
+> hacks.
 
-Renicing X? Many distributions (eg Mandrake) start X by default at 
-a nice of -10 to make it more responsive. This is a workaround 
-for the old scheduler limitations and the new scheduler makes 
-this unecessary, and may actually promote audio skipping with 
-this kernel. Each distribution may do this at different places 
-but commonly in the file /usr/lib/X11/xdm/Xservers there will be 
-a line that looks like this: 
+Looking here:
 
-:0 local /bin/nice -n -10 /usr/X11R6/bin/X -deferglyphs 16
+http://lkml.org/lkml/2003/2/15/96
 
- change it to: 
+it didn't seem so, but it's not that makes a huge difference.
 
-:0 local /usr/X11R6/bin/X -deferglyphs 16
 
- Gustavo Franco gave me this on how to do it on Debian: 
 
-# dpkg-reconfigure xserver-common
+> I don't mind us supporting this gateway for the small number of users, if it 
+> makes them happy, that's fine.  What I mind is people coming back and asking
+> for more stuff for a tiny number of people.  That doesn't make sense.  We 
+> should put our efforts into helping the people using BK, not the people using
+> CVS.  If you want to help yourselves, that's a fine idea, go for it.
 
-Manage X server wrapper configuration file with debconf? yes
-Select what type of user has permission to start the X server. 2
-Enter the desired nice value for the X server to use. 0
-To check "cat /etc/X11/Xwrapper.config".
- 
--- 
-Recyle computers. Install Gentoo GNU/Linux.
+I really would like to know from Peter/DaveM how many hits the rsync of 
+the CVS repo at kernel.org has. If really a few cats are looking at it and 
+if for BM is an hassle to support it, we have to ask ourselves if it is 
+worth. Both for kernel.org maintainers and for BM.
+(rsync on CVS repo on kernel.org does not give me any new data by days)
+
+
+
+- Davide
+
 

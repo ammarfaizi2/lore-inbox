@@ -1,31 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293306AbSCOVdD>; Fri, 15 Mar 2002 16:33:03 -0500
+	id <S293317AbSCOVex>; Fri, 15 Mar 2002 16:34:53 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293317AbSCOVcy>; Fri, 15 Mar 2002 16:32:54 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:64016 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S293306AbSCOVcp>; Fri, 15 Mar 2002 16:32:45 -0500
-Subject: Re: [OOPS] Kernel powerdown
-To: andrew.grover@intel.com (Grover, Andrew)
-Date: Fri, 15 Mar 2002 21:48:32 +0000 (GMT)
-Cc: alan@lxorguk.ukuu.org.uk ('Alan Cox'), reality@delusion.de,
-        linux-kernel@vger.kernel.org, andrew.grover@intel.com (Grover Andrew)
-In-Reply-To: <59885C5E3098D511AD690002A5072D3C02AB7D01@orsmsx111.jf.intel.com> from "Grover, Andrew" at Mar 15, 2002 01:30:56 PM
-X-Mailer: ELM [version 2.5 PL6]
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S293326AbSCOVep>; Fri, 15 Mar 2002 16:34:45 -0500
+Received: from e31.co.us.ibm.com ([32.97.110.129]:40614 "EHLO
+	e31.co.us.ibm.com") by vger.kernel.org with ESMTP
+	id <S293317AbSCOVei>; Fri, 15 Mar 2002 16:34:38 -0500
+Subject: shmdt fix
+From: Paul Larson <plars@austin.ibm.com>
+To: Marcelo Tosati <marcelo@conectiva.com.br>
+Cc: lkml <linux-kernel@vger.kernel.org>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-Message-Id: <E16lzYv-0004ko-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+X-Mailer: Evolution/1.0.2 
+Date: 15 Mar 2002 15:31:44 -0600
+Message-Id: <1016227905.28607.36.camel@plars.austin.ibm.com>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> sure the NMI watchdog shouldn't be an issue :) but IIRC we are masking
-> interrupts and doing some delays before turning off, so the NMI watchdog
-> might not be liking that? APM doesn't turn off the NMI afaik so why should
-> ACPI have to?
 
-Its entirely possible that APM has the same bug but isnt seeing it because
-it tends to drop into oblivion before the timer goes off
+Marcelo, in 2.4.19-pre1 the changelog said that the shmdt fix was
+included, but it is still failing the LTP testcase that found this
+problem.  There is a small, but important set of {}'s that got missed,
+so it is still always returning 0 even if there is nothing to detach. 
+The attached diff will clean this up on 2.4.19-pre3.
+
+Thanks,
+Paul Larson
+
+
+diff -Naur linux/ipc/shm.c linux-shmdt/ipc/shm.c
+--- linux/ipc/shm.c	Fri Mar 15 15:13:07 2002
++++ linux-shmdt/ipc/shm.c	Fri Mar 15 15:16:21 2002
+@@ -678,9 +678,10 @@
+ 	for (shmd = mm->mmap; shmd; shmd = shmdnext) {
+ 		shmdnext = shmd->vm_next;
+ 		if (shmd->vm_ops == &shm_vm_ops
+-		    && shmd->vm_start - (shmd->vm_pgoff << PAGE_SHIFT) == (ulong) shmaddr)
++		    && shmd->vm_start - (shmd->vm_pgoff << PAGE_SHIFT) == (ulong) shmaddr) {
+ 			do_munmap(mm, shmd->vm_start, shmd->vm_end - shmd->vm_start);
+ 			retval = 0;
++		}
+ 	}
+ 	up_write(&mm->mmap_sem);
+ 	return retval;
 

@@ -1,29 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262600AbRFQR7R>; Sun, 17 Jun 2001 13:59:17 -0400
+	id <S262596AbRFQSRg>; Sun, 17 Jun 2001 14:17:36 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262076AbRFQR7H>; Sun, 17 Jun 2001 13:59:07 -0400
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:61200 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S262600AbRFQR6z>; Sun, 17 Jun 2001 13:58:55 -0400
-Subject: Re: a memory-related problem?
-To: rbultje@ronald.bitfreak.net (Ronald Bultje)
-Date: Sun, 17 Jun 2001 18:57:48 +0100 (BST)
-Cc: klink@clouddancer.com, linux-kernel@vger.kernel.org
-In-Reply-To: <992806021.2007.0.camel@tux.bitfreak.net> from "Ronald Bultje" at Jun 17, 2001 09:26:50 PM
-X-Mailer: ELM [version 2.5 PL3]
-MIME-Version: 1.0
+	id <S262607AbRFQSR1>; Sun, 17 Jun 2001 14:17:27 -0400
+Received: from mail.mediaways.net ([193.189.224.113]:10964 "HELO
+	mail.mediaways.net") by vger.kernel.org with SMTP
+	id <S262596AbRFQSRJ>; Sun, 17 Jun 2001 14:17:09 -0400
+Date: Sun, 17 Jun 2001 20:11:19 +0200
+From: Walter Hofmann <walter.hofmann@physik.stud.uni-erlangen.de>
+To: Alan Cox <laughing@shared-source.org>, linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.4.5-ac15
+Message-ID: <20010617201119.A2331@frodo.uni-erlangen.de>
+In-Reply-To: <20010615230635.A27708@lightning.swansea.linux.org.uk>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E15Bgo0-0002q1-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Disposition: inline
+User-Agent: Mutt/1.2i
+In-Reply-To: <20010615230635.A27708@lightning.swansea.linux.org.uk>; from laughing@shared-source.org on Fri, Jun 15, 2001 at 11:06:35PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I just noticed this: if I supply "linux-2.4.4 mem=255M" instead of
-> "linux-2.4.4 mem=256M" at the lilo prompt, it does work. Is this a bug
-> in the code that handles options given at startup-time? (I only tried
-> this for 2x128 sticks but I suppose this is the same for 2x64+1x128
-> sticks - I guess I'm too lazy to try it out).
+I had already two crashes with ac15. The system was still ping-able, but
+login over the network didn't work anymore.
 
-Its common for the BIOS to reserve and use the top 1K or so
+The first crash happened after I started xosview and noticed that the
+system almost used up the swap (for no apparent reason). The second
+crash happened shortly after I started fsck on a crypto-loop device.
+
+This does not happen with ac14, even under heavy load.
+
+I noticed a second problem: Sometimes the system hangs completely for
+approximately ten seconds, but continues just fine after that. I have
+seen this with ac14 and ac15, but not with ac12.
+
+This is a mixed IDE/SCSI (Adaptec) system, 128MB RAM/256MB swap on a
+Gigabyte 440LX mainboard with a Pentium II.
+
+Walter

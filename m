@@ -1,48 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317974AbSGLFJJ>; Fri, 12 Jul 2002 01:09:09 -0400
+	id <S314381AbSGLFrz>; Fri, 12 Jul 2002 01:47:55 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317984AbSGLFJI>; Fri, 12 Jul 2002 01:09:08 -0400
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:12300 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S317974AbSGLFJH>; Fri, 12 Jul 2002 01:09:07 -0400
-Message-ID: <3D2E6506.7080006@zytor.com>
-Date: Thu, 11 Jul 2002 22:11:34 -0700
-From: "H. Peter Anvin" <hpa@zytor.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0rc3) Gecko/20020524
-X-Accept-Language: en-us, en, sv
-MIME-Version: 1.0
-To: Andre Hedrick <andre@linux-ide.org>
-CC: andersen@codepoet.org, linux-kernel@vger.kernel.org
-Subject: Re: IDE/ATAPI in 2.5
-References: <Pine.LNX.4.10.10207112158000.20499-100000@master.linux-ide.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S317984AbSGLFry>; Fri, 12 Jul 2002 01:47:54 -0400
+Received: from ns.virtualhost.dk ([195.184.98.160]:8142 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id <S314381AbSGLFry>;
+	Fri, 12 Jul 2002 01:47:54 -0400
+Date: Fri, 12 Jul 2002 07:46:32 +0200
+From: Jens Axboe <axboe@kernel.org>
+To: Jochen Suckfuell <jo-lkml@suckfuell.net>
+Cc: Thunder from the hill <thunder@ngforever.de>,
+       Marcelo Tosatti <marcelo@conectiva.com.br>,
+       Bill Davidsen <davidsen@tmr.com>, Andries Brouwer <aebr@win.tue.nl>,
+       Adrian Bunk <bunk@fs.tum.de>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] Re: Disk IO statistics still buggy
+Message-ID: <20020712054632.GN855@suse.de>
+References: <20020706074824.GA24771@win.tue.nl> <Pine.LNX.4.44.0207060740020.10105-100000@hawkeye.luckynet.adm> <20020709190019.A19394@ds217-115-141-141.dedicated.hosteurope.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20020709190019.A19394@ds217-115-141-141.dedicated.hosteurope.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andre Hedrick wrote:
-> 
-> Nice, so you still have to strip and export to the transport layer.
-> 
-> Please expand on what you are going to talk to packetized and the 
-> associated transport protocol restricted to the scope of storage.
-> 
-> Next count all the different personalitys associated with the discrete
-> transport layer.
-> 
-> If you are referring to Jens' pktcdvd interface out of block, it is no
-> more than a bypass of dealing with scsi.  It would allow direct access to
-> the physical transport without portions of OS mucking up things as it does
-> now.
-> 
+On Tue, Jul 09 2002, Jochen Suckfuell wrote:
+> --- linux/drivers/scsi/scsi_lib.c Mon Jul  8 16:15:27 2002
+> +++ linux_work/drivers/scsi/scsi_lib.c Tue Jul  9 17:56:39 2002
+> @@ -426,7 +426,9 @@
+>    if (req->waiting != NULL) {
+>     complete(req->waiting);
+>    }
+> +  spin_lock_irq(&io_request_lock);
+>    req_finished_io(req);
+> +  spin_unlock_irq(&io_request_lock);
+>    add_blkdev_randomness(MAJOR(req->rq_dev));
+>  
+>          SDpnt = SCpnt->device;
 
-I'm talking specifically about ATAPI devices here.  As we have already 
-covered, not all ATA devices are ATAPI, but unless I'm completely off 
-the wall, ATAPI is SCSI over IDE, and should be able to be driven as 
-such.  The lack of access to that interface using the established 
-interface mechanisms just bites.
+good spotting, that's definitely a bug
 
-	-hpa
-
+-- 
+Jens Axboe
 

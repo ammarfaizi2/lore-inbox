@@ -1,80 +1,92 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316935AbSHBUqE>; Fri, 2 Aug 2002 16:46:04 -0400
+	id <S317171AbSHBUsa>; Fri, 2 Aug 2002 16:48:30 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317034AbSHBUqE>; Fri, 2 Aug 2002 16:46:04 -0400
-Received: from saturn.cs.uml.edu ([129.63.8.2]:30219 "EHLO saturn.cs.uml.edu")
-	by vger.kernel.org with ESMTP id <S316935AbSHBUqD>;
-	Fri, 2 Aug 2002 16:46:03 -0400
-From: "Albert D. Cahalan" <acahalan@cs.uml.edu>
-Message-Id: <200208022049.g72KnHj453650@saturn.cs.uml.edu>
+	id <S317211AbSHBUsa>; Fri, 2 Aug 2002 16:48:30 -0400
+Received: from khms.westfalen.de ([62.153.201.243]:6097 "EHLO
+	khms.westfalen.de") by vger.kernel.org with ESMTP
+	id <S317171AbSHBUs2>; Fri, 2 Aug 2002 16:48:28 -0400
+Date: 02 Aug 2002 20:33:00 +0200
+From: kaih@khms.westfalen.de (Kai Henningsen)
+To: linux-kernel@vger.kernel.org
+Message-ID: <8U6Y4oS1w-B@khms.westfalen.de>
+In-Reply-To: <200208021454.JAA37529@tomcat.admin.navo.hpc.mil>
 Subject: Re: 2.5.28 and partitions
-To: miket@bluemug.com (Mike Touloumtzis)
-Date: Fri, 2 Aug 2002 16:49:17 -0400 (EDT)
-Cc: acahalan@cs.uml.edu (Albert D. Cahalan),
-       viro@math.psu.edu (Alexander Viro),
-       thunder@ngforever.de (Thunder from the hill),
-       peter@chubb.wattle.id.au (Peter Chubb), pavel@ucw.cz (Pavel Machek),
-       Matt_Domsch@Dell.com, Andries.Brouwer@cwi.nl,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <20020802194701.GB4528@bluemug.com> from "Mike Touloumtzis" at Aug 02, 2002 12:47:01 PM
-X-Mailer: ELM [version 2.5 PL2]
+X-Mailer: CrossPoint v3.12d.kh9 R/C435
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Organization: Organisation? Me?! Are you kidding?
+References: <200208021454.JAA37529@tomcat.admin.navo.hpc.mil>
+X-No-Junk-Mail: I do not want to get *any* junk mail.
+Comment: Unsolicited commercial mail will incur an US$100 handling fee per received mail.
+X-Fix-Your-Modem: +++ATS2=255&WO1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mike Touloumtzis writes:
-> On Thu, Aug 01, 2002 at 05:24:37PM -0400, Albert D. Cahalan wrote:
+pollard@tomcat.admin.navo.hpc.mil (Jesse Pollard)  wrote on 02.08.02 in <200208021454.JAA37529@tomcat.admin.navo.hpc.mil>:
 
->> There's just that little overflow problem to worry about,
+> kaih@khms.westfalen.de (Kai Henningsen):
+> ...
+> > As for finding where to boot from - either have the bootloader define a
+> > partition name it wants to see, or put the relevant name into the boot
+> > loader config. No need to define that in the partition format. That's
+> > trivial: even MS-DOS did that (finding IO.SYS and MSDOS.SYS from the boot
+> > loader)! And neither scanning for '=' and '\n' nor comparing one string
+> > nor converting one number from decimal is any kind of hardship. Maybe half
+> > a screen of assembler, tops.
+> >
 >
-> Ummm:
+> Nope.
 >
-> -- stuff ASCII digits into u64 (or u32, or whatever)
-> -- if (still more digits)
->    -- printk("partition too big to mount!\n")
->    -- return error
->
-> How hard is that?
+> The problem is different - which file system is the file stored in?
 
-I refer to overflowing the space allowed for your
-partition table. Programs will generate the data,
-then write it out. If the data gets too long, then
-you overwrite part of your first filesystem.
-Alternately, the partition table gets truncated
-at the maximum size -- with or without a '\0'.
+Huh?! What file?!
 
-But sure, overflowing a u64 is also a problem.
-This will not be checked for. Either the u64 will
-get overflowed, or the parser will take what fits
-and then mis-interpret the remaining digits as
-a second number.
+> How many different filesystems are there?
 
->> trailing garbage,
->
-> Don't write garbage into your partition table.
+That's not a question for the bootloader.
 
-I can see multiple ways for this to happen.
-Take the length of the new data, with or without
-the trailing '\0', and write it out. Write the
-whole partition table, including uninitialized
-data that happens to be in memory. (some other
-program will of course not ignore trailing garbage)
+> Do think all of them will fit in a boot loader?
 
->> encouragement of assumptions about the maximum size...
->> is that a %d or a %llu or what?
->
-> See above.  Use leading '-' for negative numbers.  ASCII has no
-> 2's complement ambiguity issues.
+Who cares? You can always give it a partition of its own. (The example did  
+exactly that!)
 
-You've got to stuff it into something eventually,
-unless you want to implement ASCII math. Will you
-be using plain C, or C++ operator overloading?
+> Or even one of them?
+> How many different logical volume structures are there?
 
-Yeah, just what we need. The /proc mess expanding
-into partition tables. That sounds like a great way
-to increase filesystem destruction performance.
+I have no idea what you are talking about here.
 
+> Do do this you first have to convince the development people to say that
+> "only xxxx filesystem shall be bootable".
 
+Utter nonsense.
+
+> And now, you also have to add possible logical volumes on top (or under :)
+> of it.
+
+What are you babbling about?
+
+> That is why LILO doesn't use file names for boots. It only uses block
+> numbers.
+
+So?
+
+(By the way, it's the *only* boot loader I know that does this.)
+
+> Another alternative (possibly just as hard) is to have LILO only
+> load a more complex and dynamic loader, which could be configured for
+> each filesystem structure. Once that "dynamic loader" is loaded, it
+> could find and load the kernel (passing, of course, the boot command line
+> from LILO).
+
+What on earth does that have to do with the format of a partition table?!
+
+> I know IRIX gets around the problem by having a tiny filesystem for the
+> "disk label". This filesystem contains only contigeous files, and has
+
+Around *which* problem?! That's certainly something that's only relevant  
+after the bootloader is long gone.
+
+Frankly, I have no idea what you're smoking, but it can't be healthy.
+
+MfG Kai

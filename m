@@ -1,26 +1,84 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261185AbTISDFR (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 18 Sep 2003 23:05:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261186AbTISDFR
+	id S261152AbTISDtL (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 18 Sep 2003 23:49:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261153AbTISDtL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 18 Sep 2003 23:05:17 -0400
-Received: from ool-18bac5ae.dyn.optonline.net ([24.186.197.174]:8402 "EHLO
-	burner") by vger.kernel.org with ESMTP id S261185AbTISDFQ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 18 Sep 2003 23:05:16 -0400
-From: <John_Lax@AEForthemasses.com>
-To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Date: Thu, 18 Sep 2003 23:00:34 -0400
-Subject: The Best amatuer site on the web!
-Content-Type: text/plain; charset=us-ascii
+	Thu, 18 Sep 2003 23:49:11 -0400
+Received: from fmr03.intel.com ([143.183.121.5]:50307 "EHLO
+	hermes.sc.intel.com") by vger.kernel.org with ESMTP id S261152AbTISDtI
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 18 Sep 2003 23:49:08 -0400
+Subject: Re: [BKPATCH] ACPI 20030916 for 2.4.23-pre4
+From: Len Brown <len.brown@intel.com>
+To: Jesse Barnes <jbarnes@sgi.com>
+Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+In-Reply-To: <20030917153542.GA22959@sgi.com>
+References: <Pine.LNX.4.44.0309151824360.2914-100000@logos.cnet>
+	 <1063759840.13038.23.camel@linux.local>  <20030917153542.GA22959@sgi.com>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1063943386.2681.394.camel@linux.local>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.3 
+Date: 18 Sep 2003 23:49:46 -0400
 Content-Transfer-Encoding: 7bit
-X-Mailer: aspNetEmail ver 2.5.0.0
-X-RCPT-TO: <linux-kernel@vger.kernel.org>
-Message-ID: <BURNER5e21b7d0848648d5b94f1e43c476db37@burner>
-X-OriginalArrivalTime: 19 Sep 2003 03:05:05.0973 (UTC) FILETIME=[D3A8FE50:01C37E5A]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Check it out... www.amateurexcitement.com
+Yes, and thanks!
+
+This fix has been integrated with others in the ACPI patch,
+and is available now in these bitkeeper trees:
+
+http://linux-acpi.bkbits.net/linux-acpi-test-2.4.22
+http://linux-acpi.bkbits.net/linux-acpi-test-2.4.23
+http://linux-acpi.bkbits.net/linux-acpi-test-2.6.0
+
+
+On Wed, 2003-09-17 at 11:35, Jesse Barnes wrote:
+> Can you please push this one as well?  Thanks.
+> 
+> Jesse
+> 
+> 
+> diff -Nru a/drivers/acpi/tables.c b/drivers/acpi/tables.c
+> --- a/drivers/acpi/tables.c	Tue Sep  9 10:24:34 2003
+> +++ b/drivers/acpi/tables.c	Tue Sep  9 10:24:34 2003
+> @@ -69,7 +69,8 @@
+>  
+>  static unsigned long		sdt_pa;		/* Physical Address */
+>  static unsigned long		sdt_count;	/* Table count */
+> -static struct acpi_table_sdt	*sdt_entry;
+> +
+> +static struct acpi_table_sdt	sdt_entry[ACPI_MAX_TABLES];
+>  
+>  void
+>  acpi_table_print (
+> @@ -425,12 +426,6 @@
+>  			sdt_count = ACPI_MAX_TABLES;
+>  		}
+>  
+> -		sdt_entry = alloc_bootmem(sdt_count * sizeof(struct acpi_table_sdt));
+> -		if (!sdt_entry) {
+> -			printk(KERN_ERR "ACPI: Could not allocate mem for SDT entries!\n");
+> -			return -ENOMEM;
+> -		}
+> -
+>  		for (i = 0; i < sdt_count; i++)
+>  			sdt_entry[i].pa = (unsigned long) mapped_xsdt->entry[i];
+>  	}
+> @@ -475,12 +470,6 @@
+>  			printk(KERN_WARNING PREFIX "Truncated %lu RSDT entries\n",
+>  				(sdt_count - ACPI_MAX_TABLES));
+>  			sdt_count = ACPI_MAX_TABLES;
+> -		}
+> -
+> -		sdt_entry = alloc_bootmem(sdt_count * sizeof(struct acpi_table_sdt));
+> -		if (!sdt_entry) {
+> -			printk(KERN_ERR "ACPI: Could not allocate mem for SDT entries!\n");
+> -			return -ENOMEM;
+>  		}
+>  
+>  		for (i = 0; i < sdt_count; i++)
 

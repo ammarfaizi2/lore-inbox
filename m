@@ -1,52 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269054AbTCAWaj>; Sat, 1 Mar 2003 17:30:39 -0500
+	id <S269057AbTCAWey>; Sat, 1 Mar 2003 17:34:54 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269055AbTCAWaj>; Sat, 1 Mar 2003 17:30:39 -0500
-Received: from p0095.as-l043.contactel.cz ([194.108.242.95]:62702 "EHLO
-	SnowWhite.janik.cz") by vger.kernel.org with ESMTP
-	id <S269054AbTCAWai> convert rfc822-to-8bit; Sat, 1 Mar 2003 17:30:38 -0500
-To: Christoph Hellwig <hch@infradead.org>
-Cc: Pavel Machek <pavel@ucw.cz>, linux-kernel@vger.kernel.org
-Subject: Re: BitBucket: GPL-ed KitBeeper clone
-References: <20030226200208.GA392@elf.ucw.cz> <m38yvz3qts.fsf@Janik.cz>
-	<20030301183929.A31305@infradead.org>
-From: Pavel@Janik.cz (Pavel =?iso-8859-2?q?Jan=EDk?=)
-X-Face: $"d&^B_IKlTHX!y2d,3;grhwjOBqOli]LV`6d]58%5'x/kBd7.MO&n3bJ@Zkf&RfBu|^qL+
- ?/Re{MpTqanXS2'~Qp'J2p^M7uM:zp[1Xq#{|C!*'&NvCC[9!|=>#qHqIhroq_S"MH8nSH+d^9*BF:
- iHiAs(t(~b#1.{w.d[=Z
-Date: Sat, 01 Mar 2003 23:43:23 +0100
-In-Reply-To: <20030301183929.A31305@infradead.org> (Christoph Hellwig's
- message of "Sat, 1 Mar 2003 18:39:29 +0000")
-Message-ID: <m3el5q3dys.fsf@Janik.cz>
-User-Agent: Gnus/5.090008 (Oort Gnus v0.08) Emacs/21.3.50
- (i386-suse-linux-gnu)
+	id <S269060AbTCAWey>; Sat, 1 Mar 2003 17:34:54 -0500
+Received: from dhcp93-dsl-usw3.w-link.net ([206.129.84.93]:40144 "EHLO
+	grok.yi.org") by vger.kernel.org with ESMTP id <S269057AbTCAWex>;
+	Sat, 1 Mar 2003 17:34:53 -0500
+Message-ID: <3E6137EC.4010202@candelatech.com>
+Date: Sat, 01 Mar 2003 14:45:00 -0800
+From: Ben Greear <greearb@candelatech.com>
+Organization: Candela Technologies
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3b) Gecko/20030210
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-15
-Content-Transfer-Encoding: 8BIT
+To: Andrew McGregor <andrew@indranet.co.nz>
+CC: Stephen Corey <s_corey@netzero.com>, linux-kernel@vger.kernel.org
+Subject: Re: Kernel tuning for high latency satellite link??
+References: <000001c2e00b$71bb7d50$0301a8c0@corey> <132088132.1046604929@[192.168.0.1]>
+In-Reply-To: <132088132.1046604929@[192.168.0.1]>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: Christoph Hellwig <hch@infradead.org>
-   Date: Sat, 1 Mar 2003 18:39:29 +0000
+Andrew McGregor wrote:
+> It should do OK by default, but you might want to read RFC 3150 for some 
+> ideas for things to do to help.
+> 
+> Andrew
 
-   > I totally agree.  We should stop developing Linux now and remove all
-   > source code from kernel.org because it's reimplementation and further
-   > development of the APIs of the propritary "UNIX" operating system is
-   > just a waste of time.
+Testing I have done shows it will probably NOT be ok by default, especially
+if you have any significant bandwidth on your satellite link.  I would suggest
+increasing the tcp_[rw]mem buffers at least.
 
-You misunderstood my reply. We do have many source control management
-software around. Instead of developing something to be able to work with
-proprietary systems, we should concentrate on adding missing pieces to
-existing software and trying to convince people to not use proprietary
-systems because of their freedom. E.g. Linus and other people exercising
-"free" KitBeeper license now can not develop SCM software even if they want
-to. I think this is really bad for their freedom.
+Ben
 
-And what will be the next thing?
 -- 
-Pavel Janík
+Ben Greear <greearb@candelatech.com>       <Ben_Greear AT excite.com>
+President of Candela Technologies Inc      http://www.candelatech.com
+ScryMUD:  http://scry.wanfear.com     http://scry.wanfear.com/~greear
 
-I wouldn't like to have something like fetchmail for the kernel
-configuration.
-                  -- Martin Dalecki in LKML about CML2
+

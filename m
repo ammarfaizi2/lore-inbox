@@ -1,43 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278591AbRJXPnN>; Wed, 24 Oct 2001 11:43:13 -0400
+	id <S278594AbRJXPrn>; Wed, 24 Oct 2001 11:47:43 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278592AbRJXPnH>; Wed, 24 Oct 2001 11:43:07 -0400
-Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:6414 "EHLO
-	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id <S278565AbRJXPmw>; Wed, 24 Oct 2001 11:42:52 -0400
-Date: Wed, 24 Oct 2001 17:39:30 +0200
-From: Jan Kara <jack@suse.cz>
-To: James Sutherland <jas88@cam.ac.uk>
-Cc: Neil Brown <neilb@cse.unsw.edu.au>, linux-fsdevel@vger.kernel.org,
-        linux-kernel@vger.kernel.org
-Subject: Re: RFC - tree quotas for Linux (2.4.12, ext2)
-Message-ID: <20011024173930.A19777@atrey.karlin.mff.cuni.cz>
-In-Reply-To: <20011024171658.B10075@atrey.karlin.mff.cuni.cz> <Pine.SOL.4.33.0110241633000.24809-100000@yellow.csi.cam.ac.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.SOL.4.33.0110241633000.24809-100000@yellow.csi.cam.ac.uk>
-User-Agent: Mutt/1.3.20i
+	id <S278609AbRJXPrd>; Wed, 24 Oct 2001 11:47:33 -0400
+Received: from perninha.conectiva.com.br ([200.250.58.156]:55056 "HELO
+	perninha.conectiva.com.br") by vger.kernel.org with SMTP
+	id <S278594AbRJXPrX>; Wed, 24 Oct 2001 11:47:23 -0400
+Date: Wed, 24 Oct 2001 12:26:36 -0200 (BRST)
+From: Marcelo Tosatti <marcelo@conectiva.com.br>
+To: Zlatko Calusic <zlatko.calusic@iskon.hr>,
+        Linus Torvalds <torvalds@transmeta.com>
+Cc: linux-mm@kvack.org, lkml <linux-kernel@vger.kernel.org>
+Subject: Re: xmm2 - monitor Linux MM active/inactive lists graphically
+In-Reply-To: <8766959v59.fsf@atlas.iskon.hr>
+Message-ID: <Pine.LNX.4.21.0110241225560.2593-100000@freak.distro.conectiva>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> On Wed, 24 Oct 2001, Jan Kara wrote:
-> 
-> >   But how do you solve the following: mv <dir> <some_other_dir>
-> > The parent changes. You need to go through all the subdirs of <dir> and change
-> > the TID. This is really hard to get right and to avoid deadlocks
-> > and races... At least it seems to me so.
-> 
-> Provided you are tracking the total size in each directory, it's just a
-> matter of subtracting dir's size from the old parent, and adding it to the
-> new parent. (With suitable checks beforehand to avoid a result which
-> exceeds quota.)
-  Nope. If you'd just keep usage in directory than you need to go all the way
-up and decrease the usage and then go all the way down in the new directory.
-It's simplier but also nontrivial...
 
-									Honza
---
-Jan Kara <jack@suse.cz>
-SuSE CR Labs
+
+On 24 Oct 2001, Zlatko Calusic wrote:
+
+> P.S. BTW, 2.4.13 still has very unoptimal writeout performance and
+>      andrea@suse.de is redirected to /dev/null. <g>
+
+Zlatko,
+
+Could you please show us your case of bad writeout performance ? 
+
+Thanks
+

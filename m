@@ -1,71 +1,108 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266120AbUGJDLE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266121AbUGJDR3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266120AbUGJDLE (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 Jul 2004 23:11:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266117AbUGJDLD
+	id S266121AbUGJDR3 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 Jul 2004 23:17:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266124AbUGJDR3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 Jul 2004 23:11:03 -0400
-Received: from rwcrmhc12.comcast.net ([216.148.227.85]:55522 "EHLO
-	rwcrmhc12.comcast.net") by vger.kernel.org with ESMTP
-	id S266115AbUGJDK6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 Jul 2004 23:10:58 -0400
-Message-ID: <40EF5E3F.90401@comcast.net>
-Date: Fri, 09 Jul 2004 23:10:55 -0400
-From: John Richard Moser <nigelenki@comcast.net>
-User-Agent: Mozilla Thunderbird 0.7.1 (X11/20040630)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: William Lee Irwin III <wli@holomorphy.com>
-CC: linux-kernel@vger.kernel.org,
-       linux-c-programming <linux-c-programming@vger.kernel.org>
-Subject: Re: Garbage Collection and Swap
-References: <40EF3BCD.7080808@comcast.net> <20040710023245.GE21066@holomorphy.com>
-In-Reply-To: <20040710023245.GE21066@holomorphy.com>
-X-Enigmail-Version: 0.84.2.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Fri, 9 Jul 2004 23:17:29 -0400
+Received: from shawidc-mo1.cg.shawcable.net ([24.71.223.10]:4291 "EHLO
+	pd3mo1so.prod.shaw.ca") by vger.kernel.org with ESMTP
+	id S266121AbUGJDRZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 9 Jul 2004 23:17:25 -0400
+Date: Fri, 09 Jul 2004 21:12:04 -0600
+From: Robert Hancock <hancockr@shaw.ca>
+Subject: Re: GCC 3.4 and broken inlining.
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Message-id: <018101c4662b$ad61c830$6401a8c0@northbrook>
+MIME-version: 1.0
+X-MIMEOLE: Produced By Microsoft MimeOLE V6.00.2800.1409
+X-Mailer: Microsoft Outlook Express 6.00.2800.1409
+Content-type: text/plain; charset=iso-8859-1
+Content-transfer-encoding: 7bit
+X-Priority: 3
+X-MSMail-priority: Normal
+References: <fa.hnj36kg.4no2jk@ifi.uio.no> <fa.gktbdsg.1n4em8o@ifi.uio.no>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+If you check the full gcc docs, the -Ox flags only enable omit-frame-pointer
+on architectures where debugging is possible without a frame pointer. If you
+use the actual -fomit-frame-pointer option, it is always omitted.
+
+----- Original Message ----- 
+From: "Pawel Sikora" <pluto@ds14.agh.edu.pl>
+Newsgroups: fa.linux.kernel
+To: "Michael Buesch" <mbuesch@freenet.de>
+Cc: "linux kernel mailing list" <linux-kernel@vger.kernel.org>
+Sent: Friday, July 09, 2004 4:25 AM
+Subject: Re: GCC 3.4 and broken inlining.
 
 
+> On Friday 09 of July 2004 11:43, Michael Buesch wrote:
+> > Quoting Andi Kleen <ak@muc.de>:
+> > > It's too bad that i386 doesn't enable -funit-at-a-time, that improves
+> > > the inlining heuristics greatly.
+> >
+> > From the gcc manpage:
+> >
+> > -O2 turns on all optimization flags specified by -O. It
+> > also turns on the following optimization flags: -fforce-mem
+> > -foptimize-sibling-calls -fstrength-reduce -fcse-follow-jumps
+> > -fcse-skip-blocks -frerun-cse-after-loop -frerun-loop-opt
+> > -fgcse -fgcse-lm -fgcse-sm -fgcse-las -fdelete-null-pointer-checks
+> > -fexpensive-optimizations -fregmove -fschedule-insns
+> > -fschedule-insns2 -fsched-interblock -fsched-spec -fcaller-saves
+> > -fpeephole2 -freorder-blocks -freorder-functions -fstrict-aliasing
+> > -funit-at-a-time -falign-functions -falign-jumps -falign-loops
+> > ^^^^^^^^^^^^^^^^
+> > -falign-labels -fcrossjumping
+> >
+> > Do I miss something?
+>
+> # gcc-3.4.1/gcc/opts.c
+>
+>   if (optimize >= 2)
+>     {
+> (...)
+>       flag_unit_at_a_time = 1;
+>     }
+>
+> btw).
+>
+> I *don't trust* manpages ;)
+>
+> # man gcc
+>
+> -fomit-frame-pointer
+>
+>    Don't keep the frame pointer in a register for functions that don't
+>    need one.  This avoids the instructions to save, set up and restore
+>    frame pointers; it also makes an extra register available in many
+>    functions.  It also makes debugging impossible on some machines.
+>                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+>    (...)
+>    Enabled at levels -O, -O2, -O3, -Os.
+>    ^^^^^^^
+>
+>   if (optimize >= 1)
+>     {
+> (...)
+> #ifdef CAN_DEBUG_WITHOUT_FP
+>       flag_omit_frame_pointer = 1;
+> #endif
+> (...)
+>
+> finally, at ix86 -O[123s] doesn't turn on -fomit-frame-pointer.
+> manpage tells somethine else...
+>
+> -- 
+> /* Copyright (C) 2003, SCO, Inc. This is valuable Intellectual Property.
+*/
+>
+>                            #define say(x) lie(x)
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 
-William Lee Irwin III wrote:
-| On Fri, Jul 09, 2004 at 08:43:57PM -0400, John Richard Moser wrote:
-|
-|>Read that.  It's in all caps, so you should read it.  It has meaning.
-|>How about, everything is using Bohem GC.  Bohem wanders around in the
-|>heap concurrently.  So all of your applications are wandering around
-|>through their vm space everywhere, continuously.
-|>You get low on ram.  Let's say an app is using 500M of ram (Mozilla).
-|>What's going to happen?  Obvious.  It's going to yank shit out of swap.
-|>If we all linked against a GC, what kinds of swap hell do you think we'd
-|>encounter?
-|
-|
-| Ones almost as bad as the Hell of trolls going nuts over hypothetical
-| problems no one is stupid enough to cause in practice anyway.
-|
-|
-
-I'm actually trying to get the boehm one up, but it keeps setting PaX
-off for some odd reason.  I'd intended to have some test data right
-about now. . . . >/  Firefox, gimp, hell vim can't run with boehm
-LD_PRELOAD to redirect malloc().  Nano can.  A simple tester can.
-fortune can't.  BASH doesn't seem to like it.
-
-It's only hypothetical until I prove or disprove it; and I'm not afraid
-to do either.
-
-| -- wli
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
-
-iD8DBQFA7145hDd4aOud5P8RAkTCAJ9onJMZS5bFzu8ppfvyWg8vOE5SzQCeL5SR
-NZPBU5gMs/ZSl0iXuJmvnYQ=
-=UVWv
------END PGP SIGNATURE-----

@@ -1,45 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265196AbSLQXoH>; Tue, 17 Dec 2002 18:44:07 -0500
+	id <S265276AbSLQX5w>; Tue, 17 Dec 2002 18:57:52 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265276AbSLQXoH>; Tue, 17 Dec 2002 18:44:07 -0500
-Received: from mailproxy1.netcologne.de ([194.8.194.222]:34029 "EHLO
-	mailproxy1.netcologne.de") by vger.kernel.org with ESMTP
-	id <S265196AbSLQXoH> convert rfc822-to-8bit; Tue, 17 Dec 2002 18:44:07 -0500
-Content-Type: text/plain;
-  charset="iso-8859-15"
-From: =?iso-8859-15?q?J=F6rg=20Prante?= <joergprante@netcologne.de>
-Reply-To: joergprante@netcologne.de
-To: linux-kernel@vger.kernel.org
-Subject: [2.4.21-pre1] scx200.c in arch/i386/kernel
-Date: Wed, 18 Dec 2002 00:51:07 +0100
+	id <S265277AbSLQX5w>; Tue, 17 Dec 2002 18:57:52 -0500
+Received: from smtp03.web.de ([217.72.192.158]:58118 "EHLO smtp.web.de")
+	by vger.kernel.org with ESMTP id <S265276AbSLQX5w>;
+	Tue, 17 Dec 2002 18:57:52 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Thomas Schlichter <thomas.schlichter@web.de>
+To: Stephen Lord <lord@sgi.com>
+Subject: Re: Compile warnings due to missing __inline__ in fs/xfs/xfs_log.h
+Date: Wed, 18 Dec 2002 01:05:40 +0100
 User-Agent: KMail/1.4.3
-Cc: wingel@nano-system.com
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <1040140891.3dff4a5bcf8f5@rumms.uni-mannheim.de> <1040147719.1368.424.camel@localhost.localdomain>
+In-Reply-To: <1040147719.1368.424.camel@localhost.localdomain>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8BIT
-Message-Id: <200212180051.07749.joergprante@netcologne.de>
+Content-Transfer-Encoding: 7BIT
+Message-Id: <200212180105.41255.thomas.schlichter@web.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+OK, thanks for that info, now I understand...
+So I think I better take the warnings ;-)
 
-I just compiled 2.4.21-pre1 for a consistency check with all configure options 
-set to 'y' and found a file arch/i386/kernel/scx200.c which does not compile 
-because of missing support in the Makefile. It is introduced by the 
-2.4.21-pre1 patch by Marcelo. 
+  Thomas
 
-Is there a reason why it's in the kernel directory of the i386 architecture? 
-This is a very unusual place.
-
-I moved it to drivers/char/scx200.c and it compiles like a charme, after 
-correcting the Makefiles. Is there any chance of moving it to from the arch 
-directory to a more appropriate place? Or did I misunderstand?
-
-I don't know the scx200 Nat Sem chips, I don't have one and I don't even care, 
-it's just because I'm doing some thorough build checks on my new -jp kernel 
-patch set.
-
-Best regards,
-
-Jörg
+Am Dienstag, 17. Dezember 2002 18:55 schrieb Stephen Lord:
+> On Tue, 2002-12-17 at 10:01, Thomas Schlichter wrote:
+> > As the __inline__ directive in front of the _lsn_cmp function is not used
+> > with the gcc version 2.95.x, compile-warnings result from many files
+> > including this header-file.
+>
+> The reason inline is turned off for this compiler version is that it
+> generates bad code when inlining this code. So you can have a quiet
+> compile, or bad code.
+>
+> Steve
 

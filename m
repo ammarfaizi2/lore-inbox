@@ -1,38 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130071AbRCDQEc>; Sun, 4 Mar 2001 11:04:32 -0500
+	id <S130072AbRCDQoY>; Sun, 4 Mar 2001 11:44:24 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130064AbRCDQEW>; Sun, 4 Mar 2001 11:04:22 -0500
-Received: from tomts8.bellnexxia.net ([209.226.175.52]:17867 "EHLO
-	tomts8-srv.bellnexxia.net") by vger.kernel.org with ESMTP
-	id <S130063AbRCDQES>; Sun, 4 Mar 2001 11:04:18 -0500
-Message-ID: <3AA26659.89222B2B@coplanar.net>
-Date: Sun, 04 Mar 2001 10:59:21 -0500
-From: Jeremy Jackson <jerj@coplanar.net>
-X-Mailer: Mozilla 4.72 [en] (X11; U; Linux 2.2.14-5.0 i586)
+	id <S130073AbRCDQoP>; Sun, 4 Mar 2001 11:44:15 -0500
+Received: from snowbird.megapath.net ([216.200.176.7]:16147 "EHLO
+	megapathdsl.net") by vger.kernel.org with ESMTP id <S130072AbRCDQoC>;
+	Sun, 4 Mar 2001 11:44:02 -0500
+Message-ID: <3AA27137.3020600@megapathdsl.net>
+Date: Sun, 04 Mar 2001 08:45:43 -0800
+From: Miles Lane <miles@megapathdsl.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux 2.4.2-ac11 i686; en-US; 0.9) Gecko/20010302
 X-Accept-Language: en
 MIME-Version: 1.0
-To: "Frédéric L. W. Meunier" <fredlwm1@yahoo.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: 2.4.2: What happened ? (No such file or directory)
-In-Reply-To: <20010304043531.60248.qmail@web11802.mail.yahoo.com>
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+To: LKML <linux-kernel@vger.kernel.org>
+Subject: Linux on the Unisys ES7000 and CMP2 machines?
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-" Frédéric L. W. Meunier" wrote:
+http://www.nytimes.com/cnet/CNET_0-1003-200-5007472.html 
 
-> Correction. I can umount the partitions, but I get the
-> following message:
->
-> "can't link lock file /etc/mtab~: No such file or
-> directory (use -n flag to override)"
->
-> And /etc/mtab isn't updated.
 
-Is your root filesystem mounted read-only at any point?
-(check with 'mount' look for ro in line for / filesystem)
-Check permissions on /etc, /etc/mtab, /etc/mtab~
+Hi,
 
+I noticed that this article mentions that Unisys has
+no plans to port Linux to it's "cellular multiprocessor"
+machines.  So, I am wondering if anyone is working
+on this independantly.
+
+These systems seems to be selling well with Microsoft's
+Windoze 2000 Datacenter installed.
+
+	Miles
 

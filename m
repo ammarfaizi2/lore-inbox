@@ -1,56 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317262AbSGHXtl>; Mon, 8 Jul 2002 19:49:41 -0400
+	id <S317263AbSGHX4k>; Mon, 8 Jul 2002 19:56:40 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317263AbSGHXtk>; Mon, 8 Jul 2002 19:49:40 -0400
-Received: from pD9E238F8.dip.t-dialin.net ([217.226.56.248]:17626 "EHLO
-	hawkeye.luckynet.adm") by vger.kernel.org with ESMTP
-	id <S317262AbSGHXtj>; Mon, 8 Jul 2002 19:49:39 -0400
-Date: Mon, 8 Jul 2002 17:52:13 -0600 (MDT)
-From: Thunder from the hill <thunder@ngforever.de>
-X-X-Sender: thunder@hawkeye.luckynet.adm
-To: Keith Owens <kaos@ocs.com.au>
-cc: Patrick Mochel <mochel@osdl.org>, <linux-kernel@vger.kernel.org>
-Subject: Re: Driverfs updates 
-In-Reply-To: <21467.1026171204@ocs3.intra.ocs.com.au>
-Message-ID: <Pine.LNX.4.44.0207081745150.10105-100000@hawkeye.luckynet.adm>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S317265AbSGHX4j>; Mon, 8 Jul 2002 19:56:39 -0400
+Received: from hell.ascs.muni.cz ([147.251.60.186]:39296 "EHLO
+	hell.ascs.muni.cz") by vger.kernel.org with ESMTP
+	id <S317263AbSGHX4j>; Mon, 8 Jul 2002 19:56:39 -0400
+Date: Tue, 9 Jul 2002 01:58:53 +0200
+From: Lukas Hejtmanek <xhejtman@mail.muni.cz>
+To: "J.A. Magallon" <jamagallon@able.es>
+Cc: Austin Gonyou <austin@digitalroadkill.net>, linux-kernel@vger.kernel.org
+Subject: Re: Terrible VM in 2.4.11+?
+Message-ID: <20020709015853.A1598@mail.muni.cz>
+References: <20020709001137.A1745@mail.muni.cz> <1026167822.16937.5.camel@UberGeek> <20020709005025.B1745@mail.muni.cz> <20020708225816.GA1948@werewolf.able.es>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-2
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20020708225816.GA1948@werewolf.able.es>; from jamagallon@able.es on Tue, Jul 09, 2002 at 12:58:16AM +0200
+X-Muni: zakazka, vydelek, firma, komerce, vyplata
+X-echalon: NSA, CIA, CI5, MI5, FBI, KGB, BIS, Plutonium, Bin Laden, Mosad, Iraq, Pentagon, WTC, president, assassination, A-bomb, kua, vic joudu uz neznam
+X-policie-CR: Neserte mi nebo nebo ukradnu, vyloupim, vybouchnu, znasilnim, zabiju, podpalim, umucim, podriznu, zapichnu a vubec vsechno
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-
-On Tue, 9 Jul 2002, Keith Owens wrote:
-> struct device_driver * get_driver(struct device_driver * drv)
-> {
- +        struct device_driver *ret = NULL;
- +
- +        if (!drv)
- +                goto out;
- +        lock_somehow(drv->lock);
- +        if (drv->owner)
->                 if (!try_inc_mod_count(drv->owner))
- +                        goto out;
- +
- +        ret = drv;
- + out:
- +        unlock_somehow(drv->lock);
- +        return ret;
-> }
+On Tue, Jul 09, 2002 at 12:58:16AM +0200, J.A. Magallon wrote:
 > 
-> I suggest you add a global driverfs_lock.
+> Seriously, if you have that kind of problems, take the -aa kernel and use it.
+> I use it regularly and it behaves as one would expect, and fast.
+> And please, report your results...
 
-Better than locking all kernel threads, isn't it?
+Great, -aa tree works perfectly for me. It was little bit tricky to get that
+tree but now I think it works fine.
 
-							Regards,
-							Thunder
 -- 
-(Use http://www.ebb.org/ungeek if you can't decode)
-------BEGIN GEEK CODE BLOCK------
-Version: 3.12
-GCS/E/G/S/AT d- s++:-- a? C++$ ULAVHI++++$ P++$ L++++(+++++)$ E W-$
-N--- o?  K? w-- O- M V$ PS+ PE- Y- PGP+ t+ 5+ X+ R- !tv b++ DI? !D G
-e++++ h* r--- y- 
-------END GEEK CODE BLOCK------
-
+Luká¹ Hejtmánek

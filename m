@@ -1,39 +1,31 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278430AbRJMWlj>; Sat, 13 Oct 2001 18:41:39 -0400
+	id <S278433AbRJMWvj>; Sat, 13 Oct 2001 18:51:39 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278433AbRJMWl3>; Sat, 13 Oct 2001 18:41:29 -0400
-Received: from vindaloo.ras.ucalgary.ca ([136.159.55.21]:64158 "EHLO
-	vindaloo.ras.ucalgary.ca") by vger.kernel.org with ESMTP
-	id <S278430AbRJMWlK>; Sat, 13 Oct 2001 18:41:10 -0400
-Date: Sat, 13 Oct 2001 16:41:48 -0600
-Message-Id: <200110132241.f9DMfmD28263@vindaloo.ras.ucalgary.ca>
-From: Richard Gooch <rgooch@ras.ucalgary.ca>
-To: Jamie Lokier <lk@tantalophile.demon.co.uk>
-Cc: Linus Torvalds <torvalds@transmeta.com>,
-        "Eric W. Biederman" <ebiederm@xmission.com>,
-        linux-kernel@vger.kernel.org
-Subject: Re: Security question: "Text file busy" overwriting executables but not shared libraries?
-In-Reply-To: <20011013214603.A1144@kushida.jlokier.co.uk>
-In-Reply-To: <20011013205445.A24854@kushida.jlokier.co.uk>
-	<Pine.LNX.4.33.0110131219520.8900-100000@penguin.transmeta.com>
-	<20011013214603.A1144@kushida.jlokier.co.uk>
+	id <S278435AbRJMWv3>; Sat, 13 Oct 2001 18:51:29 -0400
+Received: from smtp1.libero.it ([193.70.192.51]:1764 "EHLO smtp1.libero.it")
+	by vger.kernel.org with ESMTP id <S278432AbRJMWvS>;
+	Sat, 13 Oct 2001 18:51:18 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: moreno risorti <rrrmori@ats.it>
+To: linux-kernel@vger.kernel.org
+Subject: kernel 2412 problem
+Date: Sun, 14 Oct 2001 00:51:31 +0000
+X-Mailer: KMail [version 1.3]
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <20011013225124Z278432-760+25039@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jamie Lokier writes:
-> There are applications (GCC comes to mind) which are using mmap() to
-> read files now because it is measurably faster than read(), for
-> sufficiently large source files.
+ciao 
+risultato della compilazione kernel
 
-So? MAP_PRIVATE is just fine for these. The simple solution if you
-care about an edit in the middle of a compile is to have your editor
-write a new file and do an atomic rename. No half-and-half data
-problems, and the VM logic is kept simple (well, relative to what we
-have now;-).
+make[1]: Entering directory `/usr/src/linux-2.4.12'
+/usr/src/linux-2.4.4/include/linux/modversions.h was not updated
+make[1]: Leaving directory `/usr/src/linux-2.4.12'
 
-				Regards,
 
-					Richard....
-Permanent: rgooch@atnf.csiro.au
-Current:   rgooch@ras.ucalgary.ca
+dove sta l'errore 
+ciao 
+moreno risorti

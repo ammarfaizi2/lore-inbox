@@ -1,41 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131056AbRABMal>; Tue, 2 Jan 2001 07:30:41 -0500
+	id <S130140AbRABMqB>; Tue, 2 Jan 2001 07:46:01 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131093AbRABMab>; Tue, 2 Jan 2001 07:30:31 -0500
-Received: from Cantor.suse.de ([194.112.123.193]:26378 "HELO Cantor.suse.de")
-	by vger.kernel.org with SMTP id <S131056AbRABMaU>;
-	Tue, 2 Jan 2001 07:30:20 -0500
-Date: Tue, 2 Jan 2001 12:59:24 +0100
-From: Andi Kleen <ak@suse.de>
-To: Matthew Wilcox <matthew@wil.cx>
-Cc: "David S. Miller" <davem@redhat.com>, grundler@cup.hp.com,
-        linux-kernel@vger.kernel.org, alan@lxorguk.ukuu.org.uk,
-        parisc-linux@thepuffingroup.com
-Subject: Re: [PATCH] move xchg/cmpxchg to atomic.h
-Message-ID: <20010102125924.A9538@gruyere.muc.suse.de>
-In-Reply-To: <200101020811.AAA26525@milano.cup.hp.com> <200101020903.BAA14334@pizda.ninka.net> <20010102112242.A7040@parcelfarce.linux.theplanet.co.uk>
+	id <S130749AbRABMpm>; Tue, 2 Jan 2001 07:45:42 -0500
+Received: from renata.irb.hr ([161.53.129.148]:2577 "EHLO renata.irb.hr")
+	by vger.kernel.org with ESMTP id <S130140AbRABMpf>;
+	Tue, 2 Jan 2001 07:45:35 -0500
+From: Vedran Rodic <vedran@renata.irb.hr>
+Date: Tue, 2 Jan 2001 13:15:07 +0100
+To: linux-kernel@vger.kernel.org
+Subject: 2.4.0-prerelease problems (it corrupted my ext2 filesystem)
+Message-ID: <20010102131507.A7573@renata.irb.hr>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 User-Agent: Mutt/1.2.5i
-In-Reply-To: <20010102112242.A7040@parcelfarce.linux.theplanet.co.uk>; from matthew@wil.cx on Tue, Jan 02, 2001 at 11:22:42AM +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jan 02, 2001 at 11:22:42AM +0000, Matthew Wilcox wrote:
-> On Tue, Jan 02, 2001 at 01:03:48AM -0800, David S. Miller wrote:
-> > If you require an external agent (f.e. your spinlock) because you
-> > cannot implement xchg with a real atomic sequence, this breaks the
-> > above assumptions.
-> 
-> We really can't.  We _only_ have load-and-zero.  And it has to be 16-byte
-> aligned.  xchg() is just not something the CPU implements.
+Hi
 
-The network code relies on the reader-xchg semantics David described in 
-several places.
+I was using 2.4.0-prerelease without extra patches and I experienced some
+heavy (ext2) file system corruption. I was grabbing some video using bttv at 
+the time. Kernel didn't oops, but processess just started terminating.
 
--Andi
+
+Here is a the interesting part from my logs:
+
+Bad swap file entry 5c5b6256
+VM: killing process qtvidcap
+swap_free: Trying to free nonexistent swap-page
+last message repeated 23 times
+swap_free: Trying to free swap from unused swap-device
+swap_free: Trying to free nonexistent swap-page
+last message repeated 266 times
+Bad swap file entry 272c2e24
+VM: killing process pppd
+swap_free: Trying to free nonexistent swap-page
+last message repeated 30 times
+
+Vedran Rodic
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

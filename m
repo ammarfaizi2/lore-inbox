@@ -1,36 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S311917AbSDSIdp>; Fri, 19 Apr 2002 04:33:45 -0400
+	id <S311919AbSDSId7>; Fri, 19 Apr 2002 04:33:59 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S311919AbSDSIdo>; Fri, 19 Apr 2002 04:33:44 -0400
-Received: from f10.pav0.hotmail.com ([64.4.33.81]:39185 "EHLO hotmail.com")
-	by vger.kernel.org with ESMTP id <S311917AbSDSIdo>;
-	Fri, 19 Apr 2002 04:33:44 -0400
-X-Originating-IP: [202.88.226.140]
-From: "blesson paul" <blessonpaul@msn.com>
-To: linux-kernel@vger.kernel.org
-Subject: /dev/zero
-Date: Fri, 19 Apr 2002 14:03:38 +0530
-Mime-Version: 1.0
-Content-Type: text/plain; format=flowed
-Message-ID: <F10qwZ2cFXvmBUCsQrU0000e2b7@hotmail.com>
-X-OriginalArrivalTime: 19 Apr 2002 08:33:38.0557 (UTC) FILETIME=[E74C1AD0:01C1E77C]
+	id <S311936AbSDSId6>; Fri, 19 Apr 2002 04:33:58 -0400
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:35852 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S311919AbSDSId6>; Fri, 19 Apr 2002 04:33:58 -0400
+Subject: Re: Bio pool & scsi scatter gather pool usage
+To: joe@fib011235813.fsnet.co.uk (Joe Thornber)
+Date: Fri, 19 Apr 2002 09:51:10 +0100 (BST)
+Cc: lord@sgi.com (Stephen Lord), akpm@zip.com.au (Andrew Morton),
+        alan@lxorguk.ukuu.org.uk (Alan Cox),
+        peloquin@us.ibm.com (Mark Peloquin), linux-kernel@vger.kernel.org
+In-Reply-To: <20020419080814.GA1181@fib011235813.fsnet.co.uk> from "Joe Thornber" at Apr 19, 2002 09:08:14 AM
+X-Mailer: ELM [version 2.5 PL6]
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E16yU6o-0006h3-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi
-		I need some more information about /dev/zero. I need to replace the device 
-driver of /dev/zero(I do not know whether I can name the program controlling 
-the /dev/zero as device driver). How to do the job. If I cannot replace the 
-device driver of /dev/zero, how to create a new charecter device and load my 
-device driver.
+> This is exactly the problem; I don't think it's going to be unusual to
+> see volumes that have a variety of mappings.  For example the
+> 'journal' area of the lv with a single fast pv, 'small file' area with
+> a linear mapping across normal pv's, and finally a 'large file' area
+> that has a few slower disks striped together.
 
-regards
-Blesson Paul
+Optimise for the sane cases. Remember the lvm can chain bio's trivially
+itself. Its a lot cheaper to chain them than unchain them
 
+> The last thing I want in this situation is to split up all the io into
+> the lowest common chunk size, in this case the striped area which will
+> typically be  < 64k.
 
+The last thing I want is layers of bio support garbage slowing down a 
+perfectly sane machine that does not need them...
 
-
-_________________________________________________________________
-Get your FREE download of MSN Explorer at http://explorer.msn.com/intl.asp.
-
+Alan

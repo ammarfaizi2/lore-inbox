@@ -1,66 +1,112 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266753AbUGLIKl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266752AbUGLITl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266753AbUGLIKl (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 Jul 2004 04:10:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266752AbUGLIKl
+	id S266752AbUGLITl (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 Jul 2004 04:19:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266754AbUGLITl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 Jul 2004 04:10:41 -0400
-Received: from mail3.bluewin.ch ([195.186.1.75]:32390 "EHLO mail3.bluewin.ch")
-	by vger.kernel.org with ESMTP id S266753AbUGLIJs (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 Jul 2004 04:09:48 -0400
-Date: Mon, 12 Jul 2004 10:09:33 +0200
-From: Roger Luethi <rl@hellgate.ch>
-To: Jesper Juhl <juhl-lkml@dif.dk>
-Cc: lkml <linux-kernel@vger.kernel.org>
-Subject: Re: via-rhine breaks with recent Linus kernels : probe of 0000:00:09.0 failed with error -5
-Message-ID: <20040712080933.GA9221@k3.hellgate.ch>
-Mail-Followup-To: Jesper Juhl <juhl-lkml@dif.dk>,
-	lkml <linux-kernel@vger.kernel.org>
-References: <8A43C34093B3D5119F7D0004AC56F4BC082C7F9E@difpst1a.dif.dk>
+	Mon, 12 Jul 2004 04:19:41 -0400
+Received: from poros.telenet-ops.be ([195.130.132.44]:38834 "EHLO
+	poros.telenet-ops.be") by vger.kernel.org with ESMTP
+	id S266752AbUGLITi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 12 Jul 2004 04:19:38 -0400
+Date: Mon, 12 Jul 2004 10:19:39 +0200
+From: Wim Van Sebroeck <wim@iguana.be>
+To: Arnd Bergmann <arnd@arndb.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: watchdog infrastructure
+Message-ID: <20040712081939.GJ5726@infomag.infomag.iguana.be>
+References: <200407011923.45226.arnd@arndb.de> <20040705093800.GB5726@infomag.infomag.iguana.be> <200407051454.48340.arnd@arndb.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <8A43C34093B3D5119F7D0004AC56F4BC082C7F9E@difpst1a.dif.dk>
-X-Operating-System: Linux 2.6.7-bk20 on i686
-X-GPG-Fingerprint: 92 F4 DC 20 57 46 7B 95  24 4E 9E E7 5A 54 DC 1B
-X-GPG: 1024/80E744BD wwwkeys.ch.pgp.net
-User-Agent: Mutt/1.5.6i
+In-Reply-To: <200407051454.48340.arnd@arndb.de>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[ removed Donald Becker from Cc: -- I doubt he has much interest in
-the mainline via-rhine ]
+Hello Arnd,
 
-On Mon, 12 Jul 2004 03:49:35 +0200, Jesper Juhl wrote:
-> I've noticed that with recent kernels from Linus' tree the via-rhine
-> driver that I use for my NIC seems to have broken.
+sorry for the delay, but it's pretty busy at my work at the moment.
+
+> > Did you have a look allready at the different watchdog operations in 
+> > include/linux/watchdog.h ?
 > 
-> I don't recall any problems with kernels prior to 2.6.7
-> 2.6.7 vanilla - works.
-> 2.6.7-BK20    - breaks
-> 2.6.8-rc1     - breaks
-> 2.6.7-mm1,-mm2,-mm3,-mm6,-mm7 all work
-> I haven't tested earlier BK snapshots, but I'm willing to do so if wanted.
+> Yes, I already have a working driver, which does not use the
+> experimental infrastructure code. I'm just not allowed to
+> publish it until the hardware is available.
 > 
-> I get the following from the kernels that break:
-> Invalid MAC address for card #0
-> via-rhine: probe of 0000:00:09.0 failed with error -5
+> There are a couple of things I noticed about your new code:
+> 
+> - Is there any reason having an alloc_watchdogdev function in the
+>   common code? Simply statically allocating the structure in each
+>   device driver should be a lot simpler.
 
-I had this happen recently when I moved from rc3-bk6 to bk20. When I
-started to look into it, the problem went away and never came back.
+Oops: I forgot apparently: the experimental code is indeed more for
+2.7 . Plan is to go in 2 stages: have a generic watchdog for v2.6
+which is just generic code that can be used by any single watchdog.
+This general code will contain the common things (basically the misc
+device + reboot_notifier). The second stage (and that's what's
+I actually created the experimetal directory) is to go to a general
+watchdog driver that supports sysfs and multiple watchdog-drivers
+(although only one driver will use /dev/watchdog). Because of the
+fact that you can use multiple watchdog-driver (even multiple cards
+of the same driver), you need to allocate it with alloc-watchdog.
+The experimental code will get the notifier in it as a second step
+and after that the sysfs support.
+I'll putt the new 2.6 code in linux-2.6-watchdog-development (but
+I'll be on holiday first :-) ).
 
-There are some subtle timing issues with chip resets and reloading the
-EEPROM. So far, it was the Rhine-I which has been more sensitive, but
-when I hit this problem Rhine-I was fine while Rhine-II and Rhine-III
-were not.
+> - Keeping watchdog_ops out of watchdog_device will simplify 
+>   the lifetime rules. Just put them in the same structure, add an
+>   owner field and get rid of the *private field.
 
-You can try adding an msleep(5) before and after reload_eeprom (make
-sure you get the right one, mainline still has two ifdef'ed calls),
-or you can try switching drivers between mainline and -mm.
+I'll have a look at that. The *private fiels is for the 2.7 code
+with multiple watchdogs.
 
-I'd be happy to tell people to just go with the latest driver which
-is the one in -mm, but I'm afraid mainline might be exposing a problem
-that still lingers in -mm.
+> - watchdog_is_open_sem can just be an atomic_t, you never
+>   actually down() it.
 
-Roger
+Hmmm, that's indeed a bug then. Will have a look at it later on.
+
+> - You need to get the module reference count before calling any
+>   watchdog operation, the best place for this is probably the
+>   open() fop.
+
+I don't see any reason why we should get the module reference
+count. Could you enlighten why this would be necessary?
+(This should only happen when you want to have a "nowayout").
+
+> - Maybe its easier to always register the misc devices when
+>   watchdog.ko is loaded, and then deny opening them when no
+>   actual watchdog driver is registered to it.
+
+Interesting idea. Although it's better now that we keep it like
+it is because else the daemon that poll's /dev/watchdog will
+will open something that's not there and think that everything
+is fine and that the system is monitored (which it isn't). A
+second problem you have is that this daemon absolutely doesn't
+know when it will need to reopen /dev/watchdog (to really start
+the hardware watchdog) after you've loaded a "working" watchdog
+device driver.
+
+> - Why do you need seperate operations for start and keepalive?
+
+Some watchdog devices/cards have seperate functions for starting
+their internal counters and for keeping the watchdog alive. Thus
+you need 2 different operations. For other cards this function
+is the same and thus the start and keepalive code is the same.
+
+> - the reboot notifier and the nowayout parameter are probably
+>   common enough to be put into the generic module.
+
+The reboot notifier was the next step. That's indeed common.
+the nowayout parameter should stay together with the watchdog
+driver in my opinion (because if you would use more then 1
+watchdog device, you might want to set this for each device
+independently).
+
+Greetings,
+Wim.
+
+
+

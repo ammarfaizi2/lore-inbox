@@ -1,46 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316856AbSGNOcR>; Sun, 14 Jul 2002 10:32:17 -0400
+	id <S316857AbSGNOci>; Sun, 14 Jul 2002 10:32:38 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316857AbSGNOcQ>; Sun, 14 Jul 2002 10:32:16 -0400
-Received: from hermes.fachschaften.tu-muenchen.de ([129.187.176.19]:61164 "HELO
-	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
-	id <S316856AbSGNOcP> convert rfc822-to-8bit; Sun, 14 Jul 2002 10:32:15 -0400
-Date: Sun, 14 Jul 2002 16:35:02 +0200 (CEST)
-From: Adrian Bunk <bunk@fs.tum.de>
-X-X-Sender: bunk@mimas.fachschaften.tu-muenchen.de
+	id <S316860AbSGNOch>; Sun, 14 Jul 2002 10:32:37 -0400
+Received: from louise.pinerecords.com ([212.71.160.16]:41489 "EHLO
+	louise.pinerecords.com") by vger.kernel.org with ESMTP
+	id <S316857AbSGNOcg>; Sun, 14 Jul 2002 10:32:36 -0400
+Date: Sun, 14 Jul 2002 16:35:13 +0200
+From: Tomas Szepe <szepe@pinerecords.com>
 To: Joerg Schilling <schilling@fokus.gmd.de>
-cc: linux-kernel@vger.kernel.org
+Cc: andersen@codepoet.org, linux-kernel@vger.kernel.org
 Subject: Re: IDE/ATAPI in 2.5
-In-Reply-To: <200207141324.g6EDOvUe019079@burner.fokus.gmd.de>
-Message-ID: <Pine.NEB.4.44.0207141629440.4981-100000@mimas.fachschaften.tu-muenchen.de>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=iso-8859-1
-Content-Transfer-Encoding: 8BIT
+Message-ID: <20020714143513.GA6147@louise.pinerecords.com>
+References: <200207141418.g6EEIbJp019125@burner.fokus.gmd.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200207141418.g6EEIbJp019125@burner.fokus.gmd.de>
+User-Agent: Mutt/1.4i
+X-OS: GNU/Linux 2.4.19-pre10/sparc SMP
+X-Uptime: 40 days, 56 min
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 14 Jul 2002, Joerg Schilling wrote:
+> -	The people who have these sort of problems are those people
+> 	who are new to Linux and who believe that Linux is unusable
+> 	after they get those problems.
 
->...
-> If a CD-ROM does not support ATAPI, you are not able to
->
-> -	open/close/lock the door.
->...
+Hmm, what a terrific example of the finest reasoning!
 
-Look at drivers/cdrom/mcdx.c, a driver for proprietary (the device is
-connected via an ISA card to the computer) single and double speed Mitsumi
-CD-ROM drives. This driver supports to open the door although the drive
-definitely doesn't support ATAPI...
+Joe Sixpack can't get his drive to record CDRs. -> Joe Sixpack becomes
+annoyed and concludes the system is crap, which effectively makes the
+OS unusable for everybody.
 
-> Jörg
+You have more of that?
 
-cu
-Adrian
+Seriously, though, I suggest you go read the code finally and stop dissing
+people on lkml.
 
--- 
+And fix your mailer when you're at it.
 
-You only think this is a free country. Like the US the UK spends a lot of
-time explaining its a free country because its a police state.
-								Alan Cox
-
+T.

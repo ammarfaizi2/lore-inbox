@@ -1,35 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266368AbTBTRdm>; Thu, 20 Feb 2003 12:33:42 -0500
+	id <S266347AbTBTRao>; Thu, 20 Feb 2003 12:30:44 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266356AbTBTRdm>; Thu, 20 Feb 2003 12:33:42 -0500
-Received: from dialup-192.130.220.203.acc01-faul-arm.comindico.com.au ([203.220.130.192]:30593
-	"EHLO localhost.localdomain") by vger.kernel.org with ESMTP
-	id <S266368AbTBTRcv> convert rfc822-to-8bit; Thu, 20 Feb 2003 12:32:51 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: James Buchanan <jamesbuch@iprimus.com.au>
-Reply-To: jamesbuch@iprimus.com.au
-To: Tomas Szepe <szepe@pinerecords.com>
-Subject: Re: Linux kernel rant
-Date: Fri, 21 Feb 2003 16:42:31 +1100
-User-Agent: KMail/1.4.3
-Cc: linux-kernel@vger.kernel.org
-References: <200302211551.28222.jamesbuch@iprimus.com.au> <20030220172606.GO1426@louise.pinerecords.com>
-In-Reply-To: <20030220172606.GO1426@louise.pinerecords.com>
-X-Memberships: Professional Member, ACM (jamesb.au@acm.org)
-X-Hypothetical: Humans are incapable of original thought. Everything is the result of observation, experimentation, or building on/modifying what already exists.
-X-Location: Australia, NSW
-X-Religion: Athiest, Secular
-X-Operating-System: RedHat Linux/GNU
-X-Message: The Truth Is Out There
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <200302211642.31669.jamesbuch@iprimus.com.au>
+	id <S266356AbTBTRao>; Thu, 20 Feb 2003 12:30:44 -0500
+Received: from havoc.daloft.com ([64.213.145.173]:21142 "EHLO havoc.gtf.org")
+	by vger.kernel.org with ESMTP id <S266347AbTBTRan>;
+	Thu, 20 Feb 2003 12:30:43 -0500
+Date: Thu, 20 Feb 2003 12:40:43 -0500
+From: Jeff Garzik <jgarzik@pobox.com>
+To: Prasad <prasad_s@students.iiit.net>
+Cc: lkml <linux-kernel@vger.kernel.org>
+Subject: Re: Syscall from Kernel Space
+Message-ID: <20030220174043.GI9800@gtf.org>
+References: <Pine.LNX.4.44.0302202301350.12696-100000@students.iiit.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.44.0302202301350.12696-100000@students.iiit.net>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 21 Feb 2003 04:26 am, Tomas Szepe wrote:
-> Don't be naive, BSD people have to sign NDA's too if they want to
-> have decent drivers for cheap hardware.
+On Thu, Feb 20, 2003 at 11:04:37PM +0530, Prasad wrote:
+> 	Is there a way using which i could invoke a syscall in the kernel 
+> space?  The syscall is to be run disguised as another process.  The actual 
 
-I'm not - Theo De Raadt refuses to sign them.
+Call sys_<syscall>.  Look at the kernel code for examples.
+
+Note that typically you don't want to do this... and you _really_ don't
+want to do this if the syscall is not one of the common file I/O
+syscalls (read/write/open/close, etc.)
+
+	Jeff
+
+
+
+

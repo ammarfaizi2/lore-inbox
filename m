@@ -1,59 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261568AbUK1SyE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261571AbUK1S5O@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261568AbUK1SyE (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 28 Nov 2004 13:54:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261563AbUK1SyD
+	id S261571AbUK1S5O (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 28 Nov 2004 13:57:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261570AbUK1S5O
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 28 Nov 2004 13:54:03 -0500
-Received: from ns.virtualhost.dk ([195.184.98.160]:42197 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S261567AbUK1Sxu (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 28 Nov 2004 13:53:50 -0500
-Date: Sun, 28 Nov 2004 19:53:30 +0100
-From: Jens Axboe <axboe@suse.de>
-To: Pasi Savolainen <psavo@iki.fi>
+	Sun, 28 Nov 2004 13:57:14 -0500
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:57615 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S261571AbUK1S4Y (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 28 Nov 2004 13:56:24 -0500
+Date: Sun, 28 Nov 2004 19:56:22 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: "Michael A. Halcrow" <mike@halcrow.us>, Serge Hallyn <hallyn@cs.wm.edu>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: Is controlling DVD speeds via SET_STREAMING supported?
-Message-ID: <20041128185329.GB26933@suse.de>
-References: <33133.192.168.0.2.1101499190.squirrel@192.168.0.10> <32942.192.168.0.2.1101549298.squirrel@192.168.0.10> <slrncqhqib.19r.psavo@varg.dyndns.org> <33262.192.168.0.2.1101597468.squirrel@192.168.0.10> <slrncqjcve.19r.psavo@varg.dyndns.org> <33050.192.168.0.5.1101651929.squirrel@192.168.0.10> <20041128165257.GA26714@suse.de> <slrncqk3so.19r.psavo@varg.dyndns.org>
+Subject: [2.6 patch] security/seclvl.c: make some code static
+Message-ID: <20041128185622.GC4390@stusta.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <slrncqk3so.19r.psavo@varg.dyndns.org>
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+The patch below makes some needlessly global code static.
 
-(don't trim the cc list, please!!)
 
-On Sun, Nov 28 2004, Pasi Savolainen wrote:
-> * Jens Axboe <axboe@suse.de>:
-> >> > I modified your speed-1.0 to open device O_RDWR, didn't help.
-> >> > I modified it to also dump_sense after CMD_SEND_PACKET, it's just
-> >> > duplicate packet.
-> >> 
-> >> No this will definitively not solve this issue. I will try to check this
-> >> in the kernel, but because I'm not a kernel developer I will CC Jens
-> >> Axboe. Maybe he can help?
-> >
-> > Just fix the permission on the special file. Additionally, the program
-> > must open the device O_RDWR.
-> 
-> (under 2.6.10-rc2-mm1)
-> I ran speed-1.0 program as root and also modified to open the device
-> file as O_RDWR. This didn't help, it still reports same error.
+diffstat output:
+ security/seclvl.c |    6 +++---
+ 1 files changed, 3 insertions(+), 3 deletions(-)
 
-Ehm I don't see how that is possible, since that kernel definitely
-contains SET_STREAMING as a write safe command. Are you 110% sure you
-are running the kernel you think you are?
 
-> Booted into 2.4.28, speed-1.0 didn't do the trick there either. 'sense'
-> reported was 00.00.00 though.
+Signed-off-by: Adrian Bunk <bunk@stusta.de>
 
-Any dmesg errors from 2.4.28? The sense reporting might be a bit broken
-there, but if you don't set cgc->quiet it should report the error in the
-kernel ring buffer at least.
-
--- 
-Jens Axboe
+--- linux-2.6.10-rc2-mm3-full/security/seclvl.c.old	2004-11-28 03:32:23.000000000 +0100
++++ linux-2.6.10-rc2-mm3-full/security/seclvl.c	2004-11-28 03:34:28.000000000 +0100
+@@ -170,7 +170,7 @@
+ /**
+  * Callback function pointers for show and store
+  */
+-struct sysfs_ops seclvlfs_sysfs_ops = {
++static struct sysfs_ops seclvlfs_sysfs_ops = {
+ 	.show = seclvl_attr_show,
+ 	.store = seclvl_attr_store,
+ };
+@@ -275,7 +275,7 @@
+ }
+ 
+ /* Generate sysfs_attr_seclvl */
+-struct seclvl_attribute sysfs_attr_seclvl =
++static struct seclvl_attribute sysfs_attr_seclvl =
+ __ATTR(seclvl, (S_IFREG | S_IRUGO | S_IWUSR), seclvl_read_file,
+        seclvl_write_file);
+ 
+@@ -386,7 +386,7 @@
+ }
+ 
+ /* Generate sysfs_attr_passwd */
+-struct seclvl_attribute sysfs_attr_passwd =
++static struct seclvl_attribute sysfs_attr_passwd =
+ __ATTR(passwd, (S_IFREG | S_IRUGO | S_IWUSR), seclvl_read_passwd,
+        seclvl_write_passwd);
+ 
 

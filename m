@@ -1,33 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288002AbSABXez>; Wed, 2 Jan 2002 18:34:55 -0500
+	id <S288026AbSABXgZ>; Wed, 2 Jan 2002 18:36:25 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287169AbSABXdi>; Wed, 2 Jan 2002 18:33:38 -0500
-Received: from ns.suse.de ([213.95.15.193]:16900 "HELO Cantor.suse.de")
-	by vger.kernel.org with SMTP id <S288001AbSABXbp>;
-	Wed, 2 Jan 2002 18:31:45 -0500
-Date: Thu, 3 Jan 2002 00:31:33 +0100 (CET)
-From: Dave Jones <davej@suse.de>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: <dalgoda@ix.netcom.com>, Linux Kernel List <linux-kernel@vger.kernel.org>
-Subject: Re: ISA slot detection on PCI systems?
-In-Reply-To: <E16LucJ-0005xU-00@the-village.bc.nu>
-Message-ID: <Pine.LNX.4.33.0201030030450.5131-100000@Appserv.suse.de>
+	id <S287169AbSABXe6>; Wed, 2 Jan 2002 18:34:58 -0500
+Received: from tourian.nerim.net ([62.4.16.79]:21775 "HELO tourian.nerim.net")
+	by vger.kernel.org with SMTP id <S287972AbSABXdz>;
+	Wed, 2 Jan 2002 18:33:55 -0500
+Message-ID: <3C3398E1.4080904@free.fr>
+Date: Thu, 03 Jan 2002 00:33:53 +0100
+From: Lionel Bouton <Lionel.Bouton@free.fr>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.7+) Gecko/20020101
+X-Accept-Language: en-us
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: esr@thyrsus.com
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Dave Jones <davej@suse.de>,
+        Linux Kernel List <linux-kernel@vger.kernel.org>
+Subject: Re: ISA slot detection on PCI systems?
+In-Reply-To: <20020102174824.A21408@thyrsus.com> <E16LubO-0005xF-00@the-village.bc.nu> <20020102180754.A21788@thyrsus.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2 Jan 2002, Alan Cox wrote:
+Eric S. Raymond wrote:
 
-> > What's wrong with a startup routine that includes something like:
-> > dmidecode > /var/run/dmi
-> Absolutely nothing, and that also handily means it isnt setuid  8)
+> Alan Cox <alan@lxorguk.ukuu.org.uk>:
+> 
+>>>(Telling me to rely on dmidecode already being installed SUID is not
+>>>a good answer either.  No prizes for figuring out why.)
+>>>
+>>Well you can't rely on the kernel having the modification either. 
+>>
+> 
+> If /proc/dmi were to go in soon, at least I *could* rely on it in 2.6.
+> 
 
-Indeed, it's perfect. Except no distro does it (yet), but it's
-definitly the best idea so far in this thread.
+If in rc.sysinit a call to "dmidecode > /var/run/dmi" were to go in the 
+user space 2.6 kernel build dependancies in Documentation/Changes, 
+you'll be on the same level.
 
--- 
-| Dave Jones.        http://www.codemonkey.org.uk
-| SuSE Labs
 

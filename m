@@ -1,53 +1,80 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263659AbTICR4R (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 3 Sep 2003 13:56:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263710AbTICR4Q
+	id S264147AbTICRyc (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 3 Sep 2003 13:54:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264156AbTICRyc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 Sep 2003 13:56:16 -0400
-Received: from fw.osdl.org ([65.172.181.6]:18630 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S263659AbTICR4M (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 Sep 2003 13:56:12 -0400
-Date: Wed, 3 Sep 2003 10:55:51 -0700 (PDT)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Jamie Lokier <jamie@shareable.org>
-cc: Hugh Dickins <hugh@veritas.com>, Rusty Russell <rusty@rustcorp.com.au>,
-       Andrew Morton <akpm@osdl.org>, Ingo Molnar <mingo@redhat.com>,
-       <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Alternate futex non-page-pinning and COW fix
-In-Reply-To: <20030903173928.GA22555@mail.jlokier.co.uk>
-Message-ID: <Pine.LNX.4.44.0309031052000.26650-100000@home.osdl.org>
+	Wed, 3 Sep 2003 13:54:32 -0400
+Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:60687
+	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
+	id S264147AbTICRy2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 3 Sep 2003 13:54:28 -0400
+Date: Wed, 3 Sep 2003 10:38:38 -0700 (PDT)
+From: Andre Hedrick <andre@linux-ide.org>
+To: David Schwartz <davids@webmaster.com>
+cc: James Clark <jimwclark@ntlworld.com>, linux-kernel@vger.kernel.org
+Subject: RE: Driver Model
+In-Reply-To: <MDEHLPKNGKAHNMBLJOLKAENJGCAA.davids@webmaster.com>
+Message-ID: <Pine.LNX.4.10.10309031024030.13722-100000@master.linux-ide.org>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-On Wed, 3 Sep 2003, Jamie Lokier wrote:
->
-> Hugh Dickins wrote:
-> > > Good question.  No kernel code seems to check VM_MAYSHARE - the one to
-> > > check is VM_SHARED.
-> > 
-> > Observe fs/procfs/task_mmu.c show_map checking VM_MAYSHARE for 's'.
-> > Observe mm/mmap.c do_mmap_pgoff vm_flags &= ~(VM_MAYWRITE | VM_SHARED).
-> > VM_MAYSHARE reflects whether user chose MAP_SHARED, VM_SHARED may not.
+On Tue, 2 Sep 2003, David Schwartz wrote:
+
 > 
-> Hugh, thank you.  In the case of futex.c, either flag could be used to
-> mean "is this a shared" mapping, and each choice has a different
-> user-visible meaning.
+> 	I agree with you, except for the one place where you've contradicted
+> yourself:
+> 
+> > If you are an embedded space widget.  Apply thumb to nose and wiggle
+> > fingers.  Provided you ship the source code you modify in the kernel, and
+> > I do mean all of it, use the short cut to clobber the issues in module.h.
+> > When they scream and complain about, this violates intent, ask them are
+> > they issuing a restriction on the usage of the GPL kernel?  If they do not
+> > permit one to use it under GPL them the kernel itself is in violation.
+> 
+> 	In other words, you cannot release something under the GPL and
+> simultaneously restrict its use.
 
-Actually: the VM_SHARED flag will never change, so testing VM_SHARED is 
-actually the _right_ thing from a mm perspective.
+You have made my points even clearer.
 
-The only person who should ever test VM_MAYSHARE is somebody who does
-reporting back to user space: VM_MAYSHARE basically ends up meaning "the
-user _asked_ for a shared mapping". While "VM_SHARED" means "this mapping
-can actually contain a shared dirty page".
+The fact that GPL_ONLY horse sh*t exists means there is a restriction on
+usage.  So "GPL_ONLY" has in effect violated GPL, by imposing restrictions
+of usage.  People will say that I am nuts and have spent to much time in
+the disk drive layers and my brain has not stopped spinning to reconnect
+to the stem.
 
-The VM itself should only ever care about VM_SHARED. Because that's the 
-only bit that has real semantic meaning.
+> > Now back to "tainting", if the politics were such to cause all modules
+> > which are not GPL to be rejected then the game is over.  Because the
+> > kernel does not reject loading, it by default approves of closed source
+> > binary modules.  One could use the means of taint-testing to accept or
+> > reject, regardless of the original intent.  Many have and will make the
+> > argument the kernel has the ability to reject closed source and it choose
+> > to accept.
+> 
+> 	So no, the kernel does not have the ability to reject closed source. That
+> would be an additional restriction upon use that the GPL does not allow you
+> to impose.
 
-			Linus
+Exactly!
+
+I think it is about time to start http://www.ungpl.com/ however that is a
+gas and pipe line already, which gives a broader meaning to the what and
+why many people have earned the title of "GPL NAZIS".
+
+Yeah, I said it and it is flamebait.  I am pulling out some marshmellows
+to cook as I wait for the roasting fireballs to come my way.
+
+I am not here to make friends, just promote Linux for business and
+commerial usage and the direction today is wrong period.  I will not
+debate the point, this is my opinion and it is correct.
+
+Cheers,
+
+Andre
+
+PS: any references to "you" is a general to the mailing list and not to
+any individual.
 

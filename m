@@ -1,33 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132023AbRCVNt2>; Thu, 22 Mar 2001 08:49:28 -0500
+	id <S132025AbRCVOA3>; Thu, 22 Mar 2001 09:00:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132024AbRCVNtL>; Thu, 22 Mar 2001 08:49:11 -0500
-Received: from coffee.psychology.McMaster.CA ([130.113.218.59]:2362 "EHLO
-	coffee.psychology.mcmaster.ca") by vger.kernel.org with ESMTP
-	id <S132023AbRCVNsz>; Thu, 22 Mar 2001 08:48:55 -0500
-Date: Thu, 22 Mar 2001 08:48:09 -0500 (EST)
-From: Mark Hahn <hahn@coffee.psychology.mcmaster.ca>
-To: Linux kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: SMP on assym. x86
-In-Reply-To: <20010322130029.A4212@garloff.casa-etp.nl>
-Message-ID: <Pine.LNX.4.10.10103220842470.12746-100000@coffee.psychology.mcmaster.ca>
+	id <S132026AbRCVOAK>; Thu, 22 Mar 2001 09:00:10 -0500
+Received: from viper.haque.net ([64.0.249.226]:33925 "EHLO mail.haque.net")
+	by vger.kernel.org with ESMTP id <S132025AbRCVN7w>;
+	Thu, 22 Mar 2001 08:59:52 -0500
+Message-ID: <3ABA0402.1E1E5959@haque.net>
+Date: Thu, 22 Mar 2001 08:54:10 -0500
+From: "Mohammad A. Haque" <mhaque@haque.net>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.3-pre4 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Andreas Dilger <adilger@turbolinux.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: ext2_unlink fun
+In-Reply-To: <200103212128.f2LLSRx20724@webber.adilger.int>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > > > handle the situation with 2 different CPUs (AMP = Assymmetric
-> > > > multiprocessing ;-) correctly.
-> > > 
-> > > "correctly".  Intel doesn't support this (mis)configuration:
-> > > especially with different steppings, not to mention models.
-> 
-> I wouldn't call it misconfiguration, just because it's a bit more difficult
-> to handle.
+Andreas Dilger wrote:
+> > Correct, this was after running e2fsck. I'll try running it again when I
+> > get home. Here is debugfs stat output for one of the broken files.
+> > Again, I havent run e2fsck a second time yet.
 
-again, I *would* call it misconfiguration.  intel says explicitly that 
-they don't support mixing model/family parts.  and they only test
-same-clock combinations (but do support mixed steppings.)  just so people
-don't get the impression that random, different CPUs are a sure thing...
+Ok, I ran e2fsck twice last night. It didnt do anything the first run
+but then second time around it found those files and fixed the problem.
+Weird.
 
+-- 
+
+=====================================================================
+Mohammad A. Haque                              http://www.haque.net/ 
+                                               mhaque@haque.net
+
+  "Alcohol and calculus don't mix.             Project Lead
+   Don't drink and derive." --Unknown          http://wm.themes.org/
+                                               batmanppc@themes.org
+=====================================================================

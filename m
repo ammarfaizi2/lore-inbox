@@ -1,45 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267300AbSLKVbW>; Wed, 11 Dec 2002 16:31:22 -0500
+	id <S267313AbSLKVmB>; Wed, 11 Dec 2002 16:42:01 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267307AbSLKVbV>; Wed, 11 Dec 2002 16:31:21 -0500
-Received: from inet-mail1.oracle.com ([148.87.2.201]:59566 "EHLO
-	inet-mail1.oracle.com") by vger.kernel.org with ESMTP
-	id <S267300AbSLKVbV>; Wed, 11 Dec 2002 16:31:21 -0500
-Date: Wed, 11 Dec 2002 13:38:57 -0800
-From: Mark Fasheh <mark.fasheh@oracle.com>
-To: Dave Jones <davej@codemonkey.org.uk>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: 2.5 Changes doc update.
-Message-ID: <20021211213857.GC585@nic1-pc.us.oracle.com>
-Reply-To: Mark Fasheh <mark.fasheh@oracle.com>
-References: <20021211172559.GA8613@suse.de>
+	id <S267322AbSLKVmB>; Wed, 11 Dec 2002 16:42:01 -0500
+Received: from email.careercast.com ([216.39.101.233]:50127 "HELO
+	email.careercast.com") by vger.kernel.org with SMTP
+	id <S267313AbSLKVl7>; Wed, 11 Dec 2002 16:41:59 -0500
+Subject: PS/Top broken - /proc entry bad
+From: Matt Simonsen <matt_lists@careercast.com>
+To: linux-kernel@vger.kernel.org
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
+Date: 11 Dec 2002 13:49:51 -0800
+Message-Id: <1039643391.27406.41.camel@mattsworkstation>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20021211172559.GA8613@suse.de>
-User-Agent: Mutt/1.4i
-Organization: Oracle Corporation
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hey Dave,
-	First, thanks for a very useful document. I have one comment below:
+I had a box where ps and top quit working after hundreds of days uptime.
+After doing an strace ps I found that one directory in /proc was hanging
+it up, a directory named a 5 digit number which I believe was
+associtated with a process of the same name.
 
-On Wed, Dec 11, 2002 at 05:25:59PM +0000, Dave Jones wrote:
-> Internal filesystems.
-> ~~~~~~~~~~~~~~~~~~~~~
-> /proc/filesystems will contain several filesystems that are not
-> mountable in userspace, but are used internally by the kernel
-> to keep track of things. These filesystems are futexfs, eventpollfs
-> and hugetlbfs
+I tried doing a kill -9 on the process, it returned fine but the process
+was still there. Reboot hung my session, too, I had to use reboot -f to
+get the machine healthy again.
 
-I don't believe hugetlbfs is an "internal filesystem"... Last time I
-checked, it was supposed to be mounted from userspace, and was intended for
-use in that context...
-	--Mark
+Is there any way to "fix" /proc other than what I did? I suppose maybe
+going into a lower init level and then back to 3 may have worked. It's a
+remote machine, though, so reboot was at the time seemed like a better
+solution.
 
---
-Mark Fasheh
-Software Developer, Oracle Corp
-mark.fasheh@oracle.com
+Any comments/suggestions on what to do in this situation?
+
+Thanks
+Matt
+
+

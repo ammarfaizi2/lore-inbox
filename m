@@ -1,91 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266528AbUGKJ07@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266529AbUGKJaV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266528AbUGKJ07 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 11 Jul 2004 05:26:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266529AbUGKJ07
+	id S266529AbUGKJaV (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 11 Jul 2004 05:30:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266531AbUGKJaV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 11 Jul 2004 05:26:59 -0400
-Received: from postfix3-1.free.fr ([213.228.0.44]:33168 "EHLO
-	postfix3-1.free.fr") by vger.kernel.org with ESMTP id S266528AbUGKJ04
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 11 Jul 2004 05:26:56 -0400
-Subject: Re: Integrated ethernet on SiS chipset doesn't work
-From: Jean Francois Martinez <jfm512@free.fr>
-To: root@chaos.analogic.com
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.53.0407102141560.5590@chaos>
-References: <1089480939.2779.22.camel@agnes>
-	 <Pine.LNX.4.53.0407102141560.5590@chaos>
-Content-Type: text/plain; charset=utf-8
-Message-Id: <1089538014.4690.32.camel@agnes>
+	Sun, 11 Jul 2004 05:30:21 -0400
+Received: from mail010.syd.optusnet.com.au ([211.29.132.56]:23686 "EHLO
+	mail010.syd.optusnet.com.au") by vger.kernel.org with ESMTP
+	id S266529AbUGKJaR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 11 Jul 2004 05:30:17 -0400
+References: <20040709182638.GA11310@elte.hu> <20040709195105.GA4807@infradead.org> <20040710124814.GA27345@elte.hu> <40F0075C.2070607@kolivas.org> <20040710151455.GA29140@devserv.devel.redhat.com> <40F008B0.8020702@kolivas.org> <20040711091807.GA16087@elte.hu>
+Message-ID: <cone.1089538195.567633.20820.502@pc.kolivas.org>
+X-Mailer: http://www.courier-mta.org/cone/
+From: Con Kolivas <kernel@kolivas.org>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: Arjan van de Ven <arjanv@redhat.com>, linux-kernel@vger.kernel.org
+Subject: Re: Voluntary Kernel Preemption Patch
+Date: Sun, 11 Jul 2004 19:29:55 +1000
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Sun, 11 Jul 2004 11:26:54 +0200
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; format=flowed; charset="US-ASCII"
+Content-Disposition: inline
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Le dim 11/07/2004 à 03:48, Richard B. Johnson a écrit :
-> On Sat, 10 Jul 2004, Jean Francois Martinez wrote:
-> 
-> > I have a friend who owns a computer manufactured by Medion and who
-> > sports an MSI motherboard who has a SiS chipset.  The MSI motherboard
-> > seems to have ben made specially for Medion since it isn't
-> > referenced on MSI's site.  The problems is that the integrated ethernet
-> > doesn't work at all under Linux be it with 2.4 or 2.6 kernel.  He can't
-> > ping or connect to other boxes.  His ethernet works when he boots
-> > Windows.
-> >
-> > I include the output of lspci
-> 
-> Tell him to plug a supported ethernet board into a PCI slot
-> and forget trying to get the embeded one working. It probably
-> isn't "turned on" by some secret incantations to some secret
-> registers. If you were to actually find out what was necessary
-> to make the board work, then that software won't work with a
-> regular SiS setup so nobody will put it into the kernel. The
-> usual problem with these imbeded boards is that the vendor
-> saved 18 US cents (actually) by not putting in the serial
-> EEPROM that enables I/O and sets the IEEE station address
-> (the MAC address). If you poke the correct registers, you
-> can get it turned ON, then what MAC address would you use?
-> 
-> Buried in some BAR somewhere is the MAC address. Forget it.
-> Get a real ethernet board. Been there, done that.
-> 
-> 
+Ingo Molnar writes:
 
-1) I have been using several integrated ethernets in both Nvidia aand
-Intel chipsets with good results
-
-2) The Sis 900 driver is supposed to be _supported_ ie someone is being
-paid for fixing problems.  It has the highest maintenance status so
-its problems are made to be fixed.
-
-3) The guy is not a hard core Linuxer but someone who is just feeling
-water temperature.  He has made from Linux being able to make his
-ethernet work THE test for deciding if Linux is usable.
-
-4) If I am bothering to submit to the kernel list it is because I want
-the problem fixed for _everyone_ and the road for this doesn't go
-through using another board or performing a trick of black magic
-(putting the thing in half duplex mode).  It goes through having the
-driver fixed and in the interim, since searching for black magic things
-is not acceptable in a professional context, getting the driver to use
-the black magic thing _by default_.  Now I am very willing to help the
-maintainer to find what is wrong with this particular
-submodel/motherboard.
-
-> Cheers,
-> Dick Johnson
-> Penguin : Linux version 2.4.26 on an i686 machine (5570.56 BogoMips).
->             Note 96.31% of all statistics are fiction.
 > 
+> * Con Kolivas <kernel@kolivas.org> wrote:
 > 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+>> >>I've conducted some of the old fashioned Benno's latency test on this 
+>> >
+>> >
+>> >is that the test which skews with irq's disabled ? (eg uses normal
+>> >interrupts and not nmi's for it's initial time inrq)
+>> 
+>> It probably is; in which case all these results would be useless, no?
+>> 
+>> http://www.gardena.net/benno/linux/latencytest-0.42.tar.gz
 > 
+> did you run latencytest as root?
+
+I wish it were that simple to fix it. Here's what I said later in this 
+thread:
+
+---
+If you're interested the command I used was:
+./do_tests none 3 256 0 1500000000
+as root
+
+Which uses a 1.5Gb file during the disk i/o tests since my machine has 1Gb 
+ram.
+---
+
+Con
 

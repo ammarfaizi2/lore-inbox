@@ -1,145 +1,198 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263152AbUJ2AES@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263090AbUJ2AC4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263152AbUJ2AES (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 28 Oct 2004 20:04:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263108AbUJ2AEM
+	id S263090AbUJ2AC4 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 28 Oct 2004 20:02:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263106AbUJ2ACC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 28 Oct 2004 20:04:12 -0400
-Received: from rwcrmhc12.comcast.net ([216.148.227.85]:671 "EHLO
-	rwcrmhc12.comcast.net") by vger.kernel.org with ESMTP
-	id S263152AbUJ2ACk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 28 Oct 2004 20:02:40 -0400
-Message-ID: <4181888D.8020908@comcast.net>
-Date: Thu, 28 Oct 2004 20:02:21 -0400
-From: John Richard Moser <nigelenki@comcast.net>
-User-Agent: Mozilla Thunderbird 0.8 (X11/20041022)
-X-Accept-Language: en-us, en
+	Thu, 28 Oct 2004 20:02:02 -0400
+Received: from smtp3.netcabo.pt ([212.113.174.30]:27078 "EHLO
+	exch01smtp11.hdi.tvcabo") by vger.kernel.org with ESMTP
+	id S263155AbUJ1XwI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 28 Oct 2004 19:52:08 -0400
+Message-ID: <32806.192.168.1.5.1099007364.squirrel@192.168.1.5>
+Date: Fri, 29 Oct 2004 00:49:24 +0100 (WEST)
+Subject: Re: [patch] Real-Time Preemption, -RT-2.6.9-mm1-V0.4
+From: "Rui Nuno Capela" <rncbc@rncbc.org>
+To: "Ingo Molnar" <mingo@elte.hu>
+Cc: linux-kernel@vger.kernel.org, "Lee Revell" <rlrevell@joe-job.com>,
+       mark_h_johnson@raytheon.com, "K.R. Foley" <kr@cybsft.com>,
+       "Bill Huey" <bhuey@lnxw.com>, "Adam Heath" <doogie@debian.org>,
+       "Florian Schmidt" <mista.tapas@gmx.net>,
+       "Thomas Gleixner" <tglx@linutronix.de>,
+       "Michal Schmidt" <xschmi00@stud.feec.vutbr.cz>,
+       "Fernando Pablo Lopez-Lezcano" <nando@ccrma.stanford.edu>,
+       "Karsten Wiese" <annabellesgarden@yahoo.de>
+User-Agent: SquirrelMail/1.4.3a
+X-Mailer: SquirrelMail/1.4.3a
 MIME-Version: 1.0
-To: michael@optusnet.com.au
-CC: "Marcos D. Marado Torres" <marado@student.dei.uc.pt>,
-       Ed Tomlinson <edt@aei.ca>, Massimo Cetra <mcetra@navynet.it>,
-       "'Chuck Ebbert'" <76306.1226@compuserve.com>,
-       "'Bill Davidsen'" <davidsen@tmr.com>,
-       "'William Lee Irwin III'" <wli@holomorphy.com>,
-       "'linux-kernel'" <linux-kernel@vger.kernel.org>
-Subject: Re: My thoughts on the "new development model"
-References: <00c201c4bb4c$56d1b8b0$e60a0a0a@guendalin>	<200410261719.56474.edt@aei.ca>	<Pine.LNX.4.61.0410270402340.20284@student.dei.uc.pt>	<417F315A.9060906@comcast.net> <m1sm7znxul.fsf@mo.optusnet.com.au>	<41811AF2.2000503@comcast.net> <m1oeimo2hi.fsf@mo.optusnet.com.au>
-In-Reply-To: <m1oeimo2hi.fsf@mo.optusnet.com.au>
-X-Enigmail-Version: 0.86.0.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-Priority: 3 (Normal)
+Importance: Normal
+References: <12917.195.245.190.94.1098890763.squirrel@195.245.190.94>      
+    <20041027205126.GA25091@elte.hu> <20041027211957.GA28571@elte.hu>      
+    <33083.192.168.1.5.1098919913.squirrel@192.168.1.5>      
+    <20041028063630.GD9781@elte.hu>      
+    <20668.195.245.190.93.1098952275.squirrel@195.245.190.93>      
+    <20041028085656.GA21535@elte.hu>      
+    <26253.195.245.190.93.1098955051.squirrel@195.245.190.93>      
+    <20041028093215.GA27694@elte.hu>      
+    <43163.195.245.190.94.1098981230.squirrel@195.245.190.94>      
+    <20041028191605.GA3877@elte.hu>
+In-Reply-To: <20041028191605.GA3877@elte.hu>
+X-OriginalArrivalTime: 28 Oct 2004 23:52:06.0713 (UTC) FILETIME=[2198A290:01C4BD49]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+Ingo Molnar wrote:
+>
+> * Rui Nuno Capela wrote:
+>
+>> OK. Here are my early consolidated results. Feel free to comment.
+>>
+>>                                     2.6.9     RT-U3   RT-V0.4.3
+>>                                   --------- --------- ---------
+>>   XRUN Rate . . . . . . . . . . .     424         8         4    /hour
+>>   Delay Rate (>spare time)  . . .     496         0         0    /hour
+>>   Delay Rate (>1000 usecs)  . . .     940         8         4    /hour
+>>   Maximum Delay . . . . . . . . .    6904       921       721    usecs
+>>   Maximum Process Cycle . . . . .    1449      1469      1590    usecs
+>>   Average DSP CPU Load  . . . . .      38        39        40    %
+>>   Average Context-Switch Rate . .    7480      8929      9726    /sec
+>
+> looks pretty good, doesnt it?
+>
+
+Yes indeed :)
 
 
+> how is the 'maximum delay' calculated? Could you put in a tracing hook
+> into jackd whenever such a ~720 usecs maximum is hit? I'd _love_ to see
+> how such a latency path looks like, it seems a bit long.
+>
 
-michael@optusnet.com.au wrote:
-| John Richard Moser <nigelenki@comcast.net> writes:
-|
-|>michael@optusnet.com.au wrote:
-|
-| [...]
-|
-|>| There seems to be a lot of strange notions on this concept of 'stable'.
-|>| The only thing that makes a kernel 'stable' is time. Not endless
-|>| bugfixes. Just time. The idea of stable software is software that not
-|>| going to give you any suprises, software that you can trust.
-|>|
-|>
-|>Right.  Bugfixing the "Stable" branch ONLY will make sure it does not
-|>surprise you with sudden new features (which may surprise you by. . .
-|>breaking your own patches!).
-|
-|
-| You've missed the point. 'Bugfixing' introduces code changes, and new
-| bugs.
+That 'maximum delay' is collected on each jackd process cycle. AFAICS, it
+is the figure of a scheduling delay, as measured by jackd as the time
+interval between interrupt and effective jackd process handler (re)entry.
+
+Please note that I'm not a JACK developer. I'm just a regular user
+with ancient coding skills ;) I do however subscribe to the jackit-devel
+maillist. And the author of qjackctl, if that matters...
+
+For reading this 'maximum delay' I am actually using a custom patch
+against jack-0.99.7cvs, being a Lee Revell's original.
 
 
-introduces a minimal amount of new code in most cases, makes up-porting
-through the bugfixes a 5 minute job.
+> It should be a relatively simple hack to jackd. Firstly, download the
+> -V0.5.3 patch and enable LATENCY_TRACE, then do:
+>
+>         echo 2 > /proc/sys/kernel/trace_enabled
+>
+> this activates the 'application-triggered kernel tracer' functionality.
+>
+> No tracing happens by default, but tracing starts if the application
+> executes this function:
+>
+>         gettimeofday(0,1);
+>
+> and tracing stops if the application does:
+>
+>         gettimeofday(0,0);
+>
+> whenever the app does this (0,0) call the trace gets saved and you can
+> retrieve it from /proc/latency_trace where you can retrieve it. There is
+> no combination of these parameters that can break the kernel, so it's a
+> 100% safe tracing facility. You can 'ignore' a latency [e.g. if it's not
+> a maximum] by simply not doing the (0,0) call. The next (0,1) call done
+> will override the previous, already running trace.
+>
+> [stupid function but this combination of the syscall parameters is not
+> used otherwise so the latency tracer hijacks it.]
+>
+> i dont know how Jackd does things, but i'd suggest to enable tracing the
+> first time possible when getting an interrupt - in theory this should
+> happen as soon as the wakeup-latency-tracer says - i.e. at most in like
+> 30 usecs. The bulk of the remaining 700 usecs will be spent in jackd,
+> and you can trace those 700 usecs.
+>
+> or if you would be willing to do a little bit of ALSA hacking, you could
+> add this to the ALSA interrupt handler:
+>
+>         #include <linux/syscalls.h>
+>
+>         ...
+>         sys_gettimeofday(0, 1);
+>
+> [the attached patch implements this for ali5451.]
+>
+> and do the gettimeofday(0,0) in jackd [if the latency measured there is
+> a new maximum]! This way tracing is turned on within the kernel IRQ
+> handler (i.e. as soon as possible) and turned off within ALSA. This will
+> enable us to see an even more complete latency path.
+>
+> NOTE: there can only be one trace active at a time. So if there can be
+> multiple channels active at a time then this user-triggered tracer might
+> be less useful. Do these channels have any priority? Or if multiple
+> channels are necessary then you could modify the patch to only do the
+> (0,1) call for say channel #0:
+>
+>         if (channel == 0)
+>                 sys_gettimeofday(0, 1);
+>
+> in this case the trace-off-save (0,0) call in Jackd must also only do
+> this for channel 0 processing! (or whichever channel you find the most
+> interesting.)
+>
 
-[...]
+Ouch. This is a bit too much to digest in so little time :) I'll try to
+re-read this from cache, erm... tomorrow ;)
 
-|
-|>| Now you've got a kernel that tests clean with your app. DON'T
-|>| CHANGE IT!!
-|>|
-|>| Ta-Dah! You've got a stable kernel.
-|>|
-|>
-|>That if I keep my realtime patches or my security enhancements or my new
-|>drivers or my new filesystems on and don't continuously upgrade will
-|>cause me to stagnate and be left behind and ignored.
-|
-|
-| Ahh. Now I get it. You don't want a stable kernel at all. You
-| just want to pick and chose which new features you get.
-|
-| In what way is 'security enchancements', or 'new drivers', or 'new
-| filesystems' not the very feature enchancements you're complaining
-| about in 2.6?
-|
+BTW, this means that I have to re-enable LATENCY_TIMING back again? Notice
+that all my results were taken with a production configuration, that is,
+with all debug options now set to off (OK, I think I've left the
+stack-overflow on, but that was the only one).
 
-You try maintaining a feature patched kernel using things not in
-mainline and you'll see.  Try grsecurity and reiser4.  You'll quickly
-find Reiser4 to be at 2.6.8.1-2.6.9 (it's in 2.6.9 mainline right?), and
-grsecurity at 2.6.7.
+OTOH, this latency timing has been troublesome on either of my setups,
+recently. But I'll give it another try...
 
-Now here's a real trick.  Try pulling it back out of 2.6.10-rcX, and
-into 2.6.7.  You'll have to grab the fs/reiser4 directory, plus muddle
-out what changes happened in VFS relating to reiser4, plus try to fix
-whatever you just made explode.
 
-Now as you'll notice, I've created a very shabby issue here; obviously
-if I'm using 2.6.7+grsecurity, I'm not concerned with reiser4, as it
-wasn't stable until 2.6.8.  What about if I'm implementing added
-security using grsecurity/pax among others?  In fact, what if I'm a
-distribution maintainer doing this?  New installs may use Reiser4; I'm
-about to break them terminally.  PR for said distribution falls through
-the floor, nobody uses it.
+> also, i looked at the sound/pci/ali5451/ali5451.c driver code and it has
+> one weird piece of code on line 988:
+>
+>         udelay(100);
+>
+> that adds a 100 usecs latency to the main path, for no good reason! It
+> also spends that time burning CPU time, delaying other processing. Could
+> you add an IRQs/sec measurement too if possible, so that we can compare
+> the IRQ rates of various kernels?
+>
 
-This may seem moot, but let's take a step back and say that 2.6 was
-frozen at 2.6.7, and 2.6.10 is just 2.6.7 + bug fixes.  2.7 is in this
-scenario taking on new features, but sanely, as 2.6 is now.  Some
-adventurous users will use 2.7 and reiser4, others will use just 2.6.
-Now I'll just patch grsec into 2.6, do whatever polish is needed if the
-authors haven't taken the 5 minutes to keep up with mainline, rebuild
-the base pie/ssp, set up pax flags so ~20 packages don't die from PaX,
-and distribute.  PR goes up; and in 6 months a new stable kernel is
-forked anyway, a few weeks later there's a new grsec, my distro upgrades.
+Yes, I can add interrupts/sec measuring with nmeter. Neat utility indeed,
+thanks to Denis Vlasenko.
 
-As you can probably tell by now, my goals are very defined.  I have a
-narrow focus here, which is why I really did lose interest in arguing
-this a while back; but you're all so persistant to argue with me.  Even
-so, my intentions are and have been to create a solution that's
-simultaneously identical to and the antithesis of the current solution,
-so that everyone (including me) can shut up and be happy.  The effects
-are largely psychological and a simple display of macromanagment; and
-all opposition has been visually simple obsessive resistance to change.
 
-Unless you want to stop bickering about this and start working out a
-clear definition of a better model, stop arguing with me.  It does no
-good in either direction, as we can't change the model anyway until
-we've developed a *better* one; so efforts should be focused there
-rather than at the self-answering argument of whether or not it should
-be done.
+> Also, i'd suggest to simply remove that line (or apply the attached
+> patch) - does the driver still work fine with that?
+>
 
-| Michael.
-|
+Now that you call, I remember to hack that very same line, some time go,
+but couldn't get no better than a udelay(33). Removing that line just
+ended in some kind of malfunction, but can't remember what exactly. One
+thing's for sure, sound didn't came out of it :-/
 
-- --
-All content of all messages exchanged herein are left in the
-Public Domain, unless otherwise explicitly stated.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.6 (GNU/Linux)
-Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
+> plus i've also got questions about how Jackd interfaces with ALSA: does
+> it use SIGIO, or some direct driver ioctl? If SIGIO is used then how is
+> it done precisely - is an 'RT' queued signal used or ordinary SIGIO?
+> Also, how is the 'channel' information established upon getting a SIGIO,
+> is it in the siginfo structure?
+>
 
-iD8DBQFBgYiMhDd4aOud5P8RAnyvAJ0VK9ayhrO7Gv5NOX4WXN7ZPjNCywCfVWhO
-L/0b1kQ8CT4ktlxyKWxS+o8=
-=CI/N
------END PGP SIGNATURE-----
+Now that's really pushing me over. Any ALSA-JACK developers around here to
+comment?
+
+Bye now.
+-- 
+rncbc aka Rui Nuno Capela
+rncbc@rncbc.org
+

@@ -1,82 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262303AbVDFT4H@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262304AbVDFT4l@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262303AbVDFT4H (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 6 Apr 2005 15:56:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262304AbVDFT4H
+	id S262304AbVDFT4l (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 6 Apr 2005 15:56:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262306AbVDFT4l
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 6 Apr 2005 15:56:07 -0400
-Received: from peabody.ximian.com ([130.57.169.10]:42217 "EHLO
-	peabody.ximian.com") by vger.kernel.org with ESMTP id S262303AbVDFTz7
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 6 Apr 2005 15:55:59 -0400
-Subject: Re: [linux-pm] Re: [RFC] Driver States
-From: Adam Belay <abelay@novell.com>
-To: Pavel Machek <pavel@ucw.cz>
-Cc: Patrick Mochel <mochel@digitalimplant.org>, Greg KH <greg@kroah.com>,
-       linux-pm@lists.osdl.org, linux-kernel@vger.kernel.org
-In-Reply-To: <20050405092423.GA7254@elf.ucw.cz>
-References: <1111963367.3503.152.camel@localhost.localdomain>
-	 <Pine.LNX.4.50.0503292155120.26543-100000@monsoon.he.net>
-	 <1112222717.3503.213.camel@localhost.localdomain>
-	 <20050405092423.GA7254@elf.ucw.cz>
-Content-Type: text/plain
-Date: Wed, 06 Apr 2005 15:51:12 -0400
-Message-Id: <1112817072.8517.15.camel@linux.site>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.1 
-Content-Transfer-Encoding: 7bit
+	Wed, 6 Apr 2005 15:56:41 -0400
+Received: from web53105.mail.yahoo.com ([206.190.39.208]:22876 "HELO
+	web53105.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S262304AbVDFT4g (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 6 Apr 2005 15:56:36 -0400
+Comment: DomainKeys? See http://antispam.yahoo.com/domainkeys
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com;
+  b=uWup5FZmXBZSC/BokCPibnnRXFNNhaxluesXgoesIs00rfQxOm5IIoqJoIyeYIQ5ZjTssrWYWustDHmzlJolDwVyY/bXaMrixi8w1W245fd4bdyJRSot4rcrJ2uRdJ0mP3DlVS8if255wyPc67REJNxcxSrZm17cV/Nma+M3NHI=  ;
+Message-ID: <20050406195635.43065.qmail@web53105.mail.yahoo.com>
+Date: Wed, 6 Apr 2005 12:56:35 -0700 (PDT)
+From: Alan Bryan <icemanind@yahoo.com>
+Subject: Light Scribe Technology
+To: linux-kernel@vger.kernel.org
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2005-04-05 at 11:24 +0200, Pavel Machek wrote:
-> Hi!
-> 
-> > > You have a few things here that can easily conflict, and that will be
-> > > developed at different paces. I like the direction that it's going, but
-> > > how do you intend to do it gradually. I.e. what to do first?
-> > 
-> > I think the first step would be for us to all agree on a design, whether
-> > it be this one or another, so we can began planning for long term
-> > changes.
-> > 
-> > My arguments for these changes are as follows:
-> 
-> 0. I do not see how to gradually roll this in.
-> 
-> >      4. Having responsibilities at each driver level encourages a
-> >         layered and object based design, reducing code duplication and
-> >         complexity.
-> 
-> Unfortunately, you'll be retrofiting this to existing drivers. AFAICS,
-> trying to force existing driver to "layered and object based design"
-> can only result in mess.
-> 								Pavel
+Hi all,
 
-Fair enough.  How does this sound?  I'd like to add "*attach" and
-"*detach" to "struct device_driver".  These functions would act as one
-time initializers and decontructors.  Then we could rename "*probe" to
-"*start", and "*remove" to "*stop", which should be rather trivial to
-fix up.  From there drivers could slowly be converted to use "*attach"
-and "*detach", but will not be broken along the way.
+Can you tell me if there is currently support in the
+kernel for HP's new LightScribe technology?
+(http://h30015.www3.hp.com/hp_dec/lightscribe/index_FL.asp).
+If there is not, are there plans for it?
 
-So the basic flow would be like this:
+Supposdly, you can burn DVD's or CD's, then flip the
+media over and burn a label directly onto the CD or
+DVD (no ink or toner...the laser burns it directly
+onto the CD)
 
-1.) a driver is bound to a device
-2.) *attach is called to allocate data structures
-3.) *start when it's time to probe the device
-4.) *stop when the user disables the device
-5.) repeat steps 3 and 4 any number of times
-6.) *detach is called when unbinding the driver
+Thanks
 
-The driver layering stuff could come later, but just implementing these
-specific components would have immediate benefits.
-
-In this early stage in development, I'd like to at least be able to
-start and stop drivers for reasons outside of power management (ex. user
-preference or resource re-balancing).  If a "*resume" function can also
-utilize this functionality, then all the better.
-
-Thanks,
-Adam
+Alan
 
 
+
+		
+__________________________________ 
+Yahoo! Messenger 
+Show us what our next emoticon should look like. Join the fun. 
+http://www.advision.webevents.yahoo.com/emoticontest

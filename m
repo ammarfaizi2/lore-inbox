@@ -1,45 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S275396AbTHITsw (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 9 Aug 2003 15:48:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S275395AbTHITsX
+	id S275378AbTHIUDI (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 9 Aug 2003 16:03:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S275413AbTHIUDI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 9 Aug 2003 15:48:23 -0400
-Received: from kweetal.tue.nl ([131.155.3.6]:19980 "EHLO kweetal.tue.nl")
-	by vger.kernel.org with ESMTP id S275394AbTHITsT (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 9 Aug 2003 15:48:19 -0400
-Date: Sat, 9 Aug 2003 21:48:18 +0200
-From: Andries Brouwer <aebr@win.tue.nl>
-To: Andries Brouwer <aebr@win.tue.nl>, linux-kernel@vger.kernel.org
-Subject: Re: [2.6.0-test3 and earlier] no keyboard
-Message-ID: <20030809214818.A9019@pclin040.win.tue.nl>
-References: <87ptjebwb8.fsf@deneb.enyo.de> <20030809203852.A9000@pclin040.win.tue.nl> <874r0qaazr.fsf@deneb.enyo.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <874r0qaazr.fsf@deneb.enyo.de>; from fw@deneb.enyo.de on Sat, Aug 09, 2003 at 09:26:16PM +0200
+	Sat, 9 Aug 2003 16:03:08 -0400
+Received: from [66.212.224.118] ([66.212.224.118]:49417 "EHLO
+	hemi.commfireservices.com") by vger.kernel.org with ESMTP
+	id S275378AbTHIUDE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 9 Aug 2003 16:03:04 -0400
+Date: Sat, 9 Aug 2003 15:51:15 -0400 (EDT)
+From: Zwane Mwaikambo <zwane@arm.linux.org.uk>
+X-X-Sender: zwane@montezuma.mastecende.com
+To: Jasper Spaans <jasper@vs19.net>
+Cc: Linus Torvalds <torvalds@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Fix up fs/nfs/inode.c wrt flavo[u]r
+In-Reply-To: <20030809195607.GA8171@spaans.vs19.net>
+Message-ID: <Pine.LNX.4.53.0308091550010.32166@montezuma.mastecende.com>
+References: <shsisp7fzkg.fsf@charged.uio.no> <Pine.LNX.4.44.0308081738380.3739-100000@home.osdl.org>
+ <20030809004559.GA17257@spaans.vs19.net> <20030809195607.GA8171@spaans.vs19.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Aug 09, 2003 at 09:26:16PM +0200, Florian Weimer wrote:
-> Andries Brouwer <aebr@win.tue.nl> writes:
+On Sat, 9 Aug 2003, Jasper Spaans wrote:
+
+> On Sat, Aug 09, 2003 at 02:45:59AM +0200, Jasper Spaans wrote:
+> > As I stated before, I'll whip up a patch. However, it's 2:45 localtime here
+> > right now, and I need to catch some sleep.
 > 
-> >> atkbd.c: Unknown key (set 0, scancode 0xed, on isa0060/serio0) pressed.          
+> Here goes; this is the least intrusive version I could make which still
+> makes sense.
 > 
-> > Set 0 is "impossible", certainly a bug.
-> > So what are the boot messages about the keyboard?
 > 
-> serio: i8042 AUX port at 0x60,0x64 irq 12
-> serio: i8042 KBD port at 0x60,0x64 irq 1
+>  fs/nfs/inode.c             |   16 ++++++++--------
+>  include/linux/nfs4_mount.h |    4 ++--
+>  include/linux/nfs_mount.h  |    2 +-
+>  3 files changed, 11 insertions(+), 11 deletions(-)
 > 
-> I hope these lines are the correct ones.
+> For those who want to look at this without using bitkeeper, a plaintext
+> patch is available at 
+> 
+> http://jsp.vs19.net/tmp/flavour.txt
+> 
 
-But no lines like
+<whine> *sigh* why not just attach it inline into your email? </whine>
 
-input: AT Set 2 keyboard on isa0060/serio0
+> This BitKeeper patch contains the following changesets:
+> 1.1150
+> ## Wrapped with uu ##
 
-?
+uu *mumble*
 
-
+	Zwane

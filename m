@@ -1,140 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265155AbUFVTct@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265502AbUFVTeB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265155AbUFVTct (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Jun 2004 15:32:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265359AbUFVTcP
+	id S265502AbUFVTeB (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Jun 2004 15:34:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265663AbUFVTd7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Jun 2004 15:32:15 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:15259 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S265454AbUFVTYA
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Jun 2004 15:24:00 -0400
-To: torvalds@osdl.org
-Subject: [PATCH] (8/9) symlink patchkit (against -bk current)
-Cc: linux-kernel@vger.kernel.org
-Message-Id: <E1Bcqs8-0003xj-S8@www.linux.org.uk>
-From: viro@www.linux.org.uk
-Date: Tue, 22 Jun 2004 20:23:56 +0100
+	Tue, 22 Jun 2004 15:33:59 -0400
+Received: from fw.osdl.org ([65.172.181.6]:2465 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S265132AbUFVTTJ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 22 Jun 2004 15:19:09 -0400
+Date: Tue, 22 Jun 2004 12:18:05 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Mikael Pettersson <mikpe@csd.uu.se>
+Cc: linux-kernel@vger.kernel.org, mikpe@csd.uu.se
+Subject: Re: [PATCH][1/6] perfctr-2.7.3 for 2.6.7-rc1-mm1: core
+Message-Id: <20040622121805.7c5873a8.akpm@osdl.org>
+In-Reply-To: <16600.14436.344871.168096@alkaid.it.uu.se>
+References: <200405312218.i4VMIISg012277@harpo.it.uu.se>
+	<20040622015311.561a73bf.akpm@osdl.org>
+	<16600.14436.344871.168096@alkaid.it.uu.se>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-        befs switched; leaks plugged.
+Mikael Pettersson <mikpe@csd.uu.se> wrote:
+>
+> Andrew Morton writes:
+>  > Random points:
+>  > 
+>  > 
+>  > - In __vperfctr_set_cpus_allowed(), is it possible for a process to
+>  >   generate that printk deliberately, thus spamming the logs?
+> 
+> On a HT P4, yes that's possible. Should I put in a rate limit?
 
-diff -urN RC7-bk5-shm/fs/befs/linuxvfs.c RC7-bk5-befs/fs/befs/linuxvfs.c
---- RC7-bk5-shm/fs/befs/linuxvfs.c	Wed Jun 16 10:26:22 2004
-+++ RC7-bk5-befs/fs/befs/linuxvfs.c	Tue Jun 22 15:13:11 2004
-@@ -14,6 +14,7 @@
- #include <linux/buffer_head.h>
- #include <linux/vfs.h>
- #include <linux/parser.h>
-+#include <linux/namei.h>
- 
- #include "befs.h"
- #include "btree.h"
-@@ -40,8 +41,8 @@
- static void befs_destroy_inode(struct inode *inode);
- static int befs_init_inodecache(void);
- static void befs_destroy_inodecache(void);
--static int befs_readlink(struct dentry *, char __user *, int);
--static int befs_follow_link(struct dentry *, struct nameidata *nd);
-+static int befs_follow_link(struct dentry *, struct nameidata *);
-+static void befs_put_link(struct dentry *, struct nameidata *);
- static int befs_utf2nls(struct super_block *sb, const char *in, int in_len,
- 			char **out, int *out_len);
- static int befs_nls2utf(struct super_block *sb, const char *in, int in_len,
-@@ -85,8 +86,9 @@
- };
- 
- static struct inode_operations befs_symlink_inode_operations = {
--	.readlink	= befs_readlink,
-+	.readlink	= generic_readlink,
- 	.follow_link	= befs_follow_link,
-+	.put_link	= befs_put_link,
- };
- 
- /* 
-@@ -462,71 +464,40 @@
- static int
- befs_follow_link(struct dentry *dentry, struct nameidata *nd)
- {
--	struct super_block *sb = dentry->d_sb;
- 	befs_inode_info *befs_ino = BEFS_I(dentry->d_inode);
- 	char *link;
--	int res;
- 
- 	if (befs_ino->i_flags & BEFS_LONG_SYMLINK) {
-+		struct super_block *sb = dentry->d_sb;
- 		befs_data_stream *data = &befs_ino->i_data.ds;
--		befs_off_t linklen = data->size;
-+		befs_off_t len = data->size;
- 
- 		befs_debug(sb, "Follow long symlink");
- 
--		link = kmalloc(linklen, GFP_NOFS);
--		if (link == NULL)
--			return -ENOMEM;
--
--		if (befs_read_lsymlink(sb, data, link, linklen) != linklen) {
-+		link = kmalloc(len, GFP_NOFS);
-+		if (!link) {
-+			link = ERR_PTR(-ENOMEM);
-+		} else if (befs_read_lsymlink(sb, data, link, len) != len) {
- 			kfree(link);
- 			befs_error(sb, "Failed to read entire long symlink");
--			return -EIO;
-+			link = ERR_PTR(-EIO);
- 		}
--
--		res = vfs_follow_link(nd, link);
--
--		kfree(link);
- 	} else {
- 		link = befs_ino->i_data.symlink;
--		res = vfs_follow_link(nd, link);
- 	}
- 
--	return res;
-+	nd_set_link(nd, link);
-+	return 0;
- }
- 
--static int
--befs_readlink(struct dentry *dentry, char __user *buffer, int buflen)
-+static void befs_put_link(struct dentry *dentry, struct nameidata *nd)
- {
--	struct super_block *sb = dentry->d_sb;
- 	befs_inode_info *befs_ino = BEFS_I(dentry->d_inode);
--	char *link;
--	int res;
--
- 	if (befs_ino->i_flags & BEFS_LONG_SYMLINK) {
--		befs_data_stream *data = &befs_ino->i_data.ds;
--		befs_off_t linklen = data->size;
--
--		befs_debug(sb, "Read long symlink");
--
--		link = kmalloc(linklen, GFP_NOFS);
--		if (link == NULL)
--			return -ENOMEM;
--
--		if (befs_read_lsymlink(sb, data, link, linklen) != linklen) {
--			kfree(link);
--			befs_error(sb, "Failed to read entire long symlink");
--			return -EIO;
--		}
--
--		res = vfs_readlink(dentry, buffer, buflen, link);
--
--		kfree(link);
--	} else {
--		link = befs_ino->i_data.symlink;
--		res = vfs_readlink(dentry, buffer, buflen, link);
-+		char *p = nd_get_link(nd);
-+		if (!IS_ERR(p))
-+			kfree(p);
- 	}
--
--	return res;
- }
- 
- /*
+Spose so - __printk_ratelimit().  Or simply turn the message off until the
+next reboot.
+
+>  > - perfctr_set_cpus_allowed() does task_lock().  Should that be
+>  >   vperfctr_task_lock() instead?
+> 
+> vperfctr_task_lock() _is_ task_lock() when HT P4s are possible.
+
+I know.  I was asking whether that could should have used the macro rather
+than open-coding the task_lock().  Whatever.
+
+>  >   Please update the locking comment over task_lock() to represent this
+>  >   new usage.
+> 
+> You mean add a comment there to the effect that set_cpus_allowed()
+> may do a task_lock()?
+
+That comment describes what data structures are protected by task_lock(). 
+If you're aware of missing info or if you're protecting new data via
+task_lock(), please update the comment.
+
+>  > - Why does sys_vperfctr_open() call ptrace_check_attach()?  (I suspect
+>  >   I'd know that if there was API documentation?)
+> 
+> In the remote-control case, we must check that the opening process
+> has the right to control the target process. I'm using the same
+> rules as ptrace(ATTACH) does, hence the ptrace_check_attach() call.
+
+OK.  The term "remote control" has not been defined by you, so I'm to
+assume that it refers to one process initiating perfctr instrumentation
+against another, in some fashion.  Please feel my minor frustration ;)
+
+>  >   These big structures should be dynamically allocated.
+> 
+> There's room for a temp copy in the perfctr state object, which as
+> you've noticed is an entire page. That should reduce stack usage.
+
+hm, not sure I understand that, but whatever.  Please fix up the big stack
+users, especially those which do copy_*_user, or non-atomic memory
+allocations.

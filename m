@@ -1,33 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135382AbRAGQpZ>; Sun, 7 Jan 2001 11:45:25 -0500
+	id <S136049AbRAGQpz>; Sun, 7 Jan 2001 11:45:55 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135483AbRAGQos>; Sun, 7 Jan 2001 11:44:48 -0500
-Received: from denise.shiny.it ([194.20.232.1]:60433 "EHLO denise.shiny.it")
-	by vger.kernel.org with ESMTP id <S135443AbRAGQoO>;
-	Sun, 7 Jan 2001 11:44:14 -0500
-Message-ID: <3A58CF97.40A30579@denise.shiny.it>
-Date: Sun, 07 Jan 2001 15:20:39 -0500
-From: Giuliano Pochini <pochini@denise.shiny.it>
-X-Mailer: Mozilla 4.7 [en] (X11; I; Linux 2.2.18 ppc)
-X-Accept-Language: en
+	id <S136034AbRAGQpU>; Sun, 7 Jan 2001 11:45:20 -0500
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:32783 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S135382AbRAGQpD>; Sun, 7 Jan 2001 11:45:03 -0500
+Subject: Re: [PATCH] hashed device lookup (Does NOT meet Linus' sumission
+To: matti.aarnio@zmailer.org (Matti Aarnio)
+Date: Sun, 7 Jan 2001 16:46:14 +0000 (GMT)
+Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), greearb@candelatech.com (Ben Greear),
+        davem@redhat.com (David S. Miller), linux-kernel@vger.kernel.org,
+        netdev@oss.sgi.com
+In-Reply-To: <20010107173306.C25076@mea-ext.zmailer.org> from "Matti Aarnio" at Jan 07, 2001 05:33:06 PM
+X-Mailer: ELM [version 2.5 PL1]
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Metadata flush interval
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-Id: <E14FIxT-0002ue-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> 	I just tried to pull data from another machine, which
+> 	is on normal port thru VLAN trunking port to receiving
+> 	machine, and got fast-ether at wire speed. (As near as
+>	ncftp's 11.11 MB/sec is wirespeed..)
 
-2.2.18, SMP.
-
-It seems that anything I write in /proc/sys/vm/bdflush does not make
-any difference. Metadata is always flushed every 5 seconds.
-
-
-Bye.
-
+But talking between two vlans on the same physical lan you will go in and back
+out via the switch and you wont
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

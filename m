@@ -1,57 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265545AbUF2LGA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265696AbUF2LKh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265545AbUF2LGA (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 29 Jun 2004 07:06:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265703AbUF2LGA
+	id S265696AbUF2LKh (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 29 Jun 2004 07:10:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265703AbUF2LKh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 29 Jun 2004 07:06:00 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:54458 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S265545AbUF2LF6 (ORCPT
+	Tue, 29 Jun 2004 07:10:37 -0400
+Received: from gprs214-172.eurotel.cz ([160.218.214.172]:61315 "EHLO
+	amd.ucw.cz") by vger.kernel.org with ESMTP id S265696AbUF2LKg (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 29 Jun 2004 07:05:58 -0400
-Date: Tue, 29 Jun 2004 07:05:23 -0400
-From: Jeff Garzik <jgarzik@redhat.com>
-To: Pete Zaitcev <zaitcev@redhat.com>
-Cc: greg@kroah.com, arjanv@redhat.com, tburke@redhat.com,
-       linux-kernel@vger.kernel.org, stern@rowland.harvard.edu,
-       mdharm-usb@one-eyed-alien.net, david-b@pacbell.net, oliver@neukum.org
-Subject: Re: drivers/block/ub.c
-Message-ID: <20040629110523.GA3480@devserv.devel.redhat.com>
-References: <20040626130645.55be13ce@lembas.zaitcev.lan>
+	Tue, 29 Jun 2004 07:10:36 -0400
+Date: Tue, 29 Jun 2004 13:10:17 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: Con Kolivas <kernel@kolivas.org>
+Cc: Linux Kernel Mailinglist <linux-kernel@vger.kernel.org>,
+       Zwane Mwaikambo <zwane@linuxpower.ca>,
+       William Lee Irwin III <wli@holomorphy.com>
+Subject: Re: [PATCH] Staircase Scheduler v6.3 for 2.6.7-rc2
+Message-ID: <20040629111017.GB15414@elf.ucw.cz>
+References: <200406070139.38433.kernel@kolivas.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20040626130645.55be13ce@lembas.zaitcev.lan>
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <200406070139.38433.kernel@kolivas.org>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.5.1+cvs20040105i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Jun 26, 2004 at 01:06:45PM -0700, Pete Zaitcev wrote:
-> Hi, guys,
+Hi!
+
+> This is an update of the scheduler policy mechanism rewrite using the 
+> infrastructure of the current O(1) scheduler. Slight changes from the 
+> original design require a detailed description. The change to the original 
+> design has enabled all known corner cases to be abolished and cpu 
+> distribution to be much better maintained. It has proven to be stable in my 
+> testing and is ready for more widespread public testing now.
 > 
-> I have drafted up an implementation of a USB storage driver as I wish
-> it done (called "ub"). The main goal of the project is to produce a driver
-> which never oopses, and above all, never locks up the machine. To this
-> point I did all my debugging while running X11 and yapping on IRC. If this
-> goal requires to sacrifice performance, so be it. This is how ub differs
-> from the usb-storage.
 > 
-> The current usb-storage works quite well on servers where netdump can
-> be brought to bear, but on desktop its debuggability leaves some room
-> for improvement. In all other respects, it is superior to ub. Since
-> characteristics of usb-storage and ub are different I expect them to
-> coexist potentially indefinitely (if ub finds any use at all).
-> 
-> Please refer to the attached patch. It is quite raw, for instance the
-> disconnect is not processed at all, although I do have a plan for it.
-> This posting is largely a "release early release often" excercise, as
-> Papa ESR taught us. But you can see the design outline clearly now,
-> I hope, and I'm interested in feedback on that.
+> Aims:
+>  - Interactive by design rather than have interactivity bolted on.
+>  - Good scalability.
+>  - Simple predictable design.
+>  - Maintain appropriate cpu distribution and fairness.
+>  - Low scheduling latency for normal policy tasks.
+>  - Low overhead.
+>  - Making renicing processes actually matter for CPU distribution (nice 0 gets 
+> 20 times what nice +20 gets)
+>  - Resistant to priority inversion
 
+How do you solve priority inversion?
 
-I can't comment on the USB portions, but the rest seems sane to me.
-
-	Jeff
-
-
-
+Can you do "true idle threads" now? (I.e. nice +infinity?)
+									Pavel
+-- 
+People were complaining that M$ turns users into beta-testers...
+...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!

@@ -1,50 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267170AbUJNWOq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267508AbUJNXog@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267170AbUJNWOq (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 14 Oct 2004 18:14:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267934AbUJNWN2
+	id S267508AbUJNXog (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 14 Oct 2004 19:44:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268031AbUJNXjZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 14 Oct 2004 18:13:28 -0400
-Received: from smtp.infolink.com.br ([200.187.64.6]:14853 "EHLO
-	smtp.infolink.com.br") by vger.kernel.org with ESMTP
-	id S267930AbUJNVtZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 14 Oct 2004 17:49:25 -0400
-Subject: Re: [PATCH] smbfs: smbfs do not honor uid, gid, file_mode and
-	dir_mode supplied by user mount
-From: Haroldo Gamal <haroldo.gamal@silexonline.org>
-Reply-To: sileoxnline@silexonline.org
-To: Andrew Morton <akpm@osdl.org>
-Cc: samba@samba.org, linux-fsdevel@vger.kernel.org, urban@teststation.com,
-       rddunlap@osdl.org, linux-kernel@vger.kernel.org
-In-Reply-To: <20041014144107.5cf63998.akpm@osdl.org>
-References: <416EA4CD.3080804@silexonline.org>
-	 <20041014144107.5cf63998.akpm@osdl.org>
-Content-Type: text/plain
-Message-Id: <1097790562.24104.0.camel@gamal>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Thu, 14 Oct 2004 18:49:22 -0300
-Content-Transfer-Encoding: 7bit
+	Thu, 14 Oct 2004 19:39:25 -0400
+Received: from brown.brainfood.com ([146.82.138.61]:46978 "EHLO
+	gradall.private.brainfood.com") by vger.kernel.org with ESMTP
+	id S268076AbUJNXgv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 14 Oct 2004 19:36:51 -0400
+Date: Thu, 14 Oct 2004 18:36:47 -0500 (CDT)
+From: Adam Heath <doogie@debian.org>
+X-X-Sender: adam@gradall.private.brainfood.com
+To: Andi Kleen <ak@suse.de>
+cc: "Martin K. Petersen" <mkp@wildopensource.com>,
+       linux-kernel@vger.kernel.org, linux-ia64@vger.kernel.org, akpm@osdl.org,
+       tony.luck@intel.com
+Subject: Re: [PATCH] General purpose zeroed page slab
+In-Reply-To: <20041014180427.GA7973@wotan.suse.de>
+Message-ID: <Pine.LNX.4.58.0410141836270.1221@gradall.private.brainfood.com>
+References: <yq1oej5s0po.fsf@wilson.mkp.net> <20041014180427.GA7973@wotan.suse.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is the same patch. As I do not receive any ack I sent it again...
+On Thu, 14 Oct 2004, Andi Kleen wrote:
 
-On Thu, 2004-10-14 at 18:41, Andrew Morton wrote:
-> Haroldo Gamal <haroldo.gamal@silexonline.org> wrote:
-> >
-> > This patch fixes "Samba Bugzilla Bug 999". The last version (2.6.8.1) of 
-> > smbfs kernel module do not honor uid, gid, file_mode and dir_mode 
-> > supplied by user during mount.
-> 
-> I merged this into -mm when you first sent it.  See
-> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.9-rc4/2.6.9-rc4-mm1/broken-out/smbfs-do-not-honor-uid-gid-file_mode-and-dir_mode-supplied.patch.
-> 
-> This latest patch seems to be significantly different from the earlier one.
-> What's up?
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+> Also that's pretty dumb. How about keeping track how much of the
+> page got non zeroed (e.g. by using a few free words in struct page
+> for a coarse grained dirty bitmap)
+>
+> Then you could memset on free only the parts that got actually
+> changed, and never waste cache lines for anything else.
+
+That will fail when a struct is placed in the page, and only the beginning and
+end of the struct was changed.
 

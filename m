@@ -1,181 +1,71 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264457AbTDXTm4 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Apr 2003 15:42:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264460AbTDXTm4
+	id S264402AbTDXTr5 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Apr 2003 15:47:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264420AbTDXTr5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Apr 2003 15:42:56 -0400
-Received: from e33.co.us.ibm.com ([32.97.110.131]:3270 "EHLO e33.co.us.ibm.com")
-	by vger.kernel.org with ESMTP id S264457AbTDXTmu (ORCPT
+	Thu, 24 Apr 2003 15:47:57 -0400
+Received: from meryl.it.uu.se ([130.238.12.42]:20124 "EHLO meryl.it.uu.se")
+	by vger.kernel.org with ESMTP id S264402AbTDXTr4 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Apr 2003 15:42:50 -0400
-Date: Thu, 24 Apr 2003 12:44:36 -0700
-From: "Martin J. Bligh" <mbligh@aracnet.com>
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: [Bug 633] New: Removal of USB flash drive causes oops in khupd 
-Message-ID: <1631410000.1051213476@flay>
-X-Mailer: Mulberry/2.1.2 (Linux/x86)
+	Thu, 24 Apr 2003 15:47:56 -0400
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+Message-ID: <16040.16960.528537.454110@gargle.gargle.HOWL>
+Date: Thu, 24 Apr 2003 22:00:00 +0200
+From: mikpe@csd.uu.se
+To: ak@suse.de
+Subject: 2.4.21-rc1 on x86_64 oops at shutdown -h
+Cc: linux-kernel@vger.kernel.org
+X-Mailer: VM 6.90 under Emacs 20.7.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-http://bugme.osdl.org/show_bug.cgi?id=633
+Andi,
 
-           Summary: Removal of USB flash drive causes oops in khupd
-    Kernel Version: 2.5.68
-            Status: NEW
-          Severity: normal
-             Owner: greg@kroah.com
-         Submitter: cswingle@iarc.uaf.edu
+2.4.21-rc1 on x86_64 oopses on me at shutdown -h in certain situations.
+It's repeatable. Here's the raw oops:
 
+Turning off swap:				[  OK  ]
+Unable to handle kernel paging request at virtual address 0000010010000000
+ printing rip:
+ffffffff801ed7ea
+PML4 8063 PGD 9063 PMD 0 
+Oops: 0002
+CPU 0 
+Pid: 0, comm:  Not tainted
+RIP: 0010:[<ffffffff801ed7ea>]
+RSP: 0018:000001000f99def8  EFLAGS: 00010246
+RAX: 0000000000000000 RBX: 0000000000000040 RCX: 0000003fff881fc0
+RDX: 0000003ffffffff0 RSI: 0000000000515ff0 RDI: 0000010010000000
+RBP: 0000000000515030 R08: 0000000000000000 R09: 0000000000000000
+R10: 0000000000000000 R11: 0000000000000000 R12: 000001000f881000
+R13: 000001000f99df40 R14: 0000000000001000 R15: 0000000000514ec0
+FS:  00000000005040a0(0000) GS:ffffffff80280f80(0000) knlGS:0000000000000000
+CS:  0010 DS: 0000 ES: 0000 CR0: 000000008005003b
+CR2: 0000010010000000 CR3: 0000000000101000 CR4: 00000000000006a0
 
-Distribution: Debian GNU/Linux unstable (sid)
-Hardware Environment: k7 desktop and PIII laptop
-Software Environment: X, console mode
-Problem Description: Unplugging USB flash drive causes oops in khupd, USB
-support lost after oops
+Call Trace: <1>Unable to handle kernel NULL pointer dereference at virtual addre
+ss 0000000000000000
+ printing rip:
+ffffffff8010de83
 
-Steps to reproduce:
+The call trace is inaccessible because the stack dumper itself immediately
+triggers a new oops (ffffffff8010de83 is show_trace+0x223), resulting in the
+second oops repeating rapidly until Simics hangs or gets a triple fault.
+I had to ^C Simics and copy-paste the first oops from the Simics Console window.
 
-Insert a USB flash drive (type doesn't seem to matter, but I can give model info
-for the three drives I've tried if you want).  Mount device.  Umount device. 
-Remove USB device from socket -- oops as follows:
+The RIP of the first oops, ffffffff801ed7ea, is copy_user_generic+0xea.
 
-#####                                                                          
-                                                                               
-                                     
-usb 1-1: USB disconnect, address 3                                             
-                                                                               
-                                     
-Unable to handle kernel NULL pointer dereference at virtual address 00000001   
-                                                                               
-                                     
- printing eip:                                                                 
-                                                                               
-                                     
-c01badd3                                                                       
-                                                                               
-                                     
-*pde = 00000000                                                                
-                                                                               
-                                     
-Oops: 0000 [#1]                                                                
-                                                                               
-                                     
-CPU:    0                                                                      
-                                                                               
-                                     
-EIP:    0060:[proc_match+19/64]    Not tainted                                 
-                                                                               
-                                     
-EFLAGS: 00010286                                                               
-                                                                               
-                                     
-EIP is at proc_match+0x13/0x40                                                 
-                                                                               
-                                     
-eax: ffffffff   ebx: c1bcd85c   ecx: ffffffff   edx: c11efdc8                  
-                                                                               
-                                     
-esi: c11efdc8   edi: c1bcd88c   ebp: c11efd8c   esp: c11efd84                  
-                                                                               
-                                     
-ds: 007b   es: 007b   ss: 0068                                                 
-                                                                               
-                                     
-Process khubd (pid: 4, threadinfo=c11ee000 task=c114d320)                      
-                                                                               
-                                     
-Stack: 00000001 c1bcd88c c11efdb4 c01bc3d2 00000001 c11efdc8 ffffffff c11efdb4 
-                                                                               
-                                     
-       c11efdc8 c7e725e0 c11efdc8 c7e721b0 c11efde0 c0337bc2 c11efdc8 c1bcd85c 
-                                                                               
-                                     
-       00000000 c7b20030 c7e721b0 c11efe58 c7e725e0 c7e725e0 c7b20200 c11efe58 
-                                                                               
-                                     
-Call Trace:                                                                    
-                                                                               
-                                     
- [remove_proc_entry+82/288] remove_proc_entry+0x52/0x120                       
-                                                                               
-                                     
- [scsi_proc_host_rm+66/112] scsi_proc_host_rm+0x42/0x70                        
-                                                                               
-                                     
- [scsi_unregister+253/576] scsi_unregister+0xfd/0x240                          
-                                                                               
-                                     
- [scsi_remove_device+64/80] scsi_remove_device+0x40/0x50                       
-                                                                               
-                                     
- [scsi_remove_device+64/80] scsi_remove_device+0x40/0x50                       
-                                                                               
-                                     
- [storage_disconnect+429/785] storage_disconnect+0x1ad/0x311                   
-                                                                               
-                                     
- [iput+99/144] iput+0x63/0x90                                                  
-                                                                               
-                                     
- [storage_disconnect+0/785] storage_disconnect+0x0/0x311                       
-                                                                               
-                                     
- [usb_device_remove+156/160] usb_device_remove+0x9c/0xa0                       
-                                                                               
-                                     
- [device_release_driver+102/112] device_release_driver+0x66/0x70               
-                                                                               
-                                     
- [bus_remove_device+127/208] bus_remove_device+0x7f/0xd0                       
-                                                                               
-                                     
- [device_del+108/176] device_del+0x6c/0xb0                                     
-                                                                               
-                                     
- [device_unregister+20/34] device_unregister+0x14/0x22                         
-                                                                               
-                                     
- [usb_disconnect+199/352] usb_disconnect+0xc7/0x160                            
-                                                                               
-                                     
- [usb_hub_port_connect_change+831/848] usb_hub_port_connect_change+0x33f/0x350 
-                                                                               
-                                     
- [usb_hub_port_status+104/176] usb_hub_port_status+0x68/0xb0                   
-                                                                               
-                                     
- [usb_hub_events+1014/1392] usb_hub_events+0x3f6/0x570                         
-                                                                               
-                                     
- [allow_signal+204/512] allow_signal+0xcc/0x200                                
-                                                                               
-                                     
- [usb_hub_thread+53/240] usb_hub_thread+0x35/0xf0                              
-                                                                               
-                                     
- [default_wake_function+0/32] default_wake_function+0x0/0x20                   
-                                                                               
-                                     
- [usb_hub_thread+0/240] usb_hub_thread+0x0/0xf0                                
-                                                                               
-                                     
- [kernel_thread_helper+5/24] kernel_thread_helper+0x5/0x18                     
-                                                                               
-                                     
-                                                                               
-                                                                               
-                                     
-Code: 0f b7 48 02 3b 4d 08 74 14 31 c0 8b 34 24 8b 7c 24 04 89 ec              
-                                                                               
-                                     
- <3>drivers/usb/host/uhci-hcd.c: 1060: host controller halted. very bad        
-                                                                               
-                                     
-##### 
+1. ksymoops-2.4.9 hangs on the raw oops.
+2. The kernel is 2.4.21-rc1 with modules, modversions, and kmod enabled.
+   ide-cd, cdrom, isofs, and af_packet were loaded at the point of the oops.
+   modutils-2.4.22-10 from RedHat rawhide's x86_64 .rpm.
+4. Steps to reproduce: boot; find / -type f -print; rpm -qa | sort | diff -u /tmp/old.rpmlist -;
+   mount /mnt/cdrom (with no cdrom in cd drive, but it loads the modules); sync;
+   shutdown -h now. The oops occurs just after init's "Turning off swap:", at
+   the "Halting system..." step (which is probably where copy_user came from).
+5. A monolithic kernel doesn't oops.
 
-
+/Mikael

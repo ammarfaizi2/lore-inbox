@@ -1,63 +1,75 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263448AbTECWsK (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 3 May 2003 18:48:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263455AbTECWsJ
+	id S263465AbTECXbq (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 3 May 2003 19:31:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263481AbTECXbp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 3 May 2003 18:48:09 -0400
-Received: from [128.173.39.159] ([128.173.39.159]:22146 "EHLO
-	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
-	id S263448AbTECWsI (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
-	Sat, 3 May 2003 18:48:08 -0400
-Message-Id: <200305032300.h43N0UX9006675@turing-police.cc.vt.edu>
-X-Mailer: exmh version 2.6.3 04/04/2003 with nmh-1.0.4+dev
-To: linux@horizon.com
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [Announcement] "Exec Shield", new Linux security feature 
-In-Reply-To: Your message of "Sat, 03 May 2003 13:19:52 -0000."
-             <20030503131952.5560.qmail@science.horizon.com> 
-From: Valdis.Kletnieks@vt.edu
-References: <20030503131952.5560.qmail@science.horizon.com>
+	Sat, 3 May 2003 19:31:45 -0400
+Received: from probity.mcc.ac.uk ([130.88.200.94]:48648 "EHLO
+	probity.mcc.ac.uk") by vger.kernel.org with ESMTP id S263465AbTECXbo convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 3 May 2003 19:31:44 -0400
+Content-Type: text/plain; charset=US-ASCII
+Message-Id: <10520054422453@movementarian.org>
+Subject: [PATCH 1/8] OProfile update
+In-Reply-To: 
+From: John Levon <levon@movementarian.org>
+X-Mailer: gregkh_patchbomb
+Date: Sun, 4 May 2003 00:44:02 +0100
+Content-Transfer-Encoding: 7BIT
+To: torvalds@transmeta.com, linux-kernel@vger.kernel.org
 Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_-884826295P";
-	 micalg=pgp-sha1; protocol="application/pgp-signature"
-Content-Transfer-Encoding: 7bit
-Date: Sat, 03 May 2003 19:00:30 -0400
+X-Spam-Score: -4.8 (----)
+X-Scanner: exiscan for exim4 (http://duncanthrax.net/exiscan/) *19C6fm-0009th-Ez*1IhsQELY7cw*
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---==_Exmh_-884826295P
-Content-Type: text/plain; charset=us-ascii
 
-On Sat, 03 May 2003 13:19:52 -0000, linux@horizon.com  said:
+The next 8 patches change the following files :
 
-> An interesting question arises: is the number of useful interpreter
-> functions (system, popen, exec*) sufficiently low that they could be
-> removed from libc.so entirely and only staticly linked, so processes
-> that didn't use them wouldn't even have them in their address space,
-> and ones that did would have them at less predictible addresses?
-> 
-> Right now, I'm thinking only of functions that end up calling execve();
-> are there any other sufficiently powerful interpreters hiding in common
-> system libraries?  regexec()?
+ arch/alpha/oprofile/Makefile      |    3 +
+ arch/alpha/oprofile/common.c      |    2 -
+ arch/i386/oprofile/Makefile       |    5 +-
+ arch/i386/oprofile/init.c         |   11 ++----
+ arch/i386/oprofile/nmi_int.c      |   14 +++----
+ arch/i386/oprofile/timer_int.c    |   58
+--------------------------------
+ arch/parisc/oprofile/Makefile     |    5 +-
+ arch/parisc/oprofile/init.c       |    3 -
+ arch/parisc/oprofile/timer_int.c  |   58
+--------------------------------
+ arch/ppc64/oprofile/Makefile      |    5 +-
+ arch/ppc64/oprofile/init.c        |    3 -
+ arch/ppc64/oprofile/timer_int.c   |   59
+---------------------------------
+ arch/sparc64/oprofile/Makefile    |    5 +-
+ arch/sparc64/oprofile/init.c      |    3 -
+ arch/sparc64/oprofile/timer_int.c |   59
+---------------------------------
+ arch/x86_64/oprofile/Makefile     |    9 ++---
+ drivers/oprofile/buffer_sync.c    |   67
++++++++++++++++++++++++++-------------
+ drivers/oprofile/event_buffer.c   |    6 ++-
+ drivers/oprofile/oprof.c          |   23 +++++++++----
+ drivers/oprofile/oprofile_stats.c |    6 +--
+ drivers/oprofile/oprofile_stats.h |    2 -
+ drivers/oprofile/timer_int.c      |   56
++++++++++++++++++++++++++++++++
+ 22 files changed, 159 insertions(+), 303 deletions(-)
 
-This does absolutely nothing to stop an exploit from providing its own
-inline version of execve().  There's nothing in libc that a process can't
-do itself, inline.
 
-A better bet is using an LSM module that prohibits exec() calls from any
-unauthorized combinations of running program/user/etc.
+Convention is that error returns are negative.
 
---==_Exmh_-884826295P
-Content-Type: application/pgp-signature
+diff -Naur -X dontdiff linux-cvs/arch/alpha/oprofile/common.c linux-me/arch/alpha/oprofile/common.c
+--- linux-cvs/arch/alpha/oprofile/common.c	2003-04-05 18:44:20.000000000 +0100
++++ linux-me/arch/alpha/oprofile/common.c	2003-04-29 01:18:48.000000000 +0100
+@@ -175,7 +175,7 @@
+ 	}
+ 
+ 	if (!lmodel)
+-		return ENODEV;
++		return -ENODEV;
+ 	model = lmodel;
+ 
+ 	oprof_axp_ops.cpu_type = lmodel->cpu_type;
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
-Comment: Exmh version 2.5 07/13/2001
-
-iD8DBQE+tEoNcC3lWbTT17ARAripAJ9CT/0UGQ3KQ5u+/MjV2cjTeJpeHQCgrRYR
-al88z3WLrN8yW9tKXEMW2tE=
-=Q9gK
------END PGP SIGNATURE-----
-
---==_Exmh_-884826295P--

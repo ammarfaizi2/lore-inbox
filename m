@@ -1,76 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261832AbVASSXa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261814AbVASScz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261832AbVASSXa (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 19 Jan 2005 13:23:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261830AbVASSX3
+	id S261814AbVASScz (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 19 Jan 2005 13:32:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261812AbVASScy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 19 Jan 2005 13:23:29 -0500
-Received: from [207.168.29.180] ([207.168.29.180]:63653 "EHLO
-	jp.mwwireless.net") by vger.kernel.org with ESMTP id S261832AbVASSWv
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 19 Jan 2005 13:22:51 -0500
-Message-ID: <41EEA575.9040007@mvista.com>
-Date: Wed, 19 Jan 2005 10:22:45 -0800
-From: Steve Longerbeam <stevel@mvista.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040805 Netscape/7.2
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Andi Kleen <ak@suse.de>
-Cc: Hugh Dickins <hugh@veritas.com>, linux-mm <linux-mm@kvack.org>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: BUG in shared_policy_replace() ?
-References: <Pine.LNX.4.44.0501191221400.4795-100000@localhost.localdomain> <41EE9991.6090606@mvista.com> <20050119174506.GH7445@wotan.suse.de>
-In-Reply-To: <20050119174506.GH7445@wotan.suse.de>
-Content-Type: multipart/mixed;
- boundary="------------090409010005090609090705"
+	Wed, 19 Jan 2005 13:32:54 -0500
+Received: from waste.org ([216.27.176.166]:60043 "EHLO waste.org")
+	by vger.kernel.org with ESMTP id S261814AbVASScw (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 19 Jan 2005 13:32:52 -0500
+Date: Wed, 19 Jan 2005 10:32:02 -0800
+From: Matt Mackall <mpm@selenic.com>
+To: "Jack O'Quin" <joq@io.com>
+Cc: Ingo Molnar <mingo@elte.hu>, Chris Wright <chrisw@osdl.org>,
+       Paul Davis <paul@linuxaudiosystems.com>,
+       Christoph Hellwig <hch@infradead.org>, Andrew Morton <akpm@osdl.org>,
+       Lee Revell <rlrevell@joe-job.com>, arjanv@redhat.com,
+       alan@lxorguk.ukuu.org.uk, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] [request for inclusion] Realtime LSM
+Message-ID: <20050119183202.GM12076@waste.org>
+References: <871xcmuuu4.fsf@sulphur.joq.us> <20050116231307.GC24610@elte.hu> <87vf9xdj18.fsf@sulphur.joq.us> <20050117100633.GA3311@elte.hu> <87llaruy6m.fsf@sulphur.joq.us> <20050118080218.GB615@elte.hu> <87pt02pt0r.fsf@sulphur.joq.us> <20050119082433.GE29037@elte.hu> <20050119143927.GA11950@elte.hu> <87651tmhwv.fsf@sulphur.joq.us>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <87651tmhwv.fsf@sulphur.joq.us>
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------090409010005090609090705
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+> > @@ -3211,6 +3211,12 @@ static inline task_t *find_process_by_pi
+> >  static void __setscheduler(struct task_struct *p, int policy, int prio)
+> >  {
+> >  	BUG_ON(p->array);
+> > +	if (prio == 1 && policy != SCHED_NORMAL) {
+> > +		p->policy = SCHED_NORMAL;
+> > +		p->static_prio = NICE_TO_PRIO(-20);
+> > +		p->prio = p->static_prio;
+> > +		return;
+> > +	}
+> >  	p->policy = policy;
+> >  	p->rt_priority = prio;
+> >  	if (policy != SCHED_NORMAL)
+> >
+> 
+> JACK actually uses three different priorities, the defaults are 9, 10
+> and 20.  How about if I change this test?
+> 
+> 	if (prio <= 20 && policy != SCHED_NORMAL) {
+> 
+> Or, should that be?
+> 
+> 	if (prio > 0 && prio <= 20 && policy != SCHED_NORMAL) {
 
+Or you can just drop the 'prio == 1 &&' part for this test. Ingo was
+trying to be clever to allow some RT bits, but that's not really
+necessary.
 
-
-Andi Kleen wrote:
-
->>got it, except that there is no "new2 = NULL;" in 2.6.10-mm2!
->>
->>Looks like it was misplaced, because I do see it now in 2.6.10.
->>    
->>
->
->I double checked 2.6.10 and the code also looks correct me,
->working as described by Hugh.
->
->Optimistic locking can be ugly :)
->  
->
-
-yeah, 2.6.10 makes sense to me too. But I'm working in -mm2, and
-the new2 = NULL line is missing, hence my initial confusion. Trivial
-patch to -mm2 attached. Just want to make sure it has been, or will be,
-put back in.
-
-Steve
-
---------------090409010005090609090705
-Content-Type: text/plain;
- name="mempolicy-mm2.diff"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="mempolicy-mm2.diff"
-
---- mm/mempolicy.c.orig	2005-01-19 09:52:47.153910873 -0800
-+++ mm/mempolicy.c	2005-01-19 09:53:21.548999628 -0800
-@@ -1041,6 +1041,7 @@
- 				}
- 				n->end = start;
- 				sp_insert(sp, new2);
-+				new2 = NULL;
- 				break;
- 			} else
- 				n->end = start;
-
---------------090409010005090609090705--
+-- 
+Mathematics is the supreme nostalgia of our time.

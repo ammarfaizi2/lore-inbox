@@ -1,44 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129908AbQLDF67>; Mon, 4 Dec 2000 00:58:59 -0500
+	id <S129632AbQLDGTq>; Mon, 4 Dec 2000 01:19:46 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130546AbQLDF6t>; Mon, 4 Dec 2000 00:58:49 -0500
-Received: from mozart.stat.wisc.edu ([128.105.5.24]:8713 "EHLO
-	mozart.stat.wisc.edu") by vger.kernel.org with ESMTP
-	id <S129908AbQLDF6c>; Mon, 4 Dec 2000 00:58:32 -0500
-To: trond.myklebust@fys.uio.no
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: negative NFS cookies: bad C library or bad kernel?
-In-Reply-To: <vbaaeae2joz.fsf@mozart.stat.wisc.edu>
-	<14890.19197.796098.104054@charged.uio.no>
-From: buhr@stat.wisc.edu (Kevin Buhr)
-In-Reply-To: Trond Myklebust's message of "Sun, 3 Dec 2000 14:30:37 +0100 (CET)"
-Date: 03 Dec 2000 23:28:02 -0600
-Message-ID: <vbaelzo21st.fsf@mozart.stat.wisc.edu>
-User-Agent: Gnus/5.0807 (Gnus v5.8.7) Emacs/20.7
+	id <S130562AbQLDGTf>; Mon, 4 Dec 2000 01:19:35 -0500
+Received: from ns1.crl.go.jp ([133.243.3.1]:59088 "EHLO ns1.crl.go.jp")
+	by vger.kernel.org with ESMTP id <S129632AbQLDGTd>;
+	Mon, 4 Dec 2000 01:19:33 -0500
+Date: Mon, 4 Dec 2000 14:49:04 +0900 (JST)
+From: Tom Holroyd <tomh@po.crl.go.jp>
+To: kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: test12-pre4
+Message-ID: <Pine.LNX.4.30.0012041447440.10480-100000@holly.crl.go.jp>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Trond Myklebust <trond.myklebust@fys.uio.no> writes:
-> 
-> The problem then arises that lseek tries to cram both a returned
-> offset and an error value into the return values.
+gcc -D__KERNEL__ -I/usr/src/linux/include -Wall -Wstrict-prototypes -O2 -fomit-frame-pointer -fno-strict-aliasing -pipe -mno-fp-regs -ffixed-8 -mcpu=ev6 -Wa,-mev6    -DEXPORT_SYMTAB -c pci.c
+pci.c: In function `pci_read_bases':
+pci.c:576: `tmp' undeclared (first use in this function)
+pci.c:576: (Each undeclared identifier is reported only once
+pci.c:576: for each function it appears in.)
 
-Oops.  You're right; I didn't think of this.
+--- drivers/pci/#pci.c  Mon Dec  4 14:30:40 2000
++++ drivers/pci/pci.c   Mon Dec  4 14:44:29 2000
+@@ -540,7 +540,7 @@
+ static void pci_read_bases(struct pci_dev *dev, unsigned int howmany, int rom)
+ {
+        unsigned int pos, reg, next;
+-       u32 l, sz;
++       u32 l, sz, tmp;
+        struct resource *res;
 
-So, I guess the best short-term solution is to fix the C library so it
-always uses llseek for directories and never tries something stupid
-like a SEEK_CUR.  Then, at least it'll always work for NFSv2.  I'll
-file a bug report.
+        for(pos=0; pos<howmany; pos = next) {
 
-At the same time, a patch for CFS to use "small" (from a little-endian
-perspective) cookies couldn't hurt, so I'll do that, too.
-
-Thanks for the help.
-
-Kevin <buhr@stat.wisc.edu>
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

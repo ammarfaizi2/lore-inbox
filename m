@@ -1,81 +1,87 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261978AbSJFRww>; Sun, 6 Oct 2002 13:52:52 -0400
+	id <S261716AbSJFSHF>; Sun, 6 Oct 2002 14:07:05 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262110AbSJFRww>; Sun, 6 Oct 2002 13:52:52 -0400
-Received: from bitmover.com ([192.132.92.2]:56718 "EHLO mail.bitmover.com")
-	by vger.kernel.org with ESMTP id <S261978AbSJFRwu>;
-	Sun, 6 Oct 2002 13:52:50 -0400
-Date: Sun, 6 Oct 2002 10:58:21 -0700
-From: Larry McVoy <lm@bitmover.com>
-To: Troy Benjegerdes <hozer@hozed.org>
-Cc: Larry McVoy <lm@bitmover.com>, Hans Reiser <reiser@namesys.com>,
-       walt <wa1ter@hotmail.com>, linux-kernel@vger.kernel.org
-Subject: Re: New BK License Problem?
-Message-ID: <20021006105821.L29486@work.bitmover.com>
-Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
-	Troy Benjegerdes <hozer@hozed.org>, Larry McVoy <lm@bitmover.com>,
-	Hans Reiser <reiser@namesys.com>, walt <wa1ter@hotmail.com>,
-	linux-kernel@vger.kernel.org
-References: <fa.fl3olav.51slo1@ifi.uio.no> <fa.chp9htv.i4632g@ifi.uio.no> <3D9EF779.4000906@hotmail.com> <3D9F10EB.80207@namesys.com> <20021005102822.C835@work.bitmover.com> <20021006174345.GE878@altus.drgw.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20021006174345.GE878@altus.drgw.net>; from hozer@hozed.org on Sun, Oct 06, 2002 at 12:43:45PM -0500
-X-MailScanner: Found to be clean
+	id <S261757AbSJFSHF>; Sun, 6 Oct 2002 14:07:05 -0400
+Received: from arago.euroconnect.fr ([195.132.14.158]:40362 "EHLO
+	smtp.calixo.net") by vger.kernel.org with ESMTP id <S261716AbSJFSHD>;
+	Sun, 6 Oct 2002 14:07:03 -0400
+From: Rebert Luc <lucrebert@altern.org>
+To: linux-kernel@vger.kernel.org
+Subject: Is it a bug ?
+Date: Sun, 6 Oct 2002 20:12:34 +0200
+X-Mailer: KMail [version 1.3.2]
+MIME-Version: 1.0
+Content-Type: Multipart/Mixed;
+  boundary="------------Boundary-00=_YWNKO6I35IWAGYS7NVZ5"
+Message-Id: <20021006180703Z261716-8740+7751@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> But until Larry retires, I have found it much easier to think of the 
-> Bitkeeper license as the "don't piss off Larry license". Don't antagonize 
-> Larry, or directly mess up his business model, and you'll all get along 
-> find ;P
 
-Another way to say it is "don't bite the hand that feeds you".  We work
-hard to help the kernel team, we make the decisions we make based on the
-premise that we have to be healthy to continue to help the kernel team as
-well as our other users, and it's disheartening to get yelled it for it.
+--------------Boundary-00=_YWNKO6I35IWAGYS7NVZ5
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 8bit
 
-It's worth noting that the kernel's use of BK has and will continue to
-expose either weaknesses in BK or missing features.  We already know 
-of enough things that need engineering for the kernel (and any other
-kernel sized project) to keep us busy for a couple of years.  If we
-GPLed BK today it would do two things:
+Hello,
+I have try many times to compile a kernel 2.4.18 and 2.4.19 for my k6-2 (it 
+is a desktop computer i don't need pcmia as a module or compiled in the 
+kernel so i haven't stick it) but every time there si a bug when i make "make 
+modules_install" I can see this bug !!!  Can you help me please ? I think 
+it's a bug, what do you think about this ?
 
-1) make you stop yelling at us
-2) stop BK development
+make[1]: Leaving directory `/usr/src/linux/arch/i386/mm'
+make -C  arch/i386/lib modules_install
+make[1]: Entering directory `/usr/src/linux/arch/i386/lib'
+make[1]: Nothing to be done for `modules_install'.
+make[1]: Leaving directory `/usr/src/linux/arch/i386/lib'
+cd /lib/modules/2.4.18; \
+mkdir -p pcmcia; \
+find kernel -path '*/pcmcia/*' -name '*.o' | xargs -i -r ln -sf ../{} pcmcia
+if [ -r System.map ]; then /sbin/depmod -ae -F System.map  2.4.18; fi
+depmod: *** Unresolved symbols in /lib/modules/2.4.18/kernel/fs/binfmt_elf.o
+depmod: 	empty_zero_page
+depmod: 	get_user_pages
+make: *** [_modinst_post] Error 1
 
-It costs a lot of money to do what we are doing, we know exactly how
-much, and a GPLed answer won't support those costs.  We have to do what
-we are doing in order to support the kernel team and our other users.
-We see no other choice and not one of you have presented a viable 
-alternative in the last 5 years.
+A big thanks !!!!
 
-The reason we don't want to help our competitors is that they want
-to imitate us.  That's fine on the surface, a GPLed clone solves the
-immediate problems you see, but it doesn't address how to solve the next
-generation of problems.  You'd need a team of at least 6-8 senior kernel
-level developers working full time for several years to get BK to the
-point where it won't need to be enhanced in order to support something
-like the kernel for the next 20 years (or more).  If we GPL it or we allow
-clones, all that does is stop the development.  It's not a question of is
-there the ability in the community to do what we do, there certainly is.
-It's a question of will they.  And the answer is no they won't or they
-would have already.  The problems that we solve aren't new at all.
-They just aren't that all fun to solve.  Our user base is small, they
-are very picky, there isn't a lot of money or fun here, so why would
-anyone do what we do?  
+REBERT Luc
 
-You can argue all you like that I'm wrong, I'm misguided, I don't have
-a clue about opensource or whatever.  The problem is that if I did what
-you'd like to see, GPL the code, and it turns out I was right, there is no
-turning back.  That's a gamble I'm unwilling to make because I am positive
-of the outcome.  And given what I've been doing for the last 5 years,
-my knowledge is probably more complete than your for this particular
-space.  I know it isn't a popular position to take, I'd love to be the
-guy everyone loved instead of hated, but I'm not going to screw up BK's
-future and our ability to support our users to win a popularity contest.
--- 
----
-Larry McVoy            	 lm at bitmover.com           http://www.bitmover.com/lm 
+
+--------------Boundary-00=_YWNKO6I35IWAGYS7NVZ5
+Content-Type: application/pgp-keys;
+  name="my pgp key"
+Content-Transfer-Encoding: base64
+Content-Disposition: attachment; filename=public_key.asc
+
+LS0tLS1CRUdJTiBQR1AgUFVCTElDIEtFWSBCTE9DSy0tLS0tClZlcnNpb246IEdudVBHIHYxLjAu
+NiAoR05VL0xpbnV4KQpDb21tZW50OiBGb3IgaW5mbyBzZWUgaHR0cDovL3d3dy5nbnVwZy5vcmcK
+Cm1RR2lCRDJYS2kwUkJBRDRJcnJkN1B2L2F3cEVWb1FUQlowdmp0bVYrZHNwZCszYks3QlpoeHVs
+c25IOGNDU3oKcVJwd2VYY2drU3ZJN2hHbE8yUlJlVExjTVhBU28zeCs3SFpDNENndjNqaWd6bThs
+M1NkNVdoWVJOTTFJMjJjNQplQm5mRHdNVmxxdDJLdE9pdjU3ZVlnMGl6dnhVaDBoaDZTNHNxMGJ5
+dm5pSjY0eWcrUDRSQ2NobEd3Q2dtR2ZLCkRFT0RNTjl2Z0dIK0NGSXlwRWpXL3I4RC8yanJvZlNr
+dGN2YTNwa3dpV2RSVnROK2p2UmVYVzVRUTZnbFRUTEEKcGU5MHRNOElYSjNDK2Z3RlBkTnF2TFIz
+eGxpTTVoUFBnOHdaQVljRGoyZlRwTk0yV05tNFVFQ3Jjd2RkWHBsaAp1MERXazhGTnNuR2VCNmY4
+eVQ2Y241T3JFOWplWmRaNEpUWUlzenhJMGhoSWNJclVFdU11a3dGQTF3SGtGZzFWCml6a1hCQURY
+VG1lckpJY0tjT25HK3JwbU9BUmRSRUYwcHJ2MCtVeERJd2hBYkpUK3FGVVNic1BjV2dRWks3WmMK
+M3hEbWtOQzVIejIrQlVkVFEvbmJEOXYxVk83VkViZVFxOFhqTXFUeXBGY2pJVWRQQ2Z2TDNick9Z
+TkFpS2pxSwo4WkpVUkVsMWxML0hsWGR6VnNEVUhFbS9KWHZJT1RodzJNUHNCUDUwMXhtVTFCRkxr
+N1EwVW1WaVpYSjBJRXgxCll5QW9TU0JzYVd0bElFeHBiblY0SUM0dUxpa2dQR3gxWTNKbFltVnlk
+RUJoYkhSbGNtNHViM0puUG9oWEJCTVIKQWdBWEJRSTlseW91QlFzSENnTUVBeFVEQWdNV0FnRUNG
+NEFBQ2drUU45RUc0TlhVL0pvVVVBQ2RIRkIxUEkxNgo2TDJBZEZPNmg4aXZYMU5NamlRQW4wQ0J4
+amVaOXdRNWpzUFJSMXowd2Z2TWNJeUdpRVlFRUJFQ0FBWUZBajJYCjhlb0FDZ2tRVGRGM3RUS3RJ
+UFhCYVFDZVBzV3lIQUVtT01XaVB2cEF6SGlCdjBocU9wMEFuam5LQlVBa21kTG4KdlA5UkNFZVB6
+M3RMZ2gzWHVRRU5CRDJYS2pZUUJBQ2Z6U1VHb3hCb21jMnluZHBLV3RGUm5UQTM5bFFTNWE4eQpt
+K1VTZXR4RjhvSnNEZGNoTUhVU25UTXh4d0xpRzZiOUF3a0MrRFhFOXY3NHdFZkYxN2tjYXVEN1Qy
+cjBxNFBLCnVjcFRFM1c4T0YvWFBrTUlMTW9WOWg0SjNDbEJmYlhMZndmWXR0b1BvdjE5SHNHTDQ1
+K2RvWWswN0s1cGJOOEEKbklEZk12Qm1ld0FEQlFQK0xoRUxwUXpic0NEd21TR3ZDcjhBYWdQMWtL
+VWhWUnpjek1wREo4M244SGFyODBTVwpsWVhiMW9yMVZWWklrcTdkdTBrdHQ4UFJqTkVINmxoQ21M
+YTBmdnE1SnkybE1VVkVrTjdXYUQ2dlkzdjBNNnFqCkZOd1QyZERBK012NUpHdjAwaitTaDd5RDRj
+dzZyN1orS3h4SFBraG1YdnJneEtaMkZqZFQ1ZHRqVHNpSVJnUVkKRVFJQUJnVUNQWmNxTmdBS0NS
+QTMwUWJnMWRUOG1wMmFBSjlmTGxSTGhoSURPejU0cFdMdVFPc1Jzc2pZL0FDZQpLaWdUbDY5YjZm
+ZVNUYjhUVU5KQlhrdjhkRjg9Cj1uckdZCi0tLS0tRU5EIFBHUCBQVUJMSUMgS0VZIEJMT0NLLS0t
+LS0K
+
+--------------Boundary-00=_YWNKO6I35IWAGYS7NVZ5--

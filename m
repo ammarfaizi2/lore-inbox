@@ -1,158 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261882AbREPLsU>; Wed, 16 May 2001 07:48:20 -0400
+	id <S261881AbREPLi7>; Wed, 16 May 2001 07:38:59 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261884AbREPLsK>; Wed, 16 May 2001 07:48:10 -0400
-Received: from leibniz.math.psu.edu ([146.186.130.2]:64213 "EHLO math.psu.edu")
-	by vger.kernel.org with ESMTP id <S261882AbREPLr6>;
-	Wed, 16 May 2001 07:47:58 -0400
-Date: Wed, 16 May 2001 07:47:56 -0400 (EDT)
-From: Alexander Viro <viro@math.psu.edu>
-To: Linus Torvalds <torvalds@transmeta.com>
-cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] turn device_init() into an initcall
-In-Reply-To: <Pine.GSO.4.21.0105151148580.21081-100000@weyl.math.psu.edu>
-Message-ID: <Pine.GSO.4.21.0105160741130.24199-100000@weyl.math.psu.edu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S261882AbREPLit>; Wed, 16 May 2001 07:38:49 -0400
+Received: from mailhst2.its.tudelft.nl ([130.161.34.250]:12301 "EHLO
+	mailhst2.its.tudelft.nl") by vger.kernel.org with ESMTP
+	id <S261881AbREPLip>; Wed, 16 May 2001 07:38:45 -0400
+Date: Wed, 16 May 2001 13:34:56 +0200
+From: Erik Mouw <J.A.K.Mouw@ITS.TUDelft.NL>
+To: Daniel Phillips <phillips@bonn-fries.net>
+Cc: Nicolas Pitre <nico@cam.org>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: LANANA: To Pending Device Number Registrants
+Message-ID: <20010516133455.C902@arthur.ubicom.tudelft.nl>
+In-Reply-To: <Pine.LNX.4.33.0105151713020.30128-100000@xanadu.home> <01051602593001.00406@starship>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <01051602593001.00406@starship>; from phillips@bonn-fries.net on Wed, May 16, 2001 at 02:59:30AM +0200
+Organization: Eric Conspiracy Secret Labs
+X-Eric-Conspiracy: There is no conspiracy!
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, May 16, 2001 at 02:59:30AM +0200, Daniel Phillips wrote:
+> On Tuesday 15 May 2001 23:20, Nicolas Pitre wrote:
+> > Personally, I'd really like to see /dev/ttyS0 be the first detected
+> > serial port on a system, /dev/ttyS1 the second, etc.
+> 
+> There are well-defined rules for the first four on PC's.  The ttySx 
+> better match the labels the OEM put on the box.
 
-Damn.
-/me writes a patch
-/me tests and finds an obvious typo
-/me fixes and diffs fixed (and tested) version
-/me sends the original one.
+Nico's point is that there is a lot of linux beyond PCs. My LART[1] has
+three serial ports which I didn't label at all. The official SA1100
+serial driver has /dev/ttySA[0-2] allocated. Other ARM systems use
+/dev/ttyS0. Guess what happens when you want to install debian-arm on
+an SA1100 system. A serial device registry like we have for the sound
+cards would be most welcome.
 
-My apologies. Correct patch (taken between clean tree and
-result of make distclean on the tree that gave a kernel
-that passes all tests) follows. Please, apply it.
-							Al
 
-diff -urN S5-pre2/drivers/block/genhd.c linux-test/drivers/block/genhd.c
---- S5-pre2/drivers/block/genhd.c	Mon Sep 18 01:16:35 2000
-+++ linux-test/drivers/block/genhd.c	Wed May 16 05:34:24 2001
-@@ -31,7 +31,7 @@
- extern int cpqarray_init(void);
- extern void ieee1394_init(void);
- 
--void __init device_init(void)
-+int __init device_init(void)
- {
- #ifdef CONFIG_PARPORT
- 	parport_init();
-@@ -64,4 +64,7 @@
- #ifdef CONFIG_VT
- 	console_map_init();
- #endif
-+	return 0;
- }
-+
-+__initcall(device_init);
-diff -urN S5-pre2/fs/partitions/check.c linux-test/fs/partitions/check.c
---- S5-pre2/fs/partitions/check.c	Mon Feb 26 14:18:34 2001
-+++ linux-test/fs/partitions/check.c	Wed May 16 05:34:24 2001
-@@ -33,10 +33,7 @@
- #include "ibm.h"
- #include "ultrix.h"
- 
--extern void device_init(void);
- extern int *blk_size[];
--extern void rd_load(void);
--extern void initrd_load(void);
- 
- struct gendisk *gendisk_head;
- int warn_no_part = 1; /*This is ugly: should make genhd removable media aware*/
-@@ -438,19 +435,3 @@
- 		blk_size[dev->major] = dev->sizes;
- 	}
- }
--
--int __init partition_setup(void)
--{
--	device_init();
--
--#ifdef CONFIG_BLK_DEV_RAM
--#ifdef CONFIG_BLK_DEV_INITRD
--	if (initrd_start && mount_initrd) initrd_load();
--	else
--#endif
--	rd_load();
--#endif
--	return 0;
--}
--
--__initcall(partition_setup);
-diff -urN S5-pre2/init/main.c linux-test/init/main.c
---- S5-pre2/init/main.c	Wed May 16 04:25:48 2001
-+++ linux-test/init/main.c	Wed May 16 05:35:06 2001
-@@ -638,9 +638,6 @@
-  */
- static void __init do_basic_setup(void)
- {
--#ifdef CONFIG_BLK_DEV_INITRD
--	int real_root_mountflags;
--#endif
- 
- 	/*
- 	 * Tell the world that we're going to be the grim
-@@ -707,13 +704,6 @@
- 	/* Networking initialization needs a process context */ 
- 	sock_init();
- 
--#ifdef CONFIG_BLK_DEV_INITRD
--	real_root_dev = ROOT_DEV;
--	real_root_mountflags = root_mountflags;
--	if (initrd_start && mount_initrd) root_mountflags &= ~MS_RDONLY;
--	else mount_initrd =0;
--#endif
--
- 	start_context_thread();
- 	do_initcalls();
- 
-@@ -724,6 +714,34 @@
- #ifdef CONFIG_PCMCIA
- 	init_pcmcia_ds();		/* Do this last */
- #endif
-+}
-+
-+extern void rd_load(void);
-+extern void initrd_load(void);
-+
-+/*
-+ * Prepare the namespace - decide what/where to mount, load ramdisks, etc.
-+ */
-+static void prepare_namespace(void)
-+{
-+#ifdef CONFIG_BLK_DEV_INITRD
-+	int real_root_mountflags = ROOT_DEV;
-+	real_root_mountflags = root_mountflags;
-+	if (!initrd_start)
-+		mount_initrd = 0;
-+	if (mount_initrd)
-+		root_mountflags &= ~MS_RDONLY;
-+	real_root_dev = ROOT_DEV;
-+#endif
-+
-+#ifdef CONFIG_BLK_DEV_RAM
-+#ifdef CONFIG_BLK_DEV_INITRD
-+	if (mount_initrd)
-+		initrd_load();
-+	else
-+#endif
-+	rd_load();
-+#endif
- 
- 	/* Mount the root filesystem.. */
- 	mount_root();
-@@ -755,6 +773,8 @@
- {
- 	lock_kernel();
- 	do_basic_setup();
-+
-+	prepare_namespace();
- 
- 	/*
- 	 * Ok, we have completed the initial bootup, and
+Erik
 
+[1] StrongARM SA1100 embedded board, http://www.lart.tudelft.nl/
+
+-- 
+J.A.K. (Erik) Mouw, Information and Communication Theory Group, Department
+of Electrical Engineering, Faculty of Information Technology and Systems,
+Delft University of Technology, PO BOX 5031,  2600 GA Delft, The Netherlands
+Phone: +31-15-2783635  Fax: +31-15-2781843  Email: J.A.K.Mouw@its.tudelft.nl
+WWW: http://www-ict.its.tudelft.nl/~erik/

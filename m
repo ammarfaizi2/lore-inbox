@@ -1,507 +1,115 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263158AbTJYXAu (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 25 Oct 2003 19:00:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263130AbTJYXAu
+	id S262850AbTJYXSX (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 25 Oct 2003 19:18:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262861AbTJYXSX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 25 Oct 2003 19:00:50 -0400
-Received: from pop.gmx.de ([213.165.64.20]:4009 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S263158AbTJYXAT (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 25 Oct 2003 19:00:19 -0400
-X-Authenticated: #20450766
-Date: Sun, 26 Oct 2003 00:55:18 +0200 (CEST)
-From: Guennadi Liakhovetski <g.liakhovetski@gmx.de>
-To: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
-cc: Guennadi Liakhovetski <g.liakhovetski@gmx.de>,
-       <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] NLS as module
-In-Reply-To: <87d6cloaf6.fsf@devron.myhome.or.jp>
-Message-ID: <Pine.LNX.4.44.0310260049030.1490-100000@poirot.grange>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Sat, 25 Oct 2003 19:18:23 -0400
+Received: from rwcrmhc12.comcast.net ([216.148.227.85]:38554 "EHLO
+	rwcrmhc12.comcast.net") by vger.kernel.org with ESMTP
+	id S262850AbTJYXSU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 25 Oct 2003 19:18:20 -0400
+Date: Sat, 25 Oct 2003 19:17:41 -0400
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org, torvalds@osdl.org, jgarzik@pobox.com,
+       shemminger@osdl.org, netdev@oss.sgi.com
+Subject: Re: [PATCH] ibmtr_cs/ibmtr on 2.6.0-test9 - get working again
+Message-ID: <20031025231741.GA18982@siasl.dyndns.org>
+Mail-Followup-To: phillim2, Andrew Morton <akpm@osdl.org>,
+	linux-kernel@vger.kernel.org, torvalds@osdl.org, jgarzik@pobox.com,
+	shemminger@osdl.org, netdev@oss.sgi.com
+References: <20031025221435.GA18782@siasl.dyndns.org> <20031025155649.148bad99.akpm@osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20031025155649.148bad99.akpm@osdl.org>
+User-Agent: Mutt/1.3.28i
+From: Mike Phillips <phillim2@comcast.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 25 Oct 2003, OGAWA Hirofumi wrote:
+Andrew Morton may (or may not) have said:
+> >       if (!dev)
+> >   	    return NULL;
+> 
+> This return leaks the memory at `info'.
 
-> Guennadi Liakhovetski <g.liakhovetski@gmx.de> writes:
->
-> > Problem: NLS support can only be compiled in the kernel - and not as a
-> > module. And if you don't configure one of Joliet / FAT and some other
-> > filesystems at kernel compile-time, you can't compile these filesystems
-> > later as modules(*). However, I see nothing that would prevent one from
-> > compiling nls_base as a module. I tried - it worked, but I didn't actually
-> > use any of the codepages. Just tried insmod nls_base, insmod <fs>, mount.
-> > So, is it desired / really this trivial or are there some real reasons why
-> > nls_base cannot be properly done as a module? I am attaching a naive
-> > patch - but not really understanding NLS internals and not being able to
-> > extensively test it, it might be not quite correct.
->
-> Sound good to me. And I like this, but it may be more test needed
-> (i.e. module autoload etc.). So I suggest it start on development
-> tree. And backport after it.
+Ooops, so it does, bad me. Corrected patch below: 
 
-Sure. Attached is a patch against 2.6.0-test7. Looks like it's not going
-to make it into 2.6.0, but, maybe later. And I reversed the dependencies -
-looks more logical, that FAT, SMB, etc. depend on NLS, and not vise versa.
-I tested it briefly, seems to work.
 
-Guennadi
----
-Guennadi Liakhovetski
-
-diff -ur linux-2.6.0-test7/fs/Kconfig linux-2.6.0-test7.new/fs/Kconfig
---- linux-2.6.0-test7/fs/Kconfig	Thu Oct  9 22:11:31 2003
-+++ linux-2.6.0-test7.new/fs/Kconfig	Sat Oct 25 21:24:13 2003
-@@ -246,6 +246,7 @@
-
- config JFS_FS
- 	tristate "JFS filesystem support"
-+	depends on NLS
- 	help
- 	  This is a port of IBM's Journaled Filesystem .  More information is
- 	  available in the file Documentation/filesystems/jfs.txt.
-@@ -464,6 +465,8 @@
- 	  local network, you probably do not need an automounter, and can say
- 	  N here.
-
-+source "fs/nls/Kconfig"
-+
- menu "CD-ROM/DVD Filesystems"
-
- config ISO9660_FS
-@@ -484,7 +487,7 @@
-
- config JOLIET
- 	bool "Microsoft Joliet CDROM extensions"
--	depends on ISO9660_FS
-+	depends on ISO9660_FS && NLS
- 	help
- 	  Joliet is a Microsoft extension for the ISO 9660 CD-ROM file system
- 	  which allows for long filenames in unicode format (unicode is the
-@@ -530,6 +533,7 @@
-
- config FAT_FS
- 	tristate "DOS FAT fs support"
-+	depends on NLS
- 	help
- 	  If you want to use one of the FAT-based file systems (the MS-DOS,
- 	  VFAT (Windows 95) and UMSDOS (used to run Linux on top of an
-@@ -651,6 +655,7 @@
-
- config NTFS_FS
- 	tristate "NTFS file system support"
-+	depends on NLS
- 	help
- 	  NTFS is the file system of Microsoft Windows NT, 2000, XP and 2003.
-
-@@ -961,7 +966,7 @@
-
- config BEFS_FS
- 	tristate "BeOS file systemv(BeFS) support (read only) (EXPERIMENTAL)"
--	depends on EXPERIMENTAL
-+	depends on EXPERIMENTAL && NLS
- 	help
- 	  The BeOS File System (BeFS) is the native file system of Be, Inc's
- 	  BeOS. Notable features include support for arbitrary attributes
-@@ -1415,7 +1420,7 @@
-
- config SMB_FS
- 	tristate "SMB file system support (to mount Windows shares etc.)"
--	depends on INET
-+	depends on INET && NLS
- 	help
- 	  SMB (Server Message Block) is the protocol Windows for Workgroups
- 	  (WfW), Windows 95/98, Windows NT and OS/2 Lan Manager use to share
-@@ -1470,7 +1475,7 @@
-
- config CIFS
- 	tristate "CIFS support (advanced network filesystem for Samba, Window and other CIFS compliant servers)(EXPERIMENTAL)"
--	depends on INET
-+	depends on INET && NLS
- 	help
- 	  This is the client VFS module for the Common Internet File System
- 	  (CIFS) protocol which is the successor to the Server Message Block
-@@ -1585,8 +1590,6 @@
- source "fs/partitions/Kconfig"
-
- endmenu
+diff -urN -X dontdiff linux-2.6.0-test9.vanilla/drivers/net/pcmcia/ibmtr_cs.c linux-2.6.0-test9/drivers/net/pcmcia/ibmtr_cs.c
+--- linux-2.6.0-test9.vanilla/drivers/net/pcmcia/ibmtr_cs.c	2003-10-25 14:43:42.000000000 -0400
++++ linux-2.6.0-test9/drivers/net/pcmcia/ibmtr_cs.c	2003-10-25 19:01:02.000000000 -0400
+@@ -136,7 +136,7 @@
+     struct net_device	*dev;
+     dev_node_t          node;
+     window_handle_t     sram_win_handle;
+-    struct tok_info	ti;
++    struct tok_info	*ti;
+ } ibmtr_dev_t;
+ 
+ static void netdev_get_drvinfo(struct net_device *dev,
+@@ -168,14 +168,19 @@
+     DEBUG(0, "ibmtr_attach()\n");
+ 
+     /* Create new token-ring device */
+-    dev = alloc_trdev(sizeof(*info));
+-    if (!dev)
+-	    return NULL;
+-    info = dev->priv;
++    info = kmalloc(sizeof(*info), GFP_KERNEL); 
++    if (!info) return NULL;
++    memset(info,0,sizeof(*info));
++    dev = alloc_trdev(sizeof(struct tok_info));
++    if (!dev) { 
++	kfree(info); 
++	return NULL;
++    } 
+ 
+     link = &info->link;
+     link->priv = info;
 -
--source "fs/nls/Kconfig"
-
- endmenu
-
-diff -ur linux-2.6.0-test7/fs/ncpfs/Kconfig linux-2.6.0-test7.new/fs/ncpfs/Kconfig
---- linux-2.6.0-test7/fs/ncpfs/Kconfig	Sat Aug  9 06:33:21 2003
-+++ linux-2.6.0-test7.new/fs/ncpfs/Kconfig	Sat Oct 25 21:01:08 2003
-@@ -64,7 +64,7 @@
-
- config NCPFS_NLS
- 	bool "Use Native Language Support"
--	depends on NCP_FS
-+	depends on NCP_FS && NLS
- 	help
- 	  Allows you to use codepages and I/O charsets for file name
- 	  translation between the server file system and input/output. This
-diff -ur linux-2.6.0-test7/fs/nls/Kconfig linux-2.6.0-test7.new/fs/nls/Kconfig
---- linux-2.6.0-test7/fs/nls/Kconfig	Sat Aug  9 06:31:05 2003
-+++ linux-2.6.0-test7.new/fs/nls/Kconfig	Sat Oct 25 21:27:58 2003
-@@ -1,24 +1,32 @@
- #
- # Native language support configuration
- #
--# smb wants NLS
--config SMB_NLS
--	bool
--	depends on SMB_FS
--	default y
-
--# msdos and Joliet want NLS
-+menu "Native Language Support"
-+
- config NLS
--	bool
--	depends on JOLIET || FAT_FS || NTFS_FS || NCPFS_NLS || SMB_NLS || JFS_FS || CIFS || BEFS_FS
-+	tristate 'Base native language support'
- 	default y
-+	---help---
-+	  The base Native Language Support. A number of filesystems
-+	  depend on it (e.g. FAT, JOLIET, NT, BEOS filesystems), as well
-+	  as the ability of some filesystems to use native languages
-+	  (NCP, SMB).
-
-+	  If unsure, say Y.
-
--menu "Native Language Support"
--	depends on NLS
-+	  To compile this code as a module, choose M here: the module
-+	  will be called nls_base.
-+
-+# smb wants NLS
-+config SMB_NLS
-+	bool
-+	depends on SMB_FS && NLS
-+	default y
-
- config NLS_DEFAULT
- 	string "Default NLS Option"
-+	depends on NLS
- 	default "iso8859-1"
- 	---help---
- 	  The default NLS used when mounting file system. Note, that this is
-@@ -38,6 +46,7 @@
-
- config NLS_CODEPAGE_437
- 	tristate "Codepage 437 (United States, Canada)"
-+	depends on NLS
- 	help
- 	  The Microsoft FAT file system family can deal with filenames in
- 	  native language character sets. These character sets are stored
-@@ -50,6 +59,7 @@
-
- config NLS_CODEPAGE_737
- 	tristate "Codepage 737 (Greek)"
-+	depends on NLS
- 	help
- 	  The Microsoft FAT file system family can deal with filenames in
- 	  native language character sets. These character sets are stored
-@@ -62,6 +72,7 @@
-
- config NLS_CODEPAGE_775
- 	tristate "Codepage 775 (Baltic Rim)"
-+	depends on NLS
- 	help
- 	  The Microsoft FAT file system family can deal with filenames in
- 	  native language character sets. These character sets are stored
-@@ -75,6 +86,7 @@
-
- config NLS_CODEPAGE_850
- 	tristate "Codepage 850 (Europe)"
-+	depends on NLS
- 	---help---
- 	  The Microsoft FAT file system family can deal with filenames in
- 	  native language character sets. These character sets are stored in
-@@ -91,6 +103,7 @@
-
- config NLS_CODEPAGE_852
- 	tristate "Codepage 852 (Central/Eastern Europe)"
-+	depends on NLS
- 	---help---
- 	  The Microsoft FAT file system family can deal with filenames in
- 	  native language character sets. These character sets are stored in
-@@ -106,6 +119,7 @@
-
- config NLS_CODEPAGE_855
- 	tristate "Codepage 855 (Cyrillic)"
-+	depends on NLS
- 	help
- 	  The Microsoft FAT file system family can deal with filenames in
- 	  native language character sets. These character sets are stored in
-@@ -117,6 +131,7 @@
-
- config NLS_CODEPAGE_857
- 	tristate "Codepage 857 (Turkish)"
-+	depends on NLS
- 	help
- 	  The Microsoft FAT file system family can deal with filenames in
- 	  native language character sets. These character sets are stored in
-@@ -128,6 +143,7 @@
-
- config NLS_CODEPAGE_860
- 	tristate "Codepage 860 (Portuguese)"
-+	depends on NLS
- 	help
- 	  The Microsoft FAT file system family can deal with filenames in
- 	  native language character sets. These character sets are stored in
-@@ -139,6 +155,7 @@
-
- config NLS_CODEPAGE_861
- 	tristate "Codepage 861 (Icelandic)"
-+	depends on NLS
- 	help
- 	  The Microsoft FAT file system family can deal with filenames in
- 	  native language character sets. These character sets are stored in
-@@ -150,6 +167,7 @@
-
- config NLS_CODEPAGE_862
- 	tristate "Codepage 862 (Hebrew)"
-+	depends on NLS
- 	help
- 	  The Microsoft FAT file system family can deal with filenames in
- 	  native language character sets. These character sets are stored in
-@@ -161,6 +179,7 @@
-
- config NLS_CODEPAGE_863
- 	tristate "Codepage 863 (Canadian French)"
-+	depends on NLS
- 	help
- 	  The Microsoft FAT file system family can deal with filenames in
- 	  native language character sets. These character sets are stored in
-@@ -173,6 +192,7 @@
-
- config NLS_CODEPAGE_864
- 	tristate "Codepage 864 (Arabic)"
-+	depends on NLS
- 	help
- 	  The Microsoft FAT file system family can deal with filenames in
- 	  native language character sets. These character sets are stored in
-@@ -184,6 +204,7 @@
-
- config NLS_CODEPAGE_865
- 	tristate "Codepage 865 (Norwegian, Danish)"
-+	depends on NLS
- 	help
- 	  The Microsoft FAT file system family can deal with filenames in
- 	  native language character sets. These character sets are stored in
-@@ -196,6 +217,7 @@
-
- config NLS_CODEPAGE_866
- 	tristate "Codepage 866 (Cyrillic/Russian)"
-+	depends on NLS
- 	help
- 	  The Microsoft FAT file system family can deal with filenames in
- 	  native language character sets. These character sets are stored in
-@@ -208,6 +230,7 @@
-
- config NLS_CODEPAGE_869
- 	tristate "Codepage 869 (Greek)"
-+	depends on NLS
- 	help
- 	  The Microsoft FAT file system family can deal with filenames in
- 	  native language character sets. These character sets are stored in
-@@ -219,6 +242,7 @@
-
- config NLS_CODEPAGE_936
- 	tristate "Simplified Chinese charset (CP936, GB2312)"
-+	depends on NLS
- 	help
- 	  The Microsoft FAT file system family can deal with filenames in
- 	  native language character sets. These character sets are stored in
-@@ -231,6 +255,7 @@
-
- config NLS_CODEPAGE_950
- 	tristate "Traditional Chinese charset (Big5)"
-+	depends on NLS
- 	help
- 	  The Microsoft FAT file system family can deal with filenames in
- 	  native language character sets. These character sets are stored in
-@@ -243,6 +268,7 @@
-
- config NLS_CODEPAGE_932
- 	tristate "Japanese charsets (Shift-JIS, EUC-JP)"
-+	depends on NLS
- 	help
- 	  The Microsoft FAT file system family can deal with filenames in
- 	  native language character sets. These character sets are stored in
-@@ -256,6 +282,7 @@
-
- config NLS_CODEPAGE_949
- 	tristate "Korean charset (CP949, EUC-KR)"
-+	depends on NLS
- 	help
- 	  The Microsoft FAT file system family can deal with filenames in
- 	  native language character sets. These character sets are stored in
-@@ -267,6 +294,7 @@
-
- config NLS_CODEPAGE_874
- 	tristate "Thai charset (CP874, TIS-620)"
-+	depends on NLS
- 	help
- 	  The Microsoft FAT file system family can deal with filenames in
- 	  native language character sets. These character sets are stored in
-@@ -278,6 +306,7 @@
-
- config NLS_ISO8859_8
- 	tristate "Hebrew charsets (ISO-8859-8, CP1255)"
-+	depends on NLS
- 	help
- 	  If you want to display filenames with native language characters
- 	  from the Microsoft FAT file system family or from JOLIET CD-ROMs
-@@ -287,6 +316,7 @@
-
- config NLS_CODEPAGE_1250
- 	tristate "Windows CP1250 (Slavic/Central European Languages)"
-+	depends on NLS
- 	help
- 	  If you want to display filenames with native language characters
- 	  from the Microsoft FAT file system family or from JOLIET CDROMs
-@@ -298,6 +328,7 @@
-
- config NLS_CODEPAGE_1251
- 	tristate "Windows CP1251 (Bulgarian, Belarusian)"
-+	depends on NLS
- 	help
- 	  The Microsoft FAT file system family can deal with filenames in
- 	  native language character sets. These character sets are stored in
-@@ -310,6 +341,7 @@
-
- config NLS_ISO8859_1
- 	tristate "NLS ISO 8859-1  (Latin 1; Western European Languages)"
-+	depends on NLS
- 	help
- 	  If you want to display filenames with native language characters
- 	  from the Microsoft FAT file system family or from JOLIET CD-ROMs
-@@ -322,6 +354,7 @@
-
- config NLS_ISO8859_2
- 	tristate "NLS ISO 8859-2  (Latin 2; Slavic/Central European Languages)"
-+	depends on NLS
- 	help
- 	  If you want to display filenames with native language characters
- 	  from the Microsoft FAT file system family or from JOLIET CD-ROMs
-@@ -333,6 +366,7 @@
-
- config NLS_ISO8859_3
- 	tristate "NLS ISO 8859-3  (Latin 3; Esperanto, Galician, Maltese, Turkish)"
-+	depends on NLS
- 	help
- 	  If you want to display filenames with native language characters
- 	  from the Microsoft FAT file system family or from JOLIET CD-ROMs
-@@ -343,6 +377,7 @@
-
- config NLS_ISO8859_4
- 	tristate "NLS ISO 8859-4  (Latin 4; old Baltic charset)"
-+	depends on NLS
- 	help
- 	  If you want to display filenames with native language characters
- 	  from the Microsoft FAT file system family or from JOLIET CD-ROMs
-@@ -353,6 +388,7 @@
-
- config NLS_ISO8859_5
- 	tristate "NLS ISO 8859-5  (Cyrillic)"
-+	depends on NLS
- 	help
- 	  If you want to display filenames with native language characters
- 	  from the Microsoft FAT file system family or from JOLIET CD-ROMs
-@@ -364,6 +400,7 @@
-
- config NLS_ISO8859_6
- 	tristate "NLS ISO 8859-6  (Arabic)"
-+	depends on NLS
- 	help
- 	  If you want to display filenames with native language characters
- 	  from the Microsoft FAT file system family or from JOLIET CD-ROMs
-@@ -373,6 +410,7 @@
-
- config NLS_ISO8859_7
- 	tristate "NLS ISO 8859-7  (Modern Greek)"
-+	depends on NLS
- 	help
- 	  If you want to display filenames with native language characters
- 	  from the Microsoft FAT file system family or from JOLIET CD-ROMs
-@@ -382,6 +420,7 @@
-
- config NLS_ISO8859_9
- 	tristate "NLS ISO 8859-9  (Latin 5; Turkish)"
-+	depends on NLS
- 	help
- 	  If you want to display filenames with native language characters
- 	  from the Microsoft FAT file system family or from JOLIET CD-ROMs
-@@ -392,6 +431,7 @@
-
- config NLS_ISO8859_13
- 	tristate "NLS ISO 8859-13 (Latin 7; Baltic)"
-+	depends on NLS
- 	help
- 	  If you want to display filenames with native language characters
- 	  from the Microsoft FAT file system family or from JOLIET CD-ROMs
-@@ -402,6 +442,7 @@
-
- config NLS_ISO8859_14
- 	tristate "NLS ISO 8859-14 (Latin 8; Celtic)"
-+	depends on NLS
- 	help
- 	  If you want to display filenames with native language characters
- 	  from the Microsoft FAT file system family or from JOLIET CD-ROMs
-@@ -413,6 +454,7 @@
-
- config NLS_ISO8859_15
- 	tristate "NLS ISO 8859-15 (Latin 9; Western European Languages with Euro)"
-+	depends on NLS
- 	---help---
- 	  If you want to display filenames with native language characters
- 	  from the Microsoft FAT file system family or from JOLIET CD-ROMs
-@@ -429,6 +471,7 @@
-
- config NLS_KOI8_R
- 	tristate "NLS KOI8-R (Russian)"
-+	depends on NLS
- 	help
- 	  If you want to display filenames with native language characters
- 	  from the Microsoft FAT file system family or from JOLIET CD-ROMs
-@@ -438,6 +481,7 @@
-
- config NLS_KOI8_U
- 	tristate "NLS KOI8-U/RU (Ukrainian, Belarusian)"
-+	depends on NLS
- 	help
- 	  If you want to display filenames with native language characters
- 	  from the Microsoft FAT file system family or from JOLIET CD-ROMs
-@@ -447,6 +491,7 @@
-
- config NLS_UTF8
- 	tristate "NLS UTF8"
-+	depends on NLS
- 	help
- 	  If you want to display filenames with native language characters
- 	  from the Microsoft FAT file system family or from JOLIET CD-ROMs
-diff -ur linux-2.6.0-test7/fs/nls/nls_base.c linux-2.6.0-test7.new/fs/nls/nls_base.c
---- linux-2.6.0-test7/fs/nls/nls_base.c	Wed Oct  8 23:28:18 2003
-+++ linux-2.6.0-test7.new/fs/nls/nls_base.c	Sat Oct 25 21:18:54 2003
-@@ -480,7 +480,7 @@
- 	if (default_nls != NULL)
- 		return default_nls;
- 	else
--               return &default_table;
-+		return &default_table;
- }
-
- EXPORT_SYMBOL(register_nls);
-@@ -492,3 +492,5 @@
- EXPORT_SYMBOL(utf8_mbstowcs);
- EXPORT_SYMBOL(utf8_wctomb);
- EXPORT_SYMBOL(utf8_wcstombs);
-+
-+MODULE_LICENSE("Dual BSD/GPL");
-
++    info->ti = dev->priv; 
++    
+     link->io.Attributes1 = IO_DATA_PATH_WIDTH_8;
+     link->io.NumPorts1 = 4;
+     link->io.IOAddrLines = 16;
+@@ -265,6 +270,7 @@
+     *linkp = link->next;
+     unregister_netdev(dev);
+     free_netdev(dev);
++    kfree(info); 
+ } /* ibmtr_detach */
+ 
+ /*======================================================================
+diff -urN -X dontdiff linux-2.6.0-test9.vanilla/drivers/net/tokenring/ibmtr.c linux-2.6.0-test9/drivers/net/tokenring/ibmtr.c
+--- linux-2.6.0-test9.vanilla/drivers/net/tokenring/ibmtr.c	2003-10-25 14:43:58.000000000 -0400
++++ linux-2.6.0-test9/drivers/net/tokenring/ibmtr.c	2003-10-25 17:26:38.000000000 -0400
+@@ -152,7 +152,7 @@
+ 
+ /* this allows displaying full adapter information */
+ 
+-char *channel_def[] __initdata = { "ISA", "MCA", "ISA P&P" };
++char *channel_def[] __devinitdata = { "ISA", "MCA", "ISA P&P" };
+ 
+ static char pcchannelid[] __devinitdata = {
+ 	0x05, 0x00, 0x04, 0x09,
+@@ -864,7 +864,8 @@
+ 	ti->sram_virt &= ~1; /* to reverse what we do in tok_close */
+ 	/* init the spinlock */
+ 	ti->lock = (spinlock_t) SPIN_LOCK_UNLOCKED;
+-
++	init_timer(&ti->tr_timer);
++	
+ 	i = tok_init_card(dev);
+ 	if (i) return i;
+ 
+@@ -1033,7 +1034,7 @@
+ 
+ 	/* Important for PCMCIA hot unplug, otherwise, we'll pull the card, */
+ 	/* unloading the module from memory, and then if a timer pops, ouch */
+-	del_timer(&ti->tr_timer);
++	del_timer_sync(&ti->tr_timer);
+ 	outb(0, dev->base_addr + ADAPTRESET);
+ 	ti->sram_virt |= 1;
+ 	ti->open_status = CLOSED;

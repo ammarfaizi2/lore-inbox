@@ -1,36 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292838AbSB0SCI>; Wed, 27 Feb 2002 13:02:08 -0500
+	id <S292595AbSB0SSB>; Wed, 27 Feb 2002 13:18:01 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292856AbSB0SBe>; Wed, 27 Feb 2002 13:01:34 -0500
-Received: from web9204.mail.yahoo.com ([216.136.129.27]:13385 "HELO
-	web9204.mail.yahoo.com") by vger.kernel.org with SMTP
-	id <S292851AbSB0SBP>; Wed, 27 Feb 2002 13:01:15 -0500
-Message-ID: <20020227180113.61446.qmail@web9204.mail.yahoo.com>
-Date: Wed, 27 Feb 2002 10:01:13 -0800 (PST)
-From: Alex Davis <alex14641@yahoo.com>
-Subject: Re: VIA Northbridge Workaround in 2.4.18 Causing Video Problems
+	id <S292860AbSB0SRb>; Wed, 27 Feb 2002 13:17:31 -0500
+Received: from ns.caldera.de ([212.34.180.1]:45494 "EHLO ns.caldera.de")
+	by vger.kernel.org with ESMTP id <S292864AbSB0SRP>;
+	Wed, 27 Feb 2002 13:17:15 -0500
+Date: Wed, 27 Feb 2002 19:17:09 +0100
+From: Christoph Hellwig <hch@caldera.de>
 To: linux-kernel@vger.kernel.org
-MIME-Version: 1.0
+Subject: Suspicious shifting of sempid in try_atomic_semop()
+Message-ID: <20020227191709.A8247@caldera.de>
+Mail-Followup-To: Christoph Hellwig <hch@caldera.de>,
+	linux-kernel@vger.kernel.org
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+In ipc/sem.c:try_atomic_semop() there is the following code:
 
-Sounds like a perfect candidate for a kernel config option.
- 
- -Alex
- 
->> So long as I am running a kernel that includes my hack, there's no
->> problem. My main concern is that the next time that people with a system
->> like mine want to upgrade their distribution, the distribution's kernel
->> will include this workaround; those people (myself included) will then
->> have a miserable time doing the upgrade. 
+	for (sop = sops; sop < sops + nsops; sop++) {
+		...
+		curr->sempid = (curr->sempid << 16) | pid;
+		....
+	}
 
->Yes, this problem is curious since it seems to work for some/most
->people and, as Alan pointed, not for some others...
+it's undone in the error case:
 
-__________________________________________________
-Do You Yahoo!?
-Yahoo! Greetings - Send FREE e-cards for every occasion!
-http://greetings.yahoo.com
+	while (sop >= sops) {
+		...
+		curr->sempid >>= 16;
+		...
+	}
+
+the problem is that in some cases we seem to end up with a sempid
+of zero which leads to wrong returns of semctl(..., GETPID, ...)
+like in
+
+	http://www.freestandards.org/lsb/test/results/index.php?testcaseid=732
+
+Is there a specific reason we use this shift method I have missed?
+
+	Christoph
+
+-- 
+Of course it doesn't work. We've performed a software upgrade.

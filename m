@@ -1,32 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282898AbRK0K05>; Tue, 27 Nov 2001 05:26:57 -0500
+	id <S282903AbRK0K0g>; Tue, 27 Nov 2001 05:26:36 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282899AbRK0K0r>; Tue, 27 Nov 2001 05:26:47 -0500
-Received: from gateway-2.hyperlink.com ([213.52.152.2]:47373 "EHLO
-	core-gateway-1.hyperlink.com") by vger.kernel.org with ESMTP
-	id <S282898AbRK0K0a>; Tue, 27 Nov 2001 05:26:30 -0500
-Message-ID: <3511.10.119.8.1.1006856832.squirrel@extranet.jtrix.com>
-Date: Tue, 27 Nov 2001 10:27:12 -0000 (GMT)
-Subject: "spurious 8259A interrupt: IRQ7"
-From: "Martin A. Brooks" <martin@jtrix.com>
-To: <linux-kernel@vger.kernel.org>
-X-Mailer: SquirrelMail (version 1.2.0 [rc2])
+	id <S282902AbRK0K00>; Tue, 27 Nov 2001 05:26:26 -0500
+Received: from xsmtp.ethz.ch ([129.132.97.6]:34363 "EHLO xfe3.d.ethz.ch")
+	by vger.kernel.org with ESMTP id <S282898AbRK0K0K>;
+	Tue, 27 Nov 2001 05:26:10 -0500
+Message-ID: <3C036A06.9020803@debian.org>
+Date: Tue, 27 Nov 2001 11:25:10 +0100
+From: Giacomo Catenazzi <cate@debian.org>
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:0.9.4) Gecko/20011019 Netscape6/6.2
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+To: Harald Arnesen <gurre@start.no>
+CC: Anuradha Ratnaweera <anuradha@gnu.org>, "H. Peter Anvin" <hpa@zytor.com>,
+        linux-kernel@vger.kernel.org
+Subject: Re: Release Policy
+In-Reply-To: <fa.c4d6r2v.j10a8j@ifi.uio.no> <fa.h6dlovv.r28grf@ifi.uio.no>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 27 Nov 2001 10:26:09.0043 (UTC) FILETIME=[EDD44630:01C1772D]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I get this with 2.4.16 vanilla, though. IRQ 7 appears to be unassigned
-according to /proc/pci.
 
-Machine is a 1ghz Athlon on a VIA VT82C686 mobo and a DEC 21140 NIC.
 
-Any pointers appreciated.
+Harald Arnesen wrote:
 
-Regards
+> Anuradha Ratnaweera <anuradha@gnu.org> writes:
+> 
+> 
+>>How does Marcelo (or Linus or Alan, say) know that the patch
+>>_really_ came from the subsystem aintainer himself?
+>>
+> 
+> They could reject patches that came without the maintainers GPG or PGP
+> signature.
+> 
 
-Martin A. Brooks.
+Why? If the patch seem to come from a maintainer AND the quality of
+patch is ok, why to require some other 'burocratic' steps?
+
+	giacomo
+
+
 
 

@@ -1,74 +1,107 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264572AbUDWDI6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264702AbUDWDVO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264572AbUDWDI6 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 22 Apr 2004 23:08:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264667AbUDWDI6
+	id S264702AbUDWDVO (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 22 Apr 2004 23:21:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264711AbUDWDVO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 22 Apr 2004 23:08:58 -0400
-Received: from [212.247.106.42] ([212.247.106.42]:18956 "HELO emztd1218.com")
-	by vger.kernel.org with SMTP id S264572AbUDWDI4 convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 22 Apr 2004 23:08:56 -0400
-From: "Mr Moni Millat" <millat@arabia.com>
-Reply-To: monimillat@bust.com
+	Thu, 22 Apr 2004 23:21:14 -0400
+Received: from rwcrmhc13.comcast.net ([204.127.198.39]:40408 "EHLO
+	rwcrmhc13.comcast.net") by vger.kernel.org with ESMTP
+	id S264702AbUDWDVL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 22 Apr 2004 23:21:11 -0400
+Date: Thu, 22 Apr 2004 23:21:09 -0400
+From: Noel Maddy <noel@zhtwn.com>
 To: linux-kernel@vger.kernel.org
-Date: Fri, 23 Apr 2004 04:56:38 +0100
-Subject: WHAT WAR CAN DO.
-X-Mailer: Microsoft Outlook Express 5.00.2919.6900 DM
-MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Message-Id: <S264572AbUDWDI4/20040423030856Z+696@vger.kernel.org>
+Subject: IRQ21 flood on nForce2
+Message-ID: <20040423032109.GA16569@uglybox.localnet>
+Reply-To: Noel Maddy <noel@zhtwn.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.5.1+cvs20040105i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dear Friend,
+Howdy,
 
-As you read this, I don't want you to feel sorry for me, because,
-I believe everyone will die someday. My name is Moni Millat a merchant
-in Iraq, in the war I have been dengerouslly wonded.
+I'm getting over 100k interrupts/second on IRQ21 on an nForce2
+motherboard any time I have a driver using that interrupt.
 
-It has defiled all forms of medical treatment, and right now I have
-only about a few months to live, according to medical experts.
- 
-I have not particularly lived my life so well, as I never really cared
-for anyone(not even myself)but my business. Though I am very rich, 
-I was never generous, I was always hostile to people and only focused
-on my business as that was the only thing I cared for.
+Both ehci_hcd and intel_8x0 use that interrupt. When either or both
+modules are loaded, it looks like below. With no modules loaded, or with
+pci=noacpi, behavior is fine.
 
-But now I regret all this as I now know that there is more to life than just
+I've filed more detail at buzilla, including dmidecode and acpidmp
+output:
 
-wanting to have or make all the money in the world. 
+http://bugzilla.kernel.org/show_bug.cgi?id=2574
 
-I believe when God gives me a second chance to come to this world I 
-would live my life a different way from how I have lived it. Now that
- God has called me, I have willed and given most of my property and 
-assets to my immediate and extended family members as well as a few 
-close friends. 
+Seems like it'd be something with the ACPI/interrupt configuration, yes?
 
-I want God to be merciful to me and accept my soul so, I have decided 
-to give alms to charity 
-organizations, as I want this to be one of the last good deeds I do on
-earth. So far, I have distributed money to some charity organizations
-in the U.A.E, Algeria and Malaysia.
- 
-Now that my health has deteriorated so badly, I cannot do this myself
-anymore. I once asked members of my family to close one of my 
-accounts and distribute the money which I have there to charity 
-organization in Bulgaria and Pakistan, they refused and kept the money
-to themselves. Hence, I do not trust them anymore, as they seem not 
-to be contended with what I have left for them. 
+Noel
 
-The last of my money which no one knows of is the huge cash deposit 
-of fourty million dollars $40,000,000,00 that I have with a 
-finance/Security Company abroad. I will want you to help me collect 
-this deposit and dispatched it to charity organizations.
-I have set aside 10% for you and for your time.Thank you for you 
-understand .you can also reply to my private maill address
-monimillat@gawab.com
+-------------
 
-God be with you. 
+cat /proc/interrupts
+           CPU0       
+  0:     706031    IO-APIC-edge  timer
+  1:          8    IO-APIC-edge  i8042
+  2:          0          XT-PIC  cascade
+  7:          0    IO-APIC-edge  parport0
+  8:          4    IO-APIC-edge  rtc
+  9:          0   IO-APIC-level  acpi
+ 12:         50    IO-APIC-edge  i8042
+ 14:       4742    IO-APIC-edge  ide0
+ 18:          0   IO-APIC-level  EMU10K1
+ 19:          3   IO-APIC-level  Bt87x audio, bttv0
+ 20:      76147   IO-APIC-level  ohci_hcd, eth0
+ 21:  104487700   IO-APIC-level  ehci_hcd, NVidia nForce2
+ 22:          0   IO-APIC-level  ohci_hcd
+NMI:          0 
+LOC:     705958 
+ERR:          0
+MIS:          0
 
-Moni Millat
+vmstat 1 10
+procs -----------memory---------- ---swap-- -----io---- --system-- ----cpu----
+ r  b   swpd   free   buff  cache   si   so    bi    bo   in    cs us sy id wa
+ 2  0      0 396560   5804  51848    0    0    77    25 27446    46 95  1  3  1
+ 1  0      0 396560   5804  51848    0    0     0     0 117260     9 100  0  0  0
+ 1  0      0 396560   5804  51848    0    0     0     0 117333     8 100  0  0  0
+ 1  0      0 396560   5804  51848    0    0     0     0 117333     6 100  0  0  0
+ 1  0      0 396560   5804  51848    0    0     0     0 117335     8 100  0  0  0
+ 1  0      0 396560   5812  51848    0    0     0    60 117334    12 100  0  0  0
+ 1  0      0 396568   5812  51848    0    0     0     0 117335     8 100  0  0  0
+ 1  0      0 396568   5812  51848    0    0     0     0 117336    10 99  1  0  0
+ 1  0      0 396568   5812  51848    0    0     0     0 117343     6 100  0  0  0
+ 1  0      0 396568   5812  51848    0    0     0     0 117334     6 100  0  0  0
+
+cat /proc/interrupts
+           CPU0       
+  0:     715191    IO-APIC-edge  timer
+  1:          8    IO-APIC-edge  i8042
+  2:          0          XT-PIC  cascade
+  7:          0    IO-APIC-edge  parport0
+  8:          4    IO-APIC-edge  rtc
+  9:          0   IO-APIC-level  acpi
+ 12:         50    IO-APIC-edge  i8042
+ 14:       4744    IO-APIC-edge  ide0
+ 18:          0   IO-APIC-level  EMU10K1
+ 19:          3   IO-APIC-level  Bt87x audio, bttv0
+ 20:      77101   IO-APIC-level  ohci_hcd, eth0
+ 21:  105550345   IO-APIC-level  ehci_hcd, NVidia nForce2
+ 22:          0   IO-APIC-level  ohci_hcd
+NMI:          0 
+LOC:     715119 
+ERR:          0
+MIS:          0
 
 
+-- 
+In this American stoicism, all phenomena of business life however
+crooked or foolish work to the prosperity of the universe under a
+benign commercial Providence who is part the God of the Bible, and part
+pure money.
+			    -- James Buchan, Guardian Unltd, 2002-06-28
++--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+--+
+Noel Maddy <noel@zhtwn.com>

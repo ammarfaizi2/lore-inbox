@@ -1,48 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272061AbTGYNWU (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 25 Jul 2003 09:22:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272062AbTGYNWU
+	id S272066AbTGYN2d (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 25 Jul 2003 09:28:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272067AbTGYN2d
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 25 Jul 2003 09:22:20 -0400
-Received: from [65.244.37.61] ([65.244.37.61]:35774 "EHLO
-	WSPNYCON1IPC.corp.root.ipc.com") by vger.kernel.org with ESMTP
-	id S272061AbTGYNWT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 25 Jul 2003 09:22:19 -0400
-Message-ID: <170EBA504C3AD511A3FE00508BB89A920234CD5E@exnanycmbx4.ipc.com>
-From: "Downing, Thomas" <Thomas.Downing@ipc.com>
-To: "'Sancar Saran'" <saran@sim.com.tr>, Alan Cox <alan@lxorguk.ukuu.org.uk>
+	Fri, 25 Jul 2003 09:28:33 -0400
+Received: from fmr03.intel.com ([143.183.121.5]:46796 "EHLO
+	hermes.sc.intel.com") by vger.kernel.org with ESMTP id S272066AbTGYN2a
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 25 Jul 2003 09:28:30 -0400
+Message-ID: <E5DA6395B8F9614EB7A784D628184B200D9936@hdsmsx402.hd.intel.com>
+From: "Cress, Andrew R" <andrew.r.cress@intel.com>
+To: "'Tugrul Galatali'" <tugrul@galatali.com>,
+       "Justin T. Gibbs" <gibbs@scsiguy.com>
 Cc: linux-kernel@vger.kernel.org
-Subject: RE: SCO offers UnixWare licenses for Linux
-Date: Fri, 25 Jul 2003 09:37:05 -0400
+Subject: RE: 2.6.0-test1 Adaptec aic7899 Ultra160 SCSI grief
+Date: Fri, 25 Jul 2003 06:43:36 -0700
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2650.21)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> -----Original Message-----
-> From: Sancar Saran [mailto:saran@sim.com.tr]
-> Sent: Friday, July 25, 2003 7:44 AM
+Tugrul,
 
-> > #1 The whole thing is without merit (as it seems to be now)
-> > #2 IBM did it and have to buy SCO (because everyone will 
-> sue IBM, every
-> > Linux developer, every business, every user)
-> > #3 SCO gets bankrupted by countersuits (popular US approach to law)
-> >
-> 
-> It look like good plan, and my question is not answered. Are 
-> distro makers  
-> safe in these time line? What if Red Hat goes bankrupt before the SCO 
-> falldown.
-> 
+If it is a firmware problem, the firmware is upgradable, but you have to get
+the firmware from IBM rather than Seagate.  IBM has special firmware for
+their ST (Seagate) OEM'd disks.
 
-I hope someone does take action, SCO vs. IBM doesn't come to trial
-till April 11, 2005.  A lot of damage could be done in that time,
-assuming some other event (like an acquisition) doesn't obviate
-the whole mess.
+You can use the IBM utility (runs from a CD in DOS), or the sgdskfl utility
+under Linux from scsirastools.sf.net.
 
-To date, the only thing I've seen is:
-www.theregister.co.uk/content/61/31910.html
+But do verify the SCSI cabling/termination first.
+
+Andy
+
+-----Original Message-----
+From: Tugrul Galatali [mailto:tugrul@galatali.com] 
+Sent: Thursday, July 24, 2003 9:02 PM
+To: Justin T. Gibbs
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.0-test1 Adaptec aic7899 Ultra160 SCSI grief
+
+
+[... snip ...]
+
+	If it turns out to be a firmware problem, is the firmware
+upgradeable
+or do I have to buy a new drive, in which case is there a blacklist?
+
+	Tugrul Galatali
+

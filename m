@@ -1,63 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266933AbSKLU3W>; Tue, 12 Nov 2002 15:29:22 -0500
+	id <S266936AbSKLUbu>; Tue, 12 Nov 2002 15:31:50 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266931AbSKLU3W>; Tue, 12 Nov 2002 15:29:22 -0500
-Received: from webmail.topspin.com ([12.162.17.3]:24705 "EHLO
-	exch-1.topspincom.com") by vger.kernel.org with ESMTP
-	id <S266933AbSKLU3U>; Tue, 12 Nov 2002 15:29:20 -0500
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: "David S. Miller" <davem@redhat.com>,
+	id <S266939AbSKLUbu>; Tue, 12 Nov 2002 15:31:50 -0500
+Received: from server.s8.com ([66.77.12.139]:51212 "EHLO server.s8.com")
+	by vger.kernel.org with ESMTP id <S266936AbSKLUbt>;
+	Tue, 12 Nov 2002 15:31:49 -0500
+Subject: GA-7VRXP is a bad motherboard [was Re: PDC20276 Linux driver]
+From: "Bryan O'Sullivan" <bos@serpentine.com>
+To: Geoffrey Lee <glee@gnupilgrims.org>
+Cc: ricci@trinityteam.it, Alan Cox <alan@lxorguk.ukuu.org.uk>,
        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] [RFC] increase MAX_ADDR_LEN
-References: <Pine.LNX.4.44.0211111808240.1236-100000@localhost.localdomain>
-	<20021111.151929.31543489.davem@redhat.com>
-	<52r8drn0jk.fsf_-_@topspin.com>
-	<20021111.153845.69968013.davem@redhat.com>
-	<1037060322.2887.76.camel@irongate.swansea.linux.org.uk>
-	<52isz3mza0.fsf@topspin.com>
-	<1037111029.8321.12.camel@irongate.swansea.linux.org.uk>
-	<521y5qn7l5.fsf@topspin.com>
-	<1037116836.8500.55.camel@irongate.swansea.linux.org.uk>
-X-Message-Flag: Warning: May contain useful information
-X-Priority: 1
-X-MSMail-Priority: High
-From: Roland Dreier <roland@topspin.com>
-Date: 12 Nov 2002 12:36:10 -0800
-In-Reply-To: <1037116836.8500.55.camel@irongate.swansea.linux.org.uk>
-Message-ID: <52adkele4l.fsf@topspin.com>
-User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.4 (Common Lisp)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-2022-jp
-X-OriginalArrivalTime: 12 Nov 2002 20:36:06.0234 (UTC) FILETIME=[2008F3A0:01C28A8B]
+In-Reply-To: <20021112165309.GB12789@anakin.wychk.org>
+References: <1037117166.8313.61.camel@irongate.swansea.linux.org.uk>
+	<Pine.LNX.4.21.0211121649360.9631-100000@esentar.trinityteam.it> 
+	<20021112165309.GB12789@anakin.wychk.org>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 
+Date: 12 Nov 2002 12:38:30 -0800
+Message-Id: <1037133511.7047.12.camel@plokta.s8.com>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> "Alan" == Alan Cox <alan@lxorguk.ukuu.org.uk> writes:
+On Tue, 2002-11-12 at 08:53, Geoffrey Lee wrote:
 
-    Alan> 1. Increase MAX_ADDR_LEN 2. Add some new address setting
-    Alan> ioctls, and ensure the old ones keep the old address length
-    Alan> limit. That is needed because the old caller wont have
-    Alan> allocated enough address space for a 20 byte address return.
+> Board is a Gigabyte GA-7VRXP which has an on-board Promise 20276.
 
-Thanks to YOSHIFUJI Hideaki / 吉藤英明, I had a look at rtnetlink.  It
-seems like we would get the necessary address setting functionality if
-I implemented the following:
+The GA-7VRXP is a known bad motherboard.  It has a bad electrical
+interface to the AGP slot, so if you're using an AGP graphics card
+without falling back to PCI access, you are pretty much guaranteed
+system hangs or crashes after some time, depending on load.
 
-  1. Add an RTM_SETLINK message type that handles at least the
-     IFLA_ADDRESS attribute.  This would replace SIOCSIFHWADDR for
-     interfaces with long hardware addresses.
+This is an issue I confirmed with AMD several (six?) months ago.  I
+don't know of any workarounds that maintain decent graphics performance,
+and last I checked, Gigabyte had not acknowledged the problem.
 
-  2. Add code to handle receiving RTM_NEWNEIGH and RTM_DELNEIGH
-     messages from user space.  This would replace SIOCSARP and
-     SIOCDARP for interfaces with long hardware addresses.
+Either drop your video card back to not using AGP, or buy a replacement
+motherboard.
 
-Dave, Alan, if I wrote a patch to do this would you accept it?  (And
-following that increase MAX_ADDR_LEN?)
+	<b
 
-(By the way the original patch I posted added code to the
-SIOCSIFHWADDR/SIOCGIFHWADDR handler to prevent a long hardware address
-from overrunning the ifr_data member that user space passed in)
-
-Thanks,
-  Roland

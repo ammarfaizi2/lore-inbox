@@ -1,83 +1,104 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280814AbRLGNah>; Fri, 7 Dec 2001 08:30:37 -0500
+	id <S280971AbRLGNcU>; Fri, 7 Dec 2001 08:32:20 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281009AbRLGNa2>; Fri, 7 Dec 2001 08:30:28 -0500
-Received: from web13905.mail.yahoo.com ([216.136.175.68]:31753 "HELO
-	web13905.mail.yahoo.com") by vger.kernel.org with SMTP
-	id <S280814AbRLGNaU>; Fri, 7 Dec 2001 08:30:20 -0500
-Message-ID: <20011207133020.41163.qmail@web13905.mail.yahoo.com>
-Date: Fri, 7 Dec 2001 05:30:20 -0800 (PST)
-From: Jorge Carminati <jcarminati@yahoo.com>
-Subject: Re: Kernel freezing....
-To: linux-kernel@vger.kernel.org
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S281009AbRLGNcB>; Fri, 7 Dec 2001 08:32:01 -0500
+Received: from mail.2d3d.co.za ([196.14.185.200]:26830 "HELO mail.2d3d.co.za")
+	by vger.kernel.org with SMTP id <S280971AbRLGNbm>;
+	Fri, 7 Dec 2001 08:31:42 -0500
+Date: Fri, 7 Dec 2001 15:34:44 +0200
+From: Abraham vd Merwe <abraham@2d3d.co.za>
+To: DRI Development <dri-devel@lists.sourceforge.net>,
+        Linux Kernel Development <linux-kernel@vger.kernel.org>
+Subject: agpgart & i810 & agp_bridge.gatt_table question
+Message-ID: <20011207153444.A6996@crystal.2d3d.co.za>
+Mail-Followup-To: Abraham vd Merwe <abraham@2d3d.co.za>,
+	DRI Development <dri-devel@lists.sourceforge.net>,
+	Linux Kernel Development <linux-kernel@vger.kernel.org>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="AhhlLboLdkugWU4S"
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+Organization: 2d3D, Inc.
+X-Operating-System: Debian GNU/Linux crystal 2.4.16 i686
+X-GPG-Public-Key: http://oasis.blio.net/pgpkeys/keys/2d3d.gpg
+X-Uptime: 3:20pm  up 8 days, 8 min, 11 users,  load average: 0.00, 0.01, 0.00
+X-Edited-With-Muttmode: muttmail.sl - 2001-06-06
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+
+--AhhlLboLdkugWU4S
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
+
 Hi!
 
-Well, I have some news regarding my case. 
+What is agp_bridge.gatt_table used for on the Intel 810 series?
 
-Brief for the impatient: IMHO it's a kernel bug.
+Looking at agpgart_be.c, it seems either 64k or 32k is allocated (depending
+on the value of MISCC register) and all the entries is set to the scratch
+page for i810, but that gatt table is never used except in
+intel_i810_insert_entries() where we have this check:
 
-7pm: I arrived home from work; as suggested by Alan I ran memtest86
-(v.2.8). I let it make two passes as to have a first impression. NO
-memory error was found. It took ~24 minutes for each pass (240 Mb total
-(256Mb - 16Mb used for video card)). Meanwhile I was compiling in my
-Mandrake workstation a kernel optimized for i386 as suggested by
-François Cami.
+------------< snip <------< snip <------< snip <------------
+    for (j =3D pg_start; j < (pg_start + mem->page_count); j++) {
+        if (!PGE_EMPTY(agp_bridge.gatt_table[j])) {
+            return -EBUSY;
+        }
+------------< snip <------< snip <------< snip <------------
+	=09
+!PGE_EMPTY roughly translates to agp_bridge.gatt_table[j] &&
+agp_bridge.gatt_table[j] !=3D agp_bridge.scratch_page.
 
-7.50pm: I spent a couple of minutes repairing with fsck my ext3
-partition; had a lot of freezes the previous day.
+Of course, this is always true, so we'll never return EBUSY there, but the
+whole thing is silly because we're wasting precious 64k/32k physical
+contigious ram and valuable CPU time for this useless check...
 
-8pm: I ftped the kernel to the notebook (first attempt failed; kernel
-froze again (Red Hat's default kernel) second attempt was ok). Rebooted
-and logged in in init 1. I typed some commands, and later started X
-Window, no freeze. Next I launched lot of applications, just to try a
-very basic memory stress. I started to enjoy Linux in my notebook.
-After an uptime of 1:40 hour I decided to switch to the next kernel
-optimized version: i486.
+The other odd thing I noticed is that this gatt_table is initialized in
+agp_backend_initialize(). Look at the 'if (agp_bridge.create_gatt_table()) =
+{'
+line in that function. For i810 this translates to
+agp_generic_create_gatt_table(), which goes and queries
+agp_bridge.current_size.
 
-9.40pm: Booted i486 kernel. Made some basic tests, played with XFree86,
-while at the same time for first time I was compiling a newer kernel
-using this notebook (using Red Hat's 7.2 default gcc, etc). This newer
-kernel was optimized for 586/K5. Rebooted after an uptime of 30 min
-without a freeze.
+The problem is that at that stage agp_bridge.current is not initialized yet,
+so we're going to get bogus sizes. (Note: this doesn't only go for i810, but
+for any chipset that uses agp_generic_create_gatt_table and doesn't have a
+size type LVL2_APER_SIZE (for which that function doesn't work))
 
-10:15pm: Played a lot with this new kernel for almost 1:30 hour, no
-freeze suffered. 
+--=20
 
-Last thing I did was to compile again a newer kernel for the next cpu
-type (I think it´s named "Pentium Standard" or something similar). I´ll
-test probably on saturday this kernel as I went to sleep.
+Regards
+ Abraham
 
-In all the cases the compiled kernel had set exactly the same options,
-**just changed the cpu optimization type**. Kernel version 2.4.16.
+Experience is what you get when you were expecting something else.
 
-I was thinking, as suggested by Alan, to ran memtest86 all night long,
-but as didn't suffered in 4 hours a freeze, I discarded this idea.
+__________________________________________________________
+ Abraham vd Merwe - 2d3D, Inc.
+
+ Device Driver Development, Outsourcing, Embedded Systems
+
+  Cell: +27 82 565 4451         Snailmail:
+   Tel: +27 21 761 7549            Block C, Antree Park
+   Fax: +27 21 761 7648            Doncaster Road
+ Email: abraham@2d3d.co.za         Kenilworth, 7700
+  Http: http://www.2d3d.com        South Africa
 
 
-Conclusion: IMHO it´s a kernel bug. The same .config optimized for AMD
-freezes, and Red Hat's default kernel does the same. Luckily for my
-investment it´s not a memory bug.
+--AhhlLboLdkugWU4S
+Content-Type: application/pgp-signature
+Content-Disposition: inline
 
-I'll investigate when this bug is introduced playing with the cpu
-optimization setting. I'll post my results probably next monday. 
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.4 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
 
-If anyone has any kind of suggestion or want me to test something in
-particular please let me know.
+iD8DBQE8EMV0zNXhP0RCUqMRAhpgAKCOtAjYEpzh4gKHmpcyxb+4+D3ihwCfQ23N
+eViqUicZqGhafEP1T5UdiwU=
+=zBFA
+-----END PGP SIGNATURE-----
 
-* PLEASE cc to jcarminati@yahoo.com for any answer. I'm not subscribed.
-*
-
-Kind regards and thanks again.
-Jorge Carminati.
-jcarminati@yahoo.com
-
-__________________________________________________
-Do You Yahoo!?
-Send your FREE holiday greetings online!
-http://greetings.yahoo.com
+--AhhlLboLdkugWU4S--

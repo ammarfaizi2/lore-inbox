@@ -1,56 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129464AbQLGCt3>; Wed, 6 Dec 2000 21:49:29 -0500
+	id <S129636AbQLGC7K>; Wed, 6 Dec 2000 21:59:10 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129688AbQLGCtS>; Wed, 6 Dec 2000 21:49:18 -0500
-Received: from vger.timpanogas.org ([207.109.151.240]:2831 "EHLO
-	vger.timpanogas.org") by vger.kernel.org with ESMTP
-	id <S129464AbQLGCtC>; Wed, 6 Dec 2000 21:49:02 -0500
-Date: Wed, 6 Dec 2000 20:14:36 -0700
-From: "Jeff V. Merkey" <jmerkey@vger.timpanogas.org>
-To: linux-kernel@vger.kernel.org
-Cc: jmerkey@timpanogas.org
-Subject: Re: 2.2.18-24 intermittent PS/2 mouse problems
-Message-ID: <20001206201436.A15470@vger.timpanogas.org>
-In-Reply-To: <20001206201019.A15457@vger.timpanogas.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 1.0.1i
-In-Reply-To: <20001206201019.A15457@vger.timpanogas.org>; from jmerkey@vger.timpanogas.org on Wed, Dec 06, 2000 at 08:10:19PM -0700
+	id <S129640AbQLGC7A>; Wed, 6 Dec 2000 21:59:00 -0500
+Received: from neon-gw.transmeta.com ([209.10.217.66]:523 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S129636AbQLGC6v>; Wed, 6 Dec 2000 21:58:51 -0500
+Date: Wed, 6 Dec 2000 18:27:56 -0800 (PST)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Miles Lane <miles@megapathdsl.net>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: The horrible hack from hell called A20
+In-Reply-To: <3A2EBF17.9010509@megapathdsl.net>
+Message-ID: <Pine.LNX.4.10.10012061814020.7391-100000@penguin.transmeta.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Dec 06, 2000 at 08:10:19PM -0700, Jeff V. Merkey wrote:
-> 
-> 
-> Alan,
-> 
-> I am still seeing intermittent mouse problems with a PS2 mouse on a 
-> 4 x PPro box with 2.2.18-24.  When the system is first powered up, 
-> the mouse detection is working great.  If I reboot the machine without
-> powering it down, about 1 in 3 times I do this, the next kernel load
-> fails to detect the mouse.  I have not looked at the driver to see
-> what state the Mouse port is in, but could.  
-> 
-> Is there something I could do to help you debug this problem (i.e.
-> is there somewhere in the kernel code I should put in some 
-> sanity checking to see if the mouse is being left in a good state.
-> 
-> Powering down the machine makes the problem go away.  Does not happen
-> on 2.4.0-12, BTW, just 2.2.18-24.
-> 
-> Jeff
 
 
-Alan,
+On Wed, 6 Dec 2000, Miles Lane wrote:
+> 
+> Here is what goes wrong:
+> 
+> Dec  6 04:21:32 agate kernel: eth0: Host error, FIFO diagnostic register  0000.
 
-One more thing.  I was able to reproduce it once during an initial powerup
-sequence by putzing with the mouse buttons while the auto-detection was going
-on (generating interrupts?).  I am wondering if the problem in in the way 
-interrupts are being handled for the mouse.  If I leave the mouse alone 
-it seems to get autodetected properly.
+But it continues to work, right?
 
-Jeff
+I bet that your ethernet card is just unhappy that it couldn't get DMA in
+time, because the bus was so busy. Many of the busmastering ethernet
+devices will start the packet send early, happy in the knowledge that
+they'll usually have plenty of time to DMA the data by the time they need
+it.
+
+This works fine most of the time, but if you have a busy PCI bus and
+you're doing things over a (potentially slow) PCI bridge like the Cardbus
+bridge, you're taking chances. And sometimes those chances do not work out
+ok.. Especially if you have slow memory, which most laptops have.
+
+I suspect that the worst result of this is just a noisy driver: both on
+the network (runt packets) and on the console. And it obviously will cause
+performance to suffer too, due to retransmitting packets that failed,
+and/or losing packets.
+
+There may be some rule for the threshold for sending packets or something
+else to make this happen less, so this is probably tweakable. But it
+doesn't sound deadly (unless the driver causes this to result in a dead
+network - does it?)
+
+		Linus
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

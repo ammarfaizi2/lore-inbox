@@ -1,45 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261870AbSJJRpk>; Thu, 10 Oct 2002 13:45:40 -0400
+	id <S261852AbSJJRo4>; Thu, 10 Oct 2002 13:44:56 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261861AbSJJRpk>; Thu, 10 Oct 2002 13:45:40 -0400
-Received: from pasmtp.tele.dk ([193.162.159.95]:64017 "EHLO pasmtp.tele.dk")
-	by vger.kernel.org with ESMTP id <S261870AbSJJRpj>;
-	Thu, 10 Oct 2002 13:45:39 -0400
-Date: Thu, 10 Oct 2002 19:51:23 +0200
-From: Sam Ravnborg <sam@ravnborg.org>
-To: Jeff Garzik <jgarzik@pobox.com>
-Cc: Sam Ravnborg <sam@ravnborg.org>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       kbuild-devel <kbuild-devel@lists.sourceforge.net>
-Subject: Re: linux kernel conf 0.8
-Message-ID: <20021010195123.A13678@mars.ravnborg.org>
-Mail-Followup-To: Jeff Garzik <jgarzik@pobox.com>,
-	Sam Ravnborg <sam@ravnborg.org>,
-	linux-kernel <linux-kernel@vger.kernel.org>,
-	kbuild-devel <kbuild-devel@lists.sourceforge.net>
-References: <Pine.LNX.4.44.0210100035210.338-100000@serv> <3DA58C1E.3090102@pobox.com> <20021010192924.A13618@mars.ravnborg.org> <3DA5B99B.5080707@pobox.com>
+	id <S261861AbSJJRo4>; Thu, 10 Oct 2002 13:44:56 -0400
+Received: from netrealtor.ca ([216.209.85.42]:39689 "EHLO mark.mielke.cc")
+	by vger.kernel.org with ESMTP id <S261852AbSJJRoz>;
+	Thu, 10 Oct 2002 13:44:55 -0400
+Date: Thu, 10 Oct 2002 13:50:43 -0400
+From: Mark Mielke <mark@mark.mielke.cc>
+To: Helge Hafting <helgehaf@aitel.hist.no>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] O_STREAMING - flag for optimal streaming I/O
+Message-ID: <20021010175043.GA16962@mark.mielke.cc>
+References: <1034104637.29468.1483.camel@phantasy> <XFMail.20021009103325.pochini@shiny.it> <20021009170517.GA5608@mark.mielke.cc> <3DA4852B.7CC89C09@denise.shiny.it> <20021009222438.GD5608@mark.mielke.cc> <20021009232002.GC2654@bjl1.asuk.net> <20021010030736.GA8805@mark.mielke.cc> <3DA55C8C.760584EE@aitel.hist.no>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <3DA5B99B.5080707@pobox.com>; from jgarzik@pobox.com on Thu, Oct 10, 2002 at 01:32:11PM -0400
+In-Reply-To: <3DA55C8C.760584EE@aitel.hist.no>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Oct 10, 2002 at 01:32:11PM -0400, Jeff Garzik wrote:
-> The kernel is written for people with a clue.  For people without a 
-> clue, they should use a vendor kernel or ESR's Aunt-Tillie-friendly system.
-> 
-> Dumbing-down the kernel is never the right answer.
+On Thu, Oct 10, 2002 at 12:55:08PM +0200, Helge Hafting wrote:
+> Mark Mielke wrote:
+> > I might be wrong, but it seems to me that O_STREAMING isn't the answer
+> > to everything. The primary benefactors of O_STREAMING would be
+> > applications that read very large files that do not fit into RAM, from
+> > start to finish.
+> It don't have to be a file that don't fit into RAM.  Remember, other
+> running apps wants memory and cache too, so the "fair share" of memory
+> for _this_ process is much smaller than all of RAM.
+> So, O_STREAMING makes sense for all files where we know that we're going
+> sequentially and that caching this for long won't help. 
+> (Because the contents likely will be pushed out before we need
+> them again anyway (DVD case) or we know were going to delete
+> the file, or we simply don't want to push anything else
+> out even if we could cache this.)
 
-Well I'm not talking about dumbing-down the kernel. What I'm talking about
-is to keep existing functionality.
-For sure the kernel is made for people with a clue, but still people
-with a clue sometimes makes stupid mistakes.
+Then perhaps O_STREAMING should be called O_EXTENDEDSTREAMING.
 
-A build system that catches obvious stupid mistakes is IMHO a good thing.
-But it shall not that for any cost, and the normal incremental build
-shall continue to be as fast as possible.
+If you overload O_STREAMING to contain all possibile uses for sequential
+reads, you end up hurting yourself.
 
-	Sam
+Small files are different beasts from large files. If you want O_STREAMING
+to work in all cases, you really want standard mode to work in all cases,
+and O_STREAMING is not for you.
+
+mark
+
+-- 
+mark@mielke.cc/markm@ncf.ca/markm@nortelnetworks.com __________________________
+.  .  _  ._  . .   .__    .  . ._. .__ .   . . .__  | Neighbourhood Coder
+|\/| |_| |_| |/    |_     |\/|  |  |_  |   |/  |_   | 
+|  | | | | \ | \   |__ .  |  | .|. |__ |__ | \ |__  | Ottawa, Ontario, Canada
+
+  One ring to rule them all, one ring to find them, one ring to bring them all
+                       and in the darkness bind them...
+
+                           http://mark.mielke.cc/
+

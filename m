@@ -1,40 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316892AbSFWAC0>; Sat, 22 Jun 2002 20:02:26 -0400
+	id <S316893AbSFWAsP>; Sat, 22 Jun 2002 20:48:15 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316893AbSFWACZ>; Sat, 22 Jun 2002 20:02:25 -0400
-Received: from [213.23.21.195] ([213.23.21.195]:3776 "EHLO starship")
-	by vger.kernel.org with ESMTP id <S316892AbSFWACZ>;
-	Sat, 22 Jun 2002 20:02:25 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Daniel Phillips <phillips@arcor.de>
-To: Andreas Dilger <adilger@clusterfs.com>
-Subject: Re: [Ext2-devel] Re: Shrinking ext3 directories
-Date: Sun, 23 Jun 2002 02:01:41 +0200
-X-Mailer: KMail [version 1.3.2]
-Cc: "Stephen C. Tweedie" <sct@redhat.com>, Andrew Morton <akpm@zip.com.au>,
-       Christopher Li <chrisl@gnuchina.org>,
-       Linux-kernel <linux-kernel@vger.kernel.org>,
-       ext2-devel@lists.sourceforge.net
-References: <20020619113734.D2658@redhat.com> <20020622055318.GA22411@clusterfs.com> <E17Lryk-0002zF-00@starship>
-In-Reply-To: <E17Lryk-0002zF-00@starship>
+	id <S316895AbSFWAsO>; Sat, 22 Jun 2002 20:48:14 -0400
+Received: from khms.westfalen.de ([62.153.201.243]:60563 "EHLO
+	khms.westfalen.de") by vger.kernel.org with ESMTP
+	id <S316893AbSFWAsN>; Sat, 22 Jun 2002 20:48:13 -0400
+Date: 22 Jun 2002 16:14:00 +0200
+From: kaih@khms.westfalen.de (Kai Henningsen)
+To: linux-kernel@vger.kernel.org
+Message-ID: <8RNRaGQmw-B@khms.westfalen.de>
+In-Reply-To: <3D11F7B9.27C74922@storm.ca>
+Subject: Re: McVoy's Clusters (was Re: latest linus-2.5 BK broken)
+X-Mailer: CrossPoint v3.12d.kh9 R/C435
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <E17Lup3-0003O4-00@starship>
+Content-Type: text/plain; charset=us-ascii
+Organization: Organisation? Me?! Are you kidding?
+References: <3D11F7B9.27C74922@storm.ca>
+X-No-Junk-Mail: I do not want to get *any* junk mail.
+Comment: Unsolicited commercial mail will incur an US$100 handling fee per received mail.
+X-Fix-Your-Modem: +++ATS2=255&WO1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Saturday 22 June 2002 22:59, Daniel Phillips wrote:
-> ... The directory started at 385024 bytes (38.5 bytes/entry 
-> and grew a block after about 300 steady state remove/create cycles.   Another 
-> block was added around 500 cycles.  It's up to 1100 cycles now, and hasn't 
-> added another block.  It sort of looks like the expansion is getting slower.  
-> This is with dx_hack_hash.  I'll let it run overnight to get a feeling of how 
-> urgent the steady-state problem is.
+pashley@storm.ca (Sandy Harris)  wrote on 20.06.02 in <3D11F7B9.27C74922@storm.ca>:
 
-And now it's up to 5500 cycles, and still hasn't added another block.
-Empirically, we're seeing a very steep falloff in the expansion rate,
-though I'll readily admit the testing is far from sufficient.
+> For large multi-processor systems, it isn't clear that those matter
+> much. On single user systems I've tried , ps -ax | wc -l usually
+> gives some number 50 < n < 100. For a multi-user general purpose
 
--- 
-Daniel
+156 here right now, and I'd call that a light load. On a
+
+processor	: 0
+vendor_id	: AuthenticAMD
+cpu family	: 5
+model		: 8
+model name	: AMD-K6(tm) 3D processor
+stepping	: 12
+cpu MHz		: 350.818
+
+with 768 MB - not the fastest machine around.
+
+
+MfG Kai

@@ -1,36 +1,88 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317517AbSH1AVg>; Tue, 27 Aug 2002 20:21:36 -0400
+	id <S317482AbSH1AVH>; Tue, 27 Aug 2002 20:21:07 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318009AbSH1AVg>; Tue, 27 Aug 2002 20:21:36 -0400
-Received: from dsl-213-023-020-028.arcor-ip.net ([213.23.20.28]:3269 "EHLO
-	starship") by vger.kernel.org with ESMTP id <S317517AbSH1AVf>;
-	Tue, 27 Aug 2002 20:21:35 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Daniel Phillips <phillips@arcor.de>
-To: "chen, xiangping" <chen_xiangping@emc.com>,
-       "'Alan Cox'" <alan@lxorguk.ukuu.org.uk>
-Subject: Re: Is it possible to use 8K page size on a i386 pc?
-Date: Wed, 28 Aug 2002 02:27:35 +0200
-X-Mailer: KMail [version 1.3.2]
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <FA2F59D0E55B4B4892EA076FF8704F550207819D@srgraham.eng.emc.com>
-In-Reply-To: <FA2F59D0E55B4B4892EA076FF8704F550207819D@srgraham.eng.emc.com>
+	id <S317517AbSH1AVH>; Tue, 27 Aug 2002 20:21:07 -0400
+Received: from adsl-67-117-146-62.dsl.snfc21.pacbell.net ([67.117.146.62]:27397
+	"EHLO localhost") by vger.kernel.org with ESMTP id <S317482AbSH1AVG>;
+	Tue, 27 Aug 2002 20:21:06 -0400
+From: "Stephen C. Biggs" <s.biggs@softier.com>
+To: linux-kernel@vger.kernel.org
+Date: Tue, 27 Aug 2002 17:25:17 -0700
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <E17jqgJ-0002jY-00@starship>
+Subject: Bug in kernel code?
+Message-ID: <3D6BB5FD.16049.2F324B@localhost>
+X-mailer: Pegasus Mail for Windows (v4.02)
+Content-type: text/plain; charset=US-ASCII
+Content-transfer-encoding: 7BIT
+Content-description: Mail message body
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 27 August 2002 20:50, chen, xiangping wrote:
-> Hi,
-> 
-> I just wonder how PAGE_SIZE in determined in each architecture? Is it
-> possible to use 8k or bigger page size in a i386 PC?
+I posted this to the newsgroup news:linux-kernel but got no response... 
+I'll try here.
 
-Hi,
+While going thru the kernel code for 2.4.17 (uClinux patch) I noticed a 
+problem with functions in 3 files:
+dcache_init in fs/dcache.c, inode_init in fs/inode.c and in mnt_init in 
+fs/namespace.c
 
-It's possible, but we haven't gotten around to implementing it yet ;-)
+At least on my Redhat 7.3 2.4.18-10 source, in the function
 
--- 
-Daniel
+static void __init dcache_init(unsigned long mempages)
+{
+	struct list_head *d;
+	unsigned long order;
+	unsigned int nr_hash;
+	int i;
+
+	/* 
+	 * A constructor could be added for stable state like the lists,
+	 * but it is probably not worth it because of the cache nature
+	 * of the dcache. 
+	 * If fragmentation is too bad then the SLAB_HWCACHE_ALIGN
+	 * flag could be removed here, to hint to the allocator that
+	 * it should not try to get multiple page regions.  
+	 */
+	dentry_cache = kmem_cache_create("dentry_cache",
+					 sizeof(struct dentry),
+					 0,
+					 SLAB_HWCACHE_ALIGN,
+					 NULL, NULL);
+	if (!dentry_cache)
+		panic("Cannot create dentry cache");
+
+#if PAGE_SHIFT < 13
+	mempages >>= (13 - PAGE_SHIFT);
+#endif
+	mempages *= sizeof(struct list_head);
+	for (order = 0; ((1UL << order) << PAGE_SHIFT) < mempages; order++)
+		;
+
+	do {
+		u32 tmp;
+
+		nr_hash = (1UL << order) * PAGE_SIZE /
+			sizeof(struct list_head);
+		d_hash_mask = (nr_hash - 1);
+
+		tmp = nr_hash;
+		d_hash_shift = 0;
+		while ((tmp >>= 1UL) != 0UL)
+			d_hash_shift++;
+
+		dentry_hashtable = (struct list_head *)
+			__get_free_pages(GFP_ATOMIC, order);
+	} while (dentry_hashtable == NULL && --order >= 0);
+
+
+........... Notice the --order >=0 in the do while test... since order 
+is declared as an unsigned long, this test is a pointless comparison and 
+never fails, causing an infinite loop if the hashtable is empty.  
+
+My fix to this is to change the test to have
+while (dentry_hashtable == NULL && order-- != 0);
+
+Could someone check me on this?
+
+

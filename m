@@ -1,63 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319384AbSIFUrx>; Fri, 6 Sep 2002 16:47:53 -0400
+	id <S319388AbSIFUwG>; Fri, 6 Sep 2002 16:52:06 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319385AbSIFUrx>; Fri, 6 Sep 2002 16:47:53 -0400
-Received: from w089.z209220022.nyc-ny.dsl.cnc.net ([209.220.22.89]:5128 "HELO
-	yucs.org") by vger.kernel.org with SMTP id <S319384AbSIFUrw>;
-	Fri, 6 Sep 2002 16:47:52 -0400
-Subject: Re: virtual ethernet adapter?
-From: Shaya Potter <spotter@cs.columbia.edu>
-To: Peter Svensson <petersv@psv.nu>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.44.0209061450080.1994-100000@cheetah.psv.nu>
-References: <Pine.LNX.4.44.0209061450080.1994-100000@cheetah.psv.nu>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 
-Date: 06 Sep 2002 16:49:14 -0400
-Message-Id: <1031345355.8367.12.camel@zaphod>
+	id <S319392AbSIFUwF>; Fri, 6 Sep 2002 16:52:05 -0400
+Received: from [195.39.17.254] ([195.39.17.254]:7808 "EHLO Elf.ucw.cz")
+	by vger.kernel.org with ESMTP id <S319388AbSIFUwE>;
+	Fri, 6 Sep 2002 16:52:04 -0400
+Date: Fri, 6 Sep 2002 10:09:33 +0000
+From: Pavel Machek <pavel@suse.cz>
+To: Lars Marowsky-Bree <lmb@suse.de>
+Cc: "J.A. Magallon" <jamagallon@able.es>, linux-kernel@vger.kernel.org
+Subject: Re: writing OOPS/panic info to nvram?
+Message-ID: <20020906100933.E35@toy.ucw.cz>
+References: <E471FA7E-C00E-11D6-A20D-000393911DE2@sara.nl> <20020904140856.GA1949@werewolf.able.es> <1031149539.2788.120.camel@irongate.swansea.linux.org.uk> <20020904144154.GE1949@werewolf.able.es> <20020904144938.GA1106@marowsky-bree.de>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+X-Mailer: Mutt 1.0.1i
+In-Reply-To: <20020904144938.GA1106@marowsky-bree.de>; from lmb@suse.de on Wed, Sep 04, 2002 at 04:49:38PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2002-09-06 at 08:53, Peter Svensson wrote:
-> On 6 Sep 2002, Shaya Potter wrote:
-> 
-> > from what I can tell, tap just lets a programs use it, but one needs
-a
-> > user space app behind it (reading and writing to it).  It doesn't
-seem
-> > to have the ability to live on the network like vmware's vmnet stuff
-> > does, perhaps I'm wrong and was confused by the web page.
-> 
-> Well, you want at program to read and write ethernet frames, don't
-you? To 
-> What happens is that the operating system sees the data written by the
-> program as coming in over a ethernet interface, a virtual one.
-> 
-> To connect that interface to a real one you use the bridging code. I
-think 
-> it is standard in the newer kernels. Otherwise you can download it
-from
-> http://bridge.sourceforge.net/. Create a bridge and attach both the
-real 
-> ethernet card and the virtual one to it and use the resulting
-interface 
-> br0 (or whatever you choose to call it) instead of the normal ethernet
-> interface. Your program that is attached to the "tap" will now appear
-as 
-> another computer on the same ethernet segment to both your computer
-and 
-> all others attachet the the segment.
+Hi!
 
-that actually sounds more promising, but does it still involves the
-program attached to the tap outputting ethernet frames.  i.e. I can't
-make a virtual ethernet driver with my own rules, have netfilter bind a
-process to just use that adapter, and then just run the process as
-normal.  or am I still understating the capabilities?
+> > Ah, ther is no way to write raw blocks at a very low level to disk...??
+> 
+> Not reliably; you _know_ your infrastructure has crashed, otherwise you
+> wouldn't be inside the crash dump handler ;), so you can't possibly trust the
+> normal block layer to write the crash dump (and not write it over your salary
+> and customer database).
 
-thanks,
+Floppy seems like safe choice. Verify its special "crash floppy" by checking
+signature, then write.
 
-shaya potter
+> A network dump is much safer, though I would suggest running it over a
+> dedicated card / driver combo and on a special ethernet protocol, because you
+> might have lost your IP configuration...
+
+Its enough for it to work 99% cases. Separate ethernet card is overkill,
+serial console is easier than that.
+								Pavel
+-- 
+Philips Velo 1: 1"x4"x8", 300gram, 60, 12MB, 40bogomips, linux, mutt,
+details at http://atrey.karlin.mff.cuni.cz/~pavel/velo/index.html.
 

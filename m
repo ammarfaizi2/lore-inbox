@@ -1,49 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271213AbTGWSvz (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Jul 2003 14:51:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271197AbTGWSvz
+	id S271201AbTGWSvF (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Jul 2003 14:51:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271213AbTGWSvF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Jul 2003 14:51:55 -0400
-Received: from pub234.cambridge.redhat.com ([213.86.99.234]:65030 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id S271213AbTGWSvw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Jul 2003 14:51:52 -0400
-Date: Wed, 23 Jul 2003 20:06:58 +0100
-From: Christoph Hellwig <hch@infradead.org>
-To: "David S. Miller" <davem@redhat.com>
-Cc: linux-kernel@vger.kernel.org, netdev@oss.sgi.com
-Subject: Re: [bernie@develer.com: Kernel 2.6 size increase]
-Message-ID: <20030723200658.A27856@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	"David S. Miller" <davem@redhat.com>, linux-kernel@vger.kernel.org,
-	netdev@oss.sgi.com
-References: <20030723195355.A27597@infradead.org> <20030723195504.A27656@infradead.org> <20030723115858.75068294.davem@redhat.com>
-Mime-Version: 1.0
+	Wed, 23 Jul 2003 14:51:05 -0400
+Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:57106
+	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
+	id S271201AbTGWSvA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 23 Jul 2003 14:51:00 -0400
+Date: Wed, 23 Jul 2003 11:58:06 -0700 (PDT)
+From: Andre Hedrick <andre@linux-ide.org>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: Erik Andersen <andersen@codepoet.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Promise SATA driver GPL'd
+In-Reply-To: <1058956331.5520.13.camel@dhcp22.swansea.linux.org.uk>
+Message-ID: <Pine.LNX.4.10.10307231154110.13376-100000@master.linux-ide.org>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20030723115858.7506829I4.davem@redhat.com>; from davem@redhat.com on Wed, Jul 23, 2003 at 11:58:58AM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jul 23, 2003 at 11:58:58AM -0700, David S. Miller wrote:
-> > Sorry, this actually already Cc'ed lkml :)  Still the netdev folks
-> > should read it, too.
-> 
-> Well, we gained some code and a little bit of data, but
-> the BSS was cut in half which I think deserves noticing :-)
-> 
-> Also, he should analyze the amount of code that actually
-> gets executed for various tasks, comparing 2.4.x to 2.5.x
-> 
-> I'd take a half-meg code size hit if it meant that all
-> the normal code paths got cut in half :-)
 
-half a megabyte more codesize is a lot if you're based on flash.
-I know you absolutely disliked Andi's patch to make the xfrm subsystem
-optional so we might need find other ways to make the code smaller
-on those systems that need it.  Now I could talk a lot but I'm really
-no networking insider so it's hard for me to suggest where to start.
-I'll rather look at the fs/ issue but it would be nice if networking
-folks could do their part, too.
+Alan,
+
+It is also more interesting that it has sensitive touch spots where they
+state there is no problem and no errata.  So I am glad to see you have
+stepped up to replace me, and don't be surprized when you hard lock the
+card and the system because the feature does not exist.
+
+This is the stuff nobody talks about and the value I added and created,
+good luck in finding the folks who deploy various asics and are willing to
+discuss in confidence solutions against the variations.
+
+Cheers,
+
+Andre Hedrick
+LAD Storage Consulting Group
+
+On 23 Jul 2003, Alan Cox wrote:
+
+> On Mer, 2003-07-23 at 02:59, Andre Hedrick wrote:
+> > I have already cut all ties with Promise so here is the deal.
+> > I no longer have to count the number of fingers on my hand between hand
+> > shakes.  IE no extras and not shortages.
+> 
+> Thats ok - now they are doing GPL drivers themselves they don't need
+> you any more.
+> 
+> Promise did a SCSI CAM driver because their hardware can queue commands
+> without TCQ - which drivers/ide can't cope with. Otherwise I'd just have
+> used the same type of changes the FreeBSD people did for 2037x.
+> 
+> Its also interesting because it has a hardware XOR engine.
+> 
+

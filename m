@@ -1,68 +1,119 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313596AbSDIGHg>; Tue, 9 Apr 2002 02:07:36 -0400
+	id <S313755AbSDIG4C>; Tue, 9 Apr 2002 02:56:02 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313755AbSDIGHf>; Tue, 9 Apr 2002 02:07:35 -0400
-Received: from 167.imtp.Ilyichevsk.Odessa.UA ([195.66.192.167]:48906 "EHLO
-	Port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with ESMTP
-	id <S313596AbSDIGHe>; Tue, 9 Apr 2002 02:07:34 -0400
-Message-Id: <200204090604.g3964rX01196@Port.imtp.ilyichevsk.odessa.ua>
-Content-Type: text/plain; charset=US-ASCII
-From: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
-Reply-To: vda@port.imtp.ilyichevsk.odessa.ua
-To: rmiller@duskglow.com, linux-kernel@vger.kernel.org
-Subject: Re: 2.2.18 data corruption issues
-Date: Tue, 9 Apr 2002 09:08:06 -0200
-X-Mailer: KMail [version 1.3.2]
-Cc: barry@Know-Where.com (Barry Bakalor)
-In-Reply-To: <200204090252.g392qNb24499@66-133-183-62.fod.frontiernet.net>
+	id <S313757AbSDIG4B>; Tue, 9 Apr 2002 02:56:01 -0400
+Received: from [151.200.199.53] ([151.200.199.53]:15364 "EHLO fc.Capaccess.org")
+	by vger.kernel.org with ESMTP id <S313755AbSDIG4A>;
+	Tue, 9 Apr 2002 02:56:00 -0400
+Message-id: <fc.00858412003ab7af00858412003ab7af.3ab7c7@Capaccess.org>
+Date: Tue, 09 Apr 2002 02:55:28 -0400
+Subject: [PATCH 2.5.5] do export vmalloc_to_page to modules...
+To: linux-kernel@vger.kernel.org
+From: "Rick A. Hohensee" <rickh@Capaccess.org>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 9 April 2002 00:52, Russell Miller wrote:
-> I'm not subscribed to the list, so please CC me on any responses.
+>On Thu, 4 Apr 2002, Andrea Arcangeli wrote:
 >
-> I am running the stock 2.4.18 kernel, downloaded a few days ago from the
-> kernel mailing list.  The kernel was custom-built to my specifications,
-> using the default RH7.2 gcc (config available upon request).  The machine
-> is a dual pentium-III 1000 MHz, one scsi drive (sym53cxxx criver) and two
-> ide drives. All filesystems are ext3 journaling.
-
-What is your GCC version?
-
-> We copied several very large partitions from one machine to another in an
-> attempt to put a new machine in service.  Just for kicks, we attempted to
-> verify the copy.  It turns out that a small amount of files, about 60 to
-> 100 on a 17 gig partition, are corrupted.  Mod times are exactly the same,
-> owners, even file size.  It turns out that pretty consistently four null
-> characters (and occasionally other characters and a different number) are
-> appended to the beginning of the file, and the last four characters are
-> rolled off the end.  We ran the copy (and rsync and stuff) multiple times.
-> Each time different files were modified, in a seemingly random fashion, but
-> with a fairly consistent pattern of corruption.
+>> I don't really worry about that, important things will defend by
+>> themself, beacuse the GPL solution will be always superior of an
+>order
+>> of magnitude. [...]
 >
-> I have turned off DMA on the disk drives to no effect.  I have replaced the
-> ide cables with higher quality cables.  The problem seems to be occuring on
-> both the scsi and ide drives, which to me eliminates the ide or scsi
-> controllers, drivers, or anything on the back end of them as the source of
-> the problem.This same machine was in service previously, minus one disk
-> drive, and this problem never manifested itself, leading me to believe it
-> is either something to do with the ext3 jfs, or with the 2.4.18 kernel.
+>
+>how do you do that if the GPL is not being honored? What if in 5 years
+>most of the distros ship heaps of binary-only drivers, filesystems,
+>storage solutions, and you'll need them just to be able to operate
+>your daily system. What if you cannot do certain changes to the kernel
+>because your system will not boot up without a certain binary-only
+>module.
 
-It was Linux? What kernel version? Did you try copying with that kernel?
+There are hundreds of distros, thanks in large part to the GPL. I
+deliberately skirt the GPL as much as possible in cLIeNUX, but I don't
+lose sight of what makes that possible. The major distros think they
+are the Libc-of-the-Month Club. Thier grasp of the importance of the
+GPL, and unix tradition long predating the GPL, is proportional to the
+value of that fine service. See also: "Start button".
 
-> Does anyone have any tips on how to debug this?  I have administrative
-> access to the machine, and although it is running production, I am very
-> keen on getting this resolved and will provide any information you need. 
-> If this is a kernel or ext3 problem as I suspect I imagine you want to get
-> this resolved as much as I do.
+>sure, today it's easy to say "i'm not using any 'stinkin binary-only
+>module". But tomorrow you might have no choice, because vendors will
+>just use binary-only modules to "support Linux". And while 'no module
+>at all' used to result in a GPL driver being developed quickly, are
+>you sure people will write a GPL replacement if there's a binary-only
+>module available? Even if there are such people, who will test the
+>driver if the binary-only driver is just 'good enough' for the
+>majority of users? The wide availability of binary-only modules was
+>not an issue until now, so we (well, a subset of the copyright
+>holders) allowed it to a certain extent.
 
-You may try to repeat your test with:
-* newer / older kernel (maybe this is a kernel bug?)
-* newer GCC (miscompiled kernel?)
-* different fs (ext3 bug?)
-* different hardware (last resort to rule out hw problems)
---
-vda
+Which was foolish.
+
+<snip>
+>
+>        Ingo
+>
+
+You've seen the IBM Linux ads? With real multi-multi-millionaire
+basketball players glaring at the new kid that plays in thier league,
+the NBA, the most elite sports league in the world, for free? Those
+are some intense glares, from some of the most intense people in the
+world. IBM probably paid more for the ballplayers in that ad than Red
+Hat grosses.
+
+Imagine you have the basketball gifts of a Shaquille O'Neil AND Alan
+Iverson, and you were born stinking rich, like Bill Gates was for
+example. You decide to play in the NBA for free. Ain't you cool, eh?
+You think the guys in that ad will like it? You think they'll reserve
+their cleanest most genteel playing style for your precious ass? An
+Alan Iverson is an economic godsend to his entire home city, much less
+the one he plays in. You are a threat to his community. The Iverson
+rec center where kids stay off drugs, for example. Most NBA players
+are from communities where threats get dealt with promptly.
+
+How did they get all those astoundingly authentic glares out of a
+bunch of non-actor jocks? Easy. "OK gentlemen, you're looking at the
+new kid. He's 7' tall, hits 40% from 3-point land, and PLAYS in the
+NBA FOR FREE."
+
+I don't recall seeing a player in those ads named "Dos". Or
+"wintendo", or "WinDoS". Maybe there was an "NT", but no matter. IBM
+ads are consistantly, clearly about ___servers___ lately. This is
+wonderful. They have figured out which word is out of place in the set
+
+        machines
+        international
+        personal
+        business
+
+WinDoS is not even on the court in those ads, that I recall. They're
+not in that league, whether I missed them in the ad or not. They don't
+play clean enough, for one thing. Not to mention they are a
+club-footed midget that can't dribble. But that could change if the
+league gets degraded. Wanna see the NBA turn into the NHL, with you as
+the double-prime target? I don't even want to watch. I'm already tired
+of watching SMP whip Linux's ass.
+
+Leave the server orientation to dinosaurs like Sun, George Gervin,
+IBM, Detlef Schrempf... They have the energy, huge resources and
+inclination to overcome stupid boring stuff like SMP, an 80-game
+season, journalling, New York airports, asm(""), the Hack-a-Shaq ...
+
+It's a simple off-by-one error. Right price, wrong league. The
+client-server array is indexed from 0; technically, socially and
+economically. "Yeah, but unix is a server OS." Uh, this is 2002.
+
+Rick Hohensee
+client-oriented Linux for years now, as exemplified by the following
+
+:; cLIeNUX /dev/tty4  00:49:12   /
+:;d -d */
+Ha3sm/       command/     device/      help/        owner/       suite/
+Linux/       configure/   floppy/      log/         source/      temp/
+boot/        dev/         guest/       mount/       subroutine/
+:; cLIeNUX /dev/tty4  00:49:16   /
+:;
+

@@ -1,28 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265366AbRF0SnF>; Wed, 27 Jun 2001 14:43:05 -0400
+	id <S265055AbRF0SnF>; Wed, 27 Jun 2001 14:43:05 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265364AbRF0Smz>; Wed, 27 Jun 2001 14:42:55 -0400
-Received: from cp912944-a.mtgmry1.md.home.com ([24.18.149.178]:51333 "EHLO
-	zalem.puupuu.org") by vger.kernel.org with ESMTP id <S265366AbRF0Smo>;
-	Wed, 27 Jun 2001 14:42:44 -0400
-Date: Wed, 27 Jun 2001 14:42:39 -0400
-From: Olivier Galibert <galibert@pobox.com>
-To: "Hack inc ." <linux-kernel@vger.kernel.org>
-Subject: Allocating non-contigious memory
-Message-ID: <20010627144239.A2265@zalem.puupuu.org>
-Mail-Followup-To: "Hack inc ." <linux-kernel@vger.kernel.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 1.0.1i
+	id <S265366AbRF0Smz>; Wed, 27 Jun 2001 14:42:55 -0400
+Received: from neon-gw.transmeta.com ([209.10.217.66]:14610 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S265055AbRF0Smm>; Wed, 27 Jun 2001 14:42:42 -0400
+To: linux-kernel@vger.kernel.org
+From: torvalds@transmeta.com (Linus Torvalds)
+Subject: Re: PCI Power Management / Interrupt Context
+Date: Wed, 27 Jun 2001 18:41:26 +0000 (UTC)
+Organization: Transmeta Corporation
+Message-ID: <9hd9cm$vv5$1@penguin.transmeta.com>
+In-Reply-To: <Pine.SOL.4.21.0106262208240.3824-100000@oscar.cc.gatech.edu>
+X-Trace: palladium.transmeta.com 993667336 29475 127.0.0.1 (27 Jun 2001 18:42:16 GMT)
+X-Complaints-To: news@transmeta.com
+NNTP-Posting-Date: 27 Jun 2001 18:42:16 GMT
+Cache-Post-Path: palladium.transmeta.com!unknown@penguin.transmeta.com
+X-Cache: nntpcache 2.4.0b5 (see http://www.nntpcache.org/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-What is the Right Way[tm] as of 2.4.6 to allocate 16Mb as 4K pages and
-get the pci bus address for each page?  Bonus points is they're
-virtually contiguous, but that's not necessary.  IIRC, the old
-vmalloc-then-walk-the-pagetables trick is considered out-of-bounds
-nowadays.
+In article <Pine.SOL.4.21.0106262208240.3824-100000@oscar.cc.gatech.edu>,
+David T Eger  <eger@cc.gatech.edu> wrote:
+>
+>So I'm writing some code for a PCI card that is a framebuffer device, and
+>happily filling in the functions for the probe() and remove() functions
+>when I read documentation (Documentation/pci.txt) which mentions that
+>remove() can be called from interrupt context.
 
-  OG.
+This used to be true for a short while for hot-plug CardBus. I don't
+think it is true any more - and if it is, that would be a bug.
 
+So I think it's the documentation that is in error, and we should just
+fix that.
+
+Jeff?
+
+		Linus

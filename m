@@ -1,29 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129138AbRBTAow>; Mon, 19 Feb 2001 19:44:52 -0500
+	id <S129115AbRBTAvd>; Mon, 19 Feb 2001 19:51:33 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129204AbRBTAod>; Mon, 19 Feb 2001 19:44:33 -0500
-Received: from [12.34.44.244] ([12.34.44.244]:25359 "EHLO serreyn.com")
-	by vger.kernel.org with ESMTP id <S129138AbRBTAo2>;
-	Mon, 19 Feb 2001 19:44:28 -0500
-Message-ID: <3A91BC71.229FC56B@serreyn.com>
-Date: Mon, 19 Feb 2001 18:38:09 -0600
-From: Ted Serreyn <ted@serreyn.com>
-Reply-To: ted@serreyn.com
-Organization: Serreyn
-X-Mailer: Mozilla 4.76 [en] (Win98; U)
-X-Accept-Language: en
+	id <S129166AbRBTAvX>; Mon, 19 Feb 2001 19:51:23 -0500
+Received: from perninha.conectiva.com.br ([200.250.58.156]:12293 "EHLO
+	perninha.conectiva.com.br") by vger.kernel.org with ESMTP
+	id <S129115AbRBTAvT>; Mon, 19 Feb 2001 19:51:19 -0500
+Date: Mon, 19 Feb 2001 21:02:55 -0200 (BRST)
+From: Marcelo Tosatti <marcelo@conectiva.com.br>
+To: Linus Torvalds <torvalds@transmeta.com>
+cc: lkml <linux-kernel@vger.kernel.org>
+Subject: __lock_page calls run_task_queue(&tq_disk) unecessarily?
+Message-ID: <Pine.LNX.4.21.0102192051150.3008-100000@freak.distro.conectiva>
 MIME-Version: 1.0
-To: gandalf@wlug.westbo.se
-Subject: any news on loop device patches?
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Have you heard anything more on the loop patches?  I'm not on the kernel
-list anymore.  I need to be able to run 2.4 and use the loop devices to
-mount cd images?
 
-Ted
+Hi Linus,
+
+Take a look at __lock_page:
+
+static void __lock_page(struct page *page)
+{
+        struct task_struct *tsk = current;
+        DECLARE_WAITQUEUE(wait, tsk);
+
+        add_wait_queue_exclusive(&page->wait, &wait);
+        for (;;) {
+                sync_page(page);
+                set_task_state(tsk, TASK_UNINTERRUPTIBLE);
+                if (PageLocked(page)) {
+                        run_task_queue(&tq_disk);
+                        schedule();
+                        continue;
+                }
+                if (!TryLockPage(page))
+                        break;
+        }
+        tsk->state = TASK_RUNNING;
+        remove_wait_queue(&page->wait, &wait);
+}
+
+
+Af a process sleeps in __lock_page, sync_page() will be called even if the
+page is already unlocked. (block_sync_page(), the sync_page routine for
+generic block based filesystem calls run_task_queue(&tq_disk)).
+
+I don't see any problem if we remove the run_task_queue(&tq_disk) and put
+sync_page(page) there instead, removing the other sync_page(page) at the
+beginning of the loop.
+
+Comments?
 

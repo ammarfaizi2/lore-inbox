@@ -1,40 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263654AbTFEKZP (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Jun 2003 06:25:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263722AbTFEKZP
+	id S263866AbTFEK2X (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Jun 2003 06:28:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264554AbTFEK2W
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Jun 2003 06:25:15 -0400
-Received: from nat-pool-rdu.redhat.com ([66.187.233.200]:40925 "EHLO
-	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
-	id S263654AbTFEKZP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Jun 2003 06:25:15 -0400
-From: Alan Cox <alan@redhat.com>
-Message-Id: <200306051038.h55Acgv06131@devserv.devel.redhat.com>
-Subject: Re: Linux 2.4.21-rc7-ac1
-To: m.watts@eris.qinetiq.com (Mark Watts)
-Date: Thu, 5 Jun 2003 06:38:42 -0400 (EDT)
-Cc: alan@redhat.com (Alan Cox), linux-kernel@vger.kernel.org
-In-Reply-To: <200306051002.54089.m.watts@eris.qinetiq.com> from "Mark Watts" at Meh 05, 2003 10:02:53 
-X-Mailer: ELM [version 2.5 PL6]
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Thu, 5 Jun 2003 06:28:22 -0400
+Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:49798
+	"EHLO lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
+	id S263866AbTFEK2V (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 5 Jun 2003 06:28:21 -0400
+Subject: Re: PCI cache line messages 2.4/2.5
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: Margit Schubert-While <margitsw@t-online.de>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <3EDE7522.8040206@pobox.com>
+References: <5.1.0.14.2.20030602084908.00aed558@pop.t-online.de>
+	 <3EDE7522.8040206@pobox.com>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+Organization: 
+Message-Id: <1054809554.15276.8.camel@dhcp22.swansea.linux.org.uk>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
+Date: 05 Jun 2003 11:39:15 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I wonder if you could confirm whether the usb-ohci module should be loaded 
-> automatically if I have the following line in modules.conf (this is with 
-> 2.4.21-rc6-ac2)
+On Mer, 2003-06-04 at 23:39, Jeff Garzik wrote:
+> > PCI: 00:1d.7 PCI cache line size set incorrectly (0 bytes) by BIOS/FW.
+> > PCI: 00:1d.7 PCI cache line size corrected to 128.
+> > 
+> > This is the onboard USB EHCI (Intel D845 PESV).
+> > lspci below.
+> > 
+> > What's going on ?
 > 
-> probeall usb-interface usb-ohci
+> 
+> Pretty much exactly what the message says :)
+> 
+> Your BIOS did not set the PCI cache line size correctly.  The kernel 
+> caught that mistake, and fixed it.
 
-Depends how your system is set up. The following is working fine on RH
-for me.
+I can't find anywhere the BIOS is obliged to set it for you if a PnP OS
+is installed, ditto in the presence of any form of hotplug the test is
+wrong.
 
-alias usb-controller ehci-hcd
+As far as I can see you can only warn if MWI is already set in the
+control word, and (I'd have to check the spec) possibly if the
+cache line size is non zero.
 
-> I have a Dell 2650 server with a ServerWorks chipset and its not being loaded 
-> automagically at boot as it does under my Mandrake kernels.
+(simple hotplug thought experiment to prove the point
 
-Could be Mandrake do magic or compile it in ?
+	Soft boot a thinkpad 600
+	As the bios transfers to grub insert in docking station
+	
+explain how the bios sets the cache line size..)
+

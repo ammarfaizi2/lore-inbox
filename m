@@ -1,42 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261907AbTAPHWI>; Thu, 16 Jan 2003 02:22:08 -0500
+	id <S261908AbTAPHW2>; Thu, 16 Jan 2003 02:22:28 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261908AbTAPHWI>; Thu, 16 Jan 2003 02:22:08 -0500
-Received: from pizda.ninka.net ([216.101.162.242]:25266 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S261907AbTAPHWH>;
-	Thu, 16 Jan 2003 02:22:07 -0500
-Date: Wed, 15 Jan 2003 23:21:04 -0800 (PST)
-Message-Id: <20030115.232104.52604347.davem@redhat.com>
-To: rusty@rustcorp.com.au
-Cc: akpm@zip.com.au, torvalds@transmeta.com, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] __cacheline_aligned_in_smp? 
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <20030115082444.0CFFA2C123@lists.samba.org>
-References: <20030113.223253.18825371.davem@redhat.com>
-	<20030115082444.0CFFA2C123@lists.samba.org>
-X-FalunGong: Information control.
-X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
+	id <S262871AbTAPHW2>; Thu, 16 Jan 2003 02:22:28 -0500
+Received: from pa186.opole.sdi.tpnet.pl ([213.76.204.186]:62454 "EHLO
+	deimos.one.pl") by vger.kernel.org with ESMTP id <S261908AbTAPHW1>;
+	Thu, 16 Jan 2003 02:22:27 -0500
+Date: Thu, 16 Jan 2003 08:31:22 +0100
+From: Damian Kolkowski <deimos@deimos.one.pl>
+To: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [BUG] QM_MODULES: Function not implemented... [ No bug! ]
+Message-ID: <20030116073122.GB633@deimos.one.pl>
+References: <20030115213356.GA176@deimos.one.pl>
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=iso-8859-2
+Content-Disposition: inline
+In-Reply-To: <20030115213356.GA176@deimos.one.pl>
+User-Agent: Mutt/1.4i
+X-GPG: http://deimos.one.pl/deimos.asc
+X-Age: 23 (1980.09.27 - lilbra)
+X-JID: deimos@jabber.gda.pl
+X-ICQ: 59367544
+X-GG: 88988
+X-Girl: 1 will be enough!
+X-OS: GNU/Linux-2.4.20-ac2 (i686)
+X-Uptime: 08:26:34  up 1 min,  2 users,  load average: 0.25, 0.08, 0.03
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: Rusty Russell <rusty@rustcorp.com.au>
-   Date: Wed, 15 Jan 2003 19:02:20 +1100
+* Damian Kolkowski (deimos@deimos.one.pl) wrote:
+> P.S. The modules are instaled but they could not be loaded.
 
-   > I want alignment on cache line boundary, and I don't want anything
-   > else in that cacheline.
-   
-   A "read-mostly" section might be appropriate, then.  Of course, you'd
-   have to split the structure, in that case, and it's not worth it if
-   there are only a few of these.
-   
-   Have I finally got it through my thick skull now?
+Because I don't have _module-init-tools_. My stupid bug :-)
 
-I think so.  A read-mostly section would allow us to exploit this
-more for other things.
-
-BTW, the tcp_hashinfo struct exists only because the linker could
-otherwise legally reorder data section members.
+-- 
+# Damian *dEiMoS* Kolkowski # http://deimos.one.pl/ #

@@ -1,52 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289679AbSAJVED>; Thu, 10 Jan 2002 16:04:03 -0500
+	id <S289680AbSAJVED>; Thu, 10 Jan 2002 16:04:03 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289681AbSAJVDv>; Thu, 10 Jan 2002 16:03:51 -0500
-Received: from x35.xmailserver.org ([208.129.208.51]:32526 "EHLO
-	x35.xmailserver.org") by vger.kernel.org with ESMTP
-	id <S289679AbSAJVDg>; Thu, 10 Jan 2002 16:03:36 -0500
-Date: Thu, 10 Jan 2002 13:08:57 -0800 (PST)
-From: Davide Libenzi <davidel@xmailserver.org>
-X-X-Sender: davide@blue1.dev.mcafeelabs.com
-To: Linus Torvalds <torvalds@transmeta.com>
-cc: Mike Kravetz <kravetz@us.ibm.com>, Ingo Molnar <mingo@elte.hu>,
-        lkml <linux-kernel@vger.kernel.org>,
-        george anzinger <george@mvista.com>
-Subject: Re: [patch] O(1) scheduler, -D1, 2.5.2-pre9, 2.4.17
-In-Reply-To: <Pine.LNX.4.33.0201101107120.2809-100000@penguin.transmeta.com>
-Message-ID: <Pine.LNX.4.40.0201101307560.1493-100000@blue1.dev.mcafeelabs.com>
+	id <S289679AbSAJVDw>; Thu, 10 Jan 2002 16:03:52 -0500
+Received: from e23.nc.us.ibm.com ([32.97.136.229]:18365 "EHLO
+	e23.esmtp.ibm.com") by vger.kernel.org with ESMTP
+	id <S289680AbSAJVDg>; Thu, 10 Jan 2002 16:03:36 -0500
+From: Badari Pulavarty <pbadari@us.ibm.com>
+Message-Id: <200201102103.g0AL3Rr28448@eng2.beaverton.ibm.com>
+Subject: Re: [PATCH] PAGE_SIZE IO for RAW (RAW VARY)
+To: alan@lxorguk.ukuu.org.uk (Alan Cox)
+Date: Thu, 10 Jan 2002 13:03:27 -0800 (PST)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <E16OlMo-0005NV-00@the-village.bc.nu> from "Alan Cox" at Jan 10, 2002 07:00:02 PM PST
+X-Mailer: ELM [version 2.5 PL3]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 10 Jan 2002, Linus Torvalds wrote:
+> 
+> > Does this address everyones concerns ? I am willing to work with the
+> > drivers I tested/reviewed/verified to make the change to set the flag.
+> > As driver owners verify their drivers, could set the flag (in future).
+> 
+> Im just trying to work out how this deals with the 2.4 scsi case
+> 
+Alan,
 
->
-> On Thu, 10 Jan 2002, Davide Libenzi wrote:
-> > >
-> > > It wasn't a good night for benchmarking.  I had a typo in the
-> > > script to run chat reniced and as a result didn't collect any
-> > > numbers for this.  In addition, the kernel with Davide's patch
-> > > failed to boot with 8 CPUs enabled.  Can't see any '# CPU specific'
-> > > mods in the patch.  In any case, here is what I do have.
-> >
-> > Doh !! Do you have a panic dump Mike ?
->
-> I bet it's just the placement of "init_idle()" in init/main.c, which is
-> unrelated to the scheduling proper, but if the kernel thread is started
-> before the boot CPU has done its "init_idle()", then the scheduler state
-> isn't really set up fully yet.
->
-> (Old bug, I think its been there for a long time, I just think that the
-> old scheduler didn't much care, and the "child runs first" logic in
-> particular of the new scheduler probably just showed it more clearly)
+I am lost ... What do you mean ? Could you please explain ?
 
-Uhm, seems fixed in pre11. Did you fix it in pre10->pre11 stage ?
-
-
-
-- Davide
-
-
+Thanks,
+Badari

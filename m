@@ -1,43 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262406AbSJEQ57>; Sat, 5 Oct 2002 12:57:59 -0400
+	id <S262411AbSJERHT>; Sat, 5 Oct 2002 13:07:19 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262411AbSJEQ56>; Sat, 5 Oct 2002 12:57:58 -0400
-Received: from silva5.uol.com.br ([200.221.4.52]:31458 "EHLO silva5.uol.com.br")
-	by vger.kernel.org with ESMTP id <S262406AbSJEQ54>;
-	Sat, 5 Oct 2002 12:57:56 -0400
-Date: Sat, 5 Oct 2002 13:56:14 -0200
-From: Andre Costa <brblueser@uol.com.br>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: IDE subsystem issues with 2.4.1[89] [REVISITED]
-Message-Id: <20021005135614.443e96b8.brblueser@uol.com.br>
-In-Reply-To: <1033836590.4079.7.camel@irongate.swansea.linux.org.uk>
-References: <20021005114725.3af9c194.brblueser@uol.com.br>
-	<1033833579.4103.2.camel@irongate.swansea.linux.org.uk>
-	<20021005131823.676c1bcc.brblueser@uol.com.br>
-	<1033836590.4079.7.camel@irongate.swansea.linux.org.uk>
-X-Mailer: Sylpheed version 0.8.5 (GTK+ 1.2.10; i686-pc-linux-gnu)
+	id <S262412AbSJERHT>; Sat, 5 Oct 2002 13:07:19 -0400
+Received: from mailout07.sul.t-online.com ([194.25.134.83]:41960 "EHLO
+	mailout07.sul.t-online.com") by vger.kernel.org with ESMTP
+	id <S262411AbSJERHS>; Sat, 5 Oct 2002 13:07:18 -0400
+Date: Sat, 5 Oct 2002 19:12:45 +0200
+From: Patrick.Mau@t-online.de (Patrick Mau)
+To: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: 2.5.40 (BK of today) vmstat SIGSEGV after reading /proc/stat
+Message-ID: <20021005171245.GA3060@oscar.dorf.de>
+Reply-To: Patrick Mau <mau@oscar.prima.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Sure, I understand. Thks for the info, maybe I will try 2.4.20-pre to
-see what happens. I will post here any results I get (be them good or
-bad).
+Hallo List,
 
-Best,
+The BK tree of today changed the data returned in /proc/stat.
+A 'vmstat -n 10' immediatly segfaults after reading ...
 
-Andre
+open("/proc/stat", O_RDONLY)            = 6
+read(6, "cpu  404408 506514 8240 154301 1"..., 4095) = 714
+close(6)                                = 0
+--- SIGSEGV (Segmentation fault) ---
++++ killed by SIGSEGV +++
 
-On 05 Oct 2002 17:49:50 +0100
-Alan Cox <alan@lxorguk.ukuu.org.uk> wrote:
+I'll try to prove a diff between 2.4.18 and BK current later
+this evening ...
 
-> Depends entirely on your hardware and a lot of other things. Right now
-> the ide-scsi code in the 2.5/2.4-ac tree still needs some more work
-> The 2.4 base code ought to be working (ie 2.4.19/2.4.20-pre)
-
--- 
-Andre Oliveira da Costa
+cheers,
+Patrick

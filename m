@@ -1,64 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262977AbTCSKBn>; Wed, 19 Mar 2003 05:01:43 -0500
+	id <S262960AbTCSKFx>; Wed, 19 Mar 2003 05:05:53 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262978AbTCSKBn>; Wed, 19 Mar 2003 05:01:43 -0500
-Received: from hermine.idb.hist.no ([158.38.50.15]:59153 "HELO
-	hermine.idb.hist.no") by vger.kernel.org with SMTP
-	id <S262977AbTCSKBl>; Wed, 19 Mar 2003 05:01:41 -0500
-Message-ID: <3E784315.3060806@aitel.hist.no>
-Date: Wed, 19 Mar 2003 11:14:45 +0100
-From: Helge Hafting <helgehaf@aitel.hist.no>
-Organization: AITeL, HiST
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.0) Gecko/20020623 Debian/1.0.0-0.woody.1
-X-Accept-Language: no, en
+	id <S262978AbTCSKFx>; Wed, 19 Mar 2003 05:05:53 -0500
+Received: from landfill.ihatent.com ([217.13.24.22]:10627 "EHLO
+	mail.ihatent.com") by vger.kernel.org with ESMTP id <S262960AbTCSKFw>;
+	Wed, 19 Mar 2003 05:05:52 -0500
+To: Andrew Morton <akpm@digeo.com>
+Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org
+Subject: Re: 2.5.65-mm2
+References: <20030319012115.466970fd.akpm@digeo.com>
+From: Alexander Hoogerhuis <alexh@ihatent.com>
+Date: 19 Mar 2003 11:16:51 +0100
+In-Reply-To: <20030319012115.466970fd.akpm@digeo.com>
+Message-ID: <87el53acfg.fsf@lapper.ihatent.com>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
 MIME-Version: 1.0
-To: "Martin J. Bligh" <mbligh@aracnet.com>
-CC: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [Bug 471] New: Root on software raid don't boot on new 2.5 kernel
- since after 2.5.45
-References: <779600000.1048059690@[10.10.2.4]>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Martin J. Bligh wrote:
-> http://bugme.osdl.org/show_bug.cgi?id=471
-> 
->            Summary: Root on software raid don't boot on new 2.5 kernel since
->                     after 2.5.45
+Andrew Morton <akpm@digeo.com> writes:
+>
+> [SNIP]
+>
 
-Root on raid-1 works fine for me, with and without devfs.  My kernel has
-no module support, everything is compiled in.  I don't use initrd.
-I have used root-raid with every 2.5 kernel except for a few that had
-raid bugs. (Affecting all raid, the root weren't special.)
+Yay! Still working Radeon :)
 
-Until recently the root raid always did an unclean shutdown, but this didn't
-cause other trouble than a bootup resync.
+And 4x AGP:
 
-> Problem Description:
->  The software raid setup I have boots on 2.4 but not on newer 2.5 kernels, i
-> have everything need compiled in and the 2.5 kernel also rapports that it has
-> found /dev/md2 but it rapports that is's unable to mount the root partition for
-> this device. I have tried to pass /dev/md0 as the root but this hangs the
-> kernel, is root on raid broaken in kernel 2.5 or am I doing something wrong?
-> 
->  lilo:
->   image=/boot/vmlinuz-2.4.21-pre1
->         label=linux
->         root=/dev/md2
->         read-only
->         append=" devfs=mount"
-> 
->   image=/boot/vmlinuz-2.5.65
->         label=linux25
->         root=/dev/md2
->         read-only
->         append=" devfs=mount"
+agpgart: Putting AGP V2 device at 00:00.0 into 4x mode
+agpgart: Putting AGP V2 device at 01:00.0 into 4x mode
 
-Are you using devfs?  I expect the name of the raid device
-to be something like /dev/md/2 instead of /dev/md2 in that case.
+Come to think of it, I'll give it a spin, this might be due to a
+working DSDT table that was compiled in with ACPI, whereas I had the
+1x problems before I did this.
 
-Helge Hafting
-
+mvh,
+A
+-- 
+Alexander Hoogerhuis                               | alexh@ihatent.com
+CCNP - CCDP - MCNE - CCSE                          | +47 908 21 485
+"You have zero privacy anyway. Get over it."  --Scott McNealy

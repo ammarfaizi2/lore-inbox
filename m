@@ -1,55 +1,61 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132575AbRDQG5B>; Tue, 17 Apr 2001 02:57:01 -0400
+	id <S132626AbRDQHhN>; Tue, 17 Apr 2001 03:37:13 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132579AbRDQG4v>; Tue, 17 Apr 2001 02:56:51 -0400
-Received: from tangens.hometree.net ([212.34.181.34]:34972 "EHLO
-	mail.hometree.net") by vger.kernel.org with ESMTP
-	id <S132575AbRDQG4p>; Tue, 17 Apr 2001 02:56:45 -0400
-To: linux-kernel@vger.kernel.org
-Path: forge.intermeta.de!not-for-mail
-From: "Henning P. Schmiedehausen" <mailgate@mail.hometree.net>
-Newsgroups: hometree.linux.kernel
-Subject: Re: IP Acounting Idea for 2.5
-Date: Tue, 17 Apr 2001 06:56:42 +0000 (UTC)
-Organization: INTERMETA - Gesellschaft fuer Mehrwertdienste mbH
-Message-ID: <9bgpfa$329$1@forge.intermeta.de>
-In-Reply-To: <Pine.LNX.4.33.0104152039130.1616-100000@asdf.capslock.lan> <01041708461209.00352@workshop> <20010416020732.30431.qmail@logi.cc> <20010416224321.O16697@corellia.laforge.distro.conectiva>
-Reply-To: hps@intermeta.de
-NNTP-Posting-Host: forge.intermeta.de
-X-Trace: tangens.hometree.net 987490602 9518 212.34.181.4 (17 Apr 2001 06:56:42 GMT)
-X-Complaints-To: news@intermeta.de
-NNTP-Posting-Date: Tue, 17 Apr 2001 06:56:42 +0000 (UTC)
-X-Copyright: (C) 1996-2001 Henning Schmiedehausen
-X-No-Archive: yes
-X-Newsreader: NN version 6.5.1 (NOV)
+	id <S132629AbRDQHhD>; Tue, 17 Apr 2001 03:37:03 -0400
+Received: from smtphost5.home.se ([195.66.35.201]:4966 "EHLO smtp2.home.se")
+	by vger.kernel.org with ESMTP id <S132626AbRDQHgv>;
+	Tue, 17 Apr 2001 03:36:51 -0400
+Message-Id: <5.0.2.1.0.20010417082956.02ee5008@mail11.mail.home.se>
+X-Mailer: QUALCOMM Windows Eudora Version 5.0.2
+Date: Tue, 17 Apr 2001 09:28:14 +0200
+To: Matti Aarnio <matti.aarnio@zmailer.org>, Drew Bertola <drew@drewb.com>
+From: Gunnar Ahlberg <gunnar.ahlberg@home.se>
+Subject: Re: "Why I get no more linux-kernel traffic ?"
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20010322022834.J23336@mea-ext.zmailer.org>
+In-Reply-To: <15033.7145.547612.90560@champ.serialhacker.net>
+ <15033.7145.547612.90560@champ.serialhacker.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Harald Welte <laforge@gnumonks.org> writes:
 
->On Mon, Apr 16, 2001 at 12:07:31PM +1000, Manfred Bartz wrote:
+Just a another FAQ entry based on my experience
 
->>                 *COUNTERS MUST NOT BE RESETABLE!!!*
->> 
->> Resetable counters guarantee that no two programs can co-exists if
->> they happen to reset the same counters.
+I've found that home.com and home.se are messing with MAPI extensions.
+At home, you are able to setup your own rules, just like any reasonable 
+MAPI server,
+but I guess they are doing it wrong, or, I'm getting it wrong.
+This is what I did,
+I set up my email rule to move all messages from @vger to a separate folder 
+on the mail server.
+On home.se this is done through a web interface were you can setup basic 
+email features like rules.
+The mails are getting nicely to the new folder, but I can't download it 
+from the email client,
+Eudora. Just removing the rule helped, but, now I can't read my email over 
+the web interface...
+It's a tough mans world.
+I guess that either Eudora is not communicating with the mail server correctly
+or, the mail server are storing the mails in separate storage instead of 
+sorting them for the display
+view.
 
->That sounds like crap (sorry). Counters are resettable, and will be.
->If you run two applications resetting counters individually, you have
->a problem with your applications.
+/G
 
-Resettable counters in a security sensitive environment are just a
-call for trouble. That's why you can't reset the SNMP counters on any
-Cisco device I've encountered today. They learned their lesson. Maybe
-you will, too.
 
-	Regards
-		Henning
+>   The POSSIBLE reasons are FAQ items at the LKML FAQ:
+>         http://www.tux.org/lkml/
+>
+>   Lately we have had bounces from lots of places, INCLUDING  @home.com !
+>
+>   However in your case I see no such events.
+>   Everything seem to have worked just fine, until at circa 2:15 AM (EST)
+>   on 16th of march was the last letter to you.
+>
+>   By the way, VGER's logs are not infinite,  only current plus 7 previous
+>   days.  Good that you didn't wait for a week before wondering...
 
--- 
-Dipl.-Inf. (Univ.) Henning P. Schmiedehausen       -- Geschaeftsfuehrer
-INTERMETA - Gesellschaft fuer Mehrwertdienste mbH     hps@intermeta.de
 
-Am Schwabachgrund 22  Fon.: 09131 / 50654-0   info@intermeta.de
-D-91054 Buckenhof     Fax.: 09131 / 50654-20   

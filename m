@@ -1,61 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262630AbVAFMHC@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262765AbVAFMMQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262630AbVAFMHC (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 6 Jan 2005 07:07:02 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262750AbVAFMHC
+	id S262765AbVAFMMQ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 6 Jan 2005 07:12:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262755AbVAFMMQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 6 Jan 2005 07:07:02 -0500
-Received: from smtp.dei.uc.pt ([193.137.203.228]:55242 "EHLO smtp.dei.uc.pt")
-	by vger.kernel.org with ESMTP id S262630AbVAFMG6 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 6 Jan 2005 07:06:58 -0500
-Date: Thu, 6 Jan 2005 12:06:27 +0000 (WET)
-From: "Marcos D. Marado Torres" <marado@student.dei.uc.pt>
-To: Andrew Morton <akpm@osdl.org>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.10-mm2
-In-Reply-To: <20050106002240.00ac4611.akpm@osdl.org>
-Message-ID: <Pine.LNX.4.61.0501061203250.23199@student.dei.uc.pt>
-References: <20050106002240.00ac4611.akpm@osdl.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
-X-UC-FCT-DEI-MailScanner-Information: Please contact helpdesk@dei.uc.pt for more information
-X-UC-FCT-DEI-MailScanner: Found to be clean
-X-MailScanner-From: marado@student.dei.uc.pt
+	Thu, 6 Jan 2005 07:12:16 -0500
+Received: from canuck.infradead.org ([205.233.218.70]:37126 "EHLO
+	canuck.infradead.org") by vger.kernel.org with ESMTP
+	id S262750AbVAFMMK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 6 Jan 2005 07:12:10 -0500
+Subject: Re: SCSI aic7xxx driver: Initialization Failure over a kdump reboot
+From: Arjan van de Ven <arjan@infradead.org>
+To: Vivek Goyal <vgoyal@in.ibm.com>
+Cc: lkml <linux-kernel@vger.kernel.org>,
+       linux scsi <linux-scsi@vger.kernel.org>
+In-Reply-To: <1105014959.2688.296.camel@2fwv946.in.ibm.com>
+References: <1105014959.2688.296.camel@2fwv946.in.ibm.com>
+Content-Type: text/plain
+Date: Thu, 06 Jan 2005 13:12:03 +0100
+Message-Id: <1105013524.4468.3.camel@laptopd505.fenrus.org>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.2 (2.0.2-3) 
+Content-Transfer-Encoding: 7bit
+X-Spam-Score: 4.1 (++++)
+X-Spam-Report: SpamAssassin version 2.63 on canuck.infradead.org summary:
+	Content analysis details:   (4.1 points, 5.0 required)
+	pts rule name              description
+	---- ---------------------- --------------------------------------------------
+	0.3 RCVD_NUMERIC_HELO      Received: contains a numeric HELO
+	1.1 RCVD_IN_DSBL           RBL: Received via a relay in list.dsbl.org
+	[<http://dsbl.org/listing?80.57.133.107>]
+	2.5 RCVD_IN_DYNABLOCK      RBL: Sent directly from dynamic IP address
+	[80.57.133.107 listed in dnsbl.sorbs.net]
+	0.1 RCVD_IN_SORBS          RBL: SORBS: sender is listed in SORBS
+	[80.57.133.107 listed in dnsbl.sorbs.net]
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by canuck.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+On Thu, 2005-01-06 at 18:05 +0530, Vivek Goyal wrote:
+> 
+> In my machine Adaptec SCSI controller is not managing any devices. It
+> is
+> a lonely controller.
+> 
 
-On Thu, 6 Jan 2005, Andrew Morton wrote:
+looks like the following is happening:
+the controller wants to send an irq (probably from previous life)
+then suddenly the driver gets loaded
+* which registers an irq handler
+* which does pci_enable_device()
+and .. the irq goes through. 
+the irq handler just is not yet expecting this irq, so
+returns "uh dunno not mine"
+the kernel then decides to disable the irq on the apic level
+and then the driver DOES need an irq during init
+... which never happens.
 
-> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.10/2.6.10-mm2/
->
-> - Various minorish updates and fixes
 
-The acpi_power_off issue (acpi_power_off is called but the laptop doesn't shut
-down) is back (in -mm1 already). I suspect it has never disappear completely:
-maybe it only happens in some cenarios (like "only when AC is plugged in" or
-something like that). The report is done, I'll try to get more info soon (when
-does this happen and when it doesn't) and will report it by then.
 
-Mind Booster Noori
-
-- -- 
-/* *************************************************************** */
-    Marcos Daniel Marado Torres	     AKA	Mind Booster Noori
-    http://student.dei.uc.pt/~marado   -	  marado@student.dei.uc.pt
-    () Join the ASCII ribbon campaign against html email, Microsoft
-    /\ attachments and Software patents.   They endanger the World.
-    Sign a petition against patents:  http://petition.eurolinux.org
-/* *************************************************************** */
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
-Comment: Made with pgp4pine 1.76
-
-iD8DBQFB3SnFmNlq8m+oD34RAk0+AJ97ZQZI0a+JuGT3uXG+w/sSjtcP6ACfVbCJ
-dP7EcQYa+xXN4OyuQpO4cvU=
-=13Cu
------END PGP SIGNATURE-----
 

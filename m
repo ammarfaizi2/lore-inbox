@@ -1,77 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265960AbUF3KWh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266577AbUF3KZw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265960AbUF3KWh (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 30 Jun 2004 06:22:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266577AbUF3KWh
+	id S266577AbUF3KZw (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 30 Jun 2004 06:25:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266611AbUF3KZw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 30 Jun 2004 06:22:37 -0400
-Received: from arnor.apana.org.au ([203.14.152.115]:56591 "EHLO
-	arnor.apana.org.au") by vger.kernel.org with ESMTP id S265960AbUF3KWe
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 30 Jun 2004 06:22:34 -0400
-From: Herbert Xu <herbert@gondor.apana.org.au>
-To: linville@redhat.com (John Linville)
-Subject: Re: i810_audio MMIO patch
-Cc: linux-kernel@vger.kernel.org, jgarzik@pobox.com
-Organization: Core
-In-Reply-To: <200406292031.i5TKVgbX023358@savage.devel.redhat.com>
-X-Newsgroups: apana.lists.os.linux.kernel
-User-Agent: tin/1.7.4-20040225 ("Benbecula") (UNIX) (Linux/2.4.26-1-686-smp (i686))
-Message-Id: <E1BfcEI-0006y4-00@gondolin.me.apana.org.au>
-Date: Wed, 30 Jun 2004 20:22:14 +1000
+	Wed, 30 Jun 2004 06:25:52 -0400
+Received: from math.ut.ee ([193.40.5.125]:42210 "EHLO math.ut.ee")
+	by vger.kernel.org with ESMTP id S266577AbUF3KZu (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 30 Jun 2004 06:25:50 -0400
+Date: Wed, 30 Jun 2004 13:25:48 +0300 (EEST)
+From: Meelis Roos <mroos@linux.ee>
+To: Linux Kernel list <linux-kernel@vger.kernel.org>
+Subject: irq 11: nobody cared? (usb?)
+Message-ID: <Pine.GSO.4.44.0406301318300.15010-100000@math.ut.ee>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-John Linville <linville@redhat.com> wrote:
-> 
-> @@ -452,12 +452,34 @@ struct i810_card {
-> /* extract register offset from codec struct */
-> #define IO_REG_OFF(codec) (((struct i810_card *) codec->private_data)->ac97_id_map[codec->id])
-> 
-> -#define GET_CIV(port) MODULOP2(inb((port) + OFF_CIV), SG_LEN)
-> -#define GET_LVI(port) MODULOP2(inb((port) + OFF_LVI), SG_LEN)
-> +#define I810_IOREAD(size, type, card, off)                             \
-> +({                                                                     \
-> +       type val;                                                       \
-> +       if (card->use_mmio) val=read##size(card->iobase_mmio+off);      \
-> +       else val=in##size(card->iobase+off);                            \
-> +       val;                                                            \
-> +})
+Just got this from 2.6.7 + BK as of 20040629.
 
-Please indent I810_IOWRITE and this like normal code.
- 
-> @@ -716,9 +738,9 @@ static inline unsigned i810_get_dma_addr
+irq 11: nobody cared!
+Stack pointer is garbage, not printing trace
+handlers:
+[<e09960b0>] (usb_hcd_irq+0x0/0x60 [usbcore])
+[<c02684b0>] (e100_intr+0x0/0x110)
+Disabling IRQ #11
 
-How about making card a local variable where it's used over and over again
-as in this function?
+First boot of the same kernel ran fine for a day, then USB mouse hung
+(replug cured it). Then on next reboot it disabled irq 11 and e100 and
+one usb port along with it (mouse is in another usb port and worked
+fine). I rebooted it again and now it's working fine again.
 
-> @@ -2798,7 +2819,8 @@ static int i810_ac97_power_up_bus(struct
->         *      before we start doing DMA stuff
->         */     
->        /* see i810_ac97_init for the next 7 lines (jsaw) */
-> -       inw(card->ac97base);
-> +       if (card->use_mmio) readw(card->ac97base_mmio);
-> +       else inw(card->ac97base);
+I looked into the logs of the first accident and it's mostly the same (a
+couple of X restarts to check whether it revives the mouse):
 
-Please indent these ones too.
+irq 11: nobody cared!
+Stack pointer is garbage, not printing tracehandlers:
+[__crc_xprt_create_proto+526825/4343765] (usb_hcd_irq+0x0/0x60 [usbcore])
+[e100_intr+0/272] (e100_intr+0x0/0x110)
+Disabling IRQ #11
+agpgart: Found an AGP 2.0 compliant device at 0000:00:00.0.
+agpgart: Putting AGP V2 device at 0000:00:00.0 into 4x mode
+agpgart: Putting AGP V2 device at 0000:03:00.0 into 4x mode
+agpgart: Found an AGP 2.0 compliant device at 0000:00:00.0.
+agpgart: Putting AGP V2 device at 0000:00:00.0 into 4x mode
+agpgart: Putting AGP V2 device at 0000:03:00.0 into 4x mode
+usb 1-2: USB disconnect, address 2
+usb 2-2: new low speed USB device using address 2
+input: USB HID v1.10 Mouse [Logitech USB-PS/2 Optical Mouse] on usb-0000:00:1f.4-2
 
-> @@ -3141,6 +3162,11 @@ static int __devinit i810_probe(struct p
->                }
->        }
-> 
-> +       if (!(card->use_mmio) && !(card->iobase)) {
-> +               printk(KERN_ERR "i810_audio: No I/O resources available.\n");
-> +               goto out_mem;
-> +       }
-> +
-
-To be safe we should check card->ac97base as well.
-
-Otherwise the patch looks good.
-
-Cheers,
 -- 
-Visit Openswan at http://www.openswan.org/
-Email:  Herbert Xu ~{PmV>HI~} <herbert@gondor.apana.org.au>
-Home Page: http://gondor.apana.org.au/~herbert/
-PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt
+Meelis Roos (mroos@linux.ee)
+

@@ -1,49 +1,73 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267022AbSLKFRw>; Wed, 11 Dec 2002 00:17:52 -0500
+	id <S263256AbSLKFbt>; Wed, 11 Dec 2002 00:31:49 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267024AbSLKFRw>; Wed, 11 Dec 2002 00:17:52 -0500
-Received: from avocet.mail.pas.earthlink.net ([207.217.120.50]:57298 "EHLO
-	avocet.mail.pas.earthlink.net") by vger.kernel.org with ESMTP
-	id <S267022AbSLKFRw>; Wed, 11 Dec 2002 00:17:52 -0500
-Date: Tue, 10 Dec 2002 22:18:31 -0800 (PST)
+	id <S264729AbSLKFbt>; Wed, 11 Dec 2002 00:31:49 -0500
+Received: from flamingo.mail.pas.earthlink.net ([207.217.120.232]:149 "EHLO
+	flamingo.mail.pas.earthlink.net") by vger.kernel.org with ESMTP
+	id <S263256AbSLKFbr>; Wed, 11 Dec 2002 00:31:47 -0500
+Date: Tue, 10 Dec 2002 22:32:31 -0800 (PST)
 From: James Simmons <jsimmons@infradead.org>
 X-X-Sender: <jsimmons@maxwell.earthlink.net>
 To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-cc: Paul Mackerras <paulus@samba.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Linux Fbdev development list 
-	<linux-fbdev-devel@lists.sourceforge.net>
-Subject: Re: atyfb in 2.5.51
-In-Reply-To: <1039561870.538.28.camel@zion>
-Message-ID: <Pine.LNX.4.33.0212102215450.2617-100000@maxwell.earthlink.net>
+cc: Paul Mackerras <paulus@samba.org>, <linux-kernel@vger.kernel.org>,
+       <linux-fbdev-devel@lists.sourceforge.net>
+Subject: Re: xxx_check_var
+In-Reply-To: <1039562028.3373.32.camel@zion>
+Message-ID: <Pine.LNX.4.33.0212102219010.2617-100000@maxwell.earthlink.net>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-> AFAIK, the X "mach64" driver in XF 4.* doesn't care about UseFBDev.
-> Marc Aurele La France (maintainer of this driver) is basically allergic
-> to kernel fbdev support.
-
-:-(
-
-> I don't know if happened with earlier fbdev versions for you, but one
-> possibility is that X reconfigures the display base, and possibly more
-> bits of the card's internal memory map. Either fbdev should restore
-> that, or adapt to what X set. On R128's and radeon's, this is things
-> like DISPLAY_BASE_ADDR.
-
-I will have to go threw the X code to fix that :-(
-
-> > I have also tried aty128fb with some local patches to get it to
-> > compile for my G4 powerbook.  It also doesn't draw the penguin, and it
-> > oopses when X starts, for some reason.
+> > When I look at atyfb_check_var or aty128fb_check_var, I see that they
+> > will alter the contents of *info->par.  Isn't this a bad thing?  My
 >
-> Hrm... I'll have to test radeonfb... It worked yesteday in console (I
-> don't remember about the penguin) but I didn't try X.
+> Yes, this wrong, and afaik, it's your original port to 2.5 that did that
+> ;)
 
-No penguin. That is weird. I get the penguin on my ix86 box.
+Yeap. The idea of check_var is to validate a mode. Note modedb uses just
+check_var. It is okay to READ the values in your par. You shouldn't alter
+the values in par.
+
+> > understanding was that after calling check_var, you don't necessarily
+> > call set_par next (particularly if check_var returned an error).
+
+Correct. Check_var is always called. Now if you wanted to just test a mode
+via userland with the FB_ACTIVATE_TEST flag then only fb_check_var is
+called. If you pass in FB_ACTIVATE_NOW then both fb_check_var and
+fb_set_par will be called. Fb_set_par actually sets the hardware state.
+
+> > Also I notice that atyfb_set_par and aty128fb_set_par don't look at
+> > info->var, they simply set the hardware state based on the contents of
+> > *info->par.
+>
+> Which is wrong too indeed
+
+Actually you can look at info->var. Info->var has been validated so it can
+be trusted. You don't need to stuff everything into par. You DO need to
+change info->fix if the hardware state has changed.
+
+> > Looking at skeletonfb.c, it seems that this is the wrong behaviour.  I
+> > had fixed the aty128fb.c driver in the linuxppc-2.5 tree.  James, if
+> > you let me know whether the current behaviour is wrong or not, I'll
+> > fix them and send you the patch.
+
+I hope me input helped.
+
+BTW docs are on the way. I will work with Steven Luther on this the next
+couple of days.
+
+> I _think_ my radeonfb (in linuxppc-2.5) is right in this regard too.
+> Look at the initialization too, iirc, you had some non necessary stuff
+> in there (calling gen_set_disp, gen_set_var is plenty enough).
+
+You go the logic down.
+
+P.S
+
+ For the pmu_sleep_notifier can you pass in a specific struct fb_info or
+do you need to make a list of all of them?
 
 

@@ -1,51 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135266AbREFJNe>; Sun, 6 May 2001 05:13:34 -0400
+	id <S135296AbREFKFX>; Sun, 6 May 2001 06:05:23 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135277AbREFJNY>; Sun, 6 May 2001 05:13:24 -0400
-Received: from moutvdom00.kundenserver.de ([195.20.224.149]:41268 "EHLO
-	moutvdom00.kundenserver.de") by vger.kernel.org with ESMTP
-	id <S135266AbREFJNQ>; Sun, 6 May 2001 05:13:16 -0400
-Message-ID: <001201c0d60c$a5a3c920$3303a8c0@pnetz>
-From: =?iso-8859-1?Q?Christian_Borntr=E4ger?= 
-	<linux-kernel@borntraeger.net>
-To: "Linux Kernel" <linux-kernel@vger.kernel.org>
-Subject: Re: DISCOVERED! Cause of Athlon/VIA KX133 Instability
-Date: Sun, 6 May 2001 11:12:11 +0200
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 5.50.4522.1200
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4522.1200
+	id <S135321AbREFKFN>; Sun, 6 May 2001 06:05:13 -0400
+Received: from babylon5.babcom.com ([216.36.71.34]:655 "EHLO
+	babylon5.babcom.com") by vger.kernel.org with ESMTP
+	id <S135296AbREFKFC>; Sun, 6 May 2001 06:05:02 -0400
+Date: Sun, 6 May 2001 03:05:00 -0700
+From: Phil Stracchino <alaric@babcom.com>
+To: Linux-KERNEL <linux-kernel@vger.kernel.org>
+Subject: CDROM troubles
+Message-ID: <20010506030500.A26278@babylon5.babcom.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+X-No-Archive: Yes
+X-PGP-Fingerprint: 2105 C6FC 945D 2A7A 0738  9BB8 D037 CE8E EFA1 3249
+X-PGP-Key-FTP-URL: ftp://ftp.babcom.com/pub/pgpkeys/alaric.asc
+X-PGP-Key-HTTP-URL: http://www.babcom.com/alaric/pgp.html
+X-Copyright: This message may not be reproduced, in part or in whole, for any commercial purpose without prior written permission.  Prior permission for securityfocus.com is implicit.
+X-UCE-Policy: No unsolicited commercial email is accepted at this site.  The sending of any UCE to this domain may result in the imposition of civil liability against the sender in accordance with Cal. Bus. & Prof. Code Section 17538.45, and all senders of UCE will be permanently blocked.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->Maybe, but the IWILL board is the only one we've heard about problems with.
+Hey folks,
+I'm seeing a problem with mounting CDs using a Toshiba XM-6401TA CDROM
+drive attached to an Adaptec AHA1542CF controller (scsi1) on kernel 2.4.3
+and 2.4.4.  The behavior seems to be fairly consistent as follows:
 
-I have also stability problems with an ASUS A7V133. I already have the
-1004-d2 bios which should fix the VIA IDE problems. But my hard drives are
-connected to the promise controller of the board. Only 2 CD-drives are on
-teh VIA-Chip.
+first mount and unmount works normally, no unusual events logged
+second mount and unmount works normally, no unusual events logged
+third mount locks up the machine.  looks like a kernel panic.
 
-I am quite sure that my problem was introduced with 2.4.3-ac7, because, the
-board is rock solid up to kernel 2.4.3-ac6 or with the Madrake 8 kernel.
-But If I try to put some load on 2.4.3-ac7 or above I get lock ups. Even the
-magic sysrq does not work. No matter if compiled for athlon Pentium II or
-586.
-No matter if I use the mandrake 8 gcc 2.96 or a self compiled gcc 2.95.3.
-The problem also occurs on kernel 2.4.4.
+Any ideas?
 
 
-Bytheway there is a thread called "ABit KT7A-RAIN random lock ups "
-It might be related to one of the Athlon/VIA problems.
-
-
-
-greetings
-Christian
-
-
-
+-- 
+ Linux Now!   ..........Because friends don't let friends use Microsoft.
+ phil stracchino   --   the renaissance man   --   mystic zen biker geek
+    Vr00m:  2000 Honda CBR929RR   --   Cage:  2000 Dodge Intrepid R/T
+ Previous vr00mage:  1986 VF500F (sold), 1991 VFR750F3 (foully murdered)

@@ -1,68 +1,98 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S279853AbRKFRso>; Tue, 6 Nov 2001 12:48:44 -0500
+	id <S279842AbRKFRxO>; Tue, 6 Nov 2001 12:53:14 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S279845AbRKFRse>; Tue, 6 Nov 2001 12:48:34 -0500
-Received: from air-1.osdl.org ([65.201.151.5]:53254 "EHLO osdlab.pdx.osdl.net")
-	by vger.kernel.org with ESMTP id <S279842AbRKFRs0>;
-	Tue, 6 Nov 2001 12:48:26 -0500
-Message-ID: <3BE820A8.8B93A497@osdl.org>
-Date: Tue, 06 Nov 2001 09:40:56 -0800
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-Organization: OSDL
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.3-20mdk i686)
-X-Accept-Language: en
+	id <S279860AbRKFRxE>; Tue, 6 Nov 2001 12:53:04 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:3339 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S279842AbRKFRwv>; Tue, 6 Nov 2001 12:52:51 -0500
+Date: Tue, 6 Nov 2001 09:49:15 -0800 (PST)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Benjamin LaHaise <bcrl@redhat.com>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: Using %cr2 to reference "current"
+In-Reply-To: <20011106121313.B16245@redhat.com>
+Message-ID: <Pine.LNX.4.33.0111060918380.2194-100000@penguin.transmeta.com>
 MIME-Version: 1.0
-To: robert@schwebel.de
-CC: linux-kernel@vger.kernel.org
-Subject: Re: ioport range of 8259 aka pic1
-In-Reply-To: <Pine.LNX.4.33.0111061001351.12441-100000@callisto.local>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Robert Schwebel wrote:
-> 
-> is there a reason why the kernel (tested with 2.4.13) picks up the io port
-> region from 0020-003f for pic1? All I could find on the net lets me assume
-> that only 0020-0021 are used by the interrupt controllers (may be wrong
-> here - hints for literature are welcome). Same problem with pic2.
-> 
-> I'm currently working with an AMD Elan SC410 (x86 embedded system on chip)
-> which has it's private registers at 0022 and following, which makes it
-> impossible to write "correct" drivers that request_region() their ports
-> before using them.
 
-The Intel chipset specs say that PIC1 uses:
-  (all hex:) 20-21, 24-25, 28-29, 2c-2d, 30-31, 34-35, 38-39, 3c-3d.
+On Tue, 6 Nov 2001, Benjamin LaHaise wrote:
+>
+> On Tue, Nov 06, 2001 at 05:02:32PM +0000, Linus Torvalds wrote:
+> > Which means that the whole approach is just depending on undocumented
+> > implementation behaviour. That's asking for trouble.
+>
+> NetWare uses it and has for a long time.
 
-Some of the older chipset specs say that all of these other than
-20-21 are just aliases of 20-21 (like the 440MX spec).
-Later specs don't say this (as in all of the 800-model ICH0/ICH2
-specs).
+Does anybody know if WNT uses it? Quite frankly, I don't see Intel
+worrying over-much about NetWare compatibility. They've broken small OS's
+before (ie older versions of SCO Xenix wouldn't boot on a Pentium MMU
+because of some changes to error reporting, if I remember correctly).
 
-In either case, port 0x22 should be available for you.  What
-do you mean by "and following"?  What register range does it use?
-What fixed IO addresses does the Elan require (consume)?
+That said, how expensive is loading %cr2 anyway? We can do all the same
+tricks with a 16kB stack and just playing games with using the higher bits
+as the "offset", ie things like
 
-So in linux/arch/i386/kernel/setup.c, you could modify the
-"standard IO resources" table to match your target system's
-requirements.
+	/* Return "current" in %eax, trash %edx */
+	do_get_current:
+		movl $0x0003c000,%eax	// 4 bits at bit 14
+		movl $-16384,%edx	// remove low 14 bits
+		andl $esp,%eax
+		andl $esp,%edx
+		shrl $7,%eax		// color it by 128 bytes
+		addl %edx,%eax
+		ret
 
-Current table:
-struct resource standard_io_resources[] = {
-	{ "dma1", 0x00, 0x1f, IORESOURCE_BUSY },
-	{ "pic1", 0x20, 0x3f, IORESOURCE_BUSY },
-	{ "timer", 0x40, 0x5f, IORESOURCE_BUSY },
-	{ "keyboard", 0x60, 0x6f, IORESOURCE_BUSY },
-	{ "dma page reg", 0x80, 0x8f, IORESOURCE_BUSY },
-	{ "pic2", 0xa0, 0xbf, IORESOURCE_BUSY },
-	{ "dma2", 0xc0, 0xdf, IORESOURCE_BUSY },
-	{ "fpu", 0xf0, 0xff, IORESOURCE_BUSY }
-};
+which is going to be ~5 cycles _without_ doing anything that is
+undocumented (add a push/pop to not trash a register, that might be
+worthwhile - it makes the function marginally slower but might make
+callers happier).
 
-Just modify the "pic1" and "pic2" entries to be multiple shorter
-entries.
+Oh, and call using inline assembly, not a C call (so that gcc can take
+advantage of better calling convention, and not think memory is trashed
+etc). So
 
-~Randy
+	static inline struct task_struct *get_current(void)
+	{
+		struct task_struct *tsk;
+		asm("call do_get_current":"=a" (tsk)::"dx");
+		return tsk;
+	}
+
+See? You don't have to play games with control registers.
+
+(actually, entry.S seems to want the return value in %ebx, so change to
+taste. Or you could have two different versions of the thing, or even
+inline it for any place where that makes sense).
+
+The above also allows you to keep fork with just one allocation, and makes
+the stack larger (we steal 2kB for the coloring, but we'd use an order-2
+allocation that at least SGI wants to do regardless).
+
+The 2kB is, of course, tunable. The above is with a 128-byte cacheline and
+16 colors - that may be overkill. 32-byte increents with 32 colors might
+be more appropriate (I don't know what the effect of the P4 half-cacheline
+thing is, I don't know if the CPU can have just a 64-byte block coherent,
+or what.. But a 32-byte color is fine for _most_ CPU's).
+
+The 32-byte by 32-color thing would just change the bitmasks to 0x0007c000
+and the shift to 9 (bit 14+ shifted down to bit 5+).
+
+Note that there are lots of advantages to using simple regular
+instructions over using "special" instructions like "move from control
+register". Historically, the special instructions tend to always become
+slower, while the regular instructions become faster.
+
+I would not be surprised if "mov %cr2,%reg" will break a netburst trace
+cache entity, or even cause microcode to be executed. While I _guarantee_
+that all future Intel CPU's will continue to be fast at mixtures of simple
+arithmetic operations like "add" and "and".
+
+(And I bet that the likelyhood of Intel speeding up shifts in the next P4
+derivative is a _lot_ higher than Intel speeding up "mov %cr2,xx"..)
+
+		Linus
+

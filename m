@@ -1,116 +1,45 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315048AbSEHUE3>; Wed, 8 May 2002 16:04:29 -0400
+	id <S315050AbSEHUOY>; Wed, 8 May 2002 16:14:24 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315050AbSEHUE2>; Wed, 8 May 2002 16:04:28 -0400
-Received: from mailsorter.ma.tmpw.net ([63.112.169.25]:34339 "EHLO
-	mailsorter.ma.tmpw.net") by vger.kernel.org with ESMTP
-	id <S315048AbSEHUE1>; Wed, 8 May 2002 16:04:27 -0400
-Message-ID: <61DB42B180EAB34E9D28346C11535A783A7600@nocmail101.ma.tmpw.net>
-From: "Holzrichter, Bruce" <bruce.holzrichter@monster.com>
-To: "'David S. Miller'" <davem@redhat.com>
-Cc: linux-kernel@vger.kernel.org, ak@muc.de
-Subject: PATCH mm/slab.c against 2.5.15 (was: slab cache broken on sparc64
-	)
-Date: Wed, 8 May 2002 15:04:13 -0500 
+	id <S315096AbSEHUOX>; Wed, 8 May 2002 16:14:23 -0400
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:43026 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S315050AbSEHUOW>; Wed, 8 May 2002 16:14:22 -0400
+Subject: Re: [PATCH] IDE 58
+To: benh@kernel.crashing.org (Benjamin Herrenschmidt)
+Date: Wed, 8 May 2002 21:31:55 +0100 (BST)
+Cc: torvalds@transmeta.com (Linus Torvalds),
+        dalecki@evision-ventures.com (Martin Dalecki),
+        andre@linux-ide.org (Andre Hedrick),
+        bjorn.wesen@axis.com (Bjorn Wesen), paulus@samba.org (Paul Mackerras),
+        linux-kernel@vger.kernel.org (Kernel Mailing List)
+In-Reply-To: <20020508191054.6282@smtp.wanadoo.fr> from "Benjamin Herrenschmidt" at May 08, 2002 09:10:54 PM
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E175Y6N-0002Jj-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> 
-> Do it like this instead.
-> 
-> 	int fault;
-> 	mm_segment_t old_fs;
-> 
-> 	...
-> 
-> 	old_fs = get_fs();
-> 	set_fs(KERNEL_DS);
-> 	fault = __get_user(tmp, pc->name);
-> 	set_fs(old_fs);
-> 
-> 	if (fault) {
-> 	...
-> 
+> ata_channel (or ata_drive, but I doubt that would be really
+> necessary) a set of 4 access functions: taskfile_in/out for
+> access to taskfile registers (8 bits), and data_in/out for
+> steaming datas in/out of the data reg (16 bits).
 
-Dave/Andi 
+Please push it higher level than that. Load the taskfile as a set in
+each method. Remember its 1 potentially paired instruction to do an MMIO
+write, its a whole mess of synchronziation and stalls to do a function 
+pointer.
 
-I've redone my patch against mm/slab.c for 2.5.15, although I can't test on
-my Sparc ad I don't have a working kernel 2.5.15 yet for other reasons, but
-it does compile.  I have tested against 2.5.13 with this, and it works fine,
-with your changes, mentioned above, so there's no reason it shouldn't.
+> address at all (that is kill the array of port addresses) but
+> just pass the taskfile_in/out functions the register number
+> (cyl_hi, cyl_lo, select, ....) as a nice symbolic constant,
+> and let the channel specific implementation figure it out.
 
-This will make sure the __get_user is called correctly.
+Pass  dev->taskfile_load() a struct at least for the common paths. Make the
+PIO block transfers also single callbacks for each block not word.
 
-Thanks,
-Bruce H.
-
-
---- linus-2.5/mm/slab.c	Wed May  8 15:51:33 2002
-+++ sparctest/mm/slab.c	Wed May  8 15:43:04 2002
-@@ -843,10 +843,19 @@
- 		list_for_each(p, &cache_chain) {
- 			kmem_cache_t *pc = list_entry(p, kmem_cache_t,
-next);
- 			char tmp;
-+			int fault;
-+			mm_segment_t old_fs;
-+
- 			/* This happens when the module gets unloaded and
-doesn't
- 			   destroy its slab cache and noone else reuses the
-vmalloc
- 			   area of the module. Print a warning. */
--			if (__get_user(tmp,pc->name)) { 
-+
-+			old_fs = get_fs();
-+			set_fs(KERNEL_DS);
-+			fault = __get_user(tmp, pc->name);
-+			set_fs(old_fs);
-+
-+			if (fault) { 
- 				printk("SLAB: cache with size %d has lost
-its name\n", 
- 					pc->objsize); 
- 				continue; 
-@@ -1912,13 +1921,16 @@
- static int s_show(struct seq_file *m, void *p)
- {
- 	kmem_cache_t *cachep = p;
-+	mm_segment_t old_fs;
- 	struct list_head *q;
- 	slab_t		*slabp;
- 	unsigned long	active_objs;
- 	unsigned long	num_objs;
- 	unsigned long	active_slabs = 0;
- 	unsigned long	num_slabs;
--	const char *name; 
-+	const char *name;
-+	char tmp;
-+	int fault; 
- 
- 	if (p == (void*)1) {
- 		/*
-@@ -1963,11 +1975,13 @@
- 	num_objs = num_slabs*cachep->num;
- 
- 	name = cachep->name; 
--	{
--	char tmp; 
--	if (__get_user(tmp, name)) 
--		name = "broken"; 
--	} 	
-+
-+	old_fs = get_fs();
-+	set_fs(KERNEL_DS);
-+	fault = __get_user(tmp, name);
-+	set_fs(old_fs);
-+
-+	if (fault) name = "broken";
- 
- 	seq_printf(m, "%-17s %6lu %6lu %6u %4lu %4lu %4u",
- 		name, active_objs, num_objs, cachep->objsize,
+Alan

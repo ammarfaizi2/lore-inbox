@@ -1,38 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130150AbQLMP4V>; Wed, 13 Dec 2000 10:56:21 -0500
+	id <S130755AbQLMQMD>; Wed, 13 Dec 2000 11:12:03 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130755AbQLMP4M>; Wed, 13 Dec 2000 10:56:12 -0500
-Received: from fromage.dsndata.com ([198.183.6.16]:31752 "EHLO
-	fromage.dsndata.com") by vger.kernel.org with ESMTP
-	id <S130150AbQLMP4A>; Wed, 13 Dec 2000 10:56:00 -0500
-Date: Wed, 13 Dec 2000 09:25:33 -0600
-From: Jeff Epler <jepler@inetnebr.com>
-To: linux-kernel@vger.kernel.org
-Subject: Re: strange directory problem
-Message-ID: <20001213092531.A11604@inetnebr.com>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-In-Reply-To: <20001213141350.B8330@vega.digitel2002.hu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 1.0.1i
-In-Reply-To: <20001213141350.B8330@vega.digitel2002.hu>; from lgb@vega.digitel2002.hu on Wed, Dec 13, 2000 at 02:13:51PM +0100
+	id <S131711AbQLMQLx>; Wed, 13 Dec 2000 11:11:53 -0500
+Received: from www.wen-online.de ([212.223.88.39]:45842 "EHLO wen-online.de")
+	by vger.kernel.org with ESMTP id <S130755AbQLMQLe>;
+	Wed, 13 Dec 2000 11:11:34 -0500
+Date: Wed, 13 Dec 2000 16:40:58 +0100 (CET)
+From: Mike Galbraith <mikeg@wen-online.de>
+To: Rainer Mager <rmager@vgkk.com>
+cc: linux-kernel@vger.kernel.org, Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: RE: Signal 11 - the continuing saga
+In-Reply-To: <NEBBJBCAFMMNIHGDLFKGOEBICJAA.rmager@vgkk.com>
+Message-ID: <Pine.Linu.4.10.10012131601390.1883-100000@mikeg.weiden.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Dec 13, 2000 at 02:13:51PM +0100, Gabor Lenart wrote:
-> Hi,
-> 
-> lgb@vega:~$ uname -a
-> Linux vega 2.2.18pre24 #1 Thu Dec 7 14:08:36 CET 2000 i686 unknown
-> 
-> I created a directory from shell (bash). The next ls didn't show it,
-> I had to type ls second time too to get the changes. Is it a known bug?
-> Is it fixed in 2.2.18final ?
+On Wed, 13 Dec 2000, Rainer Mager wrote:
 
-NFS, or a local filesystem?
+> Mike et al,
+> 
+> 	I have no idea what IKD is and I don't know what to do with any results I
+> might find BUT I'd be happy to do this if it will help. Please pass on the
+> info with the instructions. Who should I report the results to?
 
-Jeff
+IKD is a debugging toolkit.  The trap I have set up freezes the kernel
+trace buffer at SIGSEGV time.  From there you have to read it backward
+looking for problems. (which isn't particularly easy).  I was thinking
+you wanted to roll your shirt sleeves up and maybe this would help ;-)  
+
+If you want it, and do a trace, I'b be very interested in the last
+couple of schedules to compare to my traces.  It's not something you
+can just run and report though.
+
+	-Mike
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

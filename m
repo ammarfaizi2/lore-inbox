@@ -1,61 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262305AbUKVVpB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262414AbUKVVsS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262305AbUKVVpB (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 22 Nov 2004 16:45:01 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262379AbUKVVnX
+	id S262414AbUKVVsS (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 22 Nov 2004 16:48:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262318AbUKVVmy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 22 Nov 2004 16:43:23 -0500
-Received: from fw.osdl.org ([65.172.181.6]:33748 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S262305AbUKVVjc (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 22 Nov 2004 16:39:32 -0500
-Date: Mon, 22 Nov 2004 13:43:44 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
-Cc: torvalds@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: [RFC][PATCH] problem of cont_prepare_write()
-Message-Id: <20041122134344.3b2cb489.akpm@osdl.org>
-In-Reply-To: <87ekimw1uj.fsf@devron.myhome.or.jp>
-References: <877joexjk5.fsf@devron.myhome.or.jp>
-	<20041122024654.37eb5f3d.akpm@osdl.org>
-	<87ekimw1uj.fsf@devron.myhome.or.jp>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i586-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Mon, 22 Nov 2004 16:42:54 -0500
+Received: from alog0143.analogic.com ([208.224.220.158]:11904 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP id S262377AbUKVVgj
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 22 Nov 2004 16:36:39 -0500
+Date: Mon, 22 Nov 2004 16:30:21 -0500 (EST)
+From: linux-os <linux-os@chaos.analogic.com>
+Reply-To: linux-os@analogic.com
+To: Arjan van de Ven <arjan@infradead.org>
+cc: Justin Thiessen <jthiessen@penguincomputing.com>, greg@kroah.com,
+       phil@netroedge.com, khali@linux-fr.org, sensors@Stimpy.netroedge.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: adm1026 driver port for kernel 2.6.10-rc2  [RE-REVISED DRIVER]
+In-Reply-To: <1101157242.2813.34.camel@laptop.fenrus.org>
+Message-ID: <Pine.LNX.4.61.0411221625570.23112@chaos.analogic.com>
+References: <20041102221745.GB18020@penguincomputing.com> 
+ <NN38qQl1.1099468908.1237810.khali@gcu.info>  <20041103164354.GB20465@penguincomputing.com>
+  <20041118185612.GA20728@penguincomputing.com>  <1100945635.2639.31.camel@laptop.fenrus.org>
+  <20041122194327.GB4698@penguincomputing.com> <1101157242.2813.34.camel@laptop.fenrus.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-OGAWA Hirofumi <hirofumi@mail.parknet.co.jp> wrote:
+On Mon, 22 Nov 2004, Arjan van de Ven wrote:
+
 >
-> Andrew Morton <akpm@osdl.org> writes:
-> 
-> > Perhaps cont_prepare_write() should look to see if the zerofilled page is
-> > outside the current i_size and if so, advance i_size to the end of the
-> > zerofilled page prior to releasing the page lock.
-> 
-> Yes, my first patch was it.
+>>> this locking construct is rahter awkward; is it possible to refactor the
+>>> code such that you can down and up in the same function ?
+>>
+>> Yes, at the cost of some minor code duplication or the introduction of
+>> another variable.  Is that preferable?  Is holding the lock across function
+>> calls a Bad Idea?
+>
+> holding lock across function calls isn't, unlocking in another function
+> than you take the lock is.
+> For one it makes auditing the code a lot harder.
+>
 
-I don't understand what you mean.  Do you mean you tried that approach and
-rejected it for some reason?
+Also, code like:
 
-> Umm... however, if ->i_size is updated before ->commit_write(),
-> doesn't it allow access to those pages, before all write() work is
-> successful?
+ 	down(&mylock);
+ 	do_something();
+         if(fail) {
+             up(&mylock);
+             return retval;
+         }
 
-That's OK.  A thread which is read()ing that page will either
-
-a) decide that the page is outside i_size, and won't read it anyway or
-
-b) decide that the page is inside i_size and will read the page's contents.
-
-Still, I'd be inclined to update i_size after running ->commit_write.  It
-looks like we can simply replace the call to __block_commit_write() with a
-call to generic_commit_write().
+... is prone to errors where a lock never gets released on some
+corner cases. It's often better to "goto" a common exit point where
+the lock is released.
 
 
-But none of this has anything to do with truncate, and the patch which you
-sent is playing around with the truncate code and appears to be quite
-unrelated.  Did you send the correct patch?  If so, what is it designed to
-do?
-
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.6.9 on an i686 machine (5537.79 BogoMips).
+  Notice : All mail here is now cached for review by John Ashcroft.
+                  98.36% of all statistics are fiction.

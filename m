@@ -1,86 +1,88 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263502AbTIBFeV (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 2 Sep 2003 01:34:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263515AbTIBFeV
+	id S263515AbTIBFjL (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 2 Sep 2003 01:39:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263526AbTIBFjL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 2 Sep 2003 01:34:21 -0400
-Received: from mail.jlokier.co.uk ([81.29.64.88]:8842 "EHLO mail.jlokier.co.uk")
-	by vger.kernel.org with ESMTP id S263502AbTIBFeS (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 2 Sep 2003 01:34:18 -0400
-Date: Tue, 2 Sep 2003 06:34:15 +0100
-From: Jamie Lokier <jamie@shareable.org>
-To: "Paul J.Y. Lahaie" <pjlahaie@steamballoon.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: x86, ARM, PARISC, PPC, MIPS and Sparc folks please run this
-Message-ID: <20030902053415.GA7619@mail.jlokier.co.uk>
-References: <20030829053510.GA12663@mail.jlokier.co.uk> <1062188787.4062.21.camel@elenuial.steamballoon.com> <20030901091524.A15370@flint.arm.linux.org.uk> <20030901101224.GB1638@mail.jlokier.co.uk> <20030901151710.A22682@flint.arm.linux.org.uk> <20030901165239.GB3556@mail.jlokier.co.uk> <20030901181148.C22682@flint.arm.linux.org.uk>
+	Tue, 2 Sep 2003 01:39:11 -0400
+Received: from hauptpostamt.charite.de ([193.175.66.220]:8921 "EHLO
+	hauptpostamt.charite.de") by vger.kernel.org with ESMTP
+	id S263515AbTIBFjH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 2 Sep 2003 01:39:07 -0400
+Date: Tue, 2 Sep 2003 07:39:03 +0200
+From: Ralf Hildebrandt <Ralf.Hildebrandt@charite.de>
+To: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] keyboard - was: Re: Linux 2.6.0-test4
+Message-ID: <20030902053903.GD25927@charite.de>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+References: <20030831120605.08D6.CHRIS@heathens.co.nz> <20030901160125.GL22127@charite.de> <20030902021603.A1167@pclin040.win.tue.nl>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20030901181148.C22682@flint.arm.linux.org.uk>
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <20030902021603.A1167@pclin040.win.tue.nl>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Russell King wrote:
-> >    1. That's not necessary when the virtual addresses are separated
-> >       by some multiple, is it?
+* Andries Brouwer <aebr@win.tue.nl>:
+
+> > * Chris Heath <chris@heathens.co.nz>:
+> > > > Aug 27 18:53:41 hummus2 kernel: atkbd.c: Unknown key (set 2, scancode 0x9d, on isa0060/serio0) pressed.
+> > > > Aug 27 19:15:14 hummus2 kernel: atkbd.c: Unknown key (set 2, scancode 0xb9, on isa0060/serio0) pressed.
+> > > > Aug 27 19:42:50 hummus2 kernel: atkbd.c: Unknown key (set 2, scancode 0x9d, on isa0060/serio0) pressed.
+> > > > Aug 28 10:14:14 hummus2 kernel: atkbd.c: Unknown key (set 2, scancode 0x9d, on isa0060/serio0) pressed.
+> > > > 
+> > > > Basically, CTRL was stuck. Even when I switched to X11.
+> > > 
+> > > Well, this completely baffles me.  I thought X11 maintains its own
+> > > keydown array.
 > 
-> Incorrect - with a VIVT, you have alias hell.  There is no multiple
-> which makes it safe.
-
-Ok.  I guess I was thinking of VIPT, but by now I am just guessing :)
-
-> > > I've tested on several silicon revisions of StrongARM-110's:
-> > > - H appears buggy (reports as rev. 2)
-> > > - K appears fine (reports as rev. 2)
-> > > - S appears buggy (reports as rev. 3)
+> It can do that only when it gets uncontaminated data.
+> 
+> > I applied your patch, and alas:
 > > 
-> > It's possible that all of them are buggy, but the write buffer test
-> > doesn't manage to get writes into the buffer with the exact timing
-> > needed to trigger it.
+> > Sep  1 16:12:19 hummus2 kernel: atkbd.c: Unknown key (set 2, scancode 0xb9, on isa0060/serio0) pressed.
+> > Sep  1 16:12:19 hummus2 kernel: i8042 history: ae 9d e0 48 e0 c8 e0 38 56 d6 e0 b8 e0 b8 39 b9
 > 
-> Well, I've just generated a kernel test which does more or less the
-> same thing (write to one mapping, write to other, read from first.)
-> This indicates the same result.
+> I don't know why you say "alas". I read (two key releases, then)
+> press UpArrow, release UpArrow, RAlt, some key, release some key, release RAlt,
+> funny: again release RAlt, press space bar, release space bar.
+
+This must a known bug of this particular keyboard.
+
+> So, nothing "Unknown" about this 0xb9 key - it is the spacebar release.
 > 
-> If you take a moment to think about what should be going on -
+> But i8042.c will do an unxlate when it thinks the key is down, so it
+> did not think so. But we saw the key down a moment ago. Apparently
+> the line
 > 
-> - first write gets translated to physical address, and the address with
->   the data is placed in the write buffer.
-> - second write gets translated to the same physical address, and the
->   address and data is placed into the write buffer such that we store
->   the first write then the second write to the same physical memory.
-> - reading from the first mapping should return the second writes value
->   no matter what.
-
-That is an incomplete explanation, because it should never be possible
-for reads to access data from the write buffer which isn't the most
-recent.  That would break ordinary programs which don't have alias mappings.
-
-> > Unfortunately, while the write buffer test does
-> > pretty much guarantee a store/store/load instruction sequence, because
-> > it's generic it can't guarantee how those are executed in a
-> > superscalar or out of order pipeline.
+> 	set_bit(data | (i8042_last_e0 << 7), i8042_unxlate_seen);
 > 
-> ARM doesn't do any of those tricks.
-
-Don't some of the ARMs executed two instructions concurrently, like
-the original Pentium?  The simple test is only valid if a
-store/store/load sequence is guaranteed to pass through the buggy part
-of the pipeline in exactly the same way, no matter which programs it
-appears in.
-
-> > > So it seems your test program finds problems which DaveM's aliastest
-> > > program fails to detect...  Gah. ;(
-> > 
-> > Well, it's good to know it was useful :/
+> did not set i8042_unxlate_seen for data = 0x39. And it is clear why:
+> The sequence e0 b8 e0 b8 is a repetition, the second e0 sets i8042_last_e0,
+> but after the second b8 we bail out without clearing i8042_last_e0 again.
+> *BUG*.
 > 
-> Well, we now have a kernel test to detect the problem, which alters our
-> behaviour appropriately.  Thanks.
+> Conclusion: in the skipped double release case we must clear i8042_last_e0.
+> 
+> Andries
+> 
+> Vojtech: Note: 1 line should be added in i8042.c:i8042_interrupt().
+> [A stopgap - in fact all this i8042_unxlate_seen stuff should be ripped out.]
+> 
+> --- serio/i8042.c~      Sat Aug  9 22:16:42 2003
+> +++ serio/i8042.c       Tue Sep  2 03:09:12 2003
+> @@ -410,6 +410,7 @@
+>                         /* work around hardware that doubles key releases */
+>                         if (index == i8042_last_release) {
+>                                 dbg("i8042 skipped double release (%d)\n", index);
+> +                               i8042_last_e0 = 0;
+>                                 continue;
+>                         }
+>                         if (index == 0xaa || index == 0xb6)
 
-Fwiw, PA-RISC shows a similar problem.
-
--- Jamie
+-- 
+Ralf Hildebrandt (Im Auftrag des Referat V a)   Ralf.Hildebrandt@charite.de
+Charite Campus Mitte                            Tel.  +49 (0)30-450 570-155
+Referat V a - Kommunikationsnetze -             Fax.  +49 (0)30-450 570-916
+AIM: ralfpostfix

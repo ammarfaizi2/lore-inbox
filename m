@@ -1,230 +1,59 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263905AbRFHGwD>; Fri, 8 Jun 2001 02:52:03 -0400
+	id <S263906AbRFHHhN>; Fri, 8 Jun 2001 03:37:13 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263906AbRFHGvy>; Fri, 8 Jun 2001 02:51:54 -0400
-Received: from mailrtr02.ntelos.net ([216.12.0.102]:25302 "EHLO
-	mailrtr02.ntelos.net") by vger.kernel.org with ESMTP
-	id <S263905AbRFHGvl>; Fri, 8 Jun 2001 02:51:41 -0400
-Message-Id: <200106080651.f586pXj15998@mailrtr02.ntelos.net>
-MIME-Version: 1.0
-From: "Aaron Krowne" <akrowne@vt.edu>
-To: Jeff Garzik <jgarzik@mandrakesoft.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: what's up with IRQ routing in 2.4.x ?
-X-Mailer: Pronto v2.2.3 On linux/mysql
-Date: 08 Jun 2001 02:51:31 EDT
-Reply-To: "Aaron Krowne" <akrowne@vt.edu>
-In-Reply-To: <3B206954.CD461E00@mandrakesoft.com>
-In-Reply-To: <200106080410.f584Aj021251@mailrtr04.ntelos.net>
-    <3B206954.CD461E00@mandrakesoft.com>
-Content-Type: multipart/mixed; boundary="----------=_991983091-407-0"
+	id <S263881AbRFHHhE>; Fri, 8 Jun 2001 03:37:04 -0400
+Received: from c1313109-a.potlnd1.or.home.com ([65.0.121.190]:57616 "HELO
+	kroah.com") by vger.kernel.org with SMTP id <S263816AbRFHHg4>;
+	Fri, 8 Jun 2001 03:36:56 -0400
+Date: Fri, 8 Jun 2001 00:35:21 -0700
+From: Greg KH <greg@kroah.com>
+To: linux-kernel@vger.kernel.org
+Subject: [PATCH] Hotplug PCI driver for 2.4.6-pre1
+Message-ID: <20010608003521.B12982@kroah.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format...
+I've cut another patch for the Compaq Hotplug PCI driver ported to
+2.4.6-pre1.  It should also apply cleanly and run on 2.4.5, but I
+haven't tested it there.  It is available at:
+	http://www.kroah.com/linux/hotplug/
 
-------------=_991983091-407-0
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Disposition: inline
-Content-Transfer-Encoding: 7bit
+Here is a list of the things that have been changed since the last patch
+I sent out:
+	- forward ported to 2.4.6-pre1
+	- reformatted the code to match kernel guidelines
+	- removed most typedefs to match kernel programming style
+	- removed lots of unused #defines
+	- cleaned up almost all complier warnings (including those when
+	  debugging is enabled.)
+	- forced debugging to be enabled (this is easily switched off in
+	  the cpqphpd_linux.h file if you don't like to see all of it.)
+	- removed lots of global symbols, moving those that are
+	  necessary to a clean namespace (hpcd_*).
+	- cleaned up the probing for the hotplug device logic to make
+	  other future devices easier to add.
+	- other stylistic things.
 
-On Fri, 08 Jun 2001 01:57:40 -0400, Jeff Garzik said:
+I've tested this patch on both Compaq and Intel hotplug controllers
+(much thanks to Compaq for providing a machine to test this out on)
+using the Compaq gui tool.
 
-> Aaron Krowne wrote:
->  > I have an AMD KT133A system.  I have two friends with PIII-based laptops (one
->  > toshiba, one thinkpad.)  We have all noticed the exact same strange behavior
->  > despite our various hardware.  We're all running linux 2.4.4 or 2.4.5.  The
->  > strange thing is that, whenever it has the opportunity to set an IRQ, linux
->  > puts the device in question on the same IRQ which seems fixed for the system.
->  > But it gets stranger.  This IRQ is always IRQ 11.  On all 3 systems.  On my
->  > system, I can specify "assign IRQ for USB".  When I do this, USB gets its own
->  > IRQ and works (sorta).  When I do not, USB goes on IRQ 11 too!  And, in this
->  > case, lots of devices on USB refuse their addresses and such, which does not
->  > happen when USB has its own IRQ.
->  
->  I'm curious if the attached patch helps anything.
->  
->  Also, note that I fixed some Via-mobo-related issues in the following
->  patch:
->  ftp://ftp.us.kernel.org/pub/linux/kernel/people/jgarzik/patches/2.4.6/via-fixup-2.4.6.1.patch.gz
+Things left to do:
+	- add kernel-doc style comments
+	- remove more global symbols
+	- incorporate native list types
+	- look into removing some of the native PCI bus probing logic to
+	  use the kernel provided functions where possible.
+	- add support for other archs (ia64)
 
-Ok, I applied both patches and rebooted.  Some error messages slightly changed
-regarding the USB, some devices were stubborn about accepting addresses
-(scanner and mouse still worked, digital cam didn't (as before)).  Network and
-sound card both went to IRQ 11 again.  Still PIRQ routing errors.
+If anyone has any problems or questions about this version, please let
+me know.
 
-Attached is dmesg.
+thanks,
 
-Aaron Krowne
-
-------------=_991983091-407-0
-Content-Type: application/x-unknown; name="dmesg_2"
-Content-Disposition: inline; filename="dmesg_2"
-Content-Transfer-Encoding: base64
-
-MDAwMDAwMDAwMCAtIDAwMDAwMDAwMDAwYTAwMDAgKHVzYWJsZSkKIEJJT1Mt
-ZTgyMDogMDAwMDAwMDAwMDBmMDAwMCAtIDAwMDAwMDAwMDAxMDAwMDAgKHJl
-c2VydmVkKQogQklPUy1lODIwOiAwMDAwMDAwMDAwMTAwMDAwIC0gMDAwMDAw
-MDAxZmZmMDAwMCAodXNhYmxlKQogQklPUy1lODIwOiAwMDAwMDAwMDFmZmYw
-MDAwIC0gMDAwMDAwMDAxZmZmMzAwMCAoQUNQSSBOVlMpCiBCSU9TLWU4MjA6
-IDAwMDAwMDAwMWZmZjMwMDAgLSAwMDAwMDAwMDIwMDAwMDAwIChBQ1BJIGRh
-dGEpCiBCSU9TLWU4MjA6IDAwMDAwMDAwZmZmZjAwMDAgLSAwMDAwMDAwMTAw
-MDAwMDAwIChyZXNlcnZlZCkKT24gbm9kZSAwIHRvdGFscGFnZXM6IDEzMTA1
-Ngp6b25lKDApOiA0MDk2IHBhZ2VzLgp6b25lKDEpOiAxMjY5NjAgcGFnZXMu
-CnpvbmUoMik6IDAgcGFnZXMuCktlcm5lbCBjb21tYW5kIGxpbmU6IGF1dG8g
-Qk9PVF9JTUFHRT1MaW51eCBybyByb290PTMwMgpJbml0aWFsaXppbmcgQ1BV
-IzAKRGV0ZWN0ZWQgODk5LjU4MSBNSHogcHJvY2Vzc29yLgpDb25zb2xlOiBj
-b2xvdXIgVkdBKyA4MHgyNQpDYWxpYnJhdGluZyBkZWxheSBsb29wLi4uIDE3
-OTUuNjggQm9nb01JUFMKTWVtb3J5OiA1MTMzOTZrLzUyNDIyNGsgYXZhaWxh
-YmxlICg5NzNrIGtlcm5lbCBjb2RlLCAxMDQ0NGsgcmVzZXJ2ZWQsIDMxMmsg
-ZGF0YSwgMTkyayBpbml0LCAwayBoaWdobWVtKQpEZW50cnktY2FjaGUgaGFz
-aCB0YWJsZSBlbnRyaWVzOiA2NTUzNiAob3JkZXI6IDcsIDUyNDI4OCBieXRl
-cykKSW5vZGUtY2FjaGUgaGFzaCB0YWJsZSBlbnRyaWVzOiAzMjc2OCAob3Jk
-ZXI6IDYsIDI2MjE0NCBieXRlcykKQnVmZmVyLWNhY2hlIGhhc2ggdGFibGUg
-ZW50cmllczogMzI3NjggKG9yZGVyOiA1LCAxMzEwNzIgYnl0ZXMpClBhZ2Ut
-Y2FjaGUgaGFzaCB0YWJsZSBlbnRyaWVzOiAxMzEwNzIgKG9yZGVyOiA3LCA1
-MjQyODggYnl0ZXMpCkNQVTogQmVmb3JlIHZlbmRvciBpbml0LCBjYXBzOiAw
-MTgzZjlmZiBjMWM3ZjlmZiAwMDAwMDAwMCwgdmVuZG9yID0gMgpDUFU6IEwx
-IEkgQ2FjaGU6IDY0SyAoNjQgYnl0ZXMvbGluZSksIEQgY2FjaGUgNjRLICg2
-NCBieXRlcy9saW5lKQpDUFU6IEwyIENhY2hlOiAyNTZLICg2NCBieXRlcy9s
-aW5lKQpDUFU6IEFmdGVyIHZlbmRvciBpbml0LCBjYXBzOiAwMTgzZjlmZiBj
-MWM3ZjlmZiAwMDAwMDAwMCAwMDAwMDAwMApDUFU6ICAgICBBZnRlciBnZW5l
-cmljLCBjYXBzOiAwMTgzZjlmZiBjMWM3ZjlmZiAwMDAwMDAwMCAwMDAwMDAw
-MApDUFU6ICAgICAgICAgICAgIENvbW1vbiBjYXBzOiAwMTgzZjlmZiBjMWM3
-ZjlmZiAwMDAwMDAwMCAwMDAwMDAwMApDUFU6IEFNRCBBdGhsb24odG0pIFBy
-b2Nlc3NvciBzdGVwcGluZyAwMgpFbmFibGluZyBmYXN0IEZQVSBzYXZlIGFu
-ZCByZXN0b3JlLi4uIGRvbmUuCkNoZWNraW5nICdobHQnIGluc3RydWN0aW9u
-Li4uIE9LLgpQT1NJWCBjb25mb3JtYW5jZSB0ZXN0aW5nIGJ5IFVOSUZJWApt
-dHJyOiB2MS40MCAoMjAwMTAzMjcpIFJpY2hhcmQgR29vY2ggKHJnb29jaEBh
-dG5mLmNzaXJvLmF1KQptdHJyOiBkZXRlY3RlZCBtdHJyIHR5cGU6IEludGVs
-ClBDSTogUENJIEJJT1MgcmV2aXNpb24gMi4xMCBlbnRyeSBhdCAweGZiMTYw
-LCBsYXN0IGJ1cz0xClBDSTogVXNpbmcgY29uZmlndXJhdGlvbiB0eXBlIDEK
-UENJOiBQcm9iaW5nIFBDSSBoYXJkd2FyZQpVbmtub3duIGJyaWRnZSByZXNv
-dXJjZSAwOiBhc3N1bWluZyB0cmFuc3BhcmVudApQQ0k6IFVzaW5nIElSUSBy
-b3V0ZXIgVklBIFsxMTA2LzA2ODZdIGF0IDAwOjA3LjAKQXBwbHlpbmcgVklB
-IFBDSSBsYXRlbmN5IHBhdGNoIChmb3VuZCBWVDgyQzY4NkIpLgpMaW51eCBO
-RVQ0LjAgZm9yIExpbnV4IDIuNApCYXNlZCB1cG9uIFN3YW5zZWEgVW5pdmVy
-c2l0eSBDb21wdXRlciBTb2NpZXR5IE5FVDMuMDM5ClN0YXJ0aW5nIGtzd2Fw
-ZCB2MS44CkRldGVjdGVkIFBTLzIgTW91c2UgUG9ydC4KcHR5OiAyNTYgVW5p
-eDk4IHB0eXMgY29uZmlndXJlZApTZXJpYWwgZHJpdmVyIHZlcnNpb24gNS4w
-NWEgKDIwMDEtMDMtMjApIHdpdGggTUFOWV9QT1JUUyBTSEFSRV9JUlEgU0VS
-SUFMX1BDSSBlbmFibGVkCmJsb2NrOiBxdWV1ZWQgc2VjdG9ycyBtYXgvbG93
-IDM0MTIzNGtCLzIxMDE2MmtCLCAxMDI0IHNsb3RzIHBlciBxdWV1ZQpVbmlm
-b3JtIE11bHRpLVBsYXRmb3JtIEUtSURFIGRyaXZlciBSZXZpc2lvbjogNi4z
-MQppZGU6IEFzc3VtaW5nIDMzTUh6IHN5c3RlbSBidXMgc3BlZWQgZm9yIFBJ
-TyBtb2Rlczsgb3ZlcnJpZGUgd2l0aCBpZGVidXM9eHgKVlBfSURFOiBJREUg
-Y29udHJvbGxlciBvbiBQQ0kgYnVzIDAwIGRldiAzOQpWUF9JREU6IGNoaXBz
-ZXQgcmV2aXNpb24gNgpWUF9JREU6IG5vdCAxMDAlIG5hdGl2ZSBtb2RlOiB3
-aWxsIHByb2JlIGlycXMgbGF0ZXIKaWRlOiBBc3N1bWluZyAzM01IeiBzeXN0
-ZW0gYnVzIHNwZWVkIGZvciBQSU8gbW9kZXM7IG92ZXJyaWRlIHdpdGggaWRl
-YnVzPXh4ClZQX0lERTogVklBIHZ0ODJjNjg2YiAocmV2IDQwKSBJREUgVURN
-QTEwMCBjb250cm9sbGVyIG9uIHBjaTAwOjA3LjEKICAgIGlkZTA6IEJNLURN
-QSBhdCAweGQwMDAtMHhkMDA3LCBCSU9TIHNldHRpbmdzOiBoZGE6RE1BLCBo
-ZGI6cGlvCiAgICBpZGUxOiBCTS1ETUEgYXQgMHhkMDA4LTB4ZDAwZiwgQklP
-UyBzZXR0aW5nczogaGRjOnBpbywgaGRkOkRNQQpoZGE6IElCTS1EVExBLTMw
-NzA0NSwgQVRBIERJU0sgZHJpdmUKaGRkOiBDUkVBVElWRSBEVkQtUk9NIERW
-RDYyNDBFLCBBVEFQSSBDRC9EVkQtUk9NIGRyaXZlCmlkZTAgYXQgMHgxZjAt
-MHgxZjcsMHgzZjYgb24gaXJxIDE0CmlkZTEgYXQgMHgxNzAtMHgxNzcsMHgz
-NzYgb24gaXJxIDE1CmhkYTogOTAwNjk4NDAgc2VjdG9ycyAoNDYxMTYgTUIp
-IHcvMTkxNktpQiBDYWNoZSwgQ0hTPTU2MDYvMjU1LzYzLCBVRE1BKDEwMCkK
-aGRkOiBBVEFQSSAyNFggRFZELVJPTSBkcml2ZSwgNTEya0IgQ2FjaGUsIERN
-QQpVbmlmb3JtIENELVJPTSBkcml2ZXIgUmV2aXNpb246IDMuMTIKUGFydGl0
-aW9uIGNoZWNrOgogaGRhOiBoZGExIGhkYTIgaGRhMyBoZGE0CkZsb3BweSBk
-cml2ZShzKTogZmQwIGlzIDEuNDRNCkZEQyAwIGlzIGEgcG9zdC0xOTkxIDgy
-MDc3CnVzYi5jOiByZWdpc3RlcmVkIG5ldyBkcml2ZXIgdXNiZGV2ZnMKdXNi
-LmM6IHJlZ2lzdGVyZWQgbmV3IGRyaXZlciBodWIKTkVUNDogTGludXggVENQ
-L0lQIDEuMCBmb3IgTkVUNC4wCklQIFByb3RvY29sczogSUNNUCwgVURQLCBU
-Q1AsIElHTVAKSVA6IHJvdXRpbmcgY2FjaGUgaGFzaCB0YWJsZSBvZiA0MDk2
-IGJ1Y2tldHMsIDMyS2J5dGVzClRDUDogSGFzaCB0YWJsZXMgY29uZmlndXJl
-ZCAoZXN0YWJsaXNoZWQgMzI3NjggYmluZCAzMjc2OCkKTkVUNDogVW5peCBk
-b21haW4gc29ja2V0cyAxLjAvU01QIGZvciBMaW51eCBORVQ0LjAuCnJlaXNl
-cmZzOiBjaGVja2luZyB0cmFuc2FjdGlvbiBsb2cgKGRldmljZSAwMzowMikg
-Li4uClVzaW5nIHI1IGhhc2ggdG8gc29ydCBuYW1lcwpSZWlzZXJGUyB2ZXJz
-aW9uIDMuNi4yNQpWRlM6IE1vdW50ZWQgcm9vdCAocmVpc2VyZnMgZmlsZXN5
-c3RlbSkgcmVhZG9ubHkuCkZyZWVpbmcgdW51c2VkIGtlcm5lbCBtZW1vcnk6
-IDE5MmsgZnJlZWQKVW5hYmxlIHRvIGZpbmQgc3dhcC1zcGFjZSBzaWduYXR1
-cmUKUENJOiBGb3VuZCBJUlEgMTEgZm9yIGRldmljZSAwMDowNy4yCklSUSBy
-b3V0aW5nIGNvbmZsaWN0IGluIHBpcnEgdGFibGUgZm9yIGRldmljZSAwMDow
-Ny4yCklSUSByb3V0aW5nIGNvbmZsaWN0IGluIHBpcnEgdGFibGUgZm9yIGRl
-dmljZSAwMDowNy4zClBDSTogVGhlIHNhbWUgSVJRIHVzZWQgZm9yIGRldmlj
-ZSAwMDowYS4wClBDSTogVGhlIHNhbWUgSVJRIHVzZWQgZm9yIGRldmljZSAw
-MDowZS4wCnVoY2kuYzogVVNCIFVIQ0kgYXQgSS9PIDB4ZDQwMCwgSVJRIDEw
-CnVzYi5jOiBuZXcgVVNCIGJ1cyByZWdpc3RlcmVkLCBhc3NpZ25lZCBidXMg
-bnVtYmVyIDEKaHViLmM6IFVTQiBodWIgZm91bmQKaHViLmM6IDIgcG9ydHMg
-ZGV0ZWN0ZWQKUENJOiBGb3VuZCBJUlEgMTEgZm9yIGRldmljZSAwMDowNy4z
-CklSUSByb3V0aW5nIGNvbmZsaWN0IGluIHBpcnEgdGFibGUgZm9yIGRldmlj
-ZSAwMDowNy4yCklSUSByb3V0aW5nIGNvbmZsaWN0IGluIHBpcnEgdGFibGUg
-Zm9yIGRldmljZSAwMDowNy4zClBDSTogVGhlIHNhbWUgSVJRIHVzZWQgZm9y
-IGRldmljZSAwMDowYS4wClBDSTogVGhlIHNhbWUgSVJRIHVzZWQgZm9yIGRl
-dmljZSAwMDowZS4wCnVoY2kuYzogVVNCIFVIQ0kgYXQgSS9PIDB4ZDgwMCwg
-SVJRIDEwCnVzYi5jOiBuZXcgVVNCIGJ1cyByZWdpc3RlcmVkLCBhc3NpZ25l
-ZCBidXMgbnVtYmVyIDIKaHViLmM6IFVTQiBodWIgZm91bmQKaHViLmM6IDIg
-cG9ydHMgZGV0ZWN0ZWQKdWhjaS5jOiAgTGludXMgVG9ydmFsZHMsIEpvaGFu
-bmVzIEVyZGZlbHQsIFJhbmR5IER1bmxhcCwgR2VvcmcgQWNoZXIsIERldGkg
-RmxpZWdsLCBUaG9tYXMgU2FpbGVyLCBSb21hbiBXZWlzc2dhZXJiZXIKdWhj
-aS5jOiBVU0IgVW5pdmVyc2FsIEhvc3QgQ29udHJvbGxlciBJbnRlcmZhY2Ug
-ZHJpdmVyCnVzYi5jOiByZWdpc3RlcmVkIG5ldyBkcml2ZXIgdXNic2Nhbm5l
-cgpzY2FubmVyLmM6IFVTQiBTY2FubmVyIHN1cHBvcnQgcmVnaXN0ZXJlZC4K
-dXNiLmM6IHJlZ2lzdGVyZWQgbmV3IGRyaXZlciBoaWQKaGlkLmM6IHYxLjE2
-IEFuZHJlYXMgR2FsLCBWb2p0ZWNoIFBhdmxpayA8dm9qdGVjaEBzdXNlLmN6
-PgpoaWQuYzogVVNCIEhJRCBzdXBwb3J0IGRyaXZlcnMKbWljZTogUFMvMiBt
-b3VzZSBkZXZpY2UgY29tbW9uIGZvciBhbGwgbWljZQpMaW51eCBUdWxpcCBk
-cml2ZXIgdmVyc2lvbiAwLjkuMTUtcHJlMiAoTWF5IDE2LCAyMDAxKQpQQ0k6
-IEZvdW5kIElSUSAxMSBmb3IgZGV2aWNlIDAwOjBhLjAKSVJRIHJvdXRpbmcg
-Y29uZmxpY3QgaW4gcGlycSB0YWJsZSBmb3IgZGV2aWNlIDAwOjA3LjIKSVJR
-IHJvdXRpbmcgY29uZmxpY3QgaW4gcGlycSB0YWJsZSBmb3IgZGV2aWNlIDAw
-OjA3LjMKUENJOiBUaGUgc2FtZSBJUlEgdXNlZCBmb3IgZGV2aWNlIDAwOjBl
-LjAKdHVsaXAwOiAyMTA0MSBNZWRpYSB0YWJsZSwgZGVmYXVsdCBtZWRpYSAw
-ODAwIChBdXRvc2Vuc2UpLgp0dWxpcDA6ICAyMTA0MSBtZWRpYSAjMCwgMTBi
-YXNlVC4KdHVsaXAwOiAgMjEwNDEgbWVkaWEgIzEsIDEwYmFzZTIuCnR1bGlw
-MDogIDIxMDQxIG1lZGlhICM0LCAxMGJhc2VULUZEWC4KZXRoMDogRGlnaXRh
-bCBEQzIxMDQxIFR1bGlwIHJldiAzMyBhdCAweGRjMDAsIDIxMDQxIG1vZGUs
-IDAwOjgwOjE5OjM1Ojc5OjU0LCBJUlEgMTEuCnBhcnBvcnQwOiBQQy1zdHls
-ZSBhdCAweDM3OCBbUENTUFAoLC4uLildCnBhcnBvcnRfcGM6IFZpYSA2ODZB
-IHBhcmFsbGVsIHBvcnQ6IGlvPTB4Mzc4CmxwMDogdXNpbmcgcGFycG9ydDAg
-KHBvbGxpbmcpLgpDcmVhdGl2ZSBFTVUxMEsxIFBDSSBBdWRpbyBEcml2ZXIs
-IHZlcnNpb24gMC43LCAwMTo0Mjo1MiBKdW4gIDIgMjAwMQpQQ0k6IEZvdW5k
-IElSUSAxMSBmb3IgZGV2aWNlIDAwOjBlLjAKSVJRIHJvdXRpbmcgY29uZmxp
-Y3QgaW4gcGlycSB0YWJsZSBmb3IgZGV2aWNlIDAwOjA3LjIKSVJRIHJvdXRp
-bmcgY29uZmxpY3QgaW4gcGlycSB0YWJsZSBmb3IgZGV2aWNlIDAwOjA3LjMK
-UENJOiBUaGUgc2FtZSBJUlEgdXNlZCBmb3IgZGV2aWNlIDAwOjBhLjAKZW11
-MTBrMTogRU1VMTBLMSByZXYgNCBtb2RlbCAweDIwIGZvdW5kLCBJTyBhdCAw
-eGUwMDAtMHhlMDFmLCBJUlEgMTEKTGludXggYWdwZ2FydCBpbnRlcmZhY2Ug
-djAuOTkgKGMpIEplZmYgSGFydG1hbm4KYWdwZ2FydDogTWF4aW11bSBtYWlu
-IG1lbW9yeSB0byB1c2UgZm9yIGFncCBtZW1vcnk6IDQzOU0KYWdwZ2FydDog
-RGV0ZWN0ZWQgVmlhIEFwb2xsbyBQcm8gS1QxMzMgY2hpcHNldAphZ3BnYXJ0
-OiBBR1AgYXBlcnR1cmUgaXMgNjRNIEAgMHhkMDAwMDAwMApbZHJtXSBBR1Ag
-MC45OSBvbiBWSUEgQXBvbGxvIEtUMTMzIEAgMHhkMDAwMDAwMCA2NE1CCltk
-cm1dIEluaXRpYWxpemVkIG1nYSAyLjAuMSAyMDAwMDkyOCBvbiBtaW5vciA2
-MwpFWFQyLWZzIHdhcm5pbmc6IG1vdW50aW5nIHVuY2hlY2tlZCBmcywgcnVu
-bmluZyBlMmZzY2sgaXMgcmVjb21tZW5kZWQKdWRmOiByZWdpc3RlcmluZyBm
-aWxlc3lzdGVtCmNkcm9tOiBvcGVuIGZhaWxlZC4KVkZTOiBEaXNrIGNoYW5n
-ZSBkZXRlY3RlZCBvbiBkZXZpY2UgaWRlMSgyMiw2NCkKVkZTOiBEaXNrIGNo
-YW5nZSBkZXRlY3RlZCBvbiBkZXZpY2UgZmQoMiwwKQplbmRfcmVxdWVzdDog
-SS9PIGVycm9yLCBkZXYgMDI6MDAgKGZsb3BweSksIHNlY3RvciAwClVuYWJs
-ZSB0byBmaW5kIHN3YXAtc3BhY2Ugc2lnbmF0dXJlCmh1Yi5jOiBVU0IgbmV3
-IGRldmljZSBjb25uZWN0IG9uIGJ1czEvMSwgYXNzaWduZWQgZGV2aWNlIG51
-bWJlciAyCnNjYW5uZXIuYzogcHJvYmVfc2Nhbm5lcjogVXNlciBzcGVjaWZp
-ZWQgVVNCIHNjYW5uZXIgLS0gVmVuZG9yOlByb2R1Y3QgLSA0Yjg6MTA0Cm1v
-dXNlMDogUFMvMiBtb3VzZSBkZXZpY2UgZm9yIGlucHV0MAppbnB1dDA6IFVT
-QiBISUQgdjEuMDAgTW91c2UgW01pY3Jvc29mdCBNaWNyb3NvZnQgSW50ZWxs
-aU1vdXNlriBPcHRpY2FsXSBvbiB1c2IxOjIuMApodWIuYzogVVNCIG5ldyBk
-ZXZpY2UgY29ubmVjdCBvbiBidXMxLzIsIGFzc2lnbmVkIGRldmljZSBudW1i
-ZXIgMwpodWIuYzogVVNCIGh1YiBmb3VuZApodWIuYzogNyBwb3J0cyBkZXRl
-Y3RlZApodWIuYzogVVNCIG5ldyBkZXZpY2UgY29ubmVjdCBvbiBidXMxLzIv
-NCwgYXNzaWduZWQgZGV2aWNlIG51bWJlciA0CnVzYi5jOiBVU0IgZGV2aWNl
-IG5vdCBhY2NlcHRpbmcgbmV3IGFkZHJlc3M9NCAoZXJyb3I9LTExMCkKaHVi
-LmM6IFVTQiBuZXcgZGV2aWNlIGNvbm5lY3Qgb24gYnVzMS8yLzQsIGFzc2ln
-bmVkIGRldmljZSBudW1iZXIgNQpzY2FubmVyLmM6IHByb2JlX3NjYW5uZXI6
-IFVzZXIgc3BlY2lmaWVkIFVTQiBzY2FubmVyIC0tIFZlbmRvcjpQcm9kdWN0
-IC0gNGI4OjEwNApzY2FubmVyLmM6IHByb2JlX3NjYW5uZXI6IFVzZXIgc3Bl
-Y2lmaWVkIFVTQiBzY2FubmVyIC0tIFZlbmRvcjpQcm9kdWN0IC0gNGI4OjEw
-NApzY2FubmVyLmM6IHByb2JlX3NjYW5uZXI6IFVzZXIgc3BlY2lmaWVkIFVT
-QiBzY2FubmVyIC0tIFZlbmRvcjpQcm9kdWN0IC0gNGI4OjEwNAp1c2IuYzog
-VVNCIGRldmljZSA1ICh2ZW5kL3Byb2QgMHg0NzEvMHgzMDgpIGlzIG5vdCBj
-bGFpbWVkIGJ5IGFueSBhY3RpdmUgZHJpdmVyLgpWRlM6IERpc2sgY2hhbmdl
-IGRldGVjdGVkIG9uIGRldmljZSBpZGUxKDIyLDY0KQo=
-
-------------=_991983091-407-0--
-
+greg k-h

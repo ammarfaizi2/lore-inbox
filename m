@@ -1,51 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266888AbUJNVEu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266835AbUJNVHq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266888AbUJNVEu (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 14 Oct 2004 17:04:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267294AbUJNVDU
+	id S266835AbUJNVHq (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 14 Oct 2004 17:07:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267212AbUJNVFT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 14 Oct 2004 17:03:20 -0400
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:39690 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S267709AbUJNVCt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 14 Oct 2004 17:02:49 -0400
-Date: Thu, 14 Oct 2004 22:02:43 +0100
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: Linux Kernel List <linux-kernel@vger.kernel.org>
-Subject: __attribute__((unused))
-Message-ID: <20041014220243.B28649@flint.arm.linux.org.uk>
-Mail-Followup-To: Linux Kernel List <linux-kernel@vger.kernel.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
+	Thu, 14 Oct 2004 17:05:19 -0400
+Received: from ida.rowland.org ([192.131.102.52]:24580 "HELO ida.rowland.org")
+	by vger.kernel.org with SMTP id S267554AbUJNVD5 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 14 Oct 2004 17:03:57 -0400
+Date: Thu, 14 Oct 2004 17:03:56 -0400 (EDT)
+From: Alan Stern <stern@rowland.harvard.edu>
+X-X-Sender: stern@ida.rowland.org
+To: Laurent Riffard <laurent.riffard@free.fr>
+cc: USB development list <linux-usb-devel@lists.sourceforge.net>,
+       Kernel development list <linux-kernel@vger.kernel.org>,
+       Greg KH <greg@kroah.com>
+Subject: Re: 2.6.9-rc4-mm1 : oops when rmmod uhci_hcd  [was: 2.6.9-rc3-mm2
+ : oops...]
+In-Reply-To: <416EE051.40705@free.fr>
+Message-ID: <Pine.LNX.4.44L0.0410141703260.1026-100000@ida.rowland.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Thu, 14 Oct 2004, Laurent Riffard wrote:
 
-I notice that module.h contains stuff like:
+> Alan Stern wrote:
+> [snip]
+> > My impression is that this problem arises somewhere within or
+> > below the free_irq routine.  I don't have the -mm2 sources, so I
+> > can't be any more precise than that.
+> 
+> Here is an updated dmesg for kernel 2.6.9-rc4-mm1. But I'm afraid it 
+> won't give more information, as the call stack is identical to the 
+> 2.6.9-rc3-mm2 one.
+> 
+> I will try a vanilla kernel if it's needed.
 
-#define MODULE_GENERIC_TABLE(gtype,name)                        \
-extern const struct gtype##_id __mod_##gtype##_table            \
-  __attribute__ ((unused, alias(__stringify(name))))
+Yes, try that.  At least if the problem still occurs, it will be easier to 
+track down.
 
-and even:
+Alan Stern
 
-#define __MODULE_INFO(tag, name, info)                                    \
-static const char __module_cat(name,__LINE__)[]                           \
-  __attribute_used__                                                      \
-  __attribute__((section(".modinfo"),unused)) = __stringify(tag) "=" info
-
-My understanding is that we shouldn't be using __attribute__((unused))
-in either of these - can someone confirm.
-
-The second one looks fairly dodgy since we're telling a compiler that
-it's both used and unused.  That sounds a bit like a HHGTTG puzzle (you
-have tea and no tea.)
-
--- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 PCMCIA      - http://pcmcia.arm.linux.org.uk/
-                 2.6 Serial core

@@ -1,43 +1,61 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id <S129722AbQK2CF1>; Tue, 28 Nov 2000 21:05:27 -0500
+        id <S129742AbQK2CRX>; Tue, 28 Nov 2000 21:17:23 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-        id <S129742AbQK2CFS>; Tue, 28 Nov 2000 21:05:18 -0500
-Received: from adsl-63-195-162-81.dsl.snfc21.pacbell.net ([63.195.162.81]:2564
-        "EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
-        id <S129722AbQK2CFF>; Tue, 28 Nov 2000 21:05:05 -0500
-Date: Tue, 28 Nov 2000 17:32:16 -0800 (PST)
-From: Andre Hedrick <andre@linux-ide.org>
-To: Jens Axboe <axboe@suse.de>
-cc: Andrea Arcangeli <andrea@suse.de>, Petr Vandrovec <VANDROVE@vc.cvut.cz>,
-        "David S. Miller" <davem@redhat.com>, viro@math.psu.edu,
-        linux-kernel@vger.kernel.org, tytso@valinux.com
-Subject: Re: 2.4.0-test11 ext2 fs corruption
-In-Reply-To: <20001129021150.A24264@suse.de>
-Message-ID: <Pine.LNX.4.10.10011281730380.398-100000@master.linux-ide.org>
+        id <S129933AbQK2CRN>; Tue, 28 Nov 2000 21:17:13 -0500
+Received: from saturn.cs.uml.edu ([129.63.8.2]:47108 "EHLO saturn.cs.uml.edu")
+        by vger.kernel.org with ESMTP id <S129742AbQK2CRF>;
+        Tue, 28 Nov 2000 21:17:05 -0500
+From: "Albert D. Cahalan" <acahalan@cs.uml.edu>
+Message-Id: <200011290146.eAT1khL116131@saturn.cs.uml.edu>
+Subject: Re: [PATCH] removal of "static foo = 0"
+To: rmk@arm.linux.org.uk (Russell King)
+Date: Tue, 28 Nov 2000 20:46:43 -0500 (EST)
+Cc: acahalan@cs.uml.edu (Albert D. Cahalan), aeb@veritas.com (Andries Brouwer),
+        linux-kernel@vger.kernel.org
+In-Reply-To: <200011272257.eARMvw302186@flint.arm.linux.org.uk> from "Russell King" at Nov 27, 2000 10:57:57 PM
+X-Mailer: ELM [version 2.5 PL2]
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 29 Nov 2000, Jens Axboe wrote:
+Russell King writes:
+> Albert D. Cahalan writes:
 
-> On Wed, Nov 29 2000, Andrea Arcangeli wrote:
-> > Side note: that could generate mem/io corruption only on headactive devices
-> > (like IDE).
-> 
-> Yep, that's why I told Linus it was a long shot and couldn't possibly
-> account for all the corruption cases reported. And one would expect
-> fs corruption to go with that as well. So it's of course a long shot,
-> but still worth trying for Petr.
+>> It is too late to fix things now. It would have been good to
+>> have the compiler put explicitly zeroed data in a segment that
+>> isn't shared with non-zero or uninitialized data, so that the
+>> uninitialized data could be set to 0xfff00fff to catch bugs.
+>> It would take much effort over many years to make that work.
+>
+> Oh dear, here's that misconception again.
+>
+> static int a;
+>
+> isn't a bug.
 
-Okay, I have spent part of the afternoon kicking my FW around and have not
-followed all of the thread.  However we are talking FSC and ATA so what
-are the details?  And where are we poking into the driver.
+Alone, it is not.
 
-Andre Hedrick
-Linux ATA Development
+> It is not "uninitialised data".  It is defined to be
+> zero.  Setting the BSS of any C program to contain non-zero data will
+> break it.  Fact.  The only bug you'll find is the fact that you're
+> breaking the C standard.
 
+Oh, bullshit. We break the C standard left and right already.
+This is the kernel, and the kernel can initialize BSS any damn
+way it feels like initializing it. The kernel isn't ever going
+to be standard C.
+
+Choosing an initializer that tends to catch unintended reliance
+on zeroed data would be good. Too bad it is too late to fix.
+
+> All variables declared at top-level are initialised.  No questions
+> asked.  And its not a bug to rely on such a fact.
+
+Go back and read the rest of this thread. Examples have been
+provided (not by me) of such code leading to latter mistakes.
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

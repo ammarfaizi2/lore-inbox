@@ -1,44 +1,30 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271790AbTGROIm (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Jul 2003 10:08:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271760AbTGROI0
+	id S265955AbTGROFF (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Jul 2003 10:05:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270085AbTGROE1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Jul 2003 10:08:26 -0400
-Received: from c210-49-248-224.thoms1.vic.optusnet.com.au ([210.49.248.224]:25257
-	"EHLO mail.kolivas.org") by vger.kernel.org with ESMTP
-	id S271761AbTGROGR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Jul 2003 10:06:17 -0400
-From: Con Kolivas <kernel@kolivas.org>
-To: Mike Galbraith <efault@gmx.de>, Nick Piggin <piggin@cyberone.com.au>
-Subject: Re: [PATCH] O6int for interactivity
-Date: Sat, 19 Jul 2003 00:24:08 +1000
-User-Agent: KMail/1.5.2
-Cc: Davide Libenzi <davidel@xmailserver.org>,
-       linux kernel mailing list <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>,
-       Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>,
-       Zwane Mwaikambo <zwane@arm.linux.org.uk>
-References: <5.2.1.1.2.20030718071656.01af84d0@pop.gmx.net> <5.2.1.1.2.20030718120229.01a8fcf0@pop.gmx.net>
-In-Reply-To: <5.2.1.1.2.20030718120229.01a8fcf0@pop.gmx.net>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200307190024.08571.kernel@kolivas.org>
+	Fri, 18 Jul 2003 10:04:27 -0400
+Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:23173
+	"EHLO hraefn.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id S265955AbTGROEB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 18 Jul 2003 10:04:01 -0400
+Date: Fri, 18 Jul 2003 15:18:22 +0100
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Message-Id: <200307181418.h6IEIMIF017756@hraefn.swansea.linux.org.uk>
+To: linux-kernel@vger.kernel.org, torvalds@osdl.org
+Subject: PATCH: fix qlogicfas build warning
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 18 Jul 2003 20:18, Mike Galbraith wrote:
-> At 04:34 PM 7/18/2003 +1000, Nick Piggin wrote:
-> >Mike Galbraith wrote:
-> That _might_ (add salt) be priorities of kernel threads dropping too low.
-
-Is there any good reason for the priorities of kernel threads to vary at all? 
-In the original design they are subject to the same interactivity changes as 
-other processes and I've maintained that but I can't see a good reason for it 
-and plan to change it unless someone tells me otherwise.
-
-Con
-
+diff -u --new-file --recursive --exclude-from /usr/src/exclude linux-2.6.0-test1/drivers/scsi/qlogicfas.c linux-2.6.0-test1-ac2/drivers/scsi/qlogicfas.c
+--- linux-2.6.0-test1/drivers/scsi/qlogicfas.c	2003-07-10 21:15:40.000000000 +0100
++++ linux-2.6.0-test1-ac2/drivers/scsi/qlogicfas.c	2003-07-14 15:51:53.000000000 +0100
+@@ -140,6 +140,7 @@
+ 
+ #include <asm/io.h>
+ #include <asm/irq.h>
++#include <asm/dma.h>
+ 
+ #include "scsi.h"
+ #include "hosts.h"

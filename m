@@ -1,89 +1,81 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132574AbRDWX3X>; Mon, 23 Apr 2001 19:29:23 -0400
+	id <S132537AbRDWXdm>; Mon, 23 Apr 2001 19:33:42 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132577AbRDWX3A>; Mon, 23 Apr 2001 19:29:00 -0400
-Received: from draal.physics.wisc.edu ([128.104.137.82]:24706 "EHLO
-	draal.physics.wisc.edu") by vger.kernel.org with ESMTP
-	id <S132574AbRDWX1q>; Mon, 23 Apr 2001 19:27:46 -0400
-Date: Mon, 23 Apr 2001 18:27:23 -0500
-From: Bob McElrath <mcelrath+linux@draal.physics.wisc.edu>
-To: Andrea Arcangeli <andrea@suse.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: generic rwsem [Re: Alpha "process table hang"]
-Message-ID: <20010423182722.B942@draal.physics.wisc.edu>
-In-Reply-To: <20010411125731.B6472@draal.physics.wisc.edu> <E14nOzo-0007Ew-00@the-village.bc.nu> <20010413084805.B3118@draal.physics.wisc.edu> <20010417170717.H2696@athlon.random> <20010417102840.B21824@draal.physics.wisc.edu> <20010419112117.E22687@draal.physics.wisc.edu> <20010419191706.D752@athlon.random>
+	id <S132575AbRDWXdc>; Mon, 23 Apr 2001 19:33:32 -0400
+Received: from etpmod.phys.tue.nl ([131.155.111.35]:33036 "EHLO
+	etpmod.phys.tue.nl") by vger.kernel.org with ESMTP
+	id <S132537AbRDWXdQ>; Mon, 23 Apr 2001 19:33:16 -0400
+Date: Tue, 24 Apr 2001 01:31:50 +0200
+From: Kurt Garloff <kurt@garloff.de>
+To: Linux kernel list <linux-kernel@vger.kernel.org>
+Subject: read perf improved by mounting ext2?
+Message-ID: <20010424013150.A6892@garloff.etpnet.phys.tue.nl>
+Mail-Followup-To: Kurt Garloff <kurt@garloff.de>,
+	Linux kernel list <linux-kernel@vger.kernel.org>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="dTy3Mrz/UPE2dbVg"
+	protocol="application/pgp-signature"; boundary="jI8keyz6grp/JLjh"
 Content-Disposition: inline
-User-Agent: Mutt/1.2i
-In-Reply-To: <20010419191706.D752@athlon.random>; from andrea@suse.de on Thu, Apr 19, 2001 at 07:17:06PM +0200
+User-Agent: Mutt/1.2.5i
+X-Operating-System: Linux 2.2.16 i686
+X-PGP-Info: on http://www.garloff.de/kurt/mykeys.pgp
+X-PGP-Key: 1024D/1C98774E, 1024R/CEFC9215
+Organization: TUE/NL, SuSE/FRG
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---dTy3Mrz/UPE2dbVg
+--jI8keyz6grp/JLjh
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-Andrea Arcangeli [andrea@suse.de] wrote:
-> On Thu, Apr 19, 2001 at 11:21:17AM -0500, Bob McElrath wrote:
-> > I'm at 2 days uptime now, and have not seen the process-table-hang.
-> > Looks like this fixed it.  Previously I would get a hang in the first
-> > day or so.  I'm using your alpha-numa-3 and rwsem-generic-4 against
-> > 2.4.4pre3.
->=20
-> good, thanks for the report.
->=20
-> BTW, if you upgrade to 2.4.4pre4 you can apply those two patches:
->=20
-> 	ftp://ftp.us.kernel.org/pub/linux/kernel/people/andrea/kernels/v2.4/2.4.=
-4pre4aa1/00_alpha-numa-4
-> 	ftp://ftp.us.kernel.org/pub/linux/kernel/people/andrea/kernels/v2.4/2.4.=
-4pre4aa1/00_rwsem-generic-6
->=20
-> really the first is not necessary anymore unless you're using a wildfire.=
- The
-> second also resurrect the optimized rwsemaphores for all archs but alpha =
-and
-> ia32.
+Hi,
 
-Well, take that back, I just got it to hang.  Again, this is 2.4.4pre3
-with alpha-numa-3 and rwsem-generic-4.  I saw it upon starting mozilla.
-I also saw some scary filesystem errors that may or may not be related:
-    Apr 23 18:09:40 draal kernel: EXT2-fs error (device sd(8,2)):=20
-        ext2_new_block: Free blocks count corrupted for block group 252=20
+I have some memory reading some similar question somewhere (here?) but I'm
+not sure there was an answer.
 
-There has been a lot of discussion on the topic of rwsems (that,
-admittedly, I haven't followed very closely).  It looks like
-rwsem-generic-6 is the latest from Andrea, I'll build a new 2.4.4pre4
-kernel with these patches and let you know the results.  Have you made
-changes between rwsem-generic-4 and rwsem-generic-6 that would
-fix/prevent a deadlock?
+I do observe strange behaviour if read performance fo my IDE harddisk as
+reported by hdparm (or doing linear reads with a self written program):
+My FUJITSU MPG3409AT E is supposed to make slightly above 30MB/s. However,
+it's connected to a PIIX4, which can only do UDMA33. So I expect something
+between 25 and 30 MB/s maximumn speed.
 
-Let me know if there are any useful tests I could perform.  Would it be
-useful for me to run the rwsem benchmarks you've been using?  Could
-these detect a deadlock situation?
+I get it. But not over the whole disk.
+Doing a read speed measurement on /dev/hda, I constantly get ~16 MB/s.
+Not bad, but less than I'd expect. Measuring single partitions, some show
+the same, some show significantly more, 26MB/s--18MB/s, depending on the
+position of the partition on disk. Those look good!
 
-Cheers,
--- Bob
+There are enough partitions to see a clear pattern: Those with mounted ext2
+filesystems perform better. Umounting them does not harm, they just need to
+have been mounted once. reiser or (v)fat however don't improve anything.
+swap does, as does a ext2 over raid5.
 
-Bob McElrath (rsmcelrath@students.wisc.edu)=20
-Univ. of Wisconsin at Madison, Department of Physics
+Kernel 2.4.3pre7; Dual iPIII-700 system; i440BX MoBo.
 
---dTy3Mrz/UPE2dbVg
+Is this to be expected? Blocksize issues? Readahead behaviour? What's
+changed on ext2 mounting ... ?
+
+Regards,
+--=20
+Kurt Garloff                   <kurt@garloff.de>         [Eindhoven, NL]
+Physics: Plasma simulations  <K.Garloff@Phys.TUE.NL>  [TU Eindhoven, NL]
+Linux: SCSI, Security          <garloff@suse.de>   [SuSE Nuernberg, FRG]
+ (See mail header or public key servers for PGP2 and GPG public keys.)
+
+--jI8keyz6grp/JLjh
 Content-Type: application/pgp-signature
 Content-Disposition: inline
 
 -----BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.1 (GNU/Linux)
+Version: GnuPG v1.0.4h (GNU/Linux)
 Comment: For info see http://www.gnupg.org
 
-iEYEARECAAYFAjrkuloACgkQjwioWRGe9K2qpQCdE4ofnUFgeI7auBtuMTlWySZp
-leoAmgIt0V+uYuLZC3iMahGAkfJ2ltlr
-=4x9X
+iD8DBQE65LtlxmLh6hyYd04RAmbOAKDaGwvMUFZQfUGFjT9DHW1R85cl7QCfT5Ag
+CadqxILzgsLfn7XUqb++9/0=
+=fDRe
 -----END PGP SIGNATURE-----
 
---dTy3Mrz/UPE2dbVg--
+--jI8keyz6grp/JLjh--

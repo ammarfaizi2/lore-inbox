@@ -1,55 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290565AbSAYFSi>; Fri, 25 Jan 2002 00:18:38 -0500
+	id <S290571AbSAYFxF>; Fri, 25 Jan 2002 00:53:05 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290567AbSAYFSS>; Fri, 25 Jan 2002 00:18:18 -0500
-Received: from khan.acc.umu.se ([130.239.18.139]:14792 "EHLO khan.acc.umu.se")
-	by vger.kernel.org with ESMTP id <S290565AbSAYFSQ>;
-	Fri, 25 Jan 2002 00:18:16 -0500
-Date: Fri, 25 Jan 2002 06:18:01 +0100
-From: David Weinehall <tao@acc.umu.se>
-To: Rik van Riel <riel@conectiva.com.br>
-Cc: rwhron@earthlink.net, linux-kernel@vger.kernel.org
-Subject: Re: 2.4.18pre4aa1
-Message-ID: <20020125061801.W1735@khan.acc.umu.se>
-In-Reply-To: <20020124235608.C1096@earthlink.net> <Pine.LNX.4.33L.0201250256170.32617-100000@imladris.surriel.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <Pine.LNX.4.33L.0201250256170.32617-100000@imladris.surriel.com>; from riel@conectiva.com.br on Fri, Jan 25, 2002 at 02:57:02AM -0200
+	id <S290569AbSAYFwz>; Fri, 25 Jan 2002 00:52:55 -0500
+Received: from svr3.applink.net ([206.50.88.3]:25870 "EHLO svr3.applink.net")
+	by vger.kernel.org with ESMTP id <S290540AbSAYFwh>;
+	Fri, 25 Jan 2002 00:52:37 -0500
+Message-Id: <200201250550.g0P5o1L09511@home.ashavan.org.>
+Content-Type: text/plain; charset=US-ASCII
+From: Timothy Covell <timothy.covell@ashavan.org>
+Reply-To: timothy.covell@ashavan.org
+To: "George Bonser" <george@gator.com>, <linux-kernel@vger.kernel.org>
+Subject: Re: Linux console at boot
+Date: Fri, 25 Jan 2002 23:51:25 -0600
+X-Mailer: KMail [version 1.3.2]
+In-Reply-To: <CHEKKPICCNOGICGMDODJKEPAGBAA.george@gator.com>
+In-Reply-To: <CHEKKPICCNOGICGMDODJKEPAGBAA.george@gator.com>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jan 25, 2002 at 02:57:02AM -0200, Rik van Riel wrote:
-> On Thu, 24 Jan 2002 rwhron@earthlink.net wrote:
-> 
-> > > workloads, I'm not sure I want to make the system more
-> > > unfair just to better accomodate dbench ;)
-> >
-> > I'm wondering if rmap is a little too aggressive on
-> > read-ahead, and if that has a negative impact on
-> > a complex workload.
-> 
-> I haven't changed the readahead code one bit compared
-> to 2.4 mainline, but I'm wondering the same.
-> 
-> Fixing readahead window sizing has been on my TODO list
-> for quite a while already.
+On Thursday 24 January 2002 23:05, George Bonser wrote:
+> Is there any way to stop the console scrolling during boot? My reason
+> for this is I am trying to troubleshoot a boot problem with
+> 2.4.18-pre7 and I would like to give a more useful report than "it
+> won't boot" but the screen outputs information every few seconds and I
+> can't "freeze" the display so I can copy down the initial error(s).
+>
+> This is an Intel unit using the standard console (not serial console).
+> pre7 will not boot but pre6 boots every time.
+>
 
-One thing that struck me about this; doesn't both the rmap-patches and
-the aa-patches contain other changes than merely changes to the VM? If
-so, couldn't these changes tip the result in an unfair direction?! After
-all, what we want is a VM-to-VM shoot-out, not a VM-to-VM+whatever
-shoot-out. After all, one would assume that the non VM-related changes
-would be merged to the kernel no matter what VM is used, right?
+you can get this info via "dmesg"
 
-Then again, maybe I just ate the blue pill and returned to a world of
-illusions not knowing what's best for me.
-
-
-Regards: David Weinehall
-  _                                                                 _
- // David Weinehall <tao@acc.umu.se> /> Northern lights wander      \\
-//  Maintainer of the v2.0 kernel   //  Dance across the winter sky //
-\>  http://www.acc.umu.se/~tao/    </   Full colour fire           </
+-- 
+timothy.covell@ashavan.org.

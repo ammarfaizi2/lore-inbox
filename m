@@ -1,61 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261359AbVACAcv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261361AbVACAdJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261359AbVACAcv (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 2 Jan 2005 19:32:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261364AbVACAcv
+	id S261361AbVACAdJ (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 2 Jan 2005 19:33:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261364AbVACAdI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 2 Jan 2005 19:32:51 -0500
-Received: from colin2.muc.de ([193.149.48.15]:5898 "HELO colin2.muc.de")
-	by vger.kernel.org with SMTP id S261359AbVACAcj (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 2 Jan 2005 19:32:39 -0500
-Date: 3 Jan 2005 01:32:37 +0100
-Date: Mon, 3 Jan 2005 01:32:37 +0100
-From: Andi Kleen <ak@muc.de>
-To: Christoph Hellwig <hch@lst.de>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] disallow modular capabilities
-Message-ID: <20050103003237.GA89490@muc.de>
-References: <20050102200032.GA8623@lst.de> <m1mzvry3sf.fsf@muc.de> <20050102203005.GA9491@lst.de> <m1is6fy2vm.fsf@muc.de> <20050102223650.GA5818@localhost> <20050102233039.GB71343@muc.de> <20050103002102.GA5987@localhost>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050103002102.GA5987@localhost>
-User-Agent: Mutt/1.4.1i
+	Sun, 2 Jan 2005 19:33:08 -0500
+Received: from mail-in-09.arcor-online.net ([151.189.21.49]:27825 "EHLO
+	mail-in-09.arcor-online.net") by vger.kernel.org with ESMTP
+	id S261361AbVACAdB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 2 Jan 2005 19:33:01 -0500
+Date: Mon, 3 Jan 2005 01:37:23 +0100 (CET)
+From: Bodo Eggert <7eggert@gmx.de>
+To: Adrian Bunk <bunk@stusta.de>
+Cc: Bodo Eggert <7eggert@gmx.de>, Andy Lutomirski <luto@myrealbox.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: the umount() saga for regular linux desktop users
+In-Reply-To: <20050102202712.GC4183@stusta.de>
+Message-ID: <Pine.LNX.4.58.0501030019420.3770@be1.lrz>
+References: <fa.iji5lco.m6nrs@ifi.uio.no> <fa.fv0gsro.143iuho@ifi.uio.no>
+ <E1Cl509-0000TI-00@be1.7eggert.dyndns.org> <20050102202712.GC4183@stusta.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Jan 02, 2005 at 07:21:02PM -0500, David Meybohm wrote:
-> > > the new security module that is being loaded has no idea what state all
-> > > processes are in when the module gets loaded?
-> > 
-> > This can still be fine if you don't care about the security of 
-> > everything that runs before (e.g. because it is controlled early
-> > startup code). If you care about their security don't do it when
-> > it hurts. 
+On Sun, 2 Jan 2005, Adrian Bunk wrote:
+> On Sun, Jan 02, 2005 at 01:38:29PM +0100, Bodo Eggert wrote:
+
+> > I have an additional feature request: The umount -l will currently not work
+> > for unmounting the cwd of something like the midnight commander without
+> > closing it. On the other hand, rmdiring the cwd of running application
+> > works just fine.
 > 
-> But this also means every security module has to handle the case of
-> being loaded after this time in the boot process interactively by
-> administrators.  That's very complex and race-prone.
+> A rm does not actually remove things that are still accessed.
 
-The administrator has to prevent the case or make sure
-it doesn't cause any problems.
+ACK, but rmdir will leave the applications in a directory with no way in 
+or out. This directory can as well be on the moon, so there is no need to 
+keep the fs busy.
 
-You just have to be careful to not start any daemons before it,
-safest is probably to load it in the initrd.
-
+> > Maybe it's possible to extend the semantics of umount -l to change all
+> > cwds under that mountpoint to be deleted directories which will no
+> > longer cause the mountpoint to be busy (e.g. by redirecting them to a
+> > special inode on initramfs). Most applications can cope with that (if
+> > not, they're buggy), and it will do 90% of the usural cases while still
+> > avoiding data loss.
+> >...
 > 
-> > > What do you think about only allowing init to load LSM modules i.e.
-> > > check in {mod,}register_security that current->pid == 1.
-> > 
-> > I think it's a bad idea. Such policy should be left to user space.
-> 
-> Well, by excluding some policy you have to put more code in the kernel
-> in the LSM modules to handle being loaded at any time.  So, I don't
+> If the appication of a user was writing some important output to a file 
+> on the NFS mount you want to umount there will be data loss...
 
-> think the dogma of "no policy in the kernel" is a good one to follow
-> here:  it ignores the problem and creates new ones.
+If the file is open, the modified version will wait for the file to be
+closed. If the nfs daemon has closed the file handle, you can unmount with
+or without the modification, and with always the same data loss.
 
-The kernel just assumes that root knows what he/she/it is doing.
-Zillions of other kernel interfaces make the same assumptions.
+> If you _really_ want to umount something still accessed by applications 
+> simply kill all applications with "fuser -k".
 
--Andi
+*This* will give you guaranteed data loss on more than the mounted fs.
+Murphy will make some long-running jobs depend on the screen session that 
+was originally started from the mounted dir. Off cause screen doesn't 
+chdir to "/" after starting the shell.

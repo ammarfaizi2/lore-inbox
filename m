@@ -1,53 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262271AbVBBS6X@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262456AbVBBS6X@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262271AbVBBS6X (ORCPT <rfc822;willy@w.ods.org>);
+	id S262456AbVBBS6X (ORCPT <rfc822;willy@w.ods.org>);
 	Wed, 2 Feb 2005 13:58:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262323AbVBBSzj
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262271AbVBBSzz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Feb 2005 13:55:39 -0500
-Received: from ns.suse.de ([195.135.220.2]:62394 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S262689AbVBBSod (ORCPT
+	Wed, 2 Feb 2005 13:55:55 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:41349 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S262510AbVBBStv (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Feb 2005 13:44:33 -0500
+	Wed, 2 Feb 2005 13:49:51 -0500
+Date: Wed, 2 Feb 2005 13:49:45 -0500 (EST)
+From: Rik van Riel <riel@redhat.com>
+X-X-Sender: riel@chimarrao.boston.redhat.com
 To: linux-os@analogic.com
-Cc: Linux kernel <linux-kernel@vger.kernel.org>
+cc: Linux kernel <linux-kernel@vger.kernel.org>
 Subject: Re: Joe User DOS kills Linux-2.6.10
+In-Reply-To: <Pine.LNX.4.61.0502021314340.5410@chaos.analogic.com>
+Message-ID: <Pine.LNX.4.61.0502021346150.14232@chimarrao.boston.redhat.com>
 References: <Pine.LNX.4.61.0502021314340.5410@chaos.analogic.com>
-From: Andreas Schwab <schwab@suse.de>
-X-Yow: I hope the ``Eurythmics'' practice birth control...
-Date: Wed, 02 Feb 2005 19:44:21 +0100
-In-Reply-To: <Pine.LNX.4.61.0502021314340.5410@chaos.analogic.com> (linux-os's
- message of "Wed, 2 Feb 2005 13:23:43 -0500 (EST)")
-Message-ID: <jepsziby4a.fsf@sykes.suse.de>
-User-Agent: Gnus/5.110002 (No Gnus v0.2) Emacs/21.3.50 (gnu/linux)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-linux-os <root@chaos.analogic.com> writes:
+On Wed, 2 Feb 2005, linux-os wrote:
 
 > When I compile and run the following program:
->
-> #include <stdio.h>
-> int main(int x, char **y)
-> {
->     pause();
-> }
-> ... as:
->
+
 > ./xxx `yes`
 
-This is roughly equivalent to this:
+It looks like the program itself doesn't matter, since it's
+bash that's eating up memory like crazy, until the point where
+it is OOM killed.
 
-#include <stdlib.h>
-int main(void) { while (1) malloc(1); }
+   PID USER      PR  NI  VIRT  RES  SHR S %CPU %MEM    TIME+  COMMAND
+32191 riel      18   0  436m 126m  312 R 45.9 86.9   0:13.37 bash
+32222 riel      15   0  3276  148  124 S 39.0  0.1   0:09.79 yes
 
-Andreas.
+> Additional sense: Peripheral device write fault
+> end_request: I/O error, dev sdb, sector 34605780
+> SCSI error : <0 0 1 0> return code = 0x8000002
+> Info fld=0x2100101, Deferred sdb: sense key Medium Error
+
+Looks like your SCSI disk has some problems, you may want
+to try running 'badblocks' on the swap partition to verify
+that.  The VM doesn't appear to have a problem with your
+test program, in my quick runs here.
+
+ObLKML: I was running the test inside Xen, and that seemed
+to hold up fine too ;)
 
 -- 
-Andreas Schwab, SuSE Labs, schwab@suse.de
-SuSE Linux Products GmbH, Maxfeldstraße 5, 90409 Nürnberg, Germany
-Key fingerprint = 58CA 54C7 6D53 942B 1756  01D3 44D5 214B 8276 4ED5
-"And now for something completely different."
+"Debugging is twice as hard as writing the code in the first place.
+Therefore, if you write the code as cleverly as possible, you are,
+by definition, not smart enough to debug it." - Brian W. Kernighan

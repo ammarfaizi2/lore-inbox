@@ -1,47 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265897AbUA1Jwd (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 Jan 2004 04:52:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265899AbUA1Jwd
+	id S265898AbUA1Kfe (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 Jan 2004 05:35:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265899AbUA1Kfd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 Jan 2004 04:52:33 -0500
-Received: from delerium.kernelslacker.org ([81.187.208.145]:50905 "EHLO
-	delerium.codemonkey.org.uk") by vger.kernel.org with ESMTP
-	id S265897AbUA1Jwc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 Jan 2004 04:52:32 -0500
-Date: Wed, 28 Jan 2004 09:50:17 +0000
-From: Dave Jones <davej@redhat.com>
-To: Tom Rini <trini@kernel.crashing.org>
-Cc: Chris Wright <chrisw@osdl.org>, akpm@osdl.org, george@mvista.com,
-       amitkale@emsyssoft.com, Andi Kleen <ak@suse.de>,
-       jim.houston@comcast.net,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: BitKeeper repo for KGDB
-Message-ID: <20040128095017.GA22136@redhat.com>
-Mail-Followup-To: Dave Jones <davej@redhat.com>,
-	Tom Rini <trini@kernel.crashing.org>,
-	Chris Wright <chrisw@osdl.org>, akpm@osdl.org, george@mvista.com,
-	amitkale@emsyssoft.com, Andi Kleen <ak@suse.de>,
-	jim.houston@comcast.net,
-	Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <20040127184029.GI32525@stop.crashing.org> <20040127120744.A11525@osdlab.pdx.osdl.net> <20040127210246.GK32525@stop.crashing.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Wed, 28 Jan 2004 05:35:33 -0500
+Received: from node-423a570c.mwc.onnet.us.uu.net ([66.58.87.12]:15364 "EHLO
+	vfemail.net") by vger.kernel.org with ESMTP id S265898AbUA1Kfc
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 28 Jan 2004 05:35:32 -0500
+From: Neil Macvicar <blackmogu@vfemail.net>
+To: chakkerz@optusnet.com.au
+Subject: Re: Total kernel freeze under 2.6.1
+Date: Wed, 28 Jan 2004 10:35:16 +0000
+User-Agent: KMail/1.6.50
+References: <200401261258.39232.blackmogu@vfemail.net> <200401271232.17399.chakkerz@optusnet.com.au>
+In-Reply-To: <200401271232.17399.chakkerz@optusnet.com.au>
+Cc: linux-kernel@vger.kernel.org
+MIME-Version: 1.0
 Content-Disposition: inline
-In-Reply-To: <20040127210246.GK32525@stop.crashing.org>
-User-Agent: Mutt/1.4.1i
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200401281035.16726.blackmogu@vfemail.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jan 27, 2004 at 02:02:47PM -0700, Tom Rini wrote:
+On Tuesday 27 January 2004 01:32, Christian Unger wrote:
+> Forewarning ... i ain't "qualified" ... heck i couldn't get my gfx card to
+> work on 2.6 until yesterday (and i still don't know why that was).
+>
+> ANYWAY
+>
+> i got the same symptoms, and the reason it was doing it on my system was
+> that in the config i was using in several places it referenced the wrong
+> chipset. via instead of nforce2 type thing.
+>
+> From memory it did this all over the place with regards to sound, hdd and
+> memory.
+> Check
+> Device Drivers - ATA/ATAPI/MFM/RLL
+> Character Devices - AGP Support
+> 		  - i2c Support
 
- > > seems I missed where the repo is.
- > Der, whoops.
- > 
- > bk://ppc.bkbits.net/linux-2.6-kgdb
+Thanks alot ! The offending part was in the ALSA driver. It had selected Sound 
+-> ALSA -> PCI -> Intel 18x0/MX440, SiS 7012; Ali 5455 ; NForce Audio; 
+AMD768/8111 by default, which I missed when I built the kernel.
 
-daily diffs vs mainline generated at..
- http://www.codemonkey.org.uk/projects/bitkeeper/kgdb
+Even so, this ought not to hang the kernel ! I'm surprised there wasn't more 
+interest in this from developers.. hangs are serious issues.
 
-		Dave
-
+--Neil.

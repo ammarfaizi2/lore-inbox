@@ -1,62 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265833AbUHFL6d@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265825AbUHFMCP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265833AbUHFL6d (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 6 Aug 2004 07:58:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267776AbUHFL6c
+	id S265825AbUHFMCP (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 6 Aug 2004 08:02:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265879AbUHFMCP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 6 Aug 2004 07:58:32 -0400
-Received: from pop.gmx.net ([213.165.64.20]:56242 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S265833AbUHFL6b (ORCPT
+	Fri, 6 Aug 2004 08:02:15 -0400
+Received: from mail1.bluewin.ch ([195.186.1.74]:53125 "EHLO mail1.bluewin.ch")
+	by vger.kernel.org with ESMTP id S265825AbUHFMCN (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 6 Aug 2004 07:58:31 -0400
-X-Authenticated: #1725425
-Date: Fri, 6 Aug 2004 14:00:12 +0200
-From: Marc Ballarin <Ballarin.Marc@gmx.de>
-To: James Morris <jmorris@redhat.com>
-Cc: torvalds@osdl.org, davem@redhat.com, linux-kernel@vger.kernel.org,
-       clemens@endorphin.org
-Subject: Re: [PATCH] Re-implemented i586 asm AES
-Message-Id: <20040806140012.2dbd92bd.Ballarin.Marc@gmx.de>
-In-Reply-To: <Xine.LNX.4.44.0408060411340.21666-100000@dhcp83-76.boston.redhat.com>
-References: <Xine.LNX.4.44.0408060411340.21666-100000@dhcp83-76.boston.redhat.com>
-X-Mailer: Sylpheed version 0.9.12 (GTK+ 1.2.10; i686-pc-linux-gnu)
+	Fri, 6 Aug 2004 08:02:13 -0400
+Date: Fri, 6 Aug 2004 14:01:23 +0200
+From: Roger Luethi <rl@hellgate.ch>
+To: William Lee Irwin III <wli@holomorphy.com>,
+       Albert Cahalan <albert@users.sf.net>,
+       linux-kernel mailing list <linux-kernel@vger.kernel.org>,
+       linux-mm@kvack.org
+Subject: Re: [proc.txt] Fix /proc/pid/statm documentation
+Message-ID: <20040806120123.GA23081@k3.hellgate.ch>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	Albert Cahalan <albert@users.sf.net>,
+	linux-kernel mailing list <linux-kernel@vger.kernel.org>,
+	linux-mm@kvack.org
+References: <1091754711.1231.2388.camel@cube> <20040806094037.GB11358@k3.hellgate.ch> <20040806104630.GA17188@holomorphy.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040806104630.GA17188@holomorphy.com>
+X-Operating-System: Linux 2.6.8-rc3 on i686
+X-GPG-Fingerprint: 92 F4 DC 20 57 46 7B 95  24 4E 9E E7 5A 54 DC 1B
+X-GPG: 1024/80E744BD wwwkeys.ch.pgp.net
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 6 Aug 2004 04:24:08 -0400 (EDT)
-James Morris <jmorris@redhat.com> wrote:
+[ fixed linux-mm address ]
 
-> This code is a rework of the original Gladman AES code, and does not
-> include any supposed BSD licensed work by Jari Ruusu.
+On Fri, 06 Aug 2004 03:46:30 -0700, William Lee Irwin III wrote:
+> On Fri, Aug 06, 2004 at 11:40:37AM +0200, Roger Luethi wrote:
+> > I discussed this very issue with wli on linux-mm about a year ago. proc
+> > file and documentation are still broken. So what's wrong with doing
+> > something about it?
 > 
+> So now what, you want me to do yet another forward port of
+> linux-2.4.9-statm-B1.diff?
 
-Will this code work with CONFIG_REGPARM=y ?
+Your call, obviously -- do you think it's worthwhile? I didn't CC you
+on my initial posting because I wanted to avoid the impression that I am
+trying to make this your problem somehow. Priorities as I see them are:
 
-> +
-> +// An AES (Rijndael) implementation for the Pentium MMX family using
-> the NASM+// assembler <http://www.web-sites.co.uk/nasm/>. This version
-> only implements+// the standard AES block length (128 bits, 16 bytes)
-> with the same interface+// as that used in my C/C++ implementation.  
-> This code does not preserve the+// eax, ecx or edx registers or the
-> artihmetic status flags. However, the ebx, +// esi, edi, and ebp
-> registers are preserved across calls.    Only encryption+// and
-> decryption are implemented here, the key schedule code being that
-> from+// compiling aes.c with USE_ASM defined.  This code uses VC++
-> register saving+// conentions// if it is used with another compiler, its
-> conventions for using+// and saving registers will need to be checked.
-> +
+- Document statm content somewhere. I posted a patch to document
+  the current state. It could be complemented with a description of
+  what it is supposed to do.
 
-This comment seems partly obsolete.
+- Come to some agreement on what the proper values should be and
+  change kernels accordingly. I'm inclined to favor keeping the first two
+  (albeit redundant) fields and setting the rest to 0, simply because for
+  them too many different de-facto semantics live in exisiting kernels.
 
->  config CRYPTO_AES
->  	tristate "AES cipher algorithms"
-> -	depends on CRYPTO
-> +	depends on CRYPTO && !(X86 && !X86_64)
->  	help
+  A year ago, the first field was broken in 2.4 as well (not sure if/when
+  it got fixed), but I can see why it is useful to keep around until top
+  has found a better source. Same for the second field, the only one that
+  has always been correct AFAIK.
 
-Does it work on x86 CPUs without MMX?
+- Provide additional information in proc files other than statm.
 
-Regards
+  The problems with undocumented records are evident, but
+  /proc/pid/status may be getting too heavy for frequent parsing. It's
+  not realistic to redesign proc at this point, but it would be nice
+  to have some documented understanding about the direction of proc
+  evolution.
+
+Roger

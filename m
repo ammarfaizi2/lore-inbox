@@ -1,39 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263787AbTLDScV (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 4 Dec 2003 13:32:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263788AbTLDScQ
+	id S263792AbTLDSe6 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 4 Dec 2003 13:34:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263796AbTLDSe6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Dec 2003 13:32:16 -0500
-Received: from pizda.ninka.net ([216.101.162.242]:173 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id S263787AbTLDScJ (ORCPT
+	Thu, 4 Dec 2003 13:34:58 -0500
+Received: from mail.gmx.de ([213.165.64.20]:18072 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S263792AbTLDSdk (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Dec 2003 13:32:09 -0500
-Date: Thu, 4 Dec 2003 10:30:41 -0800
-From: "David S. Miller" <davem@redhat.com>
-To: "Feldman, Scott" <scott.feldman@intel.com>
-Cc: mukansai@emailplus.org, laforge@netfilter.org,
-       netfilter-devel@lists.netfilter.org, linux-kernel@vger.kernel.org
-Subject: Re: Extremely slow network with e1000 & ip_conntrack
-Message-Id: <20031204103041.21aefd8d.davem@redhat.com>
-In-Reply-To: <C6F5CF431189FA4CBAEC9E7DD5441E0102CBDD21@orsmsx402.jf.intel.com>
-References: <C6F5CF431189FA4CBAEC9E7DD5441E0102CBDD21@orsmsx402.jf.intel.com>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.6; sparc-unknown-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Thu, 4 Dec 2003 13:33:40 -0500
+Date: Thu, 4 Dec 2003 19:33:38 +0100 (MET)
+From: "Peter Bergmann" <bergmann.peter@gmx.net>
+To: Maciej Zenczykowski <maze@cela.pl>
+Cc: linux-kernel@vger.kernel.org
+MIME-Version: 1.0
+References: <Pine.LNX.4.44.0312041801560.26684-100000@gaia.cela.pl>
+Subject: Re: oom killer in 2.4.23
+X-Priority: 3 (Normal)
+X-Authenticated: #13246506
+Message-ID: <9405.1070562818@www45.gmx.net>
+X-Mailer: WWW-Mail 1.6 (Global Message Exchange)
+X-Flags: 0001
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 4 Dec 2003 09:37:19 -0800
-"Feldman, Scott" <scott.feldman@intel.com> wrote:
+> 
+> Yes, and as a side question, couldn't oom killer be made into a config 
+> option?
+> 
+> Cheers,
+> MaZe.
 
-> TSO is support on 82540.  Turning off TSO is a workaround, but what's
-> behind the dependency of TSO and ip_conntrack?
+I just tried it and - no it does not work.  
+At least not with the following changes:
 
-Netfilter wants to see the _real_ packets that will be sent onto the
-wire.  TSO is a template by which to create such packets, not the real
-thing.
+added #define PF_MEMDIE  0x00001000 to sched.h
 
-So when and if we go into netfilter, we must un-TSO the packet so
-that netfilter can look at what it really wants to.
+replaced oom_kill.c with the 2.4.22 version
+
+added out_of_memory() to the end of try_to_free_pages_zone()
+
+replaced if (current->flags & PF_MEMALLOC && !in_interrupt()) {
+with
+replaced if ((current->flags & (PF_MEMALLOC | PF_MEMDIE)) && !in_interrupt()
+) {
+in page_alloc.c
+
+
+effect is still unchanged. 
+processes get killed by VM and not oom_kikll.c
+
+any hints ??
+
+-- 
++++ GMX - die erste Adresse für Mail, Message, More +++
+Neu: Preissenkung für MMS und FreeMMS! http://www.gmx.net
+
+

@@ -1,84 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281142AbRKTPtY>; Tue, 20 Nov 2001 10:49:24 -0500
+	id <S281138AbRKTPsO>; Tue, 20 Nov 2001 10:48:14 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281139AbRKTPtI>; Tue, 20 Nov 2001 10:49:08 -0500
-Received: from [61.171.119.66] ([61.171.119.66]:2308 "EHLO marvin.zhlinux.com")
-	by vger.kernel.org with ESMTP id <S281140AbRKTPss>;
-	Tue, 20 Nov 2001 10:48:48 -0500
-Date: Tue, 20 Nov 2001 23:49:28 +0800
-From: Wenzhuo Zhang <wenzhuo@zhmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: [OOPS] 2.4.13-ac5 default_idle
-Message-ID: <20011120234928.B714@zhmail.com>
-Mail-Followup-To: linux-kernel@vger.kernel.org
+	id <S281139AbRKTPsE>; Tue, 20 Nov 2001 10:48:04 -0500
+Received: from dsl254-112-233.nyc1.dsl.speakeasy.net ([216.254.112.233]:17049
+	"EHLO snark.thyrsus.com") by vger.kernel.org with ESMTP
+	id <S281138AbRKTPru>; Tue, 20 Nov 2001 10:47:50 -0500
+Date: Tue, 20 Nov 2001 10:44:17 -0500
+From: "Eric S. Raymond" <esr@thyrsus.com>
+To: David Woodhouse <dwmw2@infradead.org>,
+        Linux Kernel List <linux-kernel@vger.kernel.org>
+Subject: Re: Configure.help missing entries list
+Message-ID: <20011120104417.A26597@thyrsus.com>
+Reply-To: esr@thyrsus.com
+Mail-Followup-To: "Eric S. Raymond" <esr@thyrsus.com>,
+	David Woodhouse <dwmw2@infradead.org>,
+	Linux Kernel List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20011120095018.A25289@thyrsus.com> <25065.1006269007@redhat.com> <20011120101237.A25814@thyrsus.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.3.22.1i
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20011120101237.A25814@thyrsus.com>; from esr@thyrsus.com on Tue, Nov 20, 2001 at 10:12:37AM -0500
+Organization: Eric Conspiracy Secret Labs
+X-Eric-Conspiracy: There is no conspiracy
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Eric S. Raymond <esr@thyrsus.com>:
+> David Woodhouse <dwmw2@infradead.org>:
+> > You missed three that I sent you before. If you don't like my version of 
+> > CONFIG_MEMORY_SET I'm sure you can come up with a new one - but the other 
+> > two ought to be acceptable.
+> 
+> That's odd.  I have all three of these.  I wonder why they showed up in the 
+> `missing' list?  I'll look into this...
 
-Hello,
+Got it.  I missed those three because they're not actually used in CML1 
+config files yet.  I was using
 
-I noticed frequent crashings of my old Pentium desktop, after I kept it
-running 24x7 as a gateway/filewall. Tonight, I caught sight of a oops
-and hand-copied it down.
+	scrips/kxref.py -f "a&~h&~x"
 
-ksymoops 2.3.4 on i686 2.4.13-ac5.  Options used
-		  ^^ Since I cannot compile ksymoops in the slackware-8.0
-  box, I copied the kernel/modules to another box, and ran ksymoops there.
-     -V (default)
-     -k /proc/ksyms (default)
-     -l /proc/modules (default)
-     -o /lib/modules/2.4.13-ac5/ (default)
-     -m /boot/System.map-2.4.13-ac5 (specified)
-
-CPU: 0
-EIP: 0010:[<c0105173>] Not tainted
-Using defaults from ksymoops -t elf32-i386 -a i386
-EFLAGS: 00000246
-eax: 00000000 ebx: c0210000 ecx: c11e2260 edx: c11e2260
-esi: c0105150 edi: ffffe000 ebp: 0008e000 esp: c0211fdc
-ds: 0018 es: 0018 ss:0018
-Process swapper (pid: 0, stackpage=c0211000)
-Stack: c01051d7 00003000 000a0600 c0105000 c0105027 c02127f3 00000000 c0246060
-       c0100197
-Call Trace: [<c01051d7>] [<c0105000>] [<c0105027>]
-Code: c3 fb c3 89 f6 fb ba 00 e0 ff ff 21 e2 b8 ff ff ff ff 87 42
-
->>EIP; c0105173 <default_idle+23/28>   <=====
-Trace; c01051d7 <cpu_idle+3f/54>
-Trace; c0105000 <_stext+0/0>
-Trace; c0105027 <rest_init+27/28>
-Code;  c0105173 <default_idle+23/28>
-00000000 <_EIP>:
-Code;  c0105173 <default_idle+23/28>   <=====
-   0:   c3                        ret       <=====
-Code;  c0105174 <default_idle+24/28>
-   1:   fb                        sti    
-Code;  c0105175 <default_idle+25/28>
-   2:   c3                        ret    
-Code;  c0105176 <default_idle+26/28>
-   3:   89 f6                     mov    %esi,%esi
-Code;  c0105178 <poll_idle+0/20>
-   5:   fb                        sti    
-Code;  c0105179 <poll_idle+1/20>
-   6:   ba 00 e0 ff ff            mov    $0xffffe000,%edx
-Code;  c010517e <poll_idle+6/20>
-   b:   21 e2                     and    %esp,%edx
-Code;  c0105180 <poll_idle+8/20>
-   d:   b8 ff ff ff ff            mov    $0xffffffff,%eax
-Code;  c0105185 <poll_idle+d/20>
-  12:   87 42 00                  xchg   %eax,0x0(%edx)
-
-  <0> Kernel panic: Attempted to kill the idle task!
-
-
-Thanks,
-
+to generate the missing report.
 -- 
-Wenzhuo
-  GnuPG Key ID 0xBA586A68
-  Key fingerprint = 89C7 C6DE D956 F978 3F12  A8AF 5847 F840 BA58 6A68
+		<a href="http://www.tuxedo.org/~esr/">Eric S. Raymond</a>
+
+In the absence of any evidence tending to show that possession 
+or use of a 'shotgun having a barrel of less than eighteen inches 
+in length' at this time has some reasonable relationship to the 
+preservation or efficiency of a well regulated militia, we cannot 
+say that the Second Amendment guarantees the right to keep and bear 
+such an instrument. [...] The Militia comprised all males 
+physically capable of acting in concert for the common defense.  
+        -- Majority Supreme Court opinion in "U.S. vs. Miller" (1939)

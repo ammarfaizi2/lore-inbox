@@ -1,32 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312498AbSGFV5U>; Sat, 6 Jul 2002 17:57:20 -0400
+	id <S312962AbSGFWNo>; Sat, 6 Jul 2002 18:13:44 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312938AbSGFV5T>; Sat, 6 Jul 2002 17:57:19 -0400
-Received: from mnh-1-10.mv.com ([207.22.10.42]:11269 "EHLO ccure.karaya.com")
-	by vger.kernel.org with ESMTP id <S312498AbSGFV5S>;
-	Sat, 6 Jul 2002 17:57:18 -0400
-Message-Id: <200207062303.SAA02760@ccure.karaya.com>
-X-Mailer: exmh version 2.0.2
-To: Pavel Machek <pavel@ucw.cz>
-Cc: linux-kernel@vger.kernel.org, user-mode-linux-user@lists.sourceforge.net
-Subject: Re: [uml-user] Re: user-mode port 0.58-2.4.18-36 
-In-Reply-To: Your message of "Sat, 06 Jul 2002 03:16:45 +0200."
-             <20020706011643.GD112@elf.ucw.cz> 
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Sat, 06 Jul 2002 18:03:00 -0500
-From: Jeff Dike <jdike@karaya.com>
+	id <S312973AbSGFWNn>; Sat, 6 Jul 2002 18:13:43 -0400
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:14859 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S312962AbSGFWNn>; Sat, 6 Jul 2002 18:13:43 -0400
+To: linux-kernel@vger.kernel.org
+From: "H. Peter Anvin" <hpa@zytor.com>
+Subject: Re: [OT] /proc/cpuinfo output from some arch
+Date: 6 Jul 2002 15:16:07 -0700
+Organization: Transmeta Corporation, Santa Clara CA
+Message-ID: <ag7q77$en7$1@cesium.transmeta.com>
+References: <003201c224cd$e25df820$0201a8c0@witek> <jen0t4g35k.fsf@sykes.suse.de> <20020706221205.A5242@flint.arm.linux.org.uk>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Disclaimer: Not speaking for Transmeta in any way, shape, or form.
+Copyright: Copyright 2002 H. Peter Anvin - All Rights Reserved
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-pavel@ucw.cz said:
-> So... what prevents uml root from inserting rogue module (perhaps
-> using /dev/kmem) and escape the jail? 
+Followup to:  <20020706221205.A5242@flint.arm.linux.org.uk>
+By author:    Russell King <rmk@arm.linux.org.uk>
+In newsgroup: linux.dev.kernel
+>
+> On Sat, Jul 06, 2002 at 07:46:47PM +0200, Andreas Schwab wrote:
+> > Processor	: Intel StrongARM-110 rev 4 (v4l)
+> 
+> Note that this could also be something like:
+> 
+> Processor	: ARM/VLSI Arm1020id(wb)BRR rev 1 (v4)
+> 
+> or:
+> 
+> Processor	: ARM ARM926EJ-Sid(wb)RR rev 2 (v5)
+> 
+> It might change further if the manufacturer decides to have a space
+> in their name.  Basically, /proc/cpuinfo was never meant to be passed
+> by programs, and its not something I'd like to support with the current
+> format.
+>  
 
-That's prevented by the admin taking basic precautions and turning on 'jail',
-which refuses to run if module support is present and which also disables
-writing to /dev/kmem.
+/proc/cpuinfo was *definitely* meant to be parsed by programs.
+Unfortunately, lots of architectures seems to have completely missed
+that fact.
 
-				Jeff
-
+	-hpa
+-- 
+<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
+"Unix gives you enough rope to shoot yourself in the foot."
+http://www.zytor.com/~hpa/puzzle.txt	<amsp@zytor.com>

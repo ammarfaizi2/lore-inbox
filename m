@@ -1,77 +1,246 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261462AbULTIif@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261492AbULTIih@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261462AbULTIif (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Dec 2004 03:38:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261537AbULTHxu
+	id S261492AbULTIih (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Dec 2004 03:38:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261517AbULTHnV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Dec 2004 02:53:50 -0500
-Received: from yue.linux-ipv6.org ([203.178.140.15]:65028 "EHLO
-	yue.st-paulia.net") by vger.kernel.org with ESMTP id S261471AbULTG6d
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Dec 2004 01:58:33 -0500
-Date: Mon, 20 Dec 2004 15:58:36 +0900 (JST)
-Message-Id: <20041220.155836.75677852.yoshfuji@linux-ipv6.org>
-To: roland@topspin.com
-Cc: linux-kernel@vger.kernel.org, openib-general@openib.org,
-       netdev@oss.sgi.com, yoshfuji@linux-ipv6.org
-Subject: Re: [PATCH][v4][19/24] Add IPoIB (IP-over-InfiniBand) driver
-From: YOSHIFUJI Hideaki / =?iso-2022-jp?B?GyRCNUhGIzFRTEAbKEI=?= 
-	<yoshfuji@linux-ipv6.org>
-In-Reply-To: <200412192215.fZX1ZQqQD4QGkKcF@topspin.com>
-References: <200412192215.69tnzAhGIT1vQGLF@topspin.com>
-	<200412192215.fZX1ZQqQD4QGkKcF@topspin.com>
-Organization: USAGI Project
-X-URL: http://www.yoshifuji.org/%7Ehideaki/
-X-Fingerprint: 9022 65EB 1ECF 3AD1 0BDF  80D8 4807 F894 E062 0EEA
-X-PGP-Key-URL: http://www.yoshifuji.org/%7Ehideaki/hideaki@yoshifuji.org.asc
-X-Face: "5$Al-.M>NJ%a'@hhZdQm:."qn~PA^gq4o*>iCFToq*bAi#4FRtx}enhuQKz7fNqQz\BYU]
- $~O_5m-9'}MIs`XGwIEscw;e5b>n"B_?j/AkL~i/MEa<!5P`&C$@oP>ZBLP
-X-Mailer: Mew version 2.2 on Emacs 20.7 / Mule 4.1 (AOI)
+	Mon, 20 Dec 2004 02:43:21 -0500
+Received: from umhlanga.stratnet.net ([12.162.17.40]:19125 "EHLO
+	umhlanga.STRATNET.NET") by vger.kernel.org with ESMTP
+	id S261456AbULTGPU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 20 Dec 2004 01:15:20 -0500
+Cc: openib-general@openib.org
+In-Reply-To: <200412192215.XIYuLGzemoQZ9LxY@topspin.com>
+X-Mailer: Roland's Patchbomber
+Date: Sun, 19 Dec 2004 22:15:19 -0800
+Message-Id: <200412192215.pKjErOfjUaT6gtSk@topspin.com>
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+To: linux-kernel@vger.kernel.org
+From: Roland Dreier <roland@topspin.com>
+X-SA-Exim-Connect-IP: 127.0.0.1
+X-SA-Exim-Mail-From: roland@topspin.com
+Subject: [PATCH][v4][23/24] Add InfiniBand Documentation files
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-SA-Exim-Version: 4.1 (built Tue, 17 Aug 2004 11:06:07 +0200)
+X-SA-Exim-Scanned: Yes (on eddore)
+X-OriginalArrivalTime: 20 Dec 2004 06:15:20.0020 (UTC) FILETIME=[4827D940:01C4E65B]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <200412192215.fZX1ZQqQD4QGkKcF@topspin.com> (at Sun, 19 Dec 2004 22:15:14 -0800), Roland Dreier <roland@topspin.com> says:
+Add files to Documentation/infiniband that describe the tree under
+/sys/class/infiniband, the IPoIB driver and the userspace MAD access driver.
 
-> +enum {
-> +	IPOIB_PACKET_SIZE         = 2048,
-> +	IPOIB_BUF_SIZE 		  = IPOIB_PACKET_SIZE + IB_GRH_BYTES,
-> +
-> +	IPOIB_ENCAP_LEN 	  = 4,
-> +
-> +	IPOIB_RX_RING_SIZE 	  = 128,
-> +	IPOIB_TX_RING_SIZE 	  = 64,
-> +
-> +	IPOIB_NUM_WC 		  = 4,
-> +
-> +	IPOIB_MAX_PATH_REC_QUEUE  = 3,
-> +	IPOIB_MAX_MCAST_QUEUE     = 3,
-
-above entries does not seem to appropriate for enum (than #define).
+Signed-off-by: Roland Dreier <roland@topspin.com>
 
 
-> +
-> +	IPOIB_FLAG_OPER_UP 	  = 0,
-> +	IPOIB_FLAG_ADMIN_UP 	  = 1,
-> +	IPOIB_PKEY_ASSIGNED 	  = 2,
-> +	IPOIB_PKEY_STOP 	  = 3,
-> +	IPOIB_FLAG_SUBINTERFACE   = 4,
-> +	IPOIB_MCAST_RUN 	  = 5,
-> +	IPOIB_STOP_REAPER         = 6,
+--- /dev/null	1970-01-01 00:00:00.000000000 +0000
++++ linux-bk/Documentation/infiniband/ipoib.txt	2004-12-19 22:04:20.188724047 -0800
+@@ -0,0 +1,56 @@
++IP OVER INFINIBAND
++
++  The ib_ipoib driver is an implementation of the IP over InfiniBand
++  protocol as specified by the latest Internet-Drafts issued by the
++  IETF ipoib working group.  It is a "native" implementation in the
++  sense of setting the interface type to ARPHRD_INFINIBAND and the
++  hardware address length to 20 (earlier proprietary implementations
++  masqueraded to the kernel as ethernet interfaces).
++
++Partitions and P_Keys
++
++  When the IPoIB driver is loaded, it creates one interface for each
++  port using the P_Key at index 0.  To create an interface with a
++  different P_Key, write the desired P_Key into the main interface's
++  /sys/class/net/<intf name>/create_child file.  For example:
++
++    echo 0x8001 > /sys/class/net/ib0/create_child
++
++  This will create an interface named ib0.8001 with P_Key 0x8001.  To
++  remove a subinterface, use the "delete_child" file:
++
++    echo 0x8001 > /sys/class/net/ib0/delete_child
++
++  The P_Key for any interface is given by the "pkey" file, and the
++  main interface for a subinterface is in "parent."
++
++Debugging Information
++
++  By compiling the IPoIB driver with CONFIG_INFINIBAND_IPOIB_DEBUG set
++  to 'y', tracing messages are compiled into the driver.  They are
++  turned on by setting the module parameters debug_level and
++  mcast_debug_level to 1.  These parameters can be controlled at
++  runtime through files in /sys/module/ib_ipoib/.
++
++  CONFIG_INFINIBAND_IPOIB_DEBUG also enables the "ipoib_debugfs"
++  virtual filesystem.  By mounting this filesystem, for example with
++
++    mkdir -p /ipoib_debugfs
++    mount -t ipoib_debugfs none /ipoib_debufs
++
++  it is possible to get statistics about multicast groups from the
++  files /ipoib_debugfs/ib0_mcg and so on.
++
++  The performance impact of this option is negligible, so it
++  is safe to enable this option with debug_level set to 0 for normal
++  operation.
++
++  CONFIG_INFINIBAND_IPOIB_DEBUG_DATA enables even more debug output in
++  the data path when data_debug_level is set to 1.  However, even with
++  the output disabled, enabling this configuration option will affect
++  performance, because it adds tests to the fast path.
++
++References
++
++  IETF IP over InfiniBand (ipoib) Working Group
++    http://ietf.org/html.charters/ipoib-charter.html
+--- /dev/null	1970-01-01 00:00:00.000000000 +0000
++++ linux-bk/Documentation/infiniband/sysfs.txt	2004-12-19 22:04:20.415690600 -0800
+@@ -0,0 +1,63 @@
++SYSFS FILES
++
++  For each InfiniBand device, the InfiniBand drivers create the
++  following files under /sys/class/infiniband/<device name>:
++
++    node_guid      - Node GUID
++    sys_image_guid - System image GUID
++
++  In addition, there is a "ports" subdirectory, with one subdirectory
++  for each port.  For example, if mthca0 is a 2-port HCA, there will
++  be two directories:
++
++    /sys/class/infiniband/mthca0/ports/1
++    /sys/class/infiniband/mthca0/ports/2
++
++  (A switch will only have a single "0" subdirectory for switch port
++  0; no subdirectory is created for normal switch ports)
++
++  In each port subdirectory, the following files are created:
++
++    cap_mask       - Port capability mask
++    lid            - Port LID
++    lid_mask_count - Port LID mask count
++    sm_lid         - Subnet manager LID for port's subnet
++    sm_sl          - Subnet manager SL for port's subnet
++    state          - Port state (DOWN, INIT, ARMED, ACTIVE or ACTIVE_DEFER)
++
++  There is also a "counters" subdirectory, with files
++
++    VL15_dropped
++    excessive_buffer_overrun_errors
++    link_downed
++    link_error_recovery
++    local_link_integrity_errors
++    port_rcv_constraint_errors
++    port_rcv_data
++    port_rcv_errors
++    port_rcv_packets
++    port_rcv_remote_physical_errors
++    port_rcv_switch_relay_errors
++    port_xmit_constraint_errors
++    port_xmit_data
++    port_xmit_discards
++    port_xmit_packets
++    symbol_error
++
++  Each of these files contains the corresponding value from the port's
++  Performance Management PortCounters attribute, as described in
++  section 16.1.3.5 of the InfiniBand Architecture Specification.
++
++  The "pkeys" and "gids" subdirectories contain one file for each
++  entry in the port's P_Key or GID table respectively.  For example,
++  ports/1/pkeys/10 contains the value at index 10 in port 1's P_Key
++  table.
++
++MTHCA
++
++  The Mellanox HCA driver also creates the files:
++
++    hw_rev   - Hardware revision number
++    fw_ver   - Firmware version
++    hca_type - HCA type: "MT23108", "MT25208 (MT23108 compat mode)",
++               or "MT25208"
+--- /dev/null	1970-01-01 00:00:00.000000000 +0000
++++ linux-bk/Documentation/infiniband/user_mad.txt	2004-12-19 22:04:20.627659363 -0800
+@@ -0,0 +1,81 @@
++USERSPACE MAD ACCESS
++
++Device files
++
++  Each port of each InfiniBand device has a "umad" device attached.
++  For example, a two-port HCA will have two devices, while a switch
++  will have one device (for switch port 0).
++
++Creating MAD agents
++
++  A MAD agent can be created by filling in a struct ib_user_mad_reg_req
++  and then calling the IB_USER_MAD_REGISTER_AGENT ioctl on a file
++  descriptor for the appropriate device file.  If the registration
++  request succeeds, a 32-bit id will be returned in the structure.
++  For example:
++
++	struct ib_user_mad_reg_req req = { /* ... */ };
++	ret = ioctl(fd, IB_USER_MAD_REGISTER_AGENT, (char *) &req);
++        if (!ret)
++		my_agent = req.id;
++	else
++		perror("agent register");
++
++  Agents can be unregistered with the IB_USER_MAD_UNREGISTER_AGENT
++  ioctl.  Also, all agents registered through a file descriptor will
++  be unregistered when the descriptor is closed.
++
++Receiving MADs
++
++  MADs are received using read().  The buffer passed to read() must be
++  large enough to hold at least one struct ib_user_mad.  For example:
++
++	struct ib_user_mad mad;
++	ret = read(fd, &mad, sizeof mad);
++	if (ret != sizeof mad)
++		perror("read");
++
++  In addition to the actual MAD contents, the other struct ib_user_mad
++  fields will be filled in with information on the received MAD.  For
++  example, the remote LID will be in mad.lid.
++
++  If a send times out, a receive will be generated with mad.status set
++  to ETIMEDOUT.  Otherwise when a MAD has been successfully received,
++  mad.status will be 0.
++
++  poll()/select() may be used to wait until a MAD can be read.
++
++Sending MADs
++
++  MADs are sent using write().  The agent ID for sending should be
++  filled into the id field of the MAD, the destination LID should be
++  filled into the lid field, and so on.  For example:
++
++	struct ib_user_mad mad;
++
++	/* fill in mad.data */
++
++	mad.id  = my_agent;	/* req.id from agent registration */
++	mad.lid = my_dest;	/* in network byte order... */
++	/* etc. */
++
++	ret = write(fd, &mad, sizeof mad);
++	if (ret != sizeof mad)
++		perror("write");
++
++/dev files
++
++  To create the appropriate character device files automatically with
++  udev, a rule like
++
++    KERNEL="umad*", NAME="infiniband/%k"
++
++  can be used.  This will create a device node named
++
++    /dev/infiniband/umad0
++
++  for the first port, and so on.  The InfiniBand device and port
++  associated with this device can be determined from the files
++
++    /sys/class/infiniband_mad/umad0/ibdev
++    /sys/class/infiniband_mad/umad0/port
 
-this seems ok, but are "xxx_FLAG_xxx" entries really flags?
-
-> +	IPOIB_MAX_BACKOFF_SECONDS = 16,
-
-ditto, w/ first one.
-
-> +	IPOIB_MCAST_FLAG_FOUND 	  = 0,	/* used in set_multicast_list */
-> +	IPOIB_MCAST_FLAG_SENDONLY = 1,
-> +	IPOIB_MCAST_FLAG_BUSY 	  = 2,	/* joining or already joined */
-> +	IPOIB_MCAST_FLAG_ATTACHED = 3,
-
-seems fine, but are these really flags?
-
---yoshfuji

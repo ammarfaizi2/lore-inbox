@@ -1,47 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262054AbVCOWwn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262070AbVCOWx4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262054AbVCOWwn (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Mar 2005 17:52:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262070AbVCOWjz
+	id S262070AbVCOWx4 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Mar 2005 17:53:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262065AbVCOWw6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Mar 2005 17:39:55 -0500
-Received: from mail.dif.dk ([193.138.115.101]:51940 "EHLO mail.dif.dk")
-	by vger.kernel.org with ESMTP id S262047AbVCOWhy (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Mar 2005 17:37:54 -0500
-Date: Tue, 15 Mar 2005 23:39:22 +0100 (CET)
-From: Jesper Juhl <juhl-lkml@dif.dk>
-To: Mikhail Ramendik <mr@ramendik.ru>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Proposal: "Latest Base Kernel" on kernel.org
-In-Reply-To: <200503121937.32854.mr@ramendik.ru>
-Message-ID: <Pine.LNX.4.62.0503152337500.2631@dragon.hyggekrogen.localhost>
-References: <200503121937.32854.mr@ramendik.ru>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Tue, 15 Mar 2005 17:52:58 -0500
+Received: from 206.175.9.210.velocitynet.com.au ([210.9.175.206]:15270 "EHLO
+	cunningham.myip.net.au") by vger.kernel.org with ESMTP
+	id S262117AbVCOWwT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 15 Mar 2005 17:52:19 -0500
+Subject: Re: [PATCH] Add missing refrigerator calls
+From: Nigel Cunningham <ncunningham@cyclades.com>
+Reply-To: ncunningham@cyclades.com
+To: Marcel Holtmann <marcel@holtmann.org>
+Cc: Andrew Morton <akpm@digeo.com>, Pavel Machek <pavel@ucw.cz>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <1110925639.9818.80.camel@pegasus>
+References: <1110924757.6454.132.camel@desktop.cunningham.myip.net.au>
+	 <1110925639.9818.80.camel@pegasus>
+Content-Type: text/plain
+Message-Id: <1110927223.6454.148.camel@desktop.cunningham.myip.net.au>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6-1mdk 
+Date: Wed, 16 Mar 2005 09:53:43 +1100
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 12 Mar 2005, Mikhail Ramendik wrote:
+Hi.
 
-> Hello,
+On Wed, 2005-03-16 at 09:27, Marcel Holtmann wrote:
+> Hi Nigel,
 > 
-> The "Latest Stable Kernel" on the main page of www.kernel.org is 2.6.11.2 and 
-> this is of course right.
+> > There are a number of threads that currently have no refrigerator
+> > handling in Linus' tree. This patch addresses part of that issue. The
+> > remainder will be addressed in other patches, following soon.
+> > 
+> > Signed-off-by: Nigel Cunningham <ncunningham@cyclades.com>
 > 
-> But people who want to apply an -rc patch, or some other patchsets (e.g. -ck) 
-> want 2.6.11. They can currently get it only by browsing directories.
-> 
-> Perhaps, to enable easier usage of such patchsets, a "latest Base kernel link" 
-> should be added to the kernel.org main page? This would be the latest three 
-> point release. Of course it should be below "stable", as "stable" is the 
-> default choice.
-> 
-I agree with you. Having the base kernel up there would be nice. Also it 
-seems that the -bk snapshots against the base are no longer easily 
-retrievable from the kernel.org frontpage any more - personally I miss 
-those.
+> I am fine with the net/bluetooth/rfcomm/ part, but what about the bnep/
+> and cmtp/ and hidp/ part of the Bluetooth subsystem? Do we need this
+> there, too?
 
+I see... someone has added PF_NOFREEZE to all your drivers, so my
+fragment is redundant. NO_FREEZE is fine in my mind - I would be seeking
+to make all network driver threads NO_FREEZE in a while anyway, to allow
+suspending over a network.
+
+I'll double check the other fragments too, just in case the same thing
+has happened there.
+
+Nigel
 -- 
-Jesper Juhl
+Nigel Cunningham
+Software Engineer, Canberra, Australia
+http://www.cyclades.com
+Bus: +61 (2) 6291 9554; Hme: +61 (2) 6292 8028;  Mob: +61 (417) 100 574
+
+Maintainer of Suspend2 Kernel Patches http://suspend2.net
 

@@ -1,49 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261508AbTICDLQ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 2 Sep 2003 23:11:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261557AbTICDLQ
+	id S261493AbTICDFP (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 2 Sep 2003 23:05:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261557AbTICDFP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 2 Sep 2003 23:11:16 -0400
-Received: from smtp.terra.es ([213.4.129.129]:30022 "EHLO tsmtp10.mail.isp")
-	by vger.kernel.org with ESMTP id S261508AbTICDLP (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 2 Sep 2003 23:11:15 -0400
-Message-ID: <3F555B68.2010408@terra.es>
-Date: Wed, 03 Sep 2003 05:09:28 +0200
-From: tonildg <tonildg@terra.es>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030830 Debian/1.4-3.he-1
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Martin Willemoes Hansen <mwh@sysrq.dk>
-CC: Russell King <rmk@arm.linux.org.uk>, linux-kernel@vger.kernel.org
-Subject: Re: Airo Net 340 PCMCIA WiFi Card trouble
-References: <1062498150.356.9.camel@spiril.sysrq.dk>	 <20030902113610.D29984@flint.arm.linux.org.uk> <1062500366.642.11.camel@hugoboss.sysrq.dk>
-In-Reply-To: <1062500366.642.11.camel@hugoboss.sysrq.dk>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Tue, 2 Sep 2003 23:05:15 -0400
+Received: from rwcrmhc12.comcast.net ([216.148.227.85]:1271 "EHLO
+	rwcrmhc12.comcast.net") by vger.kernel.org with ESMTP
+	id S261493AbTICDFL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 2 Sep 2003 23:05:11 -0400
+Subject: Re: 2.6-test4 Traditional pty and devfs
+From: Albert Cahalan <albert@users.sf.net>
+To: linux-kernel mailing list <linux-kernel@vger.kernel.org>
+Cc: hch@infradead.org, akpm@osdl.org
+Content-Type: text/plain
+Organization: 
+Message-Id: <1062557567.846.2090.camel@cube>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.4 
+Date: 02 Sep 2003 22:52:47 -0400
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- >The error message:
- >cardmgr[19]: starting, version is 3.2.4
- >cs: memory probe 0x0c0000-0x0ffff: excluding >0xc0000-0xcbfff
+Christoph Hellwig writes:
+> On Tue, Sep 02, 2003 at 10:43:40AM -0700, Andrew Morton wrote:
 
-  I had the same problem you have (but in other range of memory and with 
-another wireless card) and it started too with 2.4.19. 
+>>> That's the magic use uid/gid of the process calling
+>>> devfs_Register flag I killed.  With a big HEADSUP
+>>> and explanation on lkml..
+>>
+>> So what is the impact here?  That libc5 will break if
+>> the user is using devfs and old-style pty's?
+>
+> If he removed the pt_chown logic that is present with a
+> stock libc5, yes.  I wouldn't know why someone would do
+> that, though.
 
- I solved it testing with memory ranges in the config.opts file that 
-comes with your pcmcia_cs version.
+The problem may be more serious. There are lots of
+apps that use the old-style PTYs w/o any libc help.
 
-   You have to play with them until one fits and boots. "I had to use 
-windows to see the memory adresses my cardbus used." Usually, when 
-comenting the "include memory 0xc0000-0xfffff" solves it.
+a. because that's the historic BSD way
+b. so the user can choose a specific pty
 
-However this problem is not caused by the Airo driver. And, (i think) it 
-is not a  kernel problem. Maybe a pcmcia_cs one.
-
- >Sure, when I boot my laptop with any of the above mentioned kernels I
- >get the above message and the laptop freezes and stops whatever its
- >doing.
+For example, there's a "remserial" program
+that abuses a PTY for giving access to a
+serial port over the network. Apps trying to
+use the port work pretty well, without any need
+for source code changes or new kernel drivers.
 
 

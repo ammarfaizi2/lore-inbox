@@ -1,33 +1,23 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263990AbTG2DPV (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 28 Jul 2003 23:15:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270373AbTG2DPV
+	id S270416AbTG2D0f (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 28 Jul 2003 23:26:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270426AbTG2D0e
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 28 Jul 2003 23:15:21 -0400
-Received: from fw.osdl.org ([65.172.181.6]:47499 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S263990AbTG2DPP (ORCPT
+	Mon, 28 Jul 2003 23:26:34 -0400
+Received: from fw.osdl.org ([65.172.181.6]:6033 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S270416AbTG2D0a (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 28 Jul 2003 23:15:15 -0400
-Date: Mon, 28 Jul 2003 20:14:59 -0700
+	Mon, 28 Jul 2003 23:26:30 -0400
+Date: Mon, 28 Jul 2003 20:26:00 -0700
 From: Andrew Morton <akpm@osdl.org>
-To: Albert Cahalan <albert@users.sourceforge.net>
-Cc: zwane@arm.linux.org.uk, albert@users.sourceforge.net,
-       linux-yoann@ifrance.com, linux-kernel@vger.kernel.org, akpm@digeo.com,
-       vortex@scyld.com, jgarzik@pobox.com
-Subject: Re: another must-fix: major PS/2 mouse problem
-Message-Id: <20030728201459.78c8c7c6.akpm@osdl.org>
-In-Reply-To: <1059447325.3862.86.camel@cube>
-References: <1054431962.22103.744.camel@cube>
-	<3EDCF47A.1060605@ifrance.com>
-	<1054681254.22103.3750.camel@cube>
-	<3EDD8850.9060808@ifrance.com>
-	<1058921044.943.12.camel@cube>
-	<20030724103047.31e91a96.akpm@osdl.org>
-	<1059097601.1220.75.camel@cube>
-	<20030725201914.644b020c.akpm@osdl.org>
-	<Pine.LNX.4.53.0307261112590.12159@montezuma.mastecende.com>
-	<1059447325.3862.86.camel@cube>
+To: "S. Anderson" <sa@xmission.com>
+Cc: pavel@xal.co.uk, linux-kernel@vger.kernel.org, adaplas@pol.net
+Subject: Re: OOPS 2.6.0-test2, modprobe i810fb
+Message-Id: <20030728202600.18338fa9.akpm@osdl.org>
+In-Reply-To: <20030728201954.A16103@xmission.xmission.com>
+References: <20030728171806.GA1860@xal.co.uk>
+	<20030728201954.A16103@xmission.xmission.com>
 X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
@@ -35,63 +25,158 @@ Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Albert Cahalan <albert@users.sourceforge.net> wrote:
+"S. Anderson" <sa@xmission.com> wrote:
 >
-> OK, I did this. Now, in microseconds, I get:
+> On Mon, Jul 28, 2003 at 06:18:07PM +0100, Pavel Rabel wrote:
+> > Got this OOPS when trying "modprobe i810fb",
+> > kernel 2.6.0-test2
+> > 
 > 
-> ------------------------
-> IRQ use      min     max
-> --- -------- --- -------   
->   0 timer     40  103968
->   1 i8042     14    1138 (was 389773)
->   2 cascade    -       -
->   3 -          -       -
->   4 serial    29      56
->   5 uhci-hcd   -       -
->   6 -        690     690
->   7 -         40      40
->   8 -          -       -
->   9 -          -       -
->  10 -          -       -
->  11 eth0      73   31332 (was 1535331)
->  12 i8042     18     215 (was 102895)
->  13 -          -       -
->  14 ide0       7   43846
->  15 ide1       7      12 
-> ------------------------
->    
-> boomerang_interrupt itself takes 4 to 59 microseconds.
+> I am also getting this oops, or somthing very simmillar.
 
-So this looks OK, yes?  (Is that instrumentation patch productisable? 
-Looks handly, albeit a subset of microstate accounting)
+yay!  I finally fixed a bug! (sheesh, bad day).
 
-> Then I switched to 2.6.0-test2. Testing more, I get the
-> problem with or without SMP and with or without
-> preemption. Here's a chunk of my log file:
-> 
-> Loosing too many ticks!
-> TSC cannot be used as a timesource. (Are you running with SpeedStep?)
-> Falling back to a sane timesource.
-> psmouse.c: Lost synchronization, throwing 3 bytes away.
-> psmouse.c: Lost synchronization, throwing 1 bytes away.
-> 
-> Arrrrgh! The TSC is my only good time source!
+The device table is not null-terminated so we run off the end during
+matching and go oops.
 
-Arrrgh!  More PS/2 problems!
+I also moved all the statics out of i810_main.h and into i810_main.c. 
+There is not a lot of point putting them in a header file: if any other .c
+file includes the header we get multiple private instantiatiations of
+all that stuff.
 
-I think the lost synchronisation is the problem, would you agree?
 
-The person who fixes this gets a Nobel prize.
 
-> Remember that this is a pretty normal system. I have
-> a Red Hat 8 install w/ required upgrades, ext3, IDE,
-> a 1-GHz Pentium III, a boring VIA chipset, etc.
-> 
-> To reproduce, I do some PS/2 mouse movement while
-> doing one of:
-> 
-> a. Lots of concurrent write() and sync() activity to ext3.
-> b. Lots of NFSv3 traffic.
+ drivers/video/i810/i810_main.c |   51 +++++++++++++++++++++++++++++++++++++++++
+ drivers/video/i810/i810_main.h |   50 ----------------------------------------
+ 2 files changed, 51 insertions(+), 50 deletions(-)
 
-ie: lots of interrupt traffic causes the PS2 driver to go whacky?
+diff -puN drivers/video/i810/i810_main.h~i810-fix drivers/video/i810/i810_main.h
+--- 25/drivers/video/i810/i810_main.h~i810-fix	2003-07-28 20:20:15.000000000 -0700
++++ 25-akpm/drivers/video/i810/i810_main.h	2003-07-28 20:20:15.000000000 -0700
+@@ -14,62 +14,12 @@
+ #ifndef __I810_MAIN_H__
+ #define __I810_MAIN_H__
+ 
+-/* PCI */
+-static const char *i810_pci_list[] __initdata = {
+-	"Intel(R) 810 Framebuffer Device"                                 ,
+-	"Intel(R) 810-DC100 Framebuffer Device"                           ,
+-	"Intel(R) 810E Framebuffer Device"                                ,
+-	"Intel(R) 815 (Internal Graphics 100Mhz FSB) Framebuffer Device"  ,
+-	"Intel(R) 815 (Internal Graphics only) Framebuffer Device"        , 
+-	"Intel(R) 815 (Internal Graphics with AGP) Framebuffer Device"  
+-};
+-
+-static struct pci_device_id i810fb_pci_tbl[] __initdata = {
+-	{ PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_82810_IG1, 
+-	  PCI_ANY_ID, PCI_ANY_ID, 0, 0, 0 }, 
+-	{ PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_82810_IG3,
+-	  PCI_ANY_ID, PCI_ANY_ID, 0, 0, 1  },
+-	{ PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_82810E_IG,
+-	  PCI_ANY_ID, PCI_ANY_ID, 0, 0, 2 },
+-	/* mvo: added i815 PCI-ID */  
+-	{ PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_82815_100,
+-	  PCI_ANY_ID, PCI_ANY_ID, 0, 0, 3 },
+-	{ PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_82815_NOAGP,
+-	  PCI_ANY_ID, PCI_ANY_ID, 0, 0, 4 },
+-	{ PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_82815_CGC,
+-	  PCI_ANY_ID, PCI_ANY_ID, 0, 0, 5 }
+-};	  
+-	             
+ static int  __init i810fb_init_pci (struct pci_dev *dev, 
+ 				       const struct pci_device_id *entry);
+ static void __exit i810fb_remove_pci(struct pci_dev *dev);
+ static int i810fb_resume(struct pci_dev *dev);
+ static int i810fb_suspend(struct pci_dev *dev, u32 state);
+ 
+-static struct pci_driver i810fb_driver = {
+-	.name     =	"i810fb",
+-	.id_table =	i810fb_pci_tbl,
+-	.probe    =	i810fb_init_pci,
+-	.remove   =	__exit_p(i810fb_remove_pci),
+-	.suspend  =     i810fb_suspend,
+-	.resume   =     i810fb_resume,
+-};	
+-
+-static int vram       __initdata = 4;
+-static int bpp        __initdata = 8;
+-static int mtrr       __initdata = 0;
+-static int accel      __initdata = 0;
+-static int hsync1     __initdata = 0;
+-static int hsync2     __initdata = 0;
+-static int vsync1     __initdata = 0;
+-static int vsync2     __initdata = 0;
+-static int xres       __initdata = 640;
+-static int yres       __initdata = 480;
+-static int vyres      __initdata = 0;
+-static int sync       __initdata = 0;
+-static int ext_vga    __initdata = 0;
+-static int dcolor     __initdata = 0;
+-
+ /*
+  * voffset - framebuffer offset in MiB from aperture start address.  In order for
+  * the driver to work with X, we must try to use memory holes left untouched by X. The 
+diff -puN drivers/video/i810/i810_main.c~i810-fix drivers/video/i810/i810_main.c
+--- 25/drivers/video/i810/i810_main.c~i810-fix	2003-07-28 20:20:15.000000000 -0700
++++ 25-akpm/drivers/video/i810/i810_main.c	2003-07-28 20:20:15.000000000 -0700
+@@ -56,6 +56,57 @@
+ #include "i810.h"
+ #include "i810_main.h"
+ 
++/* PCI */
++static const char *i810_pci_list[] __initdata = {
++	"Intel(R) 810 Framebuffer Device"                                 ,
++	"Intel(R) 810-DC100 Framebuffer Device"                           ,
++	"Intel(R) 810E Framebuffer Device"                                ,
++	"Intel(R) 815 (Internal Graphics 100Mhz FSB) Framebuffer Device"  ,
++	"Intel(R) 815 (Internal Graphics only) Framebuffer Device"        ,
++	"Intel(R) 815 (Internal Graphics with AGP) Framebuffer Device"
++};
++
++static struct pci_device_id i810fb_pci_tbl[] __initdata = {
++	{ PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_82810_IG1,
++	  PCI_ANY_ID, PCI_ANY_ID, 0, 0, 0 },
++	{ PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_82810_IG3,
++	  PCI_ANY_ID, PCI_ANY_ID, 0, 0, 1  },
++	{ PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_82810E_IG,
++	  PCI_ANY_ID, PCI_ANY_ID, 0, 0, 2 },
++	/* mvo: added i815 PCI-ID */
++	{ PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_82815_100,
++	  PCI_ANY_ID, PCI_ANY_ID, 0, 0, 3 },
++	{ PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_82815_NOAGP,
++	  PCI_ANY_ID, PCI_ANY_ID, 0, 0, 4 },
++	{ PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_82815_CGC,
++	  PCI_ANY_ID, PCI_ANY_ID, 0, 0, 5 },
++	{ 0 },
++};
++
++static struct pci_driver i810fb_driver = {
++	.name     =	"i810fb",
++	.id_table =	i810fb_pci_tbl,
++	.probe    =	i810fb_init_pci,
++	.remove   =	__exit_p(i810fb_remove_pci),
++	.suspend  =     i810fb_suspend,
++	.resume   =     i810fb_resume,
++};
++
++static int vram       __initdata = 4;
++static int bpp        __initdata = 8;
++static int mtrr       __initdata = 0;
++static int accel      __initdata = 0;
++static int hsync1     __initdata = 0;
++static int hsync2     __initdata = 0;
++static int vsync1     __initdata = 0;
++static int vsync2     __initdata = 0;
++static int xres       __initdata = 640;
++static int yres       __initdata = 480;
++static int vyres      __initdata = 0;
++static int sync       __initdata = 0;
++static int ext_vga    __initdata = 0;
++static int dcolor     __initdata = 0;
++
+ /*------------------------------------------------------------*/
+ 
+ /**************************************************************
+
+_
 

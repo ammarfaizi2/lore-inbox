@@ -1,111 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264724AbSIWCAv>; Sun, 22 Sep 2002 22:00:51 -0400
+	id <S264708AbSIWCTL>; Sun, 22 Sep 2002 22:19:11 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264743AbSIWCAu>; Sun, 22 Sep 2002 22:00:50 -0400
-Received: from h005018136633.ne.client2.attbi.com ([24.60.20.142]:15870 "EHLO
-	VALUED-F802ACAB") by vger.kernel.org with ESMTP id <S264724AbSIWCAs>;
-	Sun, 22 Sep 2002 22:00:48 -0400
-From: opt-in@attbi.com
-Subject: Work 5 hours per week, make $4,000-$6,000 per month!!!!!!!!!!!
-To: linux-kernel@vger.kernel.org
-Content-Type: text/plain;
-	charset="US-ASCII";
-	charset="US-ASCII";
-Message-Id: <20020923020048Z264724-685+52349@vger.kernel.org>
-Date: Sun, 22 Sep 2002 22:00:48 -0400
+	id <S264740AbSIWCTL>; Sun, 22 Sep 2002 22:19:11 -0400
+Received: from cpe-24-221-190-179.ca.sprintbbd.net ([24.221.190.179]:52641
+	"EHLO myware.akkadia.org") by vger.kernel.org with ESMTP
+	id <S264708AbSIWCTK>; Sun, 22 Sep 2002 22:19:10 -0400
+Message-ID: <3D8E7B93.5050608@redhat.com>
+Date: Sun, 22 Sep 2002 19:25:23 -0700
+From: Ulrich Drepper <drepper@redhat.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1b) Gecko/20020812
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: "Bill Huey (Hui)" <billh@gnuppy.monkey.org>
+CC: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: first NPT vs. NGPT vs. LinuxThreads benchmark results
+References: <3D8DB040.7060402@redhat.com> <20020923020451.GA3446@gnuppy.monkey.org>
+X-Enigmail-Version: 0.65.1.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- charset="US-ASCII";
-	charset="US-ASCII";
-	charset="US-ASCII";
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
- charset="US-ASCII";
-	charset="US-ASCII";
-	charset="US-ASCII";
+Bill Huey (Hui) wrote:
 
- charset="US-ASCII";
-	charset="US-ASCII";
-	charset="US-ASCII";
+> Which could mean that they, NGPT, have slower thread allocation algorithms
+> for many reason. Some M:N systems will red zone protect a page of the thread
+> stack adding overhead to creation and deletion
 
- charset="US-ASCII";
-	charset="US-ASCII";
-	charset="US-ASCII";
+This is required by the standard and LinuxThreads and NPTL do this of 
+course.  Don't know about NGPT, probably yes.
 
- charset="US-ASCII";
-	charset="US-ASCII";
-	charset="US-ASCII";
+- -- 
+- ---------------.                          ,-.   1325 Chesapeake Terrace
+Ulrich Drepper  \    ,-------------------'   \  Sunnyvale, CA 94089 USA
+Red Hat          `--' drepper at redhat.com   `------------------------
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.7 (GNU/Linux)
+Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org
 
- charset="US-ASCII";
-	charset="US-ASCII";
-	charset="US-ASCII";
+iD8DBQE9jnuX2ijCOnn/RHQRAmp/AKCO18uINcoAK8ezNQrp1T5GCtIYMwCgoBLP
+mhfjJZxNrec3ZdcM4TXuy/w=
+=MH/m
+-----END PGP SIGNATURE-----
 
- charset="US-ASCII";
-	charset="US-ASCII";
-	charset="US-ASCII";
-
- charset="US-ASCII";
-	charset="US-ASCII";
-	charset="US-ASCII";
-
- charset="US-ASCII";
-	charset="US-ASCII";
-	charset="US-ASCII";
-
- charset="US-ASCII";
-	charset="US-ASCII";
-	charset="US-ASCII";
-
- charset="US-ASCII";
-	charset="US-ASCII";
-	charset="US-ASCII";
-
- charset="US-ASCII";
-	charset="US-ASCII";
-	charset="US-ASCII";
-
- charset="US-ASCII";
-	charset="US-ASCII";
-	charset="US-ASCII";
-
- charset="US-ASCII";
-	charset="US-ASCII";
-	charset="US-ASCII";
-
- charset="US-ASCII";
-	charset="US-ASCII";
-	charset="US-ASCII";
-
- charset="US-ASCII";
-	charset="US-ASCII";
-	charset="US-ASCII";
-
- charset="US-ASCII";
-	charset="US-ASCII";
-	charset="US-ASCII";
-
- charset="US-ASCII";
-	charset="US-ASCII";
-	charset="US-ASCII";
-
- charset="US-ASCII";
-	charset="US-ASCII";
-	charset="US-ASCII";
-
- charset="US-ASCII";
-	charset="US-ASCII"
-Reply-To: opt-in@attbi.com
-Date: Sun, 22 Sep 2002 22:05:58 -0400
-X-Priority: 3
-X-Library: Indy 9.00.10
-X-Mailer: Foxmail
-
-You are receiving this email because you opted-in on one of our partner sites to receive special offers. If you want to opt-out of such mailings then follow the instructions below.
-
-Dear friend the purpose of this letter is to select a limited group of people to operate an online opportunity so Powerful that it virtually guaranties success!!!!!!!!!! If your interested in hearing about how you can get in such a program with no major investment opt-in by emailing  opt-in@attbi.com and say  "Count me in" the subject line! This program is so powerful that it will only require about 1 hour per day of your time and has a potential Income in 1, 0000's virtually from the start.. Remember we will only need a limited amount of people for our success so act fast! Email opt-in@attbi.com  NOW put "Count me in" in the subject line. Make sure to use your Prime email address or you'll miss out on this opportunity! So email opt-in rite now and you'll get your chance to hear this offer now!!!!!!!! Opt-in@attbi.com 
-
-
-
-
-To opt-out from this mailing list please send email to opt-out@attbi.com and put remove in the subgect line.

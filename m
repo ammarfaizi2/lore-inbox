@@ -1,40 +1,25 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268429AbTBNNrr>; Fri, 14 Feb 2003 08:47:47 -0500
+	id <S268444AbTBNNxn>; Fri, 14 Feb 2003 08:53:43 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268430AbTBNNrr>; Fri, 14 Feb 2003 08:47:47 -0500
-Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:12418
-	"EHLO irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S268429AbTBNNrp>; Fri, 14 Feb 2003 08:47:45 -0500
-Subject: Re: [PATCH][RFC] Proposal for a new watchdog interface using sysfs
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Valdis.Kletnieks@vt.edu
-Cc: Matt Porter <porter@cox.net>, lkml <linux-kernel@vger.kernel.org>
-In-Reply-To: <200302141348.h1EDmHwZ004754@turing-police.cc.vt.edu>
-References: <Pine.LNX.4.33.0302131317210.1133-100000@localhost.localdomain>
-	 <Pine.LNX.4.44.0302131603500.23407-100000@rancor.yyz.somanetworks.com>
-	 <20030213155817.B1738@home.com>
-	 <200302141348.h1EDmHwZ004754@turing-police.cc.vt.edu>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Organization: 
-Message-Id: <1045234657.7958.23.camel@irongate.swansea.linux.org.uk>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.1 (1.2.1-4) 
-Date: 14 Feb 2003 14:57:39 +0000
+	id <S268447AbTBNNxn>; Fri, 14 Feb 2003 08:53:43 -0500
+Received: from nile.gnat.com ([205.232.38.5]:38558 "HELO nile.gnat.com")
+	by vger.kernel.org with SMTP id <S268444AbTBNNxm>;
+	Fri, 14 Feb 2003 08:53:42 -0500
+To: firefly@diku.dk, tjm@codegen.com
+Subject: Re: [discuss] Re: [Bug 350] New: i386 context switch very slow compared to 2.4 due to wrmsr (performance)
+Cc: discuss@x86-64.org, linux-kernel@vger.kernel.org,
+       peter@jazz-1.trumpet.com.au
+Message-Id: <20030214140336.501F2F2D7B@nile.gnat.com>
+Date: Fri, 14 Feb 2003 09:03:36 -0500 (EST)
+From: dewar@gnat.com (Robert Dewar)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2003-02-14 at 13:48, Valdis.Kletnieks@vt.edu wrote:
-> I admit not having thoroughly read the source to check - is the userspace API
-> for accessing  all these chips fairly uniform and rational, so that a user
-> program can be reasonably sure that if stat("/dev/watchdog") returns zero, that
-> it knows how to deal with it?  Or are they all sufficiently close to the "keep
-> reloading a countdown timer from userspace, and if it ever doesn't get reloaded,
-> kick the kernel in the seat of the pants" programming model?  Of course, even
-> a disagreement on the units of the timer could be bad - a seconds/milliseconds
-> clash could result is a *real* fast lack-of-joy situation.. ;)
+> > The only way to get from long-mode back to legacy-mode is to reset the
+> > processor.  It can be done in software but you will likely lose interrupts.
+> 
+> Smartdrv.sys and triple-faults come back, all is forgiven!  ;)
 
-watchdog interfaces have a defined API, which they all follow fairly closely. That
-makes adding watchdogs as a device class nice and easy
-
+I have an idea, perhaps we can make the keyboard controller recognize a special
+command that will reset the processor :-) :-)

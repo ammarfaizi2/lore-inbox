@@ -1,69 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267230AbSLEFjp>; Thu, 5 Dec 2002 00:39:45 -0500
+	id <S267229AbSLEFkb>; Thu, 5 Dec 2002 00:40:31 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267231AbSLEFjp>; Thu, 5 Dec 2002 00:39:45 -0500
-Received: from 12-237-135-160.client.attbi.com ([12.237.135.160]:5640 "EHLO
-	skarpsey.dyndns.org") by vger.kernel.org with ESMTP
-	id <S267230AbSLEFjo> convert rfc822-to-8bit; Thu, 5 Dec 2002 00:39:44 -0500
-Content-Type: text/plain;
-  charset="us-ascii"
-From: Kelledin <kelledin+LKML@skarpsey.dyndns.org>
-To: linux-kernel@vger.kernel.org
-Subject: Qlogic 1080 controller+Quantum Atlas 10K...
-Date: Wed, 4 Dec 2002 23:41:37 -0600
-User-Agent: KMail/1.4.3
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8BIT
-Message-Id: <200212042341.37998.kelledin+LKML@skarpsey.dyndns.org>
+	id <S267231AbSLEFkb>; Thu, 5 Dec 2002 00:40:31 -0500
+Received: from pop.gmx.net ([213.165.64.20]:53564 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id <S267229AbSLEFkZ>;
+	Thu, 5 Dec 2002 00:40:25 -0500
+Message-Id: <5.1.1.6.2.20021205055348.00cde8c8@pop.gmx.net>
+X-Mailer: QUALCOMM Windows Eudora Version 5.1.1
+Date: Thu, 05 Dec 2002 06:44:50 +0100
+To: Duncan Sands <baldrick@wanadoo.fr>, root@chaos.analogic.com,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>
+From: Mike Galbraith <efault@gmx.de>
+Subject: Re: Reserving physical memory at boot time
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <200212040715.13409.baldrick@wanadoo.fr>
+References: <5.1.1.6.2.20021204165742.00c6a180@pop.gmx.net>
+ <1038952684.11426.106.camel@irongate.swansea.linux.org.uk>
+ <5.1.1.6.2.20021204165742.00c6a180@pop.gmx.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I just spent half a day trying to coax this combo to work on 
-kernel 2.4.18.  The kernel boots, the qla1280 driver probes the 
-bus, it identifies the drive...and that's the last good word I 
-get from it.  After that, it ends up repeatedly trying to reset 
-the bus, then gives up and decides there are no devices 
-attached.  Since the root FS is on the Quantum drive, this 
-obviously causes the kernel to punt.
+At 07:15 AM 12/4/2002 +0100, Duncan Sands wrote:
+>On Wednesday 04 December 2002 17:44, Mike Galbraith wrote:
+> > At 08:25 AM 12/4/2002 -0500, Richard B. Johnson wrote:
+> > >On 3 Dec 2002, Alan Cox wrote:
+> > > > On Tue, 2002-12-03 at 21:11, Richard B. Johnson wrote:
+> > > > > If you need a certain page reserved at boot-time you are out-of-luck.
+> > > >
+> > > > Wrong - you can specify the precise memory map of a box as well as use
+> > > > mem= to set the top of used memory. Its a painful way of marking a page
+> > > > and it only works for a page the kernel isnt loaded into.
+> > >
+> > >If you are refering to the "reserve=" kernel parameter, I don't
+> > >think it works for memory addresses that are inside existing RAM.
+> > >I guess if you used the "mem=" parameter to keep the kernel from
+> > >using that RAM, the combination might work, but I have never
+> > >tried it.
+> >
+> > reserve= is for IO ports (kernel/resource.c). I think Alan was referring to
+> > mem=exactmap.
+> >
+> > If Duncan didn't have the pesky requirement that his module work in an
+> > unmodified kernel, it would be easy to use __alloc_bootmem() to reserve an
+> > address range and expose via /proc.  But alas...
+>
+>I actually said I was happy to modify the kernel!  As for __alloc_bootmem(),
+>based on my quick reading of the implementation in 2.5.50, I don't see how
+>you can be sure it will give you a particular physical page.  I would like to
+>either get the page I want, or fail.
 
-I'm not actually able to catch all the messages, obviously, but 
-the general gist is something like this:
+Sorry, mixed you up with someone else.  Seems to me you could just create a 
+new __setup("reservepage=", gimme_page) where gimme_page() allocates with 
+goal set, and frees/aborts if what it gets back isn't exactly what you 
+asked for.
 
-----------
-  scsi0 channel 0 : resetting for second half of retries
-  SCSI bus is being reset for host 0 channel 0
-  scsi0 : device driver called scsi_done() for a synchronous 
-      reset
-      [note: this is bad driver behavior since what, 2.1?]
-  SCSI disk error: host 0 channel 0 id 0 lun 0 return code = 
-      27070002
-      [this gets repeated many times.]
-----------
-
-The drive works on a different controller, so that's not the 
-problem (but the other controller is horribly mismatched for the 
-drive's performance class--it's an ncr53c810!!! :( )
-
-The controller works with a different drive attached, so that's 
-not the problem (but the other drive is too small to be useful).
-
-I can take the drive, controller, and cable to an x86 box, get 
-into FASTutil, and do a full sector check on the disk with no 
-problem--so the hardware is apparently working fine.  I've tried 
-jumpering the controller for manual termination, jumpering the 
-drive to force single-ended operation, and various combinations, 
-all to no effect.
-
-(By the way, I flashed the controller to the latest BIOS/firmware 
-while it was in the x86 box--it didn't help, but I figured it 
-wouldn't hurt.)
-
-So now it's down to the kernel...any ideas here?  At the very 
-least, I'd like to know what return code "27070002" means...
-
--- 
-Kelledin
-"If a server crashes in a server farm and no one pings it, does 
-it still cost four figures to fix?"
+         -Mike
 

@@ -1,46 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267561AbUIPGNP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267563AbUIPGOF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267561AbUIPGNP (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Sep 2004 02:13:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267563AbUIPGNP
+	id S267563AbUIPGOF (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Sep 2004 02:14:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267583AbUIPGOF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Sep 2004 02:13:15 -0400
-Received: from mx1.elte.hu ([157.181.1.137]:28874 "EHLO mx1.elte.hu")
-	by vger.kernel.org with ESMTP id S267561AbUIPGNN (ORCPT
+	Thu, 16 Sep 2004 02:14:05 -0400
+Received: from cantor.suse.de ([195.135.220.2]:15078 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S267563AbUIPGOB (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Sep 2004 02:13:13 -0400
-Date: Thu, 16 Sep 2004 08:14:38 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Nick Piggin <nickpiggin@yahoo.com.au>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: [patch] sched: fix scheduling latencies for !PREEMPT kernels
-Message-ID: <20040916061438.GA10314@elte.hu>
-References: <20040914114228.GD2804@elte.hu> <4146EA3E.4010804@yahoo.com.au> <20040914132225.GA9310@elte.hu> <4146F33C.9030504@yahoo.com.au> <20040914145457.GA13113@elte.hu> <414776CE.5030302@yahoo.com.au> <20040915061922.GA11683@elte.hu> <4147FC14.2010205@yahoo.com.au> <20040915084355.GA29752@elte.hu> <4148E64A.9000206@yahoo.com.au>
+	Thu, 16 Sep 2004 02:14:01 -0400
+Date: Thu, 16 Sep 2004 08:13:59 +0200
+From: Andi Kleen <ak@suse.de>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Zwane Mwaikambo <zwane@fsmlabs.com>, linux-kernel@vger.kernel.org,
+       ak@suse.de, wli@holomorphy.com, Ingo Molnar <mingo@elte.hu>
+Subject: Re: [PATCH] remove LOCK_SECTION from x86_64 spin_lock asm
+Message-ID: <20040916061359.GA12915@wotan.suse.de>
+References: <Pine.LNX.4.53.0409151458470.10849@musoma.fsmlabs.com> <20040915144523.0fec2070.akpm@osdl.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <4148E64A.9000206@yahoo.com.au>
-User-Agent: Mutt/1.4.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+In-Reply-To: <20040915144523.0fec2070.akpm@osdl.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, Sep 15, 2004 at 02:45:23PM -0700, Andrew Morton wrote:
+> Zwane Mwaikambo <zwane@fsmlabs.com> wrote:
+> >
+> > William spotted this stray bit, LOCK_SECTION isn't used anymore on x86_64. 
+> 
+> btw, Ingo and I were scratching heads over an x86_64 oops in curent -linus
+> trees.
+> 
+> If you enable profiling and frame pointers, profile_pc() goes splat
+> dereferencing the `regs' argument when it decides that the pc refers to a
+> lock section.  Ingo said `regs' had a value of 0x2, iirc.  Consider this a
+> bug report ;)
 
-* Nick Piggin <nickpiggin@yahoo.com.au> wrote:
+Known problem. Interrupts don't save regs->rbp, but the new profile_pc
+that was introduced recently uses it.
 
-> No, I mean putting cond_resched in might_sleep is ad hoc. But that
-> doesn't mean it doesn't work - it obviously does ;)
+One quick fix is to just use SAVE_ALL in the interrupt entry code,
+but I don't like this because it will affect interrupt latency.
 
-ah, ok, i understand your point now. No, i'm not submitting the
-CONFIG_PREEMPT_VOLUNTARY .config switch (and the kernel.h 2-liner) at
-this point. All the latency breakers so far will mainly benefit
-CONFIG_PREEMPT - which is also the primary preempt model used by
-bleeding-edge testers.
+The real fix is to fix profile_pc to not reference it.
 
-	Ingo
+-Andi

@@ -1,39 +1,139 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292530AbSBZAEh>; Mon, 25 Feb 2002 19:04:37 -0500
+	id <S292537AbSBZAJ5>; Mon, 25 Feb 2002 19:09:57 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292527AbSBZAE2>; Mon, 25 Feb 2002 19:04:28 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:62220 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S292533AbSBZAEP>;
-	Mon, 25 Feb 2002 19:04:15 -0500
-Message-ID: <3C7AD0AC.13A554DA@zip.com.au>
-Date: Mon, 25 Feb 2002 16:02:52 -0800
-From: Andrew Morton <akpm@zip.com.au>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.18-rc2 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: christophe =?iso-8859-1?Q?barb=E9?= 
-	<christophe.barbe.ml@online.fr>
-CC: lkml <linux-kernel@vger.kernel.org>
-Subject: Re: suspend/resume and 3c59x
-In-Reply-To: <20020225200056.GW12719@ufies.org> <3C7A9C75.F6A4BA05@zip.com.au>,
-		<3C7A9C75.F6A4BA05@zip.com.au> <20020225233242.GA5370@ufies.org>
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+	id <S292527AbSBZAJs>; Mon, 25 Feb 2002 19:09:48 -0500
+Received: from asooo.flowerfire.com ([63.254.226.247]:42684 "EHLO
+	asooo.flowerfire.com") by vger.kernel.org with ESMTP
+	id <S292537AbSBZAJh>; Mon, 25 Feb 2002 19:09:37 -0500
+Date: Mon, 25 Feb 2002 18:09:34 -0600
+From: Ken Brownfield <brownfld@irridia.com>
+To: Aviv Shavit <avivshavit@yahoo.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [2.4.17/18pre] VM and swap - it's really unusable
+Message-ID: <20020225180934.B26077@asooo.flowerfire.com>
+In-Reply-To: <20020225115143.2504.qmail@web13203.mail.yahoo.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20020225115143.2504.qmail@web13203.mail.yahoo.com>; from avivshavit@yahoo.com on Mon, Feb 25, 2002 at 03:51:43AM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-christophe barbé wrote:
-> 
-> Thank Andrew.
-> My problem is solved with 2.4.18 and 'options 3c59x enable_wol=1'.
-> 
+On Mon, Feb 25, 2002 at 03:51:43AM -0800, Aviv Shavit wrote:
+| Ken Brownfield's A) and B) hit me
+| regularly(http://www.uwsg.indiana.edu/hypermail/linux/kernel/0201.0/0740.html)
+| (Thanks Ken for starting this enlightening thread and
+| to all those that contributed)
 
-Right, thanks.
+No problem.  You might be coming in late, but nothing's changed. :-/
+Although the APIC thing might be MPS1.4 related, I'm finding.  I don't
+remember if that thread had my workaround to the APIC issue, so I'll
+attach that if you're feeling adventurous.  Works flawlessly for me in
+production, for the last few months.
 
-Just for the record: Both Christophe's 3c<mumble> and my 3c556B
-mini-PCI NIC failed to survive APM resumes in 2.4.17.  But something
-outside the 3c59x driver got fixed somewhere in the 2.4.18-pre series,
-and resume works OK in 2.4.18.
+| Running software I developed:
+| - running on 2.4.17
+| - accessing a large number of files
+| - 2GB memory
+| - large multiple partitions - ext2
+| 
+| I saw references to patches by Martin and
+| M.H.vanLeeuwen on this thread. Where can I get those
+| (hopefully with a bit of info) ?
 
--
+I've attached his patch; hopefully he doesn't mind.  His patch is
+actually similar to code that's in rmap currently.
+
+It does seem to temper the effects of [id]cache bloat for some of my
+more common load patterns.  But even with that patch, under VM load the
+mainline kernel collapses.  For instance, I have a large parallel task
+that takes 5 minutes under -rmap or -aa, but I get bored and kill it
+after 4 *hours* on mainline.  It dips into swap, but only by about 50MB.
+
+Also, -aa doesn't seem to make as large an impact on shrinking the
+[id]caches.  I imagine that without returning values,
+shrink_[id]cache_memory() behavior is difficult to tune appropriately.
+
+In any case, rmap-12f has been running fine for me.  I'm going to create
+three kernels to distribute in production -- 2.4.18 more or less
+vanilla, 2.4.18 with random debugging (thanks Andreas) to try to resolve
+the /dev/random death issue, and 2.4.18+O(1)K3+rmap12f.
+
+rmap is a tremendous improvement over mainline -- really the only data I
+still need is stability, both of O(1) and rmap.  Porting Andrea's 10_vm
+was a pain the last time I did it, and it didn't have all of the
+positives of rmap.
+
+Clearly I'm not in the majority, though.  While I get bitten on a weekly
+basis by the 2.4 VM, very few other people mention it.  Maybe they just
+assume that it's normal behavior?  Scary.
+
+Anyway, short of the long is that I would suggest rmap if you're having
+problems.  Rmap actually obviates three other patches I typically apply.
+But be aware that rmap is still a bit of a work in progress, at least in
+terms of tuning.
+
+Cheers,
+-- 
+Ken.
+brownfld@irridia.com
+
+
+| I also saw references to 'rmap' on the 2.4.18
+| changelog. Is that related ?
+| 
+| pls. cc' me on your posts back.
+| 
+| Thanks
+| Aviv
+| 
+| "And all this science I don't understand,
+|       It's just my job five days a week"
+| Rocket Man, E.J.
+
+
+--- linux.virgin/mm/vmscan.c	Mon Dec 31 12:46:25 2001
++++ linux/mm/vmscan.c	Fri Jan 11 18:03:05 2002
+@@ -394,9 +394,9 @@
+ 		if (PageDirty(page) && is_page_cache_freeable(page) && page->mapping) {
+ 			/*
+ 			 * It is not critical here to write it only if
+-			 * the page is unmapped beause any direct writer
++			 * the page is unmapped because any direct writer
+ 			 * like O_DIRECT would set the PG_dirty bitflag
+-			 * on the phisical page after having successfully
++			 * on the physical page after having successfully
+ 			 * pinned it and after the I/O to the page is finished,
+ 			 * so the direct writes to the page cannot get lost.
+ 			 */
+@@ -480,11 +480,14 @@
+ 
+ 			/*
+ 			 * Alert! We've found too many mapped pages on the
+-			 * inactive list, so we start swapping out now!
++			 * inactive list.
++			 * Move referenced pages to the active list.
+ 			 */
+-			spin_unlock(&pagemap_lru_lock);
+-			swap_out(priority, gfp_mask, classzone);
+-			return nr_pages;
++			if (PageReferenced(page) && !PageLocked(page)) {
++				del_page_from_inactive_list(page);
++				add_page_to_active_list(page);
++			}
++			continue;
+ 		}
+ 
+ 		/*
+@@ -521,6 +524,9 @@
+ 	}
+ 	spin_unlock(&pagemap_lru_lock);
+ 
++	if (max_mapped <= 0 && (nr_pages > 0 || priority < DEF_PRIORITY))
++		swap_out(priority, gfp_mask, classzone);
++
+ 	return nr_pages;
+ }
+ 

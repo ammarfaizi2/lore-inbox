@@ -1,28 +1,33 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288789AbSANJYc>; Mon, 14 Jan 2002 04:24:32 -0500
+	id <S288928AbSANJaX>; Mon, 14 Jan 2002 04:30:23 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288928AbSANJYY>; Mon, 14 Jan 2002 04:24:24 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:33808 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S288789AbSANJYL>; Mon, 14 Jan 2002 04:24:11 -0500
-Subject: Re: Linux 2.4.18pre3-ac1-aia21 (IDE patches)
-To: andersen@codepoet.org
-Date: Mon, 14 Jan 2002 09:35:52 +0000 (GMT)
-Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), linux-kernel@vger.kernel.org
-In-Reply-To: <20020114015012.GA17253@codepoet.org> from "Erik Andersen" at Jan 13, 2002 06:50:12 PM
-X-Mailer: ELM [version 2.5 PL6]
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S288930AbSANJaM>; Mon, 14 Jan 2002 04:30:12 -0500
+Received: from pizda.ninka.net ([216.101.162.242]:11924 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S288928AbSANJ37>;
+	Mon, 14 Jan 2002 04:29:59 -0500
+Date: Mon, 14 Jan 2002 01:28:31 -0800 (PST)
+Message-Id: <20020114.012831.44983761.davem@redhat.com>
+To: ebiederm@xmission.com
+Cc: riel@conectiva.com.br, akropel1@rochester.rr.com,
+        linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.4.18pre3-ac1
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <m1y9j1pf6r.fsf@frodo.biederman.org>
+In-Reply-To: <Pine.LNX.4.33L.0201140409260.32617-100000@imladris.surriel.com>
+	<m1y9j1pf6r.fsf@frodo.biederman.org>
+X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-Id: <E16Q3Wy-0001AG-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Will -ac2 be hitting the mirrors shortly then?  BTW, you
-> mentioned in your earlier email you excluded the low-latency
-> patches.   Mind if I ask which of the many you are using?
-> mini-ll?  full-ll?  The sched-O1-H6 patch?
+   From: ebiederm@xmission.com (Eric W. Biederman)
+   Date: 14 Jan 2002 00:25:16 -0700
+   
+   But for make -j the forking is done by make and it is nearly a
+   fork bomb
 
-I've tried all sorts of variants, including mini-ll, ll and pre-empt
+Someone has probably mentioned this, but it is important to recognize
+that make uses vfork().

@@ -1,60 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266330AbTABSvD>; Thu, 2 Jan 2003 13:51:03 -0500
+	id <S266354AbTABTAP>; Thu, 2 Jan 2003 14:00:15 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266347AbTABSvD>; Thu, 2 Jan 2003 13:51:03 -0500
-Received: from linux.kappa.ro ([194.102.255.131]:40086 "EHLO linux.kappa.ro")
-	by vger.kernel.org with ESMTP id <S266330AbTABSvB>;
-	Thu, 2 Jan 2003 13:51:01 -0500
-Date: Thu, 2 Jan 2003 20:59:21 +0200
-From: Teodor Iacob <Teodor.Iacob@astral.kappa.ro>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: UDMA 133 on a 40 pin cable
-Message-ID: <20030102185921.GA28107@linux.kappa.ro>
-References: <20030102182932.GA27340@linux.kappa.ro> <1041536269.24901.47.camel@irongate.swansea.linux.org.uk>
+	id <S266359AbTABTAP>; Thu, 2 Jan 2003 14:00:15 -0500
+Received: from dclient217-162-80-86.hispeed.ch ([217.162.80.86]:28548 "EHLO
+	gamecube.hb9jnx.ampr.org") by vger.kernel.org with ESMTP
+	id <S266354AbTABTAO>; Thu, 2 Jan 2003 14:00:14 -0500
+Subject: Re: [PATCH] Deprecate exec_usermodehelper, fix request_module.
+From: Thomas Sailer <sailer@scs.ch>
+To: Marcel Holtmann <marcel@holtmann.org>
+Cc: Rusty Russell <rusty@rustcorp.com.au>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       akpm@zip.com.au, Jose Orlando Pereira <jop@di.uminho.pt>,
+       J.E.J.Bottomley@HansenPartnership.com
+In-Reply-To: <1041527666.16046.18.camel@pegasus.local>
+References: <20030102093637.8C6892C2FB@lists.samba.org> 
+	<1041527666.16046.18.camel@pegasus.local>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.3 (1.0.3-6) 
+Date: 02 Jan 2003 20:08:28 +0100
+Message-Id: <1041534508.2074.32.camel@gamecube>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1041536269.24901.47.camel@irongate.swansea.linux.org.uk>
-User-Agent: Mutt/1.3.25i
-X-RAVMilter-Version: 8.3.0(snapshot 20011220) (linux)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jan 02, 2003 at 07:37:49PM +0000, Alan Cox wrote:
-> On Thu, 2003-01-02 at 18:29, Teodor Iacob wrote:
-> > Hello,
-> > 
-> > Today i mounted a HDD on my secondary IDE on a 40 pin cable and surprise
-> > the kernel set it up on UDMA 133:
-> > 
-> > hdd: 120103200 sectors (61493 MB) w/2048KiB Cache, CHS=119150/16/63, UDMA(133)
-> 
-> What controller and disks ?
+On Thu, 2003-01-02 at 18:14, Marcel Holtmann wrote:
 
-Sorry I didn't append this info from the first time.. there it goes:
+> for the bt3c_cs driver I need to run a user space program that downloads
+> the firmware into the card and the kernel part have to wait until this
+> program has finished. So what is the best way to do this now?
 
-00:11.1 IDE interface: VIA Technologies, Inc. VT82C586B PIPC Bus Master IDE (rev 06)
+We all seem to have the same problem 8-)
 
-hdd: Maxtor 6Y060L0, ATA DISK drive
+Rusty's new proposal with the wait argument seems to solve our problem,
+except that it would be nice if there was a way to retrieve the exit
+status of the user mode helper program.
 
-the harddisk is DiamondPlus9 60GB 7200 rpm UDMA133 .. and the mainbboard is Soltek 75-FRV
-with KT400 chipset
+Tom
 
-> 
-> > I wouldn't have notice this unless I got some errors:
-> 
-> It got CRC errors, not suprisingly and will drop back. Nevertheless it
-> shouldnt have gotten this wrong, so more info would be good.
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-
--- 
-      Teodor Iacob,
-Network Administrator
-Astral TELECOM Internet

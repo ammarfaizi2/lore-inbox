@@ -1,51 +1,66 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129150AbQKPWVW>; Thu, 16 Nov 2000 17:21:22 -0500
+	id <S129150AbQKPW0v>; Thu, 16 Nov 2000 17:26:51 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129404AbQKPWVM>; Thu, 16 Nov 2000 17:21:12 -0500
-Received: from as3-3-4.ml.g.bonet.se ([194.236.33.69]:57604 "EHLO
-	tellus.mine.nu") by vger.kernel.org with ESMTP id <S129150AbQKPWUv>;
-	Thu, 16 Nov 2000 17:20:51 -0500
-Date: Thu, 16 Nov 2000 22:50:46 +0100 (CET)
-From: Tobias Ringstrom <tori@tellus.mine.nu>
-To: Jeff Garzik <jgarzik@mandrakesoft.com>
-cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [CFT] dmfe.c network driver update for 2.4
-In-Reply-To: <3A130C6A.CDAD8AA2@mandrakesoft.com>
-Message-ID: <Pine.LNX.4.21.0011162241450.23936-100000@svea.tellus>
+	id <S129183AbQKPW0m>; Thu, 16 Nov 2000 17:26:42 -0500
+Received: from panic.ohr.gatech.edu ([130.207.47.194]:39435 "EHLO
+	havoc.gtf.org") by vger.kernel.org with ESMTP id <S129150AbQKPW0Z>;
+	Thu, 16 Nov 2000 17:26:25 -0500
+Message-ID: <3A145806.FF5F0066@mandrakesoft.com>
+Date: Thu, 16 Nov 2000 16:56:22 -0500
+From: Jeff Garzik <jgarzik@mandrakesoft.com>
+Organization: MandrakeSoft
+X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.4.0-test11 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Tobias Ringstrom <tori@tellus.mine.nu>
+CC: Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [CFT] dmfe.c network driver update for 2.4
+In-Reply-To: <Pine.LNX.4.21.0011162241450.23936-100000@svea.tellus>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 15 Nov 2000, Jeff Garzik wrote:
+Tobias Ringstrom wrote:
+> On Wed, 15 Nov 2000, Jeff Garzik wrote:
+> > Tobias Ringstrom wrote:
+> > > I have updated the dmfe.c network driver for 2.4.0-test by adding proper
+> > > locking (I hope), and also made transmission much efficient.
 
-> Tobias Ringstrom wrote:
-> > 
-> > I have updated the dmfe.c network driver for 2.4.0-test by adding proper
-> > locking (I hope), and also made transmission much efficient.
-> > 
-> > I would appreciate any feedback from people using this driver, to confirm
-> > that I did not break it.
-> > 
-> > It would also be great if someone could take a look at the lock handling,
-> > to confirm that is is correct and sufficient.
-> 
-> Would you mind creating a separate patch that -just- correcting the SMP
-> safety?  That makes it much easier to review and apply, and then we can
-> consider the other changes...
+> > Would you mind creating a separate patch that -just- correcting the SMP
+> > safety?  That makes it much easier to review and apply, and then we can
+> > consider the other changes...
 
-Such a patch will appear shortly. I and Frank Davis are currently merging
-our patches for dmfe.c.
+> Such a patch will appear shortly. I and Frank Davis are currently merging
+> our patches for dmfe.c.
 
-[Actually, I just added reasonable locks while my main goal was to improve
-performance. I did not realize that there was such a strong need for SMP
-safety (since it has been broken in that regard for a long time, without
-anyone fixing it).]
-
-/Tobias
+Thanks a bunch.
 
 
+> [Actually, I just added reasonable locks while my main goal was to improve
+> performance. I did not realize that there was such a strong need for SMP
+> safety (since it has been broken in that regard for a long time, without
+> anyone fixing it).]
+
+The kernel driver APIs are designed so that SMP and UP cases are equally
+high-performance, and portable beyond the x86 platform.
+
+Pretty much all ISA and PCI drivers need to be portable and SMP safe...
+if not so, it's a bug.  That said, there is certainly more motivation to
+make a popular PCI driver is SMP safe than an older ISA driver.  And
+portability is [IMHO] less of a priority than SMP safety, though it
+depends on the hardware being supported.
+
+Regards,
+
+	Jeff
+
+
+-- 
+Jeff Garzik             |
+Building 1024           | The chief enemy of creativity is "good" sense
+MandrakeSoft            |          -- Picasso
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

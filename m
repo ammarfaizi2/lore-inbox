@@ -1,60 +1,71 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264574AbUAGSus (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 Jan 2004 13:50:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264604AbUAGSus
+	id S265548AbUAGTCN (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 Jan 2004 14:02:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265553AbUAGTCN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 Jan 2004 13:50:48 -0500
-Received: from waste.org ([209.173.204.2]:47260 "EHLO waste.org")
-	by vger.kernel.org with ESMTP id S264574AbUAGSuq (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 Jan 2004 13:50:46 -0500
-Date: Wed, 7 Jan 2004 12:50:40 -0600
-From: Matt Mackall <mpm@selenic.com>
-To: Jens Axboe <axboe@suse.de>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: 2.6.1-rc1-tiny2
-Message-ID: <20040107185039.GC18208@waste.org>
-References: <20040106054859.GA18208@waste.org> <20040107140640.GC16720@suse.de>
+	Wed, 7 Jan 2004 14:02:13 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:50868 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S265548AbUAGTCI
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 7 Jan 2004 14:02:08 -0500
+Date: Wed, 7 Jan 2004 19:02:06 +0000
+From: Matthew Wilcox <willy@debian.org>
+To: Jesse Barnes <jbarnes@sgi.com>
+Cc: linux-pci@atrey.karlin.mff.cuni.cz, linux-kernel@vger.kernel.org,
+       jeremy@sgi.com
+Subject: Re: [RFC] Relaxed PIO read vs. DMA write ordering
+Message-ID: <20040107190206.GK17182@parcelfarce.linux.theplanet.co.uk>
+References: <20040107175801.GA4642@sgi.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20040107140640.GC16720@suse.de>
-User-Agent: Mutt/1.3.28i
+In-Reply-To: <20040107175801.GA4642@sgi.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jan 07, 2004 at 03:06:40PM +0100, Jens Axboe wrote:
-> On Mon, Jan 05 2004, Matt Mackall wrote:
-> > This is the fourth release of the -tiny kernel tree. The aim of this
-> > tree is to collect patches that reduce kernel disk and memory
-> > footprint as well as tools for working on small systems. Target users
-> > are things like embedded systems, small or legacy desktop folks, and
-> > handhelds.
-> > 
-> > Latest release includes:
-> >  - various compile fixes for last release
-> >  - actually include Andi Kleen's bloat-o-meter this time
-> >  - optional mempool removal
-> 
-> Your CONFIG_MEMPOOL is completely broken as you are no longer giving the
-> same guarentees (you have no reserve at all). Might as well change it to
-> CONFIG_DEADLOCK instead.
+On Wed, Jan 07, 2004 at 09:58:02AM -0800, Jesse Barnes wrote:
+> I've already talked with Grant a little about this, but I'm having
+> second thoughts about the approach we discussed.  PCI-X allows PIO read
+> responses to 'pass' DMA writes to system memory when the relaxed
+> ordering bit is set in the PCI-X command word _and_ the transaction has
+> the relaxed ordering bit set (so called "Relaxed Read Ordering" in
+> section 11.2 of the PCI-X addendum).  This effectively 'unserializes'
+> PIO vs. DMA transactions so that PIO reads doesn't get stuck behind an
+> unrelated DMA writes from the same device; something which can
+> potentially take awhile since cacheline ownership has to be acquired,
+> etc.
 
-It's equivalent to a pool size of zero, yes, so deadlock odds are
-significantly higher with some usage scenarios. I'll add a big fat
-warning.
+So we want a pci_set_relaxed() macro / function() to set this bit
+(otherwise dozens of drivers will start to try to set the bit themselves,
+badly).  If this bit *isn't* set, setting the bit in the transaction will have
+no effect, right?
 
-On the other hand, the existence of pre-allocated mempools can greatly
-increase the likelihood of starvation, oom, and deadlock on the rest
-of the system, especially as it becomes a greater percentage of the
-total free memory on a small system. In other words, I had to cut this
-corner to make running in 2M work with my config. When I merge
-CONFIG_BLOCK, it'll be more generally useful.
+> The proposal I gave to Grant added a new readX() variant,
+> readX_relaxed(), that drivers could use when they don't need strict
+> ordering semantics (this may actually be the majority of cases, but it's
+> safer to be strict by default than create a read_ordered and open a
+> window for data corruption).  It might be confusing, however, to add yet
+> another readX() routine, and there are other ways we might go about it.
+> One suggestion was to overload the pci_sync_* calls so that they'd
+> explicitly flush DMA writes to system memory, implying that all reads on
+> some platforms would use relaxed semantics, but that we'd have to modify
+> drivers to add in pci_sync_* calls where needed.
 
-For the sake of our other readers, I'll point out that mempool doesn't
-intrinisically reduce deadlock odds to zero unless we have a hard
-limit on requests in flight that's strictly less than pool size.
+How about always setting the bit in readb() and having a readb_ordered()
+which doesn't set the bit in the transaction?  That way, drivers which
+call pci_set_relaxed() have the responsibility to verify they're not
+relying on these semantics and use readb_ordered() in any places that
+they are.
+
+No doubt you're going to smack this idea down by telling me what SN2
+firmware currently does ...
 
 -- 
-Matt Mackall : http://www.selenic.com : Linux development and consulting
+"Next the statesmen will invent cheap lies, putting the blame upon 
+the nation that is attacked, and every man will be glad of those
+conscience-soothing falsities, and will diligently study them, and refuse
+to examine any refutations of them; and thus he will by and by convince 
+himself that the war is just, and will thank God for the better sleep 
+he enjoys after this process of grotesque self-deception." -- Mark Twain

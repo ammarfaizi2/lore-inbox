@@ -1,72 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262881AbUDAM1w (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 Apr 2004 07:27:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262886AbUDAM1w
+	id S262886AbUDAM3U (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 Apr 2004 07:29:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262887AbUDAM3U
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 Apr 2004 07:27:52 -0500
-Received: from qfep05.superonline.com ([212.252.122.161]:20728 "EHLO
-	qfep05.superonline.com") by vger.kernel.org with ESMTP
-	id S262881AbUDAM1t (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 Apr 2004 07:27:49 -0500
-Message-ID: <406C0A14.6060302@superonline.com>
-Date: Thu, 01 Apr 2004 15:24:52 +0300
-From: "O.Sezer" <sezero@superonline.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20030225
-X-Accept-Language: tr, en-us, en
+	Thu, 1 Apr 2004 07:29:20 -0500
+Received: from jurand.ds.pg.gda.pl ([153.19.208.2]:62637 "EHLO
+	jurand.ds.pg.gda.pl") by vger.kernel.org with ESMTP id S262886AbUDAM3N
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 1 Apr 2004 07:29:13 -0500
+Date: Thu, 1 Apr 2004 14:29:12 +0200 (CEST)
+From: "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>
+To: Jamie Lokier <jamie@shareable.org>
+Cc: Bill Davidsen <davidsen@tmr.com>, Len Brown <len.brown@intel.com>,
+       Chris Friesen <cfriesen@nortelnetworks.com>,
+       Willy Tarreau <willy@w.ods.org>,
+       "Richard B. Johnson" <root@chaos.analogic.com>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Arkadiusz Miskiewicz <arekm@pld-linux.org>,
+       Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       ACPI Developers <acpi-devel@lists.sourceforge.net>
+Subject: Re: [ACPI] Re: Linux 2.4.26-rc1 (cmpxchg vs 80386 build)
+In-Reply-To: <20040331150219.GC18990@mail.shareable.org>
+Message-ID: <Pine.LNX.4.55.0404011423070.3675@jurand.ds.pg.gda.pl>
+References: <4069A359.7040908@nortelnetworks.com> <1080668673.989.106.camel@dhcppc4>
+ <4069D3D2.2020402@tmr.com> <Pine.LNX.4.55.0403311305000.24584@jurand.ds.pg.gda.pl>
+ <20040331150219.GC18990@mail.shareable.org>
+Organization: Technical University of Gdansk
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Re: [BKPATCH] ACPI for 2.4
-Content-Type: text/plain; charset=ISO-8859-9; format=flowed
-Content-Transfer-Encoding: 8bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- > Hi Marcelo, please do a
- >
- > 	bk pull bk://linux-acpi.bkbits.net/linux-acpi-release-2.4.26
- >
- > thanks,
- > -Len
- >
- > ps. a plain patch is also available here:
- > 
-ftp://ftp.kernel.org/pub/linux/kernel/people/lenb/acpi/patches/release/2.4.26/acpi-20040326-2.4.26.diff.gz
- >
- > This will update the following files:
- >
- >  arch/i386/kernel/acpi.c      |    4 +++
- >  arch/i386/kernel/io_apic.c   |    6 ++++-
- >  arch/x86_64/kernel/io_apic.c |    6 ++++-
- >  drivers/acpi/bus.c           |    5 ++++
- >  drivers/acpi/pci_irq.c       |   35 +++++++++++++++++--------------
- >  include/asm-i386/acpi.h      |    9 -------
- >  include/asm-i386/system.h    |    5 ----
- >  7 files changed, 40 insertions(+), 30 deletions(-)
- >
- > through these ChangeSets:
- >
- > <len.brown@intel.com> (04/04/01 1.1063.46.95)
- >    [ACPI] Restore PIC-mode SCI default to Level Trigger (David Shaohua
- > Li)
- >    http://bugme.osdl.org/show_bug.cgi?id=2382
- >
- > <len.brown@intel.com> (04/04/01 1.1063.46.94)
- >    [ACPI] PCI bridge interrupt fix (David Shaohua Li)
- >    http://bugzilla.kernel.org/show_bug.cgi?id=2409
- >
- > <len.brown@intel.com> (04/04/01 1.1063.46.93)
- >    [ACPI] delete extraneous IRQ->pin mappings below IRQ 16
- >    http://bugzilla.kernel.org/show_bug.cgi?id=2408
- >
- > <len.brown@intel.com> (04/03/30 1.1063.46.92)
- >    [ACPI] allow building ACPI w/ CMPXCHG when CONFIG_M386=y
- >    http://bugzilla.kernel.org/show_bug.cgi?id=2391
+On Wed, 31 Mar 2004, Jamie Lokier wrote:
 
+> >  Well, "cmpxchg", "xadd", etc. can be easily emulated with an aid of a
+> > spinlock.  With SMP operation included.
+> 
+> Nope.  Len Brown wrote:
+> 
+> > Linux uses this locking mechanism to coordinate shared access
+> > to hardware registers with embedded controllers,
+> > which is true also on uniprocessors too.
+> 
+> You can't do that with a spinlock.  The embedded controllers would
+> need to know about the spinlock.
 
-This fixed the issue I reported about the power button not
-functioning in 26-rc1.
+ Hmm, does it mean we support x86 systems where an iomem resource has to
+be atomically accessible by a CPU and a peripheral controller?
 
-Thanks & regards;
-Özkan Sezer
-
+-- 
++  Maciej W. Rozycki, Technical University of Gdansk, Poland   +
++--------------------------------------------------------------+
++        e-mail: macro@ds2.pg.gda.pl, PGP key available        +

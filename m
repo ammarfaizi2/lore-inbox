@@ -1,59 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262455AbULCRuO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262446AbULCRtq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262455AbULCRuO (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Dec 2004 12:50:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262457AbULCRuO
+	id S262446AbULCRtq (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Dec 2004 12:49:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262457AbULCRtp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Dec 2004 12:50:14 -0500
-Received: from ms-smtp-01.texas.rr.com ([24.93.47.40]:57483 "EHLO
-	ms-smtp-01-eri0.texas.rr.com") by vger.kernel.org with ESMTP
-	id S262455AbULCRti (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Dec 2004 12:49:38 -0500
-Message-ID: <41B0A710.5050408@austin.rr.com>
-Date: Fri, 03 Dec 2004 11:49:04 -0600
-From: Steve French <smfrench@austin.rr.com>
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.5) Gecko/20031007
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: aia21@cam.ac.uk
-CC: linux-kernel@vger.kernel.org
-Subject: Re: performance of filesystem xattrs with Samba4
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Fri, 3 Dec 2004 12:49:45 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:16269 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S262446AbULCRsN (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 3 Dec 2004 12:48:13 -0500
+Date: Fri, 3 Dec 2004 17:47:49 +0000
+From: Alasdair G Kergon <agk@redhat.com>
+To: Nigel Cunningham <ncunningham@linuxmail.org>
+Cc: Pavel Machek <pavel@ucw.cz>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       dm-devel@redhat.com
+Subject: Re: Suspend 2 merge: 50/51: Device mapper support.
+Message-ID: <20041203174749.GF24233@agk.surrey.redhat.com>
+Mail-Followup-To: Nigel Cunningham <ncunningham@linuxmail.org>,
+	Pavel Machek <pavel@ucw.cz>,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+	dm-devel@redhat.com
+References: <1101292194.5805.180.camel@desktop.cunninghams> <1101300802.5805.398.camel@desktop.cunninghams> <20041125235829.GJ2909@elf.ucw.cz> <1101427667.27250.175.camel@desktop.cunninghams> <20041202204042.GD24233@agk.surrey.redhat.com> <1102021461.13302.40.camel@desktop.cunninghams> <20041202214932.GE24233@agk.surrey.redhat.com> <1102025297.13302.51.camel@desktop.cunninghams>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1102025297.13302.51.camel@desktop.cunninghams>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Anton wrote
-> I have been mulling over in my head for quite a while what 
-> to do about an interface for "advanced ntfs features" but so far I have 
-> always pushed this to the back of my mind.  After all no point in 
-> providing advanced features considering we don't even provide full 
-> read-write access yet.  I just thought I would mentione NTFS when I saw 
->
->But to answer your question I definitely would envisage an interface to 
->the kernel driver
+On Fri, Dec 03, 2004 at 09:08:18AM +1100, Nigel Cunningham wrote:
+> My mistake. The code has been improved and I haven't reverted some of
+> the changes in drivers/md to match. I'll do that and make the two
+> exports that are needed (dm_io_get and dm_io_put) into an
+> include/linux/dm.h.
+ 
+It would be device-mapper.h - or the whole of dm-io.h.
+The vmalloc comment also looks wrong BTW - it's extra kmalloc 
+GFP_KERNEL memory you're asking for here.
 
-The same issue has been on my mind for other filesystems too - since I 
-can return similar information to NTFS.  The "easy" things
-to return that could be useful to apps (including Samba4, but also 
-backup apps etc.) include:
+I'd like to understand why you need to call those functions
+and how it integrates with the rest of what you're doing:
+do you have calls to other dm functions in other patches?
 
-1) file creation time
-2) "dos" attribute bits
-3) perhaps ACL mapping into "POSIX ACL" (getfacl/setfacl's Linux xattr) 
-format from the CIFS/NTFS style.
-4) streams (which could be mapped in a few cases to xattrs, but are getting
-increasingly used and therefore important for certain types of apps - like
-network backup e.g. to be able to get access to)
+Or is this particular change optional, but you have test results 
+showing it to be desirable or necessary in certain cases, maybe 
+indicating a shortcoming within the dm-io code which should be 
+addressed instead?
 
-The first two are in the on disk format already of various filesytems (NTFS, VFAT, even JFS, and would be trivial 
-for me to export in the cifs vfs.  I suspect NFSv4 which is similar to CIFS in many ways would also have
-an easy time of exporting a few of those.   The first two of these could of course be simply special casings
-the reserved xattr name "User.DosAttribute" or equivalent used by Samba4.  This has a few advantages - local apps work 
-and migrations to Linux from Windows are easier (as more data is preserved)  :)
-
-Note that NTFS now has a form of symlink stored in "OS/2 EAs" on disk (I see them show up on test systems 
-when the Unix Services are loaded) as well as Unix like devices - very strange but potentially could 
-be mapped into something that made sense to Linux.
-
-
+Alasdair
+-- 
+agk@redhat.com

@@ -1,37 +1,38 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315194AbSDWNcJ>; Tue, 23 Apr 2002 09:32:09 -0400
+	id <S315199AbSDWNe7>; Tue, 23 Apr 2002 09:34:59 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315197AbSDWNcI>; Tue, 23 Apr 2002 09:32:08 -0400
-Received: from w226.z064000207.nyc-ny.dsl.cnc.net ([64.0.207.226]:37929 "EHLO
-	carey-server.stronghold.to") by vger.kernel.org with ESMTP
-	id <S315194AbSDWNcI>; Tue, 23 Apr 2002 09:32:08 -0400
-Message-Id: <4.3.2.7.2.20020423093340.01ae4788@mail.strongholdtech.com>
-X-Mailer: QUALCOMM Windows Eudora Version 4.3.2
-Date: Tue, 23 Apr 2002 09:34:22 -0400
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>, linux@cabbey.net (Chris Abbey)
-From: "Nicolae P. Costescu" <nick@strongholdtech.com>
-Subject: Re: PDC20268 TX2 support?
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <E16zx49-0008Fx-00@the-village.bc.nu>
+	id <S315201AbSDWNe6>; Tue, 23 Apr 2002 09:34:58 -0400
+Received: from f236.law11.hotmail.com ([64.4.17.236]:13073 "EHLO hotmail.com")
+	by vger.kernel.org with ESMTP id <S315199AbSDWNe5>;
+	Tue, 23 Apr 2002 09:34:57 -0400
+X-Originating-IP: [137.204.212.214]
+From: "gio zanei" <il_boba@hotmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: undefined reference to printk()
+Date: Tue, 23 Apr 2002 15:34:51 +0200
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; format=flowed
+Content-Type: text/plain; charset=iso-8859-1; format=flowed
+Message-ID: <F236cWcHoWRwE67G7lU00005dc6@hotmail.com>
+X-OriginalArrivalTime: 23 Apr 2002 13:34:52.0453 (UTC) FILETIME=[A5D4C550:01C1EACB]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-At 10:58 AM 4/23/2002 +0100, Alan Cox wrote:
-> >
-> > The fasttrak also has hardware raid, while it works, it works realtively
-> > well.
->
->I believe its software. Its just concealed from the OS (windows)
+hi to all,
+i need to compile a small program that i made. WHen i try to do it, it 
+compiles all right with the -c option ( that is i get the .o file), but if i 
+do even the linking it just keep giving me the undefined reference error to 
+some kernel functions that i need to use. In particular are the printk, 
+filp_open, generic_file_read....  I have included the header files that 
+declare them ( kernel.h and fs.h) and i have compiled the program with the 
+-D__KERNEL__ and other option used by the compiler when it wants to compile 
+a module in the kernel. I tried in many different ways but the error in the 
+linking is always the same.
+thank you,
+boba
 
-Definitely software raid w/some bios support, as are the Highpoint (HPT37x) 
-controllers.
 
-****************************************************
-Nicolae P. Costescu, Ph.D.  / Senior Developer
-Stronghold Technologies
-46040 Center Oak Plaza, Suite 160 / Sterling, Va 20166
-Tel: 571-434-1472 / Fax: 571-434-1478
+_________________________________________________________________
+MSN Foto è il modo più semplice per condividere e stampare le tue foto: 
+http://photos.msn.com/support/worldwide.aspx
 

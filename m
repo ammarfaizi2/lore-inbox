@@ -1,62 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261596AbVCNRQs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261632AbVCNRS7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261596AbVCNRQs (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 14 Mar 2005 12:16:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261628AbVCNRQs
+	id S261632AbVCNRS7 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 14 Mar 2005 12:18:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261628AbVCNRS7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Mar 2005 12:16:48 -0500
-Received: from fire.osdl.org ([65.172.181.4]:61640 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S261596AbVCNRQq (ORCPT
+	Mon, 14 Mar 2005 12:18:59 -0500
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:9891 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S261631AbVCNRSj (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 14 Mar 2005 12:16:46 -0500
-Date: Mon, 14 Mar 2005 09:18:22 -0800 (PST)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Jesse Barnes <jbarnes@engr.sgi.com>
-cc: Pavel Machek <pavel@ucw.cz>, David Lang <david.lang@digitalinsight.com>,
-       Dave Jones <davej@redhat.com>,
-       OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>,
-       Paul Mackerras <paulus@samba.org>, benh@kernel.crashing.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: dmesg verbosity [was Re: AGP bogosities]
-In-Reply-To: <200503140855.18446.jbarnes@engr.sgi.com>
-Message-ID: <Pine.LNX.4.58.0503140907380.6119@ppc970.osdl.org>
-References: <16944.62310.967444.786526@cargo.ozlabs.ibm.com>
- <Pine.LNX.4.62.0503140026360.10211@qynat.qvtvafvgr.pbz> <20050314083717.GA19337@elf.ucw.cz>
- <200503140855.18446.jbarnes@engr.sgi.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Mon, 14 Mar 2005 12:18:39 -0500
+Date: Mon, 14 Mar 2005 18:18:16 +0100
+From: Pavel Machek <pavel@suse.cz>
+To: Vojtech Pavlik <vojtech@suse.cz>, paul.devriendt@amd.com
+Cc: davej@codemonkey.org.uk, linux@brodo.de, linux-kernel@vger.kernel.org
+Subject: Re: PowerNow-K8 and Winchester CPUs
+Message-ID: <20050314171805.GA7865@elf.ucw.cz>
+References: <20050314162426.GA2598@ucw.cz>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050314162426.GA2598@ucw.cz>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi!
 
+Paul, can you comment on this one? I know that pn-k8 logic is quite
+tricky... And BIOS tables are often wrong.
+								Pavel
 
-On Mon, 14 Mar 2005, Jesse Barnes wrote:
+> I have a machine with an Athlon64 with a Winchester core. It has a max
+> frequency of 2GHz, vid 0x6. The maximum vid allowed is 0x4. It has an
+> intermediate vid 0x8. RVO is 3.
 > 
-> We already have the 'quiet' option, but even so, I think the kernel is *way* 
-> too verbose.  Someone needs to make a personal crusade out of removing 
-> unneeded and unjustified printks from the kernel before it really gets better 
-> though...
+> When transitioning (phase1) from vid 0x8 to vid 0x6, it first increases
+> the vid to 6, and then proceeds increasing it three more steps. This of
+> course fails, because it overflows the maximum allowed vid 0x4.
+> 
+> My first attempt to fix this was to limit the vid to the max vid while
+> doing the rvo bump-up.
+> 
+> However, I believe that the real reason for the problem is that the
+> condition to start doing the rvo bump is wrong.
+> 
+> This patch should fix it:
+> 
+> diff -Nru a/arch/i386/kernel/cpu/cpufreq/powernow-k8.c b/arch/i386/kernel/cpu/cpufreq/powernow-k8.c
+> --- a/arch/i386/kernel/cpu/cpufreq/powernow-k8.c	2005-03-14 17:20:17 +01:00
+> +++ b/arch/i386/kernel/cpu/cpufreq/powernow-k8.c	2005-03-14 17:20:17 +01:00
+> @@ -286,7 +286,7 @@
+>  			return 1;
+>  	}
+>  
+> -	while ((rvosteps > 0)  && ((data->rvo + data->currvid) > reqvid)) {
+> +	while ((rvosteps > 0) && ((data->currvid - data->rvo) > reqvid)) {
+>  		if (data->currvid == 0) {
+>  			rvosteps = 0;
+>  		} else {
+> 
+> if I understand the original intent of the second test in the while()
+> statement. 
+> 
+> Any comments? Is my understanding of that bit of code correct?
+> 
 
-The thing is, this comes up every once in a while (pretty often,
-actually), but the bulk of those messages _do_ end up being useful. For
-certain classes of bugs, I almost invariably ask for the bootup messages:  
-the PCI interrupt routing printou stuff is absolutely invaluable.
-
-In fact, even the ones that have no "information" end up often being a big
-clue about where the hang happened.
-
-So yes, when things work (and hey, that's happily 99.9% of the time) they
-are almost all worthless. But just _one_ case where they help is a big
-deal. So don't say "most people don't care", because that is a totally
-irrelevant argument. It's not "most people" who matter. It's not even
-kernel developers who matter - they can know how to enable the stuff if
-they ever see a problem. The _only_ people who matter are the very
-occasional regular users that see problems.
-
-And those occasional people are often not going to eb very good at
-reporting bugs. If they don't see anything happening, they'll just give up
-rather than bother to report it. So I do think we want the fairly verbose
-thing enabled by default. You can then hide it with the graphical bootup 
-for "most people".
-
-		Linus
+-- 
+People were complaining that M$ turns users into beta-testers...
+...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!

@@ -1,105 +1,34 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261362AbVCTXKl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261365AbVCTXTT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261362AbVCTXKl (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 20 Mar 2005 18:10:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261345AbVCTXHq
+	id S261365AbVCTXTT (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 20 Mar 2005 18:19:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261375AbVCTXPc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 20 Mar 2005 18:07:46 -0500
-Received: from ns3.dataphone.se ([212.37.0.170]:29139 "EHLO
-	mail-slave.dataphone.se") by vger.kernel.org with ESMTP
-	id S261334AbVCTXGR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 20 Mar 2005 18:06:17 -0500
-From: Magnus Damm <damm@opensource.se>
-To: linux-kernel@vger.kernel.org
-Cc: Magnus Damm <damm@opensource.se>
-Message-Id: <20050320223824.25305.94292.15135@clementine.local>
-In-Reply-To: <20050320223814.25305.52695.65404@clementine.local>
-References: <20050320223814.25305.52695.65404@clementine.local>
-Subject: [PATCH 2/5] autoparam: script
-Date: Mon, 21 Mar 2005 00:06:16 +0100 (CET)
+	Sun, 20 Mar 2005 18:15:32 -0500
+Received: from fire.osdl.org ([65.172.181.4]:43987 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S261365AbVCTXMk (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 20 Mar 2005 18:12:40 -0500
+Date: Sun, 20 Mar 2005 15:12:12 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: bert hubert <ahu@ds9a.nl>
+Cc: miklos@szeredi.hu, linux-kernel@vger.kernel.org
+Subject: Re: fuse is cool and robust
+Message-Id: <20050320151212.4f9c8f32.akpm@osdl.org>
+In-Reply-To: <20050320161529.GA26365@outpost.ds9a.nl>
+References: <E1DCLLi-0001Lx-00@dorka.pomaz.szeredi.hu>
+	<20050320161529.GA26365@outpost.ds9a.nl>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The quick ruby hack that generates text from the section data. The script
-should probably be rewritten in some other languare to minimize dependencies.
-Parameters without types are the result of MODULE_PARM_DESC typos or the use of
-MODULE_PARM() instead of module_param() and are treated as errors.
+bert hubert <ahu@ds9a.nl> wrote:
+>
+> I'm wondering what the status of Fuse is wrt to 2.6.12 or 2.6.13
 
-Signed-off-by: Magnus Damm <damm@opensource.se>
+Christoph H.  has indicated that he was going to review the code and I've
+been holding off pending that.
 
-diff -urN linux-2.6.12-rc1/scripts/section2text.rb linux-2.6.12-rc1-autoparam/scripts/section2text.rb
---- linux-2.6.12-rc1/scripts/section2text.rb	1970-01-01 01:00:00.000000000 +0100
-+++ linux-2.6.12-rc1-autoparam/scripts/section2text.rb	2005-03-20 22:53:10.847470760 +0100
-@@ -0,0 +1,72 @@
-+#!/usr/bin/env ruby
-+
-+param = {}   # param[parametername] = [ type, description ]
-+
-+STDIN.read.split("\0").each do | x |
-+  if x != ""
-+    d = x.split
-+    p = d.shift
-+    t = d.shift
-+
-+    if d.length > 0
-+      d = d.join(" ")
-+    else
-+      d = ""
-+    end
-+
-+    if param[p]
-+      if param[p][0] == "()"
-+        param[p][0] = t
-+      end
-+      if param[p][1] == ""
-+        param[p][1] = d
-+      end
-+    else
-+      param[p] = [ t, d ]
-+    end
-+  end
-+end
-+
-+bad = []
-+
-+param.keys.sort.each do | p |
-+  t, d = param[p]
-+
-+  if t == "()"
-+    bad << p
-+  end
-+end
-+
-+if bad != []
-+  STDERR.puts "#{bad.length} error(s):"
-+  bad.each do | p |
-+    STDERR.puts "MODULE_PARM_DESC() on non-existing parameter \"#{p}\""
-+  end
-+  exit 1
-+end
-+
-+param.keys.sort.each do | p |
-+  t, d = param[p]
-+
-+  if not t
-+    if p.index("=")
-+      t = "(string)"
-+    else
-+      t = "(bool)"
-+    end
-+  end
-+
-+  if t == "()"
-+    bad << p
-+  else
-+    puts "#{p} #{t}"
-+    if d == ""
-+      puts "  Unknown"
-+    else
-+      puts "  #{d}"
-+    end
-+    puts
-+  end
-+end
-+
-+exit 0

@@ -1,59 +1,33 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S136500AbRD3Rco>; Mon, 30 Apr 2001 13:32:44 -0400
+	id <S136504AbRD3Rco>; Mon, 30 Apr 2001 13:32:44 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136504AbRD3Rce>; Mon, 30 Apr 2001 13:32:34 -0400
-Received: from chaos.analogic.com ([204.178.40.224]:56450 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP
-	id <S136502AbRD3Rcb>; Mon, 30 Apr 2001 13:32:31 -0400
-Date: Mon, 30 Apr 2001 13:32:23 -0400 (EDT)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-Reply-To: root@chaos.analogic.com
-To: Jeff Garzik <jgarzik@mandrakesoft.com>
-cc: Greg Hosler <hosler@lugs.org.sg>, linux-kernel@vger.kernel.org
-Subject: Re: AC'97 (VT82C686A) & IRQ reassignment (I/O APIC)
-In-Reply-To: <3AED950C.962360AF@mandrakesoft.com>
-Message-ID: <Pine.LNX.3.95.1010430131456.14407A-100000@chaos.analogic.com>
+	id <S136502AbRD3Rce>; Mon, 30 Apr 2001 13:32:34 -0400
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:9737 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S136500AbRD3Rc0>; Mon, 30 Apr 2001 13:32:26 -0400
+Subject: Re: OOM stupidity
+To: klink@clouddancer.com
+Date: Mon, 30 Apr 2001 18:34:01 +0100 (BST)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20010429123454.364E06808@mail.clouddancer.com> from "Colonel" at Apr 29, 2001 05:34:54 AM
+X-Mailer: ELM [version 2.5 PL1]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E14uHYi-0008JI-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 30 Apr 2001, Jeff Garzik wrote:
+> Swap was hardly filled up, and remember it's the 2xRAM swap size now!
+> Has Linux been too eager to accept recent windows converts (and prior
+> to their recovery from that brain damage) and lost it's sharp edge of
 
-> "Richard B. Johnson" wrote:
-> > Observe that the PCI DWORD (long) register at DWORD offset 15 consists
-> > of 4 byte-wide registers (from the PCI specification), Max_lat, Min_Gnt,
-> > Interrupt pin, and interrupt line.  Nothing has to fit into 4 bits, you
-> > have 8 bits. I haven't looked at the Linux code, but if it provides only 4
-> > bits for the IRQ, it's broken.
-> 
-> Non-IO-APIC Via audio hardware only decodes the lower 4 bits of the IRQ.
+The Linux tree OOM trigger is way wrong right now. We know
 
-Woof...  More GAWDAUFULL junk. You mean that if I write 0xff to the R/W
-interrupt line register and read it back, it's only 0x0f?  This didn't
-save any money. There are only 4 interrupt 'pins', i.e., interrupt lines
-that go to the PCI bus (A thru D). What these lines connect to for
-actual IRQs is known only to the motherboard manufacturer hence the
-BIOS has to check the pin value and write the appropriate IRQ value
-into the interrupt line register. This register is used only as a
-scratch-pad so that a driver "knows" what IRQ goes to the board. The
-board, itself, never accesses this register. The board only gets one
-interrupt connected (A thru D), and to the board, all interrupts are
-the same.
+> Where is a patch to allow the sensible OOM I had in prior kernels?
+> (cause this crap is getting pitched)
 
-So, if the driver can find by some other means, the interrupt that is
-connected to the board, it can use that interrupt rather than something
-that was written to the scratch register by the BIOS.
-
-
-Cheers,
-Dick Johnson
-
-Penguin : Linux version 2.4.1 on an i686 machine (799.53 BogoMips).
-
-"Memory is like gasoline. You use it up when you are running. Of
-course you get it all back when you reboot..."; Actual explanation
-obtained from the Micro$oft help desk.
-
+Try -ac (or 2.2.19 for now)
 

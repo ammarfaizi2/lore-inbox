@@ -1,40 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263624AbUDZWU3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263631AbUDZWRq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263624AbUDZWU3 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 26 Apr 2004 18:20:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263616AbUDZWU3
+	id S263631AbUDZWRq (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 26 Apr 2004 18:17:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263628AbUDZWRp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 26 Apr 2004 18:20:29 -0400
-Received: from fw.osdl.org ([65.172.181.6]:23425 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S263624AbUDZWU0 (ORCPT
+	Mon, 26 Apr 2004 18:17:45 -0400
+Received: from mail1.kontent.de ([81.88.34.36]:60314 "EHLO Mail1.KONTENT.De")
+	by vger.kernel.org with ESMTP id S263631AbUDZWRo (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 26 Apr 2004 18:20:26 -0400
-Date: Mon, 26 Apr 2004 15:20:18 -0700
-From: Chris Wright <chrisw@osdl.org>
-To: linux-kernel@vger.kernel.org, reiserfs-list@namesys.com
-Subject: Re: I oppose Chris and Jeff's patch to add an unnecessary	additional namespace to ReiserFS
-Message-ID: <20040426152018.R22989@build.pdx.osdl.net>
-References: <1082750045.12989.199.camel@watt.suse.com> <408D3FEE.1030603@namesys.com> <1083000711.30344.44.camel@watt.suse.com> <408D51C4.7010803@namesys.com> <1083006783.30344.102.camel@watt.suse.com> <20040426204037.GA21455@merlin.emma.line.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Mon, 26 Apr 2004 18:17:44 -0400
+From: Oliver Neukum <oliver@neukum.org>
+To: Greg KH <greg@kroah.com>, Bill Davidsen <davidsen@tmr.com>
+Subject: Re: Kernel Oops during usb usage (2.6.5)
+Date: Tue, 27 Apr 2004 00:17:34 +0200
+User-Agent: KMail/1.5.1
+Cc: "E. Oltmanns" <oltmanns@uni-bonn.de>, linux-kernel@vger.kernel.org
+References: <20040423205617.GA1798@local> <408D4187.2040104@tmr.com> <20040426195359.GA29062@kroah.com>
+In-Reply-To: <20040426195359.GA29062@kroah.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-15"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20040426204037.GA21455@merlin.emma.line.org>; from ma+rfs@dt.e-technik.uni-dortmund.de on Mon, Apr 26, 2004 at 10:40:37PM +0200
+Message-Id: <200404270017.34478.oliver@neukum.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Matthias Andree (ma+rfs@dt.e-technik.uni-dortmund.de) wrote:
-> With respect to Hans's reasoning about name spaces, is there an official
-> standard that mandates a particular API for the ACL stuff ("POSIX")?
+Am Montag, 26. April 2004 21:53 schrieb Greg KH:
+> On Mon, Apr 26, 2004 at 01:06:15PM -0400, Bill Davidsen wrote:
+> > Just in general, if there is anything a non-root user can do to crash
+> > the system, it's probably a kernel bug by definition. It doesn't matter
+> > that's it a stupid thing to do, it might be malicious. And in this case
+> > it might just be user error.
+>
+> But you either have to be root in order to talk to usbfs, or you were
+> root when you gave a user access to the usbfs node.  So either way, a
+> "normal" user can't even do this.
 
-POSIX ACL's sit defined in a withdrawn POSIX spec (1003.1e).  The API
-doesn't specify the fs/vfs level detail (other than supporting, user,
-group, other and mask acls), and gives a userspace API for accessing
-the ACL info (with simple functions like acl_get_file() which you should
-find in libacl and can fit many os level implementations).  Not sure it
-helps much.
+Greg,
 
-thanks,
--chris
--- 
-Linux Security Modules     http://lsm.immunix.org     http://lsm.bkbits.net
+that's not an answer. It in effect means that usbfs is useless.
+
+	Regards
+		Oliver
+

@@ -1,41 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268734AbUIHQIM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267568AbUIHQGW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268734AbUIHQIM (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Sep 2004 12:08:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268688AbUIHQIA
+	id S267568AbUIHQGW (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Sep 2004 12:06:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268655AbUIHQDU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Sep 2004 12:08:00 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:27285 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S269045AbUIHQHN (ORCPT
+	Wed, 8 Sep 2004 12:03:20 -0400
+Received: from omx2-ext.sgi.com ([192.48.171.19]:50576 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S268474AbUIHQCr (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Sep 2004 12:07:13 -0400
-Date: Wed, 8 Sep 2004 18:05:27 +0200
-From: Jens Axboe <axboe@suse.de>
-To: TazForEver@dlfp.org, LKML <linux-kernel@vger.kernel.org>
-Subject: Re: 2.6.9-rc1
-Message-ID: <20040908160527.GS2258@suse.de>
-References: <1094655493.18454.23.camel@athlon> <20040908153439.GM2258@suse.de> <20040908155742.GA19335@elektroni.ee.tut.fi>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Wed, 8 Sep 2004 12:02:47 -0400
+From: Jesse Barnes <jbarnes@engr.sgi.com>
+To: Jon Smirl <jonsmirl@gmail.com>
+Subject: Re: multi-domain PCI and sysfs
+Date: Wed, 8 Sep 2004 09:02:14 -0700
+User-Agent: KMail/1.7
+Cc: "David S. Miller" <davem@davemloft.net>, willy@debian.org,
+       linux-kernel@vger.kernel.org
+References: <9e4733910409041300139dabe0@mail.gmail.com> <200409072125.41153.jbarnes@engr.sgi.com> <9e47339104090723012190c73a@mail.gmail.com>
+In-Reply-To: <9e47339104090723012190c73a@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20040908155742.GA19335@elektroni.ee.tut.fi>
+Message-Id: <200409080902.14640.jbarnes@engr.sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Sep 08 2004, Petri Kaukasoina wrote:
-> On Wed, Sep 08, 2004 at 05:34:39PM +0200, Jens Axboe wrote:
-> > On Wed, Sep 08 2004, Benoit Dejean wrote:
-> > > is it normal that 2.6.9-rc1 still leaks like hell when burning an audio
-> > > CD ? i though this was fixed since 2.6.8.1
-> > 
-> > hmm no, it should not be. more details, please.
-> 
-> bio_uncopy_user-mem-leak-fix.patch and bio_uncopy_user-mem-leak.patch were
-> not included in 2.6.9-rc1.
+On Tuesday, September 7, 2004 11:01 pm, Jon Smirl wrote:
+> X on GL is going to eliminate all device access from X. Everything
+> will be handled from the OpenGL layer. When everything is finished
+> even the OpenGL layer won't do hardware access either, it will IOCTL
+> the DRM driver to do it. In the final solution the only user of the
+> VGA control should be the secondary card reset program.
 
-oh right you are, I forget that the -rc1 is already so old. so the
-problem is expected, upgrade to latest -rc1-bkX and you'll be fine.
+Oh right, I forgot.  Anyway, the card reset program needs to get at this stuff 
+somehow.
 
--- 
-Jens Axboe
+> Where is the PCI segment base address stored in the PCI driver
+> structures? I'm still having trouble with the fact that the PCI driver
+> does not have a clear structure representing a PCI segment.  Shouldn't
+> there be a structure corresponding to a segment?
 
+That would be nice, maybe an extra resource or something?  I haven't looked at 
+the sparc code, but it probably deals with this (sn2 has platform specific 
+functions to get the base address for a bus).
+
+> From what I understand right now the SN2 machine can not have two
+> active VGA cards since it does not have two PCI segments. Without two
+> segments there is no way to tell the legacy addresses apart.
+
+sn2 does have multiple PCI segments, we just don't export them yet.
+
+Jesse

@@ -1,55 +1,65 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289680AbSAOV1k>; Tue, 15 Jan 2002 16:27:40 -0500
+	id <S290282AbSAOV3a>; Tue, 15 Jan 2002 16:29:30 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289686AbSAOV1a>; Tue, 15 Jan 2002 16:27:30 -0500
-Received: from Morgoth.esiway.net ([193.194.16.157]:42766 "EHLO
-	Morgoth.esiway.net") by vger.kernel.org with ESMTP
-	id <S289680AbSAOV1X>; Tue, 15 Jan 2002 16:27:23 -0500
-Date: Tue, 15 Jan 2002 22:27:21 +0100 (CET)
-From: Marco Colombo <marco@esi.it>
-To: <arjanv@redhat.com>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: Aunt Tillie builds a kernel (was Re: ISA hardware discovery --
- the elegant solution)
-In-Reply-To: <m16QaOc-000OVeC@amadeus.home.nl>
-Message-ID: <Pine.LNX.4.33.0201152223480.11441-100000@Megathlon.ESI>
+	id <S290283AbSAOV3Z>; Tue, 15 Jan 2002 16:29:25 -0500
+Received: from femail39.sdc1.sfba.home.com ([24.254.60.33]:11981 "EHLO
+	femail39.sdc1.sfba.home.com") by vger.kernel.org with ESMTP
+	id <S290282AbSAOV3M>; Tue, 15 Jan 2002 16:29:12 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Rob Landley <landley@trommello.org>
+To: Bruce Harada <bruce@ask.ne.jp>
+Subject: Re: Aunt Tillie builds a kernel (was Re: ISA hardware discovery -- the elegant solution)
+Date: Tue, 15 Jan 2002 08:27:10 -0500
+X-Mailer: KMail [version 1.3.1]
+Cc: esr@thyrsus.com, linux-kernel@vger.kernel.org
+In-Reply-To: <20020114125228.B14747@thyrsus.com> <20020114234129.MGOI23959.femail47.sdc1.sfba.home.com@there> <20020115112239.25e713e0.bruce@ask.ne.jp>
+In-Reply-To: <20020115112239.25e713e0.bruce@ask.ne.jp>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Message-Id: <20020115212910.QYNC7783.femail39.sdc1.sfba.home.com@there>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 15 Jan 2002 arjanv@redhat.com wrote:
+On Monday 14 January 2002 09:22 pm, Bruce Harada wrote:
 
-[...]
-> > and no
-> > way to actually use them to modify the kernel. I spent hours, putting
-> > them in order, based upon the time/date stamp within the files, not
-> > the file time which was something more or less random. I made a script
-> > and tried, over a period of weeks, to patch the supplied kernel with
-> > the supplied patches. Forget it. If anything in this universe is truly
-> > impossible, then making a Red Hat distribution kernel from the provided
-> > tools, patches, and sources is a definitive example.
-> 
-> Ok now you offend me. I spent quite a bit of time making the .spec file easy
-> to read, AND we provide a convenient kernel-source rpm which installs
-> /usr/src/linux (for RHL7.0) or /usr/src/linux-2.4 for 2.4 kernels (7.1/7.2) 
-> which contains the full source AND all configs we used. AND if you type
-> "make oldconfig" it picks the one you are currently running. Heck I even put
-	 	   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-that one I didn't know, I've always done a manual cp from configs/*.
-Thanks for the hint. B-)  (And for the good job)
+> As for adding a driver that's not included in the vendor's kernel, do you
+> mean that having a Microsoft-trained drone rebuild a kernel specifically
+> for a certain PC (thus requiring further compilation for any hardware added
+> later) and including a no-doubt beta driver and then giving it to Aunt
+> Tillie without any testing beyond the MCSE's PC is a *good* idea?
 
-> Greetings,
->    Arjan van de Ven
->    Red Hat Linux kernel maintainer
->    
+No, it would be tested on Aunt Tillie's PC, which she brought in for 
+upgrading (she's not going to unscrew the case and put a new card in herself, 
+is she), and which the drone has never seen before and didn't necessarily 
+sell her in the first place.  (Maybe if Aunt Tillie's lucky the store did, 
+but this is the new guy and aunt tillie's had the PC for two years, they 
+don't sell that model anymore...)
 
-.TM.
--- 
-      ____/  ____/   /
-     /      /       /			Marco Colombo
-    ___/  ___  /   /		      Technical Manager
-   /          /   /			 ESI s.r.l.
- _____/ _____/  _/		       Colombo@ESI.it
+I don't think having a microsoft-trained drone TOUCH a computer is a good 
+idea.  But SAIR and Linux+ are going to turn out their own drones with a 
+"USDA approved" stamp on their forehead who are NOT hackers, and who intend 
+to make a living off of glorified tech support.  It happened in the mainframe 
+world, it happened in the minicomputer world, it happened under DOS and 
+Windows, and it'll happen under Linux.  And nine to five workers are not 
+actually a BAD thing.  Very few actual hackers WANT to babysit database 
+schema for Fortune 500 corporations...
 
+The "I summon the vast power of certification" crowd will always be with us.  
+Would you rather that the hundreds of thousands of people who get a four year 
+degree in computing every year (because they think there's money in it, not 
+because they actually LIKE computers) work on windows boxes, or on Linux?  
+(Hint: as long as they work on windows boxes, they and their bosses are 
+paying money to microsoft, and they are enabling windows-only shops where 
+employees send *.doc files to everybody they know, and advancing the dot-net 
+flag.)
+
+You can't have total world domination without bringing along the drones.  
+Hoping for a world where there ARE no drones is a utopian view.  Hoping for a 
+PLATFORM where there are no drones is easily achievable, it's called a "tiny 
+niche market".
+
+The drones -ARE- the service industry through which you get aunt tillie.  I 
+just think Eric's skipping a step...
+
+Rob

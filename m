@@ -1,31 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319054AbSH2ECx>; Thu, 29 Aug 2002 00:02:53 -0400
+	id <S319061AbSH2EFh>; Thu, 29 Aug 2002 00:05:37 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319052AbSH2ECx>; Thu, 29 Aug 2002 00:02:53 -0400
-Received: from out011pub.verizon.net ([206.46.170.135]:44495 "EHLO
-	out011.verizon.net") by vger.kernel.org with ESMTP
-	id <S318998AbSH2ECx>; Thu, 29 Aug 2002 00:02:53 -0400
-Message-ID: <3D6D9D56.2090806@bellatlantic.net>
-Date: Thu, 29 Aug 2002 00:04:38 -0400
-From: dtonks <dtonks@bellatlantic.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux i586; en-US; rv:1.0rc2) Gecko/20020513 Netscape/7.0b1
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: 2.5.31 SCSI problem w/solution
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	id <S319089AbSH2EFh>; Thu, 29 Aug 2002 00:05:37 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:48543 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S319061AbSH2EFg>;
+	Thu, 29 Aug 2002 00:05:36 -0400
+Date: Wed, 28 Aug 2002 21:04:09 -0700 (PDT)
+Message-Id: <20020828.210409.67510643.davem@redhat.com>
+To: cw@f00f.org
+Cc: spotter@cs.columbia.edu, linux-kernel@vger.kernel.org
+Subject: Re: tcp_hashinfo exported or not?
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <20020828220935.GA12963@tapu.f00f.org>
+References: <1030503622.487.2.camel@zaphod>
+	<20020827.204259.44983328.davem@redhat.com>
+	<20020828220935.GA12963@tapu.f00f.org>
+X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-    When trying to compile module for sym53c416 I received an error 
-'address not in structure'.  I traced this to - asm-i386/scatterlist.h. 
- It is missing - char * address - at the beginning of the structure.  I 
-copied scatterlist.h from 2.4.18 and it compiled fine.
+   From: Chris Wedgwood <cw@f00f.org>
+   Date: Wed, 28 Aug 2002 15:09:35 -0700
 
-Hope this helps,
-Don Tonks
-dtonks@bellatlantic.net
+   Conditionally exporting symbols based upon CONFIG_* is a PITA.  Do we
+   really need to do this and will you accept a patch making go away?
+   
+Nobody else should need to get at the TCP hash tables.
 
+Are you trying to work on a proprietary binary-only implementation of
+Linux IPv6 TCP :-)
+
+Franks a lot,
+David S. Miller
+davem@redhat.com

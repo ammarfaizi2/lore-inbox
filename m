@@ -1,53 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261825AbTDXVJT (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Apr 2003 17:09:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263479AbTDXVJS
+	id S263479AbTDXVNG (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Apr 2003 17:13:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264397AbTDXVNG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Apr 2003 17:09:18 -0400
-Received: from watch.techsource.com ([209.208.48.130]:31136 "EHLO
-	techsource.com") by vger.kernel.org with ESMTP id S261825AbTDXVJS
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Apr 2003 17:09:18 -0400
-Message-ID: <3EA85937.3050109@techsource.com>
-Date: Thu, 24 Apr 2003 17:37:59 -0400
-From: Timothy Miller <miller@techsource.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20020823 Netscape/7.0
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Jamie Lokier <jamie@shareable.org>
-CC: Daniel Phillips <phillips@arcor.de>,
-       William Lee Irwin III <wli@holomorphy.com>,
-       Linus Torvalds <torvalds@transmeta.com>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Flame Linus to a crisp!
-References: <20030424051510.GK8931@holomorphy.com> <20030424061500.GN8978@holomorphy.com> <20030424074400.GD28253@mail.jlokier.co.uk> <20030424185708.0D34912E79E@mx12.arcor-online.net> <20030424210846.GG30082@mail.jlokier.co.uk>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Thu, 24 Apr 2003 17:13:06 -0400
+Received: from codepoet.org ([166.70.99.138]:1954 "EHLO winder.codepoet.org")
+	by vger.kernel.org with ESMTP id S263479AbTDXVNA (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 24 Apr 2003 17:13:00 -0400
+Date: Thu, 24 Apr 2003 15:25:09 -0600
+From: Erik Andersen <andersen@codepoet.org>
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: ALSA and 2.4.x
+Message-ID: <20030424212508.GI14661@codepoet.org>
+Reply-To: andersen@codepoet.org
+Mail-Followup-To: Erik Andersen <andersen@codepoet.org>,
+	linux-kernel <linux-kernel@vger.kernel.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.28i
+X-Operating-System: Linux 2.4.19-rmk7, Rebel-NetWinder(Intel StrongARM 110 rev 3), 185.95 BogoMips
+X-No-Junk-Mail: I do not want to get *any* junk mail.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu Apr 24 2003 - 08:35:48 EST, David van Hoose wrote:
+> Is there a ALSA backport to 2.4.x anywhere? 
 
+I was crazy enough to take ALSA 0.9.2 and made it into a patch vs
+2.4.x a week or two ago.  I just prefer to have ALSA be part of
+the kernel rather than needing to compile it seperately all the
+time.  The patch, along with various other things, is included as
+part of my 2.4.21-rc1-erik kernel:
 
-Jamie Lokier wrote:
+    http://codepoet.org/kernel/
 
->  
->
->Suppose I did want to print some wafers.
->
->Suppose, also, that I had developed a method that didn't require a
->$10M+ factory.
->
->(Also suppose I had _very_ steady hands, no dandruff, and my garden
->shed was big enough :)
->
->I'm curious - how do I go about learning what I do and don't need
->patent licenses for making chips, without spending an absurd sum on
->legal fees?
->
+This is what I am running locally, and it works for me,
 
-We could always consider wiring everything up with discrete logic. 
- Anyone got any spare 74138's?
+ -Erik
 
-
-
+--
+Erik B. Andersen             http://codepoet-consulting.com/
+--This message was written using 73% post-consumer electrons--

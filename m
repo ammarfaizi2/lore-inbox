@@ -1,47 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S275990AbRKMQUm>; Tue, 13 Nov 2001 11:20:42 -0500
+	id <S274752AbRKMQ10>; Tue, 13 Nov 2001 11:27:26 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S276097AbRKMQUc>; Tue, 13 Nov 2001 11:20:32 -0500
-Received: from [195.66.192.167] ([195.66.192.167]:23571 "EHLO
-	Port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with ESMTP
-	id <S275990AbRKMQUP>; Tue, 13 Nov 2001 11:20:15 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: vda <vda@port.imtp.ilyichevsk.odessa.ua>
-To: "David D. Hagood" <David.Hagood@ifrsys.com>, linux-kernel@vger.kernel.org
-Subject: Re: Automount FS re-exported via NFS fails
-Date: Tue, 13 Nov 2001 18:19:39 +0000
-X-Mailer: KMail [version 1.2]
-In-Reply-To: <3BF0343C.2080409@ifrsys.com>
-In-Reply-To: <3BF0343C.2080409@ifrsys.com>
-MIME-Version: 1.0
-Message-Id: <01111318193900.00801@nemo>
-Content-Transfer-Encoding: 7BIT
+	id <S275265AbRKMQ1N>; Tue, 13 Nov 2001 11:27:13 -0500
+Received: from ns.caldera.de ([212.34.180.1]:25216 "EHLO ns.caldera.de")
+	by vger.kernel.org with ESMTP id <S274752AbRKMQ1A>;
+	Tue, 13 Nov 2001 11:27:00 -0500
+Date: Tue, 13 Nov 2001 17:26:53 +0100
+Message-Id: <200111131626.fADGQrn24822@ns.caldera.de>
+From: Christoph Hellwig <hch@ns.caldera.de>
+To: matthias.andree@stud.uni-dortmund.de (Matthias Andree)
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.4.x has finally made it!
+X-Newsgroups: caldera.lists.linux.kernel
+In-Reply-To: <20011113171836.A14967@emma1.emma.line.org>
+User-Agent: tin/1.4.4-20000803 ("Vet for the Insane") (UNIX) (Linux/2.4.2 (i686))
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 12 November 2001 20:42, David D. Hagood wrote:
-> I have a situation where I have a set of file systems that are automounted
-> by the automount file system in 2.4.x under /misc. I'd like to make those
-> file systems available via NFS from machine.
+In article <20011113171836.A14967@emma1.emma.line.org> you wrote:
+> On Tue, 13 Nov 2001, Alastair Stevens wrote:
 >
-> In the ideal case, I would have something like this in /etc/exports:
-> /misc 10.0.0.0/255.0.0.0 (rw)
+>> For those who haven't seen it yet, Moshe Bar at BYTE.com has revisited his
+>> Linux 2.4 vs FreeBSD benchmarks, using 2.4.12 in this case:
+>> 
+>>  http://www.byte.com/documents/s=1794/byt20011107s0001/1112_moshe.html
 >
-> Thus, a client machine could mount server:/misc as /somedir, and then cause
-> a filesystem to be mounted by accessing /somedir/some_auto_filesystem.
->
-> However, that doesn't work, as the NFSD seems to want to do a getfh() IOCTL
-> on the auto file system, and autofs doesn't seem to support that IOCTL.
+> Wow. That person is knowledgeable... NOT. Turning off fsync() for mail
+> is just as good as piping it to /dev/null. See RFC-1123.
 
-NFS don't see mountpoints. It's a strange feature but it is really done that
-way. I can mount my /dev/hdc on a non-empty dir in NFS exported tree and
-I see hdc filesystem when browsing it locally, but NFS clients
-still see old dir contents - they don't see mounted drive there!
+After the last VM article no one expect any clue from him anayway 8)
 
-I don't know whether it's bug or a feature.
+	Christoph
 
-Every automounted dir under automount mountpoint is a mountpoint too,
-that's why you can't export them via NFS.
---
-vda
+-- 
+Of course it doesn't work. We've performed a software upgrade.

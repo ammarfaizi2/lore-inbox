@@ -1,86 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263567AbUENX2p@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264526AbUENXga@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263567AbUENX2p (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 14 May 2004 19:28:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264529AbUENXMy
+	id S264526AbUENXga (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 14 May 2004 19:36:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264569AbUENX3N
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 14 May 2004 19:12:54 -0400
-Received: from mail.kroah.org ([65.200.24.183]:58076 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S263567AbUENXIM convert rfc822-to-8bit
+	Fri, 14 May 2004 19:29:13 -0400
+Received: from mion.elka.pw.edu.pl ([194.29.160.35]:27609 "EHLO
+	mion.elka.pw.edu.pl") by vger.kernel.org with ESMTP id S264543AbUENX0B
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 14 May 2004 19:08:12 -0400
-X-Donotread: and you are reading this why?
-Subject: Re: [PATCH] Driver Core patches for 2.6.6
-In-Reply-To: <10845760421519@kroah.com>
-X-Patch: quite boring stuff, it's just source code...
-Date: Fri, 14 May 2004 16:07:23 -0700
-Message-Id: <10845760432011@kroah.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-To: linux-kernel@vger.kernel.org
-Content-Transfer-Encoding: 7BIT
-From: Greg KH <greg@kroah.com>
+	Fri, 14 May 2004 19:26:01 -0400
+From: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
+To: Marc Singer <elf@buici.com>
+Subject: Re: arm-lh7a40x IDE support in 2.6.6
+Date: Sat, 15 May 2004 01:26:33 +0200
+User-Agent: KMail/1.5.3
+Cc: rmk@arm.linux.org.uk, linux-ide@vger.kernel.org,
+       linux-kernel@vger.kernel.org
+References: <200405141840.04401.bzolnier@elka.pw.edu.pl> <200405150019.46504.bzolnier@elka.pw.edu.pl> <20040514224932.GA8061@buici.com>
+In-Reply-To: <20040514224932.GA8061@buici.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200405150126.33153.bzolnier@elka.pw.edu.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ChangeSet 1.1587.5.23, 2004/05/11 13:32:24-07:00, greg@kroah.com
+On Saturday 15 of May 2004 00:49, Marc Singer wrote:
+> On Sat, May 15, 2004 at 12:19:46AM +0200, Bartlomiej Zolnierkiewicz wrote:
 
-Module attributes: fix build error if CONFIG_MODULE_UNLOAD=n
+> > > > > > - you are setting IDE_NO_IRQ in ide_init_hwif_ports() which is
+> > > > > > used in many places in generic IDE code - anybody wanting to
+> > > > > > understand interactions with your code + generic code will have
+> > > > > > serious problems (especially if knows _nothing_ about lpd7a40x)
+> > > > >
+> > > > > I don't know what you mean.  I grep for that constant and found it
+> > > > > nowhere except for ide-io.c and in my code.  It doesn't take much
+> > > > > to find the references.
+> > > >
+> > > > I'm talking about ide_init_hwif_ports() function.
+> > >
+> > > Most of the ARM arch's use it.  Perhaps all of them need a good once
+> > > over.
+> >
+> > Since some time I have a patch killing <asm/arch-*/ide.h>. :)
+>
+> OK.  That raises an interesting question.  If a) you as the IDE
+> maintainer want to make a policy change, and b) you have a concrete
+> action to take, then how do you go about it so that the right thing
+> (tm) happens?
 
-Thanks to Andrew Morton for pointing this out to me.
+I posted patch to linux-arm-kernel (rmk, I can't find it in l-a-k archives
+and I also can't find any mail about it being rejected?) and linux-ide.
+[ and to affected arch maintainers of course ]
 
+> One tack would be to post to the ARM list stating that there is
+> such-and-such, a new policy, and this requires a change to the
+> way-things-work (tm).  Then effect a patch that breaks the bad stuff
+> so that the users of such bad stuff must cope.
 
- kernel/module.c |   32 ++++++++++++++++----------------
- 1 files changed, 16 insertions(+), 16 deletions(-)
+It is stable kernel series so I paid 'stable kernel' price
+and made sure that it shouldn't break anything.
 
-
-diff -Nru a/kernel/module.c b/kernel/module.c
---- a/kernel/module.c	Fri May 14 15:57:16 2004
-+++ b/kernel/module.c	Fri May 14 15:57:16 2004
-@@ -379,6 +379,22 @@
- }
- #endif /* CONFIG_SMP */
- 
-+static int add_attribute(struct module *mod, struct kernel_param *kp)
-+{
-+	struct module_attribute *a;
-+	int retval;
-+
-+	a = &mod->mkobj->attr[mod->mkobj->num_attributes];
-+	a->attr.name = (char *)kp->name;
-+	a->attr.owner = mod;
-+	a->attr.mode = kp->perm;
-+	a->param = kp;
-+	retval = sysfs_create_file(&mod->mkobj->kobj, &a->attr);
-+	if (!retval)
-+		mod->mkobj->num_attributes++;
-+	return retval;
-+}
-+
- #ifdef CONFIG_MODULE_UNLOAD
- /* Init the unload section of the module. */
- static void module_unload_init(struct module *mod)
-@@ -502,22 +518,6 @@
- 	struct stopref sref = { mod, flags, forced };
- 
- 	return stop_machine_run(__try_stop_module, &sref, NR_CPUS);
--}
--
--static int add_attribute(struct module *mod, struct kernel_param *kp)
--{
--	struct module_attribute *a;
--	int retval;
--
--	a = &mod->mkobj->attr[mod->mkobj->num_attributes];
--	a->attr.name = (char *)kp->name;
--	a->attr.owner = mod;
--	a->attr.mode = kp->perm;
--	a->param = kp;
--	retval = sysfs_create_file(&mod->mkobj->kobj, &a->attr);
--	if (!retval)
--		mod->mkobj->num_attributes++;
--	return retval;
- }
- 
- unsigned int module_refcount(struct module *mod)
+Cheers,
+Bartlomiej
 

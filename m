@@ -1,102 +1,33 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266772AbTBGWnP>; Fri, 7 Feb 2003 17:43:15 -0500
+	id <S266777AbTBGWq4>; Fri, 7 Feb 2003 17:46:56 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266777AbTBGWnP>; Fri, 7 Feb 2003 17:43:15 -0500
-Received: from th23.opsion.fr ([62.39.122.33]:60639 "HELO th23.opsion.fr")
-	by vger.kernel.org with SMTP id <S266772AbTBGWnO>;
-	Fri, 7 Feb 2003 17:43:14 -0500
-Message-Id: <5.2.0.9.2.20030207235001.00c63e28@pop3.ibelgique.com>
-X-Mailer: QUALCOMM Windows Eudora Version 5.2.0.9
-Date: Fri, 07 Feb 2003 23:53:46 +0100
-To: linux-kernel@vger.kernel.org
-From: Laurent Grawet <laurent.grawet@ibelgique.com>
-Subject: Re: kernel 2.4.x + via-based kt266 mobo = IDE cdroms probls
-  (revisited)
+	id <S266796AbTBGWq4>; Fri, 7 Feb 2003 17:46:56 -0500
+Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:18598
+	"EHLO irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S266777AbTBGWqz>; Fri, 7 Feb 2003 17:46:55 -0500
+Subject: Re: [PATCH] 2.5.59 : sound/oss/vidc.c
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Frank Davis <fdavis@si.rr.com>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       trivial@rustcorp.com.au
+In-Reply-To: <Pine.LNX.4.44.0302071211390.6917-100000@master>
+References: <Pine.LNX.4.44.0302071211390.6917-100000@master>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Organization: 
+Message-Id: <1044662081.15774.0.camel@irongate.swansea.linux.org.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; format=flowed
+X-Mailer: Ximian Evolution 1.2.1 (1.2.1-2) 
+Date: 07 Feb 2003 23:54:44 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Andre,
+On Fri, 2003-02-07 at 17:13, Frank Davis wrote:
+> Hello all,
+>    The following patch addresses buzilla bug # 318, and removes an
+> offending semicolon. Please review for inclusion
 
-I have exactly the same problem/symptoms like several other users !
-Here is a interesting report that has been made on Viaarena Linux forum by 
-Dam. This bring us useful information and better understanding of the 
-situation :
+This one was ok before. The indentation was wrong thats all
 
-http://forums.viaarena.com/messageview.cfm?catid=28&threadid=28308&STARTPAGE=1
-
---------- SNIP
-
-  Thursday, February 06, 2003 9:56 PM
-
-
-Hi there.
-
-One more guy with the same problem. But I've got a kind of solution, but it 
-is not a good one.
-
-Using cdda2wav, you can use the -n option to tell cdda2wav the number of 
-sector to read at a time.
-I'm able to rip a cd using -n 1 . I can go up to -n 15 then it start hdc: 
-lost interrupt ... Problem is that
-performance is not great at -n 1.
-
-I once contacted the cdrdao author, Andreas, and talk with him about this 
-prog. I ended editing cdrdao sources
-to try to reduce the number of sector read at a time to 1 (same as for 
-cdda2wav). Problem disappeared but
-performance were unacceptable.
-
-Also there is the option to not write the rip to a file (for debugging 
-purpose), using -N. Using that
-option, I no more experience problem, but of course, I don't rip anything.
-
-So it seemed to me that the problem is related to writing to a disk while 
-ripping. So I tried cdda2wav with -N and
-at the same time launched a cp -R /usr/src/linux /tmp. Everything happened 
-correctly, slowly but without lost interrupts.
-
-I think this is more of a kernel bug then a bios bug (why would it work 
-under windows ?). Searching lkml gives many
-results with people with this problem, but no solutions.
-
-I think we should start bother people on the lkml.
-
----------- SNIP
-
- > I think we should start bother people on the lkml.
-Well, this has just been done Dam   :-)
-
-Exactly the same behaviour here...
-
-Could Linux Guru's help us ?
-We have this problem for too long time...
-
-Thanks,
-
-Laurent
-
-** Please, CC me your answer to LKML **
-
-P.S.
-Sorry for my double post, but there was a problem in my message title...
-
-
--- 
-| Laurent Grawet
-| ON1MGL
-|
-| [e-mail]
-|    Home...... mailto:laurent.grawet@ibelgique.com
-|               mailto:on1mgl@ibelgique.com
-|    Office.... mailto:laurent.grawet@fundp.ac.be
-|
-| [ax25]
-|               on1mgl@on0cha.#clr.ht.bel.eu
-
-_____________________________________________________________________
-Envie de discuter en "live" avec vos amis ? Télécharger MSN Messenger
-http://www.ifrance.com/_reloc/m la 1ère messagerie instantanée de France
-
+> 

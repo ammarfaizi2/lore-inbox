@@ -1,52 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265857AbSKBBxW>; Fri, 1 Nov 2002 20:53:22 -0500
+	id <S265859AbSKBCSU>; Fri, 1 Nov 2002 21:18:20 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265858AbSKBBxW>; Fri, 1 Nov 2002 20:53:22 -0500
-Received: from mailout02.sul.t-online.com ([194.25.134.17]:15044 "EHLO
-	mailout02.sul.t-online.com") by vger.kernel.org with ESMTP
-	id <S265857AbSKBBxW> convert rfc822-to-8bit; Fri, 1 Nov 2002 20:53:22 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Marc-Christian Petersen <m.c.p@wolk-project.de>
-Organization: WOLK - Working Overloaded Linux Kernel
-To: linux-kernel@vger.kernel.org
-Subject: Re: [ANNOUNCE] [PATCH] Linux-2.5.45-mcp1
-Date: Sat, 2 Nov 2002 02:48:44 +0100
-User-Agent: KMail/1.4.3
-Cc: Paul <set@pobox.com>
-References: <200210031903.16106.m.c.p@wolk-project.de> <20021102014200.GI7170@squish.home.loc>
-In-Reply-To: <20021102014200.GI7170@squish.home.loc>
+	id <S265860AbSKBCSU>; Fri, 1 Nov 2002 21:18:20 -0500
+Received: from ip68-13-110-204.om.om.cox.net ([68.13.110.204]:1152 "EHLO
+	dad.molina") by vger.kernel.org with ESMTP id <S265859AbSKBCST>;
+	Fri, 1 Nov 2002 21:18:19 -0500
+Date: Fri, 1 Nov 2002 20:24:43 -0600 (CST)
+From: Thomas Molina <tmolina@cox.net>
+X-X-Sender: tmolina@dad.molina
+To: Jens Axboe <axboe@suse.de>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: ide-cd still borken for me in 2.5.45
+In-Reply-To: <Pine.LNX.4.44.0211011945170.863-100000@dad.molina>
+Message-ID: <Pine.LNX.4.44.0211012022190.862-100000@dad.molina>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <200211020248.44889.m.c.p@wolk-project.de>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Saturday 02 November 2002 02:42, Paul wrote:
+On Fri, 1 Nov 2002, Thomas Molina wrote:
 
-Hi Paul,
+> On Fri, 1 Nov 2002, Jens Axboe wrote:
+> 
+> > > hdc: irq timeout: status=0x90 {Busy}
+> > > hdc: irq timeout: error=0x01IllegalLengthIndication
+> > > hdc: drive not ready for command
+> > > hdc: ATAPI reset timed-out, status=0x80
+> > > ide1: reset: success
+> > 
+> > Interesting. Please send me a detailed list of your hardware, boot
+> > messages should suffice. Does 2.5.43 work correctly?
+> 
+> I get the same series of messages when booting 2.5.43.  I'll work my way 
+> back to find a version that works and report back when I find it.  
+> Following is the config file used to build this kernel:
 
-> 	        ld -m elf_i386 -e stext -T
-> arch/i386/vmlinux.lds.s arch/i386/kernel/head.o
-> arch/i386/kernel/init_task.o  init/built-in.o --start-group
-> arch/i386/kernel/built-in.o  arch/i386/mm/built-in.o
-> arch/i386/mach-generic/built-in.o  kernel/built-in.o
-> mm/built-in.o  fs/built-in.o  ipc/built-in.o  security/built-in.o
-> crypto/built-in.o  lib/lib.a  arch/i386/lib/lib.a
-> drivers/built-in.o  sound/built-in.o  arch/i386/pci/built-in.o
-> net/built-in.o --end-group  -o vmlinux
-> mm/built-in.o(.kstrtab+0x160): multiple definition of
-> `__kstrtab_page_states__per_cpu'
-> kernel/built-in.o(.kstrtab+0xb40): first defined here
-> mm/built-in.o(__ksymtab+0x48): multiple definition of
-> `__ksymtab_page_states__per_cpu'
-> kernel/built-in.o(__ksymtab+0x330): first defined here
-> make: *** [vmlinux] Error 1
-
-First, thnx for reporting :-)
-
-Please use 2.5.45-mcp2 announced some minutes ago. Should work!
-
-ciao, Marc
-
+Well that was quick.  2.5.42 works correctly.  The problems begin with 
+2.5.43.
 

@@ -1,62 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265246AbTANUhF>; Tue, 14 Jan 2003 15:37:05 -0500
+	id <S265249AbTANUhO>; Tue, 14 Jan 2003 15:37:14 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265247AbTANUhF>; Tue, 14 Jan 2003 15:37:05 -0500
-Received: from 60.54.252.64.snet.net ([64.252.54.60]:53600 "EHLO
-	mail.blue-labs.org") by vger.kernel.org with ESMTP
-	id <S265246AbTANUhD>; Tue, 14 Jan 2003 15:37:03 -0500
-Message-ID: <3E2476FF.1010306@blue-labs.org>
-Date: Tue, 14 Jan 2003 15:45:51 -0500
-From: David Ford <david+cert@blue-labs.org>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3b) Gecko/20030110
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: "Leonard N. Zubkoff" <lnz@dandelion.com>
-CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: BusLogic error handling, 2.5
-X-Enigmail-Version: 0.71.3.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Bmilter: Processing completed, Bmilter version 0.1.1 build 905; timestamp 2003-01-14 15:45:54, message serial number 726172
+	id <S265255AbTANUhO>; Tue, 14 Jan 2003 15:37:14 -0500
+Received: from bitmover.com ([192.132.92.2]:28132 "EHLO mail.bitmover.com")
+	by vger.kernel.org with ESMTP id <S265249AbTANUhM>;
+	Tue, 14 Jan 2003 15:37:12 -0500
+Date: Tue, 14 Jan 2003 12:45:54 -0800
+From: Larry McVoy <lm@bitmover.com>
+To: "Richard B. Johnson" <root@chaos.analogic.com>
+Cc: Olivier Galibert <galibert@pobox.com>, linux-kernel@vger.kernel.org,
+       Larry McVoy <lm@bitmover.com>, Dax Kelson <dax@gurulabs.com>,
+       Richard Stallman <rms@gnu.org>, pollard@admin.navo.hpc.mil,
+       R.E.Wolff@BitWizard.nl, jalvo@mbay.net
+Subject: Re: [OFFTOPIC] RMS and reactions to him
+Message-ID: <20030114204554.GB31419@work.bitmover.com>
+Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
+	"Richard B. Johnson" <root@chaos.analogic.com>,
+	Olivier Galibert <galibert@pobox.com>, linux-kernel@vger.kernel.org,
+	Larry McVoy <lm@bitmover.com>, Dax Kelson <dax@gurulabs.com>,
+	Richard Stallman <rms@gnu.org>, pollard@admin.navo.hpc.mil,
+	R.E.Wolff@BitWizard.nl, jalvo@mbay.net
+References: <20030114151938.A30371@kerberos.ncsl.nist.gov> <Pine.LNX.3.95.1030114153018.13840D-100000@chaos.analogic.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.3.95.1030114153018.13840D-100000@chaos.analogic.com>
+User-Agent: Mutt/1.4i
+X-MailScanner: Found to be clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+On Tue, Jan 14, 2003 at 03:36:18PM -0500, Richard B. Johnson wrote:
+> > Silence, of course.  People here are supposed to know better than to
+> > answer to trolls.
+> 
+> But then the unanswered repetition of bullshit starts to seem like
+> facts. Others, who don't know better, start to believe what they
+> have read, and pretty soon history has been re-written. 
 
-scsi: ***** BusLogic SCSI Driver Version 2.1.16 of 18 July 2002 *****
-scsi: Copyright 1995-1998 by Leonard N. Zubkoff <lnz@dandelion.com>
-ERROR: SCSI host `BusLogic' has no error handling
-ERROR: This is not a safe way to run your SCSI host
-ERROR: The error handling must be added to this driver
-Call Trace:
- [<c0214949>] scsi_register+0x69/0x28c
- [<c0214ba6>] scsi_register_host+0x3a/0x90
- [<c010502c>] init+0x0/0x144
- [<c0105049>] init+0x1d/0x144
- [<c010502c>] init+0x0/0x144
- [<c0107021>] kernel_thread_helper+0x5/0xc
+Exactly.  If people think that I don't know that replying to RMS
+is annoying as hell, they are wrong.  It's definitely annoying, it
+annoys me to do it and it annoys you to read it.  On the other hand,
+unchallenged false claims tend to become fact and society then accepts
+those "facts", just like Richard B. Johnson said.  RMS knows that and
+that is exactly what he is trying to do.  
 
-
-Just a reminder.
-
-Thank you,
-David
-
-- -- 
-I may have the information you need and I may choose only HTML.  It's up to you. Disclaimer: I am not responsible for any email that you send me nor am I bound to any obligation to deal with any received email in any given fashion.  If you send me spam or a virus, I may in whole or part send you 50,000 return copies of it. I may also publically announce any and all emails and post them to message boards, news sites, and even parody sites.  I may also mark them up, cut and paste, print, and staple them to telephone poles for the enjoyment of people without internet access.  This is not a confidential medium and your assumption that your email can or will be handled confidentially is akin to baring your backside, burying your head in the ground, and thinking nobody can see you butt nekkid and in plain view for miles away.  Don't be a cluebert, buy one from K-mart today.
-
-When it absolutely, positively, has to be destroyed overnight.
-                           AIR FORCE
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
-Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org
-
-iD8DBQE+JHb/74cGT/9uvgsRAnj4AKDieaYovweK6Rq6LX+dpjomPiX0SgCg0drz
-VU2HZ1AoaSQwdnr99VycVhI=
-=ljCs
------END PGP SIGNATURE-----
-
+The reality is that the FSF has actually written very little code
+themselves, they are trying to claim that anything which is GPLed is
+part of "their" system.  That's nonsense, I know it is nonsense because
+I've been here every step of the way, I've watched who did what, and
+I'm smart enough to go dig into the archives and validate my opinions.
+RMS is trying to change history and that should not go unchallenged.
+-- 
+---
+Larry McVoy            	 lm at bitmover.com           http://www.bitmover.com/lm 

@@ -1,64 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271572AbRHPMe1>; Thu, 16 Aug 2001 08:34:27 -0400
+	id <S271344AbRHPMtK>; Thu, 16 Aug 2001 08:49:10 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271575AbRHPMeR>; Thu, 16 Aug 2001 08:34:17 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:3467 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S271572AbRHPMeG>;
-	Thu, 16 Aug 2001 08:34:06 -0400
-Date: Thu, 16 Aug 2001 05:34:15 -0700 (PDT)
-Message-Id: <20010816.053415.10296707.davem@redhat.com>
-To: kraxel@bytesex.org
-Cc: linux-kernel@vger.kernel.org
-Newsgroups: lists.linux.kernel
-Subject: Re: [patch] zero-bounce highmem I/O
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <slrn9nne9g.8eb.kraxel@bytesex.org>
-In-Reply-To: <20010816135150.X4352@suse.de>
-	<20010816.045642.116348743.davem@redhat.com>
-	<slrn9nne9g.8eb.kraxel@bytesex.org>
-X-Mailer: Mew version 2.0 on Emacs 21.0 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S271345AbRHPMtA>; Thu, 16 Aug 2001 08:49:00 -0400
+Received: from chaos.analogic.com ([204.178.40.224]:20868 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP
+	id <S271344AbRHPMsn>; Thu, 16 Aug 2001 08:48:43 -0400
+Date: Thu, 16 Aug 2001 08:48:43 -0400 (EDT)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+Reply-To: root@chaos.analogic.com
+To: ServeRAID For Linux <ipslinux@us.ibm.com>
+cc: jes@trained-monkey.org, alan@redhat.com, linux-kernel@vger.kernel.org,
+        torvalds@transmeta.com
+Subject: Re: [patch] ips.c spin lock 64 bit issues
+In-Reply-To: <OFB6726B6C.6282CC76-ON85256AAA.00434E7F@raleigh.ibm.com>
+Message-ID: <Pine.LNX.3.95.1010816084145.8161A-100000@chaos.analogic.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: Gerd Knorr <kraxel@bytesex.org>
-   Date: 16 Aug 2001 12:14:40 GMT
-   
-   While we are at it:  Is there some portable way to figure whenever I can
-   do a PCI DMA transfer to some page?  On ia32 I can simply look at the
-   physical address and if it is behind 4G it doesn't work for 32bit PCI
-   devices.  But I think that is not true for architectures which have a
-   iommu ...
+On Thu, 16 Aug 2001, ServeRAID For Linux wrote:
 
-Currently this is lacking.  The state of affairs for platforms
-I know something about is:
+> That's only the tip of the iceberg for the "variable casting" and other
+> changes that are required to make the ips driver completely safe on IA64.
+> I have made all the changes necessary and we are currently in test mode
+> with the next release of ips ( Version 4.80.xx ), which will be completely
+> 64-bit safe.  I hope to make it available to all sometime in September,
+> when we have completed our testing with it on both 32 and 64 bit Linux.
+> 
 
-x86: "4GB test"
-alpha/sparc64/ppc64: any physical memory whatsoever may be accessed
-		     via 32-bit PCI addressing due to IOMMU
-ia64: "software IOMMU" scheme causes DMA to >4GB addresses to
-      require bounce buffers when using 32-bit addressing
-      Port posses broken 64-bit PCI addressing hack in an attempt
-      to deal with limitations of software IOMMU scheme.
+I don't think that "unsigned long" is the correct data type.
 
-To be honest, you really shouldn't care about this.  If you are
-writing a block device, the block/scsi/ide/whatever layer should take
-care to only give you memory that can be DMA'd to/from.
+Isn't there a data type that means "the largest unsigned integer type
+that fits into a register on the target..."? I was told that that's what
+"size_t" means. If so, all the flags variables <everywhere> should be
+changed to this type. If not, then somebody should define a "flags_t"
+type. With the new 64-bit machines, this is going to bite over and
+over again until something like this is done.
 
-Same goes for the networking layer.
+Cheers,
+Dick Johnson
 
-In some cases, the distinction being made is "highmem vs not-highmem"
-for something being DMA'able on PCI.  This is on thing the networking
-references.  But, while this will always lead to correct behavior, it
-is very inefficient.
+Penguin : Linux version 2.4.1 on an i686 machine (799.53 BogoMips).
 
-Jens's and my work aims to directly address these kinds of issues.
-Whatever we finally end up in Jens's code as the "DMA'able test" will
-likely propagate into the networking bits.
+    I was going to compile a list of innovations that could be
+    attributed to Microsoft. Once I realized that Ctrl-Alt-Del
+    was handled in the BIOS, I found that there aren't any.
 
-Later,
-David S. Miller
-davem@redhat.com
+

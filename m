@@ -1,54 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268667AbUIQKZc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268674AbUIQKaj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268667AbUIQKZc (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 17 Sep 2004 06:25:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268670AbUIQKZc
+	id S268674AbUIQKaj (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 17 Sep 2004 06:30:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268675AbUIQKaj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 17 Sep 2004 06:25:32 -0400
-Received: from sd291.sivit.org ([194.146.225.122]:21465 "EHLO sd291.sivit.org")
-	by vger.kernel.org with ESMTP id S268667AbUIQKZZ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 17 Sep 2004 06:25:25 -0400
-Date: Fri, 17 Sep 2004 12:25:22 +0200
-From: Stelian Pop <stelian@popies.net>
-To: Bill Davidsen <davidsen@tmr.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [RFC, 2.6] a simple FIFO implementation
-Message-ID: <20040917102522.GE21917@sd291.sivit.org>
-Reply-To: Stelian Pop <stelian@popies.net>
-Mail-Followup-To: Stelian Pop <stelian@popies.net>,
-	Bill Davidsen <davidsen@tmr.com>, linux-kernel@vger.kernel.org
-References: <20040913135253.GA3118@crusoe.alcove-fr> <ciccmu$ija$1@gatekeeper.tmr.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Fri, 17 Sep 2004 06:30:39 -0400
+Received: from mail-in-07.arcor-online.net ([151.189.21.47]:4563 "EHLO
+	mail-in-01.arcor-online.net") by vger.kernel.org with ESMTP
+	id S268674AbUIQKaf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 17 Sep 2004 06:30:35 -0400
+From: Michael Scondo <michael.scondo@arcor.de>
+Reply-To: michael.scondo@arcor.de
+To: linux-kernel@vger.kernel.org
+Subject: Re: vfat bug - solved
+Date: Fri, 17 Sep 2004 12:30:07 +0200
+User-Agent: KMail/1.7
+References: <200409170013.20712.michael.scondo@arcor.de> <20040917020405.GB2573@MAIL.13thfloor.at>
+In-Reply-To: <20040917020405.GB2573@MAIL.13thfloor.at>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 8bit
 Content-Disposition: inline
-In-Reply-To: <ciccmu$ija$1@gatekeeper.tmr.com>
-User-Agent: Mutt/1.5.6+20040523i
+Message-Id: <200409171230.07524.michael.scondo@arcor.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Sep 16, 2004 at 11:57:34AM -0400, Bill Davidsen wrote:
+Am Freitag, 17. September 2004 04:04 schrieb Herbert Poetzl:
+> On Fri, Sep 17, 2004 at 12:13:20AM +0200, Michael Scondo wrote:
+> > Hello..
+> > I've just compiled a new kernel ( 2.6.8.1 ), and now I'm not able to
+> > mount my fat32 partitions anymore.
+> >
+> > mount /dev/hda7 /mnt
+> > mount: wrong fs type, bad option, bad superblock on /dev/hda7,
+> >        or too many mounted file systems
+> >
+> > :-(
+> >
+> > Every works still fine with 2.6.4, but I'm not sure, whether this occurs
+> > due to a bug in the kernel or because a wrong build process.
+> > Therefore I'm posting this to the list.
+>
+> check the kernel ring buffer (dmesg) for codepages which
+> are requested but not found (or other strange messages)
+> which appear when you 'try' to mount the filesystem
+>
+> HTH,
+> Herbert
 
-> >An initial implementation follows below. Comments ?
-> 
-> Many.
-> 
-> - you don't need both size and len, just the length
-> - you don't need a count of what's in the fifo, calc from tail-head
+Yes, the module fat wasn´t able to find cp437 as well as the charset 
+iso8859-1. ( both configured as default )
+If I pass the options "-o codepage=850,iocharset=iso8859-15" to mount, 
+everything works fine.
+Maybe, I should have been a little bit more watchful while configuring.
+But weren't it sensible to provide a mechanism, which prevent's such a silly 
+configuration ?
 
-The second patch already did that.
+Thanks a lot 
+Micha
 
-> - you don't need remaining, when the tail reaches the head
->   you're out of data.
-> - you want to do at most two memcpy operations, the loop is just
->   unproductive overhead.
-> - if the fifo goes empty set the head and tail back to zero so you don't
->   wrap (assumes doing just two memcpy ops) when you don't need to
 
-I hope the third patch (which I just posted) answers those points too.
 
-Thanks.
-
-Stelian.
--- 
-Stelian Pop <stelian@popies.net>    

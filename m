@@ -1,37 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129752AbRAIABl>; Mon, 8 Jan 2001 19:01:41 -0500
+	id <S129226AbRAIANy>; Mon, 8 Jan 2001 19:13:54 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131256AbRAIABb>; Mon, 8 Jan 2001 19:01:31 -0500
-Received: from penguin.e-mind.com ([195.223.140.120]:44589 "EHLO
-	penguin.e-mind.com") by vger.kernel.org with ESMTP
-	id <S129752AbRAIABO>; Mon, 8 Jan 2001 19:01:14 -0500
-Date: Tue, 9 Jan 2001 01:01:25 +0100
-From: Andrea Arcangeli <andrea@suse.de>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: `rmdir .` doesn't work in 2.4
-Message-ID: <20010109010125.O27646@athlon.random>
-In-Reply-To: <20010108185518.G27646@athlon.random> <Pine.GSO.4.21.0101081259230.4061-100000@weyl.math.psu.edu> <20010108213036.T27646@athlon.random> <93dicp$ano$1@penguin.transmeta.com>
+	id <S129387AbRAIANo>; Mon, 8 Jan 2001 19:13:44 -0500
+Received: from brutus.conectiva.com.br ([200.250.58.146]:21245 "HELO
+	brinquedo.distro.conectiva") by vger.kernel.org with SMTP
+	id <S129226AbRAIANb>; Mon, 8 Jan 2001 19:13:31 -0500
+Date: Mon, 8 Jan 2001 20:25:33 -0200
+From: Arnaldo Carvalho de Melo <acme@conectiva.com.br>
+To: Drew Eckhardt <drew@PoohSticks.ORG>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] de620.c: nitpicking
+Message-ID: <20010108202533.F17087@conectiva.com.br>
+Mail-Followup-To: Arnaldo Carvalho de Melo <acme@conectiva.com.br>,
+	Drew Eckhardt <drew@PoohSticks.ORG>,
+	Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
+In-Reply-To: <20010108201103.E17087@conectiva.com.br>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <93dicp$ano$1@penguin.transmeta.com>; from torvalds@transmeta.com on Mon, Jan 08, 2001 at 03:27:21PM -0800
-X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
-X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20010108201103.E17087@conectiva.com.br>; from acme@conectiva.com.br on Mon, Jan 08, 2001 at 08:11:04PM -0200
+X-Url: http://advogato.org/person/acme
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jan 08, 2001 at 03:27:21PM -0800, Linus Torvalds wrote:
-> However, it is against all UNIX standards, and Linux-2.4 will explicitly
+Hi,
 
-I may be missing something but apparently SuSv2 allows it, you can check here:
+	Please consider applying, no need to restore_flags here, as it is
+restored in the beginning of this if block.
 
-	http://www.opengroup.org/onlinepubs/007908799/xsh/rmdir.html
+- Arnaldo
 
-Infact SuSv2 doesn't even allow rmdir to return -EINVAL.
 
-Andrea
+--- linux-2.4.0-ac3/drivers/scsi/53c7,8xx.c	Fri Oct 13 18:40:51 2000
++++ linux-2.4.0-ac3.acme/drivers/scsi/53c7,8xx.c	Mon Jan  8 20:24:35 2001
+@@ -1899,7 +1899,6 @@
+ 		hostdata->script, start);
+ 	    printk ("scsi%d : DSPS = 0x%x\n", host->host_no,
+ 		NCR53c7x0_read32(DSPS_REG));
+-	    restore_flags(flags);
+ 	    return -1;
+ 	}
+     	hostdata->test_running = 0;
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

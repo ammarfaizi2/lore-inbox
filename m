@@ -1,105 +1,58 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S286712AbSAUOo3>; Mon, 21 Jan 2002 09:44:29 -0500
+	id <S287003AbSAUOtt>; Mon, 21 Jan 2002 09:49:49 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287003AbSAUOoU>; Mon, 21 Jan 2002 09:44:20 -0500
-Received: from www.deepbluesolutions.co.uk ([212.18.232.186]:517 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S286712AbSAUOoN>; Mon, 21 Jan 2002 09:44:13 -0500
-Date: Mon, 21 Jan 2002 14:44:04 +0000
-From: Russell King <rmk@arm.linux.org.uk>
-To: "David S. Miller" <davem@redhat.com>
-Cc: davej@suse.de, martin.macok@underground.cz, linux-kernel@vger.kernel.org,
-        ak@muc.de
-Subject: Re: [andrewg@tasmail.com: remote memory reading through tcp/icmp]
-Message-ID: <20020121144404.B11489@flint.arm.linux.org.uk>
-In-Reply-To: <20020121015209.A26413@sarah.kolej.mff.cuni.cz> <20020120.175204.18636524.davem@redhat.com> <20020121031211.B29830@suse.de> <20020120.184318.13746427.davem@redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20020120.184318.13746427.davem@redhat.com>; from davem@redhat.com on Sun, Jan 20, 2002 at 06:43:18PM -0800
+	id <S287109AbSAUOtj>; Mon, 21 Jan 2002 09:49:39 -0500
+Received: from mail2.alcatel.fr ([212.208.74.132]:26307 "EHLO mel.alcatel.fr")
+	by vger.kernel.org with ESMTP id <S287003AbSAUOt2>;
+	Mon, 21 Jan 2002 09:49:28 -0500
+Message-ID: <3C4C2A6D.1431CE41@sxb.bsf.alcatel.fr>
+Date: Mon, 21 Jan 2002 15:49:18 +0100
+From: Denis RICHARD <dri@sxb.bsf.alcatel.fr>
+X-Mailer: Mozilla 4.75 [en] (X11; U; SunOS 5.8 sun4u)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+CC: Yves LUDWIG <Yves.Ludwig@sxb.bsf.alcatel.fr>,
+        Pierre PEIFFER <Pierre.Peiffer@sxb.bsf.alcatel.fr>,
+        Denis RICHARD <Denis.Richard@sxb.bsf.alcatel.fr>,
+        Philippe MARTEAU <Philippe.Marteau@sxb.bsf.alcatel.fr>
+Subject: New version of e2compress patch (0.4.42) for LINUX 2.4.16.
+Content-Type: text/plain; charset=iso-8859-1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
+Content-Transfer-Encoding: 8bit
+X-MIME-Autoconverted: from base64 to 8bit by mangalore.zipworld.com.au id BAA03206
 
-On Sun, Jan 20, 2002 at 06:43:18PM -0800, David S. Miller wrote:
-> Andi?
+Hi,
 
-Ok, final message - I found I was getting a fair number of
+A new version of the e2compress patch (0.4.42) for kernel 2.4.16 is available.
 
-  ICMP redirect: packet too short
+Changes from 0.4.41 to 0.4.42 :
+===============================
+ - Delete the i_blocks field decrementation (Thanks to Peter Wächtler).
+ - Clear dirty bit of buffers not in compressed area, after compression.
+ - Unlock pages before sync of inode, after compression.
+ - Change parameters (OSYNC_METADATA|OSYNC_DATA) of generic_osync_inode()
+   calls to write data inode.
+ - Ext2_readpage() returns an error code.
+ - Allocation of working area even when readonly mount.
+ - Clear dirty bit of buffers after uncompress in ext2_readpage.
+ - Unlock page after free buffers in error case in ext2_readpage.
 
-messages in the log while running IPv6.  It appears that I had icmp
-redirects bouncing between two IPv6 routers (and the routers were updating
-their routing tables, which is against RFC2461, but I'm not concerned
-about that at the moment).
+  If someone is interested by this version of the patch,
+Let me know, I will mail it.
 
-It appears that net/ipv6/ndisc.c forgets to convert the payload_len header
-field to host byteorder before comparing it.
+  Feel free to contat me if you have some questions.
 
-The following patch corrects this.
+  Have fun.
 
---- ref/net/ipv6/ndisc.c	Thu Dec 20 11:03:56 2001
-+++ linux/net/ipv6/ndisc.c	Mon Jan 21 14:06:17 2002
-@@ -957,6 +957,7 @@
- 	struct nd_msg *msg = (struct nd_msg *) skb->h.raw;
- 	struct neighbour *neigh;
- 	struct inet6_ifaddr *ifp;
-+	unsigned int payload_len;
- 
- 	__skb_push(skb, skb->data-skb->h.raw);
- 
-@@ -979,10 +980,11 @@
- 	 *	(Some checking in ndisc_find_option)
- 	 */
- 
-+	payload_len = ntohs(skb->nh.ipv6h->payload_len);
- 	switch (msg->icmph.icmp6_type) {
- 	case NDISC_NEIGHBOUR_SOLICITATION:
- 		/* XXX: import nd_neighbor_solicit from glibc netinet/icmp6.h */
--		if (skb->nh.ipv6h->payload_len < 8+16) {
-+		if (payload_len < 8+16) {
- 			if (net_ratelimit())
- 				printk(KERN_WARNING "ICMP NS: packet too short\n");
- 			return 0;
-@@ -1112,7 +1114,7 @@
- 
- 	case NDISC_NEIGHBOUR_ADVERTISEMENT:
- 		/* XXX: import nd_neighbor_advert from glibc netinet/icmp6.h */
--		if (skb->nh.ipv6h->payload_len < 16+8 ) {
-+		if (payload_len < 16+8 ) {
- 			if (net_ratelimit())
- 				printk(KERN_WARNING "ICMP NA: packet too short\n");
- 			return 0;
-@@ -1174,7 +1176,7 @@
- 
- 	case NDISC_ROUTER_ADVERTISEMENT:
- 		/* XXX: import nd_router_advert from glibc netinet/icmp6.h */
--		if (skb->nh.ipv6h->payload_len < 8+4+4) {
-+		if (payload_len < 8+4+4) {
- 			if (net_ratelimit())
- 				printk(KERN_WARNING "ICMP RA: packet too short\n");
- 			return 0;
-@@ -1184,7 +1186,7 @@
- 
- 	case NDISC_REDIRECT:
- 		/* XXX: import nd_redirect from glibc netinet/icmp6.h */
--		if (skb->nh.ipv6h->payload_len < 8+16+16) {
-+		if (payload_len < 8+16+16) {
- 			if (net_ratelimit())
- 				printk(KERN_WARNING "ICMP redirect: packet too short\n");
- 			return 0;
-@@ -1196,7 +1198,7 @@
- 		/* No RS support in the kernel, but we do some required checks */
- 
- 		/* XXX: import nd_router_solicit from glibc netinet/icmp6.h */
--		if (skb->nh.ipv6h->payload_len < 8) {
-+		if (payload_len < 8) {
- 			if (net_ratelimit())
- 				printk(KERN_WARNING "ICMP RS: packet too short\n");
- 			return 0;
 
--- 
-Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
-             http://www.arm.linux.org.uk/personal/aboutme.html
+--
+-----------------------------\--------------------------\
+Denis RICHARD                 \ ALCATEL Business Systems \
+mailto:dri@sxb.bsf.alcatel.fr / Tel: +33(0)3 90 67 69 36 /
+-----------------------------/--------------------------/
 
+
+ý:.žË›±Êâmçë¢kaŠÉb²ßìzwm…ébïîžË›±Êâmébžìÿ‘êçz_âžØ^n‡r¡ö¦zËëh™¨è­Ú&£ûàz¿äz¹Þ—ú+€Ê+zf£¢·hšˆ§~†­†Ûiÿÿïêÿ‘êçz_è®æj:+v‰¨þ)ß£ømšSåy«­æ¶…­†ÛiÿÿðÃí»è®å’i

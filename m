@@ -1,53 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261523AbVAGSjm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261424AbVAGSqV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261523AbVAGSjm (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 7 Jan 2005 13:39:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261522AbVAGSjm
+	id S261424AbVAGSqV (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 7 Jan 2005 13:46:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261522AbVAGSqV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 7 Jan 2005 13:39:42 -0500
-Received: from 168.imtp.Ilyichevsk.Odessa.UA ([195.66.192.168]:15375 "HELO
-	port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with SMTP
-	id S261424AbVAGSjk convert rfc822-to-8bit (ORCPT
+	Fri, 7 Jan 2005 13:46:21 -0500
+Received: from rproxy.gmail.com ([64.233.170.198]:41501 "EHLO rproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261424AbVAGSqU (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 7 Jan 2005 13:39:40 -0500
-From: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
-To: Antonio de Candia <decandia@na.infn.it>, linux-kernel@vger.kernel.org
-Subject: Re: Tyan Thunder K7X Pro Ethernet Card
-Date: Fri, 7 Jan 2005 20:39:29 +0200
-User-Agent: KMail/1.5.4
-References: <200501031244.58929.decandia@na.infn.it>
-In-Reply-To: <200501031244.58929.decandia@na.infn.it>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="koi8-r"
-Content-Transfer-Encoding: 8BIT
-Content-Disposition: inline
-Message-Id: <200501072039.29962.vda@port.imtp.ilyichevsk.odessa.ua>
+	Fri, 7 Jan 2005 13:46:20 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
+        b=KGl33VdW6Gof0iD97ZShLjlWc4nUNTYsVi5LoKyQoe6+t/YUA/jsgkiYixmriybcL+G3SzJk7P4HXYsLCNxBJz8gBReAL8KzTuh+rkebfbmPHidCcbfkzVTGmq4OpNw5ypWxEkjE6sTFP3UYmLcMx+CnzOOgDJKAKzvM99PCQbs=
+Message-ID: <5a2cf1f6050107104656ff8197@mail.gmail.com>
+Date: Fri, 7 Jan 2005 19:46:16 +0100
+From: jerome lacoste <jerome.lacoste@gmail.com>
+Reply-To: jerome lacoste <jerome.lacoste@gmail.com>
+To: "Randy.Dunlap" <rddunlap@osdl.org>
+Subject: Re: 2.6.x features log
+Cc: lkml <linux-kernel@vger.kernel.org>
+In-Reply-To: <41DEC82C.4040502@osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+References: <41DEC82C.4040502@osdl.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 03 January 2005 13:44, Antonio de Candia wrote:
-> Hallo,
+On Fri, 07 Jan 2005 09:34:36 -0800, Randy.Dunlap <rddunlap@osdl.org> wrote:
 > 
-> I have an APPRO node with Tyan Thunder K7X Pro (S2469)
-> motherboard.
-> It has two onboard Ethernet controllers, 
->     - Intel® 82545EM 10/100/1000Mbps controller
->     - Intel® 82551QM 10/100Mbps controller
-> (as stated on www.tyan.de)
-> I installed Linux Slackware 10.0, and used the modules
-> e1000 and e100 for the two ethernet cards...
-> The first eth0 works well with the e1000 driver, but 
-> eth1 with e100 does not work... if I scp a big file,
-> after transmitting some megabytes it hangs (scp says
-> "-- stalled --")
-> The same happens with http transfers...
-> I tried also with eepro100 driver, but nothing changes...
+> I think that people really like the Dave Jones
+> 2.5/2.6 halloween information/update.  It contained a lot
+> of useful info in one place, with pointers to more details.
 
-Anything in the logs? What does "tcpdump -nlieth1" show?
-Does it survive floodpinging? Large HTTP downloads?
-Do HTTP downloads from nearby box have expected throughput?
-etc...
---
-vda
+I loved going through the kernel newbies status:
 
+http://www.kernelnewbies.org/status/
+
+Unfortunately it's not updated anymore.
+
+J

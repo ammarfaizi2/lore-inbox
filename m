@@ -1,38 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261498AbUC3Wo7 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 Mar 2004 17:44:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261524AbUC3Wmj
+	id S261500AbUC3Wsj (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 Mar 2004 17:48:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261567AbUC3Wpn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 Mar 2004 17:42:39 -0500
-Received: from uslink-66.173.43-133.uslink.net ([66.173.43.133]:40095 "EHLO
-	dingdong.cryptoapps.com") by vger.kernel.org with ESMTP
-	id S261576AbUC3Wl3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 Mar 2004 17:41:29 -0500
-Date: Tue, 30 Mar 2004 14:41:27 -0800
-From: Chris Wedgwood <cw@f00f.org>
-To: Jeff Garzik <jgarzik@pobox.com>
-Cc: "Stephen C. Tweedie" <sct@redhat.com>, Chris Mason <mason@suse.com>,
-       Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>,
-       Jens Axboe <axboe@suse.de>, Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] barrier patch set
-Message-ID: <20040330224127.GA1469@dingdong.cryptoapps.com>
-References: <20040319153554.GC2933@suse.de> <200403201723.11906.bzolnier@elka.pw.edu.pl> <1079800362.11062.280.camel@watt.suse.com> <200403201805.26211.bzolnier@elka.pw.edu.pl> <1080662685.1978.25.camel@sisko.scot.redhat.com> <1080674384.3548.36.camel@watt.suse.com> <1080683417.1978.53.camel@sisko.scot.redhat.com> <4069F2FC.90003@pobox.com> <20040330223625.GA1245@dingdong.cryptoapps.com> <4069F71E.1040801@pobox.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <4069F71E.1040801@pobox.com>
+	Tue, 30 Mar 2004 17:45:43 -0500
+Received: from bay-bridge.veritas.com ([143.127.3.10]:22158 "EHLO
+	MTVMIME02.enterprise.veritas.com") by vger.kernel.org with ESMTP
+	id S261500AbUC3Wna (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 30 Mar 2004 17:43:30 -0500
+Date: Tue, 30 Mar 2004 23:43:26 +0100 (BST)
+From: Hugh Dickins <hugh@veritas.com>
+X-X-Sender: hugh@localhost.localdomain
+To: Andrew Morton <akpm@osdl.org>
+cc: Andrea Arcangeli <andrea@suse.de>,
+       Rajesh Venkatasubramanian <vrajesh@umich.edu>,
+       <linux-kernel@vger.kernel.org>
+Subject: [PATCH 1/6] fork vma order
+Message-ID: <Pine.LNX.4.44.0403302340220.24019-100000@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Mar 30, 2004 at 05:39:26PM -0500, Jeff Garzik wrote:
+First of six patches against 2.6.5-rc3, cleaning up mremap's move_vma,
+and fixing truncation orphan issues raised by Rajesh Venkatasubramanian.
+Originally done as part of the anonymous objrmap work on mremap move,
+but useful fixes now extracted for mainline.  The mremap changes need
+some exposure in the -mm tree first, but the first (fork one-liner)
+is safe enough to go straight into 2.6.5.
 
-> I'm suspicious of this, because of Bart's point...  I haven't seen
-> any PATA disks that did FUA, so it sounds like broken software.
+ include/linux/mm.h |    3 
+ kernel/fork.c      |    2 
+ mm/mmap.c          |   70 ++++++++++++++--
+ mm/mremap.c        |  221 +++++++++++++++++++----------------------------------
+ mm/rmap.c          |    3 
+ 5 files changed, 149 insertions(+), 150 deletions(-)
 
-I was kinda hoping that the response would be "all modern SATA and
-PATA dirves" because ideally this would be a nice thing to have.
-Maybe we should just test in a few places and see if it works (timing
-will show obviously).
+[PATCH] 1/6 fork vma order
 
+>From Rajesh Venkatasubramanian: despite the comment that child vma
+should be inserted just after parent vma, 2.5.6 did exactly the reverse:
+thus a racing vmtruncate may free the child's ptes, then advance to the
+parent, and meanwhile copy_page_range has propagated more ptes from the
+parent to the child, leaving file pages still mapped after truncation.
+
+--- 2.6.5-rc3/kernel/fork.c	2004-03-11 01:56:07.000000000 +0000
++++ mremap1/kernel/fork.c	2004-03-30 21:24:25.839880544 +0100
+@@ -322,7 +322,7 @@ static inline int dup_mmap(struct mm_str
+       
+ 			/* insert tmp into the share list, just after mpnt */
+ 			down(&file->f_mapping->i_shared_sem);
+-			list_add_tail(&tmp->shared, &mpnt->shared);
++			list_add(&tmp->shared, &mpnt->shared);
+ 			up(&file->f_mapping->i_shared_sem);
+ 		}
+ 
 

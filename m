@@ -1,49 +1,47 @@
 Return-Path: <owner-linux-kernel-outgoing@vger.rutgers.edu>
-Received: (majordomo@vger.rutgers.edu) by vger.rutgers.edu via listexpand id <S157672AbQGaStk>; Mon, 31 Jul 2000 14:49:40 -0400
-Received: by vger.rutgers.edu id <S157620AbQGaSrl>; Mon, 31 Jul 2000 14:47:41 -0400
-Received: from [194.25.81.131] ([194.25.81.131]:3835 "EHLO ns.weiden.de") by vger.rutgers.edu with ESMTP id <S160004AbQGaSrJ>; Mon, 31 Jul 2000 14:47:09 -0400
-Date: Mon, 31 Jul 2000 22:06:03 +0200 (CEST)
-From: Mike Galbraith <mikeg@weiden.de>
-To: "Richard B. Johnson" <root@chaos.analogic.com>
-Cc: Kai Henningsen <kaih@khms.westfalen.de>, linux-kernel@vger.rutgers.edu
+Received: (majordomo@vger.rutgers.edu) by vger.rutgers.edu via listexpand id <S160056AbQGaU5D>; Mon, 31 Jul 2000 16:57:03 -0400
+Received: by vger.rutgers.edu id <S160018AbQGaU4J>; Mon, 31 Jul 2000 16:56:09 -0400
+Received: from enterprise.cistron.net ([195.64.68.33]:1079 "EHLO enterprise.cistron.net") by vger.rutgers.edu with ESMTP id <S159990AbQGaUzh>; Mon, 31 Jul 2000 16:55:37 -0400
+From: miquels@cistron.nl (Miquel van Smoorenburg)
 Subject: Re: RLIM_INFINITY inconsistency between archs
-In-Reply-To: <Pine.LNX.3.95.1000731132321.529A-100000@chaos.analogic.com>
-Message-ID: <Pine.Linu.4.10.10007312111270.410-100000@mikeg.weiden.de>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Date: 31 Jul 2000 21:15:43 GMT
+Organization: Cistron Internet Services B.V.
+Message-ID: <8m4q9v$871$1@enterprise.cistron.net>
+References: <7iw6kYsXw-B@khms.westfalen.de> <Pine.LNX.3.95.1000731132321.529A-100000@chaos.analogic.com>
+X-Trace: enterprise.cistron.net 965078143 8417 195.64.65.200 (31 Jul 2000 21:15:43 GMT)
+X-Complaints-To: abuse@cistron.nl
+To: linux-kernel@vger.rutgers.edu
 Sender: owner-linux-kernel@vger.rutgers.edu
 
-On Mon, 31 Jul 2000, Richard B. Johnson wrote:
+In article >Pine.LNX.3.95.1000731132321.529A-100000@chaos.analogic.com>,
+Richard B. Johnson <root@chaos.analogic.com> wrote:
+> /usr/include/linux and /usr/include/asm are symbolic links, referenced
+>to /usr/src/linux, not a specific version. This makes changing kernel
+>development versions a simple change of a single symbolic link.
 
-> On 31 Jul 2000, Kai Henningsen wrote:
-> 
-> > pollard@tomcat.admin.navo.hpc.mil (Jesse Pollard)  wrote on 27.07.00 in <200007271531.KAA89926@tomcat.admin.navo.hpc.mil>:
-> > 
-> > > Might I suggest creating a "/lib/include" that works something like
-> > > the /lib/modules where the kernel name is used to generate the directory
-> > > for the kernel include files?
-> > >
-> > > That way the "uname -r" command could be used to set a symbolic link
-> > > to point to the correct include files at boot time (or install time).
-> > 
-> > Correct for what?
-> > 
+No. Even Linus himself has been saying for years (and recently even
+in this thread) that /usr/include/linux and /usr/include/asm should
+NOT EVER be symlinks to /usr/src/linux
 
-<snip>
+Everything in /usr/include belongs to and depends on glibc, not
+the currently running kernel.
 
-> Why would anybody change this? I fear that this is another of those;
-> "It doesn't have to be better, only different..." things that have
-> been going around.
+And if you want to compile modules and use /usr/include/linux for
+the include files, what are you going to do about networking
+modules that use include/net ? The one in the kernel source is
+very, very different from the one in glibc .. so you have to compile
+with -I/path/to/kernel/include _anyway_
 
-Well, I suspect that there is an issue for driver authors/maintainers,
-but haven't figured out quite what that issue is.  Why does it matter?
+You can't just use /usr/src/linux/include, what if you want to compile
+against another kernel version? What if you are not root ?
 
-I really couldn't care less where headers officially live.. as long as
-it's possiblle [preferably easy] to maintain them where _I_ want them.
-(and that is nowhere near /)
+The /lib/modules/version/ stuff is a good idea, but it should
+contain a `kernel-config' script that outputs the complete CFLAGS
+that the kernel was compiled with. Easy, simple, enduser friendly.
 
-	-Mike
-
+Mike.
+-- 
+Cistron Certified Internetwork Expert #1. Think free speech; drink free beer.
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

@@ -1,80 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266614AbSKGWgm>; Thu, 7 Nov 2002 17:36:42 -0500
+	id <S266615AbSKGWhY>; Thu, 7 Nov 2002 17:37:24 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266615AbSKGWgm>; Thu, 7 Nov 2002 17:36:42 -0500
-Received: from hellcat.admin.navo.hpc.mil ([204.222.179.34]:10709 "EHLO
-	hellcat.admin.navo.hpc.mil") by vger.kernel.org with ESMTP
-	id <S266614AbSKGWgk> convert rfc822-to-8bit; Thu, 7 Nov 2002 17:36:40 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Jesse Pollard <pollard@admin.navo.hpc.mil>
-To: Daniel Jacobowitz <dan@debian.org>, linux-kernel@vger.kernel.org
-Subject: Re: Why are exe, cwd, and root priviledged bits of information?
-Date: Thu, 7 Nov 2002 16:41:01 -0600
-User-Agent: KMail/1.4.1
-Cc: jw schultz <jw@pegasys.ws>
-References: <Pine.LNX.4.33L2.0211071052540.8252-100000@rtlab.med.cornell.edu> <20021107221615.GA2249@pegasys.ws> <20021107222854.GA31412@nevyn.them.org>
-In-Reply-To: <20021107222854.GA31412@nevyn.them.org>
+	id <S266618AbSKGWhX>; Thu, 7 Nov 2002 17:37:23 -0500
+Received: from dexter.citi.umich.edu ([141.211.133.33]:13696 "EHLO
+	dexter.citi.umich.edu") by vger.kernel.org with ESMTP
+	id <S266615AbSKGWhS>; Thu, 7 Nov 2002 17:37:18 -0500
+Date: Thu, 7 Nov 2002 17:43:54 -0500 (EST)
+From: Chuck Lever <cel@citi.umich.edu>
+To: Linus Torvalds <torvalds@transmeta.com>
+cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Linux NFS List <nfs@lists.sourceforge.net>
+Subject: [PATCH] too many setattr calls from VFS layer
+Message-ID: <Pine.LNX.4.44.0211071740520.18237-100000@dexter.citi.umich.edu>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <200211071641.01585.pollard@admin.navo.hpc.mil>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 07 November 2002 04:28 pm, Daniel Jacobowitz wrote:
-> On Thu, Nov 07, 2002 at 02:16:15PM -0800, jw schultz wrote:
-> > On Thu, Nov 07, 2002 at 11:05:21AM -0500, Daniel Jacobowitz wrote:
-> > > On Thu, Nov 07, 2002 at 10:57:06AM -0500, Calin A. Culianu wrote:
-> > > > In the /prod/PID subset of procfs, why are the exe, cwd, and root
-> > > > symlinks considered priviledged information?
-> > > >
-> > > > Exe is the big one for me, as this one can be usually infered from
-> > > > reading /prod/PID/maps.  Root I guess can't be inferred in any
-> > > > unpriviledged way, and neither can cwd.  At any rate.. I am not sure
-> > > > behind the philosophy to make these symlinks' destinations
-> > > > priviledged...  can someone clarify this?
-> > >
-> > > This came up a little while ago.  The answer is that maps should be
-> > > priviledged also.
-> > >
-> > > For instance:
-> > >   You can protect a directory by giving its parent directory no read
-> > > permissions.  The name of the directory is now secret.  You don't want
-> > > to reveal it in cwd.
-> >
-> > Daniel is correct in that the issue came up recently.  He
-> > gives _his_ answer above.  If you believe in security
-> > through obscurity you will agree with him.  I don't.
-> > I will agree that there should be no real reason to need
-> > access to this information.
-> >
-> > With ACLs you will be able to explicitly grant access and
-> > you won't have to depend on keeping shared info secret.
-> > Then this will be less of an issue.
->
-> I recommend you go think about what security through obscurity actually
-> _means_.  If you think that an unreadable directory and a
-> randomly-generated subdirectory is security through obscurity, then in
-> what way is it actually different from a _password_?  That's what it
-> is.
->
-> Yes, this is poor-man's-ACLs.  It works in a lot of places when ACLs
-> won't.  For instance, an anonymous FTP server...
+new code in 2.5 VFS layer invokes notify_change to clear the suid and sgid
+bits for every write request.  notify_change needs to optimize out calls
+to ->setattr that don't do anything, because for many network file
+systems, an on-the-wire SETATTR request is generated for every ->setattr
+call, resulting in unnecessary latency for NFS writes.
 
-It also isn't necessarily just for obscurity.
 
-If the directory contains customer contact lists, where each customer
-is represented by a directory entry, and all communications to/from that
-customer is stored in files. You don't want the cwd to be exposed by
-a process that may set its' workspace to a specific customer.
+diff -ruN 05-nfsroot/fs/attr.c 06-setattr/fs/attr.c
+--- 05-nfsroot/fs/attr.c	Mon Nov  4 17:30:07 2002
++++ 06-setattr/fs/attr.c	Thu Nov  7 17:31:37 2002
+@@ -134,6 +134,7 @@
+ 	if (!(ia_valid & ATTR_MTIME_SET))
+ 		attr->ia_mtime = now;
+ 	if (ia_valid & ATTR_KILL_SUID) {
++		attr->ia_valid &= ~ATTR_KILL_SUID;
+ 		if (mode & S_ISUID) {
+ 			if (!(ia_valid & ATTR_MODE)) {
+ 				ia_valid = attr->ia_valid |= ATTR_MODE;
+@@ -143,6 +144,7 @@
+ 		}
+ 	}
+ 	if (ia_valid & ATTR_KILL_SGID) {
++		attr->ia_valid &= ~ ATTR_KILL_SGID;
+ 		if ((mode & (S_ISGID | S_IXGRP)) == (S_ISGID | S_IXGRP)) {
+ 			if (!(ia_valid & ATTR_MODE)) {
+ 				ia_valid = attr->ia_valid |= ATTR_MODE;
+@@ -151,6 +153,8 @@
+ 			attr->ia_mode &= ~S_ISGID;
+ 		}
+ 	}
++	if (!attr->ia_valid)
++		return 0;
+ 
+ 	if (inode->i_op && inode->i_op->setattr) {
+ 		error = security_ops->inode_setattr(dentry, attr);
 
-That is NOT security by obscurity. Exposure is called a "leak".
-And it is entirely possible for sensitive information to be embeded
-in pathnames, process names, and parameters (most often).
-
--- 
--------------------------------------------------------------------------
-Jesse I Pollard, II
-Email: pollard@navo.hpc.mil
-
-Any opinions expressed are solely my own.

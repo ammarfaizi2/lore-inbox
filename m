@@ -1,68 +1,81 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261412AbTCaGYt>; Mon, 31 Mar 2003 01:24:49 -0500
+	id <S261413AbTCaGZ1>; Mon, 31 Mar 2003 01:25:27 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261413AbTCaGYt>; Mon, 31 Mar 2003 01:24:49 -0500
-Received: from ns.virtualhost.dk ([195.184.98.160]:16608 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id <S261412AbTCaGYs>;
-	Mon, 31 Mar 2003 01:24:48 -0500
-Date: Mon, 31 Mar 2003 08:35:48 +0200
-From: Jens Axboe <axboe@suse.de>
-To: Mike Galbraith <efault@gmx.de>
-Cc: Con Kolivas <kernel@kolivas.org>, Robert Love <rml@tech9.net>,
-       Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>,
-       Peter Lundkvist <p.lundkvist@telia.com>, akpm@digeo.com, mingo@elte.hu,
-       LKML <linux-kernel@vger.kernel.org>
-Subject: Re: Bad interactive behaviour in 2.5.65-66 (sched.c)
-Message-ID: <20030331063548.GQ917@suse.de>
-References: <20030330141404.GG917@suse.de> <3E8610EA.8080309@telia.com> <1048992365.13757.23.camel@localhost> <20030330141404.GG917@suse.de> <5.2.0.9.2.20030331033120.00cf0d08@pop.gmx.net>
+	id <S261415AbTCaGZ1>; Mon, 31 Mar 2003 01:25:27 -0500
+Received: from supreme.pcug.org.au ([203.10.76.34]:50862 "EHLO pcug.org.au")
+	by vger.kernel.org with ESMTP id <S261413AbTCaGZU>;
+	Mon, 31 Mar 2003 01:25:20 -0500
+Date: Mon, 31 Mar 2003 16:36:25 +1000
+From: Stephen Rothwell <sfr@canb.auug.org.au>
+To: Linus <torvalds@transmeta.com>
+Cc: "David S. Miller" <davem@redhat.com>, LKML <linux-kernel@vger.kernel.org>,
+       Randolph Chung <randolph@tausq.org>
+Subject: [PATCH][COMPAT] fix for net/compat.c
+Message-Id: <20030331163625.733559b7.sfr@canb.auug.org.au>
+X-Mailer: Sylpheed version 0.8.11 (GTK+ 1.2.10; i386-debian-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <5.2.0.9.2.20030331033120.00cf0d08@pop.gmx.net>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Mar 31 2003, Mike Galbraith wrote:
-> At 07:06 AM 3/31/2003 +1000, Con Kolivas wrote:
-> >On Mon, 31 Mar 2003 00:14, Jens Axboe wrote:
-> >> On Sat, Mar 29 2003, Robert Love wrote:
-> >> > On Sat, 2003-03-29 at 21:33, Con Kolivas wrote:
-> >> > > Are you sure this should be called a bug? Basically X is an 
-> >interactive
-> >> > > process. If it now is "interactive for a priority -10 process" then 
-> >it
-> >> > > should be hogging the cpu time no? The priority -10 was a workaround
-> >> > > for lack of interactivity estimation on the old scheduler.
-> >> >
-> >> > Well, I do not necessarily think that renicing X is the problem.  Just
-> >> > an idea.
-> >>
-> >> I see the exact same behaviour here (systems appears fine, cpu intensive
-> >> app running, attempting to start anything _new_ stalls for ages), and I
-> >> definitely don't play X renice tricks.
-> >>
-> >> It basically made 2.5 unusable here, waiting minutes for an ls to even
-> >> start displaying _anything_ is totally unacceptable.
-> >
-> >I guess I should have trusted my own benchmark that was showing this was 
-> >worse
-> >for system responsiveness.
-> 
-> I don't think it's really bad for system responsiveness.  I think the 
+Hi Linus, Dave,
 
-What drugs are you on? 2.5.65/66 is the worst interactive kernel I've
-ever used, it would be _embarassing_ to release a 2.6-test with such a
-rudimentary flaw in it. IOW, a big show stopper.
+This is basically a patch from Randolph Chung who tells me that when
+a syscall is done from the kernel, you cannot pass user mode pointers
+to it on some architectures.  So we need to copy the sock_filter
+array into kernel space before we pass it to the real system call.
 
-> problem is just that the sample is too small.  The proof is that simply 
-> doing sleep_time %= HZ cures most of my woes.  WRT contest and it's 
+His original patch (which does the same thing) has been tested on
+parisc64-linux and this patch has been cross compiled for ppc64-linux.
 
-Irk, that sounds like a really ugly bandaid.
-
-I'm wondering why the scheduler guys aren't all over this problem,
-getting it fixed.
+Please apply.
 
 -- 
-Jens Axboe
+Cheers,
+Stephen Rothwell                    sfr@canb.auug.org.au
+http://www.canb.auug.org.au/~sfr/
 
+diff -ruN 2.5.66-033114/net/compat.c 2.5.66-033114-netfix/net/compat.c
+--- 2.5.66-033114/net/compat.c	2003-03-25 12:08:29.000000000 +1100
++++ 2.5.66-033114-netfix/net/compat.c	2003-03-31 16:08:02.000000000 +1000
+@@ -496,6 +496,7 @@
+ 	struct sock_fprog kfprog;
+ 	mm_segment_t old_fs;
+ 	compat_uptr_t uptr;
++	unsigned int fsize;
+ 	int ret;
+ 
+ 	if (!access_ok(VERIFY_READ, fprog32, sizeof(*fprog32)) ||
+@@ -503,15 +504,14 @@
+ 	    __get_user(uptr, &fprog32->filter))
+ 		return -EFAULT;
+ 
+-	kfprog.filter = compat_ptr(uptr);
+-	/*
+-	 * Since struct sock_filter is architecure independent,
+-	 * we can just do the access_ok check and pass the
+-	 * same pointer to the real syscall.
+-	 */
+-	if (!access_ok(VERIFY_READ, kfprog.filter,
+-			kfprog.len * sizeof(struct sock_filter)))
++	fsize = kfprog.len * sizeof(struct sock_filter);
++	kfprog.filter = (struct sock_filter *)kmalloc(fsize, GFP_KERNEL);
++	if (kfprog.filter == NULL)
++		return -ENOMEM;
++	if (copy_from_user(kfprog.filter, compat_ptr(uptr), fsize)) {
++		kfree(kfprog.filter);
+ 		return -EFAULT;
++	}
+ 
+ 	old_fs = get_fs();
+ 	set_fs(KERNEL_DS);
+@@ -519,6 +519,7 @@
+ 			     (char *)&kfprog, sizeof(kfprog));
+ 	set_fs(old_fs);
+ 
++	kfree(kfprog.filter);
+ 	return ret;
+ }
+ 

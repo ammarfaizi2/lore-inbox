@@ -1,36 +1,33 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268922AbRHYMKw>; Sat, 25 Aug 2001 08:10:52 -0400
+	id <S268940AbRHYMiv>; Sat, 25 Aug 2001 08:38:51 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268963AbRHYMKm>; Sat, 25 Aug 2001 08:10:42 -0400
-Received: from harpo.it.uu.se ([130.238.12.34]:28576 "EHLO harpo.it.uu.se")
-	by vger.kernel.org with ESMTP id <S268922AbRHYMKh>;
-	Sat, 25 Aug 2001 08:10:37 -0400
-Date: Sat, 25 Aug 2001 14:10:33 +0200 (MET DST)
-From: Mikael Pettersson <mikpe@csd.uu.se>
-Message-Id: <200108251210.OAA25028@harpo.it.uu.se>
-To: ionut@cs.columbia.edu
+	id <S268958AbRHYMib>; Sat, 25 Aug 2001 08:38:31 -0400
+Received: from mailc.telia.com ([194.22.190.4]:36589 "EHLO mailc.telia.com")
+	by vger.kernel.org with ESMTP id <S268940AbRHYMiV>;
+	Sat, 25 Aug 2001 08:38:21 -0400
+Date: Sat, 25 Aug 2001 14:37:52 +0200
+From: =?iso-8859-1?Q?Andr=E9?= Dahlqvist <andre.dahlqvist@telia.com>
+To: linux-kernel@vger.kernel.org
 Subject: Re: [PATCH,RFC] make ide-scsi more selective
-Cc: alan@lxorguk.ukuu.org.uk, linux-kernel@vger.kernel.org
+Message-ID: <20010825143752.A4271@telia.com>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+In-Reply-To: <200108251210.OAA25028@harpo.it.uu.se>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <200108251210.OAA25028@harpo.it.uu.se>
+User-Agent: Mutt/1.3.20i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 25 Aug 2001 02:56:20 -0400 (EDT), Ion Badulescu wrote:
+Mikael Pettersson <mikpe@csd.uu.se> wrote:
 
->I've concocted another patch, which includes my previous one and
->implements Mikael's idea somewhat more consistently. It adds another
->option, "noscsi", so that by saying hdX=noscsi on the kernel command line
->the user can prevent the ide-scsi driver from ever claiming that drive.
->
->So:
->- by default it's first come, first served
->- hdX=scsi means only the ide-scsi driver can claim hdX
->- hdX=noscsi means the ide-scsi driver must not claim hdX ever
->
->Sounds good? If so, please apply, it makes many CDR users' lives easier.
+> p.s. anyone know if cdrecord will ever support ATAPI CDRs natively?
 
-Looks fine to me. Tested briefly and it does get the job done.
+There are no cd-recoders which are completely ATAPI only. Read the cdrecord
+website.
+-- 
 
-/Mikael
-
-p.s. anyone know if cdrecord will ever support ATAPI CDRs natively?
+André Dahlqvist <andre.dahlqvist@telia.com>

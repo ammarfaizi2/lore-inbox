@@ -1,58 +1,104 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265008AbTF1A1P (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 27 Jun 2003 20:27:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265000AbTF1A05
+	id S265032AbTF1Aat (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 27 Jun 2003 20:30:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264983AbTF1AaZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 27 Jun 2003 20:26:57 -0400
-Received: from franka.aracnet.com ([216.99.193.44]:19895 "EHLO
-	franka.aracnet.com") by vger.kernel.org with ESMTP id S265012AbTF1AY4
+	Fri, 27 Jun 2003 20:30:25 -0400
+Received: from e31.co.us.ibm.com ([32.97.110.129]:41938 "EHLO
+	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S265007AbTF1A2z
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 27 Jun 2003 20:24:56 -0400
-Date: Fri, 27 Jun 2003 17:38:45 -0700
-From: "Martin J. Bligh" <mbligh@aracnet.com>
-To: Andrew Morton <akpm@digeo.com>, Ben Collins <bcollins@debian.org>
-cc: davidel@xmailserver.org, davem@redhat.com, linux-kernel@vger.kernel.org,
-       linux-net@vger.kernel.org, netdev@oss.sgi.com
-Subject: Re: networking bugs and bugme.osdl.org
-Message-ID: <35240000.1056760723@[10.10.2.4]>
-In-Reply-To: <20030627162527.714091ce.akpm@digeo.com>
-References: <20030626.224739.88478624.davem@redhat.com><21740000.1056724453@[10.10.2.4]><Pine.LNX.4.55.0306270749020.4137@bigblue.dev.mcafeelabs.com><20030627.143738.41641928.davem@redhat.com><Pine.LNX.4.55.0306271454490.4457@bigblue.dev.mcafeelabs.com><20030627213153.GR501@phunnypharm.org> <20030627162527.714091ce.akpm@digeo.com>
-X-Mailer: Mulberry/2.2.1 (Linux/x86)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Fri, 27 Jun 2003 20:28:55 -0400
+Subject: [PATCH] linux-2.4.22-pre2_x440-acpi-fix_A0
+From: john stultz <johnstul@us.ibm.com>
+To: Andrew Grover <andrew.grover@intel.com>
+Cc: lkml <linux-kernel@vger.kernel.org>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1056760485.28320.242.camel@w-jstultz2.beaverton.ibm.com>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.4 
+Date: 27 Jun 2003 17:34:45 -0700
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I also.  The bug database tries to convert the traditional many<->many
-> debugging process into a one<->one process.  This surely results in a
-> lower cleanup rate.
+Andy, all,
+	This patch fixes the new ACPI booting code to work XAPIC systems like
+the IBM x440s. Please add to your tree and send to Marcelo.
 
-I think your suggestion of sending new bugs out to LKML has made a big
-dent in the one<->one problem already. Replacing all the default owner 
-fields with mailing lists (either existing ones or new ones) instead of 
-individuals would be another step in that direction, though there may
-be a few hurdles to deal with on the way to that.
+thanks
+-john
 
-Yes, we probably also need an "email back in" interface as we've 
-discussed before to take it up to many-many.
+diff -Nru a/arch/i386/kernel/acpi.c b/arch/i386/kernel/acpi.c
+--- a/arch/i386/kernel/acpi.c	Fri Jun 27 17:28:24 2003
++++ b/arch/i386/kernel/acpi.c	Fri Jun 27 17:28:24 2003
+@@ -129,6 +129,8 @@
+ 	printk(KERN_INFO PREFIX "Local APIC address 0x%08x\n",
+ 		madt->lapic_address);
+ 
++	acpi_madt_oem_check(madt->header.oem_id, madt->header.oem_table_id);
++
+ 	return 0;
+ }
+ 
+diff -Nru a/arch/i386/kernel/io_apic.c b/arch/i386/kernel/io_apic.c
+--- a/arch/i386/kernel/io_apic.c	Fri Jun 27 17:28:24 2003
++++ b/arch/i386/kernel/io_apic.c	Fri Jun 27 17:28:24 2003
+@@ -1732,6 +1732,13 @@
+ 		apic_id = reg_00.ID;
+ 	}
+ 
++	/* XAPICs do not need unique IDs */
++	if (clustered_apic_mode == CLUSTERED_APIC_XAPIC){
++		printk(KERN_INFO "IOAPIC[%d]: Assigned apic_id %d\n", 
++			ioapic, apic_id);
++		return apic_id;
++	}
++
+ 	/*
+ 	 * Every APIC in a system must have a unique ID or we get lots of nice 
+ 	 * 'stuck on smp_invalidate_needed IPI wait' messages.
+diff -Nru a/arch/i386/kernel/mpparse.c b/arch/i386/kernel/mpparse.c
+--- a/arch/i386/kernel/mpparse.c	Fri Jun 27 17:28:24 2003
++++ b/arch/i386/kernel/mpparse.c	Fri Jun 27 17:28:24 2003
+@@ -1252,6 +1252,23 @@
+ 	io_apic_set_pci_routing(ioapic, ioapic_pin, irq);
+ }
+ 
++/* Hook from generic ACPI tables.c */
++void __init acpi_madt_oem_check(char *oem_id, char *oem_table_id)
++{
++	if (!strncmp(oem_id, "IBM", 3) &&
++	    (!strncmp(oem_table_id, "SERVIGIL", 8) ||
++	     !strncmp(oem_table_id, "EXA", 3) ||
++	     !strncmp(oem_table_id, "RUTHLESS", 8))){
++		clustered_apic_mode = CLUSTERED_APIC_XAPIC;
++		apic_broadcast_id = APIC_BROADCAST_ID_XAPIC;
++		int_dest_addr_mode = APIC_DEST_PHYSICAL;
++		int_delivery_mode = dest_Fixed;
++		esr_disable = 1;
++		/*Start cyclone clock*/
++		cyclone_setup(0);
++	}
++}
++
+ #ifdef CONFIG_ACPI_PCI
+ 
+ void __init mp_parse_prt (void)
+diff -Nru a/include/asm-i386/acpi.h b/include/asm-i386/acpi.h
+--- a/include/asm-i386/acpi.h	Fri Jun 27 17:28:24 2003
++++ b/include/asm-i386/acpi.h	Fri Jun 27 17:28:24 2003
+@@ -165,6 +165,9 @@
+ /* early initialization routine */
+ extern void acpi_reserve_bootmem(void);
+ 
++/* Check for special HW using OEM name lists */
++extern void acpi_madt_oem_check(char *oem_id, char *oem_table_id);
++
+ #endif /*CONFIG_ACPI_SLEEP*/
+ 
+ 
 
-> It is nice to have a record.  But bugzilla is not a comfortable or
-> productive environment within which to drill down into and fix problems.
-
-OK ... But I'd rather try to fix it than to throw the baby out with the 
-bath water. I don't believe it's "unfixable" - the concept of tracking
-bugs / problems and making sure they're closed out still seems sound to me.
-
-As an example, I've seen several examples already where I've pestered 
-people about bugs that already had patches attatched to them that resulted 
-in "oh, yeah, I forgot to actually submit that", and it's got fixes back 
-into mainline. I find it somewhat hard to believe that just about every
-other big project (including open source ones) uses some form of bug 
-tracking system, and yet Linux is somehow magically different ;-)
-
-M.
 
 

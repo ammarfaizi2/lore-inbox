@@ -1,47 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130847AbRAZOgn>; Fri, 26 Jan 2001 09:36:43 -0500
+	id <S131257AbRAZOlZ>; Fri, 26 Jan 2001 09:41:25 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131366AbRAZOge>; Fri, 26 Jan 2001 09:36:34 -0500
-Received: from ns.virtualhost.dk ([195.184.98.160]:12562 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id <S130847AbRAZOgX>;
-	Fri, 26 Jan 2001 09:36:23 -0500
-Date: Fri, 26 Jan 2001 15:36:14 +0100
-From: Jens Axboe <axboe@suse.de>
-To: "Gregory T. Norris" <haphazard@socket.net>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: 2.4.0 CDROM problem, ILLEGAL REQUEST
-Message-ID: <20010126153614.B19513@suse.de>
-In-Reply-To: <20010121120512.A22848@glitch.snoozer.net>
-Mime-Version: 1.0
+	id <S131305AbRAZOlQ>; Fri, 26 Jan 2001 09:41:16 -0500
+Received: from pizda.ninka.net ([216.101.162.242]:18578 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S131257AbRAZOlE>;
+	Fri, 26 Jan 2001 09:41:04 -0500
+From: "David S. Miller" <davem@redhat.com>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20010121120512.A22848@glitch.snoozer.net>; from haphazard@socket.net on Sun, Jan 21, 2001 at 12:05:12PM -0600
+Content-Transfer-Encoding: 7bit
+Message-ID: <14961.35880.887884.1405@pizda.ninka.net>
+Date: Fri, 26 Jan 2001 06:39:36 -0800 (PST)
+To: Jamie Lokier <lk@tantalophile.demon.co.uk>
+Cc: James Sutherland <jas88@cam.ac.uk>,
+        Matti Aarnio <matti.aarnio@zmailer.org>,
+        "H. Peter Anvin" <hpa@zytor.com>, linux-kernel@vger.kernel.org
+Subject: Re: hotmail not dealing with ECN
+In-Reply-To: <20010126151058.A6331@pcep-jamie.cern.ch>
+In-Reply-To: <14961.24658.319734.448248@pizda.ninka.net>
+	<Pine.SOL.4.21.0101261139150.15526-100000@orange.csi.cam.ac.uk>
+	<14961.25754.449497.640325@pizda.ninka.net>
+	<20010126151058.A6331@pcep-jamie.cern.ch>
+X-Mailer: VM 6.75 under 21.1 (patch 13) "Crater Lake" XEmacs Lucid
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Jan 21 2001, Gregory T. Norris wrote:
-> When playing audio CDs under kernel 2.4.0, syslog is showing the
-> following message repeatedly:
-> 
->      sr0: CDROM (ioctl) reports ILLEGAL REQUEST.
-> 
-> The command line utility cdplay seems to only cause this occasionally,
-> when I start playing a CD or skip to a different track, while gnome's
-> gtcd will generate it every few seconds... presumably gtcd is regularly
-> querying the drive.
-> 
-> I'm pretty sure that this wasn't occurring under the 2.4.0-testX
-> kernels, but I haven't verified this as they aren't currently
-> installed.
 
-Yes it's a new and known bug, sr_do_ioctl now does retries etc for
-queued packets from the uniform layer and thus we get some printkts
-that you normally wouldn't see. The error should only be cosmetic.
+Jamie Lokier writes:
+ > Ignore only _one_ RST frame (the first one)
 
--- 
-* Jens Axboe <axboe@suse.de>
-* SuSE Labs
+Hmmm... let me say it for the hundreth time.
+
+Valid RST frames cannot be ignored under any circumstances.
+It is a full failure, period.
+
+The RST frame does not indicate why it happened, so you may not intuit
+the reason, "retry" the connection, or anything else like that.  It
+means connection failed, and we must return error from connect().
+
+Nothing else is acceptable.
+
+Later,
+David S. Miller
+davem@redhat.com
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

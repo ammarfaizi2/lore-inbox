@@ -1,55 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269532AbUHZUJ1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269585AbUHZUSW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269532AbUHZUJ1 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 Aug 2004 16:09:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269570AbUHZUIz
+	id S269585AbUHZUSW (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 Aug 2004 16:18:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269567AbUHZUNw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 Aug 2004 16:08:55 -0400
-Received: from waste.org ([209.173.204.2]:56476 "EHLO waste.org")
-	by vger.kernel.org with ESMTP id S269558AbUHZUCL (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 Aug 2004 16:02:11 -0400
-Date: Thu, 26 Aug 2004 15:01:53 -0500
-From: Matt Mackall <mpm@selenic.com>
-To: linux-kernel <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>,
-       Jeff Moyer <jmoyer@redhat.com>
-Subject: [PATCH 4/5] netpoll: increase NAPI budget
-Message-ID: <20040826200153.GB31237@waste.org>
+	Thu, 26 Aug 2004 16:13:52 -0400
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:50659 "HELO
+	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
+	id S269494AbUHZUE5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 26 Aug 2004 16:04:57 -0400
+Date: Thu, 26 Aug 2004 22:04:44 +0200
+From: Adrian Bunk <bunk@fs.tum.de>
+To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: [2.4 patch][5/6] asm-i386/smpboot.h: fix gcc 3.4 compilation
+Message-ID: <20040826200444.GG12772@fs.tum.de>
+References: <20040826195133.GB12772@fs.tum.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.3.28i
+In-Reply-To: <20040826195133.GB12772@fs.tum.de>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Jeff Moyer <jmoyer@redhat.com>
+I got the following compile error when trying to build 2.4.28-pre2 using
+gcc 3.4:
 
-Hi, Matt,
+<--  snip  -->
 
-I've upped the poll budget to 16 and added a comment explaining why.  I
-definitely ran into this problem when testing netdump.
+...
+gcc-3.4 -D__KERNEL__ 
+-I/home/bunk/linux/kernel-2.4/linux-2.4.28-pre2-full/include -Wall 
+-Wstrict-prototypes -Wno-trigraphs -O2 -fno-strict-aliasing -fno-common 
+-fomit-frame-pointer -pipe -mpreferred-stack-boundary=2 -march=athlon 
+-fno-unit-at-a-time   -nostdinc -iwithprefix include 
+-DKBUILD_BASENAME=process  -c -o process.o process.c
+In file included from process.c:47:
+/home/bunk/linux/kernel-2.4/linux-2.4.28-pre2-full/include/asm/smpboot.h: 
+In function `target_cpus':
+/home/bunk/linux/kernel-2.4/linux-2.4.28-pre2-full/include/asm/smpboot.h:133: 
+error: label at end of compound statement
+make[1]: *** [process.o] Error 1
+make[1]: Leaving directory `/home/bunk/linux/kernel-2.4/linux-2.4.28-pre2-full/arch/i386/kernel'
 
-Signed-off-by: Jeff Moyer <jmoyer@redhat.com>
-Signed-off-by: Matt Mackall <mpm@selenic.com>
-
---- linux-2.6.7/net/core/netpoll.c.budget	2004-08-16 12:33:10.176533688 -0400
-+++ linux-2.6.7/net/core/netpoll.c	2004-08-16 12:37:15.510237296 -0400
-@@ -61,7 +61,13 @@ static int checksum_udp(struct sk_buff *
- 
- void netpoll_poll(struct netpoll *np)
- {
--	int budget = 1;
-+	/*
-+	 * In cases where there is bi-directional communications, reading
-+	 * only one message at a time can lead to packets being dropped by
-+	 * the network adapter, forcing superfluous retries and possibly
-+	 * timeouts.  Thus, we set our budget to a more reasonable value.
-+	 */
-+	int budget = 16;
- 
- 	if(!np->dev || !netif_running(np->dev) || !np->dev->poll_controller)
- 		return;
+<--  snip  -->
 
 
--- 
-Mathematics is the supreme nostalgia of our time.
+The patch below fixes this issue.
+
+
+Signed-off-by: Adrian Bunk <bunk@fs.tum.de>
+
+--- linux-2.4.28-pre2-full/include/asm-i386/smpboot.h.old	2004-08-26 19:45:06.000000000 +0200
++++ linux-2.4.28-pre2-full/include/asm-i386/smpboot.h	2004-08-26 19:48:47.000000000 +0200
+@@ -130,8 +130,8 @@
+ 			cpu = (cpu+1)%smp_num_cpus;
+ 			return cpu_to_physical_apicid(cpu);
+ 		default:
++			return cpu_online_map;
+ 	}
+-	return cpu_online_map;
+ }
+ #else
+ #define target_cpus() (cpu_online_map)
+

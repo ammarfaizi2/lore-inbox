@@ -1,62 +1,62 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312480AbSEMLWG>; Mon, 13 May 2002 07:22:06 -0400
+	id <S312601AbSEML3l>; Mon, 13 May 2002 07:29:41 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312938AbSEMLWF>; Mon, 13 May 2002 07:22:05 -0400
-Received: from [203.200.51.170] ([203.200.51.170]:25070 "EHLO
-	localhost.localdomain") by vger.kernel.org with ESMTP
-	id <S312480AbSEMLWE>; Mon, 13 May 2002 07:22:04 -0400
-Message-Id: <200205131138.g4DBcU526690@localhost.localdomain>
-Content-Type: text/plain; charset=US-ASCII
-From: rpm <rajendra.mishra@timesys.com>
-Reply-To: rajendra.mishra@timesys.com
-Organization: Timesys
-To: linux-kernel@vger.kernel.org
-Subject: ADS GCP reboots when running the application!
-Date: Mon, 13 May 2002 17:08:30 +0530
-X-Mailer: KMail [version 1.3.1]
+	id <S312973AbSEML3k>; Mon, 13 May 2002 07:29:40 -0400
+Received: from bay-bridge.veritas.com ([143.127.3.10]:19322 "EHLO
+	svldns02.veritas.com") by vger.kernel.org with ESMTP
+	id <S312601AbSEML3k>; Mon, 13 May 2002 07:29:40 -0400
+Date: Mon, 13 May 2002 12:32:26 +0100 (BST)
+From: Hugh Dickins <hugh@veritas.com>
+To: Florian Weimer <Weimer@CERT.Uni-Stuttgart.DE>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: swap_dup/swap_free: Bad swap file entry
+In-Reply-To: <87held2iyv.fsf@CERT.Uni-Stuttgart.DE>
+Message-ID: <Pine.LNX.4.21.0205131219590.966-100000@localhost.localdomain>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi !
-   I am using  "2.4.9-ac10-rmk2-np1-ads3"  kernel on ADS Graphic Client Board 
-(StrongARM). When i run the following c++  code the system reboots. 
+On Sun, 12 May 2002, Florian Weimer wrote:
+> What do these messages mean?  That something is terribly hosed?
 
-************************************************************************
-#include <iostream>
-#include <fstream>
-#include <string>
-#include <vector>
-#include <iterator>
+I'm afraid so.
 
-using namespace std;
+> swap_dup: Bad swap file entry 1842b040
+> VM: killing process cc1
+> swap_free: Bad swap file entry 1dab3064
+> swap_free: Bad swap file entry 1842b040
+> swap_free: Bad swap file entry 18429040
+> swap_free: Bad swap file entry 31d7303c
+> swap_free: Bad swap offset entry 31d71000
 
-int main(int argc, char** argv)
-{
-    string raw_filename = "input.out";
-    ifstream raw_file(raw_filename.c_str());
+They mean that junk (corruption) has been found in your pagetables
+- and the swap dup/free code was the first to notice.  Of course,
+it could sometimes mean that the swap allocation code has gone wrong,
+but from the numbers here (userspace pointers?) I'd guess not.
 
-    vector<long> data;
-   
-copy(istream_iterator<long>(raw_file),istream_iterator<long>(),back_inserter(data));
+The worry is not so much the bad entries identified by these messages,
+as the possible entries not reported, which looked like present page
+table entries, and may have led to the wrong pages being freed (but
+if all the corruption was userspace pointers, good chance that they
+all looked more like even swap entries than odd page table entries:
+I'm presuming x86).
 
-    data.erase(data.begin());
+> (This is from a UP 2.4.18 kernel with XFS 1.1 patches.)
+> 
+> Is this caused by a hardware defect (broken IDE interface, maybe; in
+> our case VIA vt8233)?
 
-    return 0;
-}
-**********************************************************************
-Here, "input.out" is a file containing 10000 numbers. If the numbers in the 
-file "input.out" are 5000 then the system works fine. 
-    The kernel is not showing any OOPS or panic  , it just reboots ! what i 
-think is that some double fault ( fault inside fault handler ) or  something 
-similar to that might be causing the precessor to reboot. Can someone  give 
-some direction  !
+That I can't judge.  I'd wonder about the XFS patches,
+but I've no good grounds for that suspicion.
 
-regards,
-rpm
+It looks as if a page is being used for two purposes (one of as your
+pagetable) at the same time, but how that comes about I don't know -
+though once it starts happening, the freeing of wrong pages as above
+an multiply the effect.  It's always worth giving memtest86 a go in
+such cases, but there's nothing here that particularly suggests bad
+memory as the culprit.
 
-ps: I am not attaching the "input.out" file due to large size if some wants 
-to test , i can send the file !
+Hugh
 

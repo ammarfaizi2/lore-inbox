@@ -1,37 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292373AbSCIBuK>; Fri, 8 Mar 2002 20:50:10 -0500
+	id <S292389AbSCIBwK>; Fri, 8 Mar 2002 20:52:10 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292383AbSCIBuA>; Fri, 8 Mar 2002 20:50:00 -0500
-Received: from ns.muni.cz ([147.251.4.33]:11172 "EHLO aragorn.ics.muni.cz")
-	by vger.kernel.org with ESMTP id <S292373AbSCIBtx>;
-	Fri, 8 Mar 2002 20:49:53 -0500
-To: linux-kernel@vger.kernel.org
-Subject: ACPI hangs on boot with K7SEM MoBo and Adaptec SCSI card
-X-URL: http://www.fi.muni.cz/~pekon/
-From: Petr Konecny <pekon@informatics.muni.cz>
-Date: 09 Mar 2002 02:49:49 +0100
-Message-ID: <qww3czaldc2.fsf@decibel.fi.muni.cz>
-User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.4 (Common Lisp)
+	id <S292383AbSCIBwA>; Fri, 8 Mar 2002 20:52:00 -0500
+Received: from rwcrmhc53.attbi.com ([204.127.198.39]:21380 "EHLO
+	rwcrmhc53.attbi.com") by vger.kernel.org with ESMTP
+	id <S292384AbSCIBvv>; Fri, 8 Mar 2002 20:51:51 -0500
+Message-ID: <3C896A97.7DA21DF9@didntduck.org>
+Date: Fri, 08 Mar 2002 20:51:19 -0500
+From: Brian Gerst <bgerst@didntduck.org>
+X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.5.6-pre3 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+CC: Thomas Hood <jdthood@mail.com>, linux-kernel@vger.kernel.org
+Subject: Re: PnP BIOS driver status
+In-Reply-To: <E16jW9m-0008NH-00@the-village.bc.nu>
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Alan Cox wrote:
+> 
+> > > The GDT descriptors are private to the PNP BIOS and constant values once
+> > > set up. No PnPBIOS call is made before the configuration is done.
+> > >
+> > > Seems ok to me - or am I missing something ?
+> >
+> > Two user processes calling functions through /proc...
+> 
+> The GDT descriptors are set up before /proc comes into being. I'm checking
+> 2.4 code here - has someone left old stuff in 2.5 ?
 
-I just got ECS K7SEM motherboard. ACPI power saving is enabled in BIOS
-and works in linux (at least halt turns the box off). However when I
-plug in Adaptec SCSI (2940AU) the machine hangs during boot after
-loading ACPI core subsystem. The last message is:
-ACPI: core subsystem version [20011018]
+PNP_TS1 and PNP_TS2 are changed on every call to the bios to point to
+where the data for the 32-bit code lives.
 
-I have 2.4.19-pre2-ac3 with both ACPI and APM compiled in.  I am booting
-with apm=off (otherwise acpi does not load).
-
-It's not really critical, since apm works too. I just thought I would
-have access to all the acpi goodies like temperature of the CPU.
-
-                                                Take care, Petr
 -- 
-No chinese, no fortune.
+
+						Brian Gerst

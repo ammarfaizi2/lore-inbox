@@ -1,34 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265380AbSJXK2m>; Thu, 24 Oct 2002 06:28:42 -0400
+	id <S265383AbSJXKhF>; Thu, 24 Oct 2002 06:37:05 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265381AbSJXK2m>; Thu, 24 Oct 2002 06:28:42 -0400
-Received: from rth.ninka.net ([216.101.162.244]:9117 "EHLO rth.ninka.net")
-	by vger.kernel.org with ESMTP id <S265380AbSJXK2l>;
-	Thu, 24 Oct 2002 06:28:41 -0400
-Subject: Re: O_DIRECT sockets? (was [RESEND] tuning linux for high network 
-	performance?)
-From: "David S. Miller" <davem@rth.ninka.net>
-To: Roy Sigurd Karlsbakk <roy@karlsbakk.net>
-Cc: Nivedita Singhvi <niv@us.ibm.com>, bert hubert <ahu@ds9a.nl>,
-       netdev@oss.sgi.com, Kernel mailing list <linux-kernel@vger.kernel.org>
-In-Reply-To: <200210241214.59812.roy@karlsbakk.net>
-References: <200210231218.18733.roy@karlsbakk.net>
-	<200210231726.21135.roy@karlsbakk.net> <3DB6CF9E.327E165F@us.ibm.com> 
-	<200210241214.59812.roy@karlsbakk.net>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
-Date: 24 Oct 2002 03:46:53 -0700
-Message-Id: <1035456413.10558.5.camel@rth.ninka.net>
-Mime-Version: 1.0
+	id <S265384AbSJXKhF>; Thu, 24 Oct 2002 06:37:05 -0400
+Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:52488 "EHLO
+	gatekeeper.tmr.com") by vger.kernel.org with ESMTP
+	id <S265383AbSJXKhE>; Thu, 24 Oct 2002 06:37:04 -0400
+Date: Thu, 24 Oct 2002 06:42:44 -0400 (EDT)
+From: Bill Davidsen <davidsen@tmr.com>
+To: "Martin J. Bligh" <mbligh@aracnet.com>
+cc: Rik van Riel <riel@conectiva.com.br>,
+       "Eric W. Biederman" <ebiederm@xmission.com>,
+       Dave McCracken <dmccr@us.ibm.com>, Andrew Morton <akpm@digeo.com>,
+       Linux Kernel <linux-kernel@vger.kernel.org>,
+       Linux Memory Management <linux-mm@kvack.org>
+Subject: Re: [PATCH 2.5.43-mm2] New shared page table patch
+In-Reply-To: <407130000.1035313347@flay>
+Message-ID: <Pine.LNX.3.96.1021024063555.14473A-100000@gatekeeper.tmr.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2002-10-24 at 03:14, Roy Sigurd Karlsbakk wrote:
-> I can't use sendfile(). I'm working with files > 4GB, and from man 2 sendfile:
+On Tue, 22 Oct 2002, Martin J. Bligh wrote:
 
-That's what sendfile64() is for.  In fact every vendor I am aware
-of is shipping the sys_sendfile64() patch in their kernels and
-an appropriately fixed up glibc.
+> > I'm just trying to decide what this might do for a news server with
+> > hundreds of readers mmap()ing a GB history file. Benchmarks show the 2.5
+> > has more latency the 2.4, and this is likely to make that more obvious.
+> > 
+> > Is there any way to to have this only on processes which really need it?
+> > define that any way you wish, including hanging a capability on the
+> > executable to get spt.
+> 
+> Uh, what are you referring to here? Large pages or shared pagetables?
+> You can't mmap filebacked stuff with larged pages (nixed by Linus).
+
+Shared pagetables, it's a non-root application.
+
+> And yes, large pages have to be specified explicitly by the app.
+> On the other hand, I don't think shared pagetables have an mmap hook,
+
+That could be interesting... so if the server has a mmap()ed file and
+forks a child when a connection comes in, the tables would get duplicated
+even with the patch? That's not going to help me.
+
+> though that'd be easy enough to add. And if you're not reading the whole 
+> history file, presumably the PTEs will only be sparsely instantiated anyway.
+
+I have to go back and look at that code to be sure, you may be right.
+There certainly are other things which are mmap()ed by all children (or
+threads, depending on implementation) which might benefit since they're
+moderately large and do have hundreds to thousands of copies.
+
+-- 
+bill davidsen <davidsen@tmr.com>
+  CTO, TMR Associates, Inc
+Doing interesting things with little computers since 1979.
 

@@ -1,97 +1,83 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S283871AbRLITsi>; Sun, 9 Dec 2001 14:48:38 -0500
+	id <S283860AbRLITrS>; Sun, 9 Dec 2001 14:47:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S283902AbRLITs3>; Sun, 9 Dec 2001 14:48:29 -0500
-Received: from inje.iskon.hr ([213.191.128.16]:48789 "EHLO inje.iskon.hr")
-	by vger.kernel.org with ESMTP id <S283871AbRLITsL>;
-	Sun, 9 Dec 2001 14:48:11 -0500
-To: Andrew Morton <akpm@zip.com.au>
-Cc: sct@redhat.com, linux-mm@kvack.org, linux-kernel@vger.kernel.org
-Subject: Re: ext3 writeback mode slower than ordered mode?
-In-Reply-To: <871yi5wh93.fsf@atlas.iskon.hr> <3C12C57C.FF93FAC0@zip.com.au>
-Reply-To: zlatko.calusic@iskon.hr
-X-Face: s71Vs\G4I3mB$X2=P4h[aszUL\%"`1!YRYl[JGlC57kU-`kxADX}T/Bq)Q9.$fGh7lFNb.s
- i&L3xVb:q_Pr}>Eo(@kU,c:3:64cR]m@27>1tGl1):#(bs*Ip0c}N{:JGcgOXd9H'Nwm:}jLr\FZtZ
- pri/C@\,4lW<|jrq^<):Nk%Hp@G&F"r+n1@BoH
-From: Zlatko Calusic <zlatko.calusic@iskon.hr>
-Date: 09 Dec 2001 20:46:02 +0100
-In-Reply-To: <3C12C57C.FF93FAC0@zip.com.au> (Andrew Morton's message of "Sat, 08 Dec 2001 17:59:24 -0800")
-Message-ID: <877krwch39.fsf@atlas.iskon.hr>
-User-Agent: Gnus/5.090003 (Oort Gnus v0.03) XEmacs/21.4 (Civil Service)
+	id <S283871AbRLITrI>; Sun, 9 Dec 2001 14:47:08 -0500
+Received: from mail.xmailserver.org ([208.129.208.52]:37900 "EHLO
+	mail.xmailserver.org") by vger.kernel.org with ESMTP
+	id <S283860AbRLITrC>; Sun, 9 Dec 2001 14:47:02 -0500
+Date: Sun, 9 Dec 2001 11:48:53 -0800 (PST)
+From: Davide Libenzi <davidel@xmailserver.org>
+X-X-Sender: davide@blue1.dev.mcafeelabs.com
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: Rusty Russell <rusty@rustcorp.com.au>, <anton@samba.org>, <davej@suse.de>,
+        <marcelo@conectiva.com.br>, lkml <linux-kernel@vger.kernel.org>,
+        Linus Torvalds <torvalds@transmeta.com>
+Subject: Re: Linux 2.4.17-pre5
+In-Reply-To: <E16D6l9-00073R-00@the-village.bc.nu>
+Message-ID: <Pine.LNX.4.40.0112091122330.7268-100000@blue1.dev.mcafeelabs.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton <akpm@zip.com.au> writes:
+On Sun, 9 Dec 2001, Alan Cox wrote:
 
-> Zlatko Calusic wrote:
-> > 
-> > Hi!
-> > 
-> > My apologies if this is an FAQ, and I'm still catching up with
-> > the linux-kernel list.
-> > 
-> > Today I decided to convert my /tmp partition to be mounted in
-> > writeback mode, as I noticed that ext3 in ordered mode syncs every 5
-> > seconds and that is something defenitely not needed for /tmp, IMHO.
-> > 
-> > Then I did some tests in order to prove my theory. :)
-> > 
-> > But, alas, writeback is slower.
-> > 
-> 
-> I cannot reproduce this.  Using http://www.zip.com.au/~akpm/writer.c
-> 
-> ext2:            0.03s user 1.43s system 97% cpu 1.501 total
-> ext3 writeback:  0.02s user 2.33s system 96% cpu 2.431 total
-> ext3 ordered:    0.02s user 2.52s system 98% cpu 2.574 total
-> 
+> > Using the scheduler i'm working on and setting a trigger load level of 2,
+> > as soon as the idle is scheduled it'll go to grab the task waiting on the
+> > other cpu and it'll make it running.
+>
+> That rapidly gets you thrashing around as I suspect you've found.
 
-Hm, at first I got exactly the same results for writeback/ordered
-cases, as you did above, so my theory fell on the ground.
-Later, bloody thing resurected again. Something really fishy is goin'
-on here...
+Not really because i can make the same choices inside the idle code, out
+of he fast path, without slowing the currently running cpu ( the waker ).
 
 
- {atlas} [/mnt]# time ~zcalusic/try/awriter
- ~zcalusic/try/awriter  0.07s user 3.50s system 99% cpu 3.594 total
- {atlas} [/mnt]# cd /tmp
- {atlas} [/tmp]# time ~zcalusic/try/awriter
- ~zcalusic/try/awriter  0.00s user 6.05s system 98% cpu 6.129 total
- {atlas} [/tmp]# mount | egrep '/tmp|/mnt'
- /dev/hde2 on /tmp type ext3 (rw,data=writeback)
- /dev/hde3 on /mnt type ext3 (rw)
+> I'm currently using the following rule in wake up
+>
+> 	if(current->mm->runnable > 0)	/* One already running ? */
+> 		cpu = current->mm->last_cpu;
+> 	else
+> 		cpu = idle_cpu();
+> 	else
+> 		cpu = cpu_num[fast_fl1(runnable_set)]
+>
+> that is
+> 	If we are running threads with this mm on a cpu throw them at the
+> 		same core
+> 	If there is an idle CPU use it
+> 	Take the mask of currently executing priority levels, find the last
+> 	set bit (lowest pri) being executed, and look up a cpu running at
+> 	that priority
+>
+> Then the idle stealing code will do the rest of the balancing, but at least
+> it converges towards each mm living on one cpu core.
+
+I've done a lot of experiments balancing the cost of moving tasks with
+related tlb flushes and cache image trashing, with the cost of actually
+leaving a cpu idle for a given period of time.
+For example in a dual cpu the cost of leaving an idle cpu for more than
+40-50 ms is higher than immediately fill the idle with a stolen task (
+trigger rq length == 2 ).
+This picture should vary a lot with big SMP systems, that's why i'm
+seeking at a biased solution where it's easy to adjust the scheduler
+behavior based on the underlying architecture.
+For example, by leaving balancing decisions inside the idle code we'll
+have a bit more time to consider different moving costs/metrics than will
+be present for example in NUMA machines.
+By measuring the cost of moving with the cpu idle time we'll have a pretty
+good granularity and we could say, for example, that the tolerable cost of
+moving a task on a given architecture is 40 ms idle time.
+This means that if during 4 consecutive timer ticks ( on 100 HZ archs )
+the idle cpu has found an "unbalanced" system, it's allowed to steal a
+task to run on it.
+Or better, it's allowed to steal a task from a cpu set that has a
+"distance" <= 40 ms from its own set.
 
 
-So /tmp is writeback and /mnt is ordered (doublechecked!). See for
-yourself how ext3 is slower in writeback mode. awriter is your
-small program, of course.
-
-Just for the record, I mke2fs-ed /dev/hde3 again and made it pure
-ext2.
 
 
- {atlas} [~]# mount | grep '/mnt'      
- /dev/hde3 on /mnt type ext2 (rw)
- {atlas} [~]# cd /mnt
- {atlas} [/mnt]# time ~zcalusic/try/awriter
- ~zcalusic/try/awriter  0.01s user 1.86s system 98% cpu 1.893 total
+
+- Davide
 
 
-To sumarize:
-
-ext2            0.01s user 1.86s system 98% cpu 1.893 total
-ext3/ordered    0.07s user 3.50s system 99% cpu 3.594 total
-ext3/writeback  0.00s user 6.05s system 98% cpu 6.129 total
-
-What is strange is that not always I've been able to get different
-results for writeback case (comparing to ordered), but when I get it,
-it is repeatable.
-
-This is a SMP machine, if that makes any difference.
-
-Regards,
--- 
-Zlatko

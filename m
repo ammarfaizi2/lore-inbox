@@ -1,48 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271192AbTGWR5t (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Jul 2003 13:57:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271191AbTGWR5t
+	id S271185AbTGWSBQ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Jul 2003 14:01:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271193AbTGWSAU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Jul 2003 13:57:49 -0400
-Received: from vladimir.pegasys.ws ([64.220.160.58]:49930 "EHLO
-	vladimir.pegasys.ws") by vger.kernel.org with ESMTP id S271192AbTGWR5I
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Jul 2003 13:57:08 -0400
-Date: Wed, 23 Jul 2003 11:12:12 -0700
-From: jw schultz <jw@pegasys.ws>
-To: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
-Subject: Re: ICMP REQUEST
-Message-ID: <20030723181212.GB15719@pegasys.ws>
-Mail-Followup-To: jw schultz <jw@pegasys.ws>,
-	"'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
-References: <E04CF3F88ACBD5119EFE00508BBB212104BCD649@exch-01.noida.hcltech.com>
+	Wed, 23 Jul 2003 14:00:20 -0400
+Received: from H-135-207-24-16.research.att.com ([135.207.24.16]:7821 "EHLO
+	linux.research.att.com") by vger.kernel.org with ESMTP
+	id S271185AbTGWSAF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 23 Jul 2003 14:00:05 -0400
+Date: Wed, 23 Jul 2003 14:14:57 -0400 (EDT)
+From: Glenn Fowler <gsf@research.att.com>
+Message-Id: <200307231814.OAA74344@raptor.research.att.com>
+Organization: AT&T Labs Research
+X-Mailer: mailx (AT&T/BSD) 9.9 2003-01-17
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <E04CF3F88ACBD5119EFE00508BBB212104BCD649@exch-01.noida.hcltech.com>
-User-Agent: Mutt/1.3.27i
-X-Message-Flag: This Outlook installation has been found to be susceptible to misuse.
+Content-Transfer-Encoding: 7bit
+References: <200307231428.KAA15254@raptor.research.att.com>  <20030723074615.25eea776.davem@redhat.com>  <200307231656.MAA69129@raptor.research.att.com>  <20030723100043.18d5b025.davem@redhat.com>  <200307231724.NAA90957@raptor.research.att.com> <20030723103135.3eac4cd2.davem@redhat.com>
+To: davem@redhat.com, gsf@research.att.com
+Subject: Re: kernel bug in socketpair()
+Cc: dgk@research.att.com, linux-kernel@vger.kernel.org, netdev@oss.sgi.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jul 23, 2003 at 12:53:35PM +0530, Hemanshu Kanji Bhadra, Noida wrote:
-> Hi, All
-> 
-> i am developing a  ping program, through my program I get ECHO_REPLY..but I
-> dont get ECHO_REQUEST.
-> 
-> is that the ECHO_REQUEST is handled by kernel.?
-> 
-> please respond as it is urgent.
 
-In most cases ICMP ECHO_REQUEST is handled by the NIC.  The
-kernel doesn't even see it.  That is why you can ping a
-crashed system; the NIC is still configured.
+On Wed, 23 Jul 2003 10:31:35 -0700 David S. Miller wrote:
+> Interesting.
 
--- 
-________________________________________________________________
-	J.W. Schultz            Pegasystems Technologies
-	email address:		jw@pegasys.ws
+> I looked at the bash code, and it uses pipes with /dev/fd/N, and for
+> /dev/fd/N which are pipes the open should work under Linux.
 
-		Remember Cernan and Schmitt
+> This is what David Korn said in his original report.
+
+> I guess the part that is left is the fchmod() issue which exists
+> because one inode is used to implement both sides of the pipe under
+> Linux.
+
+> Was the idea to, since fchmod() on pipes modified both sides,
+> to use UNIX domain sockets to implement this?  And that's how
+> you discovered the /dev/fd/N failure for sockets?
+
+fchmod() came into play with socketpair() to get the fd modes to match
+pipe(); its not needed with pipe()
+
+we use socketpair() to allow efficient peeking on pipe input (via recv()),
+where peek means "read some data but don't advance the read/seek offset"
+btw, this is on systems that don't allow ioctl(I_PEEK) on pipe() fds;
+if there is a way to peek pipe() data on linux then we can switch back
+to pipe() and be on our way
+
+> Another idea is to use named unix sockets.  Can that be
+> sufficient to solve your dilemma?
+
+named sockets seem a little heavyweight for this application
+

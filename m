@@ -1,43 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264637AbTFLAak (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 Jun 2003 20:30:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264638AbTFLAak
+	id S264641AbTFLAcu (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 Jun 2003 20:32:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264643AbTFLAcu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 Jun 2003 20:30:40 -0400
-Received: from frontb-d.sezampro.yu ([194.106.188.52]:57610 "HELO
-	frontb-d.sezampro.yu") by vger.kernel.org with SMTP id S264637AbTFLAak convert rfc822-to-8bit
+	Wed, 11 Jun 2003 20:32:50 -0400
+Received: from e34.co.us.ibm.com ([32.97.110.132]:34442 "EHLO
+	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S264641AbTFLAct
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 Jun 2003 20:30:40 -0400
-From: Toplica =?utf-8?q?Tanaskovi=C4=87?= <toptan@sezampro.yu>
-To: Dave Jones <davej@codemonkey.org.uk>
-Subject: Re: Via KT400 and AGP 8x Support
-Date: Thu, 12 Jun 2003 02:44:45 +0200
-User-Agent: KMail/1.5.1
-References: <20030611212654.61150.qmail@web11307.mail.yahoo.com> <200306120036.21691.toptan@sezampro.yu> <20030611225350.GA522@suse.de>
-In-Reply-To: <20030611225350.GA522@suse.de>
-Cc: linux-kernel@vger.kernel.org
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="utf-8"
-Content-Transfer-Encoding: 8BIT
+	Wed, 11 Jun 2003 20:32:49 -0400
+Date: Wed, 11 Jun 2003 17:19:31 -0700
+From: Greg KH <greg@kroah.com>
+To: Andrew Morton <akpm@digeo.com>
+Cc: boris@macbeth.rhoen.de, linux-kernel@vger.kernel.org
+Subject: Re: oops while booting : 2.5.70-bk1[4,5] - Process swapper
+Message-ID: <20030612001931.GB27815@kroah.com>
+References: <20030610202947.GA752@macbeth.rhoen.de> <20030610143018.025d318c.akpm@digeo.com> <20030610165111.7911b7cb.akpm@digeo.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200306120244.45476.toptan@sezampro.yu>
+In-Reply-To: <20030610165111.7911b7cb.akpm@digeo.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dana četvrtak 12. jun 2003. 00:53, Dave Jones je napisao/la:
-> That's likely an X limitation. Someone with X-fu needs to hack that up
-> so it passes the right things through to agpgart. Would be nice to have
-> that in place for the next X release, so that when distros come to start
-> shipping 2.6, userspace is up to speed.
+On Tue, Jun 10, 2003 at 04:51:11PM -0700, Andrew Morton wrote:
+> 
+> Greg, do you have time/inclination to untangle (and preferably document)
+> this mess?
 
-	It's going to be difficult one, because, there are no hw. acc. drivers for 
-nVidia built in X, and there is no R300 accel. Don't know about nv, but for 
-Radeon chips only R300 can engage 8x transfer, so until ATI releases docs, or 
-some genius figures how R300 work in 3D, IMHO there is no point of hacking X.
+Ugh, what a mess.  Hm, no I don't really have the time right now to do
+this, but possibly will after the rest of the pci changes are done...
 
--- 
-Pozdrav,
-Tanasković Toplica
+As for documenting, why?  It's an arch specific thing that really does
+not get touched very often, if at all.
 
+thanks,
+
+greg k-h

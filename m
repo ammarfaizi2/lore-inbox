@@ -1,37 +1,75 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S311454AbSDNAII>; Sat, 13 Apr 2002 20:08:08 -0400
+	id <S311475AbSDNALF>; Sat, 13 Apr 2002 20:11:05 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S311475AbSDNAIH>; Sat, 13 Apr 2002 20:08:07 -0400
-Received: from mail.ocs.com.au ([203.34.97.2]:35344 "HELO mail.ocs.com.au")
-	by vger.kernel.org with SMTP id <S311454AbSDNAIH>;
-	Sat, 13 Apr 2002 20:08:07 -0400
-X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
-From: Keith Owens <kaos@ocs.com.au>
-To: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] zerocopy NFS updated 
-In-Reply-To: Your message of "Sat, 13 Apr 2002 11:52:49 MST."
-             <20020413185249.GA31470@tapu.f00f.org> 
+	id <S311483AbSDNALE>; Sat, 13 Apr 2002 20:11:04 -0400
+Received: from adsl-63-194-239-202.dsl.lsan03.pacbell.net ([63.194.239.202]:58104
+	"EHLO mmp-linux.matchmail.com") by vger.kernel.org with ESMTP
+	id <S311475AbSDNALD>; Sat, 13 Apr 2002 20:11:03 -0400
+Date: Sat, 13 Apr 2002 17:13:23 -0700
+From: Mike Fedyk <mfedyk@matchmail.com>
+To: Andrew Morton <akpm@zip.com.au>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: -aa VM updates for 2.5
+Message-ID: <20020414001323.GV23513@matchmail.com>
+Mail-Followup-To: Andrew Morton <akpm@zip.com.au>,
+	linux-kernel@vger.kernel.org
+In-Reply-To: <20020413233906.GB10807@matchmail.com> <3CB8C55F.ECD143F7@zip.com.au>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Date: Sun, 14 Apr 2002 10:07:56 +1000
-Message-ID: <32583.1018742876@ocs3.intra.ocs.com.au>
+Content-Disposition: inline
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 13 Apr 2002 11:52:49 -0700, 
-Chris Wedgwood <cw@f00f.org> wrote:
->On Fri, Apr 12, 2002 at 02:31:50PM -0700, David S. Miller wrote:
->
->    If you need to depend upon a consistent snapshot of what some
->    other thread writes into a file, you must have some locking
->    protocol to use to synchronize with that other thread.
->
->Appends of small-writes (for whatever reason) seems to be atomic,
->AFAIK nobody gets corrupt apache logs for example.
+Note: I'm just taking about the VM-xx patch from -aa, not some of the more
+controversial patches in -aa.
 
-Write in append mode must be atomic in the kernel.  Whether a user
-space write in append mode is atomic or not depends on how many write()
-syscalls it takes to pass the data into the kernel.  Each write()
-append will be atomic but multiple writes can be interleaved.
+On Sat, Apr 13, 2002 at 04:55:11PM -0700, Andrew Morton wrote:
+> Mike Fedyk wrote:
+> > 
+> > Why haven't any of the -aa VM updates gone into 2.5?  Especially after Andrew
+> > Morton has split it up this is surprising...
+> 
+> I don't think there's really any point in doing that.
+> 
+> None of the regular VM guys are really working 2.5 at this time.
+> 
+> VM has a close relationship with buffers, so tinkering
+> with the VM while I'm busily driving a truck through the
+> buffer layer and setting up new writeback mechanisms
+> would represent some wasted effort.
 
+Yep, make sense.  Though, keeping in mind the changes that are in -aa may
+help when making changes to the buffer layer, and possibly less effort if a
+problem is already fixed in -aa but not in 2.5.
+
+> We don't know yet whether 2.5 will have a reverse-mapping
+> VM.  If it does, then maintenance work against the current
+> one is wasted effort and more patching pain.
+>
+
+It looks like most of the vm changes can just be dropped into 2.5 over a few
+-pres.  Especially since few (none?) have argued that the -aa vm-patch
+causes regressions.
+
+> (I'd also like to investigate the option of not throttling
+>  page allocators by making them wait on I/O - make them
+>  wait on pages coming free instead).
+>
+
+Sounds interesting.
+
+> So.  My vote would be that unless the VM is actually impeding
+> developers who are working on other parts of the kernel (it
+> is not) then just leave it as-is for the while.
+>
+
+What about the recent threads on swapping in 2.5?
+
+Merging the -aa vm-patch into 2.5 will allow people to develop on the best
+known -aa VM to date, and can reduce duplicated effort.  Though, admittedly
+it doesn't make much sense to do the same work on 2.4 and 2.5 at the same
+time (vm patch merging).  Maybe it'll just be forward ported from 2.4...
+
+Mike

@@ -1,71 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262128AbTJIMxy (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Oct 2003 08:53:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262129AbTJIMxy
+	id S262123AbTJIM5W (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Oct 2003 08:57:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262118AbTJIM5W
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Oct 2003 08:53:54 -0400
-Received: from e31.co.us.ibm.com ([32.97.110.129]:38100 "EHLO
-	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S262128AbTJIMxx
+	Thu, 9 Oct 2003 08:57:22 -0400
+Received: from intra.cyclades.com ([64.186.161.6]:13803 "EHLO
+	intra.cyclades.com") by vger.kernel.org with ESMTP id S262076AbTJIM5T
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Oct 2003 08:53:53 -0400
-Date: Thu, 9 Oct 2003 18:29:02 +0530
-From: Suparna Bhattacharya <suparna@in.ibm.com>
-To: Daniel McNeil <daniel@osdl.org>
-Cc: akpm@osdl.org, linux-kernel@vger.kernel.org, linux-aio@kvack.org
-Subject: Re: 2.6.0-test6-mm4 - oops in __aio_run_iocbs()
-Message-ID: <20031009125902.GA11697@in.ibm.com>
-Reply-To: suparna@in.ibm.com
-References: <20031005013326.3c103538.akpm@osdl.org> <1065655095.1842.34.camel@ibm-c.pdx.osdl.net> <20031009111624.GA11549@in.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20031009111624.GA11549@in.ibm.com>
-User-Agent: Mutt/1.4i
+	Thu, 9 Oct 2003 08:57:19 -0400
+Date: Thu, 9 Oct 2003 10:00:16 -0300 (BRT)
+From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+X-X-Sender: marcelo@logos.cnet
+To: Erik Mouw <erik@harddisk-recovery.com>
+Cc: Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
+       Xose Vazquez Perez <xose@wanadoo.es>,
+       linux-scsi <linux-scsi@vger.kernel.org>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: two sym53c8xx.o modules
+In-Reply-To: <20031009122428.GF11525@bitwizard.nl>
+Message-ID: <Pine.LNX.4.44.0310090959550.3040-100000@logos.cnet>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Oct 09, 2003 at 04:46:24PM +0530, Suparna Bhattacharya wrote:
-> On Wed, Oct 08, 2003 at 04:18:15PM -0700, Daniel McNeil wrote:
-> > I'm been testing AIO on test6-mm4 using a ext3 file system and
-> > copying a 88MB file to an already existing preallocated file of 88MB.
-> > I been using my aiocp program to copy the file using i/o sizes of
-> > 1k to 512k and outstanding aio requests of between 1 and 64 using
-> > O_DIRECT, O_SYNC and O_DIRECT & O_SYNC.  Everything works as long
-> > as the file is pre-allocated.  When copying the file to a new file
-> > (O_CREAT|O_DIRECT), I get the following oops:
+
+
+On Thu, 9 Oct 2003, Erik Mouw wrote:
+
+> On Thu, Oct 09, 2003 at 08:41:49AM -0300, Marcelo Tosatti wrote:
+> > On Thu, 9 Oct 2003, Xose Vazquez Perez wrote:
+> > > kernel 2.4 has two modules with *same name*:
+> > > /lib/modules/2.4.XX/kernel/drivers/scsi/sym53c8xx_2/sym53c8xx.o
+> > > /lib/modules/2.4.XX/kernel/drivers/scsi/sym53c8xx.o
+> > > 
+> > > "# modprobe sym53c8xx" tries to load sym53c8xx.o first and then sym53c8xx_2/sym53c8xx.o
+> > > bug or feature?
+> > > 
+> > > should be sym53c8xx_2/sym53c8xx.o renamed to sym53c8xx_2/sym53c8xx_2.o ?
+> > 
+> > One should not have both drivers loaded at the same time, so I think this
+> > is alright.
 > 
-> What are the i/o sizes and block sizes for which you get the oops ?
-> Is this only for large i/o sizes ?
-> 
-> __aio_run_iocbs should have been called only for buffered i/o, 
-> so this sounds like an O_DIRECT fallback to buffered i/o.
-> Possibly after already submitting some blocks direct to BIO,
-> the i/o completion path for which ends up calling aio_complete
-> releasing the iocb. That could explain the use-after-free situation
-> you see.
-> 
-> But, O_DIRECT write should fallback to buffered i/o only if it 
-> encounters holes in the middle of the file, not for simple appends 
-> as in your case. Need to figure out how this could have happened ...
+> No, it's not allright. Modprobe can't distinguish between
+> sym53c8xx_2/sym53c8xx.o and sym53c8xx.o, you have to figure out the
+> full path and insmod one of them manually. Xose is right in that
+> sym53c8xx_2/sym53c8xx.o should be renamed in sym53c8xx_2/sym53c8xx_2.o.
+> Compare with aic7xxx and aic7xxx_old.
 
-Took a quick look at aiocp.c - wondering if its possible that
-some of the later read requests complete earlier and trigger
-a write to higher offset first. Resulting in the file being
-extended with holes in between - holes which get overwritten
-at a later point as the earlier read requests complete.
-
-Though I don't yet see how a situation could arise in the 
-single threaded case where part of the request gets submitted 
-direct to BIO and the rest falls back to buffered-io ... Need 
-to think about it a bit more. 
-Are your writes all block aligned ?
-
-Regards
-Suparna
-
--- 
-Suparna Bhattacharya (suparna@in.ibm.com)
-Linux Technology Center
-IBM Software Labs, India
+True. Mind sending me a patch? 
 

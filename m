@@ -1,63 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267453AbUHRSbp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267466AbUHRSeB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267453AbUHRSbp (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 Aug 2004 14:31:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267457AbUHRSah
+	id S267466AbUHRSeB (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 Aug 2004 14:34:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267457AbUHRSeB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 Aug 2004 14:30:37 -0400
-Received: from viper.oldcity.dca.net ([216.158.38.4]:56228 "HELO
-	viper.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S267453AbUHRS3u (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 Aug 2004 14:29:50 -0400
-Subject: Re: voluntary-preempt-2.6.8.1-P1 seems to lose UDP messages.
-From: Lee Revell <rlrevell@joe-job.com>
-To: pierre-olivier.gaillard@fr.thalesgroup.com
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <41233923.80202@fr.thalesgroup.com>
-References: <41233923.80202@fr.thalesgroup.com>
-Content-Type: text/plain
-Message-Id: <1092853574.8432.29.camel@krustophenia.net>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Wed, 18 Aug 2004 14:31:01 -0400
-Content-Transfer-Encoding: 7bit
+	Wed, 18 Aug 2004 14:34:01 -0400
+Received: from mr01.conversent.com ([216.41.101.18]:62080 "EHLO
+	mr01.conversent.net") by vger.kernel.org with ESMTP id S267466AbUHRScL convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 18 Aug 2004 14:32:11 -0400
+X-MimeOLE: Produced By Microsoft Exchange V6.5.6944.0
+Content-class: urn:content-classes:message
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Subject: Is it possible to have a Kernel & initrd in 1 binary?
+Date: Wed, 18 Aug 2004 14:32:07 -0400
+Message-ID: <E8F8DBCB0468204E856114A2CD20741F1A92F8@mail.local.ActualitySystems.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: Is it possible to have a Kernel & initrd in 1 binary?
+thread-index: AcSFUarPq88nNu/tRRO/kRsuez0cDA==
+From: "Dave Aubin" <daubin@actuality-systems.com>
+To: <linux-kernel@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2004-08-18 at 07:10, P.O. Gaillard wrote:
-> Hello,
-> 
-> I have a real-time application that transmits 20 MBytes/s over UDP/Gigabit 
-> Ethernet between 2 PCs. 
-
-> But when I use the voluntary-preemt-2.6.8.1-P1 patch on the receiving PC, the 
-> app starts complaining about lost messages.
-
-It sounds like you need to set the network card irq to be non-threaded. 
-What is the output of:
-
-root@mindpipe:/home/rlrevell/kernel-source/linux-2.6.8.1-P3# find
-/proc/irq/ -name threaded -print -a -exec cat {} \;
-/proc/irq/15/ide1/threaded
-1
-/proc/irq/14/ide0/threaded
-1
-/proc/irq/12/uhci_hcd/threaded
-1
-/proc/irq/11/eth0/threaded
-1
-/proc/irq/11/uhci_hcd/threaded
-1
-/proc/irq/10/EMU10K1/threaded
-0
-/proc/irq/10/uhci_hcd/threaded
-1
-/proc/irq/8/rtc/threaded
-0
-/proc/irq/1/i8042/threaded
-1
-
-You probably want all of these to be 1 except ethX.
-
-Lee 
+Hello,
+ 
+  I'm working on an embedded device and I want it to boot off of a USB
+stick.
+I'm using a utility called filo which is able to read an elf off of a
+USB stick.  The
+problem is filo can only read the kernel portion of the elf and not the
+initrd.
+  Question, is there a way to bundle both the kernel and initrd in to
+just a kernel
+binary?  I thought there was a way, but I've always used initrd and I'm
+not familiar with
+making a kernel & initrd in to one image.
+  An alternative might be that the kernel be built to understand the
+USB, but I've
+found that there is a delay between when the kernel detects USB and when
+it goes to boot off of the USB drive of about 1 second and then the
+kernel fails
+to load thinking the USB drive is not present.
+  Any help is appreciated.
+ 
+Thanks,
+Dave
 

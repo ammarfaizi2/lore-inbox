@@ -1,84 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268404AbSIRVMu>; Wed, 18 Sep 2002 17:12:50 -0400
+	id <S268503AbSIRVKu>; Wed, 18 Sep 2002 17:10:50 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268516AbSIRVMu>; Wed, 18 Sep 2002 17:12:50 -0400
-Received: from c16598.thoms1.vic.optusnet.com.au ([210.49.243.217]:64486 "HELO
-	pc.kolivas.net") by vger.kernel.org with SMTP id <S268404AbSIRVMt>;
-	Wed, 18 Sep 2002 17:12:49 -0400
-Message-ID: <1032383868.3d88ed7c4cf2d@kolivas.net>
-Date: Thu, 19 Sep 2002 07:17:48 +1000
-From: Con Kolivas <conman@kolivas.net>
-To: Andrew Morton <akpm@digeo.com>
-Cc: linux-kernel@vger.kernel.org, riel@conectiva.com.br
-Subject: Re: [BENCHMARK] contest results for 2.5.36
-References: <1032360386.3d8891c2bc3d3@kolivas.net> <3D88ACB6.6374E014@digeo.com>
-In-Reply-To: <3D88ACB6.6374E014@digeo.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-User-Agent: Internet Messaging Program (IMP) 3.1
+	id <S268404AbSIRVKu>; Wed, 18 Sep 2002 17:10:50 -0400
+Received: from mailhost.tue.nl ([131.155.2.5]:27657 "EHLO mailhost.tue.nl")
+	by vger.kernel.org with ESMTP id <S268503AbSIRVKr>;
+	Wed, 18 Sep 2002 17:10:47 -0400
+Date: Wed, 18 Sep 2002 23:15:47 +0200
+From: Andries Brouwer <aebr@win.tue.nl>
+To: William Lee Irwin III <wli@holomorphy.com>, Ingo Molnar <mingo@elte.hu>,
+       Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
+Subject: Re: [patch] lockless, scalable get_pid(), for_each_process() elimination, 2.5.35-BK
+Message-ID: <20020918211547.GA14657@win.tue.nl>
+References: <20020918182818.GA14629@win.tue.nl> <Pine.LNX.4.44.0209182038400.26337-100000@localhost.localdomain> <20020918201134.GC14629@win.tue.nl> <20020918202914.GA3530@holomorphy.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20020918202914.GA3530@holomorphy.com>
+User-Agent: Mutt/1.3.25i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Quoting Andrew Morton <akpm@digeo.com>:
+On Wed, Sep 18, 2002 at 01:29:14PM -0700, William Lee Irwin III wrote:
 
-[snip..]
+> I've seen no change in behavior with large PID_MAX.
 
-> page_add/remove_rmap.  Be interesting to test an Alan kernel too.
+Of course not. But people keep blaming the wrong routine.
+I have said it a thousand times - nothing is wrong with get_pid().
 
-Just tell me which ones to test and I'll happily throw them in too.
+Now proc_pid_readdir() takes a million times as long, so it would
+be much more reasonable if people talked about it instead.
+With 20000 processes it will visit 10^7 process structs
+for one ps.
 
-> > Process Load:
-> > Kernel                  Time            CPU
-> > 2.4.19                  81.10           80%
-> > 2.4.20-pre7             81.92           80%
-> > 2.5.34                  71.39           94%
-> > 2.5.36                  71.80           94%
+> It doesn't sound like you read the patch at all.
+
+I looked at it and searched for base.c but didnt find it,
+so concluded that the real problem was not addressed.
+
+> > In procfs we have a very quadratic algorithm in proc_pid_readdir()/
+> > get_pid_list(). Not a potential hiccup after 2^30 processes that some
+> > may want to smoothe, but every single "ls /proc" or "ps".
+> > What shall we do with /proc for all these people with 10^5 processes?
+> > Andries
 > 
-> Ingo ;)
->  
-> > Mem Load:
-> > Kernel                  Time            CPU
-> > 2.4.19                  92.49           77%
-> > 2.4.20-pre7             92.25           77%
-> > 2.5.34                  138.05          54%
-> > 2.5.36                  132.45          56%
-> 
-> The swapping fix in -mm1 may help here.
->  
-> > IO Halfmem Load:
-> > Kernel                  Time            CPU
-> > 2.4.19                  99.41           70%
-> > 2.4.20-pre7             99.42           71%
-> > 2.5.34                  74.31           93%
-> > 2.5.36                  94.82           76%
-> 
-> Don't know.  Was this with IO load against the same disk as
-> the one on which the kernel was being compiled, or a different
-> one?  This is a very important factor - one way we're testing the
-> VM and the other way we're testing the IO scheduler.
+> That is actually one of the easiest ways to take out one of my machines
+> while it's running 10K or so tasks, mentioned a bit ago in this thread.
 
-My laptop which does all the testing has only one hard disk 
+OK. So we now agree.
 
-> > IO Fullmem Load:
-> > Kernel                  Time            CPU
-> > 2.4.19                  173.00          41%
-> > 2.4.20-pre7             146.38          48%
-> > 2.5.34                  74.00           94%
-> > 2.5.36                  87.57           81%
-> 
-> If the IO load was against the same disk 2.5 _should_ have sucked,
-> due to the writes-starves-reads problem which we're working on.  So
-> I assume it was against a different disk.  In which case 2.5 should not
-> have shown these improvements, because all the fixes for this are still
-> in -mm.  hm.  Helpful, aren't I?
+But it looks like your patch doesnt change this? Or did I overlook sth?
 
-It's the same disk. These are the correct values after I've fixed all known
-problems in contest. I need someone else to try contest with a different disk.
-Helpful? This is all new so it will take a while for _anyone_ to understand
-exactly what's going on I'm sure. Since we haven't had incremental benchmarks
-till now, who knows what it was that made IO full mem drop from 146 to 74 in the
-first place?
-
-Con.
+Andries

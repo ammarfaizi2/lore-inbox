@@ -1,56 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261412AbVCHQcw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261415AbVCHQjf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261412AbVCHQcw (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 8 Mar 2005 11:32:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261417AbVCHQcw
+	id S261415AbVCHQjf (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 8 Mar 2005 11:39:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261417AbVCHQjf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 8 Mar 2005 11:32:52 -0500
-Received: from bay101-f39.bay101.hotmail.com ([64.4.56.49]:15176 "EHLO
-	hotmail.com") by vger.kernel.org with ESMTP id S261412AbVCHQcu
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Mar 2005 11:32:50 -0500
-Message-ID: <BAY101-F396925B373DD3925D37BFEC1500@phx.gbl>
-X-Originating-IP: [129.80.22.143]
-X-Originating-Email: [peter_w_morreale@hotmail.com]
-From: "Peter W. Morreale" <peter_w_morreale@hotmail.com>
+	Tue, 8 Mar 2005 11:39:35 -0500
+Received: from web26610.mail.ukl.yahoo.com ([217.146.176.60]:36781 "HELO
+	web26610.mail.ukl.yahoo.com") by vger.kernel.org with SMTP
+	id S261415AbVCHQjc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 8 Mar 2005 11:39:32 -0500
+Message-ID: <20050308163931.65943.qmail@web26610.mail.ukl.yahoo.com>
+Date: Tue, 8 Mar 2005 17:39:31 +0100 (CET)
+From: BZ Benny <bennybbz@yahoo.fr>
+Subject: STACK TCP/IP and ethernet headers.....?
 To: linux-kernel@vger.kernel.org
-Date: Tue, 08 Mar 2005 09:32:48 -0700
-Mime-Version: 1.0
-Content-Type: text/plain; format=flowed
-X-OriginalArrivalTime: 08 Mar 2005 16:32:49.0361 (UTC) FILETIME=[77812410:01C523FC]
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In a driver I am reviewing I found the following locking constructs.
-Notice how 'foo" is being called while we have suspended interrupts.
+Hi all,
 
-This seems wrong since we've mixed locking primitives.
+is there some fonctions for displaying ethernet
+headers, the protocol used... and the payload.
 
-Is it?
+I'm using an ethertap device. And I want to see what
+data I'm receiving from my TAP device.
 
-Thanks in advance.
-
--PWM
-
----------------------snip--------------------------------------
-spin_lock_irqsave(global_lock, &flags);
-....
-foo()
-{
-    unsigned long lflags;
-
-    spin_unlock(global_lock);
-    ...
-    {
-        spin_lock_irqsave(global_lock, &lflags);
-                .
-                .
-        spin_unlock_irqrestore(global_lock, &lflags);
-    }
-
-    spin_lock_irq(global_lock);
-}
-
-spin_unlock_irqrestore(global_lock, &flags);
+regards
+benny
 
 
+	
+
+	
+		
+Découvrez le nouveau Yahoo! Mail : 250 Mo d'espace de stockage pour vos mails ! 
+Créez votre Yahoo! Mail sur http://fr.mail.yahoo.com/

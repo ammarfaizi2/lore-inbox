@@ -1,103 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270482AbTGNBWq (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 13 Jul 2003 21:22:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270484AbTGNBWq
+	id S270485AbTGNB1j (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 13 Jul 2003 21:27:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270487AbTGNB1j
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 13 Jul 2003 21:22:46 -0400
-Received: from note.orchestra.cse.unsw.EDU.AU ([129.94.242.24]:62681 "HELO
-	note.orchestra.cse.unsw.EDU.AU") by vger.kernel.org with SMTP
-	id S270482AbTGNBWo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 13 Jul 2003 21:22:44 -0400
-From: Neil Brown <neilb@cse.unsw.edu.au>
-To: Linus Torvalds <torvalds@transmeta.com>
-Date: Mon, 14 Jul 2003 11:37:27 +1000
-MIME-Version: 1.0
+	Sun, 13 Jul 2003 21:27:39 -0400
+Received: from mail.jlokier.co.uk ([81.29.64.88]:59540 "EHLO
+	mail.jlokier.co.uk") by vger.kernel.org with ESMTP id S270485AbTGNB1d
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 13 Jul 2003 21:27:33 -0400
+Date: Mon, 14 Jul 2003 02:41:35 +0100
+From: Jamie Lokier <jamie@shareable.org>
+To: Davide Libenzi <davidel@xmailserver.org>
+Cc: "David S. Miller" <davem@redhat.com>, e0206@foo21.com,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       kuznet@ms2.inr.ac.ru
+Subject: Re: [Patch][RFC] epoll and half closed TCP connections
+Message-ID: <20030714014135.GA22769@mail.jlokier.co.uk>
+References: <20030712181654.GB15643@srv.foo21.com> <Pine.LNX.4.55.0307121256200.4720@bigblue.dev.mcafeelabs.com> <20030712222457.3d132897.davem@redhat.com> <20030713140758.GF19132@mail.jlokier.co.uk> <Pine.LNX.4.55.0307130956530.14680@bigblue.dev.mcafeelabs.com> <20030713191559.GA20573@mail.jlokier.co.uk> <Pine.LNX.4.55.0307131542000.15022@bigblue.dev.mcafeelabs.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <16146.2391.214514.872743@gargle.gargle.HOWL>
-cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] Fix two bugs with process limits (RLIMIT_NPROC)
-X-Mailer: VM 7.16 under Emacs 21.3.2
-X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
-	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
-	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.55.0307131542000.15022@bigblue.dev.mcafeelabs.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Davide Libenzi wrote:
+> Yes, this could be improved though. If we could only pass our event
+> interest mask to f_op->poll() the function will be able to register it
+> inside the wait queue structure and release only waiters that matches the
+> available condition.
 
-This patch fixes to problems with RLIMIT_NPROC.
-I posted the first to linux-kernel some weeks ago and got zero
-response, which presumably means it is perfect :-)
+It's not a bad idea.
 
-The second bit is new and corresponds to the comment that has been
-moved from set_user to user.c:switch_uid and says:
-	/* What if a process setreuid()'s and this brings the
-	 * new uid over his NPROC rlimit?  We can check this now
-	 * cheaply with the new uid cache, so if it matters
-	 * we should be checking for it.  -DaveM
-	 */
+> > And ttys?  They are problematic, because ttys can return EOF _after_
+> > returning data without closing (and without being hung-up).  An epoll
+> > loop which is reading a tty (and isn't programmed specially for a tty)
+> > _must_ receive POLLRDHUP when the EOF is pending, else it may hang.
+> 
+> Please replace 'it may hung' with 'it may hung if it is using the read()
+> return bytes check trick' ;)
 
-NeilBrown
+Sure - but take an app that is normally using TCP sockets and give it
+an AF_UNIX socket..  Something as general as the event loop
+_shouldn't_ have to depend on that subtlety.
 
+Ok that's avoidable, but it's a trap.  It would be nice to get a flag
+that doesn't have a caveat in the manual saying "this flag only works
+(at present) on TCP sockets in kernels >= 2.5.76.  Take care not to
+use the optimisation for any other kind of fd including other sockets,
+as it will break your app...".  That's not the sort of thing I want to
+see in the epoll manual page :)
 
-### Comments for ChangeSet
-1/ If a setuid process swaps it's real and effective uids and then forks,
- the fork fails if the new realuid has more processes 
- than the original process was limited to.
- This is particularly a problem if a user with a process limit
- (e.g. 256) runs a setuid-root program which does setuid() + fork() 
- (e.g. lprng) while root already has more than 256 process (which 
- is quite possible).
+Anyway, there is a correct answer and I have made the patch so wait
+for next mail... :)
 
- The root problem here is that a limit which should be a per-user 
- limit is being implemented as a per-process limit with
- per-process (e.g. CAP_SYS_RESOURCE) controls.
- Being a per-user limit, it should be that the root-user can over-ride 
- it, not just some process with CAP_SYS_RESOURCE.
-
- This patch adds a test to ignore process limits if the real user is root.
-
-2/ When a root-owned process (e.g. cgiwrap) sets up process limits and then
-  calls setuid, the setuid should fail if the user would then be running 
-  more than rlim_cur[RLIMIT_NPROC] processes, but it doesn't.  This patch
-  adds an appropriate test.  With this patch, and per-user process limit 
-  imposed in cgiwrap really works.
-
- ----------- Diffstat output ------------
- ./kernel/fork.c |    3 ++-
- ./kernel/sys.c  |    8 ++++++++
- 2 files changed, 10 insertions(+), 1 deletion(-)
-
-diff ./kernel/fork.c~current~ ./kernel/fork.c
---- ./kernel/fork.c~current~	2003-07-14 09:06:11.000000000 +1000
-+++ ./kernel/fork.c	2003-07-14 09:06:11.000000000 +1000
-@@ -792,7 +792,8 @@ struct task_struct *copy_process(unsigne
- 
- 	retval = -EAGAIN;
- 	if (atomic_read(&p->user->processes) >= p->rlim[RLIMIT_NPROC].rlim_cur) {
--		if (!capable(CAP_SYS_ADMIN) && !capable(CAP_SYS_RESOURCE))
-+		if (!capable(CAP_SYS_ADMIN) && !capable(CAP_SYS_RESOURCE)
-+		    && p->user != &root_user)
- 			goto bad_fork_free;
- 	}
- 
-
-diff ./kernel/sys.c~current~ ./kernel/sys.c
---- ./kernel/sys.c~current~	2003-07-14 09:06:11.000000000 +1000
-+++ ./kernel/sys.c	2003-07-14 09:06:11.000000000 +1000
-@@ -601,6 +601,14 @@ static int set_user(uid_t new_ruid, int 
- 	new_user = alloc_uid(new_ruid);
- 	if (!new_user)
- 		return -EAGAIN;
-+
-+	if (atomic_read(&new_user->processes) >= current->rlim[RLIMIT_NPROC].rlim_cur
-+	    && new_user != &root_user
-+		) {
-+		free_uid(new_user);
-+		return -EAGAIN;
-+	}
-+
- 	switch_uid(new_user);
- 
- 	if(dumpclear)
+-- Jamie

@@ -1,51 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261934AbUKCWK0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261931AbUKCWFZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261934AbUKCWK0 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 3 Nov 2004 17:10:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261915AbUKCWFx
+	id S261931AbUKCWFZ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 3 Nov 2004 17:05:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261883AbUKCWEj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 Nov 2004 17:05:53 -0500
-Received: from out003pub.verizon.net ([206.46.170.103]:5321 "EHLO
-	out003.verizon.net") by vger.kernel.org with ESMTP id S261908AbUKCWED
+	Wed, 3 Nov 2004 17:04:39 -0500
+Received: from prgy-npn1.prodigy.com ([207.115.54.37]:38785 "EHLO
+	oddball.prodigy.com") by vger.kernel.org with ESMTP id S261930AbUKCWAL
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 Nov 2004 17:04:03 -0500
-Message-ID: <418955D2.7000700@verizon.net>
-Date: Wed, 03 Nov 2004 17:04:02 -0500
-From: Jim Nelson <james4765@verizon.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040922
+	Wed, 3 Nov 2004 17:00:11 -0500
+Message-ID: <41895583.10604@tmr.com>
+Date: Wed, 03 Nov 2004 17:02:43 -0500
+From: Bill Davidsen <davidsen@tmr.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040913
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-CC: linux-kernel@vger.kernel.org, akpm@osdl.org
-Subject: Re: [PATCH 5/5] documentation: Remove drivers/char/README.cycladesZ
-References: <20041103152246.24869.2759.68945@localhost.localdomain> <20041103152314.24869.56459.88722@localhost.localdomain> <20041103133103.GB4109@logos.cnet> <41891AF3.9050800@verizon.net> <20041103150947.GA4695@logos.cnet>
-In-Reply-To: <20041103150947.GA4695@logos.cnet>
+To: Pete Zaitcev <zaitcev@redhat.com>
+CC: Wolfgang Scheicher <worf@sbox.tu-graz.ac.at>, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.9 USB storage problems
+References: <200410121424.59584.worf@sbox.tu-graz.ac.at> <20041101164615.13a04a7c@lembas.zaitcev.lan>
+In-Reply-To: <20041101164615.13a04a7c@lembas.zaitcev.lan>
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Authentication-Info: Submitted using SMTP AUTH at out003.verizon.net from [68.238.31.6] at Wed, 3 Nov 2004 16:04:02 -0600
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Marcelo Tosatti wrote:
-> On Wed, Nov 03, 2004 at 12:52:51PM -0500, Jim Nelson wrote:
-> 
->>You're right.  I'll send a patch to put README.cycladesZ in 
->>Documentation/serial right now.
+Pete Zaitcev wrote:
+> On Mon, 1 Nov 2004 23:19:13 +0100, Wolfgang Scheicher <worf@sbox.tu-graz.ac.at> wrote:
 > 
 > 
-> Also please only remove other README's if they are really obsolete. 
-> Whats your criteria for choosing what is obsolete?
+>>>>And: could maybe somebody put some hints into the ub help?
+>>>>"This driver supports certain USB attached storage devices such as flash
+>>>>keys." didn't sound so bad to me...
+>>>
+>>>That should definately happen.  Along with a note that this blocks
+>>>usb-storage from working with many devices if enabled.
+>>
+>>Yep. Absolutely.
 > 
+> 
+> I don't like too much wordage. How about this:
+> 
+> diff -urp -X dontdiff linux-2.6.10-rc1/drivers/block/Kconfig linux-2.6.10-rc1-ub/drivers/block/Kconfig
+> --- linux-2.6.10-rc1/drivers/block/Kconfig	2004-10-28 09:46:38.000000000 -0700
+> +++ linux-2.6.10-rc1-ub/drivers/block/Kconfig	2004-11-01 16:09:13.727453544 -0800
+> @@ -308,6 +308,8 @@ config BLK_DEV_UB
+>  	  This driver supports certain USB attached storage devices
+>  	  such as flash keys.
+>  
+> +	  Warning: Enabling this cripples the usb-storage driver.
+> +
+>  	  If unsure, say N.
+>  
+>  config BLK_DEV_RAM
 
-I erred on README.cycladesZ, I'll admit.  My apologies.  I normally contact the 
-maintainer *before* making a call like that.  Well, I'm kinda new to this, and 
-making mistakes is part of the process.
+I just got information on this in another thread, in case you didn't see 
+my note there, is this behaviour a bug, design choice, or unavoidable 
+hardware issue? I can turn it off now, but I'm supposed to be getting a 
+flash key thing to test, which is why I turned it on in the first place.
 
-My unofficial "guidelines" for what needs to be looked at more closely include: 
-references to 2.0, 2.1, 2.2, 2.3, or 2.5 kernels, references to external modules, 
-dates of 2002 or earlier, or just a "wait a minute, I don't think that's right". 
-Not the prettiest technique, I know.
-
-> Move the rest to Documentation/serial, fine.
-> 
-
+-- 
+    -bill davidsen (davidsen@tmr.com)
+"The secret to procrastination is to put things off until the
+  last possible moment - but no longer"  -me

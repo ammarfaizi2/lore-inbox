@@ -1,40 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263776AbTDULRM (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Apr 2003 07:17:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263811AbTDULRM
+	id S263811AbTDULWd (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Apr 2003 07:22:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263812AbTDULWd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Apr 2003 07:17:12 -0400
-Received: from [12.47.58.203] ([12.47.58.203]:7233 "EHLO
-	pao-ex01.pao.digeo.com") by vger.kernel.org with ESMTP
-	id S263776AbTDULRM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Apr 2003 07:17:12 -0400
-Date: Mon, 21 Apr 2003 04:29:34 -0700
-From: Andrew Morton <akpm@digeo.com>
-To: linux-kernel@vger.kernel.org
-Subject: updates for the new IRQ API
-Message-Id: <20030421042934.3728740d.akpm@digeo.com>
-X-Mailer: Sylpheed version 0.8.11 (GTK+ 1.2.10; i586-pc-linux-gnu)
+	Mon, 21 Apr 2003 07:22:33 -0400
+Received: from mail-8.tiscali.it ([195.130.225.154]:33949 "EHLO
+	mail-8.tiscali.it") by vger.kernel.org with ESMTP id S263811AbTDULWc
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 21 Apr 2003 07:22:32 -0400
+Date: Mon, 21 Apr 2003 13:33:46 +0200
+From: Andrea Arcangeli <andrea@suse.de>
+To: Neil Schemenauer <nas@arctrix.com>
+Cc: linux-kernel@vger.kernel.org, axboe@suse.de, akpm@digeo.com,
+       conman@kolivas.net
+Subject: Re: [PATCH][CFT] new IO scheduler for 2.4.20
+Message-ID: <20030421113346.GE21877@dualathlon.random>
+References: <20030417172818.GA8848@glacier.arctrix.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 21 Apr 2003 11:29:07.0918 (UTC) FILETIME=[38E356E0:01C307F9]
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030417172818.GA8848@glacier.arctrix.com>
+User-Agent: Mutt/1.4i
+X-GPG-Key: 1024D/68B9CB43
+X-PGP-Key: 1024R/CB4660B9
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, Apr 17, 2003 at 10:28:19AM -0700, Neil Schemenauer wrote:
+> Hi all,
+> 
+> Recently I was bitten badly by bad IO scheduler behavior on an important
+> Linux server.  An easy way to trigger this problem is to start a
+> streaming write process:
+> 
+>     while :
+>     do
+>             dd if=/dev/zero of=foo bs=1M count=512 conv=notrunc
+>     done
+> 
+> and then try doing a bunch of small reads:
+> 
+>     time (find kernel-tree -type f | xargs cat > /dev/null)
 
-A change was made today to the kernel's IRQ handlers.  See
+can you try the above on 2.4.21pre5aa2? I also spent effort to fix it
+some month ago.
 
-http://sourceforge.net/mailarchive/forum.php?thread_id=1999147&forum_id=2314
+The interesting patch is this:
 
-for details.
+	http://www.us.kernel.org/pub/linux/kernel/people/andrea/kernels/v2.4/2.4.21pre5aa2/9981_elevator-lowlatency-4
 
+the reason 2.4 mainline stalls so much is that the size of the queue is
+overkill for no good reason, so no matter the elvtune numbers, you're
+going to wait several dozen mbytes to be read or written before you can
+read or write the next 1k from another task.
 
-The patch at
+the above patch is fairly old and it basically fixes the showstopper
+problem for me, contest looks fine now and throughput still is the best.
 
-ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.5/2.5.68/2.5.68-irq-fixes.patch.gz
+I don't like special "read hacks" for generic kernels that are critical
+with O_SYNC and journaling responsiveness too.
 
-Is Linus's current bitkeeper tree, plus fixes for 350 files.  I got most of
-it, but various scsi drivers and non-x86 architectures will still need work.
+So I recommend to apply the above 2.4 patch if you suffer any I/O
+latency issue.
 
-
+Andrea

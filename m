@@ -1,53 +1,61 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269413AbRHTVef>; Mon, 20 Aug 2001 17:34:35 -0400
+	id <S269428AbRHTVh0>; Mon, 20 Aug 2001 17:37:26 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269428AbRHTVeZ>; Mon, 20 Aug 2001 17:34:25 -0400
-Received: from humbolt.nl.linux.org ([131.211.28.48]:4370 "EHLO
-	humbolt.nl.linux.org") by vger.kernel.org with ESMTP
-	id <S269413AbRHTVeN>; Mon, 20 Aug 2001 17:34:13 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Daniel Phillips <phillips@bonn-fries.net>
-To: Marcelo Tosatti <marcelo@conectiva.com.br>
-Subject: Re: 2.4.8/2.4.9 VM problems
-Date: Mon, 20 Aug 2001 23:40:52 +0200
-X-Mailer: KMail [version 1.3.1]
-Cc: Mike Galbraith <mikeg@wen-online.de>,
-        Frank Dekervel <Frank.dekervel@student.kuleuven.ac.Be>,
-        linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.21.0108201609190.538-100000@freak.distro.conectiva>
-In-Reply-To: <Pine.LNX.4.21.0108201609190.538-100000@freak.distro.conectiva>
+	id <S269454AbRHTVhH>; Mon, 20 Aug 2001 17:37:07 -0400
+Received: from firewall.fesppr.br ([200.238.157.11]:1270 "EHLO smtp2.fesppr.br")
+	by vger.kernel.org with ESMTP id <S269436AbRHTVhA>;
+	Mon, 20 Aug 2001 17:37:00 -0400
+To: linux-kernel@vger.kernel.org
+Subject: IPX in 2.4.[5-9]
+Message-ID: <998343425.3b818301718cd@webmail.fesppr.br>
+Date: Mon, 20 Aug 2001 18:37:05 -0300 (BRT)
+From: Alexandre Hautequest <hquest@fesppr.br>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <20010820213425Z16360-32383+586@humbolt.nl.linux.org>
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 8bit
+User-Agent: IMP/PHP IMAP webmail program 2.2.4
+X-Originating-IP: 172.16.40.2
+X-WebMail-Company: Fundacao de Estudos Sociais do Parana
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On August 20, 2001 09:12 pm, Marcelo Tosatti wrote:
-> On Mon, 20 Aug 2001, Daniel Phillips wrote:
-> > On August 20, 2001 09:14 pm, Mike Galbraith wrote:
-> > > We need to get the pages 'actioned' (the only thing that really matters)
-> > > off of the dirty list so that they are out of the equation.. that I'm
-> > > sure of.
-> > 
-> > Well, except when the page is only going to be used once, or not at all (in 
-> > the case of an unused readahead page).  Otherwise, no, we don't want to have 
-> > frequently used pages or pages we know nothing about dropping of the inactive 
-> > queue into the bit-bucket.  There's more work to do to make that come true.
-> 
-> Find riel's message with topic "VM tuning" to linux-mm, then take a look
-> at the 4th aging option.
-> 
-> That one _should_ be able to make us remove all kinds of "hacks" to do
-> drop behind, and also it should keep hot/warm active memory _in cache_
-> for more time. 
+Hello all.
 
-I looked at it yesterday.  The problem is, it loses the information about *how*
-a page is used: pagecache lookup via readahead has different implications than
-actual usage.  The other thing that looks a little problematic, which Rik also
-pointed out, is the potential long lag before the inactive page is detected.
-A lot of IO can take place in this time, filling up the active list with pages
-that we could have evicted much earlier.
+What's the actual IPX support in linux? Is it broken since 2.4.7? Or i just need
+to recompile my tools against a new kernel version -- the old ones was compiled
+in a 2.4.5 -- with any patch, option, whatever?
+
+hquest@condor:~$ dmesg
+(snip)
+IPX Portions Copyright (c) 1995 Caldera, Inc.
+IPX Portions Copyright (c) 2000, 2001 Conectiva, Inc.
+hquest@condor:~$ /sbin/ifconfig -v eth0    
+eth0      Link encap:Ethernet  HWaddr 00:00:F8:08:BD:A1  
+          inet addr:172.16.40.2  Bcast:172.16.255.255  Mask:255.255.0.0
+          IPX/Ethernet 802.2 addr:AC100000:0000F808BDA1
+(snip)
+hquest@condor:~$ slist
+slist: Server not found (0x8847) in ncp_open
+hquest@condor:~$ _
+
+Not flaming anyone, just questioning.
+
+Please cc me, as im not subscribed to list.
+
+TIA
 
 --
-Daniel
+Alexandre Hautequest - hquest at fesppr.br
+Fundação de Estudos Sociais do Paraná - http://www.fesppr.br/
+Centro de Administração de Redes - CAR
+"Eu acreditava no sistema. Até que eles formataram minha família"
+
+Registered Linux User #116289 http://counter.li.org/
+
+"Ninguém é melhor do que todos nós juntos."
+Equipe Zeus Competições - www.gincaneiros-zeus.com.br
+
+-------------------------------------------------
+Esta mensagem foi enviada pelo WebMail da FESP.
+Conheça a FESP: http://www.fesppr.br/

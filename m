@@ -1,31 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268481AbUHLBHK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268365AbUHLBGT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268481AbUHLBHK (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 Aug 2004 21:07:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268418AbUHLAwd
+	id S268365AbUHLBGT (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 Aug 2004 21:06:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268398AbUHLBDi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 Aug 2004 20:52:33 -0400
-Received: from dragnfire.mtl.istop.com ([66.11.160.179]:36819 "EHLO
-	dsl.commfireservices.com") by vger.kernel.org with ESMTP
-	id S268363AbUHLAu0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 Aug 2004 20:50:26 -0400
-Date: Wed, 11 Aug 2004 20:54:21 -0400 (EDT)
-From: Zwane Mwaikambo <zwane@linuxpower.ca>
+	Wed, 11 Aug 2004 21:03:38 -0400
+Received: from holomorphy.com ([207.189.100.168]:52103 "EHLO holomorphy.com")
+	by vger.kernel.org with ESMTP id S268468AbUHLBBb (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 11 Aug 2004 21:01:31 -0400
+Date: Wed, 11 Aug 2004 18:01:15 -0700
+From: William Lee Irwin III <wli@holomorphy.com>
 To: Keith Owens <kaos@ocs.com.au>
 Cc: Linus Torvalds <torvalds@osdl.org>, Pavel Machek <pavel@ucw.cz>,
+       Zwane Mwaikambo <zwane@linuxpower.ca>,
        Linux Kernel <linux-kernel@vger.kernel.org>,
        Andrew Morton <akpm@osdl.org>, Matt Mackall <mpm@selenic.com>
-Subject: Re: [PATCH][2.6] Completely out of line spinlocks / i386 
+Subject: Re: [PATCH][2.6] Completely out of line spinlocks / i386
+Message-ID: <20040812010115.GY11200@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	Keith Owens <kaos@ocs.com.au>, Linus Torvalds <torvalds@osdl.org>,
+	Pavel Machek <pavel@ucw.cz>, Zwane Mwaikambo <zwane@linuxpower.ca>,
+	Linux Kernel <linux-kernel@vger.kernel.org>,
+	Andrew Morton <akpm@osdl.org>, Matt Mackall <mpm@selenic.com>
+References: <Pine.LNX.4.58.0408111511380.1839@ppc970.osdl.org> <23701.1092268910@ocs3.ocs.com.au>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 In-Reply-To: <23701.1092268910@ocs3.ocs.com.au>
-Message-ID: <Pine.LNX.4.58.0408112046200.2544@montezuma.fsmlabs.com>
-References: <23701.1092268910@ocs3.ocs.com.au>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+User-Agent: Mutt/1.5.6+20040722i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 12 Aug 2004, Keith Owens wrote:
+On Wed, 11 Aug 2004 15:13:15 -0700 (PDT), Linus Torvalds wrote:
+>> The inline spinlocks are _wonderful_ for seeing where the contention is in 
+>> a simple profile.
+>> In contrast, in a profile the out-of-lines ones will show "x% was spent on 
+>> spinlocks". Which doesn't help much when you want to see where the problem 
+>> is.
+>> This was _hugely_ useful, at least for me, for seeing what locks were 
+>> problematic.
 
+On Thu, Aug 12, 2004 at 10:01:50AM +1000, Keith Owens wrote:
 > Tweak the profile code to detect that the instruction pointer is in the
 > out of line spinlock code and replace the ip with the caller's ip.  We
 > already do that for ia64, where the out of line spinlock code is a big
@@ -33,8 +49,17 @@ On Thu, 12 Aug 2004, Keith Owens wrote:
 > address of the lock, which is only possible because the lock address is
 > in a known location for this case.
 
-Yes this was one of the downsides of using the code, same thing would have
-to be done for oprofile. I'll have to give this a go.
+This would be a useful extension for other architectures also, if/when
+they convert to doing likewise.
 
-Thanks,
-	Zwane
+I actually favored making C language spin_lock() (i.e. the goddamn
+thing is declared as a C function void spin_lock(spinlock_t *) and is
+called like a normal C function -- no inline asm or inline C functions
+at all) entrypoints beyond merely conslidating contention loops, but I
+feared that would be too extreme of a reversal of the status quo to
+ever get traction to post it. It did, however, shrink the kernel text
+the most of any of the out-of-line spinlock patches by a large margin,
+something completely absurd-sounding, like 220KB vs. 20KB-60KB. =)
+
+
+-- wli

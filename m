@@ -1,116 +1,94 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263808AbTKRWls (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 18 Nov 2003 17:41:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263810AbTKRWls
+	id S263810AbTKRWzf (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 18 Nov 2003 17:55:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263811AbTKRWzf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 18 Nov 2003 17:41:48 -0500
-Received: from chaos.analogic.com ([204.178.40.224]:31107 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP id S263808AbTKRWlp
+	Tue, 18 Nov 2003 17:55:35 -0500
+Received: from mail-08.iinet.net.au ([203.59.3.40]:4317 "HELO
+	mail.iinet.net.au") by vger.kernel.org with SMTP id S263810AbTKRWzd
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 18 Nov 2003 17:41:45 -0500
-Date: Tue, 18 Nov 2003 17:44:34 -0500 (EST)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-X-X-Sender: root@chaos
-Reply-To: root@chaos.analogic.com
-To: Peter Chubb <peter@chubb.wattle.id.au>
-cc: kernwek jalsl <edityacomm@yahoo.com>, linux-kernel@vger.kernel.org
-Subject: Re: softirqd
-In-Reply-To: <16314.39961.545212.446223@wombat.chubb.wattle.id.au>
-Message-ID: <Pine.LNX.4.53.0311181736170.17786@chaos>
-References: <Pine.LNX.4.53.0311170914580.22131@chaos>
- <20031118063551.25057.qmail@web20710.mail.yahoo.com>
- <16314.39961.545212.446223@wombat.chubb.wattle.id.au>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Tue, 18 Nov 2003 17:55:33 -0500
+Subject: Re: kernel.bkbits.net off the air
+From: Sven Dowideit <svenud@ozemail.com.au>
+Reply-To: svenud@ozemail.com.au
+To: Larry McVoy <lm@bitmover.com>
+Cc: Ben Collins <bcollins@debian.org>, Andrew Walrond <andrew@walrond.org>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <20031118184200.GA13966@work.bitmover.com>
+References: <fa.eto0cvm.1v20528@ifi.uio.no>
+	 <200311141624.32108.andrew@walrond.org>
+	 <20031114164640.GA1618@work.bitmover.com>
+	 <200311141734.57122.andrew@walrond.org>
+	 <20031114174303.GC32466@work.bitmover.com> <1068959565.889.5.camel@sven>
+	 <20031118153054.GB10584@work.bitmover.com>
+	 <20031118183058.GS476@phunnypharm.org>
+	 <20031118184200.GA13966@work.bitmover.com>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-oldyKKlYIFLfgTW3QDXQ"
+Message-Id: <1069196035.883.21.camel@sven>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Wed, 19 Nov 2003 09:53:56 +1100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 19 Nov 2003, Peter Chubb wrote:
 
->
->
->
-> Kernwek Jalsl said:
->
-> Kernwek> Sorry in case I was not very clear with my
-> Kernwek> requirements.   With real time interrupt I meant a
-> Kernwek> real time task waiting for IO from this interrupt.
-> Kernwek> Assume that I have a high priority interrupt and a
-> Kernwek> real time task waiting for it. Well followimg are the
-> Kernwek> various latencies involved:
-> Kernwek> L1- interrupt latency
-> Kernwek> L2- hard and soft IRQ completion
-> Kernwek> L3 - scheduler latency
-> Kernwek> L4 - scheduler completion
->
-> Kernwek> L1 is pretty acceptable on Linux.
->
-> I've been trying to measure this.  On IA64 I'm measuring around
-> 2.5microseconds (on a 900MHz machine).  I personally think that this
-> is too big, and could be reduced.
+--=-oldyKKlYIFLfgTW3QDXQ
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
+Larry,
 
-I have a driver which, upon getting an IRQ7 (printer-port interrupt),
-just reads the 'paper-out' bit and writes the result to the data-port.
-This allows me to toggle the bit and measure the time using a 'scope
-and a function generator. The complete time for everything is about
-900 nanoseconds on this machine:
+On Wed, 2003-11-19 at 05:42, Larry McVoy wrote:
+> It would be free as in w/ source, probably BSD rather than GPL but some
+> license you'd like.  About the only thing we'd need to worry about is
+> our commercial customers taking this and using it as a way to not pay
+> for some seats so there is some chance that we'd want to put in some
+> hook there, I'd have to think about that before promising anything.
+to my mind this would be brilliant, but i don't remember every whinging
+about bk ;).
 
-processor	: 0
-vendor_id	: GenuineIntel
-cpu family	: 6
-model		: 5
-model name	: Pentium II (Deschutes)
-stepping	: 1
-cpu MHz		: 399.568
-cache size	: 512 KB
-fdiv_bug	: no
-hlt_bug		: no
-f00f_bug	: no
-coma_bug	: no
-fpu		: yes
-fpu_exception	: yes
-cpuid level	: 2
-wp		: yes
-flags		: fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 mmx fxsr
-bogomips	: 797.90
+The only requirements that would need to be fulfilled for it to go into
+debian, would be source, a licence that does not restrict the usage of
+the code/ package, and a distinct lack of invariant sections in the
+license. (a real debian developer can probably elaborate better than i)
+>=20
+> I'm curious as to why you would think this is better than the CVS gateway=
+.
+> The CVS gateway is actually a really nice thing.  The whiners think we
+> have somehow hamstrung the data in the gateway but that's only because
+> they haven't looked at the data, if they had done a careful comparison=20
+> then they'd know it's all in there.
+last time i tried the cvs gateway, i think i had trouble getting a full
+shadow.. I should try again really, but i would hope that the
+openBKClient could be faster, better and more modern (oh, and sexy too)
 
-processor	: 1
-vendor_id	: GenuineIntel
-cpu family	: 6
-model		: 5
-model name	: Pentium II (Deschutes)
-stepping	: 1
-cpu MHz		: 399.568
-cache size	: 512 KB
-fdiv_bug	: no
-hlt_bug		: no
-f00f_bug	: no
-coma_bug	: no
-fpu		: yes
-fpu_exception	: yes
-cpuid level	: 2
-wp		: yes
-flags		: fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 mmx fxsr
-bogomips	: 797.90
+(and would mean that you don't need the cvs gateway anymore!)
+>=20
+> So what's the attraction?  Having a client that will work with any BK
+> server?  Do you realize that the client is just a way to get at the head?
+> And tagged releases?  It doesn't have 1/10th the functionality of BK itse=
+lf.
+yep. and for me, until i do some actual kernel development (unlikely as
+i just can't find the time), this is all i think i want - i should be
+able to do a bit more testing this way.
 
 
-I have to disconnect the network before making the test because
-the network driver will hog too much CPU time handling broadcast
-messages to make any useful measurments.
+cheers
 
-Considering that it takes 150 to 200 ns to read/write the printer-
-port, I don't think that's too bad.
+Sven
 
+--=-oldyKKlYIFLfgTW3QDXQ
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
 
-[SNIPPED...]
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.3 (GNU/Linux)
 
+iD8DBQA/uqMDPAwzu0QrW+kRAoQDAKCjtUmxqZYc1xLK50Enia/Cr+LUjwCfYmFe
+gEkWCM5P9v6R9l+N18pjFAk=
+=mkMR
+-----END PGP SIGNATURE-----
 
-
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.4.22 on an i686 machine (797.90 BogoMips).
-            Note 96.31% of all statistics are fiction.
-
+--=-oldyKKlYIFLfgTW3QDXQ--
 

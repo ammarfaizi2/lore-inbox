@@ -1,22 +1,22 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264565AbTKNQ7T (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 14 Nov 2003 11:59:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264566AbTKNQ7T
+	id S264575AbTKNRAj (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 14 Nov 2003 12:00:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264581AbTKNRAj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 14 Nov 2003 11:59:19 -0500
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:23812 "EHLO
+	Fri, 14 Nov 2003 12:00:39 -0500
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:26372 "EHLO
 	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S264565AbTKNQ7S (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 14 Nov 2003 11:59:18 -0500
-Date: Fri, 14 Nov 2003 16:59:13 +0000
+	id S264575AbTKNRAb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 14 Nov 2003 12:00:31 -0500
+Date: Fri, 14 Nov 2003 17:00:26 +0000
 From: Russell King <rmk+lkml@arm.linux.org.uk>
 To: Guennadi Liakhovetski <gl@dsa-ac.de>
 Cc: ARM Linux kernel <linux-arm-kernel@lists.arm.linux.org.uk>,
        linux-kernel@vger.kernel.org,
        Guennadi Liakhovetski <g.liakhovetski@gmx.de>
 Subject: Re: Oops in flash
-Message-ID: <20031114165913.B17247@flint.arm.linux.org.uk>
+Message-ID: <20031114170026.C17247@flint.arm.linux.org.uk>
 Mail-Followup-To: Guennadi Liakhovetski <gl@dsa-ac.de>,
 	ARM Linux kernel <linux-arm-kernel@lists.arm.linux.org.uk>,
 	linux-kernel@vger.kernel.org,
@@ -32,11 +32,13 @@ Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 On Fri, Nov 14, 2003 at 05:53:00PM +0100, Guennadi Liakhovetski wrote:
-> The patch is small and simple, one just has to find a suitable place for
-> it. Also, we don't set the oops_in_progress variable on ARM - it can be
-> quite nicely used for this purpose. Should we do it regardless?
+> CC-ing to LKML, because other embedded (and not so embedded) systems might
+> also find this idea useful.
 
-2.6 ARM kernels do set this variable on oops.
+Also, please note that because the linux-arm* lists are poster-moderated,
+it is _not_ a good idea to cross-post between those lists and LKML.
+
+Please refrain from doing so in the future.
 
 -- 
 Russell King

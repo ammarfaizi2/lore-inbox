@@ -1,38 +1,72 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264803AbSJaKae>; Thu, 31 Oct 2002 05:30:34 -0500
+	id <S264807AbSJaKbq>; Thu, 31 Oct 2002 05:31:46 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264807AbSJaKae>; Thu, 31 Oct 2002 05:30:34 -0500
-Received: from pc1-cwma1-5-cust42.swa.cable.ntl.com ([80.5.120.42]:54404 "EHLO
-	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S264803AbSJaKae>; Thu, 31 Oct 2002 05:30:34 -0500
-Subject: Re: [STATUS 2.5]  October 30, 2002
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: "Eric W. Biederman" <ebiederm@xmission.com>
-Cc: Dave Jones <davej@codemonkey.org.uk>, boissiere@adiglobal.com,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <m1iszjgmaz.fsf@frodo.biederman.org>
-References: <20021030161708.GA8321@suse.de> 
-	<m1iszjgmaz.fsf@frodo.biederman.org>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
-Date: 31 Oct 2002 10:56:49 +0000
-Message-Id: <1036061809.8584.4.camel@irongate.swansea.linux.org.uk>
-Mime-Version: 1.0
+	id <S264813AbSJaKbq>; Thu, 31 Oct 2002 05:31:46 -0500
+Received: from mta04bw.bigpond.com ([139.134.6.87]:36079 "EHLO
+	mta04bw.bigpond.com") by vger.kernel.org with ESMTP
+	id <S264807AbSJaKbo> convert rfc822-to-8bit; Thu, 31 Oct 2002 05:31:44 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Srihari Vijayaraghavan <harisri@bigpond.com>
+To: Andrea Arcangeli <andrea@suse.de>
+Subject: Re: 2.4.20pre11aa1
+Date: Thu, 31 Oct 2002 21:47:42 +1100
+User-Agent: KMail/1.4.3
+Cc: linux-kernel@vger.kernel.org
+References: <20021018145204.GG23930@dualathlon.random> <20021023143515.GE1912@dualathlon.random> <200210260003.06285.harisri@bigpond.com>
+In-Reply-To: <200210260003.06285.harisri@bigpond.com>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <200210312147.42836.harisri@bigpond.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2002-10-31 at 06:22, Eric W. Biederman wrote:
-> I actually like the idea of ECC drivers, and routinely make certain
-> there is a working ECC driver on the systems I ship.  It is so much
-> very easier to catch memory errors with good ECC error reporting.  But
-> unless I have slept soundly through a fundamental change, the
-> linux-ecc project currently does not ship quality drivers.  The
-> infrastructure is bad, and the code is not quite correct. 
-> 
-> If you want I can dig up the drivers I am currently using and send
-> them to you.
+Hello Andrea,
 
-That would be really cool
+On Saturday 26 October 2002 00:03, Srihari Vijayaraghavan wrote:
+> The resulting kernel is very stable and it does not crash.
+>
+> Then I tried patches [01]* and the extra patches (20_apm-o1-sched-1,
+> 20_rcu-poll-7, 20_sched-o1-fixes-5, 21_o1-A4-aa-1), I couldn't compile
+> the kernel.
+
+The current status is:
+
+[0]* - compiles fine - works fine
+[01]* - couldn't compile
+[012]* - compiles fine - crashes
+
+So I believe either 1* or 2* patches are introducing the issue.
+
+In the mean time I had an opportunity to test -aa on a nice IBM NetVista 
+computer, whose configuration is as follows:
+
+00:00.0 Host bridge: Intel Corp. 82815 815 Chipset Host Bridge and Memory 
+Controller Hub (rev 02)
+00:02.0 VGA compatible controller: Intel Corp. 82815 CGC [Chipset Graphics 
+Controller] (rev 02)
+00:1e.0 PCI bridge: Intel Corp. 82801BA/CA/DB PCI Bridge (rev 02)
+00:1f.0 ISA bridge: Intel Corp. 82801BA ISA Bridge (LPC) (rev 02)
+00:1f.1 IDE interface: Intel Corp. 82801BA IDE U100 (rev 02)
+00:1f.2 USB Controller: Intel Corp. 82801BA/BAM USB (Hub #1) (rev 02)
+00:1f.3 SMBus: Intel Corp. 82801BA/BAM SMBus (rev 02)
+00:1f.5 Multimedia audio controller: Intel Corp. 82801BA/BAM AC'97 Audio (rev 
+02)
+01:08.0 Ethernet controller: Intel Corp. 82801BA/BAM/CA/CAM Ethernet 
+Controller (rev 01)
+
+I can easily reproduce the same issue on that computer too (of course I am 
+using CONFIG_AGP_I810 for agpgart support and CONFIG_DRM_I810 for i810 
+display card support).
+
+I think this eliminates the doubt on DRM support of Radeon (or i810 for that 
+matter), and the issue appears very specific to agpgart in general.
+
+Anyway I guess we are very close to the problem, if someone helps me to 
+compile -aa with [01]* patches I think we can pinpoint the issue I suspect.
+
+Thanks for your help and support.
+-- 
+Hari
+harisri@bigpond.com
 

@@ -1,121 +1,113 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262062AbUCIQsi (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 9 Mar 2004 11:48:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261987AbUCIQsi
+	id S262049AbUCIQrZ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 9 Mar 2004 11:47:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262061AbUCIQrZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 Mar 2004 11:48:38 -0500
-Received: from smtp.freestart.hu ([213.197.64.6]:32516 "EHLO
-	relay.freestart.hu") by vger.kernel.org with ESMTP id S262062AbUCIQsX
+	Tue, 9 Mar 2004 11:47:25 -0500
+Received: from 34.mufa.noln.chcgil24.dsl.att.net ([12.100.181.34]:1018 "EHLO
+	tabby.cats.internal") by vger.kernel.org with ESMTP id S262049AbUCIQrV
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 Mar 2004 11:48:23 -0500
-Date: Tue, 9 Mar 2004 17:46:18 +0100 (CET)
-From: "Peter S. Mazinger" <ps.m@gmx.net>
-To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: BUG in 2.4.25-rc1: attempt to access beyond end of device, alsoIbm Serveraid
-In-Reply-To: <Pine.LNX.4.44.0403011935270.9653-100000@lnx.bridge.intra>
-Message-ID: <Pine.LNX.4.44.0403091738460.18861-100000@lnx.bridge.intra>
+	Tue, 9 Mar 2004 11:47:21 -0500
+Content-Type: text/plain;
+  charset="CP 1252"
+From: Jesse Pollard <jesse@cats-chateau.net>
+To: =?CP 1252?q?S=F8ren=20Hansen?= <sh@warma.dk>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: UID/GID mapping system
+Date: Tue, 9 Mar 2004 10:46:57 -0600
+X-Mailer: KMail [version 1.2]
+References: <1078775149.23059.25.camel@luke>
+In-Reply-To: <1078775149.23059.25.camel@luke>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-freestart-banner: Yes
+Message-Id: <04030910465700.32521@tabby>
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 1 Mar 2004, Peter S. Mazinger wrote:
+On Monday 08 March 2004 13:45, Søren Hansen wrote:
+> Based on recent discussions with Urban Widmark, regarding a patch to
+> smbfs, I've come up with a system for mapping "local" and "remote" UID's
+> and GID's to each other. "Local" means those in the user database and
+> "remote" means those on the filesystem in question, be it networked or
+> non-networked. This system enables you to mount a filesystem via NFS or
+> Samba (with UNIX extensions) and supply a bunch of mappings between the
+> UID's and GID's on the client system and those on the server system.
+> Whenever a local user does something on the filesystem, his UID is
+> mapped to his corresponding UID on the remote system. This all takes
+> place in the VFS system.
+> The system can also be used if a user were to mount a samba share that
+> has the UNIX extensions enabled. In this case, you'd define a default
+> local and a default remote UID/GID so that all files would locally
+> appear to be owned by the mounting user, hence allowing him to actually
+> access the files that the server would allow him to, without placing any
+> additional local restrictions on his access (if this doesn't seem to
+> make sense, see my previous post with subject "smbfs patch").
+> If you you're moving a disk from one system to another, you could use
+> the system to fix up the ownership instead of having to change them all
+> on the actual filesystem.
+> All in all, I think this could be very helpful.
+>
+> However, I have two question:
+> 1. I'm very new to this kernel stuff, and this might only be a good idea
+> inside my head. Does this sound clever or am I fixing these problems at
+> the totally wrong level?
+> 2. I need a bit of help getting these mappings from the mount command
+> into the kernel. I'm thinking about allowing a mount option called
+> uidmap and one called gidmap which both take a filename as argument.
+> This file could look like so:
+> ============================
+> # Syntax:
+> # local id = remote id
+> 1000 = 1005
+> 1001 = 1003
+> 1002 = 1002
+> default = 1000
+> 1004 = default
+> ============================
+> ...or something like that. I just haven't quite figured out how to have
+> mount read these options and pass it to the kernel to populate these map
+> tables. Any pointers would be greatly appreciated.
+> The patches to the VFS system are in place, I just want to test them
+> some more before posting them anywhere.
 
-> On Fri, 27 Feb 2004, Marcelo Tosatti wrote:
-> 
-> > 
-> > Peter,
-> > 
-> > Can you try to revert (apply with -R) and see if it happens again, please?
-> 
-> Yes, it happens again (the problem appeared at 2.4.25-pre4 time, but that 
-> patch is to huge for me to find the problematic part)
+Have you considered the problem of 64 bit uids? and gids?, and unlimited 
+number of groups assigned to a single user? How about having to support
+multiple maps (one for each remote host that mounts a filesystem)?
 
-I have tried both patches proposed by Chuck Lever
+I suspect not - you don't have enough memory to handle it.
 
---- mm/filemap.c.mps	Tue Mar  9 16:53:01 2004
-+++ mm/filemap.c	Tue Mar  9 16:55:07 2004
-@@ -1348,7 +1348,7 @@
- 	while (ahead < max_ahead) {
- 		unsigned long ra_index = raend + ahead + 1;
- 
--		if (ra_index > end_index)
-+		if (ra_index >= end_index)
- 			break;
- 		if (page_cache_read(filp, ra_index) < 0)
- 			break;
+These tables are going to have to be external to the kernel, and the kernel
+only caching those that are known to be active to speed up the search.
 
-this one corrects the error
+This will call for an external daemon to support the dynamic mapping. Second,
+you will have to have one map for each exported filesystem for each host that
+is allowed to mount it. I grant that frequently there will be one map used
+multiple times, but the worst case is one for each host.
 
---- mm/filemap.c.mps	Tue Mar  9 14:33:17 2004
-+++ mm/filemap.c	Tue Mar  9 14:35:01 2004
-@@ -1286,6 +1286,8 @@
- 	int max_readahead = get_max_readahead(inode);
- 
- 	end_index = inode->i_size >> PAGE_CACHE_SHIFT;
-+	end_index = ((inode->i_size + ~PAGE_CACHE_MASK) >>
-+						PAGE_CACHE_SHIFT) - 1;
- 
- 	raend = filp->f_raend;
- 	max_ahead = 0;
+To speed the external lookups up I suggest using a radix search (not my
+original idea - Cray did it first).
 
-this one does not correct the error
+I also suggest making it optional - or being able to specify a 1:1 mapping
+be assumed. And be used with an inverse table: UIDs that are NOT to be mapped
+(as in, all uids are mapped 1:1 EXCEPT ...)
 
-my ATA controller is ICH5 (built into the kernel), so add it too to the 
-list of problematic drivers.
+I have worked at centers that had about 1200 users on each of 5 compute 
+servers. Each compute server mounts the same filesystem from a server. IF
+and only if all systems are within one security domain (all users are common, 
+and have the same uid/gid list for all systems - a frequent case), do
+you not need a map.
 
-Peter
+If each compute server is in a different security domain (unique user list)
+then you must have 5 maps (10 if you include group maps) for each filesystem.
+That adds up to 6000 entries in uid maps alone. If 64 bit uids are used (8
+bytes/uid) that becomes 48K for the example, with only ONE exported
+filesystem, and only uids. This might seem a lot, but consider exports to
+workstations - 150 workstations, and likely 2-5 uids each (at least
+one for admininistration use). That would be 150 maps (just uids), of only 5
+entries each - 750 entries, 6K (more reasonable).
 
-> 
-> > 
-> > 
-> > On Fri, 6 Feb 2004, Peter S. Mazinger wrote:
-> > 
-> > > Hello!
-> > >
-> > > my hardware:
-> > > x86
-> > > ide controller (builtin driver)
-> > > ext3 partitions (as modules loaded from initrd)
-> > >
-> > > if I shutdown -h now the computer, I get as last messages:
-> > > attempt to access beyond end of device
-> > > 03:03 rw=0, want=1044228, limit=1044225
-> > > (3 times, 03:03/want/limit with other numbers), for all mounted
-> > > (remounted ro) partitions
-> > >
-> > > distro: RedHat 7.3 (with all updates up to december)
-> > > kernel is pristine: only 2.4.25-rc1 applied (EXPERIMENTAL code disabled)
-> > > util-linux: 2.11n-12.7.3 (used umount, if it matters)
-> > >
-> > > Peter
-> > >
-> > > --
-> > > Peter S. Mazinger <ps dot m at gmx dot net>           ID: 0xA5F059F2
-> > > Key fingerprint = 92A4 31E1 56BC 3D5A 2D08  BB6E C389 975E A5F0 59F2
-> > >
-> > >
-> > > ____________________________________________________________________
-> > > Miert fizetsz az internetert? Korlatlan, ingyenes internet hozzaferes a FreeStarttol.
-> > > Probald ki most! http://www.freestart.hu
-> > > -
-> > > To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> > > the body of a message to majordomo@vger.kernel.org
-> > > More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> > > Please read the FAQ at  http://www.tux.org/lkml/
-> > >
-> 
-> 
-
--- 
-Peter S. Mazinger <ps dot m at gmx dot net>           ID: 0xA5F059F2
-Key fingerprint = 92A4 31E1 56BC 3D5A 2D08  BB6E C389 975E A5F0 59F2
-
-
-
-____________________________________________________________________
-Miert fizetsz az internetert? Korlatlan, ingyenes internet hozzaferes a FreeStarttol.
-Probald ki most! http://www.freestart.hu
+With Linux showing up more and more in large clusters, I expect the total
+number of users to increase for the worst case result (consider 4 128 node
+clusters mounting filesystems from an archive cluster: 512 mounts, with maybe
+100 users for each cluster? something like 4MB for maps alone)

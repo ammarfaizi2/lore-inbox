@@ -1,62 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264134AbTF0KVM (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 27 Jun 2003 06:21:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264146AbTF0KVM
+	id S264104AbTF0KcL (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 27 Jun 2003 06:32:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264146AbTF0KcL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 27 Jun 2003 06:21:12 -0400
-Received: from nat-pool-rdu.redhat.com ([66.187.233.200]:24891 "EHLO
-	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
-	id S264134AbTF0KVK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 27 Jun 2003 06:21:10 -0400
-Subject: Re: O_DIRECT
-From: "Stephen C. Tweedie" <sct@redhat.com>
-To: Alan Cox <alan@redhat.com>
-Cc: Stephen Tweedie <sct@redhat.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <1056706819.2418.11.camel@sisko.scot.redhat.com>
-References: <200306262021.h5QKLhN10771@devserv.devel.redhat.com>
-	 <1056706819.2418.11.camel@sisko.scot.redhat.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Organization: 
-Message-Id: <1056710121.2418.19.camel@sisko.scot.redhat.com>
+	Fri, 27 Jun 2003 06:32:11 -0400
+Received: from [213.171.53.133] ([213.171.53.133]:42762 "EHLO gulipin.miee.ru")
+	by vger.kernel.org with ESMTP id S264104AbTF0KcK (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 27 Jun 2003 06:32:10 -0400
+Date: Fri, 27 Jun 2003 13:47:56 +0400
+From: Samium Gromoff <deepfire@ibe.miee.ru>
+To: linux-kernel@vger.kernel.org
+Cc: sct@redhat.com, akpm@digeo.com, axboe@suse.de
+Subject: [BIO] request->flags ambiguity
+Message-Id: <20030627134756.4118617e.deepfire@ibe.miee.ru>
+X-Mailer: Sylpheed version 0.9.0 (GTK+ 1.2.10; i386-debian-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
-Date: 27 Jun 2003 11:35:21 +0100
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Alan,
+	I might just be completely off base, but something struck me lately as odd, and i`d
+	like to hear what you folks think about the issue.
 
-On Fri, 2003-06-27 at 10:40, Stephen C. Tweedie wrote:
+	I`m wondering about the ambiguity of the struct request->flags field.
 
-> On Thu, 2003-06-26 at 21:21, Alan Cox wrote:
-> > So its now confirmed with 3 distros, two file systems and several 
-> > compilers. It certainly seems to be the O_DIRECT patches but I'll pull
-> > the back out for the next -ac and check I guess
+	Is it ok to have a possibility of a request with conflicting meanings attached to it?
+	For example REQ_CMD | REQ_PM_SHUTDOWN | REQ_SPECIAL.
 
-Ouch ouch ouch, there's nasty merge conflict between the O_DIRECT patch
-and an existing 64-bit rlimit chunk in -ac3.  You really, really want
-the change below. :-)  Marcelo's tree appears OK, and this is a common
-code path for all filesystems in -ac, so it matches the failure patterns
-that far.
+	It may be, depending on the implementation, that they are not completely
+	conflicting, but its hard to believe that there is zero ambiguity at all.
 
-Cheers,
- Stephen
+	If i`m not mistaken this looks as creating opportunities for various subtle bugs.
 
---- mm/filemap.c.~1~	2003-06-27 09:58:08.000000000 +0100
-+++ mm/filemap.c	2003-06-27 11:13:07.000000000 +0100
-@@ -2995,8 +2995,8 @@
- 		}
- 		/* Fix this up when we got to rlimit64 */
- 		if (pos > 0xFFFFFFFFULL)
--			count = 0;
--		else if(count > limit - (u32)pos) {
-+			*count = 0;
-+		else if(*count > limit - (u32)pos) {
- 			/* send_sig(SIGXFSZ, current, 0); */
- 			*count = limit - (u32)pos;
- 		}
+	Shouldn`t it make more sense to separate request-type-indicator flags
+	into a separate unambiguous type field, which would take
+	one of the following values:
+		- read/write request
+		- sense query
+		- power control
+		- special request
 
+	And not a currently possible combination of all of them, which seem to be the
+	current situation.
 
+-- 
+regards, Samium Gromoff

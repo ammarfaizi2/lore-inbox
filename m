@@ -1,88 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261822AbTIAS6O (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 1 Sep 2003 14:58:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263185AbTIAS6O
+	id S263190AbTIATEM (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 1 Sep 2003 15:04:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263196AbTIATEM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 1 Sep 2003 14:58:14 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:45230 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S261822AbTIAS6M
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 1 Sep 2003 14:58:12 -0400
-Date: Mon, 1 Sep 2003 16:00:49 -0300 (BRT)
-From: Marcelo Tosatti <marcelo@parcelfarce.linux.theplanet.co.uk>
-X-X-Sender: marcelo@logos.cnet
-To: Andrea Arcangeli <andrea@suse.de>
-Cc: Marcelo Tosatti <marcelo@conectiva.com.br>,
-       Mike Fedyk <mfedyk@matchmail.com>, Antonio Vargas <wind@cocodriloo.com>,
-       lkml <linux-kernel@vger.kernel.org>,
-       Marc-Christian Petersen <m.c.p@wolk-project.de>
-Subject: Re: Andrea VM changes
-In-Reply-To: <20030830154137.GK24409@dualathlon.random>
-Message-ID: <Pine.LNX.4.44.0309011553210.6008-100000@logos.cnet>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Mon, 1 Sep 2003 15:04:12 -0400
+Received: from fw.osdl.org ([65.172.181.6]:24961 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S263190AbTIATEJ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 1 Sep 2003 15:04:09 -0400
+Date: Mon, 1 Sep 2003 12:04:12 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: "Dale E Martin" <dmartin@cliftonlabs.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: repeatable, hard lockup on boot in linux-2.6.0-test4 (more
+ details)
+Message-Id: <20030901120412.2047eeff.akpm@osdl.org>
+In-Reply-To: <20030901182359.GA871@cliftonlabs.com>
+References: <20030901153305.GA1429@cliftonlabs.com>
+	<20030901182359.GA871@cliftonlabs.com>
+X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-On Sat, 30 Aug 2003, Andrea Arcangeli wrote:
-
-> On Sat, Aug 30, 2003 at 12:13:57PM -0300, Marcelo Tosatti wrote:
-> > 
-> > > You need to integrate with -aa on the VM.  It has been hard enough for
-> > > Andrea to get his stuff in, I doubt you will fair any better.
-> > 
-> > Thats because I never received separate patches which make sense one by
-> > one.  Most of Andreas changes are all grouped into few big patches that
-> > only he knows the mess. That is not the way to merge things.
-> > 
-> > I want to work out with him after I merge other stuff to address that.
+"Dale E Martin" <dmartin@cliftonlabs.com> wrote:
+>
+> I just removed TCQ from my IDE setup, and I still lock up during boot.  The
+> last message displayed is:
+> mice: PS/2 mouse device common for all mice
 > 
-> that's true for only one patch, the others are pretty orthogonal after
-> Andrew helped splitting them:
+> The numlock comes on, and then I'm locked up hard, for instance, I cannot
+> turn off the numlock at this point.
 > 
-> 
-> 05_vm_03_vm_tunables-4
-> 05_vm_05_zone_accounting-2
-> 05_vm_06_swap_out-3
-> 05_vm_07_local_pages-4
-> 05_vm_08_try_to_free_pages_nozone-4
-> 05_vm_09_misc_junk-3
-> 05_vm_10_read_write_tweaks-3
-> 05_vm_13_activate_page_cleanup-1
-> 05_vm_15_active_page_swapout-1
-> 05_vm_16_active_free_zone_bhs-1
-> 05_vm_17_rest-10
+> One thing that I would note is that I don't have anything plugged into my
+> PS2/2 port since I have a USB mouse.  (A Kensington Model# MOSUU B, that
+> works fine in 2.4.x, FWIW.)  Please advise if there is more debugging that
+> I can try.
 
-Can you please split the watermark changes from 05_vm_rest-10 and send me
-that ? (no waitqueue changes, no page wakeup logic changes)
+Are you able to plug any PS/2 devices into the machine, see if that makes a
+difference?
 
-As I said previously, lets start with the page reclaiming logic changes 
-first, which include:
+Also it would be useful to add the option "initcall_debug" to the kernel
+boot command line.  Then you will see a bunch of messages of the form
 
-05_vm_03_vm_tunables-4
-05_vm_05_zone_accounting-2
-05_vm_06_swap_out-3 
+	calling initcall 0xNNNNNNNN
 
-And the necessary (ONLY watermark stuff AFAICS) from 05_vm_rest-10. 
+Please look up the final address in the System.map file from the 2.6 build.
+This will give us an idea of what the machine was trying to do when it
+died.
 
-Right?
-
-Thanks
-
-> 05_vm_18_buffer-page-uptodate-1
-> 05_vm_20_cleanups-3
-> 05_vm_21_rt-alloc-1
-> 05_vm_22_vm-anon-lru-1
-> 05_vm_23_per-cpu-pages-3
-> 05_vm_24_accessed-ipi-only-smp-1
-> 05_vm_25_try_to_free_buffers-invariant-1
-> 
-> The "mess" one is only 05_vm_17_rest-10 as far as I can tell.
-> 
-> Andrea
-> 
 
 

@@ -1,44 +1,79 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314325AbSETHoS>; Mon, 20 May 2002 03:44:18 -0400
+	id <S314241AbSETHsX>; Mon, 20 May 2002 03:48:23 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314389AbSETHoR>; Mon, 20 May 2002 03:44:17 -0400
-Received: from ahriman.Bucharest.roedu.net ([141.85.128.71]:26018 "HELO
-	ahriman.bucharest.roedu.net") by vger.kernel.org with SMTP
-	id <S314325AbSETHoR>; Mon, 20 May 2002 03:44:17 -0400
-Date: Mon, 20 May 2002 10:54:03 +0300 (EEST)
-From: Mihai RUSU <dizzy@roedu.net>
-X-X-Sender: <dizzy@ahriman.bucharest.roedu.net>
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: SO_TIMESTAMP
-Message-ID: <Pine.LNX.4.33.0205201042320.5575-100000@ahriman.bucharest.roedu.net>
+	id <S314278AbSETHsW>; Mon, 20 May 2002 03:48:22 -0400
+Received: from sproxy.gmx.net ([213.165.64.20]:17442 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id <S314241AbSETHsV>;
+	Mon, 20 May 2002 03:48:21 -0400
+Message-ID: <3CE89C2F.20ED671B@gmx.net>
+Date: Mon, 20 May 2002 08:48:15 +0200
+From: Gunther Mayer <gunther.mayer@gmx.net>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-pre4 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Andre Hedrick <andre@linux-ide.org>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] IDE PIO write Fix #2
+In-Reply-To: <Pine.LNX.4.10.10205191826310.8582-100000@master.linux-ide.org>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi
+Hi Andre,
 
-Sorry to bother you guys but I have been looking on the net for docs and
-couldnt find any. I am working on a echo-request/echo-reply based
-monitoring tool for Linux and while browsing the iptools sources from
-ftp.inr.ac.ru I noticed that the author does some magic (to me ;) ) with
-a SO_TIMESTAMP value. I have been looking in the kernel sources for this
-and it seems that 2.2.x doesnt have any SO_TIMESTAMP but 2.4.x have.
+1)
+I follow your arguments regarding BUSY_STAT handled earlier.
 
-If someone would explain to me what it does and how can I use it for
-accurate RTT values (or some URLs to the documentation about this).
+2)
+Can you explain, why the code looks at  "rq->current_nr_sectors==1" ?
+In ATA-4 there is no special handling for "single-sector-transfer" or
+"last-sector-transfer".
 
-Also the SIOCGSTAMP its not very well documented in the man pages, what
-does this return exactly ? The timestamp of the last received packet by a
-user process, any process, the running process ? :)
+Andre Hedrick wrote:
 
-Thanks
+> Hi Gunther,
+>
+> If you isolate that single section of code you are correct!
+> However taking into the entire state diagram handler, you are wrong.
+>
+> Your issue of BUSY_STAT is addressed long before we even consider
+> transferring a sector.  Additionally since we exit the state diagram after
+> the last interrupt and check status we have met the requirements.
+> DRIVE_READY exclusive to BUSY_STAT.
+>
+> Also note, my code base properly attempts to rewind the one whole sector
+> on a media failure, this works since it is single sector transfers.
+> Also note it is perfectly safe for partial completions and updating to the
+> upper layers.
+>
+> /*
+>  * Handler for command with PIO data-out phase WRITE
+>  */
+> ide_startstop_t task_out_intr (ide_drive_t *drive)
+> {
+>         byte stat               = INB(drive, IDE_STATUS_REG);
+>         struct request *rq      = HWGROUP(drive)->rq;
+>         char *pBuf              = NULL;
+>         unsigned long flags;
+>
+>         if (!OK_STAT(stat,DRIVE_READY,drive->bad_wstat)) {
+>                 DTF("%s: WRITE attempting to recover last " \
+>                         "sector counter status=0x%02x\n",
+>                         drive->name, stat);
+>                 rq->current_nr_sectors++;
+>                 return DRIVER(drive)->error(drive, "task_out_intr", stat);
+>         }
+>         /*
+>          * Safe to update request for partial completions.
+>          * We have a good STATUS CHECK!!!
+>          */
+>         if (!rq->current_nr_sectors)
+>                 if (!DRIVER(drive)->end_request(drive, 1))
+>                         return ide_stopped;
+>         if ((rq->current_nr_sectors==1) ^ (stat & DRQ_STAT)) {
+>
 
-----------------------------
-Mihai RUSU
-
-Disclaimer: Any views or opinions presented within this e-mail are solely
-those of the author and do not necessarily represent those of any company,
-unless otherwise specifically stated.
+...
 

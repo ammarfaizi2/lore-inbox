@@ -1,46 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262005AbTDQT4X (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Apr 2003 15:56:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262219AbTDQT4W
+	id S262186AbTDQTvw (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Apr 2003 15:51:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262219AbTDQTvv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Apr 2003 15:56:22 -0400
-Received: from AMontpellier-104-1-6-14.abo.wanadoo.fr ([81.51.196.14]:55028
-	"EHLO tethys.solarsys.org") by vger.kernel.org with ESMTP
-	id S262005AbTDQT4W (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Apr 2003 15:56:22 -0400
-Date: Thu, 17 Apr 2003 22:08:14 +0200
-From: wwp <subscript@free.fr>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Small fix for VMWare 3.2 (3.x?) on Redhat 9 (any 2.4.20+
- kernel?)
-Message-Id: <20030417220814.6cc48123.subscript@free.fr>
-In-Reply-To: <E193vrp-0006P4-00@trillium-hollow.org>
-References: <E193vrp-0006P4-00@trillium-hollow.org>
-X-Mailer: Sylpheed version 0.8.11claws (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Thu, 17 Apr 2003 15:51:51 -0400
+Received: from bay-bridge.veritas.com ([143.127.3.10]:10979 "EHLO
+	mtvmime02.veritas.com") by vger.kernel.org with ESMTP
+	id S262186AbTDQTvm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 17 Apr 2003 15:51:42 -0400
+Date: Thu, 17 Apr 2003 21:05:34 +0100 (BST)
+From: Hugh Dickins <hugh@veritas.com>
+X-X-Sender: hugh@localhost.localdomain
+To: Steven Rostedt <rostedt@stny.rr.com>
+cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       <srostedt@goodmis.org>
+Subject: Re: What's the reason that /dev/mem can't map unreserved RAM?
+In-Reply-To: <Pine.LNX.4.44.0304171414470.13337-100000@localhost.localdomain>
+Message-ID: <Pine.LNX.4.44.0304172036540.1966-100000@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi erich@uruk.org,
-
-
-On Fri, 11 Apr 2003 03:34:45 -0700 erich@uruk.org wrote:
-
-> FYI...
+On Thu, 17 Apr 2003, Steven Rostedt wrote:
 > 
-> I'm running Redhat 9, and to get my copy of VMWare 3.2 working with it,
-> I had to make a one-line fix to a source file inside the "vmnet.tar" file
-> for building the vmnet module.
+> What's the rational behind /dev/mem not being able to map unreserved RAM?
+> It can't be for protecting the system, because if you have access to 
+> reserved RAM (kernel text) then you can modify the remap_pte_range to 
+> allow for mapping of ram.
+> 
+> I have a user program for debugging kernel modules and the like, and it 
+> uses /dev/mem to map ram and prints it out. But unless I take out the 
+> check in remap_pte_range, I can't see allocated pages.
+> 
+> I just want to know the rational behind this.
 
-I did nearly the same for VMWare 3.2 to be used with SuSE 8.1. Some changes in
-the Makefiles and other files to fix compilation issues (mostly gcc 3.2).
-If someone is interested I can send the .tar file.
+I understand your surprise and frustration.
 
+The reason is not a very good one, it's just that we haven't
+yet done the work to allow unrestrained mapping of /dev/mem.
 
-Regards,
+A mapping of /dev/mem is unlike the usual mapping of a shared file.
+I can't explain this at all well: might one say, when you map a file,
+you are mapping the pages for the data they currently contain; but
+when you map /dev/mem, you are mapping the pages for their frames?
 
--- 
-wwp
+Think about the page->count, think about how in your mapping of
+/dev/mem there may be pages which belong to (currently contain
+data from) mapped files (and much else besides).
+
+When you munmap your mapping of /dev/mem, that must not free the
+pages you had mapped, you don't have any hold on them at all; yet
+as things stand (if you were allowed to map unReserved pages),
+it would decrement page->count, free unowned pages, cause havoc.
+
+There should be a specific VM_RESERVED flag (there is already but
+it's not used in quite this way) to forbid page->count manipulations
+on vmas (mappings) of /dev/mem.  But that code is not in place,
+so instead this rather ugly PageReserved stuff has hung around.
+
+I did start out on eliminating PageReserved a few months ago,
+but was persuaded to delay that until 2.7.  When that's done,
+you will be able to mmap /dev/mem properly.
+
+Hugh
+

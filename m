@@ -1,44 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261645AbRFBFs6>; Sat, 2 Jun 2001 01:48:58 -0400
+	id <S261861AbRFBF43>; Sat, 2 Jun 2001 01:56:29 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261744AbRFBFst>; Sat, 2 Jun 2001 01:48:49 -0400
-Received: from saturn.cs.uml.edu ([129.63.8.2]:18959 "EHLO saturn.cs.uml.edu")
-	by vger.kernel.org with ESMTP id <S261645AbRFBFsk>;
-	Sat, 2 Jun 2001 01:48:40 -0400
-From: "Albert D. Cahalan" <acahalan@cs.uml.edu>
-Message-Id: <200106020548.f525mZV441399@saturn.cs.uml.edu>
-Subject: Re: Highmem Bigmem question
-To: jlnance@intrex.net
-Date: Sat, 2 Jun 2001 01:48:35 -0400 (EDT)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20010601112127.A5798@bessie.localdomain> from "jlnance@intrex.net" at Jun 01, 2001 11:21:27 AM
-X-Mailer: ELM [version 2.5 PL2]
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S261801AbRFBF4T>; Sat, 2 Jun 2001 01:56:19 -0400
+Received: from ncc1701.cistron.net ([195.64.68.38]:17419 "EHLO
+	ncc1701.cistron.net") by vger.kernel.org with ESMTP
+	id <S261744AbRFBF4K>; Sat, 2 Jun 2001 01:56:10 -0400
+From: dth@trinity.hoho.nl (Danny ter Haar)
+Subject: Re: international patches from kerneli far behind
+Date: Sat, 2 Jun 2001 05:56:07 +0000 (UTC)
+Organization: Holland Hosting
+Message-ID: <9f9v5n$8aq$1@voyager.cistron.net>
+In-Reply-To: <20010601201659.9930.qmail@nwcst337.netaddress.usa.net>
+X-Trace: voyager.cistron.net 991461367 8538 195.64.82.84 (2 Jun 2001 05:56:07 GMT)
+X-Complaints-To: abuse@cistron.nl
+To: linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-jlnance@intrex.net writes:
+L Larssen  <rescue_disk_13@usa.net> wrote:
+>At this moment the latest patches are 2.2.18.3 and 2.4.3.1 while the kernel at
+>now is at 2.2.19 and 2.4.5.
 
-> This is probably an FAQ, but I read the FAQ and its not in there.
+I try and keep a crypto up-to-date with the latest ac-tree:
 
-Odd.
+www.bzimage.org/kernel-patches/v2.4/alan/v2.4.5/
 
-> I have a machine with 2G of memory.  I compiled the kernel with the
-> 4G memory option.  How much address space should each process be
-> able to address?
+currently: against 2.4.5-ac6 (268 kilobyte)
 
-3 GB for user stuff, or 3.5 GB with a patch
+Will make an entry in the main page of www.bzimage.org next week.
 
-> Does this change if I use the 64G option?
 
-No. Don't do that.
+Danny
 
-> I'm after 2.4 information.  Right now I am running on a 2.2 kernel
-> and it looks like the user processes are limited to ~1G.
+-- 
+Holland Hosting
+www.hoho.nl      info@hoho.nl
 
-This is not a kernel problem. Try a libc upgrade, or use some
-other way to allocate memory. At least sbrk() and mmap() can
-be used.

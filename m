@@ -1,59 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265586AbTFMXxc (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 13 Jun 2003 19:53:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265588AbTFMXxc
+	id S265590AbTFNAbG (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 13 Jun 2003 20:31:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265591AbTFNAbG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 13 Jun 2003 19:53:32 -0400
-Received: from dp.samba.org ([66.70.73.150]:48602 "EHLO lists.samba.org")
-	by vger.kernel.org with ESMTP id S265586AbTFMXxb (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 13 Jun 2003 19:53:31 -0400
-Date: Sat, 14 Jun 2003 10:03:42 +1000
-From: Anton Blanchard <anton@samba.org>
-To: "Feldman, Scott" <scott.feldman@intel.com>
-Cc: "David S. Miller" <davem@redhat.com>, haveblue@us.ibm.com,
-       hdierks@us.ibm.com, dwg@au1.ibm.com, linux-kernel@vger.kernel.org,
-       milliner@us.ibm.com, ricardoz@us.ibm.com, twichell@us.ibm.com,
-       netdev@oss.sgi.com
-Subject: Re: e1000 performance hack for ppc64 (Power4)
-Message-ID: <20030614000342.GE32097@krispykreme>
-References: <C6F5CF431189FA4CBAEC9E7DD5441E010107D93A@orsmsx402.jf.intel.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <C6F5CF431189FA4CBAEC9E7DD5441E010107D93A@orsmsx402.jf.intel.com>
-User-Agent: Mutt/1.5.4i
+	Fri, 13 Jun 2003 20:31:06 -0400
+Received: from fnord.ahp-informatik.ch ([193.135.128.34]:38557 "EHLO
+	ahp-informatik.ch") by vger.kernel.org with ESMTP id S265590AbTFNAbF
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 13 Jun 2003 20:31:05 -0400
+Message-ID: <3EEA7055.6020302@fnord.ch>
+Date: Sat, 14 Jun 2003 02:46:13 +0200
+From: Raphael Bosshard <whistler@fnord.ch>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3) Gecko/20030610
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: acpi-polling: mouse goes wild
+X-Enigmail-Version: 0.74.3.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- 
-> I thought the answer was no, so I double checked with a couple of
-> hardware guys, and the answer is still no.
+Hi there!
 
-Hi Scott,
+Whenever I start a program that frequently polls for acpi-information 
+(eg. the Gnome Battstat Monitor), my mouse goes wild. The cursor starts 
+jumping and keeps dancing around until I kill the application.
 
-Thats a pity, the e100 docs on sourceforge show it can do what we want,
-it would be nice if e1000 had this feature too :)
+I'm currently using kernel version 2.5.70 but I had the problem also in 
+earlier versions.
 
-4.2.2 Read Align
+Oh, my computer is a Acer Travelmate 220.
 
-The Read Align feature is aimed to enhance performance in cache line
-oriented systems. Starting a PCI transaction in these systems on a
-non-cache line aligned address may result in low  performance. To solve
-this performance problem, the controller can be configured to terminate
-Transmit DMA cycles on a cache line boundary, and start the next
-transaction on a cache line aligned address. This  feature is enabled
-when the Read Align Enable bit is set in device Configure command
-(Section 6.4.2.3, "Configure (010b)").
+Do you need further information? Can you help me? ;)
 
-If this bit is set, the device operates as follows:
 
-* When the device is close to running out of resources on the Transmit
-* DMA (in other words, the Transmit FIFO is almost full), it attempts to
-* terminate the read transaction on the nearest cache line boundary when 
-* possible.
+Any help is appreciated.
 
-* When the arbitration counters feature is enabled (maximum Transmit DMA
-* byte count value is set in configuration space), the device switches
-* to other pending DMAs on cache line boundary only.
+Raphael Bosshard
+
+(Please cc me, I'm not subscribed to the list. Thanks)
+

@@ -1,46 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261467AbREQSRr>; Thu, 17 May 2001 14:17:47 -0400
+	id <S261474AbREQSdU>; Thu, 17 May 2001 14:33:20 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261471AbREQSR1>; Thu, 17 May 2001 14:17:27 -0400
-Received: from mailhst2.its.tudelft.nl ([130.161.34.250]:31243 "EHLO
-	mailhst2.its.tudelft.nl") by vger.kernel.org with ESMTP
-	id <S261467AbREQSRY>; Thu, 17 May 2001 14:17:24 -0400
-Date: Thu, 17 May 2001 20:14:21 +0200
-From: Erik Mouw <J.A.K.Mouw@ITS.TUDelft.NL>
-To: Anil Kumar <anilk@subexgroup.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: __exit
-Message-ID: <20010517201421.L12745@arthur.ubicom.tudelft.nl>
-In-Reply-To: <E150IcL-0003v5-00@f4.mail.ru> <NEBBIIKAMMOCGCPMPBJOMEFECCAA.anilk@subexgroup.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <NEBBIIKAMMOCGCPMPBJOMEFECCAA.anilk@subexgroup.com>; from anilk@subexgroup.com on Sun, Jun 17, 2001 at 04:02:44PM +0530
-Organization: Eric Conspiracy Secret Labs
-X-Eric-Conspiracy: There is no conspiracy!
+	id <S261476AbREQSdJ>; Thu, 17 May 2001 14:33:09 -0400
+Received: from neon-gw.transmeta.com ([209.10.217.66]:31245 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S261474AbREQSc6>; Thu, 17 May 2001 14:32:58 -0400
+To: linux-kernel@vger.kernel.org
+From: "H. Peter Anvin" <hpa@zytor.com>
+Subject: Re: Linux-2.4.4 failure to compile
+Date: 17 May 2001 11:32:41 -0700
+Organization: Transmeta Corporation, Santa Clara CA
+Message-ID: <9e15g9$tcj$1@cesium.transmeta.com>
+In-Reply-To: <Pine.LNX.3.95.1010517132052.14991A-100000@chaos.analogic.com> <3B040C80.C2A7BC6@sun.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Disclaimer: Not speaking for Transmeta in any way, shape, or form.
+Copyright: Copyright 2001 H. Peter Anvin - All Rights Reserved
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Jun 17, 2001 at 04:02:44PM +0530, Anil Kumar wrote:
-> what does __exit, __p and other such directives means in the linux source
-> code. what is its significance.
+Followup to:  <3B040C80.C2A7BC6@sun.com>
+By author:    Tim Hockin <thockin@sun.com>
+In newsgroup: linux.dev.kernel
+> 
+> The aic7xxx assembler requiring libdb1 is a bungle.  Getting the headers
+> for that right on various distros is not easy.  Add to that it requires
+> YACC, when most people have bison (yes, a shell script is easy to make, but
+> not always an option). 
+> 
 
-The macros __init and __exit are defined in include/linux/init.h:
+Most people have both.  However, if your distribution installs bison
+and not yacc and does *NOT* install the "bison as yacc" wrapper, you
+should complain to your distributor.
 
-#define __init          __attribute__ ((__section__ (".text.init")))
-#define __exit          __attribute__ ((unused, __section__(".text.exit")))
+As far as "not always an option", that's ridiculous.  If there really
+isn't someone around who can install it globally, then put it in ~/bin
+and set your PATH.
 
-And they tell the compiler to put the function in .text.init and
-.text.exit sections of the object file.
+The command "yacc" should be expected to work.  This is as insane as
+the flamage in the cdrecord documentation about Linux installing GNU
+make as "make".
 
-
-Erik
-
+	-hpa
 -- 
-J.A.K. (Erik) Mouw, Information and Communication Theory Group, Department
-of Electrical Engineering, Faculty of Information Technology and Systems,
-Delft University of Technology, PO BOX 5031,  2600 GA Delft, The Netherlands
-Phone: +31-15-2783635  Fax: +31-15-2781843  Email: J.A.K.Mouw@its.tudelft.nl
-WWW: http://www-ict.its.tudelft.nl/~erik/
+<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
+"Unix gives you enough rope to shoot yourself in the foot."
+http://www.zytor.com/~hpa/puzzle.txt

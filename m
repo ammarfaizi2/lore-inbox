@@ -1,34 +1,64 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281559AbRKMJd6>; Tue, 13 Nov 2001 04:33:58 -0500
+	id <S281558AbRKMJek>; Tue, 13 Nov 2001 04:34:40 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281560AbRKMJdt>; Tue, 13 Nov 2001 04:33:49 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:59911 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S281559AbRKMJdl>; Tue, 13 Nov 2001 04:33:41 -0500
-Subject: Re: Linux 2.4.15-pre4 - merge with Alan
-To: jgarzik@mandrakesoft.com (Jeff Garzik)
-Date: Tue, 13 Nov 2001 09:41:03 +0000 (GMT)
-Cc: neilb@cse.unsw.edu.au (Neil Brown),
-        torvalds@transmeta.com (Linus Torvalds),
-        linux-kernel@vger.kernel.org (Kernel Mailing List)
-In-Reply-To: <3BF0B776.4EE31B94@mandrakesoft.com> from "Jeff Garzik" at Nov 13, 2001 01:02:30 AM
-X-Mailer: ELM [version 2.5 PL6]
+	id <S281560AbRKMJe3>; Tue, 13 Nov 2001 04:34:29 -0500
+Received: from galba.tp1.ruhr-uni-bochum.de ([134.147.240.75]:49924 "EHLO
+	galba.tp1.ruhr-uni-bochum.de") by vger.kernel.org with ESMTP
+	id <S281558AbRKMJeP>; Tue, 13 Nov 2001 04:34:15 -0500
+Date: Tue, 13 Nov 2001 10:34:06 +0100 (CET)
+From: Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>
+To: Keith Owens <kaos@ocs.com.au>
+cc: <linux-kernel@vger.kernel.org>, Linus Torvalds <torvalds@transmeta.com>
+Subject: Re: 2.4.15-pre4 full build for i386, warnings
+In-Reply-To: <13136.1005634661@kao2.melbourne.sgi.com>
+Message-ID: <Pine.LNX.4.33.0111131018010.31786-100000@chaos.tp1.ruhr-uni-bochum.de>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E163a3z-0000Yi-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Neil Brown wrote:
-> > I'm still lamenting the loss of the "-Werror" compile switch....
-> 
-> Me too but the kernel won't build basic stuff in fs/*.c code on 64-bit
-> platforms with it enabled...
+On Tue, 13 Nov 2001, Keith Owens wrote:
 
-Or some 32bit setups, in part because gcc isnt always very bright about
-warnings on non-use of variables. I'd rather have a small number of expected
-warnings than a pile of ifdefs and = 0 assignments that later mask a real
-bug
+> depmod: *** Unresolved symbols in /var/tmp/lib/modules/2.4.15-pre4/kernel/drivers/char/isicom.o
+> depmod:		xquad_portio
+> depmod: *** Unresolved symbols in /var/tmp/lib/modules/2.4.15-pre4/kernel/drivers/isdn/hysdn/hysdn.o
+> depmod:		xquad_portio
+> [...]
+
+That's supposedly because xquad_portio (ifdef CONFIG_MULTIQUAD) is not 
+exported, thus causing all modules using I/O instructions to fail.
+
+I also see a static definition of xquad_portio in 
+arch/i386/boot/compressed/misc.c, for which I don't understand why it's 
+needed at all.
+
+Trivial patch appended.
+
+--Kai
+
+
+diff -ur linux-2.4.15-pre4/arch/i386/kernel/i386_ksyms.c linux-2.4.15-pre4.work/arch/i386/kernel/i386_ksyms.c
+--- linux-2.4.15-pre4/arch/i386/kernel/i386_ksyms.c	Tue Nov 13 10:15:23 2001
++++ linux-2.4.15-pre4.work/arch/i386/kernel/i386_ksyms.c	Tue Nov 13 10:28:39 2001
+@@ -177,3 +177,7 @@
+ 
+ extern int is_sony_vaio_laptop;
+ EXPORT_SYMBOL(is_sony_vaio_laptop);
++
++#ifdef CONFIG_MULTIQUAD
++EXPORT_SYMBOL(xquad_portio);
++#endif
+diff -ur linux-2.4.15-pre4/arch/i386/kernel/smpboot.c linux-2.4.15-pre4.work/arch/i386/kernel/smpboot.c
+--- linux-2.4.15-pre4/arch/i386/kernel/smpboot.c	Fri Oct  5 03:42:54 2001
++++ linux-2.4.15-pre4.work/arch/i386/kernel/smpboot.c	Tue Nov 13 10:26:50 2001
+@@ -969,7 +969,7 @@
+ 
+ static int boot_cpu_logical_apicid;
+ /* Where the IO area was mapped on multiquad, always 0 otherwise */
+-void *xquad_portio = NULL;
++void *xquad_portio;
+ 
+ void __init smp_boot_cpus(void)
+ {
+

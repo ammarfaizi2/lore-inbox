@@ -1,37 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263395AbRFNRB0>; Thu, 14 Jun 2001 13:01:26 -0400
+	id <S263378AbRFNRFg>; Thu, 14 Jun 2001 13:05:36 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263404AbRFNRBQ>; Thu, 14 Jun 2001 13:01:16 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:37297 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S263395AbRFNRBG>;
-	Thu, 14 Jun 2001 13:01:06 -0400
-From: "David S. Miller" <davem@redhat.com>
-MIME-Version: 1.0
+	id <S263404AbRFNRF0>; Thu, 14 Jun 2001 13:05:26 -0400
+Received: from schmee.sfgoth.com ([63.205.85.133]:27657 "EHLO
+	schmee.sfgoth.com") by vger.kernel.org with ESMTP
+	id <S263378AbRFNRFT>; Thu, 14 Jun 2001 13:05:19 -0400
+Date: Thu, 14 Jun 2001 10:04:47 -0700
+From: Mitchell Blank Jr <mitch@sfgoth.com>
+To: dan.davidson@conexant.com
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Lockup in 2.4.2 kernel ADSL PCI card ATM driver module
+Message-ID: <20010614100447.A32912@sfgoth.com>
+In-Reply-To: <OF498D9381.A68AAD65-ON86256A6B.005A1479@conexant.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <15144.60850.545471.763348@pizda.ninka.net>
-Date: Thu, 14 Jun 2001 10:00:34 -0700 (PDT)
-To: Aaron Sethman <androsyn@ratbox.org>
-Cc: John <cmptradm@bigfoot.com>, <linux-kernel@vger.kernel.org>
-Subject: Re: 2.4.5 kernel on Sparc32
-In-Reply-To: <Pine.LNX.4.33.0106141259580.22582-100000@squeaker.ratbox.org>
-In-Reply-To: <3B142AE0.20A22175@bigfoot.com>
-	<Pine.LNX.4.33.0106141259580.22582-100000@squeaker.ratbox.org>
-X-Mailer: VM 6.75 under 21.1 (patch 13) "Crater Lake" XEmacs Lucid
+X-Mailer: Mutt 1.0i
+In-Reply-To: <OF498D9381.A68AAD65-ON86256A6B.005A1479@conexant.com>; from dan.davidson@conexant.com on Thu, Jun 14, 2001 at 11:37:50AM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+dan.davidson@conexant.com wrote:
+> SUBJECT:
+> Lockup in 2.4.2 kernel ADSL PCI card ATM driver module
+> 
+> 
+> DRIVER RESULTS:
+> Works fine in 2.4.0 kernel.
+> Locks up system (no messages/oops/etc.) in 2.4.2-2 kernel (rh 7.1).
+> Locks up system (no messages/oops/etc.) in 2.4.2 kernel (w/ or w/o kgdb).
+> Locks up system with "int 3" ??????? message in 2.4.2-ac28 kernel.
 
-Aaron Sethman writes:
- > I've seen the exact same problem when trying to compile for sparc.  I
- > might try and fix it myself, as it doesn't seemed to be fixed in the vger
- > cvs tree, or any other patch for that matter.
+First, please try with a recent 2.4.5ac kernel - a number of ATM bugfixes
+have been made recently and they've been merged first with alan's
+branch.  Anyway, there's a chance that you might just be hitting one of
+those bugs that have already been fixed, so it'd be best to try that
+first so we can exclude that possibility.
 
-The problem is that we lack a maintainer for the 32-bit Sparc
-port, and the situation is unlikely change until someone steps
-up to take over maintaining the thing.
+> MESSAGE GENERATED IN 2.4.2-ac28:
+> int 3: 0000
+> CPU:     0
+> EIP:     0010:[<c885478b>]
 
-Later,
-David S. Miller
-davem@redhat.com
+Please read the REPORTING-BUGS and Documentation/oops-tracing.txt files
+in the linux source tree - especially the parts about using the
+"ksymoops" tool.  These numbers are useless to us unless you run it
+through that tool first.
+
+-Mitch

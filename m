@@ -1,41 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319065AbSHSW0U>; Mon, 19 Aug 2002 18:26:20 -0400
+	id <S319071AbSHSW12>; Mon, 19 Aug 2002 18:27:28 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319063AbSHSW0U>; Mon, 19 Aug 2002 18:26:20 -0400
-Received: from web40015.mail.yahoo.com ([66.218.78.55]:57278 "HELO
-	web40015.mail.yahoo.com") by vger.kernel.org with SMTP
-	id <S319065AbSHSW0T>; Mon, 19 Aug 2002 18:26:19 -0400
-Message-ID: <20020819223018.79961.qmail@web40015.mail.yahoo.com>
-Date: Mon, 19 Aug 2002 15:30:18 -0700 (PDT)
-From: Venkat Raghu <venkatraghu2002@yahoo.com>
-Subject: newbie
-To: linux-kernel@vger.kernel.org
-Cc: linux-newbie@vger.kernel.org, linuxprog@geeky1.ebtech.net,
-       linux-support@os.com, redhat-list@redhat.com
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S319069AbSHSW12>; Mon, 19 Aug 2002 18:27:28 -0400
+Received: from vindaloo.ras.ucalgary.ca ([136.159.55.21]:2205 "EHLO
+	vindaloo.ras.ucalgary.ca") by vger.kernel.org with ESMTP
+	id <S319063AbSHSW11>; Mon, 19 Aug 2002 18:27:27 -0400
+Date: Mon, 19 Aug 2002 16:31:26 -0600
+Message-Id: <200208192231.g7JMVQI28575@vindaloo.ras.ucalgary.ca>
+From: Richard Gooch <rgooch@ras.ucalgary.ca>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
+Subject: Re: MAX_PID changes in 2.5.31
+In-Reply-To: <Pine.LNX.4.44.0208192146580.32337-100000@localhost.localdomain>
+References: <Pine.LNX.4.44.0208192146580.32337-100000@localhost.localdomain>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Ingo Molnar writes:
+> 
+> Linus,
+> 
+> afaics, you did the PID_MAX changes in v2.5.31? This is a change i had for
+> (surprise) threading purposes already, but done a bit differently.
+> 
+> The main problem is that there's the old-style SysV IPC interface
+> that uses 16-bit PIDs still. All recent SysV applications (linked
+> against glibc 2.2 or newer) use IPC_64, but any application linked
+> against pre-2.2 glibcs will fail. glibc 2.2 was released 2 years
+> ago, is this enough of a timeout to obsolete the non-IPC_64
+> interfaces?
 
-Hi,
+Are you saying that people running libc 5 or even glibc 2.1 will
+suddenly have their code broken?
 
-I have a bash script which modifies some environment
-variables and does some other housekeeping things.
-But problem is that when script finishes running,
-new values of environment variables are no longer
-visible in parent shell. So what should I do so that
-these new values are visible in parent. I don't want
-to run as ". file.sh". I have to run it as "file.sh"
-only.
+				Regards,
 
-Kindly mail me at venkatraghu2002@yahoo.com
-
-Regards
-Venkat.
-
-__________________________________________________
-Do You Yahoo!?
-HotJobs - Search Thousands of New Jobs
-http://www.hotjobs.com
+					Richard....
+Permanent: rgooch@atnf.csiro.au
+Current:   rgooch@ras.ucalgary.ca

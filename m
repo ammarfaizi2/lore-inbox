@@ -1,43 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267505AbRGMUqI>; Fri, 13 Jul 2001 16:46:08 -0400
+	id <S267516AbRGMUqi>; Fri, 13 Jul 2001 16:46:38 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267516AbRGMUp6>; Fri, 13 Jul 2001 16:45:58 -0400
-Received: from sj-msg-core-4.cisco.com ([171.71.163.10]:51197 "EHLO
-	sj-msg-core-4.cisco.com") by vger.kernel.org with ESMTP
-	id <S267505AbRGMUpq>; Fri, 13 Jul 2001 16:45:46 -0400
-From: Matt Mackall <mpm@cisco.com>
-Date: Fri, 13 Jul 2001 15:45:32 -0500
-To: linux-kernel@vger.kernel.org
-Subject: Cisco releases GPL Linux iSCSI driver
-Message-ID: <20010713154532.B24621@mpm-lnx.cisco.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.18i
+	id <S267527AbRGMUq3>; Fri, 13 Jul 2001 16:46:29 -0400
+Received: from gruel.uchicago.edu ([128.135.39.156]:10255 "EHLO
+	gruel.uchicago.edu") by vger.kernel.org with ESMTP
+	id <S267516AbRGMUqR>; Fri, 13 Jul 2001 16:46:17 -0400
+Date: Fri, 13 Jul 2001 15:43:15 -0500 (CDT)
+From: Gary Lyons <lyons@gruel.uchicago.edu>
+Reply-To: <lyons@pobox.com>
+To: <linux-kernel@vger.kernel.org>
+Subject: ioctl bug?
+Message-ID: <Pine.LNX.4.33.0107131139450.12456-100000@gruel.uchicago.edu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Cisco's Linux iSCSI driver is now available under the General Public
-License. The iSCSI protocol is an emerging standard for connecting
-SCSI storage over existing IP networks.
 
-Currently two versions are available. One implements iSCSI
-version 0 (July 2000) and interoperates with existing iSCSI devices.
-The second, in active development, implements draft-06+. Both drivers
-should work with current 2.2.x and 2.4.x kernels.
+Hello,
 
-A description of the driver is available on the project home
-page at:
+I think I have found a bug in the kernel.
 
-   http://linux-iscsi.sourceforge.net/
+starting with 2.4.5ac23 and continuing through both 2.4.6 and
+2.v.6-ac2 Whenever I try to do a lsattr or chattr on a directory
+I get:
 
-The project itself is managed on SourceForge at:
+	"Inappropriate ioctl for device While reading flags"
 
-   http://sourceforge.net/projects/linux-iscsi/
+on 2.4.5-ac19 I have no problem.
 
+My computer is a pentium 3 with an asus motherboard, i810E
+chipset,and ide drives.  running redhat 7.1 and the hard drive
+is WDC WD600AB
 
-Matt Mackall
-Cisco Systems SRBU
+I am more then happy to supply any more information if necessary
+and
+
+Thanks,
+
+Gary
+
 -- 
- Mathematics is the supreme nostalgia of our time.
+Where humor is concerned there are no standards -- no one can say what
+is good or bad, although you can be sure that everyone will.
+                                -- John Kenneth Galbraith
+
+
+

@@ -1,69 +1,160 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262942AbTESVIu (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 19 May 2003 17:08:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262945AbTESVIt
+	id S262878AbTESVGn (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 19 May 2003 17:06:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262912AbTESVGn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 19 May 2003 17:08:49 -0400
-Received: from ns.suse.de ([213.95.15.193]:45324 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S262942AbTESVIq (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 19 May 2003 17:08:46 -0400
-To: torvalds@transmeta.com (Linus Torvalds)
-Cc: linux-kernel@vger.kernel.org, plars@austin.ibm.com, akpm@digeo.com
-Subject: Re: [PATCH] Exception trace for i386
-References: <20030519192814.GA975@averell.suse.lists.linux.kernel>
-	<1053377808.588720@palladium.transmeta.com.suse.lists.linux.kernel>
-From: Andi Kleen <ak@suse.de>
-Date: 19 May 2003 23:21:42 +0200
-In-Reply-To: <1053377808.588720@palladium.transmeta.com.suse.lists.linux.kernel>
-Message-ID: <p73k7cmzl7d.fsf@oldwotan.suse.de>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Mon, 19 May 2003 17:06:43 -0400
+Received: from e35.co.us.ibm.com ([32.97.110.133]:49378 "EHLO
+	e35.co.us.ibm.com") by vger.kernel.org with ESMTP id S262878AbTESVGj
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 19 May 2003 17:06:39 -0400
+Message-Id: <200305192118.h4JLIu710201@owlet.beaverton.ibm.com>
+To: linux-kernel@vger.kernel.org
+cc: lm@bitmover.com, cs@tequila.co.jp
+Subject: [PATCH] Documentation for iostats
+Date: Mon, 19 May 2003 14:18:56 -0700
+From: Rick Lindsley <ricklind@us.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-torvalds@transmeta.com (Linus Torvalds) writes:
+As promised, here is a file to add to the Documentation/ directory which
+describes the disk statistics fields.
 
-> Please don't do it this way. For one thing, there are valid uses where
-> you want to enable tracing for just one process. For another, there are
-> actually cases where you may want to trace all page faults, even the
-> ones that don't cause signals - kind of like normal system calls. After
+Rick
 
-x86-64 has this, (pagefault_trace), but it's usually hidden in a debug
-CONFIG and not too useful in normal operation (because it generates too
-much output), so I didn't port this. At one point I also did a sysctl
-to echo a string into and strcmp the process ->comm against this, 
-but it was a bit ugly so I removed it again.
-
-> all, from a behavioural standpoint, that is what they are: implied
-> system calls.
-> 
-> So I think you want to make it per-process, and expose it as a ptrace
-> thing (imaging seeing all the page faults a process is taking with
-> "strace". Potentially quite useful for performance tuning).
-
-Probably, but that's not the intention of this patch. From my
-experience page fault tracing is too much for printk because it
-produces too much information. It needs some specialized logging
-module that is optimized for high frequency logging like SGI ktrace.
-It could be surely implemented, but I didn't plan to do this work
-currently. If you wanted it I would suggest considering kprobes or dprobes
-instead which allows to define logging macros for such things nicely already.
-
-> I don't think it's ever really valid to expose it as a global option, as
-> some programs use page faults (even the signalling kind) to do their own
-> memory management, and making it a global option just makes it hard to
-> work with such programs.
-
-I especially like it being a global option. It has catched bugs on x86-64 
-that were never noticed before (e.g. subprocesses silently segfaulting 
-that nobody noticed doing the same on i386). Clearly it's an debugging 
-thing and you definitely want an option to turn it off. But having 
-the global option is useful.
-
-Also programs that break with this are much less frequent than you
-probably think.
-
--Andi
+diff -ruN linux-2.5.69/Documentation/iostats.txt linux-2.5.69-A/Documentation/iostats.txt
+--- linux-2.5.69/Documentation/iostats.txt	Wed Dec 31 16:00:00 1969
++++ linux-2.5.69-A/Documentation/iostats.txt	Mon May 19 13:32:48 2003
+@@ -0,0 +1,131 @@
++I/O statistics fields
++---------------
++
++Last modified 5/15/03
++
++In 2.4.20 (and some versions before, with patches), and 2.5.45,
++more extensive disk statistics were introduced to help measure disk
++activity. Tools such as sar and iostat typically interpret these and do
++the work for you, but in case you are interested in creating your own
++tools, the fields are explained here.
++
++In most versions of the 2.4 patch, the information is found as additional
++fields in /proc/partitions.  In 2.5, the same information is found
++within the sysfs file system, which must be mounted in order to obtain
++the information. Throughout this document we'll assume that sysfs is
++mounted on /sys, although of course it may be mounted anywhere.
++
++Here are examples of these two different formats:
++
++2.4:
++   3     0   39082680 hda 446216 784926 9550688 4382310 424847 312726 5922052 19310380 0 3376340 23705160
++   3     1    9221278 hda1 35486 0 35496 38030 0 0 0 0 0 38030 38030
++
++
++2.5:
++   446216 784926 9550688 4382310 424847 312726 5922052 19310380 0 3376340 23705160
++   35486    38030    38030    38030
++
++On 2.4 you might execute "grep 'hda ' /proc/partitions". On 2.5, you
++would instead "cat /sys/block/hda/stat".
++
++In 2.4, the statistics fields are those after the device name. In
++the above example, the first field of statistics would be 446216.
++By contrast, in 2.5 if you look at /sys/block/hda/stat, you'll find
++just the eleven fields, beginning with 446216. Each of these formats
++have eleven fields of statistics, each meaning exactly the same things.
++All fields except field 9 are cumulative since boot.  Field 9 should
++go to zero as I/Os complete; all others only increase.  Yes, these are
++32 bit unsigned numbers, and on a very busy or long-lived system they
++may wrap. Applications should be prepared to deal with that; unless
++your observations are measured in large numbers of minutes or hours,
++they should not wrap twice before you notice them.
++
++Each set of stats only applies to the indicated device; if you want
++system-wide stats you'll have to find all the devices and sum them all up.
++
++Field  1 -- # of reads issued
++    This is the total number of reads completed successfully.
++Field  2 -- # of reads merged, field 6 -- # of writes merged
++    Reads and writes which are adjacent to each other may be merged for
++    efficiency.  Thus two 4K reads may become one 8K read before it is
++    ultimately handed to the disk, and so it will be counted (and queued)
++    as only one I/O.  This field lets you know how often this was done.
++Field  3 -- # of sectors read
++    This is the total number of sectors read successfully.
++Field  4 -- # of milliseconds spent reading
++    This is the total number of milliseconds spent by all reads (as
++    measured from __make_request() to end_that_request_last()).
++Field  5 -- # of writes completed
++    This is the total number of writes completed successfully.
++Field  7 -- # of sectors written
++    This is the total number of sectors written successfully.
++Field  8 -- # of milliseconds spent writing
++    This is the total number of milliseconds spent by all writes (as
++    measured from __make_request() to end_that_request_last()).
++Field  9 -- # of I/Os currently in progress
++    The only field that should go to zero. Incremented as requests are
++    given to appropriate request_queue_t and decremented as they finish.
++Field 10 -- # of milliseconds spent doing I/Os
++    This field is increases so long as field 9 is nonzero.
++Field 11 -- weighted # of milliseconds spent doing I/Os
++    This field is incremented at each I/O start, I/O completion, I/O
++    merge, or read of these stats by the number of I/Os in progress
++    (field 9) times the number of milliseconds spent doing I/O since the
++    last update of this field.  This can provide an easy measure of both
++    I/O completion time and the backlog that may be accumulating.
++
++
++To avoid introducing performance bottlenecks, no locks are held while
++modifying these counters.  This implies that minor inaccuracies may be
++introduced when changes collide, so (for instance) adding up all the
++read I/Os issued per partition should equal those made to the disks
++... but due to the lack of locking it may only be very close.
++
++In release 2.5.65 these counters were made per-cpu, which made the lack
++of locking almost a non-issue.  When the statistics are read, the per-cpu
++counters are summed (possibly overflowing the unsigned 32-bit variable
++they are summed to) and the result given to the user.  There is no
++convenient user interface for accessing the per-cpu counters themselves.
++
++Disks vs Partitions
++-------------------
++
++There were significant changes between 2.4 and 2.5 in the I/O subsystem.
++As a result, some statistic information disappeared. The translation from
++a disk address relative to a partition to the disk address relative to
++the host disk happens much earlier.  All merges and timings now happen
++at the disk level rather than at both the disk and partition level
++as in 2.4.  Consequently, you'll see a different statistics output on
++2.5 for partitions from that for disks.  There are only *four* fields
++available for partitions on 2.5 machines.  This is reflected in the
++example above. To access the statistics for (for example) hda1, you
++would look at the file /sys/block/hda/hda1/stat.
++
++Field  1 -- # of reads issued
++    This is the total number of reads issued to this partition.
++Field  2 -- # of sectors read
++    This is the total number of sectors requested to be read from this
++    partition.
++Field  3 -- # of reads issued
++    This is the total number of writes issued to this partition.
++Field  4 -- # of sectors read
++    This is the total number of sectors requested to be written to
++    this partition.
++
++Note that since the address is translated to a disk-relative one, and no
++record of the partition-relative address is kept, the subsequent success
++or failure of the read cannot be attributed to the partition.  In other
++words, the number of reads for partitions is counted slightly before time
++of queuing for partitions, and at completion for whole disks.  This is
++a subtle distinction that is probably uninteresting for most cases.
++
++Additional notes
++----------------
++
++In 2.5, sysfs is not mounted by default.  Here's the line you'll want
++to add to your /etc/fstab:
++
++none /sys sysfs defaults 0 0
++
++-- ricklind@us.ibm.com

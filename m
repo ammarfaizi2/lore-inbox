@@ -1,53 +1,77 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289372AbSBGNxW>; Thu, 7 Feb 2002 08:53:22 -0500
+	id <S289523AbSBGNzW>; Thu, 7 Feb 2002 08:55:22 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289523AbSBGNxL>; Thu, 7 Feb 2002 08:53:11 -0500
-Received: from dns.uni-trier.de ([136.199.8.101]:18563 "EHLO
-	rzmail.uni-trier.de") by vger.kernel.org with ESMTP
-	id <S289372AbSBGNw7> convert rfc822-to-8bit; Thu, 7 Feb 2002 08:52:59 -0500
-Date: Thu, 7 Feb 2002 14:52:56 +0100 (CET)
-From: Daniel Nofftz <nofftz@castor.uni-trier.de>
-X-X-Sender: nofftz@hades.uni-trier.de
-To: =?iso-8859-1?Q?Rasmus_B=F8g_Hansen?= <moffe@amagerkollegiet.dk>
-cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: status on northbridge disconnection apm saving?
-In-Reply-To: <Pine.LNX.4.44.0202071417050.1378-100000@grignard.amagerkollegiet.dk>
-Message-ID: <Pine.LNX.4.40.0202071448070.17566-100000@hades.uni-trier.de>
+	id <S289537AbSBGNzM>; Thu, 7 Feb 2002 08:55:12 -0500
+Received: from [200.228.132.232] ([200.228.132.232]:25504 "EHLO
+	BolivaR.Underground-R.org") by vger.kernel.org with ESMTP
+	id <S289523AbSBGNzG>; Thu, 7 Feb 2002 08:55:06 -0500
+Message-ID: <3C628547.2060508@santiagonet.com.br>
+Date: Thu, 07 Feb 2002 11:46:47 -0200
+From: Jose Alves <jalves@santiagonet.com.br>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.4) Gecko/20011019 Netscape6/6.2
+X-Accept-Language: en-us
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=iso-8859-1
-Content-Transfer-Encoding: 8BIT
+To: linux-kernel@vger.kernel.org
+Subject: MATSHITA CR-581 doesn't work under 2.4.17
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 7 Feb 2002, Rasmus Bøg Hansen wrote:
+Hi. I have a MATSHITA CR-581 which works under 2.2.19 but not 2.4.17.
 
-> I now fiddled a little with the PCI settings in the BIOS...
->
-> When 'PCI master read cahing' is enabled everything works fine (sound
-> works, cooling works. When disabled I get sound skips. The above flags
-> are exactly the same:
->
-> Athlon/Duron CLK_Ctrl Value found : fff0d22f
-> Athlon/Duron CLK_Ctrl Value set to : fff0d22f
-> Enabling disconnect in VIA northbridge: KT133/KX133 chipset found
->
-> As I think i noted earlier, my motherboard is KT133A-based.
->
-> My system functions perfectly stable with the 'PCI master read caching'
-> enabled - I have no idea whether this is true in general.
+Here's the dmesg output:
 
-hey ... that are great news ... i think i have also something like this in
-the bios and i will test it when i am at home... maybe i get the problems
-to, when i deactivate this option ... that would give me the possibility
-to test this error at my own ...
-thanks for testing and for this hint :)
+2.2.19:
 
-daniel
+hdc: MATSHITA CR-581, ATAPI CDROM drive
+hdc: ATAPI 4X CD-ROM drive, 128kB Cache
+Uniform CD-ROM driver Revision: 3.11
+VFS: Disk change detected on device ide1(22,0)
+ISO 9660 Extensions: Microsoft Joliet Level 3
+ISO 9660 Extensions: RRIP_1991A
+
+2.4.17:
+
+hdc: MATSHITA CR-581, ATAPI CD/DVD-ROM drive
+hdc: ATAPI 4X CD-ROM drive, 128kB Cache, DMA
+Uniform CD-ROM driver Revision: 3.12
+VFS: Disk change detected on device ide1(22,0)
+hdc: irq timeout: status=0xd8 { Busy }
+hdc: DMA disabled
+hdc: ATAPI reset complete
+hdc: tray open
+end_request: I/O error, dev 16:00 (hdc), sector 64
+isofs_read_super: bread failed, dev=16:00, iso_blknum=16, block=32
+
+lsmod:
+
+2.2.19:
+
+ide-cd                 24288   1 (autoclean)
+cdrom                  27264   0 (autoclean) [ide-cd]
+isofs                  16864   1 (autoclean)
+
+2.4.17:
+
+ide-cd                 25008   0 (autoclean)
+cdrom                  27008   0 (autoclean) [ide-cd]
+isofs                  24976   0 (autoclean)
+inflate_fs             18032   0 (autoclean) [isofs]
 
 
-# Daniel Nofftz
-# Sysadmin CIP-Pool Informatik
-# University of Trier(Germany), Room V 103
-# Mail: daniel@nofftz.de
+The error appears when I try to mount it:
+
+$ mount /mnt/cdrom
+mount: wrong fs type, bad option, bad superblock on /dev/cdrom,
+       or too many mounted file systems
+
+mount output from 2.2.19:
+
+/dev/hdc on /mnt/cdrom type iso9660 (ro,noexec,nosuid,nodev,user=borracho)
+
+Anybody know what's wrong with the 2.4.17 driver ?
+
+
 

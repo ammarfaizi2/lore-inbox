@@ -1,20 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264543AbUGBNQx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264522AbUGBNR5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264543AbUGBNQx (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 2 Jul 2004 09:16:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264519AbUGBNQe
+	id S264522AbUGBNR5 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 2 Jul 2004 09:17:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264519AbUGBNRS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 2 Jul 2004 09:16:34 -0400
-Received: from e3.ny.us.ibm.com ([32.97.182.103]:11206 "EHLO e3.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S264500AbUGBNOd (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 2 Jul 2004 09:14:33 -0400
-Date: Fri, 2 Jul 2004 18:53:56 +0530
+	Fri, 2 Jul 2004 09:17:18 -0400
+Received: from e35.co.us.ibm.com ([32.97.110.133]:45304 "EHLO
+	e35.co.us.ibm.com") by vger.kernel.org with ESMTP id S264540AbUGBNQm
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 2 Jul 2004 09:16:42 -0400
+Date: Fri, 2 Jul 2004 18:56:18 +0530
 From: Suparna Bhattacharya <suparna@in.ibm.com>
 To: linux-aio@kvack.org, linux-kernel@vger.kernel.org
 Cc: linux-osdl@osdl.org
-Subject: Re: [PATCH 10/22] AIO pipe support
-Message-ID: <20040702132356.GJ4374@in.ibm.com>
+Subject: Re: [PATCH 11/22] Reduce AIO worker context switches 
+Message-ID: <20040702132618.GK4374@in.ibm.com>
 Reply-To: suparna@in.ibm.com
 References: <20040702130030.GA4256@in.ibm.com>
 Mime-Version: 1.0
@@ -48,253 +48,121 @@ On Fri, Jul 02, 2004 at 06:30:30PM +0530, Suparna Bhattacharya wrote:
 > [8] aio-cancel-fix.patch
 > [9] aio-read-immediate.patch
 > [10] aio-pipe.patch
+> [11] aio-context-switch.patch
+> 
+
+Should also apply aio-context-stall (later in the patchset)
 
 -- 
 Suparna Bhattacharya (suparna@in.ibm.com)
 Linux Technology Center
 IBM Software Lab, India
----------------------------------------------------
-
-From: Chris Mason <mason@suse.com>
-
-AIO support for pipes (using the retry infrastructure).
-
-They were easier than I expected ;-)  This goes on top of your fsaio
-patches.  This is only lightly tested.
-
-I missed the obvious for the pipe aio cancel routine, which is to just
-wake up the pipe wait queue (which is what the retry is waiting on).
-Here's a new pipe aio patch, along with a change to sys_aio_cancel to
-set the cancel bit (See aio-cancel.patch).  I'm not 100% sure we need
-it, but it seems like a good idea.
+-----------------------------------------------
 
 
- fs/pipe.c                 |  102 +++++++++++++++++++++++++++++++++++++--------- include/linux/pipe_fs_i.h |    2 
- 2 files changed, 84 insertions(+), 20 deletions(-)
+From: Chris Mason
 
---- aio/fs/pipe.c	2004-06-15 22:19:35.000000000 -0700
-+++ aio-pipe/fs/pipe.c	2004-06-18 09:55:34.746340192 -0700
-@@ -33,15 +33,21 @@
-  */
- 
- /* Drop the inode semaphore and wait for a pipe event, atomically */
--void pipe_wait(struct inode * inode)
-+int pipe_wait(struct inode * inode)
- {
--	DEFINE_WAIT(wait);
-+	DEFINE_WAIT(local_wait);
-+	wait_queue_t *wait = &local_wait;
- 
--	prepare_to_wait(PIPE_WAIT(*inode), &wait, TASK_INTERRUPTIBLE);
-+	if (current->io_wait)
-+		wait = current->io_wait;
-+	prepare_to_wait(PIPE_WAIT(*inode), wait, TASK_INTERRUPTIBLE);
-+	if (!is_sync_wait(wait))
-+		return -EIOCBRETRY;
- 	up(PIPE_SEM(*inode));
- 	schedule();
--	finish_wait(PIPE_WAIT(*inode), &wait);
-+	finish_wait(PIPE_WAIT(*inode), wait);
- 	down(PIPE_SEM(*inode));
-+	return 0;
- }
- 
- static inline int
-@@ -81,11 +87,11 @@ pipe_iov_copy_to_user(struct iovec *iov,
- 		iov->iov_base += copy;
- 		iov->iov_len -= copy;
+I compared the 2.6 pipetest results with the 2.4 suse kernel, and 2.6
+was roughly 40% slower.  During the pipetest run, 2.6 generates ~600,000
+context switches per second while 2.4 generates 30 or so.
+                                                                                
+aio-context-switch (attached) has a few changes that reduces our context
+switch rate, and bring performance back up to 2.4 levels.  These have
+only really been tested against pipetest, they might make other
+workloads worse.
+                                                                                
+The basic theory behind the patch is that it is better for the userland
+process to call run_iocbs than it is to schedule away and let the worker
+thread do it.
+                                                                                
+1) on io_submit, use run_iocbs instead of run_iocb
+2) on io_getevents, call run_iocbs if no events were available.
+3) don't let two procs call run_iocbs for the same context at the same
+time.  They just end up bouncing on spinlocks.
+                                                                                
+The first three optimizations got me down to 360,000 context switches
+per second, and they help build a little structure to allow optimization
+#4, which uses queue_delayed_work(HZ/10) instead of queue_work.
+                                                                                
+That brings down the number of context switches to 2.4 levels.
+
+On Tue, 2004-02-24 at 13:32, Suparna Bhattacharya wrote:
+> On more thought ...
+> The aio-splice-runlist patch runs counter-purpose to some of
+> your optimizations. I put that one in to avoid starvation when
+> multiple ioctx's are in use. But it means that ctx->running
+> doesn't ensure that it will process the new request we just put on
+> the run-list.
+
+The ctx->running optimization probably isn't critical.  It should be
+enough to call run_iocbs from io_submit_one and getevents, which will
+help make sure the process does its own retries whenever possible.
+                                                                                
+Doing the run_iocbs from getevents is what makes the queue_delayed_work
+possible, since someone waiting on an event won't have to wait the extra
+HZ/10 for the worker thread to schedule in.
+
+Wow, 15% slower with ctx->running removed, but the number of context
+switches is stays nice and low.  We can play with ctx->running
+variations later, here's a patch without them.  It should be easier to
+apply with the rest of your code.
+
+
+ aio.c |   18 ++++++++++++------
+ 1 files changed, 12 insertions(+), 6 deletions(-)
+
+--- aio/fs/aio.c	2004-06-18 09:48:00.712363848 -0700
++++ aio-context-switch.patch/fs/aio.c	2004-06-18 10:01:52.963842392 -0700
+@@ -851,7 +851,7 @@ void queue_kicked_iocb(struct kiocb *ioc
+ 	run = __queue_kicked_iocb(iocb);
+ 	spin_unlock_irqrestore(&ctx->ctx_lock, flags);
+ 	if (run) {
+-		queue_work(aio_wq, &ctx->wq);
++		queue_delayed_work(aio_wq, &ctx->wq, HZ/10);
+ 		aio_wakeups++;
  	}
--	return 0;
-+	return 0; 
  }
+@@ -1079,13 +1079,14 @@ static int read_events(struct kioctx *ct
+ 	struct io_event		ent;
+ 	struct timeout		to;
+ 	int 			event_loop = 0; /* testing only */
++	int			retry = 0;
  
- static ssize_t
--pipe_readv(struct file *filp, const struct iovec *_iov,
-+pipe_aio_readv(struct file *filp, const struct iovec *_iov,
- 	   unsigned long nr_segs, loff_t *ppos)
- {
- 	struct inode *inode = filp->f_dentry->d_inode;
-@@ -93,6 +99,7 @@ pipe_readv(struct file *filp, const stru
- 	ssize_t ret;
- 	struct iovec *iov = (struct iovec *)_iov;
- 	size_t total_len;
-+	ssize_t retry;
+ 	/* needed to zero any padding within an entry (there shouldn't be 
+ 	 * any, but C is fun!
+ 	 */
+ 	memset(&ent, 0, sizeof(ent));
++retry:
+ 	ret = 0;
+-
+ 	while (likely(i < nr)) {
+ 		ret = aio_read_evt(ctx, &ent);
+ 		if (unlikely(ret <= 0))
+@@ -1114,6 +1115,13 @@ static int read_events(struct kioctx *ct
  
- 	/* pread is not allowed on pipes. */
- 	if (unlikely(ppos != &filp->f_pos))
-@@ -156,7 +163,12 @@ pipe_readv(struct file *filp, const stru
- 			wake_up_interruptible_sync(PIPE_WAIT(*inode));
-  			kill_fasync(PIPE_FASYNC_WRITERS(*inode), SIGIO, POLL_OUT);
- 		}
--		pipe_wait(inode);
-+		retry = pipe_wait(inode);
-+		if (retry == -EIOCBRETRY) {
-+			if (!ret)
-+				ret = retry;
-+			break;
-+		}
- 	}
- 	up(PIPE_SEM(*inode));
- 	/* Signal writers asynchronously that there is more room.  */
-@@ -173,11 +185,15 @@ static ssize_t
- pipe_read(struct file *filp, char __user *buf, size_t count, loff_t *ppos)
- {
- 	struct iovec iov = { .iov_base = buf, .iov_len = count };
--	return pipe_readv(filp, &iov, 1, ppos);
-+	ssize_t ret;
-+	ret = pipe_aio_readv(filp, &iov, 1, ppos);
-+	if (ret == -EIOCBRETRY)
-+		BUG();
-+	return ret;
- }
+ 	/* End fast path */
  
- static ssize_t
--pipe_writev(struct file *filp, const struct iovec *_iov,
-+pipe_aio_writev(struct file *filp, const struct iovec *_iov,
- 	    unsigned long nr_segs, loff_t *ppos)
- {
- 	struct inode *inode = filp->f_dentry->d_inode;
-@@ -186,6 +202,7 @@ pipe_writev(struct file *filp, const str
- 	int do_wakeup;
- 	struct iovec *iov = (struct iovec *)_iov;
- 	size_t total_len;
-+	int retry;
- 
- 	/* pwrite is not allowed on pipes. */
- 	if (unlikely(ppos != &filp->f_pos))
-@@ -254,7 +271,12 @@ pipe_writev(struct file *filp, const str
- 			do_wakeup = 0;
- 		}
- 		PIPE_WAITING_WRITERS(*inode)++;
--		pipe_wait(inode);
-+		retry = pipe_wait(inode);
-+		if (retry == -EIOCBRETRY) {
-+			if (!ret)
-+				ret = retry;
-+			break;
-+		}
- 		PIPE_WAITING_WRITERS(*inode)--;
- 	}
- 	up(PIPE_SEM(*inode));
-@@ -272,7 +294,41 @@ pipe_write(struct file *filp, const char
- 	   size_t count, loff_t *ppos)
- {
- 	struct iovec iov = { .iov_base = (void __user *)buf, .iov_len = count };
--	return pipe_writev(filp, &iov, 1, ppos);
-+	return pipe_aio_writev(filp, &iov, 1, ppos);
-+}
++	/* racey check, but it gets redone */
++	if (!retry && unlikely(!list_empty(&ctx->run_list))) {
++		retry = 1;
++		aio_run_iocbs(ctx);
++		goto retry;
++	}
 +
-+static int
-+pipe_aio_cancel(struct kiocb *iocb, struct io_event *evt)
-+{
-+	struct inode *inode = iocb->ki_filp->f_dentry->d_inode;
-+	evt->obj = (u64)(unsigned long)iocb->ki_obj.user;
-+	evt->data = iocb->ki_user_data;
-+	evt->res = iocb->ki_nbytes - iocb->ki_left;
-+	if (evt->res == 0)
-+		evt->res = -EINTR;
-+	evt->res2 = 0;
-+	wake_up_interruptible(PIPE_WAIT(*inode));
-+	aio_put_req(iocb);
-+	return 0;
-+}
-+
-+static ssize_t
-+pipe_aio_write(struct kiocb *iocb, const char __user *buf,
-+			       size_t count, loff_t pos)
-+{
-+	struct file *file = iocb->ki_filp;
-+	struct iovec iov = { .iov_base = (void __user *)buf, .iov_len = count };
-+	iocb->ki_cancel = pipe_aio_cancel;
-+	return pipe_aio_writev(file, &iov, 1, &file->f_pos);
-+}
-+
-+static ssize_t
-+pipe_aio_read(struct kiocb *iocb, char __user *buf, size_t count, loff_t pos)
-+{
-+	struct file *file = iocb->ki_filp;
-+	struct iovec iov = { .iov_base = (void __user *)buf, .iov_len = count };
-+	iocb->ki_cancel = pipe_aio_cancel;
-+	return pipe_aio_readv(file, &iov, 1, &file->f_pos);
- }
+ 	init_timeout(&to);
+ 	if (timeout) {
+ 		struct timespec	ts;
+@@ -1505,11 +1513,9 @@ int fastcall io_submit_one(struct kioctx
+ 		goto out_put_req;
  
- static ssize_t
-@@ -467,7 +523,8 @@ pipe_rdwr_open(struct inode *inode, stru
- struct file_operations read_fifo_fops = {
- 	.llseek		= no_llseek,
- 	.read		= pipe_read,
--	.readv		= pipe_readv,
-+	.readv		= pipe_aio_readv,
-+	.aio_read	= pipe_aio_read,
- 	.write		= bad_pipe_w,
- 	.poll		= fifo_poll,
- 	.ioctl		= pipe_ioctl,
-@@ -480,7 +537,8 @@ struct file_operations write_fifo_fops =
- 	.llseek		= no_llseek,
- 	.read		= bad_pipe_r,
- 	.write		= pipe_write,
--	.writev		= pipe_writev,
-+	.writev		= pipe_aio_writev,
-+	.aio_write	= pipe_aio_write,
- 	.poll		= fifo_poll,
- 	.ioctl		= pipe_ioctl,
- 	.open		= pipe_write_open,
-@@ -491,9 +549,11 @@ struct file_operations write_fifo_fops =
- struct file_operations rdwr_fifo_fops = {
- 	.llseek		= no_llseek,
- 	.read		= pipe_read,
--	.readv		= pipe_readv,
-+	.readv		= pipe_aio_readv,
- 	.write		= pipe_write,
--	.writev		= pipe_writev,
-+	.writev		= pipe_aio_writev,
-+	.aio_write	= pipe_aio_write,
-+	.aio_read	= pipe_aio_read,
- 	.poll		= fifo_poll,
- 	.ioctl		= pipe_ioctl,
- 	.open		= pipe_rdwr_open,
-@@ -504,7 +564,8 @@ struct file_operations rdwr_fifo_fops = 
- struct file_operations read_pipe_fops = {
- 	.llseek		= no_llseek,
- 	.read		= pipe_read,
--	.readv		= pipe_readv,
-+	.aio_read	= pipe_aio_read,
-+	.readv		= pipe_aio_readv,
- 	.write		= bad_pipe_w,
- 	.poll		= pipe_poll,
- 	.ioctl		= pipe_ioctl,
-@@ -517,7 +578,8 @@ struct file_operations write_pipe_fops =
- 	.llseek		= no_llseek,
- 	.read		= bad_pipe_r,
- 	.write		= pipe_write,
--	.writev		= pipe_writev,
-+	.writev		= pipe_aio_writev,
-+	.aio_write	= pipe_aio_write,
- 	.poll		= pipe_poll,
- 	.ioctl		= pipe_ioctl,
- 	.open		= pipe_write_open,
-@@ -528,9 +590,11 @@ struct file_operations write_pipe_fops =
- struct file_operations rdwr_pipe_fops = {
- 	.llseek		= no_llseek,
- 	.read		= pipe_read,
--	.readv		= pipe_readv,
-+	.readv		= pipe_aio_readv,
-+	.aio_read	= pipe_aio_read,
-+	.aio_write	= pipe_aio_write,
- 	.write		= pipe_write,
--	.writev		= pipe_writev,
-+	.writev		= pipe_aio_writev,
- 	.poll		= pipe_poll,
- 	.ioctl		= pipe_ioctl,
- 	.open		= pipe_rdwr_open,
---- aio/include/linux/pipe_fs_i.h	2004-06-15 22:19:42.000000000 -0700
-+++ aio-pipe/include/linux/pipe_fs_i.h	2004-06-18 09:55:34.746340192 -0700
-@@ -41,7 +41,7 @@ struct pipe_inode_info {
- #define PIPE_MAX_WCHUNK(inode)	(PIPE_SIZE - PIPE_END(inode))
- 
- /* Drop the inode semaphore and wait for a pipe event, atomically */
--void pipe_wait(struct inode * inode);
-+int pipe_wait(struct inode * inode);
- 
- struct inode* pipe_new(struct inode* inode);
+ 	spin_lock_irq(&ctx->ctx_lock);
+-	ret = aio_run_iocb(req);
++	list_add_tail(&req->ki_run_list, &ctx->run_list);
++	__aio_run_iocbs(ctx);
+ 	spin_unlock_irq(&ctx->ctx_lock);
+-
+-	if (-EIOCBRETRY == ret)
+-		queue_work(aio_wq, &ctx->wq);
+ 	aio_put_req(req);	/* drop extra ref to req */
+ 	return 0;
  

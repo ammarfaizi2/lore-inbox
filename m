@@ -1,40 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261359AbTDDVtm (for <rfc822;willy@w.ods.org>); Fri, 4 Apr 2003 16:49:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261362AbTDDVtm (for <rfc822;linux-kernel-outgoing>); Fri, 4 Apr 2003 16:49:42 -0500
-Received: from mons.uio.no ([129.240.130.14]:28548 "EHLO mons.uio.no")
-	by vger.kernel.org with ESMTP id S261359AbTDDVtj (for <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Apr 2003 16:49:39 -0500
-To: Steve Dickson <SteveD@redhat.com>
-Cc: nfs@lists.sourceforge.net, linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [NFS] [PATCH] mmap corruption
-References: <3E8DDB13.9020009@RedHat.com>
-From: Trond Myklebust <trond.myklebust@fys.uio.no>
-Date: 05 Apr 2003 00:01:02 +0200
-In-Reply-To: <3E8DDB13.9020009@RedHat.com>
-Message-ID: <shsistt7wip.fsf@charged.uio.no>
-User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.4 (Honest Recruiter)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id S261382AbTDDVsp (for <rfc822;willy@w.ods.org>); Fri, 4 Apr 2003 16:48:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261386AbTDDVsp (for <rfc822;linux-kernel-outgoing>); Fri, 4 Apr 2003 16:48:45 -0500
+Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:19596
+	"EHLO lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
+	id S261382AbTDDVso (for <rfc822;linux-kernel@vger.kernel.org>); Fri, 4 Apr 2003 16:48:44 -0500
+Subject: Re: Linux 2.4.21-pre7
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: "J.A. Magallon" <jamagallon@able.es>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20030404213441.GA4730@werewolf.able.es>
+References: <Pine.LNX.4.53L.0304041815110.32674@freak.distro.conectiva>
+	 <20030404213441.GA4730@werewolf.able.es>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Organization: 
+Message-Id: <1049490101.2150.89.camel@dhcp22.swansea.linux.org.uk>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
+Date: 04 Apr 2003 22:01:42 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> " " == Steve Dickson <SteveD@redhat.com> writes:
+On Gwe, 2003-04-04 at 22:34, J.A. Magallon wrote:
+> On 04.04, Marcelo Tosatti wrote:
+> > 
+> > So here goes -pre7. Hopefully the last -pre.
+> > 
+> > Alan Cox <alan@lxorguk.ukuu.org.uk>:
+> >   o PCI layer bits for 440GX
+> 
+> Any pointer for info on this ?
 
-     > The Cause: Memory mapped pages were not being flushed out in a
-     > timely manner. When a file is about to truncated (up or down),
-     > nfs_writepage() is called (by filemap_fdatasync()) to flush out
-     > dirty pages. When this done asynchronously, nfs_writepage()
-     > will (indirectly) call nfs_strategy().  nfs_strategy() wants to
-     > send groups of pages (in this case 4 pages). Now in the error
-     > case, only one page was dirty so it was *not* flushed out.
-     > Eventually that page would be flushed (by kupdate) but it was
-     > too late because the file size had already change due to a
-     > second truncation.
+The changes to arch/i386/kernel/pci and dmi_scan.c should be
+fairly self explanatory. We muse use BIOS routing not $PIR
+routing
 
-That simply doesn't ring true. The nfs_wb_all() immediately after the
-call to filemap_fdatasync() should ensure that *all* scheduled writes
-will flushed out.
-
-Cheers,
-  Trond

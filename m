@@ -1,54 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266512AbUHIMQa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266514AbUHIMQb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266512AbUHIMQa (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 9 Aug 2004 08:16:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266514AbUHIMPR
+	id S266514AbUHIMQb (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 9 Aug 2004 08:16:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266513AbUHIMIL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 9 Aug 2004 08:15:17 -0400
-Received: from thebsh.namesys.com ([212.16.7.65]:53677 "HELO
-	thebsh.namesys.com") by vger.kernel.org with SMTP id S266508AbUHIMOy convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 9 Aug 2004 08:14:54 -0400
-Message-ID: <41176AB6.6080902@namesys.com>
-Date: Mon, 09 Aug 2004 16:14:46 +0400
-From: "Vladimir V. Saveliev" <vs@namesys.com>
-Organization: Namesys
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4.2) Gecko/20040220
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: =?ISO-8859-1?Q?Espen_Fjellv=E6r_Olsen?= <eldiablo@svorka.net>
-CC: linux kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: 2.6.8-rc3-mm2
-References: <20040808152936.1ce2eab8.akpm@osdl.org> <411753A4.8020801@svorka.net>
-In-Reply-To: <411753A4.8020801@svorka.net>
-X-Enigmail-Version: 0.76.8.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 8BIT
+	Mon, 9 Aug 2004 08:08:11 -0400
+Received: from main.gmane.org ([80.91.224.249]:17039 "EHLO main.gmane.org")
+	by vger.kernel.org with ESMTP id S266512AbUHIMH2 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 9 Aug 2004 08:07:28 -0400
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: =?iso-8859-1?q?M=E5ns_Rullg=E5rd?= <mru@kth.se>
+Subject: Re: PATCH: cdrecord: avoiding scsi device numbering for ide devices
+Date: Mon, 09 Aug 2004 14:07:25 +0200
+Message-ID: <yw1xd6204irm.fsf@kth.se>
+References: <200408071217.i77CHUKm006973@burner.fokus.fraunhofer.de> <41175798.7000406@hist.no>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
+X-Complaints-To: usenet@sea.gmane.org
+X-Gmane-NNTP-Posting-Host: 213-187-164-3.dd.nextgentel.com
+User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Security Through
+ Obscurity, linux)
+Cancel-Lock: sha1:yYDCi0u+VdfzO1i/nj8YUfz+gFA=
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello
+Helge Hafting <helge.hafting@hist.no> writes:
 
-Espen Fjellvær Olsen wrote:
-> Gah, sending this to lkml also, next time i hit reply i'll try to
-> remember to insert the lkml mail address ;)
-> 
-> I wonder if there are any plans to implement Reiser4 into mm soon?
-> I think that Reiser4 is stable enough to get in mm now.
-> 
-We sent it to Andrew Morton at the end of last week and he made few warnings we are currently trying to address.
+> If you want to provide a multi-platform app with an acceptable user
+> interface, then you have to cope with the different adressing
+> schemes.  If that is too much work, consider taking patches from
+> volunteers similiar to how the linux kernel and many other big
+> projects are managed.  I am sure you can get someone to write
+> "perfect" support for /dev/XYZ on linux for you, if you're willing
+> to apply such a patch.
 
+How's this for a start?
 
-> --
-> Med Vennlig Hilsen / Best Regards
-> Espen Fjellvær Olsen
-> eldiablo@svorka.net
-> Norway
--
-To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
-Please read the FAQ at  http://www.tux.org/lkml/
+--- libscg/scsi-linux-sg.c~     2004-01-14 18:54:01 +01:00
++++ libscg/scsi-linux-sg.c      2004-08-09 14:05:03 +02:00
+@@ -476,10 +476,6 @@
+                        b = device[7] - 'a';
+                        if (b < 0 || b > 25)
+                                b = -1;
+-               }
+-               if (scgp->overbose) {
+-                       js_fprintf((FILE *)scgp->errfile,
+-                       "Warning: Open by 'devname' is unintentional and not supported.\n");
+                }
+                                        /* O_NONBLOCK is dangerous */
+                f = open(device, O_RDWR | O_NONBLOCK);
 
+-- 
+Måns Rullgård
+mru@kth.se
 

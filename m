@@ -1,51 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263107AbUBDPYL (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 4 Feb 2004 10:24:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263166AbUBDPYL
+	id S262913AbUBDPRB (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 4 Feb 2004 10:17:01 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263014AbUBDPRB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 4 Feb 2004 10:24:11 -0500
-Received: from rwcrmhc11.comcast.net ([204.127.198.35]:53658 "EHLO
-	rwcrmhc11.comcast.net") by vger.kernel.org with ESMTP
-	id S263107AbUBDPYJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 4 Feb 2004 10:24:09 -0500
-Message-ID: <40210E97.6070502@namesys.com>
-Date: Wed, 04 Feb 2004 07:24:07 -0800
-From: Hans Reiser <reiser@namesys.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5) Gecko/20031007
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Tomas Szepe <szepe@pinerecords.com>
-CC: lkml <linux-kernel@vger.kernel.org>, nikita@namesys.com
-Subject: Re: ReiserFS V4 (was Re: 2.6.2-rc3-mm1)
-References: <20040202235817.5c3feaf3.akpm@osdl.org> <1075798370.1829.80.camel@tribesman.namesys.com> <20040203010456.3f3a2618.akpm@osdl.org> <40202D17.1000904@namesys.com> <20040204120049.GA11621@louise.pinerecords.com>
-In-Reply-To: <20040204120049.GA11621@louise.pinerecords.com>
-X-Enigmail-Version: 0.82.3.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Wed, 4 Feb 2004 10:17:01 -0500
+Received: from phoenix.infradead.org ([213.86.99.234]:23556 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id S262913AbUBDPQ6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 4 Feb 2004 10:16:58 -0500
+Date: Wed, 4 Feb 2004 15:16:47 +0000
+From: Christoph Hellwig <hch@infradead.org>
+To: Steve Lord <lord@xfs.org>
+Cc: Christoph Hellwig <hch@infradead.org>,
+       Miquel van Smoorenburg <miquels@cistron.nl>,
+       Andrew Morton <akpm@osdl.org>, Nathan Scott <nathans@sgi.com>,
+       linux-kernel@vger.kernel.org, linux-xfs@oss.sgi.com
+Subject: Re: 2.6.2-rc2 nfsd+xfs spins in i_size_read()
+Message-ID: <20040204151647.A19158@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Steve Lord <lord@xfs.org>,
+	Miquel van Smoorenburg <miquels@cistron.nl>,
+	Andrew Morton <akpm@osdl.org>, Nathan Scott <nathans@sgi.com>,
+	linux-kernel@vger.kernel.org, linux-xfs@oss.sgi.com
+References: <bv8qr7$m2v$1@news.cistron.nl> <20040129063009.GD2474@frodo> <bv8qr7$m2v$1@news.cistron.nl> <20040128222521.75a7d74f.akpm@osdl.org> <20040129063009.GD2474@frodo> <20040129232033.GA10541@cistron.nl> <20040204000315.A12127@infradead.org> <401FAC70.8070104@xfs.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <401FAC70.8070104@xfs.org>; from lord@xfs.org on Tue, Feb 03, 2004 at 08:13:04AM -0600
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Tomas Szepe wrote:
+On Tue, Feb 03, 2004 at 08:13:04AM -0600, Steve Lord wrote:
+> >  			ip->i_rdev = rdev;
+> > -		else if (S_ISDIR(mode))
+> > -			validate_fields(ip);
+> > +		validate_fields(ip);
+> 
+> There was some reason this was only necessary on directories, but I
+> cannot remember why just now.
 
->On Feb-03 2004, Tue, 15:21 -0800
->Hans Reiser <reiser@namesys.com> wrote:
->
->[snip]
->  
->
->>V4 is 2-5x the speed of V3, has more 
->>functionality, better security, is more maintainable, etc.  Once V4 is 
->>as stable and tested as V3,
->>    
->>
->[snip]
->
->Are there any plans to release a reliable version of V4 any time soon?
->
->  
->
-Nikita, please do a new snapshot now that we have fixed some bugs.  The 
-last snapshot seems to have added more bugs than it fixed.
+Well, it is nessecary now to update i_size.  Or rather it was, I think
+I can get rid of it again after taking care of initialize_vnode.
+
+> I think this should work, it just leaves the extending O_DIRECT write
+> case.
+
+And initialize_vnode.  I have a working patch for the latter, but I still
+need to take a look at O_DIRECT.
+
+> Keeping the revalidate call out of the path for creating regular
+> files would be nice though, why did you deem that necessary?
+
+I thought I need it for i_size udates, but we should be able to take
+care of it in initialize_vnode.
 

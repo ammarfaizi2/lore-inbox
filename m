@@ -1,90 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S276877AbRKIDBg>; Thu, 8 Nov 2001 22:01:36 -0500
+	id <S277782AbRKIDFF>; Thu, 8 Nov 2001 22:05:05 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277782AbRKIDB0>; Thu, 8 Nov 2001 22:01:26 -0500
-Received: from lorica.ucc.usyd.edu.au ([129.78.64.15]:57298 "EHLO
-	lorica.ucc.usyd.edu.au") by vger.kernel.org with ESMTP
-	id <S276877AbRKIDBW>; Thu, 8 Nov 2001 22:01:22 -0500
-Date: Fri, 9 Nov 2001 14:01:19 +1100 (EST)
-From: Michael Chapman <mchapman@beren.hn.org>
-Reply-To: Michael Chapman <mchapman@student.usyd.edu.au>
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Oops in kmem_cache_free with 2.4.14
-Message-ID: <Pine.LNX.4.33.0111091355540.21862-100000@beren.hn.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S278807AbRKIDEz>; Thu, 8 Nov 2001 22:04:55 -0500
+Received: from f5.law11.hotmail.com ([64.4.17.5]:9477 "EHLO hotmail.com")
+	by vger.kernel.org with ESMTP id <S277782AbRKIDEw>;
+	Thu, 8 Nov 2001 22:04:52 -0500
+X-Originating-IP: [208.253.50.100]
+From: "Linux Kernel Developer" <linux_developer@hotmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: CPQARRAY driver horribly broken in 2.4.14
+Date: Thu, 08 Nov 2001 22:04:46 -0500
+Mime-Version: 1.0
+Content-Type: text/plain; format=flowed
+Message-ID: <F5uLCTaogxLDp7mvjkO00000742@hotmail.com>
+X-OriginalArrivalTime: 09 Nov 2001 03:04:46.0704 (UTC) FILETIME=[49B08700:01C168CB]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all.
+Hi all,
 
-I got this oops in oops while loading mozilla. It killed my X session, but 
-the box appears to be running stable again. I haven't been able to 
-reproduce it.
+     I'm using the cpqarray driver for a Compaq Smart Arrat 3100ES 
+controller on a Compaq Proliant 7000.  Today I tried upgrading the kernel to 
+2.4.14.  Soon after the upgrade I though about making a small change in the 
+kernel however as soon as I tried doing a "make dep" the system oopsed and 
+froze.  This repeated itself a couple of times.  Initially I though it may 
+have been the ext3 patch which I had tried and I then tried mounting my 
+drives as ext2 to see if that fixed the problem.  It didn't.  After writing 
+down the oops and doing a ksymoops on it I noticed that the kernel appeared 
+to die in the ida interrupt handler (ida is the device name the cpqarray 
+driver uses).  Remembering that the cpqarray driver had been upgraded in 
+2.4.14 I decided to try downgrading the cpqarray driver.  So I copied the 
+cpqarray.[ch], ida_cmd.h, and ida_ioctl.h file from drivers/block from a 
+linux 2.4.13-ac8 source directory I had from the previously working kernel.  
+I then recompiled the 2.4.14 linux kernel (with ext3 patch) using the 
+downgraded cpqarray driver source files.  The resulting kernel now works 
+perfectly on this machine.  Even doing a higher stress test with make -j 10 
+didn't cause the crash to occur again.  From my investigate I must conclude 
+the the cpqarray driver included in the 2.4.14 source tarball must be broken 
+somehow.
 
-My kernel is non-SMP 2.4.14 with the ext3 patches.
+    Other fact that might be relevent about this machine.  This system has 
+1.5 GB of memory and I am using the 4GB high memory option in the kernel.  I 
+also included the latest ext3 patch as I needed this after moving away from 
+the ac kernels.
 
-ksymoops 2.4.1 on i686 2.4.14.  Options used
-     -V (default)
-     -k /proc/ksyms (default)
-     -l /proc/modules (default)
-     -o /lib/modules/2.4.14/ (default)
-     -m /boot/System.map-2.4.14 (specified)
+     I've attached the oops (typed out by me), the ksymoops output, and my 
+kernel configuration file.  If anyone has anymore questions please ask away, 
+though I won't have access to this machine again til after the weekend.
 
-Unable to handle kernel paging request at virtual address cfa5b04c
-c0128478
-*pde = 0f8001b9
-Oops: 0003
-CPU:    0
-EIP:    0010:[kmem_cache_free+56/160]    Not tainted
-EIP:    0010:[<c0128478>]    Not tainted
-Using defaults from ksymoops -t elf32-i386 -a i386
-EFLAGS: 00210006
-eax: 00000000   ebx: c1607360   ecx: cfa5b030   edx: 00000000
-esi: 00200086   edi: 00000001   ebp: 0000000e   esp: d4e05ed8
-ds: 0018   es: 0018   ss: 0018
-Process X (pid: 2186, stackpage=d4e05000)
-Stack: 0000000e d4e04568 cfa5b178 d4e05f50 c011c063 c1607360 cfa5b154 
-d4e04000 
-       0000000e d4e04000 d4e05f30 c011c11d 0000000e d4e04568 d4e05f30 
-d4e04000 
-       00000000 c01069b9 d4e04560 d4e05f30 d4e04560 d4e05fc4 0000000e 
-00000000 
-Call Trace: [collect_signal+147/224] [dequeue_signal+109/176] 
-[do_signal+89/672] [process_timeout+0/80] [process_timeout+0/80] 
-Call Trace: [<c011c063>] [<c011c11d>] [<c01069b9>] [<c0111900>] 
-[<c0111900>] 
-   [<c011b9f3>] [<c0111c51>] [<c0106d24>] 
-Code: 89 44 b9 18 89 79 14 8b 51 10 8d 42 ff 89 41 10 85 c0 75 24 
-
->>EIP; c0128478 <kmem_cache_free+38/a0>   <=====
-Trace; c011c063 <collect_signal+93/e0>
-Trace; c011c11d <dequeue_signal+6d/b0>
-Trace; c01069b9 <do_signal+59/2a0>
-Trace; c0111900 <process_timeout+0/50>
-Trace; c0111900 <process_timeout+0/50>
-Trace; c011b9f3 <timer_bh+213/250>
-Trace; c0111c51 <schedule+251/390>
-Trace; c0106d24 <signal_return+14/18>
-Code;  c0128478 <kmem_cache_free+38/a0>
-00000000 <_EIP>:
-Code;  c0128478 <kmem_cache_free+38/a0>   <=====
-   0:   89 44 b9 18               mov    %eax,0x18(%ecx,%edi,4)   <=====
-Code;  c012847c <kmem_cache_free+3c/a0>
-   4:   89 79 14                  mov    %edi,0x14(%ecx)
-Code;  c012847f <kmem_cache_free+3f/a0>
-   7:   8b 51 10                  mov    0x10(%ecx),%edx
-Code;  c0128482 <kmem_cache_free+42/a0>
-   a:   8d 42 ff                  lea    0xffffffff(%edx),%eax
-Code;  c0128485 <kmem_cache_free+45/a0>
-   d:   89 41 10                  mov    %eax,0x10(%ecx)
-Code;  c0128488 <kmem_cache_free+48/a0>
-  10:   85 c0                     test   %eax,%eax
-Code;  c012848a <kmem_cache_free+4a/a0>
-  12:   75 24                     jne    38 <_EIP+0x38> c01284b0 
-<kmem_cache_free+70/a0>
-
-
-Michael
+_________________________________________________________________
+Get your FREE download of MSN Explorer at http://explorer.msn.com/intl.asp
 

@@ -1,49 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261572AbTDKI7x (for <rfc822;willy@w.ods.org>); Fri, 11 Apr 2003 04:59:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261632AbTDKI7x (for <rfc822;linux-kernel-outgoing>);
-	Fri, 11 Apr 2003 04:59:53 -0400
-Received: from ns.avalon.ru ([195.209.229.227]:17731 "EHLO smtp.avalon.ru")
-	by vger.kernel.org with ESMTP id S261572AbTDKI7w convert rfc822-to-8bit (for <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 11 Apr 2003 04:59:52 -0400
-content-class: urn:content-classes:message
+	id S261978AbTDKJAb (for <rfc822;willy@w.ods.org>); Fri, 11 Apr 2003 05:00:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262100AbTDKJAb (for <rfc822;linux-kernel-outgoing>);
+	Fri, 11 Apr 2003 05:00:31 -0400
+Received: from 213-4-21-244.uc.nombres.ttd.es ([213.4.21.244]:46835 "EHLO
+	mail.flconstruccion.com") by vger.kernel.org with ESMTP
+	id S261978AbTDKJA2 (for <rfc822;linux-kernel@vger.kernel.org>); Fri, 11 Apr 2003 05:00:28 -0400
+Message-ID: <3E96A326.4040700@inicia.es>
+Date: Fri, 11 Apr 2003 13:12:38 +0200
+From: =?ISO-8859-1?Q?Pablo_Gim=E9nez_Pizarro?= <pablogipi@inicia.es>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20030212 Debian/1.2.1-9woody1
+X-Accept-Language: es-es
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-X-MimeOLE: Produced By Microsoft Exchange V6.0.6249.0
-Subject: [PATCH] [2.4.20] filter_list destroy fix in net/sched/sch_csz.c
-Date: Fri, 11 Apr 2003 13:11:17 +0400
-Message-ID: <E1B7C89B8DCB084C809A22D7FEB90B381773AE@frodo.avalon.ru>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: [PATCH] [2.4.20] filter_list destroy fix in net/sched/sch_csz.c
-Thread-Index: AcL2BZM+86EVewkGQc+3orAwc2LBoQ==
-From: "Dimitry V. Ketov" <Dimitry.Ketov@avalon.ru>
-To: <netdev@oss.sgi.com>, <linux-kernel@vger.kernel.org>
-Cc: <kuznet@ms2.inr.ac.ru>
+To: Linux-Kernel <linux-kernel@vger.kernel.org>
+Subject: Uresolved Symbol problem in kernel compiled for ATHLON :(
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Same as prio qdisc, the csz qdisc does not destroy its filter list, when
-someone deletes qdisc from interface without explicit filter deleting.
-So here is the patch. :)
+Hi all.
+I've compiled a kernel optimized for aTHLON processors and when i reboot 
+i get the next error nwhen try to load some modules:
 
---- linux-2.4.20/net/sched/sch_csz.c	Fri Dec 21 20:42:06 2001
-+++ linux/net/sched/sch_csz.c	Fri Apr 11 12:33:08 2003
-@@ -749,6 +749,15 @@
- static void
- csz_destroy(struct Qdisc* sch)
- {
-+	struct csz_sched_data *q = (struct csz_sched_data *)sch->data;
-+	struct tcf_proto *tp;
-+
-+	while((tp = q->filter_list) != NULL)
-+	{
-+		q->filter_list = tp->next;
-+		tp->ops->destroy(tp);
-+	}
-+
- 	MOD_DEC_USE_COUNT;
- }
+/lib/modules/2.4.20/kernel/drivers/net/dmfe.o: unresolved symbol _mmx_memcpy
+
+The next errors are the usual insmod errors in this cases.
+I get this unresolved symbol message with other modules like nfs.o, in 
+general with net modules and filesystems modules.
+If i compile the kernel for a Pentium Pro or lower micro i don't get 
+this errors, so i think this is a problem with the ATHLON optimization, 
+the kernel version i tried are 2.4.19 and 2.4.20.
+I could compile the 2.4.19 for ATHLON in previous times, but now i can't.
+Any clue :?
+
+Thanks!!
+
+
+
 

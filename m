@@ -1,37 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287258AbSACNKb>; Thu, 3 Jan 2002 08:10:31 -0500
+	id <S287271AbSACNRd>; Thu, 3 Jan 2002 08:17:33 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287269AbSACNKV>; Thu, 3 Jan 2002 08:10:21 -0500
-Received: from pincoya.inf.utfsm.cl ([200.1.19.3]:56328 "EHLO
-	pincoya.inf.utfsm.cl") by vger.kernel.org with ESMTP
-	id <S287258AbSACNKO>; Thu, 3 Jan 2002 08:10:14 -0500
-Message-Id: <200201031310.g03DA8rB021258@pincoya.inf.utfsm.cl>
-To: "Eric S. Raymond" <esr@thyrsus.com>,
-        Linux Kernel List <linux-kernel@vger.kernel.org>
-Subject: Re: ISA slot detection on PCI systems? 
-In-Reply-To: Message from "Eric S. Raymond" <esr@thyrsus.com> 
-   of "Wed, 02 Jan 2002 17:34:19 CDT." <20020102173419.A21165@thyrsus.com> 
-Date: Thu, 03 Jan 2002 10:10:07 -0300
-From: Horst von Brand <vonbrand@inf.utfsm.cl>
+	id <S287274AbSACNRY>; Thu, 3 Jan 2002 08:17:24 -0500
+Received: from junk.nocrew.org ([212.73.17.42]:56722 "EHLO junk.nocrew.org")
+	by vger.kernel.org with ESMTP id <S287271AbSACNRG>;
+	Thu, 3 Jan 2002 08:17:06 -0500
+To: law@redhat.com
+Cc: paulus@samba.org, Momchil Velikov <velco@fadata.bg>,
+        Tom Rini <trini@kernel.crashing.org>, linux-kernel@vger.kernel.org,
+        gcc@gcc.gnu.org, linuxppc-dev@lists.linuxppc.org
+Subject: Re: [PATCH] C undefined behavior fix
+In-Reply-To: <1927.1010039344@porcupine.cygnus.com>
+From: Lars Brinkhoff <lars.spam@nocrew.org>
+Organization: nocrew
+Date: 03 Jan 2002 14:16:51 +0100
+In-Reply-To: <1927.1010039344@porcupine.cygnus.com>
+Message-ID: <85zo3v4lrw.fsf@junk.nocrew.org>
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) Emacs/20.7
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Eric S. Raymond" <esr@thyrsus.com> said:
-[...]
+law@redhat.com writes:
+> the mn10300 (for which a linux port does exist)
 
-> What?  Perhaps we're talking at cross-prorposes here.  What I'm proposing
-> is that /proc/dmi should be a world-readable /proc file with the property
-> that 
-> 	cat /proc/dmi
-> 
-> gives you a DMI report.  No root privileges or SUID programs needed.
-> Surely that would be an improvement on having to run Arjan's dmidecode as
-> root or requiring it to be SUID.
+I tried to locate info about this port, but I couldn't find any.
+Do you have any pointers?
 
-You seem to assume that in-kernel code is automatically safe...
 -- 
-Dr. Horst H. von Brand                   User #22616 counter.li.org
-Departamento de Informatica                     Fono: +56 32 654431
-Universidad Tecnica Federico Santa Maria              +56 32 654239
-Casilla 110-V, Valparaiso, Chile                Fax:  +56 32 797513
+Lars Brinkhoff          http://lars.nocrew.org/     Linux, GCC, PDP-10
+Brinkhoff Consulting    http://www.brinkhoff.se/    programming

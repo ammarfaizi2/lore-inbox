@@ -1,67 +1,77 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261863AbTCTTeG>; Thu, 20 Mar 2003 14:34:06 -0500
+	id <S262059AbTCTTmG>; Thu, 20 Mar 2003 14:42:06 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261883AbTCTTeG>; Thu, 20 Mar 2003 14:34:06 -0500
-Received: from smtp-out.comcast.net ([24.153.64.115]:33789 "EHLO
-	smtp.comcast.net") by vger.kernel.org with ESMTP id <S261863AbTCTTeD>;
-	Thu, 20 Mar 2003 14:34:03 -0500
-Date: Thu, 20 Mar 2003 14:44:48 -0500
-From: John M Flinchbaugh <glynis@butterfly.hjsoft.com>
-Subject: Re: 2.5.65 performance
-In-reply-to: <20030319173808.7fb1c204.akpm@digeo.com>
+	id <S262064AbTCTTmG>; Thu, 20 Mar 2003 14:42:06 -0500
+Received: from pa-vallet1b-153.pit.adelphia.net ([24.50.181.153]:57762 "EHLO
+	client100.evillabs.net") by vger.kernel.org with ESMTP
+	id <S262059AbTCTTmF>; Thu, 20 Mar 2003 14:42:05 -0500
+Date: Thu, 20 Mar 2003 14:53:05 -0500
+From: Jason McMullan <jmcmullan@linuxcare.com>
 To: linux-kernel@vger.kernel.org
-Message-id: <20030320194448.GC25197@butterfly.hjsoft.com>
-MIME-version: 1.0
-Content-type: multipart/signed; boundary=7gGkHNMELEOhSGF6;
- protocol="application/pgp-signature"; micalg=pgp-sha1
-Content-disposition: inline
-User-Agent: Mutt/1.5.3i
-References: <200303192317.22103.cb-lkml@fish.zetnet.co.uk>
- <20030319173808.7fb1c204.akpm@digeo.com>
+Subject: [PATCH] HID: Ignore P5 Data Glove (2.4 and 2.5 patches)
+Message-ID: <20030320195305.GA3370@client100.evillabs.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---7gGkHNMELEOhSGF6
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+  As requested, here are the 2.4 (latest BK tree) and 2.5 (latest bk
+  tree) patches to ignore the non-HID Essential Reality Data Glove
 
-On Wed, Mar 19, 2003 at 05:38:08PM -0800, Andrew Morton wrote:
-> Charles Baylis <cb-lkml@fish.zetnet.co.uk> wrote:
-> > I'm getting quite a lot of audio skips with this one. 2.5.64-mm8=20
-was the=20
-> > last one I tested and it was very good.
-> > 2.5.64-mm8 works fine with pretty much any thud load I throw at it,=20
-but thud=20
-> > 3 is enough to cause some skips with 2.5.65-mm2. Thud 5 causes=20
-serious=20
-> > starvation problems to the whole desktop.
-> Please test 2.5.65 base.
+  (again, user-space lib to access this device via /proc/bus/usb
+   is available at http://www.evillabs.net/~jmcc/p5)
 
-doing normal desktop things (gnome, jboss, mozilla, apt-get updates,
-etc) i've noticed audio skips on occassion that i had not seen in
-kernels previous to 2.5.65.
+-------------- 2.4 patch --------------------
+--- linux-2.4/drivers/usb/hid-core.c	2003-03-20 14:42:49.000000000 -0500
++++ linux-2.4/drivers/usb/hid-core.c.new	2003-03-20 14:46:40.000000000 -0500
+@@ -1102,6 +1102,9 @@
+ #define USB_VENDOR_ID_OKI		0x070a
+ #define USB_VENDOR_ID_OKI_MULITI	0x0007
+ 
++#define USB_VENDOR_ID_ESSENTIAL_REALITY	0x0d7f
++#define USB_DEVICE_ID_ESSENTIAL_REALITY_P5	0x0100
++
+ struct hid_blacklist {
+ 	__u16 idVendor;
+ 	__u16 idProduct;
+@@ -1142,6 +1145,7 @@
+  	{ USB_VENDOR_ID_ONTRAK, USB_DEVICE_ID_ONTRAK_ADU100 + 500, HID_QUIRK_IGNORE },
+  	{ USB_VENDOR_ID_TANGTOP, USB_DEVICE_ID_TANGTOP_USBPS2, HID_QUIRK_NOGET },
+ 	{ USB_VENDOR_ID_OKI, USB_VENDOR_ID_OKI_MULITI, HID_QUIRK_NOGET },
++	{ USB_VENDOR_ID_ESSENTIAL_REALITY, USB_DEVICE_ID_ESSENTIAL_REALITY_P5, HID_QUIRK_IGNORE },
+ 	{ 0, 0 }
+ };
+ 
 
-i'm not going to complain though, because mozilla seems to start
-quicker, and my jboss start time has dropped from 1m:10s average to
-40s.  very cool!
---=20
-____________________}John Flinchbaugh{______________________
-| glynis@hjsoft.com         http://www.hjsoft.com/~glynis/ |
-~~Powered by Linux: Reboots are for hardware upgrades only~~
-
---7gGkHNMELEOhSGF6
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
-
-iD8DBQE+ehowCGPRljI8080RAk7oAJwMuNjurornTS24P0K8DpesC4M6GgCggW88
-Djzxx2hM9n5qgUL5oRQ/kL0=
-=lkPP
------END PGP SIGNATURE-----
-
---7gGkHNMELEOhSGF6--
+---- end
+----------- 2.5 patch -------------------
+--- linux-2.5/drivers/usb/input/hid-core.c	2003-03-19 09:30:25.000000000 -0500
++++ linux-2.5/drivers/usb/input/hid-core.c.new	2003-03-20 14:48:42.000000000 -0500
+@@ -1334,6 +1334,9 @@
+ #define USB_VENDOR_ID_TANGTOP          0x0d3d
+ #define USB_DEVICE_ID_TANGTOP_USBPS2   0x0001
+ 
++#define USB_VENDOR_ID_ESSENTIAL_REALITY	0x0d7f
++#define USB_DEVICE_ID_ESSENTIAL_REALITY_P5	0x0100
++
+ struct hid_blacklist {
+ 	__u16 idVendor;
+ 	__u16 idProduct;
+@@ -1377,6 +1380,7 @@
+ 	{ USB_VENDOR_ID_ONTRAK, USB_DEVICE_ID_ONTRAK_ADU100 + 400, HID_QUIRK_IGNORE },
+ 	{ USB_VENDOR_ID_ONTRAK, USB_DEVICE_ID_ONTRAK_ADU100 + 500, HID_QUIRK_IGNORE },
+ 	{ USB_VENDOR_ID_TANGTOP, USB_DEVICE_ID_TANGTOP_USBPS2, HID_QUIRK_NOGET },
++	{ USB_VENDOR_ID_ESSENTIAL_REALITY, USB_DEVICE_ID_ESSENTIAL_REALITY_P5, HID_QUIRK_IGNORE },
+ 	{ 0, 0 }
+ };
+ 
+---- end
+-- 
+Jason McMullan, Senior Linux Consultant, Linuxcare, Inc.
+412.422.8077 tel, 412.656.3519 cell, 208.694.9206 fax
+jmcmullan@linuxcare.com, http://www.linuxcare.com/
+Linuxcare. Support for the revolution.

@@ -1,93 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265196AbUELToJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265193AbUELTtm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265196AbUELToJ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 12 May 2004 15:44:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265199AbUELToI
+	id S265193AbUELTtm (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 12 May 2004 15:49:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265198AbUELTtm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 12 May 2004 15:44:08 -0400
-Received: from ltgp.iram.es ([150.214.224.138]:34690 "EHLO ltgp.iram.es")
-	by vger.kernel.org with ESMTP id S265198AbUELTnU (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 12 May 2004 15:43:20 -0400
-From: Gabriel Paubert <paubert@iram.es>
-Date: Wed, 12 May 2004 21:34:38 +0200
-To: Stephen Hemminger <shemminger@osdl.org>
-Cc: David Mosberger-Tang <davidm@hpl.hp.com>, linux-ia64@linuxia64.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: GCC nested functions?
-Message-ID: <20040512193438.GA4725@iram.es>
-References: <20040512105924.54a8211b@dell_ss3.pdx.osdl.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040512105924.54a8211b@dell_ss3.pdx.osdl.net>
-User-Agent: Mutt/1.5.5.1+cvs20040105i
+	Wed, 12 May 2004 15:49:42 -0400
+Received: from x35.xmailserver.org ([69.30.125.51]:4559 "EHLO
+	x35.xmailserver.org") by vger.kernel.org with ESMTP id S265193AbUELTtk
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 12 May 2004 15:49:40 -0400
+X-AuthUser: davidel@xmailserver.org
+Date: Wed, 12 May 2004 12:49:38 -0700 (PDT)
+From: Davide Libenzi <davidel@xmailserver.org>
+X-X-Sender: davide@bigblue.dev.mdolabs.com
+To: Ingo Molnar <mingo@elte.hu>
+cc: Jeff Garzik <jgarzik@pobox.com>, Greg KH <greg@kroah.com>,
+       Andrew Morton <akpm@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Netdev <netdev@oss.sgi.com>
+Subject: Re: MSEC_TO_JIFFIES is messed up...
+In-Reply-To: <20040512193349.GA14936@elte.hu>
+Message-ID: <Pine.LNX.4.58.0405121247011.11950@bigblue.dev.mdolabs.com>
+References: <20040512020700.6f6aa61f.akpm@osdl.org> <20040512181903.GG13421@kroah.com>
+ <40A26FFA.4030701@pobox.com> <20040512193349.GA14936@elte.hu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, May 12, 2004 at 10:59:24AM -0700, Stephen Hemminger wrote:
-> I used GCC nested functions in the (not released) bridge sysfs interface for 2.6.6.
-> It seemed like a nice way to express the sysfs related interface without doing
-> lots of code copying (or worse lots of macros).
-> 
-> The code in question looks like:
-> static ssize_t store_bridge_parm(struct class_device *cd,
->                                  const char *buf, size_t len,
->                                  void (*store)(struct net_bridge *, unsigned long))
-> {
->         struct net_bridge *br = to_bridge(cd);
->         char *endp;
->         unsigned long val;
->                                                                                 
->         if (!capable(CAP_NET_ADMIN))
->                 return -EPERM;
->                                                                                 
->         val = simple_strtoul(buf, &endp, 0);
->         if (endp == buf)
->                 return -EINVAL;
->                                                                                 
->         spin_lock_bh(&br->lock);
->         store(br, val);
->         spin_unlock_bh(&br->lock);
->         return len;
-> }
-> ...
-> 
-> static ssize_t store_forward_delay(struct class_device *cd, const char *buf,
->                                    size_t len)
-> {
->         void store(struct net_bridge *br, unsigned long val)
->         {
->                 unsigned long delay = clock_t_to_jiffies(val);
->                 br->forward_delay = delay;
->                 if (br_is_root_bridge(br))
->                         br->bridge_forward_delay = delay;
->         }
->                                                                                 
->         return store_bridge_parm(cd, buf, len, store);
-> }
-> 
-> 
-> This works fine for GCC 2.95 and 3.X for i386 and x86_64 architectures, but the ia64
-> (cross compiler) pukes with:
-> 
->  In function `store_forward_delay':
-> : undefined reference to `__ia64_trampoline'
-> 
-> Redoing it as separate functions is easy enough, but the questions are:
-> 	- Are gcc nested functions allowed in the kernel?  If not where should
-> 	  this restriction be put in Documentation? CodingStyles?
+On Wed, 12 May 2004, Ingo Molnar wrote:
 
-There is some kind of implicit prohibition in Documentation/CodingStyle
-(Chapter3: Placing braces):
+> 
+> * Jeff Garzik <jgarzik@pobox.com> wrote:
+> 
+> > >Woah, that's new.  And wrong.  The code in include/asm-i386/param.h that
+> > >says:
+> > >	# define JIFFIES_TO_MSEC(x)     (x)
+> > >	# define MSEC_TO_JIFFIES(x)     (x)
+> > >
+> > >Is not correct.  Look at kernel/sched.c for verification of this :)
+> > 
+> > 
+> > Yes, that is _massively_ broken.
+> 
+> why is it wrong?
 
-"Heretic people all over the world have claimed that this inconsistency
-is ...  well ...  inconsistent, but all right-thinking people know that
-(a) K&R are _right_ and (b) K&R are right.  Besides, functions are
-special anyway (you can't nest them in C)."
-               ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+For HZ == 1000 it's fine, even if it'd better to explicitly make it HZ 
+dependent and let the compiler to discard them.
 
-Maybe the way it is stated is too close so subliminal ;-) But I never found 
-a real need for them in C.
 
-	Gabriel
+
+- Davide
+

@@ -1,42 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278305AbRJMO10>; Sat, 13 Oct 2001 10:27:26 -0400
+	id <S277665AbRJMOlT>; Sat, 13 Oct 2001 10:41:19 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278306AbRJMO1S>; Sat, 13 Oct 2001 10:27:18 -0400
-Received: from ns.suse.de ([213.95.15.193]:42247 "HELO Cantor.suse.de")
-	by vger.kernel.org with SMTP id <S278305AbRJMO07>;
-	Sat, 13 Oct 2001 10:26:59 -0400
-Date: Sat, 13 Oct 2001 16:27:30 +0200 (CEST)
-From: Dave Jones <davej@suse.de>
-To: Mikael Pettersson <mikpe@csd.uu.se>
-Cc: <alan@lxorguk.ukuu.org.uk>, <linux-kernel@vger.kernel.org>,
-        <torvalds@transmeta.com>
-Subject: Re: [PATCH] Pentium IV cacheline size.
-In-Reply-To: <200110131417.QAA25601@harpo.it.uu.se>
-Message-ID: <Pine.LNX.4.30.0110131623440.7753-100000@Appserv.suse.de>
+	id <S278306AbRJMOlJ>; Sat, 13 Oct 2001 10:41:09 -0400
+Received: from mailout03.sul.t-online.com ([194.25.134.81]:13260 "EHLO
+	mailout03.sul.t-online.de") by vger.kernel.org with ESMTP
+	id <S277665AbRJMOk5>; Sat, 13 Oct 2001 10:40:57 -0400
+Date: 13 Oct 2001 13:47:00 +0200
+From: kaih@khms.westfalen.de (Kai Henningsen)
+To: linux-kernel@vger.kernel.org
+Message-ID: <8Ao$k$$1w-B@khms.westfalen.de>
+In-Reply-To: <71714C04806CD51193520090272892178BD70D@ausxmrr502.us.dell.com>
+Subject: Re: crc32 cleanups
+X-Mailer: CrossPoint v3.12d.kh7 R/C435
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Organization: Organisation? Me?! Are you kidding?
+In-Reply-To: <71714C04806CD51193520090272892178BD70D@ausxmrr502.us.dell.com>
+X-No-Junk-Mail: I do not want to get *any* junk mail.
+Comment: Unsolicited commercial mail will incur an US$100 handling fee per received mail.
+X-Fix-Your-Modem: +++ATS2=255&WO1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 13 Oct 2001, Mikael Pettersson wrote:
+Matt_Domsch@Dell.com  wrote on 12.10.01 in <71714C04806CD51193520090272892178BD70D@ausxmrr502.us.dell.com>:
 
-> According to the P4 and Xeon optimisation manual (#248966-03), the
-> L1 cache has a 64-byte line size and the L2 cache has a 128-byte
-> line size. (Page 1-18, Table 1-1.) Perhaps someone just confused
+> And, just when I thought I understood the crc32 stuff, here's an even better
+> explanation/code/etc.  With thanks.
 
-Great, conflicting documentation.
-#24547203 (Vol3 : System programming guide) has this to say..
-(page 325)
-"The cache lines for the L1 and L2 caches in the Pentium 4 processor
- are 64 bytes wide"
+Except for one thing:
 
+> 		for (i = 0; i < i; i++)
 
-regards,
+I don't think this does what was intended. Should that perhaps be
 
-Dave.
+> 		for (i = 0; i < 1; i++)
 
--- 
-| Dave Jones.        http://www.codemonkey.org.uk
-| SuSE Labs
+? That would mean one pass through the loop, whereas the original does no  
+passes through the loop.
 
+MfG Kai

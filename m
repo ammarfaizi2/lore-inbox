@@ -1,45 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319142AbSHMSyj>; Tue, 13 Aug 2002 14:54:39 -0400
+	id <S319040AbSHMS4u>; Tue, 13 Aug 2002 14:56:50 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319143AbSHMSyj>; Tue, 13 Aug 2002 14:54:39 -0400
-Received: from inmail.compaq.com ([161.114.64.102]:52490 "EHLO
-	zmamail02.zma.compaq.com") by vger.kernel.org with ESMTP
-	id <S319142AbSHMSyh>; Tue, 13 Aug 2002 14:54:37 -0400
-Date: Tue, 13 Aug 2002 13:55:56 -0500
-From: Stephen Cameron <steve.cameron@hp.com>
-To: linux-kernel@vger.kernel.org
-Subject: Re: 2.5.30 breaks cciss driver?
-Message-ID: <20020813135556.A1438@zuul.cca.cpqcorp.net>
-Reply-To: steve.cameron@hp.com
-Mime-Version: 1.0
+	id <S319060AbSHMS4t>; Tue, 13 Aug 2002 14:56:49 -0400
+Received: from e35.co.us.ibm.com ([32.97.110.133]:7824 "EHLO e35.co.us.ibm.com")
+	by vger.kernel.org with ESMTP id <S319040AbSHMS4s>;
+	Tue, 13 Aug 2002 14:56:48 -0400
+Date: Tue, 13 Aug 2002 11:58:22 -0700
+From: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>
+To: Linus Torvalds <torvalds@transmeta.com>
+cc: linux-kernel <linux-kernel@vger.kernel.org>,
+       Matt Dobson <colpatch@us.ibm.com>
+Subject: Re: [PATCH] NUMA-Q disable irqbalance
+Message-ID: <2009430000.1029265102@flay>
+In-Reply-To: <Pine.LNX.4.44.0208131117190.7411-100000@home.transmeta.com>
+References: <Pine.LNX.4.44.0208131117190.7411-100000@home.transmeta.com>
+X-Mailer: Mulberry/2.1.2 (Linux/x86)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+>> I know, but you pays your money, you choose your breakage ;-)
+> 
+> Well, in this case, it is _you_ who end up having to choose your breakage.
 
-Hmmm, It appears that now we need a gendisk per disk, rather 
-than per controller, as this snippet from patch-2.5.30 implies?
-And we need to set the gendisk's first_minor to be the minor 
-number of the first partition for each disk, is that about right?
+Indeed. Empower the user.
 
--       hd_gendisk.nr_real = NR_HD;
--
--       for(drive=0; drive < NR_HD; drive++)
--               register_disk(&hd_gendisk, mk_kdev(MAJOR_NR,drive<<6), 1<<6,
-+       for(drive=0; drive < NR_HD; drive++) {
-+               hd_gendisk[i].nr_real = 1;
-+               add_gendisk(hd_gendisk + drive);
-+               register_disk(hd_gendisk + drive,
-+                       mk_kdev(MAJOR_NR,drive<<6), 1<<6,
-                        &hd_fops, hd_info[drive].head * hd_info[drive].sect *
-                        hd_info[drive].cyl)
+>> Forcing it on for every machine just because P4s are borked sounds wrong.
+> 
+> THAT IS NOT WHAT I SAID. Go back and read it. I said that since the P4
 
-I think this is why cciss is broken, we have just one gendisk
-per controller.  (please pardon my ignorance, I haven't ever 
-had to look at this partition related code before.)
+OK, I was being unclear, that's not really what I meant. If I may rephrase:
+I don't like the performance hit it gives on P3 standard SMP machines (not
+NUMA-Q) though it does work on there too, and there's no easy way for 
+people to disable it.
 
--- steve
+> needs it, you don't have the choice of just ignoring it. Especially since
+> there are about a million more P4's out there than NUMA-Q machines.
+>  
+> It needs to be dynamic, not "disable it".
+
+I did read what you said, but this isn't just about NUMA-Q. There are two issues here:
+
+1. It doesn't work at all for some machines. Yes, we can get rid of that problem by
+dynamic disable, or hanging off the existing config option. If that's all you'll accept,
+we can cut a minimal patch to do that (that's actually what Matt did originally)
+
+2. It makes performance worse on some normal SMP machines. That's what I want
+the manual config option for. If you want it forced on for P4s, fine. I suspect this
+may be able to be removed if someone can fix the code so it's performant.
+
+M.
 

@@ -1,61 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268303AbUJDTxV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268447AbUJDTtL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268303AbUJDTxV (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 4 Oct 2004 15:53:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268263AbUJDTxU
+	id S268447AbUJDTtL (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 4 Oct 2004 15:49:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268260AbUJDTtD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 4 Oct 2004 15:53:20 -0400
-Received: from fmr03.intel.com ([143.183.121.5]:23977 "EHLO
-	hermes.sc.intel.com") by vger.kernel.org with ESMTP id S268303AbUJDToJ
+	Mon, 4 Oct 2004 15:49:03 -0400
+Received: from prgy-npn1.prodigy.com ([207.115.54.37]:60562 "EHLO
+	oddball.prodigy.com") by vger.kernel.org with ESMTP id S268344AbUJDTr2
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 4 Oct 2004 15:44:09 -0400
-Date: Mon, 4 Oct 2004 12:43:55 -0700
-From: Keshavamurthy Anil S <anil.s.keshavamurthy@intel.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Keshavamurthy Anil S <anil.s.keshavamurthy@intel.com>,
-       jeffpc@optonline.net, linux-kernel@vger.kernel.org, torvalds@osdl.org,
-       trivial@rustcorp.com.au, rusty@rustcorp.com.au
-Subject: Re: [PATCH 2.6][resend] Add DEVPATH env variable to hotplug helper call
-Message-ID: <20041004124355.A17894@unix-os.sc.intel.com>
-Reply-To: Keshavamurthy Anil S <anil.s.keshavamurthy@intel.com>
-References: <20041003100857.GB5804@optonline.net> <20041003162012.79296b37.akpm@osdl.org> <20041004102220.A3304@unix-os.sc.intel.com> <20041004123725.58f1e77c.akpm@osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20041004123725.58f1e77c.akpm@osdl.org>; from akpm@osdl.org on Mon, Oct 04, 2004 at 12:37:25PM -0700
+	Mon, 4 Oct 2004 15:47:28 -0400
+Message-ID: <4161A8F0.4040402@tmr.com>
+Date: Mon, 04 Oct 2004 15:48:00 -0400
+From: Bill Davidsen <davidsen@tmr.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040913
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Jon Smirl <jonsmirl@gmail.com>
+CC: Mike Mestnik <cheako911@yahoo.com>, Dave Airlie <airlied@linux.ie>,
+       dri-devel@lists.sourceforge.net, lkml <linux-kernel@vger.kernel.org>
+Subject: Re: Merging DRM and fbdev
+References: <20041003183839.36810.qmail@web11903.mail.yahoo.com><9e4733910410030833e8a6683@mail.gmail.com> <9e47339104100311566f66eb43@mail.gmail.com>
+In-Reply-To: <9e47339104100311566f66eb43@mail.gmail.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Oct 04, 2004 at 12:37:25PM -0700, Andrew Morton wrote:
-> Keshavamurthy Anil S <anil.s.keshavamurthy@intel.com> wrote:
-> >
-> >  On Sun, Oct 03, 2004 at 04:20:12PM -0700, Andrew Morton wrote:
-> >  > Does CPU hotplug behave correctly wrt /sys/devices/system/cpu?  Given that
-> >  > register_cpu() is still marked __init, I assume not.
-> > 
-> >  Currently what we have in the kernel is logical cpu hotplug, i.e once the
-> >  cpu is registered via register_cpu() that cpu can only go offline and still
-> >  the entry for that cpu will be present in the /sys/devices/system/cpu/cpuX/online.
-> > 
-> >  So __init register_cpu() is fine untill we support unregister_cpu()
-> >  which is required for physical cpu hotplug case.
-> > 
-> >  I have submitted ACPI based physical cpu hotplug patches and waiting to here from
-> >  ACPI mainitainer Len Brown, there I have taken care to support unregister_cpu()
-> >  and register_cpu() is marked as __devinit in those patches.
+Jon Smirl wrote:
+> On Sun, 3 Oct 2004 11:38:39 -0700 (PDT), Mike Mestnik
+> <cheako911@yahoo.com> wrote:
 > 
-> OK...
+>>What about moving the DRM and FB specific code into there own per card
+>>libs?
+>>
+>>radeon - attached to hardware
+>>   radeon-drm
+>>      drm - library
+>>   radeon-fb
+>>      fb - library
+>>         fbcon - library
 > 
-> But still, cpu_run_sbin_hotplug() should not exist.  It is duplicating
-> (indeed, emulating) kobject_hotplug() behaviour.  To the extent that it now
-> has a hardwired sysfs path embedded in it:
 > 
-> 	sprintf(devpath_str, "DEVPATH=devices/system/cpu/cpu%d", cpu);
+> Fell free to convert the merged radeon driver in to a driver plus two
+> libs if you want. I'll accept the patch back. You'll need to wait
+> until I get the merged driver working.
 > 
-> which should have been obtained from kobject_get_path().
-Yes, I agree to your point that cpu_run_sbin_hotplug() is duplication kobject_hotplug()
-behaviour. I will send you a patch to fix this ASAP(hopefully before end of today).
+> What I don't want is two independent implementations of the hardware
+> initialization code like we currently have. The point of merging is to
+> make sure that a single logical driver programs the hardware is a
+> consistent way.
+> 
+> We spend so much time talking about splitting the radeon driver into
+> pieces. But I don't hear anyone saying I can't ship my product because
+> the radeon driver is 120K and all I can handle is 60K. I'm not going
+> to spend a week's work breaking things up and testing them just
+> because of some theoretical need for a non-existant embedded system.
+> When this hypothetical embedded system shows up the people making the
+> money off from the system can do the work.
 
-thanks,
-Anil
+Perhaps there might be some feedback from the embedded folks and/or 
+those who decide if these changes are what they want to go in the 
+kernel. If you're going to do something like this, one of the embedded 
+vendors might want to contribute to development. Clearly smaller 
+software parts have advantages, if resources were available to do it 
+split as part of the modification.
+
+That would probably reduce the maintenence effort in the future as well.
+
+-- 
+    -bill davidsen (davidsen@tmr.com)
+"The secret to procrastination is to put things off until the
+  last possible moment - but no longer"  -me

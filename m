@@ -1,59 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267831AbRGUWJ1>; Sat, 21 Jul 2001 18:09:27 -0400
+	id <S267830AbRGUWDh>; Sat, 21 Jul 2001 18:03:37 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267832AbRGUWJS>; Sat, 21 Jul 2001 18:09:18 -0400
-Received: from green.mif.pg.gda.pl ([153.19.42.8]:41226 "EHLO
-	green.mif.pg.gda.pl") by vger.kernel.org with ESMTP
-	id <S267831AbRGUWJJ>; Sat, 21 Jul 2001 18:09:09 -0400
-From: Andrzej Krzysztofowicz <kufel!ankry@green.mif.pg.gda.pl>
-Message-Id: <200107212139.XAA12131@kufel.dom>
-Subject: Re: [PATCH] init/main.c
-To: kufel!oph.rwth-aachen.de!stefan@green.mif.pg.gda.pl (Stefan Becker)
-Date: Sat, 21 Jul 2001 23:39:40 +0200 (CEST)
-Cc: kufel!lxorguk.ukuu.org.uk!alan@green.mif.pg.gda.pl (Alan Cox),
-        kufel!vger.kernel.org!linux-kernel@green.mif.pg.gda.pl
-In-Reply-To: <Pine.LNX.4.21.0107211840250.27803-100000@die-macht> from "Stefan Becker" at lip 21, 2001 06:51:07 
-X-Mailer: ELM [version 2.5 PL3]
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S267831AbRGUWD1>; Sat, 21 Jul 2001 18:03:27 -0400
+Received: from L0190P28.dipool.highway.telekom.at ([62.46.87.188]:57730 "EHLO
+	mannix") by vger.kernel.org with ESMTP id <S267830AbRGUWDO>;
+	Sat, 21 Jul 2001 18:03:14 -0400
+Date: Sun, 22 Jul 2001 00:02:03 +0200
+To: linux-kernel@vger.kernel.org
+Subject: Re: Another 2.4.7 build failure
+Message-ID: <20010722000203.A25593@aon.at>
+In-Reply-To: <20010721222826.A1953@lucretia.debian.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20010721222826.A1953@lucretia.debian.net>
+User-Agent: Mutt/1.3.18i
+From: Alexander Griesser <tuxx@aon.at>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
-Hi,
-   What do you aim at doing this changes ?
+On Sat, Jul 21, 2001 at 10:28:26PM +0200, you wrote:
+> Building fails for me with following error:
+> ll_rw_blk.c:25: linux/completion.h: No such file or directory
 
-> The following patch against 2.4.6-ac5 does
-[...]
-> (b) wraps certain root_dev_names[] into #ifdefs.
->     I hope I found the correct CONFIG_BLK_* variables
-[...]
->  #endif
-> +#ifdef CONFIG_BLK_DEV_DAC960
->  	{ "rd/c0d0p",0x3000 },
->  	{ "rd/c0d1p",0x3008 },
->  	{ "rd/c0d2p",0x3010 },
-> @@ -296,6 +298,8 @@
->  	{ "rd/c0d13p",0x3068 },
->  	{ "rd/c0d14p",0x3070 },
->  	{ "rd/c0d15p",0x3078 },
-> +#endif
-> +#ifdef CONFIG_BLK_CPQ_DA
-... etc.
+Maybe a bad patch?
+$TOPDIR/include/linux/completion.h exists, at least on my platform :)
 
-AFAIR, the above (and similar) #ifdefs were intentionally removed as they
-break using root=... kernel parameters for apropriate drivers loaded as
-module from initrd. In these cases there are 3 solutions:
-
-1. Use numeric values (not convenient)
-2. #if defined(CONFIG_FOO) || defined(CONFIG_FOO_MODULE)
-   This is ugly (main kernel depends on too many module settings).
-   Also, Linux (Alan too ?) hate too many unnecessary
-3. Remove all #ifdefs here. (prefered as this is init code...)
-
-Alan, please DON'T apply this patch.
-
-Andrzej
-
+regards, alexx
+-- 
+|   .-.   | Alexander Griesser <tuxx@aon.at> -=- ICQ:63180135 |  .''`. |
+|   /v\   |  http://www.tuxx-home.at -=- Linux Version 2.4.7  | : :' : |
+| /(   )\ |  FAQ zu at.linux:  http://alfie.ist.org/LinuxFAQ  | `. `'  |
+|  ^^ ^^  `---------------------------------------------------´   `-   |

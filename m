@@ -1,50 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269304AbUIHS7Q@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269314AbUIHTDO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269304AbUIHS7Q (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Sep 2004 14:59:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269310AbUIHS7P
+	id S269314AbUIHTDO (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Sep 2004 15:03:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269310AbUIHTDN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Sep 2004 14:59:15 -0400
-Received: from holomorphy.com ([207.189.100.168]:22698 "EHLO holomorphy.com")
-	by vger.kernel.org with ESMTP id S269304AbUIHS6X (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Sep 2004 14:58:23 -0400
-Date: Wed, 8 Sep 2004 11:58:18 -0700
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Bill Davidsen <davidsen@tmr.com>
-Cc: Gene Heskett <gene.heskett@verizon.net>, linux-kernel@vger.kernel.org
-Subject: Re: New 200Gb disk
-Message-ID: <20040908185818.GF3106@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Bill Davidsen <davidsen@tmr.com>,
-	Gene Heskett <gene.heskett@verizon.net>,
-	linux-kernel@vger.kernel.org
-References: <20040908115746.GY3106@holomorphy.com> <chnjrr$u3k$1@gatekeeper.tmr.com>
+	Wed, 8 Sep 2004 15:03:13 -0400
+Received: from cpc2-sout5-5-0-cust135.sot3.cable.ntl.com ([81.110.110.135]:54541
+	"EHLO teh.ath.cx") by vger.kernel.org with ESMTP id S269314AbUIHTB7
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 8 Sep 2004 15:01:59 -0400
+Date: Wed, 8 Sep 2004 20:01:57 +0100
+From: Matt Kavanagh <matthew@teh.ath.cx>
+To: Ram Chandar <rcknl@qz.port5.com>
+Cc: LKML <linux-kernel@vger.kernel.org>
+Subject: Re: Linux Routing Performance inferior?
+Message-ID: <20040908190157.GA2109@teh.ath.cx>
+Reply-To: Matt Kavanagh <matthew@teh.ath.cx>
+References: <200409071000.58455.rchandar-knl@qz.port5.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <chnjrr$u3k$1@gatekeeper.tmr.com>
-Organization: The Domain of Holomorphy
-User-Agent: Mutt/1.5.6+20040722i
+In-Reply-To: <200409071000.58455.rchandar-knl@qz.port5.com>
+User-Agent: Mutt/1.5.6+20040523i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Sep 08, 2004 at 07:47:15AM -0400, Gene Heskett wrote:
->>> I intend to use this disk with amanda as a FILE repository to replace 
->>> a failed tape changer.  Are there any gotcha's I should be aware of.  
->>> Running a 2.6.9-rc1-mm2 kernel ATM.  Ext3 filesystems only.
+On Wed, Sep 08, 2004 at 11:06:17PM +0530, Ram Chandar wrote:
+> 
+> Quoted from a recent mail to freebsd mailing list.
+> 
+> "FreeBSD (5.x) can route 1Mpps on a 2.8G Xeon while
+> Linux can't do much more than 100kpps"
+> 
+> http://lists.freebsd.org/pipermail/freebsd-net/2004-September/004840.html
+> 
+> Is this indeed the case?
 
-William Lee Irwin III wrote:
->> 25GB disks have been supported for a very long time. =)
+Seems to be pretty much just biased conjecture IMO. I wouldn't
+dismiss the possibility of FreeBSD having (in some situations)
+significantly better routing performance than linux in the same
+situation..but getting me to believe that would require proper,
+objective benchmarks.
 
-On Wed, Sep 08, 2004 at 02:50:15PM -0400, Bill Davidsen wrote:
-> I assume from the smiley that this is some kind of in-joke, since it's 
-> not obviously related to the question in the subject... Could you share 
-> it? Is this the joke about "three disks walk into a bar, a PATA, a SATA, 
-> and a SCSI..." or what?
-> I assumed the OP had a legitimate question.
-
-25GB == 200Gb. 'B' is for "byte", 'b' is for "bit".
-
-
--- wli
+All from a user's perspective.

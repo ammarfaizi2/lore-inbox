@@ -1,33 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264881AbUGZDVi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264915AbUGZDfa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264881AbUGZDVi (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 25 Jul 2004 23:21:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264882AbUGZDVi
+	id S264915AbUGZDfa (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 25 Jul 2004 23:35:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264917AbUGZDfa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 25 Jul 2004 23:21:38 -0400
-Received: from quechua.inka.de ([193.197.184.2]:53156 "EHLO mail.inka.de")
-	by vger.kernel.org with ESMTP id S264881AbUGZDVh (ORCPT
+	Sun, 25 Jul 2004 23:35:30 -0400
+Received: from mail.aspec.ru ([217.14.198.4]:57868 "EHLO mail.aspec.ru")
+	by vger.kernel.org with ESMTP id S264915AbUGZDf0 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 25 Jul 2004 23:21:37 -0400
-From: Bernd Eckenfels <ecki-news2004-05@lina.inka.de>
+	Sun, 25 Jul 2004 23:35:26 -0400
+Message-ID: <41047BF6.1040403@belkam.com>
+Date: Mon, 26 Jul 2004 08:35:18 +0500
+From: Dmitry Melekhov <dm@belkam.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux x86_64; en-US; rv:1.4) Gecko/20030630
+X-Accept-Language: ru, en-us, en
+MIME-Version: 1.0
 To: linux-kernel@vger.kernel.org
-Subject: Re: Preliminary Linux Key Infrastructure 0.01-alpha1
-Organization: Deban GNU/Linux Homesite
-In-Reply-To: <65EFF013-DEAA-11D8-9612-000393ACC76E@mac.com>
-X-Newsgroups: ka.lists.linux.kernel
-User-Agent: tin/1.7.5-20040615 ("Gighay") (UNIX) (Linux/2.6.5 (i686))
-Message-Id: <E1Bow3S-0001qO-00@calista.eckenfels.6bone.ka-ip.net>
-Date: Mon, 26 Jul 2004 05:21:34 +0200
+Subject: Re: 2.4.26, sundance, oops
+References: <40FB9119.5030507@belkam.com> <40FBA854.5050102@belkam.com>
+In-Reply-To: <40FBA854.5050102@belkam.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <65EFF013-DEAA-11D8-9612-000393ACC76E@mac.com> you wrote:
-> Preliminary Linux Key Infrastructure 0.01-alpha1:
+Dmitry Melekhov wrote:
 
-What kind of keys you want to store and what are they used for?
+> Hello!
+>
+> btw, I just got following:
+>
+> NETDEV WATCHDOG: eth1: transmit timed out
+> eth1: Transmit timed out, TxStatus 00 TxFrameId 1e, resetting...
 
-Gruss
-Bernd
--- 
-eckes privat - http://www.eckes.org/
-Project Freefire - http://www.freefire.org/
+OK. Just because there is no replies, I changed driver to
+sundance.c:v1.11 2/4/2003  Written by Donald Becker
+
+And it works for 5 days without any problem- no transmit timeouts, no 
+oopses.
+
+

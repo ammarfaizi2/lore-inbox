@@ -1,43 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263540AbUJET1y@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264668AbUJETag@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263540AbUJET1y (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Oct 2004 15:27:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264503AbUJET1y
+	id S264668AbUJETag (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Oct 2004 15:30:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265395AbUJETag
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Oct 2004 15:27:54 -0400
-Received: from stat16.steeleye.com ([209.192.50.48]:30096 "EHLO
-	hancock.sc.steeleye.com") by vger.kernel.org with ESMTP
-	id S263540AbUJET1u (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Oct 2004 15:27:50 -0400
-Subject: RE: [PATCH]: megaraid 2.20.4: Fixes a data corruption bug
-From: James Bottomley <James.Bottomley@SteelEye.com>
-To: "Bagalkote, Sreenivas" <sreenib@lsil.com>
-Cc: "Mukker, Atul" <Atulm@lsil.com>,
-       "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>,
-       "'linux-scsi@vger.kernel.org'" <linux-scsi@vger.kernel.org>,
-       "'bunk@fs.tum.de'" <bunk@fs.tum.de>, "'Andrew Morton'" <akpm@osdl.org>,
-       "'Matt_Domsch@dell.com'" <Matt_Domsch@dell.com>,
-       "Ju, Seokmann" <sju@lsil.com>
-In-Reply-To: <0E3FA95632D6D047BA649F95DAB60E570230C98F@exa-atlanta>
-References: <0E3FA95632D6D047BA649F95DAB60E570230C98F@exa-atlanta>
-Content-Type: text/plain
+	Tue, 5 Oct 2004 15:30:36 -0400
+Received: from batleth.sapienti-sat.org ([83.137.98.96]:211 "EHLO
+	batleth.sapienti-sat.org") by vger.kernel.org with ESMTP
+	id S264668AbUJETaV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 5 Oct 2004 15:30:21 -0400
+Message-ID: <4162F643.4000800@koschikode.com>
+Date: Tue, 05 Oct 2004 21:30:11 +0200
+From: Juri Haberland <juri@koschikode.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040922
+X-Accept-Language: de-de, en-us, en, de
+MIME-Version: 1.0
+To: Christoph Hellwig <hch@infradead.org>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>,
+       Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>,
+       axboe@suse.de
+Subject: Re: [PATCH] ide-dma blacklist behaviour broken
+References: <20041005142001.GR2433@suse.de> <20041005163730.A19554@infradead.org>
+In-Reply-To: <20041005163730.A19554@infradead.org>
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-9) 
-Date: 05 Oct 2004 14:27:36 -0500
-Message-Id: <1097004463.2064.85.camel@mulgrave>
-Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2004-10-05 at 14:15, Bagalkote, Sreenivas wrote:
-> The latest megaraid driver on bk://linux-scsi.bkbits.net/scsi-misc-2.6 still
-> has
-> CONFIG_COMPAT around register_ioctl32_conversion. Will it remain in the
-> source
-> or should it go?
+Christoph Hellwig wrote:
+> On Tue, Oct 05, 2004 at 04:20:01PM +0200, Jens Axboe wrote:
+>> Hi,
+>> 
+>> The blacklist stuff is broken. When set_using_dma() calls into
+>> ide_dma_check(), it returns ide_dma_off() for a blacklisted drive. This
+>> of course succeeds, returning success to the caller of ide_dma_check().
+>> Not so good... It then uncondtionally calls ide_dma_on(), which turns on
+>> dma for the drive.
+>> 
+>> This moves the check to ide_dma_on() so we also catch the buggy
+>> ->ide_dma_check() defined by various chipset drivers.
+> 
+> Is this a bug introduced in the 2.6.9ish IDE changes or has it been there
+> for a longer time? 
 
-I'd like to see a patch taking it out, please.
+Looks like it is also in 2.4.27.
 
-James
-
-
+Juri

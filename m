@@ -1,37 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271618AbRIBNNa>; Sun, 2 Sep 2001 09:13:30 -0400
+	id <S271619AbRIBNOK>; Sun, 2 Sep 2001 09:14:10 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271619AbRIBNNU>; Sun, 2 Sep 2001 09:13:20 -0400
-Received: from ns.suse.de ([213.95.15.193]:59909 "HELO Cantor.suse.de")
-	by vger.kernel.org with SMTP id <S271618AbRIBNNK>;
-	Sun, 2 Sep 2001 09:13:10 -0400
-To: Elisheva Alexander <ealexand@checkpoint.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: buffer_head slab memory leak, Linux bug?
-In-Reply-To: <20010902140126.E28228@checkpoint.com.suse.lists.linux.kernel>
-From: Andi Kleen <ak@suse.de>
-Date: 02 Sep 2001 15:13:27 +0200
-In-Reply-To: Elisheva Alexander's message of "2 Sep 2001 13:18:17 +0200"
-Message-ID: <oupbsktzqfc.fsf@pigdrop.muc.suse.de>
-User-Agent: Gnus/5.0803 (Gnus v5.8.3) Emacs/20.7
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S271620AbRIBNOA>; Sun, 2 Sep 2001 09:14:00 -0400
+Received: from alpham.uni-mb.si ([164.8.1.101]:11279 "EHLO alpham.uni-mb.si")
+	by vger.kernel.org with ESMTP id <S271619AbRIBNN5>;
+	Sun, 2 Sep 2001 09:13:57 -0400
+Date: Sun, 02 Sep 2001 15:14:08 +0200
+From: Igor Mozetic <igor.mozetic@uni-mb.si>
+Subject: [2.4.9 SMP] alloc_pages failed
+To: linux-kernel@vger.kernel.org
+Message-id: <15250.12448.265829.457034@ravan.camtp.uni-mb.si>
+MIME-version: 1.0
+X-Mailer: VM 6.95 under Emacs 20.7.2
+Content-type: text/plain; charset=us-ascii
+Content-transfer-encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Elisheva Alexander <ealexand@checkpoint.com> writes:
+My box is dual Xeon 550, Intel C440GX+, 2GB RAM, AIC7XXX.
+Last night I got log full of the following:
 
+Sep  2 04:00:46 jerolim kernel: __alloc_pages: 0-order allocation failed.
+Sep  2 04:00:47 jerolim last message repeated 208 times
+Sep  2 04:00:47 jerolim kernel: ed.
+...
+Sep  2 04:01:29 jerolim kernel: eth0: can't fill rx buffer (force 0)!
+Sep  2 04:01:29 jerolim kernel: eth0: Tx ring dump,  Tx queue 4082238 / 4082238:
+Sep  2 04:01:29 jerolim kernel: eth0:     0 200ca000.
+...
 
-> it happens quite often (at random), so it's not too hard to recreate it.
+-- Versions installed: (if some fields are empty or looks
+-- unusual then possibly you have very old versions)
+Linux jerolim 2.4.9 #1 SMP Fri Aug 17 11:33:44 CEST 2001 i686 unknown
+Kernel modules         2.4.6
+Gnu C                  2.95.2
+Binutils               2.9.5.0.37
+Linux C Library        2.1.3
+Dynamic linker         ldd: version 1.9.11
+Procps                 2.0.6
+Mount                  2.10s
+Net-tools              2.05
+Console-tools          0.2.3
+Sh-utils               2.0
+Modules Loaded         
 
-It is linux telling you that your code is crappy ;)
+No crash or obvious problems, four long jobs are still running OK.
+Full details if needed, please CC to me.
 
-It's easy to fix. You just need to fix the lock to not turn off interrupts
-for such a long time. If you're writing non driver network code you likely don't need
-an _irqsave lock anyways, as a _bh lock should suffice. Better would be to use 
-a different lock structure however for such long locks that do not depend on blocking 
-bottom halves or interrupts (e.g. see how the TCP socket lock works as an example) 
-
--Andi
-
+-Igor Mozetic

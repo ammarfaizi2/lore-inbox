@@ -1,50 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135266AbRDZTmp>; Thu, 26 Apr 2001 15:42:45 -0400
+	id <S135899AbRDZTpP>; Thu, 26 Apr 2001 15:45:15 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131638AbRDZTmg>; Thu, 26 Apr 2001 15:42:36 -0400
-Received: from viper.haque.net ([66.88.179.82]:26506 "EHLO mail.haque.net")
-	by vger.kernel.org with ESMTP id <S135266AbRDZTmZ>;
-	Thu, 26 Apr 2001 15:42:25 -0400
-Date: Thu, 26 Apr 2001 15:40:44 -0400 (EDT)
-From: "Mohammad A. Haque" <mhaque@haque.net>
-To: Ian Stirling <root@mauve.demon.co.uk>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Single user linux
-In-Reply-To: <200104261722.SAA16939@mauve.demon.co.uk>
-Message-ID: <Pine.LNX.4.33.0104261540090.12248-100000@viper.haque.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S135477AbRDZToz>; Thu, 26 Apr 2001 15:44:55 -0400
+Received: from penguin.e-mind.com ([195.223.140.120]:9024 "EHLO
+	penguin.e-mind.com") by vger.kernel.org with ESMTP
+	id <S131638AbRDZToq>; Thu, 26 Apr 2001 15:44:46 -0400
+Date: Thu, 26 Apr 2001 21:39:01 +0200
+From: Andrea Arcangeli <andrea@suse.de>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: Alexander Viro <viro@math.psu.edu>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] SMP race in ext2 - metadata corruption.
+Message-ID: <20010426213901.A819@athlon.random>
+In-Reply-To: <20010426201236.W819@athlon.random> <Pine.LNX.4.21.0104261141280.4480-100000@penguin.transmeta.com> <20010426211557.Z819@athlon.random>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20010426211557.Z819@athlon.random>; from andrea@suse.de on Thu, Apr 26, 2001 at 09:15:57PM +0200
+X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
+X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 26 Apr 2001, Ian Stirling wrote:
+On Thu, Apr 26, 2001 at 09:15:57PM +0200, Andrea Arcangeli wrote:
+> maybe not but I need to check some more bit to be sure.
 
-> Also, there is another reason.
-> If you'r logged in as root, then any exploitable bug in large programs,
-> be it netscape, realplayer, wine, vmware, ... means that the
-> cracker owns your machine.
-> If they are not, then the cracker has to go through another significant
-> hoop, in order to get access to the machine.
-> For optimal security, you can do things like running netscape and other
-> apps under unpriveledged users, where they only have access to their own
-> files.
->
-> (Note, netscape/.. are just used as examples, I'm not saying they are
-> more buggy than others, just large, and hard to get bug-free)
->
+yes we probably don't need it for fs against fs in 2.4 because we make
+the new metadata block visible to a reader (splice) only after they're
+all uptodate and all directory operations are serialized by the vfs
+(with the i_zombie).
 
-Heh. You receive all your email on your root account?
-
-
--- 
-
-=====================================================================
-Mohammad A. Haque                              http://www.haque.net/
-                                               mhaque@haque.net
-
-  "Alcohol and calculus don't mix.             Project Lead
-   Don't drink and derive." --Unknown          http://wm.themes.org/
-                                               batmanppc@themes.org
-=====================================================================
-
+Andrea

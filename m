@@ -1,38 +1,70 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319485AbSILVcI>; Thu, 12 Sep 2002 17:32:08 -0400
+	id <S319494AbSILV1Q>; Thu, 12 Sep 2002 17:27:16 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318117AbSILVcI>; Thu, 12 Sep 2002 17:32:08 -0400
-Received: from twilight.ucw.cz ([195.39.74.230]:5000 "EHLO twilight.ucw.cz")
-	by vger.kernel.org with ESMTP id <S319529AbSILVcH>;
-	Thu, 12 Sep 2002 17:32:07 -0400
-Date: Thu, 12 Sep 2002 23:34:09 +0200
-From: Vojtech Pavlik <vojtech@suse.cz>
-To: Jan Kasprzak <kas@informatics.muni.cz>
-Cc: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>,
-       kernel@street-vision.com, linux-kernel@vger.kernel.org
-Subject: Re: AMD 760MPX DMA lockup (partly solved)
-Message-ID: <20020912233409.B24954@ucw.cz>
-References: <20020912161258.A9056@fi.muni.cz> <200209121815.g8CIFdp06612@Port.imtp.ilyichevsk.odessa.ua> <20020912211452.C29717@fi.muni.cz>
+	id <S319497AbSILV1Q>; Thu, 12 Sep 2002 17:27:16 -0400
+Received: from bg77.anu.edu.au ([150.203.223.77]:7121 "EHLO lassus.himi.org")
+	by vger.kernel.org with ESMTP id <S319494AbSILV1M>;
+	Thu, 12 Sep 2002 17:27:12 -0400
+Date: Fri, 13 Sep 2002 07:32:01 +1000
+To: Andi Kleen <ak@suse.de>
+Cc: Allan Duncan <allan.d@bigpond.com>, linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.4.20-pre4 & ff. blows away Xwindows with Matrox G400 and agpgart
+Message-ID: <20020912213201.GA9168@himi.org>
+Mail-Followup-To: Andi Kleen <ak@suse.de>,
+	Allan Duncan <allan.d@bigpond.com>, linux-kernel@vger.kernel.org
+References: <3D7FF444.87980B8E@bigpond.com.suse.lists.linux.kernel> <p73ptvjpmec.fsf@oldwotan.suse.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="h31gzZEtNLTqOjlF"
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20020912211452.C29717@fi.muni.cz>; from kas@informatics.muni.cz on Thu, Sep 12, 2002 at 09:14:52PM +0200
+In-Reply-To: <p73ptvjpmec.fsf@oldwotan.suse.de>
+User-Agent: Mutt/1.3.28i
+From: simon@himi.org (Simon Fowler)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Sep 12, 2002 at 09:14:52PM +0200, Jan Kasprzak wrote:
 
-> : > When I switch off the DMA (hdparm -d0 /dev/hda), the problem goes away
-> : > (however, the disk is very slow, as expected).
-> : 
-> : At which DMA/UDMA mode it starts to fail?
-> 
-> 	-d1 -X33 fails.
+--h31gzZEtNLTqOjlF
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-X33? X33 doesn't make sense.
+On Thu, Sep 12, 2002 at 11:50:19AM +0200, Andi Kleen wrote:
+> Allan Duncan <allan.d@bigpond.com> writes:
+> >=20
+> > Any suggestions of how to improve the error messages around the failure=
+ point
+> > are welcome.  Nothing is written into dmesg at the time of failure.
+>=20
+> You're booting with mem=3Dnopentium right ? It should go away when you tu=
+rn
+> that off. I'm working on a fix. You can safely turn it off for now, the=
+=20
+> old problems that it worked around are fixed.
+>=20
+The problem goes away without mem=3Dnopentium - I've just booted into
+2.4.20-pre5aa2 and fired up X.
 
--- 
-Vojtech Pavlik
-SuSE Labs
+Simon
+
+--=20
+PGP public key Id 0x144A991C, or ftp://bg77.anu.edu.au/pub/himi/himi.asc
+(crappy) Homepage: http://bg77.anu.edu.au
+doe #237 (see http://www.lemuria.org/DeCSS)=20
+My DeCSS mirror: ftp://bg77.anu.edu.au/pub/mirrors/css/=20
+
+--h31gzZEtNLTqOjlF
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.6 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
+
+iD8DBQE9gQfQQPlfmRRKmRwRAk30AKCxJA5mpQCIrrj/m4s+v0zFraZr2wCbB/A0
+7/23O4vl8kMISe8QhhtTobQ=
+=84Rq
+-----END PGP SIGNATURE-----
+
+--h31gzZEtNLTqOjlF--

@@ -1,48 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289054AbSAIWUv>; Wed, 9 Jan 2002 17:20:51 -0500
+	id <S289044AbSAIW3l>; Wed, 9 Jan 2002 17:29:41 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289055AbSAIWUi>; Wed, 9 Jan 2002 17:20:38 -0500
-Received: from 12-224-37-81.client.attbi.com ([12.224.37.81]:58128 "HELO
-	kroah.com") by vger.kernel.org with SMTP id <S289054AbSAIWTm>;
-	Wed, 9 Jan 2002 17:19:42 -0500
-Date: Wed, 9 Jan 2002 14:17:21 -0800
+	id <S289048AbSAIW3V>; Wed, 9 Jan 2002 17:29:21 -0500
+Received: from 12-224-37-81.client.attbi.com ([12.224.37.81]:59920 "HELO
+	kroah.com") by vger.kernel.org with SMTP id <S289044AbSAIW3R>;
+	Wed, 9 Jan 2002 17:29:17 -0500
+Date: Wed, 9 Jan 2002 14:26:57 -0800
 From: Greg KH <greg@kroah.com>
-To: linux-hotplug-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: [ANNOUNCE] dietHotplug 0.4 release
-Message-ID: <20020109221721.GA22938@kroah.com>
+To: Vladimir Kondratiev <vladimir.kondratiev@intel.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: __FUNCTION__ - patch for USB
+Message-ID: <20020109222657.GA23143@kroah.com>
+In-Reply-To: <3C3CC04D.2080807@intel.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+In-Reply-To: <3C3CC04D.2080807@intel.com>
 User-Agent: Mutt/1.3.25i
 X-Operating-System: Linux 2.2.20 (i586)
+Reply-By: Wed, 12 Dec 2001 20:23:31 -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I've just released a new version of the dietHotplug package.  It can be
-found at:
-	http://prdownloads.sourceforge.net/linux-hotplug/diethotplug-0.4.tar.gz
-or:
- 	kernel.org/pub/linux/utils/kernel/hotplug/diethotplug-0.4.tar.gz
- 	kernel.org/pub/linux/utils/kernel/hotplug/diethotplug-0.4.tar.bz2
+On Thu, Jan 10, 2002 at 12:12:29AM +0200, Vladimir Kondratiev wrote:
+> Hello,
+> Since I have started this thread, I feel I have to do something real. 
+> Dummy technical work, but someone have to do it, right?
+> I patched USB subsystem, it uses __FUNCTION__ in deprecated way no more.
+> What is changed?
+> - in usb.h, I modified dbg(), warn(), err(), info() macros to contain 
+> function name in the prefix. These macros are for simple one-line messages.
+> - in all files under drivers/usb, all macros mentioned fixed.
+> - all __FUNCTION__ occurencies in drivers/usb revised.
+> 
+> I compiled kednel with all USB modules enabled. Since everything 
+> compiles OK and all changes are in message formats, this patch should 
+> not corrupt anything. In the worst case you will get badly formatted 
+> message.
 
-No functional changes since the last release, but the resulting binary
-is about 1.2K smaller now thanks to Erik Anderson.
+Your patch makes whitespace changes to a lot of dbg() statements, but
+does not modify their contents.  Can you please change this, as this
+change does not need to happen.
 
-The project is now being hosted at:
-	http://linuxusb.bitkeeper.com:8088/dietHotplug
-instead of the previous cvs tree at sf.net in the linux-hotplug
-directory.
+> Patch is against 2.4.17
 
-Changes since the last release:
-	- patch for the Makefile and dietlibc stuff from Erik Andersen
-	  (now can cross compile much easier, can build with uClibc,
-	  and some size savings.)
-	- renamed the dietlibc subdirectory to klibc
-	- synced with my previous klibc changes
-	- cleaned up remaining compiler warnings.
-	- further Makefile tweaks.
-	- more klibc tweaks, now binary is even smaller.
+2.4.18-pre2 has a _lot_ of usb changes and this patch misses a number of
+places.
+
+I'd also like to see this against the 2.5.x tree first, as the
+recommended compiler for the 2.4.x tree is still 2.95.3, and I don't
+think that will change anytime soon.
+
 thanks,
 
 greg k-h

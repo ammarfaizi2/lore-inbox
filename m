@@ -1,38 +1,29 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264644AbRFTWQ1>; Wed, 20 Jun 2001 18:16:27 -0400
+	id <S264651AbRFTWUR>; Wed, 20 Jun 2001 18:20:17 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264650AbRFTWQR>; Wed, 20 Jun 2001 18:16:17 -0400
-Received: from gene.pbi.nrc.ca ([204.83.147.150]:40016 "EHLO gene.pbi.nrc.ca")
-	by vger.kernel.org with ESMTP id <S264644AbRFTWP5>;
-	Wed, 20 Jun 2001 18:15:57 -0400
-Date: Wed, 20 Jun 2001 16:14:55 -0600 (CST)
-From: <ognen@gene.pbi.nrc.ca>
-To: Stephen Satchell <satch@fluent-access.com>
-cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: Re: Threads are processes that share more
-In-Reply-To: <4.3.2.7.2.20010620150729.00b60710@mail.fluent-access.com>
-Message-ID: <Pine.LNX.4.30.0106201612140.3972-100000@gene.pbi.nrc.ca>
+	id <S263167AbRFTWUK>; Wed, 20 Jun 2001 18:20:10 -0400
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:22796 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S264651AbRFTWTv>; Wed, 20 Jun 2001 18:19:51 -0400
+Subject: Re: [PATCH] remove null register_disk
+To: Andries.Brouwer@cwi.nl
+Date: Wed, 20 Jun 2001 23:18:43 +0100 (BST)
+Cc: alan@lxorguk.ukuu.org.uk, linux-kernel@vger.kernel.org,
+        torvalds@transmeta.com
+In-Reply-To: <UTC200106202215.AAA360819.aeb@vlet.cwi.nl> from "Andries.Brouwer@cwi.nl" at Jun 21, 2001 12:15:10 AM
+X-Mailer: ELM [version 2.5 PL3]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E15CqJ9-0000EG-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I thought one only refers to LWPs when talking about kernel level threads
-not user-space ones?
+> Some, rather different, form will come back.
+> For now I would prefer throwing out as much as possible.
 
-Ognen
-
-On Wed, 20 Jun 2001, Stephen Satchell wrote:
-
-> By the way, I'm surprised no one has mentioned that a synonym for "thread"
-> is "lightweight process".
->
-> Satch
-
--- 
-Ognen Duzlevski
-Plant Biotechnology Institute
-National Research Council of Canada
-Bioinformatics team
+Ok it looks like a 2.5 thing, and something for Al Viro and you to figure out
+so I'll ignore the change for 2.4 and go away
 

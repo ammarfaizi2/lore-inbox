@@ -1,49 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262987AbTJEHUw (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 5 Oct 2003 03:20:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262993AbTJEHUw
+	id S262991AbTJEHUz (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 5 Oct 2003 03:20:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262994AbTJEHUz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 5 Oct 2003 03:20:52 -0400
-Received: from dp.samba.org ([66.70.73.150]:51139 "EHLO lists.samba.org")
-	by vger.kernel.org with ESMTP id S262987AbTJEHUv (ORCPT
+	Sun, 5 Oct 2003 03:20:55 -0400
+Received: from dp.samba.org ([66.70.73.150]:57027 "EHLO lists.samba.org")
+	by vger.kernel.org with ESMTP id S262991AbTJEHUw (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 5 Oct 2003 03:20:51 -0400
+	Sun, 5 Oct 2003 03:20:52 -0400
 From: Rusty Trivial Russell <trivial@rustcorp.com.au>
 To: Linus Torvalds <torvalds@transmeta.com>
 Cc: linux-kernel@vger.kernel.org
-Subject: [TRIVIAL] [2.{4,5} TRIVIAL PATCH] Change list_emtpy() to take a const pointer
-Date: Sun, 05 Oct 2003 16:51:27 +1000
-Message-Id: <20031005072051.237422CC20@lists.samba.org>
+Subject: [TRIVIAL] [2.6 PATCH] hlist constification
+Date: Sun, 05 Oct 2003 16:55:19 +1000
+Message-Id: <20031005072052.3102C2CC42@lists.samba.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From:  "Perez-Gonzalez, Inaky" <inaky.perez-gonzalez@intel.com>
+From:  Mitchell Blank Jr <mitch@sfgoth.com>
 
+  I posted a patch to consify 3 inline functions in <linux/list.h> to lkml
+  on 9/1 but it looks like it slipped through the cracks.  Looking at your
+  trivial tree it seems that Inaky Perez-Gonzalez already submitted a patch
+  to constify list_empty().  Here is a patch to do the other two.  Should
+  be non-controversial.
   
-  Hi Rusty, list
+  Patch is versus your current 2.6.0-test5-bk2 trivial tree.
   
-  Didn't know what was the best place to submit this one, I
-  guessed trivial.
-  
-  Just change the definition of list_empty() to take a const
-  pointer. I have some upper layers of code that do all the
-  const/non-const thing and list_empty() breaks it without
-  this.
+  -Mitch
   
 
---- trivial-2.6.0-test6-bk6/include/linux/list.h.orig	2003-10-05 16:50:40.000000000 +1000
-+++ trivial-2.6.0-test6-bk6/include/linux/list.h	2003-10-05 16:50:40.000000000 +1000
-@@ -203,7 +203,7 @@
-  * list_empty - tests whether a list is empty
-  * @head: the list to test.
-  */
--static inline int list_empty(struct list_head *head)
-+static inline int list_empty(const struct list_head *head)
- {
- 	return head->next == head;
- }
+--- trivial-2.6.0-test6-bk6/include/linux/list.h.orig	2003-10-05 16:50:48.000000000 +1000
++++ trivial-2.6.0-test6-bk6/include/linux/list.h	2003-10-05 16:50:48.000000000 +1000
+@@ -421,12 +421,12 @@
+ #define INIT_HLIST_HEAD(ptr) ((ptr)->first = NULL) 
+ #define INIT_HLIST_NODE(ptr) ((ptr)->next = NULL, (ptr)->pprev = NULL)
+ 
+-static __inline__ int hlist_unhashed(struct hlist_node *h) 
++static __inline__ int hlist_unhashed(const struct hlist_node *h) 
+ { 
+ 	return !h->pprev;
+ } 
+ 
+-static __inline__ int hlist_empty(struct hlist_head *h) 
++static __inline__ int hlist_empty(const struct hlist_head *h) 
+ { 
+ 	return !h->first;
+ } 
 -- 
   What is this? http://www.kernel.org/pub/linux/kernel/people/rusty/trivial/
   Don't blame me: the Monkey is driving
-  File: "Perez-Gonzalez, Inaky" <inaky.perez-gonzalez@intel.com>: [2.{4,5} TRIVIAL PATCH] Change list_emtpy() to take a const pointer
+  File: Mitchell Blank Jr <mitch@sfgoth.com>: [2.6 PATCH] hlist constification

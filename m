@@ -1,92 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262582AbRFNNRh>; Thu, 14 Jun 2001 09:17:37 -0400
+	id <S262611AbRFNNf0>; Thu, 14 Jun 2001 09:35:26 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262609AbRFNNRR>; Thu, 14 Jun 2001 09:17:17 -0400
-Received: from danielle.hinet.hr ([195.29.254.157]:14352 "EHLO
-	danielle.hinet.hr") by vger.kernel.org with ESMTP
-	id <S262582AbRFNNRO>; Thu, 14 Jun 2001 09:17:14 -0400
-Date: Thu, 14 Jun 2001 15:17:10 +0200
-From: Mario Mikocevic <mozgy@hinet.hr>
-To: Juri Haberland <juri@koschikode.com>
-Cc: linux-kernel@vger.kernel.org, haberland@altus.de, kraxel@bytesex.org
-Subject: Re: Need a helping hand (realproducer and radio device)
-Message-ID: <20010614151709.A30276@danielle.hinet.hr>
-In-Reply-To: <20010614093405.C6467@danielle.hinet.hr> <20010614092617.12555.qmail@babel.spoiled.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-2
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20010614092617.12555.qmail@babel.spoiled.org>; from juri@koschikode.com on Thu, Jun 14, 2001 at 09:26:17AM -0000
+	id <S262618AbRFNNfQ>; Thu, 14 Jun 2001 09:35:16 -0400
+Received: from holly.csn.ul.ie ([136.201.105.4]:14087 "HELO holly.csn.ul.ie")
+	by vger.kernel.org with SMTP id <S262611AbRFNNfL>;
+	Thu, 14 Jun 2001 09:35:11 -0400
+Date: Thu, 14 Jun 2001 14:34:29 +0100 (IST)
+From: Stephen Shirley <diamond@skynet.ie>
+X-X-Sender: <diamond@skynet>
+To: <andre@linux-ide.org>
+Cc: <linux-kernel@vger.kernel.org>
+Subject: [PATCH] Some error checking on kmalloc()'s in ide-probe.c
+Message-ID: <Pine.LNX.4.32.0106141428530.3530-100000@skynet>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Mornin,
+	This patch adds error checking to the return value of kmalloc() in
+2 places in ide-probe.c. It's against 2.4.5.y
 
-> > I have an Hauppauge WinTV/Radio card and I want to be able to use it's radio
-> > device as a source for live broadcast.
-> > 
-> > It's RH71 distro updated with mainstream 2.4.5 .
-> > 
-> > Radio device works fine on it's own meaning that I can tune the station and
-> > listen to it.
-> > 
-> > RealProducer (8.5) also works fine meaning that it encodes video inputs and Line-In
-> > input into realmedia stream just fine.
-> > 
-> > The problem is that in startup realproducer mutes (IMO) or shuts down or something, that radio
-> > device on bt8x8 card and therefore no actual audio signal gets to Line-In resulting in no audio
-> > in realmedia stream.
-> 
-> I had a similar problem long time ago. The point is that the realproducer
-> mutes the recording source in the mixer. Try to reenable it using aumix or
-> a similar application.
+Steve
 
-Well, it seems that problem is not in muted device ->
+--- ide-probe.c.orig    Thu Jun 14 14:05:31 2001
++++ ide-probe.c Thu Jun 14 14:15:12 2001
+@@ -58,6 +58,11 @@
+        struct hd_driveid *id;
 
-before starting realproducer :
+        id = drive->id = kmalloc (SECTOR_WORDS*4, GFP_ATOMIC);  /* called with interrupts disabled! */
++       if(id == NULL)
++       {
++               printk(KERN_ERR "ide-probe: Failed to allocate memory for hd_driveid struct, aborting\n");
++               return;
++       }
+        ide_input_data(drive, id, SECTOR_WORDS);                /* read 512 bytes of id info */
+        ide__sti();     /* local CPU only */
+        ide_fix_driveid(id);
+@@ -623,6 +628,11 @@
+        /* Allocate the buffer and potentially sleep first */
 
-# aumix -q
-vol 94, 94
-pcm 94, 94
-speaker 0, 0
-line 93, 93, R
-mic 0, 0, P
-cd 0, 0, P
-pcm2 0, 0
-igain 0, 0, P
-line1 0, 0, P
-phin 0, 0, P
-phout 0, 0
-video 0, 0, P
+        new_hwgroup = kmalloc(sizeof(ide_hwgroup_t),GFP_KERNEL);
++       if(new_hwgroup == NULL)
++       {
++               printk(KERN_ERR "ide-probe: Failed to allocate memory for hwgroup, aborting\n");
++               return 1;
++       }
 
+        save_flags(flags);      /* all CPUs */
+        cli();                  /* all CPUs */
 
-after starting realproducer :
-
-# aumix -q
-vol 94, 94
-pcm 50, 0
-speaker 0, 0
-line 93, 93, R
-mic 0, 0, P
-cd 0, 0, P
-pcm2 0, 0
-igain 0, 0, P
-line1 0, 0, P
-phin 0, 0, P
-phout 0, 0
-video 0, 0, P
-
-
-if I get back those values with aumix I still don't get audio from radio device so it
-must be something with bt8x8 radio part ->
-
-# radio 88.1 <> /dev/null 
-open /dev/radio: Device or resource busy
-
-Gerd, can you help here please !?
 
 -- 
-Mario Mikoèeviæ (Mozgy)
-My favourite FUBAR ...
+"My mom had Windows at work and it hurt her eyes real bad"
+

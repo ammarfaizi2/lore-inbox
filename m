@@ -1,83 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265558AbUBFRXa (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 6 Feb 2004 12:23:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265555AbUBFRX3
+	id S265572AbUBFR1N (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 6 Feb 2004 12:27:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265578AbUBFR1N
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 6 Feb 2004 12:23:29 -0500
-Received: from e4.ny.us.ibm.com ([32.97.182.104]:24830 "EHLO e4.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S265560AbUBFRXK (ORCPT
+	Fri, 6 Feb 2004 12:27:13 -0500
+Received: from kalmia.drgw.net ([209.234.73.41]:11144 "EHLO kalmia.hozed.org")
+	by vger.kernel.org with ESMTP id S265572AbUBFR1K (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 6 Feb 2004 12:23:10 -0500
-Subject: Re: [Bugme-new] [Bug 2019] New: Bug from the mm
-	subsystem	involving X  (fwd)
-From: Dave Hansen <haveblue@us.ibm.com>
-To: "Martin J. Bligh" <mbligh@aracnet.com>
-Cc: Linus Torvalds <torvalds@osdl.org>, Keith Mannthey <kmannth@us.ibm.com>,
-       Andrew Morton <akpm@osdl.org>,
-       "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-       linux-mm <linux-mm@kvack.org>
-In-Reply-To: <5450000.1076082574@[10.10.2.4]>
-References: <51080000.1075936626@flay>
-	 <Pine.LNX.4.58.0402041539470.2086@home.osdl.org><60330000.1075939958@flay>
-	 <64260000.1075941399@flay><Pine.LNX.4.58.0402041639420.2086@home.osdl.org>
-	 <20040204165620.3d608798.akpm@osdl.org>
-	 <Pine.LNX.4.58.0402041719300.2086@home.osdl.org>
-	 <1075946211.13163.18962.camel@dyn318004bld.beaverton.ibm.com>
-	 <Pine.LNX.4.58.0402041800320.2086@home.osdl.org>
-	 <98220000.1076051821@[10.10.2.4]> <1076061476.27855.1144.camel@nighthawk>
-	 <5450000.1076082574@[10.10.2.4]>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1076088169.29478.2928.camel@nighthawk>
+	Fri, 6 Feb 2004 12:27:10 -0500
+Date: Fri, 6 Feb 2004 11:27:09 -0600
+From: Troy Benjegerdes <hozer@hozed.org>
+To: "Hefty, Sean" <sean.hefty@intel.com>
+Cc: infiniband-general@lists.sourceforge.net, linux-kernel@vger.kernel.org
+Subject: Re: [Infiniband-general] Getting an Infiniband access layer in theLinux kernel
+Message-ID: <20040206172709.GT11222@kalmia.hozed.org>
+References: <C1B7430B33A4B14F80D29B5126C5E9470326258C@orsmsx401.jf.intel.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.4 
-Date: 06 Feb 2004 09:22:49 -0800
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <C1B7430B33A4B14F80D29B5126C5E9470326258C@orsmsx401.jf.intel.com>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2004-02-06 at 07:49, Martin J. Bligh wrote:
-> >> +#ifdef CONFIG_NUMA
-> >> +	#ifdef CONFIG_X86_NUMAQ
-> >> +		#include <asm/numaq.h>
-> >> +	#else	/* summit or generic arch */
-> >> +		#include <asm/srat.h>
-> >> +	#endif
-> >> +#else /* !CONFIG_NUMA */
-> >> +	#define get_memcfg_numa get_memcfg_numa_flat
-> >> +	#define get_zholes_size(n) (0)
-> >> +#endif /* CONFIG_NUMA */
-> > 
-> > We ran into a bug with #ifdefs like this before.  It was fixed in some
-> > of the code that you're trying to remove.
+On Fri, Feb 06, 2004 at 08:42:14AM -0800, Hefty, Sean wrote:
+> On Thu, Feb 5, 2004 at 05:11:00PM -0800, Troy Benjegerdes wrote:
+> >On Thu, Feb 05, 2004 at 02:26:46PM -0800, Hefty, Sean wrote:
+> >> Personally, I'm amazed that professional developers have to discuss
+> or
+> >> defend modular, portable code.
+> >
+> >You're new to linux-kernel, aren't you? ;)
 > 
-> What bug?
+> I was not trying to be condescending.  My point was that I think that
+> everyone on this list knows the purpose and benefits behind an
+> abstraction layer.  It's not something that needed to be discussed any
+> further.
 
-With a regular PC config, plus CONFIG_NUMA turned on:
-  CC      arch/i386/kernel/process.o
-In file included from include/asm/mmzone.h:17,
-                 from include/linux/mmzone.h:318,
-                 from include/linux/gfp.h:4,
-                 from include/linux/slab.h:15,
-                 from include/linux/percpu.h:4,
-                 from include/linux/sched.h:31,
-                 from include/linux/module.h:10,
-                 from init/do_mounts.c:1:
-include/asm/srat.h:31: #error CONFIG_ACPI_SRAT not defined, and srat.h
-header has been included
-In file included from include/asm/mmzone.h:17,
-                 from include/linux/mmzone.h:318,
-                 from include/linux/gfp.h:4,
-                 from include/linux/slab.h:15,
-                 from include/linux/percpu.h:4,
-                 from include/linux/rcupdate.h:42,
-                 from include/linux/dcache.h:10,
-                 from include/linux/fs.h:17,
-                 from init/do_mounts_initrd.c:3:
+I attempting to make a (poor) joke on the contiual flamewars that happen
+on open-source development projects. 
 
-I can post the config if you like.  You were the one who made me go fix
-it in the first place.  That's why I added that #error. :)
+I think someone's said something like this before, but..
 
---dave
+"Nothing useful ever gets done on linux-kernel without a good flamewar"
 

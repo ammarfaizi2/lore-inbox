@@ -1,41 +1,33 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317638AbSGFL60>; Sat, 6 Jul 2002 07:58:26 -0400
+	id <S317634AbSGFMGv>; Sat, 6 Jul 2002 08:06:51 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317639AbSGFL6Z>; Sat, 6 Jul 2002 07:58:25 -0400
-Received: from mail.ocs.com.au ([203.34.97.2]:11529 "HELO mail.ocs.com.au")
-	by vger.kernel.org with SMTP id <S317638AbSGFL6Z>;
-	Sat, 6 Jul 2002 07:58:25 -0400
-X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
-From: Keith Owens <kaos@ocs.com.au>
-To: Alessandro Suardi <alessandro.suardi@oracle.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [Bug] 2.5.25 build as one user and install as root 
-In-reply-to: Your message of "Sat, 06 Jul 2002 13:28:06 +0200."
-             <3D26D446.6050206@oracle.com> 
+	id <S317635AbSGFMGu>; Sat, 6 Jul 2002 08:06:50 -0400
+Received: from h55p111.delphi.afb.lu.se ([130.235.187.184]:53198 "EHLO gagarin")
+	by vger.kernel.org with ESMTP id <S317634AbSGFMGt>;
+	Sat, 6 Jul 2002 08:06:49 -0400
+Date: Sat, 6 Jul 2002 14:09:24 +0200
+To: linux-kernel@vger.kernel.org
+Cc: davej@suse.de
+Subject: [BK] LVM for 2.5
+Message-ID: <20020706120924.GA24848@h55p111.delphi.afb.lu.se>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Date: Sat, 06 Jul 2002 22:00:52 +1000
-Message-ID: <30159.1025956852@ocs3.intra.ocs.com.au>
+Content-Disposition: inline
+User-Agent: Mutt/1.4i
+From: Anders Gustafsson <andersg@0x63.nu>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 06 Jul 2002 13:28:06 +0200, 
-Alessandro Suardi <alessandro.suardi@oracle.com> wrote:
->Keith Owens wrote:
->> 2.5.25 existing build system has a nasty bug.  Build as one user then
->> make install as root.  It does supurious recompiles of some files and
->> leaves them owned as root.  All of these files are now owned by root
->> and cause problems when the build user wants to rebuild.
->
->Doesn't happen for me.
+My work on making lvm useable in 2.5 is available by doing:
+bk pull bk://0x63.nu/lvm-2.5
 
-Check include/linux/compile.h after building as yourself and after
-installing as root.  make install goes
+But snapshots doesn't work, extending/reducing doesn't work. Actually
+the only things I know that the work is mounting lv's and
+vgdisplaying. Running /home and /var on lvm on the machine I'm writing
+this mail.
+(wish i had uml for 2.5)
 
-bzImage -> setup.o -> compile.h -> scripts/mkcompile_h ->
-#define LINUX_COMPILE_BY \"`whoami`\"
+-- 
 
-whoami is different when you compile as one user then install as
-another.
-
+//anders/g

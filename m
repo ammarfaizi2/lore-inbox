@@ -1,63 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263152AbREaSja>; Thu, 31 May 2001 14:39:30 -0400
+	id <S263151AbREaSjK>; Thu, 31 May 2001 14:39:10 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263157AbREaSjU>; Thu, 31 May 2001 14:39:20 -0400
-Received: from smtp3.xs4all.nl ([194.109.127.132]:50695 "EHLO smtp3.xs4all.nl")
-	by vger.kernel.org with ESMTP id <S263152AbREaSjO>;
-	Thu, 31 May 2001 14:39:14 -0400
-From: thunder7@xs4all.nl
-Date: Thu, 31 May 2001 20:39:08 +0200
-To: linux-kernel@vger.kernel.org
-Subject: interrupt problem with MPS 1.4 / not with MPS 1.1 ?
-Message-ID: <20010531203908.A23936@middle.of.nowhere>
-Reply-To: thunder7@xs4all.nl
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.17i
+	id <S263152AbREaSjA>; Thu, 31 May 2001 14:39:00 -0400
+Received: from mustart.heime.net ([194.234.65.222]:4 "EHLO mustard.heime.net")
+	by vger.kernel.org with ESMTP id <S263151AbREaSir>;
+	Thu, 31 May 2001 14:38:47 -0400
+Date: Thu, 31 May 2001 20:38:48 +0200 (CEST)
+From: Roy Sigurd Karlsbakk <roy@karlsbakk.net>
+To: <linux-kernel@vger.kernel.org>
+Subject: union mounting file systems...
+Message-ID: <Pine.LNX.4.30.0105312033380.1184-100000@mustard.heime.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hardware:
+Hi all
 
-Abit VP6 (Via 694x) x86/SMP motherboard
-with USB controller
+I just read the "Wonderful world of linux (2.4)", where it's said that the
+Linux kernel 2.4 supports so-called union mounted file systems. I recently
+downloaded the RedHat 7.1 distribution and loop-back mounted the CD's to
+be able to install over ftp, but no... RedHat's install script reminds me
+of all the flexibility you can get from an installer delivered from
+Microsoft. After installing the stuff from CD #1, you're _not_ asked where
+CD #2 is supposed to be; you just get loads of error messages on the
+console. So - I can copy all the files from the two CD's - or - union
+mount them (the .iso's) on a common directory.
 
-If I set the bios for MPS 1.1, USB runs fine. If I set the bios
-for MPS 1.4, I get this:
+Does anyone know where I can find a mount program that actually does this?
 
-May 31 13:08:06 middle kernel: hub.c: USB new device connect on bus1/1, assigned device number 4
-May 31 13:08:09 middle kernel: usb_control/bulk_msg: timeout
-May 31 13:08:09 middle kernel: usb.c: USB device not accepting new address=4 (error=-110)
-May 31 13:08:09 middle kernel: hub.c: USB new device connect on bus1/1, assigned device number 5
-May 31 13:08:12 middle kernel: usb_control/bulk_msg: timeout
-May 31 13:08:12 middle kernel: usb.c: USB device not accepting new address=5 (error=-110)
-May 31 13:08:12 middle kernel: hub.c: USB new device connect on bus1/1, assigned device number 6
-May 31 13:08:15 middle kernel: usb_control/bulk_msg: timeout
-May 31 13:08:15 middle kernel: usb.c: USB device not accepting new address=6 (error=-110)
-May 31 13:08:16 middle kernel: hub.c: USB new device connect on bus1/1, assigned device number 7
-May 31 13:08:19 middle kernel: usb_control/bulk_msg: timeout
-May 31 13:08:19 middle kernel: usb.c: USB device not accepting new address=7 (error=-110)
-May 31 13:08:19 middle kernel: hub.c: USB new device connect on bus1/1, assigned device number 8
-May 31 13:08:22 middle kernel: usb_control/bulk_msg: timeout
-May 31 13:08:22 middle kernel: usb.c: USB device not accepting new address=8 (error=-110)
-May 31 13:08:22 middle kernel: hub.c: USB new device connect on bus1/1, assigned device number 9
+Please cc: to me, as I'm not on the list
 
-Now I understand this mail doesn't have all the necessary info, but my
-question is:
+regards
 
-What information would be necessary to debug this?
+roy
 
-dmesg
-/var/log/messages
-lspci -vv (or -x?)
-
-or more?
-
-Jurriaan
--- 
-BOFH excuse #57:
-
-Groundskeepers stole the root password
-GNU/Linux 2.4.5-ac4 SMP/ReiserFS 2x1402 bogomips load av: 0.41 0.11 0.03

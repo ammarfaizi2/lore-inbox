@@ -1,61 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289166AbSBSBT7>; Mon, 18 Feb 2002 20:19:59 -0500
+	id <S289172AbSBSBXQ>; Mon, 18 Feb 2002 20:23:16 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289210AbSBSBTr>; Mon, 18 Feb 2002 20:19:47 -0500
-Received: from dsl-65-185-109-125.telocity.com ([65.185.109.125]:50822 "EHLO
-	ohdarn.net") by vger.kernel.org with ESMTP id <S289166AbSBSBTl>;
-	Mon, 18 Feb 2002 20:19:41 -0500
-Subject: Re: 2.4.18-pre9-mjc2 compile errors
-From: Michael Cohen <me@ohdarn.net>
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Cc: davidsen@tmr.com
-In-Reply-To: <Pine.LNX.3.96.1020218162444.13294A-100000@gatekeeper.tmr.com>
-In-Reply-To: <Pine.LNX.3.96.1020218162444.13294A-100000@gatekeeper.tmr.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/1.0.2 
-Date: 18 Feb 2002 20:19:37 -0500
-Message-Id: <1014081580.21495.3.camel@ohdarn.net>
-Mime-Version: 1.0
+	id <S289216AbSBSBXG>; Mon, 18 Feb 2002 20:23:06 -0500
+Received: from garrincha.netbank.com.br ([200.203.199.88]:61711 "HELO
+	netbank.com.br") by vger.kernel.org with SMTP id <S289172AbSBSBXA>;
+	Mon, 18 Feb 2002 20:23:00 -0500
+Date: Mon, 18 Feb 2002 22:22:44 -0300 (BRT)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: <riel@imladris.surriel.com>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: Daniel Phillips <phillips@bonn-fries.net>, Hugh Dickins <hugh@veritas.com>,
+        <dmccr@us.ibm.com>, Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        <linux-mm@kvack.org>, Robert Love <rml@tech9.net>, <mingo@redhat.co>,
+        Andrew Morton <akpm@zip.com.au>, <manfred@colorfullife.com>,
+        <wli@holomorphy.com>
+Subject: Re: [RFC] Page table sharing
+In-Reply-To: <Pine.LNX.4.33.0202181631120.24405-100000@home.transmeta.com>
+Message-ID: <Pine.LNX.4.33L.0202182221040.1930-100000@imladris.surriel.com>
+X-spambait: aardvark@kernelnewbies.org
+X-spammeplease: aardvark@nl.linux.org
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2002-02-18 at 16:50, Bill Davidsen wrote:
-> On 18 Feb 2002, Michael Cohen wrote:
-> 
-> > On Mon, 2002-02-18 at 13:25, root@deathstar.prodigy.com wrote:
-> > > filemap.c: In function `__find_page_nolock':
-> > > filemap.c:404: structure has no member named `next_hash'
-> > > make[2]: *** [filemap.o] Error 1
-> > > make[2]: Leaving directory `/usr/src/linux/mm'
-> > > make[1]: *** [first_rule] Error 2
-> > > make[1]: Leaving directory `/usr/src/linux/mm'
-> > > make: *** [_dir_mm] Error 2
-> > 
-> > There was a fix posted to lkml earlier, though I'd say that likely if
-> > you can't fix this, you don't need to run this kernel. try looking at
-> > lkml.  Next version will have it fixed, however. =)
-> 
-> I didn't ask for a fix, I was offering a problem report, from a machine
-> with no lkml or anything else (don't let the name and IP fool you, I was
-> testing). I was trying to add it to my summary of recent kernels which run
-> well on small slow machines which might be available for the asking.
-> 
-> I included the config because I thought the P5 might be triggering a
-> problem others hadn't tested, but it looks as if everyone had the problem.
-> I thought these were like -ac patches which has already been tested to see
-> if they compile.
-Sorry, I wasn't in too great of a mood.  Didn't mean to sound *that*
-rough.  Anyways, I had just started using bitkeeper, and the change
-didn't get committed properly, so it fell out of my bk tree when I made
-the patch.  It had been tested mostly though.  I started using a much
-more inclusive test .config though; and I'll have a working next
-release.  Take a look at how well 2.5 currently compiles though =)
+On Mon, 18 Feb 2002, Linus Torvalds wrote:
+> On Tue, 19 Feb 2002, Daniel Phillips wrote:
+> >
+> > Thanks, here it is again.
+>
+> Daniel, there's something wrong in the locking.
 
-Fix is to remove the function __find_page_nolock from mm/filemap.c.
+> Does anybody see any reason why this doesn't work totally without the
+> lock?
 
-------
-Michael Cohen
-OhDarn.net
+We'll need protection from the swapout code.  It would be
+embarassing if the page fault handler would run for one
+mm while kswapd was holding the page_table_lock for another
+mm.
+
+I'm not sure how the page_table_share_lock is supposed
+to fix that one, though.
+
+regards,
+
+Rik
+-- 
+"Linux holds advantages over the single-vendor commercial OS"
+    -- Microsoft's "Competing with Linux" document
+
+http://www.surriel.com/		http://distro.conectiva.com/
+
 

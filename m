@@ -1,47 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267610AbSLSKt1>; Thu, 19 Dec 2002 05:49:27 -0500
+	id <S267634AbSLSKnz>; Thu, 19 Dec 2002 05:43:55 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267611AbSLSKt1>; Thu, 19 Dec 2002 05:49:27 -0500
-Received: from holomorphy.com ([66.224.33.161]:56000 "EHLO holomorphy")
-	by vger.kernel.org with ESMTP id <S267610AbSLSKt0>;
-	Thu, 19 Dec 2002 05:49:26 -0500
-Date: Thu, 19 Dec 2002 02:55:11 -0800
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Alex Tomas <bzzz@tmi.comex.ru>
-Cc: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>,
-       David Lang <david.lang@digitalinsight.com>, Robert Love <rml@tech9.net>,
-       Till Immanuel Patzschke <tip@inw.de>,
-       lse-tech <lse-tech@lists.sourceforge.net>, linux-kernel@vger.kernel.org
-Subject: Re: [Lse-tech] Re: 15000+ processes -- poor performance ?!
-Message-ID: <20021219105511.GV31800@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Alex Tomas <bzzz@tmi.comex.ru>,
-	Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>,
-	David Lang <david.lang@digitalinsight.com>,
-	Robert Love <rml@tech9.net>, Till Immanuel Patzschke <tip@inw.de>,
-	lse-tech <lse-tech@lists.sourceforge.net>,
-	linux-kernel@vger.kernel.org
-References: <1040262178.855.106.camel@phantasy> <Pine.LNX.4.44.0212181743350.7848-100000@dlang.diginsite.com> <20021219020552.GO31800@holomorphy.com> <200212191015.gBJAFss28329@Port.imtp.ilyichevsk.odessa.ua> <20021219102720.GT31800@holomorphy.com> <m3u1hapa51.fsf@lexa.home.net>
+	id <S267635AbSLSKny>; Thu, 19 Dec 2002 05:43:54 -0500
+Received: from noodles.codemonkey.org.uk ([213.152.47.19]:29598 "EHLO
+	noodles.internal") by vger.kernel.org with ESMTP id <S267634AbSLSKnw>;
+	Thu, 19 Dec 2002 05:43:52 -0500
+Date: Thu, 19 Dec 2002 10:50:10 +0000
+From: Dave Jones <davej@codemonkey.org.uk>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Cc: Russell King <rmk@arm.linux.org.uk>
+Subject: Re: Freezing.. (was Re: Intel P6 vs P7 system call performance)
+Message-ID: <20021219105010.GD29122@suse.de>
+Mail-Followup-To: Dave Jones <davej@codemonkey.org.uk>,
+	Alan Cox <alan@lxorguk.ukuu.org.uk>,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+	Russell King <rmk@arm.linux.org.uk>
+References: <200212182237.gBIMbQmk000479@darkstar.example.net> <1040260157.26882.7.camel@irongate.swansea.linux.org.uk> <20021219003740.C20566@flint.arm.linux.org.uk>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <m3u1hapa51.fsf@lexa.home.net>
-User-Agent: Mutt/1.3.25i
-Organization: The Domain of Holomorphy
+In-Reply-To: <20021219003740.C20566@flint.arm.linux.org.uk>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-William Lee Irwin (WLI) writes:
-WLI> As userspace solutions go your suggestions is just as good. The
-WLI> kernel still needs to get its act together and with some
-WLI> urgency.
+On Thu, Dec 19, 2002 at 12:37:40AM +0000, Russell King wrote:
+ > On Thu, Dec 19, 2002 at 01:09:17AM +0000, Alan Cox wrote:
+ > > How the actual patches get applied really isnt relevant. I know Linus
+ > > hated jitterbug, Im guessing he hates bugzilla too ?
+ > 
+ > I'm waiting for the kernel bugzilla to become useful - currently the
+ > record for me has been:
+ > 
+ > 3 bugs total
+ > 3 bugs for serial code for drivers I don't maintain, reassigned to mbligh.
 
-On Thu, Dec 19, 2002 at 01:37:30PM +0300, Alex Tomas wrote:
-> what about retreiving info from /proc/kmem or something like? just to 
-> avoid binary -> text(proc) -> binary
+That was unfortunate, and you got dumped with those because some thought
+"Ah, serial! RMK!".  Some of the categories in bugzilla still need
+broadening IMO.
 
-That would also be an excellent userspace solution to this local DoS.
+ > This means I write (choose one):
+ > 1. non-buggy code (highly unlikely)
+ > 2. code no one tests
+ > 3. code people do test but report via other means (eg, email, irc)
+ > 
+ > If it's (3), which it seems to be, it means that bugzilla is failing to
+ > do its job properly, which is most unfortunate.
 
+It's early days. The types of bugs being filed still fall into the
+"useful" "not useful" categories though.  I don't think it's really
+that important that we track what doesn't compile at this stage.
+Those reports are being either closed within a few hours of them
+being opened with a "Fixed in BK", or are drivers which no-one currently
+wants to fix/can fix (Things like the various sti/cli breakage)
 
-Bill
+		Dave
+
+-- 
+| Dave Jones.        http://www.codemonkey.org.uk
+| SuSE Labs

@@ -1,47 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262714AbUA0GJv (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Jan 2004 01:09:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262730AbUA0GJv
+	id S262730AbUA0GNs (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Jan 2004 01:13:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262745AbUA0GNs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Jan 2004 01:09:51 -0500
-Received: from main.gmane.org ([80.91.224.249]:47763 "EHLO main.gmane.org")
-	by vger.kernel.org with ESMTP id S262714AbUA0GJu (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Jan 2004 01:09:50 -0500
-X-Injected-Via-Gmane: http://gmane.org/
+	Tue, 27 Jan 2004 01:13:48 -0500
+Received: from mail.bluebottle.com ([69.20.6.25]:55430 "EHLO
+	www.bluebottle.com") by vger.kernel.org with ESMTP id S262730AbUA0GNq
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 27 Jan 2004 01:13:46 -0500
+Date: Tue, 27 Jan 2004 04:13:43 -0200 (BRST)
+From: =?ISO-8859-1?Q?Fr=E9d=E9ric_L=2E_W=2E_Meunier?= <1@pervalidus.net>
+X-X-Sender: fredlwm@pervalidus.dyndns.org
 To: linux-kernel@vger.kernel.org
-From: yoann <informatique-nospam@mistur.org>
-Subject: Re: atkbd.c: Unknown key released
-Date: Tue, 27 Jan 2004 07:09:56 +0100
-Message-ID: <bv4vbb$ru3$1@sea.gmane.org>
-References: <200401261834.54450@sandersweb.net> <20040127052507.GF18411@charite.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Complaints-To: usenet@sea.gmane.org
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5) Gecko/20031107 Debian/1.5-3
-X-Accept-Language: fr, fr-fr, en, en-gb
-In-Reply-To: <20040127052507.GF18411@charite.de>
+Subject: Re: [uPATCH] ufs.txt update
+In-Reply-To: <81ektm9dvh.wl@omega.webmasters.gr.jp>
+Message-ID: <Pine.LNX.4.58.0401270409450.949@pervalidus.dyndns.org>
+References: <UTC200401250035.i0P0ZJW13717.aeb@smtp.cwi.nl>
+ <87u12ksac2.fsf@echidna.jochen.org> <81ektm9dvh.wl@omega.webmasters.gr.jp>
+X-Archive: encrypt
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>I keep getting the following in my syslog whenever I startx:
-> 
-> Which hardware?
-> 
->>Jan 26 13:43:56 debian kernel: atkbd.c: Unknown key released (translated set 2, code 0x7a on isa0060/serio0).
->>Jan 26 13:43:56 debian kernel: atkbd.c: This is an XFree86 bug. It shouldn't access hardware directly.
->>Jan 26 13:43:57 debian kernel: atkbd.c: Unknown key released (translated set 2, code 0x7a on isa0060/serio0).
->>Jan 26 13:43:57 debian kernel: atkbd.c: This is an XFree86 bug. It shouldn't access hardware directly.
->>
->>I don't get the error with the 2.4.24 kernel.
-> 
-> Same here.
+On Tue, 27 Jan 2004, GOTO Masanori wrote:
 
-same here with a 2.6.2-rc1-mm2
-Xfree86 Version: 4.2.1-15 (debian sid)
+> At Sun, 25 Jan 2004 09:26:21 +0100,
+> Jochen Hein wrote:
+> > Andries.Brouwer@cwi.nl writes:
+> >
+> > >  	old	old format of ufs
+> > > -		default value, supported os read-only
+> > > +		supported os read-only
+> >
+> > s/os/as/ ?
+> >
+> > >  	44bsd	used in FreeBSD, NetBSD, OpenBSD
+> > >  		supported os read-write
+> >
+> > s/os/as/ ?
+>
+> Exactly.  In addition I think removing "default value" from "old"
+> entry is no effectiveness, so I revive this sentence.
+>
+> This patch updates typos and HP-UX description in
+> Documentation/filesystems/ufs.txt, suggested by Andries.Brouwer@cwi.nl
+> and Jochen Hein <jochen@jochen.org>.
 
-Yoann
+Someone could also add some notes to ufs.txt and the Configure
+entry for 2.4 and 2.6 about the lack of UFS2 support, which is
+the default since FreeBSD 5.1.
 
-
+-- 
+http://www.pervalidus.net/contact.html

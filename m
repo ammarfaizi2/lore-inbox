@@ -1,37 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131768AbQJ2Oz2>; Sun, 29 Oct 2000 09:55:28 -0500
+	id <S131795AbQJ2PCW>; Sun, 29 Oct 2000 10:02:22 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131778AbQJ2OzT>; Sun, 29 Oct 2000 09:55:19 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:3368 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S131768AbQJ2OzL>; Sun, 29 Oct 2000 09:55:11 -0500
-Subject: Re: guarantee_memory() syscall?
-To: moth@magenta.com (Raul Miller)
-Date: Sun, 29 Oct 2000 14:56:19 +0000 (GMT)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <972824256.eb26eb5e@magenta.com> from "Raul Miller" at Oct 29, 2000 08:03:35 AM
-X-Mailer: ELM [version 2.5 PL1]
+	id <S131800AbQJ2PCR>; Sun, 29 Oct 2000 10:02:17 -0500
+Received: from fs1.dekanat.physik.uni-tuebingen.de ([134.2.216.20]:36112 "EHLO
+	fs1.dekanat.physik.uni-tuebingen.de") by vger.kernel.org with ESMTP
+	id <S131795AbQJ2PBz>; Sun, 29 Oct 2000 10:01:55 -0500
+Date: Sun, 29 Oct 2000 16:01:53 +0100 (CET)
+From: Richard Guenther <richard.guenther@student.uni-tuebingen.de>
+To: Linux Kernel List <linux-kernel@vger.kernel.org>
+Subject: Broken colors on console with 2.4.0-textXX
+Message-ID: <Pine.LNX.4.21.0010291558550.15902-100000@fs1.dekanat.physik.uni-tuebingen.de>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E13ptsj-000677-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Can anyone tell me about the viability of a guarantee_memory() syscall?
-> [I'm thinking: it would either kill the process, or allocate all virtual
-> memory needed for its shared libraries, buffers, allocated memory, etc.
-> Furthermore, it would render this process immune to the OOM killer,
-> unless it allocated further memory.]
+Hi!
 
-Hack mode on:
+Console colors are completely messed up (read: black, I even suspect
+the font to be corrupt somehow) if switching back to console mode
+from X (either by quitting or ctrl-alt-fX) in recent 2.4.0-textXX
+kernels. 2.2.XX do work just fine. Is this a known problem with a
+known fix?
 
-Allocate an array of pages the required size and attach them to a process via
-a device and mmap(). Basically you are just wanting to do private unswappable
-pages so grab free pages in kernel memory and mmap them
+Setup: standard VGA console, nothing special. ATI Mach64 Xserver which
+is fine with 2.2.XX
 
+Richard.
+
+--
+Richard Guenther <richard.guenther@student.uni-tuebingen.de>
+WWW: http://www.anatom.uni-tuebingen.de/~richi/
+The GLAME Project: http://www.glame.de/
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

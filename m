@@ -1,116 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262173AbVC2Eki@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262178AbVC2EsX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262173AbVC2Eki (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 28 Mar 2005 23:40:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262177AbVC2Ekh
+	id S262178AbVC2EsX (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 28 Mar 2005 23:48:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262180AbVC2EsW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 28 Mar 2005 23:40:37 -0500
-Received: from ms-smtp-02.nyroc.rr.com ([24.24.2.56]:9104 "EHLO
-	ms-smtp-02.nyroc.rr.com") by vger.kernel.org with ESMTP
-	id S262173AbVC2EkW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 28 Mar 2005 23:40:22 -0500
-Subject: Re: sched_setscheduler() and usage issues ....please help
-From: Steven Rostedt <rostedt@goodmis.org>
-To: Arun Srinivas <getarunsri@hotmail.com>
-Cc: nickpiggin@yahoo.com.au, LKML <linux-kernel@vger.kernel.org>
-In-Reply-To: <BAY10-F472EE1F6A6F80FEA2F5568D9450@phx.gbl>
-References: <BAY10-F472EE1F6A6F80FEA2F5568D9450@phx.gbl>
-Content-Type: multipart/mixed; boundary="=-qf1A1aREQzOOvi+Xwrmn"
-Organization: Kihon Technologies
-Date: Mon, 28 Mar 2005 23:40:15 -0500
-Message-Id: <1112071215.3691.27.camel@localhost.localdomain>
+	Mon, 28 Mar 2005 23:48:22 -0500
+Received: from mail.kroah.org ([69.55.234.183]:49079 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S262178AbVC2EsU (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 28 Mar 2005 23:48:20 -0500
+Date: Mon, 28 Mar 2005 20:45:34 -0800
+From: Greg KH <greg@kroah.com>
+To: Aaron Gyes <floam@sh.nu>
+Cc: Kyle Moffett <mrmacman_g4@mac.com>, linux-kernel@vger.kernel.org
+Subject: Re: Can't use SYSFS for "Proprietry" driver modules !!!.
+Message-ID: <20050329044533.GG7362@kroah.com>
+References: <1111886147.1495.3.camel@localhost> <490243b66dc7c3f592df7a7d0769dcb7@mac.com> <20050327181221.GB14502@kroah.com> <1112058277.14563.4.camel@localhost> <20050329033350.GA6990@kroah.com> <1112070511.32594.4.camel@localhost>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1112070511.32594.4.camel@localhost>
+User-Agent: Mutt/1.5.8i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, Mar 28, 2005 at 08:28:31PM -0800, Aaron Gyes wrote:
+> 
+> In other news: How do I get udev to create a static node?
 
---=-qf1A1aREQzOOvi+Xwrmn
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
+What do you mean by "static"?  Something that persists over a reboot?
+Or after the device is removed?
 
-On Tue, 2005-03-29 at 08:58 +0530, Arun Srinivas wrote:
-> I am trying to set the SCHED_FIFO  policy for my process.I am using 
-> sched_setscheduler() function to do this.
+If reboot, mount your /dev on a disk-backed filesystem, not a ramfs or
+tmpfs.
 
-Attached is a little program that I use to set the priority of tasks.
+If after removed, that's not what udev is set up to do, sorry.
 
--- Steve
+thanks,
 
---=-qf1A1aREQzOOvi+Xwrmn
-Content-Disposition: attachment; filename=setscheduler.c
-Content-Type: text/x-csrc; name=setscheduler.c; charset=iso-8859-1
-Content-Transfer-Encoding: 7bit
-
-/* Copyright (C) 2004 Kihon Technologies Inc.
-
-   This utilities is free software, you can redistribute it and/or
-   modify it under the terms of the GNU Lesser General Public
-   License as published by the Free Software Foundation; either
-   version 2.1 of the License, or (at your option) any later version.
-
-   These utilities are distributed in the hope that they will be useful,
-   but WITHOUT ANY WARRANTY; without even the implied warranty of
-   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-   Lesser General Public License for more details.
-
-   You should have received a copy of the GNU Lesser General Public
-   License along with the GNU C Library; if not, write to the Free
-   Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA
-   02111-1307 USA.  */
-/*
- * Author: Steven Rostedt
- */
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <sched.h>
-#include <strutils.h>
-#include <errno.h>
-
-void usage (char **argv)
-{
-	char *arg = argv[0];
-	char *p = arg + strlen(arg);
-	while (p >= arg && *p != '/') p--;
-	p++;
-	fprintf(stderr,"usage: %s pid policy priority\n"
-			"\n\twhere policy is SCHED_RR, SCHED_FIFO or SCHED_OTHER\n"
-			"\n", p);
-	exit(-1);
-}
-
-int main (int argc, char **argv)
-{
-	pid_t pid;
-	int policy;
-	struct sched_param p;
-	char *strpolicy;
-	
-	if (argc != 4)
-		usage(argv);
-
-	strpolicy = argv[2];
-	pid = atoi(argv[1]);
-	p.sched_priority = atoi(argv[3]);
-
-	if (strcmp(strpolicy,"SCHED_RR")==0) {
-		policy = SCHED_RR;
-	} else if (strcmp(strpolicy,"SCHED_FIFO") == 0) {
-		policy = SCHED_FIFO;
-	} else if (strcmp(strpolicy,"SCHED_OTHER") == 0) {
-		policy = SCHED_OTHER;
-	} else {
-		fprintf(stderr,"\nunknown policy %s",strpolicy);
-		usage(argv);
-	}
-
-	if (sched_setscheduler(pid,policy,&p)) {
-		perror("sched_setscheduler");
-		exit(errno);
-	}
-	exit(0);
-}
-
---=-qf1A1aREQzOOvi+Xwrmn--
-
+greg k-h

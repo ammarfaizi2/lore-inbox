@@ -1,48 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261244AbUKBOf6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261810AbUKBOwi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261244AbUKBOf6 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 2 Nov 2004 09:35:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261990AbUKBOLs
+	id S261810AbUKBOwi (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 2 Nov 2004 09:52:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261847AbUKBOrr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 2 Nov 2004 09:11:48 -0500
-Received: from rproxy.gmail.com ([64.233.170.201]:7437 "EHLO rproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261495AbUKBN4b (ORCPT
+	Tue, 2 Nov 2004 09:47:47 -0500
+Received: from wproxy.gmail.com ([64.233.184.194]:51371 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261918AbUKBOgz (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 2 Nov 2004 08:56:31 -0500
+	Tue, 2 Nov 2004 09:36:55 -0500
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
         s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
-        b=DOhBFspcdxx57z0brD9M73Ki7983U4TzXzfz3wMUgcgrKUaxG+9/yHQba2Zi9QeR5OxHdqJ7MrsQ+USuaTciW/ihjOwsHTCvqfsywg4V9BFVnHBcUFN1Px0z4RWVATYO5NgEu4IjeOqsj9VbVBMueB71KPmrK8islZTn/RQA9iE=
-Message-ID: <58cb370e04110205565c58d7bd@mail.gmail.com>
-Date: Tue, 2 Nov 2004 14:56:26 +0100
-From: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
-Reply-To: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
-To: Mikael Starvik <mikael.starvik@axis.com>
-Subject: Re: [PATCH 8/10] CRIS architecture update - Move drivers
-Cc: linux-kernel@vger.kernel.org, akpm@osdl.org
-In-Reply-To: <BFECAF9E178F144FAEF2BF4CE739C668014C748C@exmail1.se.axis.com>
+        h=received:message-id:date:from:reply-to:to:subject:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
+        b=TmIlMlxFVA9gJDDN5J+eNNovU06ahl+olAF5dV8T0Cgy9nLcZ2YJckEMTm5llBLsvMerutujmfryjHjEcny+CTAJsVQjJqzcTZ+Cv8V+Co/Tx83N1W/nis5hcvq1GZThBgwWcYVBv3eEZglmUoa7vIwtEpVOY87ofZ4KpK+sfF4=
+Message-ID: <5d1794bb041102063625a52d93@mail.gmail.com>
+Date: Tue, 2 Nov 2004 17:36:54 +0300
+From: Vasya Pupkin <ptushnik@gmail.com>
+Reply-To: Vasya Pupkin <ptushnik@gmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] comment typo
+In-Reply-To: <5d1794bb04103011465b4efd52@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-References: <BFECAF9E178F144FAEF2BF4CE739C668014C748C@exmail1.se.axis.com>
+References: <5d1794bb04103011465b4efd52@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mikael,
+Hey, guys, Im doing something wrong or it's not typo in comments?
 
-could you rename Etrax IDE driver to something less confusing than ide.c
-(ie. ide-etrax.c).
 
-Thanks.
-
-On Tue, 2 Nov 2004 14:04:51 +0100, Mikael Starvik
-<mikael.starvik@axis.com> wrote:
-> This is a shell script to move drivers from arch/cris/arch-v10/drivers to
-> e.g. drivers/net/cris/v10. This must be applied after patch 1-7 and before
-> patch 9.
+On Sat, 30 Oct 2004 22:46:08 +0400, Vasya Pupkin <ptushnik@gmail.com> wrote:
+> Signed-off-by: Vasia Pupkin <ptushnik@gmail.com>
 > 
-> Let me know if you prefer this as a big diff instead.
-> 
-> Signed-Off-By: starvik@axis.com
-> 
-> /Mikael
+> --- linux-2.6.9/kernel/timer.c.orig     2004-10-30 22:41:14.000000000 +0400
+> +++ linux-2.6.9/kernel/timer.c  2004-10-30 22:41:52.000000000 +0400
+> @@ -654,7 +654,7 @@
+>  /*
+>   * The current time
+>   * wall_to_monotonic is what we need to add to xtime (or xtime corrected
+> - * for sub jiffie times) to get to monotonic time.  Monotonic is pegged at zero
+> + * for sub jiffie times) to get to monotonic time.  Monotonic is pegged
+>   * at zero at system boot time, so wall_to_monotonic will be negative,
+>   * however, we will ALWAYS keep the tv_nsec part positive so we can use
+>   * the usual normalization.
+>

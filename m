@@ -1,42 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129026AbRBGDZP>; Tue, 6 Feb 2001 22:25:15 -0500
+	id <S129583AbRBGDYq>; Tue, 6 Feb 2001 22:24:46 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129416AbRBGDZG>; Tue, 6 Feb 2001 22:25:06 -0500
-Received: from ns2.arlut.utexas.edu ([129.116.174.1]:26116 "EHLO
-	ns2.arlut.utexas.edu") by vger.kernel.org with ESMTP
-	id <S129119AbRBGDYk>; Tue, 6 Feb 2001 22:24:40 -0500
-From: Jonathan Abbey <jonabbey@arlut.utexas.edu>
-Message-Id: <200102070324.VAA16252@csdsun1.arlut.utexas.edu>
-Subject: Re: Hard system freeze in 2.2.17, 2.2.18, 2.4.1-AC3 VIA Athlon
-To: jonabbey@arlut.utexas.edu (Jonathan Abbey)
-Date: Tue, 6 Feb 2001 21:24:29 -0600 (CST)
+	id <S129416AbRBGDYZ>; Tue, 6 Feb 2001 22:24:25 -0500
+Received: from c1262263-a.grapid1.mi.home.com ([24.183.135.182]:6666 "EHLO
+	mail.neruo.com") by vger.kernel.org with ESMTP id <S129119AbRBGDYV>;
+	Tue, 6 Feb 2001 22:24:21 -0500
+Subject: Re: Problems with Linux 2.4.1
+From: Brad Douglas <brad@neruo.com>
+To: Alexander Zvyagin <zvyagin@gamspc7.ihep.su>
 Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <200102070107.TAA13197@csdsun1.arlut.utexas.edu> from "Jonathan Abbey" at Feb 6, 2001 07:07:32 pm
-X-Mailer: ELM [version 2.4 PL25]
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+In-Reply-To: <Pine.LNX.4.20.0102070207300.1226-500000@gamspc7.ihep.su>
+Content-Type: text/plain
+X-Mailer: Evolution 0.8 (Developer Preview)
+Date: 06 Feb 2001 19:22:47 -0800
+Mime-Version: 1.0
+Message-Id: <20010207032424Z129119-513+3637@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mark Hahn wrote me and convinced me that the problem I described is a
-hardware problem, probably related to heat.  
+On 07 Feb 2001 02:27:57 +0000, Alexander Zvyagin wrote:
 
-Testing bears this out.
+> 2) Frame-buffer mode does not work with my video card SiS630.
+>    But ok, frame-buffer mode is EXPERIMENTAL in linux.
+>    Computer boots, but screen is blank. All messages are fine.
 
-I am still mystified as to why xemacs in particular should stress the
-system more than everything else, but I've got the sanity check I was
-looking for, and will treat it as a hardware problem from here on
-out.
+> 01:00:0 VGA compatible controller: Silicon Integrated Systems [SiS]:
+Unknown device 6300
+> (rev 11)
 
-| I am having terribly frustrating system stability problems, and I
-| can't figure out whether I should suspect hardware or the kernel.
+Your particular chipset (actually, a 6300, which is different than the
+630) is not supported by the SIS frame buffer.  If this chipset is a
+VESA 2.0+ compatible controller, then you will be able to use the VESA
+frame buffer.
 
--------------------------------------------------------------------------------
-Jonathan Abbey 				              jonabbey@arlut.utexas.edu
-Applied Research Laboratories                 The University of Texas at Austin
-Ganymede, a GPL'ed metadirectory for UNIX     http://www.arlut.utexas.edu/gash2
+Brad Douglas
+brad@neuro.com
+http://www.linux-fbdev.org
+
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

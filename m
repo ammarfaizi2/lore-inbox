@@ -1,40 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271400AbTGXAj1 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Jul 2003 20:39:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271401AbTGXAj1
+	id S270448AbTGXAnx (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Jul 2003 20:43:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271398AbTGXAnx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Jul 2003 20:39:27 -0400
-Received: from adsl-63-194-239-202.dsl.lsan03.pacbell.net ([63.194.239.202]:59147
+	Wed, 23 Jul 2003 20:43:53 -0400
+Received: from adsl-63-194-239-202.dsl.lsan03.pacbell.net ([63.194.239.202]:5132
 	"EHLO mmp-linux.matchmail.com") by vger.kernel.org with ESMTP
-	id S271400AbTGXAj0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Jul 2003 20:39:26 -0400
-Date: Wed, 23 Jul 2003 17:54:31 -0700
+	id S270448AbTGXAnw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 23 Jul 2003 20:43:52 -0400
+Date: Wed, 23 Jul 2003 17:58:58 -0700
 From: Mike Fedyk <mfedyk@matchmail.com>
-To: ahljoh@uni.de
+To: jimis@gmx.net
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: directory inclusion in ext2/ext3
-Message-ID: <20030724005431.GJ1176@matchmail.com>
-Mail-Followup-To: ahljoh@uni.de, linux-kernel@vger.kernel.org
-References: <20030723202225.F257B371@mendocino>
+Subject: Re: Feature proposal (scheduling related)
+Message-ID: <20030724005858.GK1176@matchmail.com>
+Mail-Followup-To: jimis@gmx.net, linux-kernel@vger.kernel.org
+References: <3F1E6A25.5030308@gmx.net> <200307231417.h6NEHoqj010244@turing-police.cc.vt.edu> <3F1F0995.4020300@gmx.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20030723202225.F257B371@mendocino>
+In-Reply-To: <3F1F0995.4020300@gmx.net>
 User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jul 23, 2003 at 10:22:24PM +0200, softpro@gmx.net wrote:
-> well, not really. unionfs is close because with a "mount -o bind" and 
-> additive mounting my problem would be solved, but what i'm looking for is a 
-> very high-level solution. as i said, my idea of solving this is to have an 
-> inclusion directive in directory-files...
-> 
-> has nobody ever felt the lack of such functionality??
+On Thu, Jul 24, 2003 at 01:17:57AM +0300, jimis@gmx.net wrote:
+> What might help, and needs only be implemented on my side of the 
+> connection, is requesting the packets of higher priorities first. And if I 
+> know my total bandwidth, perhaps I can request as many packets needed to 
+> fill it (and not flood it like it happens now).
 
-I guess not.
+Yes, this is exactly what wondershaper does now.
 
-What exactly does this help you to do?
+Please give it a try.
 
-What do you want to accomplish?
+I use it on a dsl line, and it works wonders.  (pardon the pun).

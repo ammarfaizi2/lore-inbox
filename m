@@ -1,49 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261631AbTEDUCQ (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 4 May 2003 16:02:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261661AbTEDUCQ
+	id S261618AbTEDUJU (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 4 May 2003 16:09:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261666AbTEDUJU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 4 May 2003 16:02:16 -0400
-Received: from pat.uio.no ([129.240.130.16]:63211 "EHLO pat.uio.no")
-	by vger.kernel.org with ESMTP id S261631AbTEDUCP (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 4 May 2003 16:02:15 -0400
-To: David S Miller <davem@redhat.com>
-Cc: Christoph Hellwig <hch@lst.de>, torvalds@transmeta.com,
-       Neil Brown <neilb@cse.unsw.edu.au>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] remove useless MOD_{INC,DEC}_USE_COUNT from sunrpc
-References: <20030504191447.C10659@lst.de>
-	<16053.20430.903508.188812@charged.uio.no>
-	<20030504203655.A11574@lst.de>
-	<16053.24599.277205.64363@charged.uio.no>
-	<20030504205306.A11647@lst.de>
-	<16053.25445.434038.90945@charged.uio.no>
-	<1052075166.27465.12.camel@rth.ninka.net>
-	<16053.28792.244921.560392@charged.uio.no>
-From: Trond Myklebust <trond.myklebust@fys.uio.no>
-Date: 04 May 2003 22:14:36 +0200
-In-Reply-To: <16053.28792.244921.560392@charged.uio.no>
-Message-ID: <shsbryisc43.fsf@charged.uio.no>
-User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.4 (Honest Recruiter)
+	Sun, 4 May 2003 16:09:20 -0400
+Received: from mion.elka.pw.edu.pl ([194.29.160.35]:32180 "EHLO
+	mion.elka.pw.edu.pl") by vger.kernel.org with ESMTP id S261618AbTEDUJS
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 4 May 2003 16:09:18 -0400
+Date: Sun, 4 May 2003 22:21:26 +0200 (MET DST)
+From: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
+To: Linus Torvalds <torvalds@transmeta.com>, Andrew Morton <akpm@digeo.com>
+cc: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: [PATCH] make floppy driver useable for 2.5
+Message-ID: <Pine.SOL.4.30.0305042201080.7538-100000@mion.elka.pw.edu.pl>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> " " == Trond Myklebust <trond.myklebust@fys.uio.no> writes:
 
-     > There don't seem to be any checks and balances to prevent the
-     > user from removing the sunrpc module immediately after
-     > svc_create_thread() gets called.  I presume that the call to
-     > lockd_up() in nfsd() will help (since that calls rpciod_up()
-     > and hence MOD_INC_COUNT) but AFAICS there appears to be plenty
-     > of possible races before we get to that point.
+Hi,
 
-Sorry. I misread that code. The only nfsd problem goes the other way
-round. nfsd() is not exported, and nfsd_svc() does not wait on the
-threads to start, hence you have a race between nfsd_svc(), and the
-MOD_INC_USE_COUNT inside the nfsd() threads.
+I fixed two bugs introduced by some 2.5 changes:
 
-Cheers,
-  Trond
+- O_NDELAY handling typo in floppy_open()
+
+- handling of failed transfers in floppy_end_request()
+  (do equivalent of what 2.4 does)
+
+Without first fix I was getting "floppy0: disk absent or changed during
+operation" infinite loop on opening and without second fix, infinite loop
+on error retry.
+
+Now floppy driver seems to be (somehow) working :-).
+
+Please apply,
+--
+Bartlomiej
+
+--- linux-2.5.68-bk6/drivers/block/floppy.c	Sat Apr 26 18:14:24 2003
++++ linux/drivers/block/floppy.c	Sun May  4 21:57:36 2003
+@@ -2293,7 +2293,12 @@
+
+ static void floppy_end_request(struct request *req, int uptodate)
+ {
+-	if (end_that_request_first(req, uptodate, current_count_sectors))
++	unsigned int nr_sectors = current_count_sectors;
++
++	/* current_count_sectors can be zero if transfer failed */
++	if (!uptodate)
++		nr_sectors = req->current_nr_sectors;
++	if (end_that_request_first(req, uptodate, nr_sectors))
+ 		return;
+ 	add_disk_randomness(req->rq_disk);
+ 	floppy_off((long)req->rq_disk->private_data);
+@@ -3768,7 +3773,7 @@
+ 	if (UFDCS->rawcmd == 1)
+ 		UFDCS->rawcmd = 2;
+
+-	if (!filp->f_flags & O_NDELAY) {
++	if (!(filp->f_flags & O_NDELAY)) {
+ 		if (filp->f_mode & 3) {
+ 			UDRS->last_checked = 0;
+ 			check_disk_change(inode->i_bdev);
+

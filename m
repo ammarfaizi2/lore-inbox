@@ -1,109 +1,72 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S273923AbRIXOIi>; Mon, 24 Sep 2001 10:08:38 -0400
+	id <S273921AbRIXOLi>; Mon, 24 Sep 2001 10:11:38 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S273921AbRIXOI2>; Mon, 24 Sep 2001 10:08:28 -0400
-Received: from mx3.arach.net.au ([203.30.44.5]:12002 "HELO
-	mandible.arach.net.au") by vger.kernel.org with SMTP
-	id <S273918AbRIXOIR>; Mon, 24 Sep 2001 10:08:17 -0400
-X-Qmail-Scanner-Mail-From: kuib-kl@ljbc.wa.edu.au via mandible.arach.net.au
-X-Qmail-Scanner: 1.01 (Clean. Processed in 0.28687 secs)
-Message-ID: <B0005839269@gollum.logi.net.au>
-Content-Type: text/plain; charset=US-ASCII
-From: Beau Kuiper <kuib-kl@ljbc.wa.edu.au>
-To: linux-kernel@vger.kernel.org
-Subject: [PATCH] 2.4.10 improved reiserfs a lot, but could still be better
-Date: Mon, 24 Sep 2001 22:09:59 +0800
-X-Mailer: KMail [version 1.3]
-Cc: reiserfs-list@namesys.com
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
+	id <S273922AbRIXOL2>; Mon, 24 Sep 2001 10:11:28 -0400
+Received: from [195.66.192.167] ([195.66.192.167]:37137 "EHLO
+	Port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with ESMTP
+	id <S273921AbRIXOLQ>; Mon, 24 Sep 2001 10:11:16 -0400
+Date: Mon, 24 Sep 2001 17:05:39 +0300
+From: VDA <VDA@port.imtp.ilyichevsk.odessa.ua>
+X-Mailer: The Bat! (v1.44)
+Reply-To: VDA <VDA@port.imtp.ilyichevsk.odessa.ua>
+Organization: IMTP
+X-Priority: 3 (Normal)
+Message-ID: <12730310183.20010924170539@port.imtp.ilyichevsk.odessa.ua>
+To: Rik van Riel <riel@conectiva.com.br>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Linux VM design
+In-Reply-To: <Pine.LNX.4.33L.0109241027070.19147-100000@imladris.rielhome.conectiva>
+In-Reply-To: <Pine.LNX.4.33L.0109241027070.19147-100000@imladris.rielhome.conectiva>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all again,
+Hello Rik,
+Monday, September 24, 2001, 4:29:46 PM, you wrote:
 
-I have updated my last set of patches for reiserfs to run on the 2.4.10 
-kernel.
+>> Since we reached some kind of stability with 2.4, maybe
+>> Andrea, Rik and whoever else is considering himself VM geek
+>> would tell us not-so-clever lkml readers how VM works and put it in
+>> vm-2.4andrea, vm-2.4rik or whatever in Doc/vm/*,
+>> I will be unbelievably happy. Matt Dillon's post belongs there too.
 
-The new set of patches create a new method to do kupdated syncs. On 
-filesystems that do no support this new method, the regular write_super 
-method is used. Then reiserfs on kupdated super_sync, simply calls the 
-flush_old_commits code with immediate mode off. 
+RvR> http://linux-mm.org/
 
-The reiserfs improvements in 2.4.10 are great, but still not as good as 
-2.2.19 was.
+I was there today. Good. Can this stuff be placed as
+Doc/mv/vm2.4rik
+to prevent it from being outdated in 2-3 months?
+Linus?
 
-I have run two benchmarks on:
+Also I'd like to be enlightened why this:
 
-   the 2.4.9 kernel (plain, slow, starting point)
-   the 2.4.9 kernel (with kupdated disabled, this is where we want to be)
-   the 2.4.10 kernel (plain, quite fast though)
-   the 2.4.10 kernel with my patches.
+>Virtual Memory Management Policy
+>--------------------------------
+>The basic principle of the Linux VM system is page aging. We've seen
+>that refill_inactive_scan() is invoked periodically to try to
+>deactivate pages, and that it ages pages down as it does so,
+>deactivating them when their age reaches 0. We've also seen that
+>swap_out() will age referenced page frames up while scanning process
+>memory maps. This is the fundamental mechanism for VM resource
+>balancing in Linux: pages are aged down at a more-or-less steady rate,
+>and deactivated when they become sufficiently old; but processes can
+>keep pages "young" by referencing them frequently.
 
-The benchmarks are:
+is better than plain simple LRU?
 
-   dbench 10 (done 4 times, with first result discarded)
-   kernel compliation times (done twice, with first result discarded)
+We definitely need VM FAQ to have these questions answered once per VM
+design, not once per week :-)
 
-The first result in all benchmarks is discarded because it is used to set up 
-the cache to a consistant state.
+RvR> The only thing missing is an explanation of Andrea's
+RvR> VM, but knowing Andrea's enthusiasm at documentation
+RvR> I wouldn't really count on that any time soon ;)
 
-All benchmarks are run on the following machine:
+:-)
 
-Duron 700
-VIA KT133 northbridge and 686A southbridge.
-384meg RAM
-40 gig IBM drive (7200rpm, GXP60)
+-- 
+Best regards, VDA
+mailto:VDA@port.imtp.ilyichevsk.odessa.ua
 
-The IBM drive has its internal write caching disabled (because it is damned 
-good :-) ) since it hides the problems that my old drive had (I upgraded a 
-few days ago)
 
-I was going to use an old Quantum 5400rpm drive for these benchmarks but I 
-blew it up ;-) (I got fire!! on one of the chips and everything, somehow 
-managed to plug power cable into it backwards) Its smell is still lingering 
-as I write this. Could someone with a slow 5400rpm drive do these tests and 
-report back.
-
-Anyway, enough yabbering, onto the results
-
----- 2.4.9 (plain)
-
-dbench: 25.6155, 24.4236, 26.05 MB/Sec
-
-kernel compile: 5.41.744 wall time, 4.43.880 user time, 0.16.380 sys time
-
----- 2.4.9 (kupdated off)
-
-dbench: 33.763, 36.452, 32.0602 MB/Sec
-
-kernel compile: 5.7.967 wall time, 4.44.140 user time, 0.15.380 sys time
-
----- 2.4.10 (plain)
-
-dbench: 35.3584, 31.1634, 32.3602 MB/Sec
-
-kernel compile: 5.21.458 wall time, 4.43.840 user time, 0.14.590 sys time
-
----- 2.4.10 (patched with attached patch)
-
-dbench : 35.028, 33.6774, 38.2342 MB/Sec
-
-kernel compile: 5.4.640 wall time, 4.42.950 user time, 0.15.160 sys time
-
-Conclusions:
-
-The 2.4.10 kernel improved reiserfs performace a lot all by itself, 
-especially in dbench. In kernel compiles, however (maybe because dbench 
-doesn't stress kupdated much), it still isn't as fast as my new patch.
-
-Also, the performace problems seem to be very dependant on the hardware being 
-used. 5400rpm drives get hurt a lot, while 7200 rpm drives seem to handle it 
-better. Decent write caching on IDE devices (like the 2meg buffer on the IBM) 
-can completely hide this issue.
-
-Thanks to everyone who has helped me so far, and I look forward to further 
-comments and assistance,
-Beau Kuiper
-kuib-kl@ljbc.wa.edu.au

@@ -1,42 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288828AbSANS5G>; Mon, 14 Jan 2002 13:57:06 -0500
+	id <S288977AbSANThN>; Mon, 14 Jan 2002 14:37:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288896AbSANS4O>; Mon, 14 Jan 2002 13:56:14 -0500
-Received: from smtpzilla3.xs4all.nl ([194.109.127.139]:41227 "EHLO
-	smtpzilla3.xs4all.nl") by vger.kernel.org with ESMTP
-	id <S288878AbSANSyk>; Mon, 14 Jan 2002 13:54:40 -0500
-Message-ID: <3C432969.3F98E538@linux-m68k.org>
-Date: Mon, 14 Jan 2002 19:54:33 +0100
-From: Roman Zippel <zippel@linux-m68k.org>
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.17 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: yodaiken@fsmlabs.com
-CC: Momchil Velikov <velco@fadata.bg>,
-        Daniel Phillips <phillips@bonn-fries.net>,
-        Arjan van de Ven <arjan@fenrus.demon.nl>, linux-kernel@vger.kernel.org
-Subject: Re: [2.4.17/18pre] VM and swap - it's really unusable
-In-Reply-To: <20020114064548.D22065@hq.fsmlabs.com> <Pine.LNX.4.33.0201141541140.29505-100000@serv> <20020114091801.A23139@hq.fsmlabs.com>
+	id <S288960AbSANTgH>; Mon, 14 Jan 2002 14:36:07 -0500
+Received: from cpe-24-221-152-185.az.sprintbbd.net ([24.221.152.185]:58498
+	"EHLO opus.bloom.county") by vger.kernel.org with ESMTP
+	id <S288974AbSANTfZ>; Mon, 14 Jan 2002 14:35:25 -0500
+Date: Mon, 14 Jan 2002 12:34:36 -0700
+From: Tom Rini <trini@kernel.crashing.org>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: esr@thyrsus.com, Eli Carter <eli.carter@inet.com>,
+        "\"Michael Lazarou (ETL)\"" <Michael.Lazarou@etl.ericsson.se>,
+        Linux Kernel List <linux-kernel@vger.kernel.org>
+Subject: Re: Aunt Tillie builds a kernel (was Re: ISA hardware discovery -- the elegant solution)
+Message-ID: <20020114193436.GB3298@cpe-24-221-152-185.az.sprintbbd.net>
+In-Reply-To: <20020114134426.C17522@thyrsus.com> <E16QCZ7-0002b4-00@the-village.bc.nu>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <E16QCZ7-0002b4-00@the-village.bc.nu>
+User-Agent: Mutt/1.3.25i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-
-yodaiken@fsmlabs.com wrote:
-
-> > > is going to be an enormously important issue.  However, once you add SCHED_FIFO in the
-> > > current scheme, this becomes more complex. And with preempt, you cannot even offer the
-> > > assurance that once a process gets the cpu it will make _any_ advance at all.
-> >
-> > I'm not sure if I understand you correctly, but how is this related to
-> > preempt?
+On Mon, Jan 14, 2002 at 07:14:40PM +0000, Alan Cox wrote:
+> > > it did last week". Random mechanics hating car owners don't do engine tuning
+> > > jobs or fit turbochargers.
+> > 
+> > No...but they do change their own oil and antifreeze.  Upgrading your
+> > kernel should be as simple as changing your oil.
 > 
-> It's pretty subtle. If there is no preempt, processes don't get preempted.
-> If there is preempt, they can be preempted. Amazing isn't it?
+> Yeah. I go to the garage versus I click "up 2 date". I don't mix custom
+> oils.
 
-I just can't win against such brilliant argumentation, I'm out.
+And people that do change their own oil usually know something about
+their cars too. 
 
-bye, Roman
+To carry this anaology out a bit further, the people who change their
+own oil  know about as much about their car(s) as the people who go and
+recompile their own kernel, but don't claim to know much about the
+kernel internals. 
+
+-- 
+Tom Rini (TR1265)
+http://gate.crashing.org/~trini/

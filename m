@@ -1,67 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281343AbRKLMeg>; Mon, 12 Nov 2001 07:34:36 -0500
+	id <S281362AbRKLMj5>; Mon, 12 Nov 2001 07:39:57 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281362AbRKLMe0>; Mon, 12 Nov 2001 07:34:26 -0500
-Received: from main.sonytel.be ([195.0.45.167]:35277 "EHLO mail.sonytel.be")
-	by vger.kernel.org with ESMTP id <S281343AbRKLMeN>;
-	Mon, 12 Nov 2001 07:34:13 -0500
-Date: Mon, 12 Nov 2001 13:32:59 +0100 (MET)
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-To: Bakonyi Ferenc <fero@drama.obuda.kando.hu>
-cc: Linus Torvalds <torvalds@transmeta.com>,
-        Linux Kernel Development <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] hgafb oopses
-In-Reply-To: <Pine.LNX.4.40.0111121325480.8974-100000@drama.koli>
-Message-ID: <Pine.GSO.4.21.0111121331290.11251-100000@mullein.sonytel.be>
+	id <S281357AbRKLMjq>; Mon, 12 Nov 2001 07:39:46 -0500
+Received: from t2.redhat.com ([199.183.24.243]:2296 "HELO
+	executor.cambridge.redhat.com") by vger.kernel.org with SMTP
+	id <S281381AbRKLMje>; Mon, 12 Nov 2001 07:39:34 -0500
+Message-ID: <3BEFC301.A92C64D4@redhat.com>
+Date: Mon, 12 Nov 2001 12:39:29 +0000
+From: Arjan van de Ven <arjanv@redhat.com>
+Reply-To: arjanv@redhat.com
+Organization: Red Hat, Inc
+X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.9-13smp i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Hans Reiser <reiser@namesys.com>, linux-kernel@vger.kernel.org
+Subject: Re: Oops in reiserfs w/2.4.7-10
+In-Reply-To: <Pine.LNX.4.33.0111122233530.26293-100000@bad-sports.com> <3BEFBDE0.6080804@namesys.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 12 Nov 2001, Bakonyi Ferenc wrote:
-> On Mon, 12 Nov 2001, Geert Uytterhoeven wrote:
-> > Sorry... Anyway, the old code was broken too, since it wasn't portable.
->
-> Is it portable now? Can you test it on non-i386?
 
-Unfortunately not. I don't have HGA hardware.
+> Please upgrade to a recent linus kernel.  I don't know what went into
+> RedHat 7.2, but secondhand reports are that reiserfs is not stable in
+> that kernel.
 
-All I can do is read the code and comment :-)
+Please stop badmouthing people that don't happen to pay you. (and don't
+mis-spell their name).
 
-> > > The patch below is against 2.4.15-pre1. It resolves the ISA address
-> > > confusion, replaces scr_{read|write} functions with isa_{read|write},
-> > > and elimiates a cosmetic compiler warning about suggested parens.
->
-> > But it does some other Bad Things(TM): putting ISA memory _adresses_ and
-> > _16_bit_ values in _unsigned_chars_ is not good for your health...
->
-> There is no mercy for my brain-damage, patch follows.
->
-> --- linux-2.4.15-pre3/drivers/video/hgafb.c	Mon Nov 12 13:16:32 2001
-> +++ linux/drivers/video/hgafb.c	Mon Nov 12 13:15:56 2001
-> @@ -312,8 +312,8 @@
->  static int __init hga_card_detect(void)
->  {
->  	int count=0;
-> -	unsigned char p, p_save;
-> -	unsigned char q, q_save;
-> +	unsigned long p, q;
-> +	unsigned short p_save, q_save;
->
->  	hga_vram_base = 0xb0000;
->  	hga_vram_len  = 0x08000;
-
-Thanks, that looks better!
-
-Gr{oetje,eeting}s,
-
-						Geert
-
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
-
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-							    -- Linus Torvalds
-
+The Red Hat Linux 7.2 kernels don't have reiserfs patches so all bugs
+are
+yours and yours alone.....

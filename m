@@ -1,33 +1,61 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315784AbSFESGl>; Wed, 5 Jun 2002 14:06:41 -0400
+	id <S315760AbSFESMt>; Wed, 5 Jun 2002 14:12:49 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315760AbSFESGh>; Wed, 5 Jun 2002 14:06:37 -0400
-Received: from e166066.upc-e.chello.nl ([213.93.166.66]:18195 "EHLO
-	crawl.var.cx") by vger.kernel.org with ESMTP id <S315784AbSFESG3>;
-	Wed, 5 Jun 2002 14:06:29 -0400
-Date: Wed, 5 Jun 2002 20:06:28 +0200
-From: Frank v Waveren <fvw@var.cx>
-To: "Albert D. Cahalan" <acahalan@cs.uml.edu>, Andrew Morton <akpm@zip.com.au>,
-        lkml <linux-kernel@vger.kernel.org>
-Subject: Re: [rfc] "laptop mode"
-Message-ID: <1023300358GUI.fvw@yendor.var.cx>
-In-Reply-To: <3CFD453A.B6A43522@zip.com.au> <200206050341.g553fvi09850@saturn.cs.uml.edu> <20020605170735.GA18036@pimlott.net> <1023300046KSS.fvw@yendor.var.cx>
+	id <S315856AbSFESMs>; Wed, 5 Jun 2002 14:12:48 -0400
+Received: from mark.mielke.cc ([216.209.85.42]:57096 "EHLO mark.mielke.cc")
+	by vger.kernel.org with ESMTP id <S315760AbSFESMr>;
+	Wed, 5 Jun 2002 14:12:47 -0400
+Date: Wed, 5 Jun 2002 14:06:37 -0400
+From: Mark Mielke <mark@mark.mielke.cc>
+To: Daniel Phillips <phillips@bonn-fries.net>
+Cc: Oliver Xymoron <oxymoron@waste.org>,
+        linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [ANNOUNCE] Adeos nanokernel for Linux kernel
+Message-ID: <20020605140637.A23183@mark.mielke.cc>
+In-Reply-To: <Pine.LNX.4.44.0206050957250.2614-100000@waste.org> <E17Feeo-0001bQ-00@starship>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.3.28i
+User-Agent: Mutt/1.2.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jun 05, 2002 at 08:04:38PM +0200, Frank v Waveren wrote:
-> similar. Only problem atm is it doesn't play nice with journalling
-> filesystems.. The bugs only list reiserfs, but I didn't have any luck with
-> it on ext3 either a while back.
-Oops, it does say it doesn't work with any journaling elsewhere on the
-page. my bad.
+On Wed, Jun 05, 2002 at 07:32:34PM +0200, Daniel Phillips wrote:
+> On Wednesday 05 June 2002 17:37, Oliver Xymoron wrote:
+> > No, the mistake is assuming that loosely coupling UNIX to RT lets you
+> > leverage much of anything from UNIX.
+>    - Compiler
+>    - Debugger
+>    - Editor
+>    - GUI
+>    - IPC
+>    - Any program that doesn't require realtime response
+>    - Memory protection
+>    - Physical hardware can be shared
+>    - I could go on...
+
+So... an RT .mp3 player task that receives asynchronous signals from a
+non-RT .mp3 player GUI front-end? So, we assume that the .mp3 data
+gets sent from the non-RT file system to the RT task (via the non-RT
+GUI front-end) in its entirety before it begins playing...
+
+Other than as a play RT project, seems like a waste of effort to me... :-)
+
+The result will be that your compiler/debugger/editor/etc. will have limited
+access to the CPU, and will therefore likely run slower. (The rest of the
+processes effectively run as "idle tasks")
+
+mark
 
 -- 
-Frank v Waveren                                      Fingerprint: 0EDB 8787
-fvw@[var.cx|stack.nl|dse.nl|chello.nl] ICQ#10074100     09B9 6EF5 6425 B855
-Public key: hkp://wwwkeys.pgp.net/fvw@var.cx            7179 3036 E136 B85D
+mark@mielke.cc/markm@ncf.ca/markm@nortelnetworks.com __________________________
+.  .  _  ._  . .   .__    .  . ._. .__ .   . . .__  | Neighbourhood Coder
+|\/| |_| |_| |/    |_     |\/|  |  |_  |   |/  |_   | 
+|  | | | | \ | \   |__ .  |  | .|. |__ |__ | \ |__  | Ottawa, Ontario, Canada
+
+  One ring to rule them all, one ring to find them, one ring to bring them all
+                       and in the darkness bind them...
+
+                           http://mark.mielke.cc/
+

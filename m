@@ -1,101 +1,79 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270617AbTGZV0j (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 26 Jul 2003 17:26:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270618AbTGZV0i
+	id S270553AbTGZV1A (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 26 Jul 2003 17:27:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270622AbTGZV07
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 26 Jul 2003 17:26:38 -0400
-Received: from 015.atlasinternet.net ([212.9.93.15]:33499 "EHLO
-	ponti.gallimedina.net") by vger.kernel.org with ESMTP
-	id S270426AbTGZVY5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 26 Jul 2003 17:24:57 -0400
-From: Ricardo Galli <gallir@uib.es>
-Organization: UIB
+	Sat, 26 Jul 2003 17:26:59 -0400
+Received: from louise.pinerecords.com ([213.168.176.16]:31433 "EHLO
+	louise.pinerecords.com") by vger.kernel.org with ESMTP
+	id S270553AbTGZVZj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 26 Jul 2003 17:25:39 -0400
+Date: Sat, 26 Jul 2003 23:40:47 +0200
+From: Tomas Szepe <szepe@pinerecords.com>
 To: linux-kernel@vger.kernel.org
-Subject: 2.6.0-test1: ieee1394/sbp2 plug doesn't work
-Date: Sat, 26 Jul 2003 23:40:04 +0200
-User-Agent: KMail/1.5.2
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-15"
-Content-Transfer-Encoding: 7bit
+Subject: Re: [TRIVIAL] use ext2/ext3 consistently in Kconfig
+Message-ID: <20030726214047.GD16798@louise.pinerecords.com>
+References: <20030726195722.GB16160@louise.pinerecords.com> <200307261621.55553.jeffpc@optonline.net> <6ud6fx118p.fsf@zork.zork.net> <20030726212128.GB16798@louise.pinerecords.com> <6uwue5ynzl.fsf@zork.zork.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200307262340.04910.gallir@uib.es>
+In-Reply-To: <6uwue5ynzl.fsf@zork.zork.net>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Just trying to  make my firewire CDROM work in 2.6. 
-I found that it only works if the device is attached when
-the machine is booted. 
+> [sneakums@zork.net]
+> 
+> I hate to drag this out further...
+> 
+> Tomas Szepe <szepe@pinerecords.com> writes:
+> 
+> > -	  This is the journaling version of the Second extended file system
+> > -	  (often called ext3), the de facto standard Linux file system
+> > -	  (method to organize files on a storage device) for hard disks.
+> > +	  Ext3 is a jornaling version of the Second extended fs
+> 
+> s/jornaling/journaling/
 
-If you plug it after booting it gives all the following errors. 
-It doesn't stop until you unplug the device again.
-
-------------------------------
-ul 26 23:31:10 minime kernel: ieee1394: Node removed: ID:BUS[0-00:1023]  GUID[00065b80040f4934]
-Jul 26 23:31:11 minime kernel: ieee1394: sbp2: Logged out of SBP-2 device
-Jul 26 23:32:10 minime kernel: ieee1394: unsolicited response packet received - np
-Jul 26 23:32:10 minime kernel: ieee1394: contents: ffc0c160 ffc00000 00000000 14f10404
-Jul 26 23:32:11 minime kernel: ieee1394: unsolicited response packet received - np
-Jul 26 23:32:11 minime kernel: ieee1394: contents: ffc0c560 ffc00000 00000000 14f10404
-Jul 26 23:32:11 minime kernel: ieee1394: unsolicited response packet received - np
-Jul 26 23:32:11 minime kernel: ieee1394: contents: ffc0c960 ffc00000 00000000 14f10404
-Jul 26 23:32:12 minime kernel: ieee1394: ConfigROM quadlet transaction error for node 00:1023
-Jul 26 23:32:13 minime kernel: ieee1394: ConfigROM quadlet transaction error for node 01:1023
-Jul 26 23:32:13 minime kernel: ieee1394: The root node is not cycle master capable; selecting a new root node and resetting...
-Jul 26 23:32:13 minime kernel: ieee1394: Node added: ID:BUS[0-00:1023]  GUID[00065b80040f4934]
-Jul 26 23:32:13 minime kernel: ieee1394: unsolicited response packet received - np
-Jul 26 23:32:13 minime kernel: ieee1394: contents: ffc16560 ffc10000 00000000 14f10404
-Jul 26 23:32:13 minime kernel: scsi1 : SCSI emulation for IEEE-1394 SBP-2 Devices
-Jul 26 23:32:13 minime kernel: ieee1394: sbp2: Logged into SBP-2 device
-Jul 26 23:32:13 minime kernel: ieee1394: sbp2: Node[00:1023]: Max speed [S400] - Max payload [2048]
-Jul 26 23:32:13 minime kernel:   Vendor: SAMSUNG   Model: CD-ROM SN-124     Rev: N102
-Jul 26 23:32:13 minime kernel:   Type:   CD-ROM                             ANSI SCSI revision: 02
-Jul 26 23:32:14 minime kernel: sr0: scsi3-mmc drive: 0x/0x caddy
-Jul 26 23:32:14 minime kernel: Attached scsi CD-ROM sr0 at scsi1, channel 0, id 0, lun 0
-Jul 26 23:32:14 minime kernel: ieee1394: unsolicited response packet received - np
-Jul 26 23:32:14 minime kernel: ieee1394: contents: ffc16960 ffc10000 00000000 14f10404
-Jul 26 23:32:14 minime kernel: ieee1394: unsolicited response packet received - np
-Jul 26 23:32:14 minime kernel: ieee1394: contents: ffc16d60 ffc10000 00000000 14f10404
-Jul 26 23:32:15 minime kernel: ieee1394: ConfigROM quadlet transaction error for node 01:1023
-Jul 26 23:32:15 minime kernel: ieee1394: The root node is not cycle master capable; selecting a new root node and resetting...
-Jul 26 23:32:15 minime kernel: ieee1394: sbp2: Reconnected to SBP-2 device
-Jul 26 23:32:15 minime kernel: ieee1394: sbp2: Node[00:1023]: Max speed [S400] - Max payload [2048]
-Jul 26 23:32:15 minime kernel: ieee1394: unsolicited response packet received - np
-Jul 26 23:32:15 minime kernel: ieee1394: contents: ffc17160 ffc10000 00000000 14f10404
-Jul 26 23:32:16 minime kernel: ieee1394: unsolicited response packet received - np
-Jul 26 23:32:16 minime kernel: ieee1394: contents: ffc17560 ffc10000 00000000 14f10404
-Jul 26 23:32:16 minime kernel: ieee1394: unsolicited response packet received - np
-Jul 26 23:32:16 minime kernel: ieee1394: contents: ffc17960 ffc10000 00000000 14f10404
-Jul 26 23:32:16 minime kernel: ieee1394: ConfigROM quadlet transaction error for node 01:1023
-Jul 26 23:32:16 minime kernel: ieee1394: The root node is not cycle master capable; selecting a new root node and resetting...
-Jul 26 23:32:17 minime kernel: ieee1394: sbp2: Reconnected to SBP-2 device
-Jul 26 23:32:17 minime kernel: ieee1394: sbp2: Node[00:1023]: Max speed [S400] - Max payload [2048]
-Jul 26 23:32:17 minime kernel: ieee1394: unsolicited response packet received - np
-Jul 26 23:32:17 minime kernel: ieee1394: contents: ffc17d60 ffc10000 00000000 14f10404
-Jul 26 23:32:17 minime kernel: ieee1394: unsolicited response packet received - np
-Jul 26 23:32:17 minime kernel: ieee1394: contents: ffc18160 ffc10000 00000000 14f10404
-Jul 26 23:32:18 minime kernel: ieee1394: unsolicited response packet received - np
-Jul 26 23:32:18 minime kernel: ieee1394: contents: ffc18560 ffc10000 00000000 14f10404
-Jul 26 23:32:18 minime kernel: ieee1394: ConfigROM quadlet transaction error for node 01:1023
-Jul 26 23:32:18 minime kernel: ieee1394: The root node is not cycle master capable; selecting a new root node and resetting...
-Jul 26 23:32:18 minime kernel: ieee1394: sbp2: Reconnected to SBP-2 device
-Jul 26 23:32:19 minime kernel: ieee1394: sbp2: Node[00:1023]: Max speed [S400] - Max payload [2048]
-Jul 26 23:32:19 minime kernel: ieee1394: unsolicited response packet received - np
-Jul 26 23:32:19 minime kernel: ieee1394: contents: ffc18960 ffc10000 00000000 14f10404
-Jul 26 23:32:19 minime kernel: ieee1394: unsolicited response packet received - np
-Jul 26 23:32:19 minime kernel: ieee1394: contents: ffc18d60 ffc10000 00000000 14f10404
-Jul 26 23:32:19 minime kernel: ieee1394: unsolicited response packet received - np
-Jul 26 23:32:19 minime kernel: ieee1394: contents: ffc19160 ffc10000 00000000 14f10404
-Jul 26 23:32:20 minime kernel: ieee1394: ConfigROM quadlet transaction error for node 01:1023
-Jul 26 23:32:20 minime kernel: ieee1394: The root node is not cycle master capable; selecting a new root node and resetting...
-Jul 26 23:32:20 minime kernel: ieee1394: sbp2: Reconnected to SBP-2 device
-Jul 26 23:32:20 minime kernel: ieee1394: sbp2: Node[00:1023]: Max speed [S400] - Max payload [2048]
-....
+Damn.
 
 
-
--- 
-  ricardo galli       GPG id C8114D34
-  http://mnm.uib.es/~gallir/
-
+diff -urN a/fs/Kconfig b/fs/Kconfig
+--- a/fs/Kconfig	2003-06-14 23:07:12.000000000 +0200
++++ b/fs/Kconfig	2003-07-26 23:18:35.000000000 +0200
+@@ -5,7 +5,7 @@
+ menu "File systems"
+ 
+ config EXT2_FS
+-	tristate "Second extended fs support"
++	tristate "Ext2 fs support"
+ 	help
+ 	  This is the de facto standard Linux file system (method to organize
+ 	  files on a storage device) for hard disks.
+@@ -86,11 +86,12 @@
+ 	  extended attributes for file security labels, say N.
+ 
+ config EXT3_FS
+-	tristate "Ext3 journalling file system support"
++	tristate "Ext3 journaling file system support"
+ 	help
+-	  This is the journaling version of the Second extended file system
+-	  (often called ext3), the de facto standard Linux file system
+-	  (method to organize files on a storage device) for hard disks.
++	  Ext3 is a journaling version of the Second extended fs
++	  (or just ext2fs), the de facto standard Linux filesystem
++	  (method to organize files on a storage device) for block
++	  devices such as hard disk partitions.
+ 
+ 	  The journaling code included in this driver means you do not have
+ 	  to run e2fsck (file system checker) on your file systems after a
+@@ -200,7 +201,7 @@
+ 	default m if EXT2_FS=m || EXT3_FS=m
+ 
+ config REISERFS_FS
+-	tristate "Reiserfs support"
++	tristate "Reiserfs support (for v3.5 & v3.6 filesystems)"
+ 	help
+ 	  Stores not just filenames but the files themselves in a balanced
+ 	  tree.  Uses journaling.

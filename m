@@ -1,41 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272882AbRJDIxb>; Thu, 4 Oct 2001 04:53:31 -0400
+	id <S273141AbRJDI6V>; Thu, 4 Oct 2001 04:58:21 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S273141AbRJDIxU>; Thu, 4 Oct 2001 04:53:20 -0400
-Received: from ns.suse.de ([213.95.15.193]:47886 "HELO Cantor.suse.de")
-	by vger.kernel.org with SMTP id <S272882AbRJDIxB> convert rfc822-to-8bit;
-	Thu, 4 Oct 2001 04:53:01 -0400
-To: ebiederm@xmission.com (Eric W. Biederman)
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Security question: "Text file busy" overwriting executables but not shared libraries?
-In-Reply-To: <Pine.GSO.4.21.0110040004430.26177-100000@weyl.math.psu.edu>
-	<m14rpg0w4a.fsf@frodo.biederman.org>
-X-Yow: I have seen these EGG EXTENDERS in my Supermarket..
- ..  I have read the INSTRUCTIONS...
-From: Andreas Schwab <schwab@suse.de>
-Date: 04 Oct 2001 10:53:28 +0200
-In-Reply-To: <m14rpg0w4a.fsf@frodo.biederman.org> (ebiederm@xmission.com's message of "04 Oct 2001 00:15:01 -0600")
-Message-ID: <jezo77g513.fsf@sykes.suse.de>
-User-Agent: Gnus/5.090003 (Oort Gnus v0.03) Emacs/21.0.107
+	id <S273588AbRJDI6N>; Thu, 4 Oct 2001 04:58:13 -0400
+Received: from web11805.mail.yahoo.com ([216.136.172.159]:57871 "HELO
+	web11805.mail.yahoo.com") by vger.kernel.org with SMTP
+	id <S273141AbRJDI6E>; Thu, 4 Oct 2001 04:58:04 -0400
+Message-ID: <20011004085833.29209.qmail@web11805.mail.yahoo.com>
+Date: Thu, 4 Oct 2001 10:58:33 +0200 (CEST)
+From: =?iso-8859-1?q?Etienne=20Lorrain?= <etienne_lorrain@yahoo.fr>
+Subject: specific optimizations for unaccelerated framebuffers
+To: linux-kernel@vger.kernel.org
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-15
-Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ebiederm@xmission.com (Eric W. Biederman) writes:
+  Just a question:
 
-|> So any good ideas on how to get the size of linux down?
+ Has anybody ever tried to have a copy of the video memory in the main
+ memory. All the software would access the copy in main memory, and
+ the standart DMA is used (permanently) to update the real video memory.
+ Maybe a 32 bit int could be used to skip unmodified 64K pages (1 bit
+ per page).
+ The main processor would never have to wait for PCI read/writes.
 
-How about linux-0.01?
+  In fact the question is: what kind of bandwidth can we have from a
+ standart PC DMA (memory to memory copy)?
+  The other problem could be the addresses limits, but using the VESA1
+ interface (window switching at 0xA0000), the video memory image
+ below 16 Mb and known I/O ports (see Gujin) would solve that.
 
-SCNR.
+  Someone has bandwidth measures?
+  Etienne.
 
-Andreas.
-
--- 
-Andreas Schwab                                  "And now for something
-Andreas.Schwab@suse.de				completely different."
-SuSE Labs, SuSE GmbH, Schanzäckerstr. 10, D-90443 Nürnberg
-Key fingerprint = 58CA 54C7 6D53 942B 1756  01D3 44D5 214B 8276 4ED5
+___________________________________________________________
+Do You Yahoo!? -- Un e-mail gratuit @yahoo.fr !
+Yahoo! Courrier : http://fr.mail.yahoo.com

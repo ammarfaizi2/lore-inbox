@@ -1,51 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269447AbUICCdY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269474AbUICCdY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269447AbUICCdY (ORCPT <rfc822;willy@w.ods.org>);
+	id S269474AbUICCdY (ORCPT <rfc822;willy@w.ods.org>);
 	Thu, 2 Sep 2004 22:33:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269450AbUICAL7
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269447AbUICALz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Sep 2004 20:11:59 -0400
-Received: from the-village.bc.nu ([81.2.110.252]:15762 "EHLO
-	localhost.localdomain") by vger.kernel.org with ESMTP
-	id S268126AbUICAA7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Sep 2004 20:00:59 -0400
-Subject: Re: The argument for fs assistance in handling archives (was:
-	silent semantic changes with reiser4)
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Spam <spam@tnonline.net>
-Cc: Paul Jakma <paul@clubi.ie>, Jamie Lokier <jamie@shareable.org>,
-       Linus Torvalds <torvalds@osdl.org>,
-       Horst von Brand <vonbrand@inf.utfsm.cl>, Adrian Bunk <bunk@fs.tum.de>,
-       Hans Reiser <reiser@namesys.com>,
-       viro@parcelfarce.linux.theplanet.co.uk, Christoph Hellwig <hch@lst.de>,
-       linux-fsdevel@vger.kernel.org,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Alexander Lyamin aka FLX <flx@namesys.com>,
-       ReiserFS List <reiserfs-list@namesys.com>
-In-Reply-To: <1835526621.20040903014915@tnonline.net>
-References: <20040826150202.GE5733@mail.shareable.org>
-	 <200408282314.i7SNErYv003270@localhost.localdomain>
-	 <20040901200806.GC31934@mail.shareable.org>
-	 <Pine.LNX.4.58.0409011311150.2295@ppc970.osdl.org>
-	 <1094118362.4847.23.camel@localhost.localdomain>
-	 <20040902161130.GA24932@mail.shareable.org>
-	 <Pine.LNX.4.61.0409030028510.23011@fogarty.jakma.org>
-	 <1835526621.20040903014915@tnonline.net>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Message-Id: <1094165736.6170.19.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Thu, 02 Sep 2004 23:55:40 +0100
+	Thu, 2 Sep 2004 20:11:55 -0400
+Received: from dragnfire.mtl.istop.com ([66.11.160.179]:21492 "EHLO
+	dsl.commfireservices.com") by vger.kernel.org with ESMTP
+	id S269401AbUIBX5u (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 2 Sep 2004 19:57:50 -0400
+Date: Thu, 2 Sep 2004 20:02:12 -0400 (EDT)
+From: Zwane Mwaikambo <zwane@fsmlabs.com>
+To: Linux Kernel <linux-kernel@vger.kernel.org>
+Cc: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
+       Matt Mackall <mpm@selenic.com>,
+       William Lee Irwin III <wli@holomorphy.com>, Keith Owens <kaos@sgi.com>
+Subject: [PATCH][0/8] Arch agnostic completely out of line locks
+Message-ID: <Pine.LNX.4.58.0409020905540.4481@montezuma.fsmlabs.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Gwe, 2004-09-03 at 00:49, Spam wrote:
->   But can you actually do things with these files? Can you run
->   applications or edit files directly, or is there need for temporary
->   unzip first?
+This patch achieves out of line spinlocks by creating kernel/spinlock.c
+and using the _raw_* inline locking functions. Now, as much as this is
+supposed to be arch agnostic, there was still a fair amount of rummaging
+about in archs, mostly for the cases where the arch already has out of
+line locks and i wanted to avoid the extra call, saving that extra call
+also makes lock profiling easier. PPC32/64 was an example of such an arch
+and i have added the necessary profile_pc() function as an example.
 
-You always need that for zip files. Firstly because executables are
-paged so you need an accessible random access copy of the bits. Secondly
-because data may be paged, and also for seek performance.
+Size differences are with CONFIG_PREEMPT enabled since we wanted to
+determine how much could be saved by moving that lot out of line too.
 
+ppc64 = 259897 bytes:
+   text    data     bss     dec     hex filename
+5489808 1962724  709064 8161596  7c893c vmlinux-after
+5749577 1962852  709064 8421493  808075 vmlinux-before
+
+sparc64 = 193368 bytes:
+  text    data     bss     dec     hex filename
+3472037  633712  308920 4414669  435ccd vmlinux-after
+3665285  633832  308920 4608037  465025 vmlinux-before
+
+i386 = 524115 bytes
+   text    data     bss     dec     hex filename
+5695619  870906  328112 6894637  69342d vmlinux-after
+6221254  870634  326864 7418752  713380 vmlinux-before
+
+x86-64 = 282446 bytes
+   text    data     bss     dec     hex filename
+4598025 1450644  523632 6572301  64490d vmlinux-after
+4881679 1449436  523632 6854747  68985b vmlinux-before
+
+It has been compile tested (UP, SMP, PREEMPT) on i386, x86-64, sparc,
+sparc64, ppc64, ppc32 and runtime tested on i386 and x86-64. I still have
+to get benchmarks done (most probably i386). The patch is currently
+against 2.6.9-rc1-mm1 because we'd have to back out the i386/x86_64 out of
+line lock patches since this does it in a different way, i can merge later
+on.
+
+Thanks,
+	Zwane

@@ -1,56 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S271316AbUJVOvp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S271325AbUJVOxp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271316AbUJVOvp (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 22 Oct 2004 10:51:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271322AbUJVOvo
+	id S271325AbUJVOxp (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 22 Oct 2004 10:53:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271326AbUJVOxp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 22 Oct 2004 10:51:44 -0400
-Received: from 213-239-205-147.clients.your-server.de ([213.239.205.147]:23972
-	"EHLO debian.tglx.de") by vger.kernel.org with ESMTP
-	id S271316AbUJVOvl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 22 Oct 2004 10:51:41 -0400
-Subject: Re: [patch] Real-Time Preemption, -RT-2.6.9-rc4-mm1-U9
-From: Thomas Gleixner <tglx@linutronix.de>
-Reply-To: tglx@linutronix.de
-To: "K.R. Foley" <kr@cybsft.com>
-Cc: Ingo Molnar <mingo@elte.hu>, LKML <linux-kernel@vger.kernel.org>,
-       Lee Revell <rlrevell@joe-job.com>, Rui Nuno Capela <rncbc@rncbc.org>,
-       Mark_H_Johnson@Raytheon.com, Bill Huey <bhuey@lnxw.com>,
-       Adam Heath <doogie@debian.org>, Florian Schmidt <mista.tapas@gmx.net>,
-       Michal Schmidt <xschmi00@stud.feec.vutbr.cz>,
-       Fernando Pablo Lopez-Lezcano <nando@ccrma.Stanford.EDU>
-In-Reply-To: <41791564.20200@cybsft.com>
-References: <20041013061518.GA1083@elte.hu> <20041014002433.GA19399@elte.hu>
-	 <20041014143131.GA20258@elte.hu> <20041014234202.GA26207@elte.hu>
-	 <20041015102633.GA20132@elte.hu> <20041016153344.GA16766@elte.hu>
-	 <20041018145008.GA25707@elte.hu> <20041019124605.GA28896@elte.hu>
-	 <20041019180059.GA23113@elte.hu> <20041020094508.GA29080@elte.hu>
-	 <20041021132717.GA29153@elte.hu>  <4177FADC.6030905@cybsft.com>
-	 <1098384016.27089.42.camel@thomas>  <41780687.8030408@cybsft.com>
-	 <1098385049.27089.51.camel@thomas>  <41791564.20200@cybsft.com>
-Content-Type: text/plain
-Organization: linutronix
-Message-Id: <1098456218.8955.373.camel@thomas>
+	Fri, 22 Oct 2004 10:53:45 -0400
+Received: from holomorphy.com ([207.189.100.168]:36547 "EHLO holomorphy.com")
+	by vger.kernel.org with ESMTP id S271325AbUJVOx1 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 22 Oct 2004 10:53:27 -0400
+Date: Fri, 22 Oct 2004 07:53:21 -0700
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Matt Porter <mporter@kernel.crashing.org>
+Cc: Glenn Burkhardt <glenn@aoi-industries.com>, linux-kernel@vger.kernel.org
+Subject: Re: remap_page_range64() for PPC
+Message-ID: <20041022145321.GV17038@holomorphy.com>
+References: <20041016034642.F1DD0C60D@aoi-industries.com> <20041015233226.B1500@home.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Fri, 22 Oct 2004 16:43:38 +0200
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20041015233226.B1500@home.com>
+Organization: The Domain of Holomorphy
+User-Agent: Mutt/1.5.6+20040722i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2004-10-22 at 16:12, K.R. Foley wrote:
-> I am not sure why the tulip driver is being loaded,unloaded,reloaded 
-> every time on boot? Anyway, I wanted to check to see if I could generate 
-> the above bug on subsequent unloads of the module. I downed the network 
-> and the unloaded the tulip module. I did get the message below when 
-> unloading the module but no "BUG: atomic counter underflow" message.
-> 
-> Oct 22 05:43:33 porky kernel: tulip 0000:04:0a.0: Device was removed 
-> without properly calling pci_disable_device(). This may need fixing.
-> Oct 22 05:43:33 porky net.agent[921]: remove event not handled
+On Fri, Oct 15, 2004 at 11:46:42PM -0400, Glenn Burkhardt wrote:
+>> I'm writing an application to run on a PowerPC with a 2.4 embedded
+>> Linux kernel, and I want to make device registers for our custom
+>> hardware accessable from user space with mmap().  The physical address
+>> of the device is above the 4gb boundary (we attach to the 440's
+>> external peripheral bus), so a standard 'remap_page_range()' call
+>> won't work.
 
-Can you please verify this against vanilla 2.6.9 and 2.6.9-mm1 ?
+On Fri, Oct 15, 2004 at 11:32:26PM -0700, Matt Porter wrote:
+> This has come up several times on the ppc lists (but since we still
+> don't have archives back, nobody can search anyway). I dropped
+> 2.4 and 2.5 patches in source.mvista.com:/pub/linuxppc/ a long
+> time ago.  You just need to update your board-specific fixup routine
+> in that version or just make a copy or remap_page_range() into your
+> driver and use u64 for the phys address.
+> The real fix, of course, is in the -mm tree as remap_pfn_range(),
+> I plan to merge 440 io_remap_page_range() support on top of that
+> call when it goes into mainline. But that doesn't help you with
+> 2.4. :)
 
-tglx
+It has gone mainline. Glenn Burkhardt's troubles should now be fixed
+for all time, unless io_remap_page_range() itself is in question. I'd
+like to carry out a similar conversion on io_remap_page_range() so that
+it can have similar safety against physical address overflow. There is
+one 32-bit architecture where all IO memory is beyond the 4GB boundary,
+and a number where at least some crucial portions of it are. This would
+then decide how many arguments io_remap_page_range() takes. There are
+some difficulties in this (particularly for the architecture[s] it
+would benefit most) so I've been punting on this issue thus far.
 
 
+-- wli

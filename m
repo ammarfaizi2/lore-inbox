@@ -1,50 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263330AbTH0LbB (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 27 Aug 2003 07:31:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263331AbTH0LbA
+	id S263316AbTH0LwI (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 27 Aug 2003 07:52:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263336AbTH0LwI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 27 Aug 2003 07:31:00 -0400
-Received: from mail3.ithnet.com ([217.64.64.7]:3532 "HELO
-	heather-ng.ithnet.com") by vger.kernel.org with SMTP
-	id S263330AbTH0La6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 27 Aug 2003 07:30:58 -0400
-X-Sender-Authentication: SMTPafterPOP by <info@euro-tv.de> from 217.64.64.14
-Date: Wed, 27 Aug 2003 13:30:55 +0200
-From: Stephan von Krawczynski <skraw@ithnet.com>
-To: Ville Herva <vherva@niksula.hut.fi>
-Cc: linux-kernel@vger.kernel.org, tejun@aratech.co.kr
-Subject: Re: 2.4.22pre8 hangs too (Re: 2.4.21-jam1 solid hangs)
-Message-Id: <20030827133055.0f7aaf6e.skraw@ithnet.com>
-In-Reply-To: <20030827110417.GY83336@niksula.cs.hut.fi>
-References: <20030729073948.GD204266@niksula.cs.hut.fi>
-	<20030730071321.GV150921@niksula.cs.hut.fi>
-	<Pine.LNX.4.55L.0307301149550.29648@freak.distro.conectiva>
-	<20030730181003.GC204962@niksula.cs.hut.fi>
-	<20030827064301.GF150921@niksula.cs.hut.fi>
-	<20030827110417.GY83336@niksula.cs.hut.fi>
-Organization: ith Kommunikationstechnik GmbH
-X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Wed, 27 Aug 2003 07:52:08 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:7134 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S263316AbTH0LwF
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 27 Aug 2003 07:52:05 -0400
+Message-ID: <3F4C9B59.20504@pobox.com>
+Date: Wed, 27 Aug 2003 07:51:53 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+Organization: none
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20021213 Debian/1.2.1-2.bunk
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Matthias Andree <matthias.andree@gmx.de>
+CC: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Promise SATA driver GPL'd
+References: <20030722184532.GA2321@codepoet.org> <20030722185443.GB6004@gtf.org> <20030722190705.GA2500@codepoet.org> <20030722205629.GA27179@gtf.org> <20030722213926.GA4295@codepoet.org> <3F4C1F09.846A83EF@vtc.edu.hk> <3F4C2210.6050404@pobox.com> <20030827090020.GC9054@merlin.emma.line.org>
+In-Reply-To: <20030827090020.GC9054@merlin.emma.line.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 27 Aug 2003 14:04:17 +0300
-Ville Herva <vherva@niksula.hut.fi> wrote:
-
-> > You're right, it looks pretty clean and simple. Possibly the only thing I
-> > would try is moving aic away from int 9 to int 10 or so. Int 9 sometimes
-> > interferes with VGA int routing on broken boxes. But that is unlikely
-> > (though simple to test).
+Matthias Andree wrote:
+> On Tue, 26 Aug 2003, Jeff Garzik wrote:
 > 
-> I don't think vga interferes with anything: I never run X on the box, and
-> even the text console remains quiescent as nothing is logged.
+> 
+>>For the future, I'm currently whipping the libata internals into shape 
+>>so that Promise may be supported.  Promise hardware supports native 
+>>command queueing, a lot like many SCSI adapters.
+> 
+> 
+> Is that true even for the older stuff such as a PDC20265?
 
-The thing I ran into once was not really an intensive use of VGA and its ints
-but rather some weird glitches in the boards' int logic that sometimes drove
-the software drivers crazy (was network back then).
+PATA stuff will continue to be supported via drivers/ide, I'm only 
+shooting for the newer SATA stuff.
 
-Regards,
-Stephan
+
+> It appears that FreeBSD 4-STABLE blacklists some older (before-TX2)
+> Promise chips because they apparently lock up when used with tagged
+> command queueing. I haven't yet looked at the ATAng driver merged into
+> FreeBSD 5-CURRENT.
+
+
+ATA tagged command queueing is a bunch of crap.  :)  I'm not sure 
+whether I want to implement it or not.
+
+I was referring to _native_ command queueing.  ATA TCQ is something 
+different.  ATA TCQ does not allow multiple outstanding scatter/gather 
+tables to be sent to the host controller.   Native command queuing does.
+
+	Jeff
+
+
+

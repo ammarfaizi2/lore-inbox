@@ -1,99 +1,179 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267111AbTAPBvw>; Wed, 15 Jan 2003 20:51:52 -0500
+	id <S265114AbTAPCeP>; Wed, 15 Jan 2003 21:34:15 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267103AbTAPBvw>; Wed, 15 Jan 2003 20:51:52 -0500
-Received: from smtp.mmedia.is ([217.151.160.9]:8640 "EHLO smtp.mmedia.is")
-	by vger.kernel.org with ESMTP id <S267110AbTAPBvu>;
-	Wed, 15 Jan 2003 20:51:50 -0500
-Date: Tue, 14 Jan 2003 18:21:59 +0000
-From: Freyr Gunnar =?ISO-8859-1?Q?=D3lafsson?= <gnarlin@utopia.is>
-To: linux-kernel@vger.kernel.org
-Subject: amilo-a laptop lockup netcard problem
-Message-Id: <20030114182159.676ce167.gnarlin@utopia.is>
-Organization: Icer Comunication inc.
-X-Mailer: Sylpheed version 0.8.5 (GTK+ 1.2.10; i686-pc-linux-gnu)
+	id <S266514AbTAPCeP>; Wed, 15 Jan 2003 21:34:15 -0500
+Received: from almesberger.net ([63.105.73.239]:274 "EHLO host.almesberger.net")
+	by vger.kernel.org with ESMTP id <S265114AbTAPCeM>;
+	Wed, 15 Jan 2003 21:34:12 -0500
+Date: Wed, 15 Jan 2003 23:42:58 -0300
+From: Werner Almesberger <wa@almesberger.net>
+To: Rusty Russell <rusty@rustcorp.com.au>
+Cc: kuznet@ms2.inr.ac.ru, Roman Zippel <zippel@linux-m68k.org>,
+       kronos@kronoz.cjb.net, linux-kernel@vger.kernel.org
+Subject: Re: [RFC] Migrating net/sched to new module interface
+Message-ID: <20030115234258.E1521@almesberger.net>
+References: <20030115063349.A1521@almesberger.net> <20030116013125.ACE0F2C0A3@lists.samba.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030116013125.ACE0F2C0A3@lists.samba.org>; from rusty@rustcorp.com.au on Thu, Jan 16, 2003 at 12:12:25PM +1100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Good sirs and ladies of the linux kernel development mailing list.
+Rusty Russell wrote:
+> Deprecating every module, and rewriting their initialization routines
+> is ambitious beyond the scale of anything you have mentioned.
 
-I am in desperate need of your help. I am no expert, but you *are*.
-Problem is as following:
+Well, it has happened before, e.g. sleep_on is now deprecated,
+cli() doesn't give the comprehensive protection it used to,
+holding spinlocks while sleeping used to be frowned upon, but
+it's only recently that it moved to being forbidden, etc.
 
-	Problem
-		I have a fujitsu siemens amilo a laptop.
-		My father gave it to me after having saved for god knows how long.
-		I can NOT give it back and tell him that it has a problem with the linux kernel
-		(or that the hardware is faulty). So if this can be solved (as I am sure it can) then nobody has
-		to know ;)
+And the people making the new rules didn't go and fix every
+module in existence. You may get this kind of responsibility
+only if you actually break the old interface, but that's not
+what I'm suggesting to do.
 
-		amilo a has a RealTek RTL8139 netcard build in to the motherboard.
-		Almost every single linux distro out there crashes when I boot it from the install cds (FreeBSD however
-		does not seem to have any such problems... hint... hint :)
+> And remember why we're doing it: for a fairly obscure race condition.
 
-		After trying almost any distro on the planet I finally came back to the old faithful.. slackware.
-		For some reason the bare.i kernel boots just fine. However as soon as I tried to autoprobe the netcard is 
-		gave a kernel panic as well as some memory adresses (which I will give at the bottom of this letter).
-		Aparently it crashed when trying to modprobe for the de4x5.o netcard module. Thankfully slackware offers a way
-		to skip a probe for a particular module (network; S de4x5.o) and then the autoprobe program found a working driver
-		(apparently since slackware is running now with network support working).
+No, I want to do this to fix the reason for the fix for the
+obscure race condition :-)
 
-		I tought that I might compile a new kernel for my laptop since there was very little hardware support in bare.i
-		kernel that came with slackware (sound support for the sound chip, scsi etc.). I have tried so many different kernel
-		combonations that my hands are bleeding and the arrow buttons are smoking ;(
+Also, all this smells of a fundamental design problem: modules
+aren't the only things that can become unavailable. So why
+construct a special mechanism that only applies to modules ?
 
-		The only thing that I notice different was when I disabled isa-plug-and-play support for my new kernel it managed to
-		boot just a little bit further I think, although the kernel still paniced and gave those same memory adressess.
+> So we go from:
 
-	Booting kernel message
+Yes. Note that the problem case only occurs if you have more than
+one registration that could block you for a long time. Otherwise,
+you just take that one first, and sleep on all the others.
 
-		Here is some the the kernel messages. I will only write the last few lines before the kernel crashes (since I assume
-		only those are nessicery ..... and my fingers are still bleeding ;þ
+Otherwise, things get messy, I admit. But that's not a new problem
+either, e.g.
 
-		-------------------------------------
-		Starting PCMCIA services:
-		cardmgr[49]: watching 2 sockets
-		cardmgr[49]: Card services release does not match
-		cs: IO port probe 0x0c00-0x0cff: clean
-		cs: IO port probe 0x0800-0x08ff: clean
-		cs: IO port probe 0x0100-04ff:<0>CPU 0: Machine Check Exception: 0000000000000
-		007
-		Bank 3: b40000000000083b at 00000001fc0003b0
-		Kernel panic: Unable to continue
-		--------------------------------------
+> int init(void)
+> {
+> 	if (!register_foo(&foo))
+> 		return -err;
+> 	if (!register_bar(&bar)) {
+> 		unregister_foo(&foo);
+> 		return -err;
+> 	}
+> 	return 0;
+> }
 
-		The bare.i kernel from slackware that boots so well is a 2.4.18
-		The kernel I tried to compile so often was a vanilla 2.4.20 kernel.
-		The install cd's that I tried where gentoo live-cd 1.4rc2, red-hat 8 standard, rootlinux. They all exploded 
-		(paniced) on ignition :(
+What if unregister_foo fails, because somebody already started
+to use the foo interface ? If "block until it works" is a valid
+answer, you could probably use this also for the unload case.
 
-		here is stuff from lspci list (I really don't know what information would be helpful for you poeple so if there is
-		anything that I should do or if there is a procedure for info I should include please tell me)
+This would actually work even with the current interface: just
+make the module exit function sleep until all references are
+gone. This means than rmmod might take a looong time, but is
+this really a problem ? If a module wishes to accelerate its
+demise, it can always add errors exits. If the interface doesn't
+provide error exits, this is again a general problem, and
+actually one of the interface.
 
-	lspci
-		--------------------------------------
-		00:00.0 Host bridge: ATI Technologies Inc: Unknown device cab0 (rev 13)
-		00:01.0 PCI bridge: ATI Technologies Inc: Unknown device 700f (rev 01)
-		00:02.0 USB Controller: Acer Laboratories Inc. [ALi] USB 1.1 Controller (rev 03)
-		00:03.0 Modem: Acer Laboratories Inc. [ALi] M5457 AC-Link Modem Interface Controller
-		00:04.0 IDE interface: Acer Laboratories Inc. [ALi] M5229 IDE (rev c4)
-		00:06.0 Bridge: Acer Laboratories Inc. [ALi] M7101 PMU
-		00:07.0 ISA bridge: Acer Laboratories Inc. [ALi] M1533 PCI to ISA Bridge [Aladdin IV]
-		00:08.0 Multimedia audio controller: Acer Laboratories Inc. [ALi] M5451 PCI AC-Link Controller Audio Device (rev 02)
-		00:09.0 Ethernet controller: Realtek Semiconductor Co., Ltd. RTL-8139/8139C (rev 10)
-		00:0a.0 FireWire (IEEE 1394): VIA Technologies, Inc. IEEE 1394 Host Controller (rev 46)
-		00:0b.0 CardBus bridge: ENE Technology Inc: Unknown device 1420 (rev 01)
-		00:0b.1 CardBus bridge: ENE Technology Inc: Unknown device 1420 (rev 01)
-		00:0f.0 USB Controller: Acer Laboratories Inc. [ALi] USB 1.1 Controller (rev 03)
-		01:05.0 VGA compatible controller: ATI Technologies Inc: Unknown device 4336
-		--------------------------------------
+If there's a really nasty case, where you absolutely can't
+afford to sleep, you need to change the service to split
+"deregister" into:
 
-	Please return true;
+ - prepare_deregister (like "deregister", but reversible)
+ - commit_deregister
+ - undo_deregister
 
+But there probably aren't many cases where you'd really need
+this.
 
-Freyr Gunnar Ólafsson
-gnarlin at utopia dot is (sorry bout that)
+> Something like this?
+
+Yes, for instance. Or use atomic operations.
+
+> Now, if someone tries to remove a module, but it's busy, you get a
+> window of spurious failure, even though the module isn't actually
+> removed.
+
+Correct. But does this matter ? After all, we were prepared to
+get failures if the removal succeeds anyway. So this is not a
+new race condition.
+
+> Secondly, there is often no way of returning a value which
+> says "I'm going away, act as if I'm not here": only the level above
+> can sanely know what it would do if this were not found.
+
+Okay, my approach usually puts the responsibility of finally giving
+up in user space. If user space just ignores the error, and keeps
+the thing open anyway, you're in for a long wait. But that's not
+different from opening some device and never releasing it. In
+either case, your module becomes un-unloadable, unless you kill
+the user-space hog. Again, not a new problem.
+
+> On a busy system, they're never not being used.  Your unload routine
+> would always fail.  Same with netfilter modules.
+
+But they're only active for a short time, so the deregistration
+could just sleep.
+
+> It also puts the (minimal) burden in the right place: in the interface
+> coder's lap, not the interface user's lap.
+
+Well, both need to cooperate. And I don't see why the interface
+coder should have to know whether its users are modules or not,
+while the interface user, who is implicitly very aware if he's
+a module or not, shouldn't.
+
+Also note that this isn't just a module problem. Instead of
+tripping over code that all of a sudden isn't there, one may
+well trip over a data structure that has just been removed. In
+either case, you need to get the synchronization right. What
+I'm proposing is simply to make those two cases more similar,
+such that handling one case correctly also handles the other
+one.
+
+Example:
+
+struct foo *my_data;
+
+int foo_callback()
+{
+	do_something(my_data->blah);
+	...
+}
+
+void foo_exit()
+{
+	deregister(...);
+	kfree(my_data);
+	...
+}
+
+So if "deregister" allows callbacks after it returns, you'll
+still end up getting your oops every once in a while.
+
+Now make this a non-module, and if foo_exit or some equivalent
+can be called for some other reason (e.g. power-down,
+hotplugging, etc.), you a) still have the same problem, and b)
+all the miracle protection of try_module_get has vanished. So
+you have to do the synchronization twice, i.e. on both sides
+of the interface.
+
+> Unfortunately, I don't have the patience to explain this once for
+> every kernel developer.
+
+Sorry for being so persistent. But I really think the module
+situation is rapidly approaching the point where just fixing
+the next bug isn't good enough, but where we need to get back
+to the drawing board, look at the larger picture, and then
+work towards a cleaner solution.
+
+Also, although the task may seem daunting, don't forget that
+even the BLK wasn't removed in a day :-)
+
+- Werner
+
+-- 
+  _________________________________________________________________________
+ / Werner Almesberger, Buenos Aires, Argentina         wa@almesberger.net /
+/_http://www.almesberger.net/____________________________________________/

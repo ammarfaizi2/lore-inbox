@@ -1,124 +1,72 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268473AbTBWOZo>; Sun, 23 Feb 2003 09:25:44 -0500
+	id <S268476AbTBWO7J>; Sun, 23 Feb 2003 09:59:09 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268474AbTBWOZo>; Sun, 23 Feb 2003 09:25:44 -0500
-Received: from oasis.frogfoot.net ([66.8.28.51]:56554 "HELO oasis.frogfoot.net")
-	by vger.kernel.org with SMTP id <S268473AbTBWOZk>;
-	Sun, 23 Feb 2003 09:25:40 -0500
-Date: Sun, 23 Feb 2003 16:34:41 +0200
-From: Abraham van der Merwe <abz@frogfoot.net>
-To: Linux Kernel Mailinlist <linux-kernel@vger.kernel.org>
-Subject: BUG REPORT: bug in eepro100.c driver
-Message-ID: <20030223143441.GA27649@oasis.frogfoot.net>
-Mail-Followup-To: Linux Kernel Mailinlist <linux-kernel@vger.kernel.org>
+	id <S268477AbTBWO7J>; Sun, 23 Feb 2003 09:59:09 -0500
+Received: from [195.223.140.107] ([195.223.140.107]:15750 "EHLO athlon.random")
+	by vger.kernel.org with ESMTP id <S268476AbTBWO7I>;
+	Sun, 23 Feb 2003 09:59:08 -0500
+Date: Sun, 23 Feb 2003 16:09:39 +0100
+From: Andrea Arcangeli <andrea@suse.de>
+To: Andrew Morton <akpm@digeo.com>
+Cc: piggin@cyberone.com.au, wli@holomorphy.com, david.lang@digitalinsight.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: IO scheduler benchmarking
+Message-ID: <20030223150937.GA29467@dualathlon.random>
+References: <20030220212304.4712fee9.akpm@digeo.com> <Pine.LNX.4.44.0302202247110.12601-100000@dlang.diginsite.com> <20030221001624.278ef232.akpm@digeo.com> <20030221103140.GN31480@x30.school.suse.de> <20030221105146.GA10411@holomorphy.com> <20030221110807.GQ31480@x30.school.suse.de> <3E560AE3.8030309@cyberone.com.au> <20030221114143.GS31480@x30.school.suse.de> <20030221132549.14fac60d.akpm@digeo.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="BXVAT5kNtrzKuDFl"
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.3.28i
-Organization: Frogfoot Networks
-X-Operating-System: Debian GNU/Linux oasis 2.4.20-rc1 i686
-X-GPG-Public-Key: http://oasis.frogfoot.net/pgpkeys/keys/frogfoot.gpg
-X-Uptime: 16:28:14 up 53 days,  3:55, 12 users,  load average: 0.03, 0.24, 0.22
-X-Edited-With-Muttmode: muttmail.sl - 2001-09-27
+In-Reply-To: <20030221132549.14fac60d.akpm@digeo.com>
+User-Agent: Mutt/1.4i
+X-GPG-Key: 1024D/68B9CB43
+X-PGP-Key: 1024R/CB4660B9
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, Feb 21, 2003 at 01:25:49PM -0800, Andrew Morton wrote:
+> Andrea Arcangeli <andrea@suse.de> wrote:
+> >
+> > I don't
+> > buy Andrew complaining about the write throttling when he still allows
+> > several dozen mbytes of ram in flight and invisible to the VM,
+> 
+> The 2.5 VM accounts for these pages (/proc/meminfo:Writeback) and throttling
+> decisions are made upon the sum of dirty+writeback pages.
+> 
+> The 2.5 VFS limits the amount of dirty+writeback memory, not just the amount
+> of dirty memory.
+> 
+> Throttling in both write() and the page allocator is fully decoupled from the
+> queue size.  An 8192-slot (4 gigabyte) queue on a 32M machine has been
+> tested.
 
---BXVAT5kNtrzKuDFl
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+the 32M case is probably fine with it, you moved the limit of in-flight
+I/O in the writeback layer, and the write throttling will limit the
+amount of ram in flight to 16M or so. I would be much more interesting
+to see some latency benchmark on a 8G machine with 4G simultaneously
+locked in the I/O queue. a 4G queue on a IDE disk can only waste lots of
+cpu and memory resources, increasing the latency too, without providing
+any benefit. Your 4G queue thing provides only disavantages as far as I
+can tell.
 
-Hi!
+> 
+> The only tasks which block in get_request_wait() are the ones which we want
+> to block there: heavy writers.
+> 
+> Page reclaim will never block page allocators in get_request_wait().  That
+> causes terrible latency if the writer is still active.
+> 
+> Page reclaim will never block a page-allocating process on I/O against a
+> particular disk block.  Allocators are instead throttled against _any_ write
+> I/O completion.  (This is broken in several ways, but it works well enough to
+> leave it alone I think).
 
-I keep getting kernel panics with 2.4.21-pre4 (and 2.4.20). Here is the
-kernel panic (I couldn't cut & paste in the datacenter, so I just wrote down
-the stack trace):
+2.4 on desktop boxes could fill all ram with locked and dirty stuff
+because of the excessive size of the queue, so any comparison with 2.4
+in terms of page reclaim should be repeated on 2.4.21pre4aa3 IMHO, where
+the VM has a chance not to find the machine in collapsed state where the
+only thing it can do is to either wait or panic(), feel free to choose
+what you prefer.
 
-------------< snip <------< snip <------< snip <------------
-root@trillian:~/uni-qos# cat panic.txt
-c0192eb1
-c0176c8c
-c017718c
-c0176afa
-c010810f
-c01082b3
-c0105240
-c0105240
-c0105240
-c0105240
-c0105263
-c01052d2
-c0105000
-c0105027
-
-0f 0b ef 04 e0 87 1e c0 f7 c5 00 04 00 00 74 36 b8 a5 c2 0f
-
-EIP: 0010:c012642e
-ESP: c0221eb4
-
-KERNEL BUG slab.c:1263
-root@trillian:~/uni-qos#
-------------< snip <------< snip <------< snip <------------
-
-A quick objdump through the kernel's vmlinux image reveals, that the stack
-trace above looks as follows:
-
-------------< snip <------< snip <------< snip <------------
-c0192eb1    alloc_skb
-c0176c8c    speedo_refill_rx_buf
-c017718c    speedo_rx
-c0176afa    speedo_interrupt
-c010810f    handle_IRQ_event
-c01082b3    do_IRQ
-c0105240    default_idle
-c0105240    default_idle
-c0105240    default_idle
-c0105240
-c0105263    default_idle
-c01052d2    cpu_idle
-c0105000    rest_init
-c0105027    rest_init
-------------< snip <------< snip <------< snip <------------
-
-It crashes when it hits BUG(); in slab.c:
-
-------------< snip <------< snip <------< snip <------------
-#if DEBUG
-    if (cachep->flags & SLAB_POISON)
-        if (kmem_check_poison_obj(cachep, objp))
-            BUG();
-------------< snip <------< snip <------< snip <------------
-
-Could somebody please tell me what is wrong here and how to fix this?
-
---=20
-
-Regards
- Abraham
-
-It doesn't matter whether you win or lose -- until you lose.
-
-___________________________________________________
- Abraham vd Merwe [ZR1BBQ] - Frogfoot Networks
- P.O. Box 3472, Matieland, Stellenbosch, 7602
- Cell: +27 82 565 4451 Http: http://www.frogfoot.net/
- Email: abz@frogfoot.net
-
-
---BXVAT5kNtrzKuDFl
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.5 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
-
-iD8DBQE+WNwB0jJV70h31dERAic1AJ911sOZ7jAdmgf6GmFV95oEDS4NEgCfcEsw
-uzGFRuQFDLhuQ3CY/xc5am8=
-=dKmN
------END PGP SIGNATURE-----
-
---BXVAT5kNtrzKuDFl--
+Andrea

@@ -1,57 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129737AbQLJLZj>; Sun, 10 Dec 2000 06:25:39 -0500
+	id <S130107AbQLJLlW>; Sun, 10 Dec 2000 06:41:22 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129792AbQLJLZ3>; Sun, 10 Dec 2000 06:25:29 -0500
-Received: from pizda.ninka.net ([216.101.162.242]:14737 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S129737AbQLJLZM>;
-	Sun, 10 Dec 2000 06:25:12 -0500
-Date: Sun, 10 Dec 2000 02:38:28 -0800
-Message-Id: <200012101038.CAA06747@pizda.ninka.net>
-From: "David S. Miller" <davem@redhat.com>
-To: ppetru@ppetru.net
-CC: linux-kernel@vger.kernel.org
-In-Reply-To: <20001210105553.E728@ppetru.net> (message from Petru Paler on
-	Sun, 10 Dec 2000 10:55:53 +0200)
-Subject: Re: sparc64 network-related problems
-In-Reply-To: <20001210105553.E728@ppetru.net>
+	id <S130549AbQLJLlM>; Sun, 10 Dec 2000 06:41:12 -0500
+Received: from c334580-a.snvl1.sfba.home.com ([65.5.27.33]:17169 "HELO
+	mail.hislinuxbox.com") by vger.kernel.org with SMTP
+	id <S130107AbQLJLlF>; Sun, 10 Dec 2000 06:41:05 -0500
+Date: Sun, 10 Dec 2000 03:11:14 -0800 (PST)
+From: "David D.W. Downey" <pgpkeys@hislinuxbox.com>
+To: <linux-kernel@vger.kernel.org>
+Subject: No shared memory??
+Message-ID: <Pine.LNX.4.30.0012100306530.4353-100000@playtoy.hislinuxbox.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   Date: Sun, 10 Dec 2000 10:55:53 +0200
-   From: Petru Paler <ppetru@ppetru.net>
 
-   [5.] Output of Oops.. message (if applicable) with symbolic information
-	resolved (see Documentation/oops-tracing.txt)                                               
+OK, got a tiny little bug here.
 
-   This is only one of the repeated oopses, if you need all of them I will
-   make the logs available.
+When running top, procinfo, or free I get 0 for Shared memory. Obviously
+this is incorrect. What has changed from the 2.2.x and the 2.4.x that
+would cause these apps to misreport this information.
 
-Is this always the _first_ OOPS though?  That is what is important,
-because after the first OOPS all the others are likely just side
-effects of the first one.
+This IS information gained through the /proc filesystem which is kernel
+based is it not? This would seem to make it a kernel issue since the
+change in format is brought about by how the kernel reports this
+information if i understand this correctly.
 
-Anyways, if it is always the first OOPS, the following debugging patch
-may help because this case is the only way that OOPS could possibly
-happen all by itself.
+(If I am wrong, please let me know. I hate laboring under false
+assumptions)
 
---- net/ipv4/tcp.c.~1~	Tue Nov 28 08:33:08 2000
-+++ net/ipv4/tcp.c	Sun Dec 10 02:36:43 2000
-@@ -1014,6 +1014,14 @@
- 
- 			/* Determine how large of a buffer to allocate.  */
- 			tmp = MAX_TCP_HEADER + 15 + tp->mss_cache;
-+#if 1
-+			if (copy > tmp) {
-+				printk("TCP: MSS out of sync copy(%d) tmp(%d) "
-+				       "mss_now(%d) mss_cache(%d)\n",
-+				       copy, tmp, mss_now, tp->mss_cache);
-+				copy = tmp - (MAX_TCP_HEADER + 15);
-+			}
-+#endif
- 			if (copy < mss_now && !(flags & MSG_OOB)) {
- 				/* What is happening here is that we want to
- 				 * tack on later members of the users iovec
+
+How do I fix this problem in any event?
+
+
+David PGPKeys Downey
+
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

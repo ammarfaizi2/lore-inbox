@@ -1,78 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318195AbSGQCUn>; Tue, 16 Jul 2002 22:20:43 -0400
+	id <S318197AbSGQCou>; Tue, 16 Jul 2002 22:44:50 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318196AbSGQCUm>; Tue, 16 Jul 2002 22:20:42 -0400
-Received: from mail.eskimo.com ([204.122.16.4]:42257 "EHLO mail.eskimo.com")
-	by vger.kernel.org with ESMTP id <S318195AbSGQCUl>;
-	Tue, 16 Jul 2002 22:20:41 -0400
-Date: Tue, 16 Jul 2002 19:22:52 -0700
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Zack Weinberg <zack@codesourcery.com>, linux-kernel@vger.kernel.org
-Subject: Re: close return value (was Re: [ANNOUNCE] Ext3 vs Reiserfs benchmarks)
-Message-ID: <20020717022252.GA30570@eskimo.com>
-References: <20020716232225.GH358@codesourcery.com> <1026867782.1688.108.camel@irongate.swansea.linux.org.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1026867782.1688.108.camel@irongate.swansea.linux.org.uk>
-User-Agent: Mutt/1.3.28i
-From: Elladan <elladan@eskimo.com>
+	id <S318199AbSGQCou>; Tue, 16 Jul 2002 22:44:50 -0400
+Received: from gw.lowendale.com.au ([203.26.242.120]:27949 "EHLO
+	marina.lowendale.com.au") by vger.kernel.org with ESMTP
+	id <S318197AbSGQCot>; Tue, 16 Jul 2002 22:44:49 -0400
+Date: Wed, 17 Jul 2002 12:51:49 +1000 (EST)
+From: Neale Banks <neale@lowendale.com.au>
+To: linux-sound@vger.kernel.org
+cc: linux-kernel@vger.kernel.org
+Subject: Ali5451 and MIDI synth
+Message-ID: <Pine.LNX.4.05.10207171247410.1649-100000@marina.lowendale.com.au>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jul 17, 2002 at 02:03:02AM +0100, Alan Cox wrote:
-> On Wed, 2002-07-17 at 00:22, Zack Weinberg wrote:
-> 
-> > There's also an ugly semantic bind if you make close detect errors.
-> > If close returns an error other than EBADF, has that file descriptor
-> > been closed?  The standards do not specify.  If it has not been
-> > closed, you have a descriptor leak.  But if it has been closed, it is
-> > too late to recover from the error.  [As far as I know, Unix
-> > implementations generally do close the descriptor.]
-> 
-> If it bothers you close it again 8)
 
-Consider:
+I'm trying to get MIDI synth happening with the Ali M5451 audio chipset
+(as found in the Toshiba 1800 notebook).
 
-Two threads share the file descriptor table.  
+So far, it appears to me that:
 
-  1. Thread 1 performs close() on a file descriptor.  close fails.
-  2. Thread 2 performs open().
-* 3. Thread 1 performs close() again, just to make sure.
+* linux-2.2 has MIDI support in the code (v0.14.5c of trident.c) - but
+this driver (a) doesn't work for basic audio[1] and (b) doesn't register a
+MIDI synth device (and MIDI players complain of no device).
 
+* linux-2.4 has no MIDI support in the code (v0.14.9d of trident.c) - this
+driver works OK for basic audio.  Oddly, I can't see any mention of the
+MIDI code removal in the driver's history.
 
-open() may return any file descriptor not currently in use.
+* ALSA-0.9 - no MIDI support in the code (alsa-kernel/pci/ali5451/*).
 
-Is step 3 necessary?  Is it dangerous?  The question is, is close
-guaranteed to work, or isn't it?
+Have I missed something here?
 
+Thanks,
+Neale.
 
-Case 1: Close is guaranteed to close the file.
+[1] "doesn't work for basic audio" includes this being logged to kern.log:
 
-Thread 2 may have just re-used the file descriptor.  Thus, Thread 1
-closes a different file in step 3.  Thread 2 is now using a bad file
-descriptor, and becomes very angry because the kernel just said all was
-right with the world, and then claims there was a mistake.  Thread 2
-leaves in a huff.
+	trident: drain_dac, dma timeout?
+
+Interestingly, I can make this go away by first loading and unloading the
+ALSA drivers then loading the OSS drivers.  This makes me suspicious that
+linux-2.2's OSS driver is missing something in the initialisation.
 
 
-Case 2: Close is guaranteed to leave the file open on error.
-
-Thread 2 can't have just re-used the descriptor, so the world is ok in
-that sense.  However, Thread 1 *must* perform step 3, or it leaks a
-descriptor, the tables fill, and the world becomes a frozen wasteland.
-
-
-Case 3: Close may or may not leave it open due to random chance or
-filesystem peculiarities.
-
-Thread 1 may be required to close it twice, or it may be required not to
-close it twice.  It doesn't know!  Night is falling!  The world is in
-flames!  Aaaaaaugh!
-
-
-I believe this demonstrates the need for a standard, one way, or the
-other.  :-)
-
--J

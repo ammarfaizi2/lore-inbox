@@ -1,53 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289167AbSBJBm5>; Sat, 9 Feb 2002 20:42:57 -0500
+	id <S289166AbSBJBlH>; Sat, 9 Feb 2002 20:41:07 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289161AbSBJBmr>; Sat, 9 Feb 2002 20:42:47 -0500
-Received: from iggy.triode.net.au ([203.63.235.1]:20690 "EHLO
-	iggy.triode.net.au") by vger.kernel.org with ESMTP
-	id <S289167AbSBJBmj>; Sat, 9 Feb 2002 20:42:39 -0500
-Date: Sun, 10 Feb 2002 12:42:07 +1100
-From: Linux Kernel Mailing List <kernel@iggy.triode.net.au>
-To: linux-kernel@vger.kernel.org
-Subject: ALI 15X3 DMA Freeze
-Message-ID: <20020210124207.C5191@iggy.triode.net.au>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
+	id <S289161AbSBJBk6>; Sat, 9 Feb 2002 20:40:58 -0500
+Received: from cc5993-b.ensch1.ov.nl.home.com ([212.204.161.160]:20498 "HELO
+	packetstorm.nu") by vger.kernel.org with SMTP id <S289166AbSBJBkr>;
+	Sat, 9 Feb 2002 20:40:47 -0500
+Reply-To: <alex@packetstorm.nu>
+From: "Alex Scheele" <alex@packetstorm.nu>
+To: <chaffee@cs.berkeley.edu>
+Cc: "Dave Jones" <davej@suse.de>, "Lkml" <linux-kernel@vger.kernel.org>
+Subject: [patch][2.5.4-dj4] cleanup to use strsep in 
+Date: Sun, 10 Feb 2002 02:40:40 +0100
+Message-ID: <IOEMLDKDBECBHMIOCKODEEMCCJAA.alex@packetstorm.nu>
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2910.0)
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4807.1700
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I'm using kernel 2.4.18-pre9, which has a problem when I switch DMA on 
-the IDE hard drive. With DMA enabled, I cannot complete a kernel
-compile without the machine locking up. The motherboard is an
-ASUS board, with 512MB of DDR RAM and an Athlon 1800 XP. If I
-turn the ide DMA off, then I can compile as many linux kernels
-as I like with no lockup. This DMA lockup also occurs on other
-2.4.x kernels. Is anyone interested in getting me to test a
-fix for this problem?
+Hi,
 
-Feb 10 10:44:35 solaris kernel: PCI: Using IRQ router ALI [10b9/1533] at 00:07.0
-Feb 10 10:44:35 solaris kernel: ALI15X3: IDE controller on PCI bus 00 dev 20
-Feb 10 10:44:35 solaris kernel: ALI15X3: chipset revision 196
-Feb 10 10:44:35 solaris kernel: ALI15X3: not 100%% native mode: will probe irqs later
-Feb 10 10:44:35 solaris kernel: ALI15X3: ATA-66/100 forced bit set (WARNING)!!
+This patch changes the use of strtok() to strsep().
+Strtok() isn't SMP/thread safe. strsep is considered safer.
 
 
-with dma off  hdparm -Tt /dev/hda gives:
-
-/dev/hda:
- Timing buffer-cache reads:   128 MB in  0.56 seconds =228.57 MB/sec
- Timing buffered disk reads:  64 MB in 14.85 seconds =  4.31 MB/sec
+--
+	Alex (alex@packetstorm.nu)
 
 
-with dma off  hdparm -Tt /dev/hda gives:
-
-/dev/hda:
- Timing buffer-cache reads:   128 MB in  0.49 seconds =261.22 MB/sec
- Timing buffered disk reads:  64 MB in  1.70 seconds = 37.65 MB/sec
-
-
-Cheers.  Paul
+-------------------------- cut here -------------------------
+diff -uN linux-2.5.3-dj4/fs/vfat/namei.c linux/fs/vfat/namei.c
+--- linux-2.5.3-dj4/fs/vfat/namei.c     Mon Jan 28 22:20:44 2002
++++ linux/fs/vfat/namei.c       Sun Feb 10 03:41:26 2002
+@@ -114,7 +114,9 @@
+        save = 0;
+        savep = NULL;
+        ret = 1;
+-       for (this_char = strtok(options,","); this_char; this_char = strtok(NULL,",")) {
++       while ((this_char = strsep(&options,",")) != NULL) {
++               if (!*this_char)
++                       continue;
+                if ((value = strchr(this_char,'=')) != NULL) {
+                        save = *value;
+                        savep = value;
 
 

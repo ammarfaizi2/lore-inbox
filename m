@@ -1,61 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263305AbTJ0RT7 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 27 Oct 2003 12:19:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263311AbTJ0RT7
+	id S263366AbTJ0Rh0 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 27 Oct 2003 12:37:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263420AbTJ0Rh0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 27 Oct 2003 12:19:59 -0500
-Received: from hq.pm.waw.pl ([195.116.170.10]:20938 "EHLO hq.pm.waw.pl")
-	by vger.kernel.org with ESMTP id S263305AbTJ0RT6 (ORCPT
+	Mon, 27 Oct 2003 12:37:26 -0500
+Received: from mail.broadpark.no ([217.13.4.2]:11406 "EHLO mail.broadpark.no")
+	by vger.kernel.org with ESMTP id S263366AbTJ0RhZ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 27 Oct 2003 12:19:58 -0500
-To: "Norman Diamond" <ndiamond@wta.att.ne.jp>
-Cc: "Mudama, Eric" <eric_mudama@Maxtor.com>,
-       "'Hans Reiser '" <reiser@namesys.com>,
-       "'Wes Janzen '" <superchkn@sbcglobal.net>,
-       "'Rogier Wolff '" <R.E.Wolff@BitWizard.nl>,
-       "'John Bradford '" <john@grabjohn.com>, <linux-kernel@vger.kernel.org>,
-       <nikita@namesys.com>, "'Pavel Machek '" <pavel@ucw.cz>,
-       "'Justin Cormack '" <justin@street-vision.com>,
-       "'Vitaly Fertman '" <vitaly@namesys.com>
-Subject: Re: Blockbusting news, results end
-References: <785F348679A4D5119A0C009027DE33C105CDB39C@mcoexc04.mlm.maxtor.com>
-	<3cbb01c39c6f$17608410$24ee4ca5@DIAMONDLX60>
-From: Krzysztof Halasa <khc@pm.waw.pl>
-Date: 27 Oct 2003 11:48:57 +0100
-In-Reply-To: <3cbb01c39c6f$17608410$24ee4ca5@DIAMONDLX60>
-Message-ID: <m3u15vdkh2.fsf@defiant.pm.waw.pl>
+	Mon, 27 Oct 2003 12:37:25 -0500
+Date: Mon, 27 Oct 2003 18:36:37 +0100
+To: linux-kernel@vger.kernel.org
+Subject: Re: kernel 2.6t9 SATA slower than 2.4.20
+References: <3F9D402F.9050509@savages.net> <20031027165916.GE19711@gtf.org>
+From: Arve Knudsen <aknuds-1@broadpark.no>
+Content-Type: text/plain; charset=US-ASCII;
+	format=flowed
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7BIT
+Message-ID: <oprxppvbgvq1sf88@mail.broadpark.no>
+In-Reply-To: <20031027165916.GE19711@gtf.org>
+User-Agent: Opera7.21/Linux M2 build 480
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Norman Diamond" <ndiamond@wta.att.ne.jp> writes:
+On Mon, 27 Oct 2003 11:59:17 -0500, Jeff Garzik <jgarzik@pobox.com> wrote:
 
-> Bingo.  This is why reallocation at the time of a failed read is also
-> necessary.  Yes the data are lost, yes the failure needs to be both logged
-> (once)
+> On Mon, Oct 27, 2003 at 07:56:31AM -0800, Shaun Savage wrote:
+>>
+>>
+>> >Are you using CONFIG_SCSI_SATA in 2.6?
+>>
+>> No, but I am trying now.
+>> GREAT is works,
+>> but the disk went from hda back to hde
+>
+> hmmm, with CONFIG_SCSI_SATA your SATA drives should show up as
+>  /dev/sda not /dev/hde ...
+>
+> So, you're still using the drivers/ide driver, it appears.
+>
+> Regardless, it's most important to use what works for you ;-)
+>
+Excuse me, there's probably something I'm missing, but how do I use the 
+SCSI_SATA driver for SiI 3112? I see the source file for it in the kernel 
+tree (test9), but no option for it in menuconfig (I've enabled SATA under 
+SCSI). Enabling the SiI SATA driver under ATA/ATAPI... compiles in the old 
+driver am I right?
 
-The log entry may be easily lost. Especially when the drive is failing.
+Thanks
 
-> and displayed to the user (once),
-
-To which user??? Hard drive sectors have no users.
-
-> yes if an application reads it
-> again before writing then it will be garbage or zeroes,
-
-I hope drive makers won't take it seriously.
-
-> but get the LBA
-> sector number moved to a place that is less likely to be unreliable.
-
-So you rather want to read garbage than get a real I/O error.
-The only situation I can imagine which benefits from such an approach
-is playing an audio-video stream.
-
-> Meanwhile software must still make up for defective firmware.
-
-Yeah. yeah. Only "if (drive_is_toshiba()) BUG()" comes to my mind.
--- 
-Krzysztof Halasa, B*FH
+Arve Knudsen

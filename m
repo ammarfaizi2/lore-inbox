@@ -1,50 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S270619AbUJUEZ4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S270277AbUJUEPW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270619AbUJUEZ4 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 21 Oct 2004 00:25:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270629AbUJUEZk
+	id S270277AbUJUEPW (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 21 Oct 2004 00:15:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270580AbUJUEOH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 21 Oct 2004 00:25:40 -0400
-Received: from adsl-63-197-226-105.dsl.snfc21.pacbell.net ([63.197.226.105]:58786
-	"EHLO cheetah.davemloft.net") by vger.kernel.org with ESMTP
-	id S270613AbUJUEYz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 21 Oct 2004 00:24:55 -0400
-Date: Wed, 20 Oct 2004 21:09:38 -0700
-From: "David S. Miller" <davem@davemloft.net>
-To: jt@hpl.hp.com
-Cc: jt@bougret.hpl.hp.com, shemminger@osdl.org, akpm@osdl.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 2.6 IrDA] Stir driver usb reset fix
-Message-Id: <20041020210938.2a8e38d1.davem@davemloft.net>
-In-Reply-To: <20041020225418.GA26559@bougret.hpl.hp.com>
-References: <20041020010733.GJ12932@bougret.hpl.hp.com>
-	<20041020155349.4514de82.akpm@osdl.org>
-	<20041020225418.GA26559@bougret.hpl.hp.com>
-X-Mailer: Sylpheed version 0.9.12 (GTK+ 1.2.10; sparc-unknown-linux-gnu)
-X-Face: "_;p5u5aPsO,_Vsx"^v-pEq09'CU4&Dc1$fQExov$62l60cgCc%FnIwD=.UF^a>?5'9Kn[;433QFVV9M..2eN.@4ZWPGbdi<=?[:T>y?SD(R*-3It"Vj:)"dP
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Thu, 21 Oct 2004 00:14:07 -0400
+Received: from 209-128-98-078.BAYAREA.NET ([209.128.98.78]:10394 "EHLO
+	terminus.zytor.com") by vger.kernel.org with ESMTP id S270460AbUJUELQ
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 21 Oct 2004 00:11:16 -0400
+Message-ID: <417736C0.8040102@zytor.com>
+Date: Wed, 20 Oct 2004 21:10:40 -0700
+From: "H. Peter Anvin" <hpa@zytor.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040803
+X-Accept-Language: en, sv, es, fr
+MIME-Version: 1.0
+To: Michael Clark <michael@metaparadigm.com>
+CC: Chris Friesen <cfriesen@nortelnetworks.com>, linux-kernel@vger.kernel.org
+Subject: Re: UDP recvmsg blocks after select(), 2.6 bug?
+References: <20041016062512.GA17971@mark.mielke.cc> <MDEHLPKNGKAHNMBLJOLKMEONPAAA.davids@webmaster.com> <20041017133537.GL7468@marowsky-bree.de> <cl6lfq$jlg$1@terminus.zytor.com> <4176DF84.4050401@nortelnetworks.com> <4176E001.1080104@zytor.com> <41772674.50403@metaparadigm.com>
+In-Reply-To: <41772674.50403@metaparadigm.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 20 Oct 2004 15:54:18 -0700
-Jean Tourrilhes <jt@bougret.hpl.hp.com> wrote:
-
-> On Wed, Oct 20, 2004 at 03:53:49PM -0700, Andrew Morton wrote:
-> > Jean Tourrilhes <jt@bougret.hpl.hp.com> wrote:
-> > >
-> > > 	o [CORRECT] stir4200 - get rid of reset on speed change
-> > > The Sigmatel 4200 doesn't accept the address setting which gets done on
-> > > USB reset.  The USB core recently changed to resend address (or
-> > > something like that), so usb_reset_device is failing.
-> > 
-> > This needs fixups due to competing changes.  Please review:
+Michael Clark wrote:
+>>
+>> Doing work twice can hardly be considered The Right Thing.
 > 
-> 	Do you want to take care of that and forward a new patch
-> directly to Andrew ?
+> Optimisations that break documented interfaces and age old assumptions
+> can hardly be considered The Right Thing :)
 
-Andrew/Jeff, I can work on the integration of all of Jean's
-patches and I can also resolve all the conflicts myself.
+The whole point is that it doesn't break the *documented* interface.
 
-Ok?
+	-hpa

@@ -1,53 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263171AbTDBVte>; Wed, 2 Apr 2003 16:49:34 -0500
+	id <S263158AbTDBVxE>; Wed, 2 Apr 2003 16:53:04 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263168AbTDBVte>; Wed, 2 Apr 2003 16:49:34 -0500
-Received: from 217-125-129-224.uc.nombres.ttd.es ([217.125.129.224]:36334 "HELO
-	cocodriloo.com") by vger.kernel.org with SMTP id <S263171AbTDBVsd>;
-	Wed, 2 Apr 2003 16:48:33 -0500
-Date: Thu, 3 Apr 2003 00:07:34 +0200
-From: Antonio Vargas <wind@cocodriloo.com>
-To: Robert Love <rml@tech9.net>
-Cc: Antonio Vargas <wind@cocodriloo.com>,
-       William Lee Irwin III <wli@holomorphy.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: fairsched + O(1) process scheduler
-Message-ID: <20030402220734.GC13168@wind.cocodriloo.com>
-References: <20030401125159.GA8005@wind.cocodriloo.com> <20030401164126.GA993@holomorphy.com> <20030401221927.GA8904@wind.cocodriloo.com> <20030402124643.GA13168@wind.cocodriloo.com> <20030402163512.GC993@holomorphy.com> <20030402213629.GB13168@wind.cocodriloo.com> <1049319300.2872.21.camel@localhost>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1049319300.2872.21.camel@localhost>
-User-Agent: Mutt/1.3.28i
+	id <S263173AbTDBVxE>; Wed, 2 Apr 2003 16:53:04 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:31498 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S263158AbTDBVxD>; Wed, 2 Apr 2003 16:53:03 -0500
+To: linux-kernel@vger.kernel.org
+From: "H. Peter Anvin" <hpa@zytor.com>
+Subject: Re: 64-bit kdev_t - just for playing
+Date: 2 Apr 2003 14:03:58 -0800
+Organization: Transmeta Corporation, Santa Clara CA
+Message-ID: <b6fmoe$nvt$1@cesium.transmeta.com>
+References: <200303311541.50200.pbadari@us.ibm.com> <Pine.LNX.4.44.0304021413210.12110-100000@serv> <200304020931.38671.pbadari@us.ibm.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Disclaimer: Not speaking for Transmeta in any way, shape, or form.
+Copyright: Copyright 2003 H. Peter Anvin - All Rights Reserved
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Apr 02, 2003 at 04:35:00PM -0500, Robert Love wrote:
-> On Wed, 2003-04-02 at 16:36, Antonio Vargas wrote:
+Followup to:  <200304020931.38671.pbadari@us.ibm.com>
+By author:    Badari Pulavarty <pbadari@us.ibm.com>
+In newsgroup: linux.dev.kernel
 > 
-> > I've been thinking about this thing a while ago, and I think I could do this:
-> > 
-> > a. Have a kernel thread which wakes up on each tick.
+> Roman,
 > 
-> Why not use the timer tick itself?  It already calls scheduler_tick()...
+> Here is the patch for sd to allow more than 256 disks.
+> There are few issues with the patch that need to be resolved.
 > 
-> Oh, because you need to grab uidhash_lock?  Ew.  Needing a kernel thread
-> for this is not pretty.
-
-Hmmm, we had some way for executing code just after an interrupt,
-but outside interrupt scope... was it a bottom half? Can you
-point me to some place where it's done?
- 
-> > Also, this locking rule means I can't even read current->user->time_slice?
-> > What if I changed the type to an atomic_int?
+> 1) With the patch I get 16 bits for minor. Since 4 bits are used for
+> partition, we get 12 bits to represent disks. So each major can support
+> 2^12 =3D 4096 disks. Disks 0 - 4095 are mapped to major=3D8,=20
+> disks 4096 - 8191 to major =3D 65 and so on..
 > 
-> You can always read a single word-sized type atomically.  No need for
-> atomic_t's.
+> This means ..
+> 
+> (i) I need to create nodes in /dev/ to match new <major, minor> for=20
+> these disks.  Currently "mknod" is broken due to glibc issues with dev_t.
+> 
+> (ii) We need to worry about backward compatibility. For example:
+> 17th disk used to have <65, 0>. Now its major, minor is <8, 256>.
+> So /dev/ entires need to be re-created to match these, everytime
+> you reboot 2.4/2.5 etc. Greg KH udev might fix this for us.=20
+> 
+> 2) Do we still need 16 majors for disks ?
+> 
 
-Ok, I did know m68k can do it, but wasn't sure about all other arches :)
+No, we don't.  On the other hand, we really should change to 64
+partitions/disk, same as for non-SCSI disks.  16 really is too small.
 
-Btw, I'm testing the patch using UML and besides I don't have any SMP
-machine, hope any of you can test it when it looks good :)
+	-hpa
 
-Greets, Antonio
+-- 
+<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
+"Unix gives you enough rope to shoot yourself in the foot."
+Architectures needed: ia64 m68k mips64 ppc ppc64 s390 s390x sh v850 x86-64

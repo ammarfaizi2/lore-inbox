@@ -1,45 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262651AbTJAXRw (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Oct 2003 19:17:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262661AbTJAXRw
+	id S262635AbTJAXWS (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Oct 2003 19:22:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262652AbTJAXWS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Oct 2003 19:17:52 -0400
-Received: from nat-pool-bos.redhat.com ([66.187.230.200]:30558 "EHLO
-	chimarrao.boston.redhat.com") by vger.kernel.org with ESMTP
-	id S262651AbTJAXRu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Oct 2003 19:17:50 -0400
-Date: Wed, 1 Oct 2003 19:17:44 -0400 (EDT)
-From: Rik van Riel <riel@redhat.com>
-X-X-Sender: riel@chimarrao.boston.redhat.com
-To: Chris Wright <chrisw@osdl.org>
-cc: James Morris <jmorris@redhat.com>, <torvalds@osdl.org>, <greg@kroah.com>,
-       <linux-kernel@vger.kernel.org>, <vserver@solucorp.qc.ca>
-Subject: Re: sys_vserver
-In-Reply-To: <20031001161442.B14425@osdlab.pdx.osdl.net>
-Message-ID: <Pine.LNX.4.44.0310011916260.4454-100000@chimarrao.boston.redhat.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Wed, 1 Oct 2003 19:22:18 -0400
+Received: from fw.osdl.org ([65.172.181.6]:40608 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S262635AbTJAXWR (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 1 Oct 2003 19:22:17 -0400
+Date: Wed, 1 Oct 2003 16:21:41 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Konstantin Kletschke <konsti@ludenkalle.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Date/UnixTime of SysRq state dump
+Message-Id: <20031001162141.278442d7.akpm@osdl.org>
+In-Reply-To: <20031001182859.GA4081%konsti@ludenkalle.de>
+References: <20031001182859.GA4081%konsti@ludenkalle.de>
+X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 1 Oct 2003, Chris Wright wrote:
-> * James Morris (jmorris@redhat.com) wrote:
-> > I think virtualization is important/useful enough to warrant an API of
-> > it's own.  It could be similar to LSM, e.g.  allow pluggable
-> > virtualization modules, with no cost for the base kernel.
+Konstantin Kletschke <konsti@ludenkalle.de> wrote:
+>
+> I know my machine as a rockstable P4 Computer, since
+> linux-2.6.0-test5-mm4 it freezes once a day.
+> ...
 > 
-> Doesn't sound like 2.6 material.
+> I have the state dump, catched via serial line at
+> http://ludenkalle.de/capture-2003-09-30-linux-2.6.0-test5-mm4.log
 
-Maybe not, but it does sound like something we want to be
-ready by the time 2.7 is forked ;)
+Well it is stuck here:
 
-Also, some parts of the virtualisation code might be 2.6
-material after all, depending on how simple/complex the
-code in question is.
+mpd           R current  17897  17786 17898               (NOTLB)
+c010de4a 00000000 c0375000 00000001 00000001 00000000 c011de24 eaea56a0 
+       00000040 00000000 c011de24 eaea56a0 c02eebbb cdd7be20 00000000 00000040 
+       00000010 4037c480 4037c440 eaea56a0 eaea56a0 00000000 cdd7007b 0000007b 
+Call Trace:
+ [<c010de4a>] do_IRQ+0x24a/0x393
+ [<c011de24>] do_page_fault+0x0/0x4fc
+ [<c011de24>] do_page_fault+0x0/0x4fc
+ [<c02eebbb>] error_code+0x2f/0x38
+ [<c01f28fc>] __copy_from_user_ll+0x44/0x6c
+ [<f09debdf>] snd_pcm_lib_write_transfer+0x93/0x117 [snd_pcm]
+ [<f09df1c1>] snd_pcm_lib_write1+0x55e/0xa42 [snd_pcm]
+ [<c025a281>] freed_request+0xa1/0xa9
+ [<c0120cac>] default_wake_function+0x0/0x2e
+ [<f09df757>] snd_pcm_lib_write+0xb2/0x173 [snd_pcm]
+ [<f09deb4c>] snd_pcm_lib_write_transfer+0x0/0x117 [snd_pcm]
+ [<f09d8b4a>] snd_pcm_playback_ioctl1+0x585/0x674 [snd_pcm]
+ [<c01321e2>] do_timer+0xdf/0xe4
+ [<c02eeb1e>] apic_timer_interrupt+0x1a/0x20
+ [<f09d90e8>] snd_pcm_playback_ioctl+0x0/0x8d [snd_pcm]
+ [<c018dce2>] sys_ioctl+0x214/0x406
+ [<c02ee18f>] syscall_call+0x7/0xb
 
--- 
-"Debugging is twice as hard as writing the code in the first place.
-Therefore, if you write the code as cleverly as possible, you are,
-by definition, not smart enough to debug it." - Brian W. Kernighan
+it might be coincidence, it might not be.  Please gather another sysrq
+trace next time it happens, just like that one.
 

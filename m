@@ -1,45 +1,33 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264646AbSKSIZ7>; Tue, 19 Nov 2002 03:25:59 -0500
+	id <S264683AbSKSIkF>; Tue, 19 Nov 2002 03:40:05 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264653AbSKSIZ7>; Tue, 19 Nov 2002 03:25:59 -0500
-Received: from smtp-out-2.wanadoo.fr ([193.252.19.254]:25236 "EHLO
-	mel-rto2.wanadoo.fr") by vger.kernel.org with ESMTP
-	id <S264646AbSKSIZ7>; Tue, 19 Nov 2002 03:25:59 -0500
-From: Duncan Sands <baldrick@wanadoo.fr>
-To: Rik van Riel <riel@conectiva.com.br>, deepak <dxbadami@wichita.edu>
-Subject: Re: patch
-Date: Tue, 19 Nov 2002 08:33:20 +0100
-User-Agent: KMail/1.4.7
-Cc: linux-kernel@vger.kernel.org
-References: <Pine.LNX.4.44L.0211182119470.4103-100000@imladris.surriel.com>
-In-Reply-To: <Pine.LNX.4.44L.0211182119470.4103-100000@imladris.surriel.com>
+	id <S264686AbSKSIkF>; Tue, 19 Nov 2002 03:40:05 -0500
+Received: from bay-bridge.veritas.com ([143.127.3.10]:56693 "EHLO
+	mtvmime02.veritas.com") by vger.kernel.org with ESMTP
+	id <S264683AbSKSIkE>; Tue, 19 Nov 2002 03:40:04 -0500
+Message-ID: <3DD9FB12.1050108@veritas.com>
+Date: Tue, 19 Nov 2002 14:19:22 +0530
+From: "Amit S. Kale" <akale@veritas.com>
+Organization: Veritas Software (India)
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.4) Gecko/20011126 Netscape6/6.2.1
+X-Accept-Language: en-us
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 8bit
-Content-Disposition: inline
-Message-Id: <200211190833.20443.baldrick@wanadoo.fr>
+To: linux-kernel@vger.kernel.org, Linus Torvalds <torvalds@transmeta.com>
+CC: akpm@digeo.com, sflory@rackable.com
+Subject: Re: lan based kgdb
+References: <20021117095632.GN4545@lug-owl.de> <1037544804.4334.21.camel@irongate.swansea.linux.org.uk>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 19 November 2002 00:20, Rik van Riel wrote:
-> On Mon, 18 Nov 2002, deepak wrote:
-> > how do i uninstall a patch
->
-> $ man patch
-> ...
->        -R  or  --reverse
->           Assume that this patch was created with the old and new
->           files swapped.  (Yes, I'm afraid that does happen occa­
->           sionally,  human  nature  being  what  it  is.)   patch
->           attempts  to  swap each hunk around before applying it.
->           Rejects come out in the swapped format.  The -R  option
-> 	  ...
->
-> Next time you should read the man page yourself ;)
+Looks like there is a lot of interset in lan based kgdb.
+I've got the kgdb patch with lan written by San, thanks to Samuel Flory.
 
-Come on, be fair.  This text is pretty obscure.  If you didn't know so
-already, would you understand from it that -R undoes a patch?
+I'll integrate the patch into mainline kgdb 
+(http://kgdb.sourceforge.net/) and release it asap.
+-- 
+Amit Kale
+Veritas Software India ( http://www.veritasindia.com/ )
 
-Duncan.

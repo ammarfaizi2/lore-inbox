@@ -1,35 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263229AbUDGNOW (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 Apr 2004 09:14:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263271AbUDGNOW
+	id S263354AbUDGNRj (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 Apr 2004 09:17:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263394AbUDGNRj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 Apr 2004 09:14:22 -0400
-Received: from zork.zork.net ([64.81.246.102]:30943 "EHLO zork.zork.net")
-	by vger.kernel.org with ESMTP id S263229AbUDGNOW (ORCPT
+	Wed, 7 Apr 2004 09:17:39 -0400
+Received: from ns.suse.de ([195.135.220.2]:49561 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S263354AbUDGNRh (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 Apr 2004 09:14:22 -0400
-To: "Mohamed Aslan" <mkernel@linuxmail.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Rewrite Kernel
-References: <20040407125406.209FC39834A@ws5-1.us4.outblaze.com>
-From: Sean Neakums <sneakums@zork.net>
-Mail-Followup-To: "Mohamed Aslan" <mkernel@linuxmail.org>,
- linux-kernel@vger.kernel.org
-Date: Wed, 07 Apr 2004 14:13:54 +0100
-In-Reply-To: <20040407125406.209FC39834A@ws5-1.us4.outblaze.com> (Mohamed
- Aslan's message of "Wed, 07 Apr 2004 20:54:06 +0800")
-Message-ID: <6un05oszfx.fsf@zork.zork.net>
-User-Agent: Gnus/5.110002 (No Gnus v0.2) Emacs/21.3 (gnu/linux)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Wed, 7 Apr 2004 09:17:37 -0400
+Subject: Re: [PATCH] reiserfs v3 fixes and features
+From: Chris Mason <mason@suse.com>
+To: Chris Wright <chrisw@osdl.org>
+Cc: linux-kernel@vger.kernel.org, akpm@osdl.org
+In-Reply-To: <20040406190034.E22989@build.pdx.osdl.net>
+References: <1081274618.30828.30.camel@watt.suse.com>
+	 <20040406190034.E22989@build.pdx.osdl.net>
+Content-Type: text/plain
+Message-Id: <1081343972.30828.528.camel@watt.suse.com>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Wed, 07 Apr 2004 09:19:32 -0400
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Mohamed Aslan" <mkernel@linuxmail.org> writes:
+On Tue, 2004-04-06 at 22:00, Chris Wright wrote:
 
-> i wanna to rewrite a version of linux kernel from scratch in assembly for intel 386+ fo speed and a libc also in assembly for speed
-> what do u think guys
+> Would you consider adding the bd_claim on external journal bdev I posted
+> a while back?  Hans didn't seem to flat out reject, and you agreed one
+> journal per bdev was sufficient.
+> 
+> Patch below, updated to 2.6.5-linus, and applies with fuzz atop your
+> series.linus.  I also have the reiserfsprogs update if you're interested.
 
-Why not just write a program to translate 'C' code into assembly?
+I don't remember anyone having a problem with it, you'll need some
+language at the top of the patch giving Hans the copyright on it.
+
+-chris
+
 

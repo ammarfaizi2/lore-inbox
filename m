@@ -1,52 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262003AbSJZJBz>; Sat, 26 Oct 2002 05:01:55 -0400
+	id <S262019AbSJZJT7>; Sat, 26 Oct 2002 05:19:59 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262006AbSJZJBz>; Sat, 26 Oct 2002 05:01:55 -0400
-Received: from gateway-1237.mvista.com ([12.44.186.158]:17652 "EHLO
-	av.mvista.com") by vger.kernel.org with ESMTP id <S262003AbSJZJBy>;
-	Sat, 26 Oct 2002 05:01:54 -0400
-Message-ID: <3DBA5B60.1C7C4786@mvista.com>
-Date: Sat, 26 Oct 2002 02:07:44 -0700
-From: george anzinger <george@mvista.com>
-Organization: Monta Vista Software
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.2.12-20b i686)
-X-Accept-Language: en
+	id <S262020AbSJZJT7>; Sat, 26 Oct 2002 05:19:59 -0400
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:34867 "EHLO
+	frodo.biederman.org") by vger.kernel.org with ESMTP
+	id <S262019AbSJZJT6>; Sat, 26 Oct 2002 05:19:58 -0400
+To: Mike Galbraith <efault@gmx.de>
+Cc: robert w hall <bobh@n-cantrell.demon.co.uk>,
+       Thomas Molina <tmolina@cox.net>, linux-kernel@vger.kernel.org
+Subject: Re: loadlin with 2.5.?? kernels
+References: <5.1.0.14.2.20021026064044.00b9a310@pop.gmx.net>
+	<m1bs5in1zh.fsf@frodo.biederman.org>
+	<5.1.0.14.2.20021020192952.00b95e80@pop.gmx.net>
+	<5.1.0.14.2.20021021192410.00b4ffb8@pop.gmx.net>
+	<m18z0os1iz.fsf@frodo.biederman.org>
+	<007501c27b37$144cf240$6400a8c0@mikeg>
+	<m1bs5in1zh.fsf@frodo.biederman.org>
+	<5.1.0.14.2.20021026064044.00b9a310@pop.gmx.net>
+	<5.1.0.14.2.20021026073915.00b55008@pop.gmx.net>
+From: ebiederm@xmission.com (Eric W. Biederman)
+Date: 26 Oct 2002 03:24:16 -0600
+In-Reply-To: <5.1.0.14.2.20021026073915.00b55008@pop.gmx.net>
+Message-ID: <m1vg3plfi7.fsf@frodo.biederman.org>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.1
 MIME-Version: 1.0
-To: landley@trommello.org
-CC: jim.houston@ccur.com, linux-kernel@vger.kernel.org
-Subject: Re: highres timers question...
-References: <3DB88F6D.F408FF06@ccur.com> <200210251353.58577.landley@trommello.org>
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Rob Landley wrote:
-> 
-> I'm guessing that of the patches here:
-> 
-> http://sourceforge.net/projects/high-res-timers
-> 
-> The -posix one adds posix support on top of the base high-res timers patch?
-> 
-> (Did I guess right?)
+Mike Galbraith <efault@gmx.de> writes:
 
-Uh, no.  We made the command decision that even IF he does
-not let in the high-res stuff we would like the POSIX API in
-the kernel.  Thus the patches are structured to require the
-POSIX patch first.  This can be changed if need be, but that
-is the way it is now.
+> At 11:20 PM 10/25/2002 -0600, Eric W. Biederman wrote:
+> >Mike Galbraith <efault@gmx.de> writes:
+> >
+> > > I went back and double-checked my loadlin version, and it turned out I was
+> > > actually using 1.6a due to a fat finger.  Version 1.6c booted fine (only one
 > 
-> Rob
+> > > kernel tested) without Eric's help.  1.6a definitely needs Eric's help to
+> > boot.
+> >
+> >Darn.  I guess the arguments for my patch may not be quite as good,
+> >but I still think it may be worth while.
 > 
-> --
-> http://penguicon.sf.net - Terry Pratchett, Eric Raymond, Pete Abrams, Illiad,
-> CmdrTaco, liquid nitrogen ice cream, and caffienated jello.  Well why not?
+> Well, cleanup is always a pretty fine argument.  Since there only seem to be two
+> 
+> of us loadlin users, you probably didn't loose much argument wise ;-) The other
+> 
+> loadlin user reported failure at .38, so maybe your patch is needed sometimes
+> even with loadlin-1.6c.  (other loadlin user listening?)
 
--- 
-George Anzinger   george@mvista.com
-High-res-timers: 
-http://sourceforge.net/projects/high-res-timers/
-Preemption patch:
-http://www.kernel.org/pub/linux/kernel/people/rml
+Robert thanks for your reply.
+
+I just looked at what the loadlin 1.6c code does, and it's heuristic
+is just slightly more reliable.  It assumes %ds is %cs+8....  That
+happens to work but there is nothing in the kernel keeping that from
+being broken.  So in practice it looks to be worthwhile to stabilize 
+this interface.  So loadlin, and other bootloaders can work by design
+and not by chance.
+
+Eric

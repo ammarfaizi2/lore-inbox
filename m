@@ -1,47 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317194AbSHJSlD>; Sat, 10 Aug 2002 14:41:03 -0400
+	id <S317232AbSHJStG>; Sat, 10 Aug 2002 14:49:06 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317209AbSHJSlD>; Sat, 10 Aug 2002 14:41:03 -0400
-Received: from dsl-213-023-020-194.arcor-ip.net ([213.23.20.194]:64919 "EHLO
-	starship") by vger.kernel.org with ESMTP id <S317194AbSHJSlD>;
-	Sat, 10 Aug 2002 14:41:03 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Daniel Phillips <phillips@arcor.de>
-To: Linus Torvalds <torvalds@transmeta.com>
-Subject: Re: [patch 6/12] hold atomic kmaps across generic_file_read
-Date: Sat, 10 Aug 2002 20:46:10 +0200
-X-Mailer: KMail [version 1.3.2]
-Cc: Andrew Morton <akpm@zip.com.au>, lkml <linux-kernel@vger.kernel.org>
-References: <Pine.LNX.4.44.0208101119320.2197-100000@home.transmeta.com>
-In-Reply-To: <Pine.LNX.4.44.0208101119320.2197-100000@home.transmeta.com>
+	id <S317251AbSHJStG>; Sat, 10 Aug 2002 14:49:06 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:41743 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S317232AbSHJStF>;
+	Sat, 10 Aug 2002 14:49:05 -0400
+Message-ID: <3D556101.8080006@mandrakesoft.com>
+Date: Sat, 10 Aug 2002 14:52:49 -0400
+From: Jeff Garzik <jgarzik@mandrakesoft.com>
+Organization: MandrakeSoft
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.0) Gecko/20020510
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <E17dbFa-0001a5-00@starship>
+To: Linus Torvalds <torvalds@transmeta.com>
+CC: Jamie Lokier <lk@tantalophile.demon.co.uk>,
+       Andrew Morton <akpm@zip.com.au>, lkml <linux-kernel@vger.kernel.org>
+Subject: Re: [patch 6/12] hold atomic kmaps across generic_file_read
+References: <Pine.LNX.4.44.0208101134510.2197-100000@home.transmeta.com>
+X-Enigmail-Version: 0.65.0.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=US-ASCII; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Saturday 10 August 2002 20:32, Linus Torvalds wrote:
-> On Sat, 10 Aug 2002, Daniel Phillips wrote:
-> > I'm sure you're aware there's a lot more you can do with these tricks
-> > than just zero-copy read - there's zero-copy write as well, and there
-> > are both of the above, except a full pte page at a time.  There could
-> > even be a file to file copy if there were an interface for it.
+Linus Torvalds wrote:
+> And read() is often the much nicer interface, simply because you don't
+> need to worry about the size of the file up-front etc.
 > 
-> The file-to-file copy is really nasty to do, for the simple reason that
-> one page really wants to have just one "owner". So while doing a
-> file-to-file copy is certainly possible, it tends to imply removing the
-> cached page from the source and inserting it into the destination.
+> Also, because of the delayed nature of mmap()/fault, it has some strange
+> behaviour if somebody is editing your file in the middle of the compile -
+> with read() you might get strange syntax errors if somebody changes the
+> file half-way, but with mmap() your preprocessor may get a SIGSEGV in the
+> middle just because the file was truncated..
 > 
-> Which is the right thing to do for streaming copies, but the _wrong_ thing 
-> to do if the source is then used again.
+> In general, I think read() tends to be the right (and simpler) interface
+> to use if you don't explicitly want to take advantage of the things mmap
+> offers (on-demand mappings, no-write-back pageouts, VM coherency etc).
 
-If the source is only used for reading it's fine, and you'd know that in
-advance if the file is opened r/o.
 
-I will admit that this one is pretty far out there, there is just a ton of 
-meat and potatoes cleanup work to do before these deathray-type features get 
-to the top of the stack.  But when they do, it's going to be fun.
 
--- 
-Daniel
+While working on a race-free rewrite of cp/mv/rm (suggested by Al), I 
+did overall-time benchmarks on read+write versus sendfile/stat versus 
+mmap/stat, and found that pretty much the fastest way under Linux 2.2, 
+2.4, and solaris was read+write of PAGE_SIZE, or PAGE_SIZE*2 chunks. 
+[obviously, 2.2 and solaris didn't do sendfile test]
+
+The overhead of the extra stat and mmap/munmap syscalls seemed to be the 
+thing that slowed things down.  sendfile was pretty fast, but still an 
+extra syscall, with an annoyingly large error handling case [only 
+certain files can be sendfile'd]
+
+I sure would like an O_STREAMING flag, though...  let a user app hint to 
+the system that the pages it is reading or writing are perhaps less 
+likely to be reused, or access randomly....  A copy-file syscall would 
+be nice, too, but that's just laziness talking....
+
+	Jeff
+
+
+

@@ -1,86 +1,74 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267363AbTGWKgI (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Jul 2003 06:36:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267401AbTGWKgI
+	id S267401AbTGWKhW (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Jul 2003 06:37:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267576AbTGWKgu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Jul 2003 06:36:08 -0400
-Received: from pat.ukc.ac.uk ([129.12.21.15]:36075 "EHLO pat")
-	by vger.kernel.org with ESMTP id S267363AbTGWKgC (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Jul 2003 06:36:02 -0400
-To: Andre Hedrick <andre@linux-ide.org>
-Cc: "Adam J. Richter" <adam@yggdrasil.com>, andersen@codepoet.org,
-       jgarzik@pobox.com, linux-kernel@vger.kernel.org
+	Wed, 23 Jul 2003 06:36:50 -0400
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:10464 "HELO
+	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
+	id S267542AbTGWKgp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 23 Jul 2003 06:36:45 -0400
+Date: Wed, 23 Jul 2003 12:51:46 +0200
+From: Adrian Bunk <bunk@fs.tum.de>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Andre Hedrick <andre@linux-ide.org>,
+       "Adam J. Richter" <adam@yggdrasil.com>, andersen@codepoet.org,
+       jgarzik@pobox.com,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
 Subject: Re: Promise SATA driver GPL'd
-References: <Pine.LNX.4.10.10307222219300.10927-100000@master.linux-ide.org>
-From: Adam Sampson <azz@us-lot.org>
-Organization: Don't wake me, 'cos I'm dreaming, and I might just stay inside
- again today.
-Date: Wed, 23 Jul 2003 11:40:37 +0100
-In-Reply-To: <Pine.LNX.4.10.10307222219300.10927-100000@master.linux-ide.org> (Andre
- Hedrick's message of "Tue, 22 Jul 2003 22:28:26 -0700 (PDT)")
-Message-ID: <y2a8yqpeday.fsf@cartman.at.fivegeeks.net>
-User-Agent: Gnus/5.1002 (Gnus v5.10.2) Emacs/21.3 (gnu/linux)
-MIME-Version: 1.0
+Message-ID: <20030723105146.GB26422@fs.tum.de>
+References: <200307230512.h6N5CXQ10468@adam.yggdrasil.com> <Pine.LNX.4.10.10307222219300.10927-100000@master.linux-ide.org> <20030723090847.GZ26422@fs.tum.de> <1058956149.5520.10.camel@dhcp22.swansea.linux.org.uk>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-X-UKC-Mail-System: No virus detected
+Content-Disposition: inline
+In-Reply-To: <1058956149.5520.10.camel@dhcp22.swansea.linux.org.uk>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andre Hedrick <andre@linux-ide.org> writes:
+On Wed, Jul 23, 2003 at 11:29:10AM +0100, Alan Cox wrote:
+> On Mer, 2003-07-23 at 10:08, Adrian Bunk wrote:
+> > There are _many_ people that have a copyright on parts of the Linux
+> > kernel (the exact number might be different in different countries due
+> > to different copyright laws). To change the copyright to anything other
+> > than GPL v2 is practically impossible (even if a new version of the GPL
+> > might fix the deficits you mentioned).
+> 
+> v2 or later. The GPL only permits "any version" or "n or later".
 
-> To bad people do not see the lameness of GPL and the superior
-> quality of OSL.
+Section 9 of the GPL says:
 
->From a not-a-lawyer viewpoint, there's one major thing that concerns
-me about the OSL 1.1 (the text of which is available on
-opensource.org):
+<--  snip  -->
 
-  If You distribute copies of the Original Work or a Derivative Work,
-  You must make a reasonable effort under the circumstances to obtain
-  the express and volitional assent of recipients to the terms of this
-  License.
+The Free Software Foundation may publish revised and/or new versions of
+the General Public License from time to time.  Such new versions will be
+similar in spirit to the present version, but may differ in detail to
+address new problems or concerns.
 
-This "click-wrap" requirement sounds like it would cause problems for
-mirror sites; we'd have to either make our users accept that there
-might be software licensed under the OSL somewhere on the site before
-browsing any of it -- which is ridiculous, since the vast majority of
-our mirrored software isn't under such a license -- or scan all
-software we mirror for OSL licenses and require acceptance on a
-per-file basis, which would be possible, but a reasonably large amount
-of development work, and annoying both for users and for other sites
-mirroring from us.
+Each version is given a distinguishing version number.  If the Program
+specifies a version number of this License which applies to it and "any
+later version", you have the option of following the terms and
+conditions either of that version or of any later version published by
+the Free Software Foundation.  If the Program does not specify a version
+number of this License, you may choose any version ever published by the
+Free Software Foundation.
 
-In particular, how are we meant to enforce this for an FTP or rsync
-server? We can put "Downloading software under the terms of the OSL
-requires acceptance of the terms; logging in to this server indicates
-your acceptance of these terms" or something similar in our
-message-of-the-day, but that doesn't seem like "expressing assent"
-when we know full well that the majority of FTP users won't get shown
-the MOTD.
+<--  snip  -->
 
-Now, we could argue that just putting a notice in our terms and
-conditions saying that we might have OSL-licensed software would be a
-"reasonable effort", but there's no guarantee that the copyright owner
-would consider this reasonable, and it certainly doesn't seem
-compliant with the spirit of the license. (Essentially, this is the
-same problem that the GPL has with defining a "derivative work"; the
-OPL doesn't fix this problem either.) I also don't like the idea of
-having to do this for every future license that appears that also
-includes these terms.
+This implicitely says that if the version of the GPL is specified it's 
+fixed.
 
-Otherwise, the license looks like a nice idea. But this clause, if
-it's intended to do what I think it is, would cause serious problems
-for the large number of mirror sites out there who carry free
-software.
+AFAIR in 2.2 times Linus added the explicit version statement present in
+COPYING.
 
-(The other concerns I've seen voiced about this license are the
-"External Deployment" section, which I'm quite happy with, and the
-validity of the "Jurisdiction" and "Attorneys' Fees" sections, which
-look like a nice idea that wouldn't actually be possible under some
-jurisdictions -- have a look in the archives of debian-legal for some
-more-informed discussion about this.)
+cu
+Adrian
 
 -- 
-Adam Sampson <azz@us-lot.org>                   <http://azz.us-lot.org/>
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
+

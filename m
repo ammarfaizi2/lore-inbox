@@ -1,86 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265716AbUF2LPf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265703AbUF2LWr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265716AbUF2LPf (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 29 Jun 2004 07:15:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265703AbUF2LPf
+	id S265703AbUF2LWr (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 29 Jun 2004 07:22:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265718AbUF2LWr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 29 Jun 2004 07:15:35 -0400
-Received: from mail016.syd.optusnet.com.au ([211.29.132.167]:50088 "EHLO
-	mail016.syd.optusnet.com.au") by vger.kernel.org with ESMTP
-	id S265716AbUF2LPN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 29 Jun 2004 07:15:13 -0400
-Message-ID: <40E14F28.6030408@kolivas.org>
-Date: Tue, 29 Jun 2004 21:14:48 +1000
-From: Con Kolivas <kernel@kolivas.org>
-User-Agent: Mozilla Thunderbird 0.7 (X11/20040615)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Pavel Machek <pavel@ucw.cz>
-Cc: Linux Kernel Mailinglist <linux-kernel@vger.kernel.org>,
-       Zwane Mwaikambo <zwane@linuxpower.ca>,
-       William Lee Irwin III <wli@holomorphy.com>
-Subject: Re: [PATCH] Staircase Scheduler v6.3 for 2.6.7-rc2
-References: <200406070139.38433.kernel@kolivas.org> <20040629111017.GB15414@elf.ucw.cz>
-In-Reply-To: <20040629111017.GB15414@elf.ucw.cz>
-X-Enigmail-Version: 0.84.1.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Tue, 29 Jun 2004 07:22:47 -0400
+Received: from mtvcafw.sgi.com ([192.48.171.6]:64451 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S265703AbUF2LWo (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 29 Jun 2004 07:22:44 -0400
+Date: Tue, 29 Jun 2004 04:21:40 -0700 (PDT)
+From: Paul Jackson <pj@sgi.com>
+To: linux-kernel@vger.kernel.org
+Cc: Christoph Hellwig <hch@infradead.org>, Jack Steiner <steiner@sgi.com>,
+       Jesse Barnes <jbarnes@sgi.com>, Sylvain <sylvain.jeaugey@bull.net>,
+       Dan Higgins <djh@sgi.com>, Matthew Dobson <colpatch@us.ibm.com>,
+       Andi Kleen <ak@suse.de>, Paul Jackson <pj@sgi.com>,
+       Simon <Simon.Derr@bull.net>
+Message-Id: <20040629112140.24730.18796.34300@sam.engr.sgi.com>
+Subject: [patch 1/8] cpusets v3 - Table of Contents
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+The following patch set is being offered for review and comment.
 
-Pavel Machek wrote:
-| Hi!
-|
-|
-|>This is an update of the scheduler policy mechanism rewrite using the
-|>infrastructure of the current O(1) scheduler. Slight changes from the
-|>original design require a detailed description. The change to the
-original
-|>design has enabled all known corner cases to be abolished and cpu
-|>distribution to be much better maintained. It has proven to be stable
-in my
-|>testing and is ready for more widespread public testing now.
-|>
-|>
-|>Aims:
-|> - Interactive by design rather than have interactivity bolted on.
-|> - Good scalability.
-|> - Simple predictable design.
-|> - Maintain appropriate cpu distribution and fairness.
-|> - Low scheduling latency for normal policy tasks.
-|> - Low overhead.
-|> - Making renicing processes actually matter for CPU distribution
-(nice 0 gets
-|>20 times what nice +20 gets)
-|> - Resistant to priority inversion
-|
-|
-| How do you solve priority inversion?
+Shortly, not yet, I expect to be requesting Andrew to consider it
+for inclusion in *-mm.  Andrew will be glad to hear that this patch
+set (outside of Matthew Dobson's nodemask patch) has _much_ less
+impact on existing kernel code than my previous cpumask patch set ;).
 
-I don't solve it. It is relatively resistant to priority inversion by
-tasks traversing all the priorities lower than itself rather than
-sitting at one priority. It does this more strictly when interactive is
-disabled which I recommend for server and multiuser setups.
+First I still need to perform further testing, obtain more feedback,
+and do some more documentation and a man page, before asking to get
+it into *-mm.  My thanks to those who have reviewed it so far.
 
-| Can you do "true idle threads" now? (I.e. nice +infinity?)
+The bulk of the code and much of the design work in this patch has
+been done by Simon Derr <Simon.Derr@bull.net> of Bull (France).
+The nodemask patch is a preliminary draft of work by Matthew
+Dobson, based on my cpumask patches.
 
-Not safely, no. I have a batch(idle) implementation that is relatively
-safe but can be abused (it's in my -ck patchset only). At some stage if
-the codebase settles down enough I'll try and introduce semaphore
-tracking for batch processes that will elevate them to normal scheduling
-~ to prevent DoSing.
+This version of the cpuset patch set is against 2.6.7-mm4.
 
-Cheers,
-Con
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
+These patches provide the essential kernel support for cpusets, which
+enable identifying a hierarchy of subsets of system CPU and Memory Node
+resources and attaching tasks to these subsets.  Tasks may only request
+to use (sched_setaffinity, mbind and set_mempolicy) the CPUs and Memory
+Nodes allowed to it by its cpuset.  Cpusets may be strictly exclusive
+(other non-ancestral cpusets may not overlap).  One can list which
+tasks are in which cpusets, and change which cpuset a task is in.
+No new system calls are used; all access and modification is via a
+cpuset virtual file system.
 
-iD8DBQFA4U8oZUg7+tp6mRURAircAKCSvuZ4D6rM7AsfAbHKhQoCw1C7NACaA44C
-UyUJAByRIE894CchzlN2OiU=
-=9xVI
------END PGP SIGNATURE-----
+See further the Cpuset Overview, item [2/9] of this email set.
+
+==> I recommend that first time readers look first at items (2) Overview
+    and (7) Kernel Hooks PATCH, for a better understanding of what this
+    cpuset kernel patch is intended to do, and the very small kernel
+    footprint required to accomplish this.
+
+Now I have several email messages to present.  Items 2 through 8
+will be sent as replies to this first message.
+
+  1) This table of contents.
+  2) Overview of kernel cpusets - a small text document.
+  3) [patch] cpumask_consts - minor fix to my cpumask patch set
+  4) [patch] nodemask - nodemask patch (draft of Matthew Dobson's patch)
+  5) [patch] cpuset_bitmap_lists - add bitmap lists format
+  6) [patch] cpuset_new_files - Main cpuset patch - cpuset.c, cpuset.h
+  7) [patch] cpuset_kernel_hooks - The few, small kernel hooks needed
+  8) [patch] cpuset_proc_hooks - One more hook, for /proc/<pid>/cpuset.
+
+Your feedback is welcome.
+
+-- 
+                          I won't rest till it's the best ...
+                          Programmer, Linux Scalability
+                          Paul Jackson <pj@sgi.com> 1.650.933.1373

@@ -1,58 +1,101 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262874AbUCPAEx (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 15 Mar 2004 19:04:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262873AbUCPADj
+	id S262877AbUCPAEw (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 15 Mar 2004 19:04:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262876AbUCPAD4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 Mar 2004 19:03:39 -0500
-Received: from mail.kroah.org ([65.200.24.183]:3503 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S262874AbUCPAB6 convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 Mar 2004 19:01:58 -0500
-Subject: Re: [PATCH] Driver Core update for 2.6.4
-In-Reply-To: <10793951481021@kroah.com>
-X-Mailer: gregkh_patchbomb
-Date: Mon, 15 Mar 2004 15:59:08 -0800
-Message-Id: <10793951483511@kroah.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-To: linux-kernel@vger.kernel.org
-Content-Transfer-Encoding: 7BIT
+	Mon, 15 Mar 2004 19:03:56 -0500
+Received: from mail.kroah.org ([65.200.24.183]:5295 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S262877AbUCPACA (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 15 Mar 2004 19:02:00 -0500
+Date: Mon, 15 Mar 2004 15:55:58 -0800
 From: Greg KH <greg@kroah.com>
+To: torvalds@osdl.org, akpm@osdl.org
+Cc: linux-kernel@vger.kernel.org
+Subject: [BK PATCH] Driver Core update for 2.6.4
+Message-ID: <20040315235558.GA23280@kroah.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ChangeSet 1.1608.84.10, 2004/03/11 13:22:16-08:00, greg@kroah.com
+Hi,
 
-PCI Hotplug: use the new decl_subsys_name() macro instead of rolling our own.
+Here are a few driver core changes for 2.6.3.  They have all been in the -mm
+tree with the exception of the kref patch, which has been reviewed on lkml.
+These patches add a few more sysfs class entries, clean up the cdev interface
+and add the kref structure.
 
+Please pull from:
+	bk://kernel.bkbits.net/gregkh/linux/driver-2.6
 
- drivers/pci/hotplug/pci_hotplug_core.c |   14 +-------------
- 1 files changed, 1 insertion(+), 13 deletions(-)
+thanks,
 
+greg k-h
 
-diff -Nru a/drivers/pci/hotplug/pci_hotplug_core.c b/drivers/pci/hotplug/pci_hotplug_core.c
---- a/drivers/pci/hotplug/pci_hotplug_core.c	Mon Mar 15 15:29:01 2004
-+++ b/drivers/pci/hotplug/pci_hotplug_core.c	Mon Mar 15 15:29:01 2004
-@@ -104,19 +104,7 @@
- 	.release = &hotplug_slot_release,
- };
- 
--/* 
-- * We create a struct subsystem on our own and not use decl_subsys so
-- * we can have a sane name "slots" in sysfs, yet still keep a good
-- * global variable name "pci_hotplug_slots_subsys.
-- * If the decl_subsys() #define ever changes, this declaration will
-- * need to be update to make sure everything is initialized properly.
-- */
--struct subsystem pci_hotplug_slots_subsys = {
--	.kset = {
--		.kobj = { .name = "slots" },
--		.ktype = &hotplug_slot_ktype,
--	}
--};
-+decl_subsys_name(pci_hotplug_slots, slots, &hotplug_slot_ktype, NULL);
- 
- /* these strings match up with the values in pci_bus_speed */
- static char *pci_bus_speed_strings[] = {
+p.s. I'll send these as patches in response to this email to lkml for
+those who want to see them.
+
+ drivers/base/Makefile                  |    5 ++
+ drivers/base/bus.c                     |    4 -
+ drivers/base/class.c                   |   16 ++++--
+ drivers/base/class_simple.c            |    4 -
+ drivers/base/core.c                    |    4 -
+ drivers/base/driver.c                  |    4 -
+ drivers/base/power/Makefile            |    4 +
+ drivers/base/power/main.c              |    4 -
+ drivers/base/power/shutdown.c          |    4 -
+ drivers/base/sys.c                     |    4 -
+ drivers/char/drm/drm_stub.h            |   35 +++++++++++++-
+ drivers/char/lp.c                      |   16 +++++-
+ drivers/char/misc.c                    |    1 
+ drivers/char/tty_io.c                  |   80 ++++++++++++++++++---------------
+ drivers/ieee1394/amdtp.c               |    3 -
+ drivers/ieee1394/dv1394.c              |    4 -
+ drivers/ieee1394/raw1394.c             |    4 -
+ drivers/ieee1394/video1394.c           |    3 -
+ drivers/input/input.c                  |    4 +
+ drivers/net/ppp_generic.c              |   21 ++++++++
+ drivers/pci/hotplug/pci_hotplug_core.c |   14 -----
+ drivers/s390/char/tape_class.c         |    7 --
+ drivers/scsi/sg.c                      |    7 +-
+ drivers/scsi/st.c                      |   39 ++++++++++------
+ fs/char_dev.c                          |   26 +++-------
+ include/linux/cdev.h                   |    4 -
+ include/linux/kobject.h                |    8 +++
+ include/linux/kref.h                   |   32 +++++++++++++
+ lib/Makefile                           |    3 +
+ lib/kref.c                             |   60 ++++++++++++++++++++++++
+ net/netlink/netlink_dev.c              |   20 +++++++-
+ 31 files changed, 301 insertions(+), 143 deletions(-)
+-----
+
+Andrew Morton:
+  o cdev: warning fix
+
+Chris Wright:
+  o class_simple cleanup in sg
+  o class_simple cleanup in misc
+  o class_simple cleanup in input
+  o class_simple clean up in lp
+  o Patch to hook up PPP to simple class sysfs support
+
+Greg Kroah-Hartman:
+  o kref: add kref structure to kernel tree
+  o remove cdev_set_name completely as it is not needed
+  o PCI Hotplug: use the new decl_subsys_name() macro instead of rolling our own
+  o Kobject: add decl_subsys_name() macro for users who want to set the subsystem name
+  o Driver core: make CONFIG_DEBUG_DRIVER implementation a whole lot cleaner
+
+Jonathan Corbet:
+  o cdev 2/2: hide cdev->kobj
+  o cdev 1/2: Eliminate /sys/cdev
+
+Leann Ogasawara:
+  o add sysfs simple class support for DRI char device
+  o Fix class_register() always returns 0
+  o Add sysfs simple class support for netlink
 

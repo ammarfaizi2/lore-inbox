@@ -1,61 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262799AbVAFJxx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262800AbVAFJ5q@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262799AbVAFJxx (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 6 Jan 2005 04:53:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262800AbVAFJxx
+	id S262800AbVAFJ5q (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 6 Jan 2005 04:57:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262801AbVAFJ5q
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 6 Jan 2005 04:53:53 -0500
-Received: from wproxy.gmail.com ([64.233.184.194]:51473 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S262799AbVAFJxv (ORCPT
+	Thu, 6 Jan 2005 04:57:46 -0500
+Received: from gprs214-26.eurotel.cz ([160.218.214.26]:21382 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S262800AbVAFJ5p (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 6 Jan 2005 04:53:51 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:subject:from:to:cc:in-reply-to:references:content-type:date:message-id:mime-version:x-mailer:content-transfer-encoding;
-        b=M44URcw+XnkaEuGnKJoODxpcr8w/Jnig7fkMtwUY1cL3NkXgxGq5nD5dN8h7fgNWAkvn2XfDzT9FYBBNw2m3fFP/wf2hxI+7zmjZjKC8KZbNIsk6xW56FGKy0l1jhYcMuikdCHgR6ezGkRNEUofr+h7wDntzb/261bUVinua6hc=
-Subject: Re: how to debug and capture Oops mesage?
-From: Gerald Stuhrberg <deadlyh@gmail.com>
-To: cranium2003 <cranium2003@yahoo.com>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20050106083340.71293.qmail@web41404.mail.yahoo.com>
-References: <20050106083340.71293.qmail@web41404.mail.yahoo.com>
-Content-Type: text/plain
-Date: Thu, 06 Jan 2005 02:54:16 -0500
-Message-Id: <1104998056.1674.3.camel@box>
+	Thu, 6 Jan 2005 04:57:45 -0500
+Date: Thu, 6 Jan 2005 10:57:31 +0100
+From: Pavel Machek <pavel@suse.cz>
+To: Li Shaohua <shaohua.li@intel.com>
+Cc: Len Brown <len.brown@intel.com>,
+       ACPI Developers <acpi-devel@lists.sourceforge.net>,
+       lkml <linux-kernel@vger.kernel.org>, Greg <greg@kroah.com>,
+       Patrick Mochel <mochel@digitalimplant.org>,
+       Adam Belay <ambx1@neo.rr.com>
+Subject: Re: [PATCH 0/4]Bind physical devices with ACPI devices - take 2
+Message-ID: <20050106095731.GE24380@elf.ucw.cz>
+References: <1104893444.5550.127.camel@sli10-desk.sh.intel.com> <1104984055.18173.239.camel@d845pe> <1104997834.22886.17.camel@sli10-desk.sh.intel.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.3 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1104997834.22886.17.camel@sli10-desk.sh.intel.com>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2005-01-06 at 00:33 -0800, cranium2003 wrote:
-> Hello,
->              I have two machines with RedHat linux 9
-> with serially connected to each other. While doing
-> some kernel programming i am getting frequently Oops
-> messages. I am learning network stack. How can i
-> capture those oops message and which utility can help
-> me to solve oops problem. I heard about lkcd which is
-> on lkcd.sourceforge.net. Can it be suitable utility to
-> check kernel crash dump. I have yet not used it and
-> require advice from kernel developers.
-> Please kindly help me.
-> Thanks in advance.
-> regards,
-> cranium
+Hi!
 
-There is information here
-http://www1.cs.columbia.edu/~cvaill/hacktips.html
-and also
-http://www-106.ibm.com/developerworks/linux/library/l-debug/
-and don't forget
+> > It looks like some device drivers scribble on dev->platform_data;
+> > and we need to fix those drivers before deploying this patch.
+> > Alternatively, we could add a new field to struct device,
+> > but then we'd probably never get rid of it...
+> Yep, this is a big problem. According to the comments in the source
+> file, it's designed for firmware such as ACPI, but some drivers misused
+> it. A search shows there are many such drivers. Fixing the drivers is a
+> pain for me.
 
-http://www.google.com/
-
-hacks.mit.edu
-
-In order to reach Harvard starting from the center of the universe
-(Lobby 10), one must travel an infinite distance over 13 times! Since
-everything is within the universe, it is impossible to reach Harvard and
-therefore there can be no life there.
-
+It is easy: remove the field for release or two, then readd it with
+your patch.
+								Pavel
+-- 
+People were complaining that M$ turns users into beta-testers...
+...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!

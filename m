@@ -1,72 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131188AbRAFUDs>; Sat, 6 Jan 2001 15:03:48 -0500
+	id <S132982AbRAFUEi>; Sat, 6 Jan 2001 15:04:38 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132041AbRAFUDi>; Sat, 6 Jan 2001 15:03:38 -0500
-Received: from islay.mach.uni-karlsruhe.de ([129.13.162.92]:21265 "EHLO
-	mailout.plan9.de") by vger.kernel.org with ESMTP id <S131188AbRAFUD2>;
-	Sat, 6 Jan 2001 15:03:28 -0500
-Date: Sat, 6 Jan 2001 20:57:26 +0100
-From: Marc Lehmann <pcg@goof.com>
-To: David Woodhouse <dwmw2@infradead.org>
-Cc: "Stephen C. Tweedie" <sct@redhat.com>,
-        Stefan Traby <stefan@hello-penguin.com>,
-        Daniel Phillips <phillips@innominate.de>,
-        Rik van Riel <riel@conectiva.com.br>, linux-kernel@vger.kernel.org
-Subject: Re: Journaling: Surviving or allowing unclean shutdown?
-Message-ID: <20010106205726.A9664@cerebro.laendle>
-Mail-Followup-To: David Woodhouse <dwmw2@infradead.org>,
-	"Stephen C. Tweedie" <sct@redhat.com>,
-	Stefan Traby <stefan@hello-penguin.com>,
-	Daniel Phillips <phillips@innominate.de>,
-	Rik van Riel <riel@conectiva.com.br>, linux-kernel@vger.kernel.org
-In-Reply-To: <20010104224946.C1290@redhat.com> <Pine.LNX.4.30.0101031253130.6567-100000@springhead.px.uk.com> <Pine.LNX.4.21.0101031325270.1403-100000@duckman.distro.conectiva> <3A5352ED.A263672D@innominate.de> <20010104192104.C2034@redhat.com> <20010104220821.B775@stefan.sime.com> <20010104224946.C1290@redhat.com> <1628.978695936@redhat.com>
-Mime-Version: 1.0
+	id <S132981AbRAFUE2>; Sat, 6 Jan 2001 15:04:28 -0500
+Received: from tamqfl1-ar1-128-154.dsl.gtei.net ([4.33.128.154]:65526 "EHLO
+	linus.southpark") by vger.kernel.org with ESMTP id <S132041AbRAFUEY>;
+	Sat, 6 Jan 2001 15:04:24 -0500
+Message-ID: <3A577A51.74C5E0F4@leoninedev.com>
+Date: Sat, 06 Jan 2001 15:04:33 -0500
+From: Bryan Mayland <bmayland@leoninedev.com>
+Organization: Leonine Development, Inc.
+X-Mailer: Mozilla 4.73 [en] (Windows NT 5.0; I)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+CC: -=da TRoXX=- <TRoXX@LiquidXTC.nl>
+Subject: Re: Framebuffer as a module
+In-Reply-To: <E14EZMf-0007vp-00@the-village.bc.nu> <y7rk889wk6o.fsf@sytry.doc.ic.ac.uk> <3A5755D6.5607D908@leoninedev.com> <002501c07819$21343900$fd1942c3@bluescreen>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1628.978695936@redhat.com>; from dwmw2@infradead.org on Fri, Jan 05, 2001 at 11:58:56AM +0000
-X-Operating-System: Linux version 2.2.18 (root@cerebro) (gcc version pgcc-2.95.2.1 20001224 (release)) 
-X-Copyright: copyright 2000 Marc Alexander Lehmann - all rights reserved
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jan 05, 2001 at 11:58:56AM +0000, David Woodhouse <dwmw2@infradead.org> wrote:
-> You mount it read-only, recover as much as possible from it, and bin it.
-> 
-> You _don't_ want the fs code to ignore your explicit instructions not to
-> write to the medium, and to destroy whatever data were left.
+-=da TRoXX=- wrote:
 
-The problem is: where did you give the explicit instruction? Just that you
-define "read-only" as "the medium should not be written" does not mean
-everybody else thinks the same.
+> and i don't get it, who accepts these parameters in the kernel then? i mean
+> if i put them in lilo.conf at least SOME thing uses them to set the
+> framebuffer right...
 
-actually, I regard "ro" mainly as a "hey kernel, I won't handle writes
-now, so please don't try it", like for cd-roms or other non-writeale
-media, and please filesystem stay in a clean state.
+    The tdfxfb code does.  When compiled into the kernel, there is a function
+(tdfxfb_setup) which the kernel calls with the relevant kernel command-line
+parameters.  When compiled as a module, this function is ifdef'ed out, as well
+it should be, because I don't think that there is a function which is called to
+pass the module parameters.  Modules use MODULE_PARM to 'import' their
+parameters.  The code is incomplete, perhaps for a reason.  In theory, the
+author should add the required MODULE_PARM macros to export the parameters and
+then move the code which does anything besides saving the paramter values to
+tdfxfb_init, which is called when the module is loaded /and/ after tdfxfb_setup
+when compiled into the kernel.  I don't have the time to fix it myself, I don't
+even have a machine with Linux and a Voodoo3 card.
 
-That ro means "the medium is never written" is an assumption that does not
-hold for most disks anyway and is, in the case of journlaing filesystems,
-often impossible to implement. You simply can't salvage data without a log
-reply. Sure, you can do virtual log replays, but for example the reiserfs
-log is currently 32mb. Pinning down that much memory for a virtual log
-reply is not possible on low-memory machines.
+> I know this parameter is for modules only that support modedb (modedb.c) but
+> tdfxfb supports that(that's why it works in the kernel)...
 
-So the first thing would be to precisely define the meaning of the "ro"
-flag.  Before this has happened it is ansolutely senseless to argue about
-what it means, as it doesn't mean anything at the moment, except (man mount):
+    It does, but only when compiled into the kernel due to the way it does its's
+setup.
 
-              ro     Mount the file system read-only.
+Bry
 
-Which it does even with journaling filesystems...
-
--- 
-      -----==-                                             |
-      ----==-- _                                           |
-      ---==---(_)__  __ ____  __       Marc Lehmann      +--
-      --==---/ / _ \/ // /\ \/ /       pcg@opengroup.org |e|
-      -=====/_/_//_/\_,_/ /_/\_\       XX11-RIPE         --+
-    The choice of a GNU generation                       |
-                                                         |
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

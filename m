@@ -1,59 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261988AbVAYPjB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261992AbVAYPnO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261988AbVAYPjB (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 25 Jan 2005 10:39:01 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261989AbVAYPjB
+	id S261992AbVAYPnO (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 25 Jan 2005 10:43:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261989AbVAYPnN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 Jan 2005 10:39:01 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:3028 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S261988AbVAYPig (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 25 Jan 2005 10:38:36 -0500
-Subject: Re: journaled filesystems -- known instability; Was: XFS:
-	inode	with st_mode == 0
-From: "Stephen C. Tweedie" <sct@redhat.com>
-To: Jeffrey Hundstad <jeffrey.hundstad@mnsu.edu>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Jakob Oestergaard <jakob@unthought.net>,
-       Christoph Hellwig <hch@infradead.org>,
-       David Greaves <david@dgreaves.com>, Jan Kasprzak <kas@fi.muni.cz>,
-       linux-kernel <linux-kernel@vger.kernel.org>, kruty@fi.muni.cz,
-       Stephen Tweedie <sct@redhat.com>
-In-Reply-To: <41F6613F.6030509@mnsu.edu>
-References: <20041209125918.GO9994@fi.muni.cz>
-	 <20041209135322.GK347@unthought.net> <20041209215414.GA21503@infradead.org>
-		 <20041221184304.GF16913@fi.muni.cz> <20041222084158.GG347@unthought.net>
-	 <20041222182344.GB14586@infradead.org> <41E80C1F.3070905@dgreaves.com>
-	 <20050114182308.GE347@unthought.net> <20050116135112.GA24814@infradead.org>
-	 <20050117100746.GI347@unthought.net>  <41EC2ECF.6010701@mnsu.edu>
-	 <1106657254.1985.294.camel@sisko.sctweedie.blueyonder.co.uk>
-	 <41F6613F.6030509@mnsu.edu>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Message-Id: <1106667472.1985.644.camel@sisko.sctweedie.blueyonder.co.uk>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 (1.4.5-9) 
-Date: Tue, 25 Jan 2005 15:37:53 +0000
+	Tue, 25 Jan 2005 10:43:13 -0500
+Received: from modemcable096.213-200-24.mc.videotron.ca ([24.200.213.96]:4517
+	"EHLO localhost.localdomain") by vger.kernel.org with ESMTP
+	id S261996AbVAYPly (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 25 Jan 2005 10:41:54 -0500
+Date: Tue, 25 Jan 2005 10:41:45 -0500 (EST)
+From: Nicolas Pitre <nico@cam.org>
+X-X-Sender: nico@localhost.localdomain
+To: Ian Campbell <icampbell@arcom.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: RFC: use datacs is smc91x driver
+In-Reply-To: <1106665612.19123.142.camel@icampbell-debian>
+Message-ID: <Pine.LNX.4.61.0501251038030.16341@localhost.localdomain>
+References: <1106569302.19123.49.camel@icampbell-debian> 
+ <Pine.LNX.4.61.0501241459090.7307@localhost.localdomain> 
+ <1106651657.19123.54.camel@icampbell-debian> <1106665612.19123.142.camel@icampbell-debian>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Tue, 25 Jan 2005, Ian Campbell wrote:
 
-On Tue, 2005-01-25 at 15:09, Jeffrey Hundstad wrote:
+> On Tue, 2005-01-25 at 11:14 +0000, Ian Campbell wrote:
+> > Are you happy with "iocs", "attrib" and "datacs" for the names?
+> 
+> Of the platforms with an smc91x platform_device (according to grep) only
+> 2 (lubbock, neponset) out of the 18 have memory resources other than the
+> iocs (full list of platforms is at the end, after the patch)
+> 
+> So for the sake of the least intrusive patch I think for the main iocs
+> I'll call _byname and fallback on mem resource number 0 if no named iocs
+> resource exists. attrib and datacs must be explicitly named. This allows
+> most of the board ports to remain unchanged.
 
-> >>  Bad things happening to journaled filesystem machines
-> >>  Oops in kjournald
+Sensible.
 
-> I wonder if there are several problems.  Alan Cox claimed that there was 
-> a fix in linux-2.6.10-ac10 that might alleviate the problem.
+> I also noticed that the name propagates into /proc/iomem etc
+> 	# cat /proc/iomem
+> 	[...]
+> 	10000000-10000003 : datacs
+> 	  10000000-10000003 : smc91x
+> so perhaps smc91x-datacs -attrib -iocs might be more appropriate names?
 
-I'm not sure --- there are a couple of bio/bh-related fixes in that
-patch, but nothing against jbd/ext3 itself. 
+Probably, although "iocs" is rather criptic for someone not familiar 
+with the chip.  What about "smc91x-regs", "smc91x-attrib" and 
+"smc91x-data32" ?
 
-> Does linux-2.6.11-rc2 have both the linux-2.6.10-ac10 fix and the xattr 
-> problem fixed?
 
-Not sure about how much of -ac went in, but it has the xattr fix.
-
---Stephen
-
+Nicolas

@@ -1,35 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271309AbRHUCbD>; Mon, 20 Aug 2001 22:31:03 -0400
+	id <S271277AbRHUC3X>; Mon, 20 Aug 2001 22:29:23 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271330AbRHUCax>; Mon, 20 Aug 2001 22:30:53 -0400
-Received: from freya.yggdrasil.com ([209.249.10.20]:56981 "EHLO
-	ns1.yggdrasil.com") by vger.kernel.org with ESMTP
-	id <S271309AbRHUCan>; Mon, 20 Aug 2001 22:30:43 -0400
-From: "Adam J. Richter" <adam@yggdrasil.com>
-Date: Mon, 20 Aug 2001 19:30:49 -0700
-Message-Id: <200108210230.TAA24661@adam.yggdrasil.com>
-To: atm@enterzone.net
-Subject: Re: [Linux-ATM-General] PATCH: linux-2.4.9/drivers/atm to new module_{init,exit} + some pci_device_id tables
-Cc: linux-atm-general@lists.sourceforge.net, linux-kernel@vger.kernel.org
+	id <S271309AbRHUC3N>; Mon, 20 Aug 2001 22:29:13 -0400
+Received: from garrincha.netbank.com.br ([200.203.199.88]:56338 "HELO
+	netbank.com.br") by vger.kernel.org with SMTP id <S271277AbRHUC27>;
+	Mon, 20 Aug 2001 22:28:59 -0400
+Date: Mon, 20 Aug 2001 23:29:05 -0300 (BRST)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: <riel@imladris.rielhome.conectiva>
+To: Alan Cox <laughing@shared-source.org>
+Cc: <linux-kernel@vger.kernel.org>
+Subject: Re: Linux 2.4.8-ac8
+In-Reply-To: <20010821014543.A27295@lightning.swansea.linux.org.uk>
+Message-ID: <Pine.LNX.4.33L.0108202327110.5646-100000@imladris.rielhome.conectiva>
+X-spambait: aardvark@kernelnewbies.org
+X-spammeplease: aardvark@nl.linux.org
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->From: John Fraizer <atm@EnterZone.Net>
->Just a quick question.  Please be gentl.  I'm not a kernel hack.  I just
->want to make sure that it will still be possible to build a monolythic
->kernel with ATM support.  If not, that is a BAD thing.  
+On Tue, 21 Aug 2001, Alan Cox wrote:
 
-	Yes, you still can.  module_{init,exit} are defined in
-the monolithic case to add the initialization routine to a list
-of initializers that the kernel calls in do_initcalls
-(in linux/init/main.c), and to compile the module_exit call
-into nothing.  This way, you can have a driver that is written
-like a module but actually supports both the modular and monolithic
-cases without need for #ifdef's and different code for the two cases.
-That is the primary point of the module_{init,exit} scheme.
+> 2.4.8-ac8
 
-Adam J. Richter     __     ______________   4880 Stevens Creek Blvd, Suite 104
-adam@yggdrasil.com     \ /                  San Jose, California 95129-1034
-+1 408 261-6630         | g g d r a s i l   United States of America
-fax +1 408 261-6631      "Free Software For The Rest Of Us."
+> o	page reactivate correction			(Rik van Riel)
+
+Whoops, this one wasn't really supposed to go in since
+it interferes with ->writepage() like marcelo pointed
+on the list out 30 seconds after I sent out the thing ;)
+
+I'll send you a fix right away...
+
+regards,
+
+Rik
+--
+IA64: a worthy successor to i860.
+
+http://www.surriel.com/		http://distro.conectiva.com/
+
+Send all your spam to aardvark@nl.linux.org (spam digging piggy)
+

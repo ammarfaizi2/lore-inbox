@@ -1,53 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317056AbSF1EdJ>; Fri, 28 Jun 2002 00:33:09 -0400
+	id <S317066AbSF1F4s>; Fri, 28 Jun 2002 01:56:48 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317058AbSF1EdI>; Fri, 28 Jun 2002 00:33:08 -0400
-Received: from 12-237-16-92.client.attbi.com ([12.237.16.92]:9856 "EHLO
-	ledzep.dyndns.org") by vger.kernel.org with ESMTP
-	id <S317056AbSF1EdH>; Fri, 28 Jun 2002 00:33:07 -0400
-Message-ID: <3D1BE786.5070100@attbi.com>
-Date: Thu, 27 Jun 2002 23:35:18 -0500
-From: Jordan Breeding <jordan.breeding@attbi.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.0) Gecko/20020607
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Felipe Contreras <al593181@mail.mty.itesm.mx>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Very weird bug in fs/exec.c
-References: <20020627211922.GA14184@zion.mty.itesm.mx>
-Content-Type: text/plain; charset=ISO-8859-15; format=flowed
+	id <S317068AbSF1F4i>; Fri, 28 Jun 2002 01:56:38 -0400
+Received: from [209.184.141.190] ([209.184.141.190]:63440 "HELO UberGeek")
+	by vger.kernel.org with SMTP id <S317066AbSF1F4h>;
+	Fri, 28 Jun 2002 01:56:37 -0400
+Subject: Re: kernel BUG
+From: Austin Gonyou <austin@digitalroadkill.net>
+To: Chaoyang Deng <cdeng@io.iol.unh.edu>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.43.0206271514230.9712-100000@io.iol.unh.edu>
+References: <Pine.LNX.4.43.0206271514230.9712-100000@io.iol.unh.edu>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+Organization: 
+X-Mailer: Ximian Evolution 1.1.0.99 (Preview Release)
+Date: 28 Jun 2002 00:58:52 -0500
+Message-Id: <1025243932.2956.3.camel@UberGeek>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Felipe Contreras wrote:
+My recommendation for this is to *not* use the in-kernel qla2xxx driver.
+Not that it's necessarily bad mind you, but much new hardware doesn't
+seem to like it. I've locked up a box several times using it. Instead, I
+recommend that you go to qlogic's site and get 6.0.27 and try it. It's
+much faster than the previous drivers, and has been very stable and
+compile's with no warnings ever, at least in my scenario. 
+
+I recently had an issue with a QL2xxx driver, some storage, and LUNs. My
+issue turned out to be a blacklist issue, but, I got a lot of info from
+the Qlogic folks as well, regarding which driver should be used today.
+
+Hope this helps. 
+
+On Thu, 2002-06-27 at 14:23, Chaoyang Deng wrote:
 > Hi,
 > 
-> I've found a weird bug that seems to only happend in my system. It makes
-> recursive makes segfault, like:
-> 
-> test:
-> 	( make -v )
-> 
-> After a lot of work tracking it I finally found what causes it, I'm attaching
-> the patch that generates the bug, it's a diff from 2.5.18 to 2.5.19.
-> 
-> I'm saying it's weird because just adding a printk before do_execve returns
-> successfully makes the bug dissapear.
-> 
-> BTW, yes, my system is very special.
-> 
+> I am working on an iSCSI target driver with a Fibre Channel disk. After I
+> updated my OS to linux7.3 with kernel 2.4.18-3, I got problem: my driver
+> will crash my box. I am not sure if it is a bug in my code or in the
+> Qlogic Fibre Channel driver or in the kernel. Could anyone give me a hint?
 
-
-I can verify that a lot of weird problems (compiles failing with seg 
-faults, `java -version` not running, other java programs not running and 
-in most cases the program in question would succeed if I ran it through 
-strace first) I was seeing in kernels after 2.5.18 (ie. 2.5.20-dj1, 
-2.5.20-dj4, 2.5.23-dj1 and 2.5.24-dj1) go away if I reverse the patch 
-included in the original email for this thread.  Glad to find out what 
-had been causing that mess!  Thanks.
-
-Jordan
-
-
+-- 
+Austin Gonyou <austin@digitalroadkill.net>

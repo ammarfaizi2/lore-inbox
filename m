@@ -1,42 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130896AbRBLNHo>; Mon, 12 Feb 2001 08:07:44 -0500
+	id <S130871AbRBLNYP>; Mon, 12 Feb 2001 08:24:15 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130904AbRBLNHe>; Mon, 12 Feb 2001 08:07:34 -0500
-Received: from fisica.ufpr.br ([200.17.209.129]:48636 "EHLO
-	hoggar.fisica.ufpr.br") by vger.kernel.org with ESMTP
-	id <S130896AbRBLNHY>; Mon, 12 Feb 2001 08:07:24 -0500
-From: Carlos Carvalho <carlos@fisica.ufpr.br>
-MIME-Version: 1.0
+	id <S130998AbRBLNYF>; Mon, 12 Feb 2001 08:24:05 -0500
+Received: from twilight.cs.hut.fi ([130.233.40.5]:5951 "EHLO
+	twilight.cs.hut.fi") by vger.kernel.org with ESMTP
+	id <S130871AbRBLNXw>; Mon, 12 Feb 2001 08:23:52 -0500
+Date: Mon, 12 Feb 2001 15:23:39 +0200
+From: Ville Herva <vherva@mail.niksula.cs.hut.fi>
+To: Ivan Borissov Ganev <ganev@cc.gatech.edu>, linux-kernel@vger.kernel.org
+Subject: Re: [BUG] 2.4.[01] lockups
+Message-ID: <20010212152339.A11083@niksula.cs.hut.fi>
+In-Reply-To: <Pine.LNX.4.20.0102070207300.1226-500000@gamspc7.ihep.su> <Pine.SOL.4.21.0102061907230.7348-100000@tuomotu.cc.gatech.edu> <20010211210219.F3748@bug.ucw.cz>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <14983.57112.764892.252275@hoggar.fisica.ufpr.br>
-Date: Mon, 12 Feb 2001 11:03:20 -0200
-To: Doug Ledford <dledford@redhat.com>, alan@lxorguk.ukuu.org.uk
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.2.19pre9 Kernel panic aic7xxx
-In-Reply-To: <3A84640B.6F0D31D5@redhat.com>
-In-Reply-To: <3A8450B0.D2B85951@dial.eunet.ch>
-	<3A84640B.6F0D31D5@redhat.com>
-X-Mailer: VM 6.90 under Emacs 19.34.1
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20010211210219.F3748@bug.ucw.cz>; from pavel@suse.cz on Sun, Feb 11, 2001 at 09:02:19PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Doug Ledford (dledford@redhat.com) wrote on 9 February 2001 16:41:
- >The latest patch I sent Alan had both the hosts.c fix and some other fixes, so
- >I'm thinking it hasn't made it into his 2.2.19pre9 kernel.  The next one
- >should work fine as far as aic7xxx is concerned.
+On Sun, Feb 11, 2001 at 09:02:19PM +0100, you [Pavel Machek] claimed:
+> Hi!
+> 
+> > I am experiencing a problem with both 2.4.0 and 2.4.1. The problem is that
+> > at seemingly random times the console locks up. After the lockup I can no
+> > longer type and the mouse is frozen. As far as I can tell, other systems
+> > services are not affected, i.e. programs continue to run, music is being
+> > played, I/O is fine. It looks like _only_ the console devices are locked
+> > up.
+> 
+> Login via network or serial cable, and see if /proc/interrupts entry
+> for keyboard/mouse changes as you type. Attempt to blink keyboard leds
+> with setleds.
 
-I think you should post your patch here, because pre9 is unusable
-without it. Well, at least for me, but this is the first time in
-almost 9 years that this happens. I have fairly standard 7890, in
-2940, 2940UW adaptecs. If it doesn't work for me, it's likely to not
-work for many others. Since pre9 is urgent because of the security
-patches, it'd be good to upgrade as soon as possible.
+Also, try killing gpm.
 
-Another alternative is that Alan posts the security part separately.
-Or that he releases pre10, including all Trond's fixes for nfs as
-well :-) :-)
+
+-- v --
+
+v@iki.fi
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

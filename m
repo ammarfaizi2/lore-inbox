@@ -1,52 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262671AbTE2Uoe (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 May 2003 16:44:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262694AbTE2Uoe
+	id S262714AbTE2UuM (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 May 2003 16:50:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262720AbTE2UuM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 May 2003 16:44:34 -0400
-Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:41421 "HELO
-	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
-	id S262671AbTE2Uoc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 May 2003 16:44:32 -0400
-Date: Thu, 29 May 2003 22:57:42 +0200
-From: Adrian Bunk <bunk@fs.tum.de>
-To: Andrew Morton <akpm@digeo.com>, jejb@steeleye.com
-Cc: linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org
-Subject: 2.5.70-mm2: NCR_D700.c doesn't compile
-Message-ID: <20030529205742.GI5643@fs.tum.de>
-References: <20030529012914.2c315dad.akpm@digeo.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Thu, 29 May 2003 16:50:12 -0400
+Received: from minmail.no ([213.160.234.15]:33506 "EHLO new.minmail.no")
+	by vger.kernel.org with ESMTP id S262714AbTE2UuL (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 29 May 2003 16:50:11 -0400
+From: Morten Helgesen <morten.helgesen@nextframe.net>
+Reply-To: morten.helgesen@nextframe.net
+Organization: Nextframe AS
+To: William Lee Irwin III <wli@holomorphy.com>
+Subject: Re: list_head debugging patch
+Date: Thu, 29 May 2003 23:03:19 +0200
+User-Agent: KMail/1.5
+References: <20030529130807.GH19818@holomorphy.com> <200305292158.52311.morten.helgesen@nextframe.net> <20030529201337.GC8978@holomorphy.com>
+In-Reply-To: <20030529201337.GC8978@holomorphy.com>
+Cc: linux-kernel@vger.kernel.org
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20030529012914.2c315dad.akpm@digeo.com>
-User-Agent: Mutt/1.4.1i
+Message-Id: <200305292303.19946.morten.helgesen@nextframe.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-It seems the following compile error comes from Linus' tree:
+On Thursday 29 May 2003 22:13, William Lee Irwin III wrote:
+> On Thu, May 29, 2003 at 09:58:52PM +0200, Morten Helgesen wrote:
+> > one more ...
+> > elem = c3a6464c, elem->prev = c11d59e8, elem->prev->next =
+> > c28cc1ec ------------[ cut here ]------------
+> > kernel BUG at include/linux/list.h:39!
+> > invalid operand: 0000 [#1]
+> > CPU:    0
+> > EIP:    0060:[<c016b21c>]    Not tainted
+> > EFLAGS: 00010286
+> > EIP is at file_kill+0x2c/0x150
+>
+> Same thing; nuke the __list_head_check() check in list_empty()
+> please.
 
-<--  snip  -->
-
-...
-  CC      drivers/scsi/NCR_D700.o
-In file included from include/linux/mca.h:132,
-                 from drivers/scsi/NCR_D700.c:99:
-include/linux/mca-legacy.h:10:2: warning: #warning "MCA legacy - please 
-move your driver to the new sysfs api"
-drivers/scsi/NCR_D700.c: In function `NCR_D700_exit':
-drivers/scsi/NCR_D700.c:388: too few arguments to function `scsi_sysfs_release_attributes'
-make[2]: *** [drivers/scsi/NCR_D700.o] Error 1
-
-<--  snip  -->
-
-cu
-Adrian
+Ok, after having nuked __list_head_check() in list_empty() I can`t 
+seem to trigger any more list corruption on this box.
 
 -- 
 
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
+"Livet er ikke for nybegynnere" - sitat fra en klok person.
+
+Morten Helgesen 
+UNIX System Administrator & C Developer 
+Nextframe AS
+morten.helgesen@nextframe.net / 93445641
+http://www.nextframe.net
 

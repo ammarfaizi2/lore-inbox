@@ -1,70 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261325AbUKBSxS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261330AbUKBTAq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261325AbUKBSxS (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 2 Nov 2004 13:53:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261326AbUKBSxR
+	id S261330AbUKBTAq (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 2 Nov 2004 14:00:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261329AbUKBTAq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 2 Nov 2004 13:53:17 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:31922 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S261320AbUKBSxH
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 2 Nov 2004 13:53:07 -0500
-Date: Tue, 2 Nov 2004 13:55:46 -0200
-From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-To: Pierre Ossman <drzeus-list@drzeus.cx>
-Cc: LKML <linux-kernel@vger.kernel.org>
-Subject: Re: __GFP flags and kmalloc failures
-Message-ID: <20041102155546.GJ32054@logos.cnet>
-References: <4187AC80.6050409@drzeus.cx> <20041102144429.GG32054@logos.cnet> <4187CB93.6080405@drzeus.cx> <20041102152629.GH32054@logos.cnet> <4187D28B.5060507@drzeus.cx>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <4187D28B.5060507@drzeus.cx>
-User-Agent: Mutt/1.5.5.1i
+	Tue, 2 Nov 2004 14:00:46 -0500
+Received: from linux01.gwdg.de ([134.76.13.21]:51398 "EHLO linux01.gwdg.de")
+	by vger.kernel.org with ESMTP id S261334AbUKBTAJ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 2 Nov 2004 14:00:09 -0500
+Date: Tue, 2 Nov 2004 19:59:59 +0100 (MET)
+From: Jan Engelhardt <jengelh@linux01.gwdg.de>
+To: Bernd Petrovitsch <bernd@firmix.at>
+cc: =?iso-8859-2?Q?Pawe=B3?= Sikora <pluto@pld-linux.org>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [oops] lib/vsprintf.c
+In-Reply-To: <1099421176.10957.3.camel@tara.firmix.at>
+Message-ID: <Pine.LNX.4.53.0411021958580.9722@yvahk01.tjqt.qr>
+References: <200411020719.55570.pluto@pld-linux.org> 
+ <Pine.LNX.4.53.0411020802410.13921@yvahk01.tjqt.qr>  <200411021934.38802.pluto@pld-linux.org>
+ <1099421176.10957.3.camel@tara.firmix.at>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=iso-8859-2
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Nov 02, 2004 at 07:31:39PM +0100, Pierre Ossman wrote:
-> Marcelo Tosatti wrote:
-> 
-> >On Tue, Nov 02, 2004 at 07:01:55PM +0100, Pierre Ossman wrote:
-> > 
-> >
-> >>Is there any other way of increasing the chances of actually getting the 
-> >>pages I need? Since it is DMA it needs to be one big block.
-> >>   
-> >>
-> >
-> >__GFP_NOFAIL, from gfp.h:
-> >
-> >* Action modifiers - doesn't change the zoning
-> >*
-> >* __GFP_REPEAT: Try hard to allocate the memory, but the allocation attempt
-> >* _might_ fail.  This depends upon the particular VM implementation.
-> >*
-> >* __GFP_NOFAIL: The VM implementation _must_ retry infinitely: the caller
-> >* cannot handle allocation failures.
-> >*
-> >* __GFP_NORETRY: The VM implementation must not retry indefinitely.
-> >*/
-> >
-> > 
-> >
-> Yes, I've browsed through these. __GFP_NOFAIL seems like it can hang for 
-> a very long time (I don't know if there is an upper bound on how long it 
-> will have to wait for a free page). __GFP_REPEAT seems to work good 
-> enough in this case.
-> My question was meant to be more along the lines of "Is there anything I 
-> can do without resorting to unstable/interal API:s?".
+>> Yes, I known. I did it intentionally.
+>> IMHO kernel should be more resistant to accidental programmers errors.
+>> Be secure, trust no one ;)
+>
+>ACK. Therefore the kernel oopses, rendering the machine useless for the
+>moment and forces the programmer to look for the bug.
 
-Not really. 
+And thanks to the "stupidity" of the >> poster, the Debian Group found out that
+their box was h4x0r3d when the machine oopsed repeatedly. :-)
 
-They are not that unstable, I shouldnt mean that.
 
-These defines are not as stable as system calls - VM internals might change 
-in v2.7 and the flags also - but for v2.6 they are very likely to remain 
-untouched.
 
-Its just like any driver API in Linux - they change.
-
-Just keep an eye.
+Jan Engelhardt
+-- 
+Gesellschaft für Wissenschaftliche Datenverarbeitung
+Am Fassberg, 37077 Göttingen, www.gwdg.de

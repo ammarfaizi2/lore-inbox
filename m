@@ -1,41 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261418AbSJHTK7>; Tue, 8 Oct 2002 15:10:59 -0400
+	id <S263643AbSJHUW3>; Tue, 8 Oct 2002 16:22:29 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261412AbSJHTKX>; Tue, 8 Oct 2002 15:10:23 -0400
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:19984 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S263230AbSJHTD0>; Tue, 8 Oct 2002 15:03:26 -0400
-Subject: PATCH: fix ibmtr mapping bug
-To: torvalds@transmeta.com, linux-kernel@vger.kernel.org
-Date: Tue, 8 Oct 2002 20:00:07 +0100 (BST)
-X-Mailer: ELM [version 2.5 PL6]
+	id <S261476AbSJHUVY>; Tue, 8 Oct 2002 16:21:24 -0400
+Received: from 12-237-170-171.client.attbi.com ([12.237.170.171]:13662 "EHLO
+	wf-rch.cirr.com") by vger.kernel.org with ESMTP id <S263267AbSJHUU3>;
+	Tue, 8 Oct 2002 16:20:29 -0400
+Message-ID: <3DA33F70.7050504@acm.org>
+Date: Tue, 08 Oct 2002 15:26:24 -0500
+From: Corey Minyard <minyard@acm.org>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0rc3) Gecko/20020523
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: linux-kernel@vger.kernel.org
+Subject: [PATCH] IPMI driver for Linux, version 4
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Message-Id: <E17yzaR-0004t4-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-diff -u --new-file --recursive --exclude-from /usr/src/exclude linux.2.5.41/drivers/net/tokenring/ibmtr.c linux.2.5.41-ac1/drivers/net/tokenring/ibmtr.c
---- linux.2.5.41/drivers/net/tokenring/ibmtr.c	2002-07-20 20:11:25.000000000 +0100
-+++ linux.2.5.41-ac1/drivers/net/tokenring/ibmtr.c	2002-10-06 22:05:10.000000000 +0100
-@@ -243,7 +243,7 @@
- static void __devinit find_turbo_adapters(int *iolist) {
- 	int ram_addr;
- 	int index=0;
--	__u32 chanid;
-+	void *chanid;
- 	int found_turbo=0;
- 	unsigned char *tchanid, ctemp;
- 	int i,j;
-@@ -300,7 +300,7 @@
- 		printk("ibmtr::find_turbo_adapters, ibmtr card found at"
- 			" %x but not a Turbo model\n",ram_addr);
- #endif
--	iounmap(ram_addr) ; 	
-+	iounmap(ram_mapped) ; 	
- 	} /* for */
- 	for(i=0; i<IBMTR_MAX_ADAPTERS; i++) {
- 		if(!turbo_io[i]) break;
+I have put a new version of the IPMI driver on my home page 
+(http://home.attbi.com/~minyard) that fixes a bug.  A previous 
+unannounce version is there (v3) that adds IPMB broadcast support and 
+fixes a bug.  If you are using this driver, you want to update to the 
+newest version.  These are only supplied as a patches against the 
+previous version since the patches are small and apply to all kernel 
+versions.  If someone wants a full patch, I can do that, too.
+
+I was toying with the idea of adding a socket interface to the IPMI 
+driver.  This way, it would naturally handle separation of addressing 
+and data, and it wouldn't take up a character device.  I think I could 
+map everything the driver does into standard network calls, and the IPMB 
+bus is sort of a network, anyway.  Does anyone have any opinions on this?
+
+-Corey
+
+PS - In case you don't know, IPMI is a standard for system management, 
+it provides ways to detect the managed devices in the system and sensors 
+attached to them.  You can get more information at 
+http://www.intel.com/design/servers/ipmi/spec.htm
+

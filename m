@@ -1,58 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262562AbTFOSDG (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 15 Jun 2003 14:03:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262568AbTFOSDG
+	id S262499AbTFOSFI (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 15 Jun 2003 14:05:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262524AbTFOSFH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 15 Jun 2003 14:03:06 -0400
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:53516 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S262562AbTFOSDD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 15 Jun 2003 14:03:03 -0400
-Date: Sun, 15 Jun 2003 19:16:50 +0100
-From: Russell King <rmk@arm.linux.org.uk>
-To: Samuel Thibault <Samuel.Thibault@ens-lyon.fr>,
-       Dominik Brodowski <linux@brodo.de>, torvalds@transmeta.com,
-       cpufreq@www.linux.org.uk, linux-kernel@vger.kernel.org
-Subject: Re: [2.5 PATCH] bug if cpufreq driver initialization fails
-Message-ID: <20030615191650.J5417@flint.arm.linux.org.uk>
-Mail-Followup-To: Samuel Thibault <Samuel.Thibault@ens-lyon.fr>,
-	Dominik Brodowski <linux@brodo.de>, torvalds@transmeta.com,
-	cpufreq@www.linux.org.uk, linux-kernel@vger.kernel.org
-References: <20021108092241.A1636@brodo.de> <20030614084611.GA10182@bouh.unh.edu> <20030614095646.GA1702@brodo.de> <20030614214943.GA4073@bouh.unh.edu> <20030615095044.GD2009@brodo.de> <20030615180435.GC686@bouh.unh.edu>
+	Sun, 15 Jun 2003 14:05:07 -0400
+Received: from phoenix.mvhi.com ([195.224.96.167]:59152 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id S262499AbTFOSFC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 15 Jun 2003 14:05:02 -0400
+Date: Sun, 15 Jun 2003 19:18:53 +0100
+From: Christoph Hellwig <hch@infradead.org>
+To: =?iso-8859-1?Q?J=F6rn_Engel?= <joern@wohnheim.fh-wedel.de>
+Cc: linux-kernel@vger.kernel.org, Brian Jackson <brian@mdrx.com>,
+       Mark Hahn <hahn@physics.mcmaster.ca>
+Subject: Re: [PATCH] make cramfs look less hostile
+Message-ID: <20030615191853.A22150@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	=?iso-8859-1?Q?J=F6rn_Engel?= <joern@wohnheim.fh-wedel.de>,
+	linux-kernel@vger.kernel.org, Brian Jackson <brian@mdrx.com>,
+	Mark Hahn <hahn@physics.mcmaster.ca>
+References: <20030615160524.GD1063@wohnheim.fh-wedel.de> <20030615182642.A19479@infradead.org> <20030615173926.GH1063@wohnheim.fh-wedel.de> <20030615184417.A19712@infradead.org> <20030615175815.GI1063@wohnheim.fh-wedel.de> <20030615190349.A21931@infradead.org> <20030615181424.GJ1063@wohnheim.fh-wedel.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
 User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20030615180435.GC686@bouh.unh.edu>; from Samuel.Thibault@ens-lyon.fr on Sun, Jun 15, 2003 at 02:04:36PM -0400
-X-Message-Flag: Your copy of Microsoft Outlook is vulnerable to viruses. See www.mutt.org for more details.
+In-Reply-To: <20030615181424.GJ1063@wohnheim.fh-wedel.de>; from joern@wohnheim.fh-wedel.de on Sun, Jun 15, 2003 at 08:14:24PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Jun 15, 2003 at 02:04:36PM -0400, Samuel Thibault wrote:
-> I hence modified drivers/base/sys.c to have sysdev_driver_register()
-> fail as well, and then I also had to modify kernel/cpufreq.c, because
-> this failure did not imply a setting cpufreq_driver to NULL (preventing
-> me from reinsmoding speedstep-ich: EBUSY)
+On Sun, Jun 15, 2003 at 08:14:24PM +0200, Jörn Engel wrote:
+> Yes, I agree.  It is any the "Cramfs didn't find it's magic number,
+> now we'll try another filesystem instead.
 
-Unfortunately, you created a by by doing so.  Eg:
-
-- you have 3 devices on kset.list.
-- you successfully register 2 of them with a driver.
-- you fail one.
-- sysdev_driver_register returns failure.
-- module is unloaded while other parts of the kernel have references into
-  the driver.
-- the kernel oopses.
-
-> I'd also suggest that the speedstep drivers printks something if
-> everything went ok (including the cpufreq_frequency_table_cpuinfo()
-> call), the low & high speed for instance, just to be sure everything
-> went ok
-
-IMO its better to printk something on failure.
-
--- 
-Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
-             http://www.arm.linux.org.uk/personal/aboutme.html
+The only places where this should happen is mounting the rootfs.
+mount(8) has it's own filesystem type detection code and doesn't
+call mount(2) unless it found a matching filesystem type.
 

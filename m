@@ -1,68 +1,71 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263610AbTIBHzl (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 2 Sep 2003 03:55:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263608AbTIBHzk
+	id S263601AbTIBIHv (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 2 Sep 2003 04:07:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263603AbTIBIHu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 2 Sep 2003 03:55:40 -0400
-Received: from fw.osdl.org ([65.172.181.6]:3818 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S263603AbTIBHzj (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 2 Sep 2003 03:55:39 -0400
-Date: Tue, 2 Sep 2003 00:55:29 -0700 (PDT)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Tejun Huh <tejun@aratech.co.kr>
-cc: Ingo Molnar <mingo@elte.hu>, <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@digeo.com>
-Subject: Re: [PATCH] Race condition in del_timer_sync (2.5)
-In-Reply-To: <20030902075423.GA4640@atj.dyndns.org>
-Message-ID: <Pine.LNX.4.44.0309020054080.9731-100000@home.osdl.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Tue, 2 Sep 2003 04:07:50 -0400
+Received: from hauptpostamt.charite.de ([193.175.66.220]:22681 "EHLO
+	hauptpostamt.charite.de") by vger.kernel.org with ESMTP
+	id S263601AbTIBIHs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 2 Sep 2003 04:07:48 -0400
+Date: Tue, 2 Sep 2003 10:07:33 +0200
+From: Ralf Hildebrandt <Ralf.Hildebrandt@charite.de>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Re:Re: Linux 2.6.0-test4
+Message-ID: <20030902080733.GA14380@charite.de>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+References: <20030831120605.08D6.CHRIS@heathens.co.nz>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030831120605.08D6.CHRIS@heathens.co.nz>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-On Tue, 2 Sep 2003, Tejun Huh wrote:
+* Chris Heath <chris@heathens.co.nz>:
+> > Aug 27 18:53:41 hummus2 kernel: atkbd.c: Unknown key (set 2, scancode 0x9d, on isa0060/serio0) pressed.
+> > Aug 27 19:15:14 hummus2 kernel: atkbd.c: Unknown key (set 2, scancode 0xb9, on isa0060/serio0) pressed.
+> > Aug 27 19:42:50 hummus2 kernel: atkbd.c: Unknown key (set 2, scancode 0x9d, on isa0060/serio0) pressed.
+> > Aug 28 10:14:14 hummus2 kernel: atkbd.c: Unknown key (set 2, scancode 0x9d, on isa0060/serio0) pressed.
+> > 
+> > Basically, CTRL was stuck. Even when I switched to X11.
 > 
->  I'll submit the patch to Linus soon.
+> Well, this completely baffles me.  I thought X11 maintains its own
+> keydown array.
+> 
+> Anyway, I've included a patch that should hopefully give us better
+> debugging information.  When you get an unknown key error, it will also
+> dump the last 16 bytes that were sent from the keyboard.  Be careful
+> with this one.  If you post any errors to the list, make sure it doesn't
+> contain any sensitive passwords. :-)
 
-I actually already committed it to my tree, since everybody seems to agree 
-on it...
+I got some more events, and today I even was able to reproduc the
+"CTRL-is-stuck" problem.
 
-		Linus
+I was able to get the key unstuck by switching back and forth between
+dirrerent FB consoles and by pushing and releaseing CTRL in them...
 
-----
-# This is a BitKeeper generated patch for the following project:
-# Project Name: Linux kernel tree
-# This patch format is intended for GNU patch command version 2.5 or higher.
-# This patch includes the following deltas:
-#	           ChangeSet	1.1412  -> 1.1413 
-#	      kernel/timer.c	1.66    -> 1.67   
-#
-# The following is the BitKeeper ChangeSet Log
-# --------------------------------------------
-# 03/09/02	torvalds@home.osdl.org	1.1413
-# Fix del_timer_sync() SMP memory ordering (from Tejun Huh <tejun@aratech.co.kr>)
-# 
-# From Tejun's posting:
-# >
-# > This patch fixes a race between del_timer_sync and recursive timers.
-# > Current implementation allows the value of timer->base that is used
-# > for timer_pending test to be fetched before finishing running_timer
-# > test, so it's possible for a recursive time to be pending after
-# > del_timer_sync.  Adding smp_rmb before timer_pending removes the race.
-# --------------------------------------------
-#
-diff -Nru a/kernel/timer.c b/kernel/timer.c
---- a/kernel/timer.c	Tue Sep  2 00:55:15 2003
-+++ b/kernel/timer.c	Tue Sep  2 00:55:15 2003
-@@ -338,6 +338,7 @@
- 			break;
- 		}
- 	}
-+	smp_rmb();
- 	if (timer_pending(timer))
- 		goto del_again;
- 
+Sep  2 09:10:01 hummus2 kernel: atkbd.c: Unknown key (set 2, scancode 0x9c, on isa0060/serio0) pressed.
+Sep  2 09:10:01 hummus2 kernel: i8042 history: e0 d0 1c 9c 2e ae 10 90 e0 50 e0 d0 e0 d0 1c 9c
 
+Sep  2 09:10:06 hummus2 kernel: atkbd.c: Unknown key (set 2, scancode 0xa0, on isa0060/serio0) pressed.
+Sep  2 09:10:06 hummus2 kernel: i8042 history: 1c 9c 1c 9c e0 50 e0 d0 e0 50 e0 d0 e0 d0 20 a0
+
+Sep  2 09:14:54 hummus2 kernel: input: AT Set 2 keyboard on isa0060/serio0
+
+Sep  2 09:25:44 hummus2 kernel: atkbd.c: Unknown key (set 2, scancode 0x9d, on isa0060/serio0) pressed.
+Sep  2 09:25:44 hummus2 kernel: i8042 history: e0 50 e0 d0 e0 50 e0 d0 e0 d0 1d 2d ad 1f 9f 9d
+
+Sep  2 09:30:34 hummus2 kernel: atkbd.c: Unknown key (set 2, scancode 0xb9, on isa0060/serio0) pressed.
+Sep  2 09:30:34 hummus2 kernel: i8042 history: e0 48 e0 c8 39 b9 e0 38 56 d6 e0 b8 e0 b8 39 b9
+
+Sep  2 09:35:51 hummus2 kernel: atkbd.c: Unknown key (set 2, scancode 0xb9, on isa0060/serio0) pressed.
+Sep  2 09:35:51 hummus2 kernel: i8042 history: a0 20 a0 9d e0 4d e0 cd e0 4d e0 cd e0 cd 39 b9
+
+-- 
+Ralf Hildebrandt (Im Auftrag des Referat V a)   Ralf.Hildebrandt@charite.de
+Charite Campus Mitte                            Tel.  +49 (0)30-450 570-155
+Referat V a - Kommunikationsnetze -             Fax.  +49 (0)30-450 570-916
+AIM: ralfpostfix

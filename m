@@ -1,58 +1,88 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263526AbTKQStl (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 17 Nov 2003 13:49:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263583AbTKQStk
+	id S263703AbTKQS7d (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 17 Nov 2003 13:59:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263715AbTKQS7d
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 17 Nov 2003 13:49:40 -0500
-Received: from fmr05.intel.com ([134.134.136.6]:45548 "EHLO
-	hermes.jf.intel.com") by vger.kernel.org with ESMTP id S263526AbTKQStj convert rfc822-to-8bit
+	Mon, 17 Nov 2003 13:59:33 -0500
+Received: from chaos.analogic.com ([204.178.40.224]:24194 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP id S263703AbTKQS7a
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 17 Nov 2003 13:49:39 -0500
-content-class: urn:content-classes:message
+	Mon, 17 Nov 2003 13:59:30 -0500
+Date: Mon, 17 Nov 2003 14:01:56 -0500 (EST)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+X-X-Sender: root@chaos
+Reply-To: root@chaos.analogic.com
+To: "Ihar 'Philips' Filipau" <filia@softhome.net>
+cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [Q] jiffies overflow & timers.
+In-Reply-To: <3FB91527.50007@softhome.net>
+Message-ID: <Pine.LNX.4.53.0311171347540.24608@chaos>
+References: <3FB91527.50007@softhome.net>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-MimeOLE: Produced By Microsoft Exchange V6.0.6487.1
-Subject: Re:  format_cpumask()
-Date: Mon, 17 Nov 2003 10:49:31 -0800
-Message-ID: <B8E391BBE9FE384DAA4C5C003888BE6F0F37B0@scsmsx401.sc.intel.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: Re:  format_cpumask()
-Thread-Index: AcOtO4lKAiUS+OJFTLWLH0uYULapvg==
-From: "Luck, Tony" <tony.luck@intel.com>
-To: <linux-kernel@vger.kernel.org>
-Cc: <wli@holomorphy.com>
-X-OriginalArrivalTime: 17 Nov 2003 18:49:32.0701 (UTC) FILETIME=[8A08BCD0:01C3AD3B]
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> +	for (k = sizeof(cpumask_t)/sizeof(long) - 1; k >= 0; ++k) {
-> +		int m;
-> +		cpumask_t tmp;
-> +
-> +		cpus_shift_right(tmp, cpus, BITS_PER_LONG*k);
-> +		if (BITS_PER_LONG == 32)
-> +			m = sprintf(buf, "%08lx", cpus_coerce(tmp));
-> +		else /* BITS_PER_LONG == 64 */
-> +			m = sprintf(buf, "%16lx", cpus_coerce(tmp));
-> +		len += m;
-> +		buf += m;
-> +	}
+On Mon, 17 Nov 2003, Ihar 'Philips' Filipau wrote:
 
-That makes it had to write portable shell scripts (etc.) that can
-parse these values on both 32-bit and 64-bit systems?  A bitmask with
-just cpu0 set looks like:
+> Hello!
+>
+[SNIPPED...]
 
-	0000000100000000
+Use jiffies as other modules use it:
 
-on a 32-bit machine.  And like:
+        tim = jiffies + TIMEOUT_IN_HZ;
+        while(time_before(jiffies, tim))
+        {
+            if(what_im_waiting_for())
+                break;
+            current->policy |= SCHED_YIELD;
+            schedule();
+        }
+//
+// Note that somebody could have taken the CPU for many seconds
+// causing a 'timeout', therefore, you need to add one more check
+// after loop-termination:
+//
+            if(what_im_waiting_for())
+                good();
+            else
+                timed_out();
 
-	0000000000000001
+Overflow is handled up to one complete wrap of jiffies + TIMEOUT. It's
+only the second wrap that will fail and if you are waiting several
+months for something to happen in your code, the code is broken.
 
-on a 64-bit machine.  Heaven help the architectures (ia64, sparc, ppc)
-that support both 32-bit and 64-bit applications!
+>
+>     My module has to maintain list of timers. I cannot reuse directly
+> struct timer_list - since it uses jiffies and jiffies do wrap on overflow.
+>
 
--Tony Luck  
+If you need a list of timers, you grab the current jiffies plus
+the current test value. After that, you use the time_before() macro
+to test them.
+
+>
+>    So my question - how to detect that jiffies had overflown?
+>
+
+You don't. Correct code will not require it. Correct code uses
+jiffies as a relative value, not an absolute one. If you need
+an absolute time value, you need to use sys_gettimeofday(), but
+you should never use this for a time-out, only some time-stamp
+because not all bits are exercised.
+
+>    Is the following code is sufficient?
+>    (Assuming that I will not try to set timer longer than (~0UL/(HZ))
+> seconds)
+>
+
+See above for code that uses jiffies.
+
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.4.22 on an i686 machine (797.90 BogoMips).
+            Note 96.31% of all statistics are fiction.
+
 

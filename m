@@ -1,49 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262494AbVCJWLe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263298AbVCJWU4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262494AbVCJWLe (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Mar 2005 17:11:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263270AbVCJWHh
+	id S263298AbVCJWU4 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Mar 2005 17:20:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263278AbVCJWNL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Mar 2005 17:07:37 -0500
-Received: from mail25.syd.optusnet.com.au ([211.29.133.166]:31956 "EHLO
-	mail25.syd.optusnet.com.au") by vger.kernel.org with ESMTP
-	id S263277AbVCJV7Z (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Mar 2005 16:59:25 -0500
-From: Peter Chubb <peter@chubb.wattle.id.au>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Thu, 10 Mar 2005 17:13:11 -0500
+Received: from gate.crashing.org ([63.228.1.57]:46546 "EHLO gate.crashing.org")
+	by vger.kernel.org with ESMTP id S263259AbVCJWH4 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 10 Mar 2005 17:07:56 -0500
+Subject: Re: [BUG] 2.6.11- sym53c8xx Broken on pp64
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Omkhar Arasaratnam <iamroot@ca.ibm.com>
+Cc: James Bottomley <James.Bottomley@SteelEye.com>,
+       Matthew Wilcox <matthew@wil.cx>, Linus Torvalds <torvalds@osdl.org>,
+       Linux Kernel list <linux-kernel@vger.kernel.org>, tgall@us.ibm.com,
+       antonb@au1.ibm.com
+In-Reply-To: <42307E4D.6080505@ca.ibm.com>
+References: <422FA817.4060400@ca.ibm.com>
+	 <1110420620.32525.145.camel@gaston> <422FBACF.90108@ca.ibm.com>
+	 <422FC042.40303@ca.ibm.com>
+	 <Pine.LNX.4.58.0503091944030.2530@ppc970.osdl.org>
+	 <1110434383.32525.184.camel@gaston>
+	 <20050310121701.GD21986@parcelfarce.linux.theplanet.co.uk>
+	 <1110467868.5379.15.camel@mulgrave>  <42307E4D.6080505@ca.ibm.com>
+Content-Type: text/plain
+Date: Fri, 11 Mar 2005 09:02:38 +1100
+Message-Id: <1110492159.32524.261.camel@gaston>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.3 
 Content-Transfer-Encoding: 7bit
-Message-ID: <16944.49977.715895.8761@wombat.chubb.wattle.id.au>
-Date: Fri, 11 Mar 2005 08:59:21 +1100
-To: John Richard Moser <nigelenki@comcast.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: binary drivers and development
-In-Reply-To: <423082BF.6060007@comcast.net>
-References: <423075B7.5080004@comcast.net>
-	<423082BF.6060007@comcast.net>
-X-Mailer: VM 7.17 under 21.4 (patch 15) "Security Through Obscurity" XEmacs Lucid
-Comments: Hyperbole mail buttons accepted, v04.18.
-X-Face: GgFg(Z>fx((4\32hvXq<)|jndSniCH~~$D)Ka:P@e@JR1P%Vr}EwUdfwf-4j\rUs#JR{'h#
- !]])6%Jh~b$VA|ALhnpPiHu[-x~@<"@Iv&|%R)Fq[[,(&Z'O)Q)xCqe1\M[F8#9l8~}#u$S$Rm`S9%
- \'T@`:&8>Sb*c5d'=eDYI&GF`+t[LfDH="MP5rwOO]w>ALi7'=QJHz&y&C&TE_3j!
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> "John" == John Richard Moser <nigelenki@comcast.net> writes:
+On Thu, 2005-03-10 at 11:05 -0600, Omkhar Arasaratnam wrote:
 
+> 2.6.10 seems to have a different kernel panic which I'm investigating 
+> (could be a problem with my ramdisk as it happens in my linuxrc). So 
+> long story short the 2.6.10 sym driver looks ok.
 
-John> I've done more thought, here's a small list of advantages on
-John> using binary drivers, specifically considering UDI.  You can
-John> consider a different implementation for binary drivers as well,
-John> with most of the same advantages.
+Can you try 2.6.11 with the 2.6.10 sym driver ?
 
-Almost all these advantages are also present for user-mode drivers...
-and getting drivers out of the kernel, where possible, is a much
-better approach IMHO than trying to maintain a leaky in-kernel
-interface.  The problem with in-kernel interfaces, even if set in
-concrete, is that any binary driver can go outside the interface ---
-there's no encapsulation --- and so break when the kernel changes.
-
-Peter C
+Ben.
 
 

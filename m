@@ -1,41 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132864AbRDPGfg>; Mon, 16 Apr 2001 02:35:36 -0400
+	id <S132865AbRDPGoG>; Mon, 16 Apr 2001 02:44:06 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132862AbRDPGf0>; Mon, 16 Apr 2001 02:35:26 -0400
-Received: from saturn.cs.uml.edu ([129.63.8.2]:27142 "EHLO saturn.cs.uml.edu")
-	by vger.kernel.org with ESMTP id <S132865AbRDPGfT>;
-	Mon, 16 Apr 2001 02:35:19 -0400
-From: "Albert D. Cahalan" <acahalan@cs.uml.edu>
-Message-Id: <200104160635.f3G6Z6Q414864@saturn.cs.uml.edu>
-Subject: Re: Bug in EZ-Drive remapping code (ide.c)
-To: Andries.Brouwer@cwi.nl
-Date: Mon, 16 Apr 2001 02:35:06 -0400 (EDT)
-Cc: Jochen.Hoenicke@informatik.uni-oldenburg.de, linux-kernel@vger.kernel.org,
-        andre@linux-ide.org
-In-Reply-To: <UTC200103301115.NAA61753.aeb@vlet.cwi.nl> from "Andries.Brouwer@cwi.nl" at Mar 30, 2001 01:15:31 PM
-X-Mailer: ELM [version 2.5 PL2]
+	id <S132866AbRDPGn5>; Mon, 16 Apr 2001 02:43:57 -0400
+Received: from panic.ohr.gatech.edu ([130.207.47.194]:46047 "HELO
+	havoc.gtf.org") by vger.kernel.org with SMTP id <S132865AbRDPGnl>;
+	Mon, 16 Apr 2001 02:43:41 -0400
+Message-ID: <3ADA949C.D10D8536@mandrakesoft.com>
+Date: Mon, 16 Apr 2001 02:43:40 -0400
+From: Jeff Garzik <jgarzik@mandrakesoft.com>
+Organization: MandrakeSoft
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.3-19mdksmp i686)
+X-Accept-Language: en
 MIME-Version: 1.0
+To: "Eric W. Biederman" <ebiederm@xmission.com>
+Cc: Patrick Shirkey <pshirkey@boosthardware.com>, linux-kernel@vger.kernel.org
+Subject: Re: Files not linking/replacing.
+In-Reply-To: <3ADA524A.7038A81C@boosthardware.com> <m1eluttkx2.fsf@frodo.biederman.org>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andries.Brouwer writes:
+"Eric W. Biederman" wrote:
+> Normally /usr/src/linux on a redhat system contains a kernel with a
+> known good set of kernel headers.  /usr/include/linux and
+> /usr/include/asm are symlinks that point into the known good kernel
+> headers.  It looks like you removed your known good 2.2.14 known good
+> kernel headers, or the symlinks to them.
 
-> What one wants is to remap access to sector 0 to sector 1,
-> and leave all other sectors alone. Thus, if someone asks
-> for sectors 0 1 2 3 4, she should get sectors 1 1 2 3 4.
+Modern glibc systems have their own copies of headers for
+/usr/include/{asm,linux}, and those locations should not be pointing to
+kernel space...
 
-No, because then you can't write to the real first sector.
-Assuming translation is good, 1 0 2 3 4 is a better order.
-Then "dd if=/dev/zero of=/dev/hda bs=1k count=999" will get
-rid of all this crap. Otherwise, killing it is difficult.
-
-> So yes, the problem is known, but I do not see a clean solution,
-> unless the solution is to rip out all this EZ drive nonsense.
-
-Linux should still be able to read the partition table.
-The translation can go.
-
-
+-- 
+Jeff Garzik       | "Give a man a fish, and he eats for a day. Teach a
+Building 1024     |  man to fish, and a US Navy submarine will make sure
+MandrakeSoft      |  he's never hungry again." -- Chris Neufeld

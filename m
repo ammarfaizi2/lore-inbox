@@ -1,46 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263183AbTDLHhU (for <rfc822;willy@w.ods.org>); Sat, 12 Apr 2003 03:37:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263184AbTDLHhU (for <rfc822;linux-kernel-outgoing>);
-	Sat, 12 Apr 2003 03:37:20 -0400
-Received: from Mail1.KONTENT.De ([81.88.34.36]:33462 "EHLO Mail1.KONTENT.De")
-	by vger.kernel.org with ESMTP id S263183AbTDLHhT (for <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 12 Apr 2003 03:37:19 -0400
-From: Oliver Neukum <oliver@neukum.org>
-Reply-To: oliver@neukum.name
-To: Greg KH <greg@kroah.com>, Andrew Morton <akpm@digeo.com>
-Subject: Re: [ANNOUNCE] udev 0.1 release
-Date: Sat, 12 Apr 2003 09:49:00 +0200
-User-Agent: KMail/1.5
-Cc: Steven Dake <sdake@mvista.com>, kpfleming@cox.net,
-       linux-hotplug-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org,
-       message-bus-list@redhat.com
-References: <20030411172011.GA1821@kroah.com> <20030411150933.43fd9a84.akpm@digeo.com> <20030411230111.GF3786@kroah.com>
-In-Reply-To: <20030411230111.GF3786@kroah.com>
+	id S263186AbTDLHr5 (for <rfc822;willy@w.ods.org>); Sat, 12 Apr 2003 03:47:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263187AbTDLHrx (for <rfc822;linux-kernel-outgoing>);
+	Sat, 12 Apr 2003 03:47:53 -0400
+Received: from 81-2-122-30.bradfords.org.uk ([81.2.122.30]:12672 "EHLO
+	81-2-122-30.bradfords.org.uk") by vger.kernel.org with ESMTP
+	id S263186AbTDLHrs (for <rfc822;linux-kernel@vger.kernel.org>); Sat, 12 Apr 2003 03:47:48 -0400
+From: John Bradford <john@grabjohn.com>
+Message-Id: <200304120755.h3C7tUag000408@81-2-122-30.bradfords.org.uk>
+Subject: Re: kernel support for non-English user messages
+To: mbligh@aracnet.com (Martin J. Bligh)
+Date: Sat, 12 Apr 2003 08:55:30 +0100 (BST)
+Cc: 76306.1226@compuserve.com (Chuck Ebbert),
+       linux-kernel@vger.kernel.org (linux-kernel)
+In-Reply-To: <156450000.1050101626@flay> from "Martin J. Bligh" at Apr 11, 2003 03:53:46 PM
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200304120949.00709.oliver@neukum.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> >  Today it's all HTML documents or PDFs or something, but it's still
+> > a staggering amount of information.  I have ~300MB of Oracle
+> > documentation on one desktop, 6 of it server error messages alone.
+> > Every possible message is explained to some extent, except this one:
+> 
+> IMHO, it'd be better to just make the kernel error messages meaningful.
+> Keeping a large pile of documentation in sync with the source is
+> a PITA.
 
-> And yes, we could use ascii in the event list, but then again, a
-> userspace version of /sbin/hotplug that writes events to a pipe that is
-> read from a daemon enables the same thing to happen :)
+You don't have to keep it in sync with the source - just make sure
+that any documentation always mentions which versions it relates to.
 
-No, it doesn't. You throw away the ordering the kernel naturally has.
-If you write out events from within the kernel, you know that you'll
-never see a replug before an unplug.
+If the documentation gets outdated, and everybody is aware of that, we
+are no worse off than we are now.
 
-Writing a pipe from the kernel, which is generally called a character
-device, has other advantages as well.
-You can report events dropped as errors. The hotplug spawning
-scheme cannot do that. No spawning cannot differentiate between
-no event and an event lost.
-
-	Regards
-		Oliver
-
+John.

@@ -1,47 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261164AbVAHWhN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261158AbVAHWhM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261164AbVAHWhN (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 8 Jan 2005 17:37:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261913AbVAHWeH
+	id S261158AbVAHWhM (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 8 Jan 2005 17:37:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261983AbVAHWed
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 8 Jan 2005 17:34:07 -0500
-Received: from mail.kroah.org ([69.55.234.183]:10693 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S262032AbVAHW3z (ORCPT
+	Sat, 8 Jan 2005 17:34:33 -0500
+Received: from mail.kroah.org ([69.55.234.183]:8389 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S262031AbVAHW3v (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 8 Jan 2005 17:29:55 -0500
-Date: Sat, 8 Jan 2005 14:28:47 -0800
+	Sat, 8 Jan 2005 17:29:51 -0500
+Date: Sat, 8 Jan 2005 14:27:19 -0800
 From: Greg KH <greg@kroah.com>
-To: Christoph Hellwig <hch@infradead.org>, torvalds@osdl.org, akpm@osdl.org,
-       linux-kernel@vger.kernel.org, sensors@Stimpy.netroedge.com
-Subject: Re: [BK PATCH] I2C patches for 2.6.10
-Message-ID: <20050108222845.GA3415@kroah.com>
-References: <20050108053849.GA8065@kroah.com> <20050108190943.GA31973@infradead.org>
+To: Jon Smirl <jonsmirl@gmail.com>
+Cc: lkml <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] Export symbol from I2C eeprom driver
+Message-ID: <20050108222719.GA3226@kroah.com>
+References: <9e47339105010721347fbeb907@mail.gmail.com> <20050108055315.GC8571@kroah.com> <9e473391050107220875baa32b@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20050108190943.GA31973@infradead.org>
+In-Reply-To: <9e473391050107220875baa32b@mail.gmail.com>
 User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Jan 08, 2005 at 07:09:43PM +0000, Christoph Hellwig wrote:
-> On Fri, Jan 07, 2005 at 09:38:49PM -0800, Greg KH wrote:
-> > Hi,
+On Sat, Jan 08, 2005 at 01:08:52AM -0500, Jon Smirl wrote:
+> On Fri, 7 Jan 2005 21:53:16 -0800, Greg KH <greg@kroah.com> wrote:
+> > On Sat, Jan 08, 2005 at 12:34:44AM -0500, Jon Smirl wrote:
+> > > Trivial patch to export a symbol from the eeprom driver. Currently
+> > > there are no exported symbols. The symbol lets the radeon DRM driver
+> > > link to it and modprobe will then force it to load along with the
+> > > radeon driver.
 > > 
-> > Here are some i2c driver fixes and updates for 2.6.10.  There are a few
-> > new i2c drivers in here, and a number of bugfixes.  Almost all of these
-> > patches have been in the past few -mm releases.
+> > Why do you need this symbol?  Or are you just saying that you need the
+> > eeprom driver loaded for some reason?
 > > 
-> > Please pull from:  bk://kernel.bkbits.net/gregkh/linux/i2c-2.6
-> > 
-> > Individual patches will follow, sent to the sensors and linux-kernel
-> > lists.
+> > I say this as this variable is probably going to go away in the very
+> > near future, as it isn't really needed at all.
 > 
-> Could you please put a slightly more usefull subject line into your mails.
-> Three gazillion times the same subject absolutely does not help review.
+> I just need a symbol to force eeprom to load, it can be any symbol.  I
+> need something for the radeon driver to link to so that modprobe will
+> know to force eeprom to load when radeon is loaded. radeon is getting
+> hotplug code that needs the eeprom module loaded.
 
-Hm, yeah, I'll work on my scripts to try to do this in the future.  It
-would be a good idea.
+Then why not try to load the module from your hotplug script?
+
+And why do you need the eeprom driver for the radeon driver to work
+properly?
 
 thanks,
 

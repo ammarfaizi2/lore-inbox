@@ -1,60 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262148AbRETTMS>; Sun, 20 May 2001 15:12:18 -0400
+	id <S262147AbRETTL3>; Sun, 20 May 2001 15:11:29 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262150AbRETTMM>; Sun, 20 May 2001 15:12:12 -0400
-Received: from leibniz.math.psu.edu ([146.186.130.2]:37064 "EHLO math.psu.edu")
-	by vger.kernel.org with ESMTP id <S262148AbRETTLy>;
-	Sun, 20 May 2001 15:11:54 -0400
-Date: Sun, 20 May 2001 15:11:53 -0400 (EDT)
-From: Alexander Viro <viro@math.psu.edu>
-To: Linus Torvalds <torvalds@transmeta.com>
-cc: David Woodhouse <dwmw2@infradead.org>, Matthew Wilcox <matthew@wil.cx>,
-        Richard Gooch <rgooch@ras.ucalgary.ca>,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>, Andrew Clausen <clausen@gnu.org>,
+	id <S262148AbRETTLS>; Sun, 20 May 2001 15:11:18 -0400
+Received: from neon-gw.transmeta.com ([209.10.217.66]:40717 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S262146AbRETTLF>; Sun, 20 May 2001 15:11:05 -0400
+Date: Sun, 20 May 2001 12:10:59 -0700 (PDT)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Russell King <rmk@arm.linux.org.uk>
+cc: Richard Gooch <rgooch@ras.ucalgary.ca>, Matthew Wilcox <matthew@wil.cx>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        Alexander Viro <viro@math.psu.edu>, Andrew Clausen <clausen@gnu.org>,
         Ben LaHaise <bcrl@redhat.com>, linux-kernel@vger.kernel.org,
         linux-fsdevel@vger.kernel.org
-Subject: Re: [RFD w/info-PATCH] device arguments from lookup, partion code 
-In-Reply-To: <Pine.LNX.4.21.0105201150110.7553-100000@penguin.transmeta.com>
-Message-ID: <Pine.GSO.4.21.0105201509060.8940-100000@weyl.math.psu.edu>
+Subject: Re: [RFD w/info-PATCH] device arguments from lookup, partion code
+In-Reply-To: <20010520195751.B1143@flint.arm.linux.org.uk>
+Message-ID: <Pine.LNX.4.21.0105201208360.7553-100000@penguin.transmeta.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-
-On Sun, 20 May 2001, Linus Torvalds wrote:
-
-> Now, a good way to force the issue may be to just remove the "ioctl"
-> function pointer from the file operations structure altogether. We don't
-> have to force peopel to use "read/write" - we can just make it clear that
-> ioctl's _have_ to be wrapped, and that the only ioctl's that are
-> acceptable are the ones that are well-designed enough to be wrappable. So
-> we'd have a "linux/fs/ioctl.c" that would do all the wrapping, and would
-> also be able to do all the stuff that is currently done by pretty much
-> every single architecture out there (ie emulation of ioctl's for different
-> native modes).
-
-Pheeew... Could you spell "about megabyte of stuff in ioctl.c"?
-
-> It would probably not be that horrible. Many ioctl's are probably not all
-> that much used by any real programs any more. The most common ones by far
-> are the tty ones - and the truly generic ones like "FIONREAD" that it
-> actually would make sense to generalize more.
-
-Networking stuff. It _is_ used.
- 
-> Catching stuff like EJECT at a higher layer and turning THOSE kinds of
-> things into real block device operations would clean up drivers and make
-> them more uniform.
+On Sun, 20 May 2001, Russell King wrote:
+>
+> On Sun, May 20, 2001 at 11:46:33AM -0700, Linus Torvalds wrote:
+> > Nobody will expect the above to work, and everybody will agree that the
+> > above is a BUG if the read() call will actually follow the pointer.
 > 
-> Would fs/ioctl.c be an ugly mess of some special cases? Yes. But would
-> that make the ugliness explicit and possibly easier to try to manage and
-> fix? Very probably. And it would mean that driver writers could not just
-> say "fuck design, I'm going to do this my own really ugly way". 
+> I didn't say anything about read().  I said write().  Obviously it
+> wouldn't work for read()!
 
-How about moratorium on new ioctls in the meanwhile? Whatever we do in
-fs/ioctl.c, it _will_ take time.
-								Al
+No, but the point is, everybody _would_ consider it a bug if a
+low-level driver "write()" did anything but touched the explicit buffer.
+
+Code like that would not pass through anybody's yuck-o-meter. People would
+point fingers and say "That is not a legal write() function". Anybody who
+tried to make write() follow pointers would be laughed at as a stupid git.
+
+Anybody who makes "ioctl()" do the same is just following years of
+standard practice, and the yuck-o-meter doesn't even register.
+
+THAT is the importance of psychology.
+
+Technology is meaningless. What matters is how people _think_ of it.
+
+		Linus
 

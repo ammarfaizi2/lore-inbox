@@ -1,76 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265132AbTB0OaP>; Thu, 27 Feb 2003 09:30:15 -0500
+	id <S265154AbTB0Oi0>; Thu, 27 Feb 2003 09:38:26 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265140AbTB0OaP>; Thu, 27 Feb 2003 09:30:15 -0500
-Received: from e33.co.us.ibm.com ([32.97.110.131]:63735 "EHLO
-	e33.co.us.ibm.com") by vger.kernel.org with ESMTP
-	id <S265132AbTB0OaN>; Thu, 27 Feb 2003 09:30:13 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Kevin Corry <corryk@us.ibm.com>
-Organization: IBM
-To: Horst von Brand <vonbrand@inf.utfsm.cl>,
-       Joe Thornber <joe@fib011235813.fsnet.co.uk>
-Subject: Re: [PATCH 3/8] dm: prevent possible buffer overflow in ioctl interface
-Date: Thu, 27 Feb 2003 08:36:53 -0600
-X-Mailer: KMail [version 1.2]
-Cc: Linus Torvalds <torvalds@transmeta.com>,
-       Linux Mailing List <linux-kernel@vger.kernel.org>
-References: <200302262104.h1QL4aiC001941@eeyore.valparaiso.cl> <03022708205903.05199@boiler>
-In-Reply-To: <03022708205903.05199@boiler>
+	id <S265174AbTB0Oi0>; Thu, 27 Feb 2003 09:38:26 -0500
+Received: from meryl.it.uu.se ([130.238.12.42]:27548 "EHLO meryl.it.uu.se")
+	by vger.kernel.org with ESMTP id <S265154AbTB0OiZ>;
+	Thu, 27 Feb 2003 09:38:25 -0500
+From: Mikael Pettersson <mikpe@user.it.uu.se>
 MIME-Version: 1.0
-Message-Id: <03022708365304.05199@boiler>
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <15966.9540.641385.149104@gargle.gargle.HOWL>
+Date: Thu, 27 Feb 2003 15:48:36 +0100
+To: marcelo@conectiva.com.br, alan@lxorguk.ukuu.org.uk
+CC: linux-kernel@vger.kernel.org
+Subject: [PATCH] local APIC init fixes for 2.4.21-pre5
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 27 February 2003 08:20, Kevin Corry wrote:
-> On Wednesday 26 February 2003 15:04, Horst von Brand wrote:
-> > Joe Thornber <joe@fib011235813.fsnet.co.uk> said:
-> > > Use the correct size for "name" in register_with_devfs().
-> > >
-> > > During Al Viro's devfs cleanup a few versions ago, this function was
-> > > rewritten, and the "name" string added. The 32-byte size is not large
-> > > enough to prevent a possible buffer overflow in the sprintf() call,
-> > > since the hash cell can have a name up to 128 characters.
-> > >
-> > > [Kevin Corry]
-> > >
-> > > --- diff/drivers/md/dm-ioctl.c	2003-02-26 16:09:42.000000000 +0000
-> > > +++ source/drivers/md/dm-ioctl.c	2003-02-26 16:09:52.000000000 +0000
-> > > @@ -173,7 +173,7 @@
-> > >   */
-> > >  static int register_with_devfs(struct hash_cell *hc)
-> > >  {
-> > > -	char name[32];
-> > > +	char name[DM_NAME_LEN + strlen(DM_DIR) + 1];
-> >
-> > This either makes a large name array or generates a possibly huge array
-> > at runtime (bad if your stack is < 8KiB).
->
-> Would this be better?
+Marcelo & Alan,
 
-As Joe pointed out to me, that should have been:
+This patch for 2.4.21-pre fixes two local APIC initialisation bugs.
+It has been reported to fix serious stability problems with UP kernels
+on SMP Athlons. It needs to go in 2.4.21-pre & -ac as soon as possible.
 
---- linux-2.5.60a/drivers/md/dm-ioctl.c	2003/02/13 16:43:26
-+++ linux-2.5.60b/drivers/md/dm-ioctl.c	2003/02/27 14:35:20
-@@ -173,14 +173,18 @@
-  */
- static int register_with_devfs(struct hash_cell *hc)
- {
--	char name[DM_NAME_LEN + strlen(DM_DIR) + 1];
- 	struct gendisk *disk = dm_disk(hc->md);
-+	char *name = kmalloc(DM_NAME_LEN + strlen(DM_DIR) + 1);
-+	if (!name) {
-+		return -ENOMEM;
-+	}
+Bug 1: APIC_init_uniprocessor() has a broken write to APIC_ID, forcing
+APIC_ID to always be zero for the boot CPU. This causes serious
+problems when running UP kernels on SMP Athlons. The fix is to remove
+the write altogether, since it's redundant and potentially dangerous.
+
+Bug 2: APIC_init_uniprocessor() incorrectly sets phys_cpu_present_map
+to 1 instead of 1 << boot_cpu_physical_apicid. Any machine whose boot
+CPU doesn't have ID zero will trigger a BUG() in setup_local_APIC().
+The fix is to correct the initialisation of phys_cpu_present_map.
+
+/Mikael
+
+diff -ruN linux-2.4.21-pre5/arch/i386/kernel/apic.c linux-2.4.21-pre5.apic-fixes/arch/i386/kernel/apic.c
+--- linux-2.4.21-pre5/arch/i386/kernel/apic.c	2003-02-27 12:58:55.000000000 +0100
++++ linux-2.4.21-pre5.apic-fixes/arch/i386/kernel/apic.c	2003-02-27 13:05:28.000000000 +0100
+@@ -649,7 +649,6 @@
+ 	}
+ 	set_bit(X86_FEATURE_APIC, &boot_cpu_data.x86_capability);
+ 	mp_lapic_addr = APIC_DEFAULT_PHYS_BASE;
+-	boot_cpu_physical_apicid = 0;
+ 	if (nmi_watchdog != NMI_NONE)
+ 		nmi_watchdog = NMI_LOCAL_APIC;
  
- 	sprintf(name, DM_DIR "/%s", hc->name);
- 	devfs_register(NULL, name, DEVFS_FL_CURRENT_OWNER,
- 		       disk->major, disk->first_minor,
- 		       S_IFBLK | S_IRUSR | S_IWUSR | S_IRGRP,
- 		       &dm_blk_dops, NULL);
-+	kfree(name);
- 	return 0;
- }
+@@ -1169,8 +1168,7 @@
+ 
+ 	connect_bsp_APIC();
+ 
+-	phys_cpu_present_map = 1;
+-	apic_write_around(APIC_ID, boot_cpu_physical_apicid);
++	phys_cpu_present_map = 1 << boot_cpu_physical_apicid;
+ 
+ 	apic_pm_init2();
  

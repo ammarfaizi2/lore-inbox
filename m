@@ -1,80 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288967AbSA2JBL>; Tue, 29 Jan 2002 04:01:11 -0500
+	id <S288955AbSA2JGP>; Tue, 29 Jan 2002 04:06:15 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289012AbSA2JBC>; Tue, 29 Jan 2002 04:01:02 -0500
-Received: from [195.66.192.167] ([195.66.192.167]:3334 "EHLO
-	Port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with ESMTP
-	id <S288967AbSA2JAv>; Tue, 29 Jan 2002 04:00:51 -0500
-Message-Id: <200201290859.g0T8xGE26936@Port.imtp.ilyichevsk.odessa.ua>
-Content-Type: text/plain; charset=US-ASCII
-From: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
-Reply-To: vda@port.imtp.ilyichevsk.odessa.ua
-To: Andrew Morton <akpm@zip.com.au>
-Subject: Re: [PATCH] syscall latency improvement #1
-Date: Tue, 29 Jan 2002 10:59:18 -0200
-X-Mailer: KMail [version 1.3.2]
-In-Reply-To: <18993.1011984842@warthog.cambridge.redhat.com> <200201281018.g0SAIIE22462@Port.imtp.ilyichevsk.odessa.ua> <3C55282C.7D607CFB@zip.com.au>
-In-Reply-To: <3C55282C.7D607CFB@zip.com.au>
-Cc: linux-kernel@vger.kernel.org
+	id <S289012AbSA2JF5>; Tue, 29 Jan 2002 04:05:57 -0500
+Received: from pat.uio.no ([129.240.130.16]:56461 "EHLO pat.uio.no")
+	by vger.kernel.org with ESMTP id <S288955AbSA2JFh>;
+	Tue, 29 Jan 2002 04:05:37 -0500
+To: Xeno <xeno@overture.com>
+Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: Re: 2.4: NFS client kmapping across I/O
+In-Reply-To: <3C560804.C68BC6F4@overture.com>
+From: Trond Myklebust <trond.myklebust@fys.uio.no>
+Date: 29 Jan 2002 10:05:31 +0100
+In-Reply-To: <3C560804.C68BC6F4@overture.com>
+Message-ID: <shshep5wmqs.fsf@charged.uio.no>
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.1 (Cuyahoga Valley)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 28 January 2002 08:30, Andrew Morton wrote:
-> > >       s/inline//g
-> >
-> > I like this.
->
-> Well, it's a fairly small optimisation, but it's easy.
->
-> I did a patch a while back: 
-> http://www.zip.com.au/~akpm/linux/2.4/2.4.17-pre1/inline.patch This is
-> purely against core kernel files:
+>>>>> " " == xeno  <xeno@overture.com> writes:
 
-[snip]
+     > Trond, thanks for the excellent fattr race fix.  I'm sorry I
+     > haven't been able to give feedback until now, things got busy
+     > for a while.  I have not yet had a chance to run your fixes,
+     > but after studying them I believe that they will resolve the
+     > race nicely, especially with the use of nfs_inode_lock in the
+     > recent NFS_ALL experimental patches.  FWIW.
 
-How did you find big inlines? Care to share hunter script with me (+ lkml)?
+Note: the nfs_inode_lock is not in itself part of any 'fix'. It is
+merely a substitute for the current BKL protection of attribute
+updates on NFS. The BKL gets dropped from NFS + rpciod in the patch
+linux-2.4.x-rpc_bkl.dif which is, of course, included in NFS_ALL.
 
-> The first patch should be against Documentation/CodingStyle.
-> What are we trying to achieve here?  What are the guidelines
-> for when-to and when-to-not?  I'd say:
->
-> - If a function has a single call site and is static then it
->   is always correct to inline.
+     > I've also thought about pushing the kmaps and kunmaps down into
+     > the RPC layer, so the pages are only mapped while data is
+     > copied to or from them, not while waiting for the network.
+     > That would be more work, but it looks doable, so I wanted to
+     > run the problem and the approach by you knowledgeable folks
+     > while I'm waiting for hardware to free up for kernel hacking.
 
-And what if later you (or someone else!) add another call? You may forget to 
-remove inline. It adds maintenance trouble while not buying much of speed:
-if func is big, inline gains are small, if it's small, it should be inlined 
-regardless of number of call sites.
+This is the long term solution. We will in any case want to make the
+RPC layer 'page aware' in order to be able to make use of the
+zero-copy socket stuff (a.k.a. sendpage()).
+I'm still not ready to detail exactly how it should be done
+though. I'll have to get back to you on this one...
 
-> - If a function is very small (20-30 bytes) then inlining
->   is correct even if it has many call sites.
-
-Small in asm code, _not_ in C. Sometimes seemingly small C explodes into 
-horrendous asm.
-
-> - If a function is less-small, and has only one or two
->   *commonly called* call sites, then inlining is OK.
-
-How much less small? We can have both:
-
-inline int f_inlined() { ... }
-int f() { return f_inline(); }
-...
-f_inlined(); /* we need speed here */
-f(); /* we save space here */
-
-> - If a function is a leaf function, then it is more inlinable
->   than a function which makes another function call.
-
-100%. Especially when some "cute small functions" called inside happen to be 
-inlined too (or are macros).
-
-> fs/inode.c:__sync_one() violates all the above quite
-> outrageously :)
-
-Homehow I feel there are more :-)
---
-vda
+Cheers,
+   Trond

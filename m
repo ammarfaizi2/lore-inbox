@@ -1,62 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129933AbRAJU5h>; Wed, 10 Jan 2001 15:57:37 -0500
+	id <S135958AbRAJU6r>; Wed, 10 Jan 2001 15:58:47 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135763AbRAJU5S>; Wed, 10 Jan 2001 15:57:18 -0500
-Received: from 213.237.12.194.adsl.brh.worldonline.dk ([213.237.12.194]:3161
-	"HELO firewall.jaquet.dk") by vger.kernel.org with SMTP
-	id <S129933AbRAJU5K>; Wed, 10 Jan 2001 15:57:10 -0500
-Date: Wed, 10 Jan 2001 21:57:01 +0100
-From: Rasmus Andersen <rasmus@jaquet.dk>
-To: linux-kernel@vger.kernel.org
-Subject: [uPATCH] Nulling mmap_cache iff needed (2.4.0)
-Message-ID: <20010110215701.D971@jaquet.dk>
+	id <S135944AbRAJU6h>; Wed, 10 Jan 2001 15:58:37 -0500
+Received: from 216.41.5.host170 ([216.41.5.170]:62075 "EHLO
+	habitrail.home.fools-errant.com") by vger.kernel.org with ESMTP
+	id <S135763AbRAJU6Z>; Wed, 10 Jan 2001 15:58:25 -0500
+Message-Id: <200101102058.f0AKwGr00680@habitrail.home.fools-errant.com>
+X-Mailer: exmh version 2.1.1 10/15/1999
+To: kernel@ddx.a2000.nu, linux-kernel@vger.kernel.org
+Subject: Re: unexplained high load 
+In-Reply-To: Your message of "Wed, 10 Jan 2001 21:34:09 +0100."
+             <Pine.LNX.4.30.0101102131520.4304-100000@ddx.a2000.nu> 
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.4i
+Date: Wed, 10 Jan 2001 15:58:16 -0500
+From: Hacksaw <hacksaw@hacksaw.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi.
+> Could someone maybe explain this ?
+> (top output, but same load is given with 'uptime')
+> there is no cpu or disk activity
+> kernel is 2.2.18pre9 on sun ultra10-300 (ultrasparc IIi)
+> 
+>    9:25pm  up 112 days,  1:52,  1 user,  load average: 1.24, 1.05, 1.02
+>  91 processes: 90 sleeping, 1 running, 0 zombie, 0 stopped
+>  CPU states:  2.5% user,  2.3% system,  0.0% nice, 95.1% idle
+>  Mem:  515144K av, 506752K used,   8392K free,  73464K shrd,  58472K buff
+>  Swap: 131528K av,  15968K used, 115560K free                358904K cached
 
-The following (trivial) patch against 2.4.0 (but should apply cleanly
-against 241p1) makes do_munmap only null our precious cache if the
-pointer contained therein is invalidated by the unmapping. I doubt it
-will make any measurable difference but it seems straightforward
-enough to be done anyway.
+You have no processes??? My gosh, that is a problem. :-)
 
-Running kernel compiles and starting X/gnome with this patch raises my 
-cache hit rate a couple of percentage points, and I have a feeling that
-there might be work loads out there that hit this kernel path more often
-that these.
+The load average is how many processes are runnable, therefore you have 
+runnable processes.
 
-Comments?
+If you have Netscape or Mozilla running on your box, it may be in a 
+permanently runnable state.
 
+Another amusing possibility is that you have a hacked box, and top is 
+reporting the stupid IRC bot that is running, but not showing you the actuall 
+process, because it too is hacked.
 
-diff -aur linux-2.4.0-clean/mm/mmap.c linux/mm/mmap.c
---- linux-2.4.0-clean/mm/mmap.c	Sat Dec 30 18:35:19 2000
-+++ linux/mm/mmap.c	Tue Jan  9 23:30:03 2001
-@@ -712,7 +712,10 @@
- 		if (mm->mmap_avl)
- 			avl_remove(mpnt, &mm->mmap_avl);
- 	}
--	mm->mmap_cache = NULL;	/* Kill the cache. */
-+	if (mm->mmap_cache && mm->mmap_cache->vm_start < addr+len 
-+	    && mm->mmap_cache->vm_end > addr)
-+		mm->mmap_cache = NULL;	/* Kill the cache. */
-+
- 	spin_unlock(&mm->page_table_lock);
- 
- 	/* Ok - we have the memory areas we should free on the 'free' list,
+Replace ps and top, and have a look. Don't believe ls, either. 
+
+If none of these things are true, you might have another problem.
 
 
--- 
-Regards,
-        Rasmus(rasmus@jaquet.dk)
 
-"It's like an Alcatraz around my neck."
--Boston mayor Menino on the shortage of city parking spaces
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

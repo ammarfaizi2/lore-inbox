@@ -1,52 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268533AbTBWTou>; Sun, 23 Feb 2003 14:44:50 -0500
+	id <S268540AbTBWTuL>; Sun, 23 Feb 2003 14:50:11 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268535AbTBWTou>; Sun, 23 Feb 2003 14:44:50 -0500
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:5956 "EHLO
-	frodo.biederman.org") by vger.kernel.org with ESMTP
-	id <S268533AbTBWToo>; Sun, 23 Feb 2003 14:44:44 -0500
-To: "Martin J. Bligh" <mbligh@aracnet.com>
-Cc: William Lee Irwin III <wli@holomorphy.com>,
-       Jeff Garzik <jgarzik@pobox.com>, linux-kernel@vger.kernel.org
-Subject: Re: Minutes from Feb 21 LSE Call
-References: <96700000.1045871294@w-hlinder>
-	<20030222001618.GA19700@work.bitmover.com> <306820000.1045874653@flay>
-	<20030222024721.GA1489@work.bitmover.com>
-	<14450000.1045888349@[10.10.2.4]>
-	<20030222050514.GA3148@work.bitmover.com>
-	<19870000.1045895965@[10.10.2.4]> <20030222083810.GA4170@gtf.org>
-	<20030222221820.GI10401@holomorphy.com> <316510000.1045961436@flay>
-From: ebiederm@xmission.com (Eric W. Biederman)
-Date: 23 Feb 2003 12:54:43 -0700
-In-Reply-To: <316510000.1045961436@flay>
-Message-ID: <m1k7fqn56k.fsf@frodo.biederman.org>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.1
-MIME-Version: 1.0
+	id <S268542AbTBWTuL>; Sun, 23 Feb 2003 14:50:11 -0500
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:6406 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S268540AbTBWTuK>; Sun, 23 Feb 2003 14:50:10 -0500
+Date: Sun, 23 Feb 2003 19:59:40 +0000
+From: Russell King <rmk@arm.linux.org.uk>
+To: Joshua Kwan <joshk@triplehelix.org>
+Cc: John Weber <weber@nyc.rr.com>
+Subject: Re: 2.5 weirdness
+Message-ID: <20030223195940.I20405@flint.arm.linux.org.uk>
+References: <20030221221814.GA1316@triplehelix.org> <20030221152502.A9282@sonic.net> <3E592431.3080606@nyc.rr.com> <20030223195200.GA10668@triplehelix.org>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20030223195200.GA10668@triplehelix.org>; from joshk@triplehelix.org on Sun, Feb 23, 2003 at 11:52:00AM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Martin J. Bligh" <mbligh@aracnet.com> writes:
-
-> > On Sat, Feb 22, 2003 at 03:38:10AM -0500, Jeff Garzik wrote:
-> >> ia32 big iron.  sigh.  I think that's so unfortunately in a number
-> >> of ways, but the main reason, of course, is that highmem is evil :)
+On Sun, Feb 23, 2003 at 11:52:00AM -0800, Joshua Kwan wrote:
+> On Sun, Feb 23, 2003 at 02:42:41PM -0500, John Weber wrote:
+> > The problem is a little stranger than that.  On my system, cardmgr only 
+> > "believes" a card is inserted twice if a card is in the pccard slot when 
+> >  cardmgr is intially run.  Otherwise, cardmgr and the drivers appear to 
+> > function correctly.  Josh, can you try this?
 > 
-> One phrase ... "price:performance ratio". That's all it's about.
-> The only thing that will kill 32-bit big iron is the availability of 
-> cheap 64 bit chips. It's a free-market economy.
+> This was true.
 > 
-> It's ugly to program, but it's cheap, and it works.
+> Dominik's patch which is attached has fixed that for me, at least. This
+> applies with some offset to 2.5.62, but it works.
 
-I guess ugly to program is in the eye of the beholder.  The big platforms
-have always seemed much worse to me.  When every box is feels free to
-change things in arbitrary ways for no good reason.  Or where OS and
-other low-level software must know exactly which motherboard they are
-running on to work properly.
+This is his old patch which has issues with cardbus cards.  If you use
+this, you also need to add the patch Dominik just posted:
 
-Gratuitous incompatibilities are the ugliest thing I have ever seen.
-Much less ugly then the warts a real platform accumulates because it
-is designed to actually be used.
+ Date:   Sun, 23 Feb 2003 20:52:07 +0100
+ From:   Dominik Brodowski <linux@brodo.de>
+ Subject: [PATCH] pcmcia: cs.c bugfix (Russell King)
+ Message-ID: <20030223195207.GA3227@brodo.de>
 
-Eric
+Or just use his second patch in the same thread this patch came from.
+
+ Date: Sun, 23 Feb 2003 13:15:53 +0100
+ From: Dominik Brodowski <linux@brodo.de>
+ Subject: [UPDATED PATCH] pcmcia: add socket_offset for multiple pci_sockets,
+  correct suspend&resume
+ Message-ID: <20030223121553.GA10719@brodo.de>
+
+-- 
+Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
+             http://www.arm.linux.org.uk/personal/aboutme.html
+

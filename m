@@ -1,54 +1,33 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263085AbUC2TBJ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 29 Mar 2004 14:01:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263091AbUC2TBJ
+	id S263090AbUC2TCy (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 29 Mar 2004 14:02:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263092AbUC2TCx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 29 Mar 2004 14:01:09 -0500
-Received: from hera.cwi.nl ([192.16.191.8]:59380 "EHLO hera.cwi.nl")
-	by vger.kernel.org with ESMTP id S263085AbUC2TBC (ORCPT
+	Mon, 29 Mar 2004 14:02:53 -0500
+Received: from mail.solcon.nl ([212.45.33.11]:49869 "EHLO mail.solcon.nl")
+	by vger.kernel.org with ESMTP id S263090AbUC2TCv (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 29 Mar 2004 14:01:02 -0500
-Date: Mon, 29 Mar 2004 21:00:54 +0200 (MEST)
-From: <Andries.Brouwer@cwi.nl>
-Message-Id: <UTC200403291900.i2TJ0sC14336.aeb@smtp.cwi.nl>
-To: akpm@osdl.org, torvalds@osdl.org, trond.myklebust@fys.uio.no
-Subject: [patch] silence nfs mount messages
-Cc: linux-kernel@vger.kernel.org
+	Mon, 29 Mar 2004 14:02:51 -0500
+Subject: Re: [PATCH] ppc32: Fix sector_t definition with CONFIG_LBD
+From: Michel Roelofs <huender.k@solcon.nl>
+To: linux-kernel@vger.kernel.org
+Content-Type: text/plain
+Organization: 
+Message-Id: <1080586961.2587.8.camel@maan>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-4) 
+Date: 29 Mar 2004 21:02:41 +0200
+Content-Transfer-Encoding: 7bit
+X-AntiVirus: checked by Vexira Milter 1.0.6; VAE 6.24.0.7; VDF 6.24.0.75
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-People complain about the kernel messages when mounting NFS.
-(Just like last time a new NFS version was introduced.)
-It is perfectly normal to have mount newer than the kernel,
-or the kernel newer than mount. No messages are needed or useful.
+> sector_t depends on CONFIG_LBD but include/config.h may not be there
+> thus causing interesting breakage in some places... 
+> Here's the fix for ppc32 (problem found by Roman Zippel, other archs
+> need a similar fix).
 
-Andries
+This indeed solves the oops when mounting an HFS fs on my ppc32.
 
-diff -uprN -X /linux/dontdiff a/fs/nfs/inode.c b/fs/nfs/inode.c
---- a/fs/nfs/inode.c	2004-02-18 11:33:18.000000000 +0100
-+++ b/fs/nfs/inode.c	2004-03-29 20:53:28.000000000 +0200
-@@ -1292,8 +1292,10 @@ static struct super_block *nfs_get_sb(st
- 		memset(root->data+root->size, 0, sizeof(root->data)-root->size);
- 
- 	if (data->version != NFS_MOUNT_VERSION) {
-+#if 0
- 		printk("nfs warning: mount version %s than kernel\n",
- 			data->version < NFS_MOUNT_VERSION ? "older" : "newer");
-+#endif
- 		if (data->version < 2)
- 			data->namlen = 0;
- 		if (data->version < 3)
-@@ -1599,10 +1601,12 @@ static struct super_block *nfs4_get_sb(s
- 	/* Zero out the NFS state stuff */
- 	init_nfsv4_state(server);
- 
-+#if 0
- 	if (data->version != NFS4_MOUNT_VERSION) {
- 		printk("nfs warning: mount version %s than kernel\n",
- 			data->version < NFS_MOUNT_VERSION ? "older" : "newer");
- 	}
-+#endif
- 
- 	p = nfs_copy_user_string(NULL, &data->hostname, 256);
- 	if (IS_ERR(p))
+

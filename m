@@ -1,54 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263527AbTDIPhZ (for <rfc822;willy@w.ods.org>); Wed, 9 Apr 2003 11:37:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263528AbTDIPhY (for <rfc822;linux-kernel-outgoing>); Wed, 9 Apr 2003 11:37:24 -0400
-Received: from inet-mail4.oracle.com ([148.87.2.204]:9143 "EHLO
-	inet-mail4.oracle.com") by vger.kernel.org with ESMTP
-	id S263527AbTDIPhU (for <rfc822;linux-kernel@vger.kernel.org>); Wed, 9 Apr 2003 11:37:20 -0400
-Date: Wed, 9 Apr 2003 08:48:36 -0700
-From: Joel Becker <Joel.Becker@oracle.com>
-To: Rob van Nieuwkerk <robn@verdi.et.tudelft.nl>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: O_DIRECT alignment requirements ?
-Message-ID: <20030409154836.GA31739@ca-server1.us.oracle.com>
-References: <20030409141608.A12136@verdi.et.tudelft.nl>
+	id S263528AbTDIPnr (for <rfc822;willy@w.ods.org>); Wed, 9 Apr 2003 11:43:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263543AbTDIPnr (for <rfc822;linux-kernel-outgoing>); Wed, 9 Apr 2003 11:43:47 -0400
+Received: from host.atlantavirtual.com ([209.239.35.47]:11982 "EHLO
+	host.atlantavirtual.com") by vger.kernel.org with ESMTP
+	id S263528AbTDIPnq (for <rfc822;linux-kernel@vger.kernel.org>); Wed, 9 Apr 2003 11:43:46 -0400
+Subject: Re: mounting partitions on loopback
+From: kernel <kernel@crazytrain.com>
+Reply-To: kernel@crazytrain.com
+To: linux-kernel@vger.kernel.org
+Content-Type: text/plain
+Organization: 
+Message-Id: <1049907303.4504.46.camel@thong>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030409141608.A12136@verdi.et.tudelft.nl>
-X-Burt-Line: Trees are cool.
-User-Agent: Mutt/1.5.4i
+X-Mailer: Ximian Evolution 1.2.3 
+Date: 09 Apr 2003 12:55:03 -0400
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Apr 09, 2003 at 02:16:08PM +0200, Rob van Nieuwkerk wrote:
-> I plan to use O_DIRECT in my application (on a partition, no fs).
-> It is hard to find info on the exact requirements on the mandatory
-> alignments of buffer, offset, transfer size: it's easy to find many
-> contradicting documents.  And checking the kernel source itself isn't
-> trivial.
+Soeren
 
-	In 2.4, your buffer, offset, and transfer size must be soft
-blocksize aligned.  That's the output of BLKBSZGET against the block
-device.  For unmounted partitions that is 512b, for most people's ext3
-filesystems that is 4K.  It is, FYI, the number set by set_blocksize().
-	In 2.5, the alignment restrictions have been relaxed.  Your
-offset, buffer, and transfer size must all be aligned on the hardware
-sector size.  That is the output of BLKSSZGET against the block device,
-and is also what get_hardsect_size() returns in the kernel.  For almost
-all disks this number is 512b, so you can do O_DIRECT on 512b alignment
-for a raw disk or for an ext3 filesystem.  About the only thing that
-may not have a 512b hardware sector size is a CD-ROM.
+you'll have to either specify the offsets that the partitions start at
+via;
 
-Joel
+mount -o ro,loop,offset=XXX  blah blah blah
 
--- 
+Or, use a program such as SMART for Linux (asrdata.com) that will do
+that for you and allow you to right-click on them (logical partitions)
+and mount them.
 
-"Hey mister if you're gonna walk on water,
- Could you drop a line my way?"
+Remember, though, if that start of the filesystem is beyond 2GB into the
+image you'll not be able to mount it even specifying the offset.  (I
+think this is a 'bug' with the loop driver that ships with kernel?)
+However, NASA has come up with a nice workaround I use and you can find
+it here;
 
-Joel Becker
-Senior Member of Technical Staff
-Oracle Corporation
-E-mail: joel.becker@oracle.com
-Phone: (650) 506-8127
+ftp://ftp.hq.nasa.gov/pub/ig/ccd/enhanced_loopback/
+
+This modified loopback driver will automatically mount the partitions
+within that physical image file read only using the loop devices on your
+system.  (no calculation of offsets is necessary, no problem if beyond
+2GB, etc.).
+
+
+hope this helps!
+
+farmerdude
+
+
+
+

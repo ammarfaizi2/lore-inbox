@@ -1,122 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264726AbUJNOLx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265044AbUJNOPi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264726AbUJNOLx (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 14 Oct 2004 10:11:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265127AbUJNOLx
+	id S265044AbUJNOPi (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 14 Oct 2004 10:15:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265127AbUJNOPi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 14 Oct 2004 10:11:53 -0400
-Received: from elektron.ikp.physik.tu-darmstadt.de ([130.83.24.72]:42513 "EHLO
-	elektron.ikp.physik.tu-darmstadt.de") by vger.kernel.org with ESMTP
-	id S264726AbUJNOLs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 14 Oct 2004 10:11:48 -0400
-From: Uwe Bonnes <bon@elektron.ikp.physik.tu-darmstadt.de>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <16750.35107.162305.289840@hertz.ikp.physik.tu-darmstadt.de>
-Date: Thu, 14 Oct 2004 16:11:47 +0200
+	Thu, 14 Oct 2004 10:15:38 -0400
+Received: from rwcrmhc13.comcast.net ([204.127.198.39]:9979 "EHLO
+	rwcrmhc13.comcast.net") by vger.kernel.org with ESMTP
+	id S265044AbUJNOPe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 14 Oct 2004 10:15:34 -0400
+From: "Steven A. DuChene" <linux-clusters@mindspring.com>
+Date: Thu, 14 Oct 2004 06:28:49 -0400
 To: linux-kernel@vger.kernel.org
-Subject: [RESENT] FIONREAD on  SOCK_STREAM socketpairs 
+Subject: AIC-7899 not found with 2.6.9-rc4-mm1
+Message-ID: <20041014062848.U22429@lapsony.mydomain.here>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+I have a system with two on-board SCSI controllers (see lsoci output below)
+and one AHA-2940U stuck into a PCI slot. The on-board controllers are Adaptec
+AIC-7899P U160 chips on the Intel server mboard. I have been running the system with
+2.6.8-rc4-mm1 but detected some abnormalities with NFS server subsystem stuff
+so I decided to update to 2.6.9-rc4-mm1 however when I did so only the AHA-2940U
+card that is stuck into the PCI slot is found. Since this is not the controller
+with the disks attached the system is not able to find it's root filesystem.
+The output of lspci looks like:
 
-a small test program (appended) shows that Linux returns only the number of
-Bytes written with the first write call (here 11 bytes ) to the queue of a
-socketpair, opened with SOCK_STREAM.  Other systems (tested on AIX, FreeBSD,
-HPUX, Solaris) return the number of all byte (here 32) written by the repeated
-calls to write().
+xcvs:/usr/local/src/linux-2.6.9-rc4-mm1 # lspci 
+00:00.0 Host bridge: ServerWorks CNB20LE Host Bridge (rev 05)
+00:00.1 Host bridge: ServerWorks CNB20LE Host Bridge (rev 05)
+00:02.0 VGA compatible controller: ATI Technologies Inc 3D Rage IIC 215IIC [Mach64 GT IIC] (rev 7a)
+00:03.0 Ethernet controller: Intel Corp. 82557/8/9 [Ethernet Pro 100] (rev 08)
+00:07.0 Ethernet controller: Intel Corp. 82557/8/9 [Ethernet Pro 100] (rev 08)
+00:08.0 SCSI storage controller: Adaptec AHA-2940U/UW/D / AIC-7881U
+00:0f.0 ISA bridge: ServerWorks OSB4 South Bridge (rev 4f)
+00:0f.1 IDE interface: ServerWorks OSB4 IDE Controller
+00:0f.2 USB Controller: ServerWorks OSB4/CSB5 OHCI USB Controller (rev 04)
+01:04.0 SCSI storage controller: Adaptec AIC-7899P U160/m
+01:04.1 SCSI storage controller: Adaptec AIC-7899P U160/m
 
-The latter result is also consistant with the explanation for FIONREAD,
-e.g. given on
-http://docsun.cites.uiuc.edu/sun_docs/C/solaris_9/SUNWdev/STREAMS/p39.html:
+In my .config file I have the following set:
 
-> FIONREAD
->
-> The FIONREAD ioctl returns the number of data bytes (in all data messages
-> queued) in the location pointed to by the arg parameter.
+CONFIG_SCSI_AIC7XXX=y 
+CONFIG_AIC7XXX_CMDS_PER_DEVICE=32
+CONFIG_AIC7XXX_RESET_DELAY_MS=15000
+# CONFIG_AIC7XXX_DEBUG_ENABLE is not set
+CONFIG_AIC7XXX_DEBUG_MASK=0
+CONFIG_AIC7XXX_REG_PRETTY_PRINT=y
+# CONFIG_SCSI_AIC7XXX_OLD is not set
+# CONFIG_SCSI_AIC79XX is not set
 
-
-For 2.4, I applied following patch:
-====
---- linux/net/unix/af_unix.c.org	2004-08-12 16:47:00.000000000 +0200
-+++ linux/net/unix/af_unix.c	2004-10-12 12:19:44.000000000 +0200
-@@ -1692,8 +1692,12 @@
- 				err = -EINVAL;
- 				break;
- 			}
--
- 			spin_lock(&sk->receive_queue.lock);
-+			if (sk->type == SOCK_STREAM)
-+			  skb_queue_walk(&sk->receive_queue, skb) {
-+			  amount+=skb->len;
-+			}
-+			else
- 			if((skb=skb_peek(&sk->receive_queue))!=NULL)
- 				amount=skb->len;
- 			spin_unlock(&sk->receive_queue.lock);
-========
-and for 2.6:
-========
---- linux-2.6.9-rc4/net/unix/af_unix.c.org	2004-10-11 04:58:07.000000000 +0200
-+++ linux-2.6.9-rc4/net/unix/af_unix.c	2004-10-12 19:33:38.000000000 +0200
-@@ -1840,9 +1840,16 @@
- 			}
- 
- 			spin_lock(&sk->sk_receive_queue.lock);
-+			if (sk->sk_type == SOCK_STREAM)
-+			  skb_queue_walk(&sk->sk_receive_queue, skb) {
-+			  amount+=skb->len;
-+			}
-+			else
-+			  {
- 			skb = skb_peek(&sk->sk_receive_queue);
- 			if (skb)
- 				amount=skb->len;
-+			  }
- 			spin_unlock(&sk->sk_receive_queue.lock);
- 			err = put_user(amount, (int __user *)arg);
- 			break;
-=====
-
-Any comments on this behaviour and patch?
-
-Thanks
-
+This same configuration worked fine with 2.6.8-rc4-mm1 but not with the
+2.6.9-rc4-mm1 source tree. Later this afternoon I will try backing out
+the mm1 patch to the 2.6.9-rc4 source tree and see if the problem still
+occures with just the plain 2.6.9-rc4 kernel.
 -- 
-Uwe Bonnes                bon@elektron.ikp.physik.tu-darmstadt.de
-
-Institut fuer Kernphysik  Schlossgartenstrasse 9  64289 Darmstadt
---------- Tel. 06151 162516 -------- Fax. 06151 164321 ----------
-#include <stdio.h>
-#include <sys/ioctl.h>
-#include <sys/socket.h>
-#include <unistd.h>
-
-int main()
-{
-    int fds[2];
-    const char obuf[] =  "Bit Bucket";
-    const char obuf2[] = "More bits";
-    char ibuf[34];
-    int i, avail;
-
-    if( !socketpair( PF_UNIX, SOCK_STREAM, 0, fds ) ) {
-        printf("Success\n");
-        
-        write(fds[0], obuf, sizeof(obuf));
-        write(fds[0], obuf2, sizeof(obuf2));
-        write(fds[0], obuf, sizeof(obuf));
-        i = ioctl(fds[1], FIONREAD, &avail);
-        printf("FIONREAD: %d bytes avail\n", avail);
-        i = read(fds[1], ibuf, sizeof(ibuf));
-        printf("Read: %d bytes - %s\n", i, ibuf);
-        
-        close(fds[0]);
-        close(fds[1]);
-    }
-    else
-        printf("Fail\n");
-    return 0;
-}
+Steven A. DuChene     linux-clusters at mindspring dot com

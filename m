@@ -1,29 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281306AbRKPLSi>; Fri, 16 Nov 2001 06:18:38 -0500
+	id <S281304AbRKPLZs>; Fri, 16 Nov 2001 06:25:48 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281307AbRKPLS2>; Fri, 16 Nov 2001 06:18:28 -0500
-Received: from shell7.ba.best.com ([206.184.139.138]:5897 "EHLO
-	shell7.ba.best.com") by vger.kernel.org with ESMTP
-	id <S281306AbRKPLSS>; Fri, 16 Nov 2001 06:18:18 -0500
-Date: Fri, 16 Nov 2001 03:17:25 -0800
-From: Nathan Myers <ncm@nospam.cantrip.org>
-To: linux-kernel@vger.kernel.org
-Subject: [PATCH] omnibus include/ cleanup, updated to 2.4.15-pre5
-Message-ID: <20011116031725.B6651@shell7.ba.best.com>
+	id <S281313AbRKPLZj>; Fri, 16 Nov 2001 06:25:39 -0500
+Received: from [213.151.208.3] ([213.151.208.3]:5898 "EHLO
+	imc.intranet.globtel.sk") by vger.kernel.org with ESMTP
+	id <S281308AbRKPLZ2>; Fri, 16 Nov 2001 06:25:28 -0500
+Subject: Re: ext2/3 performace
+From: Robert Varga <nite@hq.alert.sk>
+To: "J.A. Magallon" <jamagallon@able.es>
+Cc: Lista Linux-Kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <20011116005610.A7077@werewolf.able.es>
+In-Reply-To: <20011116005610.A7077@werewolf.able.es>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/0.99.0 (Preview Release)
+Date: 16 Nov 2001 12:22:20 +0100
+Message-Id: <1005909741.2276.5.camel@nitebug.globtel.sk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I have updated and regularized the header file cleanup patches located at 
+On Fri, 2001-11-16 at 00:56, J.A. Magallon wrote:
+> /dev/sdb1 (wide at 40):
+> ================================================================
+> fs=ext2
+> read:
+> 0.21user 2.97system 1:05.17elapsed 4%CPU (0avgtext+0avgdata 0maxresident)k
+> 0inputs+0outputs (100major+19minor)pagefaults 0swaps
+> ================================================================
+> ================================================================
+> fs=ext3
+> read:
+> 0.18user 4.43system 1:05.78elapsed 7%CPU (0avgtext+0avgdata 0maxresident)k
+> 0inputs+0outputs (100major+19minor)pagefaults 0swaps
+> ================================================================
 
-  http://ncm.best.vwh.net/patch-linux.diff
-  http://ncm.best.vwh.net/patch-includes.diff
+Any idea why system time is up by 49%? Interestingly this doesn't show
+up on the U160 disk.
 
-to apply properly to 2.4.15-pre5.  (They will still work ok on pre4.)
+Kind regards,
+Robert Varga
 
-Nathan Myers
-ncm at cantrip dot org
+

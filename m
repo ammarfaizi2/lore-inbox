@@ -1,60 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262730AbUGAE5q@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263971AbUGAE7r@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262730AbUGAE5q (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 Jul 2004 00:57:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263942AbUGAE5q
+	id S263971AbUGAE7r (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 Jul 2004 00:59:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263962AbUGAE7q
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 Jul 2004 00:57:46 -0400
-Received: from fw.osdl.org ([65.172.181.6]:55781 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S262730AbUGAE5p (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 Jul 2004 00:57:45 -0400
-Date: Wed, 30 Jun 2004 21:57:35 -0700 (PDT)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Roland McGrath <roland@redhat.com>
-cc: Andrea Arcangeli <andrea@suse.de>, Andreas Schwab <schwab@suse.de>,
-       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: zombie with CLONE_THREAD
-In-Reply-To: <200407010322.i613MPDr016785@magilla.sf.frob.com>
-Message-ID: <Pine.LNX.4.58.0406302147350.11212@ppc970.osdl.org>
-References: <200407010322.i613MPDr016785@magilla.sf.frob.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Thu, 1 Jul 2004 00:59:46 -0400
+Received: from lakermmtao02.cox.net ([68.230.240.37]:7390 "EHLO
+	lakermmtao02.cox.net") by vger.kernel.org with ESMTP
+	id S263971AbUGAE7i (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 1 Jul 2004 00:59:38 -0400
+In-Reply-To: <20040701041158.GE1564@mail.shareable.org>
+References: <20040630024434.GA25064@mail.shareable.org> <20040630033841.GC21066@holomorphy.com> <20040701032606.GA1564@mail.shareable.org> <00345FCC-CB11-11D8-947A-000393ACC76E@mac.com> <20040701041158.GE1564@mail.shareable.org>
+Mime-Version: 1.0 (Apple Message framework v618)
+Content-Type: text/plain; charset=US-ASCII; format=flowed
+Message-Id: <736E7483-CB1B-11D8-947A-000393ACC76E@mac.com>
+Content-Transfer-Encoding: 7bit
+Cc: William Lee Irwin III <wli@holomorphy.com>,
+       Michael Kerrisk <michael.kerrisk@gmx.net>, linux-kernel@vger.kernel.org
+From: Kyle Moffett <mrmacman_g4@mac.com>
+Subject: Re: Testing PROT_NONE and other protections, and a surprise
+Date: Thu, 1 Jul 2004 00:59:36 -0400
+To: Jamie Lokier <jamie@shareable.org>
+X-Mailer: Apple Mail (2.618)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Jul 01, 2004, at 00:11, Jamie Lokier wrote:
+> Can you confirm in a simple way that mapping a file, or some anonymous
+> memory, without PROT_READ, really isn't writable under MacOS X?  Can
+> you confirm it with a word write, if that would be relevant?
 
+I hope I didn't make some stupid mistake in my program, but here it is, 
+and
+here are my results.  I'll probably go file a bug with Apple now :-D
 
-On Wed, 30 Jun 2004, Roland McGrath wrote:
->
-> The following patch fixes that for me.  I am not 100% confident that the
-> locking dance required here doesn't create some weird issue (and it
-> certainly seems inefficient how many times the lock is released and
-> retaken in this sequence), but maybe 92% sure.
+zeus:~ kylemoffett$ cat >testp.c
+#include <sys/types.h>
+#include <sys/mman.h>
 
-I do think the locking is broken in your patch.
+#include <stdlib.h>
+#include <stdio.h>
+#include <sys/types.h>
+#include <sys/mman.h>
 
-Since you release the tasklist lock, the children on our list of children 
-might go away while you released the lock, making the
+int main(int argc, char **argv) {
+         long x = 100;
+         void *mem;
+         fprintf(stderr,"Starting...\n");
+         mem = mmap(0,4096,PROT_WRITE,MAP_ANON|MAP_SHARED,-1,0);
+         fprintf(stderr,"Mapped memory!\n");
+         if (mem == 0) return 1;
+         fprintf(stderr,"Address is %lx\n",(unsigned long)mem);
+         ((long *)mem)[1] = x;
+         fprintf(stderr,"Done!!!\n");
+         return 0;
+}
+^D
+zeus:~ kylemoffett$ gcc testp.c -o testp
+zeus:~ kylemoffett$ ./testp
+Starting...
+Mapped memory!
+Address is 4000
+Bus error
+zeus:~ kylemoffett$
 
-	list_for_each_safe(..)
+Cheers,
+Kyle Moffett
 
-thing unsafe - the next entry in the list (that we have cached in "next") 
-may have gone away, resulting in us using a stale pointer when we re-start 
-the loop after re-aquiring the lock.
-
-HOWEVER, I think you can fix it with something like
-
-	_n = father->children.next;
-
-after you've re-aquired the lock (that will re-start the loop, but since 
-we should have gotten rid of all the previous entries, the "restart" is 
-actually going to just continue at the point where we were going to 
-continue anyway, so it shouldn't cause any extra iterations).
-
-Does that still work for you, or have I totally messed up?
-
-I do agree with Andrea that it's ugly, and my patch just makes it uglier 
-still. I wonder if there is some cleaner way to do the same thing.
-
-		Linus

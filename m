@@ -1,63 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261736AbVDENmY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261734AbVDENoG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261736AbVDENmY (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Apr 2005 09:42:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261734AbVDENmY
+	id S261734AbVDENoG (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Apr 2005 09:44:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261742AbVDENoF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Apr 2005 09:42:24 -0400
-Received: from wproxy.gmail.com ([64.233.184.203]:60966 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261736AbVDENmU (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Apr 2005 09:42:20 -0400
+	Tue, 5 Apr 2005 09:44:05 -0400
+Received: from rproxy.gmail.com ([64.233.170.202]:6421 "EHLO rproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261734AbVDENnd convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 5 Apr 2005 09:43:33 -0400
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
         s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
-        b=UcoUiAUtzQlUL2R/hWUXCeK7qtr8ILXBGEzanbiifxYP0Op+1eAR8QF3pK0eqIEyqwbV9NkGHcMNBBg4ltBqdFIYBm5gZJN1h96PzocxyoMNQj31av4Q29X1go/NrntYznLGe45FqcZA5tslhsHnKMX5Imnp322XWW10Cn1TEu0=
-Message-ID: <2a0fbc5905040506422fbf6356@mail.gmail.com>
-Date: Tue, 5 Apr 2005 15:42:14 +0200
-From: Julien Wajsberg <julien.wajsberg@gmail.com>
-Reply-To: Julien Wajsberg <julien.wajsberg@gmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: Re: How's the nforce4 support in Linux?
-In-Reply-To: <2a0fbc59050325145935a05521@mail.gmail.com>
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
+        b=GeNB2XS0m8Kqh8gLxUXtk4MZ4GNNqiz3R3Ut29v6Z5HFm+GvUilr7Qg8TC2GLjr5Wi7Y8tlyWtRvsQnp7vqeD4vvTl4l+Ww2d1M4Oras89ghwHyKwehu7rtGO/mo0ujfMSRM67ZvGHo/mOEx3JRDCpf1+E09U2Jl1cpKN3EiuyE=
+Message-ID: <6f6293f10504050643e50a1f9@mail.gmail.com>
+Date: Tue, 5 Apr 2005 14:43:30 +0100
+From: Felipe Alfaro Solana <felipe.alfaro@gmail.com>
+Reply-To: Felipe Alfaro Solana <felipe.alfaro@gmail.com>
+To: Wiktor <victorjan@poczta.onet.pl>
+Subject: Re: crypting filesystems
+Cc: Andreas Hartmann <andihartmann@freenet.de>, linux-kernel@vger.kernel.org
+In-Reply-To: <4251A8C4.60007@poczta.onet.pl>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
-References: <2a0fbc59050325145935a05521@mail.gmail.com>
+Content-Transfer-Encoding: 8BIT
+References: <42511AE5.1060603@pD9F8754D.dip0.t-ipconnect.de>
+	 <4251A8C4.60007@poczta.onet.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mar 26, 2005 12:59 AM, Julien Wajsberg <julien.wajsberg@gmail.com> wrote:
-> I own an Asus A8N-Sli motherboard with the Nforce4-Sli chipset, and I
-> experiment the following problem :
+On Apr 4, 2005 9:51 PM, Wiktor <victorjan@poczta.onet.pl> wrote:
+> Hi,
 > 
-> Mar 25 22:42:55 evenflow kernel: hda: dma_timer_expiry: dma status == 0x60
-> Mar 25 22:42:55 evenflow kernel: hda: DMA timeout retry
-> Mar 25 22:42:55 evenflow kernel: hda: timeout waiting for DMA
-> Mar 25 22:42:55 evenflow kernel: hda: status error: status=0x58 {
-> DriveReady SeekComplete DataRequest }
-> Mar 25 22:42:55 evenflow kernel:
-> Mar 25 22:42:55 evenflow kernel: ide: failed opcode was: unknown
-> Mar 25 22:42:55 evenflow kernel: hda: drive not ready for command
-> Mar 25 22:42:55 evenflow kernel: hda: status timeout: status=0xd0 { Busy }
-> Mar 25 22:42:55 evenflow kernel:
-> Mar 25 22:42:55 evenflow kernel: ide: failed opcode was: unknown
-> Mar 25 22:42:55 evenflow kernel: hdb: DMA disabled
-> Mar 25 22:42:55 evenflow kernel: hda: drive not ready for command
+> I'm using the following method and it seems to be working fine
+> (involving crypto-loop):
 > 
-> Of course, if I disable DMA with hdparm, this problem disappear.. but
-> it isn't a long-term solution ;-)
+> i have normal ext3 /boot partition, where i store kernel image & initrd.
+> after lilo boots the kernel, initrd sets up /dev/loop0 to be
+> crypto-loop/blowfish for /dev/hda1 (losetup /dev/loop0 /dev/hda1 -e
+> blowfish). losetup asks for passphrase, and (if entered correctly),
+> /dev/loop0 is mounted as root filesystem (it can be done also by simple
+> mount call: mount /dev/hda1 /some-place -o rw,encryption=blowfish). for
+> encrypting more filesystems with one passphrase, you can read it in
+> shell script in non-echo-mode (if such exists, i'm not sure), and pass
+> it to mount or losetup. crypto-loop makes possible to switch encryption
+> type without modifying whole initrd.
 > 
-> Using vanilla 2.6.11.5 kernel. I attached the config file.
+> Regarding your questions:
+> 
+>  > 1. In order to put in the passphrase just once a time at booting, I
+> put the passphrase in a gpg-crypted file (cipher AES256 and 256Bit key
+> size), which is decrypted at boot-time to /tmp (-> tmpfs) and
+> immediately removed with shred, after activating the three partitions.
+> Is it possible to see the cleartext password after this action in tmpfs?
+> 
+> Disk encryption usually protects from hardware-attacks (when hacker has
+> physical access to the hardware). if you keep passphrase
+> reversible-encrypted, attacker can read it and run brute-force attack
+> using some huge-computing-capacity. is this what you want?
+> 
+>  > 2. Is it possible to gain the passphrase from the active encrypted
+> partitions (because the passphrase is somewhere held in the RAM)?
+> 
+> Only when attacker has root privileges. But i'm not sure if it is
+> possible to extract passphrase knowing both encrypted and not encrypted
+> data. What i mean is that usually each filesystem begins with
+> filesystem-specyfic-header, which is constant or similar to each other.
+> so, if attacker has encrypted form of this header and can estimate
+> unencryptes form, it can possibly gain the passphrase. (but therse are
+> only my ideas, i don't know how the encryptino-algorithm works).
 
-I tried the multidma mode (as opposed to ultradma), and the system
-hanged immediately. (Thanks to the patched-for-netpoll forcedeth
-driver), I got the following message:
-
-Unknown interrupt or fault at EIP 00000206 00000060 c0247a3a
-
-There's definitely something wrong here...
-I'm still using the same setup as in my first mail.
-
--- 
-Julien
+What´s kept in RAM is the AES key used to decrypt disk blocks.
+However, the passphrase from which the AES key is derived (usually by
+using a hash function) is not kept in memory.

@@ -1,64 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261276AbVCAHv1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261279AbVCAH4b@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261276AbVCAHv1 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Mar 2005 02:51:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261279AbVCAHv1
+	id S261279AbVCAH4b (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Mar 2005 02:56:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261285AbVCAH4a
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Mar 2005 02:51:27 -0500
-Received: from h155.mvista.com ([12.44.186.155]:25220 "EHLO imap.sh.mvista.com")
-	by vger.kernel.org with ESMTP id S261276AbVCAHvZ (ORCPT
+	Tue, 1 Mar 2005 02:56:30 -0500
+Received: from gw1.cosmosbay.com ([62.23.185.226]:1754 "EHLO gw1.cosmosbay.com")
+	by vger.kernel.org with ESMTP id S261279AbVCAH40 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Mar 2005 02:51:25 -0500
-Subject: [patch] Fix e1000 driver disable interrupts bug for
-	realtime-preempt-2.6.11-rc4-V0.7.39-02
-From: Yang Yi <yyang@ch.mvista.com>
-Reply-To: yyang@ch.mvista.com
-To: mingo@elte.hu
-Cc: linux-kernel@vger.kernel.org, Rt-Dev@Mvista.Com
-Content-Type: text/plain
-Organization: MontaVista China R&D Center
-Message-Id: <1109663530.18759.207.camel@montavista2>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Tue, 01 Mar 2005 15:52:10 +0800
+	Tue, 1 Mar 2005 02:56:26 -0500
+Message-ID: <42242023.9070101@cosmosbay.com>
+Date: Tue, 01 Mar 2005 08:56:19 +0100
+From: Eric Dumazet <dada1@cosmosbay.com>
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.7.3) Gecko/20040910
+X-Accept-Language: fr, en-us, en
+MIME-Version: 1.0
+To: MingJie Chang <mingjie.tw@gmail.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: question about sockfd_lookup( )
+References: <8b46b8f1050228220257173ddf@mail.gmail.com>
+In-Reply-To: <8b46b8f1050228220257173ddf@mail.gmail.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi ,Ingo
+Hi
 
-this patch fixes e1000 driver disable interrupt bug when enabling
-"Complete Preemption (Realtime)".
+Try adding sockfd_put(sock) ;
 
-Type: Defect Fix
-Disposition: submitted to LKML
-Signed-off-by: Yi Yang <yyang@ch.mvista.com>
-Description: When enabling Complete Real-time Preemption, e1000 driver
-always disables interrupts while calling e1000_xmit_frame, this will
-lead to some serious problem, for example, the time will be skewed
-because timer interrupt is also disabled, it also leads to network
-packet missed, netperf's result indicates that thing is very very bad.
-As a matter of fact, the reason is that
-spin_unlock_irqrestore(&adapter->tx_lock) won't restore flags under the
-Complete Preemption (Realtime) case, according to Real-time Preemption
-regular, spin_lock_irqsave(&adapter->tx_lock) also dosen't disable
-interrupts, so, local_irq_save and local_irq_restore should be changed
-into local_irq_save_nort and local_irq_restore_nort, respectively.
+MingJie Chang wrote:
+> Dear all,
+> 
+> I want to get socket information by the sockfd while accetping,
+> 
+> so I write a module to test sockfd_lookup(),
+> 
+> but I got some problems when I test it.
+> 
+> I hope someone can help me...
+> 
+> Thank you
+> 
+> following text is my code and error message
+> ===========================================
+> === code ===
+> 
+> int my_socketcall(int call,unsigned long *args)  
+> {
+>    int ret,err;
+>    struct socket * sock;
+> 
+>    ret = run_org_socket_call(call,args);   //orignal sys_sockcall()
+>    
+>    if(call==SYS_ACCEPT&&ret>=0) 
+>    {
+>           sock=sockfd_lookup(ret,&err);
+>           printk("lookup done\n");
 
---- a/drivers/net/e1000/e1000_main.c    2005-03-01 11:04:53.000000000
-+0800
-+++ b/drivers/net/e1000/e1000_main.c    2005-03-01 13:46:40.000000000
-+0800
-@@ -1802,10 +1802,10 @@ e1000_xmit_frame(struct sk_buff *skb, st
-        if(adapter->pcix_82544)
-                count += nr_frags;
+	if (sock) sockfd_put(sock) ;
 
--       local_irq_save(flags);
-+       local_irq_save_nort(flags);
-        if (!spin_trylock(&adapter->tx_lock)) {
-                /* Collision - tell upper layer to requeue */
--               local_irq_restore(flags);
-+               local_irq_restore_nort(flags);
-                return NETDEV_TX_LOCKED;
-        }
+>    }
+>    return ret;
+> }
+
+Eric Dumazet
 

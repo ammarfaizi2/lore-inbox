@@ -1,67 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261231AbTD3AcO (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 29 Apr 2003 20:32:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261232AbTD3AcO
+	id S261300AbTD3Asv (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 29 Apr 2003 20:48:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261399AbTD3Asu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 29 Apr 2003 20:32:14 -0400
-Received: from numenor.qualcomm.com ([129.46.51.58]:35717 "EHLO
-	numenor.qualcomm.com") by vger.kernel.org with ESMTP
-	id S261231AbTD3AcN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 29 Apr 2003 20:32:13 -0400
-Message-Id: <5.1.0.14.2.20030429152151.10dc8db0@unixmail.qualcomm.com>
-X-Mailer: QUALCOMM Windows Eudora Version 5.1
-Date: Tue, 29 Apr 2003 17:44:21 -0700
-To: Greg KH <greg@kroah.com>, oliver@neukum.name
-From: Max Krasnyansky <maxk@qualcomm.com>
-Subject: Re: [Bluetooth] HCI USB driver update. Support for SCO over
-  HCI USB.
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       linux-usb-devel@lists.sourceforge.net
-In-Reply-To: <20030429214004.GA8891@kroah.com>
-References: <200304292334.19447.oliver@neukum.org>
- <200304290317.h3T3HOdA027579@hera.kernel.org>
- <5.1.0.14.2.20030429131303.10d7f330@unixmail.qualcomm.com>
- <20030429211550.GA8669@kroah.com>
- <200304292334.19447.oliver@neukum.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+	Tue, 29 Apr 2003 20:48:50 -0400
+Received: from smtp-out.comcast.net ([24.153.64.109]:32269 "EHLO
+	smtp-out.comcast.net") by vger.kernel.org with ESMTP
+	id S261300AbTD3Ast (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 29 Apr 2003 20:48:49 -0400
+Date: Tue, 29 Apr 2003 20:59:15 -0400
+From: rmoser <mlmoser@comcast.net>
+Subject: Re: Swap Compression
+In-reply-to: <200304292114.h3TLEHBu003733@81-2-122-30.bradfords.org.uk>
+To: John Bradford <john@grabjohn.com>
+Cc: linux-kernel@vger.kernel.org
+Message-id: <200304292059150060.002E747A@smtp.comcast.net>
+MIME-version: 1.0
+X-Mailer: Calypso Version 3.30.00.00 (3)
+Content-type: text/plain; charset=us-ascii
+Content-transfer-encoding: 7BIT
+References: <200304292114.h3TLEHBu003733@81-2-122-30.bradfords.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-At 02:40 PM 4/29/2003, Greg KH wrote:
->On Tue, Apr 29, 2003 at 11:34:19PM +0200, Oliver Neukum wrote:
->> 
->> > +int usb_init_urb(struct urb *urb)
->> > +{
->> > +   if (!urb)
->> > +           return -EINVAL;
->> > +   memset(urb, 0, sizeof(*urb));
->> > +   urb->count = (atomic_t)ATOMIC_INIT(1);
->> > +   spin_lock_init(&urb->lock);
->> > +
->> > +   return 0;
->> > +}
->> 
->> Greg, please don't do it this way. Somebody will
->> try to free this urb. If the urb is part of a structure
->> this must not lead to a kfree. Please init it to some
->> insanely high dummy value in this case.
-Uh, I didn't think about that one. This stuff was first implemented 
-for 2.4 which didn't have refcount in urb and then forward ported to 2.5.
 
->We can't init it to a high value, if we want to use it ourself in
->usb_alloc_urb().
->
->And yes, I agree this is a very dangerous function to use on your own,
->I thought I conveyed that in the documentation for the function.
->
->But if we don't have such a function, then people like Max will just
->roll their own, like he just did :)
->
->Might as well make it easy for him to shoot himself in the foot if he
->really wants to...
-Thanks. I'll wear bullet proof shoes, just in case :-).
 
-Max
+*********** REPLY SEPARATOR  ***********
+
+On 4/29/2003 at 10:14 PM John Bradford wrote:
+
+>> I want to start from scratch because I am trying a different angle,
+>> and I don't understand fully current projects on it.
+>
+>There is nothing wrong from having a separate, parallel project
+>running - it's a good idea, and generally helps to spark interest in
+>both projects.
+>
+
+THANK YOU!
+
+You've saved me from having to defend meself.
+
+--Bluefox Icy
+>John.
+>-
+>To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+>the body of a message to majordomo@vger.kernel.org
+>More majordomo info at  http://vger.kernel.org/majordomo-info.html
+>Please read the FAQ at  http://www.tux.org/lkml/
+
+
 

@@ -1,58 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264890AbTLVPjZ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 22 Dec 2003 10:39:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264910AbTLVPjZ
+	id S264434AbTLVQhY (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 22 Dec 2003 11:37:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264439AbTLVQhY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 22 Dec 2003 10:39:25 -0500
-Received: from mail.humboldt.co.uk ([81.2.65.18]:27591 "EHLO
-	mail.humboldt.co.uk") by vger.kernel.org with ESMTP id S264890AbTLVPjX
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 22 Dec 2003 10:39:23 -0500
-Subject: Re: [OT] use of patented algorithms in the kernel ok or not?
-From: Adrian Cox <adrian@humboldt.co.uk>
-To: John Bradford <john@grabjohn.com>
-Cc: Jamie Lokier <jamie@shareable.org>, Stan Bubrouski <stan@ccs.neu.edu>,
-       linux-kernel mailing list <linux-kernel@vger.kernel.org>
-In-Reply-To: <200312220950.hBM9o7Xr000488@81-2-122-30.bradfords.org.uk>
-References: <1071969177.1742.112.camel@cube>
-	<20031221105333.GC3438@mail.shareable.org>
-	<1072034966.1286.119.camel@duergar>
-	<20031221215717.GA6507@mail.shareable.org> 
-	<200312220950.hBM9o7Xr000488@81-2-122-30.bradfords.org.uk>
+	Mon, 22 Dec 2003 11:37:24 -0500
+Received: from pcp701542pcs.bowie01.md.comcast.net ([68.50.82.18]:58380 "EHLO
+	floyd.gotontheinter.net") by vger.kernel.org with ESMTP
+	id S264434AbTLVQhX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 22 Dec 2003 11:37:23 -0500
+Subject: Re: Oops with 2.4.23
+From: Disconnect <lkml@sigkill.net>
+To: lkml <linux-kernel@vger.kernel.org>
+In-Reply-To: <20031219235521.GK6438@matchmail.com>
+References: <20031219224402.GA1284@scrappy>
+	 <Pine.LNX.4.44.0312200034560.15516-100000@gaia.cela.pl>
+	 <20031219235521.GK6438@matchmail.com>
 Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 
-Date: 22 Dec 2003 15:34:15 +0000
-Message-Id: <1072107256.28039.321.camel@newt>
+Message-Id: <1072111047.7005.2.camel@slappy>
 Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Mon, 22 Dec 2003 11:37:27 -0500
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2003-12-22 at 09:50, John Bradford wrote:
-> Quote from Jamie Lokier <jamie@shareable.org>:
+On Fri, 2003-12-19 at 18:55, Mike Fedyk wrote:
+> On Sat, Dec 20, 2003 at 12:35:24AM +0100, Maciej Zenczykowski wrote:
+> > > So i have just tested to run memtest86 on my box and i have had no error
+> > > with this. I have also tested cpuburn without any result. Have you some
+> > > others ideas ?
+> > 
+> > you did run memtest for a minimum dozen hours? sometimes it takes that 
+> > long to find errors...
 > 
-> > That's why I said it's uncharted territory.  We don't know how safe it
-> > is to publish code that *doesn't do anything* but does embody a
-> > patented technique *only if the recipient deliberately modifies the
-> > code*.
-> 
-> Look at the MTD code.
+> Has anyone noticed if several runs with the normal tests, or a single test
+> with all tests running catches more errors?
 
-For examples of source code distribution in a patented area, look at
-MPEG4 projects, particularly MPEG4IP.
+I just did all this last weekend, and the basic operation I use is:
+ - two passes at standard mode (this bombed for me at first, so adjust
+timings/etc and repeat)
+ - two passes at enhanced mode (this bombed on me once, so timings again
+and restart from the beginning)
+ - and (I skipped this) one pass at 'all' mode, just to be sure
 
-http://mpeg4ip.sourceforge.net/ has source code under a variety of
-licenses including GPL, and the front page has the following disclaimer:
-"This code is not intended for end users, and does not contain
-executables. Please read all the legal information to determine if it is
-suitable for you."
+Once it passes 2 standard and 2 enhanced, its a safe bet that it's
+clean..
 
-The project was started by Cisco, who likely did some legal research
-first. Cisco, however, have the resources to see off frivolous lawsuits,
-while individual developers do not.
-
-- Adrian Cox
-http://www.humboldt.co.uk/
-
+-- 
+Disconnect <lkml@sigkill.net>
 

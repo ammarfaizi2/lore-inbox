@@ -1,35 +1,34 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315167AbSEFUyP>; Mon, 6 May 2002 16:54:15 -0400
+	id <S315165AbSEFUsb>; Mon, 6 May 2002 16:48:31 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315170AbSEFUyO>; Mon, 6 May 2002 16:54:14 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:4879 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S315167AbSEFUyO>;
-	Mon, 6 May 2002 16:54:14 -0400
-Message-ID: <3CD6ED34.3D676EBF@zip.com.au>
-Date: Mon, 06 May 2002 13:53:08 -0700
-From: Andrew Morton <akpm@zip.com.au>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-pre4 i686)
-X-Accept-Language: en
+	id <S315167AbSEFUsa>; Mon, 6 May 2002 16:48:30 -0400
+Received: from rex.abanes.org ([216.54.200.227]:20465 "EHLO rex.abanes.org")
+	by vger.kernel.org with ESMTP id <S315165AbSEFUsa>;
+	Mon, 6 May 2002 16:48:30 -0400
+Message-ID: <003c01c1f53f$43427c60$94d4870a@office.abanes.org>
+From: "Michael Rothwell" <rothwell@holly-springs.nc.us>
+To: <khttpd-users@alt.org>, <linux-kernel@vger.kernel.org>
+In-Reply-To: <3CD5ECEE.E6C0B894@kegel.com><Pine.LNX.4.44.0205061608300.26867-100000@mustard.heime.net> <15574.52864.321544.44124@gargle.gargle.HOWL>
+Subject: Re: Tux in main kernel tree? (was khttpd rotten?)
+Date: Mon, 6 May 2002 16:47:40 -0400
+Organization: Holly Springs, NC
 MIME-Version: 1.0
-To: "David D. Hagood" <wowbagger@sktc.net>
-CC: Justin Piszcz <war@starband.net>, linux-kernel@vger.kernel.org
-Subject: Re: Linux & X11 & IRQ Interrupts
-In-Reply-To: <3CD5D57D.DED89DFC@starband.net> <3CD5DD6D.60800@sktc.net>
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2600.0000
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"David D. Hagood" wrote:
-> ...
-> If this bothers you, you could try getting another power supply (one
-> that is "stiffer" and less prone to voltage sag) or you could run a
-> program like Seti@home or Distributed.Net and keep your CPU busy all the
-> time.
+From: "John Stoffel" <stoffel@casc.com>
+> Or maybe we should include kDNS and kftpd as well now?
 
-You can just add `idle=poll' to the kernel boot command line.
-Then the CPU will not be halted, and there will be less
-variation in the current.
+Or even (laugh), an NFS server...
 
--
+</sarcasm>
+
+

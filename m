@@ -1,57 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S270258AbRHSIwC>; Sun, 19 Aug 2001 04:52:02 -0400
+	id <S270311AbRHSJq7>; Sun, 19 Aug 2001 05:46:59 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S270263AbRHSIvw>; Sun, 19 Aug 2001 04:51:52 -0400
-Received: from mail4.svr.pol.co.uk ([195.92.193.211]:36418 "EHLO
-	mail4.svr.pol.co.uk") by vger.kernel.org with ESMTP
-	id <S270258AbRHSIvp>; Sun, 19 Aug 2001 04:51:45 -0400
-Message-ID: <3B7F7E2B.2090601@humboldt.co.uk>
-Date: Sun, 19 Aug 2001 09:51:55 +0100
-From: Adrian Cox <adrian@humboldt.co.uk>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.2+) Gecko/20010801
-X-Accept-Language: en-us
+	id <S270314AbRHSJqt>; Sun, 19 Aug 2001 05:46:49 -0400
+Received: from [209.202.108.240] ([209.202.108.240]:16904 "EHLO
+	terbidium.openservices.net") by vger.kernel.org with ESMTP
+	id <S270311AbRHSJqg>; Sun, 19 Aug 2001 05:46:36 -0400
+Date: Sun, 19 Aug 2001 05:46:32 -0400 (EDT)
+From: Ignacio Vazquez-Abrams <ignacio@openservices.net>
+To: "Eric S. Raymond" <esr@thyrsus.com>
+cc: Linux Kernel List <linux-kernel@vger.kernel.org>, <gars@lanm-pc.com>
+Subject: Re: Swap size for a machine with 2GB of memory
+In-Reply-To: <20010819024233.A26916@thyrsus.com>
+Message-ID: <Pine.LNX.4.33.0108190526090.4118-100000@terbidium.openservices.net>
 MIME-Version: 1.0
-To: "Eric W. Biederman" <ebiederm@xmission.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Encrypted Swap
-In-Reply-To: <Pine.LNX.3.95.1010817152158.4584B-100000@chaos.analogic.com>	<3B7E2CA5.50904@humboldt.co.uk> <m1itflocl7.fsf@frodo.biederman.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-scanner: scanned by Inflex 1.0.7 - (http://pldaniels.com/inflex/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Eric W. Biederman wrote:
-  > I'm curious was this embedded system or was it a stock PowerPC.  I don't
-  >  know of any off the shelf machines that come with BIOS source code.
+On Sun, 19 Aug 2001, Eric S. Raymond wrote:
 
-It's a custom embedded system.  The designers have a few details and a
-picture (the BIOS runs on cases 1 and 3) here:
-http://www.varisys.co.uk/custom.html
+> The Red Hat installation manual claims that the size of the swap partition
+> should be twice the size of physical memory, but no more than 128MB.
+>
+> The screaming hotrod machine Gary Sandine and I built around the Tyan S2464
+> has 2GB of physical memory.  Should I believe the above formula?  If not,
+> is there a more correct one for calculating needed swap on machines with
+> very large memory?
+>
+> (No further hangs, BTW.)
 
-The BIOS code is at
-http://www.humboldt.co.uk/gbios.html
+I'm not an authority on swap under Linux, but I can tell you about my personal
+experiences, and I hope it helps you.
 
-The BIOS is actually scriptable in TCL (Python or Perl wouldn't fit in 
-the ROM). I'll port the latest version back to the Sandpoint reference 
-platform soon.
+In reality, machines with as little as 192 MB of RAM don't necessarily need
+swap space. Of course, it depends on what you're doing with it. A machine like
+that would be used solely as a high-powered office machine or a low-grade
+workstation.
 
-  > So the attacker has two way to attack your machine.  Attempt to break
-  > in while it is still running.  Put in a minimal boot cd and press
-  > reset and see how much is recovered.  Generally breaking should prove
-  > the more fruitful course, but the fact that reset preseves all of the
-  > memory, means it simply is not safe for someone to have physical
-  > access to your machine while the power is on.
+At the other extreme, I've heard of machines that are running heavy scientific
+applications. They have 4 GB of RAM and run with 10+ GB of swap.
 
-Approximately true. If you have ECC memory then it will have to be 
-cleared in the BIOS, because of write-back caching. The first time you 
-write to a memory location, the processor reads in the whole cache line 
-containing that information. If the memory wasn't cleared, the ECC codes 
-for the data are wrong, and you get an unrecoverable ECC error 
-interrupt. What actually happens probably depends on the BIOS version.
-
+A machine with 2 GB of RAM can easily live with no swap, unless you want to
+run web, proxy, or database servers in very large configurations, or if you
+compile software several times the size of XFree86 with any regularity. By
+"very large configurations" I mean something you would have to deliberately
+set, probably requiring a change to defined constants in the software.
 
 -- 
-Adrian Cox   http://www.humboldt.co.uk/
+Ignacio Vazquez-Abrams  <ignacio@openservices.net>
 
 

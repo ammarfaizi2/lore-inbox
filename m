@@ -1,67 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263954AbTJOS3x (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Oct 2003 14:29:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263945AbTJOS3I
+	id S263931AbTJOS1d (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Oct 2003 14:27:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263929AbTJOS1W
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Oct 2003 14:29:08 -0400
-Received: from hermine.idb.hist.no ([158.38.50.15]:45839 "HELO
-	hermine.idb.hist.no") by vger.kernel.org with SMTP id S263932AbTJOS1u
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Oct 2003 14:27:50 -0400
-Date: Wed, 15 Oct 2003 20:37:10 +0200
-To: Greg Stark <gsstark@mit.edu>
-Cc: Ingo Oeser <ioe-lkml@rameria.de>, Joel Becker <Joel.Becker@oracle.com>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: statfs() / statvfs() syscall ballsup...
-Message-ID: <20031015183710.GA1371@hh.idb.hist.no>
-References: <Pine.LNX.4.44.0310120909050.12190-100000@home.osdl.org> <878ynq3y7n.fsf@stark.dyndns.tv> <3F8A661B.80909@aitel.hist.no> <200310151525.40470.ioe-lkml@rameria.de> <87llrmbl1g.fsf@stark.dyndns.tv>
+	Wed, 15 Oct 2003 14:27:22 -0400
+Received: from mail.kroah.org ([65.200.24.183]:53681 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S263930AbTJOS0L (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 15 Oct 2003 14:26:11 -0400
+Date: Wed, 15 Oct 2003 11:10:05 -0700
+From: Greg KH <greg@kroah.com>
+To: "Daheriya, Adarsh" <Adarsh.Daheriya@fci.com>
+Cc: "Murray, Scott" <scott_murray@stream.com>,
+       "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
+Subject: Re: Hot Swap - Resource Allocation Problem.
+Message-ID: <20031015181005.GA22159@kroah.com>
+References: <903E17B6FF22A24C96B4E28C2C0214D70104BDD7@sr-bng-exc01.int.tsbu.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <87llrmbl1g.fsf@stark.dyndns.tv>
-User-Agent: Mutt/1.5.4i
-From: Helge Hafting <helgehaf@aitel.hist.no>
+In-Reply-To: <903E17B6FF22A24C96B4E28C2C0214D70104BDD7@sr-bng-exc01.int.tsbu.net>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Oct 15, 2003 at 11:03:23AM -0400, Greg Stark wrote:
-> Ingo Oeser <ioe-lkml@rameria.de> writes:
+On Wed, Oct 15, 2003 at 09:37:35AM +0530, Daheriya, Adarsh wrote:
+> hi Greg,
 > 
-> > On Monday 13 October 2003 10:45, Helge Hafting wrote:
-> > 
-> > > This is easier than trying to tell the kernel that the job is
-> > > less important, that goes wrong wether the job runs too much
-> > > or too little.  Let that job  sleep a little when its services
-> > > aren't needed, or when you need the disk bandwith elsewhere.
+> thanks for the reply.
 > 
-> Actually I think that's exactly backwards. The problem is that if the
-> user-space tries to throttle the process it doesn't know how much or when.
-> The kernel knows exactly when there are other higher priority writes, it can
-> schedule just enough writes from vacuum to not interfere.
+> i do reserve pci resources at boot time with kernel option as
+> "pci_hp_reserve=8,16,16" without quotes.
+> but still i am getting this problem.
 > 
-Isn't those higher-priority writes issued from userspace?
-I am of course assuming that source for _everything_ is available.
-So the process with the high-priority write can tell vacuum to
-take a nap until its transaction completes.
+> is this problem coming because of mishandling of resources?
 
-> So if vacuum slept a bit, say every 64k of data vacuumed. It could end up
-> sleeping when the disks are actually idle. Or it could be not sleeping enough
-> and still be interfering with transactions.
-> 
-It can run at full speed normally, take voluntary pauses if it ever
-detects a "nothing to do now" condition. And it can be paused
-(forcibly or through cooperation) when there are important transactions
-to sync. 
-
-> Though actually this avenue has some promise. It would not be nearly as ideal
-> as a kernel based solution that could take advantage of the idle times between
-> transactions, but it would still work somewhat as a work-around.
-> 
-Don't that other process know when it is about to submit important transactions?
-
-> > The questions are: How IO-intensive vacuum? How fast can a throttling
-> > free disk bandwidth (and memory)?
-> 
-
-Helge Hafting
+I have no idea.

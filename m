@@ -1,69 +1,74 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261419AbUC3V5X (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 Mar 2004 16:57:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261449AbUC3V5X
+	id S261410AbUC3V5a (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 Mar 2004 16:57:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261449AbUC3V5a
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 Mar 2004 16:57:23 -0500
-Received: from smtp-out5.blueyonder.co.uk ([195.188.213.8]:59628 "EHLO
-	smtp-out5.blueyonder.co.uk") by vger.kernel.org with ESMTP
-	id S261419AbUC3V5Q (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 Mar 2004 16:57:16 -0500
-Message-ID: <4069ED67.5050302@blueyonder.co.uk>
-Date: Tue, 30 Mar 2004 22:57:59 +0100
-From: Sid Boyce <sboyce@blueyonder.co.uk>
-User-Agent: Mozilla Thunderbird 0.5 (X11/20040208)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Chris Mason <mason@suse.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.5-rc3-mm1
-References: <4069DC40.3070703@blueyonder.co.uk> <1080681249.3547.51.camel@watt.suse.com>
-In-Reply-To: <1080681249.3547.51.camel@watt.suse.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Tue, 30 Mar 2004 16:57:30 -0500
+Received: from fire.osdl.org ([65.172.181.4]:45003 "EHLO fire-2.osdl.org")
+	by vger.kernel.org with ESMTP id S261410AbUC3V5V (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 30 Mar 2004 16:57:21 -0500
+Subject: Re: 2.6.5-rc3-mm1 (compile stats)
+From: John Cherry <cherry@osdl.org>
+To: Andrew Morton <akpm@osdl.org>
+Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+In-Reply-To: <20040330023437.72bb5192.akpm@osdl.org>
+References: <20040330023437.72bb5192.akpm@osdl.org>
+Content-Type: text/plain
+Message-Id: <1080683774.6320.67.camel@cherrybomb.pdx.osdl.net>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Tue, 30 Mar 2004 13:56:14 -0800
 Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 30 Mar 2004 21:57:15.0842 (UTC) FILETIME=[F6BE2A20:01C416A1]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Chris Mason wrote:
+Linux 2.6 (mm tree) Compile Statistics (gcc 3.2.2)
+Warnings/Errors Summary
 
->On Tue, 2004-03-30 at 15:44, Sid Boyce wrote:
->  
->
->>It builds fine on x86_64 but locks up solid at ----
->>found reiserfs format "3.6" with standard journal
->>Hard disk light permanently on - 2.6.5-rc2 vanilla is the last one to 
->>boot fully, haven't tried 2.6.5-rc3 vanilla yet.
->>    
->>
->
->Have you tried booting with acpi=off?
->
->-chris
->
->
->
->  
->
-With acpi=off, I get a string of messages
-atkbd.c: Unknown key released (translated to set 0, code 0x41 on 
-isa0060/serio0)
-atkbd.c: Use 'setkeycodes 41 <keycode>' to make it known
-Then it freezes with HD light solid on.
-Before the messages above ---
-********* Please consider a BIOS update.
-********* Disabling USB legacy in the BIOS may also help.
-Disabled USB legacy in the BIOS, with acpi=off it's back to the original 
-freeze after the found reiserfs message.
+Kernel            bzImage   bzImage  bzImage  modules  bzImage  modules
+                (defconfig) (allno) (allyes) (allyes) (allmod) (allmod)
+--------------- ---------- -------- -------- -------- -------- --------
+2.6.5-rc3-mm1     0w/0e     5w/0e   129w/ 0e   8w/0e   4w/0e    129w/0e
+2.6.5-rc2-mm5     0w/0e     5w/0e   130w/ 0e   8w/0e   4w/0e    129w/0e
+2.6.5-rc2-mm4     0w/0e     5w/0e   134w/ 0e   8w/0e   3w/0e    133w/0e
+2.6.5-rc2-mm3     0w/0e     5w/0e   134w/ 0e   8w/0e   3w/0e    133w/0e
+2.6.5-rc2-mm2     0w/0e     5w/0e   137w/ 0e   8w/0e   3w/0e    134w/0e
+2.6.5-rc2-mm1     0w/0e     5w/0e   136w/ 0e   8w/0e   3w/0e    134w/0e
+2.6.5-rc1-mm2     0w/0e     5w/0e   135w/ 5e   8w/0e   3w/0e    133w/0e
+2.6.5-rc1-mm1     0w/0e     5w/0e   135w/ 5e   8w/0e   3w/0e    133w/0e
+2.6.4-mm2         1w/2e     5w/2e   144w/10e   8w/0e   3w/2e    144w/0e
+2.6.4-mm1         1w/0e     5w/0e   146w/ 5e   8w/0e   3w/0e    144w/0e
+2.6.4-rc2-mm1     1w/0e     5w/0e   146w/12e  11w/0e   3w/0e    147w/2e
+2.6.4-rc1-mm2     1w/0e     5w/0e   144w/ 0e  11w/0e   3w/0e    145w/0e
+2.6.4-rc1-mm1     1w/0e     5w/0e   147w/ 5e  11w/0e   3w/0e    147w/0e
+2.6.3-mm4         1w/0e     5w/0e   146w/ 0e   7w/0e   3w/0e    142w/0e
+2.6.3-mm3         1w/2e     5w/2e   146w/15e   7w/0e   3w/2e    144w/5e
+2.6.3-mm2         1w/8e     5w/0e   140w/ 0e   7w/0e   3w/0e    138w/0e
+2.6.3-mm1         1w/0e     5w/0e   143w/ 5e   7w/0e   3w/0e    141w/0e
+2.6.3-rc3-mm1     1w/0e     0w/0e   144w/13e   7w/0e   3w/0e    142w/3e
+2.6.3-rc2-mm1     1w/0e     0w/265e 144w/ 5e   7w/0e   3w/0e    145w/0e
+2.6.3-rc1-mm1     1w/0e     0w/265e 141w/ 5e   7w/0e   3w/0e    143w/0e
+2.6.2-mm1         2w/0e     0w/264e 147w/ 5e   7w/0e   3w/0e    173w/0e
+2.6.2-rc3-mm1     2w/0e     0w/265e 146w/ 5e   7w/0e   3w/0e    172w/0e
+2.6.2-rc2-mm2     0w/0e     0w/264e 145w/ 5e   7w/0e   3w/0e    171w/0e
+2.6.2-rc2-mm1     0w/0e     0w/264e 146w/ 5e   7w/0e   3w/0e    172w/0e
+2.6.2-rc1-mm3     0w/0e     0w/265e 144w/ 8e   7w/0e   3w/0e    169w/0e
+2.6.2-rc1-mm2     0w/0e     0w/264e 144w/ 5e  10w/0e   3w/0e    171w/0e
+2.6.2-rc1-mm1     0w/0e     0w/264e 144w/ 5e  10w/0e   3w/0e    171w/0e
+2.6.1-mm5         2w/5e     0w/264e 153w/11e  10w/0e   3w/0e    180w/0e
+2.6.1-mm4         0w/821e   0w/264e 154w/ 5e   8w/1e   5w/0e    179w/0e
+2.6.1-mm3         0w/0e     0w/0e   151w/ 5e  10w/0e   3w/0e    177w/0e
+2.6.1-mm2         0w/0e     0w/0e   143w/ 5e  12w/0e   3w/0e    171w/0e
+2.6.1-mm1         0w/0e     0w/0e   146w/ 9e  12w/0e   6w/0e    171w/0e
+2.6.1-rc2-mm1     0w/0e     0w/0e   149w/ 0e  12w/0e   6w/0e    171w/4e
+2.6.1-rc1-mm2     0w/0e     0w/0e   157w/15e  12w/0e   3w/0e    185w/4e
+2.6.1-rc1-mm1     0w/0e     0w/0e   156w/10e  12w/0e   3w/0e    184w/2e
+2.6.0-mm2         0w/0e     0w/0e   161w/ 0e  12w/0e   3w/0e    189w/0e
+2.6.0-mm1         0w/0e     0w/0e   173w/ 0e  12w/0e   3w/0e    212w/0e
 
-I shall check to see if there is a later BIOS available.
-Acer 1501LCe laptop, Athlon64 3000+, CD-RW/DVD, fireiwre port,  no 
-floppy, no serial ports.
-Regards
-Sid.
+Web page with links to complete details:
+   http://developer.osdl.org/cherry/compile/
 
--- 
-Sid Boyce .... Hamradio G3VBV and keen Flyer
-Linux Only Shop.
 

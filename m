@@ -1,71 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277692AbRJ1Eyd>; Sun, 28 Oct 2001 00:54:33 -0400
+	id <S277700AbRJ1FCO>; Sun, 28 Oct 2001 01:02:14 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277700AbRJ1EyX>; Sun, 28 Oct 2001 00:54:23 -0400
-Received: from mail3.aracnet.com ([216.99.193.38]:59142 "EHLO
-	mail3.aracnet.com") by vger.kernel.org with ESMTP
-	id <S277692AbRJ1EyG>; Sun, 28 Oct 2001 00:54:06 -0400
-From: "M. Edward Borasky" <znmeb@aracnet.com>
-To: <linux-kernel@vger.kernel.org>
-Subject: RE: AAAAAAAAAAAAAAAAAAAAAAAAAAHHHHHHHHHHHHH!
-Date: Sat, 27 Oct 2001 21:55:06 -0700
-Message-ID: <HBEHIIBBKKNOBLMPKCBBMEBJEAAA.znmeb@aracnet.com>
+	id <S277702AbRJ1FCE>; Sun, 28 Oct 2001 01:02:04 -0400
+Received: from cogito.cam.org ([198.168.100.2]:9734 "EHLO cogito.cam.org")
+	by vger.kernel.org with ESMTP id <S277700AbRJ1FB5>;
+	Sun, 28 Oct 2001 01:01:57 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Ed Tomlinson <tomlins@CAM.ORG>
+Organization: me
+To: linux-kernel@vger.kernel.org
+Subject: 2.4.14-pre3 and umount
+Date: Sun, 28 Oct 2001 00:57:41 -0400
+X-Mailer: KMail [version 1.3.2]
+Cc: reiserfs-list@namesys.com
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2911.0)
-In-Reply-To: <1004243645.1081.448.camel@thanatos>
-Importance: Normal
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
+Content-Transfer-Encoding: 7BIT
+Message-Id: <20011028045744.BE5C22A109@oscar.casa.dyndns.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Messages? What messages?
+Hi,
 
---
-M. Edward (Ed) Borasky, Chief Scientist, Borasky Research
-Relax! Run Your Own Brain with Neuro-Semantics!
-http://www.borasky-research.net/Flyer.htm
-mailto:znmeb@borasky-research.net
-http://groups.yahoo.com/group/pdx-neuro-semantics
+I am running 2.4.14-pre3 patched with LVM 1.01rc4 and the vfs locking patch
+for 2.4.11 and above.  I performed the following actions after which umount
+fails.
 
-Q: How do you tell when a pineapple is ready to eat?
-A: It picks up its knife and fork.
+mount /back
+cd /back
+ran a backup which filled the reiserfs on lvm /back fs.
+cd ..
+umount /back
 
------Original Message-----
-From: linux-kernel-owner@vger.kernel.org
-[mailto:linux-kernel-owner@vger.kernel.org]On Behalf Of Thomas Hood
-Sent: Saturday, October 27, 2001 9:34 PM
-To: linux-kernel@vger.kernel.org
-Subject: RE: AAAAAAAAAAAAAAAAAAAAAAAAAAHHHHHHHHHHHHH!
+and the umount tells me /back is busy.  Why? Does anyone 
+else see this behavior?  With straight 2.4.14-pre3?
 
-
-M. Edward Borasky wrote:
-> Dang! I'm in Oregon ... now you gotta kill me :-).
-
-Yesssss ...  but how?  (drums fingers)
-
-But wait, what am I thinking?  Am I sliding down the 
-slipperly slope of crime so quickly?  This is how Osama
-Bin Laden got started you know: with a pirated copy of
-DOS 3.2 on his old Osborne.  It wasn't too long after
-that that he was first seen in the company of Bert.
-
-I think what I'll do is send out a GPL.  I've been told
-it's a destroyer of intellectual property, so maybe it
-will erase your memory that they have seen these messages.
-
-GPL GPL GPL
-
-
--
-To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
-Please read the FAQ at  http://www.tux.org/lkml/
-
-
+TIA,
+Ed Tomlinson (off to sleep now)

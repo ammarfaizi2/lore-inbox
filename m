@@ -1,125 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261780AbVC3HEN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261778AbVC3HOJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261780AbVC3HEN (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 30 Mar 2005 02:04:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261778AbVC3HEN
+	id S261778AbVC3HOJ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 30 Mar 2005 02:14:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261784AbVC3HOJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 30 Mar 2005 02:04:13 -0500
-Received: from e3.ny.us.ibm.com ([32.97.182.143]:36840 "EHLO e3.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S261784AbVC3HDs (ORCPT
+	Wed, 30 Mar 2005 02:14:09 -0500
+Received: from ns.virtualhost.dk ([195.184.98.160]:20864 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S261778AbVC3HOD (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 30 Mar 2005 02:03:48 -0500
-To: Paul Jackson <pj@engr.sgi.com>
-cc: akpm@osdl.org, linux-kernel@vger.kernel.org,
-       ckrm-tech@lists.sourceforge.net, kashyapv@us.ibm.com
-Reply-To: Gerrit Huizenga <gh@us.ibm.com>
-From: Gerrit Huizenga <gh@us.ibm.com>
-Subject: Re: [patch 0/8] CKRM: Core patch set 
-In-reply-to: Your message of Tue, 29 Mar 2005 22:05:30 PST.
-             <20050329220530.4a5639c8.pj@engr.sgi.com> 
-Date: Tue, 29 Mar 2005 23:03:42 -0800
-Message-Id: <E1DGXEs-0003KX-00@w-gerrit.beaverton.ibm.com>
+	Wed, 30 Mar 2005 02:14:03 -0500
+Date: Wed, 30 Mar 2005 09:13:57 +0200
+From: Jens Axboe <axboe@suse.de>
+To: Bill Davidsen <davidsen@tmr.com>
+Cc: "Chen, Kenneth W" <kenneth.w.chen@intel.com>, linux-kernel@vger.kernel.org
+Subject: Re: [patch] new fifo I/O elevator that really does nothing at all
+Message-ID: <20050330071357.GB16636@suse.de>
+References: <20050329080559.GD16636@suse.de> <4249D4C7.90808@tmr.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <4249D4C7.90808@tmr.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-On Tue, 29 Mar 2005 22:05:30 PST, Paul Jackson wrote:
-> gerrit wrote:
-> > This is the core patch set for CKRM
+On Tue, Mar 29 2005, Bill Davidsen wrote:
+> Jens Axboe wrote:
+> >On Mon, Mar 28 2005, Chen, Kenneth W wrote:
+> >
+> >>The noop elevator is still too fat for db transaction processing
+> >>workload.  Since the db application already merged all blocks before
+> >>sending it down, the I/O presented to the elevator are actually not
+> >>merge-able anymore. Since I/O are also random, we don't want to sort
+> >>them either.  However the noop elevator is still doing a linear search
+> >>on the entire list of requests in the queue.  A noop elevator after
+> >>all isn't really noop.
+> >>
+> >>We are proposing a true no-op elevator algorithm, no merge, no
+> >>nothing. Just do first in and first out list management for the I/O
+> >>request.  The best name I can come up with is "FIFO".  I also piggy
+> >>backed the code onto noop-iosched.c.  I can easily pull those code
+> >>into a separate file if people object.  Though, I hope Jens is OK with
+> >>it.
+> >
+> >
+> >It's not quite ok, because you don't honor the insertion point in
+> >fifo_add_request. The only 'fat' part of the noop io scheduler is the
+> >merge stuff, the original plan was to move that to a hash table lookup
+> >instead like the other io schedulers do. So I would suggest just
+> >changing noop to hash the request on the end point for back merges and
+> >forget about front merges, since they are rare anyways. Hmm actually,
+> >the last merge hint should catch most of the merges at almost zero cost.
 > 
-> Welcome.
- 
- Hi Paul.
+> Making the noop faster is clearly a good thing, but some database 
+> software may depend on transaction order as provided by a true fifo 
+> process. It would be nice to have both.
 
-> Newcomers to CKRM might want to start reading these patches with "[patch
-> 8/8] CKRM:  Documentation".  Starting with patch 0/8 or 1/8 will be
-> difficult, at least if you're as dimm witted as I am.
-> 
-> Even the documentation included in patch 8/8 is missing the motivation
-> and context essential to understanding this patch set.  It might have
-> helped if the Introduction text at http://ckrm.sourceforge.net/ had been
-> included in some form, as part of patch 0/8.  I'm just a little penguin
-> here (lkml), but from what I can tell by watching how things work,
-> you're going to have to "make the case" -- explain what this is, how
-> it's put togeher, and why it's needed.  This is a sizable patch, in
-> lines of code, in hooks in critical places, and in amount of "new
-> concepts."  I presume (unless you've managed to bribe or blackmail some
-> big penguin) you're going to have convince some others that this is
-> worth having.  I for one am a CKRM skeptic, so won't be much help to you
-> in that quest.  Good luck.
- 
- Good point on including the pointer to the web site.  As you probably
- noticed, there is a history of the design, papers presented, etc.
- Also, Jonathan Corbet did a nice write up from the discussion at the
- 2004 Kernel summit which is archived here: http://lwn.net/Articles/94573/
- which may be of use.
+Just look at the code. It does FIFO for any request that _isn't_
+specified as ELEVATOR_INSERT_FRONT - which means any fs request, or any
+plain pc request. There is no specific reordering going on.
 
- The OLS and LinuxTag papers are archived at the site that you pointed
- to and there will be a tutorial on configuring, using and writing
- controllers for CKRM at OLS this year.  You may also want to see the
- previous postings of this code to LKML for more background.
+Drivers expect to be able to add a request back at the head, for eg
+retrying it after a QUEUE_BUSY or similar condition.
 
- In short, CKRM provides very basic desktop to server workload management
- capabilities similar to those provided by most of the old fashioned
- operating systems.  The code provides a fairly simple mechanism for
- adding controllers for any resource type and the code is currently
- widely deployed by PlanetLab, a part of Novell/SuSE's distro, and
- the capabilities are requested by a fair number of Linux users and
- customers.
+-- 
+Jens Axboe
 
-> I don't see any performance numbers, either on small systems, or
-> scalability on large systems.  Certainly this patch does not fall under
-> the "obviously no performance impact" exclusion.
-
- Fair point.  We have been running some of the smaller benchmarks but
- have not yet had a chance to do any kind of performance comparison
- based on the current code.  However, when configured out, it will
- have zero impact.  We do have some performance analysis of the code
- with CONFIG_CKRM set to y but no rules configured planned for the
- very near future.
- 
-> A couple of nits:
-> 
->  1) Instead of disabling routines with #defines:
->          #define numtasks_put_ref(core_class)  do {} while (0)
->     one can do it with static inlines, preserving more compiler
->     checking.
- 
- Yeah - that works well in some cases but it turns out to not do so
- well when an argument to a function refers to a structure element
- which is not configured in.  In that case, the compiler emits a
- reference to an undefined structure value in the case of the static
- inline, where otherwise the entire set of code is pre-processed
- away.  I think we've gone through the code and used the correct
- balance of static inlines and #define constructs as appropriate.
- If we've missed any, I'm more than willing to accept a patch to
- correct a specific instance.
-
->  2) I take it that the following constitutes the 'documentation'
->     for what is in /proc/<pid>/delay.  Perhaps I missed something.
-> 
-> 	+	res  = sprintf(buffer,"%u %llu %llu %u %llu %u %llu\n",
-> 	+		       (unsigned int) get_delay(task,runs),
-> 	+		       (uint64_t) get_delay(task,runcpu_total),
-> 	+		       (uint64_t) get_delay(task,waitcpu_total),
-> 	+		       (unsigned int) get_delay(task,num_iowaits),
-> 	+		       (uint64_t) get_delay(task,iowait_total),
-> 	+		       (unsigned int) get_delay(task,num_memwaits),
-> 	+		       (uint64_t) get_delay(task,mem_iowait_total)
- 
- The code is the documentation?  :)
-
- There is probably some documentation on /proc/<pid>/ in general and
- we'll see if we can get it updated appropriately.  Vivek?
-
->  3) Typo in init/Kconfig "atleast":
-> 
->     If you say Y here, enable the Resource Class File System and atleast
-
- Got it - thanks!  Someone liked the new word "atleast" - at least
- three occurences removed.
-
- Oh - and uniformly updated diffstats - I probably missed some when
- I was playing with quilt originally.
-
-gerrit

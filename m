@@ -1,129 +1,69 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131041AbQLMGVu>; Wed, 13 Dec 2000 01:21:50 -0500
+	id <S129289AbQLMHSl>; Wed, 13 Dec 2000 02:18:41 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131049AbQLMGVb>; Wed, 13 Dec 2000 01:21:31 -0500
-Received: from ziggy.one-eyed-alien.net ([216.51.112.145]:19982 "EHLO
-	ziggy.one-eyed-alien.net") by vger.kernel.org with ESMTP
-	id <S131041AbQLMGV2>; Wed, 13 Dec 2000 01:21:28 -0500
-Date: Tue, 12 Dec 2000 21:50:58 -0800
-From: Matthew Dharm <mdharm-kernel@one-eyed-alien.net>
-To: Frédéric L . W . Meunier 
-	<0@pervalidus.net>
-Cc: linux-kernel@vger.kernel.org, torvalds@transmeta.com
-Subject: Re: USB mass storage backport status?
-Message-ID: <20001212215058.A3681@one-eyed-alien.net>
-Mail-Followup-To: Frédéric L . W . Meunier <0@pervalidus.net>,
-	linux-kernel@vger.kernel.org, torvalds@transmeta.com
-In-Reply-To: <20001213014154.H1245@pervalidus> <20001212200840.K23762@one-eyed-alien.net> <20001213030311.I1245@pervalidus>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-md5;
-	protocol="application/pgp-signature"; boundary="Q68bSM7Ycu6FN28Q"
-Content-Disposition: inline
-User-Agent: Mutt/1.2.4i
-In-Reply-To: <20001213030311.I1245@pervalidus>; from 0@pervalidus.net on Wed, Dec 13, 2000 at 03:03:11AM -0200
-Organization: One Eyed Alien Networks
-X-Copyright: (C) 2000 Matthew Dharm, all rights reserved.
+	id <S129370AbQLMHSa>; Wed, 13 Dec 2000 02:18:30 -0500
+Received: from adsl-63-195-162-81.dsl.snfc21.pacbell.net ([63.195.162.81]:36101
+	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
+	id <S129289AbQLMHSM>; Wed, 13 Dec 2000 02:18:12 -0500
+Date: Tue, 12 Dec 2000 22:47:35 -0800 (PST)
+From: Andre Hedrick <andre@linux-ide.org>
+To: alex@foogod.com
+cc: linux-kernel@vger.kernel.org
+Subject: Re: [patch] I-Opener fix (again)
+In-Reply-To: <20001211152331.M10618@draco.foogod.com>
+Message-ID: <Pine.LNX.4.10.10012122217440.4894-100000@master.linux-ide.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---Q68bSM7Ycu6FN28Q
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Basically if the setting of 
 
-AAAHHHHHHHHHH!
+ * "hdx=flash"          : allows for more than one ata_flash disk to be
+ *                              registered. In most cases, only one device
+ *                              will be present.
 
-Okay, this must have changed somewhat recently.  When last I spoke to Alan
-Cox (the maintainer of the 2.2.x code), I told him (and he agreed) that
-this code should be marked EXPERIMENTAL.  If it's not marked thus in
-2.2.18pre21, then it's an error and should be corrected ASAP.
+fails then I will look into this but, the breaking of laptops that have
+CFA devices that do not come on channels in a pair canb not happen.
+If you have a vender unique setting that will follow always the way
+I-Opener's are setup then that is better.
 
-Matt Dharm
+Cheers,
 
-On Wed, Dec 13, 2000 at 03:03:11AM -0200, Fr=E9d=E9ric L . W . Meunier wrot=
-e:
-> On Tue, Dec 12, 2000 at 08:08:40PM -0800, Matthew Dharm wrote:
-> > Depending on the type of device you have and how you use it, it can eit=
-her:
-> > (1) Work properly
-> > (2) Corrupt your data
-> > (3) Crash the driver
-> > (4) Crash your system
->=20
-> The reboot was about Iomega's Zip Drive under 2.2.18pre21:
->=20
-> http://slashdot.org/comments.pl?sid=3D00/12/11/2355217&threshold=3D0&comm=
-entsort=3D1&mode=3Dthread&cid=3D110
-> =20
-> > It's allready labeled EXPERIMENTAL.  Perhaps it should be labeled
-> > DANGEROUS, also, but how many labels can you put on things to warn peop=
-le
-> > off?
->=20
-> Hmm, where? I don't see an (EXPERIMENTAL) in
-> Documentation/Configure.help:
->=20
-> USB Mass Storage support
-> CONFIG_USB_STORAGE
-> Say Y here if you want to connect USB mass storage devices to your
-> computer's USB port.
->=20
-> This code is also available as a module ( =3D code which can be
-> inserted in and removed from the running kernel whenever you want).
-> The module will be called usb-storage.o. If you want to compile it
-> as a module, say M here and read Documentation/modules.txt.
->=20
-> USB Mass Storage verbose debug
-> CONFIG_USB_STORAGE_DEBUG
-> Say Y here in order to have the USB Mass Storage code generate
-> verbose debugging messages.
->=20
-> Maybe it's only enabled when you set CONFIG_EXPERIMENTAL? I don't know, b=
-ecause I enabled
-> it to just set CONFIG_FB.
->=20
-> > On Wed, Dec 13, 2000 at 01:41:54AM -0200, Fr=E9d=E9ric L . W . Meunier =
-wrote:
-> > > What's the real status of the mass storage backport to 2.2.18?
-> > > Some people report it can corrupt your data, another that it
-> > > rebooted his computer while doing a large trasnfer, and so on.
-> > >=20
-> > > If it's not good, shouldn't it be removed or labeled
-> > > DANGEROUS? BTW, where can I see a list of what's backported
-> > > and working without major problems?
->=20
-> --=20
-> 0@pervalidus.{net,{dyndns.}org} TelFax: 55-21-717-2399 (Niter=F3i-RJ BR)
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> Please read the FAQ at http://www.tux.org/lkml/
+On Mon, 11 Dec 2000 alex@foogod.com wrote:
 
---=20
-Matthew Dharm                              Home: mdharm-usb@one-eyed-alien.=
-net=20
-Maintainer, Linux USB Mass Storage Driver
+> It's been a few months (and a couple of kernel releases) since I mentioned this
+> before and it doesn't look like it's made it in, and I haven't seen any more
+> comments on it in the list archives, so I'm bringing it up again in case it
+> just got forgotten about somewhere along the line..
+> 
+> As I remember, Andre Hedrick had asked for clarification on my original post,
+> and I sent a followup message in response, but now I can't seem to find it
+> anywhere in the archives, so I don't know whether it never made it out of my
+> mailer or..
+> 
+> In any case, attached is a patch (against 2.4.0pre11) which fixes the bug which
+> causes disk detection issues on I-Opener (and possibly other unusual) hardware.
+> 
+> The problem is that the code assumes that a flash-disk will always be the
+> primary disk on an interface, but on the I-Opener this is not always the case.
+> If a traditional disk is primary, and a flashdisk is secondary, the detection
+> code (wrongly) disables the primary disk that it had already previously
+> detected.
+> 
+> I would like to see this make it into the official source as it's a very small
+> change that fixes some obviously wrong behavior..
+> 
+> -alex
+> 
 
-God, root, what is difference?
-					-- Pitr
-User Friendly, 11/11/1999
+Andre Hedrick
+CTO Timpanogas Research Group
+EVP Linux Development, TRG
+Linux ATA Development
 
---Q68bSM7Ycu6FN28Q
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.4 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
-
-iD8DBQE6Nw5Cz64nssGU+ykRAnxeAJ0X0oPbnXjDAAIxOtTISM4Yyf4TFQCcCas/
-aqaZ9EMGUr2jL3nPYkR/Q1Y=
-=wpU9
------END PGP SIGNATURE-----
-
---Q68bSM7Ycu6FN28Q--
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

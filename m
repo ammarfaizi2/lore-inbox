@@ -1,40 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263026AbTDFQBt (for <rfc822;willy@w.ods.org>); Sun, 6 Apr 2003 12:01:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263028AbTDFQBt (for <rfc822;linux-kernel-outgoing>); Sun, 6 Apr 2003 12:01:49 -0400
-Received: from franka.aracnet.com ([216.99.193.44]:48858 "EHLO
-	franka.aracnet.com") by vger.kernel.org with ESMTP id S263026AbTDFQBr (for <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 6 Apr 2003 12:01:47 -0400
-Date: Sun, 06 Apr 2003 09:13:04 -0700
-From: "Martin J. Bligh" <mbligh@aracnet.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: Andrew Morton <akpm@digeo.com>, andrea@suse.de, mingo@elte.hu,
-       hugh@veritas.com, dmccr@us.ibm.com,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       linux-mm@kvack.org
-Subject: Re: objrmap and vmtruncate
-Message-ID: <77670000.1049645582@[10.10.2.4]>
-In-Reply-To: <1049640548.962.10.camel@dhcp22.swansea.linux.org.uk>
-References: <20030404163154.77f19d9e.akpm@digeo.com> <12880000.1049508832@flay><20030405024414.GP16293@dualathlon.random> <20030404192401.03292293.akpm@digeo.com> <20030405040614.66511e1e.akpm@digeo.com>  <72740000.1049599406@[10.10.2.4]> <1049640548.962.10.camel@dhcp22.swansea.linux.org.uk>
-X-Mailer: Mulberry/2.2.1 (Linux/x86)
-MIME-Version: 1.0
+	id S263029AbTDFQSK (for <rfc822;willy@w.ods.org>); Sun, 6 Apr 2003 12:18:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263032AbTDFQSK (for <rfc822;linux-kernel-outgoing>); Sun, 6 Apr 2003 12:18:10 -0400
+Received: from smarthost3.mail.uk.easynet.net ([212.135.6.13]:4880 "EHLO
+	smarthost3.mail.uk.easynet.net") by vger.kernel.org with ESMTP
+	id S263029AbTDFQSK (for <rfc822;linux-kernel@vger.kernel.org>); Sun, 6 Apr 2003 12:18:10 -0400
+Date: Sun, 6 Apr 2003 17:23:01 +0100
+To: linux-kernel@vger.kernel.org
+Subject: Kernel support for 24-bit sound
+Message-ID: <20030406162301.GA1364@pigeon.pigeonloft>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
+User-Agent: Mutt/1.3.28i
+From: Pigeon <jah.pigeon@ukonline.co.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> > 	14.91s user 75.30s system 24% cpu 6:15.84 total
->> 
->> Isn't the intent to use sys_remap_file_pages for these sort of workloads
->> anyway? In which case partial objrmap = rmap for these tests, so we're
->> still OK?
-> 
-> What matters is the worst case not the best case. Users will do non
-> optimal things on a regular basis. 
+I am trying to add support for the 24-bit S/PDIF input mode of my
+CMI8738 sound card to the cmpci.c driver of kernel 2.4.20.
 
-Humpf. Well I have a fairly simple plan to fix it now. I'll either publish
-some code or the plan later today, once I've thought about it a bit more.
+I am hindered in this chiefly by lack of documentation.
 
-M.
+If someone could supply me with the URL of some documentation
+on kernel sound handling it would be much appreciated.
 
+I am also somewhat worried that none of the valid arguments listed for
+the SNDCTL_DSP_SETFMT ioctl seem to be for any kind of 24-bit format.
+Is there in fact any kernel support for 24-bit sound in general?
+
+Please CC me on replies; I'm on dialup and I can't cope with the
+traffic on this list.
+
+Many thanks
+
+Pigeon

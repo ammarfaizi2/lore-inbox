@@ -1,31 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261574AbTCKTCD>; Tue, 11 Mar 2003 14:02:03 -0500
+	id <S261531AbTCKTDu>; Tue, 11 Mar 2003 14:03:50 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261575AbTCKTCD>; Tue, 11 Mar 2003 14:02:03 -0500
-Received: from pop.gmx.de ([213.165.64.20]:61933 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id <S261574AbTCKTCC>;
-	Tue, 11 Mar 2003 14:02:02 -0500
-Message-Id: <5.2.0.9.2.20030311201005.00cd4680@pop.gmx.net>
-X-Mailer: QUALCOMM Windows Eudora Version 5.2.0.9
-Date: Tue, 11 Mar 2003 20:17:18 +0100
-To: linux-kernel@vger.kernel.org
-From: Mike Galbraith <efault@gmx.de>
-Subject: Re: [PATCH] self tuning scheduler
-In-Reply-To: <5.2.0.9.2.20030311095954.01f9a008@pop.gmx.net>
-References: <200303110030.h2B0UsR00844@linux.local>
+	id <S261546AbTCKTDu>; Tue, 11 Mar 2003 14:03:50 -0500
+Received: from air-2.osdl.org ([65.172.181.6]:26564 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id <S261531AbTCKTDs>;
+	Tue, 11 Mar 2003 14:03:48 -0500
+Date: Tue, 11 Mar 2003 11:14:19 -0800
+From: Dave Olien <dmo@osdl.org>
+To: mel@csn.ul.ie
+Cc: linux-kernel@vger.kernel.org
+Subject: vmregress test on linux 2.5.62
+Message-ID: <20030311191419.GA18449@osdl.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; format=flowed
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-At 10:46 AM 3/11/2003 +0100, Mike Galbraith wrote:
->Greetings,
->
->I took your patch out for a test-drive, and it appears to have starvation 
->problems with irman's process load (dang thing seems to be HELL on schedulers).
 
-<crickets chirping>
-For the record, let me say that I understand that this proggy approx=DOS 
-attack (100000:1). 
+Mel,
+
+I've modified your vmregress test form linux 2.4 so it works on
+linux 2.5.63.  I fixed up some of the core routines to understand
+new modifications to kernel vm structures, so it all compiles and 
+runs.
+
+There are still some issues with the perl scripts that collect data
+and pipe it to gnuplot.  Some of the plots of vmstat output don't
+work.
+
+You can see what I've modified at the URL
+
+	http://www.osdl.org/archive/dmo/VMREGRESS/
+
+There's a VMR_README file that describes the files there.
 

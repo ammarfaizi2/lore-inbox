@@ -1,61 +1,485 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261907AbTCEUMA>; Wed, 5 Mar 2003 15:12:00 -0500
+	id <S261900AbTCEULh>; Wed, 5 Mar 2003 15:11:37 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261934AbTCEUMA>; Wed, 5 Mar 2003 15:12:00 -0500
-Received: from phoenix.infradead.org ([195.224.96.167]:19214 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id <S261907AbTCEUL5>; Wed, 5 Mar 2003 15:11:57 -0500
-Date: Wed, 5 Mar 2003 20:22:26 +0000 (GMT)
-From: James Simmons <jsimmons@infradead.org>
-To: Petr Vandrovec <vandrove@vc.cvut.cz>
-cc: Antonino Daplas <adaplas@pol.net>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Linux Fbdev development list 
-	<linux-fbdev-devel@lists.sourceforge.net>
-Subject: Re: [Linux-fbdev-devel] Re: FBdev updates.
-In-Reply-To: <20030303203500.GA2916@vana.vc.cvut.cz>
-Message-ID: <Pine.LNX.4.44.0303052015250.27760-100000@phoenix.infradead.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S261907AbTCEULh>; Wed, 5 Mar 2003 15:11:37 -0500
+Received: from wohnheim.fh-wedel.de ([195.37.86.122]:42729 "EHLO
+	wohnheim.fh-wedel.de") by vger.kernel.org with ESMTP
+	id <S261900AbTCEULY>; Wed, 5 Mar 2003 15:11:24 -0500
+Date: Wed, 5 Mar 2003 21:21:57 +0100
+From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
+To: linux-kernel@vger.kernel.org
+Subject: Top stack (l)users
+Message-ID: <20030305202157.GA392@wohnheim.fh-wedel.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+arch = i386
+make allyesconfig
+<remove everything that breaks>
+make checkstack
 
-> Hi,
->   while waiting on these updates I updated matroxfb a bit
-> (ftp://platan.vc.cvut.cz/pub/linux/matrox-latest/matroxfb-2.5.63.gz),
-> so that it now uses fb_* for cfb modes, and putcs/... hooks for
-> text mode. I have still dozen of changes in fbcon.c which I have
-> to eliminate (mainly logo painting and cursor handling - for now
-> I still use revc method, mainly because of I did not make into it yet).
+Quite interesting. ide_unregister moved down to rank 4.
+Bronce goes to drivers/cdrom/optcd.c (does anyone still use it?).
+Silver is drivers/message/i2o/i2o_proc.c.
+And the winner is drivers/scsi/qlogicfc.c.
 
-I grabbed your latest patch and started to merge it with my latest work on 
-the matrox driver. As soon as I'm done merging my matrox changes I will 
-send you a patch right away.
-
->   My main concern now is 12x22 font... Accelerator setup
-> is so costly for each separate painted character that for 8bpp 
-> accelerated version is even slower than unaccelerated one :-(
-> (and almost twice as slow when compared with 2.4.x).
-
-Try the latest patch I released.
- 
->   And one (or two...) generic questions: why is not pseudo_palette
-> u32* pseudo_palette, or even directly u32 pseudo_palette[17] ?
-
-pseudo_palette was originally designed to be a pointer to some kind of 
-data for color register programming. For example many PPC graphics cards 
-have a color register region. Now you could have that point to 
-pseudo_palette.  Note pseudo_palette is only visiable in fbmem.c for the 
-logo drawing code. Personally I liek to see that hidden.
-
-> And why we do not fill this pseudo_palette with
-> i * 0x01010101U for 8bpp pseudocolor and i * 0x11111111U for 4bpp
-> pseudocolor? This allowed me to remove couple of switches and tests
-> from acceleration fastpaths (and from cfb_imageblit and cfb_fillrect,
-> but I did not changed these two in my benchmarks below).
-
-??? Does your accel engine require these kinds of values?
+Other notable contestants:
+drivers/net/wireless/airo.c
+v4l_compat_translate_ioctl (someone is working on it already, imho)
+fs/cifs/smbdes.c
+zlib (which appears to be linked _twice_ into the kernel)
+several more *_ioctl (maybe we need a more generic solution)
 
 
+
+0xc076b02b <isp2x00_make_portdb+3/548>:                  sub    $0xc38,%esp
+0xc07cf4ef <i2o_proc_read_ddm_table+3/384>:              sub    $0xb40,%esp
+0xc08225ab <cdromread+3/104>:                            sub    $0xa64,%esp
+0xc071bc73 <ide_unregister+3/9b4>:                       sub    $0x99c,%esp
+0xc07cfe0b <i2o_proc_read_groups+3/3b4>:                 sub    $0x81c,%esp
+0xc07d3eaf <i2o_proc_read_lan_alt_addr+3/294>:           sub    $0x818,%esp
+0xc07d314b <i2o_proc_read_lan_mcast_addr+3/298>:         sub    $0x818,%esp
+0xc0ad420b <snd_emu10k1_fx8010_ioctl+3/5ec>:             sub    $0x814,%esp
+0xc068d397 <writerids+3/278>:                            sub    $0x810,%esp
+0xc06dbd77 <v4l_compat_translate_ioctl+3/159c>:          sub    $0x804,%esp
+0xc068d207 <readrids+3/190>:                             sub    $0x800,%esp
+0xc0a7adeb <snd_cmipci_ac3_silence+3/4e8>:               sub    $0x79c,%esp
+0xc0a7a8a7 <snd_cmipci_ac3_copy+3/544>:                  sub    $0x79c,%esp
+0xc0830c43 <amd_flash_probe+3/530>:                      sub    $0x700,%esp
+0xc0291b0b <dohash+3/440>:                               sub    $0x5c4,%esp
+0xc0107173 <huft_build+3/73c>:                           sub    $0x5b0,%esp
+0xc01055d7 <huft_build+3/748>:                           sub    $0x5b0,%esp
+0xc0a37443 <snd_pcm_oss_change_params+3/7a4>:            sub    $0x56c,%esp
+0xc0107fc7 <inflate_dynamic+3/674>:                      sub    $0x538,%esp
+0xc0521e43 <ida_ioctl+3/388>:                            sub    $0x528,%esp
+0xc0106427 <inflate_dynamic+3/600>:                      sub    $0x528,%esp
+0xc0c0c9df <device_new_if+3/218>:                        sub    $0x500,%esp
+0xc0ad035b <snd_emu10k1_add_controls+3/38c>:             sub    $0x4d8,%esp
+0xc01ed733 <presto_ioctl+3/13c4>:                        sub    $0x4d0,%esp
+0xc0aecf03 <snd_trident_mixer+3/3bc>:                    sub    $0x490,%esp
+0xc0107e5b <inflate_fixed+3/16c>:                        sub    $0x490,%esp
+0xc01062b7 <inflate_fixed+3/170>:                        sub    $0x490,%esp
+0xc019ee46 <elf_core_dump+a/b30>:                        sub    $0x48c,%esp
+0xc072f51b <ide_config+3/6c8>:                           sub    $0x47c,%esp
+0xc0bfbfd3 <br_ioctl_device+3/454>:                      sub    $0x474,%esp
+0xc094181f <sw_connect+3/92c>:                           sub    $0x468,%esp
+0xc0947887 <uinput_alloc_device+3/1e4>:                  sub    $0x464,%esp
+0xc0428573 <parport_config+3/390>:                       sub    $0x460,%esp
+0xc0c8596f <gss_pipe_downcall+3/2d4>:                    sub    $0x42c,%esp
+0xc09291ef <emi26_load_firmware+3/348>:                  sub    $0x428,%esp
+0xc0cea3d3 <sctp_hash_digest+3/170>:                     sub    $0x418,%esp
+0xc03e65c3 <sha512_transform+3/16ec>:                    sub    $0x418,%esp
+0xc0669e03 <arlan_sysctl_info+3/28e8>:                   sub    $0x414,%esp
+0xc034d6eb <ciGetLeafPrefixKey+3/20c>:                   sub    $0x410,%esp
+0xc02d3d03 <jffs2_rtime_compress+3/130>:                 sub    $0x410,%esp
+0xc13e633f <root_nfs_name+3/134>:                        sub    $0x408,%esp
+0xc02d3e33 <jffs2_rtime_decompress+3/b0>:                sub    $0x408,%esp
+0xc06350cb <hex_dump+3/68>:                              sub    $0x400,%esp
+0xc03d60cb <befs_debug+3/54>:                            sub    $0x400,%esp
+0xc03d607f <befs_warning+3/4c>:                          sub    $0x400,%esp
+0xc03d6033 <befs_error+3/4c>:                            sub    $0x400,%esp
+0xc0977853 <btuart_config+3/4e>:                         sub    $0x3ec,%esp
+0xc0973f13 <bt3c_config+3/36c>:                          sub    $0x3ec,%esp
+0xc0975f13 <bluecard_config+3/188>:                      sub    $0x3e4,%esp
+0xc0972833 <dtl1_config+3/210>:                          sub    $0x3e4,%esp
+0xc02bd963 <generate_default_upcase+3/210>:              sub    $0x3c4,%esp
+0xc079b0bb <atp870u_detect+3/dc0>:                       sub    $0x3b0,%esp
+0xc0684a93 <orinoco_cs_config+3/670>:                    sub    $0x3b0,%esp
+0xc140fbd3 <com90xx_probe+3/b14>:                        sub    $0x3a4,%esp
+0xc0503d53 <mgslpc_config+3/41c>:                        sub    $0x39c,%esp
+0xc07968bb <megadev_ioctl+3/c94>:                        sub    $0x394,%esp
+0xc0afc8d7 <snd_ice1712_ac97_mixer+3/128>:               sub    $0x388,%esp
+0xc0670673 <wv_hw_reset+3/e00>:                          sub    $0x384,%esp
+0xc068df9b <airo_config+3/594>:                          sub    $0x36c,%esp
+0xc0ac009b <cs46xx_dsp_scb_and_task_init+3/a00>:         sub    $0x35c,%esp
+0xc0a49a0b <snd_pcm_hw_params_old_user+3/ba>:            sub    $0x35c,%esp
+0xc0a49953 <snd_pcm_hw_refine_old_user+3/b8>:            sub    $0x35c,%esp
+0xc068800b <setup_card+3/53c>:                           sub    $0x338,%esp
+0xc03eac73 <twofish_setkey+3/61d0>:                      sub    $0x324,%esp
+0xc097a383 <ibm_configure_device+3/1a4>:                 sub    $0x320,%esp
+0xc0251667 <nfs4_proc_rename+3/1e0>:                     sub    $0x314,%esp
+0xc1429ef3 <sym53c8xx_detect+3/444>:                     sub    $0x304,%esp
+0xc08f623b <log_device_info+3/e8>:                       sub    $0x300,%esp
+0xc0251847 <nfs4_proc_link+3/170>:                       sub    $0x300,%esp
+0xc041e15b <simple_config+3/3ac>:                        sub    $0x2f0,%esp
+0xc084045b <genprobe_ident_chips+3/20c>:                 sub    $0x2e8,%esp
+0xc01f64eb <presto_journal_setattr+3/6fc>:               sub    $0x2e4,%esp
+0xc068ff5b <ray_dev_ioctl+3/8b8>:                        sub    $0x2e0,%esp
+0xc0a7bb17 <restore_mixer_state+3/e4>:                   sub    $0x2d0,%esp
+0xc0a7ba1f <save_mixer_state+3/f8>:                      sub    $0x2d0,%esp
+0xc0266667 <nfsd4_proc_compound+3/d60>:                  sub    $0x2d0,%esp
+0xc01fa22b <presto_journal_close+3/670>:                 sub    $0x2d0,%esp
+0xc0a6388b <snd_seq_midisynth_register_port+3/5b4>:      sub    $0x2cc,%esp
+0xc085b9fb <NFTL_foldchain+3/5b4>:                       sub    $0x2c8,%esp
+0xc0583a63 <netdev_ethtool_ioctl+3/e64>:                 sub    $0x2c8,%esp
+0xc06575ef <mhz_mfc_config+3/1f4>:                       sub    $0x2b8,%esp
+0xc0435793 <extract_entropy+3/328>:                      sub    $0x2b8,%esp
+0xc0865963 <ds_ioctl+3/6b0>:                             sub    $0x2ac,%esp
+0xc026bbf3 <nlmclnt_proc+3/7b4>:                         sub    $0x2ac,%esp
+0xc041e80b <serial_config+3/2c0>:                        sub    $0x2a8,%esp
+0xc01f9c57 <presto_journal_unlink+3/5d4>:                sub    $0x2a8,%esp
+0xc041e507 <multi_config+3/304>:                         sub    $0x2a0,%esp
+0xc026c8bf <nlmclnt_reclaim+3/150>:                      sub    $0x2a0,%esp
+0xc01f87b7 <presto_journal_mknod+3/5c0>:                 sub    $0x2a0,%esp
+0xc06577e3 <mhz_setup+3/114>:                            sub    $0x29c,%esp
+0xc04370c3 <vt_ioctl+3/1a84>:                            sub    $0x29c,%esp
+0xc01f8207 <presto_journal_rmdir+3/5b0>:                 sub    $0x29c,%esp
+0xc01f59b7 <presto_write_lml_close+3/5c0>:               sub    $0x29c,%esp
+0xc0657b93 <smc_setup+3/e8>:                             sub    $0x298,%esp
+0xc0657abf <smc_config+3/d4>:                            sub    $0x298,%esp
+0xc065ae37 <has_ce2_string+3/7c>:                        sub    $0x294,%esp
+0xc054c5eb <e1000_ethtool_ioctl+3/6f8>:                  sub    $0x290,%esp
+0xc01f7c7b <presto_journal_mkdir+3/58c>:                 sub    $0x290,%esp
+0xc01f76c7 <presto_journal_symlink+3/5b4>:               sub    $0x290,%esp
+0xc01f713b <presto_journal_create+3/58c>:                sub    $0x290,%esp
+0xc01f94db <presto_journal_rename+3/77c>:                sub    $0x288,%esp
+0xc01f8d77 <presto_journal_link+3/764>:                  sub    $0x288,%esp
+0xc0a38837 <snd_pcm_oss_get_formats+3/130>:              sub    $0x284,%esp
+0xc0a3aa17 <snd_pcm_oss_proc_write+3/390>:               sub    $0x278,%esp
+0xc0299b23 <ncp_ioctl+3/13b0>:                           sub    $0x278,%esp
+0xc065d85f <axnet_config+3/50c>:                         sub    $0x274,%esp
+0xc065565f <pcnet_config+3/6e4>:                         sub    $0x274,%esp
+0xc0250823 <do_open+3/1b8>:                              sub    $0x274,%esp
+0xc0251e33 <nfs4_proc_mknod+3/14c>:                      sub    $0x270,%esp
+0xc0251b03 <nfs4_proc_mkdir+3/14c>:                      sub    $0x270,%esp
+0xc02519b7 <nfs4_proc_symlink+3/14c>:                    sub    $0x270,%esp
+0xc044d033 <set_serial_info+3/138>:                      sub    $0x26c,%esp
+0xc0992403 <avmcs_config+3/444>:                         sub    $0x268,%esp
+0xc0a4245f <snd_pcm_hw_params_user+3/98>:                sub    $0x260,%esp
+0xc0a420e3 <snd_pcm_hw_refine_user+3/94>:                sub    $0x260,%esp
+0xc078f89b <port_detect+3/e54>:                          sub    $0x254,%esp
+0xc03dadd7 <semctl_main+3/448>:                          sub    $0x254,%esp
+0xc02f637f <udf_add_entry+3/b9c>:                        sub    $0x254,%esp
+0xc056d613 <speedo_found1+3/800>:                        sub    $0x248,%esp
+0xc07e11af <mpt_ScsiHost_ErrorReport+3/350>:             sub    $0x244,%esp
+0xc07f243e <add_card+e/db4>:                             sub    $0x23c,%esp
+0xc02faa57 <udf_load_pvoldesc+3/2bc>:                    sub    $0x23c,%esp
+0xc068eb73 <ray_config+3/41c>:                           sub    $0x238,%esp
+0xc085c9a3 <find_boot_record+3/360>:                     sub    $0x230,%esp
+0xc0532e67 <DAC960_UserIOCTL+3/17c0>:                    sub    $0x230,%esp
+0xc1412afb <de21041_get_srom_info+3/4b8>:                sub    $0x22c,%esp
+0xc03e33e3 <sha256_transform+3/2fa4>:                    sub    $0x22c,%esp
+0xc03114e3 <reiserfs_rename+3/d20>:                      sub    $0x22c,%esp
+0xc02568d3 <find_exported_dentry+3/d34>:                 sub    $0x22c,%esp
+0xc053df77 <e100_ethtool_eeprom+3/2e4>:                  sub    $0x228,%esp
+0xc0b87af7 <tcp_v4_conn_request+3/4cc>:                  sub    $0x224,%esp
+0xc085a697 <copy_erase_unit+3/2e8>:                      sub    $0x224,%esp
+0xc141d683 <setup_pdc4030+3/478>:                        sub    $0x220,%esp
+0xc0b8c3cf <tcp_check_req+3/374>:                        sub    $0x220,%esp
+0xc0b8acb3 <tcp_timewait_state_process+3/308>:           sub    $0x220,%esp
+0xc0be6fff <tcp_v6_conn_request+3/2c4>:                  sub    $0x21c,%esp
+0xc0941233 <sw_read+3/398>:                              sub    $0x21c,%esp
+0xc06b653b <sixpack_receive_buf+3/ec>:                   sub    $0x21c,%esp
+0xc068d127 <airo_get_wireless_stats+3/e0>:               sub    $0x21c,%esp
+0xc0b0e607 <check_hw_params_convention+3/140>:           sub    $0x218,%esp
+0xc03d75a7 <befs_read_inode+3/90c>:                      sub    $0x218,%esp
+0xc0252753 <encode_attrs+3/410>:                         sub    $0x218,%esp
+0xc02157a3 <fat_readdirx+3/1064>:                        sub    $0x218,%esp
+0xc13f86d7 <xd_wd_init_drive+3/28c>:                     sub    $0x214,%esp
+0xc0763e1b <fdomain_16x0_biosparam+3/258>:               sub    $0x214,%esp
+0xc067309f <netwave_pcmcia_config+3/40c>:                sub    $0x214,%esp
+0xc065aeb3 <xirc2ps_config+3/a50>:                       sub    $0x214,%esp
+0xc07622ab <fd_mcs_biosparam+3/118>:                     sub    $0x210,%esp
+0xc0723193 <cdrom_read_intr+3/3b8>:                      sub    $0x210,%esp
+0xc0abb7bf <snd_cs46xx_mixer+3/35c>:                     sub    $0x20c,%esp
+0xc08c245b <datafab_determine_lun+3/1e4>:                sub    $0x20c,%esp
+0xc085cd33 <check_free_sectors+3/f0>:                    sub    $0x20c,%esp
+0xc07d06df <i2o_proc_read_users+3/2d4>:                  sub    $0x20c,%esp
+0xc07885ef <print_selftest+3/cc>:                        sub    $0x20c,%esp
+0xc06506f7 <tc574_config+3/654>:                         sub    $0x20c,%esp
+0xc13f89eb <xd_seagate_init_drive+3/a4>:                 sub    $0x208,%esp
+0xc0a9396f <snd_es1968_mixer+3/e8>:                      sub    $0x208,%esp
+0xc08c263f <datafab_id_device+3/128>:                    sub    $0x208,%esp
+0xc067a2c3 <wavelan_event+3/710>:                        sub    $0x208,%esp
+0xc03292bb <reiserfs_delete_solid_item+3/304>:           sub    $0x208,%esp
+0xc02ff76f <udf_get_filename+3/dc>:                      sub    $0x208,%esp
+0xc02924db <nt_lm_owf_gen+3/c0>:                         sub    $0x208,%esp
+0xc0a2f4ff <snd_verbose_printd+3/a4>:                    sub    $0x204,%esp
+0xc0a2f467 <snd_verbose_printk+3/98>:                    sub    $0x204,%esp
+0xc08c31b7 <jumpshot_id_device+3/f0>:                    sub    $0x204,%esp
+0xc07230b3 <cdrom_buffer_sectors+3/e0>:                  sub    $0x204,%esp
+0xc064ea3b <tc589_config+3/470>:                         sub    $0x204,%esp
+0xc0528e0b <do_cciss_request+3/46c>:                     sub    $0x204,%esp
+0xc0a2b7af <snd_iprintf+3/6c>:                           sub    $0x200,%esp
+0xc0845e17 <card_settings+3/5c8>:                        sub    $0x200,%esp
+0xc081f40f <mcdx_open+3/1d4>:                            sub    $0x200,%esp
+0xc0788c9f <eata_pio_detect+3/174>:                      sub    $0x200,%esp
+0xc06523fb <fmvj18x_config+3/80c>:                       sub    $0x200,%esp
+0xc052168f <do_ida_request+3/270>:                       sub    $0x200,%esp
+0xc0657ff3 <smc91c92_config+3/5c4>:                      sub    $0x1f4,%esp
+0xc06540ff <nmclan_config+3/34c>:                        sub    $0x1f4,%esp
+0xc0250e47 <nfs4_proc_lookup+3/100>:                     sub    $0x1ec,%esp
+0xc01fa89b <presto_rewrite_close+3/2d4>:                 sub    $0x1e4,%esp
+0xc14423d3 <snd_seq_oss_create_client+3/1a0>:            sub    $0x1e0,%esp
+0xc0a99ed7 <snd_intel8x0_mixer+3/5e4>:                   sub    $0x1dc,%esp
+0xc065d083 <com20020_config+3/200>:                      sub    $0x1dc,%esp
+0xc03db8a3 <sys_semtimedop+3/80c>:                       sub    $0x1dc,%esp
+0xc0ace107 <snd_emu10k1_mixer+3/2ec>:                    sub    $0x1d8,%esp
+0xc0329083 <reiserfs_delete_item+3/238>:                 sub    $0x1d8,%esp
+0xc0aac9cb <snd_via82xx_chip_init+3/1e8>:                sub    $0x1d0,%esp
+0xc0a89473 <snd_ensoniq_1371_mixer+3/1ac>:               sub    $0x1cc,%esp
+0xc03acc5f <xfs_trans_init+3/19dc>:                      sub    $0x1cc,%esp
+0xc02efd93 <do_udf_readdir+3/6a0>:                       sub    $0x1cc,%esp
+0xc0a8080f <snd_cs4281_mixer+3/d0>:                      sub    $0x1c8,%esp
+0xc03299d7 <reiserfs_cut_from_item+3/5ac>:               sub    $0x1c8,%esp
+0xc0298b77 <ncp_fill_super+3/990>:                       sub    $0x1c8,%esp
+0xc0af7103 <snd_ymfpci_mixer+3/18c>:                     sub    $0x1c4,%esp
+0xc0adac8f <snd_nm256_mixer+3/84>:                       sub    $0x1c4,%esp
+0xc0ab63c3 <snd_ali_mixer+3/c0>:                         sub    $0x1c4,%esp
+0xc0aac4e3 <snd_via82xx_mixer_new+3/ac>:                 sub    $0x1c4,%esp
+0xc0a9d813 <snd_m3_mixer+3/94>:                          sub    $0x1c4,%esp
+0xc0a9722f <snd_fm801_mixer+3/108>:                      sub    $0x1c4,%esp
+0xc05e6303 <cp_ethtool_ioctl+3/1154>:                    sub    $0x1c4,%esp
+0xc0928733 <brlvger_ioctl+3/154>:                        sub    $0x1b8,%esp
+0xc0478a13 <ac_write+3/774>:                             sub    $0x1b8,%esp
+0xc0594da3 <tg3_ethtool_ioctl+3/1708>:                   sub    $0x1b0,%esp
+0xc0436f9f <check_tcp_syn_cookie+3/124>:                 sub    $0x1b0,%esp
+0xc0a35ff3 <snd_mixer_oss_build_input+3/4c0>:            sub    $0x1ac,%esp
+0xc08b22b3 <usb_audio_constructmixer+3/170>:             sub    $0x1ac,%esp
+0xc06b6be7 <encode_sixpack+3/164>:                       sub    $0x1ac,%esp
+0xc0cbc16f <clear_expired+3/c4>:                         sub    $0x1a8,%esp
+0xc06896e7 <proc_stats_rid_open+3/1a8>:                  sub    $0x1a8,%esp
+0xc0524e33 <cciss_update_non_disk_devices+3/2ac>:        sub    $0x1a8,%esp
+0xc0436e7b <secure_tcp_syn_cookie+3/124>:                sub    $0x1a8,%esp
+0xc032a9f7 <reiserfs_insert_item+3/10c>:                 sub    $0x1a8,%esp
+0xc032a8ef <reiserfs_paste_into_item+3/108>:             sub    $0x1a8,%esp
+0xc0cbbb17 <check_resolving_entries+3/19c>:              sub    $0x1a4,%esp
+0xc054d18f <e1000_check_copper_options+3/4f4>:           sub    $0x1a4,%esp
+0xc029686f <ncp_read_volume_list+3/bc>:                  sub    $0x1a4,%esp
+0xc0cbc80f <parse_qos+3/5a8>:                            sub    $0x1a0,%esp
+0xc085f977 <pcmcia_validate_cis+3/17c>:                  sub    $0x1a0,%esp
+0xc05ee7af <depca_ioctl+3/834>:                          sub    $0x1a0,%esp
+0xc0cbbfa7 <eg_cache_remove_entry+3/a0>:                 sub    $0x19c,%esp
+0xc0cbb9c7 <in_cache_remove_entry+3/a0>:                 sub    $0x19c,%esp
+0xc0cbb7f3 <cache_hit+3/1a8>:                            sub    $0x19c,%esp
+0xc0cba2ff <send_set_mps_ctrl_addr+3/7c>:                sub    $0x19c,%esp
+0xc03e18e3 <sha1_transform+3/18d4>:                      sub    $0x19c,%esp
+0xc144275b <snd_seq_system_client_init+3/198>:           sub    $0x194,%esp
+0xc1442593 <snd_seq_oss_midi_lookup_ports+3/c0>:         sub    $0x194,%esp
+0xc09435c3 <tmdc_connect+3/848>:                         sub    $0x194,%esp
+0xc0686af7 <airo_get_stats+3/c0>:                        sub    $0x194,%esp
+0xc026956f <nfsd4_encode_fattr+3/d98>:                   sub    $0x194,%esp
+0xc0230623 <hfs_cat_move+3/734>:                         sub    $0x194,%esp
+0xc0214d57 <fat_search_long+3/a4c>:                      sub    $0x194,%esp
+0xc0a62fdf <snd_virmidi_dev_attach_seq+3/194>:           sub    $0x190,%esp
+0xc0928e0f <brlvger_get_fw_version+3/94>:                sub    $0x190,%esp
+0xc07d09b3 <i2o_proc_read_priv_msgs+3/2d4>:              sub    $0x190,%esp
+0xc069ffd3 <de_ethtool_ioctl+3/834>:                     sub    $0x190,%esp
+0xc029692b <ncp_do_readdir+3/14c>:                       sub    $0x190,%esp
+0xc019ab4f <ep_send_events+3/17c>:                       sub    $0x18c,%esp
+0xc02513e3 <nfs4_proc_remove+3/110>:                     sub    $0x188,%esp
+0xc07bf747 <sg_ioctl+3/d18>:                             sub    $0x184,%esp
+0xc0a2da5f <snd_ctl_card_info+3/148>:                    sub    $0x180,%esp
+0xc0306313 <adfs_readdir+3/314>:                         sub    $0x180,%esp
+0xc02f807a <udf_symlink+a/700>:                          sub    $0x180,%esp
+0xc0296ebf <ncp_create_new+3/32c>:                       sub    $0x180,%esp
+0xc0296b43 <ncp_lookup+3/300>:                           sub    $0x180,%esp
+0xc023d74f <nfs_readdir+3/898>:                          sub    $0x180,%esp
+0xc0507b57 <wait_events+3/9d8>:                          sub    $0x17c,%esp
+0xc046d3db <wait_mgsl_event+3/a24>:                      sub    $0x17c,%esp
+0xc045df8f <mgsl_wait_event+3/a10>:                      sub    $0x17c,%esp
+0xc0297207 <ncp_mkdir+3/2c0>:                            sub    $0x17c,%esp
+0xc0295603 <__ncp_lookup_validate+3/1cc>:                sub    $0x17c,%esp
+0xc0250f47 <nfs4_proc_access+3/13c>:                     sub    $0x17c,%esp
+0xc142d19f <cdu31a_init+3/554>:                          sub    $0x178,%esp
+0xc05ea5eb <netdev_ethtool_ioctl+3/a7c>:                 sub    $0x178,%esp
+0xc0479187 <do_ac_read+3/220>:                           sub    $0x178,%esp
+0xc03dcd5f <sys_shmctl+3/8d4>:                           sub    $0x178,%esp
+0xc0986807 <capi_message2str+3/c4>:                      sub    $0x174,%esp
+0xc0297f3f <ncp_make_open+3/128>:                        sub    $0x174,%esp
+0xc07d496f <i2o_proc_read_lan_hist_stats+3/ab4>:         sub    $0x170,%esp
+0xc08c0be3 <isd200_action+3/1ac>:                        sub    $0x16c,%esp
+0xc02ccf87 <jffs_scan_flash+3/96c>:                      sub    $0x16c,%esp
+0xc01af047 <elf_kcore_store_hdr+3/344>:                  sub    $0x168,%esp
+0xc13d609b <md_setup_drive+3/4f0>:                       sub    $0x164,%esp
+0xc05aee87 <netdev_ethtool_ioctl+3/590>:                 sub    $0x164,%esp
+0xc03d9667 <sys_msgctl+3/684>:                           sub    $0x164,%esp
+0xc0296a77 <ncp_conn_logged_in+3/cc>:                    sub    $0x160,%esp
+0xc0b001d7 <snd_ice1712_ak4524_build_controls+3/40c>:    sub    $0x15c,%esp
+0xc024ccb7 <nfs3_proc_rename+3/15c>:                     sub    $0x15c,%esp
+0xc01fe537 <izo_get_fileid+3/69c>:                       sub    $0x15c,%esp
+0xc06bd813 <eppconfig+3/150>:                            sub    $0x158,%esp
+0xc033bb3b <xtUpdate+3/171c>:                            sub    $0x158,%esp
+0xc0295b93 <ncp_obtain_mtime+3/80>:                      sub    $0x158,%esp
+0xc024017f <nfs_symlink+3/428>:                          sub    $0x158,%esp
+0xc01753af <blkdev_get+3/78>:                            sub    $0x158,%esp
+0xc0727d97 <idefloppy_get_format_capacities+3/1b0>:      sub    $0x154,%esp
+0xc0727afb <idefloppy_get_capacity+3/29c>:               sub    $0x154,%esp
+0xc0250aa3 <nfs4_proc_get_root+3/1c8>:                   sub    $0x154,%esp
+0xc02a6eb3 <hpfs_set_ea+3/8e0>:                          sub    $0x150,%esp
+0xc0296463 <ncp_fill_cache+3/40c>:                       sub    $0x150,%esp
+0xc023f2a7 <nfs_mknod+3/370>:                            sub    $0x150,%esp
+0xc02383b7 <hdr_write+3/98c>:                            sub    $0x150,%esp
+0xc01fe0db <kml_reint_rec+3/45c>:                        sub    $0x150,%esp
+0xc14233df <BusLogic_InitializeProbeInfoList+3/198>:     sub    $0x14c,%esp
+0xc0ad0123 <snd_emu10k1_verify_controls+3/214>:          sub    $0x14c,%esp
+0xc08f2683 <vicam_ioctl+3/5b0>:                          sub    $0x14c,%esp
+0xc060a41b <amd8111e_ethtool_ioctl+3/aac>:               sub    $0x14c,%esp
+0xc055f06f <vortex_probe1+3/e54>:                        sub    $0x14c,%esp
+0xc04da5b3 <radeon_cp_vertex2+3/440>:                    sub    $0x14c,%esp
+0xc024ce13 <nfs3_proc_link+3/144>:                       sub    $0x14c,%esp
+0xc023f617 <nfs_mkdir+3/350>:                            sub    $0x14c,%esp
+0xc023ef57 <nfs_create+3/350>:                           sub    $0x14c,%esp
+0xc098b91f <b1_load_config+3/4a8>:                       sub    $0x148,%esp
+0xc067e783 <orinoco_ioctl_getiwrange+3/564>:             sub    $0x148,%esp
+0xc05bfb03 <b44_ethtool_ioctl+3/c64>:                    sub    $0x148,%esp
+0xc0426eeb <parport_pc_probe_port+3/618>:                sub    $0x148,%esp
+0xc023764b <cap_info_write+3/298>:                       sub    $0x148,%esp
+0xc07278bf <idefloppy_get_flexible_disk_page+3/1c4>:     sub    $0x144,%esp
+0xc0564e33 <typhoon_ioctl+3/564>:                        sub    $0x144,%esp
+0xc02374d7 <cap_info_read+3/174>:                        sub    $0x144,%esp
+0xc0179163 <do_execve+3/1f0>:                            sub    $0x144,%esp
+0xc0c10187 <x25_ioctl+3/448>:                            sub    $0x140,%esp
+0xc0727fc7 <idefloppy_get_format_progress+3/100>:        sub    $0x140,%esp
+0xc063fe13 <cpc_ioctl+3/a0c>:                            sub    $0x140,%esp
+0xc08f99bf <pegasus_ethtool_ioctl+3/28c>:                sub    $0x13c,%esp
+0xc0728507 <idefloppy_ioctl+3/190>:                      sub    $0x13c,%esp
+0xc072849b <idefloppy_release+3/6c>:                     sub    $0x13c,%esp
+0xc0728383 <idefloppy_open+3/118>:                       sub    $0x13c,%esp
+0xc0727f47 <idefloppy_begin_format+3/80>:                sub    $0x13c,%esp
+0xc0727a83 <idefloppy_get_capability_page+3/78>:         sub    $0x13c,%esp
+0xc06f35fb <calculate_clipping_registers_rect+3/3f0>:    sub    $0x13c,%esp
+0xc03c6d43 <qsort+3/420>:                                sub    $0x13c,%esp
+0xc02f5bdb <udf_find_entry+3/4c8>:                       sub    $0x13c,%esp
+0xc0236c4f <hfs_do_read+3/37c>:                          sub    $0x13c,%esp
+0xc07c8777 <ioctl_html+3/474>:                           sub    $0x138,%esp
+0xc056fe93 <netdev_ethtool_ioctl+3/574>:                 sub    $0x138,%esp
+0xc02d3a53 <jffs2_dynrubin_compress+3/1cc>:              sub    $0x138,%esp
+0xc01cf0c7 <journal_commit_transaction+3/19c3>:          sub    $0x138,%esp
+0xc0a51f13 <snd_seq_oss_ioctl+3/930>:                    sub    $0x134,%esp
+0xc07f7717 <dma_rcv_tasklet+3/8ac>:                      sub    $0x134,%esp
+0xc069c19f <netdev_ethtool_ioctl+3/558>:                 sub    $0x134,%esp
+0xc05b232f <netdev_ethtool_ioctl+3/568>:                 sub    $0x134,%esp
+0xc05ab993 <netdev_ethtool_ioctl+3/564>:                 sub    $0x134,%esp
+0xc058c32b <netdev_ethtool_ioctl+3/4cc>:                 sub    $0x134,%esp
+0xc0578dd3 <netdev_ethtool_ioctl+3/554>:                 sub    $0x134,%esp
+0xc056c64f <pcnet32_ethtool_ioctl+3/598>:                sub    $0x134,%esp
+0xc01fbcdf <reint_close+3/554>:                          sub    $0x134,%esp
+0xc07d1233 <i2o_proc_read_ddm_identity+3/28c>:           sub    $0x130,%esp
+0xc039e83f <xfs_swapext+3/8a4>:                          sub    $0x130,%esp
+0xc0b26fab <sys_sendmsg+3/26c>:                          sub    $0x12c,%esp
+0xc0657d37 <osi_setup+3/170>:                            sub    $0x12c,%esp
+0xc055ce63 <gem_ethtool_ioctl+3/758>:                    sub    $0x12c,%esp
+0xc0402d83 <huft_build+3/730>:                           sub    $0x12c,%esp
+0xc0237d53 <hdr_read+3/664>:                             sub    $0x12c,%esp
+0xc0a41bd3 <snd_pcm_info_user+3/74>:                     sub    $0x128,%esp
+0xc084f09b <eras_dec_rs+3/a68>:                          sub    $0x128,%esp
+0xc052cb2b <DAC960_V1_ReadDeviceConfiguration+3/72c>:    sub    $0x128,%esp
+0xc03389df <xtLookupList+3/9e8>:                         sub    $0x128,%esp
+0xc019b243 <aout_core_dump+3/1dc>:                       sub    $0x128,%esp
+0xc0969743 <copy_params+3/b8>:                           sub    $0x124,%esp
+0xc08eb043 <pwc_set_video_mode+3/838>:                   sub    $0x124,%esp
+0xc081f8bf <mcdx_xfer+3/374>:                            sub    $0x124,%esp
+0xc081360f <mmc_ioctl+3/b5c>:                            sub    $0x124,%esp
+0xc0659f3b <smc_ethtool_ioctl+3/5fc>:                    sub    $0x124,%esp
+0xc05b490b <netdev_ethtool_ioctl+3/500>:                 sub    $0x124,%esp
+0xc0308b53 <adfs_fill_super+3/458>:                      sub    $0x124,%esp
+0xc02a6b6b <hpfs_get_ea+3/348>:                          sub    $0x124,%esp
+0xc023dfe7 <nfs_lookup_revalidate+3/738>:                sub    $0x124,%esp
+0xc0c5cc9f <dev_irnet_write+3/358>:                      sub    $0x120,%esp
+0xc0af166b <snd_trident_synth_new_device+3/1e4>:         sub    $0x120,%esp
+0xc0a400f3 <snd_pcm_proc_info_read+3/130>:               sub    $0x120,%esp
+0xc0a2ddb3 <snd_ctl_elem_info+3/1d4>:                    sub    $0x120,%esp
+0xc098b6bb <b1_load_t4file+3/264>:                       sub    $0x120,%esp
+0xc085f913 <read_tuple+3/64>:                            sub    $0x120,%esp
+0xc0711593 <via_get_info+3/b08>:                         sub    $0x120,%esp
+0xc05f60a3 <ni65_interrupt+3/350>:                       sub    $0x120,%esp
+0xc033d257 <xtAppend+3/3f8>:                             sub    $0x120,%esp
+0xc0234af3 <nat_readdir+3/540>:                          sub    $0x120,%esp
+0xc023299f <cap_readdir+3/574>:                          sub    $0x120,%esp
+0xc0bfc427 <br_ioctl_deviceless+3/140>:                  sub    $0x11c,%esp
+0xc06ed483 <sp8870_load_code+3/180>:                     sub    $0x11c,%esp
+0xc03d7373 <befs_readdir+3/1d0>:                         sub    $0x11c,%esp
+0xc0307ee3 <adfs_write_inode+3/1d0>:                     sub    $0x11c,%esp
+0xc03068f3 <adfs_lookup+3/1f0>:                          sub    $0x11c,%esp
+0xc02a68c3 <hpfs_read_ea+3/2a8>:                         sub    $0x11c,%esp
+0xc023e8f3 <nfs_lookup+3/2d4>:                           sub    $0x11c,%esp
+0xc0ad07eb <snd_emu10k1_list_controls+3/1f8>:            sub    $0x118,%esp
+0xc068c85b <airo_get_aplist+3/24c>:                      sub    $0x118,%esp
+0xc05972fb <tg3_read_partno+3/188>:                      sub    $0x118,%esp
+0xc04d94f7 <radeon_cp_clear+3/1bc>:                      sub    $0x118,%esp
+0xc0307103 <adfs_dir_find_entry+3/5c>:                   sub    $0x118,%esp
+0xc03027cf <autofs_root_ioctl+3/2b6>:                    sub    $0x118,%esp
+0xc0272ecf <nlm4svc_proc_granted_msg+3/60>:              sub    $0x118,%esp
+0xc0272e6f <nlm4svc_proc_unlock_msg+3/60>:               sub    $0x118,%esp
+0xc0272e0f <nlm4svc_proc_cancel_msg+3/60>:               sub    $0x118,%esp
+0xc0272daf <nlm4svc_proc_lock_msg+3/60>:                 sub    $0x118,%esp
+0xc0272d47 <nlm4svc_proc_test_msg+3/68>:                 sub    $0x118,%esp
+0xc026f8e3 <nlmsvc_proc_granted_msg+3/60>:               sub    $0x118,%esp
+0xc026f883 <nlmsvc_proc_unlock_msg+3/60>:                sub    $0x118,%esp
+0xc026f823 <nlmsvc_proc_cancel_msg+3/60>:                sub    $0x118,%esp
+0xc026f7c3 <nlmsvc_proc_lock_msg+3/60>:                  sub    $0x118,%esp
+0xc026f763 <nlmsvc_proc_test_msg+3/60>:                  sub    $0x118,%esp
+0xc0233933 <dbl_readdir+3/4c4>:                          sub    $0x118,%esp
+0xc01d1bc3 <log_do_checkpoint+3/2d4>:                    sub    $0x118,%esp
+0xc0c8336f <bnep_session+3/c98>:                         sub    $0x114,%esp
+0xc07a7d8b <resp_mode_sense+3/2d0>:                      sub    $0x114,%esp
+0xc0735cff <scsi_request_sense+3/158>:                   sub    $0x114,%esp
+0xc05f0553 <ewrk3_ethtool_ioctl+3/864>:                  sub    $0x114,%esp
+0xc0317643 <reiserfs_readdir+3/6f4>:                     sub    $0x114,%esp
+0xc03061b3 <autofs4_expire_run+3/ec>:                    sub    $0x114,%esp
+0xc030567f <autofs4_notify_daemon+3/e4>:                 sub    $0x114,%esp
+0xc0302daf <autofs_notify_daemon+3/ac>:                  sub    $0x114,%esp
+0xc0ac0a9b <cs46xx_dsp_async_init+3/4c0>:                sub    $0x110,%esp
+0xc0a35ef3 <snd_mixer_oss_build_test+3/94>:              sub    $0x110,%esp
+0xc08eeee7 <se401_init+3/418>:                           sub    $0x110,%esp
+0xc08be3ff <sddr09_get_cardinfo+3/22c>:                  sub    $0x110,%esp
+0xc06dbcbf <check_size+3/b8>:                            sub    $0x110,%esp
+0xc06894a3 <proc_status_open+3/200>:                     sub    $0x110,%esp
+0xc05ded7f <InitBoard+3/278>:                            sub    $0x110,%esp
+0xc0376283 <xfs_bmap_alloc+3/12cc>:                      sub    $0x110,%esp
+0xc02a6693 <hpfs_ea_ext_remove+3/19c>:                   sub    $0x110,%esp
+0xc0290c17 <cifs_readlink+3/20c>:                        sub    $0x110,%esp
+0xc0a674cb <snd_rawmidi_info_select_user+3/a4>:          sub    $0x10c,%esp
+0xc0a673c7 <snd_rawmidi_info_user+3/70>:                 sub    $0x10c,%esp
+0xc085e04f <verify_cis_cache+3/110>:                     sub    $0x10c,%esp
+0xc07d0c87 <i2o_proc_read_authorized_users+3/288>:       sub    $0x10c,%esp
+0xc07d01bf <i2o_proc_read_phys_device+3/290>:            sub    $0x10c,%esp
+0xc025f277 <exp_rootfh+3/134>:                           sub    $0x10c,%esp
+0xc01fab6f <presto_complete_lml+3/5ac>:                  sub    $0x10c,%esp
+0xc0949baf <i8042_interrupt+3/310>:                      sub    $0x108,%esp
+0xc089248b <proc_getdriver+3/f4>:                        sub    $0x108,%esp
+0xc0792167 <flush_dev+3/1c4>:                            sub    $0x108,%esp
+0xc06b0acf <de4x5_ioctl+3/7c4>:                          sub    $0x108,%esp
+0xc0605ad3 <rio_ethtool_ioctl+3/404>:                    sub    $0x108,%esp
+0xc0603e23 <parse_eeprom+3/180>:                         sub    $0x108,%esp
+0xc032ea2f <reiserfs_breada+3/130>:                      sub    $0x108,%esp
+0xc0312fd7 <reiserfs_get_block+3/121c>:                  sub    $0x108,%esp
+0xc02922cf <SamOEMhash+3/f4>:                            sub    $0x108,%esp
+0xc029098b <cifs_follow_link+3/110>:                     sub    $0x108,%esp
+0xc02423b3 <nfs_statfs+3/2f8>:                           sub    $0x108,%esp
+0xc019accb <ep_events_transfer+3/dc>:                    sub    $0x108,%esp
+0xc08b5e7b <detect_by_hand+3/f8>:                        sub    $0x104,%esp
+0xc07ce0b3 <chtostr+3/50>:                               sub    $0x104,%esp
+0xc0422823 <do_active_device+3/100>:                     sub    $0x104,%esp
+0xc02ff84b <udf_put_filename+3/70>:                      sub    $0x104,%esp
+0xc029247b <E_md4hash+3/60>:                             sub    $0x104,%esp
+0xc0207f07 <presto_do_setattr+3/608>:                    sub    $0x104,%esp
+0xc1447003 <pirq_peer_trick+3/b0>:                       sub    $0x100,%esp
+0xc0b66af7 <rt_cache_seq_show+3/ec>:                     sub    $0x100,%esp
+0xc0b27217 <sys_recvmsg+3/214>:                          sub    $0x100,%esp
+0xc08fb7c7 <rtl8150_ethtool_ioctl+3/2c4>:                sub    $0x100,%esp
+0xc08f488f <netdev_ethtool_ioctl+3/1cc>:                 sub    $0x100,%esp
+0xc0822db3 <msg+3/98>:                                   sub    $0x100,%esp
+0xc06ded23 <cadet_read+3/16c>:                           sub    $0x100,%esp
+0xc0691e83 <rx_authenticate+3/c0>:                       sub    $0x100,%esp
+0xc0422923 <do_autoprobe+3/12c>:                         sub    $0x100,%esp
+0xc030f5bb <reiserfs_add_entry+3/48c>:                   sub    $0x100,%esp
+0xc0282917 <smb_follow_link+3/5c>:                       sub    $0x100,%esp
+0xc02828a3 <smb_read_link+3/54>:                         sub    $0x100,%esp
+0xc019214f <removexattr+3/dc>:                           sub    $0x100,%esp
+0xc0191d47 <getxattr+3/160>:                             sub    $0x100,%esp
+0xc0191ad3 <setxattr+3/194>:                             sub    $0x100,%esp
+0xc0137ff7 <sys_reboot+3/6ec>:                           sub    $0x100,%esp
+
+Jörn
+
+-- 
+Victory in war is not repetitious.
+-- Sun Tzu

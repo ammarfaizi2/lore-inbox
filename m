@@ -1,46 +1,26 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265238AbTBJVrU>; Mon, 10 Feb 2003 16:47:20 -0500
+	id <S265262AbTBJVtV>; Mon, 10 Feb 2003 16:49:21 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265242AbTBJVrU>; Mon, 10 Feb 2003 16:47:20 -0500
-Received: from ip64-48-93-2.z93-48-64.customer.algx.net ([64.48.93.2]:8115
-	"EHLO ns1.limegroup.com") by vger.kernel.org with ESMTP
-	id <S265238AbTBJVrO>; Mon, 10 Feb 2003 16:47:14 -0500
-Date: Mon, 10 Feb 2003 16:55:52 -0500 (EST)
-From: Ion Badulescu <ionut@badula.org>
-X-X-Sender: ion@guppy.limebrokerage.com
-To: "Martin J. Bligh" <mbligh@aracnet.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Testing new starfire driver for 2.5
-In-Reply-To: <43090000.1044848052@[10.10.2.4]>
-Message-ID: <Pine.LNX.4.44.0302101650440.3127-100000@guppy.limebrokerage.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S265333AbTBJVtV>; Mon, 10 Feb 2003 16:49:21 -0500
+Received: from mailout06.sul.t-online.com ([194.25.134.19]:43996 "EHLO
+	mailout06.sul.t-online.com") by vger.kernel.org with ESMTP
+	id <S265262AbTBJVtU>; Mon, 10 Feb 2003 16:49:20 -0500
+Message-Id: <4.3.2.7.2.20030210225416.00b71a50@pop.t-online.de>
+X-Mailer: QUALCOMM Windows Eudora Version 4.3.2
+Date: Mon, 10 Feb 2003 22:59:50 +0100
+To: linux-kernel@vger.kernel.org
+From: margitsw@t-online.de (Margit Schubert-While)
+Subject: HYPERTHREADING on older P4???
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 9 Feb 2003, Martin J. Bligh wrote:
+Looking at 
+<http://developer.intel.ru/download/design/Pentium4/datashts/29864305.pdf>
+Chapter 6.1, page 67 - Pin A31 determines HT activation.
+Anybody with a soldering iron wanna give it a shot :-)
 
-> I've been using your new starfire driver for a couple of weeks now,
-> and it's in 2.5-mjb ... been testing on the 16x NUMA-Q w/16Gb RAM.
-> 
-> Not only does it work just fine with no problems, all the wierd error
-> messages I had before went away ;-)
-
-Good to hear that...
-
-Which version did you end up using: 1.4.0 or 1.3.9?
-
-> Seems cool to me, are you ready to push this to Linus?
-
-Well, 1.3.9 is already in Marcelo's tree. I'll push 1.4.1 -- which is 
-1.4.0 plus a compile option for enabling/disabling NAPI -- to Linus as 
-soon as I finish testing with both compile options.
-
-Thanks,
-Ion
-
--- 
-  It is better to keep your mouth shut and be thought a fool,
-            than to open it and remove all doubt.
+Margit
 

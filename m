@@ -1,40 +1,61 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263126AbREWP34>; Wed, 23 May 2001 11:29:56 -0400
+	id <S263132AbREWPj5>; Wed, 23 May 2001 11:39:57 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263127AbREWP3p>; Wed, 23 May 2001 11:29:45 -0400
-Received: from pm489-31.dialip.mich.net ([198.110.188.41]:20154 "HELO
-	tabris.domedata.com") by vger.kernel.org with SMTP
-	id <S263126AbREWP30>; Wed, 23 May 2001 11:29:26 -0400
-Message-ID: <3B0BD750.4010306@lycosmail.com>
-Date: Wed, 23 May 2001 11:29:20 -0400
-From: Adam Schrotenboer <ajschrotenboer@lycosmail.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux 2.4.4-ac3 i686; en-US; rv:0.9) Gecko/20010505
-X-Accept-Language: en
+	id <S263130AbREWPjr>; Wed, 23 May 2001 11:39:47 -0400
+Received: from perninha.conectiva.com.br ([200.250.58.156]:3339 "HELO
+	perninha.conectiva.com.br") by vger.kernel.org with SMTP
+	id <S263129AbREWPjf>; Wed, 23 May 2001 11:39:35 -0400
+Date: Wed, 23 May 2001 12:39:31 -0300 (BRST)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: <riel@duckman.distro.conectiva>
+To: Marcelo Tosatti <marcelo@conectiva.com.br>
+Cc: "Stephen C. Tweedie" <sct@redhat.com>, lkml <linux-kernel@vger.kernel.org>,
+        <linux-mm@kvack.org>
+Subject: Re: write drop behind effect on active scanning 
+In-Reply-To: <Pine.LNX.4.21.0105221910361.864-100000@freak.distro.conectiva>
+Message-ID: <Pine.LNX.4.33.0105231237510.311-100000@duckman.distro.conectiva>
 MIME-Version: 1.0
-To: Jens Axboe <axboe@suse.de>
-Cc: LKML <linux-kernel@vger.kernel.org>
-Subject: Loopback, unable to release
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Using 2.4.4-ac3 (as well as in 2.4.3*) I have found it impossible to 
-unmap a loopback
+On Wed, 23 May 2001, Marcelo Tosatti wrote:
 
-strace losetup -d /dev/loop0 (relevant portion)
+> I just noticed a "bad" effect of write drop behind yesterday during some
+> tests.
+>
+> The problem is that we deactivate written pages, thus making the inactive
+> list become pretty big (full of unfreeable pages) under write intensive IO
+> workloads.
+>
+> So what happens is that we don't do _any_ aging on the active list, and in
+> the meantime the inactive list (which should have "easily" freeable
+> pages) is full of locked pages.
+>
+> I'm going to fix this one by replacing "deactivate_page(page)" to
+> "ClearPageReferenced(page)" in generic_file_write(). This way the written
+> pages are aged faster but we avoid the bad effect just described.
+>
+> Any comments on the fix ?
 
-open("/dev/loop0", O_RDONLY)            = 3
-ioctl(3, LOOP_CLR_FD, 0)                = -1 EBUSY (Device or resource busy)
-open("/usr/share/locale/en_US/LC_MESSAGES/libc.mo", O_RDONLY) = -1 
-ENOENT (No such file or directory)
-open("/usr/share/locale/en/LC_MESSAGES/libc.mo", O_RDONLY) = -1 ENOENT 
-(No such file or directory)
-write(2, "ioctl: LOOP_CLR_FD: Device or re"..., 44ioctl: LOOP_CLR_FD: 
-Device or resource busy) = 44
-_exit(1)                                = ?
+1) I agree with it, drop-behind should make the pages we write
+   very likely for eviction, but we don't want that to stop the
+   eviction of other not-used pages ...
 
-also I have loop.o as module, and use count never decreases, in fact 
-right now it is at 294.
+2) OTOH, if writeout of dirty pages is a problem for the system,
+   I guess we will want to fix that problem somehow ;)
+   (but that's another issue)
+
+regards,
+
+Rik
+--
+Linux MM bugzilla: http://linux-mm.org/bugzilla.shtml
+
+Virtual memory is like a game you can't win;
+However, without VM there's truly nothing to lose...
+
+		http://www.surriel.com/
+http://www.conectiva.com/	http://distro.conectiva.com/
 

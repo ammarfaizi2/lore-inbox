@@ -1,51 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135868AbRDYOu0>; Wed, 25 Apr 2001 10:50:26 -0400
+	id <S135869AbRDYO77>; Wed, 25 Apr 2001 10:59:59 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135869AbRDYOuR>; Wed, 25 Apr 2001 10:50:17 -0400
-Received: from saloma.stu.rpi.edu ([128.113.199.230]:41481 "EHLO incandescent")
-	by vger.kernel.org with ESMTP id <S135868AbRDYOuM>;
-	Wed, 25 Apr 2001 10:50:12 -0400
-Date: Wed, 25 Apr 2001 10:49:49 -0400
-From: Andres Salomon <dilinger@mp3revolution.net>
-To: Marcus Meissner <Marcus.Meissner@caldera.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: PATCH: trident , pci_enable_device moved
-Message-ID: <20010425104949.A31649@mp3revolution.net>
-In-Reply-To: <20010425090438.A12672@caldera.de> <20010425130624.A3216@caldera.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.17i
-In-Reply-To: <20010425130624.A3216@caldera.de>; from Marcus.Meissner@caldera.de on Wed, Apr 25, 2001 at 01:06:24PM +0200
-X-Operating-System: Linux incandescent 2.4.3 
+	id <S135870AbRDYO7s>; Wed, 25 Apr 2001 10:59:48 -0400
+Received: from pincoya.inf.utfsm.cl ([200.1.19.3]:1555 "EHLO
+	pincoya.inf.utfsm.cl") by vger.kernel.org with ESMTP
+	id <S135869AbRDYO7q>; Wed, 25 Apr 2001 10:59:46 -0400
+Message-Id: <200104251459.f3PEx8s4009505@pincoya.inf.utfsm.cl>
+To: "Sergey Kubushin" <ksi@cyberbills.com>
+cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.4.3ac13 
+In-Reply-To: Message from "Sergey Kubushin" <ksi@cyberbills.com> 
+   of "Tue, 24 Apr 2001 16:00:23 MST." <Pine.LNX.4.31ksi3.0104241559530.1039-100000@nomad.cyberbills.com> 
+Date: Wed, 25 Apr 2001 10:59:08 -0400
+From: Horst von Brand <vonbrand@inf.utfsm.cl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Just a warning; I was informed by Alan that doing this for video
-drivers was unnecessary, since video devices were already enabled
-during bootup.
+"Sergey Kubushin" <ksi@cyberbills.com> said:
+> === Cut ===
+> [root@nomad /root]# depmod -ae
+> depmod: *** Unresolved symbols in
+> /lib/modules/2.4.3ac13/kernel/drivers/net/aironet4500_card.o
+> depmod:         __bad_udelay
+> === Cut ===
 
-
-On Wed, Apr 25, 2001 at 01:06:24PM +0200, Marcus Meissner wrote:
-> 
-> On Wed, Apr 25, 2001 at 09:04:38AM +0200, Marcus Meissner wrote:
-> > Hi Alan, linux-kernel,
-> > 
-> > This moves pci_enable_device() in trident.c before any PCI resource access.
-> > Everything else appears to be ok in regards to 2.4 PCI API and return values.
-> > 
-> > Ciao, Marcus
-> 
-> Argh, actually the return value of pci_enable_device*() should be returned.
-> 
-> Ciao, Marcus
-> 
-
+AFAIR, this means that the driver is using an udelay() with a much too
+large argument. Break it up into several shorter ones, or use mdelay().
 -- 
-"... being a Linux user is sort of like living in a house inhabited
-by a large family of carpenters and architects. Every morning when
-you wake up, the house is a little different. Maybe there is a new
-turret, or some walls have moved. Or perhaps someone has temporarily
-removed the floor under your bed." - Unix for Dummies, 2nd Edition
-        -- found in the .sig of Rob Riggs, rriggs@tesser.com
+Dr. Horst H. von Brand                       mailto:vonbrand@inf.utfsm.cl
+Departamento de Informatica                     Fono: +56 32 654431
+Universidad Tecnica Federico Santa Maria              +56 32 654239
+Casilla 110-V, Valparaiso, Chile                Fax:  +56 32 797513

@@ -1,112 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264224AbUDHJV4 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 8 Apr 2004 05:21:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264225AbUDHJV4
+	id S264225AbUDHJYT (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 8 Apr 2004 05:24:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264227AbUDHJYT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 8 Apr 2004 05:21:56 -0400
-Received: from mail3.codesense.com ([213.132.104.154]:18081 "EHLO
-	mail3.codesense.com") by vger.kernel.org with ESMTP id S264224AbUDHJVn
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 8 Apr 2004 05:21:43 -0400
-Subject: Failing back to INSANE timesource :) Time stopped today.
-From: Niclas Gustafsson <niclas.gustafsson@codesense.com>
-To: linux-kernel@vger.kernel.org
-Content-Type: text/plain
-Message-Id: <1081416100.6425.45.camel@gmg.codesense.com>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Thu, 08 Apr 2004 11:21:41 +0200
-Content-Transfer-Encoding: 7bit
+	Thu, 8 Apr 2004 05:24:19 -0400
+Received: from ns.suse.de ([195.135.220.2]:28576 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S264225AbUDHJYR (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 8 Apr 2004 05:24:17 -0400
+To: Martin Rode <martin.rode@zeroscale.com>
+Cc: Dave Kleikamp <shaggy@austin.ibm.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: cp fails in this symlink case, kernel 2.4.25, reiserfs + ext2
+References: <1081359310.1212.537.camel@marge.pf-berlin.de>
+	<1081365374.11164.24.camel@shaggy.austin.ibm.com>
+	<1081410996.3770.1405.camel@marge.pf-berlin.de>
+From: Andreas Schwab <schwab@suse.de>
+X-Yow: I just had my entire INTESTINAL TRACT coated with TEFLON!
+Date: Thu, 08 Apr 2004 11:24:14 +0200
+In-Reply-To: <1081410996.3770.1405.camel@marge.pf-berlin.de> (Martin Rode's
+ message of "Thu, 08 Apr 2004 09:56:37 +0200")
+Message-ID: <je1xmy3jr5.fsf@sykes.suse.de>
+User-Agent: Gnus/5.1006 (Gnus v5.10.6) Emacs/21.3.50 (gnu/linux)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Martin Rode <martin.rode@zeroscale.com> writes:
 
-I'm running Linux 2.6.5  on a IBM xSeries 305 with a Intel P4 2.8Ghz.
+> On Wed, 2004-04-07 at 21:16, Dave Kleikamp wrote:
+>> On Wed, 2004-04-07 at 12:35, Martin Rode wrote:
+>> > 5) cp fails
+>> > apu:/home/martin/tmp/bug# (cd alpha/beta; cp ../latest/myfile .)
+>> > cp: cannot stat `../latest/myfile': No such file or directory
+>> 
+>> When you cd to alpha/beta, your current directory is really
+>> .../tmp/bug/beta.  Your shell may remember that you got there through
+>> the symlink in alpha, but cp will follow .., which is really bug.
+>
+> Bug in "cp", "bash" or in the kernel fs-layer? 
 
-And something is very very wrong, I'm getting the following last
-messages in dmesg:
+Neither.
 
-------
-set_rtc_mmss: can't update from 52 to 0
-set_rtc_mmss: can't update from 53 to 1
-set_rtc_mmss: can't update from 54 to 2
-set_rtc_mmss: can't update from 55 to 3
-set_rtc_mmss: can't update from 56 to 4
-set_rtc_mmss: can't update from 57 to 5
-set_rtc_mmss: can't update from 58 to 6
-Losing too many ticks!
-TSC cannot be used as a timesource.  <4>Possible reasons for this are:
-  You're running with Speedstep,
-  You don't have DMA enabled for your hard disk (see hdparm),
-  Incorrect TSC synchronization on an SMP system (see dmesg).
-------
+Andreas.
 
-The problem seesm to be related to heavy loads.
-I experienced a similar problem yesterday. The machine completly hung
-after that and i had to cut the power to reboot it. Now however it is
-responsive and I can log on to it through ssh.
-
-Problem is that the clock stopped completly! - I've never seen anything
-like this before. 
-
-Local time is about 11 am here and a time gives me:
-
-[root@s151 root]# date
-Thu Apr  8 03:51:21 CEST 2004
-
-...10 s later, using my wristwatch, not sleep 10 ;)
-
-[root@s151 root]# date
-Thu Apr  8 03:51:21 CEST 2004
-
-
-Any ideas anyone, I'd really like to know why it is behaving this way.
-
-
-Other usful(?) info from dmesg:
----
-Detected 2800.731 MHz processor.
-Using tsc for high-res timesource
-...
-init IO_APIC IRQs
- IO-APIC (apicid-pin) 1-0, 2-0, 2-1, 2-2, 2-3, 2-4, 2-5, 2-6, 2-7, 2-8,
-2-9, 2-10, 2-11, 2-12, 2-13, 2-14, 2-15, 3-0, 3-1, 3-2, 3-3, 3-4, 3-5,
-3-6, 3-7, 3-8, 3-9, 3-10, 3-11, 3-12, 3-13, 3-14, 3-15 not connected.
-..TIMER: vector=0x31 pin1=2 pin2=-1
-..MP-BIOS bug: 8254 timer not connected to IO-APIC
-...trying to set up timer (IRQ0) through the 8259A ...  failed.
-...trying to set up timer as Virtual Wire IRQ... works.
-Using local APIC timer interrupts.
-calibrating APIC timer ...
-..... CPU clock speed is 2798.0750 MHz.
-...
-----
-
-Oh, yeah, I'm running NTP on the machine, however the client seems to be
-sleeping for the next time-poll.
-I'm also using this machine as a ntp server and one client has the
-following to say:
-
-[root@s131 tmp]# ntpdc
-ntpdc> peers
-     remote           local      st poll reach  delay   offset    disp
-=======================================================================
-*time2 192.168.4.131  2 1024  377 0.00067  0.004991 0.01482
-=time1 192.168.4.131  2 1024  377 0.00085  0.000558 0.01485
-=s151  192.168.4.131  3 1024  377 0.00021 -25494.16 0.01482
-
-Where s151 is the machine that is on freeze.
-
-
-
-Cheers,
-
-Niclas
-
-
-
-
-
-
+-- 
+Andreas Schwab, SuSE Labs, schwab@suse.de
+SuSE Linux AG, Maxfeldstraße 5, 90409 Nürnberg, Germany
+Key fingerprint = 58CA 54C7 6D53 942B 1756  01D3 44D5 214B 8276 4ED5
+"And now for something completely different."

@@ -1,32 +1,35 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313904AbSEHMoz>; Wed, 8 May 2002 08:44:55 -0400
+	id <S313902AbSEHMoD>; Wed, 8 May 2002 08:44:03 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313924AbSEHMoz>; Wed, 8 May 2002 08:44:55 -0400
-Received: from webhosting.rdsbv.ro ([213.157.185.164]:15070 "EHLO
-	hosting.rdsbv.ro") by vger.kernel.org with ESMTP id <S313904AbSEHMox>;
-	Wed, 8 May 2002 08:44:53 -0400
-Date: Wed, 8 May 2002 15:44:37 +0300 (EEST)
-From: Catalin BOIE <catab@deuroconsult.ro>
-X-X-Sender: <catab@hosting.rdsbv.ro>
-To: <linux-kernel@vger.kernel.org>
-Message-ID: <Pine.LNX.4.33.0205081537460.4925-100000@hosting.rdsbv.ro>
+	id <S313904AbSEHMoC>; Wed, 8 May 2002 08:44:02 -0400
+Received: from netfinity.realnet.co.sz ([196.28.7.66]:45991 "HELO
+	netfinity.realnet.co.sz") by vger.kernel.org with SMTP
+	id <S313902AbSEHMoB>; Wed, 8 May 2002 08:44:01 -0400
+Date: Wed, 8 May 2002 14:21:57 +0200 (SAST)
+From: Zwane Mwaikambo <zwane@linux.realnet.co.sz>
+X-X-Sender: zwane@netfinity.realnet.co.sz
+To: Tomas Szepe <szepe@pinerecords.com>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] preemptive kernel for 2.4.19-pre7-ac4
+In-Reply-To: <20020508123221.GF22050@louise.pinerecords.com>
+Message-ID: <Pine.LNX.4.44.0205081421020.6271-100000@netfinity.realnet.co.sz>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello!
+On Wed, 8 May 2002, Tomas Szepe wrote:
 
-Why in kernel in net/sched/sch_sfq.c and in other places (htb) the change
-function is not sfq_change (or htb_change) and is NULL instead?
+> > The preempt-kernel patch for 2.4.19-pre7-ac4 is now available at
+> > 	http://www.kernel.org/pub/linux/kernel/people/rml/preempt-kernel/v2.4/preempt-kernel-rml-2.4.19-pre7-ac4-1.patch
+> 
+> ... applies to -pre8-ac1 as well. Safe to use?
 
-Thank you very much!
+I'd presume so, pre8-ac1 is a compilation fixes release, as stated in the 
+changelog.
 
-Please, CC me because I'm not on the list...
-
----
-Catalin(ux) BOIE
-catab@deuroconsult.ro
-http://www2.deuroconsult.ro/~catab
+-- 
+http://function.linuxpower.ca
+		
 

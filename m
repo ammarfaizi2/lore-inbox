@@ -1,58 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129538AbQLCXQy>; Sun, 3 Dec 2000 18:16:54 -0500
+	id <S129324AbQLDADk>; Sun, 3 Dec 2000 19:03:40 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129324AbQLCXQp>; Sun, 3 Dec 2000 18:16:45 -0500
-Received: from leibniz.math.psu.edu ([146.186.130.2]:31190 "EHLO math.psu.edu")
-	by vger.kernel.org with ESMTP id <S129595AbQLCXQ3>;
-	Sun, 3 Dec 2000 18:16:29 -0500
-Date: Sun, 3 Dec 2000 17:45:57 -0500 (EST)
-From: Alexander Viro <viro@math.psu.edu>
-To: Andrew Morton <andrewm@uow.edu.au>
-cc: Petr Vandrovec <vandrove@vc.cvut.cz>,
-        Linus Torvalds <torvalds@transmeta.com>,
-        "Stephen C. Tweedie" <sct@redhat.com>,
-        Jonathan Hudson <jonathan@daria.co.uk>, linux-kernel@vger.kernel.org
-Subject: [resync?] Re: corruption
-In-Reply-To: <3A2ABEC5.97AF9C61@uow.edu.au>
-Message-ID: <Pine.GSO.4.21.0012031730020.3601-100000@weyl.math.psu.edu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S129535AbQLDADa>; Sun, 3 Dec 2000 19:03:30 -0500
+Received: from altrade.nijmegen.inter.nl.net ([193.67.237.6]:52900 "EHLO
+	altrade.nijmegen.inter.nl.net") by vger.kernel.org with ESMTP
+	id <S129324AbQLDADR>; Sun, 3 Dec 2000 19:03:17 -0500
+Date: Sun, 3 Dec 2000 23:36:11 +0100
+From: Frank van Maarseveen <F.vanMaarseveen@inter.NL.net>
+To: linux-kernel@vger.kernel.org
+Subject: 2.4.0-test11: kernel: waitpid(823) failed, -512
+Message-ID: <20001203233611.A8410@iapetus.localdomain>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+X-Mailer: Mutt 1.0i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+While playing with routing (zebra) and PPP I regularly see this
+message appearing. It always happens when pppd terminates a connection,
+e.g:
+
+Dec  3 23:09:08 mimas pppd[784]: Modem hangup
+Dec  3 23:09:08 mimas pppd[784]: Connection terminated.
+Dec  3 23:09:08 mimas pppd[784]: Connect time 2.0 minutes.
+Dec  3 23:09:08 mimas pppd[784]: Sent 499 bytes, received 977 bytes.
+Dec  3 23:09:08 mimas pppd[822]: Hangup (SIGHUP)
+Dec  3 23:09:08 mimas kernel: waitpid(823) failed, -512
+Dec  3 23:09:08 mimas pppd[784]: Hangup (SIGHUP)
+Dec  3 23:09:08 mimas pppd[784]: Exit.
+
+The (incoming) PPP connection is tunnelled through a telnet connection so
+there are some other processes involved.
+
+On the outgoing side (other system also running 2.4.0-test11) I sometimes
+see the same message, e.g:
+
+Nov 29 23:37:08 iapetus pppd[1777]: Connection terminated.
+Nov 29 23:37:08 iapetus pppd[1777]: Connect time 2.5 minutes.
+Nov 29 23:37:08 iapetus pppd[1777]: Sent 85 bytes, received 87 bytes.
+Nov 29 23:37:08 iapetus pppd[1777]: Exit.
+Nov 29 23:37:08 iapetus kernel: waitpid(1857) failed, -512
 
 
-On Mon, 4 Dec 2000, Andrew Morton wrote:
-
-> Sorry, it's still failing.  It took three hours.
-
-Yes. For one thing, original was plain wrong wrt locking (lru_list_lock
-should be held). For another, it does not take care of metadata. And
-that's way more serious. What really happens:
-
-ext2_truncate() got a buffer_head of indirect block that is going to
-die. Fine, we release the blocks refered from it and... do bforget()
-on our block. Notice that we are not guaranteed that bh will actually
-die here. buffer.c code might bump its ->b_count for a while, it might
-be written out right now, etc. As the result, bforget() leaves the
-sucker alive. It's not a big deal, since we will do unmap_underlying_metadata()
-before we write anything there (if it will be reused for data) or we'll
-just pick the bh and zero the buffer out (if it will be reused for metadata).
-
-Unfortunately, we also leave it on the per-inode dirty blocks list. Guess
-what happens if inode is destroyed, page that used to hold it gets reused
-and bh gets finally written? Exactly.
-
-Suggested fix: void bforget_inode(struct buffer_head *bh) that would
-be a copy of __bforget(), except that it would call remove_inode_queue(bh)
-unconditionally. And replace bforget() with bforget_inode() in those places
-of ext2/inode.c that are followed by freeing the block.
-
-Comments? I'll do a patch, but I'ld really like to know what had already
-gone into the main tree. Linus, could you put the 12-pre4-dont-use on
-ftp.kernel.org?
-
+-- 
+Frank
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

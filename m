@@ -1,77 +1,113 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266304AbUAVRtz (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 22 Jan 2004 12:49:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266310AbUAVRty
+	id S264484AbUAVQKr (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 22 Jan 2004 11:10:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264557AbUAVQKq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 22 Jan 2004 12:49:54 -0500
-Received: from aun.it.uu.se ([130.238.12.36]:38123 "EHLO aun.it.uu.se")
-	by vger.kernel.org with ESMTP id S266304AbUAVRtt (ORCPT
+	Thu, 22 Jan 2004 11:10:46 -0500
+Received: from main.gmane.org ([80.91.224.249]:61420 "EHLO main.gmane.org")
+	by vger.kernel.org with ESMTP id S264484AbUAVQKl (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 22 Jan 2004 12:49:49 -0500
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <16400.3366.286902.721704@alkaid.it.uu.se>
-Date: Thu, 22 Jan 2004 18:49:26 +0100
-From: Mikael Pettersson <mikpe@csd.uu.se>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Karol Kozimor <sziwan@hell.org.pl>, "Georg C. F. Greve" <greve@gnu.org>,
-       "Nakajima, Jun" <jun.nakajima@intel.com>,
-       Martin Loschwitz <madkiss@madkiss.org>, linux-kernel@vger.kernel.org,
-       "Brown, Len" <len.brown@intel.com>, acpi-devel@lists.sourceforge.net
-Subject: Re: [ACPI] Re: PROBLEM: ACPI freezes 2.6.1 on boot
-In-Reply-To: <Pine.LNX.4.58.0401220900510.2123@home.osdl.org>
-References: <7F740D512C7C1046AB53446D3720017361885C@scsmsx402.sc.intel.com>
-	<m3u12pgfpr.fsf@reason.gnu-hamburg>
-	<m3ptddgckg.fsf@reason.gnu-hamburg>
-	<20040122120854.GB3534@hell.org.pl>
-	<16399.55109.244040.516731@alkaid.it.uu.se>
-	<Pine.LNX.4.58.0401220900510.2123@home.osdl.org>
-X-Mailer: VM 7.17 under Emacs 20.7.1
+	Thu, 22 Jan 2004 11:10:41 -0500
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: RISKO Gergely <risko@risko.hu>
+Subject: [PATCH] VT6410 on ASUS P4P800 Deluxe for 2.4.24
+Date: Thu, 22 Jan 2004 16:04:35 +0100
+Message-ID: <84llo058jg.fsf@risko.hu>
+Mime-Version: 1.0
+Content-Type: multipart/mixed; boundary="=-=-="
+X-Complaints-To: usenet@sea.gmane.org
+User-Agent: Gnus/5.1002 (Gnus v5.10.2) Emacs/21.2 (gnu/linux)
+Cancel-Lock: sha1:5PQnd1aEk2Xy/4Kx1gVIIWrYRoQ=
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus Torvalds writes:
- > 
- > 
- > On Thu, 22 Jan 2004, Mikael Pettersson wrote:
- > 
- > > Karol Kozimor writes:
- > >  > 
- > >  > diff -Bru linux-2.6.0-test8/arch/i386/kernel/apic.c patched/arch/i386/kernel/apic.c
- > >  > --- linux-2.6.0-test8/arch/i386/kernel/apic.c	2003-10-18 05:43:36.000000000 +0800
- > >  > +++ patched/arch/i386/kernel/apic.c	2003-10-30 23:17:50.000000000 +0800
- > >  > @@ -836,8 +836,8 @@
- > >  >  {
- > >  >  	unsigned int lvtt1_value, tmp_value;
- > >  >  
- > >  > -	lvtt1_value = SET_APIC_TIMER_BASE(APIC_TIMER_BASE_DIV) |
- > >  > -			APIC_LVT_TIMER_PERIODIC | LOCAL_TIMER_VECTOR;
- > >  > +	lvtt1_value = APIC_LVT_TIMER_PERIODIC | LOCAL_TIMER_VECTOR;
- > >  > +
- > >  >  	apic_write_around(APIC_LVTT, lvtt1_value);
- > > 
- > > What is the purpose of this change?
- > > I don't remember seeing this before on LKML. (I don't have time to read bugzilla.)
- > 
- > Hmm.. It does seem to fix things for a couple of people, so it looks 
- > interesting.
- > 
- > As far as I can tell, the _only_ thing it does is to change the timer base
- > from "DIV" to "CLKIN". I seem to have misplaced my ia-32 "volume 3" thing, 
- > but I have an old one for a pentium, and that one doesn't actually
- > haev the timer-base thing at all - and marks those bits as "reserved".
- > 
- > So it is entirely possible that the only safe value to write there is 0.
+--=-=-=
 
-Confirmed. Those bits (18 and 19 in LVTT) are marked reserved in the
-latest IA32 Volume 3. I have no idea where this APIC_TIMER_BASE came
-from (maybe some ancient discrete LAPIC thing?), but we almost certainly
-shouldn't write anything but zero to them.
+Hello!
 
- > So I'm inclined to apply the patch, but it would be better if somebody who 
+I've got a new ASUS P4P800 Deluxe with 2 SATA port and 4 IDE port (2
+software raid, with via vt6410). The 2 SATA port and first 2 IDE port
+work nice out of the box with the 2.4.24. But the via vt6410 is not
+recognized at all:
 
-I agree. The patch should be applied.
+portion of /proc/pci:
+  Bus  2, device   4, function  0:
+    RAID bus controller: PCI device 1106:3164 (VIA Technologies, Inc.)
+  (rev 6).
+      IRQ 23.
+      Master Capable.  Latency=64.  
+      I/O at 0xdfe0 [0xdfe7].
+      I/O at 0xdfac [0xdfaf].
+      I/O at 0xdfa0 [0xdfa7].
+      I/O at 0xdfa8 [0xdfab].
+      I/O at 0xdf90 [0xdf9f].
 
-/Mikael
+After applying the attached patch everything work nice. Can you apply
+it to the 2.4 and 2.6 tree?
+
+Patch from: http://robertk.com/source/
+
+Thanks,
+Gergely
+
+
+--=-=-=
+Content-Type: text/x-patch
+Content-Disposition: attachment; filename=VT6410.patch
+
+--- linux/drivers/ide/pci/generic.h	Mon Aug 25 13:44:41 2003
++++ linux-2.4.22.2/drivers/ide/pci/generic.h	Mon Sep 22 20:36:26 2003
+@@ -140,6 +140,19 @@
+ 		.enablebits	= {{0x00,0x00,0x00}, {0x00,0x00,0x00}},
+ 		.bootable	= ON_BOARD,
+ 		.extra		= 0,
++	},{	/* 10 */
++		.vendor		= PCI_VENDOR_ID_VIA,
++		.device		= PCI_DEVICE_ID_VIA_610,
++		.name		= "VIA_610",
++		.init_chipset	= init_chipset_generic,
++		.init_iops	= NULL,
++		.init_hwif	= init_hwif_generic,
++		.init_dma	= init_dma_generic,
++		.channels	= 2,
++		.autodma	= AUTODMA,
++		.enablebits	= {{0x00,0x00,0x00}, {0x00,0x00,0x00}},
++		.bootable	= ON_BOARD,
++		.extra		= 0,
+ 	},{
+ 		.vendor		= 0,
+ 		.device		= 0,
+--- linux/drivers/ide/pci/generic.c	Mon Aug 25 13:44:41 2003
++++ linux-2.4.22.2/drivers/ide/pci/generic.c	Mon Sep 22 20:42:48 2003
+@@ -65,6 +65,8 @@
+ 	hwif->ultra_mask = 0x7f;
+ 	hwif->mwdma_mask = 0x07;
+ 	hwif->swdma_mask = 0x07;
++ if (hwif->pci_dev->device == PCI_DEVICE_ID_VIA_610) 
++   hwif->udma_four = 1; /* mj */
+ 
+ 	if (!noautodma)
+ 		hwif->autodma = 1;
+@@ -141,6 +143,7 @@
+ 	{ PCI_VENDOR_ID_VIA,    PCI_DEVICE_ID_VIA_82C561,          PCI_ANY_ID, PCI_ANY_ID, 0, 0, 7},
+ 	{ PCI_VENDOR_ID_OPTI,   PCI_DEVICE_ID_OPTI_82C558,         PCI_ANY_ID, PCI_ANY_ID, 0, 0, 8},
+ 	{ PCI_VENDOR_ID_TOSHIBA, PCI_DEVICE_ID_TOSHIBA_PICCOLO,	   PCI_ANY_ID, PCI_ANY_ID, 0, 0, 9},
++	{ PCI_VENDOR_ID_VIA,    PCI_DEVICE_ID_VIA_610,             PCI_ANY_ID, PCI_ANY_ID, 0, 0, 10},
+ 	{ 0, },
+ };
+ 
+--- linux/include/linux/pci_ids.h	Mon Aug 25 13:44:44 2003
++++ linux-2.4.22.2/include/linux/pci_ids.h	Mon Sep 22 20:36:13 2003
+@@ -1085,6 +1085,7 @@
+ #define PCI_DEVICE_ID_VIA_8233A		0x3147
+ #define PCI_DEVICE_ID_VIA_P4M266	0x3148
+ #define PCI_DEVICE_ID_VIA_8237_SATA	0x3149
++#define PCI_DEVICE_ID_VIA_610		0x3164
+ #define PCI_DEVICE_ID_VIA_P4X333	0x3168
+ #define PCI_DEVICE_ID_VIA_8235		0x3177
+ #define PCI_DEVICE_ID_VIA_8377_0	0x3189
+
+--=-=-=--
+

@@ -1,168 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132551AbQLHXtU>; Fri, 8 Dec 2000 18:49:20 -0500
+	id <S131809AbQLHXyb>; Fri, 8 Dec 2000 18:54:31 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132896AbQLHXtK>; Fri, 8 Dec 2000 18:49:10 -0500
-Received: from ns.caldera.de ([212.34.180.1]:25607 "EHLO ns.caldera.de")
-	by vger.kernel.org with ESMTP id <S132551AbQLHXs4>;
-	Fri, 8 Dec 2000 18:48:56 -0500
-Date: Sat, 9 Dec 2000 00:17:52 +0100
-Message-Id: <200012082317.AAA04536@ns.caldera.de>
-From: Christoph Hellwig <hch@ns.caldera.de>
-To: ak@suse.DE (Andi Kleen), linux-kernel@vger.kernel.org,
-        torvalds@transmeta.com
-Subject: Re: Networking: RFC1122 and 1123 status for kernel 2.4
-X-Newsgroups: caldera.lists.linux.kernel
-In-Reply-To: <200012081934.UAA24478@ns.caldera.de>
-User-Agent: tin/1.4.1-19991201 ("Polish") (UNIX) (Linux/2.2.14 (i686))
+	id <S132896AbQLHXyV>; Fri, 8 Dec 2000 18:54:21 -0500
+Received: from imladris.demon.co.uk ([193.237.130.41]:2308 "EHLO
+	imladris.demon.co.uk") by vger.kernel.org with ESMTP
+	id <S131809AbQLHXyC>; Fri, 8 Dec 2000 18:54:02 -0500
+Date: Fri, 8 Dec 2000 23:23:21 +0000 (GMT)
+From: David Woodhouse <dwmw2@infradead.org>
+To: Johannes Erdfelt <johannes@erdfelt.com>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: USB-related lockup in test12-pre5
+In-Reply-To: <20001207134013.L935@sventech.com>
+Message-ID: <Pine.LNX.4.30.0012082321160.1107-100000@imladris.demon.co.uk>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <200012081934.UAA24478@ns.caldera.de> you wrote:
-> That could even be automated when this little patch (against -test11, but
-> -test12pre works too) is applied...
+On Thu, 7 Dec 2000, Johannes Erdfelt wrote:
 
-Ok, I should actually attach the test11-final patch ;)
+> Could you try the alternate UHCI driver? You may need to disable the
+> UHCI driver you have configured for the option to become visible.
 
- 	Christoph
+Differently broken:
+	uhci: host controller process error. something bad happened
+	uhci: host controller halted. very bad
+
+... but at least the machine doesn't die. This was working in test11,
+IIRC. Certainly in test10.
+
 
 -- 
-Whip me.  Beat me.  Make me maintain AIX.
+dwmw2
 
 
-diff -uNr --exclude-from=dontdiff linux-2.4.0-test12-pre7/Documentation/DocBook/Makefile linux/Documentation/DocBook/Makefile
---- linux-2.4.0-test12-pre7/Documentation/DocBook/Makefile	Sun Nov 26 17:23:09 2000
-+++ linux/Documentation/DocBook/Makefile	Fri Dec  8 22:59:06 2000
-@@ -82,11 +82,6 @@
- 	$(TOPDIR)/scripts/docgen $(APISOURCES) \
- 		<kernel-api.tmpl >kernel-api.sgml
- 
--kernel-api-man: $(APISOURCES)
--	@rm -rf $(TOPDIR)/Documentation/man
--	$(TOPDIR)/scripts/kernel-doc -man $^ | \
--		$(PERL) $(TOPDIR)/scripts/split-man $(TOPDIR)/Documentation/man
--
- parportbook: $(JPG-parportbook)
- parportbook.ps: $(EPS-parportbook)
- parportbook.sgml: parportbook.tmpl $(TOPDIR)/drivers/parport/init.c
-diff -uNr --exclude-from=dontdiff linux-2.4.0-test12-pre7/Makefile linux/Makefile
---- linux-2.4.0-test12-pre7/Makefile	Thu Dec  7 18:08:35 2000
-+++ linux/Makefile	Fri Dec  8 23:00:13 2000
-@@ -82,6 +82,13 @@
- export MODLIB
- 
- #
-+# MANPATH specifies where to install the manpages created from
-+# inline documentation
-+#
-+
-+MANDIR	:= /usr/share/man
-+
-+#
- # standard CFLAGS
- #
- 
-@@ -197,7 +204,8 @@
- 	submenu*
- # directories removed with 'make clean'
- CLEAN_DIRS = \
--	modules
-+	modules \
-+	Documentation/man
- 
- # files removed with 'make mrproper'
- MRPROPER_FILES = \
-@@ -435,6 +443,25 @@
- 
- htmldocs: sgmldocs
- 	$(MAKE) -C Documentation/DocBook html
-+
-+mandocs:
-+	@rm -rf $(TOPDIR)/Documentation/man
-+	chmod 755 $(TOPDIR)/scripts/kernel-doc
-+	chmod 755 $(TOPDIR)/scripts/split-man
-+	( \
-+		find include/asm-$(ARCH) -name '*.h' -print; \
-+		find $(SUBDIRS) init -name '*.c' -print; \
-+		find include -type d \( -name "asm-*" -o -name config \) \
-+			-prune -o -name '*.h' -print \
-+	) | xargs $(TOPDIR)/scripts/kernel-doc | \
-+		$(TOPDIR)/scripts/split-man \
-+		$(TOPDIR)/Documentation/man
-+
-+install-man: mandocs
-+	test -d $(MANDIR)/man9 || mkdir -p $(MANDIR)/man9
-+	cp $(TOPDIR)/Documentation/man/*.9 $(MANDIR)/man9
-+
-+	
- 
- sums:
- 	find . -type f -print | sort | xargs sum > .SUMS
-diff -uNr --exclude-from=dontdiff linux-2.4.0-test12-pre7/scripts/kernel-doc linux/scripts/kernel-doc
---- linux-2.4.0-test12-pre7/scripts/kernel-doc	Thu Dec  7 18:08:41 2000
-+++ linux/scripts/kernel-doc	Fri Dec  8 22:59:07 2000
-@@ -538,7 +538,7 @@
-     my ($parameter, $section);
-     my $count;
- 
--    print ".TH \"$args{'module'}\" 4 \"$args{'function'}\" \"25 May 1998\" \"API Manual\" LINUX\n";
-+    print ".TH \"$args{'function'}\" 9 \"$args{'function'}\" \"25 May 1998\" LINUX\n";
- 
-     print ".SH NAME\n";
-     print $args{'function'}." \\- ".$args{'purpose'}."\n";
-@@ -564,13 +564,13 @@
- 	$parenth = "";
-     }
- 
--    print ".SH Arguments\n";
-+    print ".SH ARGUMENTS\n";
-     foreach $parameter (@{$args{'parameterlist'}}) {
- 	print ".IP \"".$parameter."\" 12\n";
- 	output_highlight($args{'parameters'}{$parameter});
-     }
-     foreach $section (@{$args{'sectionlist'}}) {
--	print ".SH \"$section\"\n";
-+	print ".SH \"", uc $section, "\"\n";
- 	output_highlight($args{'sections'}{$section});
-     }
- }
-diff -uNr --exclude-from=dontdiff linux-2.4.0-test12-pre7/scripts/split-man linux/scripts/split-man
---- linux-2.4.0-test12-pre7/scripts/split-man	Thu Jan  1 01:00:00 1970
-+++ linux/scripts/split-man	Fri Dec  8 22:59:07 2000
-@@ -0,0 +1,33 @@
-+#!/usr/bin/perl
-+#
-+#	split-man: create man pages from kernel-doc -man output 
-+#
-+# Author:	Tim Waugh <twaugh@redhat.com>
-+# Modified by:	Christoph Hellwig <hch@caldera.de>
-+#
-+
-+use strict;
-+
-+die "$0: where do I put the results?\n" unless ($#ARGV >= 0);
-+die "$0: can't create $ARGV[0]: $!\n" unless mkdir $ARGV[0], 0777;
-+
-+my $state = 0;
-+
-+while (<STDIN>) {
-+	s/&amp;(\w+)/\\fB\1\\fP/g; # fix smgl uglinesses
-+	s/\$(\w+)/\\fI\1\\fP/g;
-+	if (/^\.TH \"[^\"]*\" 9 \"([^\"]*)\"/) {
-+		close OUT unless ($state++ == 0);
-+		my $fn = "$ARGV[0]/$1.9";
-+		if (open OUT, ">$fn") {
-+			print STDERR "creating $fn\n";
-+		} else {
-+			die "can't open $fn: $!\n";
-+		}
-+		print OUT $_;
-+	} elsif ($state != 0) {
-+		print OUT $_;
-+	}
-+}
-+
-+close OUT; 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

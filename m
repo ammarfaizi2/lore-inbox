@@ -1,34 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129623AbRBXVpp>; Sat, 24 Feb 2001 16:45:45 -0500
+	id <S129618AbRBXVhn>; Sat, 24 Feb 2001 16:37:43 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129627AbRBXVpg>; Sat, 24 Feb 2001 16:45:36 -0500
-Received: from mail.valinux.com ([198.186.202.175]:61188 "EHLO
-	mail.valinux.com") by vger.kernel.org with ESMTP id <S129623AbRBXVpY>;
-	Sat, 24 Feb 2001 16:45:24 -0500
-Date: Sat, 24 Feb 2001 13:45:23 -0800
-To: linux-kernel@vger.kernel.org
-Subject: Core dumps for threads
-Message-ID: <20010224134523.O26109@valinux.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-From: Don Dugger <n0ano@valinux.com>
+	id <S129620AbRBXVhd>; Sat, 24 Feb 2001 16:37:33 -0500
+Received: from perninha.conectiva.com.br ([200.250.58.156]:9229 "HELO
+	postfix.conectiva.com.br") by vger.kernel.org with SMTP
+	id <S129618AbRBXVhQ>; Sat, 24 Feb 2001 16:37:16 -0500
+Date: Sat, 24 Feb 2001 17:50:51 -0200 (BRST)
+From: Marcelo Tosatti <marcelo@conectiva.com.br>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: lkml <linux-kernel@vger.kernel.org>
+Subject: refill_freelist() and page_launder()
+Message-ID: <Pine.LNX.4.21.0102241655520.3804-100000@freak.distro.conectiva>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Can anyone explain why this test is in routine `do_coredump'
-in file `fs/exec.c' in the 2.4.0 kernel?
 
-    if (!current->dumpable || atomic_read(&current->mm->mm_users) != 1)
-	goto fail;
+Linus, 
 
-The only thing the test on `mm_users' seems to be doing is stopping
-a thread process from dumping core.  What's the rationale for this?
+refill_freelist() (fs/buffer.c) calls page_launder(GFP_BUFFER) after
+syncing some of the oldest dirty buffers.
 
--- 
-Don Dugger
-"Censeo Toto nos in Kansa esse decisse." - D. Gale
-n0ano@valinux.com
-Ph: 303/938-9838
+As fair as I can see, that used to make sense because clean pages could be
+freed with page_launder(GFP_BUFFER) -- this could avoid a potential sleep
+on kswapd when trying to allocate a buffer page with grow_buffers().
+
+But now __alloc_pages will not wait kswapd anymore. 
+
+Instead the running thread will free clean pages only when it has to call
+page_launder() itself because kswapd could not keep up.
+
+Could you remove the call to page_launder() and the if() on top on your
+tree ? 
+
+Come one, doing by hand its easier than a patch.
+
+Here's the function:
+
+/*
+ * We used to try various strange things. Let's not.
+ * We'll just try to balance dirty buffers, and possibly
+ * launder some pages.
+ */
+static void refill_freelist(int size)
+{
+        balance_dirty(NODEV);
+        if (free_shortage())
+                page_launder(GFP_BUFFER, 0);
+        grow_buffers(size);
+}
+
+grow_buffers() calls alloc_page(GFP_BUFFER).
+

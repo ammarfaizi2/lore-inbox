@@ -1,78 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262262AbULMNoi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262265AbULMNsW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262262AbULMNoi (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Dec 2004 08:44:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262263AbULMNoi
+	id S262265AbULMNsW (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Dec 2004 08:48:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262266AbULMNsW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Dec 2004 08:44:38 -0500
-Received: from wsip-68-99-153-203.ri.ri.cox.net ([68.99.153.203]:400 "EHLO
-	blue-labs.org") by vger.kernel.org with ESMTP id S262262AbULMNof
+	Mon, 13 Dec 2004 08:48:22 -0500
+Received: from mail3.speakeasy.net ([216.254.0.203]:55529 "EHLO
+	mail3.speakeasy.net") by vger.kernel.org with ESMTP id S262265AbULMNsT
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Dec 2004 08:44:35 -0500
-Message-ID: <41BD9CCC.6010005@blue-labs.org>
-Date: Mon, 13 Dec 2004 08:44:44 -0500
-From: David Ford <david+challenge-response@blue-labs.org>
-User-Agent: Mozilla/5.0 (X11; U; Linux x86_64; en-US; rv:1.7.3) Gecko/20041012
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: "Randy.Dunlap" <rddunlap@osdl.org>
-CC: Danny Beaudoin <beaudoin_danny@hotmail.com>, linux-kernel@vger.kernel.org
-Subject: Re: Description should be updated
-References: <BAY21-F31C2845A332866774C3A2CF3AB0@phx.gbl> <41BCEB0A.3060807@osdl.org>
-In-Reply-To: <41BCEB0A.3060807@osdl.org>
-X-Enigmail-Version: 0.86.0.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: multipart/mixed;
- boundary="------------070206070400060608080102"
+	Mon, 13 Dec 2004 08:48:19 -0500
+Date: Mon, 13 Dec 2004 07:48:14 -0600
+From: John Lash <jlash@speakeasy.net>
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] sata_sil.c: blacklist seagate ST380013AS
+Message-ID: <20041213074814.130ef57f@homer.sarvega.com>
+In-Reply-To: <20041202100304.4e8a9145@homer.sarvega.com>
+References: <20041202100304.4e8a9145@homer.sarvega.com>
+X-Mailer: Sylpheed-Claws 0.9.13cvs9 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------070206070400060608080102
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+On Thu, 2 Dec 2004 10:03:04 -0600
+John Lash <jkl@sarvega.com> wrote:
 
-Danny, attached is a patch you may like.
+> Jeff,
+> 
+> here's a patch to add seagate ST380013AS to the sata_sil.c blacklist. and a
+> pointer to the relevant thread on lkml.
+> 
 
-David
+For what it's worth, I built an x86_64 kernel (2.6.9 and 2.6.10-rc3) for this
+system and booted it. I didn't apply the blacklist patch yet. The system booted
+fine, no complaints in the boot messages
 
-Randy.Dunlap wrote:
+Performance is good and the drive appears quite stable so far. I'm going to beat
+on it a bit more over the next couple of days. If there is a particular test
+that would be of interest, please let me know. I'm planning to do large reads
+and writes with dd and a couple of runs with bonnie.
 
-> Danny Beaudoin wrote:
->
->> Hi again!
->> In Device Drivers/Graphics Support/Console display driver support/VGA 
->> test console (NEW) 
->
+This might explain why some people are running Seagate drives with sata_sil with
+no apparent problems.
 
---------------070206070400060608080102
-Content-Type: text/x-patch;
- name="VGA_CONSOLE.diff"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="VGA_CONSOLE.diff"
-
---- drivers/video/console/Kconfig~	2004-12-13 08:41:30.926219984 -0500
-+++ drivers/video/console/Kconfig	2004-12-13 08:41:30.927219832 -0500
-@@ -9,15 +9,15 @@
- 	depends on !ARCH_ACORN && !ARCH_EBSA110 && !4xx && !8xx && !SPARC32 && !SPARC64 && !M68K && !PARISC
- 	default y
- 	help
--	  Saying Y here will allow you to use Linux in text mode through a
--	  display that complies with the generic VGA standard. Virtually
--	  everyone wants that.
-+	  This is always enabled on X86 systems.  If your system is embedded
-+	  or not X86 and you want to use Linux in text mode through a
-+	  display that complies with the generic VGA standard, say Y here.
- 
- 	  The program SVGATextMode can be used to utilize SVGA video cards to
- 	  their full potential in text mode. Download it from
- 	  <ftp://ibiblio.org/pub/Linux/utils/console/>.
- 
--	  Say Y.
-+	  If unsure, say Y (default).
- 
- #	if [ "$CONFIG_PCI" = "y" -a "$CONFIG_VGA_CONSOLE" = "y" ]; then
- #	   bool '   Allow VGA on any bus?' CONFIG_VGA_HOSE
-
---------------070206070400060608080102--
+--john

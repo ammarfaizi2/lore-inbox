@@ -1,87 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264286AbUHAA4N@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264299AbUHAA5N@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264286AbUHAA4N (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 31 Jul 2004 20:56:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264577AbUHAA4N
+	id S264299AbUHAA5N (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 31 Jul 2004 20:57:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264595AbUHAA5M
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 31 Jul 2004 20:56:13 -0400
-Received: from mustang.oldcity.dca.net ([216.158.38.3]:31414 "HELO
-	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S264299AbUHAA4G (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 31 Jul 2004 20:56:06 -0400
-Subject: Re: [Unichrome-devel] Dragging window in
-	X	causes	soundcard	interrupts to be lost
-From: Lee Revell <rlrevell@joe-job.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <1091317027.7443.29.camel@localhost.localdomain>
-References: <1089952196.25689.7.camel@mindpipe>
-	 <40F78D21.10305@shipmail.org>  <40F793C1.2080908@shipmail.org>
-	 <1090001316.27995.3.camel@mindpipe>  <40F8298E.8080508@shipmail.org>
-	 <1090010147.30435.2.camel@mindpipe> <1090107507.10795.1.camel@mindpipe>
-	 <40FA3AEC.9050906@shipmail.org> <1090190244.22282.8.camel@mindpipe>
-	 <40FB0092.3070800@shipmail.org>  <1091319939.20819.67.camel@mindpipe>
-	 <1091317027.7443.29.camel@localhost.localdomain>
-Content-Type: text/plain
-Message-Id: <1091321794.20819.96.camel@mindpipe>
+	Sat, 31 Jul 2004 20:57:12 -0400
+Received: from fw.osdl.org ([65.172.181.6]:6294 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S264299AbUHAA5D (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 31 Jul 2004 20:57:03 -0400
+Date: Sat, 31 Jul 2004 17:55:18 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Greg Howard <ghoward@sgi.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Altix system controller communication driver
+Message-Id: <20040731175518.407425bc.akpm@osdl.org>
+In-Reply-To: <Pine.SGI.4.58.0407301640510.4902@gallifrey.americas.sgi.com>
+References: <Pine.SGI.4.58.0407271457240.1364@gallifrey.americas.sgi.com>
+	<20040728085737.26e0bfd2.akpm@osdl.org>
+	<Pine.SGI.4.58.0407301640510.4902@gallifrey.americas.sgi.com>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Sat, 31 Jul 2004 20:56:35 -0400
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2004-07-31 at 19:37, Alan Cox wrote:
-> On Sul, 2004-08-01 at 01:25, Lee Revell wrote:
-> > Do you have the original driver source from VIA handy?  This is looking
-> > more and more like a hardware bug - 2D acceleration engine activity
-> > causes interrupts from the PCI slot to be disabled for long periods. 
-> 
-> I do. There is no code in the 2D engine that touches interrupt control
-> at all. 
-> 
+Greg Howard <ghoward@sgi.com> wrote:
+>
+>  Here's a cleaned-up version of altix-system-controller-driver.patch.
 
-Yes, I saw that.  This basically means it has to be a hardware bug,
-correct?
+Breaks the build for all other architectures:
 
-> > Maybe it disables interrupts to prevent other processes writing to the
-> > shared video/system RAM as it DMAs.  I would like to verify that the
-> > problem still occurs with their driver, before I try to convince them
-> > there's a hardware issue with the EPIA boards.
-> 
-> A similar problem occurs with some other chips when you write enough
-> data to the chip that the FIFO fills and the PCI bus locks until the
-> write can complete. Various vendors implemented this at one point for
-> benchmarketing reasons and that would have a similar effect if so.
-> 
+Is this right?
 
-This was the first thing that occurred to me, but I am not really a
-video driver expert, and looking at the code it's just banging bits.  I
-have hacked device drivers, just not video, and I don't have the
-bandwidth to learn right now.
-
-> The 2D driver source is essentially the same as the source in Xorg CVS
-> barring cleanups and the accelerator code has not changed at all. You
-> might want to take a look at the fifo management side of things in that
-> code.
-> 
-> > On that note, assuming I verify the bug, does anyone have any
-> > recommendations for getting VIA to take me seriously?  The problem is
-> > very easy to reproduce.
-> 
-> I have some contact with VIA however you need to understand that the
-> graphics world moves rapidly. I would be suprised if the CLE266 saw any
-> more development given the CN400 has been demoed, although I certainly
-> can't speak for VIA on this matter.
-> 
-
-Yes, I would be happy to just get an acknowledgement of the issue. 
-Actually I don't even need that, I just want to know if it's fixed in
-the newer ones.  I have a perfectly acceptable workaround.  The 2D
-acceleration is pretty shoddy anyway, many things seem to work better
-with NoAccel.   I still love the EPIA board.
-
-Maybe you could forward this on to them?  Off the record is fine.
-
-Lee
+--- 25/drivers/char/Kconfig~snsc-build-fix	2004-07-31 17:53:52.818565424 -0700
++++ 25-akpm/drivers/char/Kconfig	2004-07-31 17:54:39.658444680 -0700
+@@ -426,6 +426,7 @@ config A2232
+ 
+ config SGI_SNSC
+ 	bool "SGI Altix system controller communication support"
++	depends on CONFIG_IA64_SGI_SN2
+ 	help
+ 	  If you have an SGI Altix and you want to enable system
+ 	  controller communication from user space (you want this!),
+_
 

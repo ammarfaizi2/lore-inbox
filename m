@@ -1,948 +1,595 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262708AbUKXNdo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262710AbUKXNgd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262708AbUKXNdo (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 24 Nov 2004 08:33:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262709AbUKXNc3
+	id S262710AbUKXNgd (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 24 Nov 2004 08:36:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262560AbUKXNfX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 24 Nov 2004 08:32:29 -0500
-Received: from pop5-1.us4.outblaze.com ([205.158.62.125]:60053 "HELO
+	Wed, 24 Nov 2004 08:35:23 -0500
+Received: from pop5-1.us4.outblaze.com ([205.158.62.125]:8086 "HELO
 	pop5-1.us4.outblaze.com") by vger.kernel.org with SMTP
-	id S262675AbUKXNKw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 24 Nov 2004 08:10:52 -0500
-Subject: Suspend 2 merge: 35/51: Code always built in to the kernel.
+	id S262680AbUKXNMm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 24 Nov 2004 08:12:42 -0500
+Subject: Suspend 2 merge: 47/51: GZIP support.
 From: Nigel Cunningham <ncunningham@linuxmail.org>
 Reply-To: ncunningham@linuxmail.org
 To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
 In-Reply-To: <1101292194.5805.180.camel@desktop.cunninghams>
 References: <1101292194.5805.180.camel@desktop.cunninghams>
 Content-Type: text/plain
-Message-Id: <1101298112.5805.330.camel@desktop.cunninghams>
+Message-Id: <1101300182.5805.383.camel@desktop.cunninghams>
 Mime-Version: 1.0
 X-Mailer: Ximian Evolution 1.4.6-1mdk 
-Date: Thu, 25 Nov 2004 00:00:24 +1100
+Date: Thu, 25 Nov 2004 00:02:19 +1100
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-These are the files containing code that is always built in to the
-kernel when suspend support is compiled in.
+The original compressor. Slow. I've tried to drop it, but for reasons I
+simply don't understand, some users still want it.
 
-- /proc/software_suspend simplified interface. This is to save me
-repeating the same code everywhere. Perhaps there are similar routines
-that others have written and I've missed. If so, feel free to point me
-to them (haven't looked much).
-- basic support for complaining if the core isn't loaded
-- support for loading the core and interfacing with it
-- __init routines
-- some routines to save exporting variables
-
-diff -ruN 824-builtin-old/kernel/power/proc.c 824-builtin-new/kernel/power/proc.c
---- 824-builtin-old/kernel/power/proc.c	1970-01-01 10:00:00.000000000 +1000
-+++ 824-builtin-new/kernel/power/proc.c	2004-11-05 21:31:49.000000000 +1100
-@@ -0,0 +1,359 @@
+diff -ruN 853-gzip-old/kernel/power/suspend_gzip.c 853-gzip-new/kernel/power/suspend_gzip.c
+--- 853-gzip-old/kernel/power/suspend_gzip.c	1970-01-01 10:00:00.000000000 +1000
++++ 853-gzip-new/kernel/power/suspend_gzip.c	2004-11-11 08:46:25.000000000 +1100
+@@ -0,0 +1,560 @@
 +/*
-+ * /kernel/power/proc.c
++ * kernel/power/gzip_compression.c
 + *
-+ * Copyright (C) 2002-2003 Nigel Cunningham <ncunningham@linuxmail.org>
++ * Copyright (C) 2003,2004 Nigel Cunningham <ncunningham@linuxmail.org>
 + *
 + * This file is released under the GPLv2.
 + *
-+ * This file contains support for proc entries for tuning Software Suspend.
++ * This file contains data compression routines for suspend.
++ * Compression is implemented using the zlib library.
 + *
-+ * We have a generic handler that deals with the most common cases, and
-+ * hooks for special handlers to use.
-+ *
-+ * Versions:
-+ * 1: /proc/sys/kernel/suspend the only tuning interface
-+ * 2: Initial version of this file
-+ * 3: Removed kernel debugger parameter.
-+ *    Added checkpage parameter (for checking checksum of a page over time).
-+ * 4: Added entry for maximum granularity in splash screen progress bar.
-+ *    (Progress bar is slow, but the right setting will vary with disk &
-+ *    processor speed and the user's tastes).
-+ * 5: Added enable_escape to control ability to cancel aborting by pressing
-+ *    ESC key.
-+ * 6: Removed checksumming and checkpage parameter. Made all debugging proc
-+ *    entries dependant upon debugging being compiled in.
-+ *    Meaning of some flags also changed in this version.
-+ * 7: Added header_locations entry to simplify getting the resume= parameter for
-+ *    swapfiles easy and swapfile entry for automatically doing swapon/off from
-+ *    swapfiles as well as partitions.
-+ * 8: Added option for marking process pages as pageset 2 (processes_pageset2).
-+ * 9: Added option for keep image mode.
-+ *    Enumeration patch from Michael Frank applied.
-+ * 10: Various corrections to when options are disabled/enabled;
-+ *     Added option for specifying expected compression.
-+ * 11: Added option for freezer testing. Debug only.
-+ * 12: Removed test entries no_async_[read|write], processes_pageset2 and
-+ *     NoPageset2.
-+ * 13: Make default_console_level available when debugging disabled, but limited
-+ *     to 0 or 1.
-+ * 14: Rewrite to allow for dynamic registration of proc entries and smooth the
-+ *     transition to kobjects in 2.6.
-+ * 15: Add setting resume2 parameter without rebooting (still need to run lilo
-+ *     though!). Add support for generic string handling and switch resume2 to use
-+ *     it.
 + */
-+
-+#define SUSPEND_PROC_C
-+
-+static int suspend_proc_version = 15;
-+static int suspend_proc_initialised = 0;
 +
 +#include <linux/suspend.h>
 +#include <linux/module.h>
-+#include <linux/proc_fs.h>
-+#include <asm/uaccess.h>
++#include <linux/highmem.h>
++#include <linux/zlib.h>
 +
-+#include "suspend.h"
++#include "plugins.h"
 +#include "proc.h"
-+
-+static struct list_head suspend_proc_entries;
-+static struct proc_dir_entry *suspend_dir;
-+
-+extern char resume2_file[256];	/* For resume= kernel option */
-+
-+/*
-+ * proc_try_suspend
-+ *
-+ * This routine initiates a suspend cycle when /proc/software_suspend/do_suspend is
-+ * written to. The value written is ignored.
-+ */
-+
-+static int proc_try_suspend(struct file *file, const char *buffer,
-+        unsigned long count, void *data)
-+{
-+	suspend_try_suspend();
-+	return count;
-+}
-+
-+/*
-+ * proc_try_resume
-+ *
-+ * This routine initiates a suspend cycle when /proc/software_suspend/do_resume is
-+ * written to. The value written is ignored.
-+ */
-+
-+static int proc_try_resume(struct file *file, const char *buffer,
-+        unsigned long count, void *data)
-+{
-+	software_suspend_try_resume();
-+	return count;
-+}
-+
-+/*
-+ * generic_read_proc
-+ *
-+ * Generic handling for reading the contents of bits, integers,
-+ * unsigned longs and strings.
-+ */
-+static int generic_read_proc(char * page, char ** start, off_t off, int count,
-+		int *eof, void *data)
-+{
-+	int len = 0;
-+	struct suspend_proc_data * proc_data = (struct suspend_proc_data *) data;
-+
-+	switch (proc_data->type) {
-+		case SUSPEND_PROC_DATA_CUSTOM:
-+			printk("Error! /proc/suspend/%s marked as having custom"
-+				" routines, but the generic read routine has"
-+				" been invoked.\n",
-+				proc_data->filename);
-+			break;
-+		case SUSPEND_PROC_DATA_BIT:
-+			len = sprintf(page, "%d\n", 
-+				-test_bit(proc_data->data.bit.bit,
-+					proc_data->data.bit.bit_vector));
-+			break;
-+		case SUSPEND_PROC_DATA_INTEGER:
-+			{
-+				int * variable = proc_data->data.integer.variable;
-+				len = sprintf(page, "%d\n", *variable);
-+				break;
-+			}
-+		case SUSPEND_PROC_DATA_UL:
-+			{
-+				long * variable = proc_data->data.ul.variable;
-+				len = sprintf(page, "%lu\n", *variable);
-+				break;
-+			}
-+		case SUSPEND_PROC_DATA_STRING:
-+			{
-+				char * variable = proc_data->data.string.variable;
-+				len = sprintf(page, "%s\n", variable);
-+				break;
-+			}
-+	}
-+	/* Side effect routine? */
-+	if (proc_data->read_proc)
-+		proc_data->read_proc();
-+	*eof = 1;
-+	return len;
-+}
-+/*
-+ * generic_write_proc
-+ *
-+ * Generic routine for handling writing to files representing
-+ * bits, integers and unsigned longs.
-+ */
-+
-+static int generic_write_proc(struct file *file, const char * buffer,
-+		unsigned long count, void * data)
-+{
-+	struct suspend_proc_data * proc_data = (struct suspend_proc_data *) data;
-+	char * my_buf = (char *) get_zeroed_page(GFP_ATOMIC);
-+	int result = count;
-+
-+	if (!my_buf)
-+		return -ENOMEM;
-+
-+	if (count > PAGE_SIZE)
-+		count = PAGE_SIZE;
-+
-+	if (copy_from_user(my_buf, buffer, count))
-+		return -EFAULT;
-+	
-+	my_buf[count] = 0;
-+
-+	switch (proc_data->type) {
-+		case SUSPEND_PROC_DATA_CUSTOM:
-+			printk("Error! /proc/suspend/%s marked as having custom"
-+				" routines, but the generic write routine has"
-+				" been invoked.\n",
-+				proc_data->filename);
-+			break;
-+		case SUSPEND_PROC_DATA_BIT:
-+			{
-+			int value = simple_strtoul(my_buf, NULL, 0);
-+			if (value)
-+				set_bit(proc_data->data.bit.bit, 
-+					(proc_data->data.bit.bit_vector));
-+			else
-+				clear_bit(proc_data->data.bit.bit,
-+					(proc_data->data.bit.bit_vector));
-+			}
-+			break;
-+		case SUSPEND_PROC_DATA_INTEGER:
-+			{
-+				int * variable = proc_data->data.integer.variable;
-+				int minimum = proc_data->data.integer.minimum;
-+				int maximum = proc_data->data.integer.maximum;
-+				*variable = simple_strtol(my_buf, NULL, 0);
-+				if (((*variable) < minimum))
-+					*variable = minimum;
-+
-+				if (((*variable) > maximum))
-+					*variable = maximum;
-+				break;
-+			}
-+		case SUSPEND_PROC_DATA_UL:
-+			{
-+				unsigned long * variable = proc_data->data.ul.variable;
-+				unsigned long minimum = proc_data->data.ul.minimum;
-+				unsigned long maximum = proc_data->data.ul.maximum;
-+				*variable = simple_strtoul(my_buf, NULL, 0);
-+				
-+				if (minimum && ((*variable) < minimum))
-+					*variable = minimum;
-+
-+				if (maximum && ((*variable) > maximum))
-+					*variable = maximum;
-+				break;
-+			}
-+			break;
-+		case SUSPEND_PROC_DATA_STRING:
-+			{
-+				int copy_len = 
-+					(count > 
-+					 proc_data->data.string.max_length) ?
-+					proc_data->data.string.max_length : 
-+					count;
-+				char * variable =
-+					proc_data->data.string.variable;
-+				strncpy(variable, my_buf, copy_len);
-+				if ((copy_len) &&
-+					 (my_buf[copy_len - 1] == '\n'))
-+					variable[count - 1] = 0;
-+				variable[count] = 0;
-+			}
-+			break;
-+	}
-+	free_pages((unsigned long) my_buf, 0);
-+	/* Side effect routine? */
-+	if (proc_data->write_proc) {
-+		int routine_result = proc_data->write_proc();
-+		if (routine_result < 0)
-+			result = routine_result;
-+	}
-+	return result;
-+}
-+
-+/*
-+ * Non-plugin proc entries.
-+ *
-+ * This array contains entries that are automatically registered at
-+ * boot. Plugins and the console code register their own entries separately.
-+ */
-+
-+static struct suspend_proc_data proc_params[] = {
-+	{ .filename			= "do_suspend",
-+	  .permissions			= PROC_WRITEONLY,
-+	  .type				= SUSPEND_PROC_DATA_CUSTOM,
-+	  .data = {
-+		  .special = {
-+			.write_proc	= proc_try_suspend
-+		  }
-+	  }
-+	},
-+
-+	{ .filename			= "do_resume",
-+	  .permissions			= PROC_WRITEONLY,
-+	  .type				= SUSPEND_PROC_DATA_CUSTOM,
-+	  .data = {
-+		  .special = {
-+			.write_proc	= proc_try_resume
-+		  }
-+	  }
-+	},
-+
-+
-+	{ .filename			= "interface_version",
-+	  .permissions			= PROC_READONLY,
-+	  .type				= SUSPEND_PROC_DATA_INTEGER,
-+	  .data = {
-+		  .integer = {
-+			  .variable	= &suspend_proc_version,
-+		  }
-+	  }
-+	},
-+};
-+
-+/*
-+ * suspend_initialise_proc
-+ *
-+ * Initialise the /proc/suspend tree.
-+ *
-+ */
-+
-+static void suspend_initialise_proc(void)
-+{
-+	int i;
-+	int numfiles = sizeof(proc_params) / sizeof(struct suspend_proc_data);
-+	
-+	if (suspend_proc_initialised)
-+		return;
-+
-+	suspend_dir = proc_mkdir("software_suspend", NULL);
-+	
-+	BUG_ON(!suspend_dir);
-+
-+	INIT_LIST_HEAD(&suspend_proc_entries);
-+
-+	suspend_proc_initialised = 1;
-+
-+	for (i=0; i< numfiles; i++)
-+		suspend_register_procfile(&proc_params[i]);
-+}
-+
-+/*
-+ * suspend_register_procfile
-+ *
-+ * Helper for registering a new /proc/suspend entry.
-+ */
-+
-+struct proc_dir_entry * suspend_register_procfile(
-+		struct suspend_proc_data * suspend_proc_data)
-+{
-+	struct proc_dir_entry * new_entry;
-+	
-+	if (!suspend_proc_initialised)
-+		suspend_initialise_proc();
-+
-+	new_entry = create_proc_entry(
-+			suspend_proc_data->filename,
-+			suspend_proc_data->permissions, 
-+			suspend_dir);
-+	if (new_entry) {
-+		list_add_tail(&suspend_proc_data->proc_data_list, &suspend_proc_entries);
-+		if (suspend_proc_data->type) {
-+			new_entry->read_proc = generic_read_proc;
-+			new_entry->write_proc = generic_write_proc;
-+		} else {
-+			new_entry->read_proc = suspend_proc_data->data.special.read_proc;
-+			new_entry->write_proc = suspend_proc_data->data.special.write_proc;
-+		}
-+		new_entry->data = suspend_proc_data;
-+	} else {
-+		printk("Error! create_proc_entry returned NULL.\n");
-+		INIT_LIST_HEAD(&suspend_proc_data->proc_data_list);
-+	}
-+	return new_entry;
-+}
-+
-+/*
-+ * suspend_unregister_procfile
-+ *
-+ * Helper for removing unwanted /proc/suspend entries.
-+ *
-+ */
-+void suspend_unregister_procfile(struct suspend_proc_data * suspend_proc_data)
-+{
-+	if (list_empty(&suspend_proc_data->proc_data_list))
-+		return;
-+
-+	remove_proc_entry(
-+		suspend_proc_data->filename,
-+		suspend_dir);
-+	list_del(&suspend_proc_data->proc_data_list);
-+}
-+
-+EXPORT_SYMBOL(suspend_register_procfile);
-+EXPORT_SYMBOL(suspend_unregister_procfile);
-diff -ruN 824-builtin-old/kernel/power/suspend_builtin.c 824-builtin-new/kernel/power/suspend_builtin.c
---- 824-builtin-old/kernel/power/suspend_builtin.c	1970-01-01 10:00:00.000000000 +1000
-+++ 824-builtin-new/kernel/power/suspend_builtin.c	2004-11-18 08:21:41.000000000 +1100
-@@ -0,0 +1,541 @@
-+/*
-+ * kernel/power/suspend2-builtin.c
-+ *
-+ * Copyright (C) 2004 Nigel Cunningham <ncunningham@linuxmail.org>
-+ *
-+ * This file is released under the GPLv2.
-+ *
-+ * It contains the functions for suspend2 that are built into the kernel even if
-+ * suspend is configured as modules.
-+ */
-+
-+#include <linux/suspend.h>
-+#include <linux/module.h>
-+#include <linux/reboot.h>
-+#include <asm/highmem.h>
-+#include <asm/uaccess.h>
-+
 +#include "suspend.h"
-+/* 
-+ *---------------------  Variables ---------------------------
-+ * 
-+ * The following are used by the arch specific low level routines 
-+ * and only needed if suspend2 is compiled in. Other variables,
-+ * used by the freezer even if suspend2 is not compiled in are
-+ * found in process.c
++
++/* Forward declaration for the ops structure we export */
++struct suspend_plugin_ops gzip_compression_ops;
++
++/* The next driver in the pipeline */
++static struct suspend_plugin_ops * next_driver;
++
++/* Zlib routines we use to compress/decompress the data */
++extern int zlib_compress(unsigned char *data_in, unsigned char *cpage_out,
++		u32 *sourcelen, u32 *dstlen);
++extern void zlib_decompress(unsigned char *data_in, unsigned char *cpage_out,
++	       u32 srclen, u32 destlen);
++
++/* Buffers */
++static void *compression_workspace = NULL;
++static char *local_buffer = NULL;
++
++/* Configuration data we pass to zlib */
++static z_stream strm;
++
++/* Stats we save */
++static __nosavedata unsigned long bytes_in = 0, bytes_out = 0;
++
++/* Expected compression is used to reduce the amount of storage allocated */
++static int expected_gzip_compression = 0;
++
++/* ---- Zlib memory management ---- */
++
++/* allocate_zlib_compression_space
++ *
++ * Description:	Allocate space for zlib to use in compressing our data.
++ *		Each call must have a matching call to free_zlib_memory.
++ * Returns:	Int: Zero if successful, -ENONEM otherwise.
 + */
-+volatile int suspend_io_time[2][2];
-+struct pagedir __nosavedata pagedir_resume;
-+struct pagedir pagedir1 = { 1, 0, 0}, pagedir2 = {2, 0, 0};
-+static unsigned long avenrun_save[3];
-+
-+char suspend_print_buf[1024];
-+EXPORT_SYMBOL(suspend_print_buf);
-+
-+/* Suspend2 variables used by built-in routines. */
-+unsigned int nr_suspends = 0;
-+int suspend_act_used = 0;
-+int suspend_lvl_used = 0;
-+int suspend_dbg_used = 0;
-+int suspend_default_console_level = 0;
-+
-+/* 
-+ * For resume2= kernel option. It's pointless to compile
-+ * suspend2 without any writers, but compilation shouldn't
-+ * fail if you do.
-+ */
-+#ifdef CONFIG_SOFTWARE_SUSPEND_DEFAULT_RESUME2
-+char resume2_file[256] = CONFIG_SOFTWARE_SUSPEND_DEFAULT_RESUME2;
-+#else
-+char resume2_file[256];
-+#endif
-+
-+void (* exclusive_handler) (int) = NULL;
-+
-+/* --------------- Basic user interface functions --------------- 
-+ * 
-+ * These need to be available even if none of the core is
-+ * loaded.
-+ */
-+
-+DECLARE_WAIT_QUEUE_HEAD(suspend_wait_for_key);
-+static int last_key;
-+
-+int suspend_wait_for_keypress(void)
++static inline int allocate_zlib_compression_space(void)
 +{
-+	interruptible_sleep_on(&suspend_wait_for_key);
-+	return last_key;
++	BUG_ON(compression_workspace);
++
++	compression_workspace = vmalloc_32(zlib_deflate_workspacesize());
++	if (!compression_workspace) {
++		printk(KERN_WARNING
++			"Failed to allocate %d bytes for deflate workspace\n",
++			zlib_deflate_workspacesize());
++		return -ENOMEM;
++	}
++	
++	return 0;
 +}
 +
-+/* 
-+ * Basic keypress handler for suspend. This is extensible
-+ * via the user interface modules.
-+ */
-+
-+/* For simplicity, we convert keyboard key codes to ascii,
-+ * except in the case of function keys, which are mapped
-+ * to 1-12. We can then use the same case statement for
-+ * serial keyboards (and from a serial keyboard, you can
-+ * press Control-A..L to toggle sections.
-+ */
-+static unsigned int kbd_keytable[] = {
-+	  0,  27,  49,  50,  51,  52,  53,  54,  55,  56,
-+	 57,  48,   0,   0,   0,   0,   0,   0,   0, 114,
-+	116,   0,   0,   0,   0, 112,   0,   0,   0,   0,
-+	  0, 115,   0,   0,   0,   0,   0,   0, 108,   0,
-+	  0, 122,   0,   0,   0,   0,  99,   0,   0,   0,
-+	  0,   0,   0,   0,   0,   0,   0,  32,   0,   1,
-+	  2,   3,   4,   5,   6,   7,   8,   9,  10,   0,
-+	  0,   0,   0,   0,   0,   0,   0,   0,   0,   0,
-+	  0,   0,   0,   0,   0,   0,   0,  11,  12,   0,
-+};
-+
-+/*
-+ * keycode_to_action
++/* allocate_zlib_decompression_space
 + *
-+ * Convert a keycode (serial or keyboard) into our
-+ * internal code (ascii, except for function keys).
++ * Description:	Allocate space for zlib to use in decompressing our data.
++ *		Each call must have a matching call to free_zlib_memory.
++ * Returns:	Int: Zero if successful, -ENONEM otherwise.
 + */
-+static unsigned int keycode_to_action(unsigned int keycode, int source)
++static inline int allocate_zlib_decompression_space(void)
 +{
-+	if (source == SUSPEND_KEY_SERIAL) {
-+		if (keycode > 64)
-+			return (keycode | 32);
-+		else
-+			return keycode;
-+	}
++	BUG_ON(compression_workspace);
 +
-+	/* Local keyboard - use table above */
-+	if (keycode > sizeof(kbd_keytable))
++	compression_workspace = vmalloc_32(zlib_inflate_workspacesize());
++	if (!compression_workspace) {
++		printk(KERN_WARNING
++			"Failed to allocate %d bytes for inflate workspace\n",
++			zlib_inflate_workspacesize());
++		return -ENOMEM;
++	}
++	
++	return 0;
++}
++
++/* free_zlib_memory
++ *
++ * Description:	Frees memory allocated by either allocation routine (above).
++ */
++static inline void free_zlib_memory(void)
++{
++	if (!compression_workspace)
++		return;
++
++	vfree(compression_workspace);
++	compression_workspace = NULL;
++}
++
++/* ---- Local buffer management ---- */
++
++/* allocate_local_buffer
++ *
++ * Description:	Allocates a page of memory for buffering output.
++ * Returns:	Int: Zero if successful, -ENONEM otherwise.
++ */
++static int allocate_local_buffer(void)
++{
++	if (local_buffer)
 +		return 0;
 +
-+	return kbd_keytable[keycode];
-+}
-+
-+/* get_keyboard_exclusive
-+ *
-+ * Give a plugin exclusive access to the keyboard
-+ * if it's not already claimed. Used for an encryption
-+ * plugin to get the passphrase, for example.
-+ */
-+
-+int suspend_get_keyboard_exclusive(void (* handler) (int))
-+{
-+	if (exclusive_handler)
-+		return -EBUSY;
-+
-+	exclusive_handler = handler;
++	local_buffer = (char *) get_zeroed_page(GFP_ATOMIC);
++	
++	if (!local_buffer) {
++		printk(KERN_ERR
++			"Failed to allocate a page for compression "
++			"driver's buffer.\n");
++		return -ENOMEM;
++	}
 +
 +	return 0;
 +}
 +
-+/* release_keyboard_exclusive
++/* free_local_buffer
 + *
-+ * Release the exclusive access to the keyboard.
++ * Description:	Frees memory allocated for buffering output.
 + */
-+
-+void suspend_release_keyboard_exclusive(void)
++static inline void free_local_buffer(void)
 +{
-+	BUG_ON(!exclusive_handler);
-+
-+	exclusive_handler = NULL;
++	if (local_buffer)
++		free_pages((unsigned long) local_buffer, 0);
++	local_buffer = NULL;
 +}
 +
-+/*
-+ * suspend_handle_keypress
++/* ---- Functions exported via operations struct ---- */
++
++/* gzip_write_init
 + *
-+ * This is the basic routine for handling keystrokes.
-+ * If it doesn't know what to do with a keypress, it
-+ * passes it on to the plugins.
++ * Description:	Allocate buffers and prepares zlib for deflating a new stream
++ * 		of data.
++ * Arguments:	Stream_number:	Ignored.
++ * Returns: 	Int. Zero if successful, otherwise an appropriate error number.
 + */
-+void suspend_handle_keypress(unsigned int keycode, int source)
++
++static int gzip_write_init(int stream_number)
 +{
-+	keycode = keycode_to_action(keycode, source);
++	int result;
++	
++	next_driver = get_next_filter(&gzip_compression_ops);
 +
-+	if (test_suspend_state(SUSPEND_SANITY_CHECK_PROMPT)) {
-+		if (keycode == 32)
-+			wake_up_interruptible(&suspend_wait_for_key);
-+		else if (keycode == 99) {
-+			set_suspend_state(SUSPEND_CONTINUE_REQ);
-+			wake_up_interruptible(&suspend_wait_for_key);
-+		}
-+		return;
++	if (!next_driver) {
++		printk("GZip Compression Driver: Argh! No one wants my output!");
++		return -ECHILD;
 +	}
 +
-+	/* Do we have a plugin grabbing all the keys? */
-+	if (exclusive_handler) {
-+		exclusive_handler(keycode);
-+		return;
-+	}
++	if ((result = allocate_zlib_compression_space()))
++		return result;
++	
++	if ((result = allocate_local_buffer()))
++		return result;
 +
-+	last_key = keycode;
++	strm.total_in = 0;
++	strm.total_out = 0;
++	strm.workspace = compression_workspace;
++	strm.next_out = (char *) local_buffer;
++	strm.avail_out = PAGE_SIZE;
++	result = zlib_deflateInit(&strm, Z_BEST_SPEED);
++		
++	if (Z_OK != result) {
++		printk(KERN_ERR name_suspend "Failed to initialise zlib.\n");
++		return -EPERM;
++	}
 +
 +	/* 
-+	 * If the message was handled or is the space bar, we
-+	 * wake our completion handler.
++	 * Reset the statistics iif we are about to write the first part of
++	 * the image
 +	 */
-+	if ((suspend2_core_ops->keypress(keycode)) ||
-+		(keycode == 32))
-+		wake_up_interruptible(&suspend_wait_for_key);
-+}
++	if (stream_number == 2)
++		bytes_in = bytes_out = 0;
 +
-+/* suspend_early_boot_message()
-+ * Description:	Handle errors early in the process of booting.
-+ * 		The user may press C to continue booting, perhaps
-+ * 		invalidating the image,  or space to reboot. 
-+ * 		This works from either the serial console or normally 
-+ * 		attached keyboard.
-+ *
-+ * 		Note that we come in here from init, while the kernel is
-+ * 		locked. If we want to get events from the serial console,
-+ * 		we need to temporarily unlock the kernel.
-+ *
-+ * Arguments:	Char *. Pointer to a string explaining why we're moaning.
-+ */
-+
-+#define say(message, a...) printk(KERN_EMERG message, ##a)
-+
-+int suspend_early_boot_message(int can_erase_image, char *warning_reason, ...)
-+{
-+	unsigned long orig_state = get_suspend_state(), continue_req;
-+	int orig_loglevel = console_loglevel;
-+	va_list args;
-+	int printed_len;
-+
-+	set_suspend_state(SUSPEND_RUNNING);
-+
-+#ifdef CONFIG_BOOTSPLASH
-+/* 
-+ * So we can make any error visible if necessary. The core might
-+ * not be loaded and the bootsplash module might not be loaded
-+ * or even have been compiled.
-+ */
-+	{
-+		extern int splash_verbose(void);
-+		splash_verbose();
-+	}
-+#endif
-+
-+#if defined(CONFIG_VT) || defined(CONFIG_SERIAL_CONSOLE)
-+	console_loglevel = 7;
-+
-+	if (suspend2_core_ops)
-+		suspend2_core_ops->early_boot_plugins();
-+
-+	say("=== Software Suspend ===\n\n");
-+	if (warning_reason) {
-+		va_start(args, warning_reason);
-+		printed_len = vsnprintf(suspend_print_buf, 
-+				sizeof(suspend_print_buf), 
-+				warning_reason,
-+				args);
-+		va_end(args);
-+		say("BIG FAT WARNING!! %s\n\n", suspend_print_buf);
-+		if (can_erase_image) {
-+			say("If you want to use the current suspend image, reboot and try\n");
-+			say("again with the same kernel that you suspended from. If you want\n");
-+			say("to forget that image, continue and the image will be erased.\n");
-+		} else {
-+			say("If you continue booting, note that any image WILL NOT BE REMOVED.\n");
-+			say("Suspend is unable to do so because the appropriate modules aren't\n");
-+			say("loaded. You should manually remove the image to avoid any\n");
-+			say("possibility of corrupting your filesystem(s) later.\n");
-+		}
-+		say("Press SPACE to reboot or C to continue booting with this kernel\n");
-+	} else {
-+		say("BIG FAT WARNING!!\n\n");
-+		say("You have tried to resume from this image before.\n");
-+		say("If it failed once, it will probably fail again.\n");
-+		say("Would you like to remove the image and boot normally?\n");
-+		say("This will be equivalent to entering noresume2 on the\n");
-+		say("kernel command line.\n\n");
-+		say("Press SPACE to remove the image or C to continue resuming.\n");
-+	}
-+	
-+	set_suspend_state(SUSPEND_SANITY_CHECK_PROMPT);
-+
-+	interruptible_sleep_on(&suspend_wait_for_key);
-+
-+	continue_req = test_suspend_state(SUSPEND_CONTINUE_REQ);
-+	
-+	if ((warning_reason) && (!continue_req))
-+		machine_restart(NULL);
-+	
-+	restore_suspend_state(orig_state);
-+	if (continue_req)
-+		set_suspend_state(SUSPEND_CONTINUE_REQ);
-+
-+	console_loglevel = orig_loglevel;
-+#endif // CONFIG_VT or CONFIG_SERIAL_CONSOLE
-+	return -EPERM;
-+}
-+#undef say
-+
-+/* --------------- Registration of the core code -----------------------------
-+ *
-+ * We don't need to do anything more. The writers determine
-+ * whether suspending is disabled and they're not loaded yet.
-+ */
-+int suspend2_register_core(struct suspend2_core_ops * ops_pointer)
-+{
-+	if (suspend2_core_ops)
-+		return -EBUSY;
-+
-+	suspend2_core_ops = ops_pointer;
 +	return 0;
 +}
 +
-+void suspend2_unregister_core(void)
-+{
-+	suspend2_core_ops = NULL;
-+}
-+
-+/* ------------ Functions for kickstarting a suspend or resume ----------- */
-+
-+static int can_suspend(void)
-+{
-+	if (test_suspend_state(SUSPEND_RUNNING)) {
-+		printk(name_suspend "Software suspend is already running.\n");
-+		return 0;
-+	}
-+
-+	if (!suspend2_core_ops) {
-+		printk(name_suspend "Software suspend is disabled.\n"
-+			"You do not appear to have inserted the core module.\n");
-+		SET_RESULT_STATE(SUSPEND_ABORTED);
-+		return 0;
-+	}
-+
-+	if (test_suspend_state(SUSPEND_DISABLED)) {
-+		printk(name_suspend "Software suspend is disabled.\n"
-+			"This may be because you haven't put something along the "
-+			"lines of\n\nresume2=swap:/dev/hda1\n\n"
-+			"in lilo.conf or equivalent. (Where /dev/hda1 is your "
-+			"swap partition).\n");
-+		SET_RESULT_STATE(SUSPEND_ABORTED);
-+		return 0;
-+	}
-+	
-+	return 1;
-+}
-+
-+/*
-+ * Check if we have an image and if so try to resume.
++/* gzip_write_chunk()
++ *
++ * Description:	Compress a page of data, buffering output and passing on
++ * 		filled pages to the next plugin in the pipeline.
++ * Arguments:	Buffer_start:	Pointer to a buffer of size PAGE_SIZE, 
++ * 				containing data to be compressed.
++ * Returns:	0 on success. Otherwise the error is that returned by later
++ * 		plugins, -ECHILD if we have a broken pipeline or -EPERM if
++ * 		zlib errs.
 + */
 +
-+void software_suspend_try_resume(void)
++static int gzip_write_chunk(struct page * buffer_page)
 +{
-+	mm_segment_t oldfs;
-+	oldfs = get_fs(); set_fs(KERNEL_DS);
++	int ret; 
++	char * buffer_start = kmap(buffer_page);
++	
++	/* Work to do */
++	strm.next_in = buffer_start;
++	strm.avail_in = PAGE_SIZE;
++	while (strm.avail_in) {
++		ret = zlib_deflate(&strm, Z_PARTIAL_FLUSH);
++		if (ret != Z_OK) {
++			printk("Zlib failed to compress our data. "
++				"Result code was %d.\n", ret);
++			kunmap(buffer_page);
++			return -EPERM;
++		}
 +
-+	clear_suspend_state(SUSPEND_RESUME_NOT_DONE);
++		if (!strm.avail_out) {
 +
-+	if (!suspend2_core_ops) {
-+		/*
-+		 * We can only get here at boot time. It is really dangerous
-+		 * to suspend, boot without resuming and then boot with
-+		 * resuming. Since the core (and writers) isn't loaded, we
-+		 * can't fix this. We can however print a big fat warning
-+		 * and give the user the option of rebooting.
-+		 *
-+		 * We don't do this if no resume2= parameter was specified.
-+		 */
-+
-+		if (resume2_file[0])
-+			suspend_early_boot_message(0,
-+			 "Can't check whether to resume. Suspend's core module isn't loaded.");
-+		goto out;
++			if ((ret = next_driver->ops.filter.write_chunk(
++					virt_to_page(local_buffer)))) {
++				kunmap(buffer_page);
++				return ret;
++			}
++			strm.next_out = local_buffer;
++			strm.avail_out = PAGE_SIZE;
++		}
 +	}
-+	suspend2_core_ops->do_resume();
-+out:
-+	set_fs(oldfs);
-+	clear_suspend_state(SUSPEND_IGNORE_LOGLEVEL);
++	kunmap(buffer_page);
++
++	return 0;
++}
++
++/* gzip_write_cleanup()
++ *
++ * Description:	Flush remaining data, update statistics and free allocated
++ * 		space.
++ * Returns:	Zero. Never fails. Okay. Zlib might fail... but it shouldn't.
++ */
++
++static int gzip_write_cleanup(void)
++{
++	int ret = 0, finished = 0;
++	
++	while (!finished) {
++		if (strm.avail_out) {
++			ret = zlib_deflate(&strm, Z_FINISH);
++
++			if (ret == Z_STREAM_END) {
++				ret = zlib_deflateEnd(&strm);
++				finished = 1;
++			}
++
++			if ((ret != Z_OK) && (ret != Z_STREAM_END)) {
++				zlib_deflateEnd(&strm);
++				printk("Failed to finish compressing data. "
++					"Result %d received.\n", ret);
++				return -EPERM;
++			}
++		}
++
++		if ((!strm.avail_out) || (finished)) {
++			if ((ret = next_driver->ops.filter.write_chunk(
++					virt_to_page(local_buffer))))
++				return ret;
++			strm.next_out = local_buffer;
++			strm.avail_out = PAGE_SIZE;
++		}
++	}
++
++	bytes_in+= strm.total_in;
++	bytes_out+= strm.total_out;
++
++	free_zlib_memory();
++	free_local_buffer();
++
++	return 0;
++}
++
++/* gzip_read_init
++ *
++ * Description:	Prepare to read a new stream of data.
++ * Arguments:	Stream_number:	Not used.
++ * Returns: 	Int. Zero if successful, otherwise an appropriate error number.
++ */
++
++static int gzip_read_init(int stream_number)
++{
++	int result;
++
++	next_driver = get_next_filter(&gzip_compression_ops);
++
++	if (!next_driver) {
++		printk("GZip Compression Driver: Argh! "
++			"No one wants to feed me data!");
++		return -ECHILD;
++	}
++	
++	if ((result = allocate_zlib_decompression_space()))
++		return result;
++	
++	if ((result = allocate_local_buffer()))
++		return result;
++
++	strm.total_in = 0;
++	strm.total_out = 0;
++	strm.workspace = compression_workspace;
++	strm.avail_in = 0;
++	if ((result = zlib_inflateInit(&strm)) != Z_OK) {
++		printk(KERN_ERR name_suspend "Failed to initialise zlib.\n");
++		return -EPERM;
++	}
++
++	return 0;
++}
++
++/* gzip_read_chunk()
++ *
++ * Description:	Retrieve data from later plugins and decompress it until the
++ * 		input buffer is filled.
++ * Arguments:	Buffer_start: 	Pointer to a buffer of size PAGE_SIZE.
++ * 		Sync:		Whether the previous plugin (or core) wants its
++ * 				data synchronously.
++ * Returns:	Zero if successful. Error condition from me or from downstream
++ * 		on failure.
++ */
++
++static int gzip_read_chunk(struct page * buffer_page, int sync)
++{
++	int ret; 
++	char * buffer_start = kmap(buffer_page);
++
++	/* 
++	 * All our reads must be synchronous - we can't decompress
++	 * data that hasn't been read yet.
++	 */
++
++	/* Work to do */
++	strm.next_out = buffer_start;
++	strm.avail_out = PAGE_SIZE;
++	while (strm.avail_out) {
++		if (!strm.avail_in) {
++			if ((ret = next_driver->ops.filter.read_chunk(
++					virt_to_page(local_buffer), 
++					SUSPEND_SYNC)) < 0) {
++				kunmap(buffer_page);
++				return ret;
++			}
++			strm.next_in = local_buffer;
++			strm.avail_in = PAGE_SIZE;
++		}
++			
++		ret = zlib_inflate(&strm, Z_PARTIAL_FLUSH);
++
++		if ((ret == Z_BUF_ERROR) && (!strm.avail_in)) {
++			continue;
++		}
++			
++		if ((ret != Z_OK) && (ret != Z_STREAM_END)) {
++			printk("Zlib failed to decompress our data. "
++					"Result code was %d.\n", ret);
++			kunmap(buffer_page);
++			return -EPERM;
++		}
++	}
++	kunmap(buffer_page);
++
++	return 0;
++}
++
++/* read_cleanup()
++ *
++ * Description:	Clean up after reading part or all of a stream of data.
++ * Returns:	int: Always zero. Never fails.
++ */
++
++static int gzip_read_cleanup(void)
++{
++	zlib_inflateEnd(&strm);
++	
++	free_zlib_memory();
++	free_local_buffer();
++	return 0;
++}
++
++/* gzip_print_debug_stats
++ *
++ * Description:	Print information to be recorded for debugging purposes into a
++ * 		buffer.
++ * Arguments:	buffer: Pointer to a buffer into which the debug info will be
++ * 			printed.
++ * 		size:	Size of the buffer.
++ * Returns:	Number of characters written to the buffer.
++ */
++
++static int gzip_print_debug_stats(char * buffer, int size)
++{
++	int pages_in = bytes_in >> PAGE_SHIFT;
++	int pages_out = bytes_out >> PAGE_SHIFT;
++	int len;
++	
++	//Output the compression ratio achieved.
++	len = suspend_snprintf(buffer, size, "- GZIP compressor enabled.\n");
++	if (pages_in)
++		len+= suspend_snprintf(buffer+len, size - len,
++		  "  Compressed %ld bytes into %ld.\n  "
++		  "Image compressed by %d percent.\n",
++		  bytes_in, bytes_out, (pages_in - pages_out) * 100 / pages_in);
++	return len;
++}
++
++/* compression_memory_needed
++ *
++ * Description:	Tell the caller how much memory we need to operate during
++ * 		suspend/resume.
++ * Returns:	Unsigned long. Maximum number of bytes of memory required for
++ * 		operation.
++ */
++
++static unsigned long gzip_memory_needed(void)
++{
++	return PAGE_SIZE + max( zlib_deflate_workspacesize(),
++				zlib_inflate_workspacesize());
++}
++
++static unsigned long gzip_storage_needed(void)
++{
++	return 2 * sizeof(unsigned long);
++}
++
++/* gzip_save_config_info
++ *
++ * Description:	Save information needed when reloading the image at resume time.
++ * Arguments:	Buffer:		Pointer to a buffer of size PAGE_SIZE.
++ * Returns:	Number of bytes used for saving our data.
++ */
++
++static int gzip_save_config_info(char * buffer)
++{
++	*((unsigned long *) buffer) = bytes_in;
++	*((unsigned long *) (buffer + sizeof(unsigned long))) = bytes_out;
++	*((int *) (buffer + 2 * sizeof(unsigned long))) = expected_gzip_compression;
++	return 2 * sizeof(unsigned long) + sizeof(int);
++}
++
++/* gzip_load_config_info
++ *
++ * Description:	Reload information needed for decompressing the image at 
++ * 		resume time.
++ * Arguments:	Buffer:		Pointer to the start of the data.
++ *		Size:		Number of bytes that were saved.
++ */
++
++static void gzip_load_config_info(char * buffer, int size)
++{
++	if(size == 2 * sizeof(unsigned long) + sizeof(int)) {
++		bytes_in = *((unsigned long *) buffer);
++		bytes_out = *((unsigned long *) (buffer + sizeof(unsigned long)));
++		expected_gzip_compression = *((int *) (buffer + 2 * sizeof(unsigned long)));
++	} else
++		printk("Suspend GZIP config info size mismatch: settings ignored.\n");
 +	return;
 +}
 +
-+/*
-+ * suspend_try_suspend
-+ * Functionality   : First level of code for software suspend invocations.
-+ * 		     Performs the basic checking as to whether suspend is
-+ * 		     enabled before invoking the high level routine.
-+ * Called From     : 
-+ */
-+void suspend_try_suspend(void)
-+{
-+	mm_segment_t oldfs;
-+
-+	suspend_result = 0;
-+	
-+	if (!can_suspend())
-+		return;
-+	
-+	oldfs = get_fs(); set_fs(KERNEL_DS);
-+	suspend2_core_ops->do_suspend();
-+	set_fs(oldfs);
-+}
-+
-+/* -------------------  Commandline Parameter Handling -----------------
-+ *
-+ * Resume setup: obtain the storage device.
++/* gzip_get_expected_compression
++ * 
++ * Description:	Returns the expected ratio between data passed into this plugin
++ * 		and the amount of data output when writing.
++ * Returns:	The value set by the user via our proc entry.
 + */
 +
-+static int __init resume_setup(char *str)
++static int gzip_get_expected_compression(void)
 +{
-+	if (str == NULL)
-+		return 1;
-+	
-+	strncpy(resume2_file, str, 255);
-+	return 0;
++	return 100 - expected_gzip_compression;
 +}
 +
 +/*
-+ * Allow the user to set the action parameter from lilo, prior to resuming.
++ * data for our proc entries.
 + */
-+static int __init suspend_act_setup(char *str)
-+{
-+	if(str)
-+		suspend_action=simple_strtol(str,NULL,0);
-+	suspend_act_used = 1;
-+	return 0;
-+}
 +
-+/*
-+ * Allow the user to set the debug parameter from lilo, prior to resuming.
-+ */
-+#ifdef CONFIG_SOFTWARE_SUSPEND_DEBUG
-+static int __init suspend_dbg_setup(char *str)
-+{
-+	if(str)
-+		suspend_debug_state=simple_strtol(str,NULL,0);
-+	suspend_dbg_used = 1;
-+	return 0;
-+}
-+
-+/*
-+ * Allow the user to set the debug level parameter from lilo, prior to
-+ * resuming.
-+ */
-+static int __init suspend_lvl_setup(char *str)
-+{
-+	if(str)
-+		console_loglevel =
-+		suspend_default_console_level = 
-+			simple_strtol(str,NULL,0);
-+	suspend_lvl_used = 1;
-+	clear_suspend_state(SUSPEND_IGNORE_LOGLEVEL);
-+	return 0;
-+}
-+#endif
-+
-+/*
-+ * Allow the user to specify that we should ignore any image found and
-+ * invalidate the image if necesssary. This is equivalent to running
-+ * the task queue and a sync and then turning off the power. The same
-+ * precautions should be taken: fsck if you're not journalled.
-+ */
-+static int __init noresume_setup(char *str)
-+{
-+	set_suspend_state(SUSPEND_NORESUME_SPECIFIED);
-+	/* Message printed later */
-+	return 0;
-+}
-+
-+/* In leiu of exporting variables, some get_ functions for suspend2 */
-+unsigned long get_highstart_pfn(void)
-+{
-+	return highstart_pfn;
-+}
-+
-+/*
-+ * Running suspend makes for a very high load average. I'm told that
-+ * sendmail and crond check the load average, so in order for them
-+ * not to be unnecessarily affected by the operation of suspend, we
-+ * store the avenrun values prior to suspending and restore them
-+ * at the end of the resume cycle. Thus, the operation of suspend
-+ * should be invisible to them. Thanks to Marcus Gaugusch and Bernard
-+ * Blackham for noticing the problem and suggesting the solution.
-+ */
-+void suspend_save_avenrun(void)
-+{
-+	int i;
-+
-+	for (i = 0; i < 3; i++)
-+		avenrun_save[i] = avenrun[i];
-+}
-+
-+void suspend_restore_avenrun(void)
-+{
-+	int i;
-+
-+	for (i = 0; i < 3; i++)
-+		avenrun[i] = avenrun_save[i];
-+}
-+
-+static int num_pcp_pages(void)
-+{
-+	struct zone *zone;
-+	int result = 0, i = 0;
-+
-+	/* PCP lists */
-+	for_each_zone(zone) {
-+		struct per_cpu_pageset *pset;
-+		int cpu;
-+		
-+		if (!zone->present_pages)
-+			continue;
-+		
-+		for (cpu = 0; cpu < NR_CPUS; cpu++) {
-+			if (!cpu_possible(cpu))
-+				continue;
-+
-+			pset = &zone->pageset[cpu];
-+
-+			for (i = 0; i < ARRAY_SIZE(pset->pcp); i++) {
-+				struct per_cpu_pages *pcp;
-+
-+				pcp = &pset->pcp[i];
-+				result += pcp->count;
-+			}
++struct suspend_proc_data expected_compression_proc_data = {
++	.filename			= "expected_gzip_compression",
++	.permissions			= PROC_RW,
++	.type				= SUSPEND_PROC_DATA_INTEGER,
++	.data = {
++		.integer = {
++			.variable	= &expected_gzip_compression,
++			.minimum	= 0,
++			.maximum	= 99,
 +		}
++	}
++};
++
++struct suspend_proc_data disable_compression_proc_data = {
++	.filename			= "disable_gzip_compression",
++	.permissions			= PROC_RW,
++	.type				= SUSPEND_PROC_DATA_INTEGER,
++	.data = {
++		.integer = {
++			.variable	= &gzip_compression_ops.disabled,
++			.minimum	= 0,
++			.maximum	= 1,
++		}
++	}
++};
++
++/*
++ * Ops structure.
++ */
++
++struct suspend_plugin_ops gzip_compression_ops = {
++	.type			= FILTER_PLUGIN,
++	.name			= "Zlib Page Compressor",
++	.memory_needed 		= gzip_memory_needed,
++	.print_debug_info	= gzip_print_debug_stats,
++	.save_config_info	= gzip_save_config_info,
++	.load_config_info	= gzip_load_config_info,
++	.storage_needed		= gzip_storage_needed,
++	.ops = {
++		.filter = {
++		 .write_init		= gzip_write_init,
++		 .write_chunk		= gzip_write_chunk,
++		 .write_cleanup		= gzip_write_cleanup,
++		 .read_init		= gzip_read_init,
++		 .read_chunk		= gzip_read_chunk,
++		 .read_cleanup		= gzip_read_cleanup,
++		 .expected_compression	= gzip_get_expected_compression,
++		}
++	}
++};
++
++/* ---- Registration ---- */
++
++static __init int gzip_load(void)
++{
++	int result;
++
++	if (!(result = suspend_register_plugin(&gzip_compression_ops))) {
++		printk("Software Suspend Gzip Compression Driver registered.\n");
++		suspend_register_procfile(&expected_compression_proc_data);
++		suspend_register_procfile(&disable_compression_proc_data);
 +	}
 +	return result;
 +}
 +
-+int real_nr_free_pages(void)
++#ifdef MODULE
++static __exit void gzip_unload(void)
 +{
-+	return nr_free_pages() + num_pcp_pages();
++	printk("Software Suspend Gzip Compression Driver unloading.\n");
++	suspend_unregister_procfile(&expected_compression_proc_data);
++	suspend_unregister_procfile(&disable_compression_proc_data);
++	suspend_unregister_plugin(&gzip_compression_ops);
 +}
-+EXPORT_SYMBOL(real_nr_free_pages);
 +
-+__setup("resume2=", resume_setup);
-+__setup("suspend_act=", suspend_act_setup);
-+#ifdef CONFIG_SOFTWARE_SUSPEND_DEBUG
-+__setup("suspend_dbg=", suspend_dbg_setup);
-+__setup("suspend_lvl=", suspend_lvl_setup);
++module_init(gzip_load);
++module_exit(gzip_unload);
++MODULE_LICENSE("GPL");
++MODULE_AUTHOR("Nigel Cunningham");
++MODULE_DESCRIPTION("Gzip Compression support for Suspend2");
++#else
++late_initcall(gzip_load);
 +#endif
-+__setup("noresume2", noresume_setup);
-+
-+EXPORT_SYMBOL(get_highstart_pfn);
-+EXPORT_SYMBOL(suspend_save_avenrun);
-+EXPORT_SYMBOL(suspend_restore_avenrun);
-+
-+EXPORT_SYMBOL(nr_suspends);
-+EXPORT_SYMBOL(pagedir1);
-+EXPORT_SYMBOL(pagedir2);
-+EXPORT_SYMBOL(suspend2_register_core);
-+EXPORT_SYMBOL(suspend2_unregister_core);
-+EXPORT_SYMBOL(resume2_file);
-+EXPORT_SYMBOL(suspend_act_used);
-+EXPORT_SYMBOL(suspend_lvl_used);
-+EXPORT_SYMBOL(suspend_dbg_used);
-+EXPORT_SYMBOL(suspend_try_suspend);
-+EXPORT_SYMBOL(suspend_debug_state);
-+EXPORT_SYMBOL(suspend_result);
-+
-+/* Symnols exported for Suspend plugins */
-+EXPORT_SYMBOL(suspend_default_console_level);
-+EXPORT_SYMBOL(pagedir_resume);
-+EXPORT_SYMBOL(suspend_io_time);
-+EXPORT_SYMBOL(suspend2_core_ops);
-+EXPORT_SYMBOL(suspend_early_boot_message);
-+EXPORT_SYMBOL(suspend_wait_for_keypress);
 
 

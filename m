@@ -1,47 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129074AbQKFQbX>; Mon, 6 Nov 2000 11:31:23 -0500
+	id <S129238AbQKFQen>; Mon, 6 Nov 2000 11:34:43 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129193AbQKFQbN>; Mon, 6 Nov 2000 11:31:13 -0500
-Received: from nycsmtp1fb.rdc-nyc.rr.com ([24.29.99.76]:47111 "EHLO nyc.rr.com")
-	by vger.kernel.org with ESMTP id <S129074AbQKFQay>;
-	Mon, 6 Nov 2000 11:30:54 -0500
-Date: Mon, 06 Nov 2000 11:30:54 -0500
-From: Brad Corsello <bcorsello@usa.net>
-To: linux-kernel@vger.kernel.org
-Subject: Re: PROBLEM: kernel oops on boot in 2.4.0 test10
-Reply-To: bcorsello@usa.net
-X-Mailer: Spruce 0.7.4 for X11 w/smtpio 0.8.2
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Message-ID: <0676250391606b0NYCSMTP1@nyc.rr.com>
+	id <S129240AbQKFQeY>; Mon, 6 Nov 2000 11:34:24 -0500
+Received: from pincoya.inf.utfsm.cl ([200.1.19.3]:32775 "EHLO
+	pincoya.inf.utfsm.cl") by vger.kernel.org with ESMTP
+	id <S129238AbQKFQeS>; Mon, 6 Nov 2000 11:34:18 -0500
+Message-Id: <200011061631.eA6GVkw07051@pincoya.inf.utfsm.cl>
+To: David Woodhouse <dwmw2@infradead.org>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Persistent module storage [was Linux 2.4 Status / TODO page] 
+In-Reply-To: Message from David Woodhouse <dwmw2@infradead.org> 
+   of "Mon, 06 Nov 2000 15:34:54 -0000." <23007.973524894@redhat.com> 
+Date: Mon, 06 Nov 2000 13:31:46 -0300
+From: Horst von Brand <vonbrand@inf.utfsm.cl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+David Woodhouse <dwmw2@infradead.org> said:
+> jas88@cam.ac.uk said:
+> >  Irrelevant. The current mixer settings don't matter: what matters is
+> > that the driver does not change them.
 
-> 
-> >> Trace; c0194d36 <isapnp_proc_attach_device+36/94>
-> 
-> >Do you have any ISAPNP cards in your system?
-> 
-> Yes, a Soundblaster AWE64 that has never given me any problems.  I tried
-> booting
-> test10 and test1 with that card pulled, and they both still oopsed on boot.
-> 
-> 
+> It does matter. The sound driver needs to be able to _read_ the current 
+> levels. Almost all mixer programs will start by doing this, to set the 
+> slider to the correct place.
 
-Jeff, I recompiled test10 with all kernel ISA PNP options disabled, and it
-successfully
-booted.  But I also upgraded binutils to ver 2.10, (which I know is bad for
-for bug
-hunting, but I wanted to get this system up ASAP).  So I guess the conclusion
-to draw is that there *may* be a bug in the kernel ISA PNP code.  In any
-event, this no longer appears to be a problem for me (assuming I get the user
-PNP stuff to work), and no one else has reported this problem (that I am aware
-of).  Many thanks for your insights.
+OK, how then using _2_ modules, data and worker:
 
+- Data (containing the mixer levels or whatever other data you want to save)
+  can only be unloaded after resetting to some default state. When loading
+  it sets the default state.
+- Worker does the work, and on loading loads the data one (if not yet
+  resident) [This is automatic as the worker depends on symbols the data
+  module exports].
 
+No funny "persistent data" mechanisms or screwups when the worker gets
+removed and reinserted. In many cases the data module could be shared among
+several others, in other cases it would have to be able lo load several
+times or manage several incarnations of its payload.
+
+Sure, makes sense only if the worker module is largeish; if not, just let
+it stay put (When reconfiguring anything, increment module use count;
+decrement on reset. This should do the trick also for the data module
+above).
+-- 
+Dr. Horst H. von Brand                       mailto:vonbrand@inf.utfsm.cl
+Departamento de Informatica                     Fono: +56 32 654431
+Universidad Tecnica Federico Santa Maria              +56 32 654239
+Casilla 110-V, Valparaiso, Chile                Fax:  +56 32 797513
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

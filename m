@@ -1,50 +1,60 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281126AbRKVIvO>; Thu, 22 Nov 2001 03:51:14 -0500
+	id <S281468AbRKVIxz>; Thu, 22 Nov 2001 03:53:55 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281433AbRKVIvF>; Thu, 22 Nov 2001 03:51:05 -0500
-Received: from garrincha.netbank.com.br ([200.203.199.88]:2579 "HELO
-	netbank.com.br") by vger.kernel.org with SMTP id <S281126AbRKVIvB>;
-	Thu, 22 Nov 2001 03:51:01 -0500
-Date: Thu, 22 Nov 2001 06:50:38 -0200 (BRST)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: <riel@imladris.surriel.com>
-To: war <war@starband.net>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: Re: Swap vs No Swap.
-In-Reply-To: <3BFC5A9B.915B77DF@starband.net>
-Message-ID: <Pine.LNX.4.33L.0111220649090.4079-100000@imladris.surriel.com>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S281599AbRKVIxp>; Thu, 22 Nov 2001 03:53:45 -0500
+Received: from firewall.esrf.fr ([193.49.43.1]:17287 "HELO out.esrf.fr")
+	by vger.kernel.org with SMTP id <S281468AbRKVIxZ>;
+	Thu, 22 Nov 2001 03:53:25 -0500
+Date: Thu, 22 Nov 2001 09:52:51 +0100
+From: Samuel Maftoul <maftoul@esrf.fr>
+To: linux-kernel@vger.kernel.org
+Subject: NFS problem
+Message-ID: <20011122095251.A18254@pcmaftoul.esrf.fr>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 21 Nov 2001, war wrote:
+Hello,
+        I have a QFS filesystem on a solaris 8 which is exported via
+NFS:
+qfs1                 2848604160 3996672 2844607488     1%
+/data/id19/inhouse
 
-> I do not understand something.
-> How can having swap speed ANYTHING up?
->
-> RAM = 1000MB/s.
-> DISK = 10MB/s
->
-> Ram is generally 1000x faster than a hard disk.
+([3] % uname -a 
+SunOS azure 5.8 Generic_108528-09 sun4u sparc SUNW,Ultra-4 )
 
-This also means that the the caching of files from your
-filesystem (say, /usr/bin/netscape or /lib/libc.so) is
-1000x faster than reading them from disk.
+The QFS have an option on it's directories: you can change the attributes
+on a directory with setfa (set file atrributes) to direct IO or page
+cache.
+Here is the concerned excerpt of the QFS setfa manpage:
+"
+     -D   Specifies the direct I/O attribute be permanently set
+          for this file.  This means data is transferred directly
+          between the user's buffer and disk.  This attribute
+          should only be set for large block aligned sequential
+          I/O.  The default I/O mode is buffered (uses the page
+          cache).  Directio will not be used if the file is
+          currently memory mapped.  See man directio(3C) for
+          Solaris 2.6 and above for more details, however the
+          SAM-FS directio attribute is permanent.
+"
+With this option we have strange performences:
+>From a solaris client to this solaris server we have approximatively
+40MB/s, with a linux client >1MB/s. Without directio mode we have
+approximatively 20MB/s on a linux and 20MB/s on a solaris
+( I have tested on several solaris clients, several linux client with
+gigabit ethernet links and without (for having 20MB/s) ).
 
-> No swap = fastest possible solution.
+I thought that NFS's underlying FS do not have any effect on NFS
+performances, and that the client is not aware of the ("local") remote
+FS. 
+Am I wrong ? 
+Does anybody have an idea to fix the problem ? 
+Is it a bug in NFS's implementation of linux kernel ?
 
-Not true if having no swap means you do not have enough
-memory to cache /lib/libc.so ;)
-
-regards,
-
-Rik
--- 
-Shortwave goes a long way:  irc.starchat.net  #swl
-
-http://www.surriel.com/		http://distro.conectiva.com/
-
+Thanks in advance
+        Sam

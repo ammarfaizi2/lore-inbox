@@ -1,41 +1,83 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264353AbTLQLLx (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 17 Dec 2003 06:11:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264370AbTLQLLx
+	id S264340AbTLQLT3 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 17 Dec 2003 06:19:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264356AbTLQLT3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 17 Dec 2003 06:11:53 -0500
-Received: from mail2.btignite.se ([194.213.69.45]:10257 "HELO
-	mail2.btignite.se") by vger.kernel.org with SMTP id S264353AbTLQLLw
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 17 Dec 2003 06:11:52 -0500
-Message-ID: <3FE039F5.5030703@lanil.mine.nu>
-Date: Wed, 17 Dec 2003 12:11:49 +0100
-From: Christian Axelsson <smiler@lanil.mine.nu>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6b) Gecko/20031209 Thunderbird/0.4
-X-Accept-Language: en-us, en
+	Wed, 17 Dec 2003 06:19:29 -0500
+Received: from web106.biz.mail.yahoo.com ([216.136.174.208]:27775 "HELO
+	web106.biz.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S264340AbTLQLTZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 17 Dec 2003 06:19:25 -0500
+Message-ID: <20031217111924.41027.qmail@web106.biz.mail.yahoo.com>
+Date: Wed, 17 Dec 2003 11:19:24 +0000 (GMT)
+From: =?iso-8859-1?q?Zainab=20Hamza?= <zainab1060@familykose.com>
+Reply-To: zainab1960@web-mail.com.ar
+Subject: ASSISTANCE
+To: zainab1060@familykose.com
 MIME-Version: 1.0
-To: Andrew Walrond <andrew@walrond.org>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.0-test11-mm1
-References: <20031217014350.028460b2.akpm@osdl.org> <200312171037.16969.andrew@walrond.org>
-In-Reply-To: <200312171037.16969.andrew@walrond.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Walrond wrote:
-> On Wednesday 17 Dec 2003 9:43 am, Andrew Morton wrote:
+Good day, 
+ 
+I humbly introduce myself to you; I am Mrs. Alhaja
+Zainab Hamza the wife Of Captain Hamza who served in
+Iraq. I am contacting you base on trust and
+humanitarian assistance which I  urgently need from
+you. The recent concluded US led war against my
+country has left my family  total devastated as I lost
+my Husband to the cold hands of death and the children
+lost their father.  
 
-> What are your intentions with -mm when you take over 2.6? Is any of -mm 
-> getting into 2.6 before 2.6.0 release? Is it mainly queued for 2.6.1?
+Long before this war started, my late husband had in
+his custody $20.7  Million U.S Dollars, but due to
+serious threat of war from the United 
+States and the collision forces (if our dictator
+president does not  amend his ways), my husband had to
+act fast and at such deposited these  funds in a
+Diplomatic Condominium in a neighboring country for
+the purpose  of our family survival after the war
+might have been over. 
+ 
+I am writing you this letter because our dreams was
+not fulfilled as we could not leave Iraq before the
+war but we did however succeeded in getting the
+children to a neighboring country first before trying
+to proceed with getting ourselves out. It was in the
+process of escaping to a neighboring country that we
+came under friendly fire. It was this mistake that
+took my husband’s life and critically injured me.I was
+rushed to a military hospital in a neighboring country
+where I am currently admitted and writing this letter.
+I am recovering well and now that my health has
+improved dramatically, I need to think of the future
+of my Children and who to trust in  sending the entire
+amount kept by my late husband for investment and
+acquiring immigration papers for my children. 
+ 
+If you believe you can assist me on this endeavor,
+kindly reply me  so that I shall forward to you all
+the details required to carry on this transaction
+successfully. 
+ 
+I look forward to your prompt favorable response. 
+Thanks for your understanding. 
+ 
+ 
+Yours Respectfully, 
+ 
+Mrs. Zainab Hamza. 
+ 
+N.B 
+(If you have received this email in error, please
+accept my apology. If  you no longer wish to receive
+email from me, please do not reply. Your 
+request will be honored).
 
-I would like to know aswell :)
-Will you be "bleeding edge" maintainer aswell or will that be handed 
-over to someone else?
 
--- 
-Christan Axelsson
-smiler@lanil.mine.nu
+
+
 

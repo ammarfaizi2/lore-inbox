@@ -1,90 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264971AbTLaOIl (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 31 Dec 2003 09:08:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264974AbTLaOIl
+	id S264974AbTLaOQt (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 31 Dec 2003 09:16:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265060AbTLaOQt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 31 Dec 2003 09:08:41 -0500
-Received: from gizmo05ps.bigpond.com ([144.140.71.15]:28078 "HELO
-	gizmo05ps.bigpond.com") by vger.kernel.org with SMTP
-	id S264971AbTLaOI2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 31 Dec 2003 09:08:28 -0500
-From: Srihari Vijayaraghavan <harisri@bigpond.com>
-To: linux-kernel@vger.kernel.org
-Subject: 2.6.1-rc1 compile error
-Date: Thu, 1 Jan 2004 01:09:12 +1100
-User-Agent: KMail/1.5.4
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Wed, 31 Dec 2003 09:16:49 -0500
+Received: from [199.72.99.40] ([199.72.99.40]:28421 "EHLO blackbox.ecweb.com")
+	by vger.kernel.org with ESMTP id S264974AbTLaOQs (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 31 Dec 2003 09:16:48 -0500
+Subject: 2.6.0-mm2 Surprises
+From: Danny Cox <Danny.Cox@ECWeb.com>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Content-Type: text/plain
+Organization: Electronic Commerce Systems
+Message-Id: <1072880245.1146.11.camel@vom>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Wed, 31 Dec 2003 09:17:26 -0500
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200401010109.12005.harisri@bigpond.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-While "make bzImage", it showed these error messages:
-  CC      arch/x86_64/kernel/io_apic.o
-arch/x86_64/kernel/io_apic.c:1215: error: redefinition of 
-`disable_edge_ioapic_irq'
-include/asm/io_apic.h:178: error: `disable_edge_ioapic_irq' previously defined 
-here
-arch/x86_64/kernel/io_apic.c:1259: error: redefinition of 
-`end_edge_ioapic_irq'
-include/asm/io_apic.h:180: error: `end_edge_ioapic_irq' previously defined 
-here
-arch/x86_64/kernel/io_apic.c:1346: error: redefinition of 
-`mask_and_ack_level_ioapic_irq'
-include/asm/io_apic.h:179: error: `mask_and_ack_level_ioapic_irq' previously 
-defined here
-make[1]: *** [arch/x86_64/kernel/io_apic.o] Error 1
-make: *** [arch/x86_64/kernel] Error 2
+I've found some surprises in my testing of 2.6.0-mm2 on my RH 9 box.
 
-I applied this patch (I do not know, it could be wrong):
---- 2.6.1-rc1/arch/x86_64/kernel/io_apic.c.orig 2004-01-01 00:56:40.534040872 
-+1100
-+++ 2.6.1-rc1/arch/x86_64/kernel/io_apic.c      2004-01-01 00:57:46.491013888 
-+1100
-@@ -1212,7 +1212,6 @@
-  */
- #define enable_edge_ioapic_irq unmask_IO_APIC_irq
+First, 'make menuconfig' doesn't work.  It paints the top 8 or so lines,
+and freezes.  gnome-terminal begins using as much CPU as it's allowed. 
+This is similar to bug 959 in bugme.osdl.org, but changing CHILD_PENALTY
+from 90 to 130 didn't fix the problem.
 
--static void disable_edge_ioapic_irq (unsigned int irq) { /* nothing */ }
+Second, simply resizing gnome-terminal results in the same behavior. 
+Certainly, this may be a gnome thing.
 
- /*
-  * Starting up a edge-triggered IO-APIC interrupt is
-@@ -1256,7 +1255,6 @@
-        ack_APIC_irq();
- }
+Third, 'rpm' cannot install packages.  It always exists with:
 
--static void end_edge_ioapic_irq (unsigned int i) { /* nothing */ }
+rpmdb: unable to join the environment
+error: db4 error(11) from dbenv->open: Resource temporarily unavailable
+error: cannot open Packages index using db3 - Resource temporarily
+unavailable (11)
+error: cannot open Packages database in /var/lib/rpm
 
+11 is EAGAIN, but an strace revealed little to the uninitiated (me).
 
- /*
-@@ -1343,7 +1341,6 @@
-        }
- }
+rpm also fails in the same way with --rebuilddb.  /var/lib/rpm/__db.001
+is zero length BTW.  That is almost certainly wrong.  Of course, these
+both work fine with a 2.4.20 kernel.
 
--static void mask_and_ack_level_ioapic_irq (unsigned int irq) { /* nothing */ 
-}
+Sorry if these (or some variant thereof) have already been reported
+here.
 
- static void set_ioapic_affinity (unsigned int irq, cpumask_t mask)
- {
+Thanks for your time, and please note that I'm not subscribed to
+linux-kernel.  If you need more info, please don't hesitate to ask.
 
-
-Then it compiled the io_apic.c and progressed (maybe a lot). But it failed and 
-showed this error message:
-  LD      .tmp_vmlinux1
-arch/i386/pci/built-in.o(.text+0xc6e): In function `pcibios_lookup_irq':
-: undefined reference to `can_request_irq'
-make: *** [.tmp_vmlinux1] Error 1
-
-Please feel free to send me patches, I am happy to test and report. BTW I see 
-the same behaviour with 2.6.1-rc1-mm1 too.
-
-Thanks
-Hari
-harisri@bigpond.com
-
-PS: I am hoping for a good 2.6.1 (out of the box) for x86-64
+-- 
+Daniel S. Cox
+Electronic Commerce Systems
 

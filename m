@@ -1,48 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267153AbTBXOJc>; Mon, 24 Feb 2003 09:09:32 -0500
+	id <S267107AbTBXOGE>; Mon, 24 Feb 2003 09:06:04 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267154AbTBXOJc>; Mon, 24 Feb 2003 09:09:32 -0500
-Received: from crack.them.org ([65.125.64.184]:21139 "EHLO crack.them.org")
-	by vger.kernel.org with ESMTP id <S267153AbTBXOJb>;
-	Mon, 24 Feb 2003 09:09:31 -0500
-Date: Mon, 24 Feb 2003 09:16:08 -0500
-From: Daniel Jacobowitz <dan@debian.org>
-To: fcorneli@elis.rug.ac.be
-Cc: linux-kernel@vger.kernel.org, Frank.Cornelis@elis.rug.ac.be
-Subject: Re: [PATCH] ptrace PTRACE_READDATA/WRITEDATA, kernel 2.5.62
-Message-ID: <20030224141608.GA24699@nevyn.them.org>
-Mail-Followup-To: fcorneli@elis.rug.ac.be, linux-kernel@vger.kernel.org,
-	Frank.Cornelis@elis.rug.ac.be
-References: <Pine.LNX.4.44.0302241448140.1277-100000@tom.elis.rug.ac.be>
+	id <S267120AbTBXOGE>; Mon, 24 Feb 2003 09:06:04 -0500
+Received: from phoenix.infradead.org ([195.224.96.167]:27658 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id <S267107AbTBXOGD>; Mon, 24 Feb 2003 09:06:03 -0500
+Date: Mon, 24 Feb 2003 14:16:13 +0000
+From: Christoph Hellwig <hch@infradead.org>
+To: Osamu Tomita <tomita@cinet.co.jp>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: [PATCH] PC-9800 subarch. support for 2.5.62-AC1 (6/21) FS & partiton
+Message-ID: <20030224141613.A6064@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Osamu Tomita <tomita@cinet.co.jp>,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+	Alan Cox <alan@lxorguk.ukuu.org.uk>
+References: <20030223092116.GA1324@yuzuki.cinet.co.jp> <20030223094325.GG1324@yuzuki.cinet.co.jp> <20030223102937.A15963@infradead.org> <3E58A63F.9090607@cinet.co.jp> <20030224140539.GB1115@yuzuki.cinet.co.jp>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0302241448140.1277-100000@tom.elis.rug.ac.be>
-User-Agent: Mutt/1.5.1i
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20030224140539.GB1115@yuzuki.cinet.co.jp>; from tomita@cinet.co.jp on Mon, Feb 24, 2003 at 11:05:39PM +0900
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Feb 24, 2003 at 03:05:14PM +0100, fcorneli@elis.rug.ac.be wrote:
-> Hi,
-> 
-> I ported some generic SunOS ptrace requests from my 2.4 exptrace kernel 
-> patch to the 2.5 tree. The PTRACE_READDATA/WRITEDATA requests have been 
-> available for a long time for the sparc architecture but I think they're 
-> also very useful on the i386 arch since PTRACE_PEEKDATA/POKEDATA are way 
-> too slow when handling large data blocks.
+On Mon, Feb 24, 2003 at 11:05:39PM +0900, Osamu Tomita wrote:
+> --- linux/fs/fat/inode.c	2003-01-02 12:21:53.000000000 +0900
+> +++ linux98/fs/fat/inode.c	2003-02-24 11:30:10.000000000 +0900
+> @@ -939,7 +939,8 @@
+>  		error = first;
+>  		goto out_fail;
+>  	}
+> -	if (FAT_FIRST_ENT(sb, media) != first) {
+> +	if (FAT_FIRST_ENT(sb, media) != first
+> +	    && (media != 0xf8 || FAT_FIRST_ENT(sb, 0xfe) != first)) {
 
-FYI Frank, three things.  First of all, I really don't like the
-interface of adding a second address to ptrace; I believe it interferes
-with PIC on x86, since IIRC the extra argument would go in %ebx.  The
-BSDs have a nice interface involving passing a request structure. 
-Secondly, the implementation should be in kernel/ptrace.c not under
-i386, we're trying to stop doing that.
+Maybe add a small comment here describing it's needed for PC98 dos?
 
-Thirdly, I was going to do this, but I ended up making GDB use pread64
-on /dev/mem instead.  It works with no kernel modifications, and is
-just as fast.
+BTW: Linux codingstyle sais it should be written as
 
--- 
-Daniel Jacobowitz
-MontaVista Software                         Debian GNU/Linux Developer
+	if (FAT_FIRST_ENT(sb, media) != first &&
+	    (media != 0xf8 || FAT_FIRST_ENT(sb, 0xfe) != first)) {
+
+
+Also please split this patch up into one to the fat file system
+and one to the partition code.
+
+
+Otherwise this patch looks nice to me.
+

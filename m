@@ -1,74 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272558AbTGZPeo (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 26 Jul 2003 11:34:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272537AbTGZPcC
+	id S272509AbTGZOlR (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 26 Jul 2003 10:41:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272511AbTGZOfg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 26 Jul 2003 11:32:02 -0400
-Received: from humbolt.nl.linux.org ([131.211.28.48]:4525 "EHLO
-	humbolt.nl.linux.org") by vger.kernel.org with ESMTP
-	id S272554AbTGZP3N (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 26 Jul 2003 11:29:13 -0400
-From: Daniel Phillips <phillips@arcor.de>
-To: Ed Sweetman <ed.sweetman@wmich.edu>, Eugene Teo <eugene.teo@eugeneteo.net>
-Subject: Re: Ingo Molnar and Con Kolivas 2.6 scheduler patches
-Date: Sun, 27 Jul 2003 10:46:30 -0500
-User-Agent: KMail/1.5.2
-Cc: LKML <linux-kernel@vger.kernel.org>, kernel@kolivas.org
-References: <1059211833.576.13.camel@teapot.felipe-alfaro.com> <20030726101015.GA3922@eugeneteo.net> <3F2264DF.7060306@wmich.edu>
-In-Reply-To: <3F2264DF.7060306@wmich.edu>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200307271046.30318.phillips@arcor.de>
+	Sat, 26 Jul 2003 10:35:36 -0400
+Received: from amsfep14-int.chello.nl ([213.46.243.22]:35120 "EHLO
+	amsfep14-int.chello.nl") by vger.kernel.org with ESMTP
+	id S272513AbTGZOci (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 26 Jul 2003 10:32:38 -0400
+Date: Sat, 26 Jul 2003 16:51:41 +0200
+Message-Id: <200307261451.h6QEpfeg002322@callisto.of.borg>
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+To: Linus Torvalds <torvalds@transmeta.com>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Linux Kernel Development <linux-kernel@vger.kernel.org>,
+       Geert Uytterhoeven <geert@linux-m68k.org>
+Subject: [PATCH] Atari ST-RAM
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Saturday 26 July 2003 06:24, Ed Sweetman wrote:
-> I'd really wish people would use examples other than a single player to
-> generalize the performance of the kernel. For all you know xmms's
-> decoder for the type of music you listen to could be written unoptimally
-> to put it as nice as possible.  If all players and different types of
-> pcm audio decoders are skipping in the situations you experience then
-> that's different, but i hardly think that will be the case as it is not
-> with me nor, ever has been that i can remember (maybe in early 2.3.x).
+Atari ST-RAM: Add missing include
 
-Audio players fall into a special category of application, the kind where it's 
-not unreasonable to change the code around to take advantage of new kernel 
-features to make them work better.  Remember this word: audiophile.  An 
-audiophile will do whatever it takes to attain more perfect reproduction.  
-Furthermore, where goes the audophile, soon follows the regular user.  Just 
-go into a stereo store if you need convincing about that.
+--- linux-2.6.x/arch/m68k/atari/stram.c	Tue Apr  8 10:04:43 2003
++++ linux-m68k-2.6.x/arch/m68k/atari/stram.c	Sun Jun  8 10:59:19 2003
+@@ -21,6 +21,7 @@
+ #include <linux/pagemap.h>
+ #include <linux/shm.h>
+ #include <linux/bootmem.h>
++#include <linux/mount.h>
+ 
+ #include <asm/setup.h>
+ #include <asm/machdep.h>
 
-Now to translate this into concrete terms.  Audio reproduction is a realtime 
-task - there is no way to argue it's not.  Ergo, perfect audo reproduction 
-requires a true realtime scheduler.  Hence we require realtime scheduling.
+Gr{oetje,eeting}s,
 
-The definition of a realtime scheduler is that the worst case latency is 
-bounded.  The current crop of interactive tweaks do not do that.  So we need 
-a scheduler with a bounded worst case.  Davide Libenzi's recent patch that 
-implements a new SCHED_SOFTRR scheduler policy, usable by non-root users, 
-provides such a bound.  Please don't lose sight of the fact that this is the 
-correct solution to the problem, and that interactive tweaking, while it may 
-produce good results for some or even most users in some or even most 
-situations, will never magically transform Linux into an operating system 
-that an audiophile could love.
+						Geert
 
-Note: none of the above should be construed as discouragement for Con's work 
-on improving interactive performance.  Just don't lump audio playback into 
-the "interactive" category, please, it's not.  It's realtime.  By keeping 
-this firmly in mind we will end up with better interactive performance, 
-excellent audio reproduction, and simpler, better code overall.
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
 
-Another note: I have not tested Davide's patch, nor have I read it in detail, 
-or Ingo's scheduling code for that matter.  For that I plead "road trip". 
-I'll do all of the above as soon as I get back to Berlin.  I do know that the 
-Linux Audio guys I talked to at Linuxtag are excited about Davide's patch, 
-and think it's exactly the right way to go.
-
-Regards,
-
-Daniel
-
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+							    -- Linus Torvalds

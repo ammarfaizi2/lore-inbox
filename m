@@ -1,55 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266646AbRGEHhK>; Thu, 5 Jul 2001 03:37:10 -0400
+	id <S266647AbRGEHgA>; Thu, 5 Jul 2001 03:36:00 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266645AbRGEHhA>; Thu, 5 Jul 2001 03:37:00 -0400
-Received: from cs666822-222.austin.rr.com ([66.68.22.222]:14211 "HELO
-	hatchling.taral.net") by vger.kernel.org with SMTP
-	id <S266648AbRGEHgs>; Thu, 5 Jul 2001 03:36:48 -0400
-Date: Thu, 5 Jul 2001 02:36:47 -0500
-From: Taral <taral@taral.net>
-To: linux-kernel@vger.kernel.org
-Subject: tty->name conversion?
-Message-ID: <20010705023647.A18014@taral.net>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="tKW2IUtsqtDRztdT"
-Content-Disposition: inline
-User-Agent: Mutt/1.3.18i
+	id <S266646AbRGEHfl>; Thu, 5 Jul 2001 03:35:41 -0400
+Received: from host154.207-175-42.redhat.com ([207.175.42.154]:41741 "EHLO
+	lacrosse.corp.redhat.com") by vger.kernel.org with ESMTP
+	id <S266643AbRGEHff>; Thu, 5 Jul 2001 03:35:35 -0400
+Date: Thu, 5 Jul 2001 03:35:31 -0400 (EDT)
+From: Ben LaHaise <bcrl@redhat.com>
+X-X-Sender: <bcrl@toomuch.toronto.redhat.com>
+To: =?iso-8859-1?Q?Ragnar_Kj=F8rstad?= <kernel@ragnark.vestdata.no>
+cc: <linux-fsdevel@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
+        <mike@bigstorage.com>, <kevin@bigstorage.com>, <linux-lvm@sistina.com>
+Subject: Re: [PATCH] 64 bit scsi read/write
+In-Reply-To: <20010705083402.D11805@vestdata.no>
+Message-ID: <Pine.LNX.4.33.0107050310570.1063-100000@toomuch.toronto.redhat.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=ISO-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, 5 Jul 2001, Ragnar Kjørstad wrote:
 
---tKW2IUtsqtDRztdT
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+> What do you mean?
+> Is it not feasible to fix this in LVM as well, or do you just not know
+> what needs to be done to LVM?
 
-I noticed that ps still relies on device numbers to determine tty, since
-/proc/*/stat only exports the device number. Is there any way to get the
-device name? I noticed that it is not present in tty_struct anywhere
-(proc_pid_stat() uses task->tty->device, which is a kdev_t).
+Fixing LVM is not on the radar of my priorities.  The code is sorely in
+need of a rewrite and violates several of the basic planning tenents that
+any good code in the block layer should follow.  Namely, it should have 1)
+planned on supporting 64 bit offsets, 2) never used multiplication,
+division or modulus on block numbers, and 3) don't allocate memory
+structures that are indexed by block numbers.  LVM failed on all three of
+these -- and this si just what I noticed in a quick 5 minute glance
+through the code.  Sorry, but LVM is obsolete by design.  It will continue
+to work on 32 bit block devices, but if you try to use it beyond that, it
+will fail.  That said, we'll have to make sure these failures are graceful
+and occur prior to the user having a chance at loosing any data.
 
-This would be useful to consider if we ever intend to create real
-unnumbered character/block devices.
+Now, thankfully there are alternatives like ELVM, which are working on
+getting the details right from the lessons learned.  Given that, I think
+we'll be in good shape during the 2.5 cycle.
 
---=20
-Taral <taral@taral.net>
-(This message is digitally signed. Please encrypt mail if possible.)
-"Any technology, no matter how primitive, is magic to those who don't
-understand it." -- Florence Ambrose
+		-ben
 
---tKW2IUtsqtDRztdT
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.6 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
-
-iEYEARECAAYFAjtEGQ8ACgkQ7rh4CE+nYElMegCdHG8kPZ5Vi1ql/uD7/xco9Awt
-c3oAn1b8nsFydpsBeAmTskMrYCJYY548
-=zA07
------END PGP SIGNATURE-----
-
---tKW2IUtsqtDRztdT--

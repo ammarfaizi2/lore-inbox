@@ -1,41 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265361AbSLVUsU>; Sun, 22 Dec 2002 15:48:20 -0500
+	id <S266443AbSLVU5r>; Sun, 22 Dec 2002 15:57:47 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265373AbSLVUsU>; Sun, 22 Dec 2002 15:48:20 -0500
-Received: from cpe-24-221-190-179.ca.sprintbbd.net ([24.221.190.179]:19683
-	"EHLO myware.akkadia.org") by vger.kernel.org with ESMTP
-	id <S265361AbSLVUsT>; Sun, 22 Dec 2002 15:48:19 -0500
-Message-ID: <3E062712.80906@redhat.com>
-Date: Sun, 22 Dec 2002 12:56:50 -0800
-From: Ulrich Drepper <drepper@redhat.com>
-Organization: Red Hat, Inc.
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3b) Gecko/20021221
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: "James H. Cloos Jr." <cloos@jhcloos.com>
-CC: Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
-Subject: Re: Intel P6 vs P7 system call performance
-References: <Pine.LNX.4.44.0212221132370.2692-100000@home.transmeta.com>	<3E0617A9.90405@redhat.com> <m3adixvkvb.fsf@lugabout.jhcloos.org>
-In-Reply-To: <m3adixvkvb.fsf@lugabout.jhcloos.org>
+	id <S266456AbSLVU5r>; Sun, 22 Dec 2002 15:57:47 -0500
+Received: from [195.208.223.248] ([195.208.223.248]:55168 "EHLO
+	localhost.localdomain") by vger.kernel.org with ESMTP
+	id <S266443AbSLVU5q>; Sun, 22 Dec 2002 15:57:46 -0500
+Date: Mon, 23 Dec 2002 00:05:42 +0300
+From: Ivan Kokshaysky <ink@jurassic.park.msu.ru>
+To: "Eric W. Biederman" <ebiederm@xmission.com>
+Cc: Ivan Kokshaysky <ink@jurassic.park.msu.ru>,
+       Linus Torvalds <torvalds@transmeta.com>, davidm@hpl.hp.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: PATCH 2.5.x disable BAR when sizing
+Message-ID: <20021223000542.C30070@localhost.park.msu.ru>
+References: <Pine.LNX.4.44.0212211423390.1604-100000@home.transmeta.com> <m1y96il4oj.fsf@frodo.biederman.org> <20021222213945.A30070@localhost.park.msu.ru> <m1of7dltso.fsf@frodo.biederman.org>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <m1of7dltso.fsf@frodo.biederman.org>; from ebiederm@xmission.com on Sun, Dec 22, 2002 at 12:47:51PM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-James H. Cloos Jr. wrote:
+On Sun, Dec 22, 2002 at 12:47:51PM -0700, Eric W. Biederman wrote:
+> Not if it is an NMI or an SCI interrupt.  The latter on x86 places
+> the cpu in System Management Mode, and what the cpu does from that
+> point forward is out of our control.
+> 
+> Though disabling cpu controlled IRQs help if you are dealing
+> with any normal IRQs.
 
-> I'd tend to prefer an LD_PRELOAD-able dso that just set up %gs and had
-> entries for each of the foo(2) over a full glibc rpm.
+I meant the timer interrupt in the first place. I assumed it's the
+only one that does matter on this stage of the boot process.
+What else could happen (in the real world terms)?
 
-This is not possible.  The infrastructure is set up in the dynamic
-linker.  Read the mail with the references to the NPTL mailing list.
-The second referenced mail contains a recipe for building glibc and then
-using it in-place.  This is not possible with binary RPMs in the way we
-build them.
+> The window needs to be small from the PCI bus perspective, not in cpu
+> clocks.  Write, Read, Write is only something like 9 PCI bus clocks.
 
--- 
---------------.                        ,-.            444 Castro Street
-Ulrich Drepper \    ,-----------------'   \ Mountain View, CA 94041 USA
-Red Hat         `--' drepper at redhat.com `---------------------------
+No, the window is huge from the PCI bus perspective.
+IIRC, PCI config read/write on x86 works like this (I may be wrong though):
+i/o port write (BAR address)				~1us
+i/o port read  (BAR value after writing ~0)		~1us
+i/o port write (BAR address)				~1us
+i/o port write (saved BAR value)			~1us
 
+It's a little bit more than 9 PCI clocks. Am I missing something?
+
+Ivan.

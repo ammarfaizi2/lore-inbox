@@ -1,87 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264396AbTLKHb3 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 11 Dec 2003 02:31:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264398AbTLKHb3
+	id S264372AbTLKHaQ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 11 Dec 2003 02:30:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264396AbTLKHaQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 11 Dec 2003 02:31:29 -0500
-Received: from coruscant.franken.de ([193.174.159.226]:12221 "EHLO
-	coruscant.gnumonks.org") by vger.kernel.org with ESMTP
-	id S264396AbTLKHbT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 11 Dec 2003 02:31:19 -0500
-Date: Thu, 11 Dec 2003 08:26:08 +0100
-From: Harald Welte <laforge@netfilter.org>
-To: "David S. Miller" <davem@redhat.com>
-Cc: Stephen Lee <mukansai@emailplus.org>, scott.feldman@intel.com,
-       netfilter-devel@lists.netfilter.org, linux-kernel@vger.kernel.org
-Subject: Re: Extremely slow network with e1000 & ip_conntrack
-Message-ID: <20031211072608.GF22826@sunbeam.de.gnumonks.org>
-Mail-Followup-To: Harald Welte <laforge@netfilter.org>,
-	"David S. Miller" <davem@redhat.com>,
-	Stephen Lee <mukansai@emailplus.org>, scott.feldman@intel.com,
-	netfilter-devel@lists.netfilter.org, linux-kernel@vger.kernel.org
-References: <C6F5CF431189FA4CBAEC9E7DD5441E0102CBDD1F@orsmsx402.jf.intel.com> <20031204213030.2B75.MUKANSAI@emailplus.org> <20031205122819.25ac14ab.davem@redhat.com>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="qp4W5+cUSnZs0RIF"
-Content-Disposition: inline
-In-Reply-To: <20031205122819.25ac14ab.davem@redhat.com>
-X-Operating-system: Linux sunbeam 2.6.0-test5-nftest
-X-Date: Today is Setting Orange, the 53rd day of The Aftermath in the YOLD 3169
-User-Agent: Mutt/1.5.4i
-X-Spam-Score: 0.0 (/)
+	Thu, 11 Dec 2003 02:30:16 -0500
+Received: from mail-03.iinet.net.au ([203.59.3.35]:40075 "HELO
+	mail.iinet.net.au") by vger.kernel.org with SMTP id S264372AbTLKHaK
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 11 Dec 2003 02:30:10 -0500
+Message-ID: <3FD81CFE.30005@cyberone.com.au>
+Date: Thu, 11 Dec 2003 18:30:06 +1100
+From: Nick Piggin <piggin@cyberone.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030827 Debian/1.4-3
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Jean-Marc Valin <Jean-Marc.Valin@USherbrooke.ca>
+CC: "Martin J. Bligh" <mbligh@aracnet.com>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Increasing HZ (patch for HZ > 1000)
+References: <1071122742.5149.12.camel@idefix.homelinux.org> <1288980000.1071126438@[10.10.2.4]> <1071126929.5149.24.camel@idefix.homelinux.org>
+In-Reply-To: <1071126929.5149.24.camel@idefix.homelinux.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---qp4W5+cUSnZs0RIF
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
 
-On Fri, Dec 05, 2003 at 12:28:19PM -0800, David S. Miller wrote:
+Jean-Marc Valin wrote:
 
-> The culprit is net/ipv4/netfilter/ip_conntrack_standalone.c,
-> in ip_refrag(), it does this:
->=20
+>>Why would you want to *increase* HZ? I'd say 1000 is already too high
+>>personally, but I'm curious what you'd want to do with it? Embedded
+>>real-time stuff?
+>>
+>
+>Actually, my reasons may sound a little strange, but basically I'd be
+>fine with HZ=1000 if it wasn't for that annoying ~1 kHz sound when the
+>CPU is idle (probably bad capacitors). By increasing HZ to 10 kHz, the
+>sound is at a frequency where the ear is much less sensitive. Anyway, I
+>thought some people might be interested in high HZ for other (more
+>fundamental) reasons, so I posted the patch.
+>
 
-Sorry for getting back to you so late, but as indicated before, I was
-offline while travelling during the last week.
+Heh! Does it scare your dog away? ;)
 
-Thanks for spotting and fixing the bug.
-
-> Some auditing is definitely necessary wrt. TSO and netfilter.  In particu=
-lar
-> I am incredibly confident that we have issues in cases like when the FTP
-> netfilter modules mangle the data.  Another area for inspection are the
-> cases where TCP header bits are changed and thus the checksum needs to
-> be adjusted.
-
-yes, this is certainly a problem - but not with conntrack, only with
-nat.  So maybe we should add a safeguard, preventing
-iptables_nat/ipchains/ipfwadm from being loaded when TSO on any
-interface is enabled?  Or at least print a warining in syslog?
-
---=20
-- Harald Welte <laforge@netfilter.org>             http://www.netfilter.org/
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D
-  "Fragmentation is like classful addressing -- an interesting early
-   architectural error that shows how much experimentation was going
-   on while IP was being designed."                    -- Paul Vixie
-
---qp4W5+cUSnZs0RIF
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.3 (GNU/Linux)
-
-iD8DBQE/2BwQXaXGVTD0i/8RAhTnAJ9qseTfbSGiGhmZG8xTAFImx9fBGQCgjq8V
-OB8LsLrfb4l0RUqNrNAiAfM=
-=2TJW
------END PGP SIGNATURE-----
-
---qp4W5+cUSnZs0RIF--

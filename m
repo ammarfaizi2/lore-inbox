@@ -1,65 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266864AbRGFVyp>; Fri, 6 Jul 2001 17:54:45 -0400
+	id <S266868AbRGFWBp>; Fri, 6 Jul 2001 18:01:45 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266865AbRGFVyf>; Fri, 6 Jul 2001 17:54:35 -0400
-Received: from humbolt.nl.linux.org ([131.211.28.48]:24836 "EHLO
-	humbolt.nl.linux.org") by vger.kernel.org with ESMTP
-	id <S266864AbRGFVyZ>; Fri, 6 Jul 2001 17:54:25 -0400
+	id <S266871AbRGFWBf>; Fri, 6 Jul 2001 18:01:35 -0400
+Received: from 216-60-128-137.ati.utexas.edu ([216.60.128.137]:44739 "HELO
+	tsunami.webofficenow.com") by vger.kernel.org with SMTP
+	id <S266868AbRGFWBZ>; Fri, 6 Jul 2001 18:01:25 -0400
 Content-Type: text/plain; charset=US-ASCII
-From: Daniel Phillips <phillips@bonn-fries.net>
-To: Rik van Riel <riel@conectiva.com.br>
-Subject: Re: VM Requirement Document - v0.0
-Date: Fri, 6 Jul 2001 23:57:15 +0200
+From: Rob Landley <landley@webofficenow.com>
+Reply-To: landley@webofficenow.com
+To: Doug McNaught <doug@wireboard.com>
+Subject: Re: The SUID bit (was Re: [PATCH] more SAK stuff)
+Date: Fri, 6 Jul 2001 11:44:21 -0400
 X-Mailer: KMail [version 1.2]
-Cc: Xavier Bestel <xavier.bestel@free.fr>, Dan Maas <dmaas@dcine.com>,
-        <linux-kernel@vger.kernel.org>, Tom spaziani <digiphaze@deming-os.org>,
-        Marcelo Tosatti <marcelo@conectiva.com.br>
-In-Reply-To: <Pine.LNX.4.33L.0107061608380.17825-100000@duckman.distro.conectiva>
-In-Reply-To: <Pine.LNX.4.33L.0107061608380.17825-100000@duckman.distro.conectiva>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <200107060145.f661j5v74941@saturn.cs.uml.edu> <01070606044004.00596@localhost.localdomain> <m3u20q6q9j.fsf@belphigor.mcnaught.org>
+In-Reply-To: <m3u20q6q9j.fsf@belphigor.mcnaught.org>
 MIME-Version: 1.0
-Message-Id: <01070623571501.22952@starship>
+Message-Id: <01070611442100.00640@localhost.localdomain>
 Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 06 July 2001 21:09, Rik van Riel wrote:
-> On Thu, 5 Jul 2001, Daniel Phillips wrote:
-> > Let me comment on this again, having spent a couple of minutes
-> > more thinking about it.  Would you be happy paying 1% of your
-> > battery life to get 80% less sluggish response after a memory
-> > pig exits?
+On Friday 06 July 2001 11:17, Doug McNaught wrote:
+> Rob Landley <landley@webofficenow.com> writes:
+> > Do you have a code example of how a program with euid root can change its
+> > actual uid (which several programs check when they should be checking
+> > euid, versions of dhcpcd before I complained about it case in point)?
 >
-> Just to pull a few random numbers out of my ass too,
-> how about 50% of battery life for the same optimistic
-> 80% less sluggishness ?
+> Ummm...  setuid(2)?
 >
-> How about if it were only 30% of battery life?
+> Works for me...
 
-It's not as random as that.  The idea being considered was: suppose a 
-program starts up, goes through a period of intense, cache-sucking 
-activity, then exits.  Could we reload the applications it just 
-displaced so that the disk activity to reload them doesn't have to take 
-place the first time the user touches the keyboard/mouse.  Sure, we 
-obviously can, with how much complexity is another question entirely ;-)
+Albert Calahan cleared this up for me in email.  I thought that euid 0 
+wouldn't let you actually setuid(0) for security reasons.  (Otherwise the 
+distinction between the two of them seemed kind of pointless, which I must 
+admit I'm now officially confused about, and likely to spend an evening with 
+google over.)
 
-So probably, we could eliminate more than 80% of the latency we now see 
-in such a situation, I was being conservative.
-
-Now what's the cost in battery life?  Suppose it's a 128 meg machine, 
-1/3 filled with program text and data.  Hopefully, the working sets 
-that were evicted are largely coherent so we'll read it back in at a 
-rate not too badly degraded from the drive's transfer rate, say 5 
-MB/sec.  This gives about three seconds of intense reading to restore 
-something resembling the previous working set, then the disk can spin 
-down and perhaps the machine will suspend itself.  So the question is, 
-how much longer did the machine have to run to do this?  Well, on my 
-machine updatedb takes 5-10 minutes, so the 3 seconds of activity 
-tacked onto the end of the episode amounts to less than 1%, and this is 
-where the 1% figure came from.
-
-I'm not saying this would be an easy hack, just that it's possible and 
-the numbers work.
-
---
-Daniel
+Rob

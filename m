@@ -1,51 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129685AbQLCPHm>; Sun, 3 Dec 2000 10:07:42 -0500
+	id <S129786AbQLCPVD>; Sun, 3 Dec 2000 10:21:03 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129786AbQLCPHb>; Sun, 3 Dec 2000 10:07:31 -0500
-Received: from smtp2.fdn.com ([216.199.0.143]:25310 "EHLO smtp2.fdn.com")
-	by vger.kernel.org with ESMTP id <S129685AbQLCPHT>;
-	Sun, 3 Dec 2000 10:07:19 -0500
-Message-Id: <4.2.0.58.20001203093552.00998ee0@pop.southeast.net>
-X-Mailer: QUALCOMM Windows Eudora Pro Version 4.2.0.58 
-Date: Sun, 03 Dec 2000 09:40:18 -0500
-To: Mourad Lakhdar <992C396651@stud.alakhawayn.ma>
-From: Pete Keller <pkeller@southeast.net>
-Subject: Re: how to compile redhat6.0 kernel
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.SOL.3.96.1001203025929.7243G-100000@stud.alakhawayn.m
- a>
-In-Reply-To: <Pine.LNX.4.10.10012021900440.7191-100000@penguin.transmeta.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; format=flowed
+	id <S130548AbQLCPUx>; Sun, 3 Dec 2000 10:20:53 -0500
+Received: from moutvdom00.kundenserver.de ([195.20.224.149]:38459 "EHLO
+	moutvdom00.kundenserver.de") by vger.kernel.org with ESMTP
+	id <S129786AbQLCPUp>; Sun, 3 Dec 2000 10:20:45 -0500
+From: Armin Schindler <mac@melware.de>
+Reply-To: mac@melware.de
+Organization: Cytronics & Melware
+To: linux-kernel@vger.kernel.org
+Subject: Q: tq_scheduler slower on SMP ?
+Date: Sun, 3 Dec 2000 15:40:05 +0100
+X-Mailer: KMail [version 1.0.21]
+Content-Type: text/plain; charset=US-ASCII
+MIME-Version: 1.0
+Message-Id: <00120315500101.18928@cops>
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-At 03:00 AM 12/3/00 +0000, Mourad wrote:
+Hi,
 
+with kernel 2.2.17 I need to have a
+function in my driver to handle some data.
+I used BH with tq_immediate, but I found
+out, that my function need to be called
+outside of interrupt context, but still as
+soon as I need it. 
+So I decided to use the tq_scheduler queue and
+put my function on the task_queue in my interrupt handler.
+It seems to work good without SMP, but with SMP
+my function is called with delays of many msecs.
 
+Since the tq_scheduler queue is only started from
+schedule(), do I need to set some flag to run schedule
+asap ?
+Or has someone better idea for my function ?
 
->hi:
->
->i wanna recompile the kernel to reset some variables "ip multicasting",
->and i have a root access.
->
->so can you please tell me in steps (detailed) , how to recompile an
->installed kernel of redhat6.0.
->
->thanx
->mourad,
+Thanx,
 
-
-Here is a URL for a Linux Journal article that discusses Kernel Compiling
-
-http://www2.linuxjournal.com/lj-issues/issue43/2404.html
-
-		Pete
-
-=-= A4C7 3342 EF0C 2504 9FBF  6808 C5C0 7A78 354A B81D =-=
-
-Hi! I'm a signature virus! add me to your signature to help me spread!
+Armin
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

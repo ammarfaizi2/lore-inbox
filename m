@@ -1,50 +1,83 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269712AbTGJXtj (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Jul 2003 19:49:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269717AbTGJXtj
+	id S269729AbTGJXrn (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Jul 2003 19:47:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269719AbTGJXpZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Jul 2003 19:49:39 -0400
-Received: from cs180094.pp.htv.fi ([213.243.180.94]:51076 "EHLO
-	hades.pp.htv.fi") by vger.kernel.org with ESMTP id S269712AbTGJXtg
+	Thu, 10 Jul 2003 19:45:25 -0400
+Received: from 64-60-248-67.cust.telepacific.net ([64.60.248.67]:39768 "EHLO
+	mx.rackable.com") by vger.kernel.org with ESMTP id S269723AbTGJXoy
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Jul 2003 19:49:36 -0400
-Subject: Re: 2.4.21+ - IPv6 over IPv4 tunneling b0rked
-From: Mika Liljeberg <mika.liljeberg@welho.com>
-To: CaT <cat@zip.com.au>
-Cc: yoshfuji@linux-ipv6.org, linux-kernel@vger.kernel.org, netdev@oss.sgi.com,
-       pekkas@netcore.fi
-In-Reply-To: <20030710233931.GG1722@zip.com.au>
-References: <20030710154302.GE1722@zip.com.au>
-	 <1057854432.3588.2.camel@hades>  <20030710233931.GG1722@zip.com.au>
-Content-Type: text/plain
+	Thu, 10 Jul 2003 19:44:54 -0400
+Message-ID: <3F0DFCC6.3000609@rackable.com>
+Date: Thu, 10 Jul 2003 16:54:46 -0700
+From: Samuel Flory <sflory@rackable.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030529
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
+CC: Steven Dake <sdake@mvista.com>,
+       Chad Kitching <CKitching@powerlandcomputers.com>,
+       linux-kernel@vger.kernel.org, andre@linux-ide.org
+Subject: Re: IDE/Promise 20276 FastTrack RAID Doesn't work in 2.4.21, patchattached
+ to fix
+References: <Pine.SOL.4.30.0307110132220.7938-100000@mion.elka.pw.edu.pl>
+In-Reply-To: <Pine.SOL.4.30.0307110132220.7938-100000@mion.elka.pw.edu.pl>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Message-Id: <1057881869.3588.10.camel@hades>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.0 
-Date: 11 Jul 2003 03:04:29 +0300
+X-OriginalArrivalTime: 10 Jul 2003 23:59:34.0061 (UTC) FILETIME=[4F9B85D0:01C3473F]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2003-07-11 at 02:39, CaT wrote:
-> And having remembered /127 being mentioned as bad I changed the
-> interface config to a netmask of /64. Dropped it and brought it
-> up and it all works.
-> 
-> There's something fundamental about ipv6 netmasks that I just don't
-> understand...
+Bartlomiej Zolnierkiewicz wrote:
 
-Well, the thing is that prefix:: is a special anycast address that
-identifies a router on the link prefix::/n, where n is the prefix
-length. You had configured a 127-bit link prefix, meaning that you had
-only one valid unicast address (last bit == 1) in addition to the router
-anycast address (last bit == 0).
+>
+>>
+>>    
+>>
+>>>       for (port = 0; port <= 1; ++port) {
+>>>               ide_pci_enablebit_t *e = &(d->enablebits[port]);
+>>>
+>>>               /*
+>>>                * If this is a Promise FakeRaid controller,
+>>>                * the 2nd controller will be marked as
+>>>                * disabled while it is actually there and enabled
+>>>                * by the bios for raid purposes.
+>>>                * Skip the normal "is it enabled" test for those.
+>>>                */
+>>>               if (((d->vendor == PCI_VENDOR_ID_PROMISE) &&
+>>>                    ((d->device == PCI_DEVICE_ID_PROMISE_20262) ||
+>>>                     (d->device == PCI_DEVICE_ID_PROMISE_20265))) &&
+>>>                   (secondpdc++==1) && (port==1))
+>>>                       goto controller_ok;
+>>>      
+>>>
+>
+>I think this test in reality does something different then comment states.
+>
 
-Normally, IPv6 networks are supposed to use 64-bit on-link prefixes but
-the implementation can be written in such a way that other prefix
-lengths can be configured.
+  This seems to be a theme with the pdc comments in general.
 
-Setting your tunnel prefix to /64 is certainly the right thing to do. 
+>
+>For first port of PDC20262/65 this test increases secondpdc variable
+>(so it is 1 after test). For second port this test is true
+>(its PDC20262/65 && secondpdc == 1 && port == 1) so we don't test whether
+>2nd port (not controller!) of 1st controller is enabled.
+>
+>Or I am reading it wrong?
+>
+>  
+>
+  Don't look at me.  I come to a different conclusion every time I read 
+it.  Rereading it a couple of times would seem support your theroy.  
+Which makes me wonder why Steven's patch works at all.  Unless for some 
+reason the second port needs to be enabled for things to work.  Which 
+begs the question why they didn't just test for an odd numbered channel.
 
-	MikaL
+
+-- 
+Once you have their hardware. Never give it back.
+(The First Rule of Hardware Acquisition)
+Sam Flory  <sflory@rackable.com>
+
 

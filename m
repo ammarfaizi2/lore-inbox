@@ -1,34 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271636AbRICIph>; Mon, 3 Sep 2001 04:45:37 -0400
+	id <S271514AbRICIlR>; Mon, 3 Sep 2001 04:41:17 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271651AbRICIp1>; Mon, 3 Sep 2001 04:45:27 -0400
-Received: from ppp0.ocs.com.au ([203.34.97.3]:15367 "HELO mail.ocs.com.au")
-	by vger.kernel.org with SMTP id <S271636AbRICIpQ>;
-	Mon, 3 Sep 2001 04:45:16 -0400
-X-Mailer: exmh version 2.1.1 10/15/1999
-From: Keith Owens <kaos@ocs.com.au>
-To: Samium Gromoff <_deepfire@mail.ru>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: first fruits 
-In-Reply-To: Your message of "Mon, 03 Sep 2001 12:53:46 GMT."
-             <200109031253.f83CrlK26536@vegae.deep.net> 
+	id <S271652AbRICIk7>; Mon, 3 Sep 2001 04:40:59 -0400
+Received: from ns.suse.de ([213.95.15.193]:10506 "HELO Cantor.suse.de")
+	by vger.kernel.org with SMTP id <S271514AbRICIks>;
+	Mon, 3 Sep 2001 04:40:48 -0400
+Date: Mon, 3 Sep 2001 10:41:05 +0200
+From: Andi Kleen <ak@suse.de>
+To: "David S. Miller" <davem@redhat.com>
+Cc: ak@suse.de, alan@lxorguk.ukuu.org.uk, willy@debian.org, thunder7@xs4all.nl,
+        parisc-linux@lists.parisc-linux.org, linux-kernel@vger.kernel.org
+Subject: Re: [parisc-linux] documented Oops running big-endian reiserfs on parisc architecture
+Message-ID: <20010903104105.A3398@gruyere.muc.suse.de>
+In-Reply-To: <20010903002514.X5126@parcelfarce.linux.theplanet.co.uk.suse.lists.linux.kernel> <E15dghq-0000bZ-00@the-village.bc.nu.suse.lists.linux.kernel> <oup66b0zq9j.fsf@pigdrop.muc.suse.de> <20010903.011530.62340995.davem@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Date: Mon, 03 Sep 2001 18:45:29 +1000
-Message-ID: <21931.999506729@ocs3.ocs-net>
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20010903.011530.62340995.davem@redhat.com>; from davem@redhat.com on Mon, Sep 03, 2001 at 01:15:30AM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 3 Sep 2001 12:53:46 +0000 (UTC), 
-Samium Gromoff <_deepfire@mail.ru> wrote:
->          Hello folks, here are first fruits.
->    One problem with it: i`m not that sure that Keith`s .config generator
->  wasnt wrong here - "unknown architecture" sounds verly much like it...
->epson1355fb.c:73: #error unknown architecture
+On Mon, Sep 03, 2001 at 01:15:30AM -0700, David S. Miller wrote:
+>    From: Andi Kleen <ak@suse.de>
+>    Date: 03 Sep 2001 09:29:12 +0200
+>    
+>    And also everybody connected to the internet needs them, because you can 
+>    create arbitarily unaligned TCP/UDP/ICMP headers using IP option byte sized 
+>    NOPs. 
+> 
+> IP header length is measured in octets, so how is this possible?
+> :-)
 
-CML1 is wrong.  It lets anybody select epson1355fb, but the code
-requires CONFIG_SUPERH.  Guess why my .force_default has epson1355fb
-forced off?  Tell the epson1355fb maintainer to fix drivers/video/Config.in
-and move on.
+Sorry that came out wrong. You can in theory generate unaligned IP options this way, but the 
+kernel handles this correctly using memcpy. What it doesn't handle is unaligned TCP options
+(e.g. timestamps); which you can create using TCP option byte fillers.
 
+Also the 4 byte alignment of the header doesn't help much when the driver didn't cooperate.
+
+-Andi

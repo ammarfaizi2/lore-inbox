@@ -1,64 +1,75 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131659AbRCOLGy>; Thu, 15 Mar 2001 06:06:54 -0500
+	id <S131672AbRCOLcu>; Thu, 15 Mar 2001 06:32:50 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131665AbRCOLGo>; Thu, 15 Mar 2001 06:06:44 -0500
-Received: from 13dyn6.delft.casema.net ([212.64.76.6]:1547 "EHLO
-	abraracourcix.bitwizard.nl") by vger.kernel.org with ESMTP
-	id <S131659AbRCOLGY>; Thu, 15 Mar 2001 06:06:24 -0500
-Message-Id: <200103151105.MAA24892@cave.bitwizard.nl>
-Subject: Re: [PATCH] Improved version reporting
-In-Reply-To: <UTC200103150952.KAA451302.aeb@vlet.cwi.nl> from "Andries.Brouwer@cwi.nl"
- at "Mar 15, 2001 10:52:25 am"
-To: Andries.Brouwer@cwi.nl
-Date: Thu, 15 Mar 2001 12:05:09 +0100 (MET)
-CC: acahalan@cs.uml.edu, viro@math.psu.edu, alan@lxorguk.ukuu.org.uk,
-        linus@transmeta.com, linux-kernel@vger.kernel.org, rhw@memalpha.cx,
-        seberino@spawar.navy.mil
-From: R.E.Wolff@BitWizard.nl (Rogier Wolff)
-X-Mailer: ELM [version 2.4ME+ PL60 (25)]
+	id <S131673AbRCOLck>; Thu, 15 Mar 2001 06:32:40 -0500
+Received: from mailhost.mipsys.com ([62.161.177.33]:61128 "EHLO
+	mailhost.mipsys.com") by vger.kernel.org with ESMTP
+	id <S131672AbRCOLch>; Thu, 15 Mar 2001 06:32:37 -0500
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: James Simmons <jsimmons@linux-fbdev.org>
+Cc: Linux Fbdev development list 
+	<linux-fbdev-devel@lists.sourceforge.net>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        Linux console project <linuxconsole-dev@lists.sourceforge.net>
+Subject: Re: [Linux-fbdev-devel] [RFC] fbdev & power management
+Date: Thu, 15 Mar 2001 12:31:37 +0100
+Message-Id: <20010315113137.28820@mailhost.mipsys.com>
+In-Reply-To: <Pine.LNX.4.31.0103141251590.779-100000@linux.local>
+In-Reply-To: <Pine.LNX.4.31.0103141251590.779-100000@linux.local>
+X-Mailer: CTM PowerMail 3.0.8 <http://www.ctmdev.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andries.Brouwer@cwi.nl wrote:
+>  Now for fbcon its simpler. Things get writing to the shadow buffer
+>(vc_screenbuf). When the console gets woken up update_screen is called.
+>While power down the shadow buffer can be written to which is much faster
+>than saving a image of the framebuffer. Of course if you still want to do
+>this such in the case of the X server then copy the image of the
+>framebuffer to regular ram. Then power down /dev/fb using some ioctl calls
+>provide.
 
->     > On Wed, 14 Mar 2001 Andries.Brouwer@cwi.nl wrote:
-> 
->     >>> +o  Console Tools      #   0.3.3        # loadkeys -V
->     >>> +o  Mount              #   2.10e        # mount --version
->     >>
->     >> Concerning mount: (i) the version mentioned is too old,
+Ok, I see. Currently, the sleep process is started from an ioctl sent to
+another
+driver, which will in turn call various notifier functions to shut down
+bits of
+hardware and finally put the machine to sleep. It's not a direct ioctl to
+the /dev/fb (which may not be opened). 
 
-> On the other hand, there are no important changes between
-> mount-2.10d and 2.10e, so I see no justification for writing 2.10e.
-> It is difficult to say what the "right" version is. There is a
-> long series of minor improvements. Probably I would write 2.10r.
+One problem I have is that my fbdev sleep routine will restore the mode
+on wakeup,
+but that of course doesn't work with X when not using useFBDev as fbdev
+have no
+knowledge of the current mode or register settings used by X.
 
-Guys, 
+I'm wondering if it would be possible to make X think there's a console switch
+(without actually switching to an active console, as we don't know if we
+even have
+one of those available for us), wait for it to reply, and then start the sleep
+process.
 
-How about making a column that says: "recommended". 
+One other possibility would be to implement APM-like events, I still have
+to study
+those more in details as our sleep process is currently quite different
+from APM
+(and definitely not BIOS-based).
 
-So in this case we'd see 2.10r as recommended, but 2.10e as required.
+For now, I have my hooks in fbcon that suspend/restart the cursor timer,
+that's
+enough to make sleep stable on 2.4 since we take care of shutting down
+the display
+very last (after any other driver) to make sure no printk will end up
+trying to
+display something while the chip is powered down.
+I'll digest your various comments look into all this in more depth with
+2.5 console
+codebase. I beleive some solution must be found for x86 laptops too.
 
-An explanation could state that: 
+Ben.
 
-  if you happen to have the version under "required", but a higher
-  version is listed under "recommended", then that newer version is
-  available, and but it is likely that one you have will work for
-  you. There is no urgent reason to upgrade. But if you happen to be
-  upgrading, you are advised upgrade to at least the version in the
-  "recommended" column, as that has fixes over the one mentioned in the
-  "required" column.
 
-Best regards,
 
-		Roger. 
 
--- 
-** R.E.Wolff@BitWizard.nl ** http://www.BitWizard.nl/ ** +31-15-2137555 **
-*-- BitWizard writes Linux device drivers for any device you may have! --*
-* There are old pilots, and there are bold pilots. 
-* There are also old, bald pilots. 

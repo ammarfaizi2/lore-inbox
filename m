@@ -1,30 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131672AbRDFPLO>; Fri, 6 Apr 2001 11:11:14 -0400
+	id <S131730AbRDFPXE>; Fri, 6 Apr 2001 11:23:04 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131676AbRDFPLE>; Fri, 6 Apr 2001 11:11:04 -0400
-Received: from w146.z064001233.sjc-ca.dsl.cnc.net ([64.1.233.146]:52670 "EHLO
-	windmill.gghcwest.com") by vger.kernel.org with ESMTP
-	id <S131672AbRDFPKv>; Fri, 6 Apr 2001 11:10:51 -0400
-Date: Fri, 6 Apr 2001 08:09:36 -0700 (PDT)
-From: "Jeffrey W. Baker" <jwbaker@acm.org>
-X-X-Sender: <jwb@heat.gghcwest.com>
-To: <gibbs@scsiguy.com>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Seems to be a lot of confusion about aic7xxx in linux 2.4.3
-Message-ID: <Pine.LNX.4.33.0104060803450.12216-100000@heat.gghcwest.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S131724AbRDFPWy>; Fri, 6 Apr 2001 11:22:54 -0400
+Received: from ns.suse.de ([213.95.15.193]:53008 "HELO Cantor.suse.de")
+	by vger.kernel.org with SMTP id <S131730AbRDFPWn>;
+	Fri, 6 Apr 2001 11:22:43 -0400
+Date: Fri, 6 Apr 2001 17:21:55 +0200
+From: Andi Kleen <ak@suse.de>
+To: majer@endeca.com
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: memory allocation problems
+Message-ID: <20010406172155.A17128@gruyere.muc.suse.de>
+In-Reply-To: <Pine.LNX.4.21.0104061001280.9562-300000@caffeine.ops.endeca.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <Pine.LNX.4.21.0104061001280.9562-300000@caffeine.ops.endeca.com>; from majer@endeca.com on Fri, Apr 06, 2001 at 10:06:47AM -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I've been seeing a lot of complaints about aic7xxx in the 2.4.3 kernel.  I
-think that people are missing the crucial point: aic7xxx won't compile if
-you patch up from 2.4.2, but if you download the complete 2.4.3 tarball,
-it compiles fine.
+On Fri, Apr 06, 2001 at 10:06:47AM -0400, majer@endeca.com wrote:
+>   Essentially, the problem can be summarized to be that on a machine
+>   with ample ram (2G, 4G, etc), I am unable to malloc a gig if I ask 
+>   for the memory in small ( <= 128k) chunks. I've enclosed some results 
+>   and a little program which was put together to demonstrate the problems
+>   we're having.  All of the failures seem to occur around 930MB.
 
-So, I conclude that the patch was created incorrectly, or that something
-changed between cutting the patch and the tarball.
+It's bumping against some mapping (just do system("cat /proc/self/maps")
+on allocation failure to see which). Usual suspects are shared libraries.
+One possible solution is to upgrade to a newer glibc, the 2.2 glibc malloc 
+should handle this case better.  
+A way to get mappings like shared libraries out of the way is to 
+increase the value of TASK_UNMAPPED_BASE in include/asm-i386/processor.h.
+For that the kernel needs to be recompiled and it should be smaller
+TASK_SIZE-enough space for your shared libraries. With that even the older
+malloc will probably work.
 
--jwb
 
+-Andi

@@ -1,82 +1,51 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315198AbSDWNgc>; Tue, 23 Apr 2002 09:36:32 -0400
+	id <S315202AbSDWNhK>; Tue, 23 Apr 2002 09:37:10 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315202AbSDWNgb>; Tue, 23 Apr 2002 09:36:31 -0400
-Received: from [62.245.135.174] ([62.245.135.174]:38057 "EHLO mail.teraport.de")
-	by vger.kernel.org with ESMTP id <S315198AbSDWNg3>;
-	Tue, 23 Apr 2002 09:36:29 -0400
-Message-ID: <3CC56355.E5086E46@TeraPort.de>
-Date: Tue, 23 Apr 2002 15:36:21 +0200
-From: Martin Knoblauch <Martin.Knoblauch@TeraPort.de>
-Reply-To: m.knoblauch@TeraPort.de
-Organization: TeraPort GmbH
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-pre5-ac3 i686)
-X-Accept-Language: en, de
-MIME-Version: 1.0
-To: kernel@Expansa.sns.it
-CC: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: Re: XFS in the main kernel
-X-MIMETrack: Itemize by SMTP Server on lotus/Teraport/de(Release 5.0.7 |March 21, 2001) at
- 04/23/2002 03:36:21 PM,
-	Serialize by Router on lotus/Teraport/de(Release 5.0.7 |March 21, 2001) at
- 04/23/2002 03:36:29 PM,
-	Serialize complete at 04/23/2002 03:36:29 PM
-Content-Transfer-Encoding: 7bit
+	id <S315206AbSDWNhJ>; Tue, 23 Apr 2002 09:37:09 -0400
+Received: from node14760.a2000.nl ([24.132.71.96]:49655 "HELO
+	sahara.openoffice.nl") by vger.kernel.org with SMTP
+	id <S315202AbSDWNhH>; Tue, 23 Apr 2002 09:37:07 -0400
+Date: Tue, 23 Apr 2002 15:37:02 +0200
+From: Valentijn Sessink <valentyn+kernellist@nospam.openoffice.nl>
+To: linux-kernel@vger.kernel.org
+Cc: andre@linux-ide.org
+Subject: 2.2.20+ide-patch: ide_set_handler: handler not null
+Message-ID: <20020423153702.A5106@openoffice.nl>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+X-Message-Flag: Open Office - Linux for the desktop
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Re: XFS in the main kernel
-> 
-> From: Luigi Genoni (kernel@Expansa.sns.it)
-> On Tue, 23 Apr 2002, Keith Owens wrote:
-> 
-> > On 22 Apr 2002 18:55:20 +0200,
-> > wichert@cistron.nl (Wichert Akkerman) wrote:
-> > >In article <3CC427F4.12C40426@fnal.gov>,
-> > >Dan Yocum <yocum@fnal.gov> wrote:
-> > >>I know it's been discussed to death, but I am making a formal request to you
-> > >>to include XFS in the main kernel. We (The Sloan Digital Sky Survey) and
-> > >>many, many other groups here at Fermilab would be very happy to have this in
-> > >>the main tree.
-> > >
-> > >Has XFS been proven to be completely stable
-> >
-> > As much as any other filesystem. "There are no bugs in filesystem XYZ.
-> > That just means that you have not looked hard enough." :) There is a
-> > daily QA suite that XFS is run through.
-> 
-> In the reality the inclusion on XFS in the 2.5 tree would probably move
-> more peole to use it, and so also to eventually trigger bugs, to report
-> them, sometimes to fix them.
-> This way XFS would improve faster, and of course that would be a
-> good thing.
->
+Hi all,
 
- definitely. Unless XFS is in the mainline kernel (marked as
-experimantal if necessary) it will not get good exposure.
+2.2.20 with Andre's IDE patches, running on Debian 2.2.
 
- The most important (only) reason I do not use it (and recommend our
-customers against using it) is that at the moment it is impossible to
-track both the kernel and XFS at the same time. This is a shame, because
-I think that for some application XFS is superior to the other
-alternatives (can be said about the other alternatives to :-).
- 
-> That said, it is important to
-> consider the technical reasons to include XFS in 2.5 or not; if this
-> inclusion could cause some troubles, if XFS fits the requirements
-> Linus asks for the inclusion and what impact the inclusion would have on
-> the kernel (Think to JFS as a good example of an easy inclusion, with low
-> impact).
-> 
+Apr 23 14:53:51 cadmium kernel: hda: timeout waiting for DMA
+Apr 23 14:53:51 cadmium kernel: hda: ide_dma_timeout: Lets do it again!stat
+= 0x58, dma_stat = 0x20
+Apr 23 14:53:51 cadmium kernel: hda: DMA disabled
+Apr 23 14:53:51 cadmium kernel: hda: irq timeout: status=0x80 { Busy }
+Apr 23 14:53:51 cadmium kernel: hda: DMA disabled
+Apr 23 14:53:51 cadmium kernel: hda: ide_set_handler: handler not null;
+old=c0197f84, new=c0197f84
+Apr 23 14:53:51 cadmium kernel: bug: kernel timer added twice at c0197df1.
+Apr 23 14:53:51 cadmium kernel: ide0: reset: success
 
- so, what were the main obstacles again? The VFS layer?
+This is the poor man's SMP, a dual Celeron 466 with an Abit BP6 motherboard
+- the motherboard not being the most stable on earth. However, the notice
+above might still help the quality of the IDE driver. Maxtor 5T030H3.
 
-Martin
--- 
-------------------------------------------------------------------
-Martin Knoblauch         |    email:  Martin.Knoblauch@TeraPort.de
-TeraPort GmbH            |    Phone:  +49-89-510857-309
-C+ITS                    |    Fax:    +49-89-510857-111
-http://www.teraport.de   |    Mobile: +49-170-4904759
+(Oh, I'm aware of the fact that running the IDE patch is my own
+responsibility, i.e. might break things, burn house, steal car).
+
+Feel free to ask additional information.
+
+Best regards,
+
+Valentijn
+p.s. "valentyn+kernellist@nospam.openoffice.nl" is a correct and working
+e-mail address. No subscription to linux-kernel, so a Cc: is appreciated.

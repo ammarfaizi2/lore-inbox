@@ -1,62 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263476AbRFLVmg>; Tue, 12 Jun 2001 17:42:36 -0400
+	id <S263449AbRFLVoQ>; Tue, 12 Jun 2001 17:44:16 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263545AbRFLVmR>; Tue, 12 Jun 2001 17:42:17 -0400
-Received: from sncgw.nai.com ([161.69.248.229]:63151 "HELO mcafee-labs.nai.com")
-	by vger.kernel.org with SMTP id <S263449AbRFLVmE>;
-	Tue, 12 Jun 2001 17:42:04 -0400
-Message-ID: <XFMail.20010612144449.davidel@xmailserver.org>
-X-Mailer: XFMail 1.4.7 on Linux
-X-Priority: 3 (Normal)
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 8bit
+	id <S263545AbRFLVoG>; Tue, 12 Jun 2001 17:44:06 -0400
+Received: from panic.ohr.gatech.edu ([130.207.47.194]:20374 "HELO
+	havoc.gtf.org") by vger.kernel.org with SMTP id <S263449AbRFLVnu>;
+	Tue, 12 Jun 2001 17:43:50 -0400
+Message-ID: <3B268CF6.5197EA21@mandrakesoft.com>
+Date: Tue, 12 Jun 2001 17:43:18 -0400
+From: Jeff Garzik <jgarzik@mandrakesoft.com>
+Organization: MandrakeSoft
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.6-pre2 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-In-Reply-To: <200106121858.f5CIwmX05650@ns.caldera.de>
-Date: Tue, 12 Jun 2001 14:44:49 -0700 (PDT)
-From: Davide Libenzi <davidel@xmailserver.org>
-To: Christoph Hellwig <hch@ns.caldera.de>
-Subject: Re: threading question
-Cc: linux-kernel@vger.kernel.org, ognen@gene.pbi.nrc.ca
+To: Bob McElrath <rsmcelrath@students.wisc.edu>
+Cc: Jeff Golds <jgolds@resilience.com>, Wakko Warner <wakko@animx.eu.org>,
+        Pierfrancesco Caci <p.caci@seabone.net>, linux-kernel@vger.kernel.org
+Subject: Re: es1371 and recent kernels
+In-Reply-To: <873d95lnqr.fsf@paperino.int-seabone.net> <20010612111503.A870@draal.physics.wisc.edu> <20010612164204.A21504@animx.eu.org> <3B2681A8.567992F6@resilience.com> <20010612163150.C16885@draal.physics.wisc.edu>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Bob McElrath wrote:
+> > Wakko Warner wrote:
+> > > My ES1370 has done me good.  You might want to try that card.  Yes it's a
+> > > creative card.  It only has a crackle running 22k 8-bit
 
-On 12-Jun-2001 Christoph Hellwig wrote:
-> In article <Pine.LNX.4.30.0106121213570.24593-100000@gene.pbi.nrc.ca> you
-> wrote:
->> On dual-CPU machines the speedups are as follows: my version
->> is 1.88 faster than the sequential one on IRIX, 1.81 times on Solaris,
->> 1.8 times on OSF/1, 1.43 times on Linux 2.2.x and 1.52 times on Linux 2.4
->> kernel. Why are the numbers on Linux machines so much lower?
-> 
-> Does your measurement include the time needed to actually create the
-> threads or do you even frequently create and destroy threads?
+> Argh, I had one of those, gave it away because it would hang my alpha
+> hard (I'm told the card is pretty nonconformant to the PCI spec).
+> *sigh*
 
-This is an extract of the most busy vmstat report running under his tool :
+Now you tempt me to find this card and fix the alpha problem :)
 
-12  0  0  15508  40980  24880 355480   0   0     0     0  141   481 100   0   0
-19  0  0  15508  40248  24880 355480   0   0     0     0  142   564 100   0   0
-12  0  0  15508  40112  24880 355480   0   0     0     0  150   543 100   0   0
-11  0  0  15508  41272  24880 355480   0   0     0     0  156   594  99   1   0
-17  0  0  15508  40408  24880 355480   0   0     0     0  156   474  99   1   0
-17  0  0  15508  39840  24880 355480   0   0     0     0  135   475 100   0   0
-21  0  0  15508  39568  24880 355480   0   0     0     0  125   409 100   0   0
-21  0  0  15508  39668  24880 355480   0   0     0     0  135   420 100   0   0
-16  0  0  15508  39760  24880 355480   0   0     0     0  149   486 100   0   0
-
-
-The context switch is very low and the user CPU utilization is 100% , I don't
-think it's system responsibility here ( clearly a CPU bound program ).
-Even if the runqueue is long, the context switch is low.
-I've just close to me a dual PIII 1GHz workstation that run an MTA that uses
-linux pthreads with context switching ranging between 5000 and 11000 with a
-thread creation rate of about 300 thread/sec ( relaying 600000 msg/hour ).
-No problem at all with the system even if the load avg is a bit high
-( about 8 ).
-
-
-
-
-- Davide
-
+-- 
+Jeff Garzik      | Andre the Giant has a posse.
+Building 1024    |
+MandrakeSoft     |

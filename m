@@ -1,40 +1,33 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268354AbSIRRuN>; Wed, 18 Sep 2002 13:50:13 -0400
+	id <S268514AbSIRRzV>; Wed, 18 Sep 2002 13:55:21 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268341AbSIRRtL>; Wed, 18 Sep 2002 13:49:11 -0400
-Received: from mg03.austin.ibm.com ([192.35.232.20]:43659 "EHLO
-	mg03.austin.ibm.com") by vger.kernel.org with ESMTP
-	id <S268335AbSIRRs1>; Wed, 18 Sep 2002 13:48:27 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Dave Kleikamp <shaggy@austin.ibm.com>
-To: axel@hh59.org, linux-kernel@vger.kernel.org
-Subject: Re: 2.5.36: Software suspend fails with JFS filesystem
-Date: Wed, 18 Sep 2002 12:53:24 -0500
-X-Mailer: KMail [version 1.4]
-Cc: pavel@suse.cz,
-       JFS-Discussion <jfs-discussion@www-124.southbury.usf.ibm.com>
-References: <20020918163931.GA198@prester.hh59.org>
-In-Reply-To: <20020918163931.GA198@prester.hh59.org>
+	id <S268515AbSIRRzU>; Wed, 18 Sep 2002 13:55:20 -0400
+Received: from mx1.elte.hu ([157.181.1.137]:43422 "HELO mx1.elte.hu")
+	by vger.kernel.org with SMTP id <S268514AbSIRRzF>;
+	Wed, 18 Sep 2002 13:55:05 -0400
+Date: Wed, 18 Sep 2002 20:07:21 +0200 (CEST)
+From: Ingo Molnar <mingo@elte.hu>
+Reply-To: Ingo Molnar <mingo@elte.hu>
+To: William Lee Irwin III <wli@holomorphy.com>
+Cc: Linus Torvalds <torvalds@transmeta.com>, Andries Brouwer <aebr@win.tue.nl>,
+       <linux-kernel@vger.kernel.org>
+Subject: Re: [patch] lockless, scalable get_pid(), for_each_process()
+ elimination, 2.5.35-BK
+In-Reply-To: <20020918175055.GX3530@holomorphy.com>
+Message-ID: <Pine.LNX.4.44.0209182006380.25598-100000@localhost.localdomain>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <200209181253.24254.shaggy@austin.ibm.com>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 18 September 2002 11:39, axel@hh59.org wrote:
-> When I reported this first a whole while ago, someone said JFS still
-> somehow lacks support for software suspend.
 
-Oops.  I talked about fixing it, then promptly forgot about it.  I'll 
-work on it today!
+On Wed, 18 Sep 2002, William Lee Irwin III wrote:
 
-> Best regards,
-> Axel
+> Not quite all of them. top(1) takes out the machine by triggering calls
+> to get_pid_list(), which NMI oopses fork() and exit() on other cpus.
 
-Thanks,
-Shaggy
--- 
-David Kleikamp
-IBM Linux Technology Center
+one of my patches in 2.5.35 solves that.
+
+	Ingo
 

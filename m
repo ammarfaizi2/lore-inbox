@@ -1,61 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261823AbTFJKt7 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 Jun 2003 06:49:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261843AbTFJKt7
+	id S261843AbTFJLI7 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 Jun 2003 07:08:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261876AbTFJLI7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 Jun 2003 06:49:59 -0400
-Received: from zmamail04.zma.compaq.com ([161.114.64.104]:54795 "EHLO
-	zmamail04.zma.compaq.com") by vger.kernel.org with ESMTP
-	id S261823AbTFJKt6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 Jun 2003 06:49:58 -0400
-Date: Tue, 10 Jun 2003 13:05:01 +0200
-From: Torben Mathiasen <torben.mathiasen@hp.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Marcelo Tosatti <marcelo@conectiva.com.br>,
-       "Grover, Andrew" <andrew.grover@intel.com>,
-       Grzegorz Jaskiewicz <gj@pointblue.com.pl>,
-       lkml <linux-kernel@vger.kernel.org>,
-       "Saxena, Sunil" <sunil.saxena@intel.com>,
-       "Brown, Len" <len.brown@intel.com>,
-       "Therien, Guy" <guy.therien@intel.com>
-Subject: Re: 2.4.22 timeline was RE: 2.4.21-rc7 ACPI broken
-Message-ID: <20030610110501.GB1457@tmathiasen>
-References: <F760B14C9561B941B89469F59BA3A84725A2DF@orsmsx401.jf.intel.com> <Pine.LNX.4.55L.0306091901260.27584@freak.distro.conectiva> <1055205899.31139.15.camel@dhcp22.swansea.linux.org.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1055205899.31139.15.camel@dhcp22.swansea.linux.org.uk>
-User-Agent: Mutt/1.4i
-X-OS: Linux 2.4.21-rc7 
+	Tue, 10 Jun 2003 07:08:59 -0400
+Received: from delta.ds2.pg.gda.pl ([213.192.72.1]:55282 "EHLO
+	delta.ds2.pg.gda.pl") by vger.kernel.org with ESMTP id S261843AbTFJLI6
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 10 Jun 2003 07:08:58 -0400
+Date: Tue, 10 Jun 2003 13:20:12 +0200 (MET DST)
+From: "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>
+To: Zwane Mwaikambo <zwane@linuxpower.ca>
+cc: "Brian J. Murrell" <brian@interlinx.bc.ca>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: local apic timer ints not working with vmware: nolocalapic
+In-Reply-To: <Pine.LNX.4.50.0306092112250.19137-100000@montezuma.mastecende.com>
+Message-ID: <Pine.GSO.3.96.1030610130024.19547D-100000@delta.ds2.pg.gda.pl>
+Organization: Technical University of Gdansk
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jun 10 2003, Alan Cox wrote:
-> On Llu, 2003-06-09 at 23:03, Marcelo Tosatti wrote:
-> > Yes, I want to, and will merge it. In 2.4.23-pre.
-> > 
-> > > I am confident it will merge cleanly.
-> > > I am confident it will cause no problems when CONFIG_ACPI=off.
-> > > I am confident the total number of working machines will go up.
-> > > I am willing to bet $500 of MY OWN MONEY on this.
-> > >
-> > > Talk to me, man. What would make you happy? A lot is riding on this.
-> > 
-> > Yes, we're fine. 2.4.23-pre.
-> > 
-> > 2.4.22 will be a fast enough release to not piss you off on this, trust
-> > me.
+On Mon, 9 Jun 2003, Zwane Mwaikambo wrote:
+
+> >  Why do you consider the systems broken?
 > 
-> Its been in 2.4.21-ac for a while. I have exactly zero reports of it
-> causing problems in the acpi=n case, and a whole raft of "the first
-> Linux that runs on my toshiba/compaq/hp laptop"
-> 
-> Works well enough for me to have faith in it now. 
+> Not necessarily broken, just no reporting of APIC capability. Not that i 
+> should expect better from Intel (c.f. HT bit, SEP on PPro etc)
 
-We need it as well to have proper ACPI support on the Hp/cpq laptops. Without
-it one may get serious overheating problems. 
+ Hmm, how could e.g. an i486 report it?  Remember, the i82489DX is a
+discrete APIC implementation, i.e. it's a chip external to the CPU.  The
+i82489DX is actually a complete APIC implementation, including both a
+local and an I/O unit in a single chip.  And it's also superior to
+integrated APIC implementations -- it can address up to 255 units in the
+physical destination mode and up to 32 ones in the logical one.
 
-We've been waiting for it for a long time now.
+ These APICs were used for i486 systems as well as for Pentium ones meant
+to support more than two CPUs (although the Pentium integrated local APICs
+can probably support more than two such units in a system, there was no
+suitable I/O unit available; the i82093AA chip was introduced later and
+the i82489DX is hardware-incompatible to later implementations, e.g. 
+using a five-wire inter-APIC bus).
 
-Thanks.
+> How about we only clear smp_found_config when forced.
+
+ Looks OK.  Probably a message could be added to report handling of the
+local APIC got disabled. 
+
+-- 
++  Maciej W. Rozycki, Technical University of Gdansk, Poland   +
++--------------------------------------------------------------+
++        e-mail: macro@ds2.pg.gda.pl, PGP key available        +
+

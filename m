@@ -1,61 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319122AbSIJNz3>; Tue, 10 Sep 2002 09:55:29 -0400
+	id <S319121AbSIJNv7>; Tue, 10 Sep 2002 09:51:59 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319123AbSIJNz3>; Tue, 10 Sep 2002 09:55:29 -0400
-Received: from windsormachine.com ([206.48.122.28]:14611 "EHLO
-	router.windsormachine.com") by vger.kernel.org with ESMTP
-	id <S319122AbSIJNz2>; Tue, 10 Sep 2002 09:55:28 -0400
-Date: Tue, 10 Sep 2002 09:59:56 -0400 (EDT)
-From: Mike Dresser <mdresser_l@windsormachine.com>
-To: Ookhoi <ookhoi@humilis.net>
-cc: <jbradford@dial.pipex.com>, Dieter N?tzel <Dieter.Nuetzel@hamburg.de>,
-       <linux-kernel@vger.kernel.org>, <erin_hartin@maxtor.com>,
-       <sales-mkt@maxtor.com>
-Subject: Re: ide drive dying?
-In-Reply-To: <20020910144841.S8460@humilis>
-Message-ID: <Pine.LNX.4.33.0209100949180.16210-100000@router.windsormachine.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S319122AbSIJNv7>; Tue, 10 Sep 2002 09:51:59 -0400
+Received: from angband.namesys.com ([212.16.7.85]:1152 "HELO
+	angband.namesys.com") by vger.kernel.org with SMTP
+	id <S319121AbSIJNv6>; Tue, 10 Sep 2002 09:51:58 -0400
+Date: Tue, 10 Sep 2002 17:56:39 +0400
+From: Oleg Drokin <green@namesys.com>
+To: linux-kernel@vger.kernel.org
+Cc: viro@math.psu.edu, axboe@suse.de, andre@linux-ide.org
+Subject: 2.5.34 BUG at kernel/sched.c:944 (partitions code related?)
+Message-ID: <20020910175639.A830@namesys.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=koi8-r
+Content-Disposition: inline
+User-Agent: Mutt/1.3.22.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 10 Sep 2002, Ookhoi wrote:
+Hello!
 
-> jbradford@dial.pipex.com wrote (ao):
-> > I have *never* lost data to a Maxtor disk.  I have had IBM, Fujitsu,
-> > Western Digital, and DEC drives all fail on me before.
-> >
-> > It's dissapointing that Maxtor are reducing their warranty from 3
-> > years to 1 year, but on the other hand, I've never needed it at all.
->
-> FWIW:
-> On http://www.maxtor.com/products/enterprise_apps/default.htm
-> they say 3 years limited warranty.
+    Starting with yesterday I am seeing kernel BUG at sched.c:944 
+    on 2.5.3[34], I've seen similar report for 2.5.31 in the list with no
+    responces, however 2.5.31 was working fine for me.
 
-That's only their MaxLine II drives.  Their regular DiamondMax and all
-that, are still one year starting in October.  At least their SCSI drives
-haven't been killed off yet.
+    Stack trace for the BUG was entirely within idle task (default_idle,
+    rest_init, cpu_idle, ...)
 
-OffTopic:
+    It explodes immediatelly after printing:
+ hda: hda1 hda2 hda3 hda4 < hda5
 
-I'm wonder just who in upper Management at Maxtor decided to help the
-company commit suicide.
+    Then panics trying to kill interrupt handler.
 
-I've already ordered a few Seagate drives to test out here at our
-offices, to replace my previous choice of Maxtor D740X's.  I'll still be
-looking at the MaxLine II's for backup servers because of the 3 year
-warranty, but for desktops, I can't risk our data to drives that even the
-manufacturer doesn't trust.  The performance drop becomes secondary at
-that point.
+    On 2.4 this partition layout looks like this:
+ hda: [PTBL] [7476/255/63] hda1 hda2 hda3 hda4 < hda5 hda6 >
 
-I know of a few local shops that will no longer carry Maxtor drives
-because the warranty costs would kill their profit margin.  They cannot
-offer a 3 year warranty on the computer when the drive is only covered
-for a year.
+   Box itself is Dual Athlon MP 1700+. IDE only, 1G RAM, highmem enabled.
 
-Mike Dresser,
+   Other strange thing that caught my attention is this, if in 2.5.31 I had
+   this order or disk detection:
+<4>hda: IC35L060AVER07-0, ATA DISK drive
+<4>hdb: IC35L060AVER07-0, ATA DISK drive
+<4>ide0 at 0x1f0-0x1f7,0x3f6 on irq 14
+<4>hda: host protected area => 1
+<6>hda: 120103200 sectors (61493 MB) w/1916KiB Cache, CHS=119150/16/63
+<4>hdb: host protected area => 1
+<6>hdb: 120103200 sectors (61493 MB) w/1916KiB Cache, CHS=119150/16/63
+<6> hda: hda1 hda2 hda3 hda4 < hda5 hda6 >
+<6> hdb: hdb1
 
-Systems Administrator
-Windsor Machine & Stamping
+   Now it does it in reverse like this:
+hdb: host protected area => 1
+hdb: 120103200 sectors (61493 MB) w/1916KiB Cache, CHS=119150/16/63
+hdb: hdb1
+hda: host protected area => 1
+hda: 120103200 sectors (61493 MB) w/1916KiB Cache, CHS=119150/16/63
+hda: hda1 hda2 hda3 hda4 < hda5PANIC
 
+   Is anybody interested in more information/whatever?
+
+Bye,
+    Oleg

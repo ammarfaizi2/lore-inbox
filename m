@@ -1,100 +1,69 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271877AbRIOCiO>; Fri, 14 Sep 2001 22:38:14 -0400
+	id <S268017AbRIOEe6>; Sat, 15 Sep 2001 00:34:58 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271892AbRIOChy>; Fri, 14 Sep 2001 22:37:54 -0400
-Received: from barry.mail.mindspring.net ([207.69.200.25]:26939 "EHLO
-	barry.mail.mindspring.net") by vger.kernel.org with ESMTP
-	id <S271877AbRIOCho>; Fri, 14 Sep 2001 22:37:44 -0400
-Subject: Re: AGP Bridge support for AMD 761
-From: Robert Love <rml@ufl.edu>
-To: DevilKin@gmx.net
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <761E23C7F09AD51188990008C74C26141226@fgl00exh01.atitech.com>
-In-Reply-To: <761E23C7F09AD51188990008C74C26141226@fgl00exh01.atitech.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/0.13.99+cvs.2001.09.14.18.39 (Preview Release)
-Date: 14 Sep 2001 22:38:38 -0400
-Message-Id: <1000521528.31713.7.camel@phantasy>
-Mime-Version: 1.0
+	id <S268071AbRIOEes>; Sat, 15 Sep 2001 00:34:48 -0400
+Received: from forge.redmondlinux.org ([209.81.49.42]:26581 "EHLO
+	forge.redmondlinux.org") by vger.kernel.org with ESMTP
+	id <S268017AbRIOEeo>; Sat, 15 Sep 2001 00:34:44 -0400
+Date: Fri, 14 Sep 2001 21:36:26 -0700 (PDT)
+From: Joseph Cheek <joseph@cheek.com>
+To: linux-kernel@vger.kernel.org
+Subject: [ide-]scsi timeouts while writing cdrom
+Message-ID: <Pine.LNX.4.10.10109142131030.28176-100000@forge.redmondlinux.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I tried to put together a patch for AMD 761 support.  I don't have an
-AMD 761, but this should work fine.
+hello all,
 
-it is against 2.4.10-pre1, but it should apply cleanly to your kernel.
+my shiny new cdrw hangs the system when i try to burn a cdrom.  i've got a
+a completely IDE system.  hda and hdb are hard drives while hdc is a
+standard cdrom and hdd is a cdrw.
 
-Please let me know if it works, so we can submit it for inclusion in the
-kernel.
+while burning cdrecord writes a couple of tracks and then the whole system
+freezes [i need to hard power off].  i can blank cdrw's in the drive just
+fine, however.  i'm running 2.4.9-ac10 SMP [on a single-proc system] and
+all partitions are ext3.  ide-scsi is loaded as a module at boot.
 
+here's what /var/log/messages shows:
 
-diff -urN linux-2.4.10-pre9/Documentation/Configure.help linux/Documentation/Configure.help
---- linux-2.4.10-pre9/Documentation/Configure.help	Thu Sep 13 21:03:36 2001
-+++ linux/Documentation/Configure.help	Fri Sep 14 22:28:37 2001
-@@ -2581,7 +2581,7 @@
- AMD Irongate support
- CONFIG_AGP_AMD
-   This option gives you AGP support for the GLX component of the
--  XFree86 4.x on AMD Irongate chipset.
-+  XFree86 4.x on AMD Irongate and 761 chipsets.
- 
-   For the moment, you should probably say N, unless you want to test
-   the GLX component for XFree86 3.3.6, which can be downloaded from
-diff -urN linux-2.4.10-pre9/drivers/char/agp/agp.h linux/drivers/char/agp/agp.h
---- linux-2.4.10-pre9/drivers/char/agp/agp.h	Thu Sep 13 21:03:40 2001
-+++ linux/drivers/char/agp/agp.h	Fri Sep 14 22:33:37 2001
-@@ -196,6 +196,9 @@
- #ifndef PCI_DEVICE_ID_AMD_IRONGATE_0
- #define PCI_DEVICE_ID_AMD_IRONGATE_0    0x7006
- #endif
-+#ifndef PCI_DEVICE_ID_AMD_761_0
-+#define PCI_DEVICE_ID_AMD_761_0		0x700E
-+#endif
- #ifndef PCI_VENDOR_ID_AL
- #define PCI_VENDOR_ID_AL		0x10b9
- #endif
-diff -urN linux-2.4.10-pre9/drivers/char/agp/agpgart_be.c linux/drivers/char/agp/agpgart_be.c
---- linux-2.4.10-pre9/drivers/char/agp/agpgart_be.c	Thu Sep 13 21:03:40 2001
-+++ linux/drivers/char/agp/agpgart_be.c	Fri Sep 14 22:33:48 2001
-@@ -2895,6 +2895,12 @@
- 		"AMD",
- 		"Irongate",
- 		amd_irongate_setup },
-+	{ PCI_DEVICE_ID_AMD_761_0,
-+		PCI_VENDOR_ID_AMD,
-+		AMD_761,
-+		"AMD",
-+		"761",
-+		amd_irongate_setup },
- 	{ 0,
- 		PCI_VENDOR_ID_AMD,
- 		AMD_GENERIC,
-@@ -2922,7 +2928,6 @@
- 		"Intel",
- 		"440GX",
- 		intel_generic_setup },
--	/* could we add support for PCI_DEVICE_ID_INTEL_815_1 too ? */
- 	{ PCI_DEVICE_ID_INTEL_815_0,
- 		PCI_VENDOR_ID_INTEL,
- 		INTEL_I815,
-diff -urN linux-2.4.10-pre9/include/linux/agp_backend.h linux/include/linux/agp_backend.h
---- linux-2.4.10-pre9/include/linux/agp_backend.h	Thu Sep 13 21:03:50 2001
-+++ linux/include/linux/agp_backend.h	Fri Sep 14 22:27:34 2001
-@@ -58,6 +58,7 @@
- 	SIS_GENERIC,
- 	AMD_GENERIC,
- 	AMD_IRONGATE,
-+	AMD_761,
- 	ALI_M1541,
- 	ALI_M1621,
- 	ALI_M1631,
+Sep 14 21:12:45 sanfrancisco kernel: scsi : aborting command due to
+timeout : pid 0, scsi0, channel 0, id 1, lun 0 0x00 00 00 00 00 00
+Sep 14 21:12:54 sanfrancisco kernel: Device not ready.  Make sure there is
+a disc in the drive.
+Sep 14 21:12:55 sanfrancisco last message repeated 2 times
+Sep 14 21:13:20 sanfrancisco kernel: hdb: timeout waiting for DMA
+Sep 14 21:13:20 sanfrancisco kernel: ide_dmaproc: chipset supported
+ide_dma_timeout func only: 14
+Sep 14 21:13:26 sanfrancisco kernel: scsi : aborting command due to
+timeout : pid 0, scsi0, channel 0, id 1, lun 0 0x43 00 00 00 00 00 00 00
+0c 00
+Sep 14 21:13:37 sanfrancisco kernel: scsi : aborting command due to
+timeout : pid 0, scsi0, channel 0, id 0, lun 0 0x2a 00 00 00 05 92 00 00
+1f 00
+Sep 14 21:13:37 sanfrancisco kernel: hdc: timeout waiting for DMA
+Sep 14 21:13:37 sanfrancisco kernel: ide_dmaproc: chipset supported
+ide_dma_timeout func only: 14
+Sep 14 21:13:37 sanfrancisco kernel: hdd: status timeout: status=0xd8 {
+Busy }
+Sep 14 21:13:37 sanfrancisco kernel: hdd: DMA disabled
+Sep 14 21:13:37 sanfrancisco kernel: hdd: drive not ready for command
+Sep 14 21:13:41 sanfrancisco kernel: hdd: ATAPI reset complete
+Sep 14 21:13:41 sanfrancisco kernel: hdd: irq timeout: status=0xd0 { Busy
+}
+Sep 14 21:13:42 sanfrancisco kernel: hdd: ATAPI reset complete
+Sep 14 21:13:42 sanfrancisco kernel: hdd: irq timeout: status=0x80 { Busy
+}
+Sep 14 21:13:42 sanfrancisco kernel: scsi0 channel 0 : resetting for
+second half of retries.
+Sep 14 21:13:42 sanfrancisco kernel: SCSI bus is being reset for host 0
+channel 0.
 
+any guesses?
 
+thanks!
 
--- 
-Robert M. Love
-rml at ufl.edu
-rml at tech9.net
+joe
 

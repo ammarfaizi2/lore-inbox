@@ -1,54 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267352AbUIFABq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267353AbUIFADQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267352AbUIFABq (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 5 Sep 2004 20:01:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267353AbUIFABq
+	id S267353AbUIFADQ (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 5 Sep 2004 20:03:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267354AbUIFADQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 5 Sep 2004 20:01:46 -0400
-Received: from the-village.bc.nu ([81.2.110.252]:21663 "EHLO
+	Sun, 5 Sep 2004 20:03:16 -0400
+Received: from the-village.bc.nu ([81.2.110.252]:23199 "EHLO
 	localhost.localdomain") by vger.kernel.org with ESMTP
-	id S267352AbUIFABo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 5 Sep 2004 20:01:44 -0400
-Subject: Re: New proposed DRM interface design
+	id S267353AbUIFADK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 5 Sep 2004 20:03:10 -0400
+Subject: Re: multi-domain PCI and sysfs
 From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 To: Jon Smirl <jonsmirl@gmail.com>
-Cc: Keith Whitwell <keith@tungstengraphics.com>, Dave Jones <davej@redhat.com>,
-       Christoph Hellwig <hch@infradead.org>, Dave Airlie <airlied@linux.ie>,
-       Jon Smirl <jonsmirl@yahoo.com>,
-       DRI Devel <dri-devel@lists.sourceforge.net>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       mharris@redhat.com
-In-Reply-To: <9e4733910409051511148d74f0@mail.gmail.com>
-References: <20040904102914.B13149@infradead.org>
-	 <4139C8A3.6010603@tungstengraphics.com>
-	 <9e47339104090408362a356799@mail.gmail.com>
-	 <4139FEB4.3080303@tungstengraphics.com>
-	 <9e473391040904110354ba2593@mail.gmail.com>
-	 <1094386050.1081.33.camel@localhost.localdomain>
-	 <9e47339104090508052850b649@mail.gmail.com>
-	 <1094398257.1251.25.camel@localhost.localdomain>
-	 <9e47339104090514122ca3240a@mail.gmail.com>
-	 <1094417612.1936.5.camel@localhost.localdomain>
-	 <9e4733910409051511148d74f0@mail.gmail.com>
+Cc: Matthew Wilcox <willy@debian.org>, Jesse Barnes <jbarnes@engr.sgi.com>,
+       lkml <linux-kernel@vger.kernel.org>
+In-Reply-To: <9e473391040905165048798741@mail.gmail.com>
+References: <9e4733910409041300139dabe0@mail.gmail.com>
+	 <200409041527.50136.jbarnes@engr.sgi.com>
+	 <9e47339104090415451c1f454f@mail.gmail.com>
+	 <200409041603.56324.jbarnes@engr.sgi.com>
+	 <20040905230425.GU642@parcelfarce.linux.theplanet.co.uk>
+	 <9e473391040905165048798741@mail.gmail.com>
 Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-Message-Id: <1094425142.2125.2.camel@localhost.localdomain>
+Message-Id: <1094425236.2126.4.camel@localhost.localdomain>
 Mime-Version: 1.0
 X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Sun, 05 Sep 2004 23:59:04 +0100
+Date: Mon, 06 Sep 2004 00:00:39 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sul, 2004-09-05 at 23:11, Jon Smirl wrote:
-> What is the advantage to continuing a development model where two
-> groups of programmers work independently, with little coordination on
-> two separate code bases trying to simultaneously control the same
-> piece of hardware? This is a continuous source of problems. Why can't
-> we fix the development model to stop this?
+On Llu, 2004-09-06 at 00:50, Jon Smirl wrote:
+> So how do multiple root buses work? Since they are all in the same
+> domain it seems like a single IO operation would go to all of the root
+> bridges simultaneously. Then each root bridge matches to the address
+> and decides to send the IO operation on if there is a match.
 
-I don't see that as much of a problem. The mess arises from some simple
-lacks in the objects in kernel and the methods required to co-ordinate.
-Lots of drivers are written by a lot of people in the kernel and they
-work just fine. The ext3 authors don't spend their lives co-ordinating
-with SCSI driver authors, they just get the API right.
+Architecture specific. Even in the PC world it varies.
+
+Alan
 

@@ -1,48 +1,82 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S273051AbRIIVJQ>; Sun, 9 Sep 2001 17:09:16 -0400
+	id <S273058AbRIIVYk>; Sun, 9 Sep 2001 17:24:40 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S273052AbRIIVJG>; Sun, 9 Sep 2001 17:09:06 -0400
-Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:28684 "EHLO
-	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id <S273051AbRIIVI7>; Sun, 9 Sep 2001 17:08:59 -0400
-Date: Sun, 9 Sep 2001 23:09:20 +0200
-From: Pavel Machek <pavel@suse.cz>
-To: Benjamin LaHaise <bcrl@redhat.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Booting linux using Novell NetWare Remote Program Loader
-Message-ID: <20010909230920.A23392@atrey.karlin.mff.cuni.cz>
-In-Reply-To: <20010909220921.A19145@bug.ucw.cz> <20010909170206.A3245@redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.15i
-In-Reply-To: <20010909170206.A3245@redhat.com>; from bcrl@redhat.com on Sun, Sep 09, 2001 at 05:02:06PM -0400
+	id <S273059AbRIIVYb>; Sun, 9 Sep 2001 17:24:31 -0400
+Received: from s340-modem1889.dial.xs4all.nl ([194.109.167.97]:51845 "EHLO
+	sjoerd.sjoerdnet") by vger.kernel.org with ESMTP id <S273058AbRIIVYQ>;
+	Sun, 9 Sep 2001 17:24:16 -0400
+Date: Sun, 9 Sep 2001 23:23:44 +0200 (CEST)
+From: Arjan Filius <iafilius@xs4all.nl>
+X-X-Sender: <arjan@sjoerd.sjoerdnet>
+Reply-To: Arjan Filius <iafilius@xs4all.nl>
+To: Robert Love <rml@tech9.net>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: Feedback on preemptible kernel patch
+In-Reply-To: <1000055386.15956.2.camel@phantasy>
+Message-ID: <Pine.LNX.4.33.0109092317330.16723-100000@sjoerd.sjoerdnet>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+Hi,
 
-> > and send results to me? It should be rather easy to emulate initial
-> > handshake and use mars (netware emulator) to boot workstation...
-> 
-> No need -- just search around for a copy of rpld.  I've got a few 
-> SiS based boards that netboot via rpl which rpld manages to handle 
-> like a charm.  Cheers,
+After my succes report i _do_ noticed something unusual:
 
-Unfortunately, it is not that simple:
+I'm not sure it's preempt related, but you wanted feedback :)
 
-(From rpld-1.7/README:)
+Sep  9 23:08:02 sjoerd kernel: __alloc_pages: 0-order allocation failed (gfp=0x70/1).
+Sep  9 23:08:02 sjoerd last message repeated 93 times
+Sep  9 23:08:02 sjoerd kernel: cation failed (gfp=0x70/1).
+Sep  9 23:08:02 sjoerd kernel: __alloc_pages: 0-order allocation failed (gfp=0x70/1).
+Sep  9 23:08:02 sjoerd last message repeated 281 times
 
-RPLD implements the IBM RIPL protocol, used to network boot some
-machines. It
-DOES NOT implement the Novell style RPL/IPX protocol.  If your are not
-sure
-which protocol you are using see the section "Troubleshooting".
+This is at the very moment i make a ppp connection to internet, and
+get/set the time with netdate (for the first time after a reboot).
+I didn't see this a second time (yet).
 
-And, indeed, it does not work with Novell bootrom. If you have
-different version, please let me know...
-								Pavel
+Btw this is 2.4.10-pre4+preempt-patch+pacht-below.
+
+Greetings,
+
+On 9 Sep 2001, Robert Love wrote:
+
+> Arjan,
+>
+> the following patch was written by Manfred Spraul to fix your highmem
+> bug.  I haven't had a chance to go over it, but I would like it if you
+> could test it.  It can't hurt.  Patch it on top of the preempt patch and
+> enable CONFIG_PREEMPT, CONFIG_HIGHMEM, and CONFIG_HIGHMEM_DEBUG.
+>
+> let me know what happens...any relevant messages, etc. please pass
+> along. if it does work, id be curious if they are any slowdowns
+>
+>
+> --- highmem.h.prev      Sun Sep  9 08:59:04 2001
+> +++ highmem.h   Sun Sep  9 09:00:07 2001
+> @@ -88,6 +88,7 @@
+>         if (page < highmem_start_page)
+>                 return page_address(page);
+>
+> +       ctx_sw_off();
+>         idx = type + KM_TYPE_NR*smp_processor_id();
+>         vaddr = __fix_to_virt(FIX_KMAP_BEGIN + idx);
+> #if HIGHMEM_DEBUG
+> @@ -119,6 +120,7 @@
+>         pte_clear(kmap_pte-idx);
+>         __flush_tlb_one(vaddr);
+> #endif
+> +       ctx_sw_on();
+> }
+>
+> #endif /* __KERNEL__ */
+>
+>
+>
+>
+
 -- 
-The best software in life is free (not shareware)!		Pavel
-GCM d? s-: !g p?:+ au- a--@ w+ v- C++@ UL+++ L++ N++ E++ W--- M- Y- R+
+Arjan Filius
+mailto:iafilius@xs4all.nl
+

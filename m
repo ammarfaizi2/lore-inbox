@@ -1,39 +1,72 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267919AbTB1Op4>; Fri, 28 Feb 2003 09:45:56 -0500
+	id <S267925AbTB1Ox0>; Fri, 28 Feb 2003 09:53:26 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267921AbTB1Op4>; Fri, 28 Feb 2003 09:45:56 -0500
-Received: from ns.suse.de ([213.95.15.193]:43793 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id <S267919AbTB1Opz>;
-	Fri, 28 Feb 2003 09:45:55 -0500
-Date: Fri, 28 Feb 2003 15:56:15 +0100
-From: Andi Kleen <ak@suse.de>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Matthew Wilcox <willy@debian.org>, Andi Kleen <ak@suse.de>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Proposal: Eliminate GFP_DMA
-Message-ID: <20030228145614.GA27798@wotan.suse.de>
-References: <20030228064631.G23865@parcelfarce.linux.theplanet.co.uk.suse.lists.linux.kernel> <p73heao7ph2.fsf@amdsimf.suse.de> <20030228141234.H23865@parcelfarce.linux.theplanet.co.uk> <1046445897.16599.60.camel@irongate.swansea.linux.org.uk> <20030228143405.I23865@parcelfarce.linux.theplanet.co.uk> <1046447737.16599.83.camel@irongate.swansea.linux.org.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1046447737.16599.83.camel@irongate.swansea.linux.org.uk>
+	id <S267934AbTB1Ox0>; Fri, 28 Feb 2003 09:53:26 -0500
+Received: from e35.co.us.ibm.com ([32.97.110.133]:19107 "EHLO
+	e35.co.us.ibm.com") by vger.kernel.org with ESMTP
+	id <S267925AbTB1OxZ>; Fri, 28 Feb 2003 09:53:25 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Kevin Corry <corryk@us.ibm.com>
+Organization: IBM
+To: Joe Perches <joe@perches.com>, "LKML" <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH 3/8] dm: prevent possible buffer overflow in ioctl interface
+Date: Fri, 28 Feb 2003 08:59:25 -0600
+X-Mailer: KMail [version 1.2]
+References: <OF06EBF3D5.39937A14-ON87256CDB.004FD627@us.ibm.com>
+In-Reply-To: <OF06EBF3D5.39937A14-ON87256CDB.004FD627@us.ibm.com>
+Cc: Linus Torvalds <torvalds@transmeta.com>,
+       Joe Thornber <joe@fib011235813.fsnet.co.uk>
+MIME-Version: 1.0
+Message-Id: <03022808592509.05199@boiler>
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Feb 28, 2003 at 03:55:37PM +0000, Alan Cox wrote:
-> On Fri, 2003-02-28 at 14:34, Matthew Wilcox wrote:
-> > umm.  are you volunteering to convert drivers/net/macmace.c to the pci_*
-> > API then?  also, GFP_DMA is used on, eg, s390 to get memory below 2GB and
-> > on ia64 to get memory below 4GB.
-> 
-> The ia64 is a fine example of how broken it is. People have to hack around 
-> with GFP_DMA meaning different things on ia64 to everything else. It needs
-> to die. 
+On Friday 28 February 2003 08:32, you wrote:
+> On Thu, 2003-02-27 at 14:05, Kevin Corry wrote:
+> > Unfortunately, Linus seems to have committed that patch already. So here
+> > is a patch to fix just that line.
+> >
+> > Thanks for catching that.
+>
+> Third time, strlen isn't necessary, it can be done at compile time.
+>
+> --- a/drivers/md/dm-ioctl.c     2003/02/27 16:29:58
+> +++ b/drivers/md/dm-ioctl.c     2003/02/27 17:21:54
+> @@ -174,7 +174,7 @@
+>  static int register_with_devfs(struct hash_cell *hc)
+>  {
+>         struct gendisk *disk = dm_disk(hc->md);
+> -       char *name = kmalloc(DM_NAME_LEN + strlen(DM_DIR) + 1);
+> +       char *name = kmalloc(DM_NAME_LEN + sizeof(DM_DIR));
+>         if (!name) {
+>                 return -ENOMEM;
+>         }
 
-At least on x86-64 it is still needed when you need have some hardware
-with address limits < 4GB (e.g. an 24bit soundcard)
+Sorry, I sent the last patch before I got your email.
 
-pci_* on K8 only allows address mask 0xffffffff or unlimited.
+Also, the "+1" is still necessary, even if we switch to sizeof. The sprintf 
+call that follows copies DM_DIR, followed by a slash, followed by the name 
+from the hash table into the allocated string. The "+1" is for the slash in 
+the middle. The terminating NULL character is accounted for in DM_NAME_LEN.
 
--Andi
+Linus, here is (yet another!) patch against current BK.
+
+-- 
+Kevin Corry
+corryk@us.ibm.com
+http://evms.sourceforge.net/
+
+
+--- linux-2.5.63-bk4a/drivers/md/dm-ioctl.c	Fri Feb 28 08:43:19 2003
++++ linux-2.5.63-bk4b/drivers/md/dm-ioctl.c	Fri Feb 28 08:44:08 2003
+@@ -174,7 +174,7 @@
+ static int register_with_devfs(struct hash_cell *hc)
+ {
+ 	struct gendisk *disk = dm_disk(hc->md);
+-	char *name = kmalloc(DM_NAME_LEN + strlen(DM_DIR) + 1, GFP_KERNEL);
++	char *name = kmalloc(DM_NAME_LEN + sizeof(DM_DIR) + 1, GFP_KERNEL);
+ 	if (!name) {
+ 		return -ENOMEM;
+ 	}

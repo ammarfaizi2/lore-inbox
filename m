@@ -1,67 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262109AbVC2A2v@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262131AbVC2A4a@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262109AbVC2A2v (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 28 Mar 2005 19:28:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262131AbVC2A2v
+	id S262131AbVC2A4a (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 28 Mar 2005 19:56:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262132AbVC2A4a
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 28 Mar 2005 19:28:51 -0500
-Received: from smtp08.web.de ([217.72.192.226]:50576 "EHLO smtp08.web.de")
-	by vger.kernel.org with ESMTP id S262109AbVC2A2t (ORCPT
+	Mon, 28 Mar 2005 19:56:30 -0500
+Received: from smtpout.mac.com ([17.250.248.97]:56060 "EHLO smtpout.mac.com")
+	by vger.kernel.org with ESMTP id S262131AbVC2A41 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 28 Mar 2005 19:28:49 -0500
-Subject: Re: Kernel OOOPS in 2.6.11.6
-From: Ali Akcaagac <aliakc@web.de>
-To: Coywolf Qi Hunt <coywolf@gmail.com>
-Cc: Chris Wright <chrisw@osdl.org>, linux-kernel@vger.kernel.org
-In-Reply-To: <2cd57c9005032816126557d064@mail.gmail.com>
-References: <1112008141.17962.1.camel@localhost>
-	 <20050328224430.GO28536@shell0.pdx.osdl.net>
-	 <2cd57c9005032814572b7e9bac@mail.gmail.com>
-	 <20050328230416.GP30522@shell0.pdx.osdl.net>
-	 <2cd57c9005032816126557d064@mail.gmail.com>
-Content-Type: text/plain
-Date: Tue, 29 Mar 2005 02:28:56 +0200
-Message-Id: <1112056136.1849.9.camel@localhost>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.0 
+	Mon, 28 Mar 2005 19:56:27 -0500
+In-Reply-To: <1112055671.3691.8.camel@localhost.localdomain>
+References: <200503280154.j2S1s9e6009981@laptop11.inf.utfsm.cl> <1112011441.27381.31.camel@localhost.localdomain> <1112016850.6003.13.camel@laptopd505.fenrus.org> <1112018265.27381.63.camel@localhost.localdomain> <20050328154338.753f27e3.pj@engr.sgi.com> <1112055671.3691.8.camel@localhost.localdomain>
+Mime-Version: 1.0 (Apple Message framework v619.2)
+Content-Type: text/plain; charset=US-ASCII; format=flowed
+Message-Id: <c4ce304162b3d2a3ad78dc9e0bc455f5@mac.com>
 Content-Transfer-Encoding: 7bit
+Cc: floam@sh.nu, LKML <linux-kernel@vger.kernel.org>, arjan@infradead.org,
+       Paul Jackson <pj@engr.sgi.com>, gilbertd@treblig.org,
+       vonbrand@inf.utfsm.cl, bunk@stusta.de
+From: Kyle Moffett <mrmacman_g4@mac.com>
+Subject: Re: Can't use SYSFS for "Proprietry" driver modules !!!.
+Date: Mon, 28 Mar 2005 19:56:09 -0500
+To: Steven Rostedt <rostedt@goodmis.org>
+X-Mailer: Apple Mail (2.619.2)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2005-03-29 at 08:12 +0800, Coywolf Qi Hunt wrote:
-> > > > with eax == 00000000.  This corresponds to a vp->v_fops (or rather
-> > > > vp->v_bh.bh_first->bd_ops) deref.  So, looks like the vnode has a
-> > > > NULL v_bh.bh_first (which looks like it's meant to be used to mean
-> > > > uninitialized).  May check with XFS folks if they've seen this type
-> > > > of bug.
-> > >
-> > > I think it is f = kmem_cache_alloc(filp_cachep, GFP_KERNEL); returns an
-> > > invalid pointer, then in memset(f, 0, sizeof(*f)); fault happens at address f.
-> > > eax == 0 is to clear the memory in memset().
-> > 
-> > The trace indicates it's in linvfs_open
-> > (EIP: 0060:[linvfs_open+89/160])
-> > and the insturction dump at the end supports that.
-> 
-> How to explain:
-> Call Trace: [get_empty_filp+89/208] get_empty_filp+0x59/0xd0 ?
+On Mar 28, 2005, at 19:21, Steven Rostedt wrote:
+> So you are saying that a stand alone section of code, that needs
+> wrappers to work with Linux is a derived work of Linux? If there's
+> some functionality, that you make, and it just happens to need
+> some kind of operating system to work. Does that make it a derived
+> work of any operating system?
 
-I like to let you know that this was all I got as dump. Was simply
-trying to copy some stuff from A to B on my harddisk using MC on a XFS
-partition using 2.6.11.6.
+It depends on how special and different the wrappers for Linux are
+from the wrappers for other operating systems.  Like, for example,
+the sysfs stuff is so radically different from the APIs that other
+operating systems provide that anything using it is most likely
+copied from other in-kernel sysfs code, and is therefore derived
+from the Linux kernel.
 
-Though I also detected another really strange thing together with this
-issue. On a valid XFS partition (no errors or something) I tried to
-delete about 160 CVS checked out modules (GNOME) and *buff* stuff
-couldn't be deleted anymore but I wasn't aware of this at that moment.
-Seconds later I was trying to copy stuff from A to B as described above
-and this gave me that hit. Luckely the hit caused let me continue using
-the System. I then tried to delete the stuff again and noticed that it
-hadn't deleted the CVS checkout in A) properly and that I copied the
-undeleted stuff to B) as well. I then inserted my own created rescue CD,
-mounted the partition again, and voila was able to delete the stuff
-xfs_repair check on it gave no errors or something.
+> OK, I took your advise and found this from googling:
+>
+> http://www.pbwt.com/Attorney/files/ravicher_1.pdf
 
-Maybe this helps isolating the issue.
+Mmm, good reference, thanks!
+
+> Unless you misunderstood me, and thought that I was talking
+> about taking some part of Linux and making it work under another
+> OS, I still stand by my statement.
+
+I think it really depends on the APIs implemented.  Anything based
+on the sysfs code, even if only using the APIs, will probably be
+found to be a derivative work (NOTE: IANAL) because the sysfs API
+is so very different from everything else.  Other interfaces like
+PCI management, memory management, etc, may not be so protectable,
+because they are standard across many systems.  If Linux got a
+new and unique memory hotplug API, however, that might be a very
+different story.  Similar things could be said about integration
+between drivers and the new Unified Driver Model, which appears to
+be quite original.
+
+Cheers,
+Kyle Moffett
+
+-----BEGIN GEEK CODE BLOCK-----
+Version: 3.12
+GCM/CS/IT/U d- s++: a18 C++++>$ UB/L/X/*++++(+)>$ P+++(++++)>$
+L++++(+++) E W++(+) N+++(++) o? K? w--- O? M++ V? PS+() PE+(-) Y+
+PGP+++ t+(+++) 5 X R? tv-(--) b++++(++) DI+ D+ G e->++++$ h!*()>++$ r  
+!y?(-)
+------END GEEK CODE BLOCK------
 
 

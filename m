@@ -1,73 +1,76 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262955AbUBZTjk (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 Feb 2004 14:39:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262801AbUBZTjk
+	id S262826AbUBZTiO (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 Feb 2004 14:38:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262801AbUBZTiO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 Feb 2004 14:39:40 -0500
-Received: from palrel13.hp.com ([156.153.255.238]:39614 "EHLO palrel13.hp.com")
-	by vger.kernel.org with ESMTP id S262955AbUBZTjZ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 Feb 2004 14:39:25 -0500
-From: David Mosberger <davidm@napali.hpl.hp.com>
+	Thu, 26 Feb 2004 14:38:14 -0500
+Received: from chaos.analogic.com ([204.178.40.224]:13185 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP id S262826AbUBZTgm
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 26 Feb 2004 14:36:42 -0500
+Date: Thu, 26 Feb 2004 14:39:34 -0500 (EST)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+X-X-Sender: root@chaos
+Reply-To: root@chaos.analogic.com
+To: Tim Bird <tim.bird@am.sony.com>
+cc: linux kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Why no interrupt priorities?
+In-Reply-To: <403E4363.2070908@am.sony.com>
+Message-ID: <Pine.LNX.4.53.0402261423170.4239@chaos>
+References: <403E4363.2070908@am.sony.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <16446.19305.637880.99704@napali.hpl.hp.com>
-Date: Thu, 26 Feb 2004 11:39:21 -0800
-To: Andrew Morton <akpm@osdl.org>
-Cc: Peter Chubb <peter@chubb.wattle.id.au>, kingsley@aurema.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: /proc visibility patch breaks GDB, etc.
-In-Reply-To: <20040225224410.3eb21312.akpm@osdl.org>
-References: <16445.37304.155370.819929@wombat.chubb.wattle.id.au>
-	<20040225224410.3eb21312.akpm@osdl.org>
-X-Mailer: VM 7.18 under Emacs 21.3.1
-Reply-To: davidm@hpl.hp.com
-X-URL: http://www.hpl.hp.com/personal/David_Mosberger/
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> On Wed, 25 Feb 2004 22:44:10 -0800, Andrew Morton <akpm@osdl.org> said:
+On Thu, 26 Feb 2004, Tim Bird wrote:
 
-  Andrew> Peter Chubb <peter@chubb.wattle.id.au> wrote:
-  >> 
-  >> 
-  >> In fs/proc/base.c:proc_pid_lookup(), the patch
-  >> 
-  >> read_unlock(&tasklist_lock); if (!task) goto out; + if
-  >> (!thread_group_leader(task)) + goto out_drop_task;
-  >> 
-  >> inode = proc_pid_make_inode(dir->i_sb, task, PROC_TGID_INO);
-  >> 
-  >> means that threads other than the thread group leader don't
-  >> appear in the /proc top-level directory.  Programs that are
-  >> informed via pid of events can no longer find the appropriate
-  >> process -- for example, using gdb on a multi-threaded process, or
-  >> profiling using perfmon.
-  >> 
-  >> The immediate symptom is GDB saying: Could not open
-  >> /proc/757/status when 757 is a TID not a PID.
+> What's the rationale for not supporting interrupt priorities
+> in the kernel?
 
-  Andrew> What does `ls /proc/757' say?  Presumably no such file or
-  Andrew> directory?  It's fairly bizare behaviour to be able to open
-  Andrew> files which don't exist according to readdir, which is why
-  Andrew> we made that change.
+Interrupt priorities are supported and have been supported
+since the first cascaded interrupt controllers and, now
+with the APIC. The interrupt priorities are enforced by
+hardware. There are no "software interrupt priorities"
+because we have more than one interrupt, already prioritized
+by the hardware. The basic PC/AT has IRQ0 through IRQ15 interrupt
+sources. The IO-APIC code emulates this. The priorites go like this:
 
-Excuse, but this seems seriously FOOBAR.  I understand that it's
-interesting to see the thread-leader/thread relationship, but surely
-that's no reason to break backwards compatibility and the ability to
-look up _any_ task's info via /proc/PID/.  A program that only wants
-to show "processes" (thread-group leaders) can simply read
-/proc/PID/status and ignore the entries for which Tgid != PPid.
+Highest priority
+  |
+IRQ0	PIT channel 0
+IRQ1	Keyboard
+IRQ2	Cascade to second controller
+IRQ8
+IRQ9
+IRQ10
+IRQ11
+IRQ12
+IRQ13
+IRQ14
+IRQ15
+IRQ3	Serial 1, Serial 3
+IRQ4	Serial 0, Serial 2
+IRQ5	Floppy disk
+IRQ6
+IRQ7	Printer
+ |
+Lowest priority
 
-Perhaps you could put relative symlinks in task/?  Something like
-this:
+You can't do software interrupt priorities with hardware interrupt
+controllers unless you funnel everything into one master ISR that
+ACKs the hardware, then sorts through some priority lists. The
+result is an abortion that wastes CPU cycles and throws away
+the hardware advantage that you already have.
 
- $ ls -l /proc/self/task
- dr-xr-xr-x    3 davidm   users           0 Feb 26 11:37 13494 -> ..
- dr-xr-xr-x    3 davidm   users           0 Feb 26 11:37 13495 -> ../../13495
+If you have an architecture that has only one hardware interrupt,
+then you have no choice but to impliment some sort of software
+priority scheme. This is not what we have on the ix86.
 
-perhaps?
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.4.24 on an i686 machine (797.90 BogoMips).
+            Note 96.31% of all statistics are fiction.
 
-	--david
+

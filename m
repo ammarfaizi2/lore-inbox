@@ -1,58 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272416AbTHEDaT (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 4 Aug 2003 23:30:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272417AbTHEDaT
+	id S272417AbTHEDbm (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 4 Aug 2003 23:31:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272418AbTHEDbm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 4 Aug 2003 23:30:19 -0400
-Received: from holomorphy.com ([66.224.33.161]:45697 "EHLO holomorphy")
-	by vger.kernel.org with ESMTP id S272416AbTHEDaQ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 4 Aug 2003 23:30:16 -0400
-Date: Mon, 4 Aug 2003 20:31:19 -0700
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Nick Piggin <piggin@cyberone.com.au>
-Cc: Marc-Christian Petersen <m.c.p@wolk-project.de>,
-       Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>,
-       Con Kolivas <kernel@kolivas.org>,
-       linux kernel mailing list <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>
-Subject: Re: [PATCH] O11int for interactivity
-Message-ID: <20030805033119.GO32488@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Nick Piggin <piggin@cyberone.com.au>,
-	Marc-Christian Petersen <m.c.p@wolk-project.de>,
-	Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>,
-	Con Kolivas <kernel@kolivas.org>,
-	linux kernel mailing list <linux-kernel@vger.kernel.org>,
-	Andrew Morton <akpm@osdl.org>
-References: <200307301038.49869.kernel@kolivas.org> <20030802225513.GE32488@holomorphy.com> <200308030119.47474.m.c.p@wolk-project.de> <200308042106.51676.m.c.p@wolk-project.de> <20030804195335.GK32488@holomorphy.com> <3F2F00B0.9050804@cyberone.com.au> <20030805024103.GM32488@holomorphy.com> <3F2F1F80.7060207@cyberone.com.au> <20030805031341.GN32488@holomorphy.com> <3F2F231C.3030901@cyberone.com.au>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3F2F231C.3030901@cyberone.com.au>
-Organization: The Domain of Holomorphy
-User-Agent: Mutt/1.5.4i
+	Mon, 4 Aug 2003 23:31:42 -0400
+Received: from dyn-ctb-210-9-244-254.webone.com.au ([210.9.244.254]:16396 "EHLO
+	chimp.local.net") by vger.kernel.org with ESMTP id S272417AbTHEDbl
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 4 Aug 2003 23:31:41 -0400
+Message-ID: <3F2F2517.7080507@cyberone.com.au>
+Date: Tue, 05 Aug 2003 13:31:35 +1000
+From: Nick Piggin <piggin@cyberone.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3.1) Gecko/20030618 Debian/1.3.1-3
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Con Kolivas <kernel@kolivas.org>
+CC: linux kernel mailing list <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>, Ingo Molnar <mingo@elte.hu>,
+       Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>
+Subject: Re: [PATCH] O13int for interactivity
+References: <200308050207.18096.kernel@kolivas.org> <200308051220.04779.kernel@kolivas.org> <3F2F149F.1020201@cyberone.com.au> <200308051318.47464.kernel@kolivas.org>
+In-Reply-To: <200308051318.47464.kernel@kolivas.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-William Lee Irwin III wrote:
->> Well, I was vaguely hoping a useful way to instrument the io stuff
->> would already be out there.
-
-On Tue, Aug 05, 2003 at 01:23:08PM +1000, Nick Piggin wrote:
-> Not really.
-> For a process doing blocking reads you could measure the time
-> from when a process submits a read to when it gets the result.
-> I suppose you also need some minimum rate too but I really can't
-> see that being the problem here.
-
-I'm at least aware of patches for 2.4.x that log io scheduling
-decisions in the driver, which is basically what I was hoping for.
-
-On a higher level, are you thinking there's some indication the
-io schedulers themselves aren't involved? Or that something higher-
-level should be instrumented? If so, what?
 
 
--- wli
+Con Kolivas wrote:
+
+>On Tue, 5 Aug 2003 12:21, Nick Piggin wrote:
+>
+>>No, this still special-cases the uninterruptible sleep. Why is this
+>>needed? What is being worked around? There is probably a way to
+>>attack the cause of the problem.
+>>
+>
+>Footnote: I was thinking of using this to also _elevate_ the dynamic priority 
+>of tasks waking from interruptible sleep as well which may help throughput.
+>
+
+Con, an uninterruptible sleep is one which is not be woken by a signal,
+an interruptible sleep is one which is. There is no other connotation.
+What happens when read/write syscalls are changed to be interruptible?
+I'm not saying this will happen... but come to think of it, NFS probably
+has interruptible read/write.
+
+In short: make the same policy for an interruptible and an uninterruptible
+sleep.
+
+
+
+

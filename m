@@ -1,91 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262348AbTESKZk (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 19 May 2003 06:25:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262341AbTESKZk
+	id S262373AbTESKjI (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 19 May 2003 06:39:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262378AbTESKjI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 19 May 2003 06:25:40 -0400
-Received: from holomorphy.com ([66.224.33.161]:8677 "EHLO holomorphy")
-	by vger.kernel.org with ESMTP id S262348AbTESKZh (ORCPT
+	Mon, 19 May 2003 06:39:08 -0400
+Received: from holomorphy.com ([66.224.33.161]:13541 "EHLO holomorphy")
+	by vger.kernel.org with ESMTP id S262373AbTESKjG (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 19 May 2003 06:25:37 -0400
-Date: Mon, 19 May 2003 03:38:26 -0700
+	Mon, 19 May 2003 06:39:06 -0400
+Date: Mon, 19 May 2003 03:51:52 -0700
 From: William Lee Irwin III <wli@holomorphy.com>
-To: Rudmer van Dijk <rudmer@legolas.dynup.net>
-Cc: Andrew Morton <akpm@digeo.com>, linux-kernel@vger.kernel.org,
-       linux-mm@kvack.org
-Subject: Re: 2.5.69-mm7
-Message-ID: <20030519103826.GC8978@holomorphy.com>
+To: Martin Schlemmer <azarah@gentoo.org>
+Cc: Christoph Hellwig <hch@infradead.org>, KML <linux-kernel@vger.kernel.org>
+Subject: Re: Recent changes to sysctl.h breaks glibc
+Message-ID: <20030519105152.GD8978@holomorphy.com>
 Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Rudmer van Dijk <rudmer@legolas.dynup.net>,
-	Andrew Morton <akpm@digeo.com>, linux-kernel@vger.kernel.org,
-	linux-mm@kvack.org
-References: <20030519012336.44d0083a.akpm@digeo.com> <200305191230.06092.rudmer@legolas.dynup.net>
+	Martin Schlemmer <azarah@gentoo.org>,
+	Christoph Hellwig <hch@infradead.org>,
+	KML <linux-kernel@vger.kernel.org>
+References: <1053289316.10127.41.camel@nosferatu.lan> <20030518204956.GB8978@holomorphy.com> <1053292339.10127.45.camel@nosferatu.lan> <20030519063813.A30004@infradead.org> <1053341023.9152.64.camel@workshop.saharact.lan>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200305191230.06092.rudmer@legolas.dynup.net>
+In-Reply-To: <1053341023.9152.64.camel@workshop.saharact.lan>
 Organization: The Domain of Holomorphy
 User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 19 May 2003 10:23, Andrew Morton wrote:
->> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.5/2.5.69/2.5.69
->>-mm7/
->> . Included most of the new AIO code which has been floating about.  This
->>   all still needs considerable thought and review, but we may as well get
->> it under test immediately.
->> . Lots of little fixes, as usual.
+On Mon, May 19, 2003 at 12:43:44PM +0200, Martin Schlemmer wrote:
+> Right, so who are going to tell the glibc guys that ?
+> -----------------------------------------------------------------
+> configure: error: GNU libc requires kernel header files from
+> Linux 2.0.10 or later to be installed before configuring.
+> The kernel header files are found usually in /usr/include/asm and
+> /usr/include/linux; make sure these directories use files from
+> Linux 2.0.10 or later.  This check uses <linux/version.h>, so
+> make sure that file was built correctly when installing the kernel
+> header
+> files.  To use kernel headers not from /usr/include/linux, use the
+> configure option --with-headers.
+> -----------------------------------------------------------------
 
-On Mon, May 19, 2003 at 12:30:05PM +0200, Rudmer van Dijk wrote:
-> and this became broken:
-> if [ -r System.map ]; then /sbin/depmod -ae -F System.map  2.5.69-mm7; fi
-> WARNING: /lib/modules/2.5.69-mm7/kernel/fs/ext2/ext2.ko needs unknown symbol 
-> __bread_wq
-> __bread_wq is introduced in -mm7, someone forgot to export it?
+IIRC you're supposed to use some sort of sanitized copy, not the things
+directly. IMHO the current state of affairs sucks as there is no
+standard set of ABI headers, but grabbing them right out of the kernel
+is definitely not the way to go.
 
-Try this patch please.
 
 -- wli
-
-
-diff -prauN mm7-2.5.69-1/fs/buffer.c mm7-2.5.69-2A/fs/buffer.c
---- mm7-2.5.69-1/fs/buffer.c	2003-05-19 01:18:03.000000000 -0700
-+++ mm7-2.5.69-2A/fs/buffer.c	2003-05-19 03:14:27.000000000 -0700
-@@ -1490,6 +1490,7 @@ __bread(struct block_device *bdev, secto
- 		bh = __bread_slow(bh);
- 	return bh;
- }
-+EXPORT_SYMBOL(__bread);
- 
- 
- struct buffer_head *
-@@ -1502,7 +1503,7 @@ __bread_wq(struct block_device *bdev, se
- 		bh = __bread_slow_wq(bh, wait);
- 	return bh;
- }
--EXPORT_SYMBOL(__bread);
-+EXPORT_SYMBOL(__bread_wq);
- 
- /*
-  * invalidate_bh_lrus() is called rarely - at unmount.  Because it is only for
-diff -prauN mm7-2.5.69-1/kernel/ksyms.c mm7-2.5.69-2A/kernel/ksyms.c
---- mm7-2.5.69-1/kernel/ksyms.c	2003-05-19 01:18:08.000000000 -0700
-+++ mm7-2.5.69-2A/kernel/ksyms.c	2003-05-19 03:17:20.000000000 -0700
-@@ -123,6 +123,7 @@ EXPORT_SYMBOL(get_unmapped_area);
- EXPORT_SYMBOL(init_mm);
- EXPORT_SYMBOL(blk_queue_bounce);
- EXPORT_SYMBOL(blk_congestion_wait);
-+EXPORT_SYMBOL(blk_congestion_wait_wq);
- #ifdef CONFIG_HIGHMEM
- EXPORT_SYMBOL(kmap_high);
- EXPORT_SYMBOL(kunmap_high);
-@@ -216,6 +217,7 @@ EXPORT_SYMBOL(sync_dirty_buffer);
- EXPORT_SYMBOL(submit_bh);
- EXPORT_SYMBOL(unlock_buffer);
- EXPORT_SYMBOL(__wait_on_buffer);
-+EXPORT_SYMBOL(__wait_on_buffer_wq);
- EXPORT_SYMBOL(blockdev_direct_IO);
- EXPORT_SYMBOL(block_write_full_page);
- EXPORT_SYMBOL(block_read_full_page);

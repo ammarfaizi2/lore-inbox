@@ -1,38 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318542AbSHLBqA>; Sun, 11 Aug 2002 21:46:00 -0400
+	id <S318552AbSHLByt>; Sun, 11 Aug 2002 21:54:49 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318552AbSHLBqA>; Sun, 11 Aug 2002 21:46:00 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:51095 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S318542AbSHLBqA>;
-	Sun, 11 Aug 2002 21:46:00 -0400
-Date: Sun, 11 Aug 2002 18:36:21 -0700 (PDT)
-Message-Id: <20020811.183621.07790287.davem@redhat.com>
-To: Hell.Surfers@cwctv.net
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: The spam problem.
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <027104643010c82DTVMAIL11@smtp.cwctv.net>
-References: <027104643010c82DTVMAIL11@smtp.cwctv.net>
-X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S318558AbSHLByt>; Sun, 11 Aug 2002 21:54:49 -0400
+Received: from [61.140.60.248] ([61.140.60.248]:40225 "HELO 21cn.com")
+	by vger.kernel.org with SMTP id <S318552AbSHLBys>;
+	Sun, 11 Aug 2002 21:54:48 -0400
+Content-Type: text/plain
+Content-Transfer-Encoding: 8bit
+MIME-Version: 1.0
+Message-ID: <yc979187904955.06068@webmail5.inner-21cn.com>
+X-AIMailer: AIMC 2.9.5.2 2001.11.29
+X-AIMime: MIME/SMIME Lib 2.9 2.9 2001.11.29
+Date: Mon, 12 Aug 2002 09:50:44 +0800 (CST)
+From: "TARZAN LION" <tarzanboy@21cn.com>
+To: linux-kernel@vger.kernel.org
+Subject: Re: [auto-reply] Re: An Error Report
+X-Priority: 3
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: <Hell.Surfers@cwctv.net>
-   Date: Mon, 12 Aug 2002 02:44:14 +0100
+Hello sir: 
 
-   I know this is offtopic, but the spam problem is getting worse,
-   could the linux-kernel mail guy/gal, do something, the nigerian
-   scams are actually dangerous.
+I have some Error report when I use boot_logo, after I patch it into my 
+kernel-2.4.18, and try to select following menu:
+Main Menu
+==>Console drivers -->
+==>Frame-buffer support -->
 
-They never make it to the lists, if they are sending these
-spams to you privately that is your problem to resolve :-)
+some report like following message:
+Q> scripts/Menuconfig: MCmenu64: command not found
 
-Look we simply cannot control what web site archives of these
-lists choose to do with the sender's email address.  If you
-post here, you will almost certainly get on a spam list.
-There is zero we as postmasters can do about this.
+My kernel version is: 2.4.18
+
+finally, I have to telling you, sir, my english is very poor.
+
+tarzanboy@21cn.com 
+Aug/07/2002
+Thanks a lot.
+
+----------------------------------------------
+玩蜘蛛侠游戏,日日送大奖,每天头奖爱立信T68手机 
+http://sms.21cn.com/game_a04.jsp 
+手机号码占卜你的财运,免费试用 
+http://sms.21cn.com/game_mc001.jsp 
+多款机型图片铃声,引领手机潮流 
+http://211.147.1.182/21CN/modules/pic/ 
+收费邮箱五包承诺:包退包换包满意 厚礼双包送大奖 
+http://mail.21cn.com/5bao/5bao2.html 
+
 

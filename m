@@ -1,50 +1,60 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314984AbSD2KFq>; Mon, 29 Apr 2002 06:05:46 -0400
+	id <S315009AbSD2KKQ>; Mon, 29 Apr 2002 06:10:16 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314994AbSD2KFp>; Mon, 29 Apr 2002 06:05:45 -0400
-Received: from ns1.alcove-solutions.com ([212.155.209.139]:55770 "EHLO
-	smtp-out.fr.alcove.com") by vger.kernel.org with ESMTP
-	id <S314984AbSD2KFo>; Mon, 29 Apr 2002 06:05:44 -0400
-Date: Mon, 29 Apr 2002 12:05:34 +0200
-From: Stelian Pop <stelian.pop@fr.alcove.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Pavel Machek <pavel@ucw.cz>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: First working version of suspend-to-RAM
-Message-ID: <20020429100534.GF2740@come.alcove-fr>
-Reply-To: Stelian Pop <stelian.pop@fr.alcove.com>
-Mail-Followup-To: Stelian Pop <stelian.pop@fr.alcove.com>,
-	Alan Cox <alan@lxorguk.ukuu.org.uk>, Pavel Machek <pavel@ucw.cz>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20020429075122.GD2740@come.alcove-fr> <E1728HW-0005nc-00@the-village.bc.nu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.25i
+	id <S315004AbSD2KKP>; Mon, 29 Apr 2002 06:10:15 -0400
+Received: from gandalf.axion.bt.co.uk ([132.146.17.29]:11240 "EHLO
+	gandalf.axion.bt.co.uk") by vger.kernel.org with ESMTP
+	id <S314998AbSD2KKO>; Mon, 29 Apr 2002 06:10:14 -0400
+Message-ID: <F66469FCE9C5D311B8FF0000F8FE9E070965D2A9@mbtlipnt03.btlabs.bt.co.uk>
+From: chris.2.dobbs@bt.com
+To: harada@mbr.sphere.ne.jp, lists@ronpagani.com
+Cc: linux-kernel@vger.kernel.org
+Subject: RE: 2.5.9,2.5.10 kernel compile, +SMP?
+Date: Mon, 29 Apr 2002 11:08:42 +0100
+X-Mailer: Internet Mail Service (5.5.2654.89)
+MIME-version: 1.0
+Content-type: text/plain; charset="ISO-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Apr 29, 2002 at 11:21:18AM +0100, Alan Cox wrote:
+Hi,
+Try clearing out include/linux/modules/* , before u run
+make menuconfig.
+If u have prev. compiled for SMP support seems to not clean up
+properly.
 
-> > Could you please reread Documentation/SubmittingPatches, especially
-> > these 2 points:
-> >   * No MIME, no links, no compression, no attachments.  Just plain text.
-> >   * usage of 'dontdiff'
+-----Original Message-----
+From: Bruce Harada
+To: Ron Pagani / San Francisco / San Jose, CA
+Cc: linux-kernel@vger.kernel.org
+Sent: 4/28/02 9:26 AM
+Subject: Re: 2.5.9,2.5.10 kernel compile, +SMP?
+
+On Sat, 27 Apr 2002 23:55:41 -0700
+"Ron Pagani / San Francisco / San Jose, CA" <lists@ronpagani.com> wrote:
+
+> Folks:
 > 
-> Thats just Linus preference.
+> Compile config question...
+> 
+> Single processor machine (Pentium III)
+> 
+> SMP comes default "ON" in my 2.5.10 and 2.5.9 config; why is it that
+if 
+> I turn it off (since I'm only using one processor) the build breaks?
+I 
+> can post the part it chokes on (I recall something regarding 
+> cpu_number)...
+> 
+> I this a broken config issue, or is someone/thing have a SMP
+dependency 
+> in the 2.5 series?
 
-Agreed, but only for the MIME part.
-
-> A lot of us prefer to get stuff in attachments
-> because that way there is a reasonable chance their mailer won't have 
-> eaten it
-
-MIME or not, I still prefer having an uncompressed patch attached.
-
-But the most important comment was the 'dontdiff' one however...
-
-Stelian.
--- 
-Stelian Pop <stelian.pop@fr.alcove.com>
-Alcove - http://www.alcove.com
+make mrproper
+-
+To unsubscribe from this list: send the line "unsubscribe linux-kernel"
+in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Please read the FAQ at  http://www.tux.org/lkml/

@@ -1,45 +1,65 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S133061AbRDRRBN>; Wed, 18 Apr 2001 13:01:13 -0400
+	id <S135221AbRDRRMO>; Wed, 18 Apr 2001 13:12:14 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S133077AbRDRRBD>; Wed, 18 Apr 2001 13:01:03 -0400
-Received: from chaos.analogic.com ([204.178.40.224]:896 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP
-	id <S133061AbRDRRA4>; Wed, 18 Apr 2001 13:00:56 -0400
-Date: Wed, 18 Apr 2001 13:00:02 -0400 (EDT)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-Reply-To: root@chaos.analogic.com
-To: Dennis <dennis@etinc.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: SMP in 2.4
-In-Reply-To: <5.0.2.1.0.20010418110702.03850d20@mail.etinc.com>
-Message-ID: <Pine.LNX.3.95.1010418125641.363A-100000@chaos.analogic.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S135223AbRDRRMA>; Wed, 18 Apr 2001 13:12:00 -0400
+Received: from gadget.lut.ac.uk ([158.125.96.50]:55562 "EHLO gadget.lut.ac.uk")
+	by vger.kernel.org with ESMTP id <S133113AbRDRRKt>;
+	Wed, 18 Apr 2001 13:10:49 -0400
+X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
+To: "Grover, Andrew" <andrew.grover@intel.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.4.3-ac7 
+In-Reply-To: Message from "Grover, Andrew" <andrew.grover@intel.com> 
+   of "Tue, 17 Apr 2001 10:41:37 PDT." <4148FEAAD879D311AC5700A0C969E8905DE848@orsmsx35.jf.intel.com> 
+Date: Wed, 18 Apr 2001 18:10:45 +0100
+From: Martin Hamilton <martin@net.lut.ac.uk>
+Message-Id: <E14pvTZ-0005F5-00@gadget.lut.ac.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 18 Apr 2001, Dennis wrote:
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-> Does 2.4 have something similar to spl levels or does it still require the 
-> ridiculous MS-DOSish spin-locks to protect every bit of code?
-> 
-> DB
+Content-Type: text/plain; charset=us-ascii
 
-This must be a Troll. MS-DOS didn't have spin-locks and, when you
-have multiple CPUs with one interrupt controller, you don't have
-much choice. You either use spin-locks or you Blue-Screen.
+"Grover, Andrew" writes:
 
-Since Linux doesn't have a "Blue-screen of death", it needs spin-
-locks.
+| (BTW, read the ACPI 2.0 spec - it's a lot better)
+
+I'm getting there...  perhaps tomorrow :-))
+
+| ACPI is meant to abstract the OS from all the "magic numbers". It's very
+| possible to do things in a platform-specific way, but if you want to handle
+| all platforms, you'd end up with something ACPI-like.
+
+This isn't me talking, but I think you know the objection from
+hardcore Linux folk is essentially that Linux is the only platform for
+which platform-specific stuff should go into the Linux kernel.  I
+don't really mind so long as suspend-to-disk and resume work... ;-)
+
+| We're working on this. The major issue now is device power management. 
+
+I was wondering whether the swsusp work might form a useful basis for 
+the eventual ACPI implementation of the to-disk hibernation stuff:
+
+  http://falcon.sch.bme.hu/~seasons/linux/swsusp.html
+
+Am hoping this will resolve my immediate problem with the Vaio :-)
 
 Cheers,
-Dick Johnson
 
-Penguin : Linux version 2.4.1 on an i686 machine (799.53 BogoMips).
+Martin
 
-"Memory is like gasoline. You use it up when you are running. Of
-course you get it all back when you reboot..."; Actual explanation
-obtained from the Micro$oft help desk.
 
+
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.4 (GNU/Linux)
+Comment: Exmh version 2.1.1 10/15/1999 + martin
+
+iD8DBQE63cqVVw+hz3xBJfQRAkYzAJ9R2oNuhC2OtUONePouYWerPQAclgCeIWTR
+os+2g40W0fJBVq5eFDrHLXM=
+=fPzf
+-----END PGP SIGNATURE-----
 

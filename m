@@ -1,39 +1,27 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S286179AbSAUNVY>; Mon, 21 Jan 2002 08:21:24 -0500
+	id <S286365AbSAUNfa>; Mon, 21 Jan 2002 08:35:30 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286263AbSAUNVO>; Mon, 21 Jan 2002 08:21:14 -0500
-Received: from mail2.infineon.com ([192.35.17.230]:2959 "EHLO
-	mail2.infineon.com") by vger.kernel.org with ESMTP
-	id <S286179AbSAUNVG>; Mon, 21 Jan 2002 08:21:06 -0500
-X-Envelope-Sender-Is: Erez.Doron@savan.com (at relayer mail2.infineon.com)
-Subject: non volatile ram disk
-From: Erez Doron <erez@savan.com>
-To: linux kernel <linux-kernel@vger.kernel.org>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/1.0 (Preview Release)
-Date: 21 Jan 2002 15:15:28 +0200
-Message-Id: <1011618928.2825.5.camel@hal.savan.com>
-Mime-Version: 1.0
+	id <S286395AbSAUNfU>; Mon, 21 Jan 2002 08:35:20 -0500
+Received: from mx2.elte.hu ([157.181.151.9]:19346 "HELO mx2.elte.hu")
+	by vger.kernel.org with SMTP id <S286365AbSAUNfJ>;
+	Mon, 21 Jan 2002 08:35:09 -0500
+Date: Mon, 21 Jan 2002 16:32:34 +0100 (CET)
+From: Ingo Molnar <mingo@elte.hu>
+Reply-To: <mingo@elte.hu>
+To: <linux-kernel@vger.kernel.org>
+Subject: [patch] O(1) scheduler, -J4, 2.4.18-pre4
+In-Reply-To: <Pine.LNX.4.33.0201211541250.8699-100000@localhost.localdomain>
+Message-ID: <Pine.LNX.4.33.0201211626030.12418-100000@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-hi
 
-I'm looking for a way to make a ramdisk which is not erased on reboot
-this is for use with ipaq/linux.
+and due to popular demand there is also a patch against 2.4.18-pre4:
 
-i tought of booting with mem=32m and map a block device to the rest of
-the 32M ram i have.
+   http://redhat.com/~mingo/O(1)-scheduler/sched-O1-2.4.18-pre4-J4.patch
 
-the probelm is that giving mem=32m to the kernel will cause the kernel
-to map only the first 32m of physical memory to virtual one, so using
-__pa(ptr) on the top 32m causes a kernel oops.
-
-any idea ?
-
-
-regards
-erez.
+	Ingo
 

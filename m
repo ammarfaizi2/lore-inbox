@@ -1,40 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266454AbUAVUIF (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 22 Jan 2004 15:08:05 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266340AbUAVUHm
+	id S264949AbUAVUjI (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 22 Jan 2004 15:39:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266298AbUAVUjI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 22 Jan 2004 15:07:42 -0500
-Received: from delerium.codemonkey.org.uk ([81.187.208.145]:63393 "EHLO
-	delerium.codemonkey.org.uk") by vger.kernel.org with ESMTP
-	id S266320AbUAVUHk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 22 Jan 2004 15:07:40 -0500
-Date: Thu, 22 Jan 2004 20:06:25 +0000
-From: Dave Jones <davej@redhat.com>
-To: Terence Ripperda <tripperda@nvidia.com>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: 2.6 agpgart and acpi standby/resume
-Message-ID: <20040122200624.GZ9327@redhat.com>
-Mail-Followup-To: Dave Jones <davej@redhat.com>,
-	Terence Ripperda <tripperda@nvidia.com>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <20040122185807.GD506@hygelac> <20040122194404.GA9807@redhat.com> <20040122195338.GB590@hygelac>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040122195338.GB590@hygelac>
-User-Agent: Mutt/1.4.1i
+	Thu, 22 Jan 2004 15:39:08 -0500
+Received: from mailout04.sul.t-online.com ([194.25.134.18]:15591 "EHLO
+	mailout04.sul.t-online.com") by vger.kernel.org with ESMTP
+	id S264949AbUAVUjE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 22 Jan 2004 15:39:04 -0500
+Message-ID: <401034E6.70703@t-online.de>
+Date: Thu, 22 Jan 2004 21:39:02 +0100
+From: Harald Dunkel <harald.dunkel@t-online.de>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7a) Gecko/20040115
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: 2.6.1 on ATI Rage 128 M3: some thin vertical lines show up
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Seen: false
+X-ID: bROMHQZBZe7bJ0Aa1eT++P8VnNXFSzWVWSRRDwDvI34+Pq39K6emcB
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jan 22, 2004 at 01:53:38PM -0600, Terence Ripperda wrote:
- > 
- > ok thanks. can you consider the patch I attached to the first email as
- > submitted and verified? I'll send more as I run across them.
- 
-Will do, (sorry for not making that obvious).
+Hi folks,
 
-Thanks,
+Kernel: plain 2.6.1, booted with "vga=0x318"
+Hardware: Dell C600 laptop
+VGA: VGA compatible controller: ATI Technologies Inc Rage Mobility M3 AGP 2x (rev 02)
+      (XFree86 says '"ATI Rage 128 Mobility M3 LF (AGP)" (ChipID = 0x4c46)')
 
-		Dave
+If I run "make menuconfig" on the frame buffer console,
+then some character cells (e.g. the top line to the right
+of "Linux Kernel v2.6.1 Configuration") contain some thin
+vertical lines in various colors instead of being plain blue.
 
+Switching to another console and back to the menuconfig screen
+does a clean-up, but new screen output will create the thin
+vertical lines again.
+
+It seems that only the character cells _without_ printed text
+contain the thin lines. The same problem comes up with
+running aptitude instead of menuconfig.
+
+I can't remember having seen this problem with kernel 2.4.22,
+but please don't count on this. Can anybody reproduce this
+problem?
+
+
+Regards
+
+Harri

@@ -1,38 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263001AbTEHCut (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 May 2003 22:50:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263017AbTEHCut
+	id S263087AbTEHCvp (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 May 2003 22:51:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263152AbTEHCvp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 May 2003 22:50:49 -0400
-Received: from phoenix.infradead.org ([195.224.96.167]:38417 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id S263001AbTEHCus (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 May 2003 22:50:48 -0400
-Date: Thu, 8 May 2003 04:03:20 +0100 (BST)
-From: James Simmons <jsimmons@infradead.org>
-To: Felix von Leitner <felix-kernel@fefe.de>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.5: ieee1394 still broken, vesafb still broken, ipv6 still
- broken
-In-Reply-To: <20030507235104.GA12486@codeblau.de>
-Message-ID: <Pine.LNX.4.44.0305080401440.6566-100000@phoenix.infradead.org>
+	Wed, 7 May 2003 22:51:45 -0400
+Received: from 60.54.252.64.snet.net ([64.252.54.60]:24770 "EHLO
+	jaymale.blue-labs.org") by vger.kernel.org with ESMTP
+	id S263087AbTEHCvo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 7 May 2003 22:51:44 -0400
+Message-ID: <3EB9D625.1060704@blue-labs.org>
+Date: Wed, 07 May 2003 23:59:33 -0400
+From: David Ford <david+powerix@blue-labs.org>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4b) Gecko/20030504
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Dell Inspiron 8200, 2.5.69, ACPI problems
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
->   vesafb is told to go to 1024x768-32, does so, but then reads from my
->     TFT display that 1600x1200 is the native resolution and then thinks
->     that is the resolution it is using (even fbset says so).  The result
->     is that I can only see the upper half of my screen, and the display
->     is garbled to boot because the line length is too large, meaning
->     writing something in the right half of the 1600x1200 screen results
->     in overwriting something on the left of my real 1024x768 screen.
-
-The EDID blocks often return the wrong data. The fix for now is to remove 
-the edid code. I will passing it to Linus soon.
-
+ACPI: AC Adapter [AC] (on-line)
+    ACPI-0207: *** Warning: Buffer created with zero length in AML
+    ACPI-0207: *** Warning: Buffer created with zero length in AML
+    ACPI-0207: *** Warning: Buffer created with zero length in AML
+    ACPI-0207: *** Warning: Buffer created with zero length in AML
+ACPI: Battery Slot [BAT0] (battery present)
+    ACPI-0207: *** Warning: Buffer created with zero length in AML
+        -0091: *** Error: ut_allocate: Attempt to allocate zero bytes
+    ACPI-0207: *** Warning: Buffer created with zero length in AML
+        -0091: *** Error: ut_allocate: Attempt to allocate zero bytes
+    ACPI-0207: *** Warning: Buffer created with zero length in AML
+        -0091: *** Error: ut_allocate: Attempt to allocate zero bytes
+    ACPI-0207: *** Warning: Buffer created with zero length in AML
+        -0091: *** Error: ut_allocate: Attempt to allocate zero bytes
+ACPI: Battery Slot [BAT1] (battery present)
+ACPI: Lid Switch [LID]
+ACPI: Power Button (CM) [PBTN]
+ACPI: Sleep Button (CM) [SBTN]
+ACPI: Processor [CPU0] (supports C1 C2, 8 throttling states)
+ACPI: Thermal Zone [THM] (25 C)
 
 

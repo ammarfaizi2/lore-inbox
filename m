@@ -1,50 +1,30 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130026AbRAXTZt>; Wed, 24 Jan 2001 14:25:49 -0500
+	id <S129763AbRAXTbB>; Wed, 24 Jan 2001 14:31:01 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129847AbRAXTZj>; Wed, 24 Jan 2001 14:25:39 -0500
-Received: from styx.suse.cz ([195.70.145.226]:5360 "EHLO kerberos.suse.cz")
-	by vger.kernel.org with ESMTP id <S129737AbRAXTZe>;
-	Wed, 24 Jan 2001 14:25:34 -0500
-Date: Wed, 24 Jan 2001 20:25:27 +0100
-From: Vojtech Pavlik <vojtech@suse.cz>
-To: Andre Hedrick <andre@linux-ide.org>
-Cc: Alan Chandler <alan@chandlerfamily.org.uk>, linux-kernel@vger.kernel.org
-Subject: Re: [preview] Latest AMD & VIA IDE drivers with UDMA100 support
-Message-ID: <20010124202527.A2405@suse.cz>
-In-Reply-To: <20010121104606.A398@suse.cz> <Pine.LNX.4.10.10101241003270.14153-100000@master.linux-ide.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <Pine.LNX.4.10.10101241003270.14153-100000@master.linux-ide.org>; from andre@linux-ide.org on Wed, Jan 24, 2001 at 10:04:50AM -0800
+	id <S129847AbRAXTaw>; Wed, 24 Jan 2001 14:30:52 -0500
+Received: from ns1.SuSE.com ([202.58.118.2]:18693 "HELO ns1.suse.com")
+	by vger.kernel.org with SMTP id <S129737AbRAXTah>;
+	Wed, 24 Jan 2001 14:30:37 -0500
+Date: Wed, 24 Jan 2001 11:30:48 -0800 (PST)
+From: James Simmons <jsimmons@suse.com>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: CPU error codes 
+Message-ID: <Pine.LNX.4.21.0101241130280.10902-100000@euclid.oak.suse.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jan 24, 2001 at 10:04:50AM -0800, Andre Hedrick wrote:
 
-> > Well, I know this. But I fear hardcoded timings won't really help here,
-> > unless everyone out there ran their chipsets at 33 MHz, in which case the
-> 
-> You have to run the ATA Chipset at 33MHz or it will fail in 99% of all
-> cases. 
+I was wondering if someone could tell me where I can find
+Xeon Pentium III cpu error messages/codes
 
-No. Though I'd advise everyone to stick with 33MHz PCI when they can
-because it is safe. But even the VIA specs mention 25, 37.5 and 41.5 PCI
-speeds.
+I have a machine that crashed with:
+kernel: CPU 3: Machine Check Exception: 0000000000000004
+kernel: Bank 1: b200000000000175<0>Kernel panic: CPU context
 
-> This is not the FSB running at 66/83/100/133.  So hardcode is
-> correct.
 
-If you set a MVP3 or MVP4 chipset to 83 MHz FSB, you'll get 41.5 MHz
-or 27.6 MHz PCI. And there are chips speced for 75 and 83 MHz FSB's -
-Cyrix 6x86MX etc.
-
-No way to get 33 here, if you *don't* want to over/under-clock the CPU. 
-
--- 
-Vojtech Pavlik
-SuSE Labs
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

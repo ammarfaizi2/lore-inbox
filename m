@@ -1,55 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264475AbTDXWBg (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Apr 2003 18:01:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264482AbTDXWBf
+	id S263809AbTDXWSt (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Apr 2003 18:18:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263692AbTDXWSt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Apr 2003 18:01:35 -0400
-Received: from ztxmail03.ztx.compaq.com ([161.114.1.207]:21252 "EHLO
-	ztxmail03.ztx.compaq.com") by vger.kernel.org with ESMTP
-	id S264475AbTDXWBA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Apr 2003 18:01:00 -0400
-Date: Thu, 24 Apr 2003 17:12:42 -0500
-From: mikem@beardog.cca.cpqcorp.net
-Message-Id: <200304242212.h3OMCgc01143@beardog.cca.cpqcorp.net>
-To: axboe@suse.de
-Subject: RE:cciss patches for 2.4.21-rc1, 4 of 4
-Cc: linux-kernel@vger.kernel.org, mike.miller@hp.com, steve.cameron@hp.com
+	Thu, 24 Apr 2003 18:18:49 -0400
+Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:51844
+	"EHLO lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
+	id S263571AbTDXWSq convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 24 Apr 2003 18:18:46 -0400
+Subject: Re: [report about real state of scsi drivers]
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: =?ISO-8859-1?Q?xos=E9_v=E1zquez_p=E9rez?= <xose@wanadoo.es>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       linux-scsi <linux-scsi@vger.kernel.org>
+In-Reply-To: <3EA1FCF4.5000800@wanadoo.es>
+References: <3EA1FCF4.5000800@wanadoo.es>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8BIT
+Organization: 
+Message-Id: <1051219927.4017.64.camel@dhcp22.swansea.linux.org.uk>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
+Date: 24 Apr 2003 22:32:09 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-20030424
+On Sul, 2003-04-20 at 02:50, xosé vázquez pérez wrote:
+>  - kernel: 0.9.9ac6-TEST
+>  - latest: in kernel ??
+Latest but one in kernel, latest on scsi list from Adaptec but not afaik
+merged
 
-Changes:
-	1. Sets the DMA mask to 64 bits. Removes RH's code for the DMA mask.
+>  - e-mail: <alan_AT_redhat.com> <aacraid_AT_adaptec.com>
+>  - url:    http://ftp.linux.org.uk/pub/linux/alan/Kernel/Drivers/AACRAID/ (Obsolete)
+>            http://www.domsch.com/linux/aacraid/alan/
 
-diff -urN lx2421rc1-p3/drivers/block/cciss.c lx2421rc1/drivers/block/cciss.c
---- lx2421rc1-p3/drivers/block/cciss.c	Wed Apr 23 14:40:48 2003
-+++ lx2421rc1/drivers/block/cciss.c	Wed Apr 23 14:51:55 2003
-@@ -106,7 +106,7 @@
- #define NR_CMDS		 128 /* #commands that can be outstanding */
- #define MAX_CTLR 8
- 
--#define CCISS_DMA_MASK	0xFFFFFFFF	/* 32 bit DMA */
-+#define CCISS_DMA_MASK 0xFFFFFFFFFFFFFFFF /* 64 bit DMA */
- 
- static ctlr_info_t *hba[MAX_CTLR];
- 
-@@ -2861,17 +2861,6 @@
- 	hba[i]->ctlr = i;
- 	hba[i]->pdev = pdev;
- 
--	/* configure PCI DMA stuff */
--	if (!pci_set_dma_mask(pdev, (u64) 0xffffffffffffffff))
--		printk("cciss: using DAC cycles\n");
--	else if (!pci_set_dma_mask(pdev, (u64) 0xffffffff))
--		printk("cciss: not using DAC cycles\n");
--	else {
--		printk("cciss: no suitable DMA available\n");
--		free_hba(i);
--		return -ENODEV;
--	}
--		
- 	if (register_blkdev(MAJOR_NR+i, hba[i]->devname, &cciss_fops)) {
- 		printk(KERN_ERR "cciss:  Unable to get major number "
- 			"%d for %s\n", MAJOR_NR+i, hba[i]->devname);
+

@@ -1,55 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278797AbRJVNaN>; Mon, 22 Oct 2001 09:30:13 -0400
+	id <S278794AbRJVN3x>; Mon, 22 Oct 2001 09:29:53 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278798AbRJVNaD>; Mon, 22 Oct 2001 09:30:03 -0400
-Received: from outpost.ds9a.nl ([213.244.168.210]:35982 "HELO
-	outpost.powerdns.com") by vger.kernel.org with SMTP
-	id <S278797AbRJVN34>; Mon, 22 Oct 2001 09:29:56 -0400
-Date: Mon, 22 Oct 2001 15:30:24 +0200
-From: bert hubert <ahu@ds9a.nl>
-To: rgammans@computer-surgery.co.uk
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.2.20pre10
-Message-ID: <20011022153024.A16225@outpost.ds9a.nl>
-Mail-Followup-To: bert hubert <ahu@ds9a.nl>,
-	rgammans@computer-surgery.co.uk, linux-kernel@vger.kernel.org
-In-Reply-To: <20011022140844.A15243@outpost.ds9a.nl> <E15veDQ-0001nl-00@the-village.bc.nu> <20011022140703.A7305@knuth.computer-surgery.co.uk>
+	id <S278797AbRJVN3n>; Mon, 22 Oct 2001 09:29:43 -0400
+Received: from falcon.mail.pas.earthlink.net ([207.217.120.74]:19379 "EHLO
+	falcon.mail.pas.earthlink.net") by vger.kernel.org with ESMTP
+	id <S278794AbRJVN3d>; Mon, 22 Oct 2001 09:29:33 -0400
+Date: Mon, 22 Oct 2001 08:29:35 -0500 (EST)
+Message-Id: <20011022.082935.74750744.wscott@bitmover.com>
+To: viro@math.psu.edu
+Cc: cr@sap.com, lm@bitmover.com, janfrode@parallab.uib.no,
+        linux-kernel@vger.kernel.org
+Subject: Re: Kernel Compile in tmpfs crumples in 2.4.12 w/epoll patch
+From: Wayne Scott <wscott@bitmover.com>
+In-Reply-To: <Pine.GSO.4.21.0110220556150.2294-100000@weyl.math.psu.edu>
+In-Reply-To: <m3pu7gggbf.fsf@linux.local>
+	<Pine.GSO.4.21.0110220556150.2294-100000@weyl.math.psu.edu>
+X-Mailer: Mew version 2.0.60 on Emacs 20.7 / Mule 4.1 (AOI)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20011022140703.A7305@knuth.computer-surgery.co.uk>; from roger@computer-surgery.co.uk on Mon, Oct 22, 2001 at 02:07:03PM +0100
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Oct 22, 2001 at 02:07:03PM +0100, Roger Gammans wrote:
-> On Mon, Oct 22, 2001 at 01:30:00PM +0100, Alan Cox wrote:
-> > > This would then presumably lead to password protected access for US kernel
-> > > developers that need to know? And some kind of NDA?
-> > 
-> > US kernel developers cannot be told. Period.
+From: Alexander Viro <viro@math.psu.edu>
+> > tmpfs does not know anything about directory handling. It uses
+> > generic_read_dir and dcache_readdir. So this must be a bug in the vfs
+> > layer. Al, what do you say?
 > 
-> Huh, US resident or US citizens?
+> If you are changing directory between the calls of getdents(2) - you have
+> no warranty that offsets will stay stable.  It's not just Linux.
 > 
-> If US resident , does that mean we can't send security patches to 
-> Linus. 
+> Frankly, I don't see what could be done, short of doing qsort() by inumber
+> or something equivalent...
 
-You can send him the patch. It appears you cannot tell him which
-vulnerability it fixes.
+So if I am adding files while reading the directory the directory
+structure gets rewritten and I might return files more than once?
+What happens if files are being deleted?  Can files be skipped?!?
 
-That is, unless the 'code = speech' people have succeded in setting enough
-precedent, in which case even 'code' may become a 'circumvention device'! 
+Any reason we have never seen this on ext2 on other filesystems on 10+
+versions of UNIX?  BitKeeper is pretty paranoid and includes a lot of
+sanity checks.
 
-I am not a lawyer though, but at this point logic seems so far away that
-anything appears possible.
+Does this only happen when the subdirectory I am reading changes, or
+on tmpfs will changing any directory cause this?
 
-Regards,
+I am looking at coding a workaround, but I need to know how bad the
+problem can be.
 
-bert
-
--- 
-http://www.PowerDNS.com          Versatile DNS Software & Services
-Trilab                                 The Technology People
-Netherlabs BV / Rent-a-Nerd.nl           - Nerd Available -
-'SYN! .. SYN|ACK! .. ACK!' - the mating call of the internet
+-Wayne

@@ -1,94 +1,74 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271065AbTGQUsq (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Jul 2003 16:48:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271161AbTGQUsp
+	id S271256AbTGQUwF (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Jul 2003 16:52:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271289AbTGQUwF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Jul 2003 16:48:45 -0400
-Received: from frink.nuigalway.ie ([140.203.56.30]:53441 "EHLO
-	frink.nuigalway.ie") by vger.kernel.org with ESMTP id S271065AbTGQUsl
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Jul 2003 16:48:41 -0400
-From: Rory Browne <robro@compsoc.nuigalway.ie>
-Date: Thu, 17 Jul 2003 22:01:07 +0100
-To: Larry McVoy <lm@bitmover.com>
-Cc: linux-kernel@vger.kernel.org, legal@bitmover.com
-Subject: Re: BK Licence: Protocols and Research
-Message-ID: <20030717210107.GB8818@zion.nuigalway.ie>
-References: <20030717120505.GA22304@zion.nuigalway.ie> <20030717145802.GC24697@work.bitmover.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030717145802.GC24697@work.bitmover.com>
-User-Agent: Mutt/1.3.28i
-X-URL: http://student.nuigalway.ie
+	Thu, 17 Jul 2003 16:52:05 -0400
+Received: from kinesis.swishmail.com ([209.10.110.86]:59396 "HELO
+	kinesis.swishmail.com") by vger.kernel.org with SMTP
+	id S271256AbTGQUwC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 17 Jul 2003 16:52:02 -0400
+Message-ID: <3F1711B5.9020800@techsource.com>
+Date: Thu, 17 Jul 2003 17:14:29 -0400
+From: Timothy Miller <miller@techsource.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20020823 Netscape/7.0
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: [OT??] HELP:  Getting lousy memory throughput from Abit KD7
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I had hoped to bring this discussion to a more private level between
-myself and Larry McVoy. 
+I recently bought an Abit KD7, and I'm having a few problems with it.  I
+hope someone can please help me with them.
 
-I am however disgusted to find that he has shared details, which I
-explicitly marked as Private, with a third Party, namely One of the
-Educational institutes I am involved with.
+According to the BIOS screen, the board model I have is
+KT400-8235-6A6LYA1AC-DN.  I have an Athlon XP 2800+ (barton core,
+333mhz fsb) with 1 GIG of PC2700 DDR.  The board has AwardBIOS.
 
-I find this breach of confidence distrubing.
+I'm running Red Hat 9 with their latest kernel (something like 2.4.20-18).
+
+The Corsair memory I'm using turns out to be from SpecTek, which uses
+Micron silicon.  I called SpecTek to get a datasheet, and they
+directed me to the data sheet for Micron MT46V64M4TG-6T.
+
+I use the following settings for memory:
+
+CAS latency: 2.5
+Bank Interleave: 4
+Trp: 3T
+Tras: 7T
+Trcd: 3T
+Drive strength and controls are all Auto
+DRAM Access: 3T
+Enhance DRAM Performance: Disabled
+DRAM Command Rate: 1T
+Write Recovery Time: 3T
+tWTR: 1T
+
+The problem that I encounter is that I seem to be getting unusually low 
+memory throughput. Using "memtest86", I get 665mb/sec. Using STREAM 
+under Linux, I get closer to 1040 mb/sec peak. Doing some searches on 
+google has revealed that most people get closer to their peak bandwidth, 
+so, I should be expecting at least 2400 from STREAM, judging from the 
+numbers others are getting. I know in the real world, you never get 
+peak, but in synthetic tests, I should not be getting half the rated 
+bandwidth.
+
+I have already tried flashing the latest BIOS but the only result was 
+that "Fast CPU command decode" option now causes the system to not POST 
+(It didn't before).
+
+If anyone could please help me to figure out what is slowing things
+down, I would appreciate it very much.
+
+I have a feeling this isn't a Linux-related issue, but you never know. 
+Does STREAM report very low throughput compares to, say, SiSOFT SANDRA? 
+  I haven't tried SANDRA because I don't want to install Windows.
 
 
+Thank you.
 
-* Larry McVoy <lm@bitmover.com> [030717 15:55]:
-> With apologies to the list for the off topic post (I'm really trying to
-> not annoy you guys but some stuff we can't let slide due to legalities).
-> 
-> On Thu, Jul 17, 2003 at 01:05:05PM +0100, Rory Browne wrote:
-> > Would the conduction of research(and publication of results of same) on 
-> > the bitkeeper formats/protocols, preclude users from using the Free version 
-> > of Bitkeeper, for the research project?
-> 
-> Yes, for the research project and/or anything else.
-> 
-> > Would the carrying out of such research using the free version of
-> > Bitkeeper, prevent them from developing a product which contains
-> > substantially similar capabilities of the BitKeeper Software in the
-> > Future, assuming that all copies of Bitkeeper were destroyed before the
-> > development started?
-> 
-> Yes.
-> 
-> > Would previous activity in the area of developing a product which
-> > contains substantially similary features to Bitkeeper preclude users from
-> > using the Free Bitkeeper software?
-> 
-> Yes.
-> 
-> Each question above can be restated as "Would it be OK if we used BK
-> in violation of its license?".  The answer is no and if you did that we
-> would be forced to come after you, if we don't and some large company did
-> the same thing we would have a much tougher time enforcing the license.
-> Trademarks and licenses tend to lose their value if you don't enforce
-> them.
-> 
-> Your questions indicate one of two things: you either have a burning
-> desire to work on BK itself or a burning desire to copy BK.  If it's
-> the former, that's easy, send us a resume and if you are a good engineer
-> we'll hire you, we need good engineers with a solid understanding of file
-> systems, distributed systems, graphs and sets, and/or human interfaces.
-> 
-> If you are trying to copy BK, give it up.  We'll simply follow in the
-> footsteps of every other company faced with this sort of thing and change
-> the protocol every 6 months.  Since you would be chasing us you can never
-> catch up.  If you managed to stay close then we'd put digital signatures
-> into the protocol to prevent your clone from interoperating with BK.
-> 
-> Instead of trying to copy our work in violation of our license, you'd be
-> far better served by doing some new work.  If you like SCM then either
-> work here, work on some other SCM unrelated to BK, or expect a costly
-> discussion with a lawyer.  I realize this is an unpopular position but
-> that's tough, it's our code and our license and you obey the rules
-> or suffer the consequences.  The license is a contract and it's an
-> enforceable contract, we have gone up against a company who spends more
-> on lawyers in a week than our annual gross revenues and successfully
-> enforced it.
-> -- 
-> ---
-> Larry McVoy              lm at bitmover.com          http://www.bitmover.com/lm

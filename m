@@ -1,58 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261893AbVAaHVG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261932AbVAaHXB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261893AbVAaHVG (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 31 Jan 2005 02:21:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261896AbVAaHVG
+	id S261932AbVAaHXB (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 31 Jan 2005 02:23:01 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261896AbVAaHXB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 31 Jan 2005 02:21:06 -0500
-Received: from smtp.cs.aau.dk ([130.225.194.6]:40396 "EHLO smtp.cs.aau.dk")
-	by vger.kernel.org with ESMTP id S261893AbVAaHVB (ORCPT
+	Mon, 31 Jan 2005 02:23:01 -0500
+Received: from fw.osdl.org ([65.172.181.6]:42726 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S261932AbVAaHWz (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 31 Jan 2005 02:21:01 -0500
-Message-ID: <41FDDCA3.7090701@cs.aau.dk>
-Date: Mon, 31 Jan 2005 08:22:11 +0100
-From: Emmanuel Fleury <fleury@cs.aau.dk>
-User-Agent: Debian Thunderbird 1.0 (X11/20050116)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: [Watchdog] alim7101_wdt problem on 2.6.10
-X-Enigmail-Version: 0.90.0.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Mon, 31 Jan 2005 02:22:55 -0500
+Date: Sun, 30 Jan 2005 23:22:51 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Cc: sneakums@zork.net, linux-kernel@vger.kernel.org
+Subject: Re: Fw: Re: 2.6.11-rc2-mm2
+Message-Id: <20050130232251.7ad649c4.akpm@osdl.org>
+In-Reply-To: <1107155510.5905.2.camel@gaston>
+References: <20050129163117.1626d404.akpm@osdl.org>
+	<1107155510.5905.2.camel@gaston>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Benjamin Herrenschmidt <benh@kernel.crashing.org> wrote:
+>
+> It seems -mm2 definitely has some problems regarding loading of modules,
 
-I have a Vaio C1MZX and in the lspci I saw this line:
-0000:00:11.0 Non-VGA unclassified device: ALi Corporation M7101 Power
-Management Controller [PMU]
-
-So, I assumed it was a watchdog and I compiled with the option:
-CONFIG_ALIM7101_WDT=m
-
-But, when I do: modprobe alim7101_wdt
-
-I get the following error message:
-
-Jan 30 00:58:21 hermes vmunix: alim7101_wdt: Steve Hill
-<steve@navaho.co.uk>.
-Jan 30 00:58:21 hermes vmunix: alim7101_wdt: ALi 1543 South-Bridge does
-not have the correct revision number (???1001?) - WDT
-not set
-
-What did I do wrong ?
-
-If some patches need to be tried out, I volunteer. :)
-
-Thanks in advance for you reply
--- 
-Emmanuel Fleury
-
-Computer Science Department, |  Office: B1-201
-Aalborg University,          |  Phone:  +45 96 35 72 23
-Fredriks Bajersvej 7E,       |  Fax:    +45 98 15 98 89
-9220 Aalborg East, Denmark   |  Email:  fleury@cs.aau.dk
+--- 25/include/linux/stop_machine.h~fix-kallsyms-insmod-rmmod-race-fix-fix-fix	2005-01-29 16:17:47.936137064 -0800
++++ 25-akpm/include/linux/stop_machine.h	2005-01-29 16:18:09.493859792 -0800
+@@ -57,7 +57,7 @@ static inline int stop_machine_run(int (
+ static inline int stop_machine_run(int (*fn)(void *), void *data,
+ 				   unsigned int cpu)
+ {
+-	return 0;
++	return fn(data);
+ }
+ 
+ #endif	/* CONFIG_STOP_MACHINE */
+_
 

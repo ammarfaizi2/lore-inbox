@@ -1,78 +1,126 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315374AbSFTTX3>; Thu, 20 Jun 2002 15:23:29 -0400
+	id <S315437AbSFTT1K>; Thu, 20 Jun 2002 15:27:10 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315420AbSFTTX3>; Thu, 20 Jun 2002 15:23:29 -0400
-Received: from air-2.osdl.org ([65.172.181.6]:61846 "EHLO geena.pdx.osdl.net")
-	by vger.kernel.org with ESMTP id <S315374AbSFTTX1>;
-	Thu, 20 Jun 2002 15:23:27 -0400
-Date: Thu, 20 Jun 2002 12:18:25 -0700 (PDT)
-From: Patrick Mochel <mochel@osdl.org>
-X-X-Sender: <mochel@geena.pdx.osdl.net>
-To: Linus Torvalds <torvalds@transmeta.com>
-cc: Martin Schwenke <martin@meltin.net>, Kurt Garloff <garloff@suse.de>,
-       Linux kernel list <linux-kernel@vger.kernel.org>,
-       Linux SCSI list <linux-scsi@vger.kernel.org>
-Subject: Re: [PATCH] /proc/scsi/map
-In-Reply-To: <Pine.LNX.4.44.0206200800260.8012-100000@home.transmeta.com>
-Message-ID: <Pine.LNX.4.33.0206201207290.654-100000@geena.pdx.osdl.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S315427AbSFTT1J>; Thu, 20 Jun 2002 15:27:09 -0400
+Received: from holomorphy.com ([66.224.33.161]:65215 "EHLO holomorphy")
+	by vger.kernel.org with ESMTP id <S315421AbSFTT1H>;
+	Thu, 20 Jun 2002 15:27:07 -0400
+Date: Thu, 20 Jun 2002 12:26:33 -0700
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Ingo Molnar <mingo@elte.hu>, Dave Jones <davej@suse.de>,
+       Linux Kernel <linux-kernel@vger.kernel.org>,
+       James Bottomley <James.Bottomley@SteelEye.com>,
+       Linus Torvalds <torvalds@transmeta.com>
+Subject: Re: [patch] scheduler bits from 2.5.23-dj1
+Message-ID: <20020620192633.GZ22961@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	Ingo Molnar <mingo@elte.hu>, Dave Jones <davej@suse.de>,
+	Linux Kernel <linux-kernel@vger.kernel.org>,
+	James Bottomley <James.Bottomley@SteelEye.com>,
+	Linus Torvalds <torvalds@transmeta.com>
+References: <20020620172059.GW22961@holomorphy.com> <Pine.LNX.4.44.0206201929310.9805-100000@e2> <20020620181729.GY22961@holomorphy.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Description: brief message
+Content-Disposition: inline
+In-Reply-To: <20020620181729.GY22961@holomorphy.com>
+User-Agent: Mutt/1.3.25i
+Organization: The Domain of Holomorphy
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, Jun 20, 2002 at 07:31:18PM +0200, Ingo Molnar wrote:
+>> looks good to me - what do you think about my other pidhash suggestion:
 
-[ Sorry for the lack of noise in the last week; I was unable to read email 
-for the last week, and am only starting to catch up. ]
+On Thu, Jun 20, 2002 at 11:17:29AM -0700, William Lee Irwin III wrote:
+> An excellent idea. I didn't go all the way and make the pidhash entirely
+> private to fork.c but taking find_task_by_pid() out-of-line is implemented
+> in the following, built atop the prior patch. I can also privatize the
+> pidhash entirely if that's wanted.
 
-> Try it out yourself. Just do
-> 
-> 	mount -t driverfs /devices /devices
-> 
-> and then look at the whole glory in some graphical file manager to get a
-> view of the tree (actually, most file managers are somewhat confused about
-> the fact that the directory counts don't reflect sub-directories, so you
-> may have to open the subdirectories by hand, whatever. That's a bug.
-> Should be fixed. I'm cc'ing Pat)
+The final piece, built on top of the previous two. Please comment and/or
+use your discretion. Although I test compiled and booted it on UP i386,
+this may not be the desired cleanup. The original purpose of this was to
+enforce the usage of Linux' standard list data type for the pidhash.
 
-ACK. I'm looking into it; should have something before I leave for Ottawa. 
 
-> End result: Linux has a notion of a "struct device", and it's an internal
-> kernel representation of the whole bus structure as far as Linux can tell.
-> It's then exported as a filesystem, but that's not the important part: the
-> device tree is valid (and important) even when it's not exported to user
-> space, simply because things like power-management events etc have to
-> honor the tree and traverse it in the right order.
+Cheers,
+Bill
 
-This is an important point, and one I will be stressing heavily in Ottawa. 
-The device model != driverfs. The new device model is about refining the 
-kernel representation of device-related objects: devices, drivers, bus 
-drivers, and class drivers. 
 
-A filesystem just happens to map very nicely onto internal hierarchial 
-structures, which is why it was created. driverfs makes no sense with the 
-device model infrastructure to populate it. But, the device model core can 
-theoretically be separated from the driverfs implementation. 
-
-> If you like OF, you can actually use OF to _populate_ the Linux device
-> tree. The people who like ACPI (yet, they exist) do that with ACPI. The
-> Linux device tree is _completely_ agnostic, and absolutely does _not_ want
-> to know or depend on firmware issues, since firmware is not portable.
-> 
-> (Right now ACPI does this, so all the strange ACPI nodes will show up in
-> /devices/root/ACPI if you have ACPI enabled).
-
-I made a patch a while back that mapped ACPI-enumerated devices back to 
-physical objects in the system. This got rid of the duplicate ACPI 
-entries, and should be done generically enough to port it to other 
-firmware enumerators. (It depends a couple of other patches that have not 
-made it out yet, but I'll bring the whole slew to Canada so people can 
-see how it works).
-
-OF wrt the device tree is something I've talked to a few people about. 
-Things were much more nebulous than now, and talk is still cheap. Ideally, 
-OF should populate the device tree in a similar manner, but I don't think 
-anyone has had the time to make it happen...
-
-	-pat
-
+diff -urN linux-2.5.23-virgin/include/linux/sched.h linux-2.5.23-wli/include/linux/sched.h
+--- linux-2.5.23-virgin/include/linux/sched.h	Thu Jun 20 11:39:08 2002
++++ linux-2.5.23-wli/include/linux/sched.h	Thu Jun 20 11:41:26 2002
+@@ -441,24 +441,8 @@
+ extern struct task_struct *init_tasks[NR_CPUS];
+ 
+ /* PID hashing. */
+-extern list_t *pidhash;
+-extern unsigned long pidhash_size;
+-
+-static inline unsigned pid_hashfn(pid_t pid)
+-{
+-	return ((pid >> 8) ^ pid) & (pidhash_size - 1);
+-}
+-
+-static inline void hash_pid(struct task_struct *p)
+-{
+-	list_add(&p->pidhash_list, &pidhash[pid_hashfn(p->pid)]);
+-}
+-
+-static inline void unhash_pid(struct task_struct *p)
+-{
+-	list_del(&p->pidhash_list);
+-}
+-
++extern void hash_pid(task_t *);
++extern void unhash_pid(task_t *);
+ extern task_t *find_task_by_pid(int pid);
+ 
+ /* per-UID process charging. */
+diff -urN linux-2.5.23-virgin/kernel/fork.c linux-2.5.23-wli/kernel/fork.c
+--- linux-2.5.23-virgin/kernel/fork.c	Thu Jun 20 11:39:08 2002
++++ linux-2.5.23-wli/kernel/fork.c	Thu Jun 20 11:43:30 2002
+@@ -69,6 +69,11 @@
+ 		INIT_LIST_HEAD(&pidhash[i]);
+ }
+ 
++static inline unsigned pid_hashfn(pid_t pid)
++{
++	return ((pid >> 8) ^ pid) & (pidhash_size - 1);
++}
++
+ task_t *find_task_by_pid(int pid)
+ {
+ 	list_t *p, *pid_list = &pidhash[pid_hashfn(pid)];
+@@ -82,7 +87,20 @@
+ 
+ 	return NULL;
+ }
++
++void hash_pid(task_t *p)
++{
++	list_add(&p->pidhash_list, &pidhash[pid_hashfn(p->pid)]);
++}
++
++void unhash_pid(task_t *p)
++{
++	list_del(&p->pidhash_list);
++}
++
+ EXPORT_SYMBOL(find_task_by_pid);
++EXPORT_SYMBOL(hash_pid);
++EXPORT_SYMBOL(unhash_pid);
+ 
+ rwlock_t tasklist_lock __cacheline_aligned = RW_LOCK_UNLOCKED;  /* outer */
+ 
+diff -urN linux-2.5.23-virgin/kernel/ksyms.c linux-2.5.23-wli/kernel/ksyms.c
+--- linux-2.5.23-virgin/kernel/ksyms.c	Thu Jun 20 00:10:27 2002
++++ linux-2.5.23-wli/kernel/ksyms.c	Thu Jun 20 11:41:41 2002
+@@ -602,5 +602,3 @@
+ EXPORT_SYMBOL(init_thread_union);
+ 
+ EXPORT_SYMBOL(tasklist_lock);
+-EXPORT_SYMBOL(pidhash);
+-EXPORT_SYMBOL(pidhash_size);

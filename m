@@ -1,100 +1,122 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267407AbTBLPra>; Wed, 12 Feb 2003 10:47:30 -0500
+	id <S267545AbTBLP4V>; Wed, 12 Feb 2003 10:56:21 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267412AbTBLPr3>; Wed, 12 Feb 2003 10:47:29 -0500
-Received: from copper.ftech.net ([212.32.16.118]:10127 "EHLO relay5.ftech.net")
-	by vger.kernel.org with ESMTP id <S267407AbTBLPr1>;
-	Wed, 12 Feb 2003 10:47:27 -0500
-Message-ID: <7C078C66B7752B438B88E11E5E20E72E0EF6EC@GENERAL.farsite.co.uk>
-From: Kevin Curtis <kevin.curtis@farsite.co.uk>
-To: "'Krzysztof Halasa'" <khc@pm.waw.pl>, linux-kernel@vger.kernel.org
-Cc: Marcelo Tosatti <marcelo@conectiva.com.br>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: RE: Generic HDLC and hw drivers update for 2.4
-Date: Wed, 12 Feb 2003 15:57:09 -0000
+	id <S267530AbTBLP4V>; Wed, 12 Feb 2003 10:56:21 -0500
+Received: from 12-237-214-24.client.attbi.com ([12.237.214.24]:29206 "EHLO
+	wf-rch.cirr.com") by vger.kernel.org with ESMTP id <S267545AbTBLP4R>;
+	Wed, 12 Feb 2003 10:56:17 -0500
+Message-ID: <3E4A70EA.4020504@mvista.com>
+Date: Wed, 12 Feb 2003 10:06:02 -0600
+From: Corey Minyard <cminyard@mvista.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20021204
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+To: "Eric W. Biederman" <ebiederm@xmission.com>
+CC: suparna@in.ibm.com, Kenneth Sumrall <ken@mvista.com>,
+       linux-kernel@vger.kernel.org, lkcd-devel@lists.sourceforge.net
+Subject: Re: Kexec, DMA, and SMP
+References: <3E448745.9040707@mvista.com> <m1isvuzjj2.fsf@frodo.biederman.org>	<3E45661A.90401@mvista.com> <m1d6m1z4bk.fsf@frodo.biederman.org>	<20030210174243.B11250@in.ibm.com>	<m18ywoyq78.fsf@frodo.biederman.org> <20030211182508.A2936@in.ibm.com>	<20030211191027.A2999@in.ibm.com> <3E490374.1060608@mvista.com>	<20030211201029.A3148@in.ibm.com> <3E4914CA.6070408@mvista.com>	<m1of5ixgun.fsf@frodo.biederman.org> <3E4A578C.7000302@mvista.com> <m13cmty2kq.fsf@frodo.biederman.org>
+In-Reply-To: <m13cmty2kq.fsf@frodo.biederman.org>
+X-Enigmail-Version: 0.71.0.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Krzysztof,
-	I have tested this today with our FarSync T-Series drivers, and all
-seems to be OK.  However, I want to release a new driver that provides
-support for some new FarSync cards (T1U, T2U and T4U).  As the driver has
-under-gone radical change, I suspect that this would best be done after the
-generic hdlc makes it into the Kernel.  Is this likely to be 2.4.21?  When
-is 2.4.21 expected to be released.
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
+
+Eric W. Biederman wrote:
+
+|Corey Minyard <cminyard@mvista.com> writes:
+|
+|>Eric W. Biederman wrote:
+|>
+|>|Corey Minyard <cminyard@mvista.com> writes:
+|>|
+|>|>
+|>|>You don't understand.  You don't *want* to set aside a block of 
+memory that's
+|>|>reserved for DMA.  You want to be able to DMA directly into any user 
+address.
+|>|>Consider demand paging.  The performance would suck if you DMA into some
+|>|>fixed region then copied to the user address.  Plus you then have 
+another
+|>|>resource you have to manage in the kernel.  And you still have to 
+change all
+|>|>the drivers, buffer management, etc. to add a flag that says "I'm 
+going to use
+|>
+|>|>this for DMA" to allocations.  You might as well add the quiesce 
+function,
+|>it's
+|>
+|>|>probably easier to do.  And it doesn't help if you DMA to static memory
+|>|>addresses.
+|>|>
+|>|>I, too, would like a simpler solution.  I just don't think this is it.
+|>|
+|>|
+|>|You have it backwards.  It is not about reserving a block of memory
+|>|for DMA.  It is about reserving a block of memory to not do DMA in.
+|>|Something like 4MB or so.  |
+|>|The idea is not to let the original kernel touch the reserved block 
+at all.
+|>|We just put the kernel that kexec will start in that block of memory.
+|>|
+|>|Eric
+|>|
+|>Ah, it makes much more sense now.  Thank you.  I still don't think 
+it's as easy
+|>as you think, though.
+|>Because there's no designation on most memory allocations to give you this
+|>information.  There's
+|>GFP_DMA, but according to the docs that's just for x86 ISA DMA 
+devices.  You
+|>would
+|>have to hunt down all the memory allocations, figure out of they are 
+DMA targets
+|>
+|>or not, and add a
+|>flag for that.  I still say it's easier to just add the function to 
+the drivers.
+|
+|
+|It is trivial if you don't let alloc_pages give the memory to anyone for
+|any purpose.
+
+Ok, agreed, if you reserve a section of physical memory just for kexec 
+to copy it's kernel into, it will
+prevent DMA from clobbering something from the time kexec copies the 
+kernel there to the time
+decompressing starts.
+
+Another thought.  If you add a delay with all other processors and 
+interrupts off, the disk devices
+will run out of things to do.
+
+Once you add all the necessary quiesce functions, these can go away.
+
+I do doubt these will make a big difference, though.  The problem we 
+were seeing was with the
+shared control structures in memory.  The new kernel laid memory out a 
+little differently and
+things like buffer pointers were overwritten with new data.  This, in 
+turn, cause the device to
+do random things.  I would guess this is the most likely scenario, since 
+the time you are protecting
+against with the memory layout is small compared to the time spent booting.
+
+- -Corey
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.6 (GNU/Linux)
+Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org
+
+iD8DBQE+SnDpmUvlb4BhfF4RAruzAJ9Wts5ovfYf4Ncl+trn755L6JCc6QCfZffG
+xGMlv58qX1v3ue0iLwxMRaw=
+=aH5T
+-----END PGP SIGNATURE-----
 
 
-Thanks
-
-Kevin 
-
------Original Message-----
-From: Krzysztof Halasa [mailto:khc@pm.waw.pl]
-Sent: 20 January 2003 00:40
-To: linux-kernel@vger.kernel.org
-Cc: Marcelo Tosatti; Alan Cox
-Subject: Generic HDLC and hw drivers update for 2.4
-
-
-Hi,
-
-I've put the generic HDLC update at:
-ftp://ftp.pm.waw.pl/pub/linux/hdlc/current/hdlc-2.4.21pre3d.patch.gz
-
-Please apply to linux-2.4.21pre and linux-2.4.21-pre-ac.
-Thank you.
-(A patch for 2.5 kernel is in the works).
-
-
-Changes summary: 1.12 - January, 2003
-
-* Added Ethernet device emulation for raw HDLC. VLAN and bridging
-compatible,
-  tested with RAD ChipBridge (ChipBridge doesn't work with full size VLAN
-  frames, though).
-
-* Added Ethernet device emulation for bridged Ethernet frames on
-Frame-Relay.
-
-* fixed subtle transmit bug in c101.c which could lead to transmitter hangs
-  and duplicated frames with SCA HD64570 working in 8-bit mode.
-
-* no more "protocol 0008 is buggy" while using tcpdump, at last.
-
-* Frame-Relay DCE (network) side now sorts DLCI list in PVC FULL STATUS.
-  Some FR DTE had problems with unsorted list.
-
-* Small changes to LMI logic with Frame-Relay.
-
-* tcpdump etc. should see all frames going through physical and logical
-  interfaces correctly (exception: internal syncppp.c processing).
-
-* You can now query PVC device using sethdlc.
-
-* You can continue to use older sethdlc.c tool, but for new functionality
-  you need sethdlc-1.12.c.
-
->From a hardware driver point of view:
-A hardware driver has to call hdlc_type_trans(skb, dev) instead of
-using ETH_P_HDLC to set skb->protocol before netif_rx(skb):
-
-         skb->dev = hdlc_to_dev (&port->hdlc);
--        skb->protocol = htons (ETH_P_HDLC);
-+        skb->protocol = hdlc_type_trans(skb, skb->dev);
-         netif_rx (skb);
-
-This change corrects problems with tcpdump/etc not seeing all inbound
-frames correctly.
--- 
-Krzysztof Halasa
-Network Administrator
--
-To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
-Please read the FAQ at  http://www.tux.org/lkml/

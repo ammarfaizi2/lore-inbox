@@ -1,80 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268856AbUIXPp5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268824AbUIXPzT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268856AbUIXPp5 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 24 Sep 2004 11:45:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268849AbUIXPp5
+	id S268824AbUIXPzT (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 24 Sep 2004 11:55:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268845AbUIXPzS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 24 Sep 2004 11:45:57 -0400
-Received: from mx01.netapp.com ([198.95.226.53]:47539 "EHLO mx01.netapp.com")
-	by vger.kernel.org with ESMTP id S268856AbUIXPmF (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 24 Sep 2004 11:42:05 -0400
-Message-ID: <4154404B.3070705@netapp.com>
-Date: Fri, 24 Sep 2004 11:42:03 -0400
-From: David Wysochanski <davidw@netapp.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030821
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Matthew Wilcox <matthew@wil.cx>
-CC: linux-scsi@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: reiserfs and SCSI oops seen in 2.6.9-rc2 with local SCSI disk
- IO
-References: <4154372C.7070506@netapp.com> <20040924151828.GC16153@parcelfarce.linux.theplanet.co.uk>
-In-Reply-To: <20040924151828.GC16153@parcelfarce.linux.theplanet.co.uk>
-X-Enigmail-Version: 0.76.5.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Fri, 24 Sep 2004 11:55:18 -0400
+Received: from e31.co.us.ibm.com ([32.97.110.129]:62179 "EHLO
+	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S268824AbUIXPzN
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 24 Sep 2004 11:55:13 -0400
+Date: Fri, 24 Sep 2004 08:55:34 -0700
+From: Nishanth Aravamudan <nacc@us.ibm.com>
+To: janitor@sternwelten.at
+Cc: akpm@digeo.com, linux-kernel@vger.kernel.org
+Subject: Re: [patch 02/26]  char/cyclades: replace 	schedule_timeout() with msleep_interruptible()
+Message-ID: <20040924155534.GA1757@us.ibm.com>
+References: <E1CAa9D-0007mL-31@sputnik>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <E1CAa9D-0007mL-31@sputnik>
+X-Operating-System: Linux 2.6.8.1 (i686)
+User-Agent: Mutt/1.5.6+20040722i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Matthew Wilcox wrote:
-> On Fri, Sep 24, 2004 at 11:03:08AM -0400, David Wysochanski wrote:
->  > I can reproduce this pretty easily with local disk.
->  >
->  > Here's some details about my setup (attached is the
->  > full kernel config):
->  > - dell 2650 (dual xeon, hyperthreading disabled)
->  > - 1 local SCSI disk (root volume)
->  > - 2 local SCSI disks (data), each with 10 partitions
->  > of 100MB each, 6 of them reiserfs filesystems, 3 of them
->  > ext3, and 3 of them ext2 (total of 20 unique filesystems)
->  > - one instance of test program running on each of the
->  > 20 filesystems
+On Thu, Sep 23, 2004 at 10:24:58PM +0200, janitor@sternwelten.at wrote:
 > 
-> I don't think this is a SCSI problem.  Your backtrace doesn't include
-> anything in the SCSI subsystem (this doesn't _prove_ anything, but does
-> suggest you should look elsewhere first).  You also didn't mention what
-> SCSI controller you were using.  If you can reproduce the oops without
-> using reiserfs at all, that would suggest the problem doesn't lie in
-> reiserfs, but that's where I'd blame first ;-)
 > 
+> 
+> Any comments would be appreciated. 
+> 
+> Description: Use msleep_interruptible() instead of schedule_timeout()
+> to guarantee the task delays as expected.
+> 
+> Signed-off-by: Nishanth Aravamudan <nacc@us.ibm.com>
+> 
+> Signed-off-by: Maximilian Attems <janitor@sternwelten.at>
+> ---
+> 
+>  linux-2.6.9-rc2-bk7-max/drivers/char/cyclades.c |    9 +++------
+>  1 files changed, 3 insertions(+), 6 deletions(-)
+> 
+> diff -puN drivers/char/cyclades.c~msleep_interruptible-drivers_char_cyclades drivers/char/cyclades.c
+> --- linux-2.6.9-rc2-bk7/drivers/char/cyclades.c~msleep_interruptible-drivers_char_cyclades	2004-09-21 21:07:58.000000000 +0200
+> +++ linux-2.6.9-rc2-bk7-max/drivers/char/cyclades.c	2004-09-21 21:07:58.000000000 +0200
+> @@ -2717,8 +2717,7 @@ cy_wait_until_sent(struct tty_struct *tt
+>  #ifdef CY_DEBUG_WAIT_UNTIL_SENT
+>  	    printk("Not clean (jiff=%lu)...", jiffies);
+>  #endif
+> -	    current->state = TASK_INTERRUPTIBLE;
+> -	    schedule_timeout(char_time);
+> +	    msleep_interruptible(msecs_to_jiffies(char_time));
 
-I've been seeing a lot of problems with reiserfs that I
-don't see on ext2 or ext3, so I would tend to agree with you.
-Do you know where I could post for the reiserfs folks?
+Looks like the wrong macro was used here (should be jiffies_to_msecs()).
+Max, want me to send it to you again?
 
-Did you see the backtrace for the second CPU?  It does
-include SCSI and block subsystem components.
-
-
-The controller on board the dell 2650 is Adaptec:
-
-0000:02:06.0 SCSI storage controller: Adaptec AHA-3960D / AIC-7899A U160/m (rev 01)
-         Subsystem: Adaptec AHA-3960D U160/m
-         Flags: bus master, 66Mhz, medium devsel, latency 32, IRQ 24
-         BIST result: 00
-         I/O ports at cc00 [disabled] [size=fcc00000]
-         Memory at fcd01000 (64-bit, non-prefetchable) [size=4K]
-         Expansion ROM at 00020000 [disabled]
-         Capabilities: <available only to root>
-
-0000:02:06.1 SCSI storage controller: Adaptec AHA-3960D / AIC-7899A U160/m (rev 01)
-         Subsystem: Adaptec AHA-3960D U160/m
-         Flags: bus master, 66Mhz, medium devsel, latency 32, IRQ 25
-         BIST result: 00
-         I/O ports at c800 [disabled] [size=fcc00000]
-         Memory at fcd00000 (64-bit, non-prefetchable) [size=4K]
-         Expansion ROM at 00020000 [disabled]
-         Capabilities: <available only to root>
-
+-Nish

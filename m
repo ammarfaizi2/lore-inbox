@@ -1,109 +1,228 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317726AbSFLQTK>; Wed, 12 Jun 2002 12:19:10 -0400
+	id <S317732AbSFLQYU>; Wed, 12 Jun 2002 12:24:20 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317732AbSFLQTJ>; Wed, 12 Jun 2002 12:19:09 -0400
-Received: from ierw.net.avaya.com ([198.152.13.101]:5355 "EHLO
-	ierw.net.avaya.com") by vger.kernel.org with ESMTP
-	id <S317726AbSFLQTI>; Wed, 12 Jun 2002 12:19:08 -0400
-Date: Wed, 12 Jun 2002 10:19:51 -0600 (MDT)
-From: "Bhavesh P. Davda" <bhavesh@avaya.com>
-X-X-Sender: bhavesh@localhost.localdomain
+	id <S317735AbSFLQYT>; Wed, 12 Jun 2002 12:24:19 -0400
+Received: from amdext2.amd.com ([163.181.251.1]:46056 "EHLO amdext2.amd.com")
+	by vger.kernel.org with ESMTP id <S317732AbSFLQYR>;
+	Wed, 12 Jun 2002 12:24:17 -0400
+From: richard.brunner@amd.com
+X-Server-Uuid: 18a6aeba-11ae-11d5-983c-00508be33d6d
+Message-ID: <39073472CFF4D111A5AB00805F9FE4B609BA66B8@txexmta9.amd.com>
 To: linux-kernel@vger.kernel.org
-cc: bhavesh@avaya.com
-Subject: [PATCH] SCHED_FIFO and SCHED_RR scheduler fix, kernel 2.4.18
-Message-ID: <Pine.LNX.4.44.0206120942410.2422-200000@localhost.localdomain>
+Subject: RE: Cache-attribute conflict bug in the kernel exposed on newer
+ . ..
+Date: Wed, 12 Jun 2002 11:24:10 -0500
 MIME-Version: 1.0
-Content-Type: MULTIPART/MIXED; BOUNDARY="8323328-1301095649-1023898791=:2422"
-X-OriginalArrivalTime: 12 Jun 2002 16:19:24.0781 (UTC) FILETIME=[EAD9F9D0:01C2122C]
+X-Mailer: Internet Mail Service (5.5.2653.19)
+X-WSS-ID: 1119AA2653565-01-01
+Content-Type: text/plain; 
+ charset=iso-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  This message is in MIME format.  The first part should be readable text,
-  while the remaining parts are likely unreadable without MIME-aware tools.
-  Send mail to mime@docserver.cac.washington.edu for more info.
+Below is the short-term patch we have been testing.
+In our testing so far across multiple cards and systems, 
+it appears to remove the failures. As I said before, 
+it theoretically leaves a small hole open
+that we have not seen exploited in practice after much testing.
 
---8323328-1301095649-1023898791=:2422
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+My gut feeling is that distributions looking to release a fix
+very soon will be well served by the short-term patch.
+
+Meanwhile, the community can hammer[1] out any lingering 
+issues with the long-term solution -- which the distributions can
+choose to pick up on their next update.
 
 
-The 2.4.18 kernel was behaving incorrectly for SCHED_FIFO and SCHED_RR 
-scheduling. 
+[1] Why is it every time some one from AMD uses the verb "to hammer", 
+    we have to say "no pun intended" ? ;-)
 
-The correct behaviour for SCHED_FIFO is priority preemption:
-run to completion, or system call, or preemption by higher priority 
-process. The correct behaviour for SCHED_RR is the same as SCHED_FIFO for 
-the preemption case, or run for a time slice, and go to the back of the 
-run queue for that priority.
+-Rich ...
+[richard.brunner@amd.com    -- (360)-867-0654]
+[Senior Member, Technical Staff, SW R&D @ AMD]
 
-More details can be found at:
 
-http://www.opengroup.org/onlinepubs/7908799/xsh/realtime.html
+--- linux/arch/i386/kernel/setup.c      Fri Jun  7 12:46:23 2002
++++ linux-2.4.19pre9work/arch/i386/kernel/setup.c       Mon Jun 10 18:08:56 2002
+@@ -71,6 +71,11 @@
+  *  CacheSize bug workaround updates for AMD, Intel & VIA Cyrix.
+  *  Dave Jones <davej@suse.de>, September, October 2001.
+  *
++ *  Short-term fix for a conflicting cache attribute bug in the kernel
++ *  that is exposed by advanced speculative caching on new AMD Athlon
++ *  processors.
++ *  Richard Brunner <richard.brunner@amd.com> and Mark Langsdorf
++ *  <mark.langsdorf@amd.com>, June 2002 
+  */
+ 
+ /*
+@@ -169,7 +174,11 @@
+ static int disable_x86_ht __initdata = 0;
+ 
+ int enable_acpi_smp_table;
+-
++#ifdef CONFIG_AGP
++int disable_adv_spec_cache __initdata = 1;
++#else
++int disable_adv_spec_cache __initdata = 0;
++#endif /* CONFIG_AGP */
+ /*
+  * This is set up by the setup-routine at boot-time
+  */
+@@ -727,6 +736,36 @@
+        print_memory_map(who);
+ } /* setup_memory_region */
+ 
++int __init amd_adv_spec_cache_feature(void)
++{
++        char vendor_id[16];
++        int ident;
++        int family, model;
++ 
++        /* Must have CPUID */
++        if(!have_cpuid_p())
++                return 0;
++        if(cpuid_eax(0)<1)
++                return 0;
++        
++        /* Must be x86 architecture */
++        cpuid(0, &ident,  
++                (int *)&vendor_id[0],
++                (int *)&vendor_id[8],
++                (int *)&vendor_id[4]);
++
++        if (memcmp(vendor_id, "AuthenticAMD", 12)) 
++               return 0;
++
++        ident = cpuid_eax(1);
++        family = (ident >> 8) & 0xf;
++        model  = (ident >> 4) & 0xf;
++        if (((family == 6)  && (model >= 6)) || (family == 15))
++               /* Feature present */
++               return 1;
++
++        return 0;
++}
+ 
+ static void __init parse_cmdline_early (char ** cmdline_p)
+ {
+@@ -793,6 +832,17 @@
+                 */
+                else if (!memcmp(from, "highmem=", 8))
+                        highmem_pages = memparse(from+8, &from) >> PAGE_SHIFT;
++               /*
++                * unsafe-gart-alias overrides the short-term fix for a
++                * conflicting cache attribute bug in the kernel that is
++                * exposed by advanced speculative caching in newer AMD
++                * Athlon processors.  Overriding the fix will allow
++                * higher performance but the kernel bug can cause system
++                * lock-ups if the system uses an AGP card.  unsafe-gart-alias
++                * can be turned on for higher performance in servers.
++                */
++               else if (!memcmp(from, "unsafe-gart-alias", 17))
++                       disable_adv_spec_cache = 0;
+ nextchar:
+                c = *(from++);
+                if (!c)
+@@ -1057,6 +1107,14 @@
+ #ifdef CONFIG_SMP
+        smp_alloc_memory(); /* AP processor realmode stacks in low memory*/
+ #endif
++       /*
++        * short-term fix for a conflicting cache attribute bug in the 
++        * kernel that is exposed by advanced speculative caching on
++        * newer AMD Athlon processors.
++        */
++       if (disable_adv_spec_cache && amd_adv_spec_cache_feature() )
++               clear_bit(X86_FEATURE_PSE, &boot_cpu_data.x86_capability);
++
+        paging_init();
+ #ifdef CONFIG_X86_LOCAL_APIC
+        /*
+@@ -1225,6 +1283,27 @@
+               l2size, ecx & 0xFF);
+ }
+ 
++/*=======================================================================
++ * amd_adv_spec_cache_disable
++ * Setting a special MSR bit that disables a small part of advanced
++ * speculative caching as part of a short-term fix for a conflicting cache
++ * attribute bug in the kernel that is exposed by advanced speculative
++ * caching in newer AMD Athlon processors.
++ =======================================================================*/
++static void amd_adv_spec_cache_disable(void)
++{
++         __asm__ __volatile__ (
++                " movl   $0x9c5a203a,%%edi   \n" /* msr enable */
++                " movl   $0xc0011022,%%ecx   \n" /* msr addr     */
++                " rdmsr                      \n" /* get reg val  */
++                " orl    $0x00010000,%%eax   \n" /* set bit 16   */
++                " wrmsr                      \n" /* put it back  */
++                " xorl  %%edi, %%edi         \n" /* clear msr enable */
++                : /* no outputs */
++                : /* no inputs, either */
++                : "%eax","%ecx","%edx","%edi" /* clobbered regs */ );
++}
++
+ /*
+  *     B step AMD K6 before B 9730xxxx have hardware bugs that can cause
+  *     misexecution of code under Linux. Owners of such processors should
+@@ -1353,13 +1432,19 @@
+                        break;
+ 
+                case 6: /* An Athlon/Duron */
+- 
+                        /* Bit 15 of Athlon specific MSR 15, needs to be 0
+                         * to enable SSE on Palomino/Morgan CPU's.
+                         * If the BIOS didn't enable it already, enable it
+                         * here.
++                        *
++                        * Avoiding the use of 4MB/2MB pages along with
++                        * setting a special MSR bit that disables a small
++                        * part of advanced speculative caching as part of a
++                        * short-term fix for a conflicting cache attribute
++                        * bug in the kernel that is exposed by advanced
++                        * speculative caching in newer AMD Atlon processors.
+                         */
+-                       if (c->x86_model == 6 || c->x86_model == 7) {
++                       if (c->x86_model >= 6) {
+                                if (!test_bit(X86_FEATURE_XMM,
+                                              &c->x86_capability)) {
+                                        printk(KERN_INFO
+@@ -1370,9 +1455,20 @@
+                                        set_bit(X86_FEATURE_XMM,
+                                                 &c->x86_capability);
+                                }
++                               if (!test_bit(X86_FEATURE_PSE, &boot_cpu_data.x86_capability)) {
++                                       amd_adv_spec_cache_disable();
++                                       printk(KERN_INFO
++                                               "Disabling advanced speculative caching\n");
++                               }
++                       }
++                       break;
++               case 15: 
++                       if (!test_bit(X86_FEATURE_PSE, &boot_cpu_data.x86_capability)) {
++                               amd_adv_spec_cache_disable();
++                               printk(KERN_INFO "Disabling advanced speculative caching\n");
+                        }
+                        break;
+-
+        }
+ 
+        display_cacheinfo(c);
+@@ -2634,6 +2730,12 @@
+                              &c->x86_capability[0]);
+                        c->x86 = (tfms >> 8) & 15;
+                        c->x86_model = (tfms >> 4) & 15;
++                       if ( (c->x86_vendor == X86_VENDOR_AMD) &&
++                               (c->x86 == 0xf)) {
++                               /* AMD Extended Family and Model Values */
++                               c->x86 += (tfms >> 20) & 0xff;
++                               c->x86_model += (tfms >> 12) & 0xf0;
++                       }
+                        c->x86_mask = tfms & 15;
+                } else {
+                        /* Have CPUID level 0 only - unheard of */
 
-As a side note, SCHED_RR is completely broken in the 2.2 series kernels.
-
-This is a small patch, but fixes the behaviour for SCHED_FIFO and SCHED_RR 
-scheduling in the 2.4.18 kernel. It also improves the efficiency of the 
-kernel by NOT calling schedule() for every tick for a SCHED_FIFO process.
-
--- 
-Bhavesh P. Davda
-Avaya Inc
-bhavesh@avaya.com
-
---8323328-1301095649-1023898791=:2422
-Content-Type: TEXT/PLAIN; charset=US-ASCII; name="linux-2.4.18-sched.patch"
-Content-Transfer-Encoding: BASE64
-Content-ID: <Pine.LNX.4.44.0206121019510.2422@localhost.localdomain>
-Content-Description: 
-Content-Disposition: attachment; filename="linux-2.4.18-sched.patch"
-
-ZGlmZiAtTmF1ciBsaW51eC0yLjQuMTgva2VybmVsL3NjaGVkLmMgbGludXgt
-Mi40LjE4LWJwZC9rZXJuZWwvc2NoZWQuYw0KLS0tIGxpbnV4LTIuNC4xOC9r
-ZXJuZWwvc2NoZWQuYwlGcmkgRGVjIDIxIDEwOjQyOjA0IDIwMDENCisrKyBs
-aW51eC0yLjQuMTgtYnBkL2tlcm5lbC9zY2hlZC5jCVdlZCBKdW4gMTIgMDk6
-MTI6MTIgMjAwMg0KQEAgLTMxOCwxMyArMzE4LDE3IEBADQogLyoNCiAgKiBD
-YXJlZnVsIQ0KICAqDQotICogVGhpcyBoYXMgdG8gYWRkIHRoZSBwcm9jZXNz
-IHRvIHRoZSBfYmVnaW5uaW5nXyBvZiB0aGUNCi0gKiBydW4tcXVldWUsIG5v
-dCB0aGUgZW5kLiBTZWUgdGhlIGNvbW1lbnQgYWJvdXQgIlRoaXMgaXMNCi0g
-KiBzdWJ0bGUiIGluIHRoZSBzY2hlZHVsZXIgcHJvcGVyLi4NCisgKiBUaGlz
-IGhhcyB0byBhZGQgdGhlIHByb2Nlc3MgdG8gdGhlIF9lbmRfIG9mIHRoZSAN
-CisgKiBydW4tcXVldWUsIG5vdCB0aGUgYmVnaW5uaW5nLiBUaGUgZ29vZG5l
-c3MgdmFsdWUgd2lsbA0KKyAqIGRldGVybWluZSB3aGV0aGVyIHRoaXMgcHJv
-Y2VzcyB3aWxsIHJ1biBuZXh0LiBUaGlzIGlzDQorICogaW1wb3J0YW50IHRv
-IGdldCBTQ0hFRF9GSUZPIGFuZCBTQ0hFRF9SUiByaWdodCwgd2hlcmUNCisg
-KiBhIHByb2Nlc3MgdGhhdCBpcyBlaXRoZXIgcHJlLWVtcHRlZCBvciBpdHMg
-dGltZSBzbGljZQ0KKyAqIGhhcyBleHBpcmVkLCBzaG91bGQgYmUgbW92ZWQg
-dG8gdGhlIHRhaWwgb2YgdGhlIHJ1biANCisgKiBxdWV1ZSBmb3IgaXRzIHBy
-aW9yaXR5IC0gQmhhdmVzaCBEYXZkYQ0KICAqLw0KIHN0YXRpYyBpbmxpbmUg
-dm9pZCBhZGRfdG9fcnVucXVldWUoc3RydWN0IHRhc2tfc3RydWN0ICogcCkN
-CiB7DQotCWxpc3RfYWRkKCZwLT5ydW5fbGlzdCwgJnJ1bnF1ZXVlX2hlYWQp
-Ow0KKwlsaXN0X2FkZF90YWlsKCZwLT5ydW5fbGlzdCwgJnJ1bnF1ZXVlX2hl
-YWQpOw0KIAlucl9ydW5uaW5nKys7DQogfQ0KIA0KQEAgLTMzNCwxMiArMzM4
-LDYgQEANCiAJbGlzdF9hZGRfdGFpbCgmcC0+cnVuX2xpc3QsICZydW5xdWV1
-ZV9oZWFkKTsNCiB9DQogDQotc3RhdGljIGlubGluZSB2b2lkIG1vdmVfZmly
-c3RfcnVucXVldWUoc3RydWN0IHRhc2tfc3RydWN0ICogcCkNCi17DQotCWxp
-c3RfZGVsKCZwLT5ydW5fbGlzdCk7DQotCWxpc3RfYWRkKCZwLT5ydW5fbGlz
-dCwgJnJ1bnF1ZXVlX2hlYWQpOw0KLX0NCi0NCiAvKg0KICAqIFdha2UgdXAg
-YSBwcm9jZXNzLiBQdXQgaXQgb24gdGhlIHJ1bi1xdWV1ZSBpZiBpdCdzIG5v
-dA0KICAqIGFscmVhZHkgdGhlcmUuICBUaGUgImN1cnJlbnQiIHByb2Nlc3Mg
-aXMgYWx3YXlzIG9uIHRoZQ0KQEAgLTk1NSw4ICs5NTMsNiBAQA0KIAlyZXR2
-YWwgPSAwOw0KIAlwLT5wb2xpY3kgPSBwb2xpY3k7DQogCXAtPnJ0X3ByaW9y
-aXR5ID0gbHAuc2NoZWRfcHJpb3JpdHk7DQotCWlmICh0YXNrX29uX3J1bnF1
-ZXVlKHApKQ0KLQkJbW92ZV9maXJzdF9ydW5xdWV1ZShwKTsNCiANCiAJY3Vy
-cmVudC0+bmVlZF9yZXNjaGVkID0gMTsNCiANCmRpZmYgLU5hdXIgbGludXgt
-Mi40LjE4L2tlcm5lbC90aW1lci5jIGxpbnV4LTIuNC4xOC1icGQva2VybmVs
-L3RpbWVyLmMNCi0tLSBsaW51eC0yLjQuMTgva2VybmVsL3RpbWVyLmMJTW9u
-IE9jdCAgOCAxMTo0MTo0MSAyMDAxDQorKysgbGludXgtMi40LjE4LWJwZC9r
-ZXJuZWwvdGltZXIuYwlXZWQgSnVuIDEyIDA5OjEzOjQzIDIwMDINCkBAIC01
-ODUsNyArNTg1LDE0IEBADQogCWlmIChwLT5waWQpIHsNCiAJCWlmICgtLXAt
-PmNvdW50ZXIgPD0gMCkgew0KIAkJCXAtPmNvdW50ZXIgPSAwOw0KLQkJCXAt
-Pm5lZWRfcmVzY2hlZCA9IDE7DQorCQkJLyoNCisJCQkgKiBTQ0hFRF9GSUZP
-IGlzIHByaW9yaXR5IHByZWVtcHRpb24sIHNvIHRoaXMgaXMgDQorCQkJICog
-bm90IHRoZSBwbGFjZSB0byBkZWNpZGUgd2hldGhlciB0byByZXNjaGVkdWxl
-IGENCisJCQkgKiBTQ0hFRF9GSUZPIHRhc2sgb3Igbm90IC0gQmhhdmVzaCBE
-YXZkYQ0KKwkJCSAqLw0KKwkJCWlmIChwLT5wb2xpY3kgIT0gU0NIRURfRklG
-Tykgew0KKwkJCQlwLT5uZWVkX3Jlc2NoZWQgPSAxOw0KKwkJCX0NCiAJCX0N
-CiAJCWlmIChwLT5uaWNlID4gMCkNCiAJCQlrc3RhdC5wZXJfY3B1X25pY2Vb
-Y3B1XSArPSB1c2VyX3RpY2s7DQo=
---8323328-1301095649-1023898791=:2422--

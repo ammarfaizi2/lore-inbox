@@ -1,116 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261440AbUL2WwA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261437AbUL2W4H@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261440AbUL2WwA (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 29 Dec 2004 17:52:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261436AbUL2WvV
+	id S261437AbUL2W4H (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 29 Dec 2004 17:56:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261436AbUL2W4G
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 29 Dec 2004 17:51:21 -0500
-Received: from smtp16.wxs.nl ([195.121.6.39]:6792 "EHLO smtp16.wxs.nl")
-	by vger.kernel.org with ESMTP id S261439AbUL2WtZ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 29 Dec 2004 17:49:25 -0500
-Date: Wed, 29 Dec 2004 23:49:16 +0100
-From: "Ronald S. Bultje" <rbultje@ronald.bitfreak.net>
-Subject: [PATCH 3/3] 2.6.10 zr36067 driver - reduce stack size usage
-To: Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>
-Cc: linux-kernel@vger.kernel.org, mjpeg-developer@lists.sf.net,
-       "Randy.Dunlap" <rddunlap@osdl.org>
-Message-id: <1104360446.25472.87.camel@tux.lan>
-MIME-version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2)
-Content-type: multipart/mixed; boundary="Boundary_(ID_ylp2WPx9RRuAedxM0UNQfQ)"
+	Wed, 29 Dec 2004 17:56:06 -0500
+Received: from mail16.syd.optusnet.com.au ([211.29.132.197]:26344 "EHLO
+	mail16.syd.optusnet.com.au") by vger.kernel.org with ESMTP
+	id S261437AbUL2WzB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 29 Dec 2004 17:55:01 -0500
+Message-ID: <41D33603.9060501@kolivas.org>
+Date: Thu, 30 Dec 2004 09:56:03 +1100
+From: Con Kolivas <kernel@kolivas.org>
+User-Agent: Mozilla Thunderbird 1.0 (X11/20041206)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Paolo Ciarrocchi <paolo.ciarrocchi@gmail.com>
+Cc: Maciej Soltysiak <solt2@dns.toxicfilms.tv>, linux-kernel@vger.kernel.org
+Subject: Re: Trying out SCHED_BATCH
+References: <m3mzw262cu.fsf@rajsekar.pc> <41CD51E6.1070105@kolivas.org>	 <04ef01c4ede2$ff4a7cc0$0e25fe0a@pysiak> <41D31373.1090801@kolivas.org> <4d8e3fd304122914466b42c632@mail.gmail.com>
+In-Reply-To: <4d8e3fd304122914466b42c632@mail.gmail.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Paolo Ciarrocchi wrote:
+> On Thu, 30 Dec 2004 07:28:35 +1100, Con Kolivas <kernel@kolivas.org> wrote:
+> 
+>>Maciej Soltysiak wrote:
+>>
+>>>Hi
+>>>
+>>>Con wrote:
+>>>
+>>>
+>>>>Only the staircase scheduler currently has an implementation of
+>>>>sched_batch and you need 2 more patches on top of the staircase patch
+>>>>for it to work.
+>>>
+>>>Hmm, Is it feasable to write a sched_batch policy for the current linux
+>>>schedulers?
+>>
+>>Yes.
+>>
+>>The proper way to make a sched_batch implementation is more
+>>comprehensive than what is made for staircase to prevent a deadlock
+>>based on a batch task getting an important lock in the kernel and not
+>>being able to release it due to a sched_normal task being higher
+>>priority than it that is actually trying to get the lock. There is code
+>>in the staircase version to prevent this from happening but probably not
+>>complete enough in design to prevent everything. However it works and I
+>>haven't had any reports of lockups since I implemented the extra checking.
+>>
+>>Would you like me to create a version like that? I don't have the time
+>>to try and make a more comprehensive solution and follow the debugging
+>>of such a beast.
+>>
+>>
+>>>I mean, if there are people that want it bad, maybe it would be nice to
+>>>be able
+>>>to use a version of sched_batch that would work without the staircase
+>>>scheduler.
+>>>It is still experimental, right?
+>>
+>>No it's not experimental. It is very stable and used in production systems.
+> 
+> 
+> Are you gointo  to push to Linus/Andrew ?
 
---Boundary_(ID_ylp2WPx9RRuAedxM0UNQfQ)
-Content-type: text/plain
-Content-transfer-encoding: 7BIT
+Staircase? I'm still in pain from the last time I tried to push it in a 
+more palatable form via the plugsched architecture which took me a long 
+time to do. I don't have the fortitude to go through that again in a hurry.
 
-Hi Andrew/Linus,
-
->From original message (by Randy Dunlap):
-
-"Reduce local variable (large struct) stack usage in zoran_do_ioctl()
-from 1028 bytes to 324 bytes (on x86-32) by declaring & using only 1
-"struct zoran_jpg_settings" instead of 5 instances of it. Reduced from 5
-* 180 bytes to 1 * 180 bytes, plus other locals in each case."
-
-Signed-off-by: Randy Dunlap <rddunlap@osdl.org>
-Signed-off-by: Ronald S. Bultje <rbultje@ronald.bitfreak.net>
-
-Regards,
-
-Ronald
--- 
-Ronald S. Bultje <rbultje@ronald.bitfreak.net>
-
---Boundary_(ID_ylp2WPx9RRuAedxM0UNQfQ)
-Content-type: text/x-patch; name=zoran-stacksize.diff; charset=ISO-8859-1
-Content-transfer-encoding: 7BIT
-Content-disposition: attachment; filename=zoran-stacksize.diff
-
-Index: linux-2.6.10/drivers/media/video/zoran_driver.c
-===================================================================
---- linux-2.6.10.orig/drivers/media/video/zoran_driver.c	2004-12-29 21:56:27.714436423 +0100
-+++ linux-2.6.10/drivers/media/video/zoran_driver.c	2004-12-29 21:57:20.784771392 +0100
-@@ -2014,6 +2014,8 @@
- {
- 	struct zoran_fh *fh = file->private_data;
- 	struct zoran *zr = fh->zr;
-+	/* CAREFUL: used in multiple places here */
-+	struct zoran_jpg_settings settings;
- 
- 	/* we might have older buffers lying around... We don't want
- 	 * to wait, but we do want to try cleaning them up ASAP. So
-@@ -2462,7 +2464,6 @@
- 	case BUZIOC_S_PARAMS:
- 	{
- 		struct zoran_params *bparams = arg;
--		struct zoran_jpg_settings settings;
- 		int res = 0;
- 
- 		dprintk(3, KERN_DEBUG "%s: BUZIOC_S_PARAMS\n", ZR_DEVNAME(zr));
-@@ -2919,8 +2920,6 @@
- 			}
- 
- 			if (fmt->fmt.pix.pixelformat == V4L2_PIX_FMT_MJPEG) {
--				struct zoran_jpg_settings settings;
--
- 				down(&zr->resource_lock);
- 
- 				settings = fh->jpg_settings;
-@@ -3983,7 +3982,8 @@
- 	{
- 		struct v4l2_crop *crop = arg;
- 		int res = 0;
--		struct zoran_jpg_settings settings = fh->jpg_settings;
-+
-+		settings = fh->jpg_settings;
- 
- 		dprintk(3,
- 			KERN_ERR
-@@ -4065,9 +4065,10 @@
- 	case VIDIOC_S_JPEGCOMP:
- 	{
- 		struct v4l2_jpegcompression *params = arg;
--		struct zoran_jpg_settings settings = fh->jpg_settings;
- 		int res = 0;
- 
-+		settings = fh->jpg_settings;
-+
- 		dprintk(3,
- 			KERN_DEBUG
- 			"%s: VIDIOC_S_JPEGCOMP - quality=%d, APPN=%d, APP_len=%d, COM_len=%d\n",
-@@ -4151,8 +4152,7 @@
- 			down(&zr->resource_lock);
- 
- 			if (fmt->fmt.pix.pixelformat == V4L2_PIX_FMT_MJPEG) {
--				struct zoran_jpg_settings settings =
--				    fh->jpg_settings;
-+				settings = fh->jpg_settings;
- 
- 				/* we actually need to set 'real' parameters now */
- 				if ((fmt->fmt.pix.height * 2) >
-
---Boundary_(ID_ylp2WPx9RRuAedxM0UNQfQ)--
+Cheers,
+Con

@@ -1,53 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261424AbREOUFs>; Tue, 15 May 2001 16:05:48 -0400
+	id <S261335AbREOUDs>; Tue, 15 May 2001 16:03:48 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261425AbREOUFi>; Tue, 15 May 2001 16:05:38 -0400
-Received: from zeus.kernel.org ([209.10.41.242]:14534 "EHLO zeus.kernel.org")
-	by vger.kernel.org with ESMTP id <S261424AbREOUF3>;
-	Tue, 15 May 2001 16:05:29 -0400
-Date: Tue, 15 May 2001 13:03:46 -0700 (PDT)
-From: James Simmons <jsimmons@transvirtual.com>
-To: Linus Torvalds <torvalds@transmeta.com>
-cc: Alexander Viro <viro@math.psu.edu>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+	id <S261421AbREOUDj>; Tue, 15 May 2001 16:03:39 -0400
+Received: from anime.net ([63.172.78.150]:31245 "EHLO anime.net")
+	by vger.kernel.org with ESMTP id <S261335AbREOUD1>;
+	Tue, 15 May 2001 16:03:27 -0400
+Date: Tue, 15 May 2001 13:02:56 -0700 (PDT)
+From: Dan Hollis <goemon@anime.net>
+To: James Simmons <jsimmons@transvirtual.com>
+cc: Jeff Garzik <jgarzik@mandrakesoft.com>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>,
         Neil Brown <neilb@cse.unsw.edu.au>,
-        Jeff Garzik <jgarzik@mandrakesoft.com>,
         "H. Peter Anvin" <hpa@transmeta.com>,
         Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
 Subject: Re: LANANA: To Pending Device Number Registrants
-In-Reply-To: <Pine.LNX.4.21.0105151043360.2112-100000@penguin.transmeta.com>
-Message-ID: <Pine.LNX.4.10.10105151151380.22038-100000@www.transvirtual.com>
+In-Reply-To: <Pine.LNX.4.10.10105151023290.22038-100000@www.transvirtual.com>
+Message-ID: <Pine.LNX.4.30.0105151301550.4581-100000@anime.net>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, 15 May 2001, James Simmons wrote:
+> Actually their are hotplug video cards. High end servers have hot swapable
+> graphcis cards. Would you want to take down a very important server
+> because the graphics card went dead. You pull it out and you plug a new
+> one in. Also their are PCMCIA video cards. I have seen them for the hand
+> held ipaqs. It is only a matter of time before all devices are hot
+> swappable.
 
-> What Al is saying, and what makes perfect sense is that you generate a
-> separate fd for each "pipe". It's even more obvious in the case of USB,
-> because, by golly, the things are actually _called_ "pipes" in the USB
-> documentation, which should have made people make the immediate
-> association. Instead of doing
+All PCI is potentially hot pluggable right now.
 
-Graphics cards are the same way. Especially high end ones. They have pipes
-as well. For low end cards you can think of them as single pipeline cards
-with one pipe.
+There is also firewire to contend with.
 
-> See? 
-> 
-> Don't get boxed in by thinking that you only have one fd. Even if you have
-> only one _device_node_, you can have multiple fd's. In fact, you can, with
-> the Linux VFS layer, fairly easily do things like
-> 
-> 	mknod /dev/fd0 c X Y
-> 
-> and then use
-> 
-> 	fd = open("/dev/fd0/colourspace", O_RDWR);
-
-Yipes!! I have to say UNIX has a tendency to teach you ioctl is the only
-way. I have never thought outside of the box nor see anyone else in this
-manner. This is absolutely brillant!!! I can see alot of possibilties with
-this. 
-
+-Dan
 

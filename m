@@ -1,95 +1,77 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265651AbTF2NAl (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 29 Jun 2003 09:00:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265652AbTF2NAl
+	id S265652AbTF2NBN (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 29 Jun 2003 09:01:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265653AbTF2NBN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 29 Jun 2003 09:00:41 -0400
-Received: from diale194.ppp.lrz-muenchen.de ([129.187.28.194]:28032 "EHLO
-	nicole.de.interearth.com") by vger.kernel.org with ESMTP
-	id S265651AbTF2NAj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 29 Jun 2003 09:00:39 -0400
-Subject: Re: bkbits.net is down
-From: Daniel Egger <degger@fhm.edu>
-To: "Mr. James W. Laferriere" <babydr@baby-dragons.com>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.56.0306290619560.24286@filesrv1.baby-dragons.com>
-References: <Pine.LNX.4.21.0306271228200.17138-100000@ns.snowman.net>
-	 <20030627163720.GF357@zip.com.au>
-	 <1056732854.3172.56.camel@dhcp22.swansea.linux.org.uk>
-	 <20030627235150.GA21243@work.bitmover.com>
-	 <20030627165519.A1887@beaverton.ibm.com>
-	 <20030628001625.GC18676@work.bitmover.com>
-	 <20030627205140.F29149@newbox.localdomain>
-	 <20030628031920.GF18676@work.bitmover.com>
-	 <1056827655.6295.22.camel@dhcp22.swansea.linux.org.uk>
-	 <20030628191847.GB8158@work.bitmover.com>  <20030628193857.GH841@gallifrey>
-	 <1056832290.6289.44.camel@dhcp22.swansea.linux.org.uk>
-	 <1056867876.11843.1.camel@sonja>
-	 <Pine.LNX.4.56.0306290619560.24286@filesrv1.baby-dragons.com>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-ye5GCY7HXASGlDzM3wYC"
-Message-Id: <1056892464.12323.27.camel@sonja>
+	Sun, 29 Jun 2003 09:01:13 -0400
+Received: from willy.net1.nerim.net ([62.212.114.60]:12307 "EHLO
+	www.home.local") by vger.kernel.org with ESMTP id S265652AbTF2NBI
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 29 Jun 2003 09:01:08 -0400
+Date: Sun, 29 Jun 2003 15:09:52 +0200
+From: Willy TARREAU <willy@w.ods.org>
+To: marcelo@conectiva.com.br, viro@parcelfarce.linux.theplanet.co.uk
+Cc: linux-kernel@vger.kernel.org
+Subject: [RFC][PATCH-2.4] Prevent mounting on ".."
+Message-ID: <20030629130952.GA246@pcw.home.local>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.0 
-Date: 29 Jun 2003 15:14:25 +0200
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---=-ye5GCY7HXASGlDzM3wYC
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+Hi Al and Marcelo,
 
-Am Son, 2003-06-29 um 12.24 schrieb Mr. James W. Laferriere:
+while I was trying to get maximum restrictions on a chroot on 2.4.21-pre,
+I found that it's always possible to mount a ramfs or a tmpfs on "..",
+and then upload whatever I wanted in it. It's a shame because I was
+trying to isolate network daemons inside empty, read-only file-systems,
+and I discovered that this effort was worthless. To resume, imagine a
+network daemon which does :
 
-> > Which are 300Mbytes/minute, still faster than many tapes.
->             ^^^^^^^^^^^^^^^^
 
-> 	5MB/Sec is faster than MOST tapes drivs ?  Or ???
-> 	If you are talking older scsi-2 or 1 drives yes .
-> 	But on a properly tuned system any of the newer tape drives s/b
-> 	able beat that hands down .
+chroot("/var/empty") (read-only directory or file-system)
+chdir("/")
+listen(), accept(), fork(), whatever...
+-> external code injection from a cracker :
+   mount("none", "..", "ramfs")
+   mkdir("../mydir")
+   chdir("../mydir")
+   the cracker now installs whatever he wants here.
+  
+The worst is that the new directory can even become invisible from all
+other processes, so that the intruder has nothing to fear :-( 
 
-To cite a popular manufacturer directly from the homepage:
-"... and a data transfer rate of up to 5 megabytes per second"
+So I read fs/namei.c and fs/namespace.c, and found a way to prevent
+this. Basically, the only case where it's still possible to mount
+something on the current->fs->root now, is when the process wants to
+remount the root fs, but no other mounts are allowed.
 
-Please note the "up to" and that this drive is an affordable latest
-generation ADR streamer.
+Since I'm really clueless about VFS code, I might have done it wrong,
+or broken something, so I post this patch for comments. If everyone
+agrees, I would really appreciate it if it was accepted in mainstream,
+because it's a security problem IMHO.
 
-Last time I looked the speed was still specified per minute since they
-are (were?) so slow. Also note than an iPod has a data transfer rate of
-5MB/s, modern drives (even when crammed into an USB2/Firewire casing)=20
-beat that by a magnitude yet are a whole lot cheaper than a good
-streamer.
+It still applies to 2.5.66 with offset BTW.
 
-FWIW: The streamer in my office is in the happy 100MB/m (compressed)
-league.
+Cheers,
+Willy
 
-Streamers are only interesting for lots of data, for normal use they're
-not only too slow but also too expensive.
 
-> 	I'd like to see a raising hands that have this functional at
-> 	anywhere near line (60% is close enough) rate ?
-
-Check tomshardware or whatever magazine you prefer to read. Modern cases
-(like the ones with the Oxford chipsets) deliver almost the same
-performance as a built-in controller.
-
---=20
-Servus,
-       Daniel
-
---=-ye5GCY7HXASGlDzM3wYC
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: Dies ist ein digital signierter Nachrichtenteil
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.2 (GNU/Linux)
-
-iD8DBQA+/uYwchlzsq9KoIYRAs+kAKDIXgm1k+tzr7HKUUvIWbbvvOCc0wCcDnQq
-CF2MDVPvH6lT6dvqrULfIWw=
-=ygH7
------END PGP SIGNATURE-----
-
---=-ye5GCY7HXASGlDzM3wYC--
+--- linux-2.4.22-pre2/fs/namespace.c	Sat May 10 11:36:02 2003
++++ linux-2.4.22-pre2-dotdot-mount/fs/namespace.c	Sun Jun 29 14:38:16 2003
+@@ -732,6 +732,10 @@
+ 	if (flags & MS_REMOUNT)
+ 		retval = do_remount(&nd, flags & ~MS_REMOUNT, mnt_flags,
+ 				    data_page);
++	else if (nd.dentry == current->fs->root &&
++		 nd.mnt == current->fs->rootmnt)
++		/* prevents someone from mounting on . or .. */
++		retval = -EINVAL;
+ 	else if (flags & MS_BIND)
+ 		retval = do_loopback(&nd, dev_name, flags & MS_REC);
+ 	else if (flags & MS_MOVE)
 

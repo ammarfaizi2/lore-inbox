@@ -1,46 +1,65 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129408AbQLPR3P>; Sat, 16 Dec 2000 12:29:15 -0500
+	id <S129752AbQLPRoj>; Sat, 16 Dec 2000 12:44:39 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129807AbQLPR3G>; Sat, 16 Dec 2000 12:29:06 -0500
-Received: from wire.cadcamlab.org ([156.26.20.181]:48653 "EHLO
-	wire.cadcamlab.org") by vger.kernel.org with ESMTP
-	id <S129408AbQLPR2z>; Sat, 16 Dec 2000 12:28:55 -0500
-Date: Sat, 16 Dec 2000 10:58:23 -0600
-To: Dima Brodsky <dima@cs.ubc.ca>
-Cc: Linux Kernel List <linux-kernel@vger.kernel.org>
-Subject: Re: Sound (emu10k1) broken in 2.2.18
-Message-ID: <20001216105823.H3199@cadcamlab.org>
-In-Reply-To: <20001215215031.A743@cascade.cs.ubc.ca>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20001215215031.A743@cascade.cs.ubc.ca>; from dima@cs.ubc.ca on Fri, Dec 15, 2000 at 09:50:31PM -0800
-From: Peter Samuelson <peter@cadcamlab.org>
+	id <S131397AbQLPRoa>; Sat, 16 Dec 2000 12:44:30 -0500
+Received: from ns1.SuSE.com ([202.58.118.2]:18185 "HELO ns1.suse.com")
+	by vger.kernel.org with SMTP id <S129752AbQLPRoV>;
+	Sat, 16 Dec 2000 12:44:21 -0500
+Date: Sat, 16 Dec 2000 09:13:51 -0800 (PST)
+From: Chris Mason <mason@suse.com>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: Jeff Chua <jeffchua@silk.corp.fedex.com>, linux-kernel@vger.kernel.org
+Subject: Re: Test12 ll_rw_block error.
+In-Reply-To: <Pine.LNX.4.10.10012151711180.1325-100000@penguin.transmeta.com>
+Message-ID: <Pine.LNX.4.10.10012160851270.30931-100000@home.suse.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, 15 Dec 2000, Linus Torvalds wrote:
 
-[Dima Brodsky]
-> 	cat x > /dev/dsp
+[ writepage for anon buffers ]
 
-> 	bash: /dev/dsp: No such device
 > 
-> But an ls -l shows:
+> It might be 10 lines of change, and obviously correct.
 > 
-> crw-rw-rw-   1 root     sys       14,   3 Dec 15 21:25 dsp
-> crw-rw-rw-   1 root     sys       14,  19 Dec 15 21:25 dsp1
+I'll give this a try, it will be interesting regardless of if it is simple
+enough for kernel inclusion.  
 
-'ls -l' is useless, here.  Sure the device files exist, but bash is
-telling you that, kernel-side, they are not connected to anything.
+On a related note, I hit a snag porting reiserfs into test12, where
+block_read_full_page assumes the buffer it gets back from get_block won't
+be up to date.  When reiserfs reads a packed tail directly into the page,
+reading the  newly mapped buffer isn't required, and is actually a bad
+idea, since the packed tails have a block number of 0 when copied into
+the page cache.
 
-- Do you have emu10k1 compiled in, or as a module?
-- Does your SBLive appear to have been detected?  (Check 'dmesg')
-- If emu10k1 is a module, is the module loaded?  Does it seem to detect
-  your SBLive when loaded?  (Again check 'dmesg')
+In other words, after calling reiserfs_get_block, the buffer might be
+mapped and uptodate, with no i/o required in block_read_full_page
 
-Peter
+The following patch to block_read_full_page fixes things for me, and seems
+like a good idea in general.  It might be better to apply something
+similar to submit_bh instead...comments?
+
+-chris
+
+--- linux-test12/fs/buffer.c	Mon Dec 18 11:37:42 2000
++++ linux/fs/buffer.c	Mon Dec 18 11:38:36 2000
+@@ -1706,8 +1706,10 @@
+ 			}
+ 		}
+ 
+-		arr[nr] = bh;
+-		nr++;
++		if (!buffer_uptodate(bh)) {
++			arr[nr] = bh;
++			nr++;
++	        }
+ 	} while (i++, iblock++, (bh = bh->b_this_page) != head);
+ 
+ 	if (!nr) {
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

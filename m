@@ -1,47 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265134AbUGJP6t@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265154AbUGJQEF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265134AbUGJP6t (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 10 Jul 2004 11:58:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265154AbUGJP6t
+	id S265154AbUGJQEF (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 10 Jul 2004 12:04:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265692AbUGJQEE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 10 Jul 2004 11:58:49 -0400
-Received: from mail-relay-4.tiscali.it ([212.123.84.94]:40112 "EHLO
-	sparkfist.tiscali.it") by vger.kernel.org with ESMTP
-	id S265134AbUGJP6s (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 10 Jul 2004 11:58:48 -0400
-Date: Sat, 10 Jul 2004 17:58:34 +0200
-From: Andrea Arcangeli <andrea@suse.de>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: Christoph Hellwig <hch@infradead.org>, linux-kernel@vger.kernel.org,
-       Arjan van de Ven <arjanv@redhat.com>
-Subject: Re: [announce] [patch] Voluntary Kernel Preemption Patch
-Message-ID: <20040710155834.GJ20947@dualathlon.random>
-References: <20040709182638.GA11310@elte.hu> <20040709195105.GA4807@infradead.org> <20040710124814.GA27345@elte.hu>
+	Sat, 10 Jul 2004 12:04:04 -0400
+Received: from cm217.omega59.maxonline.com.sg ([218.186.59.217]:16259 "EHLO
+	localhost.localdomain") by vger.kernel.org with ESMTP
+	id S265154AbUGJQEA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 10 Jul 2004 12:04:00 -0400
+Date: Sun, 11 Jul 2004 00:04:09 +0800
+From: David Teigland <teigland@redhat.com>
+To: linux-kernel@vger.kernel.org
+Cc: James Bottomley <James.Bottomley@SteelEye.com>
+Subject: Re: [ANNOUNCE] Minneapolis Cluster Summit, July 29-30
+Message-ID: <20040710160409.GA19471@redhat.com>
+References: <1089471483.1750.31.camel@mulgrave>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20040710124814.GA27345@elte.hu>
-X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
-X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
-User-Agent: Mutt/1.5.6i
+In-Reply-To: <1089471483.1750.31.camel@mulgrave>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Jul 10, 2004 at 02:48:14PM +0200, Ingo Molnar wrote:
-> if you dont care about latencies and want to maximize throughput (for
-> e.g. servers) then you dont want to enable CONFIG_PREEMPT_VOLUNTARY. 
-> That way you get artificial batching of parallel workloads.
+On Sat, Jul 10, 2004 at 09:58:02AM -0500, James Bottomley wrote:
+>     gfs needs to run in the kernel.  dlm should run in the kernel since gfs
+>     uses it so heavily.  cman is the clustering subsystem on top of which
+>     both of those are built and on which both depend quite critically.  It
+>     simply makes most sense to put cman in the kernel for what we're doing
+>     with it.  That's not a dogmatic position, just a practical one based on
+>     our experience.
+>     
+> This isn't really acceptable.  We've spent a long time throwing things out of
+> the kernel so you really need a good justification for putting things in
+> again.  "it makes sense" and "its just practical" aren't sufficient.
 
-you just agreed a second time to make all the pollution go away, so why
-are you talking about servers now? I mean, I don't see why production
-environments should run the benchmarking testcode. And I totally
-disagree CONFIG_PREEMPT_VOLUNTARY disabled could provide any benefit on
-a server (even with the benchmarking on). Servers have to start the next
-I/O too to avoid leaving some disk idle during a copy-user etc..
+The "it" refers to gfs.  This means gfs doesn't make a lot of sense and isn't
+very practical without it.  I'm not the one to speculate on what gfs would
+become otherwise, others would do that better.
 
-let's assume you convert the benchmark sysctl knob into a
-CONFIG_LOW_RESCHEDULE_OVERHEAD as I suggested in the 30 lines rant, only
-then it could make sense to classify some of the scheduling points as
-"high-overhead", but I don't see the need of
-CONFIG_LOW_RESCHEDULE_OVERHEAD happening any time soon.  Though such a
-config option would make sense theoretically.
+
+> You also face two other additional hurdles:
+> 
+> 1) GFS today uses a user space DLM.  What critical problems does this have
+> that you suddenly need to move it all into the kernel?
+
+GFS does not use a user space dlm today.  GFS uses the client-server gulm lock
+manager for which the client (gfs) side runs in the kernel and the gulm server
+runs in userspace on some other node.  People have naturally been averse to
+using servers like this with gfs for a long time and we've finally created the
+serverless dlm (a la VMS clusters).  For many people this is the only option
+that makes gfs interesting; it's also what the opengfs group was doing.
+
+This is a revealing discussion.  We've worked hard to make gfs's lock manager
+independent from gfs itself so it could be useful to others and make gfs less
+monolithic.  We could have left it embedded within the file system itself --
+that's what most other cluster file systems do.  If we'd done that we would
+have avoided this objection altogether but with an inferior design.  The fact
+that there's an independent lock manager to point at and question illustrates
+our success.  The same goes for the cluster manager.  (We could, of course, do
+some simple glueing together and make a monlithic system again :-)
+
+
+> 2) We have numerous other clustering products for Linux, none of which (well
+> except the Veritas one) has any requirement at all on having pieces in the
+> kernel.  If all the others operate in user space, why does yours need to be
+> in the kernel?
+
+If you want gfs in user space you don't want gfs; you want something different.
+
+-- 
+Dave Teigland  <teigland@redhat.com>

@@ -1,336 +1,271 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266536AbRG1KCS>; Sat, 28 Jul 2001 06:02:18 -0400
+	id <S266567AbRG1LOw>; Sat, 28 Jul 2001 07:14:52 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266544AbRG1KCA>; Sat, 28 Jul 2001 06:02:00 -0400
-Received: from aeon.tvd.be ([195.162.196.20]:60666 "EHLO aeon.tvd.be")
-	by vger.kernel.org with ESMTP id <S266536AbRG1KBn>;
-	Sat, 28 Jul 2001 06:01:43 -0400
-Date: Sat, 28 Jul 2001 11:57:42 +0200 (CEST)
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-To: =?ISO-8859-1?Q?G=E9rard_Roudier?= <groudier@free.fr>
-cc: =?ISO-8859-1?Q?G=E9rard_Roudier?= <groudier@club-internet.fr>,
-        Linux Kernel Development <linux-kernel@vger.kernel.org>
-Subject: Re: SCSI Tape corruption - update
-In-Reply-To: <20010727221848.F1554-100000@gerard>
-Message-ID: <Pine.LNX.4.05.10107281155360.5093-100000@callisto.of.borg>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
+	id <S266574AbRG1LOm>; Sat, 28 Jul 2001 07:14:42 -0400
+Received: from etpmod.phys.tue.nl ([131.155.111.35]:24882 "EHLO
+	etpmod.phys.tue.nl") by vger.kernel.org with ESMTP
+	id <S266567AbRG1LO3>; Sat, 28 Jul 2001 07:14:29 -0400
+Date: Sat, 28 Jul 2001 13:11:59 +0200
+From: Kurt Garloff <garloff@suse.de>
+To: David Lang <dlang@diginsite.com>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, cw@f00f.org, ppeiffer@free.fr,
+        linux-kernel@vger.kernel.org, Arjan van de Ven <arjanv@redhat.com>,
+        Chris Brady <crsbrady@earthlink.net>
+Subject: Re: VIA KT133A / athlon / MMX
+Message-ID: <20010728131159.B23174@pckurt.casa-etp.nl>
+Mail-Followup-To: Kurt Garloff <garloff@suse.de>,
+	David Lang <dlang@diginsite.com>,
+	Alan Cox <alan@lxorguk.ukuu.org.uk>, cw@f00f.org, ppeiffer@free.fr,
+	linux-kernel@vger.kernel.org, Arjan van de Ven <arjanv@redhat.com>,
+	Chris Brady <crsbrady@earthlink.net>
+In-Reply-To: <E15QEP3-0006TF-00@the-village.bc.nu> <Pine.LNX.4.33.0107271718550.29714-100000@dlang.diginsite.com>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="YkJPYEFdoxh/AXLE"
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.33.0107271718550.29714-100000@dlang.diginsite.com>
+User-Agent: Mutt/1.3.20i
+X-Operating-System: Linux 2.4.7-SMP i686
+X-PGP-Info: on http://www.garloff.de/kurt/mykeys.pgp
+X-PGP-Key: 1024D/1C98774E, 1024R/CEFC9215
+Organization: TU/e(NL), SuSE(DE)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
-On Fri, 27 Jul 2001, Gérard Roudier wrote:
-> On Fri, 27 Jul 2001, Geert Uytterhoeven wrote:
-> > On Fri, 20 Jul 2001, Gérard Roudier wrote:
-> > > On Fri, 20 Jul 2001, Geert Uytterhoeven wrote:
-> > > > The problem is indeed introduced by the changes to the Sym53c8xx in 2.2.18-pre1.
-> > > > I managed to find some intermediate versions in the 2.3.x series, and here are the
-> > > > results:
-> > > >   - sym53c8xx-1.3g (from BK linuxppc_2_2): OK
-> > > >   - sym53c8xx-1.5e: crash in SCSI interrupt during driver init
-> > > >   - sym53c8xx-1.5f: lock up during driver init
-> > > >   - sym53c8xx-1.5g: random 32-byte error bursts when writing to tape
-> > >
-> > > That's an interesting result. But 1.5g - 1.3g diffs are probably very
-> > > large. Patches available from ftp.tux.org should allow to resurrect
-> > > driver versions 1.4, 1.5, 1.5a, 1.5b, 1.5c, 1.5d.
-> > >
-> > > ftp://ftp.tux.org/pub/roudier/drivers/linux/sym53c8xx/README
-> > >
-> > > You may, for example, apply incremental patches that address kernel 2.2.5
-> > > to a fresh kernel 2.2.5 tree and extract driver files accordingly.
-> >
-> > Thanks!
-> >
-> > With some small modifications, I made 1.5a to work fine. No error burst. So the
-> > problem is introduced between 1.5a and 1.5g.
-> 
-> Fine! But diffs between 1.5a and 1.5g are still large. :(
-> Results with 1.5c would have divided the diffs by about 2. :(
-> 
-> > Unfortunately my DDS-1 drive seems to have died for real after this test :-(
-> > I don't know yet whether I will replace it with a new tape drive or with a
-> > CD-RW. Which means I may never find out which change caused the problem...
-> 
-> I expect the problem to pong again to me. For now, I plan to look into the
-> 1.5g-1.5a source diffs and inspect each change. But as I will be in
-> vacation for the next two weeks, I will not be able to work on this
-> problem immediately.
 
-Just in case the fix is in the changes between the official 1.5a and the 1.5a
-in my tree, here are the diffs. But I doubt it.
+--YkJPYEFdoxh/AXLE
+Content-Type: multipart/mixed; boundary="pZs/OQEoSSbxGlYw"
+Content-Disposition: inline
+
+
+--pZs/OQEoSSbxGlYw
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
+
+Hi,
+
+On Fri, Jul 27, 2001 at 05:23:07PM -0700, David Lang wrote:
+> I have a 1u box at my des that has two MSI boards in it with 1.2G athlons.
+> at the moment they are both running 2.4.5 (athlon optimized), one box has
+> no problems at all while the other dies (no video, no keyboard, etc)
+> within an hour of being booted.
+
+Somebody told he had the same MoBo already replaced a couple of times ...
+
+> if you have any patch you would like me to test on these boxes let me know
+
+Well, no kernel patches.
+But some program which does the K7 optmizied copies and zeroing in userspac=
+e.
+(Attached)
+
+Strange enough it succeeds on the machine that fails to boot a K7 optimized
+kernel.=20
+So I'm puzzled now.=20
+Seems we can trigger problems in kernelspace that we can't have in userspac=
+e?
+Some problem with non-serialization if an interrupt occurs or something
+esoteric like this?
+
+> (I am arranging to ship this one and three others like it that each have
+> one working and one failing system in them back to the factory to get the
+> MLB swapped out on the one that is failing.
 
 Good luck!
+--=20
+Kurt Garloff  <garloff@suse.de>                          Eindhoven, NL
+GPG key: See mail header, key servers         Linux kernel development
+SuSE GmbH, Nuernberg, DE                                SCSI, Security
 
-diff -ur sym53c8xx-s01-d07-2.2.5-1.5a/drivers/scsi/Config.in longtrail-2.2.18-pre1/drivers/scsi/Config.in
---- sym53c8xx-s01-d07-2.2.5-1.5a/drivers/scsi/Config.in	Thu Jul 26 20:14:50 2001
-+++ longtrail-2.2.18-pre1/drivers/scsi/Config.in	Thu Jul 26 20:07:03 2001
-@@ -18,6 +18,9 @@
- mainmenu_option next_comment
- comment 'SCSI low-level drivers'
- 
-+if [ "$CONFIG_EXPERIMENTAL" = "y" ]; then
-+   dep_tristate '3ware Hardware ATA-RAID support (EXPERIMENTAL)' CONFIG_BLK_DEV_3W_XXXX_RAID $CONFIG_SCSI
-+fi
- dep_tristate '7000FASST SCSI support' CONFIG_SCSI_7000FASST $CONFIG_SCSI
- dep_tristate 'ACARD SCSI support' CONFIG_SCSI_ACARD $CONFIG_SCSI
- dep_tristate 'Adaptec AHA152X/2825 support' CONFIG_SCSI_AHA152X $CONFIG_SCSI
-@@ -25,13 +28,12 @@
- dep_tristate 'Adaptec AHA1740 support' CONFIG_SCSI_AHA1740 $CONFIG_SCSI
- dep_tristate 'Adaptec AIC7xxx support' CONFIG_SCSI_AIC7XXX $CONFIG_SCSI
- if [ "$CONFIG_SCSI_AIC7XXX" != "n" ]; then
--    bool '   Override driver defaults for commands per LUN' CONFIG_OVERRIDE_CMDS N
--    if [ "$CONFIG_OVERRIDE_CMDS" != "n" ]; then
--      int  '   Maximum number of commands per LUN' CONFIG_AIC7XXX_CMDS_PER_LUN 24
--    fi
-+    bool '   Enable Tagged Command Queueing (TCQ) by default' CONFIG_AIC7XXX_TCQ_ON_BY_DEFAULT
-+    int  '   Maximum number of TCQ commands per device' CONFIG_AIC7XXX_CMDS_PER_DEVICE 8
-     bool '   Collect statistics to report in /proc' CONFIG_AIC7XXX_PROC_STATS N
-     int  '   Delay in seconds after SCSI bus reset' CONFIG_AIC7XXX_RESET_DELAY 5
- fi
-+dep_tristate 'IBM ServeRAID support' CONFIG_SCSI_IPS $CONFIG_SCSI
- dep_tristate 'AdvanSys SCSI support' CONFIG_SCSI_ADVANSYS $CONFIG_SCSI
- dep_tristate 'Always IN2000 SCSI support' CONFIG_SCSI_IN2000 $CONFIG_SCSI
- dep_tristate 'AM53/79C974 PCI SCSI support' CONFIG_SCSI_AM53C974 $CONFIG_SCSI
-@@ -52,9 +54,7 @@
- dep_tristate 'EATA-PIO (old DPT PM2001, PM2012A) support' CONFIG_SCSI_EATA_PIO $CONFIG_SCSI
- dep_tristate 'Future Domain 16xx SCSI/AHA-2920A support' CONFIG_SCSI_FUTURE_DOMAIN $CONFIG_SCSI
- if [ "$CONFIG_MCA" = "y" ]; then
--  if [ "$CONFIG_SCSI" = "y" ]; then
--    bool 'Future Domain MCS-600/700 SCSI support' CONFIG_SCSI_FD_MCS
--  fi
-+    dep_tristate 'Future Domain MCS-600/700 SCSI support' CONFIG_SCSI_FD_MCS $CONFIG_SCSI
- fi
- dep_tristate 'GDT SCSI Disk Array Controller support' CONFIG_SCSI_GDTH $CONFIG_SCSI
- dep_tristate 'Generic NCR5380/53c400 SCSI support' CONFIG_SCSI_GENERIC_NCR5380 $CONFIG_SCSI
-@@ -78,6 +78,7 @@
- fi
- dep_tristate 'NCR53c406a SCSI support' CONFIG_SCSI_NCR53C406A $CONFIG_SCSI
- dep_tristate 'symbios 53c416 SCSI support' CONFIG_SCSI_SYM53C416 $CONFIG_SCSI
-+dep_tristate 'Simple 53c710 SCSI support (Compaq, NCR machines)' CONFIG_SCSI_SIM710 $CONFIG_SCSI
- if [ "$CONFIG_PCI" = "y" ]; then
-   dep_tristate 'NCR53c7,8xx SCSI support'  CONFIG_SCSI_NCR53C7xx $CONFIG_SCSI
-   if [ "$CONFIG_SCSI_NCR53C7xx" != "n" ]; then
-@@ -95,8 +96,9 @@
-     int  '  synchronous transfers frequency in MHz' CONFIG_SCSI_NCR53C8XX_SYNC 20
-     bool '  enable profiling' CONFIG_SCSI_NCR53C8XX_PROFILE
-     bool '  use normal IO' CONFIG_SCSI_NCR53C8XX_IOMAPPED
--    bool '  include support for the NCR PQS/PDS SCSI card' CONFIG_SCSI_NCR53C8XX_PQS_PDS
--    bool '  enable immediate arbitration' CONFIG_SCSI_NCR53C8XX_IARB
-+    if [ "$CONFIG_SCSI_SYM53C8XX" != "n" ]; then
-+      bool '  include support for the NCR PQS/PDS SCSI card' CONFIG_SCSI_NCR53C8XX_PQS_PDS
-+    fi
-     if [ "$CONFIG_SCSI_NCR53C8XX_DEFAULT_TAGS" = "0" ]; then
-       bool '  not allow targets to disconnect' CONFIG_SCSI_NCR53C8XX_NO_DISCONNECT
-     fi
-diff -ur sym53c8xx-s01-d07-2.2.5-1.5a/drivers/scsi/sym53c8xx.c longtrail-2.2.18-pre1/drivers/scsi/sym53c8xx.c
---- sym53c8xx-s01-d07-2.2.5-1.5a/drivers/scsi/sym53c8xx.c	Thu Jul 26 20:14:05 2001
-+++ longtrail-2.2.18-pre1/drivers/scsi/sym53c8xx.c	Thu Jul 26 22:43:12 2001
-@@ -73,6 +73,7 @@
- **		53C895	  (Wide,   Fast 40,	 on-board rom BIOS)
- **		53C895A	  (Wide,   Fast 40,	 on-board rom BIOS)
- **		53C896	  (Wide,   Fast 40 Dual, on-board rom BIOS)
-+**		53C1510D	  (Wide,   Fast 40 Dual, on-board rom BIOS)
- **
- **	Other features:
- **		Memory mapped IO
-@@ -558,10 +559,11 @@
- #endif
- 
- #ifdef __sparc__
-+#  include <asm/irq.h>
- #  define remap_pci_mem(base, size)	((u_long) __va(base))
- #  define unmap_pci_mem(vaddr, size)
- #  define pcivtobus(p)			((p) & pci_dvma_mask)
--#  define memcpy_to_pci(a, b, c)	memcpy_toio((u_long) (a), (b), (c))
-+#  define memcpy_to_pci(a, b, c)	memcpy_toio((void *) (a), (b), (c))
- #elif defined(__alpha__)
- #  define pcivtobus(p)			((p) & 0xfffffffful)
- #  define memcpy_to_pci(a, b, c)	memcpy_toio((a), (b), (c))
-@@ -1808,6 +1810,8 @@
- 	*/
- 	u_short		device_id;	/* PCI device id		*/
- 	u_char		revision_id;	/* PCI device revision id	*/
-+	u_char		pci_bus;	/* PCI bus number		*/
-+	u_char		pci_devfn;	/* PCI device and function	*/
- 	u_int		features;	/* Chip features map		*/
- 	u_char		myaddr;		/* SCSI id of the adapter	*/
- 	u_char		maxburst;	/* log base 2 of dwords burst	*/
-@@ -4582,7 +4586,7 @@
- 	**	64 bit (53C895A or 53C896) ?
- 	*/
- 	if (np->features & FE_64BIT)
--#if BITS_PER_LONG > 32
-+#ifdef SCSI_NCR_USE_64BIT_DAC
- 		np->rv_ccntl1	|= (XTIMOD | EXTIBMV);
- #else
- 		np->rv_ccntl1	|= (DDAC);
-@@ -4955,6 +4959,8 @@
- 	sprintf(np->inst_name, NAME53C "%s-%d", np->chip_name, np->unit);
- 	np->device_id	= device->chip.device_id;
- 	np->revision_id	= device->chip.revision_id;
-+	np->pci_bus	= device->slot.bus;
-+	np->pci_devfn	= device->slot.device_fn;
- 	np->features	= device->chip.features;
- 	np->clock_divn	= device->chip.nr_divisor;
- 	np->maxoffs	= device->chip.offset_max;
-@@ -5088,7 +5094,7 @@
- 	**	the clock doubler.
- 	*/
- 	i = (int) ncr_getpciclock(np);
--	if (i > 37000) {
-+	if (0 && i > 37000) {
- 		printk(KERN_ERR "%s: PCI clock seems too high (%u KHz).\n",
- 		       ncr_name(np), i);
- 		goto attach_error;
-@@ -10091,7 +10097,7 @@
- **	code will get more complex later).
+--pZs/OQEoSSbxGlYw
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: attachment; filename="test_movntq.c"
+Content-Transfer-Encoding: quoted-printable
+
+/* test_movntq.c=20
+ * Program that tests the K7 optimized routines for copying=20
+ * and zeroing pages (which fail on some MoBos in the kernel).
+ * gcc -O2 -Wall -g -fomit-frame-pointer -o test_movntq test_movntq.c
+ * and run on AMD K7!
+ * (c) Kurt Garloff <garloff@suse.de>, 2001-07-28, GNU GPL
  */
- 
--#if BITS_PER_LONG > 32
-+#ifdef SCSI_NCR_USE_64BIT_DAC
- #define SCATTER_ONE(data, badd, len)					\
- 	(data)->addr = cpu_to_scr(badd);				\
- 	(data)->size = cpu_to_scr((((badd) >> 8) & 0xff000000) + len);
-@@ -10531,6 +10537,8 @@
- 	u_int f1, f2;
- 	int gen = 11;
- 
-+	OUTB(nc_istat, SRST); UDELAY (5); OUTB(nc_istat, 0);
-+
- 	(void) ncrgetfreq (np, gen);	/* throw away first result */
- 	f1 = ncrgetfreq (np, gen);
- 	f2 = ncrgetfreq (np, gen);
-@@ -11290,7 +11298,7 @@
- 	**	Ignore Symbios chips controlled by SISL RAID controller.
- 	**	This controller sets value 0x52414944 at RAM end - 16.
- 	*/
--#ifndef SCSI_NCR_PCI_MEM_NOT_SUPPORTED
-+#if defined(__i386__) && !defined(SCSI_NCR_PCI_MEM_NOT_SUPPORTED)
- 	if (chip && (base_2 & PCI_BASE_ADDRESS_MEM_MASK)) {
- 		unsigned int ram_size, ram_val;
- 		u_long ram_ptr;
-@@ -11379,6 +11387,8 @@
- 	if (!cache_line_size)
- 		suggested_cache_line_size = 16;
- 
-+	driver_setup.pci_fix_up |= 0x7;
-+
- #endif	/* __sparc__ */
- 
- #if defined(__i386__) && !defined(MODULE)
-@@ -11692,7 +11702,15 @@
- */
- const char *sym53c8xx_info (struct Scsi_Host *host)
- {
-+#ifdef __sparc__
-+	/* Ok to do this on all archs? */
-+	static char buffer[80];
-+	ncb_p np = ((struct host_data *) host->hostdata)->ncb;
-+	sprintf (buffer, "%s\nPCI bus %02x device %02x", SCSI_NCR_DRIVER_NAME, np->pci_bus, np->pci_devfn);
-+	return buffer;
-+#else
- 	return SCSI_NCR_DRIVER_NAME;
-+#endif
- }
- 
- /*
-@@ -12274,7 +12292,13 @@
- 	copy_info(&info, "revision id 0x%x\n",	np->revision_id);
- 
- 	copy_info(&info, "  IO port address 0x%lx, ", (u_long) np->base_io);
-+#ifdef __sparc__
-+	copy_info(&info, "IRQ number %s\n", __irq_itoa(np->irq));
-+	/* Ok to do this on all archs? */
-+	copy_info(&info, "PCI bus %02x device %02x\n", np->pci_bus, np->pci_devfn);
-+#else
- 	copy_info(&info, "IRQ number %d\n", (int) np->irq);
-+#endif
- 
- #ifndef NCR_IOMAPPED
- 	if (np->reg)
-diff -ur sym53c8xx-s01-d07-2.2.5-1.5a/drivers/scsi/sym53c8xx_defs.h longtrail-2.2.18-pre1/drivers/scsi/sym53c8xx_defs.h
---- sym53c8xx-s01-d07-2.2.5-1.5a/drivers/scsi/sym53c8xx_defs.h	Thu Jul 26 20:14:05 2001
-+++ longtrail-2.2.18-pre1/drivers/scsi/sym53c8xx_defs.h	Thu Jul 26 22:42:44 2001
-@@ -66,8 +66,9 @@
- #endif
- #include <linux/config.h>
- 
-+#ifndef LinuxVersionCode
- #define LinuxVersionCode(v, p, s) (((v)<<16)+((p)<<8)+(s))
--
-+#endif
- /*
-  * NCR PQS/PDS special device support.
-  */
-@@ -182,6 +183,13 @@
- #endif
- 
- /*
-+ * Should we enable DAC cycles on this platform?
-+ * Until further investigation we do not enable it
-+ * anywhere at the moment.
-+ */
-+#undef SCSI_NCR_USE_64BIT_DAC
-+
-+/*
-  * Sync transfer frequency at startup.
-  * Allow from 5Mhz to 40Mhz default 20 Mhz.
-  */
-@@ -395,6 +403,10 @@
- #define PCI_DEVICE_ID_NCR_53C895A 0x12
- #endif
- 
-+#ifndef PCI_DEVICE_ID_NCR_53C1510D
-+#define PCI_DEVICE_ID_NCR_53C1510D 0xa
-+#endif
-+
- /*
- **   NCR53C8XX devices features table.
- */
-@@ -482,6 +494,9 @@
-  {PCI_DEVICE_ID_NCR_53C875, 0x2f, "875E",  6, 16, 5,			\
-  FE_WIDE|FE_ULTRA|FE_DBLR|FE_CACHE0_SET|FE_BOF|FE_DFS|FE_LDSTR|FE_PFEN|FE_RAM}\
-  ,									\
-+ {PCI_DEVICE_ID_NCR_53C875, 0xff, "876",  6, 16, 5,			\
-+ FE_WIDE|FE_ULTRA|FE_DBLR|FE_CACHE0_SET|FE_BOF|FE_DFS|FE_LDSTR|FE_PFEN|FE_RAM}\
-+ ,									\
-  {PCI_DEVICE_ID_NCR_53C875J,0xff, "875J", 6, 16, 5,			\
-  FE_WIDE|FE_ULTRA|FE_DBLR|FE_CACHE0_SET|FE_BOF|FE_DFS|FE_LDSTR|FE_PFEN|FE_RAM}\
-  ,									\
-@@ -498,6 +513,10 @@
-  {PCI_DEVICE_ID_NCR_53C895A, 0xff, "895a",  6, 31, 7,			\
-  FE_WIDE|FE_ULTRA2|FE_QUAD|FE_CACHE_SET|FE_BOF|FE_DFS|FE_LDSTR|FE_PFEN|FE_RAM|\
-  FE_RAM8K|FE_64BIT|FE_IO256|FE_NOPM|FE_LEDC}\
-+ ,									\
-+ {PCI_DEVICE_ID_NCR_53C1510D, 0xff, "1510D",  7, 31, 7,			\
-+ FE_WIDE|FE_ULTRA2|FE_QUAD|FE_CACHE_SET|FE_BOF|FE_DFS|FE_LDSTR|FE_PFEN|FE_RAM|\
-+ FE_IO256}\
- }
- 
- /*
-@@ -515,7 +534,8 @@
- 	PCI_DEVICE_ID_NCR_53C885,	\
- 	PCI_DEVICE_ID_NCR_53C895,	\
- 	PCI_DEVICE_ID_NCR_53C896,	\
--	PCI_DEVICE_ID_NCR_53C895A	\
-+	PCI_DEVICE_ID_NCR_53C895A,	\
-+	PCI_DEVICE_ID_NCR_53C1510D	\
- }
- 
- /*
+
+#include <stdio.h>
+#include <unistd.h>
+#include <malloc.h>
+#include <stdlib.h>
+
+#define PAGE_SIZE 4096
+#define NR_TESTS 4096
+
+void * fpu_ctx;
+
+double c;
+void trigger_fpu ()
+{
+
+	double a =3D 4.3;
+	double b =3D rand()/ (float)RAND_MAX;
+	c =3D a/b;
+}
+
+void movntq_copy_page0 (void* to, void* from)
+{
+	//void *d0, *d1;
+	//printf ("%p <- %p\n", to, from);
+	asm volatile (
+		      "\n\t   prefetch (%0)"
+		      "\n\t   prefetch 64(%0)"
+		      "\n\t   prefetch 128(%0)"
+		      "\n\t   prefetch 192(%0)"
+		      "\n\t   fxsave (%3)"
+		      "\n\t   prefetch 256(%0)"
+		      "\n\t   movl %2, %%ecx"
+		      "\n\t   fnclex"
+		      "\n\t1: prefetch 320(%0)"
+		      "\n\t   movq (%0),%%mm0"
+		      "\n\t   movntq %%mm0,(%1)"
+		      "\n\t   movq 8(%0),%%mm1"
+		      "\n\t   movntq %%mm1,8(%1)"
+		      "\n\t   movq 16(%0),%%mm2"
+		      "\n\t   movntq %%mm2,16(%1)"
+		      "\n\t   movq 24(%0),%%mm3"
+		      "\n\t   movntq %%mm3,24(%1)"
+		      "\n\t   movq 32(%0),%%mm4"
+		      "\n\t   movntq %%mm4,32(%1)"
+		      "\n\t   movq 40(%0),%%mm5"
+		      "\n\t   movntq %%mm5,40(%1)"
+		      "\n\t   movq 48(%0),%%mm6"
+		      "\n\t   movntq %%mm6,48(%1)"
+		      "\n\t   movq 56(%0),%%mm7"
+		      "\n\t   movntq %%mm7,56(%1)"
+		      /*"\n\t   sfence"*/
+		      "\n\t   addl $64,%0"
+		      "\n\t   addl $64,%1"
+		      "\n\t   loop 1b"
+		      "\n\t   movl $5, %%ecx"
+		      "\n\t2: movq (%0),%%mm0"
+		      "\n\t   movntq %%mm0,(%1)"
+		      "\n\t   movq 8(%0),%%mm1"
+		      "\n\t   movntq %%mm1,8(%1)"
+		      "\n\t   movq 16(%0),%%mm2"
+		      "\n\t   movntq %%mm2,16(%1)"
+		      "\n\t   movq 24(%0),%%mm3"
+		      "\n\t   movntq %%mm3,24(%1)"
+		      "\n\t   movq 32(%0),%%mm4"
+		      "\n\t   movntq %%mm4,32(%1)"
+		      "\n\t   movq 40(%0),%%mm5"
+		      "\n\t   movntq %%mm5,40(%1)"
+		      "\n\t   movq 48(%0),%%mm6"
+		      "\n\t   movntq %%mm6,48(%1)"
+		      "\n\t   movq 56(%0),%%mm7"
+		      "\n\t   movntq %%mm7,56(%1)"
+		      "\n\t   addl $64,%0"
+		      "\n\t   addl $64,%1"
+		      "\n\t   loop 2b"
+		      "\n\t   sfence"
+		      "\n\t   fxrstor (%3) \n"
+		      :
+		      : "r" (from), "r" (to), "i" (PAGE_SIZE/64 - 5), "r" (fpu_ctx)
+		      : "memory", "ecx" );
+};
 
 
-Gr{oetje,eeting}s,
+void movntq_zero_page0 (void* to)
+{
+	//void *d0;
+	//printf ("%p <- 0\n", to);
+	asm volatile (
+		      "\n\t   fxsave (%2)"
+		      "\n\t   movl %1, %%ecx"
+		      "\n\t   fnclex"
+		      "\n\t   pxor %%mm0, %%mm0"
+		      "\n\t1: "
+		      "\n\t   movntq %%mm0,(%0)"
+		      "\n\t   movntq %%mm0,8(%0)"
+		      "\n\t   movntq %%mm0,16(%0)"
+		      "\n\t   movntq %%mm0,24(%0)"
+		      "\n\t   movntq %%mm0,32(%0)"
+		      "\n\t   movntq %%mm0,40(%0)"
+		      "\n\t   movntq %%mm0,48(%0)"
+		      "\n\t   movntq %%mm0,56(%0)"
+		      /*"\n\t   sfence"*/
+		      "\n\t   addl $64,%0"
+		      "\n\t   loop 1b"
+		      "\n\t   sfence"
+		      "\n\t   fxrstor (%2) \n"
+		      :
+		      : "r" (to), "i" (PAGE_SIZE/64), "r" (fpu_ctx)
+		      : "memory", "ecx");
+}
 
-						Geert
 
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+void alloc_fpu_ctx ()
+{
+	fpu_ctx =3D (void*) memalign (256, 1024);
+}
 
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-							    -- Linus Torvalds
+void fill_rand_page (void* mem)
+{
+	int* ptr =3D (int*) mem;
+	do {
+		*ptr =3D rand();
+	} while (( (char*)(++ptr) - (char*)mem) < PAGE_SIZE);
+}
 
+void* memzero (void* mem, size_t ln)
+{
+	int* ptr =3D (int*)mem;
+	int i =3D ln / sizeof(int);
+	while (i--)
+		if (*ptr++ !=3D 0) return (void*)ptr;
+	return 0;
+}
+
+int main ()
+{
+	void *b1, *b2, *b3; void* err; int i;
+	srand (5);
+	alloc_fpu_ctx ();
+	trigger_fpu ();
+	b3 =3D b1 =3D (void*) memalign (PAGE_SIZE, (NR_TESTS+1)*PAGE_SIZE);
+	fill_rand_page (b1);
+	for (i =3D 0; i < NR_TESTS; i++) {
+		b2 =3D (void*) ((char*)b3 + PAGE_SIZE);
+		movntq_copy_page0 (b2, b3);
+		if (memcmp (b3, b2, PAGE_SIZE)) {
+			printf ("Error (%i)!\n", i);
+			exit (1);
+		}
+		movntq_zero_page0 (b3);
+		if ((err =3D memzero (b3, PAGE_SIZE))) {
+			printf ("Error! (%i) %p\n", i, err);
+			exit (2);
+		}
+		b3 =3D b2;
+	}
+	free (b1);
+	free (fpu_ctx);
+	return 0;
+}
+			     =20
+
+--pZs/OQEoSSbxGlYw--
+
+--YkJPYEFdoxh/AXLE
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.6 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
+
+iD8DBQE7Yp3/xmLh6hyYd04RApmiAKCxiQJtTTrSVKN2so2Qg/ilz/FPlgCeM8u4
+LZkb0EQdQhl9ZM04Fc15SI0=
+=GaCx
+-----END PGP SIGNATURE-----
+
+--YkJPYEFdoxh/AXLE--

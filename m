@@ -1,59 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293628AbSCPA6D>; Fri, 15 Mar 2002 19:58:03 -0500
+	id <S293631AbSCPBCC>; Fri, 15 Mar 2002 20:02:02 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293630AbSCPA5w>; Fri, 15 Mar 2002 19:57:52 -0500
-Received: from h55p103-3.delphi.afb.lu.se ([130.235.187.176]:59290 "EHLO gin")
-	by vger.kernel.org with ESMTP id <S293628AbSCPA5p>;
-	Fri, 15 Mar 2002 19:57:45 -0500
-Date: Sat, 16 Mar 2002 01:57:37 +0100
-To: arjanv@redhat.com
-Cc: linux-kernel@vger.kernel.org, torvalds@transmeta.com
-Subject: [PATCH] devexit fixes in i82092.c
-Message-ID: <20020316005736.GB31421@h55p111.delphi.afb.lu.se>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.27i
-From: Anders Gustafsson <andersg@0x63.nu>
+	id <S293632AbSCPBBw>; Fri, 15 Mar 2002 20:01:52 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:52240 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S293631AbSCPBBe>; Fri, 15 Mar 2002 20:01:34 -0500
+Date: Fri, 15 Mar 2002 17:00:44 -0800 (PST)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Anders Gustafsson <andersg@0x63.nu>
+cc: <arjanv@redhat.com>, <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] devexit fixes in i82092.c
+In-Reply-To: <20020316005736.GB31421@h55p111.delphi.afb.lu.se>
+Message-ID: <Pine.LNX.4.33.0203151659060.1379-100000@home.transmeta.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
 
-this patch fixes "undefined reference to `local symbols in discarded
-section .text.exit'" linking error.
 
--- 
+On Sat, 16 Mar 2002, Anders Gustafsson wrote:
+>
+> this patch fixes "undefined reference to `local symbols in discarded
+> section .text.exit'" linking error.
 
-//anders/g
+Looking more at this, I actually think that the _real_ fix is to call all
+drivers exit functions at kernel shutdown, and not discard the exit
+section when linking into the tree.
 
---- linux-2.5.7-pre1/drivers/pcmcia/i82092.c	Fri Nov  9 22:45:35 2001
-+++ linux-2.5.7-pre1-reiser/drivers/pcmcia/i82092.c	Sat Mar 16 01:39:42 2002
-@@ -42,7 +42,7 @@
- 	name:           "i82092aa",
- 	id_table:       i82092aa_pci_ids,
- 	probe:          i82092aa_pci_probe,
--	remove:         i82092aa_pci_remove,
-+	remove:         __devexit_p(i82092aa_pci_remove),
- 	suspend:        NULL,
- 	resume:         NULL 
- };
-@@ -88,7 +88,7 @@
- static int socket_count;  /* shortcut */                                  	                                	
- 
- 
--static int __init i82092aa_pci_probe(struct pci_dev *dev, const struct pci_device_id *id)
-+static int __devinit i82092aa_pci_probe(struct pci_dev *dev, const struct pci_device_id *id)
- {
- 	unsigned char configbyte;
- 	int i;
-@@ -160,7 +160,7 @@
- 	return 0;
- }
- 
--static void __exit i82092aa_pci_remove(struct pci_dev *dev)
-+static void __devexit i82092aa_pci_remove(struct pci_dev *dev)
- {
- 	enter("i82092aa_pci_remove");
- 	
+That, together with the device tree, automatically gives us the
+_correct_ shutdown sequence, soemthing we don't have right now.
+
+Anybody willing to look into this, and get rid of that __devexit_p()
+thing?
+
+		Linus
+

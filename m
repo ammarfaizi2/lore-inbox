@@ -1,47 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261597AbVDEHW0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261594AbVDEHVM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261597AbVDEHW0 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Apr 2005 03:22:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261590AbVDEHV0
+	id S261594AbVDEHVM (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Apr 2005 03:21:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261599AbVDEHO5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Apr 2005 03:21:26 -0400
-Received: from mx2.elte.hu ([157.181.151.9]:64161 "EHLO mx2.elte.hu")
-	by vger.kernel.org with ESMTP id S261592AbVDEHTU (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Apr 2005 03:19:20 -0400
-Date: Tue, 5 Apr 2005 09:19:11 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: linux-kernel@vger.kernel.org
-Cc: Lee Revell <rlrevell@joe-job.com>, Rui Nuno Capela <rncbc@rncbc.org>,
-       Steven Rostedt <rostedt@goodmis.org>
-Subject: [patch] Real-Time Preemption, -RT-2.6.12-rc2-V0.7.44-00
-Message-ID: <20050405071911.GA23653@elte.hu>
-References: <20050325145908.GA7146@elte.hu> <20050331085541.GA21306@elte.hu> <20050401104724.GA31971@elte.hu>
+	Tue, 5 Apr 2005 03:14:57 -0400
+Received: from arnor.apana.org.au ([203.14.152.115]:13324 "EHLO
+	arnor.apana.org.au") by vger.kernel.org with ESMTP id S261592AbVDEHLY
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 5 Apr 2005 03:11:24 -0400
+Date: Tue, 5 Apr 2005 17:10:02 +1000
+To: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
+Cc: James Morris <jmorris@redhat.com>, linux-kernel@vger.kernel.org,
+       netdev@oss.sgi.com, "David S. Miller" <davem@davemloft.net>,
+       rml@novell.com, Greg KH <greg@kroah.com>, Andrew Morton <akpm@osdl.org>
+Subject: Re: Netlink Connector / CBUS
+Message-ID: <20050405071002.GA19186@gondor.apana.org.au>
+References: <Xine.LNX.4.44.0504050030230.9273-100000@thoron.boston.redhat.com> <1112684596.28858.4.camel@uganda>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20050401104724.GA31971@elte.hu>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+In-Reply-To: <1112684596.28858.4.camel@uganda>
+User-Agent: Mutt/1.5.6+20040907i
+From: Herbert Xu <herbert@gondor.apana.org.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, Apr 05, 2005 at 11:03:16AM +0400, Evgeniy Polyakov wrote:
+> 
+> I received comments and feature requests from Herbert Xu and Jamal Hadi
+> Salim,
+> almost all were successfully resolved.
 
-i have released the -V0.7.44-00 Real-Time Preemption patch, which can be 
-downloaded from the usual place:
+Please do not construe my involvement in these threads as endorsement
+for this system.
 
-   http://redhat.com/~mingo/realtime-preempt/
-
-this is a merge of -43-08 to 2.6.12-rc2.
-
-   http://kernel.org/pub/linux/kernel/v2.6/linux-2.6.11.tar.bz2
-   http://kernel.org/pub/linux/kernel/v2.6/testing/patch-2.6.12-rc2.bz2
-   http://redhat.com/~mingo/realtime-preempt/realtime-preempt-2.6.12-rc2-V0.7.44-00
-
-	Ingo
+In fact to this day I still don't understand what problems this thing is
+meant to solve.
+-- 
+Visit Openswan at http://www.openswan.org/
+Email: Herbert Xu ~{PmV>HI~} <herbert@gondor.apana.org.au>
+Home Page: http://gondor.apana.org.au/~herbert/
+PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt

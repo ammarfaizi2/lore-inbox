@@ -1,85 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267840AbTAHSW5>; Wed, 8 Jan 2003 13:22:57 -0500
+	id <S267822AbTAHSlO>; Wed, 8 Jan 2003 13:41:14 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267839AbTAHSW5>; Wed, 8 Jan 2003 13:22:57 -0500
-Received: from willow.compass.com.ph ([202.70.96.38]:60434 "EHLO
-	willow.compass.com.ph") by vger.kernel.org with ESMTP
-	id <S267838AbTAHSWz>; Wed, 8 Jan 2003 13:22:55 -0500
-Subject: Re: [Linux-fbdev-devel] [PATCH][FBDEV]: fb_putcs() and fb_setfont()
-	methods
-From: Antonino Daplas <adaplas@pol.net>
-To: Geert Uytterhoeven <geert@linux-m68k.org>
-Cc: James Simmons <jsimmons@infradead.org>,
-       Petr Vandrovec <vandrove@vc.cvut.cz>,
-       Linux Fbdev development list 
-	<linux-fbdev-devel@lists.sourceforge.net>,
-       Linux Kernel List <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.GSO.4.21.0301081142190.21171-100000@vervain.sonytel.be>
-References: <Pine.GSO.4.21.0301081142190.21171-100000@vervain.sonytel.be>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
-Date: 09 Jan 2003 02:19:51 +0800
-Message-Id: <1042050026.982.172.camel@localhost.localdomain>
+	id <S267845AbTAHSlO>; Wed, 8 Jan 2003 13:41:14 -0500
+Received: from kweetal.tue.nl ([131.155.2.7]:64876 "EHLO kweetal.tue.nl")
+	by vger.kernel.org with ESMTP id <S267822AbTAHSlN>;
+	Wed, 8 Jan 2003 13:41:13 -0500
+Date: Wed, 8 Jan 2003 19:49:51 +0100
+From: Andries Brouwer <aebr@win.tue.nl>
+To: Greg KH <greg@kroah.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: USB CF reader reboots PC
+Message-ID: <20030108184951.GA19268@win.tue.nl>
+References: <20030108165130.GA1181@Master.Wizards> <20030108181645.GC3127@kroah.com>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030108181645.GC3127@kroah.com>
+User-Agent: Mutt/1.3.25i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2003-01-08 at 18:47, Geert Uytterhoeven wrote:
-> On Tue, 7 Jan 2003, James Simmons wrote:
-> > > Why? (a) only those which will use putcs, and (b) I see no 512 chars limit
-> > > anywhere in new code. And in old code it is there only because of passed
-> > > data are only 16bit, not 32bit wide... With simple search&replace you can
-> > > extend it to any size you want, as long as you'll not use sparse font
-> > > bitmap.
-> > 
-> > The current "core" console code screen_buf layout is designed after VGA 
-> > text mode. 16 bits which only 8 bits are used to represent a character, 9 
-> > if you have high_fonts flag set. The other 8,7 bits are for attributes. 
-> > This is very limiting and it does effect fbcon.c :-( I like to the console
-> > system remove these awful limitation in the future. This why I like to see 
-> > fbdev drivers avoid touching strings from the console layer.
-> 
-> Please note that Tony's new accel_putcs() code uses __u32 to pass the character
-> indices.  So it's not limited to 256/512 characters per font. Fonts can be as
-> large as you want. Sparse fonts can be handled as well, if accel_putcs() takes
-> care of the conversion from sparse character indices to dense character
-> indices.
-> 
-> His code can be viewed as a way to do multiple monochrome to color expansions
-> with one single call, using a predefined table of patterns. Quite generic,
-> unless you want to have multi-color fonts later :-)
-> 
-:-) I did not want prolong the discussion, but...
+On Wed, Jan 08, 2003 at 10:16:45AM -0800, Greg KH wrote:
 
-Geert is correct that the functions are generic. The fb_putcs() and
-fb_setfont() can be compared to Tile blitting.  Tile blitting is a
-common operation in some games such as Warcraft, Starcraft, and most
-RPG's. I'm think there is Tile Blitting support in DirectFB.
+> > Insert CF card. 
+> > ls /dev shows sda and sda1
+> > mount it. 
+> > ls /dev shows sda - no sda1
+> > cd to mounted CF card
+> > process hangs, sd-mod & usb-storage "busy"
+> > rmmod -f usb-storage or sd-mod causes PC to stop
+> > (keyboard & mouse unresponsive, wmfire frozen, net disconnects)
 
-In a tile-based game, the basic unit is a Tile which is just a bitmap
-with a predefined width and height. The game has several tiles stored in
-memory each with it's own unique id.  To draw the background/layer, a
-TileMap is constructed which is basically another array.  Its format is
-something like this -  TileMap[x] = y which means draw Tile y at screen
-position x.
+> So if devfs is enabled, everything works just fine?
 
-In the fbcon perspective, we can think of each character as a Tile, and
-fontdata as the collection of tiles. fb_char.data is basically a
-TileMap.  Of course, tile blitting in games is more complicated than
-this, since games have multiple layers for the background, so layer
-position, transparency, etc has to be considered.
+No. I have seen this kind of thing, and muttered a little bit
+on earlier occasions.
+The problem is that USB storage invents a GUID, that usually
+is composed of vendor and product ID of the reader, possibly
+also a serial number, but does not involve the card.
+When the card goes away, the partitions stay, and the device
+is treated as "not present".
+When a new card is inserted confusion arises.
 
-So maybe if we can rename fb_putcs() to fb_tileblit(), fb_setfont() to
-fb_loadtiles(), struct fb_chars to struct fb_tilemap and struct
-fb_fontdata to struct fb_tiledata, maybe it will be more acceptable?
+We see that when a device goes from "not present" to "present"
+it may be necessary to throw out all data we have on it.
+Thus, maybe it was pointless to keep this data when it went away.
 
-It can be even be expanded by including fb_tiledata.depth
-fb_tiledata.cmap so we can support multi-colored tiled blitting.
+This is somewhat related to the IDs discussion of a few days ago.
+People invent IDs, but nobody knows of what precisely.
 
-Tony
-
-
-
-
+Andries

@@ -1,47 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261607AbULZDQi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261608AbULZDgl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261607AbULZDQi (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 25 Dec 2004 22:16:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261608AbULZDQh
+	id S261608AbULZDgl (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 25 Dec 2004 22:36:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261609AbULZDgl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 25 Dec 2004 22:16:37 -0500
-Received: from holomorphy.com ([207.189.100.168]:47302 "EHLO holomorphy.com")
-	by vger.kernel.org with ESMTP id S261607AbULZDQg (ORCPT
+	Sat, 25 Dec 2004 22:36:41 -0500
+Received: from fw.osdl.org ([65.172.181.6]:18345 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S261608AbULZDgk (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 25 Dec 2004 22:16:36 -0500
-Date: Sat, 25 Dec 2004 19:16:20 -0800
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Nikita Danilov <nikita@clusterfs.com>
-Cc: Andrea Arcangeli <andrea@suse.de>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org, Robert_Hentosh@Dell.com,
-       Con Kolivas <kernel@kolivas.org>
-Subject: Re: [PATCH][1/2] adjust dirty threshold for lowmem-only mappings
-Message-ID: <20041226031620.GB771@holomorphy.com>
-References: <20041220125443.091a911b.akpm@osdl.org> <Pine.LNX.4.61.0412231420260.5468@chimarrao.boston.redhat.com> <20041224160136.GG4459@dualathlon.random> <Pine.LNX.4.61.0412241118590.11520@chimarrao.boston.redhat.com> <20041224164024.GK4459@dualathlon.random> <Pine.LNX.4.61.0412241711180.11520@chimarrao.boston.redhat.com> <20041225020707.GQ13747@dualathlon.random> <Pine.LNX.4.61.0412251253090.18130@chimarrao.boston.redhat.com> <20041225190710.GZ771@holomorphy.com> <m1652q2fz1.fsf@clusterfs.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <m1652q2fz1.fsf@clusterfs.com>
-Organization: The Domain of Holomorphy
-User-Agent: Mutt/1.5.6+20040722i
+	Sat, 25 Dec 2004 22:36:40 -0500
+Date: Sat, 25 Dec 2004 19:36:36 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Bill Davidsen <davidsen@tmr.com>
+cc: Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Bjorn Helgaas <bjorn.helgaas@hp.com>, Andrew Morton <akpm@osdl.org>,
+       Len Brown <len.brown@intel.com>
+Subject: Re: Ho ho ho - Linux v2.6.10
+In-Reply-To: <41CE282C.3010606@tmr.com>
+Message-ID: <Pine.LNX.4.58.0412251934090.2353@ppc970.osdl.org>
+References: <Pine.LNX.4.58.0412241434110.17285@ppc970.osdl.org>
+ <41CE282C.3010606@tmr.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-William Lee Irwin III <wli@holomorphy.com> writes:
-[...]
->> Lifting the artificial lowmem restrictions on blockdev mappings
->> (thereby nuking mapping->gfp_mask altogether) would resolve a number of
->> problems, not that anything making that much sense could ever happen.
-
-On Sun, Dec 26, 2004 at 01:03:14AM +0300, Nikita Danilov wrote:
-> mapping->gfp_mask is used for other things beyond specifying a
-> zonelist. For example, file systems want all allocations inside a
-> transaction to be done with GFP_NOFS, which forces GFP_NOFS in
-> mapping->gfp_mask of meta-data address_spaces.
-
-It's news to me, but benign. ->gfp_mask appears to be folded into
-some bitflag word now so there wouldn't be an inode size reduction
-anyway. Per-mapping gfp masks sound like a poor fit from the above.
 
 
--- wli
+On Sat, 25 Dec 2004, Bill Davidsen wrote:
+> 
+> Alas, It sort-of boots but is terminally slow. I see the log with 
+> endless repetitions of "irq 18 nobody cared" and some trace, then 
+> "disabling irq 18." Unfortunately it lies, after about 20MB of this I 
+> decided it had no real intention of disabling irq 18 and tried to stop 
+> it. After ten minutes I had to pull the plug and it's still cleaning 
+> filesystems.
+
+Can you send a (normal) dmesg output for this machine, and describe what 
+is normally on irq18?
+
+It _sounds_ like it's a confusion between level and edge, with the usual 
+suspects. Does it go away if you disable acpi?
+
+		Linus

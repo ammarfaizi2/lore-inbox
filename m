@@ -1,59 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S275137AbRIYRvu>; Tue, 25 Sep 2001 13:51:50 -0400
+	id <S275138AbRIYRy7>; Tue, 25 Sep 2001 13:54:59 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S275138AbRIYRvj>; Tue, 25 Sep 2001 13:51:39 -0400
-Received: from draal.physics.wisc.edu ([128.104.137.82]:4778 "EHLO
-	draal.physics.wisc.edu") by vger.kernel.org with ESMTP
-	id <S275137AbRIYRvW>; Tue, 25 Sep 2001 13:51:22 -0400
-Date: Tue, 25 Sep 2001 12:51:44 -0500
-From: Bob McElrath <mcelrath@draal.physics.wisc.edu>
-To: linux-kernel@vger.kernel.org
-Subject: O_DIRECT as a mount option?
-Message-ID: <20010925125144.D14612@draal.physics.wisc.edu>
+	id <S275139AbRIYRyu>; Tue, 25 Sep 2001 13:54:50 -0400
+Received: from c1313109-a.potlnd1.or.home.com ([65.0.121.190]:46090 "HELO
+	kroah.com") by vger.kernel.org with SMTP id <S275138AbRIYRyj>;
+	Tue, 25 Sep 2001 13:54:39 -0400
+Date: Tue, 25 Sep 2001 10:50:34 -0700
+From: Greg KH <greg@kroah.com>
+To: Stanislav Brabec <utx@penguin.cz>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: usbnet.c - patch to support GL620USB-A chip
+Message-ID: <20010925105034.A13870@kroah.com>
+In-Reply-To: <20010925184017.A401@utx.vol.cz>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="x4pBfXISqBoDm8sr"
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2i
+In-Reply-To: <20010925184017.A401@utx.vol.cz>
+User-Agent: Mutt/1.3.21i
+X-Operating-System: Linux 2.2.19 (i586)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, Sep 25, 2001 at 06:40:17PM +0200, Stanislav Brabec wrote:
+> Hallo,
+> 
+> there is a patch to support GeneSys Logic GL620USB-A chip, which can be
+> found in GeneLink cables. I have obtained the driver code from David
+> Brownell, the code comes from Jiun-Jie Huang (Genesys Logic Taiwan) and
+> I have merged it with linux-2.4.10.
 
---x4pBfXISqBoDm8sr
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Please send this to the current maintainer of this driver
+<dbrownell@users.sourceforge.net>
 
-With O_DIRECT (buffer cache bypass open() flag) now in the mainstream
-kernel, I wonder if people would be opposed to making a "direct" mount
-option, which would open all files on the filesystem with the O_DIRECT
-flag, just as there exists a "sync" mount option to perform filesystem
-transactions synchronously.
+thanks,
 
-This would allow you to=20
-    mount -o direct,sync /dev/hdb1 /mnt/video
-And would be useful for things like streaming video applications,
-allowing the advantages of O_DIRECT without rewriting every application
-you want to use.
-
-Cheers,
--- Bob
-
-Bob McElrath (rsmcelrath@students.wisc.edu)=20
-Univ. of Wisconsin at Madison, Department of Physics
-
---x4pBfXISqBoDm8sr
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.6 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
-
-iEYEARECAAYFAjuwxDAACgkQjwioWRGe9K1ppgCgoeiPyEfl7nmxuxR2XBQztnRO
-/W0Anil6Pl44Hur5S6rnWRuUBvVs6OH5
-=eRZ9
------END PGP SIGNATURE-----
-
---x4pBfXISqBoDm8sr--
+greg k-h

@@ -1,35 +1,79 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271503AbTGQRen (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Jul 2003 13:34:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271507AbTGQRen
+	id S271479AbTGQRc4 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Jul 2003 13:32:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271503AbTGQRc4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Jul 2003 13:34:43 -0400
-Received: from pub234.cambridge.redhat.com ([213.86.99.234]:45831 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id S271503AbTGQRd5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Jul 2003 13:33:57 -0400
-Date: Thu, 17 Jul 2003 18:48:51 +0100 (BST)
-From: James Simmons <jsimmons@infradead.org>
-To: Gorik Van Steenberge <gvs@cia.zemos.net>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: PROBLEM: cursor dissapears after setfont
-In-Reply-To: <Pine.LNX.4.50L0.0307170849440.30014-100000@cia.zemos.net>
-Message-ID: <Pine.LNX.4.44.0307171848270.10255-100000@phoenix.infradead.org>
+	Thu, 17 Jul 2003 13:32:56 -0400
+Received: from [213.4.129.129] ([213.4.129.129]:1896 "EHLO tfsmtp2.mail.isp")
+	by vger.kernel.org with ESMTP id S271479AbTGQRcb (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 17 Jul 2003 13:32:31 -0400
+From: RAMON_GARCIA_F <RAMON_GARCIA_F@terra.es>
+To: linux-kernel@vger.kernel.org
+Message-ID: <fb7ddfab3b.fab3bfb7dd@teleline.es>
+Date: Thu, 17 Jul 2003 19:47:11 +0200
+X-Mailer: Netscape Webmail
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Language: es
+Subject: Suggestion for a new system call: convert file handle to a
+ cookie for transfering file handles between processes.
+X-Accept-Language: es
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hello.
 
-> I recently compiled 2.6.0-test1 and noticed that I didn't have a cursor on
-> any tty but tty1. After testing some things I found out that the cursors
-> dissapear after "setfont -v default8x9.psfu.gz". Also, the cursor does not
-> dissapear on the tty that called setconfig. I also had this problem in
-> 2.5.70. AFAIK I'm using the latest kbd.
-> 
-> I am not sure what info I should supply that would be relevant to this
-> issue.
- 
-What is your configuration so I can replicate this problem?
+I suggest to add a new system call for transfering a file handle between
+two processes.
+
+In Linux, transfer of file handles can be done through a Unix domain
+socket. This mechanism is quite unflexible. It requires that the two
+applications connect by this kind of socket, and it is difficult to
+use from shell scripts.
+
+The new mechanims proposed is more flexible.
+
+A cookie is a large integer number (160 bit suggested) that can be used
+to refer to a file handle from any process. It is randomly choosen by
+the kernel at creation time. Afterwards, any process that knows this
+cookie can convert it back to a file handle. When this conversion is
+done, the cookie dies and is no longer valid.
+
+An example of why cookies are useful.
+
+Let cdwritter be a program for writting CDs. Unlike other programs,
+cdwritter is rationally designed. It is a server process that listens
+through a named pipe, thus making it easy to write either command line
+or graphical interfaces that use its functionality. The named pipe
+is called /var/run/cdwritter
+
+To keep this discussion simple, cdwritter supports writting a single
+file (usually an ISO image) to a cdrecorder. The user gives a command,
+and afterwards the CD is burned. To write a file, the user must write a
+string "write <cookie>" to /var/run/cdwritter. The cookie is used to
+identify the file.
+
+An alternative would be that cdwritter accepts a file name instead of
+a cookie. But then, the author of cdwritter would have to check if the
+user has permission to access the file. This makes cdwritter more error
+prone.
+
+Shell scripts can write CDs to cdwriter. The command get_cookie, opens a
+file given on the command line and prints a cookie on stdout. Thus a
+shell script for burning the image my_nude_photos.iso would be:
+
+echo "write $(get_cookie my_nude_photos.iso)" > /var/run/cdwritter
+
+CREDITS: The Plan9 operating system provided inspiration for this idea.
+
+Ramon
+
+
+
+
+
 

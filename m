@@ -1,75 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267186AbUJWKhJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266498AbUJWKhJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267186AbUJWKhJ (ORCPT <rfc822;willy@w.ods.org>);
+	id S266498AbUJWKhJ (ORCPT <rfc822;willy@w.ods.org>);
 	Sat, 23 Oct 2004 06:37:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266891AbUJWKer
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266768AbUJWKeb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 23 Oct 2004 06:34:47 -0400
-Received: from mx1.elte.hu ([157.181.1.137]:15239 "EHLO mx1.elte.hu")
-	by vger.kernel.org with ESMTP id S266884AbUJWKbb (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 23 Oct 2004 06:31:31 -0400
-Date: Sat, 23 Oct 2004 12:32:47 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: "K.R. Foley" <kr@cybsft.com>
-Cc: linux-kernel@vger.kernel.org, Lee Revell <rlrevell@joe-job.com>,
-       Rui Nuno Capela <rncbc@rncbc.org>, Mark_H_Johnson@Raytheon.com,
-       Bill Huey <bhuey@lnxw.com>, Adam Heath <doogie@debian.org>,
-       Florian Schmidt <mista.tapas@gmx.net>,
-       Thomas Gleixner <tglx@linutronix.de>,
-       Michal Schmidt <xschmi00@stud.feec.vutbr.cz>,
-       Fernando Pablo Lopez-Lezcano <nando@ccrma.Stanford.EDU>,
-       Alexander Batyrshin <abatyrshin@ru.mvista.com>
-Subject: Re: [patch] Real-Time Preemption, -RT-2.6.9-mm1-U10.2
-Message-ID: <20041023103247.GE30270@elte.hu>
-References: <20041016153344.GA16766@elte.hu> <20041018145008.GA25707@elte.hu> <20041019124605.GA28896@elte.hu> <20041019180059.GA23113@elte.hu> <20041020094508.GA29080@elte.hu> <20041021132717.GA29153@elte.hu> <20041022133551.GA6954@elte.hu> <20041022155048.GA16240@elte.hu> <20041022175633.GA1864@elte.hu> <41798BD6.6060207@cybsft.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <41798BD6.6060207@cybsft.com>
-User-Agent: Mutt/1.4.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+	Sat, 23 Oct 2004 06:34:31 -0400
+Received: from smtp201.mail.sc5.yahoo.com ([216.136.129.91]:57709 "HELO
+	smtp201.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S266891AbUJWK3d (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 23 Oct 2004 06:29:33 -0400
+Message-ID: <417A3288.1000303@yahoo.com.au>
+Date: Sat, 23 Oct 2004 20:29:28 +1000
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040820 Debian/1.7.2-4
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Justin Piszcz <jpiszcz@lucidpixels.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Page Allocation Failures Return With 2.6.9+TSO patch.
+References: <Pine.LNX.4.61.0410230435150.4620@p500> <417A2106.7010804@yahoo.com.au> <Pine.LNX.4.61.0410230522040.639@p500> <417A251A.2040209@yahoo.com.au> <Pine.LNX.4.61.0410230558060.639@p500>
+In-Reply-To: <Pine.LNX.4.61.0410230558060.639@p500>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Justin Piszcz wrote:
+> It does not seem like they do, but they cannot be good...
+> 
 
-* K.R. Foley <kr@cybsft.com> wrote:
+It seems almost inevitable that they'll happen, especially if a module
+is loaded after boot (this is actually somewhere that incremental min
+will help "echo some number > /proc/sys/vm/lower_zone_protection").
 
-> Oct 22 14:37:14 swdev14 kernel: BUG: sleeping function called from invalid context ksoftirqd/0(3) at kernel/mutex.c:37
-> Oct 22 14:37:14 swdev14 kernel: in_atomic():1 [00000001], irqs_disabled():0
-> Oct 22 14:37:14 swdev14 kernel:  [<c011ac3d>] __might_sleep+0xc4/0xd6 (12)
-> Oct 22 14:37:14 swdev14 kernel:  [<c0132ae8>] _mutex_lock+0x3e/0x63 (36)
-> Oct 22 14:37:14 swdev14 kernel:  [<e0a8b297>] ipxitf_find_using_phys+0x1e/0x4c [ipx] (28)
-> Oct 22 14:37:14 swdev14 kernel:  [<e0a8d5a6>] ipx_rcv+0xdc/0x1dd [ipx] (20)
-> Oct 22 14:37:14 swdev14 kernel:  [<c024050b>] snap_rcv+0x5f/0xe0 (32)
+But from the code, the failures really won't hurt at all. It might
+double the number of interrupts coming from your soundcard, but I
+dare say you would never be able to notice a difference.
 
-does the patch below fix these?
+> I have applied the following patches
+> 
+> 1] TSO patch
+> 2] rollup.patch
+> 
+> Rebooting now and will alert the list if/when I receive more page 
+> allocation failures.
+> 
+> FYI - I started getting these with 2.6.9.
+> 
+> (However, it was always possible on the Dell Optiplex GX1 to create page 
+> allocation failure with: ifconfig eth0 mtu 9000), however, on a 
+> higher-end machine (2.6GHZ, 2GB ram, etc) ifconfig eth0 mtu 9000 worked 
+> fine.
+> 
+> Is it something with the architecture of the box bus/box?
+> 
 
-	Ingo
+No, probably just different configurations or memory usage patterns
+of the kernel, maybe different drivers, etc.
 
---- linux/net/802/psnap.c.orig
-+++ linux/net/802/psnap.c
-@@ -55,7 +55,7 @@ static int snap_rcv(struct sk_buff *skb,
- 		.type = __constant_htons(ETH_P_SNAP),
- 	};
- 
--	rcu_read_lock();
-+	rcu_read_lock_spin(&snap_lock);
- 	proto = find_snap_client(skb->h.raw);
- 	if (proto) {
- 		/* Pass the frame on. */
-@@ -68,7 +68,7 @@ static int snap_rcv(struct sk_buff *skb,
- 		rc = 1;
- 	}
- 
--	rcu_read_unlock();
-+	rcu_read_unlock_spin(&snap_lock);
- 	return rc;
- }
- 
+> Why does it tend to affect one machine and not the other?
+> 
+
+Again, luck of the draw mainly. My patch should definitely help the
+TSO allocation failures (it probably won't fix the sound buffer alloc
+failure though, now that I've looked at it).

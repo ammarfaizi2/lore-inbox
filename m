@@ -1,32 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S270347AbRHSM2n>; Sun, 19 Aug 2001 08:28:43 -0400
+	id <S270382AbRHSNDQ>; Sun, 19 Aug 2001 09:03:16 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S270355AbRHSM2X>; Sun, 19 Aug 2001 08:28:23 -0400
-Received: from mailgate3.cinetic.de ([212.227.116.80]:49620 "EHLO
-	mailgate3.cinetic.de") by vger.kernel.org with ESMTP
-	id <S270347AbRHSM2N>; Sun, 19 Aug 2001 08:28:13 -0400
-Date: Sun, 19 Aug 2001 14:19:29 +0200 (CEST)
-From: Pascal Schmidt <pleasure.and.pain@web.de>
-To: <linux-kernel@vger.kernel.org>
-Subject: Re: 2.4.xx won't recompile.
-In-Reply-To: <01081819495801.01028@bits.linuxball>
-Message-ID: <Pine.LNX.4.33.0108191418070.954-100000@neptune.sol.net>
+	id <S270385AbRHSNDG>; Sun, 19 Aug 2001 09:03:06 -0400
+Received: from relay.kiev.sovam.com ([212.109.32.5]:46863 "EHLO
+	relay.kiev.sovam.com") by vger.kernel.org with ESMTP
+	id <S270382AbRHSNCv>; Sun, 19 Aug 2001 09:02:51 -0400
+Date: Sun, 19 Aug 2001 16:06:18 +0300
+From: "Serguei I. Ivantsov" <administrator@svitonline.com>
+X-Mailer: The Bat! (v1.53d)
+Reply-To: "Serguei I. Ivantsov" <administrator@svitonline.com>
+Organization: IvantSoft Inc.
+X-Priority: 3 (Normal)
+Message-ID: <1021859034.20010819160618@svitonline.com>
+To: linux-kernel@vger.kernel.org
+Subject: 2.4.x & Celeron = very slow system
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 18 Aug 2001, Fred Jackson wrote:
+Hello!
 
-> I kinda figured that redhat would install the tools for a kernel
-> compile. and what is  compat-egcs-6.2-1.1.2.14 that is shipped with
-> redhat?
-That's the right one, it even installs under the name kgcc. You can then
-set CC=kgcc in the kernel makefile.
+I have a BIG problem with 2.4.x kernels.
+
+With 2.4.x kernel my system (Celeron (Coppermine) 850Mhz (100x8.5)
+256Mb i810) behaves like slow i386sx.
+
+For example, when I extract 25MB gzip file on 2.2.19 kernel - it
+takes about 12 seconds, but with 2.4.8(9) - 6(!) MINUTES on the SAME
+system...
+
+The only idea is that 2.4.x kernel turns off cache (L1 & L2) on
+processor (on my cpu). How can I check it? Any ideas?
+
 
 -- 
-Ciao, Pascal
-
--<[ pharao90@tzi.de, netmail 2:241/215.72, home http://cobol.cjb.net/) ]>-
+Best regards,
+ Serguei                          mailto:administrator@svitonline.com
 

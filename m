@@ -1,41 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317521AbSGTVNl>; Sat, 20 Jul 2002 17:13:41 -0400
+	id <S317517AbSGTVMl>; Sat, 20 Jul 2002 17:12:41 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317525AbSGTVNl>; Sat, 20 Jul 2002 17:13:41 -0400
-Received: from moutvdom01.kundenserver.de ([195.20.224.200]:1870 "EHLO
-	moutvdom01.kundenserver.de") by vger.kernel.org with ESMTP
-	id <S317521AbSGTVNj>; Sat, 20 Jul 2002 17:13:39 -0400
-Date: Sat, 20 Jul 2002 15:16:42 -0600 (MDT)
-From: Thunder from the hill <thunder@ngforever.de>
-X-X-Sender: thunder@hawkeye.luckynet.adm
-To: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
-cc: Thunder from the hill <thunder@ngforever.de>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Impressions of IDE 98?
-In-Reply-To: <Pine.SOL.4.30.0207201623001.11951-100000@mion.elka.pw.edu.pl>
-Message-ID: <Pine.LNX.4.44.0207201516250.3378-100000@hawkeye.luckynet.adm>
-X-Location: Dorndorf; Germany
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S317520AbSGTVMk>; Sat, 20 Jul 2002 17:12:40 -0400
+Received: from holomorphy.com ([66.224.33.161]:3989 "EHLO holomorphy")
+	by vger.kernel.org with ESMTP id <S317517AbSGTVMk>;
+	Sat, 20 Jul 2002 17:12:40 -0400
+Date: Sat, 20 Jul 2002 14:15:39 -0700
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: Robert Love <rml@tech9.net>, linux-kernel@vger.kernel.org,
+       linux-mm@kvack.org, riel@conectiva.com.br
+Subject: Re: [PATCH] generalized spin_lock_bit
+Message-ID: <20020720211539.GG1096@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	Linus Torvalds <torvalds@transmeta.com>,
+	Robert Love <rml@tech9.net>, linux-kernel@vger.kernel.org,
+	linux-mm@kvack.org, riel@conectiva.com.br
+References: <1027196511.1555.767.camel@sinai> <Pine.LNX.4.44.0207201335560.1492-100000@home.transmeta.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Description: brief message
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.44.0207201335560.1492-100000@home.transmeta.com>
+User-Agent: Mutt/1.3.25i
+Organization: The Domain of Holomorphy
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On 20 Jul 2002, Robert Love wrote:
+>> The attached patch implements bit-sized spinlocks via the following
+>> interfaces:
 
-On Sat, 20 Jul 2002, Bartlomiej Zolnierkiewicz wrote:
-> And once again: vanilla 2.5.25 on IDE is bad for your health.
+On Sat, Jul 20, 2002 at 01:40:22PM -0700, Linus Torvalds wrote:
+> In particular, with the current pte_chain_lock() interface, it will be
+> _trivial_ to turn that bit in page->flags to be instead a hash based on
+> the page address into an array of spinlocks. Which is a lot more portable
+> than the current code.
+> (The current code works, but look at what it generates on old sparcs, for
+> example).
 
-Nobody ever mentioned 2.5.25...
+I was hoping to devolve the issue of the implementation of it to arch
+maintainers by asking for this. I was vaguely aware that the atomic bit
+operations are implemented via hashed spinlocks on PA-RISC and some
+others, so by asking for the right primitives to come back up from arch
+code I hoped those who spin elsewhere might take advantage of their
+window of exclusive ownership.
 
-							Regards,
-							Thunder
--- 
-(Use http://www.ebb.org/ungeek if you can't decode)
-------BEGIN GEEK CODE BLOCK------
-Version: 3.12
-GCS/E/G/S/AT d- s++:-- a? C++$ ULAVHI++++$ P++$ L++++(+++++)$ E W-$
-N--- o?  K? w-- O- M V$ PS+ PE- Y- PGP+ t+ 5+ X+ R- !tv b++ DI? !D G
-e++++ h* r--- y- 
-------END GEEK CODE BLOCK------
+Would saying "Here is an address, please lock it, and if you must flip
+a bit, use this bit" suffice? I thought it might give arch code enough
+room to wiggle, but is it enough?
 
+
+Thanks,
+Bill

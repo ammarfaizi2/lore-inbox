@@ -1,107 +1,143 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268339AbUJTPxN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268421AbUJTQPQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268339AbUJTPxN (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 20 Oct 2004 11:53:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268312AbUJTPNg
+	id S268421AbUJTQPQ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 20 Oct 2004 12:15:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268667AbUJTQEe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 20 Oct 2004 11:13:36 -0400
-Received: from 168.imtp.Ilyichevsk.Odessa.UA ([195.66.192.168]:31248 "HELO
-	port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with SMTP
-	id S267561AbUJTPLv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 20 Oct 2004 11:11:51 -0400
-From: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
-To: Lee Revell <rlrevell@joe-job.com>,
-       Herbert Xu <herbert@gondor.apana.org.au>
-Subject: Re: [PATCH] Make netif_rx_ni preempt-safe
-Date: Wed, 20 Oct 2004 18:11:44 +0300
-User-Agent: KMail/1.5.4
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel <linux-kernel@vger.kernel.org>,
-       "David S. Miller" <davem@davemloft.net>,
-       linux-kernel@gondor.apana.org.au, maxk@qualcomm.com,
-       irda-users@lists.sourceforge.net,
-       Linux Network Development <netdev@oss.sgi.com>,
-       Alain Schroeder <alain@parkautomat.net>
-References: <1098230132.23628.28.camel@krustophenia.net> <20041020000009.GA17246@gondor.apana.org.au> <1098231737.23628.42.camel@krustophenia.net>
-In-Reply-To: <1098231737.23628.42.camel@krustophenia.net>
+	Wed, 20 Oct 2004 12:04:34 -0400
+Received: from chaos.analogic.com ([204.178.40.224]:15744 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP id S268421AbUJTQAb
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 20 Oct 2004 12:00:31 -0400
+Date: Wed, 20 Oct 2004 11:59:09 -0400 (EDT)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+Reply-To: root@chaos.analogic.com
+To: George Anzinger <george@mvista.com>
+cc: Len Brown <len.brown@intel.com>,
+       Tim Schmielau <tim@physik3.uni-rostock.de>,
+       john stultz <johnstul@us.ibm.com>, lkml <linux-kernel@vger.kernel.org>
+Subject: Re: gradual timeofday overhaul
+In-Reply-To: <41767FA8.9090104@mvista.com>
+Message-ID: <Pine.LNX.4.61.0410201134330.13384@chaos.analogic.com>
+References: <Pine.LNX.4.53.0410200441210.11067@gockel.physik3.uni-rostock.de>
+ <1098258460.26595.4320.camel@d845pe> <41767FA8.9090104@mvista.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="koi8-r"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200410201811.44419.vda@port.imtp.ilyichevsk.odessa.ua>
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> How about this:
-> 
-> Signed-Off-By: Lee Revell <rlrevell@joe-job.com>
-> 
-> --- include/linux/netdevice.h~	2004-10-19 20:16:48.000000000 -0400
-> +++ include/linux/netdevice.h	2004-10-19 20:21:01.000000000 -0400
-> @@ -696,9 +696,12 @@
->   */
->  static inline int netif_rx_ni(struct sk_buff *skb)
->  {
-> -       int err = netif_rx(skb);
-> +       int err;
-> +       preempt_disable();
-> +       err = netif_rx(skb);
->         if (softirq_pending(smp_processor_id()))
->                 do_softirq();
-> +       preempt_enable();
->         return err;
->  }
+On Wed, 20 Oct 2004, George Anzinger wrote:
 
-#include <linux/netdevice.h>
+> Len Brown wrote:
+>> On Tue, 2004-10-19 at 23:05, Tim Schmielau wrote:
+>> 
+>>> I think we could do it in the following steps:
+>>> 
+>>>  1. Sync up jiffies with the monotonic clock,...
+>>>  2. Decouple jiffies from the actual interrupt counter...
+>>>  3. Increase HZ all the way up to 1e9....
+>
+> Before we do any of the above, I think we need to stop and ponder just what a 
+> "jiffie" is.  Currently it is, by default (or historically) the "basic tick" 
+> of the system clock.  On top of this a lot of interpolation code has been 
+> "grafted" to allow the system to resolve time to finer levels, i.e. to the 
+> nanosecond. But none of this interpolation code actually changes the tick, 
+> i.e. the interrupt still happens at the same periodic rate.
+>
+> As the "basic tick", it is used to do a lot of accounting and scheduling 
+> house keeping AND as a driver of the system timers.
+>
+> So, by this definition, it REQUIRES a system interrupt.
+>
+> I have built a "tick less" system and have evidence from that that such 
+> systems are over load prone.  The faster the context switch rate, the more 
+> accounting needs to be done.  On the otherhand, the ticked system has flat 
+> accounting overhead WRT load.
+>
+> Regardless of what definitions we settle on, the system needs an interrupt 
+> source to drive the system timers, and, as I indicate above, the accounting 
+> and scheduling stuff.  It is a MUST that these interrupts occure at the 
+> required times or the system timers will be off.  This is why we have a 
+> jiffies value that is "rather odd" in the x86 today.
+>
+> George
+>
+>
 
-int netif_rx_ni_(struct sk_buff *skb)
-{
-    int err;
-    preempt_disable();
-    err = netif_rx(skb);
-    if (softirq_pending(smp_processor_id()))
-        do_softirq();
-    preempt_enable();
-    return err;
-}
+You need that hardware interrupt for more than time-keeping.
+Without a hardware-interrupt, to force a new time-slice,
 
-objdump -d:
-00000000 <netif_rx_ni_>:
-   0:   55                      push   %ebp
-   1:   89 e5                   mov    %esp,%ebp
-   3:   56                      push   %esi
-   4:   53                      push   %ebx
-   5:   bb 00 f0 ff ff          mov    $0xfffff000,%ebx
-   a:   21 e3                   and    %esp,%ebx
-   c:   ff 43 14                incl   0x14(%ebx)
-   f:   8b 4d 08                mov    0x8(%ebp),%ecx
-  12:   51                      push   %ecx
-  13:   e8 fc ff ff ff          call   14 <netif_rx_ni_+0x14>
-  18:   89 c6                   mov    %eax,%esi
-  1a:   8b 43 10                mov    0x10(%ebx),%eax
-  1d:   c1 e0 07                shl    $0x7,%eax
-  20:   8b 80 00 00 00 00       mov    0x0(%eax),%eax
-  26:   85 c0                   test   %eax,%eax
-  28:   5a                      pop    %edx
-  29:   75 25                   jne    50 <netif_rx_ni_+0x50>
-  2b:   8b 43 08                mov    0x8(%ebx),%eax
-  2e:   ff 4b 14                decl   0x14(%ebx)
-  31:   a8 08                   test   $0x8,%al
-  33:   75 09                   jne    3e <netif_rx_ni_+0x3e>
-  35:   8d 65 f8                lea    0xfffffff8(%ebp),%esp
-  38:   5b                      pop    %ebx
-  39:   89 f0                   mov    %esi,%eax
-  3b:   5e                      pop    %esi
-  3c:   5d                      pop    %ebp
-  3d:   c3                      ret
-  3e:   e8 fc ff ff ff          call   3f <netif_rx_ni_+0x3f>
-  43:   eb f0                   jmp    35 <netif_rx_ni_+0x35>
-  45:   8d 74 26 00             lea    0x0(%esi,1),%esi
-  49:   8d bc 27 00 00 00 00    lea    0x0(%edi,1),%edi
-  50:   e8 fc ff ff ff          call   51 <netif_rx_ni_+0x51>
-  55:   eb d4                   jmp    2b <netif_rx_ni_+0x2b>
+ 	for(;;)
+            ;
 
-0x57 == 87 bytes is too big for inline.
---
-vda
+... would allow a user to grab the CPU forever ...
 
+So, getting rid of the hardware interrupt can't be done.
+Also, much effort has gone into obtaining high resolution
+timing without any high resolution hardware to back it
+up. This means that user's can get numbers like 987,654
+microseconds and the last 654 are as valuable as teats
+on a bull. With a HZ timer tick, you get 1/HZ resolution
+pure and simple. The rest of the "interpolation" is just
+guess-work which leads to lots of problems, especially
+when one attempts to read a spinning down-count value
+from a hardware device accessed off some ports!
+
+If the ix86 CMOS timer was used you could get better
+accuracy than present, but accuracy is something one
+can accommodate with automatic adjustment of time,
+tracable to some appropriate standard.
+
+The top-level schedule-code could contain some flag that
+says; "are we in a power-down mode". If so, it could
+execute minimal in-cache code, i.e. :
+
+ 		for(;;)
+                 {
+                    hlt();	// Sleep until next tick
+ 		   if(mode != power_down)
+                        schedule();
+
+                 }
+
+The timer-tick ISR or any other ISR wakes us up from halt.
+This keeps the system sleeping, not wasting power grabbing
+code/data from RAM and grunching some numbers that are
+not going to be used.
+
+
+>> 
+>> 
+>>> Thoughts?
+>> 
+>> 
+>> Yes, for long periods of idle, I'd like to see the periodic clock tick
+>> disabled entirely.  Clock ticks causes the hardware to exit power-saving
+>> idle states.
+>> 
+>> The current design with HZ=1000 gives us 1ms = 1000usec between clock
+>> ticks.  But some platforms take nearly that long just to enter/exit low
+>> power states; which means that on Linux the hardware pays a long idle
+>> state exit latency (performance hit) but gets little or no power savings
+>> from the time it resides in that idle state.
+>> 
+>> thanks,
+>> -Len
+>> 
+>> 
+>
+> -- 
+> George Anzinger   george@mvista.com
+> High-res-timers:  http://sourceforge.net/projects/high-res-timers/
+>
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+>
+
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.6.9 on an i686 machine (5537.79 GrumpyMips).
+                  98.36% of all statistics are fiction.

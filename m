@@ -1,57 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261998AbTFIUzk (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 9 Jun 2003 16:55:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262018AbTFIUzk
+	id S261994AbTFIUxw (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 9 Jun 2003 16:53:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261998AbTFIUxw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 9 Jun 2003 16:55:40 -0400
-Received: from 153.Red-213-4-13.pooles.rima-tde.net ([213.4.13.153]:61960 "EHLO
-	small.felipe-alfaro.com") by vger.kernel.org with ESMTP
-	id S261998AbTFIUza (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 9 Jun 2003 16:55:30 -0400
-Subject: Re: 2.5.70-mm6
-From: Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>
-To: "Martin J. Bligh" <mbligh@aracnet.com>
-Cc: Maciej Soltysiak <solt@dns.toxicfilms.tv>, Andrew Morton <akpm@digeo.com>,
-       LKML <linux-kernel@vger.kernel.org>, linux-mm@kvack.org
-In-Reply-To: <64000000.1055189666@flay>
-References: <20030607151440.6982d8c6.akpm@digeo.com>
-	 <Pine.LNX.4.51.0306091943580.23392@dns.toxicfilms.tv>
-	 <46580000.1055180345@flay>
-	 <Pine.LNX.4.51.0306092017390.25458@dns.toxicfilms.tv>
-	 <51250000.1055184690@flay>
-	 <1055189322.600.1.camel@teapot.felipe-alfaro.com>
-	 <64000000.1055189666@flay>
-Content-Type: text/plain
-Message-Id: <1055192945.600.3.camel@teapot.felipe-alfaro.com>
+	Mon, 9 Jun 2003 16:53:52 -0400
+Received: from smtp-out2.iol.cz ([194.228.2.87]:22428 "EHLO smtp-out2.iol.cz")
+	by vger.kernel.org with ESMTP id S261994AbTFIUxu (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 9 Jun 2003 16:53:50 -0400
+Date: Mon, 9 Jun 2003 23:07:07 +0200
+From: Pavel Machek <pavel@suse.cz>
+To: Patrick Mochel <mochel@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [RFC] New system device API
+Message-ID: <20030609210706.GA508@elf.ucw.cz>
+References: <20030609184233.GA201@elf.ucw.cz> <Pine.LNX.4.44.0306091323340.11379-100000@cherise>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.3.92 (Preview Release)
-Date: 09 Jun 2003 23:09:05 +0200
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.44.0306091323340.11379-100000@cherise>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.3i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2003-06-09 at 22:14, Martin J. Bligh wrote:
-> --On Monday, June 09, 2003 22:08:42 +0200 Felipe Alfaro Solana <felipe_alfaro@linuxmail.org> wrote:
-> 
-> > On Mon, 2003-06-09 at 20:51, Martin J. Bligh wrote:
-> >> >> If you don't nice the hell out of X, does it work OK?
-> >> > No.
-> >> > 
-> >> > The way I reproduce the sound skips:
-> >> > run xmms, run evolution, compose a mail with gpg.
-> >> > on mm6 the gpg part stops the sound for a few seconds. (with X -10 and 0)
-> >> > on mm5 xmms plays without stops. (with X -10)
-> >> 
-> >> Does this (from Ingo?) do anything useful to it?
-> > 
-> > I can confirm that 2.5.70-mm6 with Ingo's patch and HZ set back to 1000
-> > is nearly perfect (it still takes some seconds for the scheduler to
-> > adjust dynamic priorities).
-> 
-> OK ... sorry to be pedantic, but I want to nail this down.
-> It's still broken with HZ=1000, but without Ingo's patch, right?
+Hi!
 
-I have to try that combination... Please, allow for a few hours and I'll
-post the results.
+> > You are currently adding more methods and semantics just to make
+> > system devices separate from "normal" ones. If you keep two-stage
+> > (actually three-stage suspend), you'll have system devices similar to
+> > normal ones, and will have less special cases to care about.
+> 
+> The whole point of doing this is because system devices are not regular 
+> devices and shouldn't be treated as such. This actually simplifies the 
+> requirements for representing system devices in the device hierarchy, 
+> despite adding new functions..
 
+Okay, but you should keep "new" functions as similar to existing ones
+as possible. That means 3 parameters for suspend functions, and as
+similar semantics to existing callbacks as possible.
+
+> > And keyboard controller with its devices needs to be suspended
+> > early/resumed late because both operations are likely to need
+> > interrupts.
+> 
+> So? A keyboard controller is not classified as a system device.
+
+Its not on pci, I guess it would end up as a system device...
+								Pavel
+-- 
+When do you have a heart between your knees?
+[Johanka's followup: and *two* hearts?]

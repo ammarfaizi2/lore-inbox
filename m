@@ -1,76 +1,73 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132054AbRDCB3u>; Mon, 2 Apr 2001 21:29:50 -0400
+	id <S132144AbRDCBnL>; Mon, 2 Apr 2001 21:43:11 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132471AbRDCB3l>; Mon, 2 Apr 2001 21:29:41 -0400
-Received: from msgbas1x.cos.agilent.com ([192.6.9.33]:991 "HELO
-	msgbas1.cos.agilent.com") by vger.kernel.org with SMTP
-	id <S132054AbRDCB3U>; Mon, 2 Apr 2001 21:29:20 -0400
-Message-ID: <FEEBE78C8360D411ACFD00D0B7477971880A04@xsj02.sjs.agilent.com>
-From: hiren_mehta@agilent.com
-To: Matt_Domsch@Dell.com
-Cc: linux-kernel@vger.kernel.org
-Subject: RE: vmalloc on 2.4.x on ia64
-Date: Mon, 2 Apr 2001 19:28:37 -0600 
+	id <S132337AbRDCBnC>; Mon, 2 Apr 2001 21:43:02 -0400
+Received: from [202.104.32.248] ([202.104.32.248]:49763 "HELO 21cn.com")
+	by vger.kernel.org with SMTP id <S132144AbRDCBmu> convert rfc822-to-8bit;
+	Mon, 2 Apr 2001 21:42:50 -0400
+Message-ID: <006b01c0bbdf$38dbbd80$3300a8c0@dvn>
+From: "Jean-Michel Lee" <thaz@21cn.com>
+To: <linux-kernel@vger.kernel.org>
+In-Reply-To: <F1629832DE36D411858F00C04F24847A11DF3B@SALVADOR>
+Subject: Re: Question: is linux support Intel's i840 chipset?
+Date: Tue, 3 Apr 2001 09:41:34 +0800
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
 Content-Type: text/plain;
-	charset="ISO-8859-1"
+	charset="WINDOWS-1255"
+Content-Transfer-Encoding: 8BIT
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 5.50.3825.400
+X-MIMEOLE: Produced By Microsoft MimeOLE V5.50.3825.400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-That is what I said. I am using vmalloc only. But the call to
-vmalloc is hanging.
+Thanks a lot.
 
--hiren
+A fool question: since IDE controller is a PCI device, and the PCI is 32bit/33MHz - 132MB/s or so. How does two ATA-100 device work, it will use 2 x 100MB/s bandwidth.
 
+I know most IDE controller is in the Sound Bridge, but I can buy an IDE expand card, which support ATA-100 too.
+
+
+----- Original Message ----- 
+From: "Ofer Fryman" <ofer@shunra.co.il>
+To: "'Jean-Michel Lee'" <thaz@21cn.com>
+Cc: <linux-kernel@vger.kernel.org>
+Sent: Thursday, March 29, 2001 6:20 PM
+Subject: RE: Question: is linux support Intel's i840 chipset?
+
+
+> I believe that Linux 2.2.x and 2.4.x do support it well, however I tried
+> using it with Linux 2.0.x and it caused me many problems with PCI drivers. I
+> also tried server-works chipset, which also works with 64-bit PCI bus, it
+> worked well under Linux 2.0.x no problems what so ever.
+> Any way since the 840 chipset is known to be buggy, I suggest you use
+> server-works.
+> 
+> Ofer
+> 
 > -----Original Message-----
-> From: Matt_Domsch@Dell.com [mailto:Matt_Domsch@Dell.com]
-> Sent: Monday, April 02, 2001 6:26 PM
-> To: hiren_mehta@agilent.com
-> Subject: RE: vmalloc on 2.4.x on ia64
+> From: Jean-Michel Lee [mailto:thaz@21cn.com]
+> Sent: Thursday, March 29, 2001 11:47 AM
+> To: linux-kernel@vger.kernel.org
+> Subject: Question: is linux support Intel's i840 chipset?
 > 
 > 
-> kmalloc() has a limit of 128KB.  Use get_free_pages() or 
-> vmalloc() instead,
-> or break up your allocation into smaller hunks.
+> Hi,
 > 
-> Thanks,
-> Matt
+> I just want to search a mainboard with 64-bit PCI bus and ATA-100 support. I
+> just find that Intel i840 do. So, I wonder whether linux support Intel's
+> i840.
 > 
-> -- 
-> Matt Domsch
-> Sr. Software Engineer
-> Dell Linux Systems Group
-> Linux OS Development
-> www.dell.com/linux
+> Thanks.
 > 
+> Michel
 > 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 > 
-> > -----Original Message-----
-> > From: MEHTA,HIREN (A-SanJose,ex1) [mailto:hiren_mehta@agilent.com]
-> > Sent: Monday, April 02, 2001 7:07 PM
-> > To: 'linux-kernel@vger.kernel.org'
-> > Subject: vmalloc on 2.4.x on ia64
-> > 
-> > 
-> > Greetings.
-> > 
-> > Is vmalloc() interface broken on any of 2.4.x kernel on ia64 ?
-> > I am trying to call vmalloc from the driver to allocate
-> > about 130kb of memory and it hangs the system.
-> > I am running 2.4.1 kernel with ia64 patch (I can find out the
-> > exact patch if needed) on LION. Let me know if more information
-> > is required.
-> > 
-> > Thanks and regards,
-> > -hiren
-> > -
-> > To unsubscribe from this list: send the line "unsubscribe 
-> > linux-kernel" in
-> > the body of a message to majordomo@vger.kernel.org
-> > More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> > Please read the FAQ at  http://www.tux.org/lkml/
-> > 
-> > 
-> 
+

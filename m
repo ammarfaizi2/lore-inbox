@@ -1,55 +1,30 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281225AbRKUDBm>; Tue, 20 Nov 2001 22:01:42 -0500
+	id <S281159AbRKUDHW>; Tue, 20 Nov 2001 22:07:22 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281159AbRKUDBW>; Tue, 20 Nov 2001 22:01:22 -0500
-Received: from zok.SGI.COM ([204.94.215.101]:54916 "EHLO zok.sgi.com")
-	by vger.kernel.org with ESMTP id <S281559AbRKUDBU>;
-	Tue, 20 Nov 2001 22:01:20 -0500
-X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
-From: Keith Owens <kaos@ocs.com.au>
-To: linux-kernel@vger.kernel.org
-Subject: Announce: modutils 2.4.12 is available 
-Date: Wed, 21 Nov 2001 14:01:07 +1100
-Message-ID: <2462.1006311667@kao2.melbourne.sgi.com>
+	id <S281161AbRKUDHM>; Tue, 20 Nov 2001 22:07:12 -0500
+Received: from www.soccerchix.org ([64.23.60.113]:53513 "EHLO
+	gib.soccerchix.org") by vger.kernel.org with ESMTP
+	id <S281159AbRKUDHC>; Tue, 20 Nov 2001 22:07:02 -0500
+Date: Tue, 20 Nov 2001 21:47:58 -0500 (EST)
+From: Blue Lang <blue@b-side.org>
+To: kernel list <linux-kernel@vger.kernel.org>
+Subject: undocumented, ungoogleable /proc/net/nicinfo interface
+In-Reply-To: <200111210412.XAA05883@ccure.karaya.com>
+Message-ID: <Pine.LNX.4.30.0111202143510.20531-100000@gib.soccerchix.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
 
-Content-Type: text/plain; charset=us-ascii
+anyone know anything about or want to claim this directory? it only seems
+to work for my broadcom 1000BT nics, which would be a shame as it's darn
+useful.
 
-ftp://ftp.<country>.kernel.org/pub/linux/utils/kernel/modutils/v2.4
+thanks,
 
-modutils-2.4.12.tar.gz          Source tarball, includes RPM spec file
-modutils-2.4.12-1.src.rpm       As above, in SRPM format
-modutils-2.4.12-1.i386.rpm      Compiled with gcc 2.96 20000731,
-				glibc 2.2.2.
-modutils-2.4.12-1.ia64.rpm      Compiled with gcc 2.96-ia64-20000731,
-				glibc-2.2.3.
-modutils-2.4.12-1.sparc.rpm     Compiled for combined 32/64 sparc, with
-				gcc 2.95.4 20011006, glibc-2.2.4.
-patch-modutils-2.4.12.gz        Patch from modutils 2.4.11 to 2.4.12.
-
-Related kernel patches.
-
-patch-2.4.2-persistent.gz       Adds persistent data and generic string
-				support to kernel 2.4.2 onwards.  Optional.
-
-Changelog extract
-
-	* More verbose hints for unresolved symbols in non-GPL modules.
-	* Remove spurious #endif from elf_ppc64.h.
-	* Use #define for taint flags, add taint flag for non-SMP capable cpus.
-	* Do not check if the module is already loaded when -n is specified.
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.4 (GNU/Linux)
-Comment: Exmh version 2.1.1 10/15/1999
-
-iD8DBQE7+xjwi4UHNye0ZOoRAqvkAKDe5XiHMIWB7Ypud6mh+ApWnedG5ACfbMTt
-xgCkQJg+tcc7wWKdvPXBwSY=
-=SZvQ
------END PGP SIGNATURE-----
+-- 
+   Blue Lang, editor, b-side.org                     http://www.b-side.org
+   2315 McMullan Circle, Raleigh, North Carolina, 27608       919 835 1540
 

@@ -1,61 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292185AbSBOV5L>; Fri, 15 Feb 2002 16:57:11 -0500
+	id <S292195AbSBOWAb>; Fri, 15 Feb 2002 17:00:31 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292187AbSBOV5B>; Fri, 15 Feb 2002 16:57:01 -0500
-Received: from smtp02.web.de ([217.72.192.151]:21256 "EHLO smtp.web.de")
-	by vger.kernel.org with ESMTP id <S292185AbSBOV4q>;
-	Fri, 15 Feb 2002 16:56:46 -0500
-Date: Fri, 15 Feb 2002 23:07:39 +0100
-From: =?ISO-8859-1?Q?Ren=E9?= Scharfe <l.s.r@web.de>
-To: Dave Jones <davej@suse.de>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: [PATCH] fix xconfig in 2.5.4-dj2
-Message-Id: <20020215230739.33e22865.l.s.r@web.de>
-X-Mailer: Sylpheed version 0.7.0 (GTK+ 1.2.10; i586-pc-linux-gnu)
+	id <S292201AbSBOWAV>; Fri, 15 Feb 2002 17:00:21 -0500
+Received: from zero.tech9.net ([209.61.188.187]:32783 "EHLO zero.tech9.net")
+	by vger.kernel.org with ESMTP id <S292195AbSBOWAK>;
+	Fri, 15 Feb 2002 17:00:10 -0500
+Subject: Re: Hard lockup with 2.4.18-pre9 + preempt + lock break + O1k[23] +
+	rmap
+From: Robert Love <rml@tech9.net>
+To: Mike Fedyk <mfedyk@matchmail.com>
+Cc: Robert Jameson <rj@open-net.org>, linux-kernel@vger.kernel.org
+In-Reply-To: <20020215201810.GA5310@matchmail.com>
+In-Reply-To: <20020215035135.0c26b130.rj@open-net.org>
+	<1013780277.950.663.camel@phantasy>  <20020215201810.GA5310@matchmail.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/1.0.2 
+Date: 15 Feb 2002 17:00:10 -0500
+Message-Id: <1013810411.803.1045.camel@phantasy>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Fri, 2002-02-15 at 15:18, Mike Fedyk wrote:
 
-patch below allows 'make xconfig' to run successfully.
+> I don't use USB, and I have had several machines lock up hard while doing
+> medium to heavy IO.  I've had this happen with pre9-mjc2 and another patch
+> that just contained pre9-preempt-schedo1
+> (nyu.dyn.dhs.org:8080/patches/2.4.18-pre9-to-rmap12e-schedO1-rml.patch.bz2)
 
-René
+The -mjc and similar patches make debugging a bit, uh, hard ;)
 
+> I'm running 2.4.18-pre9-ac3 now to see if I can reproduce without prempt and
+> O(1).
 
-
-diff -ur linux-2.5.4-dj2/sound/Config.in linux/sound/Config.in
---- linux-2.5.4-dj2/sound/Config.in	Fri Feb 15 22:06:30 2002
-+++ linux/sound/Config.in	Fri Feb 15 22:45:24 2002
-@@ -19,13 +19,13 @@
-   source sound/core/Config.in
-   source sound/drivers/Config.in
- fi
--if [ "$CONFIG_SND" != "n" -a "$CONFIG_ISA" == "y" ]; then
-+if [ "$CONFIG_SND" != "n" -a "$CONFIG_ISA" = "y" ]; then
-   source sound/isa/Config.in
- fi
--if [ "$CONFIG_SND" != "n" -a "$CONFIG_PCI" == "y" ]; then
-+if [ "$CONFIG_SND" != "n" -a "$CONFIG_PCI" = "y" ]; then
-   source sound/pci/Config.in
- fi
--if [ "$CONFIG_SND" != "n" -a "$CONFIG_PPC" == "y" ]; then
-+if [ "$CONFIG_SND" != "n" -a "$CONFIG_PPC" = "y" ]; then
-   source sound/ppc/Config.in
- fi
+If you can't reproduce it, I'd like to see if you can reproduce it
+_only_ with preempt.  Also, if it happens on stock pre9 (no -ac) would
+be of interest, since that doesn't have Andre's IDE patch.
  
-diff -ur linux-2.5.4-dj2/sound/isa/Config.in linux/sound/isa/Config.in
---- linux-2.5.4-dj2/sound/isa/Config.in	Fri Feb 15 22:06:31 2002
-+++ linux/sound/isa/Config.in	Fri Feb 15 22:51:34 2002
-@@ -20,7 +20,7 @@
- dep_tristate 'Sound Blaster 16 (PnP)' CONFIG_SND_SB16 $CONFIG_SND
- dep_tristate 'Sound Blaster AWE (32,64) (PnP)' CONFIG_SND_SBAWE $CONFIG_SND
- if [ "$CONFIG_SND_SB16" != "n" -o "$CONFIG_SND_SBAWE" != "n" ]; then
--  dep_bool 'Sound Blaster 16/AWE CSP support' CONFIG_SND_SB16_CSP
-+  dep_bool 'Sound Blaster 16/AWE CSP support' CONFIG_SND_SB16_CSP $CONFIG_SND
- fi
- dep_tristate 'Turtle Beach Maui,Tropez,Tropez+ (Wavefront)' CONFIG_SND_WAVEFRONT $CONFIG_SND
- dep_tristate 'Avance Logic ALS100/ALS120' CONFIG_SND_ALS100 $CONFIG_SND
+> I have someone else from IRC that has the same issue with prempt+O(1)
+> against vanilla 2.4.17.  He should be sending you a bug report soon.
+
+Now this would be of interest, thanks.
+
+> BTW, all machines ran the same kernel compiled for SMP, but some machines
+> were UP.
+>
+> Has anyone else seen this?
+
+	Robert Love
+

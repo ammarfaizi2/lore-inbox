@@ -1,51 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292488AbSBPTRF>; Sat, 16 Feb 2002 14:17:05 -0500
+	id <S292493AbSBPT0f>; Sat, 16 Feb 2002 14:26:35 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292493AbSBPTQz>; Sat, 16 Feb 2002 14:16:55 -0500
-Received: from garrincha.netbank.com.br ([200.203.199.88]:30227 "HELO
-	netbank.com.br") by vger.kernel.org with SMTP id <S292488AbSBPTQs>;
-	Sat, 16 Feb 2002 14:16:48 -0500
-Date: Sat, 16 Feb 2002 17:16:20 -0200 (BRST)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: <riel@imladris.surriel.com>
-To: Alexander Viro <viro@math.psu.edu>
-Cc: <linux-kernel@vger.kernel.org>, "Eric S. Raymond" <esr@thyrsus.com>,
-        <jgarzik@conectiva.com.br>, That Linux Guy <thatlinuxguy@hotmail.com>,
-        Nicolas Pitre <nico@cam.org>
-Subject: That Linux Guy <thatlinuxguy@hotmail.com>,Re: Of Bundling, Dao and
- Cowardice
-In-Reply-To: <Pine.GSO.4.21.0202161146160.29124-100000@weyl.math.psu.edu>
-Message-ID: <Pine.LNX.4.33L.0202161713420.1930-100000@imladris.surriel.com>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
+	id <S292494AbSBPT00>; Sat, 16 Feb 2002 14:26:26 -0500
+Received: from flrtn-4-m1-42.vnnyca.adelphia.net ([24.55.69.42]:11661 "EHLO
+	jyro.mirai.cx") by vger.kernel.org with ESMTP id <S292493AbSBPT0V>;
+	Sat, 16 Feb 2002 14:26:21 -0500
+Date: Sat, 16 Feb 2002 11:25:49 -0800 (PST)
+From: jjs@mirai.cx
+To: Jason Czerak <Jason-Czerak@Jasnik.net>
+cc: john slee <indigoid@higherplane.net>, J Sloan <joe@tmsusa.com>,
+        <linux-kernel@vger.kernel.org>
+Subject: Re: tux officially in kernel?
+In-Reply-To: <1013885982.1680.2.camel@neworder>
+Message-ID: <Pine.LNX.4.44.0202161118510.21847-100000@jyro.mirai.cx>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 16 Feb 2002, Alexander Viro wrote:
+On 16 Feb 2002, Jason Czerak wrote:
 
-> 	While we are at it, look what Rik is doing right now.  He has
-> a huge patch pretty much rewriting (what a coincidence) VM.  He had tried
-> to shove its previous incarnations into the tree whole-sale.
+> If I"m not mistaken, Tux needs SSL and V-domains support.
 
-Actually, Linus took it unexpectedly while I was away to
-Europe for conferences for 2 weeks. ;)
+You are partly mistaken - tux does virtual domains like a champ.
+Mass virtual hosting is easy and effective. Tux does need to pass
+SSL requests off to a helper server though.
 
-I don't quite agree on the "more trouble" part either,
-in the end it is MUCH more trouble when a big blob of
-code gets integrated than when a series of small changes
-get applied one by one.
+>  then I can use
+> it instead of Apache with mod_proxy (static) --> Apache mod_perl
+> (dynamic content) dual apache setup.  
 
-regards,
+I'd love to see mod_perl for tux - did I miss something?
 
-Rik
--- 
-"Linux holds advantages over the single-vendor commercial OS"
-    -- Microsoft's "Competing with Linux" document
+I'd be just as happy about php, and there is what looks like the beginning
+of tux support in php. If tux could load and run php modules, it would 
+open a lot of doors very quickly. (i.e. there are a lot more php 
+programmers out there than are in the tiny, rather elite group of those 
+who understand and can use the tux dynamic content api.)
 
-http://www.surriel.com/		http://distro.conectiva.com/
+> Once this happens. My little
+> PII-350 should surly keep up with, if not be faster then that Dual 733
+> NT box for static content :) 
 
+Indeed.
 
+Joe
 

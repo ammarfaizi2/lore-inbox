@@ -1,70 +1,82 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261456AbTA1JBc>; Tue, 28 Jan 2003 04:01:32 -0500
+	id <S261645AbTA1JHK>; Tue, 28 Jan 2003 04:07:10 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261523AbTA1JBc>; Tue, 28 Jan 2003 04:01:32 -0500
-Received: from mail2.webart.de ([195.30.14.11]:30990 "EHLO mail2.webart.de")
-	by vger.kernel.org with ESMTP id <S261456AbTA1JBa>;
-	Tue, 28 Jan 2003 04:01:30 -0500
-Message-ID: <398E93A81CC5D311901600A0C9F2928946936D@cubuss2>
-From: Raphael Schmid <Raphael_Schmid@CUBUS.COM>
-To: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
-Subject: Bootscreen
-Date: Tue, 28 Jan 2003 10:01:37 +0100
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2650.21)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+	id <S262604AbTA1JHI>; Tue, 28 Jan 2003 04:07:08 -0500
+Received: from dp.samba.org ([66.70.73.150]:35563 "EHLO lists.samba.org")
+	by vger.kernel.org with ESMTP id <S261645AbTA1JHF>;
+	Tue, 28 Jan 2003 04:07:05 -0500
+From: Rusty Russell <rusty@rustcorp.com.au>
+To: Mikael Pettersson <mikpe@csd.uu.se>
+Cc: Ingo Oeser <ingo.oeser@informatik.tu-chemnitz.de>
+Cc: linux-kernel@vger.kernel.org, akpm@zip.com.au
+Subject: Re: kernel param and KBUILD_MODNAME name-munging mess 
+In-reply-to: Your message of "Wed, 22 Jan 2003 11:20:01 BST."
+             <15918.28753.632988.981832@harpo.it.uu.se> 
+Date: Tue, 28 Jan 2003 20:15:09 +1100
+Message-Id: <20030128091625.553DF2C2B6@lists.samba.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello World,
+In message <15918.28753.632988.981832@harpo.it.uu.se> you write:
+> That's a workaround for this particular case, but the name-munging
+> is still wrong and broken.
 
-this eMail shall be a means of bringing up again a topic I believe has
-already been discussed extensively. Wait! Don't delete, read further
-please!
+Absolutely agreed.  Patch re-xmitted below.
 
-[ Note: please cc: me in any replies as <raphael@arrivingarrow.net>,
-  since (a) I'm at work and (b) not subscribed to the list. Thanks. ]
+Rusty.
+--
+  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.
 
-It is my very understanding one can not have, conveniently it should be,
-a simple *bootscreen* under Linux. With that I mean a picture of at
-least 256 (indexed) colours at a size of 640x480 pixels. Doesn't have
-to be a higher resolution. And yes, I'm taking the standpoint that every
-computer nowadays [where this shall be possible] *can* do that resolution.
+Name: Avoid mangling - in parameters
+Author: Rusty Russell
+Status: Trivial (tested in userspace framework)
 
-Framebuffer, I hear people shouting? Well. During the last *two days*,
-which includes one full night, I've been trying to get my v2.4.20 kernel
-to display such a bootscreen. All I get is segfaults. I've tried what I
-believe to be every tool out there: pnmtologo, fblogo, boot_logo, the
-GIMP plugin. You name them. None of which wouldn't have required any
-hacking to work with 2.4.20, by the way...
+D: Mikael Pettersson points out that "-s" gets mangled to "_s" on the
+D: kernel command line, even though it turns out not to be a
+D: parameter.
 
-And maybe it's right, maybe I demand too much from the (VESA) framebuffer.
-Maybe my picture is also too complex, but I've tried simple ones as well.
-And anyway: I don't *want* any simple picture, I want as complex a picture
-as it gets. In 640x480. At 256 indexed colours.
-
-So although I'm just learning C and can't code it myself, here's an idea:
-
-If Syslinux can display this kind of images, and if LILO can, so why would
-Linux be unable to display it? VESA was the term, if I right remember?
-If this request is too much of an effort to implement, then couldn't there
-be a kernel configuation option that simply tells Linux to leave the screen
-as it is, until some user space software (X) changes it? (In conjunction
-with console=/dev/null or something). I just want my picture remain there.
-
-I realize these ideas may sound kind of alien to you, but they make sense.
-Windows, MacOS all have bootscreens. There really is no way why Linux
-shouldn't.
-
-In that veine, another thing I've been puzzled with... can you somehow
-disable
-virtual consoles (Alt-Fx) completely while still maintaining an interface
-for
-X to come up on?
-
-Thanks for reading through until here. Thanks for any considerations in
-advance.
-
-Your truly, Raphael
+diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal linux-2.5.59/kernel/params.c working-2.5.59-underscore/kernel/params.c
+--- linux-2.5.59/kernel/params.c	2003-01-02 14:48:01.000000000 +1100
++++ working-2.5.59-underscore/kernel/params.c	2003-01-21 18:16:05.000000000 +1100
+@@ -27,6 +27,22 @@
+ #define DEBUGP(fmt, a...)
+ #endif
+ 
++static inline int dash2underscore(char c)
++{
++	if (c == '-')
++		return '_';
++	return c;
++}
++
++static inline int parameq(const char *input, const char *paramname)
++{
++	unsigned int i;
++	for (i = 0; dash2underscore(input[i]) == paramname[i]; i++)
++		if (input[i] == '\0')
++			return 1;
++	return 0;
++}
++
+ static int parse_one(char *param,
+ 		     char *val,
+ 		     struct kernel_param *params, 
+@@ -37,7 +53,7 @@ static int parse_one(char *param,
+ 
+ 	/* Find parameter */
+ 	for (i = 0; i < num_params; i++) {
+-		if (strcmp(param, params[i].name) == 0) {
++		if (parameq(param, params[i].name)) {
+ 			DEBUGP("They are equal!  Calling %p\n",
+ 			       params[i].set);
+ 			return params[i].set(val, &params[i]);
+@@ -69,8 +85,6 @@ static char *next_arg(char *args, char *
+ 		if (equals == 0) {
+ 			if (args[i] == '=')
+ 				equals = i;
+-			else if (args[i] == '-')
+-				args[i] = '_';
+ 		}
+ 		if (args[i] == '"')
+ 			in_quote = !in_quote;

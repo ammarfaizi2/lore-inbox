@@ -1,56 +1,126 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262497AbUKDXr7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262501AbUKDXtC@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262497AbUKDXr7 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 4 Nov 2004 18:47:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262501AbUKDXr7
+	id S262501AbUKDXtC (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 4 Nov 2004 18:49:02 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262503AbUKDXtC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Nov 2004 18:47:59 -0500
-Received: from cantor.suse.de ([195.135.220.2]:26563 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S262497AbUKDXr5 (ORCPT
+	Thu, 4 Nov 2004 18:49:02 -0500
+Received: from omx2-ext.sgi.com ([192.48.171.19]:15748 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S262501AbUKDXsq (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Nov 2004 18:47:57 -0500
-To: Olaf Hering <olh@suse.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: fix initcall_debug on ppc64/ia64
-References: <20041102195130.GA13589@suse.de>
-	<20041103152628.19753cf2.akpm@osdl.org>
-	<20041104210547.GA16238@suse.de>
-From: Andreas Schwab <schwab@suse.de>
-X-Yow: Let's go to CHURCH!
-Date: Fri, 05 Nov 2004 00:47:07 +0100
-In-Reply-To: <20041104210547.GA16238@suse.de> (Olaf Hering's message of
- "Thu, 4 Nov 2004 22:05:47 +0100")
-Message-ID: <je8y9hrxc4.fsf@sykes.suse.de>
-User-Agent: Gnus/5.110002 (No Gnus v0.2) Emacs/21.3.50 (gnu/linux)
+	Thu, 4 Nov 2004 18:48:46 -0500
+Message-ID: <418ABFB2.6050800@engr.sgi.com>
+Date: Thu, 04 Nov 2004 15:48:02 -0800
+From: Jay Lan <jlan@engr.sgi.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20030225
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+To: Andrew Morton <akpm@osdl.org>
+CC: lse-tech@lists.sourceforge.net, linux-kernel@vger.kernel.org,
+       guillaume.thouvenin@bull.net
+Subject: Re: [Lse-tech] [PATCH 2.6.9 1/2] enhanced accounting data collection
+References: <41785FE3.806@engr.sgi.com>	<41786344.9070504@engr.sgi.com> <20041021191608.06b74417.akpm@osdl.org>
+In-Reply-To: <20041021191608.06b74417.akpm@osdl.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Olaf Hering <olh@suse.de> writes:
+Andrew Morton wrote:
+> Jay Lan <jlan@engr.sgi.com> wrote:
+> 
+>>1/2: acct_io
+>>
+>>Enahanced I/O accounting data collection.
+>>
+> 
+> 
+> It's nice to use `diff -p' so people can see what functions you're hitting.
 
->  On Wed, Nov 03, Andrew Morton wrote:
->
->> Olaf Hering <olh@suse.de> wrote:
->> >
->> > Is a patch like that acceptable (for mainline)? Currently only the
->> > descriptor is printed, not the function itself. Another redirection is
->> > needed.
+Will be done that way next time.
+
+> 
+> 
+>>+			current->syscr++;
+> 
+> 
+> Should these metrics be per-thread or per-heavyweight process?
+
+Our customers found it useful per process.
+
+> 
+> 
+>>+	if (ret > 0) {
+>>+		current->rchar += ret;
+>>+	}
+> 
+> 
+> It's conventional to omit the braces if there is only one statement in the
+> block.
+
+Fixed. Also a few other places in the same siutation.
+
+> 
+> 
+>>===================================================================
+>>--- linux.orig/include/linux/sched.h	2004-10-01 17:01:21.412848229 -0700
+>>+++ linux/include/linux/sched.h	2004-10-01 17:09:42.723482260 -0700
+>>@@ -591,6 +591,9 @@
+>> 	struct rw_semaphore pagg_sem;
+> 
+> 
+> There is no `pagg_sem' in the kernel, so this will spit a reject.
+
+Fixed. That was from pagg, but i should not assume that.
+
+> 
+> 
+>> #endif
 >> 
->> Is this acked by Paul and Anton?  If so, I'll replace __powerpc64__ with
->> CONFIG_PPC64 and run with it.
->
->
-> I guess we need something like this.
-> Just where to put it, how to name it and how to handle ia64:
+>>+/* i/o counters(bytes read/written, #syscalls */
+>>+	unsigned long rchar, wchar, syscr, syscw;
+>>+
+> 
+> 
+> These will overflow super-quick.  Shouldn't they be 64-bit?
 
-The ia64 version should be identical.
+You are correct. Thanks!
 
-Andreas.
+> 
+> 
+>>--- linux.orig/kernel/fork.c	2004-10-01 17:01:21.432379595 -0700
+>>+++ linux/kernel/fork.c	2004-10-01 17:09:42.732271376 -0700
+>>@@ -995,6 +995,7 @@
+>> 	p->real_timer.data = (unsigned long) p;
+>> 
+>> 	p->utime = p->stime = 0;
+>>+	p->rchar = p->wchar = p->syscr = p->syscw = 0;
+> 
+> 
+> We generally prefer
+> 
+> 	p->rchar = 0;
+> 	p->wchar = 0;
+> 	etc.
+> 
+> yes, the code which is there has already sinned - feel free to clean it up
+> while you're there ;)
 
--- 
-Andreas Schwab, SuSE Labs, schwab@suse.de
-SuSE Linux AG, Maxfeldstraße 5, 90409 Nürnberg, Germany
-Key fingerprint = 58CA 54C7 6D53 942B 1756  01D3 44D5 214B 8276 4ED5
-"And now for something completely different."
+Will be corrected.
+
+Thanks,
+  - jay
+
+> 
+> 
+> 
+> -------------------------------------------------------
+> This SF.net email is sponsored by: IT Product Guide on ITManagersJournal
+> Use IT products in your business? Tell us what you think of them. Give us
+> Your Opinions, Get Free ThinkGeek Gift Certificates! Click to find out more
+> http://productguide.itmanagersjournal.com/guidepromo.tmpl
+> _______________________________________________
+> Lse-tech mailing list
+> Lse-tech@lists.sourceforge.net
+> https://lists.sourceforge.net/lists/listinfo/lse-tech
+

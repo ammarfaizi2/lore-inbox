@@ -1,67 +1,68 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290448AbSBGQvG>; Thu, 7 Feb 2002 11:51:06 -0500
+	id <S290491AbSBGRKN>; Thu, 7 Feb 2002 12:10:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290417AbSBGQuq>; Thu, 7 Feb 2002 11:50:46 -0500
-Received: from RAVEL.CODA.CS.CMU.EDU ([128.2.222.215]:36798 "EHLO
-	ravel.coda.cs.cmu.edu") by vger.kernel.org with ESMTP
-	id <S289685AbSBGQuf>; Thu, 7 Feb 2002 11:50:35 -0500
-Date: Thu, 7 Feb 2002 11:50:35 -0500
-To: linux-kernel@vger.kernel.org
-Cc: lord@regexps.com
-Subject: Re: linux-2.5.4-pre1 - bitkeeper testing
-Message-ID: <20020207165035.GA28384@ravel.coda.cs.cmu.edu>
-Mail-Followup-To: linux-kernel@vger.kernel.org, lord@regexps.com
-In-Reply-To: <Pine.LNX.4.44.0202052328470.32146-100000@ash.penguinppc.org>
+	id <S290490AbSBGRKD>; Thu, 7 Feb 2002 12:10:03 -0500
+Received: from mailout11.sul.t-online.com ([194.25.134.85]:16342 "EHLO
+	mailout11.sul.t-online.com") by vger.kernel.org with ESMTP
+	id <S290491AbSBGRJv>; Thu, 7 Feb 2002 12:09:51 -0500
+Date: Thu, 7 Feb 2002 18:09:32 +0100
+From: Andi Kleen <ak@muc.de>
+To: torvalds@transmeta.com
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] 64bit warning fixes
+Message-ID: <20020207180932.A25214@averell>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0202052328470.32146-100000@ash.penguinppc.org>
-User-Agent: Mutt/1.3.27i
-From: Jan Harkes <jaharkes@cs.cmu.edu>
+User-Agent: Mutt/1.3.22.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Feb 05, 2002 at 11:33:34PM -0800, Jeramy B. Smith wrote:
-> Firstly, IANAFSN (I am not a Free Software Nazi) but there is this
-> new GPL decentralized version control program called arch that is small
-> and fits in well with the Unix way of using other small utils.
 
-Tom, I cc'd you on this,
+Hi Linus,
 
-Yes it's very interesting and has several good ideas behind it, but it's
-not ready yet.
+This patch just fixes some harmless but ugly warnings on 64bit compilations. 
 
-$ du /opt/arch-1.0pre3
-12100   /opt/arch-1.0pre3/bin
-788     /opt/arch-1.0pre3/include
-2588    /opt/arch-1.0pre3/lib
-1640    /opt/arch-1.0pre3/libexec
-17120	/opt/arch-1.0pre3
+>From the x86-64 tree. 
 
-Hmm, I wouldn't call over 17MB small. It also has several name conflicts
-with existing binaries, amongst others /bin/arch and /bin/readlink. This
-breaks a lot when arch's binary directory is not first in the PATH
-environment variable.
+For 2.5.4pre2. Please consider applying.
 
-Then it has these {arch} names all over the place, about as bad as CVS
-and SCCS, but it breaks tab-completion with GNU bash/readline too,
-wouldn't .arch (or .{arch}) be a less invasive naming scheme? It's
-changesets are definitely not close to being 'patch' compatible.
+Thanks, 
 
-> When you get weird Bk errors because Larry changes the Open Logging stuff
-> for the umpteenth time which forces you to upgrade to keep using Bk,
-> just remember we told you so.
+-Andi
 
-Have you tried to work your way through the arch sources yet? Just
-trying to figure out where 'sb' is compiled, what it does and where it
-is used took me a very long time.
 
-Most of arch's helper libraries/programs (hackerlab/xxx-utils) already
-have in my opinion perfectly reasonable existing solutions, i.e. there
-is something called the POSIX standard, ftp/http file access by using
-wget/curl/ncftpget. And why it needs to have it's own ftp-server built
-in (which is what it looks like), I have no clue about that one.
-
-Jan
-
+--- ../../v2.5/linux/include/linux/pm.h	Thu Feb  7 01:46:26 2002
++++ linux/include/linux/pm.h	Thu Feb  7 17:32:17 2002
+@@ -103,8 +103,8 @@
+ 	void		*data;
+ 
+ 	unsigned long	 flags;
+-	int		 state;
+-	int		 prev_state;
++	unsigned long	 state;
++	unsigned long	 prev_state;
+ 
+ 	struct list_head entry;
+ };
+--- ../../v2.5/linux/kernel/pm.c	Tue Jan 15 17:53:36 2002
++++ linux/kernel/pm.c	Thu Feb  7 17:32:17 2002
+@@ -154,7 +154,7 @@
+ int pm_send(struct pm_dev *dev, pm_request_t rqst, void *data)
+ {
+ 	int status = 0;
+-	int prev_state, next_state;
++	unsigned long prev_state, next_state;
+ 
+ 	if (in_interrupt())
+ 		BUG();
+@@ -163,7 +163,7 @@
+ 	case PM_SUSPEND:
+ 	case PM_RESUME:
+ 		prev_state = dev->state;
+-		next_state = (int) data;
++		next_state = (unsigned long) data;
+ 		if (prev_state != next_state) {
+ 			if (dev->callback)
+ 				status = (*dev->callback)(dev, rqst, data);

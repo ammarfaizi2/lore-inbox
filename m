@@ -1,46 +1,69 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318285AbSHUNjK>; Wed, 21 Aug 2002 09:39:10 -0400
+	id <S318287AbSHUNoT>; Wed, 21 Aug 2002 09:44:19 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318286AbSHUNjK>; Wed, 21 Aug 2002 09:39:10 -0400
-Received: from pc2-cwma1-5-cust12.swa.cable.ntl.com ([80.5.121.12]:31982 "EHLO
-	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S318285AbSHUNjJ>; Wed, 21 Aug 2002 09:39:09 -0400
-Subject: Re: PNPBIOS support -- 2.4.20pre3
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: "Garst R. Reese" <reese@isn.net>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <3D63041B.165F30D1@isn.net>
-References: <3D5E471A.5990F8D9@isn.net>
-	<1029612095.4647.7.camel@irongate.swansea.linux.org.uk> 
-	<3D5EB4EB.B1F128B2@isn.net>
-	<1029618032.4809.78.camel@irongate.swansea.linux.org.uk> 
-	<3D63041B.165F30D1@isn.net>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.3 (1.0.3-6) 
-Date: 21 Aug 2002 14:44:11 +0100
-Message-Id: <1029937451.26533.27.camel@irongate.swansea.linux.org.uk>
-Mime-Version: 1.0
+	id <S318288AbSHUNoT>; Wed, 21 Aug 2002 09:44:19 -0400
+Received: from mail.mtroyal.ab.ca ([142.109.10.24]:54693 "EHLO
+	brynhild.mtroyal.ab.ca") by vger.kernel.org with ESMTP
+	id <S318287AbSHUNoS>; Wed, 21 Aug 2002 09:44:18 -0400
+Date: Wed, 21 Aug 2002 07:48:21 -0600 (MDT)
+From: James Bourne <jbourne@mtroyal.ab.ca>
+To: "Reed, Timothy A" <timothy.a.reed@lmco.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Hyperthreading
+In-Reply-To: <9EFD49E2FB59D411AABA0008C7E675C009D8DF56@emss04m10.ems.lmco.com>
+Message-ID: <Pine.LNX.4.44.0208210739220.8264-100000@skuld.mtroyal.ab.ca>
+MIME-Version: 1.0
+X-scanner: scanned by Inflex 1.0.12.2 - (http://pldaniels.com/inflex/)
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2002-08-21 at 04:08, Garst R. Reese wrote:
-> Alan Cox wrote:
-> > 
-> > On Sat, 2002-08-17 at 21:41, Garst R. Reese wrote:
-> > > > Only in -ac currently
-> > > Thanks Alan. It turns out that 2.4.20pre3 hangs on boot for me, so I'm
-> > > back to 2.4.19. Will ac4 do?
-> > 
-> > 2.4.19-ac4 should do or 2.4.20pre2-ac3 has the very newest IDE code
-> Thanks Alan. 2.4.19-ac4 + pcmcia-cs finally removed the embarrasing
-> necessity of booting windows to enable/disable my ThinkPad Ir
-> port/serial port. Any idea when PNPBIOS support will make it to a
-> standard kernel?
+On Wed, 21 Aug 2002, Reed, Timothy A wrote:
 
-Its already in 2.5.
+> Anyone,
+> 
+> Can anyone lead me to a good source of information on what options should be
+> in the kernel for hyperthreading??  I am still fighting with a
+> sub-contractor over kernel options.
 
-I'm currently having fun with the thinkpad600 docking station btw. I've
-now got warm docking kind of working
+As long as you have a P4 and use the P4 support you will get
+hyperthreading with 2.4.19 (CONFIG_MPENTIUM4=y).  2.4.18 you have to also 
+turn it on with a lilo option of acpismp=force on the kernel command line.
+
+You might want to balance IRQs across the cpus.  Ingo Molnar has created
+patches for this, which I've put on my website
+at http://www.hardrock.org/kernel/.
+
+hyperthreading will give you some performance boostes, but *only*
+if you have many runable processes a majority of the time, or very heavily
+threaded applications running on the system.  (an example would
+be running 4 setiathome clients on a dual processor system).
+
+regards
+James Bourne
+
+> Tim 
+> 
+> timothy.a.reed@lmco.com
+
+-- 
+James Bourne, Supervisor Data Centre Operations
+Mount Royal College, Calgary, AB, CA
+www.mtroyal.ab.ca
+
+******************************************************************************
+This communication is intended for the use of the recipient to which it is
+addressed, and may contain confidential, personal, and or privileged
+information. Please contact the sender immediately if you are not the
+intended recipient of this communication, and do not copy, distribute, or
+take action relying on it. Any communication received in error, or
+subsequent reply, should be deleted or destroyed.
+******************************************************************************
+
+
+"There are only 10 types of people in this world: those who
+understand binary and those who don't."
+
+
 

@@ -1,41 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269409AbRHHUw3>; Wed, 8 Aug 2001 16:52:29 -0400
+	id <S269517AbRHHUtJ>; Wed, 8 Aug 2001 16:49:09 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269520AbRHHUwU>; Wed, 8 Aug 2001 16:52:20 -0400
-Received: from cx97923-a.phnx3.az.home.com ([24.9.112.194]:14313 "EHLO
-	grok.yi.org") by vger.kernel.org with ESMTP id <S269409AbRHHUwG>;
-	Wed, 8 Aug 2001 16:52:06 -0400
-Message-ID: <3B71A6BB.6623B9BF@candelatech.com>
-Date: Wed, 08 Aug 2001 13:53:15 -0700
-From: Ben Greear <greearb@candelatech.com>
-Organization: Candela Technologies Inc
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.7 i586)
-X-Accept-Language: en
+	id <S269409AbRHHUs7>; Wed, 8 Aug 2001 16:48:59 -0400
+Received: from mailsorter.ma.tmpw.net ([63.112.169.25]:65056 "EHLO
+	mailsorter1.ma.tmpw.net") by vger.kernel.org with ESMTP
+	id <S269517AbRHHUsr>; Wed, 8 Aug 2001 16:48:47 -0400
+Message-ID: <3AB544CBBBE7BF428DA7DBEA1B85C79C9B6FC1@nocmail.ma.tmpw.net>
+From: "Holzrichter, Bruce" <bruce.holzrichter@monster.com>
+To: "'Mark Hahn'" <hahn@physics.mcmaster.ca>,
+        "Holzrichter, Bruce" <bruce.holzrichter@monster.com>
+Cc: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
+Subject: RE: 2.4.7ac9,10 compile error
+Date: Wed, 8 Aug 2001 16:48:51 -0400 
 MIME-Version: 1.0
-To: Donald Becker <becker@scyld.com>
-CC: LKML <linux-kernel@vger.kernel.org>,
-        "eepro100@scyld.com" <eepro100@scyld.com>
-Subject: Re: [eepro100] Problem with Linux 2.4.7 and builtin eepro onIntel'sEEA2  
- motherboard. (Solved, kinda)
-In-Reply-To: <Pine.LNX.4.10.10108071900340.976-100000@vaio.greennet>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+X-Mailer: Internet Mail Service (5.5.2650.21)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-A kind Intel employee told me that the e100 would indeed work
-on 2.4.7 kernels, so I downloaded the driver and gave it a shot.
+I was trying that now.  Looks like that was it.  Jumped the gun on you all
+there, in my haste.  Thanks for the quick reply though.
 
-So far, it seems to be working flawlessly.  Does anyone know how
-to get mii-diag like information out of the e100?  (For instance,
-I'd like to be able to query the card to see what it's current link
-speed is, and force it to various speeds and advertise flags...)
+B.
 
-Enjoy,
-Ben
+-----Original Message-----
+From: Mark Hahn [mailto:hahn@physics.mcmaster.ca]
+Sent: Wednesday, August 08, 2001 4:43 PM
+To: Holzrichter, Bruce
+Subject: Re: 2.4.7ac9,10 compile error
 
--- 
-Ben Greear <greearb@candelatech.com>          <Ben_Greear@excite.com>
-President of Candela Technologies Inc      http://www.candelatech.com
-ScryMUD:  http://scry.wanfear.com     http://scry.wanfear.com/~greear
+
+> problems.  Got some errors compiling a sound module to start so I updated
+to
+> 2.4.7ac9 and tried again, but got the following error.  I also updated to
+
+make oldconfig
+
+> /usr/src/linux-2.4.7/include/linux/irq.h:61: asm/hw_irq.h: No such file or
+
+linux/include/asm is a link to the arch-specific asm tree;
+it's created when you configure (oldconfig/xconfig/menuconfig/etc)

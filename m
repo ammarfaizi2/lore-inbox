@@ -1,52 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271421AbRIFQ5q>; Thu, 6 Sep 2001 12:57:46 -0400
+	id <S271487AbRIFRDs>; Thu, 6 Sep 2001 13:03:48 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S270823AbRIFQ5h>; Thu, 6 Sep 2001 12:57:37 -0400
-Received: from castle.nmd.msu.ru ([193.232.112.53]:14857 "HELO
-	castle.nmd.msu.ru") by vger.kernel.org with SMTP id <S270797AbRIFQ5W>;
-	Thu, 6 Sep 2001 12:57:22 -0400
-Message-ID: <20010906210431.B23410@castle.nmd.msu.ru>
-Date: Thu, 6 Sep 2001 21:04:31 +0400
-From: Andrey Savochkin <saw@saw.sw.com.sg>
-To: Andi Kleen <ak@suse.de>
-Cc: Wietse Venema <wietse@porcupine.org>,
-        Matthias Andree <matthias.andree@gmx.de>, linux-kernel@vger.kernel.org
+	id <S271498AbRIFRDg>; Thu, 6 Sep 2001 13:03:36 -0400
+Received: from ns.suse.de ([213.95.15.193]:53769 "HELO Cantor.suse.de")
+	by vger.kernel.org with SMTP id <S271487AbRIFRDa>;
+	Thu, 6 Sep 2001 13:03:30 -0400
+Date: Thu, 6 Sep 2001 19:03:49 +0200
+From: Andi Kleen <ak@suse.de>
+To: Wietse Venema <wietse@porcupine.org>
+Cc: Andrey Savochkin <saw@saw.sw.com.sg>,
+        Matthias Andree <matthias.andree@gmx.de>, Andi Kleen <ak@suse.de>,
+        linux-kernel@vger.kernel.org
 Subject: Re: notion of a local address [was: Re: ioctl SIOCGIFNETMASK: ip alias bug 2.4.9 and 2.2.19]
-In-Reply-To: <20010906193750.B22187@castle.nmd.msu.ru> <20010906155811.BC78DBC06C@spike.porcupine.org> <20010906204423.B23109@castle.nmd.msu.ru> <20010906184742.A10228@gruyere.muc.suse.de>
+Message-ID: <20010906190349.A10470@gruyere.muc.suse.de>
+In-Reply-To: <20010906204423.B23109@castle.nmd.msu.ru> <20010906165051.7EA29BC06C@spike.porcupine.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 0.93.2i
-In-Reply-To: <20010906184742.A10228@gruyere.muc.suse.de>; from "Andi Kleen" on Thu, Sep 06, 2001 at 06:47:42PM
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20010906165051.7EA29BC06C@spike.porcupine.org>; from wietse@porcupine.org on Thu, Sep 06, 2001 at 12:50:51PM -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Sep 06, 2001 at 06:47:42PM +0200, Andi Kleen wrote:
-> On Thu, Sep 06, 2001 at 08:44:23PM +0400, Andrey Savochkin wrote:
-> > The question was which ip.address in user@[ip.address] should be treated as
-> > local.
-> > My comment was that the only reasonable solution on Linux is to treat this
-> > way addresses explicitly specified in the configuration file.
-> > Postfix may show its guess at the installation time.
-> > 
-> > Now the question of recognizing user@[ip.address] as local is a question of a
-> > simple table lookup.
-> 
-> It would be at least possible to ask the routing engine via RTM_GETROUTE
-> and checking for RTN_LOCAL if it considers an address local.
-> It won't cover all cases with netfilter rules etc.; but probably be a good
-> enough approximation.
+On Thu, Sep 06, 2001 at 12:50:51PM -0400, Wietse Venema wrote:
+> That is not practical. Surely there is an API to find out if an IP
+> address connects to the machine itself. If every UNIX system on
+> this planet can do it, then surely Linux can do it.
 
-Well, you need to enlist local addresses, not to verify, so I would suggest
-inspecting `local' routing table.
+It's not possible in the general case; e.g. it has to ignore NAT rules
+and some of the more advanced features of policy routing
 
-But it doesn't help with the other example I provided a couple of messages
-earlier: several MTAs on one system listening on their own IP addresses.
-Some time ago, when I was engaged in system administration activity, almost
-all my mail relays had several MTAs, each in its own chroot environments...
+The API is rtnetlink. You can send a RTM_GETROUTE message and the kernel
+will send you the routing entry for it; which has the RTN_LOCAL type for
+local addresses.  
 
-So, using routing in the post-install script to provide suggestion what
-should be written in the configuration file is very reasonable, probably,
-it's the best guess that the script can make.
+> The same issue is true for local subnets. Surely there exists an
+> API to find out what subnetworks a machine is attached to. If every
+> UNIX system on this planet can do it, then surely Linux can do it.
 
-	Andrey
+You could resolve the backwards address using rtnetlink again and check
+the resulting route for LINK scope.  Again it is only an approximation
+and will break in some/many cases.
+
+
+-Andi

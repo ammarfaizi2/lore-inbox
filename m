@@ -1,62 +1,83 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265434AbTFVBe4 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 21 Jun 2003 21:34:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265429AbTFVBe4
+	id S265441AbTFVBhd (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 21 Jun 2003 21:37:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265449AbTFVBhd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 21 Jun 2003 21:34:56 -0400
-Received: from orion.netbank.com.br ([200.203.199.90]:61703 "EHLO
-	orion.netbank.com.br") by vger.kernel.org with ESMTP
-	id S265417AbTFVBet (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 21 Jun 2003 21:34:49 -0400
-Date: Sat, 21 Jun 2003 22:51:29 -0300
-From: Arnaldo Carvalho de Melo <acme@conectiva.com.br>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: [PATCH] fix sysfs bogosity in i82365.c
-Message-ID: <20030622015129.GE10801@conectiva.com.br>
-Mail-Followup-To: Arnaldo Carvalho de Melo <acme@conectiva.com.br>,
-	Linus Torvalds <torvalds@osdl.org>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+	Sat, 21 Jun 2003 21:37:33 -0400
+Received: from crack.them.org ([146.82.138.56]:16364 "EHLO crack.them.org")
+	by vger.kernel.org with ESMTP id S265441AbTFVBhY (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 21 Jun 2003 21:37:24 -0400
+Date: Sat, 21 Jun 2003 21:51:24 -0400
+From: Daniel Jacobowitz <dan@debian.org>
+To: torvalds@transmeta.com
+Cc: linux-kernel@vger.kernel.org
+Subject: [PTRACE PATCH] Report detached thread exit to the debugger
+Message-ID: <20030622015124.GA15600@nevyn.them.org>
+Mail-Followup-To: torvalds@transmeta.com, linux-kernel@vger.kernel.org
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-X-Url: http://advogato.org/person/acme
-Organization: Conectiva S.A.
-User-Agent: Mutt/1.5.4i
+User-Agent: Mutt/1.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Linus,
+Right now, CLONE_DETACHED threads silently vanish from GDB's sight when they
+exit.  This patch lets report exit to the debugger, and then be auto-reaped
+as soon as it collects them, instead of being released as soon as they exit.
 
-	Please consider applying, it was using a non-existent socket[] index
-and not doing it for all sockets.
+GDB works either way, but this is more correct and will be useful for some
+later GDB patches.
 
-	Without this, forget about using i82365, crashes on boot :-)
+Please apply - thanks!
 
-- Arnaldo
-
-===== drivers/pcmcia/i82365.c 1.36 vs edited =====
---- 1.36/drivers/pcmcia/i82365.c	Sun Jun 15 12:20:52 2003
-+++ edited/drivers/pcmcia/i82365.c	Sat Jun 21 22:09:08 2003
-@@ -1471,6 +1471,10 @@
- 			    pcmcia_unregister_socket(&socket[i].socket);
- 		    break;
- 	    }
-+	   class_device_create_file(&socket[i].socket.dev,
-+			   	    &class_device_attr_info);
-+	   class_device_create_file(&socket[i].socket.dev,
-+			   	    &class_device_attr_exca);
-     }
+diff -Nru a/kernel/exit.c b/kernel/exit.c
+--- a/kernel/exit.c	Sat Jun 21 21:50:35 2003
++++ b/kernel/exit.c	Sat Jun 21 21:50:35 2003
+@@ -651,6 +651,8 @@
+ 	if (tsk->exit_signal != -1) {
+ 		int signal = tsk->parent == tsk->real_parent ? tsk->exit_signal : SIGCHLD;
+ 		do_notify_parent(tsk, signal);
++	} else if (tsk->ptrace) {
++		do_notify_parent(tsk, SIGCHLD);
+ 	}
  
-     /* Finally, schedule a polling interrupt */
-@@ -1481,9 +1485,6 @@
-     	poll_timer.expires = jiffies + poll_interval;
- 	add_timer(&poll_timer);
-     }
--
--    class_device_create_file(&socket[i].socket.dev, &class_device_attr_info);
--    class_device_create_file(&socket[i].socket.dev, &class_device_attr_exca);
-     
-     return 0;
-     
+ 	tsk->state = TASK_ZOMBIE;
+@@ -715,7 +717,7 @@
+ 	tsk->exit_code = code;
+ 	exit_notify(tsk);
+ 
+-	if (tsk->exit_signal == -1)
++	if (tsk->exit_signal == -1 && tsk->ptrace == 0)
+ 		release_task(tsk);
+ 
+ 	schedule();
+@@ -859,7 +861,7 @@
+ 		BUG_ON(state != TASK_DEAD);
+ 		return 0;
+ 	}
+-	if (unlikely(p->exit_signal == -1))
++	if (unlikely(p->exit_signal == -1 && p->ptrace == 0))
+ 		/*
+ 		 * This can only happen in a race with a ptraced thread
+ 		 * dying on another processor.
+@@ -889,8 +891,12 @@
+ 		/* Double-check with lock held.  */
+ 		if (p->real_parent != p->parent) {
+ 			__ptrace_unlink(p);
+-			do_notify_parent(p, p->exit_signal);
+ 			p->state = TASK_ZOMBIE;
++			/* If this is a detached thread, this is where it goes away.  */
++			if (p->exit_signal == -1)
++				release_task (p);
++			else
++				do_notify_parent(p, p->exit_signal);
+ 			p = NULL;
+ 		}
+ 		write_unlock_irq(&tasklist_lock);
+
+-- 
+Daniel Jacobowitz
+MontaVista Software                         Debian GNU/Linux Developer
+

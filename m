@@ -1,174 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268991AbUJKONw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268979AbUJKOQv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268991AbUJKONw (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 11 Oct 2004 10:13:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268979AbUJKONw
+	id S268979AbUJKOQv (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 11 Oct 2004 10:16:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268989AbUJKOQv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Oct 2004 10:13:52 -0400
-Received: from smtp09.auna.com ([62.81.186.19]:11507 "EHLO smtp09.retemail.es")
-	by vger.kernel.org with ESMTP id S269006AbUJKOMo convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Oct 2004 10:12:44 -0400
-Date: Mon, 11 Oct 2004 14:12:40 +0000
-From: "J.A. Magallon" <jamagallon@able.es>
-Subject: Re: 2.6.9-rc4-mm1
-To: "Rafael J. Wysocki" <rjw@sisk.pl>
-Cc: linux-kernel@vger.kernel.org, Andi Kleen <ak@muc.de>,
-       Tim Cambrant <cambrant@acc.umu.se>, akpm@digeo.com
-References: <2O5L3-5Jq-11@gated-at.bofh.it> <2O6Ho-6ra-51@gated-at.bofh.it>
-	<m3zn2tv35o.fsf@averell.firstfloor.org> <200410111538.33299.rjw@sisk.pl>
-In-Reply-To: <200410111538.33299.rjw@sisk.pl> (from rjw@sisk.pl on Mon Oct
-	11 15:38:32 2004)
-X-Mailer: Balsa 2.2.5
-Message-Id: <1097503960l.6177l.0l@werewolf.able.es>
+	Mon, 11 Oct 2004 10:16:51 -0400
+Received: from linaeum.absolutedigital.net ([63.87.232.45]:937 "EHLO
+	linaeum.absolutedigital.net") by vger.kernel.org with ESMTP
+	id S268979AbUJKOQe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 11 Oct 2004 10:16:34 -0400
+Date: Mon, 11 Oct 2004 10:16:25 -0400 (EDT)
+From: Cal Peake <cp@absolutedigital.net>
+To: viro@parcelfarce.linux.theplanet.co.uk
+cc: Jan Dittmer <j.dittmer@portrix.net>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       NetDev Mailing List <netdev@oss.sgi.com>, proski@gnu.org,
+       hermes@gibson.dropbear.id.au
+Subject: Re: [PATCH] Fix readw/writew warnings in drivers/net/wireless/hermes.h
+In-Reply-To: <20041011131603.GU23987@parcelfarce.linux.theplanet.co.uk>
+Message-ID: <Pine.LNX.4.61.0410111014030.9330@linaeum.absolutedigital.net>
+References: <Pine.LNX.4.61.0410110702590.7899@linaeum.absolutedigital.net>
+ <416A7484.1030703@portrix.net> <Pine.LNX.4.61.0410110819370.8480@linaeum.absolutedigital.net>
+ <20041011131603.GU23987@parcelfarce.linux.theplanet.co.uk>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII;
-	Format=Flowed
-Content-Disposition: inline
-Content-Transfer-Encoding: 7BIT
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, 11 Oct 2004 viro@parcelfarce.linux.theplanet.co.uk wrote:
 
-On 2004.10.11, Rafael J. Wysocki wrote:
-> On Monday 11 of October 2004 14:40, Andi Kleen wrote:
-> > Tim Cambrant <cambrant@acc.umu.se> writes:
+> On Mon, Oct 11, 2004 at 08:23:35AM -0400, Cal Peake wrote:
+> > On Mon, 11 Oct 2004, Jan Dittmer wrote:
 > > 
-> > > On Mon, Oct 11, 2004 at 03:25:02AM -0700, Andrew Morton wrote:
-> > >>
-> > >> optimize-profile-path-slightly.patch
-> > >>   Optimize profile path slightly
-> > >>
-> > >
-> > > I'm still getting an oops at startup with this patch. After reversing
-> > > it, everything is fine. Weren't you supposed to remove that from your
-> > > tree until it was fixed?
+> > > Cal Peake wrote:
+> > > 
+> > > >  	inw((hw)->iobase + ( (off) << (hw)->reg_spacing )) : \
+> > > > -	readw((hw)->iobase + ( (off) << (hw)->reg_spacing )))
+> > > > +	readw((void __iomem *)(hw)->iobase + ( (off) << (hw)->reg_spacing )))
+> > > >  #define hermes_write_reg(hw, off, val) do { \
+> > > 
+> > > Isn't the correct fix to declare iobase as (void __iomem *) ?
 > > 
-> > There's a fixed version around. I thought Andrew had merged that one?
-> [-- snip --]
+> > iobase is an unsigned long, declaring it as a void pointer is prolly not 
+> > what we want to do here. The typecast seems proper. A lot of other drivers 
+> > do this as well thus it must be proper ;-)
 > 
-> This one does not apply to -mm.
+> Typecast is not a proper solution here.   Folks, there are cleanups underway
+> for all that mess, but it's not _that_ simple.
 > 
+> And adding casts to shut the warnings up is wrong in 99% of cases.
 
-Use this:
+ok, I'm retarded. I'll shut up for the moment and get a clue :^)
 
-diff -ruN linux-2.6.9-rc3-mm3/include/linux/profile.h linux-2.6.9-rc3-mm3-prof/include/linux/profile.h
---- linux-2.6.9-rc3-mm3/include/linux/profile.h	2004-09-30 09:46:41.000000000 +0200
-+++ linux-2.6.9-rc3-mm3-prof/include/linux/profile.h	2004-10-07 19:41:36.254643765 +0200
-@@ -8,6 +8,7 @@
- #include <linux/init.h>
- #include <linux/cpumask.h>
- #include <asm/errno.h>
-+#include <asm/atomic.h>
- 
- #define CPU_PROFILING	1
- #define SCHED_PROFILING	2
-@@ -17,8 +18,8 @@
- 
- /* init basic kernel profiler */
- void __init profile_init(void);
--void profile_tick(int, struct pt_regs *);
--void profile_hit(int, void *);
-+void FASTCALL(__profile_hit(void *));
-+
- #ifdef CONFIG_PROC_FS
- void create_prof_cpu_mask(struct proc_dir_entry *);
- #else
-@@ -101,6 +102,26 @@
- 
- #endif /* CONFIG_PROFILING */
- 
-+static inline void profile_hit(int type, void *pc)
-+{
-+	extern int prof_on;
-+	extern atomic_t *prof_buffer;
-+
-+	if (prof_on == type && prof_buffer)
-+		__profile_hit(pc);
-+}
-+
-+static inline void profile_tick(int type, struct pt_regs *regs)
-+{
-+	extern cpumask_t prof_cpu_mask;
-+
-+	if (type != CPU_PROFILING)
-+		return;
-+	profile_hook(regs);
-+	if (!user_mode(regs) && cpu_isset(smp_processor_id(), prof_cpu_mask))
-+		profile_hit(type, (void *)profile_pc(regs));
-+}
-+
- #endif /* __KERNEL__ */
- 
- #endif /* _LINUX_PROFILE_H */
-diff -ruN linux-2.6.9-rc3-mm3/kernel/profile.c linux-2.6.9-rc3-mm3-prof/kernel/profile.c
---- linux-2.6.9-rc3-mm3/kernel/profile.c	2004-10-07 14:45:02.176576637 +0200
-+++ linux-2.6.9-rc3-mm3-prof/kernel/profile.c	2004-10-07 19:41:36.253643976 +0200
-@@ -34,10 +34,10 @@
- #define NR_PROFILE_HIT		(PAGE_SIZE/sizeof(struct profile_hit))
- #define NR_PROFILE_GRP		(NR_PROFILE_HIT/PROFILE_GRPSZ)
- 
--static atomic_t *prof_buffer;
-+atomic_t *prof_buffer;
- static unsigned long prof_len, prof_shift;
--static int prof_on;
--static cpumask_t prof_cpu_mask = CPU_MASK_ALL;
-+int prof_on;
-+cpumask_t prof_cpu_mask = CPU_MASK_ALL;
- #ifdef CONFIG_SMP
- static DEFINE_PER_CPU(struct profile_hit *[2], cpu_profile_hits);
- static DEFINE_PER_CPU(int, cpu_profile_flip);
-@@ -284,14 +284,12 @@
- 	up(&profile_flip_mutex);
- }
- 
--void profile_hit(int type, void *__pc)
-+void fastcall __profile_hit(void *__pc)
- {
- 	unsigned long primary, secondary, flags, pc = (unsigned long)__pc;
- 	int i, j, cpu;
- 	struct profile_hit *hits;
- 
--	if (prof_on != type || !prof_buffer)
--		return;
- 	pc = min((pc - (unsigned long)_stext) >> prof_shift, prof_len - 1);
- 	i = primary = (pc & (NR_PROFILE_GRP - 1)) << PROFILE_GRPSHIFT;
- 	secondary = (~(pc << 1) & (NR_PROFILE_GRP - 1)) << PROFILE_GRPSHIFT;
-@@ -381,25 +379,17 @@
- #define profile_flip_buffers()		do { } while (0)
- #define profile_discard_flip_buffers()	do { } while (0)
- 
--inline void profile_hit(int type, void *__pc)
-+void profile_hit(int type, void *__pc)
- {
- 	unsigned long pc;
- 
-+	if (prof_on != type || !prof_buffer)
-+		return;
- 	pc = ((unsigned long)__pc - (unsigned long)_stext) >> prof_shift;
- 	atomic_inc(&prof_buffer[min(pc, prof_len - 1)]);
- }
- #endif /* !CONFIG_SMP */
- 
--void profile_tick(int type, struct pt_regs *regs)
--{
--	if (type == CPU_PROFILING)
--		profile_hook(regs);
--	if (prof_on != type || !prof_buffer)
--		return;
--	if (!user_mode(regs) && cpu_isset(smp_processor_id(), prof_cpu_mask))
--		profile_hit(type, (void *)profile_pc(regs));
--}
--
- #ifdef CONFIG_PROC_FS
- #include <linux/proc_fs.h>
- #include <asm/uaccess.h>
-
-
---
-J.A. Magallon <jamagallon()able!es>     \               Software is like sex:
-werewolf!able!es                         \         It's better when it's free
-Mandrakelinux release 10.1 (Community) for i586
-Linux 2.6.9-rc4-mm1 (gcc 3.4.1 (Mandrakelinux 10.1 3.4.1-4mdk)) #1
-
+-- Cal
 

@@ -1,54 +1,75 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130133AbQKFTMM>; Mon, 6 Nov 2000 14:12:12 -0500
+	id <S129066AbQKFTQM>; Mon, 6 Nov 2000 14:16:12 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130224AbQKFTMC>; Mon, 6 Nov 2000 14:12:02 -0500
-Received: from runyon.cygnus.com ([205.180.230.5]:5026 "EHLO cygnus.com")
-	by vger.kernel.org with ESMTP id <S130133AbQKFTLz>;
-	Mon, 6 Nov 2000 14:11:55 -0500
-To: "Theodore Y. Ts'o" <tytso@MIT.EDU>
-Cc: George Talbot <george@brain.moberg.com>, Marc Lehmann <pcg@goof.com>,
-        linux-kernel@vger.kernel.org
-Subject: Re: Can EINTR be handled the way BSD handles it? -- a plea from a user-land  programmer...
-In-Reply-To: <200011061655.LAA21681@tsx-prime.MIT.EDU>
-	<m33dh5aq9u.fsf@otr.mynet.cygnus.com>
-Reply-To: drepper@cygnus.com (Ulrich Drepper)
-X-fingerprint: BE 3B 21 04 BC 77 AC F0  61 92 E4 CB AC DD B9 5A
-From: Ulrich Drepper <drepper@redhat.com>
-Date: 06 Nov 2000 11:11:27 -0800
-In-Reply-To: Ulrich Drepper's message of "06 Nov 2000 10:50:37 -0800"
-Message-ID: <m3snp4apb4.fsf@otr.mynet.cygnus.com>
-User-Agent: Gnus/5.0807 (Gnus v5.8.7) XEmacs/21.1 (Capitol Reef)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S129240AbQKFTQD>; Mon, 6 Nov 2000 14:16:03 -0500
+Received: from [63.95.244.10] ([63.95.244.10]:32227 "EHLO mailhub.webgain.com")
+	by vger.kernel.org with ESMTP id <S129066AbQKFTP5>;
+	Mon, 6 Nov 2000 14:15:57 -0500
+Message-Id: <5.0.0.25.0.20001106111445.034a8660@stargate>
+X-Mailer: QUALCOMM Windows Eudora Version 5.0
+Date: Mon, 06 Nov 2000 11:15:35 -0800
+To: linux-kernel@vger.kernel.org
+From: Thomas Pollinger <tpolling@rhone.ch>
+Subject: Re: [BUG REPORT] TCP/IP weirdness in 2.2.15
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ulrich Drepper <drepper@redhat.com> writes:
 
-> "Theodore Y. Ts'o" <tytso@MIT.EDU> writes:
-> 
-> > Arguably though the bug is in glibc, in that if it's using signals
-> > behinds the scenes, it should have passed SA_RESTART to sigaction.
-> 
-> Why are you talking  such a nonsense?
+Hi Stephen
 
-[Note to self: remove kitten from keyboard before writing mail.]
+>Let me see if I understand this correct:
+>
+>         Client  Router  Server
+>         ------------------------------------
+>         Linux   Linux   HPUX            Bad
+>         WinNT   Linux   HPUX            Good
+>         HPUX    Linux   HPUX            Good
+>
+>With all Linux boxes version 2.2.something
+>
+>Is this correct?
 
-Glibc has to use signals because there *still* is not mechanism in the
-kernel to allow synchronization.  After how many years.
+Yes, this is right.
 
-I don't blame Linux.  He has no interest in threads and therefore
-spends not much time thinking about it.  But everybody who's
-complaining about things like this has to be willing to fix the real
-problems.
+>This is slightly different from my situation; I had a Linux client and
+>Linux server directly connected to the same switch (3Com Superstack
+>II, FWIW)
 
-Get your ass up and write a fast semaphore/mutex system.
+This is probably a configuration I'm going to try as well: put the cvs 
+server on a linux box and have it communicate to different clients. 
+However, the configuration I have now simply suggests that there cannot be 
+a problem on the IP level as the Linux box as router is working as expected.
 
--- 
----------------.                          ,-.   1325 Chesapeake Terrace
-Ulrich Drepper  \    ,-------------------'   \  Sunnyvale, CA 94089 USA
-Red Hat          `--' drepper at redhat.com   `------------------------
+
+>Perhaps if I get time I'll repeat the experiment with (a) the most
+>recent Alan pre-2.2 kernel and (b) the most recent 2.4-test kernel...
+>
+>I'll re-iterate my original request, which was not "it's broke - can
+>you fix it" but was "okay, how do I go about tracking this one down?"
+
+At this stage, I am uncertain of the cause of the problem. I am pretty much 
+sure that the card, drivers and the IP level should work as expected. It is 
+lilkely that there could be a problem with CVS which gets caught in a kind 
+of deadlock - however, observing the TCP-packet communication and the 
+system calls done by both CVS client and server shows always the same 
+result (I put a printf before and after the read/recv call in the client):
+         - The clilent is stuck in the read system call on the socket for 
+reads and waits forever
+         - The server gets EWOULDBLOCK notifications when writing to the 
+socket and eventually goes
+           to sleep
+         - The last packages sent by the server will be resent roughly 
+every 30-60 seconds.
+           The client either responds no packages accepted or the last 
+packages are accepted by the
+           client but the system call still blocks.
+
+Regards,
+-Thomas
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,42 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262596AbVBYCKu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262597AbVBYCMd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262596AbVBYCKu (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Feb 2005 21:10:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262597AbVBYCKu
+	id S262597AbVBYCMd (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Feb 2005 21:12:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262598AbVBYCMd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Feb 2005 21:10:50 -0500
-Received: from fire.osdl.org ([65.172.181.4]:29392 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S262596AbVBYCKt (ORCPT
+	Thu, 24 Feb 2005 21:12:33 -0500
+Received: from fire.osdl.org ([65.172.181.4]:61648 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S262597AbVBYCMT (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Feb 2005 21:10:49 -0500
-Date: Thu, 24 Feb 2005 18:10:38 -0800
+	Thu, 24 Feb 2005 21:12:19 -0500
+Date: Thu, 24 Feb 2005 18:12:09 -0800
 From: Chris Wright <chrisw@osdl.org>
 To: Jeremy Fitzhardinge <jeremy@goop.org>
-Cc: Chris Wright <chrisw@osdl.org>, Roland McGrath <roland@redhat.com>,
-       Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] set RLIMIT_SIGPENDING limit based on RLIMIT_NPROC
-Message-ID: <20050225021038.GT15867@shell0.pdx.osdl.net>
-References: <421D0D3F.40902@goop.org> <200502240224.j1O2OqHL010736@magilla.sf.frob.com> <20050224030747.GG15867@shell0.pdx.osdl.net> <421E87E7.4080601@goop.org>
+Cc: Roland McGrath <roland@redhat.com>, Chris Wright <chrisw@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>
+Subject: Re: [PATCH] override RLIMIT_SIGPENDING for non-RT signals
+Message-ID: <20050225021209.GU15867@shell0.pdx.osdl.net>
+References: <200502240145.j1O1jlab010606@magilla.sf.frob.com> <421E8708.9090802@goop.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <421E87E7.4080601@goop.org>
+In-Reply-To: <421E8708.9090802@goop.org>
 User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 * Jeremy Fitzhardinge (jeremy@goop.org) wrote:
-> Chris Wright wrote:
+> Roland McGrath wrote:
 > 
-> >It's an rlimit, so easily setable in userspace at login session time.  I
-> >think we could raise it if people start complaining it's too low (hasn't
-> >seemed to be a problem yet).
+> >Indeed, I think your patch does not go far enough.  I can read POSIX to say
+> >that the siginfo_t data must be available when `kill' was used, as well.
+> >This patch makes it allocate the siginfo_t, even when that exceeds
+> >{RLIMIT_SIGPENDING}, for any non-RT signal (< SIGRTMIN) not sent by
+> >sigqueue (actually, any signal that couldn't have been faked by a sigqueue
+> >call).
 > >
-> Know any shells which support setting it?  Indeed, glibc doesn't seem to
-> know about it.
+> Looks OK to me.  I'll give this a try soon.
 
-Hrm, my bash and glibc are both aware, you might need an update?
+Yeah, it fixes the issue, but opens the door to larger consumption of
+pending signals.  Roland, what was your final preference?  I'm kind of
+leaning towards Jeremy's original patch.
 
 thanks,
 -chris

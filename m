@@ -1,45 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262791AbTJDWpV (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 4 Oct 2003 18:45:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262796AbTJDWpV
+	id S262803AbTJDXPS (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 4 Oct 2003 19:15:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262804AbTJDXPS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 4 Oct 2003 18:45:21 -0400
-Received: from moutng.kundenserver.de ([212.227.126.189]:470 "EHLO
-	moutng.kundenserver.de") by vger.kernel.org with ESMTP
-	id S262791AbTJDWpT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 4 Oct 2003 18:45:19 -0400
-To: Andy Lutomirski <luto@stanford.edu>
+	Sat, 4 Oct 2003 19:15:18 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:45998 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id S262803AbTJDXPQ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 4 Oct 2003 19:15:16 -0400
+Date: Sat, 4 Oct 2003 16:10:37 -0700
+From: "David S. Miller" <davem@redhat.com>
+To: Vishwas Raman <vishwas@eternal-systems.com>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] 2.6.0-test6: Filesystem capabilities 0.15
-References: <fa.ign8c9e.3g8vr4@ifi.uio.no> <3F7E743A.9010601@stanford.edu>
-From: Olaf Dietsche <olaf+list.linux-kernel@olafdietsche.de>
-Date: Sun, 05 Oct 2003 00:45:07 +0200
-Message-ID: <87r81sbp1o.fsf@goat.bogus.local>
-User-Agent: Gnus/5.1002 (Gnus v5.10.2) XEmacs/21.4 (Portable Code, linux)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Subject: Re: Accessing tcp socket information from within a module
+Message-Id: <20031004161037.05b9e5ee.davem@redhat.com>
+In-Reply-To: <3F7F5294.1090606@eternal-systems.com>
+References: <3F7E0DFF.2030404@eternal-systems.com>
+	<20031003225124.17a440c2.davem@redhat.com>
+	<3F7F5294.1090606@eternal-systems.com>
+X-Mailer: Sylpheed version 0.9.2 (GTK+ 1.2.6; sparc-unknown-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Andy,
+On Sat, 04 Oct 2003 16:07:00 -0700
+Vishwas Raman <vishwas@eternal-systems.com> wrote:
 
-Andy Lutomirski <luto@stanford.edu> writes:
+> And I need to get info on all TCP 
+> sockets and create/modify certain data structures of my own in the 
+> module based on that information.
 
-> I have an alternate patch, implementing file capabilities using
-> xattrs.
-[...]
-> The patch and user tools are at http://www.stanford.edu/~luto/linux-fscap/
-> (Apply the cap- patches in order.  Patches are against 2.6.0-test6 vanilla.)
+Well, then, you're going to have to study and learn the entire
+TCP stack in order to learn how to do this and furthermore to be
+able to do this safely.
 
-I glanced over it and it looks interesting. Thanks for this
-alternative view.
-
-> Olaf -- what do you think?  (I like your CAP_SETFCAP addition -- I may
-> add it to my patch.
-
-This is not my invention. It is part of the POSIX standard, see
-<http://wt.xpilot.org/publications/posix.1e/> and
-<http://wt.xpilot.org/publications/posix.1e/download.html>
-
-Regards, Olaf.
+I'm a bit skeptical of what you actually want to use this for,
+so I'm going to choose not to help you with this until you give
+some more details of what you're exactly up to.

@@ -1,43 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262448AbSKHVa5>; Fri, 8 Nov 2002 16:30:57 -0500
+	id <S262452AbSKHVzC>; Fri, 8 Nov 2002 16:55:02 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262449AbSKHVa5>; Fri, 8 Nov 2002 16:30:57 -0500
-Received: from [195.39.17.254] ([195.39.17.254]:11268 "EHLO Elf.ucw.cz")
-	by vger.kernel.org with ESMTP id <S262448AbSKHVa4>;
-	Fri, 8 Nov 2002 16:30:56 -0500
-Date: Tue, 15 Jan 2002 12:44:28 -0500
-From: Pavel Machek <pavel@suse.cz>
-To: Andi Kleen <ak@suse.de>
-Cc: andrew@pimlott.net, linux-kernel@vger.kernel.org
-Subject: Re: The return of the return of crunch time (2.5 merge candidate list 1.6)
-Message-ID: <20020115174416.GC2015@zaurus>
-References: <200210251557.55202.landley@trommello.org.suse.lists.linux.kernel> <p7365vptz49.fsf@oldwotan.suse.de> <20021026190906.GA20571@pimlott.net> <20021027080125.A14145@wotan.suse.de> <20021027152038.GA26297@pimlott.net> <20021028053004.C2558@wotan.suse.de>
+	id <S262460AbSKHVzC>; Fri, 8 Nov 2002 16:55:02 -0500
+Received: from e34.co.us.ibm.com ([32.97.110.132]:53722 "EHLO
+	e34.co.us.ibm.com") by vger.kernel.org with ESMTP
+	id <S262452AbSKHVzB>; Fri, 8 Nov 2002 16:55:01 -0500
+Subject: recvfrom/recvmsg
+From: Paul Larson <plars@linuxtestproject.org>
+To: davem@redhat.com
+Cc: lkml <linux-kernel@vger.kernel.org>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature";
+	boundary="=-ueMAKsOMP4mck2nOhjk0"
+X-Mailer: Ximian Evolution 1.0.5 
+Date: 08 Nov 2002 15:59:24 -0600
+Message-Id: <1036792764.17557.24.camel@plars>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20021028053004.C2558@wotan.suse.de>
-User-Agent: Mutt/1.3.27i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
 
-> The point of my patchkit is to allow the file systems
-> who support better resolution to handle it properly. Other filesystems
-> are not worse than before when they flush inodes (and better off when
-> they keep everything in ram for your build because then they will enjoy 
-> full time resolution) 
+--=-ueMAKsOMP4mck2nOhjk0
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-What about always rounding down even when inode is
-in memory? That is both simple and consistent.
 
-> If you really wanted that I would recommend to change make.
-> When all nanosecond parts are 0 it is reasonable for make to assume that
-> the fs doesn't support finegrained resolution. But I'm not sure it's 
-> worth it.
+I was looking through the ltp test recvfrom01 and saw that test #4 is
+failing where it did not used to fail.  I think the test program is
+partially at fault here since it was expecting it to pass when you call
+recvfrom with fromlen =3D=3D -1.
 
-Thats really ugly heuristics. What about filling
-nanosecond part with ~0 when unavailable?
+Right now (2.5.46-bk current) I'm getting -1, errno 22 returned, but in
+2.5.46 it was passing without error.  Was this change intentional
+(probably) and is that the correct errno to return.  I checked SuS, but
+I don't see anything related to that exact condition.
 
-			Psvel
+There is another test in the same program that also looks like it should
+be failing.  Recvfrom, testcase 3 tries to do a recvfrom with (struct
+sockaddr *)-1 passed as the from buffer.  Right now, it is passing
+without an error, but that doesn't seem correct.
+
+The same exact situation happens in recvmsg01.
+
+Thanks,
+Paul Larson
+
+
+--=-ueMAKsOMP4mck2nOhjk0
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.6 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
+
+iEYEABECAAYFAj3MM7wACgkQbkpggQiFDqcYpQCgiNxaIbwczWFaXGLpZDKDplQX
+U9kAn1huh5tGsLtgI6N4L9437+x5rLdD
+=V7SE
+-----END PGP SIGNATURE-----
+
+--=-ueMAKsOMP4mck2nOhjk0--
+

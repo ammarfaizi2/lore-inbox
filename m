@@ -1,84 +1,116 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269684AbUICNTy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269683AbUICNTs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269684AbUICNTy (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Sep 2004 09:19:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269675AbUICNTy
+	id S269683AbUICNTs (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Sep 2004 09:19:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269675AbUICNTr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Sep 2004 09:19:54 -0400
-Received: from dsl092-149-163.wdc2.dsl.speakeasy.net ([66.92.149.163]:38923
-	"EHLO localhost") by vger.kernel.org with ESMTP id S269689AbUICNQs
+	Fri, 3 Sep 2004 09:19:47 -0400
+Received: from c002781a.fit.bostream.se ([217.215.235.8]:57791 "EHLO
+	mail.tnonline.net") by vger.kernel.org with ESMTP id S269687AbUICNQj
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Sep 2004 09:16:48 -0400
-Subject: Re: The argument for fs assistance in handling archives
-From: Brian Beattie <beattie@beattie-home.net>
-To: Christer Weinigel <christer@weinigel.se>
-Cc: "Martin J. Bligh" <mbligh@aracnet.com>, Hans Reiser <reiser@namesys.com>,
-       Linus Torvalds <torvalds@osdl.org>, David Masover <ninja@slaphack.com>,
-       Jamie Lokier <jamie@shareable.org>,
+	Fri, 3 Sep 2004 09:16:39 -0400
+Date: Fri, 3 Sep 2004 15:16:19 +0200
+From: Spam <spam@tnonline.net>
+Reply-To: Spam <spam@tnonline.net>
+X-Priority: 3 (Normal)
+Message-ID: <642078516.20040903151619@tnonline.net>
+To: Dave Kleikamp <shaggy@austin.ibm.com>
+CC: Paul Jakma <paul@clubi.ie>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Jamie Lokier <jamie@shareable.org>, Linus Torvalds <torvalds@osdl.org>,
        Horst von Brand <vonbrand@inf.utfsm.cl>, Adrian Bunk <bunk@fs.tum.de>,
-       viro@parcelfarce.linux.theplanet.co.uk, Christoph Hellwig <hch@lst.de>,
-       linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
+       Hans Reiser <reiser@namesys.com>,
+       <viro@parcelfarce.linux.theplanet.co.uk>,
+       Christoph Hellwig <hch@lst.de>, fsdevel <linux-fsdevel@vger.kernel.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
        Alexander Lyamin aka FLX <flx@namesys.com>,
        ReiserFS List <reiserfs-list@namesys.com>
-In-Reply-To: <m3llfsikis.fsf@zoo.weinigel.se>
+Subject: Re: The argument for fs assistance in handling archives (was: silent semantic changes with reiser4)
+In-Reply-To: <1094216718.2679.30.camel@shaggy.austin.ibm.com>
 References: <20040826150202.GE5733@mail.shareable.org>
-	 <200408282314.i7SNErYv003270@localhost.localdomain>
-	 <20040901200806.GC31934@mail.shareable.org>
-	 <Pine.LNX.4.58.0409011311150.2295@ppc970.osdl.org>
-	 <20040902002431.GN31934@mail.shareable.org> <413694E6.7010606@slaphack.com>
-	 <Pine.LNX.4.58.0409012037300.2295@ppc970.osdl.org>
-	 <4136A14E.9010303@slaphack.com>
-	 <Pine.LNX.4.58.0409012259340.2295@ppc970.osdl.org>
-	 <4136C876.5010806@namesys.com>
-	 <Pine.LNX.4.58.0409020030220.2295@ppc970.osdl.org>
-	 <4136E0B6.4000705@namesys.com> <14260000.1094149320@flay>
-	 <m3llfsikis.fsf@zoo.weinigel.se>
-Content-Type: text/plain
-Message-Id: <1094217399.2954.9.camel@kokopelli>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Fri, 03 Sep 2004 09:16:40 -0400
+ <200408282314.i7SNErYv003270@localhost.localdomain>
+ <20040901200806.GC31934@mail.shareable.org>
+ <Pine.LNX.4.58.0409011311150.2295@ppc970.osdl.org>
+ <1094118362.4847.23.camel@localhost.localdomain>
+ <20040902161130.GA24932@mail.shareable.org>
+ <Pine.LNX.4.61.0409030028510.23011@fogarty.jakma.org>
+ <1835526621.20040903014915@tnonline.net>
+ <1094165736.6170.19.camel@localhost.localdomain>
+ <32810200.20040903020308@tnonline.net>
+ <Pine.LNX.4.61.0409030112080.23011@fogarty.jakma.org>
+ <142794710.20040903023906@tnonline.net>
+ <1094216718.2679.30.camel@shaggy.austin.ibm.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2004-09-02 at 14:38, Christer Weinigel wrote:
-> "Martin J. Bligh" <mbligh@aracnet.com> writes:
-> 
-> > > For 30 years nothing much has happened in Unix filesystem semantics 
-> > > because of sheer cowardice 
-> > 
-> > Or because it works fine, and isn't broken.
-> 
-> I've heard the same argument a lot of times.  People complaining that
-> Unix is so seventies because it sticks to the old boring philosophy of
-> everything is a file and that a file is a stream of bytes, nothing
-> more.  Modern operating systems such as VMS with basic database
-> handling in the OS itself, or MacOS or NT with named streams is so
-> much more modern.  Why don't we get with the times?
 
-Actually the handleing of special filesystem features in the OS is an
-OLD idea.  VMS is actually not more modern than Unix, it is older than
-Unix owing much to earlier OS's such as RSX-11.  It was a great insight
-on the part of Ritche and Thompson that the kernel should present a file
-as a byte stream and that the interpretation of the contents of a file
-is the province of the application, not the operating system.
+  
 
-Now it maybe, that there are features that can only be provided by
-adding support in the kernel, but we should be very careful not to be
-distracted by what we see as new wizbang features.  The filesystem as a
-database has been tried before, ISAM is a very old concept.
+> On Thu, 2004-09-02 at 19:39, Spam wrote:
+>>   
+>> 
+>> > On Fri, 3 Sep 2004, Spam wrote:
+>> 
+>> >>  Yes, some archive types can't be partially unzipped either. But my
+>> >>  point is that it wouldn't be transparent to the application/user in
+>> >>  the same way.
+>> 
+>> > It doesnt matter whether it is transparent to the application. It can
+>> > be the application which implements the required level of 
+>> > transparency.
+>> 
+>> > User doesnt care what provides the transparency or how it's 
+>> > implemented.
+>> 
+>>   Indeed. I hope I didn't say otherwise :). Just that I think it will
+>>   be very difficult to have this transparency in all apps.
 
-> 
-> It may be because just because of the simplicity it's fairly easy to
-> use, harder to break och does one thing well.  If you want structured
-> storage, use a database, on top of the low level primitives, or use
-> multiple files in a directory.  Why complicate things?
-> 
->   /Christer
--- 
-Brian Beattie   LFS12947 | "Honor isn't about making the right choices.
-beattie@beattie-home.net | It's about dealing with the consequences."
-www.beattie-home.net     | -- Midori Koto
+> You're missing the point.  We don't need transparency in all apps.  You
+> can write an application to be as transparent as you want, but you don't
+> need every app to to understand every file format.
+
+  No, but not every user "can write an application" either, or even
+  have the skills to apply patches. What I was talking about wasn't
+  just tar, which itself isn't the best example anyway, but the idea
+  that users can load plugins that will extend the functionality of
+  their filesystems. That idea seem to be to be _much_ better than
+  trying to teach every user how to write applications or patch
+  existing ones.
+
+>>  Just
+>>   thinking of "nano file.jpg/description.txt" or "ls
+>>   file.tar/untar/*.doc".
+
+> I don't do much image editting, but I'm sure there are applications that
+> let you edit the description in a text file.  You can even create a
+> script that extracts it, runs nano, and puts it back into the jpeg.
+
+> This works for me:
+> tar -tf file.tar | grep '\.doc'
+
+> There are userland tools that deal with hundreds of file formats. Use
+> the tool you need, rather than try to have the kernel do everything.
+
+  No, but if I wanted to have an encryption plugin active for some of
+  my files or directories then why should I not be able to? I still
+  want to edit, view and save my encrypted files.
+
+  Again, this was just an example of what could be done with plugins.
+  It is not said that every conceivable plugin will be written, nor
+  loaded per default. Even though plugins cannot today be dynamically
+  used, they will be eventually. Reiser4 is still very young.
+
+  Please separate your thoughts for specific plugins from those of the
+  idea to have plugins at all.
+
+  ~S
+
+>>  Sure in some environments like Gnome it could
+>>   work, but it still doesn't for the rest of the flora of Linux
+>>   programs.
+
+> Just choose the right program.  tar groks tar files, not ls.
 
 

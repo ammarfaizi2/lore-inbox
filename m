@@ -1,56 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282782AbRK0EV5>; Mon, 26 Nov 2001 23:21:57 -0500
+	id <S282783AbRK0EOR>; Mon, 26 Nov 2001 23:14:17 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282784AbRK0EVr>; Mon, 26 Nov 2001 23:21:47 -0500
-Received: from adsl-63-194-239-202.dsl.lsan03.pacbell.net ([63.194.239.202]:64240
-	"EHLO mmp-linux.matchmail.com") by vger.kernel.org with ESMTP
-	id <S282782AbRK0EVg>; Mon, 26 Nov 2001 23:21:36 -0500
-Date: Mon, 26 Nov 2001 20:21:29 -0800
-From: Mike Fedyk <mfedyk@matchmail.com>
-To: Bill Davidsen <davidsen@tmr.com>
-Cc: David Relson <relson@osagesoftware.com>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Kernel Releases
-Message-ID: <20011126202129.A26219@mikef-linux.matchmail.com>
-Mail-Followup-To: Bill Davidsen <davidsen@tmr.com>,
-	David Relson <relson@osagesoftware.com>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <4.3.2.7.2.20011124231412.00b40c50@mail.osagesoftware.com> <Pine.LNX.3.96.1011126151758.27112G-100000@gatekeeper.tmr.com>
+	id <S282785AbRK0EOI>; Mon, 26 Nov 2001 23:14:08 -0500
+Received: from zero.tech9.net ([209.61.188.187]:34057 "EHLO zero.tech9.net")
+	by vger.kernel.org with ESMTP id <S282783AbRK0ENz>;
+	Mon, 26 Nov 2001 23:13:55 -0500
+Subject: Re: [PATCH] proc-based cpu affinity user interface
+From: Robert Love <rml@tech9.net>
+To: Davide Libenzi <davidel@xmailserver.org>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.40.0111261948460.1674-100000@blue1.dev.mcafeelabs.com>
+In-Reply-To: <Pine.LNX.4.40.0111261948460.1674-100000@blue1.dev.mcafeelabs.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/0.99.1+cvs.2001.11.14.08.58 (Preview Release)
+Date: 26 Nov 2001 23:14:23 -0500
+Message-Id: <1006834464.842.2.camel@phantasy>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.3.96.1011126151758.27112G-100000@gatekeeper.tmr.com>
-User-Agent: Mutt/1.3.23i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Nov 26, 2001 at 03:42:29PM -0500, Bill Davidsen wrote:
-> NOTE: this might mean that 2.4.18-pre1 would be out before
-> 2.4.17 was actually released. That may bother some people.
-[snip]
-> least until it is in a development series and has been tested. If it were
-> up to me I would have opened 2.5 when 2.4.0 was released, and all the VM
-> stuff would have happened there. That's just the way I would assure
+On Mon, 2001-11-26 at 22:52, Davide Libenzi wrote:
+> As I said in reply to Ingo patch, it'd be better to expose "number" cpu
+> masks not "logical" ( like cpus_allowed ).
+> In this way the users can use 0..N-1 ( N == number of cpus phisically
+> available ) w/out having to know the internal mapping between logical and
+> number ids.
 
-The new VM was integrated too late, and 2.4 released too early.
+Do you mean you don't like using a bitmask ?
 
-I agree with Linus...  You do need a _known_ starting point for the next dev
-kernel.  2.4.15 is known.
+00000001 = first CPU, its not logical, its physical.
 
-Also, having a 17-rc and 18-pre (at the same time) would load down Marcello
-much more, and I haven't seen anyone else try it.
+Plus, how do you intend to set multiple non-contiguous CPUs?  A fraction
+of them?  With only a 32-bit value?
 
-If 2.4 stayed 2.3 a bit longer, maybe it would've been cought maybe not.
-Who knows if Andrea would've written his new VM back then.
+Note also that my patch understands the underlying CPU nature, such that
+"echo 0000ffff > /proc/123/affinity" will only affine task 123 to your
+first 2 CPUs if you only have two.  Thus, "cat /proc/123/affinity" will
+return "00000003".
 
-What is interesting now is how Rik's VM (patch against 2.4.16) looks now
-that it is seperate from the hugeness of the -ac patch.
+	Robert Love
 
-The point is, if 2.4.0 was more mature, Linus *could* have given it over to
-a maintainer sooner and started 2.5.  Instead, we ended up with a quasi
-dev/stable kernel, and no dev "idiot if you don't expect corruption" kernel.
-During that time there was no *rock* in 2.4 (unless it crashed - which
-hasn't happened to me).  More like packed dirt. ;)
-
-MF

@@ -1,42 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272932AbRIHA7z>; Fri, 7 Sep 2001 20:59:55 -0400
+	id <S272935AbRIHBpw>; Fri, 7 Sep 2001 21:45:52 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272933AbRIHA7n>; Fri, 7 Sep 2001 20:59:43 -0400
-Received: from adsl-63-194-239-202.dsl.lsan03.pacbell.net ([63.194.239.202]:58360
-	"EHLO mmp-linux.matchmail.com") by vger.kernel.org with ESMTP
-	id <S272932AbRIHA7a>; Fri, 7 Sep 2001 20:59:30 -0400
-Date: Fri, 7 Sep 2001 17:59:43 -0700
-From: Mike Fedyk <mfedyk@matchmail.com>
+	id <S272936AbRIHBpl>; Fri, 7 Sep 2001 21:45:41 -0400
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:1804 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S272935AbRIHBpc>; Fri, 7 Sep 2001 21:45:32 -0400
 To: linux-kernel@vger.kernel.org
-Cc: Alan Cox <laughing@shared-source.org>
-Subject: Re: Linux 2.4.9-ac10
-Message-ID: <20010907175943.V29607@mikef-linux.matchmail.com>
-Mail-Followup-To: linux-kernel@vger.kernel.org,
-	Alan Cox <laughing@shared-source.org>
-In-Reply-To: <20010908005500.A11127@lightning.swansea.linux.org.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20010908005500.A11127@lightning.swansea.linux.org.uk>
-User-Agent: Mutt/1.3.20i
+From: torvalds@transmeta.com (Linus Torvalds)
+Subject: Re: [SOLVED + PATCH]: documented Oops running big-endian reiserfs
+ on parisc architecture
+Date: Sat, 8 Sep 2001 01:41:44 +0000 (UTC)
+Organization: Transmeta Corporation
+Message-ID: <9nbt0o$o5s$1@penguin.transmeta.com>
+In-Reply-To: <OF9A995335.07A81CF5-ONC1256ABC.00422A7B@de.ibm.com> <20010903.152443.59467554.davem@redhat.com>
+X-Trace: palladium.transmeta.com 999913539 26499 127.0.0.1 (8 Sep 2001 01:45:39 GMT)
+X-Complaints-To: news@transmeta.com
+NNTP-Posting-Date: 8 Sep 2001 01:45:39 GMT
+Cache-Post-Path: palladium.transmeta.com!unknown@penguin.transmeta.com
+X-Cache: nntpcache 2.4.0b5 (see http://www.nntpcache.org/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Sep 08, 2001 at 12:55:00AM +0100, Alan Cox wrote:
-> 
-> 
-> 	ftp://ftp.kernel.org/pub/linux/kernel/people/alan/linux-2.4/
-> 
-> 		 Intermediate diffs are available from
-> 			http://www.bzimage.org
-> 
-> **	This one should be stable. The next bits I have to merge may
-> **	not be.
-> **
+In article <20010903.152443.59467554.davem@redhat.com>,
+David S. Miller <davem@redhat.com> wrote:
+>
+>Oh thats different!  That won't even work %100 correctly on x86.  On
+>x86 it will "execute", but it won't be atomic.
 
-Alan,
+Actually, it will.  Intel definitely discourages it, but they'll lock
+both cache-lines if the access is unaligned and crosses.  So while they
+encourage natural alignment for atomic accesses, I think they also
+guarantee that they always work - it ends up being only a performance
+issue. 
 
-Do you have any plans to merge the entropy from Network patch?
+I agree that it is bad practice, though, and I bet that the x86 is one
+of the very few architectures that _will_ do this naturally.
 
-Just asking...
+		Linus

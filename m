@@ -1,50 +1,43 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315415AbSEYWSJ>; Sat, 25 May 2002 18:18:09 -0400
+	id <S315424AbSEYWTr>; Sat, 25 May 2002 18:19:47 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315424AbSEYWSI>; Sat, 25 May 2002 18:18:08 -0400
-Received: from mailout11.sul.t-online.com ([194.25.134.85]:7824 "EHLO
-	mailout11.sul.t-online.com") by vger.kernel.org with ESMTP
-	id <S315415AbSEYWSH>; Sat, 25 May 2002 18:18:07 -0400
-To: Larry McVoy <lm@bitmover.com>
-Cc: "Albert D. Cahalan" <acahalan@cs.uml.edu>,
+	id <S315427AbSEYWTq>; Sat, 25 May 2002 18:19:46 -0400
+Received: from pD953A22B.dip.t-dialin.net ([217.83.162.43]:8322 "EHLO
+	thomas.tec.autronix.de") by vger.kernel.org with ESMTP
+	id <S315424AbSEYWTp>; Sat, 25 May 2002 18:19:45 -0400
+Message-Id: <200205252219.g4PMJUX02248@thomas.tec.autronix.de>
+Content-Type: text/plain; charset=US-ASCII
+From: Thomas Gleixner <gleixner@autronix.de>
+Reply-To: gleixner@autronix.de
+To: Larry McVoy <lm@bitmover.com>, Wolfgang Denk <wd@denx.de>
+Subject: Re: patent on O_ATOMICLOOKUP [Re: [PATCH] loopable tmpfs (2.4.17)]
+Date: Sun, 26 May 2002 00:19:28 +0200
+X-Mailer: KMail [version 1.3.1]
+Cc: Larry McVoy <lm@bitmover.com>, "Albert D. Cahalan" <acahalan@cs.uml.edu>,
         Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org,
         rtai@rtai.org
-From: Wolfgang Denk <wd@denx.de>
-Subject: Re: patent on O_ATOMICLOOKUP [Re: [PATCH] loopable tmpfs (2.4.17)] 
-X-Mailer: exmh version 2.2
-Mime-version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+In-Reply-To: <20020525143333.A17889@work.bitmover.com> <20020525215547.6912411972@denx.denx.de> <20020525150542.B17889@work.bitmover.com>
+MIME-Version: 1.0
 Content-Transfer-Encoding: 7BIT
-In-Reply-To: Your message of "Sat, 25 May 2002 15:05:42 PDT."
-             <20020525150542.B17889@work.bitmover.com> 
-Date: Sun, 26 May 2002 00:17:46 +0200
-Message-Id: <20020525221751.41FC311972@denx.denx.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In message <20020525150542.B17889@work.bitmover.com> Larry McVoy wrote:
-> 
+On Sunday, 26. May 2002 00:05, Larry McVoy wrote:
+>
 > Hey, I said "I suspect".  You can scream all you want but if the facts are
+> that the patent license allows 100% GPLed stuff for free, and you are
+> saying that it is all 100% GPLed, and yet you continue to complain, what
+> conclusion would you like people to draw?  I'm pointing out the obvious
+> one.
+There's nothing obvious, if somebody complains about a questionable software 
+patent and it's possible consequences for Linux.
 
-Yeah, that's the usual way to spread FUD.
-
-> Apologizing for pointing out the obvious is not my style.
-
-Obviously not.
-
-For the third time - you wrote:
-
-> > I'm told, and I've seen, that there substantial parts of RT/Linux in the
-> > RTAI source base.  Isn't it true that RTAI used to be called "my-rtai"
-
-Can you please quote any such "substantial parts of RT/Linux  in  the
-RTAI source"?
-
-Wolfgang Denk
+Your "suspection" is just impertinent. Check out the source from CVS and look 
+for the missing critical chunk, before heating up the flamewar.
 
 -- 
-Software Engineering:  Embedded and Realtime Systems,  Embedded Linux
-Phone: (+49)-8142-4596-87  Fax: (+49)-8142-4596-88  Email: wd@denx.de
-As long as we're going to reinvent the wheel again, we might as  well
-try making it round this time.                        - Mike Dennison
+Thomas
+___________________________________
+autronix automation GmbH
+http://www.autronix.de gleixner@autronix.de

@@ -1,45 +1,71 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282129AbRKWMbh>; Fri, 23 Nov 2001 07:31:37 -0500
+	id <S282137AbRKWMhh>; Fri, 23 Nov 2001 07:37:37 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282133AbRKWMb2>; Fri, 23 Nov 2001 07:31:28 -0500
-Received: from as4-1-7.has.s.bonet.se ([217.215.31.238]:48305 "EHLO
-	k-7.stesmi.com") by vger.kernel.org with ESMTP id <S282129AbRKWMbW>;
-	Fri, 23 Nov 2001 07:31:22 -0500
-Message-ID: <3BFE41D2.2040708@stesmi.com>
-Date: Fri, 23 Nov 2001 13:32:18 +0100
-From: Stefan Smietanowski <stesmi@stesmi.com>
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:0.9.4) Gecko/20010913
-X-Accept-Language: en-us
-MIME-Version: 1.0
-To: rpjday <rpjday@mindspring.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: is 2.4.15 really available at www.kernel.org?
-In-Reply-To: <Pine.LNX.4.33.0111230523340.8063-100000@localhost.localdomain>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S282133AbRKWMhS>; Fri, 23 Nov 2001 07:37:18 -0500
+Received: from jurassic.park.msu.ru ([195.208.223.243]:48647 "EHLO
+	jurassic.park.msu.ru") by vger.kernel.org with ESMTP
+	id <S282128AbRKWMg5>; Fri, 23 Nov 2001 07:36:57 -0500
+Date: Fri, 23 Nov 2001 15:36:24 +0300
+From: Ivan Kokshaysky <ink@jurassic.park.msu.ru>
+To: Paul Mackerras <paulus@samba.org>
+Cc: Linus Torvalds <torvalds@transmeta.com>,
+        Richard Henderson <rth@twiddle.net>, linux-kernel@vger.kernel.org
+Subject: Re: [patch non-x86] PCI-PCI bridges fix
+Message-ID: <20011123153624.A2735@jurassic.park.msu.ru>
+In-Reply-To: <20011122150418.A623@jurassic.park.msu.ru> <15357.29418.938012.421837@cargo.ozlabs.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <15357.29418.938012.421837@cargo.ozlabs.ibm.com>; from paulus@samba.org on Fri, Nov 23, 2001 at 08:49:30AM +1100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi.
-
-
-> then i'm just plain baffled.  using mozilla, i've tried downloading both 
-> 2.4.15 and 2.5.0, from the main www.kernel.org page, and from the kernel
-> subpage.  in *every* case, the download window starts off fine with
-> "0K of 28716K", so it knows the right size at the beginning.
+On Fri, Nov 23, 2001 at 08:49:30AM +1100, Paul Mackerras wrote:
+> There is code in pci_read_bridge_bases which will decide under some
+> circumstances that a PCI-PCI bridge is transparent and set
 > 
-> the download progresses until it reads 115K of ...K, there is a several
-> second pause, a brief flurry of activity, and the download terminates.
-> in *every* case, the final downloaded file is 155312 bytes long.
+> 	child->resource[i] = child->parent->resource[i];
 > 
-> as i said, i can ftp just fine, but it sure is puzzling me why mozilla
-> is doing this.
-> 
-> ok, i'll shut up now.
+> for i = 0, 1 or 2.  What will happen with your request_resource in
+> this case is that the resource will end up being its own parent and
+> its own child and all allocations against it will fail. :)
 
-Just to be on the safe side,m you're not out of disk space are you ? :))
+These code paths shouldn't be mixed in the first place, i.e. if
+you use stuff in setup-bus.c, don't use pci_read_bridge_bases.
+Basically, these are two different approaches to PCI setup:
+"We trust our firmware" (i386, ia64) and "We are the firmware"
+(alpha, arm, partially parisc).
 
-// Stefan
+> I hit this just yesterday on PPC.  On our RS/6000 boxes, if you have a
+> PCI-PCI bridge with nothing behind it, the firmware will configure it
+> with all the apertures closed, i.e. with base set larger than limit.
 
+Right, as required by PCI-PCI bridge specs.
 
+> Then pci_read_bridge_bases goes and decides that the bridge is
+> transparent and consequently everything stops working. :(
+
+I think that "assuming transparent" code is not correct. Yes, PCI-PCI
+bridge specs allow "transparent" (i.e. subtractive decoding) bridges,
+but such bridges must have a class code 0x60401. IMO, we need something
+like this instead:
+
+ 	if (!dev)		/* It's a host bus, nothing to read */
+ 		return;
+ 
++	if (dev->class & 1) {
++		printk("Subtractive decoding bridge %s: assuming transparent\n",
++					dev->name);
++		for(i=0; i<3; i++)
++			child->resource[i] = child->parent->resource[i];
++		return;
++	}
+
+Of course, this requires testing on problematic machines.
+BTW, currently almost every PC user sees those "Unknown bridge resource"
+messages just because a graphic card behind the AGP bridge doesn't use
+IO or prefetchable memory...
+
+Ivan.

@@ -1,88 +1,87 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263120AbUC2UAM (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 29 Mar 2004 15:00:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263129AbUC2UAM
+	id S263128AbUC2UB5 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 29 Mar 2004 15:01:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263125AbUC2UA2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 29 Mar 2004 15:00:12 -0500
-Received: from mail.gmx.de ([213.165.64.20]:33250 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S263120AbUC2UAA (ORCPT
+	Mon, 29 Mar 2004 15:00:28 -0500
+Received: from e2.ny.us.ibm.com ([32.97.182.102]:7057 "EHLO e2.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S263127AbUC2UAK (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 29 Mar 2004 15:00:00 -0500
-X-Authenticated: #4512188
-Message-ID: <4068803B.5010208@gmx.de>
-Date: Mon, 29 Mar 2004 21:59:55 +0200
-From: "Prakash K. Cheemplavam" <PrakashKC@gmx.de>
-User-Agent: Mozilla Thunderbird 0.5 (X11/20040322)
-X-Accept-Language: en-us, en
+	Mon, 29 Mar 2004 15:00:10 -0500
+Date: Mon, 29 Mar 2004 11:57:54 -0800 (PST)
+From: Sridhar Samudrala <sri@us.ibm.com>
+X-X-Sender: sridhar@localhost.localdomain
+To: Jeff Garzik <jgarzik@pobox.com>
+cc: Edgar Toernig <froese@gmx.de>, davem@redhat.com,
+       linux-kernel@vger.kernel.org, netdev@oss.sgi.com
+Subject: Re: [PATCH] Consolidate multiple implementations of jiffies-msecs
+ conversions.
+In-Reply-To: <40647E65.7020903@pobox.com>
+Message-ID: <Pine.LNX.4.58.0403291137360.23386@localhost.localdomain>
+References: <Pine.LNX.4.58.0403251142110.3037@localhost.localdomain>
+ <20040326014403.39388cb8.froese@gmx.de> <Pine.LNX.4.58.0403261007370.6718@localhost.localdomain>
+ <40647E65.7020903@pobox.com>
 MIME-Version: 1.0
-To: "Prakash K. Cheemplavam" <PrakashKC@gmx.de>
-CC: ross@datscreative.com.au, Len Brown <len.brown@intel.com>,
-       Thomas Schlichter <thomas.schlichter@web.de>,
-       linux-kernel@vger.kernel.org
-Subject: Re: idle Athlon with IOAPIC is 10C warmer since 2.6.3-bk1
-References: <200403181019.02636.ross@datscreative.com.au> <1079738422.7279.308.camel@dhcppc4> <405C0EF1.1060104@gmx.de> <200403202019.44612.ross@datscreative.com.au> <405C1C0D.9050108@gmx.de>
-In-Reply-To: <405C1C0D.9050108@gmx.de>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 8bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Prakash K. Cheemplavam wrote:
-> Ross Dickson wrote:
-> 
->> On Saturday 20 March 2004 19:29, Prakash K. Cheemplavam wrote:
->>
->>> Len Brown wrote:
->>>
->>>> On Fri, 2004-03-19 at 14:22, Prakash K. Cheemplavam wrote:
->>>>
->>>>
->>>>
->>>>> Hmm, I just did a cat /proc/acpi/processor/CPU0/power:
->>>>> active state:            C1
->>>>> default state:           C1
->>>>> bus master activity:     00000000
->>>>> states:
->>>>>   *C1:                  promotion[--] demotion[--] latency[000] 
->>>>> usage[00000000]
->>>>>    C2:                  <not supported>
->>>>>    C3:                  <not supported>
->>>>>
->>>>> I am currently NOT using APIC mode (nforce2, as well) and using 
->>>>> vanilla 2.6.4. It seems C1 halt state isn't used, which exlains why 
->>>>> I am having 
->>>
->>>
->>> [snip]
->>>
->>>>
->>>> Actually I think it is that we don't _count_ C1 usage.
->>>
->>>
->>> Hmm, OK, then I am really puzzled what specifically about mm sources 
->>> make my idle temps hotter, as I still couldn't properly resolve it 
->>> what is causing it. I thought ACPI, but no, using APM only does the 
->>> same (apm only with vanilla is low temp though.)
->>
->>
->>
->> Have you seen this thread, it may be relevant?
->> Re: [2.6.4-rc2] bogus semicolon behind if()
->> http://linux.derkeiler.com/Mailing-Lists/Kernel/2004-03/4170.html
-> 
-> 
+On Fri, 26 Mar 2004, Jeff Garzik wrote:
 
-So, I seem to have found the bugger causing higher temps: It is NVidia 
-binary driver, or rather its AGP part of the 53.36 driver. Using AGPGART 
-and Nvidia driver leaves my system cool. Using NVAGP it seems as though 
-C1 state isn't actually used anymore thus making the CPU hotter.
+> Sridhar Samudrala wrote:
+> > On Fri, 26 Mar 2004, Edgar Toernig wrote:
+> >
+> >
+> >>Sridhar Samudrala wrote:
+> >>
+> >>>The following patch to 2.6.5-rc2 consolidates 6 different implementations
+> >>>of msecs to jiffies and 3 different implementation of jiffies to msecs.
+> >>>All of them now use the generic msecs_to_jiffies() and jiffies_to_msecs()
+> >>>that are added to include/linux/time.h
+> >>>[...]
+> >>>-#define MSECS(ms)  (((ms)*HZ/1000)+1)
+> >>>-return (((ms)*HZ+999)/1000);
+> >>>+return (msecs / 1000) * HZ + (msecs % 1000) * HZ / 1000;
+> >>
+> >>Did you check that all users of the new version will work correctly
+> >>with your rounding?  Explicit round-up of delays is often required,
+> >>especially when talking to hardware...
+> >
+> >
+> > I don't see any issues with the 2.6 default HZ value of 1000 as they become
+> > no-ops and there is no need for any rounding.
+> > I guess you are referring to cases when HZ < 1000(ex: 100) and msecs is
+> > less than 10. In those cases, the new version returns 0, whereas some of the
+> > older versions return 1.
+>
+> We'll definitely want to return 1 rather than zero, for the uses in my
+> drivers, at least...
 
-Tested with (and without) ACPI and APIC (and Ross' tack patch). 
-Currently running in PIC mode (with ACPI) and idle temp of 44°C (instead 
-of about 50°C...). But it was as cool in APIC mode.
+I have modified msecs_to_jiffies() to do the proper rounding when HZ=100.
+Do these work better?
 
-Of course I have to test few more days, but at least currently I am 
-happy again. :-)
+static inline unsigned long msecs_to_jiffies(unsigned long msecs)
+{
+#if 1000 % HZ == 0
+        return (msecs + ((1000 / HZ) - 1)) / (1000 / HZ);
+#elif HZ % 1000 == 0
+        return msecs * (HZ / 1000);
+#else
+        return (msecs / 1000) * HZ + (msecs % 1000) * HZ / 1000;
+#endif
+}
 
-Prakash
+static inline unsigned long jiffies_to_msecs(unsigned long jiffs)
+{
+#if 1000 % HZ == 0
+        return jiffs * (1000 / HZ);
+#elif HZ % 1000 == 0
+        return jiffs / (HZ / 1000);
+#else
+        return (jiffs / HZ) * 1000 + (jiffs % HZ) * 1000 / HZ;
+#endif
+}
+
+Thanks
+Sridhar

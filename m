@@ -1,62 +1,84 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265398AbTFMOHD (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 13 Jun 2003 10:07:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265401AbTFMOHC
+	id S265401AbTFMOH5 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 13 Jun 2003 10:07:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265402AbTFMOH5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 13 Jun 2003 10:07:02 -0400
-Received: from windsormachine.com ([206.48.122.28]:1041 "EHLO
-	router.windsormachine.com") by vger.kernel.org with ESMTP
-	id S265398AbTFMOHA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 13 Jun 2003 10:07:00 -0400
-Date: Fri, 13 Jun 2003 10:20:46 -0400 (EDT)
-From: Mike Dresser <mdresser_l@windsormachine.com>
-To: <linux-kernel@vger.kernel.org>
-Subject: Re: 3ware and two drive hardware raid1
-In-Reply-To: <1055494998.5162.26.camel@dhcp22.swansea.linux.org.uk>
-Message-ID: <Pine.LNX.4.33.0306131017010.16766-100000@router.windsormachine.com>
+	Fri, 13 Jun 2003 10:07:57 -0400
+Received: from vopmail.neto.com ([209.223.15.78]:45330 "EHLO vopmail.neto.com")
+	by vger.kernel.org with ESMTP id S265401AbTFMOHy (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 13 Jun 2003 10:07:54 -0400
+Message-ID: <3EE9DED5.5060907@neto.com>
+Date: Fri, 13 Jun 2003 09:25:25 -0500
+From: John T Copeland <johnc@neto.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3) Gecko/20030315
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Andre Hedrick <andre@linux-ide.org>
+CC: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       linuxkernel <linux-kernel@vger.kernel.org>
+Subject: Re: siimage driver
+References: <Pine.LNX.4.10.10306121618270.806-100000@master.linux-ide.org>
+In-Reply-To: <Pine.LNX.4.10.10306121618270.806-100000@master.linux-ide.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 13 Jun 2003, Alan Cox wrote:
+Andre Hedrick wrote:
 
-> On Iau, 2003-06-12 at 16:56, Mike Dresser wrote:
-> > If i have a hardware raid1 array of two 120 gig Maxtor DiamondMax 9 drives
-> > on a 3ware 7000-2.  Failure of one disk should not go all the way up to
-> > the OS and cause the OS to report hard errors, and remount the drive as
-> > read-only, right?
+>Until the device ordering can be sorted out, your pain will be the
+>following:
 >
-> Yes, but that won't help you if you lost both drives, which does happen
-> now and again - overheating, bad PSU, using two drives from the same
-> batch together and so on.
+>ide0=0x1f0,0x3f6,14 ide1=0x170,0x376,15
 >
-> The trace looks like you may have lost both drives.
+>Cheers,
 >
-> Alan
+>Andre Hedrick
+>LAD Storage Consulting Group
 >
-
-I'm heading out there today to take a look at the machine and see what
-happened.  I'm rather dissappointed in the 3ware utility, it alternately
-claims both drives are ok(./tw_cli info c1 is different from ./tw_cli
-info c1 u0)
-
-I was relying on that too much, and ignored the possiblity of two drive
-failure.  Looks like both drives would have failed at exactly the same
-time, which sounds like a power spike.
-
-I just got a report that another Windows98 workstation is randomly
-rebooting after an hour of uptime at the same facility, so I'm suspecting
-hardware failure like you did.
-
-I'll see what's up when I get there.  Powermax will tell me what's up.
-
-Luckily the damage is contained to the data drive, I will be able to copy
-everything over to a new set of drives and not lose anything that's not
-trivially replaceable.
-
-Thank you Alan,
-
-Mike
+>On Thu, 12 Jun 2003, John T Copeland wrote:
+>
+>  
+>
+>>Alan,
+>>A couple of questions if you please.
+>>
+>>1)  When I compile the siimage driver into the kernel, the ide buses are 
+>>scanned in the following order:
+>>  IDE0 - SATA primary - hda, hdb
+>>  IDE1 - SATA secondary - hdc, hdd
+>>  IDE2 - ATA tertiary - hde, hdf
+>>  IDE3 - ATA quandrary hdg, hdh
+>>I want the ATA to be IDE0/1  and SATA to be IDE2/3.  I have noticed from 
+>>some of the posts about the siimage driver on the ASUS nforce2 mobo this 
+>>is the apparent order scanned.  My mobo is an Abit NF7-S nforce2.  Is 
+>>there someway of controlling the order of scannin the IDE buses?  I 
+>>tried append="ide=reverse" to no avail.
+>>
+>>2) To try and get the nforce2 IDE buses scanned first, I compiled 
+>>siimage as a module, but when I did an "insmod siimage" I get an 
+>>unresolved external, "noautodma", in siimage.
+>>
+>>I'd appreciate any help you can offer.
+>>
+>>Thanks,
+>>John Copeland
+>> 
+>>
+>>-
+>>To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+>>the body of a message to majordomo@vger.kernel.org
+>>More majordomo info at  http://vger.kernel.org/majordomo-info.html
+>>Please read the FAQ at  http://www.tux.org/lkml/
+>>
+>>    
+>>
+>
+>
+>  
+>
+Thanks Andre, that gets the job done.
+JohnC
 

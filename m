@@ -1,69 +1,75 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280122AbRJaJ3V>; Wed, 31 Oct 2001 04:29:21 -0500
+	id <S280126AbRJaJnn>; Wed, 31 Oct 2001 04:43:43 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280121AbRJaJ3L>; Wed, 31 Oct 2001 04:29:11 -0500
-Received: from 87.ppp1-6.hob.worldonline.dk ([212.54.87.215]:46464 "EHLO
-	milhouse.home.kernel.dk") by vger.kernel.org with ESMTP
-	id <S280120AbRJaJ3E>; Wed, 31 Oct 2001 04:29:04 -0500
-Date: Wed, 31 Oct 2001 10:29:11 +0100
-From: Jens Axboe <axboe@suse.de>
-To: Andrew Morton <akpm@zip.com.au>
-Cc: Linus Torvalds <torvalds@transmeta.com>,
-        Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: 2.4.14-pre6
-Message-ID: <20011031102911.F5111@suse.de>
-In-Reply-To: <Pine.LNX.4.33.0110302349550.31996-100000@penguin.transmeta.com> <3BDFBFF5.9F54B938@zip.com.au>
+	id <S280127AbRJaJnY>; Wed, 31 Oct 2001 04:43:24 -0500
+Received: from navy.csi.cam.ac.uk ([131.111.8.49]:1533 "EHLO
+	navy.csi.cam.ac.uk") by vger.kernel.org with ESMTP
+	id <S280126AbRJaJnJ>; Wed, 31 Oct 2001 04:43:09 -0500
+Date: Wed, 31 Oct 2001 09:43:43 +0000
+From: Christophe Rhodes <csr21@cam.ac.uk>
+To: "David S. Miller" <davem@redhat.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: SPARC and SA_SIGINFO signal handling
+Message-ID: <20011031094342.A27520@cam.ac.uk>
+In-Reply-To: <20011029190027.A21372@cam.ac.uk> <20011030.125134.93645850.davem@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <3BDFBFF5.9F54B938@zip.com.au>
+In-Reply-To: <20011030.125134.93645850.davem@redhat.com>
+User-Agent: Mutt/1.3.23i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Oct 31 2001, Andrew Morton wrote:
-> Linus Torvalds wrote:
-> > 
-> > If you have a pet peeve about the VM, now is the time to speak
-> > up.
-> >
+On Tue, Oct 30, 2001 at 12:51:34PM -0800, David S. Miller wrote:
 > 
-> I'm peeved by the request queue changes.
+> You're doing something really wrong, it works perfectly
+> fine here:
+> 
+> ? cat test.c
+> #include <stdlib.h>
+> #include <sys/ucontext.h>
+> #include <signal.h>
+> 
+> void sigsegv_handler (int signo, siginfo_t *info, void *data) {
+> 	if (info != 0)
+        ^^^^
 
-I was too. However it didn't seem to make too much of a difference in
-real life, I guess your test cases shows a bit differently.
+This gets me the siginfo struct; this is fine, and I'm happy with this
+part.
 
-> Appended here is a program which creates 100,000 small files.
-> Using ext2 on -pre5.  We see how long it takes to run
-> 
-> 	(make-many-files ; sync)
-> 
-> For several values of queue_nr_requests:
-> 
-> queue_nr_requests:	128	8192	32768
-> execution time:		4:43	3:25	3:20
-> 
-> Almost all of the execution time is in the `sync'.
-> 
-> This is on a disk with a 2 meg cache which does pretty aggressive
-> write-behind.  I expect the difference would be worse with a disk
-> which doesn't help so much.
-> 
-> By restricting the number of requests in flight to 128 we're
-> giving new requests only a very small chance of getting merged with
-> an existing request.  More seeking.
-> 
-> OK, not an interesting workload.  But I suspect that there are real
-> workloads which will be bitten by this.
-> 
-> Why is the queue length so tiny now?  Latency?  If so, couldn't this
-> be addressed by giving reads higher priority versus writes?
+However, what I don't see to get at is the usercontext/ucontext
+structure containing register contents and so on, which as far as I am
+aware should be in the third (data) argument to the sa_sigaction-type
+sighandler; that's where I'm getting my problems.
 
-Should be possible. Try for yourself. When you do your 100,000 small
-file tes with 8k or more of requests, how is interactive feel of other
-programs accessing the same spindle? Play around with the READ and WRITE
-intial elevator sequence numbers, repeat :-)
+> 		exit(1);
+> 	exit(0);
+> }
+> [...]
 
+Change the info above to data, and...
+
+[ x86 does what I expect... ]
+csr21@lambda:~$ uname -a
+Linux lambda 2.4.13-ac4 #1 Mon Oct 29 18:26:51 GMT 2001 i686 unknown
+csr21@lambda:~$ ./foo
+csr21@lambda:~$ echo $?
+1
+
+[ sparc doesn't ]
+csr21@caligula:~$ uname -a
+Linux caligula 2.4.6 #1 SMP Sun Sep 30 16:40:07 BST 2001 sparc64
+unknown
+csr21@caligula:~$ ./foo
+csr21@caligula:~$ echo $?
+0
+
+Thanks,
+
+Christophe
 -- 
-Jens Axboe
-
+Jesus College, Cambridge, CB5 8BL                           +44 1223 510 299
+http://www-jcsu.jesus.cam.ac.uk/~csr21/                  (defun pling-dollar 
+(str schar arg) (first (last +))) (make-dispatch-macro-character #\! t)
+(set-dispatch-macro-character #\! #\$ #'pling-dollar)

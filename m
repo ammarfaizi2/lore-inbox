@@ -1,44 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263165AbTDVOUr (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Apr 2003 10:20:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263171AbTDVOUr
+	id S263176AbTDVO3h (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Apr 2003 10:29:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263178AbTDVO3h
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Apr 2003 10:20:47 -0400
-Received: from franka.aracnet.com ([216.99.193.44]:63205 "EHLO
-	franka.aracnet.com") by vger.kernel.org with ESMTP id S263165AbTDVOUp
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Apr 2003 10:20:45 -0400
-Date: Tue, 22 Apr 2003 07:32:36 -0700
-From: "Martin J. Bligh" <mbligh@aracnet.com>
-To: Ingo Molnar <mingo@redhat.com>, Andrew Morton <akpm@digeo.com>
-cc: Andrea Arcangeli <andrea@suse.de>, mingo@elte.hu, hugh@veritas.com,
-       dmccr@us.ibm.com, Linus Torvalds <torvalds@transmeta.com>,
-       linux-kernel@vger.kernel.org, linux-mm@kvack.org
-Subject: Re: objrmap and vmtruncate
-Message-ID: <171070000.1051021955@[10.10.2.4]>
-In-Reply-To: <Pine.LNX.4.44.0304220618190.24063-100000@devserv.devel.redhat.com>
-References: <Pine.LNX.4.44.0304220618190.24063-100000@devserv.devel.redhat.c
- om>
-X-Mailer: Mulberry/2.2.1 (Linux/x86)
-MIME-Version: 1.0
+	Tue, 22 Apr 2003 10:29:37 -0400
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:41478 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S263176AbTDVO3g (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 22 Apr 2003 10:29:36 -0400
+Date: Tue, 22 Apr 2003 15:41:36 +0100
+From: Russell King <rmk@arm.linux.org.uk>
+To: Alex Riesen <alexander.riesen@synopsys.COM>
+Cc: =?iso-8859-1?Q?Thomas_Bogend=F6rfer?= <tsbogend@alpha.franken.de>,
+       linux-kernel@vger.kernel.org
+Subject: Re: 2.5.58+bk: ejecting a pcmcia card: sleeping function from illegal ctx
+Message-ID: <20030422154136.A31709@flint.arm.linux.org.uk>
+Mail-Followup-To: Alex Riesen <alexander.riesen@synopsys.COM>,
+	=?iso-8859-1?Q?Thomas_Bogend=F6rfer?= <tsbogend@alpha.franken.de>,
+	linux-kernel@vger.kernel.org
+References: <20030422122230.GA12110@riesen-pc.gr05.synopsys.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20030422122230.GA12110@riesen-pc.gr05.synopsys.com>; from alexander.riesen@synopsys.COM on Tue, Apr 22, 2003 at 02:22:30PM +0200
+X-Message-Flag: Your copy of Microsoft Outlook is vurnerable to viruses. See www.mutt.org for more details.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> It also makes it easy to calculate the overhead of the pte chains: twice
-> the amount of pagetable overhead. Ie. with 32-bit pte's it's +8 bytes
-> overhead, or +0.2% of RAM overhead per mapped page, using a 4K page. With
-> 64-bit ptes on 32-bit platforms (PAE), the overhead is still 8 bytes. On
-> 64-bit platforms using 8K pages the overhead is still +0.2% of RAM, in
-> additionl to the 0.1% of RAM overhead for the pte itself. The worst-case
-> is 64-bit platforms with a 4K pagesize, there the overhead is +0.4% of
-> RAM, in addition to the 0.2% overhead caused by the pte itself.
+On Tue, Apr 22, 2003 at 02:22:30PM +0200, Alex Riesen wrote:
+> I tried to eject a PCMCIA card (WLinx 10/100, using pcnet driver)
+> from this notebook, and got the trace below.
 
-Oh, BTW. You're assuming no sharing of any pages in the above. Look what
-happens if 1000 processes share the same page ... 
+All I'll say at this point is "known problem, fix in progress".
 
-M.
+-- 
+Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
+             http://www.arm.linux.org.uk/personal/aboutme.html
 

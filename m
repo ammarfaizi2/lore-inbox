@@ -1,44 +1,66 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263273AbTE3EtQ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 30 May 2003 00:49:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263275AbTE3EtQ
+	id S263275AbTE3Evz (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 30 May 2003 00:51:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263277AbTE3Evz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 30 May 2003 00:49:16 -0400
-Received: from dbl.q-ag.de ([80.146.160.66]:54694 "EHLO dbl.q-ag.de")
-	by vger.kernel.org with ESMTP id S263273AbTE3EtP (ORCPT
+	Fri, 30 May 2003 00:51:55 -0400
+Received: from cs.rice.edu ([128.42.1.30]:14790 "EHLO cs.rice.edu")
+	by vger.kernel.org with ESMTP id S263275AbTE3Evx (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 30 May 2003 00:49:15 -0400
-Message-ID: <3ED6E5D2.50900@colorfullife.com>
-Date: Fri, 30 May 2003 07:02:10 +0200
-From: Manfred Spraul <manfred@colorfullife.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3) Gecko/20030313
-X-Accept-Language: en-us, en
+	Fri, 30 May 2003 00:51:53 -0400
+To: "David S. Miller" <davem@redhat.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Algoritmic Complexity Attacks and 2.4.20 the dcache code
+References: <oydbrxlbi2o.fsf@bert.cs.rice.edu>
+	<1054267067.2713.3.camel@rth.ninka.net>
+From: Scott A Crosby <scrosby@cs.rice.edu>
+Organization: Rice University
+Date: 30 May 2003 00:04:24 -0500
+In-Reply-To: <1054267067.2713.3.camel@rth.ninka.net>
+Message-ID: <oyd3cixc9ev.fsf@bert.cs.rice.edu>
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.4 (Common Lisp)
 MIME-Version: 1.0
-To: Andrew Morton <akpm@digeo.com>
-CC: "David S. Miller" <davem@redhat.com>, bonganilinux@mweb.co.za,
-       linux-kernel@vger.kernel.org
-Subject: Re: 2.5.70-mm1 Strangeness
-References: <20030529221622.542a6df5.bonganilinux@mweb.co.za>	<20030529135541.7c926896.akpm@digeo.com>	<20030529.171114.34756018.davem@redhat.com> <20030529175135.7b204aaf.akpm@digeo.com>
-In-Reply-To: <20030529175135.7b204aaf.akpm@digeo.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton wrote:
+On 29 May 2003 20:57:47 -0700, "David S. Miller" <davem@redhat.com> writes:
 
->Something seems to have gone and bumped the object size from 240 bytes up
->to 4096.  This is actually what I want CONFIG_DEBUG_PAGEALLOC to do, but I
->don't think it does it yet.  
->  
->
-Yes, it does it:
- > #ifdef CONFIG_DEBUG_PAGEALLOC
- >        if (size < PAGE_SIZE-3*BYTES_PER_WORD && size > 128)
- >                size = PAGE_SIZE-3*BYTES_PER_WORD;
- > #endif
+> On Thu, 2003-05-29 at 13:42, Scott A Crosby wrote:
+> > I highly advise using a universal hashing library, either our own or
+> > someone elses. As is historically seen, it is very easy to make silly
+> > mistakes when attempting to implement your own 'secure' algorithm.
+> 
+> Why are you recommending this when after 2 days of going back
+> and forth in emails with me you came to the conclusion that for
+> performance critical paths such as the hashes in the kernel the Jenkins
+> hash was an acceptable choice?
 
---
-    Manfred
+That was a boilerplate paragraph in all the other vulnerability
+reports I shipped out today. Perhaps I should have stripped out out or
+replaced it.
 
+> It is unacceptably costly to use a universal hash,
+
+Yup the Jenkin's is about 5 times faster than our CW construction on
+SPARC, and thus likely at least as much faster on a wide variety of
+other CPU's. I do not know if the dcache hash is performance critical,
+nor do I know if there exists other more efficient universal hash
+functions.
+
+In any case, the attacks I describe are strong in relative terms, but
+rather weak in terems of actual impact, so fixing it may not matter
+much.
+
+> Some embedded folks will have your head on a platter if we end up using
+> a universal hash function for the DCACHE solely based upon your advice.
+> :-)
+
+Have you seen the current dcache function?
+
+/* Linux dcache */
+#define HASH_3(hi,ho,c)  ho=(hi + (c << 4) + (c >> 4)) * 11
+
+
+Scott

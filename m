@@ -1,44 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272570AbTHFVof (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 6 Aug 2003 17:44:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272578AbTHFVof
+	id S272485AbTHFWC6 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 6 Aug 2003 18:02:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272578AbTHFWC6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 6 Aug 2003 17:44:35 -0400
-Received: from hera.cwi.nl ([192.16.191.8]:12425 "EHLO hera.cwi.nl")
-	by vger.kernel.org with ESMTP id S272570AbTHFVob (ORCPT
+	Wed, 6 Aug 2003 18:02:58 -0400
+Received: from fw.osdl.org ([65.172.181.6]:2972 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S272485AbTHFWC4 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 6 Aug 2003 17:44:31 -0400
-From: Andries.Brouwer@cwi.nl
-Date: Wed, 6 Aug 2003 23:44:21 +0200 (MEST)
-Message-Id: <UTC200308062144.h76LiLm16781.aeb@smtp.cwi.nl>
-To: Andries.Brouwer@cwi.nl, jgarzik@pobox.com
-Subject: Re: Add identify decoding 4/4
-Cc: B.Zolnierkiewicz@elka.pw.edu.pl, linux-kernel@vger.kernel.org,
-       torvalds@osdl.org
+	Wed, 6 Aug 2003 18:02:56 -0400
+Date: Wed, 6 Aug 2003 15:04:34 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Michael Buesch <fsdeveloper@yahoo.de>
+Cc: linux-kernel@vger.kernel.org, linux-ide@vger.kernel.org
+Subject: Re: [2.6] system is very slow during disk access
+Message-Id: <20030806150434.53c4fa8c.akpm@osdl.org>
+In-Reply-To: <200308062129.47113.fsdeveloper@yahoo.de>
+References: <200308062052.10752.fsdeveloper@yahoo.de>
+	<200308062129.47113.fsdeveloper@yahoo.de>
+X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I know full well _why_ the big function is in the header;
-> that doesn't address my point:  we don't need to be putting
-> big functions in header files.  That's why libraries were invented
+Michael Buesch <fsdeveloper@yahoo.de> wrote:
+>
+>  I just tried to run the test-scenario on my other Linux-installation
+>  on this machine with kernel 2.4.10 and there the output of the program
+>  was quite smooth, even it dd was running und the system was still usable.
 
-Well. I chose the most elegant solution I saw.
+Please boot the 2.6 machine with "profile=1" on the kernel boot command line.
 
-If you see a better solution, I would like to see it.
-Note that local symbols in several files determine
-whether this function should be compiled or not.
+start the `dd', do a `readprofile -r', wait ten seconds, do
 
-Also, consider the following.
-This file *is* a library. It contains a hundred
-(in the version you saw half a dozen) one-line
-static inline functions. That is the real library.
-It describes all identify stuff.
-And there is a single large function used for debugging,
-invisible unless a debugging symbol is defined.
+	readprofile -m /wherever/System.map
 
-I cannot see anything wrong with that.
-You are very narrow minded if you are blinded by the
-fact that the name ends in an h.
+then post the results.
 
-Andries
+Thanks.

@@ -1,51 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263979AbTFBVFe (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 2 Jun 2003 17:05:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263990AbTFBVFe
+	id S263990AbTFBVGX (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 2 Jun 2003 17:06:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264029AbTFBVGX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 2 Jun 2003 17:05:34 -0400
-Received: from gw.netgem.com ([195.68.2.34]:2570 "EHLO gw.dev.netgem.com")
-	by vger.kernel.org with ESMTP id S263979AbTFBVFc (ORCPT
+	Mon, 2 Jun 2003 17:06:23 -0400
+Received: from webhaste.com ([64.62.134.242]:53769 "HELO vortex.webhaste.com")
+	by vger.kernel.org with SMTP id S263990AbTFBVGU (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 2 Jun 2003 17:05:32 -0400
-Subject: Re: [BUG] ieee1394 sbp2 driver is broken for kernel >= 2.4.21-rc2
-From: Jocelyn Mayer <jma@netgem.com>
-To: Georg Nikodym <georgn@somanetworks.com>
-Cc: linux kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <20030602163443.2bd531fb.georgn@somanetworks.com>
-References: <1054582582.4967.48.camel@jma1.dev.netgem.com>
-	 <20030602163443.2bd531fb.georgn@somanetworks.com>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1054588832.4967.77.camel@jma1.dev.netgem.com>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 
-Date: 02 Jun 2003 23:20:32 +0200
-Content-Transfer-Encoding: 7bit
+	Mon, 2 Jun 2003 17:06:20 -0400
+Message-ID: <11091.131.89.178.59.1054588011.squirrel@mail.webhaste.com>
+Date: Mon, 2 Jun 2003 14:06:51 -0700 (PDT)
+Subject: 'unresolved symbol schedule'
+From: <esp@pyroshells.com>
+To: <linux-kernel@vger.kernel.org>
+X-Priority: 3
+Importance: Normal
+X-Mailer: SquirrelMail (version 1.2.9)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2003-06-02 at 22:34, Georg Nikodym wrote:
-> On 02 Jun 2003 21:36:22 +0200
-> Jocelyn Mayer <jma@netgem.com> wrote:
-> 
-> > ... at least for PPC targets.
-> 
-> As a datapoint, works fine for me with my x86 laptop:
+hey all,
 
-Hi,
+I'm getting the above error with out of the box SuSE 8.2 when doing an
+insmod - which is *really* confusing to me, because I thought
+that 'schedule' was a low-level, linux API call and that modules that you
+inserted automatically linked with the kernel.
 
-OK, so it should be an endianness related problem...
-I didn't test this on a PC because I need (want ?)
-to always use the same kernel on my Mac & my PC
-so I can test my patches always in the same conditions.
-It gives me a start point to investigate...
+so.. what the hell is going on here? When I say:
 
-Regards.
+insmod <module_name>
 
+what exactly does insmod do to resolve symbols? And how can you figure out
+what symbols are present in the kernel itself? ( I suppose, for instance
+that SuSE has another name for the schedule system call - but that's
+unlinkely since I've seen the error crop up from time to time on usenet.
+No
+history on how to solve it though :( )
 
--- 
-Jocelyn Mayer <jma@netgem.com>
-> 
+Ed
+
 

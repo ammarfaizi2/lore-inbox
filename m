@@ -1,39 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129536AbRBAQAf>; Thu, 1 Feb 2001 11:00:35 -0500
+	id <S130750AbRBAQDz>; Thu, 1 Feb 2001 11:03:55 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130322AbRBAQAZ>; Thu, 1 Feb 2001 11:00:25 -0500
-Received: from mx2out.umbc.edu ([130.85.253.52]:39558 "EHLO mx2out.umbc.edu")
-	by vger.kernel.org with ESMTP id <S129536AbRBAQAI>;
-	Thu, 1 Feb 2001 11:00:08 -0500
-Date: Thu, 1 Feb 2001 11:00:05 -0500
-From: John Jasen <jjasen1@umbc.edu>
-X-X-Sender: <jjasen1@irix2.gl.umbc.edu>
-To: "Michael J. Dikkema" <mjd@moot.ca>
+	id <S130734AbRBAQDp>; Thu, 1 Feb 2001 11:03:45 -0500
+Received: from ferret.lmh.ox.ac.uk ([163.1.138.204]:26896 "HELO
+	ferret.lmh.ox.ac.uk") by vger.kernel.org with SMTP
+	id <S130750AbRBAQDf>; Thu, 1 Feb 2001 11:03:35 -0500
+Date: Thu, 1 Feb 2001 16:03:24 +0000 (GMT)
+From: Chris Evans <chris@scary.beasts.org>
+To: Malcolm Beattie <mbeattie@sable.ox.ac.uk>
 cc: <linux-kernel@vger.kernel.org>
-Subject: Re: 2.4.1 - can't read root fs (devfs maybe?)
-In-Reply-To: <Pine.LNX.4.21.0101312258190.227-100000@sliver.moot.ca>
-Message-ID: <Pine.SGI.4.31L.02.0102011058520.71788-100000@irix2.gl.umbc.edu>
+Subject: Re: Serious reproducible 2.4.x kernel hang
+In-Reply-To: <20010201153000.C27009@sable.ox.ac.uk>
+Message-ID: <Pine.LNX.4.30.0102011556010.4030-100000@ferret.lmh.ox.ac.uk>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 31 Jan 2001, Michael J. Dikkema wrote:
 
-> I went from 2.4.0 to 2.4.1 and was surprised that either the root
-> filesystem wasn't mounted, or it couldn't be read. I'm using devfs.. I'm
-> thinking there might have been a change with regards to the devfs
-> tree.. is the legacy /dev/hda1 still /dev/discs/disc0/part1?
+On Thu, 1 Feb 2001, Malcolm Beattie wrote:
+
+> Mapping the addresses from whichever ScrollLock combination produced
+> the task list to symbols produces the call trace
+>  do_exit <- do_signal <- tcp_destroy_sock <- inet_ioctl <- signal_return
 >
-> I can't even get a shell with init=/bin/bash..
+> The inet_ioctl is odd there--vsftpd doesn't explicitly call ioctl
+> anywhere at all and the next function before it in memory is
+> inet_shutdown which looks more believable. I have checked I'm looking
 
-Sounds like a lack of devfsd, which handles backwards compatibility for
-/dev entries.
+Probably, the empty SIGPIPE handler triggered. The response to this is a
+lot of shutdown() close() and finally an exit().
 
---
--- John E. Jasen (jjasen1@umbc.edu)
--- In theory, theory and practise are the same. In practise, they aren't.
+The trace you give above looks like the child process trace. I always see
+the parent process go nuts. The parent process is almost always blocking
+on read() of a unix dgram socket, which it shares with the child. The
+child does a shutdown() on this socket just before exit().
+
+Cheers
+Chris
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

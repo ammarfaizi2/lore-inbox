@@ -1,81 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280788AbRKGNHp>; Wed, 7 Nov 2001 08:07:45 -0500
+	id <S280768AbRKGNVL>; Wed, 7 Nov 2001 08:21:11 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280787AbRKGNHf>; Wed, 7 Nov 2001 08:07:35 -0500
-Received: from [195.63.194.11] ([195.63.194.11]:33296 "EHLO
-	mail.stock-world.de") by vger.kernel.org with ESMTP
-	id <S280786AbRKGNH2>; Wed, 7 Nov 2001 08:07:28 -0500
-Message-ID: <3BE93E77.6E4E3C95@evision-ventures.com>
-Date: Wed, 07 Nov 2001 15:00:23 +0100
-From: Martin Dalecki <dalecki@evision-ventures.com>
-X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.7-10 i686)
-X-Accept-Language: en, de
+	id <S280786AbRKGNVA>; Wed, 7 Nov 2001 08:21:00 -0500
+Received: from sj-msg-core-3.cisco.com ([171.70.157.152]:52145 "EHLO
+	sj-msg-core-3.cisco.com") by vger.kernel.org with ESMTP
+	id <S280768AbRKGNUw>; Wed, 7 Nov 2001 08:20:52 -0500
+Message-ID: <3BE93513.8BFD1565@cisco.com>
+Date: Wed, 07 Nov 2001 18:50:19 +0530
+From: Manik Raina <manik@cisco.com>
+Organization: Cisco Systems Inc.
+X-Mailer: Mozilla 4.72 [en] (X11; U; Linux 2.2.14-12 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-CC: Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
-Subject: Re: Using %cr2 to reference "current"
-In-Reply-To: <E161FVT-00029X-00@the-village.bc.nu>
+To: axb@cse.nd.edu
+Subject: ps2esdi.c broken ?
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox wrote:
+when PS2 ESDI support is enabled (in kernel without module
+support) , ps2esdi.c breaks during compilation.
 
-> Im not sure how much the code change for function call patterns would be
-> but I doubt its so big for such little effort
+looks like it's missing module.h
 
-Let numbers talk to us, or allow me to quote the georieously politically
-incorrect Dave: "Numbers talk - billshit walks!":
+ps2esdi.c:153: `THIS_MODULE' undeclared here (not in a function)
+ps2esdi.c:153: initializer element for `ps2esdi_fops.owner' is not
+constant
+ps2esdi.c:157: initializer element for `ps2esdi_fops' is not constant
 
-Without register passing, we have the following size situation:
+this fix works ....
 
-   text    data     bss     dec     hex filename
-1332132  260804  288080 1881016  1cb3b8 vmlinux
+--- /home/manik/linux/orig/linux/drivers/block/ps2esdi.c        Fri Oct
+26 02:28:34 2001
++++ ./ps2esdi.c Wed Nov  7 18:35:07 2001
+@@ -27,6 +27,7 @@
+    + reset after read/write error
+  */
 
-With the following options enabled we get:
--freg-struct-return -mrtd -mregparm=3
++#include <linux/module.h>
+ #include <linux/config.h>
+ #include <linux/major.h>
 
-   text    data     bss     dec     hex filename
-1302372  260804  288080 1851256  1c3f78 vmlinux
-
-Quite significant difference if you ask me!!!
-
-With the following options enabled we get:
--mrtd -mregparm=3
-
-   text    data     bss     dec     hex filename
-1302404  260804  288080 1851288  1c3f98 vmlinux
-
-Here it's just a few bytes here and there not really
-significant, becouse the kernel apparently doesn't
-use structs as return values frequently.
-
-With the following options enabled we get:
--mregparm=3
-
-   text    data     bss     dec     hex filename
-1303476  260804  288080 1852360  1c43c8 vmlinux
-
-So apparently the -mrtd options is quite significant as well.
-
-With the following options enabled we get:
--mregparm=2
-
-text    data     bss     dec     hex filename
-1307876  260804  288080 1856760  1c54f8 vmlinux
-
-As expected the influence here isn't too significant.
-
-So the conclusion is that apparetly the change in calling convention can
-result
-in a saving of about 2.3% in code size. This may not sound grat in
-relative
-numbers, but for a compiler designer this would already sound hilarious
-and in
-absolute numbers it's: 29760 bytes. Not withstanding the speed
-improvement...
-
-Oh for compleatness sake, the compiler used was:
-gcc version 2.96 20000731 (Red Hat Linux 7.1 2.96-99)

@@ -1,38 +1,34 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S270227AbSISHLw>; Thu, 19 Sep 2002 03:11:52 -0400
+	id <S270266AbSISHb7>; Thu, 19 Sep 2002 03:31:59 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S270263AbSISHLw>; Thu, 19 Sep 2002 03:11:52 -0400
-Received: from dell-paw-3.cambridge.redhat.com ([195.224.55.237]:29173 "EHLO
-	passion.cambridge.redhat.com") by vger.kernel.org with ESMTP
-	id <S270227AbSISHLw>; Thu, 19 Sep 2002 03:11:52 -0400
-X-Mailer: exmh version 2.5 13/07/2001 with nmh-1.0.4
-From: David Woodhouse <dwmw2@infradead.org>
-X-Accept-Language: en_GB
-In-Reply-To: <024501c25f45$1db02360$9e10a8c0@IMRANPC> 
-References: <024501c25f45$1db02360$9e10a8c0@IMRANPC> 
-To: imran.badr@cavium.com
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: interruptible_sleep_on_timeout() and signals 
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Thu, 19 Sep 2002 08:16:52 +0100
-Message-ID: <14338.1032419812@redhat.com>
+	id <S270269AbSISHb7>; Thu, 19 Sep 2002 03:31:59 -0400
+Received: from dsl-213-023-020-102.arcor-ip.net ([213.23.20.102]:65422 "EHLO
+	starship") by vger.kernel.org with ESMTP id <S270266AbSISHb7>;
+	Thu, 19 Sep 2002 03:31:59 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Daniel Phillips <phillips@arcor.de>
+To: Greg KH <greg@kroah.com>, Brad Hards <bhards@bigpond.net.au>
+Subject: Re: 2.5.26 hotplug failure
+Date: Thu, 19 Sep 2002 09:37:07 +0200
+X-Mailer: KMail [version 1.3.2]
+Cc: Duncan Sands <duncan.sands@wanadoo.fr>, linux-kernel@vger.kernel.org,
+       linux-usb-devel@lists.sourceforge.net
+References: <200207180950.42312.duncan.sands@wanadoo.fr> <200209181715.51314.bhards@bigpond.net.au> <20020918165532.GA9654@kroah.com>
+In-Reply-To: <20020918165532.GA9654@kroah.com>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <E17rvs3-0000uN-00@starship>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wednesday 18 September 2002 18:55, Greg KH wrote:
+> Sorry, but I'm not going to put the file back.  I understand your
+> concerns.  We should have some kind of program (lsdev like) that shows
+> the system information present at that moment in time.  It will be able
+> to provide what the /proc/bus/usb/drivers file showed in the past.
 
-imran.badr@cavium.com said:
->  How would I figure out whether interruptible_sleep_on_timeout()
-> returned on a timeout condition, someone called wakeup() or the user
-> pressed CTRL-C i.e., interrupted by a signal? Is signal_pending()the
-> right choice ?
+How about calling it /proc/bus/usb/drivers?
 
-Don't forget that there can also be any combination of two or all three of 
-the above. Don't use sleep_on functions because they're almost impossible 
-to use correctly.
-
---
-dwmw2
-
-
+-- 
+Daniel

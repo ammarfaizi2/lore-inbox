@@ -1,53 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261204AbUKMX3N@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261207AbUKMX30@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261204AbUKMX3N (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 13 Nov 2004 18:29:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261206AbUKMX1a
+	id S261207AbUKMX30 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 13 Nov 2004 18:29:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261206AbUKMX3Y
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 13 Nov 2004 18:27:30 -0500
-Received: from port-212-202-157-208.static.qsc.de ([212.202.157.208]:21918
-	"EHLO zoidberg.portrix.net") by vger.kernel.org with ESMTP
-	id S261204AbUKMXZV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 13 Nov 2004 18:25:21 -0500
-Message-ID: <419697DB.9030402@ppp0.net>
-Date: Sun, 14 Nov 2004 00:25:15 +0100
-From: Jan Dittmer <jdittmer@ppp0.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; rv:1.7.3) Gecko/20040926 Thunderbird/0.8 Mnenhy/0.6.0.104
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Linux kernel <linux-kernel@vger.kernel.org>
-CC: perex@suse.cz
-Subject: [PATCH] isapnp module_param conversion
-X-Enigmail-Version: 0.86.1.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+	Sat, 13 Nov 2004 18:29:24 -0500
+Received: from honk1.physik.uni-konstanz.de ([134.34.140.224]:44218 "EHLO
+	honk1.physik.uni-konstanz.de") by vger.kernel.org with ESMTP
+	id S261207AbUKMX2D (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 13 Nov 2004 18:28:03 -0500
+Date: Sun, 14 Nov 2004 00:22:55 +0100
+From: Guido Guenther <agx@sigxcpu.org>
+To: Giuseppe Bilotta <bilotta78@hotpop.com>
+Cc: linux-kernel@vger.kernel.org, linux-fbdev-devel@lists.sourceforge.net
+Subject: Re: [Linux-fbdev-devel] Re: [PATCH] fbdev: Fix IO access in rivafb
+Message-ID: <20041113232255.GA25845@bogon.ms20.nix>
+References: <200411080521.iA85LbG6025914@hera.kernel.org> <1099893447.10262.154.camel@gaston> <200411081706.55261.adaplas@hotpop.com> <1099950722.10262.166.camel@gaston> <MPG.1bfa1abaf653d37c98970a@news.gmane.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <MPG.1bfa1abaf653d37c98970a@news.gmane.org>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-module_param conversion for isapnp
-
-Signed-off-by: Jan Dittmer <jdittmer@ppp0.net>
-
-
-diff -Nru a/drivers/pnp/isapnp/core.c b/drivers/pnp/isapnp/core.c
---- a/drivers/pnp/isapnp/core.c	2004-11-14 00:21:24 +01:00
-+++ b/drivers/pnp/isapnp/core.c	2004-11-14 00:21:24 +01:00
-@@ -58,13 +58,13 @@
-
- MODULE_AUTHOR("Jaroslav Kysela <perex@suse.cz>");
- MODULE_DESCRIPTION("Generic ISA Plug & Play support");
--MODULE_PARM(isapnp_disable, "i");
-+module_param(isapnp_disable, int, 0);
- MODULE_PARM_DESC(isapnp_disable, "ISA Plug & Play disable");
--MODULE_PARM(isapnp_rdp, "i");
-+module_param(isapnp_rdp, int, 0);
- MODULE_PARM_DESC(isapnp_rdp, "ISA Plug & Play read data port");
--MODULE_PARM(isapnp_reset, "i");
-+module_param(isapnp_reset, int, 0);
- MODULE_PARM_DESC(isapnp_reset, "ISA Plug & Play reset all cards");
--MODULE_PARM(isapnp_verbose, "i");
-+module_param(isapnp_verbose, int, 0);
- MODULE_PARM_DESC(isapnp_verbose, "ISA Plug & Play verbose mode");
- MODULE_LICENSE("GPL");
-
+On Tue, Nov 09, 2004 at 12:07:58AM +0100, Giuseppe Bilotta wrote:
+> Benjamin Herrenschmidt wrote:
+> > On Mon, 2004-11-08 at 17:06 +0800, Antonino A. Daplas wrote:
+> > 
+> > > 
+> > > How about this patch?  This is almost the original macro in riva_hw.h,
+> > > with the __force annotation.
+> > 
+> > I don't like it neither. It lacks barriers. the rivafb driver
+> > notoriously lacks barriers, except in a few places where it was so bad
+> > that it actually broke all the time, where we added some. This
+> > originates from the X "nv" driver written by Mark Vojkovich who didn't
+> > want to hear about barriers for perfs reasons I think.
+> 
+> Could this be the reason why in 2.6.7 I get solid lockups when 
+> switching to nv-driven X and rivafb-driven console? Is there 
+> something I could test to see if this is the reason?
+Please try 2.6.10-rc1-mm5. It should work there.
+ -- Guido

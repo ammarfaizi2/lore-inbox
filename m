@@ -1,48 +1,32 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264972AbRFZPE1>; Tue, 26 Jun 2001 11:04:27 -0400
+	id <S264968AbRFZPDG>; Tue, 26 Jun 2001 11:03:06 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264970AbRFZPEQ>; Tue, 26 Jun 2001 11:04:16 -0400
-Received: from perninha.conectiva.com.br ([200.250.58.156]:25098 "HELO
-	perninha.conectiva.com.br") by vger.kernel.org with SMTP
-	id <S264967AbRFZPEA>; Tue, 26 Jun 2001 11:04:00 -0400
-Date: Tue, 26 Jun 2001 10:30:41 -0300 (BRT)
-From: Marcelo Tosatti <marcelo@conectiva.com.br>
-To: Tim Waugh <twaugh@redhat.com>
-Cc: lkml <linux-kernel@vger.kernel.org>
-Subject: Re: parport_pc tries to load parport_serial automatically
-In-Reply-To: <20010626102303.K7663@redhat.com>
-Message-ID: <Pine.LNX.4.21.0106261027350.850-100000@freak.distro.conectiva>
+	id <S264967AbRFZPC4>; Tue, 26 Jun 2001 11:02:56 -0400
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:25095 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S264965AbRFZPCu>; Tue, 26 Jun 2001 11:02:50 -0400
+Subject: Re: [OT] Re: When the FUD is all around (sniff).
+To: jordanc@Censoft.com
+Date: Tue, 26 Jun 2001 16:02:02 +0100 (BST)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <01062608593502.10305@cosmic> from "Jordan Crouse" at Jun 26, 2001 08:59:35 AM
+X-Mailer: ELM [version 2.5 PL3]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E15EuLq-0003dW-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> > There is a saying in he UK 'You can fool all of the people some of the
+> > time, you can fool some of the people all the time, but you cannot fool all
+> > of the people all of the time'. 
+> 
+> Didn't Abraham Lincoln say that?  :)
 
-
-On Tue, 26 Jun 2001, Tim Waugh wrote:
-
-> On Tue, Jun 26, 2001 at 03:17:32AM -0300, Marcelo Tosatti wrote:
-> 
-> > If the initialization of parport_serial fails, we obviously get an
-> > error message, which is really annoying:
-> 
-> [This is different to the issue that is fixed in the -ac tree about
-> parport_serial getting probed for even when disabled in config.]
-> 
-> The idea was that people who have multi-IO cards but don't know what
-> modules are can have things Just Work: parport_serial gets loaded
-> automagically and detects their cards for them.  But yes, the flip
-> side is that people who _don't_ have multi-IO cards are going to get
-> that error.
-> 
-> There are three ways out, I think:
-> 
-> - change parport_pc so that it doesn't request parport_serial at
->   init.  In this case, how will parport_serial get loaded at all?
->   Perhaps with some recommended /etc/modules.conf lines (perhaps
->   parport_lowlevel{1,2,3,...})?
-
-I think this is sane. This is how it works for parport_pc.
+[Digs]
+Indeed in 1864.
 
 

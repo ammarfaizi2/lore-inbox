@@ -1,63 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264047AbRFERSR>; Tue, 5 Jun 2001 13:18:17 -0400
+	id <S264050AbRFERTr>; Tue, 5 Jun 2001 13:19:47 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264049AbRFERSH>; Tue, 5 Jun 2001 13:18:07 -0400
-Received: from mail-smtp.socket.net ([216.106.1.32]:14608 "EHLO
-	localhost.localdomain") by vger.kernel.org with ESMTP
-	id <S264047AbRFERRx>; Tue, 5 Jun 2001 13:17:53 -0400
-Date: Tue, 5 Jun 2001 12:17:25 -0500
-From: "Gregory T. Norris" <haphazard@socket.net>
-To: "paolo.pedroni@iol.it" <paolo.pedroni@iol.it>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Agpgart for AMD761
-Message-ID: <20010605121725.A15753@glitch.snoozer.net>
-Mail-Followup-To: "paolo.pedroni@iol.it" <paolo.pedroni@iol.it>,
-	linux-kernel@vger.kernel.org
-In-Reply-To: <GEGK5H$IXkNoE_FHJoeiOHXWLjWb2HtA2ZGSm7PCRGtuESl_JfV2caz@iol.it>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="qMm9M+Fa2AknHoGS"
-Content-Disposition: inline
-In-Reply-To: <GEGK5H$IXkNoE_FHJoeiOHXWLjWb2HtA2ZGSm7PCRGtuESl_JfV2caz@iol.it>
-User-Agent: Mutt/1.3.18i
-X-Operating-System: Linux glitch 2.4.5 #1 Thu May 31 18:23:54 CDT 2001 i686 unknown
+	id <S264052AbRFERTh>; Tue, 5 Jun 2001 13:19:37 -0400
+Received: from alb216-fre2.pangeatech.com ([65.192.23.216]:4612 "EHLO
+	anomaly.xbill.org") by vger.kernel.org with ESMTP
+	id <S264050AbRFERTZ>; Tue, 5 Jun 2001 13:19:25 -0400
+Date: Tue, 5 Jun 2001 10:19:05 -0700 (PDT)
+From: Brian Wellington <bwelling@xbill.org>
+To: "Randal, Phil" <prandal@herefordshire.gov.uk>
+cc: linux-kernel@vger.kernel.org
+Subject: RE: TRG vger.timpanogas.org hacked
+In-Reply-To: <AFE36742FF57D411862500508BDE8DD00199501D@mail.herefordshire.gov.uk>
+Message-ID: <Pine.LNX.4.21.0106051015370.979-100000@anomaly.xbill.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, 5 Jun 2001, Randal, Phil wrote:
 
---qMm9M+Fa2AknHoGS
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+> Bind 8.2.4 was released on May 17th, with the standard
+> comment "BIND 8.2.4 is the latest version of ISC BIND 8.
+> We strongly recommend that you upgrade to BIND 9.1 or, if
+> that is not immediately possible, to BIND 8.2.4 due to
+> certain security vulnerabilities in previous versions."
+> 
+> However, there are no release notes on ISC's web site,
+> and their vulnerabilities page lists no known security
+> flaws in Bind 8.2.3.
+> 
+> But the paranoid part of me does wonder :-)
 
-It seems to be working just fine here (kernel 2.4.5), provided that the
-"agp_try_unsupported=3D1" option is specified.  This tells the driver to
-assume that it behaves like known chipsets from the same vendor.
+There really are no known vulnerabilities in BIND 8.2.3.  There are a
+number of bug fixes which would make upgrading a good idea, though.
 
+The "previous versions" mentioned were those earlier than 8.2.3.
 
-On Tue, Jun 05, 2001 at 03:00:53PM +0200, paolo.pedroni@iol.it wrote:
-> I was wondering what is the state of support for the AMD761 Northbridge=
-=20
-> chip, especially regarding agp operations since I don't see it listed=20
-> in the kernel configuration for the AGPGart device.
-> Please CC any answer to my address, since I'm not subscribed to the=20
-> list.
-> Thanks in advance.
->=20
-> Paolo Pedroni
+Brian
 
---qMm9M+Fa2AknHoGS
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.6 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
-
-iD8DBQE7HRQlgrEMyr8Cx2YRAlEYAKCI+HdOmQfdhhkXcZq2rxxdqoUYDgCeO3Z+
-AOJHGiqbcGWsepTn1sAZq+A=
-=6KDh
------END PGP SIGNATURE-----
-
---qMm9M+Fa2AknHoGS--

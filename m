@@ -1,83 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261472AbSJMIyX>; Sun, 13 Oct 2002 04:54:23 -0400
+	id <S261475AbSJMJLF>; Sun, 13 Oct 2002 05:11:05 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261475AbSJMIyX>; Sun, 13 Oct 2002 04:54:23 -0400
-Received: from medelec.uia.ac.be ([143.169.17.1]:55306 "EHLO medelec.uia.ac.be")
-	by vger.kernel.org with ESMTP id <S261472AbSJMIyW>;
-	Sun, 13 Oct 2002 04:54:22 -0400
-Date: Sun, 13 Oct 2002 11:00:03 +0200
-From: Wim Van Sebroeck <wim@iguana.be>
-To: torvalds@transmeta.com
-Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] linux-2.5.42 - C99 designated initializers for drivers/char/i810-tco.c
-Message-ID: <20021013110003.A13989@medelec.uia.ac.be>
-Mime-Version: 1.0
+	id <S261476AbSJMJLF>; Sun, 13 Oct 2002 05:11:05 -0400
+Received: from 62-190-219-54.pdu.pipex.net ([62.190.219.54]:10756 "EHLO
+	darkstar.example.net") by vger.kernel.org with ESMTP
+	id <S261475AbSJMJLE>; Sun, 13 Oct 2002 05:11:04 -0400
+From: jbradford@dial.pipex.com
+Message-Id: <200210130925.g9D9Ptj2004902@darkstar.example.net>
+Subject: ALSA still broken in 2.5.42
+To: linux-kernel@vger.kernel.org
+Date: Sun, 13 Oct 2002 10:25:55 +0100 (BST)
+X-Mailer: ELM [version 2.5 PL6]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Linus,
+Trying to compile 2.5.42 with:
 
-A patch for drivers/char/i810-tco.c so that it uses C99 designated initializers.
+CONFIG_SOUND=y
+CONFIG_SND=y
+CONFIG_SND_SBAWE=y
 
-Greetings,
-Wim.
+fails:
 
-# This is a BitKeeper generated patch for the following project:
-# Project Name: Linux kernel tree
-# This patch format is intended for GNU patch command version 2.5 or higher.
-# This patch includes the following deltas:
-#	           ChangeSet	1.787   -> 1.788  
-#	drivers/char/i810-tco.c	1.10    -> 1.11   
-#
-# The following is the BitKeeper ChangeSet Log
-# --------------------------------------------
-# 02/10/13	wim@iguana.be	1.788
-# [PATCH] C99 designated initializers for drivers/char/i810-tco.c
-# --------------------------------------------
-#
-diff -Nru a/drivers/char/i810-tco.c b/drivers/char/i810-tco.c
---- a/drivers/char/i810-tco.c	Sun Oct 13 10:56:03 2002
-+++ b/drivers/char/i810-tco.c	Sun Oct 13 10:56:04 2002
-@@ -244,9 +244,9 @@
- 	int options, retval = -EINVAL;
- 
- 	static struct watchdog_info ident = {
--		options:		WDIOF_SETTIMEOUT | WDIOF_KEEPALIVEPING,
--		firmware_version:	0,
--		identity:		"i810 TCO timer",
-+		.options =		WDIOF_SETTIMEOUT | WDIOF_KEEPALIVEPING,
-+		.firmware_version =	0,
-+		.identity =		"i810 TCO timer",
- 	};
- 	switch (cmd) {
- 		default:
-@@ -371,17 +371,17 @@
- }
- 
- static struct file_operations i810tco_fops = {
--	owner:		THIS_MODULE,
--	write:		i810tco_write,
--	ioctl:		i810tco_ioctl,
--	open:		i810tco_open,
--	release:	i810tco_release,
-+	.owner =	THIS_MODULE,
-+	.write =	i810tco_write,
-+	.ioctl =	i810tco_ioctl,
-+	.open =		i810tco_open,
-+	.release =	i810tco_release,
- };
- 
- static struct miscdevice i810tco_miscdev = {
--	minor:		WATCHDOG_MINOR,
--	name:		"watchdog",
--	fops:		&i810tco_fops,
-+	.minor =	WATCHDOG_MINOR,
-+	.name =		"watchdog",
-+	.fops =		&i810tco_fops,
- };
- 
- static int __init watchdog_init (void)
+  Generating build number
+make -f init/Makefile 
+  Generating include/linux/compile.h (updated)
+  gcc -Wp,-MD,init/.version.o.d -D__KERNEL__ -Iinclude -Wall -Wstrict-prototypes -Wno-trigraphs -O2 -fomit-frame-pointer -fno-strict-aliasing -fno-common -pipe -mpreferred-stack-boundary=2 -march=i586 -Iarch/i386/mach-generic -nostdinc -iwithprefix include    -DKBUILD_BASENAME=version   -c -o init/version.o init/version.c
+   ld -m elf_i386  -r -o init/built-in.o init/main.o init/version.o init/do_mounts.o
+        ld -m elf_i386 -e stext -T arch/i386/vmlinux.lds.s arch/i386/kernel/head.o arch/i386/kernel/init_task.o  init/built-in.o --start-group  arch/i386/kernel/built-in.o  arch/i386/mm/built-in.o  arch/i386/mach-generic/built-in.o  kernel/built-in.o  mm/built-in.o  fs/built-in.o  ipc/built-in.o  security/built-in.o  lib/lib.a  arch/i386/lib/lib.a  drivers/built-in.o  sound/built-in.o  arch/i386/pci/built-in.o  net/built-in.o --end-group  -o vmlinux
+sound/built-in.o: In function `snd_emu8000_new':
+sound/built-in.o(.text.init+0x13b3): undefined reference to `snd_seq_device_new'
+make: *** [vmlinux] Error 1
+
+Works fine when I configure the dummy sound card device instead.
+
+Same with 2.5.41 and 2.5.40.
+
+John.

@@ -1,55 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316623AbSGQUIc>; Wed, 17 Jul 2002 16:08:32 -0400
+	id <S316637AbSGQUNz>; Wed, 17 Jul 2002 16:13:55 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316629AbSGQUIc>; Wed, 17 Jul 2002 16:08:32 -0400
-Received: from pD952AE51.dip.t-dialin.net ([217.82.174.81]:58524 "EHLO
-	hawkeye.luckynet.adm") by vger.kernel.org with ESMTP
-	id <S316623AbSGQUIa>; Wed, 17 Jul 2002 16:08:30 -0400
-Date: Wed, 17 Jul 2002 14:11:11 -0600 (MDT)
-From: Thunder from the hill <thunder@ngforever.de>
-X-X-Sender: thunder@hawkeye.luckynet.adm
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-cc: Pavel Machek <pavel@ucw.cz>
-Subject: SWSUSP in 2.5
-Message-ID: <Pine.LNX.4.44.0207171402560.3452-100000@hawkeye.luckynet.adm>
-X-Location: Dorndorf; Germany
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S316649AbSGQUNz>; Wed, 17 Jul 2002 16:13:55 -0400
+Received: from ns.suse.de ([213.95.15.193]:59151 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id <S316662AbSGQUNt>;
+	Wed, 17 Jul 2002 16:13:49 -0400
+Date: Wed, 17 Jul 2002 22:16:40 +0200
+From: Dave Jones <davej@suse.de>
+To: Steven Cole <elenstev@mesatop.com>
+Cc: linux-kernel@vger.kernel.org, Steven Cole <scole@lanl.gov>,
+       wli@holomorphy.com
+Subject: Re: 2.5.25-dj2, kernel BUG at dcache.c:361
+Message-ID: <20020717221640.D32389@suse.de>
+Mail-Followup-To: Dave Jones <davej@suse.de>,
+	Steven Cole <elenstev@mesatop.com>, linux-kernel@vger.kernel.org,
+	Steven Cole <scole@lanl.gov>, wli@holomorphy.com
+References: <1026936410.11636.107.camel@spc9.esa.lanl.gov>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1026936410.11636.107.camel@spc9.esa.lanl.gov>
+User-Agent: Mutt/1.3.22.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Wed, Jul 17, 2002 at 02:06:50PM -0600, Steven Cole wrote:
+ > While running 2.5.25-dj2 and dbench with increasing numbers of clients,
+ > my test machine locked up with the following message:
+ > 
+ > kernel BUG at dcache.c:361!
 
-Compiling software suspend, I get the following warning:
+There are some -dj specific hacks to dcache.c to convert to use
+list_t types. Which from memory, I think William Lee Irwin did.
+(wli, can you double check those just in case there's either an
+ obvious thinko, or a mismerge if you get time ?)
 
-suspend.c: In function `prepare_suspend_processes':
-suspend.c:602: warning: implicit declaration of function `sys_sync'
+Failing that, this could be something that also affects mainline
+I think.
 
-The reasons seems, to me, that no header file ever talks about sys_sync, 
-except for a small comment in include/linux/writeback.h. via-pmu uses it, 
-too, they have their own prototype. It might be an idea to add this 
-one-liner:
+        Dave
 
---- kernel/suspend.c~   Wed Jul 17 14:09:57 2002
-+++ kernel/suspend.c    Wed Jul 17 14:10:17 2002
-@@ -66,6 +66,7 @@
- #include <linux/swapops.h>
- 
- extern void signal_wake_up(struct task_struct *t);
-+extern int sys_sync(void);
- 
- unsigned char software_suspend_enabled = 0;
- 
-
-							Regards,
-							Thunder
 -- 
-(Use http://www.ebb.org/ungeek if you can't decode)
-------BEGIN GEEK CODE BLOCK------
-Version: 3.12
-GCS/E/G/S/AT d- s++:-- a? C++$ ULAVHI++++$ P++$ L++++(+++++)$ E W-$
-N--- o?  K? w-- O- M V$ PS+ PE- Y- PGP+ t+ 5+ X+ R- !tv b++ DI? !D G
-e++++ h* r--- y- 
-------END GEEK CODE BLOCK------
-
+| Dave Jones.        http://www.codemonkey.org.uk
+| SuSE Labs

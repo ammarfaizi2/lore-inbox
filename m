@@ -1,46 +1,60 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289053AbSBIRpS>; Sat, 9 Feb 2002 12:45:18 -0500
+	id <S289046AbSBIRpi>; Sat, 9 Feb 2002 12:45:38 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289051AbSBIRpH>; Sat, 9 Feb 2002 12:45:07 -0500
-Received: from erasmus.jurri.net ([62.236.96.196]:10450 "EHLO
-	oberon.erasmus.jurri.net") by vger.kernel.org with ESMTP
-	id <S289046AbSBIRoy>; Sat, 9 Feb 2002 12:44:54 -0500
-To: "H. Peter Anvin" <hpa@zytor.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Linus' email account is full. - Fwd: Mail System Error -
- Returned Mail
-In-Reply-To: <5.1.0.14.2.20020208201734.038322c0@pop.cus.cam.ac.uk>
-	<a41cfi$fpr$1@cesium.transmeta.com>
-From: Samuli Suonpaa <suonpaa@iki.fi>
-Date: Sat, 09 Feb 2002 19:44:19 +0200
-In-Reply-To: <a41cfi$fpr$1@cesium.transmeta.com> ("H. Peter Anvin"'s message
- of "8 Feb 2002 12:29:38 -0800")
-Message-ID: <87d6zeczyk.fsf@puck.erasmus.jurri.net>
-User-Agent: Gnus/5.090006 (Oort Gnus v0.06) Emacs/21.1
- (i386-debian-linux-gnu)
+	id <S289051AbSBIRp2>; Sat, 9 Feb 2002 12:45:28 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:47878 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S289046AbSBIRpN>; Sat, 9 Feb 2002 12:45:13 -0500
+Date: Sat, 9 Feb 2002 11:30:27 -0800 (PST)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Hugh Dickins <hugh@veritas.com>
+cc: Andrew Morton <akpm@zip.com.au>,
+        Marcelo Tosatti <marcelo@conectiva.com.br>,
+        "H. Peter Anvin" <hpa@zytor.com>, <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] BUG preserve registers
+In-Reply-To: <Pine.LNX.4.21.0202090808390.872-100000@localhost.localdomain>
+Message-ID: <Pine.LNX.4.33.0202091124290.8508-100000@home.transmeta.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-15
-Content-Transfer-Encoding: 8bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"H. Peter Anvin" <hpa@zytor.com> writes:
-> You sent it to the wrong address, and apparently someone is being a
-> "scalper" and trying to capture peoples misaddressed email.
 
-$ whois transmet.com
-[...]
-   Billing Contact:
-      Ollila, Dick  (DOZ70)  allison@WALKUPRIGHT.COM
-      Transmet Corporation
-      4290 Perimeter Dr.
-      Columbus , OH 43228-1656
-      (614) 276-5522
 
-Interesting translation of the name of Nokia Chairman and CEO Jorma
-Ollila. In Finnish, the word jorma doesn't always refer to the whole
-man, exactly like 'dick' in English. I'd guess the person who
-registered this domain has at least some knowledge of Finnish.
+On Sat, 9 Feb 2002, Hugh Dickins wrote:
+>
+> It's frustrating that when Verbose BUG() reporting is configured,
+> info gets lost: fix for i386 below.  This is your area, Andrew:
+> please confirm to Marcelo if you'd like him to apply this.
+>
+> Example: in hpa's recent prune_dcache crash, %eax showed the length of
+> the kernel BUG printk, when we'd have liked to see the invalid d_count:
+> off-by-one or obviously corrupted?
 
-Suonp‰‰...
+Don't do it this way.
+
+Instead, put the string printout in the _trap_ handler, and make the
+format of BUG() be something like this:
+
+	#ifdef CONFIG_DEBUG_BUGVERBOSE
+	#define BUGSTR "\"" __FILE__ "\""
+	#else
+	#define BUGSTR ""
+	#endif
+
+	#define BUG() \
+		asm("ud2\n\t.word __LINE__\n\t.asciiz " BUGSTR)
+
+and then have the trap handler print out the pretty-printed version.
+
+The advantage of this is:
+ - much smaller footprint even when messages are enabled.
+ - no register corruption
+ - easily extendible (ie we can put a "bug code" etc, and have the trap
+   handler do different things depending on the code)
+
+Ok?
+
+		Linus
+

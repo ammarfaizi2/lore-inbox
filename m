@@ -1,46 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269495AbUICDOd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269196AbUICDYf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269495AbUICDOd (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Sep 2004 23:14:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269483AbUICDNc
+	id S269196AbUICDYf (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Sep 2004 23:24:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269115AbUICDOQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Sep 2004 23:13:32 -0400
-Received: from [218.25.35.199] ([218.25.35.199]:47634 "HELO vesselalliance.com")
-	by vger.kernel.org with SMTP id S269076AbUICDC7 (ORCPT
+	Thu, 2 Sep 2004 23:14:16 -0400
+Received: from mx1.elte.hu ([157.181.1.137]:63950 "EHLO mx1.elte.hu")
+	by vger.kernel.org with ESMTP id S268929AbUIBUgc (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Sep 2004 23:02:59 -0400
-To: <linux-kernel@vger.kernel.org>
-From: "Daniel" <hornet21barry@hotmail.com>
-Date: Fri, 03 Sep 2004 03:01:21 GMT
-Message-Id: <1094180481-4348@excite.com>
-Subject: Buy Pain Medications, Anonymously!
-Content-Type: text/plain;
+	Thu, 2 Sep 2004 16:36:32 -0400
+Date: Thu, 2 Sep 2004 22:38:05 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Mark_H_Johnson@raytheon.com
+Cc: linux-kernel@vger.kernel.org, "K.R. Foley" <kr@cybsft.com>,
+       Felipe Alfaro Solana <lkml@felipe-alfaro.com>,
+       Daniel Schmitt <pnambic@unu.nu>, Lee Revell <rlrevell@joe-job.com>
+Subject: Re: [patch] voluntary-preempt-2.6.9-rc1-bk4-Q9
+Message-ID: <20040902203804.GA22309@elte.hu>
+References: <OF77CAEAC1.5B07194A-ON86256F03.006FD5A2-86256F03.006FD5AB@raytheon.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <OF77CAEAC1.5B07194A-ON86256F03.006FD5A2-86256F03.006FD5AB@raytheon.com>
+User-Agent: Mutt/1.4.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Save up to 80% on popular meds!
 
-*** GREAT SPECIALS ***
+* Mark_H_Johnson@raytheon.com <Mark_H_Johnson@raytheon.com> wrote:
 
-Check it out: http://www.hjigoeoi.com/_85924943b9db73ac62baa654773c6a8e/4
+> 00000002 0.003ms (+0.000ms): dummy_switch_tasks (schedule)
+> 00000002 0.003ms (+0.000ms): schedule (worker_thread)
+> 00000002 0.003ms (+0.000ms): schedule (worker_thread)
+> 00000002 0.004ms (+0.000ms): schedule (worker_thread)
+> 00000002 0.004ms (+0.000ms): schedule (worker_thread)
+> 00000002 0.004ms (+0.000ms): schedule (worker_thread)
+> 00000002 0.004ms (+0.274ms): schedule (worker_thread)
+> 04000002 0.279ms (+0.000ms): __switch_to (schedule)
 
-- No doctor visits or hassles
-- Quick delivery to your front door
+a quick suggestion: could you add this near the top of sched.c (below
+the #include lines):
 
-Visit us here: http://www.hjigoeoi.com/_85924943b9db73ac62baa654773c6a8e/4
+ #define static
 
+this will turn off all inlining and makes the scheduler-internal
+functions visible. If there's any scheduler-internal overhead we should
+see it. Maybe this is the CR3 flush (switch_mm()) - but 274 usecs is
+still excessive ...
 
-On medication long term?  
-Buy bulk through us and LITERALLY SAVE THOUSANDS!
-
-
-
-wanker firstnesbitt naomi marcus
-cutie metallicabutch cardinal jeff graphic sally angels 
-sweety blondie nugget 
-sugar lawdougie tina sherry
-jan jeanette pedro 
-lamer riverpaula pisces miki
-
-nugget prestontango whitney poiuyt horizon timber groovy 
-
+	Ingo

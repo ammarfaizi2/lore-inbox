@@ -1,98 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264972AbRFUODU>; Thu, 21 Jun 2001 10:03:20 -0400
+	id <S264976AbRFUOFK>; Thu, 21 Jun 2001 10:05:10 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264975AbRFUODK>; Thu, 21 Jun 2001 10:03:10 -0400
-Received: from tomcat.admin.navo.hpc.mil ([204.222.179.33]:41247 "EHLO
-	tomcat.admin.navo.hpc.mil") by vger.kernel.org with ESMTP
-	id <S264974AbRFUODB>; Thu, 21 Jun 2001 10:03:01 -0400
-Date: Thu, 21 Jun 2001 09:02:54 -0500 (CDT)
-From: Jesse Pollard <pollard@tomcat.admin.navo.hpc.mil>
-Message-Id: <200106211402.JAA78332@tomcat.admin.navo.hpc.mil>
-To: landley@webofficenow.com
-Subject: Re: Alan Cox quote? (was: Re: accounting for threads)
-In-Reply-To: <0106201412240B.00776@localhost.localdomain>
-Cc: linux-kernel@vger.kernel.org (linux-kernel@vger.kernel.org)
-X-Mailer: [XMailTool v3.1.2b]
+	id <S264977AbRFUOFA>; Thu, 21 Jun 2001 10:05:00 -0400
+Received: from elektra.higherplane.net ([203.37.52.137]:20154 "EHLO
+	elektra.higherplane.net") by vger.kernel.org with ESMTP
+	id <S264976AbRFUOEm>; Thu, 21 Jun 2001 10:04:42 -0400
+Date: Fri, 22 Jun 2001 00:21:26 +1000
+From: john slee <indigoid@higherplane.net>
+To: Matthias Urlichs <smurf@noris.de>
+Cc: "Dmitry A. Fedorov" <D.A.Fedorov@inp.nsk.su>,
+        Balbir Singh <balbir_soni@yahoo.com>, linux-kernel@vger.kernel.org
+Subject: Re: Is it useful to support user level drivers
+Message-ID: <20010622002126.K30872@higherplane.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <p05100304b757adbbacd1@[10.2.6.42]>
+User-Agent: Mutt/1.3.18i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Rob Landley <landley@webofficenow.com>:
+On Thu, Jun 21, 2001 at 03:58:33PM +0200, Matthias Urlichs wrote:
+> At 23:50 +1000 2001-06-21, john slee wrote:
+> >i believe libgpio uses the existing usb/iee1394/serial/parallel
+> >interfaces to provide a limited userspace driver capability.
 > 
-> On Wednesday 20 June 2001 17:20, Albert D. Cahalan wrote:
-> > Rob Landley writes:
-> > > My only real gripe with Linux's threads right now [...] is
-> > > that ps and top and such aren't thread aware and don't group them
-> > > right.
-> > >
-> > > I'm told they added some kind of "threadgroup" field to processes
-> > > that allows top and ps and such to get the display right.  I haven't
-> > > noticed any upgrades, and haven't had time to go hunting myself.
-> >
-> > There was a "threadgroup" added just before the 2.4 release.
-> > Linus said he'd remove it if he didn't get comments on how
-> > useful it was, examples of usage, etc. So I figured I'd look at
-> > the code that weekend, but the patch was removed before then!
+> That only means, however, that the specific kernel drivers explicitly
+> support mid-level usermode access.
 > 
-> Can we give him feedback now, asking him to put it back?
-> 
-> > Submit patches to me, under the LGPL please. The FSF isn't likely
-> > to care. What, did you think this was the GNU system or something?
-> 
-> I've stopped even TRYING to patch bash.  try a for loop calling "echo $$&", 
-> eery single process bash forks off has the PARENT'S value for $$, which is 
-> REALLY annoying if you spend an afternoon writing code not knowing that and 
-> then wonder why the various process's temp file sare stomping each other...
+> They still handle the actual hardware state changes without usermode support.
 
-Actually - you have an error there. $$ gets evaluated during the parse, not
-during execution of the subprocess. To get what you are describing it is
-necessary to "sh -c 'echo $$'" to force the delay of evaluation. The only
-"bug" interpretation is in the evaluation of the quotes. IF echo '$$' &
-delayed the interpretation of "$$", then when the subprocess shell
-"echo $$" reparsed the line the $$ would be substituted as you wanted.
-This delay can only be done via the "sh -c ..." method. (its the same with
-bourne/korn shell).
+yes, that was the point.  while it might be a stretch of the "mechanism,
+not policy" argument, i like having drivers organized this way.  it
+makes a lot of sense for hotpluggable things like usb.
 
-> Oh, and anybody who can explain this is welcome to try:
-> 
-> lines=`ls -l | awk '{print "\""$0"\""}'`
-> for i in $lines
-> do
->   echo line:$i
-> done
+j.
 
-That depends on what you are trying to do. Are you trying to echo the
-entire "ls -l"? or are you trying to convert an "ls -l" into a single
-column based on a field extracted from "ls -l".
-
-If the latter, then the script should be:
-
-ls -l | awk '{print $<fieldno>}' | while read i
-do
-    echo line: $i
-done
-
-If the fields don't matter, but you want each line processed in the
-loop do:
-
-ls -l | while read i
-do
-   echo line:$i
-done
-
-Bash doesn't need patching for this.
-
-Again, the evaluation of the quotes is biting you. When the $lines
-parameter is evaluated, the quotes are present.
-
-bash is doing a double evaluation for "for" loop. It expects
-a list of single tokens, rather than a list of quoted strings. This is
-the same as in the bourne/korn shell.
-
-If you want such elaborate handling of strings, I suggest using perl.
-
--------------------------------------------------------------------------
-Jesse I Pollard, II
-Email: pollard@navo.hpc.mil
-
-Any opinions expressed are solely my own.
+-- 
+"Bobby, jiggle Grandpa's rat so it looks alive, please" -- gary larson

@@ -1,72 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271141AbTG1WHG (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 28 Jul 2003 18:07:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271146AbTG1WHF
+	id S271117AbTG1W1t (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 28 Jul 2003 18:27:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271120AbTG1W1t
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 28 Jul 2003 18:07:05 -0400
-Received: from CPE-65-29-19-166.mn.rr.com ([65.29.19.166]:42882 "EHLO
-	www.enodev.com") by vger.kernel.org with ESMTP id S271141AbTG1WHB
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 28 Jul 2003 18:07:01 -0400
-Subject: Re: 2.6.0-test2-mm1: Can't mount root
-From: Shawn <core@enodev.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-In-Reply-To: <20030728144704.49c433bc.akpm@osdl.org>
-References: <1059428584.6146.9.camel@localhost>
-	 <20030728144704.49c433bc.akpm@osdl.org>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Message-Id: <1059430015.6146.15.camel@localhost>
+	Mon, 28 Jul 2003 18:27:49 -0400
+Received: from mail3.ithnet.com ([217.64.64.7]:49335 "HELO
+	heather-ng.ithnet.com") by vger.kernel.org with SMTP
+	id S271117AbTG1W1q (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 28 Jul 2003 18:27:46 -0400
+X-Sender-Authentification: SMTPafterPOP by <info@euro-tv.de> from 217.64.64.14
+Date: Tue, 29 Jul 2003 00:27:37 +0200
+From: Stephan von Krawczynski <skraw@ithnet.com>
+To: "David S. Miller" <davem@redhat.com>
+Cc: rickh@capaccess.org, linux-kernel@vger.kernel.org,
+       linux-assembly@vger.kernel.org
+Subject: Re: The Well-Factored 386
+Message-Id: <20030729002737.111bc3ad.skraw@ithnet.com>
+In-Reply-To: <20030728133300.2ef96cf4.davem@redhat.com>
+References: <fc.0010c7b2009ebbbf0010c7b2009ebbbf.9ebbc6@capaccess.org>
+	<20030728070658.343ed2b0.davem@redhat.com>
+	<fc.0010c7b2009ecdef0010c7b2009ebbbf.9ecdfd@capaccess.org>
+	<20030728133300.2ef96cf4.davem@redhat.com>
+Organization: ith Kommunikationstechnik GmbH
+X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.3 
-Date: 28 Jul 2003 17:06:55 -0500
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Thank you, I didn't look very closely at the patch (really at all). 
+On Mon, 28 Jul 2003 13:33:00 -0700
+"David S. Miller" <davem@redhat.com> wrote:
 
-The one thing making me think I had it right with "2105" was that the
-kernel did seem to grok it as (33,5).
+> On Mon, 28 Jul 2003 16:33:58 -0400
+> "Rick A. Hohensee" <rickh@capaccess.org> wrote:
+> 
+> > Rick Hohensee   July 2003
+> > 
+> > Why, Rick? WHY?
+> 
+> Rick, I wish you luck finding another machine with lists to
+> infiltrate.
+> 
+> Because you're not going to do it on vger.kernel.org any more.
+> Bye bye.
 
-On Mon, 2003-07-28 at 16:47, Andrew Morton wrote:
-> Shawn <core@enodev.com> wrote:
-> >
-> > I'm using ide=reverse, and my root is on hde5. 2.6.0-test1-mm2 finds my
-> > root fs fine using the init/do_mounts.c patch posted recently.
-> > 
-> > 2.6.0-test2-mm1 (in which said patch seems to have been included),
-> > however, fails on all of the following root= options:
-> >       * 2105
-> >       * /dev/ide/host2/bus0/target0/lun0/part5
-> >       * /dev/hde5
-> > 
-> > I don't know what to try next. Can someone enlighten me as to what has
-> > been happening lately?
-> 
-> Beats me.  Tried "/dev/hde/5" and "21:05"?
-> 
-> Can you see what this says?
-> 
->  25-akpm/init/do_mounts.c |    1 +
->  1 files changed, 1 insertion(+)
-> 
-> diff -puN init/do_mounts.c~a init/do_mounts.c
-> --- 25/init/do_mounts.c~a	Mon Jul 28 14:44:37 2003
-> +++ 25-akpm/init/do_mounts.c	Mon Jul 28 14:44:53 2003
-> @@ -74,6 +74,7 @@ static dev_t __init try_name(char *name,
->  	/*
->  	 * The format of dev is now %u:%u -- see print_dev_t()
->  	 */
-> +	printk("scanning `%s'\n", buf);
->  	if (sscanf(buf, "%u:%u", &maj, &min) == 2)
->  		res = MKDEV(maj, min);
->  	else
-> 
-> _
-> 
-> Also take a close look at the dmesg output, make sure that all the devices
-> and partitions are appearing in the expected places.
-> 
-> 
+Dave, I have to tell you I don't like your attitude shown in this case. Surely
+you can argue Rick does not really stay on a specific topic, but on the other
+hand he does not really flood the list, does he? I mean, compared to (name
+deleted)s' PR bubbles he is really low volume.
+Besides I have not read any complaints (1 pro) - only yours. Which leads me to
+think you kill him only because you don't like the man - and not really because
+of his writing - and because you _can_. This does not feel alright for me.
+Don't get me wrong, I am no Rick-fan, I don't know him and have no idea why he
+is really talking about his favourite topics. But I honour his right to speak
+up just like anybody else, even if it looks more like a "brainstorming" than
+constructive talking.
+
+Regards,
+Stephan
+

@@ -1,50 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S270263AbUJTBUo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S270254AbUJTB27@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270263AbUJTBUo (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 19 Oct 2004 21:20:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270264AbUJTBEI
+	id S270254AbUJTB27 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 19 Oct 2004 21:28:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269225AbUJTBVH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 19 Oct 2004 21:04:08 -0400
-Received: from palrel10.hp.com ([156.153.255.245]:30619 "EHLO palrel10.hp.com")
-	by vger.kernel.org with ESMTP id S270248AbUJTBC2 (ORCPT
+	Tue, 19 Oct 2004 21:21:07 -0400
+Received: from sophie.6s.nl ([82.192.75.250]:24037 "EHLO sophie.6s.nl")
+	by vger.kernel.org with ESMTP id S270270AbUJTBRB (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 19 Oct 2004 21:02:28 -0400
-Date: Tue, 19 Oct 2004 18:02:27 -0700
-To: "David S. Miller" <davem@davemloft.net>,
-       Linux kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: [PATCH 2.6 IrDA] Fix nsc-ircc dongle_id input
-Message-ID: <20041020010227.GC12932@bougret.hpl.hp.com>
-Reply-To: jt@hpl.hp.com
+	Tue, 19 Oct 2004 21:17:01 -0400
+Subject: Re: Linux v2.6.9 and GPL Buyout
+From: Bastiaan Spandaw <lkml@becobaf.com>
+To: "Jeff V. Merkey" <jmerkey@drdos.com>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <41757478.4090402@drdos.com>
+References: <Pine.LNX.4.58.0410181540080.2287@ppc970.osdl.org>
+	 <417550FB.8020404@drdos.com>
+	 <1098218286.8675.82.camel@mentorng.gurulabs.com>
+	 <41757478.4090402@drdos.com>
+Content-Type: text/plain
+Message-Id: <1098235014.8126.34.camel@louise3.6s.nl>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.28i
-Organisation: HP Labs Palo Alto
-Address: HP Labs, 1U-17, 1501 Page Mill road, Palo Alto, CA 94304, USA.
-E-mail: jt@hpl.hp.com
-From: Jean Tourrilhes <jt@bougret.hpl.hp.com>
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Wed, 20 Oct 2004 03:16:55 +0200
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ir269_nsc_dongle-2.diff :
-~~~~~~~~~~~~~~~~~~~~~~~
-		<Original patch from Maik Broemme>
-	o [CRITICA] Don't Oops on invalid dongle-id in nsc-ircc driver
-Signed-off-by: Jean Tourrilhes <jt@hpl.hp.com>
+On Tue, 2004-10-19 at 22:09, Jeff V. Merkey wrote:
 
+> >>JFS, XFS, All SMP support in Linux, and RCU.
+> And Numa also.
+> 
+> >This isn't SCO code. This goes back to SCO's claims of "control rights"
+> >over any source code that has been in the same room as UNIX code.
 
-diff -u -p linux/drivers/net/irda/nsc-ircc.d0.c linux/drivers/net/irda/nsc-ircc.c
---- linux/drivers/net/irda/nsc-ircc.d0.c	Fri Oct 15 15:30:40 2004
-+++ linux/drivers/net/irda/nsc-ircc.c	Fri Oct 15 15:32:20 2004
-@@ -351,8 +351,9 @@ static int __init nsc_ircc_open(int i, c
- 	}
- 	MESSAGE("IrDA: Registered device %s\n", dev->name);
- 
--	/* Check if user has supplied the dongle id or not */
--	if (!dongle_id) {
-+	/* Check if user has supplied a valid dongle id or not */
-+	if ((dongle_id <= 0) ||
-+	    (dongle_id >= (sizeof(dongle_types) / sizeof(dongle_types[0]))) ) {
- 		dongle_id = nsc_ircc_read_dongle_id(self->io.fir_base);
- 		
- 		MESSAGE("%s, Found dongle: %s\n", driver_name,
+> No.  They seem to have some factual concrete evidence IP covered under 
+> Employee agreements was used and subsequently converted into Linux, and they 
+> are very confident of this.  
+
+bwhahaha...
+
+nice try..
+
+Do you reallly think you (on your own) can defend al those claims?
+(better than all lawyers/persons involved???!?!?!)
+Even though all of them (claims) have been disputed by people more
+knowledgeable than you?
+
+Please leave LKML.
+
+We don't like you nor anything you have to say.
+
+Not sincerely,
+
+Bastiaan Spandaw
+

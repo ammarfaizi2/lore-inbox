@@ -1,47 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267433AbUG2KD1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267428AbUG2KDY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267433AbUG2KD1 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Jul 2004 06:03:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264305AbUG2KD1
+	id S267428AbUG2KDY (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Jul 2004 06:03:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267431AbUG2KDY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Jul 2004 06:03:27 -0400
-Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:53158 "EHLO
-	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id S267433AbUG2KDH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Jul 2004 06:03:07 -0400
-Date: Thu, 29 Jul 2004 10:35:43 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: David Brownell <david-b@pacbell.net>
-Cc: Alexander Gran <alex@zodiac.dnsalias.org>, linux-kernel@vger.kernel.org
-Subject: Re: fixing usb suspend/resuming
-Message-ID: <20040729083543.GG21889@openzaurus.ucw.cz>
-References: <200405281406.10447@zodiac.zodiac.dnsalias.org> <40F962B6.3000501@pacbell.net> <200407190927.38734@zodiac.zodiac.dnsalias.org> <200407202205.37763.david-b@pacbell.net>
+	Thu, 29 Jul 2004 06:03:24 -0400
+Received: from 153.Red-213-4-13.pooles.rima-tde.net ([213.4.13.153]:36356 "EHLO
+	kerberos.felipe-alfaro.com") by vger.kernel.org with ESMTP
+	id S267428AbUG2KC4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 29 Jul 2004 06:02:56 -0400
+Subject: Re: [Patch] Per kthread freezer flags
+From: Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>
+To: ncunningham@linuxmail.org
+Cc: Andrew Morton <akpm@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <1091061983.8867.95.camel@laptop.cunninghams>
+References: <1090999301.8316.12.camel@laptop.cunninghams>
+	 <20040728142026.79860177.akpm@osdl.org>
+	 <1091053822.1844.4.camel@teapot.felipe-alfaro.com>
+	 <1091054194.8867.26.camel@laptop.cunninghams>
+	 <1091056916.1844.14.camel@teapot.felipe-alfaro.com>
+	 <1091061983.8867.95.camel@laptop.cunninghams>
+Content-Type: text/plain
+Date: Thu, 29 Jul 2004 12:02:21 +0200
+Message-Id: <1091095341.4359.0.camel@teapot.felipe-alfaro.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200407202205.37763.david-b@pacbell.net>
-User-Agent: Mutt/1.3.27i
+X-Mailer: Evolution 1.5.91 (1.5.91-1) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
-
-> > > I'm suspecting that something is mistranslating between ACPI
-> > > power state numbering and PCI power state numbering
-> > 
-> > ACK.
+On Thu, 2004-07-29 at 10:46 +1000, Nigel Cunningham wrote:
+> Hi.
 > 
-> See http://bugme.osdl.org/show_bug.cgi?id=2886 ... basically
-> it looks like this problem would show up with any of a dozen
-> or so different drivers, few of which are widely used on systems
-> that use suspend/resume much (laptops!).
+> On Thu, 2004-07-29 at 09:21, Felipe Alfaro Solana wrote:
+> > kirdad? No... That sounds like Infrared which my laptop does not have.
+> 
+> Did to me too. I was clutching at straws. :>
+> 
+> > Here is a digest of ps -axf:
+> > 
+> >   PID TTY      STAT   TIME COMMAND
+> >     1 ?        S      0:00 init [5]
+> >     2 ?        S<     0:03 [irqd/0]
+> >     3 ?        S<     0:00 [events/0]
+> >     4 ?        S<     0:00  \_ [khelper]
+> >     5 ?        S<     0:00  \_ [kacpid]
+> >    22 ?        S<     0:00  \_ [kblockd/0]
+> >    32 ?        S      0:00  \_ [pdflush]
+> >    33 ?        S      0:00  \_ [pdflush]
+> >    35 ?        S<     0:00  \_ [aio/0]
+> >    36 ?        S<     0:00  \_ [xfslogd/0]
+> >    37 ?        S<     0:00  \_ [xfsdatad/0]
+> >    34 ?        S      0:00 [kswapd0]
+> >    38 ?        S      0:00 [xfsbufd]
+> >   120 ?        S      0:00 [kseriod]
+> >   125 ?        S      0:00 [xfssyncd]
+> >   273 ?        Ss     0:00 minilogd
+> >   286 ?        S      0:00 [xfssyncd]
+> >   287 ?        S      0:00 [xfssyncd]
+> >   567 ?        S      0:00 [khubd]
+> >   871 ?        S      0:00 [pccardd]
+> >   877 ?        S      0:00 [pccardd]
+> 
+> It doesn't look like I've touched any of those threads. I have doubts
+> about irqd/0 (is that kirqd reworked?), so you might try making setting
+> PF_NOFREEZE and seeing if it makes a difference. I haven't done the
+> switch to rc2-mm1 yet, so haven't gotten to those issues.
 
-Ben H. has some ideas how to fix this. Anyway, storing S-state or D-state in
-integer is bad because someone will get it wrong.
-
-Plus, some PCI drivers (ide disk?) want to do different thing on S3 and swsusp:
-it does not make much sense to spindown before swsusp.
-				Pavel
--- 
-64 bytes from 195.113.31.123: icmp_seq=28 ttl=51 time=448769.1 ms         
+kirqd is voluntary-preempt patch by Ingo Molnar. I have also applied
+several other patches, like Con's Staircase scheduler policy and some
+latency fixes.
 

@@ -1,51 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267081AbSLKJNs>; Wed, 11 Dec 2002 04:13:48 -0500
+	id <S267082AbSLKJMn>; Wed, 11 Dec 2002 04:12:43 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267083AbSLKJNs>; Wed, 11 Dec 2002 04:13:48 -0500
-Received: from pD9552139.dip.t-dialin.net ([217.85.33.57]:16347 "EHLO xpc823")
-	by vger.kernel.org with ESMTP id <S267081AbSLKJNp>;
-	Wed, 11 Dec 2002 04:13:45 -0500
-Message-ID: <079901c2a0f6$fdcc0340$4b00000a@elite>
-From: "Felix Domke" <tmbinc@elitedvb.net>
-To: <linux-kernel@vger.kernel.org>
-Subject: Allocating 16MB aligned phsyical memory
-Date: Wed, 11 Dec 2002 10:23:39 +0100
+	id <S267081AbSLKJMn>; Wed, 11 Dec 2002 04:12:43 -0500
+Received: from mailout10.sul.t-online.com ([194.25.134.21]:27092 "EHLO
+	mailout10.sul.t-online.com") by vger.kernel.org with ESMTP
+	id <S267082AbSLKJMm> convert rfc822-to-8bit; Wed, 11 Dec 2002 04:12:42 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Marc-Christian Petersen <m.c.p@wolk-project.de>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.4.21-pre1
+Date: Wed, 11 Dec 2002 10:20:16 +0100
+User-Agent: KMail/1.4.3
+Cc: Andrew Morton <akpm@digeo.com>, Matthias Andree <matthias.andree@gmx.de>
+References: <Pine.LNX.4.50L.0212101834240.23096-100000@freak.distro.conectiva> <20021211085553.GB8740@merlin.emma.line.org>
+In-Reply-To: <20021211085553.GB8740@merlin.emma.line.org>
+Organization: WOLK - Working Overloaded Linux Kernel
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2800.1106
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1106
+Content-Transfer-Encoding: 7BIT
+Message-Id: <200212111020.16057.m.c.p@wolk-project.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Wednesday 11 December 2002 09:55, Matthias Andree wrote:
 
-i'm almost a newbie to kernel hacking, and i'm currently writing a driver
-for some powerpc-based chipset by IBM (STBxxxx), using the
-2.4.xx-linuxppc_devel kernel.
+Hi Matthias,
 
-Some On-Chip-Devices require a very strict alignment of memory. For example,
-one function (mpeg2 transport demuxer) require that all (32) queues (each of
-them about 32kb) reside in one 16MB region, each of them not crossing 1MB
-boundary.
+> Oh, speaking of "carefully", could Andrew Morton's mount -o dirsync
+> feature patch for 2.4.21 please be merged early in v2.4.21-pre? User
+> space (util-linux, e2fsprogs' lsattr/chattr) has been supporting it for
+> a while, just the kernel lacked it.
+> I can elaborate a bit more, but this has been discussed multiple times
+> and after all, the code is there.
+sorry, where can we find it?
 
-At the moment, i'm reserving a 16MB space of ram for which i made an own
-allocater. needless to say that this sucks. So now i'm searching for a way
-to allocate physical-mapped, contiguous, aligned (at 2^24 bytes) memory. I
-already tried to understand __get_free_pages, map_page and the
-powerpc-specific "consistent_alloc", but i couldn't think of enforcing the
-alignments. I don't want to allocate 16MB more memory just for the
-alignment.
+ciao, Marc
+-- 
+Kind regards
+        Marc-Christian Petersen
 
-I know that allocating 16MB-aligned memory isn't nice. But the other choice
-is to completely reserve 16MB of RAM, which isn't nice either, since i only
-need ~2MB of them.
+http://sourceforge.net/projects/wolk
 
-Can anybody give me a hint how to do this?
-
-felix domke
-
+PGP/GnuPG Key: 1024D/569DE2E3DB441A16
+Fingerprint: 3469 0CF8 CA7E 0042 7824 080A 569D E2E3 DB44 1A16
+Key available at www.keyserver.net. Encrypted e-mail preferred.

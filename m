@@ -1,48 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264927AbRGNWAo>; Sat, 14 Jul 2001 18:00:44 -0400
+	id <S264933AbRGNWMR>; Sat, 14 Jul 2001 18:12:17 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264933AbRGNWAe>; Sat, 14 Jul 2001 18:00:34 -0400
-Received: from hawk.mail.pas.earthlink.net ([207.217.120.22]:55217 "EHLO
-	hawk.mail.pas.earthlink.net") by vger.kernel.org with ESMTP
-	id <S264927AbRGNWAW>; Sat, 14 Jul 2001 18:00:22 -0400
-Date: Sat, 14 Jul 2001 17:00:21 -0500
-From: J Troy Piper <jtp@dok.org>
+	id <S264937AbRGNWMI>; Sat, 14 Jul 2001 18:12:08 -0400
+Received: from james.kalifornia.com ([208.179.59.2]:6185 "EHLO
+	james.kalifornia.com") by vger.kernel.org with ESMTP
+	id <S264933AbRGNWLz>; Sat, 14 Jul 2001 18:11:55 -0400
+Message-ID: <3B50C391.3050804@blue-labs.org>
+Date: Sat, 14 Jul 2001 18:11:29 -0400
+From: David Ford <david@blue-labs.org>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.2+) Gecko/20010713
+X-Accept-Language: en-us
+MIME-Version: 1.0
 To: linux-kernel@vger.kernel.org
-Cc: Alan Cox <laughing@shared-source.org>, rusty@rustcorp.com.au
-Subject: [Problem] Linux 2.4.5-ac17 ipt_unclean 'fixes'
-Message-ID: <20010714170021.B1391@dok.org>
-Mime-Version: 1.0
-Content-Type: message/rfc822
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
+CC: Alan Cox <alan@lxorguk.ukuu.org.uk>, Ross Biro <bir7@leland.stanford.edu>
+Subject: [found-not fixed] Re: 2.4.5+ hangs on boot
+In-Reply-To: <3B50AE0D.80002@blue-labs.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Ok, the problem is this.  I have TEQL packet scheduling in my config, 
+the kernel runs through this sequence on boot:
 
-> 2.4.5-ac17
-> o	First set of ipt_unclean fixes			(Rusty Russell)
+net_dev_init()
+    pktsched_init()
+        teql_init()    [starts a lock with rtnl_lock()]
+            register_netdevice()
+                net_dev_init()
+                    pktsched_init()
+                        teql_init() [hangs here...]
 
-Alan, 
+Here is the problem.  We enter teql_init() again with a rtnl_lock() 
+already being held.  Do any of the authors of these functions want to 
+jump in here?
 
-I apologise for having taken so long to write this (I have known about 
-this problem since 2.4.5ac17 and have not had a chance to document til 
-today) but there seems to be a problem with the ipt_unclean fixes by Rusty 
-Russell.  ANY incoming packets from any interface (ppp0 and eth0) are 
-marked as 'unclean' with some variation on the following syslog entry:
+David
 
-Jul  8 23:16:04 paranoia kernel: ipt_unclean: TCP option 3 at 37 too long
-Jul  8 23:16:05 paranoia kernel: ipt_unclean: TCP option 3 at 37 too long
-Jul  8 23:16:16 paranoia kernel: ipt_unclean: TCP option 3 at 37 too long
-Jul  8 23:16:18 paranoia kernel: ipt_unclean: TCP option 3 at 37 too long
+David Ford wrote:
 
-and thus are blocked by my 'unclean packet dropping' firewall (iptables).
+> [...]
+> I2O LAN OSM (C) 1999 University of Helsinki.
+> early initialization of device teql0 is deferred
+> loop: loaded (max 8 devices)
+> Linux Tulip driver version 0.9.15-pre3 (June 1, 2001)
+> PCI: Found IRQ 5 for device 00:10.0
+>
+> Any comments or suggestions?  2.4.5-ac19 is the last kernel I have 
+> that works.
 
-I haven't seen any mention of this on the list, nor have I seen any more 
-ipt_unclean patches to address this problem, so here's your heads-up 
-(albeit a bit late).
 
-Thanks,
 
-J Troy Piper
-jtp@dok.org

@@ -1,73 +1,86 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267322AbTABXoD>; Thu, 2 Jan 2003 18:44:03 -0500
+	id <S267312AbTABXkn>; Thu, 2 Jan 2003 18:40:43 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267324AbTABXoD>; Thu, 2 Jan 2003 18:44:03 -0500
-Received: from [62.233.169.82] ([62.233.169.82]:6945 "HELO
-	mother.fordon.pl.eu.org") by vger.kernel.org with SMTP
-	id <S267322AbTABXoA>; Thu, 2 Jan 2003 18:44:00 -0500
-Date: Fri, 3 Jan 2003 00:52:33 +0100
-From: "Tomasz Torcz, BG" <zdzichu@irc.pl>
-To: linux-kernel@vger.kernel.org
-Subject: 2 netcards related/PnP compile failures in 2.5.54
-Message-ID: <20030102235233.GA24918@irc.pl>
-Mail-Followup-To: "Tomasz Torcz, BG" <zdzichu@irc.pl>,
-	linux-kernel@vger.redhat.com
+	id <S267315AbTABXkn>; Thu, 2 Jan 2003 18:40:43 -0500
+Received: from Hell.WH8.TU-Dresden.De ([141.30.225.3]:11404 "EHLO
+	Hell.WH8.TU-Dresden.De") by vger.kernel.org with ESMTP
+	id <S267312AbTABXkm>; Thu, 2 Jan 2003 18:40:42 -0500
+Date: Fri, 3 Jan 2003 00:48:58 +0100
+From: "Udo A. Steinberg" <us15@os.inf.tu-dresden.de>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: linux-kernel@vger.kernel.org,
+       Linux Fbdev development list 
+	<linux-fbdev-devel@lists.sourceforge.net>,
+       James Simmons <jsimmons@infradead.org>
+Subject: [OOPS] Linux v2.5.54 Riva Framebuffer
+Message-Id: <20030103004858.3d291fbe.us15@os.inf.tu-dresden.de>
+In-Reply-To: <Pine.LNX.4.44.0301011935410.8506-100000@penguin.transmeta.com>
+References: <Pine.LNX.4.44.0301011935410.8506-100000@penguin.transmeta.com>
+Organization: Disorganized
+X-Mailer: Sylpheed version 0.8.8claws22 (GTK+ 1.2.10; Linux 2.5.53)
+X-GPG-Key: 1024D/233B9D29 (wwwkeys.pgp.net)
+X-GPG-Fingerprint: CE1F 5FDD 3C01 BE51 2106 292E 9E14 735D 233B 9D29
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4i
+Content-Type: multipart/signed; protocol="application/pgp-signature";
+ micalg="pgp-sha1"; boundary="=.:Jkk7G+DbEyH6p"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-hi,
+--=.:Jkk7G+DbEyH6p
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 
-I've just tried to compile 2.5.54 only to get compilation failure:
+On Wed, 1 Jan 2003 19:43:40 -0800 (PST) Linus Torvalds (LT) wrote:
 
-  gcc -Wp,-MD,drivers/net/.ne.o.d -D__KERNEL__ -Iinclude -Wall -Wstrict-prototypes -Wno-trigraphs -O2 -fno-strict-aliasing -fno-common -pipe -mpreferred-stack-boundary=2 -march=i686 -Iinclude/asm-i386/mach-default -fomit-frame-pointer -nostdinc -iwithprefix include -DMODULE   -DKBUILD_BASENAME=ne -DKBUILD_MODNAME=ne   -c -o drivers/net/ne.o drivers/net/ne.c
-drivers/net/ne.c: In function `ne_probe_isapnp':
-drivers/net/ne.c:201: warning: implicit declaration of function `isapnp_find_dev'
-drivers/net/ne.c:204: warning: assignment makes pointer from integer without a cast
-drivers/net/ne.c:206: dereferencing pointer to incomplete type
-drivers/net/ne.c:208: dereferencing pointer to incomplete type
-drivers/net/ne.c:211: dereferencing pointer to incomplete type
-drivers/net/ne.c:214: dereferencing pointer to incomplete type
-drivers/net/ne.c:215: dereferencing pointer to incomplete type
-drivers/net/ne.c: In function `cleanup_module':
-drivers/net/ne.c:788: dereferencing pointer to incomplete type
-make[2]: *** [drivers/net/ne.o] Error 1
-make[1]: *** [drivers/net] Error 2
-make: *** [drivers] Error 2
+LT> Happy new year to you all [...]
 
+Happy new year to you, too.
 
-so I went to kernel config and enabled everything related to Plug'n'Play.
-I've got another error:
+LT> Summary of changes from v2.5.53 to v2.5.54
+LT> James Simmons <jsimmons@infradead.org>:
+LT>   o Updates to the NVIDIA driver. We now support more cards. I still
+LT>     have more hacking to do
+LT>   o Voodoo 1 ported to new api. STI and NVIDIA updates. MDA console
+LT>     fixes. Moved the logo code from fbcon to fbdev
 
-  gcc -Wp,-MD,drivers/net/.3c509.o.d -D__KERNEL__ -Iinclude -Wall -Wstrict-prototypes -Wno-trigraphs -O2 -fno-strict-aliasing -fno-common -pipe -mpreferred-stack-boundary=2 -march=i686 -Iinclude/asm-i386/mach-default -fomit-frame-pointer -nostdinc -iwithprefix include    -DKBUILD_BASENAME=3c509 -DKBUILD_MODNAME=3c509   -c -o drivers/net/3c509.o drivers/net/3c509.c
-drivers/net/3c509.c: In function `el3_probe':
-drivers/net/3c509.c:361: warning: implicit declaration of function `isapnp_find_dev'
-drivers/net/3c509.c:364: warning: assignment makes pointer from integer without a cast
-drivers/net/3c509.c:365: dereferencing pointer to incomplete type
-drivers/net/3c509.c:368: dereferencing pointer to incomplete type
-drivers/net/3c509.c:369: dereferencing pointer to incomplete type
-drivers/net/3c509.c:370: dereferencing pointer to incomplete type
-drivers/net/3c509.c:370: dereferencing pointer to incomplete type
-drivers/net/3c509.c:372: dereferencing pointer to incomplete type
-drivers/net/3c509.c:375: dereferencing pointer to incomplete type
-make[2]: *** [drivers/net/3c509.o] Error 1
-make[1]: *** [drivers/net] Error 2
-make: *** [drivers] Error 2
+With Linux 2.5.54 I'm getting an oops in the riva framebuffer driver that didn't
+occur with Linux 2.5.53. It seems to be related to aforementioned changes. Trace
+copied by hand because I have no serial console.
 
+EIP is at fb_copy_cmap + 0x7f/0x140
 
-so no 2.5.54 for me. I wish I could check if matroxfb finally works again.
-(gcc 2.95.3)
+Trace:
 
+hide_cursor + 0x75/0x90
+get_default_font + 0x209/0x2a0
+updatescrollmode + 0x4f3/0x770
+rivafb_set_par + 0x88/0xe0
+fbcon_bmove_rec + 0x132/0x1f0
+set_origin + 0x11d/0x190
+clear_buffer_attributes + 0x1aa/0x1d0
+put_driver + 0x2f/0x40
+do_pre_smp_initcalls + 0x3a/0x160
+do_pre_smp_initcalls + 0x0/0x160
+show_regs + 0x5/0x18
 
-BTW - since about ten kernel versions shutting down system fails.
-After "INIT: Sending all processess KILL signal" nothing more 
-happens. I can switch consoles, syslogd still works but init
-appears to hang. How to check what's going on?
--- 
-Tomasz Torcz               RIP is irrevelant. Spoofing is futile.
-zdzichu@irc.-nie.spam-.pl     Your routes will be aggreggated.
-"Funeral in the morning, IDE hacking in the afternoon and evening." - Alan Cox
+The card in question is a Geforce 2 GTS.
+
+If more info is required to help solving this problem, let me know.
+Please CC: me on any discussion on fbdev-list; I'm only subscribed to lkml.
+
+Regards,
+-Udo.
+
+--=.:Jkk7G+DbEyH6p
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.3.1 (GNU/Linux)
+
+iD8DBQE+FM/tnhRzXSM7nSkRAifRAJ9hJYAdNPcN8UTvAjmsqivNv5e2IwCfZf4A
+g+Iho+GlzU56th5T9R2BraY=
+=lq7j
+-----END PGP SIGNATURE-----
+
+--=.:Jkk7G+DbEyH6p--

@@ -1,42 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277323AbRJEHDD>; Fri, 5 Oct 2001 03:03:03 -0400
+	id <S277324AbRJEHMR>; Fri, 5 Oct 2001 03:12:17 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277324AbRJEHCw>; Fri, 5 Oct 2001 03:02:52 -0400
-Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:52498 "EHLO
-	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id <S277323AbRJEHCj>; Fri, 5 Oct 2001 03:02:39 -0400
-Date: Fri, 5 Oct 2001 09:03:07 +0200
-From: Karel Kulhavy <clock@atrey.karlin.mff.cuni.cz>
-To: linux-kernel@vger.kernel.org
-Subject: Sound artifacts in Gravis Ultrasound
-Message-ID: <20011005090307.A16202@atrey.karlin.mff.cuni.cz>
+	id <S277325AbRJEHMH>; Fri, 5 Oct 2001 03:12:07 -0400
+Received: from t2.redhat.com ([199.183.24.243]:63476 "EHLO
+	passion.cambridge.redhat.com") by vger.kernel.org with ESMTP
+	id <S277324AbRJEHL5>; Fri, 5 Oct 2001 03:11:57 -0400
+X-Mailer: exmh version 2.4 06/23/2000 with nmh-1.0.4
+From: David Woodhouse <dwmw2@infradead.org>
+X-Accept-Language: en_GB
+In-Reply-To: <20011004183415.A6357@dot.cygnus.com> 
+In-Reply-To: <20011004183415.A6357@dot.cygnus.com> 
+To: Richard Henderson <rth@dot.cygnus.com>
+Cc: torvalds@transmeta.com, alan@redhat.com, linux-kernel@vger.kernel.org
+Subject: Re: alpha 2.4.11-pre3: delay disabling early boot messages 
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.20i
+Date: Fri, 05 Oct 2001 08:12:23 +0100
+Message-ID: <17968.1002265943@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I have a Gravis Ultrasound sound card. I suspect kernel from non-continuous feed of audio
-data into the device.
 
-When I feed directly a sine-wave data into /dev/dsp, 100Hz, 1KHz, 10kHz, there is
-a distortion that can be heard on 1kHz, is not heard on 100Hz and is very strong at 10kHz.
-It sounds like every several-per-second to several-ten-per-second, the data in the sound
-card are repeated (for several samples). The distortion occurs permanently and generates
-a regular sound, something like a car ignition system makes in board radio.
+rth@dot.cygnus.com said:
+> Alpha has this nice way to output console messages via SRM callbacks
+> which we can enable immediately on bootup, and so get debugging output
+> before console_init.  This patch delays when we turn that off, and so
+> narrows the window in which we can't get debug output. 
 
-When I play mp3 (mpg123) or Ogg Vorbis (ogg123), it can be heard also, when suitable
-pattern is present in the music to make the distortion audible.
+Putting it in time_init() because we happen to know that time_init() is the 
+last thing called from init/main.c before console_init() is a bit of a 
+hack :)
 
-It is not caused by my amplifier (audible also in earphones), not caused by too
-much volume (when playing on low volume, it is also there, it's a linear phenomenon).
-The sound of distortion is also not added to the signal, because can not be heard
-when certain sound patterns appear in the music.
+I've wanted this on other platforms too - couldn't we add an 
+unregister_boot_console() to console_init() instead?
 
-Is there any kernel setting that improves continuity of data feed? The card is
-Gravis Ultrasound Plug'n'play, on ISA.
+--
+dwmw2
 
-Clock
 

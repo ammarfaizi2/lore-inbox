@@ -1,58 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267383AbSLLBeO>; Wed, 11 Dec 2002 20:34:14 -0500
+	id <S267398AbSLLBtG>; Wed, 11 Dec 2002 20:49:06 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267388AbSLLBeO>; Wed, 11 Dec 2002 20:34:14 -0500
-Received: from h24-80-147-251.no.shawcable.net ([24.80.147.251]:58630 "EHLO
-	antichrist") by vger.kernel.org with ESMTP id <S267383AbSLLBeN>;
-	Wed, 11 Dec 2002 20:34:13 -0500
-Date: Wed, 11 Dec 2002 17:38:49 -0800
-From: carbonated beverage <ramune@net-ronin.org>
-To: linux-kernel@vger.kernel.org
-Subject: Re: capable open_port() check wrong for kmem
-Message-ID: <20021212013849.GA24054@net-ronin.org>
-References: <20021210032242.GA17583@net-ronin.org> <at3v15$mur$1@abraham.cs.berkeley.edu> <20021210064134.GA17928@net-ronin.org> <20021210065159.GB17928@net-ronin.org> <20021211164348.A26790@figure1.int.wirex.com>
+	id <S267401AbSLLBtG>; Wed, 11 Dec 2002 20:49:06 -0500
+Received: from 12-231-249-244.client.attbi.com ([12.231.249.244]:11536 "HELO
+	kroah.com") by vger.kernel.org with SMTP id <S267398AbSLLBtF>;
+	Wed, 11 Dec 2002 20:49:05 -0500
+Date: Wed, 11 Dec 2002 17:55:27 -0800
+From: Greg KH <greg@kroah.com>
+To: marcelo@conectiva.com.br
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Dynamic MP_BUSSES and IRQ_SOURCES for 2.4.21-pre1
+Message-ID: <20021212015527.GK16615@kroah.com>
+References: <20021212015326.GI16615@kroah.com> <20021212015454.GJ16615@kroah.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20021211164348.A26790@figure1.int.wirex.com>
+In-Reply-To: <20021212015454.GJ16615@kroah.com>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Dec 11, 2002 at 04:43:48PM -0800, Chris Wright wrote:
-[snip]
-> If you have only one capability (CAP_SYS_RAWIO), you are not owner of
-> /dev/kmem, you are in group kmem, and /dev/kmem is 0640, then all you will
-> get is read-only access to /dev/kmem.  This does not require kernel changes.
+ChangeSet 1.813, 2002/12/11 17:44:54-08:00, greg@kroah.com
 
-So if I want to have a generic utility that can be used by any user (and
-I'm not granting CAP_SYS_RAWIO to every process), then I can:
+mpparse.c: Fix a minor code formatting issue.
 
-1) make it suid root
-2) drop all caps other than cap_sys_rawio
 
-or
-
-1) add the capability to the executable, assuming it worked...
-
-Script started on Wed Dec 11 17:29:14 2002
-UB6IB9:/home/ramune/src/hack# setcap 'cap_sys_rawio=eip' ./a.out
-Failed to set capabilities on file `./a.out'
- (Function not implemented)
-usage: setcap [-q] (-|<caps>) <filename> [ ... (-|<capsN>) <filenameN> ]
-UB6IB9:/home/ramune/src/hack# mount
-/dev/hda1 on / type ext3 (rw)
-proc on /proc type proc (rw)
-devpts on /dev/pts type devpts (rw,gid=5,mode=620)
-UB6IB9:/home/ramune/src/hack# uname -a
-Linux UB6IB9 2.4.20 #1 Sat Nov 30 20:51:01 PST 2002 i586 unknown
-UB6IB9:/home/ramune/src/hack#
-Script done on Wed Dec 11 17:29:31 2002
-
-So, what am I missing?
-
-I just have to make it suid root if I wanna use it on 2.4.x?  Or is there
-a problem with my setup causing setcap to fail?
-
--- DN
-Daniel
+diff -Nru a/arch/i386/kernel/mpparse.c b/arch/i386/kernel/mpparse.c
+--- a/arch/i386/kernel/mpparse.c	Wed Dec 11 17:49:48 2002
++++ b/arch/i386/kernel/mpparse.c	Wed Dec 11 17:49:48 2002
+@@ -234,7 +234,7 @@
+ 	if (m->mpc_apicid > MAX_APICS) {
+ 		printk("Processor #%d INVALID. (Max ID: %d).\n",
+ 			m->mpc_apicid, MAX_APICS);
+-			--num_processors;
++		--num_processors;
+ 		return;
+ 	}
+ 	ver = m->mpc_apicver;

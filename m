@@ -1,40 +1,30 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129765AbQKGECL>; Mon, 6 Nov 2000 23:02:11 -0500
+	id <S130818AbQKGEJD>; Mon, 6 Nov 2000 23:09:03 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130818AbQKGEBv>; Mon, 6 Nov 2000 23:01:51 -0500
-Received: from zero.tech9.net ([209.61.188.187]:1285 "EHLO tech9.net")
-	by vger.kernel.org with ESMTP id <S129765AbQKGEBn>;
-	Mon, 6 Nov 2000 23:01:43 -0500
-Date: Mon, 6 Nov 2000 23:01:43 -0500 (EST)
-From: "Robert M. Love" <rml@tech9.net>
-To: Frank Davis <fdavis112@juno.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Pentium 4 and 2.4/2.5
-In-Reply-To: <20001104.183646.-371331.1.fdavis112@juno.com>
-Message-ID: <Pine.LNX.4.21.0011062241460.17391-100000@phantasy.awol.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S130855AbQKGEIw>; Mon, 6 Nov 2000 23:08:52 -0500
+Received: from vega.services.brown.edu ([128.148.19.202]:4840 "EHLO
+	vega.brown.edu") by vger.kernel.org with ESMTP id <S130818AbQKGEIo>;
+	Mon, 6 Nov 2000 23:08:44 -0500
+Message-Id: <4.3.2.7.2.20001106230925.00ac6370@postoffice.brown.edu>
+X-Mailer: QUALCOMM Windows Eudora Version 4.3.2
+Date: Mon, 06 Nov 2000 23:11:39 -0500
+To: linux-kernel@vger.kernel.org
+From: David Feuer <David_Feuer@brown.edu>
+Subject: sound driver persistent state
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 4 Nov 2000, Frank Davis hissed:
->   I noticed that Pentium 4 isn't an config option in 2.4.0-test10. Is
-> someone working on a patch for the the kernel (if needed) to support the
-> Pentium 4 after 2.4.0 is released?
-
-from what i have read of the Pentium IV, the linux kernel will not need
-any patches to run successfully.
-
-that being said, a lot of oppurtunity exists for optimization, i bet. some
-686-core optimizations may need to be rethought, but there is at least
-some things we can better do to take advantage of the P4.  if nothing
-else, the new pipeline size and cache-
-
--- 
-Robert M. Love
-rml@ufl.edu
-rml@tech9.net
+People keep saying it's OK to start muted on boot, but I must say that I 
+don't think this is really acceptable....  I may very well want to set my 
+mixer and just leave it that way forever.... would there be any way to give 
+the sound driver a scribble pad on disk to let it sa
+--
+This message has been brought to you by the letter alpha and the number pi.
+David Feuer
+David_Feuer@brown.edu
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

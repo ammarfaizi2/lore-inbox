@@ -1,39 +1,27 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262324AbTKDPvS (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 4 Nov 2003 10:51:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262333AbTKDPvS
+	id S262315AbTKDPrK (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 4 Nov 2003 10:47:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262323AbTKDPrK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 4 Nov 2003 10:51:18 -0500
-Received: from baloney.puettmann.net ([194.97.54.34]:9134 "EHLO
-	baloney.puettmann.net") by vger.kernel.org with ESMTP
-	id S262324AbTKDPvR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 4 Nov 2003 10:51:17 -0500
+	Tue, 4 Nov 2003 10:47:10 -0500
+Received: from gateway.keijaut.nl ([212.83.240.59]:35994 "HELO
+	mailhost.office.keijaut.nl") by vger.kernel.org with SMTP
+	id S262315AbTKDPrJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 4 Nov 2003 10:47:09 -0500
+Message-ID: <3FA7C9FB.6050101@office.keijaut.nl>
+Date: Tue, 04 Nov 2003 16:47:07 +0100
+From: Bas van Kampen <linux-kernel@office.keijaut.nl>
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.5b) Gecko/20030901 Thunderbird/0.2
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
 To: linux-kernel@vger.kernel.org
-CC: Dave Jones <davej@redhat.com>
-From: Ruben Puettmann <ruben@puettmann.net>
-Subject: Re: Suspend and AGP in 2.6.0-test9
-In-Reply-To: <NN6b.pY.5@gated-at.bofh.it>
-References: <NMa8.7uR.11@gated-at.bofh.it> <NN6b.pY.5@gated-at.bofh.it>
-Reply-To: ruben@puettmann.net
-Date: Tue, 4 Nov 2003 16:50:16 +0100
-Message-Id: <E1AH3Rg-00033v-00@baloney.puettmann.net>
+Subject: (no subject)
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-        hy,
+unsubscribe linux-kernel
 
-> Suspend/Resume code in agpgart is virtually non-existant.
 
-Do you know if there is some work in progress? Without suspend and
-resume with XFree most laptop users will not be happy with 2.6.
-
-Here on Thinkpad with ATI 7500 I can suspend but not resume if XFree is
-enabled.
-
-                Ruben
-
--- 
-Ruben Puettmann
-ruben@puettmann.net
-http://www.puettmann.net

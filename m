@@ -1,45 +1,43 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313925AbSEFAZq>; Sun, 5 May 2002 20:25:46 -0400
+	id <S313916AbSEFAXY>; Sun, 5 May 2002 20:23:24 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313927AbSEFAZp>; Sun, 5 May 2002 20:25:45 -0400
-Received: from relay1.pair.com ([209.68.1.20]:63494 "HELO relay.pair.com")
-	by vger.kernel.org with SMTP id <S313925AbSEFAZp>;
-	Sun, 5 May 2002 20:25:45 -0400
-X-pair-Authenticated: 24.126.75.99
-Message-ID: <3CD5CE35.3EF2B62E@kegel.com>
-Date: Sun, 05 May 2002 17:28:37 -0700
-From: Dan Kegel <dank@kegel.com>
-Reply-To: dank@kegel.com
-X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.7-10 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: "khttpd-users@lists.alt.org" <khttpd-users@alt.org>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: khttpd rotten?
+	id <S313925AbSEFAXX>; Sun, 5 May 2002 20:23:23 -0400
+Received: from adsl-63-194-239-202.dsl.lsan03.pacbell.net ([63.194.239.202]:43248
+	"EHLO mmp-linux.matchmail.com") by vger.kernel.org with ESMTP
+	id <S313916AbSEFAXX>; Sun, 5 May 2002 20:23:23 -0400
+Date: Sun, 5 May 2002 17:23:05 -0700
+From: Mike Fedyk <mfedyk@matchmail.com>
+To: Neil Conway <nconway_kernel@yahoo.co.uk>, Andrew Morton <akpm@zip.com.au>
+Cc: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>,
+        linux-kernel@vger.kernel.org
+Subject: Re: PATCH, IDE corruption, 2.4.18
+Message-ID: <20020506002305.GI2392@matchmail.com>
+Mail-Followup-To: Neil Conway <nconway_kernel@yahoo.co.uk>,
+	Andrew Morton <akpm@zip.com.au>,
+	Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>,
+	linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.SOL.4.30.0205051741140.23671-100000@mion.elka.pw.edu.pl> <20020505204431.74013.qmail@web21501.mail.yahoo.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On vanilla 2.4.17, 2.4.18, and 2.4.19-pre8, I'm seeing 
-some mighty strange khttpd behavior.
-It's chewing CPU time, failing in mysterious ways under light
-or no load, and oopsing easily.
+On Sun, May 05, 2002 at 09:44:31PM +0100, Neil Conway wrote:
+>  Also, does anyone understand why screwing up a DMA transfer results in
+> the trashing of inodes?  Even better, how come this hasn't bitten many
+> more people?  Surely there are lots of people out there with disks and
+> CDs on the same IDE cable...
+> 
+> Neil
+> (PS: I have reproduced the problem on two systems so far.)
 
-I'm compiling a writeup at
-http://www.kegel.com/linux/khttpd/
-and it just keeps getting worse.  It looks like you have
-to 1) turn on sloppymime, 2) never restart it, and 3) run
-with only 1 thread to have any hope of stability -- and
-even then, abruptly terminating client connections causes
-an oops fairly frequently.
+That seems to be a seperate problem with the block layer and locked buffers
+or pages (don't remember which).
 
-If I didn't need it for a demo this week (don't ask), I
-wouldn't be messing with khttpd; I'd be switching to Tux.
+I think a patch was submitted and integrated sometime in 2.4.19-pre.  Andrew
+Morton would know more.
 
-Seems like it's time to either fix khttpd or pull it from the kernel.
-
-What was the last kernel version where khttpd was stable (if any)?
-
-- Dan
+Mike

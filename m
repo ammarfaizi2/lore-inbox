@@ -1,40 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281779AbRLWVuk>; Sun, 23 Dec 2001 16:50:40 -0500
+	id <S281966AbRLWVxk>; Sun, 23 Dec 2001 16:53:40 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281691AbRLWVua>; Sun, 23 Dec 2001 16:50:30 -0500
-Received: from mail.xmailserver.org ([208.129.208.52]:53004 "EHLO
-	mail.xmailserver.org") by vger.kernel.org with ESMTP
-	id <S281779AbRLWVuP>; Sun, 23 Dec 2001 16:50:15 -0500
-Date: Sun, 23 Dec 2001 13:52:39 -0800 (PST)
-From: Davide Libenzi <davidel@xmailserver.org>
-X-X-Sender: davide@blue1.dev.mcafeelabs.com
-To: lkml <linux-kernel@vger.kernel.org>
-Subject: [PATCH][RFC] Time Slice Split Scheduler ...
-Message-ID: <Pine.LNX.4.40.0112231340340.971-100000@blue1.dev.mcafeelabs.com>
+	id <S282056AbRLWVxa>; Sun, 23 Dec 2001 16:53:30 -0500
+Received: from mail3.svr.pol.co.uk ([195.92.193.19]:19991 "EHLO
+	mail3.svr.pol.co.uk") by vger.kernel.org with ESMTP
+	id <S281966AbRLWVxX>; Sun, 23 Dec 2001 16:53:23 -0500
+From: Andy Furniss <andy@furniss.freeserve.co.uk>
+To: linux-kernel@vger.kernel.org
+Subject: Re: UDMA problem with Maxtor 7200rpm disk
+Date: Sun, 23 Dec 2001 21:53:11 +0000
+X-Mailer: KMail [version 1.1.99]
+Content-Type: text/plain; charset=US-ASCII
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Message-Id: <01122321531100.00783@MBC>
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-This patch implement a scheduler where the concept of dynamic priority is
-separated from the concept of time slice, fixing/improving the current
-scheduler behavior. The patch is described and is available here :
 
-http://www.xmailserver.org/linux-patches/lnxsched.html#TsSplit
+>When I try to enable DMA with hdparm -d1 /dev/hda :
 
-The same code can be easily merged inside the Balanced Multi Queue Scheduler
-by keeping a per CPU rcl_curr variable.
-I'm currently running this code on my machine and it behaves very well,
-that means that when i run pine, it starts.
-Comments ranging from "outstanding !!" down to "this code stink" are welcome.
+>ide_dmaproc: chipset supported ide_dma_timeout func only: 14
+>hda: irq timeout: status=0x58 { DriveReady SeekComplete DataRequest }
+>hda: timeout waiting for DMA
+>ide_dmaproc: chipset supported ide_dma_timeout func only: 14
+>hda: irq timeout: status=0x58 { DriveReady SeekComplete DataRequest }
+>hda: timeout waiting for DMA
+>ide_dmaproc: chipset supported ide_dma_timeout func only: 14
+>hda: irq timeout: status=0x58 { DriveReady SeekComplete DataRequest }
+>hda: timeout waiting for DMA
+>ide_dmaproc: chipset supported ide_dma_timeout func only: 14
+>hda: irq timeout: status=0x58 { DriveReady SeekComplete DataRequest }
+>hda: DMA disabled
+>ide0: reset: success
 
+I got this when I got my 40G 5200 maxtor. I've got an old award bios & PII 
+with 440bx chipset.
 
+The solution was to turn off udma in bios my 2.2 kernel and w98 could then 
+use mdma.
 
+I noticed that when I tested with a 2.4.9 it could use udma again - even 
+though it remains off (for W98 & 2.2) in bios.
 
-- Davide
-
-
-
-
+Andy.

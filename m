@@ -1,98 +1,113 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264700AbTFLDGC (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 Jun 2003 23:06:02 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264704AbTFLDGC
+	id S264704AbTFLDH6 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 Jun 2003 23:07:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264709AbTFLDH6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 Jun 2003 23:06:02 -0400
-Received: from c17870.thoms1.vic.optusnet.com.au ([210.49.248.224]:24461 "EHLO
-	mail.kolivas.org") by vger.kernel.org with ESMTP id S264700AbTFLDFz
+	Wed, 11 Jun 2003 23:07:58 -0400
+Received: from dyn-ctb-210-9-241-68.webone.com.au ([210.9.241.68]:46852 "EHLO
+	chimp.local.net") by vger.kernel.org with ESMTP id S264704AbTFLDHd
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 Jun 2003 23:05:55 -0400
-From: Con Kolivas <kernel@kolivas.org>
-To: Boris <boris@boris.ca>, linux-kernel@vger.kernel.org
-Subject: Re: [2.4.21rc8] possible header problems[byteorder.h/swab.h]
-Date: Thu, 12 Jun 2003 13:13:49 +1000
-User-Agent: KMail/1.5.2
-References: <002101c3308e$5580cea0$43444218@raiden>
-In-Reply-To: <002101c3308e$5580cea0$43444218@raiden>
+	Wed, 11 Jun 2003 23:07:33 -0400
+Message-ID: <3EE7F18C.3010502@cyberone.com.au>
+Date: Thu, 12 Jun 2003 13:20:44 +1000
+From: Nick Piggin <piggin@cyberone.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3) Gecko/20030327 Debian/1.3-4
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+To: Andrea Arcangeli <andrea@suse.de>
+CC: Chris Mason <mason@suse.com>,
+       Marc-Christian Petersen <m.c.p@wolk-project.de>,
+       Jens Axboe <axboe@suse.de>, Marcelo Tosatti <marcelo@conectiva.com.br>,
+       Georg Nikodym <georgn@somanetworks.com>,
+       lkml <linux-kernel@vger.kernel.org>,
+       Matthias Mueller <matthias.mueller@rz.uni-karlsruhe.de>
+Subject: Re: [PATCH] io stalls
+References: <1055356032.24111.240.camel@tiny.suse.com> <20030611183503.GY26270@dualathlon.random> <3EE7D1AA.30701@cyberone.com.au> <20030612012951.GG1500@dualathlon.random> <1055384547.24111.322.camel@tiny.suse.com> <3EE7E876.80808@cyberone.com.au> <20030612024608.GE1415@dualathlon.random> <3EE7EA4A.5030105@cyberone.com.au> <20030612025812.GF1415@dualathlon.random> <3EE7EDBB.70608@cyberone.com.au> <20030612031238.GA1571@dualathlon.random>
+In-Reply-To: <20030612031238.GA1571@dualathlon.random>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200306121313.49440.kernel@kolivas.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 12 Jun 2003 12:57, Boris wrote:
-> I am running 2.4.21rc8 with gcc 3.3 and it seems that after the 2.4.20
-> kernel, I can't compile kde anymore. I have written a message to the kde
-> mailing list and they suggest its a kernel problem. Heres an example.
+
+
+Andrea Arcangeli wrote:
+
+>On Thu, Jun 12, 2003 at 01:04:27PM +1000, Nick Piggin wrote:
 >
-> make[5]: Leaving directory `/tmp/kdemultimedia/mpeglib/lib/util'
+>>
+>>Andrea Arcangeli wrote:
+>>
+>>
+>>>On Thu, Jun 12, 2003 at 12:49:46PM +1000, Nick Piggin wrote:
+>>>
+>>>
+>>>>Andrea Arcangeli wrote:
+>>>>
+>>>>
+>>>>>it does nothing w/ _exclusive and w/o the wake_up_nr, that's why I added
+>>>>>the wake_up_nr.
+>>>>>
+>>>>>
+>>>>>
+>>>>>
+>>>>That is pretty pointless as well. You might as well just start
+>>>>waking up at the queue full limit, and wake one at a time.
+>>>>
+>>>>The purpose for batch_requests was I think for devices with a
+>>>>very small request size, to reduce context switches.
+>>>>
+>>>>
+>>>batch_requests at least in my tree matters only when each request is
+>>>512btyes and you've some thousand of them to compose a 4M queue or so.
+>>>To maximize cpu cache usage etc.. I try to wakeup a task every 512bytes
+>>>written, but every 32*512bytes written or so. Of course w/o the
+>>>wake_up_nr that I added, that wasn't really working w/ the _exlusive
+>>>wakeup.
+>>>
+>>>if you check my tree you'll see that for sequential I/O with 512k in
+>>>each request (not 512bytes!) batch_requests is already a noop.
+>>>
+>>>
+>>
+>>You are waking up multiple tasks which will each submit
+>>1 request. You want to be waking up 1 task which will
+>>submit multiple requests - that is how you will save
+>>context switches, cpu cache, etc, and that task's requests
+>>will have a much better chance of being merged, or at
+>>least serviced as a nice batch than unrelated tasks.
+>>
 >
-> > make[4]: Leaving directory `/tmp/kdemultimedia/mpeglib/lib/util'
-> > Making all in input
-> > make[4]: Entering directory `/tmp/kdemultimedia/mpeglib/lib/input'
-> > if /bin/sh ../../../libtool --silent --mode=compile --tag=CXX g++
-> > -DHAVE_CONFIG_H -I. -I. -I../../.. -I/opt/kde/include
-> > -I/usr/lib/qt/include -I/usr/X11R6/include   -DQT_THREAD_SUPPORT
-> > -D_REENTRANT  -Wnon-virtual-dtor -Wno-long-long -Wundef -Wall -pedantic
-> > -W -Wpointer-arith -Wwrite-strings -ansi -D_XOPEN_SOURCE=500
-> > -D_BSD_SOURCE -Wcast-align -Wconversion -Wchar-subscripts -DNDEBUG
-> > -DNO_DEBUG -O2 -Wformat-security -Wmissing-format-attribute
-> > -fno-exceptions
-> > -fno-check-new -fno-common -DQT_CLEAN_NAMESPACE -DQT_NO_ASCII_CAST
-> > -DQT_NO_STL -DQT_NO_COMPAT -DQT_NO_TRANSLATION  -MT cdromAccess.lo -MD
-> > -MP -MF ".deps/cdromAccess.Tpo" \
-> >   -c -o cdromAccess.lo `test -f 'cdromAccess.cpp' || echo
-> >   './'`cdromAccess.cpp; \
-> > then mv -f ".deps/cdromAccess.Tpo" ".deps/cdromAccess.Plo"; \
-> > else rm -f ".deps/cdromAccess.Tpo"; exit 1; \
-> > fi
-> > In file included from /usr/include/linux/cdrom.h:14,
-> >                  from cdromAccess_Linux.cpp:17,
-> >                  from cdromAccess.cpp:30:
-> > /usr/include/asm/byteorder.h:38: error: syntax error before `(' token
-> > /usr/include/asm/byteorder.h:42: error: '__u64' is used as a type, but is
-> > not
-> >    defined as a type.
-> > /usr/include/asm/byteorder.h:43: error: parse error before `}' token
-> > /usr/include/asm/byteorder.h:44: error: syntax error before `.' token
-> > /usr/include/asm/byteorder.h:50: error: syntax error before `.' token
-> > /usr/include/asm/byteorder.h:51: error: syntax error before `.' token
-> > /usr/include/asm/byteorder.h:52: error: parse error before `:' token
-> > In file included from /usr/include/linux/byteorder/little_endian.h:11,
-> >                  from /usr/include/asm/byteorder.h:65,
-> >                  from /usr/include/linux/cdrom.h:14,
-> >                  from cdromAccess_Linux.cpp:17,
-> >                  from cdromAccess.cpp:30:
-> > /usr/include/linux/byteorder/swab.h:199: error: syntax error before `('
-> > token /usr/include/linux/byteorder/swab.h:209: error: syntax error before
-> > `(' token /usr/include/linux/byteorder/swab.h:213: error: `__u64' was not
-> > declared in this scope
-> > /usr/include/linux/byteorder/swab.h:213: error: `addr' was not declared
-> > in this scope
-> > /usr/include/linux/byteorder/swab.h:214: error: variable or field
-> > `__swab64s'
-> >    declared void
-> > /usr/include/linux/byteorder/swab.h:214: error: `__swab64s' declared as
-> > an `inline' variable
-> > /usr/include/linux/byteorder/swab.h:214: error: syntax error before `{'
-> > token make[4]: *** [cdromAccess.lo] Error 1
-> > make[4]: Leaving directory `/tmp/kdemultimedia/mpeglib/lib/input'
-> > make[3]: *** [all-recursive] Error 1
-> > make[3]: Leaving directory `/tmp/kdemultimedia/mpeglib/lib'
-> > make[2]: *** [all-recursive] Error 1
-> > make[2]: Leaving directory `/tmp/kdemultimedia/mpeglib'
-> > make[1]: *** [all-recursive] Error 1
-> > make[1]: Leaving directory `/tmp/kdemultimedia'
-> > make: *** [all] Error 2
+>for fairness reasons if there are multiple tasks, I want to wake them
+>all and let the others be able to eat requests before the first
+>allocates all the batch_sectors. So the current code is fine and
+>batch_sectors still works fine with multiple tasks queued in the
+>waitqueue, it still makes sense to wake more than one of them at the
+>same time to improve cpu utilization (regardless they're different
+>tasks, for istance we take less frequently the waitqueue spinlocks
+>etc..).
+>
 
-Read this about kernel headers please:
+Its no less fair this way, tasks will still be woken in fifo
+order. They will just be given the chance to submit a batch
+of requests.
 
-http://www.kernelnewbies.org/faq/index.php3#headers
+I think the cpu utilization gain of waking a number of tasks
+at once would be outweighed by advantage of waking 1 task
+and not putting it to sleep again for a number of requests.
+You obviously are not claiming concurrency improvements, as
+your method would also increase contention on the io lock
+(or the queue lock in 2.5).
 
-Con
+Then you have the cache gains of running each task for a
+longer period of time. You also get possible IO scheduling
+improvements.
+
+Consider 8 requests, batch_requests at 4, 10 tasks writing
+to different areas of disk.
+
+Your method still only allows each task to have 1 request in
+the elevator at once. Mine allows each to have a run of 4
+requests in the elevator.
 

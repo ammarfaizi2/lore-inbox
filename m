@@ -1,73 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265956AbUF2TDx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265957AbUF2TDy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265956AbUF2TDx (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 29 Jun 2004 15:03:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265957AbUF2TDn
+	id S265957AbUF2TDy (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 29 Jun 2004 15:03:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265922AbUF2TDw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 29 Jun 2004 15:03:43 -0400
-Received: from mail.aknet.ru ([217.67.122.194]:52489 "EHLO mail.aknet.ru")
-	by vger.kernel.org with ESMTP id S265922AbUF2TDc (ORCPT
+	Tue, 29 Jun 2004 15:03:52 -0400
+Received: from winds.org ([68.75.195.9]:44436 "EHLO winds.org")
+	by vger.kernel.org with ESMTP id S265956AbUF2TDe (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 29 Jun 2004 15:03:32 -0400
-Message-ID: <40E1BD0A.2020400@aknet.ru>
-Date: Tue, 29 Jun 2004 23:03:38 +0400
-From: Stas Sergeev <stsp@aknet.ru>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040510
-X-Accept-Language: ru, en-us, en
+	Tue, 29 Jun 2004 15:03:34 -0400
+Date: Tue, 29 Jun 2004 15:03:29 -0400 (EDT)
+From: Byron Stanoszek <gandalf@winds.org>
+To: "Salyzyn, Mark" <mark_salyzyn@adaptec.com>
+cc: Mark Haverkamp <markh@osdl.org>, Alan Cox <alan@redhat.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       linux-scsi <linux-scsi@vger.kernel.org>
+Subject: RE: PATCH: Further aacraid work
+In-Reply-To: <547AF3BD0F3F0B4CBDC379BAC7E4189FF1D6BA@otce2k03.adaptec.com>
+Message-ID: <Pine.LNX.4.60.0406291454370.26639@winds.org>
+References: <547AF3BD0F3F0B4CBDC379BAC7E4189FF1D6BA@otce2k03.adaptec.com>
 MIME-Version: 1.0
-To: Hugh Dickins <hugh@veritas.com>
-Cc: Andrew Morton <akpm@osdl.org>, Christoph Rohland <cr@sap.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [patch][rfc] expandable anonymous shared mappings
-References: <Pine.LNX.4.44.0406291828030.16640-100000@localhost.localdomain>
-In-Reply-To: <Pine.LNX.4.44.0406291828030.16640-100000@localhost.localdomain>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi.
+On Tue, 29 Jun 2004, Salyzyn, Mark wrote:
 
-Hugh Dickins wrote:
->> It is full of surprises, it will map a zero-page to you,
->> it will give you a SIGBUS, it will do everything
-> From this attack on poor little mremap(), I think perhaps there's
-> something else you didn't realize, that I'd assumed you did realize.
-OK, the last time I was messing around the
-mremap, it was mapping the anonymous pages
-to me when I was trying to expand the /dev/mem
-mapping (missing nopage handler apparently,
-having the failure could be much better in that
-case I think).
+> I believe this nails the problem too.
+>
+> However, there is a corner case condition lurking on this (See my
+> currently unanswered email "error recovery and command completion" on
+> linux-scsi) where I try to deal with completing a command while error
+> recovery is triggered. Scsi_done will return doing *nothing* effectively
+> loosing the command completion.
+>
+> MarkH, I had talked to you about he addition of the scsi_add_timer
+> before calling scsi_done to address this condition. I do not believe
+> this to be the (Reliable and/or performance oriented) solution.
+>
+> Sincerely -- Mark Salyzyn
 
-> So mremap() is entirely consistent to allow you to extend a mapping
-> beyond the end of the object, such that you'll get SIGBUS if you
-> try to access the end of your mapping.
-Yes, as for SIGBUS - now I see why it works that
-way (not necessary accept its correctness, but
-what you said, sounds perfectly valid to me, so
-the complete retirement on my side:)
+I've tested out both patches sent to me.
 
-> The deficiency with shared anonymous is that there's no way to expand
-> or shrink the underlying object to match the mapping, whereas you can
-> ftruncate a real file.
-... and/or expand the anonymous private mapping without
-the truncation (nothing to truncate). So yes, after all,
-it was specific to the anon-shm, which is a special case.
-And introducing the per-vma mremap handlers to fix only
-this special case (by doing the truncation immediately)
-is an overkill and is not required by anyone except myself.
-And this:
----
-In most 
-cases (at least for the malloc case) this will be a anonymous mapping, 
-but it's by no means an error to extend any mapping you have created.
----
-may just mean that it is never an error, but you have
-to deal with the consequences yourself if you expanded
-only the mapping and not the object (except for the
-case of anon-shm, where you can't deal with the
-consequences anyhow since you can't expand the object).
-Have I got everything properly this time, or failed the
-homework agan? :)
+Test 1: aacraid-1.1.5-2245.tgz
+
+Works flawlessly and speedily! The rsync completes, and doing a sync() (as
+called during a normal lilo update) takes roughly 1 second as opposed to 20
+with the original aacraid patch from Alan Cox. Also, no SCSI hang message ever
+appears.
+
+Test 2: Mark Haverkamp's linit.c patch
+
+The "SCSI hang" console message appears just as before during the 'rsync',
+however (unlike before) the device is still usable for roughly 30 seconds after
+the problem. During these 30 seconds, the 'rsync' process is hung, but I can
+still do a 'df', 'ls', and so on. After 30 seconds, the entire /dev/sda locks
+up and I have no choice but to reboot the system.
+
+  -Byron
 

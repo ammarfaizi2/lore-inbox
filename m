@@ -1,118 +1,125 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264644AbSKSNdL>; Tue, 19 Nov 2002 08:33:11 -0500
+	id <S264984AbSKSNkn>; Tue, 19 Nov 2002 08:40:43 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264984AbSKSNdL>; Tue, 19 Nov 2002 08:33:11 -0500
-Received: from nessie.weebeastie.net ([61.8.7.205]:8832 "EHLO
-	theirongiant.weebeastie.net") by vger.kernel.org with ESMTP
-	id <S264644AbSKSNdK>; Tue, 19 Nov 2002 08:33:10 -0500
-Date: Wed, 20 Nov 2002 00:39:59 +1100
-From: CaT <cat@zip.com.au>
-To: linux-kernel@vger.kernel.org
-Subject: 2.5.48 and ALSA
-Message-ID: <20021119133959.GA818@zip.com.au>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.28i
-Organisation: Furball Inc.
+	id <S265187AbSKSNkn>; Tue, 19 Nov 2002 08:40:43 -0500
+Received: from h-64-105-34-70.SNVACAID.covad.net ([64.105.34.70]:19414 "EHLO
+	freya.yggdrasil.com") by vger.kernel.org with ESMTP
+	id <S264984AbSKSNkm>; Tue, 19 Nov 2002 08:40:42 -0500
+From: "Adam J. Richter" <adam@yggdrasil.com>
+Date: Tue, 19 Nov 2002 05:47:38 -0800
+Message-Id: <200211191347.FAA11306@adam.yggdrasil.com>
+To: rusty@rustcorp.com.au
+Subject: Re: Patch: module-init-tools-0.6/modprobe.c - support subdirectories
+Cc: linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Is it supposed to work when compiled into the kernel? I have it compiled
-with OSS emulation and it worked as modules with 2.5.47 but not compiled
-in to 2.5.48 (trying to avoid the whole modules changes here :)
+Rusty Russell wrote:
+>In message <20021118073247.A10109@adam.yggdrasil.com> you [Adam Richter] write:
+>Hmm, I'm not entirely convinced.  Moving back into subdirs introduces
+>a namespace which isn't really there.
 
-I get the sound device recognised but I hear no output and aumix is only
-reporting Vol, Synth, Line, Mic and CD. No PCM. :/
+	As you may already have realized, the phrase "introduces a
+namespace which isn't really there" does not show something that you
+would be prevented or enabled to do, nor does it argue any real
+trade-off (performance, kernel footprint, lines of code to maintain,
+etc.).  In comparison, "select all SCSI and IDE drivers without having
+to release a new version of the ramdisk maker every time a new SCSI or
+IDE driver is added" does identify useful functionality that the
+module tree enables.
 
-This is the relevant part of dmesg. I can't give it in full because the
-buffer overflows on bootup. :/
 
-Advanced Linux Sound Architecture Driver Version 0.9.0rc5 (Sun Nov 10 19:48:18 2002 UTC).
-request_module[snd-card-0]: not ready
-request_module[snd-card-1]: not ready
-request_module[snd-card-2]: not ready
-request_module[snd-card-3]: not ready
-request_module[snd-card-4]: not ready
-request_module[snd-card-5]: not ready
-request_module[snd-card-6]: not ready
-request_module[snd-card-7]: not ready
-driver pci:Maestro3: registering
-kobject Maestro3: registering
-bus pci: add driver Maestro3
-PCI: Enabling device 00:0c.0 (0000 -> 0003)
-Yenta IRQ list 00b8, PCI irq10
-Socket status: 30000820
-Yenta IRQ list 00b8, PCI irq10
-Socket status: 30000006
-bound device '00:0c.0' to driver 'Maestro3'
-ALSA device list:
-  #0: Dummy 1
-  #1: ESS Maestro3 PCI at 0x1000, irq 11
+>However, as you say, it's trivial.
 
-And my .config:
+	Yes, I see it as this code complexity trade-off:
 
-#
-# Advanced Linux Sound Architecture
-#
-CONFIG_SND=y
-CONFIG_SND_SEQUENCER=y
-CONFIG_SND_SEQ_DUMMY=y
-CONFIG_SND_OSSEMUL=y
-CONFIG_SND_MIXER_OSS=y
-CONFIG_SND_PCM_OSS=y
-CONFIG_SND_SEQUENCER_OSS=y
-CONFIG_SND_RTCTIMER=y
-CONFIG_SND_VERBOSE_PRINTK=y
-# CONFIG_SND_DEBUG is not set
+	     - Add ~50 lines to modprobe
 
-#
-# Generic devices
-#
-CONFIG_SND_DUMMY=y
-CONFIG_SND_VIRMIDI=y
-# CONFIG_SND_MTPAV is not set
-# CONFIG_SND_SERIAL_U16550 is not set
-# CONFIG_SND_MPU401 is not set
+	       vs.
 
-#
-# PCI devices
-#
-# CONFIG_SND_ALI5451 is not set
-# CONFIG_SND_CS46XX is not set
-# CONFIG_SND_CS4281 is not set
-# CONFIG_SND_EMU10K1 is not set
-# CONFIG_SND_KORG1212 is not set
-# CONFIG_SND_NM256 is not set
-# CONFIG_SND_RME32 is not set
-# CONFIG_SND_RME96 is not set
-# CONFIG_SND_RME9652 is not set
-# CONFIG_SND_HDSP is not set
-# CONFIG_SND_TRIDENT is not set
-# CONFIG_SND_YMFPCI is not set
-# CONFIG_SND_ALS4000 is not set
-# CONFIG_SND_CMIPCI is not set
-# CONFIG_SND_ENS1370 is not set
-# CONFIG_SND_ENS1371 is not set
-# CONFIG_SND_ES1938 is not set
-# CONFIG_SND_ES1968 is not set
-CONFIG_SND_MAESTRO3=y
-# CONFIG_SND_FM801 is not set
-# CONFIG_SND_ICE1712 is not set
-# CONFIG_SND_INTEL8X0 is not set
-# CONFIG_SND_SONICVIBES is not set
-# CONFIG_SND_VIA82XX is not set
+	     - Need to release new ramdisk builders or have users
+	       maintain custom tables to be able to select of modules
+	       by functional description (for example, "USB controllers").
+	       Users who do not do this may not appreciate it, but it's
+	       an important capability for keeping boot image sizes under
+	       control.
 
-I'd provide /proc/asound entries but there's a buttload of files there
-and I don't know what would be interesting. The only patch applied to
-the kernel is the one to make the kernel pnpbios option play nicely with
-my laptops broken bios (ie it lets me boot up).
+	Also, from a system administratiion standpoint, you can more
+readily tell if, say, you forgot to build sound or firewire entirely,
+as opposed to just a few specific drivers.
 
-Any question etc, please holler. :)
+>> 	I am sorry I was not able to test this change, but it would be
+>> a lot of work for me to bring up a system without module device ID
+>> table support.  I know your ChangeLog says that support is coming.  I
+>> wonder if it would break your module utilities to leave the old macros
+>> device ID macros in place and let people run the existing depmod.
 
--- 
-        All people are equal,
-        But some are more equal then others.
-            - George W. Bush Jr, President of the United States
-              September 21, 2002 (Abridged version of security speech)
+>I'm actually tempted to push your patch for the moment, since it might
+>be a week before device ID support is tested and polished enough to go
+>in, with everything else I am doing.
+
+	I am not attached to a particular format.  It's just that the
+disruption of stoppping the device ID tables from working is
+unnecessary.  Integrating my change as temporary is fine.
+
+
+>OTOH, the current method exposes
+>kernel internals to external userspace programs, which is why I do it
+>differently.
+
+	At the moment you don't do it, so I can't compare.  I can only
+point out that requiring a particular ELF format also exposes
+internals in another way and that something needs to read the hardware
+support advertisements from every module and generate tables
+translating that hardware support to module names.  Also bear in mind
+that you many need to generate those tables for a kernel different
+from the one you are currently running.
+
+>> 	I also worry about about the latency of reading the
+>> kernel symbols for all modules every time modprobe is called.  If I
+>> want to have all of the modules installed, that's at least 1143
+>> modules on x86, and this might be the standard installation of a Linux
+>> distribution.  Here again, the existing depmod program could be used.
+
+>Yes, it's a fairly obvious optimization: I'd be very interesting in
+>timing measurements.  Another method is to use
+>/var/cache/modprobe/`uname-r`.dep and use it if available and more
+>recent than any module (removes the requirement for depmod).
+
+	OK, once your new module scheme works well enough so that
+I can complete a boot, I should be able to do "time modprobe foo"
+pretty readily.
+
+	In the meantime, I think I can guess which approach will be
+faster and which one will scale better as the number of modules
+available increases (read ~6000 symbols from ~1000 modules and compute
+transitive closure for a set of symbols or read and walk a tree from
+one file).
+
+	Also, although depmod currently does not do this, it could be
+changed to catch any reference loops, making it easier to ensure that
+distributions do not ship with these problems, even for obscure
+hardware.
+
+	The code for descending into directories could also go away,
+given modules.dep.
+
+	Finally, since you seem to think that the trade-off of user
+level simplicity at the expense of kernel complexity in this case is
+worth it, you might like to consider that this change could reduce or
+completely eliminate all references to ELF in modprobe and insmod.
+depmod would still have such dependency, but it can be a bigger
+program.  
+
+>> 	Finally, I am skeptical of the benefits being worth the cost
+>> of putting an ELF relocator and symbol table parser in the kernel.
+
+>From the (just posted) FAQ:
+
+	Great.  I'll submit comments on it separately.
+
+Adam J. Richter     __     ______________   575 Oroville Road
+adam@yggdrasil.com     \ /                  Milpitas, California 95035
++1 408 309-6081         | g g d r a s i l   United States of America
+                         "Free Software For The Rest Of Us."

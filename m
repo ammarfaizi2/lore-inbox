@@ -1,198 +1,95 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129240AbRCENAb>; Mon, 5 Mar 2001 08:00:31 -0500
+	id <S129257AbRCENCV>; Mon, 5 Mar 2001 08:02:21 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129242AbRCENAW>; Mon, 5 Mar 2001 08:00:22 -0500
-Received: from orbita.don.sitek.net ([213.24.25.98]:57868 "EHLO
-	orbita.don.sitek.net") by vger.kernel.org with ESMTP
-	id <S129240AbRCENAK>; Mon, 5 Mar 2001 08:00:10 -0500
-Date: Mon, 5 Mar 2001 15:59:43 +0300
-From: Andrey Panin <pazke@orbita.don.sitek.net>
-To: Philipp Rumpf <prumpf@mandrakesoft.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] /drivers/char/serial.c cleanup
-Message-ID: <20010305155943.A22459@debian>
-In-Reply-To: <20010305153704.A20753@debian> <20010305064829.A654@mandrakesoft.mandrakesoft.com>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="CdrF4e02JqNVZeln"
-User-Agent: Mutt/1.0.1i
-In-Reply-To: <20010305064829.A654@mandrakesoft.mandrakesoft.com>; from prumpf@mandrakesoft.com on Mon, Mar 05, 2001 at 06:48:29AM -0600
+	id <S129242AbRCENCM>; Mon, 5 Mar 2001 08:02:12 -0500
+Received: from horus.its.uow.edu.au ([130.130.68.25]:38842 "EHLO
+	horus.its.uow.edu.au") by vger.kernel.org with ESMTP
+	id <S129257AbRCENCH>; Mon, 5 Mar 2001 08:02:07 -0500
+Message-ID: <3AA38E05.549BCF95@uow.edu.au>
+Date: Tue, 06 Mar 2001 00:00:53 +1100
+From: Andrew Morton <andrewm@uow.edu.au>
+X-Mailer: Mozilla 4.7 [en] (X11; I; Linux 2.4.2-pre2 i586)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Cort Dougan <cort@fsmlabs.com>
+CC: linux-fbdev-devel@sourceforge.net, lkml <linux-kernel@vger.kernel.org>,
+        lad <linux-audio-dev@ginette.musique.umontreal.ca>,
+        James Simmons <jsimmons@linux-fbdev.org>,
+        Brad Douglas <brad@neruo.com>
+Subject: Re: [prepatches] removal of console_lock
+In-Reply-To: <3AA1EF6C.A9C7613E@uow.edu.au>,
+		<3AA1EF6C.A9C7613E@uow.edu.au>; from andrewm@uow.edu.au on Sun, Mar 04, 2001 at 06:31:56PM +1100 <20010304231508.M2565@ftsoj.fsmlabs.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Cort Dougan wrote:
+> 
+> I still get huge over-runs with fbdev (much improved, though).
 
---CdrF4e02JqNVZeln
-Content-Type: multipart/mixed; boundary="M9NhX3UHpAaciwkO"
+If you're referring to scheduling overruns then yes, you will
+still see monstrous ones.  We're still spending great lengths of
+time in the kernel, only now we're doing it with interrupts
+enabled.  We can still block all tasks for half a second at a time.
+
+This means that if you're telnetting into a machine and someone
+cats a big file on the console, the system is completely unusable
+until the `cat' completes.
+
+(edit, edit, test, test)
+
+OK, fixed.
+
+> Andrew, are you still working on it?  If so, I'm happy to keep you
+> up-to-date on performance WRT Linux/PPC.
+
+Please do.
+
+I don't view this work as part of low-latency, BTW.  Low
+latency is a feature.  The interrupt and scheduling
+latencies caused by console+fbcon is a bug.
 
 
---M9NhX3UHpAaciwkO
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: quoted-printable
+There are new patches at
 
-On Mon, Mar 05, 2001 at 06:48:29AM -0600, Philipp Rumpf wrote:
-> On Mon, Mar 05, 2001 at 03:37:04PM +0300, Andrey Panin wrote:
-> > Attached patch (2.4.2-ac11) makes some changes in serial driver:
-> > adds ioremap() return code checks, removes panic() calls
-> > and adds better error handling in start_pci_pnp_board() function.
->=20
-> Did you test it ?
+	http://www.uow.edu.au/~andrewm/linux/console.html
 
-Partially (without my ISAPNP modem, lack of ISA slots)
+- Fixed a compile warning in i386_ksyms.c
 
->=20
-> > diff -u /linux.vanilla/drivers/char/serial.c /linux/drivers/char/serial=
-.c
-> > --- /linux.vanilla/drivers/char/serial.c	Thu Mar  1 20:15:43 2001
-> > +++ /linux/drivers/char/serial.c	Fri Mar  2 00:10:29 2001
-> > @@ -3876,7 +3876,10 @@
-> >  		return 0;
-> >  	}
-> >  	req->io_type =3D SERIAL_IO_MEM;
-> > -	req->iomem_base =3D ioremap(port, board->uart_offset);
-> > +	if ((req->iomem_base =3D ioremap(port, board->uart_offset))) {
-> > +		printk(KERN_ERR "serial: Couldn's remap IO memory at %#lx\n", port);
-> > +		return 1;
-> > +	}
->=20
-> This seems wrong.  ioremap returns NULL in case of failure.
+- Include interrupt.h for UP builds
 
-Of course it's a typo, stupid me :((
-What about attached patch ?
+- Fixed a thinko which broke dmesg
 
---=20
-Andrey Panin            | Embedded systems software engineer
-pazke@orbita1.ru        | PGP key: http://www.orbita1.ru/~pazke/AndreyPanin=
-.asc
---M9NhX3UHpAaciwkO
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename=patch-serial
-Content-Transfer-Encoding: quoted-printable
+- added console_conditional_schedule()
 
-diff -u /linux.vanilla/drivers/char/serial.c /linux/drivers/char/serial.c
---- /linux.vanilla/drivers/char/serial.c	Thu Mar  1 20:15:43 2001
-+++ /linux/drivers/char/serial.c	Fri Mar  2 00:10:29 2001
-@@ -3876,7 +3876,10 @@
- 		return 0;
- 	}
- 	req->io_type =3D SERIAL_IO_MEM;
--	req->iomem_base =3D ioremap(port, board->uart_offset);
-+	if (!(req->iomem_base =3D ioremap(port, board->uart_offset))) {
-+		printk(KERN_ERR "serial: Couldn's remap IO memory at %#lx\n", port);
-+		return 1;
-+	}
- 	req->iomem_reg_shift =3D board->reg_shift;
- 	req->port =3D 0;
- 	return 0;
-@@ -3939,8 +3942,13 @@
- 	 * shutdown the board on a module unload.
- 	 */
- 	if (DEACTIVATE_FUNC(dev) || board->init_fn) {
--		if (serial_pci_board_idx >=3D NR_PCI_BOARDS)
-+		if (serial_pci_board_idx >=3D NR_PCI_BOARDS) {
-+			if (board->init_fn)
-+				(board->init_fn)(dev, board, 0);
-+			if (board->flags & SPCI_FL_ISPNP)
-+				(DEACTIVATE_FUNC(dev))(dev);
- 			return;
-+		}
- 		serial_pci_board[serial_pci_board_idx].board =3D *board;
- 		serial_pci_board[serial_pci_board_idx].dev =3D dev;
- 		serial_pci_board_idx++;
-@@ -3954,8 +3962,13 @@
-=20
- 	for (k=3D0; k < board->num_ports; k++) {
- 		serial_req.irq =3D get_pci_irq(dev, board, k);
--		if (get_pci_port(dev, board, &serial_req, k))
-+		if (get_pci_port(dev, board, &serial_req, k)) {
-+			if (board->init_fn)
-+				(board->init_fn)(dev, board, 0);
-+			if ((board->flags & SPCI_FL_ISPNP) && (k =3D=3D 0))
-+				(DEACTIVATE_FUNC(dev))(dev);
- 			break;
-+		}
- 		serial_req.flags =3D ASYNC_SKIP_TEST | ASYNC_AUTOPROBE;
- #ifdef SERIAL_DEBUG_PCI
- 		printk("Setup PCI/PNP port: port %x, irq %d, type %d\n",
-@@ -4010,7 +4023,11 @@
- 				      data | pci_config);
- =09
- 	/* enable/disable interrupts */
--	p =3D ioremap(pci_resource_start(dev, 0), 0x80);
-+	if (!(p =3D ioremap(pci_resource_start(dev, 0), 0x80))) {
-+		printk( KERN_ERR "serial: Couldn't remap IO memory at %#lx\n",
-+			pci_resource_start(dev, 0));
-+		return 1;
-+	}
- 	writel(enable ? irq_config : 0x00, (unsigned long)p + 0x4c);
- 	iounmap(p);
-=20
-@@ -4053,7 +4070,11 @@
-=20
-        if (!enable) return 0;
-=20
--       p =3D ioremap(pci_resource_start(dev, 0), 0x80);
-+       if (!(p =3D ioremap(pci_resource_start(dev, 0), 0x80))) {
-+       		printk( KERN_ERR "serial: Couldn't remap IO memory at %#lx\n",
-+			pci_resource_start(dev, 0));
-+		return 1;
-+       }
-=20
-        switch (dev->device & 0xfff8) {
-                case PCI_DEVICE_ID_SIIG_1S_10x:         /* 1S */
-@@ -5215,6 +5236,16 @@
- /*
-  * The serial driver boot-time initialization code!
-  */
-+static void __init rs_cleanup_after_failure(struct tty_driver *tty)
-+{
-+	unsigned long flags;
-+	del_timer_sync(&serial_timer);
-+	save_flags(flags); cli();
-+	remove_bh(SERIAL_BH);
-+	if (tty) tty_unregister_driver(tty);
-+	restore_flags(flags);
-+}
-+
- static int __init rs_init(void)
- {
- 	int i;
-@@ -5315,11 +5346,17 @@
- 	callout_driver.proc_entry =3D 0;
- #endif
-=20
--	if (tty_register_driver(&serial_driver))
--		panic("Couldn't register serial driver\n");
--	if (tty_register_driver(&callout_driver))
--		panic("Couldn't register callout driver\n");
--=09
-+	if ((i =3D tty_register_driver(&serial_driver))) {
-+		printk(KERN_ERR "serial: Couldn't register serial driver\n");
-+		rs_cleanup_after_failure(NULL);
-+		return i;
-+	}
-+	if ((i =3D tty_register_driver(&callout_driver))) {
-+		printk(KERN_ERR "serial: Couldn't register callout driver\n");
-+		rs_cleanup_after_failure(&serial_driver);
-+		return i;
-+	}
-+
- 	for (i =3D 0, state =3D rs_table; i < NR_PORTS; i++,state++) {
- 		state->magic =3D SSTATE_MAGIC;
- 		state->line =3D i;
+- used console_conditional_schedule() in four places.
 
---M9NhX3UHpAaciwkO--
+  This change allows the kernel to reschedule if needed while
+  performing lengthy console operations.   Scheduling latency
+  is reduced from 500 milliseconds to 1 millisecond.
 
---CdrF4e02JqNVZeln
-Content-Type: application/pgp-signature
+- Updated to latest kernels.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.4 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
 
-iD8DBQE6o42/Bm4rlNOo3YgRAkuCAJ927yk8n9qZXpm67qQ9gpftpVODagCbBbwH
-FQqWNMNOC3XXF/XSLGi/gOQ=
-=w9Or
------END PGP SIGNATURE-----
+I think that's everything fixed.  IWFM with Riva hardware.  If
+you still see huge latencies, please let me know how to
+reproduce them - it's pretty trivial to fix it with the
+new infrastructure.
 
---CdrF4e02JqNVZeln--
+BTW: the latest lolat patch still applies to 2.4.3-pre2.
+People are after me for -ac patches as well, so I'll start
+tracking Alan's kernels soon.
+
+BTW2: testing methodology:
+
+- Load netdriver with `debug=7'
+- cat many files on VC1
+- cat many files on VC2
+- run netperf on VC3 to generate vast amounts of console and
+  log output in both process and interrupt context
+- Madly flick between VCs
+  
+
+-

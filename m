@@ -1,57 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268043AbTBRWhJ>; Tue, 18 Feb 2003 17:37:09 -0500
+	id <S268073AbTBRWjj>; Tue, 18 Feb 2003 17:39:39 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268056AbTBRWhJ>; Tue, 18 Feb 2003 17:37:09 -0500
-Received: from dsl-hkigw4i29.dial.inet.fi ([80.222.56.41]:3326 "EHLO
-	dsl-hkigw4e42.dial.inet.fi") by vger.kernel.org with ESMTP
-	id <S268043AbTBRWhI>; Tue, 18 Feb 2003 17:37:08 -0500
-Date: Wed, 19 Feb 2003 00:47:09 +0200 (EET)
-From: Petri Koistinen <Petri.Koistinen@iki.fi>
-To: Tim Schmielau <tim@physik3.uni-rostock.de>
-Cc: Linus Torvalds <torvalds@transmeta.com>, <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] [TRIVIAL] README: patch -p1, remove make dep
-In-Reply-To: <Pine.LNX.4.33.0302182239320.25571-100000@gans.physik3.uni-rostock.de>
-Message-ID: <Pine.LNX.4.44.0302190039090.2152-100000@dsl-hkigw4e42.dial.inet.fi>
+	id <S268074AbTBRWjj>; Tue, 18 Feb 2003 17:39:39 -0500
+Received: from gateway-1237.mvista.com ([12.44.186.158]:12279 "EHLO
+	av.mvista.com") by vger.kernel.org with ESMTP id <S268073AbTBRWjh>;
+	Tue, 18 Feb 2003 17:39:37 -0500
+Message-ID: <3E52B866.7060901@mvista.com>
+Date: Tue, 18 Feb 2003 14:49:10 -0800
+From: george anzinger <george@mvista.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2) Gecko/20021202
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: David Wuertele <dave-gnus@bfnet.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: how to interactively break gdb debugging kernel over serial?
+References: <20030214234557.GC13336@doc.pdx.osdl.net> <m38ywia054.fsf@bfnet.com> <3E4F3A40.3090502@mvista.com> <m38ywd72ba.fsf@bfnet.com>
+In-Reply-To: <m38ywd72ba.fsf@bfnet.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 18 Feb 2003, Tim Schmielau wrote:
+David Wuertele wrote:
+>>>I'm debugging the kernel with gdb over a serial port.  Breakpoints and
+>>>stepping through code works great, except for the fact that once the
+>>>kernel is running, I can't seem to use Control-C to stop it.  Is there
+>>>a keypress or other interactive way to break a running kernel?
+>>>Thanks,
+>>>Dave
+> 
+> 
+> george> There are a great number of kgdb patches in the wild.  You
+> george> would help us out a lot if you were to name the one you are
+> george> using.
+> 
+> Here's the output from gdb --version:
+> 
+> GNU gdb Red Hat Linux (5.1.90CVS-5)
+> Copyright 2002 Free Software Foundation, Inc.
+> GDB is free software, covered by the GNU General Public License, and you are
+> welcome to change it and/or distribute copies of it under certain conditions.
+> Type "show copying" to see the conditions.
+> There is absolutely no warranty for GDB.  Type "show warranty" for details.
+> This GDB was configured as "i386-redhat-linux".
+> 
+> Does that help?
 
-> However, your patch gets us only half-way to correct instructions,
+NO :(  It is the KGDB patch that you are using that is of interest 
+here,  not the gdb program.
 
-Ok, how about this?
-
-Petri
-
---- linux-2.5.62/README.orig	2003-02-18 20:27:00.000000000 +0200
-+++ linux-2.5.62/README	2003-02-19 00:34:41.000000000 +0200
-@@ -67,12 +67,12 @@
-  - You can also upgrade between 2.5.xx releases by patching.  Patches are
-    distributed in the traditional gzip and the new bzip2 format.  To
-    install by patching, get all the newer patch files, enter the
--   directory in which you unpacked the kernel source and execute:
-+   top level directory of the kernel source (linux-2.5.xx) and execute:
- 
--		gzip -cd patchXX.gz | patch -p0
-+		gzip -cd ../patch-2.5.xx.gz | patch -p1
- 
-    or
--		bzip2 -dc patchXX.bz2 | patch -p0
-+		bzip2 -dc ../patch-2.5.xx.bz2 | patch -p1
- 
-    (repeat xx for all versions bigger than the version of your current
-    source tree, _in_order_) and you should be ok.  You may want to remove
-@@ -149,8 +149,6 @@
-  - Check the top Makefile for further site-dependent configuration
-    (default SVGA mode etc). 
- 
-- - Finally, do a "make dep" to set up all the dependencies correctly. 
--
- COMPILING the kernel:
- 
-  - Make sure you have gcc 2.95.3 available.
-
+-- 
+George Anzinger   george@mvista.com
+High-res-timers:  http://sourceforge.net/projects/high-res-timers/
+Preemption patch: http://www.kernel.org/pub/linux/kernel/people/rml
 

@@ -1,20 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267512AbUHWTey@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267493AbUHWTjS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267512AbUHWTey (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 23 Aug 2004 15:34:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266903AbUHWTd7
+	id S267493AbUHWTjS (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 23 Aug 2004 15:39:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266876AbUHWTiq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 23 Aug 2004 15:33:59 -0400
-Received: from mail.kroah.org ([69.55.234.183]:56771 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S266901AbUHWSgf convert rfc822-to-8bit
+	Mon, 23 Aug 2004 15:38:46 -0400
+Received: from mail.kroah.org ([69.55.234.183]:52675 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S266871AbUHWSg2 convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 23 Aug 2004 14:36:35 -0400
+	Mon, 23 Aug 2004 14:36:28 -0400
 X-Fake: the user-agent is fake
 Subject: Re: [PATCH] PCI and I2C fixes for 2.6.8
 User-Agent: Mutt/1.5.6i
-In-Reply-To: <10932860863693@kroah.com>
-Date: Mon, 23 Aug 2004 11:34:46 -0700
-Message-Id: <10932860861336@kroah.com>
+In-Reply-To: <1093286084674@kroah.com>
+Date: Mon, 23 Aug 2004 11:34:44 -0700
+Message-Id: <1093286084472@kroah.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 To: linux-kernel@vger.kernel.org
@@ -23,42 +23,32 @@ From: Greg KH <greg@kroah.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ChangeSet 1.1807.56.20, 2004/08/05 16:55:54-07:00, greg@kroah.com
+ChangeSet 1.1807.54.7, 2004/08/02 16:11:06-07:00, nacc@us.ibm.com
 
-Merge I2C and PCI trees together due to PCI quirks conflicts.
+[PATCH] I2C: i2c-nforce2: replace schedule_timeout() with msleep()
+
+Uses msleep() instead of schedule_timeout() to guarantee
+the task delays at least the desired time amount.
+
+Signed-off-by: Nishanth Aravamudan <nacc@us.ibm.com>
+Signed-off-by: Greg Kroah-Hartman <greg@kroah.com>
 
 
- drivers/pci/quirks.c |    7 +++++++
- 1 files changed, 7 insertions(+)
+ drivers/i2c/busses/i2c-nforce2.c |    3 +--
+ 1 files changed, 1 insertion(+), 2 deletions(-)
 
 
-diff -Nru a/drivers/pci/quirks.c b/drivers/pci/quirks.c
---- a/drivers/pci/quirks.c	2004-08-23 11:04:42 -07:00
-+++ b/drivers/pci/quirks.c	2004-08-23 11:04:42 -07:00
-@@ -775,11 +775,17 @@
- 			case 0x0890: /* HP Compaq nc6000 */
- 				asus_hides_smbus = 1;
- 			}
-+		if (dev->device == PCI_DEVICE_ID_INTEL_82865_HB)
-+			switch (dev->subsystem_device) {
-+			case 0x12bc: /* HP D330L */
-+				asus_hides_smbus = 1;
-+			}
+diff -Nru a/drivers/i2c/busses/i2c-nforce2.c b/drivers/i2c/busses/i2c-nforce2.c
+--- a/drivers/i2c/busses/i2c-nforce2.c	2004-08-23 11:07:08 -07:00
++++ b/drivers/i2c/busses/i2c-nforce2.c	2004-08-23 11:07:08 -07:00
+@@ -244,8 +244,7 @@
+ 		temp = inb_p(NVIDIA_SMB_STS);
  	}
- }
- DECLARE_PCI_FIXUP_HEADER(PCI_VENDOR_ID_INTEL,	PCI_DEVICE_ID_INTEL_82845_HB,	asus_hides_smbus_hostbridge );
- DECLARE_PCI_FIXUP_HEADER(PCI_VENDOR_ID_INTEL,	PCI_DEVICE_ID_INTEL_82845G_HB,	asus_hides_smbus_hostbridge );
- DECLARE_PCI_FIXUP_HEADER(PCI_VENDOR_ID_INTEL,	PCI_DEVICE_ID_INTEL_82850_HB,	asus_hides_smbus_hostbridge );
-+DECLARE_PCI_FIXUP_HEADER(PCI_VENDOR_ID_INTEL,	PCI_DEVICE_ID_INTEL_82865_HB,	asus_hides_smbus_hostbridge );
- DECLARE_PCI_FIXUP_HEADER(PCI_VENDOR_ID_INTEL,	PCI_DEVICE_ID_INTEL_7205_0,	asus_hides_smbus_hostbridge );
- DECLARE_PCI_FIXUP_HEADER(PCI_VENDOR_ID_INTEL,	PCI_DEVICE_ID_INTEL_82855PM_HB,	asus_hides_smbus_hostbridge );
- DECLARE_PCI_FIXUP_HEADER(PCI_VENDOR_ID_INTEL,	PCI_DEVICE_ID_INTEL_82855GM_HB,	asus_hides_smbus_hostbridge );
-@@ -804,6 +810,7 @@
- DECLARE_PCI_FIXUP_HEADER(PCI_VENDOR_ID_INTEL,	PCI_DEVICE_ID_INTEL_82801DB_0,	asus_hides_smbus_lpc );
- DECLARE_PCI_FIXUP_HEADER(PCI_VENDOR_ID_INTEL,	PCI_DEVICE_ID_INTEL_82801BA_0,	asus_hides_smbus_lpc );
- DECLARE_PCI_FIXUP_HEADER(PCI_VENDOR_ID_INTEL,	PCI_DEVICE_ID_INTEL_82801DB_12,	asus_hides_smbus_lpc );
-+DECLARE_PCI_FIXUP_HEADER(PCI_VENDOR_ID_INTEL,	PCI_DEVICE_ID_INTEL_82801EB_0,	asus_hides_smbus_lpc );
+ 	if (~temp & NVIDIA_SMB_STS_DONE) {
+-		current->state = TASK_INTERRUPTIBLE;
+-		schedule_timeout(HZ/100);
++		msleep(10);
+ 		temp = inb_p(NVIDIA_SMB_STS);
+ 	}
  
- /*
-  * SiS 96x south bridge: BIOS typically hides SMBus device...
 

@@ -1,69 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262472AbVAERyk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262142AbVAESDm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262472AbVAERyk (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 5 Jan 2005 12:54:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262517AbVAERyk
+	id S262142AbVAESDm (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 5 Jan 2005 13:03:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262521AbVAESDm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 5 Jan 2005 12:54:40 -0500
-Received: from rproxy.gmail.com ([64.233.170.203]:33239 "EHLO rproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S262472AbVAERyb (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 5 Jan 2005 12:54:31 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
-        b=EKictTPSRX+DqjVdEs5pMhMVEvz2Q/56fvN66Lq7EtItNYT+QXL0xCQl7ryHamO7y0r5cKKeXKG4el5JFdrj7zih1Gdrba4O9jxljFJzHJXUEvtd70fQ3BG9IgB3kz1ssiVFJV02ZMwzlqlnBuuVap5xHPtEfHWsbJY4YQB+MG8=
-Message-ID: <29495f1d0501050931379525d1@mail.gmail.com>
-Date: Wed, 5 Jan 2005 09:31:55 -0800
-From: Nish Aravamudan <nish.aravamudan@gmail.com>
-Reply-To: Nish Aravamudan <nish.aravamudan@gmail.com>
-To: Willem Riede <osst@riede.org>
-Subject: Re: [PATCH 2/3] osst upgrade to 0.99.3
-Cc: linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org
-In-Reply-To: <1104627573l.3427l.3l@serve.riede.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-References: <1104627573l.3427l.3l@serve.riede.org>
+	Wed, 5 Jan 2005 13:03:42 -0500
+Received: from bos-gate3.raytheon.com ([199.46.198.232]:27371 "EHLO
+	bos-gate3.raytheon.com") by vger.kernel.org with ESMTP
+	id S262142AbVAESDj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 5 Jan 2005 13:03:39 -0500
+To: "K.R. Foley" <kr@cybsft.com>
+Cc: Lee Revell <rlrevell@joe-job.com>, Andrew Morton <akpm@osdl.org>,
+       Bill Huey <bhuey@lnxw.com>, Adam Heath <doogie@debian.org>,
+       linux-kernel@vger.kernel.org, Ingo Molnar <mingo@elte.hu>,
+       Florian Schmidt <mista.tapas@gmx.net>,
+       Fernando Pablo Lopez-Lezcano <nando@ccrma.Stanford.EDU>,
+       Rui Nuno Capela <rncbc@rncbc.org>, Steven Rostedt <rostedt@goodmis.org>,
+       Thomas Gleixner <tglx@linutronix.de>
+From: Mark_H_Johnson@Raytheon.com
+Subject: Re: Real-Time Preemption, comparison to 2.6.10-mm1
+Date: Wed, 5 Jan 2005 11:52:06 -0600
+Message-ID: <OF736AB5F1.DCE25423-ON86256F80.00622744-86256F80.0062278E@raytheon.com>
+X-MIMETrack: Serialize by Router on RTSHOU-DS01/RTS/Raytheon/US(Release 6.5.2|June 01, 2004) at
+ 01/05/2005 11:56:40 AM
+MIME-Version: 1.0
+Content-type: text/plain; charset=US-ASCII
+X-SPAM: 0.00
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 02 Jan 2005 00:59:33 +0000, Willem Riede <osst@riede.org> wrote:
-> Here is patch 2 (see previous mail for context), providing osst error
-> handling improvements.
+K.R. Foley wrote:
+>Mark_H_Johnson@raytheon.com wrote:
+[snip - long explanation of how a nice application can starve a non
+nice application for minutes at a time on an SMP system]
 
-<snip>
+>> My point was that -mm definitely has the problem (though to a lesser
+>> degree). The tests I ran showed it on both the disk read and disk copy
+>> stress tests. I guess I should try a vanilla 2.6.10 run as well to see
+>> if it is something introduced in the -mm series (it certainly is not a
+>> recent change...).
+>
+>I'm curious if anyone is seeing this behavior on UP systems, or is it
+>only happening on SMP?
+The build of 2.6.10 vanilla just completed and I reran my tests with
+SMP and with MAXCPUS=1 (UP w/ SMP kernel).
 
-> +               while (retval && time_before (jiffies, startwait + 5*60*HZ)) {
-> +
-> +                       if (STp->buffer->syscall_result && (SRpnt->sr_sense_buffer[2] & 0x0f) != 2) {
-> +
-> +                               /* some failure - not just not-ready */
-> +                               retval = osst_write_error_recovery(STp, aSRpnt, 0);
-> +                               break;
-> +                       }
-> +                       set_current_state(TASK_INTERRUPTIBLE);
-> +                       schedule_timeout (HZ / OSST_POLL_PER_SEC);
+The vanilla 2.6.10 kernel has the non RT starvation problem as well
+for both test runs. It looks like this is not something in -mm but a
+change between 2.4 and 2.6.
 
-Are you sure you want to use TASK_INTERRUPTIBLE here? If you are sure,
-then you probably should add code which checks if schedule_timeout()
-returns early because of signals (signals_pending(current) will be
-true). Additionally, you may as well use msleep_interruptible(1000 /
-OSST_POLL_PER_SEC), since you are requesting a 10th of a second sleep
-(with OSST_POLL_PER_SEC #define'd to 10) (which is long & measurable
-in milliseconds), you are not checking the return value (so you don't
-seem to care how much time was left in the sleep) and
-msleep_interruptible() will return on the same conditions as the
-current code does. Seems like it should do what you want (still need
-some means of checking for signals, though, I think).
+I did notice the test results were a little inconsistent between the
+two runs...
+             2.6.10 SMP    2.6.10 UP (w/ SMP kernel)
+disk write    starved          OK
+disk copy        OK         starved
+disk read     starved       starved
+but in both cases, a non nice (non RT) disk application was
+starved by a nice (non RT) cpu application for minutes.
 
-If, in fact, you did not intend to use TASK_INTERRUPTIBLE, but
-TASK_UNINTERRUPTIBLE, then you may want to consider using msleep(1000
-/ OSST_POLL_PER_SEC) [ignoring signals in addition to waitqueue
-events].
+I wonder who I should be talking to next (or submit a bug report?)
+about this.
 
-If, though, you want to keep the code as is, then please ignore the
-noise and I apologize :)
+  --Mark
 
-Thanks,
-Nish

@@ -1,64 +1,91 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264319AbTKMPoK (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 13 Nov 2003 10:44:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264320AbTKMPoK
+	id S264316AbTKMP4H (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 13 Nov 2003 10:56:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264326AbTKMP4H
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 13 Nov 2003 10:44:10 -0500
-Received: from [212.35.254.18] ([212.35.254.18]:20959 "EHLO mail2.midnet.co.uk")
-	by vger.kernel.org with ESMTP id S264319AbTKMPoH (ORCPT
+	Thu, 13 Nov 2003 10:56:07 -0500
+Received: from ns.suse.de ([195.135.220.2]:54487 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S264316AbTKMPzW (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 13 Nov 2003 10:44:07 -0500
-Date: Thu, 13 Nov 2003 15:43:14 +0000
-From: Tim Kelsey <mn@midnet.co.uk>
-To: Michael Schroeder <mls@suse.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.0-test9-mm3 initrd strangeness
-Message-Id: <20031113154314.469030ba.mn@midnet.co.uk>
-In-Reply-To: <20031113144738.GA18329@suse.de>
-References: <20031113135245.128ec5e0.mn@midnet.co.uk>
-	<20031113144738.GA18329@suse.de>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i686-pc-linux-gnu)
+	Thu, 13 Nov 2003 10:55:22 -0500
+Subject: [PATCH] fs/ext[23]/xattr.c pointer arithmetic fix
+From: Andreas Gruenbacher <agruen@suse.de>
+To: Andrew Morton <akpm@zip.com.au>
+Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Content-Type: multipart/mixed; boundary="=-qtAmwGO2E7mKcsWefnfs"
+Organization: SuSE Labs, SuSE Linux AG
+Message-Id: <1068738920.7227.43.camel@E136.suse.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.4.4 
+Date: Thu, 13 Nov 2003 16:55:21 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Thanx,
 
-My image was too big, i have now changed the initrd size in the kernel config as you said and it works perfectly now.
+--=-qtAmwGO2E7mKcsWefnfs
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
 
-Thanx very much for your help
+Hello,
 
-Tim Kelsey
+we just found a 64-bit pointer arithmetic bug in the ext2 and ext3
+extended attributes code. The fix is attached; could you please apply...
 
-On Thu, 13 Nov 2003 15:47:38 +0100
-Michael Schroeder <mls@suse.de> wrote:
 
-> On Thu, Nov 13, 2003 at 01:52:45PM +0000, Tim Kelsey wrote:
-> > I am experiencing problems with 2.6.0-test9-mm3 and initrd ramdisks
-> > I have support for ramdisks and initrd compiled directly into the kernel and have an initrd image gzipped and placed in /boot called initrd-crypt.gz
-> > 
-> > When booting off a 2.4.22 kernel the image is loaded and linuxrc is executed perfectly but with a 2.6.0-test9-mm3 kernel i get the following msg at boot time
-> > 
-> > 	RAMDISK: Compressed image found at block 0
-> > 	RAMDISK: incomplete Write (-1 != 32768) 4194304
-> > 
-> > Any comments, advice, opinions greatly appreciated also if someone could explain what those numbers actually mean i would be very grateful 
-> 
-> Seems like your ramdisk is full, the default size is 4096k.
-> Change the CONFIG_BLK_DEV_RAM_SIZE parameter or boot with
-> ramdisk_size=<value>.
-> 
-> Cheers,
->   Michael.
-> 
-> -- 
-> Michael Schroeder                                   mls@suse.de
-> main(_){while(_=~getchar())putchar(~_-1/(~(_|32)/13*2-11)*13);}
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+Thanks,
+-- 
+Andreas Gruenbacher <agruen@suse.de>
+SuSE Labs, SuSE Linux AG <http://www.suse.de/>
+
+--=-qtAmwGO2E7mKcsWefnfs
+Content-Disposition: attachment; filename=xattr-pointer-arith
+Content-Type: text/plain; name=xattr-pointer-arith; charset=iso-8859-1
+Content-Transfer-Encoding: 7bit
+
+64-bit pointer arithmetic bug in xattr code
+
+The int offset is not enought to hold the difference between
+arbitraty pointers on 64-bit machines. Compute the offset of
+here and last inside HDR(bh) instead.
+
+Index: linux-2.6.0-test9/fs/ext2/xattr.c
+===================================================================
+--- linux-2.6.0-test9.orig/fs/ext2/xattr.c	2003-10-25 20:43:58.000000000 +0200
++++ linux-2.6.0-test9/fs/ext2/xattr.c	2003-11-13 14:31:02.649956273 +0100
+@@ -617,9 +617,11 @@ bad_block:		ext2_error(sb, "ext2_xattr_s
+ 				goto cleanup;
+ 			memcpy(header, HDR(bh), bh->b_size);
+ 			header->h_refcount = cpu_to_le32(1);
+-			offset = (char *)header - bh->b_data;
+-			here = ENTRY((char *)here + offset);
+-			last = ENTRY((char *)last + offset);
++
++			offset = (char *)here - bh->b_data;
++			here = ENTRY((char *)header + offset);
++			offset = (char *)last - bh->b_data;
++			last = ENTRY((char *)header + offset);
+ 		}
+ 	} else {
+ 		/* Allocate a buffer where we construct the new block. */
+Index: linux-2.6.0-test9/fs/ext3/xattr.c
+===================================================================
+--- linux-2.6.0-test9.orig/fs/ext3/xattr.c	2003-10-25 20:43:50.000000000 +0200
++++ linux-2.6.0-test9/fs/ext3/xattr.c	2003-11-13 14:31:23.932352979 +0100
+@@ -629,9 +629,10 @@ bad_block:		ext3_error(sb, "ext3_xattr_s
+ 				goto cleanup;
+ 			memcpy(header, HDR(bh), bh->b_size);
+ 			header->h_refcount = cpu_to_le32(1);
+-			offset = (char *)header - bh->b_data;
+-			here = ENTRY((char *)here + offset);
+-			last = ENTRY((char *)last + offset);
++			offset = (char *)here - bh->b_data;
++			here = ENTRY((char *)header + offset);
++			offset = (char *)last - bh->b_data;
++			last = ENTRY((char *)header + offset);
+ 		}
+ 	} else {
+ 		/* Allocate a buffer where we construct the new block. */
+
+--=-qtAmwGO2E7mKcsWefnfs--
+

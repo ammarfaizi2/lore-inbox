@@ -1,60 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262614AbVAEWYu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262617AbVAEW3I@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262614AbVAEWYu (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 5 Jan 2005 17:24:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262617AbVAEWYu
+	id S262617AbVAEW3I (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 5 Jan 2005 17:29:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262619AbVAEW3I
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 5 Jan 2005 17:24:50 -0500
-Received: from host-83-146-9-72.bulldogdsl.com ([83.146.9.72]:11600 "EHLO
-	host-83-146-9-72.bulldogdsl.com") by vger.kernel.org with ESMTP
-	id S262614AbVAEWYe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 5 Jan 2005 17:24:34 -0500
-Message-ID: <41DC691F.3010800@unsolicited.net>
-Date: Wed, 05 Jan 2005 22:24:31 +0000
-From: David R <spam.david.trap@unsolicited.net>
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:1.7.3) Gecko/20040910
-X-Accept-Language: en, en-us
-MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Fw: [Bugme-new] [Bug 3993] New: sata_sx4 causes file corruption
- during simultaneous writes
-References: <20050105133548.13ac80d3.akpm@osdl.org>
-In-Reply-To: <20050105133548.13ac80d3.akpm@osdl.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Wed, 5 Jan 2005 17:29:08 -0500
+Received: from p508B6A4B.dip.t-dialin.net ([80.139.106.75]:56134 "EHLO
+	mail.linux-mips.net") by vger.kernel.org with ESMTP id S262617AbVAEW3H
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 5 Jan 2005 17:29:07 -0500
+Date: Wed, 5 Jan 2005 23:28:48 +0100
+From: Ralf Baechle <ralf@linux-mips.org>
+To: James Nelson <james4765@cwazy.co.uk>
+Cc: linux-kernel@vger.kernel.org, linux-mips@linux-mips.org
+Subject: Re: [PATCH 0/4] mips: remove cli()/sti() from arch/mips/*
+Message-ID: <20050105222848.GA25921@linux-mips.org>
+References: <20050104223327.21889.11863.64754@localhost.localdomain>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050104223327.21889.11863.64754@localhost.localdomain>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton wrote:
+On Tue, Jan 04, 2005 at 04:33:07PM -0600, James Nelson wrote:
 
->controller, using the libata sata_sx4 driver.  Individual writes to the drives
->are fine.  When the drives are written to simultaneously, either by multiple cp
->threads or assembling them in a raid 5, corruption occurs as evidenced by fsck
->errors and inconsistent md5 sums.
->
->  
->
-FWIW at <$dayjob> we have had exactly the same issues using Win2k (ugh) 
-and Promise's own drivers on a Dual Opteron system (Rioworks HDAMA) with 
-an integrated Fastrak S150TX4 controller. Relatively stable using a 
-single drive as a separate volume (our application prefers a RAID 0 
-stripe), but random subtle corruptions when using an array (striped or 
-mirrored). This is both using the controller's embedded RAID and W2K's 
-software RAID (with the Promise configured to present separate disks). 
-Firmware upgrades/downgrades were tried with no luck. We have two 
-identically configured machines that both exhibit the same problem.
+> This series of patches is to remove the last cli()/sti() function calls in arch/mips.
+> 
+> These are the only instances in active code that grep could find.
+> 
+>  gt64120/ev64120/irq.c                            |    2 +-
+>  jmr3927/rbhma3100/setup.c                        |    2 +-
+>  tx4927/toshiba_rbtx4927/toshiba_rbtx4927_irq.c   |    2 +-
+>  tx4927/toshiba_rbtx4927/toshiba_rbtx4927_setup.c |    4 ++--
 
-Interestingly, the errors were always single flipped bit(s) at random 
-offset(s) within the file. Different on each run. Sounds like a RAM 
-issue but both machines memtest fine and run without issues when using a 
-single drive.
+The usual suspects for bitrot ...
 
-We never found a solution (we simply use single (large) SATA drives 
-instead) :-(
+Thanks, all four patches applied.
 
-David
-
-
-
-
+  Ralf

@@ -1,62 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261407AbVART4i@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261397AbVARUP1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261407AbVART4i (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 18 Jan 2005 14:56:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261408AbVART4i
+	id S261397AbVARUP1 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 18 Jan 2005 15:15:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261408AbVARUP0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 18 Jan 2005 14:56:38 -0500
-Received: from web30202.mail.mud.yahoo.com ([68.142.200.85]:28267 "HELO
-	web30202.mail.mud.yahoo.com") by vger.kernel.org with SMTP
-	id S261407AbVART4b (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 18 Jan 2005 14:56:31 -0500
-Comment: DomainKeys? See http://antispam.yahoo.com/domainkeys
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com;
-  b=gdxTIDLQn8CCuWfDeC4a08dlIaACdj9UmDgC+A8vWUnIj+Iq9wMia3MBWbILdGVNSDwiQI/CSo2PMo3DXe0g0DMiwVEeYUna/z3LN9C68koJJNe4ckZHbeSMR1V6XAh8XWUE1gMstIWhh0qEOIaaNSKIXzsYmZDYxWPEXHRLlCU=  ;
-Message-ID: <20050118195621.15879.qmail@web30202.mail.mud.yahoo.com>
-Date: Tue, 18 Jan 2005 11:56:21 -0800 (PST)
-From: Martins Krikis <mkrikis@yahoo.com>
-Subject: Re: iswraid and 2.4.x?
-To: Jeff Garzik <jgarzik@pobox.com>,
-       Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-Cc: Martins Krikis <mkrikis@yahoo.com>, linux-kernel@vger.kernel.org,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>
-In-Reply-To: <41ED56B5.8000603@pobox.com>
+	Tue, 18 Jan 2005 15:15:26 -0500
+Received: from scrub.xs4all.nl ([194.109.195.176]:58840 "EHLO scrub.xs4all.nl")
+	by vger.kernel.org with ESMTP id S261397AbVARUPX (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 18 Jan 2005 15:15:23 -0500
+Date: Tue, 18 Jan 2005 21:15:19 +0100 (CET)
+From: Roman Zippel <zippel@linux-m68k.org>
+X-X-Sender: roman@scrub.home
+To: Andreas Gruenbacher <agruen@suse.de>
+cc: linux-kernel@vger.kernel.org, Sam Ravnborg <sam@ravnborg.org>,
+       Rusty Russell <rusty@rustcorp.com.au>
+Subject: Re: [kbuild 2/5] Dont use the running kernels config file by default
+In-Reply-To: <20050118192608.423265000.suse.de>
+Message-ID: <Pine.LNX.4.61.0501182106340.6118@scrub.home>
+References: <20050118184123.729034000.suse.de> <20050118192608.423265000.suse.de>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---- Jeff Garzik <jgarzik@pobox.com> wrote:
+Hi,
 
-> Check your inbox from months ago ;-)  AFAICS his current version 
-> addresses all the comments from Alan and myself, from when it hit
-> lkml 6 
-> months(?) ago...
-> 
-> I'll give it another quick lookover though, sure.
+On Tue, 18 Jan 2005, Andreas Gruenbacher wrote:
 
-Jeff,
+> A user ran into the following problem: They grab a SuSE kernel-source
+> package that is more recent than their running kernel. The tree under
+> /usr/src/linux is unconfigured by default; there is no .config. User
+> does a ``make menuconfig'', which gets its default values from
+> /boot/config-$(uname -r). User tries to build the kernel, which doesn't
+> work.
 
-As long as 2.4.30 is planned at all, I have no more
-worries for the moment. But if so, then please don't
-waste your time looking over the current version. In
-about a week there should really be another one out.
-It will add RAID10, and get rid of the "claim disks
-for RAID" mis-feature. I'll let everybody know, of course.
+NAK. This isn't normally supposed to happen and it shouldn't be as bad 
+anymore as it used to be. Removing these path doesn't magically create a 
+working kernel.
 
-Thanks,
-
-  Martins Krikis
-  Storage Components Division
-  Intel Massachusetts
-
-
-
-		
-__________________________________ 
-Do you Yahoo!? 
-Meet the all-new My Yahoo! - Try it today! 
-http://my.yahoo.com 
- 
-
+bye, Roman

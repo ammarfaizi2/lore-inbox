@@ -1,84 +1,69 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262037AbTHTQO6 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 20 Aug 2003 12:14:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262043AbTHTQO5
+	id S262043AbTHTQ02 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 20 Aug 2003 12:26:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261663AbTHTQ0X
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 20 Aug 2003 12:14:57 -0400
-Received: from mail.kroah.org ([65.200.24.183]:11964 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S262037AbTHTQO4 (ORCPT
+	Wed, 20 Aug 2003 12:26:23 -0400
+Received: from mx02.qsc.de ([213.148.130.14]:27860 "EHLO mx02.qsc.de")
+	by vger.kernel.org with ESMTP id S261513AbTHTQ0S (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 20 Aug 2003 12:14:56 -0400
-Date: Wed, 20 Aug 2003 09:14:39 -0700
-From: Greg KH <greg@kroah.com>
-To: Thomas Molina <tmolina@cablespeed.com>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Zwane Mwaikambo <zwane@linuxpower.ca>
-Subject: Re: Console on USB
-Message-ID: <20030820161439.GD1354@kroah.com>
-References: <Pine.LNX.4.44.0308192200510.886-100000@localhost.localdomain>
+	Wed, 20 Aug 2003 12:26:18 -0400
+Date: Wed, 20 Aug 2003 18:27:36 +0200
+From: Wiktor Wodecki <wodecki@gmx.de>
+To: Con Kolivas <kernel@kolivas.org>
+Cc: linux kernel mailing list <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>
+Subject: Re: [PATCH] O17int
+Message-ID: <20030820162736.GA711@gmx.de>
+References: <200308200102.04155.kernel@kolivas.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="T4sUOijqQbZv57TR"
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0308192200510.886-100000@localhost.localdomain>
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <200308200102.04155.kernel@kolivas.org>
+X-message-flag: Linux - choice of the GNU generation
+X-Operating-System: Linux 2.6.0-test3-O17 i686
+X-PGP-KeyID: 182C9783
+X-Info: X-PGP-KeyID, send an email with the subject 'public key request' to wodecki@gmx.de
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Aug 19, 2003 at 10:20:51PM -0500, Thomas Molina wrote:
-> I have just spent a very frustrating evening trying to get console on USB 
-> working.  My laptop does not have regular DB-9 serial connectors, only 
-> USB.  So I ordered a USB to serial converter,
 
-Which usb to serial converter?  Not all of them work with Linux.  Does
-this device work with Linux _not_ as a serial console device?
+--T4sUOijqQbZv57TR
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-> configured a 2.6.0-test3 
-> kernel, added a console=/dev/ttyUSB0 to the kernel command line and 
-> connected this to my desktop with a null modem adapter.  However, I am 
-> unable to get output from this setup on the desktop.  On another setup I 
-> can get a normal serial console output, so I am fairly confident I can set 
-> things up correctly.
+On Wed, Aug 20, 2003 at 01:01:28AM +1000, Con Kolivas wrote:
+> Food for the starving masses.
+snip
 
-Which "serial console" are you trying to get working?  The kernel log
-console, or a login console?
+Sorry, but I still have the starving problem. the more I use O16/O17 the
+more problems I encounter. xterms sometimes wake up after half a second
+for another half a second and falls asleep for a whole second then.
+after that, it's fully interactive. io-load seems to produce the
+problem. a simple tar xf linux-2.6.0-test3.tar seems to halt the system.
+new processes take ages to start. This also happend to me on O16.2.
+Maybe it's because some AS patches are missing in vanilla but are in
+2.6.0-test3-mm?
 
-> Googling around and doing a search on lkml archives gave some minimal 
-> help, but I can find very little info past early to mid 2.5 kernels.  The 
-> configuration doesn't quite seem to work the way I read documentation.  
-> For instance, the web pages I can find indicate I should be able to build 
-> this modular; however the configuration makes the setting of console on 
-> usb depend on USB being y and EXPERIMENTAL being defined.  
+--=20
+Regards,
 
-What web page says you can build this modular?  You have to build it
-into the kernel.
+Wiktor Wodecki
 
-> In /var/log/messages I can see the USB-to-serial converter being recogized 
-> and the driver being loaded, just before the synaptics touchpad is probed.
+--T4sUOijqQbZv57TR
+Content-Type: application/pgp-signature
+Content-Disposition: inline
 
-Can you show us the relevant part of the kernel logs?
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.2 (GNU/Linux)
 
-> It looks like things are correct, but, as I said, I am unable to get 
-> output.  Am I headed for frustration, or is there some advice to get good 
-> results?  
+iD8DBQE/Q6F46SNaNRgsl4MRAiAzAJwLmOajajJjPtEinoyN51jbEPsyZgCgh0Ne
+5XQ+dFKFpUBcSKwKlEMmLhU=
+=mB8Y
+-----END PGP SIGNATURE-----
 
-You are headed for frustration.  USB serial console was a neat hack, but
-pretty pointless.  It has the following problems:
-	- can't see oopses before USB starts up, and USB starts up
-	  almost last in the system boot process.
-	- really can not capture oopses very well as USB is interrupt
-	  driven
-	- most usb-serial converters have a very small buffer, so you
-	  constantly get over-runs in printing out console messages
-	  (meaning that only a few of the devices will even work
-	  properly, you usually have to buy one of the expensive ones to
-	  see all messages.)
-
-> Is there any advice I might be able to use to get this going?  I really 
-> want to be able to catch some oops output.
-
-Buy a machine with a serial port.  That's my recommendation :)
-
-Good luck,
-
-greg k-h
+--T4sUOijqQbZv57TR--

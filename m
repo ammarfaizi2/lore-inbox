@@ -1,44 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261943AbTIPPaj (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 16 Sep 2003 11:30:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261941AbTIPPaj
+	id S261946AbTIPPYp (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 16 Sep 2003 11:24:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261947AbTIPPYp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 Sep 2003 11:30:39 -0400
-Received: from citrine.spiritone.com ([216.99.193.133]:14062 "EHLO
-	citrine.spiritone.com") by vger.kernel.org with ESMTP
-	id S261943AbTIPPag (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 Sep 2003 11:30:36 -0400
-Date: Tue, 16 Sep 2003 08:29:27 -0700
-From: "Martin J. Bligh" <mbligh@aracnet.com>
-To: Stephan von Krawczynski <skraw@ithnet.com>,
-       Marcelo Tosatti <marcelo.tosatti@cyclades.com.br>
-cc: neilb@cse.unsw.edu.au, linux-kernel@vger.kernel.org
-Subject: Re: experiences beyond 4 GB RAM with 2.4.22
-Message-ID: <1555500000.1063726166@[10.10.2.4]>
-In-Reply-To: <20030916153658.3081af6c.skraw@ithnet.com>
-References: <20030916102113.0f00d7e9.skraw@ithnet.com><Pine.LNX.4.44.0309161009460.1636-100000@logos.cnet> <20030916153658.3081af6c.skraw@ithnet.com>
-X-Mailer: Mulberry/2.2.1 (Linux/x86)
+	Tue, 16 Sep 2003 11:24:45 -0400
+Received: from kinesis.swishmail.com ([209.10.110.86]:16914 "HELO
+	kinesis.swishmail.com") by vger.kernel.org with SMTP
+	id S261946AbTIPPYo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 16 Sep 2003 11:24:44 -0400
+Message-ID: <3F672B55.3000600@techsource.com>
+Date: Tue, 16 Sep 2003 11:25:09 -0400
+From: Timothy Miller <miller@techsource.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20020823 Netscape/7.0
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: Bill Davidsen <davidsen@tmr.com>
+CC: Dave Jones <davej@redhat.com>, Jamie Lokier <jamie@shareable.org>,
+       richard.brunner@amd.com, alan@lxorguk.ukuu.org.uk, zwane@linuxpower.ca,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] 2.6 workaround for Athlon/Opteron prefetch errata
+References: <Pine.LNX.3.96.1030916094748.26515B-100000@gatekeeper.tmr.com>
+Content-Type: text/plain; charset=US-ASCII; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> Oh... Jens just pointed bounce buffering is needed for the upper 2Gs. 
->> 
->> Maybe you have a SCSI card+disks to test ? 8)
+
+
+Bill Davidsen wrote:
+
 > 
-> Well, I do understand the bounce buffer problem, but honestly the current way
-> of handling the situation seems questionable at least. If you ever tried such a
-> system you notice it is a lot worse than just dumping the additional ram above
-> 4GB. You can really watch your network connections go bogus which is just
-> unacceptable. Is there any thinkable way to ommit the bounce buffers and still
-> do something useful with the beyond-4GB ram parts?
-> We should not leave the current bad situation as is...
+> If the fixup were not in place, would it be useful to emit a warning
+> like "you have booted a non-Athlon kernel on an Athlon process, user
+> programs may get unexpected page faults." That's in init code, hopefully
+> there is no critical size issue there, I assume, other than how large a
+> kernel can be booted by the boot loader.
+> 
 
-It won't need to bounce buffer if you have a decent driver & hardware.
-
-M.
+How many bytes would that code require?
 

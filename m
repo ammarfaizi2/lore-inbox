@@ -1,47 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262249AbTHYVGQ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 25 Aug 2003 17:06:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262287AbTHYVGP
+	id S262201AbTHYVC7 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 25 Aug 2003 17:02:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262244AbTHYVC7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 25 Aug 2003 17:06:15 -0400
-Received: from mion.elka.pw.edu.pl ([194.29.160.35]:53461 "EHLO
-	mion.elka.pw.edu.pl") by vger.kernel.org with ESMTP id S262249AbTHYVGN
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 25 Aug 2003 17:06:13 -0400
-From: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
-To: Patrick Mochel <mochel@osdl.org>
-Subject: Re: [PATCH] Fix ide unregister vs. driver model
-Date: Mon, 25 Aug 2003 23:06:14 +0200
-User-Agent: KMail/1.5
-Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-       linux-kernel mailing list <linux-kernel@vger.kernel.org>
-References: <Pine.LNX.4.44.0308251358020.1157-100000@cherise>
-In-Reply-To: <Pine.LNX.4.44.0308251358020.1157-100000@cherise>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-2"
-Content-Transfer-Encoding: 7bit
+	Mon, 25 Aug 2003 17:02:59 -0400
+Received: from smtp.mailix.net ([216.148.213.132]:64585 "EHLO smtp.mailix.net")
+	by vger.kernel.org with ESMTP id S262201AbTHYVC5 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 25 Aug 2003 17:02:57 -0400
+Date: Mon, 25 Aug 2003 23:02:54 +0200
+From: Alex Riesen <fork0@users.sf.net>
+To: Con Kolivas <kernel@kolivas.org>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH]O18.1int
+Message-ID: <20030825210254.GA12781@steel.home>
+Reply-To: Alex Riesen <fork0@users.sf.net>
+References: <200308231555.24530.kernel@kolivas.org> <yw1xr83accpa.fsf@users.sourceforge.net> <20030825094240.GJ16080@Synopsys.COM> <200308252016.13315.kernel@kolivas.org> <20030825102133.GA14402@Synopsys.COM>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200308252306.14131.bzolnier@elka.pw.edu.pl>
+In-Reply-To: <20030825102133.GA14402@Synopsys.COM>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Alex Riesen, Mon, Aug 25, 2003 12:21:33 +0200:
+> > > > XEmacs still spins after running a background job like make or grep.
+> > > > It's fine if I reverse patch-O16.2-O16.3. The spinning doesn't happen
+> > > > as often, or as long time as with O16.3, but it's there and it's
+> > > > irritating.
+> > >
+> > > another example is RXVT (an X terminal emulator). Starts spinnig after
+> > > it's child has exited. Not always, but annoyingly often. System is
+> > > almost locked while it spins (calling select).
+> > 
+> > What does vanilla kernel do with these apps running? Both immediately after 
+> > the apps have started up and some time (>1 min) after they've been running?
+> 
+> cannot test atm. Will do in 10hours.
+> RXVT behaved sanely (or probably spin-effect is very rare) in 2.4 (with
+> O(1) alone and your 2.4 patches) and plain 2.6-test1.
+> 
 
-Ok, thanks.
+Sorry, I have to postpone this investigation. No time on the machine.
 
-On Monday 25 of August 2003 22:59, Patrick Mochel wrote:
-> > > We have no race with the patch, that is we have no race when we wait
-> > > for the semaphore after calling unregister(). We have a race if we
-> > > don't as unregister() will drop a reference, but we may have pending
-> > > ones from sysfs still... so if we don't wait for release() to be
-> > > called, we may overwrite a struct device currently beeing used by
-> > > sysfs.
-> >
-> > Nope, I don't think struct device can be used by sysfs after execution
-> > of device_unregister() (I've checked driver model and sysfs code).
->
-> It can, if the sysfs file for the device was held open while, at the same
-> time, the device was unregistered. You cannot, however, obtain new
-> references to the device.
+I try to describe the behaviour of rxvt as best as I can below.
 
+Afaics, the application (rxvt) just sleeps at the beginning waiting for
+input from X. As every terminal would do. At some point its inferior
+process finishes, but it fails to notice this spinning madly in the
+internal loop calling select, which returns immediately (because other
+side of pty was closed. That is the error in rxvt). Probably it has
+accumulated enough "priority" up to this moment to block other
+applications (window manager, for example) when it suddenly starts running?
+
+-alex

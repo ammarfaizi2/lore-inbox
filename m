@@ -1,57 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289091AbSA1CGk>; Sun, 27 Jan 2002 21:06:40 -0500
+	id <S289096AbSA1CiT>; Sun, 27 Jan 2002 21:38:19 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289092AbSA1CGb>; Sun, 27 Jan 2002 21:06:31 -0500
-Received: from penguin.e-mind.com ([195.223.140.120]:28185 "EHLO
-	penguin.e-mind.com") by vger.kernel.org with ESMTP
-	id <S289091AbSA1CGZ>; Sun, 27 Jan 2002 21:06:25 -0500
-Date: Mon, 28 Jan 2002 03:06:11 +0100
-From: Andrea Arcangeli <andrea@suse.de>
-To: Badari Pulavarty <pbadari@us.ibm.com>
-Cc: Jens Axboe <axboe@suse.de>, lkml <linux-kernel@vger.kernel.org>
-Subject: Re: O_DIRECT broken in 2.5.3-preX ?
-Message-ID: <20020128030611.T25170@athlon.random>
-In-Reply-To: <20020115145549.M31878@suse.de> <200201242152.g0OLq4n08807@eng2.beaverton.ibm.com>
+	id <S289097AbSA1Ch7>; Sun, 27 Jan 2002 21:37:59 -0500
+Received: from sushi.toad.net ([162.33.130.105]:51074 "EHLO sushi.toad.net")
+	by vger.kernel.org with ESMTP id <S289096AbSA1Chz>;
+	Sun, 27 Jan 2002 21:37:55 -0500
+Subject: Re: 2.4.18-pre7 slow ... apm problem
+From: Thomas Hood <jdthood@mail.com>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: linux-kernel@vger.kernel.org, Stephen Rothwell <sfr@canb.auug.org.au>
+In-Reply-To: <E16Uzie-0003Ba-00@the-village.bc.nu>
+In-Reply-To: <E16Uzie-0003Ba-00@the-village.bc.nu>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/1.0.1 
+Date: 27 Jan 2002 21:37:40 -0500
+Message-Id: <1012185478.2165.73.camel@thanatos>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.12i
-In-Reply-To: <200201242152.g0OLq4n08807@eng2.beaverton.ibm.com>; from pbadari@us.ibm.com on Thu, Jan 24, 2002 at 01:52:04PM -0800
-X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
-X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jan 24, 2002 at 01:52:04PM -0800, Badari Pulavarty wrote:
-> Hi,
-> 
-> I am reading the O_DIRECT code patch for 2.5.3-pre4. I was wondering
-> how is this working in 2.5.X ? Here is my concern:
-> 
-> generic_direct_IO() creates a blocks[] list and passes it to
-> brw_kiovec() with a single kiobuf.
-> 	
-> 	retval = brw_kiovec(rw, 1, &iobuf, inode->i_dev, blocks, blocksize);
-> 
-> But brw_kiovec() uses only b[0] to call ll_rw_bio().
-> 
-> 	for (i = 0; i < nr; i++) {
->                 iobuf = iovec[i];
->                 iobuf->errno = 0;
-> 
->                 ll_rw_kio(rw, iobuf, dev, b[i] * (size >> 9));
->         }
-> 
-> 
-> Note that nr = 1 here. ll_rw_kio() uses b[0] as starting sector
-> and does the entire IO (for iobuf->length). This is wrong !!!
-> It is doing IO from wrong blocks.  Some one should use other 
-> block numbers from blocks[] list. Isn't it ?
+> The keyboard rate one is curious. The vmware one I can easily
+> believe is caused by Vmware switching in/out of OS's without
+> managing the APM state of the processor (and leaving it in
+> powersave)
 
-correct. It seems like somebody broke the semantics of the block field
-of brw_kiovec without updating the callers, and furthmore now it is
-impossible to use brw_kiovec for O_DIRECT because it is not going to
-submit physically contigous I/O.
+APM idling is done if apm_cpu_idle() is called, and then if
+    DELTA(current->times.tms_stime)
+    -------------------------------
+    DELTA(jiffies)
+is greater than the idle threshold of 0.95.  Could that ratio be
+affected by VMware?  If so, how?
 
-Andrea
+--
+Thomas
+
+

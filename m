@@ -1,45 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268756AbUJUQTD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268720AbUJUQYF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268756AbUJUQTD (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 21 Oct 2004 12:19:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268714AbUJUQQR
+	id S268720AbUJUQYF (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 21 Oct 2004 12:24:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268802AbUJUQXr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 21 Oct 2004 12:16:17 -0400
-Received: from mail.aknet.ru ([217.67.122.194]:9996 "EHLO mail.aknet.ru")
-	by vger.kernel.org with ESMTP id S270775AbUJUQIi (ORCPT
+	Thu, 21 Oct 2004 12:23:47 -0400
+Received: from ns.virtualhost.dk ([195.184.98.160]:16017 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S268720AbUJUQWp (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 21 Oct 2004 12:08:38 -0400
-Message-ID: <4177E0C3.2040200@aknet.ru>
-Date: Thu, 21 Oct 2004 20:16:03 +0400
-From: Stas Sergeev <stsp@aknet.ru>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040510
-X-Accept-Language: ru, en-us, en
-MIME-Version: 1.0
-To: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: X does not start. vm86old returns ENOSYS?? -- solved
-References: <200410201653.33233.vda@port.imtp.ilyichevsk.odessa.ua> <200410211515.48035.vda@port.imtp.ilyichevsk.odessa.ua>
-In-Reply-To: <200410211515.48035.vda@port.imtp.ilyichevsk.odessa.ua>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-X-AV-Checked: ClamAV using ClamSMTP
+	Thu, 21 Oct 2004 12:22:45 -0400
+Date: Thu, 21 Oct 2004 18:22:44 +0200
+From: Jens Axboe <axboe@suse.de>
+To: Meelis Roos <mroos@linux.ee>
+Cc: Linux Kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: readcd hangs in blk_execute_rq
+Message-ID: <20041021162244.GB14154@suse.de>
+References: <20041021161100.GA14154@suse.de> <Pine.GSO.4.44.0410211915460.12730-100000@math.ut.ee>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.GSO.4.44.0410211915460.12730-100000@math.ut.ee>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi.
+On Thu, Oct 21 2004, Meelis Roos wrote:
+> > > > > ide-cd: cmd 0x28 timed out
+> > > > > hdc: DMA interrupt recovery
+> > > > > hdc: lost interrupt
+> > > > > hdc: status timeout: status=0xd0 { Busy }
+> > > > > hdc: status timeout: error=0x00
+> > > > > hdc: DMA disabled
+> > > > > hdc: drive not ready for command
+> > > > > hdc: ATAPI reset complete
+> 
+> > > It worked in earlier 2.4 kernels (2.4.18?) with DMA - I don't remember
+> > > if it had some reliability problems. Since then, it's no dma. We have 3
+> > > such computers here (Intel D816EEA2 mainboard, this specific Sony CDrom)
+> > > and they all behave the same.
+> >
+> > 2.4.x never used dma for this operation. Does 2.6.9 work if you turn off
+> > dma first?
+> 
+> I have not tried this operation before. Reading data disks with DMA
+> worked and that's what I have used. I did read the same disk with
+> readdisk subcommand on readcd currently, it was successful until the end
+> of disk (6xx MB - maybe the end of the disk).
 
-Denis Vlasenko wrote:
-> Turned out that Mandrake was working because it was booted
-> via lilo whereas "my" Linux was booted via DOS-based loader.
-> When I started "my" Linux via lilo, everything worked just fine.
-Have you tried the "vga_reset" tool of
-svgalib? It is intended to solve exactly
-that problem (but it doesn't seem to work
-right with some modern video cards like mine).
+Yes you are right, readcd should use dma.
 
-> Heh. Proper solution is probably to teach X to not use int10.
-It also looks like int10 module of XFree
-could check whether or not the int vector
-is really pointing to the vbios, before
-calling it.
+> Will try it with turning DMA off first.
+
+Ok
+
+-- 
+Jens Axboe
 

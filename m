@@ -1,73 +1,121 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284357AbRLCIve>; Mon, 3 Dec 2001 03:51:34 -0500
+	id <S284328AbRLCIvn>; Mon, 3 Dec 2001 03:51:43 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284477AbRLCIui>; Mon, 3 Dec 2001 03:50:38 -0500
-Received: from dsl254-112-233.nyc1.dsl.speakeasy.net ([216.254.112.233]:36773
-	"EHLO snark.thyrsus.com") by vger.kernel.org with ESMTP
-	id <S284581AbRLCB2L>; Sun, 2 Dec 2001 20:28:11 -0500
-Date: Sun, 2 Dec 2001 20:19:46 -0500
-From: "Eric S. Raymond" <esr@thyrsus.com>
-To: Keith Owens <kaos@ocs.com.au>
-Cc: kbuild-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org,
-        torvalds@transmeta.com
-Subject: Re: [kbuild-devel] Converting the 2.5 kernel to kbuild 2.5
-Message-ID: <20011202201946.A7662@thyrsus.com>
-Reply-To: esr@thyrsus.com
-Mail-Followup-To: "Eric S. Raymond" <esr@thyrsus.com>,
-	Keith Owens <kaos@ocs.com.au>, kbuild-devel@lists.sourceforge.net,
-	linux-kernel@vger.kernel.org, torvalds@transmeta.com
-In-Reply-To: <1861.1007341572@kao2.melbourne.sgi.com>
+	id <S284416AbRLCIuL>; Mon, 3 Dec 2001 03:50:11 -0500
+Received: from a212-113-187-216.netcabo.pt ([212.113.187.216]:38845 "HELO
+	cafeina.think.co.pt") by vger.kernel.org with SMTP
+	id <S284678AbRLCCsn>; Sun, 2 Dec 2001 21:48:43 -0500
+Date: Mon, 3 Dec 2001 02:52:17 +0000
+From: Pedro Alves <pmalves@think.co.pt>
+To: Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Atapi cdrom problem: wrong speed found by ide-cdrom
+Message-ID: <20011203025217.A18798@cosmos.inesc.pt>
+Mail-Followup-To: Pedro Alves <pmalves@think.co.pt>,
+	Kernel Mailing List <linux-kernel@vger.kernel.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=pt_PT
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <1861.1007341572@kao2.melbourne.sgi.com>; from kaos@ocs.com.au on Mon, Dec 03, 2001 at 12:06:12PM +1100
-Organization: Eric Conspiracy Secret Labs
-X-Eric-Conspiracy: There is no conspiracy
+Content-Transfer-Encoding: 8bit
+User-Agent: Mutt/1.3.23i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Keith Owens <kaos@ocs.com.au>:
-> Linus, the time has come to convert the 2.5 kernel to kbuild 2.5.  I
-> want to do this in separate steps to make it easier for architectures
-> that have not been converted yet.
-> 
-> 2.5.1           Semi-stable kernel, after bio is working.
-> 
-> 2.5.2-pre1      Add the kbuild 2.5 code, still using Makefile-2.5.
->                 i386, sparc, sparc64 can use either kbuild 2.4 or 2.5,
->                 2.5 is recommended.
->                 ia64 can only use kbuild 2.5.
->                 Other architectures continue to use kbuild 2.4.
->                 Wait 24 hours for any major problems then -
-> 
-> 2.5.2-pre2      Remove kbuild 2.4 code, rename Makefile-2.5 to Makefile.
->                 i386, ia64, sparc, sparc64 can compile using kbuild 2.5.
->                 Other architectures cannot compile until they convert
->                 to kbuild 2.5.  The kbuild group can help with the
->                 conversion but without access to a machine we cannot
->                 test other architectures.  Until the other archs have
->                 been converted, they can stay on 2.5.2-pre1.
-> 
-> Doing the change in two steps provides a platform where both kbuild 2.4
-> and 2.5 work.  This allows other architectures to parallel test the old
-> and new kbuild during their conversion, I found that ability was very
-> useful during conversion.
-> 
-> The CML1 to CML2 conversion comes later, either in 2.5.3 or 2.5.4.
-> 
-> Linus, is this acceptable?
 
-The schedule I heard from Linus at the kernel summit was that both changes 
-were to go in between 2.5.1 and 2.5.2.   I would prefer sooner than later 
-because I'm *really* *tired* of maintaining a parallel rulebase.
+ Hi. My cdrom is not working properly in linux (a plain 40x atapi-ide
+ cdrom, unbranded as far as I can see from the outside :) ). The
+ problem is that it is not working at full speed. Putting a data cd,
+ here is the benchmark:
+
+ hdparm -tT /dev/hdc
+
+/dev/hdc:
+ Timing buffer-cache reads:   128 MB in  2.80 seconds = 45.71 MB/sec
+ Timing buffered disk reads:  64 MB in 66.50 seconds =985.50 kB/sec
+
+ If I force speed 40 with hdparm -E 40, for about 20 secs, the
+ benchmarks turns into:
+
+/dev/hdc:
+ Timing buffer-cache reads:   128 MB in  2.43 seconds = 52.67 MB/sec
+ Timing buffered disk reads:  64 MB in 24.82 seconds =  2.58 MB/sec
+
+
+ After a time of inactivity or if I change media, the cdrom "slows
+ down" to the original speed. I tried to play with hdparm, with no
+ sucess. If I put an audio cd in the drive, I cannot change the read
+ speed, nor with hdparm neither with cdparanoia (forcing speed with
+ -S).
+
+ Is there any way to force a default speed for the drive?
+
+ Here goes some data:
+
+___
+dmesg | grep CDROM
+hdc: ATAPI CDROM, ATAPI CD/DVD-ROM drive (no, its not dvd reader)
+
+___
+hdparm -i -v /dev/hdc
+
+/dev/hdc:
+ HDIO_GET_MULTCOUNT failed: Invalid argument
+ I/O support  =  0 (default 16-bit)
+ unmaskirq    =  0 (off)
+ using_dma    =  0 (off)
+ keepsettings =  0 (off)
+ HDIO_GET_NOWERR failed: Invalid argument
+ readonly     =  1 (on)
+ readahead    =  8 (on)
+ HDIO_GETGEO failed: Invalid argument
+
+ Model=ATAPI CDROM, FwRev=V130H, SerialNo=
+ Config={ Fixed Removeable DTR<=5Mbs DTR>10Mbs nonMagnetic }
+ RawCHS=0/0/0, TrkSize=0, SectSize=0, ECCbytes=0
+ BuffType=unknown, BuffSize=0kB, MaxMultSect=0
+ (maybe): CurCHS=0/0/0, CurSects=0, LBA=yes, LBAsects=0
+ IORDY=yes, tPIO={min:227,w/IORDY:120}, tDMA={min:120,rec:150}
+ PIO modes: pio0 pio1 pio2 pio3 pio4 
+ DMA modes: mdma0 mdma1 mdma2 udma0 udma1 *udma2 
+
+___
+uname -a
+Linux neraka 2.4.11 #1 Mon Nov 12 00:37:05 Local time zone must be
+set--see zic manuai686 i686 unknown
+
+___
+cat /proc/ide/hdc/driver 
+ide-cdrom version 4.59
+
+___
+cat /proc/ide/hdc/model 
+ATAPI CDROM (not very helpfull...)
+
+___
+sudo cat /proc/ide/hdc/settings
+name        value     min     max   mode
+----        -----     ---     ---   ----
+breada_readahead    4     0     127   rw
+current_speed     0     0     69   rw
+dsc_overlap     1     0     1   rw
+file_readahead    0     0     2097151   rw
+ide_scsi      0     0     1   rw
+init_speed      0     0     69   rw
+io_32bit      0     0     3   rw
+keepsettings    0     0     1   rw
+max_kb_per_request  127     1     127   rw
+nice1       1     0     1   rw
+number      2     0     3   rw
+pio_mode      write-only  0     255   w
+slow        0     0     1   rw
+unmaskirq     0     0     1   rw
+using_dma     0     0     1   rw
+
+
 -- 
-		<a href="http://www.tuxedo.org/~esr/">Eric S. Raymond</a>
+Pedro Miguel G. Alves
 
-A ``decay in the social contract'' is detectable; there is a growing
-feeling, particularly among middle-income taxpayers, that they are not
-getting back, from society and government, their money's worth for
-taxes paid. The tendency is for taxpayers to try to take more control
-of their finances ..
-	-- IRS Strategic Plan, (May 1984)
+THINK - Tecnologias de Informação
+Av. Defensores de Chaves nº 15 4ºD, 1000-109 Lisboa Portugal
+Tel: +351 21 3590285   Fax: +351 21 3582729
+HomePage: www.think.co.pt

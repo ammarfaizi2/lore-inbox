@@ -1,39 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289046AbSA3KEH>; Wed, 30 Jan 2002 05:04:07 -0500
+	id <S289047AbSA3KIr>; Wed, 30 Jan 2002 05:08:47 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289042AbSA3KDs>; Wed, 30 Jan 2002 05:03:48 -0500
-Received: from thebsh.namesys.com ([212.16.7.65]:38407 "HELO
-	thebsh.namesys.com") by vger.kernel.org with SMTP
-	id <S289036AbSA3KDj>; Wed, 30 Jan 2002 05:03:39 -0500
-Message-ID: <3C57C4DB.3020101@namesys.com>
-Date: Wed, 30 Jan 2002 13:03:07 +0300
-From: Hans Reiser <reiser@namesys.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.7+) Gecko/20020123
-X-Accept-Language: en-us
-MIME-Version: 1.0
-To: Andrew Morton <akpm@zip.com.au>
-CC: Oliver Xymoron <oxymoron@waste.org>,
-        linux-kernel <linux-kernel@vger.kernel.org>, reiserfs-dev@namesys.com
-Subject: Re: [reiserfs-list] Re: [reiserfs-dev] Re: Note describing poordcache   utilization under high memory pressure
-In-Reply-To: <3C56FE14.15EA248E@zip.com.au> <Pine.LNX.4.44.0201300113120.25123-100000@waste.org> <3C57A1A9.E31CDB13@zip.com.au>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S289050AbSA3KIl>; Wed, 30 Jan 2002 05:08:41 -0500
+Received: from waldorf.cs.uni-dortmund.de ([129.217.4.42]:22202 "EHLO
+	waldorf.cs.uni-dortmund.de") by vger.kernel.org with ESMTP
+	id <S289047AbSA3KIW>; Wed, 30 Jan 2002 05:08:22 -0500
+Message-Id: <200201301007.g0UA7iNm002192@tigger.cs.uni-dortmund.de>
+To: Josh MacDonald <jmacd@CS.Berkeley.EDU>
+cc: linux-kernel@vger.kernel.org, reiserfs-list@namesys.com,
+        reiserfs-dev@namesys.com
+Subject: Re: [reiserfs-dev] Re: Note describing poor dcache utilization under high memory pressure 
+In-Reply-To: Message from Josh MacDonald <jmacd@CS.Berkeley.EDU> 
+   of "Tue, 29 Jan 2002 09:28:58 PST." <20020129092858.D8740@helen.CS.Berkeley.EDU> 
+Date: Wed, 30 Jan 2002 11:07:44 +0100
+From: Horst von Brand <brand@jupiter.cs.uni-dortmund.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton wrote:
+Josh MacDonald <jmacd@CS.Berkeley.EDU> said:
 
->
->But what we do *not* want to do is to reclaim memory "fairly" from
->all caches.  The value of a cached page should be measured in terms
->of the number of seeks required to repopulate it.  That's all.
->
+[...]
 
-This is a good point, and I would like it to be considered by ReiserFS 
-developers in regards to internal nodes, and why Sizif's making internal 
-nodes have a longer lifetime in his experimental code for squid helped 
-performance.
+> We're not talking about actively referenced entries, we're talking about
+> entries on the d_lru list with zero references.  Relocating those objects
+> should not require any more locking than currently required to remove and
+> re-insert the dcache entry.  Right?
 
-Hans
-
+If they are unreferenced, they can be dropped without much cost. The
+problem is what to do if you have 40 pages, each 1/10 filled with data in
+active use.
+-- 
+Horst von Brand			     http://counter.li.org # 22616

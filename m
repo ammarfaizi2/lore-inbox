@@ -1,44 +1,72 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293673AbSCPC1C>; Fri, 15 Mar 2002 21:27:02 -0500
+	id <S293467AbSCPCkd>; Fri, 15 Mar 2002 21:40:33 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293675AbSCPC0m>; Fri, 15 Mar 2002 21:26:42 -0500
-Received: from codepoet.org ([166.70.14.212]:30114 "EHLO winder.codepoet.org")
-	by vger.kernel.org with ESMTP id <S293673AbSCPC0i>;
-	Fri, 15 Mar 2002 21:26:38 -0500
-Date: Fri, 15 Mar 2002 19:26:41 -0700
+	id <S293675AbSCPCkY>; Fri, 15 Mar 2002 21:40:24 -0500
+Received: from codepoet.org ([166.70.14.212]:34466 "EHLO winder.codepoet.org")
+	by vger.kernel.org with ESMTP id <S293467AbSCPCkN>;
+	Fri, 15 Mar 2002 21:40:13 -0500
+Date: Fri, 15 Mar 2002 19:40:13 -0700
 From: Erik Andersen <andersen@codepoet.org>
-To: john slee <indigoid@higherplane.net>
-Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] 2.5.6 IDE 19, return of taskfile
-Message-ID: <20020316022640.GA14642@codepoet.org>
+To: Ulrich Drepper <drepper@redhat.com>
+Cc: Dan Kegel <dank@ixiacom.com>, linux-kernel@vger.kernel.org
+Subject: Re: libc/1427: gprof does not profile threads <synopsis of the problem  (one li\ne)>
+Message-ID: <20020316024012.GB14642@codepoet.org>
 Reply-To: andersen@codepoet.org
 Mail-Followup-To: Erik Andersen <andersen@codepoet.org>,
-	john slee <indigoid@higherplane.net>,
-	Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.GSO.4.21.0203111436120.14945-100000@weyl.math.psu.edu> <E16kW0A-0001Yl-00@the-village.bc.nu> <20020313125507.C38@toy.ucw.cz> <20020315174916.GE27706@higherplane.net>
+	Ulrich Drepper <drepper@redhat.com>, Dan Kegel <dank@ixiacom.com>,
+	linux-kernel@vger.kernel.org
+In-Reply-To: <1016062486.16743.1091.camel@myware.mynet> <3C8FEC76.F1411739@ixiacom.com> <20020314020834.Z2434@devserv.devel.redhat.com> <3C926E0B.1A0EE311@ixiacom.com> <1016237961.5612.51.camel@myware.mynet>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="Q68bSM7Ycu6FN28Q"
 Content-Disposition: inline
-In-Reply-To: <20020315174916.GE27706@higherplane.net>
+In-Reply-To: <1016237961.5612.51.camel@myware.mynet>
 User-Agent: Mutt/1.3.27i
 X-Operating-System: Linux 2.4.18-rmk1, Rebel-NetWinder(Intel StrongARM 110 rev 3), 185.95 BogoMips
 X-No-Junk-Mail: I do not want to get *any* junk mail.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat Mar 16, 2002 at 04:49:17AM +1100, john slee wrote:
-> i believe the next debian (after the one currently stabilizing for
-> release) has "real" use of capabilities as a major goal although that
-> was hearsay and may be entirely false.  the amount of work involved is
-> not insignificant
 
-I expect that teaching start-stop-daemon about capabilities would
-take care of much of the needed work automagically.  But this is
-rapidly wandering off topic.
+--Q68bSM7Ycu6FN28Q
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
+
+On Fri Mar 15, 2002 at 04:19:17PM -0800, Ulrich Drepper wrote:
+> On Fri, 2002-03-15 at 13:56, Dan Kegel wrote:
+>=20
+> > Ulrich, do you at least agree that it would be desirable for
+> > gprof to work properly on multithreaded programs?
+>=20
+> No.  gprof is uselss in today world.
+
+Then why not change sysdeps/generic/initfini.c with something like:
+
+-      if (gmon_start)
++      if (gmon_start && __pthread_initialize_minimal)
+          gmon_start ();
+
+So it doesn't even try when threading?
 
  -Erik
 
 --
 Erik B. Andersen             http://codepoet-consulting.com/
 --This message was written using 73% post-consumer electrons--
+
+--Q68bSM7Ycu6FN28Q
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.6 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
+
+iD8DBQE8krCMX5tkPjDTkFcRAlIKAJsEoltsoMNVBkGYLUyzbMD99X7lUACeOo8C
+e7pPN7d6T+MHghMOsZWGgNg=
+=LOyx
+-----END PGP SIGNATURE-----
+
+--Q68bSM7Ycu6FN28Q--

@@ -1,82 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292682AbSBUR7H>; Thu, 21 Feb 2002 12:59:07 -0500
+	id <S292681AbSBUSA1>; Thu, 21 Feb 2002 13:00:27 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292681AbSBUR6r>; Thu, 21 Feb 2002 12:58:47 -0500
-Received: from [195.63.194.11] ([195.63.194.11]:55560 "EHLO
-	mail.stock-world.de") by vger.kernel.org with ESMTP
-	id <S292682AbSBUR6g>; Thu, 21 Feb 2002 12:58:36 -0500
-Message-ID: <3C75351D.4030200@evision-ventures.com>
-Date: Thu, 21 Feb 2002 18:57:49 +0100
-From: Martin Dalecki <dalecki@evision-ventures.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.8) Gecko/20020205
-X-Accept-Language: en-us, pl
+	id <S292683AbSBUSAT>; Thu, 21 Feb 2002 13:00:19 -0500
+Received: from www.wen-online.de ([212.223.88.39]:60428 "EHLO wen-online.de")
+	by vger.kernel.org with ESMTP id <S292681AbSBUSAF>;
+	Thu, 21 Feb 2002 13:00:05 -0500
+Date: Thu, 21 Feb 2002 19:11:14 +0100 (CET)
+From: Mike Galbraith <mikeg@wen-online.de>
+To: "Richard B. Johnson" <root@chaos.analogic.com>
+cc: Joe Wong <joewong@tkodog.no-ip.com>, linux-kernel@vger.kernel.org
+Subject: Re: detect memory leak tools?
+In-Reply-To: <Pine.LNX.3.95.1020221104124.20988A-100000@chaos.analogic.com>
+Message-ID: <Pine.LNX.4.10.10202211902290.842-100000@mikeg.wen-online.de>
 MIME-Version: 1.0
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-CC: Jeff Garzik <jgarzik@mandrakesoft.com>,
-        Linus Torvalds <torvalds@transmeta.com>,
-        Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] 2.5.5 IDE cleanup 11
-In-Reply-To: <E16dxO4-0007f6-00@the-village.bc.nu>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox wrote:
->>If I hadn't tought about it I wouldn't be that advantegrous.
->>And my testing of it did consist of the following:
->>
->>1. 2 x IDE drives of one IDE port.
->>2. 1 x CD-RW on a second port - modularized.
->>3. 1 x CarBus to CF adapter.
->>
+On Thu, 21 Feb 2002, Richard B. Johnson wrote:
+
+> On Thu, 21 Feb 2002, Joe Wong wrote:
 > 
-> So you didnt test or consider the upcoming things like hotplug. 
+> > Hi,
+> > 
+> >   Is there any tools that can detect memory leak in kernel loadable 
+> > module?
+> > 
+> > TIA.
+> > 
+> > - Joe
+> 
+> How would it know? If you can answer that question, you have made
+> the tool. It would be specific to your module. FYI, in designing
+> such a tool, you often the find the leak, which means you don't
+> need the tool anymore.
+> 
+> I would start by temporarily putting a wrapper around whatever you
+> use for memory allocation and deallocation. The wrapper code keeps
+> track of pointer values and outstanding allocations. If the outstanding
+> allocations grow or if the pointers to whatever_free() are different
+> than the pointers to whatever_alloc(), you have a leak. You can read
+> the results from a private ioctl().
 
-I did plugging and unplugging a CardBus IDE contoller in and out on
-a hot system.
+Close to how memleak works.  Wrap all allocators, and maintain a 1/32
+scale model of memory consisting of tags showing who allocated that
+ram-clod when.  Read allocation array via proc.
 
-> I'm sure the cleanup works now, but imagine if I was to "clean up" Jens
-> new block code by removing all the stuff he has there ready for next
-> features.
+For most leaks, you're right.. the tool is too much horsepower for
+the problem.  Memleak has found some very non-trivial leaks though.
+It found one that was irritating Ingo quite a bit, and he designed
+memleak :)
 
-Well the hotplug/suspension problem is certinaly to be targetted by 
-using the struct device_driver infrastructure and not by reduplicating 
-it's fuctionality inside ide.c. Agreed? Before one could even thing
-about  this the splitting between ide_driver_t and ide_module_t *had* to
-be removed.
-
-Just have a look at the massive code duplication between init_module
-and driver_reinit functions inside the subdrivers to see why this is.
-
-Before this can happen one has to untagle the flow of the current
-driver. Like for exampel double calls to module initialization 
-functions. The device detection part *has* to be pulled
-out from the corresponding module initialization routines - yes I'm 
-aware of this. But I would rathter like them to find they home
-inside the following:
-
-struct device_driver {
-         int     (*probe)        (struct device *dev);
-         int     (*remove)       (struct device *dev);
-
-         int     (*suspend)      (struct device *dev, u32 state, u32 level);
-         int     (*resume)       (struct device *dev, u32 level);
-}
-
-instead of ide_driver_t ide_hwif_t or whatever the ide-typdef of the day
-is.
-
-Finally: Before something can go in - well something has to go out.
-In esp. if it is in the way and the removal doesn't cause any loss
-modulo current functionality.
-
-This is the reaons of the FIXME notes I have itroduced here and there
-inside the patch as well.
-
-But currently one has to fight far too frequently
-with functions which are exported without any justification or
-different functions which basically just do the same, games on
-ifdef's inside headers and so on...
+	-Mike
 

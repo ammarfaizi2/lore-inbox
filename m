@@ -1,50 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261680AbTKHJ3y (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 8 Nov 2003 04:29:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261670AbTKHJ3x
+	id S261664AbTKHJXn (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 8 Nov 2003 04:23:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261670AbTKHJXn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 8 Nov 2003 04:29:53 -0500
-Received: from ns.virtualhost.dk ([195.184.98.160]:450 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S261656AbTKHJ3w (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 8 Nov 2003 04:29:52 -0500
-Date: Sat, 8 Nov 2003 10:29:35 +0100
-From: Jens Axboe <axboe@suse.de>
-To: Herbert Xu <herbert@gondor.apana.org.au>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [BIO] Bounce queue in bio_add_page
-Message-ID: <20031108092935.GH14728@suse.de>
-References: <20031104084929.GH1477@suse.de> <20031104090325.GA21301@gondor.apana.org.au> <20031104090353.GM1477@suse.de> <20031105094855.GD1477@suse.de> <20031106210900.GA29000@gondor.apana.org.au> <20031107112346.GA5153@gondor.apana.org.au> <20031107112555.GC591@suse.de> <20031107112833.GA5239@gondor.apana.org.au> <20031107113235.GD591@suse.de> <20031107225253.GA8864@gondor.apana.org.au>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20031107225253.GA8864@gondor.apana.org.au>
+	Sat, 8 Nov 2003 04:23:43 -0500
+Received: from bm-1a.paradise.net.nz ([202.0.58.20]:33244 "EHLO
+	linda-1.paradise.net.nz") by vger.kernel.org with ESMTP
+	id S261664AbTKHJXm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 8 Nov 2003 04:23:42 -0500
+Date: Sat, 08 Nov 2003 22:23:39 +1300
+From: Oliver Hunt <ojh16@student.canterbury.ac.nz>
+Subject: Re: will this bug be addressed before test10?
+In-reply-to: <20031108083553.17849.qmail@web60206.mail.yahoo.com>
+To: linux-kernel@vger.kernel.org
+Message-id: <3FACB61B.5030301@student.canterbury.ac.nz>
+MIME-version: 1.0
+Content-type: text/plain; format=flowed; charset=ISO-8859-1
+Content-transfer-encoding: 7bit
+X-Accept-Language: en-us, en
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.5)
+ Gecko/20031013 Thunderbird/0.3
+References: <20031108083553.17849.qmail@web60206.mail.yahoo.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Nov 08 2003, Herbert Xu wrote:
-> On Fri, Nov 07, 2003 at 12:32:35PM +0100, Jens Axboe wrote:
-> > On Fri, Nov 07 2003, Herbert Xu wrote:
-> > > On Fri, Nov 07, 2003 at 12:25:55PM +0100, Jens Axboe wrote:
-> > > > 
-> > > > Could be related, someone is doing an unlock on an already unlocked
-> > > > page. Is this the same system that saw the bounce problem initially?
-> > > 
-> > > Yes, see http://bugs.debian.org/218566 for details.
-> > 
-> > Then there's likely just some other bug wrt bouncing. Hmm, does this
-> > work?
-> 
-> It's OK, it turns out that he applied my earlier patch which called
-> blk_queue_bounce() in blk_add_page.  That obviously breaks down when
-> the bio is bounced since the real end_io functions haven't been set
-> yet.
-> 
-> So this problem is resolved.
+Hmmm,  i had something like that was happening a while ago (admittedly 
+in 2.4.20) i could still ssh in from a seperate box but nothing short of 
+a reboot fixed it.... however at the time many things were playing up so 
+i couldn't blame anything specific...
 
-Great, I'm a lot more relieved now.
+--Oliver
 
--- 
-Jens Axboe
+
+Mr. Mailing List wrote:
+
+>http://bugzilla.kernel.org/show_bug.cgi?id=1229
+>
+>It's made it this far, and it's still just as horrible
+>a bug:(
+>
+>
+>__________________________________
+>Do you Yahoo!?
+>Protect your identity with Yahoo! Mail AddressGuard
+>http://antispam.yahoo.com/whatsnewfree
+>-
+>To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+>the body of a message to majordomo@vger.kernel.org
+>More majordomo info at  http://vger.kernel.org/majordomo-info.html
+>Please read the FAQ at  http://www.tux.org/lkml/
+>  
+>
+
 

@@ -1,61 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262907AbUCRTtA (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 18 Mar 2004 14:49:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262903AbUCRTsv
+	id S262911AbUCRTwl (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 18 Mar 2004 14:52:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262909AbUCRTwk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 18 Mar 2004 14:48:51 -0500
-Received: from ns.virtualhost.dk ([195.184.98.160]:45751 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S262907AbUCRTrr (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 18 Mar 2004 14:47:47 -0500
-Date: Thu, 18 Mar 2004 20:47:46 +0100
-From: Jens Axboe <axboe@suse.de>
-To: Peter Zaitsev <peter@mysql.com>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: True  fsync() in Linux (on IDE)
-Message-ID: <20040318194745.GA2314@suse.de>
-References: <1079572101.2748.711.camel@abyss.local> <20040318064757.GA1072@suse.de> <1079639060.3102.282.camel@abyss.local>
+	Thu, 18 Mar 2004 14:52:40 -0500
+Received: from mailgate2.mysql.com ([213.136.52.47]:17289 "EHLO
+	mailgate.mysql.com") by vger.kernel.org with ESMTP id S262911AbUCRTvc
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 18 Mar 2004 14:51:32 -0500
+Subject: Re: 2.4.23aa2 (bugfixes and important VM improvements for the high
+	end)
+From: Peter Zaitsev <peter@mysql.com>
+To: Andi Kleen <ak@muc.de>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <m3ish94vis.fsf@averell.firstfloor.org>
+References: <1u7eQ-6Bz-1@gated-at.bofh.it> <1ue6M-45w-11@gated-at.bofh.it>
+	 <1uofN-4Rh-25@gated-at.bofh.it> <1vRz3-5p2-11@gated-at.bofh.it>
+	 <1vRSn-5Fc-11@gated-at.bofh.it> <1vS26-5On-21@gated-at.bofh.it>
+	 <1wkUr-3QW-11@gated-at.bofh.it> <1wolx-7ET-31@gated-at.bofh.it>
+	 <1woEM-7Yx-41@gated-at.bofh.it> <1wp8b-7x-3@gated-at.bofh.it>
+	 <1wp8l-7x-25@gated-at.bofh.it> <1x0qG-Dr-3@gated-at.bofh.it>
+	 <m3ish94vis.fsf@averell.firstfloor.org>
+Content-Type: text/plain
+Organization: MySQL
+Message-Id: <1079639441.3101.291.camel@abyss.local>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1079639060.3102.282.camel@abyss.local>
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Thu, 18 Mar 2004 11:50:42 -0800
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Mar 18 2004, Peter Zaitsev wrote:
-> On Wed, 2004-03-17 at 22:47, Jens Axboe wrote:
+On Fri, 2004-03-12 at 13:15, Andi Kleen wrote:
+> Peter Zaitsev <peter@mysql.com> writes:
+> >
+> > Rather than changing design how time is computed I think we would better
+> > to go to better accuracy - nowadays 1 second is far too raw.
 > 
-> > > There is solution just to disable drive write cache, but it seems to
-> > > slowdown performance way to much.
-> > 
-> > Chris and I have working real fsync() with the barrier patches. I'll
-> > clean it up and post a patch for vanilla 2.6.5-rc today.
-> 
-> Good to hear. How is it going to work from user point of view ? 
-> Just fsync working back again or there would be some special handling.
+> Just call gettimeofday(). In near all kernels time internally does that
+> anyways.
 
-It's just going to work :)
+Right, 
 
-> Also. What is about  fsync() in 2.6 nowadays ?
-> 
-> I've done some tests on 3WARE RAID array and it looks like  it is
-> different compared to 2.4 I've been testing previously. 
-> 
-> I have the simple test which has single page writes to the file followed
-> by fsync().   First run give you the case when file grows with each
-> write, second when you're writing to existing file space.
-> 
-> The results I have on 2.4 is something like  40 sec per 1000 fsyncs for 
-> new file, and 0.6 sec for existing file.
-> 
-> With 2.6.3 I have  both existing file and new file to complete in less
-> than 1 second. 
+gettimeofday() was much slower some years ago on some other Unix
+Platform, which is why time() was used instead.
 
-I believe some missed set_page_writeback() calls caused fsync() to never
-really wait on anything, pretty broken... IIRC, it's fixed in latest
--mm, or maybe it's just pending for next release.
+Now we just need to fix a lot of places (datatypes, prints etc) to move
+to gettimeofday()
+
+
 
 -- 
-Jens Axboe
+Peter Zaitsev, Senior Support Engineer
+MySQL AB, www.mysql.com
+
+Meet the MySQL Team at User Conference 2004! (April 14-16, Orlando,FL)
+  http://www.mysql.com/uc2004/
 

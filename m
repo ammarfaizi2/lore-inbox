@@ -1,90 +1,87 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262820AbVCWGdl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262824AbVCWGg5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262820AbVCWGdl (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Mar 2005 01:33:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262822AbVCWGdl
+	id S262824AbVCWGg5 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Mar 2005 01:36:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262823AbVCWGg5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Mar 2005 01:33:41 -0500
-Received: from mx2.elte.hu ([157.181.151.9]:38020 "EHLO mx2.elte.hu")
-	by vger.kernel.org with ESMTP id S262820AbVCWGdi (ORCPT
+	Wed, 23 Mar 2005 01:36:57 -0500
+Received: from wproxy.gmail.com ([64.233.184.194]:55049 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S262824AbVCWGgu (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Mar 2005 01:33:38 -0500
-Date: Wed, 23 Mar 2005 07:33:17 +0100
-From: Ingo Molnar <mingo@elte.hu>
-To: "Paul E. McKenney" <paulmck@us.ibm.com>
-Cc: linux-kernel@vger.kernel.org, Esben Nielsen <simlo@phys.au.dk>
-Subject: Re: [patch] Real-Time Preemption, -RT-2.6.12-rc1-V0.7.41-07
-Message-ID: <20050323063317.GB31626@elte.hu>
-References: <20050321085332.GA7163@elte.hu> <20050321090122.GA8066@elte.hu> <20050321090622.GA8430@elte.hu> <20050322054345.GB1296@us.ibm.com> <20050322072413.GA6149@elte.hu> <20050322092331.GA21465@elte.hu> <20050322093201.GA21945@elte.hu> <20050322100153.GA23143@elte.hu> <20050322112856.GA25129@elte.hu> <20050323061601.GE1294@us.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050323061601.GE1294@us.ibm.com>
-User-Agent: Mutt/1.4.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+	Wed, 23 Mar 2005 01:36:50 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:user-agent:x-accept-language:mime-version:to:cc:subject:references:in-reply-to:content-type:content-transfer-encoding;
+        b=Y3OoSbflvH+MfW5PxLO2HPdaiGK5OhxFaZX2eEXt4tAo7kaOz4GyEXLk5LU2DmjGUw00Fm/t5JhaAzGXf2d+egJAxAf1jMsPuvpSTMDI0DgGfzYE8GGm9v4zqi/FQqMTLi4G3R50WGZwySuZQ5dAYr4/zfHAXVq6nBuqAmwqiLI=
+Message-ID: <424107F9.5070807@gmail.com>
+Date: Wed, 23 Mar 2005 15:08:57 +0900
+From: Tejun Heo <htejun@gmail.com>
+User-Agent: Debian Thunderbird 1.0 (X11/20050118)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: James Bottomley <James.Bottomley@SteelEye.com>
+Cc: Jens Axboe <axboe@suse.de>, SCSI Mailing List <linux-scsi@vger.kernel.org>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH scsi-misc-2.6 01/08] scsi: remove unused bounce-buffer
+ release path
+References: <20050323021335.960F95F8@htj.dyndns.org>	 <20050323021335.F07B64D9@htj.dyndns.org> <1111550846.5520.90.camel@mulgrave>
+In-Reply-To: <1111550846.5520.90.camel@mulgrave>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-* Paul E. McKenney <paulmck@us.ibm.com> wrote:
+  Hello, James.
 
-> +#ifdef CONFIG_PREEMPT_RCU
-> +
-> +void rcu_read_lock(void)
-> +{
-> +	if (current->rcu_read_lock_nesting++ == 0) {
-> +		current->rcu_data = &get_cpu_var(rcu_data);
-> +		atomic_inc(&current->rcu_data->active_readers);
-> +		put_cpu_var(rcu_data);
+James Bottomley wrote:
+> On Wed, 2005-03-23 at 11:14 +0900, Tejun Heo wrote:
 > 
-> Need an smp_mb() here for non-x86 CPUs.  Otherwise, the CPU can
-> re-order parts of the critical section to precede the rcu_read_lock().
-> Could precede the put_cpu_var(), but why increase latency?
+>>01_scsi_remove_scsi_release_buffers.patch
+>>
+>>	Buffer bouncing hasn't been done inside the scsi midlayer for
+>>	quite sometime now, but bounce-buffer release paths are still
+>>	around.  This patch removes these unused paths.
+> 
+> 
+> Yes, but scsi_release_buffers isn't referring to bounce buffers anymore,
+> it's simply releasing the sg buffers.
+> 
 
-ok. It's enough to put a barrier into the else branch here, because the
-atomic op in the main brain is a barrier by itself.
+  That's what I did.  Replacing scsi_release_buffers() calls with calls 
+to scsi_free_sgtable().  The only logic removed is bounce-buffer 
+release/copy-back.
 
-> +void rcu_read_unlock(void)
-> +{
-[...]
-> And need an smp_mb() here, again for non-x86 CPUs.
+> [...]
+> 
+>>-	else if (cmd->buffer != req->buffer) {
+>>-		if (rq_data_dir(req) == READ) {
+>>-			unsigned long flags;
+>>-			char *to = bio_kmap_irq(req->bio, &flags);
+>>-			memcpy(to, cmd->buffer, cmd->bufflen);
+>>-			bio_kunmap_irq(to, &flags);
+>>-		}
+>>-		kfree(cmd->buffer);
+>>-	}
+> 
+> 
+> I'll defer to Jens here, but I don't thing you can just remove this ...
+> sg_io with a misaligned buffer will fail without this.
 
-ok.
+  AFAIK, those are done by blk_rq_map_user() and blk_rq_unmap_user(), 
+both of which are invoked directly by sg_io().
 
-> Assuming that the memory barriers are added, I can see a bunch of ways
-> for races to extend grace periods, but none so far that result in the
-> fatal too-short grace period.  Since rcu_qsctr_inc() refuses to
-> increment the quiescent-state counter on any CPU that started an RCU
-> read-side critical section that has not yet completed, any long
-> critical section will have a corresponding CPU that will refuse to go
-> through a quiescent state.  And that will prevent the grace period
-> from completing.
+> That rather nasty code freeing cmd->buffer needs to be in there as
+> well ... so it does make sense to keep this API
 
-i'm worried about the following scenario: what happens when a task is
-migrated from CPU#1 to CPU#2, while in an RCU read section that it
-acquired on CPU#1, and queues a callback. E.g. d_free() does a
-call_rcu(), to queue the freeing of the dentry.
+  That code is invoked only for REQ_BLOCK_PC requests without bio, and I 
+digged pretty hard but, in those cases, AFAICT, the callers are 
+responsible for supplying dma-able buffers and nothing seems to alter 
+cmd->buffer after the cmd gets initialized, but I might be missing 
+things here.  If so, please point out.
 
-That callback will be queued on CPU#2 - while the task still keeps
-current->rcu_data of CPU#1. It also means that CPU#2's read counter did
-_not_ get increased - and a too short grace period may occur.
+  Thanks.
 
-it seems to me that that only safe method is to pick an 'RCU CPU' when
-first entering the read section, and then sticking to it, no matter
-where the task gets migrated to. Or to 'migrate' the +1 read count from
-one CPU to the other, within the scheduler.
+-- 
+tejun
 
-the 'migrate read count' solution seems more promising, as it would keep
-other parts of the RCU code unchanged. [ But it seems to break the nice
-'flip pointers' method you found to force a grace period. If a 'read
-section' can migrate from one CPU to another then it can migrate back as
-well, at which point it cannot have the 'old' pointer. Maybe it would
-still work better than no flip pointers. ]
-
-	Ingo

@@ -1,42 +1,89 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261403AbUK1G35@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261405AbUK1HOD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261403AbUK1G35 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 28 Nov 2004 01:29:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261405AbUK1G35
+	id S261405AbUK1HOD (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 28 Nov 2004 02:14:03 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261406AbUK1HOD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 28 Nov 2004 01:29:57 -0500
-Received: from arnor.apana.org.au ([203.14.152.115]:19204 "EHLO
-	arnor.apana.org.au") by vger.kernel.org with ESMTP id S261403AbUK1G34
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 28 Nov 2004 01:29:56 -0500
-From: Herbert Xu <herbert@gondor.apana.org.au>
-To: daw-usenet@taverner.cs.berkeley.edu (David Wagner)
-Subject: Re: no entropy and no output at /dev/random  (quick question)
-Cc: linux-kernel@vger.kernel.org
-Organization: Core
-In-Reply-To: <coak1s$suq$1@abraham.cs.berkeley.edu>
-X-Newsgroups: apana.lists.os.linux.kernel
-User-Agent: tin/1.7.4-20040225 ("Benbecula") (UNIX) (Linux/2.4.27-hx-1-686-smp (i686))
-Message-Id: <E1CYIZ7-0005D3-00@gondolin.me.apana.org.au>
-Date: Sun, 28 Nov 2004 17:29:45 +1100
+	Sun, 28 Nov 2004 02:14:03 -0500
+Received: from canuck.infradead.org ([205.233.218.70]:18185 "EHLO
+	canuck.infradead.org") by vger.kernel.org with ESMTP
+	id S261405AbUK1HN7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 28 Nov 2004 02:13:59 -0500
+Subject: Re: [RFC] Splitting kernel headers and deprecating __KERNEL__
+From: Arjan van de Ven <arjan@infradead.org>
+To: Arnd Bergmann <arnd@arndb.de>
+Cc: David Woodhouse <dwmw2@infradead.org>, "Randy.Dunlap" <rddunlap@osdl.org>,
+       Matthew Wilcox <matthew@wil.cx>, Tonnerre <tonnerre@thundrix.ch>,
+       David Howells <dhowells@redhat.com>, torvalds@osdl.org,
+       hch@infradead.org, aoliva@redhat.com, linux-kernel@vger.kernel.org,
+       libc-hacker@sources.redhat.com
+In-Reply-To: <200411272353.54056.arnd@arndb.de>
+References: <19865.1101395592@redhat.com> <41A8AF8F.8060005@osdl.org>
+	 <1101575782.21273.5347.camel@baythorne.infradead.org>
+	 <200411272353.54056.arnd@arndb.de>
+Content-Type: text/plain
+Message-Id: <1101626019.2638.2.camel@laptop.fenrus.org>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2.dwmw2.1) 
+Date: Sun, 28 Nov 2004 08:13:39 +0100
+Content-Transfer-Encoding: 7bit
+X-Spam-Score: 3.7 (+++)
+X-Spam-Report: SpamAssassin version 2.63 on canuck.infradead.org summary:
+	Content analysis details:   (3.7 points, 5.0 required)
+	pts rule name              description
+	---- ---------------------- --------------------------------------------------
+	1.1 RCVD_IN_DSBL           RBL: Received via a relay in list.dsbl.org
+	[<http://dsbl.org/listing?80.57.133.107>]
+	2.5 RCVD_IN_DYNABLOCK      RBL: Sent directly from dynamic IP address
+	[80.57.133.107 listed in dnsbl.sorbs.net]
+	0.1 RCVD_IN_SORBS          RBL: SORBS: sender is listed in SORBS
+	[80.57.133.107 listed in dnsbl.sorbs.net]
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by canuck.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-David Wagner <daw@taverner.cs.berkeley.edu> wrote:
-> 
-> Yes, for almost all purposes, applications should use /dev/urandom,
-> not /dev/random.  (The names for these devices are unfortunate.)
-> Sadly, many applications fail to follow these rules, and consequently
-> /dev/random's entropy pool often ends up getting depleted much faster
-> than it has to be.
 
-I agree with your conclusion that applications should use urandom.
-However, IIRC /dev/urandom depletes the entropy pool just as fast
-as /dev/random...
+> The problem with these (atomic.h
 
-Cheers,
--- 
-Visit Openswan at http://www.openswan.org/
-Email: Herbert Xu ~{PmV>HI~} <herbert@gondor.apana.org.au>
-Home Page: http://gondor.apana.org.au/~herbert/
-PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt
+that is a very non portable header and there are several good
+alternatives (see the apr library for example). In fact. atomic.h is
+*dangerous* in userspace, it is only atomic if CONFIG_SMP is set, so if
+you compile your app on a machine without that set and then run it on an
+smp machine, you are not atomic.
+
+>
+> , bitops.h
+
+again not portable 
+
+>
+> , byteorder.h, 
+
+there are perfectly good alternatives in glibc
+
+>
+> div64.h,
+
+huh? what is wrong with "/" in C
+
+> list.h
+
+this one I can see
+
+>
+> , spinlock.h
+
+EHHHH????? Spinlocks in userland? You got to be kidding.
+
+
+> , unaligned.h 
+
+weird
+
+> and xor.h) 
+
+xor.h is very raid specific (and GPL with lots of code, so a license
+trap)
+
+

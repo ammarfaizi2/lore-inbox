@@ -1,62 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135241AbRDRSGS>; Wed, 18 Apr 2001 14:06:18 -0400
+	id <S135242AbRDRSL3>; Wed, 18 Apr 2001 14:11:29 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135242AbRDRSGI>; Wed, 18 Apr 2001 14:06:08 -0400
-Received: from zmailer.org ([194.252.70.162]:26117 "EHLO zmailer.org")
-	by vger.kernel.org with ESMTP id <S135241AbRDRSGB>;
-	Wed, 18 Apr 2001 14:06:01 -0400
-Date: Wed, 18 Apr 2001 21:05:46 +0300
-From: Matti Aarnio <matti.aarnio@zmailer.org>
-To: Dennis <dennis@etinc.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: SMP in 2.4
-Message-ID: <20010418210546.W805@mea-ext.zmailer.org>
-In-Reply-To: <20010418211208.A1140@villain.home.ems.chel.su> <5.0.2.1.0.20010418110702.03850d20@mail.etinc.com>
+	id <S135243AbRDRSLU>; Wed, 18 Apr 2001 14:11:20 -0400
+Received: from msp-65-29-30-175.mn.rr.com ([65.29.30.175]:42381 "HELO
+	msp-65-29-30-175.mn.rr.com") by vger.kernel.org with SMTP
+	id <S135242AbRDRSLL>; Wed, 18 Apr 2001 14:11:11 -0400
+Date: Wed, 18 Apr 2001 13:11:03 -0500
+From: Shawn <z3rk@ahkbarr.dynip.com>
+To: LKML <linux-kernel@vger.kernel.org>
+Subject: Coping with removal of skb_dataref
+Message-ID: <20010418131103.A12107@msp-65-29-30-175.mn.rr.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <5.0.2.1.0.20010418110702.03850d20@mail.etinc.com>; from dennis@etinc.com on Wed, Apr 18, 2001 at 11:08:22AM -0400
+User-Agent: Mutt/1.3.15i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Apr 18, 2001 at 11:08:22AM -0400, Dennis wrote:
-> Does 2.4 have something similar to spl levels or does it still require the 
-> ridiculous MS-DOSish spin-locks to protect every bit of code?
+Ever since the changes to skb_dataref happened,
+The following snippit needs to be changed.
 
-  Lets see -- (besides of MSDOS not having any sort of spinlocks), the
-  spl() is something out of VAX series of machines, and it really works
-  by presuming that there is some sort of priority leveling among irq
-  sources.
+#  define SKB_IS_CLONE_OF(clone, skb)   ( \
+      skb_dataref(clone) == skb_dataref(skb) \
+   )
 
-  At i386 there is only one level of interrupt control, either you
-  accept interrupts, or you don't.   It just doesn't scale very well.
+Can someone with a clue help me change this so it works?
 
-  At FreeBSD site there is no documentation of how to handle interrupts,
-  presumably that is "read the source, luke".
+-Shawn
 
-  Ah, found some man-page with its description..
+ Your eyes are weary from staring at the CRT.  You feel sleepy.  Notice how
+ restful it is to watch the cursor blink.  Close your eyes.  The opinions
+ stated above are yours.  You cannot imagine why you ever felt otherwise.
 
-  Essentially the supported function for  spl()  is:
-
-	spin_lock_irqsave(&sp->lock, flags);
-
-  along with its counterpart (  splx()  ):
-
-	spin_unlock_irqrestore(&sp->lock, flags);
-
-  These block interrupts at the LOCAL processor only (no interprocessor
-  communication hazzle for it), and the spinlocks are for blocking
-  interrupt processing by *other* processors at SMP systems.
-  ( Linux does distribute interrupts these days to *all* processors
-    when APIC is in use, and while it is fast and easy to block IRQ
-    at local processor, getting other processors also to block IRQs
-    is major slow thing...  )
-
-  At UP systems the SAME functions are used, but their internal
-  implementations are slightly different -- no SMP related spinlock
-  is operated.
-
-  For a model, see   drivers/net/eepro100.c
-
-> DB

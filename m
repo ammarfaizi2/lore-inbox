@@ -1,65 +1,70 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262056AbUCaQNp (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 31 Mar 2004 11:13:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262046AbUCaQNp
+	id S262042AbUCaQMX (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 31 Mar 2004 11:12:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262022AbUCaQMX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 31 Mar 2004 11:13:45 -0500
-Received: from fed1mtao01.cox.net ([68.6.19.244]:14815 "EHLO
-	fed1mtao01.cox.net") by vger.kernel.org with ESMTP id S262056AbUCaQNG
+	Wed, 31 Mar 2004 11:12:23 -0500
+Received: from fed1mtao03.cox.net ([68.6.19.242]:53173 "EHLO
+	fed1mtao03.cox.net") by vger.kernel.org with ESMTP id S262052AbUCaQMP
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 31 Mar 2004 11:13:06 -0500
-Date: Wed, 31 Mar 2004 09:13:05 -0700
+	Wed, 31 Mar 2004 11:12:15 -0500
+Date: Wed, 31 Mar 2004 09:12:14 -0700
 From: Tom Rini <trini@kernel.crashing.org>
-To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>
-Subject: Re: [patch 1/22] Add __early_param for all arches
-Message-ID: <20040331161305.GK13819@smtp.west.cox.net>
-References: <20040324235722.QDLK23486.fed1mtao04.cox.net@localhost.localdomain> <1080706985.29195.12.camel@bach>
+To: Pavel Machek <pavel@suse.cz>
+Cc: "Amit S. Kale" <amitkale@emsyssoft.com>,
+       kgdb-bugreport@lists.sourceforge.net,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Latest kgdb?
+Message-ID: <20040331161213.GJ13819@smtp.west.cox.net>
+References: <20040319162009.GE4569@smtp.west.cox.net> <200403242011.26314.amitkale@emsyssoft.com> <20040324154355.GD7126@smtp.west.cox.net> <200403251022.39704.amitkale@emsyssoft.com> <20040325151444.GC13366@smtp.west.cox.net> <20040331152925.GA6205@elf.ucw.cz> <20040331154541.GH13819@smtp.west.cox.net> <20040331160806.GG220@elf.ucw.cz>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1080706985.29195.12.camel@bach>
+In-Reply-To: <20040331160806.GG220@elf.ucw.cz>
 User-Agent: Mutt/1.5.5.1+cvs20040105i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Mar 31, 2004 at 02:23:05PM +1000, Rusty Russell wrote:
+On Wed, Mar 31, 2004 at 06:08:06PM +0200, Pavel Machek wrote:
 
-> On Thu, 2004-03-25 at 10:57, trini@kernel.crashing.org wrote: 
-> > +void __init parse_early_options(char **cmdline_p)
+> Hi!
 > 
-> Please, don't do it this way.
+> > > Where can I get latest kgdb? The version on kgdb.sf.net is still
+> > > against 2.6.3, afaics. Or should I forward port it?
+> > 
+> > CVS is against 2.6.4.  Once 2.6.5 comes out, I'll move it forward again.
+> > Locally, I've got a series of patches vs 2.6.5-rc3 + some -mm bits for
+> > Andrew which I hope to post today, but might not make it until tomorrow.
 > 
-> __setup() has icky semantics which are only used in three places (ide,
-> ppc64's eeh, and um's eth).  The string is a prefix and the rest of the
-> parameter is handed to the fn as an arg.  Meaning misspellings aren't
-> usually caught, and accidental name reuse is hard to catch.
-> 
-> Secondly, we already have a parser in the kernel.
-> 
-> I like the idea of cleaning up saved_command_line crap: ideally
-> the archs would just assign to a global "command_line" var, and
-> anyone wanting to write to it would make their own copies.
-> 
-> How's this version, instead?  If you agree, I'll produce a merged
-> version.
+> Okay, CVS *is* against 2.6.4, but it says it is against 2.6.3. Okay to
+> commit?
+> 								Pavel
+> Index: README
+> ===================================================================
+> RCS file: /cvsroot/kgdb/kgdb-2/README,v
+> retrieving revision 1.5
+> diff -u -u -r1.5 README
+> --- README	2 Mar 2004 11:10:36 -0000	1.5
+> +++ README	31 Mar 2004 15:52:54 -0000
+> @@ -1,4 +1,4 @@
+> -Base Kernel version: 2.6.3
+> +Base Kernel version: 2.6.4
+>  
+>  Patch:
+>  ------
+> @@ -39,8 +39,8 @@
+>  Supply command line options kgdbwait and kgdb8250 to the kernel.
+>  Example:  kgdbwait kgdb8250=0,115200
+>  (for ttyS0), then
+> -   % stty 115200 < /dev/ttyS0
+>     % gdb ./vmlinux
+> +   (gdb) set remotebaud 115200
+>     (gdb) target remote /dev/ttyS0
+>  
+>  Example for kgdb ethernet interface
 
-My first concern is can parse_args & co really be run so very early on ?
-Also:
-> +/* Arch code calls this early on. */
-> +void __init parse_early_options(const char *saved_command_line)
-> +{
-> +	static char __initdata command_line[COMMAND_LINE_SIZE];
-> +	strcpy(command_line, saved_command_line);
-
-Really should be:
-/* i386 goes right to saved_command_line */
-if (*cmdline_p != saved_command_line)
-	memcpy(saved_command_line, *cmdline_p, COMMAND_LINE_SIZE);
-/* ensure NUL terminated. */
-saved_command_line[COMMAND_LINE_SIZE - 1] = '\0';
+Sure.
 
 -- 
 Tom Rini

@@ -1,146 +1,104 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272971AbTHKRqd (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 11 Aug 2003 13:46:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272975AbTHKRqP
+	id S272972AbTHKR4C (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 11 Aug 2003 13:56:02 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272963AbTHKRzy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Aug 2003 13:46:15 -0400
-Received: from 64-60-248-67.cust.telepacific.net ([64.60.248.67]:39629 "EHLO
-	mx.rackable.com") by vger.kernel.org with ESMTP id S272971AbTHKRoi
+	Mon, 11 Aug 2003 13:55:54 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:21740 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S272945AbTHKRxb
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Aug 2003 13:44:38 -0400
-Message-ID: <3F37D49B.6050409@rackable.com>
-Date: Mon, 11 Aug 2003 10:38:35 -0700
-From: Samuel Flory <sflory@rackable.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030529
-X-Accept-Language: en-us, en
+	Mon, 11 Aug 2003 13:53:31 -0400
+Message-ID: <3F37D80D.5000703@pobox.com>
+Date: Mon, 11 Aug 2003 13:53:17 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+Organization: none
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20021213 Debian/1.2.1-2.bunk
+X-Accept-Language: en
 MIME-Version: 1.0
-To: "Brown, Len" <len.brown@intel.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: 2.4.22-pre10 ACPI kennel oops
-References: <BF1FE1855350A0479097B3A0D2A80EE009FC12@hdsmsx402.hd.intel.com>
-In-Reply-To: <BF1FE1855350A0479097B3A0D2A80EE009FC12@hdsmsx402.hd.intel.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+To: Larry McVoy <lm@bitmover.com>
+CC: davej@redhat.com, torvalds@osdl.org, linux-kernel@vger.kernel.org,
+       dri-devel@lists.sourceforge.net
+Subject: Re: [PATCH] CodingStyle fixes for drm_agpsupport
+References: <E19mF4Y-0005Eg-00@tetrachloride> <20030811164012.GB858@work.bitmover.com> <3F37CB44.5000307@pobox.com> <20030811170425.GA4418@work.bitmover.com> <3F37CF4E.3010605@pobox.com> <20030811172333.GA4879@work.bitmover.com>
+In-Reply-To: <20030811172333.GA4879@work.bitmover.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 11 Aug 2003 17:44:34.0415 (UTC) FILETIME=[39FDFFF0:01C36030]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Brown, Len wrote:
+Larry McVoy wrote:
+> On Mon, Aug 11, 2003 at 01:15:58PM -0400, Jeff Garzik wrote:
+> 
+>>>	if (expr) statement;		// OK
+>>
+>>The test and the statement run together visually, which is it is 
+>>preferred to put the statement on the following line.
+> 
+> 
+> Nah.  
+> 
+> 	if (!p) return (whatever);
+> 	if (foo) {
+> 		statement;
+> 	} else {
+> 		statement;
+> 		statement;
+> 	}
+> 	if (!p) return (whatever);
+> 
+> Perfectly readable.  We have a few hundred thousand lines of code written
 
->Was ACPI included in your 2.4.21 kernel?  If no, then 2.4.22-pre10 may
->be the 1st time that Linux ACPI has examined the tables on this system.
->
->I'm not familiar with "woodruf" -- do it have a part number?
->First thing to do is to locate the latest BIOS for the board, and see if
->this is something that has already been fixed there.
->
->If the latest BIOS doesn't do it, then filing a bug under componenet
->ACPI will be the best way to get it fixed w/o having it fall through the
->
-
-  Still fails.  A bug with quad, or the ACPI project?
-
->cracks.
->
->Thanks,
->-Len
->
->
->
->  
->
->>-----Original Message-----
->>From: Samuel Flory [mailto:sflory@rackable.com] 
->>Sent: Tuesday, August 05, 2003 5:29 PM
->>To: linux-kernel@vger.kernel.org
->>Subject: 2.4.22-pre10 ACPI kennel oops
->>
->>
->>  I'm getting a kernel oops on the intel woodruf P4 motherboard under 
->>2.4.22pre10.  This config worked fine under 2.4.21.  The output of 
->>ksymoops is attached, and the raw oops is attached.
->>
->>ksymoops 2.4.4 on i686 2.4.20-8smp.  Options used
->>     -V (default)
->>     -K (specified)
->>     -L (specified)
->>     -O (specified)
->>     -m /boot/System.map-2.4.22-pre10 (specified)
->>
->>ACPI: LAPIC_NMI (acpi_id[0x01] polarity[0x0] trigger[0x0] lint[0x1])
->>ACPI: LAPIC_NMI (acpi_id[0x02] polarity[0x0] trigger[0x0] lint[0x1])
->>cpu: 0, clocks: 1328876, slice: 664438
->>Unable to handle kernel paging request at virtual address f8803000
->>c022d588
->>*pde = 00000000
->>Oops: 0000
->>CPU:    0
->>EIP:    0010:[<c022d588>]    Not tainted
->>Using defaults from ksymoops -t elf32-i386 -a i386
->>EFLAGS: 00010206
->>eax: 00000000   ebx: 00000000   ecx: 00000001   edx: c1c13ec0
->>esi: f8802ffd   edi: c1c13ee0   ebp: c1c13ec0   esp: c1c13e64
->>ds: 0018   es: 0018   ss: 0018
->>Process swapper (pid: 1, stackpage=c1c13000)
->>Stack: c1c13f1c c1c13f1c c1c13e84 c022d015 c1c13ec0 f8802fdd 00000024 
->>f8802fdd
->>       00000008 c0492d37 c0492d24 00200000 c1c13eb0 c1c13ec0 c1c13f2c 
->>c1c13eb0
->>       c022c984 c1c13f1c c1c13ec0 00000008 c0492cab c0492ca2 c1c13f0c 
->>54445353
->>Call Trace:    [<c022d015>] [<c022c984>] [<c022cb68>] [<c022cd89>] 
->>[<c022e124>]
->>  [<c022e1fa>] [<c0105000>] [<c010508b>] [<c0105000>] [<c01075ae>] 
->>[<c0105060>]
->>Code: f3 a5 e9 5c ff ff ff c1 e9 02 89 d7 f3 a5 a4 e9 4f ff ff ff
->>
->> >>EIP; c022d588 <__constant_memcpy+bd/f5>   <=====
->>Trace; c022d015 <acpi_tb_get_table_header+11a/12d>
->>Trace; c022c984 <acpi_tb_get_primary_table+64/d2>
->>Trace; c022cb68 <acpi_tb_get_required_tables+45/2b4>
->>Trace; c022cd89 <acpi_tb_get_required_tables+266/2b4>
->>Trace; c022e124 <acpi_load_tables+34/188>
->>Trace; c022e1fa <acpi_load_tables+10a/188>
->>Trace; c0105000 <_stext+0/0>
->>Trace; c010508b <init+2b/190>
->>Trace; c0105000 <_stext+0/0>
->>Trace; c01075ae <arch_kernel_thread+2e/40>
->>Trace; c0105060 <init+0/190>
->>Code;  c022d588 <__constant_memcpy+bd/f5>
->>00000000 <_EIP>:
->>Code;  c022d588 <__constant_memcpy+bd/f5>   <=====
->>   0:   f3 a5                     repz movsl 
->>%ds:(%esi),%es:(%edi)   <=====
->>Code;  c022d58a <__constant_memcpy+bf/f5>
->>   2:   e9 5c ff ff ff            jmp    ffffff63 <_EIP+0xffffff63>
->>Code;  c022d58f <__constant_memcpy+c4/f5>
->>   7:   c1 e9 02                  shr    $0x2,%ecx
->>Code;  c022d592 <__constant_memcpy+c7/f5>
->>   a:   89 d7                     mov    %edx,%edi
->>Code;  c022d594 <__constant_memcpy+c9/f5>
->>   c:   f3 a5                     repz movsl %ds:(%esi),%es:(%edi)
->>Code;  c022d596 <__constant_memcpy+cb/f5>
->>   e:   a4                        movsb  %ds:(%esi),%es:(%edi)
->>Code;  c022d597 <__constant_memcpy+cc/f5>
->>   f:   e9 4f ff ff ff            jmp    ffffff63 <_EIP+0xffffff63>
->>
->>
->>-- 
->>Once you have their hardware. Never give it back.
->>(The First Rule of Hardware Acquisition)
->>Sam Flory  <sflory@rackable.com>
->>
->>    
->>
->
->  
->
+Ug.  The first and last 'if' need spreading out away from the big fat 
+block, and the "return (whatever)" fools your eyes into thinking they 
+are function calls at a 10-nanosecond glance.  Also, having two styles 
+of 'if' formatting in your example just screams "inconsistent" to me :)
 
 
--- 
-Once you have their hardware. Never give it back.
-(The First Rule of Hardware Acquisition)
-Sam Flory  <sflory@rackable.com>
+> like this and I review all of it.  I suspect that I do more reviewing than
+> 99% of the people on this list which makes my opinion count more because
+> anything that makes my tired eyes absorb the info faster is a good thing.
+
+Absolutely not.  I'm cooler, so my opinion counts more.
+
+
+> Same for your eyes when you get to my age.  
+
+I bet when you were in school, you had to chip your homework into slate, 
+and dinner was brontosaurus-kebob, right?
+
+
+> I also make people do
+> 
+> 	if ((a <= B) || (c >= d)) {
+> 		xxx
+> 	}
+> 
+> even though I know, if I think about it, what the precedence is.  It doesn't
+> matter that I know or you know, what matters is the number of lines of code
+> a day you can correctly review.  Anything that helps that means that you 
+> are helping people make the source base better.  Try reading 30K lines of 
+> diffs at one sitting and tell me again that I'm wrong.  If you do, bump it
+> up to 60K lines :)
+
+Absolutely agreed.  I do the same myself out of habit.
+
+
+>>>	if (!pointer) return (-EINVAL);
+>>>
+>>>Short, sweet, readable, no worries.  
+>>
+>>return is not a function ;-)
+> 
+> 
+> See, there is that age thing again.  Think V6.  And it is sort of a function,
+> it unravels the stack frame.
+
+hehe :)  I suppose one could say I'm biased towards the compiler view of 
+things, 'return' being a compiler intrinsic, controlling code flow like 
+several other compiler intrinsics.
+
+	Jeff, who also despises longjmp()
+
 
 

@@ -1,61 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261649AbTJHPFi (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Oct 2003 11:05:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261656AbTJHPFi
+	id S261661AbTJHPZy (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Oct 2003 11:25:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261613AbTJHPZy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Oct 2003 11:05:38 -0400
-Received: from rcum.uni-mb.si ([164.8.2.10]:59347 "EHLO rcum.uni-mb.si")
-	by vger.kernel.org with ESMTP id S261649AbTJHPFd (ORCPT
+	Wed, 8 Oct 2003 11:25:54 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:47825 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id S261586AbTJHPZw (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Oct 2003 11:05:33 -0400
-Date: Wed, 08 Oct 2003 17:05:16 +0200
-From: Domen Puncer <domen@coderock.org>
-Subject: Re: 3c59x on 2.6.0-test3->test6 slow
-In-reply-to: <Pine.LNX.4.53.0310071349560.19396@montezuma.fsmlabs.com>
-To: Zwane Mwaikambo <zwane@arm.linux.org.uk>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>
-Message-id: <200310081705.16241.domen@coderock.org>
-MIME-version: 1.0
-Content-type: text/plain; charset=iso-8859-1
-Content-transfer-encoding: 7BIT
-Content-disposition: inline
-User-Agent: KMail/1.5.4
-References: <200310061529.56959.domen@coderock.org>
- <200310070949.31220.domen@coderock.org>
- <Pine.LNX.4.53.0310071349560.19396@montezuma.fsmlabs.com>
+	Wed, 8 Oct 2003 11:25:52 -0400
+Date: Wed, 8 Oct 2003 08:20:33 -0700
+From: "David S. Miller" <davem@redhat.com>
+To: Mircea Ciocan <mirceac@interplus.ro>
+Cc: marcelo.tosatti@cyclades.com, linux-kernel@vger.kernel.org,
+       linux-net@vger.kernel.org
+Subject: Re: URL for shaper tools?
+Message-Id: <20031008082033.5d73d922.davem@redhat.com>
+In-Reply-To: <3F832F23.5000303@interplus.ro>
+References: <Pine.LNX.4.44.0310071750340.24677-100000@logos.cnet>
+	<3F832F23.5000303@interplus.ro>
+X-Mailer: Sylpheed version 0.9.2 (GTK+ 1.2.6; sparc-unknown-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 08 of October 2003 01:43, Zwane Mwaikambo wrote:
-> On Tue, 7 Oct 2003, Domen Puncer wrote:
-> > > What is your link peer?
-> >
-> > Not native english speaker, but if "link peer"  is the remote end, then
-> > this is a friend's computer. (and a hub is between computers)
->
-> Ok in this case it would be the hub, sometimes these aren't the best when
-> it comes to advertising capabilities.
+On Wed, 08 Oct 2003 00:24:51 +0300
+Mircea Ciocan <mirceac@interplus.ro> wrote:
 
-Also slow on crossover cable, without hub.
+> 	Well for shapecfg.c the last known ( by Google) link is:
+> http://www.in4.sk/ftp/linux/shaper/
+> 	but I belive this tool should be hosted on kernel.org somewhere at 
+> least for hystorical reasons, even on Alan Cox dir ;).1
+> The other drivers I have no ideea where and if they survived anymore
 
-
-> > # strace mii-tool eth0
-> > execve("/sbin/mii-tool", ["mii-tool", "eth0"], [/* 37 vars */]) = 0
-> > socket(PF_INET, SOCK_DGRAM, IPPROTO_IP) = 3
-> > ioctl(3, 0x89f0, 0x804b460)             = -1 EOPNOTSUPP (Operation not
-> > supported) write(2, "SIOCGMIIPHY on \'eth0\' failed: Op"...,
-> > 54SIOCGMIIPHY on 'eth0' failed: Operation not supported ) = 54
-> > close(3)                                = 0
->
-> Could you try updating your mii-tool please.
-
-Ok, updated to the one that ships with redhat.
-Now i get:
-eth0: link ok
-when it is slow (-test2 module)
-
-and:
-eth0: negotiated 100baseTx-FD, link ok
-when it is ok (reloaded -test2 module)
-
+So we should either delete entirely the URL references of simply
+leave them there until a definitive location is determined/created.

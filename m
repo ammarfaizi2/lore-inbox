@@ -1,36 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266971AbSL3OQG>; Mon, 30 Dec 2002 09:16:06 -0500
+	id <S266977AbSL3OUs>; Mon, 30 Dec 2002 09:20:48 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266972AbSL3OQG>; Mon, 30 Dec 2002 09:16:06 -0500
-Received: from cmailg4.svr.pol.co.uk ([195.92.195.174]:11 "EHLO
-	cmailg4.svr.pol.co.uk") by vger.kernel.org with ESMTP
-	id <S266971AbSL3OQG>; Mon, 30 Dec 2002 09:16:06 -0500
-Date: Mon, 30 Dec 2002 14:24:58 +0000
-To: lvm-devel@sistina.com
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [lvm-devel] [PATCH] remove __MOD_* from dm
-Message-ID: <20021230142458.GD2703@reti>
-References: <20021220233855.GA13962@kroah.com>
+	id <S266978AbSL3OUr>; Mon, 30 Dec 2002 09:20:47 -0500
+Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:4481
+	"EHLO irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S266977AbSL3OUq>; Mon, 30 Dec 2002 09:20:46 -0500
+Subject: Re: How much we can trust packet timestamping
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: uaca@alumni.uv.es
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20021230130148.GB1591@pusa.informat.uv.es>
+References: <20021230112838.GA928@pusa.informat.uv.es>
+	<1041253743.13097.3.camel@irongate.swansea.linux.org.uk> 
+	<20021230130148.GB1591@pusa.informat.uv.es>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
+Date: 30 Dec 2002 15:10:45 +0000
+Message-Id: <1041261045.13684.2.camel@irongate.swansea.linux.org.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20021220233855.GA13962@kroah.com>
-User-Agent: Mutt/1.4i
-From: Joe Thornber <joe@fib011235813.fsnet.co.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Dec 20, 2002 at 03:38:56PM -0800, Greg KH wrote:
-> Here's another patch against 2.5.52-bk that gets rid of the old __MOD_*
-> functions for the newer module api.  This also allows the modules to be
-> unloaded.
-> 
-> Joe, please add this to your next round of patches.
+On Mon, 2002-12-30 at 13:01, uaca@alumni.uv.es wrote:
+> Anybody know about a Linux driver that supports doing IRQ raise time
+> sampling? any doc/pointer/suggestion would be greatly appreciated
 
-Thanks Greg, if the following patchset has no problems I'll push it to
-Linus at the end of the week.
+Caederus has engineers who did the ISA bus hardware that led to the
+SIOCGSTAMP facility in the first place (then the tcpdump type folks
+decided it was really rather cool so it went generic anyway)
 
-http://people.sistina.com/~thornber/patches/2.5-stable/2.5.53/2.5.53-dm-2.tar.bz2
+www.caederus.co.uk
 
-- Joe
+I don't know if anyone is doing this in the PCI bus world
+

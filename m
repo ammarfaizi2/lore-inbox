@@ -1,88 +1,61 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289062AbSBMXGJ>; Wed, 13 Feb 2002 18:06:09 -0500
+	id <S289089AbSBMXK3>; Wed, 13 Feb 2002 18:10:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289084AbSBMXGA>; Wed, 13 Feb 2002 18:06:00 -0500
-Received: from iggy.triode.net.au ([203.63.235.1]:28857 "EHLO
-	iggy.triode.net.au") by vger.kernel.org with ESMTP
-	id <S289062AbSBMXFz>; Wed, 13 Feb 2002 18:05:55 -0500
-Date: Thu, 14 Feb 2002 10:05:11 +1100
-From: Linux Kernel Mailing List <kernel@iggy.triode.net.au>
-To: bob@dwcs.net
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.4.x ALI IDE strangeness
-Message-ID: <20020214100511.A11641@iggy.triode.net.au>
-In-Reply-To: <Pine.LNX.4.40.0202131655290.3878-100000@dwcs.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <Pine.LNX.4.40.0202131655290.3878-100000@dwcs.net>; from bob@dwcs.net on Wed, Feb 13, 2002 at 05:32:35PM -0500
+	id <S289096AbSBMXKT>; Wed, 13 Feb 2002 18:10:19 -0500
+Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:57863 "EHLO
+	gatekeeper.tmr.com") by vger.kernel.org with ESMTP
+	id <S289089AbSBMXKF>; Wed, 13 Feb 2002 18:10:05 -0500
+Date: Wed, 13 Feb 2002 18:08:59 -0500 (EST)
+From: Bill Davidsen <davidsen@tmr.com>
+To: "Richard B. Johnson" <root@chaos.analogic.com>
+cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: How to check the kernel compile options ? 
+In-Reply-To: <Pine.LNX.3.95.1020213165845.22523A-100000@chaos.analogic.com>
+Message-ID: <Pine.LNX.3.96.1020213180317.12448K-100000@gatekeeper.tmr.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Bob,
+On Wed, 13 Feb 2002, Richard B. Johnson wrote:
 
-I'm also experiencing strange hangs with DMA on and ALI15x3.
-I'm using an ASUS A7A266 motherboard.
+> On Wed, 13 Feb 2002, Bill Davidsen wrote:
+> 
+> > On Wed, 13 Feb 2002, Richard B. Johnson wrote:
+> > 
+> > > The advantage, of course is that if you are executing the kernel,
+> > > it can give you all the information necessary to recreate a
+> > > new one from the sources because its .config is embeded into
+> > > itself. Once you have the ".config" file, you just do `make oldconfig`
+> > > and you are home free.
+> > 
+> > But it does no such thing! You not only need the config file, you need the
+> > source. So you now need to add to the kernel the entire source tree from
+> > which it was built, or perhaps just a diff file from a kernel.org source,
+> > which you will suitably compress, of course.
+> 
+> What the F..? You are outa your mind. The PURPOSE is to create a .config
+> from which one can do a `make oldconfig` and get the same drivers,
+> modules, etc., that you have in the running kernel.
+> 
+> Of course you need a kernel source-code tree.
 
-Make sure that the BIOS setting of "PNP OS" is off
+If you are going to build the same kernel you don't need *a* kernel source
+code tree, you need the same kernel source code tree. Anyone who has
+turned off an option because it had a bug in one kernel release will
+assure you that config files for one kernel are not always safe or
+functional on another.
 
-I can turn DMA on using hdparm, however my system freezes up
-if I try some heavy work like a kernel compile.
+I didn't think anyone would take that literally, I was making the point
+that the config is "necessary but not sufficient" to borrow an engineering
+term, and that the config is not the whole solution.
 
-I'm sure there is a kernel bug here, I'm trying to find
-a kernel developer who is interested in investigating it.
+Did you build your mail reader with the sarcasm and hyperbole detector
+option off?
 
-Regards.  Paul
+-- 
+bill davidsen <davidsen@tmr.com>
+  CTO, TMR Associates, Inc
+Doing interesting things with little computers since 1979.
 
-
-
-On Wed, Feb 13, 2002 at 05:32:35PM -0500, bob@dwcs.net wrote:
-> When using any 2.4.x kernel, including the very latest one, with my
-> Fujitsu Lifebook P which uses the ALI  M5229 IDE controller it acts much
-> different than when using any 2.2.x  kernels that I have tried.  When
-> using the latest 2.2 kernels and not including specific support for the
-> ALI controller the kernel detects the controller and lets me use DMA.
-> When compiling in ALI IDE support in either 2.2 or 2.4 kernels the system
-> hangs when the controller is detected.
-> That isn't really much of a problem in the 2.2 kernels because I can just
-> use the generic IDE support.  In the 2.4 kernel series though, I can't
-> enable DMA.  When booting with a 2.4 kernel I get this:
-> 
-> Uniform Multi-Platform E-IDE driver Revision: 6.31
-> ide: Assuming 33MHz system bus speed for PIO modes; override with
-> idebus=xx
-> ALI15X3: IDE controller on PCI bus 00 dev 78
-> PCI: No IRQ known for interrupt pin A of device 00:0f.0. Please try using
-> pci=biosirq.
-> ALI15X3: chipset revision 195
-> ALI15X3: not 100% native mode: will probe irqs later
-> ALI15X3: simplex device:  DMA disabled
-> ide0: ALI15X3 Bus-Master DMA disabled (BIOS)
-> ALI15X3: simplex device:  DMA disabled
-> ide1: ALI15X3 Bus-Master DMA disabled (BIOS)
-> 
-> Then hdparm absolutely will not let me enable DMA giving me this error:
-> 
-> /dev/hda:
->  setting using_dma to 1 (on)
->  HDIO_SET_DMA failed: Operation not permitted
->  using_dma    =  0 (off)
-> 
-> 
-> Changing the PNP OS value in the BIOS to either Yes or No does absolutely
-> nothing and using "pci=biosirq" just makes the part that says "Please try
-> using pci=biosirq." go away.
-> 
-> However, on accident I discovered if I boot with a 2.2 kernel, reset the
-> computer instead of powering off, then boot with a 2.4 kernel it will let
-> me enable DMA.
-> 
-> Is there anything I could try to make DMA work with the 2.4 series?
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/

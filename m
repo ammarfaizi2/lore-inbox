@@ -1,63 +1,96 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270708AbTGNSWm (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 14 Jul 2003 14:22:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270720AbTGNSWm
+	id S270747AbTGNS15 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 14 Jul 2003 14:27:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270748AbTGNS15
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Jul 2003 14:22:42 -0400
-Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:27595 "HELO
-	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
-	id S270708AbTGNSWJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 14 Jul 2003 14:22:09 -0400
-Date: Mon, 14 Jul 2003 20:36:50 +0200
-From: Adrian Bunk <bunk@fs.tum.de>
-To: Greg KH <greg@kroah.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.5.75: parse error in pci.h if !CONFIG_PCI
-Message-ID: <20030714183649.GS12104@fs.tum.de>
-References: <20030713102740.GY12104@fs.tum.de> <20030714060754.GA20416@kroah.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030714060754.GA20416@kroah.com>
-User-Agent: Mutt/1.4.1i
+	Mon, 14 Jul 2003 14:27:57 -0400
+Received: from perninha.conectiva.com.br ([200.250.58.156]:37255 "EHLO
+	perninha.conectiva.com.br") by vger.kernel.org with ESMTP
+	id S270747AbTGNS1u (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 14 Jul 2003 14:27:50 -0400
+Date: Mon, 14 Jul 2003 15:40:10 -0300 (BRT)
+From: Marcelo Tosatti <marcelo@conectiva.com.br>
+X-X-Sender: marcelo@freak.distro.conectiva
+To: ajoshi@kernel.crashing.org
+Cc: lkml <linux-kernel@vger.kernel.org>, benh@kernel.crashing.org
+Subject: Re: radeonfb patch for 2.4.22...
+In-Reply-To: <Pine.LNX.4.10.10307141315170.28093-100000@gate.crashing.org>
+Message-ID: <Pine.LNX.4.55L.0307141533330.8994@freak.distro.conectiva>
+References: <Pine.LNX.4.10.10307141315170.28093-100000@gate.crashing.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Jul 13, 2003 at 11:07:54PM -0700, Greg KH wrote:
-> On Sun, Jul 13, 2003 at 12:27:41PM +0200, Adrian Bunk wrote:
-> > I got the following compile error when trying to compile 2.5.75 with 
-> > !CONFIG_PCI:
-> > 
-> > <--  snip  -->
-> > 
-> > ...
-> >   CC      drivers/message/fusion/mptscsih.o
-> > In file included from drivers/message/fusion/linux_compat.h:10,
-> >                  from drivers/message/fusion/mptbase.h:58,
-> >                  from drivers/message/fusion/mptscsih.c:82:
-> > include/linux/pci.h:718: error: syntax error before "int"
-> > drivers/message/fusion/mptscsih.c:6924: warning: `mptscsih_setup' 
-> > defined but not used
-> > make[3]: *** [drivers/message/fusion/mptscsih.o] Error 1
-> > 
-> > <--  snip  -->
-> 
-> Thanks, the patch below should fix this problem.  I'll send it on to
-> Linus in a bit.
 
-Thanks, this patch fixed it.
 
-> greg k-h
->...
+On Mon, 14 Jul 2003 ajoshi@kernel.crashing.org wrote:
 
-cu
-Adrian
+>
+>
+> On Mon, 14 Jul 2003, Marcelo Tosatti wrote:
+> >
+> > On Mon, 14 Jul 2003 ajoshi@kernel.crashing.org wrote:
+> >
+> > >
+> > > Hi Marcelo,
+> > >
+> > > Is there any particular reason why you decided to merge Ben H.'s radeonfb
+> > > update instead of the one I sent you?
+> >
+> > I've decided to CC lkml because I think there are other people interested
+> > in this discussion.
+> >
+> > I merged his version because he sent me your update (0.1.8) plus his code
+> > (which are useful fixes he has been working on).
+>
+> Which is what the original 0.1.8 patch included, his fixes were included.
 
--- 
+Ah really? I though that his changes were not merged in your 0.1.8 patch.
 
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
+So can I just revert his patch and accept your instead that all of his
+stuff is in ? Whoaa, great.
 
+>
+> >
+> > It seems things are broken now due to a missing header, but he also sent
+> > me that.
+>
+> There was no missing header, if you see the patch I sent you (about 3
+> times), the header file is in there.
+>
+> >
+> > Do you have any objections to his fixes ?
+> >
+>
+> Besides the obvious version changes and difficulty maintaining a driver
+> where anyone seems to be able to change it in the official tree, the
+> objections were deteremined and fixed in the patch I sent you.
+>
+> Refresh my memory as it seems things have  changed in kernel patch
+> submission process:
+>
+> There is someone called a driver author or maintainer, this person
+> recieves patches for fixes from various people, he/she then compiles them
+> into a single patch and submits it to the kernel tree maintiner.  However
+> nowdays it seems the kernel tree maintainer has the descretion to accept
+> patches from anyone how puts up a fight, is this the case nowdays?
+
+Ani, I received complains that you were not accepting patches from Ben. He
+needs that code in.
+
+> If so then please let me know, so I don't waste anymore of my time on
+> this driver and let someone else play these silly games and maintain it.
+
+I prefer playing no silly games in the 2.4 stable series, as I've been
+trying to do so far. If you had accepted Ben's changes in the first place
+I wouldnt need to apply his patch.
+
+Ben is very interested in maintaining the driver, AFAIK. Is that
+correct, Ben?
+
+Are you interested in giving up maintenance?
+
+For me it doenst matter who maintains the driver, as long as it is well
+maintained.

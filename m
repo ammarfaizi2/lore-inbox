@@ -1,61 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261320AbUJ3UnF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261322AbUJ3VOE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261320AbUJ3UnF (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 30 Oct 2004 16:43:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261313AbUJ3UnE
+	id S261322AbUJ3VOE (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 30 Oct 2004 17:14:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261324AbUJ3VOE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 30 Oct 2004 16:43:04 -0400
-Received: from lrsehosting.com ([69.55.238.31]:27921 "EHLO
-	scoop.lrsehosting.com") by vger.kernel.org with ESMTP
-	id S261320AbUJ3Umz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 30 Oct 2004 16:42:55 -0400
-Message-ID: <31064.65.208.227.246.1099168970.squirrel@www.lrsehosting.com>
-In-Reply-To: <2540F67A-2A31-11D9-857E-000393ACC76E@mac.com>
-References: <Pine.LNX.4.58.0410251017010.27766@ppc970.osdl.org>
-    <Pine.LNX.4.61.0410252350240.17266@scrub.home>
-    <Pine.LNX.4.58.0410251732500.427@ppc970.osdl.org>
-    <Pine.LNX.4.61.0410270223080.877@scrub.home>
-    <Pine.LNX.4.58.0410261931540.28839@ppc970.osdl.org>
-    <4180B9E9.3070801@andrew.cmu.edu>
-    <20041028135348.GA18099@work.bitmover.com>
-    <1098972379.3109.24.camel@gonzales>
-    <20041028151004.GA3934@work.bitmover.com>
-    <41827B89.4070809@hispalinux.es>
-    <20041029173642.GA5318@work.bitmover.com>
-    <41828707.3050803@hispalinux.es>
-    <57875.65.208.227.246.1099074830.squirrel@www.lrsehosting.com>
-    <4182923D.5040500@hispalinux.es>
-    <40231.65.208.227.246.1099077274.squirrel@www.lrsehosting.com>
-    <2540F67A-2A31-11D9-857E-000393ACC76E@mac.com>
-Date: Sat, 30 Oct 2004 13:42:50 -0700 (PDT)
-Subject: Re: BK kernel workflow
-From: "Scott Lockwood" <lkml@www.lrsehosting.com>
-To: "Kyle Moffett" <mrmacman_g4@mac.com>
-Cc: "Scott Lockwood" <lkml@www.lrsehosting.com>,
-       "James Bruce" <bruce@andrew.cmu.edu>,
-       "Linux Kernel" <linux-kernel@vger.kernel.org>,
-       =?iso-8859-1?Q?Ram=F3n_Rey_Vicente?= <ramon.rey@hispalinux.es>,
-       "Xavier Bestel" <xavier.bestel@free.fr>,
-       "Linus Torvalds" <torvalds@osdl.org>, "Larry McVoy" <lm@bitmover.com>,
-       "Roman Zippel" <zippel@linux-m68k.org>,
-       "Andrea Arcangeli" <andrea@novell.com>
-User-Agent: SquirrelMail/1.4.2
-MIME-Version: 1.0
+	Sat, 30 Oct 2004 17:14:04 -0400
+Received: from pop.gmx.de ([213.165.64.20]:39130 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S261322AbUJ3VOB (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 30 Oct 2004 17:14:01 -0400
+X-Authenticated: #4399952
+Date: Sat, 30 Oct 2004 23:13:58 +0200
+From: Florian Schmidt <mista.tapas@gmx.net>
+To: Lee Revell <rlrevell@joe-job.com>
+Cc: Ingo Molnar <mingo@elte.hu>, Paul Davis <paul@linuxaudiosystems.com>,
+       Thomas Gleixner <tglx@linutronix.de>,
+       LKML <linux-kernel@vger.kernel.org>, mark_h_johnson@raytheon.com,
+       Bill Huey <bhuey@lnxw.com>, Adam Heath <doogie@debian.org>,
+       Michal Schmidt <xschmi00@stud.feec.vutbr.cz>,
+       Fernando Pablo Lopez-Lezcano <nando@ccrma.stanford.edu>,
+       Karsten Wiese <annabellesgarden@yahoo.de>,
+       jackit-devel <jackit-devel@lists.sourceforge.net>,
+       Rui Nuno Capela <rncbc@rncbc.org>
+Subject: Re: [Fwd: Re: [patch] Real-Time Preemption, -RT-2.6.9-mm1-V0.4]
+Message-ID: <20041030231358.6f1eeeac@mango.fruits.de>
+In-Reply-To: <1099167996.1434.4.camel@krustophenia.net>
+References: <20041029172243.GA19630@elte.hu>
+	<20041029203619.37b54cba@mango.fruits.de>
+	<20041029204220.GA6727@elte.hu>
+	<20041029233117.6d29c383@mango.fruits.de>
+	<20041029212545.GA13199@elte.hu>
+	<1099086166.1468.4.camel@krustophenia.net>
+	<20041029214602.GA15605@elte.hu>
+	<1099091566.1461.8.camel@krustophenia.net>
+	<20041030115808.GA29692@elte.hu>
+	<1099158570.1972.5.camel@krustophenia.net>
+	<20041030191725.GA29747@elte.hu>
+	<20041030214738.1918ea1d@mango.fruits.de>
+	<1099165925.1972.22.camel@krustophenia.net>
+	<20041030221548.5e82fad5@mango.fruits.de>
+	<1099167996.1434.4.camel@krustophenia.net>
+X-Mailer: Sylpheed-Claws 0.9.12b (GTK+ 1.2.10; i386-pc-linux-gnu)
+Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-Priority: 3
-Importance: Normal
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-You wrote:
+On Sat, 30 Oct 2004 16:26:35 -0400
+Lee Revell <rlrevell@joe-job.com> wrote:
 
-To my knowledge, there has not been a single significant instance of
-a EULA made _after_ the point-of-sale being found binding by a court
-of law.  There _have_ been many cases where Copyright law forbids
-some action of a user also forbidden in an EULA, but in no other case
-have they been upheld.
+> Take a look at the patch I posted to jackit-devel the other day to
+> calculate the CPU speed (previously we grabbed it from /proc/cpuinfo).
+> I just copied the code from realfeel2.
+> 
 
-Now read:
+ah, ok.. tarball updated. The third argument is now a percentage. If the
+cycle count difference between two different wakeups differs more than the
+specified percentage from the "perfect" period, then a line is printed to
+the terminal showing by how much percent it differs. 
 
-http://www.freedom-to-tinker.com/doc/2004/bnetd_30sep.pdf
+flo

@@ -1,67 +1,119 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261232AbUFMWWy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261321AbUFMW5W@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261232AbUFMWWy (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 13 Jun 2004 18:22:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261347AbUFMWWy
+	id S261321AbUFMW5W (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 13 Jun 2004 18:57:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261358AbUFMW5W
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 13 Jun 2004 18:22:54 -0400
-Received: from FW-30-241.go.retevision.es ([62.174.241.30]:26043 "EHLO
-	mayhem.ghetto") by vger.kernel.org with ESMTP id S261232AbUFMWWw
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 13 Jun 2004 18:22:52 -0400
-Date: Mon, 14 Jun 2004 00:22:49 +0200
+	Sun, 13 Jun 2004 18:57:22 -0400
+Received: from turing-police.cirt.vt.edu ([128.173.54.129]:384 "EHLO
+	turing-police.cirt.vt.edu") by vger.kernel.org with ESMTP
+	id S261321AbUFMW5S (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
+	Sun, 13 Jun 2004 18:57:18 -0400
+Message-Id: <200406121959.i5CJxLAm008168@turing-police.cc.vt.edu>
+X-Mailer: exmh version 2.6.3 04/04/2003 with nmh-1.0.4+dev
 To: linux-kernel@vger.kernel.org
-Subject: Re: ftp.kernel.org
-Message-ID: <20040613222249.GA12722@larroy.com>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-References: <Pine.GSO.4.33.0405280018250.14297-100000@sweetums.bluetronic.net> <20040528150119.GE18449@thunk.org> <20040528163234.GV2603@schnapps.adilger.int> <168FA640-B185-11D8-9291-000A958E35DC@fhm.edu> <c9b9sj$ccc$1@terminus.zytor.com>
+Subject: Coding style questions for patches..
+From: Valdis.Kletnieks@vt.edu
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <c9b9sj$ccc$1@terminus.zytor.com>
-User-Agent: Mutt/1.5.5.1+cvs20040105i
-From: piotr@larroy.com (Pedro Larroy)
+Content-Type: multipart/signed; boundary="==_Exmh_-62086184P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
+Content-Transfer-Encoding: 7bit
+Date: Sat, 12 Jun 2004 15:59:21 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, May 30, 2004 at 12:29:07AM +0000, H. Peter Anvin wrote:
-> Followup to:  <168FA640-B185-11D8-9291-000A958E35DC@fhm.edu>
-> By author:    Daniel Egger <degger@fhm.edu>
-> In newsgroup: linux.dev.kernel
-> > 
-> > Actually I think this is *the* idea. Why not simply set up a
-> > bittorrent tracker and have a distributed kernel.org
-> > fileserving system? Instead of having links to http and ftp
-> > sites there could be a torrent link as well. Several
-> > OpenSource projects started distributing files with BT
-> > already and it seems to work like a charm.
-> > 
-> 
-> Because doing it with BitTorrent is a nightmare.  I posted a long list
-> of the problems with BT for doing this to the BT mailing list and
-> pretty much got told that there is no way to do what I'd want to do
-> within BT.
-> 
-> Some of the people from the BT list have approached me about creating
-> a new protocol - working name "Software Distribution Protocol"
-> (SDP)... but it's a big job.
-> 
-> 	-hpa
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+--==_Exmh_-62086184P
+Content-Type: text/plain; charset=us-ascii
 
-Something is already beeing done, and it's called PDTP:
+I'm currently updating the security patches I posted a while ago, and have a
+few questions (a *partial* sample patch is appended - the dangling parts not
+shown are why I'm posting this.. ;)
 
-http://pdtp.org/
+1) Is the patch below more acceptable than the original, where I had the #ifdef
+in the middle of the kernel/pid.c code?
+
+Currently, the #ifdef is done via security/Kconfig (this part ISN'T included
+below).  The problem is that currently, the variable security_enable_randpid
+lives in a new security/*.o file that gets built.  It's easy enough to make
+this all work as part of a large patch that provides an LSM as well, but the
+problem is that I'd like to push this one (and several other things that
+similarly can't be done via LSM) for inclusion.
+
+2) Where should the 'extern int' actually be if this is a separate patch?
+security/Kconfig makes sense to me for the CONFIG variables, but I suspect that
+the various flags need to live someplace (I'm currently looking at 1 for PIDs
+below, and on the order of 4 to 5 'int' flags in the TCP/UDP code, and one in
+the RPC code....)
+
+3) Currently, the LSM file does all the sysctl setup - should I break that into
+a part that has the variables used by the LSM, and another patch against kernel/
+sysctl.c that does the non-LSM flags?
+
+3a) Alternatively, do people think I should just punt the sysctl support, in
+which case I can just lose the variable and all the associated worry?
+
+3b) If no sysctl support, should I have support for setting it at boot time?
+
+4) I have a series of 4 or 5 similar patches which are *logically* independent
+(for instance, randomizing the TCP ephemeral source port doesn't depend on the
+below patch for randomizing process IDs).  However, for things like sysctl.c,
+the code for the patches will end up close enough to cause merging problems.
+
+Should I submit 2 patches, both against a clean source tree, knowing that the
+second won't apply if the first is applied?  Or should I submit the first patch
+against the clean tree, and a second that deltas off that, knowing that it
+won't apply if the first one *isn't* accepted?
+
+Straw-man sample code for illustration:
+
+--- include/linux/pid.h.vt	2003-09-27 20:50:13.000000000 -0400
++++ include/linux/pid.h	2004-06-12 15:29:02.507247676 -0400
+@@ -61,4 +61,22 @@ extern void switch_exec_pids(struct task
+ 			elem = elem->next, prefetch(elem->next), 	\
+ 			task = pid_task(elem, type))
+ 
++#ifdef CONFIG_SECURITY_RANDPID
++#include <linux/random.h>
++extern int security_enable_randpid;
++
++static inline int alloc_next_pid(int last_pid) {
++	int next;
++	if (security_enable_randpid && (last_pid >= RESERVED_PIDS)) {
++		pid = (get_random_long() % (pid_max - RESERVED_PIDS)) + RESERVED_PIDS + 1;
++	}
++	else next = last_pid + 1;
++	return next;
++}
++#else
++static inline int alloc_next_pid(int last_pid) {
++	return last_pid + 1;
++}
++#endif
++
+ #endif /* _LINUX_PID_H */
+--- kernel/pid.c.vt	2004-06-10 00:37:49.000000000 -0400
++++ kernel/pid.c	2004-06-12 15:26:24.148058356 -0400
+@@ -102,7 +102,7 @@ int alloc_pidmap(void)
+ 	int pid, offset, max_steps = PIDMAP_ENTRIES + 1;
+ 	pidmap_t *map;
+ 
+-	pid = last_pid + 1;
++	pid = alloc_next_pid(last_pid);
+ 	if (pid >= pid_max)
+ 		pid = RESERVED_PIDS;
+ 
 
 
-Regards.
+--==_Exmh_-62086184P
+Content-Type: application/pgp-signature
 
--- 
-Pedro Larroy Tovar | Linux & Network consultant |  piotr%member.fsf.org 
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
 
-Software patents are a threat to innovation in Europe please check: 
-	http://www.eurolinux.org/     
+iD8DBQFAy2CZcC3lWbTT17ARAlO9AKCwKymv4gO2gPvjRq9S/uVUqv6cQgCg/a9T
+l4hVeXOtBWSe6aAMsLkXaBw=
+=V8Zk
+-----END PGP SIGNATURE-----
+
+--==_Exmh_-62086184P--

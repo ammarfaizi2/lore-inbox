@@ -1,65 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271845AbRJCJXj>; Wed, 3 Oct 2001 05:23:39 -0400
+	id <S271911AbRJCJYj>; Wed, 3 Oct 2001 05:24:39 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272122AbRJCJX3>; Wed, 3 Oct 2001 05:23:29 -0400
-Received: from [195.72.14.134] ([195.72.14.134]:59404 "HELO ipv6.isternet.sk")
-	by vger.kernel.org with SMTP id <S271845AbRJCJXP>;
-	Wed, 3 Oct 2001 05:23:15 -0400
-Date: Wed, 3 Oct 2001 11:23:42 +0200
-From: Jan Oravec <wsx@wsx6.net>
-To: kuznet@ms2.inr.ac.ru, linux-kernel@vger.kernel.org
-Subject: Re: IPv6 neighbor solicitation -> no response
-Message-ID: <20011003112342.B50545@ipv6.isternet.sk>
-Reply-To: Jan Oravec <wsx@wsx6.net>
-In-Reply-To: <20010930145627.A32407@ipv6.isternet.sk> <200110011923.XAA14289@ms2.inr.ac.ru>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <200110011923.XAA14289@ms2.inr.ac.ru>; from kuznet@ms2.inr.ac.ru on Mon, Oct 01, 2001 at 11:23:27PM +0400
-X-Operating-System: UNIX
+	id <S272074AbRJCJY3>; Wed, 3 Oct 2001 05:24:29 -0400
+Received: from chiara.elte.hu ([157.181.150.200]:47879 "HELO chiara.elte.hu")
+	by vger.kernel.org with SMTP id <S271911AbRJCJYP>;
+	Wed, 3 Oct 2001 05:24:15 -0400
+Date: Wed, 3 Oct 2001 11:22:18 +0200 (CEST)
+From: Ingo Molnar <mingo@elte.hu>
+Reply-To: <mingo@elte.hu>
+To: Ben Greear <greearb@candelatech.com>
+Cc: Benjamin LaHaise <bcrl@redhat.com>, jamal <hadi@cyberus.ca>,
+        <linux-kernel@vger.kernel.org>,
+        Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>,
+        Robert Olsson <Robert.Olsson@data.slu.se>, <netdev@oss.sgi.com>
+Subject: Re: [announce] [patch] limiting IRQ load, irq-rewrite-2.4.11-B5
+In-Reply-To: <3BB956D3.AE0FCC54@candelatech.com>
+Message-ID: <Pine.LNX.4.33.0110031115110.2796-100000@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > After upgrade from 2.2 to 2.4 kernel machine stopped answering IPv6 neighbor solicitation requests on pointtopoint interfaces.
-> 
-> What kind of pointopont interface?
-sit tunnel (IPv6 over IPv4)
-> 
-> > 14:50:05.762924 fe80::201:2ff:fe0f:b5a2 > fe80::3e8c:1d09: icmp6: neighbor sol: who has fe80::3e8c:1d09
-> 
-> Are you sure that machine really has this address: fe80::3e8c:1d09?
-Yes, I am sure, because I am receiving packets from fe80::3e8c:1d09 thru this tunnel...
 
+On Mon, 1 Oct 2001, Ben Greear wrote:
 
-Here is the example (another Linux (2.4.8), so address isn't fe80::3e8c:1d09):
-$ /sbin/ifconfig sit1
-sit1      Link encap:IPv6-in-IPv4
-          inet6 addr: fe80::c348:987/10 Scope:Link
-          inet6 addr: 3ffe:80e8:2::2/64 Scope:Global
-          inet6 addr: fe80::a00:1/10 Scope:Link
-          inet6 addr: fe80::c0a8:6401/10 Scope:Link
-          UP POINTOPOINT RUNNING NOARP  MTU:1480  Metric:1
-          RX packets:6050 errors:0 dropped:0 overruns:0 frame:0
-          TX packets:6097 errors:0 dropped:0 overruns:0 carrier:0
-          collisions:0 txqueuelen:0
-          RX bytes:1083250 (1.0 Mb)  TX bytes:629382 (614.6 Kb)
+> So, when you turn off the IRQs, are the drivers somehow made aware of
+> this so that they can go into polling mode? That might fix the 10ms
+> latency/starvation problem that bothers me...
 
-(server has multiple network cards, so it has multiple link-local addresses)
+the latest, -D9 patch does this. If drivers provide a (backwards
+compatible) ->poll_controller() call then they can be polled by kpolld.
+There are also a few points within the networking code that trigger a poll
+pass, to make sure events are processed even if networking-intensive
+applications take away all CPU time from kpolld. The device is only polled
+if the IRQ is detected to be in overload mode. IRQ-overload protection
+does not depend on the existence of the availability of the
+->poll_controller(). The poll_controller() call is very simple for most
+drivers. (It has to be per-driver, because not all drivers advance their
+state purely via their device interrupts.)
 
-When I am trying to send packets there (from another side of tunnel):
-11:13:45.520765 fe80::201:2ff:fe0f:b5a2 > fe80::c348:987: icmp6: neighbor sol: who has fe80::c348:987
-11:13:46.520777 fe80::201:2ff:fe0f:b5a2 > fe80::c348:987: icmp6: neighbor sol: who has fe80::c348:987
-11:13:47.520796 fe80::201:2ff:fe0f:b5a2 > fe80::c348:987: icmp6: neighbor sol: who has fe80::c348:987
+but kpolld itself and auto-mitigation is not limited to networking - any
+other driver framework that has high-irq-load problems can use it.
 
-packets arrive OK, I get answer from fe80::c348:987, but I don't receive answer from neighbor solicitation.
-other OS I tried (FreeBSD, Linux 2.2) are answering correctly:
+> I'm more worried about dropped pkts.  If you can receive 10k packets
+> per second, then you can receive (lose) 100 packets in 10ms....
 
-11:21:41.527954 fe80::201:2ff:fe0f:b5a2 > fe80::201:2ff:fea8:2f55: icmp6: neighbor sol: who has fe80::201:2ff:fea8:2f55
-11:21:41.541748 fe80::201:2ff:fea8:2f55 > fe80::201:2ff:fe0f:b5a2: icmp6: neighbor adv: tgt is fe80::201:2ff:fea8:2f55
+yep - this does not happen anymore, at least under the loads i tested
+which otherwise choke a purely irq-driven machine. (It will happen in a
+gradual way if load is increased further, but that is natural.)
 
+	Ingo
 
-Regards,
-
-Jan

@@ -1,187 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265378AbSKUADH>; Wed, 20 Nov 2002 19:03:07 -0500
+	id <S263105AbSKTX4i>; Wed, 20 Nov 2002 18:56:38 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265413AbSKUADH>; Wed, 20 Nov 2002 19:03:07 -0500
-Received: from mailhost.cotse.com ([216.112.42.58]:2314 "EHLO
-	mailhost.cotse.com") by vger.kernel.org with ESMTP
-	id <S265378AbSKUADD>; Wed, 20 Nov 2002 19:03:03 -0500
-Message-ID: <YWxhbg==.26d4b77df40a9b288e5a131154b747bf@1037837329.cotse.net>
-Date: Wed, 20 Nov 2002 19:08:49 -0500 (EST)
-X-Abuse-To: abuse@cotse.com
-Subject: Strange recurring vm behavior ( I think)
-From: "Alan Willis" <alan@cotse.net>
-To: <linux-kernel@vger.kernel.org>
-X-Priority: 3
-Importance: Normal
-X-MSMail-Priority: Normal
-Reply-To: alan@cotse.com
-X-Mailer: www.cotse.net
+	id <S263760AbSKTX4i>; Wed, 20 Nov 2002 18:56:38 -0500
+Received: from windlord.Stanford.EDU ([171.64.13.23]:19104 "HELO
+	windlord.stanford.edu") by vger.kernel.org with SMTP
+	id <S263105AbSKTX4O>; Wed, 20 Nov 2002 18:56:14 -0500
+To: linux-kernel@vger.kernel.org
+Subject: Re: spinlocks, the GPL, and binary-only modules
+References: <fa.fglehrv.95g32b@ifi.uio.no> <fa.h7et98v.hjm1of@ifi.uio.no>
+In-Reply-To: <fa.h7et98v.hjm1of@ifi.uio.no> (Mark Mielke's message of "Wed,
+ 20 Nov 2002 08:21:20 GMT")
+From: Russ Allbery <rra@stanford.edu>
+Organization: The Eyrie
+Date: Wed, 20 Nov 2002 16:03:14 -0800
+Message-ID: <yl3cpviybh.fsf@windlord.stanford.edu>
+User-Agent: Gnus/5.090008 (Oort Gnus v0.08) XEmacs/21.4 (Honest Recruiter,
+ sparc-sun-solaris2.6)
 MIME-Version: 1.0
-Content-Type: multipart/mixed; boundary="----=_20021120190849_36361"
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-------=_20021120190849_36361
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+Mark Mielke <mark@mark.mielke.cc> writes:
 
-  I began a large compile (glibc 2.3.1 + nptl 0.5), on 2.5.48-mm1, and
-went about my normal tasks.  After about 3-4 minutes of compilation, my
-system noticeably slowed down, mouse jerked around, generally unusably
-slow behavior, not as bad as before (didn't last as long), but still
-ususable.  I remembered what you said about the scheduler possibly
-causing problems.  When I regained control of my system, albeit it was
-still slow, after about 60-90 seconds of the 'unusably slow' state, I
-reniced the make process I had going from 0 to -19.  System load at this
-time was about 10.00 and falling slightly.
+> I think this restriction (the need for copyright assignment) only
+> applies to code 'incorporated in FSF projects', whatever that means. See
+> the GPL FAQ for a rather vague explanation.
 
-   Shortly after (<20 seconds? A bit of guesswork here, my apologies) my
-system became slow again and I started a 'vmstat 1', the output of
-which is attached.  I waited a while, switched to another console, and
-did a 'pkill -9 make', after which my system became just as fast as it
-was before I began compiling in the first place. Vmstat output,
-slabinfo and meminfo are attached.  I have more memory than I had last
-I reported similar slowdown, had 256M, presently have 384M.  I had huge
-page support built in last time, I don't have it compiled in now.  I
-was running fewer tasks now than I was last I experienced this sort of
-slowdown (was using kde 3.0.3 at the time, switched back to
-enlightenment 0.16.5, running fewer console sessions as well).
+> Are 'FSF projects' the packages that can be downloaded from ftp.gnu.org?
 
-These are the only sysctl changes I make from the defaults of 2.5.48-mm1:
-net.ipv4.ip_forward = 0
-net.ipv4.conf.default.rp_filter = 1
-kernel.core_uses_pid = 1
-vm.swappiness = 30
+Copyright assignments are only needed for projects for which the FSF holds
+the copyright and requires copyright assignments, and then only if one
+wants one's code to make it into the GNU-distributed version.
 
-   I don't expect that a compile would slow down my machine so dramatically.
-I'd built enlightenment earlier today, it is also a fairly large compile,
-and I didn't even notice it.
+I don't believe it is possible to answer that question with more
+granularity without going down to a project-by-project check.  There
+certainly have been packages available from ftp.gnu.org that do not
+require copyright assignments to contribute to.
 
--alan
-
-
-------=_20021120190849_36361
-Content-Type: application/octet-stream; name="slab.log"
-Content-Disposition: attachment; filename="slab.log"
-Content-Transfer-Encoding: base64
-
-
-------=_20021120190849_36361
-Content-Type: application/octet-stream; name="mem.log"
-Content-Disposition: attachment; filename="mem.log"
-Content-Transfer-Encoding: base64
-
-
-------=_20021120190849_36361
-Content-Type: application/octet-stream; name="vmstat1.log"
-Content-Disposition: attachment; filename="vmstat1.log"
-Content-Transfer-Encoding: base64
-
-W3Jvb3RAYXJpZXMgcm9vdF0jIHZtc3RhdCAxCiAgIHByb2NzICAgICAgICAgICAgICAgICAgICAg
-IG1lbW9yeSAgICAgIHN3YXAgICAgICAgICAgaW8gICAgIHN5c3RlbSAgICAgIGNwdQogciAgYiAg
-dyAgIHN3cGQgICBmcmVlICAgYnVmZiAgY2FjaGUgICBzaSAgIHNvICAgIGJpICAgIGJvICAgaW4g
-ICAgY3MgdXMgc3kgaWQKIDEgIDAgIDEgICAgIDIwICAyMzY4NCAgMzc2OTIgMjMzODg0ICAgIDAg
-ICAgMCAgICAxNCAgICAyNyAxMDY3ICAgNDU3ICA5ICAzIDg4CiAyICAwICAwICAgICAyMCAgMjAw
-MzYgIDM3NzA4IDIzMzk3NiAgICAwICAgIDAgICAgIDAgICA2MjggMTI1NCAgIDE2MCA5NyAgMyAg
-MAogMiAgMCAgMCAgICAgMjAgIDIzNDkyICAzNzcwOCAyMzQwMDAgICAgMCAgICAwICAgICAwICAg
-ICAwIDIyNzYgICAgNDkgODggMTIgIDAKIDUgIDAgIDMgICAgIDIwICAyMzQ5MiAgMzc3MTYgMjM0
-NDY4ICAgIDAgICAgMCAgICAgMCAgICAgMCA2MTY0ICAgMTQ2IDg3IDEzICAwCiAyICAwICAwICAg
-ICAyMCAgMjE1MDggIDM4MDE2IDIzNDQ2OCAgICAwICAgIDAgICAgIDAgIDExMjQgMTUxNiAgIDQ0
-OSA5MCAxMCAgMAogNCAgMCAgMCAgICAgMjAgIDIzMDQ0ICAzODAyMCAyMzQ1NjAgICAgMCAgICAw
-ICAgICAwICAgICAwIDMzNDggIDE2MTAgODggMTIgIDAKIDMgIDAgIDAgICAgIDIwICAyMTcwMCAg
-MzgwMjAgMjM0NTYwICAgIDAgICAgMCAgICAgMCAgICAgMCAxNjY0ICAgMzkzIDg5IDExICAwCiAz
-ICAwICAwICAgICAyMCAgMjA0ODQgIDM4MDIwIDIzNDU2MCAgICAwICAgIDAgICAgIDAgICAgIDAg
-MTI1NCAgIDE1NSA5NyAgMyAgMAogNCAgMCAgMiAgICAgMjAgIDIzNTAwICAzODI1MiAyMzQ2NjAg
-ICAgMCAgICAwICAgICAwICAxMTM2IDI1MjEgICAxNjggOTQgIDYgIDAKIDMgIDAgIDAgICAgIDIw
-ICAyMTAwNCAgMzgyNzIgMjM0NjYwICAgIDAgICAgMCAgICAgMCAgIDEyOCAxNDM0ICAgMjUwIDkz
-ICA3ICAwCiAyICAxICAyICAgICAyMCAgMzIxMzIgIDM4MzAwIDIzNTI5NiAgICAwICAgIDAgICAg
-IDQgICAgIDAgNTkxMCAgIDU1NCA3OSAyMSAgMAogNSAgMCAgNCAgICAgMjAgIDI0ODA0ICAzOTA0
-NCAyMzYwODAgICAgMCAgICAwICAgICA0ICAxNjg4IDE1NTY5ICAyNDYxIDcyIDI3ICAwCiA1ICAx
-ICA0ICAgICAyMCAgMTgwMDQgIDM5Nzg0IDI0MDY0MCAgICAwICAgIDAgICAgIDAgIDIyNzIgMzA1
-ODcgIDEwNjEgODMgMTcgIDAKIDAgIDEgIDEgICAgIDIwICAxNzg4NCAgNDAwMDggMjQwNTcyICAg
-IDAgICAgMCAgICAgMCAgMTIwNCAxMTQxICAgMjY3IDc3IDE3ICA2CiA1ICAxICA0ICAgICAyMCAg
-MTAzMjQgIDQwNzAwIDI0NDkyNCAgICAwICAgIDAgICAgIDAgIDI0MjAgMzE5MjcgICA5MjMgODMg
-MTcgIDAKIDIgIDEgIDEgICAgIDIwICAxMDgzNiAgNDA4NDQgMjQ1MDg0ICAgIDAgICAgMCAgICAg
-MCAgIDU5MiAxMzUxICAgMTkwIDc2IDIwICA0CiA1ICAxICA1ICAgICAyMCAgMTg0MzIgIDQwODcy
-IDI0NTkyNCAgICAwICAgIDAgICAgIDQgIDQ4NDQgODU2OSAgIDg0NCA4MSAxOSAgMAogMiAgMSAg
-MCAgICAgMjAgIDE4ODgwICA0MTIyOCAyNDU5NjAgICAgMCAgICAwICAgIDIwICAyNDY0IDE4MzMg
-IDE5NjcgNjQgMjQgMTIKIDIgIDAgIDAgICAgIDIwICAxMTc5MiAgNDEyMjggMjQ2MDU2ICAgIDAg
-ICAgMCAgICAgMCAgICAgMCAxOTM2ICAgIDY0IDg4IDEyICAwCiA2ICAwICAzICAgICAyMCAgMTA0
-NDggIDQxNDY0IDI0NjMwOCAgICAwICAgIDAgICAgIDAgICA2NjQgMzY2MyAgIDI2MiA5MSAgOSAg
-MAogMiAgMSAgMyAgICAgMjAgIDE3MzQ0ICA0MTQ5MiAyNDY0NTYgICAgMCAgICAwICAgICA0ICAx
-NDk2IDI1NTYgICAzMDQgODIgMTcgIDEKICAgcHJvY3MgICAgICAgICAgICAgICAgICAgICAgbWVt
-b3J5ICAgICAgc3dhcCAgICAgICAgICBpbyAgICAgc3lzdGVtICAgICAgY3B1CiByICBiICB3ICAg
-c3dwZCAgIGZyZWUgICBidWZmICBjYWNoZSAgIHNpICAgc28gICAgYmkgICAgYm8gICBpbiAgICBj
-cyB1cyBzeSBpZAogMiAgMSAgMCAgICAgMjAgIDE3NjAwICA0MTUxMiAyNDY1NDAgICAgMCAgICAw
-ICAgIDEyICAgMTYwIDExMDEgICAyNjUgNzEgMjkgIDAKIDIgIDEgIDAgICAgIDIwICAxNzUzNiAg
-NDE1MjAgMjQ2Njc2ICAgIDAgICAgMCAgICA1NiAgICAgMCAxNDA3ICAgMzgwIDY0IDM2ICAwCiAy
-ICAxICAyICAgICAyMCAgMTcwMjQgIDQxNTIwIDI0Njk1NiAgICAwICAgIDAgICAxNjAgICAgIDAg
-MTQ2OCAgIDU4OCA2MyAzNyAgMAogMyAgMCAgMCAgICAgMjAgIDExNjY0ICA0MTkzNiAyNDcwNDQg
-ICAgMCAgICAwICAgIDQ0ICAxODg0IDE5NjggICA1MzEgNjggMjcgIDUKIDUgIDEgIDQgICAgIDIw
-ICAxNDE0NCAgNDIxMzIgMjQ5NDU2ICAgIDAgICAgMCAgICAgNCAgICAgMCAyMjI4NSAgMTQ3NCA3
-OCAyMiAgMAogNSAgMCAgMSAgICAgMjAgIDExOTM2ICA0MjYzNiAyNDk2OTIgICAgMCAgICAwICAg
-IDI4ICAzNzE2IDU0NDcgIDIwMTIgNjAgMzEgIDkKIDYgIDAgIDUgICAgIDIwICAgMjI2NCAgNDMx
-NDQgMjUwMjYwICAgIDAgICAgMCAgICAgMCAgIDQ4NCAyNjg4OCAgIDc4OCA4NyAxMyAgMAogMyAg
-MCAgMyAgICAgMjAgICAzNTQ4ICA0Mjk3NiAyNDc4MjAgICAgMCAgICAwICAgICAwICAzOTM2IDY4
-NjQgICAyNDAgODggMTEgIDEKIDIgIDEgIDQgICAgIDIwICAxNTI2NCAgNDI5NDQgMjQ2MzE2ICAg
-IDAgICAgMCAgICAgNCAgIDE3NiA5NzAwICAgNzEwIDgwIDIwICAwCiAzICAxICAxICAgICAyMCAg
-MTA0ODQgIDQzMzQwIDI0NjU2MCAgICAwICAgIDAgICAgMTIgIDI0MzIgMjU1NiAgIDU3MyA3MyAy
-NCAgMwogNCAgMCAgMSAgICAgMjAgICA1NzQ4ICA0MzM0MCAyNDY3NDQgICAgMCAgICAwICAgIDI0
-ICAgICAwIDI4OTMgICAxODYgOTIgIDggIDAKIDMgIDAgIDQgICAgIDIwICAgNTU1NiAgNDM1ODgg
-MjQ2ODAwICAgIDAgICAgMCAgICAgMCAgIDU1NiAxNzAwICAgIDY1IDk1ICA1ICAwCiA2ICAwICA0
-ICAgICAyMCAgIDQ1MzIgIDQzNjIwIDI0NzU1NiAgICAwICAgIDAgICAgIDAgIDE1MDQgMTAyMTAg
-ICA0NDkgOTEgIDkgIDAKIDMgIDAgIDIgICAgIDIwICAgNTI5MiAgNDM4MTIgMjQ2MzU2ICAgIDAg
-ICAgMCAgICAgMCAgMTM2OCAxODQzICAgMTQ3IDk0ICA1ICAxCiA2ICAxICAzICAgICAyMCAgMTI4
-OTIgIDQzOTI4IDI0NzkxMiAgICAwICAgIDAgICAgIDQgICAxMjQgMTQwODYgICA4MTcgODUgMTUg
-IDAKIDAgIDAgIDAgICAgIDIwICAxNTA1MiAgNDQyNjQgMjQ3ODk2ICAgIDAgICAgMCAgICAgMCAg
-MjQ2OCAxMTc2ICAgNDQwICA1ICAzIDkyCiAwICAwICAwICAgICAyMCAgMTUwNTIgIDQ0MjY0IDI0
-Nzg5NiAgICAwICAgIDAgICAgIDAgICAgIDAgMTAwNCAgIDE4NCAgMSAgMSA5OAogMCAgMCAgMCAg
-ICAgMjAgIDE1MDUyICA0NDI2NCAyNDc4OTYgICAgMCAgICAwICAgICAwICAgICAwIDEwMDQgICAx
-NzAgIDAgIDAgMTAwCiAwICAwICAwICAgICAyMCAgMTUwNTIgIDQ0MjY0IDI0Nzg5NiAgICAwICAg
-IDAgICAgIDAgICAgIDAgMTAwOCAgIDE3MyAgMCAgMCAxMDAKIDAgIDAgIDAgICAgIDIwICAxNTA1
-MiAgNDQyNjQgMjQ3ODk2ICAgIDAgICAgMCAgICAgMCAgICAgMCAxMDE3ICAgMjA3ICAxICAxIDk4
-CiAwICAwICAwICAgICAyMCAgMTUwNjAgIDQ0MjY0IDI0Nzg5NiAgICAwICAgIDAgICAgIDAgICAy
-MjAgMTAwOSAgIDE4NyAgMCAgMCAxMDAKICAgcHJvY3MgICAgICAgICAgICAgICAgICAgICAgbWVt
-b3J5ICAgICAgc3dhcCAgICAgICAgICBpbyAgICAgc3lzdGVtICAgICAgY3B1CiByICBiICB3ICAg
-c3dwZCAgIGZyZWUgICBidWZmICBjYWNoZSAgIHNpICAgc28gICAgYmkgICAgYm8gICBpbiAgICBj
-cyB1cyBzeSBpZAogMSAgMCAgMCAgICAgMjAgIDE1MDUyICA0NDI2NCAyNDc4OTYgICAgMCAgICAw
-ICAgICAwICAgICAwIDEwMDkgICAzNTEgIDEgIDEgOTgKIDAgIDAgIDAgICAgIDIwICAxNTA1MiAg
-NDQyNjQgMjQ3ODk2ICAgIDAgICAgMCAgICAgMCAgICAgMCAxMDA2ICAgMzY5ICAxICAwIDk5CiAw
-ICAwICAwICAgICAyMCAgMTUwNTIgIDQ0MjY0IDI0Nzg5NiAgICAwICAgIDAgICAgIDAgICAgIDAg
-MTAwNyAgIDM3MiAgMSAgMSA5OAogMCAgMCAgMCAgICAgMjAgIDE1MTMyICA0NDI2NCAyNDc4OTYg
-ICAgMCAgICAwICAgICAwICAgICAwIDEwMDggICAxOTkgIDAgIDAgMTAwCiAwICAwICAwICAgICAy
-MCAgMTUxMzIgIDQ0MjgwIDI0Nzg5NiAgICAwICAgIDAgICAgIDAgICA0MjQgMTAxMyAgIDE5NCAg
-MCAgMCAxMDAKIDAgIDAgIDAgICAgIDIwICAxNjE1NiAgNDQzMTIgMjQ3OTAwICAgIDAgICAgMCAg
-ICAzNiAgICAgMCAxMDE2ICAgMjM0ICA1ICAxIDk0CiAwICAwICAwICAgICAyMCAgMTYxNTYgIDQ0
-MzEyIDI0NzkwMCAgICAwICAgIDAgICAgIDAgICAgIDAgMTAwNiAgICAyOSAgMCAgMSA5OQogMCAg
-MCAgMCAgICAgMjAgIDE2MTU2ICA0NDMxMiAyNDc5MDAgICAgMCAgICAwICAgICAwICAgICAwIDEz
-MTQgICA4NDMgIDcgIDYgODcKIDEgIDAgIDAgICAgIDIwICAxNjE2MCAgNDQzMTIgMjQ3OTAwICAg
-IDAgICAgMCAgICAgMCAgICAgMCAxMTQ0ICAgMzk3ICAyICA0IDk0CiAwICAwICAwICAgICAyMCAg
-MTYxNjAgIDQ0MzM2IDI0NzkwMCAgICAwICAgIDAgICAgIDAgICA0NDQgMTIwMCAgIDQ4NSAgMyAg
-MyA5NAogMSAgMCAgMCAgICAgMjAgIDE2MTYwICA0NDMzNiAyNDc5MDAgICAgMCAgICAwICAgICAw
-ICAgICAwIDEwNzIgICAyNTMgIDcgIDIgOTEKIDAgIDAgIDAgICAgIDIwICAxNTA0MCAgNDQzMzYg
-MjQ3OTAwICAgIDAgICAgMCAgICAgMCAgICAgMCAxNDk4ICAyNDU5IDc0IDE4ICA4CiAwICAwICAw
-ICAgICAyMCAgMTUwNDAgIDQ0MzM2IDI0NzkwMCAgICAwICAgIDAgICAgIDAgICAgIDAgMTU3MiAg
-MTIxNyAgNCAxMCA4NgogMiAgMCAgMCAgICAgMjAgIDEyMjg4ICA0NDMzNiAyNDgzMzIgICAgMCAg
-ICAwICAgICAwICAgICAwIDEyOTIgIDEyMTkgMTggMTIgNzAKIDAgIDAgIDAgICAgIDIwICAxNTEw
-NCAgNDQzMzYgMjQ3OTAwICAgIDAgICAgMCAgICAgMCAgIDIzMiAxMzMwICAgOTY5IDEyICA5IDc5
-CiAwICAwICAwICAgICAyMCAgMTUxMDQgIDQ0MzM2IDI0NzkwMCAgICAwICAgIDAgICAgIDAgICAg
-IDAgMTIxNCAgIDY4NyAgMyAgMyA5NAogMCAgMCAgMCAgICAgMjAgIDE1MTA0ICA0NDMzNiAyNDc5
-MDAgICAgMCAgICAwICAgICAwICAgICAwIDEwODYgICAzMTMgIDIgIDMgOTUKIDAgIDAgIDAgICAg
-IDIwICAxNTEwNCAgNDQzMzYgMjQ3OTAwICAgIDAgICAgMCAgICAgMCAgICAgMCAxMDQzICAgMzgz
-ICAyICAxIDk3Cg==
-------=_20021120190849_36361
-Content-Type: application/octet-stream; name="cpu.log"
-Content-Disposition: attachment; filename="cpu.log"
-Content-Transfer-Encoding: base64
-
-
-------=_20021120190849_36361
-Content-Type: application/octet-stream; name="dmesg.log"
-Content-Disposition: attachment; filename="dmesg.log"
-Content-Transfer-Encoding: base64
-
-
-------=_20021120190849_36361--
-
+-- 
+Russ Allbery (rra@stanford.edu)             <http://www.eyrie.org/~eagle/>

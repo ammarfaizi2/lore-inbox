@@ -1,655 +1,307 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278245AbRJSA77>; Thu, 18 Oct 2001 20:59:59 -0400
+	id <S278258AbRJSBJV>; Thu, 18 Oct 2001 21:09:21 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278247AbRJSA7v>; Thu, 18 Oct 2001 20:59:51 -0400
-Received: from patan.Sun.COM ([192.18.98.43]:26810 "EHLO patan.sun.com")
-	by vger.kernel.org with ESMTP id <S278245AbRJSA7n>;
-	Thu, 18 Oct 2001 20:59:43 -0400
-Message-ID: <3BCF7A4D.B6060973@sun.com>
-Date: Thu, 18 Oct 2001 17:56:45 -0700
-From: Tim Hockin <thockin@sun.com>
-Organization: Sun Microsystems, Inc.
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.1 i686)
-X-Accept-Language: en
+	id <S278247AbRJSBJL>; Thu, 18 Oct 2001 21:09:11 -0400
+Received: from ns.roland.net ([65.112.177.35]:58634 "EHLO earth.roland.net")
+	by vger.kernel.org with ESMTP id <S278258AbRJSBJF>;
+	Thu, 18 Oct 2001 21:09:05 -0400
+Message-ID: <000a01c1583a$b503ff10$a000a8c0@gespl2k1>
+From: "Jim Roland" <jroland@roland.net>
+To: "jimmy" <x55k@yahoo.com>, <linux-kernel@vger.kernel.org>
+In-Reply-To: <20011018233359.2084.qmail@web20206.mail.yahoo.com>
+Subject: Re: UNABLE TO BOOT WITH 2nd SCSI DRIVE
+Date: Thu, 18 Oct 2001 20:09:30 -0500
 MIME-Version: 1.0
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        jgarzik@mandrakesoft.com, manfred@colorfullife.com, alan@redhat.com
-Subject: Another Natsemi patch
-Content-Type: multipart/mixed;
- boundary="------------387C01EAE29B9F26CC6000AB"
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 5.50.4133.2400
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4133.2400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------387C01EAE29B9F26CC6000AB
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Check to make sure the SCSI IDs assigned on the drives (see the jumpers on
+each drive) are all unique.  2 drives set with no jumpers to the same ID
+(SCSI #0) will not let your system boot...all drives must be unique.
 
-Hey guys,
 
-Ttime for my monthly natsemi patch :)  I have a couple issues still pending
-with NSC, but I wanted to get this patch out ASAP.
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Jim Roland, RHCE (RedHat Certified Engineer)
+Owner, Roland Internet Services
+     "The four surefire rules for success:  Show up, Pay attention, Ask
+questions, Don't quit."
+        --Rob Gilbert, PH.D.
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-* increase RX ring
-* DP83816 strings
-* PCI ID
-* WoL cleanup
-* try to wait for AnegDone bit
-* Magic registers have constant values
-* Catch nasty PHY resets that happen periodically
-* some formatting
-* SOPASS only on revD and higher
+----- Original Message -----
+From: "jimmy" <x55k@yahoo.com>
+To: <linux-kernel@vger.kernel.org>
+Sent: Thursday, October 18, 2001 6:33 PM
+Subject: UNABLE TO BOOT WITH 2nd SCSI DRIVE
 
-Pretty heavily tested.  Issues still pending:
 
-* Some report of "Something Wicked" happening to the point of no network
-traffic at all - investigating
-* A report of "Something Wicked" under heavy load - can't repro here, but
-can on reporting machine - may need to grow RX ring by a lot.
-* Report of slowdown since EEPROM reload added - can't repro.
-* Perhaps teh WoL config register should be saved/restored across calls to
-natsemi_reset?  Comments?
-
-Please apply for next 2.4.x.
-
-Tim
--- 
-Tim Hockin
-Systems Software Engineer
-Sun Microsystems, Cobalt Server Appliances
-thockin@sun.com
---------------387C01EAE29B9F26CC6000AB
-Content-Type: text/plain; charset=us-ascii;
- name="natsemi.diff"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="natsemi.diff"
-
-diff -ruN dist-2.4.12+patches/drivers/net/natsemi.c cvs-2.4.12+patches/drivers/net/natsemi.c
---- dist-2.4.12+patches/drivers/net/natsemi.c	Mon Oct 15 10:22:07 2001
-+++ cvs-2.4.12+patches/drivers/net/natsemi.c	Mon Oct 15 10:22:08 2001
-@@ -85,6 +85,10 @@
- 		* use long for ee_addr (various)
- 		* print pointers properly (DaveM)
- 		* include asm/irq.h (?)
-+	
-+	version 1.0.11:
-+		* check and reset if PHY errors appear (Adrian Sun)
-+		* WoL cleanup (Tim Hockin)
- 
- 	TODO:
- 	* big endian support with CFG:BEM instead of cpu_to_le32
-@@ -96,7 +100,6 @@
- #define DRV_VERSION	"1.07+LK1.0.10"
- #define DRV_RELDATE	"Oct 09, 2001"
- 
--
- /* Updated to recommendations in pci-skeleton v2.03. */
- 
- /* Automatically extracted configuration info:
-@@ -106,7 +109,7 @@
- c-help-name: National Semiconductor DP8381x series PCI Ethernet support
- c-help-symbol: CONFIG_NATSEMI
- c-help: This driver is for the National Semiconductor DP8381x series,
--c-help: including the 83815 chip.
-+c-help: including the 83815/83816 chips.
- c-help: More specific information and updates are available from 
- c-help: http://www.scyld.com/network/natsemi.html
- */
-@@ -144,7 +147,7 @@
-    There are no ill effects from too-large receive rings. */
- #define TX_RING_SIZE	16
- #define TX_QUEUE_LEN	10		/* Limit ring entries actually used, min 4.  */
--#define RX_RING_SIZE	32
-+#define RX_RING_SIZE	64
- 
- /* Operational parameters that usually are not changed. */
- /* Time in jiffies before concluding the transmitter is hung. */
-@@ -308,11 +311,14 @@
- 	const char *name;
- 	unsigned long flags;
- } natsemi_pci_info[] __devinitdata = {
--	{ "NatSemi DP83815", PCI_IOTYPE },
-+	{ "NatSemi DP83815/DP83816", PCI_IOTYPE },
- };
- 
-+#ifndef PCI_DEVICE_ID_NS_83815
-+#define PCI_DEVICE_ID_NS_83815 0x0020
-+#endif
- static struct pci_device_id natsemi_pci_tbl[] __devinitdata = {
--	{ 0x100B, 0x0020, PCI_ANY_ID, PCI_ANY_ID, },
-+	{ PCI_VENDOR_ID_NS, PCI_DEVICE_ID_NS_83815, PCI_ANY_ID, PCI_ANY_ID, },
- 	{ 0, },
- };
- MODULE_DEVICE_TABLE(pci, natsemi_pci_tbl);
-@@ -336,8 +342,13 @@
- 
- 	/* These are from the spec, around page 78... on a separate table.
- 	 * The meaning of these registers depend on the value of PGSEL. */
--	PGSEL=0xCC, PMDCSR=0xE4, TSTDAT=0xFC, DSPCFG=0xF4, SDCFG=0x8C
-+	PGSEL=0xCC, PMDCSR=0xE4, TSTDAT=0xFC, DSPCFG=0xF4, SDCFG=0xF8
- };
-+/* the values for the 'magic' registers above (PGSEL=1) */
-+#define PMDCSR_VAL	0x189C
-+#define TSTDAT_VAL	0x0
-+#define DSPCFG_VAL	0x5040
-+#define SDCFG_VAL	0x008c
- 
- /* misc PCI space registers */
- enum PCISpaceRegs {
-@@ -364,9 +375,18 @@
- 	WOLPkt=0x2000,
- 	RxResetDone=0x1000000, TxResetDone=0x2000000,
- 	IntrPCIErr=0x00f00000,
--	IntrNormalSummary=0x025f, IntrAbnormalSummary=0xCD20,
-+	IntrAbnormalSummary=0xCD20,
- };
- 
-+/*
-+ * Interrupts:
-+ * Rx OK, Rx Packet Error, Rx Overrun, 
-+ * Tx OK, Tx Packet Error, Tx Underrun, 
-+ * MIB Service, Phy Interrupt, High Bits,
-+ * Rx Status FIFO overrun,
-+ * Received Target Abort, Received Master Abort, 
-+ * Signalled System Error, Received Parity Error
-+ */
- #define DEFAULT_INTR 0x00f1cd65
- 
- /* Bits in the RxMode register. */
-@@ -516,9 +536,9 @@
- 	 * to be brought to D0 in this manner.
- 	 */
- 	pci_read_config_dword(pdev, PCIPM, &tmp);
--	if (tmp & (0x03|0x100)) {
-+	if (tmp & 0x03) {
- 		/* D0 state, disable PME assertion */
--		u32 newtmp = tmp & ~(0x03|0x100);
-+		u32 newtmp = tmp & ~0x03;
- 		pci_write_config_dword(pdev, PCIPM, newtmp);
- 	}
- 
-@@ -790,7 +810,7 @@
- 	init_timer(&np->timer);
- 	np->timer.expires = jiffies + 3*HZ;
- 	np->timer.data = (unsigned long)dev;
--	np->timer.function = &netdev_timer;				/* timer handler */
-+	np->timer.function = &netdev_timer; /* timer handler */
- 	add_timer(&np->timer);
- 
- 	return 0;
-@@ -849,6 +869,17 @@
- 		printk(KERN_DEBUG "%s: found silicon revision %xh.\n",
- 				dev->name, readl(ioaddr + SiliconRev));
- 
-+	for (i=0;i<NATSEMI_HW_TIMEOUT;i++) {
-+		if (readl(dev->base_addr + ChipConfig) & CfgAnegDone)
-+			break;
-+		udelay(10);
-+	}
-+	if (i==NATSEMI_HW_TIMEOUT && debug) {
-+		printk(KERN_INFO 
-+			"%s: autonegotiation did not complete in %d usec.\n",
-+			dev->name, i*10);
-+	}
-+
- 	/* On page 78 of the spec, they recommend some settings for "optimum
- 	   performance" to be done in sequence.  These settings optimize some
- 	   of the 100Mbit autodetection circuitry.  They say we only want to 
-@@ -856,20 +887,26 @@
- 	   Kennedy) recommends always setting them.  If you don't, you get 
- 	   errors on some autonegotiations that make the device unusable.
- 	*/
--	writew(0x0001, ioaddr + PGSEL);
--	writew(0x189C, ioaddr + PMDCSR);
--	writew(0x0000, ioaddr + TSTDAT);
--	writew(0x5040, ioaddr + DSPCFG);
--	writew(0x008C, ioaddr + SDCFG);
--	writew(0x0000, ioaddr + PGSEL);
-+	writew(1, ioaddr + PGSEL);
-+	writew(PMDCSR_VAL, ioaddr + PMDCSR);
-+	writew(TSTDAT_VAL, ioaddr + TSTDAT);
-+	writew(DSPCFG_VAL, ioaddr + DSPCFG);
-+	writew(SDCFG_VAL, ioaddr + SDCFG);
-+	writew(0, ioaddr + PGSEL);
- 
- 	/* Enable PHY Specific event based interrupts.  Link state change
- 	   and Auto-Negotiation Completion are among the affected.
-+	   Read the intr status to clear it (needed for wake events).
- 	*/
-+	readw(ioaddr + MIntrStatus);
- 	writew(0x0002, ioaddr + MIntrCtrl);
- 
-+	/* clear any interrupts that are pending, such as wake events */
-+	readl(ioaddr + IntrStatus);
-+
- 	writel(np->ring_dma, ioaddr + RxRingPtr);
--	writel(np->ring_dma + RX_RING_SIZE * sizeof(struct netdev_desc), ioaddr + TxRingPtr);
-+	writel(np->ring_dma + RX_RING_SIZE * sizeof(struct netdev_desc), 
-+		ioaddr + TxRingPtr);
- 
- 	for (i = 0; i < ETH_ALEN; i += 2) {
- 		writel(i, ioaddr + RxFilterAddr);
-@@ -907,23 +944,36 @@
- 	 * nothing will be written to memory. */
- 	np->SavedClkRun = readl(ioaddr + ClkRun);
- 	writel(np->SavedClkRun & ~0x100, ioaddr + ClkRun);
-+	if (np->SavedClkRun & 0x8000) {
-+		printk(KERN_NOTICE "%s: Wake-up event %8.8x\n", 
-+			dev->name, readl(ioaddr + WOLCmd));
-+	}
- 
- 	check_link(dev);
- 	__set_rx_mode(dev);
- 
- 	/* Enable interrupts by setting the interrupt mask. */
-- 	writel(DEFAULT_INTR, ioaddr + IntrMask);
-+	writel(DEFAULT_INTR, ioaddr + IntrMask);
- 	writel(1, ioaddr + IntrEnable);
- 
- 	writel(RxOn | TxOn, ioaddr + ChipCmd);
- 	writel(4, ioaddr + StatsCtrl); /* Clear Stats */
- }
- 
-+/* 
-+ * The frequency on this has been increased because of a nasty little problem.
-+ * It seems that a reference set for this chip went out with incorrect info,
-+ * and there exist boards that aren't quite right.  An unexpected voltage drop
-+ * can cause the PHY to get itself in a weird state (basically reset..).
-+ * NOTE: this only seems to affect revC chips.
-+ */
- static void netdev_timer(unsigned long data)
- {
- 	struct net_device *dev = (struct net_device *)data;
- 	struct netdev_private *np = dev->priv;
--	int next_tick = 60*HZ;
-+	int next_tick = 5*HZ;
-+	long ioaddr = dev->base_addr;
-+	u16 dspcfg;
- 
- 	if (debug > 3) {
- 		/* DO NOT read the IntrStatus register, 
-@@ -933,10 +983,27 @@
- 			   dev->name);
- 	}
- 	spin_lock_irq(&np->lock);
--	check_link(dev);
-+
-+	/* check for a nasty random phy-reset - use dspcfg as a flag */
-+	writew(1, ioaddr+PGSEL);
-+	dspcfg = readw(ioaddr+DSPCFG);
-+	writew(0, ioaddr+PGSEL);
-+	if (dspcfg != DSPCFG_VAL) {
-+		if (!netif_queue_stopped(dev)) {
-+			printk(KERN_INFO 
-+				"%s: possible phy reset: re-initializing\n",
-+				dev->name);
-+			init_registers(dev);
-+		} else {
-+			/* hurry back */
-+			next_tick = HZ;
-+		}
-+	} else {
-+		/* init_registers() calls check_link() for the above case */
-+		check_link(dev);
-+	}
- 	spin_unlock_irq(&np->lock);
--	np->timer.expires = jiffies + next_tick;
--	add_timer(&np->timer);
-+	mod_timer(&np->timer, jiffies + next_tick);
- }
- 
- static void dump_ring(struct net_device *dev)
-@@ -946,15 +1013,18 @@
- 	if (debug > 2) {
- 		int i;
- 		printk(KERN_DEBUG "  Tx ring at %p:\n", np->tx_ring);
--		for (i = 0; i < TX_RING_SIZE; i++)
-+		for (i = 0; i < TX_RING_SIZE; i++) {
- 			printk(KERN_DEBUG " #%d desc. %8.8x %8.8x %8.8x.\n",
- 				   i, np->tx_ring[i].next_desc,
--				   np->tx_ring[i].cmd_status, np->tx_ring[i].addr);
-+				   np->tx_ring[i].cmd_status, 
-+				   np->tx_ring[i].addr);
-+		}
- 		printk(KERN_DEBUG "  Rx ring %p:\n", np->rx_ring);
- 		for (i = 0; i < RX_RING_SIZE; i++) {
- 			printk(KERN_DEBUG " #%d desc. %8.8x %8.8x %8.8x.\n",
- 				   i, np->rx_ring[i].next_desc,
--				   np->rx_ring[i].cmd_status, np->rx_ring[i].addr);
-+				   np->rx_ring[i].cmd_status, 
-+				   np->rx_ring[i].addr);
- 		}
- 	}
- }
-@@ -964,12 +1034,12 @@
- 	struct netdev_private *np = dev->priv;
- 	long ioaddr = dev->base_addr;
- 
--
- 	disable_irq(dev->irq);
- 	spin_lock_irq(&np->lock);
- 	if (netif_device_present(dev)) {
- 		printk(KERN_WARNING "%s: Transmit timed out, status %8.8x,"
--			   " resetting...\n", dev->name, readl(ioaddr + IntrStatus));
-+			" resetting...\n", 
-+			dev->name, readl(ioaddr + IntrStatus));
- 		dump_ring(dev);
- 
- 		natsemi_reset(dev);
-@@ -977,8 +1047,9 @@
- 		init_ring(dev);
- 		init_registers(dev);
- 	} else {
--		printk(KERN_WARNING "%s: tx_timeout while in suspended state?\n",
--		   		dev->name);
-+		printk(KERN_WARNING 
-+			"%s: tx_timeout while in suspended state?\n",
-+		   	dev->name);
- 	}
- 	spin_unlock_irq(&np->lock);
- 	enable_irq(dev->irq);
-@@ -1019,7 +1090,7 @@
- 	for (i = 0; i < RX_RING_SIZE; i++) {
- 		np->rx_ring[i].next_desc = cpu_to_le32(np->ring_dma
- 				+sizeof(struct netdev_desc)
--				 *((i+1)%RX_RING_SIZE));
-+				*((i+1)%RX_RING_SIZE));
- 		np->rx_ring[i].cmd_status = cpu_to_le32(DescOwn);
- 		np->rx_skbuff[i] = NULL;
- 	}
-@@ -1107,7 +1178,8 @@
- 	
- 	if (netif_device_present(dev)) {
- 		np->tx_ring[entry].cmd_status = cpu_to_le32(DescOwn | skb->len);
--		/* StrongARM: Explicitly cache flush np->tx_ring and skb->data,skb->len. */
-+		/* StrongARM: Explicitly cache flush np->tx_ring and 
-+		 * skb->data,skb->len. */
- 		wmb();
- 		np->cur_tx++;
- 		if (np->cur_tx - np->dirty_tx >= TX_QUEUE_LEN - 1) {
-@@ -1219,7 +1291,7 @@
- 		}
- 	} while (1);
- 
--	if (debug > 3)
-+	if (debug > 4)
- 		printk(KERN_DEBUG "%s: exiting interrupt.\n",
- 			   dev->name);
- }
-@@ -1553,24 +1625,33 @@
- 	u32 data = readl(dev->base_addr + WOLCmd) & ~WakeOptsSummary;
- 
- 	/* translate to bitmasks this chip understands */
--	if (newval & WAKE_PHY)
-+	if (newval & WAKE_PHY) {
- 		data |= WakePhy;
--	if (newval & WAKE_UCAST)
-+	}
-+	if (newval & WAKE_UCAST) {
- 		data |= WakeUnicast;
--	if (newval & WAKE_MCAST)
-+	}
-+	if (newval & WAKE_MCAST) {
- 		data |= WakeMulticast;
--	if (newval & WAKE_BCAST)
-+	}
-+	if (newval & WAKE_BCAST) {
- 		data |= WakeBroadcast;
--	if (newval & WAKE_ARP)
-+	}
-+	if (newval & WAKE_ARP) {
- 		data |= WakeArp;
--	if (newval & WAKE_MAGIC)
-+	}
-+	if (newval & WAKE_MAGIC) {
- 		data |= WakeMagic;
--	if (newval & WAKE_MAGICSECURE)
--		data |= WakeMagicSecure;
-+	}
-+	if (readl(dev->base_addr + SiliconRev) >= 0x403) {
-+		if (newval & WAKE_MAGICSECURE) {
-+			data |= WakeMagicSecure;
-+		}
-+	}
- 
- 	writel(data, dev->base_addr + WOLCmd);
- 
--	/* should we burn these into the EEPROM? */
-+	/* FIXME: should we burn these into the EEPROM? */
- 	
- 	return 0;
- }
-@@ -1580,23 +1661,37 @@
- 	u32 regval = readl(dev->base_addr + WOLCmd);
- 
- 	*supported = (WAKE_PHY | WAKE_UCAST | WAKE_MCAST | WAKE_BCAST 
--			| WAKE_ARP | WAKE_MAGIC | WAKE_MAGICSECURE);
-+			| WAKE_ARP | WAKE_MAGIC);
-+	
-+	if (readl(dev->base_addr + SiliconRev) >= 0x403) {
-+		/* SOPASS works on revD and higher */
-+		*supported |= WAKE_MAGICSECURE;
-+	}
- 	*cur = 0;
-+
- 	/* translate from chip bitmasks */
--	if (regval & 0x1)
-+	if (regval & WakePhy) {
- 		*cur |= WAKE_PHY;
--	if (regval & 0x2)
-+	}
-+	if (regval & WakeUnicast) {
- 		*cur |= WAKE_UCAST;
--	if (regval & 0x4)
-+	}
-+	if (regval & WakeMulticast) {
- 		*cur |= WAKE_MCAST;
--	if (regval & 0x8)
-+	}
-+	if (regval & WakeBroadcast) {
- 		*cur |= WAKE_BCAST;
--	if (regval & 0x10)
-+	}
-+	if (regval & WakeArp) {
- 		*cur |= WAKE_ARP;
--	if (regval & 0x200)
-+	}
-+	if (regval & WakeMagic) {
- 		*cur |= WAKE_MAGIC;
--	if (regval & 0x400)
-+	}
-+	if (regval & WakeMagicSecure) {
-+		/* this can be on in revC, but it's broken */
- 		*cur |= WAKE_MAGICSECURE;
-+	}
- 
- 	return 0;
- }
-@@ -1604,9 +1699,14 @@
- static int netdev_set_sopass(struct net_device *dev, u8 *newval)
- {
- 	u16 *sval = (u16 *)newval;
--	u32 addr = readl(dev->base_addr + RxFilterAddr) & ~0x3ff;
-+	u32 addr;
-+	
-+	if (readl(dev->base_addr + SiliconRev) < 0x403) {
-+		return 0;
-+	}
- 
- 	/* enable writing to these registers by disabling the RX filter */
-+	addr = readl(dev->base_addr + RxFilterAddr) & ~0x3ff;
- 	addr &= ~0x80000000;
- 	writel(addr, dev->base_addr + RxFilterAddr);
- 
-@@ -1623,7 +1723,7 @@
- 	/* re-enable the RX filter */
- 	writel(addr | 0x80000000, dev->base_addr + RxFilterAddr);
- 
--	/* should we burn this into the EEPROM? */
-+	/* FIXME: should we burn this into the EEPROM? */
- 
- 	return 0;
- }
-@@ -1631,9 +1731,16 @@
- static int netdev_get_sopass(struct net_device *dev, u8 *data)
- {
- 	u16 *sval = (u16 *)data;
--	u32 addr = readl(dev->base_addr + RxFilterAddr) & ~0x3ff;
-+	u32 addr;
-+
-+	if (readl(dev->base_addr + SiliconRev) < 0x403) {
-+		sval[0] = sval[1] = sval[2] = 0;
-+		return 0;
-+	}
- 
- 	/* read the three words from (undocumented) RFCR vals 0xa, 0xc, 0xe */
-+	addr = readl(dev->base_addr + RxFilterAddr) & ~0x3ff;
-+
- 	writel(addr | 0xa, dev->base_addr + RxFilterAddr);
- 	sval[0] = readw(dev->base_addr + RxFilterData);
- 
-@@ -1643,6 +1750,8 @@
- 	writel(addr | 0xe, dev->base_addr + RxFilterAddr);
- 	sval[2] = readw(dev->base_addr + RxFilterData);
- 	
-+	writel(addr, dev->base_addr + RxFilterAddr);
-+
- 	return 0;
- }
- 
-@@ -1795,16 +1904,24 @@
- static void enable_wol_mode(struct net_device *dev, int enable_intr)
- {
- 	long ioaddr = dev->base_addr;
-+	struct netdev_private *np = dev->priv;
- 
- 	if (debug > 1)
- 		printk(KERN_INFO "%s: remaining active for wake-on-lan\n", 
- 			dev->name);
-+
- 	/* For WOL we must restart the rx process in silent mode.
- 	 * Write NULL to the RxRingPtr. Only possible if
- 	 * rx process is stopped
- 	 */
- 	writel(0, ioaddr + RxRingPtr);
- 
-+	/* read WoL status to clear */
-+	readl(ioaddr + WOLCmd);
-+
-+	/* PME on, clear status */
-+	writel(np->SavedClkRun | 0x8100, ioaddr + ClkRun);
-+
- 	/* and restart the rx process */
- 	writel(RxOn, ioaddr + ChipCmd);
- 
-@@ -1822,9 +1939,10 @@
- 	struct netdev_private *np = dev->priv;
- 
- 	netif_stop_queue(dev);
-+	netif_carrier_off(dev);
- 
- 	if (debug > 1) {
-- 		printk(KERN_DEBUG "%s: Shutting down ethercard, status was %4.4x.\n",
-+		printk(KERN_DEBUG "%s: Shutting down ethercard, status was %4.4x.\n",
- 			   dev->name, (int)readl(ioaddr + ChipCmd));
- 		printk(KERN_DEBUG "%s: Queue pointers were Tx %d / %d,  Rx %d / %d.\n",
- 			   dev->name, np->cur_tx, np->dirty_tx, np->cur_rx, np->dirty_rx);
-@@ -1835,9 +1953,13 @@
- 	disable_irq(dev->irq);
- 	spin_lock_irq(&np->lock);
- 
-+	/* Disable and clear interrupts */
- 	writel(0, ioaddr + IntrEnable);
--	writel(0, ioaddr + IntrMask);
--	writel(2, ioaddr + StatsCtrl); 	/* Freeze Stats */
-+	readl(ioaddr + IntrMask);
-+	readw(ioaddr + MIntrStatus);
-+
-+ 	/* Freeze Stats */
-+	writel(2, ioaddr + StatsCtrl);
- 	    
- 	/* Stop the chip's Tx and Rx processes. */
- 	natsemi_stop_rxtx(dev);
-@@ -1865,20 +1987,15 @@
- 
- 	 {
- 		u32 wol = readl(ioaddr + WOLCmd) & WakeOptsSummary;
--		u32 clkrun = np->SavedClkRun;
--		/* Restore PME enable bit */
- 		if (wol) {
- 			/* restart the NIC in WOL mode.
- 			 * The nic must be stopped for this.
- 			 */
- 			enable_wol_mode(dev, 0);
--			/* make sure to enable PME */
--			clkrun |= 0x100;
-+		} else {
-+			/* Restore PME enable bit unmolested */
-+			writel(np->SavedClkRun, ioaddr + ClkRun);
- 		}
--		writel(clkrun, ioaddr + ClkRun);
--#if 0
--		writel(0x0200, ioaddr + ChipConfig); /* Power down Xcvr. */
--#endif
- 	}
- 	return 0;
- }
-@@ -1913,8 +2030,8 @@
-  *	* intr_handler: doesn't acquire the spinlock. suspend calls
-  *		disable_irq() to enforce synchronization.
-  *
-- * netif_device_detach must occur under spin_unlock_irq(), interrupts from a detached
-- * device would cause an irq storm.
-+ * netif_device_detach must occur under spin_unlock_irq(), interrupts from a
-+ * detached device would cause an irq storm.
-  */
- 
- static int natsemi_suspend (struct pci_dev *pdev, u32 state)
-@@ -1945,7 +2062,6 @@
- 		drain_ring(dev);
- 		{
- 			u32 wol = readl(ioaddr + WOLCmd) & WakeOptsSummary;
--			u32 clkrun = np->SavedClkRun;
- 			/* Restore PME enable bit */
- 			if (wol) {
- 				/* restart the NIC in WOL mode.
-@@ -1953,10 +2069,10 @@
- 				 * FIXME: use the WOL interupt 
- 				 */
- 				enable_wol_mode(dev, 0);
--				/* make sure to enable PME */
--				clkrun |= 0x100;
-+			} else {
-+				/* Restore PME enable bit unmolested */
-+				writel(np->SavedClkRun, ioaddr + ClkRun);
- 			}
--			writel(clkrun, ioaddr + ClkRun);
- 		}
- 	} else {
- 		netif_device_detach(dev);
-@@ -1985,8 +2101,7 @@
- 		netif_device_attach(dev);
- 		spin_unlock_irq(&np->lock);
- 
--		np->timer.expires = jiffies + 1*HZ;
--		add_timer(&np->timer);
-+		mod_timer(&np->timer, jiffies + 1*HZ);
- 	} else {
- 		netif_device_attach(dev);
- 	}
-diff -ruN dist-2.4.12+patches/include/linux/pci_ids.h cvs-2.4.12+patches/include/linux/pci_ids.h
---- dist-2.4.12+patches/include/linux/pci_ids.h	Mon Oct 15 10:23:43 2001
-+++ cvs-2.4.12+patches/include/linux/pci_ids.h	Mon Oct 15 10:23:43 2001
-@@ -285,6 +285,7 @@
- #define PCI_DEVICE_ID_NS_87415		0x0002
- #define PCI_DEVICE_ID_NS_87560_LIO	0x000e
- #define PCI_DEVICE_ID_NS_87560_USB	0x0012
-+#define PCI_DEVICE_ID_NS_83815		0x0020
- #define PCI_DEVICE_ID_NS_87410		0xd001
- 
- #define PCI_VENDOR_ID_TSENG		0x100c
-
---------------387C01EAE29B9F26CC6000AB--
+> Hello,
+>
+> I hope you can shed a light to my problem. The server
+> works just fine with a single SCSI drive.
+> Unfortunately, when we add the 2nd SCSI drive, the
+> system does not boot.
+>
+> VFS: Cannot open root dev "802" or 08:02
+> Please append correct "root=" boot option
+> Kernel panic: VFS: Unable to mount root fs on 08:02
+>
+> We have tried all SCSI ID combinations with no
+> success. LILO 'append="root=/dev/sda2"' command line
+> does not work. 802 above is our /dev/sda2 root
+> partition. We thought Adaptec driver is reshuffling
+> the drives however 'AIC7XXX=no_reset' LILO command
+> line does not work either.
+>
+> I would be forever grateful if someone can offer a
+> hand.
+>
+> Many thanks in advance for taking your time.
+>
+> Jimmy
+>
+> PS: Sorry if it looks like a cross-post. Server is
+> running out of disk space and we need to get the 2nd
+> drive added to the system. My apologies.
+>
+> Here is some diagnostic information:
+>
+> P3 866 MHz, BX M/b, 512 MB Ram, 9.1 GB SCSI IBM hd.
+> (works fine)
+> 2nd HD: Cheetah 15000 RPM 36 GB hd (gives problem when
+> added to the system)
+> Adaptec 29160 Ultra160 SCSI adapter
+>
+> Redhat 7.1, 2.4.2 Enterprise kernel (Adaptec Driver is
+> built into the kernel, not as module)
+>
+> Kernel command line:
+> auto BOOT_IMAGE=x ro root=802
+> BOOT_FILE=/boot/vmlinuz-2.4.2-2enterprise
+> root=/dev/sda2
+>
+> /proc/scsi/scsi:
+> Attached devices:
+> Host: scsi0 Channel: 00 Id: 06 Lun: 00
+>   Vendor: IBM      Model: DNES-309170W     Rev: SAH0
+>   Type:   Direct-Access                    ANSI SCSI
+> revision: 03
+>
+> /etc/lilo.conf:
+> boot=/dev/sda
+> map=/boot/map
+> install=/boot/boot.b
+> prompt
+> timeout=5
+> message=/boot/message
+> linear
+> default=x
+> append="root=/dev/sda2"
+>
+> image=/boot/vmlinuz-2.4.2-2
+>         label=linux
+>         initrd=/boot/initrd-2.4.2-2.img
+>         read-only
+>         root=/dev/sda2
+>
+> image=/boot/vmlinuz-2.4.2-2enterprise
+>         label=x5
+> #       initrd=/boot/initrd-2.4.2-2enterprise.img
+>         read-only
+>         root=/dev/sda2
+>
+>
+> DMESG:
+> Linux version 2.4.2-2enterprise (root@localhost) (gcc
+> version 2.96 20000731 (X Net 5.0 2.96-81)) #1 Sun May
+> 13 12:35:36 GM
+> T+4 2001
+> BIOS-provided physical RAM map:
+>  BIOS-e820: 000000000009fc00 @ 0000000000000000
+> (usable)
+>  BIOS-e820: 0000000000000400 @ 000000000009fc00
+> (usable)
+>  BIOS-e820: 0000000000010000 @ 00000000000f0000
+> (reserved)
+>  BIOS-e820: 0000000000500000 @ 00000000ffb00000
+> (reserved)
+>  BIOS-e820: 000000001fdf0000 @ 0000000000100000
+> (usable)
+>  BIOS-e820: 000000000000d000 @ 000000001fef3000 (ACPI
+> data)
+>  BIOS-e820: 0000000000003000 @ 000000001fef0000 (ACPI
+> NVS)
+> Scan SMP from 40000000 for 1024 bytes.
+> Scan SMP from 4009fc00 for 1024 bytes.
+> Scan SMP from 400f0000 for 65536 bytes.
+> Scan SMP from 40000000 for 4096 bytes.
+> On node 0 totalpages: 130800
+> zone(0): 4096 pages.
+> zone DMA has max 32 cached pages.
+> zone(1): 126704 pages.
+> zone Normal has max 989 cached pages.
+> zone(2): 0 pages.
+> zone HighMem has max 1 cached pages.
+> Local APIC disabled by BIOS -- reenabling.
+> Found and enabled local APIC!
+> mapped APIC to ffffe000 (fee00000)
+> Kernel command line: auto BOOT_IMAGE=x ro root=802
+> BOOT_FILE=/boot/vmlinuz-2.4.2-2enterprise
+> root=/dev/sda2
+> Initializing CPU#0
+> Detected 868.653 MHz processor.
+> Console: colour VGA+ 80x25
+> Calibrating delay loop... 1730.15 BogoMIPS
+> Memory: 512088k/523200k available (1451k kernel code,
+> 10724k reserved, 78k data, 180k init, 0k highmem)
+> Dentry-cache hash table entries: 65536 (order: 7,
+> 524288 bytes)
+> Buffer-cache hash table entries: 32768 (order: 5,
+> 131072 bytes)
+> Page-cache hash table entries: 131072 (order: 8,
+> 1048576 bytes)
+> Inode-cache hash table entries: 32768 (order: 6,
+> 262144 bytes)
+> VFS: Diskquotas version dquot_6.5.0 initialized
+> CPU: Before vendor init, caps: 0387fbff 00000000
+> 00000000, vendor = 0
+> CPU: L1 I cache: 16K, L1 D cache: 16K
+> CPU: L2 cache: 256K
+> Intel machine check architecture supported.
+> Intel machine check reporting enabled on CPU#0.
+> CPU: After vendor init, caps: 0387fbff 00000000
+> 00000000 00000000
+> CPU serial number disabled.
+> CPU: After generic, caps: 0383fbff 00000000 00000000
+> 00000000
+> CPU: Common caps: 0383fbff 00000000 00000000 00000000
+> CPU: Intel Pentium III (Coppermine) stepping 06
+> Enabling fast FPU save and restore... done.
+> Enabling unmasked SIMD FPU exception support... done.
+> Checking 'hlt' instruction... OK.
+> POSIX conformance testing by UNIFIX
+> Getting VERSION: 40011
+> Getting VERSION: 40011
+> Getting ID: 0
+> Getting ID: f000000
+> Getting LVT0: 700
+> Getting LVT1: 400
+> enabled ExtINT on CPU#0
+> ESR value before enabling vector: 00000040
+> ESR value after enabling vector: 00000000
+> calibrating APIC timer ...
+> ..... CPU clock speed is 868.6803 MHz.
+> ..... host bus clock speed is 133.6430 MHz.
+> cpu: 0, clocks: 1336430, slice: 668215
+> CPU0<T0:1336416,T1:668192,D:9,S:668215,C:1336430>
+> mtrr: v1.37 (20001109) Richard Gooch
+> (rgooch@atnf.csiro.au)
+> mtrr: detected mtrr type: Intel
+> PCI: PCI BIOS revision 2.10 entry at 0xfb120, last
+> bus=1
+> PCI: Using configuration type 1
+> PCI: Probing PCI hardware
+> Unknown bridge resource 2: assuming transparent
+> PCI: Using IRQ router PIIX [8086/2440] at 00:1f.0
+> Linux NET4.0 for Linux 2.4
+> Based upon Swansea University Computer Society
+> NET3.039
+> Initializing RT netlink socket
+> Starting kswapd v1.8
+> Detected PS/2 Mouse Port.
+> pty: 256 Unix98 ptys configured
+> block: queued sectors max/low 340021kB/208949kB, 1024
+> slots per queue
+> Uniform Multi-Platform E-IDE driver Revision: 6.31
+> ide: Assuming 33MHz system bus speed for PIO modes;
+> override with idebus=xx
+> hdc: ATAPI 48X CDROM, ATAPI CD/DVD-ROM drive
+> ide1 at 0x170-0x177,0x376 on irq 15
+> hdc: ATAPI 48X CD-ROM drive, 128kB Cache
+> Uniform CD-ROM driver Revision: 3.12
+> NET4: Frame Diverter 0.46
+> loop: loaded (max 8 devices)
+> i810_rng: cannot reserve RNG region
+> Software Watchdog Timer: 0.05, timer margin: 60 sec
+> eepro100.c:v1.09j-t 9/29/99 Donald Becker
+> http://cesdis.gsfc.nasa.gov/linux/drivers/eepro100.html
+> eepro100.c: $Revision: 1.36 $ 2000/11/17 Modified by
+> Andrey V. Savochkin <saw@saw.sw.com.sg> and others
+> PCI: Found IRQ 12 for device 01:02.0
+> divert: allocating divert_blk for eth0
+> eth0: Intel Corporation 82557 [Ethernet Pro 100],
+> 00:D0:B7:BD:D2:84, I/O at 0xc400, IRQ 12.
+>   Board assembly 721383-009, Physical connectors
+> present: RJ45
+>   Primary interface chip i82555 PHY #1.
+>   General self-test: passed.
+>   Serial sub-system self-test: passed.
+>   Internal registers self-test: passed.
+>   ROM checksum self-test: passed (0x04f4518b).
+> cipcb: CIPE driver vers 1.4.5 (c) Olaf Titz 1996-2000,
+> 100 channels, debug=1
+> cipcb: cipe_alloc_dev 0
+> divert: not allocating divert_blk for non-ethernet
+> device cipcb0
+> divert: not allocating divert_blk for non-ethernet
+> device dummy0
+> Linux agpgart interface v0.99 (c) Jeff Hartmann
+> agpgart: Maximum main memory to use for agp memory:
+> 438M
+> agpgart: agpgart: Detected an Intel i815 Chipset.
+> agpgart: AGP aperture is 64M @ 0xd0000000
+> [drm] AGP 0.99 on Intel i810 @ 0xd0000000 64MB
+> [drm] Initialized i810 1.1.0 20000928 on minor 63
+> SCSI subsystem driver Revision: 1.00
+> request_module[scsi_hostadapter]: Root fs not mounted
+> PCI: Found IRQ 11 for device 01:00.0
+> IRQ routing conflict in pirq table for device 00:1f.4
+> scsi0 : Adaptec AIC7XXX EISA/VLB/PCI SCSI HBA DRIVER,
+> Rev 6.1.7
+>         <Adaptec 29160 Ultra160 SCSI adapter>
+>         aic7892: Wide Channel A, SCSI Id=7, 32/255
+> SCBs
+>
+>   Vendor: IBM       Model: DNES-309170W      Rev: SAH0
+>   Type:   Direct-Access                      ANSI SCSI
+> revision: 03
+> scsi0:0:6:0: Tagged Queuing enabled.  Depth 8
+> Attached scsi disk sda at scsi0, channel 0, id 6, lun
+> 0
+> (scsi0:A:6): 40.000MB/s transfers (20.000MHz, offset
+> 31, 16bit)
+> SCSI device sda: 17916240 512-byte hdwr sectors (9173
+> MB)
+> Partition check:
+>  sda: sda1 sda2 sda3
+> NET4: Linux TCP/IP 1.0 for NET4.0
+> IP Protocols: ICMP, UDP, TCP
+> IP: routing cache hash table of 4096 buckets, 32Kbytes
+> TCP: Hash tables configured (established 32768 bind
+> 32768)
+> ip_conntrack (4087 buckets, 32696 max)
+> ip_tables: (c)2000 Netfilter core team
+> NET4: Unix domain sockets 1.0/SMP for Linux NET4.0.
+> VFS: Mounted root (ext2 filesystem) readonly.
+> Freeing unused kernel memory: 180k freed
+> Adding Swap: 120476k swap-space (priority -1)
+>
+> __________________________________________________
+> Do You Yahoo!?
+> Make a great connection at Yahoo! Personals.
+> http://personals.yahoo.com
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+>
 

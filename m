@@ -1,16 +1,16 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262363AbUJ0KEZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262365AbUJ0KO3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262363AbUJ0KEZ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 27 Oct 2004 06:04:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262385AbUJ0KEH
+	id S262365AbUJ0KO3 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 27 Oct 2004 06:14:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262367AbUJ0KO3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 27 Oct 2004 06:04:07 -0400
-Received: from mail.convergence.de ([212.227.36.84]:4511 "EHLO
+	Wed, 27 Oct 2004 06:14:29 -0400
+Received: from mail.convergence.de ([212.227.36.84]:35231 "EHLO
 	email.convergence2.de") by vger.kernel.org with ESMTP
-	id S262363AbUJ0JxR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 27 Oct 2004 05:53:17 -0400
-Message-ID: <417F6FD3.3090003@linuxtv.org>
-Date: Wed, 27 Oct 2004 11:52:19 +0200
+	id S262365AbUJ0Jyq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 27 Oct 2004 05:54:46 -0400
+Message-ID: <417F702B.9050909@linuxtv.org>
+Date: Wed, 27 Oct 2004 11:53:47 +0200
 From: Michael Hunold <hunold@linuxtv.org>
 User-Agent: Mozilla Thunderbird 0.8 (X11/20040913)
 X-Accept-Language: de-DE, de, en-us, en
@@ -18,935 +18,1457 @@ MIME-Version: 1.0
 To: Linus Torvalds <torvalds@osdl.org>
 CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
        Andrew Morton <akpm@osdl.org>
-Subject: [PATCH][3/5] DVB: add new driver
-References: <417F6EB2.2070807@linuxtv.org> <417F6F0D.9020109@linuxtv.org> <417F6F87.5090703@linuxtv.org>
-In-Reply-To: <417F6F87.5090703@linuxtv.org>
+Subject: [PATCH][4/5] DVB: revamp dibusb driver
+References: <417F6EB2.2070807@linuxtv.org> <417F6F0D.9020109@linuxtv.org> <417F6F87.5090703@linuxtv.org> <417F6FD3.3090003@linuxtv.org>
+In-Reply-To: <417F6FD3.3090003@linuxtv.org>
 Content-Type: multipart/mixed;
- boundary="------------080109080301020707020800"
+ boundary="------------010809070902010801080706"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 This is a multi-part message in MIME format.
---------------080109080301020707020800
+--------------010809070902010801080706
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 
 
---------------080109080301020707020800
+--------------010809070902010801080706
 Content-Type: text/plain;
- name="03-dvb-add-cinergy-t2.diff"
-Content-Transfer-Encoding: 8bit
+ name="04-dvb-dibusb-update.diff"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline;
- filename="03-dvb-add-cinergy-t2.diff"
+ filename="04-dvb-dibusb-update.diff"
 
-- [DVB] add new driver for the Terratec CinergyT2/qanu USB2 DVB-T receiver, thanks to Daniel Mack and Holger Waechtler
+- [DVB] dibusb: update documentation for the dibusb DVB driver
+- [DVB] dibusb: major overhaul of the driver, including adding new vendor and product ids from clones
 
 Signed-off-by: Michael Hunold <hunold@linuxtv.org>
 
-diff -uraNwB linux-2.6.10-rc1/drivers/media/dvb/Kconfig linux-2.6.10-rc1-patched/drivers/media/dvb/Kconfig
---- linux-2.6.10-rc1/drivers/media/dvb/Kconfig	2004-10-25 14:07:50.000000000 +0200
-+++ linux-2.6.10-rc1-patched/drivers/media/dvb/Kconfig	2004-10-25 14:14:41.000000000 +0200
-@@ -32,6 +32,7 @@
- source "drivers/media/dvb/ttusb-budget/Kconfig"
- source "drivers/media/dvb/ttusb-dec/Kconfig"
- source "drivers/media/dvb/dibusb/Kconfig"
-+source "drivers/media/dvb/cinergyT2/Kconfig"
+diff -uraNwB linux-2.6.10-rc1/Documentation/dvb/README.dibusb linux-2.6.10-rc1-patched/Documentation/dvb/README.dibusb
+--- linux-2.6.10-rc1/Documentation/dvb/README.dibusb	2004-10-25 14:03:49.000000000 +0200
++++ linux-2.6.10-rc1-patched/Documentation/dvb/README.dibusb	2004-09-28 21:36:44.000000000 +0200
+@@ -1,9 +1,11 @@
++
++
+ Documentation for dib3000mb frontend driver and dibusb device driver
  
- comment "Supported FlexCopII (B2C2) Adapters"
- 	depends on DVB_CORE && PCI
-diff -uraNwB linux-2.6.10-rc1/drivers/media/dvb/Makefile linux-2.6.10-rc1-patched/drivers/media/dvb/Makefile
---- linux-2.6.10-rc1/drivers/media/dvb/Makefile	2004-10-25 14:07:53.000000000 +0200
-+++ linux-2.6.10-rc1-patched/drivers/media/dvb/Makefile	2004-10-25 14:14:41.000000000 +0200
-@@ -2,4 +2,4 @@
- # Makefile for the kernel multimedia device drivers.
- #
+ The drivers should work with
  
--obj-y        := dvb-core/ frontends/ ttpci/ ttusb-dec/ ttusb-budget/ b2c2/ bt8xx/ dibusb/
-+obj-y        := dvb-core/ frontends/ ttpci/ ttusb-dec/ ttusb-budget/ b2c2/ bt8xx/ dibusb/ cinergyT2/
-diff -uraNwB linux-2.6.10-rc1/drivers/media/dvb/cinergyT2/Kconfig linux-2.6.10-rc1-patched/drivers/media/dvb/cinergyT2/Kconfig
---- linux-2.6.10-rc1/drivers/media/dvb/cinergyT2/Kconfig	1970-01-01 01:00:00.000000000 +0100
-+++ linux-2.6.10-rc1-patched/drivers/media/dvb/cinergyT2/Kconfig	2004-10-15 17:22:20.000000000 +0200
-@@ -0,0 +1,59 @@
-+config DVB_CINERGYT2
-+	tristate "Terratec CinergyT2/qanu USB2 DVB-T receiver"
-+	depends on DVB_CORE && USB
-+	help
-+	  Support for "TerraTec CinergyT2" USB2.0 Highspeed DVB Receivers
+ - Twinhan VisionPlus VisionDTV USB-Ter DVB-T Device (VP7041)
+-	http://www.twinhan.com/visiontv-2_4.htm
++	http://www.twinhan.com/
+ 
+ - CTS Portable (Chinese Television System)
+ 	http://www.2cts.tv/ctsportable/
+@@ -19,6 +21,10 @@
+ - Ultima Electronic/Artec T1 USB TVBOX
+ 	http://www.arteceuro.com/products-tvbox.html
+ 
++- Compro Videomate DVB-U2000 - DVB-T USB
++	http://www.comprousa.com/products/vmu2000.htm
 +
-+	  Say Y if you own such a device and want to use it.
++- Unknown USB DVB-T device with vendor ID Hyper-Paltek
+ 
+ Copyright (C) 2004 Patrick Boettcher (patrick.boettcher@desy.de),
+ 
+@@ -32,6 +38,11 @@
+ 
+ 
+ NEWS:
++  2004-09-28 - added support for a new device (Unkown, vendor ID is Hyper-Paltek)
++  2004-09-20 - added support for a new device (Compro DVB-U2000), thanks
++               to Amaury Demol for reporting
++             - changed usb TS transfer method (several urbs, stopping transfer 
++               before setting a new pid)
+   2004-09-13 - added support for a new device (Artec T1 USB TVBOX), thanks
+                to Christian Motschke for reporting
+   2004-09-05 - released the dibusb device and dib3000mb-frontend driver
+@@ -85,8 +96,13 @@
+ 
+ If you want to enable debug output, you have to load the driver manually.
+ 
+-modprobe dvb-dibusb debug=1
+-modprobe dib3000mb debug=1
++first have a look, which debug level are available:
 +
++modinfo dvb-dibusb
++modinfo dib3000mb
 +
-+config DVB_CINERGYT2_TUNING
-+	bool "sophisticated fine-tuning for CinergyT2 cards"
-+	depends on DVB_CINERGYT2
-+	help
-+	  Here you can fine-tune some parameters of the CinergyT2 driver.
-+
-+	  Normally you don't need to touch this, but in exotic setups you
-+	  may fine-tune your setup and adjust e.g. DMA buffer sizes for
-+	  a particular application.
-+
-+
-+config DVB_CINERGYT2_STREAM_URB_COUNT
-+	int "Number of queued USB Request Blocks for Highspeed Stream Transfers"
-+	depends on DVB_CINERGYT2_TUNING
-+        default "32"
-+	help
-+	  USB Request Blocks for Highspeed Stream transfers are queued in a
-+	  for the Host Controller. Usually the default value is a safe choice.
-+
-+	  You may increase this number if you are using this device in a 
-+	  Server Environment with many high-traffic USB Highspeed devices 
-+	  sharing the same USB bus.
-+
-+
-+config DVB_CINERGYT2_STREAM_BUF_SIZE
-+	int "Size of URB Stream Buffers for Highspeed Transfers"
-+	depends on DVB_CINERGYT2_TUNING
-+        default "512"
-+	help
-+	  Should be a multiple of native buffer size of 512 bytes.
-+	  Default value is a safe choice.
-+
-+	  You may increase this number if you are using this device in a 
-+	  Server Environment with many high-traffic USB Highspeed devices 
-+	  sharing the same USB bus.
-+
-+
-+config DVB_CINERGYT2_ENABLE_RC_INPUT_DEVICE
-+	bool "Register the onboard IR Remote Control Receiver as Input Device"
-+	depends on DVB_CINERGYT2_TUNING
-+        default "yes"
-+	help
-+	  Enable this option if you want to use the onboard Infrared Remote 
-+	  Control Receiver as Linux-Input device.
-+
-+	  Right now only the keycode table for the default Remote Control
-+	  delivered with the device is supported, please see the driver
-+	  source code to find out how to add support for other controls.
-+
-+
-diff -uraNwB linux-2.6.10-rc1/drivers/media/dvb/cinergyT2/Makefile linux-2.6.10-rc1-patched/drivers/media/dvb/cinergyT2/Makefile
---- linux-2.6.10-rc1/drivers/media/dvb/cinergyT2/Makefile	1970-01-01 01:00:00.000000000 +0100
-+++ linux-2.6.10-rc1-patched/drivers/media/dvb/cinergyT2/Makefile	2004-10-15 17:15:48.000000000 +0200
-@@ -0,0 +1,3 @@
-+obj-$(CONFIG_DVB_CINERGYT2) += cinergyT2.o
-+
-+EXTRA_CFLAGS = -Idrivers/media/dvb/dvb-core/
-diff -uraN a/linux-2.6.10-rc1-patched/drivers/media/dvb/cinergyT2/cinergyT2.c b/linux-2.6.10-rc1-patched/drivers/media/dvb/cinergyT2/cinergyT2.c
---- a/drivers/media/dvb/cinergyT2/cinergyT2.c	1970-01-01 01:00:00.000000000 +0100
-+++ b/drivers/media/dvb/cinergyT2/cinergyT2.c	2004-10-26 15:17:54.000000000 +0200
-@@ -0,0 +1,811 @@
-+/*
-+ * TerraTec Cinergy T²/qanu USB2 DVB-T adapter.
-+ *
-+ * Copyright (C) 2004 Daniel Mack <daniel@qanu.de> and
-+ *		    Holger Waechtler <holger@qanu.de>
-+ *
-+ *  Protocol Spec published on http://qanu.de/specs/terratec_cinergyT2.pdf
-+ *
-+ * This program is free software; you can redistribute it and/or modify
-+ * it under the terms of the GNU General Public License as published by
-+ * the Free Software Foundation; either version 2 of the License, or
-+ * (at your option) any later version.
-+ *
-+ * This program is distributed in the hope that it will be useful,
-+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
-+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-+ * GNU General Public License for more details.
-+ *
-+ * You should have received a copy of the GNU General Public License
-+ * along with this program; if not, write to the Free Software
-+ * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
-+ *
-+ */
-+
-+#include <linux/config.h>
-+#include <linux/init.h>
-+#include <linux/module.h>
-+#include <linux/slab.h>
-+#include <linux/usb.h>
-+#include <linux/pci.h>
-+#include <linux/input.h>
-+#include <linux/dvb/frontend.h>
-+
-+#include "dmxdev.h"
-+#include "dvb_demux.h"
-+#include "dvb_net.h"
-+
-+#ifdef CONFIG_DVB_CINERGYT2_TUNING
-+	#define STREAM_URB_COUNT (CONFIG_DVB_CINERGYT2_STREAM_URB_COUNT)
-+	#define STREAM_BUF_SIZE (CONFIG_DVB_CINERGYT2_STREAM_BUF_SIZE)
-+	#ifdef CONFIG_DVB_CINERGYT2_ENABLE_RC_INPUT_DEVICE
-+		#define ENABLE_RC (1)
-+	#endif
-+#else
-+	#define STREAM_URB_COUNT (32)
-+	#define STREAM_BUF_SIZE (512)
-+	#define ENABLE_RC (1)
-+#endif
-+
-+#define DRIVER_NAME "TerraTec/qanu USB2.0 Highspeed DVB-T Receiver"
-+
-+static int debug;
-+module_param_named(debug, debug, int, 0644);
-+MODULE_PARM_DESC(debug, "Turn on/off debugging (default:off).");
-+
-+#define dprintk(level, args...) \
-+            do { if ((debug & level)) { printk("%s: %s(): ",__stringify(KBUILD_MODNAME), __FUNCTION__); printk(args); } } while (0)
-+
-+enum cinergyt2_ep1_cmd {
-+	CINERGYT2_EP1_PID_TABLE_RESET		= 0x01,
-+	CINERGYT2_EP1_PID_SETUP			= 0x02,
-+	CINERGYT2_EP1_CONTROL_STREAM_TRANSFER 	= 0x03,
-+	CINERGYT2_EP1_SET_TUNER_PARAMETERS 	= 0x04,
-+	CINERGYT2_EP1_GET_TUNER_STATUS		= 0x05,
-+	CINERGYT2_EP1_START_SCAN		= 0x06,
-+	CINERGYT2_EP1_CONTINUE_SCAN		= 0x07,
-+	CINERGYT2_EP1_GET_RC_EVENTS		= 0x08,
-+	CINERGYT2_EP1_SLEEP_MODE		= 0x09
-+};
-+
-+static struct dvb_frontend_info cinergyt2_fe_info = {
-+	.name = DRIVER_NAME,
-+	.type = FE_OFDM,
-+	.frequency_min = 174000000,
-+	.frequency_max = 862000000,
-+	.frequency_stepsize = 166667,
-+	.notifier_delay = 0,
-+	.caps = FE_CAN_INVERSION_AUTO | FE_CAN_FEC_1_2 | FE_CAN_FEC_2_3 |
-+		FE_CAN_FEC_3_4 | FE_CAN_FEC_5_6 | FE_CAN_FEC_7_8 |
-+		FE_CAN_FEC_AUTO |
-+		FE_CAN_QPSK | FE_CAN_QAM_16 | FE_CAN_QAM_64 | FE_CAN_QAM_AUTO |
-+		FE_CAN_TRANSMISSION_MODE_AUTO | FE_CAN_GUARD_INTERVAL_AUTO |
-+		FE_CAN_HIERARCHY_AUTO | FE_CAN_RECOVER | FE_CAN_MUTE_TS
-+};
-+
-+struct cinergyt2 {
-+	struct dvb_demux demux;
-+	struct usb_device *udev;
-+	struct semaphore sem;
-+	struct dvb_adapter *adapter;
-+	struct dvb_device *fedev;
-+	struct dmxdev dmxdev;
-+	struct dvb_net dvbnet;
-+
-+	int streaming;
-+
-+	void *streambuf;
-+	dma_addr_t streambuf_dmahandle;
-+	struct urb *stream_urb[STREAM_URB_COUNT];
-+
-+#ifdef ENABLE_RC
-+	struct input_dev rc_input_dev;
-+	struct work_struct rc_query_work;
-+	int rc_input_event;
-+#endif
-+};
-+
-+enum {
-+	CINERGYT2_RC_EVENT_TYPE_NONE = 0x00,
-+	CINERGYT2_RC_EVENT_TYPE_NEC  = 0x01,
-+	CINERGYT2_RC_EVENT_TYPE_RC5  = 0x02
-+};
-+
-+struct cinergyt2_rc_event {
-+	char type;
-+	uint32_t value;
-+} __attribute__((packed));
-+
-+static const uint32_t rc_keys [] = {
-+	CINERGYT2_RC_EVENT_TYPE_NEC, 	0xfe01eb04,	KEY_POWER,
-+	CINERGYT2_RC_EVENT_TYPE_NEC, 	0xfd02eb04,	KEY_1,
-+	CINERGYT2_RC_EVENT_TYPE_NEC, 	0xfc03eb04,	KEY_2,
-+	CINERGYT2_RC_EVENT_TYPE_NEC, 	0xfb04eb04,	KEY_3,
-+	CINERGYT2_RC_EVENT_TYPE_NEC, 	0xfa05eb04,	KEY_4,
-+	CINERGYT2_RC_EVENT_TYPE_NEC, 	0xf906eb04,	KEY_5,
-+	CINERGYT2_RC_EVENT_TYPE_NEC, 	0xf807eb04,	KEY_6,
-+	CINERGYT2_RC_EVENT_TYPE_NEC, 	0xf708eb04,	KEY_7,
-+	CINERGYT2_RC_EVENT_TYPE_NEC, 	0xf609eb04,	KEY_8,
-+	CINERGYT2_RC_EVENT_TYPE_NEC, 	0xf50aeb04,	KEY_9,
-+	CINERGYT2_RC_EVENT_TYPE_NEC, 	0xf30ceb04,	KEY_0,
-+	CINERGYT2_RC_EVENT_TYPE_NEC,	0xf40beb04,	KEY_VIDEO,
-+	CINERGYT2_RC_EVENT_TYPE_NEC,	0xf20deb04,	KEY_REFRESH,
-+	CINERGYT2_RC_EVENT_TYPE_NEC, 	0xf10eeb04,	KEY_SELECT,
-+	CINERGYT2_RC_EVENT_TYPE_NEC, 	0xf00feb04,	KEY_EPG,
-+	CINERGYT2_RC_EVENT_TYPE_NEC, 	0xef10eb04,	KEY_UP,
-+	CINERGYT2_RC_EVENT_TYPE_NEC, 	0xeb14eb04,	KEY_DOWN,
-+	CINERGYT2_RC_EVENT_TYPE_NEC, 	0xee11eb04,	KEY_LEFT,
-+	CINERGYT2_RC_EVENT_TYPE_NEC, 	0xec13eb04,	KEY_RIGHT,
-+	CINERGYT2_RC_EVENT_TYPE_NEC, 	0xed12eb04,	KEY_OK,	
-+	CINERGYT2_RC_EVENT_TYPE_NEC, 	0xea15eb04,	KEY_TEXT,
-+	CINERGYT2_RC_EVENT_TYPE_NEC, 	0xe916eb04,	KEY_INFO,
-+	CINERGYT2_RC_EVENT_TYPE_NEC, 	0xe817eb04,	KEY_RED,
-+	CINERGYT2_RC_EVENT_TYPE_NEC, 	0xe718eb04,	KEY_GREEN,
-+	CINERGYT2_RC_EVENT_TYPE_NEC, 	0xe619eb04,	KEY_YELLOW,
-+	CINERGYT2_RC_EVENT_TYPE_NEC, 	0xe51aeb04,	KEY_BLUE,
-+	CINERGYT2_RC_EVENT_TYPE_NEC, 	0xe31ceb04,	KEY_VOLUMEUP,
-+	CINERGYT2_RC_EVENT_TYPE_NEC, 	0xe11eeb04,	KEY_VOLUMEDOWN,
-+	CINERGYT2_RC_EVENT_TYPE_NEC, 	0xe21deb04,	KEY_MUTE,
-+	CINERGYT2_RC_EVENT_TYPE_NEC, 	0xe41beb04,	KEY_CHANNELUP,
-+	CINERGYT2_RC_EVENT_TYPE_NEC, 	0xe01feb04,	KEY_CHANNELDOWN,
-+	CINERGYT2_RC_EVENT_TYPE_NEC, 	0xbf40eb04,	KEY_PAUSE,
-+	CINERGYT2_RC_EVENT_TYPE_NEC, 	0xb34ceb04,	KEY_PLAY,
-+	CINERGYT2_RC_EVENT_TYPE_NEC, 	0xa758eb04,	KEY_RECORD,
-+	CINERGYT2_RC_EVENT_TYPE_NEC, 	0xab54eb04,	KEY_PREVIOUS,
-+	CINERGYT2_RC_EVENT_TYPE_NEC, 	0xb748eb04,	KEY_STOP,
-+	CINERGYT2_RC_EVENT_TYPE_NEC, 	0xa35ceb04,	KEY_NEXT
-+};
-+
-+static void cinergyt2_stream_irq (struct urb *urb, struct pt_regs *regs);
-+
-+static int cinergyt2_submit_stream_urb (struct cinergyt2 *cinergyt2, struct urb *urb)
-+{
-+	int err;
-+
-+	usb_fill_bulk_urb(urb,
-+			  cinergyt2->udev,
-+			  usb_rcvbulkpipe(cinergyt2->udev, 0x2),
-+			  urb->transfer_buffer,
-+			  STREAM_BUF_SIZE,
-+			  cinergyt2_stream_irq,
-+			  cinergyt2);
-+
-+	if ((err = usb_submit_urb(urb, GFP_ATOMIC)))
-+		dprintk(1, "urb submission failed (err = %i)!\n", err);
-+
-+	return err;
-+}
-+
-+static void cinergyt2_stream_irq (struct urb *urb, struct pt_regs *regs)
-+{
-+	struct cinergyt2 *cinergyt2 = urb->context;
-+
-+	if (urb->actual_length > 0)
-+		dvb_dmx_swfilter(&cinergyt2->demux,
-+				 urb->transfer_buffer, urb->actual_length);
-+
-+	if (cinergyt2->streaming)
-+		cinergyt2_submit_stream_urb(cinergyt2, urb);
-+}
-+
-+static void cinergyt2_free_stream_urbs (struct cinergyt2 *cinergyt2)
-+{
-+	int i;
-+
-+	for (i=0; i<STREAM_URB_COUNT; i++)
-+		if (cinergyt2->stream_urb[i])
-+			usb_free_urb(cinergyt2->stream_urb[i]);
-+
-+	pci_free_consistent(NULL, STREAM_URB_COUNT*STREAM_BUF_SIZE,
-+			    cinergyt2->streambuf, cinergyt2->streambuf_dmahandle);
-+}
-+
-+static int cinergyt2_alloc_stream_urbs (struct cinergyt2 *cinergyt2)
-+{
-+	int i;
-+
-+	cinergyt2->streambuf = pci_alloc_consistent(NULL, 
-+					      STREAM_URB_COUNT*STREAM_BUF_SIZE,
-+					      &cinergyt2->streambuf_dmahandle);
-+	if (!cinergyt2->streambuf) {
-+		dprintk(1, "failed to alloc consistent stream memory area, bailing out!\n");
-+		return -ENOMEM;
-+	}
-+
-+	memset(cinergyt2->streambuf, 0, STREAM_URB_COUNT*STREAM_BUF_SIZE);
-+
-+	for (i=0; i<STREAM_URB_COUNT; i++) {
-+		struct urb *urb;	
-+
-+		if (!(urb = usb_alloc_urb(0, GFP_ATOMIC))) {
-+			dprintk(1, "failed to alloc consistent stream urbs, bailing out!\n");
-+			cinergyt2_free_stream_urbs(cinergyt2);
-+			return -ENOMEM;
-+		}
-+
-+		urb->transfer_buffer = cinergyt2->streambuf + i * STREAM_BUF_SIZE;
-+		urb->transfer_buffer_length = STREAM_BUF_SIZE;
-+
-+		cinergyt2->stream_urb[i] = urb;
-+	}
-+
-+	return 0;
-+}
-+
-+static void cinergyt2_stop_stream_xfer (struct cinergyt2 *cinergyt2)
-+{
-+	int i;
-+
-+	for (i=0; i<STREAM_URB_COUNT; i++)
-+		if (cinergyt2->stream_urb[i])
-+			usb_unlink_urb(cinergyt2->stream_urb[i]);
-+}
-+
-+static int cinergyt2_start_stream_xfer (struct cinergyt2 *cinergyt2)
-+{
-+	int i, err;
-+
-+	for (i=0; i<STREAM_URB_COUNT; i++) {
-+		if ((err = cinergyt2_submit_stream_urb(cinergyt2, cinergyt2->stream_urb[i]))) {
-+			cinergyt2_stop_stream_xfer(cinergyt2);
-+			dprintk(1, "failed urb submission (%i: err = %i)!\n", i, err);
-+			return err;
-+		}
-+	}
-+
-+	return 0;
-+}
-+
-+static int cinergyt2_command (struct cinergyt2 *cinergyt2,
-+		    char *send_buf, int send_buf_len,
-+		    char *rec_buf, int rec_buf_len)
-+{
++modprobe dvb-dibusb debug=<level> 
++modprobe dib3000mb debug=<level>
+ 
+ should do the trick.
+ 
+@@ -102,11 +118,13 @@
+ 2. Known problems and bugs
+ 
+ TODO:
+-- add some additional URBs for USB data transfer
+-- due a firmware problem i2c writes during mpeg transfers destroy the stream
+-  no i2c writes during streaming, interrupt streaming, when adding another pid
++- remote control tasklet
++- signal-quality and strength calculations
++- debug messages restructure
++- i2c address probing
++- 
+ 
+-2.1. Adding new devices
++2.1. Adding support for devices 
+ 
+ It is not possible to determine the range of devices based on the DiBcom
+ reference design. This is because the reference design of DiBcom can be sold
+@@ -122,7 +140,7 @@
+ others.
+ 
+ If you are familar with C you can also add the VID and PID of the device to
+-the dvb-dibusb.[hc]-files and create a patch and send it over to me or to
++the dvb-dibusb.h-file and create a patch and send it over to me or to 
+ the linux-dvb mailing list, _after_ you have tried compiling and modprobing
+ it.
+ 
+diff -uraNwB linux-2.6.10-rc1/drivers/media/dvb/dibusb/Kconfig linux-2.6.10-rc1-patched/drivers/media/dvb/dibusb/Kconfig
+--- linux-2.6.10-rc1/drivers/media/dvb/dibusb/Kconfig	2004-10-25 14:07:53.000000000 +0200
++++ linux-2.6.10-rc1-patched/drivers/media/dvb/dibusb/Kconfig	2004-09-30 23:29:28.000000000 +0200
+@@ -1,5 +1,5 @@
+ config DVB_DIBUSB
+-	tristate "Twinhan/KWorld/Hama/Artec USB DVB-T devices"
++	tristate "DiBcom/Twinhan/KWorld/Hama/Artec/Compro USB DVB-T devices"
+ 	depends on DVB_CORE && USB
+ 	select FW_LOADER
+ 	help
+@@ -8,11 +8,13 @@
+ 
+ 	  Devices supported by this driver:
+ 
+-	    Twinhan VisionPlus VisionDTV USB-Ter (VP7041)
++	    TwinhanDTV USB-Ter (VP7041)
++		TwinhanDTV Magic Box (VP7041e)
+ 	    KWorld V-Stream XPERT DTV - DVB-T USB
+ 	    Hama DVB-T USB-Box
+ 	    DiBcom reference device (non-public)
+ 	    Ultima Electronic/Artec T1 USB TVBOX
++	    Compro Videomate DVB-U2000 - DVB-T USB
+ 
+ 	  The VP7041 seems to be identical to "CTS Portable" (Chinese
+ 	  Television System).
+@@ -20,7 +22,7 @@
+ 	  These devices can be understood as budget ones, they "only" deliver
+ 	  the MPEG data.
+ 
+-	  Currently all known copies of the DiBcom reference design have the DiBcom 3000MB
++	  Currently all known copies of the DiBcom reference design have the DiBcom 3000-MB 
+ 	  frontend onboard. Please enable and load this one manually in order to use this
+ 	  device.
+ 
+diff -uraNwB linux-2.6.10-rc1/drivers/media/dvb/dibusb/dvb-dibusb.c linux-2.6.10-rc1-patched/drivers/media/dvb/dibusb/dvb-dibusb.c
+--- linux-2.6.10-rc1/drivers/media/dvb/dibusb/dvb-dibusb.c	2004-10-25 14:07:53.000000000 +0200
++++ linux-2.6.10-rc1-patched/drivers/media/dvb/dibusb/dvb-dibusb.c	2004-10-04 11:12:20.000000000 +0200
+@@ -20,9 +20,7 @@
+  *  Amaury Demol (ademol@dibcom.fr) from DiBcom for providing specs and driver
+  *  sources, on which this driver (and the dib3000mb frontend) are based.
+  *
+- *  TODO
+- *   - probing for i2c addresses, it is possible, that they have been changed
+- *     by the vendor
++ * 
+  *
+  * see Documentation/dvb/README.dibusb for more information
+  */
+@@ -57,7 +55,7 @@
+ 
+ static int debug;
+ module_param(debug, int, 0x644);
+-MODULE_PARM_DESC(debug, "set debugging level (1=info,2=xfer,4=alotmore (|-able)).");
++MODULE_PARM_DESC(debug, "set debugging level (1=info,2=xfer,4=alotmore,8=ts,16=err (|-able)).");
+ #else
+ #define dprintk_new(args...)
+ #define debug_dump(b,l)
+@@ -66,31 +64,14 @@
+ #define deb_info(args...) dprintk_new(0x01,args)
+ #define deb_xfer(args...) dprintk_new(0x02,args)
+ #define deb_alot(args...) dprintk_new(0x04,args)
++#define deb_ts(args...)   dprintk_new(0x08,args)
++#define deb_err(args...)   dprintk_new(0x10,args)
+ 
+ /* Version information */
+ #define DRIVER_VERSION "0.0"
+-#define DRIVER_DESC "DiBcom based USB Budget DVB-T device"
++#define DRIVER_DESC "Driver for DiBcom based USB Budget DVB-T device"
+ #define DRIVER_AUTHOR "Patrick Boettcher, patrick.boettcher@desy.de"
+ 
+-/* USB Driver stuff */
+-
+-/* table of devices that work with this driver */
+-static struct usb_device_id dibusb_table [] = {
+-	{ USB_DEVICE(USB_TWINHAN_VENDOR_ID, USB_VP7041_PRODUCT_PREFW_ID) },
+-	{ USB_DEVICE(USB_TWINHAN_VENDOR_ID, USB_VP7041_PRODUCT_ID) },
+-	{ USB_DEVICE(USB_IMC_NETWORKS_VENDOR_ID, USB_VP7041_PRODUCT_PREFW_ID) },
+-	{ USB_DEVICE(USB_IMC_NETWORKS_VENDOR_ID, USB_VP7041_PRODUCT_ID) },
+-	{ USB_DEVICE(USB_KWORLD_VENDOR_ID, USB_VSTREAM_PRODUCT_PREFW_ID) },
+-	{ USB_DEVICE(USB_KWORLD_VENDOR_ID, USB_VSTREAM_PRODUCT_ID) },
+-	{ USB_DEVICE(USB_DIBCOM_VENDOR_ID, USB_DIBCOM_PRODUCT_PREFW_ID) },
+-	{ USB_DEVICE(USB_DIBCOM_VENDOR_ID, USB_DIBCOM_PRODUCT_ID) },
+-	{ USB_DEVICE(USB_ULTIMA_ELECTRONIC_ID, USB_ULTIMA_ELEC_PROD_PREFW_ID) },
+-	{ USB_DEVICE(USB_ULTIMA_ELECTRONIC_ID, USB_ULTIMA_ELEC_PROD_ID) },
+-	{ }					/* Terminating entry */
+-};
+-
+-MODULE_DEVICE_TABLE (usb, dibusb_table);
+-
+ static int dibusb_readwrite_usb(struct usb_dibusb *dib,
+ 		u8 *wbuf, u16 wlen, u8 *rbuf, u16 rlen)
+ {
+@@ -99,12 +80,14 @@
+ 	if (wbuf == NULL || wlen == 0)
+ 		return -EINVAL;
+ 
+-/*	if (dib->disconnecting)
+-		return -EINVAL;*/
+-
+ 	if ((ret = down_interruptible(&dib->usb_sem)))
+ 		return ret;
+ 
++	if (dib->streaming && wbuf[0] == DIBUSB_REQ_I2C_WRITE)
++		deb_err("BUG: writing to i2c, while TS-streaming destroys the stream. What"
++			" did you do ? Please enable debugging and send the syslog to the author. (%x reg: %x %x)",
++			wbuf[0],wbuf[2],wbuf[3]);
++			
+ 	debug_dump(wbuf,wlen);
+ 
+ 	ret = usb_bulk_msg(dib->udev,COMMAND_PIPE,
+@@ -189,6 +172,8 @@
+ 		(DIB3000MB_FIFO_ACTIVATE >> 8) & 0xff,
+ 		(DIB3000MB_FIFO_ACTIVATE) & 0xff
+ 	};
++	dib->streaming = 1;
++	deb_ts("start streaming\n");
+ 	return dibusb_i2c_msg(dib,DIBUSB_DEMOD_I2C_ADDR_DEFAULT,b,4,NULL,0);
+ }
+ 
+@@ -200,11 +185,14 @@
+ 		(DIB3000MB_FIFO_INHIBIT >> 8) & 0xff,
+ 		(DIB3000MB_FIFO_INHIBIT) & 0xff
+ 	};
++	dib->streaming = 0;
++	deb_ts("stop streaming\n");
+ 	return dibusb_i2c_msg(dib,DIBUSB_DEMOD_I2C_ADDR_DEFAULT,b,4,NULL,0);
+ }
+ 
+ static int dibusb_set_pid(struct dibusb_pid *dpid)
+ {
++	struct usb_dibusb *dib = dpid->dib;
+ 	u16 pid = dpid->pid | (dpid->active ? DIB3000MB_ACTIVATE_FILTERING : 0);
+ 	u8 b[4] = {
+ 		(dpid->reg >> 8) & 0xff,
+@@ -212,25 +200,50 @@
+ 		(pid >> 8) & 0xff,
+ 		(pid) & 0xff
+ 	};
 +	int ret;
-+	int actual_len;
-+	char dummy;
-+
-+	if (down_interruptible(&cinergyt2->sem))
-+		return -EBUSY;
-+
-+	ret = usb_bulk_msg(cinergyt2->udev, usb_sndbulkpipe(cinergyt2->udev, 1),
-+			   send_buf, send_buf_len, &actual_len, HZ);
-+
-+	if (ret)
-+		dprintk(1, "usb_bulk_msg() (send) failed, err %i\n", ret);
 +	
-+	if (!rec_buf)
-+		rec_buf = &dummy;
-+	
-+	ret = usb_bulk_msg(cinergyt2->udev, usb_rcvbulkpipe(cinergyt2->udev, 1),
-+			   rec_buf, rec_buf_len, &actual_len, HZ);
-+
-+	if (ret)
-+		dprintk(1, "usb_bulk_msg() (read) failed, err %i\n", ret);
-+
-+	up(&cinergyt2->sem);
-+
-+	return ret ? ret : actual_len;
-+}
-+
-+static void cinergyt2_control_stream_transfer (struct cinergyt2 *cinergyt2, int enable)
-+{
-+	char buf [] = { CINERGYT2_EP1_CONTROL_STREAM_TRANSFER, enable ? 1 : 0 };
-+  	cinergyt2_command(cinergyt2, buf, sizeof(buf), NULL, 0);
-+}
-+
-+static void cinergyt2_control_sleep_mode (struct cinergyt2 *cinergyt2, int sleep)
-+{
-+	char buf [] = { CINERGYT2_EP1_SLEEP_MODE, sleep ? 1 : 0 };
-+  	cinergyt2_command(cinergyt2, buf, sizeof(buf), NULL, 0);
-+}
-+
-+static int cinergyt2_start_feed(struct dvb_demux_feed *dvbdmxfeed)
-+{
-+	struct dvb_demux *demux = dvbdmxfeed->demux;
-+	struct cinergyt2 *cinergyt2 = demux->priv;
-+
-+	
-+	if (cinergyt2->streaming == 0) {
-+	       	if (cinergyt2_start_stream_xfer (cinergyt2) == 0)
-+		       cinergyt2_control_stream_transfer (cinergyt2, 1);
++	/* firmware bug, i2c write during mpeg transfer */
++	if (dib->feedcount) {
++		deb_info("stop streaming\n");
++		ret = dibusb_stop_xfer(dib);
 +	}
++	
++	if (dpid->active) 
++		dib->feedcount++;
++	else
++		dib->feedcount--;
 +
-+	cinergyt2->streaming++;
++	ret = dibusb_i2c_msg(dib,DIBUSB_DEMOD_I2C_ADDR_DEFAULT,b,4,NULL,0);
+ 
+-	return dibusb_i2c_msg(dpid->dib,DIBUSB_DEMOD_I2C_ADDR_DEFAULT,b,4,NULL,0);
++	if (ret == 0 && dib->feedcount) {
++		deb_info("start streaming\n");
++		ret = dibusb_start_xfer(dib);
++	}
++	return ret;
+ }
+ 
+ static void dibusb_urb_complete(struct urb *urb, struct pt_regs *ptregs)
+ {
+ 	struct usb_dibusb *dib = urb->context;
+ 
+-	if (!dib->streaming)
+-		return;
++	deb_xfer("urb complete feedcount: %d, status: %d\n",dib->feedcount,urb->status);
+ 
+-	if (urb->status == 0) {
+-		deb_info("URB return len: %d\n",urb->actual_length);
++	if (dib->feedcount > 0 && urb->status == 0) {
++		deb_xfer("URB return len: %d\n",urb->actual_length);
+ 		if (urb->actual_length % 188)
+-			deb_info("TS Packets: %d, %d\n", urb->actual_length/188,urb->actual_length % 188);
++			deb_xfer("TS Packets: %d, %d\n", urb->actual_length/188,urb->actual_length % 188);
 +
++		/* Francois recommends to drop not full-filled packets, even if they may 
++		 * contain valid TS packets
++		 */
++		if (urb->actual_length == DIBUSB_TS_DEFAULT_SIZE && dib->dvb_is_ready)
+ 		dvb_dmx_swfilter_packets(&dib->demux, (u8*) urb->transfer_buffer,urb->actual_length/188);
+-	}
++		else
++			deb_ts("URB dropped because of the " 
++					"actual_length or !dvb_is_ready (%d).\n",dib->dvb_is_ready);
++	} else 
++		deb_ts("URB dropped because of feedcount or status.\n");
+ 
+-	if (dib->streaming)
+ 		usb_submit_urb(urb,GFP_KERNEL);
+ }
+ 
+@@ -240,9 +253,8 @@
+ //	struct dvb_demux *dvbdmx = dvbdmxfeed->demux;
+ 	struct usb_dibusb *dib = dvbdmxfeed->demux->priv;
+ 	struct dibusb_pid *dpid;
+-	int ret = 0;
+ 
+-	deb_info("pid: 0x%04x, feedtype: %d\n", dvbdmxfeed->pid,dvbdmxfeed->type);
++	deb_ts("pid: 0x%04x, feedtype: %d\n", dvbdmxfeed->pid,dvbdmxfeed->type);
+ 
+ 	if ((dpid = dibusb_get_free_pid(dib)) == NULL) {
+ 		err("no free pid in list.");
+@@ -253,32 +265,14 @@
+ 
+ 	dibusb_set_pid(dpid);
+ 
+-	if (0 == dib->feed_count++) {
+-		usb_fill_bulk_urb( dib->buf_urb, dib->udev, DATA_PIPE,
+-			dib->buffer, 8192, dibusb_urb_complete, dib);
+-		dib->buf_urb->transfer_flags = 0;
+-
+-
+-		if ((ret = usb_submit_urb(dib->buf_urb,GFP_KERNEL))) {
+-			dibusb_stop_xfer(dib);
+-			err("could not submit buffer urb.");
+-			return ret;
+-		}
+-
+-		if ((ret = dibusb_start_xfer(dib)))
+-			return ret;
+-
+-		dib->streaming = 1;
+-	}
+ 	return 0;
+ }
+ 
+ static int dibusb_stop_feed(struct dvb_demux_feed *dvbdmxfeed)
+ {
+-	struct usb_dibusb *dib = dvbdmxfeed->demux->priv;
+ 	struct dibusb_pid *dpid = (struct dibusb_pid *) dvbdmxfeed->priv;
+ 
+-	deb_info("stopfeed pid: 0x%04x, feedtype: %d",dvbdmxfeed->pid, dvbdmxfeed->type);
++	deb_ts("stopfeed pid: 0x%04x, feedtype: %d\n",dvbdmxfeed->pid, dvbdmxfeed->type);
+ 
+ 	if (dpid == NULL)
+ 		err("channel in dmxfeed->priv was NULL");
+@@ -288,11 +282,6 @@
+ 		dibusb_set_pid(dpid);
+ 	}
+ 
+-	if (--dib->feed_count == 0) {
+-		dib->streaming = 0;
+-		usb_unlink_urb(dib->buf_urb);
+-		dibusb_stop_xfer(dib);
+-	}
+ 	return 0;
+ }
+ 
+@@ -302,7 +291,7 @@
+ 
+ /*
+  * do not use this, just a workaround for a bug,
+- * which will never occur :).
++ * which will hopefully never occur :).
+  */
+ static int dibusb_interrupt_read_loop(struct usb_dibusb *dib)
+ {
+@@ -312,7 +301,8 @@
+ 
+ /*
+  * TODO: a tasklet should run with a delay of 1/10 second
+- * and fill an appropriate event device ?
++ * and feed an appropriate event device ?
++ * NEC protocol is used for remote controlls
+  */
+ static int dibusb_read_remote_control(struct usb_dibusb *dib)
+ {
+@@ -321,6 +311,18 @@
+ 	if ((ret = dibusb_readwrite_usb(dib,b,1,rb,5)))
+ 		return ret;
+ 
++
++	
++	switch (rb[0]) {
++		case DIBUSB_RC_NEC_KEY_PRESSED:
++
++			break;
++		case DIBUSB_RC_NEC_EMPTY:
++		case DIBUSB_RC_NEC_KEY_REPEATED:
++		default:
++			break;
++	}
++	
+ 	return 0;
+ }
+ 
+@@ -474,11 +476,13 @@
+ err:
+ 	return ret;
+ success:
++	dib->dvb_is_ready = 1;
+ 	return 0;
+ }
+ 
+ static int dibusb_dvb_exit(struct usb_dibusb *dib)
+ {
++	dib->dvb_is_ready = 0;
+ 	deb_info("unregistering DVB part\n");
+ 	dvb_net_release(&dib->dvb_net);
+ 	dib->demux.dmx.close(&dib->demux.dmx);
+@@ -492,8 +496,16 @@
+ 
+ static int dibusb_exit(struct usb_dibusb *dib)
+ {
+-	usb_free_urb(dib->buf_urb);
+-	pci_free_consistent(NULL,8192,dib->buffer,dib->dma_handle);
++	int i;
++	for (i = 0; i < DIBUSB_TS_NUM_URBS; i++) 
++		if (dib->buf_urb[i] != NULL) {
++			deb_info("killing URB no. %d.\n",i);
++			usb_kill_urb(dib->buf_urb[i]); // TODO kernel version ifdef for unlink_urb
++			
++			deb_info("freeing URB no. %d.\n",i);
++			usb_free_urb(dib->buf_urb[i]);
++		}
++	pci_free_consistent(NULL,DIBUSB_TS_BUFFER_SIZE,dib->buffer,dib->dma_handle);
+ 	return 0;
+ }
+ 
+@@ -513,12 +525,28 @@
+ 
+ 	/* dibusb_reset_cpu(dib); */
+ 
+-	dib->buffer = pci_alloc_consistent(NULL,8192, &dib->dma_handle);
+-	memset(dib->buffer,0,8192);
+-	if (!(dib->buf_urb = usb_alloc_urb(0,GFP_KERNEL))) {
++	if ((dib->buffer = pci_alloc_consistent(NULL,DIBUSB_TS_BUFFER_SIZE, &dib->dma_handle)) == NULL) {
++		return -ENOMEM;
++	}
++	memset(dib->buffer,0,DIBUSB_TS_BUFFER_SIZE);
++	for (i = 0; i < DIBUSB_TS_NUM_URBS; i++) {
++		if (!(dib->buf_urb[i] = usb_alloc_urb(0,GFP_KERNEL))) {
+ 		dibusb_exit(dib);
+ 		return -ENOMEM;
+ 	}
++		deb_info("submitting URB no. %d\n",i);
++
++		usb_fill_bulk_urb( dib->buf_urb[i], dib->udev, DATA_PIPE,
++				&dib->buffer[i*DIBUSB_TS_URB_BUFFER_SIZE], DIBUSB_TS_URB_BUFFER_SIZE, 
++				dibusb_urb_complete, dib);
++		dib->buf_urb[i]->transfer_flags = 0;
++
++		if ((ret = usb_submit_urb(dib->buf_urb[i],GFP_KERNEL))) {
++			err("could not submit buffer urb no. %d\n",i);
++			dibusb_exit(dib);
++			return ret;
++		}
++	}
+ 
+ 	for (i=0; i < DIBUSB_MAX_PIDS; i++) {
+ 		dib->pid_list[i].reg = i+DIB3000MB_REG_FIRST_PID;
+@@ -527,8 +555,9 @@
+ 		dib->pid_list[i].dib = dib;
+ 	}
+ 
++	dib->feedcount = 0;
+ 	dib->streaming = 0;
+-	dib->feed_count = 0;
++	dib->dvb_is_ready = 0;
+ 
+ 	if ((ret = dibusb_dvb_init(dib))) {
+ 		dibusb_exit(dib);
+@@ -591,19 +620,23 @@
+ 			if (ret != b[0]) {
+ 				err("error while transferring firmware "
+ 					"(transferred size: %d, block size: %d)",
+-					ret,b[1]);
++					ret,b[0]);
+ 				ret = -EINVAL;
+ 				break;
+ 			}
+ 			i += 5 + b[0];
+ 		}
++		/* length in ret */
++		if (ret > 0)
++			ret = 0;
+ 		/* restart the CPU */
+ 		reset = 0;
+-		if ((ret = dibusb_writemem(udev,DIBUSB_CPU_CSREG,&reset,1)) != 1)
++		if (ret || dibusb_writemem(udev,DIBUSB_CPU_CSREG,&reset,1) != 1) {
+ 			err("could not restart the USB controller CPU.");
++			ret = -EINVAL;
++		}
+ 
+ 		kfree(p);
+-		ret = 0;
+ 	} else {
+ 		ret = -ENOMEM;
+ 	}
+diff -uraNwB linux-2.6.10-rc1/drivers/media/dvb/dibusb/dvb-dibusb.h linux-2.6.10-rc1-patched/drivers/media/dvb/dibusb/dvb-dibusb.h
+--- linux-2.6.10-rc1/drivers/media/dvb/dibusb/dvb-dibusb.h	2004-10-25 14:07:53.000000000 +0200
++++ linux-2.6.10-rc1-patched/drivers/media/dvb/dibusb/dvb-dibusb.h	2004-09-30 23:29:28.000000000 +0200
+@@ -7,6 +7,7 @@
+  *	modify it under the terms of the GNU General Public License as
+  *	published by the Free Software Foundation, version 2.
+  *
++ * 
+  *
+  * for more information see dvb-dibusb.c .
+  */
+@@ -14,24 +15,102 @@
+ #ifndef __DVB_DIBUSB_H__
+ #define __DVB_DIBUSB_H__
+ 
++#define DIBUSB_DEMOD_I2C_ADDR_DEFAULT	0x10
++
+ /* Vendor IDs */
+-#define USB_TWINHAN_VENDOR_ID			0x1822
+-#define USB_IMC_NETWORKS_VENDOR_ID		0x13d3
+-#define USB_KWORLD_VENDOR_ID			0xeb1a
+-#define USB_DIBCOM_VENDOR_ID			0x10b8
+-#define USB_ULTIMA_ELECTRONIC_ID		0x05d8
++#define USB_VID_TWINHAN_ID					0x1822
++#define USB_VID_IMC_NETWORKS_ID				0x13d3
++#define USB_VID_EMPIA_ID					0xeb1a
++#define USB_VID_DIBCOM_ID					0x10b8
++#define USB_VID_ULTIMA_ELECTRONIC_ID		0x05d8
++#define USB_VID_COMPRO_ID					0x185b
++#define USB_VID_HYPER_PALTEK				0x1025
+ 
+ /* Product IDs before loading the firmware */
+-#define USB_VP7041_PRODUCT_PREFW_ID		0x3201
+-#define USB_VSTREAM_PRODUCT_PREFW_ID	0x17de
+-#define USB_DIBCOM_PRODUCT_PREFW_ID		0x0bb8
+-#define USB_ULTIMA_ELEC_PROD_PREFW_ID	0x8105
++#define USB_PID_TWINHAN_VP7041_COLD_ID		0x3201
++#define USB_PID_KWORLD_VSTREAM_COLD_ID		0x17de
++#define USB_PID_DIBCOM_MOD3000_COLD_ID		0x0bb8
++#define USB_PID_ULTIMA_TVBOX_COLD_ID		0x8105
++#define USB_PID_COMPRO_DVBU2000_COLD_ID		0xd000
++#define USB_PID_UNK_HYPER_PALTEK_COLD_ID	0x005e
+ 
+ /* product ID afterwards */
+-#define USB_VP7041_PRODUCT_ID			0x3202
+-#define USB_VSTREAM_PRODUCT_ID			0x17df
+-#define USB_DIBCOM_PRODUCT_ID			0x0bb9
+-#define USB_ULTIMA_ELEC_PROD_ID			0x8106
++#define USB_PID_TWINHAN_VP7041_WARM_ID		0x3202
++#define USB_PID_KWORLD_VSTREAM_WARM_ID		0x17df
++#define USB_PID_DIBCOM_MOD3000_WARM_ID		0x0bb9
++#define USB_PID_ULTIMA_TVBOX_WARM_ID		0x8106
++#define USB_PID_COMPRO_DVBU2000_WARM_ID		0xd001
++#define USB_PID_UNK_HYPER_PALTEK_WARM_ID	0x005f
++
++/* static array of valid firmware names, the best one first */
++static const char * valid_firmware_filenames[] = {
++	"dvb-dibusb-5.0.0.11.fw",
++};
++
++struct dibusb_device {
++	u16 cold_product_id;
++	u16 warm_product_id;
++	u8 demod_addr;
++	const char *name;
++};
++
++#define DIBUSB_SUPPORTED_DEVICES	6
++
++/* USB Driver stuff */
++static struct dibusb_device dibusb_devices[DIBUSB_SUPPORTED_DEVICES] = {
++	{	.cold_product_id = USB_PID_TWINHAN_VP7041_COLD_ID, 
++		.warm_product_id = USB_PID_TWINHAN_VP7041_WARM_ID,
++		.name = "TwinhanDTV USB-Ter/Magic Box / HAMA USB DVB-T device", 
++		.demod_addr = DIBUSB_DEMOD_I2C_ADDR_DEFAULT,
++	},
++	{	.cold_product_id = USB_PID_KWORLD_VSTREAM_COLD_ID,
++		.warm_product_id = USB_PID_KWORLD_VSTREAM_WARM_ID,
++		.name = "KWorld V-Stream XPERT DTV - DVB-T USB",
++		.demod_addr = DIBUSB_DEMOD_I2C_ADDR_DEFAULT,
++	},
++	{	.cold_product_id = USB_PID_DIBCOM_MOD3000_COLD_ID,
++		.warm_product_id = USB_PID_DIBCOM_MOD3000_WARM_ID,
++		.name = "DiBcom USB DVB-T reference design (MOD300)",
++		.demod_addr = DIBUSB_DEMOD_I2C_ADDR_DEFAULT,
++	},
++	{	.cold_product_id = USB_PID_ULTIMA_TVBOX_COLD_ID,
++		.warm_product_id = USB_PID_ULTIMA_TVBOX_WARM_ID,
++		.name = "Ultima Electronic/Artec T1 USB TVBOX",
++		.demod_addr = DIBUSB_DEMOD_I2C_ADDR_DEFAULT,
++	},
++	{	.cold_product_id = USB_PID_COMPRO_DVBU2000_COLD_ID,
++		.warm_product_id = USB_PID_COMPRO_DVBU2000_WARM_ID,
++		.name = "Compro Videomate DVB-U2000 - DVB-T USB",
++		.demod_addr = DIBUSB_DEMOD_I2C_ADDR_DEFAULT,
++	},
++	{	.cold_product_id = USB_PID_UNK_HYPER_PALTEK_COLD_ID,
++		.warm_product_id = USB_PID_UNK_HYPER_PALTEK_WARM_ID,
++		.name = "Unkown USB DVB-T device ???? please report the name to linux-dvb or to the author",
++		.demod_addr = DIBUSB_DEMOD_I2C_ADDR_DEFAULT,
++	}
++};
++
++/* USB Driver stuff */
++/* table of devices that work with this driver */
++static struct usb_device_id dibusb_table [] = {
++	{ USB_DEVICE(USB_VID_TWINHAN_ID, 	USB_PID_TWINHAN_VP7041_COLD_ID) },
++	{ USB_DEVICE(USB_VID_TWINHAN_ID, 	USB_PID_TWINHAN_VP7041_WARM_ID) },
++	{ USB_DEVICE(USB_VID_IMC_NETWORKS_ID,USB_PID_TWINHAN_VP7041_COLD_ID) },
++	{ USB_DEVICE(USB_VID_IMC_NETWORKS_ID,USB_PID_TWINHAN_VP7041_WARM_ID) },
++	{ USB_DEVICE(USB_VID_EMPIA_ID,		USB_PID_KWORLD_VSTREAM_COLD_ID) },
++	{ USB_DEVICE(USB_VID_EMPIA_ID,		USB_PID_KWORLD_VSTREAM_WARM_ID) },
++	{ USB_DEVICE(USB_VID_DIBCOM_ID,		USB_PID_DIBCOM_MOD3000_COLD_ID) },
++	{ USB_DEVICE(USB_VID_DIBCOM_ID,		USB_PID_DIBCOM_MOD3000_WARM_ID) },
++	{ USB_DEVICE(USB_VID_ULTIMA_ELECTRONIC_ID, USB_PID_ULTIMA_TVBOX_COLD_ID) },
++	{ USB_DEVICE(USB_VID_ULTIMA_ELECTRONIC_ID, USB_PID_ULTIMA_TVBOX_WARM_ID) },
++	{ USB_DEVICE(USB_VID_COMPRO_ID,		USB_PID_COMPRO_DVBU2000_COLD_ID) },
++	{ USB_DEVICE(USB_VID_COMPRO_ID,		USB_PID_COMPRO_DVBU2000_WARM_ID) },
++	{ USB_DEVICE(USB_VID_HYPER_PALTEK,	USB_PID_UNK_HYPER_PALTEK_COLD_ID) },
++	{ USB_DEVICE(USB_VID_HYPER_PALTEK,	USB_PID_UNK_HYPER_PALTEK_WARM_ID) },
++	{ }                 /* Terminating entry */
++};
++
++MODULE_DEVICE_TABLE (usb, dibusb_table);
+ 
+ /* CS register start/stop the usb controller cpu */
+ #define DIBUSB_CPU_CSREG				0x7F92
+@@ -53,15 +132,20 @@
+ 	struct usb_dibusb *dib;
+ };
+ 
++#define DIBUSB_TS_NUM_URBS			3
++#define DIBUSB_TS_URB_BUFFER_SIZE	4096
++#define DIBUSB_TS_BUFFER_SIZE		(DIBUSB_TS_NUM_URBS * DIBUSB_TS_URB_BUFFER_SIZE)
++#define DIBUSB_TS_DEFAULT_SIZE		(188*21)
++
+ struct usb_dibusb {
+ 	/* usb */
+ 	struct usb_device * udev;
+ 
+ 	struct dibusb_device * dibdev;
+ 
++	int feedcount;
+ 	int streaming;
+-	int feed_count;
+-	struct urb *buf_urb;
++	struct urb * buf_urb[DIBUSB_TS_NUM_URBS];
+ 	u8 *buffer;
+ 	dma_addr_t dma_handle;
+ 
+@@ -77,52 +161,13 @@
+ 	struct semaphore i2c_sem;
+ 
+ 	/* dvb */
++	int dvb_is_ready;
+ 	struct dvb_adapter *adapter;
+ 	struct dmxdev dmxdev;
+ 	struct dvb_demux demux;
+ 	struct dvb_net dvb_net;
+ };
+ 
+-
+-struct dibusb_device {
+-	u16 cold_product_id;
+-	u16 warm_product_id;
+-	u8 demod_addr;
+-	const char *name;
+-};
+-
+-/* static array of valid firmware names, the best one first */
+-static const char * valid_firmware_filenames[] = {
+-	"dvb-dibusb-5.0.0.11.fw",
+-};
+-
+-#define DIBUSB_SUPPORTED_DEVICES	4
+-
+-/* USB Driver stuff */
+-static struct dibusb_device dibusb_devices[DIBUSB_SUPPORTED_DEVICES] = {
+-	{	.cold_product_id = USB_VP7041_PRODUCT_PREFW_ID,
+-		.warm_product_id = USB_VP7041_PRODUCT_ID,
+-		.name = "Twinhan VisionDTV USB-Ter/HAMA USB DVB-T device",
+-		.demod_addr = DIBUSB_DEMOD_I2C_ADDR_DEFAULT,
+-	},
+-	{	.cold_product_id = USB_VSTREAM_PRODUCT_PREFW_ID,
+-		.warm_product_id = USB_VSTREAM_PRODUCT_ID,
+-		.name = "KWorld V-Stream XPERT DTV - DVB-T USB",
+-		.demod_addr = DIBUSB_DEMOD_I2C_ADDR_DEFAULT,
+-	},
+-	{	.cold_product_id = USB_DIBCOM_PRODUCT_PREFW_ID,
+-		.warm_product_id = USB_DIBCOM_PRODUCT_ID,
+-		.name = "DiBcom USB reference design",
+-		.demod_addr = DIBUSB_DEMOD_I2C_ADDR_DEFAULT,
+-	},
+-	{
+- 		.cold_product_id = USB_ULTIMA_ELEC_PROD_PREFW_ID,
+-		.warm_product_id = USB_ULTIMA_ELEC_PROD_ID,
+-		.name = "Ultima Electronic/Artec T1 USB TVBOX",
+-		.demod_addr = DIBUSB_DEMOD_I2C_ADDR_DEFAULT,
+-	},
+-};
+-
+ #define COMMAND_PIPE	usb_sndbulkpipe(dib->udev, 0x01)
+ #define RESULT_PIPE		usb_rcvbulkpipe(dib->udev, 0x81)
+ #define DATA_PIPE		usb_rcvbulkpipe(dib->udev, 0x82)
+@@ -142,6 +187,10 @@
+ /* prefix for reading the current RC key */
+ #define DIBUSB_REQ_POLL_REMOTE			0x04
+ 
++#define DIBUSB_RC_NEC_EMPTY				0x00
++#define DIBUSB_RC_NEC_KEY_PRESSED		0x01
++#define DIBUSB_RC_NEC_KEY_REPEATED		0x02
++
+ /* 0x05 0xXX */
+ #define DIBUSB_REQ_SET_STREAMING_MODE	0x05
+ 
+diff -uraNwB linux-2.6.10-rc1/drivers/media/dvb/frontends/dib3000mb.c linux-2.6.10-rc1-patched/drivers/media/dvb/frontends/dib3000mb.c
+--- linux-2.6.10-rc1/drivers/media/dvb/frontends/dib3000mb.c	2004-10-25 14:07:55.000000000 +0200
++++ linux-2.6.10-rc1-patched/drivers/media/dvb/frontends/dib3000mb.c	2004-10-13 21:36:12.000000000 +0200
+@@ -17,6 +17,8 @@
+  *  Amaury Demol (ademol@dibcom.fr) from DiBcom for providing specs and driver
+  *  sources, on which this driver (and the dvb-dibusb) are based.
+  *
++ * 
++ * 
+  * see Documentation/dvb/README.dibusb for more information
+  *
+  */
+@@ -36,19 +38,21 @@
+ /* debug */
+ 
+ #ifdef CONFIG_DVB_DIBCOM_DEBUG
+-#define dprintk_new(level,args...) \
++#define dprintk(level,args...) \
+ 	do { if ((debug & level)) { printk(args); } } while (0)
+ 
+ static int debug;
+ module_param(debug, int, 0x644);
+-MODULE_PARM_DESC(debug, "set debugging level (1=info,2=xfer,4=alotmore (|-able)).");
++MODULE_PARM_DESC(debug, "set debugging level (1=info,2=xfer,4=alotmore,8=setfe,16=getfe (|-able)).");
+ #else
+-#define dprintk_new(args...)
++#define dprintk(args...) do { } while (0);
+ #endif
+ 
+-#define deb_info(args...) dprintk_new(0x01,args)
+-#define deb_xfer(args...) dprintk_new(0x02,args)
+-#define deb_alot(args...) dprintk_new(0x04,args)
++#define deb_info(args...) dprintk(0x01,args)
++#define deb_xfer(args...) dprintk(0x02,args)
++#define deb_alot(args...) dprintk(0x04,args)
++#define deb_setf(args...) dprintk(0x08,args)
++#define deb_getf(args...) dprintk(0x10,args)
+ 
+ /* Version information */
+ #define DRIVER_VERSION "0.1"
+@@ -63,7 +67,7 @@
+ };
+ 
+ static struct dvb_frontend_info dib3000mb_info = {
+-	.name			= "DiBcom 3000-MB DVB-T frontend",
++	.name			= "DiBcom 3000-MB DVB-T",
+ 	.type 			= FE_OFDM,
+ 	.frequency_min 		= 44250000,
+ 	.frequency_max 		= 867250000,
+@@ -72,8 +76,8 @@
+ 			FE_CAN_FEC_1_2 | FE_CAN_FEC_2_3 | FE_CAN_FEC_3_4 |
+ 			FE_CAN_FEC_5_6 | FE_CAN_FEC_7_8 | FE_CAN_FEC_AUTO |
+ 			FE_CAN_QPSK | FE_CAN_QAM_16 | FE_CAN_QAM_64 | FE_CAN_QAM_AUTO |
+-			FE_CAN_TRANSMISSION_MODE_AUTO |
+ 			FE_CAN_GUARD_INTERVAL_AUTO |
++			FE_CAN_TRANSMISSION_MODE_AUTO | 
+ 			FE_CAN_HIERARCHY_AUTO,
+ };
+ 
+@@ -149,7 +153,7 @@
+ 	u32 dds_val, threshold = 0x800000;
+ 
+ 	if (!rd(DIB3000MB_REG_TPS_LOCK))
+-		return -EINVAL;
++		return 0;
+ 
+ 	dds_val = ((rd(DIB3000MB_REG_DDS_VALUE_MSB) & 0xff) << 16) + rd(DIB3000MB_REG_DDS_VALUE_LSB);
+ 	if (dds_val & threshold)
+@@ -172,56 +176,56 @@
+ 					||
+ 		((inv_test2 == 0) && (inv_test1==1 || inv_test1==2));
+ 
+-	deb_info("inversion %d %d, %d\n",inv_test2,inv_test1, fep->inversion);
++	deb_getf("inversion %d %d, %d\n",inv_test2,inv_test1, fep->inversion);
+ 
+ 	switch ((tps_val = rd(DIB3000MB_REG_TPS_QAM))) {
+ 		case DIB3000MB_QAM_QPSK:
+-			deb_info("QPSK ");
++			deb_getf("QPSK ");
+ 			ofdm->constellation = QPSK;
+ 			break;
+ 		case DIB3000MB_QAM_QAM16:
+-			deb_info("QAM16 ");
++			deb_getf("QAM16 ");
+ 			ofdm->constellation = QAM_16;
+ 			break;
+ 		case DIB3000MB_QAM_QAM64:
+-			deb_info("QAM64 ");
++			deb_getf("QAM64 ");
+ 			ofdm->constellation = QAM_64;
+ 			break;
+ 		default:
+ 			err("Unexpected constellation returned by TPS (%d)",tps_val);
+ 			break;
+  	}
+-	deb_info("TPS: %d\n",tps_val);
++	deb_getf("TPS: %d\n",tps_val);
+ 
+ 	if (rd(DIB3000MB_REG_TPS_HRCH)) {
+-		deb_info("HRCH ON\n");
++		deb_getf("HRCH ON\n");
+ 		tps_val = rd(DIB3000MB_REG_TPS_CODE_RATE_LP);
+ 		cr = &ofdm->code_rate_LP;
+ 		ofdm->code_rate_HP = FEC_NONE;
+ 
+ 		switch ((tps_val = rd(DIB3000MB_REG_TPS_VIT_ALPHA))) {
+ 			case DIB3000MB_VIT_ALPHA_OFF:
+-				deb_info("HIERARCHY_NONE ");
++				deb_getf("HIERARCHY_NONE ");
+ 				ofdm->hierarchy_information = HIERARCHY_NONE;
+ 				break;
+ 			case DIB3000MB_VIT_ALPHA_1:
+-				deb_info("HIERARCHY_1 ");
++				deb_getf("HIERARCHY_1 ");
+ 				ofdm->hierarchy_information = HIERARCHY_1;
+ 				break;
+ 			case DIB3000MB_VIT_ALPHA_2:
+-				deb_info("HIERARCHY_2 ");
++				deb_getf("HIERARCHY_2 ");
+ 				ofdm->hierarchy_information = HIERARCHY_2;
+ 				break;
+ 			case DIB3000MB_VIT_ALPHA_4:
+-				deb_info("HIERARCHY_4 ");
++				deb_getf("HIERARCHY_4 ");
+ 				ofdm->hierarchy_information = HIERARCHY_4;
+ 				break;
+ 			default:
+ 				err("Unexpected ALPHA value returned by TPS (%d)",tps_val);
+ 		}
+-		deb_info("TPS: %d\n",tps_val);
++		deb_getf("TPS: %d\n",tps_val);
+ 	} else {
+-		deb_info("HRCH OFF\n");
++		deb_getf("HRCH OFF\n");
+ 		tps_val = rd(DIB3000MB_REG_TPS_CODE_RATE_HP);
+ 		cr = &ofdm->code_rate_HP;
+ 		ofdm->code_rate_LP = FEC_NONE;
+@@ -230,67 +234,67 @@
+ 
+ 	switch (tps_val) {
+ 		case DIB3000MB_FEC_1_2:
+-			deb_info("FEC_1_2 ");
++			deb_getf("FEC_1_2 ");
+ 			*cr = FEC_1_2;
+ 			break;
+ 		case DIB3000MB_FEC_2_3:
+-			deb_info("FEC_2_3 ");
++			deb_getf("FEC_2_3 ");
+ 			*cr = FEC_2_3;
+ 			break;
+ 		case DIB3000MB_FEC_3_4:
+-			deb_info("FEC_3_4 ");
++			deb_getf("FEC_3_4 ");
+ 			*cr = FEC_3_4;
+ 			break;
+ 		case DIB3000MB_FEC_5_6:
+-			deb_info("FEC_5_6 ");
++			deb_getf("FEC_5_6 ");
+ 			*cr = FEC_4_5;
+ 			break;
+ 		case DIB3000MB_FEC_7_8:
+-			deb_info("FEC_7_8 ");
++			deb_getf("FEC_7_8 ");
+ 			*cr = FEC_7_8;
+ 			break;
+ 		default:
+ 			err("Unexpected FEC returned by TPS (%d)",tps_val);
+ 			break;
+ 	}
+-	deb_info("TPS: %d\n",tps_val);
++	deb_getf("TPS: %d\n",tps_val);
+ 
+ 	switch ((tps_val = rd(DIB3000MB_REG_TPS_GUARD_TIME))) {
+ 		case DIB3000MB_GUARD_TIME_1_32:
+-			deb_info("GUARD_INTERVAL_1_32 ");
++			deb_getf("GUARD_INTERVAL_1_32 ");
+ 			ofdm->guard_interval = GUARD_INTERVAL_1_32;
+ 			break;
+ 		case DIB3000MB_GUARD_TIME_1_16:
+-			deb_info("GUARD_INTERVAL_1_16 ");
++			deb_getf("GUARD_INTERVAL_1_16 ");
+ 			ofdm->guard_interval = GUARD_INTERVAL_1_16;
+ 			break;
+ 		case DIB3000MB_GUARD_TIME_1_8:
+-			deb_info("GUARD_INTERVAL_1_8 ");
++			deb_getf("GUARD_INTERVAL_1_8 ");
+ 			ofdm->guard_interval = GUARD_INTERVAL_1_8;
+ 			break;
+ 		case DIB3000MB_GUARD_TIME_1_4:
+-			deb_info("GUARD_INTERVAL_1_4 ");
++			deb_getf("GUARD_INTERVAL_1_4 ");
+ 			ofdm->guard_interval = GUARD_INTERVAL_1_4;
+ 			break;
+ 		default:
+ 			err("Unexpected Guard Time returned by TPS (%d)",tps_val);
+ 			break;
+ 	}
+-	deb_info("TPS: %d\n",tps_val);
++	deb_getf("TPS: %d\n",tps_val);
+ 
+ 	switch ((tps_val = rd(DIB3000MB_REG_TPS_FFT))) {
+ 		case DIB3000MB_FFT_2K:
+-			deb_info("TRANSMISSION_MODE_2K ");
++			deb_getf("TRANSMISSION_MODE_2K ");
+ 			ofdm->transmission_mode = TRANSMISSION_MODE_2K;
+ 			break;
+ 		case DIB3000MB_FFT_8K:
+-			deb_info("TRANSMISSION_MODE_8K ");
++			deb_getf("TRANSMISSION_MODE_8K ");
+ 			ofdm->transmission_mode = TRANSMISSION_MODE_8K;
+ 			break;
+ 		default:
+ 			err("unexpected transmission mode return by TPS (%d)",tps_val);
+ 	}
+-	deb_info("TPS: %d\n",tps_val);
++	deb_getf("TPS: %d\n",tps_val);
+ 	return 0;
+ }
+ 
+@@ -307,18 +311,18 @@
+ 	if (irq & 0x02) {
+ 		if (rd(DIB3000MB_REG_LOCK2_VALUE) & 0x01) {
+ 			if (dib3000mb_get_frontend(state,&fep) == 0) {
+-				deb_info("reading tuning data from frontend succeeded.\n");
++				deb_setf("reading tuning data from frontend succeeded.\n");
+ 				return dib3000mb_set_frontend(state,&fep,0) == 0;
+ 			} else {
+-				deb_info("reading tuning data failed -> tuning failed.\n");
++				deb_setf("reading tuning data failed -> tuning failed.\n");
+ 				return 0;
+ 			}
+ 		} else {
+-			deb_info("AS IRQ was pending, but LOCK2 was not & 0x01.\n");
++			deb_setf("AS IRQ was pending, but LOCK2 was not & 0x01.\n");
+ 			return 0;
+ 		}
+ 	} else if (irq & 0x01) {
+-		deb_info("Autosearch failed.\n");
++		deb_setf("Autosearch failed.\n");
+ 		return 0;
+ 	}
+ 
+@@ -329,7 +333,7 @@
+ 		struct dvb_frontend_parameters *fep, int tuner)
+ {
+ 	struct dvb_ofdm_parameters *ofdm = &fep->u.ofdm;
+-	fe_code_rate_t fe_cr;
++	fe_code_rate_t fe_cr = FEC_NONE;
+ 	int search_state,seq;
+ 
+ 	if (tuner) {
+@@ -342,82 +346,105 @@
+ 		wr(DIB3000MB_REG_TUNER,
+ 				DIB3000MB_DEACTIVATE_TUNER_XFER( DIB3000MB_TUNER_ADDR_DEFAULT ) );
+ 
++		deb_setf("bandwidth: ");
+ 		switch (ofdm->bandwidth) {
+ 			case BANDWIDTH_8_MHZ:
+-			case BANDWIDTH_AUTO:
++				deb_setf("8 MHz\n");
+ 				wr_foreach(dib3000mb_reg_timing_freq,dib3000mb_timing_freq[2]);
+ 				wr_foreach(dib3000mb_reg_bandwidth,dib3000mb_bandwidth_8mhz);
+ 				break;
+ 			case BANDWIDTH_7_MHZ:
++				deb_setf("7 MHz\n");
+ 				wr_foreach(dib3000mb_reg_timing_freq,dib3000mb_timing_freq[1]);
+ 				wr_foreach(dib3000mb_reg_bandwidth,dib3000mb_bandwidth_7mhz);
+ 				break;
+ 			case BANDWIDTH_6_MHZ:
++				deb_setf("6 MHz\n");
+ 				wr_foreach(dib3000mb_reg_timing_freq,dib3000mb_timing_freq[0]);
+ 				wr_foreach(dib3000mb_reg_bandwidth,dib3000mb_bandwidth_6mhz);
+ 				break;
++			case BANDWIDTH_AUTO:
++				return -EOPNOTSUPP;
+ 			default:
+ 				err("unkown bandwidth value.");
+ 				return -EINVAL;
+-				break;
+ 		}
+ 	}
+ 	wr(DIB3000MB_REG_LOCK1_MASK,DIB3000MB_LOCK1_SEARCH_4);
+ 
++	deb_setf("transmission mode: ");
+ 	switch (ofdm->transmission_mode) {
+ 		case TRANSMISSION_MODE_2K:
++			deb_setf("2k\n");
+ 			wr(DIB3000MB_REG_FFT,DIB3000MB_FFT_2K);
+ 			break;
+ 		case TRANSMISSION_MODE_8K:
++			deb_setf("8k\n");
+ 			wr(DIB3000MB_REG_FFT,DIB3000MB_FFT_8K);
+ 			break;
+ 		case TRANSMISSION_MODE_AUTO:
++			deb_setf("auto\n");
+ 			wr(DIB3000MB_REG_FFT,DIB3000MB_FFT_AUTO);
+ 			break;
+ 		default:
+ 			return -EINVAL;
+ 	}
+ 
++	deb_setf("guard: ");
+ 	switch (ofdm->guard_interval) {
+ 		case GUARD_INTERVAL_1_32:
++			deb_setf("1_32\n");
+ 			wr(DIB3000MB_REG_GUARD_TIME,DIB3000MB_GUARD_TIME_1_32);
+ 			break;
+ 		case GUARD_INTERVAL_1_16:
++			deb_setf("1_16\n");
+ 			wr(DIB3000MB_REG_GUARD_TIME,DIB3000MB_GUARD_TIME_1_16);
+ 			break;
+ 		case GUARD_INTERVAL_1_8:
++			deb_setf("1_8\n");
+ 			wr(DIB3000MB_REG_GUARD_TIME,DIB3000MB_GUARD_TIME_1_8);
+ 			break;
+ 		case GUARD_INTERVAL_1_4:
++			deb_setf("1_4\n");
+ 			wr(DIB3000MB_REG_GUARD_TIME,DIB3000MB_GUARD_TIME_1_4);
+ 			break;
+ 		case GUARD_INTERVAL_AUTO:
++			deb_setf("auto\n");
+ 			wr(DIB3000MB_REG_GUARD_TIME,DIB3000MB_GUARD_TIME_AUTO);
+ 			break;
+ 		default:
+ 			return -EINVAL;
+ 	}
+ 
++	deb_setf("invsersion: ");
+ 	switch (fep->inversion) {
++		case INVERSION_AUTO:
++			deb_setf("auto\n");
++			break;
+ 		case INVERSION_OFF:
++			deb_setf("on\n");
+ 			wr(DIB3000MB_REG_DDS_INV,DIB3000MB_DDS_INV_OFF);
+ 			break;
+-		case INVERSION_AUTO:
+ 		case INVERSION_ON:
++			deb_setf("on\n");
+ 			wr(DIB3000MB_REG_DDS_INV,DIB3000MB_DDS_INV_ON);
+ 			break;
+ 		default:
+ 			return -EINVAL;
+ 	}
+ 
++	deb_setf("constellation: ");
+ 	switch (ofdm->constellation) {
+ 		case QPSK:
++			deb_setf("qpsk\n");
+ 			wr(DIB3000MB_REG_QAM,DIB3000MB_QAM_QPSK);
+ 			break;
+ 		case QAM_16:
++			deb_setf("qam16\n");
+ 			wr(DIB3000MB_REG_QAM,DIB3000MB_QAM_QAM16);
+ 			break;
+ 		case QAM_64:
++			deb_setf("qam64\n");
+ 			wr(DIB3000MB_REG_QAM,DIB3000MB_QAM_QAM64);
+ 			break;
+ 		case QAM_AUTO:
+@@ -425,53 +452,69 @@
+ 		default:
+ 			return -EINVAL;
+ 	}
+-
++	deb_setf("hierachy: ");	
+ 	switch (ofdm->hierarchy_information) {
+ 		case HIERARCHY_NONE:
++			deb_setf("none ");
++			/* fall through alpha is 1, even when HIERARCHY is NONE */ 
+ 		case HIERARCHY_1:
++			deb_setf("alpha=1\n");	
+ 			wr(DIB3000MB_REG_VIT_ALPHA,DIB3000MB_VIT_ALPHA_1);
+ 			break;
+ 		case HIERARCHY_2:
++			deb_setf("alpha=2\n");	
+ 			wr(DIB3000MB_REG_VIT_ALPHA,DIB3000MB_VIT_ALPHA_2);
+ 			break;
+ 		case HIERARCHY_4:
++			deb_setf("alpha=4\n");	
+ 			wr(DIB3000MB_REG_VIT_ALPHA,DIB3000MB_VIT_ALPHA_4);
+ 			break;
+ 		case HIERARCHY_AUTO:
++			deb_setf("alpha=auto\n");	
+ 			wr(DIB3000MB_REG_VIT_ALPHA,DIB3000MB_VIT_ALPHA_AUTO);
+ 			break;
+ 		default:
+ 			return -EINVAL;
+ 	}
+ 
++	deb_setf("hierarchy: ");
+ 	if (ofdm->hierarchy_information == HIERARCHY_NONE) {
++		deb_setf("none\n");
+ 		wr(DIB3000MB_REG_VIT_HRCH,DIB3000MB_VIT_HRCH_OFF);
+ 		wr(DIB3000MB_REG_VIT_HP,DIB3000MB_VIT_HP);
+ 		fe_cr = ofdm->code_rate_HP;
+-	} else {
++	} else if (ofdm->hierarchy_information != HIERARCHY_AUTO) {
++		deb_setf("on\n");
+ 		wr(DIB3000MB_REG_VIT_HRCH,DIB3000MB_VIT_HRCH_ON);
+ 		wr(DIB3000MB_REG_VIT_HP,DIB3000MB_VIT_LP);
+ 		fe_cr = ofdm->code_rate_LP;
+ 	}
+-
++	deb_setf("fec: ");
+ 	switch (fe_cr) {
+ 		case FEC_1_2:
++			deb_setf("1_2\n");
+ 			wr(DIB3000MB_REG_VIT_CODE_RATE,DIB3000MB_FEC_1_2);
+ 			break;
+ 		case FEC_2_3:
++			deb_setf("2_3\n");
+ 			wr(DIB3000MB_REG_VIT_CODE_RATE,DIB3000MB_FEC_2_3);
+ 			break;
+ 		case FEC_3_4:
++			deb_setf("3_4\n");
+ 			wr(DIB3000MB_REG_VIT_CODE_RATE,DIB3000MB_FEC_3_4);
+ 			break;
+ 		case FEC_5_6:
++			deb_setf("5_6\n");
+ 			wr(DIB3000MB_REG_VIT_CODE_RATE,DIB3000MB_FEC_5_6);
+ 			break;
+ 		case FEC_7_8:
++			deb_setf("7_8\n");
+ 			wr(DIB3000MB_REG_VIT_CODE_RATE,DIB3000MB_FEC_7_8);
+ 			break;
+ 		case FEC_NONE:
++			deb_setf("none ");
+ 		case FEC_AUTO:
++			deb_setf("auto\n");
+ 			break;
+ 		default:
+ 			return -EINVAL;
+@@ -482,7 +525,7 @@
+ 		[ofdm->guard_interval == GUARD_INTERVAL_AUTO]
+ 		[fep->inversion == INVERSION_AUTO];
+ 
+-	deb_info("seq? %d\n",seq);
++	deb_setf("seq? %d\n",seq);
+ 
+ 	wr(DIB3000MB_REG_SEQ,seq);
+ 
+@@ -522,7 +565,7 @@
+ 		fe_cr == FEC_AUTO ||
+ 		fep->inversion == INVERSION_AUTO) {
+ 
+-		deb_info("autosearch enabled.\n");
++		deb_setf("autosearch enabled.\n");	
+ 
+ 		wr(DIB3000MB_REG_ISI,DIB3000MB_ISI_INHIBIT);
+ 
+@@ -530,7 +573,7 @@
+ 		wr(DIB3000MB_REG_RESTART,DIB3000MB_RESTART_OFF);
+ 
+ 		while ((search_state = dib3000mb_fe_read_search_status(state)) < 0);
+-
++		deb_info("search_state after autosearch %d\n",search_state);
+ 		return search_state ? 0 : -EINVAL;
+ 	} else {
+ 		wr(DIB3000MB_REG_RESTART,DIB3000MB_RESTART_CTRL);
+@@ -622,14 +665,25 @@
+ static int dib3000mb_read_status(struct dib3000mb_state *state,fe_status_t *stat)
+ {
+ 	*stat = 0;
+-	*stat |= rd(DIB3000MB_REG_AGC_LOCK) ? FE_HAS_SIGNAL : 0;
+-	*stat |= rd(DIB3000MB_REG_CARRIER_LOCK) ? FE_HAS_CARRIER : 0;
+-	*stat |= rd(DIB3000MB_REG_VIT_LCK) ? FE_HAS_VITERBI : 0;
+-	*stat |= rd(DIB3000MB_REG_TS_SYNC_LOCK) ? FE_HAS_SYNC : 0;
+-	*stat |= *stat ? FE_HAS_LOCK : 0;
++
++	if (rd(DIB3000MB_REG_AGC_LOCK))
++		*stat |= FE_HAS_SIGNAL;
++	if (rd(DIB3000MB_REG_CARRIER_LOCK))
++		*stat |= FE_HAS_CARRIER;
++	if (rd(DIB3000MB_REG_VIT_LCK))
++		*stat |= FE_HAS_VITERBI;
++	if (rd(DIB3000MB_REG_TS_SYNC_LOCK))
++		*stat |= (FE_HAS_SYNC | FE_HAS_LOCK);
+ 
+ 	deb_info("actual status is %2x\n",*stat);
+ 
++	deb_getf("tps %x %x %x %x %x\n",
++			rd(DIB3000MB_REG_TPS_1),
++			rd(DIB3000MB_REG_TPS_2),
++			rd(DIB3000MB_REG_TPS_3),
++			rd(DIB3000MB_REG_TPS_4),
++			rd(DIB3000MB_REG_TPS_5));
++	
+ 	deb_info("autoval: tps: %d, qam: %d, hrch: %d, alpha: %d, hp: %d, lp: %d, guard: %d, fft: %d cell: %d\n",
+ 			rd(DIB3000MB_REG_TPS_LOCK),
+ 			rd(DIB3000MB_REG_TPS_QAM),
+@@ -647,15 +701,75 @@
+ 
+ static int dib3000mb_read_ber(struct dib3000mb_state *state,u32 *ber)
+ {
+-	*ber =
+-		(((rd(DIB3000MB_REG_BER_MSB) << 16) & 0x1f) | rd(DIB3000MB_REG_BER_LSB) ) /
+-		 100000000;
++	*ber = ((rd(DIB3000MB_REG_BER_MSB) << 16) | rd(DIB3000MB_REG_BER_LSB) );
 +	return 0;
 +}
-+
-+static int cinergyt2_stop_feed(struct dvb_demux_feed *dvbdmxfeed)
-+{
-+	struct dvb_demux *demux = dvbdmxfeed->demux;
-+	struct cinergyt2 *cinergyt2 = demux->priv;	
-+
-+	if (--cinergyt2->streaming == 0) {
-+		cinergyt2_control_stream_transfer(cinergyt2, 0);
-+		cinergyt2_stop_stream_xfer(cinergyt2);
-+	}
-+
-+	return 0;
-+}
-+
-+/**
-+ *  convert linux-dvb frontend parameter set into TPS.
-+ *  See ETSI ETS-300744, section 4.6.2, table 9 for details.
-+ *
-+ *  This function is probably reusable and may better get placed in a support
-+ *  library.
-+ *
-+ *  We replace errornous fields by default TPS fields (the ones with value 0).
++/*
++ * Amaury:
++ * signal strength is measured with dBm (power compared to mW)
++ * the standard range is -90dBm(low power) to -10 dBm (strong power),
++ * but the calibration is done for -100 dBm to 0dBm
 + */
 +
-+static uint16_t compute_tps (struct dvb_frontend_parameters *param)
++#define DIB3000MB_AGC_REF_dBm		-14
++#define DIB3000MB_GAIN_SLOPE_dBm	100
++#define DIB3000MB_GAIN_DELTA_dBm	-2
++static int dib3000mb_read_signal_strength(struct dib3000mb_state *state, u16 *strength)
 +{
-+	uint16_t tps = 0;
-+	struct dvb_ofdm_parameters *op = &param->u.ofdm;
-+
-+	switch (op->code_rate_HP) {
-+		case FEC_2_3:
-+			tps |= (1 << 7);
-+			break;
-+		case FEC_3_4:
-+			tps |= (2 << 7);
-+			break;
-+		case FEC_5_6:
-+			tps |= (3 << 7);
-+			break;
-+		case FEC_7_8:
-+			tps |= (4 << 7);
-+			break;
-+		case FEC_1_2:
-+		case FEC_AUTO:
-+		default:
-+			/* tps |= (0 << 7) */;
-+	}
-+
-+	switch (op->code_rate_LP) {
-+		case FEC_2_3:
-+			tps |= (1 << 4);
-+			break;
-+		case FEC_3_4:
-+			tps |= (2 << 4);
-+			break;
-+		case FEC_5_6:
-+			tps |= (3 << 4);
-+			break;
-+		case FEC_7_8:
-+			tps |= (4 << 4);
-+			break;
-+		case FEC_1_2:
-+		case FEC_AUTO:
-+		default:
-+			/* tps |= (0 << 4) */;
-+	}
-+
-+	switch (op->constellation) {
-+		case QAM_16:
-+			tps |= (1 << 13);
-+			break;
-+		case QAM_64:
-+			tps |= (2 << 13);
-+			break;
-+		case QPSK:
-+		default:
-+			/* tps |= (0 << 13) */;
-+	}
-+
-+	switch (op->transmission_mode) {
-+		case TRANSMISSION_MODE_8K:
-+			tps |= (1 << 0);
-+			break;
-+		case TRANSMISSION_MODE_2K:
-+		default:
-+			/* tps |= (0 << 0) */;
-+	}
-+
-+	switch (op->guard_interval) {
-+		case GUARD_INTERVAL_1_16:
-+			tps |= (1 << 2);
-+			break;
-+		case GUARD_INTERVAL_1_8:
-+			tps |= (2 << 2);
-+			break;
-+		case GUARD_INTERVAL_1_4:
-+			tps |= (3 << 2);
-+			break;
-+		case GUARD_INTERVAL_1_32:
-+		default:
-+			/* tps |= (0 << 2) */;
-+	}
-+
-+	switch (op->hierarchy_information) {
-+		case HIERARCHY_1:
-+			tps |= (1 << 10);
-+			break;
-+		case HIERARCHY_2:
-+			tps |= (2 << 10);
-+			break;
-+		case HIERARCHY_4:
-+			tps |= (3 << 10);
-+			break;
-+		case HIERARCHY_NONE:
-+		default:
-+			/* tps |= (0 << 10) */;
-+	}
-+
-+	return tps;
-+}
-+
-+struct dvbt_set_parameters_msg {
-+	uint8_t cmd;
-+	uint32_t freq;
-+	uint8_t bandwidth;
-+	uint16_t tps;
-+	uint8_t flags;
-+} __attribute__((packed));
-+
-+struct dvbt_get_parameters_msg {
-+	uint32_t freq;
-+	uint8_t bandwidth;
-+	uint16_t tps;
-+	uint8_t flags;
-+	uint16_t gain;
-+	uint8_t snr;
-+	uint32_t viterbi_error_rate;
-+	uint32_t rs_error_rate;
-+	uint32_t uncorrected_block_count;
-+	uint8_t lock_bits;
-+	uint8_t prev_lock_bits;
-+} __attribute__((packed));
-+
-+static int cinergyt2_fe_open (struct inode *inode, struct file *file)
-+{
-+	struct dvb_device *dvbdev = file->private_data;
-+	cinergyt2_control_sleep_mode((struct cinergyt2 *) dvbdev->priv, 0);
-+	return dvb_generic_open(inode, file);
-+}
-+
-+static int cinergyt2_fe_release (struct inode *inode, struct file *file)
-+{
-+	struct dvb_device *dvbdev = file->private_data;
-+	cinergyt2_control_sleep_mode((struct cinergyt2 *) dvbdev->priv, 1);
-+	return dvb_generic_release (inode, file);
-+}
-+
-+static int cinergyt2_fe_ioctl (struct inode *inode, struct file *file,
-+			unsigned int cmd, void *arg)
-+{
-+	struct dvb_device *dvbdev = file->private_data;
-+	struct cinergyt2 *cinergyt2 = dvbdev->priv;
-+	int ret = 0;
-+
-+	switch (cmd) {
-+	case FE_GET_INFO:
-+		memcpy (arg, &cinergyt2_fe_info, sizeof(struct dvb_frontend_info));
-+		break;
-+
-+	case FE_READ_STATUS:
-+	{
-+		struct dvbt_get_parameters_msg msg;
-+		char cmd = CINERGYT2_EP1_GET_TUNER_STATUS;
-+		fe_status_t *status = arg;
-+
-+		*status = 0;
-+
-+		cinergyt2_command(cinergyt2, &cmd, 1, (char *) &msg, sizeof(msg));
-+		
-+		if (msg.lock_bits & (1 << 6))
-+			*status |= FE_HAS_LOCK;
-+		if (msg.lock_bits & (1 << 5))
-+			*status |= FE_HAS_SYNC;
-+		if (msg.lock_bits & (1 << 4))
-+			*status |= FE_HAS_CARRIER;
-+		if (msg.lock_bits & (1 << 1))
-+			*status |= FE_HAS_VITERBI;
-+
-+		break;
-+	}
-+
-+	case FE_READ_BER:
-+	{
-+		struct dvbt_get_parameters_msg msg;
-+		char cmd = CINERGYT2_EP1_GET_TUNER_STATUS;
-+		u32 *ber = (u32 *) arg;
-+
-+		cinergyt2_command(cinergyt2, &cmd, 1, (char *) &msg, sizeof(msg));
-+
-+		*ber = le32_to_cpu(msg.viterbi_error_rate);
-+
-+		break;
-+	}
-+
-+	case FE_READ_SIGNAL_STRENGTH:
-+	{
-+		struct dvbt_get_parameters_msg msg;
-+		char cmd = CINERGYT2_EP1_GET_TUNER_STATUS;
-+		u16 *signal = (u16 *) arg;
-+
-+		cinergyt2_command(cinergyt2, &cmd, 1, (char *) &msg, sizeof(msg));
-+
-+		*signal = ~(le16_to_cpu(msg.gain));
-+
-+		break;
-+	}
-+
-+	case FE_READ_SNR:
-+	{
-+		struct dvbt_get_parameters_msg msg;
-+		char cmd = CINERGYT2_EP1_GET_TUNER_STATUS;
-+		u16 *snr = (u16 *) arg;
-+
-+		cinergyt2_command(cinergyt2, &cmd, 1, (char *) &msg, sizeof(msg));
-+
-+		*snr = (msg.snr << 8) | msg.snr;
-+
-+		break;
-+	}
-+
-+	case FE_READ_UNCORRECTED_BLOCKS:
-+	{
-+		struct dvbt_get_parameters_msg msg;
-+		char cmd = CINERGYT2_EP1_GET_TUNER_STATUS;
-+		u32 *ubc = (u32 *) arg;
-+
-+		cinergyt2_command(cinergyt2, &cmd, 1, (char *) &msg, sizeof(msg));
-+
-+		*ubc = le32_to_cpu(msg.uncorrected_block_count);
-+
-+		break;
-+	}
++/* TODO log10 
++	u16 sigpow = rd(DIB3000MB_REG_SIGNAL_POWER), 
++		n_agc_power = rd(DIB3000MB_REG_AGC_POWER),
++		rf_power = rd(DIB3000MB_REG_RF_POWER);
++	double rf_power_dBm, ad_power_dBm, minar_power_dBm;
 +	
-+	case FE_SET_FRONTEND:
-+	{
-+		struct dvb_frontend_parameters *p = (void*) arg;
-+		struct dvb_ofdm_parameters *op = &p->u.ofdm;
-+		struct dvbt_set_parameters_msg msg;
++	if (n_agc_power == 0 )
++		n_agc_power = 1 ;
 +
-+		msg.cmd = CINERGYT2_EP1_SET_TUNER_PARAMETERS;
-+		msg.tps = cpu_to_le16(compute_tps(p));
-+		msg.freq = cpu_to_le32(p->frequency / 1000);
-+		msg.bandwidth = 8 - op->bandwidth - BANDWIDTH_8_MHZ;
-+
-+		cinergyt2_command(cinergyt2, (char *) &msg, sizeof(msg), NULL, 0);
-+
-+		break;
-+	}
-+
-+	case FE_GET_FRONTEND:
-+		/**
-+		 *  trivial to implement (see struct dvbt_get_parameters_msg).
-+		 *  equivalent to FE_READ ioctls, but needs 
-+		 *  TPS -> linux-dvb parameter set conversion. Feel free
-+		 *  to implement this and send us a patch if you need this
-+		 *  functionality.
-+		 */
-+		break;
-+
-+	default:
-+		ret = -EINVAL;
-+		break;
-+	}
-+
-+	return ret;
-+}
-+
-+static 
-+struct file_operations cinergyt2_fe_fops = {
-+	.owner          = THIS_MODULE,
-+	.ioctl          = dvb_generic_ioctl,
-+	/**
-+	 * do we really need this? If so, let's implement it via 
-+	 * schedule_delayed_work() similiar to the IR code.
-+	 */
-+	/*.poll           = cinergyt2_fe_poll, */
-+	.open           = cinergyt2_fe_open,
-+	.release        = cinergyt2_fe_release
-+};
-+
-+static struct dvb_device cinergyt2_fe_template = {
-+	.users = ~0,
-+	.writers = 1,
-+	.readers = (~0)-1,
-+	.fops = &cinergyt2_fe_fops,
-+	.kernel_ioctl = cinergyt2_fe_ioctl
-+};
-+
-+#ifdef ENABLE_RC
-+static void cinergyt2_query_rc (void *data)
-+{
-+	struct cinergyt2 *cinergyt2 = (struct cinergyt2 *) data;
-+	char buf [1] = { CINERGYT2_EP1_GET_RC_EVENTS };
-+	struct cinergyt2_rc_event rc_events[12];
-+	int n, len;
-+
-+	len = cinergyt2_command(cinergyt2, buf, sizeof(buf), 
-+			     (char *) rc_events, sizeof(rc_events));
-+
-+	for (n=0; len>0 && n<(len/sizeof(rc_events[0])); n++) {
-+		int i;
-+
-+		if (rc_events[n].type == CINERGYT2_RC_EVENT_TYPE_NEC &&
-+		    rc_events[n].value == ~0)
-+		{
-+			/**
-+			 * keyrepeat bit. If we would handle this properly
-+			 * we would need to emit down events as long the
-+			 * keyrepeat goes, a up event if no further 
-+			 * repeat bits occur. Would need a timer to implement
-+			 * and no other driver does this, so we simply
-+			 * emit the last key up/down sequence again.
-+			 */
-+		} else {
-+			cinergyt2->rc_input_event = KEY_MAX;
-+			for (i=0; i<sizeof(rc_keys)/sizeof(rc_keys[0]); i+=3) {
-+				if (rc_keys[i+0] == rc_events[n].type &&
-+				    rc_keys[i+1] == rc_events[n].value)
-+				{
-+					cinergyt2->rc_input_event = rc_keys[i+2];
-+					break;
-+				}
-+			}
-+		}
-+
-+		if (cinergyt2->rc_input_event != KEY_MAX) {
-+			input_report_key(&cinergyt2->rc_input_dev, cinergyt2->rc_input_event, 1);
-+			input_report_key(&cinergyt2->rc_input_dev, cinergyt2->rc_input_event, 0);
-+			input_sync(&cinergyt2->rc_input_dev);
-+	    	}
-+	}
-+
-+	schedule_delayed_work(&cinergyt2->rc_query_work, (HZ/5));
-+}
-+#endif
-+
-+static int cinergyt2_probe (struct usb_interface *intf, const struct usb_device_id *id)
-+{
-+	struct cinergyt2 *cinergyt2;
-+	int i, err;
-+
-+	if (!(cinergyt2 = kmalloc (sizeof(struct cinergyt2), GFP_KERNEL))) {
-+		dprintk(1, "out of memory?!?\n");
-+		return -ENOMEM;
-+	}
-+
-+	memset (cinergyt2, 0, sizeof (struct cinergyt2));
-+	usb_set_intfdata (intf, (void *) cinergyt2);
-+
-+	init_MUTEX(&cinergyt2->sem);
-+
-+	cinergyt2->udev = interface_to_usbdev(intf);
-+	
-+	if (cinergyt2_alloc_stream_urbs (cinergyt2) < 0) {
-+		dprintk(1, "unable to allocate stream urbs\n");
-+		kfree(cinergyt2);
-+		return -ENOMEM;
-+	}
-+
-+	dvb_register_adapter(&cinergyt2->adapter, DRIVER_NAME, THIS_MODULE);
-+
-+	cinergyt2->demux.priv = cinergyt2;
-+	cinergyt2->demux.filternum = 256;
-+	cinergyt2->demux.feednum = 256;
-+	cinergyt2->demux.start_feed = cinergyt2_start_feed;
-+	cinergyt2->demux.stop_feed = cinergyt2_stop_feed;
-+	cinergyt2->demux.dmx.capabilities = DMX_TS_FILTERING |
-+					 DMX_SECTION_FILTERING |
-+					 DMX_MEMORY_BASED_FILTERING;
-+
-+	if ((err = dvb_dmx_init(&cinergyt2->demux)) < 0) {
-+		dprintk(1, "dvb_dmx_init() failed (err = %d)\n", err);
-+		goto bailout;
-+	}
-+
-+	cinergyt2->dmxdev.filternum = cinergyt2->demux.filternum;
-+	cinergyt2->dmxdev.demux = &cinergyt2->demux.dmx;
-+	cinergyt2->dmxdev.capabilities = 0;
-+
-+	if ((err = dvb_dmxdev_init(&cinergyt2->dmxdev, cinergyt2->adapter)) < 0) {
-+		dprintk(1, "dvb_dmxdev_init() failed (err = %d)\n", err);
-+		goto bailout;
-+	}
-+
-+	if (dvb_net_init(cinergyt2->adapter, &cinergyt2->dvbnet, &cinergyt2->demux.dmx))
-+		dprintk(1, "dvb_net_init() failed!\n");
-+
-+	dvb_register_device(cinergyt2->adapter, &cinergyt2->fedev,
-+			    &cinergyt2_fe_template, cinergyt2,
-+			    DVB_DEVICE_FRONTEND);
-+
-+#ifdef ENABLE_RC
-+	init_input_dev(&cinergyt2->rc_input_dev);			
-+
-+	cinergyt2->rc_input_dev.evbit[0] = BIT(EV_KEY);
-+	cinergyt2->rc_input_dev.keycodesize = sizeof(unsigned char);
-+	cinergyt2->rc_input_dev.keycodemax = KEY_MAX;
-+	cinergyt2->rc_input_dev.name = DRIVER_NAME " remote control";
-+	cinergyt2->rc_input_dev.id.bustype = BUS_USB;
-+	cinergyt2->rc_input_dev.id.vendor = 0x0001;
-+	cinergyt2->rc_input_dev.id.product = 0x0001;
-+	cinergyt2->rc_input_dev.id.version = 0x0100;
-+
-+	for (i=0; i<sizeof(rc_keys)/sizeof(rc_keys[0]); i+=3)
-+		set_bit(rc_keys[i+2], cinergyt2->rc_input_dev.keybit);
-+
-+	input_register_device(&cinergyt2->rc_input_dev);
-+
-+	cinergyt2->rc_input_event = KEY_MAX;
-+	
-+	INIT_WORK(&cinergyt2->rc_query_work, cinergyt2_query_rc, cinergyt2);
-+	schedule_delayed_work(&cinergyt2->rc_query_work, HZ);
-+#endif
-+
-+	return 0;
-+
-+bailout:
-+	dvb_dmxdev_release(&cinergyt2->dmxdev);
-+	dvb_dmx_release(&cinergyt2->demux);
-+	dvb_unregister_adapter (cinergyt2->adapter);
-+	cinergyt2_free_stream_urbs (cinergyt2);
-+	kfree(cinergyt2);
-+	return -ENOMEM;
-+}
-+
-+static void cinergyt2_disconnect (struct usb_interface *intf)
-+{
-+	struct cinergyt2 *cinergyt2 = usb_get_intfdata (intf);
-+
-+#ifdef ENABLE_RC
-+	cancel_delayed_work(&cinergyt2->rc_query_work);
-+	flush_scheduled_work();
-+	input_unregister_device(&cinergyt2->rc_input_dev);
-+#endif
-+
-+	cinergyt2->demux.dmx.close(&cinergyt2->demux.dmx);
-+	dvb_net_release(&cinergyt2->dvbnet);
-+	dvb_dmxdev_release(&cinergyt2->dmxdev);
-+	dvb_dmx_release(&cinergyt2->demux);
-+
-+	dvb_unregister_device(cinergyt2->fedev);
-+	dvb_unregister_adapter(cinergyt2->adapter);
-+
-+	cinergyt2_free_stream_urbs(cinergyt2);
-+	kfree(cinergyt2);
-+}
-+
-+static const struct usb_device_id cinergyt2_table [] __devinitdata = {
-+	{ USB_DEVICE(0x0ccd, 0x0038) },
-+	{ 0 }
-+};
-+
-+MODULE_DEVICE_TABLE(usb, cinergyt2_table);
-+
-+static struct usb_driver cinergyt2_driver = {
-+	.owner 		= THIS_MODULE,
-+	.name 		= "cinergyt2",
-+	.probe 		= cinergyt2_probe,
-+	.disconnect 	= cinergyt2_disconnect,
-+	.id_table 	= cinergyt2_table
-+};
-+
-+static int __init cinergyt2_init (void)
-+{
-+	int err;
-+
-+	if ((err = usb_register(&cinergyt2_driver)) < 0) {
-+		dprintk(1, "usb_register() failed! (err %i)\n", err);
-+		return err;
-+	}
-+
++	ad_power_dBm    = 10 * log10 ( (float)n_agc_power / (float)(1<<16) );
++	minor_power_dBm = ad_power_dBm - DIB3000MB_AGC_REF_dBm;
++	rf_power_dBm = (-DIB3000MB_GAIN_SLOPE_dBm * (float)rf_power / (float)(1<<16) + 
++			DIB3000MB_GAIN_DELTA_dBm) + minor_power_dBm;
++	// relative rf_power 
++	*strength = (u16) ((rf_power_dBm + 100) / 100 * 0xffff);
++*/
++	*strength = rd(DIB3000MB_REG_SIGNAL_POWER) * 0xffff / 0x170;
 +	return 0;
 +}
 +
-+static void __exit cinergyt2_exit (void)
++/*
++ * Amaury: 
++ * snr is the signal quality measured in dB.
++ * snr = 10*log10(signal power / noise power)
++ * the best quality is near 35dB (cable transmission & good modulator)
++ * the minimum without errors depend of transmission parameters
++ * some indicative values are given in en300744 Annex A
++ * ex : 16QAM 2/3 (Gaussian)  = 11.1 dB
++ *
++ * If SNR is above 20dB, BER should be always 0.
++ * choose 0dB as the minimum
++ */
++static int dib3000mb_read_snr(struct dib3000mb_state *state,u16 *snr)
 +{
-+	usb_deregister(&cinergyt2_driver);
++	short sigpow = rd(DIB3000MB_REG_SIGNAL_POWER);
++	int icipow = ((rd(DIB3000MB_REG_NOISE_POWER_MSB) & 0xff) << 16) |
++		rd(DIB3000MB_REG_NOISE_POWER_LSB);
++/*
++	float snr_dBm=0;
++
++	if (sigpow > 0 && icipow > 0)
++		snr_dBm = 10.0 * log10( (float) (sigpow<<8) / (float)icipow )  ;
++	else if (sigpow > 0)
++		snr_dBm = 35;
++	
++	*snr = (u16) ((snr_dBm / 35) * 0xffff);
++*/
++	*snr = (sigpow<<8) / (icipow > 0 ? icipow : 1);
+ 	return 0;
+ }
+ 
+-static int dib3000mb_signal_strength(struct dib3000mb_state *state, u16 *strength)
++static int dib3000mb_read_unc_blocks(struct dib3000mb_state *state,u32 *unc)
+ {
+-//	*stength = DIB3000MB_REG_SIGNAL_POWER
++	*unc = rd(DIB3000MB_REG_UNC);
+ 	return 0;
+ }
+ 
+@@ -665,63 +779,81 @@
+ 	return 0;
+ }
+ 
++static int dib3000mb_fe_get_tune_settings(struct dib3000mb_state *state, 
++		struct dvb_frontend_tune_settings *tune)
++{
++	tune->min_delay_ms = 800;
++	tune->step_size = 166667;
++	tune->max_drift = 166667*2;
++					
++	return 0;
 +}
 +
-+module_init (cinergyt2_init);
-+module_exit (cinergyt2_exit);
+ static int dib3000mb_ioctl (struct dvb_frontend *fe, unsigned int cmd, void *arg)
+ {
+ 	struct dib3000mb_state *state = fe->data;
+-	int ret = 0;
+ 	switch (cmd) {
+ 		case FE_GET_INFO:
+ 			deb_info("FE_GET_INFO\n");
+ 			memcpy(arg, &dib3000mb_info, sizeof(struct dvb_frontend_info));
++			return 0;
+ 			break;
+ 
+ 		case FE_READ_STATUS:
+ 			deb_info("FE_READ_STATUS\n");
+-			ret = dib3000mb_read_status(state,(fe_status_t *)arg);
++			return dib3000mb_read_status(state,(fe_status_t *)arg);
+ 			break;
+ 
+ 		case FE_READ_BER:
+ 			deb_info("FE_READ_BER\n");
+-			ret = dib3000mb_read_ber(state,(u32 *)arg);
++			return dib3000mb_read_ber(state,(u32 *)arg);
+ 			break;
+ 
+ 		case FE_READ_SIGNAL_STRENGTH:
+ 			deb_info("FE_READ_SIG_STRENGTH\n");
+-			ret = dib3000mb_signal_strength(state,(u16 *) arg);
++			return dib3000mb_read_signal_strength(state,(u16 *) arg);
+ 			break;
+ 
+ 		case FE_READ_SNR:
+ 			deb_info("FE_READ_SNR\n");
++			return dib3000mb_read_snr(state,(u16 *) arg);
+ 			break;
+ 
+ 		case FE_READ_UNCORRECTED_BLOCKS:
+ 			deb_info("FE_READ_UNCORRECTED_BLOCKS\n");
++			return dib3000mb_read_unc_blocks(state,(u32 *) arg);
+ 			break;
+ 
+ 		case FE_SET_FRONTEND:
+ 			deb_info("FE_SET_FRONTEND\n");
+-			ret = dib3000mb_set_frontend(state,(struct dvb_frontend_parameters *) arg,1);
++			return dib3000mb_set_frontend(state,(struct dvb_frontend_parameters *) arg,1);
+ 			break;
+ 
+ 		case FE_GET_FRONTEND:
+ 			deb_info("FE_GET_FRONTEND\n");
+-			ret = dib3000mb_get_frontend(state,(struct dvb_frontend_parameters *) arg);
++			return dib3000mb_get_frontend(state,(struct dvb_frontend_parameters *) arg);
+ 			break;
+ 
+ 		case FE_SLEEP:
+ 			deb_info("FE_SLEEP\n");
+-			ret = dib3000mb_sleep(state);
++			return dib3000mb_sleep(state);
+ 			break;
+ 
+ 		case FE_INIT:
+ 			deb_info("FE_INIT\n");
+-			ret = dib3000mb_fe_init(state,0);
++			return dib3000mb_fe_init(state,0);
+ 			break;
+ 
++		case FE_GET_TUNE_SETTINGS:
++			deb_info("GET_TUNE_SETTINGS");
++			return dib3000mb_fe_get_tune_settings(state, (struct
++						dvb_frontend_tune_settings *) arg);
 +
-+MODULE_LICENSE("GPL");
-+MODULE_AUTHOR("Holger Waechtler, Daniel Mack");
-+
++			break;
+ 		case FE_SET_TONE:
+ 		case FE_SET_VOLTAGE:
+ 		default:
+-			ret = -EOPNOTSUPP;
++			return -EOPNOTSUPP;
+ 			break;
+ 	}
+ 	return 0;
+@@ -753,16 +885,20 @@
+ 	i2c_set_clientdata(client,state);
+ 
+ 	state->manufactor_id = dib3000mb_read_reg(client, DIB3000MB_REG_MANUFACTOR_ID);
++	if (state->manufactor_id != 0x01b3) {
++		ret = -ENODEV;
++		goto probe_err;
++	}
++	
+ 	state->device_id = dib3000mb_read_reg(client,DIB3000MB_REG_DEVICE_ID);
+-	if (state->manufactor_id == 0x01b3 && state->device_id == 0x3000)
+-		info("found a DiBCom (0x%04x) 3000-MB DVB-T frontend (ver: %x).",
+-				state->manufactor_id, state->device_id);
+-	else {
+-		err("did not found a DiBCom 3000-MB.");
++	if (state->device_id != 0x3000) {
+ 		ret = -ENODEV;
+ 		goto probe_err;
+ 	}
+ 
++	info("found a DiBCom (0x%04x) 3000-MB DVB-T frontend (ver: %x).",
++			state->manufactor_id, state->device_id);
++	
+ 	if ((ret = i2c_attach_client(client)))
+ 		goto i2c_attach_err;
+ 
+diff -uraNwB linux-2.6.10-rc1/drivers/media/dvb/frontends/dib3000mb.h linux-2.6.10-rc1-patched/drivers/media/dvb/frontends/dib3000mb.h
+--- linux-2.6.10-rc1/drivers/media/dvb/frontends/dib3000mb.h	2004-10-25 14:07:56.000000000 +0200
++++ linux-2.6.10-rc1-patched/drivers/media/dvb/frontends/dib3000mb.h	2004-09-28 21:39:06.000000000 +0200
+@@ -7,6 +7,7 @@
+  *	modify it under the terms of the GNU General Public License as
+  *	published by the Free Software Foundation, version 2.
+  *
++ * 
+  *
+  * for more information see dib3000mb.c .
+  */
+@@ -320,7 +321,7 @@
+ #define DIB3000MB_REG_UNK_108			(   108)
+ #define DIB3000MB_UNK_108					(0x0080)
+ 
+-/* fft ??? */
++/* fft */
+ #define DIB3000MB_REG_UNK_121			(   121)
+ #define DIB3000MB_UNK_121_2K				(     7)
+ #define DIB3000MB_UNK_121_DEFAULT			(     5)
+@@ -351,12 +352,11 @@
+ #define DIB3000MB_REG_VIT_CODE_RATE		(   129)
+ 
+ /* forward error correction code rates */
+-#define DIB3000MB_FEC_1_2					(     0)
+-#define DIB3000MB_FEC_2_3					(     1)
+-#define DIB3000MB_FEC_3_4					(     2)
+-#define DIB3000MB_FEC_4_5					(     3)
+-#define DIB3000MB_FEC_5_6					(     4)
+-#define DIB3000MB_FEC_7_8					(     5)
++#define DIB3000MB_FEC_1_2					(     1)
++#define DIB3000MB_FEC_2_3					(     2)
++#define DIB3000MB_FEC_3_4					(     3)
++#define DIB3000MB_FEC_5_6					(     5)
++#define DIB3000MB_FEC_7_8					(     7)
+ 
+ /* vit select hp */
+ #define DIB3000MB_REG_VIT_HP			(   130)
+@@ -627,8 +627,8 @@
+ /* packet error rate (uncorrected TS packets) (16) */
+ #define DIB3000MB_REG_PACKET_ERROR_RATE	(   417)
+ 
+-/* packet error count (16) */
+-#define DIB3000MB_REG_PACKET_ERROR_COUNT	(   420)
++/* uncorrected packet count (16) */
++#define DIB3000MB_REG_UNC				(   420)
+ 
+ /* viterbi locked (1) */
+ #define DIB3000MB_REG_VIT_LCK			(   421)
 
---------------080109080301020707020800--
+--------------010809070902010801080706--

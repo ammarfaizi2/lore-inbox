@@ -1,48 +1,97 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262579AbUKLROH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262592AbUKLROI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262579AbUKLROH (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 12 Nov 2004 12:14:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262592AbUKLRMb
+	id S262592AbUKLROI (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 12 Nov 2004 12:14:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262582AbUKLRMT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 Nov 2004 12:12:31 -0500
-Received: from phoenix.infradead.org ([81.187.226.98]:30989 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id S262588AbUKLRGj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 Nov 2004 12:06:39 -0500
-Date: Fri, 12 Nov 2004 17:06:36 +0000
-From: Christoph Hellwig <hch@infradead.org>
-To: Linus Torvalds <torvalds@osdl.org>, Adrian Bunk <bunk@stusta.de>,
-       Hans Reiser <reiser@namesys.com>, linux-kernel@vger.kernel.org
-Subject: Re: Reiser{3,4}: problem with the copyright statement
-Message-ID: <20041112170636.GA7689@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Linus Torvalds <torvalds@osdl.org>, Adrian Bunk <bunk@stusta.de>,
-	Hans Reiser <reiser@namesys.com>, linux-kernel@vger.kernel.org
-References: <20041111012333.1b529478.akpm@osdl.org> <20041111214554.GB2310@stusta.de> <Pine.LNX.4.58.0411111355020.2301@ppc970.osdl.org> <20041112164745.GB7308@infradead.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Fri, 12 Nov 2004 12:12:19 -0500
+Received: from dobermann.cosy.sbg.ac.at ([141.201.2.56]:3975 "EHLO
+	dobermann.cosy.sbg.ac.at") by vger.kernel.org with ESMTP
+	id S262593AbUKLRG5 convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@VGER.KERNEL.ORG>);
+	Fri, 12 Nov 2004 12:06:57 -0500
+Date: Fri, 12 Nov 2004 17:06:53 +0000
+From: Andreas Maier <andi@cosy.sbg.ac.at>
+Subject: [RFC] IPv6 without IPv4
+To: linux-kernel@VGER.KERNEL.ORG
+X-Mailer: Balsa 2.2.5
+Message-Id: <1100279213l.5304l.1l@leu>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII;
+	DelSp=Yes	Format=Flowed
 Content-Disposition: inline
-In-Reply-To: <20041112164745.GB7308@infradead.org>
-User-Agent: Mutt/1.4.1i
-X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by phoenix.infradead.org
-	See http://www.infradead.org/rpr.html
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Nov 12, 2004 at 04:47:45PM +0000, Christoph Hellwig wrote:
-> On Thu, Nov 11, 2004 at 01:59:37PM -0800, Linus Torvalds wrote:
-> > > I have no problem with dual-licensed code, but I do strongly dislike 
-> > > having this "unlike you explicitley state otherwise, you transfer all 
-> > > rights to Hans Reiser" in the kernel.
-> > 
-> > I don't see any reasonable alternatives. The alternative is for Hans 
-> > Reiser to not be able to merge with the kernel, which is kind of against 
-> > the _point_ of having a dual license.
-> 
-> If you touch e.g. XFS for a non-trivial change you'll also get a mail from
-> SGI politely asking to assign your copyright.  Doing this implicit is IMHO
-> a really bad thing.
+This small patch makes AF_INET (IPv4) invisible to user space.
 
-Btw, reiser3 handling was similar.  At least Hans wanted an assigment from
-me for even really trivial changes (which I still insist aren't copyrightable)
+I need it to test applications in a strictly IPv6-only environment
+and it may be helpful to others that have similar constraints.
+It seems to work for TCP6 (ssh), UDP6 (DNS) and ICMP6 (ping6).
+
+Don't forget to enable binding to IPv6 only. Otherwise an Oops happens
+in the uninitialized IPv4 routing code (__ip_route_output_key):
+	echo 1 > /proc/sys/net/ipv6/bindv6only
+
+Yes, the hack is ugly. Would it be possible - with reasonable effort -
+to remove dependency of IPv6 on IPv4 so that an IPv6-only configuration
+can be created easily?
+
+Thanks for your comments,
+-andi
+
+
+This is a diff against Debian version of kernel-2.6.8:
+
+--- net/ipv4/af_inet.c.orig	2004-10-29 15:01:42.000000000 +0200
++++ net/ipv4/af_inet.c	2004-11-04 11:57:11.000000000 +0100
+@@ -1032,7 +1032,10 @@
+ 	 *	Tell SOCKET that we are alive...
+ 	 */
+
++#define HIDE_V4
++#ifndef HIDE_V4
+   	(void)sock_register(&inet_family_ops);
++#endif
+
+ 	/*
+ 	 *	Add all the base protocols.
+@@ -1066,9 +1069,11 @@
+   	 *	Set the IP module up
+   	 */
+
++#ifndef HIDE_V4
+ 	ip_init();
+
+ 	tcp_v4_init(&inet_family_ops);
++#endif
+
+ 	/* Setup TCP slab cache for open requests. */
+ 	tcp_init();
+@@ -1078,7 +1083,9 @@
+ 	 *	Set the ICMP layer up
+ 	 */
+
++#ifndef HIDE_V4
+ 	icmp_init(&inet_family_ops);
++#endif
+
+ 	/*
+ 	 *	Initialise the multicast router
+@@ -1093,7 +1100,9 @@
+ 	if(init_ipv4_mibs())
+ 		printk(KERN_CRIT "inet_init: Cannot init ipv4 mibs\n"); ;
+ 	
++#ifndef HIDE_V4
+ 	ipv4_proc_init();
++#endif
+
+ 	ipfrag_init();
+
+-- 
+| Andreas Maier               Paris-Lodron University of Salzburg   |
+| (andi [at] cosy.sbg.ac.at)  Department of Scientific Computing    |
+| Tel. +43/662/8044-6339      Jakob Haringerstr. 2                  |
+| Fax. +43/662/8044-172       5020 Salzburg / Austria, Europe       |
 

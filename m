@@ -1,41 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314083AbSFXPKO>; Mon, 24 Jun 2002 11:10:14 -0400
+	id <S314085AbSFXPN4>; Mon, 24 Jun 2002 11:13:56 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314078AbSFXPKN>; Mon, 24 Jun 2002 11:10:13 -0400
-Received: from n123.ols.wavesec.net ([209.151.19.123]:14209 "EHLO bug.ucw.cz")
-	by vger.kernel.org with ESMTP id <S314083AbSFXPKM>;
-	Mon, 24 Jun 2002 11:10:12 -0400
-Date: Sat, 22 Jun 2002 20:27:12 +0200
-From: Pavel Machek <pavel@suse.cz>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: Patrick Mansfield <patmans@us.ibm.com>, Andries Brouwer <aebr@win.tue.nl>,
-       Martin Schwenke <martin@meltin.net>, Kurt Garloff <garloff@suse.de>,
-       Linux kernel list <linux-kernel@vger.kernel.org>,
-       Linux SCSI list <linux-scsi@vger.kernel.org>,
-       Patrick Mochel <mochel@osdl.org>
-Subject: Re: [PATCH] /proc/scsi/map
-Message-ID: <20020622182712.GC105@elf.ucw.cz>
-References: <20020620105233.A5506@eng2.beaverton.ibm.com> <Pine.LNX.4.44.0206201133180.8225-100000@home.transmeta.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0206201133180.8225-100000@home.transmeta.com>
-User-Agent: Mutt/1.3.28i
-X-Warning: Reading this can be dangerous to your mental health.
+	id <S314149AbSFXPNz>; Mon, 24 Jun 2002 11:13:55 -0400
+Received: from nycsmtp1fb.rdc-nyc.rr.com ([24.29.99.76]:33809 "EHLO si.rr.com")
+	by vger.kernel.org with ESMTP id <S314138AbSFXPNz>;
+	Mon, 24 Jun 2002 11:13:55 -0400
+Message-ID: <3D173755.8030806@si.rr.com>
+Date: Mon, 24 Jun 2002 11:14:29 -0400
+From: Frank Davis <fdavis@si.rr.com>
+Reply-To: fdavis@si.rr.com
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:1.0rc2) Gecko/20020512 Netscape/7.0b1
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Jeff Garzik <jgarzik@mandrakesoft.com>
+CC: "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] 2.5.24 : drivers/net/defxx.c
+References: <Pine.GSO.3.96.1020624103237.22509E-100000@delta.ds2.pg.gda.pl> <3D172A9D.2090904@mandrakesoft.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+According to 
+http://www.compaq.com/products/quickspecs/10477_na/10477_na.HTML
 
-> I personally think that the biggest problem with driverfs is it's lack of
-> a 2.4.x counterpart. Although the filesystem itself should be fairly
-> easy
+it explictly states 32-bit DMA addressing. It doesn't state anything to 
+suggest 48-bit addressing, which I would think it would if it were possible.
 
-Well, the thing just does not exist in 2.4.X. I can't see how this can
-be helped. [It would be usefull. This way it is close to impossible to
-make S3 work nicely in 2.4.X.]
-									Pavel
--- 
-(about SSSCA) "I don't say this lightly.  However, I really think that the U.S.
-no longer is classifiable as a democracy, but rather as a plutocracy." --hpa
+Regards,
+Frank
+
+Jeff Garzik wrote:
+> Maciej W. Rozycki wrote:
+>  >  It's possible DEFPA is not limited to 32-bit addressing.  The board was
+>  > designed with Alpha in mind, so it's likely it can address more (and a
+>  > brief look at the driver reveals there is room for 48 bits of address in
+>  > descriptor entries).
+>  >
+>  >  Has anyone seen documentation for the board?
+> 
+> 
+> Until we find the docs, I think the patch is fair...
+> 
+>     Jeff
+> 
+> 
+> 
+> 
+
+

@@ -1,33 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271996AbRHVNIt>; Wed, 22 Aug 2001 09:08:49 -0400
+	id <S271995AbRHVNEj>; Wed, 22 Aug 2001 09:04:39 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271997AbRHVNIj>; Wed, 22 Aug 2001 09:08:39 -0400
-Received: from smtp3.cern.ch ([137.138.131.164]:42206 "EHLO smtp3.cern.ch")
-	by vger.kernel.org with ESMTP id <S271996AbRHVNIa>;
-	Wed, 22 Aug 2001 09:08:30 -0400
-To: "David S. Miller" <davem@redhat.com>
-Cc: alan@lxorguk.ukuu.org.uk, linux-kernel@vger.kernel.org
-Subject: Re: Qlogic/FC firmware
-In-Reply-To: <E15ZDQd-00085r-00@the-village.bc.nu> <d3itfh8j13.fsf@lxplus015.cern.ch> <20010821.094227.57162632.davem@redhat.com>
-From: Jes Sorensen <jes@sunsite.dk>
-Date: 22 Aug 2001 15:08:03 +0200
-In-Reply-To: "David S. Miller"'s message of "Tue, 21 Aug 2001 09:42:27 -0700 (PDT)"
-Message-ID: <d3zo8smedo.fsf@lxplus050.cern.ch>
-User-Agent: Gnus/5.070096 (Pterodactyl Gnus v0.96) Emacs/20.4
+	id <S271996AbRHVNEU>; Wed, 22 Aug 2001 09:04:20 -0400
+Received: from web10901.mail.yahoo.com ([216.136.131.37]:49925 "HELO
+	web10901.mail.yahoo.com") by vger.kernel.org with SMTP
+	id <S271995AbRHVNEN>; Wed, 22 Aug 2001 09:04:13 -0400
+Message-ID: <20010822130428.77456.qmail@web10901.mail.yahoo.com>
+Date: Wed, 22 Aug 2001 06:04:28 -0700 (PDT)
+From: Brad Chapman <kakadu_croc@yahoo.com>
+Subject: brlock_is_locked()?
+To: linux-kernel@vger.kernel.org
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/mixed; boundary="0-1771960962-998485468=:76457"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> "David" == David S Miller <davem@redhat.com> writes:
+--0-1771960962-998485468=:76457
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-David> If the firmware you point to is indeed suitably licensed, we
-David> should put it into the tree.  If what you're asking me to do is
-David> take care of this, no problem.
+Everyone,
 
-Well I was offering you a solution to your problem. Whether you want
-to take it or not is really up to you. I can live with the driver not
-shipping any firmware image, but it sounds like Sparc users can't.
+	Is there a politically correct way to determine if a brlock
+is in the locked or unlocked state, i.e. with something like this:
 
-Jes
+restart:
+	if (brlock_is_locked(BR_NETPROTO_LOCK)) {
+		CRITICAL_SECTION
+		br_write_unlock_bh(BR_NETPROTO_LOCK);
+	}
+	else {
+		/* Let's get dizzy */
+		br_write_lock_bh(BR_NETPROTO_LOCK);
+		goto restart;
+	}
+
+Brad
+
+=====
+Brad Chapman
+
+Permanent e-mail: kakadu_croc@yahoo.com
+Current e-mail: kakadu@adelphia.net
+
+Reply to the address I used in the message to you,
+please!
+
+__________________________________________________
+Do You Yahoo!?
+Make international calls for as low as $.04/minute with Yahoo! Messenger
+http://phonecard.yahoo.com/
+--0-1771960962-998485468=:76457--

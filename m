@@ -1,52 +1,94 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265722AbTFSBrS (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 Jun 2003 21:47:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265731AbTFSBrR
+	id S265695AbTFSBtg (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 Jun 2003 21:49:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265696AbTFSBtg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 Jun 2003 21:47:17 -0400
-Received: from lightning.hereintown.net ([141.157.132.3]:10934 "EHLO
-	lightning.hereintown.net") by vger.kernel.org with ESMTP
-	id S265722AbTFSBrF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 Jun 2003 21:47:05 -0400
-Message-ID: <3EF12031.8020709@hereintown.net>
-Date: Wed, 18 Jun 2003 22:30:09 -0400
-From: Chris Meadors <clubneon@hereintown.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3.1) Gecko/20030615
+	Wed, 18 Jun 2003 21:49:36 -0400
+Received: from gateway-1237.mvista.com ([12.44.186.158]:48376 "EHLO
+	av.mvista.com") by vger.kernel.org with ESMTP id S265695AbTFSBtT
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 18 Jun 2003 21:49:19 -0400
+Message-ID: <3EF119AD.9050000@mvista.com>
+Date: Wed, 18 Jun 2003 19:02:21 -0700
+From: george anzinger <george@mvista.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2) Gecko/20021202
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Re: glibc compiling with kernel 2.5.70-bk17
-References: <3EF10F3E.1090308@cern.ch> <3EF11080.5060507@cox.net>
-In-Reply-To: <3EF11080.5060507@cox.net>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Scanner: exiscan for exim4 (http://duncanthrax.net/exiscan/) *19SojW-0007dY-14*weNKX8ZlKdw*
+To: "Perez-Gonzalez, Inaky" <inaky.perez-gonzalez@intel.com>
+CC: "'Andrew Morton'" <akpm@digeo.com>,
+       "'joe.korty@ccur.com'" <joe.korty@ccur.com>,
+       "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>,
+       "'mingo@elte.hu'" <mingo@elte.hu>
+Subject: Re: O(1) scheduler seems to lock up on sched_FIFO and sched_RR ta
+ sks
+References: <A46BBDB345A7D5118EC90002A5072C780DD16D38@orsmsx116.jf.intel.com>
+In-Reply-To: <A46BBDB345A7D5118EC90002A5072C780DD16D38@orsmsx116.jf.intel.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Kevin P. Fleming wrote:
+Perez-Gonzalez, Inaky wrote:
+>>From: Andrew Morton [mailto:akpm@digeo.com]
+>>
+>>Various things like character drivers do rely upon keventd services.  So
 > 
-> Yes, the kernel headers are currently borked for compiling userspace C 
-> libraries. The fix is going to take either a large effort to get a 
-> sanitized set of userspace kernel headers created, or someone to be 
-> willing to accept patches that fix the problems with the existing 
-> headers even though userspace is not supposed to be using them.
+> it
+> 
+>>is possible that bash is stuck waiting on keyboard input, but there is no
+>>keyboard input because keventd is locked out.
+>>
+>>I'll take a closer look at this, see if there is a specific case which can
+>>be fixed.
+>>
+>>Arguably, keventd should be running max-prio RT because it is a kernel
+>>service, providing "process context interrupt service".
+> 
+> 
+> Now that we are at that, it might be wise to add a higher-than-anything
+> priority that the kernel code can use (what would be 100 for user space,
+> but off-limits), so even FIFO 99 code in user space cannot block out
+> the migration thread, keventd and friends.
 
-I did get glibc 2.3.2 compiled with gcc 3.3 against the 2.5.70 headers 
-with only 3 changes made to the glibc source.
+Wait a bit (or even a byte) here.  I think the proper thing to do, IF 
+we want to go down this road, is to seperate out the various 
+subsystems and give them each their own kernel task or workqueue. 
+Then  those who need to could adjust, for example, network code to run 
+after real time process control and prior to print jobs, priority 
+wise, that is.  Likewise, you could adjust the console access to be 
+higher priority than the network so that we call always talk to the 
+system.  If you give any kernel thread an untouchable priority, you 
+might just as well move the work back to a bottom half or even the 
+interrupt code.
 
-The result on the other hand wasn't pretty.  Most programs did run fine, 
-"ls" was not one of them.  It would segfault.  (Note to self: If glibc's 
-"make check" fails, don't install it.)
-
-Your first comment is something I had wondered about for a while. A 
-stable set of userspace kernel headers. That would be nice.  Of course 
-changes could be made to reflect new kernel interfaces.  So they should 
-still be distributed with the kernel source.  Then glibc could be 
-compiled against those updates, and the headers installed as the system 
-default.  But it wouldn't be so forbidden for userspace to touch them.
+-g
+> 
+> 
+>>IIRC, Andrea's kernel runs keventd as SCHED_FIFO.  I've tried to avoid
+>>making this change for ideological reasons ;) Userspace is more important
+>>than the kernel and the kernel has no damn right to be saying "oh my stuff
+>>is so important that it should run before latency-critical user code".
+> 
+> 
+> I agree with that, but the consequence is kind of ugly; not that a true
+> real-time embedded process is going to be printing to the console, but 
+> it might be outputting to a serial line, so now they rely on the keventd.
+> 
+> BTW, I have seen similar problems wrt to the migration thread, where a
+> FIFO 20 process would get stuck in CPU1, that is taken by a FIFO 40
+> while CPU0 was running a FIFO 10 -- however, I am not that positive
+> that it is a migration thread problem; I blame it more on the scheduler
+> not taking into account priorities for firing the load balancer. It is
+> a tricky thingie, though. Affinity helps, in this case.
+> 
+> Iñaky Pérez-González -- Not speaking for Intel -- all opinions are my own
+> (and my fault)
+> 
+> 
 
 -- 
-Chris
+George Anzinger   george@mvista.com
+High-res-timers:  http://sourceforge.net/projects/high-res-timers/
+Preemption patch: http://www.kernel.org/pub/linux/kernel/people/rml
 

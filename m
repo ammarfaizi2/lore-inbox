@@ -1,63 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263028AbUF3WgS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263093AbUF3Ww3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263028AbUF3WgS (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 30 Jun 2004 18:36:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263032AbUF3WgS
+	id S263093AbUF3Ww3 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 30 Jun 2004 18:52:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263088AbUF3Ww3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 30 Jun 2004 18:36:18 -0400
-Received: from sasami.anime.net ([207.109.251.120]:13746 "EHLO
-	sasami.anime.net") by vger.kernel.org with ESMTP id S263028AbUF3WgQ
+	Wed, 30 Jun 2004 18:52:29 -0400
+Received: from mail.shareable.org ([81.29.64.88]:30637 "EHLO
+	mail.shareable.org") by vger.kernel.org with ESMTP id S262730AbUF3WwZ
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 30 Jun 2004 18:36:16 -0400
-X-Antispam-Origin-Id: c4dc35da7d5d290438c6d6bdb17308d1
-Date: Wed, 30 Jun 2004 15:36:15 -0700 (PDT)
-From: Dan Hollis <goemon@anime.net>
-To: linux-kernel@vger.kernel.org
-Subject: kernel 2.6.6 amd8111 apic bugs
-Message-ID: <Pine.LNX.4.44.0406301533030.28684-100000@sasami.anime.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-Greylist: Message not sent from an IPv4 address, not delayed by milter-greylist-1.3.8 (sasami.anime.net [0.0.0.0]); Wed, 30 Jun 2004 15:36:15 -0700 (PDT)
+	Wed, 30 Jun 2004 18:52:25 -0400
+Date: Wed, 30 Jun 2004 23:52:20 +0100
+From: Jamie Lokier <jamie@shareable.org>
+To: Jakub Jelinek <jakub@redhat.com>
+Cc: "David S. Miller" <davem@redhat.com>, wesolows@foobazco.org,
+       sparclinux@vger.kernel.org, ultralinux@vger.kernel.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: A question about PROT_NONE on Sparc and Sparc64
+Message-ID: <20040630225220.GA32560@mail.shareable.org>
+References: <20040630030503.GA25149@mail.shareable.org> <20040630082804.GS21264@devserv.devel.redhat.com> <20040630135419.25b843b8.davem@redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040630135419.25b843b8.davem@redhat.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Sent to linux-ide ml several weeks ago and received no response. Cc'ing to 
-linux-kernel in the hopes someone will be able to figure out whats wrong 
-with amd8111 apic.
+David S. Miller wrote:
+> On Wed, 30 Jun 2004 04:28:05 -0400
+> Jakub Jelinek <jakub@redhat.com> wrote:
+> 
+> > I believe R!X and X!R pages ought to be possible on sparc64 too,
+> > just use a different bit as "read" in the fast ITLB miss handler
+> > from the one fast DTLB miss uses.
+> 
+> That's correct.  But I have no plans to implement this
+> any time soon :-)
 
-Responses in email please as im not subscribed to the list.
+The PaX security patch already implements R!X pages on Sparc64, so you
+could just cut out that part of the patch.  Just pick out the changes
+to arch/sparc64/* and include/asm-sparc64/*:
 
--Dan
+	http://pax.grsecurity.net/pax-linux-2.6.7-200406252135.patch
 
----------- Forwarded message ----------
-Date: Mon, 14 Jun 2004 17:34:57 -0700 (PDT)
-From: Dan Hollis <goemon@anime.net>
-To: J. Ryan Earl <heretic@clanhk.org>
-Cc: Jens Axboe <axboe@suse.de>, linux-ide@vger.kernel.org
-Subject: Re: kernel 2.6.6 amd8111 dma bugs
+It appears to use exactly the technique Jakub describes, and has been tested.
 
-On Wed, 2 Jun 2004, J. Ryan Earl wrote:
-> Jens Axboe wrote:
-> >On Fri, May 28 2004, Dan Hollis wrote:
-> >>replies to email as i'm not subscribed to the list.
-> >>There seem to be regular dma timeouts:
-> >>hdc: dma_timer_expiry: dma status == 0x24
-> >>hdc: DMA interrupt recovery
-> >>hdc: lost interrupt
-> >>hda: dma_timer_expiry: dma status == 0x24
-> >>hda: DMA interrupt recovery
-> >>hda: lost interrupt
-> >>Hardware:
-> >>Opteron 140, Tyan Tomcat K8S (S2850)
-> >Try disabling ACPI (in .config or boot acpi=off iirc)
-> I had that problem, but not with ACPI, only when I forced APIC on.  It 
-> was on the VIA controller which uses the same driver.
-
-Turns out it was apic and not acpi at all. Booting with ACPI but noapic 
-and I no longer get any dma errors.
-
-Is the bug in the linux apic code or a hardware flaw in the opteron cpu? 
-Or something else?
-
--Dan
-
+-- Jamie

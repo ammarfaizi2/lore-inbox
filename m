@@ -1,52 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269621AbTHDTsy (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 4 Aug 2003 15:48:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272166AbTHDTsy
+	id S272166AbTHDTuL (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 4 Aug 2003 15:50:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272168AbTHDTuL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 4 Aug 2003 15:48:54 -0400
-Received: from pc3-cmbg5-6-cust177.cmbg.cable.ntl.com ([81.104.203.177]:58616
-	"EHLO cray") by vger.kernel.org with ESMTP id S269621AbTHDTsx (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 4 Aug 2003 15:48:53 -0400
-Date: Mon, 4 Aug 2003 20:50:58 +0100
-From: Charlie Baylis <cb-lkml@fish.zetnet.co.uk>
-To: linux-kernel@vger.kernel.org
-Cc: kernel@kolivas.org
-Subject: Re: [PATCH] O12.2int for interactivity
-Message-ID: <20030804195058.GA8267@cray.fish.zetnet.co.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.4i
+	Mon, 4 Aug 2003 15:50:11 -0400
+Received: from [209.195.52.120] ([209.195.52.120]:2974 "HELO
+	warden2.diginsite.com") by vger.kernel.org with SMTP
+	id S272166AbTHDTuH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 4 Aug 2003 15:50:07 -0400
+From: David Lang <david.lang@digitalinsight.com>
+To: Werner Almesberger <werner@almesberger.net>
+Cc: "Ihar 'Philips' Filipau" <filia@softhome.net>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Date: Mon, 4 Aug 2003 12:48:25 -0700 (PDT)
+Subject: Re: TOE brain dump
+In-Reply-To: <20030804163256.M5798@almesberger.net>
+Message-ID: <Pine.LNX.4.44.0308041243500.7534-100000@dlang.diginsite.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, 4 Aug 2003, Werner Almesberger wrote:
 
-> I tried them aggressively; irman2 and thud don't hurt here. The idle
-> detection limits both of them from gaining too much sleep_avg while waiting
-> around and they dont get better dynamic priority than 17. 
+> Ihar 'Philips' Filipau wrote:
+> >    It makes not that much sense to run kernel (especially Linux) on CPU
+> > which is optimized for handling of network packets. (And has actually
+> > several co-processors to help in this task).
+>
+> All you need to do is to make the CPU capable of running the kernel
+> (well, some of it), but it doesn't have to be particularly good at
+> running anything but the TCP/IP code. And you can still benefit
+> from most of the features of NPUs, such as a specialized memory
+> architecture, parallel data paths, accelerated operations, etc.
 
-Sounds like you've taken the teeth out of the thud program :) The original aim
-was to demonstrate what happens when a maximally interactive task suddenly
-becomes a CPU hog - similar to a web browser starting to render and causing
-intense X activity in the process. Stopping thud getting maximum priority is
-addressing the symptom, not the cause. (That's not to say the idle detection
-is a bad idea - but it's not the complete answer)
+also how many of the standard kernel features could you turn off?
+do you really need filesystems for example?
+could userspace be eliminated? (if you have some way to give the config
+commands to the kernel on the NIC and get the log messages back to the
+main kernel what else do you need?)
+a lot of the other IO buffer stuff can be trimmed back (as per
+config_embedded)
 
-What happens if you change the line
-  struct timespec st={10,50000000}; 
-to
-  struct timespec st={0,250000000}; 
+what else could be done to use the kernel features taht are wanted without
+bringin extra baggage along?
 
-and the line
-    nanosleep(&st, 0); 
-to
-    for (n=0; n<40; n++) nanosleep(&st, 0); 
-
-the idea is to do a little bit of work so that the idle detection doesn't kick
-in and thud can reach the max interactive bonus. (I haven't tried your patch
-yet to see if this change achieves this)
-
-Charlie
-
+David Lang

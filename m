@@ -1,240 +1,282 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263665AbTFHSaT (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 8 Jun 2003 14:30:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263782AbTFHSaS
+	id S263722AbTFHTav (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 8 Jun 2003 15:30:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263723AbTFHTav
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 8 Jun 2003 14:30:18 -0400
-Received: from carisma.slowglass.com ([195.224.96.167]:6 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id S263665AbTFHSaF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 8 Jun 2003 14:30:05 -0400
-Date: Sun, 8 Jun 2003 19:43:35 +0100
-From: Christoph Hellwig <hch@infradead.org>
-To: James Bottomley <James.Bottomley@steeleye.com>
-Cc: torvalds@transmeta.com, Andrew Morton <akpm@digeo.com>, greg@kroah.com,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] fix character subsystem initialisation panic
-Message-ID: <20030608194335.A11163@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	James Bottomley <James.Bottomley@steeleye.com>,
-	torvalds@transmeta.com, Andrew Morton <akpm@digeo.com>,
-	greg@kroah.com, Linux Kernel <linux-kernel@vger.kernel.org>
-References: <1055093727.1982.17.camel@mulgrave>
+	Sun, 8 Jun 2003 15:30:51 -0400
+Received: from kilmainham.stdlib.net ([65.214.160.134]:42505 "EHLO kilmainham")
+	by vger.kernel.org with ESMTP id S263722AbTFHTap (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 8 Jun 2003 15:30:45 -0400
+Date: Sun, 8 Jun 2003 20:44:22 +0100
+From: Colm =?iso-8859-15?Q?MacC=E1rthaigh?= <colm@stdlib.net>
+To: Andrew Miklas <public@mikl.as>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Linksys WRT54G and the GPL
+Message-ID: <20030608194421.GA92559@kilmainham.stdlib.net>
+References: <200306072241.23725.public@mikl.as>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-15
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <1055093727.1982.17.camel@mulgrave>; from James.Bottomley@steeleye.com on Sun, Jun 08, 2003 at 12:35:25PM -0500
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <200306072241.23725.public@mikl.as>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Jun 08, 2003 at 12:35:25PM -0500, James Bottomley wrote:
-> In 2.5.70 bk latest, I'm getting a panic related to character device
-> initialisation.  The problem seems to be that the new sysfs entries for
-> character devices require that everything now have a properly
-> initialised parent.  However, the character subsystem is set up in
-> drivers/char/mem.c as
-> 
-> __initcall(chr_dev_init);
-> 
-> However, __initcall() is the same priority as module_init(), so whether
-> character devices are initialised before their required subsystem
-> depends purely on link ordering (on parisc, we initialise devices/parisc
-> before everything else, so it is panicing reliably with this).
-> 
-> I think the fix is to convert the __initcall to subsys_initcall (patch
-> attached).  The patch allows parisc to boot properly now.
 
-This means that all the drivers initialized from chr_dev_init are
-also at subsystem level now which doesn't seem to break something
-(yet) but still is v ery confusing.  This patch converts all of
-them (except fbmem_init which is in a different directory so
-we could get link order problems) to module_init.
+[general note: please cc, I'm not on lkml]
 
+Andrew,
 
---- 1.40/drivers/char/mem.c	Sun Jun  8 14:02:24 2003
-+++ edited/drivers/char/mem.c	Sat Jun  7 22:30:30 2003
-@@ -698,17 +698,8 @@
- 				S_IFCHR | devlist[i].mode, devlist[i].name);
- 	}
- 	
--	rand_initialize();
- #if defined (CONFIG_FB)
- 	fbmem_init();
--#endif
--	tty_init();
--#ifdef CONFIG_M68K_PRINTER
--	lp_m68k_init();
--#endif
--	misc_init();
--#ifdef CONFIG_FTAPE
--	ftape_init();
- #endif
- 	return 0;
- }
---- 1.20/drivers/char/misc.c	Sat May 17 21:39:13 2003
-+++ edited/drivers/char/misc.c	Sat Jun  7 22:25:37 2003
-@@ -244,7 +244,7 @@
- EXPORT_SYMBOL(misc_register);
- EXPORT_SYMBOL(misc_deregister);
- 
--int __init misc_init(void)
-+static int __init misc_init(void)
- {
- 	create_proc_read_entry("misc", 0, 0, misc_read_proc, NULL);
- #ifdef CONFIG_MVME16x
-@@ -281,3 +281,4 @@
- 	}
- 	return 0;
- }
-+module_init(misc_init);
---- 1.33/drivers/char/random.c	Mon May  5 07:49:54 2003
-+++ edited/drivers/char/random.c	Sat Jun  7 22:23:12 2003
-@@ -1420,7 +1420,7 @@
- 	}
- }
- 
--void __init rand_initialize(void)
-+static void __init rand_initialize(void)
- {
- 	int i;
- 
-@@ -1443,6 +1443,7 @@
- 	memset(&extract_timer_state, 0, sizeof(struct timer_rand_state));
- 	extract_timer_state.dont_count_entropy = 1;
- }
-+module_init(rand_initialize);
- 
- void rand_initialize_irq(int irq)
- {
---- 1.106/drivers/char/tty_io.c	Fri Jun  6 08:36:47 2003
-+++ edited/drivers/char/tty_io.c	Sat Jun  7 22:31:23 2003
-@@ -2364,7 +2364,7 @@
-  * Ok, now we can initialize the rest of the tty devices and can count
-  * on memory allocations, interrupts etc..
-  */
--void __init tty_init(void)
-+static void __init tty_init(void)
- {
- 	strcpy(tty_cdev.kobj.name, "dev.tty");
- 	cdev_init(&tty_cdev, &tty_fops);
-@@ -2454,3 +2454,4 @@
- 	a2232board_init();
- #endif
- }
-+module_init(tty_init);
---- 1.4/drivers/char/ftape/lowlevel/ftape-init.c	Mon Feb  3 21:19:37 2003
-+++ edited/drivers/char/ftape/lowlevel/ftape-init.c	Sat Jun  7 22:28:33 2003
-@@ -55,14 +55,24 @@
- char ft_dat[] __initdata = "$Date: 1997/11/06 00:38:08 $";
- 
- 
-+#ifndef CONFIG_FT_NO_TRACE_AT_ALL
-+static int ft_tracing = -1;
-+#endif
-+
-+
- /*  Called by modules package when installing the driver
-  *  or by kernel during the initialization phase
-  */
--int __init ftape_init(void)
-+static int __init ftape_init(void)
- {
- 	TRACE_FUN(ft_t_flow);
- 
- #ifdef MODULE
-+#ifndef CONFIG_FT_NO_TRACE_AT_ALL
-+	if (ft_tracing != -1) {
-+		ftape_tracing = ft_tracing;
-+	}
-+#endif
- 	printk(KERN_INFO FTAPE_VERSION "\n");
-         if (TRACE_LEVEL >= ft_t_info) {
- 		printk(
-@@ -112,13 +122,6 @@
- #endif
- 	TRACE_EXIT 0;
- }
--
--#ifdef MODULE
--
--#ifndef CONFIG_FT_NO_TRACE_AT_ALL
--static int ft_tracing = -1;
--#endif
--
- #define FT_MOD_PARM(var,type,desc) \
- 	MODULE_PARM(var,type); MODULE_PARM_DESC(var,desc)
- 
-@@ -141,21 +144,7 @@
- 	"QIC-117 driver for QIC-40/80/3010/3020 floppy tape drives.");
- MODULE_LICENSE("GPL");
- 
--/*  Called by modules package when installing the driver
-- */
--int init_module(void)
--{
--#ifndef CONFIG_FT_NO_TRACE_AT_ALL
--	if (ft_tracing != -1) {
--		ftape_tracing = ft_tracing;
--	}
--#endif
--	return ftape_init();
--}
--
--/*  Called by modules package when removing the driver
-- */
--void cleanup_module(void)
-+static void __exit ftape_exit(void)
- {
- 	TRACE_FUN(ft_t_flow);
- 
-@@ -167,3 +156,6 @@
- 	TRACE_EXIT;
- }
- #endif /* MODULE */
-+
-+module_init(ftape_init);
-+module_exit(ftape_exit);
---- 1.3/include/linux/ftape.h	Tue Apr  1 01:55:26 2003
-+++ edited/include/linux/ftape.h	Sat Jun  7 22:26:34 2003
-@@ -199,8 +199,6 @@
- #define ABS(a)          ((a) < 0 ? -(a) : (a))
- #define NR_ITEMS(x)     (int)(sizeof(x)/ sizeof(*x))
- 
--extern int ftape_init(void);
--
- #endif  /* __KERNEL__ */
- 
- #endif
---- 1.7/include/linux/miscdevice.h	Mon Apr 21 01:21:19 2003
-+++ edited/include/linux/miscdevice.h	Sat Jun  7 22:26:22 2003
-@@ -34,8 +34,6 @@
- 
- #define TUN_MINOR	     200
- 
--extern int misc_init(void);
--
- struct miscdevice 
- {
- 	int minor;
---- 1.2/include/linux/random.h	Mon Oct 28 20:57:55 2002
-+++ edited/include/linux/random.h	Sat Jun  7 22:24:29 2003
-@@ -42,7 +42,6 @@
- 
- #ifdef __KERNEL__
- 
--extern void rand_initialize(void);
- extern void rand_initialize_irq(int irq);
- 
- extern void batch_entropy_store(u32 a, u32 b, int num);
---- 1.18/include/linux/tty.h	Mon May 26 08:19:13 2003
-+++ edited/include/linux/tty.h	Sat Jun  7 22:24:19 2003
-@@ -351,7 +351,6 @@
- 
- extern int lp_init(void);
- extern int pty_init(void);
--extern void tty_init(void);
- extern int mxser_init(void);
- extern int moxa_init(void);
- extern int ip2_init(void);
+I was involved in a similar such action with Dell, though I had somewhat
+different approach, but nevertheless I'm going to recount my experiences
+as it may be useful for the purposes of comparison. Others: mark as read
+now if you don't like long mails.
+
+Early in the year, I purchased a nice new Dell Laptop, for running Linux
+on, of course. Since it saved me money, I bought a Dell TrueMobile 1184
+Access Point/Router at the same time.
+
+ http://tinyurl.com/ds6i (accessories.us.dell.com)
+
+ http://tinyurl.com/ds6d (support.ap.dell.com)
+
+Give an impression of the product. Being a Network Engineer, I felt
+compelled to fingerprint the device, very quickly finding that it
+ran telnet on port 333, and after loging in (using the root username,
+and the admin password), found that it was running armlinux:
+
+# cat /proc/version
+
+Linux version 2.2.14-v1.9 (root@localhost.localdomain) (gcc version
+2.9-vLinux-armtool-0523) #5357 Sat Jan 25 17:39:42 CST 2003
+
+# cat /proc/cpuinfo   
+Processor       : S3C4510/SEC arm7tdmi rev 0
+BogoMips        : 44.24
+Hardware        : <NULL>
+
+Other GPL software was abundant, including ipchains, busybox .. and
+other things you would expect. Running Linux of course pleased me,
+because it meant I put it to some real use (currently it's also
+my house print server for example) as I had a self-built router
+I wasnt going to stop using (I mean how could anyone live without
+IPv6?). 
+
+After some discussion on ILUG (www.linux.ie), I researched it further,
+I double-checked, and none of the documentation Dell sent me, nor the
+software CD, nor the website indicated it was using GPL software, and
+did provide me with a copy of the license, or a written offer with a
+means to obtain the source. I'm not a licensing hack, and I almost
+would have been prepared to just leave it be had the Documentation not
+said:
+
+"Requirements:
+  
+  You must have at least one computer that has the following: 
+
+   1. Running Microsoft(R) Windows(R) 98, 98SE, Windows Me,
+      Windows 2000, Windows XP Home or XP Professional (
+      Windows 2000 or XP require you to have administrator
+      privileges on your computer in order to configure the
+      router - see the computers users' guide for more information)
+   2. A CD drive
+   3. An active Internet connection"
+
+Which supremely annoyed me, as of course all you need is *any* 
+IP capable system for the router to work, it just uses plain NAT,
+nothing Windows specific, and you can use any browser to configure
+it's luser interface. So after some grepping:
+
+# cat /etc/hosts
+127.0.0.1               vLinux/Vitals_System_Inc.
+  
+They appear to have a website at:
+  
+  http://www.vitalsystem.com/
+
+Though
+
+  http://www.onsoftwarei.com/
+  
+seem to be the people who license support vlinux:
+
+  http://www.onsoftwarei.com/product/prod_vlinux.htm
+
+I'm sure there are people on-list with much more in-depth knowlege of
+these companies.
+
+Anyway, since in my case, Dell were the direct vendor, I contacted them
+first. After some number chasing, I was passed to Dell Ireland's Legal
+Director, who got on to the Dell US guys. 
+
+I have to say that allthough it took some time for the issue to be
+resolved, Dell were abosulutely brilliant about it, and kept me
+informed, they were extremely friendly and helpful about the request.
+
+The original mail I sent Dell is available at:
+
+ http://www.redbrick.dcu.ie/~colmmacc/TrueMobile-1184/dell.letter
+
+But after that, most of the action happened on phone. 6 weeks
+later, Seamus (Dell Legal) was able to respond positively to my
+request, and I got a CD including the source free of Charge, and
+a nice letter:
+
+ http://www.redbrick.dcu.ie/~colmmacc/TrueMobile-1184/dell.jpg
+
+The contents are available online, and if anyone wants it, mails
+me and I'll give you the URL, but to save me bandwidth - it's
+vanilla Linux 2.2.14 with the 2.2.14-rmk4 patch, nothing bespoke.
+But now that I had the configuration, I could actually build 
+a replacement IPv6 capable kernel. 
+
+Dell have also reviewed their procedures to ensure that this kind
+of thing does not happen again, and from talking to Dell Legal I
+got the impression that it was the result of suppliers not fully
+informing Dell about Licensing provisions. 
+
+Dell now ship a copy of the source and the license on the CD that
+comes with the TrueMobile kit. I really have to make clear here,
+Dell did amazingly well, they researched it, kept me informed,
+responded positively, and rectified procedures. It's a great example
+of how to do it right. 
+
+So, I don't know what the linksys situation is fully, but I do hope
+that this report may help you in that it gives an example of a
+near-identical situation having been resolved successfully in the past.
+
+I also know from Dell Legal, that my request generated a lot of 
+e-mail internal to Dell legal, so I'm sure they researched it very
+well. If Dell Legal come to the conclusion that this is what they
+must do, that certainly might be a useful example to point Linksys
+at.
+
+On Sat, Jun 07, 2003 at 10:41:23PM -0400, Andrew Miklas wrote:
+> Sorry for the very lengthly posting, but I want to be as precise as possible 
+> in describing this problem.
+> 
+> Awhile ago, I mentioned that the Linksys WRT54G wireless access point used 
+> several GPL projects in its firmware, but did not seem to have any of the 
+> source available, or acknowledge the use of the GPLed software.  Four weeks 
+> ago, I spoke with an employee at Linksys who confirmed that the system did 
+> use Linux, and also mentioned that he would work with his management to 
+> ensure that the source was released.  Unfortunately, my e-mails to this 
+> individual over the past three weeks have gone unanswered.  Of course, I also 
+> tried contacting Linksys through their common public e-mail accounts 
+> (pr@linksys.com, mailroom@linksys.com) to no avail.
+> 
+> However, it is hard for me to know if my contact in the company has just gone 
+> on a three week vacation (and not set an auto-responder), or has been asked 
+> to not answer anymore mail on this subject.  Also, I should note that I don't 
+> own this product, so I can't determine if the source is shipped with it.  
+> However, I have gone through all the available information on the Linksys 
+> website, and can find no reference to the GPL, Linux (as it relates to this 
+> product), or the firmware source code.  Also, the firmware binary (see below) 
+> is freely available from their website.  There is no link from the download 
+> page to the source, or any mention of Linux or the GPL.  Finally, it would be 
+> strange if the source was included in the physical package, as my contact at 
+> Linksys was initially unaware Linux was used in this product.
+> 
+> 
+> 
+> The following steps can be used to determine the exact nature of the possible 
+> GPL violation.
+> 
+> 1. Go to the following URL:
+>     http://www.linksys.com/download/firmware.asp?fwid=178
+> 
+> 2. Download the "firmware upgrade files":     
+> ftp://ftp.linksys.com/pub/network/WRT54G_1.02.1_US_code.bin
+>     (MD5SUM: b54475a81bc18462d3754f96c9c7cc0f)
+> 
+> 3. While it is downloading, confirm that there is nothing on the webpage to 
+> indicate that this binary contains GPLed software.
+> 
+> 4. Once the download is complete, copy the contents of the file from offset 
+> 0xC0020 onward into a new file.
+>     dd if=WRT54G_1.02.1_US_code.bin of=test.dump skip=24577c bs=32c
+> 
+> 5. Notice that this file is an image of a CramFS filesystem.
+>     Mount it.
+> 
+> 6. Explore the filesystem.  You will notice that the system appears to be 
+> based on Linux 2.4.5.
+>    Incidentally, there is at least one other GPLed project in the firmware: 
+> the BusyBox userland component: (http://www.busybox.net/)
+> 
+> 7. The Linux kernel (I think) is mixed up with a bunch of other stuff in:
+>     bin/boot.bin
+> 
+> 
+> 
+> You might want to know why I am interested in getting the code for the kernel 
+> used in this device.
+> 
+> There's been some discussion here about Linux's lack of wireless support for a 
+> few of the newer 802.11b and (nearly?) all 802.11g chips.  Incidentally, 
+> Linux has excellent support for at least one manufacturer's wireless family.  
+> The following Broadcom chips all appear to be supported under Linux -- if you 
+> happen to be running Linux on a MIPS processor in a Linksys router:
+> 
+> Broadcom BCM4301 Wireless 802.11b Controller
+> Broadcom BCM4307 Wireless 802.11b Controller
+> Broadcom BCM4309 Wireless 802.11a Controller
+> Broadcom BCM4309 Wireless 802.11b Controller
+> Broadcom BCM4309 Wireless 802.11 Multiband Controller
+> Broadcom BCM4310 Wireless 802.11b Controller
+> Broadcom BCM4306 Wireless 802.11b/g Controller
+> Broadcom BCM4306 Wireless 802.11a Controller
+> Broadcom BCM4306 Wireless 802.11 Multiband Controller
+> 
+> This list was produced by running strings on:
+> lib/modules/2.4.5/kernel/drivers/net/wl/wl.o
+> 
+> I am trying to determine exactly how tightly coupled these drivers are to the 
+> kernel.
+> 
+> As an aside, I know that some wireless companies have been hesitant of 
+> releasing open source drivers because they are worried their radios might be 
+> pushed out of spec.  However, if the drivers are already written, would there 
+> be any technical reason why they could not simply be recompiled for Intel 
+> hardware, and released as binary-only modules?
+> 
+> 
+> 
+> Finally, I know that traditionally, Linux has allowed binary-only modules.  
+> However, I was always under the impression that this required that the final 
+> customer be allowed to remove them at will.  That is to say, you couldn't 
+> choose to implement a portion of the kernel critical to the system's 
+> operation in a module, and then not release that module under the GPL.  In 
+> this particular case, I would argue that the wireless drivers are critical to 
+> this device's operation (after all, it is a wireless access point).  In 
+> addition, the final user in this case really can't just "rmmod" the wireless 
+> driver.
+> 
+> The Broadcom driver, kernel, and really everything else in the firmware, are 
+> (IMHO anyways) being used to form a discrete package -- the WRT54Gs firmware.  
+> Does/should this have any implication on whether the Broadcom wireless module 
+> must be covered by the GPL?
+> 
+> 
+> 
+> I would be very interested in knowing if I am mistaken in any of my claims or 
+> conclusions, and if not, how I should proceed in getting this issue resolved.
+> 
+> 
+> -- Andrew Miklas
+> 
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
+> 
+
+-- 
+Colm MacCárthaigh                        Public Key: colm+pgp@stdlib.net
+colm@stdlib.net					  http://www.stdlib.net/

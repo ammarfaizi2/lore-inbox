@@ -1,145 +1,120 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262516AbREZXAG>; Sat, 26 May 2001 19:00:06 -0400
+	id <S262590AbREZXGg>; Sat, 26 May 2001 19:06:36 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261458AbREZW7I>; Sat, 26 May 2001 18:59:08 -0400
-Received: from zeus.kernel.org ([209.10.41.242]:20647 "EHLO zeus.kernel.org")
-	by vger.kernel.org with ESMTP id <S261968AbREZW65>;
-	Sat, 26 May 2001 18:58:57 -0400
-Date: Sat, 26 May 2001 19:06:24 +0300 (EEST)
-From: Doru Petrescu <pdoru@kappa.ro>
-Reply-To: pdoru@kappa.ro
-To: linux-kernel@vger.kernel.org
-Subject: Re: Unable to open an initial console (on SMP machine)
-In-Reply-To: <Pine.LNX.4.21.0105261610140.10848-400000@bigD.kappa.ro>
-Message-ID: <Pine.LNX.4.21.0105261858380.11060-100000@bigD.kappa.ro>
+	id <S262558AbREZXFH>; Sat, 26 May 2001 19:05:07 -0400
+Received: from panic.ohr.gatech.edu ([130.207.47.194]:52685 "HELO
+	havoc.gtf.org") by vger.kernel.org with SMTP id <S261892AbREZXED>;
+	Sat, 26 May 2001 19:04:03 -0400
+Message-ID: <3B102822.625E01DF@mandrakesoft.com>
+Date: Sat, 26 May 2001 18:03:14 -0400
+From: Jeff Garzik <jgarzik@mandrakesoft.com>
+Organization: MandrakeSoft
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.5-pre6 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: "Ingo T. Storm" <it@lapavoni.de>
+Cc: linux-kernel@vger.kernel.org, rth@twiddle.net,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: [PATCH] Re: 2.4.5 does not link on Ruffian (alpha)
+In-Reply-To: <3B0BFE90.CE148B7@kjist.ac.kr> <20010523210923.A730@athlon.random> <022e01c0e5fc$39ac0cf0$2e2ca8c0@buxtown.de>
+Content-Type: multipart/mixed;
+ boundary="------------AE1652C99B0AD6FA6DF99493"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ok, here are some more details:
+This is a multi-part message in MIME format.
+--------------AE1652C99B0AD6FA6DF99493
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 
-NO, i do not use devfs.
-thre is no problem at boot time. /dev directory is where it was supposed
-to be. /sbin/ /etc and everything else is OK.
-nothing is wrong with /dev directory. everything else WORKS.
+"Ingo T. Storm" wrote:
+> I just tried to compile 2.4.5 on a Ruffian. With CPU selection "generic" it
+> fails when linking the kernel (see below). With CPU=Ruffian, it compiles and
+> links fine. Haven't tried booting yet, 'cause the machine is some 20 miles
+> away from here.
 
-just that /dev/console /dev/ttyX and /dev/ttyXX and /dev/vcs* stop
-working:
+> ld  -r -o kernel.o entry.o traps.o process.o osf_sys.o irq.o irq_alpha.o
+> signal.
+> o setup.o ptrace.o time.o semaphore.o alpha_ksyms.o irq_i8259.o irq_srm.o
+> es1888
+> .o smc37c669.o smc37c93x.o ns87312.o pci.o pci_iommu.o core_apecs.o
+> core_cia.o c
+> ore_irongate.o core_lca.o core_mcpcia.o core_polaris.o core_t2.o
+> core_tsunami.o
+> core_titan.o sys_alcor.o sys_cabriolet.o sys_dp264.o sys_eb64p.o sys_eiger.o
+> sys
+> _jensen.o sys_miata.o sys_mikasa.o sys_nautilus.o sys_titan.o sys_noritake.o
+> sys
+> _rawhide.o sys_ruffian.o sys_rx164.o sys_sable.o sys_sio.o sys_sx164.o
+> sys_takar
+> a.o sys_wildfire.o core_wildfire.o irq_pyxis.o
+> sys_dp264.o: In function `tsunami_inb':
+> sys_dp264.c(.text+0x440): multiple definition of `tsunami_inb'
+> core_tsunami.o(.text+0x500):core_tsunami.c: first defined here
 
-this is what i geT:
-root@k:~# cat /dev/console
-cat: /dev/console: No such device
-root@k:~# cat /dev/tty1
-cat: /dev/tty1: No such device
-root@k:~# cat /dev/vcs1
-cat: /dev/vcs1: No such device or address
+I used the attached patch to fix the problem.
 
-what amuse me is that i get different responses ... :-)
+(note the tty.h changes are unrelated...  they are preparing for when
+sched.h no longer includes tty.h, fixing a nasty include loop)
 
-also, as far as i can see the major/minor IS ok ... (see below)
+-- 
+Jeff Garzik      | Disbelief, that's why you fail.
+Building 1024    |
+MandrakeSoft     |
+--------------AE1652C99B0AD6FA6DF99493
+Content-Type: text/plain; charset=us-ascii;
+ name="alpha.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="alpha.patch"
 
------------------------------------------
-/proc/devices
-/proc/tty/drivers
+Index: arch/alpha/kernel/process.c
+===================================================================
+RCS file: /cvsroot/gkernel/linux_2_4/arch/alpha/kernel/process.c,v
+retrieving revision 1.1.1.14
+diff -u -r1.1.1.14 process.c
+--- arch/alpha/kernel/process.c	2001/05/25 01:09:03	1.1.1.14
++++ arch/alpha/kernel/process.c	2001/05/26 22:00:59
+@@ -28,6 +28,7 @@
+ #include <linux/mman.h>
+ #include <linux/elfcore.h>
+ #include <linux/reboot.h>
++#include <linux/tty.h>
+ #include <linux/console.h>
+ 
+ #include <asm/reg.h>
+Index: arch/alpha/kernel/sys_dp264.c
+===================================================================
+RCS file: /cvsroot/gkernel/linux_2_4/arch/alpha/kernel/sys_dp264.c,v
+retrieving revision 1.1.1.10
+diff -u -r1.1.1.10 sys_dp264.c
+--- arch/alpha/kernel/sys_dp264.c	2001/05/26 04:03:59	1.1.1.10
++++ arch/alpha/kernel/sys_dp264.c	2001/05/26 22:01:00
+@@ -16,7 +16,7 @@
+ #include <linux/pci.h>
+ #include <linux/init.h>
+ 
+-#define __EXTERN_INLINE inline
++#define __EXTERN_INLINE extern inline
+ #include <asm/io.h>
+ #include <asm/core_tsunami.h>
+ #undef  __EXTERN_INLINE
+Index: arch/alpha/kernel/sys_sio.c
+===================================================================
+RCS file: /cvsroot/gkernel/linux_2_4/arch/alpha/kernel/sys_sio.c,v
+retrieving revision 1.1.1.2
+diff -u -r1.1.1.2 sys_sio.c
+--- arch/alpha/kernel/sys_sio.c	2000/10/30 19:47:55	1.1.1.2
++++ arch/alpha/kernel/sys_sio.c	2001/05/26 22:01:00
+@@ -17,6 +17,7 @@
+ #include <linux/sched.h>
+ #include <linux/pci.h>
+ #include <linux/init.h>
++#include <linux/tty.h>
+ 
+ #include <asm/compiler.h>
+ #include <asm/ptrace.h>
 
-/proc/devices is missing one line, the last one: 
-	"unknown              /dev/vc/%d      4    1-63 console"
-
-
---------------------------------------------
-
-root@k:~# cat /proc/devices
-Character devices:
-  1 mem
-  2 pty
-  3 ttyp
-  4 ttyS
-  5 cua
-  7 vcs
- 10 misc
- 36 netlink
- 89 i2c
-128 ptm
-136 pts
-162 raw
-
-Block devices:
-  1 ramdisk
-  2 fd
-  3 ide0
-  7 loop
- 22 ide1
-
-root@k:/proc/tty# cat drivers
-                     /dev/cua        5  64-127 serial:callout
-                     /dev/ttyS       4  64-127 serial
-pty_slave            /dev/pts      136   0-255 pty:slave
-pty_master           /dev/ptm      128   0-255 pty:master
-pty_slave            /dev/ttyp       3   0-255 pty:slave
-pty_master           /dev/pty        2   0-255 pty:master
-/dev/vc/0            /dev/vc/0       4       0 system:vtmaster
-/dev/ptmx            /dev/ptmx       5       2 system
-/dev/console         /dev/console    5       1 system:console
-/dev/tty             /dev/tty        5       0 system:/dev/tty
-
-root@k:/proc/tty# cat ldiscs
-n_tty       0
-
-
-root@k:/proc# cd /dev
-root@k:/dev# l console
-   0 crw-------   1 root     tty        5,   1 Apr 21  1999 console
-root@k:/dev# l tty1
-   0 crw--w--w-   1 root     root       4,   1 May  4 12:47 tty1
-root@k:/dev# l vcs1
-   0 crw--w--w-   1 root     tty        7,   1 May  6  1996 vcs1
-
-
-
-Best regards,
-Doru Petrescu
-
-
-
-On Sat, 26 May 2001, Doru Petrescu wrote:
-
-> 
-> starting with kernels 2.4.5-preX I get this at startup:
-> 
-> 	Warning: unable to open an initial console.
-> 
-> then none of the /dev/vcs* /dev/tty* doesn't work.
-> 
-> 
-> 
-> then i get this in syslog:
-> 	May 26 16:10:19 www modprobe: modprobe: Can't open dependencies file /lib/modules/2.4.5/modules.dep (No such file or directory)
-> 	May 26 16:10:19 www /sbin/agetty[383]: /dev/tty5: cannot open as standard input: No such device
-> 
-> lucky me that this machine is a network server and most (all) of the
-> administrative tasks are done via SSH ...
-> 
-> I attache the .config file and the dmesg results and the /proc/pci file  ...
-> 
-> i don't understand what is WORNG ... it worked BEFORE ...
-> i have " Virtual terminal " and "Support for console on virtual
-> terminal "  enabled ...
-> 
-> anybody has any idea ?
-> 
-> also i see an "WARNING: unexpected IO-APIC, please mail" ... can this be
-> the problem ?!? 
-> 
-> 
-> Best regards,
-> ------
-> Doru Petrescu
-> KappaNet - Senior Software Engineer
-> E-mail: pdoru@kappa.ro		 LINUX - the choice of the GNU generation
-> 
-> 
-> 
-> 
+--------------AE1652C99B0AD6FA6DF99493--
 

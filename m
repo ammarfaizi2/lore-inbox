@@ -1,44 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262682AbTD1MM7 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 28 Apr 2003 08:12:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263530AbTD1MM7
+	id S263540AbTD1MRf (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 28 Apr 2003 08:17:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263539AbTD1MRf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 28 Apr 2003 08:12:59 -0400
-Received: from dns.toxicfilms.tv ([150.254.37.24]:14275 "EHLO
-	dns.toxicfilms.tv") by vger.kernel.org with ESMTP id S262682AbTD1MM6
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 28 Apr 2003 08:12:58 -0400
-Date: Mon, 28 Apr 2003 14:25:08 +0200 (CEST)
-From: Maciej Soltysiak <solt@dns.toxicfilms.tv>
-To: Oliver Feiler <kiza@gmx.net>
-Cc: Matti Aarnio <matti.aarnio@zmailer.org>, linux-kernel@vger.kernel.org
-Subject: Re: Mailinglist problems?
-In-Reply-To: <200304281335.54932.kiza@gmx.net>
-Message-ID: <Pine.LNX.4.51.0304281422500.412@dns.toxicfilms.tv>
-References: <200304281223.53020.kiza@gmx.net> <20030428112434.GH24892@mea-ext.zmailer.org>
- <200304281335.54932.kiza@gmx.net>
+	Mon, 28 Apr 2003 08:17:35 -0400
+Received: from ns.suse.de ([213.95.15.193]:21005 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S263540AbTD1MRe (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 28 Apr 2003 08:17:34 -0400
+To: Andreas Jaeger <aj@suse.de>
+Cc: jlnance@unity.ncsu.edu, linux-kernel@vger.kernel.org
+Subject: Re: ia32 kernel on amd64 box?
+References: <20030425214500.GA20221@ncsu.edu.suse.lists.linux.kernel>
+	<hoof2rghbs.fsf@byrd.suse.de.suse.lists.linux.kernel>
+From: Andi Kleen <ak@suse.de>
+Date: 28 Apr 2003 14:29:29 +0200
+In-Reply-To: <hoof2rghbs.fsf@byrd.suse.de.suse.lists.linux.kernel>
+Message-ID: <p734r4i4xg6.fsf@oldwotan.suse.de>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> >   Most common troubles that users have are:
-> >     - "Relaying denied"  (in its many forms
-> > 	  -->   http://vger.kernel.org/mxverify.html )
-Btw. I tried mxverify script on my SMTP.
-At the bottom it says:
+Andreas Jaeger <aj@suse.de> writes:
 
-Testing server at address: IPv6 3ffe:8320:2:18::57
+> Any 32-bit x86 kernel should work on an AMD Opteron machine.  The only
+> question is whether all drivers are supported.  Red Hat 7.2 might not
+> have support for all the hardware that is in an AMD Opteron ystem.
 
-ERROR: Failed to create AF_INET6 type socket! err='Address family not
-supported by protocol'
+Actually some things will not work with older kernels because the
+Linux kernel does explicit CPUID model checks in a few places. But it
+is relative obscure stuff and unlikely to be a problem in
+practice.
 
-I am IP6 enabled, so is my SMTP, so it appears that host the script is
-running is not ip6 enabled.
-
-Just letting you know.
-
-Regards,
-Maciej
-
+-Andi

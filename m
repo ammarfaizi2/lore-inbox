@@ -1,39 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287212AbRL2WyR>; Sat, 29 Dec 2001 17:54:17 -0500
+	id <S287200AbRL2WwH>; Sat, 29 Dec 2001 17:52:07 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287223AbRL2WyA>; Sat, 29 Dec 2001 17:54:00 -0500
-Received: from pop.gmx.de ([213.165.64.20]:9573 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id <S287218AbRL2Wxo>;
-	Sat, 29 Dec 2001 17:53:44 -0500
-Message-ID: <3C2E4934.D582AB91@gmx.de>
-Date: Sat, 29 Dec 2001 23:52:36 +0100
-From: Edgar Toernig <froese@gmx.de>
-MIME-Version: 1.0
-To: Daniel Phillips <phillips@bonn-fries.net>
-CC: Larry McVoy <lm@bitmover.com>, Timothy Covell <timothy.covell@ashavan.org>,
+	id <S287202AbRL2Wvs>; Sat, 29 Dec 2001 17:51:48 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:33028 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S287200AbRL2Wvn>; Sat, 29 Dec 2001 17:51:43 -0500
+Subject: Re: The direction linux is taking
+To: lm@bitmover.com (Larry McVoy)
+Date: Sat, 29 Dec 2001 22:58:27 +0000 (GMT)
+Cc: bcrl@redhat.com (Benjamin LaHaise), oxymoron@waste.org (Oliver Xymoron),
+        wingel@hog.ctrl-c.liu.se (Christer Weinigel),
         linux-kernel@vger.kernel.org
-Subject: Re: RFC: Linux Bug Tracking & Feature Tracking DB
-In-Reply-To: <200112290657.fBT6vMSr008000@svr3.applink.net> <20011229105525.C19306@work.bitmover.com> <3C2E14AB.69CEA694@gmx.de> <E16KRjh-0000GP-00@starship.berlin>
+In-Reply-To: <20011229140410.A13883@work.bitmover.com> from "Larry McVoy" at Dec 29, 2001 02:04:10 PM
+X-Mailer: ELM [version 2.5 PL6]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-Id: <E16KSQt-0005zf-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Daniel Phillips wrote:
+> > Wrong.  Most patches are independant, and even touch different functions.  
 > 
-> On December 29, 2001 08:08 pm, Edgar Toernig wrote:
-> > Larry McVoy wrote:
-> > >
-> > > The data in it is the current BitKeeper bug list (feel free to fix
-> > > some :-)
-> >
-> > Bah!  Debugging and patching binaries isn't fun!
-> 
-> Check the site, he provides the source.
+> Really?  And the data which shows this absolute statement to be true is
+> where?  I'm happy to believe data, but there is no data here.
 
-Just checked it again: no sources.  Only binaries.  None of them
-will run on my system.  Last time I asked for the sources my
-request was rejected.
-
-ET.
+I rarely get clashes in merges with either 2.2 or with 2.4-ac when I was
+doing it. Offsets from multiple patches to the same file happen some times
+but its very rare two people had overlapping changes and when it happened
+it almost always meant that the two of them needed to talk because they were
+fixing the same thing or adding related features.
+ 
+The big exception is Configure.help which is a nightmare for patch, and the
+one file I basically always did hand merges on

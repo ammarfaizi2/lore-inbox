@@ -1,213 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264954AbUE0S17@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264958AbUE0S17@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264954AbUE0S17 (ORCPT <rfc822;willy@w.ods.org>);
+	id S264958AbUE0S17 (ORCPT <rfc822;willy@w.ods.org>);
 	Thu, 27 May 2004 14:27:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264957AbUE0S1U
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264954AbUE0S1X
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 27 May 2004 14:27:20 -0400
-Received: from lug.demon.co.uk ([80.177.165.112]:17209 "EHLO lug.demon.co.uk")
-	by vger.kernel.org with ESMTP id S264954AbUE0SZT (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 27 May 2004 14:25:19 -0400
-From: David Johnson <dj@david-web.co.uk>
-Reply-To: linux-kernel@vger.kernel.org
-To: linux-kernel@vger.kernel.org
-Subject: Re: Can't make XFS work with 2.6.6
-Date: Thu, 27 May 2004 19:25:24 +0100
-User-Agent: KMail/1.6
-References: <200405271736.08288.dj@david-web.co.uk> <200405271854.20787.dj@david-web.co.uk> <1085680806.5311.44.camel@buffy>
-In-Reply-To: <1085680806.5311.44.camel@buffy>
-MIME-Version: 1.0
+	Thu, 27 May 2004 14:27:23 -0400
+Received: from acolyte.scowler.net ([216.254.112.45]:22477 "EHLO
+	acolyte.scowler.net") by vger.kernel.org with ESMTP id S264956AbUE0SZe
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 27 May 2004 14:25:34 -0400
+Date: Thu, 27 May 2004 14:25:31 -0400
+From: Clint Adams <schizo@debian.org>
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: "Luis R. Rodriguez" <mcgrof@ruslug.rutgers.edu>,
+       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       netdev@oss.sgi.com, prism54-devel@prism54.org,
+       debian-kernel@lists.debian.org
+Subject: Re: [Prism54-devel] Re: [PATCH 0/14] prism54: bring up to sync with prism54.org cvs rep
+Message-ID: <20040527182531.GA8942@scowler.net>
+Mail-Followup-To: Clint Adams <schizo@debian.org>,
+	Jeff Garzik <jgarzik@pobox.com>,
+	"Luis R. Rodriguez" <mcgrof@ruslug.rutgers.edu>,
+	Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+	netdev@oss.sgi.com, prism54-devel@prism54.org,
+	debian-kernel@lists.debian.org
+References: <20040524083003.GA3330@ruslug.rutgers.edu> <40B63132.4050906@pobox.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Type: Multipart/Mixed;
-  boundary="Boundary-00=_UKjtAW2frCtqmTg"
-Message-Id: <200405271925.24650.dj@david-web.co.uk>
+In-Reply-To: <40B63132.4050906@pobox.com>
+User-Agent: Mutt/1.5.5.1+cvs20040105i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> >[PATCH 8/14 linux-2.6.7-rc1] prism54: Fix prism54.org bugs 39, 73
 
---Boundary-00=_UKjtAW2frCtqmTg
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
+> I'm considering rejecting the entire series because of this obfuscation 
+> of changes, and getting you to resend with the whitespace crapola 
+> separated out.
 
-On Thursday 27 May 2004 19:00, David Aubin wrote:
-> Hi Dave,
->
->   Please include the latest copy of your .config.
-
-Attached.
-
-> Also the boot loader parameter as well. =20
-
-=46rom Grub's menu.lst:
-
-title		Debian GNU/Linux, kernel 2.6.6
-root		(hd0,0)
-kernel	/vmlinuz-2.6.6 lapic video=3Drivafb:mode:1024x768x16 root=3D/dev/hda=
-3 ro
-initrd		/initrd.img-2.6.6
-savedefault
-boot
-
-> And possibly=20
-> the validation that the root partition is of type XFS?
-
-Here's the mount output from the system running a 2.4 kernel:
-
-lug:/tmp# mount
-/dev/hda3 on / type xfs (rw)
-proc on /proc type proc (rw)
-devpts on /dev/pts type devpts (rw,gid=3D5,mode=3D620)
-tmpfs on /dev/shm type tmpfs (rw)
-/dev/hda1 on /boot type ext3 (rw)
-/dev/hda2 on /home type xfs (rw)
-/dev/sda2 on /var type xfs (rw)
-usbfs on /proc/bus/usb type usbfs (rw)
-
->   At a glance it appears that XFS is not compilied in to
-> your kernel now, if that is your root mount file type.
-
-XFS is compiled in. I really don't know what else to try...
-
-Thanks,
-David.
-
-=2D-=20
-David Johnson
-http://www.david-web.co.uk/
-
---Boundary-00=_UKjtAW2frCtqmTg
-Content-Type: application/x-gzip;
-  name="config.gz"
-Content-Transfer-Encoding: base64
-Content-Disposition: attachment;
-	filename="config.gz"
-
-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
-
---Boundary-00=_UKjtAW2frCtqmTg--
+Please at least apply the changes in the "8/14" patch, because without
+them the driver is unusable on big-endian architectures.

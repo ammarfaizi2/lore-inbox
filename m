@@ -1,92 +1,383 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268553AbUILJch@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268568AbUILJeP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268553AbUILJch (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 12 Sep 2004 05:32:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268576AbUILJch
+	id S268568AbUILJeP (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 12 Sep 2004 05:34:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268650AbUILJeP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 12 Sep 2004 05:32:37 -0400
-Received: from rproxy.gmail.com ([64.233.170.194]:12376 "EHLO mproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S268553AbUILJcd (ORCPT
+	Sun, 12 Sep 2004 05:34:15 -0400
+Received: from [211.58.254.17] ([211.58.254.17]:7149 "EHLO hemosu.com")
+	by vger.kernel.org with ESMTP id S268568AbUILJdF (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 12 Sep 2004 05:32:33 -0400
-Message-ID: <e7963922040912023274749b14@mail.gmail.com>
-Date: Sun, 12 Sep 2004 11:32:33 +0200
-From: Stefan Schweizer <sschweizer@gmail.com>
-Reply-To: Stefan Schweizer <sschweizer@gmail.com>
-To: Stefan Seyfried <seife@suse.de>, linux-kernel@vger.kernel.org
-Subject: Re: FYI: my current bigdiff
-In-Reply-To: <414415AA.8050503@suse.de>
+	Sun, 12 Sep 2004 05:33:05 -0400
+Date: Sun, 12 Sep 2004 18:33:02 +0900
+To: linux-kernel@vger.kernel.org
+Subject: [PATCH] via-velocity fixes
+Message-ID: <20040912093301.GC13359@home-tj.org>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; 
-	boundary="----=_Part_25_20649601.1094981553067"
-References: <20040909134421.GA12204@elf.ucw.cz>
-	 <e796392204091201541320aa31@mail.gmail.com> <414415AA.8050503@suse.de>
+Content-Type: multipart/mixed; boundary="JgQwtEuHJzHdouWu"
+Content-Disposition: inline
+User-Agent: Mutt/1.5.6+20040818i
+From: Tejun Heo <tj@home-tj.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-------=_Part_25_20649601.1094981553067
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+
+--JgQwtEuHJzHdouWu
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 
-On Sun, 12 Sep 2004 11:23:54 +0200, Stefan Seyfried <seife<at>suse.de> wrote:
-> What is "LeaveXBeforeSuspend"?
-> 
-> just "echo 4 > /proc/acpi/sleep" or "echo disk > /sys/power/state".
-> 
->         Stefan
-> 
+ Hello,
 
-It is an option in the hibernate-script of Bernard Blackham.
-You can find the latest Version at http://dagobah.ucc.asn.au/swsusp/script2/
+ First of all, many thanks for the driver.  I've encountered problems
+with recent updates to the driver and fixed them and some others.  I'm
+also interested in improving this driver, and having the programming
+manual would be very helpful.  Does anybody know how to obtain the
+programming manual for this chip?  Is it available online somewhere?
+Or should I contact VIA?
 
-The config is attached.
+ Thanks.
 
-LeaveXbeforesuspend just does a chvt15 before and chvt 7 after suspend.
+----------------------
+ Recent receive ring related updates to via-velocity broke the driver.
+My box lost packets, recevied duplicate truncated packets and soon
+locked into infinite error interrupt handling.  This patch fixes
+receive ring handling and some other parts of the driver.  List of
+fixes follow.
 
-------=_Part_25_20649601.1094981553067
-Content-Type: application/octet-stream; name="hibernate-disk.conf"
-Content-Transfer-Encoding: base64
-Content-Disposition: attachment; filename="hibernate-disk.conf"
+Using cpu_to_le32 on OWNED_BY_NIC is wrong.  It will produce
+0x10000000 on big endian machines while owner bitfield would still
+evaluate to 0 or 1.
 
-IyBFeGFtcGxlIGhpYmVybmF0ZS5jb25mIGZpbGUuIEFkYXB0IHRvIHlvdXIgb3duIHRhc3Rlcy4K
-IyBPcHRpb25zIGFyZSBub3QgY2FzZSBzZW5zaXRpdmUuCiMgCiMgUnVuICJoaWJlcm5hdGUgLWgi
-IGZvciBoZWxwIG9uIHRoZSBjb25maWd1cmF0aW9uIGl0ZW1zLgoKIyMjIHN3c3VzcDJfMTUgKGZv
-ciBTb2Z0d2FyZSBTdXNwZW5kIDIpCiMgVXNlU3dzdXNwMiB5ZXMKIyBSZWJvb3Qgbm8KIyBFbmFi
-bGVFc2NhcGUgeWVzCiMgRGVmYXVsdENvbnNvbGVMZXZlbCAxCiMgSW1hZ2VTaXplTGltaXQgMjAw
-CiMjIHVzZWZ1bCBmb3IgaW5pdHJkIHVzYWdlOgojIFN1c3BlbmREZXZpY2UgL2Rldi9oZGEyCiMg
-TG9hZFN1c3BlbmRNb2R1bGVzIHN1c3BlbmRfc3dhcCBzdXNwZW5kX2x6ZiBzdXNwZW5kX3RleHQK
-IyBVbmxvYWRTdXNwZW5kTW9kdWxlc0FmdGVyUmVzdW1lIHllcwoKIyMjIHN5c2ZzX3Bvd2VyX3N0
-YXRlCiMjIFRvIHVzZSAvc3lzL3Bvd2VyL3N0YXRlIHRvIHN1c3BlbmQgeW91ciBtYWNoaW5lICh3
-aGljaCBtYXkgb2ZmZXIKIyMgc3VzcGVuZC10by1SQU0sIHN1c3BlbmQtdG8tZGlzaywgc3RhbmRi
-eSwgZXRjKSBjb21tZW50IG91dCBhbGwgdGhlIG9wdGlvbnMKIyMgYWJvdmUgZm9yIFNvZnR3YXJl
-IFN1c3BlbmQgMiwgYW5kIHVuY29tbWVudCB0aGlzIGxpbmUuIFlvdSBtYXkgcmVwbGFjZSBtZW0K
-IyMgd2l0aCBhbnkgb25lIG9mIHRoZSBzdGF0ZXMgZnJvbSAiY2F0IC9zeXMvcG93ZXIvc3RhdGUi
-ClVzZVN5c2ZzUG93ZXJTdGF0ZSBkaXNrCgojIyMgZ2xvYmFsIHNldHRpbmdzClZlcmJvc2l0eSAw
-CkxvZ0ZpbGUgL3Zhci9sb2cvaGliZXJuYXRlLmxvZwpMb2dWZXJib3NpdHkgMQojIEFsd2F5c0Zv
-cmNlIHllcwojIEFsd2F5c0tpbGwgeWVzClN3c3VzcFZUIDE1CiMgRGlzdHJpYnV0aW9uIGRlYmlh
-biAobm90IHJlcXVpcmVkIC0gYXV0b2RldGVjdGlvbiBzaG91bGQgd29yaykKCiMjIyBib290c3Bs
-YXNoCiMjIElmIHlvdSB1c2UgYm9vdHNwbGFzaCwgYWxzbyBlbmFibGluZyBMZWF2ZVhCZWZvcmVT
-dXNwZW5kIGlzIHJlY29tbWVuZGVkIGlmCiMjIHlvdSB1c2UgWCwgb3RoZXJ3aXNlIHlvdSBtYXkg
-ZW5kIHVwIHdpdGggYSBnYXJibGVkIFggZGlzcGxheS4KIyBCb290c3BsYXNoIG9uCiMgQm9vdHNw
-bGFzaENvbmZpZyAvZXRjL2Jvb3RzcGxhc2gvZGVmYXVsdC9jb25maWcvYm9vdHNwbGFzaC0xMDI0
-eDc2OC5jZmcKCiMjIyBjbG9jawpTYXZlQ2xvY2sgeWVzCgojIyMgZGV2aWNlcwojIEluY29tcGF0
-aWJsZURldmljZXMgL2Rldi9kc3AgL2Rldi92aWRlbyoKCiMjIyBkaXNrY2FjaGUKIyBEaXNhYmxl
-V3JpdGVDYWNoZU9uIC9kZXYvaGRhCgojIyMgZmlsZXN5c3RlbXMKIyBVbm1vdW50IC9uZnNzaGFy
-ZSAvd2luZG93cyAvbW50L3NhbWJhc2VydmVyCiMgTW91bnQgL3dpbmRvd3MKCiMjIyBncnViCiMg
-Q2hhbmdlR3J1Yk1lbnUgeWVzCiMgR3J1Yk1lbnVGaWxlIC9ib290L2dydWIvbWVudS5sc3QKIyBB
-bHRlcm5hdGVHcnViTWVudUZpbGUgL2Jvb3QvZ3J1Yi9tZW51LXN1c3BlbmRlZC5sc3QKCiMjIyBs
-aWxvCiMgRW5zdXJlTElMT1Jlc3VtZXMgeWVzCgojIyMgbG9jayAoZ2VuZXJhbGx5IHlvdSBvbmx5
-IHdhbnQgb25lIG9mIHRoZSBmb2xsb3dpbmcgb3B0aW9ucykKIyBMb2NrS0RFIHllcwojIExvY2tY
-U2NyZWVuU2F2ZXIgeWVzCiMgTG9ja0NvbnNvbGVBcyByb290CgojIyMgbWlzY2xhdW5jaApPblN1
-c3BlbmQgMjAgcGdyZXAgbXBsYXllciAmJiBraWxsYWxsIG1wbGF5ZXIKT25TdXNwZW5kIDIyIHJt
-bW9kIC1mIG9tbmlib29rCk9uUmVzdW1lIDIwIHBncmVwIGRoY3BjZCAmJiBkaGNwY2QgLW4KCiMj
-IyBtb2R1bGVzClVubG9hZE1vZHVsZXMgYnV0dG9uCiMgVW5sb2FkQWxsTW9kdWxlcyB5ZXMKIyBV
-bmxvYWRCbGFja2xpc3RlZE1vZHVsZXMgeWVzCkxvYWRNb2R1bGVzIGJ1dHRvbiBvbW5pYm9vawoj
-IExvYWRNb2R1bGVzRnJvbUZpbGUgL2V0Yy9tb2R1bGVzCgojIyMgbW9kdWxlcy1nZW50b28KIyBH
-ZW50b29Nb2R1bGVzQXV0b2xvYWQgeWVzCgojIyMgbmV0d29yawojIERvd25JbnRlcmZhY2VzIGV0
-aDAKIyBVcEludGVyZmFjZXMgYXV0bwoKIyMjIHByb2dyYW1zCiMgSW5jb21wYXRpYmxlUHJvZ3Jh
-bXMgeG1tcwoKIyMjIHNlcnZpY2VzCiMgUmVzdGFydFNlcnZpY2VzIHBvc3RmaXgKIyBTdG9wU2Vy
-dmljZXMgbXBsYXllcgojIFN0YXJ0U2VydmljZXMgYXVtaXgKCiMjIyB4aGFja3MKTGVhdmVYQmVm
-b3JlU3VzcGVuZCB5ZXMKIyBuVmlkaWFIYWNrIHllcwoK
-------=_Part_25_20649601.1094981553067--
+In velocity_give_rx_desc(), there should be a wmb() between resetting
+the first four bytes of rdesc0 and setting owner.  As resetting the
+first four bytes isn't necessary, I just removed the function and
+directly set owner.
+
+In velocity_init_registers(), init_cam_filter() clears mCAMmask
+which might have been set by set_multy() (not sure if this can ever
+occur).  Modified to invoke init_cam_filter() first.  Also,
+clear_isr() is called twice.  Removed the first invocation.
+
+velocity_nics wasn't managed properly, fixed.
+
+Removed unused velocity_info.xmit_lock.
+
+In velocity_give_many_rx_descs(), index calculation was incorrect.
+This and bugs in velocity_rx_srv() described in the following
+paragraph caused packet loss, truncation and infinite error
+interrupt generation.  Fixed.
+
+In velocity_rx_srv(), velocity_rx_refill() could be called without
+any dirty slot.  With proper timing, This can result in refilling
+yet unreceived packets and pushing dirty pointer ahead of the current
+pointer.  Also, vptr->rd_curr which is used by velocity_rx_refill()
+was updated after calling velocity_rx_refill() thus screwing
+receive descriptor ring.  Fixed.
+
+Other obivous fixes.
+
+-- 
+tejun
+
+
+--JgQwtEuHJzHdouWu
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: attachment; filename="velocity.patch"
+
+# This is a BitKeeper generated diff -Nru style patch.
+#
+# ChangeSet
+#   2004/09/12 18:01:40+09:00 tj@htj.dyndns.org 
+#   via-velocity fixes.  This should remove packet loss, truncated
+#   duplicate packets and infinite error interrupt generation.
+# 
+# drivers/net/via-velocity.h
+#   2004/09/12 18:01:35+09:00 tj@htj.dyndns.org +3 -4
+#   Fixed comments
+#   
+#   velocity_info.xmit_lock is never used, removed.
+# 
+# drivers/net/via-velocity.c
+#   2004/09/12 18:01:35+09:00 tj@htj.dyndns.org +30 -30
+#   Fixed comments
+#   
+#   Using cpu_to_le32 on OWNED_BY_NIC is wrong.  It will produce
+#   0x10000000 on big endian machines while owner bitfield would still
+#   evaluate to 0 or 1.
+#   
+#   In velocity_give_rx_desc(), there should be a wmb() between resetting
+#   the first four bytes of rdesc0 and setting owner.  As resetting the
+#   first four bytes isn't necessary, I just removed the function and
+#   directly set owner.
+#   
+#   In velocity_init_registers(), init_cam_filter() clears mCAMmask
+#   which might have been set by set_multy() (not sure if this can ever
+#   occur).  Modified to invoke init_cam_filter() first.  Also,
+#   clear_isr() is called twice.  Removed the first invocation.
+#   
+#   velocity_nics wasn't managed properly, fixed.
+#   
+#   Removed unused velocity_info.xmit_lock.
+#   
+#   In velocity_give_many_rx_descs(), index calculation was incorrect.
+#   This and bugs in velocity_rx_srv() described in the following
+#   paragraph caused packet loss, truncation and infinite error
+#   interrupt generation.  Fixed.
+#   
+#   In velocity_rx_srv(), velocity_rx_refill() could be called without
+#   any dirty slot.  With proper timing, This can result in refilling
+#   yet unreceived packets and pushing dirty pointer ahead of the current
+#   pointer.  Also, vptr->rd_curr which is used by velocity_rx_refill()
+#   was updated after calling velocity_rx_refill() thus screwing
+#   receive descriptor ring.  Fixed.
+#   
+#   Other obivous fixes.
+# 
+diff -Nru a/drivers/net/via-velocity.c b/drivers/net/via-velocity.c
+--- a/drivers/net/via-velocity.c	2004-09-12 18:05:28 +09:00
++++ b/drivers/net/via-velocity.c	2004-09-12 18:05:28 +09:00
+@@ -359,6 +359,8 @@
+ 	pci_disable_device(pdev);
+ 	pci_set_drvdata(pdev, NULL);
+ 	free_netdev(dev);
++
++	velocity_nics--;
+ }
+ 
+ /**
+@@ -462,7 +464,7 @@
+ {
+ 	struct mac_regs * regs = vptr->mac_regs;
+ 
+-	/* T urn on MCFG_PQEN, turn off MCFG_RTGOPT */
++	/* Turn on MCFG_PQEN, turn off MCFG_RTGOPT */
+ 	WORD_REG_BITS_SET(MCFG_PQEN, MCFG_RTGOPT, &regs->MCFG);
+ 	WORD_REG_BITS_ON(MCFG_VIDFR, &regs->MCFG);
+ 
+@@ -490,12 +492,6 @@
+ 	}
+ }
+ 
+-static inline void velocity_give_rx_desc(struct rx_desc *rd)
+-{
+-	*(u32 *)&rd->rdesc0 = 0;
+-	rd->rdesc0.owner = cpu_to_le32(OWNED_BY_NIC);
+-}
+-
+ /**
+  *	velocity_rx_reset	-	handle a receive reset
+  *	@vptr: velocity we are resetting
+@@ -516,7 +512,7 @@
+ 	 *	Init state, all RD entries belong to the NIC
+ 	 */
+ 	for (i = 0; i < vptr->options.numrx; ++i)
+-		velocity_give_rx_desc(vptr->rd_ring + i);
++		vptr->rd_ring[i].rdesc0.owner = OWNED_BY_NIC;
+ 
+ 	writew(vptr->options.numrx, &regs->RBRDU);
+ 	writel(vptr->rd_pool_dma, &regs->RDBaseLo);
+@@ -591,11 +587,16 @@
+ 
+ 		writeb(WOLCFG_SAM | WOLCFG_SAB, &regs->WOLCFGSet);
+ 		/*
+-		 *	Bback off algorithm use original IEEE standard
++		 *	back off algorithm use original IEEE standard
+ 		 */
+ 		BYTE_REG_BITS_SET(CFGB_OFSET, (CFGB_CRANDOM | CFGB_CAP | CFGB_MBA | CFGB_BAKOPT), &regs->CFGB);
+ 
+ 		/*
++		 *	Init CAM filter
++		 */
++		velocity_init_cam_filter(vptr);
++
++		/*
+ 		 *	Set packet filter: Receive directed and broadcast address
+ 		 */
+ 		velocity_set_multi(vptr->dev);
+@@ -619,8 +620,6 @@
+ 			mac_tx_queue_run(regs, i);
+ 		}
+ 
+-		velocity_init_cam_filter(vptr);
+-
+ 		init_flow_control_register(vptr);
+ 
+ 		writel(CR0_STOP, &regs->CR0Clr);
+@@ -628,7 +627,6 @@
+ 
+ 		mii_status = velocity_get_opt_media_mode(vptr);
+ 		netif_stop_queue(vptr->dev);
+-		mac_clear_isr(regs);
+ 
+ 		mii_init(vptr, mii_status);
+ 
+@@ -695,7 +693,7 @@
+ 	struct mac_regs * regs;
+ 	int ret = -ENOMEM;
+ 
+-	if (velocity_nics++ >= MAX_UNITS) {
++	if (velocity_nics >= MAX_UNITS) {
+ 		printk(KERN_NOTICE VELOCITY_NAME ": already found %d NICs.\n", 
+ 				velocity_nics);
+ 		return -ENODEV;
+@@ -727,7 +725,6 @@
+ 
+ 	vptr->dev = dev;
+ 
+-	dev->priv = vptr;
+ 	dev->irq = pdev->irq;
+ 
+ 	ret = pci_enable_device(pdev);
+@@ -762,7 +759,7 @@
+ 		dev->dev_addr[i] = readb(&regs->PAR[i]);
+ 
+ 
+-	velocity_get_options(&vptr->options, velocity_nics - 1, dev->name);
++	velocity_get_options(&vptr->options, velocity_nics, dev->name);
+ 
+ 	/* 
+ 	 *	Mask out the options cannot be set to the chip
+@@ -817,6 +814,7 @@
+ 		spin_unlock_irqrestore(&velocity_dev_list_lock, flags);
+ 	}
+ #endif
++	velocity_nics++;
+ out:
+ 	return ret;
+ 
+@@ -869,10 +867,7 @@
+ 	vptr->io_size = info->io_size;
+ 	vptr->num_txq = info->txqueue;
+ 	vptr->multicast_limit = MCAM_SIZE;
+-
+ 	spin_lock_init(&vptr->lock);
+-	spin_lock_init(&vptr->xmit_lock);
+-
+ 	INIT_LIST_HEAD(&vptr->list);
+ }
+ 
+@@ -1024,11 +1019,11 @@
+ 
+ 	wmb();
+ 
+-	unusable = vptr->rd_filled | 0x0003;
+-	dirty = vptr->rd_dirty - unusable + 1;
++	unusable = vptr->rd_filled & 0x0003;
++	dirty = vptr->rd_dirty - unusable;
+ 	for (avail = vptr->rd_filled & 0xfffc; avail; avail--) {
+ 		dirty = (dirty > 0) ? dirty - 1 : vptr->options.numrx - 1;
+-		velocity_give_rx_desc(vptr->rd_ring + dirty);
++		vptr->rd_ring[dirty].rdesc0.owner = OWNED_BY_NIC;
+ 	}
+ 
+ 	writew(vptr->rd_filled & 0xfffc, &regs->RBRDU);
+@@ -1043,7 +1038,7 @@
+ 		struct rx_desc *rd = vptr->rd_ring + dirty;
+ 
+ 		/* Fine for an all zero Rx desc at init time as well */
+-		if (rd->rdesc0.owner == cpu_to_le32(OWNED_BY_NIC))
++		if (rd->rdesc0.owner == OWNED_BY_NIC)
+ 			break;
+ 
+ 		if (!vptr->rd_info[dirty].skb) {
+@@ -1096,7 +1091,7 @@
+ }
+ 
+ /**
+- *	velocity_free_rd_ring	-	set up receive ring
++ *	velocity_free_rd_ring	-	free receive ring
+  *	@vptr: velocity to clean up
+  *
+  *	Free the receive buffers for each ring slot and any
+@@ -1161,8 +1156,10 @@
+ 		for (i = 0; i < vptr->options.numtx; i++, curr += sizeof(struct tx_desc)) {
+ 			td = &(vptr->td_rings[j][i]);
+ 			td_info = &(vptr->td_infos[j][i]);
+-			td_info->buf = vptr->tx_bufs + (i + j) * PKT_BUF_SZ;
+-			td_info->buf_dma = vptr->tx_bufs_dma + (i + j) * PKT_BUF_SZ;
++			td_info->buf = vptr->tx_bufs +
++				(j * vptr->options.numtx + i) * PKT_BUF_SZ;
++			td_info->buf_dma = vptr->tx_bufs_dma +
++				(j * vptr->options.numtx + i) * PKT_BUF_SZ;
+ 		}
+ 		vptr->td_tail[j] = vptr->td_curr[j] = vptr->td_used[j] = 0;
+ 	}
+@@ -1238,15 +1235,17 @@
+ 	int rd_curr = vptr->rd_curr;
+ 	int works = 0;
+ 
+-	while (1) {
++	do {
+ 		struct rx_desc *rd = vptr->rd_ring + rd_curr;
+ 
+-		if (!vptr->rd_info[rd_curr].skb || (works++ > 15))
++		if (!vptr->rd_info[rd_curr].skb)
+ 			break;
+ 
+ 		if (rd->rdesc0.owner == OWNED_BY_NIC)
+ 			break;
+ 
++		rmb();
++
+ 		/*
+ 		 *	Don't drop CE or RL error frame although RXOK is off
+ 		 */
+@@ -1269,14 +1268,15 @@
+ 		rd_curr++;
+ 		if (rd_curr >= vptr->options.numrx)
+ 			rd_curr = 0;
+-	}
++	} while (++works <= 15);
++	
++	vptr->rd_curr = rd_curr;
+ 
+-	if (velocity_rx_refill(vptr) < 0) {
++	if (works > 0 && velocity_rx_refill(vptr) < 0) {
+ 		VELOCITY_PRT(MSG_LEVEL_ERR, KERN_ERR
+ 			"%s: rx buf allocation failure\n", vptr->dev->name);
+ 	}
+ 
+-	vptr->rd_curr = rd_curr;
+ 	VAR_USED(stats);
+ 	return works;
+ }
+diff -Nru a/drivers/net/via-velocity.h b/drivers/net/via-velocity.h
+--- a/drivers/net/via-velocity.h	2004-09-12 18:05:28 +09:00
++++ b/drivers/net/via-velocity.h	2004-09-12 18:05:28 +09:00
+@@ -1319,7 +1319,7 @@
+ 	/* disable CAMEN */
+ 	writeb(0, &regs->CAMADDR);
+ 
+-	/* Select CAM mask */
++	/* Select mar */
+ 	BYTE_REG_BITS_SET(CAMCR_PS_MAR, CAMCR_PS1 | CAMCR_PS0, &regs->CAMCR);
+ }
+ 
+@@ -1360,7 +1360,7 @@
+ 
+ 	writeb(0, &regs->CAMADDR);
+ 
+-	/* Select CAM mask */
++	/* Select mar */
+ 	BYTE_REG_BITS_SET(CAMCR_PS_MAR, CAMCR_PS1 | CAMCR_PS0, &regs->CAMCR);
+ }
+ 
+@@ -1401,7 +1401,7 @@
+ 
+ 	writeb(0, &regs->CAMADDR);
+ 
+-	/* Select CAM mask */
++	/* Select mar */
+ 	BYTE_REG_BITS_SET(CAMCR_PS_MAR, CAMCR_PS1 | CAMCR_PS0, &regs->CAMCR);
+ }
+ 
+@@ -1792,7 +1792,6 @@
+ 	u8 mCAMmask[(MCAM_SIZE / 8)];
+ 
+ 	spinlock_t lock;
+-	spinlock_t xmit_lock;
+ 
+ 	int wol_opts;
+ 	u8 wol_passwd[6];
+
+--JgQwtEuHJzHdouWu--

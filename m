@@ -1,42 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282880AbRK0I7z>; Tue, 27 Nov 2001 03:59:55 -0500
+	id <S282885AbRK0JFP>; Tue, 27 Nov 2001 04:05:15 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282879AbRK0I7p>; Tue, 27 Nov 2001 03:59:45 -0500
-Received: from hermes.fachschaften.tu-muenchen.de ([129.187.176.19]:54756 "HELO
-	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
-	id <S282882AbRK0I7d>; Tue, 27 Nov 2001 03:59:33 -0500
-Date: Tue, 27 Nov 2001 09:59:29 +0100 (CET)
-From: Adrian Bunk <bunk@fs.tum.de>
-X-X-Sender: bunk@mimas.fachschaften.tu-muenchen.de
-To: Mike Fedyk <mfedyk@matchmail.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.4.16-pre1
-In-Reply-To: <20011126203032.C26219@mikef-linux.matchmail.com>
-Message-ID: <Pine.NEB.4.42.0111270957390.5290-100000@mimas.fachschaften.tu-muenchen.de>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S282883AbRK0JFG>; Tue, 27 Nov 2001 04:05:06 -0500
+Received: from tangens.hometree.net ([212.34.181.34]:21455 "EHLO
+	mail.hometree.net") by vger.kernel.org with ESMTP
+	id <S282881AbRK0JEy>; Tue, 27 Nov 2001 04:04:54 -0500
+To: linux-kernel@vger.kernel.org
+Path: forge.intermeta.de!not-for-mail
+From: "Henning P. Schmiedehausen" <mailgate@hometree.net>
+Newsgroups: hometree.linux.kernel
+Subject: Re: Possible md bug in 2.4.16-pre1
+Date: Tue, 27 Nov 2001 09:04:52 +0000 (UTC)
+Organization: INTERMETA - Gesellschaft fuer Mehrwertdienste mbH
+Message-ID: <9tvkvk$101$1@forge.intermeta.de>
+In-Reply-To: <000c01c1769c$187cc390$9865fea9@pcsn630778> <200111261929.UAA31258@nbd.it.uc3m.es>
+Reply-To: hps@intermeta.de
+NNTP-Posting-Host: forge.intermeta.de
+X-Trace: tangens.hometree.net 1006851892 24732 212.34.181.4 (27 Nov 2001 09:04:52 GMT)
+X-Complaints-To: news@intermeta.de
+NNTP-Posting-Date: Tue, 27 Nov 2001 09:04:52 +0000 (UTC)
+X-Copyright: (C) 1996-2001 Henning Schmiedehausen
+X-No-Archive: yes
+X-Newsreader: NN version 6.5.1 (NOV)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 26 Nov 2001, Mike Fedyk wrote:
+"Peter T. Breuer" <ptb@it.uc3m.es> writes:
 
->...
-> Let's hope $(test -z "`diff -u last-pre -final`") returns true for future
-> 2.4 kernels.
+>Raid has been in quite a shocking state for a long while and
+>often there seems nor rhyme nor reason to its behaviour. If you want
+>to stick your machine in an endless loop, just try initialising a
+>mirror raid device with only one of its two components currently
+>working. 
 
-This would mean that Marcelo has forgotten to change the version number in
-the Makefile...  ;-)
+Hm, what? That's my standard migration path from non-mirrored to
+mirrored under 2.2.x You say, that this is not possible under 2.4?
 
-> MF
-
-cu
-Adrian
+	Regards
+		Henning
 
 -- 
+Dipl.-Inf. (Univ.) Henning P. Schmiedehausen       -- Geschaeftsfuehrer
+INTERMETA - Gesellschaft fuer Mehrwertdienste mbH     hps@intermeta.de
 
-Get my GPG key: finger bunk@debian.org | gpg --import
-
-Fingerprint: B29C E71E FE19 6755 5C8A  84D4 99FC EA98 4F12 B400
-
-
+Am Schwabachgrund 22  Fon.: 09131 / 50654-0   info@intermeta.de
+D-91054 Buckenhof     Fax.: 09131 / 50654-20   

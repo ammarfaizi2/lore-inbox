@@ -1,46 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261448AbSLCMPm>; Tue, 3 Dec 2002 07:15:42 -0500
+	id <S261205AbSLCMjB>; Tue, 3 Dec 2002 07:39:01 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261529AbSLCMPm>; Tue, 3 Dec 2002 07:15:42 -0500
-Received: from noodles.codemonkey.org.uk ([213.152.47.19]:48052 "EHLO
-	noodles.internal") by vger.kernel.org with ESMTP id <S261448AbSLCMPl>;
-	Tue, 3 Dec 2002 07:15:41 -0500
-Date: Tue, 3 Dec 2002 12:18:58 +0000
-From: Dave Jones <davej@codemonkey.org.uk>
-To: "Vamsi Krishna S ." <vamsi@in.ibm.com>
-Cc: torvalds@transmeta.com, lkml <linux-kernel@vger.kernel.org>,
-       dprobes <dprobes@www-124.southbury.usf.ibm.com>,
-       richard <richardj_moore@uk.ibm.com>, tom <hanrahat@us.ibm.com>
-Subject: Re: [PATCH] kprobes for 2.5.50-bk2
-Message-ID: <20021203121858.GC30431@suse.de>
-Mail-Followup-To: Dave Jones <davej@codemonkey.org.uk>,
-	"Vamsi Krishna S ." <vamsi@in.ibm.com>, torvalds@transmeta.com,
-	lkml <linux-kernel@vger.kernel.org>,
-	dprobes <dprobes@www-124.southbury.usf.ibm.com>,
-	richard <richardj_moore@uk.ibm.com>, tom <hanrahat@us.ibm.com>
-References: <20021203125447.A2951@in.ibm.com>
+	id <S261290AbSLCMjB>; Tue, 3 Dec 2002 07:39:01 -0500
+Received: from pc3-stoc3-4-cust114.midd.cable.ntl.com ([80.6.255.114]:56073
+	"EHLO buzz.ichilton.co.uk") by vger.kernel.org with ESMTP
+	id <S261205AbSLCMjB>; Tue, 3 Dec 2002 07:39:01 -0500
+Date: Tue, 3 Dec 2002 12:46:26 +0000
+From: Ian Chilton <ian@ichilton.co.uk>
+To: Dave Jones <davej@codemonkey.org.uk>, linux-kernel@vger.kernel.org
+Subject: Re: 2.4.20 Compile Failure
+Message-ID: <20021203124626.GD8351@buzz.ichilton.co.uk>
+Reply-To: Ian Chilton <ian@ichilton.co.uk>
+References: <20021203120928.GC8351@buzz.ichilton.co.uk> <20021203122238.GD30431@suse.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20021203125447.A2951@in.ibm.com>
-User-Agent: Mutt/1.4i
+In-Reply-To: <20021203122238.GD30431@suse.de>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Dec 03, 2002 at 12:54:47PM +0530, Vamsi Krishna S . wrote:
+Hello,
 
- > kprobes allows trapping at almost any kernel address, useful for
- > various kernel-hacking tasks, and building on for more
- > infrastructure.
+> compile in the sis frame buffer too. They need each other iirc.
 
-This last part just got me thinking.
-What stops someone for example using this to implement a binary
-only replacement of the TCP/IP stack, or any other part of the
-kernel for that matter ?
 
-		Dave
+Yes, that fixed it - Thanks!
 
--- 
-| Dave Jones.        http://www.codemonkey.org.uk
-| SuSE Labs
+Maybe it should be made so the SiS DRM option only appears if the SiS
+framebuffer is selected?
+
+
+Bye for Now,
+
+Ian
+

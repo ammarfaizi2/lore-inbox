@@ -1,33 +1,65 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.com) by vger.kernel.org via listexpand
-	id <S261165AbRELEAE>; Sat, 12 May 2001 00:00:04 -0400
+	id <S261151AbRELD7s>; Fri, 11 May 2001 23:59:48 -0400
 Received: (majordomo@vger.kernel.com) by vger.kernel.org
-	id <S261162AbRELD7v>; Fri, 11 May 2001 23:59:51 -0400
-Received: from melchi.fuller.edu ([206.2.38.3]:13584 "EHLO melchi.fuller.edu")
-	by vger.kernel.org with ESMTP id <S261174AbRELD66>;
-	Fri, 11 May 2001 23:58:58 -0400
-Date: Fri, 11 May 2001 20:58:55 -0700 (PDT)
-From: <clameter@lameter.com>
-To: Drew Bertola <drew@drewb.com>
-cc: Greg KH <greg@kroah.com>, linux-kernel@vger.kernel.org
-Subject: Re: USB broken in 2.4.4? Serial Ricochet works, USB performance
- sucks.
-In-Reply-To: <20010510200750.A29230@drewb.com>
-Message-ID: <Pine.LNX.4.10.10105112058050.31665-100000@melchi.fuller.edu>
+	id <S261154AbRELD7L>; Fri, 11 May 2001 23:59:11 -0400
+Received: from zeus.kernel.org ([209.10.41.242]:49800 "EHLO zeus.kernel.org")
+	by vger.kernel.org with ESMTP id <S261171AbRELD6N>;
+	Fri, 11 May 2001 23:58:13 -0400
+Message-ID: <0c5201c0da9a$4d736200$7dad0f18@Nick>
+From: "Nick Long" <nicklong@home.com>
+To: "Geert Uytterhoeven" <geert@linux-m68k.org>
+Cc: "kernel" <linux-kernel@vger.kernel.org>,
+        "Tim Moore" <timothymoore@bigfoot.com>
+In-Reply-To: <Pine.LNX.4.05.10105110944520.1624-100000@callisto.of.borg>
+Subject: Re: ncr53c8xx - DAT detection problem - 2.2.14-5
+Date: Fri, 11 May 2001 21:16:21 -0700
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2462.0000
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2462.0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 10 May 2001, Drew Bertola wrote:
+Geert,  I have "CONFIG_CHR_DEV_ST=y" in my "/usr/src/linux/.config" file.
+Any ideas?
 
-> > The Richochet USB stuff uses generic serial I/O. No special driver. And it
-> > works fine under Win/ME. Have you run a regular PPP connection over the
-> > ACM driver with an MTU of 1500?
-> 
-> Joey Hess had a problem similar to what you described, though he noticed
-> it while using the pcmcia ricochet modem.  He passed along this patch:
+----- Original Message -----
+From: "Geert Uytterhoeven" <geert@linux-m68k.org>
+To: <nicklong@home.com>
+Cc: "kernel" <linux-kernel@vger.kernel.org>
+Sent: Friday, May 11, 2001 12:45 AM
+Subject: Re: ncr53c8xx - DAT detection problem - 2.2.14-5
 
-I tried the patch a couple of days ago and it did not do anything for me.
 
+> On Thu, 10 May 2001, Tim Moore wrote:
+> > Any clues as to why /dev/st0 is never initialized for DAT tape?  Please
+cc nicklong@home.com if more
+> > info is needed.
+>
+> Make sure CONFIG_CHR_DEV_ST=[ym]
+>
+> Gr{oetje,eeting}s,
+>
+> Geert
+>
+> --
+> Geert Uytterhoeven -- There's lots of Linux beyond ia32 --
+geert@linux-m68k.org
+>
+> In personal conversations with technical people, I call myself a hacker.
+But
+> when I'm talking to journalists I just say "programmer" or something like
+that.
+>     -- Linus Torvalds
+>
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 

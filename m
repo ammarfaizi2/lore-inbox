@@ -1,220 +1,62 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314551AbSEPSpo>; Thu, 16 May 2002 14:45:44 -0400
+	id <S314554AbSEPS7n>; Thu, 16 May 2002 14:59:43 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314553AbSEPSpn>; Thu, 16 May 2002 14:45:43 -0400
-Received: from smtp1.wanadoo.nl ([194.134.35.136]:46051 "EHLO smtp1.wanadoo.nl")
-	by vger.kernel.org with ESMTP id <S314551AbSEPSpm>;
-	Thu, 16 May 2002 14:45:42 -0400
-Subject: Unresolved symbols in ip_gre.o (2.4.18)
-From: Steven Bosscher <s.bosscher@student.tudelft.nl>
-To: linux-kernel@vger.kernel.org
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.5 
-Date: 16 May 2002 20:44:57 +0200
-Message-Id: <1021574698.2085.84.camel@steven>
+	id <S314557AbSEPS7m>; Thu, 16 May 2002 14:59:42 -0400
+Received: from [195.223.140.120] ([195.223.140.120]:11612 "EHLO
+	penguin.e-mind.com") by vger.kernel.org with ESMTP
+	id <S314554AbSEPS7l>; Thu, 16 May 2002 14:59:41 -0400
+Date: Thu, 16 May 2002 20:59:37 +0200
+From: Andrea Arcangeli <andrea@suse.de>
+To: Rik van Riel <riel@conectiva.com.br>
+Cc: Juan Quintela <quintela@mandrakesoft.com>, linux-kernel@vger.kernel.org
+Subject: Re: 2.4.19pre8aa3
+Message-ID: <20020516185937.GG1025@dualathlon.random>
+In-Reply-To: <20020516160754.GR1025@dualathlon.random> <Pine.LNX.4.44L.0205161536160.32261-100000@imladris.surriel.com>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.27i
+X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
+X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+On Thu, May 16, 2002 at 03:37:49PM -0300, Rik van Riel wrote:
+> On Thu, 16 May 2002, Andrea Arcangeli wrote:
+> > On Thu, May 16, 2002 at 11:27:37AM +0200, Juan Quintela wrote:
+> > > I am missing something, or how do you pass the notail option to your
+> > > reiserfs rootfs when the initrd is ext2.
+> >
+> > fair enough (the new initrd API allows that, but it's very ugly that it
+> > is not dynamic from a kernel param like rootfstype would be, but it
+> > instead has to be written on disk within the initrd), however as said
+> > that's all due the brokeness of the rootfs params, they should apply
+> > only to the fianl real root dev, never to the initrd.
+> 
+> There's another issue.  The real root device might not be known
+> at the time the initrd is first loaded.
+> 
+> This is the case in some installers, which seem to use pivot_root
+> after the installer is done so the user doesn't need to reboot
+> after the install is done...
+> 
+> Of course, the real root device won't be known until after the user
+> has done the partitioning of the hard disk(s).
 
-I was trying to compile and install 2.4.18, and I got this error
-from`make modules_install` (last 15 lines):
+Sure I see that, and that's also allowed by the new initrd API, and in
+such case you cannot make use of the two rootfs* params anyways because
+as you say you don't know what the wanted partitioning in advance.
 
-make[1]: Entering directory `/usr/src/linux-2.4.18/arch/i386/mm'
-make[1]: Nothing to be done for `modules_install'.
-make[1]: Entering directory `/usr/src/linux-2.4.18/arch/i386/mm'
-make[1]: Nothing to be done for `modules_install'.
-make[1]: Leaving directory `/usr/src/linux-2.4.18/arch/i386/mm'
-make -C  arch/i386/lib modules_install
-make[1]: Entering directory `/usr/src/linux-2.4.18/arch/i386/lib'
-make[1]: Nothing to be done for `modules_install'.
-make[1]: Leaving directory `/usr/src/linux-2.4.18/arch/i386/lib'
-cd /lib/modules/2.4.18; \
-mkdir -p pcmcia; \
-find kernel -path '*/pcmcia/*' -name '*.o' | xargs -i -r ln -sf ../{} pcmcia
-if [ -r System.map ]; then /sbin/depmod -ae -F System.map  2.4.18; fi
-depmod: *** Unresolved symbols in /lib/modules/2.4.18/kernel/net/ipv4/ip_gre.o
-depmod: 	sysctl_ip_default_ttl
+What i'm saying is that if you want to add notail option to the root
+mount after you finished installing your system (so with a normally non
+interactive initrd) you can't make use of the rootfs* parameters to
+tweak the root mount during lilo (like you could do without initrd)
+because they're applied to both initrd and real root dev and that's
+clearly another bug (but not very important). And with the new initrd
+API such bug basically doesn't matter because the rootfstype will be
+forced in the static initrd image (while without initrd, or with the old
+initrd API + the bugfix that applies rootfs* only to the root dev I
+could make use of the rootfs* flags).
 
-My system is a K6-2 with SuSE 7.2 (GCC 2.95.3, glibc 2.2.2,
-binutils 2.11.90, modutils 2.4.5)
-
-Hope this helps,
-
-Greetz
-Steven
-
-
-output from `grep -v ^\# < .config | grep CONFIG`
-
-CONFIG_X86=y
-CONFIG_ISA=y
-CONFIG_UID16=y
-CONFIG_MODULES=y
-CONFIG_KMOD=y
-CONFIG_MK6=y
-CONFIG_X86_WP_WORKS_OK=y
-CONFIG_X86_INVLPG=y
-CONFIG_X86_CMPXCHG=y
-CONFIG_X86_XADD=y
-CONFIG_X86_BSWAP=y
-CONFIG_X86_POPAD_OK=y
-CONFIG_RWSEM_XCHGADD_ALGORITHM=y
-CONFIG_X86_L1_CACHE_SHIFT=5
-CONFIG_X86_ALIGNMENT_16=y
-CONFIG_X86_TSC=y
-CONFIG_X86_USE_PPRO_CHECKSUM=y
-CONFIG_MICROCODE=y
-CONFIG_X86_MSR=y
-CONFIG_X86_CPUID=y
-CONFIG_NOHIGHMEM=y
-CONFIG_MTRR=y
-CONFIG_X86_UP_APIC=y
-CONFIG_X86_LOCAL_APIC=y
-CONFIG_NET=y
-CONFIG_PCI=y
-CONFIG_PCI_GOANY=y
-CONFIG_PCI_BIOS=y
-CONFIG_PCI_DIRECT=y
-CONFIG_PCI_NAMES=y
-CONFIG_SYSVIPC=y
-CONFIG_BSD_PROCESS_ACCT=y
-CONFIG_BINFMT_AOUT=m
-CONFIG_BINFMT_ELF=y
-CONFIG_BINFMT_MISC=m
-CONFIG_PM=y
-CONFIG_APM=y
-CONFIG_APM_DO_ENABLE=y
-CONFIG_APM_CPU_IDLE=y
-CONFIG_APM_DISPLAY_BLANK=y
-CONFIG_APM_ALLOW_INTS=y
-CONFIG_PARPORT=m
-CONFIG_PARPORT_PC=m
-CONFIG_PARPORT_PC_CML1=m
-CONFIG_PARPORT_SERIAL=m
-CONFIG_PARPORT_1284=y
-CONFIG_PNP=y
-CONFIG_ISAPNP=m
-CONFIG_BLK_DEV_FD=y
-CONFIG_PARIDE=m
-CONFIG_PARIDE_PARPORT=m
-CONFIG_PARIDE_PD=m
-CONFIG_PARIDE_PCD=m
-CONFIG_PARIDE_PF=m
-CONFIG_PARIDE_PT=m
-CONFIG_PARIDE_PG=m
-CONFIG_BLK_DEV_LOOP=y
-CONFIG_BLK_DEV_NBD=m
-CONFIG_PACKET=m
-CONFIG_PACKET_MMAP=y
-CONFIG_NETLINK_DEV=m
-CONFIG_NETFILTER=y
-CONFIG_FILTER=y
-CONFIG_UNIX=y
-CONFIG_INET=y
-CONFIG_NET_IPIP=m
-CONFIG_NET_IPGRE=m
-CONFIG_INET_ECN=y
-CONFIG_SYN_COOKIES=y
-CONFIG_IP_NF_CONNTRACK=m
-CONFIG_IP_NF_FTP=m
-CONFIG_IP_NF_IPTABLES=m
-CONFIG_IP_NF_MATCH_LIMIT=m
-CONFIG_IP_NF_MATCH_MAC=m
-CONFIG_IP_NF_MATCH_MARK=m
-CONFIG_IP_NF_MATCH_MULTIPORT=m
-CONFIG_IP_NF_MATCH_TOS=m
-CONFIG_IP_NF_MATCH_TCPMSS=m
-CONFIG_IP_NF_MATCH_STATE=m
-CONFIG_IP_NF_FILTER=m
-CONFIG_IP_NF_TARGET_REJECT=m
-CONFIG_IP_NF_NAT=m
-CONFIG_IP_NF_NAT_NEEDED=y
-CONFIG_IP_NF_TARGET_MASQUERADE=m
-CONFIG_IP_NF_TARGET_REDIRECT=m
-CONFIG_IP_NF_NAT_FTP=m
-CONFIG_IP_NF_MANGLE=m
-CONFIG_IP_NF_TARGET_TOS=m
-CONFIG_IP_NF_TARGET_MARK=m
-CONFIG_IP_NF_TARGET_LOG=m
-CONFIG_IP_NF_TARGET_TCPMSS=m
-CONFIG_IP_NF_COMPAT_IPCHAINS=m
-CONFIG_IP_NF_NAT_NEEDED=y
-CONFIG_IP_NF_COMPAT_IPFWADM=m
-CONFIG_IP_NF_NAT_NEEDED=y
-CONFIG_IDE=y
-CONFIG_BLK_DEV_IDE=y
-CONFIG_BLK_DEV_IDEDISK=y
-CONFIG_BLK_DEV_IDECD=y
-CONFIG_BLK_DEV_IDETAPE=m
-CONFIG_BLK_DEV_IDEFLOPPY=m
-CONFIG_BLK_DEV_IDEPCI=y
-CONFIG_IDEPCI_SHARE_IRQ=y
-CONFIG_BLK_DEV_IDEDMA_PCI=y
-CONFIG_BLK_DEV_ADMA=y
-CONFIG_IDEDMA_PCI_AUTO=y
-CONFIG_BLK_DEV_IDEDMA=y
-CONFIG_BLK_DEV_ALI15X3=y
-CONFIG_IDEDMA_AUTO=y
-CONFIG_BLK_DEV_IDE_MODES=y
-CONFIG_NETDEVICES=y
-CONFIG_DUMMY=y
-CONFIG_NET_ETHERNET=y
-CONFIG_NET_PCI=y
-CONFIG_NE2K_PCI=m
-CONFIG_8139TOO=m
-CONFIG_8139TOO_8129=y
-CONFIG_PPP=m
-CONFIG_PPP_FILTER=y
-CONFIG_PPP_ASYNC=m
-CONFIG_PPP_SYNC_TTY=m
-CONFIG_PPP_DEFLATE=m
-CONFIG_PPP_BSDCOMP=m
-CONFIG_VT=y
-CONFIG_VT_CONSOLE=y
-CONFIG_SERIAL=y
-CONFIG_SERIAL_CONSOLE=y
-CONFIG_UNIX98_PTYS=y
-CONFIG_UNIX98_PTY_COUNT=256
-CONFIG_PRINTER=m
-CONFIG_PPDEV=m
-CONFIG_BUSMOUSE=m
-CONFIG_ATIXL_BUSMOUSE=m
-CONFIG_LOGIBUSMOUSE=m
-CONFIG_MS_BUSMOUSE=m
-CONFIG_MOUSE=y
-CONFIG_PSMOUSE=y
-CONFIG_INTEL_RNG=y
-CONFIG_RTC=y
-CONFIG_AGP=m
-CONFIG_AGP_ALI=y
-CONFIG_DRM=y
-CONFIG_DRM_OLD=y
-CONFIG_DRM40_R128=m
-CONFIG_DRM40_I810=m
-CONFIG_QUOTA=y
-CONFIG_AUTOFS4_FS=y
-CONFIG_REISERFS_FS=m
-CONFIG_FAT_FS=y
-CONFIG_MSDOS_FS=y
-CONFIG_UMSDOS_FS=m
-CONFIG_VFAT_FS=y
-CONFIG_ISO9660_FS=y
-CONFIG_JOLIET=y
-CONFIG_EXT2_FS=y
-CONFIG_MSDOS_PARTITION=y
-CONFIG_NLS=y
-CONFIG_NLS_DEFAULT="iso8859-1"
-CONFIG_NLS_CODEPAGE_437=m
-CONFIG_NLS_CODEPAGE_850=m
-CONFIG_NLS_ISO8859_1=y
-CONFIG_NLS_ISO8859_15=m
-CONFIG_NLS_UTF8=y
-CONFIG_VGA_CONSOLE=y
-CONFIG_VIDEO_SELECT=y
-CONFIG_SOUND=m
-CONFIG_SOUND_ES1371=m
-
+Andrea

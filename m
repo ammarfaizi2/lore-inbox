@@ -1,42 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281797AbRKQSaA>; Sat, 17 Nov 2001 13:30:00 -0500
+	id <S281801AbRKQSaA>; Sat, 17 Nov 2001 13:30:00 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281801AbRKQS3u>; Sat, 17 Nov 2001 13:29:50 -0500
-Received: from leibniz.math.psu.edu ([146.186.130.2]:39850 "EHLO math.psu.edu")
-	by vger.kernel.org with ESMTP id <S281799AbRKQS3l>;
-	Sat, 17 Nov 2001 13:29:41 -0500
-Date: Sat, 17 Nov 2001 13:29:39 -0500 (EST)
-From: Alexander Viro <viro@math.psu.edu>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: Linus Torvalds <torvalds@transmeta.com>, wwcopt@optonline.net,
-        linux-kernel@vger.kernel.org
-Subject: Re: [PATCH][RFC] Re: 2.4.15-pre5: /proc/cpuinfo broken
-In-Reply-To: <E1659pZ-0007sI-00@the-village.bc.nu>
-Message-ID: <Pine.GSO.4.21.0111171322090.11475-100000@weyl.math.psu.edu>
+	id <S281799AbRKQS3u>; Sat, 17 Nov 2001 13:29:50 -0500
+Received: from AGrenoble-101-1-3-82.abo.wanadoo.fr ([193.253.251.82]:3456 "EHLO
+	strider.virtualdomain.net") by vger.kernel.org with ESMTP
+	id <S281797AbRKQS3i> convert rfc822-to-8bit; Sat, 17 Nov 2001 13:29:38 -0500
+Message-ID: <3BF6AD42.105@wanadoo.fr>
+Date: Sat, 17 Nov 2001 19:32:34 +0100
+From: =?ISO-8859-15?Q?Fran=E7ois?= Cami <stilgar2k@wanadoo.fr>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.5) Gecko/20011012
+X-Accept-Language: en-us, fr
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: "Michael N. Lipp" <MNL@MNL.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: kernel 2.4.14 breaks NVIDIA-1.0-1541 console switching
+In-Reply-To: <200111171745.fAHHjnZ02112@mnlpc.dtro.e-technik.tu-darmstadt.de>
+Content-Type: text/plain; charset=ISO-8859-15; format=flowed
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Michael N. Lipp wrote:
 
-
-On Sat, 17 Nov 2001, Alan Cox wrote:
-
-> > 	c) hunt down and fix the userland that relies on arithmetics
-> > on file position in case of regular files (POSIX prohibits it, SuS allows).
+> Hello,
 > 
-> You forgot d.
-> 
-> (d) - when someone seeks in the file do the seek, and document that they
-> lose their guarantees. So they fall back to existing 1.0->2.4 behaviour.
-> You just run the iterator either on or back from scratch to the seek point.
+> when I upgraded to 2.4.14, I found that console-switching doesn't work
+> anymore with the latest NVIDIA driver installed. When I try to return
+> to the console from X11 the system simply hangs (this includes
+> shutdown, which makes it a real problem). Reverting to 2.4.13 fixed
+> things. Sorry I can't report more hints.
 
-Umm...  In principle doable, but then we are losing anything resembling
-sane behaviour on seek to remembered position.  OTOH, it's weak anyway
-and saying that it's FIFO and trying to squeeze something from lseek()
-is not too attractive.
+Are you using framebuffer ? A friend of mine had exactly the same
+problem, and it went away when he disabled the framebuffer...
 
-I'll do that variant - it will be local to file/seq_file.c.  I'll give it
-some beating and send it - hopefully in an hour or two.
+François
+
 

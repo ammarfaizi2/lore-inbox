@@ -1,66 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129171AbQKASjg>; Wed, 1 Nov 2000 13:39:36 -0500
+	id <S129562AbQKASrT>; Wed, 1 Nov 2000 13:47:19 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129562AbQKASj0>; Wed, 1 Nov 2000 13:39:26 -0500
-Received: from smartmail.smartweb.net ([207.202.14.198]:17414 "EHLO
-	smartmail.smartweb.net") by vger.kernel.org with ESMTP
-	id <S129171AbQKASjX>; Wed, 1 Nov 2000 13:39:23 -0500
-Message-ID: <3A006340.93822A@dm.ultramaster.com>
-Date: Wed, 01 Nov 2000 13:38:56 -0500
-From: David Mansfield <lkml@dm.ultramaster.com>
-Organization: Ultramaster Group LLC
-X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.4.0-test10 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: lkml <linux-kernel@vger.kernel.org>
-Subject: [BUG] /proc/<pid>/stat access stalls badly for swapping process, 
- 2.4.0-test10
+	id <S129937AbQKASrK>; Wed, 1 Nov 2000 13:47:10 -0500
+Received: from [216.161.55.93] ([216.161.55.93]:33275 "EHLO blue.int.wirex.com")
+	by vger.kernel.org with ESMTP id <S129562AbQKASrF>;
+	Wed, 1 Nov 2000 13:47:05 -0500
+Date: Wed, 1 Nov 2000 10:46:24 -0800
+From: Greg KH <greg@wirex.com>
+To: David Brownell <david-b@pacbell.net>
+Cc: linux-usb-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
+Subject: Re: [linux-usb-devel] Patch: linux-2.4.0-test10-pre7/drivers/usb/usb.c driver matching bug
+Message-ID: <20001101104624.C5526@wirex.com>
+Mail-Followup-To: Greg KH <greg@wirex.com>,
+	David Brownell <david-b@pacbell.net>,
+	linux-usb-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
+In-Reply-To: <200011010342.TAA08318@adam.yggdrasil.com> <013501c0442a$1b08f160$6500000a@brownell.org>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <013501c0442a$1b08f160$6500000a@brownell.org>; from david-b@pacbell.net on Wed, Nov 01, 2000 at 09:35:18AM -0800
+X-Operating-System: Linux 2.2.17-immunix (i686)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi VM/procfs hackers,
+On Wed, Nov 01, 2000 at 09:35:18AM -0800, David Brownell wrote:
+> With the USB driver updates I've already seen, it looks like an
+> upcoming 2.4 kernel may no longer need those driver scripts; not
+> sure about the 2.2 backports though.
 
-System is UP Athlon 700mhz with 256mb ram running vanilla 2.4.0-test10.
-gcc version egcs-2.91.66 19990314/Linux (egcs-1.1.2 release)
+I think one of the "rules" is that the 2.2.x kernel shouldn't require an
+upgrade of userspace tools, such as modutils in this case.
 
-I'd like to report what seems like a performance problem in the latest
-kernels.  Actually, all recent kernels have exhibited this problem, but
-I was waiting for the new VM stuff to stabilize before reporting it. 
+So 2.2 would still require the driver scripts if you want to support
+dynamic module loading on USB device insertion, but this makes yet
+another good reason to move to 2.4 when it is available :)
 
-My test is: run 7 processes that each allocate and randomly access 32mb
-of ram (on a 256mb machine).  Even though 7*32MB = 224MB, this still
-sends the machine lightly into swap.  The machine continues to function
-fairly smoothly for the most part.  I can do filesystem operations, run
-new programs, move desktops in X etc.
+greg k-h
 
-Except: programs which access /proc/<pid>/stat stall for an inderminate
-amount of time.  For example, 'ps' and 'vmstat' stall BADLY in these
-scenarios.  I have had the stalls last over a minute in higher VM
-pressure situations. 
-
-Unfortunately, when system is thrashing, it's nice to be able to run
-'ps' in order to get the PID to kill, and run a reliable vmstat to
-monitor it.
-
-Here's a segment of an strace of 'ps' showing a 12 second stall (this
-isn't the worst I've seen by any means, but a 12 second stall trying to
-get process info for 1 swapping task can easily snowball into a DOS).
-
-     0.000119 open("/proc/4746/stat", O_RDONLY) = 7
-     0.000072 read(7, "4746 (hog) D 4739 4739 827 34817"..., 511) = 181
-    12.237161 close(7)                  = 0
-
-The wchan of the stalled 'ps' is in __down_interruptible, which probably
-doesn't help much.
-
-This worked absolutely fine in 2.2.  Even under extreme swap pressure,
-vmstat continues to function fine, spitting out messages every second as
-it should.
-
-David Mansfield
+-- 
+greg@(kroah|wirex).com
+http://immunix.org/~greg
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

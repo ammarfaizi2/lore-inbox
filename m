@@ -1,63 +1,105 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317176AbSGHVwL>; Mon, 8 Jul 2002 17:52:11 -0400
+	id <S317181AbSGHVyE>; Mon, 8 Jul 2002 17:54:04 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317180AbSGHVwK>; Mon, 8 Jul 2002 17:52:10 -0400
-Received: from 62-190-218-53.pdu.pipex.net ([62.190.218.53]:11788 "EHLO
-	darkstar.example.net") by vger.kernel.org with ESMTP
-	id <S317176AbSGHVwK>; Mon, 8 Jul 2002 17:52:10 -0400
-From: jbradford@dial.pipex.com
-Message-Id: <200207082159.WAA03443@darkstar.example.net>
-Subject: Re: ATAPI + cdwriter problem
-To: mistral@stev.org (James Stevenson)
-Date: Mon, 8 Jul 2002 22:59:36 +0100 (BST)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <000901c226ac$dec99b20$0501a8c0@Stev.org> from "James Stevenson" at Jul 08, 2002 07:25:42 PM
-X-Mailer: ELM [version 2.5 PL1]
+	id <S317180AbSGHVyD>; Mon, 8 Jul 2002 17:54:03 -0400
+Received: from mion.elka.pw.edu.pl ([194.29.160.35]:49062 "EHLO
+	mion.elka.pw.edu.pl") by vger.kernel.org with ESMTP
+	id <S317181AbSGHVyB>; Mon, 8 Jul 2002 17:54:01 -0400
+Date: Mon, 8 Jul 2002 23:56:22 +0200 (MET DST)
+From: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
+To: Paul Bristow <paul@paulbristow.net>
+cc: Martin Dalecki <dalecki@evision-ventures.com>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH 2.5.22] simple ide-tape.c and ide-floppy.c cleanup
+In-Reply-To: <3D29F70D.6020001@paulbristow.net>
+Message-ID: <Pine.SOL.4.30.0207082348540.21406-100000@mion.elka.pw.edu.pl>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=iso-8859-2
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
 
-What's the make and model of your CD-writer?  There are known firmware bugs with a lot of them.
+On Mon, 8 Jul 2002, Paul Bristow wrote:
 
-John.
+> OK.  I kept quiet while the IDE re-write went on so that when it was
+> over I could fix up ide-floppy and start adding some of the requested
+> features that were only really possible with the taskfile capabilities.
+>  But I have to jump in with the latest statements from Martin...
 
-> Hi
-> 
-> i have  bunch of messages like these and a hung cd writer
-> 
-> scsi : aborting command due to timeout : pid 28231, scsi0, channel 0, id 2,
-> lun 0 Test Unit Ready 00 00 00 00 00
-> SCSI host 0 abort (pid 28231) timed out - resetting
-> SCSI bus is being reset for host 0 channel 0.
-> hdg: ATAPI reset timed-out, status=0xd0
-> PDC202XX: Secondary channel reset.
-> ide3: reset: success
-> hdg: irq timeout: status=0xc0 { Busy }
-> hdg: status timeout: status=0xd0 { Busy }
-> hdg: drive not ready for command
-> 
-> 
-> anyone be able to suggest any action to help prevent it in the future ?
-> 
-> thanks
->     James
-> 
-> --------------------------
-> Mobile: +44 07779080838
-> http://www.stev.org
->   7:10pm  up 57 min,  3 users,  load average: 2.05, 1.84, 1.10
-> 
-> 
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
+Great.
+
+> Martin Dalecki wrote:
+>
+> >U¿ytkownik Eduard Bloch napisa³:
+> >
+> >>Why not another way round? Just make the ide-scsi driver be prefered,
+> >>and hack ide-scsi a bit to simulate the cdrom and adv.floppy devices
+> >>that are expected as /dev/hd* by some user's configuration?
+> >
+> >This is the intention.
+
+Bad intentions?
+
+> >
+> Since when?  I thought Jens was in the process of getting rid of the
+> ide-scsi kludge with his moves to support cd/dvd writing directly in
+> ide-cd?
+
+We should have generic packet command interface ATAPI/SCSI,
+ide-cd and sr should care only about ATA(PI)/SCSI specifics.
+Of course if this is possible...
+
+> >>to be honest - why keep ide-[cd,floppy,tape] when they can be almost
+> >>completely replaced with ide-scsi? I know about only few cdrom devices
+> >>that are broken (== not ATAPI compliant) but can be used with
+> >>workarounds in the current ide-cd driver. OTOH many users do already
+> >>need ide-scsi to access cd recorders and similar hardware, so they would
+> >>benefit much more from having ide-scsi as default than few users of
+> >>broken "atapi" drives.
+> >>
+> >>
+> OK.  I would prefer though to take Linus's comment on board about
+> unifying the removeable media  interfaces. Be they IDE, SCSI, Firewire,
+> USB, whatever.  Let's try to make it something comprehensible for
+> "normal humans", and don't say "let config scripts sort it out - I deal
+> with many user help requests from broken configs.
+>
+> Please don't forget that
+>   a) some of the broken ide devices will still need fixes even if
+> handled via ide-scsi (and yes, devices on the market today are still
+> broken today)
+>   b) some features still need IDE commands (not ATAPI) which I hoped we
+> would have done via taskfile - I guess this is tricky via ide-scsi
+>   c) getting ide-scsi working for PCMCIA devices is an absolute f*****g
+> nightmare - for this reason alone I would keep ide-floppy
+>   d) many of these devices (LS120/LS240/Zip 100/250 etc) can and need to
+> boot.  I don't even know how to start doing this under ide-scsi in it's
+> present form.
+>
+> The current system may be ugly, but if we have to break it in the name
+> of progress we have at least to make the new, improved version work as
+> well (and hopefully better) than the old one.
+
+Fully agreed.
+
+> >>Other operating systems did switch to constitent (scsi-based) way of
+> >>accessing all kinds of removable media drivers. Why does Linux have to
+> >>keep a kludge, written years ago without having a good concept?
+> If we can address all these issues I will be extremely happy to helping
+> create a sensible removeable media subsystem.
+>
+> --
+>
+> Paul
+>
+> Linux ide-floppy maintainer
+> Email:	paul@paulbristow.net
+> Web:	http://paulbristow.net
+> ICQ:	11965223
+
+Greets
+--
+Bartlomiej
 

@@ -1,97 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271333AbTHRIpW (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 18 Aug 2003 04:45:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271335AbTHRIpW
+	id S271336AbTHRIyl (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 18 Aug 2003 04:54:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271341AbTHRIyl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 18 Aug 2003 04:45:22 -0400
-Received: from [195.70.253.128] ([195.70.253.128]:43392 "EHLO newmx4")
-	by vger.kernel.org with ESMTP id S271333AbTHRIpR (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 18 Aug 2003 04:45:17 -0400
-Date: Mon, 18 Aug 2003 10:44:46 +0200
-To: linux-kernel@vger.kernel.org
-Subject: i865G chipset AGP support - report
-Message-ID: <20030818084446.GI5732@marvin>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-2
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-User-Agent: Mutt/1.5.4i
-From: VEGH Karoly <karoly.vegh@uta.at>
+	Mon, 18 Aug 2003 04:54:41 -0400
+Received: from bart.one-2-one.net ([217.115.142.76]:22020 "EHLO
+	bart.webpack.hosteurope.de") by vger.kernel.org with ESMTP
+	id S271336AbTHRIyk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 18 Aug 2003 04:54:40 -0400
+Date: Mon, 18 Aug 2003 10:55:43 +0200 (CEST)
+From: Martin Diehl <lists@mdiehl.de>
+X-X-Sender: martin@notebook.home.mdiehl.de
+To: Jeff Garzik <jgarzik@pobox.com>
+cc: Jean Tourrilhes <jt@hpl.hp.com>,
+       Linux kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH 2.5 IrDA] vlsi driver update
+In-Reply-To: <3F3FD9C3.6000601@pobox.com>
+Message-ID: <Pine.LNX.4.44.0308172221050.1469-100000@notebook.home.mdiehl.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sun, 17 Aug 2003, Jeff Garzik wrote:
 
-Hi,
+> > 1) apply single big patch, basically replacing the code
+> > 2) back out the existing driver and put in a new one resulting in the same 
+> >    code as above
+> > 3) do nothing, i.e. stay with vlsi_ir being worse and unsupported in 2.4 
+> >    forever
+> > 
+> > Please advise!
+> 
+> 4) split up the patch, pretty please with sugar on it.
 
-I just found an interesting behaviour of the agpgart code in
-the Linux kernel with a (quite new chipset) MSI 865PE motherboard.
+Ok, Thanks for the reply. As I don't want to suggest removing the driver 
+from 2.6 at this point, I'll do the split-up when finding some time. As 
+said, for 2.4 however this is not an option.
 
-in the /usr/src/linux/drivers/char/agp/agpgart_be.c 2 names are in, 
-but AFAIK Jeff Hartmann doesn't actively maintain the code anymore,
-(also couldn't reach him at jhartmann@precisioninsight.com), and 
-I'm not quite sure if David Dawes got my report, so I decided to 
-post here.
+Given the time already wasted getting this into 2.5/2.6 this additional 
+work forces me to consider 2.4 "don't care" for now - no problem. 
+Jean, please tell me if you'd like some 2.4-backport to be put on your 
+page so people can pull there.
 
-Please let me have a CC personally if you reply.
+Martin
 
-I have quite a new motherboard, (MSI 865PE) with an Sapphire
-Radeon 9500 128Mb card.
-
-The agpgart module I can load fine with the 2.4.22-pre10 kernel-version:
-
-bh:/usr/src# uname -a 
-Linux bh 2.4.22-pre10 #1 Sat Aug 2 09:38:38 CEST 2003 i686 GNU/Linux
-bh:/usr/src# dmesg | grep -i agp
-Linux agpgart interface v0.99 (c) Jeff Hartmann
-agpgart: Maximum main memory to use for agp memory: 941M
-agpgart: Detected Intel(R) 865G chipset
-agpgart: AGP aperture is 64M @ 0xf8000000
-bh:/usr/src# 
-
-couldn't load it with 2.4.22-pre8 (that's why the upgrade), I thought 
-it was fixed, but now with 2.4.22-rc2 I again get the same errormsg 
-that i got with 2.4.22-pre8:
-
-bh:~# uname -a 
-Linux bh 2.4.22-rc2 #1 Wed Aug 13 19:28:57 CEST 2003 i686 GNU/Linux
-bh:~# modprobe agpgart
-/lib/modules/2.4.22-rc2/kernel/drivers/char/agp/agpgart.o: init_module: No such device
-Hint: insmod errors can be caused by incorrect module parameters, including invalid IO or IRQ parameters.
-      You may find more information in syslog or the output from dmesg
-/lib/modules/2.4.22-rc2/kernel/drivers/char/agp/agpgart.o: insmod /lib/modules/2.4.22-rc2/kernel/drivers/char/agp/agpgart.o failed
-/lib/modules/2.4.22-rc2/kernel/drivers/char/agp/agpgart.o: insmod agpgart failed
-bh:~# dmesg | grep -i agp
-Linux agpgart interface v0.99 (c) Jeff Hartmann
-agpgart: Maximum main memory to use for agp memory: 941M
-agpgart: Detected an Intel(R) 865G, but could not find the secondary device. Assuming a non-integrated video card.
-agpgart: unsupported bridge
-agpgart: no supported devices found.
-bh:~#
-
-Question: Whom can I help you with more information? What info do you need
-more from me that can help your work?
-
-Is the Documentation up-to-date? Chipset 865 isn't mentioned in it, (although 
-it works with -pre10)
-
-Intel 440LX/BX/GX/815/820/830/840/845/850/860 support
-CONFIG_AGP_INTEL
-  This option gives you AGP support for the GLX component of the
-  XFree86 4.x on Intel 440LX/BX/GX, 815, 820, 830, 840, 845, 850 and 860 chipsets.
-
-and didnt find the ChangeLog as well...
-
-bh:/usr/src/linux/drivers/char# find . -iname changelog -type f
-./ChangeLog
-bh:/usr/src/linux/drivers/char# grep -i agp ChangeLog 
-bh:/usr/src/linux/drivers/char# 
-
-TIA & HTH
-
-charlie
-
--- 
-Végh Károly -  System Engineer - UTA - TIS.SAS.BSS
-Don't worry. Everything is getting nicely out of control.

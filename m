@@ -1,25 +1,25 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265910AbUFDS3m@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265916AbUFDShc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265910AbUFDS3m (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Jun 2004 14:29:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265916AbUFDS3m
+	id S265916AbUFDShc (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Jun 2004 14:37:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265911AbUFDShc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Jun 2004 14:29:42 -0400
-Received: from fw.osdl.org ([65.172.181.6]:63366 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S265910AbUFDS3k (ORCPT
+	Fri, 4 Jun 2004 14:37:32 -0400
+Received: from mtvcafw.sgi.com ([192.48.171.6]:25582 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S265916AbUFDShK (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Jun 2004 14:29:40 -0400
-Date: Fri, 4 Jun 2004 11:27:30 -0700
-From: Andrew Morton <akpm@osdl.org>
+	Fri, 4 Jun 2004 14:37:10 -0400
+Date: Fri, 4 Jun 2004 11:42:19 -0700
+From: Paul Jackson <pj@sgi.com>
 To: William Lee Irwin III <wli@holomorphy.com>
-Cc: pj@sgi.com, mikpe@csd.uu.se, nickpiggin@yahoo.com.au,
-       rusty@rustcorp.com.au, linux-kernel@vger.kernel.org, ak@muc.de,
+Cc: mikpe@csd.uu.se, nickpiggin@yahoo.com.au, rusty@rustcorp.com.au,
+       linux-kernel@vger.kernel.org, akpm@osdl.org, ak@muc.de,
        ashok.raj@intel.com, hch@infradead.org, jbarnes@sgi.com,
        joe.korty@ccur.com, manfred@colorfullife.com, colpatch@us.ibm.com,
        Simon.Derr@bull.net
 Subject: Re: [PATCH] cpumask 5/10 rewrite cpumask.h - single bitmap based
  implementation
-Message-Id: <20040604112730.534cca55.akpm@osdl.org>
+Message-Id: <20040604114219.40e50737.pj@sgi.com>
 In-Reply-To: <20040604181233.GF21007@holomorphy.com>
 References: <16576.16748.771295.988065@alkaid.it.uu.se>
 	<20040604093712.GU21007@holomorphy.com>
@@ -32,28 +32,26 @@ References: <16576.16748.771295.988065@alkaid.it.uu.se>
 	<20040604162853.GB21007@holomorphy.com>
 	<20040604104756.472fd542.pj@sgi.com>
 	<20040604181233.GF21007@holomorphy.com>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Organization: SGI
+X-Mailer: Sylpheed version 0.8.10claws (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-William Lee Irwin III <wli@holomorphy.com> wrote:
->
-> _SC_NPROCESSOR_CONF is
->  unimplementable. NR_CPUS serves as an upper bound on the number of cpus
->  that may at some time be simultaneously present in the future.
+William Lee Irwin III wrote:
+> Without any way to reliably determine this, luserspace is fscked.
 
-NR_CPUS is arguably the correct thing when it comes to copying per-cpu info
-to and from userspace.
+I don't see why user code needs to determine NR_CPUS exactly.  Any
+reasonable upper bound should work - reasonable meaning doesn't waste
+too many unused words of memory.
 
-Sometimes userspace wants to know NR_CPUS.  Sometimes it wants to know the
-index of the max possible CPU.  Sometimes, perhaps the index of the max
-online CPU.  Sometimes the max index of the CPUs upon which this task is
-eligible to run.  Sometimes (lame) userspace may want to know, at compile
-time, the maximum number of CPUs which a Linux kernel will ever support.
+It's not really NR_CPUS that users need - its a reasonably close upper
+bound to the size of the space that sched_getaffinity() must be provided
+they need.  And your code does a pretty good job of providing that.
 
-It's not completely trivial.
-
-Which of the above is _SC_NPROCESSOR_CONF supposed to return?
+-- 
+                          I won't rest till it's the best ...
+                          Programmer, Linux Scalability
+                          Paul Jackson <pj@sgi.com> 1.650.933.1373

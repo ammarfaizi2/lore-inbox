@@ -1,84 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261972AbVADCes@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261973AbVADCg4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261972AbVADCes (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 3 Jan 2005 21:34:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261973AbVADCes
+	id S261973AbVADCg4 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 3 Jan 2005 21:36:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261886AbVADCg4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 3 Jan 2005 21:34:48 -0500
-Received: from server.gactechnologies.com ([69.57.186.242]:51639 "EHLO
-	server.gactechnologies.com") by vger.kernel.org with ESMTP
-	id S261972AbVADCej (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 3 Jan 2005 21:34:39 -0500
-Subject: PRIZE AWARDS WINNING NOTIFICATION
-From: mildredhugo <mildredhugo@muchomail.com>
-X-Priority: 3 (Normal)
+	Mon, 3 Jan 2005 21:36:56 -0500
+Received: from rproxy.gmail.com ([64.233.170.199]:23875 "EHLO rproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S262030AbVADCgo (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 3 Jan 2005 21:36:44 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
+        b=ZwFRQ71BAUNjWV86I6Bf7HerNuDDqEWQBQHLhrisIahCIs8V2d3uVPxxwYIK5QI8jVAMBcfGJ4k4rn7k2+oSE0u1xYhj4X/KGUL526iRDxIwsCq1xT+UhJfYWxONUQ8zAYxZ6PN/TbUiKMqoqYUov0SPOLHwYWHIcr0mDxpbu7g=
+Message-ID: <4d8e3fd305010318362c864025@mail.gmail.com>
+Date: Tue, 4 Jan 2005 03:36:43 +0100
+From: Paolo Ciarrocchi <paolo.ciarrocchi@gmail.com>
+Reply-To: Paolo Ciarrocchi <paolo.ciarrocchi@gmail.com>
+To: Roman Zippel <zippel@linux-m68k.org>
+Subject: Re: starting with 2.7
+Cc: Diego Calleja <diegocg@teleline.es>, Willy Tarreau <willy@w.ods.org>,
+       wli@holomorphy.com, bunk@stusta.de, davidsen@tmr.com, aebr@win.tue.nl,
+       solt2@dns.toxicfilms.tv, linux-kernel@vger.kernel.org
+In-Reply-To: <200501040306.28221.zippel@linux-m68k.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-X-Mailer: RLSP Mailer
-Message-Id: <E1CldrP-0003iB-J5@server.gactechnologies.com>
-Date: Mon, 03 Jan 2005 20:51:47 -0500
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - server.gactechnologies.com
-X-AntiAbuse: Original Domain - vger.kernel.org
-X-AntiAbuse: Originator/Caller UID/GID - [99 32087] / [47 12]
-X-AntiAbuse: Sender Address Domain - server.gactechnologies.com
-X-Source: 
-X-Source-Args: /usr/local/apache/bin/httpd -DSSL 
-X-Source-Dir: raponi.info:/public_html/phpnuke
-To: unlisted-recipients:; (no To-header on input)
+References: <20050102221534.GG4183@stusta.de>
+	 <20050103053304.GA7048@alpha.home.local>
+	 <20050103142412.490239b8.diegocg@teleline.es>
+	 <200501040306.28221.zippel@linux-m68k.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, 4 Jan 2005 03:06:25 +0100, Roman Zippel <zippel@linux-m68k.org> wrote:
+> Hi,
+> 
+> On Monday 03 January 2005 14:24, Diego Calleja wrote:
+> 
+> > I fully agree with WLI that the 2.4 development model and the
+> > backporting-mania created more problems than it solved, because in the real
+> > world almost everybody uses what distros ship, and what distros ship isn't
+> > kernel.org but heavily modified kernels, which means that the kernel.org
+> > was not really "well-tested" or it took much longer to become "well-tested"
+> > because it wasn't really being used.
+> 
+> Backporting isn't the primary problem. The real problem were the huge time
+> intervals between stable releases. A new stable release brings a huge amount
+> of changes which got different levels of testing, which makes upgrading quite
+> an experience.
+> What we need are regular releases of stable kernels with a manageable amount
+> of changes and a development tree to pull these changes from. It's a bit
+> comparable to Debian testing/unstable. Changes go only from one tree to the
+> other if they fulfil certain criteria. The job of the stable tree maintainer
+> wouldn't be anymore to apply random patches sent to him, but to select
+> instead which patches to pull from the development tree.
+> This doesn't of course guarantees perfectly stable kernels, but it would
+> encourage more people to run recent stable kernels and avoids the huge steps
+> in kernel upgrades. The only problem is that I don't know of any source code
+> management system which supports this kind of development reasonably easy...
 
-FROM:GOVERNMENT ACCREDITED LICENSED LOTTERY PROMOTERS.
+It really makes sense.
+vanilla and -mm are already a kind of stable/unstale tree though.
 
-WINNING NOTICE FOR CATEGORY "A" WINNER
-
-Dear Lucky Winner,
-
-RE:BONUS LOTTERY PROMOTION PRIZE AWARDS WINNING NOTIFICATION
-
-We are pleased to inform you of the result of the just concluded final aws of De Lotto Netherlands International Lottery programs.
-
-The online cyber lotto draws was conducted from an exclusive list of 25,000 e-mail addresses of individual and corporate bodies picked by an advanced automated random computer search from the internet. No tickets were sold.
-
-After this automated computer ballot, your e-mail address emerged as one of two winners in the category "A" with the following:
-
-Ref Number: 35149/337-5247/LNI
-Batch Number:26371545-LNI/2004
-Ticket Number:54866235
-
-You as well as the other winner are therefore to receive a cash prize of &#8364;1,500,000.00.(ONE MILLION FIVE HUNDRED THOUSAND EURO ONLY) each from the total payout.
-
-Your prize awards has been insured with your e-mail address and will be transfered to you upon meeting our requirements, statutory obligations, verifications, validations and satisfactory report.
-
-To begin the claims processing of your prize winnings you are advised to contact our licensed and accredited claims agent for category "A" winners with the informatiom below:
-
-Mr.Paul VanFrant
-Financial Director,
-Netherlands Development Finance Company,
-De Amsterdamse
-Poort Bijlmerplein
-888 1102 MG Amsterdam
-1000 BV Amsterdam
-E-mail  paul11_vaanfrant@excite.com
-
-
-NOTE: All winnings processing must begin before the end of the year. 
-After this date all unclaimed funds would be included in the next stake. 
-Remember to quote your reference information in all correspondence.
-
-
-Anybody under the age of 18 and members of the affiliate agencies are automatically not allowed to participate in this program.
-
-Thank you and congratulations!!!
-
-Yours faithfully,
-Mrs. Mildred Hugo
-Games/Lottery Coordinator.
-
-
-___________________________________________________________________________
-Questa e-mail e' stata inviata con il servizio WebMail implementato nel sito RAPONI.INFO
-- http://raponi.info
+-- 
+Paolo

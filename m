@@ -1,76 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313760AbSDPQeE>; Tue, 16 Apr 2002 12:34:04 -0400
+	id <S313763AbSDPQg4>; Tue, 16 Apr 2002 12:36:56 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313762AbSDPQeD>; Tue, 16 Apr 2002 12:34:03 -0400
-Received: from eventhorizon.antefacto.net ([193.120.245.3]:40898 "EHLO
-	eventhorizon.antefacto.net") by vger.kernel.org with ESMTP
-	id <S313760AbSDPQeC>; Tue, 16 Apr 2002 12:34:02 -0400
-Message-ID: <3CBC5264.5010701@antefacto.com>
-Date: Tue, 16 Apr 2002 17:33:40 +0100
-From: Padraig Brady <padraig@antefacto.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.9) Gecko/20020311
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Linus Torvalds <torvalds@transmeta.com>
-CC: Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] 2.5.8 IDE 36
-In-Reply-To: <Pine.LNX.4.33.0204160857470.1244-100000@home.transmeta.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S313764AbSDPQgz>; Tue, 16 Apr 2002 12:36:55 -0400
+Received: from adsl-63-194-239-202.dsl.lsan03.pacbell.net ([63.194.239.202]:22775
+	"EHLO mmp-linux.matchmail.com") by vger.kernel.org with ESMTP
+	id <S313763AbSDPQgy>; Tue, 16 Apr 2002 12:36:54 -0400
+Date: Tue, 16 Apr 2002 09:39:20 -0700
+From: Mike Fedyk <mfedyk@matchmail.com>
+To: Andrea Arcangeli <andrea@suse.de>
+Cc: William Lee Irwin III <wli@holomorphy.com>,
+        Linus Torvalds <torvalds@transmeta.com>,
+        Rik van Riel <riel@conectiva.com.br>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] for_each_zone / for_each_pgdat
+Message-ID: <20020416163920.GB23513@matchmail.com>
+Mail-Followup-To: Andrea Arcangeli <andrea@suse.de>,
+	William Lee Irwin III <wli@holomorphy.com>,
+	Linus Torvalds <torvalds@transmeta.com>,
+	Rik van Riel <riel@conectiva.com.br>, linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.33.0204151400200.13034-100000@penguin.transmeta.com> <Pine.LNX.4.33.0204151415110.15353-100000@penguin.transmeta.com> <20020415232058.GO21206@holomorphy.com> <20020416024458.H26561@dualathlon.random> <20020416013016.GA23513@matchmail.com> <20020416154418.B25328@dualathlon.random>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus Torvalds wrote:
+On Tue, Apr 16, 2002 at 03:44:18PM +0200, Andrea Arcangeli wrote:
+> On Mon, Apr 15, 2002 at 06:30:16PM -0700, Mike Fedyk wrote:
+> > under testing.  Also, Andrew found a problem with your locking changes when
+> > he split up your patch, and at the time you were saying it is ready and
+> > there were no bug reports against in...
 > 
-> On Tue, 16 Apr 2002, Alan Cox wrote:
+> btw, it was a problem only for ext3.
+>
+
+Right, I forgot to mention that.
+
+> > Does this patch conflict in any way with your vm patches?  If not they
+> > should be able to co-exist.
 > 
->>>Please use a the network block device, and teach the ndb deamon to just
->>>byteswap each word.
->>
->>You need to use loop not nbd - loopback nbd can deadlock. Byteswap as a
->>new revolutionary crypto system for the loopback driver isnt hard
+> it will generate rejects, but that's not the problem. My point is that
+> your same argument about merging in later kernels, stable kernel tree,
+> could be applied to patches that makes no difference to users too.
 > 
+
+True.  Has Rik's cleanup already been merged into 2.5?
+
+> Andrea
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 > 
-> Even better - I did indeed miss the "security" aspect of the byteswapping
-> ;)
-> 
-> And I know from personal experience that allowing partitioning of a
-> loopback thing would certainly have made some things a _lot_ easier (ie
-> not having to figure out the damn offsets in order to mount a filesystem
-> on a loopback volume), so having support for partitioning would be good.
-
-gpart is good for this:
-For e.g:
-
-$gpart -vgd partitions.img
-
-dev(partitions.img) mss(512)
-
-Primary partition(1)
-    type: 131(0x83)(Linux ext2 filesystem)
-    size: 2mb #s(4576) s(32-4607)
-    chs:  (0/1/1)-(8/15/32)d (0/0/0)-(0/0/0)r
-    hex:  00 01 01 00 83 0F 20 08 20 00 00 00 E0 11 00 00
-
-Primary partition(2)
-    type: 131(0x83)(Linux ext2 filesystem)
-    size: 59mb #s(121856) s(4608-126463)
-    chs:  (9/0/1)-(246/15/32)d (0/0/0)-(0/0/0)r
-    hex:  00 00 01 09 83 0F 20 F6 00 12 00 00 00 DC 01 00
-
-The pertinent info here is s(32-4607) & s(4608-126463).
-Blocks are 512 bytes so in this e.g. the offsets for
-the first and second partitions respectively are:
-16384 & 2359296
-
-> Although I do have this suspicion that that partitioning support should be
-> in user space (along with all the rest of the partitioning support, but
-> that's another matter and has some rather more serious backwards
-> compatibility issues, of course. Is anybody still working on the new early
-> initrd?).
-> 
-> 		Linus
-
-Padraig.
-

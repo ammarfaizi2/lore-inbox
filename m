@@ -1,61 +1,65 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293285AbSCKWBC>; Mon, 11 Mar 2002 17:01:02 -0500
+	id <S293447AbSCKWCc>; Mon, 11 Mar 2002 17:02:32 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293362AbSCKWAw>; Mon, 11 Mar 2002 17:00:52 -0500
-Received: from chaos.analogic.com ([204.178.40.224]:12160 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP
-	id <S293285AbSCKWAq>; Mon, 11 Mar 2002 17:00:46 -0500
-Date: Mon, 11 Mar 2002 17:01:05 -0500 (EST)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-Reply-To: root@chaos.analogic.com
-To: Steven Cole <elenstev@mesatop.com>
-cc: Hans Reiser <reiser@namesys.com>, linux-kernel@vger.kernel.org
-Subject: Re: linux-2.5.4-pre1 - bitkeeper testing
-In-Reply-To: <Pine.LNX.3.95.1020311165118.9954A-100000@chaos.analogic.com>
-Message-ID: <Pine.LNX.3.95.1020311165922.10077A-100000@chaos.analogic.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S293317AbSCKWCX>; Mon, 11 Mar 2002 17:02:23 -0500
+Received: from mail.pha.ha-vel.cz ([195.39.72.3]:47623 "HELO
+	mail.pha.ha-vel.cz") by vger.kernel.org with SMTP
+	id <S293362AbSCKWCH>; Mon, 11 Mar 2002 17:02:07 -0500
+Date: Mon, 11 Mar 2002 23:01:58 +0100
+From: Vojtech Pavlik <vojtech@suse.cz>
+To: Anton Altaparmakov <aia21@cus.cam.ac.uk>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        Andre Hedrick <andre@linuxdiskcert.org>,
+        Martin Dalecki <dalecki@evision-ventures.com>,
+        Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] 2.5.6 IDE 19
+Message-ID: <20020311230158.B3167@ucw.cz>
+In-Reply-To: <E16kUED-0001GB-00@the-village.bc.nu> <Pine.SOL.3.96.1020311180113.13428A-100000@libra.cus.cam.ac.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <Pine.SOL.3.96.1020311180113.13428A-100000@libra.cus.cam.ac.uk>; from aia21@cus.cam.ac.uk on Mon, Mar 11, 2002 at 06:05:36PM +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 11 Mar 2002, Richard B. Johnson wrote:
-
-> On Mon, 11 Mar 2002, Steven Cole wrote:
-> 
-> > On Monday 11 March 2002 12:15 pm, Hans Reiser wrote:
-> > > Steven Cole wrote:
-> > > >I fiddled around a bit with VMS, and it looks like the following command
-> > > > set things up for me so that I only have one version for any new files I
-> > > > create:
-> [SNIPPED]
-> 
+On Mon, Mar 11, 2002 at 06:05:36PM +0000, Anton Altaparmakov wrote:
+> On Mon, 11 Mar 2002, Alan Cox wrote:
+> > > Funny you should mention that point ... The "flagged taskfile code" is a
+> > > project to allow for NATIVE DFT support in Linux.  Nice screw job you did
+> > > to IBM.
 > > 
-> > I have not figured out how to set the version_limit retroactively; perhaps
->  it is
-> > not possible with a simple command.  Obviously, you could do this with a DCL 
-> > script if you really wanted to.
-> > 
-> > Steven
-> > -
+> > Ok so whats native DFT and where does he (and I for that matter) read about
+> > it ?
 > 
-> $ SET PROC/PRIV=ALL
-> $ SET DEF DISK:[000000]
-> $ PURGE
-> $ RENAME *.* ;1
+> DFT = Drive Fault Tolerance
+
+Hmmm, I thought it was Drive Fitness test. TLAs ...
+
+> It is an IBM utility which performs extensive diagnostics of a hard drive.
+> At present this is a DOS program which is used via a dos boot disk.
+
+Which is quite enough as it is. Anyway, the diagnostics consist mostly
+of S.M.A.R.T commands plus some seeking and linear reading of the
+surface.
+
+> Have look at the IBM website where you can download this (you can get a dd
+> image of the boot floppy from there, too, if you don't have Windows).
 > 
+> The idea behind native DFT is to be able to perform drive diagnostics from
+> within the OS without rebooting with a DOS disk and tying up the system
+> for hours during the checks. The advantages of this combined with IDE/SCSI
+> hot swap are strikingly obvious...
+> 
+> The utility also returns a special fault code which in combination with
+> the ibm website allows you to return a faulty disk and obtain a
+> replacement very easily.
 
-Oops...been a long time.... need:
+Hmm. I stopped believing in the usefulness of the IBM DFT after my IBM
+drive started giving unrecoverable errors reading my swap partition and
+the DFT said that everything was OK later when I ran it ...
 
-$ RENAME [*...]*.* ;1
-
-To follow the whole tree.
-
-
-Cheers,
-Dick Johnson
-
-Penguin : Linux version 2.4.18 on an i686 machine (797.90 BogoMips).
-
-	Bill Gates? Who?
-
+-- 
+Vojtech Pavlik
+SuSE Labs

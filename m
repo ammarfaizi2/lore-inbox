@@ -1,211 +1,168 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265763AbTGDEge (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Jul 2003 00:36:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265764AbTGDEge
+	id S265764AbTGDEop (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Jul 2003 00:44:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265767AbTGDEop
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Jul 2003 00:36:34 -0400
-Received: from dp.samba.org ([66.70.73.150]:56264 "EHLO lists.samba.org")
-	by vger.kernel.org with ESMTP id S265763AbTGDEg1 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Jul 2003 00:36:27 -0400
-From: Rusty Russell <rusty@rustcorp.com.au>
-To: torvalds@transmeta.com
-Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] module_put_and_exit
-Date: Fri, 04 Jul 2003 14:47:13 +1000
-Message-Id: <20030704045055.B5F692C078@lists.samba.org>
+	Fri, 4 Jul 2003 00:44:45 -0400
+Received: from c17870.thoms1.vic.optusnet.com.au ([210.49.248.224]:7627 "EHLO
+	mail.kolivas.org") by vger.kernel.org with ESMTP id S265764AbTGDEom
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 4 Jul 2003 00:44:42 -0400
+From: Con Kolivas <kernel@kolivas.org>
+To: linux kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: [PATCH] O2int 0307041440 for 2.5.74-mm1
+Date: Fri, 4 Jul 2003 14:59:08 +1000
+User-Agent: KMail/1.5.2
+Cc: Andrew Morton <akpm@osdl.org>
+MIME-Version: 1.0
+Content-Type: Multipart/Mixed;
+  boundary="Boundary-00=_cmQB//nWK+3AkA7"
+Message-Id: <200307041459.33326.kernel@kolivas.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Neil Brown
 
-Define module_put_and_exit() and use it for nfsd/lockd
+--Boundary-00=_cmQB//nWK+3AkA7
+Content-Type: Text/Plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: quoted-printable
+Content-Description: clearsigned data
+Content-Disposition: inline
 
-Both nfsd and lockd have threads which expect to hold a reference
-to the module while the thread is running.  In order for the thread
-to be able to put_module() the module before exiting, the
-put_module code must be call from outside the module.
+=2D----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-This patch provides module_put_and_exit in non-modular code which a
-thread-in-a-module can call.  It also gets nfsd and lockd to use it
-as appropriate.
+Here is a patch against the current O1int patch in 2.5.74-mm1.
+Since the O1int didn't mean anything I thought I'd call this O2int.
 
-Note that in lockd, we can __get_module in the thread itself as the
-creator of the thread is waiting for the thread to startup.
+This one wont blow you away but tames those corner cases.
 
-In nfsd and for the 'reclaimer' threaded started by locked, we
-__get_module first and put_module if the thread failed to start.
+Changes:
+The child penalty is set on 80% which means that tasks that wait on their=20
+children have children forking just on the edge of the interactive delta so=
+=20
+they shouldn't starve their own children.
 
- ----------- Diffstat output ------------
- ./fs/lockd/clntlock.c    |    9 ++++-----
- ./fs/lockd/svc.c         |    8 ++++++--
- ./fs/nfsd/nfssvc.c       |    8 +++++---
- ./include/linux/module.h |    8 ++++++++
- ./kernel/exit.c          |    1 +
- ./kernel/module.c        |   12 ++++++++++++
- 6 files changed, 36 insertions(+), 10 deletions(-)
+The non linear sleep avg boost is scaled down slightly to prevent this=20
+particular boost from being capable of making a task highly interactive. Th=
+is=20
+makes very new tasks less likely to have a little spurt of too high priorit=
+y.
 
-Name: module_put_and_exit
-Author: Neil Brown
-Status: Booted on 2.5.74-bk1
+Idle tasks now get their static priority over the full time they've been=20
+running rather than starting again at 1 second. This makes it harder for id=
+le=20
+tasks to suddenly become highly interactive and _then_ fork an interactive=
+=20
+bomb. Not sure on this one yet.
 
-D: Define module_put_and_exit() and use it for nfsd/lockd
-D: 
-D: Both nfsd and lockd have threads which expect to hold a reference
-D: to the module while the thread is running.  In order for the thread
-D: to be able to put_module() the module before exiting, the
-D: put_module code must be call from outside the module.
-D: 
-D: This patch provides module_put_and_exit in non-modular code which a
-D: thread-in-a-module can call.  It also gets nfsd and lockd to use it
-D: as appropriate.
-D: 
-D: Note that in lockd, we can __get_module in the thread itself as the
-D: creator of the thread is waiting for the thread to startup.
-D: 
-D: In nfsd and for the 'reclaimer' threaded started by locked, we
-D: __get_module first and put_module if the thread failed to start.
-D: 
-D:  ----------- Diffstat output ------------
-D:  ./fs/lockd/clntlock.c    |    9 ++++-----
-D:  ./fs/lockd/svc.c         |    8 ++++++--
-D:  ./fs/nfsd/nfssvc.c       |    8 +++++---
-D:  ./include/linux/module.h |    8 ++++++++
-D:  ./kernel/exit.c          |    1 +
-D:  ./kernel/module.c        |   12 ++++++++++++
-D:  6 files changed, 36 insertions(+), 10 deletions(-)
+The sched_exit penalty to parents of cpu hungry children is scaled accordin=
+gly=20
+(was missed on the original conversion so works better now).
 
-diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .25804-linux-2.5.74-bk1/fs/lockd/clntlock.c .25804-linux-2.5.74-bk1.updated/fs/lockd/clntlock.c
---- .25804-linux-2.5.74-bk1/fs/lockd/clntlock.c	2003-02-17 11:37:52.000000000 +1100
-+++ .25804-linux-2.5.74-bk1.updated/fs/lockd/clntlock.c	2003-07-04 07:58:04.000000000 +1000
-@@ -187,8 +187,9 @@ nlmclnt_recovery(struct nlm_host *host, 
- 	} else {
- 		nlmclnt_prepare_reclaim(host, newstate);
- 		nlm_get_host(host);
--		MOD_INC_USE_COUNT;
--		kernel_thread(reclaimer, host, CLONE_KERNEL);
-+		__module_get(THIS_MODULE);
-+		if (kernel_thread(reclaimer, host, CLONE_KERNEL))
-+			module_put(THIS_MODULE);
- 	}
- }
+Hysteresis on interactive buffer removed (was unecessary).
+
+Minor cleanup.
+
+Known issue remaining:
+Mozilla acts just like X in that it is mostly interactive but has bursts of=
+=20
+heavy cpu activity so it gets the same bonus as X. However it makes X jerky=
+=20
+during it's heavy cpu activity, and might in some circumstances make audio=
+=20
+skip. Fixing this kills X smoothness as they seem very similar to the=20
+estimator. Still haven't sorted a workaround for this one but I'm working o=
+n=20
+it. Ingo's original timeslice granularity patch helps a little and may be=20
+worth resuscitating (and the desktop only people can change the granularity=
+=20
+down to 10ms to satisfy their needs).
+
+Con
+=2D----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.2 (GNU/Linux)
+
+iD8DBQE/BQmjF6dfvkL3i1gRAiYhAKCnpZN//FkD1iO5b2SZ6HTURMUULwCfS43B
+Pn/1kRndvUz/lnjFI+lUpEc=3D
+=3DO+VS
+=2D----END PGP SIGNATURE-----
+
+--Boundary-00=_cmQB//nWK+3AkA7
+Content-Type: text/x-diff;
+  charset="us-ascii";
+  name="patch-O2int-0307041440"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment; filename="patch-O2int-0307041440"
+
+--- linux-2.5.74/kernel/sched.c	2003-07-04 14:30:11.000000000 +1000
++++ linux-2.5.74-test/kernel/sched.c	2003-07-04 14:41:22.000000000 +1000
+@@ -68,7 +68,7 @@
+  */
+ #define MIN_TIMESLICE		( 10 * HZ / 1000)
+ #define MAX_TIMESLICE		(200 * HZ / 1000)
+-#define CHILD_PENALTY		50
++#define CHILD_PENALTY		80
+ #define PARENT_PENALTY		100
+ #define EXIT_WEIGHT		3
+ #define PRIO_BONUS_RATIO	25
+@@ -405,30 +405,30 @@ static inline void activate_task(task_t 
+ 		 * from continually getting larger.
+ 		 */
+ 		if (runtime < MAX_SLEEP_AVG)
+-			p->sleep_avg += (runtime - p->sleep_avg) * (MAX_SLEEP_AVG - runtime) / MAX_SLEEP_AVG;
++			p->sleep_avg += (runtime - p->sleep_avg) * (MAX_SLEEP_AVG - runtime) *
++				(10 - INTERACTIVE_DELTA) / 10 / MAX_SLEEP_AVG;
  
-@@ -244,7 +245,5 @@ restart:
- 	nlm_release_host(host);
- 	lockd_down();
- 	unlock_kernel();
--	MOD_DEC_USE_COUNT;
--
--	return 0;
-+	module_put_and_exit(0);
- }
-diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .25804-linux-2.5.74-bk1/fs/lockd/svc.c .25804-linux-2.5.74-bk1.updated/fs/lockd/svc.c
---- .25804-linux-2.5.74-bk1/fs/lockd/svc.c	2003-07-03 09:43:54.000000000 +1000
-+++ .25804-linux-2.5.74-bk1.updated/fs/lockd/svc.c	2003-07-04 07:58:04.000000000 +1000
-@@ -88,7 +88,11 @@ lockd(struct svc_rqst *rqstp)
- 	unsigned long grace_period_expire;
+ 		/*
+-		 * Keep a buffer of 10-20% bonus sleep_avg with hysteresis
++		 * Keep a buffer of 10% sleep_avg
+ 		 * to prevent short bursts of cpu activity from making
+ 		 * interactive tasks lose their bonus
+ 		 */
+-		if (p->sleep_avg > MAX_SLEEP_AVG * 12/10)
++		if (p->sleep_avg > MAX_SLEEP_AVG * 11/10)
+ 			p->sleep_avg = MAX_SLEEP_AVG * 11/10;
  
- 	/* Lock module and set up kernel thread */
--	MOD_INC_USE_COUNT;
-+	/* lockd_up is waiting for us to startup, so will
-+	 * be holding a reference to this module, so it
-+	 * is safe to just claim another reference
-+	 */
-+	__module_get(THIS_MODULE);
- 	lock_kernel();
- 
- 	/*
-@@ -183,7 +187,7 @@ lockd(struct svc_rqst *rqstp)
- 
- 	/* Release module */
- 	unlock_kernel();
--	MOD_DEC_USE_COUNT;
-+	module_put_and_exit(0);
- }
- 
- /*
-diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .25804-linux-2.5.74-bk1/fs/nfsd/nfssvc.c .25804-linux-2.5.74-bk1.updated/fs/nfsd/nfssvc.c
---- .25804-linux-2.5.74-bk1/fs/nfsd/nfssvc.c	2003-07-03 09:43:54.000000000 +1000
-+++ .25804-linux-2.5.74-bk1.updated/fs/nfsd/nfssvc.c	2003-07-04 07:58:04.000000000 +1000
-@@ -115,9 +115,12 @@ nfsd_svc(unsigned short port, int nrserv
- 	nrservs -= (nfsd_serv->sv_nrthreads-1);
- 	while (nrservs > 0) {
- 		nrservs--;
-+		__module_get(THIS_MODULE);
- 		error = svc_create_thread(nfsd, nfsd_serv);
--		if (error < 0)
-+		if (error < 0) {
-+			module_put(THIS_MODULE);
- 			break;
-+		}
- 	}
- 	victim = nfsd_list.next;
- 	while (nrservs < 0 && victim != &nfsd_list) {
-@@ -173,7 +176,6 @@ nfsd(struct svc_rqst *rqstp)
- 	sigset_t shutdown_mask, allowed_mask;
- 
- 	/* Lock module and set up kernel thread */
--	MOD_INC_USE_COUNT;
- 	lock_kernel();
- 	daemonize("nfsd");
- 	current->rlim[RLIMIT_FSIZE].rlim_cur = RLIM_INFINITY;
-@@ -266,7 +268,7 @@ nfsd(struct svc_rqst *rqstp)
- 	svc_exit_thread(rqstp);
- 
- 	/* Release module */
--	MOD_DEC_USE_COUNT;
-+	module_put_and_exit(0);
- }
- 
- int
-diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .25804-linux-2.5.74-bk1/include/linux/module.h .25804-linux-2.5.74-bk1.updated/include/linux/module.h
---- .25804-linux-2.5.74-bk1/include/linux/module.h	2003-07-03 09:44:00.000000000 +1000
-+++ .25804-linux-2.5.74-bk1.updated/include/linux/module.h	2003-07-04 08:00:09.000000000 +1000
-@@ -276,8 +276,12 @@ struct module *module_get_kallsym(unsign
- 				  char *type,
- 				  char namebuf[128]);
- int is_exported(const char *name, const struct module *mod);
--#ifdef CONFIG_MODULE_UNLOAD
- 
-+extern void __module_put_and_exit(struct module *mod, long code)
-+	__attribute__((noreturn));
-+#define module_put_and_exit(code) __module_put_and_exit(THIS_MODULE, code);
+ 		/*
+ 		 * Tasks that sleep a long time are categorised as idle and
+ 		 * get their static priority only
+ 		 */
+-		if (sleep_time > MIN_SLEEP_AVG){
+-			p->avg_start = jiffies - MIN_SLEEP_AVG;
+-			p->sleep_avg = MIN_SLEEP_AVG / 2;
+-		}
++		if (sleep_time > MIN_SLEEP_AVG)
++			p->sleep_avg = runtime / 2;
 +
-+#ifdef CONFIG_MODULE_UNLOAD
- unsigned int module_refcount(struct module *mod);
- void __symbol_put(const char *symbol);
- #define symbol_put(x) __symbol_put(MODULE_SYMBOL_PREFIX #x)
-@@ -445,6 +449,8 @@ static inline int unregister_module_noti
- 	return 0;
+ 		if (unlikely(p->avg_start > jiffies)){
+ 			p->avg_start = jiffies;
+ 			p->sleep_avg = 0;
+ 		}
+-		p->prio = effective_prio(p);
+ 	}
++	p->prio = effective_prio(p);
+ 	__activate_task(p, rq);
  }
  
-+#define module_put_and_exit(code) do_exit(code)
-+
- #endif /* CONFIG_MODULES */
- 
- #ifdef MODULE
-diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal .25804-linux-2.5.74-bk1/kernel/module.c .25804-linux-2.5.74-bk1.updated/kernel/module.c
---- .25804-linux-2.5.74-bk1/kernel/module.c	2003-07-03 09:44:01.000000000 +1000
-+++ .25804-linux-2.5.74-bk1.updated/kernel/module.c	2003-07-04 07:59:20.000000000 +1000
-@@ -98,6 +98,17 @@ int init_module(void)
- }
- EXPORT_SYMBOL(init_module);
- 
-+/* A thread that wants to hold a reference to a module only while it
-+ * is running can call ths to safely exit.
-+ * nfsd and lockd use this.
-+ */
-+void __module_put_and_exit(struct module *mod, long code)
-+{
-+	module_put(mod);
-+	do_exit(code);
-+}
-+EXPORT_SYMBOL(__module_put_and_exit);
-+	
- /* Find a module section: 0 means not found. */
- static unsigned int find_sec(Elf_Ehdr *hdr,
- 			     Elf_Shdr *sechdrs,
+@@ -605,7 +605,6 @@ void wake_up_forked_process(task_t * p)
+ 	 * from forking tasks that are max-interactive.
+ 	 */
+ 	current->sleep_avg = current->sleep_avg * PARENT_PENALTY / 100;
+-	p->avg_start = current->avg_start;
+ 	normalise_sleep(p);
+ 	p->sleep_avg = p->sleep_avg * CHILD_PENALTY / 100;
+ 	p->prio = effective_prio(p);
+@@ -647,6 +646,8 @@ void sched_exit(task_t * p)
+ 	 * If the child was a (relative-) CPU hog then decrease
+ 	 * the sleep_avg of the parent as well.
+ 	 */
++	normalise_sleep(p);
++	normalise_sleep(p->parent);
+ 	if (p->sleep_avg < p->parent->sleep_avg)
+ 		p->parent->sleep_avg = (p->parent->sleep_avg * EXIT_WEIGHT +
+ 			p->sleep_avg) / (EXIT_WEIGHT + 1);
 
---
-  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.
+--Boundary-00=_cmQB//nWK+3AkA7--
+

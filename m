@@ -1,64 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266615AbUHaFF6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266585AbUHaFbL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266615AbUHaFF6 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 31 Aug 2004 01:05:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266603AbUHaFFy
+	id S266585AbUHaFbL (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 31 Aug 2004 01:31:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266595AbUHaFbL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 31 Aug 2004 01:05:54 -0400
-Received: from willy.net1.nerim.net ([62.212.114.60]:3852 "EHLO
-	willy.net1.nerim.net") by vger.kernel.org with ESMTP
-	id S266585AbUHaFFm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 31 Aug 2004 01:05:42 -0400
-Date: Tue, 31 Aug 2004 07:05:19 +0200
-From: Willy Tarreau <willy@w.ods.org>
-To: Ryan Cumming <ryan@spitfire.gotdns.org>
-Cc: "David S. Miller" <davem@redhat.com>, linux-kernel@vger.kernel.org
-Subject: Re: TG3(Tigoon) & Kernel 2.4.27
-Message-ID: <20040831050519.GE564@alpha.home.local>
-References: <412B5B35.7020701@apartia.fr> <20040825044551.GH1456@alpha.home.local> <20040824233648.53eb7c30.davem@redhat.com> <200408301814.41346.ryan@spitfire.gotdns.org>
+	Tue, 31 Aug 2004 01:31:11 -0400
+Received: from smtp.Lynuxworks.com ([207.21.185.24]:24582 "EHLO
+	smtp.lynuxworks.com") by vger.kernel.org with ESMTP id S266585AbUHaFbH
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 31 Aug 2004 01:31:07 -0400
+Date: Mon, 30 Aug 2004 22:30:55 -0700
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: Linus Torvalds <torvalds@osdl.org>, Tom Vier <tmv@comcast.net>,
+       linux-kernel@vger.kernel.org
+Subject: Userspace file systems & MKs (Re: silent semantic changes with reiser4)
+Message-ID: <20040831053055.GA8654@nietzsche.lynx.com>
+References: <1093480940.2748.35.camel@entropy> <20040826044425.GL5414@waste.org> <1093496948.2748.69.camel@entropy> <20040826053200.GU31237@waste.org> <20040826075348.GT1284@nysv.org> <20040826163234.GA9047@delft.aura.cs.cmu.edu> <Pine.LNX.4.58.0408260936550.2304@ppc970.osdl.org> <20040831033950.GA32404@zero> <Pine.LNX.4.58.0408302055270.2295@ppc970.osdl.org> <413400B6.6040807@pobox.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200408301814.41346.ryan@spitfire.gotdns.org>
-User-Agent: Mutt/1.4i
+In-Reply-To: <413400B6.6040807@pobox.com>
+User-Agent: Mutt/1.5.6+20040818i
+From: Bill Huey (hui) <bhuey@lnxw.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Aug 30, 2004 at 06:14:38PM -0700, Ryan Cumming wrote:
-> On Tuesday 24 August 2004 23:36, you wrote:
-> > I pity the poor fool who wishes to netboot his system using
-> > a tg3 card and use an nfsroot with Debian.  Kind of hard to
-> > get the card firmware from the filesystem in that case.
-> initramfs?
-> 
-> > The tg3 firmware is just a bunch of MIPS instructions.
-> > I guess if I ran objdump --disassemble on the image and
-> > used the output of that in the tg3 driver and "compiled
-> > that source" they'd be happy.  And this makes the situation
-> > even more ludicrious.
-> For GPL compliance, no, that wouldn't work. The GPL states:
-> "The source code for a work means the preferred form of the work for making 
-> modifications to it."
-> 
-> Which is likely C or at least assembly with label names and comments in this 
-> case.
+On Tue, Aug 31, 2004 at 12:38:14AM -0400, Jeff Garzik wrote:
+> _My_ own definition of microkernel, which differs from traditional CS, 
+> is where I would love to see Linux go:  move as much as humanly possible 
+> to userspace, such that, the kernel only contains pagecache operations, 
+> driver fast paths, and security checks.  Move slow paths, including ACPI 
+> probing, PCI bus walking, driver init/reset paths, some of the ioctl 
+> handling, to userspace.  Be willing to accept extra context switches as 
+> a cost in all but the fast paths.
 
-It would have taken less time for the people who removed the firmware and
-will assure support for their users to disassemble this code and put labels
-and comments in it. When I was 16, I totally disassembled my PC's bios (8kB)
-commented it and labelled it to the point of making it re-assemblable. It
-did not take very much time (a week-end), and it was crappy x86 code with
-unaligned and mangled code/data + hard-coded stack values for the "calls"
-without any RAM usage. Here you have about 2kB of clean MIPS code which is
-about 500 instructions (500 lines). I doubt anyone knowing mips assembly
-enough would spend more than a week-end putting comments and labels in it.
+	http://www.dragonflybsd.org
 
-Now another possibility would be for those zealots to replace the firmware
-by an open-source one such as http://alteon.shareable.org/ which BTW contains
-all the tools needed for the dirty work.
+DragonFly BSD, the only remotely functional open source BSD project on this
+planet, has plans in place to push certain kernel components like their VFS
+layer into userspace for easier debugging, testing and other things that go
+with developing file systems easily. If they back it with something like C++
+for doing constructor style type conversion on top of overloaded operators
+to back VFS data structure translation, could easily import stuff like most
+Linux file systems without major restructuring, say, if they had their
+translation library written. In this case, userspace kernel systems have
+some serious programming advantages over traditional kernels.
 
-Anyway, this thread is getting boring...
+They're also pushing an async syscall model to support a non-1:1 threading
+system for userspace unlike what Linux has done with futexes. It'll allow
+for them to plug in various userspace schedulers at will for whatever
+scheduling policy you want dynamically, even while the program is running.
 
-Regards,
-Willy
+This isn't mentioning their single system image clustering goals that have
+abstracted various kernel systems like their VFS stuff to a messaging model
+which should get them proccess migration as an intrinsic part of their OS
+design. They've made a lot of progress over the last year and it's largely
+because of Matt Dillon's ability to create a non-overly political group that
+creates trust. He's a true leader, not some random loud mouth(s) unlike
+other BSD efforts. It's much like the Linux community in this regard with
+Linus.
+
+bill
 

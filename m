@@ -1,70 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261910AbVCLNkf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261913AbVCLN6o@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261910AbVCLNkf (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 12 Mar 2005 08:40:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261912AbVCLNkd
+	id S261913AbVCLN6o (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 12 Mar 2005 08:58:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261912AbVCLN6o
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 12 Mar 2005 08:40:33 -0500
-Received: from mail.aei.ca ([206.123.6.14]:59630 "EHLO aeimail.aei.ca")
-	by vger.kernel.org with ESMTP id S261910AbVCLNkZ convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 12 Mar 2005 08:40:25 -0500
-From: Ed Tomlinson <tomlins@cam.org>
-Organization: me
-To: Andrew Morton <akpm@osdl.org>
-Subject: Re: 2.6.11-mm3
-Date: Sat, 12 Mar 2005 08:40:58 -0500
-User-Agent: KMail/1.7.2
-Cc: linux-kernel@vger.kernel.org
-References: <20050312034222.12a264c4.akpm@osdl.org>
-In-Reply-To: <20050312034222.12a264c4.akpm@osdl.org>
+	Sat, 12 Mar 2005 08:58:44 -0500
+Received: from [213.85.13.118] ([213.85.13.118]:42624 "EHLO tau.rusteko.ru")
+	by vger.kernel.org with ESMTP id S261913AbVCLN5l (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 12 Mar 2005 08:57:41 -0500
+From: Nikita Danilov <nikita@clusterfs.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 8BIT
-Content-Disposition: inline
-Message-Id: <200503120840.59095.tomlins@cam.org>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <16946.62799.737502.923025@gargle.gargle.HOWL>
+Date: Sat, 12 Mar 2005 16:57:35 +0300
+To: Christoph Lameter <clameter@sgi.com>
+Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org, akpm@osdl.org
+Subject: Re: [PATCH] mm counter operations through macros
+Newsgroups: gmane.linux.kernel.mm,gmane.linux.kernel
+In-Reply-To: <Pine.LNX.4.58.0503111103200.22240@schroedinger.engr.sgi.com>
+References: <Pine.LNX.4.58.0503110422150.19280@schroedinger.engr.sgi.com>
+	<20050311182500.GA4185@redhat.com>
+	<Pine.LNX.4.58.0503111103200.22240@schroedinger.engr.sgi.com>
+X-Mailer: VM 7.17 under 21.5 (patch 17) "chayote" (+CVS-20040321) XEmacs Lucid
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Saturday 12 March 2005 06:42, Andrew Morton wrote:
-> 2.6.11-mm3
->  From: Andrew Morton <akpm@osdl.org>
->  To: linux-kernel@vger.kernel.org
->  
-> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.11/2.6.11-mm3/
-> 
-> 
-> - A new version of the "acpi poweroff fix".  People who were having trouble
->   with ACPI poweroff, please test and report.
-> 
-> - A very large update to the CFQ I/O scheduler.  Treat with caution, run
->   benchmarks.  Remember that the I/O scheduler can be selected on a per-disk
->   basis with 
-> 
->         echo as > /sys/block/sda/queue/scheduler
->         echo deadline > /sys/block/sda/queue/scheduler
->         echo cfq > /sys/block/sda/queue/scheduler
-> 
-> - video-for-linux update
+Christoph Lameter writes:
+ > On Fri, 11 Mar 2005, Dave Jones wrote:
+ > 
+ > > Splitting this last one into inc_mm_counter() and dec_mm_counter()
+ > > means you can kill off the last argument, and get some of the
+ > > readability back. As it stands, I think this patch adds a bunch
+ > > of obfuscation for no clear benefit.
+ > 
+ > Ok.
+ > -----------------------------------------------------------------
+ > This patch extracts all the operations on counters protected by the
+ > page table lock (currently rss and anon_rss) into definitions in
+ > include/linux/sched.h. All rss operations are performed through
+ > the following macros:
+ > 
+ > get_mm_counter(mm, member)		-> Obtain the value of a counter
+ > set_mm_counter(mm, member, value)	-> Set the value of a counter
+ > update_mm_counter(mm, member, value)	-> Add to a counter
 
-Building with an -mm1 oldconfiged  on x86-64 arch I get:
+A nitpick, but wouldn't be it clearer to call it add_mm_counter()? As an
+additional bonus this matches atomic_{inc,dec,add}() and makes macro
+names more uniform.
 
-  LD      fs/ntfs/built-in.o
-  CC [M]  fs/ntfs/aops.o
-  CC [M]  fs/ntfs/attrib.o
-fs/ntfs/attrib.c: In function `ntfs_attr_make_non_resident':
-fs/ntfs/attrib.c:1295: warning: implicit declaration of function `ntfs_cluster_alloc'
-fs/ntfs/attrib.c:1296: error: `DATA_ZONE' undeclared (first use in this function)
-fs/ntfs/attrib.c:1296: error: (Each undeclared identifier is reported only once
-fs/ntfs/attrib.c:1296: error: for each function it appears in.)
-fs/ntfs/attrib.c:1296: warning: assignment makes pointer from integer without a cast
-fs/ntfs/attrib.c:1435: warning: implicit declaration of function `flush_dcache_mft_record_page'
-fs/ntfs/attrib.c:1436: warning: implicit declaration of function `mark_mft_record_dirty'
-fs/ntfs/attrib.c:1443: warning: implicit declaration of function `mark_page_accessed'
-fs/ntfs/attrib.c:1521: warning: implicit declaration of function `ntfs_cluster_free_from_rl'
-make[2]: *** [fs/ntfs/attrib.o] Error 1
-make[1]: *** [fs/ntfs] Error 2
-make: *** [fs] Error 2
+ > inc_mm_counter(mm, member)		-> Increment a counter
+ > dec_mm_counter(mm, member)		-> Decrement a counter
 
-Ed Tomlinson
+Nikita.

@@ -1,105 +1,144 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261505AbUCKGEo (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 11 Mar 2004 01:04:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261698AbUCKGEo
+	id S262748AbUCKGK7 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 11 Mar 2004 01:10:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262753AbUCKGK7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 11 Mar 2004 01:04:44 -0500
-Received: from mail.veka.com ([213.68.6.130]:26542 "EHLO mail.veka.com")
-	by vger.kernel.org with ESMTP id S261505AbUCKGEl (ORCPT
+	Thu, 11 Mar 2004 01:10:59 -0500
+Received: from dsl017-049-110.sfo4.dsl.speakeasy.net ([69.17.49.110]:4480 "EHLO
+	jm.kir.nu") by vger.kernel.org with ESMTP id S262748AbUCKGKy (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 11 Mar 2004 01:04:41 -0500
-From: Frank Fiene <ffiene@veka.com>
-Organization: VEKA AG
-To: linux-kernel@vger.kernel.org
-Subject: IBM Thinkpad with docking station
-Date: Thu, 11 Mar 2004 07:04:33 +0100
-User-Agent: KMail/1.6.1
-References: <404F09C6.7030200@softhome.net> <Pine.LNX.4.53.0403100806570.15421@chaos> <404F2EA1.8030702@softhome.net>
-In-Reply-To: <404F2EA1.8030702@softhome.net>
-MIME-Version: 1.0
+	Thu, 11 Mar 2004 01:10:54 -0500
+Date: Wed, 10 Mar 2004 22:08:19 -0800
+From: Jouni Malinen <jkmaline@cc.hut.fi>
+To: James Morris <jmorris@redhat.com>
+Cc: Clay Haapala <chaapala@cisco.com>, "David S. Miller" <davem@redhat.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: Crypto API and keyed non-HMAC digest algorithms / Michael MIC
+Message-ID: <20040311060818.GA3739@jm.kir.nu>
+References: <20040311030035.GA3782@jm.kir.nu> <Xine.LNX.4.44.0403102302450.935-100000@thoron.boston.redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 8bit
-Message-Id: <200403110704.34054.ffiene@veka.com>
+In-Reply-To: <Xine.LNX.4.44.0403102302450.935-100000@thoron.boston.redhat.com>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi, i've problem with my Thinkpad A31p, USB and docking station.
+On Wed, Mar 10, 2004 at 11:06:37PM -0500, James Morris wrote:
 
-Without the docking station, USB is working fine, if i plugin my 
-notebook, following errors occur (i remember, that before upgrading to 
-2.6.3 only one port could be used and with windoze both ports are ok):
+> I can't reproduce it now either (AFAICR, it oopsed in test_hash().  
+> 
+> I suspect it may have been caused by loading tcrypt module which was out
+> of sync with the digest setkey change.
 
-hub 1-0:1.0: usb_probe_interface
-hub 1-0:1.0: usb_probe_interface - got id
-hub 1-0:1.0: USB hub found
-hub 1-0:1.0: 2 ports detected
-hub 1-0:1.0: standalone hub
-hub 1-0:1.0: unknown reserved power switching mode
-hub 1-0:1.0: individual port over-current protection
-hub 1-0:1.0: Port indicators are not supported
-hub 1-0:1.0: power on to power good time: 2ms
-hub 1-0:1.0: hub controller current requirement: 0mA
-hub 1-0:1.0: local power source is good
-hub 1-0:1.0: no over-current condition exists
-hub 1-0:1.0: enabling power on all ports
-hub 1-0:1.0: port 1, status 101, change 1, 12 Mb/s
-uhci_hcd 0000:00:1d.1: root hub device address 1
-hub 2-0:1.0: usb_probe_interface
-hub 2-0:1.0: usb_probe_interface - got id
-hub 2-0:1.0: USB hub found
-hub 2-0:1.0: 2 ports detected
-hub 2-0:1.0: standalone hub
-hub 2-0:1.0: unknown reserved power switching mode
-hub 2-0:1.0: individual port over-current protection
-hub 2-0:1.0: Port indicators are not supported
-hub 2-0:1.0: power on to power good time: 2ms
-hub 2-0:1.0: hub controller current requirement: 0mA
-hub 2-0:1.0: local power source is good
-hub 2-0:1.0: no over-current condition exists
-hub 2-0:1.0: enabling power on all ports
-hub 1-0:1.0: debounce: port 1: delay 100ms stable 4 status 0x101
-uhci_hcd 0000:00:1d.2: root hub device address 1
-hub 1-0:1.0: port 1 not reset yet, waiting 50ms
-hub 1-0:1.0: port 1 not reset yet, waiting 200ms
-hub 3-0:1.0: usb_probe_interface
-hub 3-0:1.0: usb_probe_interface - got id
-hub 3-0:1.0: USB hub found
-hub 3-0:1.0: 2 ports detected
-hub 3-0:1.0: standalone hub
-hub 3-0:1.0: unknown reserved power switching mode
-hub 3-0:1.0: individual port over-current protection
-hub 3-0:1.0: Port indicators are not supported
-hub 3-0:1.0: power on to power good time: 2ms
-hub 3-0:1.0: hub controller current requirement: 0mA
-hub 3-0:1.0: local power source is good
-hub 3-0:1.0: no over-current condition exists
-hub 3-0:1.0: enabling power on all ports
-hub 1-0:1.0: port 1 not reset yet, waiting 200ms
-hub 1-0:1.0: port 1 not reset yet, waiting 200ms
-hub 1-0:1.0: port 1 not enabled, trying reset again...
-hub 1-0:1.0: port 1 not reset yet, waiting 200ms
-hub 1-0:1.0: port 1 not reset yet, waiting 200ms
-hub 1-0:1.0: port 1 not reset yet, waiting 200ms
-hub 1-0:1.0: port 1 not enabled, trying reset again...
-hub 1-0:1.0: port 1 not reset yet, waiting 200ms
-hub 1-0:1.0: port 1 not reset yet, waiting 200ms
-hub 1-0:1.0: port 1 not reset yet, waiting 200ms
-hub 1-0:1.0: port 1 not enabled, trying reset again...
-hub 1-0:1.0: port 1 not reset yet, waiting 200ms
-hub 1-0:1.0: port 1 not reset yet, waiting 200ms
-hub 1-0:1.0: port 1 not reset yet, waiting 200ms
-hub 1-0:1.0: port 1 not enabled, trying reset again...
-hub 1-0:1.0: port 1 not reset yet, waiting 200ms
-hub 1-0:1.0: port 1 not reset yet, waiting 200ms
-hub 1-0:1.0: port 1 not reset yet, waiting 200ms
-hub 1-0:1.0: port 1 not enabled, trying reset again...
-hub 1-0:1.0: Cannot enable port 1.  Maybe the USB cable is bad?
+That's possible. It didn't fail in my test with an updated version from
+the BK repository either, so I would assume this issue can be called
+resolved.
+
+Here's the digest setkey part of the previous combined patch; I'll send
+a patch for Michael MIC separately.
+
+
+
+Added support for using keyed digest with an optional dit_setkey handler.
+This does not change the behavior of the existing digest algorithms, but
+allows new ones to add setkey handler that can be used to initialize the
+algorithm with a key or seed. setkey is to be called after init, but before
+any of the update call(s).
+
+
+diff -Nru a/crypto/digest.c b/crypto/digest.c
+--- a/crypto/digest.c	Tue Mar  9 21:25:13 2004
++++ b/crypto/digest.c	Tue Mar  9 21:25:13 2004
+@@ -42,6 +42,15 @@
+ 	tfm->__crt_alg->cra_digest.dia_final(crypto_tfm_ctx(tfm), out);
+ }
+ 
++static int setkey(struct crypto_tfm *tfm, const u8 *key, unsigned int keylen)
++{
++	u32 flags;
++	if (tfm->__crt_alg->cra_digest.dia_setkey == NULL)
++		return -ENOSYS;
++	return tfm->__crt_alg->cra_digest.dia_setkey(crypto_tfm_ctx(tfm),
++						     key, keylen, &flags);
++}
++
+ static void digest(struct crypto_tfm *tfm,
+                    struct scatterlist *sg, unsigned int nsg, u8 *out)
+ {
+@@ -72,6 +81,7 @@
+ 	ops->dit_update	= update;
+ 	ops->dit_final	= final;
+ 	ops->dit_digest	= digest;
++	ops->dit_setkey	= setkey;
+ 	
+ 	return crypto_alloc_hmac_block(tfm);
+ }
+diff -Nru a/crypto/tcrypt.c b/crypto/tcrypt.c
+--- a/crypto/tcrypt.c	Tue Mar  9 21:25:13 2004
++++ b/crypto/tcrypt.c	Tue Mar  9 21:25:13 2004
+@@ -112,6 +112,10 @@
+ 		sg[0].length = hash_tv[i].psize;
+ 
+ 		crypto_digest_init (tfm);
++		if (tfm->crt_u.digest.dit_setkey) {
++			crypto_digest_setkey (tfm, hash_tv[i].key,
++					      hash_tv[i].ksize);
++		}
+ 		crypto_digest_update (tfm, sg, 1);
+ 		crypto_digest_final (tfm, result);
+ 
+diff -Nru a/crypto/tcrypt.h b/crypto/tcrypt.h
+--- a/crypto/tcrypt.h	Tue Mar  9 21:25:13 2004
++++ b/crypto/tcrypt.h	Tue Mar  9 21:25:13 2004
+@@ -30,6 +30,8 @@
+ 	char digest[MAX_DIGEST_SIZE];
+ 	unsigned char np;
+ 	unsigned char tap[MAX_TAP];		
++	char key[128]; /* only used with keyed hash algorithms */
++	unsigned char ksize;
+ };
+ 
+ struct hmac_testvec {	
+diff -Nru a/include/linux/crypto.h b/include/linux/crypto.h
+--- a/include/linux/crypto.h	Tue Mar  9 21:25:13 2004
++++ b/include/linux/crypto.h	Tue Mar  9 21:25:13 2004
+@@ -76,6 +76,8 @@
+ 	void (*dia_init)(void *ctx);
+ 	void (*dia_update)(void *ctx, const u8 *data, unsigned int len);
+ 	void (*dia_final)(void *ctx, u8 *out);
++	int (*dia_setkey)(void *ctx, const u8 *key,
++	                  unsigned int keylen, u32 *flags);
+ };
+ 
+ struct compress_alg {
+@@ -157,6 +159,8 @@
+ 	void (*dit_final)(struct crypto_tfm *tfm, u8 *out);
+ 	void (*dit_digest)(struct crypto_tfm *tfm, struct scatterlist *sg,
+ 	                   unsigned int nsg, u8 *out);
++	int (*dit_setkey)(struct crypto_tfm *tfm,
++	                  const u8 *key, unsigned int keylen);
+ #ifdef CONFIG_CRYPTO_HMAC
+ 	void *dit_hmac_block;
+ #endif
+@@ -280,6 +284,15 @@
+ {
+ 	BUG_ON(crypto_tfm_alg_type(tfm) != CRYPTO_ALG_TYPE_DIGEST);
+ 	tfm->crt_digest.dit_digest(tfm, sg, nsg, out);
++}
++
++static inline int crypto_digest_setkey(struct crypto_tfm *tfm,
++                                       const u8 *key, unsigned int keylen)
++{
++	BUG_ON(crypto_tfm_alg_type(tfm) != CRYPTO_ALG_TYPE_DIGEST);
++	if (tfm->crt_digest.dit_setkey == NULL)
++		return -ENOSYS;
++	return tfm->crt_digest.dit_setkey(tfm, key, keylen);
+ }
+ 
+ static inline int crypto_cipher_setkey(struct crypto_tfm *tfm,
+
 
 -- 
-uniorg Solutions GmbH - Märkische Strasse 237 - 44141 Dortmund
-ffiene@veka.com - Tel:0231-9497-262
---
-Ein Unternehmen der uniorg-Gruppe
+Jouni Malinen                                            PGP id EFC895FA

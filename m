@@ -1,74 +1,140 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266177AbUFIWt1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266168AbUFIWxt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266177AbUFIWt1 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Jun 2004 18:49:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266202AbUFIWtO
+	id S266168AbUFIWxt (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Jun 2004 18:53:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266180AbUFIWxt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Jun 2004 18:49:14 -0400
-Received: from ns1.g-housing.de ([62.75.136.201]:16821 "EHLO mail.g-house.de")
-	by vger.kernel.org with ESMTP id S266177AbUFIWsy (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Jun 2004 18:48:54 -0400
-Message-ID: <40C793CE.6000609@g-house.de>
-Date: Thu, 10 Jun 2004 00:48:46 +0200
-From: Christian Kujau <evil@g-house.de>
-User-Agent: Mozilla Thunderbird 0.6 (X11/20040528)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>
-CC: NetDev Mailinglist <netdev@oss.sgi.com>,
-       Kernel Mailinglist <linux-kernel@vger.kernel.org>
-Subject: Re: 2.6.7-rc3: waiting for eth0 to become free
-References: <1086722310.1682.1.camel@teapot.felipe-alfaro.com>	 <20040608124215.291a7072@dell_ss3.pdx.osdl.net>	 <1086725369.1806.1.camel@teapot.felipe-alfaro.com>	 <20040608140200.2ddaa6f4@dell_ss3.pdx.osdl.net> <1086794282.1706.2.camel@teapot.felipe-alfaro.com>
-In-Reply-To: <1086794282.1706.2.camel@teapot.felipe-alfaro.com>
-X-Enigmail-Version: 0.83.6.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Wed, 9 Jun 2004 18:53:49 -0400
+Received: from relay2.EECS.Berkeley.EDU ([169.229.60.28]:57984 "EHLO
+	relay2.EECS.Berkeley.EDU") by vger.kernel.org with ESMTP
+	id S266168AbUFIWxn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 9 Jun 2004 18:53:43 -0400
+Subject: PATCH: 2.6.7-rc3 drivers/char/drm/gamma_dma.c: several user/kernel
+	pointer bugs
+From: "Robert T. Johnson" <rtjohnso@eecs.berkeley.edu>
+To: faith@valinux.com
+Cc: dri-devel@lists.sourceforge.net,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.5 
+Date: 09 Jun 2004 15:53:40 -0700
+Message-Id: <1086821620.32053.120.camel@dooby.cs.berkeley.edu>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+gamma_dma_priority and gamma_dma_send_buffers both deref d->send_indices
+and/or d->send_sizes.  When these functions are called from gamma_dma, 
+these pointers are user pointers and are thus not safe to deref.  This patch
+copies over the pointers inside gamma_dma_priority and 
+gamma_dma_send_buffers.  Let me know if you have any questions or if I've 
+made a mistake.
 
-Felipe Alfaro Solana <felipe_alfaro@linuxmail.org> wrote:
-|>What is happening is that some subsystem is holding a reference to the
-device (calling dev_hold())
-|>but not cleaning up (calling dev_put).  It can be a hard to track
-which of the many
-|>things routing, etc are not being cleared properly.  Look for routes
-that still
-|>get stuck (ip route) and neighbor cache entries.  Most of these end up
-being
-|>protocol bugs.
-|
-|
-| The two attached patches, one for net/ipv4/route.c, the other for net/
-| ipv6/route.c fix all my problems when running "cardctl eject" while a
-| program mantains an open network socket (ESTABLISHED).
-|
-| Both patches apply cleanly against 2.6.7-rc3 and 2.6.7-rc3-mm1.
-| I'm not completely sure what has changed in 2.6.7-rc3 that is breaking
-| cardctl for me, as it Just Worked(TM) fine in 2.6.7-rc2.
+Best,
+Rob
 
-do you know, by any chance, if this error is dependent to eth0 only or
-could help for my error message too:
 
-unregister_netdevice: waiting for ppp0 to become free. Usage count = 1
+--- linux-2.6.7-rc3-full/drivers/char/drm/gamma_dma.c.orig	Wed Jun  9 12:04:35 2004
++++ linux-2.6.7-rc3-full/drivers/char/drm/gamma_dma.c	Wed Jun  9 11:58:42 2004
+@@ -346,6 +346,9 @@ static int gamma_dma_priority(struct fil
+ 	drm_buf_t	  *buf;
+ 	drm_buf_t	  *last_buf = NULL;
+ 	drm_device_dma_t  *dma	    = dev->dma;
++	int               *send_indices = NULL;
++	int               *send_sizes = NULL;
++
+ 	DECLARE_WAITQUEUE(entry, current);
+ 
+ 				/* Turn off interrupt handling */
+@@ -365,11 +368,31 @@ static int gamma_dma_priority(struct fil
+ 		++must_free;
+ 	}
+ 
++	send_indices = DRM(alloc)(d->send_count * sizeof(*send_indices),
++		                  DRM_MEM_DRIVER);
++        if (send_indices == NULL)
++                return -ENOMEM;
++	if (copy_from_user(send_indices, d->send_indices, 
++			   d->send_count * sizeof(*send_indices))) {
++		retcode = -EFAULT;
++                goto cleanup;
++	}
++	
++	send_sizes = DRM(alloc)(d->send_count * sizeof(*send_sizes),
++		                  DRM_MEM_DRIVER);
++        if (send_sizes == NULL)
++                return -ENOMEM;
++	if (copy_from_user(send_sizes, d->send_sizes, 
++			   d->send_count * sizeof(*send_sizes))) {
++		retcode = -EFAULT;
++                goto cleanup;
++	}
++
+ 	for (i = 0; i < d->send_count; i++) {
+-		idx = d->send_indices[i];
++		idx = send_indices[i];
+ 		if (idx < 0 || idx >= dma->buf_count) {
+ 			DRM_ERROR("Index %d (of %d max)\n",
+-				  d->send_indices[i], dma->buf_count - 1);
++				  send_indices[i], dma->buf_count - 1);
+ 			continue;
+ 		}
+ 		buf = dma->buflist[ idx ];
+@@ -391,7 +414,7 @@ static int gamma_dma_priority(struct fil
+ 				   process closes the /dev/drm? handle, so
+ 				   it can't also be doing DMA. */
+ 		buf->list	  = DRM_LIST_PRIO;
+-		buf->used	  = d->send_sizes[i];
++		buf->used	  = send_sizes[i];
+ 		buf->context	  = d->context;
+ 		buf->while_locked = d->flags & _DRM_DMA_WHILE_LOCKED;
+ 		address		  = (unsigned long)buf->address;
+@@ -402,14 +425,14 @@ static int gamma_dma_priority(struct fil
+ 		if (buf->pending) {
+ 			DRM_ERROR("Sending pending buffer:"
+ 				  " buffer %d, offset %d\n",
+-				  d->send_indices[i], i);
++				  send_indices[i], i);
+ 			retcode = -EINVAL;
+ 			goto cleanup;
+ 		}
+ 		if (buf->waiting) {
+ 			DRM_ERROR("Sending waiting buffer:"
+ 				  " buffer %d, offset %d\n",
+-				  d->send_indices[i], i);
++				  send_indices[i], i);
+ 			retcode = -EINVAL;
+ 			goto cleanup;
+ 		}
+@@ -458,6 +481,12 @@ cleanup:
+ 		gamma_dma_ready(dev);
+ 		gamma_free_buffer(dev, last_buf);
+ 	}
++        if (send_indices)
++                DRM(free)(send_indices, d->send_count * sizeof(*send_indices), 
++			  DRM_MEM_DRIVER);
++        if (send_sizes)
++                DRM(free)(send_sizes, d->send_count * sizeof(*send_sizes), 
++			  DRM_MEM_DRIVER);
+ 
+ 	if (must_free && !dev->context_flag) {
+ 		if (gamma_lock_free(dev, &dev->lock.hw_lock->lock,
+@@ -476,9 +505,13 @@ static int gamma_dma_send_buffers(struct
+ 	drm_buf_t	  *last_buf = NULL;
+ 	int		  retcode   = 0;
+ 	drm_device_dma_t  *dma	    = dev->dma;
++	int               send_index;
++
++	if (get_user(send_index, &d->send_indices[d->send_count-1]))
++		return -EFAULT;
+ 
+ 	if (d->flags & _DRM_DMA_BLOCK) {
+-		last_buf = dma->buflist[d->send_indices[d->send_count-1]];
++		last_buf = dma->buflist[send_index];
+ 		add_wait_queue(&last_buf->dma_wait, &entry);
+ 	}
+ 
 
-happened just a few hours ago (2.6.7-rc3), i had to reboot the box
-anyway, but pppd was not able to die (even with kill -9)
 
-Christian.
-- --
-BOFH excuse #258:
 
-That's easy to fix, but I can't be bothered.
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
-
-iD8DBQFAx5PN+A7rjkF8z0wRAuR+AJ41024qDMPVWYlVeofUZ6N50E3oRwCfeqhs
-/GxxIqmDbClJXw/i2WNhJt4=
-=lHgP
------END PGP SIGNATURE-----

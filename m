@@ -1,50 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261536AbUJXQXT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261530AbUJXQZj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261536AbUJXQXT (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 24 Oct 2004 12:23:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261551AbUJXQUo
+	id S261530AbUJXQZj (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 24 Oct 2004 12:25:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261523AbUJXQXr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 24 Oct 2004 12:20:44 -0400
-Received: from stat16.steeleye.com ([209.192.50.48]:2780 "EHLO
-	hancock.sc.steeleye.com") by vger.kernel.org with ESMTP
-	id S261534AbUJXQUZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 24 Oct 2004 12:20:25 -0400
-Subject: Re: [PATCH] use mmiowb in qla1280.c
-From: James Bottomley <James.Bottomley@SteelEye.com>
-To: Jesse Barnes <jbarnes@engr.sgi.com>
-Cc: Andrew Morton <akpm@osdl.org>, Linux Kernel <linux-kernel@vger.kernel.org>,
-       SCSI Mailing List <linux-scsi@vger.kernel.org>, jeremy@sgi.com,
-       jes@sgi.com
-In-Reply-To: <200410211617.14809.jbarnes@engr.sgi.com>
-References: <200410211613.19601.jbarnes@engr.sgi.com> 
-	<200410211617.14809.jbarnes@engr.sgi.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-9) 
-Date: 24 Oct 2004 12:20:05 -0400
-Message-Id: <1098634812.10906.38.camel@mulgrave>
-Mime-Version: 1.0
+	Sun, 24 Oct 2004 12:23:47 -0400
+Received: from colo.khms.westfalen.de ([213.239.196.208]:27787 "EHLO
+	colo.khms.westfalen.de") by vger.kernel.org with ESMTP
+	id S261577AbUJXQXF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 24 Oct 2004 12:23:05 -0400
+Date: 24 Oct 2004 16:13:00 +0200
+From: kaih@khms.westfalen.de (Kai Henningsen)
+To: linux-kernel@vger.kernel.org
+Message-ID: <9JVEfvBmw-B@khms.westfalen.de>
+In-Reply-To: <41793204.9090208@drdos.com>
+Subject: Re: Linux v2.6.9 and GPL Buyout
+X-Mailer: CrossPoint v3.12d.kh14 R/C435
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Organization: Organisation? Me?! Are you kidding?
+References: <Pine.LNX.4.58.0410181540080.2287@ppc970.osdl.org> <41757478.4090402@drdos.com> <20041022090752.GA1308@khan.acc.umu.se> <20041022090752.GA1308@khan.acc.umu.se> <41793204.9090208@drdos.com>
+X-No-Junk-Mail: I do not want to get *any* junk mail.
+Comment: Unsolicited commercial mail will incur an US$100 handling fee per received mail.
+X-Fix-Your-Modem: +++ATS2=255&WO1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2004-10-21 at 19:17, Jesse Barnes wrote:
-> There are a few spots in qla1280.c that don't need a full PCI write flush to 
-> the device, but rather a simple write ordering guarantee.  This patch changes 
-> some of the PIO reads that cause write flushes into mmiowb calls instead, 
-> which is a lighter weight way of ensuring ordering.
-> 
-> Jes and James, can you ack this and/or push it in via the SCSI BK tree?
+jmerkey@drdos.com (Jeff V. Merkey)  wrote on 22.10.04 in <41793204.9090208@drdos.com>:
 
-This doesn't seem to work:
+> David Weinehall wrote:
 
-  CC [M]  drivers/scsi/qla1280.o
-drivers/scsi/qla1280.c: In function `qla1280_64bit_start_scsi':
-drivers/scsi/qla1280.c:3404: warning: implicit declaration of function
-`mmiowb'
+> >(Quoting from groklaw wrt that lawsuit:)
+> >
+> >"The judge had a few descriptive words for Mr. Merkey, as you will note
+> > particularly in paragraph 123 - 125 of the Findings of Fact:
+> >
+> > 124. In fact, however, Merkey is not just prone to exaggeration, he also
+> > is and can be deceptive, not only to his adversaries, but also to his
+> > own partners, his business associates and to the court. He deliberately
+> > describes his own, separate reality."
+> >
+> >[snip]
 
-  MODPOST
-*** Warning: "mmiowb" [drivers/scsi/qla1280.ko] undefined!
+> This was written by Novell's stooge Judge Schoefield. It's total
+> fiction. Don't worry, it will get cleared up soon.
 
-James
+Ah, yes, like you claimed that commission was looking at the video of the  
+case when it actually wasn't ...
 
+You seem to be pretty much the personified definition of a reality  
+distortion field.
 
+Makes me wonder if you *ever*, in your whole life, told the unvarnished  
+truth even once.
+
+MfG Kai

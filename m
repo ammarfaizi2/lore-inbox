@@ -1,66 +1,75 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262033AbTD2Q3j (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 29 Apr 2003 12:29:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262037AbTD2Q3j
+	id S261210AbTD2Q3E (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 29 Apr 2003 12:29:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262033AbTD2Q3D
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 29 Apr 2003 12:29:39 -0400
-Received: from relay01.valueweb.net ([216.219.253.235]:17074 "EHLO
-	relay01.valueweb.net") by vger.kernel.org with ESMTP
-	id S262033AbTD2Q3g (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 29 Apr 2003 12:29:36 -0400
-Message-ID: <3EAEAB43.3030208@coyotegulch.com>
-Date: Tue, 29 Apr 2003 12:41:39 -0400
+	Tue, 29 Apr 2003 12:29:03 -0400
+Received: from relay02.valueweb.net ([216.219.253.236]:1774 "EHLO
+	relay02.valueweb.net") by vger.kernel.org with ESMTP
+	id S261210AbTD2Q3B (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 29 Apr 2003 12:29:01 -0400
+Message-ID: <3EAEAB10.5060801@coyotegulch.com>
+Date: Tue, 29 Apr 2003 12:40:48 -0400
 From: Scott Robert Ladd <coyote@coyotegulch.com>
 User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3) Gecko/20030327 Debian/1.3-4
 X-Accept-Language: en
 MIME-Version: 1.0
 To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
 Subject: Re: Why DRM exists [was Re: Flame Linus to a crisp!]
-References: <fa.ivrgub8.1ci079c@ifi.uio.no> <20030427183553.GA955879@hiwaay.net> <20030427185037.GA23581@work.bitmover.com> <20030427220717.GA24991@willow.seitz.com> <20030427223255.GH23068@work.bitmover.com> <20030428200424.GA9252@citd.de> <20030428201816.GB23581@work.bitmover.com> <1051568160.17370.3.camel@dhcp22.swansea.linux.org.uk> <20030429000904.GA9653@work.bitmover.com> <20030429055930.GA2645@think>
-In-Reply-To: <20030429055930.GA2645@think>
+References: <Pine.LNX.4.44.0304282144200.22872-100000@mooru.gurulabs.com>
+In-Reply-To: <Pine.LNX.4.44.0304282144200.22872-100000@mooru.gurulabs.com>
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Theodore Ts'o wrote:
-> Well, there is the question about whether Microsoft would really want
-> a law which made it illegal to duplicate the (unpatented) design of a
-> competitor's product, given that Microsoft does that *all* the time.
+Dax Kelson wrote:
+> What exactly are you trying to say about an Open Source relation to 
+> software theft (warezing), Audio/Video theft, high asian piracy rates
+> and DRM? These are all things you brought up, but I couldn't
+> recognize any coherent statement here.
 
-The law is not applied equally, however. Microsoft has the resources to
-fight any action taken against it; thus, a law that restricts you (with
-your limited resources) may not hinder Microsoft at all.
+The coherency you seek lies in seeing a common thread of wanting
+something for nothing. Free software developers often clone products
+developed by commercial companies; this is taking a free ride (something
+for nothing) on the R&D budget of the corporation. The effort that goes
+into designing quality software isn't just coding -- it's also research,
+design, focus groups, testing, and QA. I think it is quite reasonable
+for commercial entities to protect their investment in time, effort, and
+personnel.
 
-> In the business world, engineers purchase competitors' products and
-> rip them apart to see what makes them tick *all* *the* *time*.  Ford
-> does it GM cars, and Crystler does it to Toyota cars, etc., etc.
-> Anything important where they don't want that to happen is patented.  
+"Free-as-in-liberty" software is just one of several factors that
+influence companies to protect themselves. Merchants put alarms and bars
+on their stores, in response to crime; software and IP companies buy
+legislation to protect their property as well. That property is the
+basis of their income -- and not all IP companies are unsympathetic,
+multinational corporations like Microsoft. Many, many small companies,
+authors, and artists depend on their IP for an income.
 
-Precisely. I've done this myself with various pieces of technology.
+Understanding your opponent is the first step to converting an enemy to
+a friend. As it stands now, the confrontational attitude of many free
+software advocates is counterproductive. The more adversarial "free"
+software advocates act, the more companies will use money and law to
+protect themselves.
 
-The problem is a broken patent system that allows common knowledge to be
-"protected." I've strongly considered trying to get a patent on B-trees
-or QuickSort, just to see if the patent office is as foolish as they
-seem. The reason I can tear down the engine on my truck is because it
-poses no threat to the manufacturer; no one has a patent on the concept
-of a piston (though they may patent a specific *type* of piston.)
+This isn't about right-and-wrong, it's about power. That, perhaps, is
+the most painful lesson I learned in my years as an activist. It doesn't
+matter if Microsoft *should* have been convicted in the U.S. anti-trust
+suite -- that *fact* is, they got away with it. It doesn't matter if
+every international court said that my friends were being mistreated by
+the U.S. government -- because the U.S. government could safely ignore
+those courts.
 
-The problem today is that the patent office will honor almost anything
-with a patent; if cars were software, Ford would have a patent on
-pistons that would prevent GM from building V-8s.
-
-There is nothing wrong with the original conception of patents and
-copyrights: the protection of IP creators to profit from their work
-before it enters the public domain in a reasonable time period. Sadly,
-corporations have legal rights, and the money to pervert the process.
-Patents and copyrights need to be fixed, not destroyed.
-
-..Scott
+If "right" wants to win out over "wrong", it must find power. If you
+don't have money or political clout, you need to find power elsewhere.
+But simply claiming "I'm right" -- even if you are -- isn't going to
+stop the corporate steamroller from flattening your band wagon.
 
 -- 
 Scott Robert Ladd
 Coyote Gulch Productions (http://www.coyotegulch.com)
+Professional programming for science and engineering;
+Interesting and unusual bits of very free code.
 
 

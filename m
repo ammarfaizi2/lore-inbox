@@ -1,60 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262588AbVBYBnx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262579AbVBYCBz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262588AbVBYBnx (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Feb 2005 20:43:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262596AbVBYBnx
+	id S262579AbVBYCBz (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Feb 2005 21:01:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262584AbVBYCBz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Feb 2005 20:43:53 -0500
-Received: from mustang.oldcity.dca.net ([216.158.38.3]:12929 "HELO
-	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S262588AbVBYBnu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Feb 2005 20:43:50 -0500
-Subject: Re: realtime patch
-From: Lee Revell <rlrevell@joe-job.com>
-To: george@mvista.com
-Cc: Fabian Fenaut <fabian.fenaut@free.fr>,
-       shabanip <shabanip@avapajoohesh.com>, linux-kernel@vger.kernel.org
-In-Reply-To: <421E76E6.7090905@mvista.com>
-References: <52843.69.93.110.242.1109288252.squirrel@69.93.110.242>
-	 <421E6B3D.1030009@free.fr>  <421E76E6.7090905@mvista.com>
-Content-Type: text/plain
-Date: Thu, 24 Feb 2005 20:43:46 -0500
-Message-Id: <1109295826.7301.4.camel@krustophenia.net>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.3 
+	Thu, 24 Feb 2005 21:01:55 -0500
+Received: from gw.goop.org ([64.81.55.164]:29641 "EHLO mail.goop.org")
+	by vger.kernel.org with ESMTP id S262579AbVBYCBy (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 24 Feb 2005 21:01:54 -0500
+Message-ID: <421E8708.9090802@goop.org>
+Date: Thu, 24 Feb 2005 18:01:44 -0800
+From: Jeremy Fitzhardinge <jeremy@goop.org>
+User-Agent: Mozilla Thunderbird  (X11/20041216)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Roland McGrath <roland@redhat.com>
+Cc: Chris Wright <chrisw@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>
+Subject: Re: [PATCH] override RLIMIT_SIGPENDING for non-RT signals
+References: <200502240145.j1O1jlab010606@magilla.sf.frob.com>
+In-Reply-To: <200502240145.j1O1jlab010606@magilla.sf.frob.com>
+X-Enigmail-Version: 0.90.1.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2005-02-24 at 16:52 -0800, George Anzinger wrote:
-> Fabian Fenaut wrote:
-> > shabanip a ecrit le 25.02.2005 00:37:
-> > 
-> >> where can i find realtime patchs to kernel 2.6?
-> > 
-> > 
-> > http://sourceforge.net/projects/realtime-lsm/ ?
-> 
-> What??  NO, they are here:
-> 
->    http://redhat.com/~mingo/realtime-preempt/
-> 
+Roland McGrath wrote:
 
-Lots of people seem to be confused on this.  I even read an lwn.net
-article that didn't seem to grok the distinction.
+>Indeed, I think your patch does not go far enough.  I can read POSIX to say
+>that the siginfo_t data must be available when `kill' was used, as well.
+>This patch makes it allocate the siginfo_t, even when that exceeds
+>{RLIMIT_SIGPENDING}, for any non-RT signal (< SIGRTMIN) not sent by
+>sigqueue (actually, any signal that couldn't have been faked by a sigqueue
+>call).
+>
+Looks OK to me.  I'll give this a try soon.
 
-The realtime-preempt patches make the Linux kernel usable for soft and
-hard realtime applications.
-
-The realtime LSM just enables the administrator to let selected non-root
-users use these capabilities.
-
-The only relationship between the patches is that using the realtime LSM
-is rather pointless without the realtime preempt patch, because if the
-realtime performance of the Linux kernel isn't good enough, there's no
-point in being able to let non root users use it.
-
-Lee
-
-
-
+    J

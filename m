@@ -1,225 +1,162 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261725AbTI3Uzw (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 Sep 2003 16:55:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261724AbTI3Uzw
+	id S261723AbTI3VFG (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 Sep 2003 17:05:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261757AbTI3VFF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 Sep 2003 16:55:52 -0400
-Received: from fmr04.intel.com ([143.183.121.6]:41400 "EHLO
-	caduceus.sc.intel.com") by vger.kernel.org with ESMTP
-	id S261725AbTI3Uz0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 Sep 2003 16:55:26 -0400
-Message-ID: <3F79ED60.2030207@intel.com>
-Date: Tue, 30 Sep 2003 13:53:52 -0700
-From: Arun Sharma <arun.sharma@intel.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030703
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-CC: linux-kernel@vger.kernel.org, "Tian, Kevin" <kevin.tian@intel.com>
-Subject: [PATCH] incorrect use of sizeof() in ioctl definitions
-Content-Type: multipart/mixed;
- boundary="------------060700030900010904090003"
+	Tue, 30 Sep 2003 17:05:05 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:46533 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S261723AbTI3VEL
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 30 Sep 2003 17:04:11 -0400
+Date: Tue, 30 Sep 2003 22:04:10 +0100
+From: Matthew Wilcox <willy@debian.org>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] expand_resource
+Message-ID: <20030930210410.GD24824@parcelfarce.linux.theplanet.co.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------060700030900010904090003
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
 
+Rewrite expand_resource() to be racefree and move it to kernel/resource.c.
 
-Some drivers seem to use macros such as _IOR/_IOW in a way that ends up calling the sizeof() operator twice. For eg:
+Index: linux-2.6/kernel/resource.c
+===================================================================
+RCS file: /var/cvs/linux-2.6/kernel/resource.c,v
+retrieving revision 1.3.2.1
+retrieving revision 1.4
+diff -u -p -r1.3.2.1 -r1.4
+--- linux-2.6/kernel/resource.c	28 Sep 2003 02:27:48 -0000	1.3.2.1
++++ linux-2.6/kernel/resource.c	28 Sep 2003 04:06:24 -0000	1.4
+@@ -266,6 +268,53 @@ int allocate_resource(struct resource *r
+ 		err = -EBUSY;
+ 	write_unlock(&resource_lock);
+ 	return err;
++}
++
++/*
++ * Expand an existing resource by size amount.
++ */
++int expand_resource(struct resource *res, unsigned long size,
++			   unsigned long align)
++{
++	unsigned long start, end;
++
++	/* see if we can expand above */
++	end = (res->end + size + align - 1) & ~(align - 1);
++
++	write_lock(&resource_lock);
++	if (res->sibling) {
++		if (res->sibling->start > end)
++			goto end;
++	} else {
++		if (res->parent->end >= end)
++			goto end;
++	}
++
++	/* now try below */
++	start = ((res->start - size + align) & ~(align - 1)) - align;
++
++	if (res->parent->child == res) {
++		if (res->start <= start)
++			goto start;
++	} else {
++		struct resource *prev = res->parent->child;
++		while (prev->sibling != res)
++			prev = prev->sibling;
++		if (prev->end < start)
++			goto start;
++	}
++
++	write_unlock(&resource_lock);
++	return -ENOMEM;
++
++ start:
++	res->start = start;
++	write_unlock(&resource_lock);
++	return 0;
++ end:
++	res->end = end;
++	write_unlock(&resource_lock);
++	return 0;
+ }
+ 
+ /*
+Index: linux-2.6/drivers/parisc/ccio-dma.c
+===================================================================
+RCS file: /var/cvs/linux-2.6/drivers/parisc/ccio-dma.c,v
+retrieving revision 1.7.2.1
+retrieving revision 1.7
+diff -u -p -r1.7.2.1 -r1.7
+--- linux-2.6/drivers/parisc/ccio-dma.c	28 Sep 2003 02:27:09 -0000	1.7.2.1
++++ linux-2.6/drivers/parisc/ccio-dma.c	27 Sep 2003 20:03:16 -0000	1.7
+@@ -1534,42 +1534,6 @@ static void __init ccio_init_resources(s
+ 			(unsigned long)&ioc->ioc_hpa->io_io_low_hv);
+ }
+ 
+-static int expand_resource(struct resource *res, unsigned long size,
+-			   unsigned long align)
+-{
+-	struct resource *temp_res;
+-	unsigned long start = res->start;
+-	unsigned long end ;
+-
+-	/* see if we can expand above */
+-	end = (res->end + size + align - 1) & ~(align - 1);;
+-	
+-	temp_res = __request_region(res->parent, res->end, end - res->end,
+-				    "expansion");
+-	if(!temp_res) {
+-		/* now try below */
+-		start = ((res->start - size + align) & ~(align - 1)) - align;
+-		end = res->end;
+-		temp_res = __request_region(res->parent, start, size,
+-					    "expansion");	
+-		if(!temp_res) {
+-			return -ENOMEM;
+-		}
+-	} 
+-	release_resource(temp_res);
+-	temp_res = res->parent;
+-	release_resource(res);
+-	res->start = start;
+-	res->end = end;
+-
+-	/* This could be caused by some sort of race.  Basically, if
+-	 * this tripped something stole the region we just reserved
+-	 * and then released to check for expansion */
+-	BUG_ON(request_resource(temp_res, res) != 0);
+-
+-	return 0;
+-}
+-
+ static void expand_ioc_area(struct resource *parent, struct ioc *ioc,
+ 			    unsigned long size,	unsigned long min,
+ 			    unsigned long max, unsigned long align)
+Index: linux-2.6/include/linux/ioport.h
+===================================================================
+RCS file: /var/cvs/linux-2.6/include/linux/ioport.h,v
+retrieving revision 1.2.2.1
+retrieving revision 1.2
+diff -u -p -r1.2.2.1 -r1.2
+--- linux-2.6/include/linux/ioport.h	28 Sep 2003 02:27:45 -0000	1.2.2.1
++++ linux-2.6/include/linux/ioport.h	27 Sep 2003 20:03:18 -0000	1.2
+@@ -97,6 +97,8 @@ extern int allocate_resource(struct reso
+ 			     void (*alignf)(void *, struct resource *,
+ 					    unsigned long, unsigned long),
+ 			     void *alignf_data);
++int expand_resource(struct resource *res, unsigned long size,
++		    unsigned long align);
+ 
+ /* Convenience shorthand with allocation */
+ #define request_region(start,n,name)	__request_region(&ioport_resource, (start), (n), (name))
 
--#define FBIO_ATY128_GET_MIRROR	_IOR('@', 1, sizeof(__u32*))
-+#define FBIO_ATY128_GET_MIRROR	_IOR('@', 1, __u32*)
-
-from include/asm-ia64/ioctl.h (other archs are similar):
-
-#define _IOR(type,nr,size)      _IOC(_IOC_READ,(type),(nr),sizeof(size))
-
-While this is not a problem for native 32 bit or native 64 platforms, it is a problem for 32 bit applications running on 64 bit platforms in compatibility mode because
-
-sizeof(sizeof(__u32*)) on a 64 bit kernel != sizeof(sizeof(__u32*)) on a 32 bit app.
-
-The attached patch attempts to fix the instances we could find.
-
-	-Arun
-
-
---------------060700030900010904090003
-Content-Type: text/plain;
- name="ioctl32-sizeof.txt"
-Content-Transfer-Encoding: base64
-Content-Disposition: inline;
- filename="ioctl32-sizeof.txt"
-
-LS0tIGlhNjQtbGludXgyLjYuMC9pbmNsdWRlL2xpbnV4L21hdHJveGZiLmgJVHVlIEF1ZyAy
-NiAxNjo0NzoyNiAyMDAzCisrKyBpYTY0LWxpbnV4Mi42LjAtcGF0Y2gvaW5jbHVkZS9saW51
-eC9tYXRyb3hmYi5oCUZyaSBTZXAgIDUgMTY6MjQ6NTggMjAwMwpAQCAtMTUsMjEgKzE1LDIx
-IEBACiAjZGVmaW5lIE1BVFJPWEZCX09VVFBVVF9NT0RFX05UU0MJMHgwMDAyCiAjZGVmaW5l
-IE1BVFJPWEZCX09VVFBVVF9NT0RFX01PTklUT1IJMHgwMDgwCiB9OwotI2RlZmluZSBNQVRS
-T1hGQl9TRVRfT1VUUFVUX01PREUJX0lPVygnbicsMHhGQSxzaXplb2Yoc3RydWN0IG1hdHJv
-eGlvY19vdXRwdXRfbW9kZSkpCi0jZGVmaW5lIE1BVFJPWEZCX0dFVF9PVVRQVVRfTU9ERQlf
-SU9XUignbicsMHhGQSxzaXplb2Yoc3RydWN0IG1hdHJveGlvY19vdXRwdXRfbW9kZSkpCisj
-ZGVmaW5lIE1BVFJPWEZCX1NFVF9PVVRQVVRfTU9ERQlfSU9XKCduJywweEZBLHN0cnVjdCBt
-YXRyb3hpb2Nfb3V0cHV0X21vZGUpCisjZGVmaW5lIE1BVFJPWEZCX0dFVF9PVVRQVVRfTU9E
-RQlfSU9XUignbicsMHhGQSxzdHJ1Y3QgbWF0cm94aW9jX291dHB1dF9tb2RlKQogCiAvKiBi
-aXRmaWVsZCAqLwogI2RlZmluZSBNQVRST1hGQl9PVVRQVVRfQ09OTl9QUklNQVJZCSgxIDw8
-IE1BVFJPWEZCX09VVFBVVF9QUklNQVJZKQogI2RlZmluZSBNQVRST1hGQl9PVVRQVVRfQ09O
-Tl9TRUNPTkRBUlkJKDEgPDwgTUFUUk9YRkJfT1VUUFVUX1NFQ09OREFSWSkKICNkZWZpbmUg
-TUFUUk9YRkJfT1VUUFVUX0NPTk5fREZQCSgxIDw8IE1BVFJPWEZCX09VVFBVVF9ERlApCiAv
-KiBjb25uZWN0IHRoZXNlIG91dHB1dHMgdG8gdGhpcyBmcmFtZWJ1ZmZlciAqLwotI2RlZmlu
-ZSBNQVRST1hGQl9TRVRfT1VUUFVUX0NPTk5FQ1RJT04JX0lPVygnbicsMHhGOCxzaXplb2Yo
-X191MzIpKQorI2RlZmluZSBNQVRST1hGQl9TRVRfT1VUUFVUX0NPTk5FQ1RJT04JX0lPVygn
-bicsMHhGOCxfX3UzMikKIC8qIHdoaWNoIG91dHB1dHMgYXJlIGNvbm5lY3RlZCB0byB0aGlz
-IGZyYW1lYnVmZmVyICovCi0jZGVmaW5lIE1BVFJPWEZCX0dFVF9PVVRQVVRfQ09OTkVDVElP
-TglfSU9SKCduJywweEY4LHNpemVvZihfX3UzMikpCisjZGVmaW5lIE1BVFJPWEZCX0dFVF9P
-VVRQVVRfQ09OTkVDVElPTglfSU9SKCduJywweEY4LF9fdTMyKQogLyogd2hpY2ggb3V0cHV0
-cyBhcmUgYXZhaWxhYmxlIGZvciB0aGlzIGZyYW1lYnVmZmVyICovCi0jZGVmaW5lIE1BVFJP
-WEZCX0dFVF9BVkFJTEFCTEVfT1VUUFVUUwlfSU9SKCduJywweEY5LHNpemVvZihfX3UzMikp
-CisjZGVmaW5lIE1BVFJPWEZCX0dFVF9BVkFJTEFCTEVfT1VUUFVUUwlfSU9SKCduJywweEY5
-LF9fdTMyKQogLyogd2hpY2ggb3V0cHV0cyBleGlzdCBvbiB0aGlzIGZyYW1lYnVmZmVyICov
-Ci0jZGVmaW5lIE1BVFJPWEZCX0dFVF9BTExfT1VUUFVUUwlfSU9SKCduJywweEZCLHNpemVv
-ZihfX3UzMikpCisjZGVmaW5lIE1BVFJPWEZCX0dFVF9BTExfT1VUUFVUUwlfSU9SKCduJyww
-eEZCLF9fdTMyKQogCiBlbnVtIG1hdHJveGZiX2N0cmxfaWQgewogICBNQVRST1hGQl9DSURf
-VEVTVE9VVAkgPSBWNEwyX0NJRF9QUklWQVRFX0JBU0UsCi0tLSBpYTY0LWxpbnV4Mi42LjAv
-ZHJpdmVycy92aWRlby9hdHkvYXR5MTI4ZmIuYwlGcmkgU2VwICA1IDE2OjEwOjU5IDIwMDMK
-KysrIGlhNjQtbGludXgyLjYuMC1wYXRjaC9kcml2ZXJzL3ZpZGVvL2F0eS9hdHkxMjhmYi5j
-CUZyaSBTZXAgIDUgMTY6MDE6NDMgMjAwMwpAQCAtMjA0MSw5ICsyMDQxLDkgQEAKICNkZWZp
-bmUgQVRZX01JUlJPUl9DUlRfT04JMHgwMDAwMDAwMgogCiAvKiBvdXQgcGFyYW06IHUzMioJ
-YmFja2xpZ2h0IHZhbHVlOiAwIHRvIDE1ICovCi0jZGVmaW5lIEZCSU9fQVRZMTI4X0dFVF9N
-SVJST1IJX0lPUignQCcsIDEsIHNpemVvZihfX3UzMiopKQorI2RlZmluZSBGQklPX0FUWTEy
-OF9HRVRfTUlSUk9SCV9JT1IoJ0AnLCAxLCBfX3UzMiopCiAvKiBpbiBwYXJhbTogdTMyKgli
-YWNrbGlnaHQgdmFsdWU6IDAgdG8gMTUgKi8KLSNkZWZpbmUgRkJJT19BVFkxMjhfU0VUX01J
-UlJPUglfSU9XKCdAJywgMiwgc2l6ZW9mKF9fdTMyKikpCisjZGVmaW5lIEZCSU9fQVRZMTI4
-X1NFVF9NSVJST1IJX0lPVygnQCcsIDIsIF9fdTMyKikKIAogc3RhdGljIGludCBhdHkxMjhm
-Yl9pb2N0bChzdHJ1Y3QgaW5vZGUgKmlub2RlLCBzdHJ1Y3QgZmlsZSAqZmlsZSwgdV9pbnQg
-Y21kLAogCQkJICB1X2xvbmcgYXJnLCBzdHJ1Y3QgZmJfaW5mbyAqaW5mbykKLS0tIGlhNjQt
-bGludXgyLjYuMC9pbmNsdWRlL2xpbnV4L2NvZGEuaAlUdWUgQXVnIDI2IDE2OjQ3OjI2IDIw
-MDMKKysrIGlhNjQtbGludXgyLjYuMC1wYXRjaC9pbmNsdWRlL2xpbnV4L2NvZGEuaAlGcmkg
-U2VwICA1IDE2OjE1OjU0IDIwMDMKQEAgLTMyNCw3ICszMjQsNyBAQAogI2RlZmluZSBWQ19N
-QVhNU0dTSVpFICAgICAgc2l6ZW9mKHVuaW9uIGlucHV0QXJncykrc2l6ZW9mKHVuaW9uIG91
-dHB1dEFyZ3MpICtcCiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgVkNfTUFYREFUQVNJ
-WkUgIAogCi0jZGVmaW5lIENJT0NfS0VSTkVMX1ZFUlNJT04gX0lPV1IoJ2MnLCAxMCwgc2l6
-ZW9mIChpbnQpKQorI2RlZmluZSBDSU9DX0tFUk5FTF9WRVJTSU9OIF9JT1dSKCdjJywgMTAs
-IGludCkKIAogI2lmIDAKICNkZWZpbmUgQ09EQV9LRVJORUxfVkVSU0lPTiAwIC8qIGRvbid0
-IGNhcmUgYWJvdXQga2VybmVsIHZlcnNpb24gbnVtYmVyICovCi0tLSBpYTY0LWxpbnV4Mi42
-LjAvZHJpdmVycy9uZXQvd2FuL2Nvc2EuaAlUdWUgQXVnIDI2IDE2OjQ3OjI1IDIwMDMKKysr
-IGlhNjQtbGludXgyLjYuMC1wYXRjaC9kcml2ZXJzL25ldC93YW4vY29zYS5oCUZyaSBTZXAg
-IDUgMTY6MTc6NTIgMjAwMwpAQCAtNzMsMTkgKzczLDE5IEBACiAjZGVmaW5lIENPU0FJT1JT
-RVQJX0lPKCdDJywweGYwKQogCiAvKiBTdGFydCBtaWNyb2NvZGUgYXQgZ2l2ZW4gYWRkcmVz
-cyAqLwotI2RlZmluZSBDT1NBSU9TVFJUCV9JT1coJ0MnLDB4ZjEsc2l6ZW9mKGludCkpCisj
-ZGVmaW5lIENPU0FJT1NUUlQJX0lPVygnQycsMHhmMSxpbnQpCiAKIC8qIFJlYWQgdGhlIGJs
-b2NrIGZyb20gdGhlIGRldmljZSBtZW1vcnkgKi8KLSNkZWZpbmUgQ09TQUlPUk1FTQlfSU9S
-KCdDJywweGYyLHNpemVvZihzdHJ1Y3QgY29zYV9kb3dubG9hZCAqKSkKKyNkZWZpbmUgQ09T
-QUlPUk1FTQlfSU9SKCdDJywweGYyLHN0cnVjdCBjb3NhX2Rvd25sb2FkKikKIAogLyogV3Jp
-dGUgdGhlIGJsb2NrIHRvIHRoZSBkZXZpY2UgbWVtb3J5IChpLmUuIGRvd25sb2FkIHRoZSBt
-aWNyb2NvZGUpICovCi0jZGVmaW5lIENPU0FJT0RPV05MRAlfSU9XKCdDJywweGYyLHNpemVv
-ZihzdHJ1Y3QgY29zYV9kb3dubG9hZCAqKSkKKyNkZWZpbmUgQ09TQUlPRE9XTkxECV9JT1co
-J0MnLDB4ZjIsc3RydWN0IGNvc2FfZG93bmxvYWQqKQogCiAvKiBSZWFkIHRoZSBkZXZpY2Ug
-dHlwZSAob25lIG9mICJzcnAiLCAiY29zYSIsIGFuZCAiY29zYTgiIGZvciBub3cpICovCi0j
-ZGVmaW5lIENPU0FJT1JUWVBFCV9JT1IoJ0MnLDB4ZjMsc2l6ZW9mKGNoYXIgKikpCisjZGVm
-aW5lIENPU0FJT1JUWVBFCV9JT1IoJ0MnLDB4ZjMsY2hhciopCiAKIC8qIFJlYWQgdGhlIGRl
-dmljZSBpZGVudGlmaWNhdGlvbiBzdHJpbmcgKi8KLSNkZWZpbmUgQ09TQUlPUklEU1RSCV9J
-T1IoJ0MnLDB4ZjQsc2l6ZW9mKGNoYXIgKikpCisjZGVmaW5lIENPU0FJT1JJRFNUUglfSU9S
-KCdDJywweGY0LGNoYXIqKQogLyogTWF4aW11bSBsZW5ndGggb2YgdGhlIGlkZW50aWZpY2F0
-aW9uIHN0cmluZy4gKi8KICNkZWZpbmUgQ09TQV9NQVhfSURfU1RSSU5HIDEyOAogCkBAIC0x
-MDAsNyArMTAwLDcgQEAKICNkZWZpbmUgQ09TQUlPTlJDSEFOUwlfSU8oJ0MnLDB4ZjgpCiAK
-IC8qIFNldCB0aGUgZHJpdmVyIGZvciB0aGUgYnVzLW1hc3RlciBvcGVyYXRpb25zICovCi0j
-ZGVmaW5lIENPU0FJT0JNU0VUCV9JT1coJ0MnLCAweGY5LCBzaXplb2YodW5zaWduZWQgc2hv
-cnQpKQorI2RlZmluZSBDT1NBSU9CTVNFVAlfSU9XKCdDJywgMHhmOSwgdW5zaWduZWQgc2hv
-cnQpCiAKICNkZWZpbmUgQ09TQV9CTV9PRkYJMAkvKiBCdXMtbWFzdGVyaW5nIG9mZiAtIHVz
-ZSBJU0EgRE1BIChkZWZhdWx0KSAqLwogI2RlZmluZSBDT1NBX0JNX09OCTEJLyogQnVzLW1h
-c3RlcmluZyBvbiAtIGZhc3RlciBidXQgdW50ZXN0ZWQgKi8KLS0tIGlhNjQtbGludXgyLjYu
-MC9pbmNsdWRlL2xpbnV4L2ZzLmgJRnJpIFNlcCAgNSAxNjoxNDoxOSAyMDAzCisrKyBpYTY0
-LWxpbnV4Mi42LjAtcGF0Y2gvaW5jbHVkZS9saW51eC9mcy5oCUZyaSBTZXAgIDUgMTY6MTg6
-NTcgMjAwMwpAQCAtMTg3LDE1ICsxODcsMTUgQEAKICNkZWZpbmUgQkxLU1NaR0VUICBfSU8o
-MHgxMiwxMDQpLyogZ2V0IGJsb2NrIGRldmljZSBzZWN0b3Igc2l6ZSAqLwogI2lmIDAKICNk
-ZWZpbmUgQkxLUEcgICAgICBfSU8oMHgxMiwxMDUpLyogU2VlIGJsa3BnLmggKi8KLSNkZWZp
-bmUgQkxLRUxWR0VUICBfSU9SKDB4MTIsMTA2LHNpemVvZihibGtlbHZfaW9jdGxfYXJnX3Qp
-KS8qIGVsZXZhdG9yIGdldCAqLwotI2RlZmluZSBCTEtFTFZTRVQgIF9JT1coMHgxMiwxMDcs
-c2l6ZW9mKGJsa2Vsdl9pb2N0bF9hcmdfdCkpLyogZWxldmF0b3Igc2V0ICovCisjZGVmaW5l
-IEJMS0VMVkdFVCAgX0lPUigweDEyLDEwNixibGtlbHZfaW9jdGxfYXJnX3QpLyogZWxldmF0
-b3IgZ2V0ICovCisjZGVmaW5lIEJMS0VMVlNFVCAgX0lPVygweDEyLDEwNyxibGtlbHZfaW9j
-dGxfYXJnX3QpLyogZWxldmF0b3Igc2V0ICovCiAvKiBUaGlzIHdhcyBoZXJlIGp1c3QgdG8g
-c2hvdyB0aGF0IHRoZSBudW1iZXIgaXMgdGFrZW4gLQogICAgcHJvYmFibHkgYWxsIHRoZXNl
-IF9JTygweDEyLCopIGlvY3RscyBzaG91bGQgYmUgbW92ZWQgdG8gYmxrcGcuaC4gKi8KICNl
-bmRpZgogLyogQSBqdW1wIGhlcmU6IDEwOC0xMTEgaGF2ZSBiZWVuIHVzZWQgZm9yIHZhcmlv
-dXMgcHJpdmF0ZSBwdXJwb3Nlcy4gKi8KLSNkZWZpbmUgQkxLQlNaR0VUICBfSU9SKDB4MTIs
-MTEyLHNpemVvZihpbnQpKQotI2RlZmluZSBCTEtCU1pTRVQgIF9JT1coMHgxMiwxMTMsc2l6
-ZW9mKGludCkpCi0jZGVmaW5lIEJMS0dFVFNJWkU2NCBfSU9SKDB4MTIsMTE0LHNpemVvZih1
-NjQpKQkvKiByZXR1cm4gZGV2aWNlIHNpemUgaW4gYnl0ZXMgKHU2NCAqYXJnKSAqLworI2Rl
-ZmluZSBCTEtCU1pHRVQgIF9JT1IoMHgxMiwxMTIsaW50KQorI2RlZmluZSBCTEtCU1pTRVQg
-IF9JT1coMHgxMiwxMTMsaW50KQorI2RlZmluZSBCTEtHRVRTSVpFNjQgX0lPUigweDEyLDEx
-NCx1NjQpCS8qIHJldHVybiBkZXZpY2Ugc2l6ZSBpbiBieXRlcyAodTY0ICphcmcpICovCiAK
-ICNkZWZpbmUgQk1BUF9JT0NUTCAxCQkvKiBvYnNvbGV0ZSAtIGtlcHQgZm9yIGNvbXBhdGli
-aWxpdHkgKi8KICNkZWZpbmUgRklCTUFQCSAgIF9JTygweDAwLDEpCS8qIGJtYXAgYWNjZXNz
-ICovCi0tLSBpYTY0LWxpbnV4Mi42LjAvaW5jbHVkZS9saW51eC9pOGsuaAlUdWUgQXVnIDI2
-IDE2OjQ3OjI2IDIwMDMKKysrIGlhNjQtbGludXgyLjYuMC1wYXRjaC9pbmNsdWRlL2xpbnV4
-L2k4ay5oCU1vbiBTZXAgIDggMDk6MjU6MzkgMjAwMwpAQCAtMjIsMTEgKzIyLDExIEBACiAK
-ICNkZWZpbmUgSThLX0JJT1NfVkVSU0lPTglfSU9SICgnaScsIDB4ODAsIDQpCiAjZGVmaW5l
-IEk4S19NQUNISU5FX0lECQlfSU9SICgnaScsIDB4ODEsIDE2KQotI2RlZmluZSBJOEtfUE9X
-RVJfU1RBVFVTCV9JT1IgKCdpJywgMHg4Miwgc2l6ZW9mKGludCkpCi0jZGVmaW5lIEk4S19G
-Tl9TVEFUVVMJCV9JT1IgKCdpJywgMHg4Mywgc2l6ZW9mKGludCkpCi0jZGVmaW5lIEk4S19H
-RVRfVEVNUAkJX0lPUiAoJ2knLCAweDg0LCBzaXplb2YoaW50KSkKLSNkZWZpbmUgSThLX0dF
-VF9TUEVFRAkJX0lPV1IoJ2knLCAweDg1LCBzaXplb2YoaW50KSkKLSNkZWZpbmUgSThLX0dF
-VF9GQU4JCV9JT1dSKCdpJywgMHg4Niwgc2l6ZW9mKGludCkpCisjZGVmaW5lIEk4S19QT1dF
-Ul9TVEFUVVMJX0lPUiAoJ2knLCAweDgyLCBpbnQpCisjZGVmaW5lIEk4S19GTl9TVEFUVVMJ
-CV9JT1IgKCdpJywgMHg4MywgaW50KQorI2RlZmluZSBJOEtfR0VUX1RFTVAJCV9JT1IgKCdp
-JywgMHg4NCwgaW50KQorI2RlZmluZSBJOEtfR0VUX1NQRUVECQlfSU9XUignaScsIDB4ODUs
-IGludCkKKyNkZWZpbmUgSThLX0dFVF9GQU4JCV9JT1dSKCdpJywgMHg4NiwgaW50KQogI2Rl
-ZmluZSBJOEtfU0VUX0ZBTgkJX0lPV1IoJ2knLCAweDg3LCBzaXplb2YoaW50KSoyKQogCiAj
-ZGVmaW5lIEk4S19GQU5fTEVGVAkJMQotLS0gaWE2NC1saW51eDIuNi4wL2luY2x1ZGUvbGlu
-dXgvaWZfcHBwb3guaAlUdWUgQXVnIDI2IDE2OjQ3OjI2IDIwMDMKKysrIGlhNjQtbGludXgy
-LjYuMC1wYXRjaC9pbmNsdWRlL2xpbnV4L2lmX3BwcG94LmgJRnJpIFNlcCAgNSAxNjoyMjow
-NiAyMDAzCkBAIC02Nyw5ICs2Nyw5IEBACiAgKgogICoqKioqKioqKioqKioqKioqKioqKioq
-KioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqKioqLwogCi0jZGVm
-aW5lIFBQUE9FSU9DU0ZXRAlfSU9XKDB4QjEgLDAsIHNpemVvZihzdHJ1Y3Qgc29ja2FkZHJf
-cHBwb3gpKQorI2RlZmluZSBQUFBPRUlPQ1NGV0QJX0lPVygweEIxICwwLCBzdHJ1Y3Qgc29j
-a2FkZHJfcHBwb3gpCiAjZGVmaW5lIFBQUE9FSU9DREZXRAlfSU8oMHhCMSAsMSkKLS8qI2Rl
-ZmluZSBQUFBPRUlPQ0dGV0QJX0lPV1IoMHhCMSwyLCBzaXplb2Yoc3RydWN0IHNvY2thZGRy
-X3BwcG94KSkqLworLyojZGVmaW5lIFBQUE9FSU9DR0ZXRAlfSU9XUigweEIxLDIsIHN0cnVj
-dCBzb2NrYWRkcl9wcHBveCkqLwogCiAvKiBDb2RlcyB0byBpZGVudGlmeSBtZXNzYWdlIHR5
-cGVzICovCiAjZGVmaW5lIFBBRElfQ09ERQkweDA5Ci0tLSBpYTY0LWxpbnV4Mi42LjAvaW5j
-bHVkZS9saW51eC9wbXUuaAlUdWUgQXVnIDI2IDE2OjQ3OjI2IDIwMDMKKysrIGlhNjQtbGlu
-dXgyLjYuMC1wYXRjaC9pbmNsdWRlL2xpbnV4L3BtdS5oCUZyaSBTZXAgIDUgMTY6MjY6MTYg
-MjAwMwpAQCAtMTA3LDE1ICsxMDcsMTUgQEAKIC8qIG5vIHBhcmFtICovCiAjZGVmaW5lIFBN
-VV9JT0NfU0xFRVAJCV9JTygnQicsIDApCiAvKiBvdXQgcGFyYW06IHUzMioJYmFja2xpZ2h0
-IHZhbHVlOiAwIHRvIDE1ICovCi0jZGVmaW5lIFBNVV9JT0NfR0VUX0JBQ0tMSUdIVAlfSU9S
-KCdCJywgMSwgc2l6ZW9mKF9fdTMyKikpCisjZGVmaW5lIFBNVV9JT0NfR0VUX0JBQ0tMSUdI
-VAlfSU9SKCdCJywgMSwgX191MzIqKQogLyogaW4gcGFyYW06IHUzMgliYWNrbGlnaHQgdmFs
-dWU6IDAgdG8gMTUgKi8KLSNkZWZpbmUgUE1VX0lPQ19TRVRfQkFDS0xJR0hUCV9JT1coJ0In
-LCAyLCBzaXplb2YoX191MzIpKQorI2RlZmluZSBQTVVfSU9DX1NFVF9CQUNLTElHSFQJX0lP
-VygnQicsIDIsIF9fdTMyKQogLyogb3V0IHBhcmFtOiB1MzIqCVBNVSBtb2RlbCAqLwotI2Rl
-ZmluZSBQTVVfSU9DX0dFVF9NT0RFTAlfSU9SKCdCJywgMywgc2l6ZW9mKF9fdTMyKikpCisj
-ZGVmaW5lIFBNVV9JT0NfR0VUX01PREVMCV9JT1IoJ0InLCAzLCBfX3UzMiopCiAvKiBvdXQg
-cGFyYW06IHUzMioJaGFzX2FkYjogMCBvciAxICovCi0jZGVmaW5lIFBNVV9JT0NfSEFTX0FE
-QgkJX0lPUignQicsIDQsIHNpemVvZihfX3UzMiopKSAKKyNkZWZpbmUgUE1VX0lPQ19IQVNf
-QURCCQlfSU9SKCdCJywgNCwgX191MzIqKSAKIC8qIG91dCBwYXJhbTogdTMyKgljYW5fc2xl
-ZXA6IDAgb3IgMSAqLwotI2RlZmluZSBQTVVfSU9DX0NBTl9TTEVFUAlfSU9SKCdCJywgNSwg
-c2l6ZW9mKF9fdTMyKikpIAorI2RlZmluZSBQTVVfSU9DX0NBTl9TTEVFUAlfSU9SKCdCJywg
-NSwgX191MzIqKSAKIC8qIG5vIHBhcmFtICovCiAjZGVmaW5lIFBNVV9JT0NfR1JBQl9CQUNL
-TElHSFQJX0lPUignQicsIDYsIDApIAogCi0tLSBpYTY0LWxpbnV4Mi42LjAvaW5jbHVkZS9s
-aW51eC9yYWRlb25mYi5oCVR1ZSBBdWcgMjYgMTY6NDc6MjYgMjAwMworKysgaWE2NC1saW51
-eDIuNi4wLXBhdGNoL2luY2x1ZGUvbGludXgvcmFkZW9uZmIuaAlGcmkgU2VwICA1IDE2OjI2
-OjQxIDIwMDMKQEAgLTgsOCArOCw4IEBACiAjZGVmaW5lIEFUWV9SQURFT05fQ1JUX09OCTB4
-MDAwMDAwMDIKIAogCi0jZGVmaW5lIEZCSU9fUkFERU9OX0dFVF9NSVJST1IJX0lPUignQCcs
-IDMsIHNpemVvZihfX3UzMiopKQotI2RlZmluZSBGQklPX1JBREVPTl9TRVRfTUlSUk9SCV9J
-T1coJ0AnLCA0LCBzaXplb2YoX191MzIqKSkKKyNkZWZpbmUgRkJJT19SQURFT05fR0VUX01J
-UlJPUglfSU9SKCdAJywgMywgX191MzIqKQorI2RlZmluZSBGQklPX1JBREVPTl9TRVRfTUlS
-Uk9SCV9JT1coJ0AnLCA0LCBfX3UzMiopCiAKICNlbmRpZgogCi0tLSBpYTY0LWxpbnV4Mi42
-LjAvaW5jbHVkZS92aWRlby9zaXNmYi5oCVR1ZSBBdWcgMjYgMTY6NDc6MjYgMjAwMworKysg
-aWE2NC1saW51eDIuNi4wLXBhdGNoL2luY2x1ZGUvdmlkZW8vc2lzZmIuaAlGcmkgU2VwICA1
-IDE2OjI3OjI3IDIwMDMKQEAgLTE0NSw5ICsxNDUsOSBAQAogLyogICAgIElmIGNoYW5naW5n
-IHRoaXMsIHZnYXR5cGVzLmggbXVzdCBhbHNvIGJlIGNoYW5nZWQgKGZvciBYIGRyaXZlcikg
-ICAgKi8KIAogLyogVFc6IGlvY3RsIGZvciBpZGVudGlmeWluZyBhbmQgZ2l2aW5nIHNvbWUg
-aW5mbyAoZXNwLiBtZW1vcnkgaGVhcCBzdGFydCkgKi8KLSNkZWZpbmUgU0lTRkJfR0VUX0lO
-Rk8JICAJX0lPUignbicsMHhGOCxzaXplb2YoX191MzIpKQorI2RlZmluZSBTSVNGQl9HRVRf
-SU5GTwkgIAlfSU9SKCduJywweEY4LF9fdTMyKQogCi0jZGVmaW5lIFNJU0ZCX0dFVF9WQlJT
-VEFUVVMgIAlfSU9SKCduJywweEY5LHNpemVvZihfX3UzMikpCisjZGVmaW5lIFNJU0ZCX0dF
-VF9WQlJTVEFUVVMgIAlfSU9SKCduJywweEY5LF9fdTMyKQogCiAvKiBUVzogU3RydWN0dXJl
-IGFyZ3VtZW50IGZvciBTSVNGQl9HRVRfSU5GTyBpb2N0bCAgKi8KIHR5cGVkZWYgc3RydWN0
-IF9TSVNGQl9JTkZPIHNpc2ZiX2luZm8sICpwc2lzZmJfaW5mbzsK
---------------060700030900010904090003--
-
+-- 
+"It's not Hollywood.  War is real, war is primarily not about defeat or
+victory, it is about death.  I've seen thousands and thousands of dead bodies.
+Do you think I want to have an academic debate on this subject?" -- Robert Fisk

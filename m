@@ -1,60 +1,81 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267678AbRGZME1>; Thu, 26 Jul 2001 08:04:27 -0400
+	id <S267585AbRGZMCr>; Thu, 26 Jul 2001 08:02:47 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267739AbRGZMER>; Thu, 26 Jul 2001 08:04:17 -0400
-Received: from chiara.elte.hu ([157.181.150.200]:51461 "HELO chiara.elte.hu")
-	by vger.kernel.org with SMTP id <S267678AbRGZMEI>;
-	Thu, 26 Jul 2001 08:04:08 -0400
-Date: Thu, 26 Jul 2001 14:01:31 +0200 (CEST)
-From: Ingo Molnar <mingo@elte.hu>
-Reply-To: <mingo@elte.hu>
-To: <tpepper@vato.org>
-Cc: <corbet-lk@lwn.net>, <linux-kernel@vger.kernel.org>
-Subject: Re: TASK_EXCLUSIVE?
-In-Reply-To: <20010725192533.A17850@cb.vato.org>
-Message-ID: <Pine.LNX.4.33.0107261341010.3796-100000@localhost.localdomain>
+	id <S267678AbRGZMCh>; Thu, 26 Jul 2001 08:02:37 -0400
+Received: from humbolt.nl.linux.org ([131.211.28.48]:61960 "EHLO
+	humbolt.nl.linux.org") by vger.kernel.org with ESMTP
+	id <S267585AbRGZMC2>; Thu, 26 Jul 2001 08:02:28 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Daniel Phillips <phillips@bonn-fries.net>
+To: ebiederm@xmission.com (Eric W. Biederman),
+        Rik van Riel <riel@conectiva.com.br>
+Subject: Re: [RFC] Optimization for use-once pages
+Date: Thu, 26 Jul 2001 14:06:29 +0200
+X-Mailer: KMail [version 1.2]
+Cc: Marcelo Tosatti <marcelo@conectiva.com.br>,
+        Andrew Morton <akpm@zip.com.au>, <linux-kernel@vger.kernel.org>,
+        Ben LaHaise <bcrl@redhat.com>, Mike Galbraith <mikeg@wen-online.de>
+In-Reply-To: <Pine.LNX.4.33L.0107251340550.20326-100000@duckman.distro.conectiva> <m1ae1sf5od.fsf@frodo.biederman.org>
+In-Reply-To: <m1ae1sf5od.fsf@frodo.biederman.org>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Message-Id: <0107261406290L.00907@starship>
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
+On Thursday 26 July 2001 10:36, Eric W. Biederman wrote:
+> Rik van Riel <riel@conectiva.com.br> writes:
+> > On Wed, 25 Jul 2001, Daniel Phillips wrote:
+> > > On Wednesday 25 July 2001 08:33, Marcelo Tosatti wrote:
+> > > > Now I'm not sure why directly adding swapcache pages to the
+> > > > inactive dirty lits with 0 zero age improves things.
+> > >
+> > > Because it moves the page rapidly down the inactive queue towards
+> > > the ->writepage instead of leaving it floating around on the
+> > > active ring waiting to be noticed.  We already know we want to
+> > > evict that page,
+> >
+> > We don't.
+>
+> Agreed.  The kinds of ``aging'' don't match up so we can't tell if
+> it meets our usual criteria for aging.
 
-On Wed, 25 Jul 2001 tpepper@vato.org wrote:
+Well, in the absence of of benchmark evidence its hard to tell how 
+valuable the usual criteria really are.  That's another topic though, 
+because the question here is not how the aging matches up, but how the 
+inactive queue handling matches up, see below.
 
-> I was reading through the new edition of Linux Device Drivers and
-> decided to try the TASK_EXCLUSIVE flag to get a single member of a
-> wait queue to wake.  I get a compile error though that it is
-> undeclared.  Grepping the kernel source came up with nothing.
+> > The page gets unmapped and added to the swap cache the first
+> > time it wasn't referenced by the process.
+> >
+> > This is before any page aging is done.
+>
+> Actually there has been aging done.  Unless you completely disable
+> testing for pte_young.  It is a different kind of aging but it is
+> aging.
 
-the 2.4 waitqueue interface has changed as part of the wake-some semantics
-introduced for the block-IO-scheduler changes. Wake-some is more generic
-than wake-one. The new way to add a wake-some task to a waitqueue is to
-use the add_wait_queue_exclusive() function. To add a 'wake-all' task you
-should use the well-known add_wait_queue() function.
+In the case of a process page and in the case of a file IO page the 
+situation is the same: we have decided to put the page on trial.  Once 
+we have arrived at that decision its previous history doesn't matter,
+so it makes sense to set its age to a known state.  In this case it's 
+0, meaning "on trial".
 
-TASK_EXCLUSIVE was an interim implementation that supported wake-one only.
-The new implementation enables a task to be on multiple waitqueues with
-different wake-up semantics, because there is now a per-waitqueue-entry
-attribute, not a per-task (and thus global) attribute for wake-some
-semantics.
+Consider that the process page will only ever be down-aged after being 
+unmapped.  So if we put it on the active queue, it just acts like a 
+big, slow, inefficient timer.  Why not put it on a fifo queue instead?  
+It's the same thing, just more efficient.  But we already have a fifo 
+queue, the inactive_dirty_queue, which we are using for everything 
+else, so why not use it for this too, then at least we know its fair.
 
-When a wake_up_nr(N) wakeup event comes, all wake-all tasks will be woken
-up, and 'N' wake-some tasks. The 'old' wake_up() function is
-wake_up_nr(1). Wake-one is a special case of wake-some, where N = 1. There
-is also a new wake_up_all() function that wakes up all tasks disregarding
-their wake-up attribute, including all wake-some tasks.
+In other words, there is no obvious need to treat a process page 
+differently from a file IO page once decide to put it on trial.
 
-current usage of these interfaces: most places in the kernel use wake_up()
-and use wake-all tasks - like they did for years. 'Old' code that does not
-need to optimize waitqueue behavior behaves in the expected way.
-Networking, the semaphore code, the pagecache locking code and some other
-places uses wake-one waitqueues. Certain parts of networking use a mixed
-waitqueue with wake-some and wake-all tasks. The block IO scheduler uses
-wake-some to signal the completion of multiple IO slots. wake_up_all() is
-used in a couple of places as well, like TUX [ :-) ], to eg. deregister
-all wake-one worker threads with a single call.
+There does seem to be a dangling thread here though - when a process 
+page is unmapped and added to swap cache in try_to_swap_out then later 
+faulted back in, I don't see where we "rescue" the page from the 
+inactive queue.  Maybe I'm just not looking hard enough.
 
-	Ingo
-
+--
+Daniel

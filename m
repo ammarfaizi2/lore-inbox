@@ -1,18 +1,20 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262065AbRETQCX>; Sun, 20 May 2001 12:02:23 -0400
+	id <S262078AbRETQUo>; Sun, 20 May 2001 12:20:44 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262062AbRETQCO>; Sun, 20 May 2001 12:02:14 -0400
-Received: from leibniz.math.psu.edu ([146.186.130.2]:43206 "EHLO math.psu.edu")
-	by vger.kernel.org with ESMTP id <S262065AbRETQCA>;
-	Sun, 20 May 2001 12:02:00 -0400
-Date: Sun, 20 May 2001 12:01:58 -0400 (EDT)
+	id <S262077AbRETQUe>; Sun, 20 May 2001 12:20:34 -0400
+Received: from leibniz.math.psu.edu ([146.186.130.2]:54239 "EHLO math.psu.edu")
+	by vger.kernel.org with ESMTP id <S262075AbRETQU1>;
+	Sun, 20 May 2001 12:20:27 -0400
+Date: Sun, 20 May 2001 12:20:26 -0400 (EDT)
 From: Alexander Viro <viro@math.psu.edu>
-To: Abramo Bagnara <abramo@alsa-project.org>
-cc: Kai Henningsen <kaih@khms.westfalen.de>, linux-kernel@vger.kernel.org
-Subject: Re: no ioctls for serial ports? [was Re: LANANA: To Pending DeviceNum
-In-Reply-To: <3B07E569.83639A19@alsa-project.org>
-Message-ID: <Pine.GSO.4.21.0105201145380.8940-100000@weyl.math.psu.edu>
+To: Edgar Toernig <froese@gmx.de>
+cc: Jeff Garzik <jgarzik@mandrakesoft.com>,
+        Linus Torvalds <torvalds@transmeta.com>, Ben LaHaise <bcrl@redhat.com>,
+        linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org
+Subject: Re: F_CTRLFD (was Re: Why side-effects on open(2) are evil.)
+In-Reply-To: <3B07E6F6.E5C543B2@gmx.de>
+Message-ID: <Pine.GSO.4.21.0105201203090.8940-100000@weyl.math.psu.edu>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
@@ -20,61 +22,38 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 
 
-On Sun, 20 May 2001, Abramo Bagnara wrote:
+On Sun, 20 May 2001, Edgar Toernig wrote:
 
-> > How about reading from them? You are forcing restriction that may make
-> > sense in some cases, but doesn't look good for everything.
-> 
-> exec 3>/dev/ttyS0/ioctl
-> exec 4<&3
-> echo "speed" >&3
-> cat <&4
-> exec 3>&-
-> exec 4<&-
-> 
-> Can you make a counter example where this doesn't look good?
+> IMHO any scheme that requires a special name to perform ioctl like
+> functions will not work.  Often you don't known the name of the
+> device you're talking to and then you're lost.
 
-If in your opinion it looks good... Again, you are forcing the policy
-decision on a lot of interfaces. For no good reason, AFAICS.
+ls -l /proc/self/fd/<n>
 
-> > However, we _do_ allow that. Right now. And yes, I agree that we should
-                                                     ^^^^^^^^^^^^^^^^^^^^^^
-> > go to separate file for that. And we are right back to finding a related
-    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-> > file.
-> 
-> I'd prefer to make what you often call a crapectomy: no IDE timing
-> change using a partition handle. It's something like to permit that on a
-> LVM handle, it's stupid...
+and think of the results. We can export that as a syscall (fpath(2)), BTW.
 
-Sigh... Sure, but so is the magic way to get ioctl descriptor by file
-descriptor. They are two separate files. End of story. Yes, they are
-related - provided by the same driver.
+Again, folks, there are two things that are no going to happen:
 
-Look, emulating ioctl(2) via write(2) is _not_ the goal. We will have
-to keep that syscall, for binary compatibility reasons if nothing else.
-We can start fixing the applications that use Linux-only ioctls (and
-that pretty much means that we'll have to leave the networking ones alone
-for quite a while).
+	1) sys_ioctl() going away from syscall table. Binary compatibility
+with existing userland stuff that deals with networking ioctls. Unlike
+special-case device ones, they really have a lot of users. Standard rules
+are "2 stable releases until we remove a syscall".
 
-What _is_ interesting is a sane API that could be used instead of the
-current mess with device ioctls. There's only one reason to go for
-fs/n/ioctl scheme - mass conversion of applications with little to
-no thinking. Not going to happen. Simply because you'll need to switch
-arguments in many of these cases.
- 
-> About tty and vcs split: there the problem is more subtle and it's
-> related to a missing separation of keyboard and screen.
-> After to have done this choice (i.e. to have the some behaviour of
-> serial port) someone has realized that to read from console screen it's
-> a sensible action (to fetch current content).
+	2) semi-automatic conversion of existing applications. To hell with
+the way we are finding descriptor, we need to deal with arguments themselves.
+And no extra logics in libc will help - the whole problem is that ioctls
+have rather irregular arguments.
 
-> This is the typical case where to have /dev/tty1/ioctl does not
-> substitute to have another device for console screen reading.
-> 
-> Note that it's a *different* device (different permission, etc.).
+So "make it look as similar to ioctl() as possible" is not a good gaol.
+It would be, if we were preparing to do mass switching to new mechanism
+with minimal changes to existing codebase. Not realistic.
 
-And your ioctl is different from that because...? I can certainly see
-good reasons to restrict user to some subsets functionality provided by
-ioctls - BTW, one more reason why multiple related channels are good.
+What we need is "make it sane", not "inherit as many things from the
+old API as possible". And obvious first target is Linux-specific
+device ioctls, simply because they have fewer programs using them.
+
+Networking ioctls are there to stay for quite a while - we'll need
+at the very least to implement old ones in a userland library.
+Portability issues will be nasty, since _that_ stuff is used by
+tons of programs.
 

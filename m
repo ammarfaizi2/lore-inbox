@@ -1,51 +1,83 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292944AbSB0VDm>; Wed, 27 Feb 2002 16:03:42 -0500
+	id <S289299AbSB0VQU>; Wed, 27 Feb 2002 16:16:20 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292945AbSB0VDK>; Wed, 27 Feb 2002 16:03:10 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:38160 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S292948AbSB0VCe>; Wed, 27 Feb 2002 16:02:34 -0500
-Subject: Re: A7M266-D, dual athlon 1800+ kernel-smp APIC boot problem workaround
-To: dettrick@uci.edu (Sean DETTRICK)
-Date: Wed, 27 Feb 2002 21:17:15 +0000 (GMT)
-Cc: linux-kernel@vger.kernel.org, dettrick@uci.edu, support@asus.com,
-        euro.cpu@amd.com
-In-Reply-To: <Pine.GSO.4.44.0202271124590.22391-100000@e4e.oac.uci.edu> from "Sean DETTRICK" at Feb 27, 2002 12:12:37 PM
-X-Mailer: ELM [version 2.5 PL6]
-MIME-Version: 1.0
+	id <S292956AbSB0VPu>; Wed, 27 Feb 2002 16:15:50 -0500
+Received: from alcove.wittsend.com ([130.205.0.10]:16261 "EHLO
+	alcove.wittsend.com") by vger.kernel.org with ESMTP
+	id <S292860AbSB0VPh>; Wed, 27 Feb 2002 16:15:37 -0500
+Date: Wed, 27 Feb 2002 16:15:19 -0500
+From: "Michael H. Warfield" <mhw@wittsend.com>
+To: Rik van Riel <riel@conectiva.com.br>
+Cc: Jeff Garzik <jgarzik@mandrakesoft.com>,
+        Andreas Dilger <adilger@turbolabs.com>,
+        "Dennis, Jim" <jdennis@snapserver.com>,
+        "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
+Subject: Re: crypto (was Re: Congrats Marcelo,)
+Message-ID: <20020227161519.A13912@alcove.wittsend.com>
+Mail-Followup-To: Rik van Riel <riel@conectiva.com.br>,
+	Jeff Garzik <jgarzik@mandrakesoft.com>,
+	Andreas Dilger <adilger@turbolabs.com>,
+	"Dennis, Jim" <jdennis@snapserver.com>,
+	"'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
+In-Reply-To: <3C7BFAFA.D8923CFF@mandrakesoft.com> <Pine.LNX.4.33L.0202261932580.7820-100000@imladris.surriel.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E16gBRr-0005sg-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.33L.0202261932580.7820-100000@imladris.surriel.com>
+User-Agent: Mutt/1.3.22.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> We have an Asus A7M266-D motherboard with dual Athlon MP 1800+.
-> We found the linux kernel-smp would seize shortly after or during booting
-> the second CPU, at around the time it was testing APIC.
+On Tue, Feb 26, 2002 at 07:33:50PM -0300, Rik van Riel wrote:
+> On Tue, 26 Feb 2002, Jeff Garzik wrote:
 
-Yes - the MP 1.4 table seems to have funnies with the second IDE controller
+> > IMO it's time to get a good IPsec implementation in the kernel...
 
-> We found that booting with the "noapic" option in grub or lilo was
-> sufficient to solve the problem.
+> Where would we get one of those ?
 
-Better yet set MP 1.1 in the BIOS - the MP1.1 table seems to work
+> The freeswan folks seem quite determined to not let any
+> americans touch their code, so inclusion of their stuff
+> into the kernel is out.
 
-> AMD and ASUS tech support had never heard of this problem.
-> ASUS suggested it "might" be the BIOS.
+	No...  That's patently not true.
 
-AMD have heard of the problem. I've got it filed with them along with
-	Won't boot with a broadcom card in
-	Seems to misconfigure PCI compliance sometimes
+	They won't accept contributions from us, but we touch
+their code all the time.  If we didn't, how would we get any testing
+done, which they do accept from us.
 
-and some other oddments. Support I suspect are not too used to it.
+	Also, several of them have stated on several occasions (this is
+the prerequisite religious war that pops up every few months) that
+they have no say in what other people do with the code (subject to the
+license of course) and that inclusion of klips in the mainline kernel
+would be beyond their control, yeah or nay.  Klips is the ONLY part
+of freeswan that would go in the kernel.  Pluto (IKE) is the user
+space part.
 
-> BTW the Athlons, clearly marked in the boxes as MP, identified
-> themselves as Athlon XP 1800+'s.   We thought this might be the
-> problem at first but now we guess not.
+	They won't accept contributions from US developers to their code
+base.  That does NOT mean that they will not accept contributing the IPSec
+kernel code to the kernel and the incorporation of klips into the kernel
+source tree.
 
-The BIOS forgets to load the MP name string, like a load of other
-problems it has. 
+> Do you know of a nice ipsec implementation we could use?
 
-Alan
+	Yes.  FreeSWAN.  And the FreeSWAN developers have as much as said so.
+
+> Rik
+> -- 
+> "Linux holds advantages over the single-vendor commercial OS"
+>     -- Microsoft's "Competing with Linux" document
+> 
+> http://www.surriel.com/		http://distro.conectiva.com/
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+
+-- 
+ Michael H. Warfield    |  (770) 985-6132   |  mhw@WittsEnd.com
+  /\/\|=mhw=|\/\/       |  (678) 463-0932   |  http://www.wittsend.com/mhw/
+  NIC whois:  MHW9      |  An optimist believes we live in the best of all
+ PGP Key: 0xDF1DD471    |  possible worlds.  A pessimist is sure of it!

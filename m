@@ -1,36 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262331AbTJNL01 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Oct 2003 07:26:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262355AbTJNL01
+	id S262433AbTJNLka (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Oct 2003 07:40:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262260AbTJNLka
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Oct 2003 07:26:27 -0400
-Received: from fw.osdl.org ([65.172.181.6]:4294 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S262331AbTJNL00 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Oct 2003 07:26:26 -0400
-Date: Tue, 14 Oct 2003 04:29:39 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Thomas Winischhofer <thomas@winischhofer.net>
-Cc: linux-kernel@vger.kernel.org, jsimmons@infradead.org, olh@suse.de,
-       sam@ravnborg.org
-Subject: Re: gcc -msoft-float [Was: Linux 2.6.0-test7 - stability freeze]
-Message-Id: <20031014042939.4a139a07.akpm@osdl.org>
-In-Reply-To: <3F8BB43A.9050808@winischhofer.net>
-References: <3F8BB43A.9050808@winischhofer.net>
-X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
+	Tue, 14 Oct 2003 07:40:30 -0400
+Received: from pix-525-pool.redhat.com ([66.187.233.200]:37793 "EHLO
+	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
+	id S262433AbTJNLk0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 14 Oct 2003 07:40:26 -0400
+Date: Tue, 14 Oct 2003 07:40:23 -0400
+From: Jakub Jelinek <jakub@redhat.com>
+To: Olaf Hering <olh@suse.de>
+Cc: Linus Torvalds <torvalds@osdl.org>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Linux 2.6.0-test7 - stability freeze
+Message-ID: <20031014074023.M26086@devserv.devel.redhat.com>
+Reply-To: Jakub Jelinek <jakub@redhat.com>
+References: <Pine.LNX.4.44.0310081235280.4017-100000@home.osdl.org> <20031013173446.GA13186@suse.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20031013173446.GA13186@suse.de>; from olh@suse.de on Mon, Oct 13, 2003 at 07:34:46PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Thomas Winischhofer <thomas@winischhofer.net> wrote:
->
-> This is fixed in the latest version of sisfb I sent to James Simmons; 
->  one more reason to merge the fbdev stuff...
+On Mon, Oct 13, 2003 at 07:34:46PM +0200, Olaf Hering wrote:
+>  On Wed, Oct 08, Linus Torvalds wrote:
+> 
+> > The more interesting thing is that I and Andrew are trying to calm down 
+> > development, and I do _not_ want to see patches that don't fix a real and 
+> > clear bug. In other words, the "cleanup and janitorial" stuff is on hold, 
+> > and -test8 and then -test9 should be for _stability_ fixes only.
+> 
+> a longstanding bug, should probably go to the main Makefile. But I dont
+> know if all supported archs know about -msoft-float.
 
-Well afaik nobody is sending anything.  I've had some 35,000 line fbdev
-patch in -mm for six weeks but have not seen anything since.
+It is not supported on all arches (and various lk arches already use similar
+switches in their arch/<arch>/Makefile, e.g. sparc* uses -mno-fpu,
+ppc* use -msoft-float, arm uses -mno-fpu -msoft-float, sh64 -m5-32media-nofpu).
+So IMHO it should stay in arch/<arch>/Makefile.
 
-What's up?
+	Jakub

@@ -1,65 +1,58 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312980AbSDGG7K>; Sun, 7 Apr 2002 01:59:10 -0500
+	id <S312986AbSDGHcQ>; Sun, 7 Apr 2002 03:32:16 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312986AbSDGG7K>; Sun, 7 Apr 2002 01:59:10 -0500
-Received: from web20802.mail.yahoo.com ([216.136.226.191]:15877 "HELO
-	web20802.mail.yahoo.com") by vger.kernel.org with SMTP
-	id <S312980AbSDGG7J>; Sun, 7 Apr 2002 01:59:09 -0500
-Message-ID: <20020407065908.98437.qmail@web20802.mail.yahoo.com>
-Date: Sat, 6 Apr 2002 22:59:08 -0800 (PST)
-From: George Kola <procproj@yahoo.com>
-Subject: /proc enhancement
-To: linux-kernel@vger.kernel.org
-In-Reply-To: <200203310133.SAA12760@frodo.biederman.org>
-MIME-Version: 1.0
+	id <S312987AbSDGHcP>; Sun, 7 Apr 2002 03:32:15 -0400
+Received: from www.deepbluesolutions.co.uk ([212.18.232.186]:55046 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S312986AbSDGHcO>; Sun, 7 Apr 2002 03:32:14 -0400
+Date: Sun, 7 Apr 2002 08:32:07 +0100
+From: Russell King <rmk@arm.linux.org.uk>
+To: Rob Radez <rob@osinvestor.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: WatchDog Driver Updates
+Message-ID: <20020407083207.A28922@flint.arm.linux.org.uk>
+In-Reply-To: <Pine.LNX.4.33.0204062139010.3791-100000@pita.lan>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  We are working on a project to enhance linux /proc.
-This is of particular importance to the 'Paradayn'
-project (cs.wisc.edu/paradyn). 
-  We want to add the ability to specifically trace a
-set of system calls and the ability to trace  the
-system call entry or exit or both. For this we wanted
-to add two structs to
+On Sat, Apr 06, 2002 at 09:49:57PM -0500, Rob Radez wrote:
+> I've put up a patch on http://osinvestor.com/bigwatchdog.diff against
+> 2.4.19-pre5-ac3.  The diff is 33k, and it affects 19 files in drivers/char/,
 
-struct task_struct in include/linux/sched.h
+And the purpose of this patch is...
 
+1. copy_to_user is like memcpy() - it takes two pointers and an integer
+   size.  You're passing it two integers and a pointer:
 
-struct  syscall_set {
-   char traced[8];
-}
+   static int wdt977_ioctl(... unsigned long arg)
+   ...
+            case WDIOC_GETSTATUS:
+                   if(copy_to_user(arg, &timer_alive, sizeof(timer_alive)))
+                              return -EFAULT;
+                   return 0;
 
+2. sizeof(int) != sizeof(unsigned long).  You've changed the ABI in an
+   unsafe manner on 64-bit machines.  The ABI is defined by the ioctl
+   numbers, which specify an 'int' type.
 
-we want to add 
+3. copy_to_user of an int or unsigned long is a bit inefficient.  Why
+   not use put_user to write an int or unsigned long?
 
-struct syscall_set entry,exit; to task_struct in 
-include/linux/sched.h
+4. Unless I'm missing something, WDIOC_GETSTATUS can only ever return
+   an indication that the timer is open/alive - it's set when the driver
+   is opened, and cleared when it is closed.  Since you can't perform
+   an ioctl on a closed device, the times that you can perform the ioctl,
+   it'll always give you a non-zero result.
 
-In the beginning of task_struct we found that
+5. WDIOC_GETSTATUS is supposed to return the WDIOF_* flags.  Returning
+   "watchdog active" as bit 0 causes it to indicate WDIOF_OVERHEAT.
 
-struct task_struct {
-	/*
-	 * offsets of these are hardcoded elsewhere - touch
-with care
-	 */
+-- 
+Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
+             http://www.arm.linux.org.uk/personal/aboutme.html
 
-          We want to know what we would be breaking if
-we add the structs at the end ? (so that we can fix
-them)
-
-
-         Also how do we initialize it in 
-#define INIT_TASK(tsk) (we want to set all bits in the
-struct to 1).
-
-
-Thanks,
-George
-
-__________________________________________________
-Do You Yahoo!?
-Yahoo! Tax Center - online filing with TurboTax
-http://taxes.yahoo.com/

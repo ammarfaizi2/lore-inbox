@@ -1,63 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262070AbUKVMSE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262047AbUKVMTu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262070AbUKVMSE (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 22 Nov 2004 07:18:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262065AbUKVMPz
+	id S262047AbUKVMTu (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 22 Nov 2004 07:19:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262082AbUKVMSY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 22 Nov 2004 07:15:55 -0500
-Received: from host-3.tebibyte16-2.demon.nl ([82.161.9.107]:23302 "EHLO
-	doc.tebibyte.org") by vger.kernel.org with ESMTP id S262047AbUKVMP1
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 22 Nov 2004 07:15:27 -0500
-Message-ID: <41A1D850.6090706@tebibyte.org>
-Date: Mon, 22 Nov 2004 13:15:12 +0100
-From: Chris Ross <chris@tebibyte.org>
-Organization: At home (Eindhoven, The Netherlands)
-User-Agent: Mozilla Thunderbird 0.9 (X11/20041103)
-X-Accept-Language: pt-br, pt
-MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-Cc: marcelo.tosatti@cyclades.com, andrea@novell.com,
-       linux-kernel@vger.kernel.org, linux-mm@kvack.org,
-       piggin@cyberone.com.au, riel@redhat.com,
-       mmokrejs@ribosome.natur.cuni.cz, tglx@linutronix.de
-Subject: Re: [PATCH] fix spurious OOM kills
-References: <20041111112922.GA15948@logos.cnet>	<4193E056.6070100@tebibyte.org>	<4194EA45.90800@tebibyte.org>	<20041113233740.GA4121@x30.random>	<20041114094417.GC29267@logos.cnet>	<20041114170339.GB13733@dualathlon.random>	<20041114202155.GB2764@logos.cnet>	<419A2B3A.80702@tebibyte.org>	<419B14F9.7080204@tebibyte.org> <20041117012346.5bfdf7bc.akpm@osdl.org> <41A0E60C.605@tebibyte.org>
-In-Reply-To: <41A0E60C.605@tebibyte.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Mon, 22 Nov 2004 07:18:24 -0500
+Received: from wproxy.gmail.com ([64.233.184.197]:34028 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S262072AbUKVMQw (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 22 Nov 2004 07:16:52 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:mime-version:content-type:content-transfer-encoding;
+        b=dFVOWf2gEclDjKOxwc2IU81c8ZhDT4daq9xdE/fg41Ja/jZPS+Tdae9mBok6A9huaG2JEiHWx/wFyUmCTr12cdlEOuOgNmYvUo8BsLtua78uNv3UkkPeE2q9Uky2FUC3FQGjB/4G4lD/2CBJOVzgcXfIDo4fxKdVFkmx+KRCnXk=
+Message-ID: <ce70c49041122041623155a@mail.gmail.com>
+Date: Mon, 22 Nov 2004 08:16:51 -0400
+From: =?ISO-8859-1?Q?C=EDcero?= <cicero.mota@gmail.com>
+Reply-To: =?ISO-8859-1?Q?C=EDcero?= <cicero.mota@gmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: Information about move_tasks return
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Andrew,
+hi
 
-Chris Ross escreveu:
- > Andrew Morton escreveu:
- >> Please ignore the previous patch and try the below.
- >
- > I still get OOM kills with this (well one, anyway). It does seem harder
- > to trigger though.
+I am looking for the result of the function  move_task in
 
-Turns out it's not that hard. Sorry for the slight delay, I've been away 
-a few days.
+kernel/sched.c , I have observed that it returns an int value and as I
+print it with printk.
 
-root@sleepy chris # grep Killed /var/log/messages
-Nov 21 22:24:22 sleepy Out of Memory: Killed process 6800 (qmgr).
-Nov 21 22:24:32 sleepy Out of Memory: Killed process 6799 (pickup).
-Nov 21 22:24:57 sleepy Out of Memory: Killed process 6472 (distccd).
-Nov 21 22:25:00 sleepy Out of Memory: Killed process 6473 (distccd).
-Nov 21 22:25:00 sleepy Out of Memory: Killed process 6582 (distccd).
-Nov 21 22:25:00 sleepy Out of Memory: Killed process 6686 (distccd).
-Nov 21 22:25:00 sleepy Out of Memory: Killed process 6687 (ntpd).
+I have created a int variable 'results_move_task' which capture the result of
 
-If you want to seem the actual oom messages just ask.
+move_task and I print it with printk("%d",results_move_task); I
+observed that it often returns the value '1' and sometimes it returns
+'2' or more. Is it really correct?
 
-This is with 2.6.10-rc2-mm1 + your patch whilst doing an "emerge sync" 
-which isn't ridiculously memory hungry and shouldn't result in oom kills.
+[]s
 
-Informally I felt I had better results from Marcelo's patch, though I 
-should test both under the same conditions before I say that...
-
-Regards,
-Chris R.
-
+PS:Sorry about my english.

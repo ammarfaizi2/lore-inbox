@@ -1,60 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268401AbUHYHDH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268479AbUHYHHg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268401AbUHYHDH (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 25 Aug 2004 03:03:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268464AbUHYHDG
+	id S268479AbUHYHHg (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 25 Aug 2004 03:07:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268480AbUHYHHg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 25 Aug 2004 03:03:06 -0400
-Received: from gate.crashing.org ([63.228.1.57]:20661 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S268463AbUHYHCu (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 25 Aug 2004 03:02:50 -0400
-Subject: Re: [RFC&PATCH 1/2] PCI Error Recovery (readX_check)
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Hidetoshi Seto <seto.hidetoshi@jp.fujitsu.com>,
-       Linux Kernel list <linux-kernel@vger.kernel.org>,
-       linux-ia64@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.58.0408232231070.17766@ppc970.osdl.org>
-References: <412AD123.8050605@jp.fujitsu.com>
-	 <Pine.LNX.4.58.0408232231070.17766@ppc970.osdl.org>
-Content-Type: text/plain
-Message-Id: <1093417267.2170.47.camel@gaston>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Wed, 25 Aug 2004 17:01:08 +1000
-Content-Transfer-Encoding: 7bit
+	Wed, 25 Aug 2004 03:07:36 -0400
+Received: from TYO206.gate.nec.co.jp ([202.32.8.206]:19890 "EHLO
+	tyo206.gate.nec.co.jp") by vger.kernel.org with ESMTP
+	id S268479AbUHYHHd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 25 Aug 2004 03:07:33 -0400
+To: Stephen Smalley <sds@epoch.ncsc.mil>
+Cc: Greg KH <greg@kroah.com>, Christoph Hellwig <hch@infradead.org>,
+       James Morris <jmorris@redhat.com>, Andrew Morton <akpm@osdl.org>,
+       Alexander Viro <viro@parcelfarce.linux.theplanet.co.uk>,
+       lkml <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH][7/7] add xattr support to ramfs
+References: <Xine.LNX.4.44.0408231420100.13728-100000@thoron.boston.redhat.com>
+	<Xine.LNX.4.44.0408231421200.13728-100000@thoron.boston.redhat.com>
+	<20040823212623.A20995@infradead.org>
+	<1093292789.27211.279.camel@moss-spartans.epoch.ncsc.mil>
+	<20040823205942.GA3370@kroah.com>
+	<1093346824.1800.34.camel@moss-spartans.epoch.ncsc.mil>
+From: Miles Bader <miles@lsi.nec.co.jp>
+Reply-To: Miles Bader <miles@gnu.org>
+System-Type: i686-pc-linux-gnu
+Blat: Foop
+Date: Wed, 25 Aug 2004 16:03:09 +0900
+In-Reply-To: <1093346824.1800.34.camel@moss-spartans.epoch.ncsc.mil> (Stephen
+ Smalley's message of "Tue, 24 Aug 2004 07:27:04 -0400")
+Message-ID: <buoy8k3pumq.fsf@mctpc71.ucom.lsi.nec.co.jp>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2004-08-24 at 15:41, Linus Torvalds wrote:
+Stephen Smalley <sds@epoch.ncsc.mil> writes:
+> It makes no difference to me whether we use ramfs or tmpfs (I'd favor
+> tmpfs myself)
 
-> Just make "clear_pci_errors()" take a spinlock on the bridge, and 
-> "read_pci_errors()" unlock it. We need to make sure that if multiple 
-> devices on the same bridge try to be careful, they can do so without 
-> seeing each others errors.
-> 
-> readX_check() itself would do no locking at all, since it is already 
-> called with the assumption that the bridge has been locked.
-> 
-> I'd also suggest that you make "clear_pci_errors()" return a cookie for 
-> read_pci_errors() to use. 
+What's the essential difference between ramfs and tmpfs anyway?
 
-Well, I'm not sure about all this... part of the problem is that drivers
-commonly need to also do IOs from interrupts. And another driver may
-"pollute" us too, depending on how the HW & bridge are designed. So we
-really also want to disable interrupts, we may need a "flags" around (could
-be burried into the cookie stuff though as an arch specific thing)
+I've gotten the impression that ramfs is simpler and lighter-weight than
+tmpfs, but doesn't have some features like resource-limiting.
 
-Most drivers already have such a low level lock though, so we may end
-up replacing it with a bridge-based lock... but depending on the architecture,
-that would end up sync'ing lots of drivers on the same lock, which may not
-be good especially if we have no checking to do... 
+If that's the case, then for something like /dev -- a small in-core
+filesystem that won't have arbitrary user files plunked into it -- ramfs
+seems an obvious choice.
 
-I don't know what is the best thing to do here... The arch is the one to
-know what is the granularity of the error management (per slot ? per segment
-or per domain ?) and so to know what kind of lock is needed...
+Also, tmpfs seems to require an MMU, which not all linux systems have
+(though I suppose the lack of an MMU makes many security tweaks a bit
+pointless :-).
 
-Ben.
-
-
+-Miles
+-- 
+Occam's razor split hairs so well, I bought the whole argument!

@@ -1,47 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266669AbUIVTGP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266684AbUIVTGv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266669AbUIVTGP (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Sep 2004 15:06:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266680AbUIVTGP
+	id S266684AbUIVTGv (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Sep 2004 15:06:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266687AbUIVTGv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Sep 2004 15:06:15 -0400
-Received: from mailgw.cvut.cz ([147.32.3.235]:29652 "EHLO mailgw.cvut.cz")
-	by vger.kernel.org with ESMTP id S266669AbUIVTGN (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Sep 2004 15:06:13 -0400
-From: "Petr Vandrovec" <VANDROVE@vc.cvut.cz>
-Organization: CC CTU Prague
-To: Norberto Bensa <norberto+linux-kernel@bensa.ath.cx>
-Date: Wed, 22 Sep 2004 21:06:50 +0200
+	Wed, 22 Sep 2004 15:06:51 -0400
+Received: from mta01.mail.tds.net ([216.170.230.81]:63366 "EHLO
+	mta01.mail.tds.net") by vger.kernel.org with ESMTP id S266684AbUIVTGt
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 22 Sep 2004 15:06:49 -0400
+Date: Wed, 22 Sep 2004 14:07:23 -0500 (CDT)
+From: David Lloyd <dmlloyd@tds.net>
+To: David Woodhouse <dwmw2@infradead.org>
+cc: SashaK <sashak@smlink.com>, Mikael Pettersson <mikpe@csd.uu.se>,
+       linux-kernel@vger.kernel.org
+Subject: Re: GPL source code for Smart USB 56 modem (includes ALSA AC97    
+ patch)
+In-Reply-To: <1095841141.17821.819.camel@hades.cambridge.redhat.com>
+Message-ID: <Pine.LNX.4.60.0409221404130.7029@tomservo.workpc.tds.net>
+References: <200409111850.i8BIowaq013662@harpo.it.uu.se> 
+ <20040912011128.031f804a@localhost>  <1095785705.17821.760.camel@hades.cambridge.redhat.com>
+  <Pine.LNX.4.60.0409211504440.7029@tomservo.workpc.tds.net>
+ <1095841141.17821.819.camel@hades.cambridge.redhat.com>
 MIME-Version: 1.0
-Content-type: text/plain; charset=US-ASCII
-Content-transfer-encoding: 7BIT
-Subject: Re: NOT FIXED (Is anyone using vmware 4.5 with 2.6.9-rc2-mm
-Cc: linux-kernel@vger.kernel.org
-X-mailer: Pegasus Mail v3.50
-Message-ID: <4506E4E6490@vcnet.vc.cvut.cz>
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 22 Sep 04 at 0:16, Norberto Bensa wrote:
-> Norberto Bensa wrote:
-> > It's working now. I had this in fstab:
-> 
-> No, it's not working. After a reboot, same config, same kernel, same mounts, 
-> same everything -> No vmware.
-> 
-> Just to summarize. 
-> 
-> * vmware with 2.6.9-rc1-mm5 works.
-> * vmware with 2.6.9-rc2-mm1 doesn't work.
-> 
-> I'll try 2.6.9-rc2 if anyone wants but since not many people answered my 
-> messages I guess there's no interest in vmware at all.
+On Wed, 22 Sep 2004, David Woodhouse wrote:
 
-You said that you are putting large VMware temporary files on tmpfs,
-and it is where my interest ends...
+>> - Could this idea be extended to analog telephony devices?
+>
+> Ideally, it could be extended to analogue coupling using standard 
+> speakers and microphone. :)
 
-If you can provide strace of failed run, I can look at it.  
-                                                    Best regards,
-                                                        Petr Vandrovec
+I mean e.g. those PBX-like device things (like the Quicknet thing maybe?) 
+that let you run a telephone network in your facility, so you could hook 
+up fax machines or modems to them in a 'POTS emulation' kind of sense.
 
+- D

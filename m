@@ -1,57 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261702AbULNWLD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261677AbULNWT3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261702AbULNWLD (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Dec 2004 17:11:03 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261700AbULNWJO
+	id S261677AbULNWT3 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Dec 2004 17:19:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261725AbULNWTP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Dec 2004 17:09:14 -0500
-Received: from gprs214-149.eurotel.cz ([160.218.214.149]:35456 "EHLO
-	amd.ucw.cz") by vger.kernel.org with ESMTP id S261712AbULNWHN (ORCPT
+	Tue, 14 Dec 2004 17:19:15 -0500
+Received: from fw.osdl.org ([65.172.181.6]:62182 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S261718AbULNWSh (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Dec 2004 17:07:13 -0500
-Date: Tue, 14 Dec 2004 23:06:46 +0100
-From: Pavel Machek <pavel@suse.cz>
-To: Tony Lindgren <tony@atomide.com>
-Cc: john stultz <johnstul@us.ibm.com>, Andrea Arcangeli <andrea@suse.de>,
-       Zwane Mwaikambo <zwane@arm.linux.org.uk>,
-       Con Kolivas <kernel@kolivas.org>, lkml <linux-kernel@vger.kernel.org>
-Subject: Re: dynamic-hz
-Message-ID: <20041214220646.GC19218@elf.ucw.cz>
-References: <Pine.LNX.4.61.0412121817130.16940@montezuma.fsmlabs.com> <20041213112853.GS16322@dualathlon.random> <20041213124313.GB29426@atrey.karlin.mff.cuni.cz> <20041213125844.GY16322@dualathlon.random> <20041213191249.GB1052@elf.ucw.cz> <1102970039.1281.415.camel@cog.beaverton.ibm.com> <20041213204933.GA4693@elf.ucw.cz> <20041214013924.GB14617@atomide.com> <20041214093735.GA1063@elf.ucw.cz> <20041214211814.GA31226@atomide.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20041214211814.GA31226@atomide.com>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.6+20040722i
+	Tue, 14 Dec 2004 17:18:37 -0500
+Date: Tue, 14 Dec 2004 14:18:13 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Roland McGrath <roland@redhat.com>
+cc: Ulrich Drepper <drepper@redhat.com>, Christoph Lameter <clameter@sgi.com>,
+       akpm@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 1/7] cpu-timers: high-resolution CPU clocks for POSIX
+ clock_* syscalls
+In-Reply-To: <200412142150.iBELoJc0011582@magilla.sf.frob.com>
+Message-ID: <Pine.LNX.4.58.0412141410150.3279@ppc970.osdl.org>
+References: <200412142150.iBELoJc0011582@magilla.sf.frob.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
 
-> > > The patch in question is at:
-> > > 
-> > > http://linux-omap.bkbits.net:8080/main/user=tmlind/patch@1.2016.4.18?nav=!-|index.html|stats|!+|index.html|ChangeSet@-12w|cset@1.2016.4.18
-> > 
-> > Wow, that's basically 8 lines of code plus driver for new
-> > hardware... Is it really that simple?
-> 
-> Yeah, the key things are reprogramming the timer in the idle loop
-> based on next_timer_interrupt(), and calling timer_interrupt from
-> other interrupts as well :)
-> 
-> Should we try a similar patch for x86/amd64? I'm not sure which timers
-> to use though? One should be programmable length for the interrupt, 
-> and the other continuous for the timekeeping.
 
-Yes, it would certainly be interesting. 5% power savings, and no
-singing capacitors, while keeping HZ=1000. Sounds good to me.
+On Tue, 14 Dec 2004, Roland McGrath wrote:
+>
+> I believe Christoph may have been referring exclusively to the per-process
+> clocks, not the per-thread clocks.
 
-There are about 1000 timers available in PC, each having its own
-quirks. CMOS clock should be able to generate 1024Hz periodic timer
-(we currently do not use) and TSC we currently use for periodic timer
-should be usable in single-shot mode.
-								Pavel
--- 
-People were complaining that M$ turns users into beta-testers...
-...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!
+Please do not confuse things.
+
+There still are no such things as "threads" vs "processes" as far as the 
+kernel is concerned.
+
+They are all the same thing, and they are all threads or processes or
+whatever you want to call them. I've tried to call them "contexts of
+execution" just to clarify the fact that they are _not_ threads of
+processes. And they all have a unified ID space.
+
+They just happen to share different things. We should try to avoid at all
+cost to take on stupidities from legacy systems. We've got a unified
+process/thread/whatever space, and that's a good thing.
+
+Yes, when you share the signal state (and you have to share the VM and
+signal handlers to do so), you end up looking like a pthreads "process".
+But dammit, people should NOT think that that is all that special from a
+kernel standpoint.
+
+And no kernel interface should really care about some pthreads rules. The 
+interfaces should work with old linux-threads, and with pure "clone()" 
+things too.
+
+Of course, in this case, it's doubtful whether we want to expose non-local
+clocks to anybody else, making the whole point pretty moot. I'd vote for
+not exposing them any more than necessary (ie the current incidental "ps"  
+interface is quite enough), at least until somebody can come up with a
+very powerful example of why exposing them is a good idea.
+
+		Linus

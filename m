@@ -1,21 +1,20 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266053AbUBBUGt (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 2 Feb 2004 15:06:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265956AbUBBUE0
+	id S266063AbUBBUGr (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 2 Feb 2004 15:06:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266053AbUBBUEh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 2 Feb 2004 15:04:26 -0500
-Received: from mailr-1.tiscali.it ([212.123.84.81]:46468 "EHLO
-	mailr-1.tiscali.it") by vger.kernel.org with ESMTP id S266041AbUBBUDq
+	Mon, 2 Feb 2004 15:04:37 -0500
+Received: from mailr-2.tiscali.it ([212.123.84.82]:12696 "EHLO
+	mailr-2.tiscali.it") by vger.kernel.org with ESMTP id S266037AbUBBUDb
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 2 Feb 2004 15:03:46 -0500
-X-BrightmailFiltered: true
-Date: Mon, 2 Feb 2004 21:03:44 +0100
+	Mon, 2 Feb 2004 15:03:31 -0500
+Date: Mon, 2 Feb 2004 21:03:30 +0100
 From: Kronos <kronos@kronoz.cjb.net>
 To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
 Cc: linux-kernel@vger.kernel.org
-Subject: [Compile Regression in 2.4.25-pre8][PATCH 37/42]
-Message-ID: <20040202200344.GK6785@dreamland.darkstar.lan>
+Subject: [Compile Regression in 2.4.25-pre8][PATCH 36/42]
+Message-ID: <20040202200330.GJ6785@dreamland.darkstar.lan>
 Reply-To: kronos@kronoz.cjb.net
 References: <20040130204956.GA21643@dreamland.darkstar.lan> <Pine.LNX.4.58L.0401301855410.3140@logos.cnet> <20040202180940.GA6367@dreamland.darkstar.lan>
 Mime-Version: 1.0
@@ -27,27 +26,28 @@ Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-siimage.c:65: warning: control reaches end of non-void function
+scsi_merge.c:104: warning: long unsigned int format, different type arg (arg 4)
 
-The last statement before the end is BUG(), but I added a return to
-silence the warning.
+page_to_phys returns a u64 if CONFIG_HIGHMEM64G is defined.
 
-diff -Nru -X dontdiff linux-2.4-vanilla/drivers/ide/pci/siimage.c linux-2.4/drivers/ide/pci/siimage.c
---- linux-2.4-vanilla/drivers/ide/pci/siimage.c	Tue Nov 11 17:51:38 2003
-+++ linux-2.4/drivers/ide/pci/siimage.c	Sat Jan 31 19:07:56 2004
-@@ -62,6 +62,9 @@
- 			return 0;
+diff -Nru -X dontdiff linux-2.4-vanilla/drivers/scsi/scsi_merge.c linux-2.4/drivers/scsi/scsi_merge.c
+--- linux-2.4-vanilla/drivers/scsi/scsi_merge.c	Fri Nov 29 00:53:14 2002
++++ linux-2.4/drivers/scsi/scsi_merge.c	Sat Jan 31 19:03:49 2004
+@@ -98,10 +98,10 @@
+ 	printk("Flags %d %d\n", use_clustering, dma_host);
+ 	for (bh = req->bh; bh->b_reqnext != NULL; bh = bh->b_reqnext) 
+ 	{
+-		printk("Segment 0x%p, blocks %d, addr 0x%lx\n",
++		printk("Segment 0x%p, blocks %d, addr 0x%Lx\n",
+ 		       bh,
+ 		       bh->b_size >> 9,
+-		       bh_phys(bh) - 1);
++		       (u64)bh_phys(bh) - 1);
  	}
- 	BUG();
-+
-+	/* gcc will complain */
-+	return 0;
+ 	panic("Ththththaats all folks.  Too dangerous to continue.\n");
  }
-  
- /**
 
 -- 
 Reply-To: kronos@kronoz.cjb.net
 Home: http://kronoz.cjb.net
-You and me baby ain't nothin' but mammals
-So let's do it like they do on the Discovery Channel
+No matter what you choose, you're still a luser.

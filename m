@@ -1,41 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282355AbRKXGB5>; Sat, 24 Nov 2001 01:01:57 -0500
+	id <S282367AbRKXGJR>; Sat, 24 Nov 2001 01:09:17 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282367AbRKXGBi>; Sat, 24 Nov 2001 01:01:38 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:30475 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S282355AbRKXGBa>; Sat, 24 Nov 2001 01:01:30 -0500
-Date: Fri, 23 Nov 2001 21:55:42 -0800 (PST)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Andrea Arcangeli <andrea@suse.de>
-cc: Alexander Viro <viro@math.psu.edu>, <linux-kernel@vger.kernel.org>,
+	id <S282368AbRKXGI5>; Sat, 24 Nov 2001 01:08:57 -0500
+Received: from leibniz.math.psu.edu ([146.186.130.2]:37527 "EHLO math.psu.edu")
+	by vger.kernel.org with ESMTP id <S282367AbRKXGIw>;
+	Sat, 24 Nov 2001 01:08:52 -0500
+Date: Sat, 24 Nov 2001 01:08:49 -0500 (EST)
+From: Alexander Viro <viro@math.psu.edu>
+To: Linus Torvalds <torvalds@transmeta.com>
+cc: Andrea Arcangeli <andrea@suse.de>, linux-kernel@vger.kernel.org,
         Marcelo Tosatti <marcelo@conectiva.com.br>
 Subject: Re: 2.4.15-pre9 breakage (inode.c)
-In-Reply-To: <20011124064739.J1324@athlon.random>
-Message-ID: <Pine.LNX.4.33.0111232154320.1821-100000@penguin.transmeta.com>
+In-Reply-To: <Pine.LNX.4.33.0111232154320.1821-100000@penguin.transmeta.com>
+Message-ID: <Pine.GSO.4.21.0111240105100.4000-100000@weyl.math.psu.edu>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-On Sat, 24 Nov 2001, Andrea Arcangeli wrote:
->
-> --- 2.4.15pre9aa1/fs/inode.c.~1~	Thu Nov 22 20:48:23 2001
-> +++ 2.4.15pre9aa1/fs/inode.c	Sat Nov 24 06:30:20 2001
-> @@ -1071,7 +1071,7 @@
->  			if (inode->i_state != I_CLEAR)
->  				BUG();
->  		} else {
-> -			if (!list_empty(&inode->i_hash) && sb && sb->s_root) {
-> +			if (!list_empty(&inode->i_hash)) {
->  				if (!(inode->i_state & (I_DIRTY|I_LOCK))) {
->  					list_del(&inode->i_list);
->  					list_add(&inode->i_list, &inode_unused);
 
-I have to say that I like this patch better myself - the added tests are
-not sensible, and just removing them seems to be the right thing.
+On Fri, 23 Nov 2001, Linus Torvalds wrote:
 
-		Linus
+> > -			if (!list_empty(&inode->i_hash) && sb && sb->s_root) {
+> > +			if (!list_empty(&inode->i_hash)) {
+> >  				if (!(inode->i_state & (I_DIRTY|I_LOCK))) {
+> >  					list_del(&inode->i_list);
+> >  					list_add(&inode->i_list, &inode_unused);
+> 
+> I have to say that I like this patch better myself - the added tests are
+> not sensible, and just removing them seems to be the right thing.
+
+Test for ->s_root is bogus and had been removed - check the patch I've sent.
+
+However, that variant suffers from the following problem: if ->read_super()
+fails after it had done _any_ iget() (root inode, journal, whatever) -
+we are screwed.  Sure, we do iput().  And then we have inode stuck in icache,
+with ->i_sb pointing nowhere.  When it finally gets evicted we call
+inode->i_sb->s_op->clear_inode().  Oops...
 

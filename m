@@ -1,42 +1,75 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262457AbTJGQGe (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Oct 2003 12:06:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262468AbTJGQGd
+	id S262446AbTJGQD1 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Oct 2003 12:03:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262450AbTJGQD1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Oct 2003 12:06:33 -0400
-Received: from quechua.inka.de ([193.197.184.2]:59358 "EHLO mail.inka.de")
-	by vger.kernel.org with ESMTP id S262457AbTJGQGc (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Oct 2003 12:06:32 -0400
-From: Andreas Jellinghaus <aj@dungeon.inka.de>
-Subject: Re: devfs vs. udev
-Date: Tue, 07 Oct 2003 18:06:53 +0200
-User-Agent: Pan/0.14.2 (This is not a psychotic episode. It's a cleansing moment of clarity. (Debian GNU/Linux))
-Message-Id: <pan.2003.10.07.16.06.52.842471@dungeon.inka.de>
-References: <yw1xad8dfcjg.fsf@users.sourceforge.net> <pan.2003.10.07.13.41.23.48967@dungeon.inka.de> <yw1xekxpdtuq.fsf@users.sourceforge.net> <20031007142349.GX1223@rdlg.net>
-To: linux-kernel@vger.kernel.org
+	Tue, 7 Oct 2003 12:03:27 -0400
+Received: from bay-bridge.veritas.com ([143.127.3.10]:21068 "EHLO
+	mtvmime02.veritas.com") by vger.kernel.org with ESMTP
+	id S262446AbTJGQDX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 7 Oct 2003 12:03:23 -0400
+Date: Tue, 7 Oct 2003 09:03:20 -0700 (PDT)
+From: Tigran Aivazian <tigran@veritas.com>
+To: Maciej Zenczykowski <maze@cela.pl>
+cc: "Nakajima, Jun" <jun.nakajima@intel.com>,
+       "Giacomo A. Catenazzi" <cate@debian.org>,
+       <linux-kernel@vger.kernel.org>, <simon@urbanmyth.org>
+Subject: RE: RFC: changes to microcode update driver.
+In-Reply-To: <Pine.LNX.4.44.0310071747030.31485-100000@gaia.cela.pl>
+Message-ID: <Pine.GSO.4.44.0310070901010.23226-100000@south.veritas.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset="us-ascii"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 07 Oct 2003 14:26:07 +0000, Robert L. Harris wrote:
-> I just hope udev can give a look/feel similar to devfs as I have quite a
-> few machines already in production configured for devfs and really like
-> the manageablility.
+On Tue, 7 Oct 2003, Maciej Zenczykowski wrote:
 
-I wonder: do you use the /dev/disc/* links, or the /dev/ide/... and
-/dev/scsi/... constructs? I'm not sure how udev will be able to 
-support both layouts.
+> > As Tigran pointed out, we are active in this area too. At this point we
+> > want to add support of the extended update format to the driver, before
+> > we ship the latest microcode data. Some of them require the new format.
+>
+> Do we even have any use for a userspace utility anymore?
+> strace'ing the microcode_ctl -u process results in information that the
+  ~~~~~~~~~~
 
-Also: do you prefer a devs compatible layout, or maybe use the change
-for a cleanup? a short list of obscurities: /dev/cdroms/cdrom0 but
-/dev/printers/0 and /dev/tts/0 and /dev/floppy but /dev/discs etc. also
-all floppy devices are in /dev/floopy, where each disc has is
-/dev/discs/discN directory/symlink. I think it's a good opportunity
-for a cleanup, but that wouldn't be compatible...
+If you read the code instead of stracing you would have discovered that
+there is a little (i.e. undocummented :) switch to do everything you
+described below.
 
-Regards, Andreas
+As for compiling the microcode data into the kernel (as scsi firmware etc)
+I recall that Alan Cox said we are moving away from that sort of thing,
+so it's not a good idea.
+
+Kind regards.
+Tigran
+
+> microcode.dat file is converted to binary and written to
+> /dev/cpu/microcode.  The following code:
+> #include <stdio.h>
+> int main (void) {
+>   int x[4], i;
+>   while ((i = scanf("%x, %x, %x, %x,\n", &x[0], &x[1], &x[2], &x[3])) > 0)
+> fwrite(x, 4, i, stdout);
+>   return 0;
+> };
+> does the conversion to binary:
+> cat /etc/microcode.dat | grep -v "^/" | ./a.out > microcode.raw
+> and the following loads it:
+> dd bs=`ls -s --block-size=1 microcode.raw | cut -f 1 -d " "`
+> if=microcode.raw of=/dev/cpu/microcode
+>
+> Either distribute the microcode in binary form and load it via dd (in the
+> /etc/rc.d/init.d/microcode script)
+> or include the text file parser in the microcode module - since the module
+> is only needed during loading of the update this tiny amount of extra code
+> is likely acceptable.  For reducing kernel size for embedded systems (any
+> based on ia32 lacking the few kb?) try compiling the 2kb update relevant
+> for the given processor directly into the kernel...
+>
+> Just a few ideas...
+>
+> MaZe.
+>
+>
 

@@ -1,38 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266584AbUFWRSa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266591AbUFWRgS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266584AbUFWRSa (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Jun 2004 13:18:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266591AbUFWRSa
+	id S266591AbUFWRgS (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Jun 2004 13:36:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266593AbUFWRgS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Jun 2004 13:18:30 -0400
-Received: from hera.cwi.nl ([192.16.191.8]:14579 "EHLO hera.cwi.nl")
-	by vger.kernel.org with ESMTP id S266584AbUFWRS3 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Jun 2004 13:18:29 -0400
-Date: Wed, 23 Jun 2004 19:18:24 +0200
-From: Andries Brouwer <Andries.Brouwer@cwi.nl>
-To: viro@parcelfarce.linux.theplanet.co.uk
-Cc: Andries.Brouwer@cwi.nl, akpm@osdl.org, torvalds@osdl.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: _POSIX_SYMLOOP_MAX
-Message-ID: <20040623171823.GB12625@apps.cwi.nl>
-References: <UTC200406231435.i5NEZFQ08577.aeb@smtp.cwi.nl> <20040623161134.GE12308@parcelfarce.linux.theplanet.co.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040623161134.GE12308@parcelfarce.linux.theplanet.co.uk>
-User-Agent: Mutt/1.4i
+	Wed, 23 Jun 2004 13:36:18 -0400
+Received: from sweetums.bluetronic.net ([24.199.150.42]:58499 "EHLO
+	sweetums.bluetronic.net") by vger.kernel.org with ESMTP
+	id S266591AbUFWRgR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 23 Jun 2004 13:36:17 -0400
+Date: Wed, 23 Jun 2004 13:30:12 -0400 (EDT)
+From: Ricky Beam <jfbeam@bluetronic.net>
+To: George Georgalis <george@galis.org>
+cc: Linux Kernel Mail List <linux-kernel@vger.kernel.org>
+Subject: Re: SIIMAGE sata fails with 2.6.7
+In-Reply-To: <20040623163505.GA1068@trot.local>
+Message-ID: <Pine.GSO.4.33.0406231327060.25702-100000@sweetums.bluetronic.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jun 23, 2004 at 05:11:34PM +0100, viro@parcelfarce.linux.theplanet.co.uk wrote:
+On Wed, 23 Jun 2004, George Georgalis wrote:
+>Oooh, guess I needed to mount as a scsi dev now? but I don't see any
+>scsi devices available... must I first not mount the hdc partitions?
 
-> if ... I owe Andries an apology ...
+Don't compile in the SIIMAGE driver.  The IDE drivers are probed before
+SCSI, so it'll assume control of the chip and sata_sil will never get
+a chance.
 
-Al, is that you? Never thought that you were able to say such things...
-But never mind - the only goal is to improve Linux.
+And you'll need a current bitkeeper snapshot (or -bk# tarball made after
+6/22) to have the sata_sil Seagate drive fix.
 
-A funny coincidence that this came up less than 24 hours after
-you posted this symlink patchkit.
+--Ricky
 
-Andries
+

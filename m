@@ -1,35 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129771AbRBSCCl>; Sun, 18 Feb 2001 21:02:41 -0500
+	id <S130482AbRBSCJO>; Sun, 18 Feb 2001 21:09:14 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130599AbRBSCCb>; Sun, 18 Feb 2001 21:02:31 -0500
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:1039 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S129771AbRBSCCM>; Sun, 18 Feb 2001 21:02:12 -0500
-Subject: Re: [PROBLEM] 2.4.1 can't mount ext2 CD-ROM
-To: axboe@suse.de (Jens Axboe)
-Date: Mon, 19 Feb 2001 02:02:19 +0000 (GMT)
-Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), Andries.Brouwer@cwi.nl,
-        linux-kernel@vger.kernel.org, zzed@cyberdude.com
-In-Reply-To: <20010219024704.C8227@suse.de> from "Jens Axboe" at Feb 19, 2001 02:47:04 AM
-X-Mailer: ELM [version 2.5 PL1]
-MIME-Version: 1.0
+	id <S130487AbRBSCJD>; Sun, 18 Feb 2001 21:09:03 -0500
+Received: from c290168-a.stcla1.sfba.home.com ([65.0.213.53]:17647 "HELO
+	top.worldcontrol.com") by vger.kernel.org with SMTP
+	id <S130482AbRBSCIx>; Sun, 18 Feb 2001 21:08:53 -0500
+From: brian@worldcontrol.com
+Date: Sun, 18 Feb 2001 18:09:42 -0800
+To: Dan Hollis <goemon@anime.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Money stifles innovation [was: Linux stifles innovation.]
+Message-ID: <20010218180942.A17699@top.worldcontrol.com>
+Mail-Followup-To: Brian Litzinger <brian@top.worldcontrol.com>,
+	Dan Hollis <goemon@anime.net>, linux-kernel@vger.kernel.org
+In-Reply-To: <20010218140839.A14166@top.worldcontrol.com> <Pine.LNX.4.30.0102181745310.18324-100000@anime.net>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E14Ufef-0002A4-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Disposition: inline
+User-Agent: Mutt/1.3.5i
+In-Reply-To: <Pine.LNX.4.30.0102181745310.18324-100000@anime.net>; from goemon@anime.net on Sun, Feb 18, 2001 at 05:47:10PM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > But it has to go somewhere, and 2.4 right now is unusable on two of my boxes
-> > with M/O drives.
-> 
-> Reads can be pretty easily padded, but writes are a bit harder. Maybe
-> push it to some helper before the device queue sees it? For 2.4 the
-> best sd solution is probably to just make it able to handle these
-> requests.
+> > On Sun, Feb 18, 2001 at 12:57:14AM -0800, Dan Hollis wrote:
+> > > The XOR patent and the fraudulent enforcement of it is the purest
+> > > embodiment of everything that is wrong with the patent system and IP law.
 
-For M/O drives you can do it in the scsi layer. Doing it right in the block
-layer is not easy. Doing it cleanly and right I cant currently visualise a
-setu for. But I agree it belongs in the queueing layers
+> On Sun, 18 Feb 2001 brian@worldcontrol.com wrote:
+> > As a person with a some decades of experience with patents and
+> > trademarks, and playing among the various sides, I can state
+> > quite unequivocally that the problem is money.
 
+On Sun, Feb 18, 2001 at 05:47:10PM -0800, Dan Hollis wrote:
+> Actually the problem is lack of morals and bad people who are really evil
+> at the core (you wouldnt want them for your neighbor).
+
+Many have heard the saying 'money is the root of all evil'.
+
+The quote is in fact 'the pursuit of money is the root of all evil'.
+
+Thanks go to Dan Hollis for reminding me of this.
+
+-- 
+Brian Litzinger <brian@worldcontrol.com>
+
+    Copyright (c) 2000 By Brian Litzinger, All Rights Reserved

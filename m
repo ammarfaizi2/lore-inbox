@@ -1,21 +1,21 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262441AbVAPHX7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262440AbVAPHXw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262441AbVAPHX7 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 16 Jan 2005 02:23:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262442AbVAPHX7
+	id S262440AbVAPHXw (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 16 Jan 2005 02:23:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262442AbVAPHXw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 16 Jan 2005 02:23:59 -0500
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:29453 "HELO
+	Sun, 16 Jan 2005 02:23:52 -0500
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:27405 "HELO
 	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S262441AbVAPHXv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 16 Jan 2005 02:23:51 -0500
-Date: Sun, 16 Jan 2005 08:23:48 +0100
+	id S262440AbVAPHXt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 16 Jan 2005 02:23:49 -0500
+Date: Sun, 16 Jan 2005 08:23:46 +0100
 From: Adrian Bunk <bunk@stusta.de>
 To: Andrew Morton <akpm@osdl.org>
-Cc: axboe@suse.de, linux-kernel@vger.kernel.org, domen@coderock.org,
-       james4765@gmail.com
-Subject: [patch 1/1] floppy: relocate devfs comment (fwd)
-Message-ID: <20050116072348.GR4274@stusta.de>
+Cc: "prem.de.ms" <prem.de.ms@gmx.de>, linux-kernel@vger.kernel.org,
+       kraxel@bytesex.org, Radoslaw Szkodzinski <astralstorm@gmail.com>
+Subject: Re: 2.6.10 compile error - blackbird_load_firmware (fwd)
+Message-ID: <20050116072345.GQ4274@stusta.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -23,63 +23,51 @@ User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The trivial patch by James Nelson <james4765@gmail.com> forwarded below 
-still applies and compiles against 2.6.11-rc1-mm1.
+The patch below by Radoslaw Szkodzinski <astralstorm@gmail.com> still 
+applies and seems to be still required in 2.6.11-rc1-mm1.
+
 
 Signed-off-by: Adrian Bunk <bunk@stusta.de>
 
 
 
------ Forwarded message from domen@coderock.org -----
+----- Forwarded message from Radoslaw Szkodzinski <astralstorm@gmail.com> -----
 
-Date:	Sat, 25 Dec 2004 15:13:04 +0100
-From: domen@coderock.org
-To: axboe@suse.de
-Cc: linux-kernel@vger.kernel.org, domen@coderock.org, james4765@gmail.com
-Subject: [patch 1/1] floppy: relocate devfs comment
+Date:	Mon, 3 Jan 2005 15:27:30 +0100
+From: Radoslaw Szkodzinski <astralstorm@gmail.com>
+To: "prem.de.ms" <prem.de.ms@gmx.de>
+Cc: linux-kernel@vger.kernel.org, kraxel@bytesex.org
+Subject: Re: 2.6.10 compile error - blackbird_load_firmware
 
+On Monday 27 of December 2004 23:00, prem.de.ms wrote:
+> Hello,
+>
+> I get the following error message when I try to compile the new
+> 2.6.10-kernel:
+>
+> <snip>
+> Seems like the Conexant drivers are broken because the kernel compiles
+> when I uncheck them.
+>
+It seems Conexant uses the firmware loader as well as I2C w/o requiring them.
+Patch attached.
 
-Oops, forgot Signed-off-by: line.
-
-Signed-off-by: James Nelson <james4765@gmail.com>
-Signed-off-by: Domen Puncer <domen@coderock.org>
----
-
-
- kj-domen/drivers/block/floppy.c |    8 ++++----
- 1 files changed, 4 insertions(+), 4 deletions(-)
-
-diff -puN drivers/block/floppy.c~comment-drivers_block_floppy.c drivers/block/floppy.c
---- kj/drivers/block/floppy.c~comment-drivers_block_floppy.c	2004-12-25 01:35:26.000000000 +0100
-+++ kj-domen/drivers/block/floppy.c	2004-12-25 01:35:26.000000000 +0100
-@@ -98,6 +98,10 @@
-  */
+--- linux/drivers/media/video/Kconfig~	2005-01-03 15:24:46.669675320 +0100
++++ linux/drivers/media/video/Kconfig	2005-01-03 15:24:46.680673445 +0100
+@@ -303,8 +303,9 @@
  
- /*
-+ * 1998/1/21 -- Richard Gooch <rgooch@atnf.csiro.au> -- devfs support
-+ */
-+
-+/*
-  * 1998/05/07 -- Russell King -- More portability cleanups; moved definition of
-  * interrupt and dma channel to asm/floppy.h. Cleaned up some formatting &
-  * use of '0' for NULL.
-@@ -159,10 +163,6 @@ static int print_unex = 1;
- #define FDPATCHES
- #include <linux/fdreg.h>
- 
--/*
-- * 1998/1/21 -- Richard Gooch <rgooch@atnf.csiro.au> -- devfs support
-- */
--
- #include <linux/fd.h>
- #include <linux/hdreg.h>
- 
-_
--
-To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
-Please read the FAQ at  http://www.tux.org/lkml/
+ config VIDEO_CX88
+ 	tristate "Conexant 2388x (bt878 successor) support"
+-	depends on VIDEO_DEV && PCI && EXPERIMENTAL
++	depends on VIDEO_DEV && PCI && I2C && EXPERIMENTAL
+ 	select I2C_ALGOBIT
++	select FW_LOADER
+ 	select VIDEO_BTCX
+ 	select VIDEO_BUF
+ 	select VIDEO_TUNER
+
+
 
 ----- End forwarded message -----
+
 

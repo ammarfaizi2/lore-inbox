@@ -1,100 +1,80 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265975AbSKDHIT>; Mon, 4 Nov 2002 02:08:19 -0500
+	id <S262449AbSKDHd1>; Mon, 4 Nov 2002 02:33:27 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265978AbSKDHID>; Mon, 4 Nov 2002 02:08:03 -0500
-Received: from pimout1-ext.prodigy.net ([207.115.63.77]:42916 "EHLO
-	pimout1-ext.prodigy.net") by vger.kernel.org with ESMTP
-	id <S265975AbSKDHHR> convert rfc822-to-8bit; Mon, 4 Nov 2002 02:07:17 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Rob Landley <landley@trommello.org>
-Reply-To: landley@trommello.org
-To: Patrick Finnegan <pat@purdueriots.com>, linux-kernel@vger.kernel.org
-Subject: Re: What's left over.
-Date: Mon, 4 Nov 2002 02:13:38 +0000
-User-Agent: KMail/1.4.3
-References: <Pine.LNX.4.44.0211011108320.10880-100000@ibm-ps850.purdueriots.com>
-In-Reply-To: <Pine.LNX.4.44.0211011108320.10880-100000@ibm-ps850.purdueriots.com>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <200211020012.05529.landley@trommello.org>
+	id <S263362AbSKDHd0>; Mon, 4 Nov 2002 02:33:26 -0500
+Received: from 24-205-160-225.riv-eres.charterpipeline.net ([24.205.160.225]:14078
+	"EHLO kubus.grambling.net") by vger.kernel.org with ESMTP
+	id <S262449AbSKDHdZ>; Mon, 4 Nov 2002 02:33:25 -0500
+Subject: Help needed with IRQ on Ali chipset
+From: Jacek Pliszka <pliszka@physics.ucr.edu>
+To: linux-kernel@vger.kernel.org
+In-Reply-To: <200211011917.16978.landley@trommello.org>
+References: <200210272017.56147.landley@trommello.org>
+	<20021030085149.GA7919@codepoet.org>
+	<200210300455.21691.dcinege@psychosis.com> 
+	<200211011917.16978.landley@trommello.org>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 
+Date: 03 Nov 2002 23:39:36 -0800
+Message-Id: <1036395576.19686.45.camel@kubus.grambling.net>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 01 November 2002 16:16, Patrick Finnegan wrote:
+Hi!
 
-> > It's not a fscking public service.  Linus has full control over his
-> > tree.  You have equally full control over your tree.  Linus can't
-> > tell you what patches to apply in your tree.  You can't tell Linus
-> > what patches he should apply to his.
->
-> I'm sorry it _is_ a public service.  Once tens of people started
-> contributing to it, it became one.  This is like saying that the
-> Washington Monument belongs to the peole that maintain it, any building
-> belongs to the repair crews and janitors.
+I am asking once more for help with IRQ setup for Cardbus controller on
+ATI U1/Ali 1535+ chipset. This time with more exact information. This is
+what I get:
 
-You pay taxes to support the washington monument.  When's the last time you 
-paid a tax to Linus?
+lspci -v -s 00:0a.0 
+00:0a.0 CardBus bridge: O2 Micro, Inc.: Unknown device 6972
+        Subsystem: Hewlett-Packard Company: Unknown device 0024
+        Flags: bus master, slow devsel, latency 32, IRQ 5
+        Memory at 80000000 (32-bit, non-prefetchable) [size=4K]
+        Bus: primary=00, secondary=02, subordinate=05, sec-latency=32
+        Memory window 0: 81000000-81100000
+        I/O window 0: 00003000-0000307f
+        I/O window 1: 00000000-00000003
+        16-bit legacy interface ports at 0001
 
-> I'm not saying that Linus is
-> necessarily a janitor, but when you consider how much of the Linux kernel
-> that he didn't write, you may relize that it's not just his kernel.
+Which is consistent with Windows IRQ 5
 
-He's the editor of a periodical publication.  A cross between an academic 
-technical journal which people contribute to for professional reasons, and a 
-hobbyist fanzine that people contribute to 'cause it's cool.  This is not a 
-new thing, there are real-world precedents for this sort of relationship 
-going back hundreds of years, to the invention of the printing press...
+But dump_pirq gives:
+Interrupt routing table found at address 0xfdf10:
+  Version 1.0, size 0x00d0
+  Interrupt router is device 00:07.0
+  PCI exclusive interrupt mask: 0x0000 []
+  Compatible router: vendor 0x10b9 device 0x1533
+....(skipped)
 
-Linus's editorial decisions are as final and unappealable as any other 
-editorial decision at a magazine or newspaper.  You can publish your article 
-elsewhere, and if it doesn't have the same prestige as the Harvard Law Review 
-or the New England Journal of Medicine, tough.  They said no.
+Device 00:0a.0 (slot 0): CardBus bridge
+  INTA: link 0x06, irq mask 0x00a0 [5,7]
 
-And like ALL editors, his job isn't to write a significant portion of the 
-articles in the publication, but to be a Sturgeon's Law filter throwing out 
-99% of the submissions in the slush pile, correcting the spelling and grammar 
-of the remaining few, and trying to stitch them together into a coherent 
-whole.
+Device 00:12.0 (slot 0): Ethernet controller
+  INTA: link 0x02, irq mask 0x0880 [7,11]
 
-Go track down somebody with a Journalism degree if you want to understand 
-Linus's job.
+Device 00:0c.0 (slot 0): 
+  INTA: link 0x03, irq mask 0x0658 [3,4,6,9,10]
 
->  It
-> also belongs to every single person that has written even a single
-> line of code in it.
+Interrupt router at 00:07.0: AcerLabs Aladdin M1533 PCI-to-ISA bridge
+  INT1 (link 1): irq 10
+  INT2 (link 2): irq 11
+  INT3 (link 3): unrouted
+  INT4 (link 4): unrouted
+  INT5 (link 5): unrouted
+  INT6 (link 6): irq 11
+  INT7 (link 7): irq 3
+  INT8 (link 8): irq 5
+  Serial IRQ: [enabled] [continuous] [frame=21] [pulse=12]
 
-If you get an article published in Time magazine, and you say that this gives 
-you the right to print your own copies of Time and distribute them yourself, 
-Time's lawyers are going to come after you.
+So INT6 instead of 5 gets 11 but it is not shown in lspci.
 
-The GPL gives you the ability to do this, but it doesn't obligate the 
-publication's editor to listen to you.  If next month's issue contains a huge 
-rebuttal to one of your articles, calling you a boogerhead, tough.  The 
-editor doesn't owe you anything as a previous contributor, and certainly 
-doesn't owe you anything as someone from whom he did NOT take a submission.
+Could somebody, please, tell me what and where should be fixed
+(I guess in pci-irq.c) to get it correct.
 
-What Linus basically said was that if a significant number of distributions 
-integrated it, he might take another look at the thing in the future.  But 
-wasn't going into 2.5.
+BR,
 
-Now, thanks to people pestering him beyond the Annoyance Event Horizon, he's 
-got his fingers in his ears.  Congratulations.  Hopefully, he'll calm down a 
-bit in a few months, but there's no guarantee.  In the mean time, the most 
-productive thing to do is drop the topic and work on the Red Hat, SuSE, and 
-Debian guys.  (Mandrake feeds from Red Hat, and SuSE is now making kernels 
-for Connectiva and TurboLinux.  Gentoo and Slackware might be good to bug as 
-well...)
-
-See if you can convince Alan Cox to pick up your patch.  That'll get you Red 
-Hat, and the single largest concentration of roll-your-own kernel guys 
-outside of Linus's own tree.
-
-Rob
-
--- 
-http://penguicon.sf.net - Terry Pratchett, Eric Raymond, Pete Abrams, Illiad, 
-CmdrTaco, liquid nitrogen ice cream, and caffienated jello.  Well why not?
-
-
-
+Jacek

@@ -1,56 +1,29 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267935AbTAHWHS>; Wed, 8 Jan 2003 17:07:18 -0500
+	id <S267940AbTAHWHi>; Wed, 8 Jan 2003 17:07:38 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267940AbTAHWHS>; Wed, 8 Jan 2003 17:07:18 -0500
-Received: from bjl1.asuk.net.64.29.81.in-addr.arpa ([81.29.64.88]:25506 "EHLO
-	bjl1.asuk.net") by vger.kernel.org with ESMTP id <S267935AbTAHWHR>;
-	Wed, 8 Jan 2003 17:07:17 -0500
-Date: Wed, 8 Jan 2003 22:19:56 +0000
-From: Jamie Lokier <lk@tantalophile.demon.co.uk>
-To: Wolfgang Fritz <wolfgang.fritz@gmx.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [Asterisk] DTMF noise
-Message-ID: <20030108221956.GA7507@bjl1.asuk.net>
-References: <D6889804-2291-11D7-901B-000393950CC2@karlsbakk.net> <3E1BD88A.4080808@users.sf.net> <3E1C1CDE.8090600@sktc.net> <3E1C4872.7080508@gmx.net>
-Mime-Version: 1.0
+	id <S267941AbTAHWHh>; Wed, 8 Jan 2003 17:07:37 -0500
+Received: from nat-pool-rdu.redhat.com ([66.187.233.200]:30294 "EHLO
+	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
+	id <S267940AbTAHWHg>; Wed, 8 Jan 2003 17:07:36 -0500
+From: Alan Cox <alan@redhat.com>
+Message-Id: <200301082216.h08MGBA10740@devserv.devel.redhat.com>
+Subject: Re: Linux 2.4.21-pre3-ac1
+To: solt@dns.toxicfilms.tv (Maciej Soltysiak)
+Date: Wed, 8 Jan 2003 17:16:11 -0500 (EST)
+Cc: alan@redhat.com (Alan Cox), linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.44.0301082110460.484-100000@dns.toxicfilms.tv> from "Maciej Soltysiak" at Jan 08, 2003 09:12:40 PM
+X-Mailer: ELM [version 2.5 PL6]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3E1C4872.7080508@gmx.net>
-User-Agent: Mutt/1.4i
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Wolfgang Fritz wrote:
-> There exists a long text about DTMF detection somewhere on the net (I 
-> may have the link in the office but I'm on vacation now). What I 
-> remember is that a "correct" DTMF detection requires much more computing 
-> power as the present i4l implementation needs (much longer audio samples 
-> for the goertzel filter, a larger number of frequencies to check) and a 
-> standard test procedure with a lot of test cases which are not available 
-> to mortal humans (audio tapes from Bellcore IIRC)
+> > +	NVIDIA nForce2 IDE PCI identifiers		(Johannes Deisenhofer,
+> This has been confusing me lately, does nvidia produce a card with IDE ?
+> (similarily to some of creative labs' soundblasters ?)
 
-Take a look at this:
+Onboard IDE on the Nvidia nForce and nForce 2 chipset. Seems to be a clone
+of the AMD one (or vice versa perhaps ?).
 
-	http://www-s.ti.com/sc/psheets/spra096a/spra096a.pdf
-
-It describes an algorithm, plus test results.  It was tested on a TI
-DSP using those very Bellcore tapes, plus another set of tests, and
-passes both tests very well.
-
-Of course your ISDN hardware + phone handset may have much worse
-analogue circuitry, but I would hope the Bellcore tapes represent that
-to some degree.
-
-Unfortunately, TI have removed the version of their application node
-which includes DSP source code.  It can be found here instead:
-
-	http://sulcata6.cs.ccu.edu.tw/~vlsi/data/c54x/spra096.pdf
-
-I guess if that _exact_ DSP algorithm were recoded in C, you could be
-reasonably confident that the C implementation would pass those
-Bellcore and MITEL tests with reasonable analogue hardware.  That's
-probably the best you can do on the digital side.
-
-enjoy,
--- Jamie

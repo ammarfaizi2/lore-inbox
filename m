@@ -1,43 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264658AbUEXRn0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264477AbUEXRtU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264658AbUEXRn0 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 24 May 2004 13:43:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264662AbUEXRn0
+	id S264477AbUEXRtU (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 24 May 2004 13:49:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264444AbUEXRtU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 24 May 2004 13:43:26 -0400
-Received: from e32.co.us.ibm.com ([32.97.110.130]:29583 "EHLO
-	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S264658AbUEXRnW
+	Mon, 24 May 2004 13:49:20 -0400
+Received: from x35.xmailserver.org ([69.30.125.51]:29373 "EHLO
+	x35.xmailserver.org") by vger.kernel.org with ESMTP id S264669AbUEXRqn
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 24 May 2004 13:43:22 -0400
-Date: Mon, 24 May 2004 10:39:40 -0700
-From: Hanna Linder <hannal@us.ibm.com>
-To: lse-tech@lists.sourceforge.net, linux-kernel@vger.kernel.org
-cc: Erik Jacobson <erikj@subway.americas.sgi.com>, Paul Jackson <pj@sgi.com>,
-       frankeh@watson.ibm.com, kanderso@redhat.com, limin@sgi.com,
-       jlan@sgi.com, jh@sgi.com, Vivek Kashyap <kashyapv@us.ibm.com>,
-       Chandra Seetharaman <sekharan@us.ibm.com>,
-       Shailabh Nagar <nagar@watson.ibm.com>, Rik van Riel <riel@redhat.com>,
-       gh@us.ibm.com, peterw@aurema.com, ralf@suse.de, mason@suse.com
-Subject: Re: Minutes from 5/19 CKRM/PAGG discussion
-Message-ID: <31520000.1085420380@dyn318071bld.beaverton.ibm.com>
-In-Reply-To: <30270000.1085418547@dyn318071bld.beaverton.ibm.com>
-References: <30270000.1085418547@dyn318071bld.beaverton.ibm.com>
-X-Mailer: Mulberry/2.2.1 (Linux/x86)
+	Mon, 24 May 2004 13:46:43 -0400
+X-AuthUser: davidel@xmailserver.org
+Date: Mon, 24 May 2004 10:46:41 -0700 (PDT)
+From: Davide Libenzi <davidel@xmailserver.org>
+X-X-Sender: davide@bigblue.dev.mdolabs.com
+To: Ingo Molnar <mingo@elte.hu>
+cc: Linux Kernel List <linux-kernel@vger.kernel.org>,
+       rmk+lkml@arm.linux.org.uk
+Subject: Re: scheduler: IRQs disabled over context switches
+In-Reply-To: <Pine.LNX.4.58.0405241012300.4174@bigblue.dev.mdolabs.com>
+Message-ID: <Pine.LNX.4.58.0405241046060.4174@bigblue.dev.mdolabs.com>
+References: <20040523174359.A21153@flint.arm.linux.org.uk> <20040524083715.GA24967@elte.hu>
+ <Pine.LNX.4.58.0405232340070.2676@bigblue.dev.mdolabs.com>
+ <20040524090538.GA26183@elte.hu> <Pine.LNX.4.58.0405241012300.4174@bigblue.dev.mdolabs.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---On Monday, May 24, 2004 10:09:07 AM -0700 Hanna Linder <hannal@us.ibm.com> wrote:
+On Mon, 24 May 2004, Davide Libenzi wrote:
 
+> On Mon, 24 May 2004, Ingo Molnar wrote:
 > 
-> Minutes from LSE call on CKRM and PAGG on May 19, 2004. 
+> > 
+> > * Davide Libenzi <davidel@xmailserver.org> wrote:
+> > 
+> > > We used to do it in 2.4. What changed to make it fragile? The
+> > > threading (TLS) thing?
+> > 
+> > it _should_ work, but in the past we only had trouble from such changes
+> > (at least in the O(1) tree of scheduling - 2.4 scheduler is OK.). We
+> > could try the patch below. It certainly boots on SMP x86. But it causes
+> > a 3.5% slowdown in lat_ctx so i'd not do it unless there are some really
+> > good reasons.
+> 
+> IMO it is fine, as long as it works with IRQ disabled. There are archs 
 
-I forgot to give credit to Vivek Kashyap for writing the minutes. 
+s/disabled/enabled/
 
-Thanks a lot!
 
-Hanna
+
+- Davide
 

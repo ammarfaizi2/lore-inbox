@@ -1,50 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135637AbRDSMHp>; Thu, 19 Apr 2001 08:07:45 -0400
+	id <S135640AbRDSMKF>; Thu, 19 Apr 2001 08:10:05 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135639AbRDSMHf>; Thu, 19 Apr 2001 08:07:35 -0400
-Received: from shell.ca.us.webchat.org ([216.152.64.152]:6897 "EHLO
-	shell.webmaster.com") by vger.kernel.org with ESMTP
-	id <S135637AbRDSMHP>; Thu, 19 Apr 2001 08:07:15 -0400
-From: "David Schwartz" <davids@webmaster.com>
-To: =?iso-8859-1?Q?=C9ric_Brunet?= <ebrunet@quatramaran.ens.fr>,
-        <linux-kernel@vger.kernel.org>
-Subject: RE: Children first in fork
-Date: Thu, 19 Apr 2001 05:07:11 -0700
-Message-ID: <NCBBLIEPOCNJOAEKBEAKAEEJOHAA.davids@webmaster.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2911.0)
-In-Reply-To: <20010419133538.A28654@quatramaran.ens.fr>
-Importance: Normal
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2462.0000
+	id <S135639AbRDSMJ5>; Thu, 19 Apr 2001 08:09:57 -0400
+Received: from t2.redhat.com ([199.183.24.243]:5619 "EHLO
+	passion.cambridge.redhat.com") by vger.kernel.org with ESMTP
+	id <S135640AbRDSMJs>; Thu, 19 Apr 2001 08:09:48 -0400
+X-Mailer: exmh version 2.3 01/15/2001 with nmh-1.0.4
+From: David Woodhouse <dwmw2@infradead.org>
+X-Accept-Language: en_GB
+In-Reply-To: <4148FEAAD879D311AC5700A0C969E89006CDDD9D@orsmsx35.jf.intel.com> 
+In-Reply-To: <4148FEAAD879D311AC5700A0C969E89006CDDD9D@orsmsx35.jf.intel.com> 
+To: "Grover, Andrew" <andrew.grover@intel.com>
+Cc: "'John Fremlin'" <chief@bandits.org>,
+        "'Simon Richter'" <Simon.Richter@phobos.fachschaften.tu-muenchen.de>,
+        "Acpi-PM (E-mail)" <linux-power@phobos.fachschaften.tu-muenchen.de>,
+        "'Pavel Machek'" <pavel@suse.cz>,
+        Andreas Ferber <aferber@techfak.uni-bielefeld.de>,
+        linux-kernel@vger.kernel.org
+Subject: Re: Let init know user wants to shutdown 
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Thu, 19 Apr 2001 13:04:00 +0100
+Message-ID: <6257.987681840@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-> Hello all,
->
-> I have read on lwn.net that the patch that makes children run first after
-> a fork has been integrated in the latest pre-kernel.
->
-> I am a little bit concerned by that, as I have begun to write a program
-> that monitors process using ptrace. The difficulty is to ptrace-attach
-> the child in a fork before it can do anything unmonitored. When the
-> parent runs first, the return from the fork system called is trapped by
-> the monitor program which has enough time to ptrace-attach the child. If
-> the child runs first, it is not even remotely the case anymore.
->
-> I understand that performance is more important that the possibility to
-> ptrace across forks, but I still think that there should be a way to
-> attach the children of a ptraced-process. Is there currently a way to
-> achieve this in the kernel that I am not aware of ?
+andrew.grover@intel.com said:
+>  IMHO an abstracted interface at this point is overengineering. Maybe
+> later it will make sense, though. 
 
-	It seems to me that what you really want is a fork option to create the
-child in a suspended state.
+Absolutely not. It makes sense now. The abstracted interface is not required
+just to combine the interface to APM and ACPI. What John said was 
+"ACPI != PM". Note that APM != PM either. 
 
-	DS
+We have people who write _real_ code (esp. for embedded systems) to do power 
+management. None of this UDI-written-in-bytecode style stuff - real C code. 
+I.e. "the preferred form of the work for making modifications to it" :) 
+
+_That_ is the first-class citizen here, and _that_ is the thing for which we
+require a generic power management API, allowing userspace to set and manage
+the power management policies for individual devices, etc., as well as 
+managing the system-wide sleep macrostates.
+
+It may happen that ACPI and the real native power management code can
+happily share an interface. Where there's a conflict, though, the native
+implementations should define the interface, and ACPI needs to try to fit
+in.
+
+--
+dwmw2
+
 

@@ -1,57 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265596AbUABQ6P (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 2 Jan 2004 11:58:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265610AbUABQ6P
+	id S265613AbUABRLO (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 2 Jan 2004 12:11:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265616AbUABRLO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 2 Jan 2004 11:58:15 -0500
-Received: from x35.xmailserver.org ([69.30.125.51]:36483 "EHLO
-	x35.xmailserver.org") by vger.kernel.org with ESMTP id S265596AbUABQ6N
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 2 Jan 2004 11:58:13 -0500
-X-AuthUser: davidel@xmailserver.org
-Date: Fri, 2 Jan 2004 08:58:09 -0800 (PST)
-From: Davide Libenzi <davidel@xmailserver.org>
-X-X-Sender: davide@bigblue.dev.mdolabs.com
-To: Rusty Russell <rusty@rustcorp.com.au>
-cc: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
-       <mingo@redhat.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH 1/2] kthread_create 
-In-Reply-To: <20040102071215.6D43C2C059@lists.samba.org>
-Message-ID: <Pine.LNX.4.44.0401020856150.2278-100000@bigblue.dev.mdolabs.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Fri, 2 Jan 2004 12:11:14 -0500
+Received: from pcp05127596pcs.sanarb01.mi.comcast.net ([68.42.103.198]:3210
+	"EHLO nidelv.trondhjem.org") by vger.kernel.org with ESMTP
+	id S265613AbUABRLN convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 2 Jan 2004 12:11:13 -0500
+Subject: Re: >>>reg writing kernel modules to resolve stale file handle
+	error in nfs environment<<<<
+From: Trond Myklebust <trond.myklebust@fys.uio.no>
+To: Srinivasan Ramaswamy <ursvasan@yahoo.co.in>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20040102163921.59255.qmail@web8105.in.yahoo.com>
+References: <20040102163921.59255.qmail@web8105.in.yahoo.com>
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8BIT
+Message-Id: <1073063472.1855.22.camel@nidelv.trondhjem.org>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Fri, 02 Jan 2004 12:11:12 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2 Jan 2004, Rusty Russell wrote:
-
-> In message <Pine.LNX.4.44.0312311935080.5831-100000@bigblue.dev.mdolabs.com> yo
-> u write:
-> > On Wed, 31 Dec 2003, Rusty Russell wrote:
-> > 
-> > > But an alternate implementation would be to have a "kthread" kernel
-> > > thread, which would actually be parent to the kthread threads.  This
-> > > means it can allocate and clean up, since it catches *all* thread
-> > > deaths, including "exit()".
-> > > 
-> > > What do you think?
-> > 
-> > Did you take a look at the stuff I sent you? I'll append here with a 
-> > simple comment (this goes over you bits).
+På fr , 02/01/2004 klokka 11:39, skreiv Srinivasan Ramaswamy:
+> sir
+> my qestion is regarding resolving stale file handle
+> error in an nfs environment.i want to resolve it using
+> some RPC's and some kernel modules.my question is
 > 
-> Yes, but I think it's a really bad idea, as I said before.
-> 
-> Anyway, Here's a version which fixes the issues raised by Andrew by
-> doing *everything* in keventd, uses waitpid(), and uses signals for
-> communication (except for the case of init failing).
+> >>>>>can we resolve the stale file handle error by
+> using Devfs and create a layer of insulation<<<<<<
 
-Rusty, you still have to use global static data when there is no need. I 
-like this version better though ;)
+Huh?
 
+Stale file handles are a result of user error (i.e. deleting a file on
+the server while it is still in use on another NFS client). The only way
+to "resolve" them is by application of a carefully designed end-user
+education program that teaches how not to ssh to another machine and
+then do "rm" on the file that is being edited.
 
-
-- Davide
-
-
+Cheers,
+  Trond

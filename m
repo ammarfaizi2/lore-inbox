@@ -1,44 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263216AbTDWIzK (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Apr 2003 04:55:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263264AbTDWIzK
+	id S263243AbTDWJA0 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Apr 2003 05:00:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263264AbTDWJA0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Apr 2003 04:55:10 -0400
-Received: from mail.ithnet.com ([217.64.64.8]:11272 "HELO heather.ithnet.com")
-	by vger.kernel.org with SMTP id S263216AbTDWIzK (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Apr 2003 04:55:10 -0400
-Date: Wed, 23 Apr 2003 11:07:04 +0200
-From: Stephan von Krawczynski <skraw@ithnet.com>
-To: gkajmowi@tbaytel.net
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.4.20 Kernel panic in IDE-SCSI with CDROM drive
-Message-Id: <20030423110704.79e0c419.skraw@ithnet.com>
-In-Reply-To: <200304221407.27242.gkajmowi@tbaytel.net>
-References: <200304212137.54302.gkajmowi@tbaytel.net>
-	<20030422123641.7c2fa19d.skraw@ithnet.com>
-	<200304221407.27242.gkajmowi@tbaytel.net>
-Organization: ith Kommunikationstechnik GmbH
-X-Mailer: Sylpheed version 0.8.11 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Wed, 23 Apr 2003 05:00:26 -0400
+Received: from nat-pool-rdu.redhat.com ([66.187.233.200]:53991 "EHLO
+	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
+	id S263243AbTDWJAZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 23 Apr 2003 05:00:25 -0400
+Date: Wed, 23 Apr 2003 05:12:29 -0400 (EDT)
+From: Ingo Molnar <mingo@redhat.com>
+X-X-Sender: mingo@devserv.devel.redhat.com
+To: "Martin J. Bligh" <mbligh@aracnet.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: [patch] HT scheduler, sched-2.5.68-A9
+In-Reply-To: <1490710000.1051055323@flay>
+Message-ID: <Pine.LNX.4.44.0304230510480.11873-100000@devserv.devel.redhat.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 22 Apr 2003 14:07:27 -0400
-Garrett Kajmowicz <gkajmowi@tbaytel.net> wrote:
 
-> On April 22, 2003 06:36 am, you wrote:
-> > This BUG is fixed. Please have a look at the 2.4.21-rc1 ide-scsi patch I
-> > posted to LKML lately.
-> 
-> I have tested the patch you provided - it did not apply properly so I made the 
-> changes manually.  Everything now works great!
+On Tue, 22 Apr 2003, Martin J. Bligh wrote:
 
-Thanks for confirmation.
+> Hmmm. When the machine is loaded up fully, this seems OK, but for lower
+> loads, it seems to have a significant degredation. This is on my normal
+> 16-way machine, no HT at all ... just checking for degredations. At a
+> guess, maybe it's bouncing stuff around between runqueues under low
+> loads?
 
-Regards,
-Stephan
+hm - it should not cause any change in the non-HT case. Oh, there's one
+thing that could make a difference on SMP - could you change
+AGRESSIVE_IDLE_STEAL back to 0?
+
+> Are there things embedded in here that change stuff for non-HT machines?
+
+not intentionally, but apparently there's some sort of effect. The idle
+steal thing could explain it.
+
+	Ingo
 

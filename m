@@ -1,44 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262166AbSJJTRy>; Thu, 10 Oct 2002 15:17:54 -0400
+	id <S262184AbSJJTTA>; Thu, 10 Oct 2002 15:19:00 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262167AbSJJTRy>; Thu, 10 Oct 2002 15:17:54 -0400
-Received: from holomorphy.com ([66.224.33.161]:42987 "EHLO holomorphy")
-	by vger.kernel.org with ESMTP id <S262166AbSJJTRa>;
-	Thu, 10 Oct 2002 15:17:30 -0400
-Date: Thu, 10 Oct 2002 12:19:54 -0700
-From: William Lee Irwin III <wli@holomorphy.com>
+	id <S262167AbSJJTR6>; Thu, 10 Oct 2002 15:17:58 -0400
+Received: from packet.digeo.com ([12.110.80.53]:27062 "EHLO packet.digeo.com")
+	by vger.kernel.org with ESMTP id <S262184AbSJJTQu>;
+	Thu, 10 Oct 2002 15:16:50 -0400
+Message-ID: <3DA5D374.330E5970@digeo.com>
+Date: Thu, 10 Oct 2002 12:22:28 -0700
+From: Andrew Morton <akpm@digeo.com>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-pre4 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
 To: Alexander Viro <viro@math.psu.edu>
-Cc: linux-kernel@vger.kernel.org
+CC: linux-kernel@vger.kernel.org
 Subject: Re: [LART] inode mismanagement in hugetlb code
-Message-ID: <20021010191954.GS10722@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Alexander Viro <viro@math.psu.edu>, linux-kernel@vger.kernel.org
 References: <Pine.GSO.4.21.0210101447390.13421-100000@weyl.math.psu.edu>
-Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.GSO.4.21.0210101447390.13421-100000@weyl.math.psu.edu>
-User-Agent: Mutt/1.3.25i
-Organization: The Domain of Holomorphy
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 10 Oct 2002 19:22:28.0807 (UTC) FILETIME=[5F695570:01C27092]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Oct 10, 2002 at 03:00:37PM -0400, Alexander Viro wrote:
-> 	a) inodes MUST have an address of valid struct super_block in their
+Alexander Viro wrote:
+> 
+> [A discussion of the meanings of the terms "MUST", "SHOULD", and "MAY" appears
+> in RFC-1123; the terms "MUST NOT" and "SHOULD NOT" are logical extensions of
+> this usage]
+> 
+>         a) inodes MUST have an address of valid struct super_block in their
 > ->i_sb.  Had been discussed quite a few times already.
-> 	b) inodes MUST NOT be allocated by code that isn't called from
-> alloc_inode().
-> 	c) inodes SHOULD NOT be kept around for noticable intervals without
-> a dentry pointing to them.
-> 	d) people who choose variable names like htlbpagek SHOULD be sent to
-> produce a street map of R'Lyeh.  On site.
+> 
 
+afaict, that code only wants an inode because it is borrowing
+the pagecache functions for page lookup.  It's using i_ino as
+a search key too.  It has no superblock.
 
-A wee bit of neurosurgery is in progress to repair (a) and (b) since
-they're taking out my boxen dead cold and reliably on the first or
-second invocation with Paul Larson's tests. (c) is very unclean, and
-(d) I wholeheartedly agree with (and am amused by the wording of too =).
-
-
-Bill
+Solutions might be: 1) allocate a private <int key, radix tree>
+structure or 2) require that these inodes come from hugetlbfs,
+although the "key" makes that a bit tricky.

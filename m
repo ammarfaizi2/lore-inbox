@@ -1,44 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261421AbSJPV0T>; Wed, 16 Oct 2002 17:26:19 -0400
+	id <S261426AbSJPVbI>; Wed, 16 Oct 2002 17:31:08 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261424AbSJPV0T>; Wed, 16 Oct 2002 17:26:19 -0400
-Received: from abraham.CS.Berkeley.EDU ([128.32.37.170]:15633 "EHLO
-	mx2.cypherpunks.ca") by vger.kernel.org with ESMTP
-	id <S261421AbSJPV0S>; Wed, 16 Oct 2002 17:26:18 -0400
-To: linux-kernel@vger.kernel.org
-Path: not-for-mail
-From: daw@mozart.cs.berkeley.edu (David Wagner)
-Newsgroups: isaac.lists.linux-kernel
-Subject: Re: can chroot be made safe for non-root?
-Date: 16 Oct 2002 21:14:43 GMT
-Organization: University of California, Berkeley
-Distribution: isaac
-Message-ID: <aokks3$955$1@abraham.cs.berkeley.edu>
-References: <20021016015106.E30836@ma-northadams1b-3.bur.adelphia.net>
-NNTP-Posting-Host: mozart.cs.berkeley.edu
-X-Trace: abraham.cs.berkeley.edu 1034802883 9381 128.32.153.211 (16 Oct 2002 21:14:43 GMT)
-X-Complaints-To: news@abraham.cs.berkeley.edu
-NNTP-Posting-Date: 16 Oct 2002 21:14:43 GMT
-X-Newsreader: trn 4.0-test74 (May 26, 2000)
-Originator: daw@mozart.cs.berkeley.edu (David Wagner)
+	id <S261429AbSJPVbI>; Wed, 16 Oct 2002 17:31:08 -0400
+Received: from medelec.uia.ac.be ([143.169.17.1]:65284 "EHLO medelec.uia.ac.be")
+	by vger.kernel.org with ESMTP id <S261426AbSJPVbG>;
+	Wed, 16 Oct 2002 17:31:06 -0400
+Date: Wed, 16 Oct 2002 23:36:49 +0200
+From: Wim Van Sebroeck <wim@iguana.be>
+To: Matt Domsch <Matt_Domsch@Dell.com>
+Cc: rob@osinvestor.com, linux-kernel@vger.kernel.org
+Subject: Re: Watchdog drivers
+Message-ID: <20021016233648.A7786@medelec.uia.ac.be>
+References: <20021014184031.A19866@medelec.uia.ac.be> <Pine.LNX.4.44.0210141408400.13924-100000@humbolt.us.dell.com> <20021015192615.A1512@medelec.uia.ac.be>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20021015192615.A1512@medelec.uia.ac.be>; from wim@iguana.be on Tue, Oct 15, 2002 at 07:26:15PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Eric Buddington  wrote:
->Would it be reasonable to allow non-root processes to chroot(), if the
->chroot syscall also changed the cwd for non-root processes?
+Hi Matt,
 
-It might be reasonable.  It is a little bit tricky, as if you're not
-careful, this can open up security holes.  However, one course project
-in a class I taught two years ago proposed a way to safely allow non-root
-processes to use chroot().  Look here:
-  http://www.cs.berkeley.edu/~smcpeak/cs261/index.html
+> Ok, I compared your patches againts mine and they were almost identical. :-)
+> After some more coding I have now a first set of patches to get everything
+> moved and to add the missing watchdog drivers. Next patches will contain
+> updates on the documentation and on each driver seperatly. 
+> 
+> The first patches are:
+> Patch 1 : move of existing watchdog drivers in drivers/char/watchdog/
+> Patch 2 : remove of 'old' watchdog drivers in drivers/char/
+> Patch 3 : cleanup additional spaces in headers + addition of MODULE-info
+> Patch 4 : C99 designated initializers for watchdog drivers
+> Patch 5 : add extra watchdog drivers
+> 
+> If you want to test them you can get them at the following URL:
+> http://medelec.uia.ac.be/linux/watchdog/ .
 
-You might also be interested in the LSM project; in sandboxes like
-SubDomain, Janus, SELinux, systrace, and the like; in privilege separation;
-in OpenBSD's jail(); and similar topics.
+Since there seems to be a problem with web-traffic to the server, I changed 
+the location of the patches. They are now at:
+ftp://medelec.uia.ac.be/pub/linux/kernel-patches/
 
->(who wishes there were better ways to run untrusted code)
+Greetings,
+Wim.
 
-Me, too.

@@ -1,78 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265994AbUGEKDc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265993AbUGEKCg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265994AbUGEKDc (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 5 Jul 2004 06:03:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265985AbUGEKDb
+	id S265993AbUGEKCg (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 5 Jul 2004 06:02:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265987AbUGEKCg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 Jul 2004 06:03:31 -0400
-Received: from zasran.com ([198.144.206.234]:42624 "EHLO zasran.com")
-	by vger.kernel.org with ESMTP id S265987AbUGEKDL (ORCPT
+	Mon, 5 Jul 2004 06:02:36 -0400
+Received: from cantor.suse.de ([195.135.220.2]:63455 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S265983AbUGEKCb (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 Jul 2004 06:03:11 -0400
-Message-ID: <40E9275C.2010707@bigfoot.com>
-Date: Mon, 05 Jul 2004 03:03:08 -0700
-From: Erik Steffl <steffl@bigfoot.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7) Gecko/20040702 Debian/1.7-3
-X-Accept-Language: en
-MIME-Version: 1.0
-To: lkml <linux-kernel@vger.kernel.org>
-Subject: modprobe -v snd-seq-oss freezes (sb live! kernel 2.6.5)
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Mon, 5 Jul 2004 06:02:31 -0400
+Date: Mon, 5 Jul 2004 12:02:15 +0200
+From: Olaf Hering <olh@suse.de>
+To: adaplas@pol.net
+Cc: Jurriaan <thunder7@xs4all.nl>, linux-kernel@vger.kernel.org,
+       linuxppc-dev@lists.linuxppc.org
+Subject: Re: 2.6.7-bk16, mode-switch-in-fbcon_blank.patch breaks X on r128
+Message-ID: <20040705100215.GA28834@suse.de>
+References: <20040704160358.GA20970@suse.de> <20040704164037.GA18255@middle.of.nowhere> <20040704171028.GA22469@suse.de> <200407050638.00307.adaplas@hotpop.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=unknown-8bit
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <200407050638.00307.adaplas@hotpop.com>
+X-DOS: I got your 640K Real Mode Right Here Buddy!
+X-Homeland-Security: You are not supposed to read this line! You are a terrorist!
+User-Agent: Mutt und vi sind doch schneller als Notes
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   alsa used to work on my system, I didn't change anything I think
-might be related and suddenly the modprobe -v snd-seq-oss freezes (does 
-not return, cannot be interrupted either but the rest of the system 
-(including audio and alsa native midi) works OK).
+ On Mon, Jul 05, Antonino A. Daplas wrote:
 
-   system:
+> Signed-off-by: Antonino Daplas <adaplas@pol.net>
+> 
+> Ugly workaround. ??When switching from KD_GRAPHICS to KD_TEXT, the 
+> event is captured at fbcon_blank() allowing fbcon to reinitialize the hardware.
+> However, some hardware requires the reinitialization to be done immediately,
+> others require it to be done later. ??Others may need it to be done immediately
+> and later, this is the worst case. 
 
-   debian unstable
-   kernel 2.6.5 (with alsa)
+This patch fixes it, tested on a ibook g4 with radeon card and
+2.6.7-bk17
 
-   I did not change kernel or modules (I checked and there are no
-new/changed files under /lib/modules/2.6.5) yet suddenly (after reboot)
-the oss sequencer cannot be loaded. There are no (related) messages in
-/var/log/syslog.
 
-   jojda:/home/erik# modprobe -v snd-seq-oss
-insmod /lib/modules/2.6.5/kernel/sound/core/seq/snd-seq.ko
-insmod /lib/modules/2.6.5/kernel/sound/core/seq/snd-seq-midi-event.ko
-insmod /lib/modules/2.6.5/kernel/sound/core/seq/oss/snd-seq-oss.ko
+-- 
+USB is for mice, FireWire is for men!
 
-   and the modprobe does not exit, it just sits there. udev creates
-devices (see below) but there are not usable, e.g.:
-
-jojda:/var/log# sfxload /data/music/soundfont/creative/8MBGMSFX.SF2
-/dev/sequencer: No such device
-
-   udev says (in daemon.log):
-
-Jul  5 01:18:24 jojda udev[2821]: configured rule in
-'/etc/udev/rules.d/udev.rules' at line 38 applied, 'midiC0D2' becomes
-'snd/%k'
-Jul  5 01:18:24 jojda udev[2821]: creating device node '/dev/snd/midiC0D2'
-Jul  5 01:18:25 jojda udev[2791]: configured rule in
-'/etc/udev/rules.d/udev.rules' at line 36 applied, 'hwC0D2' becomes 'snd/%k'
-Jul  5 01:18:25 jojda udev[2791]: creating device node '/dev/snd/hwC0D2'
-Jul  5 01:18:25 jojda udev[2798]: configured rule in
-'/etc/udev/rules.d/udev.rules' at line 38 applied, 'midiC0D1' becomes
-'snd/%k'
-Jul  5 01:18:25 jojda udev[2798]: creating device node '/dev/snd/midiC0D1'
-Jul  5 01:18:25 jojda udev[2768]: configured rule in
-'/etc/udev/rules.d/udev.rules' at line 40 applied, 'seq' becomes 'snd/%k'
-Jul  5 01:18:25 jojda udev[2768]: creating device node '/dev/snd/seq'
-Jul  5 01:18:25 jojda udev[2775]: creating device node '/dev/sequencer'
-Jul  5 01:18:25 jojda udev[2782]: creating device node '/dev/sequencer2'
-Jul  5 01:18:25 jojda udev[2805]: creating device node '/dev/amidi'
-Jul  5 01:18:25 jojda udev[2812]: creating device node '/dev/admmidi'
-Jul  5 01:20:22 jojda ntpd[2392]: kernel time sync enabled 0001
-
-   any ideas on how to troubleshoot this?
-
-   TIA,
-
-	erik
-
+sUse lINUX ag, nÜRNBERG

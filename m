@@ -1,53 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263875AbUHJJ51@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263818AbUHJKCl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263875AbUHJJ51 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 Aug 2004 05:57:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263818AbUHJJzu
+	id S263818AbUHJKCl (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 Aug 2004 06:02:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263795AbUHJKCl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 Aug 2004 05:55:50 -0400
-Received: from mail1.srv.poptel.org.uk ([213.55.4.13]:26266 "HELO
-	mail1.srv.poptel.org.uk") by vger.kernel.org with SMTP
-	id S263795AbUHJJxk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 Aug 2004 05:53:40 -0400
-Message-ID: <41189AA2.3010908@phonecoop.coop>
-Date: Tue, 10 Aug 2004 10:51:30 +0100
-From: Alan Jenkins <sourcejedi@phonecoop.coop>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040114
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: cd burning: kernel / userspace?
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Tue, 10 Aug 2004 06:02:41 -0400
+Received: from holomorphy.com ([207.189.100.168]:47335 "EHLO holomorphy.com")
+	by vger.kernel.org with ESMTP id S263818AbUHJKCk (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 10 Aug 2004 06:02:40 -0400
+Date: Tue, 10 Aug 2004 03:02:34 -0700
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Ingo Molnar <mingo@elte.hu>, Jesse Barnes <jbarnes@engr.sgi.com>,
+       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       Nick Piggin <nickpiggin@yahoo.com.au>
+Subject: Re: 2.6.8-rc3-mm2
+Message-ID: <20040810100234.GN11200@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	Ingo Molnar <mingo@elte.hu>, Jesse Barnes <jbarnes@engr.sgi.com>,
+	Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+	Nick Piggin <nickpiggin@yahoo.com.au>
+References: <200408091132.39752.jbarnes@engr.sgi.com> <200408091217.50786.jbarnes@engr.sgi.com> <20040809195323.GU11200@holomorphy.com> <20040809204357.GX11200@holomorphy.com> <20040809211042.GY11200@holomorphy.com> <20040809224546.GZ11200@holomorphy.com> <20040810063445.GE11200@holomorphy.com> <20040810080430.GA25866@elte.hu> <20040810090051.GK11200@holomorphy.com> <20040810093831.GM11200@holomorphy.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040810093831.GM11200@holomorphy.com>
+User-Agent: Mutt/1.5.6+20040722i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I've followed the latest cdrecord "discussion" on the list, and I can't 
-see why you have to use a userspace program which talks SCSI in order to 
-burn a cd.
+On Tue, Aug 10, 2004 at 02:00:51AM -0700, William Lee Irwin III wrote:
+>> It deadlocks with or without the fork_idle() call being via keventd;
+>> the printk change is what makes the difference. =(
 
-The current Mount Rainer allows you to treat a MR formatted CD-RW as a 
-big floppy disk - to read and write to /dev/cdrecorder just like 
-/dev/floppy.  The packet writing patch takes a different approach - 
-using a separate device which is bound to the cdrecorder device, but 
-AFAIK this is a temporary measure, and the ultimate goal is make this 
-work the same way - the way the user would expect:
+On Tue, Aug 10, 2004 at 02:38:31AM -0700, William Lee Irwin III wrote:
+> Okay, it deadlocks with both mdelay(1000) and yield() in place of the
+> printk(). Trying manual calls to schedule() and local_irq_enable() next.
 
-1. Insert a recordable media (e.g. cdrw).
-2. Perform any necessary formatting (e.g. cdmrw -d /dev/cdrecorder -f full)
-3. Access cdrecorder device (e.g. mount /dev/cdrecorder -tudf -onoatime 
-/mnt/cdrecorder)
+Replacing the printk() with either of the following two things didn't work:
 
-Why can't a similar method be used for DAO writing?  Packet writing and 
-Mount Rainer support belongs in the kernel - why not normal cd burning?  
-On modern "burnproof" hardware, it should be possible to use dd to write 
-your disk image to the cdrecorder device.  I'm guessing that this just 
-isn't as interesting, especially with userspace programs available to do 
-the job.
+(a) yield();
+(b) local_irq_enable(); set_current_state(TASK_RUNNING); schedule();
 
-Unfortunately I'm no kernel hacker, so I have no idea whether this is 
-practical, and if so how much work would be involved.  I have plenty of 
-time to investigate the idea, and upgrade myself from a mere C 
-programmer.  Any advice would be appreciated.
 
-Alan Jenkins
+-- wli

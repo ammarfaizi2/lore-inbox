@@ -1,47 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264943AbUD2Tpf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264942AbUD2Tup@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264943AbUD2Tpf (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Apr 2004 15:45:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264953AbUD2Tpf
+	id S264942AbUD2Tup (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Apr 2004 15:50:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264944AbUD2Tup
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Apr 2004 15:45:35 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:5081 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S264943AbUD2Tp2
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Apr 2004 15:45:28 -0400
-Date: Thu, 29 Apr 2004 16:46:35 -0300
-From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-To: "C.L. Tien - ??????" <cltien@cmedia.com.tw>, Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org, Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: [PATCH]: cmpci 6.82 released
-Message-ID: <20040429194635.GB20141@logos.cnet>
-References: <92C0412E07F63549B2A2F2345D3DB515F7D430@cm-msg-02.cmedia.com.tw>
+	Thu, 29 Apr 2004 15:50:45 -0400
+Received: from main.gmane.org ([80.91.224.249]:41179 "EHLO main.gmane.org")
+	by vger.kernel.org with ESMTP id S264942AbUD2Tun (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 29 Apr 2004 15:50:43 -0400
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: "Neal D. Becker" <ndbecker2@verizon.net>
+Subject: Re:  State of linux checkpointing?
+Date: Thu, 29 Apr 2004 15:50:38 -0400
+Message-ID: <c6rmae$ejq$2@sea.gmane.org>
+References: <c6oorn$3dq$1@sea.gmane.org> <409012A4.9000502@pobox.com> <slrn-0.9.7.4-11992-4650-200404290913-tc@hexane.ssi.swin.edu.au> <c6plh7$sqj$1@sea.gmane.org> <40912DD2.90900@lbl.gov> <slrn-0.9.7.4-18380-21584-200404300311-tc@hexane.ssi.swin.edu.au>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <92C0412E07F63549B2A2F2345D3DB515F7D430@cm-msg-02.cmedia.com.tw>
-User-Agent: Mutt/1.5.5.1i
+Content-Transfer-Encoding: 7Bit
+X-Complaints-To: usenet@sea.gmane.org
+X-Gmane-NNTP-Posting-Host: 139.85.94.36
+User-Agent: KNode/0.7.7
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Apr 15, 2004 at 01:15:31AM +0800, C.L. Tien - ?????? wrote:
-> Hi,
-> 
-> I made several changes for cmpci.6.77, so the version is now 6.82.
-> 
-> The patch is mostly from kernel 2.6, which change to support newer gcc,
-> fix possible security hole. I also use the same include files for both
-> kernel versions.
-> 
-> The cmpci-6.82-patch2.4.tar.bz2 is made from official kernel 2.4.25, but should  be able to patch other 2.4 kernel.
-> 
-> The cmpci-6.82-patch2.6.tar.bz2 is from official kernel 2.6.5, it will
-> show error when patch cmpci.c for kernel 2.6.4 or earlier, that's ok.
+Tim Connors wrote:
 
-C.L. Tien,
+> Thomas Davis <tadavis@lbl.gov> said on Thu, 29 Apr 2004 09:31:14 -0700:
+>> Neal Becker wrote:
+>> > 
+>> > I want checkpointing for:
+>> > 
+>> > 1) Protect against job interruption due to system crash, operator
+>> > error, power loss, whatever
+>> > 
+>> > 2) Job mygration.  Even manual job mygration would be nice.
+>> 
+>> Two possible solutions:
+>> 
+>> 1) http://ftg.lbl.gov/checkpoint
+> 
+> Oooh. Shiny.
+> 
 
-I see your fixes have not yet been merged into v2.6.x mainline.
+Looks interesting.  Kernel-2.4 only AFAICT.
 
-I dont know the card very well, but the fixes alright.
 
-Andrew, maybe you can merge this in -mm?

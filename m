@@ -1,54 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267553AbUIPGDg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267561AbUIPGNP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267553AbUIPGDg (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Sep 2004 02:03:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267554AbUIPGDg
+	id S267561AbUIPGNP (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Sep 2004 02:13:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267563AbUIPGNP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Sep 2004 02:03:36 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:16056 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S267553AbUIPGDe (ORCPT
+	Thu, 16 Sep 2004 02:13:15 -0400
+Received: from mx1.elte.hu ([157.181.1.137]:28874 "EHLO mx1.elte.hu")
+	by vger.kernel.org with ESMTP id S267561AbUIPGNN (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Sep 2004 02:03:34 -0400
-Date: Thu, 16 Sep 2004 07:56:51 +0200
-From: Jens Axboe <axboe@suse.de>
+	Thu, 16 Sep 2004 02:13:13 -0400
+Date: Thu, 16 Sep 2004 08:14:38 +0200
+From: Ingo Molnar <mingo@elte.hu>
 To: Nick Piggin <nickpiggin@yahoo.com.au>
-Cc: "Jeff V. Merkey" <jmerkey@drdos.com>, jmerkey@galt.devicelogics.com,
-       linux-kernel@vger.kernel.org, jmerkey@comcast.net
-Subject: Re: 2.6.8.1 mempool subsystem sickness
-Message-ID: <20040916055650.GE2300@suse.de>
-References: <091420042058.15928.41475B8000002BA100003E382200763704970A059D0A0306@comcast.net> <4147555C.7010809@drdos.com> <414777EA.5080406@yahoo.com.au> <20040914223122.GA3325@galt.devicelogics.com> <41478419.3020606@yahoo.com.au> <41487B6D.1080202@drdos.com> <4148F059.9060100@yahoo.com.au>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: [patch] sched: fix scheduling latencies for !PREEMPT kernels
+Message-ID: <20040916061438.GA10314@elte.hu>
+References: <20040914114228.GD2804@elte.hu> <4146EA3E.4010804@yahoo.com.au> <20040914132225.GA9310@elte.hu> <4146F33C.9030504@yahoo.com.au> <20040914145457.GA13113@elte.hu> <414776CE.5030302@yahoo.com.au> <20040915061922.GA11683@elte.hu> <4147FC14.2010205@yahoo.com.au> <20040915084355.GA29752@elte.hu> <4148E64A.9000206@yahoo.com.au>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <4148F059.9060100@yahoo.com.au>
+In-Reply-To: <4148E64A.9000206@yahoo.com.au>
+User-Agent: Mutt/1.4.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Sep 16 2004, Nick Piggin wrote:
-> Jeff V. Merkey wrote:
-> >Jeff
-> >
-> >Here's the stats from the test of the patch against 2.6.8-rc2 with the 
-> >patch applied
-> >
-> >
-> 
-> Scanning stats look good at a quick glance. kswapd doesn't seem to be
-> going crazy.
-> 
-> However,
-> size-65536         32834  32834  65536    1   16
-> 
-> This slab entry is taking up about 2GB of unreclaimable memory (order-4,
-> no less). This must be a leak... does the number continue to rise as
-> your system runs?
 
-There's also a huge amount of 16-page bio + vecs in flight:
+* Nick Piggin <nickpiggin@yahoo.com.au> wrote:
 
-biovec-16         131340
+> No, I mean putting cond_resched in might_sleep is ad hoc. But that
+> doesn't mean it doesn't work - it obviously does ;)
 
-That would point to a leak as well, most likely.
+ah, ok, i understand your point now. No, i'm not submitting the
+CONFIG_PREEMPT_VOLUNTARY .config switch (and the kernel.h 2-liner) at
+this point. All the latency breakers so far will mainly benefit
+CONFIG_PREEMPT - which is also the primary preempt model used by
+bleeding-edge testers.
 
--- 
-Jens Axboe
-
+	Ingo

@@ -1,117 +1,243 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261871AbTILUNc (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 12 Sep 2003 16:13:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261872AbTILUNc
+	id S261896AbTILUQZ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 12 Sep 2003 16:16:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261895AbTILUPW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 Sep 2003 16:13:32 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:15005 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S261871AbTILUNS
+	Fri, 12 Sep 2003 16:15:22 -0400
+Received: from e32.co.us.ibm.com ([32.97.110.130]:51678 "EHLO
+	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S261872AbTILUNs
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 Sep 2003 16:13:18 -0400
-Date: Fri, 12 Sep 2003 21:13:16 +0100
-From: Matthew Wilcox <willy@debian.org>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] file locking memory leak
-Message-ID: <20030912201316.GD21596@parcelfarce.linux.theplanet.co.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4.1i
+	Fri, 12 Sep 2003 16:13:48 -0400
+Date: Fri, 12 Sep 2003 15:13:05 -0500 (CDT)
+From: Jake Moilanen <moilanen@austin.ibm.com>
+To: marcelo.tosatti@cyclades.com.br
+cc: lkml <linux-kernel@vger.kernel.org>, Anton Blanchard <anton@samba.org>
+Subject: [PATCH] linux-2.4.22 pci-scan-all-functions (fwd)
+Message-ID: <Pine.A41.4.51.0309121323100.27264@wolverines.austin.ibm.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+This patch is a port of some work that Anton Blanchard did for 2.6.
 
-This patch fixes a memory leak in the file locking code.  Each attempt
-to unlock a file would result in the leak of a file lock.  Many thanks
-to Martin Josefsson for providing the testcase which enabled me to figure
-out the problem.
+There are some arch, like PPC64, that need to be able to scan all the
+PCI functions.  The problem comes in on a logically partitioned system
+where function 0 on a PCI-PCI bridge is assigned to one partition and say
+function 2 is assiged to another partition.  On the second partition, it
+would appear that function 0 does not exist, but function 2 does.  If all
+the functions are not scanned, everything under function 2 would not be
+detected.
 
-Index: fs/locks.c
-===================================================================
-RCS file: /var/cvs/linux-2.6/fs/locks.c,v
-retrieving revision 1.1
-diff -u -p -r1.1 locks.c
---- fs/locks.c	29 Jul 2003 17:01:37 -0000	1.1
-+++ fs/locks.c	12 Sep 2003 19:07:38 -0000
-@@ -221,7 +221,7 @@ void locks_copy_lock(struct file_lock *n
- static inline int flock_translate_cmd(int cmd) {
- 	if (cmd & LOCK_MAND)
- 		return cmd & (LOCK_MAND | LOCK_RW);
--	switch (cmd &~ LOCK_NB) {
-+	switch (cmd) {
- 	case LOCK_SH:
- 		return F_RDLCK;
- 	case LOCK_EX:
-@@ -233,8 +233,8 @@ static inline int flock_translate_cmd(in
- }
- 
- /* Fill in a file_lock structure with an appropriate FLOCK lock. */
--static int flock_make_lock(struct file *filp,
--		struct file_lock **lock, unsigned int cmd)
-+static int flock_make_lock(struct file *filp, struct file_lock **lock,
-+		unsigned int cmd)
- {
- 	struct file_lock *fl;
- 	int type = flock_translate_cmd(cmd);
-@@ -247,7 +247,7 @@ static int flock_make_lock(struct file *
- 
- 	fl->fl_file = filp;
- 	fl->fl_pid = current->tgid;
--	fl->fl_flags = (cmd & LOCK_NB) ? FL_FLOCK : FL_FLOCK | FL_SLEEP;
-+	fl->fl_flags = FL_FLOCK;
- 	fl->fl_type = type;
- 	fl->fl_end = OFFSET_MAX;
- 	
-@@ -1298,6 +1298,7 @@ asmlinkage long sys_flock(unsigned int f
- {
- 	struct file *filp;
- 	struct file_lock *lock;
-+	int can_sleep, unlock;
- 	int error;
- 
- 	error = -EBADF;
-@@ -1305,12 +1306,18 @@ asmlinkage long sys_flock(unsigned int f
- 	if (!filp)
- 		goto out;
- 
--	if ((cmd != LOCK_UN) && !(cmd & LOCK_MAND) && !(filp->f_mode & 3))
-+	can_sleep = !(cmd & LOCK_NB);
-+	cmd &= ~LOCK_NB;
-+	unlock = (cmd == LOCK_UN);
+
+Thanks,
+Jake
+
+
+diff -Nru a/drivers/pci/pci.c b/drivers/pci/pci.c
+--- a/drivers/pci/pci.c	Thu Sep  4 10:07:00 2003
++++ b/drivers/pci/pci.c	Thu Sep  4 10:07:00 2003
+@@ -1472,17 +1472,22 @@
+ 	u8 hdr_type;
+
+ 	for (func = 0; func < 8; func++, temp->devfn++) {
+-		if (func && !is_multi)		/* not a multi-function device */
+-			continue;
+ 		if (pci_read_config_byte(temp, PCI_HEADER_TYPE, &hdr_type))
+ 			continue;
+ 		temp->hdr_type = hdr_type & 0x7f;
+
+ 		dev = pci_scan_device(temp);
+-		if (!dev)
+-			continue;
++		if (!pcibios_scan_all_fns() && func == 0) {
++			if (!dev)
++				break;
++		} else {
++			if (!dev)
++				continue;
++			is_multi = 1;
++		}
 +
-+	if (!unlock && !(cmd & LOCK_MAND) && !(filp->f_mode & 3))
- 		goto out_putf;
- 
- 	error = flock_make_lock(filp, &lock, cmd);
- 	if (error)
- 		goto out_putf;
-+	if (can_sleep)
-+		lock->fl_flags |= FL_SLEEP;
- 
- 	error = security_file_lock(filp, cmd);
- 	if (error)
-@@ -1318,7 +1325,7 @@ asmlinkage long sys_flock(unsigned int f
- 
- 	for (;;) {
- 		error = flock_lock_file(filp, lock);
--		if ((error != -EAGAIN) || (cmd & LOCK_NB))
-+		if ((error != -EAGAIN) || !can_sleep)
- 			break;
- 		error = wait_event_interruptible(lock->fl_wait, !lock->fl_next);
- 		if (!error)
-@@ -1329,7 +1336,7 @@ asmlinkage long sys_flock(unsigned int f
- 	}
- 
-  out_free:
--	if (error) {
-+	if (unlock || error) {
- 		locks_free_lock(lock);
- 	}
- 
+ 		pci_name_device(dev);
+-		if (!func) {
++		if (!first_dev) {
+ 			is_multi = hdr_type & 0x80;
+ 			first_dev = dev;
+ 		}
+@@ -1496,6 +1501,14 @@
 
--- 
-"It's not Hollywood.  War is real, war is primarily not about defeat or
-victory, it is about death.  I've seen thousands and thousands of dead bodies.
-Do you think I want to have an academic debate on this subject?" -- Robert Fisk
+ 		/* Fix up broken headers */
+ 		pci_fixup_device(PCI_FIXUP_HEADER, dev);
++
++		/*
++		 * If this is a single function device
++		 * don't scan past the first function.
++		 */
++		if (!is_multi)
++			break;
++
+ 	}
+ 	return first_dev;
+ }
+diff -Nru a/include/asm-alpha/pci.h b/include/asm-alpha/pci.h
+--- a/include/asm-alpha/pci.h	Thu Sep  4 10:07:00 2003
++++ b/include/asm-alpha/pci.h	Thu Sep  4 10:07:00 2003
+@@ -50,6 +50,7 @@
+    bus numbers.  */
+
+ #define pcibios_assign_all_busses()	1
++#define pcibios_scan_all_fns()		0
+
+ #define PCIBIOS_MIN_IO		alpha_mv.min_io_address
+ #define PCIBIOS_MIN_MEM		alpha_mv.min_mem_address
+diff -Nru a/include/asm-arm/pci.h b/include/asm-arm/pci.h
+--- a/include/asm-arm/pci.h	Thu Sep  4 10:07:00 2003
++++ b/include/asm-arm/pci.h	Thu Sep  4 10:07:00 2003
+@@ -53,6 +53,8 @@
+ 	/* We don't do dynamic PCI IRQ allocation */
+ }
+
++#define pcibios_scan_all_fns()		0
++
+ struct pci_dev;
+
+ /* Allocate and map kernel buffer using consistent mode DMA for a device.
+diff -Nru a/include/asm-i386/pci.h b/include/asm-i386/pci.h
+--- a/include/asm-i386/pci.h	Thu Sep  4 10:07:00 2003
++++ b/include/asm-i386/pci.h	Thu Sep  4 10:07:00 2003
+@@ -14,6 +14,7 @@
+ #else
+ #define pcibios_assign_all_busses()	0
+ #endif
++#define pcibios_scan_all_fns()		0
+
+ extern unsigned long pci_mem_start;
+ #define PCIBIOS_MIN_IO		0x1000
+diff -Nru a/include/asm-ia64/pci.h b/include/asm-ia64/pci.h
+--- a/include/asm-ia64/pci.h	Thu Sep  4 10:07:00 2003
++++ b/include/asm-ia64/pci.h	Thu Sep  4 10:07:00 2003
+@@ -15,6 +15,7 @@
+  * loader.
+  */
+ #define pcibios_assign_all_busses()     0
++#define pcibios_scan_all_fns()		0
+
+ #define PCIBIOS_MIN_IO		0x1000
+ #define PCIBIOS_MIN_MEM		0x10000000
+diff -Nru a/include/asm-m68k/pci.h b/include/asm-m68k/pci.h
+--- a/include/asm-m68k/pci.h	Thu Sep  4 10:07:00 2003
++++ b/include/asm-m68k/pci.h	Thu Sep  4 10:07:00 2003
+@@ -34,6 +34,7 @@
+ };
+
+ #define pcibios_assign_all_busses()	0
++#define pcibios_scan_all_fns()		0
+
+ extern inline void pcibios_set_master(struct pci_dev *dev)
+ {
+diff -Nru a/include/asm-mips/pci.h b/include/asm-mips/pci.h
+--- a/include/asm-mips/pci.h	Thu Sep  4 10:07:00 2003
++++ b/include/asm-mips/pci.h	Thu Sep  4 10:07:00 2003
+@@ -19,6 +19,7 @@
+ #else
+ #define pcibios_assign_all_busses()	0
+ #endif
++#define pcibios_scan_all_fns()		0
+
+ #define PCIBIOS_MIN_IO		0x1000
+ #define PCIBIOS_MIN_MEM		0x10000000
+diff -Nru a/include/asm-mips64/pci.h b/include/asm-mips64/pci.h
+--- a/include/asm-mips64/pci.h	Thu Sep  4 10:07:00 2003
++++ b/include/asm-mips64/pci.h	Thu Sep  4 10:07:00 2003
+@@ -19,6 +19,7 @@
+ #else
+ #define pcibios_assign_all_busses()	0
+ #endif
++#define pcibios_scan_all_fns()		0
+
+ #define PCIBIOS_MIN_IO		0x1000
+ #define PCIBIOS_MIN_MEM		0x10000000
+diff -Nru a/include/asm-parisc/pci.h b/include/asm-parisc/pci.h
+--- a/include/asm-parisc/pci.h	Thu Sep  4 10:07:00 2003
++++ b/include/asm-parisc/pci.h	Thu Sep  4 10:07:00 2003
+@@ -259,6 +259,7 @@
+ **   to zero for legacy platforms and one for PAT platforms.
+ */
+ #define pcibios_assign_all_busses()     (pdc_type == PDC_TYPE_PAT)
++#define pcibios_scan_all_fns()		0
+
+ #define PCIBIOS_MIN_IO          0x10
+ #define PCIBIOS_MIN_MEM         0x1000 /* NBPG - but pci/setup-res.c dies */
+diff -Nru a/include/asm-ppc/pci.h b/include/asm-ppc/pci.h
+--- a/include/asm-ppc/pci.h	Thu Sep  4 10:07:00 2003
++++ b/include/asm-ppc/pci.h	Thu Sep  4 10:07:00 2003
+@@ -16,6 +16,7 @@
+ extern int pci_assign_all_busses;
+
+ #define pcibios_assign_all_busses()	(pci_assign_all_busses)
++#define pcibios_scan_all_fns()		0
+
+ #define PCIBIOS_MIN_IO		0x1000
+ #define PCIBIOS_MIN_MEM		0x10000000
+diff -Nru a/include/asm-ppc64/pci.h b/include/asm-ppc64/pci.h
+--- a/include/asm-ppc64/pci.h	Thu Sep  4 10:07:00 2003
++++ b/include/asm-ppc64/pci.h	Thu Sep  4 10:07:00 2003
+@@ -25,6 +25,12 @@
+ #define PCIBIOS_MIN_IO		0x1000
+ #define PCIBIOS_MIN_MEM		0x10000000
+
++/*
++ * ppc64 can have multifunction devices that do not respond to function 0.
++ * In this case we must scan all functions.
++ */
++#define pcibios_scan_all_fns()     1
++
+ static inline void pcibios_set_master(struct pci_dev *dev)
+ {
+ 	/* No special bus mastering setup handling */
+diff -Nru a/include/asm-sh/pci.h b/include/asm-sh/pci.h
+--- a/include/asm-sh/pci.h	Thu Sep  4 10:07:00 2003
++++ b/include/asm-sh/pci.h	Thu Sep  4 10:07:00 2003
+@@ -10,6 +10,7 @@
+    or architectures with incomplete PCI setup by the loader */
+
+ #define pcibios_assign_all_busses()	1
++#define pcibios_scan_all_fns()		0
+
+ #if defined(CONFIG_CPU_SUBTYPE_ST40)
+ /* These are currently the correct values for the ST40 based chips.
+diff -Nru a/include/asm-sparc/pci.h b/include/asm-sparc/pci.h
+--- a/include/asm-sparc/pci.h	Thu Sep  4 10:07:00 2003
++++ b/include/asm-sparc/pci.h	Thu Sep  4 10:07:00 2003
+@@ -8,6 +8,7 @@
+  * or architectures with incomplete PCI setup by the loader.
+  */
+ #define pcibios_assign_all_busses()	0
++#define pcibios_scan_all_fns()		0
+
+ #define PCIBIOS_MIN_IO		0UL
+ #define PCIBIOS_MIN_MEM		0UL
+diff -Nru a/include/asm-sparc64/pci.h b/include/asm-sparc64/pci.h
+--- a/include/asm-sparc64/pci.h	Thu Sep  4 10:07:00 2003
++++ b/include/asm-sparc64/pci.h	Thu Sep  4 10:07:00 2003
+@@ -11,6 +11,7 @@
+  * or architectures with incomplete PCI setup by the loader.
+  */
+ #define pcibios_assign_all_busses()	0
++#define pcibios_scan_all_fns()		0
+
+ #define PCIBIOS_MIN_IO		0UL
+ #define PCIBIOS_MIN_MEM		0UL
+diff -Nru a/include/asm-x86_64/pci.h b/include/asm-x86_64/pci.h
+--- a/include/asm-x86_64/pci.h	Thu Sep  4 10:07:00 2003
++++ b/include/asm-x86_64/pci.h	Thu Sep  4 10:07:00 2003
+@@ -17,6 +17,7 @@
+ #else
+ #define pcibios_assign_all_busses()	0
+ #endif
++#define pcibios_scan_all_fns()		0
+
+ extern unsigned long pci_mem_start;
+ #define PCIBIOS_MIN_IO		0x1000

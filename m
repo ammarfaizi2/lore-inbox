@@ -1,54 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S276591AbRLBSRd>; Sun, 2 Dec 2001 13:17:33 -0500
+	id <S284277AbRLBSUZ>; Sun, 2 Dec 2001 13:20:25 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284272AbRLBSRa>; Sun, 2 Dec 2001 13:17:30 -0500
-Received: from waste.org ([209.173.204.2]:33430 "EHLO waste.org")
-	by vger.kernel.org with ESMTP id <S284268AbRLBSRA>;
+	id <S281739AbRLBSRd>; Sun, 2 Dec 2001 13:17:33 -0500
+Received: from camus.xss.co.at ([194.152.162.19]:7952 "EHLO camus.xss.co.at")
+	by vger.kernel.org with ESMTP id <S284269AbRLBSRA>;
 	Sun, 2 Dec 2001 13:17:00 -0500
-Date: Sun, 2 Dec 2001 12:16:47 -0600 (CST)
-From: Oliver Xymoron <oxymoron@waste.org>
-To: Jeff Garzik <jgarzik@mandrakesoft.com>
-cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Linux/Pro [was Re: Coding style - a non-issue]
-In-Reply-To: <3C0A6539.B650C789@mandrakesoft.com>
-Message-ID: <Pine.LNX.4.40.0112021206040.28065-100000@waste.org>
+Message-ID: <3C0A7018.F6D17C84@xss.co.at>
+Date: Sun, 02 Dec 2001 19:16:56 +0100
+From: Andreas Haumer <andreas@xss.co.at>
+Organization: xS+S
+X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.2.19 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: arrays@compaq.com
+CC: linux-kernel@vger.kernel.org
+Subject: [PATCH] missing gendisk initialization in cciss.c (Linux-2.2.20)
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2 Dec 2001, Jeff Garzik wrote:
+Hi!
 
-> Oliver Xymoron wrote:
-> >
-> > On Sun, 2 Dec 2001, Alan Cox wrote:
-> >
-> > > > Please consider the following wipe out candidates as well:
-> > > >
-> > > > 2. proprietary CD-ROM
-> > > > 3. xd.c (ridiculous isn't it?)
-> > > > 4. old ide driver...
-> > >
-> > > I know people using all 3 of those, while bugs in some of the old scsi 8bit
-> > > drivers went unnoticed for a year.
-> >
-> > We need a 'prompt for unmaintained drivers' trailing-edge option in the
-> > build process so people will know when something's been orphaned and pick
-> > it up.
->
-> There's already CONFIG_OBSOLETE...
+The following patch adds code to initialize gendisk.fops
+in cciss.c. It's needed to avoid a kernel warning message
+when using devfs with the Compaq RAID Controller.
 
-And it's practically obsolete itself, outside of the ARM directory. What
-I'm proposing is something in the Code Maturity menu that's analogous to
-EXPERIMENTAL along with a big (UNMAINTAINED) marker next to unmaintained
-drivers. Obsolete and unmaintained and deprecated all mean slightly
-different things, by the way. So the config option would probably say
-'Show obsolete, unmaintained, or deprecated items?' and mark each item
-appropriately. Anything that no one made a fuss about by 2.7 would be
-candidates for removal.
+--- linux-2.2.20/drivers/block/cciss.c  Fri Nov  2 17:39:06 2001
++++ linux/drivers/block/cciss.c Sun Dec  2 19:04:20 2001
+@@ -1901,6 +1901,7 @@
+                hba[i]->gendisk.max_p = MAX_PART;
+                hba[i]->gendisk.max_nr = NWD;
+                hba[i]->gendisk.init = cciss_geninit;
++               hba[i]->gendisk.fops = &cciss_fops;
+                hba[i]->gendisk.part = hba[i]->hd;
+                hba[i]->gendisk.sizes = hba[i]->sizes;
+                hba[i]->gendisk.nr_real = hba[i]->num_luns;
 
---
- "Love the dolphins," she advised him. "Write by W.A.S.T.E.."
+HTH
 
+- andreas
+
+-- 
+Andreas Haumer                     | mailto:andreas@xss.co.at
+*x Software + Systeme              | http://www.xss.co.at/
+Karmarschgasse 51/2/20             | Tel: +43-1-6060114-0
+A-1100 Vienna, Austria             | Fax: +43-1-6060114-71

@@ -1,79 +1,154 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261187AbVCUQdZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261199AbVCUQee@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261187AbVCUQdZ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Mar 2005 11:33:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261199AbVCUQdZ
+	id S261199AbVCUQee (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Mar 2005 11:34:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261201AbVCUQee
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Mar 2005 11:33:25 -0500
-Received: from ozlabs.org ([203.10.76.45]:35215 "EHLO ozlabs.org")
-	by vger.kernel.org with ESMTP id S261187AbVCUQdP (ORCPT
+	Mon, 21 Mar 2005 11:34:34 -0500
+Received: from atlrel6.hp.com ([156.153.255.205]:15285 "EHLO atlrel6.hp.com")
+	by vger.kernel.org with ESMTP id S261199AbVCUQeF (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Mar 2005 11:33:15 -0500
-Date: Tue, 22 Mar 2005 03:32:59 +1100
-From: Anton Blanchard <anton@samba.org>
-To: Mikael Pettersson <mikpe@csd.uu.se>
-Cc: akpm@osdl.org, paulus@samba.org, linux-kernel@vger.kernel.org,
-       linuxppc64-dev@ozlabs.org
-Subject: [PATCH] ppc64: fix linkage error on G5
-Message-ID: <20050321163259.GA12509@krispykreme>
-References: <200503211519.j2LFJtWU021931@harpo.it.uu.se>
+	Mon, 21 Mar 2005 11:34:05 -0500
+Subject: Re: [ACPI] Re: Fw: Anybody? 2.6.11 (stable and -rc) ACPI breaks USB
+From: Bjorn Helgaas <bjorn.helgaas@hp.com>
+To: Li Shaohua <shaohua.li@intel.com>
+Cc: Zwane Mwaikambo <zwane@arm.linux.org.uk>,
+       Grzegorz Kulewski <kangur@polcom.net>, Andrew Morton <akpm@osdl.org>,
+       ACPI List <acpi-devel@lists.sourceforge.net>,
+       lkml <linux-kernel@vger.kernel.org>, Len Brown <len.brown@intel.com>
+In-Reply-To: <1111169239.13286.39.camel@eeyore>
+References: <1110989436.8378.19.camel@eeyore>
+	 <1111023217.15278.7.camel@sli10-desk.sh.intel.com>
+	 <1111082914.11380.30.camel@eeyore>
+	 <1111108150.22239.6.camel@sli10-desk.sh.intel.com>
+	 <1111169239.13286.39.camel@eeyore>
+Content-Type: text/plain
+Date: Mon, 21 Mar 2005 09:33:58 -0700
+Message-Id: <1111422838.17576.22.camel@eeyore>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200503211519.j2LFJtWU021931@harpo.it.uu.se>
-User-Agent: Mutt/1.5.6+20040907i
+X-Mailer: Evolution 2.0.4 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-> When 2.6.12-rc1-mm1 is configured for a ppc64/G5, so CONFIG_PPC_PSERIES
-> is disabled, linking of vmlinux fails with:
+On Fri, 2005-03-18 at 11:07 -0700, Bjorn Helgaas wrote:
+> OK.  Try this one for size.  It differs from what's currently in
+> the tree in these ways:
 > 
-> arch/ppc64/kernel/built-in.o(.text+0x7de0): In function `.sys_call_table32':
-> : undefined reference to `.ppc_rtas'
-> arch/ppc64/kernel/built-in.o(.text+0x8668): In function `.sys_call_table':
-> : undefined reference to `.ppc_rtas'
-> make: *** [.tmp_vmlinux1] Error 1
+>     - It's a quirk, so we don't have to clutter acpi_pci_irq_enable()
+>       and pirq_enable_irq() with Via-specific code.
+> 
+>     - It doesn't do anything unless we're in PIC mode.  The comment
+>       suggests this issue only affects PIC routing.
+> 
+>     - We do this for ALL Via devices.  The current code in the tree
+>       does it for all devices in the system IF there is a Via device
+>       with devfn==0, which misses Grzegorz's case.
+> 
+> Does anybody have a pointer to a spec that talks about this?  It'd
+> be awfully nice to have a reference.
+> 
+> Grzegorz, can you check to make sure this still works after all the
+> tweaking?
 
-It turns out we are trying to fix this problem twice, we may as well
-remove the #define hack and use cond_syscall.
+Oops, I had the sense of the skip_ioapic_setup test reversed.  Corrected
+patch follows.
 
---
-
-Move the ppc64 specific cond_syscall(ppc_rtas) into sys_ni.c so that it
-takes effect. With this fixed we can remove the #define hack.
-
-Signed-off-by: Anton Blanchard <anton@samba.org>
-
-diff -puN arch/ppc64/kernel/misc.S~fix_ppc_rtas arch/ppc64/kernel/misc.S
---- foobar2/arch/ppc64/kernel/misc.S~fix_ppc_rtas	2005-03-22 02:41:53.819634410 +1100
-+++ foobar2-anton/arch/ppc64/kernel/misc.S	2005-03-22 02:41:53.851631972 +1100
-@@ -680,10 +680,6 @@ _GLOBAL(kernel_thread)
- 	ld	r30,-16(r1)
- 	blr
- 
--#ifdef CONFIG_PPC_RTAS /* hack hack hack */
--#define ppc_rtas	sys_ni_syscall
--#endif
--
- /* Why isn't this a) automatic, b) written in 'C'? */	
- 	.balign 8
- _GLOBAL(sys_call_table32)
-diff -puN arch/ppc64/kernel/syscalls.c~fix_ppc_rtas arch/ppc64/kernel/syscalls.c
---- foobar2/arch/ppc64/kernel/syscalls.c~fix_ppc_rtas	2005-03-22 02:41:53.825633952 +1100
-+++ foobar2-anton/arch/ppc64/kernel/syscalls.c	2005-03-22 02:41:53.852631895 +1100
-@@ -256,6 +256,3 @@ void do_show_syscall_exit(unsigned long 
+===== arch/i386/pci/irq.c 1.55 vs edited =====
+--- 1.55/arch/i386/pci/irq.c	2005-02-07 22:39:15 -07:00
++++ edited/arch/i386/pci/irq.c	2005-03-15 10:11:44 -07:00
+@@ -1026,7 +1026,6 @@
+ static int pirq_enable_irq(struct pci_dev *dev)
  {
- 	printk(" -> %lx, current=%p cpu=%d\n", r3, current, smp_processor_id());
+ 	u8 pin;
+-	extern int via_interrupt_line_quirk;
+ 	struct pci_dev *temp_dev;
+ 
+ 	pci_read_config_byte(dev, PCI_INTERRUPT_PIN, &pin);
+@@ -1081,10 +1080,6 @@
+ 		printk(KERN_WARNING "PCI: No IRQ known for interrupt pin %c of device %s.%s\n",
+ 		       'A' + pin, pci_name(dev), msg);
+ 	}
+-	/* VIA bridges use interrupt line for apic/pci steering across
+-	   the V-Link */
+-	else if (via_interrupt_line_quirk)
+-		pci_write_config_byte(dev, PCI_INTERRUPT_LINE, dev->irq & 15);
+ 	return 0;
  }
+ 
+===== drivers/acpi/pci_irq.c 1.37 vs edited =====
+--- 1.37/drivers/acpi/pci_irq.c	2005-03-01 09:57:29 -07:00
++++ edited/drivers/acpi/pci_irq.c	2005-03-15 10:10:57 -07:00
+@@ -388,7 +388,6 @@
+ 	u8			pin = 0;
+ 	int			edge_level = ACPI_LEVEL_SENSITIVE;
+ 	int			active_high_low = ACPI_ACTIVE_LOW;
+-	extern int		via_interrupt_line_quirk;
+ 
+ 	ACPI_FUNCTION_TRACE("acpi_pci_irq_enable");
+ 
+@@ -437,9 +436,6 @@
+ 			return_VALUE(0);
+ 		}
+  	}
 -
--/* Only exists on P-series. */
--cond_syscall(ppc_rtas);
-diff -puN kernel/sys_ni.c~fix_ppc_rtas kernel/sys_ni.c
---- foobar2/kernel/sys_ni.c~fix_ppc_rtas	2005-03-22 02:41:53.829633648 +1100
-+++ foobar2-anton/kernel/sys_ni.c	2005-03-22 02:41:53.853631819 +1100
-@@ -83,3 +83,4 @@ cond_syscall(sys_pciconfig_write);
- cond_syscall(sys_pciconfig_iobase);
- cond_syscall(sys32_ipc);
- cond_syscall(sys32_sysctl);
-+cond_syscall(ppc_rtas);
+-	if (via_interrupt_line_quirk)
+-		pci_write_config_byte(dev, PCI_INTERRUPT_LINE, irq & 15);
+ 
+ 	dev->irq = acpi_register_gsi(irq, edge_level, active_high_low);
+ 
+===== drivers/pci/quirks.c 1.72 vs edited =====
+--- 1.72/drivers/pci/quirks.c	2005-03-10 01:38:25 -07:00
++++ edited/drivers/pci/quirks.c	2005-03-21 09:22:23 -07:00
+@@ -683,19 +683,40 @@
+ }
+ DECLARE_PCI_FIXUP_FINAL(PCI_VENDOR_ID_INTEL,	PCI_DEVICE_ID_INTEL_82454NX,	quirk_disable_pxb );
+ 
+-/*
+- *	VIA northbridges care about PCI_INTERRUPT_LINE
+- */
+-int via_interrupt_line_quirk;
++#ifdef CONFIG_ACPI
++#include <linux/acpi.h>
++#endif
+ 
+-static void __devinit quirk_via_bridge(struct pci_dev *pdev)
++static void __devinit quirk_via_irqpic(struct pci_dev *dev)
+ {
+-	if(pdev->devfn == 0) {
+-		printk(KERN_INFO "PCI: Via IRQ fixup\n");
+-		via_interrupt_line_quirk = 1;
++	u8 irq, new_irq;
++
++#ifdef CONFIG_X86_IO_APIC
++	if (!skip_ioapic_setup)
++		return;
++#endif
++#ifdef CONFIG_ACPI
++	if (acpi_irq_model != ACPI_IRQ_MODEL_PIC)
++		return;
++#endif
++	/*
++	 * Some Via devices make an internal connection to the PIC when the
++	 * PCI_INTERRUPT_LINE register is written.  If we've changed the
++	 * device's IRQ, we need to update this routing.
++	 *
++	 * I suspect this only happens for devices on the same chip as the
++	 * PIC, but I don't know how to identify those without listing them
++	 * all individually, which is a maintenance problem.
++	 */
++	new_irq = dev->irq & 0xf;
++	pci_read_config_byte(dev, PCI_INTERRUPT_LINE, &irq);
++	if (new_irq != irq) {
++		printk(KERN_INFO "PCI: Via PIC IRQ fixup for %s, from %d to %d\n",
++			pci_name(dev), irq, new_irq);
++		pci_write_config_byte(dev, PCI_INTERRUPT_LINE, new_irq);
+ 	}
+ }
+-DECLARE_PCI_FIXUP_HEADER(PCI_VENDOR_ID_VIA,	PCI_ANY_ID,                     quirk_via_bridge );
++DECLARE_PCI_FIXUP_ENABLE(PCI_VENDOR_ID_VIA, PCI_ANY_ID, quirk_via_irqpic);
+ 
+ /*
+  *	Serverworks CSB5 IDE does not fully support native mode
+
+

@@ -1,47 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269199AbUIHXTD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269207AbUIHXVz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269199AbUIHXTD (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Sep 2004 19:19:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269207AbUIHXTD
+	id S269207AbUIHXVz (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Sep 2004 19:21:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269197AbUIHXVz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Sep 2004 19:19:03 -0400
-Received: from convulsion.choralone.org ([212.13.208.157]:53264 "EHLO
-	convulsion.choralone.org") by vger.kernel.org with ESMTP
-	id S269199AbUIHXTA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Sep 2004 19:19:00 -0400
-Date: Thu, 9 Sep 2004 00:18:59 +0100
-From: Dave Jones <davej@redhat.com>
-To: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Fix NULL dereference in OSS v_midi driver
-Message-ID: <20040908231859.GA29616@redhat.com>
-Mail-Followup-To: Dave Jones <davej@redhat.com>,
-	linux-kernel@vger.kernel.org
-References: <200409011551.i81FpNha000690@delerium.codemonkey.org.uk> <20040907155239.GE19354@MAIL.13thfloor.at>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040907155239.GE19354@MAIL.13thfloor.at>
-User-Agent: Mutt/1.3.28i
+	Wed, 8 Sep 2004 19:21:55 -0400
+Received: from smtp200.mail.sc5.yahoo.com ([216.136.130.125]:21071 "HELO
+	smtp200.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S269226AbUIHXVS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 8 Sep 2004 19:21:18 -0400
+Message-ID: <413F901F.5020901@yahoo.com.au>
+Date: Thu, 09 Sep 2004 09:05:03 +1000
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040810 Debian/1.7.2-2
+X-Accept-Language: en
+MIME-Version: 1.0
+To: jmerkey@comcast.net
+CC: linux-kernel@vger.kernel.org, jmerkey@drdos.com
+Subject: Re: 2.6.8.1 mempool subsystem sickness
+References: <090820041648.7817.413F37F600049F4800001E892200762302970A059D0A0306@comcast.net>
+In-Reply-To: <090820041648.7817.413F37F600049F4800001E892200762302970A059D0A0306@comcast.net>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Sep 07, 2004 at 05:52:40PM +0200, Herbert Poetzl wrote:
- > On Wed, Sep 01, 2004 at 04:51:23PM +0100, Dave Jones wrote:
- > > Spotted with the source checker from Coverity.com.
- > 
- > apologies for the OT question:
- > 
- > how do you get the code checked with the source code
- > checker from Coverity.com? 
+jmerkey@comcast.net wrote:
+> On a system with 4GB of memory, and without 
+> the user space patch that spilts user space
+> just a stock kernel, I am seeing memory 
+> allocation failures with X server and simple
+> apps on a machine with a Pentium 4 
+> processor and 500MB of memory.  
+> 
+> If you load large apps and do a lot of 
+> skb traffic, the mempool abd slab 
+> caches start gobbling up pages
+> and don't seem to balance them 
+> very well, resulting in memory 
+> allocation failures over time if
+> the system stays up for a week 
+> or more.  
+> 
+> I am also seeing the same behavior 
+> on another system which has been
+> running for almost 30 days with 
+> an skb based traffic regeneration 
+> test calling and sending skb's
+> in kernel between two interfaces.
+> 
+> The pages over time get stuck 
+> in the slab allocator and user
+> space apps start to fail on alloc
+> requests.  
+> 
+> Rebooting the system clears
+> the problem, which slowly over time
+> comes back.  I am seeing this with
+> stock kernels from kernel.org 
+> and on kernels I have patched,
+> so the problem seems to be
+> in the base code.  I have spent
+> the last two weeks observing 
+> the problem to verify I can
+> reproduce it and it keeps 
+> happening.  
+> 
+> Jeff
+> 
 
-AFAIK, the current results are run on a vanilla 2.6.4 tree.
-
- > and would it be possible to have other kernel branches
- > or specific kernel patches checked too?
-
-I've asked them if they'd rerun the tests on something more
-recent a few times, but they've other more important things
-to do it seems.
-
-		Dave
-
+Hi Jeff,
+Can you give us a few more details please? Post the allocation failure
+messages in full, and post /proc/meminfo, etc. Thanks.

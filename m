@@ -1,339 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261538AbSJJNj3>; Thu, 10 Oct 2002 09:39:29 -0400
+	id <S261569AbSJJNvy>; Thu, 10 Oct 2002 09:51:54 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261569AbSJJNj3>; Thu, 10 Oct 2002 09:39:29 -0400
-Received: from h-64-105-35-49.SNVACAID.covad.net ([64.105.35.49]:39809 "EHLO
-	freya.yggdrasil.com") by vger.kernel.org with ESMTP
-	id <S261538AbSJJNjZ>; Thu, 10 Oct 2002 09:39:25 -0400
-Date: Thu, 10 Oct 2002 06:44:58 -0700
-From: "Adam J. Richter" <adam@yggdrasil.com>
-To: andre@linux-ide.org, alan@lxorguk.ukuu.org.uk, axboe@suse.de
-Cc: linux-kernel@vger.kernel.org
-Subject: Patch: linux-2.5.41/drivers/ide - build IDE as a module
-Message-ID: <20021010064457.A460@baldur.yggdrasil.com>
-Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="FL5UXtIhxfXey3p5"
-Content-Disposition: inline
-User-Agent: Mutt/1.2i
+	id <S261584AbSJJNvy>; Thu, 10 Oct 2002 09:51:54 -0400
+Received: from ns1.baby-dragons.com ([199.33.245.254]:1474 "EHLO
+	filesrv1.baby-dragons.com") by vger.kernel.org with ESMTP
+	id <S261569AbSJJNvy>; Thu, 10 Oct 2002 09:51:54 -0400
+Date: Thu, 10 Oct 2002 09:57:38 -0400 (EDT)
+From: "Mr. James W. Laferriere" <babydr@baby-dragons.com>
+To: Linux Kernel Maillist <linux-kernel@vger.kernel.org>
+Subject: OT: DVD-* owners be warned .  Please see inside .
+Message-ID: <Pine.LNX.4.44.0210100949270.6366-100000@filesrv1.baby-dragons.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---FL5UXtIhxfXey3p5
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+	Hello All ,
 
-	The following patch seems to fix building IDE as a module
-in 2.5.41.  I am running this code on the machine that I'm using to
-compose this email.
+	Here we go .  Two differant hardware types to prevent users from
+	making private backups of items that they have purchased .  I hope
+	that somewhere in the community there is a methodology to
+	circumvent this stupidity .
 
-	A couple of notes:
+	Below is a snippet from the URL below this :
 
-	1. For the time being, I have reassembled some of the
-drivers/ide object files into ide-mod.o again, because there are some
-circular references (not necessarily a bad thing) that modprobe cannot
-otherwise handle.  For now, this includes putting ide-probe in
-ide-mod.
+	Why are there two formats? The key reason for the introduction of
+	DVD-R for General media is that it contains content protection
+	measures that make it physically impossible to make a bit-for-bit
+	copies of CSS encrypted entertainment titles.
 
-	2. I have changed cmd640.o and legacy.o from dep_bool to
-dep_tristate and made them also depend on $CONFIG_BLK_DEV_IDE, so
-that they will only be offered as modules if ide-mod.o is a
-module (since, like any IDE driver, they require some symbols in
-ide-mod.o).
+http://www.pioneerelectronics.com/Pioneer/Files/DVDRMedia-GeneralvsAuthoring.pdf
 
-	These changes are probably not perfect, but I think they
-should be an improvement with no real disadvantages in comparison to
-what they replace, so I would encourage you to integrate the changes
-if you see no problem.  Please let me know what you want to do, or if
-there is something more you'd like me to do regarding this patch.
+		Hth ,  JimL
+       +------------------------------------------------------------------+
+       | James   W.   Laferriere | System    Techniques | Give me VMS     |
+       | Network        Engineer |     P.O. Box 854     |  Give me Linux  |
+       | babydr@baby-dragons.com | Coudersport PA 16915 |   only  on  AXP |
+       +------------------------------------------------------------------+
 
--- 
-Adam J. Richter     __     ______________   575 Oroville Road
-adam@yggdrasil.com     \ /                  Milpitas, California 95035
-+1 408 309-6081         | g g d r a s i l   United States of America
-                         "Free Software For The Rest Of Us."
-
---FL5UXtIhxfXey3p5
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename="ide.diffs"
-
-diff -u -r linux-2.5.41/drivers/ide/Config.in linux/drivers/ide/Config.in
---- linux-2.5.41/drivers/ide/Config.in	2002-10-07 11:23:27.000000000 -0700
-+++ linux/drivers/ide/Config.in	2002-10-10 06:25:31.000000000 -0700
-@@ -27,13 +27,13 @@
- 
-    comment 'IDE chipset support/bugfixes'
-    if [ "$CONFIG_BLK_DEV_IDE" != "n" ]; then
--      dep_bool '  CMD640 chipset bugfix/support' CONFIG_BLK_DEV_CMD640 $CONFIG_X86
-+      dep_tristate '  CMD640 chipset bugfix/support' CONFIG_BLK_DEV_CMD640 $CONFIG_X86 $CONFIG_BLK_DEV_IDE
-       dep_bool '    CMD640 enhanced support' CONFIG_BLK_DEV_CMD640_ENHANCED $CONFIG_BLK_DEV_CMD640
-       dep_bool '  ISA-PNP EIDE support' CONFIG_BLK_DEV_ISAPNP $CONFIG_ISAPNP
-       if [ "$CONFIG_PCI" = "y" ]; then
- 	 bool '  PCI IDE chipset support' CONFIG_BLK_DEV_IDEPCI
- 	 if [ "$CONFIG_BLK_DEV_IDEPCI" = "y" ]; then
--	    dep_bool '    Generic PCI IDE Chipset Support' CONFIG_BLK_DEV_GENERIC $CONFIG_BLK_DEV_IDEPCI
-+	    dep_tristate '    Generic PCI IDE Chipset Support' CONFIG_BLK_DEV_GENERIC $CONFIG_BLK_DEV_IDEPCI $CONFIG_BLK_DEV_IDE
- 	    bool '    Sharing PCI IDE interrupts support' CONFIG_IDEPCI_SHARE_IRQ
- 	    bool '    Generic PCI bus-master DMA support' CONFIG_BLK_DEV_IDEDMA_PCI
- 	    bool '    Boot off-board chipsets first support' CONFIG_BLK_DEV_OFFBOARD
-diff -u -r linux-2.5.41/drivers/ide/Makefile linux/drivers/ide/Makefile
---- linux-2.5.41/drivers/ide/Makefile	2002-10-07 11:24:36.000000000 -0700
-+++ linux/drivers/ide/Makefile	2002-10-08 05:34:20.000000000 -0700
-@@ -14,19 +14,20 @@
- 
- # Core IDE code - must come before legacy
- 
--obj-$(CONFIG_BLK_DEV_IDE)		+= ide-probe.o ide-geometry.o ide-iops.o ide-taskfile.o ide.o ide-lib.o
-+ide-mod-objs				:= ide.o ide-iops.o ide-taskfile.o ide-probe.o ide-geometry.o ide-lib.o
-+obj-$(CONFIG_BLK_DEV_IDE)		+= ide-mod.o
-+obj-$(CONFIG_BLK_DEV_IDE)		+= ide-mod.o
- obj-$(CONFIG_BLK_DEV_IDEDISK)		+= ide-disk.o
- obj-$(CONFIG_BLK_DEV_IDECD)		+= ide-cd.o
- obj-$(CONFIG_BLK_DEV_IDETAPE)		+= ide-tape.o
- obj-$(CONFIG_BLK_DEV_IDEFLOPPY)		+= ide-floppy.o
- 
--obj-$(CONFIG_BLK_DEV_IDEPCI)		+= setup-pci.o
--obj-$(CONFIG_BLK_DEV_IDEDMA_PCI)	+= ide-dma.o
--obj-$(CONFIG_BLK_DEV_ISAPNP)		+= ide-pnp.o
--
--ifeq ($(CONFIG_BLK_DEV_IDE),y)
--obj-$(CONFIG_PROC_FS)			+= ide-proc.o
--endif
-+obj-ide-$(CONFIG_BLK_DEV_IDEPCI)	+= setup-pci.o
-+obj-ide-$(CONFIG_BLK_DEV_IDEDMA_PCI)	+= ide-dma.o
-+obj-ide-$(CONFIG_BLK_DEV_ISAPNP)	+= ide-pnp.o
-+obj-ide-$(CONFIG_PROC_FS)		+= ide-proc.o
-+ide-mod-objs				+= $(obj-ide-y)
-+
- 
- obj-$(CONFIG_BLK_DEV_IDE)		+= legacy/ ppc/ arm/
- 
-diff -u -r linux-2.5.41/drivers/ide/ide-pnp.c linux/drivers/ide/ide-pnp.c
---- linux-2.5.41/drivers/ide/ide-pnp.c	2002-10-07 11:24:41.000000000 -0700
-+++ linux/drivers/ide/ide-pnp.c	2002-10-07 18:45:37.000000000 -0700
-@@ -19,6 +19,7 @@
- #include <linux/ide.h>
- #include <linux/init.h>
- 
-+#include <linux/module.h>
- #include <linux/isapnp.h>
- 
- #define DEV_IO(dev, index) (dev->resource[index].start)
-@@ -88,6 +89,18 @@
- 	{	0 }
- };
- 
-+#ifdef MODULE
-+static struct isapnp_card_id ide_isa_ids[] __initdata = {
-+	{
-+		card_vendor: ISAPNP_ANY_ID,
-+		card_device: ISAPNP_ANY_ID,
-+                devs: {	ISAPNP_DEVICE_ID('P', 'N', 'P', 0x0600) },
-+	},
-+	{ ISAPNP_CARD_END }
-+};
-+ISAPNP_CARD_TABLE(ide_isa_ids);
-+#endif
-+
- #define NR_PNP_DEVICES 8
- struct pnp_dev_inst {
- 	struct pci_dev *dev;
-diff -u -r linux-2.5.41/drivers/ide/ide-probe.c linux/drivers/ide/ide-probe.c
---- linux-2.5.41/drivers/ide/ide-probe.c	2002-10-07 11:24:39.000000000 -0700
-+++ linux/drivers/ide/ide-probe.c	2002-10-08 05:34:20.000000000 -0700
-@@ -1126,10 +1126,10 @@
- 	return 0;
- }
- 
--#ifdef MODULE
--extern int (*ide_xlate_1024_hook)(kdev_t, int, int, const char *);
-+int (*ide_xlate_1024_hook)(kdev_t, int, int, const char *);
-+EXPORT_SYMBOL(ide_xlate_1024_hook);
- 
--int init_module (void)
-+int ide_probe_init (void)
- {
- 	unsigned int index;
- 	
-@@ -1141,10 +1141,9 @@
- 	return 0;
- }
- 
--void cleanup_module (void)
-+void ide_probe_cleanup (void)
- {
- 	ide_probe = NULL;
- 	ide_xlate_1024_hook = 0;
- }
- MODULE_LICENSE("GPL");
--#endif /* MODULE */
-diff -u -r linux-2.5.41/drivers/ide/ide.c linux/drivers/ide/ide.c
---- linux-2.5.41/drivers/ide/ide.c	2002-10-07 11:24:00.000000000 -0700
-+++ linux/drivers/ide/ide.c	2002-10-10 06:32:04.000000000 -0700
-@@ -197,6 +197,9 @@
- 
- EXPORT_SYMBOL(noautodma);
- 
-+int cmd640_vlb;			/* = 0, flag for cmd640.c */
-+EXPORT_SYMBOL(cmd640_vlb);
-+
- /*
-  * ide_modules keeps track of the available IDE chipset/probe/driver modules.
-  */
-@@ -3006,7 +3009,6 @@
- #ifdef CONFIG_BLK_DEV_CMD640
- 			case -14: /* "cmd640_vlb" */
- 			{
--				extern int cmd640_vlb; /* flag for cmd640.c */
- 				cmd640_vlb = 1;
- 				goto done;
- 			}
-@@ -3123,12 +3125,6 @@
- 		init_e100_ide();
- 	}
- #endif /* CONFIG_ETRAX_IDE */
--#ifdef CONFIG_BLK_DEV_CMD640
--	{
--		extern void ide_probe_for_cmd640x(void);
--		ide_probe_for_cmd640x();
--	}
--#endif /* CONFIG_BLK_DEV_CMD640 */
- #ifdef CONFIG_BLK_DEV_PDC4030
- 	{
- 		extern int ide_probe_for_pdc4030(void);
-@@ -3514,13 +3510,38 @@
- struct bus_type ide_bus_type = {
- 	.name		= "ide",
- };
-+EXPORT_SYMBOL(ide_bus_type);
-+
-+#ifdef MODULE
-+static char *options = NULL;
-+MODULE_PARM(options,"s");
-+MODULE_LICENSE("GPL");
-+
-+static void __init parse_options (char *line)
-+{
-+	char *next = line;
-+
-+	if (line == NULL || !*line)
-+		return;
-+	while ((line = next) != NULL) {
-+ 		if ((next = strchr(line,' ')) != NULL)
-+			*next++ = 0;
-+		if (!ide_setup(line))
-+			printk ("Unknown option '%s'\n", line);
-+	}
-+}
-+#endif /* MODULE */
- 
- /*
-  * This is gets invoked once during initialization, to set *everything* up
-  */
- int __init ide_init (void)
- {
-+	extern int ide_probe_init(void);
- 	static char banner_printed;
-+#ifdef MODULE
-+	parse_options(options);
-+#endif
- 	if (!banner_printed) {
- 		printk(KERN_INFO "Uniform Multi-Platform E-IDE driver " REVISION "\n");
- 		ide_devfs_handle = devfs_mk_dir(NULL, "ide", NULL);
-@@ -3537,40 +3558,17 @@
- 	initializing = 0;
- 
- 	register_reboot_notifier(&ide_notifier);
--	return 0;
-+	return ide_probe_init();
- }
- 
- module_init(ide_init);
- 
--#ifdef MODULE
--char *options = NULL;
--MODULE_PARM(options,"s");
--MODULE_LICENSE("GPL");
--
--static void __init parse_options (char *line)
--{
--	char *next = line;
--
--	if (line == NULL || !*line)
--		return;
--	while ((line = next) != NULL) {
-- 		if ((next = strchr(line,' ')) != NULL)
--			*next++ = 0;
--		if (!ide_setup(line))
--			printk ("Unknown option '%s'\n", line);
--	}
--}
--
--int init_module (void)
--{
--	parse_options(options);
--	return ide_init();
--}
--
--void cleanup_module (void)
-+static void __exit ide_cleanup (void)
- {
- 	int index;
-+	extern void ide_probe_cleanup(void);
- 
-+	ide_probe_cleanup();
- 	unregister_reboot_notifier(&ide_notifier);
- 	for (index = 0; index < MAX_HWIFS; ++index) {
- 		ide_unregister(index);
-@@ -3585,11 +3583,8 @@
- #endif
- 	devfs_unregister (ide_devfs_handle);
- 
--	bus_unregister(&ide_bus_type);
-+	put_bus(&ide_bus_type);
- }
--
--#else /* !MODULE */
-+module_exit(ide_cleanup);
- 
- __setup("", ide_setup);
--
--#endif /* MODULE */
-diff -u -r linux-2.5.41/drivers/ide/pci/cmd640.c linux/drivers/ide/pci/cmd640.c
---- linux-2.5.41/drivers/ide/pci/cmd640.c	2002-10-07 11:25:15.000000000 -0700
-+++ linux/drivers/ide/pci/cmd640.c	2002-10-10 06:25:31.000000000 -0700
-@@ -102,6 +102,7 @@
- #define CMD640_PREFETCH_MASKS 1
- 
- #include <linux/config.h>
-+#include <linux/module.h>
- #include <linux/types.h>
- #include <linux/kernel.h>
- #include <linux/delay.h>
-@@ -120,7 +121,7 @@
- /*
-  * This flag is set in ide.c by the parameter:  ide0=cmd640_vlb
-  */
--int cmd640_vlb = 0;
-+extern int cmd640_vlb;
- 
- /*
-  * CMD640 specific registers definition.
-@@ -723,7 +724,7 @@
- /*
-  * Probe for a cmd640 chipset, and initialize it if found.  Called from ide.c
-  */
--int __init ide_probe_for_cmd640x (void)
-+static int ide_probe_for_cmd640x (void)
- {
- #ifdef CONFIG_BLK_DEV_CMD640_ENHANCED
- 	int second_port_toggled = 0;
-@@ -883,4 +884,4 @@
- #endif
- 	return 1;
- }
--
-+module_init(ide_probe_for_cmd640x);
-
---FL5UXtIhxfXey3p5--

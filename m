@@ -1,82 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261344AbUKWViT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261417AbUKWWDv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261344AbUKWViT (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 23 Nov 2004 16:38:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261364AbUKWRoQ
+	id S261417AbUKWWDv (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 23 Nov 2004 17:03:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261517AbUKWWBr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 23 Nov 2004 12:44:16 -0500
-Received: from fw.osdl.org ([65.172.181.6]:4496 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S261378AbUKWRFy (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 23 Nov 2004 12:05:54 -0500
-Date: Tue, 23 Nov 2004 09:04:49 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: "Michael Kerrisk" <mtk-lkml@gmx.net>
-Cc: torvalds@osdl.org, michael.kerrisk@gmx.net, linux-kernel@vger.kernel.org,
-       Manfred Spraul <manfred@colorfullife.com>,
-       Hugh Dickins <hugh@veritas.com>
-Subject: Re: [PATCH 2.6.10-rc2] RLIMIT_MEMLOCK accounting of shmctl()
- SHM_LOCK is broken
-Message-Id: <20041123090449.1672494f.akpm@osdl.org>
-In-Reply-To: <5143.1101227817@www28.gmx.net>
-References: <5143.1101227817@www28.gmx.net>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+	Tue, 23 Nov 2004 17:01:47 -0500
+Received: from pop5-1.us4.outblaze.com ([205.158.62.125]:49117 "HELO
+	pop5-1.us4.outblaze.com") by vger.kernel.org with SMTP
+	id S261531AbUKWWBY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 23 Nov 2004 17:01:24 -0500
+Subject: Re: swsusp bigdiff [was Re: [PATCH] Software Suspend split to two
+	stage V2.]
+From: Nigel Cunningham <ncunningham@linuxmail.org>
+Reply-To: ncunningham@linuxmail.org
+To: Pavel Machek <pavel@ucw.cz>
+Cc: "Rafael J. Wysocki" <rjw@sisk.pl>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       hugang@soulinfo.com
+In-Reply-To: <20041123215402.GE25926@elf.ucw.cz>
+References: <20041119194007.GA1650@hugang.soulinfo.com>
+	 <20041122103240.GA11323@hugang.soulinfo.com>
+	 <20041122110247.GB1063@elf.ucw.cz> <200411221254.40732.rjw@sisk.pl>
+	 <1101160249.7962.52.camel@desktop.cunninghams>
+	 <20041123215402.GE25926@elf.ucw.cz>
+Content-Type: text/plain
+Message-Id: <1101247050.5805.73.camel@desktop.cunninghams>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Ximian Evolution 1.4.6-1mdk 
+Date: Wed, 24 Nov 2004 08:57:30 +1100
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Michael Kerrisk" <mtk-lkml@gmx.net> wrote:
->
-> The accounting of shmctl() SHM_LOCK memory locks against the
->  user structure is broken.  The problem is that the check
->  of the size of the to-be-locked region is based on 
->  the size of the segment as specified when it was created
->  by shmget() (this size is *not* rounded up to a page 
->  boundary).  This size is then rounded down (>> PAGE_SHIFT)
->  to PAGE_SIZE during the check in 
->  mm/mlock.c::user_shm_lock().
+Hi.
 
-True.  We should make the same change to user_shm_unlock(), and we may as
-well tweak the excessive spinlock coverage in there too.
+On Wed, 2004-11-24 at 08:54, Pavel Machek wrote:
+> Hi!
+> 
+> > You guys are slowly developing swsusp into suspend2 :>. Just in case
+> > you're wondering, I haven't given up on merging; I've just been seeking
+> > to get it as bug free as possible, do clean ups and documentation and so
+> > on before getting stuck in to submitting it.
+> 
+> :-) Well, see how he is producing relatively small patches ;-).
 
---- 25/mm/mlock.c~rlimit_memlock-accounting-of-shmctl-shm_lock-is-broken	2004-11-23 08:58:13.299089928 -0800
-+++ 25-akpm/mm/mlock.c	2004-11-23 09:01:31.500958664 -0800
-@@ -211,10 +211,10 @@ int user_shm_lock(size_t size, struct us
- 	unsigned long lock_limit, locked;
- 	int allowed = 0;
- 
--	spin_lock(&shmlock_user_lock);
--	locked = size >> PAGE_SHIFT;
-+	locked = (size + PAGE_SIZE - 1) >> PAGE_SHIFT;
- 	lock_limit = current->signal->rlim[RLIMIT_MEMLOCK].rlim_cur;
- 	lock_limit >>= PAGE_SHIFT;
-+	spin_lock(&shmlock_user_lock);
- 	if (locked + user->locked_shm > lock_limit && !capable(CAP_IPC_LOCK))
- 		goto out;
- 	get_uid(user);
-@@ -228,7 +228,7 @@ out:
- void user_shm_unlock(size_t size, struct user_struct *user)
- {
- 	spin_lock(&shmlock_user_lock);
--	user->locked_shm -= (size >> PAGE_SHIFT);
-+	user->locked_shm -= (size + PAGE_SIZE - 1) >> PAGE_SHIFT);
- 	spin_unlock(&shmlock_user_lock);
- 	free_uid(user);
- }
-_
+Mmm. But I don't want to try to patch swsusp into suspend2. I just want
+to merge - there are too many big differences between swsusp and
+suspend2 for that (it's been redesigned from the ground up).
 
-and then ask Hugh and Manfred to double-check.
+I'm thinking that rather than trying to get everything nice and tidy and
+perfect before I submit it, I should just put it up for review now,
+acknowledging that I still need to do more work on the docs and so on,
+and see how I go. Sound feasible?
 
-Looking at the callers, we do:
+Regards,
 
-	user_shm_lock(inode->i_size, ...);
+Nigel
+-- 
+Nigel Cunningham
+Pastoral Worker
+Christian Reformed Church of Tuggeranong
+PO Box 1004, Tuggeranong, ACT 2901
 
-then, later:
-
-	user_shm_unlock(inode->i_size, ...);
-
-which does make one wonder "what happens if the file got larger while it
-was locked"?
+You see, at just the right time, when we were still powerless, Christ
+died for the ungodly.		-- Romans 5:6
 

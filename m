@@ -1,86 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262407AbVA0BXk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262323AbVA0ACY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262407AbVA0BXk (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 26 Jan 2005 20:23:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262524AbVA0ADA
+	id S262323AbVA0ACY (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 26 Jan 2005 19:02:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262523AbVAZX74
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 26 Jan 2005 19:03:00 -0500
-Received: from gateway-1237.mvista.com ([12.44.186.158]:55293 "EHLO
-	av.mvista.com") by vger.kernel.org with ESMTP id S262345AbVAZUdT
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 26 Jan 2005 15:33:19 -0500
-Message-ID: <41F7FE8A.2070508@mvista.com>
-Date: Wed, 26 Jan 2005 13:33:14 -0700
-From: "Mark A. Greer" <mgreer@mvista.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030701
-X-Accept-Language: en-us, en
+	Wed, 26 Jan 2005 18:59:56 -0500
+Received: from mail.tmr.com ([216.238.38.203]:11525 "EHLO gatekeeper.tmr.com")
+	by vger.kernel.org with ESMTP id S262323AbVAZUIH (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 26 Jan 2005 15:08:07 -0500
+Date: Wed, 26 Jan 2005 14:56:22 -0500 (EST)
+From: Bill Davidsen <davidsen@tmr.com>
+To: Jesse Pollard <jesse@cats-chateau.net>
+cc: linux-os <linux-os@analogic.com>,
+       John Richard Moser <nigelenki@comcast.net>, dtor_core@ameritech.net,
+       Linus Torvalds <torvalds@osdl.org>, Valdis.Kletnieks@vt.edu,
+       Arjan van de Ven <arjan@infradead.org>, Ingo Molnar <mingo@elte.hu>,
+       Christoph Hellwig <hch@infradead.org>, Dave Jones <davej@redhat.com>,
+       Andrew Morton <akpm@osdl.org>, marcelo.tosatti@cyclades.com,
+       Greg KH <greg@kroah.com>, chrisw@osdl.org,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: thoughts on kernel security issues
+In-Reply-To: <05012609151500.16556@tabby>
+Message-ID: <Pine.LNX.3.96.1050126143205.24013A-100000@gatekeeper.tmr.com>
 MIME-Version: 1.0
-To: LM Sensors <sensors@stimpy.netroedge.com>,
-       LKML <linux-kernel@vger.kernel.org>
-CC: Greg KH <greg@kroah.com>
-Subject: Re: [PATCH][I2C] Marvell mv64xxx i2c driver
-References: <41F6F1D5.90601@mvista.com> <20050126205619.4c0b41fa.khali@linux-fr.org>
-In-Reply-To: <20050126205619.4c0b41fa.khali@linux-fr.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jean Delvare wrote:
+On Wed, 26 Jan 2005, Jesse Pollard wrote:
 
->Hi Mark,
->
+> On Tuesday 25 January 2005 15:05, linux-os wrote:
 
-Thanks for the commenting, Jean.
+> > This isn't relevant at all. The Navy doesn't have any secure
+> > systems connected to a network to which any hackers could connect.
+> > The TDRS communications satellites provide secure channels
+> > that are disassembled on-board. Some ATM-slot, after decryption
+> > is fed to a LAN so the sailors can have an Internet connection
+> > for their lap-tops. The data took the same paths, but it's
+> > completely independent and can't get mixed up no matter how
+> > hard a hacker tries.
+> 
+> Obviously you didn't hear about the secure network being hit by the "I love 
+> you" virus.
+> 
+> The Navy doesn't INTEND to have any secure systems connected to a network to 
+> which any hackers could connect.
 
-><snip>
->
->  
->
->>+config I2C_MV64XXX
->>+	tristate "Marvell mv64xxx I2C Controller"
->>+	depends on I2C && MV64X60
->>    
->>
->
->&& EXPERIMENTAL?
->
+What's hard about that? Matter of physical network topology, absolutely no
+physical connection, no machines with a 2nd NIC, no access to/from I'net.
+Yes, it's a PITA, add logging to a physical printer which can't be erased
+if you want to make your CSO happy (corporate security officer).
+> 
+> Unfortunately, there will ALWAYS be a path, either direct, or indirect between
+> the secure net and the internet.
 
-Yes, I guess that's the correct thing to do.  I'll add that.
+Other than letting people use secure computers after they have seen the
+Internet, a good setup has no indirect paths.
+> 
+> The problem exists. The only to protect is to apply layers of protection.
+> 
+> And covering the possible unknown errors is a good way to add protection.
+> 
 
->>diff -Nru a/include/linux/i2c-id.h b/include/linux/i2c-id.h
->>--- a/include/linux/i2c-id.h	2005-01-25 18:15:24 -07:00
->>+++ b/include/linux/i2c-id.h	2005-01-25 18:15:24 -07:00
->>@@ -200,6 +200,7 @@
->> 
->> #define I2C_ALGO_SIBYTE 0x150000	/* Broadcom SiByte SOCs		*/
->> #define I2C_ALGO_SGI	0x160000        /* SGI algorithm                */
->>+#define I2C_ALGO_MV64XXX 0x170000       /* Marvell mv64xxx i2c ctlr     */
->>    
->>
->
->0x170000 is reserved within the legacy i2c project for an USB algorithm,
->and 0x180000 for virtual busses. Could you please use 0x190000 instead,
->so as to avoid future collisions?
->
-
-Absolutely.  I was unaware of the other uses.
-
->  
->
->>-#define MV64340_I2C_SOFT_RESET                                      0xc01c
->>+#define	MV64XXX_I2C_CTLR_NAME					"mv64xxx i2c"
->>+#define MV64XXX_I2C_OFFSET					    0xc000
->>+#define MV64XXX_I2C_REG_BLOCK_SIZE				    0x0020
->>    
->>
->
->You have a tab instead of space before MV64XXX_I2C_CTLR_NAME, it seems.
->Also, you want to align the numerical values using only tabs, no space.
->  
->
-
-Oops.  I'll fix that too and repost later today.
-
-Mark
+-- 
+bill davidsen <davidsen@tmr.com>
+  CTO, TMR Associates, Inc
+Doing interesting things with little computers since 1979.
 

@@ -1,54 +1,78 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S133106AbRDLPb2>; Thu, 12 Apr 2001 11:31:28 -0400
+	id <S135171AbRDLPci>; Thu, 12 Apr 2001 11:32:38 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S133109AbRDLPbS>; Thu, 12 Apr 2001 11:31:18 -0400
-Received: from phoenix.datrix.co.za ([196.37.220.5]:40525 "EHLO
-	phoenix.datrix.co.za") by vger.kernel.org with ESMTP
-	id <S133106AbRDLPbC>; Thu, 12 Apr 2001 11:31:02 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Marcin Kowalski <kowalski@datrix.co.za>
-Reply-To: kowalski@datrix.co.za
-Organization: Datrix Solutions
-To: tomlins@cam.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Re: memory usage - dentry_cacheg
-Date: Thu, 12 Apr 2001 17:30:59 +0200
-X-Mailer: KMail [version 1.2]
-In-Reply-To: <Pine.GSO.4.21.0104120110210.18135-100000@weyl.math.psu.edu> <20010412114617.051FE723C@oscar.casa.dyndns.org>
-In-Reply-To: <20010412114617.051FE723C@oscar.casa.dyndns.org>
+	id <S135172AbRDLPcT>; Thu, 12 Apr 2001 11:32:19 -0400
+Received: from [204.178.40.224] ([204.178.40.224]:17024 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP
+	id <S135171AbRDLPcI>; Thu, 12 Apr 2001 11:32:08 -0400
+Date: Thu, 12 Apr 2001 11:28:28 -0400 (EDT)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+Reply-To: root@chaos.analogic.com
+To: johan.adolfsson@axis.com
+cc: "Adam J. Richter" <adam@yggdrasil.com>, linux-kernel@vger.kernel.org
+Subject: Re: List of all-zero .data variables in linux-2.4.3 available
+In-Reply-To: <070001c0c35f$201f3740$a8b270d5@homeip.net>
+Message-ID: <Pine.LNX.3.95.1010412111144.10857A-100000@chaos.analogic.com>
 MIME-Version: 1.0
-Message-Id: <0104121730590X.11986@webman>
-Content-Transfer-Encoding: 7BIT
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi
+On Thu, 12 Apr 2001 johan.adolfsson@axis.com wrote:
 
-I have applied this(Tom's) patch as well as the small change to 
-dcache.c(thanx Andreas, David, Alexander and All), I ran some tests and so 
-far so good, both the dcache and inode cache entries in slabinfo are keeping 
-nice and low even though I tested by creating thousands of files and then 
-deleting then. The dentry and icache both pruged succesfully.
+> Shouldn't a compiler be able to deal with this instead?
+> (Just a thought.)
+> /Johan
 
-Under the high memory usage test 350 mb of swap was left behind after the 
-process terminated leaving 750mb of free memory(physical). Why is this??
-I did a swapoff which brough the machine to its' knees for the better part of 
-2 minutes  and then a swapon and I was left with 170 megs used memory in 
-total... I must say that I find it odd that the swap is not cleared if there 
-is avaialbe "real" memory. 
+The compiler does deal with it. That's why you have a choice when
+you write code.
 
-Anyway time will tell, I shall see how it performs over the long weekend. 
-HOpefully no *crashes*, Thanks to all concerned for their help... I learned 
-*lots*.
+The defacto standard has been that initialized data, regardless of
+whether it's initialized with zero, goes into the ".data" area (segment).
+Non initialized data, that gets zeroed at run-time goes into
+the ".bss" area.
 
-Regards
-MarCin
+If you declare a file-scope variable as:
+
+	int foo;
+
+it goes into '.bss'.
+
+If you declare it as:
+
+	int foo = 0;
+
+it goes into '.data'.
+
+Data that is in '.data' occupies space in the executable image. With
+the kernel, it makes the kernel larger than necessary.
+
+Data that is in '.bss' is just a single long int in the file header.
+It tells the loader how much space to allocate and zero. There is
+quite an obvious advantage to using '.bss' when possible, rather
+than '.data'.
+
+At one time, data that was declared as:
+
+	int foo;
+
+may, or may not, have been initialized to zero. This was "implementation
+defined". Therefore we were taught to always initialize these variables.
+
+The C98 standard now requires that such variables be initialized to
+zero so you don't need to do this anymore. This allows such variables
+to be put into space that is allocated at run-time, making executable
+files shorter.
 
 
------------------------------
-     Marcin Kowalski
-     Linux/Perl Developer
-     Datrix Solutions
-     Cel. 082-400-7603
-      ***Open Source Kicks Ass***
------------------------------
+Cheers,
+Dick Johnson
+
+Penguin : Linux version 2.4.1 on an i686 machine (799.53 BogoMips).
+
+"Memory is like gasoline. You use it up when you are running. Of
+course you get it all back when you reboot..."; Actual explanation
+obtained from the Micro$oft help desk.
+
+

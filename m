@@ -1,37 +1,54 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317365AbSFDLpE>; Tue, 4 Jun 2002 07:45:04 -0400
+	id <S317446AbSFDLr6>; Tue, 4 Jun 2002 07:47:58 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317464AbSFDLpC>; Tue, 4 Jun 2002 07:45:02 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:29348 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S316592AbSFDLoI>;
-	Tue, 4 Jun 2002 07:44:08 -0400
-Date: Tue, 04 Jun 2002 03:39:03 -0700 (PDT)
-Message-Id: <20020604.033903.42777297.davem@redhat.com>
-To: trond.myklebust@fys.uio.no
-Cc: akpm@zip.com.au, aia21@cantab.net, linux-kernel@vger.kernel.org
-Subject: Re: [2.5.20-BUG] 3c59x + highmem + acpi + nfs -> kernel panic
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <200206041339.32899.trond.myklebust@fys.uio.no>
-X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S317481AbSFDLpH>; Tue, 4 Jun 2002 07:45:07 -0400
+Received: from web8004.in.yahoo.com ([203.199.70.64]:11527 "HELO
+	web8004.mail.in.yahoo.com") by vger.kernel.org with SMTP
+	id <S317446AbSFDLo0>; Tue, 4 Jun 2002 07:44:26 -0400
+Message-ID: <20020604114421.71523.qmail@web8004.mail.in.yahoo.com>
+Date: Tue, 4 Jun 2002 04:44:21 -0700 (PDT)
+From: Shanks <mshanks79@yahoo.co.in>
+Subject: Re: problem with <asm/semaphore.h>
+To: Hossein Mobahi <hmobahi@yahoo.com>, linux-kernel@vger.kernel.org
+Cc: linux-c-programming@vger.kernel.org
+In-Reply-To: <20020604111944.34250.qmail@web12708.mail.yahoo.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: Trond Myklebust <trond.myklebust@fys.uio.no>
-   Date: Tue, 4 Jun 2002 13:39:32 +0200
-   
-   >From what I can see, the only other place where KM_USER0 is employed would be 
-   in the *_highpage() helper routines in include/linux/highmem.h. These 
-   routines are used in various places, but are usually not protected against 
-   (soft and hard) interrupts or kernel pre-emption. Could it be that the latter 
-   is what is causing trouble?
+Hi Hossein,
 
-Any sort of interrupt whatsoever would be enough to cause a problem
-here.  It is enough of a condition to allow the sunrpc code to
-run.
+If you look inside <asm/semaphore.h> you will see that
+the definition of struct semaphore is within a 
+conditional #ifdef __KERNEL__
 
-This has nothing specific to do with preemption, although the fact
-that KM_USER0 usage does not block preemption is worrysome.
+Hence __KERNEL__ needs to be defined for this code to
+compile.
+Try compiling like this
+$> gcc -D__KERNEL__ file.c
+
+Regards,
+Shanks
+
+--- Hossein Mobahi <hmobahi@yahoo.com> wrote:
+> Hi
+> I compiled the following code with gcc under Redhat
+> 7.2 :
+> #include <asm/semaphore.h>
+> main()
+> {
+>     struct semaphore sum;
+> }
+> 
+> It doesn't compile, saying "storage size of `sem'
+> isn't known".
+> 
+> Sincerely
+> --Hossein Mobahi
+
+__________________________________________________
+Do You Yahoo!?
+Yahoo! - Official partner of 2002 FIFA World Cup
+http://fifaworldcup.yahoo.com

@@ -1,97 +1,60 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280000AbRJ3Q3F>; Tue, 30 Oct 2001 11:29:05 -0500
+	id <S280005AbRJ3Qbp>; Tue, 30 Oct 2001 11:31:45 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280001AbRJ3Q2z>; Tue, 30 Oct 2001 11:28:55 -0500
-Received: from yktgi01e0-s1.watson.ibm.com ([198.81.209.16]:45213 "HELO
-	ssm22.watson.ibm.com") by vger.kernel.org with SMTP
-	id <S280000AbRJ3Q2o>; Tue, 30 Oct 2001 11:28:44 -0500
-Date: Tue, 30 Oct 2001 09:28:34 -0500
-From: Hubertus Franke <frankeh@watson.ibm.com>
-To: Davide Libenzi <davidel@xmailserver.org>
-Cc: lkml <linux-kernel@vger.kernel.org>, lse-tech@lists.sourceforge.net
-Subject: Re: [PATCH][RFC] Proposal For A More Scalable Scheduler ...
-Message-ID: <20011030092834.A16050@watson.ibm.com>
-Reply-To: frankeh@watson.ibm.com
-In-Reply-To: <Pine.LNX.4.40.0110292113490.1338-100000@blue1.dev.mcafeelabs.com>
-Mime-Version: 1.0
+	id <S280001AbRJ3Qb0>; Tue, 30 Oct 2001 11:31:26 -0500
+Received: from [65.192.191.151] ([65.192.191.151]:50448 "EHLO lucy.trebia.com")
+	by vger.kernel.org with ESMTP id <S280002AbRJ3QbT>;
+	Tue, 30 Oct 2001 11:31:19 -0500
+Message-ID: <3BDED5BD.33C546EB@trebia.com>
+Date: Tue, 30 Oct 2001 11:30:53 -0500
+From: "Ashish A. Palekar" <apalekar@trebia.com>
+Organization: Trebia Networks
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.7 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Nitin Dhingra <nitin.dhingra@dcmtech.co.in>, linux-kernel@vger.kernel.org
+Subject: Re: iSCSI support for Linux
+In-Reply-To: <7FADCB99FC82D41199F9000629A85D1A0293A56F@DCMTECHDOM>
 Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 0.95.4us
-In-Reply-To: <Pine.LNX.4.40.0110292113490.1338-100000@blue1.dev.mcafeelabs.com>; from Davide Libenzi on Mon, Oct 29, 2001 at 09:38:07PM -0800
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Davide, nice analysis.
-I want to point out that some (not all) of the stuff is already done
-in our scalable MQ scheduler (http://lse.sourceforge.net/scheduling).
+Nitin:
 
-What we have:
--------------
-multiple queues, each protected by their own lock to avoid 
-the contention.
-Automatic Loadbalancing across all queues (yes, that creates overhead)
-CPU pooling as configurable mean to get from isolated queues to a fully 
-balanced (global scheduling decision) scheduler.
-Also have some initial placement to the least loaded runqueue in the least
-loaded pool
+The Target side does support 64 bit LUNs - as recommended by SAM-2. The
+SCSI Target Mid-level definition for a LUN is a u64. (Note: The SCSI
+Target Mid-Level is a completely different entity than the SCSI
+Initiator Mid-Level). The question that is up in the air is how to use
+those 64 bits for a good target representation.
 
-We look at this as a configurable infrastructure....
+The other thing is that 64 bit LUNs are __VERY_RARELY__ used in the SCSI
+world that I am familiar with. So unless you are in a highly specialized
+operation where all 64 bits are important to you, you can get by with 32
+bit LUNs.
 
-What we don't have:
--------------------
+On the Initiator side, the LUN issue also needs to be addressed by the
+SCSI Initiator Mid-Level. The person to speak to in this regard would be
+Eric Youngdale (eric@andante.org). In fact the LUN issue along with the
+scan code are some of things on the SCSI todo list - the scan thing
+being especially important if you are doing fibre channel to enable
+dynamic target discovery.
 
-The removal of PROC_CHANGE_PENALTY with a time decay cache affinity definition.
+Hope this helps
+Ashish
 
-
-At ALS: I will be reporting on our experience with what we have
-for a 8-way system and a 4x4-way NUMA system (OSDL)
-wrt early placement, choice of best pool size ?
-
-Are you can get an early start at:
-	http://lse.sourceforge.net/scheduling/als2001/pmqs.ps
-
-Are you going to be a ALS ? Maybe we can chat about what the pros and cons
-of each approach are and whether we could/should merge things together.
-I am very intriged by the "CPU History Weight" that I see as a major
-add-on to our stuff. What I am not so keen about is the fact
-you seem to only do load-balancing at fork and idle time.
-In a loaded system that can lead to load inbalances
-
-We do a periodic (configurable) call, which has also some drawbacks.
-Another thing that needs to be thought about is the metric used
-to determine <load> on a queue. For simplicity, runqueue length is
-one indication, for fairness, maybe the sum of nice-value would be ok.
-We experimented with both and didn't see to much of a difference, however
-measuring fairness is difficult to do.
-
-
-* Davide Libenzi <davidel@xmailserver.org> [20011030 00;38]:"
+Nitin Dhingra wrote:
 > 
->         Proposal For A More Scalable Linux Scheduler
->                            by
->           Davide Libenzi <davidel@xmailserver.org>
->                       Sat 10/27/2001
+> Ashish,
+>         I have seen your and other codes as well, I see that everybody's
+> used lun field as supplied by
+> middle layer right. No one is using 64-bit field acc. to SAM-2, but Linux
+> Scsi Subsystem doesn't support 64-bit
+> field it supports only 32-bit. Have you thought something about it and do
+> you have any solution to this?
 > 
->                        Episode [1]
+> Kindly cc me as I am no longer in the mailing list.
 > 
->           Captain's diary, tentative 2, day 1 ...
-> 
-> 
-> 
-> The current Linux scheduler has been designed and optimized
-> to be very fast and have a low I/D cache footprint.
-> Inside the schedule() function the fast path is kept very short
-> by moving less probable code out :
-> 
->     if (prev->state == TASK_RUNNING)
->         goto still_running;
-> still_running_back:
-> 	(fast path follow here)
-> 	return;
-> 
-> still_running:
-> 	(slow path lies here)
-> 	goto still_running_back;
-> 
->  <============== Rest deleted  ==============>
-
+> regards,
+> nitin

@@ -1,68 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265544AbUGTFMw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263448AbUGTFZk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265544AbUGTFMw (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 Jul 2004 01:12:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265654AbUGTFMw
+	id S263448AbUGTFZk (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 Jul 2004 01:25:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265654AbUGTFZk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 Jul 2004 01:12:52 -0400
-Received: from [216.208.38.106] ([216.208.38.106]:5616 "EHLO midnight.ucw.cz")
-	by vger.kernel.org with ESMTP id S265544AbUGTFMu (ORCPT
+	Tue, 20 Jul 2004 01:25:40 -0400
+Received: from cantor.suse.de ([195.135.220.2]:1677 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S263448AbUGTFZi (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 Jul 2004 01:12:50 -0400
-Date: Tue, 20 Jul 2004 07:13:53 +0200
-From: Vojtech Pavlik <vojtech@suse.cz>
-To: Pete Zaitcev <zaitcev@redhat.com>
-Cc: john stultz <johnstul@us.ibm.com>, lkml <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH][2.4 Backport] x445 usb legacy fix
-Message-ID: <20040720051353.GD313@ucw.cz>
-References: <1090289222.1388.461.camel@cog.beaverton.ibm.com> <20040719200608.280d17a1@lembas.zaitcev.lan>
+	Tue, 20 Jul 2004 01:25:38 -0400
+Date: Sun, 18 Jul 2004 18:13:38 +0200
+From: Kurt Garloff <garloff@suse.de>
+To: linux-kernel@vger.kernel.org
+Cc: William Lee Irwin III <wli@holomorphy.com>,
+       Peter Zaitsev <peter@mysql.com>, Andrew Morton <akpm@osdl.org>,
+       andrea@suse.de
+Subject: Re: VM Problems in 2.6.7 (Too active OOM Killer)
+Message-ID: <20040718161338.GC12527@tpkurt.garloff.de>
+Mail-Followup-To: Kurt Garloff <garloff@suse.de>,
+	linux-kernel@vger.kernel.org,
+	William Lee Irwin III <wli@holomorphy.com>,
+	Peter Zaitsev <peter@mysql.com>, Andrew Morton <akpm@osdl.org>,
+	andrea@suse.de
+References: <1089771823.15336.2461.camel@abyss.home> <20040714031701.GT974@dualathlon.random> <1089776640.15336.2557.camel@abyss.home> <20040713211721.05781fb7.akpm@osdl.org> <1089848823.15336.3895.camel@abyss.home> <20040714154427.14234822.akpm@osdl.org> <1089851451.15336.3962.camel@abyss.home> <20040715015431.GF3411@holomorphy.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="a2FkP9tdjPU2nyhF"
 Content-Disposition: inline
-In-Reply-To: <20040719200608.280d17a1@lembas.zaitcev.lan>
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <20040715015431.GF3411@holomorphy.com>
+X-Operating-System: Linux 2.6.5-19-KG i686
+X-PGP-Info: on http://www.garloff.de/kurt/mykeys.pgp
+X-PGP-Key: 1024D/1C98774E, 1024R/CEFC9215
+Organization: SUSE/Novell
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jul 19, 2004 at 08:06:08PM -0700, Pete Zaitcev wrote:
 
-> The patch looks a little dirty in small places, e.g. the double
-> semicolon, the HZ/100 instead of HZ/10, space, two variables
-> named "base" in two blocks. I do not believe Vojtech wrote it.
-> He must have gotten it from someone else.
+--a2FkP9tdjPU2nyhF
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Actually I did, but it was a quick cut-and-paste from the USB drivers to
-see if it would help with some PS/2 mouse detection problems reported to
-me. I never cleaned it up, and it was actually submitted for kernel
-inclusion by someone else than me (whose name I unfortunately don't
-remember).
+Hi,
 
-> The boot option may be useful, but in the core of the patch looks
-> like like a roundabout way to do things. Why don't you trigger
-> the meat of the quirk from, say, a DMI scan?
-> 
-> > +	{ PCI_FIXUP_FINAL,	PCI_ANY_ID,		PCI_ANY_ID,		quirk_usb_disable_smm_bios },
-> 
-> This looks like a bizzare place to use as a hook. The x400 and x445
-> obviously have their own bridges with own IDs (their NUMA cannot
-> be using Intel parts, right?). So why don't hook off that?
+On Wed, Jul 14, 2004 at 06:54:31PM -0700, William Lee Irwin III wrote:
+> On Wed, Jul 14, 2004 at 05:30:52PM -0700, Peter Zaitsev wrote:
+> > Why can't it be moved to other zone if there is a lot of place where ?
+> > In general I was not pushing system in some kind of stress mode - There
+> > was still a lot of cache memory available. Why it could not be instead
+> > shrunk to accommodate allocation ?=20
+>=20
+> The only method the kernel now has to relocate userspace memory is IO.
 
-Actually USB Legacy SMM emulation triggers problems on many many more
-systems. The quirk does exactly the same thing the USB HCI drivers do in
-their init code, it only does it early in the boot process, so that
-even if the USB drivers are modules, the i8042 controller and PS/2 mouse
-and keyboard initialization proceeds correctly.
+But that could be changed.
+If we can swap out and modify the page tables (to mark the page paged
+out) and page in to some other location (and modify the pagetables
+again), we can as well just copy a page and modify the page tables.
 
-The other options are to compile the HCI drivers into the kernel or to
-have i8042 compiled as a module.
+Any fundamental reason why that should not be possible?=20
 
-> The routines to take ownership look sane from USB HC access
-> (not sane from C programming standpoint, as I mentioned above).
+Regards,
+--=20
+Kurt Garloff  <garloff@suse.de>                            Cologne, DE=20
+SUSE LINUX AG / Novell, Nuernberg, DE               Director SUSE Labs
 
-> But in any case, it's not something I can decide. Marcelo has that
-> power for stock kernels, and for Red Hat kernels there's a process
-> which starts with Bugzilla.
+--a2FkP9tdjPU2nyhF
+Content-Type: application/pgp-signature
+Content-Disposition: inline
 
--- 
-Vojtech Pavlik
-SuSE Labs, SuSE CR
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+
+iD8DBQFA+qGyxmLh6hyYd04RAt4EAKCtwZhy+p6khCpnHi/kUrxvTl8rVQCggrWF
+cNNWS+qyLAuIuxO61NpwBSg=
+=M7nV
+-----END PGP SIGNATURE-----
+
+--a2FkP9tdjPU2nyhF--

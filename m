@@ -1,83 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263648AbTDXMgN (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Apr 2003 08:36:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263630AbTDXMgN
+	id S263630AbTDXMn6 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Apr 2003 08:43:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263646AbTDXMn5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Apr 2003 08:36:13 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:17537 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S263646AbTDXMgI
+	Thu, 24 Apr 2003 08:43:57 -0400
+Received: from facesaver.epoch.ncsc.mil ([144.51.25.10]:3297 "EHLO
+	epoch.ncsc.mil") by vger.kernel.org with ESMTP id S263630AbTDXMnz
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Apr 2003 08:36:08 -0400
-Date: Thu, 24 Apr 2003 13:48:16 +0100
-From: Matthew Wilcox <willy@debian.org>
-To: Suparna Bhattacharya <suparna@in.ibm.com>
-Cc: bcrl@redhat.com, akpm@digeo.com, linux-kernel@vger.kernel.org,
-       linux-aio@kvack.org, linux-fsdevel@vger.kernel.org
-Subject: Re: Filesystem AIO read-write patches
-Message-ID: <20030424124816.GX3140@parcelfarce.linux.theplanet.co.uk>
-References: <20030424102221.A2166@in.ibm.com> <20030424104103.C2288@in.ibm.com>
+	Thu, 24 Apr 2003 08:43:55 -0400
+Subject: Re: [PATCH] Extended Attributes for Security Modules against 2.5.68
+From: Stephen Smalley <sds@epoch.ncsc.mil>
+To: Christoph Hellwig <hch@infradead.org>
+Cc: Linus Torvalds <torvalds@transmeta.com>, "Ted Ts'o" <tytso@mit.edu>,
+       Andreas Gruenbacher <a.gruenbacher@computer.org>,
+       Stephen Tweedie <sct@redhat.com>, lkml <linux-kernel@vger.kernel.org>,
+       lsm <linux-security-module@wirex.com>
+In-Reply-To: <20030423212004.A7383@infradead.org>
+References: <1051120322.14761.95.camel@moss-huskers.epoch.ncsc.mil>
+	 <20030423191749.A4244@infradead.org>
+	 <20030423112548.B15094@figure1.int.wirex.com>
+	 <20030423194501.B5295@infradead.org>
+	 <1051125476.14761.146.camel@moss-huskers.epoch.ncsc.mil>
+	 <20030423202614.A5890@infradead.org>
+	 <1051127534.14761.166.camel@moss-huskers.epoch.ncsc.mil>
+	 <20030423212004.A7383@infradead.org>
+Content-Type: text/plain
+Organization: National Security Agency
+Message-Id: <1051188945.14761.284.camel@moss-huskers.epoch.ncsc.mil>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030424104103.C2288@in.ibm.com>
-User-Agent: Mutt/1.4.1i
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
+Date: 24 Apr 2003 08:55:46 -0400
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Apr 24, 2003 at 10:41:03AM +0530, Suparna Bhattacharya wrote:
-> -void blk_congestion_wait(int rw, long timeout)
-> +int blk_congestion_wait_wq(int rw, long timeout, wait_queue_t *wait)
->  {
-> -	DEFINE_WAIT(wait);
->  	wait_queue_head_t *wqh = &congestion_wqh[rw];
-> +	DEFINE_WAIT(local_wait);
-> +
-> +	if (!wait)
-> +		wait = &local_wait;
->  
->  	blk_run_queues();
-> -	prepare_to_wait(wqh, &wait, TASK_UNINTERRUPTIBLE);
-> +	prepare_to_wait(wqh, wait, TASK_UNINTERRUPTIBLE);
-> +	if (!is_sync_wait(wait)) 
-> +		return -EIOCBRETRY;
-> +
->  	io_schedule_timeout(timeout);
-> -	finish_wait(wqh, &wait);
-> +	finish_wait(wqh, wait);
-> +	return 0;
-> +}
-> +
-> +void blk_congestion_wait(int rw, long timeout)
-> +{
-> +	blk_congestion_wait_wq(rw, timeout, NULL);
->  }
+On Wed, 2003-04-23 at 16:20, Christoph Hellwig wrote:
+> That doesn't matter at all for this question - if you have a selinux_label
+> attribute you can add your different policies with string labels to
+> it.  But don't mix it up with others.
 
-I don't like this one.  DEFINE_WAIT allocates stuff on the stack.  
-And aio seems to allocate a lot more on the stack than normal io does.
-How about the following instead:
-
-int blk_congestion_wait_wq(int rw, long timeout, wait_queue_t *wait)
-{
- 	wait_queue_head_t *wqh = &congestion_wqh[rw];
-
- 	blk_run_queues();
-	prepare_to_wait(wqh, wait, TASK_UNINTERRUPTIBLE);
-	if (!is_sync_wait(wait)) 
-		return -EIOCBRETRY;
-
-	io_schedule_timeout(timeout);
-	finish_wait(wqh, wait);
-	return 0;
-}
-
-void blk_congestion_wait(int rw, long timeout)
-{
-	DEFINE_WAIT(wait);
-	blk_congestion_wait_wq(rw, timeout, &wait);
-}
+Ok, so you still favor using a distinct attribute name for SELinux
+attributes.  Andreas Gruenbacher had suggested during the earlier thread
+that we use something like the xattr_trusted.c attribute handler, so
+that a single xattr handler would cover all security modules but each
+security module could have its own attribute name (security.selinux,
+security.dte, security.capabilities, etc).  As I explained during that
+thread, I don't think we want to use the trusted attribute handler
+itself due to its permission checking model, but it would be easy to
+make the xattr_security.c handler more like xattr_trusted.c in terms of
+allowing arbitrary extensions of a "security." prefix.  Is that more to
+your liking, or do you truly want a separate handler for each security
+module?  I see the latter as undesirable as it requires each security
+module to separately reserve a name and an index in each filesystem.
 
 -- 
-"It's not Hollywood.  War is real, war is primarily not about defeat or
-victory, it is about death.  I've seen thousands and thousands of dead bodies.
-Do you think I want to have an academic debate on this subject?" -- Robert Fisk
+Stephen Smalley <sds@epoch.ncsc.mil>
+National Security Agency
+

@@ -1,57 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S283626AbRLWTM1>; Sun, 23 Dec 2001 14:12:27 -0500
+	id <S283783AbRLWTS1>; Sun, 23 Dec 2001 14:18:27 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S283780AbRLWTMR>; Sun, 23 Dec 2001 14:12:17 -0500
-Received: from mail.xmailserver.org ([208.129.208.52]:15116 "EHLO
-	mail.xmailserver.org") by vger.kernel.org with ESMTP
-	id <S283626AbRLWTMA>; Sun, 23 Dec 2001 14:12:00 -0500
-Date: Sun, 23 Dec 2001 11:15:17 -0800 (PST)
-From: Davide Libenzi <davidel@xmailserver.org>
-X-X-Sender: davide@blue1.dev.mcafeelabs.com
-To: Benjamin LaHaise <bcrl@redhat.com>
-cc: Keith Owens <kaos@ocs.com.au>, lkml <linux-kernel@vger.kernel.org>
-Subject: Re: [patch] Assigning syscall numbers for testing
-In-Reply-To: <20011223120604.B19863@redhat.com>
-Message-ID: <Pine.LNX.4.40.0112231046410.7257-100000@blue1.dev.mcafeelabs.com>
+	id <S284010AbRLWTSR>; Sun, 23 Dec 2001 14:18:17 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:31493 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S283916AbRLWTSF>; Sun, 23 Dec 2001 14:18:05 -0500
+Message-ID: <3C262DDC.1040103@zytor.com>
+Date: Sun, 23 Dec 2001 11:17:48 -0800
+From: "H. Peter Anvin" <hpa@zytor.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.6) Gecko/20011120
+X-Accept-Language: en-us, en, sv
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: "T. A." <tkhoadfdsaf@hotmail.com>
+CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: tar vs cpio (was: Booting a modular kernel through a multiple streams file)
+In-Reply-To: <Pine.GSO.4.21.0112222109050.21702-100000@weyl.math.psu.edu> <3C25A06D.7030408@zytor.com> <OE15yZcIaeZ2FTVPuxT00007b64@hotmail.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 23 Dec 2001, Benjamin LaHaise wrote:
+T. A. wrote:
 
-> On Sun, Dec 23, 2001 at 04:10:21PM +1100, Keith Owens wrote:
-> > I'm glad somebody understands the code :).
->
-> There are two directions of binary compatibility: forwads and backwards.
-> Your patch breaks forwards compatibility if used outside the main tree.  Try
-> to understand this.
-
-Guys, doing this in the correct way is not difficult, just we need glibc
-cooperation. The module ( app or sl ) will have a table of system call
-mappings :
-
-unsinged sysmap[];
-
-and it'll know that sys_getpid is entry 0, etc... ( static knowledge ).
-When invoking sys_getpid it'll load the syscall # register with sysmap[0]
-and then it'll invoke the syscall entry. Current system call will retain
-their current #ID and this will provide backward compatibility.
-The table is filled at module initialization time by calling ( for
-performance reasons ) a fixed #ID system call sys_namemap(), that will use
-an internal hashed map of system names to #ID, and will return the #ID
-given a system call name. If the module require a system call that it's
-not present inside the loading kernel, it'll fail the module load.
-glibc ver >= N will require kernel ver >= M ( that will have the
-sys_namemap() function ). System call names should be placed in a special
-gcc section where they can be easily looped at init time to fill the
-sysmap[] table. Where does it break ?
+>     What about considering one of the simpler filesystems or archive formats
+> instead?  How much "Unix"-ism is required to be retained in the archive?
+> (permissions, device files, etc?)
+> 
 
 
+They're MUCH MUCH MUCH MUCH MUCH worse.  Don't even think abou it.
 
 
-- Davide
+>     As for the bigendianness... Is it really relevant since each kernel is
+> tied to its own platform?  And if it is may it be better to use the native
+> format of the 98% or so of the Linux machines out there which are
+> littleendian (performance and ease of general access on the majority of host
+> machines comes to mind).
+
+
+This was discussed recently... doing a nonportable format is begging for 
+problems.  The only reason I'm suggesting bigendian is that conversion 
+to bigendian macros are more widely available in the form of the 
+standard hton macros.
+
+	-hpa
+
+
 
 
 

@@ -1,66 +1,95 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267182AbUG1Osm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267185AbUG1Oyr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267182AbUG1Osm (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 Jul 2004 10:48:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267185AbUG1Osm
+	id S267185AbUG1Oyr (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 Jul 2004 10:54:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267186AbUG1Oyr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 Jul 2004 10:48:42 -0400
-Received: from madrid10.amenworld.com ([62.193.203.32]:63241 "EHLO
-	madrid10.amenworld.com") by vger.kernel.org with ESMTP
-	id S267182AbUG1Osk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 Jul 2004 10:48:40 -0400
-Date: Wed, 28 Jul 2004 16:47:23 +0200
-From: DervishD <raul@pleyades.net>
-To: Markus Schaber <schabios@logi-track.com>
-Cc: Linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: The dreadful CLOSE_WAIT
-Message-ID: <20040728144723.GA32602@DervishD>
-Mail-Followup-To: Markus Schaber <schabios@logi-track.com>,
-	Linux-kernel <linux-kernel@vger.kernel.org>
-References: <20040727083947.GB31766@DervishD> <4106869A.5030905@sun.com> <20040727170907.GA26136@DervishD> <20040728140622.2bc69fa5@kingfisher.intern.logi-track.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20040728140622.2bc69fa5@kingfisher.intern.logi-track.com>
-User-Agent: Mutt/1.4.2.1i
-Organization: Pleyades
+	Wed, 28 Jul 2004 10:54:47 -0400
+Received: from mail.dif.dk ([193.138.115.101]:51408 "EHLO mail.dif.dk")
+	by vger.kernel.org with ESMTP id S267185AbUG1Oyo (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 28 Jul 2004 10:54:44 -0400
+Date: Wed, 28 Jul 2004 16:53:03 +0200 (CEST)
+From: Jesper Juhl <juhl-lkml@dif.dk>
+To: Pedro Roque <roque@di.fc.ul.pt>
+Cc: Andrew Morton <akpm@osdl.org>, John Cherry <cherry@osdl.org>,
+       LKML <linux-kernel@vger.kernel.org>
+Subject: [PATCH] fix inlining of ipv6_advmss  (Was: IA32 (2.6.8-rc2 -
+ 2004-07-26.22.30) - 1 New warnings (gcc 3.2.2))
+In-Reply-To: <200407271333.i6RDXtGI008250@cherrypit.pdx.osdl.net>
+Message-ID: <Pine.LNX.4.60.0407281645440.18921@jjulnx.backbone.dif.dk>
+References: <200407271333.i6RDXtGI008250@cherrypit.pdx.osdl.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-    Hi Markus :)
+On Tue, 27 Jul 2004, John Cherry wrote:
 
- * Markus Schaber <schabios@logi-track.com> dixit:
-> >     I know, that's the only 'harm' a CLOSE_WAIT timeout will have,
-> > but anyway I don't see any point in having a permanent CLOSE_WAIT
-> > state. The other end is not there, it has sent us a FIN.
-> Yes, but it may still want to read.
+> net/ipv6/route.c:696: warning: `ipv6_advmss' declared inline after being called
 
-    I know, now I understand.
+Following is a patch to fix that warning by moving the inline function up 
+a bit before the point of its first use.
+I also removed the forward declaration since it's no longer needed with 
+the new location of the function.
+Patch is against 2.6.8-rc2 - please review and consider for inclusion.
 
-> >     Well, it may be an idea ;) Anyway if you have, let's say, a
-> > maximum of 10 connections in your server, and I do 10 wget+C-c, you
-> > no longer have a running server. The kernel should not allow that. A
-> > timeout of 3600 seconds seems very reasonable, or somethink like
-> > that, am I wrong?
-> Well, when the other side is really dead, then connection keepalive
-> should detect that (when enabled), by either timeout or getting a reset
-> packet.
+Signed-off-by: Jesper Juhl <juhl-lkml@dif.dk>
 
-    But this must be enabled in the application, am I wrong? using
-SO_KEEPALIVE. Can it be enabled using sysctl or the like.
+diff -up linux-2.6.8-rc2-orig/net/ipv6/route.c linux-2.6.8-rc2/net/ipv6/route.c
+--- linux-2.6.8-rc2-orig/net/ipv6/route.c	2004-07-27 16:45:09.000000000 +0200
++++ linux-2.6.8-rc2/net/ipv6/route.c	2004-07-28 16:42:48.000000000 +0200
+@@ -584,7 +584,24 @@ static void ip6_rt_update_pmtu(struct ds
+  /* Protected by rt6_lock.  */
+  static struct dst_entry *ndisc_dst_gc_list;
+  static int ipv6_get_mtu(struct net_device *dev);
+-static inline unsigned int ipv6_advmss(unsigned int mtu);
++
++static inline unsigned int ipv6_advmss(unsigned int mtu)
++{
++	mtu -= sizeof(struct ipv6hdr) + sizeof(struct tcphdr);
++
++	if (mtu < ip6_rt_min_advmss)
++		mtu = ip6_rt_min_advmss;
++
++	/*
++	 * Maximal non-jumbo IPv6 payload is IPV6_MAXPLEN and 
++	 * corresponding MSS is IPV6_MAXPLEN - tcp_header_size. 
++	 * IPV6_MAXPLEN is also valid and means: "any MSS, 
++	 * rely only on pmtu discovery"
++	 */
++	if (mtu > IPV6_MAXPLEN - sizeof(struct tcphdr))
++		mtu = IPV6_MAXPLEN;
++	return mtu;
++}
 
-    Thanks for the information. When I saw the transitions, I thought
-that the server got the FIN after the client died, but obviously it
-can get it when the client doesn a half-close, and I didn't think of
-it. Thanks, Markus :)
+  struct dst_entry *ndisc_dst_alloc(struct net_device *dev,
+  				  struct neighbour *neigh,
+@@ -692,24 +709,6 @@ static int ipv6_get_mtu(struct net_devic
+  	return mtu;
+  }
 
-    Now, is there any sysctl that enables a keepalive for this kind
-of connections (dead remote end, local in CLOSE_WAIT) for all
-connections?
-    
-    Raúl Núñez de Arenas Coronado
+-static inline unsigned int ipv6_advmss(unsigned int mtu)
+-{
+-	mtu -= sizeof(struct ipv6hdr) + sizeof(struct tcphdr);
+-
+-	if (mtu < ip6_rt_min_advmss)
+-		mtu = ip6_rt_min_advmss;
+-
+-	/*
+-	 * Maximal non-jumbo IPv6 payload is IPV6_MAXPLEN and 
+-	 * corresponding MSS is IPV6_MAXPLEN - tcp_header_size. 
+-	 * IPV6_MAXPLEN is also valid and means: "any MSS, 
+-	 * rely only on pmtu discovery"
+-	 */
+-	if (mtu > IPV6_MAXPLEN - sizeof(struct tcphdr))
+-		mtu = IPV6_MAXPLEN;
+-	return mtu;
+-}
+-
+  static int ipv6_get_hoplimit(struct net_device *dev)
+  {
+  	int hoplimit = ipv6_devconf.hop_limit;
 
--- 
-Linux Registered User 88736
-http://www.pleyades.net & http://raul.pleyades.net/
+
+

@@ -1,59 +1,77 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263587AbUCYTvk (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 25 Mar 2004 14:51:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263588AbUCYTvk
+	id S263590AbUCYTxM (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 25 Mar 2004 14:53:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263588AbUCYTxM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 25 Mar 2004 14:51:40 -0500
-Received: from 011.081.dsl.concepts.nl ([213.197.11.81]:22749 "EHLO
-	server.thuis.lan") by vger.kernel.org with ESMTP id S263587AbUCYTvj
+	Thu, 25 Mar 2004 14:53:12 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:60357 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S263586AbUCYTxC
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 25 Mar 2004 14:51:39 -0500
-Message-ID: <40633843.3090300@xs4all.nl>
-Date: Thu, 25 Mar 2004 20:51:31 +0100
-From: Rik van Ballegooijen <sleightofmind@xs4all.nl>
-User-Agent: Mozilla Thunderbird 0.5 (X11/20040208)
+	Thu, 25 Mar 2004 14:53:02 -0500
+Message-ID: <40633890.80009@pobox.com>
+Date: Thu, 25 Mar 2004 14:52:48 -0500
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030703
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-CC: sleightofmind@xs4all.nl, m.c.p@wolk-project.de,
-       linux-kernel@vger.kernel.org, torvalds@osdl.org, len.brown@intel.com
-Subject: Re: [BUG 2.6.5-rc2-bk5 and 2.6.5-rc2-mm3] ACPI seems to be broken
-References: <200403251432.32787@WOLK>	<4062E986.2080508@xs4all.nl> <20040325090232.15e8f59f.akpm@osdl.org>
-In-Reply-To: <20040325090232.15e8f59f.akpm@osdl.org>
-X-Enigmail-Version: 0.83.3.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
+To: Sergey Vlasov <vsu@altlinux.ru>
+CC: linux-ide@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: sata_via: ata1 failed to respond
+References: <20040325164441.GP1756@master.mivlgu.local>
+In-Reply-To: <20040325164441.GP1756@master.mivlgu.local>
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+Sergey Vlasov wrote:
+> Hello!
+> 
+> I have another report about nonworking sata_via in 2.4.25-libata9
+> plus the probing bug fix (so sata_via was identical to the version
+> in 2.4.25-libata12).  The drive was not recognised with these
+> messages:
+> 
+> libata version 1.02 loaded.
+> sata_via version 0.20
+> sata_via(00:0f.0): routed to hard irq line 10
+> ata1: SATA max UDMA/133 cmd 0xB800 ctl 0xB402 bmdma 0xA400 irq 20
+> ata2: SATA max UDMA/133 cmd 0xB000 ctl 0xA802 bmdma 0xA408 irq 20
+> ata1 is slow to respond, please be patient
+> ata1 failed to respond (30 secs)
+> 
+> The hardware was: ASUS A7V600 motherboard, Seagate ST3120026AS hard
+> drive.  2.4.25-libata1 worked fine.
+> 
+> acpi=off and noapic options did not help.  However, replacing
+> sata_via.c with the version from 2.4.25-libata1 (with removed
+> ".phy_config = pata_phy_config" line to make it compile) allowed the
+> detection to succeed.
+> 
+> I tried to replace ATA_FLAG_SATA_RESET with ATA_FLAG_SRST in the new
+> driver - with this change detection also succeeds:
+> 
+> --- kernel-source-2.4.25/drivers/scsi/sata_via.c.via-srst	2004-03-24 16:27:50 +0300
+> +++ kernel-source-2.4.25/drivers/scsi/sata_via.c	2004-03-25 18:51:19 +0300
+> @@ -203,7 +203,7 @@ static int svia_init_one (struct pci_dev
+>  	INIT_LIST_HEAD(&probe_ent->node);
+>  	probe_ent->pdev = pdev;
+>  	probe_ent->sht = &svia_sht;
+> -	probe_ent->host_flags = ATA_FLAG_SATA | ATA_FLAG_SATA_RESET |
+> +	probe_ent->host_flags = ATA_FLAG_SATA | ATA_FLAG_SRST |
+>  				ATA_FLAG_NO_LEGACY;
+>  	probe_ent->port_ops = &svia_sata_ops;
+>  	probe_ent->n_ports = 2;
 
-Andrew Morton wrote:
-| Rik van Ballegooijen <sleightofmind@xs4all.nl> wrote:
-|
-|> with acpi on it can also run, but not if you supply vga=. I tried with
-|> vga=0x317 and it stalls after "Freeing unused kernel memory". When i
-|> turn off acpi using acpi=off and also supply vga=0x317 it continues
-|> booting, but hangs during execution of bootscripts.
-|
-|
-| It would be interesting to try reverting probe_roms-02-fixes.patch and
-| probe_roms-01-move-stuff.patch.
 
-Reverting these two patches does nothing. The result is exactly the same
-as above.
-Reverting the acpi stuff that went into -bk some days ago does solve the
-problem. I haven't checked yet which part to be exact causes this though.
+Just FYI, I went ahead and committed this patch, and created -libata14 
+patch (and sent this to Linus).
 
-- -Rik
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
+I would rather the main tree have working code, from which we will then 
+(attempt to) advance.
 
-iD8DBQFAYzhDq1cnhHKeD68RAv0bAJ0Xt5LaLsizdw8SLENi8AGdsnJmvACgj8L3
-dWQa/6iEvC1ilyfZwlWgHok=
-=sEZU
------END PGP SIGNATURE-----
+	Jeff
+
+
+

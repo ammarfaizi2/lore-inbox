@@ -1,59 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129723AbQKLMSS>; Sun, 12 Nov 2000 07:18:18 -0500
+	id <S130547AbQKLMT2>; Sun, 12 Nov 2000 07:19:28 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129947AbQKLMSI>; Sun, 12 Nov 2000 07:18:08 -0500
-Received: from panic.ohr.gatech.edu ([130.207.47.194]:29199 "EHLO
-	havoc.gtf.org") by vger.kernel.org with ESMTP id <S129723AbQKLMSB>;
-	Sun, 12 Nov 2000 07:18:01 -0500
-Message-ID: <3A0E8A75.A1C24416@mandrakesoft.com>
-Date: Sun, 12 Nov 2000 07:17:57 -0500
-From: Jeff Garzik <jgarzik@mandrakesoft.com>
-Organization: MandrakeSoft
-X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.4.0-test11 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: "Hen, Shmulik" <shmulik.hen@intel.com>
-CC: "'LNML'" <linux-net@vger.kernel.org>,
-        "'LKML'" <linux-kernel@vger.kernel.org>, netdev@oss.sgi.com
-Subject: Re: catch 22 - porting net driver from 2.2 to 2.4
-In-Reply-To: <07E6E3B8C072D211AC4100A0C9C5758302B2708E@hasmsx52.iil.intel.com>
+	id <S130546AbQKLMTS>; Sun, 12 Nov 2000 07:19:18 -0500
+Received: from [194.213.32.137] ([194.213.32.137]:260 "EHLO bug.ucw.cz")
+	by vger.kernel.org with ESMTP id <S130539AbQKLMS5>;
+	Sun, 12 Nov 2000 07:18:57 -0500
+Message-ID: <20001112005444.A165@bug.ucw.cz>
+Date: Sun, 12 Nov 2000 00:54:44 +0100
+From: Pavel Machek <pavel@suse.cz>
+To: Linux usb mailing list <linux-usb-devel@lists.sourceforge.net>,
+        kernel list <linux-kernel@vger.kernel.org>
+Subject: Something very wrong with time fbcon and FSBR
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+X-Mailer: Mutt 0.93i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Hen, Shmulik" wrote:
-> 
-> So how come I get the "RTNL: assertion failed at
-> devinet.c(775):inetdev_event" when I call register_netdevice without
-> rtnl_lock/unlock ?
+Hi!
 
-Uh.  Don't do that.  You MUST call register_netdevice with rtnl_lock
-held.
+I wanted to measure negative impact of FSBR on my system.
 
+I did time cat /etc/termcap. I have fbcon, so it is quite slow
+operation. It took 13 seconds.
 
-> and what about rmmod causing the panic when I use unregister_netdev or never
-> completing the operation when I use unregister_netdevice ?
-> does module_exit run inside rtnl_lock too ?
+Then I made system use the FSBR, and did cat /etc/termcap. It was
+visually much slower, but it gave 13 seconds again. So I did the same
+test again, it said:
 
-module_exit does not run inside rtnl_lock.
+0.00user 13.06system 13.38 (0m13.383s) elapsed 97.59%CPU
+pavel@bug:~$
 
-Theoretically, if you call unregister_netdev from rmmon, it should grab
-rtnl_lock and then complete the operation for you.  If that doesn't work
-for you, it sounds like you are not setting up, or cleaning up,
-something correctly.
+but measured with my wristwatch, it took over 50seconds!
 
-Basically... it sounds like there are still bugs in your driver that
-need working out :)
+Something is very wrong with either USB or fbcon. Okay, now I tried
+without USB, it said 
 
-	Jeff
+0.00user 12.26system 12.33 (0m12.330s) elapsed 99.44%CPU
+pavel@bug:~$
 
+but took 28seconds of real time. So fbcon is making your watch loose
+time. Oops. Oh, and fsbr makes system run at roughly half of normal
+speed. Not good, either.
 
+								Pavel
+PS: fsbr means we make loop in descriptors, which then means uhci
+hogging the PCI bus. Would it be possible to do some nop command (send
+64 bytes to nonexisting device?) as a part of loop to avoid PCI
+overload?
 -- 
-Jeff Garzik             |
-Building 1024           | Would you like a Twinkie?
-MandrakeSoft            |
+I'm pavel@ucw.cz. "In my country we have almost anarchy and I don't care."
+Panos Katsaloulis describing me w.r.t. patents at discuss@linmodems.org
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

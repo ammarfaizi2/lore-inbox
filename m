@@ -1,39 +1,33 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264890AbUE0RED@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261654AbUE0RGT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264890AbUE0RED (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 27 May 2004 13:04:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264889AbUE0REC
+	id S261654AbUE0RGT (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 27 May 2004 13:06:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264896AbUE0RGS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 27 May 2004 13:04:02 -0400
-Received: from mtvcafw.sgi.com ([192.48.171.6]:46830 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S264890AbUE0RDZ (ORCPT
+	Thu, 27 May 2004 13:06:18 -0400
+Received: from ozlabs.org ([203.10.76.45]:54958 "EHLO ozlabs.org")
+	by vger.kernel.org with ESMTP id S261654AbUE0REr (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 27 May 2004 13:03:25 -0400
-From: Jesse Barnes <jbarnes@engr.sgi.com>
-To: David Johnson <dj@david-web.co.uk>
-Subject: Re: Can't make XFS work with 2.6.6
-Date: Thu, 27 May 2004 13:03:15 -0400
-User-Agent: KMail/1.6.2
-Cc: linux-kernel@vger.kernel.org
-References: <200405271736.08288.dj@david-web.co.uk>
-In-Reply-To: <200405271736.08288.dj@david-web.co.uk>
-MIME-Version: 1.0
+	Thu, 27 May 2004 13:04:47 -0400
+Date: Fri, 28 May 2004 03:03:34 +1000
+From: Anton Blanchard <anton@samba.org>
+To: Thomas Zehetbauer <thomasz@hostmaster.org>
+Cc: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
+Subject: Re: CONFIG_IRQBALANCE for AMD64?
+Message-ID: <20040527170334.GE23262@krispykreme>
+References: <1085629714.6583.12.camel@hostmaster.org> <40B578F1.3090704@pobox.com> <1085675774.6583.23.camel@hostmaster.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200405271303.15932.jbarnes@engr.sgi.com>
+In-Reply-To: <1085675774.6583.23.camel@hostmaster.org>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday, May 27, 2004 12:36 pm, David Johnson wrote:
-> XFS is compiled in so it's not a module problem. Google says this error is
-> usually caused by passing the wrong root parameter to the kernel, but I'm
-> definitely giving the right root device.
+ 
+> Seems to work, just like the i386 irqbalanced before it has been
+> obsoleted by CONFIG_IRQBALANCE
 
-Are you sure?  Make sure the device names haven't changed between your 2.4 and 
-2.6 kernels.  This can happen if a new driver is compiled in that causes them 
-to be reordered, or for other reasons.  XFS has been working fine in 2.6.6 
-for me so far...
+No, CONFIG_IRQBALANCE is an x86 specific hack.
 
-Jesse
+Anton

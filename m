@@ -1,80 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262853AbVBBXTA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262419AbVBBXTB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262853AbVBBXTA (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Feb 2005 18:19:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262419AbVBBXQB
+	id S262419AbVBBXTB (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Feb 2005 18:19:01 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262586AbVBBXPf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Feb 2005 18:16:01 -0500
-Received: from e1.ny.us.ibm.com ([32.97.182.141]:41129 "EHLO e1.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S262660AbVBBXOf (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Feb 2005 18:14:35 -0500
-Message-ID: <42015ED8.9000303@us.ibm.com>
-Date: Wed, 02 Feb 2005 15:14:32 -0800
-From: Matthew Dobson <colpatch@us.ibm.com>
-User-Agent: Mozilla Thunderbird 0.8 (X11/20041012)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Adrian Bunk <bunk@stusta.de>
-CC: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: [2.6 patch] i386/mach-default/topology.c: make cpu_devices static
-References: <20050131234228.GS21437@stusta.de>
-In-Reply-To: <20050131234228.GS21437@stusta.de>
-X-Enigmail-Version: 0.86.1.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Wed, 2 Feb 2005 18:15:35 -0500
+Received: from 213-239-205-147.clients.your-server.de ([213.239.205.147]:21150
+	"EHLO debian.tglx.de") by vger.kernel.org with ESMTP
+	id S262467AbVBBXLH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 2 Feb 2005 18:11:07 -0500
+Subject: Re: Copyright / licensing question
+From: Thomas Gleixner <tglx@linutronix.de>
+Reply-To: tglx@linutronix.de
+To: Frank klein <frnk_kln@yahoo.com>
+Cc: LKML <linux-kernel@vger.kernel.org>
+In-Reply-To: <20050202144915.94462.qmail@web42106.mail.yahoo.com>
+References: <20050202144915.94462.qmail@web42106.mail.yahoo.com>
+Content-Type: text/plain
+Date: Thu, 03 Feb 2005 00:11:04 +0100
+Message-Id: <1107385864.21196.632.camel@tglx.tec.linutronix.de>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.3 (2.0.3-2) 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Looks good to me!
-
-Acked-by: Matthew Dobson <colpatch@us.ibm.com>
-
-Adrian Bunk wrote:
-
->This patch makes a needlessly global struct static.
->
->Signed-off-by: Adrian Bunk <bunk@stusta.de>
->
->---
->
-> arch/i386/mach-default/topology.c |    2 +-
-> include/asm-i386/cpu.h            |    1 -
-> 2 files changed, 1 insertion(+), 2 deletions(-)
->
->This patch was already sent on:
->- 16 Jan 2005
->
->--- linux-2.6.11-rc1-mm1-full/include/asm-i386/cpu.h.old	2005-01-16 05:41:55.000000000 +0100
->+++ linux-2.6.11-rc1-mm1-full/include/asm-i386/cpu.h	2005-01-16 05:42:09.000000000 +0100
->@@ -12,7 +12,6 @@
-> struct i386_cpu {
-> 	struct cpu cpu;
-> };
->-extern struct i386_cpu cpu_devices[NR_CPUS];
-> extern int arch_register_cpu(int num);
-> #ifdef CONFIG_HOTPLUG_CPU
-> extern void arch_unregister_cpu(int);
->--- linux-2.6.11-rc1-mm1-full/arch/i386/mach-default/topology.c.old	2005-01-16 05:42:18.000000000 +0100
->+++ linux-2.6.11-rc1-mm1-full/arch/i386/mach-default/topology.c	2005-01-16 05:42:43.000000000 +0100
->@@ -30,7 +30,7 @@
-> #include <linux/nodemask.h>
-> #include <asm/cpu.h>
+On Wed, 2005-02-02 at 06:49 -0800, Frank klein wrote:
+> I am having some licensing questions. It would be
+> really great if you can clarify on them
 > 
->-struct i386_cpu cpu_devices[NR_CPUS];
->+static struct i386_cpu cpu_devices[NR_CPUS];
-> 
-> int arch_register_cpu(int num){
-> 	struct node *parent = NULL;
->
->
->-
->To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
->the body of a message to majordomo@vger.kernel.org
->More majordomo info at  http://vger.kernel.org/majordomo-info.html
->Please read the FAQ at  http://www.tux.org/lkml/
->
->  
->
+> 1. For explaining the internals of a filesystem in
+> detail, I need to take their code from kernel sources
+> 'as it is' in the book. Do I need to take any
+> permissions from the owner/maintainer regarding this ?
+> Will it violate any license if reproduce the driver
+> source code in my book ??
+
+Legally, not if you mention the licence of the code clearly. 
+
+Personaly, I think it's a question of etiquette whether to contact the
+authors or not.
+
+tglx
+
 

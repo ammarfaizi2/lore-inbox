@@ -1,87 +1,69 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262554AbTJJHne (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Oct 2003 03:43:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262617AbTJJHne
+	id S262474AbTJJHyh (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Oct 2003 03:54:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262497AbTJJHyh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Oct 2003 03:43:34 -0400
-Received: from gprs148-182.eurotel.cz ([160.218.148.182]:12417 "EHLO
-	amd.ucw.cz") by vger.kernel.org with ESMTP id S262554AbTJJHnc (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Oct 2003 03:43:32 -0400
-Date: Fri, 10 Oct 2003 09:43:19 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: Patrick Mochel <mochel@osdl.org>,
-       kernel list <linux-kernel@vger.kernel.org>
-Subject: [pm] document acpi_sleep= options
-Message-ID: <20031010074319.GA352@elf.ucw.cz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.4i
+	Fri, 10 Oct 2003 03:54:37 -0400
+Received: from vtens.prov-liege.be ([193.190.122.60]:61893 "EHLO
+	mesepl.epl.prov-liege.be") by vger.kernel.org with ESMTP
+	id S262474AbTJJHyf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 10 Oct 2003 03:54:35 -0400
+Message-ID: <D9B4591FDBACD411B01E00508BB33C1B01F24E98@mesadm.epl.prov-liege.be>
+From: "Frederick, Fabian" <Fabian.Frederick@prov-liege.be>
+To: "Linux-Kernel (E-mail)" <linux-kernel@vger.kernel.org>
+Subject: [2.7 "thoughts"] V0.3
+Date: Fri, 10 Oct 2003 09:54:12 +0200
+MIME-Version: 1.0
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain;
+	charset="iso-8859-2"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+2.7 "thoughts"
+Thanks to Gabor, Stuart, Stephan and others
+Don't hesitate to send me more or comment.
 
-Those were even missing from kernel-parameters.txt. This adds some
-description. Please apply,
-							Pavel
+Regards,
+Fabian
 
---- clean/Documentation/kernel-parameters.txt	2003-10-09 00:13:09.000000000 +0200
-+++ linux/Documentation/kernel-parameters.txt	2003-10-10 09:36:31.000000000 +0200
-@@ -90,6 +90,10 @@
- 			off -- disabled ACPI for systems with default on
- 			ht -- run only enough ACPI to enable Hyper Threading
- 			See also Documentation/pm.txt.
-+
-+	acpi_sleep=	[HW,ACPI] Sleep options
-+			Format: { s3_bios, s3_mode }
-+			See Documentation/power/video.txt
-  
- 	ad1816=		[HW,OSS]
- 			Format: <io>,<irq>,<dma>,<dma2>
---- clean/Documentation/power/video.txt	2003-10-10 09:11:51.000000000 +0200
-+++ linux/Documentation/power/video.txt	2003-10-10 09:40:44.000000000 +0200
-@@ -0,0 +1,36 @@
-+
-+		Video issues with S3 resume
-+		~~~~~~~~~~~~~~~~~~~~~~~~~~~
-+		     2003, Pavel Machek
-+
-+During S3 resume, hardware needs to be reinitialized. For most
-+devices, this is easy, and kernel driver knows how to do
-+it. Unfortunately there's one exception: video card. Those are usually
-+initialized by BIOS, and kernel does not have enough information to
-+boot video card. (Kernel usually does not even contain video card
-+driver -- vesafb and vgacon are widely used).
-+
-+This is not problem for swsusp, because during swsusp resume, BIOS is
-+run normally so video card is normally initialized.
-+
-+There are three types of systems where video works after S3 resume:
-+
-+* systems where video state is preserved over S3. (HP Omnibook xe3)
-+
-+* systems that initialize video card into vga text mode and where BIOS
-+  works well enough to be able to set video mode. Use
-+  acpi_sleep=s3_mode on these. (Toshiba 4030cdt)
-+
-+* systems where it is possible to call video bios during S3
-+  resume. Unfortunately, it is not correct to call video BIOS at that
-+  point, but it happens to work on some machines. Use
-+  acpi_sleep=s3_bios (Athlon64 desktop system)
-+
-+Now, if you pass acpi_sleep=something, and it does not work with your
-+bios, you'll get hard crash during resume. Be carefull.
-+
-+You may have system where none of above works. At that point you
-+either invent another ugly hack that works, or write proper driver for
-+your video card (good luck getting docs :-(). Maybe suspending from X
-+(proper X, knowing your hardware, not XF68_FBcon) might have better
-+chance of working.
-
--- 
-When do you have a heart between your knees?
-[Johanka's followup: and *two* hearts?]
+* slab allocation quota
+* ntfs full support
+* kernel web server (Interfaced to Roman config tool)
+* ipc to sysfs
+* complete user quota centralization
+* Add _responsibilities_ for virtual process tree and possible
+relation in oops cases
+* Does the whole proc vm stuff root/box relevant ?I don't think
+so....Hence, those proc entries deserve security relevant attributes
+* Devices should be limited as well against bad usage(floppy defect),
+viral activity(netcard rush)...
+* Improve kobject model for security, quota rendering
+* bind mount support for all general mount options (nodev,ro,noexec etc)
+  with SECURE implementation with any (maybe even future) filesystems?
+* union mount (possible with option to declare on what fs a new file
+  should be created: on fixed ones, random algorithm, on fs with the
+  largest free space available etc ...)
+* guaranteed i/o bandwidth allocation?
+* netfilter's ability to do tricks which OpenBSD can do now with its
+  packet filter
+* ENBD support in official kernel with enterprise-class 'through the
+  network' volume management
+* Standard kernel output (Minimum, Full options ...)
+* Virtual machine support
+* /proc interface alternative to modutils/module-init-tools.
+                That is, to have a directory of virtual nodes in /proc
+                to provide the functionality of insmod, rmmod, lsmod &
+                modprobe would be great -- especially from the viewpoint
+                of recue disk images, etc.
+* Software RAID 0+1 perhaps?
+                A lot of hardware RAID cards support it, why not the
+                kernel?  By RAID 0+1 I mean mirror-RAIDing two (or more)
+                stripe-RAID arrays.  (Or can this be done already?)
+* Transparent Software-RAID for IDE RAID cards...
+                This could be done by using the Software RAID
+                functionality of the kernel, but making the RAID
+                interface transparent, so you only see a /dev/md?
+                device, rather than multiple /dev/?da* entries.
+* hotplug RAM

@@ -1,40 +1,32 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261838AbTC0JY5>; Thu, 27 Mar 2003 04:24:57 -0500
+	id <S261840AbTC0J2X>; Thu, 27 Mar 2003 04:28:23 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261839AbTC0JY5>; Thu, 27 Mar 2003 04:24:57 -0500
-Received: from griffon.mipsys.com ([217.167.51.129]:23756 "EHLO
-	zion.wanadoo.fr") by vger.kernel.org with ESMTP id <S261838AbTC0JY4>;
-	Thu, 27 Mar 2003 04:24:56 -0500
+	id <S261841AbTC0J2X>; Thu, 27 Mar 2003 04:28:23 -0500
+Received: from tartu.cyber.ee ([193.40.6.68]:33796 "EHLO tartu.cyber.ee")
+	by vger.kernel.org with ESMTP id <S261840AbTC0J2W>;
+	Thu, 27 Mar 2003 04:28:22 -0500
+From: Meelis Roos <mroos@linux.ee>
+To: linux-kernel@vger.kernel.org
 Subject: Re: Linux 2.4.21-pre6
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Margit Schubert-While <margitsw@t-online.de>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <4.3.2.7.2.20030327083610.00b6d4e0@pop.t-online.de>
-References: <4.3.2.7.2.20030327083610.00b6d4e0@pop.t-online.de>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Organization: 
-Message-Id: <1048757887.10476.71.camel@zion.wanadoo.fr>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 
-Date: 27 Mar 2003 10:38:08 +0100
+In-Reply-To: <Pine.LNX.4.53L.0303262107480.2544@freak.distro.conectiva>
+User-Agent: tin/1.5.17-20030301 ("Bubbles") (UNIX) (Linux/2.4.18 (i586))
+Message-Id: <E18yVqr-0004gQ-00@roos.tartu-labor>
+Date: Thu, 27 Mar 2003 13:47:21 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2003-03-27 at 08:44, Margit Schubert-While wrote:
-> 	Delete chipset recognition in drm_agpsupport.h
-> 	It's in 2.5 and the DRM/DRI mainline. Should be
-> 	in 2.4.
-> 	Support Radeon 9K variants in radeonfb.
-> 	
+MT> Here goes -pre6.
+MT> 
+MT> We are approaching -rc stage. I plan to release -pre7 shortly which should
+MT> fixup the remaining IDE problems (thanks Alan!) and -rc1 later on.
 
-Well...
+HDLC started generating warnings in some -pre and they are still there:
 
-I have a bunch of quite important radeonfb updates (including all
-these new chipset support stuffs) that are waiting for Ani (the
-maintainer) to send them to Marcelo.
+/oma/compile/linux-2.4/include/linux/modules/hdlc.ver:3: warning: `__ver_register_hdlc_device' redefined
+/oma/compile/linux-2.4/include/linux/modules/hdlc_generic.ver:3: warning: this is the location of the previous definition
+/oma/compile/linux-2.4/include/linux/modules/hdlc.ver:5: warning: `__ver_unregister_hdlc_device' redefined
+/oma/compile/linux-2.4/include/linux/modules/hdlc_generic.ver:5: warning: this is the location of the previous definition
 
-If that doesn't happen, I may consider pushing them myself though.
-
-Ben.
+-- 
+Meelis Roos (mroos@linux.ee)

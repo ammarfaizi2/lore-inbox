@@ -1,47 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129421AbQLRGpa>; Mon, 18 Dec 2000 01:45:30 -0500
+	id <S129557AbQLRGrU>; Mon, 18 Dec 2000 01:47:20 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129557AbQLRGpV>; Mon, 18 Dec 2000 01:45:21 -0500
-Received: from mdj.nada.kth.se ([130.237.224.206]:13833 "EHLO mdj.nada.kth.se")
-	by vger.kernel.org with ESMTP id <S129421AbQLRGpM>;
-	Mon, 18 Dec 2000 01:45:12 -0500
-To: David Feuer <David_Feuer@brown.edu>
-Cc: linux-kernel@vger.kernel.org, djurfeldt@nada.kth.se
-Subject: Re: APM/DPMS lockup on Dell 3800
-In-Reply-To: <3A3D9AE2.8721062F@brown.edu>
-Reply-To: djurfeldt@nada.kth.se
-From: Mikael Djurfeldt <mdj@mdj.nada.kth.se>
-Date: 18 Dec 2000 07:14:38 +0100
-In-Reply-To: David Feuer's message of "Mon, 18 Dec 2000 00:04:34 -0500"
-Message-ID: <xy7wvcyxnld.fsf@mdj.nada.kth.se>
-User-Agent: Gnus/5.0807 (Gnus v5.8.7) Emacs/20.7
-MIME-Version: 1.0
+	id <S130889AbQLRGrK>; Mon, 18 Dec 2000 01:47:10 -0500
+Received: from wire.cadcamlab.org ([156.26.20.181]:6410 "EHLO
+	wire.cadcamlab.org") by vger.kernel.org with ESMTP
+	id <S129557AbQLRGrE>; Mon, 18 Dec 2000 01:47:04 -0500
+Date: Mon, 18 Dec 2000 00:16:34 -0600
+To: khromy <khromy@lnuxlab.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: unresolved symbols pm_*register ad1848.o
+Message-ID: <20001218001634.A3199@cadcamlab.org>
+In-Reply-To: <20001217220851.A37686@lnuxlab.net>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20001217220851.A37686@lnuxlab.net>; from khromy@lnuxlab.net on Sun, Dec 17, 2000 at 10:08:51PM -0500
+From: Peter Samuelson <peter@cadcamlab.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-David Feuer <David_Feuer@brown.edu> writes:
 
-> I get this problem both in Linux and Windows, so I won't
-> rule out hardware/bios bugs, but I find that often when my
-> monitor (backlight) gets turned off automatically after a
-> long period of non-use, the computer freezes up.  I think it
-> only happens when I've left it that way for a long time,
-> though.  If I move the mouse immediately after the screen is
-> blacked, I have no trouble, but if I leave it for a long
-> time, when I get back the monitor won't unblack,
-> ctrl-alt-backspace does nothing, ctrl-alt-delete does
-> nothing,  Fn-Suspend, Fn-A don't do anything, and the
-> capslock and numlock keys don't do anything either.  I
-> haven't tried reaching the machine from outside yet, but I
-> will if someone wants.
+[khromy]
+> 2.4.0-test13-pre3 unresolved symbols:
+> 
+> modprobe ad1848
+> /lib/modules/2.4.0-test13-pre3/kernel/drivers/sound/ad1848.o: unresolved symbol pm_unregister_Reccd1e64
+> /lib/modules/2.4.0-test13-pre3/kernel/drivers/sound/ad1848.o: unresolved symbol pm_register_R8dbab11c
 
-I have a Dell Inspiron 7000 with BIOS A15 and exactly the same
-problem.
+Looks like your symbol versions got out of sync, somehow.
+Unfortunately this is fairly easy to do, due to the fragile nature of
+MODVERSIONS.
 
-(I last observed this problem using linux-2.4.0-test12, though.
-Now I'm running test13-pre3 and it has not yet occurred.)
+  cp .config ..
+  make mrproper
+  cp ../.config .
+  make oldconfig
+  make dep
+
+and try again.
+
+Peter
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

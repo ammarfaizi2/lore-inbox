@@ -1,70 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264129AbUDRFcv (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 18 Apr 2004 01:32:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264132AbUDRFcv
+	id S264130AbUDRFb6 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 18 Apr 2004 01:31:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264131AbUDRFb6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 18 Apr 2004 01:32:51 -0400
-Received: from ozlabs.org ([203.10.76.45]:39892 "EHLO ozlabs.org")
-	by vger.kernel.org with ESMTP id S264129AbUDRFcs (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 18 Apr 2004 01:32:48 -0400
-Subject: [PATCH] Fix unix module
-From: Rusty Russell <rusty@rustcorp.com.au>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>
-Content-Type: text/plain
-Message-Id: <1082266361.14879.27.camel@bach>
+	Sun, 18 Apr 2004 01:31:58 -0400
+Received: from smtp-100-sunday.noc.nerim.net ([62.4.17.100]:3344 "EHLO
+	mallaury.noc.nerim.net") by vger.kernel.org with ESMTP
+	id S264130AbUDRFb4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 18 Apr 2004 01:31:56 -0400
+Date: Sun, 18 Apr 2004 07:32:10 +0200
+From: Jean Delvare <khali@linux-fr.org>
+To: Ian Morgan <imorgan@webcon.ca>
+Cc: helpdeskie@bencastricum.nl, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.5 Sensors & USB problems
+Message-Id: <20040418073210.17898929.khali@linux-fr.org>
+In-Reply-To: <Pine.LNX.4.58.0404171756400.11374@dark.webcon.ca>
+References: <1081349796.407416a4c3739@imp.gcu.info>
+	<Pine.LNX.4.58.0404171756400.11374@dark.webcon.ca>
+X-Mailer: Sylpheed version 0.9.10 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Sun, 18 Apr 2004 15:32:42 +1000
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus, please apply.  I should never have accepted that damn "make
-modpost create the struct module" patch during the stable series: this
-is at least the third fix which had to go on top of it...
+> > > 2.6.5-rc1 -> sensors broke (ERROR: Can't get <sensor> data!)
+> > 
+> > Your sensors problem will be resolved as soon as you switch to the
+> > just released lm_sensors 2.8.6.
+> 
+> I use the same w83781d and i2c_i801 drivers on my Asus P4PE box, and
+> they too went belly up with 2.6.5. However, I HAVE tried lm_sensors
+> 2.8.6 and that made no difference. They're just user-space tools that
+> don't touch the kernel any more in 2.6.x (right?).
+> 
+> The problem I am seeing now in 2.6.5 is that after loading the w83781d
+> module, nothing shows up in /sys or /proc, as though the module had
+> not loaded but lsmod says it is loaded.
+> 
+> In 2.6.4, my sensors showed up hare:
+> /sys/devices/pci0000:00/0000:00:1f.3/i2c-0/0-002d/* (w83781d)
+> /sys/devices/pci0000:00/0000:00:1f.3/i2c-1/1-0050/* (eeprom)
+> 
+> Now in 2.6.5, with both eeprom and w83781d modules loaded, I only get
+> the eeprom, and the w83781d is nowhere to be found:
+> /sys/devices/pci0000:00/0000:00:1f.3/i2c-1/1-0050/* (eeprom)
 
-Name: Fix name of unix domain sockets module
-Status: Tested on 2.6.6-rc1-bk2
+This is a different problem, and I agree that upgrading user-space tools
+couldn't help in you case. Ben had his chip correctly detected but the
+interface exported by the kernel was not known to the (not up-to-date)
+user-space tools. In you case this is the kernel driver not supporting
+your hardware anymore, that's different.
 
-# lsmod
-Module                  Size  Used by
-1                      26060  6 
-#
-
-The compiler #define's unix to 1: we use -DKBUILD_MODNAME=unix.  We
-used to #undef unix at the top of af_unix.c, but now the name is
-inserted by modpost, that doesn't help.
-
-#undef unix in modpost.c's generated C file.
-
-diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal linux-2.6.6-rc1-bk2/net/unix/af_unix.c working-2.6.6-rc1-bk2-usermodehelper-thread/net/unix/af_unix.c
---- linux-2.6.6-rc1-bk2/net/unix/af_unix.c	2004-04-05 09:04:50.000000000 +1000
-+++ working-2.6.6-rc1-bk2-usermodehelper-thread/net/unix/af_unix.c	2004-04-18 15:22:23.000000000 +1000
-@@ -82,8 +82,6 @@
-  *		  with BSD names.
-  */
- 
--#undef unix	/* KBUILD_MODNAME */
--
- #include <linux/module.h>
- #include <linux/config.h>
- #include <linux/kernel.h>
-diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal linux-2.6.6-rc1-bk2/scripts/modpost.c working-2.6.6-rc1-bk2-usermodehelper-thread/scripts/modpost.c
---- linux-2.6.6-rc1-bk2/scripts/modpost.c	2004-04-15 16:06:55.000000000 +1000
-+++ working-2.6.6-rc1-bk2-usermodehelper-thread/scripts/modpost.c	2004-04-18 15:22:07.000000000 +1000
-@@ -487,6 +487,7 @@ add_header(struct buffer *b)
- 	buf_printf(b, "\n");
- 	buf_printf(b, "MODULE_INFO(vermagic, VERMAGIC_STRING);\n");
- 	buf_printf(b, "\n");
-+	buf_printf(b, "#undef unix\n"); /* We have a module called "unix" */
- 	buf_printf(b, "struct module __this_module\n");
- 	buf_printf(b, "__attribute__((section(\".gnu.linkonce.this_module\"))) = {\n");
- 	buf_printf(b, " .name = __stringify(KBUILD_MODNAME),\n");
-
+See my answer to your second post for details about your case.
 
 -- 
-Anyone who quotes me in their signature is an idiot -- Rusty Russell
-
+Jean Delvare
+http://www.ensicaen.ismra.fr/~delvare/

@@ -1,39 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261939AbTHTL7l (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 20 Aug 2003 07:59:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261945AbTHTL7l
+	id S261910AbTHTMFn (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 20 Aug 2003 08:05:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261917AbTHTMFn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 20 Aug 2003 07:59:41 -0400
-Received: from lindsey.linux-systeme.com ([80.190.48.67]:49162 "EHLO
-	mx00.linux-systeme.com") by vger.kernel.org with ESMTP
-	id S261939AbTHTL7k (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 20 Aug 2003 07:59:40 -0400
-From: Marc-Christian Petersen <m.c.p@wolk-project.de>
-Organization: Working Overloaded Linux Kernel
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Linus Torvalds <torvalds@transmeta.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: PATCH: Maintainer/Credit update
-Date: Wed, 20 Aug 2003 13:59:21 +0200
-User-Agent: KMail/1.5.3
-References: <1061380001.32752.3.camel@dhcp23.swansea.linux.org.uk>
-In-Reply-To: <1061380001.32752.3.camel@dhcp23.swansea.linux.org.uk>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-15"
+	Wed, 20 Aug 2003 08:05:43 -0400
+Received: from pc1-cwma1-5-cust4.swan.cable.ntl.com ([80.5.120.4]:7320 "EHLO
+	dhcp23.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id S261910AbTHTMFh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 20 Aug 2003 08:05:37 -0400
+Subject: Next Month/Changes to where to send stuff
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200308201359.21681.m.c.p@wolk-project.de>
+Message-Id: <1061381109.32752.23.camel@dhcp23.swansea.linux.org.uk>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.3 (1.4.3-3) 
+Date: 20 Aug 2003 13:05:10 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 20 August 2003 13:46, Alan Cox wrote:
+At the end of September I'm off back to University on a years sabbatical
+from Red Hat to study for an MBA. I've made the decision that I'm
+basically going to vanish for the year so I can concentrate on the
+course, and on the pet side project of learning Welsh.
 
-Hi Alan,
+I've passed all my userspace projects on to other people already, and
+I'll be vanishing from kernel space too (except to a few priviledged
+processes ;)). Lots of people send me stuff as a gateway to getting it
+into 2.4 and 2.6. Lots of people send me security related stuff.
 
-> - Update other stuff because I will be away for a year
-away?? Why? :-(
+Can you in future please send stuff to
 
-ciao, Marc
+Security: vendor-sec@lst.de
+2.4: Marcelo/the list/someone he nominates to do that job
+2.6: Andrew Morton or for small stuff Rusty Russell's trivial patch
+manager. 
+
+The 2.2 tree needs a new maintainer, someone who can spend their entire
+life refusing patches, being ignored by the mainstream (because 2.2 is
+boring) and by vendors (who don't ship 2.2 any more). 
+
+I'm not sure what to do about the -ac patch. Most of the remaining stuff
+is "pending Marcelo" for 2.4 mainstream, but not the O(1) scheduler and
+some of the odder cool stuff (like the morse bits). As 2.6 becomes
+relevant 2.4-ac basically becomes a fixed collection of add-ons that
+aren't mainstream anyway. And of course there are other people keeping
+patch sets in the same way nowdays.
+
+A few years ago I'd have worried about doing this, the great thing is
+that with the kernel community we have today I know I'm not a critical
+cog in the machine. In fact I'm surrounded by people far better than I
+am and we even have Andrew Morton to keep Linus in check 8)
+
+Dal ati!
+
+Alan
 

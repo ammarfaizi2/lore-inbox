@@ -1,45 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272154AbTG3ApQ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 29 Jul 2003 20:45:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272216AbTG3ApP
+	id S272417AbTG3Atb (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 29 Jul 2003 20:49:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272428AbTG3Atb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 29 Jul 2003 20:45:15 -0400
-Received: from perninha.conectiva.com.br ([200.250.58.156]:40644 "EHLO
-	perninha.conectiva.com.br") by vger.kernel.org with ESMTP
-	id S272154AbTG3ApN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 29 Jul 2003 20:45:13 -0400
-Date: Tue, 29 Jul 2003 21:19:54 -0300 (BRT)
-From: Marcelo Tosatti <marcelo@conectiva.com.br>
-X-X-Sender: marcelo@freak.distro.conectiva
-To: Marcel Holtmann <marcel@holtmann.org>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Linux 2.4.22-pre9
-In-Reply-To: <1059520929.26914.140.camel@pegasus>
-Message-ID: <Pine.LNX.4.55L.0307292118360.4633@freak.distro.conectiva>
-References: <Pine.LNX.4.55L.0307291700490.24730@freak.distro.conectiva>
- <1059520929.26914.140.camel@pegasus>
+	Tue, 29 Jul 2003 20:49:31 -0400
+Received: from sccrmhc12.comcast.net ([204.127.202.56]:34446 "EHLO
+	sccrmhc12.comcast.net") by vger.kernel.org with ESMTP
+	id S272417AbTG3Ata (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 29 Jul 2003 20:49:30 -0400
+Message-ID: <3F26FA14.20700@cornell.edu>
+Date: Tue, 29 Jul 2003 18:49:56 -0400
+From: Ivan Gyurdiev <ivg2@cornell.edu>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5b) Gecko/20030721 Thunderbird/0.1a
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Linux-Kernel <linux-kernel@vger.kernel.org>
+Subject: Binfmt_misc on 2.4 and 2.5
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+The errors below have been there for as long as I can remember, even
+under 2.4. The binfmt_misc folder in proc is empty on boot, even though
+I have the binfmt_misc module in the kernel (I think it didn't work
+builtin as well, but I haven't tested recently).
 
+Jul 29 18:26:13 cobra wine: /etc/rc5.d/S98wine: line 16:
+/proc/sys/fs/binfmt_misc/register: No such file or directory
 
-On Tue, 30 Jul 2003, Marcel Holtmann wrote:
+Jul 29 18:26:13 cobra wine: /etc/rc5.d/S98wine: line 17:
+/proc/sys/fs/binfmt_misc/register: No such file or directory
 
-> Hi Marcelo,
->
-> > Here goes -pre9, yet another step in 2.4.22 direction.
-> >
-> > It contains a bunch of Netfilter fixes, set of IEEE1394 fixes, couple of
-> > knfsd fixes amongst others.
-> >
-> > Expect -pre10 tomorrow.
->
-> what do you think about including the request_firmware() backport from
-> Manuel Estrada Sainz?
+So what's wrong? Is this a kernel issue.. I thought it probably is.
+Or have I made a mistake somewhere...
 
-I think this is a 2.4.23-pre patch.
-
-Please resend me once 2.4.22 is out.

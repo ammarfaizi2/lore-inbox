@@ -1,29 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318891AbSIIUtr>; Mon, 9 Sep 2002 16:49:47 -0400
+	id <S318844AbSIIUky>; Mon, 9 Sep 2002 16:40:54 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318892AbSIIUtr>; Mon, 9 Sep 2002 16:49:47 -0400
-Received: from mx1.elte.hu ([157.181.1.137]:19873 "HELO mx1.elte.hu")
-	by vger.kernel.org with SMTP id <S318891AbSIIUtp>;
-	Mon, 9 Sep 2002 16:49:45 -0400
-Date: Mon, 9 Sep 2002 22:58:15 +0200 (CEST)
-From: Ingo Molnar <mingo@elte.hu>
-Reply-To: Ingo Molnar <mingo@elte.hu>
-To: Daniel Jacobowitz <dan@debian.org>
-Cc: Linus Torvalds <torvalds@transmeta.com>, <linux-kernel@vger.kernel.org>
-Subject: Re: do_syslog/__down_trylock lockup in current BK
-In-Reply-To: <20020909204026.GA8719@nevyn.them.org>
-Message-ID: <Pine.LNX.4.44.0209092258050.26702-100000@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S318869AbSIIUjb>; Mon, 9 Sep 2002 16:39:31 -0400
+Received: from pc1-cwma1-5-cust128.swa.cable.ntl.com ([80.5.120.128]:57583
+	"EHLO irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S318844AbSIIUin>; Mon, 9 Sep 2002 16:38:43 -0400
+Subject: Re: md multipath with disk missing ?
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Steve Mickeler <steve@neptune.ca>
+Cc: Oktay Akbal <oktay.akbal@s-tec.de>, linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.44.0209090948430.12095-100000@triton.neptune.on.ca>
+References: <Pine.LNX.4.44.0209090948430.12095-100000@triton.neptune.on.ca>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-6) 
+Date: 09 Sep 2002 21:45:40 +0100
+Message-Id: <1031604341.29718.33.camel@irongate.swansea.linux.org.uk>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, 2002-09-09 at 14:50, Steve Mickeler wrote:
+> 
+> Oktay,
+> 
+> You should really be using devfs in a situation such as yours, where you
+> need device name consistency during reboots.
+> 
 
-some more info about the state it was in:
+There are a collection of nice tools that will run at boot up (eg from
+initrd or from the rootfs mount) and generate a set of sun like /dev/
+symlinks to the real scsi device by lun.
 
-p (ld-linux.so.2, 4364/4357), father: (ld-linux.so.2, 4363/4357)
-kernel BUG at exit.c:470!
-
-	Ingo
+You don't need to play with experimental stuff like devfs
 

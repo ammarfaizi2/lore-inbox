@@ -1,65 +1,97 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271942AbRHVGKH>; Wed, 22 Aug 2001 02:10:07 -0400
+	id <S271936AbRHVGTV>; Wed, 22 Aug 2001 02:19:21 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271941AbRHVGJ5>; Wed, 22 Aug 2001 02:09:57 -0400
-Received: from barbados.bluemug.com ([63.195.182.101]:62479 "EHLO
-	barbados.bluemug.com") by vger.kernel.org with ESMTP
-	id <S271940AbRHVGJv>; Wed, 22 Aug 2001 02:09:51 -0400
-Date: Tue, 21 Aug 2001 23:10:02 -0700
-To: Robert Love <rml@tech9.net>
-Cc: Oliver Xymoron <oxymoron@waste.org>, linux-kernel@vger.kernel.org,
-        riel@conectiva.com.br
-Subject: Re: [PATCH] let Net Devices feed Entropy, updated (1/2)
-Message-ID: <20010821231002.C27313@bluemug.com>
-Mail-Followup-To: Robert Love <rml@tech9.net>,
-	Oliver Xymoron <oxymoron@waste.org>, linux-kernel@vger.kernel.org,
-	riel@conectiva.com.br
-In-Reply-To: <Pine.LNX.4.30.0108182234250.31188-100000@waste.org> <998193404.653.12.camel@phantasy>
-Mime-Version: 1.0
+	id <S271937AbRHVGTK>; Wed, 22 Aug 2001 02:19:10 -0400
+Received: from smtp1.libero.it ([193.70.192.51]:54698 "EHLO smtp1.libero.it")
+	by vger.kernel.org with ESMTP id <S271936AbRHVGTD>;
+	Wed, 22 Aug 2001 02:19:03 -0400
+Message-ID: <3B834ED6.D71E7F03@iname.com>
+Date: Wed, 22 Aug 2001 08:19:02 +0200
+From: Luca Montecchiani <m.luca@iname.com>
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.9 i586)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Oops in 2.4.9
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <998193404.653.12.camel@phantasy>
-X-PGP-ID: 5C09BB33
-X-PGP-Fingerprint: C518 67A5 F5C5 C784 A196  B480 5C97 3BBD 5C09 BB33
-From: Mike Touloumtzis <miket@bluemug.com>
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Aug 18, 2001 at 11:56:41PM -0400, Robert Love wrote:
-> 
-> Again, /dev/urandom is just as "secure" as /dev/random.  Its the same
-> pool.  The same stuff.  Except that /dev/random blocks when the entropy
-> count hits 0.
+I've got an oops using fdupes(1) as a normal user.
+I'm running a 2.4.9 kernel with the SetPageReferenced(page);
+changes to mm/memory.c, investigating the oops with Daniel Philips 
+seem that this is not the cause.
 
-You have been repeating that there is no difference in security
-between /dev/random and /dev/urandom, but consider this: you install
-a kernel/hardware combination without any registered SA_SAMPLE_RANDOM
-IRQs (i.e. headless, no IDE, no NICs with SA_SAMPLE_RANDOM IRQs).
-This configuration is not hard to imagine for, say, a dedicated
-server appliance or embedded device.
+I can't reproduce the oops anymore :(
+I'm using ext2 only file systems.
 
-The entropy pool for such a system starts at 0s, unless I'm
-misreading the source; from create_entropy_store():
+(1) fdupes scans directory for duplicate files, in my directory
+    there are around 15.000 files.
 
-        memset(r->pool, 0, poolwords*4);
+Unfortunately I'd run ksymoops after recompiling the kernel :
 
-As long as no interrupt ever adds randomness to this pool, I might be
-able to predict every bit ever read from /dev/random on this machine.
-I don't need to break SHA-1, I just run the algorithm forward from
-its starting point.  I guess I would probably have to know the size
-of each read, so in practice an active network (TCP initial sequence
-numbers) in combination with other reads would make my job harder.
-But it's still a scary scenario.  And it comes from the fact that
-although /dev/urandom is a strong PRNG, it is still deterministic,
-and if I know its complete state at any point and can simulate
-subsequent events, I can predict its behavior.
+ksymoops 2.4.1 on i586 2.4.9.  Options used
+     -V (default)
+     -k /proc/ksyms (default)
+     -l /proc/modules (default)
+     -o /lib/modules/2.4.9/ (default)
+     -m /usr/src/linux/System.map (default)
 
-/dev/random is very good for making sure you never generate a GPG
-key on a machine like this.  I agree with most people on this thread
-that session keys are usually safe coming from /dev/urandom.  But you
-should still make sure you have at least one device feeding into
-the entropy pool, something I'm sure many admins have no clue about
-and don't verify.
+Warning: You did not tell me where to find symbol information.  I will
+assume that the log matches the kernel and modules that are running
+right now and I'll use the default options above for symbol resolution.
+If the current kernel and/or modules do not match the log, you can get
+more accurate output by telling me the kernel version and where to find
+map, modules, ksyms etc.  ksymoops -h explains the options.
 
-miket
+Aug 21 14:46:35 localhost kernel: Unable to handle kernel paging request at virtual address 33ff08f8
+Aug 21 14:46:35 localhost kernel: c012e488
+Aug 21 14:46:35 localhost kernel: *pde = 00000000
+Aug 21 14:46:35 localhost kernel: Oops: 0000
+Aug 21 14:46:35 localhost kernel: CPU:    0
+Aug 21 14:46:35 localhost kernel: EIP:    0010:[sys_read+160/196]
+Aug 21 14:46:35 localhost kernel: EFLAGS: 00010206
+Aug 21 14:46:35 localhost kernel: eax: 33ff080c   ebx: 00001000   ecx: 00001000   edx: 00000001
+Aug 21 14:46:35 localhost kernel: esi: ccf338a0   edi: 00001000   ebp: bffffb84   esp: c7275fb4
+Aug 21 14:46:35 localhost kernel: ds: 0018   es: 0018   ss: 0018
+Aug 21 14:46:35 localhost kernel: Process fdupes (pid: 1401, stackpage=c7275000)
+Aug 21 14:46:35 localhost kernel: Stack: c7274000 0823bad8 0823bad8 c0106be3 00000003 40015000 00001000 0823bad8
+Aug 21 14:46:35 localhost kernel:        0823bad8 bffffb84 00000003 0000002b 0000002b 00000003 400dde14 00000023
+Aug 21 14:46:35 localhost kernel:        00000202 bffffb6c 0000002b
+Aug 21 14:46:35 localhost kernel: Call Trace: [system_call+51/64]
+Aug 21 14:46:35 localhost kernel: Code: f6 80 ec 00 00 00 01 74 0b 6a 01 50 e8 e3 42 01 00 83 c4 08
+Using defaults from ksymoops -t elf32-i386 -a i386
+
+Code;  00000000 Before first symbol
+00000000 <_EIP>:
+Code;  00000000 Before first symbol
+   0:   f6 80 ec 00 00 00 01      testb  $0x1,0xec(%eax)
+Code;  00000007 Before first symbol
+   7:   74 0b                     je     14 <_EIP+0x14> 00000014 Before first symbol
+Code;  00000009 Before first symbol
+   9:   6a 01                     push   $0x1
+Code;  0000000b Before first symbol
+   b:   50                        push   %eax
+Code;  0000000c Before first symbol
+   c:   e8 e3 42 01 00            call   142f4 <_EIP+0x142f4> 000142f4 Before first symbol
+Code;  00000011 Before first symbol
+  11:   83 c4 08                  add    $0x8,%esp
+
+
+1 warning issued.  Results may not be reliable.
+
+
+hope this help,
+luca
+-- 
+------------------------------------------------------------------
+E-mail......: Luca Montecchiani <m.luca@iname.com>
+W.W.W.......: http://i.am/m.luca - http://luca.myip.org
+Speakfreely.: sflwl -hlwl.fourmilab.ch luca@
+I.C.Q.......: 17655604
+-----------------------=(Linux since 1995)=-----------------------
+
+Non esiste vento favorevole per il marinaio che non sa dove andare
+                                                          Seneca

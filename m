@@ -1,43 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129878AbRCGC5v>; Tue, 6 Mar 2001 21:57:51 -0500
+	id <S129884AbRCGC6c>; Tue, 6 Mar 2001 21:58:32 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129884AbRCGC5m>; Tue, 6 Mar 2001 21:57:42 -0500
-Received: from brutus.conectiva.com.br ([200.250.58.146]:1277 "EHLO
-	imladris.rielhome.conectiva") by vger.kernel.org with ESMTP
-	id <S129878AbRCGC5j>; Tue, 6 Mar 2001 21:57:39 -0500
-Date: Tue, 6 Mar 2001 21:54:18 -0300 (BRST)
-From: Rik van Riel <riel@conectiva.com.br>
-To: Andrew Morton <andrewm@uow.edu.au>
-cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
-Subject: Re: Patch submissions
-In-Reply-To: <3AA576C7.B00DF382@uow.edu.au>
-Message-ID: <Pine.LNX.4.21.0103062153190.5591-100000@imladris.rielhome.conectiva>
+	id <S129915AbRCGC6N>; Tue, 6 Mar 2001 21:58:13 -0500
+Received: from sgi.SGI.COM ([192.48.153.1]:39273 "EHLO sgi.com")
+	by vger.kernel.org with ESMTP id <S129884AbRCGC6C>;
+	Tue, 6 Mar 2001 21:58:02 -0500
+Message-ID: <3AA5A333.4DF8A096@sgi.com>
+Date: Tue, 06 Mar 2001 18:55:47 -0800
+From: Rajagopal Ananthanarayanan <ananth@sgi.com>
+X-Mailer: Mozilla 4.72 [en] (X11; U; Linux 2.2.16-4SGI_20smp i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Jeff Dike <jdike@karaya.com>, linux-kernel@vger.kernel.org
+CC: sfoehner@sgi.com
+Subject: Re: kernel lock contention and scalability
+In-Reply-To: <98454d$19p9h$1@fido.engr.sgi.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 6 Mar 2001, Andrew Morton wrote:
-
-> With respect, Rik.  You haven't finished the 2.4 VM yet.
+Jeff Dike wrote:
+	[ ... ]
 > 
-> It needs better design description.
+> > Another synchronization method popular with database peeps is "post/
+> > wait" for which SGI have a patch available for Linux. I understand
+> > that this is relatively "light weight" and might be a better choice
+> > for PG.
+> 
+> URL?
+> 
+>                                 Jeff
 
-> Could you please take the time to raise a commentary patch
-> which describes the underlying design intent?
 
-OK, I'll go work on this...
+Here it is:
 
-You are right, this is an extremely important thing.
+	http://oss.sgi.com/projects/postwait/
 
-regards,
+Check out the download section for a 2.4.0 patch.
 
-Rik
---
-Virtual memory is like a game you can't win;
-However, without VM there's truly nothing to lose...
+cheers,
 
-		http://www.surriel.com/
-http://www.conectiva.com/	http://distro.conectiva.com.br/
+ananth.
 
+--------------------------------------------------------------------------
+Rajagopal Ananthanarayanan ("ananth")
+Member Technical Staff, SGI.
+--------------------------------------------------------------------------

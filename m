@@ -1,76 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266304AbUGAXCB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266337AbUGAXQw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266304AbUGAXCB (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 Jul 2004 19:02:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266337AbUGAXCB
+	id S266337AbUGAXQw (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 Jul 2004 19:16:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266350AbUGAXQw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 Jul 2004 19:02:01 -0400
-Received: from fw.osdl.org ([65.172.181.6]:17807 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S266304AbUGAXB6 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 Jul 2004 19:01:58 -0400
-Date: Thu, 1 Jul 2004 16:03:35 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Mike Kravetz <kravetz@us.ibm.com>
-Cc: viro@math.psu.edu, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] task name handling in proc fs
-Message-Id: <20040701160335.229cfe03.akpm@osdl.org>
-In-Reply-To: <20040701224215.GC5090@w-mikek2.beaverton.ibm.com>
-References: <20040701220510.GA6164@w-mikek2.beaverton.ibm.com>
-	<20040701151935.1f61793c.akpm@osdl.org>
-	<20040701224215.GC5090@w-mikek2.beaverton.ibm.com>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i586-pc-linux-gnu)
+	Thu, 1 Jul 2004 19:16:52 -0400
+Received: from e31.co.us.ibm.com ([32.97.110.129]:37804 "EHLO
+	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S266337AbUGAXQt
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 1 Jul 2004 19:16:49 -0400
+Date: Thu, 1 Jul 2004 18:16:05 -0500
+From: linas@austin.ibm.com
+To: Greg KH <greg@kroah.com>
+Cc: linuxppc64-dev@lists.linuxppc.org, linux-kernel@vger.kernel.org
+Subject: [PATCH] 2.6 PCI Hotplug null pointer deref
+Message-ID: <20040701181605.M21634@forte.austin.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mike Kravetz <kravetz@us.ibm.com> wrote:
->
-> On Thu, Jul 01, 2004 at 03:19:35PM -0700, Andrew Morton wrote:
-> > Mike Kravetz <kravetz@us.ibm.com> wrote:
-> > >
-> > > --- linux-2.6.7/fs/proc/array.c	Wed Jun 16 05:19:36 2004
-> > > +++ linux-2.6.7.ptest/fs/proc/array.c	Thu Jul  1 17:44:14 2004
-> > > @@ -97,14 +97,14 @@
-> > >  		name++;
-> > >  		i--;
-> > >  		*buf = c;
-> > > -		if (!c)
-> > > +		if (!*buf)
-> > >  			break;
-> > > -		if (c == '\\') {
-> > > -			buf[1] = c;
-> > > +		if (*buf == '\\') {
-> > > +			buf[1] = *buf;
-> > >  			buf += 2;
-> > >  			continue;
-> > >  		}
-> > > -		if (c == '\n') {
-> > > +		if (*buf == '\n') {
-> > >  			buf[0] = '\\';
-> > >  			buf[1] = 'n';
-> > >  			buf += 2;
-> > 
-> > What is this code for?
-> 
-> The code is copying the task name from 'c' to 'buf' one character
-> at a time.  It is then 'post processing' the characters.  Currently,
-> the post processing is based on the value of c which is part of the
-> source string (task->curr).  However, it is possible for the source
-> string to change during this copy (think exec).  In such a case I
-> think it is better to base the 'post processing' on the character
-> that already has been safely been copied to the target string rather
-> than the character in the source string which might have changed.
 
-But this just makes it a bit less racy than it used to be.
+Greg,
 
-If we need locking around task->comm (and it seems that we do) then
-let's do it.
+Please review the attached patch and, if acceptable, apply to the 
+akpm/otrvalds/bkbits kernel tree.
 
-void get_task_comm(char *buf, struct task_struct *tsk);
-void set_task_comm(struct task_struct *tsk, char *buf);
+This patch fixes a null-pointer dereference when hot-plug operations 
+are performed on a machine that has virtual-io devices in it.  
+Virtual i/o devices to not have pci bridges associated with them.
+It also corrects an ordering problem during hotplug remove.
 
-It would be a bit lame to add a new lock for this - probably
-task_lock() could be coopted.
+This patch was previously reviewed/tested by Linda Xie, the current
+rpaphp maintainer.
+
+--linas
+
+Signed-off-by: Linas Vepstas <linas@linas.org>
+
+
+===== drivers/pci/hotplug/rpaphp_pci.c 1.8 vs edited =====
+--- 1.8/drivers/pci/hotplug/rpaphp_pci.c	Tue Jun  8 17:53:59 2004
++++ edited/drivers/pci/hotplug/rpaphp_pci.c	Thu Jul  1 18:03:57 2004
+@@ -378,8 +378,8 @@
+ 	
+ 		func = list_entry(ln, struct rpaphp_pci_func, sibling);
+ 		if (func->pci_dev) {
+-			rpaphp_eeh_remove_bus_device(func->pci_dev);
+ 			pci_remove_bus_device(func->pci_dev); 
++			rpaphp_eeh_remove_bus_device(func->pci_dev);
+ 		}
+ 		kfree(func);
+ 	}
+@@ -513,9 +513,18 @@
+ 		struct list_head *ln;
+ 
+ 		slot = list_entry(tmp, struct slot, rpaphp_slot_list);
++		if (slot->bridge == NULL) {
++			if (slot->dev_type == PCI_DEV) {
++				printk(KERN_WARNING "PCI slot missing bridge %s %s \n", 
++				                    slot->name, slot->location);
++			}
++			continue;
++		}
++
+ 		bus = slot->bridge->subordinate;
+-		if (!bus)
+-			return NULL; /* shouldn't be here */
++		if (!bus) {
++			continue;  /* should never happen? */
++		}
+ 		for (ln = bus->devices.next; ln != &bus->devices; ln = ln->next) {
+                                 struct pci_dev *pdev = pci_dev_b(ln);
+ 				if (pdev == dev)

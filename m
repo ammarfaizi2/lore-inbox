@@ -1,50 +1,69 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266170AbUAUXZx (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 21 Jan 2004 18:25:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266172AbUAUXZx
+	id S266208AbUAUXdT (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 21 Jan 2004 18:33:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266205AbUAUXbc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 21 Jan 2004 18:25:53 -0500
-Received: from smtp.sys.beep.pl ([195.245.198.13]:7942 "EHLO maja.beep.pl")
-	by vger.kernel.org with ESMTP id S266170AbUAUXZv convert rfc822-to-8bit
+	Wed, 21 Jan 2004 18:31:32 -0500
+Received: from gateway-1237.mvista.com ([12.44.186.158]:254 "EHLO
+	orion.mvista.com") by vger.kernel.org with ESMTP id S266190AbUAUXbE
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 21 Jan 2004 18:25:51 -0500
-From: Arkadiusz Miskiewicz <arekm@pld-linux.org>
-Organization: SelfOrganizing
-To: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
-Subject: Re: modular ide + fixed legacy/ppc doesn't work when non modular on ppc
-Date: Thu, 22 Jan 2004 00:25:07 +0100
-User-Agent: KMail/1.5.94
-Cc: linux-kernel@vger.kernel.org
-References: <200401212354.45957.arekm@pld-linux.org> <200401220015.21827.bzolnier@elka.pw.edu.pl>
-In-Reply-To: <200401220015.21827.bzolnier@elka.pw.edu.pl>
-MIME-Version: 1.0
+	Wed, 21 Jan 2004 18:31:04 -0500
+Date: Wed, 21 Jan 2004 15:31:02 -0800
+From: Jun Sun <jsun@mvista.com>
+To: linux-kernel@vger.kernel.org
+Cc: jsun@mvista.com
+Subject: [BUG 2.6.1] missing 'console_driver' with CONFIG_VT but no CONFIG_VT_CONSOLE
+Message-ID: <20040121153102.D29705@mvista.com>
+Mime-Version: 1.0
+Content-Type: multipart/mixed; boundary="fUYQa+Pmc3FrFX/N"
 Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-2"
-Content-Transfer-Encoding: 8BIT
-Message-Id: <200401220025.07135.arekm@pld-linux.org>
-X-Authenticated-Id: arekm 
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dnia czw 22. stycznia 2004 00:15, Bartlomiej Zolnierkiewicz napisa³:
-> Thanks, I have alternative fix.
->
-> --- linux/drivers/ide/ppc/pmac.c.orig	2004-01-09 07:59:08.000000000 +0100
-> +++ linux/drivers/ide/ppc/pmac.c	2004-01-22 00:10:11.550746088 +0100
-> @@ -46,7 +46,7 @@
->  #include <asm/sections.h>
->  #include <asm/irq.h>
->
-> -#include "ide-timing.h"
-> +#include "../ide-timing.h"
->
->  extern void ide_do_request(ide_hwgroup_t *hwgroup, int masked_irq);
-Works fine, thanks!
 
-> --bart
+--fUYQa+Pmc3FrFX/N
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
--- 
-Arkadiusz Mi¶kiewicz     CS at FoE, Wroclaw University of Technology
-arekm.pld-linux.org, 1024/3DB19BBD, JID: arekm.jabber.org, PLD/Linux
+
+See drivers/char/vt.c.
+
+'console_driver' is defined only when CONFIG_VT_CONSOLE is set.
+However it is used by vty_init() which is outside the scope
+of CONFIG_VT_CONSOLE.
+
+I think the fix is to move console_driver definition outside
+CONFIG_VT_CONSOLE.  See the attachment.  Hopefully someone with
+more knowledge on this can validate that.
+
+Jun
+
+--fUYQa+Pmc3FrFX/N
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: attachment; filename=junk
+
+diff -Nru drivers/char/vt.c.orig drivers/char/vt.c
+--- drivers/char/vt.c.orig	Wed Nov  5 14:29:51 2003
++++ drivers/char/vt.c	Wed Jan 21 15:27:06 2004
+@@ -2086,6 +2086,8 @@
+ 	schedule_console_callback();
+ }
+ 
++struct tty_driver *console_driver;
++
+ #ifdef CONFIG_VT_CONSOLE
+ 
+ /*
+@@ -2185,8 +2187,6 @@
+ 	clear_bit(0, &printing);
+ }
+ 
+-struct tty_driver *console_driver;
+-
+ static struct tty_driver *vt_console_device(struct console *c, int *index)
+ {
+ 	*index = c->index ? c->index-1 : fg_console;
+
+--fUYQa+Pmc3FrFX/N--

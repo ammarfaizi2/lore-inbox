@@ -1,51 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130082AbRCAWjV>; Thu, 1 Mar 2001 17:39:21 -0500
+	id <S130072AbRCAWxN>; Thu, 1 Mar 2001 17:53:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130081AbRCAWjO>; Thu, 1 Mar 2001 17:39:14 -0500
-Received: from brutus.conectiva.com.br ([200.250.58.146]:20468 "EHLO
-	brutus.conectiva.com.br") by vger.kernel.org with ESMTP
-	id <S130079AbRCAWjG>; Thu, 1 Mar 2001 17:39:06 -0500
-Date: Thu, 1 Mar 2001 19:38:35 -0300 (BRST)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: <riel@duckman.distro.conectiva>
-To: Chris Evans <chris@scary.beasts.org>
-cc: Mike Galbraith <mikeg@wen-online.de>,
-        Marcelo Tosatti <marcelo@conectiva.com.br>,
-        linux-kernel <linux-kernel@vger.kernel.org>,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: [patch][rfc][rft] vm throughput 2.4.2-ac4
-In-Reply-To: <Pine.LNX.4.30.0103012232040.21550-100000@ferret.lmh.ox.ac.uk>
-Message-ID: <Pine.LNX.4.33.0103011937560.1304-100000@duckman.distro.conectiva>
+	id <S130079AbRCAWwy>; Thu, 1 Mar 2001 17:52:54 -0500
+Received: from mercury.ultramaster.com ([208.222.81.163]:63917 "EHLO
+	mercury.ultramaster.com") by vger.kernel.org with ESMTP
+	id <S130072AbRCAWww>; Thu, 1 Mar 2001 17:52:52 -0500
+Message-ID: <3A9ED281.90C5F7CB@dm.ultramaster.com>
+Date: Thu, 01 Mar 2001 17:51:45 -0500
+From: David Mansfield <lkml@dm.ultramaster.com>
+Organization: Ultramaster Group LLC
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.2 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Rik van Riel <riel@conectiva.com.br>
+CC: Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-mm@kvack.org,
+        " Xos… V·zquez" <xose@smi-ps.com>,
+        linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] oom-killer trigger
+In-Reply-To: <Pine.LNX.4.33.0103011904140.1304-100000@duckman.distro.conectiva>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 1 Mar 2001, Chris Evans wrote:
-> On Thu, 1 Mar 2001, Rik van Riel wrote:
->
-> > True. I think we want something in-between our ideas...
->         ^^^^^^^
-> > a while. This should make it possible for the disk reads to
->                 ^^^^^^
->
-> Oh dear.. not more "vm design by waving hands in the air". Come
-> on people, improve the vm by careful profiling, tweaking and
-> benching, not by throwing random patches in that seem cool in
-> theory.
+> 
+> 1. the OOM killer never triggers if we have > freepages.min
+>    of free memory
+> 2. __alloc_pages() never allocates pages to < freepages.min
+>    for user allocations
+> 
+> ==> the OOM killer never gets triggered under some workloads;
+>     the system just sits around with nr_free_pages == freepages.min
+> 
+> The patch below trivially fixes this by upping the OOM kill limit
+> by a really small number of pages ...
 
-Actually, this was more of "vm design by looking at what
-the FreeBSD folks did, why it didn't work and how they
-fixed it after 2 years of testing various things".
+> +       if (nr_free_pages() > freepages.min + 4)
 
-Rik
---
-Linux MM bugzilla: http://linux-mm.org/bugzilla.shtml
 
-Virtual memory is like a game you can't win;
-However, without VM there's truly nothing to lose...
+Call me stupid, but why not just change the > to >= (or < to <=) rather
+than introducing a magic number (4).  Or at least make the magic number
+interesting, like:
 
-		http://www.surriel.com/
-http://www.conectiva.com/	http://distro.conectiva.com/
++       if (nr_free_pages() > freepages.min + 42)
 
+:-)
+
+Thanks for the bugfix,
+David
+
+-- 
+David Mansfield                                           (718) 963-2020
+david@ultramaster.com
+Ultramaster Group, LLC                               www.ultramaster.com

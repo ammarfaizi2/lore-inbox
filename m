@@ -1,48 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130099AbRBVSwG>; Thu, 22 Feb 2001 13:52:06 -0500
+	id <S130211AbRBVSxg>; Thu, 22 Feb 2001 13:53:36 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130211AbRBVSv4>; Thu, 22 Feb 2001 13:51:56 -0500
-Received: from palrel1.hp.com ([156.153.255.242]:13061 "HELO palrel1.hp.com")
-	by vger.kernel.org with SMTP id <S130099AbRBVSvr>;
-	Thu, 22 Feb 2001 13:51:47 -0500
-Message-ID: <3A9556A7.D052D8A6@cup.hp.com>
-Date: Thu, 22 Feb 2001 10:12:55 -0800
-From: Rick Jones <raj@cup.hp.com>
-Organization: the Unofficial HP
-X-Mailer: Mozilla 4.75 [en] (X11; U; HP-UX B.11.00 9000/785)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Nye Liu <nyet@curtis.curtisfong.org>, linux-kernel@vger.kernel.org
-Subject: Re: Very high bandwith packet based interface and performance problems
-In-Reply-To: <E14Vsrg-0003pw-00@the-village.bc.nu>
+	id <S130820AbRBVSx0>; Thu, 22 Feb 2001 13:53:26 -0500
+Received: from mail.cps.matrix.com.br ([200.196.9.5]:14598 "EHLO
+	mail.cps.matrix.com.br") by vger.kernel.org with ESMTP
+	id <S130211AbRBVSxP>; Thu, 22 Feb 2001 13:53:15 -0500
+Date: Thu, 22 Feb 2001 15:52:51 -0300
+To: Jes Sorensen <jes@linuxcare.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Problem with 2.2.19pre9 (Connection closed.)
+Message-ID: <20010222155251.A8207@godzillah>
+In-Reply-To: <94ae7g9o8t.fsf@religion.informatik.uni-bremen.de> <E14VZCs-00023R-00@the-village.bc.nu> <14996.14604.348038.42765@pizda.ninka.net> <948zmy97zc.fsf@religion.informatik.uni-bremen.de> <d3y9uyj1is.fsf@lxplus015.cern.ch>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <d3y9uyj1is.fsf@lxplus015.cern.ch>; from jes@linuxcare.com on Qui, Fev 22, 2001 at 02:22:19 +0100
+X-GPG-Fingerprint-1: 1024D/128D36EE 50AC 661A 7963 0BBA 8155  43D5 6EF7 F36B 128D 36EE
+X-GPG-Fingerprint-2: 1024D/1CDB0FE3 5422 5C61 F6B7 06FB 7E04  3738 EE25 DE3F 1CDB 0FE3
+From: hmh@rcm.org.br (Henrique de Moraes Holschuh)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox wrote:
-> 
-> > > TCP _requires_ the remote end ack every 2nd frame regardless of progress.
-> >
-> > um, I thought the spec says that ACK every 2nd segment is a SHOULD not a
-> > MUST?
-> 
-> Yes its a SHOULD in RFC1122, but in any normal environment pretty much a
-> must and I know of no stack significantly violating it.
+On Thu, 22 Feb 2001, Jes Sorensen wrote:
+> Alan forwarded a patch to me from DaveM which fixed it for me.
 
-I didn't know there was such a thing as a normal environment :)
+Jes, could you forward it here as well?
 
-> RFC1122 also requires that your protocol stack SHOULD be able to leap tall
-> buldings at a single bound of course...
+> The problems I were seeing were much more than every 2 hrs, more like
+> every 10-15 mins. Anyway it seems it got fixed.
 
-And, of course my protocol stack does :) It is also a floor wax, AND a
-dessert topping!-)
+I've seen IRC sessions getting dropped every 10-15 minutes as well, and
+about 70% outgoing http connections (to a FreeBSD proxy) dropping in less
+than 1 second. It was so bad here I had to downgrade to 2.2.18 (which fixed
+all the issues, so I'm pretty sure it was kernel trouble and not network
+trouble).
 
-rick jones
 -- 
-ftp://ftp.cup.hp.com/dist/networking/misc/rachel/
-these opinions are mine, all mine; HP might not want them anyway... :)
-feel free to email, OR post, but please do NOT do BOTH...
-my email address is raj in the cup.hp.com domain...
+  "One disk to rule them all, One disk to find them. One disk to bring
+  them all and in the darkness grind them. In the Land of Redmond
+  where the shadows lie." -- The Silicon Valley Tarot
+  Henrique Holschuh

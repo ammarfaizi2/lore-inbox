@@ -1,75 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263875AbUECUGQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263943AbUECUIq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263875AbUECUGQ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 3 May 2004 16:06:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263879AbUECUGQ
+	id S263943AbUECUIq (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 3 May 2004 16:08:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263881AbUECUIq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 3 May 2004 16:06:16 -0400
-Received: from fw.osdl.org ([65.172.181.6]:11453 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S263875AbUECUGJ (ORCPT
+	Mon, 3 May 2004 16:08:46 -0400
+Received: from [81.219.144.6] ([81.219.144.6]:56593 "EHLO pointblue.com.pl")
+	by vger.kernel.org with ESMTP id S263943AbUECUH6 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 3 May 2004 16:06:09 -0400
-Date: Mon, 3 May 2004 13:08:29 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: vatsa@in.ibm.com
-Cc: rusty@rustcorp.com.au, mingo@elte.hu, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Fix deadlock in __create_workqueue
-Message-Id: <20040503130829.5c43c6fe.akpm@osdl.org>
-In-Reply-To: <20040503122412.GB7143@in.ibm.com>
-References: <20040430113751.GA18296@in.ibm.com>
-	<20040430191901.510ae947.akpm@osdl.org>
-	<20040503122412.GB7143@in.ibm.com>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i586-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Mon, 3 May 2004 16:07:58 -0400
+Message-ID: <4096A697.2020707@pointblue.com.pl>
+Date: Mon, 03 May 2004 21:07:51 +0100
+From: Grzegorz Piotr Jaskiewicz <gj@pointblue.com.pl>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5) Gecko/20031107 Debian/1.5-3
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Pavel Machek <pavel@ucw.cz>
+Cc: Hamie <hamish@travellingkiwi.com>, linux-kernel@vger.kernel.org
+Subject: Re: uspend to Disk - Kernel 2.6.4 vs. r50p
+References: <20040429064115.9A8E814D@damned.travellingkiwi.com> <20040503123150.GA1188@openzaurus.ucw.cz> <40965DAA.4040504@pointblue.com.pl> <20040503192940.GA3531@elf.ucw.cz>
+In-Reply-To: <20040503192940.GA3531@elf.ucw.cz>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Srivatsa Vaddagiri <vatsa@in.ibm.com> wrote:
+Pavel Machek wrote:
+
+>A: Do reboot() syscall with right parameters. Warning: glibc gets in
+>its way, so check with strace:
 >
-> On Fri, Apr 30, 2004 at 07:19:01PM -0700, Andrew Morton wrote:
-> > Yes, the logic in worker_thread() is a bit dorky, but I
-> > don't believe that there is a race in there.
-> 
-> worker_thread examines kthread_should_stop() while its state
-> is TASK_RUNNING, after which it sets its state to TASK_INTERRUPTIBLE.
-> If kthread_stop were to come after kthread_should_stop and before
-> worker_thread has set its state to TASK_INTERRUPTIBLE (which is possible
-> because of a CPU going dead), wouldn't kthread_stop block forever? 
-> Note that in case of CPU going dead, it is possible that a worker
-> thread bound to the dead cpu continues executing on a different cpu 
-> before it is killed in CPU_DEAD processing.
+>reboot(LINUX_REBOOT_MAGIC1, LINUX_REBOOT_MAGIC2, 0xd000fce2)
+>
+>Ouch, and when you code that trivial program, send me source, I lost
+>mine.
+>  
+>
+Wouldn't it be better to just add place in proc that triggers it ?
 
-yup, sorry, I misread the code.  Like this?
+--
+GJ
 
 
---- 25/kernel/workqueue.c~worker_thread-race-fix	Mon May  3 13:02:25 2004
-+++ 25-akpm/kernel/workqueue.c	Mon May  3 13:07:34 2004
-@@ -201,19 +201,20 @@ static int worker_thread(void *__cwq)
- 	siginitset(&sa.sa.sa_mask, sigmask(SIGCHLD));
- 	do_sigaction(SIGCHLD, &sa, (struct k_sigaction *)0);
- 
-+	set_current_state(TASK_INTERRUPTIBLE);
- 	while (!kthread_should_stop()) {
--		set_task_state(current, TASK_INTERRUPTIBLE);
--
- 		add_wait_queue(&cwq->more_work, &wait);
- 		if (list_empty(&cwq->worklist))
- 			schedule();
- 		else
--			set_task_state(current, TASK_RUNNING);
-+			__set_current_state(TASK_RUNNING);
- 		remove_wait_queue(&cwq->more_work, &wait);
- 
- 		if (!list_empty(&cwq->worklist))
- 			run_workqueue(cwq);
-+		set_current_state(TASK_INTERRUPTIBLE);
- 	}
-+	__set_current_state(TASK_RUNNING);
- 	return 0;
- }
- 
-
-_
 

@@ -1,63 +1,139 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270726AbTGUVM1 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Jul 2003 17:12:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270728AbTGUVM0
+	id S270730AbTGUVOC (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Jul 2003 17:14:02 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270731AbTGUVOB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Jul 2003 17:12:26 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:5649 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S270726AbTGUVMS (ORCPT
-	<rfc822;linux-kernel@vger.redhat.com>);
-	Mon, 21 Jul 2003 17:12:18 -0400
-Message-ID: <3F1C5C26.10607@kolumbus.fi>
-Date: Tue, 22 Jul 2003 00:33:26 +0300
-From: =?ISO-8859-1?Q?Mika_Penttil=E4?= <mika.penttila@kolumbus.fi>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.2) Gecko/20030208 Netscape/7.02
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Pavel Machek <pavel@suse.cz>
-CC: linux-kernel@vger.redhat.com
-Subject: Re: swsusp / 2.6.0-test1
-References: <1058805510.15585.7.camel@simulacron> <20030721193615.GB473@elf.ucw.cz>
-X-MIMETrack: Itemize by SMTP Server on marconi.hallinto.turkuamk.fi/TAMK(Release 5.0.8 |June
- 18, 2001) at 22.07.2003 00:28:37,
-	Serialize by Router on notes.hallinto.turkuamk.fi/TAMK(Release 5.0.10 |March
- 22, 2002) at 22.07.2003 00:28:08,
-	Serialize complete at 22.07.2003 00:28:08
-Content-Transfer-Encoding: 7bit
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Mon, 21 Jul 2003 17:14:01 -0400
+Received: from smtp-out2.iol.cz ([194.228.2.87]:32437 "EHLO smtp-out2.iol.cz")
+	by vger.kernel.org with ESMTP id S270730AbTGUVNu (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 21 Jul 2003 17:13:50 -0400
+Date: Mon, 21 Jul 2003 23:28:28 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: Peter Osterlund <petero2@telia.com>
+Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Software suspend testing in 2.6.0-test1
+Message-ID: <20030721212828.GE436@elf.ucw.cz>
+References: <m2wueh2axz.fsf@telia.com> <20030717200039.GA227@elf.ucw.cz> <m2u19g9p2c.fsf@telia.com> <20030721125813.GA4775@zaurus.ucw.cz> <m21xwkvte8.fsf@telia.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <m21xwkvte8.fsf@telia.com>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.3i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi!
 
-Pavel Machek wrote:
+> > But why do you touch PF_FROZEN here? Refrigerator should do that.
+> > And wake_up_process should not be needed...
+> > If it is in refrigerator, it polls PF_FREEZE...
+> 
+> Note that the old code always called wake_up_process(), which is
+> necessary to make the process run one more iteration in refrigerator()
+> and relize that it is time to unfreeze.
+> 
+> The patch changes things so that wake_up_process() is NOT called if
+> the process is stopped at some other place than in refrigerator().
+> This ensures that processes that were stopped before we invoked swsusp
+> are still stopped after resume.
 
->Hi!
->
->  
->
->>swsusp is working fine, but mplayer
->>in sdl and xv output mode displays a blank
->>screen after a resume. 
->>    
->>
->
->  
->
->You probably need to write suspend/resume support for your card.
->
->								Pavel
->  
->
+Yes, but you still print warning for them. I hopefully killed that.
 
-Just wondering what kind of support for suspend/resume is "enough", say 
-for video cards? Surely not the pci configuration space, you need to 
-restore video mode, color maps, gfx engine state etc etc...what about 
-frame buffer contents on card? Probably yes. Sounds like a lot of code, 
-and different thing for every possible video card. Is there some general 
-guidance here? Is drivers/video soon bloating with tons of 
-suspend/resume code? I hope I am wrong :)
+> I manually clear PF_FREEZE here in an attempt to handle a race
+> condition, but I realize I need to understand more of the scheduler
+> and signal code before I know for sure if this is necessary and/or
+> sufficient.
 
---Mika
+I do not see the race so I killed that... Here's what I applied.
+
+								Pavel
+
+--- /usr/src/tmp/linux/kernel/suspend.c	2003-07-21 22:15:39.000000000 +0200
++++ /usr/src/linux/kernel/suspend.c	2003-07-21 22:11:28.000000000 +0200
+@@ -5,7 +5,7 @@
+  * machine suspend feature using pretty near only high-level routines
+  *
+  * Copyright (C) 1998-2001 Gabor Kuti <seasons@fornax.hu>
+- * Copyright (C) 1998,2001,2002 Pavel Machek <pavel@suse.cz>
++ * Copyright (C) 1998,2001-2003 Pavel Machek <pavel@suse.cz>
+  *
+  * I'd like to thank the following people for their work:
+  * 
+@@ -84,7 +84,6 @@
+ #define ADDRESS2(x) __ADDRESS(__pa(x))		/* Needed for x86-64 where some pages are in memory twice */
+ 
+ /* References to section boundaries */
+-extern char _text, _etext, _edata, __bss_start, _end;
+ extern char __nosave_begin, __nosave_end;
+ 
+ extern int is_head_of_free_region(struct page *);
+@@ -164,14 +163,21 @@
+  * Refrigerator and related stuff
+  */
+ 
+-#define INTERESTING(p) \
+-			/* We don't want to touch kernel_threads..*/ \
+-			if (p->flags & PF_IOTHREAD) \
+-				continue; \
+-			if (p == current) \
+-				continue; \
+-			if (p->state == TASK_ZOMBIE) \
+-				continue;
++/* 0 = Ignore this process when freezing/thawing, 1 = freeze/thaw this process */
++static inline int interesting_process(struct task_struct *p)
++{
++	if (p->flags & PF_IOTHREAD)
++		return 0;
++	if (p == current)
++		return 0;
++	if ((p->state == TASK_ZOMBIE) || (p->state == TASK_DEAD))
++		return 0;
++	if (p->state == TASK_STOPPED)
++		return 0;
++
++
++	return 1;
++}
+ 
+ #define TIMEOUT	(6 * HZ)			/* Timeout for stopping processes */
+ 
+@@ -214,7 +220,8 @@
+ 		read_lock(&tasklist_lock);
+ 		do_each_thread(g, p) {
+ 			unsigned long flags;
+-			INTERESTING(p);
++			if (!interesting_process(p))
++				continue;
+ 			if (p->flags & PF_FROZEN)
+ 				continue;
+ 
+@@ -247,13 +254,14 @@
+ 	printk( "Restarting tasks..." );
+ 	read_lock(&tasklist_lock);
+ 	do_each_thread(g, p) {
+-		INTERESTING(p);
+-		
+-		if (p->flags & PF_FROZEN)
+-			p->flags &= ~PF_FROZEN;
+-		else
+-			printk(KERN_INFO " Strange, %s not stopped\n", p->comm );
+-		wake_up_process(p);
++ 		if (!interesting_process(p))
++ 			continue;
++ 
++ 		if (p->flags & PF_FROZEN) {
++ 			p->flags &= ~PF_FROZEN;
++ 			wake_up_process(p);
++ 		} else
++ 			PRINTK(KERN_ERR " Strange, %s not frozen\n", p->comm );
+ 	} while_each_thread(g, p);
+ 
+ 	read_unlock(&tasklist_lock);
 
 
+-- 
+When do you have a heart between your knees?
+[Johanka's followup: and *two* hearts?]

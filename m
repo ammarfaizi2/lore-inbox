@@ -1,97 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263815AbUENDra@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263827AbUENEc3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263815AbUENDra (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 13 May 2004 23:47:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263827AbUENDra
+	id S263827AbUENEc3 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 14 May 2004 00:32:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264093AbUENEc3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 13 May 2004 23:47:30 -0400
-Received: from smtp3.cwidc.net ([154.33.63.113]:34711 "EHLO smtp3.cwidc.net")
-	by vger.kernel.org with ESMTP id S263815AbUENDr0 (ORCPT
+	Fri, 14 May 2004 00:32:29 -0400
+Received: from taco.zianet.com ([216.234.192.159]:29965 "HELO taco.zianet.com")
+	by vger.kernel.org with SMTP id S263827AbUENEc0 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 13 May 2004 23:47:26 -0400
-Message-ID: <40A44142.6000206@tequila.co.jp>
-Date: Fri, 14 May 2004 12:47:14 +0900
-From: Clemens Schwaighofer <cs@tequila.co.jp>
-Organization: Tequila \ Japan
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040308
-X-Accept-Language: en-us, en, ja
+	Fri, 14 May 2004 00:32:26 -0400
+From: Steven Cole <elenstev@mesatop.com>
+To: Andrew Morton <akpm@osdl.org>
+Subject: Re: 1352 NUL bytes at the end of a page?
+Date: Thu, 13 May 2004 22:32:01 -0600
+User-Agent: KMail/1.6.1
+Cc: Andy Isaacson <adi@bitmover.com>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
 MIME-Version: 1.0
-To: Andi Kleen <ak@suse.de>
-CC: davej@redhat.com, akpm@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: i810 AGP fails to initialise (was Re: 2.6.6-mm2)
-References: <20040513032736.40651f8e.akpm@osdl.org>	<6usme4v66s.fsf@zork.zork.net>	<20040513135308.GA2622@redhat.com>	<20040513155841.6022e7b0.ak@suse.de>	<6ulljwtoge.fsf@zork.zork.net> <20040513174110.5b397d84.ak@suse.de>
-In-Reply-To: <20040513174110.5b397d84.ak@suse.de>
-X-Enigmail-Version: 0.83.3.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="us-ascii"
 Content-Transfer-Encoding: 7bit
+Message-Id: <200405132232.01484.elenstev@mesatop.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+Andrew Morton wrote:
+>Andy Isaacson <adi@bitmover.com> wrote:
+>>
+>>  We've got a user who's reporting BK problems which we've traced down to
+>>  the fact that his s.ChangeSet file has a hole, filled with '\0' bytes,
+>>  that's so far always 1352 bytes long, and the end is page-aligned.  (In
+>>  fact, the two cases we've seen so far have been 8k-aligned.)  The
+>>  correct file data picks up again after the hole.
+>
+>When the reporter has a PIII machine it's often useful to find out the clock
+>frequency - the lower it is, the older it is and the more likely it is that
+>some component has rotted.
+>
+>If this one cannot be reproduced on any other machine I'd say it's a
+>hardware failure.
 
-Andi Kleen wrote:
-| On Thu, 13 May 2004 15:02:25 +0100
-| Sean Neakums <sneakums@zork.net> wrote:
-|
-|>0000:00:00.0 Host bridge: Intel Corp. 82810E DC-133 GMCH [Graphics
-Memory Controller Hub] (rev 03)
+Hi Andrew,
 
-I have exact the same problem here, my i810 fails to init. I used exact
-the same config like 2.6.6-mm1 which works fine.
+The user is me.  The machine is a 450 Mhz P-III, about five years old now.
+Andy mentioned ethernet, but I don't have that here, just 56k dialup.  The
+extra information he requested was sent a couple of hours ago, and in the
+meantime I ran two full passes of memtest86 3.1 with zero errors.
 
-X fails with: no /dev/agpgart
+<slight detour>
+I do occasionally have problems with pppd, and the following message always
+appears in /var/log/messages:
 
-and in dmesg I find this:
+May 13 18:09:30 spc kernel: serial8250: too much work for irq10
+May 13 18:09:30 spc kernel: serial8250: too much work for irq10
 
-i810fb: cannot acquire agp
-...
-Linux agpgart interface v0.100 (c) Dave Jones
-[drm:i810_probe] *ERROR* Cannot initialize the agpgart module.
+The message is always doubled as above.  This has never yet occurred
+at the same time as the bk failure, so the two seem unrelated.  I have
+to kill -9 the pppd process and reconnect when the above happens.
+This problem never happened with a 2.4.x kernel, and was first detected
+during the middle of 2.5.x development.
+</slight detour>
 
-lspci:
+The only reason the above was at all possibly relevant to the bk failtures,
+is that I've only noticed the failures when pulling over the net via ppp.
+I've never gotten the failure when pulling from another repository
+on the same disk (I've only got one).
 
-0000:00:00.0 Host bridge: Intel Corp. 82810E DC-133 GMCH [Graphics
-Memory Controller Hub] (rev 03)
-0000:00:01.0 VGA compatible controller: Intel Corp. 82810E DC-133 CGC
-[Chipset Graphics Controller] (rev 03)
-0000:00:1e.0 PCI bridge: Intel Corp. 82801BA/CA/DB/EB/ER Hub interface
-to PCI Bridge (rev 05)
-0000:00:1f.0 ISA bridge: Intel Corp. 82801BA ISA Bridge (LPC) (rev 05)
-0000:00:1f.1 IDE interface: Intel Corp. 82801BA IDE U100 (rev 05)
-0000:00:1f.2 USB Controller: Intel Corp. 82801BA/BAM USB (Hub #1) (rev 05)
-0000:00:1f.3 SMBus: Intel Corp. 82801BA/BAM SMBus (rev 05)
-0000:00:1f.4 USB Controller: Intel Corp. 82801BA/BAM USB (Hub #2) (rev 05)
-0000:00:1f.5 Multimedia audio controller: Intel Corp. 82801BA/BAM AC'97
-Audio (rev 05)
-0000:01:08.0 Ethernet controller: Intel Corp. 82801BA/BAM/CA/CAM
-Ethernet Controller (rev 03)
+If you have any ideas about narrowing down the potentially rotted
+component, please let me know.
 
-lspci -n
+I cut and pasted the above from a lkml archive, so sorry if this
+messes up your mail thread.  I'm not on lkml here at home, so
+please cc me on any replies.
 
-0000:00:00.0 Class 0600: 8086:7124 (rev 03)
-0000:00:01.0 Class 0300: 8086:7125 (rev 03)
-0000:00:1e.0 Class 0604: 8086:244e (rev 05)
-0000:00:1f.0 Class 0601: 8086:2440 (rev 05)
-0000:00:1f.1 Class 0101: 8086:244b (rev 05)
-0000:00:1f.2 Class 0c03: 8086:2442 (rev 05)
-0000:00:1f.3 Class 0c05: 8086:2443 (rev 05)
-0000:00:1f.4 Class 0c03: 8086:2444 (rev 05)
-0000:00:1f.5 Class 0401: 8086:2445 (rev 05)
-0000:01:08.0 Class 0200: 8086:2449 (rev 03)
-
-- --
-Clemens Schwaighofer - IT Engineer & System Administration
-==========================================================
-TEQUILA\Japan, 6-17-2 Ginza Chuo-ku, Tokyo 104-8167, JAPAN
-Tel: +81-(0)3-3545-7703            Fax: +81-(0)3-3545-7343
-http://www.tequila.co.jp
-==========================================================
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-
-iD8DBQFApEFBjBz/yQjBxz8RAtcyAKDjbuJMwyAFktes/KnCfbpPW3rt3QCcDM5a
-DMrSA1kamtEp9i+4S5rQUyM=
-=MAJF
------END PGP SIGNATURE-----
+Steven

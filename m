@@ -1,86 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129614AbQKHR4u>; Wed, 8 Nov 2000 12:56:50 -0500
+	id <S129657AbQKHR7A>; Wed, 8 Nov 2000 12:59:00 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129569AbQKHR4l>; Wed, 8 Nov 2000 12:56:41 -0500
-Received: from vger.timpanogas.org ([207.109.151.240]:19465 "EHLO
-	vger.timpanogas.org") by vger.kernel.org with ESMTP
-	id <S129611AbQKHR43>; Wed, 8 Nov 2000 12:56:29 -0500
-Date: Wed, 8 Nov 2000 11:52:47 -0700
-From: "Jeff V. Merkey" <jmerkey@vger.timpanogas.org>
-To: Jesse Pollard <pollard@tomcat.admin.navo.hpc.mil>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Installing kernel 2.4
-Message-ID: <20001108115247.A11377@vger.timpanogas.org>
-In-Reply-To: <200011081343.HAA341140@tomcat.admin.navo.hpc.mil>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 1.0.1i
-In-Reply-To: <200011081343.HAA341140@tomcat.admin.navo.hpc.mil>; from pollard@tomcat.admin.navo.hpc.mil on Wed, Nov 08, 2000 at 07:43:29AM -0600
+	id <S129488AbQKHR6u>; Wed, 8 Nov 2000 12:58:50 -0500
+Received: from fs1.dekanat.physik.uni-tuebingen.de ([134.2.216.20]:50698 "EHLO
+	fs1.dekanat.physik.uni-tuebingen.de") by vger.kernel.org with ESMTP
+	id <S129657AbQKHR6h>; Wed, 8 Nov 2000 12:58:37 -0500
+Date: Wed, 8 Nov 2000 18:58:23 +0100 (CET)
+From: Richard Guenther <richard.guenther@student.uni-tuebingen.de>
+To: James Simmons <jsimmons@suse.com>
+cc: Richard Guenther <richard.guenther@student.uni-tuebingen.de>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>, tytso@mit.edu,
+        Linux Kernel List <linux-kernel@vger.kernel.org>
+Subject: Re: Broken colors on console with 2.4.0-textXX
+In-Reply-To: <Pine.LNX.4.21.0011080952570.2704-100000@euclid.oak.suse.com>
+Message-ID: <Pine.LNX.4.21.0011081856460.17375-100000@fs1.dekanat.physik.uni-tuebingen.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Nov 08, 2000 at 07:43:29AM -0600, Jesse Pollard wrote:
-> ---------  Received message begins Here  ---------
-> 
-> > 
-> > On Wed, Nov 08, 2000 at 03:25:56AM +0000, davej@suse.de wrote:
-> > > On Tue, 7 Nov 2000, Jeff V. Merkey wrote:
-> > > 
-> > > > If the compiler always aligned all functions and data on 16 byte
-> > > > boundries (NetWare)  for all i386 code, it would run a lot faster.
-> > > 
-> > > Except on architectures where 16 byte alignment isn't optimal.
-> > > 
-> > > > Cache line alignment could be an option in the loader .... after all,
-> > > > it's hte loader that locates data in memory.  If Linux were PE based,
-> > > > relocation logic would be a snap with this model (like NT).
-> > > 
-> > > Are you suggesting multiple files of differing alignments packed into
-> > > a single kernel image, and have the loader select the correct one at
-> > > runtime ? I really hope I've misinterpreted your intention.
-> > 
-> > Or more practically, a smart loader than could select a kernel image
-> > based on arch and auto-detect to load the correct image. I don't really
-> > think it matters much what mechanism is used.   
-> > 
-> > What makes more sense is to pack multiple segments for different 
-> > processor architecures into a single executable package, and have the 
-> > loader pick the right one (the NT model).  It could be used for 
-> > SMP and non-SMP images, though, as well as i386, i586, i686, etc.  
-> 
-> Sure.. and it will also be able to boot on Alpha/Sparc/PPC....:)
-> 
-> The best is to have the installer (person) to select the primary
-> archecture from a CD. There will NOT be a single boot loader that will
-> work for all systems. At best, there will have to be one per CPU family,
-> but more likely, one per BIOS structure. This is the only thing that can
-> determine the primary boot.
-> 
-> The primary boot can then determine which CPU type (starting with the
-> smallest common CPU), and set flags for a kernel (minimal kernel) load.
-> During the startup of THAT kernel then the selection of target RPM can
-> be made that would install a kernel for the specific architetcure. After
-> a (minimal?) system install, a reboot would be necessary.
-> 
-> It actually seems like it would be simpler to use the minimal kernel
-> to rebuild the kernel for the local architecture. MUCH less work.
-> This still requires a CPU family selection by the person doing the install.
-> Nothing will get around that.
-
-
-I am hesitant to jump in since hpa is working on something like this.  I 
-think I would like to wait and see what he puts out.  If he would like
-for me in my spare time to help him with it, I think I'd love to.
-
-Jeff
+On Wed, 8 Nov 2000, James Simmons wrote:
 
 > 
-> -------------------------------------------------------------------------
-> Jesse I Pollard, II
-> Email: pollard@navo.hpc.mil
+> > Okay - so its the console subsystem that gets it wrong? Remember
+> > that 2.2.X gets it right - with the same X server. I really
+> > would like to have this fixed in 2.4 - can I do something to
+> > help fixing this? (I'm not familiar with the console subsystem,
+> > neither with the X server)
 > 
-> Any opinions expressed are solely my own.
+> It is the way it is done that is wrong. At present the X server is in
+> total control of setting the console system back to text mode. This
+> works under normal conditions but when the system is stressed or X
+> fails you are stuck. The console system should be setting the video
+> hardware back to vga text mode instead of the X server. I have been
+> working on a patch that does that. 
+
+Sure - but this was always the case. And using 2.2 with the same
+(or more) stress the Xserver is still able to set the video hardware
+back to vga text mode. I just want to know whats the difference
+between 2.2 and 2.4 that causes failure in 2.4.
+
+Richard.
+
+--
+Richard Guenther <richard.guenther@student.uni-tuebingen.de>
+WWW: http://www.anatom.uni-tuebingen.de/~richi/
+The GLAME Project: http://www.glame.de/
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,39 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262590AbTEFLr4 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 May 2003 07:47:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262591AbTEFLr4
+	id S262591AbTEFLxh (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 May 2003 07:53:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262599AbTEFLxh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 May 2003 07:47:56 -0400
-Received: from [203.94.130.164] ([203.94.130.164]:52944 "EHLO bad-sports.com")
-	by vger.kernel.org with ESMTP id S262590AbTEFLrz (ORCPT
+	Tue, 6 May 2003 07:53:37 -0400
+Received: from home.wiggy.net ([213.84.101.140]:61125 "EHLO mx1.wiggy.net")
+	by vger.kernel.org with ESMTP id S262591AbTEFLxg (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 May 2003 07:47:55 -0400
-Date: Tue, 6 May 2003 21:39:48 +1000 (EST)
-From: Brett <generica@email.com>
-X-X-Sender: brett@bad-sports.com
+	Tue, 6 May 2003 07:53:36 -0400
+Date: Tue, 6 May 2003 14:06:08 +0200
+From: Wichert Akkerman <wichert@wiggy.net>
 To: linux-kernel@vger.kernel.org
-Subject: 2.5.69 just doesn't boot (neither does anything > .67)
-Message-ID: <Pine.LNX.4.44.0305062136240.1962-100000@bad-sports.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Subject: Re: 2.5.69 just doesn't boot (neither does anything > .67)
+Message-ID: <20030506120608.GF20419@wiggy.net>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+References: <Pine.LNX.4.44.0305062136240.1962-100000@bad-sports.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.44.0305062136240.1962-100000@bad-sports.com>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Previously Brett wrote:
+> please, can't someone give me a hand here ??
 
-Subject says it all, really
+How about providing some possibly useful information such as grub
+version, machine type, etc.
 
-so does my previous mail on the topic
+Wichert.
 
-<http://marc.theaimsgroup.com/?l=linux-kernel&m=105099066618652&w=2>
-
-I don't even get to "Uncompressing linux"
-
-just a blank screen, baby, with grub lines at the top
-
-please, can't someone give me a hand here ??
-
-thanks,
-
-	/ Brett
+-- 
+Wichert Akkerman <wichert@wiggy.net>      It is simple to make things.
+http://www.wiggy.net/                     It is hard to make things simple.
 

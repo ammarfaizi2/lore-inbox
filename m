@@ -1,35 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290841AbSBRR6M>; Mon, 18 Feb 2002 12:58:12 -0500
+	id <S290823AbSBRR6K>; Mon, 18 Feb 2002 12:58:10 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290828AbSBRRvq>; Mon, 18 Feb 2002 12:51:46 -0500
-Received: from smtp-send.myrealbox.com ([192.108.102.143]:37187 "EHLO
-	smtp-send.myrealbox.com") by vger.kernel.org with ESMTP
-	id <S290707AbSBRRoM>; Mon, 18 Feb 2002 12:44:12 -0500
-Subject: 2.4.x a.o.k. with VIA 266a
-From: "Trever L. Adams" <tadams-lists@myrealbox.com>
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/1.0.2 
-Date: 18 Feb 2002 12:44:14 -0500
-Message-Id: <1014054256.1200.7.camel@aurora>
-Mime-Version: 1.0
+	id <S290882AbSBRRyG>; Mon, 18 Feb 2002 12:54:06 -0500
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:59471 "EHLO
+	frodo.biederman.org") by vger.kernel.org with ESMTP
+	id <S290815AbSBRRkg>; Mon, 18 Feb 2002 12:40:36 -0500
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: dalecki@evision-ventures.com (Martin Dalecki),
+        jgarzik@mandrakesoft.com (Jeff Garzik),
+        torvalds@transmeta.com (Linus Torvalds), linux-kernel@vger.kernel.org
+Subject: Re: PATCH 2.5.4 i810_audio, bttv, working at all.
+In-Reply-To: <E16azBG-0005DM-00@the-village.bc.nu>
+From: ebiederm@xmission.com (Eric W. Biederman)
+Date: 18 Feb 2002 10:36:01 -0700
+In-Reply-To: <E16azBG-0005DM-00@the-village.bc.nu>
+Message-ID: <m1r8ni4rr2.fsf@frodo.biederman.org>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.1
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-A while back I had some problems I mentioned here.  My computer wouldn't
-work without turning off the top 16 megabytes with mem=.  Anyway, it
-works now.  My video card (Permedia II based Leadtek Winfast 2300) was
-buggy.  My spare test video card apparently caused similar problems.
+Alan Cox <alan@lxorguk.ukuu.org.uk> writes:
 
-Thank you to those who tried to help out.  To those I offended or
-bothered, I am sorry.
+> > But please just show me a non x86 architecture which is using the 
+> > i810_audio driver! 
+> 
+> To start with the i810 audio code is the same code as is used for the AMD768
+> southbridge which can be used with an Alpha processor + AMD762
 
-Things are great.
+Or equally fun I won't be surprised if the i870 chipset for the next
+generation ia64 itanium processor (mckinley) could use this code.
 
-Trever Adams
-
-
-
-
+Eric

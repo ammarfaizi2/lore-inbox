@@ -1,47 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263142AbTCWSyI>; Sun, 23 Mar 2003 13:54:08 -0500
+	id <S263144AbTCWS5l>; Sun, 23 Mar 2003 13:57:41 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263144AbTCWSyI>; Sun, 23 Mar 2003 13:54:08 -0500
-Received: from pimout3-ext.prodigy.net ([207.115.63.102]:46061 "EHLO
-	pimout3-ext.prodigy.net") by vger.kernel.org with ESMTP
-	id <S263142AbTCWSyH>; Sun, 23 Mar 2003 13:54:07 -0500
-Message-Id: <200303231905.h2NJ57OU665784@pimout3-ext.prodigy.net>
-Content-Type: text/plain; charset=US-ASCII
-From: dan carpenter <d_carpenter@sbcglobal.net>
-To: Brian Gerst <bgerst@didntduck.org>, Thomas Molina <tmolina@cox.net>,
-       <jsimmons@infradead.org>
-Subject: Re: sleeping function call in 2.5.65-bk
-Date: Sun, 23 Mar 2003 02:44:25 +0100
-X-Mailer: KMail [version 1.3.2]
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <Pine.LNX.4.44.0303230958450.891-100000@localhost.localdomain> <3E7DE12C.2020301@quark.didntduck.org>
-In-Reply-To: <3E7DE12C.2020301@quark.didntduck.org>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
+	id <S263145AbTCWS5k>; Sun, 23 Mar 2003 13:57:40 -0500
+Received: from pasmtp.tele.dk ([193.162.159.95]:10764 "EHLO pasmtp.tele.dk")
+	by vger.kernel.org with ESMTP id <S263144AbTCWS5k>;
+	Sun, 23 Mar 2003 13:57:40 -0500
+Date: Sun, 23 Mar 2003 20:08:45 +0100
+From: Sam Ravnborg <sam@ravnborg.org>
+To: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>,
+       Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>
+Cc: Sam Ravnborg <sam@ravnborg.org>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] add checkstack Makefile target
+Message-ID: <20030323190844.GA6699@mars.ravnborg.org>
+Mail-Followup-To: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>,
+	Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>,
+	Sam Ravnborg <sam@ravnborg.org>, linux-kernel@vger.kernel.org
+References: <20030303211647.GA25205@wohnheim.fh-wedel.de> <20030304070304.GP4579@actcom.co.il> <20030304072443.GA5503@wohnheim.fh-wedel.de> <20030304102121.GC6583@wohnheim.fh-wedel.de> <20030304105739.GD6583@wohnheim.fh-wedel.de> <20030304190854.GA1917@mars.ravnborg.org> <20030305145149.GA7509@wohnheim.fh-wedel.de> <20030305191516.GB1841@mars.ravnborg.org> <20030305195451.GB10871@wohnheim.fh-wedel.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20030305195451.GB10871@wohnheim.fh-wedel.de>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sunday 23 March 2003 05:30 pm, Brian Gerst wrote:
->
-> The fbcon driver is calling kmalloc in interrupt context without
-> GFP_ATOMIC.
+On Wed, Mar 05, 2003 at 08:54:51PM +0100, Jörn Engel wrote:
+> 
+> I wonder if checkstack should be added to noconfig_targets. In fact, I
+> wonder if I put checkstack in the right spot at all. Sam?
 
-Good call.  This is compile tested only.
+checkstack needs a configured and build kernel, hence the
+prerequisite vmlinux.
+So it is located at the right spot and shall not be listed in
+noconfig_targets.
 
-regards,
-dan carpenter
+Only tiny issue is that you miss:
+.PHONY: checkstack
 
---- drivers/video/console/fbcon.c.orig  2003-03-23 02:39:23.000000000 +0100
-+++ drivers/video/console/fbcon.c       2003-03-23 02:40:39.000000000 +0100
-@@ -985,8 +985,8 @@
- 
-        size = ((width + 7) >> 3) * height;
- 
--       data = kmalloc(size, GFP_KERNEL);
--       mask = kmalloc(size, GFP_KERNEL);
-+       data = kmalloc(size, GFP_ATOMIC);
-+       mask = kmalloc(size, GFP_ATOMIC);
-        
-        if (cursor->set & FB_CUR_SETSIZE) {
-                memset(data, 0xff, size);
+	Sam

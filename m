@@ -1,69 +1,83 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267953AbUIAWwr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267989AbUIAVEP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267953AbUIAWwr (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Sep 2004 18:52:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267708AbUIAWwa
+	id S267989AbUIAVEP (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Sep 2004 17:04:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267930AbUIAVDR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Sep 2004 18:52:30 -0400
-Received: from viper.oldcity.dca.net ([216.158.38.4]:16777 "HELO
-	viper.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S267681AbUIAWvN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Sep 2004 18:51:13 -0400
-Subject: Re: silent semantic changes with reiser4
-From: Lee Revell <rlrevell@joe-job.com>
-To: Jamie Lokier <jamie@shareable.org>
-Cc: Pavel Machek <pavel@suse.cz>, David Masover <ninja@slaphack.com>,
-       Horst von Brand <vonbrand@inf.utfsm.cl>, Chris Wedgwood <cw@f00f.org>,
-       viro@parcelfarce.linux.theplanet.co.uk,
-       Linus Torvalds <torvalds@osdl.org>, Christoph Hellwig <hch@lst.de>,
-       Hans Reiser <reiser@namesys.com>, linux-fsdevel@vger.kernel.org,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       Alexander Lyamin aka FLX <flx@namesys.com>,
-       ReiserFS List <reiserfs-list@namesys.com>
-In-Reply-To: <20040901215939.GK31934@mail.shareable.org>
-References: <200408311931.i7VJV8kt028102@laptop11.inf.utfsm.cl>
-	 <41352279.7020307@slaphack.com> <20040901045922.GA512@elf.ucw.cz>
-	 <20040901161456.GA31934@mail.shareable.org>
-	 <20040901201824.GB11838@atrey.karlin.mff.cuni.cz>
-	 <20040901215939.GK31934@mail.shareable.org>
-Content-Type: text/plain
-Message-Id: <1094079071.1343.25.camel@krustophenia.net>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Wed, 01 Sep 2004 18:51:12 -0400
-Content-Transfer-Encoding: 7bit
+	Wed, 1 Sep 2004 17:03:17 -0400
+Received: from baikonur.stro.at ([213.239.196.228]:1985 "EHLO baikonur.stro.at")
+	by vger.kernel.org with ESMTP id S267988AbUIAU5M (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 1 Sep 2004 16:57:12 -0400
+Subject: [patch 17/25]  drivers/tc/zs.c MIN/MAX removal
+To: linux-kernel@vger.kernel.org
+Cc: akpm@digeo.com, janitor@sternwelten.at
+From: janitor@sternwelten.at
+Date: Wed, 01 Sep 2004 22:57:11 +0200
+Message-ID: <E1C2cAK-0007RF-2m@sputnik>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2004-09-01 at 17:59, Jamie Lokier wrote:
-> Pavel Machek wrote:
-> > > Can I do these already using uservfs?
-> > > 
-> > >    cd
-> > >    less foo.zip/contents/bar.c
-> > 
-> > less foo.zip#uzip/contents/bar.c
-> > 
-> > >    less /usr/portage/distfiles/perl-5.8.5.tar.gz/contents/toke.c
-> > 
-> > less /usr/portage/distfiles/perl-5.8.5.tar.gz#utar/contents/toke.c
-> >
-> > >    grep -R obscure_label ~/RPMS
-> > 
-> > I do not think you'd want this. How would you tell grep obscure label
-> > without entering archives, then? 
-> 
-> Granted, this is where we need "grep --recurse-into-files" or, more
-> generally useful, a find option.
-> 
 
-FWIW, this is how Windows does it now.  As of XP, 'Find files' has an
-option, enabled by default, to look inside archives.  If you tell it to
-look for a driver in a given directory it will also look inside .cab 
-and .zip files.  It's extremely useful, I would imagine someone who uses
-XP a lot will come to expect this feature.
 
-Of course, no idea how it's implemented, but users like it.
+Patch (against 2.6.7) removes unnecessary min/max macros and changes
+calls to use kernel.h macros instead.
 
-Lee
+Feedback is always welcome
+Michael
 
+Signed-off-by: Maximilian Attems <janitor@sternwelten.at>
+
+
+
+---
+
+ linux-2.6.9-rc1-bk7-max/drivers/tc/zs.c |   14 +++++---------
+ 1 files changed, 5 insertions(+), 9 deletions(-)
+
+diff -puN drivers/tc/zs.c~min-max-tc_zs drivers/tc/zs.c
+--- linux-2.6.9-rc1-bk7/drivers/tc/zs.c~min-max-tc_zs	2004-09-01 19:34:22.000000000 +0200
++++ linux-2.6.9-rc1-bk7-max/drivers/tc/zs.c	2004-09-01 19:34:22.000000000 +0200
+@@ -211,10 +211,6 @@ static void probe_sccs(void);
+ static void change_speed(struct dec_serial *info);
+ static void rs_wait_until_sent(struct tty_struct *tty, int timeout);
+ 
+-#ifndef MIN
+-#define MIN(a,b)	((a) < (b) ? (a) : (b))
+-#endif
+-
+ /*
+  * tmp_buf is used as a temporary buffer by serial_write.  We need to
+  * lock it in case the copy_from_user blocks while swapping in a page,
+@@ -950,16 +946,16 @@ static int rs_write(struct tty_struct * 
+ 	save_flags(flags);
+ 	while (1) {
+ 		cli();		
+-		c = MIN(count, MIN(SERIAL_XMIT_SIZE - info->xmit_cnt - 1,
+-				   SERIAL_XMIT_SIZE - info->xmit_head));
++		c = min_t(int, count, min(SERIAL_XMIT_SIZE - info->xmit_cnt - 1,
++					  SERIAL_XMIT_SIZE - info->xmit_head));
+ 		if (c <= 0)
+ 			break;
+ 
+ 		if (from_user) {
+ 			down(&tmp_buf_sem);
+ 			copy_from_user(tmp_buf, buf, c);
+-			c = MIN(c, MIN(SERIAL_XMIT_SIZE - info->xmit_cnt - 1,
+-				       SERIAL_XMIT_SIZE - info->xmit_head));
++			c = min_t(int, c, min(SERIAL_XMIT_SIZE - info->xmit_cnt - 1,
++					      SERIAL_XMIT_SIZE - info->xmit_head));
+ 			memcpy(info->xmit_buf + info->xmit_head, tmp_buf, c);
+ 			up(&tmp_buf_sem);
+ 		} else
+@@ -1446,7 +1442,7 @@ static void rs_wait_until_sent(struct tt
+ 	if (char_time == 0)
+ 		char_time = 1;
+ 	if (timeout)
+-		char_time = MIN(char_time, timeout);
++		char_time = min_t(unsigned long, char_time, timeout);
+ 	while ((read_zsreg(info->zs_channel, 1) & Tx_BUF_EMP) == 0) {
+ 		current->state = TASK_INTERRUPTIBLE;
+ 		schedule_timeout(char_time);
+
+_

@@ -1,106 +1,73 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263639AbTJWQD3 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Oct 2003 12:03:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263640AbTJWQD3
+	id S263595AbTJWPsu (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Oct 2003 11:48:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263602AbTJWPsu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Oct 2003 12:03:29 -0400
-Received: from willy.net1.nerim.net ([62.212.114.60]:7434 "EHLO www.home.local")
-	by vger.kernel.org with ESMTP id S263639AbTJWQD0 (ORCPT
+	Thu, 23 Oct 2003 11:48:50 -0400
+Received: from moutng.kundenserver.de ([212.227.126.189]:12260 "EHLO
+	moutng.kundenserver.de") by vger.kernel.org with ESMTP
+	id S263595AbTJWPsq convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Oct 2003 12:03:26 -0400
-Date: Thu, 23 Oct 2003 18:03:02 +0200
-From: Willy Tarreau <willy@w.ods.org>
-To: laforge@gnumonks.org
-Cc: Netfilter Development Mailinglist 
-	<netfilter-devel@lists.netfilter.org>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH-2.4] NF_REPEAT was ignored !
-Message-ID: <20031023160302.GA13255@alpha.home.local>
-References: <20031008094447.GL25743@sunbeam.de.gnumonks.org> <Pine.LNX.4.33.0310090854360.22077-100000@blackhole.kfki.hu> <20031022102556.GA10540@alpha.home.local>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Thu, 23 Oct 2003 11:48:46 -0400
+From: Oliver Bohlen <oliver.bohlen@t-online.de>
+Reply-To: oliver.bohlen@t-online.de
+Organization: Deutsche Telekom AG
+To: linux-kernel@vger.kernel.org
+Subject: Resume after suspend
+Date: Thu, 23 Oct 2003 17:51:30 +0200
+User-Agent: KMail/1.5.4
+MIME-Version: 1.0
+Content-Type: Text/Plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Description: clearsigned data
 Content-Disposition: inline
-In-Reply-To: <20031022102556.GA10540@alpha.home.local>
-User-Agent: Mutt/1.4i
+Message-Id: <200310231751.30884.oliver.bohlen@t-online.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Harald !
-
-Just replying to myself to state that vanilla 2.4.23-pre8 has the same problem
-(linux-kernel cc'd for this matter), and the patch applies to it too. There is
-a difference, though, because I found no user of NF_REPEAT in 2.4.23-pre8, so
-as of today, no mainline code seems affected, but the bug is waiting for
-someone to bite :-)
-
-Please review, comment and/or apply.
-
-Regards,
-Willy
-
-==== original mail below ====
-
-On Wed, Oct 22, 2003 at 12:25:56PM +0200, Willy Tarreau wrote:
-Hi,
-
-after updating the production firewalls to handle the CW->CL state, I saw the
-rate of drops decrease, but not as much as I would have expected it to.
-
-I captured lots of data (/p/n/ip_conntrack, logs, tcpdump) and discovered
-another problem with tcp_window_tracking that I could easily reproduce on
-a lab : if a client reused a port too early, then the SYN/ACK from the
-server was dropped, and the client could only connect after the next SYN
-retransmit. I simply checked it with nc -p 1234 server 80. The first one
-succeeds immediately, the second one needs 3 seconds to establish. There
-is a logical explication to this :
-
-The client completes a first connection to server:80 with spt=1234. A few
-seconds later, he reuses the same port to initiate a new connection to the
-server. The firewall still sees the connection in TIME_WAIT state, so its
-state matrix switches it to SYN_SENT  (orig:sTW--(SY)-->sSS).
-
-In ip_conntrack_proto_tcp.c:tcp_packet(), there is a test for this case. The
-existing session is deleted and NF_REPEAT is returned so that the caller tries
-again (here, ip_conntrack_core.c:ip_conntrack_in()). This one simply returns
-the same code NF_REPEAT to its caller which will call it again (nf_iterate()).
-
-The problem is that once ip_conntrack_in() is called again with the same pskb,
-it already has its ->nfct filled, so ip_conntrack_in() immediately returns
-NF_ACCEPT without doing any lookup. The result is that the SYN is passed to
-the server, and the deleted session is not recreated. When the server replies
-with a SYN/ACK, this one has no matching session it is blocked by the firewall
-rules. Then, 3 seconds later, the client retransmits its SYN, which reaches
-the firewall without any matching session, and correctly initiates a new one.
-
-The solution is to correctly clear the ->nfct field in ip_conntrack_in() if
-we return NF_REPEAT. This is what the following patch does. It's to be applied
-to 2.4+POM-20030912, but I'm confident it may be easily applied and/or ported
-to later versions.
-
-I've not checked yet if the mainline conntrack code is also affected, but this
-could be possible.
-
-Regards,
-Willy
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
 
---- ./net/ipv4/netfilter/ip_conntrack_core.c.orig	Tue Oct 21 14:21:08 2003
-+++ ./net/ipv4/netfilter/ip_conntrack_core.c	Tue Oct 21 16:14:53 2003
-@@ -856,6 +861,14 @@
- 	IP_NF_ASSERT((*pskb)->nfct);
- 
- 	ret = proto->packet(ct, (*pskb)->nh.iph, (*pskb)->len, ctinfo);
-+
-+	if (ret == NF_REPEAT) {
-+		/* we must loop here again */
-+		nf_conntrack_put((*pskb)->nfct);
-+		(*pskb)->nfct = NULL;
-+		return ret;
-+	}
-+
- 	if (ret == -1) {
- 		/* Invalid */
- 		nf_conntrack_put((*pskb)->nfct);
+Hi!
 
+I'm using the kernel 2.6test8 from kernel.org with apm on my Laptop.
+If I have X started I can't resume when suspend is finished. It's working 
+without X. 
+Is there any problem with the kernel, apm and X? 
+Here some informations about my system:
+
+Hardware:
+Gericom Webgine XL Force
+P4@2,4GHz
+512 MB of RAM
+nVidia GeForce 4 Go (32 MB memory)
+BIOS supports APM and ACPI
+
+Software:
+Gentoo Linux
+Kernel 2.6test8 from kernel.org
+apmd-3.0.2-r3
+
+Suspend with ACPI is with "echo 3 > /proc/acpi/sleep" working but I can't 
+resume. Here it is the same with and without X.
+I tried to get help in several other Mailinglists but the problem isn't solved 
+yet.
+
+Is here anyone who can help me?
+
+Thanks
+Olli
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.3 (GNU/Linux)
+
+iQEVAwUBP5f5Alb2+hVV5H1AAQKrsgf+KyQvDa4xUUsz6Ydftft7Slk2E1Phm+CW
+L42F79UolRnkw6U1LyhAHcWRpzRXgHfZ2ubT5XW6KTcuJ4UOHd15pv0CWFnXL+kA
+eEFA9H8RQIyM+96GD1MWBBR2E3C00w2ANamUHQjgUG7q8inlMsh9YV0eVqDe5J08
+inEEHpMtpgeNLsE1H/Z0LldAT/pdeSYe9iZ+NL2pvVbXhJvyo2PYxjx8isXqmS2w
+Vm5dpl8o9qcRNVz61Z5CH4XghFOuXrg1Wt+pMiwsn4vVhppdAgoD6OBcwSvAiRHC
+RdZe/HMbtsToKPJMwhExjwrnENKqFWn1GwowIywY5xmKWonJzy1CrA==
+=DIs1
+-----END PGP SIGNATURE-----
 

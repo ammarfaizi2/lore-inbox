@@ -1,59 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264741AbTF0PXd (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 27 Jun 2003 11:23:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264766AbTF0PXc
+	id S264453AbTF0Pcu (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 27 Jun 2003 11:32:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264460AbTF0Pcu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 27 Jun 2003 11:23:32 -0400
-Received: from c17870.thoms1.vic.optusnet.com.au ([210.49.248.224]:33469 "EHLO
-	mail.kolivas.org") by vger.kernel.org with ESMTP id S264741AbTF0PXT
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 27 Jun 2003 11:23:19 -0400
-From: Con Kolivas <kernel@kolivas.org>
-To: Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>
-Subject: Re: [BENCHMARK] O1int patch with contest
-Date: Sat, 28 Jun 2003 01:40:08 +1000
-User-Agent: KMail/1.5.2
-Cc: linux kernel mailing list <linux-kernel@vger.kernel.org>
-References: <200306280041.47619.kernel@kolivas.org> <1056727700.584.3.camel@teapot.felipe-alfaro.com>
-In-Reply-To: <1056727700.584.3.camel@teapot.felipe-alfaro.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Fri, 27 Jun 2003 11:32:50 -0400
+Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:46726
+	"EHLO lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
+	id S264453AbTF0Pcs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 27 Jun 2003 11:32:48 -0400
+Subject: Re: bkbits.net is down
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Larry McVoy <lm@bitmover.com>
+Cc: Vojtech Pavlik <vojtech@suse.cz>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20030627145727.GB18676@work.bitmover.com>
+References: <20030621135812.GE14404@work.bitmover.com>
+	 <20030621190944.GA13396@work.bitmover.com>
+	 <20030622002614.GA16225@work.bitmover.com>
+	 <20030623053713.GA6715@work.bitmover.com>
+	 <20030625013302.GB2525@work.bitmover.com> <20030626231752.E5633@ucw.cz>
+	 <20030626212102.GA19056@work.bitmover.com>
+	 <1056711200.3174.23.camel@dhcp22.swansea.linux.org.uk>
+	 <20030627145727.GB18676@work.bitmover.com>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200306280140.08726.kernel@kolivas.org>
+Organization: 
+Message-Id: <1056728645.3174.48.camel@dhcp22.swansea.linux.org.uk>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
+Date: 27 Jun 2003 16:44:05 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 28 Jun 2003 01:28, Felipe Alfaro Solana wrote:
-> On Fri, 2003-06-27 at 16:41, Con Kolivas wrote:
-> > -----BEGIN PGP SIGNED MESSAGE-----
-> > Hash: SHA1
-> >
-> > I've had some (off list) requests to see if the interactivity patch I
-> > posted shows any differences in contest. To be honest I wasn't sure it
-> > would, and this is not quite what I expected. Below is a 2.5.73-mm1
-> > patched with patch-O1int-0306271816 (2.5.73-O1i) compared to 2.5.73-mm1
-> > with contest (http://contest.kolivas.org).
->
-> These are good news, indeed. The patch is getting better and better, but
-> I'm still seeing XMMS audio skips when clicking on a URL inside
-> Evolution (and using Konqueror as my web browser), and sometimes when
-> moving windows around.
->
-> Also, it seems that nicing the X server to -20 causes it to get CPU at
-> discontinuous bursts, causing window movement to be somewhat jerky. The
-> overall feeling for the X server is better at a default nice of 0. Isn't
-> this curious?
+On Gwe, 2003-06-27 at 15:57, Larry McVoy wrote:
+> Is there a PCI EIDE card that you could suggest that would be ultra stable?
+> Or should I just toss this box and go build up another one?
 
-Not curious at all. I should have made it clear I was in _no_ way recommending 
-renicing X. It should be left at nice 0 and the scheduler decide what is 
-interactive. Renicing X will guarantee you of getting audio skips. 
-
-There is still the problem of apps started during heavy loads. While the last 
-patch helps a little, I have to do some more work on the algorithm and make 
-it smarter to help a lot.
-
-Con
+PCI ones tend to be the most problematic. The on board CSB5/CSB6 should be
+very reliable. Failing that you really get to choose between promise, highpoint
+and SI (SI/CMD680). The CMD680 driver has had a few problems compared with the
+others but docs exist under NDA. I'd use the onboard IDE
 

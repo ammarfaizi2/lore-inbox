@@ -1,137 +1,138 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130687AbRAMSdT>; Sat, 13 Jan 2001 13:33:19 -0500
+	id <S131059AbRAMSdU>; Sat, 13 Jan 2001 13:33:20 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131059AbRAMScf>; Sat, 13 Jan 2001 13:32:35 -0500
+	id <S130540AbRAMSci>; Sat, 13 Jan 2001 13:32:38 -0500
 Received: from zeus.kernel.org ([209.10.41.242]:59872 "EHLO zeus.kernel.org")
-	by vger.kernel.org with ESMTP id <S130540AbRAMSYy>;
-	Sat, 13 Jan 2001 13:24:54 -0500
-Date: Sat, 13 Jan 2001 17:20:44 +0100 (CET)
-From: Tobias Ringstrom <tori@tellus.mine.nu>
-To: Vojtech Pavlik <vojtech@suse.cz>
-cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: 2.4 ate my filesystem on rw-mount
-In-Reply-To: <20010113153522.A1495@suse.cz>
-Message-ID: <Pine.LNX.4.30.0101131700230.1112-100000@svea.tellus>
+	by vger.kernel.org with ESMTP id <S130681AbRAMSYz>;
+	Sat, 13 Jan 2001 13:24:55 -0500
+Date: Sat, 13 Jan 2001 17:37:01 +0100 (CET)
+From: Igmar Palsenberg <i.palsenberg@jdimedia.nl>
+To: <linux-kernel@vger.kernel.org>
+Subject: 2.4.0 + iproute2 
+Message-ID: <Pine.LNX.4.30.0101131735450.11391-200000@jdi.jdimedia.nl>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: MULTIPART/MIXED; BOUNDARY="-858508352-293578358-979403821=:11391"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 13 Jan 2001, Vojtech Pavlik wrote:
+  This message is in MIME format.  The first part should be readable text,
+  while the remaining parts are likely unreadable without MIME-aware tools.
+  Send mail to mime@docserver.cac.washington.edu for more info.
 
-> On Sat, Jan 13, 2001 at 09:12:27AM +0100, Tobias Ringstrom wrote:
-> > > 2) What's in /proc/ide/via?
-> >
-> > It's not there since I disabled the VIA driver.
->
-> Ok. Could you send me this file when you boot with fs r-o?
+---858508352-293578358-979403821=:11391
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 
-Ok, but this is with the wrong disc.  Withe the bad disc, drive0 looks
-exacly like drive2, i.e. normal UDMA(33).  Sorry about that.
+Hi,
 
-----------VIA BusMastering IDE Configuration----------------
-Driver Version:                     2.1e
-South Bridge:                       VIA vt82c686a rev 0x1b
-Command register:                   0x7
-Latency timer:                      32
-PCI clock:                          33MHz
-Master Read  Cycle IRDY:            0ws
-Master Write Cycle IRDY:            0ws
-FIFO Output Data 1/2 Clock Advance: off
-BM IDE Status Register Read Retry:  on
-Max DRDY Pulse Width:               No limit
------------------------Primary IDE-------Secondary IDE------
-Read DMA FIFO flush:           on                  on
-End Sect. FIFO flush:          on                  on
-Prefetch Buffer:               on                  on
-Post Write Buffer:             on                  on
-FIFO size:                      8                   8
-Threshold Prim.:              1/2                 1/2
-Bytes Per Sector:             512                 512
-Both channels togth:          yes                 yes
--------------------drive0----drive1----drive2----drive3-----
-BMDMA enabled:        yes       yes       yes       yes
-Transfer Mode:       UDMA   DMA/PIO      UDMA   DMA/PIO
-Address Setup:       30ns     120ns      30ns     120ns
-Active Pulse:        90ns     330ns      90ns     330ns
-Recovery Time:       30ns     270ns      30ns     270ns
-Cycle Time:          30ns     600ns      60ns     600ns
-Transfer Rate:   66.0MB/s   3.3MB/s  33.0MB/s   3.3MB/s
+kernel : 2.4.0 vanilla
+iproute2 version : ss001007
 
-> > > 4) If you mount your filesystem read-only, does it read garbage?
-> >
-> > Now here's a strange part, or possibly a crusial clue.  When I booted a
-> > 2.4.0 kernel (from floppy using the excellent syslinux) with "ro
-> > init=/bin/sh", I could access the filesystem just fine.  I could even
-> > remount the root filesystem rw, and there were no problems.  But I did not
-> > write anything to the disk, since I was convinced that the problem was
-> > gone (this was the second try).  After this I rebooted with
-> > ctrl-alt-delete, forgetting how bad an idea that is with init=/bin/sh,
-> > booted up the RH7 2.2.16 kernel, and fsck was run with no errors.
->
-> So far no problem. Rebooting with c-a-d with fs r-o is OK.
->
-> > Now I
-> > though all was well, rebooted from floppy again, but without the init=
-> > part, and poof, it hang.
->
-> Where? It could be a different reason than IDE setup ...
+After building I've got a few problems :
 
-Don't think so.  It happens on the "Remounting root read-write".
+./ip rule list
+RTNETLINK answers: Invalid argument
+Dump terminated
 
-> > More interesting may be that I had to turn the computer off and on again
-> > to get BIOS to find the hard drive. Repeated long reset button presses
-> > did not help.  It is possible that it hung during BIOS hd detection - I
-> > wish I could remember.
->
-> I fear this isn't much of a clue, sorry.
+Version should be OK according to the Changes file.
 
-The clue is that the VIA driver messed up either the chipset or the drive
-quite a lot, but maybe that is already obvious.
-
-> > I suspect that I could have hung the drive with init=/bin/sh if I would
-> > have done some reading and writing to the device, besides ls.
->
-> Please try it. Best mke2fs your swap partition and try reading & writing
-> to that. You can mkswap it back after you finish.
-
-After more testing, I think I have isolated the problem to this disk, or
-at least this disk with this controller.  With another (UDMA66) disk,
-there are no problems.  Details at the end.
-
-> > I think I can spend some more time today trying it out some more.
->
-> Please do. 'lspci -vvxxx' data for the case without a driver, with 2.4.0
-> driver and with 3.11 driver would help me find the problem.
-
-Ok, I'll do that later.
-
-> Make sure you *don't* have any hdparm -d1 or hdparm -X66 or similar
-> stuff in your init scripts.
-
-I'm sure I don't.  This happens with a clean fresh RH7 installation.
-
-> > I will
-> > also try your 3.11 driver, which seems to be an enormous cleanup.
->
-> the 2.1e driver is an enormous cleanup of the original driver from the
-> 2.2 kernels. the 3.11 is an enormous cleanup of 2.1e, yes.
-
-I have not had a chance to try the 3.11 driver yet.
-
-Now for the new details.  When writing to the disk with DMA enabled, I get
-the following errors, in two different machines.  Both are VIA IDE
-machines.  I is NOT a cable error.  I have tries with several cables.
-Possibly a connector or soldering problem.  I'll try the disk in more
-machines an get back with more info.  I have to run now.
-
-hdc: dma_intr: status=0x51 { DriveReady SeekComplete Error }
-hdc: dma_intr: error=0x84 { DriveStatusError BadCRC }
-
-/Tobias
+config is attached
 
 
+        Regards,
+
+
+		Igmar
+
+-- 
+
+--
+Igmar Palsenberg
+JDI Media Solutions
+
+Jansplaats 11
+6811 GB Arnhem
+The Netherlands
+
+mailto: i.palsenberg@jdimedia.nl
+PGP/GPG key : http://www.jdimedia.nl/formulier/pgp/igmar
+
+---858508352-293578358-979403821=:11391
+Content-Type: TEXT/PLAIN; charset=US-ASCII; name=config
+Content-Transfer-Encoding: BASE64
+Content-ID: <Pine.LNX.4.30.0101131737010.11391@jdi.jdimedia.nl>
+Content-Description: 
+Content-Disposition: attachment; filename=config
+
+Iw0KIyBBdXRvbWF0aWNhbGx5IGdlbmVyYXRlZCBieSBtYWtlIG1lbnVjb25m
+aWc6IGRvbid0IGVkaXQNCiMNCkNPTkZJR19YODY9eQ0KQ09ORklHX0lTQT15
+DQpDT05GSUdfVUlEMTY9eQ0KDQojDQojIFByb2Nlc3NvciB0eXBlIGFuZCBm
+ZWF0dXJlcw0KIw0KQ09ORklHX001ODZUU0M9eQ0KQ09ORklHX1g4Nl9XUF9X
+T1JLU19PSz15DQpDT05GSUdfWDg2X0lOVkxQRz15DQpDT05GSUdfWDg2X0NN
+UFhDSEc9eQ0KQ09ORklHX1g4Nl9CU1dBUD15DQpDT05GSUdfWDg2X1BPUEFE
+X09LPXkNCkNPTkZJR19YODZfTDFfQ0FDSEVfU0hJRlQ9NQ0KQ09ORklHX1g4
+Nl9VU0VfU1RSSU5HXzQ4Nj15DQpDT05GSUdfWDg2X0FMSUdOTUVOVF8xNj15
+DQpDT05GSUdfWDg2X1RTQz15DQpDT05GSUdfTk9ISUdITUVNPXkNCg0KIw0K
+IyBHZW5lcmFsIHNldHVwDQojDQpDT05GSUdfTkVUPXkNCkNPTkZJR19QQ0k9
+eQ0KQ09ORklHX1BDSV9HT0FOWT15DQpDT05GSUdfUENJX0JJT1M9eQ0KQ09O
+RklHX1BDSV9ESVJFQ1Q9eQ0KQ09ORklHX1BDSV9OQU1FUz15DQpDT05GSUdf
+U1lTVklQQz15DQpDT05GSUdfQlNEX1BST0NFU1NfQUNDVD15DQpDT05GSUdf
+U1lTQ1RMPXkNCkNPTkZJR19LQ09SRV9FTEY9eQ0KQ09ORklHX0JJTkZNVF9F
+TEY9eQ0KQ09ORklHX0JJTkZNVF9NSVNDPXkNCg0KIw0KIyBQbHVnIGFuZCBQ
+bGF5IGNvbmZpZ3VyYXRpb24NCiMNCkNPTkZJR19QTlA9eQ0KQ09ORklHX0lT
+QVBOUD15DQoNCiMNCiMgQmxvY2sgZGV2aWNlcw0KIw0KQ09ORklHX0JMS19E
+RVZfRkQ9eQ0KQ09ORklHX0JMS19ERVZfTE9PUD15DQpDT05GSUdfQkxLX0RF
+Vl9OQkQ9eQ0KDQojDQojIE5ldHdvcmtpbmcgb3B0aW9ucw0KIw0KQ09ORklH
+X1BBQ0tFVD15DQpDT05GSUdfUEFDS0VUX01NQVA9eQ0KQ09ORklHX05FVExJ
+Tks9eQ0KQ09ORklHX1JUTkVUTElOSz15DQpDT05GSUdfTkVURklMVEVSPXkN
+CkNPTkZJR19VTklYPXkNCkNPTkZJR19JTkVUPXkNCkNPTkZJR19TWU5fQ09P
+S0lFUz15DQoNCiMNCiMgICBJUDogTmV0ZmlsdGVyIENvbmZpZ3VyYXRpb24N
+CiMNCkNPTkZJR19JUF9ORl9DT05OVFJBQ0s9eQ0KQ09ORklHX0lQX05GX0ZU
+UD15DQpDT05GSUdfSVBfTkZfSVBUQUJMRVM9eQ0KQ09ORklHX0lQX05GX01B
+VENIX0xJTUlUPXkNCkNPTkZJR19JUF9ORl9NQVRDSF9NQUM9eQ0KQ09ORklH
+X0lQX05GX01BVENIX01BUks9eQ0KQ09ORklHX0lQX05GX01BVENIX01VTFRJ
+UE9SVD15DQpDT05GSUdfSVBfTkZfTUFUQ0hfVE9TPXkNCkNPTkZJR19JUF9O
+Rl9NQVRDSF9TVEFURT15DQpDT05GSUdfSVBfTkZfRklMVEVSPXkNCkNPTkZJ
+R19JUF9ORl9UQVJHRVRfUkVKRUNUPXkNCkNPTkZJR19JUF9ORl9OQVQ9eQ0K
+Q09ORklHX0lQX05GX05BVF9ORUVERUQ9eQ0KQ09ORklHX0lQX05GX1RBUkdF
+VF9NQVNRVUVSQURFPXkNCkNPTkZJR19JUF9ORl9UQVJHRVRfUkVESVJFQ1Q9
+eQ0KQ09ORklHX0lQX05GX01BTkdMRT15DQpDT05GSUdfSVBfTkZfVEFSR0VU
+X1RPUz15DQpDT05GSUdfSVBfTkZfVEFSR0VUX01BUks9eQ0KQ09ORklHX0lQ
+X05GX1RBUkdFVF9MT0c9eQ0KDQojDQojIEFUQS9JREUvTUZNL1JMTCBzdXBw
+b3J0DQojDQpDT05GSUdfSURFPXkNCg0KIw0KIyBJREUsIEFUQSBhbmQgQVRB
+UEkgQmxvY2sgZGV2aWNlcw0KIw0KQ09ORklHX0JMS19ERVZfSURFPXkNCkNP
+TkZJR19CTEtfREVWX0lERURJU0s9eQ0KQ09ORklHX0JMS19ERVZfSURFQ0Q9
+eQ0KQ09ORklHX0JMS19ERVZfQ01ENjQwPXkNCkNPTkZJR19CTEtfREVWX1Ja
+MTAwMD15DQpDT05GSUdfQkxLX0RFVl9JREVQQ0k9eQ0KQ09ORklHX0lERVBD
+SV9TSEFSRV9JUlE9eQ0KQ09ORklHX0JMS19ERVZfSURFX01PREVTPXkNCg0K
+Iw0KIyBOZXR3b3JrIGRldmljZSBzdXBwb3J0DQojDQpDT05GSUdfTkVUREVW
+SUNFUz15DQoNCiMNCiMgRXRoZXJuZXQgKDEwIG9yIDEwME1iaXQpDQojDQpD
+T05GSUdfTkVUX0VUSEVSTkVUPXkNCkNPTkZJR19ORVRfVkVORE9SXzNDT009
+eQ0KQ09ORklHX1ZPUlRFWD15DQpDT05GSUdfTkVUX1BDST15DQpDT05GSUdf
+ODEzOVRPTz15DQoNCiMNCiMgRXRoZXJuZXQgKDEwMDAgTWJpdCkNCiMNCkNP
+TkZJR19QUFA9eQ0KQ09ORklHX1BQUF9BU1lOQz15DQpDT05GSUdfUFBQX0RF
+RkxBVEU9eQ0KDQojDQojIElTRE4gc3Vic3lzdGVtDQojDQpDT05GSUdfSVNE
+Tj15DQoNCiMNCiMgUGFzc2l2ZSBJU0ROIGNhcmRzDQojDQpDT05GSUdfSVNE
+Tl9EUlZfSElTQVg9eQ0KQ09ORklHX0hJU0FYX0VVUk89eQ0KQ09ORklHX0hJ
+U0FYXzE2XzM9eQ0KDQojDQojIENoYXJhY3RlciBkZXZpY2VzDQojDQpDT05G
+SUdfVlQ9eQ0KQ09ORklHX1ZUX0NPTlNPTEU9eQ0KQ09ORklHX1NFUklBTD15
+DQpDT05GSUdfVU5JWDk4X1BUWVM9eQ0KQ09ORklHX1VOSVg5OF9QVFlfQ09V
+TlQ9MjU2DQoNCiMNCiMgTWljZQ0KIw0KQ09ORklHX01PVVNFPXkNCkNPTkZJ
+R19QU01PVVNFPXkNCg0KIw0KIyBGaWxlIHN5c3RlbXMNCiMNCkNPTkZJR19R
+VU9UQT15DQpDT05GSUdfSVNPOTY2MF9GUz15DQpDT05GSUdfSk9MSUVUPXkN
+CkNPTkZJR19QUk9DX0ZTPXkNCkNPTkZJR19ERVZQVFNfRlM9eQ0KQ09ORklH
+X0VYVDJfRlM9eQ0KDQojDQojIE5ldHdvcmsgRmlsZSBTeXN0ZW1zDQojDQoj
+IENPTkZJR19DT0RBX0ZTIGlzIG5vdCBzZXQNCkNPTkZJR19ORlNfRlM9eQ0K
+Q09ORklHX05GU19WMz15DQojIENPTkZJR19ST09UX05GUyBpcyBub3Qgc2V0
+DQpDT05GSUdfTkZTRD15DQpDT05GSUdfTkZTRF9WMz15DQpDT05GSUdfU1VO
+UlBDPXkNCkNPTkZJR19MT0NLRD15DQpDT05GSUdfTE9DS0RfVjQ9eQ0KDQoj
+DQojIFBhcnRpdGlvbiBUeXBlcw0KIw0KQ09ORklHX01TRE9TX1BBUlRJVElP
+Tj15DQpDT05GSUdfTkxTPXkNCg0KIw0KIyBOYXRpdmUgTGFuZ3VhZ2UgU3Vw
+cG9ydA0KIw0KQ09ORklHX05MU19ERUZBVUxUPSJpc284ODU5LTEiDQpDT05G
+SUdfTkxTX0NPREVQQUdFXzQzNz15DQpDT05GSUdfTkxTX0NPREVQQUdFXzg1
+MD15DQpDT05GSUdfTkxTX0lTTzg4NTlfMT15DQoNCiMNCiMgQ29uc29sZSBk
+cml2ZXJzDQojDQpDT05GSUdfVkdBX0NPTlNPTEU9eQ0K
+---858508352-293578358-979403821=:11391--
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

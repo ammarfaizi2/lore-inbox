@@ -1,46 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267793AbTAMPlV>; Mon, 13 Jan 2003 10:41:21 -0500
+	id <S267633AbTAMPsl>; Mon, 13 Jan 2003 10:48:41 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267799AbTAMPlV>; Mon, 13 Jan 2003 10:41:21 -0500
-Received: from ns.virtualhost.dk ([195.184.98.160]:45734 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id <S267793AbTAMPlU>;
-	Mon, 13 Jan 2003 10:41:20 -0500
-Date: Mon, 13 Jan 2003 16:49:54 +0100
-From: Jens Axboe <axboe@suse.de>
-To: terje.eggestad@scali.com
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: any chance of 2.6.0-test*?
-Message-ID: <20030113154954.GR14017@suse.de>
-References: <Pine.LNX.4.44.0301121100380.14031-100000@home.transmeta.com> <1042400094.1208.26.camel@RobsPC.RobertWilkens.com> <1042400219.1208.29.camel@RobsPC.RobertWilkens.com> <20030112195347.GJ3515@louise.pinerecords.com> <1042401817.1209.54.camel@RobsPC.RobertWilkens.com> <1042472605.5404.72.camel@pc-16.office.scali.no>
-Mime-Version: 1.0
+	id <S267679AbTAMPsl>; Mon, 13 Jan 2003 10:48:41 -0500
+Received: from mons.uio.no ([129.240.130.14]:34947 "EHLO mons.uio.no")
+	by vger.kernel.org with ESMTP id <S267633AbTAMPsk>;
+	Mon, 13 Jan 2003 10:48:40 -0500
+To: linux-kernel@vger.kernel.org
+Subject: Re: Performance problems with NFS under 2.4.20
+References: <m3y95pkqpd.fsf@quimbies.gnus.org>
+From: Trond Myklebust <trond.myklebust@fys.uio.no>
+Date: 13 Jan 2003 16:57:28 +0100
+In-Reply-To: <m3y95pkqpd.fsf@quimbies.gnus.org>
+Message-ID: <shsfzrxrqjb.fsf@charged.uio.no>
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.4 (Honest Recruiter)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1042472605.5404.72.camel@pc-16.office.scali.no>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jan 13 2003, Terje Eggestad wrote:
-> Considering that doing kernel development is hard enough, new
-> development is almost always done on uni processors kernels that do only
-> one thing at the time. Then when you base logic is OK, you move to a
-> SMP, which means (adding and) debugging you spin locks.
+>>>>> " " == Lars Magne Ingebrigtsen <larsi@gnus.org> writes:
 
-Goto's aside, I find the above extremely bad advise. You should _always_
-develop with smp and for smp from the very start, or you will most
-likely not get it right later on. With preempt, this becomes even more
-important.
+     > Upgrading from 2.2.20, I'm seeing vastly increased network
+     > traffic, and after poking around a bit, I find that all calls
+     > to open() on files on NFS-mounted partitions generates one UDP
+     > packet.  Switching on NFS debugging, and then saying
 
-> Considering that fucking up spin locks are prone to corrupting your
-> machine, one very simple trick to makeing fewer mistakes to to have one,
-> and only one, unlock for every lock. 
+     > $ cat file $ cat file
 
-Taking a spin lock twice will hard lock the machine, however on smp you
-will typically have the luxury of an nmi watchdog which will help you
-solve this quickly. Double unlock will oops immediately if you run with
-spin lock debugging (you probably should, if you are developing kernel
-code).
+     > shows me this:
 
--- 
-Jens Axboe
+     > Jan 13 16:27:23 litos kernel: NFS: refresh_inode(b/876609548
+     > ct=1 info=0x2) Jan 13 16:27:23 litos kernel: nfs: read(//file,
+     > 4096@0) Jan 13 16:27:23 litos kernel: nfs: read(//file,
+     > 4096@17) Jan 13 16:27:23 litos kernel: nfs: flush(b/876609548)
+     > Jan 13 16:27:23 litos kernel: NFS: dentry_delete(//file, 0) Jan
+     > 13 16:27:24 litos kernel: NFS: refresh_inode(b/876609548 ct=1
+     > info=0x2) Jan 13 16:27:24 litos kernel: nfs: read(//file,
+     > 4096@0) Jan 13 16:27:24 litos kernel: nfs: read(//file,
+     > 4096@17) Jan 13 16:27:24 litos kernel: nfs: flush(b/876609548)
+     > Jan 13 16:27:24 litos kernel: NFS: dentry_delete(//file, 0)
 
+     > The partition is mounted with just
+
+     > $ mount server:/db /db
+
+     > Adding a "-o actimeo=100" makes no difference.
+
+     > Is this supposed 1) to be this way, or 2) a bug, or 3) a
+     > misconfiguration on my part?
+
+That is quite deliberate.
+
+open() is supposed to generate an RPC call in order to ensure that
+cached attributes (and hence cached data) are still valid (this is
+part of what is known as NFS 'close-to-open' cache consistency).
+
+If you are certain that you will never access the same file/directory
+from 2 different machines, you can try to mount with the 'nocto' mount
+option.
+
+Cheers,
+  Trond

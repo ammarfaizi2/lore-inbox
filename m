@@ -1,66 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262760AbTJ3TBr (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 30 Oct 2003 14:01:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262761AbTJ3TBr
+	id S262761AbTJ3TJS (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 30 Oct 2003 14:09:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262782AbTJ3TJS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 30 Oct 2003 14:01:47 -0500
-Received: from Soo.com ([199.202.113.33]:4616 "EHLO Soo.com")
-	by vger.kernel.org with ESMTP id S262760AbTJ3TBq (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 30 Oct 2003 14:01:46 -0500
-Date: Thu, 30 Oct 2003 07:46:40 -0500
-From: really bensoo_at_soo_dot_com <lnx-kern@soo.com>
-To: "linux-kernel @ vger . kernel . org Allen Martin" 
-	<AMartin@nvidia.com>
-Subject: Re: nforce2 stability on 2.6.0-test5 and 2.6.0-test9
-Message-ID: <20031030074640.A3992@Sophia.soo.com>
-References: <DCB9B7AA2CAB7F418919D7B59EE45BAF49F79E@mail-sc-6.nvidia.com>
+	Thu, 30 Oct 2003 14:09:18 -0500
+Received: from walker.svs.informatik.uni-oldenburg.de ([134.106.22.19]:59016
+	"EHLO walker.pmhahn.de") by vger.kernel.org with ESMTP
+	id S262761AbTJ3TJC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 30 Oct 2003 14:09:02 -0500
+Date: Thu, 30 Oct 2003 20:08:29 +0100
+From: Philipp Matthias Hahn <pmhahn@titan.lahn.de>
+To: Dave Jones <davej@redhat.com>, Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Post-halloween doc updates.
+Message-ID: <20031030190829.GB21742@titan.lahn.de>
+Mail-Followup-To: Philipp Matthias Hahn <pmhahn@titan.lahn.de>,
+	Dave Jones <davej@redhat.com>,
+	Linux Kernel <linux-kernel@vger.kernel.org>
+References: <20031030141519.GA10700@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <DCB9B7AA2CAB7F418919D7B59EE45BAF49F79E@mail-sc-6.nvidia.com>; from AMartin@nvidia.com on Wed, Oct 29, 2003 at 11:17:26AM -0800
+In-Reply-To: <20031030141519.GA10700@redhat.com>
+Organization: UUCP-Freunde Lahn e.V.
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Just as a point of info; i have had these lockup
-probs too.  Have a MSI K7N2 with nVidia TNT2
-vidcard.  Using kernel 2.6.0-test9.
+Hi Dave, LKML!
 
-When i run mldonkey (file sharing) the box will
-lock up solid after a random amount of time in
-X no matter what combo of ACPI / no ACPI, PIO / UDMA.
-Sometimes the mouse pointer keeps moving for up
-to ~30 sec before it too freezes.  During this
-interval there's no ATA activity and i can reboot
-the box with SysReq key combos.  If i wait until
-the mouse freezes then the box is completely
-locked and the SysReq keys don't work anymore.
-
-HOWEVER, if i adjust the process priority of
-mldonkey to -20, then the box doesn't lock up
-anymore with ACPI and local APIC enabled and will
-keep running forever and even burn DVD or CD's
-while playing a video rip while compiling something.
-There's the sporatic ~1 sec freeze when mldonkey
-grabs the whole CPU but it always comes back.
-
-regards,
-
-
-On Wed, Oct 29, 2003 at 11:17:26AM -0800, Allen Martin wrote:
-> Hi Ross, can you post the contents of /proc/interrupts, /proc/ide/amd74xx
-> and /proc/ide/ide*/config, and also the output of "hdparm -I /dev/hd*" for
-> each of your ATA / ATAPI devices?
+On Thu, Oct 30, 2003 at 02:15:19PM +0000, Dave Jones wrote:
+>                      The post-halloween document. v0.46
+...
+> Input layer.
+...
+> - If you find your keyboard/mouse still don't work, edit the file
+>   drivers/input/serio/i8042.c, and replace the #undef DEBUG
+>   with a #define DEBUG
+                        , recompile and reinstall.
 > 
-> If the PIO and UDMA modes are setup correctly I can't think of anything
-> inside the IDE driver that should be causing random lockups.  I'd be much
-> more suspicious of ACPI / APIC / interrupt setup.
-> 
-> -Allen
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+>   When you boot, you should now see a lot more debugging information.
+>   Forward this information to Vojtech Pavlik <vojtech@suse.cz>
+
+BYtE
+Philipp
+-- 
+  / /  (_)__  __ ____  __ Philipp Hahn
+ / /__/ / _ \/ // /\ \/ /
+/____/_/_//_/\_,_/ /_/\_\ pmhahn@titan.lahn.de

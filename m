@@ -1,60 +1,75 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263142AbTCSUkS>; Wed, 19 Mar 2003 15:40:18 -0500
+	id <S263158AbTCSUk2>; Wed, 19 Mar 2003 15:40:28 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263158AbTCSUkS>; Wed, 19 Mar 2003 15:40:18 -0500
-Received: from landfill.ihatent.com ([217.13.24.22]:54659 "EHLO
-	mail.ihatent.com") by vger.kernel.org with ESMTP id <S263142AbTCSUkR>;
-	Wed, 19 Mar 2003 15:40:17 -0500
-To: Andrew Morton <akpm@digeo.com>
-Cc: philippe.gramoulle@mmania.com, linux-kernel@vger.kernel.org
-Subject: Re: Hard freeze with 2.5.65-mm1
-References: <20030319104927.77b9ccf9.philippe.gramoulle@mmania.com>
-	<8765qfacaz.fsf@lapper.ihatent.com>
-	<20030319182442.4a9fa86c.philippe.gramoulle@mmania.com>
-	<877kav5ikv.fsf@lapper.ihatent.com>
-	<20030319121909.74f957af.akpm@digeo.com>
-From: Alexander Hoogerhuis <alexh@ihatent.com>
-Date: 19 Mar 2003 21:51:17 +0100
-In-Reply-To: <20030319121909.74f957af.akpm@digeo.com>
-Message-ID: <87n0jr3wsa.fsf@lapper.ihatent.com>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S263159AbTCSUk2>; Wed, 19 Mar 2003 15:40:28 -0500
+Received: from svr-ganmtc-appserv-mgmt.ncf.coxexpress.com ([24.136.46.5]:48144
+	"EHLO svr-ganmtc-appserv-mgmt.ncf.coxexpress.com") by vger.kernel.org
+	with ESMTP id <S263158AbTCSUk0>; Wed, 19 Mar 2003 15:40:26 -0500
+Subject: [patch] scsi-sysfs bug fix
+From: Robert Love <rml@tech9.net>
+To: hch@infradead.org, axboe@suse.de, mochel@osdl.org
+Cc: linux-kernel@vger.kernel.org
+Content-Type: text/plain
+Organization: 
+Message-Id: <1048107080.775.96.camel@phantasy.awol.org>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-3) 
+Date: 19 Mar 2003 15:51:20 -0500
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton <akpm@digeo.com> writes:
+[ Apologies for sending this to all the usual suspects here ... ]
 
-> Alexander Hoogerhuis <alexh@ihatent.com> wrote:
-> >
-> > I've had I/O stall a few times while watching movies, but only the
-> > mplayer process hung, and I could break it off and restart and it
-> > woudl fun again for a few minutes.
-> 
-> This is a bug in the new nanosleep code.  mplayer asks the kernel for a 50
-> millisecond sleep and the kernel gives it a two month sleep instead.
-> 
-> Please set INITIAL_JIFFIES to zero and retest.
-> 
-> With what compiler are you building your kernels?
-> 
+drivers/scsi/scsi_sysfs.c :: store_rescan_field() calls
+scsi_rescan_device() without a prototype, and thus results in a compiler
+warning.
 
->From Gentoo's unstable "branch":
+Fix that up by adding the prototype to scsi.h, where it belongs.
 
-alexh@lapper ~/src/linux/linux-2.5.65-mm2 $ gcc -v
-Reading specs from /usr/lib/gcc-lib/i686-pc-linux-gnu/3.2.2/specs
-Configured with: /var/tmp/portage/gcc-3.2.2-r1/work/gcc-3.2.2/configure --prefix=/usr --bindir=/usr/i686-pc-linux-gnu/gcc-bin/3.2 --includedir=/usr/lib/gcc-lib/i686-pc-linux-gnu/3.2.2/include --datadir=/usr/share/gcc-data/i686-pc-linux-gnu/3.2 --mandir=/usr/share/gcc-data/i686-pc-linux-gnu/3.2/man --infodir=/usr/share/gcc-data/i686-pc-linux-gnu/3.2/info --enable-shared --host=i686-pc-linux-gnu --target=i686-pc-linux-gnu
---with-system-zlib --enable-languages=c,c++,ada,f77,objc,java --enable-threads=posix --enable-long-long --disable-checking --enable-cstdio=stdio --enable-clocale=generic --enable-__cxa_atexit --enable-version-specific-runtime-libs --with-gxx-include-dir=/usr/lib/gcc-lib/i686-pc-linux-gnu/3.2.2/include/g++-v3 --with-local-prefix=/usr/local --enable-shared --enable-nls --without-included-gettext
-Thread model: posix
-gcc version 3.2.2
-alexh@lapper ~/src/linux/linux-2.5.65-mm2 $ ld -v
-GNU ld version 2.13.90.0.18 20030206
-alexh@lapper ~/src/linux/linux-2.5.65-mm2 $
+But then we see we are storing the return value of a void function (so
+that is why ANSI C is good)... so fix that up, too, by setting the
+return value to zero if a valid device was found.  Otherwise, return
+ENODEV as before.
 
-mvh,
-A
--- 
-Alexander Hoogerhuis                               | alexh@ihatent.com
-CCNP - CCDP - MCNE - CCSE                          | +47 908 21 485
-"You have zero privacy anyway. Get over it."  --Scott McNealy
+Patch is against 2.5.65.
+
+	Robert Love
+
+
+ drivers/scsi/scsi.h       |    1 +
+ drivers/scsi/scsi_sysfs.c |    6 ++++--
+ 2 files changed, 5 insertions(+), 2 deletions(-)
+
+
+diff -urN linux-2.5.65/drivers/scsi/scsi.h linux/drivers/scsi/scsi.h
+--- linux-2.5.65/drivers/scsi/scsi.h	2003-03-19 15:44:06.279618904 -0500
++++ linux/drivers/scsi/scsi.h	2003-03-19 15:39:47.355981280 -0500
+@@ -443,6 +443,7 @@
+ extern int scsi_attach_device(struct scsi_device *);
+ extern void scsi_detach_device(struct scsi_device *);
+ extern int scsi_get_device_flags(unsigned char *vendor, unsigned char *model);
++extern void scsi_rescan_device(struct scsi_device *sdev);
+ 
+ /*
+  * Newer request-based interfaces.
+diff -urN linux-2.5.65/drivers/scsi/scsi_sysfs.c linux/drivers/scsi/scsi_sysfs.c
+--- linux-2.5.65/drivers/scsi/scsi_sysfs.c	2003-03-19 15:44:06.196631520 -0500
++++ linux/drivers/scsi/scsi_sysfs.c	2003-03-19 15:42:45.249937288 -0500
+@@ -278,8 +278,10 @@
+ 	int ret = ENODEV;
+ 	struct scsi_device *sdev;
+ 	sdev = to_scsi_device(dev);
+-	if (sdev)
+-		ret = scsi_rescan_device(sdev);
++	if (sdev) {
++		ret = 0;
++		scsi_rescan_device(sdev);
++	}
+ 	return ret;
+ }
+ 
+
+
+

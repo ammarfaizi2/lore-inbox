@@ -1,47 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316678AbSGHA2C>; Sun, 7 Jul 2002 20:28:02 -0400
+	id <S316681AbSGHAbG>; Sun, 7 Jul 2002 20:31:06 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316681AbSGHA2B>; Sun, 7 Jul 2002 20:28:01 -0400
-Received: from tux.rsn.bth.se ([194.47.143.135]:24970 "EHLO tux.rsn.bth.se")
-	by vger.kernel.org with ESMTP id <S316678AbSGHA2A>;
-	Sun, 7 Jul 2002 20:28:00 -0400
-Subject: Re: NAPI patch against 2.4.18
-From: Martin Josefsson <gandalf@wlug.westbo.se>
-To: Jason Lunz <lunz@gtf.org>
-Cc: Ben Greear <greearb@candelatech.com>, linux-kernel@vger.kernel.org
-In-Reply-To: <20020707191517.GA14331@orr.falooley.org>
-References: <3D287DA4.5090904@candelatech.com> 
-	<20020707191517.GA14331@orr.falooley.org>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.7 
-Date: 08 Jul 2002 02:30:34 +0200
-Message-Id: <1026088234.1283.246.camel@tux>
+	id <S316682AbSGHAbF>; Sun, 7 Jul 2002 20:31:05 -0400
+Received: from pc-62-30-255-50-az.blueyonder.co.uk ([62.30.255.50]:19686 "EHLO
+	kushida.apsleyroad.org") by vger.kernel.org with ESMTP
+	id <S316681AbSGHAbE>; Sun, 7 Jul 2002 20:31:04 -0400
+Date: Mon, 8 Jul 2002 01:31:42 +0100
+From: Jamie Lokier <lk@tantalophile.demon.co.uk>
+To: Oliver Neukum <oliver@neukum.name>
+Cc: Werner Almesberger <wa@almesberger.net>, Bill Davidsen <davidsen@tmr.com>,
+       Keith Owens <kaos@ocs.com.au>, linux-kernel@vger.kernel.org
+Subject: Re: [OKS] Module removal
+Message-ID: <20020708013141.A13387@kushida.apsleyroad.org>
+References: <20020702133658.I2295@almesberger.net> <20020704035012.O2295@almesberger.net> <20020707220933.B11999@kushida.apsleyroad.org> <200207072341.22896.oliver@neukum.name>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <200207072341.22896.oliver@neukum.name>; from oliver@neukum.name on Sun, Jul 07, 2002 at 11:41:22PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2002-07-07 at 21:15, Jason Lunz wrote:
+Oliver Neukum wrote:
+> How do you find CPU's that are about to execute module code ?
 > 
-> greearb@candelatech.com said:
-> > Does anyone have a working NAPI kernel and tulip driver patch against
-> > 2.4.18 or so?  I will be happy to test this if so.
+> IMHO you need to do this freeze trick before you check the module
+> usage count.
 > 
-> Yes, I backported the core last week to 2.4.19-rc1 from 2.5.24, but the
-> patch ought to apply to 2.4.18 with only offset mismatches. I kept a lot
-> of style cleanups in the patch, but they should be easy to remove if
-> they cause problems. I'll be backporting the various napified drivers to
-> 2.4 this week.
+> [..]
+> > Another possibility would be the RCU thing: execute the module's exit
+> > function, but keep the module's memory allocated until some safe
+> > scheduling point later, when you are sure that no CPU can possibly be
+> > running the module.
 > 
-> http://orr.falooley.org/pub/linux/net/
+> But what do you do if that CPU increases the module usage count?
 
-Why not use the original patch?
+Those are the cases where I said this does not help.
+You basically need:
 
-ftp://robur.slu.se/pub/Linux/net-development/NAPI/
+      (a) to catch the exiting case properly
+      (b) to catch entry points
 
--- 
-/Martin
+Catching the entry points is what the current `try_inc_mod_count' code
+does.  I can't think of another way to do that.
 
-Never argue with an idiot. They drag you down to their level, then beat
-you with experience.
+-- Jamie

@@ -1,56 +1,47 @@
 Return-Path: <owner-linux-kernel-outgoing@vger.rutgers.edu>
-Received: by vger.rutgers.edu id <154259-10761>; Tue, 8 Sep 1998 16:38:57 -0400
-Received: from raptor.cqi.com ([205.252.44.227]:25240 "EHLO raptor.cqi.com" ident: "humbubba") by vger.rutgers.edu with ESMTP id <156089-10761>; Tue, 8 Sep 1998 15:24:32 -0400
-From: RHS Linux User <humbubba@raptor.cqi.com>
-Message-Id: <199809082124.RAA16169@raptor.cqi.com>
-Subject: HW hacks links
+Received: by vger.rutgers.edu id <154039-8316>; Tue, 8 Sep 1998 23:51:10 -0400
+Received: from neon-best.transmeta.com ([206.184.214.10]:9049 "EHLO neon.transmeta.com" ident: "NO-IDENT-SERVICE[2]") by vger.rutgers.edu with ESMTP id <154865-8316>; Tue, 8 Sep 1998 18:26:14 -0400
 To: linux-kernel@vger.rutgers.edu
-Date: Tue, 8 Sep 1998 17:24:36 -0400 (EDT)
-Content-Type: text
+From: hpa@transmeta.com (H. Peter Anvin)
+Subject: Re: GPS Leap Second Scheduled!
+Date: 9 Sep 1998 00:59:47 GMT
+Organization: Transmeta Corporation, Santa Clara CA
+Message-ID: <6t4ju3$gve$1@palladium.transmeta.com>
+References: <299BBE59294E@rkdvmks1.ngate.uni-regensburg.de> <98090822315400.00819@soda>
+Reply-To: hpa@transmeta.com (H. Peter Anvin)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 8bit
+Disclaimer: Not speaking for Transmeta in any way, shape, or form.
+Copyright: Copyright 1998 H. Peter Anvin - All Rights Reserved
 Sender: owner-linux-kernel@vger.rutgers.edu
 
+Followup to:  <98090822315400.00819@soda>
+By author:    Andrej Presern <andrejp@luz.fe.uni-lj.si>
+In newsgroup: linux.dev.kernel
+> 
+> Have you considered simply not scheduling any processes for one second and
+> adjusting the time accordingly? (if one second chunk is too big, you can do it
+> in several steps)
+> 
+> Andrej
+> 
 
+The way xntp deals with leap seconds is it lets the epoch
+float... i.e. it holds time_t to the same value for two seconds.  One
+proposal (which I like) was to compensate for this by allowing the
+microsecond or nanosecond fields or struct timeval & co to advance to
+1,999,999 µs or 1,999,999,999 ns in the case of such events.  The neat
+thing is that the latter number fits very nicely in a 32-bit integer
+even if someone (mis-) interprets it as signed.
 
+	-hpa
 
-
-
-Here's a couple of things I find interesting that may be of interest 
-to hardware hackers.
-
-Charles Moore "discovered" Forth around 1970. He left Forth Inc. a while ago to do hardware. Forth has a concise simple 2 stack virtual machine that makes a
-fine real machine. Chuck has done the ShBoom, the Harris RTX, and now the MuP21.
-I think the only 32 bit Forth engine is still the FRISC from Johns Hopkins APL.
-Chuck's outfit is called Computer Cowboys. Offete enterprises is one related 
-outfit, and Ultra Technology is another. Related links are at 
-http://www.dnai.com/~jfox   .
-
-These are tiny machines without luxuries like integer-multiply. They scream 
-though. And you can get dozens of em on one die. In your kitchen. Kinda.
-
-
-With all due respect to the assembled wizards of C/unix, the ultimate one-stack
-machine, 2 stacks is better. I'm looking into 3.
-Forth machines ARE what RISC was supposed to be.
-
-I'm told the original Cisco router was basically a Moto devel board for thier
-QUICC microcontroller. I had a mailserver for a while to discuss a from-scratch
-Forth-oriented platform based on the MC690360 QUICC, which is a E68020 and a
-dedicated RISC to handle the 7 on-chip IO Ports. There is now a PPC version
-of the QUICC, with the same RISC and IO ports. AN outtake from the outline of
-the progress of the "FIRE Proposal" mailserver is at 
-http://cqi.com/~humbubba/fire8.htm     
-
-Sorry about the topic-skew, but this seems to be a major side-topic.
-
-
-Rick Hohensee          http://cqi.com/~humbubba
-colorg on EFnet IRC    #linux chanop
-Forth  C   Linux   Perl graphics   music    Md., USA
-This is your brain on colorg --> (@#*%@#() <---~~~_()()(
-Any questions?
-
-
-
+-- 
+    PGP: 2047/2A960705 BA 03 D3 2C 14 A8 A8 BD  1E DF FE 69 EE 35 BD 74
+    See http://www.zytor.com/~hpa/ for web page and full PGP public key
+        I am Bahá'í -- ask me about it or see http://www.bahai.org/
+   "To love another person is to see the face of God." -- Les Misérables
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

@@ -1,107 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268492AbTCFW4U>; Thu, 6 Mar 2003 17:56:20 -0500
+	id <S268495AbTCFW4e>; Thu, 6 Mar 2003 17:56:34 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268496AbTCFW4T>; Thu, 6 Mar 2003 17:56:19 -0500
-Received: from palrel11.hp.com ([156.153.255.246]:4824 "EHLO palrel11.hp.com")
-	by vger.kernel.org with ESMTP id <S268492AbTCFW4L>;
-	Thu, 6 Mar 2003 17:56:11 -0500
-Date: Thu, 6 Mar 2003 15:06:43 -0800
-From: David Mosberger <davidm@napali.hpl.hp.com>
-Message-Id: <200303062306.h26N6hrd008442@napali.hpl.hp.com>
-To: george@mvista.com
-Cc: linux-kernel@vger.kernel.org, davidm@napali.hpl.hp.com
-Subject: POSIX timer syscalls
-X-URL: http://www.hpl.hp.com/personal/David_Mosberger/
-Reply-To: davidm@hpl.hp.com
+	id <S268496AbTCFW4W>; Thu, 6 Mar 2003 17:56:22 -0500
+Received: from meryl.it.uu.se ([130.238.12.42]:46847 "EHLO meryl.it.uu.se")
+	by vger.kernel.org with ESMTP id <S268495AbTCFW4P>;
+	Thu, 6 Mar 2003 17:56:15 -0500
+From: Mikael Pettersson <mikpe@user.it.uu.se>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <15975.54404.895292.258958@gargle.gargle.HOWL>
+Date: Fri, 7 Mar 2003 00:06:44 +0100
+To: "sudharsan  vijayaraghavan" <my_goal@rediffmail.com>
+Cc: linux-kernel@vger.kernel.org, svijayar@cisco.com,
+       narendiran_srinivasan@satyam.com
+Subject: Re: fd_install question ??
+In-Reply-To: <20030306224608.29991.qmail@webmail17.rediffmail.com>
+References: <20030306224608.29991.qmail@webmail17.rediffmail.com>
+X-Mailer: VM 6.90 under Emacs 20.7.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Syscall stubs must be declared to return "long", to ensure things work
-properly on all 64-bit platforms (see earlier discussion on this
-topic).  Patch below.
+sudharsan  vijayaraghavan writes:
+ >          // f1->f_vfsmnt = f2->f_vfsmnt = 
+ > mntget(mntget(pipe_mnt));
+ > -->        f1->f_vfsmnt = f2->f_vfsmnt = f3->f_vfsmnt = 
+ > mntget(mntget(pipe_mnt));
+ >          // f1->f_dentry = f2->f_dentry = dget(dentry);
+ > -->        f1->f_dentry = f2->f_dentry = f3->f_dentry = 
+ > dget(dentry);
 
-On a related note: as far as I can see, timer_t is declared as "int"
-on all platforms (both by kernel and glibc).  Yet if my reading of the
-kernel code is right, it's supposed to be "long" (and allegedly some
-standard claims that timer_t should be the "widest" integer on a
-platform).  But then again, I'm not familiar with the POSIX timer
-interface myself, so perhaps I'm completely off base here.
+A unified diff would have been much more readable.
 
-	--david
+You now have one more reference to ->f_vfsmnt and ->f_dentry, so I
+suspect you're missing one mntget() and one dget() above. The usual
+impact of a too low ref count is that the object is reassigned while
+you're still using it, with memory corruption & oopses as the result.
 
-diff -Nru a/kernel/posix-timers.c b/kernel/posix-timers.c
---- a/kernel/posix-timers.c	Thu Mar  6 14:59:46 2003
-+++ b/kernel/posix-timers.c	Thu Mar  6 14:59:46 2003
-@@ -423,7 +423,7 @@
- 
- /* Create a POSIX.1b interval timer. */
- 
--asmlinkage int
-+asmlinkage long
- sys_timer_create(clockid_t which_clock,
- 		 struct sigevent *timer_event_spec, timer_t * created_timer_id)
- {
-@@ -663,7 +663,7 @@
- 	}
- }
- /* Get the time remaining on a POSIX.1b interval timer. */
--asmlinkage int
-+asmlinkage long
- sys_timer_gettime(timer_t timer_id, struct itimerspec *setting)
- {
- 	struct k_itimer *timr;
-@@ -695,7 +695,7 @@
- 
-  */
- 
--asmlinkage int
-+asmlinkage long
- sys_timer_getoverrun(timer_t timer_id)
- {
- 	struct k_itimer *timr;
-@@ -848,7 +848,7 @@
- }
- 
- /* Set a POSIX.1b interval timer */
--asmlinkage int
-+asmlinkage long
- sys_timer_settime(timer_t timer_id, int flags,
- 		  const struct itimerspec *new_setting,
- 		  struct itimerspec *old_setting)
-@@ -922,7 +922,7 @@
- }
- 
- /* Delete a POSIX.1b interval timer. */
--asmlinkage int
-+asmlinkage long
- sys_timer_delete(timer_t timer_id)
- {
- 	struct k_itimer *timer;
-@@ -1054,7 +1054,7 @@
- 	return -EINVAL;
- }
- 
--asmlinkage int
-+asmlinkage long
- sys_clock_settime(clockid_t which_clock, const struct timespec *tp)
- {
- 	struct timespec new_tp;
-@@ -1069,7 +1069,7 @@
- 	new_tp.tv_nsec /= NSEC_PER_USEC;
- 	return do_sys_settimeofday((struct timeval *) &new_tp, NULL);
- }
--asmlinkage int
-+asmlinkage long
- sys_clock_gettime(clockid_t which_clock, struct timespec *tp)
- {
- 	struct timespec rtn_tp;
-@@ -1088,7 +1088,7 @@
- 	return error;
- 
- }
--asmlinkage int
-+asmlinkage long
- sys_clock_getres(clockid_t which_clock, struct timespec *tp)
- {
- 	struct timespec rtn_tp;
+/Mikael

@@ -1,99 +1,199 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269353AbRGaQeW>; Tue, 31 Jul 2001 12:34:22 -0400
+	id <S269352AbRGaQdc>; Tue, 31 Jul 2001 12:33:32 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269354AbRGaQeD>; Tue, 31 Jul 2001 12:34:03 -0400
-Received: from humbolt.nl.linux.org ([131.211.28.48]:10759 "EHLO
-	humbolt.nl.linux.org") by vger.kernel.org with ESMTP
-	id <S269353AbRGaQeA>; Tue, 31 Jul 2001 12:34:00 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Daniel Phillips <phillips@bonn-fries.net>
-To: Boszormenyi Zoltan <zboszor@freemail.hu>, linux-kernel@vger.kernel.org
-Subject: Re: used-once really works?
-Date: Tue, 31 Jul 2001 18:39:11 +0200
-X-Mailer: KMail [version 1.2]
-In-Reply-To: <freemail.20010631154204.52946@fm5.freemail.hu>
-In-Reply-To: <freemail.20010631154204.52946@fm5.freemail.hu>
+	id <S269353AbRGaQdW>; Tue, 31 Jul 2001 12:33:22 -0400
+Received: from lila.inti.gov.ar ([200.10.161.32]:40851 "EHLO lila.inti.gov.ar")
+	by vger.kernel.org with ESMTP id <S269352AbRGaQdM>;
+	Tue, 31 Jul 2001 12:33:12 -0400
+Message-ID: <3B66DDEB.1EA1FEC@inti.gov.ar>
+Date: Tue, 31 Jul 2001 13:33:47 -0300
+From: salvador <salvador@inti.gov.ar>
+Reply-To: salvador@inti.gov.ar
+Organization: INTI
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.2.19 i686)
+X-Accept-Language: es-AR, en, es
 MIME-Version: 1.0
-Message-Id: <01073118391103.00303@starship>
-Content-Transfer-Encoding: 7BIT
+To: linux-kernel@vger.kernel.org, alan@lxorguk.ukuu.org.uk
+Subject: [RFC] Get selection to buffer addition
+In-Reply-To: <3B66A90D.789A90A8@inti.gov.ar>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
-On Tuesday 31 July 2001 15:42, Boszormenyi Zoltan wrote:
-> Hi!
->
-> I freshly compiled 2.4.8-pre3 and I thought
-> I give it a try.
->
-> The machine is a dual P3 with 384MB memory and one
-> 15 GB IDE disk, distro is RedHat 6.2 with official
-> upgrades and e2fsprogs-1.22 and GNOME-1.4.
->
-> In X, I had mozilla, and 3 gnome-terminals running.
-> In one terminal, I run 'top', in one other
-> 'dd if=/dev/hda of=/dev/null bs=4096'.
->
-> 'top' showed that the system buffer cache filled up
-> and soon the machine started swapping. It seemed to swap
-> out mozilla and parts of the X server. Otherwise the
-> system remained responsive.
+Hi all:
 
-There is no specific use-once handling for buffers so what happens is
+I'm sending this mail again with the patch in plain text and not
+gzip+uuencoded, sorry for any inconvenience.
 
-  touch_buffer->SetPageReferenced
+What I'm looking for:
+  I'm looking for comments and approval for a small addition to the console
+driver (drivers/char/console.c).
 
-causes all referenced buffer pages to be moved lazilly from the 
-inactive to active queue and unused readahead buffers to be dropped 
-quickly.  It would be better if there were use-once handling for 
-buffers too, so that your dd doesn't fill up memory and cause a (still 
-mysterious to me) chain of events that ends up in swapping.
+Small description:
+  The included patches adds a couple of new services to the TIOCLINUX ioctl
+call, they are:
 
-> I tried other more experimental patches, too:
-> o_direct-10 and blkdev-pagecache-5. There was a one-liner
-> reject in mm/vmscan.c after applying blkdev-pagecache-5.
->
-> I fixed this and booted this new kernel, I tried the same.
-> This time the page cache started to fill up but
-> no swapping occured. Hm...
->
-> During 'dd' starting new (I mean: not yet in the page cache)
-> programs were slow as hell. Starting them second time was
-> fast as expected.
+13 (get selection into a buffer): It copies the contents of the selection
+buffer (maintained in kernel space) into a user space provided buffer. Is
+something like "paste to a buffer"  instead of just paste to the current
+console.
 
-The blkdev-pagecache patch is highly relevant to the discussion because 
-it moves the dd resource load from buffers to the page cache, changing 
-the behaviour of the system a great deal as you saw.  I think what is 
-happening is, use-once makes a lot more inactive pages available from 
-the dd so the system sees no need to go into swap (good).  But we also 
-lose the scanning behaviour that used to throttle the dd process.  It 
-now picks up new IO pages so quickly that it usually wins the 
-competition for IO bandwidth.  (N.B., this is a *theory*, measurements 
-needed.  If it's correct then we have to look at ways to be fairer 
-about IO, something that's been needed for a long time anyway.)
+14 (get selection length): Returns the length of the selection buffer (0 if
+none selected).
+-----------
 
-> I tried glade with a large project file,
-> loading it / looking into directories was slow at first,
-> was fast second time. Since ext2 directories are in the
-> page cache, this is perfectly understandable.
+The included file contains diffs that apply
+without offsets into 2.4.7 kernel, they are valid for 2.2.18 too (with
+offset).
+I also include a simple test program that calls the new services. The test
+program is really simple and assumes you can open /dev/tty1 (you are
+there or you are root ;-)
 
-Yes, there is also no use-once handling for ext2 directories so the 
-default behaviour is to lazily activate them.  Since directory pages 
-are never treated as use-once, and they get a default boost in priority 
-vs file IO.  It's probably ok to just leave it that way.
+Additional question: Why the switch uses numbers? Shouldn't these values be
+defined as something like TIOCLINUX_GET_SELECTION in a header?
 
-> So it seems that the used-once patch works.
-> The only comments is that I didn't expect it
-> to start swapping with the stock pre3.
-> I supposed it frees the "used-once" pages more quickly.
-> Anyway I am not a VM expert and don't flame me about
-> my non relevant comments. 2.4.8 seems promising :-)
+What's the purpose? Just allow pasting in text editors using menues or
+without the mouse middle button and avoiding to missinterpret the pasted
+text as keystrokes.
 
-A little bit of digging should answer the swapping question.  Adding 
-use-once handling to buffers should be a one-liner, after moving the 
-check_used_once into a header.  I'll try it first before making any 
-claims ;-)
+SET
+
+Patch (about 77 lines):
+-------------------------------------------
+--- linux-2.4.7.orig/drivers/char/console.c     Tue Jun 12 15:17:17 2001
++++ linux-2.4.7/drivers/char/console.c  Thu Jul 26 17:33:46 2001
+@@ -14,6 +14,8 @@
+  *
+  * Copy and paste function by Andrew Haylett,
+  *   some enhancements by Alessandro Rubini.
++ *   get selection into a buffer and length by
++ *       Salvador E. Tropea <salvador@inti.gov.ar>
+  *
+  * Code to check for different video-cards mostly by Galen Hunt,
+  * <g-hunt@ee.utah.edu>
+@@ -2204,6 +2206,10 @@
+                        return 0;
+                case 12:        /* get fg_console */
+                        return fg_console;
++               case 13:        /* get selection into a buffer */
++                       return get_selection_buffer(arg);
++               case 14:        /* get selection length */
++                       return put_user(get_selection_length(), (unsigned int
+*)((char *)arg + 1));
+        }
+        return -EINVAL;
+ }
+--- linux-2.4.7.orig/drivers/char/selection.c   Fri Feb  9 16:30:22 2001
++++ linux-2.4.7/drivers/char/selection.c        Thu Jul 26 17:53:46 2001
+@@ -288,6 +288,41 @@
+        return 0;
+ }
+
++/* Copy the contents of the selection buffer into a
++ * user space buffer.
++ * Invoked by ioctl().
++ */
++int get_selection_buffer(const unsigned long arg)
++{
++       char *dest;
++       unsigned int length;
++
++       if (get_user(length, (unsigned int *)(arg + sizeof(char))))
++               return -EFAULT;
++
++       dest = (char *)(arg + sizeof(char) + sizeof(unsigned int));
++
++       if (length > sel_buffer_lth)
++               length = sel_buffer_lth;
++
++       if (sel_buffer) {
++               if (copy_to_user(dest, sel_buffer, length))
++                       return -EFAULT;
++       } else {
++               length = 0;
++       }
++       __put_user(length, (unsigned long *)(arg + sizeof(char)));
++       return 0;
++}
++
++/* Get the selection buffer length.
++ * Invoked by ioctl().
++ */
++unsigned int get_selection_length(void)
++{
++       return sel_buffer ? sel_buffer_lth : 0;
++}
++
+ /* Insert the contents of the selection buffer into the
+  * queue of the tty associated with the current console.
+  * Invoked by ioctl().
+--- linux-2.4.7.orig/include/linux/selection.h  Fri Jul 20 16:53:56 2001
++++ linux-2.4.7/include/linux/selection.h       Thu Jul 26 17:40:07 2001
+@@ -17,6 +17,8 @@
+ extern int sel_loadlut(const unsigned long arg);
+ extern int mouse_reporting(void);
+ extern void mouse_report(struct tty_struct * tty, int butt, int mrx, int
+mry);
++extern int get_selection_buffer(const unsigned long arg);
++extern unsigned int get_selection_length(void);
+
+ #define video_num_columns      (vc_cons[currcons].d->vc_cols)
+ #define video_num_lines                (vc_cons[currcons].d->vc_rows)
+-------------------------------------------
+End of patch.
+
+Test program:
+-------------------------------------------
+#include <stdio.h>
+#include <sys/ioctl.h>
+#include <fcntl.h>
+#include <unistd.h>
+#include <stdlib.h>
+
+int main(int argc, char *argv[])
+{
+ int i,res,fd,largo;
+ char buffer[sizeof(unsigned int)+2],*s;
+ unsigned int *lg=(unsigned int *)(buffer+1);
+
+ fd=open("/dev/tty1",O_RDWR);
+
+ printf("Finding the length of the selection:\n");
+ buffer[0]=14;
+ res=ioctl(fd,TIOCLINUX,&buffer);
+ printf("The iotcl returns %d\n",res);
+ printf("Length: %u\n",*lg);
+ largo=*lg;
+ if (*lg==0) return 0;
+
+ printf("Asking for the selection:\n");
+ s=(char *)malloc(largo+sizeof(unsigned int)+2);
+ s[0]=13;
+ lg=(unsigned int *)(s+1);
+ *lg=largo;
+ res=ioctl(fd,TIOCLINUX,s);
+ printf("The iotcl returns %d\n",res);
+ largo=*lg;
+ printf("Length returned: %d\n",largo);
+ s+=1+sizeof(unsigned int);
+ s[largo]=0;
+
+ for (i=0; s[i]; i++)
+     if (s[i]==13) s[i]=10;
+ printf("Selection: '%s' (%d)\n",s,s[0]);
+ return 0;
+}
 
 --
-Daniel
+Salvador Eduardo Tropea (SET). (Electronics Engineer)
+Visit my home page: http://welcome.to/SetSoft or
+http://www.geocities.com/SiliconValley/Vista/6552/
+Alternative e-mail: set-soft@bigfoot.com set@computer.org
+                    set@ieee.org
+Address: Curapaligue 2124, Caseros, 3 de Febrero
+Buenos Aires, (1678), ARGENTINA Phone: +(5411) 4759 0013
+
+

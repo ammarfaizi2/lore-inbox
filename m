@@ -1,37 +1,36 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317362AbSFGXUL>; Fri, 7 Jun 2002 19:20:11 -0400
+	id <S317355AbSFGXbN>; Fri, 7 Jun 2002 19:31:13 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317363AbSFGXUK>; Fri, 7 Jun 2002 19:20:10 -0400
-Received: from jalon.able.es ([212.97.163.2]:8923 "EHLO jalon.able.es")
-	by vger.kernel.org with ESMTP id <S317362AbSFGXUK>;
-	Fri, 7 Jun 2002 19:20:10 -0400
-Date: Sat, 8 Jun 2002 01:20:04 +0200
-From: "J.A. Magallon" <jamagallon@able.es>
-To: Robert Love <rml@tech9.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Scheduler Bug (set_cpus_allowed)
-Message-ID: <20020607232004.GA21253@werewolf.able.es>
-In-Reply-To: <20020606162028.E3193@w-mikek2.des.beaverton.ibm.com> <1023475007.1137.62.camel@sinai>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Disposition: inline
-Content-Transfer-Encoding: 7BIT
-X-Mailer: Balsa 1.3.6
+	id <S317364AbSFGXbM>; Fri, 7 Jun 2002 19:31:12 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:8964 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S317355AbSFGXbL>;
+	Fri, 7 Jun 2002 19:31:11 -0400
+Message-ID: <3D0141EC.9190C34A@zip.com.au>
+Date: Fri, 07 Jun 2002 16:29:48 -0700
+From: Andrew Morton <akpm@zip.com.au>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-pre8 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Stephane Charette <stephanecharette@telus.net>
+CC: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: Re: kernel serial debugging question
+In-Reply-To: <20020607231856Z317361-22020+731@vger.kernel.org>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Stephane Charette wrote:
+> 
+> Background:
+> -----------
+> 
+> In the past, I have had to use the kernel serial debugger with the
+> 2.2.14 kernel.
+> 
 
-On 2002.06.07 Robert Love wrote:
->
->Anyhow, with this issue, I guess we need to fix it... I'll send a patch
->to Linus.
->
-
-Plz, could you also post it in the list ? -aa will need also...
-
--- 
-J.A. Magallon                           #  Let the source be with you...        
-mailto:jamagallon@able.es
-Mandrake Linux release 8.3 (Cooker) for i586
-Linux werewolf 2.4.19-pre10-jam2 #1 SMP vie jun 7 17:04:23 CEST 2002 i686
+It's an external patch.  From http://kgdb.sourceforge.net/
+I have kgdb patches for all kernels back to 2.4.0-test.
+Some of those can be found by poking around in
+http://www.zip.com.au/~akpm/linux/patches/.

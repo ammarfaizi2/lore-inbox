@@ -1,56 +1,70 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319342AbSHNVLy>; Wed, 14 Aug 2002 17:11:54 -0400
+	id <S319320AbSHNUse>; Wed, 14 Aug 2002 16:48:34 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319348AbSHNVKr>; Wed, 14 Aug 2002 17:10:47 -0400
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:63493 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S319342AbSHNVJk>; Wed, 14 Aug 2002 17:09:40 -0400
-Message-ID: <3D5AC7F3.1040407@zytor.com>
-Date: Wed, 14 Aug 2002 14:13:23 -0700
-From: "H. Peter Anvin" <hpa@zytor.com>
-Organization: Zytor Communications
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.0) Gecko/20020703
-X-Accept-Language: en, sv
+	id <S319299AbSHNUrk>; Wed, 14 Aug 2002 16:47:40 -0400
+Received: from berzerk.gpcc.itd.umich.edu ([141.211.2.162]:12247 "EHLO
+	berzerk.gpcc.itd.umich.edu") by vger.kernel.org with ESMTP
+	id <S319282AbSHNUqS>; Wed, 14 Aug 2002 16:46:18 -0400
+Date: Wed, 14 Aug 2002 16:50:09 -0400 (EDT)
+From: "Kendrick M. Smith" <kmsmith@umich.edu>
+X-X-Sender: kmsmith@vanguard.gpcc.itd.umich.edu
+To: linux-kernel@vger.kernel.org, <nfs@lists.sourceforge.net>
+Subject: REPOST patch 28/38: SERVER: allow resfh==fhp in fh_compose()
+Message-ID: <Pine.SOL.4.44.0208141649400.1834-100000@vanguard.gpcc.itd.umich.edu>
 MIME-Version: 1.0
-To: Willy Tarreau <willy@w.ods.org>
-CC: Rogier Wolff <R.E.Wolff@BitWizard.nl>, linux-kernel@vger.kernel.org
-Subject: Re: [patch 4/21] fix ARCH_HAS_PREFETCH
-References: <3D56B13A.D3F741D1@zip.com.au> <Pine.NEB.4.44.0208132322340.1351-100000@mimas.fachschaften.tu-muenchen.de> <ajc095$hk1$1@cesium.transmeta.com> <20020814194019.A31761@bitwizard.nl> <3D5AB250.3070104@zytor.com> <20020814204556.GA7440@alpha.home.local> <3D5AC481.2080505@zytor.com> <20020814211140.GB7445@alpha.home.local>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Willy Tarreau wrote:
->>>
->>
->>#define __nop() asm volatile("")
-> 
-> and if you want to pass arguments, to guarantee that no optimization will
-> be done, even on loop constants ?
-> eg:
->   for (i = 0; i < N; i++) {
->     j++;
->     __nop();
->   }
-> 
-> -> might be optimized this way :
->   j = N;
->   for (i = 0; i < N; i++) {
->     __nop();
->   }
-> 
-> Perhaps using a volatile for j ?
-> 
 
-OK, what are you trying to accomplish by this?
+Change fh_compose() so that it will do the right thing if fhp==res_fh.
+(This is convenient in the NFSv4 LOOKUP operation, which _replaces_
+CURRENT_FH with the filehandle obtained by lookup.)
 
-But if you wanted to, you could do:
+--- old/fs/nfsd/nfsfh.c	Sun Aug 11 22:55:51 2002
++++ new/fs/nfsd/nfsfh.c	Sun Aug 11 23:03:57 2002
+@@ -316,7 +316,8 @@ fh_compose(struct svc_fh *fhp, struct sv
+ 	 * Then create a 32byte filehandle using nfs_fhbase_old
+ 	 *
+ 	 */
+-
++	u8 ref_fh_version = 1;
++	u8 ref_fh_fsid_type = 1;
+ 	struct inode * inode = dentry->d_inode;
+ 	struct dentry *parent = dentry->d_parent;
+ 	__u32 *datap;
+@@ -326,6 +327,13 @@ fh_compose(struct svc_fh *fhp, struct sv
+ 		parent->d_name.name, dentry->d_name.name,
+ 		(inode ? inode->i_ino : 0));
 
-for ( i = 0 ; i < N ; i++ ) {
-	j++;
-	asm volatile("" : "=g" (j));
-}
++	if (ref_fh) {
++		ref_fh_version = ref_fh->fh_handle.fh_version;
++		ref_fh_fsid_type = ref_fh->fh_handle.fh_fsid_type;
++		if (ref_fh == fhp)
++			fh_put(ref_fh);
++	}
++
+ 	if (fhp->fh_locked || fhp->fh_dentry) {
+ 		printk(KERN_ERR "fh_compose: fh %s/%s not initialized!\n",
+ 			parent->d_name.name, dentry->d_name.name);
+@@ -337,8 +345,7 @@ fh_compose(struct svc_fh *fhp, struct sv
+ 	fhp->fh_dentry = dentry; /* our internal copy */
+ 	fhp->fh_export = exp;
 
+-	if (ref_fh &&
+-	    ref_fh->fh_handle.fh_version == 0xca) {
++	if (ref_fh_version == 0xca) {
+ 		/* old style filehandle please */
+ 		memset(&fhp->fh_handle.fh_base, 0, NFS_FHSIZE);
+ 		fhp->fh_handle.fh_size = NFS_FHSIZE;
+@@ -354,7 +361,7 @@ fh_compose(struct svc_fh *fhp, struct sv
+ 		fhp->fh_handle.fh_auth_type = 0;
+ 		datap = fhp->fh_handle.fh_auth+0;
+ 		if ((exp->ex_flags & NFSEXP_FSID) &&
+-		    (!ref_fh || ref_fh->fh_handle.fh_fsid_type == 1)) {
++		    (ref_fh_fsid_type == 1)) {
+ 			fhp->fh_handle.fh_fsid_type = 1;
+ 			/* fsid_type 1 == 4 bytes filesystem id */
+ 			*datap++ = exp->ex_fsid;
 

@@ -1,44 +1,47 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313173AbSDTTru>; Sat, 20 Apr 2002 15:47:50 -0400
+	id <S287817AbSDTUFA>; Sat, 20 Apr 2002 16:05:00 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313236AbSDTTrt>; Sat, 20 Apr 2002 15:47:49 -0400
-Received: from mail3.aracnet.com ([216.99.193.38]:48313 "EHLO
-	mail3.aracnet.com") by vger.kernel.org with ESMTP
-	id <S313173AbSDTTrr>; Sat, 20 Apr 2002 15:47:47 -0400
-Date: Sat, 20 Apr 2002 12:47:53 -0700
-From: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>
-Reply-To: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>
-To: Mel <mel@csn.ul.ie>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Documenation/vm/numa
-Message-ID: <2948370542.1019306872@[10.10.2.3]>
-In-Reply-To: <Pine.LNX.4.44.0204201703320.3995-100000@skynet>
-X-Mailer: Mulberry/2.1.2 (Win32)
-MIME-Version: 1.0
+	id <S292229AbSDTUE7>; Sat, 20 Apr 2002 16:04:59 -0400
+Received: from panic.tn.gatech.edu ([130.207.137.62]:59020 "HELO gtf.org")
+	by vger.kernel.org with SMTP id <S287817AbSDTUE7>;
+	Sat, 20 Apr 2002 16:04:59 -0400
+Date: Sat, 20 Apr 2002 16:04:57 -0400
+From: Jeff Garzik <garzik@havoc.gtf.org>
+To: Daniel Phillips <phillips@bonn-fries.net>
+Cc: Rik van Riel <riel@conectiva.com.br>,
+        Anton Altaparmakov <aia21@cantab.net>,
+        Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Remove Bitkeeper documentation from Linux tree
+Message-ID: <20020420160457.A12267@havoc.gtf.org>
+In-Reply-To: <Pine.LNX.4.44L.0204201513170.1960-100000@imladris.surriel.com> <E16yeIP-0000aD-00@starship>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> + node_start_paddr  The starting physical address of the node. This doesn't
-> +		    work really well as an unsigned long as it breaks for
-> +                   ia32 with PAE for example. A more suitable solution would be
-> +                   to record this as a Page Frame Number (pfn). This could be
-> +                   trivially defined as (page_phys_addr >> PAGE\_SHIFT).
+On Fri, Apr 19, 2002 at 09:43:48PM +0200, Daniel Phillips wrote:
+> On Saturday 20 April 2002 20:13, you wrote:
+> > On Fri, 19 Apr 2002, Daniel Phillips wrote:
+> > 
+> > > As always, what I do is in the interest of Linux and freedom.
+> > 
+> > Then why do you want to deny us the freedom to have a very
+> > useful piece of documentation in the kernel tree ?
+> 
+> If I objected to the inclusion of a piece of code licensed under Microsoft's
+> 'shared source' license, whould you also say I was denying your freedom?
 
-This looks fine.
+You tried to -remove-, not include something.  And, what you tried to
+remove was under the GPL license, not any other license.  So your
+analogy doesn't hold.
 
-> +                   Alternatively, it could be the struct page * index inside
-> +                   mem_map.
+You attempted to remove a GPL'd work from a GPL'd work, on the basis of
+its content conflicting with your ideology.
 
-But I'd just omit this last sentence ... that only works for machines 
-with a contig mem_map (not NUMA), and it's kind of an accidental
-kludge that happens to work in some cases, not the proper definition
-(what I originally posted was confusing).
+	Jeff
 
-I actually submitted a patch a couple of days ago to fix these to
-a pfn instead. If that gets in, we can update the documentation then.
 
-M.
+

@@ -1,62 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262666AbVCJPkn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262668AbVCJPlG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262666AbVCJPkn (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Mar 2005 10:40:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262665AbVCJPkm
+	id S262668AbVCJPlG (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Mar 2005 10:41:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262665AbVCJPlG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Mar 2005 10:40:42 -0500
-Received: from pentafluge.infradead.org ([213.146.154.40]:21916 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S262668AbVCJPiM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Mar 2005 10:38:12 -0500
-Subject: Re: [patch 1/1] /proc/$$/ipaddr and per-task networking bits
-From: Arjan van de Ven <arjan@infradead.org>
-To: Lorenzo =?ISO-8859-1?Q?Hern=E1ndez_?=
-	 =?ISO-8859-1?Q?Garc=EDa-Hierro?= <lorenzo@gnu.org>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <1110468517.9190.24.camel@localhost.localdomain>
-References: <1110464202.9190.7.camel@localhost.localdomain>
-	 <1110464782.6291.95.camel@laptopd505.fenrus.org>
-	 <1110468517.9190.24.camel@localhost.localdomain>
-Content-Type: text/plain; charset=UTF-8
-Date: Thu, 10 Mar 2005 16:38:07 +0100
-Message-Id: <1110469087.6291.103.camel@laptopd505.fenrus.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.2 (2.0.2-3) 
-Content-Transfer-Encoding: 8bit
-X-Spam-Score: 4.1 (++++)
-X-Spam-Report: SpamAssassin version 2.63 on pentafluge.infradead.org summary:
-	Content analysis details:   (4.1 points, 5.0 required)
-	pts rule name              description
-	---- ---------------------- --------------------------------------------------
-	0.3 RCVD_NUMERIC_HELO      Received: contains a numeric HELO
-	1.1 RCVD_IN_DSBL           RBL: Received via a relay in list.dsbl.org
-	[<http://dsbl.org/listing?80.57.133.107>]
-	2.5 RCVD_IN_DYNABLOCK      RBL: Sent directly from dynamic IP address
-	[80.57.133.107 listed in dnsbl.sorbs.net]
-	0.1 RCVD_IN_SORBS          RBL: SORBS: sender is listed in SORBS
-	[80.57.133.107 listed in dnsbl.sorbs.net]
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+	Thu, 10 Mar 2005 10:41:06 -0500
+Received: from mail-in-07.arcor-online.net ([151.189.21.47]:64165 "EHLO
+	mail-in-07.arcor-online.net") by vger.kernel.org with ESMTP
+	id S262669AbVCJPiR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 10 Mar 2005 10:38:17 -0500
+Message-ID: <423069EC.8070207@arcor.de>
+Date: Thu, 10 Mar 2005 16:38:20 +0100
+From: Prakash Punnoor <prakashp@arcor.de>
+User-Agent: Mozilla Thunderbird 1.0 (X11/20050222)
+X-Accept-Language: de-DE, de, en-us, en
+MIME-Version: 1.0
+To: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: minor 2.6.11-bk6 config issue or user error
+X-Enigmail-Version: 0.90.1.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: multipart/signed; micalg=pgp-sha1;
+ protocol="application/pgp-signature";
+ boundary="------------enig704307736540694895FF0E7D"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2005-03-10 at 16:28 +0100, Lorenzo Hernández García-Hierro
-wrote:
+This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
+--------------enig704307736540694895FF0E7D
+Content-Type: text/plain; charset=ISO-8859-15
+Content-Transfer-Encoding: 7bit
 
-> > 2) Can you explain briefly what this is useful for?
-> 
-> For keeping track on the "originating ip address of the
-> task/process" (the ipv4 address of the user that started the
-> task/process).
+Hi,
 
-but.... tasks don't have an IP address. Hosts do. Hosts can have
-multiple IP addresses. Both ipv4 and ipv6.  Users don't have IP
-addresses either (they do have user IDs so that link is clear). 
-I think I'm missing something big here. What does it *mean* for a task
-to have an IP address. Once that is clear maybe I can start to
-understand the rest, but until the meaning of "task has an IP address"
-is better explained/more clear I think I'm stuck. (and no the output in
-a log isn't a meaning, it's only a result)
+I went from bk4 to bk6. After patching i just typed make to recompile (as I
+thought this would be enough). But it errored out because CONFIG_BASE_SMALL
+wasn't defined. So I did make menuconfig and saved my config again and now it
+compiles through.
 
+Is it needed to run make oldconfig or make menuconfig and save before kernel
+upgrade? I thought make oldconfig is run automatically on make?
 
+--
+Prakash Punnoor
+
+formerly known as Prakash K. Cheemplavam
+
+--------------enig704307736540694895FF0E7D
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: OpenPGP digital signature
+Content-Disposition: attachment; filename="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.0 (GNU/Linux)
+
+iD8DBQFCMGnvxU2n/+9+t5gRAo33AKDQ1CfH8CTfkhJpnzkycMoyBBsd1ACggayZ
+nLronG23bui+YswjwVUsHoY=
+=S/pP
+-----END PGP SIGNATURE-----
+
+--------------enig704307736540694895FF0E7D--

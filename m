@@ -1,51 +1,31 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S276720AbRJBVz2>; Tue, 2 Oct 2001 17:55:28 -0400
+	id <S276721AbRJBV42>; Tue, 2 Oct 2001 17:56:28 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S276721AbRJBVzT>; Tue, 2 Oct 2001 17:55:19 -0400
-Received: from [205.176.221.61] ([205.176.221.61]:60174 "EHLO w20303512")
-	by vger.kernel.org with ESMTP id <S276720AbRJBVzL>;
-	Tue, 2 Oct 2001 17:55:11 -0400
-Message-ID: <045c01c14b8d$120b31c0$3dddb0cd@w20303512>
-From: "Wilson" <defiler@null.net>
-To: <linux-kernel@vger.kernel.org>
-In-Reply-To: <200110021941.VAA13062@harpo.it.uu.se>
-Subject: Re: Strange CD-writing problem
-Date: Tue, 2 Oct 2001 17:56:19 -0400
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 5.50.4807.1700
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4807.1700
+	id <S276725AbRJBV4T>; Tue, 2 Oct 2001 17:56:19 -0400
+Received: from nat-pool-meridian.redhat.com ([199.183.24.200]:4700 "EHLO
+	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
+	id <S276721AbRJBV4D>; Tue, 2 Oct 2001 17:56:03 -0400
+Date: Tue, 2 Oct 2001 17:56:33 -0400
+From: Pete Zaitcev <zaitcev@redhat.com>
+Message-Id: <200110022156.f92LuXo06743@devserv.devel.redhat.com>
+To: captainsmp@hotmail.com, linux-kernel@vger.kernel.org
+Subject: Re: sock_sendmsg() from a kernel thread question
+In-Reply-To: <mailman.1002057181.10060.linux-kernel2news@redhat.com>
+In-Reply-To: <mailman.1002057181.10060.linux-kernel2news@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------ Original Message -----
-From: "Mikael Pettersson" <mikpe@csd.uu.se>
-To: <lior@netvision.net.il>
-Cc: <linux-kernel@vger.kernel.org>
-Sent: Tuesday, October 02, 2001 3:41 PM
-Subject: Re: Strange CD-writing problem
+> I am trying to call sock_sendmsg() from a kernel thread
+> and it seems to work fine on a UP system but on SMP system
+> it hangs up and the thread can't even accept a SIGKILL.
+> It it stuck after the following calls happen:
+> 
+> sock_sendmsg()
+> sock->ops->sendmsg()
+> tcp_do_sendmsg()
 
+Always worked fine for me. I think something is up with
+your code. Care to post a relevant snippet?
 
-> On Tue, 2 Oct 2001 19:41:53 +0200 (IST), Lior Okman wrote:
->
-> >I recently bought a new IDE cd-rw (a Plextor W1610A).
-> >While trying to burn with it, I had some trouble fixating the disks.
->
-> I'd move that ATAPI cd-rw to the primary controller, and reserve
-> the Promise controller for UDMA(33) and above disks.
-
-Just thought I'd add something here: Even Promise suggests that you not run
-optical drives on their controllers. They aren't trustworthy when connected
-to Ultra100 controllers even under Win98/Win2k. I don't have an exact quote
-for you, but this has been discussed (with feedback from Promise) on
-StorageReview.
-
-Regards,
---Wilson.
-
-
+-- Pete

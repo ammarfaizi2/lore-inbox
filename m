@@ -1,48 +1,84 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266615AbUFYUqB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266639AbUFYUoZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266615AbUFYUqB (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 25 Jun 2004 16:46:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266695AbUFYUqB
+	id S266639AbUFYUoZ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 25 Jun 2004 16:44:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266695AbUFYUoZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 25 Jun 2004 16:46:01 -0400
-Received: from fujitsu2.fujitsu.com ([192.240.0.2]:61625 "EHLO
-	fujitsu2.fujitsu.com") by vger.kernel.org with ESMTP
-	id S266615AbUFYUpv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 25 Jun 2004 16:45:51 -0400
-Date: Fri, 25 Jun 2004 13:45:30 -0700
-From: Yasunori Goto <ygoto@us.fujitsu.com>
-To: Dave Hansen <haveblue@us.ibm.com>
-Subject: Re: [Lhms-devel] Re: Merging Nonlinear and Numa style memory hotplug
-Cc: Linux Kernel ML <linux-kernel@vger.kernel.org>,
-       Linux Hotplug Memory Support 
-	<lhms-devel@lists.sourceforge.net>,
-       Linux-Node-Hotplug <lhns-devel@lists.sourceforge.net>,
-       linux-mm <linux-mm@kvack.org>,
-       "BRADLEY CHRISTIANSEN [imap]" <bradc1@us.ibm.com>
-In-Reply-To: <1088189973.29059.231.camel@nighthawk>
-References: <20040625114720.2935.YGOTO@us.fujitsu.com> <1088189973.29059.231.camel@nighthawk>
-Message-Id: <20040625121110.2937.YGOTO@us.fujitsu.com>
+	Fri, 25 Jun 2004 16:44:25 -0400
+Received: from grendel.digitalservice.pl ([217.67.200.140]:7065 "HELO
+	mail.digitalservice.pl") by vger.kernel.org with SMTP
+	id S266639AbUFYUoC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 25 Jun 2004 16:44:02 -0400
+From: "R. J. Wysocki" <rjwysocki@sisk.pl>
+Organization: SiSK
+To: Timothy Miller <miller@techsource.com>, Sean Neakums <sneakums@zork.net>
+Subject: Re: Collapse ext2 and 3 please
+Date: Fri, 25 Jun 2004 22:52:47 +0200
+User-Agent: KMail/1.5
+Cc: linux-kernel@vger.kernel.org
+References: <40DB605D.6000409@comcast.net> <6uoen71pky.fsf@zork.zork.net> <40DC71E8.3020403@techsource.com>
+In-Reply-To: <40DC71E8.3020403@techsource.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="US-ASCII"
+Content-Type: text/plain;
+  charset="iso-8859-2"
 Content-Transfer-Encoding: 7bit
-X-Mailer: Becky! ver. 2.07.02
+Content-Disposition: inline
+Message-Id: <200406252252.47266.rjwysocki@sisk.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > Are you sure that all architectures need phys_section?
-> 
-> You don't *need* it, but the alternative is a scan of the mem_section[]
-> array, which would be much, much slower.
-> 
-> Do you have an idea for an alternate implementation?
+On Friday 25 of June 2004 20:41, Timothy Miller wrote:
+> Sean Neakums wrote:
+> > Timothy Miller <miller@techsource.com> writes:
+> >>Sean Neakums wrote:
+> >>>I seem to remember somebody, I think maybe Andrew Morton, suggesting
+> >>>that a no-journal mode be added to ext3 so that ext2 could be removed.
+> >>>I can't find the message in question right now, though.
+> >>
+> >>As an option, that might be nice, but if everyone were to start using
+> >>ext3 even for their non-journalled file systems, the ext2 code would
+> >>be subject to code rot.
+> >
+> > My paraphrase is at fault here.  In the above, "removed" == "removed
+> > from the kernel tree".
+>
+> I understood that.
+>
+> Let me be more clear.  I agree with other people's comments to the
+> effect that ext2 and ext3 have different goals and therefore different
+> and potentially incompatible optimizations.  If ext3 had a mode that
+> made it equivalent to ext2, which encouraged people to only compile in
+> ext3 even for ext2 partitions (to save on kernel memory), then future
+> ext2 code bases would get less use and therefore less testing and
+> therefore more code rot.
+>
+> It is reasonable to allow the redundancy between ext2 and ext3 in order
+> to allow them to diverge.  This kind of future-proofing mentality
+> underlies the reasons why kernel developers don't want to completely
+> stablize the module ABI, for example.
+>
 
-I didn't find that scan of the mem_section[] is necessary.
-I thought just that mem_section index = phys_section index.
-May I ask why scan of mem_section is necessary?
-I might still have misunderstood something.
+Let me add my 2c, please.
 
+I think that the most of users will use ext3 or reiserfs anyway, unless they 
+actually _prefer_ ext2 for some reasons (let's face it: the most of users 
+just follow the distribution defaults and the most of distributors set either 
+ext3 or reiserfs as a default).  This, however, confines the use of ext2 to a 
+(relatively) small group of users having special needs and means that the 
+future ext2 code will get less testing in any case, just like old device 
+drivers do (eg. old CD-ROM drivers ;-)).
 
--- 
-Yasunori Goto <ygoto at us.fujitsu.com>
+I'm not for collapsing the ext2 and ext3 code bases, but IMHO your argument 
+does not apply.
 
+I think that the good reason for keeping both ext* code bases in the kernel 
+tree is that _there_ _are_ _some_ people who will need ext2 for some 
+purposes, so why should we pull the carpet from under them?
 
+Yours,
+rjw
+
+----------------------------
+For a successful technology, reality must take precedence over public 
+relations, for nature cannot be fooled.
+					-- Richard P. Feynman

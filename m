@@ -1,57 +1,64 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282705AbRLFTyA>; Thu, 6 Dec 2001 14:54:00 -0500
+	id <S284171AbRLFT5U>; Thu, 6 Dec 2001 14:57:20 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282702AbRLFTxv>; Thu, 6 Dec 2001 14:53:51 -0500
-Received: from bitmover.com ([192.132.92.2]:50050 "EHLO bitmover.bitmover.com")
-	by vger.kernel.org with ESMTP id <S282705AbRLFTxk>;
-	Thu, 6 Dec 2001 14:53:40 -0500
-Date: Thu, 6 Dec 2001 11:53:38 -0800
-From: Larry McVoy <lm@bitmover.com>
-To: Daniel Phillips <phillips@bonn-fries.net>
-Cc: Larry McVoy <lm@bitmover.com>, "David S. Miller" <davem@redhat.com>,
-        davidel@xmailserver.org, rusty@rustcorp.com.au,
-        Martin.Bligh@us.ibm.com, riel@conectiva.com.br, lars.spam@nocrew.org,
-        alan@lxorguk.ukuu.org.uk, hps@intermeta.de,
-        linux-kernel@vger.kernel.org
-Subject: Re: SMP/cc Cluster description
-Message-ID: <20011206115338.E27589@work.bitmover.com>
-Mail-Followup-To: Daniel Phillips <phillips@bonn-fries.net>,
-	Larry McVoy <lm@bitmover.com>, "David S. Miller" <davem@redhat.com>,
-	davidel@xmailserver.org, rusty@rustcorp.com.au,
-	Martin.Bligh@us.ibm.com, riel@conectiva.com.br,
-	lars.spam@nocrew.org, alan@lxorguk.ukuu.org.uk, hps@intermeta.de,
-	linux-kernel@vger.kernel.org
-In-Reply-To: <20011206135224.12c4b123.rusty@rustcorp.com.au> <20011205.235617.23011309.davem@redhat.com> <20011206000216.B18034@work.bitmover.com> <E16C4PM-0000qu-00@starship.berlin>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 1.0.1i
-In-Reply-To: <E16C4PM-0000qu-00@starship.berlin>; from phillips@bonn-fries.net on Thu, Dec 06, 2001 at 08:42:05PM +0100
+	id <S283924AbRLFT5H>; Thu, 6 Dec 2001 14:57:07 -0500
+Received: from perninha.conectiva.com.br ([200.250.58.156]:6925 "HELO
+	perninha.conectiva.com.br") by vger.kernel.org with SMTP
+	id <S282670AbRLFT4x>; Thu, 6 Dec 2001 14:56:53 -0500
+Date: Thu, 6 Dec 2001 17:56:22 -0200 (BRST)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: <riel@duckman.distro.conectiva>
+To: Mike Galbraith <mikeg@wen-online.de>
+Cc: Roy Sigurd Karlsbakk <roy@karlsbakk.net>,
+        Pablo Borges <pablo.borges@uol.com.br>, <linux-kernel@vger.kernel.org>
+Subject: Re: Kernel 2.4.16 & Heavy I/O
+In-Reply-To: <Pine.LNX.4.33.0112062031491.1053-100000@mikeg.weiden.de>
+Message-ID: <Pine.LNX.4.33L.0112061737480.2283-100000@duckman.distro.conectiva>
+X-spambait: aardvark@kernelnewbies.org
+X-spammeplease: aardvark@nl.linux.org
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Dec 06, 2001 at 08:42:05PM +0100, Daniel Phillips wrote:
-> On December 6, 2001 09:02 am, Larry McVoy wrote:
-> > On Wed, Dec 05, 2001 at 11:56:17PM -0800, David S. Miller wrote:
-> > > These lockless algorithms, instructions like CAS, DCAS, "infinite
-> > > consensus number", it's all crap.  You have to seperate out the access
-> > > areas amongst different cpus so they don't collide, and none of these
-> > > mechanisms do that.
-> > 
-> > Err, Dave, that's *exactly* the point of the ccCluster stuff.  You get
-> > all that seperation for every data structure for free.  Think about
-> > it a bit.  Aren't you going to feel a little bit stupid if you do all
-> > this work, one object at a time, and someone can come along and do the
-> > whole OS in one swoop?  Yeah, I'm spouting crap, it isn't that easy,
-> > but it is much easier than the route you are taking.  
-> 
-> What I don't get after looking at your material, is how you intend to do the 
-> locking.  Sharing a mmap across OS instances is fine, but how do processes on 
-> the two different OS's avoid stepping on each other when they access the same 
-> file?
+On Thu, 6 Dec 2001, Mike Galbraith wrote:
+> On Thu, 6 Dec 2001, Rik van Riel wrote:
+> > On Thu, 6 Dec 2001, Roy Sigurd Karlsbakk wrote:
+> >
+> > > Is it really neccecary? Free memory's a waste! The cache will be
+> > > discarded the moment an application needs the memory.
+> >
+> > That's not the case with use-once ...
+>
+> A little more verbosity please?
 
-Exactly the same way they would if they were two processes on a traditional
-SMP OS.
+Once a page is used twice, it's not a candidate for eviction
+until (most of) the use-once pages are gone.
+
+This means that if you have these 40 MB of used-twice-but-never-again
+buffer cache memory, this memory will never be evicted until other
+pages get promoted from use-once to active.
+
+Now say you have 200 MB of RAM, 40 MB of which are the above
+buffer cache pages. Now you start a program which needs 170
+MB of RAM.
+
+This 170 MB program touches each page once before starting
+at the front again, which means all its pages are used once
+before getting evicted ... and they never get promoted to
+active pages so the 40 MB of no longer used buffer cache
+never gets evicted.
+
+Use-once has this property in principle and the warnings have
+gone out since around 2.4.8-pre4, but it's in 2.4 now so you're
+stuck with it.
+
+cheers,
+
+Rik
 -- 
----
-Larry McVoy            	 lm at bitmover.com           http://www.bitmover.com/lm 
+DMCA, SSSCA, W3C?  Who cares?  http://thefreeworld.net/
+
+http://www.surriel.com/		http://distro.conectiva.com/
+

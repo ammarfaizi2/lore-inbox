@@ -1,39 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291957AbSBATvl>; Fri, 1 Feb 2002 14:51:41 -0500
+	id <S291952AbSBATxl>; Fri, 1 Feb 2002 14:53:41 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291952AbSBATvc>; Fri, 1 Feb 2002 14:51:32 -0500
-Received: from port29.ds1-rdo.adsl.cybercity.dk ([212.242.196.94]:6959 "EHLO
-	xyzzy.adsl.dk") by vger.kernel.org with ESMTP id <S291943AbSBATvA>;
-	Fri, 1 Feb 2002 14:51:00 -0500
-To: linux-kernel@vger.kernel.org
-Subject: Re: should I trust 'free' or 'top'?
-In-Reply-To: <20020201192415.GC23997@flounder.net>
-X-Home-Page: http://peter.makholm.net/
-Xyzzy: Nothing happens!
-From: Peter Makholm <peter@makholm.net>
-Date: Fri, 01 Feb 2002 20:50:53 +0100
-In-Reply-To: <20020201192415.GC23997@flounder.net>
- (adam-dated-1013023458.e87e05@flounder.net's message of "Fri, 1 Feb 2002
- 19:34:48 +0000 (UTC)")
-Message-ID: <87pu3pvv4y.fsf@xyzzy.adsl.dk>
-User-Agent: Gnus/5.090004 (Oort Gnus v0.04) XEmacs/21.4 (Artificial
- Intelligence, i386-debian-linux)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+	id <S291961AbSBATx0>; Fri, 1 Feb 2002 14:53:26 -0500
+Received: from asooo.flowerfire.com ([63.254.226.247]:14303 "EHLO
+	asooo.flowerfire.com") by vger.kernel.org with ESMTP
+	id <S291952AbSBATw1>; Fri, 1 Feb 2002 14:52:27 -0500
+Date: Fri, 1 Feb 2002 13:52:25 -0600
+From: Ken Brownfield <brownfld@irridia.com>
+To: Robert Love <rml@tech9.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Continuing /dev/random problems with 2.4
+Message-ID: <20020201135225.D8599@asooo.flowerfire.com>
+In-Reply-To: <20020201031744.A32127@asooo.flowerfire.com> <1012582401.813.1.camel@phantasy> <a3enf3$93p$1@cesium.transmeta.com> <20020201133833.B8599@asooo.flowerfire.com> <1012593032.1095.7.camel@phantasy>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <1012593032.1095.7.camel@phantasy>; from rml@tech9.net on Fri, Feb 01, 2002 at 02:50:31PM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-adam-dated-1013023458.e87e05@flounder.net ("Adam McKenna") writes:
+On Fri, Feb 01, 2002 at 02:50:31PM -0500, Robert Love wrote:
+| What is the output of `/proc/sys/kernel/random/entropy_avail' when
+| programs are stalled?  Is it actually 0?
 
-> Now top, on the other hand, has a very different idea about the amount of
-> free memory:
+Yep, and it never raises above that -- it doesn't jump around even after
+a month.
 
-A very different idea? The difference is about 1M if I read it
-correctly. 
+| Can you see if any programs are perhaps draining entropy in the
+| background?  See what has /dev/[u]random open ... note even /dev/urandom
+| uses entropy, its the same as /dev/random, except it doesn't care when
+| the entropy estimate is 0.
 
+I've scanned /proc to verify that all PIDs do not have an FD open to
+/dev/random.  This was my first guess when this started -- some
+developer was draining entropy in a while(1) loop.  I believe I went so
+far as to go to runlevel 1 with nothing but sh and kernel threads.
+
+That may not be comprehensive, so I'm open to other diagnostic tips.
+And yes, /dev/urandom does continue to work, as expected.
+
+Thanks!
 -- 
-Når folk spørger mig, om jeg er nørd, bliver jeg altid ilde til mode
-og svarer lidt undskyldende: "Nej, jeg bruger RedHat".
-                                -- Allan Olesen på dk.edb.system.unix
+Ken.
+brownfld@irridia.com
+
+| 	Robert Love

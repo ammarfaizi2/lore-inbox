@@ -1,85 +1,138 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268204AbUHNIFg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262328AbUHNIR2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268204AbUHNIFg (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 14 Aug 2004 04:05:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268203AbUHNIFX
+	id S262328AbUHNIR2 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 14 Aug 2004 04:17:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263769AbUHNIR1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 14 Aug 2004 04:05:23 -0400
-Received: from everest.2mbit.com ([24.123.221.2]:53165 "EHLO mail.sosdg.org")
-	by vger.kernel.org with ESMTP id S268200AbUHNIFG (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 14 Aug 2004 04:05:06 -0400
-Message-ID: <411DC78C.7020303@greatcn.org>
-Date: Sat, 14 Aug 2004 16:04:28 +0800
-From: Coywolf Qi Hunt <coywolf@greatcn.org>
-User-Agent: Mozilla Thunderbird 0.7.2 (Windows/20040707)
-X-Accept-Language: en-us, en
+	Sat, 14 Aug 2004 04:17:27 -0400
+Received: from out009pub.verizon.net ([206.46.170.131]:5581 "EHLO
+	out009.verizon.net") by vger.kernel.org with ESMTP id S262328AbUHNIRW
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 14 Aug 2004 04:17:22 -0400
+From: Gene Heskett <gene.heskett@verizon.net>
+Reply-To: gene.heskett@verizon.net
+Organization: Organization: None, detectable by casual observers
+To: linux-kernel@vger.kernel.org
+Subject: Re: Possible dcache BUG
+Date: Sat, 14 Aug 2004 04:17:20 -0400
+User-Agent: KMail/1.6.82
+Cc: Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
+       Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
+       Al Viro <viro@parcelfarce.linux.theplanet.co.uk>
+References: <Pine.LNX.4.44.0408020911300.10100-100000@franklin.wrl.org> <200408130027.24470.gene.heskett@verizon.net> <20040814021809.GD30627@logos.cnet>
+In-Reply-To: <20040814021809.GD30627@logos.cnet>
 MIME-Version: 1.0
-To: Sam Ravnborg <sam@ravnborg.org>
-CC: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
-       Linus Torvalds <torvalds@osdl.org>
-References: <20040813192804.GA10486@mars.ravnborg.org> <20040813194928.GG10556@mars.ravnborg.org>
-In-Reply-To: <20040813194928.GG10556@mars.ravnborg.org>
-X-Scan-Signature: 9f07f232fbbd9fb152858f6cdece527c
-X-SA-Exim-Connect-IP: 218.24.184.185
-X-SA-Exim-Mail-From: coywolf@greatcn.org
-Subject: Re: [7/12] kbuild: Separate out host-progs handling
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain;
+  charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-X-Spam-Report: * -4.9 BAYES_00 BODY: Bayesian spam probability is 0 to 1%
-	*      [score: 0.0000]
-	*  3.0 RCVD_IN_AHBL_CNKR RBL: AHBL: sender is listed in the AHBL China/Korea blocks
-	*      [218.24.184.185 listed in cnkrbl.ahbl.org]
-X-SA-Exim-Version: 4.0+cvs20040712 (built Mon, 09 Aug 2004 23:30:37 -0500)
+Content-Disposition: inline
+Message-Id: <200408140417.20539.gene.heskett@verizon.net>
+X-Authentication-Info: Submitted using SMTP AUTH at out009.verizon.net from [151.205.58.109] at Sat, 14 Aug 2004 03:17:21 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Sam Ravnborg wrote:
-
-># This is a BitKeeper generated diff -Nru style patch.
->#
-># ChangeSet
->#   2004/08/10 20:09:55+02:00 sam@mars.ravnborg.org 
->#   kbuild: Separate out host-progs handling
->#   
->#   Concentrating all host-progs functionality in one file made a more
->#   readable Makefile.lib - and allow for potential reuse of host-progs
->#   functionality.
->#   Processing of host-progs related stuff are avoided when no host-progs are specified. 
->#   
->#   Signed-off-by: Sam Ravnborg <sam@ravnborg.org>
-># 
-># scripts/Makefile.host
->#   2004/08/10 20:09:38+02:00 sam@mars.ravnborg.org +152 -0
-># 
-># scripts/Makefile.lib
->#   2004/08/10 20:09:38+02:00 sam@mars.ravnborg.org +0 -49
->#   Move host-progs functionality to scripts/Makefile.host
-># 
-># scripts/Makefile.host
->#   2004/08/10 20:09:38+02:00 sam@mars.ravnborg.org +0 -0
->#   BitKeeper file /home/sam/bk/kbuild/scripts/Makefile.host
-># 
-># scripts/Makefile.build
->#   2004/08/10 20:09:38+02:00 sam@mars.ravnborg.org +5 -84
->#   Move host-progs functionality to scripts/Makefile.host
-># 
->diff -Nru a/scripts/Makefile.build b/scripts/Makefile.build
->--- a/scripts/Makefile.build	2004-08-13 21:08:23 +02:00
->+++ b/scripts/Makefile.build	2004-08-13 21:08:23 +02:00
->@@ -14,6 +14,11 @@
-> 
-> include scripts/Makefile.lib
-> 
->+# Do not include host-progs rules unles needed
->  
+On Friday 13 August 2004 22:18, Marcelo Tosatti wrote:
+>On Fri, Aug 13, 2004 at 12:27:24AM -0400, Gene Heskett wrote:
+>> On Wednesday 11 August 2004 00:59, Linus Torvalds wrote:
+>> >I wrote:
+>> >> Notably, the output of "/proc/meminfo" and "/proc/slabinfo".
+>> >> "ps axv" helps too.
+[...]
 >
+>Hi fellows,
+>
+>I've taken some time to look at this oopses, and I truly believe we
+>are facing real corruption.
+>
+>The symptom is that an inode's (blockdev) i_mapping->private_list
+> gets corrupted, one of its buffer_head's contains a b_assoc_mapping
+> list_head with NULL pointers.
+>
+>And this is not an SMP race, because Gene is not running SMP.
+>
+>Gene's oops happens when remove_inode_buffers calls 
+> __remove_assoc_queue(bh)
+>
+>Ingo's oops happens while remove_inode_buffers does
+>
+> struct buffer_head *bh = BH_ENTRY(list->next);
+>
+>which is
+>
+>	mov ffffffd8(%ecx), (%somewhere)
+>
+>%ecx is zero, so...
+>
+>There is a bug somewhere.
+>
+>--- a/fs/buffer.c.original	2004-08-14 00:19:55.000000000 -0300
+>+++ b/fs/buffer.c	2004-08-14 00:34:57.000000000 -0300
+>@@ -802,6 +802,8 @@
+>  */
+> static inline void __remove_assoc_queue(struct buffer_head *bh)
+> {
+>+	BUG_ON(bh->b_assoc_buffers.next == NULL);
+>+	BUG_ON(bh->b_assoc_buffers.prev == NULL);
+> 	list_del_init(&bh->b_assoc_buffers);
+> }
+>
+>@@ -1073,6 +1075,7 @@
+>
+> 		spin_lock(&buffer_mapping->private_lock);
+> 		while (!list_empty(list)) {
+>+			BUG_ON(list->next == NULL);
+> 			struct buffer_head *bh = BH_ENTRY(list->next);
+> 			if (buffer_dirty(bh)) {
+> 				ret = 0;
+>
+Just for grins I occasionally do the up-arrow bit and re-run that 
+slabinfo sorter line Linus gave me, watching the size of the 
+dentry_cache line in particular.  I believe I just saw a first, the 
+size was reported as being slightly smaller that the last run an hour 
+ago.  Previously it had done nothing but grow.  This is a kernel with 
+two patches from -rc4, one being the list_del thing, the other being 
+the one liner that presumably forces the fetch, not depending on the 
+prefetch in this chip which conjecture says it might not be working 
+100%.
 
-A typo: unless
+Also, top is showing a relatively large amount of free memory even 
+though a small amount is now in the swap.  /proc/meminfo:
+MemTotal:      1035852 kB
+MemFree:        130452 kB
+Buffers:         70664 kB
+Cached:         420512 kB
+SwapCached:        400 kB
+Active:         384008 kB
+Inactive:       271184 kB
+HighTotal:      131008 kB
+HighFree:          308 kB
+LowTotal:       904844 kB
+LowFree:        130144 kB
+SwapTotal:     3857104 kB
+SwapFree:      3856452 kB
+Dirty:             136 kB
+Writeback:           0 kB
+Mapped:         222000 kB
+Slab:           239816 kB
+Committed_AS:   302408 kB
+PageTables:       3232 kB
+VmallocTotal:   114680 kB
+VmallocUsed:     19900 kB
+VmallocChunk:    94604 kB
 
+This with an uptime approaching 18 hours.  With only the list_del 
+patch, by now I would be down to 3-5 megs free, and 20-100 megs in 
+swap.
+
+The 4am stuff just started, this was the killer yesterday morning.
+No probs at the 15 minute mark, looks good.
 
 -- 
-Coywolf Qi Hunt
-Homepage http://greatcn.org/~coywolf/
-Admin of http://GreatCN.org and http://LoveCN.org
-
+Cheers, Gene
+"There are four boxes to be used in defense of liberty:
+ soap, ballot, jury, and ammo. Please use in that order."
+-Ed Howdershelt (Author)
+99.24% setiathome rank, not too shabby for a WV hillbilly
+Yahoo.com attorneys please note, additions to this message
+by Gene Heskett are:
+Copyright 2004 by Maurice Eugene Heskett, all rights reserved.

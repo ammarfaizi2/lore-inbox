@@ -1,51 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265284AbTIJRL7 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 10 Sep 2003 13:11:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265316AbTIJRL7
+	id S265295AbTIJRPI (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 10 Sep 2003 13:15:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265337AbTIJRPI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 Sep 2003 13:11:59 -0400
-Received: from gprs145-173.eurotel.cz ([160.218.145.173]:51585 "EHLO
-	amd.ucw.cz") by vger.kernel.org with ESMTP id S265284AbTIJRL6 (ORCPT
+	Wed, 10 Sep 2003 13:15:08 -0400
+Received: from mail2.sonytel.be ([195.0.45.172]:57744 "EHLO witte.sonytel.be")
+	by vger.kernel.org with ESMTP id S265295AbTIJRO6 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 Sep 2003 13:11:58 -0400
-Date: Wed, 10 Sep 2003 19:11:39 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: Claas Langbehn <claas@rootdir.de>
-Cc: linux-kernel@vger.kernel.org, Andrew de Quincey <adq@lidskialf.net>,
-       acpi-devel@lists.sourceforge.net
-Subject: Re: [ACPI] [2.6.0-test5-mm1] Suspend to RAM problems
-Message-ID: <20030910171139.GB2764@elf.ucw.cz>
-References: <20030910103142.GA1053@rootdir.de> <20030910111312.GA847@rootdir.de> <20030910143837.GC2589@elf.ucw.cz> <20030910154702.GB1507@rootdir.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030910154702.GB1507@rootdir.de>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.3i
+	Wed, 10 Sep 2003 13:14:58 -0400
+Date: Wed, 10 Sep 2003 19:14:37 +0200 (MEST)
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+To: viro@parcelfarce.linux.theplanet.co.uk
+cc: Stephen Hemminger <shemminger@osdl.org>, jffs-dev@axis.com,
+       Linux Kernel Development <linux-kernel@vger.kernel.org>,
+       Linus Torvalds <torvalds@osdl.org>
+Subject: Re: [PATCH] fix type mismatch in jffs.
+In-Reply-To: <20030910024010.GN454@parcelfarce.linux.theplanet.co.uk>
+Message-ID: <Pine.GSO.4.21.0309101913561.1390-100000@vervain.sonytel.be>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
-
-> > > APIC error on CPU0: 08(08)
-> > > 
-> > > ...and it repeats endlessly :(
-> > > 
-> > > my keyboard is dead afterwards.
+On Wed, 10 Sep 2003 viro@parcelfarce.linux.theplanet.co.uk wrote:
+> On Tue, Sep 09, 2003 at 02:44:20PM -0700, Stephen Hemminger wrote:
+> > On 2.6.0-test5 jffs generates a warning about type mismatch because it casting a short
+> > to a pointer.  Look like an obvious typo.
+> 
+> Which it is.  Thanks for spotting.  Linux, please apply.
+>  
+> > Builds clean, not tested on real hardware.
 > > 
-> > Can you test on -test3 kernel?
-> 
-> Ok, I will later today.
-> 
-> 
-> BTW: when I suspend from X11 with the nvidia-drivers, then
-> the screen looks even worse :(
+> > diff -Nru a/fs/jffs/inode-v23.c b/fs/jffs/inode-v23.c
+> > --- a/fs/jffs/inode-v23.c	Tue Sep  9 14:41:53 2003
+> > +++ b/fs/jffs/inode-v23.c	Tue Sep  9 14:41:53 2003
+> > @@ -1734,7 +1734,7 @@
+> >  		   the device should be read from the flash memory and then
+> >  		   added to the inode's i_rdev member.  */
+> >  		u16 val;
+> > -		jffs_read_data(f, (char *)val, 0, 2);
+> > +		jffs_read_data(f, (char *)&val, 0, 2);
+> >  		init_special_inode(inode, inode->i_mode,
+> >  			old_decode_dev(val));
+> >  	}
 
-Nvidia is binary only, right? I can't help with that.
+Is this endian-safe?
 
-							Pavel
+Gr{oetje,eeting}s,
 
--- 
-When do you have a heart between your knees?
-[Johanka's followup: and *two* hearts?]
+						Geert
+
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+							    -- Linus Torvalds
+

@@ -1,92 +1,268 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263717AbTCUTQs>; Fri, 21 Mar 2003 14:16:48 -0500
+	id <S263857AbTCUTc1>; Fri, 21 Mar 2003 14:32:27 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263733AbTCUTP2>; Fri, 21 Mar 2003 14:15:28 -0500
-Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:42628
+	id <S263856AbTCUTcG>; Fri, 21 Mar 2003 14:32:06 -0500
+Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:57220
 	"EHLO hraefn.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S263753AbTCUTOy>; Fri, 21 Mar 2003 14:14:54 -0500
-Date: Fri, 21 Mar 2003 20:30:10 GMT
+	id <S263842AbTCUTai>; Fri, 21 Mar 2003 14:30:38 -0500
+Date: Fri, 21 Mar 2003 20:45:54 GMT
 From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Message-Id: <200303212030.h2LKUApv026359@hraefn.swansea.linux.org.uk>
+Message-Id: <200303212045.h2LKjsJF026473@hraefn.swansea.linux.org.uk>
 To: linux-kernel@vger.kernel.org, torvalds@transmeta.com
-Subject: PATCH: Make pci-bios function ids per machine type
+Subject: PATCH: update ide-cd to new changes, add abort() handlers
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Yes NEC use *different* function numbers!!
-
-diff -u --new-file --recursive --exclude-from /usr/src/exclude linux-2.5.65/arch/i386/pci/pcbios.c linux-2.5.65-ac2/arch/i386/pci/pcbios.c
---- linux-2.5.65/arch/i386/pci/pcbios.c	2003-02-10 18:37:58.000000000 +0000
-+++ linux-2.5.65-ac2/arch/i386/pci/pcbios.c	2003-02-14 23:04:05.000000000 +0000
-@@ -5,22 +5,9 @@
- #include <linux/pci.h>
- #include <linux/init.h>
- #include "pci.h"
-+#include "pci-functions.h"
+diff -u --new-file --recursive --exclude-from /usr/src/exclude linux-2.5.65/drivers/ide/ide-cd.c linux-2.5.65-ac2/drivers/ide/ide-cd.c
+--- linux-2.5.65/drivers/ide/ide-cd.c	2003-03-06 17:04:26.000000000 +0000
++++ linux-2.5.65-ac2/drivers/ide/ide-cd.c	2003-03-14 00:49:24.000000000 +0000
+@@ -294,7 +294,7 @@
+  *
+  *************************************************************************/
+  
+-#define IDECD_VERSION "4.59"
++#define IDECD_VERSION "4.59-ac1"
  
+ #include <linux/config.h>
+ #include <linux/module.h>
+@@ -635,6 +635,23 @@
+ 	return ide_stopped;
+ }
  
--#define PCIBIOS_PCI_FUNCTION_ID 	0xb1XX
--#define PCIBIOS_PCI_BIOS_PRESENT 	0xb101
--#define PCIBIOS_FIND_PCI_DEVICE		0xb102
--#define PCIBIOS_FIND_PCI_CLASS_CODE	0xb103
--#define PCIBIOS_GENERATE_SPECIAL_CYCLE	0xb106
--#define PCIBIOS_READ_CONFIG_BYTE	0xb108
--#define PCIBIOS_READ_CONFIG_WORD	0xb109
--#define PCIBIOS_READ_CONFIG_DWORD	0xb10a
--#define PCIBIOS_WRITE_CONFIG_BYTE	0xb10b
--#define PCIBIOS_WRITE_CONFIG_WORD	0xb10c
--#define PCIBIOS_WRITE_CONFIG_DWORD	0xb10d
--#define PCIBIOS_GET_ROUTING_OPTIONS	0xb10e
--#define PCIBIOS_SET_PCI_HW_INT		0xb10f
++ide_startstop_t ide_cdrom_abort (ide_drive_t *drive, const char *msg)
++{
++	struct request *rq;
++
++	if (drive == NULL || (rq = HWGROUP(drive)->rq) == NULL)
++		return ide_stopped;
++	/* retry only "normal" I/O: */
++	if (rq->flags & (REQ_DRIVE_CMD | REQ_DRIVE_TASK)) {
++		rq->errors = 1;
++		ide_end_drive_cmd(drive, BUSY_STAT, 0);
++		return ide_stopped;
++	}
++	rq->errors |= ERROR_RESET;
++	DRIVER(drive)->end_request(drive, 0, 0);
++	return ide_stopped;
++}
++
+ static void cdrom_end_request (ide_drive_t *drive, int uptodate)
+ {
+ 	struct request *rq = HWGROUP(drive)->rq;
+@@ -899,9 +916,6 @@
+ 			return startstop;
+ 	}
+ 
+-	if (HWGROUP(drive)->handler != NULL)	/* paranoia check */
+-		BUG();
 -
- /* BIOS32 signature: "_32_" */
- #define BIOS32_SIGNATURE	(('_' << 0) + ('3' << 8) + ('2' << 16) + ('_' << 24))
+ 	/* Arm the interrupt handler. */
+ 	ide_set_handler(drive, handler, rq->timeout, cdrom_timer_expiry);
  
-diff -u --new-file --recursive --exclude-from /usr/src/exclude linux-2.5.65/include/asm-i386/mach-default/pci-functions.h linux-2.5.65-ac2/include/asm-i386/mach-default/pci-functions.h
---- linux-2.5.65/include/asm-i386/mach-default/pci-functions.h	1970-01-01 01:00:00.000000000 +0100
-+++ linux-2.5.65-ac2/include/asm-i386/mach-default/pci-functions.h	2003-02-14 22:54:22.000000000 +0000
-@@ -0,0 +1,19 @@
-+/*
-+ *	PCI BIOS function numbering for conventional PCI BIOS 
-+ *	systems
-+ */
+@@ -1133,9 +1147,6 @@
+ 		}
+ 	}
+ 
+-	if (HWGROUP(drive)->handler != NULL)    /* paranoia check */
+-		BUG();
+-
+ 	/* Done moving data!  Wait for another interrupt. */
+ 	ide_set_handler(drive, &cdrom_read_intr, WAIT_CMD, NULL);
+ 	return ide_started;
+@@ -1470,9 +1481,6 @@
+ 		rq->flags |= REQ_FAILED;
+ 	}
+ 
+-	if (HWGROUP(drive)->handler != NULL)
+-		BUG();
+-
+ 	/* Now we wait for another interrupt. */
+ 	ide_set_handler(drive, &cdrom_pc_intr, WAIT_CMD, cdrom_timer_expiry);
+ 	return ide_started;
+@@ -1863,9 +1871,6 @@
+ 			cdrom_end_request(drive, 1);
+ 	}
+ 
+-	if (HWGROUP(drive)->handler != NULL)	/* paranoia check */
+-		BUG();
+-
+ 	/* re-arm handler */
+ 	ide_set_handler(drive, &cdrom_write_intr, 5 * WAIT_CMD, NULL);
+ 	return ide_started;
+@@ -2837,11 +2842,9 @@
+ 	 * ACER50 (and others?) require the full spec length mode sense
+ 	 * page capabilities size, but older drives break.
+ 	 */
+-	if (drive->id) {
+-		if (!(!strcmp(drive->id->model, "ATAPI CD ROM DRIVE 50X MAX") ||
+-		    !strcmp(drive->id->model, "WPI CDS-32X")))
+-			size -= sizeof(cap->pad);
+-	}
++	if (!(!strcmp(drive->id->model, "ATAPI CD ROM DRIVE 50X MAX") ||
++	    !strcmp(drive->id->model, "WPI CDS-32X")))
++		size -= sizeof(cap->pad);
+ 
+ 	/* we have to cheat a little here. the packet will eventually
+ 	 * be queued with ide_cdrom_packet(), which extracts the
+@@ -2924,7 +2927,7 @@
+ 	}
+ 
+ 	/* The ACER/AOpen 24X cdrom has the speed fields byte-swapped */
+-	if (drive->id && !drive->id->model[0] &&
++	if (!drive->id->model[0] &&
+ 	    !strncmp(drive->id->fw_rev, "241N", 4)) {
+ 		CDROM_STATE_FLAGS(drive)->current_speed  = 
+ 			(((unsigned int)cap.curspeed) + (176/2)) / 176;
+@@ -3089,12 +3092,7 @@
+ 	CDROM_CONFIG_FLAGS(drive)->no_doorlock = 0;
+ #endif
+ 
+-	if (drive->id != NULL)
+-		CDROM_CONFIG_FLAGS(drive)->drq_interrupt =
+-			((drive->id->config & 0x0060) == 0x20);
+-	else
+-		CDROM_CONFIG_FLAGS(drive)->drq_interrupt = 0;
+-
++	CDROM_CONFIG_FLAGS(drive)->drq_interrupt = ((drive->id->config & 0x0060) == 0x20);
+ 	CDROM_CONFIG_FLAGS(drive)->is_changer = 0;
+ 	CDROM_CONFIG_FLAGS(drive)->cd_r = 0;
+ 	CDROM_CONFIG_FLAGS(drive)->cd_rw = 0;
+@@ -3109,16 +3107,14 @@
+ 	
+ 	/* limit transfer size per interrupt. */
+ 	CDROM_CONFIG_FLAGS(drive)->limit_nframes = 0;
+-	if (drive->id != NULL) {
+-		/* a testament to the nice quality of Samsung drives... */
+-		if (!strcmp(drive->id->model, "SAMSUNG CD-ROM SCR-2430"))
+-			CDROM_CONFIG_FLAGS(drive)->limit_nframes = 1;
+-		else if (!strcmp(drive->id->model, "SAMSUNG CD-ROM SCR-2432"))
+-			CDROM_CONFIG_FLAGS(drive)->limit_nframes = 1;
+-		/* the 3231 model does not support the SET_CD_SPEED command */
+-		else if (!strcmp(drive->id->model, "SAMSUNG CD-ROM SCR-3231"))
+-			cdi->mask |= CDC_SELECT_SPEED;
+-	}
++	/* a testament to the nice quality of Samsung drives... */
++	if (!strcmp(drive->id->model, "SAMSUNG CD-ROM SCR-2430"))
++		CDROM_CONFIG_FLAGS(drive)->limit_nframes = 1;
++	else if (!strcmp(drive->id->model, "SAMSUNG CD-ROM SCR-2432"))
++		CDROM_CONFIG_FLAGS(drive)->limit_nframes = 1;
++	/* the 3231 model does not support the SET_CD_SPEED command */
++	else if (!strcmp(drive->id->model, "SAMSUNG CD-ROM SCR-3231"))
++		cdi->mask |= CDC_SELECT_SPEED;
+ 
+ #if ! STANDARD_ATAPI
+ 	/* by default Sanyo 3 CD changer support is turned off and
+@@ -3131,55 +3127,47 @@
+ 	CDROM_CONFIG_FLAGS(drive)->playmsf_as_bcd = 0;
+ 	CDROM_CONFIG_FLAGS(drive)->subchan_as_bcd = 0;
+ 
+-	if (drive->id != NULL) {
+-		if (strcmp (drive->id->model, "V003S0DS") == 0 &&
+-		    drive->id->fw_rev[4] == '1' &&
+-		    drive->id->fw_rev[6] <= '2') {
+-			/* Vertos 300.
+-			   Some versions of this drive like to talk BCD. */
+-			CDROM_CONFIG_FLAGS(drive)->toctracks_as_bcd = 1;
+-			CDROM_CONFIG_FLAGS(drive)->tocaddr_as_bcd = 1;
+-			CDROM_CONFIG_FLAGS(drive)->playmsf_as_bcd = 1;
+-			CDROM_CONFIG_FLAGS(drive)->subchan_as_bcd = 1;
+-		}
+-
+-		else if (strcmp (drive->id->model, "V006E0DS") == 0 &&
+-		    drive->id->fw_rev[4] == '1' &&
+-		    drive->id->fw_rev[6] <= '2') {
+-			/* Vertos 600 ESD. */
+-			CDROM_CONFIG_FLAGS(drive)->toctracks_as_bcd = 1;
+-		}
+-
+-		else if (strcmp(drive->id->model,
+-				 "NEC CD-ROM DRIVE:260") == 0 &&
+-			 strncmp(drive->id->fw_rev, "1.01", 4) == 0) { /* FIXME */
+-			/* Old NEC260 (not R).
+-			   This drive was released before the 1.2 version
+-			   of the spec. */
+-			CDROM_CONFIG_FLAGS(drive)->tocaddr_as_bcd = 1;
+-			CDROM_CONFIG_FLAGS(drive)->playmsf_as_bcd = 1;
+-			CDROM_CONFIG_FLAGS(drive)->subchan_as_bcd = 1;
+-			CDROM_CONFIG_FLAGS(drive)->nec260         = 1;
+-		}
+-
+-		else if (strcmp(drive->id->model, "WEARNES CDD-120") == 0 &&
+-			 strncmp(drive->id->fw_rev, "A1.1", 4) == 0) { /* FIXME */
+-			/* Wearnes */
+-			CDROM_CONFIG_FLAGS(drive)->playmsf_as_bcd = 1;
+-			CDROM_CONFIG_FLAGS(drive)->subchan_as_bcd = 1;
+-		}
+-
+-                /* Sanyo 3 CD changer uses a non-standard command
+-                    for CD changing */
+-                 else if ((strcmp(drive->id->model, "CD-ROM CDR-C3 G") == 0) ||
+-                         (strcmp(drive->id->model, "CD-ROM CDR-C3G") == 0) ||
+-                         (strcmp(drive->id->model, "CD-ROM CDR_C36") == 0)) {
+-                        /* uses CD in slot 0 when value is set to 3 */
+-                        cdi->sanyo_slot = 3;
+-                }
+-
+-
+-	}
++	if (strcmp (drive->id->model, "V003S0DS") == 0 &&
++	    drive->id->fw_rev[4] == '1' &&
++	    drive->id->fw_rev[6] <= '2') {
++		/* Vertos 300.
++		   Some versions of this drive like to talk BCD. */
++		CDROM_CONFIG_FLAGS(drive)->toctracks_as_bcd = 1;
++		CDROM_CONFIG_FLAGS(drive)->tocaddr_as_bcd = 1;
++		CDROM_CONFIG_FLAGS(drive)->playmsf_as_bcd = 1;
++		CDROM_CONFIG_FLAGS(drive)->subchan_as_bcd = 1;
++	}
 +
-+#define PCIBIOS_PCI_FUNCTION_ID 	0xb1XX
-+#define PCIBIOS_PCI_BIOS_PRESENT 	0xb101
-+#define PCIBIOS_FIND_PCI_DEVICE		0xb102
-+#define PCIBIOS_FIND_PCI_CLASS_CODE	0xb103
-+#define PCIBIOS_GENERATE_SPECIAL_CYCLE	0xb106
-+#define PCIBIOS_READ_CONFIG_BYTE	0xb108
-+#define PCIBIOS_READ_CONFIG_WORD	0xb109
-+#define PCIBIOS_READ_CONFIG_DWORD	0xb10a
-+#define PCIBIOS_WRITE_CONFIG_BYTE	0xb10b
-+#define PCIBIOS_WRITE_CONFIG_WORD	0xb10c
-+#define PCIBIOS_WRITE_CONFIG_DWORD	0xb10d
-+#define PCIBIOS_GET_ROUTING_OPTIONS	0xb10e
-+#define PCIBIOS_SET_PCI_HW_INT		0xb10f
-+
-diff -u --new-file --recursive --exclude-from /usr/src/exclude linux-2.5.65/include/asm-i386/mach-pc9800/pci-functions.h linux-2.5.65-ac2/include/asm-i386/mach-pc9800/pci-functions.h
---- linux-2.5.65/include/asm-i386/mach-pc9800/pci-functions.h	1970-01-01 01:00:00.000000000 +0100
-+++ linux-2.5.65-ac2/include/asm-i386/mach-pc9800/pci-functions.h	2003-02-14 23:00:56.000000000 +0000
-@@ -0,0 +1,20 @@
-+/*
-+ *	PCI BIOS function codes for the PC9800. Different to
-+ *	standard PC systems
-+ */
-+
-+/* Note: PC-9800 confirms PCI 2.1 on only few models */
-+
-+#define PCIBIOS_PCI_FUNCTION_ID 	0xccXX
-+#define PCIBIOS_PCI_BIOS_PRESENT 	0xcc81
-+#define PCIBIOS_FIND_PCI_DEVICE		0xcc82
-+#define PCIBIOS_FIND_PCI_CLASS_CODE	0xcc83
-+/*      PCIBIOS_GENERATE_SPECIAL_CYCLE	0xcc86	(not supported by bios) */
-+#define PCIBIOS_READ_CONFIG_BYTE	0xcc88
-+#define PCIBIOS_READ_CONFIG_WORD	0xcc89
-+#define PCIBIOS_READ_CONFIG_DWORD	0xcc8a
-+#define PCIBIOS_WRITE_CONFIG_BYTE	0xcc8b
-+#define PCIBIOS_WRITE_CONFIG_WORD	0xcc8c
-+#define PCIBIOS_WRITE_CONFIG_DWORD	0xcc8d
-+#define PCIBIOS_GET_ROUTING_OPTIONS	0xcc8e	/* PCI 2.1 only */
-+#define PCIBIOS_SET_PCI_HW_INT		0xcc8f	/* PCI 2.1 only */
++	else if (strcmp (drive->id->model, "V006E0DS") == 0 &&
++	    drive->id->fw_rev[4] == '1' &&
++	    drive->id->fw_rev[6] <= '2') {
++		/* Vertos 600 ESD. */
++		CDROM_CONFIG_FLAGS(drive)->toctracks_as_bcd = 1;
++	}
++	else if (strcmp(drive->id->model, "NEC CD-ROM DRIVE:260") == 0 &&
++		 strncmp(drive->id->fw_rev, "1.01", 4) == 0) { /* FIXME */
++		/* Old NEC260 (not R).
++		   This drive was released before the 1.2 version
++		   of the spec. */
++		CDROM_CONFIG_FLAGS(drive)->tocaddr_as_bcd = 1;
++		CDROM_CONFIG_FLAGS(drive)->playmsf_as_bcd = 1;
++		CDROM_CONFIG_FLAGS(drive)->subchan_as_bcd = 1;
++		CDROM_CONFIG_FLAGS(drive)->nec260         = 1;
++	}
++	else if (strcmp(drive->id->model, "WEARNES CDD-120") == 0 &&
++		 strncmp(drive->id->fw_rev, "A1.1", 4) == 0) { /* FIXME */
++		/* Wearnes */
++		CDROM_CONFIG_FLAGS(drive)->playmsf_as_bcd = 1;
++		CDROM_CONFIG_FLAGS(drive)->subchan_as_bcd = 1;
++	}
++        /* Sanyo 3 CD changer uses a non-standard command
++           for CD changing */
++        else if ((strcmp(drive->id->model, "CD-ROM CDR-C3 G") == 0) ||
++                 (strcmp(drive->id->model, "CD-ROM CDR-C3G") == 0) ||
++                 (strcmp(drive->id->model, "CD-ROM CDR_C36") == 0)) {
++                 /* uses CD in slot 0 when value is set to 3 */
++                 cdi->sanyo_slot = 3;
++        }
+ #endif /* not STANDARD_ATAPI */
+ 
+ 	info->toc		= NULL;
+@@ -3246,6 +3234,7 @@
+ 		printk("%s: ide_cdrom_cleanup failed to unregister device from the cdrom driver.\n", drive->name);
+ 	kfree(info);
+ 	drive->driver_data = NULL;
++	blk_queue_prep_rq(&drive->queue, NULL);
+ 	del_gendisk(g);
+ 	g->fops = ide_fops;
+ 	return 0;
+@@ -3265,6 +3254,7 @@
+ 	.do_request		= ide_do_rw_cdrom,
+ 	.sense			= ide_cdrom_dump_status,
+ 	.error			= ide_cdrom_error,
++	.abort			= ide_cdrom_abort,
+ 	.capacity		= ide_cdrom_capacity,
+ 	.attach			= ide_cdrom_attach,
+ 	.drives			= LIST_HEAD_INIT(ide_cdrom_driver.drives),

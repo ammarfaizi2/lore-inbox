@@ -1,71 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262297AbVBVMYE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262285AbVBVM07@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262297AbVBVMYE (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Feb 2005 07:24:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262291AbVBVMYE
+	id S262285AbVBVM07 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Feb 2005 07:26:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262296AbVBVM07
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Feb 2005 07:24:04 -0500
-Received: from titan.server-plant.co.uk ([80.71.3.50]:44435 "EHLO
-	titan.server-plant.co.uk") by vger.kernel.org with ESMTP
-	id S262288AbVBVMXj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Feb 2005 07:23:39 -0500
-Message-ID: <5982.195.212.29.67.1109074991.squirrel@195.212.29.67>
-In-Reply-To: <421B1F12.7050601@gmx.de>
-References: <20041206185416.GE7153@smtp.west.cox.net>
-    <Pine.SOC.4.61.0502221031230.6097@math.ut.ee>
-    <421B1F12.7050601@gmx.de>
-Date: Tue, 22 Feb 2005 12:23:11 -0000 (GMT)
-Subject: Re: [PATCH 2.6.10-rc3][PPC32] Fix Motorola PReP (PowerstackII 
-     Utah) PCI IRQ map
-From: "Leigh Brown" <leigh@solinno.co.uk>
-To: "Sebastian Heutling" <sheutlin@gmx.de>
-Cc: "Meelis Roos" <mroos@linux.ee>, "Tom Rini" <trini@kernel.crashing.org>,
-       "Sven Hartge" <hartge@ds9.gnuu.de>,
-       "Kernel Mailing List" <linux-kernel@vger.kernel.org>,
-       "Christian Kujau" <evil@g-house.de>, linuxppc-dev@ozlabs.org
-User-Agent: SquirrelMail/1.4.3a-0.1.7.x
-X-Mailer: SquirrelMail/1.4.3a-0.1.7.x
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-Priority: 3 (Normal)
-Importance: Normal
+	Tue, 22 Feb 2005 07:26:59 -0500
+Received: from pot.isti.cnr.it ([146.48.83.182]:13483 "EHLO pot.isti.cnr.it")
+	by vger.kernel.org with ESMTP id S262285AbVBVMZi (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 22 Feb 2005 07:25:38 -0500
+From: Francesco Potorti` <Potorti@isti.cnr.it>
+To: linux-kernel@vger.kernel.org
+Subject: martian source message is wrong?
+Organization: ISTI-CNR, via Moruzzi 1, I-56124 Pisa, +39-0503153058
+X-fingerprint: 4B02 6187 5C03 D6B1 2E31  7666 09DF 2DC9 BE21 6115
+MIME-version: 1.0
+Content-type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
+Message-Id: <E1D3Z6e-0008B3-00@pot.isti.cnr.it>
+Date: Tue, 22 Feb 2005 13:25:36 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Sebastian Heutling said:
-> Meelis Roos wrote:
->
->>> The PCI IRQ map for the old Motorola PowerStackII (Utah) boards was
->>> incorrect, but this breakage wasn't exposed until 2.5, and finally
->>> fixed
->>> until recently by Sebastian Heutling <sheutlin@gmx.de>.
->>
->>
->> Yesterday I finally got around to testing it. It seems the patch has
->> been applied in Linus's tree so I downloaded the latest BK and tried it.
->>
->> Still does not work for me but this time it's different. Before the
->> patch SCSI worked fine but PCI NICs caused hangs. Now I can't test PCI
->> NICs because even the onboard 53c825 SCSI hangs - seems it gets no
->> interrupts.
->>
->> It detects the HBA, tries device discovery, gets a timeout, ABORT,
->> timeout, TARGET RESET, timeout, BUS RESET, timeout, HOST RESET and
->> there it hangs.
->>
->> Does it work for anyone else on Powerstack II Pro4000 (Utah)?
->>
-> It does work in 2.6.8 using backported patches (e.g. the debian 2.6.8
-> kernel). But it doesn't work above that version because of other patches
-> in arch/ppc/platforms/prep_pci.c and arch/ppc/platforms/prep_setup.c
-> (made by Tom Rini?). I couldn't find out what exactly is causing this
-> problem yet (because lack of time and the fact that my Powerstack is
-> used as a router).
+In 2.6.10, in net/ipv4/route.c, this message is printed:
 
-Ah, this could well be my fault.  Those patches were to improve support
-of IBM RS/6000 PReP boxes.  Do those machines have residual data?  If
-so, could anyone who has one send me the contents of /proc/residual?
+		printk(KERN_WARNING "martian source %u.%u.%u.%u from "
+			"%u.%u.%u.%u, on dev %s\n",
+			NIPQUAD(daddr), NIPQUAD(saddr), dev->name);
 
-Also, a full boot log when working and failing would be cool.
+In my opinion, it should be:
 
+!		printk(KERN_WARNING "martian source %u.%u.%u.%u to "
+			"%u.%u.%u.%u, on dev %s\n",
+!			NIPQUAD(saddr), NIPQUAD(daddr), dev->name);
+
+or, alternatively,
+
+!		printk(KERN_WARNING "martian source to %u.%u.%u.%u from "
+			"%u.%u.%u.%u, on dev %s\n",
+			NIPQUAD(daddr), NIPQUAD(saddr), dev->name);
+
+As it is written, it is not clear whether the martian source address is
+the first or the second one printed.
+
+-- 
+Francesco Potortì (ricercatore)        Voice: +39 050 315 3058 (op.2111)
+ISTI - Area della ricerca CNR          Fax:   +39 050 313 8091
+via G. Moruzzi 1, I-56124 Pisa         Email: Potorti@isti.cnr.it
+Web: http://fly.isti.cnr.it/           Key:   fly.isti.cnr.it/public.key

@@ -1,61 +1,58 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312272AbSCRJ5W>; Mon, 18 Mar 2002 04:57:22 -0500
+	id <S312277AbSCRKIy>; Mon, 18 Mar 2002 05:08:54 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312274AbSCRJ5M>; Mon, 18 Mar 2002 04:57:12 -0500
-Received: from pat.uio.no ([129.240.130.16]:3293 "EHLO pat.uio.no")
-	by vger.kernel.org with ESMTP id <S312272AbSCRJ5A>;
-	Mon, 18 Mar 2002 04:57:00 -0500
+	id <S312276AbSCRKIp>; Mon, 18 Mar 2002 05:08:45 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:62473 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S312274AbSCRKIh>;
+	Mon, 18 Mar 2002 05:08:37 -0500
+Message-ID: <3C95BC82.2070003@mandrakesoft.com>
+Date: Mon, 18 Mar 2002 05:08:02 -0500
+From: Jeff Garzik <jgarzik@mandrakesoft.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.8) Gecko/20020214
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: Jan Hudec <bulb@ucw.cz>
+CC: linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: fadvise syscall?
+In-Reply-To: <3C945635.4050101@mandrakesoft.com> <5.1.0.14.2.20020317170621.00abd980@pop.cus.cam.ac.uk> <5.1.0.14.2.20020317190303.03289ec0@pop.cus.cam.ac.uk> <5.1.0.14.2.20020318000057.051d30e0@pop.cus.cam.ac.uk> <a73ujs$5mc$1@cesium.transmeta.com> <20020318085811.GA21981@artax.karlin.mff.cuni.cz>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Message-ID: <15509.47571.248407.537415@charged.uio.no>
-Date: Mon, 18 Mar 2002 10:56:35 +0100
-To: NIIBE Yutaka <gniibe@m17n.org>
-Cc: Trond Myklebust <trond.myklebust@fys.uio.no>,
-        Stephan von Krawczynski <skraw@ithnet.com>,
-        linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: BUG REPORT: kernel nfs between 2.4.19-pre2 (server) and 2.2.21-pre3 (client)
-In-Reply-To: <200203180933.g2I9XTg07727@mule.m17n.org>
-X-Mailer: VM 6.92 under 21.1 (patch 14) "Cuyahoga Valley" XEmacs Lucid
-Reply-To: trond.myklebust@fys.uio.no
-From: Trond Myklebust <trond.myklebust@fys.uio.no>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> " " == NIIBE Yutaka <gniibe@m17n.org> writes:
+Jan Hudec wrote:
 
-     > Because the inode could be on inode_unused, being still on the
-     > hash at the client side, and server could reuse the inode (in
-     > case of unfsd/ext3).  When the inode will be reused for
-     > different type, it will result error.  Here is a scenario for
-     > non-patched 2.4.18:
+>>Followup to:  <5.1.0.14.2.20020318000057.051d30e0@pop.cus.cam.ac.uk>
+>>By author:    Anton Altaparmakov <aia21@cam.ac.uk>
+>>In newsgroup: linux.dev.fs.devel
+>>
+>>>Ok, so basically we want both fadvise() and open(2) semantics, with the 
+>>>open(2) being a superset of the fadvise() capabilities (some things no 
+>>>longer make sense to be specified once the file is open). They can of 
+>>>course both be calling the same common helpers inside the kernel...
+>>>
+>>If they're open() flags, they should probably be controlled with
+>>fcntl() rather than with a new system call.
+>>
+>
+>Then posix_fadvise interface can be implemented in libc using fcntl.
+>
+Indeed it can be...  but it less flexible that way, unless you want to 
+add another level of indirection.
 
-     >    (1) Symbolic link has been removed.  The inode is put on inode_unused.
-     >        Say the inode # was 0x1234.
-     > (2) Client issue "creat", server returns inode # 0x1234 (by the
-     >        reuse).
-     > (3) Call chain is:
+It is far better for future-proofing the interface IMO if fadvise is 
+implementing directly.  Hints are less important than open O_xxx flags 
+or F_xxx flags, because an implementation can safely ignore 100% of the 
+fadvise hints, if it so chooses.  One cannot say the same thing for 
+open/fcntl flags.
 
-     > 	 nfs_create -> nfs_instantiate -> nfs_fhget -> __nfs_fhget ->
-     > 	 iget4
+So, different class of fd flags deserves a different syscall, IMO...
 
-     >        iget4 returns the cached inode object on inode_unused.
-     > (4) nfs_fill_inode doesn't fill it, because inode->i_mode is
-     >        not 0.
-     > (5) nfs_refresh_inode result error because inode->i_mode !=
-     >        fattr->mode.
+    Jeff
 
-     > Note that this is _real_ case.
 
-Sure, but it is a consequence of a badly broken server that violates
-the NFS specs concerning file handles. Rigging the client in order to
-cope with *all* the consequences in terms of unfsd races is an
-exercise in futility - it cannot be done.
 
-The solution is not to keep flogging the dead horse that is unfsd. It
-is to put the effort into fixing knfsd so that it can cope with all
-those cases where people are using unfsd today.
 
-Cheers,
-   Trond
+
+

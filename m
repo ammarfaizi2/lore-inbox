@@ -1,104 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264752AbUEYKn2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262932AbUEYKxU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264752AbUEYKn2 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 25 May 2004 06:43:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264846AbUEYKn2
+	id S262932AbUEYKxU (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 25 May 2004 06:53:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263003AbUEYKxU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 May 2004 06:43:28 -0400
-Received: from 81-2-122-30.bradfords.org.uk ([81.2.122.30]:3456 "EHLO
-	81-2-122-30.bradfords.org.uk") by vger.kernel.org with ESMTP
-	id S264752AbUEYKnZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 25 May 2004 06:43:25 -0400
-Date: Tue, 25 May 2004 11:49:11 +0100
-From: John Bradford <john@grabjohn.com>
-Message-Id: <200405251049.i4PAnBGD000155@81-2-122-30.bradfords.org.uk>
-To: Jon Portnoy <portnoy@tellink.net>, Rob Landley <rob@landley.net>
-Cc: linux-kernel@vger.kernel.org, rock-user@rocklinux.org
-In-Reply-To: <Pine.LNX.4.58.0405241409460.5161@cerberus.oppresses.us>
-References: <409BB334.7080305@pobox.com>
- <200405121412.00068.rob@landley.net>
- <200405190849.i4J8nqfb000280@81-2-122-30.bradfords.org.uk>
- <200405192059.47056.rob@landley.net>
- <Pine.LNX.4.58.0405241409460.5161@cerberus.oppresses.us>
-Subject: Re: Distributions vs kernel development
+	Tue, 25 May 2004 06:53:20 -0400
+Received: from gate.in-addr.de ([212.8.193.158]:34541 "EHLO mx.in-addr.de")
+	by vger.kernel.org with ESMTP id S262932AbUEYKxS (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 25 May 2004 06:53:18 -0400
+Date: Tue, 25 May 2004 12:52:52 +0200
+From: Lars Marowsky-Bree <lmb@suse.de>
+To: braam <braam@clusterfs.com>, "'Jens Axboe'" <axboe@suse.de>
+Cc: torvalds@osdl.org, akpm@osdl.org, linux-kernel@vger.kernel.org,
+       "'Phil Schwan'" <phil@clusterfs.com>
+Subject: Re: [PATCH/RFC] Lustre VFS patch
+Message-ID: <20040525105252.GJ22750@marowsky-bree.de>
+References: <20040525064730.GB14792@suse.de> <20040525082305.BAEE93101A0@moraine.clusterfs.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20040525082305.BAEE93101A0@moraine.clusterfs.com>
+X-Ctuhulu: HASTUR
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On 2004-05-25T16:21:29,
+   braam <braam@clusterfs.com> said:
 
-Quote from Jon Portnoy <portnoy@tellink.net>:
-> On Wed, 19 May 2004, Rob Landley wrote:
-> 
-> > 
-> > It's not really a distro.  It's an enormous HOWTO.  (Then again, so's Gentoo, 
-> > but gentoo does claim to be a distro, which is where I get disappointed...)
-> > 
-> 
-> No less a distribution than, say, Debian. You just type 'emerge' rather 
-> than 'apt-get' and get source tarballs rather than binary packages.
+> I think do answer your question:  ...
+> > > If we were to return errors, (which, I agree, _seems_ much more
+> > > sane, and we _did_ try that for a while!) then there is a good
+> > > chance, namely immediately when something is flushed to disk, that
+> > > the system will detect the errors and not continue to execute
+> > > transactions making consistent testing of our replay mechanisms
+> > > impossible.
+> So: we can use the flags, but we cannot return the errors.
 
-I think the "It's not really a distro" comment was in reference to Linux
->From Scratch.
+Maybe I am missing something here, but is this testing not somewhat
+unrealistic then? In the general case, the system in production _will_
+report an error and not silently throw away the writes.
 
-[snip]
+> Some people find it very convenient to have this available, but if the
+> opinion is that it is better to let development teams manage their own
+> testing infrastructure that is acceptable to me.
 
-> > You keep saying that installing from source is better, but it seems to be from 
-> > "gee, wouldn't it be nice if" land rather than due to actual experience.  You 
-> > _can_ build and install an SRPM into a Red Hat system.  It's too much of a 
-> > pain to be worth it to me, but it's been an option for years and years.
-> > 
-> 
-> The advantage, in my view, of compiling from source consistently is that 
-> you (a) eliminate any potential bugs from the build system being 
-> drastically different from the target system and (b) have the flexibility 
-> of being able to fine-tune dependencies and build time configuration. 
+Yes, this is very "convenient" and actually, "some people" think it is
+absolutely mandatory that the kernel which is used for production sites
+is 1:1 bit-wise identical than the one used for load & stress testing,
+otherwise the testing is void to a certain degree...
 
-When I was talking about users compiling from source rather than using
-distribution's pre-built binaries, I didn't really have in mind users
-downloading a pre-written script that compiles a binary on their own machine.
+Maybe you could fix this in the test harness / Lustre itself instead and
+silently discard the writes internally if told so via an (internal)
+option, instead of needing a change deeper down in the IO layer, or use
+a DM target which can give you all the failure scenarios you need?
 
-In my opinion, there are two main ways to run a Linux-based system - either
-follow a particular distribution, using their binaries, or source releases, or
-work independently of any distribution, and do your own thing, obtaining the
-source code for the software you want to use direct from it's ftp site, or
-whatever method of distribution the authors use.
+In particular the last one - a fault-injection DM target - seems like a
+very valuable tool for testing in general, but the Lustre-internal
+approach may be easier in the long run.
 
-Of course, it's a long process to build a system completely from source.
-In practice, many users might decide to use a distribution to install the
-basic components of their system, such as GCC, glibc, and various system
-libraries, and then build everything else manually.  This is what I mean
-by not 'following' a distribution, but simply using it as a base for the
-user to do their own thing.
 
-Now, there is the issue of support.
+Sincerely,
+    Lars Marowsky-Brée <lmb@suse.de>
 
-In my opinion, in essence, there are two ways of offering support, (regardless
-of whether it's free of charge or not, and whether it's provided by users,
-via mailing lists, or by an organisation such as a distribution, or
-independent company).
+-- 
+High Availability & Clustering	      \ ever tried. ever failed. no matter.
+SUSE Labs			      | try again. fail again. fail better.
+Research & Development, SUSE LINUX AG \ 	-- Samuel Beckett
 
-Firstly, it is possible to learn many of the common problems that can be
-encountered with any particular distribution's pre-compiled binaries, or
-binaries compiled on the user's machine from a fixed script.
-
-Secondly, it is possible to become generically knowledgable about
-computers, and to solve problems in a generic way, without specific
-prior knowledge of a particular system.
-
-In my opinion, the first option is the most widespread and the most encouraged
-simply because it is much easier than the second option, and appears to work
-most of the time.
-
-I admit that if the user's problem is actually a common one, the first option
-may be the fastest way to solve the immediate problem.
-
-However, in my opinion, this whole approach only appears to work at all,
-because it effectively limits many, (if not most), users to using their
-computers in a fraction of the number of ways possible.
-
-Or, to put it another way, users are effectively being forced to choose
-less efficient configurations, just so that they can get support.
-
-See my previous posts in this thread for more discussion of this.
-
-John.

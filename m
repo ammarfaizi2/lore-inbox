@@ -1,50 +1,66 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262303AbSLTOWr>; Fri, 20 Dec 2002 09:22:47 -0500
+	id <S262224AbSLTOew>; Fri, 20 Dec 2002 09:34:52 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262317AbSLTOWr>; Fri, 20 Dec 2002 09:22:47 -0500
-Received: from mailb.telia.com ([194.22.194.6]:193 "EHLO mailb.telia.com")
-	by vger.kernel.org with ESMTP id <S262303AbSLTOWq> convert rfc822-to-8bit;
-	Fri, 20 Dec 2002 09:22:46 -0500
-X-Original-Recipient: linux-kernel@vger.kernel.org
-From: Roger Larsson <roger.larsson@skelleftea.mail.telia.com>
-To: Torben Frey <kernel@mailsammler.de>
-Subject: Re: Horrible drive performance under concurrent i/o jobs (dlh problem?)
-Date: Fri, 20 Dec 2002 15:27:16 +0100
-User-Agent: KMail/1.5
-References: <3E01D7D7.2070201@mailsammler.de>
-In-Reply-To: <3E01D7D7.2070201@mailsammler.de>
-Cc: linux-kernel@vger.kernel.org
+	id <S262258AbSLTOew>; Fri, 20 Dec 2002 09:34:52 -0500
+Received: from mail.gmx.net ([213.165.65.60]:28098 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id <S262224AbSLTOev>;
+	Fri, 20 Dec 2002 09:34:51 -0500
+From: Felix Seeger <felix.seeger@gmx.de>
+To: Dave Jones <davej@codemonkey.org.uk>
+Subject: Re: Next round of AGPGART fixes.
+Date: Fri, 20 Dec 2002 15:42:48 +0100
+User-Agent: KMail/1.5.9
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>
+References: <20021220124137.GA28068@suse.de>
+In-Reply-To: <20021220124137.GA28068@suse.de>
 MIME-Version: 1.0
+Content-Disposition: inline
 Content-Type: text/plain;
   charset="iso-8859-1"
-Content-Transfer-Encoding: 8BIT
-Content-Disposition: inline
-Message-Id: <200212201527.16812.roger.larsson@skelleftea.mail.telia.com>
+Content-Transfer-Encoding: 7bit
+Message-Id: <200212201542.48221.felix.seeger@gmx.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 19 December 2002 15:29, Torben Frey wrote:
-> 2 0 4 25292 2292 72056 759548 0 0 30404 20084 820 1149 4 85 11
-> 0 1 3 25292 2828 72048 759012 0 0 40716 23772 845 1307 2 62 36
-> 0 1 2 25292 3208 72280 758372 0 0 0 16532 573 231 6 13 81
-> 1 0 2 25292 3216 72276 758404 0 0 4880 23800 530 264 2 10 88
-> 
+Am Freitag 20 Dezember 2002 13:41 schrieb Dave Jones:
+> Linus,
+>  Please pull from bk://linux-dj.bkbits.net/agpgart to get at the
+> following fixes..
+>
+> - AGP 3.0 now compiles as a module too.
+> - beginnings of VIA KT400 AGP 3.0 support.
+>   (Not functional yet, more work needed).
+> - corrected handling of AGP capability bit in PCI headers for chipset
+> drivers. This should fix the problems on I815 and similar chipsets.
+[...]
+> 		Dave
 
-Hmm... No process running but still lots of CPU used.
-Are you sure that you run the disks with DMA?
+I am running 2.5.52bk5 with you GNU patch. Doesn't help.
+I do a modprobe i810 and I get:
 
-You should also try to take a profile of a run.
-(see
- man readprofile
-and
- linux/Documentation/kernel-parameters.txt
- profile=2 as a boot option should do)
+FATAL: Error inserting i810 
+(/lib/modules/2.5.52bk5/kernel/drivers/char/drm/i810.ko): Cannot allocate 
+memory
 
-/RogerL
+This is from dmesg:
+[drm:drm_init] *ERROR* Cannot initialize the agpgart module.
+Uninitialised timer!
+This is just a warning.  Your computer is OK
+function=0x00000000, data=0x0
+Call Trace:
+ [<c01208a2>] check_timer_failed+0x42/0x50
+ [<c0120cd7>] del_timer+0x17/0x80
+ [<c4990dc5>] i810_takedown+0x45/0x3b0 [i810]
+ [<c49952d6>] i810_stub_unregister+0x36/0x3d [i810]
+ [<c49720e6>] 0xc49720e6
+ [<c4997cc0>] +0x840/0x2720 [i810]
+ [<c4997ca2>] +0x822/0x2720 [i810]
+ [<c012a782>] sys_init_module+0xfe/0x178
+ [<c0108d73>] syscall_call+0x7/0xb
 
--- 
-Roger Larsson
-Skellefteå
-Sweden
+
+thanks
+have fun
+Felix
 

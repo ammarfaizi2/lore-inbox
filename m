@@ -1,43 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262106AbTKPTvb (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 16 Nov 2003 14:51:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262575AbTKPTvb
+	id S262762AbTKPUGj (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 16 Nov 2003 15:06:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262794AbTKPUGj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 16 Nov 2003 14:51:31 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:1457 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S262106AbTKPTva
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 16 Nov 2003 14:51:30 -0500
-Message-ID: <3FB7D52A.7020402@pobox.com>
-Date: Sun, 16 Nov 2003 14:51:06 -0500
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030703
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Andrey Borzenkov <arvidjaar@mail.ru>
-CC: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Is initramfs freed after kernel is booted?
-References: <200311162009.52813.arvidjaar@mail.ru>
-In-Reply-To: <200311162009.52813.arvidjaar@mail.ru>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Sun, 16 Nov 2003 15:06:39 -0500
+Received: from fw.osdl.org ([65.172.181.6]:42681 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S262762AbTKPUGi (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 16 Nov 2003 15:06:38 -0500
+Date: Sun, 16 Nov 2003 12:11:31 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Russell King <rmk+lkml@arm.linux.org.uk>
+Cc: linux-kernel@vger.kernel.org, torvalds@osdl.org,
+       Jesse Barnes <jbarnes@sgi.com>
+Subject: Re: Bootmem broke ARM
+Message-Id: <20031116121131.0796cf01.akpm@osdl.org>
+In-Reply-To: <20031116101535.A592@flint.arm.linux.org.uk>
+References: <20031116101535.A592@flint.arm.linux.org.uk>
+X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrey Borzenkov wrote:
-> Apparently not:
+Russell King <rmk+lkml@arm.linux.org.uk> wrote:
+>
+> Andrew & others,
 > 
-> {pts/1}% head -2 /proc/mounts
-> rootfs / rootfs rw 0 0
-> /dev/root / reiserfs rw 0 0
+> 2.6 contains a change to init_bootmem_core() which now sorts the nodes
+> according to their start pfn.  This change occurred in revision 1.20 of
+> bootmem.c.  Unfortunately, this active sorting broke ARM discontig memory
+> support.
 > 
-> at least it is still mounted. Is there any way to free it?
+> With previous kernels, the nodes are added to the list in reverse order,
+> so architecture code knew we had to add the highest PFN first and the
+> lowest PFN node last.
+> 
+> However, we now sort the nodes using node_start_pfn, which, at this point,
+> will be uninitialised - the responsibility for initialising this field
+> is with the generic code - in free_area_init_node() which occurs well
+> after bootmem has been initialised.
+> 
+> The result of this change is that we now add nodes to the tail of the
+> pgdat list, which is the opposite way to 2.4.
+> 
+> This causes problems for ARM because we need to use bootmem to initialise
+> the kernels page tables, and we can only allocate these from node 0 - none
+> of the other nodes are mapped into memory at this point.
+> 
+> I, therefore, believe this change is bogus.  Can it be reverted please?
+> 
 
+It looks to be bogus on ia64 as well, for which the patch was written.
 
-rootfs is always present.  It's the root, as the name implies :)
+Or maybe ia64 _does_ arrange for the node_start_pfn to be initialised
+before init_bootmem_core(), but I cannot see where.  So the attempt to sort
+the pgdat list in there doesn't actually sort it at all - it simply
+reverses it by accident.
 
-	Jeff
-
-
-
+Jesse, it looks like this needs to be revisited please.

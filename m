@@ -1,53 +1,65 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272287AbRIVVqV>; Sat, 22 Sep 2001 17:46:21 -0400
+	id <S272304AbRIVWAc>; Sat, 22 Sep 2001 18:00:32 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272295AbRIVVqL>; Sat, 22 Sep 2001 17:46:11 -0400
-Received: from as1-5-2.tbg.s.bonet.se ([217.215.34.209]:61607 "EHLO
-	flashdance.cx") by vger.kernel.org with ESMTP id <S272287AbRIVVp7>;
-	Sat, 22 Sep 2001 17:45:59 -0400
-Date: Sat, 22 Sep 2001 23:46:50 +0200 (CEST)
-From: Peter Magnusson <iocc@linux-kernel.flashdance.cx>
-X-X-Sender: <iocc@flashdance>
-To: Jan Harkes <jaharkes@cs.cmu.edu>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: broken VM in 2.4.10-pre9
-In-Reply-To: <20010922164645.D15681@cs.cmu.edu>
-Message-ID: <Pine.LNX.4.33L2.0109222313420.29748-100000@flashdance>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S272407AbRIVWAW>; Sat, 22 Sep 2001 18:00:22 -0400
+Received: from nic-131-c196-222.mw.mediaone.net ([24.131.196.222]:2316 "EHLO
+	moonweaver.awesomeplay.com") by vger.kernel.org with ESMTP
+	id <S272304AbRIVWAE>; Sat, 22 Sep 2001 18:00:04 -0400
+Subject: ATAPI CD-ROM lockups
+From: Sean Middleditch <elanthis@users.sourceforge.net>
+To: linux-kernel@vger.kernel.org
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/0.13 (Preview Release)
+Date: 22 Sep 2001 18:02:42 -0400
+Message-Id: <1001196162.772.12.camel@stargrazer>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 22 Sep 2001, Jan Harkes wrote:
+Greetings,
 
-> Only when the wrong pages have been swapped out and need to be swapped
-> in again. Swapped out pages should be relatively inactive, the amount of
-> swap space allocated number that you see in 'free' is not the same as
-> the amount of pages that are actually swapped out and removed from
-> memory, any active ones should still be around in the pagecache.
->
-> > Use the swap as little as possible == good.
->
-> Nope, Use the swap-in as little as possible == good, I don't mind having
-> 4GB of data in swap, as long as I typically don't need to load it back
-> into in memory. And every page that is in swap that I don't really need
-> means another page that can be used to avoid paging out an executable,
-> or purging the dentry lookup caches, or dropping one of those files I
-> access once every 5 minutes.
+	I have, for a long time now, had problems with one or both of my CD-ROM
+drives (one is a CD-RW, the other a DVD drive).  I get hard kernel
+lockups when reading from them at times.
 
-I think we are talking about somewhat different things. U talk about
-swapping in general. I talk about the changes 2.4.7 > now (2.4.9 for
-example) in the VM system that makes linux to swap alot.
+	I've had this problem back when I ran Mandrake (and a 2.2.x kernel),
+and I still have it now (Debian Sid, kernel 2.4.9).  I always thought it
+was a buggy Mandrake kernel, but now I'm pretty dang sure that's not the
+case.
 
-In kernel 2.4.7 maybe 5 Mbyte was put on the swap over a week. It didnt
-had any need to put more on the swap because i got 512 Mbyte RAM.
+	This error is in /var/log/kern.log:
+Sep 22 17:33:08 localhost kernel: scsi0: ERROR on channel 0, id 0, lun
+0, CDB: Request Sense 00 00 00 40 00 
+Sep 22 17:33:08 localhost kernel: Info fld=0x0, Current sd0b:00: sense
+key Medium Error
+Sep 22 17:33:08 localhost kernel:  I/O error: dev 0b:00, sector 4608
 
-Then that changed... In for example 2.4.9 it put ALOT of Mbyte on the swap
-very fast, like 100-200 Mbyte. And then it will slowly swap it back to RAM
-when they are needed. If it didnt put it on the swap in the first place and
-keept it in RAM like under 2.4.7 it would not swap it back to RAM later and
-it would go faster. I know alot of others that are very annoyed about this
-and is complaing about it. I just doesnt reach the linux-kernel
-mailinglist.
+	I've seen, long ago, more errors printed to the terminal screen, but
+now since I run X all the time, I don't see these - how can I get to
+them, or would they just be the message posted above?
+
+	I'm currently running an Athlong system, AMD chipset (don't know
+which), 160 MB of 100mhz SDRAM.  The CD drives in questions are an
+Iomega ZIP-CD 650 and some generic "Compaq" DVD-drive (no, the machine
+is not a Compaq - I've replaced just about every part in it, except that
+DVD drive).  I've had this problem with all sorts of other hard-ware
+configs on this machine, on three different distros, on different
+motherboards, with different kernel versions.  I've also had the problem
+even when teh DVD drive was not in the system.  In short, the only thing
+that has remained the same is the Zip CD.  In addition, I don't recall
+ever having this problem under Windows 98 when it was installed, but
+then again, it's pretty difficult to find out *why* a Windows box locks
+up.  I was on the Windows box capable of installing software of a CD,
+which tends to be fairly difficuly in Linux thanks to these lockups.
+
+	I don't know what to do about this other than try buying a new CD-RW
+and DVD drive, but I *am* a poor college student.  ~,^
+
+	btw, I'm not subsribed to the list, there is way too much traffic for
+me here.  My e-mail is at sean.middleditch@iname.com.
+
+Thanks,
+Sean Etc.
 

@@ -1,60 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261294AbVAGHRR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261275AbVAGHT2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261294AbVAGHRR (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 7 Jan 2005 02:17:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261275AbVAGHRQ
+	id S261275AbVAGHT2 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 7 Jan 2005 02:19:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261296AbVAGHT2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 7 Jan 2005 02:17:16 -0500
-Received: from ngate.noida.hcltech.com ([202.54.110.230]:61414 "EHLO
-	ngate.noida.hcltech.com") by vger.kernel.org with ESMTP
-	id S261294AbVAGHRE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 7 Jan 2005 02:17:04 -0500
-Message-ID: <267988DEACEC5A4D86D5FCD780313FBB0342D4A8@exch-03.noida.hcltech.com>
-From: "Bhupesh Kumar Pandey, Noida" <bhupeshp@noida.hcltech.com>
-To: linux-kernel@vger.kernel.org
-Cc: Greg KH <greg@kroah.com>
-Subject: RE: Help regarding PCI Express hot Plug functionality in kernel 2
-	 .6.8
-Date: Fri, 7 Jan 2005 12:44:05 +0530 
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain
+	Fri, 7 Jan 2005 02:19:28 -0500
+Received: from mtagate1.de.ibm.com ([195.212.29.150]:62110 "EHLO
+	mtagate1.de.ibm.com") by vger.kernel.org with ESMTP id S261275AbVAGHTY
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 7 Jan 2005 02:19:24 -0500
+Date: Fri, 7 Jan 2005 08:18:34 +0100
+From: Heiko Carstens <heiko.carstens@de.ibm.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org, hch@lst.de
+Subject: [PATCH] add EXPORT_SYMBOL for irq_exit
+Message-ID: <20050107071834.GA4168@osiris.boeblingen.de.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.27i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi Andrew,
+
+this patch adds the missing EXPORT_SYMBOL for irq_exit:
+*** Warning: "irq_exit" [drivers/s390/net/iucv.ko] undefined!
+
+Please apply.
+
+Thanks,
+Heiko
+
+diff -urN linux-2.6/kernel/softirq.c linux-2.6-patched/kernel/softirq.c
+--- linux-2.6/kernel/softirq.c	2005-01-07 08:02:33.000000000 +0100
++++ linux-2.6-patched/kernel/softirq.c	2005-01-07 08:09:30.000000000 +0100
+@@ -169,6 +169,8 @@
+ 	preempt_enable_no_resched();
+ }
  
-Hi all,
-Please help me in investigating linux kernel 2.6.8 fot its hotplugging
-support on PCI Express bus.
-Is it support this and I not the what are the limitations and problems.
-I shall be thankful to you all.
-
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-Thanks and Best Regards
-Bhupesh Kumar Pandey
-
-
------Original Message-----
-From: Greg KH [mailto:greg@kroah.com] 
-Sent: Friday, January 07, 2005 12:14 PM
-To: Bhupesh Kumar Pandey, Noida
-Subject: Re: Help regarding PCI Express hot Plug functionality in kernel 2
-.6.8
-
-On Fri, Jan 07, 2005 at 11:57:56AM +0530, Bhupesh Kumar Pandey, Noida wrote:
-> That is OK.
-> But I need to investigate it for 2.6.8.
-> As you are exprerianced, please tell me 2.6.8 support hot plugging on 
-> PCI Express or not; and if not then what are the problems.
-> Really I shall be thankful to you.
-
-Great question, care to ask this on the linux-kernel mailing list and CC me?
-That way I can answer it in public to enable everyone else to know the
-answer, and let the search engines pick it up.
-
-Also, please research this yourself, the information is out there about this
-very topic.
-
-good luck,
-
-greg k-h
++EXPORT_SYMBOL(irq_exit);
++
+ /*
+  * This function must run with irqs disabled!
+  */

@@ -1,85 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S279808AbRKIKtR>; Fri, 9 Nov 2001 05:49:17 -0500
+	id <S279814AbRKILR4>; Fri, 9 Nov 2001 06:17:56 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S279812AbRKIKtH>; Fri, 9 Nov 2001 05:49:07 -0500
-Received: from addleston.eee.nott.ac.uk ([128.243.70.70]:52202 "HELO
-	addleston.eee.nott.ac.uk") by vger.kernel.org with SMTP
-	id <S279808AbRKIKtA>; Fri, 9 Nov 2001 05:49:00 -0500
-Date: Fri, 9 Nov 2001 10:48:58 +0000 (GMT)
-From: Matthew Clark <matt@eee.nott.ac.uk>
-X-X-Sender: <matt@perry>
-To: <linux-kernel@vger.kernel.org>
-Subject: dev driver / pci throughput
-Message-ID: <Pine.OSF.4.31.0111091022010.26869-100000@perry>
+	id <S279824AbRKILRr>; Fri, 9 Nov 2001 06:17:47 -0500
+Received: from hermine.idb.hist.no ([158.38.50.15]:26892 "HELO
+	hermine.idb.hist.no") by vger.kernel.org with SMTP
+	id <S279813AbRKILRg>; Fri, 9 Nov 2001 06:17:36 -0500
+Message-ID: <3BEBBB21.357149FC@idb.hist.no>
+Date: Fri, 09 Nov 2001 12:16:49 +0100
+From: Helge Hafting <helgehaf@idb.hist.no>
+X-Mailer: Mozilla 4.76 [no] (X11; U; Linux 2.4.15-pre1 i686)
+X-Accept-Language: no, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Rusty Russell <rusty@rustcorp.com.au>, linux-kernel@vger.kernel.org
+Subject: Re: speed difference between using hard-linked and modular drives?
+In-Reply-To: <Pine.LNX.4.33.0111081802380.15975-100000@localhost.localdomain.suse.lists.linux.kernel>
+		<Pine.LNX.4.33.0111081836080.15975-100000@localhost.localdomain.suse.lists.linux.kernel>
+		<p731yj8kgvw.fsf@amdsim2.suse.de> <20011109141215.08d33c96.rusty@rustcorp.com.au>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Rusty Russell wrote:
 
-Dear kernel-list,
+> Modules have lots of little disadvantages that add up.  The speed penalty
+> on various platforms is one, the load/unload race complexity is another.
+> 
+Races can be fixed.  (Isn't that one of the things considered for 2.5?)
 
-I am writing a dev driver in which large amounts of data are
-passed from user space to PCI device memory and I am seeing a
-far lower throughput than I expected.  I know this is likely to
-be high architecture dependant but I would appreciate some
-general guidance.
+Speed penalties on various platforms is there to stay, so you simply
+have to weigh that against having more swappable RAM.
 
-The essential bit of code looks like
+I use the following rules of thumb:
 
-#define CHUNK	512->4096 depending on implementation
+1. Modules only for seldom-used devices.  A module for
+   the mouse is no use if you do all your work in X.  
+   There's simply no gain from a module that never unloads.
+   A seldom used fs may be modular though.  I rarely
+   use cd's, so isofs is a module on my machine.
+2. No modules for high-speed stuff like harddisks and network,
+   that's where you might feel the slowdown.  Low-speed stuff
+   like floppy and cdrom drivers are modular though.
 
-static ssize_t BSL_write(..., const char *buf, size_t count..){
-char chunk[CHUNK];
-int	i,pos,
-	for(i=0,pos=0;i<amount of data;i++,pos+=CHUNK){
-		copy_from_user(buff,buf+pos,CHUNK);
-		/* reorder data				*/
-		/* not significant in throughput	*/
-		for(k=0;k<CHUNK;k++){
-                        chunk[k]=buff[B_SM(j+k)];
-			}
-		memcpy_toio(MEM_reg+pos+i*CHUNK+j,chunk,CHUNK);
-		}
-	return count;
-	}
-+ lots of not important details-----
-
-MEM_reg=ioremap(pci_resource_start(dev,B_SM_MEM)&PCI_BASE_ADDRESS_MEM_MASK,REG_SIZE);
-
-
-
-Basically it reads a big buffer from user space, scrambles the
-byte ordering (according to B_SM) and puts it onto the PCI
-device memory.
-
-** I currently get 3-4Mb/s throughput (on a fairly poor x86 pc),
-   this is about 1/10 of what I expected to achieve.
-
-** The CHUNK size is not an important factor above 512 bytes- it
-   is contributing to 0.1 percent of the bottle neck.  This
-   leads me to think that the copy_from overheads are small.
-
-** The byte ordering is not significant, removing it or
-   replacing it with a null command indicates it contributes
-   ~0.1 percent of the bottleneck.
-
-** The transfer size will always exceed any cache sizes in the
-   system.
-
-
-I will go onto implementing an mmap method sometime later but as
-the essential memory / PCI memory bandwidth remains the same I
-don't think it will make much difference- From testing with
-different transfer sizes overheads seem small provided a minimum
-transfer size of 512 bytes is enforced.
-
-Any thoughts?  pointers towards profiling this code, typical
-throughputs, improving throughput etc gratefully received.
-
-Thanks matt
-
---------
-Thanks for the previous help on interrupts etc-
-
+Helge Hafting

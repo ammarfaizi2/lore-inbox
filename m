@@ -1,28 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S275301AbRJBPYD>; Tue, 2 Oct 2001 11:24:03 -0400
+	id <S275346AbRJBP1N>; Tue, 2 Oct 2001 11:27:13 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S275178AbRJBPXn>; Tue, 2 Oct 2001 11:23:43 -0400
-Received: from sushi.toad.net ([162.33.130.105]:16777 "EHLO sushi.toad.net")
-	by vger.kernel.org with ESMTP id <S275044AbRJBPXf>;
-	Tue, 2 Oct 2001 11:23:35 -0400
-Subject: Re: Sony Vaio laptops can't use pnpbios driver in -ac15, -ac16
+	id <S275178AbRJBP1D>; Tue, 2 Oct 2001 11:27:03 -0400
+Received: from sticks.phy.bris.ac.uk ([137.222.30.155]:19983 "EHLO
+	sticks.phy.bris.ac.uk") by vger.kernel.org with ESMTP
+	id <S275337AbRJBP0w>; Tue, 2 Oct 2001 11:26:52 -0400
+Date: Tue, 2 Oct 2001 16:27:19 +0100
+From: Major A <andras@users.sourceforge.net>
 To: linux-kernel@vger.kernel.org
-Date: Tue, 2 Oct 2001 11:23:34 -0400 (EDT)
-X-Mailer: ELM [version 2.4ME+ PL73 (25)]
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Type: text/plain; charset=US-ASCII
-Message-Id: <20011002152334.D43DF10E6@thanatos.toad.net>
-From: jdthood@home.dhs.org (Thomas Hood)
+Subject: 2.4.x with SMP on Alpha
+Message-ID: <20011002162719.B9583@janus.lan>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.20i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-(For those following this thread ...)
 
-2.4.10-ac3 contains the patches required for Sony Vaio laptops
-with buggy PnP BIOSes to use the kernel PnP BIOS driver.
+Hi,
 
--- 
-Thomas Hood
-(Don't reply to the From: address but to jdthood_AT_yahoo.co.uk)
+I'm just wondering what experiences you guys have with linux kernel
+2.4.x configured for SMP on Alpha (UP2000/DP264). I tried the latest
+two:
+
+- 2.4.10: seems to fail to define the macro atomic_dec_and_lock
+  (linux/spinlock.h) in various files like kernel/fork.c, resulting in
+  undefined symbols. I think that linux/spinlock.h should be included
+  (I followed the #include-s), but it isn't for some subtle reason.
+
+- 2.4.9: bug in the pc_keyb driver, can be fixed with an extra
+  #include, but even then some modules get undefined symbols (same as
+  in 2.4.10).
+
+Therefore I cannot run any of these kernels. The rest of the software
+on this computer is a Debian potato (gcc 2.95.2).
+
+Any feedback would be appreciated.
+
+  Andras

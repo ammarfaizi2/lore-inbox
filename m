@@ -1,37 +1,33 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267751AbRGRCJ3>; Tue, 17 Jul 2001 22:09:29 -0400
+	id <S267743AbRGRCRB>; Tue, 17 Jul 2001 22:17:01 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267743AbRGRCJT>; Tue, 17 Jul 2001 22:09:19 -0400
-Received: from neon-gw.transmeta.com ([209.10.217.66]:4364 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S267751AbRGRCJE>; Tue, 17 Jul 2001 22:09:04 -0400
-Date: Tue, 17 Jul 2001 19:08:22 -0700 (PDT)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: "David S. Miller" <davem@redhat.com>
-cc: <dpicard@rcn.com>, <axboe@suse.de>, <linux-kernel@vger.kernel.org>
+	id <S267785AbRGRCQw>; Tue, 17 Jul 2001 22:16:52 -0400
+Received: from leibniz.math.psu.edu ([146.186.130.2]:24728 "EHLO math.psu.edu")
+	by vger.kernel.org with ESMTP id <S267743AbRGRCQi>;
+	Tue, 17 Jul 2001 22:16:38 -0400
+Date: Tue, 17 Jul 2001 22:16:40 -0400 (EDT)
+From: Alexander Viro <viro@math.psu.edu>
+To: dpicard@rcn.com
+cc: axboe@suse.de, torvalds@transmeta.com, linux-kernel@vger.kernel.org
 Subject: Re: PATCH for Corrupted IO on all block devices
-In-Reply-To: <15188.61164.315022.913819@pizda.ninka.net>
-Message-ID: <Pine.LNX.4.33.0107171906580.1181-100000@penguin.transmeta.com>
+In-Reply-To: <3B54E85E.6E917925@psind.com>
+Message-ID: <Pine.GSO.4.21.0107172214440.1861-100000@weyl.math.psu.edu>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-On Tue, 17 Jul 2001, David S. Miller wrote:
->
-> Linus Torvalds writes:
->  > What filesystem do you see the bug with?
->
-> His report did specifically mention "databases".  But my initial
-> impression was the same as yours, that this is a bug in the user.
 
-More detailed report indicates that it is actually on ext2. Which would be
-really really bad. It doesn't make the patch correct, but the patch might
-be a starting point for some debugging session (ie instead of refusing to
-merge them, print out the state of the overlapping buffers to see if there
-is some pattern to it..)
+On Tue, 17 Jul 2001, David J. Picard wrote:
 
-		Linus
+>                 int i, buffer[RD_BUFF_SZ];
+> 		fflush(fp);
+>                 fseek(fp, o, SEEK_SET);
+>                 fread(buffer, sizeof(int), sizeof(buffer), fp);
+				^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+You've just smashed the stack. Big way. Basically, all your local variables
+are junk after that point.
 

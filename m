@@ -1,37 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317309AbSGDBpp>; Wed, 3 Jul 2002 21:45:45 -0400
+	id <S317316AbSGDCSA>; Wed, 3 Jul 2002 22:18:00 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317312AbSGDBpo>; Wed, 3 Jul 2002 21:45:44 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:3344 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S317309AbSGDBpn>;
-	Wed, 3 Jul 2002 21:45:43 -0400
-Message-ID: <3D23AAB3.1AF2F897@zip.com.au>
-Date: Wed, 03 Jul 2002 18:53:55 -0700
-From: Andrew Morton <akpm@zip.com.au>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-pre9 i686)
-X-Accept-Language: en
+	id <S317318AbSGDCR7>; Wed, 3 Jul 2002 22:17:59 -0400
+Received: from cambot.suite224.net ([209.176.64.2]:40465 "EHLO suite224.net")
+	by vger.kernel.org with ESMTP id <S317316AbSGDCR6>;
+	Wed, 3 Jul 2002 22:17:58 -0400
+Message-ID: <000b01c22301$e9d0a620$08f583d0@pcs686>
+From: "Matthew D. Pitts" <mpitts@suite224.net>
+To: <linux-kernel@vger.kernel.org>
+Subject: make dep problem in 2.5.24
+Date: Wed, 3 Jul 2002 22:24:23 -0400
 MIME-Version: 1.0
-To: Keith Owens <kaos@ocs.com.au>
-CC: Linux-Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: simple handling of module removals Re: [OKS] Module removal
-References: Your message of "Wed, 03 Jul 2002 05:48:09 +0200."
-	             <20020703034809.GI474@elf.ucw.cz> <10962.1025745528@kao2.melbourne.sgi.com>
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 5.50.4133.2400
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4133.2400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Keith Owens wrote:
-> 
-> ...
-> Rusty and I agree that if (and it's a big if) we want to support module
-> unloading safely then this is the only sane way to do it.
+Fellow Kernel Hackers,
 
-Dumb question: what's wrong with the current code as-is?  I don't think
-I've ever seen a module removal bug report which wasn't attributable to
-some straightforward driver-failed-to-clean-something-up bug.
+I am in the middle of a semi-major restucturing of the IA-32( aka i386 )
+kernel code and have run into a puzzling problem. When I do a "make dep", it
+works until it is time to enter the arch/ia32 directory.
 
-What problem are you trying to solve here?
+The only changes that I have made at present are directory renames of
+arch/i386 and include/asm-i386 to arch/ia32 and include/asm-ia32
+modifications to the top-level Makefile and arch/ia32/Makefile to reflect
+the arch changes.
 
--
+I do know of 2 ways to work around it, but was wondering if anyone could
+tell me why "make dep" and ONLY "make dep" fails without them.
+
+Matthew D. Pitts
+

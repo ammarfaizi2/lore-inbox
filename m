@@ -1,48 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S275968AbTHOMhf (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 15 Aug 2003 08:37:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S275969AbTHOMhe
+	id S275929AbTHOMcW (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 15 Aug 2003 08:32:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S275930AbTHOMcW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 15 Aug 2003 08:37:34 -0400
-Received: from uni00du.unity.ncsu.edu ([152.1.13.100]:47744 "EHLO
-	uni00du.unity.ncsu.edu") by vger.kernel.org with ESMTP
-	id S275968AbTHOMhc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 15 Aug 2003 08:37:32 -0400
-From: jlnance@unity.ncsu.edu
-Date: Fri, 15 Aug 2003 08:37:08 -0400
-To: mouschi@wi.rr.com, linux-kernel@vger.kernel.org
-Subject: Re: Interesting VM feature?
-Message-ID: <20030815123708.GA2231@ncsu.edu>
-References: <13dedd139cb9.139cb913dedd@rdc-kc.rr.com>
+	Fri, 15 Aug 2003 08:32:22 -0400
+Received: from angband.namesys.com ([212.16.7.85]:56487 "EHLO
+	angband.namesys.com") by vger.kernel.org with ESMTP id S275929AbTHOMcU
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 15 Aug 2003 08:32:20 -0400
+Date: Fri, 15 Aug 2003 16:32:19 +0400
+From: Oleg Drokin <green@namesys.com>
+To: marcelo@conectiva.com.br, linux-kernel@vger.kernel.org
+Subject: [2.4] [PATCH] update reiserfs docs url in Configure.help
+Message-ID: <20030815123219.GA20837@namesys.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <13dedd139cb9.139cb913dedd@rdc-kc.rr.com>
 User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Aug 14, 2003 at 09:17:07PM -0500, mouschi@wi.rr.com wrote:
+Hello!
 
-> What this mempool wants to do is to be able to
-> allocate a block of memory and tell the kernel which
-> pages from it can be outright discarded, instead of
-> swapped out when memory starts to get crowded. 
+   This trivial patch replaces reiserfs.org url in Configure.help
+   with namesys.com, because reiserfs.org was cybersquatted recently.
+   Also we do not need any NFS patches anymore.
 
-I think you might be able to get what you want with madvise() or perhaps
-by mmap()ing new clean pages on top of the pages you want to throw away.
+   Please apply. Thank you.
+ 
 
-> I'm going to keep reading. If this is already
-> implemented, or if the efficiency gains would be
-> nil, somebody yell at me before I start crashing my
-
-I would not implement this unless you either know you have a problem
-with your mempool swap speed or you are bored.  I doubt it is going
-to help a lot, and it will certainly simplify your code to leave it
-out.  If you later find that you have performance problems you can
-look into this again.
-
-Thanks,
-
-Jim
+===== Documentation/Configure.help 1.176 vs edited =====
+--- 1.176/Documentation/Configure.help	Wed Aug  6 19:21:33 2003
++++ edited/Documentation/Configure.help	Fri Aug  8 19:27:36 2003
+@@ -15416,7 +15416,7 @@
+ 
+   In general, ReiserFS is as fast as ext2, but is very efficient with
+   large directories and small files.  Additional patches are needed
+-  for NFS and quotas, please see <http://www.reiserfs.org/> for links.
++  for quota support, please see <http://www.namesys.com/> for links.
+ 
+   It is more easily extended to have features currently found in
+   database and keyword search systems than block allocation based file
+@@ -15424,7 +15424,7 @@
+   plugins consistent with our motto ``It takes more than a license to
+   make source code open.''
+ 
+-  Read <http://www.reiserfs.org/> to learn more about reiserfs.
++  Read <http://www.namesys.com/> to learn more about reiserfs.
+ 
+   Sponsored by Threshold Networks, Emusic.com, and Bigstorage.com.
+ 

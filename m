@@ -1,48 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S136159AbRD0SSW>; Fri, 27 Apr 2001 14:18:22 -0400
+	id <S136161AbRD0Sa0>; Fri, 27 Apr 2001 14:30:26 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136152AbRD0SSM>; Fri, 27 Apr 2001 14:18:12 -0400
-Received: from adsl-64-163-64-75.dsl.snfc21.pacbell.net ([64.163.64.75]:6157
-	"EHLO konerding.com") by vger.kernel.org with ESMTP
-	id <S136156AbRD0SSA>; Fri, 27 Apr 2001 14:18:00 -0400
-Date: Fri, 27 Apr 2001 11:17:53 -0700
-From: dek_ml@konerding.com
-To: LA Walsh <law@sgi.com>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] SMP race in ext2 - metadata corruption.
-Message-ID: <20010427111753.A26593@konerding.com>
-In-Reply-To: <200104262113.XAA01552@kufel.dom> <3AE9B429.6CCEF680@sgi.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <3AE9B429.6CCEF680@sgi.com>; from law@sgi.com on Fri, Apr 27, 2001 at 11:02:17AM -0700
+	id <S136165AbRD0SaG>; Fri, 27 Apr 2001 14:30:06 -0400
+Received: from www.topmail.de ([212.255.16.226]:35009 "HELO www.topmail.de")
+	by vger.kernel.org with SMTP id <S136161AbRD0S35>;
+	Fri, 27 Apr 2001 14:29:57 -0400
+Message-ID: <000001c0cf48$0e166ec0$de00a8c0@homeip.net>
+From: "mirabilos" <eccesys@topmail.de>
+To: "David Woodhouse" <dwmw2@infradead.org>,
+        "Padraig Brady" <padraig@antefacto.com>
+Cc: <linux-kernel@vger.kernel.org>
+In-Reply-To: <3AE99CE8.BD325F52@antefacto.com>  <Pine.LNX.3.96.1010426203656.22847A-100000@medusa.sparta.lu.se>  <15296.988386995@redhat.com>
+Subject: Re: ramdisk/tmpfs/ramfs/memfs ? 
+Date: Fri, 27 Apr 2001 16:19:57 -0000
+Organization: eccesys.net Linux development
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 5.50.4522.1200
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4522.1200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Apr 27, 2001 at 11:02:17AM -0700, LA Walsh wrote:
-> Andrzej Krzysztofowicz wrote:
-> 
-> > I know a few people that often do:
-> >
-> > dd if=/dev/hda1 of=/dev/hdc1
-> > e2fsck /dev/hdc1
-> >
-> > to make an "exact" copy of a currently working system.
-> 
-> ---
->     Presumably this isn't a problem is the source disks are either unmounted or mounted 'read-only' ?
-> 
-> 
+> > btw I get my initial root filesystem from a compact flash that can
+be
+> > accessed just like a hardisk. It's writeable also like a harddisk,
+but
+> > we boot with it readonly, and only mount it rw if we want to save
+> > config or whatever. We definitely wouldn't swap to it as it has
+> > limited erase/write cycles. The filesystem is compressed ext2.
+>
+> Why copy it into RAM? Why not use cramfs and either turn the writable
+> directories into symlinks into a ramfs which you create at boot time,
+or
+> union-mount a ramfs over the top of it?
 
-I thought the known best solution on this was to use COW snapshots,
-because then you copy the filesystem as exactly the state when the snapshot
-was made, without impacting the writability of the filesystem while
-the (potentially very long) dump is made?
+Hey! SOunds great! How to do it?
+I tried to # mount --bind the directories but they do not show
+me both entries. I have romfs root and tmpfs.
 
-I tried using this on LVM, but after seeing a few messages on the list about
-kernel oopses happening with snapshots of filesystems with heavy write
-activities, as well as experiencing serious problems with the LVM userspace
-tools (they would core dump on startup if the LVM filesystem had any sort
-of corruption or integrity failure) I decided to put it away until the LVM
-folks managed to get a production version ready.
+-mirabilos
+
+

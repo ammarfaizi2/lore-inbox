@@ -1,66 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266254AbUHWRdx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266256AbUHWRei@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266254AbUHWRdx (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 23 Aug 2004 13:33:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266296AbUHWRdg
+	id S266256AbUHWRei (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 23 Aug 2004 13:34:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266221AbUHWReN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 23 Aug 2004 13:33:36 -0400
-Received: from smtp.wp.pl ([212.77.101.160]:46227 "EHLO smtp.wp.pl")
-	by vger.kernel.org with ESMTP id S266308AbUHWRcr (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 23 Aug 2004 13:32:47 -0400
-Date: Mon, 23 Aug 2004 19:32:41 +0200
-From: "Matthew Qvapul" <pikpus@wp.pl>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: strange softdog message on 2.4.20 kernel...
-Message-ID: <412a2a39b5831@wp.pl>
-References: <412a20af1d388@wp.pl> <1093277771.29850.0.camel@localhost.localdomain>
-In-reply-to: <412a20af1d388@wp.pl> <1093277771.29850.0.camel@localhost.localdomain>
+	Mon, 23 Aug 2004 13:34:13 -0400
+Received: from umhlanga.stratnet.net ([12.162.17.40]:60136 "EHLO
+	umhlanga.STRATNET.NET") by vger.kernel.org with ESMTP
+	id S266249AbUHWRan (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 23 Aug 2004 13:30:43 -0400
+To: "Nguyen, Tom L" <tom.l.nguyen@intel.com>
+Cc: "cramerj" <cramerj@intel.com>, "Ronciak, John" <john.ronciak@intel.com>,
+       "Venkatesan, Ganesh" <ganesh.venkatesan@intel.com>,
+       <linux-net@vger.kernel.org>, <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] [broken?] Add MSI support to e1000
+X-Message-Flag: Warning: May contain useful information
+References: <C7AB9DA4D0B1F344BF2489FA165E50240619D5A0@orsmsx404.amr.corp.intel.com>
+From: Roland Dreier <roland@topspin.com>
+Date: Mon, 23 Aug 2004 10:25:39 -0700
+In-Reply-To: <C7AB9DA4D0B1F344BF2489FA165E50240619D5A0@orsmsx404.amr.corp.intel.com> (Tom
+ L. Nguyen's message of "Mon, 23 Aug 2004 08:41:06 -0700")
+Message-ID: <52u0utvka4.fsf@topspin.com>
+User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Security Through
+ Obscurity, linux)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-2
-Content-Transfer-Encoding: 8bit
-Content-Disposition: inline
-X-Mailer: Interfejs WWW poczty Wirtualnej Polski
-Organization: Poczta Wirtualnej Polski S.A. http://www.wp.pl/
-X-IP: 157.25.157.162
-X-WP-AV: skaner antywirusowy poczty Wirtualnej Polski S. A.
-X-WP-AS1: NOSPAM                                               
-X-WP-AS3: NOSPAM 
-X-WP-SPAM: NO 
+Content-Type: text/plain; charset=us-ascii
+X-OriginalArrivalTime: 23 Aug 2004 17:25:40.0092 (UTC) FILETIME=[36078BC0:01C48936]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+    Tom> I do not see anything wrong with the patch and the kernel MSI
+    Tom> support because it works for a short time. Ganesh may provide
+    Tom> an answer on the MSI support in e1000 hardware.
 
-So probably it means that redhat changed kernel configuration
-kernel between versions 2.4.18 and 2.4.20.
+Based on the e1000 documentation I have, the only thing required for
+the e1000 to use MSI is to set the MSI enable bit in the PCI header.
+Of course there may be some e1000 erratum involving MSI but I have not
+been able to find any indication that this is the case.
 
-Do You approve the fact that my mashine was rebooted because of
-such kernel config ?
+It seems possible that there could be some problem in the core Linux
+interrupt code even though some interrupts work -- for example there
+could be a race condition triggered when a second interrupt is
+delivered while handling the first interrupt.  However I couldn't find
+any such bug, although I am not at all an expert about low-level
+interrupt handling/APIC programming.
 
-Greetings
-
-pikpus
-
-Dnia 23-08-2004 o godz. 18:16 Alan Cox napisa³(a):
-> On Llu, 2004-08-23 at 17:51, Matthew Qvapul wrote:
-> > 2) /sbin/modprobe softdog soft_margin=900
-> > 3) grep "adg" > /dev/watchdog
-> > 
-> > SOFTDOG: WDT device closed unexpectedly.  WDT will not stop!
-> 
-> You closed it without indicating you meant to close it so the timer
-> decided the watchdog daemon had died. Thats configurable when 
-> building the kernel (NOWAYOUT option)
-> 
-> Alan
-> 
-> 
-
-----------------------------------------------------
-Olimpiada na skuterze!
-Skutery, aparaty cyfrowe, oryginalne plecaki olimpijskie
-czekaj± na chêtnych! ---> Ateny.wp.pl/Konkurs ---> Sprawd¼ siê!
-http://klik.wp.pl/?adr=http%3A%2F%2Fateny.wp.pl%2Fkonkurs&sid=226
-
-
+ - Roland

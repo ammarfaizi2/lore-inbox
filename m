@@ -1,36 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129118AbQKHDcG>; Tue, 7 Nov 2000 22:32:06 -0500
+	id <S129091AbQKHDg4>; Tue, 7 Nov 2000 22:36:56 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129258AbQKHDb4>; Tue, 7 Nov 2000 22:31:56 -0500
-Received: from sphinx.mythic-beasts.com ([195.82.107.246]:25097 "EHLO
-	sphinx.mythic-beasts.com") by vger.kernel.org with ESMTP
-	id <S129118AbQKHDbi>; Tue, 7 Nov 2000 22:31:38 -0500
-Date: Wed, 8 Nov 2000 03:31:19 +0000 (GMT)
-From: Matthew Kirkwood <matthew@hairy.beasts.org>
-To: "Jeff V. Merkey" <jmerkey@timpanogas.org>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Installing kernel 2.4
-In-Reply-To: <3A0897F5.563552AD@timpanogas.org>
-Message-ID: <Pine.LNX.4.10.10011080329390.1708-100000@sphinx.mythic-beasts.com>
+	id <S129116AbQKHDgr>; Tue, 7 Nov 2000 22:36:47 -0500
+Received: from swan.prod.itd.earthlink.net ([207.217.120.123]:29874 "EHLO
+	swan.prod.itd.earthlink.net") by vger.kernel.org with ESMTP
+	id <S129091AbQKHDgl>; Tue, 7 Nov 2000 22:36:41 -0500
+To: Sean Middleditch <sean.middleditch@iname.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Kernel Panic - weird error
+In-Reply-To: <3A05A724.216E04F3@iname.com>
+From: Chmouel Boudjnah <chmouel@mandrakesoft.com>
+Date: 07 Nov 2000 19:36:33 -0800
+In-Reply-To: <3A05A724.216E04F3@iname.com>
+Message-ID: <m3snp3jfsu.fsf@matrix.mandrakesoft.com>
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) Emacs/20.7
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 7 Nov 2000, Jeff V. Merkey wrote:
+Sean Middleditch <sean.middleditch@iname.com> writes:
 
-(Please forgive this snippage making Jeff look less literate
-than he is, even after several beers.)
+> I've installed the Linux-Mandrake 7.2 distro (which uses kernel version
+> 2.2.17) on a PIII system (Asus motherboard, Award Medallion v6.0 BIOS).
+> For some reason, neither LILO nor Grub were able to boot off of the
+> second hard-drive (where Linux is).  I've copied over the kernel, and a
+> few other LILO files to a Windows partition on the primary drive.  Now,
+> LILO can load the kernel, and the kernel begins to boot.
+> 
+> First, I noticed this during the IDE detection:
+>   hdd [PTBL] [784/255/53] hdd1 < hdd5 hdd6 >
+> I've never seen the "[PTBL] [784/255/53]" part before on any Linux
+> system, so I was unsure if this was important.
 
-> We need a format that allow
-[..]
-> the right one based on architecture.
+have you enabled the optimization ? which add the autotune options
+and do some time weird thing.
 
-Oh, we already have that.  It's called source code.
-
-Matthew.
-
+-- 
+MandrakeSoft Inc                     http://www.chmouel.org
+                      --Chmouel
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

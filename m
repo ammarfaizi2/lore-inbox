@@ -1,57 +1,56 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313070AbSFNSFs>; Fri, 14 Jun 2002 14:05:48 -0400
+	id <S313181AbSFNSK3>; Fri, 14 Jun 2002 14:10:29 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313181AbSFNSFs>; Fri, 14 Jun 2002 14:05:48 -0400
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:3342 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S313070AbSFNSFq>; Fri, 14 Jun 2002 14:05:46 -0400
-Date: Fri, 14 Jun 2002 11:05:51 -0700 (PDT)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Vojtech Pavlik <vojtech@suse.cz>
-cc: Peter Osterlund <petero2@telia.com>, Patrick Mochel <mochel@osdl.org>,
-        Tobias Diedrich <ranma@gmx.at>,
-        Alessandro Suardi <alessandro.suardi@oracle.com>,
-        <linux-kernel@vger.kernel.org>
-Subject: Re: 2.5.20 - Xircom PCI Cardbus doesn't work
-In-Reply-To: <20020614195337.A2623@ucw.cz>
-Message-ID: <Pine.LNX.4.44.0206141057030.2576-100000@home.transmeta.com>
+	id <S313202AbSFNSK2>; Fri, 14 Jun 2002 14:10:28 -0400
+Received: from ip68-3-14-32.ph.ph.cox.net ([68.3.14.32]:52920 "EHLO
+	grok.yi.org") by vger.kernel.org with ESMTP id <S313181AbSFNSK2>;
+	Fri, 14 Jun 2002 14:10:28 -0400
+Message-ID: <3D0A316F.6010701@candelatech.com>
+Date: Fri, 14 Jun 2002 11:09:51 -0700
+From: Ben Greear <greearb@candelatech.com>
+Organization: Candela Technologies
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.4) Gecko/20011019 Netscape6/6.2
+X-Accept-Language: en-us
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Stephen Hemminger <shemminger@osdl.org>
+CC: Lincoln Dale <ltd@cisco.com>, jamal <hadi@cyberus.ca>,
+        Horst von Brand <vonbrand@inf.utfsm.cl>,
+        "David S. Miller" <davem@redhat.com>, linux-kernel@vger.kernel.org,
+        netdev@oss.sgi.com
+Subject: Re: RFC: per-socket statistics on received/dropped packets
+In-Reply-To: <5.1.0.14.2.20020612224038.0251bd08@mira-sjcm-3.cisco.com> 	<5.1.0.14.2.20020614100914.01adca48@mira-sjcm-3.cisco.com> <1024069878.20676.1.camel@dell_ss3.pdx.osdl.net>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
 
-On Fri, 14 Jun 2002, Vojtech Pavlik wrote:
->
-> Could this be what has bitten us with new Intel IDE controllers on
-> latest 2.5? They also were disabled due to 'resource collisions', and
-> had some i/o not allocated at all - just size was nonzero. It was fixed
-> in the quirks code by clearing the size fields, because the i/o space
-> isn't needed ...
+Stephen Hemminger wrote:
 
-That's not this particular code - this code only handles PCMCIA.
+> It sounds like what you want is socket accounting which works like
+> process accounting.  I.e when a socket lifetime ends, put out a record
+> with number of packets/bytes sent/received.
 
-But yes, it's the same issue: a resource that wasn't allocated by
-the BIOS, and that the Linux boot sequence didn't bother to allocate
-either. The PCI sequence _should_ allocate resources for non-PCMCIA
-devices in pcibios_resource_survey(), where it does
 
-	pcibios_assign_resources();
+Runtime is much more interesting to me.  However, if you are keeping
+enough information to do the accounting as you suggest, then it would
+be trivial to make it available incrementally over the life of the
+socket.
 
-but the fact is, that that code is explicitly disabled for IDE
-controllers. See pcibios_assign_resources() in arch/i386/pci/i386.c.
+Billing is not the only interesting aspect of this.  It is also good for
+any program trying to dynamically tune or understand the lower-level
+characteristics of a particular routing path or interface.
 
-I suspect that forcing resource assignment into "pci_enable_device()"
-should fix that too.
+Ben
 
-Although there should probably be some way for the driver to tell which
-resources it cares about (some drivers care about the PCI ROM's, for
-example, others don't. Some drivers don't care about the IO region, and
-others don't care about the MEM region). So the _right_ answer might be to
-pass in a bitmap to "pci_enable_device()", which tells the enable code
-which parts the driver really cares about..
 
-		Linus
+
+
+-- 
+Ben Greear <greearb@candelatech.com>       <Ben_Greear AT excite.com>
+President of Candela Technologies Inc      http://www.candelatech.com
+ScryMUD:  http://scry.wanfear.com     http://scry.wanfear.com/~greear
+
 

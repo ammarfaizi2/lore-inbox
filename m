@@ -1,46 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315942AbSG3T1t>; Tue, 30 Jul 2002 15:27:49 -0400
+	id <S315923AbSG3TXQ>; Tue, 30 Jul 2002 15:23:16 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316185AbSG3T1s>; Tue, 30 Jul 2002 15:27:48 -0400
-Received: from pirx.hexapodia.org ([208.42.114.113]:26232 "HELO
-	pirx.hexapodia.org") by vger.kernel.org with SMTP
-	id <S315942AbSG3T1r>; Tue, 30 Jul 2002 15:27:47 -0400
-Date: Tue, 30 Jul 2002 14:31:11 -0500
-From: Andy Isaacson <adi@hexapodia.org>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Buddy Lumpkin <b.lumpkin@attbi.com>,
-       Linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: About the need of a swap area
-Message-ID: <20020730143111.B8157@hexapodia.org>
-References: <FJEIKLCALBJLPMEOOMECOEPFCPAA.b.lumpkin@attbi.com> <1027813211.21516.2.camel@irongate.swansea.linux.org.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <1027813211.21516.2.camel@irongate.swansea.linux.org.uk>; from alan@lxorguk.ukuu.org.uk on Sun, Jul 28, 2002 at 12:40:11AM +0100
-X-PGP-Fingerprint: 48 01 21 E2 D4 E4 68 D1  B8 DF 39 B2 AF A3 16 B9
-X-PGP-Key-URL: http://web.hexapodia.org/~adi/pgp.txt
+	id <S315928AbSG3TXQ>; Tue, 30 Jul 2002 15:23:16 -0400
+Received: from zikova.cvut.cz ([147.32.235.100]:22287 "EHLO zikova.cvut.cz")
+	by vger.kernel.org with ESMTP id <S315923AbSG3TXP>;
+	Tue, 30 Jul 2002 15:23:15 -0400
+From: "Petr Vandrovec" <VANDROVE@vc.cvut.cz>
+Organization: CC CTU Prague
+To: dalecki@evision.ag
+Date: Tue, 30 Jul 2002 21:26:27 +0200
+MIME-Version: 1.0
+Content-type: text/plain; charset=US-ASCII
+Content-transfer-encoding: 7BIT
+Subject: Re: IDE from current bk tree, UDMA and two channels...
+CC: linux-kernel@vger.kernel.org
+X-mailer: Pegasus Mail v3.50
+Message-ID: <9B9F331783@vcnet.vc.cvut.cz>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Jul 28, 2002 at 12:40:11AM +0100, Alan Cox wrote:
-> On Sat, 2002-07-27 at 23:22, Buddy Lumpkin wrote:
-> > I thought linux worked more like Solaris where it didn't use any swap (AT
-> > ALL) until it has to... At least, I hope linux works this way.
+I wrote:
 > 
-> I'd be suprised if Solaris did something that dumb.
-> 
-> You want to push out old long unaccessed pages of code to make room for
-> more cached disk blocks from files.
+> Unfortunately ATA/ATAPIv7 says that single interrupt is triggered
+> after command is done and all data transfered, and we do not play
+> with select bit. But we play with nIEN bit of disk. Do you see
+> any reason why this should cause spurious interrupt? (system is using
+> XT-PIC, FYI)
 
-... unless the disk blocks are coming in due to a sequential stream
-that's much larger than memory, in which case paging out user data to
-expand the buffer cache is an exercise in futility that makes the system
-behave sluggishly long AFTER the stream is done streaming through.
+OK. As I am using only one device on each channel, I commented
+out ata_irq_enable(drive, 1) in ide-disk.c when issuing command,
+and removed disabling irq in ide_do_request in ide.c when we
+do not issue command to the drive, and spurious interrupts disappeared.
+So now I'm getting only half of IRQs for channel 0, and system still
+works as before ;-)
 
-I see this behavior every morning after the nightly backup is done
-(pulling in about 20 GB of data on a 256MB machine) -- my window manager
-and browser are absurdly sluggish for about 20 seconds.
+Unfortunately, problem is still here: when kernel was in idedisk_do_request
+performed on channel 0, IRQ for channel 1 arrived, and this irq found 
+channel 1 DMA engine ready, but drive had DRQ set... oops. Shortly after 
+that IRQ for channel 1 arrived again, but as it was unexpected, nothing 
+happened. 
 
--andy
+I hope that i845 is not simplex device, but first (unexpected) IRQ arrived 
+just when channel 0 code wrote new value to its IDE_SELECT_REG register. 
+Now I even disconnected DVD drive, so it is simple two masters, two
+channels configuration, but it still happens.
+
+And as always, something else: ata_error does:
+
+OUT_BYTE(WIN_NOP, ch->ports[IDE_CONTROL_OFFSET])
+
+I'd say that it should use 0x00 instead of WIN_NOP, and also that
+comment above OUT_BYTE(0x04, ch->ports[IDE_CONTROL_OFFSET]) is bogus.
+Command register is IDE_COMMAND, not IDE_CONTROL ;-)
+                                        Best regards,
+                                                Petr Vandrovec
+                                                vandrove@vc.cvut.cz
+                                                

@@ -1,41 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270945AbTGPQ0Z (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Jul 2003 12:26:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270948AbTGPQ0Z
+	id S270947AbTGPQaQ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Jul 2003 12:30:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270922AbTGPQaQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Jul 2003 12:26:25 -0400
-Received: from mail.kroah.org ([65.200.24.183]:57525 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S270945AbTGPQ0Y (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Jul 2003 12:26:24 -0400
-Date: Wed, 16 Jul 2003 09:37:52 -0700
-From: Greg KH <greg@kroah.com>
-To: Michael Hunold <hunold@convergence.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 11/17] Add a driver for the Technisat Skystar2 DVB card
-Message-ID: <20030716163752.GA7604@kroah.com>
-References: <1058271657827@convergence.de> <10582716573394@convergence.de> <20030716012841.GA2017@kroah.com> <3F1501B9.8010603@convergence.de>
+	Wed, 16 Jul 2003 12:30:16 -0400
+Received: from host-64-213-145-173.atlantasolutions.com ([64.213.145.173]:17548
+	"EHLO havoc.gtf.org") by vger.kernel.org with ESMTP id S270947AbTGPQaO
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 16 Jul 2003 12:30:14 -0400
+Date: Wed, 16 Jul 2003 12:45:06 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+To: Ben Collins <bcollins@debian.org>
+Cc: Philippe Gramoull? <philippe.gramoulle@mmania.com>,
+       linux-kernel@vger.kernel.org,
+       Linux IEEE 1394 Devel Mailing List 
+	<linux1394-devel@lists.sourceforge.net>
+Subject: Re: 2.6.0-test1-mm1: bad: scheduling while atomic! after removing ohci1394 module
+Message-ID: <20030716164506.GD5628@gtf.org>
+References: <20030716180855.22d4a4f4.philippe.gramoulle@mmania.com> <20030716163648.GO685@phunnypharm.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <3F1501B9.8010603@convergence.de>
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <20030716163648.GO685@phunnypharm.org>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jul 16, 2003 at 09:41:45AM +0200, Michael Hunold wrote:
-> 
-> The DVB core is quite self contained and we decided to copy the i2c 
-> functionality needed for our purposes. So we ended up in using about 100 
-> lines of code instead of the whole i2c core.
-> 
-> Now that you have finished improving the i2c core, perhaps we can switch 
-> back to the kernel i2c system at a later time.
+On Wed, Jul 16, 2003 at 12:36:48PM -0400, Ben Collins wrote:
+> So is kill_proc() bad while atomic, e.g. when a module is being removed?
+> I'll look into it.
 
-Please, that would help reduce the number of times the i2c code has been
-copied around :)
+hmmm, that's a big strange.  During ->remove and module unload, you can
+schedule and sleep.
 
-thanks,
+	Jeff
 
-greg k-h
+

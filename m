@@ -1,54 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261451AbUFJOsO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261422AbUFJOsO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261451AbUFJOsO (ORCPT <rfc822;willy@w.ods.org>);
+	id S261422AbUFJOsO (ORCPT <rfc822;willy@w.ods.org>);
 	Thu, 10 Jun 2004 10:48:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261422AbUFJOrY
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261443AbUFJOrP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Jun 2004 10:47:24 -0400
-Received: from web81309.mail.yahoo.com ([206.190.37.84]:42846 "HELO
-	web81309.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S261426AbUFJOq7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Jun 2004 10:46:59 -0400
-Message-ID: <20040610144658.31403.qmail@web81309.mail.yahoo.com>
-Date: Thu, 10 Jun 2004 07:46:58 -0700 (PDT)
-From: Dmitry Torokhov <dtor_core@ameritech.net>
-Subject: Re: [PATCH 0/3] Couple of sysfs patches
-To: Russell King <rmk@arm.linux.org.uk>
-Cc: Greg KH <greg@kroah.com>, linux-kernel@vger.kernel.org
+	Thu, 10 Jun 2004 10:47:15 -0400
+Received: from fw.osdl.org ([65.172.181.6]:43705 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S261422AbUFJOq5 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 10 Jun 2004 10:46:57 -0400
+Date: Thu, 10 Jun 2004 07:46:40 -0700 (PDT)
+From: Linus Torvalds <torvalds@osdl.org>
+To: "Robert T. Johnson" <rtjohnso@eecs.berkeley.edu>
+cc: Al Viro <viro@math.psu.edu>, Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Finding user/kernel pointer bugs [no html]
+In-Reply-To: <1086842898.32053.380.camel@dooby.cs.berkeley.edu>
+Message-ID: <Pine.LNX.4.58.0406100735530.2050@ppc970.osdl.org>
+References: <1086838266.32059.320.camel@dooby.cs.berkeley.edu> 
+ <Pine.LNX.4.58.0406092059030.2050@ppc970.osdl.org>
+ <1086842898.32053.380.camel@dooby.cs.berkeley.edu>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Russell King wrote:
-> On Thu, Jun 10, 2004 at 07:55:59AM -0500, Dmitry Torokhov wrote:
-> > On Thursday 10 June 2004 05:16 am, Russell King wrote:
-> > >
-> > > As this currently stands, you have no chance to add resources to the
-> > > platform device before it's made available to the driver.  It's likely
-> > > that any attached resources will have the same lifetime as the
-> > > device itself, so it makes sense to allocate them together with the
-> > > platform device.
-> > >
-> >
-> > Are you suggesting adding pointer to resources as a 3rd argument and
-> > automotically release it for the user? It probably could be done but users
-> > will be tempted to use static module data and bad things would happen.
+
+
+On Wed, 9 Jun 2004, Robert T. Johnson wrote:
 > 
-> Please read my second sentence again.  It implies a copy of the resources
-> is kept with the platform device, so both have the same lifetime.
-> 
+> QUESTION:  Do you find it's difficult to figure out which fields of
+> structures should be declared __user?
 
-Ok, so function pointer to allocate resources and associate with the
-device? You can't just allocate memory for resources structure, you
-need to populate it with data if you want it to be used by a driver
-immediately after registration... And have actually release all
-resources, not only memory? It is getting beyond the "*_simple"
-approach though.
+It's _usually_ trivial, by just looking at the warnings. 
 
-Or do I still misunderstand you?
+Not always, though. We don't have a "taint" attribute (I've been thinking 
+about it, but I don't feel the pain has been worth it yet), so if you do 
+load a structure from user space (properly, with copy_from_user()) and 
+then use a non-annotated part of that as a pointer and dereference it 
+directly, sparse won't warn, of course. 
 
---
-Dmitry
+However, that requires that _every_ single user of that attribute member 
+mis-uses the pointer (ie that "get_user()" never sees that pointer at 
+all)). So that case is fairly unlikely, although it can (and probably 
+does) happen for the unusual stuff.
 
+The much harder issue is structures that soemtimes contain user pointers,
+and sometime contain kernel pointers. Those sparse can't handle at all,
+since sparse does purely local and static type-checking. It will complain
+about one or the other.
 
+The only way to fix the second case is to split the structure up - which
+is usually a good idea _anyway_, but which can sometimes be pretty 
+painful. Al has done some of them. The really painful one is "struct 
+iovec", which seems to be used in this capacity a fair amount.
+
+> If a structure pointer is __user, but it has some pointer fields that
+> aren't declared __user, there's a good chance that there's a missing
+> annotation or something.
+
+Yes. That's likely a good heuristic.
+
+			Linus

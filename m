@@ -1,87 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266143AbUHCMpi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265974AbUHCMto@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266143AbUHCMpi (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 Aug 2004 08:45:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266248AbUHCMpi
+	id S265974AbUHCMto (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 3 Aug 2004 08:49:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266133AbUHCMto
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 Aug 2004 08:45:38 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:43402 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S266143AbUHCMp3
+	Tue, 3 Aug 2004 08:49:44 -0400
+Received: from facesaver.epoch.ncsc.mil ([144.51.25.10]:9212 "EHLO
+	epoch.ncsc.mil") by vger.kernel.org with ESMTP id S265974AbUHCMtm
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 3 Aug 2004 08:45:29 -0400
-Date: Tue, 3 Aug 2004 13:43:31 +0100
-From: viro@parcelfarce.linux.theplanet.co.uk
-To: Maneesh Soni <maneesh@in.ibm.com>
-Cc: Andrew Morton <akpm@osdl.org>, Greg KH <greg@kroah.com>,
-       LKML <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH 1/5] Add sysfs_dirent to sysfs dentry
-Message-ID: <20040803124329.GS12308@parcelfarce.linux.theplanet.co.uk>
-References: <20040729203718.GB4592@in.ibm.com> <20040729203821.GC4592@in.ibm.com>
+	Tue, 3 Aug 2004 08:49:42 -0400
+Subject: Re: secure computing for 2.6.7
+From: Stephen Smalley <sds@epoch.ncsc.mil>
+To: Andrea Arcangeli <andrea@cpushare.com>
+Cc: chris@scary.beasts.org, Hans Reiser <reiser@namesys.com>,
+       lkml <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>
+In-Reply-To: <20040801150119.GE6295@dualathlon.random>
+References: <20040704173903.GE7281@dualathlon.random>
+	 <40EC4E96.9090800@namesys.com> <20040801102231.GB6295@dualathlon.random>
+	 <Pine.LNX.4.58.0408011248040.1368@sphinx.mythic-beasts.com>
+	 <20040801150119.GE6295@dualathlon.random>
+Content-Type: text/plain
+Organization: National Security Agency
+Message-Id: <1091537283.7645.68.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040729203821.GC4592@in.ibm.com>
-User-Agent: Mutt/1.4.1i
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
+Date: Tue, 03 Aug 2004 08:48:03 -0400
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jul 29, 2004 at 03:38:21PM -0500, Maneesh Soni wrote:
-> +			} else {
-> +				/* error, release the ref taken in
-> +				 * sysfs_create()
-> +				 */
-> +				dput(*d);  
+On Sun, 2004-08-01 at 11:01, Andrea Arcangeli wrote:
+> Seems like a few people is interested in what you suggest above. it'd be
+> very trivial to add a seccomp-mode = 2 that adds more syscalls like the
+> socket syscalls like accept/sendfile/send/recv and also the open syscall
+> (which means you want to use chroot still).  In the code you can see I
+> wrote it so that more modes can be added freely. I mean it has some
+> flexibility already.  vsftpd could enable the seccomp mode 2 on itself
+> after it has initialized.
 
-Umm...  Shouldn't we unhash here?  sysfs_create() did hash it, so...
-Same goes for other places where we fail to create sysfs_dirent; as
-the matter of fact, how about making
-	sysfs_make_dirent(dentry, mode, data, type)
-that would either allocate sysfs_dirent and bind it to dentry, or
-unhash and dput() dentry and return error?  AFAICS, that would make
-life easier.
+As you begin moving toward increasingly general modes of operation, and
+get to the point of having to filter actual system call parameters, I
+think you would be better served by using an LSM and mediating access to
+the actual kernel objects.
 
->  int sysfs_create_file(struct kobject * kobj, const struct attribute * attr)
->  {
-> -	if (kobj && attr)
-> -		return sysfs_add_file(kobj->dentry,attr);
-> +	if (kobj && kobj->dentry && attr)
-> +		return sysfs_add_file(kobj->dentry, attr, SYSFS_KOBJ_ATTR);
+For your own particular mode of operation, have you considered running
+the untrusted code in a virtual machine, using something like Xen,
+rather than trying to create a "safe" subset of kernel calls for a
+single kernel instance?
 
-Can we legitimately get NULL kobj or kobj->dentry here?  If not, that'd
-better be BUG_ON()...
+-- 
+Stephen Smalley <sds@epoch.ncsc.mil>
+National Security Agency
 
-> @@ -65,15 +98,28 @@ int sysfs_create_link(struct kobject * k
->  	struct dentry * d;
->  	int error = 0;
->  
-> +	if (!name)
-> +		return -EINVAL;
-
-Again, can that happen legitimately?
-
->  	down(&dentry->d_inode->i_sem);
->  	d = sysfs_get_dentry(dentry,name);
->  	if (!IS_ERR(d)) {
->  		error = sysfs_create(d, S_IFLNK|S_IRWXUGO, init_symlink);
-> -		if (!error)
-> -			/* 
-> -			 * associate the link dentry with the target kobject 
-> -			 */
-> -			d->d_fsdata = kobject_get(target);
-> +		if (!error) {
-> +			struct sysfs_dirent * sd;
-> +			sd = sysfs_add_link(dentry->d_fsdata, name, target);
-> +			if (!IS_ERR(sd)) {
-> +				/* 
-> +			 	* associate the link dentry with the target  
-> +			 	* through the corresponding sysfs_dirent.
-> +			 	*/
-> +				d->d_fsdata = sd;
-> +				sd->s_dentry = dentry;
-> +			} else {
-> +				dput(d);
-> +				error = PTR_ERR(sd);
-> +			}
-
-	I'd pull that inside sysfs_add_link() (and then further into
-sysfs_new_dirent()).

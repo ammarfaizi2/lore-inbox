@@ -1,57 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317986AbSHDQGf>; Sun, 4 Aug 2002 12:06:35 -0400
+	id <S317944AbSHDQTN>; Sun, 4 Aug 2002 12:19:13 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317987AbSHDQGf>; Sun, 4 Aug 2002 12:06:35 -0400
-Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:42222 "HELO
-	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
-	id <S317986AbSHDQGe>; Sun, 4 Aug 2002 12:06:34 -0400
-Date: Sun, 4 Aug 2002 18:10:01 +0200 (CEST)
-From: Adrian Bunk <bunk@fs.tum.de>
-X-X-Sender: bunk@mimas.fachschaften.tu-muenchen.de
-To: Keith Owens <kaos@ocs.com.au>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.4.19 make allmodconfig - undefined symbols
-In-Reply-To: <29906.1028456000@ocs3.intra.ocs.com.au>
-Message-ID: <Pine.NEB.4.44.0208041802010.1422-100000@mimas.fachschaften.tu-muenchen.de>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S317950AbSHDQTN>; Sun, 4 Aug 2002 12:19:13 -0400
+Received: from 12-231-243-94.client.attbi.com ([12.231.243.94]:41996 "HELO
+	kroah.com") by vger.kernel.org with SMTP id <S317944AbSHDQTM>;
+	Sun, 4 Aug 2002 12:19:12 -0400
+Date: Sun, 4 Aug 2002 09:20:31 -0700
+From: Greg KH <greg@kroah.com>
+To: Oliver Feiler <kiza@gmx.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.4.19, USB_HID only works compiled in, not as module
+Message-ID: <20020804162030.GA22588@kroah.com>
+References: <200208041656.21035.kiza@gmx.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200208041656.21035.kiza@gmx.net>
+User-Agent: Mutt/1.4i
+X-Operating-System: Linux 2.2.21 (i586)
+Reply-By: Sun, 07 Jul 2002 15:12:34 -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 4 Aug 2002, Keith Owens wrote:
+On Sun, Aug 04, 2002 at 04:56:19PM +0200, Oliver Feiler wrote:
+> Hi,
+> 
+> Since 2.4.19 a usb mouse does not work anymore if
+> 
+> CONFIG_USB_HID=m
+> and
+> CONFIG_INPUT_MOUSEDEV=m
+> 
+> is set. It only works if both are compiled into the kernel. Yes, I have set
+> CONFIG_USB_HIDINPUT=y.
+> 
+> I've also seen other complaints about usb mice not working in 2.4.19, I guess 
+> that's the problem?
+> 
+> If the stuff is compiled as modules, everything seems to be fine. The kernel 
+> messages are the same, everything is detected fine. Except that 'cat 
+> /dev/input/mice' does not give any output if the driver is compiled as 
+> module.
 
-> 2.4.19 make allmodconfig.  Besides the perennial drivers/net/wan/comx.o
-> wanting proc_get_inode, there was only one undefined symbol.  In the
-> extremely unlikely event that binfmt_elf is a module (how do you load
-> modules when binfmt_elf is a module?), smp_num_siblings is unresolved.
->...
+Are you sure the hid.o module is loaded?  :)
 
-My impression is that nowadays it's extremely unlikely that someone tries
-to run a current 2.4 kernel on an a.out system - and since there weren't
-reports of people trying to build binfmt_elf as a module it seems noone
-actually hits this problem. Instead of exporting one symbol that is only
-needed in pathological setups I'd suggest the following patch to disallow
-the modular bulding of binfmt_elf:
-
---- arch/i386/config.in.old	Sun Aug  4 18:05:16 2002
-+++ arch/i386/config.in	Sun Aug  4 18:05:29 2002
-@@ -267,7 +267,7 @@
- 	 A.OUT		CONFIG_KCORE_AOUT" ELF
- fi
- tristate 'Kernel support for a.out binaries' CONFIG_BINFMT_AOUT
--tristate 'Kernel support for ELF binaries' CONFIG_BINFMT_ELF
-+bool 'Kernel support for ELF binaries' CONFIG_BINFMT_ELF
- tristate 'Kernel support for MISC binaries' CONFIG_BINFMT_MISC
-
- bool 'Power Management support' CONFIG_PM
-
-cu
-Adrian
-
--- 
-
-You only think this is a free country. Like the US the UK spends a lot of
-time explaining its a free country because its a police state.
-								Alan Cox
-
+greg k-h

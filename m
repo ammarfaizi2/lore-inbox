@@ -1,49 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262031AbSI3MA3>; Mon, 30 Sep 2002 08:00:29 -0400
+	id <S262035AbSI3MLe>; Mon, 30 Sep 2002 08:11:34 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262033AbSI3MA3>; Mon, 30 Sep 2002 08:00:29 -0400
-Received: from goliath.sylaba.poznan.pl ([195.216.104.3]:11997 "EHLO
-	goliath.sylaba.poznan.pl") by vger.kernel.org with ESMTP
-	id <S262034AbSI3MA2>; Mon, 30 Sep 2002 08:00:28 -0400
-Subject: RE: block size in XFS = hard coded constant?
-From: Olaf =?iso-8859-2?Q?Fr=B1czyk?= <olaf@cbk.poznan.pl>
-To: L A Walsh <law@tlinx.org>
-Cc: Stephen Lord <lord@sgi.com>, Linux-Xfs <linux-xfs@oss.sgi.com>,
-       Linux-Kernel <linux-kernel@vger.kernel.org>,
-       Linux-Fsdevel <linux-fsdevel@vger.kernel.org>
-In-Reply-To: <NFBBKNPJLGIDJFAHGKMBIEIJCDAA.law@tlinx.org>
-References: <NFBBKNPJLGIDJFAHGKMBIEIJCDAA.law@tlinx.org>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.3 (1.0.3-4) 
-Date: 30 Sep 2002 14:07:57 +0200
-Message-Id: <1033387679.3719.5.camel@venus>
-Mime-Version: 1.0
+	id <S262036AbSI3MLe>; Mon, 30 Sep 2002 08:11:34 -0400
+Received: from d12lmsgate.de.ibm.com ([195.212.91.199]:28904 "EHLO
+	d12lmsgate.de.ibm.com") by vger.kernel.org with ESMTP
+	id <S262035AbSI3MLe>; Mon, 30 Sep 2002 08:11:34 -0400
+Message-Id: <200209301216.g8UCGj6g053616@d12relay01.de.ibm.com>
+From: Arnd Bergmann <arnd@bergmann-dalldorf.de>
+Subject: Re: [PATCH] break out task_struct from sched.h
+To: Tim Schmielau <tim@physik3.uni-rostock.de>, linux-kernel@vger.kernel.org
+Date: Mon, 30 Sep 2002 14:17:40 +0200
+References: <Pine.LNX.4.33.0209292137550.7800-100000@gans.physik3.uni-rostock.de>
+Organization: IBM Deutschland Entwicklung GmbH
+User-Agent: KNode/0.7.1
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7Bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2002-09-30 at 10:55, L A Walsh wrote:
-> Right -- I know it isn't the filesystem block size.
-> 
-> In this day and age, it seems anachronistic.  Given the 10% higher block
-> density, not only would it yield higher capacities, but should yield higher
-> transfer rates, no?
-> 
-> I know it isn't a simple constant switch -- but I wouldn't want to switch
-> constants since not all disks should be constrained to the same block size.
-> 
-> Do other file systems have the same limitation?  Are there any problems in the
-> linux-kernel with non-512 byte blocks?
-Hi, 
+Tim Schmielau wrote:
 
-DVD-RAM (2048 bytes block size) works well in linux.
-I use ext2 for DVD-RAM.
+> This patch separates struct task_struct from <linux/sched.h> to 
+> a new header <linux/task_struct.h>, so that dereferencing 'current'
+> doesn't require to #include <linux/sched.h> and all of the 138 files it 
+> drags in.
+>  
+> This is a preparatory step (and currently part of) the patch to remove
+> 614 superfluous #includes of <linux/sched.h> at
+>   http://www.physik3.uni-rostock.de/tim/kernel/2.5/sched.h-16.patch.gz
 
-Regards,
+I tried something similar before: I seperated out mm_struct from sched.h
+so that mm.h does not have to include sched.h any more. At that time,
+the results were poor, because most of the files that include mm.h but
+not sched.h actually need 'current' or something else from sched.h
+and I then had to include sched.h by hand in them.
 
-Olaf Fraczyk
+With your work, it probably makes sense to look into this again.
+Note that 241 of your 614 files that don't need sched.h still include
+it through either linux/mm.h or linux/interrupt.h, so don't gain anything
+there.
 
-
-
+There are some other headers that are critical as well (e.g. 
+pci.h->device.h->sched.h), but afaics mm.h and interrupt.h are the most
+common ones.
 

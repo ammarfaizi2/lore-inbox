@@ -1,107 +1,122 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264609AbUGMGPb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264610AbUGMGRQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264609AbUGMGPb (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 Jul 2004 02:15:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264610AbUGMGPb
+	id S264610AbUGMGRQ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 Jul 2004 02:17:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264639AbUGMGRP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 Jul 2004 02:15:31 -0400
-Received: from fw.osdl.org ([65.172.181.6]:64729 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S264609AbUGMGP1 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 Jul 2004 02:15:27 -0400
-Date: Mon, 12 Jul 2004 23:14:06 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Con Kolivas <kernel@kolivas.org>
-Cc: devenyga@mcmaster.ca, ck@vds.kolivas.org, linux-kernel@vger.kernel.org,
-       wli@holomorphy.com
-Subject: Re: Preempt Threshold Measurements
-Message-Id: <20040712231406.427caa2a.akpm@osdl.org>
-In-Reply-To: <cone.1089697919.186986.12958.502@pc.kolivas.org>
-References: <200407121943.25196.devenyga@mcmaster.ca>
-	<20040713024051.GQ21066@holomorphy.com>
-	<200407122248.50377.devenyga@mcmaster.ca>
-	<cone.1089687290.911943.12958.502@pc.kolivas.org>
-	<20040712210107.1945ac34.akpm@osdl.org>
-	<cone.1089697919.186986.12958.502@pc.kolivas.org>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Tue, 13 Jul 2004 02:17:15 -0400
+Received: from ms-smtp-04-lbl.southeast.rr.com ([24.25.9.103]:47553 "EHLO
+	ms-smtp-04-eri0.southeast.rr.com") by vger.kernel.org with ESMTP
+	id S264610AbUGMGQh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 13 Jul 2004 02:16:37 -0400
+Message-ID: <40F37E40.7070107@mbio.ncsu.edu>
+Date: Tue, 13 Jul 2004 02:16:32 -0400
+From: Will Beers <whbeers@mbio.ncsu.edu>
+User-Agent: Mozilla Thunderbird 0.7+ (X11/20040623)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+CC: Anders Johansson <andjoh@rydsbo.net>
+Subject: Re: [PATCH] proper bios handoff in ehci-hcd
+References: <FD3BA83843210C4BA9E414B0C56A5E5C07DD91@ausx2kmpc104.aus.amer.dell.com> <40CF0049.2010307@pacbell.net> <40F37392.4040902@mbio.ncsu.edu> <200407130744.22920.andjoh@rydsbo.net>
+In-Reply-To: <200407130744.22920.andjoh@rydsbo.net>
+Content-Type: multipart/signed; protocol="application/x-pkcs7-signature"; micalg=sha1; boundary="------------ms070706060904040102050903"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Con Kolivas <kernel@kolivas.org> wrote:
->
-> Andrew Morton writes:
-> 
-> > Con Kolivas <kernel@kolivas.org> wrote:
-> >> Certainly the do_munmap and exit_mmap seem to be repeat offenders on my 
-> >> machine too (more the latter in my case).
-> >> 
-> > 
-> > This is a false positive.  Nothing is setting need_resched(), so
-> > unmap_vmas() doesn't bother dropping the lock.
-> 
-> Ok well excluding do_munmap and exit_mmap the ones that have shown up 
-> (some more frequently than others) are: 
-> 
-> 6ms at ksoftirqd+0x6b
+This is a cryptographically signed message in MIME format.
 
-Dunno.  There's an unresolved RCU dentry reaping problem, but that's
-unlikely to occur within ksoftirqd context.
+--------------ms070706060904040102050903
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 
-> 2ms at sys_ioctl+0x47
+As Anders Johansson pointed out to me, the original patch is necessary - 
+reversing it makes the loop
 
-uses lock_kernel() at the top level.  Need to know the call trace to work
-out who the offender is.  rtc-debug+amlat will tell you that, because it
-catches the CPU hog while it's being hoggy, rather than after it has
-finished.
+do {
+                         msleep(10);
+                         msec -= 10;
+                         pci_read_config_dword 
+(to_pci_dev(ehci->hcd.self.controller), where, &cap);
+                 } while ((cap & (1 << 16)) && msec);
 
-> 2ms at b44_open
+only execute once and makes the if block inaccessible.  Thanks for pointing 
+that out...guess I was overly excited when it worked again and didn't think 
+much into it.
 
-Lots of udelays() inside spin_lock_irq().  This is a "don't do that", I
-suspect.
+I'm confused as to how bypassing all that via my (bad) patch allows it to 
+work though.  I'd like to know more about this bit of code, if anyone have 
+more general info on it, so I can keep trying to help find the culprit.
 
-> 6ms at fget+0x28
+-Will
 
-Would need to see the amlat trace.
 
-> 2ms at write_ordered_buffers+0x37
 
-reiserfs
 
-> 4ms at blkdev_put+0x48
+--------------ms070706060904040102050903
+Content-Type: application/x-pkcs7-signature; name="smime.p7s"
+Content-Transfer-Encoding: base64
+Content-Disposition: attachment; filename="smime.p7s"
+Content-Description: S/MIME Cryptographic Signature
 
-This can run under one of two depths of lock_kernel.  filemap_fdatawrite()
-and filemap_fdatawait() both do cond_resched(), so this is odd.
+MIAGCSqGSIb3DQEHAqCAMIACAQExCzAJBgUrDgMCGgUAMIAGCSqGSIb3DQEHAQAAoIII+TCC
+AtcwggJAoAMCAQICAwylZTANBgkqhkiG9w0BAQQFADBiMQswCQYDVQQGEwJaQTElMCMGA1UE
+ChMcVGhhd3RlIENvbnN1bHRpbmcgKFB0eSkgTHRkLjEsMCoGA1UEAxMjVGhhd3RlIFBlcnNv
+bmFsIEZyZWVtYWlsIElzc3VpbmcgQ0EwHhcNMDQwNzA4MDY1OTI1WhcNMDUwNzA4MDY1OTI1
+WjBHMR8wHQYDVQQDExZUaGF3dGUgRnJlZW1haWwgTWVtYmVyMSQwIgYJKoZIhvcNAQkBFhV3
+aGJlZXJzQG1iaW8ubmNzdS5lZHUwggEiMA0GCSqGSIb3DQEBAQUAA4IBDwAwggEKAoIBAQCw
+5/G6HmtFPp9fK1kCwjNTyx4sN3E/AO9uPXDV48IxqXFi7CANR/BvQMaawTEMEa5XjHoGab6O
+HyvMGvr6csebsBAryt6LmCvTi3py0pNF5KLBaV98AfgFu4AyoJK+hxIM41XyF2BhS6Cfc/iD
+uZuWeWybiUQZLhYVdbU5j928u5ad1jeUqMRNeU7GIC7TOy8lulpugpA9CRocxtNoyibNE7J/
+pbSzZXEMVBrNqdwGlKPd7HEhvK941D5IZEId0xul1p0DjlXkugG8q59kapfDosWHfL987Kni
+FmUwLbOBPOQagsvDeqd3RQQ6UMYq4Qewz1aAjghhQs/xKpkQfr0NAgMBAAGjMjAwMCAGA1Ud
+EQQZMBeBFXdoYmVlcnNAbWJpby5uY3N1LmVkdTAMBgNVHRMBAf8EAjAAMA0GCSqGSIb3DQEB
+BAUAA4GBAEN+A34ZDoOVt4uP6MuH1SLoGsMyjrpdLS5McYTz4GAFafHL1YHSKu5vlofkadBs
+Hdln1Fe9QyMxA+Ycrp42pt3ZzzxqpF/Vfnp7yieXFjcg6Yg4m5pIfwmmKyU13BVbGfWDGasd
+aJ1GpWWvsSDEYLjlWymVz3clCcfAi+yVJl6CMIIC1zCCAkCgAwIBAgIDDKVlMA0GCSqGSIb3
+DQEBBAUAMGIxCzAJBgNVBAYTAlpBMSUwIwYDVQQKExxUaGF3dGUgQ29uc3VsdGluZyAoUHR5
+KSBMdGQuMSwwKgYDVQQDEyNUaGF3dGUgUGVyc29uYWwgRnJlZW1haWwgSXNzdWluZyBDQTAe
+Fw0wNDA3MDgwNjU5MjVaFw0wNTA3MDgwNjU5MjVaMEcxHzAdBgNVBAMTFlRoYXd0ZSBGcmVl
+bWFpbCBNZW1iZXIxJDAiBgkqhkiG9w0BCQEWFXdoYmVlcnNAbWJpby5uY3N1LmVkdTCCASIw
+DQYJKoZIhvcNAQEBBQADggEPADCCAQoCggEBALDn8boea0U+n18rWQLCM1PLHiw3cT8A7249
+cNXjwjGpcWLsIA1H8G9AxprBMQwRrleMegZpvo4fK8wa+vpyx5uwECvK3ouYK9OLenLSk0Xk
+osFpX3wB+AW7gDKgkr6HEgzjVfIXYGFLoJ9z+IO5m5Z5bJuJRBkuFhV1tTmP3by7lp3WN5So
+xE15TsYgLtM7LyW6Wm6CkD0JGhzG02jKJs0Tsn+ltLNlcQxUGs2p3AaUo93scSG8r3jUPkhk
+Qh3TG6XWnQOOVeS6Abyrn2Rql8OixYd8v3zsqeIWZTAts4E85BqCy8N6p3dFBDpQxirhB7DP
+VoCOCGFCz/EqmRB+vQ0CAwEAAaMyMDAwIAYDVR0RBBkwF4EVd2hiZWVyc0BtYmlvLm5jc3Uu
+ZWR1MAwGA1UdEwEB/wQCMAAwDQYJKoZIhvcNAQEEBQADgYEAQ34DfhkOg5W3i4/oy4fVIuga
+wzKOul0tLkxxhPPgYAVp8cvVgdIq7m+Wh+Rp0Gwd2WfUV71DIzED5hyunjam3dnPPGqkX9V+
+envKJ5cWNyDpiDibmkh/CaYrJTXcFVsZ9YMZqx1onUalZa+xIMRguOVbKZXPdyUJx8CL7JUm
+XoIwggM/MIICqKADAgECAgENMA0GCSqGSIb3DQEBBQUAMIHRMQswCQYDVQQGEwJaQTEVMBMG
+A1UECBMMV2VzdGVybiBDYXBlMRIwEAYDVQQHEwlDYXBlIFRvd24xGjAYBgNVBAoTEVRoYXd0
+ZSBDb25zdWx0aW5nMSgwJgYDVQQLEx9DZXJ0aWZpY2F0aW9uIFNlcnZpY2VzIERpdmlzaW9u
+MSQwIgYDVQQDExtUaGF3dGUgUGVyc29uYWwgRnJlZW1haWwgQ0ExKzApBgkqhkiG9w0BCQEW
+HHBlcnNvbmFsLWZyZWVtYWlsQHRoYXd0ZS5jb20wHhcNMDMwNzE3MDAwMDAwWhcNMTMwNzE2
+MjM1OTU5WjBiMQswCQYDVQQGEwJaQTElMCMGA1UEChMcVGhhd3RlIENvbnN1bHRpbmcgKFB0
+eSkgTHRkLjEsMCoGA1UEAxMjVGhhd3RlIFBlcnNvbmFsIEZyZWVtYWlsIElzc3VpbmcgQ0Ew
+gZ8wDQYJKoZIhvcNAQEBBQADgY0AMIGJAoGBAMSmPFVzVftOucqZWh5owHUEcJ3f6f+jHuy9
+zfVb8hp2vX8MOmHyv1HOAdTlUAow1wJjWiyJFXCO3cnwK4Vaqj9xVsuvPAsH5/EfkTYkKhPP
+K9Xzgnc9A74r/rsYPge/QIACZNenprufZdHFKlSFD0gEf6e20TxhBEAeZBlyYLf7AgMBAAGj
+gZQwgZEwEgYDVR0TAQH/BAgwBgEB/wIBADBDBgNVHR8EPDA6MDigNqA0hjJodHRwOi8vY3Js
+LnRoYXd0ZS5jb20vVGhhd3RlUGVyc29uYWxGcmVlbWFpbENBLmNybDALBgNVHQ8EBAMCAQYw
+KQYDVR0RBCIwIKQeMBwxGjAYBgNVBAMTEVByaXZhdGVMYWJlbDItMTM4MA0GCSqGSIb3DQEB
+BQUAA4GBAEiM0VCD6gsuzA2jZqxnD3+vrL7CF6FDlpSdf0whuPg2H6otnzYvwPQcUCCTcDz9
+reFhYsPZOhl+hLGZGwDFGguCdJ4lUJRix9sncVcljd2pnDmOjCBPZV+V2vf3h9bGCE6u9uo0
+5RAaWzVNd+NWIXiC3CEZNd4ksdMdRv9dX2VPMYIDOzCCAzcCAQEwaTBiMQswCQYDVQQGEwJa
+QTElMCMGA1UEChMcVGhhd3RlIENvbnN1bHRpbmcgKFB0eSkgTHRkLjEsMCoGA1UEAxMjVGhh
+d3RlIFBlcnNvbmFsIEZyZWVtYWlsIElzc3VpbmcgQ0ECAwylZTAJBgUrDgMCGgUAoIIBpzAY
+BgkqhkiG9w0BCQMxCwYJKoZIhvcNAQcBMBwGCSqGSIb3DQEJBTEPFw0wNDA3MTMwNjE2MzJa
+MCMGCSqGSIb3DQEJBDEWBBRgWOUzzvXmGn1FAPlbgHWctzUnXzBSBgkqhkiG9w0BCQ8xRTBD
+MAoGCCqGSIb3DQMHMA4GCCqGSIb3DQMCAgIAgDANBggqhkiG9w0DAgIBQDAHBgUrDgMCBzAN
+BggqhkiG9w0DAgIBKDB4BgkrBgEEAYI3EAQxazBpMGIxCzAJBgNVBAYTAlpBMSUwIwYDVQQK
+ExxUaGF3dGUgQ29uc3VsdGluZyAoUHR5KSBMdGQuMSwwKgYDVQQDEyNUaGF3dGUgUGVyc29u
+YWwgRnJlZW1haWwgSXNzdWluZyBDQQIDDKVlMHoGCyqGSIb3DQEJEAILMWugaTBiMQswCQYD
+VQQGEwJaQTElMCMGA1UEChMcVGhhd3RlIENvbnN1bHRpbmcgKFB0eSkgTHRkLjEsMCoGA1UE
+AxMjVGhhd3RlIFBlcnNvbmFsIEZyZWVtYWlsIElzc3VpbmcgQ0ECAwylZTANBgkqhkiG9w0B
+AQEFAASCAQAY+uqjsa+irOs1k2xDRWmYdLyoOiiJNRNnsL6amrmoBzsXzL2vHlwX2sZv/F6r
+XHSR4xL65U998PYPtQdTbB7tOeCzry8kl2I3fFlzNZ4xwyuMFgtwHPmUnPSyrpDNb25q0x0e
+1UP6+5/xtuQ8Y6djOsVtKKI0ZIEN49iOG8Ql/A7OKeRAV0OnkVDs0N6hh4+KuMWOAWDRvMKF
++ilEzfom0QLUrFkraEzRge7Hmh7a8FQFYAj3hTpATgQ81xRA1yPuV9xIsWxCR3yKvOvYrslk
+owQ8866BdTSkJalqQlUr3kTeltuGJj/1M9zrwXF9eZZcgRZdFDpACA2E3nX+sMsUAAAAAAAA
 
-Try this:
-
---- 25/mm/truncate.c~truncate_inode_pages-latency-fix	2004-07-12 23:12:53.871816320 -0700
-+++ 25-akpm/mm/truncate.c	2004-07-12 23:13:00.993733624 -0700
-@@ -155,6 +155,7 @@ void truncate_inode_pages(struct address
- 
- 	next = start;
- 	for ( ; ; ) {
-+		cond_resched();
- 		if (!pagevec_lookup(&pvec, mapping, next, PAGEVEC_SIZE)) {
- 			if (next == start)
- 				break;
-_
-
-> 5ms at add_wait_queue+0x21
-
-Need to see the whole trace.
-
-> Now which of the above are not false positives and should I try to extract 
-> the exact locations of them?
-
-You'll get better traces from
-
-http://www.zip.com.au/~akpm/linux/patches/stuff/rtc-debug.patch
-and
-http://www.zip.com.au/~akpm/linux/amlat.tar.gz
-
-Just apply rtc-debug, set CONFIG_RTC=y and run `amlat' as root while doing
-testing.
-
+--------------ms070706060904040102050903--

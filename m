@@ -1,46 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263768AbTH1Fqx (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 28 Aug 2003 01:46:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263734AbTH1FqU
+	id S263815AbTH1Fq1 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 28 Aug 2003 01:46:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263744AbTH1Fok
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 28 Aug 2003 01:46:20 -0400
-Received: from TYO201.gate.nec.co.jp ([210.143.35.51]:30343 "EHLO
-	TYO201.gate.nec.co.jp") by vger.kernel.org with ESMTP
-	id S263772AbTH1FQ2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 28 Aug 2003 01:16:28 -0400
-To: Linus Torvalds <torvalds@osdl.org>
-Subject: [PATCH][v850]  Guard some symbol exports with #ifdef CONFIG_MMU
-Cc: linux-kernel@vger.kernel.org
-Reply-To: Miles Bader <miles@gnu.org>
-Message-Id: <20030828051553.8E6203718@mcspd15.ucom.lsi.nec.co.jp>
-Date: Thu, 28 Aug 2003 14:15:53 +0900 (JST)
-From: miles@lsi.nec.co.jp (Miles Bader)
+	Thu, 28 Aug 2003 01:44:40 -0400
+Received: from fw.osdl.org ([65.172.181.6]:17320 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S263751AbTH1FL7 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 28 Aug 2003 01:11:59 -0400
+Date: Wed, 27 Aug 2003 22:10:04 -0700
+From: "Randy.Dunlap" <rddunlap@osdl.org>
+To: lkml <linux-kernel@vger.kernel.org>
+Cc: akpm@osdl.org, thomas@winischhofer.net
+Subject: [PATCH] sis_fb needs vmalloc.h
+Message-Id: <20030827221004.08a1f16a.rddunlap@osdl.org>
+Organization: OSDL
+X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus, please apply.
 
-diff -ruN -X../cludes linux-2.6.0-test4-uc0/kernel/ksyms.c linux-2.6.0-test4-uc0-v850-20030827/kernel/ksyms.c
---- linux-2.6.0-test4-uc0/kernel/ksyms.c	2003-08-25 13:23:54.000000000 +0900
-+++ linux-2.6.0-test4-uc0-v850-20030827/kernel/ksyms.c	2003-08-26 11:43:52.000000000 +0900
-@@ -120,7 +120,9 @@
- EXPORT_SYMBOL(max_mapnr);
- #endif
- EXPORT_SYMBOL(high_memory);
-+#ifdef CONFIG_MMU
- EXPORT_SYMBOL_GPL(invalidate_mmap_range);
-+#endif
- EXPORT_SYMBOL(vmtruncate);
- EXPORT_SYMBOL(find_vma);
- EXPORT_SYMBOL(get_unmapped_area);
-@@ -198,7 +200,9 @@
- EXPORT_SYMBOL(invalidate_inode_pages);
- EXPORT_SYMBOL_GPL(invalidate_inode_pages2);
- EXPORT_SYMBOL(truncate_inode_pages);
-+#ifdef CONFIG_MMU
- EXPORT_SYMBOL(install_page);
-+#endif
- EXPORT_SYMBOL(fsync_bdev);
- EXPORT_SYMBOL(permission);
- EXPORT_SYMBOL(vfs_permission);
+Hi,
+Please apply.
+
+patch_name:	sis_vmal.patch
+patch_version:	2003-08-27.18:20:54
+author:		Randy.Dunlap <rddunlap@osdl.org>
+description:	sis_fb: needs vmalloc.h;
+product:	Linux
+product_versions: 260-test4
+maintainer:	thomas@winischhofer.net
+
+diff -Naur ./drivers/video/sis/sis_main.c~sisvmal ./drivers/video/sis/sis_main.c
+--- ./drivers/video/sis/sis_main.c~sisvmal	Fri Aug 22 16:57:49 2003
++++ ./drivers/video/sis/sis_main.c	Wed Aug 27 14:13:22 2003
+@@ -38,6 +38,7 @@
+ #include <linux/ioport.h>
+ #include <linux/init.h>
+ #include <linux/pci.h>
++#include <linux/vmalloc.h>
+ #include <linux/vt_kern.h>
+ #include <linux/capability.h>
+ #include <linux/fs.h>
+
+
+--
+~Randy

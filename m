@@ -1,34 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267504AbTGTQvs (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 20 Jul 2003 12:51:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267475AbTGTQvr
+	id S267475AbTGTQ7n (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 20 Jul 2003 12:59:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267533AbTGTQ7n
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 20 Jul 2003 12:51:47 -0400
-Received: from H143.C231.tor.velocet.net ([216.138.231.143]:22405 "EHLO
-	mjfrazer.org") by vger.kernel.org with ESMTP id S267504AbTGTQvC
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 20 Jul 2003 12:51:02 -0400
-Date: Sun, 20 Jul 2003 13:06:02 -0400
-From: Mark Frazer <mark@mjfrazer.org>
-To: Linux Kernel List <linux-kernel@vger.kernel.org>
-Subject: 2.6.0-test1 panics on MCE with athlon
-Message-ID: <20030720130602.A439@mjfrazer.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-X-Message-Flag: Outlook not so good.
-Organization: Detectable, well, not really
-X-Bender: Want me to smack the corpse around a little?
+	Sun, 20 Jul 2003 12:59:43 -0400
+Received: from 81-2-122-30.bradfords.org.uk ([81.2.122.30]:12419 "EHLO
+	81-2-122-30.bradfords.org.uk") by vger.kernel.org with ESMTP
+	id S267475AbTGTQ7m (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 20 Jul 2003 12:59:42 -0400
+Date: Sun, 20 Jul 2003 18:24:13 +0100
+From: John Bradford <john@grabjohn.com>
+Message-Id: <200307201724.h6KHODWk002989@81-2-122-30.bradfords.org.uk>
+To: john@grabjohn.com, vonbrand@inf.utfsm.cl
+Subject: Re: [OT] HURD vs Linux/HURD
+Cc: linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Turning off MCE fixes things.  Leaving MCE on was fine under 2.4.21.
+> >                                                              We are
+> > discussing what parts of the Hurd and GNU Mach contain code derived
+> > from Linux.  That's actually quite interesting, and on-topic.
+>
+> Why? Are you planing to take anything from Hurd? Or complain that they
+> (legally!) are taking GPLed code and use it elsewhere? In the fist case,
+> discussion about the _technical_ merit of the code to swipe is on-topic,
+> all else isn't. The second case is none of your business, (unless you wrote
+> the code and did not GPL it).
 
-A boot log, cpuinfo and config are at
-http://mjfrazer.org/~mjfrazer/linux/2.6-mce/
+I'm certaily _not_ going to complain that code has been taken from
+Linux - as you pointed out, that is perfectly legal.
 
--mark
--- 
-Like most of life's problems, this one can be solved with bending. - Bender
+The use of the Linux drivers in the Hurd is the closest thing[1] we've
+got to a fork[2] of the Linux kernel.
+
+So, yes, I am interested in seeing if they have done anything better
+than we have, or have investigated possibilities we haven't.
+
+John.
+
+[1] I am _NOT_ saying that the Hurd is a fork of Linux, but that it's
+about the only codebase which took Linux kernel code, and has let it
+evolve separately from mainline over a number of years.  OK, the Vax
+port has lived outside of mainline for a number of years too, but
+that's mainly architecture specific changes.
+
+[2] OK, ELKS is a fork of the Linux kernel, but not specifically
+targeted at 386+ boxes.
+
+John.

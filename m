@@ -1,80 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269697AbUJAFPo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269699AbUJAFYy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269697AbUJAFPo (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 1 Oct 2004 01:15:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269699AbUJAFPn
+	id S269699AbUJAFYy (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 1 Oct 2004 01:24:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269698AbUJAFYx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 1 Oct 2004 01:15:43 -0400
-Received: from rproxy.gmail.com ([64.233.170.204]:33799 "EHLO mproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S269697AbUJAFPk (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 1 Oct 2004 01:15:40 -0400
-Message-ID: <9e473391040930221574bf687b@mail.gmail.com>
-Date: Fri, 1 Oct 2004 01:15:39 -0400
-From: Jon Smirl <jonsmirl@gmail.com>
-Reply-To: Jon Smirl <jonsmirl@gmail.com>
-To: Christoph Hellwig <hch@infradead.org>,
-       dri-devel <dri-devel@lists.sourceforge.net>,
-       Xserver development <xorg@freedesktop.org>,
-       lkml <linux-kernel@vger.kernel.org>
-Subject: Re: New DRM driver model - gets rid of DRM() macros!
-In-Reply-To: <20040929133759.A11891@infradead.org>
+	Fri, 1 Oct 2004 01:24:53 -0400
+Received: from willy.net1.nerim.net ([62.212.114.60]:43793 "EHLO
+	willy.net1.nerim.net") by vger.kernel.org with ESMTP
+	id S269699AbUJAFYv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 1 Oct 2004 01:24:51 -0400
+Date: Fri, 1 Oct 2004 07:21:46 +0200
+From: Willy Tarreau <willy@w.ods.org>
+To: Andreas Haumer <andreas@xss.co.at>
+Cc: arjanv@redhat.com, "Miller, Mike (OS Dev)" <mike.miller@hp.com>,
+       Christoph Hellwig <hch@infradead.org>, mikem@beardog.cca.cpqcorp.net,
+       marcelo.tosatti@cyclades.com, linux-kernel@vger.kernel.org,
+       linux-scsi@vger.kernel.org,
+       "Baker, Brian (ISS - Houston)" <brian.b@hp.com>
+Subject: Re: patch so cciss stats are collected in /proc/stat
+Message-ID: <20041001052146.GD721@alpha.home.local>
+References: <D4CFB69C345C394284E4B78B876C1CF107DBFE0B@cceexc23.americas.cpqcorp.net> <1096476186.2786.45.camel@laptop.fenrus.com> <415AE9CF.40008@xss.co.at>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-References: <9e4733910409280854651581e2@mail.gmail.com>
-	 <20040929133759.A11891@infradead.org>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <415AE9CF.40008@xss.co.at>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 29 Sep 2004 13:37:59 +0100, Christoph Hellwig <hch@infradead.org> wrote:
-> Some ideas that would be nice improvements still (not that some may be
-> inherited from the old drm code, I just looked at the CVS checkout):
-> 
->  - once we have Alan's idea of the graphics core implemented drm_init()
->    should go awaw
->  - drm_probe (and it's call to drm_fill_in_dev) looks a little fishy,
->    what about doing the full ->probe callback in each driver where it
->    can do basic hw setup, dealing with pci and calls back into the drm
->    core for minor number allocation and common structure allocations.
->    This would get rid of the ->preinit and ->postinit hooks.
+On Wed, Sep 29, 2004 at 06:58:55PM +0200, Andreas Haumer wrote:
+> The majority of _our_ customers are using 2.4.x kernels
+> (x beeing in the range from 19 to 28pre3) and it looks like
+> it will stay that for quite a while...
 
-This has to stay the way it currently is because of the stealth mode code
+I second this. The only one of our customers who tried 2.6 went back to
+2.4 because of poor network performance, scheduling problems and stability
+issues.
 
->  - isn't drm_order just a copy of get_order()?
-switched to get_order
+> PS: I know this is somewhat off topic, but I just want to raise
+> my voice if I get the impression kernel developers forget about
+> the "real world outside". I will shut up in a moment! Thank you!
 
->  - any chance to use proper kernel-doc comments instead of the bastdized
->    and hard to read version you have currently?
-doc people don't want to switch 
+Very true. You just have to read any 2.6 changelog to understand that
+it *is* a development kernel ! The difference between 2.5 and 2.6 is
+that the test platform now is larger and includes production systems.
 
->  - the coding style is a little strange, like spurious whitespaces inside
->    braces, maybe you could run it through scripts/Lindent
-ran most of it through Lindent. check out CVS for results.
+Willy
 
->  - care to use linux/lists.h instead of opencoded lists, e.g. in
->    dev->file_last/dev->file_first or dev->vmalist
-There are about 20 open coded lists. I started to fix some of these
-but the code involved can be touchy and it's already well tested.
-It would be better to wait on these until someone is working on
-the code involved. I don't want to introduce bugs because I don't
-understand the code 100%.
-
->  - drm_flush is a noop.  a NULL ->flush does the same thing, just easier
->  - dito or ->poll
->  - dito for ->read
-Changed these to use kernel defaults.
-
->  - why do you use DRM_COPY_FROM_USER_IOCTL in Linux-specific code?
-That can probably be fixed. I believe it is because it is hiding a
-2.4/2.6 change.
-
->  - drm__mem_info should be converted to fs/seq_file.c functions
->  - dito for functions in drm_proc.c
-I started to do this to but I didn't want to disrupt know working code. These
-may get rewritten for sysfs.
-> 
-
--- 
-Jon Smirl
-jonsmirl@gmail.com

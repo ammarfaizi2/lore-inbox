@@ -1,67 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261307AbTILIts (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 12 Sep 2003 04:49:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261318AbTILIts
+	id S261296AbTILIqG (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 12 Sep 2003 04:46:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261297AbTILIqG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 Sep 2003 04:49:48 -0400
-Received: from gate.firmix.at ([80.109.18.208]:52101 "EHLO tara.firmix.at")
-	by vger.kernel.org with ESMTP id S261307AbTILItq (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 Sep 2003 04:49:46 -0400
-Subject: Re: [BK PATCH] One strdup() to rule them all
-From: Bernd Petrovitsch <bernd@firmix.at>
-To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: Jeff Garzik <jgarzik@pobox.com>,
-       =?ISO-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>,
-       Andries Brouwer <aebr@win.tue.nl>, Jakub Jelinek <jakub@redhat.com>,
-       Dan Aloni <da-x@gmx.net>,
-       Linux Kernel List <linux-kernel@vger.kernel.org>,
-       torvalds@transmeta.com
-In-Reply-To: <20030912050729.331442C11B@lists.samba.org>
-References: <20030912050729.331442C11B@lists.samba.org>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Message-Id: <1063356560.29315.4.camel@tara.firmix.at>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.4 
-Date: Fri, 12 Sep 2003 10:49:20 +0200
+	Fri, 12 Sep 2003 04:46:06 -0400
+Received: from d12lmsgate-2.de.ibm.com ([194.196.100.235]:5248 "EHLO
+	d12lmsgate.de.ibm.com") by vger.kernel.org with ESMTP
+	id S261296AbTILIqE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 12 Sep 2003 04:46:04 -0400
+Subject: Re: [PATCH] s390 (6/7): network drivers.
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: linux-kernel@vger.kernel.org, torvalds@osdl.org
+X-Mailer: Lotus Notes Release 5.0.12   February 13, 2003
+Message-ID: <OFDC922B9A.0B98E8E8-ONC1256D9F.002F35CF-C1256D9F.00301854@de.ibm.com>
+From: "Martin Schwidefsky" <schwidefsky@de.ibm.com>
+Date: Fri, 12 Sep 2003 10:45:19 +0200
+X-MIMETrack: Serialize by Router on D12ML016/12/M/IBM(Release 5.0.9a |January 7, 2002) at
+ 12/09/2003 10:45:53
+MIME-Version: 1.0
+Content-type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fre, 2003-09-12 at 06:16, Rusty Russell wrote:
-> In message <3F6139AD.6070603@pobox.com> you write:
-> > Of course, if we DO waste time on it, your implementation Rusty kicks 
-> > ass and takes steroids :)
-> 
-> diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal linux-2.6.0-test5-bk2/MAINTAINERS working-2.6.0-test5-bk2-modules_txt_kconfig1/MAINTAINERS
-> --- linux-2.6.0-test5-bk2/MAINTAINERS	2003-09-09 10:34:22.000000000 +1000
-> +++ working-2.6.0-test5-bk2-modules_txt_kconfig1/MAINTAINERS	2003-09-12 14:15:42.000000000 +1000
-> @@ -1102,6 +1102,13 @@ W:	http://nfs.sourceforge.net/
->  W:	http://www.cse.unsw.edu.au/~neilb/patches/linux-devel/
->  S:	Maintained
->  
-> +KSTRDUP
-> +P:	Kstrdup Core Team
-> +M:	kstrdup-core@ozlabs.org
-> +L:	kstrdup@linux.kernel.org
-> +W:	http://kstrdup.sourceforge.net/
-> +S:	Supported
-> +
->  LANMEDIA WAN CARD DRIVER
->  P:	Andrew Stanley-Jones
->  M:	asj@lanmedia.com
-> 
-> Kill me now,
 
-;-)
+Hi Jeff,
 
-And kcalloc() [or whatever it should be called] falls probably in the
-same category.
+> > -        spin_lock_init(&card->wait_q_lock);
+> > +        /* setup net_device stuff */
+> > +        card->dev->priv = card;
+> > +
+> > +        strncpy(card->dev->name, card->dev_name, IFNAMSIZ);
+>
+> what's this about?  Why avoid the net stack's dev->name assignment?
+This is indeed strange, because in qeth_init_netdev the name is copied
+from the net_device to the card structure. Seems like the card->dev_name
+is superflous. I'll ask our networking guys.
 
 
-	Bernd
--- 
-Firmix Software GmbH                   http://www.firmix.at/
-mobil: +43 664 4416156                 fax: +43 1 7890849-55
-          Embedded Linux Development and Services
+> > +        QETH_DBF_TEXT3(0, trace, "alloccrd");
+> > +        card = (struct qeth_card *) vmalloc(sizeof (struct qeth_card));
+> > +        if (!card)
+> > +                    return NULL;
+>
+> Is the card's private info really so large that you need vmalloc() ?
+For 31 bit struct qeth_card has 55808 bytes for 64 bit 64256. We could
+allocate it with kmalloc but overall the qeth driver allocates a LOT of
+memory with vmalloc. The inbound/outbound queues are quite big and the
+qeth_card structure is almost neglectable...
+
+blue skies,
+   Martin
+
+

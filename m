@@ -1,89 +1,83 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261409AbTILGvY (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 12 Sep 2003 02:51:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261683AbTILGvY
+	id S261691AbTILGyk (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 12 Sep 2003 02:54:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261699AbTILGyk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 12 Sep 2003 02:51:24 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:29103 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S261409AbTILGvW (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 12 Sep 2003 02:51:22 -0400
-Date: Fri, 12 Sep 2003 08:51:16 +0200
-From: Jens Axboe <axboe@suse.de>
-To: Samuel Thibault <Samuel.Thibault@ens-lyon.fr>,
-       =?iso-8859-1?Q?S=E9bastien?= Hinderer 
-	<Sebastien.Hinderer@libertysurf.fr>,
-       linux-kernel@vger.kernel.org
-Subject: Re: PROBLEM: Impossible to read files from a CD-Rom
-Message-ID: <20030912065116.GA16813@suse.de>
-References: <20030818163520.GA413@galois> <20030908152800.GA5224@bouh.famille.thibault.fr>
+	Fri, 12 Sep 2003 02:54:40 -0400
+Received: from mail3.ithnet.com ([217.64.64.7]:8108 "HELO
+	heather-ng.ithnet.com") by vger.kernel.org with SMTP
+	id S261691AbTILGyi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 12 Sep 2003 02:54:38 -0400
+X-Sender-Authentication: net64
+Date: Fri, 12 Sep 2003 08:54:35 +0200
+From: Stephan von Krawczynski <skraw@ithnet.com>
+To: Neil Brown <neilb@cse.unsw.edu.au>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: experiences beyond 4 GB RAM with 2.4.22
+Message-Id: <20030912085435.6a26fec4.skraw@ithnet.com>
+In-Reply-To: <16225.13206.910616.386713@notabene.cse.unsw.edu.au>
+References: <20030909110112.4d634896.skraw@ithnet.com>
+	<16225.13206.910616.386713@notabene.cse.unsw.edu.au>
+Organization: ith Kommunikationstechnik GmbH
+X-Mailer: Sylpheed version 0.9.5 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20030908152800.GA5224@bouh.famille.thibault.fr>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Sep 08 2003, Samuel Thibault wrote:
-> Hi,
-> 
-> On Mon 18 aug 2003 18:35:22 GMT, Sébastien Hinderer wrote:
-> > I'm using a vanila linux-2.6.0-test3.
-> > When I try to use a CD-Rom, the mount is successful, so are the calls to
-> > ls.
-> > However, as soon as I try to read a file, I get a lot of messages such as :
+On Fri, 12 Sep 2003 12:46:46 +1000
+Neil Brown <neilb@cse.unsw.edu.au> wrote:
+
+> > Both are 2.4.22. 192.168.1.1 is the testbox. I saw those with 2GB, but
+> > could fix it through more nfs-daemons and
 > > 
-> > hdc: rw=0, want=505092, limit=31544
-> > Buffer I/O error on device hdc, logical block 126272
-> > attempt to access beyond end of device
+> >         echo 2097152 >/proc/sys/net/core/rmem_max
+> >         echo 2097152 >/proc/sys/net/core/wmem_max
+> > 
+> > Are these values too small for 6 GB?
 > 
-> We dug a little bit this Monday with Sebastien, and found out some
-> troubles: the call to set_capacity at the end of cdrom_read_toc() writes a
-> strange value, which is not always the same, even for the same reinserted
-> CD-ROM, seemingly because it came from cdrom_get_last_written():
-> 
-> cdrom_get_last_written() calls cdrom_get_disc_info(), then
-> cdrom_get_track_info() and uses the track_start and track_size to
-> compute the limit of the disk. The trouble seems to come from the fact
-> that in cdrom_get_track_info(), the info size is got from the drive, but
-> no check is done to ensure that it will fill up the whole
-> track_information structure, which is not reset to 0 either, so that
-> random values remain:
-> 
-> (linux-2.6.0-test4/drivers/cdrom/cdrom.c:2214)
-> 	if ((ret = cdo->generic_packet(cdi, &cgc)))
-> 		return ret;
-> 	
-> 	cgc.buflen = be16_to_cpu(ti->track_information_length) +
-> 		     sizeof(ti->track_information_length);
-> 
-> 	if (cgc.buflen > sizeof(track_information))
-> 		cgc.buflen = sizeof(track_information);
-> 
-> 	cgc.cmd[8] = cgc.buflen;
-> 	return cdo->generic_packet(cdi, &cgc);
-> 
-> The solution would be to return an error if 
-> cgc.buflen != sizeof(track_information) after the truncation to
-> sizeof(track_information), so that cdrom_get_last_written() will
-> correctly fail, and make cdrom_read_toc() use cdrom_read_capacity()
-> instead, which gives the correct answer.
+> No.  The values are proportional to the number of server threads, not
+> the amount of RAM... and they should be un-necessary after 2.4.20
+> anyway as nfsd in the kernel makes the appropriate settings.
 
-It isn't that easy, if that were the case there would be no need for the
-above code would there?
+Oh. That's interesting. Then everything should be the same if I deleted
+those...
 
-This basically boils down to a typical problem with CDROM/DVD drives -
-some specific structure may vary a little in size depending on when in
-the spec cycle they were implemented. Some drives barf if you try and
-read to much, some when you read too little. So the approach that
-typically works the best is to just read the very first of the
-structure, check the length, and issue a read for the complete data.
+> > 2) Box is very slow, kswapd looks very active during tar of a local
+> > harddisk. Interactivity is really bad. Seems vm has a high time looking for
+> > free or usable pages. Compared to 2 GB the behaviour is unbelievably bad.
+> > 
+> > 3) Network performance has a remarkable dropdown during above tar. In fact
+> > doing simple pings every few minutes shows that quite a lot of them are
+> > simply dropped, never make it over the ethernet.
+> 
+> My only guess is that it is doing a lot of copying into low memory
+> because your devices can only DMA into/outof low memory.
 
-I'd be more interested in fixing the real bug: why does your drive
-return zero length, and only sporadically?
+I forgot to mention: Both network card and controller are 64 bit cards.
+Network card is (vendor 3com):
+Ethernet controller: Broadcom Corporation NetXtreme BCM5701 Gigabit Ethernet
+(rev 15) (tg3-driver)
+Controller is:
+RAID bus controller: 3ware Inc 3ware 7000-series ATA-RAID (rev 01)
+I have "CONFIG_HIGHIO=y"
 
--- 
-Jens Axboe
+> Have you tried 2.6 ??
 
+No, not yet. I have not dared :-)
+
+> How about CONFIG_HIGHMEM4G ?
+> It won't use all the RAM, but it would be interesting if it were
+> faster.
+
+I already thought about that and tried. In fact it is as fast and fine as 2 GB
+setup. It runs really smooth. 
+The really simple test for the problem is running "updatedb" (find over the
+whole filesystem). The box comes to a crawl while this is running, network is
+absolutely bad, interactivity is rather dead, very often not even a ssh login
+works.
+
+Regards,
+Stephan

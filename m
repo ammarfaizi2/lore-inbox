@@ -1,99 +1,75 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262940AbTJZK7U (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 26 Oct 2003 05:59:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262944AbTJZK7U
+	id S263088AbTJZLjw (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 26 Oct 2003 06:39:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263090AbTJZLjw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 26 Oct 2003 05:59:20 -0500
-Received: from hera.cwi.nl ([192.16.191.8]:15264 "EHLO hera.cwi.nl")
-	by vger.kernel.org with ESMTP id S262940AbTJZK7S (ORCPT
+	Sun, 26 Oct 2003 06:39:52 -0500
+Received: from smtp1.att.ne.jp ([165.76.15.137]:1498 "EHLO smtp1.att.ne.jp")
+	by vger.kernel.org with ESMTP id S263088AbTJZLju (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 26 Oct 2003 05:59:18 -0500
-From: Andries.Brouwer@cwi.nl
-Date: Sun, 26 Oct 2003 11:59:11 +0100 (MET)
-Message-Id: <UTC200310261059.h9QAxBS13289.aeb@smtp.cwi.nl>
-To: Andries.Brouwer@cwi.nl, torvalds@osdl.org
-Subject: Re: Linux 2.6.0-test9
-Cc: linux-kernel@vger.kernel.org
+	Sun, 26 Oct 2003 06:39:50 -0500
+Message-ID: <358a01c39bb5$c651c7a0$24ee4ca5@DIAMONDLX60>
+From: "Norman Diamond" <ndiamond@wta.att.ne.jp>
+To: "John Bradford" <john@grabjohn.com>,
+       "Mudama, Eric" <eric_mudama@Maxtor.com>,
+       "'Hans Reiser '" <reiser@namesys.com>,
+       "'Wes Janzen '" <superchkn@sbcglobal.net>,
+       "'Rogier Wolff '" <R.E.Wolff@BitWizard.nl>,
+       <linux-kernel@vger.kernel.org>, <nikita@namesys.com>,
+       "'Pavel Machek '" <pavel@ucw.cz>,
+       "'Justin Cormack '" <justin@street-vision.com>,
+       "'Vitaly Fertman '" <vitaly@namesys.com>,
+       "'Krzysztof Halasa '" <khc@pm.waw.pl>
+References: <334101c39b94$268a0370$24ee4ca5@DIAMONDLX60> <200310261039.h9QAdniV000310@81-2-122-30.bradfords.org.uk>
+Subject: Re: Blockbusting news, results get worse
+Date: Sun, 26 Oct 2003 20:38:53 +0900
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-2022-jp"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2800.1158
+X-MIMEOLE: Produced By Microsoft MimeOLE V6.00.2800.1165
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Pls forward.
+John Bradford pretended to reply to me:
 
-Below a keyboard patch I sent to l-k 12 days ago.
-Discussion:
+> > 4.  When writing ZEROES to the bad sector, the drive reports SUCCESS.
+> > But it lies.  Subsequent attempts to read still fail.  Subsequent
+> > writing of zeroes appears to succeed again.  Subsequent attempts to read
+> > still fail.
+>
+> > I still have to say, we can't fix Toshiba, and we can avoid Toshiba, but
+> > meanwhile we can fix Linux.
+>
+> How do you suggest we 'fix' 4, above, other than to flush the cache
+> and verify each time a full sector of zeros is written to the disk?
 
-Petr Vandrovec reported
+Number 4 cannot be fixed by Linux.  Why do you pervert my writing?
 
-> got (twice, but yesterday I rebooted box hard, as I thought that it is dead)
-> strange lockup, where box stopped reacting on keyboard.
+The refusal to remove a known defective block from ordinary use in the file
+system can be fixed.  How many times does this need to be said?  Why do you
+pretend that this is not what I have been saying in this entire thread?
 
-and
+If I understand Hans Reiser's message correctly, this fix has indeed been
+made in ReiserFS version 4.  I thank Mr. Reiser.  (By the way, I volunteer
+about one day each weekend for testing, and I am hardly in a position to
+contribute funds.  Please let's not beggar each other.)
 
-> Oct 14 19:59:18 ppc kernel: i8042.c: e0 <- i8042 (interrupt, kbd, 1) [30115341]
-> Oct 14 19:59:18 ppc kernel: i8042.c: ed -> i8042 (kbd-data) [30115342]
-> Oct 14 19:59:18 ppc kernel: i8042.c: fa <- i8042 (interrupt, kbd, 1) [30115346]
-> Oct 14 19:59:18 ppc kernel: atkbd.c: Unknown key released (translated set 2, code 0x165, data 0xfa, on isa0060/serio0).
+By the way some participants in this thread have argued that the block
+should not be replaced by zeroes or random garbage without notice.  I fully
+agree.  The block should be replaced by zeroes or random garbage WITH
+notice.  From the point of view of logging it in the system log, it is
+enough to log it once, it doesn't have to be logged over and over again.
+>From the point of view of informing the user whose program is running, the
+dd command does an excellent job, but some unknown program was remaining
+silent when I/O errors were originally detected and logged.  I still think
+it is better to get that block out of the file system so that when that file
+is rewritten or when other new files get created or extended then they won't
+try to reuse that block.  But I've said this enough too.  I guess it's time
+to stop beating this dead horse.  But anyway Mr. Reiser understood, and I am
+glad, and I thank him.
 
-What happens is that the kernel code does an untranslate on the 0xfa
-that is the ACK for 0xed (set LEDs) when 0xe0 preceded. Now the ACK
-is never seen and we hang waiting for it.
-
-Now 0xfa can be a key scancode or it can be a protocol scancode.
-Only few keyboards use it as a key scancode, and if we always
-interpret it as a protocol scancode then these rare keyboards
-will have a dead key. If we interpret it as a key scancode then
-we have a dead keyboard in case it was protocol.
-
-The below patch moves the test for ACK and NAK up, so that they
-are always seen as protocol.
-
-This is just a minimal patch. What I did in 1.1.54 was to keep track of
-commands sent with a flag reply_expected, so that 0xfa could be taken
-as ACK when a reply is expected and as key scancode otherwise.
-That is the better solution, but requires larger surgery.
-
-Andries
-
-
-diff -u --recursive --new-file -X /linux/dontdiff a/drivers/input/keyboard/atkbd.c b/drivers/input/keyboard/atkbd.c
---- a/drivers/input/keyboard/atkbd.c	Sun Oct 26 00:00:10 2003
-+++ b/drivers/input/keyboard/atkbd.c	Sun Oct 26 02:28:24 2003
-@@ -184,11 +184,19 @@
- 		atkbd->resend = 0;
- #endif
- 
-+	switch (code) {
-+		case ATKBD_RET_ACK:
-+			atkbd->ack = 1;
-+			goto out;
-+		case ATKBD_RET_NAK:
-+			atkbd->ack = -1;
-+			goto out;
-+	}
-+
- 	if (atkbd->translated) do {
- 
- 		if (atkbd->emul != 1) {
--			if (code == ATKBD_RET_EMUL0 || code == ATKBD_RET_EMUL1 ||
--			    code == ATKBD_RET_ACK || code == ATKBD_RET_NAK)
-+			if (code == ATKBD_RET_EMUL0 || code == ATKBD_RET_EMUL1)
- 				break;
- 			if (code == ATKBD_RET_BAT) {
- 				if (!atkbd->bat_xl)
-@@ -212,15 +220,6 @@
- 
- 	} while (0);
- 
--	switch (code) {
--		case ATKBD_RET_ACK:
--			atkbd->ack = 1;
--			goto out;
--		case ATKBD_RET_NAK:
--			atkbd->ack = -1;
--			goto out;
--	}
--
- 	if (atkbd->cmdcnt) {
- 		atkbd->cmdbuf[--atkbd->cmdcnt] = code;
- 		goto out;

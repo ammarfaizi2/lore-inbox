@@ -1,49 +1,64 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281403AbRKTV5g>; Tue, 20 Nov 2001 16:57:36 -0500
+	id <S281090AbRKTWE0>; Tue, 20 Nov 2001 17:04:26 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281404AbRKTV50>; Tue, 20 Nov 2001 16:57:26 -0500
-Received: from [194.46.8.33] ([194.46.8.33]:1299 "EHLO angusbay.vnl.com")
-	by vger.kernel.org with ESMTP id <S281403AbRKTV5S>;
-	Tue, 20 Nov 2001 16:57:18 -0500
-Date: Tue, 20 Nov 2001 22:02:06 +0000
-From: Dale Amon <amon@vnl.com>
-To: David Woodhouse <dwmw2@infradead.org>
-Cc: Dale Amon <amon@vnl.com>, "Richard B. Johnson" <root@chaos.analogic.com>,
-        linux-kernel@vger.kernel.org
-Subject: Re: A return to PCI ordering problems...
-Message-ID: <20011120220206.E22590@vnl.com>
-Mail-Followup-To: Dale Amon <amon@vnl.com>,
-	David Woodhouse <dwmw2@infradead.org>,
-	"Richard B. Johnson" <root@chaos.analogic.com>,
-	linux-kernel@vger.kernel.org
-In-Reply-To: <20011120212055.A22590@vnl.com> <20011120190316.H19738@vnl.com> <Pine.LNX.3.95.1011120144925.14138A-100000@chaos.analogic.com> <2722.1006292941@redhat.com>
+	id <S281404AbRKTWEQ>; Tue, 20 Nov 2001 17:04:16 -0500
+Received: from [208.132.17.2] ([208.132.17.2]:13831 "HELO aegis.indstorage.com")
+	by vger.kernel.org with SMTP id <S281090AbRKTWEE>;
+	Tue, 20 Nov 2001 17:04:04 -0500
+From: n0ano@indstorage.com
+Date: Tue, 20 Nov 2001 15:02:32 -0700
+To: Luis Miguel Correia Henriques <umiguel@alunos.deis.isec.pt>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: copy to user
+Message-ID: <20011120150232.A890@tlaloc.indstorage.com>
+In-Reply-To: <Pine.LNX.4.31.0111202040180.23000-100000@mail.deis.isec.pt>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <2722.1006292941@redhat.com>
-User-Agent: Mutt/1.3.23i
-X-Operating-System: Linux, the choice of a GNU generation
+X-Mailer: Mutt 1.0i
+In-Reply-To: <Pine.LNX.4.31.0111202040180.23000-100000@mail.deis.isec.pt>; from umiguel@alunos.deis.isec.pt on Tue, Nov 20, 2001 at 08:54:42PM +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Nov 20, 2001 at 09:49:01PM +0000, David Woodhouse wrote:
+Ignoring the merits of what you are trying to do why don't you put your
+new code on the target's stack?  This avoids all of the problems associated
+with changing the code section (which is doable but tricky, after all if
+`gdb' can change the code section you certainly could).
 
-> insmod dummy
-> ip link set dummy0 name eth0
-> ip link set eth0 address 01:02:03:04:05:06
-
-Ewwwww... that's totally evyul. I love it.
-
-> Of course, if you're not in the Free World you may end up in prison for 
-> doing that.
-
-And a top o' the mornin' (well evening anyway) to ye. 
-We're a County Cork company wouldn't you know? 
+On Tue, Nov 20, 2001 at 08:54:42PM +0000, Luis Miguel Correia Henriques wrote:
+> The reason that I need it to spend CPU time is that I'm developing a fault
+> injector. The purpose of a fault injection tool is, as you could imagine,
+> to test some critical systems and it's capacity to recover from fails. The
+> reason for changing the code of a process is that process must be delayed
+> but without leaving the CPU - everything must look like nothing wrong is
+> happening, except for other processes that are waiting for something from
+> the delayed process...
+> 
+> Maybe I should have explained this before... sorry.
+> 
+> I suppose now you can understand why SIGSTOP won't work. Hope you can help
+> me :)
+> 
+> About using udelay... this soluction seemed fine to me at first but if I
+> hang the CPU with udelay the scheduler will no be doing it's job (isn't
+> it?). This would give me even more intrusiveness (another requirement: the
+> less intrusiveness as possible).
+> 
+> Isn't there any doubt that copy_to_user can handle my problem? When I use
+> it to change CS, this function returns the correct number of bytes (and no
+> error) but, when I try to read... the old data is still there. I suppose
+> there is a page/segment protection against writing to CS, isn't it?
+> 
+> Luis Henriques
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 
 -- 
-------------------------------------------------------
-    Nuke bin Laden:           Dale Amon, CEO/MD
-  improve the global          Islandone Society
-     gene pool.               www.islandone.org
-------------------------------------------------------
+Don Dugger
+"Censeo Toto nos in Kansa esse decisse." - D. Gale
+n0ano@indstorage.com
+Ph: 303/652-0870x117

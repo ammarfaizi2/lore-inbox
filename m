@@ -1,63 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262546AbVDAAf0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262051AbVDAAkQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262546AbVDAAf0 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 31 Mar 2005 19:35:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262558AbVCaX0W
+	id S262051AbVDAAkQ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 31 Mar 2005 19:40:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262549AbVDAAiF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 31 Mar 2005 18:26:22 -0500
-Received: from mail.kroah.org ([69.55.234.183]:22752 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S262053AbVCaXYC convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 31 Mar 2005 18:24:02 -0500
-Cc: khali@linux-fr.org
-Subject: [PATCH] I2C: Fix broken force parameter handling
-In-Reply-To: <11123113951873@kroah.com>
-X-Mailer: gregkh_patchbomb
-Date: Thu, 31 Mar 2005 15:23:15 -0800
-Message-Id: <11123113951584@kroah.com>
+	Thu, 31 Mar 2005 19:38:05 -0500
+Received: from dsl027-180-174.sfo1.dsl.speakeasy.net ([216.27.180.174]:30667
+	"EHLO cheetah.davemloft.net") by vger.kernel.org with ESMTP
+	id S262566AbVDAAha (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 31 Mar 2005 19:37:30 -0500
+Date: Thu, 31 Mar 2005 16:37:01 -0800
+From: "David S. Miller" <davem@davemloft.net>
+To: linux-kernel@vger.kernel.org
+Subject: double April fools (Fw: Linux kernel 2.7.0 released)
+Message-Id: <20050331163701.7502f8a7.davem@davemloft.net>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; sparc-unknown-linux-gnu)
+X-Face: "_;p5u5aPsO,_Vsx"^v-pEq09'CU4&Dc1$fQExov$62l60cgCc%FnIwD=.UF^a>?5'9Kn[;433QFVV9M..2eN.@4ZWPGbdi<=?[:T>y?SD(R*-3It"Vj:)"dP
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-Reply-To: Greg K-H <greg@kroah.com>
-To: linux-kernel@vger.kernel.org, sensors@Stimpy.netroedge.com
-Content-Transfer-Encoding: 7BIT
-From: Greg KH <gregkh@suse.de>
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ChangeSet 1.2348, 2005/03/31 14:32:17-08:00, khali@linux-fr.org
 
-[PATCH] I2C: Fix broken force parameter handling
+As vger co-postmaster I see some interesting stuff sometimes.
 
-I just noticed a nasty bug in the way the "force" parameter is handled
-for non-sensors i2c chip drivers. The "force" parameter supposedy is a
-list of adapter, address *pairs* where supported chips are
-unquestionably assumed to be. However, after handling one pair, the i2c
-core code searches for the next one *three* values later, not two. So
-with the current code, the second and third pairs wouldn't be properly
-handled. The fourth one would be, and so on.
+Sadly, this guy not only choose a lame april fools posting,
+he couldn't even post it to the correct email address.  (he
+sent it to *-owner@ which goes effectively to me)
 
-As a side note, this questions the need of an array parameter handling
-up to 24 of such pairs, when obviously nobody ever required more than
-one for the past 6 years.
+So here it is in it's full glory :-)
 
-Signed-off-by: Jean Delvare <khali@linux-fr.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
+Begin forwarded message:
+
+Date: Fri, 01 Apr 2005 01:03:50 +0200
+From: Hal9000 <hal9000@musichat.net>
+To: linux-kernel-announce-owner@vger.kernel.org
+Subject: Linux kernel 2.7.0 released
 
 
- drivers/i2c/i2c-core.c |    2 +-
- 1 files changed, 1 insertion(+), 1 deletion(-)
+Linux kernel version 2.7.0 has been released.  It is available from:
 
+Patch:		ftp://ftp.kernel.org/pub/linux/kernel/v2.7/patch-2.7.0.bz2
+Full source:	ftp://ftp.kernel.org/pub/linux/kernel/v2.7/linux-2.7.0.tar.bz2
 
-diff -Nru a/drivers/i2c/i2c-core.c b/drivers/i2c/i2c-core.c
---- a/drivers/i2c/i2c-core.c	2005-03-31 15:16:10 -08:00
-+++ b/drivers/i2c/i2c-core.c	2005-03-31 15:16:10 -08:00
-@@ -715,7 +715,7 @@
- 		   at all */
- 		found = 0;
- 
--		for (i = 0; !found && (address_data->force[i] != I2C_CLIENT_END); i += 3) {
-+		for (i = 0; !found && (address_data->force[i] != I2C_CLIENT_END); i += 2) {
- 			if (((adap_id == address_data->force[i]) || 
- 			     (address_data->force[i] == ANY_I2C_BUS)) &&
- 			     (addr == address_data->force[i+1])) {
+Sizes in bytes			Compressed	Uncompressed
+------------------------------------------------------------
+Patch                                  895              3666
+Full source                       50508495         608465132
 
+-----------------------------------------------------------------------------
+  This is an automatically generated message.  To unsubscribe from this 
+list,
+  please send a message to majordomo@vger.kernel.org containing
+  the line:
+
+    unsubscribe linux-kernel-announce <your_email_address>
+
+  ... where <your_email_address> is the email address you are receiving
+      this message at.
+-----------------------------------------------------------------------------
+
+The following files were changed in this release:
+
+* (pretty much everything, as usual...)
+-----------------------------------------------------------------------------
+Finally the kernel tree has been forked. The 2.6 tree will now 
+concentrate on stabilization and security issues only, while all the 
+crazy und uncontrolled development experimental shit will continue on 
+the 2.7.x.y(.z?) kernel tree. It was about time!
+oh yeah...
+too bad this is just an april fool :(

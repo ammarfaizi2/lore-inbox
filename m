@@ -1,70 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130856AbRBAUEO>; Thu, 1 Feb 2001 15:04:14 -0500
+	id <S131037AbRBAUFX>; Thu, 1 Feb 2001 15:05:23 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131280AbRBAUEE>; Thu, 1 Feb 2001 15:04:04 -0500
-Received: from adsl-63-195-162-81.dsl.snfc21.pacbell.net ([63.195.162.81]:56594
-	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
-	id <S130856AbRBAUDx>; Thu, 1 Feb 2001 15:03:53 -0500
-Date: Thu, 1 Feb 2001 12:03:29 -0800 (PST)
-From: Andre Hedrick <andre@linux-ide.org>
-To: Ian Soboroff <ian@cs.umbc.edu>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: ide hotplug and 2.4.1
-In-Reply-To: <87hf2eo4w9.fsf@danube.cs.umbc.edu>
-Message-ID: <Pine.LNX.4.10.10102010947060.16224-100000@master.linux-ide.org>
+	id <S131404AbRBAUFD>; Thu, 1 Feb 2001 15:05:03 -0500
+Received: from [212.17.18.2] ([212.17.18.2]:61709 "EHLO technoart.net")
+	by vger.kernel.org with ESMTP id <S130855AbRBAUEw>;
+	Thu, 1 Feb 2001 15:04:52 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Denis Perchine <dyp@perchine.com>
+To: linux-kernel@vger.kernel.org
+Subject: Re: NT soon to surpass Linux in specweb99 performance?
+Date: Fri, 2 Feb 2001 02:03:09 +0600
+X-Mailer: KMail [version 1.2]
+In-Reply-To: <20010201143825.A21237@xi.linuxpower.cx> <3A79C156.A8F7FF58@dawa.demon.co.uk>
+In-Reply-To: <3A79C156.A8F7FF58@dawa.demon.co.uk>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Message-Id: <01020202030905.00595@dyp.perchine.com>
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Friday 02 February 2001 02:04, Paul Flinders wrote:
+> Gregory Maxwell wrote:
+> > Looks like TUX caught MS's attention:
+> > http://www.spec.org/osg/web99/results/res2000q4/web99-20001211-00082.html
+> >
+> > Anyone know if their method of achieveing this is as flexible as TUX, or
+> > is their "SWC 3.0" simply mean 'spec web cheat' and involve implimenting
+> > the specweb dyanmic stuff in x86 assembly in their microkernel? :)
+>
+> Yeah, but Tux 2 is still faster on the same/similar hardware
 
-Nope........you have to wack subdrivers and flush things.
-Cheers,
+Yeps. But there was no access time update turned off in its case. MS do this.
 
-On 1 Feb 2001, Ian Soboroff wrote:
+> http://www.spec.org/osg/web99/results/res2000q4/web99-20001127-00075.html
 
-> 
-> i've started playing with 2.4.1 on my Dell Latitude CS and it's pretty
-> peppy; my only complaints are PCMCIA-related, which i think i'll solve
-> by using the standalone package...
-> 
-> anyway, my real question is this.  i noticed the new options for
-> hotplug, and am wondering if i can use this with my laptop.  the
-> Latitude CS has a port on the side, with which you can connect a cable
-> that hooks up to either a floppy drive or a CDROM.
-> 
-> if you boot the machine cold with the CDROM attached, linux notices it
-> on a second IDE bus (/dev/hdc).  if you boot without it, /dev/hdc
-> isn't there.  if you plug in the CDROM while the system is running,
-> there is a noticeable pause for a couple seconds, which seems to imply
-> some kind of BIOS action or interrupt or something happens which could
-> be caught.
-> 
-> back in 2.2.x, i used to build IDE as a module, and after plugging up
-> the CDROM do a 'rmmod ide-probe; modprobe ide-probe' which had a
-> pretty good success rate.  i'm hoping maybe the 2.4.x hotplug features
-> have made this obsolete.
-> 
-> (plugging up the floppy drive always works, because PC floppy
-> controllers are too dumb to care if they actually have a drive
-> attached).
-> 
-> ian
-> 
-> -- 
-> ----
-> Ian Soboroff                                       ian@cs.umbc.edu
-> University of MD Baltimore County      http://www.cs.umbc.edu/~ian
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> Please read the FAQ at http://www.tux.org/lkml/
-> 
+-- 
+Sincerely Yours,
+Denis Perchine
 
-Andre Hedrick
-Linux ATA Development
-
+----------------------------------
+E-Mail: dyp@perchine.com
+HomePage: http://www.perchine.com/dyp/
+FidoNet: 2:5000/120.5
+----------------------------------
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

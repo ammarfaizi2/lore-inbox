@@ -1,39 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317852AbSHLKo3>; Mon, 12 Aug 2002 06:44:29 -0400
+	id <S317855AbSHLKvY>; Mon, 12 Aug 2002 06:51:24 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317855AbSHLKo3>; Mon, 12 Aug 2002 06:44:29 -0400
-Received: from pc2-cwma1-5-cust12.swa.cable.ntl.com ([80.5.121.12]:61432 "EHLO
-	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S317852AbSHLKo2>; Mon, 12 Aug 2002 06:44:28 -0400
-Subject: Re: reiserfsprogs release
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Vitaly Fertman <vitaly@namesys.com>
-Cc: reiserfs-list@namesys.com, linux-kernel@vger.kernel.org
-In-Reply-To: <200208121442.19656.vitaly@namesys.com>
-References: <200206251829.25799.vitaly@namesys.com>
-	<200206261317.10813.vitaly@namesys.com>
-	<200207101206.48370.vitaly@namesys.com> 
-	<200208121442.19656.vitaly@namesys.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.3 (1.0.3-6) 
-Date: 12 Aug 2002 13:09:45 +0100
-Message-Id: <1029154185.16421.161.camel@irongate.swansea.linux.org.uk>
+	id <S317858AbSHLKvY>; Mon, 12 Aug 2002 06:51:24 -0400
+Received: from mx9.mail.ru ([194.67.57.19]:52485 "EHLO mx9.mail.ru")
+	by vger.kernel.org with ESMTP id <S317855AbSHLKvY>;
+	Mon, 12 Aug 2002 06:51:24 -0400
+From: "Samium Gromoff" <_deepfire@mail.ru>
+To: linux-kernel@vger.kernel.org
+Subject: Re: 2.5 and DRM/3D infrastructure?
 Mime-Version: 1.0
+X-Mailer: mPOP Web-Mail 2.19
+X-Originating-IP: 192.168.231.213 via proxy [80.79.67.2]
+Date: Mon, 12 Aug 2002 14:55:12 +0400
+Reply-To: "Samium Gromoff" <_deepfire@mail.ru>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Message-Id: <E17eCqu-000I7Y-00@f2.mail.ru>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2002-08-12 at 11:42, Vitaly Fertman wrote:
-> 
-> Hi all,
-> 
-> a critical bug was fixed in reiserfsck journal replay process, 
-> so we decided to release a new 3.6.3 progs with just 2 bug 
-> fixes related to it.
+> Couldn't support be in user space? The kernel doesnt even come with a
+bootloader,
+> 3d is more xfree86 ish...
+   Currently XFree86 requires a kernel DRM loaded
+ in order to have _any_ 3D acceleration.
 
-What version does reiserfsck in this report. That way I can update
-CHANGES to indicate the 3.6.3 bits are required.
+   So the range of 3D accelerated cards boils down to those
+ which have appropriate kernel code.
 
-Right now it says 3.x.1b - should it now say 3.6.3 ?
+   That reminds myself that me having a Fire GL 1000pro which
+ is a perfect 3d accelerator can only use inderect Mesa
+ rendering capabilities, which is indeed sad.
+
+---
+cheers,
+Samium Gromoff
+________________
+__________________________
 

@@ -1,78 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265146AbTL2Xm0 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 29 Dec 2003 18:42:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265452AbTL2Xm0
+	id S265452AbTL2Xnr (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 29 Dec 2003 18:43:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265461AbTL2Xnr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 29 Dec 2003 18:42:26 -0500
-Received: from wblv-224-192.telkomadsl.co.za ([165.165.224.192]:59327 "EHLO
-	gateway.lan") by vger.kernel.org with ESMTP id S265146AbTL2XmY
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 29 Dec 2003 18:42:24 -0500
-Subject: Re: 2.6.0 performance problems
-From: Martin Schlemmer <azarah@nosferatu.za.org>
-Reply-To: azarah@nosferatu.za.org
-To: Thomas Molina <tmolina@cablespeed.com>
-Cc: Linus Torvalds <torvalds@osdl.org>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.58.0312291803420.5835@localhost.localdomain>
-References: <Pine.LNX.4.58.0312291647410.5288@localhost.localdomain>
-	 <Pine.LNX.4.58.0312291420370.1586@home.osdl.org>
-	 <Pine.LNX.4.58.0312291803420.5835@localhost.localdomain>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-q1MPg83rGygmb3ZGGn5S"
-Message-Id: <1072741422.25741.67.camel@nosferatu.lan>
+	Mon, 29 Dec 2003 18:43:47 -0500
+Received: from mtvcafw.sgi.com ([192.48.171.6]:47091 "EHLO rj.sgi.com")
+	by vger.kernel.org with ESMTP id S265452AbTL2Xno (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 29 Dec 2003 18:43:44 -0500
+Date: Mon, 29 Dec 2003 15:41:40 -0800
+To: Christoph Hellwig <hch@infradead.org>, Pat Gefre <pfg@sgi.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Updating our sn code in 2.6
+Message-ID: <20031229234140.GA29575@sgi.com>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Pat Gefre <pfg@sgi.com>, linux-kernel@vger.kernel.org
+References: <20031220122749.A5223@infradead.org> <Pine.SGI.3.96.1031222204757.20064A-100000@fsgi900.americas.sgi.com> <20031228143603.A20391@infradead.org>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Tue, 30 Dec 2003 01:43:42 +0200
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20031228143603.A20391@infradead.org>
+User-Agent: Mutt/1.5.4i
+From: jbarnes@sgi.com (Jesse Barnes)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sun, Dec 28, 2003 at 02:36:03PM +0000, Christoph Hellwig wrote:
+>  - no change in 000-hwgfs-update.patch.inprogress, hwgraph_path_lookup
+>    shall not be reintroduced.
 
---=-q1MPg83rGygmb3ZGGn5S
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+Pat, it looks like hwgraph_path_lookup() is only used in the PCI hotplug
+code, and is messed up anyway (it's looking for a SCSI controller??), so
+we can probably kill the addition of that function.
 
-On Tue, 2003-12-30 at 01:05, Thomas Molina wrote:
+>  - 014-cleanup-pci.c.patch:  no change apparently?
 
-> Sorry.  One other bit of data from 2.6:
->=20
-> [root@lap bitkeeper]# hdparm -i /dev/hda
->=20
-> /dev/hda:
->=20
->  Model=3DIBM-DJSA-220, FwRev=3DJS4OAC3A, SerialNo=3D44V44FT3300
->  Config=3D{ HardSect NotMFM HdSw>15uSec Fixed DTR>10Mbs }
->  RawCHS=3D16383/16/63, TrkSize=3D0, SectSize=3D0, ECCbytes=3D4
->  BuffType=3DDualPortCache, BuffSize=3D1874kB, MaxMultSect=3D16, MultSect=
-=3D16
->  CurCHS=3D17475/15/63, CurSects=3D16513875, LBA=3Dyes, LBAsects=3D3907008=
-0
->  IORDY=3Don/off, tPIO=3D{min:240,w/IORDY:120}, tDMA=3D{min:120,rec:120}
->  PIO modes:  pio0 pio1 pio2 pio3 pio4
->  DMA modes:  mdma0 mdma1 mdma2
->  UDMA modes: udma0 udma1 *udma2 udma3 udma4
->  AdvancedPM=3Dyes: mode=3D0x80 (128) WriteCache=3Denabled
->  Drive conforms to: ATA/ATAPI-5 T13 1321D revision 1:
->=20
->  * signifies the current active mode
+Yeah, it would be nice to avoid introducing stuff that just gets deleted
+in later patches.
 
-Any reason it is currently set to udma2 where it support udma4 ?
+>  - 030-pciio-cleanup.patch: Dito
 
+Not sure what this is about...
 
---=20
-Martin Schlemmer
+>  - 071-xswitch.devfunc.patch: Dito.
 
---=-q1MPg83rGygmb3ZGGn5S
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
+Yes, I think we do have more xswitches coming...
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
+>  - 075-rename-reorg.patch: Dito
 
-iD8DBQA/8LwuqburzKaJYLYRAr6MAJ9Lr6UjjCTCPdjM9OCx1MmZz6f5lwCgk3c2
-yJVbIAlvRBRxhCYAYTrC83o=
-=4f3e
------END PGP SIGNATURE-----
+If this stuff is going to be used by more than just ia64, it should
+probably be moved to another directory/file.
 
---=-q1MPg83rGygmb3ZGGn5S--
+> > David or Andrew can you take these patches ?
+> 
+> Really, that's not what I consider fixing.  Please fix up
+> 000,014 and 030 and drop 071 and 075, then it should be fine for
+> merging.  071 shouldn't go in at all and 075 needs the renaming killed,
+> everything else can go in although it's not nice.
 
+Pat, will the patches work if we omit 071 and 075?  If so, maybe we can
+get the others merged in and continue to work on the last two.
+
+Jesse

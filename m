@@ -1,49 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317957AbSFSRtw>; Wed, 19 Jun 2002 13:49:52 -0400
+	id <S317964AbSFSSDV>; Wed, 19 Jun 2002 14:03:21 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317959AbSFSRtv>; Wed, 19 Jun 2002 13:49:51 -0400
-Received: from 12-224-36-73.client.attbi.com ([12.224.36.73]:30477 "HELO
-	kroah.com") by vger.kernel.org with SMTP id <S317958AbSFSRtJ>;
-	Wed, 19 Jun 2002 13:49:09 -0400
-Date: Wed, 19 Jun 2002 10:47:55 -0700
-From: Greg KH <greg@kroah.com>
-To: Felipe Contreras <al593181@mail.mty.itesm.mx>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Compaq hotplug fix for 2.5.23
-Message-ID: <20020619174755.GC26136@kroah.com>
-References: <20020619075300.GA1098@zion.mty.itesm.mx>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20020619075300.GA1098@zion.mty.itesm.mx>
-User-Agent: Mutt/1.4i
-X-Operating-System: Linux 2.2.21 (i586)
-Reply-By: Wed, 22 May 2002 16:25:10 -0700
+	id <S317965AbSFSSDU>; Wed, 19 Jun 2002 14:03:20 -0400
+Received: from sweetums.bluetronic.net ([66.57.88.6]:53655 "EHLO
+	sweetums.bluetronic.net") by vger.kernel.org with ESMTP
+	id <S317964AbSFSSDS>; Wed, 19 Jun 2002 14:03:18 -0400
+Date: Wed, 19 Jun 2002 14:01:07 -0400 (EDT)
+From: Ricky Beam <jfbeam@bluetronic.net>
+To: Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>
+cc: Toby Inkster <tobyink@goddamn.co.uk>, <linux-kernel@vger.kernel.org>
+Subject: Re: .i2c-old.ver.d: No such file or directory
+In-Reply-To: <Pine.LNX.4.44.0206171307100.22308-100000@chaos.physics.uiowa.edu>
+Message-ID: <Pine.GSO.4.33.0206191345560.10816-100000@sweetums.bluetronic.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jun 19, 2002 at 02:53:00AM -0500, Felipe Contreras wrote:
-> Hi,
-> 
-> This one makes posible to compile the compaq hotplug module.
+On Mon, 17 Jun 2002, Kai Germaschewski wrote:
+>On Mon, 17 Jun 2002, Toby Inkster wrote:
+>> Below are the last few lines of output before the errors start. I can send my .config if anyone thinks it might help.
+...
+>> i2c-old.c:17:27: linux/i2c-old.h: No such file or directory
+>
+>The problem is that the i2c code is currently broken, it includes
+>linux/i2c-old.h which doesn't exist. You'll see the error much more
+>clearly if you run "make KBUILD_VERBOSE= dep" ;)
 
-But does it work?
+Yes.  This is due to the "New and Improved Build System (tm)". (It's not
+really new -- kbuild has been around as an option for a long time.  And
+it's very certainly *not* currently an improvement.)  Get used to a lot
+being broken in interesting ways for a while.
 
-The tqueue.h patch will fix the compile time error, but I would prefer
-to put that in each .c file, and not in the .h file.
+I just love the way the road to progress is paved with a high density of
+nuclear land mines.  What a very lovely mess kbuild integration is creating.
 
-The call to run_sbin_hotplug will not bind any drivers that are already
-present in the kernel to the new device.  It will only call
-/sbin/hotplug, which is not all that is needed.
+I like the idea of "build in one pass", but that's kind of annoying in a
+very broken development branch.  When I enter "make bzImage" that and only
+that is what I (and almost everyone who builds kernels) expect to be built.
 
-What needs to be done is to call the same function that CardBus calls,
-and remove a lot of the pci device initialization from the compaq (and
-IBM) pci hotplug drivers.
+As one who used to manage source code for a living, let me share a simple
+rule: never break the build system; when the build is broken, NO ONE gets
+anything done.  One cannot completely replace a build environment over
+night. (esp. when there are as many fingers in the pie as Linux.)
 
-It's on my list of things to do, but pretty far down, patches gladly
-accepted :)
+--Ricky
 
-thanks,
 
-greg k-h

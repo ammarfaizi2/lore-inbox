@@ -1,271 +1,93 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261861AbTHaNG6 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 31 Aug 2003 09:06:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261896AbTHaNG6
+	id S261467AbTHaNBe (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 31 Aug 2003 09:01:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261509AbTHaNBe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 31 Aug 2003 09:06:58 -0400
-Received: from dhcp160176008.columbus.rr.com ([24.160.176.8]:11665 "EHLO
-	nineveh.rivenstone.net") by vger.kernel.org with ESMTP
-	id S261861AbTHaNGR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 31 Aug 2003 09:06:17 -0400
-Date: Sun, 31 Aug 2003 09:06:19 -0400
-To: vojtech@suse.cz
-Cc: linux-kernel@vger.kernel.org, akpm@osdl.org
-Subject: [PATCH][RESEND] Force mouse detection as imps/2 (and fix my KVM switch)
-Message-ID: <20030831130619.GA1804@zion.rivenstone.net>
-Mail-Followup-To: vojtech@suse.cz, linux-kernel@vger.kernel.org,
-	akpm@osdl.org
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="rwEMma7ioTxnRzrJ"
-Content-Disposition: inline
-User-Agent: Mutt/1.5.4i
-From: <jhf@rivenstone.net>
+	Sun, 31 Aug 2003 09:01:34 -0400
+Received: from mx0.gmx.net ([213.165.64.100]:47951 "HELO mx0.gmx.net")
+	by vger.kernel.org with SMTP id S261467AbTHaNBc (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 31 Aug 2003 09:01:32 -0400
+Date: Sun, 31 Aug 2003 15:01:31 +0200 (MEST)
+From: Felix Seeger <felix.seeger@gmx.de>
+To: Nikita Danilov <Nikita@Namesys.COM>
+Cc: linux-kernel@vger.kernel.org
+MIME-Version: 1.0
+Subject: Re: Reiser4 snapshot problems
+X-Priority: 3 (Normal)
+X-Authenticated-Sender: #0005429946@gmx.net
+X-Authenticated-IP: [217.80.179.195]
+Message-ID: <30017.1062334891@www39.gmx.net>
+X-Mailer: WWW-Mail 1.6 (Global Message Exchange)
+X-Flags: 0001
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Friday 29 August 2003 15:14, Felix Seeger wrote:
+> On Friday 29 August 2003 14:28, you wrote:
+> > Felix Seeger writes:
+> >  > Hi
+> >  >
+> >  > I am trying out Reiser4 snapshot from August 26th.
+> >  > I've putted my kde cvs sources on the new partition and compile from
+> >  > reiser4 now.
+> >  >
+> >  > After some time processes hang when accessing this disk. I cannot do
+> >  > anything on it but I also don't get any errormessage.
+> >
+> > If there anything in /var/log/messages, or wherever your kernel log is
+> > stored?
+>
+> No, nothing. At least in messages, kern.log and syslog.
+>
+> But I found the problem. My old dir (on a reiser3 partition) was:
+> ~/download/kde3/cvs which got renamed to old_cvs
+> My new reiser4 dir is
+> ~/download/kde3/new_cvs
+>
+> Since there are some full paths (maybe from make) I created a symlink
+> ~/download/kde3/cvs
+>
+> I removed that link and readded the one to the old partition, all make
+> processes stopped and I can access the partition again.
+> Note that I cannot reproduce this if I create just the symlink. That works
+> fine here, maybe I have to run make again to get the problem back.
 
---rwEMma7ioTxnRzrJ
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+The mount hangs again. This time without a symbolic link.
+umount -f /dev/hdb6 gives:
 
-    After working out the symptoms of a problem I was having using my
-scroll mouse with my KVM switch when running 2.6 kernels, I made this
-patch which fixes the problem for me.  I think it would be useful to
-have this in the kernel, especially since it has other uses too.
+umount2: Device or resource busy
+umount: /dev/hdb6: not mounted
+umount: /home/hal/download/kde3/cvs: Illegal seek
 
-    I have a Logitech mouse with a scroll wheel that 2.6 kernels
-detect as supporting the Logitech ps2++ protocol, and enable it as
-such.  My KVM switch supports only the Microsoft imps2 protocol for
-using the scroll wheel, so after switching away from a box running a
-2.6 kernel and back again, my scroll wheel no longer works; evbug
-doesn't see any mouse events at all when I turn the scroll wheel.
+Prozesses that use that partition:
+# lsof | grep kde3/cvs
+cc1plus   31258      hal  cwd    DIR       3,70       33    133147
+/home/hal/download/kde3/cvs/kdelibs/kstyles/keramik
+cc1plus   31258      hal  mem    REG       3,70    85595    248079
+/home/hal/download/kde3/cvs/kdelibs/kstyles/keramik/keramik.cpp
+cc1plus   31258      hal  mem    REG       3,70    23725    135815
+/home/hal/download/kde3/cvs/kdelibs/config.h
+rm        31413      hal  cwd    DIR       3,70       33    133147
+/home/hal/download/kde3/cvs/kdelibs/kstyles/keramik
 
-    2.4 (and Windows) don't have this problem because they use imps2
-drivers, which my mouse is compatible with.  So the appended patch
-creates a new module/boot parameter, psmouse_imps2, largely copied
-=66rom psmouse_noext.  With the option, the mouse detection is limited
-to only the base ps2 protocol and the imps2 extensions, my mouse is
-detected as a generic imps/2 device, and the scroll wheel works
-properly again.
+I can't kill them, nothing in the logs again.
 
-    I've been using this patch for about a month.  I've since seen
-another use for this parameter; with it it is possible to disable the
-synaptics touchpad driver and still use an external imps2 mouse.
+> >  > Umount, bash autocomletion and things like that don't work. Normal df
+> >  > and mount are working btw.
+> >
+> > Nikita.
+>
+> have fun
+> Felix
 
-    I'm not sure if short-circuiting the mouse detection this way
-might leave some mice wedged, or cause them to be improperly detected
-though.  Do the tests for imps/2 mice depend on any of the commands in
-the detection this patch skips to initialize the mouse somehow?
+-- 
+COMPUTERBILD 15/03: Premium-e-mail-Dienste im Test
+--------------------------------------------------
+1. GMX TopMail - Platz 1 und Testsieger!
+2. GMX ProMail - Platz 2 und Preis-Qualitätssieger!
+3. Arcor - 4. web.de - 5. T-Online - 6. freenet.de - 7. daybyday - 8. e-Post
 
-    This patch is against -test4; it applies to -test4-mm4 with
-offsets (I'm running -mm4).  More than half the length of the patch is
-indentation.  Is there a possibility of getting this applied?
-
-
-
-diff -urN linux-2.6.0-test4/Documentation/kernel-parameters.txt linux-2.6.0=
--test4_changed/Documentation/kernel-parameters.txt
---- linux-2.6.0-test4/Documentation/kernel-parameters.txt	2003-08-31 08:08:=
-00.000000000 -0400
-+++ linux-2.6.0-test4_changed/Documentation/kernel-parameters.txt	2003-08-3=
-1 08:15:29.000000000 -0400
-@@ -785,6 +785,8 @@
-=20
- 	psmouse_noext	[HW,MOUSE] Disable probing for PS2 mouse protocol extensions
-=20
-+	psmouse_imps2	[HW,MOUSE] Probe only for Intellimouse PS2 mouse protocol e=
-xtensions
-+
- 	pss=3D		[HW,OSS] Personal Sound System (ECHO ESC614)
- 			Format: <io>,<mss_io>,<mss_irq>,<mss_dma>,<mpu_io>,<mpu_irq>
-=20
-diff -urN linux-2.6.0-test4/drivers/input/mouse/psmouse-base.c linux-2.6.0-=
-test4_changed/drivers/input/mouse/psmouse-base.c
---- linux-2.6.0-test4/drivers/input/mouse/psmouse-base.c	2003-07-27 12:58:5=
-1.000000000 -0400
-+++ linux-2.6.0-test4_changed/drivers/input/mouse/psmouse-base.c	2003-08-31=
- 08:15:29.000000000 -0400
-@@ -25,6 +25,8 @@
- MODULE_DESCRIPTION("PS/2 mouse driver");
- MODULE_PARM(psmouse_noext, "1i");
- MODULE_PARM_DESC(psmouse_noext, "Disable any protocol extensions. Useful f=
-or KVM switches.");
-+MODULE_PARM(psmouse_imps2, "1i");
-+MODULE_PARM_DESC(psmouse_imps2, "Limit protocol extensions to the Intellim=
-ouse protocol.");
- MODULE_PARM(psmouse_resolution, "i");
- MODULE_PARM_DESC(psmouse_resolution, "Resolution, in dpi.");
- MODULE_PARM(psmouse_smartscroll, "i");
-@@ -34,6 +36,7 @@
- #define PSMOUSE_LOGITECH_SMARTSCROLL	1
-=20
- static int psmouse_noext;
-+static int psmouse_imps2;
- int psmouse_resolution;
- int psmouse_smartscroll =3D PSMOUSE_LOGITECH_SMARTSCROLL;
-=20
-@@ -250,66 +253,68 @@
- 	if (psmouse_noext)
- 		return PSMOUSE_PS2;
-=20
--/*
-- * Try Synaptics TouchPad magic ID
-- */
--
--       param[0] =3D 0;
--       psmouse_command(psmouse, param, PSMOUSE_CMD_SETRES);
--       psmouse_command(psmouse, param, PSMOUSE_CMD_SETRES);
--       psmouse_command(psmouse, param, PSMOUSE_CMD_SETRES);
--       psmouse_command(psmouse, param, PSMOUSE_CMD_SETRES);
--       psmouse_command(psmouse, param, PSMOUSE_CMD_GETINFO);
-+	if (!psmouse_imps2) {
-=20
--       if (param[1] =3D=3D 0x47) {
--		psmouse->vendor =3D "Synaptics";
--		psmouse->name =3D "TouchPad";
--		if (!synaptics_init(psmouse))
--			return PSMOUSE_SYNAPTICS;
--		else
--			return PSMOUSE_PS2;
--       }
-+		/*
-+		 * Try Synaptics TouchPad magic ID
-+		 */
-=20
--/*
-- * Try Genius NetMouse magic init.
-- */
-+		param[0] =3D 0;
-+		psmouse_command(psmouse, param, PSMOUSE_CMD_SETRES);
-+		psmouse_command(psmouse, param, PSMOUSE_CMD_SETRES);
-+		psmouse_command(psmouse, param, PSMOUSE_CMD_SETRES);
-+		psmouse_command(psmouse, param, PSMOUSE_CMD_SETRES);
-+		psmouse_command(psmouse, param, PSMOUSE_CMD_GETINFO);
-+
-+		if (param[1] =3D=3D 0x47) {
-+			psmouse->vendor =3D "Synaptics";
-+			psmouse->name =3D "TouchPad";
-+			if (!synaptics_init(psmouse))
-+				return PSMOUSE_SYNAPTICS;
-+			else
-+				return PSMOUSE_PS2;
-+		}
-=20
--	param[0] =3D 3;
--	psmouse_command(psmouse, param, PSMOUSE_CMD_SETRES);
--	psmouse_command(psmouse,  NULL, PSMOUSE_CMD_SETSCALE11);
--	psmouse_command(psmouse,  NULL, PSMOUSE_CMD_SETSCALE11);
--	psmouse_command(psmouse,  NULL, PSMOUSE_CMD_SETSCALE11);
--	psmouse_command(psmouse, param, PSMOUSE_CMD_GETINFO);
-+		/*
-+		 * Try Genius NetMouse magic init.
-+		 */
-=20
--	if (param[0] =3D=3D 0x00 && param[1] =3D=3D 0x33 && param[2] =3D=3D 0x55)=
- {
-+		param[0] =3D 3;
-+		psmouse_command(psmouse, param, PSMOUSE_CMD_SETRES);
-+		psmouse_command(psmouse,  NULL, PSMOUSE_CMD_SETSCALE11);
-+		psmouse_command(psmouse,  NULL, PSMOUSE_CMD_SETSCALE11);
-+		psmouse_command(psmouse,  NULL, PSMOUSE_CMD_SETSCALE11);
-+		psmouse_command(psmouse, param, PSMOUSE_CMD_GETINFO);
-=20
--		set_bit(BTN_EXTRA, psmouse->dev.keybit);
--		set_bit(BTN_SIDE, psmouse->dev.keybit);
--		set_bit(REL_WHEEL, psmouse->dev.relbit);
-+		if (param[0] =3D=3D 0x00 && param[1] =3D=3D 0x33 && param[2] =3D=3D 0x55=
-) {
-=20
--		psmouse->vendor =3D "Genius";
--		psmouse->name =3D "Wheel Mouse";
--		return PSMOUSE_GENPS;
--	}
-+			set_bit(BTN_EXTRA, psmouse->dev.keybit);
-+			set_bit(BTN_SIDE, psmouse->dev.keybit);
-+			set_bit(REL_WHEEL, psmouse->dev.relbit);
-=20
--/*
-- * Try Logitech magic ID.
-- */
-+			psmouse->vendor =3D "Genius";
-+			psmouse->name =3D "Wheel Mouse";
-+			return PSMOUSE_GENPS;
-+		}
-=20
--	param[0] =3D 0;
--	psmouse_command(psmouse, param, PSMOUSE_CMD_SETRES);
--	psmouse_command(psmouse,  NULL, PSMOUSE_CMD_SETSCALE11);
--	psmouse_command(psmouse,  NULL, PSMOUSE_CMD_SETSCALE11);
--	psmouse_command(psmouse,  NULL, PSMOUSE_CMD_SETSCALE11);
--	param[1] =3D 0;
--	psmouse_command(psmouse, param, PSMOUSE_CMD_GETINFO);
-+		/*
-+		 * Try Logitech magic ID.
-+		 */
-=20
--	if (param[1]) {
--		int type =3D ps2pp_detect_model(psmouse, param);
--		if (type)
--			return type;
-+		param[0] =3D 0;
-+		psmouse_command(psmouse, param, PSMOUSE_CMD_SETRES);
-+		psmouse_command(psmouse,  NULL, PSMOUSE_CMD_SETSCALE11);
-+		psmouse_command(psmouse,  NULL, PSMOUSE_CMD_SETSCALE11);
-+		psmouse_command(psmouse,  NULL, PSMOUSE_CMD_SETSCALE11);
-+		param[1] =3D 0;
-+		psmouse_command(psmouse, param, PSMOUSE_CMD_GETINFO);
-+
-+		if (param[1]) {
-+			int type =3D ps2pp_detect_model(psmouse, param);
-+			if (type)
-+				return type;
-+		}
- 	}
--
- /*
-  * Try IntelliMouse magic init.
-  */
-@@ -555,6 +560,12 @@
- 	return 1;
- }
-=20
-+static int __init psmouse_imps2_setup(char *str)
-+{
-+	psmouse_imps2 =3D 1;
-+	return 1;
-+}
-+
- static int __init psmouse_resolution_setup(char *str)
- {
- 	get_option(&str, &psmouse_resolution);
-@@ -568,6 +579,7 @@
- }
-=20
- __setup("psmouse_noext", psmouse_noext_setup);
-+__setup("psmouse_imps2", psmouse_imps2_setup);
- __setup("psmouse_resolution=3D", psmouse_resolution_setup);
- __setup("psmouse_smartscroll=3D", psmouse_smartscroll_setup);
-=20
-
---=20
-Joseph Fannin
-jhf@rivenstone.net
-
-"Linus, please apply.  Breaks everything.  But is cool." -- Rusty Russell.
-
---rwEMma7ioTxnRzrJ
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.3 (GNU/Linux)
-
-iD8DBQE/UfLKWv4KsgKfSVgRAmKCAKCeSsXajkN61DJe2edNvPx6keQoJgCglSXM
-U5gVANN8HZqleghUy56OvLA=
-=XqbA
------END PGP SIGNATURE-----
-
---rwEMma7ioTxnRzrJ--

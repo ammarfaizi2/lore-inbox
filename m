@@ -1,49 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262193AbVAJKKb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262194AbVAJKNN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262193AbVAJKKb (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 10 Jan 2005 05:10:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262194AbVAJKKb
+	id S262194AbVAJKNN (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 10 Jan 2005 05:13:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262195AbVAJKNM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 10 Jan 2005 05:10:31 -0500
-Received: from lucidpixels.com ([66.45.37.187]:20120 "HELO lucidpixels.com")
-	by vger.kernel.org with SMTP id S262193AbVAJKKZ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 10 Jan 2005 05:10:25 -0500
-Date: Mon, 10 Jan 2005 05:10:22 -0500 (EST)
-From: Justin Piszcz <jpiszcz@lucidpixels.com>
-X-X-Sender: jpiszcz@p500
-To: Andries Brouwer <aebr@win.tue.nl>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Support for > 2GB swap partitions?
-In-Reply-To: <20050110022019.GL6052@pclin040.win.tue.nl>
-Message-ID: <Pine.LNX.4.61.0501100510000.27243@p500>
-References: <Pine.LNX.4.61.0501091933090.29064@p500> <20050110022019.GL6052@pclin040.win.tue.nl>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+	Mon, 10 Jan 2005 05:13:12 -0500
+Received: from 213-239-205-147.clients.your-server.de ([213.239.205.147]:64656
+	"EHLO debian.tglx.de") by vger.kernel.org with ESMTP
+	id S262194AbVAJKM5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 10 Jan 2005 05:12:57 -0500
+Subject: Re: [PATCH 2.6.10-mm2] Use the new preemption code [2/3] Resend
+From: Thomas Gleixner <tglx@linutronix.de>
+Reply-To: tglx@linutronix.de
+To: Russell King <rmk+lkml@arm.linux.org.uk>
+Cc: Ingo Molnar <mingo@elte.hu>, LKML <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>
+In-Reply-To: <20050110094624.A24919@flint.arm.linux.org.uk>
+References: <20050110013508.1.patchmail@tglx>
+	 <1105318406.17853.2.camel@tglx.tec.linutronix.de>
+	 <20050110010613.A5825@flint.arm.linux.org.uk>
+	 <1105319915.17853.8.camel@tglx.tec.linutronix.de>
+	 <20050110094624.A24919@flint.arm.linux.org.uk>
+Content-Type: text/plain
+Organization: Linutronix
+Message-Id: <1105351977.3058.2.camel@lap02.tec.linutronix.de>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Mon, 10 Jan 2005 11:12:57 +0100
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This was the problem, thanks!
+On Mon, 2005-01-10 at 10:46, Russell King wrote:
+> On Mon, Jan 10, 2005 at 02:18:35AM +0100, Thomas Gleixner wrote:
+> > On Mon, 2005-01-10 at 01:06 +0000, Russell King wrote:
+> > > On Mon, Jan 10, 2005 at 01:53:26AM +0100, Thomas Gleixner wrote:
+> > > > This patch adjusts the ARM entry code to use the fixed up
+> > > > preempt_schedule() handling in 2.6.10-mm2
+> > > 
+> > > Looks PPCish to me.
+> > 
+> > Sorry I messed that up. Call me the idiot of today.
+> > 
+> > This patch adjusts the ARM entry code to use the fixed up
+> > preempt_schedule() handling in 2.6.10-mm2
+> 
+> Are you sure ARM suffers from this race condition?  It sets preempt count
+> before enabling IRQs and doesn't use preempt_schedule().
 
-On Mon, 10 Jan 2005, Andries Brouwer wrote:
+There is no race for arm, but using the preempt_schedule() interface is
+the approach which Ingo suggested for common usage, but his x86
+implementation was racy, so I fixed this first before modifying arm to
+use the interface. Ingo pointed out that he will change it to
+preempt_schedule_irq, but I'm not religious about the name.
 
-> On Sun, Jan 09, 2005 at 07:34:38PM -0500, Justin Piszcz wrote:
->
->> I remember reading in the past that > 2GB swap partitions were supported
->> in Linux as of recent util-linux packages with a 2.6 kernel or am I wrong?
->>
->> # fdisk -l
->> /dev/sda2              17         526     4096575   82  Linux swap
->>
->> # top
->> Mem:   2075192k total,  2062540k used,    12652k free,       64k buffers
->>
->> Only recognizes 2GB of 4GB?
->
-> A swap partition has a swap header that specifies its size
-> (and possibly what bad blocks exist on the swap partition).
-> Thus, if you did mkswap long ago, the useful size will not
-> have changed. Do swapoff; mkswap; swapon and mkswap will
-> tell you how large a swap partition it made, and swapon
-> will cause the kernel to say how much swap space was added.
->
+tglx
+
+

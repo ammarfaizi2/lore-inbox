@@ -1,73 +1,71 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264456AbTF0P7T (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 27 Jun 2003 11:59:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264460AbTF0P7T
+	id S264465AbTF0QEI (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 27 Jun 2003 12:04:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264471AbTF0QEG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 27 Jun 2003 11:59:19 -0400
-Received: from pixpat.austin.ibm.com ([192.35.232.241]:38685 "EHLO
-	baldur.austin.ibm.com") by vger.kernel.org with ESMTP
-	id S264456AbTF0P7S (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 27 Jun 2003 11:59:18 -0400
-Date: Fri, 27 Jun 2003 11:13:19 -0500
-From: Dave McCracken <dmccr@us.ibm.com>
-To: Andrew Morton <akpm@digeo.com>
-cc: Linux Memory Management <linux-mm@kvack.org>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: [PATCH 2.5.73-mm1] Make sure truncate fix has no race
-Message-ID: <69440000.1056730399@baldur.austin.ibm.com>
-X-Mailer: Mulberry/2.2.1 (Linux/x86)
-MIME-Version: 1.0
-Content-Type: multipart/mixed; boundary="==========1873729384=========="
+	Fri, 27 Jun 2003 12:04:06 -0400
+Received: from smtp1.clb.oleane.net ([213.56.31.17]:56780 "EHLO
+	smtp1.clb.oleane.net") by vger.kernel.org with ESMTP
+	id S264465AbTF0QEB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 27 Jun 2003 12:04:01 -0400
+Subject: Re: networking bugs and bugme.osdl.org
+From: Nicolas Mailhot <Nicolas.Mailhot@laposte.net>
+To: linux-kernel@vger.kernel.org
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-tCx0W1NhJ+S9BRP/ow/r"
+Organization: Adresse personelle
+Message-Id: <1056730694.572.22.camel@ulysse.olympe.o2t>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.0 (1.4.0-2) 
+Date: 27 Jun 2003 18:18:15 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---==========1873729384==========
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
 
+--=-tCx0W1NhJ+S9BRP/ow/r
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-Paul McKenney pointed out that reading the truncate sequence number in
-do_no_page might not be entirely safe if the ->nopage callout takes no
-locks.  The simple solution is to move the read before the unlock of
-page_table_lock.  Here's a patch that does it.
+Hi,
 
-Dave McCracken
+	Some people have already written part of what I'll say but I'll give a
+quick POV anyway.
 
-======================================================================
-Dave McCracken          IBM Linux Base Kernel Team      1-512-838-3059
-dmccr@us.ibm.com                                        T/L   678-3059
+1. a single centralised database is *good*. This allows bugs to be
+reassigned at need without loosing history (eg networking does not work
+and investigation reveals its because of broken irq routing...). The
+easiest way right now to kill a report is to ask to move it to another
+mailing list.
 
---==========1873729384==========
-Content-Type: text/plain; charset=us-ascii; name="trunc-2.5.73-mm1-1.diff"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment; filename="trunc-2.5.73-mm1-1.diff"; size=897
+2. bugs are never lost/ignored. They might move from maintainer to
+maintainer but at least no one can feel "it involves x y z - I maintain
+x but y or z maintainer are better suited to handle it, let them do it"
 
---- 2.5.73-mm1/mm/memory.c	2003-06-27 10:40:48.000000000 -0500
-+++ 2.5.73-mm1-trunc/mm/memory.c	2003-06-27 10:47:10.000000000 -0500
-@@ -1402,11 +1402,11 @@ do_no_page(struct mm_struct *mm, struct 
- 		return do_anonymous_page(mm, vma, page_table,
- 					pmd, write_access, address);
- 	pte_unmap(page_table);
--	spin_unlock(&mm->page_table_lock);
- 
- 	mapping = vma->vm_file->f_dentry->d_inode->i_mapping;
--retry:
- 	sequence = atomic_read(&mapping->truncate_count);
-+	spin_unlock(&mm->page_table_lock);
-+retry:
- 	new_page = vma->vm_ops->nopage(vma, address & PAGE_MASK, 0);
- 
- 	/* no page was available -- either SIGBUS or OOM */
-@@ -1441,6 +1441,7 @@ retry:
- 	 * retry getting the page.
- 	 */
- 	if (unlikely(sequence != atomic_read(&mapping->truncate_count))) {
-+		sequence = atomic_read(&mapping->truncate_count);
- 		spin_unlock(&mm->page_table_lock);
- 		page_cache_release(new_page);
- 		goto retry;
+3. single human point-of-failure is a false problem - using a mailing
+list as default assignee can help spread the load (one could say this
+negates 2. but a small group of QA can insure no bug is left sleeping
+overlong)
 
---==========1873729384==========--
+4. bugzilla is well known - it might have its warts but they are less
+annoying for the average user that to have to learn rt... interface.
+
+Regards,
+
+--=20
+Nicolas Mailhot
+
+--=-tCx0W1NhJ+S9BRP/ow/r
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: Ceci est une partie de message
+	=?ISO-8859-1?Q?num=E9riquement?= =?ISO-8859-1?Q?_sign=E9e?=
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.2 (GNU/Linux)
+
+iD8DBQA+/G5GI2bVKDsp8g0RAi1WAKDgBW1Xqbkt/kd2yUv29FYMbiwi5wCg3UDR
+4YEhAPX403ZEJS9xffutSaQ=
+=IEGa
+-----END PGP SIGNATURE-----
+
+--=-tCx0W1NhJ+S9BRP/ow/r--
 

@@ -1,61 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281090AbRKYVlk>; Sun, 25 Nov 2001 16:41:40 -0500
+	id <S281083AbRKYVna>; Sun, 25 Nov 2001 16:43:30 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281083AbRKYVlU>; Sun, 25 Nov 2001 16:41:20 -0500
-Received: from PHNX1-UBR2-4-hfc-0251-d1dae065.rdc1.az.coxatwork.com ([209.218.224.101]:37080
-	"EHLO mail.labsysgrp.com") by vger.kernel.org with ESMTP
-	id <S281090AbRKYVlL>; Sun, 25 Nov 2001 16:41:11 -0500
-Message-ID: <00e001c175fa$90d02b40$6caaa8c0@kevin>
-From: "Kevin P. Fleming" <kevin@labsysgrp.com>
-To: "Chris Wedgwood" <cw@f00f.org>, "Mark Hahn" <hahn@physics.mcmaster.ca>
-Cc: <linux-kernel@vger.kernel.org>
-In-Reply-To: <3BFFE8A2.1010708@rueb.com> <Pine.LNX.4.10.10111241402420.3696-100000@coffee.psychology.mcmaster.ca> <20011125222313.D9672@weta.f00f.org>
-Subject: Re: Disk hardware caching, performance, and journalling
-Date: Sun, 25 Nov 2001 14:45:57 -0700
-Organization: LSG, Inc.
+	id <S281091AbRKYVnM>; Sun, 25 Nov 2001 16:43:12 -0500
+Received: from rome.broadwing.net ([216.142.238.216]:33174 "EHLO
+	rome.broadwing.net") by vger.kernel.org with ESMTP
+	id <S281083AbRKYVnH>; Sun, 25 Nov 2001 16:43:07 -0500
+Message-ID: <3C016992.8C564A96@ntr.net>
+Date: Sun, 25 Nov 2001 16:58:42 -0500
+From: "Marco C. Mason" <mason@ntr.net>
+X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.2.16-22 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
+To: umiguel@alunos.deis.isec.pt, linux-kernel@vger.kernel.org
+Subject: Re: copy to user
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2600.0000
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I think if you have a large mail server and zero power protection, you've
-got much larger problems to worry about than write-behind caching on your
-disk drives... my servers have never (in my memory) experienced a
-catastrophic power failure, because they're too easy to avoid.
+Luis Henriques--
 
------ Original Message -----
-From: "Chris Wedgwood" <cw@f00f.org>
-To: "Mark Hahn" <hahn@physics.mcmaster.ca>
-Cc: <linux-kernel@vger.kernel.org>
-Sent: Sunday, November 25, 2001 2:23 AM
-Subject: Re: Disk hardware caching, performance, and journalling
+Before making my suggestion: Apologies to the list if this has already
+been settled.  I'm trying to catch up on my LKML reading, and I'm only
+up to Nov 20 so far...
 
+Anyway:  Here's what I'd do, if I had to do such a apalling thing  8^)
 
-> On Sat, Nov 24, 2001 at 02:39:44PM -0500, Mark Hahn wrote:
->
->     why does everyone get freaked out about disk caches?  afaikt,
->     there's only an O(50ms) window at each catastrophic power failure:
->     trivial for any reasonable rate of failures...
->
-> If your disks are busy all the time (eg. a large mail server) then you
-> will trivially hit this and it will be a problem.
->
->
->
->   --cw
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
->
->
->
+Drop a function in your code something like:
+
+_xyzzy:
+    db 0x18, 0xfe    ; jr $
+
+Then, when you detect the condition where you want to waste time, then
+put the address of this function on top of the user stack (along with
+whatever else in the stack frame is required) so that the code just sits
+there burning CPU.  To clean it up, you'd simply restore the original
+stack frame to the process.
+
+It's hideous & gross, but if you need it.....
+
+--marco
+
 

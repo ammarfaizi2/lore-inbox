@@ -1,58 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263726AbTK2IWG (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 29 Nov 2003 03:22:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263728AbTK2IWG
+	id S263723AbTK2Imp (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 29 Nov 2003 03:42:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263728AbTK2Imp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 29 Nov 2003 03:22:06 -0500
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:22797 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S263726AbTK2IWD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 29 Nov 2003 03:22:03 -0500
-Date: Sat, 29 Nov 2003 08:22:00 +0000
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: pZa1x <pZa1x@rogers.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: APM Suspend Problem
-Message-ID: <20031129082200.A30476@flint.arm.linux.org.uk>
-Mail-Followup-To: pZa1x <pZa1x@rogers.com>, linux-kernel@vger.kernel.org
-References: <3FC7F031.5060502@rogers.com> <3FC7F2E3.8080109@rogers.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <3FC7F2E3.8080109@rogers.com>; from pZa1x@rogers.com on Sat, Nov 29, 2003 at 01:14:11AM +0000
+	Sat, 29 Nov 2003 03:42:45 -0500
+Received: from ua-online.net ([213.179.225.6]:18702 "EHLO center.hqhost.net")
+	by vger.kernel.org with ESMTP id S263723AbTK2Imo (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 29 Nov 2003 03:42:44 -0500
+Date: Sat, 29 Nov 2003 10:40:18 +0200
+Message-Id: <200311290840.hAT8eIUH000605@valinor.localnet>
+From: Vladimir Klenov <maple@center.hqhost.net>
+To: linux-kernel@vger.kernel.org
+Subject: aic7xxx problem on sparc64 (2.6)
+User-Agent: tin/1.5.19-20030610 ("Darts") (UNIX) (Linux/2.4.22-ac2 (i686))
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Nov 29, 2003 at 01:14:11AM +0000, pZa1x wrote:
-> A follow-up
-> 
-> by shutting down PCMCIA and rmmod'ing all the related modules ie ide_cs, 
-> ds, yenta_socket, pcmcia_core the suspend works on AC again.
-> 
-> So, I add them back one by one:
-> pcmcia_core -> still works
-> yenta_socket -> FAILS!
-> rmmod yenta_socket -> works again!
-> 
-> Summary: suspend works on my Thinkpad T21
-> (a) with no apm module or apmd but with all PCMCIA (ie. hardware 
-> suspend- close lid etc);
-> (b) with apm & apmd and all PCMCIA but no AC power
-> (c) with apm & apmd but no yenta_socket and the rest but with AC power
-> 
-> The problem is a combination of apm, yenta_socket and AC power.
 
-The output of:
+>I inserted my known working 2940 (7880) into a Sun Ultra 5 (32-bit PCI).
+>modprobe aic7xxx gave some errors and asked to report the bug.
+>modprobe sd_mod gave a lot more errors and put the disk offline. The
+>same hardware (host, HBA and disk) works fine with latest 2.4 kernel
+>(2.4.23-rc5 currently). The problem is with 2.6.0-test11.
 
-lspci -vvxxxx
+similar problem with -test11 and aic79xx on x86
+2.4 works ok, test11 give unrecoverable read errors, but with drivers from
+http://people.FreeBSD.org/~gibbs/linux/SRC/ -test11 working fine.
 
-both with and without yenta_socket inserted would be a useful starting
-point.
+do I have chance to include working drivers to official tree? ;)
 
--- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 PCMCIA      - http://pcmcia.arm.linux.org.uk/
-                 2.6 Serial core
+I use software raid1 over two scsi drives.
+
+lspci:
+02:06.0 SCSI storage controller: Adaptec ASC-29320LP U320 (rev 03)
+
+dmesg:
+scsi0 : Adaptec AIC79XX PCI-X SCSI HBA DRIVER, Rev 2.0.4
+        <Adaptec 29320LP Ultra320 SCSI adapter>
+        aic7901A: Ultra320 Wide Channel A, SCSI Id=7, PCI 33 or 66Mhz,
+512 SCBs
+
+(scsi0:A:0): 320.000MB/s transfers (160.000MHz DT|IU|QAS, 16bit)
+(scsi0:A:1): 320.000MB/s transfers (160.000MHz DT|IU|QAS, 16bit)
+  Vendor: IBM       Model: IC35L036UCDY10-0  Rev: S21E
+  Type:   Direct-Access                      ANSI SCSI revision: 03
+  Vendor: IBM       Model: IC35L036UCDY10-0  Rev: S21E
+  Type:   Direct-Access                      ANSI SCSI revision: 03
+SCSI device sda: 71687340 512-byte hdwr sectors (36704 MB)
+SCSI device sda: drive cache: write back
+
+        SY, Vladimir

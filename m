@@ -1,60 +1,73 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262253AbTE2N7M (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 May 2003 09:59:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262254AbTE2N7L
+	id S262252AbTE2NzW (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 May 2003 09:55:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262253AbTE2NzW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 May 2003 09:59:11 -0400
-Received: from mailgate.rz.uni-karlsruhe.de ([129.13.64.97]:34579 "EHLO
-	mailgate.rz.uni-karlsruhe.de") by vger.kernel.org with ESMTP
-	id S262253AbTE2N7K (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 May 2003 09:59:10 -0400
-Date: Thu, 29 May 2003 16:10:34 +0200
-From: Matthias Mueller <matthias.mueller@rz.uni-karlsruhe.de>
-To: Andrea Arcangeli <andrea@suse.de>
-Cc: Andrew Morton <akpm@digeo.com>, axboe@suse.de, m.c.p@wolk-project.de,
-       kernel@kolivas.org, manish@storadinc.com, marcelo@conectiva.com.br,
-       linux-kernel@vger.kernel.org
+	Thu, 29 May 2003 09:55:22 -0400
+Received: from c17870.thoms1.vic.optusnet.com.au ([210.49.248.224]:24511 "EHLO
+	mail.kolivas.org") by vger.kernel.org with ESMTP id S262252AbTE2NzV
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 29 May 2003 09:55:21 -0400
+From: Con Kolivas <kernel@kolivas.org>
+To: Willy Tarreau <willy@w.ods.org>, Andrea Arcangeli <andrea@suse.de>
 Subject: Re: 2.4.20: Proccess stuck in __lock_page ...
-Message-ID: <20030529141034.GA1547@rz.uni-karlsruhe.de>
-Mail-Followup-To: Andrea Arcangeli <andrea@suse.de>,
-	Andrew Morton <akpm@digeo.com>, axboe@suse.de,
-	m.c.p@wolk-project.de, kernel@kolivas.org, manish@storadinc.com,
-	marcelo@conectiva.com.br, linux-kernel@vger.kernel.org
-References: <3ED2DE86.2070406@storadinc.com> <200305281713.24357.kernel@kolivas.org> <20030528071355.GO845@suse.de> <200305280930.48810.m.c.p@wolk-project.de> <20030528073544.GR845@suse.de> <20030528005156.1fda5710.akpm@digeo.com> <20030528101348.GA804@rz.uni-karlsruhe.de> <20030528032315.679e77b0.akpm@digeo.com> <20030528121040.GA1193@rz.uni-karlsruhe.de> <20030529131937.GJ1453@dualathlon.random>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Date: Fri, 30 May 2003 00:09:37 +1000
+User-Agent: KMail/1.5.1
+Cc: Andrew Morton <akpm@digeo.com>,
+       Matthias Mueller <matthias.mueller@rz.uni-karlsruhe.de>, axboe@suse.de,
+       m.c.p@wolk-project.de, manish@storadinc.com, marcelo@conectiva.com.br,
+       linux-kernel@vger.kernel.org
+References: <3ED2DE86.2070406@storadinc.com> <20030529132431.GK1453@dualathlon.random> <20030529135508.GC21673@alpha.home.local>
+In-Reply-To: <20030529135508.GC21673@alpha.home.local>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20030529131937.GJ1453@dualathlon.random>
-User-Agent: Mutt/1.5.4i
+Message-Id: <200305300009.37207.kernel@kolivas.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, May 29, 2003 at 03:19:37PM +0200, Andrea Arcangeli wrote:
-> On Wed, May 28, 2003 at 02:10:40PM +0200, Matthias Mueller wrote:
-> > Tested all of them and some combinations:
-> > patch 1 alone: still mouse hangs
-> > patch 2 alone: still mouse hangs
-> > patch 3 alone: no hangs, but I get some zombie process (starting a lot of
-> >                xterms results in zombie xterms, not noticed with vanilla
-> >                and the other patches)
-> > patch 1+2: no mouse hangs
-> > patch 1+2+3: no mouse hangs, no zombies
-> 
-> I can't find a sense in the zombie thing, how can you generate zombie at
-> all from xterms? That sounds like your userspace is terribly broken and
-> it may have race conditions or whatever. In no way those patches can
-> generate or not-generate zombies from xterms. I never ever seen a zombie
-> xterm in my whole linux experience.
+On Thu, 29 May 2003 23:55, Willy Tarreau wrote:
+> Hello !
+>
+> I've done a few tests with -rc6 on my dev machine (dual xp 1.5G, 512 MB,
+> scsi). It's the *FIRST* time I have ever seen my mouse cursor hang (just a
+> little bit however, and totally acceptable) ! Usually, my kernel include
+> -aa VM and lowlat patches, and I've never encountered this behaviour on
+> this machine with such a configuration. However, with stock kernel, I admit
+> that during the 2 minutes it takes to write the 2G file, I see the mouse
+> stick two or three times during about 1 second, which is quite acceptable
+> IMHO. Opening an xterm may take 10s to get to the prompt (more annoying).
+> Same to launch 'ps'.
+>
+> I use a fairly simple window manager (ctwm), which doesn't access the disk
+> once it's launched. It never gets stuck during all the operation if I
+> disable the swap. If I enable the swap, it sometimes takes one or two
+> seconds to draw a menu. The swap is used up to about 4 MB.
+>
+> I then tried -rc6 with ll_rw_blk from -rc5, and it's worse, even with swap
+> disabled. The hangs happen more often, but are about the same durations. So
+> I confirm that -rc6 is better here than -rc5.
+>
+> I retried with rc4aa1, and everything went very smooth again ; it takes at
+> most 1 second to get an xterm with the prompt ready, and ps responds
+> immediately. So I think that there are two things here:
+>   - those who experience very long hangs may use a heavy window manager
+>     which does continuous disk accesses (I mean it accesses the disk for
+> any simple operation).
+>   - a hungry WM may also be swapped during such operations, rendering it
+>     totally unusable, particularly if the swap is on the same physical disk
+>     as the file being written to.
+>
+> So, could the people who report long hangs retry with swap disabled ?
+> Can we limit the amount of memory consummed by the cache during such a
+> write ?
 
-I rechecked everything an noticed, that it wasn't a xterm, but a wrapper
-script, that executed rxvt. I changed that to plain xterm and the zombies
-were gone. So I think there was probably a bug in rxvt triggered there.
-After that I redid the tests, with the same result (and no zombies).
-I can feel no difference between 1+2 or 1+2+3.
+I still get hangs with rc6 with massive writeouts to swap. The problem was 
+that I was getting hangs without writeouts to swap with 2.4.19pre1 
+->2.4.21pre5. I didn't expect the patch backout to suddenly make writing to 
+swap occur for free (although that would be nice).
 
-Matthias
--- 
-Matthias.Mueller@rz.uni-karlsruhe.de
-Rechenzentrum Universitaet Karlsruhe
-Abteilung Netze
+Con

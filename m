@@ -1,50 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S270660AbUJUG0V@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S270457AbUJUG0T@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270660AbUJUG0V (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 21 Oct 2004 02:26:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270415AbUJTT2j
+	id S270457AbUJUG0T (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 21 Oct 2004 02:26:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268950AbUJUGWG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 20 Oct 2004 15:28:39 -0400
-Received: from 168.imtp.Ilyichevsk.Odessa.UA ([195.66.192.168]:21255 "HELO
-	port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with SMTP
-	id S269170AbUJTTOn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 20 Oct 2004 15:14:43 -0400
-From: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
-To: Lee Revell <rlrevell@joe-job.com>
-Subject: Re: [PATCH] Make netif_rx_ni preempt-safe
-Date: Wed, 20 Oct 2004 22:14:31 +0300
-User-Agent: KMail/1.5.4
-Cc: Herbert Xu <herbert@gondor.apana.org.au>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       "David S. Miller" <davem@davemloft.net>,
-       linux-kernel@gondor.apana.org.au, maxk@qualcomm.com,
-       irda-users@lists.sourceforge.net,
-       Linux Network Development <netdev@oss.sgi.com>,
-       Alain Schroeder <alain@parkautomat.net>
-References: <1098230132.23628.28.camel@krustophenia.net> <200410201811.44419.vda@port.imtp.ilyichevsk.odessa.ua> <1098290858.1429.70.camel@krustophenia.net>
-In-Reply-To: <1098290858.1429.70.camel@krustophenia.net>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="koi8-r"
-Content-Transfer-Encoding: 7bit
+	Thu, 21 Oct 2004 02:22:06 -0400
+Received: from twilight.ucw.cz ([81.30.235.3]:5760 "EHLO midnight.suse.cz")
+	by vger.kernel.org with ESMTP id S270437AbUJUGV0 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 21 Oct 2004 02:21:26 -0400
+Date: Thu, 21 Oct 2004 08:21:03 +0200
+From: Vojtech Pavlik <vojtech@suse.cz>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Greg KH <greg@kroah.com>, Dmitry Torokhov <dtor_core@ameritech.net>,
+       Alexandre Oliva <aoliva@redhat.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: forcing PS/2 USB emulation off
+Message-ID: <20041021062103.GA1252@ucw.cz>
+References: <orzn2lyw8k.fsf@livre.redhat.lsd.ic.unicamp.br> <200410172248.16571.dtor_core@ameritech.net> <20041018164539.GC18169@kroah.com> <20041019063057.GA3057@ucw.cz> <1098302200.12374.44.camel@localhost.localdomain>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200410202214.31791.vda@port.imtp.ilyichevsk.odessa.ua>
+In-Reply-To: <1098302200.12374.44.camel@localhost.localdomain>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 20 October 2004 19:47, Lee Revell wrote:
-> On Wed, 2004-10-20 at 11:11, Denis Vlasenko wrote:
-> > 0x57 == 87 bytes is too big for inline.
+On Wed, Oct 20, 2004 at 08:56:43PM +0100, Alan Cox wrote:
+
+> On Maw, 2004-10-19 at 07:30, Vojtech Pavlik wrote:
+> > Like 30% of all notebooks? ;) They do boot without the USB handoff, the
+> > PS/2 mouse works, but only as a PS/2 mouse, no extended capabilities
+> > detection is possible due to the BIOS interference.
 > 
-> Ugh.  So the only fix is not to inline it?
+> I started in favour of avoiding always doing the handoff, but now I'm
+> convinced handoff should be the default. 
 
-Yes.
+And I would be fine to move the atkbd/psmouse initialization down in the
+Makefiles so that USB gets initialized first - but what do we do about
+the modular case? 
 
-You can make it conditionally inline/non-inline
-depending on SMP/preempt if you feel masochistic today :),
-but last time I asked davem thought that it is over the top.
+I do agree that we should have only one copy of the handoff code,
+regardless of where it's living.
 
-Deinline it.
---
-vda
-
+-- 
+Vojtech Pavlik
+SuSE Labs, SuSE CR

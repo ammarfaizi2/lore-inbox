@@ -1,57 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263406AbTIBBYd (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 1 Sep 2003 21:24:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263413AbTIBBYd
+	id S263410AbTIBB3O (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 1 Sep 2003 21:29:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263412AbTIBB3O
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 1 Sep 2003 21:24:33 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:27836 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S263406AbTIBBYb
+	Mon, 1 Sep 2003 21:29:14 -0400
+Received: from lpbproductions.com ([68.98.208.147]:55177 "HELO
+	lpbproductions.com") by vger.kernel.org with SMTP id S263410AbTIBB3M convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 1 Sep 2003 21:24:31 -0400
-Message-ID: <3F53F142.5050909@pobox.com>
-Date: Mon, 01 Sep 2003 21:24:18 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-Organization: none
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20021213 Debian/1.2.1-2.bunk
-X-Accept-Language: en
+	Mon, 1 Sep 2003 21:29:12 -0400
+From: Matt Heler <lkml@lpbproductions.com>
+To: Robert Love <rml@tech9.net>
+Subject: Re: -mm patches on www.kernel.org ?
+Date: Mon, 1 Sep 2003 18:30:49 -0700
+User-Agent: KMail/1.5.9
+Cc: linux-kernel@vger.kernel.org
+References: <Pine.LNX.4.51.0308071636100.31463@dns.toxicfilms.tv> <200309011728.44977.lkml@lpbproductions.com> <1062463428.8206.5.camel@boobies.awol.org>
+In-Reply-To: <1062463428.8206.5.camel@boobies.awol.org>
 MIME-Version: 1.0
-To: Sam Ravnborg <sam@ravnborg.org>
-CC: Christoph Hellwig <hch@infradead.org>,
-       Tigran Aivazian <tigran@veritas.com>, linux-kernel@vger.kernel.org,
-       tigran@aivazian.fsnet.co.uk
-Subject: Re: dontdiff for 2.6.0-test4
-References: <Pine.GSO.4.44.0309010754480.1106-100000@north.veritas.com> <20030901163958.A24464@infradead.org> <20030901162244.GA1041@mars.ravnborg.org> <3F537CDD.3040809@pobox.com> <20030901171806.GB1041@mars.ravnborg.org>
-In-Reply-To: <20030901171806.GB1041@mars.ravnborg.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Content-Type: Text/Plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Message-Id: <200309011830.52065.lkml@lpbproductions.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Sam Ravnborg wrote:
-> On Mon, Sep 01, 2003 at 01:07:41PM -0400, Jeff Garzik wrote:
-> 
->>dontdiff must know about many things that 'make mrproper' need not care 
->>about:
->>
->>	files with ".bak" suffix
->>	files with "~" suffix
->>	BitKeeper, CVS, RCS, SCCS directories
-> 
-> 
-> make mrproper already cares about all those.
-> Fragments from top-level Makefile:
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
+
+On Monday 01 September 2003 05:43 pm, Robert Love wrote:
+> On Mon, 2003-09-01 at 20:28, Matt Heler wrote:
+> > What are you smoking ?? It's a single patch .. that you can apply on top
+> > of the 2.6 tree, SINGLE..  And why can't it be done ? the ac tree and dj
+> > tree were done.
+>
+> Dude, manic much?  You seriously need to relax.
+O ya !!! all the time =P
+
+>
+> hpa can do whatever he wants - he admins the damn thing.  But it is
+> obvious he was just unclear that the -mm patches are in fact available
+> in a single patch.
+That's what I was trying to point out.. if I went a wee bit o' manic on it.. 
+Sorry .. But ya its a single patch hpa.. not a patchset.. =
 
 
-I stand corrected :)  However, I think it's a tangent:
+>
+> 	Robert Love
+>
+>
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.3 (GNU/Linux)
 
-dontdiff is a file that's useful precisely because of the form its in. 
-So, as something that's proven itself useful to a bunch of people, I 
-definitely think it has a home somewhere in Documentation/*  It need not 
-be referenced in any way by kbuild; that's not a big deal.  The two 
-really serve different purposes.
-
-	Jeff
-
-
-
+iD8DBQE/U/LLleY/n9G/oZ8RAoiVAJ98oEE6TVaKIq2t1PHocRaNss1aZgCfY7EP
+mVP4FIH2sTe6S2JlXFXh3+Y=
+=YCs2
+-----END PGP SIGNATURE-----

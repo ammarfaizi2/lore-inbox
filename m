@@ -1,41 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131806AbRALPTG>; Fri, 12 Jan 2001 10:19:06 -0500
+	id <S129632AbRALPUq>; Fri, 12 Jan 2001 10:20:46 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131845AbRALPS4>; Fri, 12 Jan 2001 10:18:56 -0500
-Received: from hera.cwi.nl ([192.16.191.1]:63223 "EHLO hera.cwi.nl")
-	by vger.kernel.org with ESMTP id <S131806AbRALPSw>;
-	Fri, 12 Jan 2001 10:18:52 -0500
-Date: Fri, 12 Jan 2001 16:18:28 +0100 (MET)
-From: Andries.Brouwer@cwi.nl
-Message-Id: <UTC200101121518.QAA83968.aeb@ark.cwi.nl>
-To: cw@f00f.org, rothwell@holly-springs.nc.us
-Subject: Re: O_NONBLOCK, read(), select(), NFS, Ext2, etc.
+	id <S129692AbRALPUg>; Fri, 12 Jan 2001 10:20:36 -0500
+Received: from abyss.devicen.de ([194.25.37.241]:6414 "EHLO abyss.devicen.de")
+	by vger.kernel.org with ESMTP id <S129632AbRALPU2>;
+	Fri, 12 Jan 2001 10:20:28 -0500
+Date: Fri, 12 Jan 2001 16:20:32 +0100
+From: Oliver Teuber <teuber@abyss.devicen.de>
+To: Takacs Sandor <taki@enternet.hu>
 Cc: linux-kernel@vger.kernel.org
+Subject: Re: Ingo's RAID patch for 2.2.18 final?
+Message-ID: <20010112162032.A31088@abyss.devicen.de>
+In-Reply-To: <E14GqBl-0003Cf-00@the-village.bc.nu> <Pine.LNX.4.21.0101112336240.10955-100000@mail.enternet.hu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+X-Mailer: Mutt 1.0pre2i
+In-Reply-To: <Pine.LNX.4.21.0101112336240.10955-100000@mail.enternet.hu>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-    From: Chris Wedgwood <cw@f00f.org>
+hi
 
-    On Thu, Jan 11, 2001 at 09:34:08PM -0500, Michael Rothwell wrote:
+use the 2.2.18aa2 patch from andrea  ... raid 0.9 is included!
 
-        The man pages for open, read and write say that if a file is opened
-        using the O_NONBLOCK flag, then read() and write() will always return
-        immediately and not block the calling process. 
+cu, oli
 
-    the man pages are wrong
+ftp://ftp.de.kernel.org/pub/linux/kernel/people/andrea/kernels/v2.2/2.2.18aa2.bz2
 
-Don't you think cc'ing the man page maintainer [aeb@cwi.nl]
-would be a good idea whenever you think something is wrong
-in the man pages? You never know, they might even improve.
-
-In this particular case I don't think anything is actually
-wrong, but I can well imagine that someone can invent clearer
-wording. It would also be useful to more clearly separate
-POSIX-mandated behaviour and actual Linux behaviour.
-Suggestions and patches are welcome as always.
-
-Andries
+On Thu, Jan 11, 2001 at 11:42:33PM +0100, Takacs Sandor wrote:
+> On Thu, 11 Jan 2001, Alan Cox wrote:
+> 
+> > > I tried to apply it. If I finish it I will send the patch to mingo :)
+> > 
+> > try http://www.linuxraid.org/
+> 
+> If I see it there is no raid patch for 2.2.18 final, only
+> 2.2.18pre13. This patch (raid-2.2.18-A2) rejects some diffs. I will apply
+> it by hand :)
+> 
+> -- 
+> Takika
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> Please read the FAQ at http://www.tux.org/lkml/
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

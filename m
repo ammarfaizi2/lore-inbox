@@ -1,44 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266415AbUFQI3s@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266422AbUFQIcS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266415AbUFQI3s (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Jun 2004 04:29:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266414AbUFQI3r
+	id S266422AbUFQIcS (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Jun 2004 04:32:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266423AbUFQIcS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Jun 2004 04:29:47 -0400
-Received: from tor.morecom.no ([64.28.24.90]:11402 "EHLO tor.morecom.no")
-	by vger.kernel.org with ESMTP id S266415AbUFQI3o (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Jun 2004 04:29:44 -0400
-Subject: Re: mode data=journal in ext3. Is it safe to use?
-From: Petter Larsen <pla@morecom.no>
-To: Timothy Miller <miller@techsource.com>
-Cc: ext3 <ext3-users@redhat.com>, linux-kernel@vger.kernel.org
-In-Reply-To: <40D06C0B.7020005@techsource.com>
-References: <40FB8221D224C44393B0549DDB7A5CE83E31B1@tor.lokal.lan>
-	 <1087322976.1874.36.camel@pla.lokal.lan>  <40D06C0B.7020005@techsource.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Message-Id: <1087460983.2765.34.camel@pla.lokal.lan>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7) 
-Date: Thu, 17 Jun 2004 10:29:43 +0200
+	Thu, 17 Jun 2004 04:32:18 -0400
+Received: from adsl-65-42-83-32.dsl.chcgil.ameritech.net ([65.42.83.32]:5128
+	"HELO edv-vogt.de") by vger.kernel.org with SMTP id S266422AbUFQIbp
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 17 Jun 2004 04:31:45 -0400
+Message-ID: <c2bd01c45445$0db5f1d8$9335ff09@edv-vogt.de>
+From: "Christian Fontenot" <cfontenotyo@bmg.se>
+To: linux-kernel@vger.kernel.org
+Subject: Powerful weightloss now available where you are.
+Date: Thu, 17 Jun 2004 03:30:18 -0500
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > 
-> > Data integrity is much more important for us than speed.
-> > 
-> 
-> 
-> You might want to consider ReiserFS or one of the others which were 
-> designed with journaling in mind.  And I hope you're using RAID1 or RAID5.
+Hello, I have a special offer for you...
+WANT TO LOSE WEIGHT?
+The most powerful weightloss is now available
+without prescription. All natural Adipren720
+100% Money Back Guarantée!
+- Lose up to 19% Total Body Weight.
+- Loss of 20-35% abdominal Fat.
+- Up to 300% more Weight Loss while dieting.
+- Increase metabolic rate by 76.9% without Exercise.
+- Reduction of 40-70% overall Fat under skin.
+- Suppresses appetite for sugar.
+- Burns calorized fat.
+- Boost your Confidence level and Self Esteem.
+Get the facts about all-natural Adipren720 <http://diet40.com/>
 
-We are using ext3 on a compact flash disk in an embedded device. So we
-are not using RAID systems.
 
-Best regards
--- 
-Petter Larsen
-cand. scient.
-moreCom as
-913 17 222
+
+---- system information ----
+Content-Language has properties format calendars various years operationally
+
+programming [Definition: adapted number presents suggesting An requests
+
+called though these function Publication nearly situations string 
+results public at could W3C server following is 
+making variety doesn't MIME around Distinguishing writes case 
+

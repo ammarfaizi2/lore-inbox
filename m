@@ -1,48 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261940AbTKLLDQ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 12 Nov 2003 06:03:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261943AbTKLLDQ
+	id S261936AbTKLLJx (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 12 Nov 2003 06:09:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261943AbTKLLJx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 12 Nov 2003 06:03:16 -0500
-Received: from mailout07.sul.t-online.com ([194.25.134.83]:32426 "EHLO
-	mailout07.sul.t-online.com") by vger.kernel.org with ESMTP
-	id S261940AbTKLLDP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 12 Nov 2003 06:03:15 -0500
-Message-Id: <5.1.0.14.2.20031112115543.00a8a4f8@pop.t-online.de>
-X-Mailer: QUALCOMM Windows Eudora Version 5.1
-Date: Wed, 12 Nov 2003 12:01:30 +0100
-To: linux-kernel@vger.kernel.org
-From: margitsw@t-online.de (Margit Schubert-While)
-Subject: 2.4.23rc1 P3/P4 checkgcc
-Mime-Version: 1.0
-Content-Type: multipart/mixed;
-	boundary="=====================_10934372==_"
-X-Seen: false
-X-ID: E6W-ArZd8efdLvONHZnj72LlPlb2IHnjRITAslkKYAdNuyJXPa-5oy
+	Wed, 12 Nov 2003 06:09:53 -0500
+Received: from intra.cyclades.com ([64.186.161.6]:46274 "EHLO
+	intra.cyclades.com") by vger.kernel.org with ESMTP id S261936AbTKLLJv
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 12 Nov 2003 06:09:51 -0500
+Date: Wed, 12 Nov 2003 09:02:17 -0200 (BRST)
+From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+X-X-Sender: marcelo@logos.cnet
+To: Shane Wegner <shane-dated-1071003928.b2036e@cm.nu>
+Cc: linux-kernel@vger.kernel.org, <marcelo.tosatti@cyclades.com>
+Subject: Re: 2.4.23 crash on Intel SDS2
+In-Reply-To: <20031109210527.GA1936@cm.nu>
+Message-ID: <Pine.LNX.4.44.0311120857020.14144-100000@logos.cnet>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---=====================_10934372==_
-Content-Type: text/plain; charset="us-ascii"; format=flowed
 
-Do a little bit of optimization for P3 / P4.
 
-Margit
---=====================_10934372==_
-Content-Type: application/octet-stream; name="p3p4checkgcc"
-Content-Transfer-Encoding: base64
-Content-Disposition: attachment; filename="p3p4checkgcc"
+On Sun, 9 Nov 2003, Shane Wegner wrote:
 
-ZGlmZiAtTmF1ciBsaW51eC0yLjQuMjIvYXJjaC9pMzg2L01ha2VmaWxlIGxpbnV4LTIuNC4yMm13
-MC9hcmNoL2kzODYvTWFrZWZpbGUKLS0tIGxpbnV4LTIuNC4yMi9hcmNoL2kzODYvTWFrZWZpbGUJ
-MjAwMy0wNi0xMyAxNjo1MToyOS4wMDAwMDAwMDAgKzAyMDAKKysrIGxpbnV4LTIuNC4yMm13MC9h
-cmNoL2kzODYvTWFrZWZpbGUJMjAwMy0xMS0xMiAxMjo0MTowOC4wMDAwMDAwMDAgKzAxMDAKQEAg
-LTUzLDExICs1MywxMSBAQAogZW5kaWYKIAogaWZkZWYgQ09ORklHX01QRU5USVVNSUlJCi1DRkxB
-R1MgKz0gLW1hcmNoPWk2ODYKK0NGTEFHUyArPSAkKGNhbGwgY2hlY2tfZ2NjLC1tYXJjaD1wZW50
-aXVtMywtbWFyY2g9aTY4NikKIGVuZGlmCiAKIGlmZGVmIENPTkZJR19NUEVOVElVTTQKLUNGTEFH
-UyArPSAtbWFyY2g9aTY4NgorQ0ZMQUdTICs9ICQoY2FsbCBjaGVja19nY2MsLW1hcmNoPXBlbnRp
-dW00LC1tYXJjaD1pNjg2KQogZW5kaWYKIAogaWZkZWYgQ09ORklHX01LNgo=
---=====================_10934372==_--
+> Hi,
+> 
+> I posted some weeks ago regarding a crash I was
+> experiencing with 2.4.23-pre4.  I am just writing to
+> confirm that 2.4.23-pre9 is still unable to run relyably on
+> this machine.  In my earlier post, I thought acpi might be
+> the culprit as I had it enabled due to a bios bug.  Intel
+> since fixed that so I was able to boot 2.4.23-pre9 with
+> acpi totally disabled in make config.
+> 
+> The problem is that after some time, usually between 30
+> seconds and 15 minutes in, the system locks up.  Nothing
+> gets printed into the kernel logs or onto the console. 
+> After 60 seconds, the IPMI watchdog kicks in and reboots
+> the system.  I run Linux 2.4.22 over here with no problems
+> with and without acpi.
+> 
+> It's an Intel server board model SDS2 with a dual Pentium
+> III tualatin 1.13ghz.  I am attaching the dmesg output from
+> the kernel in case it is helpful but as there is no panics
+> or oops being printed, I am not sure how best I can help
+> track this down.  If there is anything further I can do or
+> any other information needed, let me know.
+
+> On node 0 totalpages: 262144
+> zone(0): 4096 pages.
+> zone(1): 225280 pages.
+> zone(2): 32768 pages.
+
+What do you (what is your workload) during the few minutes before the
+crash?
+
+There are no significant driver changes in -pre4 that could affect you.
+
+Can you please try with mem=900M? I suspect something in the VM changes
+might be causing this.
+
 
 

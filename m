@@ -1,43 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278365AbRJMTHr>; Sat, 13 Oct 2001 15:07:47 -0400
+	id <S278372AbRJMTK5>; Sat, 13 Oct 2001 15:10:57 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278366AbRJMTHi>; Sat, 13 Oct 2001 15:07:38 -0400
-Received: from [212.21.93.146] ([212.21.93.146]:58755 "EHLO
-	kushida.jlokier.co.uk") by vger.kernel.org with ESMTP
-	id <S278365AbRJMTH3>; Sat, 13 Oct 2001 15:07:29 -0400
-Date: Sat, 13 Oct 2001 21:05:21 +0200
-From: Jamie Lokier <lk@tantalophile.demon.co.uk>
-To: Pablo Alcaraz <pabloa@laotraesquina.com.ar>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Security question: "Text file busy" overwriting executables but not shared libraries?
-Message-ID: <20011013210521.A995@kushida.jlokier.co.uk>
-In-Reply-To: <Pine.LNX.4.33.0110130956350.8707-100000@penguin.transmeta.com> <3BC88AB3.2040707@laotraesquina.com.ar>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <3BC88AB3.2040707@laotraesquina.com.ar>; from pabloa@laotraesquina.com.ar on Sat, Oct 13, 2001 at 03:40:51PM -0300
+	id <S278369AbRJMTKr>; Sat, 13 Oct 2001 15:10:47 -0400
+Received: from garrincha.netbank.com.br ([200.203.199.88]:39947 "HELO
+	netbank.com.br") by vger.kernel.org with SMTP id <S278367AbRJMTK3>;
+	Sat, 13 Oct 2001 15:10:29 -0400
+Date: Sat, 13 Oct 2001 16:10:44 -0300 (BRST)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: <riel@imladris.rielhome.conectiva>
+To: Patrick McFarland <unknown@panax.com>
+Cc: <linux-kernel@vger.kernel.org>
+Subject: Re: Which is better at vm, and why? 2.2 or 2.4
+In-Reply-To: <20011013150408.S249@localhost>
+Message-ID: <Pine.LNX.4.33L.0110131610130.2847-100000@imladris.rielhome.conectiva>
+X-spambait: aardvark@kernelnewbies.org
+X-spammeplease: aardvark@nl.linux.org
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Pablo Alcaraz wrote:
-> Whatever will be the chosen solution, it would have to allow to 
-> overwrite all the executables and libraries files (if we have enough 
-> permissions).
+On Sat, 13 Oct 2001, Patrick McFarland wrote:
 
-Pablo, there's no need for this.  Upgrades to libraries are done by
-removing the old file's name from its parent directory and placing the
-new file at that name, perhaps using an atomic rename.  The old _file_
-continues to exist even though its name has been deleted, until the last
-program using the library finishes using it, even though the old file
-does not have a name any more.
+> Could you put the updated vm.txt up somewhere for the world to read?
+> Atleast if the url is here, people could grep the mailing list for "vm
+> doc" or something and find it that way.
 
-New programs that open the library will find the new file.  Both files
-exist until the old file finally disappears.  At no point is any file's
-contents overwritten.
+The patch (for linux 2.4.2) has been up on my home page for
+ages now:
 
-This is why you can upgrade a running linux system including critical
-system libraries, and nothing crashes.  Usually ;-)
+	http://www.surriel.com/patches/
 
--- Jamie
+regards,
+
+Rik
+-- 
+DMCA, SSSCA, W3C?  Who cares?  http://thefreeworld.net/  (volunteers needed)
+
+http://www.surriel.com/		http://distro.conectiva.com/
+

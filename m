@@ -1,56 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129257AbRCHQcX>; Thu, 8 Mar 2001 11:32:23 -0500
+	id <S129191AbRCHQYx>; Thu, 8 Mar 2001 11:24:53 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129268AbRCHQcN>; Thu, 8 Mar 2001 11:32:13 -0500
-Received: from red.csi.cam.ac.uk ([131.111.8.70]:29152 "EHLO red.csi.cam.ac.uk")
-	by vger.kernel.org with ESMTP id <S129257AbRCHQcF>;
-	Thu, 8 Mar 2001 11:32:05 -0500
-Message-Id: <5.0.2.1.2.20010308162515.00a63a80@pop.cus.cam.ac.uk>
-X-Mailer: QUALCOMM Windows Eudora Version 5.0.2
-Date: Thu, 08 Mar 2001 16:31:37 +0000
-To: Venkatesh Ramamurthy <Venkateshr@ami.com>
-From: Anton Altaparmakov <aia21@cam.ac.uk>
-Subject: RE: Microsoft begining to open source Windows 2000?
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <1355693A51C0D211B55A00105ACCFE64E952C5@ATL_MS1>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; format=flowed
+	id <S129240AbRCHQYo>; Thu, 8 Mar 2001 11:24:44 -0500
+Received: from aeon.tvd.be ([195.162.196.20]:30342 "EHLO aeon.tvd.be")
+	by vger.kernel.org with ESMTP id <S129191AbRCHQYe>;
+	Thu, 8 Mar 2001 11:24:34 -0500
+Date: Thu, 8 Mar 2001 17:21:32 +0100 (CET)
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+To: Steven Cole <scole@lanl.gov>
+cc: linux-kernel@vger.kernel.org, alan@lxorguk.ukuu.org.uk
+Subject: Re: [PATCH] remove CONFIG_NCR885E from Configure.help
+In-Reply-To: <01030808522000.01048@spc.esa.lanl.gov>
+Message-ID: <Pine.LNX.4.05.10103081720460.924-100000@callisto.of.borg>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-At 16:04 08/03/01, Venkatesh Ramamurthy wrote:
->My initial thought after seeing this article was that microsoft was testing
->its waters on open sourcing. If i have 1500 licenses then i would get the
->source. If i find any bug in thier source , i  would report to microsoft or
->send a patch and they would put it in thier next version. Is this not the
->same way Linux Kernel is developed?. Only thing microsoft does not want to
->immediately go full open sourcing and get embarrased at the hands of linux
->people.
+On Thu, 8 Mar 2001, Steven Cole wrote:
+> It appears that use of CONFIG_NCR885E was removed in 2.4.2-ac2,
+> in Config.in and the Makefile in drivers/net.
+> 
+> If it really is the case that CONFIG_NCR885E is history, then it
+> should be history in Configure.help as well.
 
-You are not reading the article carefully enough.
+I'm still wondering whether there really are no other boards with a Sym53c885
+than the Synergy PPC board (which is no longer supported).
 
-With Linux, everyone is free to make their own changes which suit their 
-particular setup, recompile the kernel, and run their own linux kernel on 
-their site / server / workstation / whatever.
+Gr{oetje,eeting}s,
 
-Microsoft specifically forbids this in their license!
+						Geert
 
-It is a "look but don't touch" license which is as far away from the ideas 
-of the GPL as you can possibly get.
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
 
-Even submitting them a patch is technically violating their license as a 
-patch implies that you have modified their code already, which is forbidden!
-
-The only change from before that I can see is that Microsoft is going to 
-make even more money now, because they will collect the money from ~1000 
-instead of ~10 people. No other news there.
-
-Anton
-
-
--- 
-Anton Altaparmakov <aia21 at cam.ac.uk> (replace at with @)
-Linux NTFS Maintainer / WWW: http://sourceforge.net/projects/linux-ntfs/
-ICQ: 8561279 / WWW: http://www-stu.christs.cam.ac.uk/~aia21/
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+							    -- Linus Torvalds
 

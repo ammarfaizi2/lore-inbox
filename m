@@ -1,42 +1,44 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S311871AbSERVEN>; Sat, 18 May 2002 17:04:13 -0400
+	id <S314077AbSERVKY>; Sat, 18 May 2002 17:10:24 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314052AbSERVEM>; Sat, 18 May 2002 17:04:12 -0400
-Received: from louise.pinerecords.com ([212.71.160.16]:42758 "EHLO
-	louise.pinerecords.com") by vger.kernel.org with ESMTP
-	id <S311871AbSERVEM>; Sat, 18 May 2002 17:04:12 -0400
-Date: Sat, 18 May 2002 23:04:05 +0200
-From: Tomas Szepe <szepe@pinerecords.com>
-To: Ivan Gyurdiev <ivangurdiev@linuxfreemail.com>
-Cc: LKML <linux-kernel@vger.kernel.org>
-Subject: Re: 2.5.16 Keyboard bug
-Message-ID: <20020518210405.GA26480@louise.pinerecords.com>
-In-Reply-To: <02051808513200.01086@cobra.linux>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.99i
-X-OS: Linux/sparc 2.2.21-rc4-ext3-0.0.7a SMP (up 2 days, 14:48)
+	id <S314078AbSERVKY>; Sat, 18 May 2002 17:10:24 -0400
+Received: from 212.Red-80-35-44.pooles.rima-tde.net ([80.35.44.212]:24971 "EHLO
+	DervishD.pleyades.net") by vger.kernel.org with ESMTP
+	id <S314077AbSERVKX>; Sat, 18 May 2002 17:10:23 -0400
+Date: Sat, 18 May 2002 23:15:27 +0200
+Organization: Pleyades
+To: Wayne.Brown@altec.com, linux-kernel@vger.kernel.org
+Subject: Re: kbuild 2.5 is ready for inclusion in the 2.5 kernel - take 3
+Message-ID: <3CE6C46F.mailHN1RYDOH@viadomus.com>
+In-Reply-To: <86256BBD.00606F38.00@smtpnotes.altec.com>
+User-Agent: nail 9.29 12/10/01
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
+From: DervishD <raul@pleyades.net>
+Reply-To: DervishD <raul@pleyades.net>
+X-Mailer: DervishD TWiSTiNG Mailer
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> ...is still there.
-> Sure, acpi=off "fixes" it, but that's not really a fix.
-> Question...is this an acpi bug or a keyboard bug?
+    Hello Wayne :)
 
-According to ACPI people this is an ACPI bug.
-Updates are almost ready but still need some tweaking.
+>I don't need the new kbuild.  I don't want the new kbuild.  But I'm
+>going to be stuck with it, and there's nothing I can do to stop it. 
+>So for those of you who DO want it, why is it such a burden to hear
+>that not everyone thinks the way you do?
 
-> Is there an existing patch to correct this that hasn't been merged into the 
-> kernel yet?
+    Independently of my opinion about the subject, you have send a
+polite and very sensible answer to all the attacks you have received
+(some of them very out of common sense, I must say...).
 
-In the meantime, you may want to give a shot to the patches at
-http://sourceforge.net/projects/acpi/
+    Congratulations for your message. I was thinking that people are
+more concerned of defending decisions that to really make
+improvementes... Just look at the messages last week: many people
+took a big effort to attack you verbally, but my patch to a nasty
+(but maybe harmless) but have totally gone ignored...
 
+    Keep on like that, Wayne ;)
 
-T.
-
--- 
-"when you do things right, people won't be sure you've done anything at all."
-- god to bender
+    Raúl

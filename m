@@ -1,162 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263698AbTLURZr (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 21 Dec 2003 12:25:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263758AbTLURZq
+	id S263645AbTLURXY (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 21 Dec 2003 12:23:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263646AbTLURXY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 21 Dec 2003 12:25:46 -0500
-Received: from bgl1mr1-a-fixed.sancharnet.in ([61.1.128.45]:49718 "EHLO
-	bgl1mr1-a-fixed.sancharnet.in") by vger.kernel.org with ESMTP
-	id S263698AbTLURXm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 21 Dec 2003 12:23:42 -0500
-Date: Sun, 21 Dec 2003 15:53:24 +0530
-From: Ram Chandar <cnn_dinu01@sancharnet.in>
-Subject: kernel.org bandwidth bar shows wrong info.
-To: webmaster@kernel.org
-Cc: linux-kernel@vger.kernel.org
-Message-id: <200312211549.00283.cnn_dinu01@sancharnet.in>
-MIME-version: 1.0
-Content-type: multipart/mixed; boundary="Boundary_(ID_0mxguzz1VKo7TGKTGbUzOw)"
-User-Agent: KMail/1.4.2
+	Sun, 21 Dec 2003 12:23:24 -0500
+Received: from smtp-100-sunday.nerim.net ([62.4.16.100]:33806 "EHLO
+	kraid.nerim.net") by vger.kernel.org with ESMTP id S263645AbTLURXT
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 21 Dec 2003 12:23:19 -0500
+Date: Sun, 21 Dec 2003 18:24:06 +0100
+From: Jean Delvare <khali@linux-fr.org>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: LKML <linux-kernel@vger.kernel.org>
+Subject: [PATCH 2.6] fix file reference in sym53c8xx_2 help
+Message-Id: <20031221182406.20965c70.khali@linux-fr.org>
+X-Mailer: Sylpheed version 0.9.8a (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi Linus, hi all,
 
---Boundary_(ID_0mxguzz1VKo7TGKTGbUzOw)
-Content-type: text/plain; charset=utf-8
-Content-transfer-encoding: 7BIT
+A very simple patch against 2.6.0 follows, which fixes an improper file
+reference in the scsi sym53c8xx_2 driver help text. The referenced
+documentation file was moved in 2.5.48 but the help text was not updated
+accordingly.
 
-Hi,
+Please apply.
+And thanks a lot for the excellent work :)
 
-The bandwidth bar at kernel.org is showing the wrong info.
+--- linux-2.6.0/drivers/scsi/Kconfig.orig	Sun Dec 21 17:35:00 2003
++++ linux-2.6.0/drivers/scsi/Kconfig	Sun Dec 21 17:36:34 2003
+@@ -903,7 +903,7 @@
+ 	  language.  It does not support LSI53C10XX Ultra-320 PCI-X SCSI
+ 	  controllers; you need to use the Fusion MPT driver for that.
+ 
+-	  Please read <file:drivers/scsi/sym53c8xx_2/Documentation.txt> for more
++	  Please read <file:Documentation/scsi/sym53c8xx_2.txt> for more
+ 	  information.
+ 
+ config SCSI_SYM53C8XX_DMA_ADDRESSING_MODE
 
-As shown in the attached image.
 
-Ram Chandar.
---
-
-
---Boundary_(ID_0mxguzz1VKo7TGKTGbUzOw)
-Content-type: image/png; name=kernel_org_wrong_bandwidthbar.png
-Content-transfer-encoding: base64
-Content-disposition: inline; filename=kernel_org_wrong_bandwidthbar.png
-
-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
-AElFTkSuQmCC
-
---Boundary_(ID_0mxguzz1VKo7TGKTGbUzOw)--
+-- 
+Jean Delvare
+http://www.ensicaen.ismra.fr/~delvare/

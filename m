@@ -1,41 +1,79 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265581AbTFRWk2 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 Jun 2003 18:40:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265590AbTFRWk2
+	id S265593AbTFRWnt (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 Jun 2003 18:43:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265597AbTFRWnq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 Jun 2003 18:40:28 -0400
-Received: from fronta-d.sezampro.yu ([194.106.188.51]:34566 "HELO
-	fronta-d.sezampro.yu") by vger.kernel.org with SMTP id S265581AbTFRWkZ convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 Jun 2003 18:40:25 -0400
-From: Toplica =?iso-8859-2?q?Tanaskovi=E6?= <toptan@sezampro.yu>
-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Subject: Re: Radeonfb update and fix
-Date: Thu, 19 Jun 2003 00:54:46 +0200
-User-Agent: KMail/1.5.9
-References: <200306182238.09581.toptan@sezampro.yu> <1055970376.13215.42.camel@gaston>
-In-Reply-To: <1055970376.13215.42.camel@gaston>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org,
-       Marcelo Tosatti <marcelo@conectiva.com.br>
-MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-2"
-Content-Transfer-Encoding: 8BIT
-Message-Id: <200306190054.46111.toptan@sezampro.yu>
+	Wed, 18 Jun 2003 18:43:46 -0400
+Received: from pao-ex01.pao.digeo.com ([12.47.58.20]:15735 "EHLO
+	pao-ex01.pao.digeo.com") by vger.kernel.org with ESMTP
+	id S265593AbTFRWlr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 18 Jun 2003 18:41:47 -0400
+Date: Wed, 18 Jun 2003 15:56:37 -0700
+From: Andrew Morton <akpm@digeo.com>
+To: george anzinger <george@mvista.com>
+Cc: joe.korty@ccur.com, linux-kernel@vger.kernel.org, mingo@elte.hu
+Subject: Re: O(1) scheduler seems to lock up on sched_FIFO and sched_RR
+ tasks
+Message-Id: <20030618155637.60b3e2f9.akpm@digeo.com>
+In-Reply-To: <3EF0E7AC.60007@mvista.com>
+References: <3EF0979C.8060603@mvista.com>
+	<20030618193053.GA15576@tsunami.ccur.com>
+	<3EF0E7AC.60007@mvista.com>
+X-Mailer: Sylpheed version 0.9.0pre1 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 18 Jun 2003 22:55:45.0225 (UTC) FILETIME=[C05B0390:01C335EC]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dana sreda 18. jun 2003. 23:06 napisali ste:
+george anzinger <george@mvista.com> wrote:
 >
-> Well... ATI keeps claiming there is no such thing as Radeon P/M, there
-> is indeed a mach64 P/M chip and the device ID there matches a mach64
-> chip. Do you own such a thing that works with radeonfb or knows somebody
-> who do ?
+> Joe Korty wrote:
+> > On Wed, Jun 18, 2003 at 09:47:24AM -0700, george anzinger wrote:
+> > 
+> >>It seems that once a SCHED_FIFO or SCHED_RR tasks gets control it does 
+> >>not yield to other tasks of higher priority.
+> >>
+> >>Attached is a test program (busyloop) that just loops doing 
+> >>gettimeofday() for the requested time and a little utility (rt) to run 
+> >>programs at real time priorities.
+> >>
+> >>Here is an annotated example of the problem:
+> >>
+> >>First, become root then:
+> >>
+> >>>rt 90 bash        <-- run bash at priority 90 SCHED_RR
+> >>>rt -f 30 busyloop 10 &  <-- busyloop 10 at priority 30 SCHED_FIFO
+> >>
+> >>At this point the bash at priority 90 should be available, but is not. 
+> >> When the 10 second busyloop completes, bash returns.
+> > 
+> > 
+> > 
+> > Hi George,
+> >  When I boost the priority of each of the per-cpu 'events/%d' daemon to
+> > 96, the problem goes away.
+> 
+> Seems like your saying that the events workqueues are involved in the 
+> scheduler in some ugly way.  Certainly not what your average rt 
+> programmer would expect :(  What is going on here?
+> 
 
-	Nope. Sorry.
--- 
-Pozdrav,
-Toplica Tanaskoviæ
+Various things like character drivers do rely upon keventd services.  So it
+is possible that bash is stuck waiting on keyboard input, but there is no
+keyboard input because keventd is locked out.
 
+I'll take a closer look at this, see if there is a specific case which can
+be fixed.
+
+Arguably, keventd should be running max-prio RT because it is a kernel
+service, providing "process context interrupt service".
+
+IIRC, Andrea's kernel runs keventd as SCHED_FIFO.  I've tried to avoid
+making this change for ideological reasons ;) Userspace is more important
+than the kernel and the kernel has no damn right to be saying "oh my stuff
+is so important that it should run before latency-critical user code".
+
+Tricky.

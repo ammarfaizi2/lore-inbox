@@ -1,45 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129737AbRAXTiV>; Wed, 24 Jan 2001 14:38:21 -0500
+	id <S129847AbRAXTlB>; Wed, 24 Jan 2001 14:41:01 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129847AbRAXTiM>; Wed, 24 Jan 2001 14:38:12 -0500
-Received: from picard.csihq.com ([204.17.222.1]:14723 "EHLO picard.csihq.com")
-	by vger.kernel.org with ESMTP id <S129737AbRAXTiD>;
-	Wed, 24 Jan 2001 14:38:03 -0500
-Message-ID: <06dc01c0863d$29383390$e1de11cc@csihq.com>
-From: "Mike Black" <mblack@csihq.com>
-To: "linux-kernel@vger.kernel.or" <linux-kernel@vger.kernel.org>
-Subject: Largefile support in 2.4
-Date: Wed, 24 Jan 2001 14:38:00 -0500
+	id <S130382AbRAXTkl>; Wed, 24 Jan 2001 14:40:41 -0500
+Received: from pcow025o.blueyonder.co.uk ([195.188.53.125]:18439 "EHLO
+	blueyonder.co.uk") by vger.kernel.org with ESMTP id <S129847AbRAXTkk>;
+	Wed, 24 Jan 2001 14:40:40 -0500
+Message-ID: <3A6F2F9E.6030600@signalstorm.com>
+Date: Wed, 24 Jan 2001 19:40:14 +0000
+From: Steven Ellmore <steve@signalstorm.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux 2.2.18-eepro100v1.11 i686; en-US; m18) Gecko/20001107 Netscape6/6.0
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
+To: mark@winksmith.com
+CC: Steve Underwood <steveu@coppice.org>, linux-kernel@vger.kernel.org
+Subject: Re: Probably Off-topic Question...
+In-Reply-To: <Pine.LNX.4.10.10101222129310.3031-100000@clueserver.org> <3A6F0D6B.34EB2CB0@coppice.org> <20010124123001.52317@winksmith.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 5.50.4522.1200
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4522.1200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-How do normal users get to create/maintain large files (i.e. >2G) in Linux
-2.4 on i386?
 
-The root user can make filesize unlimited but a non-root user cannot.  They
-come up with the same limits in both tcsh and bash (i.e. filesize
-1048576 kbytes or 0x40000000)
 
-I can't seem to find where this number comes from anywhere -- either in
-glibc-2.2.1 or the kernel.   getrlimit64 returns it.
+My VAIO Z505HS brightness control works under Linux.
 
-I can't make all my users root users!!!  Can anybody help?
+Shift + Fn + Brightness (F5) dims
+Fn + Brightness brightens
 
-________________________________________
-Michael D. Black   Principal Engineer
-mblack@csihq.com  321-676-2923,x203
-http://www.csihq.com  Computer Science Innovations
-http://www.csihq.com/~mike  My home page
-FAX 321-676-2355
+If it makes a difference I'm using Left Shift and Left Fn and as you 
+might expect I'm holding both of those down and then tapping F5 the 
+required number of times.
+
+-Steve Ellmore
+
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

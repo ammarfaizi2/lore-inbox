@@ -1,65 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291414AbSBSOIw>; Tue, 19 Feb 2002 09:08:52 -0500
+	id <S289880AbSBSOIc>; Tue, 19 Feb 2002 09:08:32 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291418AbSBSOIn>; Tue, 19 Feb 2002 09:08:43 -0500
-Received: from inet-mail3.oracle.com ([148.87.2.203]:5344 "EHLO
-	inet-mail3.oracle.com") by vger.kernel.org with ESMTP
-	id <S291414AbSBSOId>; Tue, 19 Feb 2002 09:08:33 -0500
-Message-ID: <4545776.1014127684480.JavaMail.nobody@web11.us.oracle.com>
-Date: Tue, 19 Feb 2002 06:08:04 -0800 (GMT-08:00)
-From: "ALESSANDRO.SUARDI" <ALESSANDRO.SUARDI@oracle.com>
-To: hirofumi@mail.parknet.co.jp
-Subject: Re: gnome-terminal acts funny in recent 2.5 series
-Cc: linux-kernel@vger.kernel.org, davem@redhat.com
-Mime-Version: 1.0
+	id <S291414AbSBSOIM>; Tue, 19 Feb 2002 09:08:12 -0500
+Received: from [212.48.154.34] ([212.48.154.34]:6823 "EHLO gate.stelt.ru")
+	by vger.kernel.org with ESMTP id <S289880AbSBSOIB>;
+	Tue, 19 Feb 2002 09:08:01 -0500
+Date: Tue, 19 Feb 2002 17:11:01 +0300
+From: Advisories <advisories@stelt.ru>
+X-Mailer: The Bat! (v1.53d)
+Organization: STELT Telecom
+X-Priority: 3 (Normal)
+Message-ID: <67931409596.20020219171101@stelt.ru>
+To: Athanasius <Athanasius@gurus.tf>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: 2.4.18-rc1 freezing while switching to console
+In-Reply-To: <20020219133207.GO31110@gurus.tf>
+In-Reply-To: <73925952749.20020219154004@stelt.ru>
+ <20020219133207.GO31110@gurus.tf>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-x-priority: 3
-x-mailer: Oracle Webmail Client
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-OGAWA Hirofumi wrote:
-> 
-> Alessandro Suardi <alessandro.suardi@oracle.com> writes:
-> 
->> Running Ximian-latest for rh72/i386, latest 2.5 kernels (including
->>   2.5.4-pre2, 2.5.4, 2.5.5-pre1).
->> 
->> Symptom:
->>    - clicking on the panel icon for gnome-terminal shows a flicker
->>       of the terminal window coming up then the window disappears.
->>      No leftover processes.
+Hello Athanasius,
 
-[snip]
+A>    You don't mention if you use FrameBuffer or plain text console.  I
+A> used FB with a GF2MX400 for a while and encountered this same problem
+A> (in various 2.4.17/2.4.18-pre's), so went back to plain text as I spend
+A> most of my time in X11 anyway.  All FB gained me was Tux at boot-time
+A> *;-).
+By default I have FB disabled and I haven't got a reason to enable it.
 
-> Probably, this problem had occurred in libzvt which gnome-terminal 
-> is using.
-> 
-> libzvt was using file descriptor passing via UNIX domain socket for
-> pseudo terminal. Then because ->passcred was not initialized in
-> sock_alloc(), unexpected credential data was passing to libzvt.
-> 
-> The following patch fixed this problem, but I'm not sure.
-> Could you review the patch? (attached file are test program)
-> 
-> --- socket.c.orig     Mon Feb 11 18:21:59 2002
-> +++ socket.c     Tue Feb 19 16:20:18 2002
-> @@ -501,6 +501,8 @@ struct socket *sock_alloc(void)
->      sock->ops = NULL;
->      sock->sk = NULL;
->      sock->file = NULL;
-> +//     init_waitqueue_head(&sock->wait);     this is needed?
-> +     sock->passcred = 0;
-> 
->      sockets_in_use[smp_processor_id()].counter++;
->      return sock;
+Other devices: scsi disabled, usb and sound not used.
 
-Success on first attempt - thanks. Of course since this wasn't
- fully reproducable I'll assume the patch fixes the bug, unless
- proven wrong.
+Vlad
 
-Thanks again,
+---------------------------------------------------
+Advisories               mailto:advisories@stelt.ru
 
---alessandro

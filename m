@@ -1,89 +1,98 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S274107AbRISQuP>; Wed, 19 Sep 2001 12:50:15 -0400
+	id <S274105AbRISQ7Q>; Wed, 19 Sep 2001 12:59:16 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S274106AbRISQuG>; Wed, 19 Sep 2001 12:50:06 -0400
-Received: from CM-46-158.chello.cl ([24.152.46.158]:53641 "EHLO
-	ronto.dewback.cl") by vger.kernel.org with ESMTP id <S274105AbRISQtu>;
-	Wed, 19 Sep 2001 12:49:50 -0400
-Date: Wed, 19 Sep 2001 12:49:54 -0400 (CLT)
-From: Fabian Arias <dewback@vtr.net>
-X-X-Sender: dewback@ronto.dewback.cl
-To: Pavel Roskin <proski@gnu.org>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.4.9-ac12 - problem mounting reiserfs (parse error?)
-In-Reply-To: <Pine.LNX.4.33.0109191053400.1244-100000@portland.hansa.lan>
-Message-ID: <Pine.LNX.4.40.0109191248360.5460-100000@ronto.dewback.cl>
+	id <S274110AbRISQ7G>; Wed, 19 Sep 2001 12:59:06 -0400
+Received: from cmail.ru ([195.2.82.126]:33033 "EHLO cmail.ru")
+	by vger.kernel.org with ESMTP id <S274105AbRISQ6s>;
+	Wed, 19 Sep 2001 12:58:48 -0400
+Date: Wed, 19 Sep 2001 20:57:25 +0400
+Message-Id: <200109191657.f8JGvPJ06663@cmail.ru>
+To: Jamie Lokier <lk@tantalophile.demon.co.uk>,
+        "Andrew V. Samoilov" <kai@cmail.ru>, linux-kernel@vger.kernel.org
+From: "Andrew V. Samoilov" <kai@cmail.ru>
+Reply-to: "Andrew V. Samoilov" <kai@cmail.ru>
+X-Mailer: Perl Mail::Sender 0.7.04 Jan Krynicky  http://jenda.krynicky.cz/
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-type: text/plain; charset="koi8-r"
+Subject: Re: mmap successed but SIGBUS generated on access
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi, Jamie!
 
-Same here, cannot mount reiserfs partitions on boot.
+Thanks for an answer!
 
-- Debian Sid
-- mount 2.11h
-- gcc-2.95.4 (20010902 Debian prerelease) and 3.0.2pre010908.
+>> I have bad CD-R with a some number of unreadable
+files.
+>> 
+>> Then user-space program use mmap system it returns ok
+but any
+>> attempt to access a memory pointed by this system
+call finishes 
+>> with SIGBUS. So Midnight Commander internal file
+viewer faults.
+>
+>You can get the same problem even without read errors
+with some
+>configurations of NFS.  (root mmaps a file owned by
+someone else, but
+>cannot read the file due to `root_squash' on server).
+>
+>It's not an error, it's standard behaviour.
 
-But in my case I don't have "defaults" on fstab on my reiserfs partitions:
+Well.
 
-/dev/hdc1  /      ext2          defaults,errors=remount-ro      0 1
-/dev/hdc5  /home  reiserfs      rw                              0 2
-/dev/hdc6  /usr   reiserfs      rw                              0 2
-/dev/hdc3  /var   reiserfs      rw                              0 2
+>> Is there any way to detect such problem in user-space
+without signal
+>> handlers ?
+>
+>I don't think there is any way without a signal
+handler.
+>
+>It is possible to do something useful with a signal
+handler sometimes.
+>For example, you can mmap() a zero page into the
+offending page once
+>you've got the fault address, or read() a zero page if
+you did
+>MAP_PRIVATE (this produces fewer VMAs), set a flag, and
+let the program
+>continue until it checks the flag and aborts the
+parsing or whatever
+>operation it's doing.
 
+So, I must read all of the mapped area and even this
+does not saves me of faulting next time if somebody
+change file permission. Does I understand this situation
+right?
 
-On Wed, 19 Sep 2001, Pavel Roskin wrote:
+>Unfortunately I don't think the signal handler's
+si_errno is set
+>properly to indicate the error.  So another thing to
+try is read() of
+>the offending page, to get a useful error code.  (And
+if the read
+>succeeds, that's ok because you did it at the correct
+address so the
+>program can proceed anyway).
+>
+>Fwiw, unfortunately not all versions of the kernel, or
+all
+>architectures, set si_addr properly for SIGBUS.
 
-> Hello!
->
-> I've compiled 2.4.9-ac12 and it has problems mounting reiserfs partitions.
->
-> This forks fine:
->
-> mount /dev/hda6 /usr/local
->
-> but "mount /dev/hda6" doesn't work if I have this in /etc/fstab:
->
-> /dev/hda6    /usr/local    reiserfs defaults  0 0
->
-> It appears that "defaults" is confusing some code in the kernel.  Here are
-> more results:
->
-> # mount -t reiserfs -o defaults /dev/hda6 /usr/local
-> reiserfs kgetopt: there is not option
-> mount: wrong fs type, bad option, bad superblock on /dev/hda6,
->        or too many mounted file systems
-> # mount -t reiserfs -o rw /dev/hda6 /usr/local
-> reiserfs kgetopt: there is not option
-> mount: wrong fs type, bad option, bad superblock on /dev/hda6,
->        or too many mounted file systems
-> # mount -t reiserfs -o bogus /dev/hda6 /usr/local
-> reiserfs kgetopt: there is not option bogus
-> mount: wrong fs type, bad option, bad superblock on /dev/hda6,
->        or too many mounted file systems
->
-> As you see, invalid options are distinguished ("there is not option
-> bogus", as opposed to "there is not option"), but all options are
-> considered invalid.
->
-> "reiserfs kgetopt: there is not option" appears on the console and in the
-> dmesg output, it's not coming from mount.
->
-> RedHat 7.1, i686, mount-2.11b-3 (from RedHat).
->
-> No problems with 2.4.9-ac10.  I haven't tried 2.4.9-ac12.
->
-> I hope to send fix soon.  Sorry, but I'm writing it in hurry to alert
-> others that 2.4.9-ac12 is not quite usable, at least with reiserfs.
->
-> --
-> Regards,
-> Pavel Roskin
->
- ---
- Fabian Arias Mun~oz                   |              Debian GNU/Linux Sid
- a.k.a. dewback en		       |		 Kernel 2.4.9-ac10
- #linuxhelp IRC.CHILE		       |			  ReiserFS
+It's pity. But thanks again.
+
+--
+Regards,
+Andrew.
+
+____________________________________________
+
+Играй в шахматы в Интернет на InstantChess.com! 
+
+Play chess on InstantChess.com !
+
+www.instantchess.com
+
 

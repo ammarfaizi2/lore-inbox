@@ -1,62 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263059AbVCQLva@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263081AbVCQLxz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263059AbVCQLva (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Mar 2005 06:51:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263058AbVCQLv0
+	id S263081AbVCQLxz (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Mar 2005 06:53:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263082AbVCQLxM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Mar 2005 06:51:26 -0500
-Received: from hermine.aitel.hist.no ([158.38.50.15]:35086 "HELO
-	hermine.aitel.hist.no") by vger.kernel.org with SMTP
-	id S263061AbVCQLGE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Mar 2005 06:06:04 -0500
-Message-ID: <42396569.6040509@aitel.hist.no>
-Date: Thu, 17 Mar 2005 12:09:29 +0100
-From: Helge Hafting <helge.hafting@aitel.hist.no>
-User-Agent: Debian Thunderbird 1.0 (X11/20050116)
-X-Accept-Language: en-us, en
+	Thu, 17 Mar 2005 06:53:12 -0500
+Received: from ozlabs.org ([203.10.76.45]:38554 "EHLO ozlabs.org")
+	by vger.kernel.org with ESMTP id S263066AbVCQLMK (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 17 Mar 2005 06:12:10 -0500
 MIME-Version: 1.0
-To: Vojtech Pavlik <vojtech@suse.cz>
-CC: Andrew Morton <akpm@osdl.org>, dtor_core@ameritech.net,
-       dmitry.torokhov@gmail.com, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.11-mm3 mouse oddity
-References: <20050312034222.12a264c4.akpm@osdl.org> <4236D428.4080403@aitel.hist.no> <d120d50005031506252c64b5d2@mail.gmail.com> <20050315110146.4b0c5431.akpm@osdl.org> <4237FFE4.4030100@aitel.hist.no> <20050316173054.GD1608@ucw.cz>
-In-Reply-To: <20050316173054.GD1608@ucw.cz>
-Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-ID: <16953.25809.285560.417056@cargo.ozlabs.ibm.com>
+Date: Thu, 17 Mar 2005 22:06:57 +1100
+From: Paul Mackerras <paulus@samba.org>
+To: akpm@osdl.org
+Cc: johnrose@austin.ibm.com, anton@samba.org, linux-kernel@vger.kernel.org
+Subject: [PATCH] PPC64 remove unnecessary ISA ioports
+X-Mailer: VM 7.19 under Emacs 21.3.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Vojtech Pavlik wrote:
+During boot, pSeries_request_regions() should only request I/O ports for
+legacy ISA in the case that ISA exists on the system.  Add a check for
+this.  This patch was suggested by Anton.
 
->On Wed, Mar 16, 2005 at 10:44:04AM +0100, Helge Hafting wrote:
->
->  
->
->>The logitech cordless keyboard is one.  It has two wheels.
->>The one on the side works generates up-arrow/down arrow when used,
->>and now also events on /dev/mouse0.  The other is a wheel above
->>the keys, lying on the side.  Logitech apparently meant it to be used as
->>a volume control, which should be possible now that it attaches to
->>/dev/mouse0.
->>    
->>
->
->Can you please check with 'evtest' that both the wheels work correctly?
->
->  
->
-Not sure what is correct here, but:
-evtest /dev/input/event0 produce events for all keys on the keyboard.
-Both the normal pc-105 keys, silly extra keys like "favourites", "shopping",
-etc., and the wheels.  The "volume" wheel generates VolumeUp and
-VolumeDown keypresses (and releases.) The other wheels generates
-the same events as the up-arrow and down-arrow keys.
+Signed-off-by: John Rose <johnrose@austin.ibm.com>
+Signed-off-by: Paul Mackerras <paulus@samba.org>
 
-evtest on /dev/input/event1 gives me events from the mouse.
-mouse0, mouse1 and mouse2 cannot be used with evtest.
-
->Also, there exists an event mouse driver for X which supports both
->wheels and allows for vertical and horizontal scrolling in eg. Firefox.
->  
->
-Helge Hafting
+diff -puN arch/ppc64/kernel/pSeries_pci.c~02_ppc64_request_regions arch/ppc64/kernel/pSeries_pci.c
+--- 2_6_linus_4/arch/ppc64/kernel/pSeries_pci.c~02_ppc64_request_regions	2005-03-14 15:59:44.000000000 -0600
++++ 2_6_linus_4-johnrose/arch/ppc64/kernel/pSeries_pci.c	2005-03-14 15:59:44.000000000 -0600
+@@ -540,6 +540,9 @@ EXPORT_SYMBOL(pcibios_remove_root_bus);
+ 
+ static void __init pSeries_request_regions(void)
+ {
++	if (!isa_io_base)
++		return;
++
+ 	request_region(0x20,0x20,"pic1");
+ 	request_region(0xa0,0x20,"pic2");
+ 	request_region(0x00,0x20,"dma1");

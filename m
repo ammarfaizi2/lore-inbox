@@ -1,47 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317426AbSGDPF3>; Thu, 4 Jul 2002 11:05:29 -0400
+	id <S317429AbSGDPNO>; Thu, 4 Jul 2002 11:13:14 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317427AbSGDPF2>; Thu, 4 Jul 2002 11:05:28 -0400
-Received: from sccrmhc03.attbi.com ([204.127.202.63]:40599 "EHLO
-	sccrmhc03.attbi.com") by vger.kernel.org with ESMTP
-	id <S317426AbSGDPF1>; Thu, 4 Jul 2002 11:05:27 -0400
-Message-ID: <3D246392.7030807@quark.didntduck.org>
-Date: Thu, 04 Jul 2002 11:02:42 -0400
-From: Brian Gerst <bgerst@quark.didntduck.org>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.0) Gecko/20020607
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Keith Owens <kaos@ocs.com.au>
-CC: Linux-Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: simple handling of module removals Re: [OKS] Module removal
-References: <12364.1025755693@kao2.melbourne.sgi.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	id <S317427AbSGDPNN>; Thu, 4 Jul 2002 11:13:13 -0400
+Received: from 205-158-62-54.outblaze.com ([205.158.62.54]:20749 "HELO
+	ws1-2.us4.outblaze.com") by vger.kernel.org with SMTP
+	id <S317429AbSGDPNM>; Thu, 4 Jul 2002 11:13:12 -0400
+Message-ID: <20020704151450.75171.qmail@mail.com>
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Disposition: inline
 Content-Transfer-Encoding: 7bit
+MIME-Version: 1.0
+X-Mailer: MIME-tools 5.41 (Entity 5.404)
+From: "Lee Chin" <leechin@mail.com>
+To: linux-kernel@vger.kernel.org
+Date: Thu, 04 Jul 2002 10:14:50 -0500
+Subject: writing to serial console
+X-Originating-Ip: 24.229.6.172
+X-Originating-Server: ws1-2.us4.outblaze.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Keith Owens wrote:
-> On Wed, 03 Jul 2002 22:25:34 -0400, 
-> Brian Gerst <bgerst@didntduck.org> wrote:
-> 
->>Why not treat a module just like any other structure?  Obtain a 
->>reference to it _before_ using it.
-> 
-> 
-> That is what try_inc_use_count() does.  But the interface is messy and
-> difficult to audit.  It relies on the caller taking some other lock
-> first to ensure that the module address will not change while you are
-> trying to call try_inc_use_count.
+Hi,
+I'm trying to write status messages to the serial console as the kernel boots up.  I tried writing to ttyS0 in main.c, but the kernel crashes with a paging violation.  Is there an easy way to do this?
 
-And that is almost always the case anyways, since most cases traverse a 
-linked list that must already be protected.  You are trying to 
-overengineer a solution to a simple, but subtle, problem.
+Thanks
+Lee
+-- 
+__________________________________________________________
+Sign-up for your own FREE Personalized E-mail at Mail.com
+http://www.mail.com/?sr=signup
 
-PS.  If you really want to make the broken cases show themselves, poison 
-the module memory when it is unloaded.  The same can be done for dumping 
-init data and text.
-
---
-				Brian Gerst
+Save up to $160 by signing up for NetZero Platinum Internet service.
+http://www.netzero.net/?refcd=N2P0602NEP8
 

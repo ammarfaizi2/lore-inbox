@@ -1,74 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S283775AbRK3UTC>; Fri, 30 Nov 2001 15:19:02 -0500
+	id <S281024AbRK3UVm>; Fri, 30 Nov 2001 15:21:42 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S283776AbRK3USy>; Fri, 30 Nov 2001 15:18:54 -0500
-Received: from cx570538-a.elcjn1.sdca.home.com ([24.5.14.144]:43908 "EHLO
+	id <S281017AbRK3UVd>; Fri, 30 Nov 2001 15:21:33 -0500
+Received: from cx570538-a.elcjn1.sdca.home.com ([24.5.14.144]:44676 "EHLO
 	keroon.dmz.dreampark.com") by vger.kernel.org with ESMTP
-	id <S283775AbRK3USp> convert rfc822-to-8bit; Fri, 30 Nov 2001 15:18:45 -0500
-Message-ID: <3C07E967.5A931F41@randomlogic.com>
-Date: Fri, 30 Nov 2001 12:17:43 -0800
+	id <S283776AbRK3UVS>; Fri, 30 Nov 2001 15:21:18 -0500
+Message-ID: <3C07EA02.BE47260B@randomlogic.com>
+Date: Fri, 30 Nov 2001 12:20:18 -0800
 From: "Paul G. Allen" <pgallen@randomlogic.com>
 Organization: Akamai Technologies, Inc.
 X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.14 i686)
 X-Accept-Language: en
 MIME-Version: 1.0
-To: kplug-list@kernel-panic.org
-CC: kplug-lpsg@kernel-panic.org, linux-kernel@vger.kernel.org
+CC: "Linux kernel developer's mailing list" 
+	<linux-kernel@vger.kernel.org>
 Subject: Re: Coding style - a non-issue
-In-Reply-To: <E169tj8-00055G-00@DervishD.viadomus.com>
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8BIT
+In-Reply-To: <OF8451D8AC.A8591425-ON4A256B12.00806245@au.ibm.com> <Pine.GSO.4.21.0111281901110.8609-100000@weyl.math.psu.edu> <20011128162317.B23210@work.bitmover.com> <9u7lb0$8t9$1@forge.intermeta.de> <20011130072634.E14710@work.bitmover.com> <1007138360.6656.27.camel@forge> <3C07B820.4108246F@mandrakesoft.com> <20011130185359.Q31176@blu> <3C07CDFB.7F1A9FFC@randomlogic.com> <20011130194711.S31176@blu>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+To: unlisted-recipients:; (no To-header on input)@localhost.localdomain
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Raúl Núñez de Arenas Coronado" wrote:
+antirez wrote:
 > 
-> >Hungarian notation???
-> >That was developed by programmers with apparently no skill to
-> >see/remember how a variable is defined.  IMHO in the Linux community
-> >it's widely considered one of the worst coding styles possible.
+> On Fri, Nov 30, 2001 at 10:20:43AM -0800, Paul G. Allen wrote:
+> > antirez wrote:
+> > A variable/function name should ALWAYS be descriptive of the
+> > variable/function purpose. If it takes a long name, so be it. At least
+> > the next guy looking at it will know what it is for.
 > 
->     Not at all... Hungarian notation is not so bad, except it is only
-> understood by people from hungary. So the name }:))) I just use it
-> when I write code for Hungary or secret code that no one should
-> read...
-
-I prefer Pig Latin myself. ;)
-
+> I agree, but descriptive != long
 > 
-> >>  - Short variable/function names that someone thinks is descriptive but
-> >> really isn't.
-> >not all variable names need their purpose obvious to complete newbies.
-> >sometimes it takes time to understand the code's purpose, in which case
-> >the variable names become incredibly descriptive.
+> for (mydearcountr = 0; mydearcounter < n; mydearcounter++)
 > 
->     Here you are right. The code can be seen really as a book: you
-> can start reading at the middle and yet understand some of the story,
-> but it's far better when you start at the beginning ;))) Moreover,
-> most of the variable and function names in the kernel code are quite
-> descriptive, IMHO.
+> and it was just an example. Read it as "bad coding style".
 > 
 
-There's no way on earth I would ever start reading at the beginning of 3
-million lines of code just so I can understand bobsdriver.o, which is
-only 10,000 lines. I should not have to start at the beginning of
-bobsdrvier.o either if I only needed to solve one problem in one
-function somewhere near the end of it.
-
-I have worked on several large projects and have rarely known how every
-piece of any of them worked. I didn't have to. I only needed to know
-about the portion(s) I was responsible for. I was able to do that with
-the better projects because they were commented correctly and were
-rather self documenting.
-
->     Of course, more comments and more descriptive names doesn't harm,
-> but some times they bloat the code...
-> 
-
-Actually it bloats the source (we all know C++ bloats the resulting code
-;), but what's wrong with that? At least a person can understand what's
-going on and get to coding, instead of deciphering.
+Well if you're counting dear in the kernel, I'd say you have more
+problems than your coding style. ;)
 
 PGA
 -- 

@@ -1,32 +1,35 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264141AbTLTMdW (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 20 Dec 2003 07:33:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264252AbTLTMdW
+	id S263937AbTLTM3y (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 20 Dec 2003 07:29:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263983AbTLTM3y
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 20 Dec 2003 07:33:22 -0500
-Received: from mail3.epfl.ch ([128.178.50.19]:44805 "HELO mail3.epfl.ch")
-	by vger.kernel.org with SMTP id S264141AbTLTMdV convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 20 Dec 2003 07:33:21 -0500
-Date: Sat, 20 Dec 2003 13:33:19 +0100
-From: Gregoire Favre <Gregoire.Favre@freesurf.ch>
-To: linux-kernel@vger.kernel.org
-Subject: 2.6.0 don't boot (2.6.0t9-bk16 does) SOLVED
-Message-ID: <20031220123319.GA16403@magma.epfl.ch>
+	Sat, 20 Dec 2003 07:29:54 -0500
+Received: from vsmtp2.tin.it ([212.216.176.222]:59784 "EHLO vsmtp2alice.tin.it")
+	by vger.kernel.org with ESMTP id S263937AbTLTM3x (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 20 Dec 2003 07:29:53 -0500
+Subject: 2.6.0 ps2 mouse
+From: Cristiano De Michele <demichel@na.infn.it>
+To: linux kernel ML <linux-kernel@vger.kernel.org>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Organization: Department of Physics
+Message-Id: <1071923389.3476.6.camel@cripat.acasa-tr.it>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-User-Agent: Mutt/1.4.1i
-Content-Transfer-Encoding: 8BIT
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Sat, 20 Dec 2003 13:29:50 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+I gave new 2.6.0 kernel a try and one thing I noticed is that mouse
+pointer (imps2 logitech optical mouse on /dev/psaux) has become too
+sensitive, that is in other words it's almost unusable.
+With 2.4.x I haven't any problem
 
-sorry for my last post, there was an updated gcc on cooker and the
-kernel boot perfectly ;-)
-
-	Grégoire
-________________________________________________________________________
-http://magma.epfl.ch/greg ICQ:16624071 mailto:Gregoire.Favre@freesurf.ch
+Cristiano
+ 
+-- 
+  Cristiano De Michele,
+  Department of Physics,
+  University "Federico II" of Naples

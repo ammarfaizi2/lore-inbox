@@ -1,56 +1,75 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261611AbUDCGG4 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 3 Apr 2004 01:06:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261624AbUDCGG4
+	id S261627AbUDCITY (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 3 Apr 2004 03:19:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261628AbUDCITY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 3 Apr 2004 01:06:56 -0500
-Received: from c3p0.cc.swin.edu.au ([136.186.1.30]:37132 "EHLO swin.edu.au")
-	by vger.kernel.org with ESMTP id S261611AbUDCGGy (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 3 Apr 2004 01:06:54 -0500
+	Sat, 3 Apr 2004 03:19:24 -0500
+Received: from postfix4-1.free.fr ([213.228.0.62]:34788 "EHLO
+	postfix4-1.free.fr") by vger.kernel.org with ESMTP id S261627AbUDCITV
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 3 Apr 2004 03:19:21 -0500
 To: linux-kernel@vger.kernel.org
-From: Tim Connors <tconnors+linuxkernel1080972247@astro.swin.edu.au>
-Subject: Re:  solved (was Re: xterm scrolling speed - scheduling weirdness in 	2.6 ?!)
-In-reply-to: <slrn-0.9.7.4-9426-9838-200404031530-tc@hexane.ssi.swin.edu.au>
-References: <1073227359.6075.284.camel@nosferatu.lan>  <20040104225827.39142.qmail@web40613.mail.yahoo.com>  <20040104233312.GA649@alpha.home.local>  <20040104234703.GY1882@matchmail.com>  <1073296227.8535.34.camel@tiger> <1080930132.1720.38.camel@localhost> <slrn-0.9.7.4-9426-9838-200404031530-tc@hexane.ssi.swin.edu.au>
-X-Face: A>QmH)/u`[d}b.a5?Xq=L&d?Q}cF5x|wu#O_mAK83d(Tw,BjxX[}n4<13.e$"d!Gg(I%n8fL)I9fZ$0,8s3_5>iI]4c%FXg{CpVhuIuyI,W'!5Cl?5M,dL-*dHYs}K9=YQZCN-\2j1S>cU6XPXsQhz$x`M\ZEV}nPw'^jPc41FiwTQZ'g)xNK{2',](o5mrODBHe))
-Message-ID: <slrn-0.9.7.4-25410-10302-200404031604-tc@hexane.ssi.swin.edu.au>
-Date: Sat, 3 Apr 2004 16:06:52 +1000
+Subject: Re: Drivers *dropped* between releases? (sis5513.c)
+Mail-Copies-To: never
+X-Face: ,MPrV]g0IX5D7rgJol{*%.pQltD?!TFg(`c8(2pkt-F0SLh(g3mIFYU1GYf]C/GuUTbr;cZ5y;3ALK%.OL8A.^.PW14e/,X-B?Nv}2a9\u-j0sSa
+References: <1GDM3-6G3-5@gated-at.bofh.it> <1GFEd-8b8-15@gated-at.bofh.it>
+From: Roland Mas <roland.mas@free.fr>
+Date: Sat, 03 Apr 2004 10:19:17 +0200
+In-Reply-To: <1GFEd-8b8-15@gated-at.bofh.it> (Lionel Bouton's message of
+ "Sat, 03 Apr 2004 00:50:09 +0200")
+Message-ID: <87zn9t1nju.fsf@mirexpress.internal.placard.fr.eu.org>
+User-Agent: Gnus/5.1006 (Gnus v5.10.6) Emacs/21.3 (gnu/linux)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Tim Connors <tconnors+linuxkernel1080970205@astro.swin.edu.au> said on Sat, 3 Apr 2004 15:35:29 +1000:
-> Soeren Sonnenburg <kernel@nn7.de> said on Fri, 02 Apr 2004 20:22:12 +0200:
-> > Ok, there is indeed an issue in the *terminals. As above pointed out
-> > buffering the programs output helps. Also a usleep of 5ms in the read
-> > loop of the *terms would help.
+Lionel Bouton, 2004-04-03 00:50:09 +0200 :
 
-I forgot to mention that I see other 2.6 scheduler regressions too.
+[...]
 
-I am on ADSL, and run wwwoffle to cache my www feed. In mozilla,
-running through the proxy will quite often crawl - you can see it
-displaying tags and words one by one. I have been unable to work out
-under what circumstances this is triggered, but it is easily
-understood given that mozilla on this box chews CPU (especially when
-rendering whilst downloading), as does X. So this is much like the
-xterm situation - 2 CPU chewing things, interacting with a third short
-lived low CPU job (ls or some wwwoffle fork) that the other two are
-relying on (mozilla and xterm directly, X indirectly)
+> The driver uses 2 ways of finding SiS Ide chips :
+> - by northbridge PCI ids, which is what was always used historically
+> (and so you had to manually add each known SiS northbridge to a table),
+> - by probing the controller directly (avoids depending on a lazy coder
+> to add entries in a table to make your chip work).
+>
+> When the last was added, some PCI ids were removed from the table
+> (being superfluous).
+>
+> The very fact that the sis5513.c outputs something in your log means
+> that it has found something to handle, so the detection routine
+> (whichever it is) works.
 
-This is my reason for not thinking this is an xterm bug. The scheduler
-looks inherently fragile.
+  Indeed.  The logs do show the type and brand of both the hard disk
+drive and the CD-ROM drive.  It's just that, uh, well, the kernel
+doesn't want to do anything with them afterwards...
 
+> I think there's a common problem with SiS chips : interrupt
+> handling. I believe it is the source of your problem. I may find
+> time to hack on this.
 
-To help you work out my datapoint in relation to someone elses, my box
-is a 500MHz AMD KII, now running 2.6.4. The video card is in no way
-accelarated (crappy old nvidia card), so X likes to chew CPU easily.
+  Thanks already :-)
 
+> You could try to remove PCI cards and/or disable VGA IRQ in the
+> bios. On one of my SiS-based systems for example adding a PCI card
+> can make it unbootable.
 
+  Hm.  There's only one PCI card (Radeon 7000), and I'm not sure I can
+boot without it, as there's no on-board VGA controller.  I'll try the
+BIOS hack though.
 
+  More relevant info (maybe): I got an old version of the Debian
+installer, which uses an older kernel, and the process goes on
+normally (well, it halts later because the built-in NIC has a stupid
+MAC address, but that's another problem).
 
+  Thanks for the tips, I'll see how it goes.
 
+Roland.
 -- 
-TimC -- http://astronomy.swin.edu.au/staff/tconnors/
-Cult: (n) a small, unpopular religion.
-Religion: (n) a large, popular cult.
+Roland Mas
+
+Food, shelter, source code.
+  -- Cyclic Software

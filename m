@@ -1,50 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269540AbRHLWz2>; Sun, 12 Aug 2001 18:55:28 -0400
+	id <S269543AbRHLXAI>; Sun, 12 Aug 2001 19:00:08 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269541AbRHLWzS>; Sun, 12 Aug 2001 18:55:18 -0400
-Received: from leng.mclure.org ([64.81.48.142]:27919 "EHLO
-	leng.internal.mclure.org") by vger.kernel.org with ESMTP
-	id <S269540AbRHLWzP>; Sun, 12 Aug 2001 18:55:15 -0400
-Date: Sun, 12 Aug 2001 15:55:20 -0700
-From: Manuel McLure <manuel@mclure.org>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: linux-kernel@vger.kernel.org
+	id <S269544AbRHLW77>; Sun, 12 Aug 2001 18:59:59 -0400
+Received: from neon-gw.transmeta.com ([63.209.4.196]:49420 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S269543AbRHLW7v>; Sun, 12 Aug 2001 18:59:51 -0400
+Date: Sun, 12 Aug 2001 15:59:21 -0700 (PDT)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Manuel McLure <manuel@mclure.org>
+cc: <linux-kernel@vger.kernel.org>
 Subject: Re: Hang problem on Tyan K7 Thunder resolved -- SB Live! heads-up
-Message-ID: <20010812155520.A935@ulthar.internal.mclure.org>
-In-Reply-To: <20010812113142.G948@ulthar.internal.mclure.org> <E15W1eR-000691-00@the-village.bc.nu> <20010812133539.A17802@ulthar.internal.mclure.org> <20010812145953.A955@ulthar.internal.mclure.org> <200108122224.f7CMOGO01895@penguin.transmeta.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-In-Reply-To: <200108122224.f7CMOGO01895@penguin.transmeta.com>; from torvalds@transmeta.com on Sun, Aug 12, 2001 at 15:24:16 -0700
-X-Mailer: Balsa 1.2.pre1
+In-Reply-To: <20010812155520.A935@ulthar.internal.mclure.org>
+Message-ID: <Pine.LNX.4.33.0108121557060.2102-100000@penguin.transmeta.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-On 2001.08.12 15:24 Linus Torvalds wrote:
-> In article <20010812145953.A955@ulthar.internal.mclure.org> you write:
+On Sun, 12 Aug 2001, Manuel McLure wrote:
 > >
-> >I've answered that one on my own - I installed today's CVS emu10k1 and
-> got
-> >another Oops:
-> 
-> The oops seems to be due to "wave_dev->woinst" being NULL.
-> 
-> Can you try just adding the line
-> 
-> 	if (!woinst)
-> 		return;
-> 
-> to the top of the function (just before the "spin_lock_irqsave()"). Does
-> that fix it for you?
-> 
-> 		Linus
+> > Can you try just adding the line
+> >
+> > 	if (!woinst)
+> > 		return;
+> >
+> > to the top of the function (just before the "spin_lock_irqsave()"). Does
+> > that fix it for you?
+> >
+> > 		Linus
+>
+> So far so good - however I don't have a consistent way to reproduce this.
+> I'll just keep running and see if the Oops happens again.
 
-So far so good - however I don't have a consistent way to reproduce this.
-I'll just keep running and see if the Oops happens again.
+Mind trying an alternate approach: remove the "if (!woinst)" thing, and
+instead move the line that initializes the tasklets down two lines
+(there's two places, they look something like
 
--- 
-Manuel A. McLure KE6TAW | ...for in Ulthar, according to an ancient
-<manuel@mclure.org>     | and significant law, no man may kill a cat.
-<http://www.mclure.org> |             -- H.P. Lovecraft
+                tasklet_init(&wiinst->timer.tasklet, emu10k1_wavein_bh,  (unsigned long) wave_dev);
+                wave_dev->wiinst = wiinst;
+                emu10k1_wavein_setformat(wave_dev, &wiinst->format);
+
+and they _should_ do the "tasklet_init()" _after_ the other
+initializations, ie move that line down a bit, like so:
+
+                wave_dev->wiinst = wiinst;
+                emu10k1_wavein_setformat(wave_dev, &wiinst->format);
+                tasklet_init(&wiinst->timer.tasklet, emu10k1_wavein_bh, (unsigned long) wave_dev);
+
+Does that also fix it?
+
+And sure, I realize that you want to run it for a while..
+
+		Linus
+

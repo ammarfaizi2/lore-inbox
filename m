@@ -1,70 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261503AbUCVXsM (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 22 Mar 2004 18:48:12 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261619AbUCVXsM
+	id S261619AbUCVXvH (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 22 Mar 2004 18:51:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261661AbUCVXvH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 22 Mar 2004 18:48:12 -0500
-Received: from supreme.pcug.org.au ([203.10.76.34]:2016 "EHLO pcug.org.au")
-	by vger.kernel.org with ESMTP id S261503AbUCVXsK (ORCPT
+	Mon, 22 Mar 2004 18:51:07 -0500
+Received: from ozlabs.org ([203.10.76.45]:19887 "EHLO ozlabs.org")
+	by vger.kernel.org with ESMTP id S261619AbUCVXvD (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 22 Mar 2004 18:48:10 -0500
-Date: Tue, 23 Mar 2004 10:47:52 +1100
-From: Stephen Rothwell <sfr@canb.auug.org.au>
-To: Andrew Morton <akpm@osdl.org>
-Cc: LKML <linux-kernel@vger.kernel.org>, linuxppc64-dev@lists.linuxppc.org
-Subject: [PATCH] PPC64 iSeries virtual cd fix
-Message-Id: <20040323104752.4c2b61f3.sfr@canb.auug.org.au>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-pc-linux-gnu)
+	Mon, 22 Mar 2004 18:51:03 -0500
+Subject: [TRIVIAL] Fw: Remove warning in ftape
+From: Rusty Russell <rusty@rustcorp.com.au>
+To: Claus-Justus Heine <claus@momo.math.rwth-aachen.de>
+Cc: lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>
+Content-Type: text/plain
+Message-Id: <1079999384.6591.105.camel@bach>
 Mime-Version: 1.0
-Content-Type: multipart/signed; protocol="application/pgp-signature";
- micalg="pgp-sha1";
- boundary="Signature=_Tue__23_Mar_2004_10_47_52_+1100_nCEHDLO7L0mGx1gp"
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Tue, 23 Mar 2004 10:49:45 +1100
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---Signature=_Tue__23_Mar_2004_10_47_52_+1100_nCEHDLO7L0mGx1gp
-Content-Type: text/plain; charset=US-ASCII
-Content-Disposition: inline
-Content-Transfer-Encoding: 7bit
+ From:  Chris Heath <chris@heathens.co.nz>
 
-Hi Andrew,
+---
+  I sent this to the list a few months ago.  Hopefully it won't get lost
+  if I send it via trivial.  :-)
+  
+  Chris
+  
+  
+  Forwarded by Chris Heath <chris@heathens.co.nz>
+  ----------------------- Original Message -----------------------
+   From:    Chris Heath <chris@heathens.co.nz>
+   To:      linux-kernel@vger.kernel.org
+   Date:    Wed, 31 Dec 2003 18:43:35 -0500
+   Subject: [PATCH][2.6] Remove warning in ftape
+  ----
+  
+  Here's a trivial patch that removes an unused-variable warning in ftape.
+  
+  Chris
+  
+  
 
-This patch stops an oops caused by certain ioctls being performed
-on the virtual cdrom.  In particular, the eject and tray close
-operations were affected.
-
-Please apply and forward to Linus.
--- 
-Cheers,
-Stephen Rothwell                    sfr@canb.auug.org.au
-http://www.canb.auug.org.au/~sfr/
-
-diff -ruN ppc64-2.5-iseries/drivers/cdrom/viocd.c ppc64-2.5-iseries.eject/drivers/cdrom/viocd.c
---- ppc64-2.5-iseries/drivers/cdrom/viocd.c	2004-03-07 18:05:28.000000000 +1100
-+++ ppc64-2.5-iseries.eject/drivers/cdrom/viocd.c	2004-03-22 17:54:53.000000000 +1100
-@@ -338,8 +338,9 @@
- 	struct request *req;
+--- trivial-2.6.5-rc2-bk2/drivers/char/ftape/lowlevel/ftape-init.c.orig	2004-03-23 10:10:38.000000000 +1100
++++ trivial-2.6.5-rc2-bk2/drivers/char/ftape/lowlevel/ftape-init.c	2004-03-23 10:10:38.000000000 +1100
+@@ -55,7 +55,7 @@
+ char ft_dat[] __initdata = "$Date: 1997/11/06 00:38:08 $";
  
- 	while ((rwreq == 0) && ((req = elv_next_request(q)) != NULL)) {
--		/* check for any kind of error */
--		if (send_request(req) < 0) {
-+		if (!blk_fs_request(req))
-+			end_request(req, 0);
-+		else if (send_request(req) < 0) {
- 			printk(VIOCD_KERN_WARNING
- 					"unable to send message to OS/400!");
- 			end_request(req, 0);
 
---Signature=_Tue__23_Mar_2004_10_47_52_+1100_nCEHDLO7L0mGx1gp
-Content-Type: application/pgp-signature
+-#ifndef CONFIG_FT_NO_TRACE_AT_ALL
++#if defined(MODULE) && !defined(CONFIG_FT_NO_TRACE_AT_ALL)
+ static int ft_tracing = -1;
+ #endif
+ 
+-- 
+  What is this? http://www.kernel.org/pub/linux/kernel/people/rusty/trivial/
+  Don't blame me: the Monkey is driving
+  File: Chris Heath <chris@heathens.co.nz>: Fw: [PATCH][2.6] Remove warning in ftape
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-
-iD8DBQFAX3soFG47PeJeR58RAuQaAKCybwddvKSA5dd+UHr+n2xgscW71QCgzivJ
-2hfpvmgo+TYQphiH7IZh5lU=
-=e+Rl
------END PGP SIGNATURE-----
-
---Signature=_Tue__23_Mar_2004_10_47_52_+1100_nCEHDLO7L0mGx1gp--

@@ -1,40 +1,33 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281027AbRKCTp6>; Sat, 3 Nov 2001 14:45:58 -0500
+	id <S281029AbRKCT7a>; Sat, 3 Nov 2001 14:59:30 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281028AbRKCTps>; Sat, 3 Nov 2001 14:45:48 -0500
-Received: from ns.suse.de ([213.95.15.193]:51207 "HELO Cantor.suse.de")
-	by vger.kernel.org with SMTP id <S281027AbRKCTpa>;
-	Sat, 3 Nov 2001 14:45:30 -0500
-To: Dan Hollis <goemon@anime.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: ECS k7s5a audio sound SiS 735 - 7012
-In-Reply-To: <86ady56u3h.fsf@cam.ac.uk.suse.lists.linux.kernel> <Pine.LNX.4.30.0111021316150.4828-100000@anime.net.suse.lists.linux.kernel>
-From: Andi Kleen <ak@suse.de>
-Date: 03 Nov 2001 20:45:20 +0100
-In-Reply-To: Dan Hollis's message of "2 Nov 2001 22:23:47 +0100"
-Message-ID: <p73zo63prjj.fsf@amdsim2.suse.de>
-X-Mailer: Gnus v5.7/Emacs 20.7
+	id <S281031AbRKCT7U>; Sat, 3 Nov 2001 14:59:20 -0500
+Received: from are.twiddle.net ([64.81.246.98]:5562 "EHLO are.twiddle.net")
+	by vger.kernel.org with ESMTP id <S281030AbRKCT7I>;
+	Sat, 3 Nov 2001 14:59:08 -0500
+Date: Sat, 3 Nov 2001 11:59:00 -0800
+From: Richard Henderson <rth@twiddle.net>
+To: "David S. Miller" <davem@redhat.com>
+Cc: csr21@cam.ac.uk, linux-kernel@vger.kernel.org
+Subject: Re: SPARC and SA_SIGINFO signal handling
+Message-ID: <20011103115900.B5984@twiddle.net>
+Mail-Followup-To: "David S. Miller" <davem@redhat.com>, csr21@cam.ac.uk,
+	linux-kernel@vger.kernel.org
+In-Reply-To: <20011029190027.A21372@cam.ac.uk> <20011030.125134.93645850.davem@redhat.com> <20011031094342.A27520@cam.ac.uk> <20011031.021131.74751566.davem@redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20011031.021131.74751566.davem@redhat.com>; from davem@redhat.com on Wed, Oct 31, 2001 at 02:11:31AM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dan Hollis <goemon@anime.net> writes:
+On Wed, Oct 31, 2001 at 02:11:31AM -0800, David S. Miller wrote:
+> The "register contents and so on" are in the sigcontext.
+> We don't use ucontext on sparc32.
 
-> On 2 Nov 2001, John Fremlin wrote:
-> > Who to talk to at SiS? They have a dubious web interface for sales and
-> > marketing requests that I used, but I'd prefer to email someone who
-> > knows what a datasheet actually is ;-)
-> > Alsa doesn't advertise any contact with SiS at all :-(
-> 
-> I've already talked with SiS. They are insisting that they will write the
-> drivers themselves, they dont want to release datasheets to anyone. The
-> reply I got (Thu, 25 Oct 2001) they said they are working on OSS drivers
-> in-house, and ALSA drivers are next.
+In other words, you don't support SA_SIGINFO at all.
 
-ALSA drivers seem to work. A standard SuSE 7.2 install with yast2 alsa installer
-had no problems with producing sound on a k7s5a.
 
-The sound quality is somewhat poor however; but even with another sound card
-this board is cheaper than the alternativesa and works very fast. 
-
--Andi (happy user of a k7s5a with a sblive) 
+r~

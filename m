@@ -1,66 +1,64 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287231AbRL2XMr>; Sat, 29 Dec 2001 18:12:47 -0500
+	id <S287244AbRL2XO5>; Sat, 29 Dec 2001 18:14:57 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287230AbRL2XMi>; Sat, 29 Dec 2001 18:12:38 -0500
-Received: from cpe-24-221-152-185.az.sprintbbd.net ([24.221.152.185]:59561
-	"EHLO opus.bloom.county") by vger.kernel.org with ESMTP
-	id <S287231AbRL2XMY>; Sat, 29 Dec 2001 18:12:24 -0500
-Date: Sat, 29 Dec 2001 16:12:02 -0700
-From: Tom Rini <trini@kernel.crashing.org>
-To: "Eric S. Raymond" <esr@thyrsus.com>,
-        Linus Torvalds <torvalds@transmeta.com>,
-        Legacy Fishtank <garzik@havoc.gtf.org>, Dave Jones <davej@suse.de>,
-        "Eric S. Raymond" <esr@snark.thyrsus.com>,
-        Marcelo Tosatti <marcelo@conectiva.com.br>,
-        linux-kernel@vger.kernel.org, kbuild-devel@lists.sourceforge.net
-Subject: Re: [kbuild-devel] Re: State of the new config & build system
-Message-ID: <20011229231202.GE21928@cpe-24-221-152-185.az.sprintbbd.net>
-In-Reply-To: <20011228141211.B15338@thyrsus.com> <Pine.LNX.4.33.0112281408170.23445-100000@penguin.transmeta.com> <20011228173151.B20254@thyrsus.com> <20011229212455.GB21928@cpe-24-221-152-185.az.sprintbbd.net> <20011229174354.B8526@thyrsus.com>
+	id <S287230AbRL2XOs>; Sat, 29 Dec 2001 18:14:48 -0500
+Received: from bitmover.com ([192.132.92.2]:37800 "EHLO bitmover.bitmover.com")
+	by vger.kernel.org with ESMTP id <S287235AbRL2XOl>;
+	Sat, 29 Dec 2001 18:14:41 -0500
+Date: Sat, 29 Dec 2001 15:14:40 -0800
+From: Larry McVoy <lm@bitmover.com>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Larry McVoy <lm@bitmover.com>, Benjamin LaHaise <bcrl@redhat.com>,
+        Oliver Xymoron <oxymoron@waste.org>,
+        Christer Weinigel <wingel@hog.ctrl-c.liu.se>,
+        linux-kernel@vger.kernel.org
+Subject: Re: The direction linux is taking
+Message-ID: <20011229151440.A21760@work.bitmover.com>
+Mail-Followup-To: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+	Larry McVoy <lm@bitmover.com>, Benjamin LaHaise <bcrl@redhat.com>,
+	Oliver Xymoron <oxymoron@waste.org>,
+	Christer Weinigel <wingel@hog.ctrl-c.liu.se>,
+	linux-kernel@vger.kernel.org
+In-Reply-To: <20011229140410.A13883@work.bitmover.com> <E16KSQt-0005zf-00@the-village.bc.nu>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20011229174354.B8526@thyrsus.com>
-User-Agent: Mutt/1.3.24i
+X-Mailer: Mutt 1.0.1i
+In-Reply-To: <E16KSQt-0005zf-00@the-village.bc.nu>; from alan@lxorguk.ukuu.org.uk on Sat, Dec 29, 2001 at 10:58:27PM +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Dec 29, 2001 at 05:43:54PM -0500, Eric S. Raymond wrote:
-> Tom Rini <trini@kernel.crashing.org>:
-> > > unless (ISA or PCI) suppress dependent IDE
+On Sat, Dec 29, 2001 at 10:58:27PM +0000, Alan Cox wrote:
+> > > Wrong.  Most patches are independant, and even touch different functions.  
 > > 
-> > Just a minor point, but what about non-PCI/ISA ide?
+> > Really?  And the data which shows this absolute statement to be true is
+> > where?  I'm happy to believe data, but there is no data here.
 > 
-> The CML1 rules seem to imply that this set is empty.
+> I rarely get clashes in merges with either 2.2 or with 2.4-ac when I was
+> doing it. Offsets from multiple patches to the same file happen some times
+> but its very rare two people had overlapping changes and when it happened
+> it almost always meant that the two of them needed to talk because they were
+> fixing the same thing or adding related features.
 
-It's not.  In fact, I don't really see that implication either.  There's
-lots of drivers hidden under a CONFIG_PCI check, but nothing under an
-ISA check.  From ~line 104 to ~136 I suspect are all non-PCI and non-ISA
-chipsets.
+So that means that pretty much 100% of development to any one area is being
+done by one person?!?   That's cool, but doesn't it limit the speed at which
+forward progress can be made?  And does that mean for any area there is only
+one person who really understands it?
 
-> > > unless (X86 and PCI and EXPERIMENTAL) or PPC or ARM or SPARC suppress dependent IEEE1394
-> > 
-> > Wouldn't the experimental be global?  And maybe the PCI too?
-> 
-> I don't understand what change you are suggesting.
+I'm not sure that you want single threading of development to be something
+enforced by your development process, and that's what it is starting to 
+sound like more and more.  Isn't it true that a lack of merge conflicts
+means that there is no parallel development in that area?  
 
-unless EXPERIMENTAL and (((X86 or PPC or SPARC) and PCI) or ARM)
-Since the experimental tag I believe would be a global thing, and I'm
-thinking that ARM probably implies !PCI (since it does so often, but I
-don't know for sure..).
+We have lots of commercial customers using BK on the Linux kernel, they
+are doing embedded this and that.  The rate of change that they make is
+much greater than the rate of change made in the Linus maintained tree.
+I'm not saying it's good or bad, it's just different.  I can say that
+merging is a huge issue in commercial shops.  It's interesting to hear 
+that it is not in Linux.
 
-> > > It seems to me *extremely* unlikely that a typical patch from a PPC
-> > > maintainer would mess with any of these!  They're rules that are likely to
-> > > be written once at the time a new port is added to the tree and seldom or
-> > > ever changed afterwards.
-> > 
-> > But they will be modified for new arch X, or when constraint X (like
-> > PCI) is removed.
-> 
-> Yes.
-
-Not typical than, but it could/will happen, from arch maintainer Y.
-
+Some sociology guy with a CS background should do a study on this and 
+explore the differences.  Is fast change better?  Is slow change better?
 -- 
-Tom Rini (TR1265)
-http://gate.crashing.org/~trini/
+---
+Larry McVoy            	 lm at bitmover.com           http://www.bitmover.com/lm 

@@ -1,55 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268139AbUHQH4I@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268140AbUHQIBP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268139AbUHQH4I (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 Aug 2004 03:56:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268140AbUHQH4I
+	id S268140AbUHQIBP (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 Aug 2004 04:01:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268141AbUHQIBP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 Aug 2004 03:56:08 -0400
-Received: from mustang.oldcity.dca.net ([216.158.38.3]:44994 "HELO
-	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S268139AbUHQH4C (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 Aug 2004 03:56:02 -0400
-Subject: Re: [patch] Latency Tracer, voluntary-preempt-2.6.8-rc4-O6
-From: Lee Revell <rlrevell@joe-job.com>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>,
-       Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>,
-       Florian Schmidt <mista.tapas@gmx.net>, tytso@mit.edu
-In-Reply-To: <20040817074826.GA1238@elte.hu>
-References: <20040726204720.GA26561@elte.hu>
-	 <20040729222657.GA10449@elte.hu> <20040801193043.GA20277@elte.hu>
-	 <20040809104649.GA13299@elte.hu> <20040810132654.GA28915@elte.hu>
-	 <20040812235116.GA27838@elte.hu> <1092374851.3450.13.camel@mindpipe>
-	 <1092375673.3450.15.camel@mindpipe> <20040813103151.GH8135@elte.hu>
-	 <1092699974.13981.95.camel@krustophenia.net>
-	 <20040817074826.GA1238@elte.hu>
+	Tue, 17 Aug 2004 04:01:15 -0400
+Received: from gate.crashing.org ([63.228.1.57]:1185 "EHLO gate.crashing.org")
+	by vger.kernel.org with ESMTP id S268140AbUHQIA6 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 17 Aug 2004 04:00:58 -0400
+Subject: Re: 2.6.8 (or 7?) regression: sleep on older tibooks broken
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: "David N. Welton" <davidw@dedasys.com>
+Cc: linuxppc-dev list <linuxppc-dev@lists.linuxppc.org>, j.s@lmu.de,
+       Linux Kernel list <linux-kernel@vger.kernel.org>
+In-Reply-To: <874qn353on.fsf@dedasys.com>
+References: <873c2ohjrv.fsf@dedasys.com> <1092569364.9539.16.camel@gaston>
+	 <873c2n41hs.fsf@dedasys.com> <1092668911.9539.55.camel@gaston>
+	 <87llgfdqb7.fsf@dedasys.com>  <874qn353on.fsf@dedasys.com>
 Content-Type: text/plain
-Message-Id: <1092729419.816.19.camel@krustophenia.net>
+Message-Id: <1092729140.9539.129.camel@gaston>
 Mime-Version: 1.0
 X-Mailer: Ximian Evolution 1.4.6 
-Date: Tue, 17 Aug 2004 03:56:59 -0400
+Date: Tue, 17 Aug 2004 17:52:21 +1000
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2004-08-17 at 03:48, Ingo Molnar wrote:
-> > +	return nbytes;
-> > +    
+On Tue, 2004-08-17 at 04:38, David N. Welton wrote:
+> davidw@dedasys.com (David N. Welton) writes:
 > 
-> since this effectively disables the random driver i cannot add it to the
-> patch.
+> > If it's useful, I suppose I can try backing of to 2.6.7 to see if it
+> > suffers from the same problem...
 > 
+> 2.6.7 is also broken.  Fresh 2.6.7 compiled, and it doesn't work
+> either.
 
-Yes, I figured as much, this is more of a temporary workaround, so we
-can continue to identify other issues - otherwise this one shows up
-constantly in latency_trace.
+Can you try going backward in time find when it broke ?
 
-> there's another thing you could try: various SHA_CODE_SIZE values in
-> drivers/char/random.c. Could you try 1, 2 and 3, does it change the
-> overhead as seen in the trace?
-> 
+Ben.
 
-Sure, I will test this.
-
-Lee
 

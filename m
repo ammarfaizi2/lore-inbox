@@ -1,91 +1,83 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267864AbUJLVkR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267869AbUJLVk7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267864AbUJLVkR (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Oct 2004 17:40:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267869AbUJLVkR
+	id S267869AbUJLVk7 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Oct 2004 17:40:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267881AbUJLVk7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Oct 2004 17:40:17 -0400
-Received: from 213-239-205-147.clients.your-server.de ([213.239.205.147]:47776
-	"EHLO debian.tglx.de") by vger.kernel.org with ESMTP
-	id S267864AbUJLVkI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Oct 2004 17:40:08 -0400
-Subject: Re: [Ext-rt-dev] Re: [ANNOUNCE] Linux 2.6 Real Time Kernel
-From: Thomas Gleixner <tglx@linutronix.de>
-Reply-To: tglx@linutronix.de
-To: Bill Huey <bhuey@lnxw.com>
-Cc: dwalker@mvista.com, Ingo Molnar <mingo@elte.hu>,
-       Andrew Morton <akpm@osdl.org>, amakarov@ru.mvista.com,
-       ext-rt-dev@mvista.com, LKML <linux-kernel@vger.kernel.org>
-In-Reply-To: <20041012212408.GA28707@nietzsche.lynx.com>
-References: <41677E4D.1030403@mvista.com> <20041010084633.GA13391@elte.hu>
-	 <1097437314.17309.136.camel@dhcp153.mvista.com>
-	 <20041010142000.667ec673.akpm@osdl.org> <20041010215906.GA19497@elte.hu>
-	 <1097517191.28173.1.camel@dhcp153.mvista.com>
-	 <20041011204959.GB16366@elte.hu>
-	 <1097607049.9548.108.camel@dhcp153.mvista.com>
-	 <1097610393.19549.69.camel@thomas>
-	 <20041012211201.GA28590@nietzsche.lynx.com>
-	 <20041012212408.GA28707@nietzsche.lynx.com>
-Content-Type: text/plain
-Organization: linutronix
-Message-Id: <1097616738.19549.160.camel@thomas>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Tue, 12 Oct 2004 23:32:18 +0200
+	Tue, 12 Oct 2004 17:40:59 -0400
+Received: from e35.co.us.ibm.com ([32.97.110.133]:51711 "EHLO
+	e35.co.us.ibm.com") by vger.kernel.org with ESMTP id S267869AbUJLVkx
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 12 Oct 2004 17:40:53 -0400
+Date: Tue, 12 Oct 2004 14:40:58 -0700
+From: Hanna Linder <hannal@us.ibm.com>
+To: sfeldma@pobox.com
+cc: Hanna Linder <hannal@us.ibm.com>, lkml <linux-kernel@vger.kernel.org>,
+       kernel-janitors <kernel-janitors@lists.osdl.org>,
+       benh@kernel.crashing.org, paulus@samba.org, greg@kroah.com
+Subject: Re: [Kernel-janitors] [PATCH 2.6][9/12] pplus.c replace	pci_find_device with pci_get_device
+Message-ID: <147050000.1097617258@w-hlinder.beaverton.ibm.com>
+In-Reply-To: <1097341320.3903.3.camel@sfeldma-mobl2.dsl-verizon.net>
+References: <33930000.1097191565@w-hlinder.beaverton.ibm.com> <1097341320.3903.3.camel@sfeldma-mobl2.dsl-verizon.net>
+X-Mailer: Mulberry/2.2.1 (Linux/x86)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2004-10-12 at 23:24, Bill Huey wrote:
-> On Tue, Oct 12, 2004 at 02:12:01PM -0700, Bill Huey wrote:
-> > On Tue, Oct 12, 2004 at 09:46:34PM +0200, Thomas Gleixner wrote:
-> > > enter_critical_section(TYPE, &var, &flags, whatever);
-> > > leave_critical_section(TYPE, &var, flags, whatever);
-> > 
-> > FreeBSD uses these things, but it they create severe pipeline stalls
-> > since they toggle interrupt flags on entry and exit. The current scheme
-> > in Linux with preempt_count use to be a curse when I was working on an
-> > equivalent implementation of there stuff at:
-
-You missed the point. TYPE decides whether to toggle interrupts or not.
-It's a generic function equivivalent, which identifies sections of code,
-which must be protected. The grade of protection is defined in TYPE.
-
-> > 	http://mmlinux.sf.net
+--On Saturday, October 09, 2004 10:02:01 AM -0700 Scott Feldman <sfeldma@pobox.com> wrote:
 > 
-> Duh, I didn't finish the sentence. I meant this method above is nasty
-> filled with pipeline stalls. Don't know if that's what were saying, but
-> non-preemptable critical sections denoted by preempt_count must have some
-> kind of conceptual overlap with local_irq* functions. I use to curse the
-> seperation of the two since it made my own conception irregular, but I
-> have come to the conclusion that using relatively something light weight
-> like preempt_count() for that functionality instead. That's what I
-> meant. :)
+> Missing cleanup at the bottom of func?
 
-I dont see a drawback in the proposal of enter_critical_section and
-leave_critical_section conversion.
+Here is the new patch:
 
-They indicate a none preemptible region, which must be protected in one
-or another way. Which way is choosen, must be evaluated by the
-programmer.
-
-There are several grades from preempt_disable over mutexes, spinlocks
-and irq blocking. All those grades allow different implementations for
-different goals.
-
-Systems which are optimized for througput will use other mechanisms than
-systems which are optimized for guaranteed repsonse times. 
-
-There is no generic sulotion available for those problems.
-
-But having a generic identifiable expression is more suitable for
-improvements, than struggling with substitutions of x,y and z.
-
-tglx
-
-
-
-
-
-
+diff -Nrup linux-2.6.9-rc4-mm1cln/arch/ppc/platforms/pplus.c linux-2.6.9-rc4-mm1patch/arch/ppc/platforms/pplus.c
+--- linux-2.6.9-rc4-mm1cln/arch/ppc/platforms/pplus.c	2004-10-12 14:15:28.000000000 -0700
++++ linux-2.6.9-rc4-mm1patch/arch/ppc/platforms/pplus.c	2004-10-12 14:24:44.608410992 -0700
+@@ -359,7 +359,7 @@ void __init pplus_pib_init(void)
+ 	 * Perform specific configuration for the Via Tech or
+ 	 * or Winbond PCI-ISA-Bridge part.
+ 	 */
+-	if ((dev = pci_find_device(PCI_VENDOR_ID_VIA,
++	if ((dev = pci_get_device(PCI_VENDOR_ID_VIA,
+ 				   PCI_DEVICE_ID_VIA_82C586_1, dev))) {
+ 		/*
+ 		 * PPCBUG does not set the enable bits
+@@ -371,7 +371,7 @@ void __init pplus_pib_init(void)
+ 		pci_write_config_byte(dev, 0x40, reg);
+ 	}
+ 
+-	if ((dev = pci_find_device(PCI_VENDOR_ID_VIA,
++	if ((dev = pci_get_device(PCI_VENDOR_ID_VIA,
+ 				   PCI_DEVICE_ID_VIA_82C586_2,
+ 				   dev)) && (dev->devfn = 0x5a)) {
+ 		/* Force correct USB interrupt */
+@@ -379,7 +379,7 @@ void __init pplus_pib_init(void)
+ 		pci_write_config_byte(dev, PCI_INTERRUPT_LINE, dev->irq);
+ 	}
+ 
+-	if ((dev = pci_find_device(PCI_VENDOR_ID_WINBOND,
++	if ((dev = pci_get_device(PCI_VENDOR_ID_WINBOND,
+ 				   PCI_DEVICE_ID_WINBOND_83C553, dev))) {
+ 		/* Clear PCI Interrupt Routing Control Register. */
+ 		short_reg = 0x0000;
+@@ -389,7 +389,7 @@ void __init pplus_pib_init(void)
+ 		pci_write_config_byte(dev, 0x43, reg);
+ 	}
+ 
+-	if ((dev = pci_find_device(PCI_VENDOR_ID_WINBOND,
++	if ((dev = pci_get_device(PCI_VENDOR_ID_WINBOND,
+ 				   PCI_DEVICE_ID_WINBOND_82C105, dev))) {
+ 		/*
+ 		 * Disable LEGIRQ mode so PCI INTS are routed
+@@ -401,6 +401,7 @@ void __init pplus_pib_init(void)
+ 		dev->irq = 14;
+ 		pci_write_config_byte(dev, PCI_INTERRUPT_LINE, dev->irq);
+ 	}
++	pci_dev_put(dev);
+ }
+ 
+ void __init pplus_set_VIA_IDE_legacy(void)
 

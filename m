@@ -1,63 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262724AbTIJL4p (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 10 Sep 2003 07:56:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262732AbTIJL4p
+	id S262803AbTIJMJr (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 10 Sep 2003 08:09:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262804AbTIJMJr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 Sep 2003 07:56:45 -0400
-Received: from www.mail15.com ([194.186.131.96]:41481 "EHLO www.mail15.com")
-	by vger.kernel.org with ESMTP id S262724AbTIJL4n (ORCPT
+	Wed, 10 Sep 2003 08:09:47 -0400
+Received: from mid-2.inet.it ([213.92.5.19]:5046 "EHLO mid-2.inet.it")
+	by vger.kernel.org with ESMTP id S262803AbTIJMJq (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 Sep 2003 07:56:43 -0400
-Date: Wed, 10 Sep 2003 15:56:40 +0400 (MSD)
-Message-Id: <200309101156.h8ABueXc048031@www.mail15.com>
-From: Muthukumar <kmuthukumar@mail15.com>
-To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+	Wed, 10 Sep 2003 08:09:46 -0400
+Message-ID: <03ae01c37795$063561a0$5aaf7450@wssupremo>
+Reply-To: "Luca Veraldi" <luca.veraldi@katamail.com>
+From: "Luca Veraldi" <luca.veraldi@katamail.com>
+To: <alexander.riesen@synopsys.COM>
+Cc: "linux-kernel" <linux-kernel@vger.kernel.org>
+References: <00f201c376f8$231d5e00$beae7450@wssupremo> <20030909175821.GL16080@Synopsys.COM> <001d01c37703$8edc10e0$36af7450@wssupremo> <20030910064508.GA25795@Synopsys.COM> <015601c3777c$8c63b2e0$5aaf7450@wssupremo> <20030910115259.GA28632@Synopsys.COM>
+Subject: Re: Efficient IPC mechanism on Linux
+Date: Wed, 10 Sep 2003 14:14:00 +0200
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-Mailer: 
-X-Proxy-IP: [203.129.254.138]
-X-Originating-IP: [172.16.1.46]
-Subject: Problem on Drivers on 2.6.0-test3 kernel
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2800.1106
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1106
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-Hello all ..,
+> > Compatibility is not a problem. Simply rewrite the write() and read()
+> > for pipes in order to make them do the same thing done by zc_send()
+> > and zc_receive().  Or, if you are not referring to pipes, rewrite the
+> > support level of you anchient IPC primitives in order to make them do
+> > the same thing done by zc_send() and zc_receive().
+> 
+> If it is possible, why new user-side interface?
 
-I have compiled the kernel in IA64 as 
+Because my programming model is clear and easy.
+Linux one's is far from being so, in my opinion.
 
-make menuconfig
-make all
-make modules
-But in this step i got the following messages as 
-make modules
-make[1]: `arch/ia64/kernel/asm-offsets.s' is up to date.
-  Building modules, stage 2.
-  MODPOST
-*** Warning: "per_cpu__local_per_cpu_offset" 
-[drivers/net/tulip/tulip.ko] has no CRC!
-*** Warning: "per_cpu__local_per_cpu_offset" [drivers/net/tg3.ko] 
-has no CRC!
-*** Warning: "per_cpu__local_per_cpu_offset" [drivers/net/eepro100.
-ko] has no CRC!
-*** Warning: "per_cpu__local_per_cpu_offset" 
-[drivers/net/e100/e100.ko] has no CRC!
-
-
-After installing the module-init-tools-0.9.tar.bz2 to update the 
-module tool and in the make install i got the 
-
-no ./install-with-care for all files in /bin/sh.Then i have changed 
-the ./install-with-care for as ./install-sh
-
-So what is the this effect and what is the problem on the above 
-messages on 2.6.0test3 on Ia64.then there is no interfaces to eth0 
-eth1 ,so i cannot take the testings.But the entires for the 
-ifcfg-eth0 and ifcfg-eth1 are there.
-
-So i need the guidlines for this...
-
-Thanks
-Mvthv
+Bye,
+Luca

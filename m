@@ -1,44 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261986AbULPUPg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261970AbULPUhb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261986AbULPUPg (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Dec 2004 15:15:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261983AbULPUPg
+	id S261970AbULPUhb (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Dec 2004 15:37:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262009AbULPUha
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Dec 2004 15:15:36 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:19914 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S261986AbULPUPb
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Dec 2004 15:15:31 -0500
-Date: Thu, 16 Dec 2004 15:23:23 -0200
-From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-To: Adam Heath <doogie@debian.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.4.29-pre2
-Message-ID: <20041216172323.GH9986@logos.cnet>
-References: <20041216113559.GF8246@logos.cnet> <Pine.LNX.4.58.0412161349260.2173@gradall.private.brainfood.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.58.0412161349260.2173@gradall.private.brainfood.com>
-User-Agent: Mutt/1.5.5.1i
+	Thu, 16 Dec 2004 15:37:30 -0500
+Received: from mta1.cl.cam.ac.uk ([128.232.0.15]:7894 "EHLO mta1.cl.cam.ac.uk")
+	by vger.kernel.org with ESMTP id S261970AbULPUhZ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 16 Dec 2004 15:37:25 -0500
+To: Andi Kleen <ak@suse.de>
+cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Ian Pratt <Ian.Pratt@cl.cam.ac.uk>,
+       Rik van Riel <riel@redhat.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, akpm@osdl.org,
+       Steven.Hand@cl.cam.ac.uk, Christian.Limpach@cl.cam.ac.uk,
+       Keir.Fraser@cl.cam.ac.uk, Ian.Pratt@cl.cam.ac.uk
+Subject: Re: arch/xen is a bad idea 
+In-reply-to: Your message of "Thu, 16 Dec 2004 15:28:24 +0100."
+             <20041216142824.GC29761@wotan.suse.de> 
+Date: Thu, 16 Dec 2004 20:37:11 +0000
+From: Ian Pratt <Ian.Pratt@cl.cam.ac.uk>
+Message-Id: <E1Cf2N5-0005pD-00@mta1.cl.cam.ac.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Dec 16, 2004 at 01:50:40PM -0600, Adam Heath wrote:
-> On Thu, 16 Dec 2004, Marcelo Tosatti wrote:
+> > There are so many problems in snooping and decoding instructions it
+> > isn't funny. Aside from the mmap pci buffer half way through instruction
 > 
-> > Hi,
-> >
-> > Here goes the second -pre of Linux v2.4.29.
-> 
-> I don't know if you've been following, but it was recently discoverd that on
-> smp, if multiple processes read from /dev/urandom at the same time, they can
-> get the same data.  Theodore Tytso posted a patch to fix this for 2.6, and
-> someone else told me this problem has existed all the way back to 1.3.
-> 
-> This is a security issue, and should be included in the 2.4 tree.
+> Hmm? From what I remember reading the code of the Xen hypervisor
+> they are already emulating a lot of instructions (e.g. take a look
+> at xen/arch/x86/x86_32/seg_fixup.c) Emulating some more doesn't 
+> seem like a big issue to me.
 
-Yes, I'm aware of it, Tytso is working on v2.4 backport of the correct locking.
+There's actually no emulation in Xen at all. seg_fixup is the
+closest we come, which is a tiny decoder that is able to work out
+the effective address of an instruction. It's only through grim
+necessity we need this in order to be able to make NPTL thread
+local storage accesses work (-ve segment offsets). We'd much
+prefer that glibc was slightly tweaked such that we didn't have
+to do this (it would be a lot faster too).
 
-Thanks for the reminder!
+Anyhow, I really don't think emulation is the issue. The handful
+of cases that you pointed out that could relatively easily be
+emulated constitute a tiny fraction of the arch xen patch.  Even
+so, you have to be a bit careful from a performance point of
+view: loading debug registers can occur quite frequently, and its
+much quicker to be able to load them as a batch rather than
+taking individual faults. 
 
+
+Ian

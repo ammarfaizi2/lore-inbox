@@ -1,42 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317286AbSHBXBD>; Fri, 2 Aug 2002 19:01:03 -0400
+	id <S312938AbSHBXWD>; Fri, 2 Aug 2002 19:22:03 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317305AbSHBXBD>; Fri, 2 Aug 2002 19:01:03 -0400
-Received: from pD952AC04.dip.t-dialin.net ([217.82.172.4]:59841 "EHLO
-	hawkeye.luckynet.adm") by vger.kernel.org with ESMTP
-	id <S317286AbSHBXBC>; Fri, 2 Aug 2002 19:01:02 -0400
-Date: Fri, 2 Aug 2002 17:04:29 -0600 (MDT)
-From: Thunder from the hill <thunder@ngforever.de>
-X-X-Sender: thunder@hawkeye.luckynet.adm
-To: jeff millar <wa1hco@adelphia.net>
-cc: Jose Luis Domingo Lopez <linux-kernel@24x7linux.org>,
-       <linux-kernel@vger.kernel.org>
-Subject: Re: What does this error mean? "local symbols in discarded section
- .text.exit"
-In-Reply-To: <000e01c23a77$03a43e90$6a01a8c0@wa1hco>
-Message-ID: <Pine.LNX.4.44.0208021702110.5119-100000@hawkeye.luckynet.adm>
-X-Location: Dorndorf; Germany
+	id <S316933AbSHBXWD>; Fri, 2 Aug 2002 19:22:03 -0400
+Received: from pcp01179415pcs.strl1201.mi.comcast.net ([68.60.208.36]:15613
+	"EHLO mythical") by vger.kernel.org with ESMTP id <S312938AbSHBXWD>;
+	Fri, 2 Aug 2002 19:22:03 -0400
+Date: Fri, 2 Aug 2002 19:25:01 -0400 (EDT)
+From: Ryan Anderson <ryan@michonline.com>
+To: Paul Menage <pmenage@ensim.com>
+cc: Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
+Subject: Re: manipulating sigmask from filesystems and drivers
+In-Reply-To: <E17agg9-0001vK-00@pmenage-dt.ensim.com>
+Message-ID: <Pine.LNX.4.10.10208021920210.579-100000@mythical.michonline.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Fri, 2 Aug 2002, Paul Menage wrote:
 
-On Fri, 2 Aug 2002, jeff millar wrote:
-> thanks for the reply.  This link error happens with 2.5.27-2.5.30.  Are you
-> sure the kernel people are working on this?
+> In article <0C01A29FBAE24448A792F5C68F5EA47D2D3E2B@nasdaq.ms.ensim.com>,
+>  you write:
+> >
+> >With write(), you have to make a judgement call. Unlike read, a truncated
+> >write _is_ visible outside the killed process. But exactly like read()
+> >there _are_ system management reasons why you may really need to kill
+> >writers. So the debatable point comes from whether you want to consider a
+> >killing signal to be "exceptional enough" to warrant the partial write.
+> >
+> 
+> How about a sysctl that lets the user specify the size threshold at
+> which writes use a killable wait state rather than
+> TASK_UNINTERRUPTIBLE? (Probably defaulting to never.)
 
-Well, it doesn't seem so.
+/usr/include/linux/limits.h:#define PIPE_BUF        4096        /* #
+bytes in atomic write to a pipe */
 
-http://marc.theaimsgroup.com/?l=linux-kernel&m=102798967514023&w=2
-http://marc.theaimsgroup.com/?l=linux-kernel&m=102799199615357&w=2
+According to SUSv3, this is the maximum size that write is guaranteed to
+be atomic for.
 
-The response seems to me like "Well, I don't care as long as the latest 
-(not working on some arches) gcc does..."
+The minimum size this can be set to is 512.  I *think* this applies to
+file io - but I'm not up to tracking all the definitions down.
 
-			Thunder
--- 
-.-../../-./..-/-..- .-./..-/.-.././.../.-.-.-
+So, you've already got the definitions in place, especially the size
+limits.  It even reads like changing the behavior for larger writes
+would be acceptable.
+
+Just leave the small writes alone and I think you'll avoid causing large
+problems for the majority of applications.
+
+--
+Ryan Anderson
+  sometimes Pug Majere
 

@@ -1,40 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261417AbVAHWJ2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261969AbVAHWRx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261417AbVAHWJ2 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 8 Jan 2005 17:09:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261943AbVAHWG1
+	id S261969AbVAHWRx (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 8 Jan 2005 17:17:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261982AbVAHWOx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 8 Jan 2005 17:06:27 -0500
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:29445 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S261417AbVAHWCZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 8 Jan 2005 17:02:25 -0500
-Date: Sat, 8 Jan 2005 23:02:15 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: linux-kernel@vger.kernel.org
-Subject: [2.6 patch] fs/proc/kcore.c: make a function static
-Message-ID: <20050108220215.GD14108@stusta.de>
+	Sat, 8 Jan 2005 17:14:53 -0500
+Received: from viper.oldcity.dca.net ([216.158.38.4]:56235 "HELO
+	viper.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S261938AbVAHWOU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 8 Jan 2005 17:14:20 -0500
+Subject: Re: [PATCH] [request for inclusion] Realtime LSM
+From: Lee Revell <rlrevell@joe-job.com>
+To: "Jack O'Quin" <joq@io.com>
+Cc: Chris Wright <chrisw@osdl.org>, Christoph Hellwig <hch@infradead.org>,
+       Andrew Morton <akpm@osdl.org>, paul@linuxaudiosystems.com,
+       arjanv@redhat.com, mingo@elte.hu, alan@lxorguk.ukuu.org.uk,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <87mzvkxxck.fsf@sulphur.joq.us>
+References: <200501071620.j07GKrIa018718@localhost.localdomain>
+	 <1105132348.20278.88.camel@krustophenia.net>
+	 <20050107134941.11cecbfc.akpm@osdl.org>
+	 <20050107221059.GA17392@infradead.org>
+	 <20050107142920.K2357@build.pdx.osdl.net>  <87mzvkxxck.fsf@sulphur.joq.us>
+Content-Type: text/plain
+Date: Sat, 08 Jan 2005 17:14:02 -0500
+Message-Id: <1105222442.24592.126.camel@krustophenia.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.6+20040907i
+X-Mailer: Evolution 2.0.3 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The patch below makes a needlessly global function static.
+On Sat, 2005-01-08 at 00:12 -0600, Jack O'Quin wrote:
+> I find it hard to understand why some of you think PAM is an adequate
+> solution.  As currently deployed, it is poorly documented and nearly
+> impossible for non-experts to administer securely.  On my Debian woody
+> system, when I login from the console I get one fairly sensible set of
+> ulimit values, but from gdm I get a much more permissive set (with
+> ulimited mlocking, BTW).  Apparently, this is because the `gdm' PAM
+> config includes `session required pam_limits.so' but the system comes
+> with an empty /etc/security/limits.conf.  I'm just guessing about that
+> because I can't find any decent documentation for any of this crap.
 
+Eh, PAM is a perfectly fine solution.  Documentation is lacking, but
+it's easy to find examples.  On my system /etc/security/limits.conf has
+this sample config, commented out:
 
-Signed-off-by: Adrian Bunk <bunk@stusta.de>
+#<domain>      <type>  <item>         <value>
+#
 
---- linux-2.6.10-mm2-full/fs/proc/kcore.c.old	2005-01-08 17:13:25.000000000 +0100
-+++ linux-2.6.10-mm2-full/fs/proc/kcore.c	2005-01-08 17:13:37.000000000 +0100
-@@ -97,7 +97,7 @@
- /*
-  * determine size of ELF note
-  */
--int notesize(struct memelfnote *en)
-+static int notesize(struct memelfnote *en)
- {
- 	int sz;
- 
+#*               soft    core            0
+#*               hard    rss             10000
+#@student        hard    nproc           20
+#@faculty        soft    nproc           20
+#@faculty        hard    nproc           50
+#ftp             hard    nproc           0
+
+So add your audio users (or cdrecord users, or whoever) to group
+realtime and add:
+
+realtime	hard	memlock	100000
+realtime	soft	prio	100
+
+Problem solved.
+
+Lee
+
 

@@ -1,43 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281046AbRKOUii>; Thu, 15 Nov 2001 15:38:38 -0500
+	id <S281044AbRKOUm2>; Thu, 15 Nov 2001 15:42:28 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281044AbRKOUi3>; Thu, 15 Nov 2001 15:38:29 -0500
-Received: from h24-64-71-161.cg.shawcable.net ([24.64.71.161]:31984 "EHLO
-	lynx.adilger.int") by vger.kernel.org with ESMTP id <S281048AbRKOUiP>;
-	Thu, 15 Nov 2001 15:38:15 -0500
-Date: Thu, 15 Nov 2001 13:37:34 -0700
-From: Andreas Dilger <adilger@turbolabs.com>
-To: Sven Heinicke <sven@research.nj.nec.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: /proc/stat description for proc.txt
-Message-ID: <20011115133734.P5739@lynx.no>
-Mail-Followup-To: Sven Heinicke <sven@research.nj.nec.com>,
-	linux-kernel@vger.kernel.org
-In-Reply-To: <15347.57175.887835.525156@abasin.nj.nec.com> <20011115115939.I5739@lynx.no> <15348.8974.587924.655924@abasin.nj.nec.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.4i
-In-Reply-To: <15348.8974.587924.655924@abasin.nj.nec.com>; from sven@research.nj.nec.com on Thu, Nov 15, 2001 at 03:18:22PM -0500
-X-GPG-Key: 1024D/0D35BED6
-X-GPG-Fingerprint: 7A37 5D79 BF1B CECA D44F  8A29 A488 39F5 0D35 BED6
+	id <S281047AbRKOUmT>; Thu, 15 Nov 2001 15:42:19 -0500
+Received: from mail.gmx.de ([213.165.64.20]:55220 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id <S281044AbRKOUmL>;
+	Thu, 15 Nov 2001 15:42:11 -0500
+Message-ID: <3BF42798.1050204@gmx.de>
+Date: Thu, 15 Nov 2001 21:37:44 +0100
+From: Daniel =?ISO-8859-1?Q?Schr=F6ter?= <d.schroeter@gmx.de>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.5) Gecko/20011012
+X-Accept-Language: de, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: Re: Pressing no Key on Keyboard --> Linux hangs if switching of the monitor
+In-Reply-To: <3BF23873.4020902@gmx.de>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Nov 15, 2001  15:18 -0500, Sven Heinicke wrote:
-> +total of all the separate CPU statistics.  The four numbers following
-> +"cpu" entries are: user, nice, system and idle usage.  These are
-> +stored in, I believe, jiffers.
-They definitely are in   ^^^^^^^ units of jiffies.
+Hi,
 
-> +The "btime" field the is up time of the system in seconds.
+Daniel Schröter wrote:
+ > it works in 2.4.9 (and earlier) (with a littel other .config, I'll
+ > try it soon with  the same).
+Okay. I tried it. I build the 2.4.9 Kernel with the same .config like 
+the 2.4.15-pre4 (ACPI was also switched off): It doesn't crash! The 
+monitor switched off normal and the system works anymore.
 
-It's not the uptime, but actually the time in seconds that the system booted.
+Does anybody have a solution? What should I try next?
 
-Cheers, Andreas
---
-Andreas Dilger
-http://sourceforge.net/projects/ext2resize/
-http://www-mddsp.enel.ucalgary.ca/People/adilger/
+Bye
+	Daniel
+
+
+ps: Please CC me!
+
 

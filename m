@@ -1,33 +1,33 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281762AbSAAPQi>; Tue, 1 Jan 2002 10:16:38 -0500
+	id <S281255AbSAAPN4>; Tue, 1 Jan 2002 10:13:56 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281854AbSAAPQ0>; Tue, 1 Jan 2002 10:16:26 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:51716 "EHLO
+	id <S281762AbSAAPNq>; Tue, 1 Jan 2002 10:13:46 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:50180 "EHLO
 	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S281458AbSAAPQM>; Tue, 1 Jan 2002 10:16:12 -0500
-Subject: Re: [patch] Prefetching file_read_actor()
-To: davej@suse.de (Dave Jones)
-Date: Tue, 1 Jan 2002 15:26:12 +0000 (GMT)
-Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), akpm@zip.com.au (Andrew Morton),
-        manfred@colorfullife.com (Manfred Spraul),
-        linux-kernel@vger.kernel.org (Linux Kernel)
-In-Reply-To: <Pine.LNX.4.33.0201011342350.23436-100000@Appserv.suse.de> from "Dave Jones" at Jan 01, 2002 01:45:16 PM
+	id <S281458AbSAAPNm>; Tue, 1 Jan 2002 10:13:42 -0500
+Subject: Re: Why would a valid DVD show zero files on Linux?
+To: bryce@obviously.com (Bryce Nesbitt)
+Date: Tue, 1 Jan 2002 15:24:14 +0000 (GMT)
+Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), linux-kernel@vger.kernel.org,
+        Lionel.Bouton@free.fr (Lionel Bouton), Andries.Brouwer@cwi.nl
+In-Reply-To: <3C31C62F.FFF175A9@obviously.com> from "Bryce Nesbitt" at Jan 01, 2002 09:22:39 AM
 X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-Id: <E16LQns-0000ZC-00@the-village.bc.nu>
+Message-Id: <E16LQly-0000Yj-00@the-village.bc.nu>
 From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I've come up with a preload_cache() function (for want of a better name)
-> and plonked that in prefetch.h for now. Having this #define to nothing
-> on other arch's would mean we could use this in places like we currently
-> do prefetch().  I'm still not happy with it, but its cleaner than my
-> original hack.
+> Windows, somehow, detects the difference.  Whatever method used by Windows
+> will be the one tested by the makers of most DVD/CDROM's.
 
-copy_*_user_prefetched() is probably the one you need. Then you can prefetch
-first for PIII, prefetch as copying for athlon etc. It will also provide
-the needed hints about which copies are wins. 
+Actually half of the copy protected CD thing relies on the fact windows does
+not get its decisions right.
+
+> If the distinction is something that can be automated well, then what is
+> the argument against doing it?
+
+Certainly relevant - but for the kde file manager and gnome nautilus lists

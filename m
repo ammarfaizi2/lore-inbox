@@ -1,93 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261540AbSKCA7k>; Sat, 2 Nov 2002 19:59:40 -0500
+	id <S261549AbSKCBCi>; Sat, 2 Nov 2002 20:02:38 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261541AbSKCA7k>; Sat, 2 Nov 2002 19:59:40 -0500
-Received: from w032.z064001165.sjc-ca.dsl.cnc.net ([64.1.165.32]:13639 "EHLO
-	nakedeye.aparity.com") by vger.kernel.org with ESMTP
-	id <S261540AbSKCA7e>; Sat, 2 Nov 2002 19:59:34 -0500
-Date: Sat, 2 Nov 2002 17:14:10 -0800 (PST)
-From: "Matt D. Robinson" <yakker@aparity.com>
-To: Horst von Brand <vonbrand@inf.utfsm.cl>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: What's left over. 
-In-Reply-To: <200211022344.gA2NiEgo002637@pincoya.inf.utfsm.cl>
-Message-ID: <Pine.LNX.4.44.0211021655340.28078-100000@nakedeye.aparity.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S261552AbSKCBCi>; Sat, 2 Nov 2002 20:02:38 -0500
+Received: from pc1-cwma1-5-cust42.swa.cable.ntl.com ([80.5.120.42]:57227 "EHLO
+	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S261549AbSKCBCh> convert rfc822-to-8bit; Sat, 2 Nov 2002 20:02:37 -0500
+Subject: Re: Kconfig (qt) -> Gconfig (gtk)
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: "J.A." =?ISO-8859-1?Q?Magall=F3n?= <jamagallon@able.es>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20021103000641.GA5284@werewolf.able.es>
+References: <1036274342.16803.27.camel@irongate.swansea.linux.org.uk>
+	<Pine.LNX.4.44.0211021652470.16432-100000@ibm-ps850.purdueriots.com>
+	<20021102232836.GD731@gallifrey> <200211030943.13730.neroz@iinet.net.au>
+	<Pine.LNX.4.44.0211030052410.13258-100000@serv> 
+	<20021103000641.GA5284@werewolf.able.es>
+Content-Type: text/plain; charset=ISO-8859-15
+Content-Transfer-Encoding: 8BIT
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
+Date: 03 Nov 2002 01:30:09 +0000
+Message-Id: <1036287009.18289.5.camel@irongate.swansea.linux.org.uk>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I'm not sure I understand your point, Horst.  There are four
-primary mechanisms which would invoke a dump:
+On Sun, 2002-11-03 at 00:06, J.A. Magallón wrote:
+> As I see it, the onle thing that should be included in a standard kernel
+> would be something like a kconfig-xaw, that is sure to be on every box that
+> has X, and could be a reference implementation.
 
-	die() (or die_if_kernel())
-	panic()
-	interrupt-driven dumps
-	sysrq()
+Lots of people no longer include Xaw either nowdays 8)
 
-Assuming you call these functions, there is a single dump()
-call that will perform dumping, the the dump_function_ptr
-(which is assigned when the dump module is loaded) is set.
-dump() is a simple function that basically says:
+Probably the easiest way to do this would be to move the GUI tools out
+of the kernel (or maybe leave the common useful ones) and have make
+guiconfig do
 
-static inline void dump(char * str, struct pt_regs * regs)
-{
-	if (dump_function_ptr) {
-		dump_function_ptr((char *)str, regs);
-	}
-}
+	if [ -f /usr/sbin/kernel-gui-config ] ; then
+		/usr/sbin/kernel-gui-config
+	elif got_qt() ; then
+		qt config
+	elif got_gtk() ; then
+		gtk_config
+	else
+		warnign message
+		make config
+	fi
 
-str is for the panic() string, and regs are so you can create
-a proper stack trace for the failing task on the correct CPU.
-
-I don't see how that can can attributed to bloating the kernel.
-If you don't panic(), the code is never invoked.  If you don't load
-the dump module, dump_function_ptr isn't assigned.  It's meant
-to be non-invasive, off to the side and called when required
-(or requested).
-
-There is some additional code put in the kernel to disable
-interrupts, quiesce the system, and I think there are a few projects
-that can probably use the same code base (such as the suspend-to-ram
-project, which I was just informed about).  All of that is called
-within the dump driver itself, otherwise it sits quietly off to
-the side, never getting called.
-
-Using the dump driver infrastructure is like writing any plain-jane
-driver.  You set up the _open(), _close(), etc., functions,
-assigning the ops table based on the dump method you want to use
-(disk, network, mini-oopser, etc.)  This isn't that difficult,
-and it should only be loaded for those customer systems that want
-a specific dump style.
-
---Matt
-
-Standard disclaimer:  I'm not trying anymore to get this into the
-kernel at this time (via Linus).  This is purely for educating
-those that aren't familiar with crash dumping for Linux.
-
-On Sat, 2 Nov 2002, Horst von Brand wrote:
-|>"Matt D. Robinson" <yakker@aparity.com> dijo:
-|>
-|>[...]
-|>
-|>> This isn't bloat.  If you want, it can be built as a module, and
-|>> not as part of your kernel.  How can that be bloat?  People who
-|>> build kernels can optionally build it in, but we're not asking
-|>> that it be turned on by default, rather, built as a module so
-|>> people can load it if they want to.  We made it into a module
-|>> because 18 months ago you complained about it being bloat.  We
-|>> addressed your concerns.
-|>
-|>Bloat is not just RAM/CPU/... usage when in use, it is much more about
-|>developers who have to understand, work with, and consider how to use or
-|>interface with the new code. Even more so when it is not builtin, as this
-|>creates _two_ scenarios to consider.
-|>
-|>This is the sense of "bloat" that Linus is most worried about (and very
-|>rightly so, IMVHO). At lesat that is my observation over the years.
-|>
-
--- 
 

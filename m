@@ -1,35 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266019AbRF1QVu>; Thu, 28 Jun 2001 12:21:50 -0400
+	id <S266022AbRF1QZK>; Thu, 28 Jun 2001 12:25:10 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266018AbRF1QVl>; Thu, 28 Jun 2001 12:21:41 -0400
-Received: from smtp1.cern.ch ([137.138.128.38]:28681 "EHLO smtp1.cern.ch")
-	by vger.kernel.org with ESMTP id <S266013AbRF1QVc>;
-	Thu, 28 Jun 2001 12:21:32 -0400
-Date: Thu, 28 Jun 2001 18:21:24 +0200
-From: Jamie Lokier <lk@tantalophile.demon.co.uk>
-To: John Fremlin <vii@users.sourceforge.net>
-Cc: Dan Kegel <dank@kegel.com>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: Re: A signal fairy tale
-Message-ID: <20010628182124.A3728@pcep-jamie.cern.ch>
-In-Reply-To: <3B38860D.8E07353D@kegel.com> <m23d8kiwx0.fsf@boreas.yi.org.>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <m23d8kiwx0.fsf@boreas.yi.org.>; from vii@users.sourceforge.net on Thu, Jun 28, 2001 at 01:58:03PM +0100
+	id <S266027AbRF1QZA>; Thu, 28 Jun 2001 12:25:00 -0400
+Received: from ip116.gte31.rb1.bel.nwlink.com ([207.202.209.116]:51243 "EHLO
+	lily.altaserv.net") by vger.kernel.org with ESMTP
+	id <S266022AbRF1QYw>; Thu, 28 Jun 2001 12:24:52 -0400
+Date: Thu, 28 Jun 2001 09:24:13 -0700 (PDT)
+From: <chuckw@altaserv.net>
+X-X-Sender: <chuckw@localhost.localdomain>
+To: Vipin Malik <vipin.malik@daniel.com>
+cc: Aaron Lehmann <aaronl@vitelus.com>,
+        Linus Torvalds <torvalds@transmeta.com>,
+        David Woodhouse <dwmw2@infradead.org>, <alan@lxorguk.ukuu.org.uk>,
+        <jffs-dev@axis.com>, <linux-kernel@vger.kernel.org>
+Subject: Re: Cosmetic JFFS patch.
+In-Reply-To: <3B3B57F3.FE7F81B5@daniel.com>
+Message-ID: <Pine.LNX.4.33.0106280921460.10308-100000@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-John Fremlin wrote:
-> >        A signal number cannot be opened more than once concurrently;
-> >        sigopen() thus provides a way to avoid signal usage clashes
-> >        in large programs.
-> 
-> Signals are a pretty dopey API anyway - so instead of trying to patch
-> them up, why not think of something better for AIO?
 
-Keep in mind that SIGRTxxx signals are not just used for AIO.
+Perhaps even a boot flag of some sort to de-activate the printing of the
+/proc/credits during the kernel boot sequence. Or would the community
+rather an opt-in scenario...
 
--- Jamie
+> A /proc/credits maybe?
+>
+> > I've never met a single person who shared that opinion. In fact, quite the
+> > contrary. It's the main source of currency in this space. If you can't
+> > toot your own horn and/or share credit what's all of this open source
+> > stuff worth? We aren't all Mother Theresa now...
+
+-- 
+Chuck Wolber		| steward: "Are you the pilot?"
+System Administrator	| pilot: "Yes, why?"
+AltaServ Corporation	| steward, handing box to pilot: "Then this is for you."
+(425)576-1202		| pilot, looking inside box: "Oh, it's a new altimeter."
+ten.vresatla@wkcuhc	| 	--Chris Kennedy
+

@@ -1,79 +1,61 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S311252AbSCSOKo>; Tue, 19 Mar 2002 09:10:44 -0500
+	id <S311264AbSCSOUZ>; Tue, 19 Mar 2002 09:20:25 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S311258AbSCSOKd>; Tue, 19 Mar 2002 09:10:33 -0500
-Received: from www.wen-online.de ([212.223.88.39]:53769 "EHLO wen-online.de")
-	by vger.kernel.org with ESMTP id <S311252AbSCSOKT>;
-	Tue, 19 Mar 2002 09:10:19 -0500
-Date: Tue, 19 Mar 2002 10:19:03 +0100 (CET)
-From: Mike Galbraith <mikeg@wen-online.de>
-To: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
-cc: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: reading your email via tcpdump
-In-Reply-To: <200203190739.g2J7dTq31402@Port.imtp.ilyichevsk.odessa.ua>
-Message-ID: <Pine.LNX.4.10.10203191009290.5694-100000@mikeg.wen-online.de>
+	id <S311267AbSCSOUP>; Tue, 19 Mar 2002 09:20:15 -0500
+Received: from atlas.inria.fr ([138.96.66.22]:23761 "EHLO atlas.inria.fr")
+	by vger.kernel.org with ESMTP id <S311262AbSCSOUA>;
+	Tue, 19 Mar 2002 09:20:00 -0500
+Message-Id: <200203191419.g2JEJfM07465@atlas.inria.fr>
+Content-Type: text/plain;
+  charset="iso-8859-1"
+From: Nicolas Turro <Nicolas.Turro@sophia.inria.fr>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        Nicolas.Turro@sophia.inria.fr (Nicolas Turro)
+Subject: Re: amd nvidia and mem=nopentium
+Date: Tue, 19 Mar 2002 15:19:40 +0100
+X-Mailer: KMail [version 1.3]
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <E16lx1N-0004NZ-00@the-village.bc.nu>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 19 Mar 2002, Denis Vlasenko wrote:
 
-> On 18 March 2002 15:20, Mike Galbraith wrote:
-> > Greetings,
-> >
-> > Kernel version is 2.5.7-pre2 if that matters.
-> >
-> > I was reading lkml with a forgotten tcpdump running, when my son turned
-> > on his windows box, blessing me with the usual msjunk.  Is the attached
-> > just a tcpdump bug?  I had already read that message, and didn't really
-> > expect to see it again.. not in my tcpdump log anyway :)
-> 
-> 8-(  We need SMB experts here...
-> I presume your box is a Linux one. 
+Thanks for your answer, Alan.
 
-Yes.
+Le Vendredi 15 Mars 2002 20:05, Alan Cox a écrit :
+> > Hi, i have system dual athlon  XP 1900+ system and a nvidia graphic board
+> > : I need to use the mem=nopentium kernel parameter in order to run X
+> > without crashes. I'd like to know :
+> > 1- what are the consequences of  'mem=nopentium' ? Any performance loss ?
+>
+> Yes. On the whole probably not a lot. You are running XP not MP processors
+> and the like so you are obviously not too worried about stability. You
+> might want to see if it actually does crash without nopentium.
 
-> Is this packet went from your box to win box?
+Well... In fact, i am really worried about stability, but i don't have much 
+choice on the configuration. I have to choose between this config
+and a dual 2.0 Ghz Xeon (RDRAM) which has roughtly the same perfs,
+but which is 50% more expensive !
 
-No, it looks to me like tcpdump just gets uncleared pages, makes a
-booboo while processing ms packet and spits out old page content.
+ Do you have pointers  showing stability problems when using
+XP processor in a multiprocessor context ?
 
-(security doesn't matter to me, but I figured maybe it shouldn't be
-doing that.. worth sending a note just in case)
+The Athlon actually crashes as soon as I start X with the nvidia board if i 
+don't use the mem=nopentium option.
+With a Matrox G450, i don't need this option...
 
-> What was running on your box? Samba?
-> Did you use smbfs?
+> > i intend to use a gigabit ethernet adapter on this box.
+> > 2- is there any fix going on that i should monitor ?
+>
+> Some gige cards don't seem to work with some dual athlon bioses. Other than
+> that it should be fine
 
-No samba here. (configured in, but I never found a round-tuit)
+I've juste tested an Intel e1000 on it and achieved 900 Mbits/s with ttcp....
+So i guess it works... I do some nfs benches right now to see if i can
+reach the disk transfer limit (around 40 Mo/s for sequencial acces on a big 
+file).
 
-> 
-> 16:42:49.412862 10.0.0.101.netbios-dgm > 10.255.255.255.netbios-dgm: 
->                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
->                 bcast from your box to NetBIOS port?
-> >>> NBT UDP PACKET(138) Res=0x1102 ID=0x54 IP=10.0.0.101 Port=138 Length=193 
-> Res2=0x0 
-> SourceName=T1H6I3          NameType=0x00 (Workstation) 
->            ^^^^^^ your hostname?
-
-No, that's my son's winbox.
-
-> DestName= 
-> SMB PACKET: SMBunknown (REQUEST) 
-> SMB Command   =  0x43 
-> Error class   =  0x46 
-> Error code    =  20550 
-> Flags1        =  0x45 
-> Flags2        =  0x4E 
-> Tree ID       =  17990 
-> Proc ID       =  18000 
-> UID           =  16720 
-> MID           =  16707 
-> Word Count    =  66 
-> SMBError = ERROR: Unknown error (70,20550) 
-> --
-> vda
-
-	-Mike
-
+N. Turro

@@ -1,35 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262825AbRE3Vyj>; Wed, 30 May 2001 17:54:39 -0400
+	id <S262821AbRE3Vx3>; Wed, 30 May 2001 17:53:29 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262822AbRE3Vyb>; Wed, 30 May 2001 17:54:31 -0400
-Received: from smtp.kolej.mff.cuni.cz ([195.113.25.225]:47633 "EHLO
-	smtp.kolej.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id <S262823AbRE3VyT>; Wed, 30 May 2001 17:54:19 -0400
-Date: Wed, 30 May 2001 23:54:16 +0200
-From: David Hajek <david@atrey.karlin.mff.cuni.cz>
+	id <S262823AbRE3VxU>; Wed, 30 May 2001 17:53:20 -0400
+Received: from marine.sonic.net ([208.201.224.37]:65106 "HELO marine.sonic.net")
+	by vger.kernel.org with SMTP id <S262821AbRE3Vvr>;
+	Wed, 30 May 2001 17:51:47 -0400
+X-envelope-info: <dalgoda@ix.netcom.com>
+Date: Wed, 30 May 2001 14:44:14 -0700
+From: Mike Castle <dalgoda@ix.netcom.com>
 To: linux-kernel@vger.kernel.org
-Subject: 2.2.19 and LFS patch?
-Message-ID: <20010530235416.A2908@pida.ulita.cz>
-Reply-To: hajek@idoox.com
+Subject: Re: ln -s broken on 2.4.5
+Message-ID: <20010530144414.I24802@thune.mrc-home.com>
+Reply-To: Mike Castle <dalgoda@ix.netcom.com>
+Mail-Followup-To: Mike Castle <dalgoda@ix.netcom.com>,
+	linux-kernel@vger.kernel.org
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-X-Operating-System: Linux 2.2.19
-Organization: IDOOX.COM
+In-Reply-To: <20010530233005.A27497@caldera.de>
+User-Agent: Mutt/1.3.18i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Wed, May 30, 2001 at 11:30:05PM +0200, Marcus Meissner wrote:
+> The problem is only there if you specify a directory for the linked to
+> component.
+> 
+> [marcus@wine /tmp]$ strace -f ln -s fupp/berk xxx
 
-where can I get large file system (LFS) patch
-for 2.2.19? 
+Is it only a directory, or the length?
 
+ln -s fupp_berk xxx 
 
-Thanks.
-
+for instance.
 -- 
-David Hajek
-hajek@idoox.com                	     GSM: +420 604 352968
-- System going down in 5 minutes.
+     Mike Castle      dalgoda@ix.netcom.com      www.netcom.com/~dalgoda/
+    We are all of us living in the shadow of Manhattan.  -- Watchmen
+fatal ("You are in a maze of twisty compiler features, all different"); -- gcc

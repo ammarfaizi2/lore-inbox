@@ -1,53 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261805AbVA0CSO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261769AbVA0CSP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261805AbVA0CSO (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 26 Jan 2005 21:18:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261769AbVAZXp0
+	id S261769AbVA0CSP (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 26 Jan 2005 21:18:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261807AbVAZXpx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 26 Jan 2005 18:45:26 -0500
-Received: from mail-ex.suse.de ([195.135.220.2]:14485 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S261960AbVAZTFj (ORCPT
+	Wed, 26 Jan 2005 18:45:53 -0500
+Received: from relay.2ka.mipt.ru ([194.85.82.65]:50659 "EHLO 2ka.mipt.ru")
+	by vger.kernel.org with ESMTP id S261971AbVAZTIf (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 26 Jan 2005 14:05:39 -0500
-Date: Wed, 26 Jan 2005 20:05:37 +0100
-From: Olaf Hering <olh@suse.de>
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Akinobu Mita <amgta@yacht.ocn.ne.jp>
-Cc: linuxppc-dev@ozlabs.org
-Subject: Re: [PATCH] oprofile: falling back on timer interrupt mode
-Message-ID: <20050126190537.GA26349@suse.de>
-References: <200501260512.j0Q5CAhd016730@hera.kernel.org>
+	Wed, 26 Jan 2005 14:08:35 -0500
+Date: Wed, 26 Jan 2005 22:27:43 +0300
+From: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
+To: Adrian Bunk <bunk@stusta.de>
+Cc: dtor_core@ameritech.net, Christoph Hellwig <hch@infradead.org>,
+       Jean Delvare <khali@linux-fr.org>, Greg KH <greg@kroah.com>,
+       LKML <linux-kernel@vger.kernel.org>
+Subject: Re: 2.6.11-rc2-mm1: SuperIO scx200 breakage
+Message-ID: <20050126222743.1e0a29ff@zanzibar.2ka.mipt.ru>
+In-Reply-To: <20050126181941.GC5297@stusta.de>
+References: <20050124214751.GA6396@infradead.org>
+	<20050125060256.GB2061@kroah.com>
+	<20050125195918.460f2b10.khali@linux-fr.org>
+	<20050126003927.189640d4@zanzibar.2ka.mipt.ru>
+	<20050125224051.190b5ff9.khali@linux-fr.org>
+	<20050126013556.247b74bc@zanzibar.2ka.mipt.ru>
+	<20050126101434.GA7897@infradead.org>
+	<1106737157.5257.139.camel@uganda>
+	<d120d5000501260600fb8589e@mail.gmail.com>
+	<1106757528.5257.221.camel@uganda>
+	<20050126181941.GC5297@stusta.de>
+Reply-To: johnpol@2ka.mipt.ru
+Organization: MIPT
+X-Mailer: Sylpheed-Claws 0.9.12b (GTK+ 1.2.10; i386-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-In-Reply-To: <200501260512.j0Q5CAhd016730@hera.kernel.org>
-X-DOS: I got your 640K Real Mode Right Here Buddy!
-X-Homeland-Security: You are not supposed to read this line! You are a terrorist!
-User-Agent: Mutt und vi sind doch schneller als Notes (und GroupWise)
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- On Wed, Jan 26, Linux Kernel Mailing List wrote:
+On Wed, 26 Jan 2005 19:19:41 +0100
+Adrian Bunk <bunk@stusta.de> wrote:
 
-> ChangeSet 1.2038, 2005/01/25 20:31:01-08:00, amgta@yacht.ocn.ne.jp
+> On Wed, Jan 26, 2005 at 07:38:48PM +0300, Evgeniy Polyakov wrote:
+> >...
+> > Btw, where was comments about w1, kernel connector and acrypto? 
+> > They were presented several times in lkml and all are completely new
+> > subsystems.
+> > Should I stop developing just because I did not get comments?
+> >...
 > 
-> 	[PATCH] oprofile: falling back on timer interrupt mode
-
+> I sent you comments regarding w1 two months ago regarding:
+> - the unneeded dscore -> ds9490r rename in the Makefile
+> - completely unused EXPORT_SYMBOL's (that seem to be still unused today)
 > 
->  arch/alpha/oprofile/common.c     |    6 ++++--
->  arch/arm/oprofile/common.c       |    7 +++++--
->  arch/arm/oprofile/init.c         |    8 ++++++--
->  arch/i386/oprofile/init.c        |    4 +++-
->  arch/ia64/oprofile/init.c        |    8 ++++++--
->  arch/m32r/oprofile/init.c        |    3 ++-
->  arch/parisc/oprofile/init.c      |    3 ++-
->  arch/ppc64/oprofile/common.c     |    6 ++++--
->  arch/s390/oprofile/init.c        |    3 ++-
->  arch/sh/oprofile/op_model_null.c |    3 ++-
->  arch/sparc64/oprofile/init.c     |    3 ++-
->  drivers/oprofile/oprof.c         |    6 +++---
->  include/linux/oprofile.h         |    2 +-
->  13 files changed, 42 insertions(+), 20 deletions(-)
+> Being honest, I have to admit that your reactions didn't sound as if you 
+> were waiting for comments.
+> 
+> > Thank you.
 
-This misses arch/ppc
+I greatly appreciate your comments, and they were addressed.
+Part of exported symbols are unexported, patch is just waiting to be sent,
+but I do not agree with dscore rename. I just do not understand it's advantage.
 
+> cu
+> Adrian
+> 
+> -- 
+> 
+>        "Is there not promise of rain?" Ling Tan asked suddenly out
+>         of the darkness. There had been need of rain for many days.
+>        "Only a promise," Lao Er said.
+>                                        Pearl S. Buck - Dragon Seed
+
+
+	Evgeniy Polyakov
+
+Only failure makes us experts. -- Theo de Raadt

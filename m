@@ -1,44 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277559AbRJOQKD>; Mon, 15 Oct 2001 12:10:03 -0400
+	id <S277652AbRJOQLd>; Mon, 15 Oct 2001 12:11:33 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277652AbRJOQJx>; Mon, 15 Oct 2001 12:09:53 -0400
-Received: from service.sh.cvut.cz ([147.32.127.214]:52747 "EHLO
-	service.sh.cvut.cz") by vger.kernel.org with ESMTP
-	id <S277559AbRJOQJp>; Mon, 15 Oct 2001 12:09:45 -0400
-Date: Mon, 15 Oct 2001 18:10:12 +0200 (CEST)
-From: Martin Kacer <M.Kacer@sh.cvut.cz>
-X-X-Sender: <donald@duck.sh.cvut.cz>
-To: <linux-kernel@vger.kernel.org>
-Subject: Up-to-date load information
-Message-ID: <Pine.LNX.4.31.0110151809160.29687-100000@duck.sh.cvut.cz>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S277656AbRJOQLX>; Mon, 15 Oct 2001 12:11:23 -0400
+Received: from [172.16.44.254] ([172.16.44.254]:17420 "EHLO
+	int-mx1.corp.redhat.com") by vger.kernel.org with ESMTP
+	id <S277652AbRJOQLF>; Mon, 15 Oct 2001 12:11:05 -0400
+Date: Mon, 15 Oct 2001 11:12:19 -0500
+From: Tommy Reynolds <reynolds@redhat.com>
+To: ptb@it.uc3m.es
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: share buffer between user and kernel?
+Message-Id: <20011015111219.4cd14672.reynolds@redhat.com>
+In-Reply-To: <200110090703.f9973Z601609@oboe.it.uc3m.es>
+In-Reply-To: <200110090703.f9973Z601609@oboe.it.uc3m.es>
+Organization: Red Hat Software, Inc. / Embedded Development
+X-Mailer: Sylpheed version 0.6.3cvs6 (GTK+ 1.2.9; )
+X-Face: Nr)Jjr<W18$]W/d|XHLW^SD-p`}1dn36lQW,d\ZWA<OQ/XI;UrUc3hmj)pX]@n%_4n{Zsg$ t1p@38D[d"JHj~~JSE_udbw@N4Bu/@w(cY^04u#JmXEUCd]l1$;K|zeo!c.#0In"/d.y*U~/_c7lIl 5{0^<~0pk_ET.]:MP_Aq)D@1AIQf.juXKc2u[2pSqNSi3IpsmZc\ep9!XTmHwx
+X-Message-Flag: Outlook Virus Warning: Reboot within 12 seconds or risk loss of all files and data!
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi there!
+It was a dark and stormy night.  Suddenly "Peter T. Breuer" <ptb@it.uc3m.es> spoke:
 
-   Is there any chance to determine the number of running/ready processes
-(aka "system load") updated more often than usual? I need much more
-up-to-date information than one-minute avarage which is provided by
-`uptime' and /proc/loadavg. Probably, one-second or (at most) five-second
-average would be ideal.
+> What is the currently approved method of sharing a buffer between
+> user space and kernel space, so that I can avoid one or two
+> copy_to/from_user?
 
-   Is there any kernel module/option providing such (or similar)
-functionality? Do you think it could be useful for anyone else?
-If I need to write my own module to provide such data (I really NEED them
-in my case), what is the best way to do so? Kernel thread polling the
-value of nr_running periodically? Checking this value with each context
-switch?
+Two basic choices here:
 
-   Another solution is to check nr_running from /proc/loadavg in the user
-mode. However, I am afraid this could be inaccurate (and maybe slow). Also
-using the number of running processes directly (not an average) can be
-misguided.
+1) Allocate the buffer in kernel space and use the mmap() method to give the
+user-space program access to it; and
 
-   Any suggestions? Please, CC a reply to me, since I am temporarily
-signed off this list. Thanks.
+2) Allocate the buffer in you user application program and use the KIOBUF method
+to give the kernel and/or hardware access to your buffer.  Look in
+<linux/iobuf.h> for kernel-level inspiration.
 
-   Martin.
-
+---------------------------------------------+-----------------------------
+Tommy Reynolds                               | mailto:	<reynolds@redhat.com>
+Red Hat, Inc., Embedded Development Services | Phone:  +1.256.704.9286
+307 Wynn Drive NW, Huntsville, AL 35805 USA  | FAX:    +1.236.837.3839
+Senior Software Developer                    | Mobile: +1.919.641.2923

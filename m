@@ -1,55 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S310183AbSB1WnP>; Thu, 28 Feb 2002 17:43:15 -0500
+	id <S293465AbSB1VsL>; Thu, 28 Feb 2002 16:48:11 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S310179AbSB1WlH>; Thu, 28 Feb 2002 17:41:07 -0500
-Received: from h24-67-15-4.cg.shawcable.net ([24.67.15.4]:6142 "EHLO
-	lynx.adilger.int") by vger.kernel.org with ESMTP id <S310189AbSB1Wix>;
-	Thu, 28 Feb 2002 17:38:53 -0500
-Date: Thu, 28 Feb 2002 15:37:49 -0700
-From: Andreas Dilger <adilger@clusterfs.com>
-To: Andreas Ferber <aferber@techfak.uni-bielefeld.de>
-Cc: "Richard B. Johnson" <root@chaos.analogic.com>,
-        linux-kernel@vger.kernel.org
-Subject: Re: ext3 and undeletion
-Message-ID: <20020228153749.K11618@lynx.adilger.int>
-Mail-Followup-To: Andreas Ferber <aferber@techfak.uni-bielefeld.de>,
-	"Richard B. Johnson" <root@chaos.analogic.com>,
-	linux-kernel@vger.kernel.org
-In-Reply-To: <20020226171634.GL4393@matchmail.com> <Pine.LNX.3.95.1020226130051.4315A-100000@chaos.analogic.com> <20020228160552.C23019@devcon.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20020228160552.C23019@devcon.net>; from aferber@techfak.uni-bielefeld.de on Thu, Feb 28, 2002 at 04:05:52PM +0100
-X-GPG-Key: 1024D/0D35BED6
-X-GPG-Fingerprint: 7A37 5D79 BF1B CECA D44F  8A29 A488 39F5 0D35 BED6
+	id <S310124AbSB1Vqf>; Thu, 28 Feb 2002 16:46:35 -0500
+Received: from linux.kappa.ro ([194.102.255.131]:21385 "EHLO linux.kappa.ro")
+	by vger.kernel.org with ESMTP id <S310120AbSB1Vot>;
+	Thu, 28 Feb 2002 16:44:49 -0500
+Date: Thu, 28 Feb 2002 23:46:18 +0200 (EET)
+From: Teodor Iacob <theo@astral.kappa.ro>
+X-X-Sender: <theo@linux.kappa.ro>
+Reply-To: <Teodor.Iacob@astral.kappa.ro>
+To: Andrea Arcangeli <andrea@suse.de>
+cc: Chris Rankin <cj.rankin@ntlworld.com>, <linux-kernel@vger.kernel.org>
+Subject: Re: Linux-2.4.18 : lots of "state D" processes
+In-Reply-To: <20020228183120.C1705@inspiron.school.suse.de>
+Message-ID: <Pine.LNX.4.31.0202282344430.5329-100000@linux.kappa.ro>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-RAVMilter-Version: 8.3.0(snapshot 20011220) (linux)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Feb 28, 2002  16:05 +0100, Andreas Ferber wrote:
-> On Tue, Feb 26, 2002 at 01:34:27PM -0500, Richard B. Johnson wrote:
-> > The disk space can't run out because you have simply moved
-> > files that didn't exceed the disk space before they were moved.
-> 
-> But a user will end up unable to /free/ any diskspace. User tries
-> something, generates a /huge/ error log filling up the quota/disk,
-> oops, has to call sysadmin before work can go on... Five minutes
-> later, the fix just tried didn't work, oops, has to call admin again,
-> and so on. Do you /really/ want this?
+Hello,
 
-This is just being silly.  Obviously the user will be able to delete
-files from the .undelete directory, and a daemon to do automatic
-cleanup was also proposed.  Thinking anything else is just being obtuse.
+Ok it seems with your patch against 2.4.19-pre1 I don't get those "state
+D" processes, but my printer didn't print anything either, maybe is just
+something setup related, I'll try to figure it out. I shall repeat some
+more tests with rmap12g also. Btw I had the USB compiled as module and got
+the printer up with "modprobe printer".
 
-You could have the unlink() wrapper check that there is still some
-free space/quota when it is doing the move, and if not it deletes
-old files until there is free space/quota.  The daemon just does this
-for you in the background to avoid slowing things down.
+Teo
 
-Cheers, Andreas
---
-Andreas Dilger
-http://sourceforge.net/projects/ext2resize/
-http://www-mddsp.enel.ucalgary.ca/People/adilger/
+On Thu, 28 Feb 2002, Andrea Arcangeli wrote:
+
+> On Thu, Feb 28, 2002 at 12:38:13PM +0200, Teodor Iacob wrote:
+> > Hello,
+> >
+> > I got a few stats "D" process also with 2.4.19-pre1-rmap12g, the processes
+> > were using my usb printer, which actually I never got it to work anyway
+> > because this was the first kernel to try to make it work, and ofc I
+> > couldn't kill the processes, but the reboot went cleanly.
+>
+> Can you reproduce on 2.4.19pre1aa1?
+>
+> 	ftp://ftp.us.kernel.org/pub/linux/kernel/people/andrea/kernels/v2.4/2.4.19pre1aa1.bz2
+>
+> Andrea
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+>
 

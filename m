@@ -1,41 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262537AbVAPQWt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262539AbVAPQY6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262537AbVAPQWt (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 16 Jan 2005 11:22:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262538AbVAPQVw
+	id S262539AbVAPQY6 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 16 Jan 2005 11:24:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262538AbVAPQY6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 16 Jan 2005 11:21:52 -0500
-Received: from [213.146.154.40] ([213.146.154.40]:14281 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S262537AbVAPQV3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 16 Jan 2005 11:21:29 -0500
-Date: Sun, 16 Jan 2005 16:21:27 +0000
-From: Christoph Hellwig <hch@infradead.org>
-To: Karim Yaghmour <karim@opersys.com>
-Cc: tglx@linutronix.de, Andrew Morton <akpm@osdl.org>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: 2.6.11-rc1-mm1
-Message-ID: <20050116162127.GC26144@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Karim Yaghmour <karim@opersys.com>, tglx@linutronix.de,
-	Andrew Morton <akpm@osdl.org>,
-	linux-kernel <linux-kernel@vger.kernel.org>
-References: <20050114002352.5a038710.akpm@osdl.org> <1105740276.8604.83.camel@tglx.tec.linutronix.de> <41E85123.7080005@opersys.com>
-Mime-Version: 1.0
+	Sun, 16 Jan 2005 11:24:58 -0500
+Received: from mail-in-05.arcor-online.net ([151.189.21.45]:49298 "EHLO
+	mail-in-05.arcor-online.net") by vger.kernel.org with ESMTP
+	id S262540AbVAPQXb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 16 Jan 2005 11:23:31 -0500
+From: Bodo Eggert <7eggert@gmx.de>
+Subject: Re: User space out of memory approach
+To: Edjard Souza Mota <edjard@gmail.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Ilias Biris <xyz.biris@gmail.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Reply-To: 7eggert@gmx.de
+Date: Sun, 16 Jan 2005 17:28:26 +0100
+References: <fa.lcmt90h.1j1scpn@ifi.uio.no> <fa.ht4gei4.1g5odia@ifi.uio.no>
+User-Agent: KNode/0.7.7
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <41E85123.7080005@opersys.com>
-User-Agent: Mutt/1.4.1i
-X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+Content-Transfer-Encoding: 7Bit
+Message-Id: <E1CqDGM-0000wi-00@be1.7eggert.dyndns.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jan 14, 2005 at 06:09:23PM -0500, Karim Yaghmour wrote:
-> relayfs implements two schemes: lockless and locking. The later uses
-> standard linear locking mechanisms. If you need stringent constant
-> time, you know what to do.
+Edjard Souza Mota wrote:
 
-the lockless mode is really just loops around cmpxchg.  It's spinlocks
-reinvented poorly.
+> What do you think about the point we are trying to make, i.e., moving the
+> ranking of PIDs to be killed to user space?
 
+If my system needs the OOM killer, it's usurally unresponsive to most
+userspace applications. A normal daemon would be swapped out before the
+runaway dhcpd grows larger than the web cache. It would have to be a mlocked
+RT task started from early userspace. It would be difficult to set up (unless
+you upgrade your distro), and almost nobody will feel like tweaking it to
+take the benefit (OOM == -ECANNOTHAPPEN).
+
+What about creating a linked list of (stackable) algorhithms which can be
+extended by loading modules and resorted using {proc,sys}fs? It will avoid
+the extra process, the extra CPU time (and task switches) to frequently
+update the list and I think it will decrease the typical amount of used
+memory, too.

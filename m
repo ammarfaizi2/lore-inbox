@@ -1,27 +1,26 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261198AbVDCFIT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261510AbVDCFKt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261198AbVDCFIT (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 3 Apr 2005 00:08:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261420AbVDCFIS
+	id S261510AbVDCFKt (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 3 Apr 2005 00:10:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261520AbVDCFKt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 3 Apr 2005 00:08:18 -0500
-Received: from [67.177.11.57] ([67.177.11.57]:46720 "EHLO vger")
-	by vger.kernel.org with ESMTP id S261198AbVDCFIP (ORCPT
+	Sun, 3 Apr 2005 00:10:49 -0500
+Received: from [67.177.11.57] ([67.177.11.57]:46976 "EHLO vger")
+	by vger.kernel.org with ESMTP id S261510AbVDCFKd (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 3 Apr 2005 00:08:15 -0500
-Message-ID: <424F734D.4020203@soleranetworks.com>
-Date: Sat, 02 Apr 2005 21:38:37 -0700
-From: jmerkey <jmerkey@soleranetworks.com>
+	Sun, 3 Apr 2005 00:10:33 -0500
+Message-ID: <424F73F8.8020108@utah-nac.org>
+Date: Sat, 02 Apr 2005 21:41:28 -0700
+From: jmerkey <jmerkey@utah-nac.org>
 User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040510
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
 To: linux-kernel@vger.kernel.org
-Subject: Linux 2.6.9 Adaptec Starfire sickness
+Subject: Linux 2.6.9 Adaptec 4 Port Starfire Sickness
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
-
 
 With linux 2.6.9 running at 192 MB/S network loading and protocol 
 splitting drivers routing packets out of
@@ -43,4 +42,3 @@ of constant Tx FIFO reconfiguration at very high data rates with
 protocol splitting and routing.
 
 Jeff
-

@@ -1,44 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267736AbSLGJrI>; Sat, 7 Dec 2002 04:47:08 -0500
+	id <S267739AbSLGJwK>; Sat, 7 Dec 2002 04:52:10 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267737AbSLGJrI>; Sat, 7 Dec 2002 04:47:08 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:56844 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S267736AbSLGJrH>;
-	Sat, 7 Dec 2002 04:47:07 -0500
-Message-ID: <3DF1C53D.8030506@pobox.com>
-Date: Sat, 07 Dec 2002 04:54:05 -0500
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2) Gecko/20021202
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Nathaniel Russell <root@chartermi.net>
-CC: reddog83@chartermi.net, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 2.4.20] Via 8233 Sound Support
-References: <Pine.LNX.4.44.0212070433220.6330-200000@reddog.example.net>
-In-Reply-To: <Pine.LNX.4.44.0212070433220.6330-200000@reddog.example.net>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S267740AbSLGJwK>; Sat, 7 Dec 2002 04:52:10 -0500
+Received: from bv-n-3b5d.adsl.wanadoo.nl ([212.129.187.93]:35588 "HELO
+	legolas.dynup.net") by vger.kernel.org with SMTP id <S267739AbSLGJwA>;
+	Sat, 7 Dec 2002 04:52:00 -0500
+Message-Id: <5.2.0.9.0.20021207105421.00a44ec0@legolas>
+X-Mailer: QUALCOMM Windows Eudora Version 5.2.0.9
+Date: Sat, 07 Dec 2002 10:56:59 +0100
+To: Rusty Russell <rusty@rustcorp.com.au>
+From: Rudmer van Dijk <rudmer@legolas.dynup.net>
+Subject: Re: 2.5.50bk5 cannot insert module aha152x
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <5.2.0.9.0.20021206141716.00a09df0@mail.science.uva.nl>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Nathaniel Russell wrote:
-> diff -urN linux-sound/drivers/sound/via82cxxx_audio.c linux/drivers/sound/via82cxxx_audio.c
-> --- linux-sound/drivers/sound/via82cxxx_audio.c	2002-08-02 20:39:44.000000000 -0400
-> +++ linux/drivers/sound/via82cxxx_audio.c	2002-12-07 04:28:04.000000000 -0500
-> @@ -354,6 +353,8 @@
->  static struct pci_device_id via_pci_tbl[] __initdata = {
->  	{ PCI_VENDOR_ID_VIA, PCI_DEVICE_ID_VIA_82C686_5,
->  	  PCI_ANY_ID, PCI_ANY_ID, },
-> +	{ PCI_VENDOR_ID_VIA, PCI_DEVICE_ID_VIA_8233_5,
-> +	  PCI_ANY_ID, PCI_ANY_ID, },
->  	{ 0, }
->  };
->  MODULE_DEVICE_TABLE(pci,via_pci_tbl);
+At 14:36 6-12-02 +0100, Rudmer van Dijk wrote:
+>I get this error when I try to load the aha152x module:
+># modprobe aha152x io=0x140 irq=9
+>FATAL: Error inserting aha152x (/lib/modules/2.5.50bk5/kernel/aha152x.ko): 
+>No such device
 
+ok, my mistake: after upgrading to 2.5.50bk5 I forgot to reapply the 
+module-param patches... now it works!
 
-unfortunately this only works sporadically, and only for some motherboards.
+>and this message appears in dmesg:
+>scsi HBA driver Adaptec 152x SCSI driver; $Revision: 2.5 $ didn't set 
+>max_sectors, please fix the template
 
-There is a reason why I removed this pci id from the driver, after 
-foolishly adding it :)
+and this is something of the driver but does no harm.
+
+         Rudmer 
 

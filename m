@@ -1,29 +1,73 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S270436AbRHNEfW>; Tue, 14 Aug 2001 00:35:22 -0400
+	id <S270448AbRHNEjm>; Tue, 14 Aug 2001 00:39:42 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S270439AbRHNEfM>; Tue, 14 Aug 2001 00:35:12 -0400
-Received: from leibniz.math.psu.edu ([146.186.130.2]:1245 "EHLO math.psu.edu")
-	by vger.kernel.org with ESMTP id <S270436AbRHNEfG>;
-	Tue, 14 Aug 2001 00:35:06 -0400
-Date: Tue, 14 Aug 2001 00:35:18 -0400 (EDT)
-From: Alexander Viro <viro@math.psu.edu>
-To: Linus Torvalds <torvalds@transmeta.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] (1/11) fs/super.c fixes
-In-Reply-To: <Pine.GSO.4.21.0108140023480.10579-100000@weyl.math.psu.edu>
-Message-ID: <Pine.GSO.4.21.0108140033100.10579-100000@weyl.math.psu.edu>
+	id <S270446AbRHNEjd>; Tue, 14 Aug 2001 00:39:33 -0400
+Received: from patan.Sun.COM ([192.18.98.43]:17550 "EHLO patan.sun.com")
+	by vger.kernel.org with ESMTP id <S270440AbRHNEjZ>;
+	Tue, 14 Aug 2001 00:39:25 -0400
+Message-ID: <3B78AC66.3621AD86@sun.com>
+Date: Mon, 13 Aug 2001 21:43:18 -0700
+From: Tim Hockin <thockin@sun.com>
+Organization: Sun Microsystems, Inc.
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.1 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        torvalds@transmeta.com, alan@redhat.com
+Subject: [PATCH] small SCSI use count fix
+Content-Type: multipart/mixed;
+ boundary="------------4687D170C28CABC726FD609D"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+This is a multi-part message in MIME format.
+--------------4687D170C28CABC726FD609D
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 
+Attached is a small fix to increment the use count in scsi_register_host()
+before we start working with it - prevent false decrementing.  (from one of
+the crew here ;)
 
-On Tue, 14 Aug 2001, Alexander Viro wrote:
+Please let me know if there is any reason this shouldn't go mainline in the
+next 2.4.x.
+
+thanks
+Tim
+-- 
+Tim Hockin
+Systems Software Engineer
+Sun Microsystems, Cobalt Server Appliances
+thockin@sun.com
+--------------4687D170C28CABC726FD609D
+Content-Type: text/plain; charset=us-ascii;
+ name="scsi_use_count.diff"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="scsi_use_count.diff"
+
+diff -ruN dist+patches-2.4.8/drivers/scsi/scsi.c cobalt-2.4.8/drivers/scsi/scsi.c
+--- dist+patches-2.4.8/drivers/scsi/scsi.c	Thu Jul 19 21:07:04 2001
++++ cobalt-2.4.8/drivers/scsi/scsi.c	Mon Aug 13 16:42:24 2001
+@@ -1835,6 +1828,8 @@
  
-> Cleanup: we move decrementing ->s_active into put_super(). Callers updated.
+ 	pcount = next_scsi_host;
+ 
++	MOD_INC_USE_COUNT;
++
+ 	/* The detect routine must carefully spinunlock/spinlock if 
+ 	   it enables interrupts, since all interrupt handlers do 
+ 	   spinlock as well.
+@@ -1964,8 +1965,6 @@
+ 	       (scsi_init_memory_start - scsi_memory_lower_value) / 1024,
+ 	       (scsi_memory_upper_value - scsi_init_memory_start) / 1024);
+ #endif
+-
+-	MOD_INC_USE_COUNT;
+ 
+ 	if (out_of_space) {
+ 		scsi_unregister_host(tpnt);	/* easiest way to clean up?? */
 
-... and that line in description is also bogus, indeed (same reasons -
-description from 11/11). Self-LART applied...
+--------------4687D170C28CABC726FD609D--
 

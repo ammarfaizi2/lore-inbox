@@ -1,39 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261338AbVCRU42@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261372AbVCRVKd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261338AbVCRU42 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Mar 2005 15:56:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261351AbVCRU42
+	id S261372AbVCRVKd (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Mar 2005 16:10:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261412AbVCRVKd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Mar 2005 15:56:28 -0500
-Received: from dsl027-180-174.sfo1.dsl.speakeasy.net ([216.27.180.174]:58317
-	"EHLO cheetah.davemloft.net") by vger.kernel.org with ESMTP
-	id S261338AbVCRU40 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Mar 2005 15:56:26 -0500
-Date: Fri, 18 Mar 2005 12:56:17 -0800
-From: "David S. Miller" <davem@davemloft.net>
-To: "Randy.Dunlap" <rddunlap@osdl.org>
-Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org, akpm@osdl.org,
-       wli@holomorphy.com, riel@redhat.com, kurt@garloff.de,
-       Keir.Fraser@cl.cam.ac.uk, Ian.Pratt@cl.cam.ac.uk,
-       Christian.Limpach@cl.cam.ac.uk
-Subject: Re: [PATCH 0/4] io_remap_pfn_range: intro.
-Message-Id: <20050318125617.5e57c3f8.davem@davemloft.net>
-In-Reply-To: <20050318112545.6f5f7635.rddunlap@osdl.org>
-References: <20050318112545.6f5f7635.rddunlap@osdl.org>
-X-Mailer: Sylpheed version 1.0.1 (GTK+ 1.2.10; sparc-unknown-linux-gnu)
-X-Face: "_;p5u5aPsO,_Vsx"^v-pEq09'CU4&Dc1$fQExov$62l60cgCc%FnIwD=.UF^a>?5'9Kn[;433QFVV9M..2eN.@4ZWPGbdi<=?[:T>y?SD(R*-3It"Vj:)"dP
+	Fri, 18 Mar 2005 16:10:33 -0500
+Received: from ausc60pc101.us.dell.com ([143.166.85.206]:34904 "EHLO
+	ausc60pc101.us.dell.com") by vger.kernel.org with ESMTP
+	id S261372AbVCRVK1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 18 Mar 2005 16:10:27 -0500
+X-IronPort-AV: i="3.91,102,1110175200"; 
+   d="scan'208"; a="237570766:sNHT21440504"
+Date: Fri, 18 Mar 2005 15:10:26 -0600
+From: Matt Domsch <Matt_Domsch@dell.com>
+To: marcelo.tosatti@cyclades.com, linux-kernel@vger.kernel.org
+Subject: [PATCH 2.4.30-pre3] linux/fs.h: remove root_device_name declaration
+Message-ID: <20050318211026.GA26112@lists.us.dell.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 18 Mar 2005 11:25:45 -0800
-"Randy.Dunlap" <rddunlap@osdl.org> wrote:
+include/linux/fs.h has:
+extern char root_device_name[];
 
-> The sparc32 & sparc64 code needs live testing.
+but it's been declared static in init/do_mounts.c since March 2002.
+gcc-4.0.0-0.32 from FC4-test1 errors out due to the static/non-static
+mismatch.  Time to kill it from include/linux/fs.h.  
 
-These patches look great Randy.  I think they should go in.
+Signed-off-by: Matt Domsch <Matt_Domsch@dell.com>
 
-If sparc explodes, I'll clean up the mess.  Any problem which
-crops up should not be difficult to solve.
+-- 
+Matt Domsch
+Software Architect
+Dell Linux Solutions linux.dell.com & www.dell.com/linux
+Linux on Dell mailing lists @ http://lists.us.dell.com
+
+===== include/linux/fs.h 1.100 vs edited =====
+--- 1.100/include/linux/fs.h	2005-02-07 12:30:59 -06:00
++++ edited/include/linux/fs.h	2005-03-18 15:00:48 -06:00
+@@ -1559,7 +1559,6 @@
+ unsigned long generate_cluster(kdev_t, int b[], int);
+ unsigned long generate_cluster_swab32(kdev_t, int b[], int);
+ extern kdev_t ROOT_DEV;
+-extern char root_device_name[];
+ 
+ 
+ extern void show_buffers(void);

@@ -1,34 +1,33 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313325AbSDUNxT>; Sun, 21 Apr 2002 09:53:19 -0400
+	id <S313332AbSDUOEw>; Sun, 21 Apr 2002 10:04:52 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313327AbSDUNxS>; Sun, 21 Apr 2002 09:53:18 -0400
-Received: from mail.ocs.com.au ([203.34.97.2]:29196 "HELO mail.ocs.com.au")
-	by vger.kernel.org with SMTP id <S313325AbSDUNxR>;
-	Sun, 21 Apr 2002 09:53:17 -0400
-X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
-From: Keith Owens <kaos@ocs.com.au>
-To: kbuild-devel@lists.sourceforge.net
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Announce: Kernel Build for 2.5, Release 2.1 is available 
-In-Reply-To: Your message of "Sun, 21 Apr 2002 17:43:08 +1000."
-             <27268.1019374988@ocs3.intra.ocs.com.au> 
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Sun, 21 Apr 2002 23:53:05 +1000
-Message-ID: <28598.1019397185@ocs3.intra.ocs.com.au>
+	id <S313334AbSDUOEw>; Sun, 21 Apr 2002 10:04:52 -0400
+Received: from rogersmta-1.gci.net ([208.138.130.86]:392 "EHLO
+	mail.rogershsa.com") by vger.kernel.org with ESMTP
+	id <S313332AbSDUOEv>; Sun, 21 Apr 2002 10:04:51 -0400
+Message-ID: <020001c1e93d$7e41c180$0a0aa8c0@ws0>
+From: "Dennis Stout" <crazyman@rogershsa.com>
+To: <linux-kernel@vger.kernel.org>
+Subject: hostility
+Date: Sun, 21 Apr 2002 06:04:46 -0800
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2600.0000
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 21 Apr 2002 17:43:08 +1000, 
-Keith Owens <kaos@ocs.com.au> wrote:
->   kbuild-2.5-common-2.5.8-1.bz2
+I've decided ot break it up with humor.  Tho some people, like "Linyos
+Torovoltos" may become enraged =)
 
-That file has a one bit error on download[*] and fails the bunzip CRC
-checks.  New copy uploaded as kbuild-2.5-common-2.5.8-3.bz2.  No
-change, new name to defeat http caching.  -2 had the same problem,
-hence -3.
+Read this, and pay particular attention to item number 8 =)
 
-[*] Might be the upload, might be sourceforge, might be the local
-    Telstra web proxy.  DKDC, do a fresh copy just in case.
+http://www.adequacy.org/?op=displaystory;sid=2001/12/2/42056/2147
+
+Enjoy
 

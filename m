@@ -1,83 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263332AbTDYPIg (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 25 Apr 2003 11:08:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263350AbTDYPIg
+	id S263319AbTDYPJF (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 25 Apr 2003 11:09:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263328AbTDYPJF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 25 Apr 2003 11:08:36 -0400
-Received: from host78-195.rancor.birch.net ([65.17.78.195]:6212 "EHLO
-	brigadier.ontimesupport.com") by vger.kernel.org with ESMTP
-	id S263332AbTDYPIe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 25 Apr 2003 11:08:34 -0400
-Message-ID: <3EA95242.9060303@ontimesupport.com>
-Date: Fri, 25 Apr 2003 10:20:34 -0500
-From: Matthew Sell <msell@ontimesupport.com>
-Organization: On Time Support
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:1.3) Gecko/20030312
+	Fri, 25 Apr 2003 11:09:05 -0400
+Received: from watch.techsource.com ([209.208.48.130]:53244 "EHLO
+	techsource.com") by vger.kernel.org with ESMTP id S263319AbTDYPJC
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 25 Apr 2003 11:09:02 -0400
+Message-ID: <3EA9565B.9020905@techsource.com>
+Date: Fri, 25 Apr 2003 11:38:03 -0400
+From: Timothy Miller <miller@techsource.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20020823 Netscape/7.0
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Stewart Smith <stewartsmith@mac.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: versioned filesystems in linux (was Re: kernel support for non-english
- user messages)
-References: <03FA0FB7-76AC-11D7-BE62-00039346F142@mac.com>
-In-Reply-To: <03FA0FB7-76AC-11D7-BE62-00039346F142@mac.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+To: Steven Augart <steve@augart.com>
+CC: John Bradford <john@grabjohn.com>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Simple x86 Simulator (was: Re: Flame Linus to a crisp!)
+References: <200304250702.h3P72FZF000352@81-2-122-30.bradfords.org.uk> <3EA8EC4D.4090506@augart.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Stewart Smith wrote:
 
-> On Friday, April 11, 2003, at 06:36  AM, John Bradford wrote:
+
+Steven Augart wrote:
+
+> We could not.  Consider just the 8 32-bit-wide legacy x86 registers, 
+> excluding the MMX and FPU registers:
+> (AX, BX, CX, DX, BP, SI, DI, SP).  32 bits x 8 = 2^256 independent 
+> states to look up in the table, each state having 256 bits of 
+> information.  2^264 total bits of information needed.  Assume 1 GB 
+> dimms (2^30 * 8 bits each = 2^33 bits of info), with a volume of 10 
+> cm^3 per DIMM (including a tiny amount of space for air circulation.).
+> Need 34508731733952818937173779311385127262255544860851932776 cubic 
+> kilometers of space.
 >
->> When are we going to see versioned filesystems in Linux?  That was a
->> standard feature in VMS.
+> Considerably larger than the volume of the earth, although admittedly 
+> smaller than the total volume of the universe.
+> --Steven Augart
 >
 >
-> This is (part of) what I'm doing for my honors project this year - so 
-> possibly something (might) be around and (almost) working by the end 
-> of the year. The real big trick is remote efficiency - but what's the 
-> fun of research if there isn't something tricky?
->
-> If people are actually really interested in it, I might make it a bit 
-> more of a focus :)
->
-> More info avail on request :)
 
-
-It would be nice to see what assistance the FreeVMS group may be able to 
-offer. It appears that they are attempting to make an operating system 
-compatible with VMS based on the Linux kernel.
-
- From what I have observed, a few of them seem to have extensive 
-experience with VMS and may be able to offer at least some baseline 
-knowledge as to how VMS accomplishes this.
-
-My curiosity lies with the ability to run FreeVMS on VAX....
-
-(Why not? It's just a hobby....)
-
-
-    - Matt
-
-
-
--- 
-
--------------------------
-Matthew Sell
-Programmer
-UNIX System Administrator
-On Time Support, Inc.
-www.ontimesupport.com
-
-Join the Metrology Software Discussion List METLIST!
-www.ontimesupport.com/subscribe_t&c.html
-
-
-AIX - Linux - NetBSD - OpenVMS - Solaris
-
-Expand Your Horizons - Stop Looking Through Windows
+If this could be done, someone would have done it already.
 
 

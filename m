@@ -1,67 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261332AbTH3MdQ (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 30 Aug 2003 08:33:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261670AbTH3MdQ
+	id S261725AbTH3Mfl (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 30 Aug 2003 08:35:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263514AbTH3Mfl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 30 Aug 2003 08:33:16 -0400
-Received: from artax.karlin.mff.cuni.cz ([195.113.31.125]:61852 "EHLO
-	artax.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id S261332AbTH3MdP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 30 Aug 2003 08:33:15 -0400
-Date: Sat, 30 Aug 2003 14:33:08 +0200 (CEST)
-From: Mikulas Patocka <mikulas@artax.karlin.mff.cuni.cz>
-To: insecure <insecure@mail.od.ua>
-Cc: "J.A. Magallon" <jamagallon@able.es>,
-       Lista Linux-Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [2.4] gcc3 warns about type-punned pointers ?
-In-Reply-To: <200308300537.49700.insecure@mail.od.ua>
-Message-ID: <Pine.LNX.4.44.0308301427320.3338-100000@artax.karlin.mff.cuni.cz>
+	Sat, 30 Aug 2003 08:35:41 -0400
+Received: from c210-49-248-224.thoms1.vic.optusnet.com.au ([210.49.248.224]:27580
+	"EHLO mail.kolivas.org") by vger.kernel.org with ESMTP
+	id S261725AbTH3Mfj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 30 Aug 2003 08:35:39 -0400
+From: Con Kolivas <kernel@kolivas.org>
+To: Rahul Karnik <rahul@genebrew.com>, Apurva Mehta <apurva@gmx.net>
+Subject: Re: [PATCH]O19int
+Date: Sat, 30 Aug 2003 22:42:46 +1000
+User-Agent: KMail/1.5.3
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <200308291550.28159.kernel@kolivas.org> <20030829164137.GC1765@home.woodlands> <3F4F908A.5000204@genebrew.com>
+In-Reply-To: <3F4F908A.5000204@genebrew.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200308302242.46755.kernel@kolivas.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > A collateral question: why is the reason for this function ?
-> > long long assignments are not atomic in gcc ?
+On Sat, 30 Aug 2003 03:42, Rahul Karnik wrote:
+> Somehow I can never reproduce these xmms skips, even in mainline
+> kernels. I had them for a few days with older versions of rhythmbox, but
+> no longer. So it seems that some of this is definitely system dependent?
+> For the record, I have an Athlon XP 2100+ (1700 MHz) and 1G of memory (a
+> pretty medium line desktop system), not the multi-cpu multi-gigabyte-RAM
+> systems some people around here do.
 >
-> Another question: why do we do _double_ store here?
->
-> static inline void __set_64bit (unsigned long long * ptr,
->                 unsigned int low, unsigned int high)
-> {
->         __asm__ __volatile__ (
->                 "\n1:\t"
->                 "movl (%0), %%eax\n\t"
->                 "movl 4(%0), %%edx\n\t"
->                 "lock cmpxchg8b (%0)\n\t"
->                 "jnz 1b"
->                 : /* no outputs */
->                 :       "D"(ptr),
->                         "b"(low),
->                         "c"(high)
->                 :       "ax","dx","memory");
-> }
->
-> This will execute expensive locked load-compare-store operation twice
-> almost always (unless previous value was already equal
-> to the value we are about to store)
+> Are people getting skips on hardware that is faster than this?
 
-It doesn't double store. cmpxchg8b does:
-compare memory with edx:eax
-	if equal, copy copy ecx:ebx into memory, set zf = 1
-	else copy memory into edx:eax, set zf = 0
+People are not getting skips on hardware significantly lower spec than this. 
+The most common remaining reason for this is a misconfigured ide driver, and 
+dma issues with their hard drives. Sometimes the driver name has changed 
+2.4->2.6 and people using their old config dont inherit the correct driver.
 
-> AFAIK we can safely drop that loop (jnz instruction)
-
-No. The only possible optimization would be to move 1: label directly at
-cmpxgch8b. But it won't bring much, because loop is executed only if value
-was changed after read and before cmpxchg.
-
-There is another worse problem --- jump instructions are predicted as
-taken when they point backwards, so it gets mispredicted. jnz should
-really point to some other section, that is linked after .text, where
-unconditional jump backwards would be.
-
-Mikulas
+Con
 

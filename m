@@ -1,80 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265056AbTLCQlt (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 3 Dec 2003 11:41:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265063AbTLCQlt
+	id S265092AbTLCQfc (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 3 Dec 2003 11:35:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265093AbTLCQfc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 Dec 2003 11:41:49 -0500
-Received: from haybaler.sackheads.org ([205.158.174.201]:47630 "EHLO
-	haybaler.sackheads.org") by vger.kernel.org with ESMTP
-	id S265056AbTLCQlr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 Dec 2003 11:41:47 -0500
-Date: Wed, 3 Dec 2003 11:41:46 -0500
-From: Jimmie Mayfield <mayfield+kernel@sackheads.org>
-To: linux-kernel@vger.kernel.org
-Subject: 2.4.23 : timeouts and lost interrupts using IDE-SCSI
-Message-ID: <20031203164146.GA81344@sackheads.org>
+	Wed, 3 Dec 2003 11:35:32 -0500
+Received: from fed1mtao07.cox.net ([68.6.19.124]:4553 "EHLO fed1mtao07.cox.net")
+	by vger.kernel.org with ESMTP id S265092AbTLCQf1 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 3 Dec 2003 11:35:27 -0500
+Date: Wed, 3 Dec 2003 09:35:26 -0700
+From: Tom Rini <trini@kernel.crashing.org>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Sam Ravnborg <sam@ravnborg.org>, Paul Mackerras <paulus@samba.org>
+Subject: [PATCH] Fix booting on a number of Motorola PPC32 machines
+Message-ID: <20031203163526.GH912@stop.crashing.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.5.1i
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hello.  Currently a number of Motorola PPC32 machine will not boot, as
+the final zImage isn't built correctly for them.  The problem is that
+we end up setting a Makefile variable to ' y' instead of 'y'.  After
+talking with Sam Ravnborg, the following is acceptable.
 
-Since upgrading from 2.4.20 to 2.4.23, I can no longer mount my ATAPI CDROM and
-CDR/W drives using IDE-SCSI.  Attempts to mount those drives result in
-lost interrupts messages:
-
-Dec  3 08:21:10 kaon kernel: scsi : aborting command due to timeout : pid 2114, scs
-i2, channel 0, id 0, lun 0 Read (10) 00 00 00 00 10 00 00 01 00 
-Dec  3 08:21:10 kaon kernel: hdc: DMA interrupt recovery
-Dec  3 08:21:10 kaon kernel: hdc: lost interrupt
-
-
-Kernel is able to successfully probe for and identify these devices, however:
-
-Dec  3 08:20:40 kaon kernel: hdc: attached ide-scsi driver.
-Dec  3 08:20:41 kaon kernel: hdd: attached ide-scsi driver.
-Dec  3 08:20:41 kaon kernel: scsi2 : SCSI host adapter emulation for IDE ATAPI devi
-ces
-Dec  3 08:20:41 kaon kernel:   Vendor: HITACHI   Model: CDR-8430          Rev: 0024
-Dec  3 08:20:41 kaon kernel:   Type:   CD-ROM                             ANSI SCSI
- revision: 02
-Dec  3 08:20:41 kaon kernel:   Vendor:           Model: CD-R/RW RW7060A   Rev: 1.50
-Dec  3 08:20:41 kaon kernel:   Type:   CD-ROM                             ANSI SCSI
- revision: 02
-Dec  3 08:20:41 kaon kernel: Attached scsi CD-ROM sr0 at scsi2, channel 0, id 0, lu
-n 0
-Dec  3 08:20:41 kaon kernel: Attached scsi CD-ROM sr1 at scsi2, channel 0, id 1, lu
-n 0
-Dec  3 08:20:41 kaon kernel: sr0: scsi3-mmc drive: 14x/32x cd/rw xa/form2 cdda tray
-Dec  3 08:20:41 kaon kernel: Uniform CD-ROM driver Revision: 3.12
-Dec  3 08:20:41 kaon kernel: sr1: scsi3-mmc drive: 24x/24x writer cd/rw xa/form2 cd
-da tray
-
-
-I can revert back to 2.4.20 and the drives are mountable once again so I do not
-believe it's a hardware failure.  Similarly, I can build 2.4.23 with IDE CDROM
-support instead of relying on SCSI emulation and things work (though I suspect
-not having SCSI emulation enabled will cause problems when burning CDs).
-
-
-System specs:
-
-IBM Intellistation MPro
-SMP P2-400 (2 CPUs)
-440BX chipset
-ACPI automatically disabled "because your bios is from 98 and too old"
-CDROM as hdc, CDR/W as hdd
-   both these devices are attached to the onboard PIIX4 controller
-kernels compiled with gcc 2.95.3
-
-
-Jimmie
+===== arch/ppc/boot/simple/Makefile 1.23 vs edited =====
+--- 1.23/arch/ppc/boot/simple/Makefile	Mon Sep 15 01:01:24 2003
++++ edited/arch/ppc/boot/simple/Makefile	Mon Dec  1 12:25:29 2003
+@@ -73,9 +73,8 @@
+    cacheflag-$(CONFIG_K2)		:= -include $(clear_L2_L3)
+ 
+ # kconfig 'feature', only one of these will ever be 'y' at a time.
+-# The rest will be unset.
+-motorola := $(CONFIG_MCPN765)$(CONFIG_MVME5100)$(CONFIG_PRPMC750) \
+-$(CONFIG_PRPMC800)$(CONFIG_LOPEC)$(CONFIG_PPLUS)
++# The rest will be unset.  Each of these must be on one line.
++motorola := $(CONFIG_MCPN765)$(CONFIG_MVME5100)$(CONFIG_PRPMC750)$(CONFIG_PRPMC800)$(CONFIG_LOPEC)$(CONFIG_PPLUS)
+ pcore := $(CONFIG_PCORE)$(CONFIG_POWERPMC250)
+ 
+       zimage-$(motorola)		:= zImage-PPLUS
 
 -- 
-Jimmie Mayfield  
-http://www.sackheads.org/mayfield       email: mayfield+kernel@sackheads.org
-My mail provider does not welcome UCE -- http://www.sackheads.org/uce
-
+Tom Rini
+http://gate.crashing.org/~trini/

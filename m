@@ -1,40 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129055AbRBNMyk>; Wed, 14 Feb 2001 07:54:40 -0500
+	id <S132057AbRBNM5L>; Wed, 14 Feb 2001 07:57:11 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132118AbRBNMyb>; Wed, 14 Feb 2001 07:54:31 -0500
-Received: from cs.columbia.edu ([128.59.16.20]:64992 "EHLO cs.columbia.edu")
-	by vger.kernel.org with ESMTP id <S129055AbRBNMyP>;
-	Wed, 14 Feb 2001 07:54:15 -0500
-Date: Wed, 14 Feb 2001 04:54:09 -0800 (PST)
-From: Ion Badulescu <ionut@cs.columbia.edu>
-To: Jeff Garzik <jgarzik@mandrakesoft.mandrakesoft.com>
-cc: Alan Cox <alan@redhat.com>, Donald Becker <becker@scyld.com>,
-        Jes Sorensen <jes@linuxcare.com>, <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] starfire reads irq before pci_enable_device
-In-Reply-To: <Pine.LNX.3.96.1010214064743.13194A-100000@mandrakesoft.mandrakesoft.com>
-Message-ID: <Pine.LNX.4.30.0102140452140.14404-100000@age.cs.columbia.edu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S132103AbRBNM5B>; Wed, 14 Feb 2001 07:57:01 -0500
+Received: from kashiwa8-89.ppp-1.dion.ne.jp ([210.157.148.89]:18949 "EHLO
+	ask.ne.jp") by vger.kernel.org with ESMTP id <S132057AbRBNM4y>;
+	Wed, 14 Feb 2001 07:56:54 -0500
+Date: Wed, 14 Feb 2001 21:56:34 +0900
+From: Bruce Harada <bruce@ask.ne.jp>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Driver for Casio Cassiopia Fiva touchscreen, help with conversion
+Message-Id: <20010214215634.79cf25e6.bruce@ask.ne.jp>
+In-Reply-To: <E14T0fr-0004iq-00@the-village.bc.nu>
+In-Reply-To: <Pine.LNX.4.32.0102132034540.20720-100000@devserv.devel.redhat.com>
+	<E14T0fr-0004iq-00@the-village.bc.nu>
+X-Mailer: Sylpheed version 0.4.9 (GTK+ 1.2.6; Linux 2.2.18; i686)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 14 Feb 2001, Jeff Garzik wrote:
+On Wed, 14 Feb 2001 12:04:41 +0000 (GMT)
+Alan Cox <alan@lxorguk.ukuu.org.uk> wrote:
 
-> On Wed, 14 Feb 2001, Alan Cox wrote:
-> > It does. It does so on IA64 now as well. The only architecture which has troubles
-> > with alignment on IP frames now is ARM2
-> 
-> So the IA64-specific PKT_CAN_COPY code in starfire can go away
-> completely?  Jes, can you test such w/ the latest kernel and starfire,
-> less your IA64-specific code?
+> Thats pretty much how we did the pc110 pad driver too.
 
-The way I understand it, IA64 and Alpha cope with it, but at the expense 
-of taking an exception for each packet -- so it's not worth it.
+This is getting off-topic, but I was wondering - does the pc110 pad driver
+still work? I seem to recall trying it around 2.2.9 or so, and eventually
+giving up. (Not that it's vital or anything, but I have three of the
+little things lying around here that I keep on telling myself I'm going to
+use one day...)
 
-Ion
+And while we're on the topic, toy.cabi.net is still listed in
+Configure.help as the location for the pc110 pad driver docs, but it
+doesn't resolve for me...
 
--- 
-  It is better to keep your mouth shut and be thought a fool,
-            than to open it and remove all doubt.
+--
+Bruce Harada
+bruce@ask.ne.jp
 

@@ -1,69 +1,101 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263015AbTJ3XgY (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 30 Oct 2003 18:36:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263036AbTJ3XgY
+	id S263002AbTJ3X1l (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 30 Oct 2003 18:27:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263005AbTJ3X1l
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 30 Oct 2003 18:36:24 -0500
-Received: from x35.xmailserver.org ([69.30.125.51]:48557 "EHLO
-	x35.xmailserver.org") by vger.kernel.org with ESMTP id S263015AbTJ3XgW
+	Thu, 30 Oct 2003 18:27:41 -0500
+Received: from gateway-1237.mvista.com ([12.44.186.158]:764 "EHLO
+	av.mvista.com") by vger.kernel.org with ESMTP id S263002AbTJ3X1f
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 30 Oct 2003 18:36:22 -0500
-X-AuthUser: davidel@xmailserver.org
-Date: Thu, 30 Oct 2003 15:36:20 -0800 (PST)
-From: Davide Libenzi <davidel@xmailserver.org>
-X-X-Sender: davide@bigblue.dev.mdolabs.com
-To: Ben Mansell <ben@zeus.com>
-cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: epoll gives broken results when interrupted with a signal
-In-Reply-To: <Pine.LNX.4.58.0310301425090.1597@stones.cam.zeus.com>
-Message-ID: <Pine.LNX.4.56.0310301534330.1136@bigblue.dev.mdolabs.com>
-References: <Pine.LNX.4.58.0310291439110.2982@stones.cam.zeus.com>
- <Pine.LNX.4.56.0310290923100.2049@bigblue.dev.mdolabs.com>
- <Pine.LNX.4.58.0310291729310.2982@stones.cam.zeus.com>
- <Pine.LNX.4.56.0310291121560.973@bigblue.dev.mdolabs.com>
- <Pine.LNX.4.58.0310301102470.1597@stones.cam.zeus.com>
- <Pine.LNX.4.58.0310301425090.1597@stones.cam.zeus.com>
+	Thu, 30 Oct 2003 18:27:35 -0500
+Message-ID: <3FA19E5D.7050305@mvista.com>
+Date: Thu, 30 Oct 2003 15:27:25 -0800
+From: George Anzinger <george@mvista.com>
+Organization: MontaVista Software
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2) Gecko/20021202
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: root@chaos.analogic.com
+CC: Peter Chubb <peter@chubb.wattle.id.au>,
+       Stephen Hemminger <shemminger@osdl.org>,
+       Gabriel Paubert <paubert@iram.es>, john stultz <johnstul@us.ibm.com>,
+       Joe Korty <joe.korty@ccur.com>, Linus Torvalds <torvalds@osdl.org>,
+       lkml <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>
+Subject: Re: gettimeofday resolution seriously degraded in test9
+References: <20031027234447.GA7417@rudolph.ccur.com> <1067300966.1118.378.camel@cog.beaverton.ibm.com> <20031027171738.1f962565.shemminger@osdl.org> <20031028115558.GA20482@iram.es> <20031028102120.01987aa4.shemminger@osdl.org> <20031029100745.GA6674@iram.es> <20031029113850.047282c4.shemminger@osdl.org> <16288.17470.778408.883304@wombat.chubb.wattle.id.au> <3FA1838C.3060909@mvista.com> <Pine.LNX.4.53.0310301645170.16005@chaos>
+In-Reply-To: <Pine.LNX.4.53.0310301645170.16005@chaos>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 30 Oct 2003, Ben Mansell wrote:
+Richard B. Johnson wrote:
+> On Thu, 30 Oct 2003, George Anzinger wrote:
+> 
+> 
+>>Peter Chubb wrote:
+>>
+>>>>>>>>"Stephen" == Stephen Hemminger <shemminger@osdl.org> writes:
+>>>
+>>>
+>>>Stephen> On Wed, 29 Oct 2003 11:07:45 +0100 Gabriel Paubert
+>>>Stephen> <paubert@iram.es> wrote:
+>>>
+>>>
+>>>>>for example.
+>>>
+>>>
+>>>Stephen> The suggestion of using time interpolation (like ia64) would
+>>>Stephen> make the discontinuities smaller, but still relying on fine
+>>>Stephen> grain gettimeofday for controlling servo loops with NTP
+>>>Stephen> running seems risky. Perhaps what you want to use is the
+>>>Stephen> monotonic_clock which gives better resolution (nanoseconds)
+>>>Stephen> and doesn't get hit by NTP.
+>>>
+>>>monotonic_clock:
+>>>	-- isn't implemented for most architectures
+>>>	-- even for X86 only works for some timing sources
+>>>	-- and for the most common case is variable rate because of
+>>>	   power management functions changing the TSC clock rate.
+>>>
+>>>As far as I know, there isn't a constant-rate monotonic clock
+>>>available at present for all architectures in the linux kernel.  The
+>>>nearest thing is scheduler_clock().
+>>
+>>What you want is the POSIX clocks and timers CLOCK_MONOTONIC which is available
+>>on all archs (as of 2.6).  The call is:
+>>
+>>       cc [ flag ... ] file -lrt [ library ... ]
+>>
+>>        #include <time.h>
+>>
+>>        int clock_gettime(clockid_t which_clock, struct timespec *setting);
+>>
+>>where you want "which_clock" to be CLOCK_MONOTONIC.
+>>
+> 
+> 
+> But there is a more basic problem. Let's say I need time in microseconds,
+> but the only hardware tick I have is in milliseconds. If I can call
+> the routine in zero time, it takes 1000 calls before the microsecond
+> value will change.
+> 
+> There isn't any magic that can solve this problem. It turns out
+> that with later Intel CPUs, one can get CPU-clock resolution
+> from rdtsc. However, this is hardware-specific. If somebody
+> modifies the gettimeofday() and the POSIX clock routines to
+> use rdtsc when available, a lot of problems will go away.
 
-> On Thu, 30 Oct 2003, Ben Mansell wrote:
->
-> > On Wed, 29 Oct 2003, Davide Libenzi wrote:
-> >
-> > > Can you try the patch below and show me a dmesg when this happen?
-> >
-> > Ok, patch applied. (I changed DEBUG_EPOLL to 10 however, otherwise
-> > nothing would be printed). Now, epoll appears to behave perfectly and I
-> > can't re-create the problem :(
->
-> Got it! I was missing the problem because I had removed some debug
-> messages in my own code. Here's another run, this time the
-> final epoll_wait() call of the child process brings back 2 events:
->  Event 0 fd: 7 events: 17
->  Event 1 fd: -2095926561 events: 0
->
-> I've added the debug to the end of this message.
->
-> If I modify the code so there are several 'child' processes, all
-> monitoring the same sockets with their own epolls, they all seem to get
-> the same results from epoll_wait().
->
-> > > Also, it shouldn't change a whit, but are you able to try on a x86 UP?
->
-> On a UP x86, 2.6.0-test9, I can't reproduce the problem at all.
+THAT is exactly what both gettimeofday() AND the recommened interface do. 
+Resolution will be to the TSC tick on x86.  Almost all archs provide at least 1 
+microsecond resolution for both these clocks.
 
-Could you try to poison the event buffer before an epoll_wait() to see how
-many bytes are effectively written by the function?
+Even the x86 archs without a TSC have and have had, for some time, code which 
+gives better than one microsecond resolution.
 
-	memset(events, 'e', num * sizeof(epoll_event));
-
-
-
-
-- Davide
+-- 
+George Anzinger   george@mvista.com
+High-res-timers:  http://sourceforge.net/projects/high-res-timers/
+Preemption patch: http://www.kernel.org/pub/linux/kernel/people/rml
 

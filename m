@@ -1,20 +1,21 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262765AbVCDLAc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262565AbVCDLCG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262765AbVCDLAc (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Mar 2005 06:00:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262770AbVCDLAb
+	id S262565AbVCDLCG (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Mar 2005 06:02:06 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262747AbVCDLCG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Mar 2005 06:00:31 -0500
-Received: from clock-tower.bc.nu ([81.2.110.250]:64218 "EHLO
-	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP id S262765AbVCDK6z
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Mar 2005 05:58:55 -0500
+	Fri, 4 Mar 2005 06:02:06 -0500
+Received: from clock-tower.bc.nu ([81.2.110.250]:475 "EHLO lxorguk.ukuu.org.uk")
+	by vger.kernel.org with ESMTP id S262565AbVCDLBy (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 4 Mar 2005 06:01:54 -0500
 Subject: Re: RFD: Kernel release numbering
 From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 To: Andrew Morton <akpm@osdl.org>
-Cc: greg@kroah.com, jgarzik@pobox.com, torvalds@osdl.org, davem@davemloft.net,
+Cc: Jeff Garzik <jgarzik@pobox.com>, greg@kroah.com, torvalds@osdl.org,
+       davem@davemloft.net,
        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20050303182820.46bd07a5.akpm@osdl.org>
+In-Reply-To: <20050303213454.50e2f584.akpm@osdl.org>
 References: <42268749.4010504@pobox.com>
 	 <20050302200214.3e4f0015.davem@davemloft.net> <42268F93.6060504@pobox.com>
 	 <4226969E.5020101@pobox.com> <20050302205826.523b9144.davem@davemloft.net>
@@ -24,53 +25,38 @@ References: <42268749.4010504@pobox.com>
 	 <422751C1.7030607@pobox.com> <20050303181122.GB12103@kroah.com>
 	 <20050303151752.00527ae7.akpm@osdl.org>
 	 <1109894511.21781.73.camel@localhost.localdomain>
-	 <20050303182820.46bd07a5.akpm@osdl.org>
+	 <20050303182820.46bd07a5.akpm@osdl.org> <4227CE58.6020607@pobox.com>
+	 <20050303213454.50e2f584.akpm@osdl.org>
 Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-Message-Id: <1109933804.26799.11.camel@localhost.localdomain>
+Message-Id: <1109933992.26799.15.camel@localhost.localdomain>
 Mime-Version: 1.0
 X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Fri, 04 Mar 2005 10:56:46 +0000
+Date: Fri, 04 Mar 2005 10:59:53 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Gwe, 2005-03-04 at 02:28, Andrew Morton wrote:
-> > I would disagree, and I suspect anyone else who has maintained a distro
-> > stable kernel would likewise. It needs one or more people who know who
-> > to ask about stuff, are careful, have a good grounding in bug spotting,
-> > races, common mistakes and know roughly how all the kernel works.
-> > Maintainers aren't very good at it in general and they don't see
-> > overlaps between areas very well.
-> > 
-> That is all inappropriate activity for a 2.6.x.y tree as it is being
-> proposed.
-> 
-> Am I right?  All we're proposing here is a tree which has small fixups for
-> reasonably serious problems.  Almost without exception it would consist of
-> backports.
+On Gwe, 2005-03-04 at 05:34, Andrew Morton wrote:
+> Jeff Garzik <jgarzik@pobox.com> wrote:
+> This means that for patches which didn't come through -mm, their first
+> exposure in a public tree will be when they pop up in our "most stable"
+> tree.  That's backwards.
 
-Almost without exception maintainers will forget the backport (there are
-some notable exceptions). Almost without exception maintainers will not
-be aware that their backport fix clashes with another fix because that
-isn't their concern.
+Its irrelevant. Most of the "must fix" items are security. They don't
+have a convenient testing life cycle. Many of the others are things that
+need a prompt fix and the same problem applies.
 
-Linus will try and sneak stuff in that is security but not mentioned
-which has to be dug out (because the bad guys read the patches too).
+After all if it was in -mm then someone knew about it and would have
+said "this has to make base before its released"
 
-And finally Linus throws the occasional gem into the backporting mix
-because he will (rightly) do the long term fix that rearranges a lot of
-code when the .x.y patch needs to be the ugly band aid.
+> However it should be manageable, as long as linux-release is constrained to
+> obviously-correct and its-no-more-broken-now-than-it-used-to-be patches. 
 
-So for example Linus will happily changed remap_vm_area to fix a
-security bug by changing the API entirely and making it do some other
-things. Or in the case of the exec bug he did a fix that defaulted any
-missed fixes to unsafe. Fine for upstream where the goal is cleanness,
-bad for .x.y because the arch people hadn't caught up and did have
-remaining holes.
-
-You also have to review the dependancy tree for a backport and what was
-tested - so I skipped the NFS df fix as one example as it had never been
-tested standalone only on a pile of other NFS fixes.
+And occasionally it will be wrong. It happens. Linus released 2.4.15,
+I've released -ac patches and stuff that needed immediate "oh duh, try
+the next one"
+results. The important thing is that there is a base 'stable' release
+that is almost always stable. That is as good as you'll get.
 
 Alan
 

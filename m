@@ -1,66 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268634AbRHBDjk>; Wed, 1 Aug 2001 23:39:40 -0400
+	id <S268618AbRHBDju>; Wed, 1 Aug 2001 23:39:50 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268628AbRHBDja>; Wed, 1 Aug 2001 23:39:30 -0400
-Received: from perninha.conectiva.com.br ([200.250.58.156]:19463 "HELO
-	perninha.conectiva.com.br") by vger.kernel.org with SMTP
-	id <S268618AbRHBDjY>; Wed, 1 Aug 2001 23:39:24 -0400
-Date: Thu, 2 Aug 2001 00:39:30 -0300 (BRST)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: <riel@duckman.distro.conectiva>
-To: peter revill <arevill@bigpond.net.au>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: Re: university studies?
-In-Reply-To: <20010801052200.25526.qmail@webmail.com>
-Message-ID: <Pine.LNX.4.33L.0108020032510.5582-100000@duckman.distro.conectiva>
+	id <S268628AbRHBDjk>; Wed, 1 Aug 2001 23:39:40 -0400
+Received: from smtp012.mail.yahoo.com ([216.136.173.32]:31505 "HELO
+	smtp012.mail.yahoo.com") by vger.kernel.org with SMTP
+	id <S268618AbRHBDjf> convert rfc822-to-8bit; Wed, 1 Aug 2001 23:39:35 -0400
+X-Apparently-From: <kiwiunixman@yahoo.co.nz>
+From: Matthew Gardiner <kiwiunixman@yahoo.co.nz>
+Date: Thu, 02 Aug 2001 03:39:42 GMT
+Message-ID: <20010802.3394200@kiwiunixman.ihug.co.nz>
+Subject: Re: TODO: framebuffer?
+To: Jason Victor <sloppyj123@yahoo.com>
+CC: linux-kernel@vger.kernel.org
+In-Reply-To: <20010802022008.4214.qmail@web4301.mail.yahoo.com>
+In-Reply-To: <20010802022008.4214.qmail@web4301.mail.yahoo.com>
+X-Mailer: Mozilla/3.0 (compatible; StarOffice/5.2; Linux)
+X-Priority: 3 (Normal)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 1 Aug 2001,  peter revill wrote:
-
-> i was wondering what people would consider the course that gives
-> you "kernel development" sort of skillset-mindset any feedback
-> is appriciated,
-
-"Experience is that, which you get after you need it."
-
-But seriously, I don't have the idea that there is any
-university program which really prepares you for being
-a kernel hacker.
-
-At university, you will learn things like thinking in
-a logically coherent way, proving that that your idea
-was right, understanding exactly why your neat idea
-was right and the ability to explain all of this to
-others.
-
-Oh, you might also learn things like C, physics,
-math, molecular biology, philosophy or other in-depth
-technical things. Which of these isn't too important,
-just make sure you get the interesting ones ;)
-
-Now, about preparing yourself to be a kernel hacker;
-the only thing which really helps for that is to start
-learning about the kernel and to start playing around
-with making small changes to those parts of the kernel
-you think are interesting.
-
-The people at the Kernelnewbies project may have some info:
-
-	http://kernelnewbies.org/
-
-cheers,
-
-Rik
---
-Executive summary of a recent Microsoft press release:
-   "we are concerned about the GNU General Public License (GPL)"
 
 
-		http://www.surriel.com/
-http://www.conectiva.com/	http://distro.conectiva.com/
+>>>>>>>>>>>>>>>>>> Original Message <<<<<<<<<<<<<<<<<<
 
+On 8/2/01, 2:20:08 PM, Jason Victor <sloppyj123@yahoo.com> wrote regarding 
+TODO: framebuffer?:
+
+
+> Hi,
+> I'm Jason, I'm 14, and all I wanna do is work on the
+> Linux kernel (Linus is my hero :). I'm a newbie, so I
+> was looking to start off with something easy. Should I
+> write a set of functions to make it easier to draw in
+> the framebuffer? If that's not the sort of thing
+> you're looking for, what should I do?
+
+> Thanks for your help,
+> Jason
+
+The ACPI is screwed, you could always have a look over that, else, there 
+is always code auditing ;)
+
+Matthew Gardiner
+
+_________________________________________________________
+Do You Yahoo!?
+Get your free @yahoo.com address at http://mail.yahoo.com
 

@@ -1,49 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266539AbRGDID7>; Wed, 4 Jul 2001 04:03:59 -0400
+	id <S265736AbRGDINK>; Wed, 4 Jul 2001 04:13:10 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266538AbRGDIDu>; Wed, 4 Jul 2001 04:03:50 -0400
-Received: from neon-gw.transmeta.com ([209.10.217.66]:6670 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S266539AbRGDIDj>; Wed, 4 Jul 2001 04:03:39 -0400
+	id <S265741AbRGDIMv>; Wed, 4 Jul 2001 04:12:51 -0400
+Received: from SMTP7.ANDREW.CMU.EDU ([128.2.10.87]:4366 "EHLO
+	smtp7.andrew.cmu.edu") by vger.kernel.org with ESMTP
+	id <S265736AbRGDIMm>; Wed, 4 Jul 2001 04:12:42 -0400
+Date: Wed, 4 Jul 2001 04:12:41 -0400 (EDT)
+From: Ari Heitner <aheitner@andrew.cmu.edu>
 To: linux-kernel@vger.kernel.org
-From: "H. Peter Anvin" <hpa@zytor.com>
-Subject: Re: Why Plan 9 C compilers don't have asm("")
-Date: 4 Jul 2001 01:03:13 -0700
-Organization: Transmeta Corporation, Santa Clara CA
-Message-ID: <9huik1$grm$1@cesium.transmeta.com>
-In-Reply-To: <200107040337.XAA00376@smarty.smart.net> <20010703233605.A1244@zalem.puupuu.org> <20010704002436.C1294@ftsoj.fsmlabs.com>
+Subject: Re: VM Requirement Document - v0.0
+In-Reply-To: <01070317045806.00338@starship>
+Message-ID: <Pine.GSO.4.21L-021.0107040305380.23815-100000@unix13.andrew.cmu.edu>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Disclaimer: Not speaking for Transmeta in any way, shape, or form.
-Copyright: Copyright 2001 H. Peter Anvin - All Rights Reserved
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Followup to:  <20010704002436.C1294@ftsoj.fsmlabs.com>
-By author:    Cort Dougan <cort@fsmlabs.com>
-In newsgroup: linux.dev.kernel
->
-> There isn't such a crippling difference between straight-line and code with
-> unconditional branches in it with modern processors.  In fact, there's very
-> little measurable difference.
-> 
-> If you're looking for something to blame hurd performance on I'd suggest
-> the entire design of Mach, not inline asm vs procedure calls.  Tossing a
-> few context switches into calls is a lot more expensive.
-> 
 
-That's not where the bulk of the penalty of a function call comes in
-(and it's a call/return, not an unconditional branch.)  The penalty
-comes in because of the additional need to obey the calling
-convention, and from the icache discontinuity.
+On Tue, 3 Jul 2001, Daniel Phillips wrote:
 
-Not to mention that certain things simply cannot be done that way.
+> And by the way, this is just brainstorming, it hasn't reached the 'proposal' 
+> stage yet.
 
-	-hpa
+So while we're here, an idea someone proposed in #debian while discussion this
+thread (michal@203.94.140.52, you know who you are): QoS for application paging
+on desktops. Basically you designate to the kernel which applications you want
+to give priviledges, and it avoids swapping them out, even if they've been idle
+for a long time. You designate your desktop apps, and then when updatedb comes
+along they don't get kicked (but something more intensive like a kernel compile
+would claim the pages). Maybe it would be as simple as a category of apps whose
+pages won't get kicked before a singly-touched page (like and updatedb or
+streaming media run).
 
--- 
-<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
-"Unix gives you enough rope to shoot yourself in the foot."
-http://www.zytor.com/~hpa/puzzle.txt
+For the record, I'm impressed with the new VM design, and I think its unbiased
+behaviour (once the bugs are ironed out) will be exactly what I'm looking for
+in life (traditional Unix "the fair way") :) Currently using a 4-way RS/6000
+running AIX 4.2 which has been up for a long time and is running a lot of
+programs (even though the active set is quite reasonable), and decides to swap
+at evil times :)
+
+Looking forward to the tweaks/settings options that will appear on this VM over
+the next little while...
+
+
+
+Cheers,
+
+Ari Heitner
+
+
+

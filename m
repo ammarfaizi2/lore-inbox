@@ -1,50 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267352AbTAQBnt>; Thu, 16 Jan 2003 20:43:49 -0500
+	id <S267367AbTAQBs7>; Thu, 16 Jan 2003 20:48:59 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267353AbTAQBnt>; Thu, 16 Jan 2003 20:43:49 -0500
-Received: from dp.samba.org ([66.70.73.150]:61087 "EHLO lists.samba.org")
-	by vger.kernel.org with ESMTP id <S267352AbTAQBnt>;
-	Thu, 16 Jan 2003 20:43:49 -0500
-Date: Fri, 17 Jan 2003 12:38:27 +1100
+	id <S267365AbTAQBs7>; Thu, 16 Jan 2003 20:48:59 -0500
+Received: from dp.samba.org ([66.70.73.150]:63651 "EHLO lists.samba.org")
+	by vger.kernel.org with ESMTP id <S267353AbTAQBs6>;
+	Thu, 16 Jan 2003 20:48:58 -0500
 From: Rusty Russell <rusty@rustcorp.com.au>
-To: Roman Zippel <zippel@linux-m68k.org>
-Cc: torvalds@transmeta.com, linux-kernel@vger.kernel.org, dledford@redhat.com
-Subject: Re: [PATCH] Proposed module init race fix.
-Message-Id: <20030117123827.1abaf413.rusty@rustcorp.com.au>
-In-Reply-To: <3E258DA5.4BB14A41@linux-m68k.org>
-References: <20030115082444.13D1A2C128@lists.samba.org>
-	<3E258DA5.4BB14A41@linux-m68k.org>
-X-Mailer: Sylpheed version 0.7.4 (GTK+ 1.2.10; powerpc-debian-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+To: Richard Henderson <rth@twiddle.net>
+Cc: linux-kernel@vger.kernel.org, davem@vger.kernel.org
+Subject: Re: [module-init-tools] fix weak symbol handling 
+In-reply-to: Your message of "Tue, 14 Jan 2003 17:14:57 -0800."
+             <20030114171457.E5751@twiddle.net> 
+Date: Fri, 17 Jan 2003 12:57:03 +1100
+Message-Id: <20030117015756.409DF2C437@lists.samba.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 15 Jan 2003 17:34:45 +0100
-Roman Zippel <zippel@linux-m68k.org> wrote:
-> >  void add_disk(struct gendisk *disk)
-> >  {
-> > +       /* It needs to be accessible so we can read partitions. */
-> > +       make_module_live(disk->fops->owner);
-> > +
+In message <20030114171457.E5751@twiddle.net> you write:
+> On Tue, Jan 14, 2003 at 02:16:57PM +1100, Rusty Russell wrote:
+> > So the semantics you want are that if A declares a weak symbol S, and
+> > B exports a (presumably non-weak) symbol S, then A depends on B?
 > 
-> After this the module can be removed without problems.
+> No.  The semantics I need is if A references a weak symbol S 
+> and *no one* implements it, then S resolves to NULL.
 
-Good catch!  The core code should hold a reference during init.  This is
-fixed in the new patch.
+Sorry, I was unclear.  I want to know the dependency semantics:
 
-> >         disk->flags |= GENHD_FL_UP;
-> >         blk_register_region(MKDEV(disk->major, disk->first_minor), disk->minors,
-> >                         NULL, exact_match, exact_lock, disk);
-> 
-> blk_register_region() allocates memory, which can fail?
+If B exports S, should depmod believe A needs B, or not?  Your patch
+leaves that semantic (all it does is suppress the errors).
 
-Looks like.  But the semantics are the same as before, for better or worse. 8(
+I'm not sure what semantics are "right", since I don't know what
+you're trying to do, or what is wrong with get_symbol().
 
-Thanks!
+Hope that clarifies?
 Rusty.
--- 
-   there are those who do and those who hang on and you don't see too
-   many doers quoting their contemporaries.  -- Larry McVoy
+--
+  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.

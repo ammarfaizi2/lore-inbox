@@ -1,42 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316968AbSF0Uyl>; Thu, 27 Jun 2002 16:54:41 -0400
+	id <S316970AbSF0VGW>; Thu, 27 Jun 2002 17:06:22 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316969AbSF0Uyk>; Thu, 27 Jun 2002 16:54:40 -0400
-Received: from aboukir-101-1-23-willy.adsl.nerim.net ([62.212.114.60]:41490
-	"EHLO www.home.local") by vger.kernel.org with ESMTP
-	id <S316968AbSF0Uyj>; Thu, 27 Jun 2002 16:54:39 -0400
-From: Willy Tarreau <willy@w.ods.org>
-Message-Id: <200206272056.g5RKunvS009052@alpha.home.local>
-Subject: Re: 2.4.19-rc1 proc_get_inode Unresolved in /net/wan/comx.o
-To: linux@cedar-astronomers.org (Jason Alexander)
-Date: Thu, 27 Jun 2002 22:56:49 +0200 (CEST)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.44.0206271539190.24838-100000@cedar-astronomers.org> from "Jason Alexander" at Jun 27, 2002 03:44:58 PM
-X-Mailer: ELM [version 2.5 PL3]
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S316971AbSF0VGV>; Thu, 27 Jun 2002 17:06:21 -0400
+Received: from quechua.inka.de ([212.227.14.2]:21583 "EHLO mail.inka.de")
+	by vger.kernel.org with ESMTP id <S316970AbSF0VGU>;
+	Thu, 27 Jun 2002 17:06:20 -0400
+From: Bernd Eckenfels <ecki-news2002-06@lina.inka.de>
+To: linux-kernel@vger.kernel.org
+Subject: Re: zero-copy networking & a performance drop
+In-Reply-To: <Pine.LNX.4.44.0206271146280.9500-100000@alvie-mail.lanl.gov>
+X-Newsgroups: ka.lists.linux.kernel
+User-Agent: tin/1.5.8-20010221 ("Blue Water") (UNIX) (Linux/2.0.39 (i686))
+Message-Id: <E17NgVM-0001l3-00@sites.inka.de>
+Date: Thu, 27 Jun 2002 23:08:40 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> find kernel -path '*/pcmcia/*' -name '*.o' | xargs -i -r ln -sf ../{} pcmcia
-> if [ -r System.map ]; then /sbin/depmod -ae -F System.map  2.4.19-rc1; fi
-> depmod: *** Unresolved symbols in /lib/modules/2.4.19-rc1/kernel/drivers/net/wan/comx.o
-> depmod:         proc_get_inode
+In article <Pine.LNX.4.44.0206271146280.9500-100000@alvie-mail.lanl.gov> you wrote:
+> Previous tests have show that we can transmit IP packets easily at around
+> 1.4 Gbit, but we can only receive at about 0.9 Gbit. We suspect there is a 
+> memory copy somewhere either in the quadrics IP driver (covered by an NDA, 
+> sorry), or in the IP stack after netif_rx() is called. I've looked at the 
+> driver, and, upon a (good) cursory inspection, it looks good.
 
-I noticed it in february, and wrote a patch which allowed it to at least compile,
-link and load properly, but I couldn't check if it worked, not having the hardware.
-Someone told be that the driver was borken anyway and that even with my patch it
-was unusable, so I gave up and simply disabled it in my .config.
+You have to sign a NDA for a hardware which bahaves slower than expected and
+then u seek help in the open community? I would ask you to bother the
+manufacturer, so they know about this problem and solve it. After all, if
+you have to pay for it you should actually USE their service.
 
-> What would be the best way to proceed.
+AFAIK only a few methods like sendfile support zero copy ip.
 
-I simply removed comx_delete_dentry() and comx_lookup(), and assigned
-comx_root_inode_ops.lookup from comx_root_dir->proc_iops->lookup in comx_init().
+But on the other hand, if the card works by memory sharing perhaps TCP/IP is
+simply the wrong api to speak to that device?
 
-Better luck with CONFIG_COMX=n IMHO.
-
-Cheers,
-Willy
-
+Greetings
+Bernd

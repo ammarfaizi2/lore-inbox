@@ -1,45 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S276585AbRJPSLv>; Tue, 16 Oct 2001 14:11:51 -0400
+	id <S276600AbRJPSWv>; Tue, 16 Oct 2001 14:22:51 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S276601AbRJPSLm>; Tue, 16 Oct 2001 14:11:42 -0400
-Received: from garrincha.netbank.com.br ([200.203.199.88]:31248 "HELO
-	netbank.com.br") by vger.kernel.org with SMTP id <S276585AbRJPSL0>;
-	Tue, 16 Oct 2001 14:11:26 -0400
-Date: Tue, 16 Oct 2001 16:11:44 -0200 (BRST)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: <riel@imladris.surriel.com>
-To: David Lang <david.lang@digitalinsight.com>
-Cc: safemode <safemode@speakeasy.net>, <linux-kernel@vger.kernel.org>
-Subject: Re: VM
-In-Reply-To: <Pine.LNX.4.40.0110160932370.6108-100000@dlang.diginsite.com>
-Message-ID: <Pine.LNX.4.33L.0110161610170.6440-100000@imladris.surriel.com>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S276612AbRJPSWm>; Tue, 16 Oct 2001 14:22:42 -0400
+Received: from h24-78-175-24.nv.shawcable.net ([24.78.175.24]:47232 "EHLO
+	oof.localnet") by vger.kernel.org with ESMTP id <S276622AbRJPSW2>;
+	Tue, 16 Oct 2001 14:22:28 -0400
+Date: Tue, 16 Oct 2001 11:22:59 -0700
+From: Simon Kirby <sim@netnation.com>
+To: linux-kernel@vger.kernel.org
+Subject: Lockups with 2.4.12?
+Message-ID: <20011016112259.A2206@netnation.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.22i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 16 Oct 2001, David Lang wrote:
+Has anybody else been seeing random lockups with 2.4.12?  We've seen a
+few servers stop responding and our backup server die nightly with
+2.4.12, but 2.4.10pre10 seems to be fine.  I was only at the console once
+where I could actually see Oopses, but the scrollback overflowed with
+Oopses so I couldn't find the first one.  Nothing was saved to disk.  The
+stack trace of the oldest Oops I could find showed a program in
+sys_rt_sigaction.
 
-> when 2.4 works it is FAR better then 2.2 and it has features not
-> available on 2.2, but with the Rik VM (versions that were in the linus
-> kernels up through 2.4.9) it has not reliably worked.
+I'll try to track this down a bit more, I'm just wondering if anybody
+else is having similar problems.
 
-Note that Linus hasn't been up to date on my VM since
-about 2.4.5.  And before you blame me for not sending
-patches, I did send them but Linus didn't apply them
-for unknown reasons.
+Simon-
 
-The VM in Alan's kernel pretty much has been the only
-option for a reliable 2.4 kernel since 2.4.7.
-
-regards,
-
-Rik
--- 
-DMCA, SSSCA, W3C?  Who cares?  http://thefreeworld.net/  (volunteers needed)
-
-http://www.surriel.com/		http://distro.conectiva.com/
-
+[  Stormix Technologies Inc.  ][  NetNation Communications Inc. ]
+[       sim@stormix.com       ][       sim@netnation.com        ]
+[ Opinions expressed are not necessarily those of my employers. ]

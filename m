@@ -1,70 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264313AbTKZUsL (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 26 Nov 2003 15:48:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264324AbTKZUsL
+	id S264340AbTKZUpA (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 26 Nov 2003 15:45:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264354AbTKZUpA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 26 Nov 2003 15:48:11 -0500
-Received: from out006pub.verizon.net ([206.46.170.106]:17807 "EHLO
-	out006.verizon.net") by vger.kernel.org with ESMTP id S264313AbTKZUrb
+	Wed, 26 Nov 2003 15:45:00 -0500
+Received: from mail.jlokier.co.uk ([81.29.64.88]:20865 "EHLO
+	mail.shareable.org") by vger.kernel.org with ESMTP id S264340AbTKZUnN
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 26 Nov 2003 15:47:31 -0500
-From: Gene Heskett <gene.heskett@verizon.net>
-Reply-To: gene.heskett@verizon.net
-Organization: None that appears to be detectable by casual observers
-To: William Lee Irwin III <wli@holomorphy.com>
-Subject: Re: amanda vs 2.6
-Date: Wed, 26 Nov 2003 15:47:30 -0500
-User-Agent: KMail/1.5.1
-Cc: linux-kernel@vger.kernel.org
-References: <200311261212.10166.gene.heskett@verizon.net> <200311261523.33524.gene.heskett@verizon.net> <20031126203231.GV8039@holomorphy.com>
-In-Reply-To: <20031126203231.GV8039@holomorphy.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+	Wed, 26 Nov 2003 15:43:13 -0500
+Date: Wed, 26 Nov 2003 20:42:56 +0000
+From: Jamie Lokier <jamie@shareable.org>
+To: "Richard B. Johnson" <root@chaos.analogic.com>
+Cc: Linus Torvalds <torvalds@osdl.org>,
+       Linux kernel <linux-kernel@vger.kernel.org>
+Subject: Re: BUG (non-kernel), can hurt developers.
+Message-ID: <20031126204256.GJ14383@mail.shareable.org>
+References: <Pine.LNX.4.53.0311261153050.10929@chaos> <Pine.LNX.4.58.0311261021400.1524@home.osdl.org> <Pine.LNX.4.53.0311261344280.11326@chaos> <20031126193310.GE14383@mail.shareable.org> <Pine.LNX.4.53.0311261459340.11574@chaos>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200311261547.30183.gene.heskett@verizon.net>
-X-Authentication-Info: Submitted using SMTP AUTH at out006.verizon.net from [151.205.54.127] at Wed, 26 Nov 2003 14:47:30 -0600
+In-Reply-To: <Pine.LNX.4.53.0311261459340.11574@chaos>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 26 November 2003 15:32, William Lee Irwin III wrote:
->On Wednesday 26 November 2003 14:50, William Lee Irwin III wrote:
->>> Okay, then we need to figure out what the hung process was doing.
->>> Can you find its pid and check /proc/$PID/wchan?
->
->On Wed, Nov 26, 2003 at 03:23:33PM -0500, Gene Heskett wrote:
->> Ok, repeat, us is PID 1843, so:
->> [root@coyote root]# ps -ea|grep su
->>  1843 pts/1    00:00:00 su
->> [root@coyote root]# cat /proc/1843/wchan
->> sys_wait4[root@coyote root]#
->> Unforch, echoing a 0 to that variable doesn't fix it, reboot time
->> again.
->> Do you need my .config?
->
->su had apparently spawned something and is waiting on it in the
->wchan you showed. Could you find the shell it spawned as an amanda
->user and syslogd (as per Linus' suggestion) also?
+Richard B. Johnson wrote:
+> > What is the "bad interaction" that you observed at monthly intervals?
+> > Also a SIGSEGV?
+> 
+> Yes. When the call to rand() was replaced with a static-linked
+> clone it went away.
 
-I need a bottle of aspirin, no change, but this boot, its working.  Go 
-figure.  FWIW, syslogd is running just fine, or is for this boot 
-anyway...  At this point I don't even have a SWAG about whats going 
-on.
+> The calling rand() from a handler in a newer libc doesn't seg-fault.
 
-Besides, that was a shell I typed that into, and I don't believe it 
-actually spawned the users shell.  No visible indicator that I could 
-see.
+On both cases, although it doesn't seg-fault, you can no longer trust
+the results to be the same quality of random numbers.
 
->-- wli
+It's an implementation detail that the other versions of rand() happen
+not to segfault even though you are calling them incorrectly.  Just
+like you can call free() twice on a memory block and it will segfault
+with Glibc, but is fine in some versions of BSD.  It's still an error
+to do it.
 
--- 
-Cheers, Gene
-AMD K6-III@500mhz 320M
-Athlon1600XP@1400mhz  512M
-99.27% setiathome rank, not too shabby for a WV hillbilly
-Yahoo.com attornies please note, additions to this message
-by Gene Heskett are:
-Copyright 2003 by Maurice Eugene Heskett, all rights reserved.
+> Not with the emulation. The problem is that rand() uses a thread-
+> specific pointer to find the seed (history variable), just like
+> 'errno' which isn't really a static variable, but a function
+> that returns a pointer to a thread-specific integer. If this
+> is interrupted in a critical section, and that same pointer
+> is used, that pointer is left pointing to a variable in somebody
+> else's address space.
+
+Yes that sounds reasonable.  A newer libc would fix it because newer
+libc uses a different method for looking up thread-specific pointers.
+
+> That same problem is observed to happen when the same shared runtime
+> library was used by entirely different tasks.
+
+When you say "entirely different tasks", do you mean "different
+threads in the same process" or "different processes"?
+
+That same problem _can_ happen between different threads in a single
+process, but it _cannot_ happen between different processes.
+
+-- Jamie
 

@@ -1,42 +1,32 @@
 Return-Path: <owner-linux-kernel-outgoing@vger.rutgers.edu>
-Received: by vger.rutgers.edu via listexpand id <S154322AbQDHX3s>; Sat, 8 Apr 2000 19:29:48 -0400
-Received: by vger.rutgers.edu id <S154363AbQDHX32>; Sat, 8 Apr 2000 19:29:28 -0400
-Received: from lightning.swansea.uk.linux.org ([194.168.151.1]:4225 "EHLO the-village.bc.nu") by vger.rutgers.edu with ESMTP id <S154600AbQDHX3Q>; Sat, 8 Apr 2000 19:29:16 -0400
+Received: by vger.rutgers.edu via listexpand id <S154606AbQDHXpI>; Sat, 8 Apr 2000 19:45:08 -0400
+Received: by vger.rutgers.edu id <S154478AbQDHXmP>; Sat, 8 Apr 2000 19:42:15 -0400
+Received: from [216.101.162.242] ([216.101.162.242]:32951 "EHLO pizda.ninka.net") by vger.rutgers.edu with ESMTP id <S154363AbQDHXl7>; Sat, 8 Apr 2000 19:41:59 -0400
+Date: Sat, 8 Apr 2000 16:44:14 -0700
+Message-Id: <200004082344.QAA02536@pizda.ninka.net>
+From: "David S. Miller" <davem@redhat.com>
+To: kanoj@google.engr.sgi.com
+Cc: manfreds@colorfullife.com, linux-kernel@vger.rutgers.edu, linux-mm@kvack.org
+In-reply-to: <200004082111.OAA73647@google.engr.sgi.com> (kanoj@google.engr.sgi.com)
 Subject: Re: zap_page_range(): TLB flush race
-To: kanoj@google.engr.sgi.com (Kanoj Sarcar)
-Date: Sun, 9 Apr 2000 00:37:05 +0100 (BST)
-Cc: manfreds@colorfullife.com (Manfred Spraul), linux-kernel@vger.rutgers.edu, linux-mm@kvack.org, torvalds@transmeta.com, davem@redhat.com, alan@lxorguk.ukuu.org.uk
-In-Reply-To: <200004082331.QAA78522@google.engr.sgi.com> from "Kanoj Sarcar" at Apr 08, 2000 04:31:38 PM
-X-Mailer: ELM [version 2.5 PL1]
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E12e4mo-0003Pn-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+References: <200004082111.OAA73647@google.engr.sgi.com>
 Sender: owner-linux-kernel@vger.rutgers.edu
 
-> > Yes, establish_pte() is broken. We should reverse the calls:
-> > 
-> > 	set_pte(); /* update the kernel page tables */
-> > 	update_mmu(); /* update architecture specific page tables. */
-> > 	flush_tlb();  /* and flush the hardware tlb */
-> >
-> 
-> People are aware of this too, it was introduced during the 390 merge. 
-> I tried talking to the IBM guy about this, I didn't see a response from
-> him ...
+   From: kanoj@google.engr.sgi.com (Kanoj Sarcar)
+   Date: 	Sat, 8 Apr 2000 14:11:05 -0700 (PDT)
 
-Strange since I did and it included you
+   > filemap_sync() calls flush_tlb_page() for each page, but IMHO this is a
+   > really bad idea, the performance will suck with multi-threaded apps on
+   > SMP.
 
-> I think what we now need is a critical mass, something that will make us
-> go "okay, lets just fix these races once and for all".
+   The best you can do probably is a flush_tlb_range?
 
-Basically establish_pte() has to be architecture specific, as some processors
-need different orders either to avoid races or to handle cpu specific
-limitations.
+People, look at the callers of filemap_sync, it does range tlb/cache
+flushes so the flushes in filemap_sync_pte() are in fact spurious.
 
-Alan
-
+Later,
+David S. Miller
+davem@redhat.com
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

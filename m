@@ -1,38 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263584AbRFNSIT>; Thu, 14 Jun 2001 14:08:19 -0400
+	id <S263540AbRFNSH1>; Thu, 14 Jun 2001 14:07:27 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263595AbRFNSII>; Thu, 14 Jun 2001 14:08:08 -0400
-Received: from zmsvr04.tais.net ([12.106.80.12]:53256 "EHLO zmsvr04.tais.net")
-	by vger.kernel.org with ESMTP id <S263584AbRFNSIB>;
-	Thu, 14 Jun 2001 14:08:01 -0400
-X-Mailer: Lotus Notes Release 5.0.7  March 21, 2001
-Subject: Buddy System bitmaps
-To: <linux-kernel@vger.kernel.org>
-Message-ID: <OFD8310C9F.0457C896-ON88256A6B.0061E161@tais.net>
-From: Ramil.Santamaria@tais.toshiba.com
-Date: Thu, 14 Jun 2001 11:09:20 -0700
-X-MIMETrack: Serialize by Router on zmsvr04/tais_external(Release 5.0.6a |January 17, 2001) at
- 06/14/2001 11:08:01 AM
+	id <S263584AbRFNSHR>; Thu, 14 Jun 2001 14:07:17 -0400
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:38413 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S263540AbRFNSHD>; Thu, 14 Jun 2001 14:07:03 -0400
+Subject: Re: Minor "cleanup" patches for 2.4.5-ac kernels
+To: michal@harddata.com (Michal Jaegermann)
+Date: Thu, 14 Jun 2001 19:05:55 +0100 (BST)
+Cc: linux-kernel@vger.kernel.org, alan@lxorguk.ukuu.org.uk
+In-Reply-To: <20010612183832.A29923@mail.harddata.com> from "Michal Jaegermann" at Jun 12, 2001 06:38:32 PM
+X-Mailer: ELM [version 2.5 PL3]
 MIME-Version: 1.0
-Content-type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E15AbVD-00053n-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+> --- linux-2.4.5ac/drivers/pci/quirks.c~	Tue Jun 12 16:31:12 2001
+> +++ linux-2.4.5ac/drivers/pci/quirks.c	Tue Jun 12 17:13:18 2001
+> @@ -18,6 +18,7 @@
+>  #include <linux/pci.h>
+>  #include <linux/init.h>
+>  #include <linux/delay.h>
+> +#include <linux/sched.h>
 
-For this scenario consider a set of 4 page frames.
-Frames 0 and 2 are used while frames 1 and 3 are free.
+Ok
 
-The question is would the bitmap for order 1 be a 1 or 0 for this scenario.
+>  
+> This one is replacing a symbol in sg.c to one which is exported
+> so 'sg.o' can be compiled as a valid module.
 
-I am not on the list so please cc me on your response.
+Export the right symbol on Alpha ?
 
-Thanks in advance.
+>  
+> +/* Forward declaration */
+> +struct mm_struct;
+> +
 
-Ramil J.Santamaria
-Toshiba America Information Systems
-(949) 461-4379
-(949) 206-3439 - fax
-ramil.santamaria@tais.toshiba.com
-
+Ok

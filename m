@@ -1,39 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289255AbSAII2i>; Wed, 9 Jan 2002 03:28:38 -0500
+	id <S289267AbSAIIoq>; Wed, 9 Jan 2002 03:44:46 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289259AbSAII22>; Wed, 9 Jan 2002 03:28:28 -0500
-Received: from mx2.elte.hu ([157.181.151.9]:36529 "HELO mx2.elte.hu")
-	by vger.kernel.org with SMTP id <S289255AbSAII2U>;
-	Wed, 9 Jan 2002 03:28:20 -0500
-Date: Wed, 9 Jan 2002 11:25:43 +0100 (CET)
-From: Ingo Molnar <mingo@elte.hu>
-Reply-To: <mingo@elte.hu>
-To: Mike Kravetz <kravetz@us.ibm.com>
-Cc: Linus Torvalds <torvalds@transmeta.com>,
-        linux-kernel <linux-kernel@vger.kernel.org>,
-        george anzinger <george@mvista.com>,
-        Davide Libenzi <davidel@xmailserver.org>
-Subject: Re: [patch] O(1) scheduler, -D1, 2.5.2-pre9, 2.4.17
-In-Reply-To: <20020108193904.A1068@w-mikek2.beaverton.ibm.com>
-Message-ID: <Pine.LNX.4.33.0201091122060.2276-100000@localhost.localdomain>
+	id <S289271AbSAIIog>; Wed, 9 Jan 2002 03:44:36 -0500
+Received: from frege-d-math-north-g-west.math.ethz.ch ([129.132.145.3]:25813
+	"EHLO frege.math.ethz.ch") by vger.kernel.org with ESMTP
+	id <S289267AbSAIIoZ>; Wed, 9 Jan 2002 03:44:25 -0500
+Message-ID: <3C3C02E2.4050008@debian.org>
+Date: Wed, 09 Jan 2002 09:44:18 +0100
+From: Giacomo Catenazzi <cate@debian.org>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.3) Gecko/20010808
+X-Accept-Language: en-us
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: esr@thyrsus.com
+CC: reddog83 <reddog83@chartermi.net>, linux-kernel@vger.kernel.org
+Subject: Re: CML2-2.0.4 is available
+In-Reply-To: <fa.ijumnqv.13juc98@ifi.uio.no> <fa.fvl9anv.u6q1pu@ifi.uio.no>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Eric S. Raymond wrote:
+> reddog83 <reddog83@chartermi.net>:
+> 
+>>There is one thing though when a newie come's over say to Linux Kernel 
+>>2.6/3.0 and is starting out using the new CML2 system he could acidentialy 
+>>hit the wroung key and all the other option's for the other Linux Kernel 
+>>port's will show up and he could click on one of the and try to make a kernel 
+>>that is for a x86 and he could be clicking in the IA64 port menu on acident.
+>>Do you see what I'm saying?
+>>I have done it before and I downloaded CML2 2.0.3 and I did it again
+>>
+> 
+> Yes.  This will happen if you happen if you toggle the suppression flag.
+> I'm considering disabling that unless you're in expert mode.
 
-On Tue, 8 Jan 2002, Mike Kravetz wrote:
+Maybe better: use other keystrings. I.e. Control + key.
+In this way is more difficult to press the wrong key sequence, but we
+still have the full features in all modes.
 
-> --------------------------------------------------------------------
-> Chat - VolanoMark simulator.  Result is a measure of throughput.
->        Higher is better.
+	giacomo
 
-very interesting numbers, nice work Mike! I'd suggest the following
-additional test: please also run tests like VolanoMark with 'nice -n 19'.
-The O(1) scheduler's task-penalty method works in our favor in this case,
-since we know the test is CPU-bound we can move all processes to nice
-level 19.
 
-	Ingo
 

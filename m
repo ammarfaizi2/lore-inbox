@@ -1,59 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132355AbRCZHFl>; Mon, 26 Mar 2001 02:05:41 -0500
+	id <S132354AbRCZHCv>; Mon, 26 Mar 2001 02:02:51 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132357AbRCZHFb>; Mon, 26 Mar 2001 02:05:31 -0500
-Received: from zeus.kernel.org ([209.10.41.242]:22999 "EHLO zeus.kernel.org")
-	by vger.kernel.org with ESMTP id <S132355AbRCZHFV>;
-	Mon, 26 Mar 2001 02:05:21 -0500
-Date: Mon, 26 Mar 2001 11:02:13 +0400
-From: Oleg Drokin <green@ixcelerator.com>
-To: Manoj Sontakke <manojs@sasken.com>
-Cc: linux-kernel@vger.kernel.org, davem@redhat.com, kuznet@ms2.inr.ac.ru
-Subject: Re: IP layer bug?
-Message-ID: <20010326110213.A17124@iXcelerator.com>
-In-Reply-To: <20010326100941.A16800@iXcelerator.com> <Pine.LNX.4.21.0103261739260.25784-100000@pcc65.sasi.com>
-Mime-Version: 1.0
+	id <S132355AbRCZHCc>; Mon, 26 Mar 2001 02:02:32 -0500
+Received: from panic.ohr.gatech.edu ([130.207.47.194]:34536 "HELO
+	havoc.gtf.org") by vger.kernel.org with SMTP id <S132354AbRCZHCY>;
+	Mon, 26 Mar 2001 02:02:24 -0500
+Message-ID: <3ABEE953.AA8FD984@mandrakesoft.com>
+Date: Mon, 26 Mar 2001 02:01:39 -0500
+From: Jeff Garzik <jgarzik@mandrakesoft.com>
+Organization: MandrakeSoft
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.3-pre8 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: esr@thyrsus.com
+Cc: Peter Samuelson <peter@cadcamlab.org>, linux-kernel@vger.kernel.org,
+        kbuild-devel@lists.sourceforge.net
+Subject: Re: CML1 cleanup patch
+In-Reply-To: <200103260001.f2Q01Yt09387@snark.thyrsus.com> <15038.56527.591553.87791@wire.cadcamlab.org> <3ABEE0B5.12A2F768@mandrakesoft.com> <20010326014913.B11181@thyrsus.com>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2i
-In-Reply-To: <Pine.LNX.4.21.0103261739260.25784-100000@pcc65.sasi.com>; from manojs@sasken.com on Mon, Mar 26, 2001 at 05:51:43PM +0530
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello!
+"Eric S. Raymond" wrote:
+> I don't care, as long as the result has a non-numeric
+> prefix -- bare "8139whatever" is out.
 
-On Mon, Mar 26, 2001 at 05:51:43PM +0530, Manoj Sontakke wrote:
-> > > ip_options_compile() when called with first argument NULL resets cb to 0.
-> > I have found that already.
-> > > underlying layer(link and phy) could be anything so where from the
-> > > ip_options should start will depend upon the underlying layer.
-> > But here's the problem!
-> > If I won't zero cb in my driver before netif_rx() call,
-> > IP layer thinks that all my packets have various ip options set
-> > (source routing most notable)
-> U can set cb to zero, but u also plan to use cb for storing ur data. If
-I use it for storing data, but when I do netif_rx() on skb, I cannot touch it
-anymore, so no data there is belong to me, and if I read that code in
-ip_input.c, it gets zeroed.
-BTW, I found that it's not ip_input.c that sends me 'source routing rejected'
-message, because no message is logged. It might be some other place.
-But anyway something is wrong in IP layer.
+Bullshit.  Numeric prefixes work fine in CML1.
 
-> that happens then u need to modify the way the macro IPCB
-> (probably in net/ip.h) is defined. Also make sure to increase the size 
-> of cb to accomodate ur data. This will solve ur problem but making this
-My data perfectly fits in cb of current size.
+With regards to CML2, hardware and driver filenames quite often begin
+with numerals, so it is quite logical that config variables may begin
+with a numeral.
 
-> general (part of the standard kernel code) needs a lot of work in the ip
-> layer. The cb is also used by TCP. The same needs to be done in IP layer
-> but this will again largly depend on the layers below and hence the
-> complexity.
-But comment in skbuff.h claims that any owner of skb can use cb for its own needs, till it passes ownership to whoever else.
+You're writing CML2.  Don't create a stupid namespace with stupid
+limitations.  I'm glad my filesystem and my sysctl namespace don't have
+such limitations.
 
-> The alternative to this is that u can add another buffer like cb in
-> sk_buff.
-What for?
-
-Bye,
-    Oleg
+-- 
+Jeff Garzik       | May you have warm words on a cold evening,
+Building 1024     | a full moon on a dark night,
+MandrakeSoft      | and a smooth road all the way to your door.

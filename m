@@ -1,13 +1,13 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261948AbRE2BNb>; Mon, 28 May 2001 21:13:31 -0400
+	id <S261950AbRE2BPV>; Mon, 28 May 2001 21:15:21 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261969AbRE2BNV>; Mon, 28 May 2001 21:13:21 -0400
-Received: from viper.haque.net ([66.88.179.82]:44701 "EHLO mail.haque.net")
-	by vger.kernel.org with ESMTP id <S261948AbRE2BNC>;
-	Mon, 28 May 2001 21:13:02 -0400
-Message-ID: <3B12F79C.70D672E8@haque.net>
-Date: Mon, 28 May 2001 21:13:00 -0400
+	id <S261966AbRE2BPB>; Mon, 28 May 2001 21:15:01 -0400
+Received: from viper.haque.net ([66.88.179.82]:47005 "EHLO mail.haque.net")
+	by vger.kernel.org with ESMTP id <S261950AbRE2BOv>;
+	Mon, 28 May 2001 21:14:51 -0400
+Message-ID: <3B12F801.37FA7836@haque.net>
+Date: Mon, 28 May 2001 21:14:41 -0400
 From: "Mohammad A. Haque" <mhaque@haque.net>
 X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.5 i686)
 X-Accept-Language: en
@@ -33,15 +33,12 @@ Jeff Garzik wrote:
 > cached
 > 
 > Vanilla 2.4.5 VM.
+> 
 
-I don't think this is new/unusual. 
+Sorry. I just looked at your numbers again and saw you have 133 MB of
+real ram free. Is this during compile?
 
-You can add the following to configure when compiling mysql .. 
-
-  --with-low-memory       Try to use less memory to compile to avoid 
-                          memory limitations.
- 
---
+-- 
 
 =====================================================================
 Mohammad A. Haque                              http://www.haque.net/ 

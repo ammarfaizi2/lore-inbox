@@ -1,46 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269468AbSIRW7p>; Wed, 18 Sep 2002 18:59:45 -0400
+	id <S269473AbSIRXCy>; Wed, 18 Sep 2002 19:02:54 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269482AbSIRW7p>; Wed, 18 Sep 2002 18:59:45 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:49294 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S269468AbSIRW7o>;
-	Wed, 18 Sep 2002 18:59:44 -0400
-Date: Wed, 18 Sep 2002 15:55:34 -0700 (PDT)
-Message-Id: <20020918.155534.102954410.davem@redhat.com>
-To: greearb@candelatech.com
-Cc: netdev@oss.sgi.com, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Networking: send-to-self [link to non-broken patch
- this time]
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <3D8826BE.5090007@candelatech.com>
-References: <3D88217A.6070702@candelatech.com>
-	<3D8826BE.5090007@candelatech.com>
-X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S269482AbSIRXCy>; Wed, 18 Sep 2002 19:02:54 -0400
+Received: from smtpzilla5.xs4all.nl ([194.109.127.141]:12552 "EHLO
+	smtpzilla5.xs4all.nl") by vger.kernel.org with ESMTP
+	id <S269473AbSIRXCx>; Wed, 18 Sep 2002 19:02:53 -0400
+Date: Thu, 19 Sep 2002 01:07:16 +0200 (CEST)
+From: Roman Zippel <zippel@linux-m68k.org>
+X-X-Sender: roman@serv
+To: Rusty Russell <rusty@rustcorp.com.au>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] In-kernel module loader 3/7
+In-Reply-To: <20020918021714.E9A292C13A@lists.samba.org>
+Message-ID: <Pine.LNX.4.44.0209190042370.8911-100000@serv>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: Ben Greear <greearb@candelatech.com>
-   Date: Wed, 18 Sep 2002 00:09:50 -0700
-   
-   http://www.candelatech.com/sts_2.4.19.patch
+Hi,
 
-I don't think I'll be applying this:
+On Wed, 18 Sep 2002, Rusty Russell wrote:
 
-1) No tcp ipv6 bits
-2) SIOC{S,G}ACCEPTLOCALADDRS added, but no 32-bit translation
-   code added to varions 64-bit/32-bit biarch port ioctl handling.
-   Also, no code added to the ioctl dispatch in the networking
-   so that devices could actually receive these requests.
-3) Finally, it's just too damn ugly.  If you have to ifdef it then
-   it really doesn't belong in the tree.  Maybe if the device number
-   comparison logic changes existed via macros in tcp.h and thus
-   removing all the CONFIG_NET_SENDTOSELF ifdefs from tcp*.c code
-   it might be more palatable.
-4) I haven't reviewed the ramifications of the route lookup changes,
-   that is Alexey's territory.
+> +/* Stopping interrupts faster than atomics on many archs (and more
+> +   easily optimized if they're not) */
+> +static inline void bigref_inc(struct bigref *ref)
+> +{
+> +	unsigned long flags;
+> +	struct bigref_percpu *cpu;
+> +
+> +	local_irq_save(flags);
+> +	cpu = &ref->ref[smp_processor_id()];
+> +	if (likely(!cpu->slow_mode))
+> +		cpu->counter++;
 
-Sorry, these changes are pretty ugly right now.
+Did you benchmark this? On most UP machines an inc/dec should be cheaper
+than irq enable/disable.
+
+bye, Roman
+

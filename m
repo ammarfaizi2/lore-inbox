@@ -1,76 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261356AbULFIW0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261342AbULFIW7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261356AbULFIW0 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Dec 2004 03:22:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261342AbULFIW0
+	id S261342AbULFIW7 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Dec 2004 03:22:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261358AbULFIW7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Dec 2004 03:22:26 -0500
-Received: from gsecone.com ([61.95.227.64]:24463 "EHLO gateway.gsecone.com")
-	by vger.kernel.org with ESMTP id S261356AbULFIWU (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Dec 2004 03:22:20 -0500
-Subject: [CRASH][2.6.10-rc2-mm4] kexec on bochs
-From: Vinay K Nallamothu <vinay.nallamothu@gsecone.com>
-To: bochs-developers@lists.sourceforge.net
-Cc: linux-kernel@vger.kernel.org
-Content-Type: text/plain
-Organization: Global Security One
-Date: Mon, 06 Dec 2004 13:54:25 +0530
-Message-Id: <1102321465.3768.30.camel@vinay.gsecone.com>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.2 (2.0.2-3) 
+	Mon, 6 Dec 2004 03:22:59 -0500
+Received: from 213-239-212-8.clients.your-server.de ([213.239.212.8]:38355
+	"EHLO live1.axiros.com") by vger.kernel.org with ESMTP
+	id S261342AbULFIWy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 6 Dec 2004 03:22:54 -0500
+In-Reply-To: <41B3B6D7.2000000@xmission.com>
+References: <41B3B6D7.2000000@xmission.com>
+Mime-Version: 1.0 (Apple Message framework v619)
+Content-Type: multipart/signed; protocol="application/pgp-signature"; micalg=pgp-sha1; boundary="Apple-Mail-7--539956142"
+Message-Id: <D7E4F310-475F-11D9-900C-000A958E35DC@axiros.com>
 Content-Transfer-Encoding: 7bit
+Cc: linux-kernel@vger.kernel.org
+From: Daniel Egger <de@axiros.com>
+Subject: Re: sk98lin.ko Marvell ethernet gigabit lan fails in 2.6.9, 2.6.8 kernels
+Date: Mon, 6 Dec 2004 09:21:35 +0100
+To: maxer <maxer@xmission.com>
+X-Pgp-Agent: GPGMail 1.0.2
+X-Mailer: Apple Mail (2.619)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
 
-While trying kexectools-1.98 on bochs-2.1.1, the newly loaded kernel
-panics soon after starting (its the same kernel used to boot bochs).
-kexec with the same works fine on a P-III based system.
+--Apple-Mail-7--539956142
+Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=US-ASCII; format=flowed
 
-Can provide the .config if required.
+On 06.12.2004, at 02:33, maxer wrote:
 
-BOCHS configuration
-./configure --enable-cpu-level=6 --enable-pci --enable-ne2000
-romimage: file=$BXSHARE/BIOS-bochs-latest, address=0xf0000
+> SysKonnect Marvell Gigabit lan seems to have been lost in the kernel 
+> shuffle from 2.6.6 or 2.6.7.
 
-This is what I did:
+Works for me on a Athlon-XP system and 2.6.9. What is the problem?
 
-# kexec -l /boot/bzImage --append="root=/dev/hda1"
-# kexec -e
+Servus,
+       Daniel
 
+--Apple-Mail-7--539956142
+content-type: application/pgp-signature; x-mac-type=70674453;
+	name=PGP.sig
+content-description: This is a digitally signed message part
+content-disposition: inline; filename=PGP.sig
+content-transfer-encoding: 7bit
 
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.6 (Darwin)
 
-Below is a capture:
+iQEVAwUBQbQWjzBkNMiD99JrAQJabgf/SJ3IuT0yFMStQx75/ZtidSPxRFrnmKHU
+Y19Atj2JdQhKSqK+2QO31R5dggaCrxX7r+yJtdGrJ9noW3kVkBlPswLGtmdiaBDk
+hRWNsrWtxj3D0t0iSNUtY1yxDM9aMSSbG2hkVRCr1X3AnQNjeLCQ6NJyGZYfNF9J
+dAyTXbyKHJpc0VUKK/UeavrKugDLr9gIz7jVV0OaBMJmvJX+rXyu0u+8CJmqLXg5
+5dV+cVrZgUqb5tSNBWcJVfT2IWBvsNCBudiQhvAKQQSRJms9Zz1UV13QTMwozmWx
+QzVdGGySq1eBquU9Lhw8Cj/LMKXvFhUDiqea24aJfy5cbJJR9hmDhw==
+=5QE2
+-----END PGP SIGNATURE-----
 
-EFLAGS: 00010086   (2.6.10-rc2-mm4) @vpntest.gsecone.com) (gcc version 3.2.3 200
-EIP is at __queue_work+0x34/0x60
-eax: 00000000   ebx: c0405f20   ecx: c0405f24   edx: 00000003
-esi: f000ff53   edi: 00000286   ebp: c044bf60   esp: c044bf28
-ds: 007b   es: 007b   ss: 0068
-Process swapper (pid: 0, threadinfo=c044a000 task=c03bdb20)
-Stack: c02627d0 00000000 00000000 c02627d0 c0129dae 00000000 c0405f20 00000100
-       c0123331 00000000 c03c3a8c 00000013 c04894c0 c044a000 c044bf60 c044bf60
-       0000007b 00000001 c04894c8 0000000a 004c6007 c011f555 c04894c8 00000046
-Call Trace:
- [<c02627d0>] blank_screen_t+0x0/0x20
- [<c02627d0>] blank_screen_t+0x0/0x20
- [<c0129dae>] queue_work+0x2e/0x50
- [<c0123331>] run_timer_softirq+0xc1/0x200
- [<c011f555>] __do_softirq+0x85/0x90
- [<c011f587>] do_softirq+0x27/0x30
- [<c0104a6b>] do_IRQ+0x3b/0x70
- [<c010310e>] common_interrupt+0x1a/0x20
- [<c044c734>] start_kernel+0xc4/0x1a0
- [<c044c340>] unknown_bootoption+0x0/0x200
-Code: 24 04 8b 5c 24 18 89 74 24 08 89 7c 24 0c 9c 5f fa 8d 50 08 8d 4b 04 89 43
- 14 8b 72 04 89 53 04 89 4a 04 ba 03 00 00 00 89 71 04 <89> 0e b9 01 00 00 00 ff
- 40 04 83 c0 10 c7 04 24 00 00 00 00 e8
- <0>Kernel panic - not syncing: Fatal exception in interrupt
-
-
-Thanks
-Vinay
-
+--Apple-Mail-7--539956142--
 

@@ -1,67 +1,86 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262190AbTLCXFK (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 3 Dec 2003 18:05:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262196AbTLCXFK
+	id S262108AbTLCW70 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 3 Dec 2003 17:59:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262115AbTLCW70
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 Dec 2003 18:05:10 -0500
-Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:36107 "EHLO
-	gatekeeper.tmr.com") by vger.kernel.org with ESMTP id S262190AbTLCXFD
+	Wed, 3 Dec 2003 17:59:26 -0500
+Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:33803 "EHLO
+	gatekeeper.tmr.com") by vger.kernel.org with ESMTP id S262108AbTLCW7V
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 Dec 2003 18:05:03 -0500
+	Wed, 3 Dec 2003 17:59:21 -0500
 To: linux-kernel@vger.kernel.org
 Path: gatekeeper.tmr.com!davidsen
 From: davidsen@tmr.com (bill davidsen)
 Newsgroups: mail.linux-kernel
-Subject: Re: aacraid and large memory problem (2.6.0-test11)
-Date: 3 Dec 2003 22:53:53 GMT
+Subject: Re: XFS for 2.4
+Date: 3 Dec 2003 22:48:11 GMT
 Organization: TMR Associates, Schenectady NY
-Message-ID: <bqlpi1$kbf$1@gatekeeper.tmr.com>
-References: <1070488662.21904.6.camel@markh1.pdx.osdl.net> <20031203222840.6A4E6F7C86@voldemort.scrye.com>
-X-Trace: gatekeeper.tmr.com 1070492033 20847 192.168.12.62 (3 Dec 2003 22:53:53 GMT)
+Message-ID: <bqlp7b$k9c$1@gatekeeper.tmr.com>
+References: <bqlhuv$jh2$1@gatekeeper.tmr.com> <20031203230716.247fa67d.grundig@teleline.es>
+X-Trace: gatekeeper.tmr.com 1070491691 20780 192.168.12.62 (3 Dec 2003 22:48:11 GMT)
 X-Complaints-To: abuse@tmr.com
 Originator: davidsen@gatekeeper.tmr.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <20031203222840.6A4E6F7C86@voldemort.scrye.com>,
-Kevin Fenzi  <kevin@tummy.com> wrote:
+In article <20031203230716.247fa67d.grundig@teleline.es>,
+grundig@teleline.es <grundig@teleline.es> wrote:
+| El 3 Dec 2003 20:44:15 GMT davidsen@tmr.com (bill davidsen) escribió:
 | 
-| >>>>> "Mark" == Mark Haverkamp <markh@osdl.org> writes:
+| > 
+| > Linus accepted it for 2.6, does it need to be blessed by the Pope, or what?
 | 
-| Mark> I set up my machine to boot on the aacraid disk and it booted OK
-| Mark> for me.  Maybe its a problem with a particular model?
-| 
-| Mark> lspci on mine says:
-| 
-| Mark> 02:04.0 RAID bus controller: Digital Equipment Corporation
-| Mark> DECchip 21554 (rev 01) Subsystem: Adaptec Adaptec 5400S
-| 
-| This one says: 
-| 
-| 05:01.0 RAID bus controller: Adaptec AAC-RAID (rev 01)
-|         Subsystem: Adaptec AAC-RAID
-|         Flags: bus master, fast Back2Back, 66Mhz, slow devsel, latency 64, IRQ 96
-|         Memory at f8000000 (32-bit, prefetchable) [size=64M]
-|         Expansion ROM at <unassigned> [disabled] [size=64K]
-|         Capabilities: [80] Power Management version 2
-| 
-| It's a 2200S controller. 
-| bios version 6008
-| 
-| Mark> -- Mark Haverkamp <markh@osdl.org>
-| 
-| kevin
+| Linus accepted _many_ things in 2.6 ;)
 
-02:03.0 RAID bus controller: Digital Equipment Corporation DECchip 21554 (rev 01)
-        Subsystem: Adaptec Dell PowerEdge RAID Controller 2
-        Flags: bus master, medium devsel, latency 32, IRQ 18
-        Memory at fe200000 (32-bit, non-prefetchable) [size=8K]
-        I/O ports at f800 [size=256]
-        Expansion ROM at fd000000 [disabled] [size=128K]
-        Capabilities: <available only to root>
+That's a good thing! And there's a start at being able to disable more
+thing for embedded use, which is also a good thing.
+| 
+| > Now that is bullshit and you know it! This is not a pet feature, this
+| > is code which has has been stable for years. There just aren't any
+| > other candidates, all the other FS stuff went in with less testing and
+| > have fewer users now (JFS as example). This is also not code offered
+| 
+| Not only Fs's, the entire vm got replaced and the fact that was made
+| doesn't mean it was right.
 
-Sorry - it's back on 2.4, just thought this might be useful.
+I just don't buy the implication that that this would lead to other
+major things coming in, there aren't any I can think of with the track
+record of XFS. And it's not coming in just before the freeze, it's been
+trying to come in for several years.
+| 
+| AFAICT, Marcelo isn't taking any decision that would unstabilize the stable
+| tree. I'm happy with that. He isn't taking other things which are _far_
+| more importante for people, ALSA for example (drivers that you can just
+| disable. And it doesn't touch VFS code) and _nobody_ cares abouth
+that.
+
+Well I sure don't care about ALSA, but I'm not a gamer and a few decades
+of competitive target shooting, even with ear protection, have reduced
+my audio needs to the point that the cars which are supported work for
+me, my cat can listen in better fidelity on his Paw Pilot if he wants to.
+| 
+| (Personally I don't think Marcelo would refuse XFS if it wouldn't touch
+| the VFS code. The fact that some people think Marcelo is refusing it because
+| he doesn't likes the code is stupid - he made clear that the problem
+| is the VFS related part)
+| 
+| Hopefully hch will review it, he will agree that it's
+| right, or he will find bugs that nobody has triggered with the xfs patches,
+| and xfs will be merged and all this fscking flame will stop
+
+If there were show stopper technical issues, they were there years ago,
+and the answer should have been NO then instead of "not in this
+relese." After all this I can see that no one wants to stick their neck
+out and bless something which the maintainer doesn't want; if there is a
+problem the whining would never end.
+
+I guess it's perception, it looks as if XFS got passed over by newer
+and less tested FSs, it feels to some people as if the XFS group was
+led to believe that if they worked long and hard enough it would be
+accepted, and that leads to complaints.
+
+People will get over it.
 -- 
 bill davidsen <davidsen@tmr.com>
   CTO, TMR Associates, Inc

@@ -1,24 +1,22 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263203AbUDAVdj (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 Apr 2004 16:33:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263173AbUDAVc6
+	id S263207AbUDAV31 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 Apr 2004 16:29:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263166AbUDAV24
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 Apr 2004 16:32:58 -0500
-Received: from mtvcafw.sgi.com ([192.48.171.6]:60501 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S263203AbUDAVb3 (ORCPT
+	Thu, 1 Apr 2004 16:28:56 -0500
+Received: from mtvcafw.sgi.com ([192.48.171.6]:13622 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S263205AbUDAVO2 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 Apr 2004 16:31:29 -0500
-Date: Thu, 1 Apr 2004 13:30:33 -0800
+	Thu, 1 Apr 2004 16:14:28 -0500
+Date: Thu, 1 Apr 2004 13:13:09 -0800
 From: Paul Jackson <pj@sgi.com>
-To: William Lee Irwin III <wli@holomorphy.com>
-Cc: akpm@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: remove bitmap_shift_*() bitmap length limits
-Message-Id: <20040401133033.435a3857.pj@sgi.com>
-In-Reply-To: <20040330081142.GL791@holomorphy.com>
-References: <20040330065152.GJ791@holomorphy.com>
-	<20040330073604.GK791@holomorphy.com>
-	<20040330081142.GL791@holomorphy.com>
+To: Paul Jackson <pj@sgi.com>
+Cc: colpatch@us.ibm.com, wli@holomorphy.com, linux-kernel@vger.kernel.org
+Subject: [Patch 22/23] mask v2 - Fix cpumask in asm-x86_64/topology.h
+Message-Id: <20040401131309.6b1881b3.pj@sgi.com>
+In-Reply-To: <20040401122802.23521599.pj@sgi.com>
+References: <20040401122802.23521599.pj@sgi.com>
 Organization: SGI
 X-Mailer: Sylpheed version 0.9.8 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
@@ -27,23 +25,44 @@ Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> The primary effect of the patch is to remove the MAX_BITMAP_BITS
+Patch_22_of_23 - Remove cpumask hack from asm-x86_64/topology.h
+	This file had the cpumask cpu_online_map as type
+	unsigned long, instead of type cpumask_t, for no good
+	reason that I could see.  So I changed it.  Everywhere
+	else, cpu_online_map is already of type cpumask_t.
 
-I'm all in favor of that, and this appears one of the two
-reasonable alternatives to accomplish that.
+Diffstat Patch_22_of_23:
+ topology.h                     |   10 +++++-----
+ 1 files changed, 5 insertions(+), 5 deletions(-)
 
-The other, perhaps, would be a single bit loop, but one
-that went directly into the destination buffer.
+diff -Nru a/include/asm-x86_64/topology.h b/include/asm-x86_64/topology.h
+--- a/include/asm-x86_64/topology.h	Mon Mar 29 01:04:06 2004
++++ b/include/asm-x86_64/topology.h	Mon Mar 29 01:04:06 2004
+@@ -10,18 +10,18 @@
+ /* Map the K8 CPU local memory controllers to a simple 1:1 CPU:NODE topology */
+ 
+ extern int fake_node;
+-/* This is actually a cpumask_t, but doesn't matter because we don't have
+-   >BITS_PER_LONG CPUs */
+-extern unsigned long cpu_online_map;
++extern cpumask_t cpu_online_map;
+ 
+ #define cpu_to_node(cpu)		(fake_node ? 0 : (cpu))
+ #define parent_node(node)		(node)
+ #define node_to_first_cpu(node) 	(fake_node ? 0 : (node))
+ #define node_to_cpumask(node)	(fake_node ? cpu_online_map : (1UL << (node)))
+ 
+-static inline unsigned long pcibus_to_cpumask(int bus)
++static inline cpumask_t pcibus_to_cpumask(int bus)
+ {
+-	return mp_bus_to_cpumask[bus] & cpu_online_map; 
++	cpumask_t tmp;
++	cpus_and(tmp, mp_bus_to_cpumask[bus], cpu_online_map);
++	return tmp;
+ }
+ 
+ #define NODE_BALANCE_RATE 30	/* CHECKME */ 
 
-That would be slower, smaller and easier to see by
-inspection that it was probably right.
-
-This bitmap shift routines receive limited use at present.
-Offhand, I see only one use -- a bitmap_shift_right() in
-bitmap_scnprintf(), and a few physids_shift macros, that
-are in turn themselves unused.
-
-This might argue for the slow, stupid, small solution ...
 
 -- 
                           I won't rest till it's the best ...

@@ -1,70 +1,95 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269628AbUJLLJf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269629AbUJLLQZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269628AbUJLLJf (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Oct 2004 07:09:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269629AbUJLLJf
+	id S269629AbUJLLQZ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Oct 2004 07:16:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269631AbUJLLQZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Oct 2004 07:09:35 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:7562 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S269628AbUJLLJa (ORCPT
+	Tue, 12 Oct 2004 07:16:25 -0400
+Received: from eik.ii.uib.no ([129.177.16.3]:40885 "EHLO eik.ii.uib.no")
+	by vger.kernel.org with ESMTP id S269629AbUJLLQV (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Oct 2004 07:09:30 -0400
-Message-ID: <416BBB55.6020509@redhat.com>
-Date: Tue, 12 Oct 2004 07:09:09 -0400
-From: Neil Horman <nhorman@redhat.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.0; hi, Mom) Gecko/20020604 Netscape/7.01
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: suthambhara nagaraj <suthambhara@gmail.com>
-CC: main kernel <linux-kernel@vger.kernel.org>
-Subject: Re: kernel stack
-References: <46561a79041011231549ea310a@mail.gmail.com>
-In-Reply-To: <46561a79041011231549ea310a@mail.gmail.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Tue, 12 Oct 2004 07:16:21 -0400
+Subject: CFQ v2 high cpu load fix(?)
+From: "Ronny V. Vindenes" <s864@ii.uib.no>
+To: Jens Axboe <axboe@suse.de>
+Cc: ck@vds.kolivas.org, linux-kernel@vger.kernel.org,
+       Andrew Morton <akpm@osdl.org>
+Content-Type: multipart/mixed; boundary="=-xhaY6LX5/R4C9jYytKBN"
+Date: Tue, 12 Oct 2004 13:16:00 +0200
+Message-Id: <1097579760.4086.27.camel@tentacle125.gozu.lan>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.1 (2.0.1-4) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-suthambhara nagaraj wrote:
-> Hi all,
-> 
-> I have not understood how the common kernel stack in the
-> init_thread_union(2.6 ,init_task_union in case of 2.4) works for all
-> the processes which run on the same processor. The scheduling is round
-> robin and yet the things on the stack (saved during SAVE_ALL) have to
-> be maintained after a switch without them getting erased. I am
-> familiar with only the i386 arch implementation.
-> 
-> Please help
-> 
-There is no such thing as "the common kernel stack".  Each process 
-(represented by a task_struct in the kernel) has its own private data 
-space to be used as a kernel stack when that process traps into the 
-kernel.  You can see where this per task_struct stack space is reserved 
-in the definition of task_union.  init_[task|thread]_union just defines 
-the first task union in the system.  Because of the way unions are laid 
-out in memory, The kernel knows that when a process traps into kernel 
-space, it just needs to round the current task pointer to the nearest 8k 
-(prehaps 4k in 2.6) boundary, and thats the start of that processes 
-kernel stack.  Thats how the SAVE_ALL command avoids trampling registers.
 
-HTH
-Neil
-> regards,
-> Suthambhara
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+--=-xhaY6LX5/R4C9jYytKBN
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
 
+CFQ v2 is much better in a lot of cases, but certain situations trigger
+a cpu load so high it starves the rest of the system thus completely
+ruining the interactive experience. While casually looking at the
+problem, I stumbled upon a patch by Arjan van de Ven sent to lkml on
+sept. 1 (Subject: block fixes). Part of it is already included in the
+CFQ v2 patches and after applying the rest[1] I'm no longer able to
+trigger the problem.
+
+[1] Patch attached against 2.6.9-rc4-ck1 but applies to rc4-mm1 with
+some minor fuzz.
 
 -- 
-/***************************************************
-  *Neil Horman
-  *Software Engineer
-  *Red Hat, Inc.
-  *nhorman@redhat.com
-  *gpg keyid: 1024D / 0x92A74FA1
-  *http://pgp.mit.edu
-  ***************************************************/
+Ronny V. Vindenes <s864@ii.uib.no>
+
+--=-xhaY6LX5/R4C9jYytKBN
+Content-Disposition: attachment; filename=block-fix.patch
+Content-Type: text/x-patch; name=block-fix.patch; charset=UTF-8
+Content-Transfer-Encoding: 7bit
+
+--- patches/linux-2.6.9-rc4-ck1/drivers/block/ll_rw_blk.c	2004-10-12 12:25:09.798003278 +0200
++++ linux-2.6.9-rc4-ck1/drivers/block/ll_rw_blk.c	2004-10-12 12:25:42.959479479 +0200
+@@ -100,7 +100,7 @@
+ 		nr = q->nr_requests;
+ 	q->nr_congestion_on = nr;
+ 
+-	nr = q->nr_requests - (q->nr_requests / 8) - 1;
++	nr = q->nr_requests - (q->nr_requests / 8) - (q->nr_requests/16)- 1;
+ 	if (nr < 1)
+ 		nr = 1;
+ 	q->nr_congestion_off = nr;
+@@ -1758,8 +1758,10 @@
+ {
+ 	DEFINE_WAIT(wait);
+ 	struct request *rq;
++	struct io_context *ioc;
+ 
+ 	generic_unplug_device(q);
++	ioc = get_io_context(GFP_NOIO);
+ 	do {
+ 		struct request_list *rl = &q->rq;
+ 
+@@ -1769,7 +1771,6 @@
+ 		rq = get_request(q, rw, GFP_NOIO);
+ 
+ 		if (!rq) {
+-			struct io_context *ioc;
+ 
+ 			io_schedule();
+ 
+@@ -1779,12 +1780,11 @@
+ 			 * up to a big batch of them for a small period time.
+ 			 * See ioc_batching, ioc_set_batching
+ 			 */
+-			ioc = get_io_context(GFP_NOIO);
+ 			ioc_set_batching(q, ioc);
+-			put_io_context(ioc);
+ 		}
+ 		finish_wait(&rl->wait[rw], &wait);
+ 	} while (!rq);
++	put_io_context(ioc);
+ 
+ 	return rq;
+ }
+
+--=-xhaY6LX5/R4C9jYytKBN--
+

@@ -1,106 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262188AbTJXNdl (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 24 Oct 2003 09:33:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262190AbTJXNdl
+	id S262196AbTJXNwt (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 24 Oct 2003 09:52:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262198AbTJXNws
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 24 Oct 2003 09:33:41 -0400
-Received: from sojef.skynet.be ([195.238.2.127]:17028 "EHLO sojef.skynet.be")
-	by vger.kernel.org with ESMTP id S262188AbTJXNdj (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 24 Oct 2003 09:33:39 -0400
-Subject: Re: problems with Seagate 120 GB drives when mutlwrite = 16
-From: kris <kris.buggenhout@skynet.be>
-To: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
+	Fri, 24 Oct 2003 09:52:48 -0400
+Received: from odalix.ida.liu.se ([130.236.186.10]:54174 "EHLO
+	odalix.ida.liu.se") by vger.kernel.org with ESMTP id S262196AbTJXNwr
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 24 Oct 2003 09:52:47 -0400
+From: Magnus Andersson <magan029@und.ida.liu.se>
+Date: Fri, 24 Oct 2003 15:52:41 +0200
+To: rwhron@earthlink.net
 Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <200310191908.14369.bzolnier@elka.pw.edu.pl>
-References: <1066578892.3091.11.camel@borg-cube.lan>
-	 <200310191908.14369.bzolnier@elka.pw.edu.pl>
-Content-Type: text/plain
-Message-Id: <1067002420.3015.7.camel@borg-cube.lan>
+Subject: Re: [BENCHMARK] I/O regression after 2.6.0-test5
+Message-ID: <20031024155241.A19052@student.liu.se>
+References: <20031020003745.GA2794@rushmore>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.4 
-Date: Fri, 24 Oct 2003 15:33:41 +0200
-Content-Transfer-Encoding: 7bit
-X-RAVMilter-Version: 8.4.3(snapshot 20030212) (sojef.skynet.be)
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20031020003745.GA2794@rushmore>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2003-10-19 at 19:08, Bartlomiej Zolnierkiewicz wrote: 
-> On Sunday 19 of October 2003 17:54, kris wrote:
-> > Hi,
-> 
-> Hi,
-> 
-> > I have noticed some problems with recent large drives, connected to a
-> > variety of controllers.
-> >
-> > I tested with nforce ide controller, a CMD649 based controller and an
-> > Intel 870 cghipset. all have same or similar symptoms.
-> >
-> > Linux 2.4.22 kernel : (Linux borg-cube 2.4.22-xfs #2 SMP Tue Oct 7
-> > 20:53:04 CEST 2003 i686 unknown)
-> >
-> > Oct  6 15:52:12 borg-cube kernel: hdg: dma_timer_expiry: dma status ==
-> > 0x21
-> > Oct  6 15:52:22 borg-cube kernel: hdg: timeout waiting for DMA
-> > Oct  6 15:52:22 borg-cube kernel: hdg: timeout waiting for DMA
-> > Oct  6 15:52:22 borg-cube kernel: hdg: status error: status=0x58 {
-> > DriveReady SeekComplete DataRequest }
-> > Oct  6 15:52:22 borg-cube kernel:
-> > Oct  6 15:52:22 borg-cube kernel: hdg: drive not ready for command
-> > Oct  6 15:52:22 borg-cube kernel: hdg: status timeout: status=0xd0 {
-> > Busy }
-> > Oct  6 15:52:22 borg-cube kernel:
-> > Oct  6 15:52:22 borg-cube kernel: hdg: no DRQ after issuing WRITE
-> > Oct  6 15:52:22 borg-cube kernel: ide3: reset: success
-> >
-> > same in 2.4.20 ( kernel from Suse)
-> >
-> > 2.6.0-test6 :
-> >
-> > Oct  9 09:43:09 borg-cube kernel: hdg: dma_timer_expiry: dma status ==
-> > 0x21
-> > Oct  9 09:43:18 borg-cube kernel:
-> > Oct  9 09:43:19 borg-cube kernel: hdg: DMA timeout error
-> > Oct  9 09:43:19 borg-cube kernel: hdg: dma timeout error: status=0x58 {
-> > DriveReady SeekComplete DataRequest }
-> > Oct  9 09:43:19 borg-cube kernel:
-> > Oct  9 09:43:19 borg-cube kernel: hdg: status timeout: status=0xd0 {
-> > Busy }
-> > Oct  9 09:43:19 borg-cube kernel:
-> > Oct  9 09:43:19 borg-cube kernel: hdg: no DRQ after issuing MULTWRITE
-> > Oct  9 09:43:20 borg-cube kernel: ide3: reset: success
-> >
-> > same in 2.6.0-test8
-> >
-> > so behaviour is consistent.
-> >
-> > I can avoid this with either turning off dma access or disabling the
-> > multwrite ( hdparm -m0 /dev/hdg)
-> >
-> > is this a known bug, or should I file one ?
-> 
-> Error message is known, but fact that disabling PIO multiwrite cures
-> it is new, so please fill bugzilla entry.
+On Sun, Oct 19, 2003 at 08:37:45PM -0400, rwhron@earthlink.net wrote:
+> There was about a 50% regression in jobs/minute in AIM7
+> database workload on quad P3 Xeon.  The CPU time has not
+> gone up, so the extra run time is coming from something
+> else.  (I/O or I/O scheduler?)
 
-I have to come back on this... i did not test it enough apparently...
-when i was transferring cd-images from one system to the other... the
-dreaded ide reset occurred again...
+Hello all!
 
-so disabling multiwrite is not involved.
+This sounds like the same problem I had with the 2.6 kernel.
+I posted some stuff on the kernel-list about this.
 
-The 60GB disk (with the OS) is working fine on my nforce ide controller.
-but the 120GB disks are not... I verified, it is not a cabling issue...
-used different cables, different lengths, at the moment they are
-connected with shielded rounded cables. 
+Make a search for "2.6.0-test4 parallel seek & read problem"
+on google to read my posts.
 
-Is there a fix for this ( not the workaround ... disabling dma) or are
-these 120Gb disks just plain bad choice.... ;(
+I think I ran into two different unrelated problems.
+ 
+First problem was solved, but second problem is still there.
+It is probably the same you are having.
 
-I do not notice any problems when i use the disk in windoows, but then
-again, windows tends to hide these things...;)
+My finding was that the problem is not the scheduler, but some
+other part of the IO system.
 
-kind regards,Kris
+1 seek & read issued by a program goes to the disk as 2 different
+seeks & 2 reads, thus only giving 50 % performance.
 
+I think the problem is that the elevators are flushed so often
+so merges that should happend never happens.
 
+/Magnus

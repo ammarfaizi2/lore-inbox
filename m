@@ -1,65 +1,81 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261758AbTKBXHT (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 2 Nov 2003 18:07:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261780AbTKBXHT
+	id S261780AbTKBXJd (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 2 Nov 2003 18:09:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261868AbTKBXJd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 2 Nov 2003 18:07:19 -0500
-Received: from cmailg4.svr.pol.co.uk ([195.92.195.174]:30989 "EHLO
-	cmailg4.svr.pol.co.uk") by vger.kernel.org with ESMTP
-	id S261758AbTKBXHS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 2 Nov 2003 18:07:18 -0500
-From: Chris Vine <chris@cvine.freeserve.co.uk>
-To: Rik van Riel <riel@redhat.com>
-Subject: Re: 2.6.0-test9 - poor swap performance on low end machines
-Date: Sun, 2 Nov 2003 23:06:20 +0000
-User-Agent: KMail/1.5.4
-Cc: linux-kernel@vger.kernel.org, Con Kolivas <kernel@kolivas.org>
-References: <Pine.LNX.4.44.0310302256110.22312-100000@chimarrao.boston.redhat.com>
-In-Reply-To: <Pine.LNX.4.44.0310302256110.22312-100000@chimarrao.boston.redhat.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-15"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200311022306.20825.chris@cvine.freeserve.co.uk>
+	Sun, 2 Nov 2003 18:09:33 -0500
+Received: from Hell.WH8.TU-Dresden.De ([141.30.225.3]:30919 "EHLO
+	Hell.WH8.TU-Dresden.De") by vger.kernel.org with ESMTP
+	id S261780AbTKBXJb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 2 Nov 2003 18:09:31 -0500
+Date: Mon, 3 Nov 2003 00:09:24 +0100
+From: "Udo A. Steinberg" <us15@os.inf.tu-dresden.de>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: [OOPS] Linux-2.6.0-test9
+Message-Id: <20031103000924.494d960f.us15@os.inf.tu-dresden.de>
+Organization: Fiasco Core Team
+X-GPG-Key: 1024D/233B9D29 (wwwkeys.pgp.net)
+X-GPG-Fingerprint: CE1F 5FDD 3C01 BE51 2106 292E 9E14 735D 233B 9D29
+X-Mailer: X-Mailer 5.0 Gold
+Mime-Version: 1.0
+Content-Type: multipart/signed; protocol="application/pgp-signature";
+ micalg="pgp-sha1";
+ boundary="Signature=_Mon__3_Nov_2003_00_09_24_+0100_utjamqzz6sQmAjzv"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 31 October 2003 3:57 am, Rik van Riel wrote:
-> On Wed, 29 Oct 2003, Chris Vine wrote:
-> > However, on a low end machine (200MHz Pentium MMX uniprocessor with only
-> > 32MB of RAM and 70MB of swap) I get poor performance once extensive use
-> > is made of the swap space.
->
-> Could you try the patch Con Kolivas posted on the 25th ?
->
-> Subject: [PATCH] Autoregulate vm swappiness cleanup
+--Signature=_Mon__3_Nov_2003_00_09_24_+0100_utjamqzz6sQmAjzv
+Content-Type: text/plain; charset=US-ASCII
+Content-Disposition: inline
+Content-Transfer-Encoding: 7bit
 
-OK.  I have now done some testing.
 
-The default swappiness in the kernel (without Con's patch) is 60.  This gives 
-hopeless swapping results on a 200MHz Pentium with 32MB of RAM once the 
-amount of memory swapped out exceeds about 15 to 20MB.  A static swappiness 
-of 10 gives results which work under load, with up to 40MB swapped out (I 
-haven't tested beyond that).  Compile times with a test file requiring about 
-35MB of swap and with everything else the same are:
+Hi,
 
-2.4.22 - average of 1 minute 35 seconds
-2.6.0-test9 (swappiness 10) - average of 5 minutes 56 seconds
+Following oops just happened with Linux-2.6.0-test9. All filesystems are ext3,
+except for /dev/hda6 which is ext3 over aes-cryptoloop.
 
-A swappiness of 5 on the test compile causes the machine to hang in some kind 
-of "won't swap/can't continue without more memory" stand-off, and a 
-swappiness of 20 starts the machine thrashing to the point where I stopped 
-the compile.  A swappiness of 10 would complete anything I threw at it and 
-without excessive thrashing, but more slowly (and using a little more swap 
-space) than 2.4.22.
+-Udo.
 
-With Con's dynamic swappiness patch things were worse, rather than better.  
-With no load, the swappiness (now read only) was around 37.  Under load with 
-the test compile, swappiness went up to around 62, thrashing began, and after 
-30 minutes the compile still had not completed, swappiness had reached 70, 
-and I abandoned it.
 
-Chris.
+Unable to handle kernel paging request at virtual address 50d35f7c
+ printing eip:
+c016c912
+*pde = 00000000
+Oops: 0000 [#2]
+CPU:    0
+EIP:    0060:[<c016c912>]    Not tainted
+EFLAGS: 00010246
+EIP is at __d_lookup+0xf2/0x150
+eax: 50d35f7c   ebx: d1d35f00   ecx: 00000004   edx: d1d35f64
+esi: 50d35f7c   edi: d7329000   ebp: d1d35f70   esp: d4ed7e68
+ds: 007b   es: 007b   ss: 0068
+Process sylpheed (pid: 19589, threadinfo=d4ed6000 task=d3dfa0a0)
+Stack: d7fdd6c0 000796b7 00001000 00000000 d7f46aa0 d4ed6000 c0190473 00000000 
+       d7329000 00d03008 00000004 d7329000 d4ed7f38 d7ff4660 d4ed7ee4 c0161f30 
+       d21db820 d4ed7eec d21db820 d7329000 d4ed7ee4 d4ed7f38 d4ed7eec c016245f 
+Call Trace:
+ [<c0190473>] ext3_getblk+0x93/0x280
+ [<c0161f30>] do_lookup+0x30/0xb0
+ [<c016245f>] link_path_walk+0x4af/0x940
+ [<c0162df9>] __user_walk+0x49/0x60
+ [<c015dd2f>] vfs_stat+0x1f/0x60
+ [<c015e4cb>] sys_stat64+0x1b/0x40
+ [<c010942b>] syscall_call+0x7/0xb
 
+Code: f3 a6 75 9d 8b 44 24 14 ff 40 14 8b 54 24 0c 3b 53 58 75 0c 
+ <6>note: sylpheed[19589] exited with preempt_count 1
+
+--Signature=_Mon__3_Nov_2003_00_09_24_+0100_utjamqzz6sQmAjzv
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.3 (GNU/Linux)
+
+iD8DBQE/pY6qnhRzXSM7nSkRAisDAJ9ktegm4TO4Vb9IO1nPEGLOCAdjpwCeKzIe
+45wM9ooLknm97FT+zbQQi/8=
+=fWQ3
+-----END PGP SIGNATURE-----
+
+--Signature=_Mon__3_Nov_2003_00_09_24_+0100_utjamqzz6sQmAjzv--

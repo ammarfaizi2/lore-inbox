@@ -1,43 +1,85 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263251AbTDGFEA (for <rfc822;willy@w.ods.org>); Mon, 7 Apr 2003 01:04:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263259AbTDGFEA (for <rfc822;linux-kernel-outgoing>); Mon, 7 Apr 2003 01:04:00 -0400
-Received: from rj.SGI.COM ([192.82.208.96]:31955 "EHLO rj.sgi.com")
-	by vger.kernel.org with ESMTP id S263251AbTDGFD7 (for <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Apr 2003 01:03:59 -0400
-X-Mailer: exmh version 2.4 06/23/2000 with nmh-1.0.4
-From: Keith Owens <kaos@ocs.com.au>
-To: Chris Friesen <cfriesen@nortelnetworks.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: correct to set -nostdinc and then include <stdarg.h> ? 
-In-reply-to: Your message of "Mon, 07 Apr 2003 00:41:22 -0400."
-             <3E910172.8030406@nortelnetworks.com> 
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Mon, 07 Apr 2003 15:15:12 +1000
-Message-ID: <23076.1049692512@kao2.melbourne.sgi.com>
+	id S263259AbTDGFO3 (for <rfc822;willy@w.ods.org>); Mon, 7 Apr 2003 01:14:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263261AbTDGFO3 (for <rfc822;linux-kernel-outgoing>); Mon, 7 Apr 2003 01:14:29 -0400
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:7174 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id S263259AbTDGFO2 (for <rfc822;linux-kernel@vger.kernel.org>); Mon, 7 Apr 2003 01:14:28 -0400
+To: linux-kernel@vger.kernel.org
+From: "H. Peter Anvin" <hpa@zytor.com>
+Subject: Re: [PATCH] new syscall: flink
+Date: 6 Apr 2003 22:25:51 -0700
+Organization: Transmeta Corporation, Santa Clara CA
+Message-ID: <b6r24v$f50$1@cesium.transmeta.com>
+References: <3E907A94.9000305@kegel.com> <200304062156.37325.oliver@neukum.org> <1049663559.1602.46.camel@dhcp22.swansea.linux.org.uk> <b6qo2a$ecl$1@cesium.transmeta.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Disclaimer: Not speaking for Transmeta in any way, shape, or form.
+Copyright: Copyright 2003 H. Peter Anvin - All Rights Reserved
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 07 Apr 2003 00:41:22 -0400, 
-Chris Friesen <cfriesen@nortelnetworks.com> wrote:
->
->I was trying to compile 2.5.66 with gcc 3.2.2.  It dies as soon as it tries to 
->compile init/main.c because it is unable to find "stdarg.h" which is included by 
->"include/linux/kernel.h".
+Followup to:  <b6qo2a$ecl$1@cesium.transmeta.com>
+By author:    "H. Peter Anvin" <hpa@zytor.com>
+In newsgroup: linux.dev.kernel
+> 
+> This, I believe, is the real issue.  However, we already have that
+> problem:
+> 
 
-Try this:
+[Sample code]
 
-Index: 66.1/Makefile
---- 66.1/Makefile Tue, 25 Mar 2003 11:23:27 +1100 kaos (linux-2.5/I/d/12_Makefile 1.45.1.4.1.59 444)
-+++ 66.1(w)/Makefile Mon, 07 Apr 2003 15:13:54 +1000 kaos (linux-2.5/I/d/12_Makefile 1.45.1.4.1.59 444)
-@@ -177,7 +177,7 @@ LDFLAGS_MODULE  = -r
- CFLAGS_KERNEL	=
- AFLAGS_KERNEL	=
- 
--NOSTDINC_FLAGS  = -nostdinc -iwithprefix include
-+NOSTDINC_FLAGS  = -nostdinc $(shell LANG=C $(CC) -print-search-dirs | sed -ne 's/install: \(.*\)/-I \1include/gp')
- 
- CPPFLAGS	:= -D__KERNEL__ -Iinclude
- CFLAGS 		:= $(CPPFLAGS) -Wall -Wstrict-prototypes -Wno-trigraphs -O2 \
+Here is a better piece of sample code that actually shows a
+permissions violation happening:
 
+[...]
+mkdir("testdir", 0700)                  = 0
+open("testdir/testfile", O_WRONLY|O_CREAT|O_TRUNC, 0666) = 3
+write(3, "Ansiktsburk\n", 12)           = 12
+close(3)                                = 0
+open("testdir/testfile", O_RDONLY)      = 3
+chmod("testdir", 0)                     = 0
+open("/proc/self/fd/3", O_RDWR)         = 4
+write(4, "Tjo fidelittan hatt!\n", 21)  = 21
+exit_group(0)                           = ?
+
+----snip----
+
+#include <unistd.h>
+#include <stdlib.h>
+#include <stdio.h>
+#include <fcntl.h>
+#include <limits.h>
+
+int main(int argc, char *argv[])
+{
+  int sfd, rfd, wfd;
+  char filebuf[PATH_MAX];
+
+  mkdir("testdir", 0700);
+
+  /* Create the file legitimately */
+  sfd = open("testdir/testfile", O_WRONLY|O_CREAT|O_TRUNC, 0666);
+  write(sfd, "Ansiktsburk\n", 12);
+  close(sfd);
+
+  /* Open read-only file descriptor */
+  rfd = open("testdir/testfile", O_RDONLY);
+
+  /* Make directory inaccessible */
+  chmod("testdir", 0);
+
+  /* Open read-write file descriptor */
+  sprintf(filebuf, "/proc/self/fd/%d", rfd);
+  wfd = open(filebuf, O_RDWR);
+
+  /* Clobber file */
+  write(wfd, "Tjo fidelittan hatt!\n", 21);
+
+  return 0;
+}
+-- 
+<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
+"Unix gives you enough rope to shoot yourself in the foot."
+Architectures needed: ia64 m68k mips64 ppc ppc64 s390 s390x sh v850 x86-64

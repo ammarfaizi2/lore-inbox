@@ -1,64 +1,88 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267529AbVBEDdr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267578AbVBEDen@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267529AbVBEDdr (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Feb 2005 22:33:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266980AbVBED3o
+	id S267578AbVBEDen (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Feb 2005 22:34:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267020AbVBED36
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Feb 2005 22:29:44 -0500
-Received: from EASTCAMPUS-THREE-FORTY-FOUR.MIT.EDU ([18.248.6.89]:37251 "EHLO
-	neo.rr.com") by vger.kernel.org with ESMTP id S265215AbVBEDNA (ORCPT
+	Fri, 4 Feb 2005 22:29:58 -0500
+Received: from fw.osdl.org ([65.172.181.6]:22452 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S264008AbVBEDVX (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Feb 2005 22:13:00 -0500
-Date: Fri, 4 Feb 2005 22:08:13 -0500
-To: Andrew Morton <akpm@osdl.org>
+	Fri, 4 Feb 2005 22:21:23 -0500
+Date: Fri, 4 Feb 2005 19:21:15 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: ambx1@neo.rr.com (Adam Belay)
 Cc: castet.matthieu@free.fr, linux-kernel@vger.kernel.org, vojtech@suse.cz
 Subject: Re: [patch] ns558 bug
-Message-ID: <20050205030813.GB7998@neo.rr.com>
-Mail-Followup-To: ambx1@neo.rr.com, Andrew Morton <akpm@osdl.org>,
-	castet.matthieu@free.fr, linux-kernel@vger.kernel.org,
-	vojtech@suse.cz
-References: <4203D476.4040706@free.fr> <20050205004311.GA7998@neo.rr.com> <20050204190614.6cfd68ce.akpm@osdl.org>
+Message-Id: <20050204192115.65ea246a.akpm@osdl.org>
+In-Reply-To: <20050205030813.GB7998@neo.rr.com>
+References: <4203D476.4040706@free.fr>
+	<20050205004311.GA7998@neo.rr.com>
+	<20050204190614.6cfd68ce.akpm@osdl.org>
+	<20050205030813.GB7998@neo.rr.com>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050204190614.6cfd68ce.akpm@osdl.org>
-User-Agent: Mutt/1.5.6+20040907i
-From: ambx1@neo.rr.com (Adam Belay)
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Feb 04, 2005 at 07:06:14PM -0800, Andrew Morton wrote:
+ambx1@neo.rr.com (Adam Belay) wrote:
+>
+>  It looks ok.  My only concern is what would happen if the isa probe succeded
+>  but the pnp_register_driver failed?  "pnp_register_driver" return -ENODEV if
+>  "CONFIG_PNP" isn't enabled.  Do you think this would conflict with legacy
+>  probing?
 
-It looks ok.  My only concern is what would happen if the isa probe succeded
-but the pnp_register_driver failed?  "pnp_register_driver" return -ENODEV if
-"CONFIG_PNP" isn't enabled.  Do you think this would conflict with legacy
-probing?
+Fair enough.  How about this?
 
-Thanks,
-Adam
+static void ns588_unregister_ports(void)
+{
+	struct ns558 *port;
 
+	list_for_each_entry(port, &ns558_list, node) {
+		gameport_unregister_port(&port->gameport);
+		switch (port->type) {
 
-> So would this be the appropriate fix?
-> 
-> --- 25/drivers/input/gameport/ns558.c~ns558-oops-fix	2005-02-04 19:03:11.065813120 -0800
-> +++ 25-akpm/drivers/input/gameport/ns558.c	2005-02-04 19:05:52.607255088 -0800
-> @@ -264,6 +264,7 @@ static struct pnp_driver ns558_pnp_drive
->  static int __init ns558_init(void)
->  {
->  	int i = 0;
-> +	int ret;
->  
->  /*
->   * Probe for ISA ports.
-> @@ -272,8 +273,8 @@ static int __init ns558_init(void)
->  	while (ns558_isa_portlist[i])
->  		ns558_isa_probe(ns558_isa_portlist[i++]);
->  
-> -	pnp_register_driver(&ns558_pnp_driver);
-> -	return list_empty(&ns558_list) ? -ENODEV : 0;
-> +	ret = pnp_register_driver(&ns558_pnp_driver);
-> +	return (ret < 0) ? ret : 0;
->  }
->  
->  static void __exit ns558_exit(void)
-> _
+#ifdef CONFIG_PNP
+			case NS558_PNP:
+				/* fall through */
+#endif
+			case NS558_ISA:
+				release_region(port->gameport.io &
+					~(port->size - 1), port->size);
+				kfree(port);
+				break;
+
+			default:
+				break;
+		}
+	}
+}
+
+static int __init ns558_init(void)
+{
+	int i = 0;
+	int ret;
+
+/*
+ * Probe for ISA ports.
+ */
+
+	while (ns558_isa_portlist[i])
+		ns558_isa_probe(ns558_isa_portlist[i++]);
+
+	ret = pnp_register_driver(&ns558_pnp_driver);
+	if (ret < 0) {
+		ns588_unregister_ports();
+		return ret;
+	}
+	return 0;
+}
+
+static void __exit ns558_exit(void)
+{
+	ns588_unregister_ports();
+	pnp_unregister_driver(&ns558_pnp_driver);
+}
+

@@ -1,45 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272060AbTG1CBa (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 27 Jul 2003 22:01:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272057AbTG1ABL
+	id S272654AbTG1CTC (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 27 Jul 2003 22:19:02 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271032AbTG1ABG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 27 Jul 2003 20:01:11 -0400
-Received: from jstevenson.plus.com ([212.159.71.212]:49539 "EHLO
-	alpha.stev.org") by vger.kernel.org with ESMTP id S272689AbTG0XTB
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 27 Jul 2003 19:19:01 -0400
-Date: Mon, 28 Jul 2003 01:37:48 +0100 (BST)
-From: James Stevenson <james@stev.org>
-To: Doruk Fisek <dfisek@fisek.com.tr>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: hw tcp v4 csum failed
-In-Reply-To: <20030727100246.4bfb860c.dfisek@fisek.com.tr>
-Message-ID: <Pine.LNX.4.44.0307280135420.4847-100000@jlap.stev.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Sun, 27 Jul 2003 20:01:06 -0400
+Received: from zeus.kernel.org ([204.152.189.113]:14071 "EHLO zeus.kernel.org")
+	by vger.kernel.org with ESMTP id S272869AbTG0XCK (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 27 Jul 2003 19:02:10 -0400
+Date: Sun, 27 Jul 2003 21:02:26 +0100
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Message-Id: <200307272002.h6RK2Q7v029592@hraefn.swansea.linux.org.uk>
+To: linux-kernel@vger.kernel.org, torvalds@osdl.org
+Subject: PATCH: more typo/invalid bits
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-> Hi,
-> 
->  I am getting "hw tcp v4 csum failed" errors using a BCM5701 ethernet
-> adapter with the tigon3 driver in a vanilla 2.4.20 kernel.
-> 
->  There seems to be no apparent problem (probably because of low-load).
-> 
->  What can be the cause of these errors?
- 
-if it isnt a software problem.
-
-Its probably a problem releated to the cable or surrounding
-interference on the cable.
-
-a) loose connection either on back of machine or @ the hub / switch etc..
-b) there is a large power supply sitting very close to the cable.
-   i have seen the transformers on scanners / printers etc.. strong enough
-   todo this is the cable gets wrapped around it
-
-	James 
-
+(Steven Cole)
+diff -u --new-file --recursive --exclude-from /usr/src/exclude linux-2.6.0-test2/drivers/char/n_r3964.c linux-2.6.0-test2-ac1/drivers/char/n_r3964.c
+--- linux-2.6.0-test2/drivers/char/n_r3964.c	2003-07-10 21:14:51.000000000 +0100
++++ linux-2.6.0-test2-ac1/drivers/char/n_r3964.c	2003-07-15 18:01:29.000000000 +0100
+@@ -669,7 +669,7 @@
+          }
+          else
+          {
+-            TRACE_PE("TRANSMITTING - got illegal char");
++            TRACE_PE("TRANSMITTING - got invalid char");
+  
+             pInfo->state = R3964_WAIT_ZVZ_BEFORE_TX_RETRY;
+ 	    mod_timer(&pInfo->tmr, jiffies + R3964_TO_ZVZ);
+diff -u --new-file --recursive --exclude-from /usr/src/exclude linux-2.6.0-test2/drivers/char/pcmcia/synclink_cs.c linux-2.6.0-test2-ac1/drivers/char/pcmcia/synclink_cs.c
+--- linux-2.6.0-test2/drivers/char/pcmcia/synclink_cs.c	2003-07-10 21:07:39.000000000 +0100
++++ linux-2.6.0-test2-ac1/drivers/char/pcmcia/synclink_cs.c	2003-07-15 18:01:29.000000000 +0100
+@@ -2814,7 +2814,7 @@
+ 	/* verify range of specified line number */	
+ 	line = tty->index;
+ 	if ((line < 0) || (line >= mgslpc_device_count)) {
+-		printk("%s(%d):mgslpc_open with illegal line #%d.\n",
++		printk("%s(%d):mgslpc_open with invalid line #%d.\n",
+ 			__FILE__,__LINE__,line);
+ 		return -ENODEV;
+ 	}

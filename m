@@ -1,131 +1,105 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262115AbTJFOJ2 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Oct 2003 10:09:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262268AbTJFOJ2
+	id S262116AbTJFN5N (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Oct 2003 09:57:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262117AbTJFN5N
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Oct 2003 10:09:28 -0400
-Received: from mail.nvc.net ([64.68.160.43]:25094 "EHLO garbanzo.nvc.net")
-	by vger.kernel.org with ESMTP id S262115AbTJFOJT (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Oct 2003 10:09:19 -0400
-Message-ID: <3F81778E.6000807@dakotainet.net>
-Date: Mon, 06 Oct 2003 09:09:18 -0500
-From: merwan kashouty <kashouty@dakotainet.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5b) Gecko/20030920
-X-Accept-Language: en-us, en
+	Mon, 6 Oct 2003 09:57:13 -0400
+Received: from chaos.analogic.com ([204.178.40.224]:48770 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP id S262116AbTJFN5H
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 6 Oct 2003 09:57:07 -0400
+Date: Mon, 6 Oct 2003 09:58:56 -0400 (EDT)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+X-X-Sender: root@chaos
+Reply-To: root@chaos.analogic.com
+To: Mikael Pettersson <mikpe@csd.uu.se>
+cc: Dave Jones <davej@redhat.com>, Linux kernel <linux-kernel@vger.kernel.org>
+Subject: Re: FDC motor left on
+In-Reply-To: <16257.26407.439415.325123@gargle.gargle.HOWL>
+Message-ID: <Pine.LNX.4.53.0310060932340.8753@chaos>
+References: <Pine.LNX.4.53.0310031322430.499@chaos> <20031003235801.GA5183@redhat.com>
+ <Pine.LNX.4.53.0310060834180.8593@chaos> <16257.26407.439415.325123@gargle.gargle.HOWL>
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: 2.6.0-test6 usblp and scanner lock system
-X-Enigmail-Version: 0.76.1.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-modprobing usblp and scanner on my system lock the console... i can 
-switch consoles and continue to work but the output of 
-/lib/modules/2.6.0-test6/modules.symbols looks like this....
+On Mon, 6 Oct 2003, Mikael Pettersson wrote:
 
-error A -nostdlib  -c weak.ml
-../boot/ocamlrun ../boot/ocamlc -g -warn-error A -nostdlib  -c lazy.mli
-../boot/ocamlrun ../boot/ocamlc -g -warn-error A -nostdlib  -c lazy.ml
-../boot/ocamlrun ../boot/ocamlc -g -warn-error A -nostdlib  -c filename.mli
-../boot/ocamlrun ../boot/ocamlc -g -warn-error A -nostdlib  -c filename.ml
-../boot/ocamlrun ../boot/ocamlc -g -warn-error A -nostdlib  -c int32.mli
-../boot/ocamlrun ../boot/ocamlc -g -warn-error A -nostdlib  -c int32.ml
-../boot/ocamlrun ../boot/ocamlc -g -warn-error A -nostdlib  -c int64.mli
-../boot/ocamlrun ../boot/ocamlc -g -warn-error A -nostdlib  -c int64.ml
-../boot/ocamlrun ../boot/ocamlc -g -warn-error A -nostdlib  -c nativeint.mli
-../boot/ocamlrun ../boot/ocamlc -g -warn-error A -nostdlib  -c nativeint.ml
-../boot/ocamlrun ../boot/ocamlc -g -warn-error A -nostdlib  -c complex.mli
-../boot/ocamlrun ../boot/ocamlc -g -warn-error A -nostdlib  -c complex.ml
-make EXTRAFLAGS=-nolabels RUNTIME=../boot/ocamlrun \
-                COMPILER=../boot/ocamlc arrayLabels.cmo listLabels.cmo 
-stringLabels.cmo moreLabels.cmo
-make[2]: Entering directory 
-`/var/tmp/portage/ocaml-3.06-r2/work/ocaml-3.06/stdlib'
-../boot/ocamlrun ../boot/ocamlc -g -warn-error A -nostdlib -nolabels -c 
-arrayLabels.mli
-../boot/ocamlrun ../boot/ocamlc -g -warn-error A -nostdlib -nolabels -c 
-arrayLabels.ml
-../boot/ocamlrun ../boot/ocamlc -g -warn-error A -nostdlib -nolabels -c 
-listLabels.mli
-../boot/ocamlrun ../boot/ocamlc -g -warn-error A -nostdlib -nolabels -c 
-listLabels.ml
-../boot/ocamlrun ../boot/ocamlc -g -warn-error A -nostdlib -nolabels -c 
-stringLabels.mli
-../boot/ocamlrun ../boot/ocamlc -g -warn-error A -nostdlib -nolabels -c 
-stringLabels.ml
-../boot/ocamlrun ../boot/ocamlc -g -warn-error A -nostdlib -nolabels -c 
-moreLabels.mli
-../boot/ocamlrun ../boot/ocamlc -g -warn-error A -nostdlib -nolabels -c 
-moreLabels.ml
-make[2]: Leaving directory 
-`/var/tmp/portage/ocaml-3.06-r2/work/ocaml-3.06/stdlib'
-touch labelled.cmo
-../boot/ocamlrun ../boot/ocamlc -g -warn-error A -nostdlib  -c stdLabels.mli
-../boot/ocamlrun ../boot/ocamlc -g -warn-error A -nostdlib  -c stdLabels.ml
-../boot/ocamlrun ../boot/ocamlc -a -o stdlib.cma pervasives.cmo 
-array.cmo list.cmo char.cmo string.cmo sys.cmo hashtbl.cmo sort.cmo marshal.
-cmo obj.cmo lexing.cmo parsing.cmo set.cmo map.cmo stack.cmo queue.cmo 
-stream.cmo buffer.cmo printf.cmo format.cmo scanf.cmo arg.cmo printex
-c.cmo gc.cmo digest.cmo random.cmo camlinternalOO.cmo oo.cmo genlex.cmo 
-callback.cmo weak.cmo lazy.cmo filename.cmo int32.cmo int64.cmo nati
-veint.cmo complex.cmo arrayLabels.cmo listLabels.cmo stringLabels.cmo 
-moreLabels.cmo stdLabels.cmo
-../boot/ocamlrun ../boot/ocamlc -g -warn-error A -nostdlib  -c std_exit.ml
-if true; then \
-          echo '#!/usr/bin/ocamlrun' > camlheader && \
-          echo '#!' | tr -d '\012' > camlheader_ur; \
-        else \
-  gcc -fno-defer-pop -Wall -Wno-unused -D_FILE_OFFSET_BITS=64 
--D_REENTRANT -Wl,-E \
-                    -DRUNTIME_NAME='"/usr/bin/ocamlrun"' \
-                    header.c -o tmpheader && \
-          strip tmpheader && \
-  mv tmpheader camlheader && \
-          cp camlheader camlheader_ur; \
-        fi
-make[1]: Leaving directory 
-`/var/tmp/portage/ocaml-3.06-r2/work/ocaml-3.06/stdlib'
-cd stdlib; cp stdlib.cma std_exit.cmo *.cmi camlheader ../boot
-if test -f boot/libcamlrun.a; then :; else \
-          ln -s ../byterun/libcamlrun.a boot/libcamlrun.a; fi
-if test -d stdlib/caml; then :; else \
-          ln -s ../byterun stdlib/caml; fi
-cd byterun; make all
-make[1]: Entering directory 
-`/var/tmp/portage/ocaml-3.06-r2/work/ocaml-3.06/byterun'
-make[1]: Nothing to be done for `all'.
-make[1]: Leaving directory 
-`/var/tmp/portage/ocaml-3.06-r2/work/ocaml-3.06/byterun'
-if test -f stdlib/libcamlrun.a; then :; else \
-          ln -s ../byterun/libcamlrun.a stdlib/libcamlrun.a; fi
-boot/ocamlrun boot/ocamlc -nostdlib -I boot -warn-error A -I utils -I 
-parsing -I typing -I bytecomp -I asmcomp -I driver -I toplevel -c util
-s/misc.mli
-boot/ocamlrun boot/ocamlc -nostdlib -I boot -warn-error A -I utils -I 
-parsing -I typing -I bytecomp -I asmcomp -I driver -I toplevel -c util
-s/misc.ml
-boot/ocamlrun boot/ocamlc -nostdlib -I boot -warn-error A -I utils -I 
-parsing -I typing -I bytecomp -I asmcomp -I driver -I toplevel -c util
-s/tbl.mli
-boot/ocamlrun boot/ocamlc -nostdlib -I boot -warn-error A -I utils -I 
-parsing -I typing -I bytecomp -I asmcomp -I driver -I toplevel -c util
-s/tbl.ml............................
+> Richard B. Johnson writes:
+>  > On Sat, 4 Oct 2003, Dave Jones wrote:
+>  >
+>  > > On Fri, Oct 03, 2003 at 01:25:30PM -0400, Richard B. Johnson wrote:
+>  > >  > In linux-2.4.22 and earlier, if there is no FDC driver installed,
+>  > >  > the FDC motor may continue to run after boot if the motor was
+>  > >  > started as part of the BIOS boot sequence.
+>  > >  > This patch turns OFF the motor once Linux gets control.
+>  > >  >
+>  > >  >
+>  > >  > --- linux-2.4.22/arch/i386/boot/setup.S.orig	Fri Aug  2 20:39:42 2002
+>  > >  > +++ linux-2.4.22/arch/i386/boot/setup.S	Fri Oct  3 11:50:43 2003
+>  > >  > @@ -59,6 +59,8 @@
+>  > >
+>  > > Does this mean the 'kill_motor' function in bootsect.S isn't doing
+>  > > what it should be? If so, maybe that needs fixing instead of turning
+>  > > it off in two places ?
+>  > >
+>  > > 		Dave
+>  >
+>  > Yes. I didn't even see that. The code there makes me kinda sick.
+>  > Anyway, the kill_motor function executes "reset diskette/disk" function
+>  > which will never turn OFF the drive. Instead, it will restart
+>  > the motor timer because, as a condition of reseting the diskette,
+>  > it must make sure the motor is running.
+>  >
+>  > I suggest that the FDC control byte be read, then the result be
+>  > ANDed with ~0x10, then written back. The ifed-out code clears
+>  > the whole control word which is inappropriate at a time the
+>  > diskette channel may be still be active.
+>
+> Do NOT do any outbs to the FDC unless you've done the equivalent of
+> the HW detection done in the floppy driver. The BIOS call in kill_motor
+> is a workaround for the fact that the original raw accesses lock up
+> the FDCs in some SuperIO chips (including the one in my ASUS P4T-E).
+>
+> The floppy driver gets it right, but it also does HW detection
+> first and does the reset differently for non-ancient FDCs.
+>
+> /Mikael
+>
 
-sorry i am not more able to help with this but i subscribed tot eh 
-mailing list and if further verification of this is needed and i can 
-help please instruct me as to what i need to do and i will.
- 
-i am running test5 now without this issue and all test6 kernels i have 
-tried produce this behavior for me.
+The write of zero to the FDC control byte may be the reason your
+machine has its FDCs locked up. I assure you that all of the
+super-io FDC emulation chips expect the FDC motors to be turned
+OFF or ON with the bits at FDC_BASE+Offset 2. They are:
 
+0x01	Drive Select
+0x02	Drive select
+0x04	Reset controller (always reads 0)
+0x08	DMA enable
+0x10	Drive 0 motor on
+0x20	Drive 1 motor on
+0x40	Drive 2 motor on
+0x80	Drive 3 motor on
 
-ciao
+>From this, you can see that if this byte is written to zero,
+then DMA is disabled. An attempt later on to access this
+drive will result in a DMA operation that doesn't complete.
 
-merwan
+Any hardware detection of which you speak, is not required.
+If you can end up with another floppy drive motor on under
+any condition when the kernel is given control, then you
+can simply reset both (or all) floppy motor control bits.
+
+Any attempt to be cute and reset only the one that is
+associated with the current drive-select bits will fail
+because all the motor control bits can be on from a
+previous access.
+
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.4.22 on an i686 machine (797.90 BogoMips).
+            Note 96.31% of all statistics are fiction.
 
 

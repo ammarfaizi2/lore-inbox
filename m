@@ -1,54 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130150AbQLMBNy>; Tue, 12 Dec 2000 20:13:54 -0500
+	id <S130027AbQLMBRO>; Tue, 12 Dec 2000 20:17:14 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130027AbQLMBNo>; Tue, 12 Dec 2000 20:13:44 -0500
-Received: from [63.109.146.2] ([63.109.146.2]:32761 "EHLO mail0.myrio.com")
-	by vger.kernel.org with ESMTP id <S129956AbQLMBNc>;
-	Tue, 12 Dec 2000 20:13:32 -0500
-Message-ID: <4461B4112BDB2A4FB5635DE19958743202239C@mail0.myrio.com>
-From: Torrey Hoffman <torrey.hoffman@myrio.com>
-To: linux-kernel@vger.kernel.org
-Cc: "'adam@yggdrasil.com'" <adam@yggdrasil.com>,
-        "'thockin@isunix.it.ilstu.edu'" <thockin@isunix.it.ilstu.edu>
-Subject: National Semiconductor DP83815 ethernet driver?
-Date: Tue, 12 Dec 2000 16:42:56 -0800
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2650.21)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+	id <S130668AbQLMBRF>; Tue, 12 Dec 2000 20:17:05 -0500
+Received: from vger.timpanogas.org ([207.109.151.240]:13065 "EHLO
+	vger.timpanogas.org") by vger.kernel.org with ESMTP
+	id <S130027AbQLMBQy>; Tue, 12 Dec 2000 20:16:54 -0500
+Date: Tue, 12 Dec 2000 18:41:43 -0700
+From: "Jeff V. Merkey" <jmerkey@vger.timpanogas.org>
+To: Dominik Kubla <dominik.kubla@uni-mainz.de>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
+Subject: Re: 2.2.18-25 DELL Laptop Video Problems
+Message-ID: <20001212184143.A12104@vger.timpanogas.org>
+In-Reply-To: <20001209160027.A15007@vger.timpanogas.org> <E144sZd-0005q5-00@the-village.bc.nu> <20001209181351.C15531@vger.timpanogas.org> <20001210174906.B2161@uni-mainz.de> <20001210155016.A19788@vger.timpanogas.org> <20001211082646.B4646@uni-mainz.de> <20001211111141.A3443@vger.timpanogas.org> <20001213013446.A13808@uni-mainz.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+X-Mailer: Mutt 1.0.1i
+In-Reply-To: <20001213013446.A13808@uni-mainz.de>; from dominik.kubla@uni-mainz.de on Wed, Dec 13, 2000 at 01:34:46AM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I am wondering about the current status of a driver for the NS83815 ethernet
-chip.
+On Wed, Dec 13, 2000 at 01:34:46AM +0100, Dominik Kubla wrote:
+> On Mon, Dec 11, 2000 at 11:11:41AM -0700, Jeff V. Merkey wrote:
+> ...
+> > Then this is the vga=271 stuff?
+> > 
+> > Jeff 
+> 
+> No, that's just selecting the VGA resolution. I am referring to the
+> video parameter:
+> 
+>   video=<driver>:<option>[,<option>,...]
+> 
+> Look at linux/Dokumentation/fb/modedb.txt.
+> 
+> Yours,
+>   Dominik Kubla
 
->From searching Google, I know some sort of driver exists. In July, Adam J.
-Richter (adam@yggdrasil.com) posted a 2.2.16 driver he obtained from Dave
-Gotwisner at Wyse Technologies. And Tim Hockin mentioned that he was using
-an NSC driver, but had made some minor modifications.
+Thanks!  I will.   I did have VESA FB enabled, BTW and I still see the 
+problem.
 
-The only source I've seen is the one Mr. Richter posted.
-(http://web.gnu.walfield.org/mail-archive/linux-kernel/2000-July/4234.html).
+:-)
 
-How well does this driver work?  From Mr. Richter's email I gather that Alan
-Cox gave some feedback and suggested improvements.  This makes me worried
-about using the "unimproved" version of the driver.
+Jeff
 
-If anyone has improved code for the 2.2.x series I would greatly appreciate
-it.
 
-2.2.17 and 18 didn't include the driver. I also gather that Mr. Richter is
-(or was) concentrating on a port to the 2.4 series, how is that coming
-along? 
-
-For what it's worth, the chip seems to have detailed documentation at
-http://www.national.com/pf/DP/DP83815.html.
-
-Thanks for any help.  
-
-Torrey Hoffman
-torrey.hoffman@myrio.com
+> -- 
+> Drug misuse is not  a disease, it is a decision, like  the decision to step
+> out in  front of a  moving car. You  would call that  not a disease  but an
+> error of judgment.  --Philip K. Dick. Author's Note, A SCANNER DARKLY, 1977
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,15 +1,15 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261885AbUA0EsY (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 26 Jan 2004 23:48:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261931AbUA0EsY
+	id S261931AbUA0Eug (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 26 Jan 2004 23:50:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262126AbUA0Eug
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 26 Jan 2004 23:48:24 -0500
-Received: from ztxmail03.ztx.compaq.com ([161.114.1.207]:6662 "EHLO
+	Mon, 26 Jan 2004 23:50:36 -0500
+Received: from ztxmail03.ztx.compaq.com ([161.114.1.207]:25863 "EHLO
 	ztxmail03.ztx.compaq.com") by vger.kernel.org with ESMTP
-	id S261885AbUA0EsV convert rfc822-to-8bit (ORCPT
+	id S261931AbUA0Eud convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 26 Jan 2004 23:48:21 -0500
+	Mon, 26 Jan 2004 23:50:33 -0500
 x-mimeole: Produced By Microsoft Exchange V6.5.6944.0
 Content-class: urn:content-classes:message
 MIME-Version: 1.0
@@ -17,27 +17,23 @@ Content-Type: text/plain;
 	charset="us-ascii"
 Content-Transfer-Encoding: 8BIT
 Subject: RE: [PATCH] cpqarray update
-Date: Mon, 26 Jan 2004 22:48:20 -0600
-Message-ID: <CBD6B29E2DA6954FABAC137771769D6504E15966@cceexc19.americas.cpqcorp.net>
+Date: Mon, 26 Jan 2004 22:50:31 -0600
+Message-ID: <CBD6B29E2DA6954FABAC137771769D6504E15967@cceexc19.americas.cpqcorp.net>
 X-MS-Has-Attach: 
 X-MS-TNEF-Correlator: 
 Thread-Topic: [PATCH] cpqarray update
-Thread-Index: AcPkeP4fFRtohlQWRQOrXeFPjVwFIgAFi/pw
+Thread-Index: AcPkeP4fFRtohlQWRQOrXeFPjVwFIgAF/OAw
 From: "Wiran, Francis" <francis.wiran@hp.com>
 To: "Jeff Garzik" <jgarzik@pobox.com>
 Cc: "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>
-X-OriginalArrivalTime: 27 Jan 2004 04:48:20.0572 (UTC) FILETIME=[C9A149C0:01C3E490]
+X-OriginalArrivalTime: 27 Jan 2004 04:50:32.0368 (UTC) FILETIME=[182FC300:01C3E491]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hmm... cpqarray supports both pci and eisa ctrls.
 
-What would happen if there are no pci ctrl detected, but there is one
-eisa ctrl detected? What do we return in cpqarray_init()? The return
-code of pci_module_init is either 0 or -ENODEV. What happen if
-cpqarray_init returns -ENODEV? Would the driver stay loaded? How about
-0, or positive number?
 
+Then again, maybe leaving that part alone would be ok too? i.e: keep
+using pci_module_init() ... Any opinions?
 
 thanks
 -francis-

@@ -1,42 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267363AbUBSQiq (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 19 Feb 2004 11:38:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267371AbUBSQip
+	id S267364AbUBSQpa (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 19 Feb 2004 11:45:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267375AbUBSQp3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 19 Feb 2004 11:38:45 -0500
-Received: from mail.shareable.org ([81.29.64.88]:10368 "EHLO
-	mail.shareable.org") by vger.kernel.org with ESMTP id S267363AbUBSQin
+	Thu, 19 Feb 2004 11:45:29 -0500
+Received: from mion.elka.pw.edu.pl ([194.29.160.35]:10996 "EHLO
+	mion.elka.pw.edu.pl") by vger.kernel.org with ESMTP id S267364AbUBSQp2
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 19 Feb 2004 11:38:43 -0500
-Date: Thu, 19 Feb 2004 16:38:38 +0000
-From: Jamie Lokier <jamie@shareable.org>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: tridge@samba.org, "H. Peter Anvin" <hpa@zytor.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: UTF-8 and case-insensitivity
-Message-ID: <20040219163838.GC2308@mail.shareable.org>
-References: <Pine.LNX.4.58.0402171919240.2686@home.osdl.org> <16435.55700.600584.756009@samba.org> <Pine.LNX.4.58.0402181422180.2686@home.osdl.org> <Pine.LNX.4.58.0402181427230.2686@home.osdl.org> <16435.60448.70856.791580@samba.org> <Pine.LNX.4.58.0402181457470.18038@home.osdl.org> <16435.61622.732939.135127@samba.org> <Pine.LNX.4.58.0402181511420.18038@home.osdl.org> <20040219081027.GB4113@mail.shareable.org> <Pine.LNX.4.58.0402190759550.1222@ppc970.osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Thu, 19 Feb 2004 11:45:28 -0500
+From: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
+To: root@chaos.analogic.com, Christoph Hellwig <hch@lst.de>
+Subject: Re: [PATCH] remove MAKEDEV scripts from scripts/
+Date: Thu, 19 Feb 2004 17:51:16 +0100
+User-Agent: KMail/1.5.3
+Cc: akpm@osdl.org, Linux kernel <linux-kernel@vger.kernel.org>
+References: <20040219161306.GA30620@lst.de> <Pine.LNX.4.53.0402191119480.520@chaos>
+In-Reply-To: <Pine.LNX.4.53.0402191119480.520@chaos>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.58.0402190759550.1222@ppc970.osdl.org>
-User-Agent: Mutt/1.4.1i
+Message-Id: <200402191751.16652.bzolnier@elka.pw.edu.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus Torvalds wrote:
-> For example, the rule can be that _any_ regular dentry create will 
-> invalidate all the "case-insensitive" dentries. Just to be simple about 
-> it.
+On Thursday 19 of February 2004 17:25, Richard B. Johnson wrote:
+> On Thu, 19 Feb 2004, Christoph Hellwig wrote:
+> > makedev is a userland issue, and the distros already take care of ide
+> > and sound.  scripts/ OTOH is supposed to hold utils needed for building
+> > the kernel tree which the above certainly aren't.
+>
+> If that's true, i.e., /scripts contains _only_ utilities for building
+> the kernel tree, then you make another directory to contain MAKEDEV.ide.
+> You don't simply delete it because you don't want it there. This
+> script substitutes for, and works in conjunction with a primary source
+> of documentation, ../Documentation/ide.txt
 
-If that's the rule, then with exactly the same algorithmic efficiency,
-readdir+dnotify can be used to maintain the cache in userspace
-instead.  There is nothing gained by using the helper module in that case.
+Thanks, for catching this!
 
-It follows that a helper module is only useful if readdir+dnotify
-isn't fast enough, and the invalidation rule has to be more selective.
+Christoph, please remove MAKEDEV.ide references from Documentation/ide.txt 8).
 
-(Although, maybe there are atomicity concerns I haven't thought of).
+--bart
 
--- Jamie

@@ -1,87 +1,128 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263394AbTFGSzc (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 7 Jun 2003 14:55:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263380AbTFGSzb
+	id S263380AbTFGS7K (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 7 Jun 2003 14:59:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263398AbTFGS7K
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 7 Jun 2003 14:55:31 -0400
-Received: from host-64-213-145-173.atlantasolutions.com ([64.213.145.173]:42219
-	"EHLO havoc.gtf.org") by vger.kernel.org with ESMTP id S263375AbTFGSz2
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 7 Jun 2003 14:55:28 -0400
-Date: Sat, 7 Jun 2003 15:09:04 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-To: "Feldman, Scott" <scott.feldman@intel.com>
-Cc: Matthew Wilcox <willy@debian.org>, linux-kernel@vger.kernel.org,
-       linux-net@vger.kernel.org
-Subject: Re: [PATCH] ethtool_ops
-Message-ID: <20030607190904.GA3346@gtf.org>
-References: <C6F5CF431189FA4CBAEC9E7DD5441E010107D8CD@orsmsx402.jf.intel.com>
+	Sat, 7 Jun 2003 14:59:10 -0400
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:47313 "HELO
+	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
+	id S263380AbTFGS7G (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 7 Jun 2003 14:59:06 -0400
+Date: Sat, 7 Jun 2003 21:12:35 +0200
+From: Adrian Bunk <bunk@fs.tum.de>
+To: Jon Grimm <jgrimm2@us.ibm.com>
+Cc: Margit Schubert-While <margitsw@t-online.de>,
+       lksctp-developers@lists.sourceforge.net, linux-kernel@vger.kernel.org,
+       netdev@oss.sgi.com
+Subject: Re: [Lksctp-developers] Re: SCTP config 2.5.70(-bk)
+Message-ID: <20030607191235.GE13377@fs.tum.de>
+References: <5.1.0.14.2.20030602094232.00aeda18@pop.t-online.de> <20030603130308.GC27168@fs.tum.de> <3EDD0DFC.4080806@us.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <C6F5CF431189FA4CBAEC9E7DD5441E010107D8CD@orsmsx402.jf.intel.com>
-User-Agent: Mutt/1.3.28i
+In-Reply-To: <3EDD0DFC.4080806@us.ibm.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jun 06, 2003 at 01:17:46PM -0700, Feldman, Scott wrote:
-> > Right now, each network driver which supports the ethtool 
-> > ioctl has its own implementation of everything from decoding 
-> > which ethtool ioctl it is, copying data to and from 
-> > userspace, marshalling and unmarshalling data from ethtool 
-> > packets, etc.  The current setup makes it impossible to use 
-> > alternative interfaces to get at the same data (eg sysfs) and 
-> > it's not exactly typesafe.
+On Tue, Jun 03, 2003 at 04:07:08PM -0500, Jon Grimm wrote:
+
+> Hi Adrian,
+
+Hi Jon,
+
+> 	Sorry for a bit of delay... We are away at an SCTP Interoperability 
+> event.
+
+the delay before my answer was bigger...
+
+> Adrian Bunk wrote:
+> >On Mon, Jun 02, 2003 at 09:53:04AM +0200, Margit Schubert-While wrote:
+> >
+> >
+> >>CONFIG_IPV6_SCTP__   is always being set to "y" even though
+> >>not selected (CONFIG_IPV6 not set)
+> >
+> >
+> >First, this doesn't do any harm since CONFIG_IPV6_SCTP__ alone doensn't 
+> >result in anything getting compiled.
+> >
+> >But besides, it seems a bit broken.
+> >
+> >From net/sctp/Kconfig:
+> >
+> ><--  snip  -->
+> >
+> >...
+> >
+> >config IPV6_SCTP__
+> >        tristate
+> >        default y if IPV6=n
+> >        default IPV6 if IPV6
+> >
+> >config IP_SCTP
+> >        tristate "The SCTP Protocol (EXPERIMENTAL)"
+> >        depends on IPV6_SCTP__
+> >...
+> >
+> ><--  snip  -->
+> >
+> >
+> >Semantically equivalent is the following for IPV6_SCTP__:
+> >
+> >config IPV6_SCTP__
+> >        tristate
+> >        default y if IPV6=n || IPV6=y
+> >	default m if IPV6=m
+> >
+> >
+> >If it was intended to disallow a static IP_SCTP with a modular IPV6 it 
+> >doesn't work: It's perfectly allowed to set IPV6=n and IP_SCTP=y and 
+> >later compile and install a modular IPV6 for the same kernel.
+> >
 > 
-> This is really cool!  Thanks for doing this Matthew.
+> Are you sure?  I vaguely remember one of the network structs having 
+> #ifdef'd fields for v6.   Consequently, if one compiles first without, 
+> but the tries later compiles/loads ipv6... bad things happen as the 
+> kernel has a different concept of what the sock is.
 
-Indeed.  :)
+
+after reading this at net/Kconfig:
+
+<--  snip  -->
+
+...
+#   IPv6 as module will cause a CRASH if you try to unload it
+config IPV6
+        tristate "The IPv6 protocol (EXPERIMENTAL)"
+...
+
+<--  snip  -->
+
+I'm wondering whether it might be an idea to disallow the modular 
+building of IPv6 support?
 
 
-> Some questions:
+> >Could someone from the SCTP developers comment on the intentions behind 
+> >IPV6_SCTP__ ?
+> >
 > 
-> * On get_gregs, for example, would it make sense to ->get_drvinfo
->   so you'll know regdump_len and therefore can kmalloc an ethtool_regs
->   with enough space to pass to ->get_regs?  Keep the kmalloc and
->   kfree together.  Same for self_test, get_strings, and get_stats.
->   For get_strings, size = max{n_stats, testinfo_len)*sizeof(u64).
+> Yes.  The intent was to at least discourage a configuration that will 
+> segfault.
 
-Yes, absolutely.
+It's currently discouraged but not completelyt impossible to select...
 
-There is a bug in some of the arch ioctl32 translation layers
-that just assumes the ethtool output can fit inside a single page.
-Prior to Matthew's work, the ioctl32 layer needed to directly issue
-ETHTOOL_GDRVINFO ioctl to obtain this information.  Now, the ioctl32
-layer can directly call ->get_drvinfo.  This is what the drvinfo
-information is designed to be used for.
+> Thanks,
+> jon
 
-Hooks being able to call ->get_drvinfo (and perhaps a couple others)
-is an important and useful attribute.
+cu
+Adrian
 
+-- 
 
-> * If the above is done, can we have one function type for the
-> ethtool_ops
->   functions?  int f(struct netdev *, struct ethtool_cmd *).  The 
->   drawback is the driver needs to cast to the specific ethtool_* struct.
-
-I disagree:  prefer the increased type checking and lack of type
-casting.  We already have net/core/ethtool.c having a separate call-it
-function for each hook... and each of those functions needs to know
-the specific subcommand struct type _anyway_ to copy in the struct
-from userspace, so let's go ahead and propagate the type information.
-
-Typically in Linux we want to preserve as much type information as
-possible.  Less work for the compiler, less potential aliasing problems,
-and discourages type mistakes in the low-level driver.
-
-
-> * Can we get an HAVE_ETHTOOL_OPS defined in netdevice.h to support
->   backward compat?
-
-heh, I suggested this independently, too.
-
-	Jeff
-
-
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
 

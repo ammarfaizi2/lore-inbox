@@ -1,24 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284905AbRLRUGN>; Tue, 18 Dec 2001 15:06:13 -0500
+	id <S284812AbRLRUGX>; Tue, 18 Dec 2001 15:06:23 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284860AbRLRUF4>; Tue, 18 Dec 2001 15:05:56 -0500
-Received: from vzn1-22.ce.ftel.net ([206.24.95.226]:48273 "EHLO spinics.net")
-	by vger.kernel.org with ESMTP id <S284812AbRLRUFv>;
-	Tue, 18 Dec 2001 15:05:51 -0500
-From: ellis@spinics.net
-Message-Id: <200112182006.fBIK6Qh11757@spinics.net>
-Subject: Block device size limit
-To: linux-kernel@vger.kernel.org
-Date: Tue, 18 Dec 2001 12:06:26 -0800 (PST)
-X-Mailer: ELM [version 2.5 PL5]
+	id <S284860AbRLRUGO>; Tue, 18 Dec 2001 15:06:14 -0500
+Received: from ns.suse.de ([213.95.15.193]:40718 "HELO Cantor.suse.de")
+	by vger.kernel.org with SMTP id <S284812AbRLRUF5>;
+	Tue, 18 Dec 2001 15:05:57 -0500
+Date: Tue, 18 Dec 2001 21:05:55 +0100 (CET)
+From: Dave Jones <davej@suse.de>
+To: Aaron Lehmann <aaronl@vitelus.com>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Andre Hedrick <andre@linux-ide.org>,
+        James Simmons <jsimmons@transvirtual.com>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [OT] DRM OS
+In-Reply-To: <20011218115342.A23308@vitelus.com>
+Message-ID: <Pine.LNX.4.33.0112182103370.29077-100000@Appserv.suse.de>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-It looks like a block device only has a 32 bit field to hold
-the sector number.  Does this limit a filesystem to 2^32
-sectors?
+On Tue, 18 Dec 2001, Aaron Lehmann wrote:
+
+> On Tue, Dec 18, 2001 at 04:17:19PM +0000, Alan Cox wrote:
+> > encrypted music fed to an encrypted audio controller to speakers which
+> > decrypt and add watermarks
+> Write a program that decrypts it. If the speakers can, so can the CPU.
+> Remeber DeCSS?
+
+Remember DMCA ? Remember SSSCA ?
+
+What you propose is classed as "Bypassing an access control".
+
+Dave.
+
+-- 
+| Dave Jones.        http://www.codemonkey.org.uk
+| SuSE Labs
 

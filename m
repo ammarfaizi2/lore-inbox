@@ -1,48 +1,104 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262894AbTDBIE3>; Wed, 2 Apr 2003 03:04:29 -0500
+	id <S262947AbTDBIGB>; Wed, 2 Apr 2003 03:06:01 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262947AbTDBIE3>; Wed, 2 Apr 2003 03:04:29 -0500
-Received: from ns.virtualhost.dk ([195.184.98.160]:43916 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id <S262894AbTDBIE2>;
-	Wed, 2 Apr 2003 03:04:28 -0500
-Date: Wed, 2 Apr 2003 10:15:42 +0200
-From: Jens Axboe <axboe@suse.de>
-To: Nick Piggin <piggin@cyberone.com.au>
-Cc: Con Kolivas <kernel@kolivas.org>, Andrew Morton <akpm@digeo.com>,
-       linux kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: [BENCHMARK] 2.5.66-mm2 with contest
-Message-ID: <20030402081542.GB3367@suse.de>
-References: <200304021324.10799.kernel@kolivas.org> <3E8A6227.7080209@cyberone.com.au> <20030402074227.GH901@suse.de> <3E8A97D6.3000603@cyberone.com.au> <20030402075822.GB2925@suse.de> <3E8A9A83.1070704@cyberone.com.au>
+	id <S262948AbTDBIGB>; Wed, 2 Apr 2003 03:06:01 -0500
+Received: from ns.suse.de ([213.95.15.193]:4365 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id <S262947AbTDBIF6>;
+	Wed, 2 Apr 2003 03:05:58 -0500
+Subject: Re: [Lse-tech] Re: [patch][rfc] Memory Binding (1/1)
+From: Andi Kleen <ak@suse.de>
+To: colpatch@us.ibm.com
+Cc: linux-kernel <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@digeo.com>, "Martin J. Bligh" <mbligh@aracnet.com>,
+       lse-tech <lse-tech@lists.sourceforge.net>
+In-Reply-To: <3E8A151A.1040800@us.ibm.com>
+References: <3E8A135B.3030106@us.ibm.com>  <3E8A151A.1040800@us.ibm.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 
+Date: 02 Apr 2003 10:17:16 +0200
+Message-Id: <1049271440.30759.183.camel@averell>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3E8A9A83.1070704@cyberone.com.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Apr 02 2003, Nick Piggin wrote:
-> Jens Axboe wrote:
-> 
-> >On Wed, Apr 02 2003, Nick Piggin wrote:
-> >
-> >>Thanks for doing that, Jens. Any CPU measurements on the hash
-> >>goodness that you did for deadline?
-> >>
-> >
-> >Nope none yet, in fact Andrew's profile numbers show very little time
-> >spent inside the io scheduler hash as it is. It feels like the right
-> >thing to do though, even if the hash doesn't eat that much time.
-> >
-> I agree - especially as we want a smaller hash and with
-> more requests.
+On Wed, 2003-04-02 at 00:39, Matthew Dobson wrote:
 
-Exactly. The effectiveness of the last merge hint shows that the
-majority of the merges happen in succession, so the move-to-front for
-last merge should have obvious benefits.
+I'm not sure why you do this on shm segments only. Why not directly on
+vmas ? 
 
-The rq-dyn-alloc patch shrinks the hash to 32 entries as a consequence.
+I'm considering to add a similar thing to the mm_struct to allow
+processes to allocate on their "homenode" only. But I could also live
+with it being per VMA.
 
--- 
-Jens Axboe
+In case of a large number of such bindings or nodes it may make sense
+to cache and share the zone lists, but that can be probably left for a
+future patch.
+
+> +static inline struct page *__page_cache_alloc(struct address_space *x, int cold)
+> +{
+> +	int gfp_mask;
+> +	struct zonelist *zonelist;
+> +
+> +	gfp_mask = x->gfp_mask;
+> +	if (cold)
+> +		gfp_mask |= __GFP_COLD;
+> +	if (!x->binding)
+> +		zonelist = get_zonelist(gfp_mask);
+> +	else
+> +		zonelist = &x->binding->zonelist;
+> +
+> +	return __alloc_pages(gfp_mask, 0, zonelist);
+> +}
+
+I would move a function of this size out of line. In fact i think it
+should even in the non NUMA case be a simple function call with zonelist
+getting evaluated out-of-line.
+
+
+
+
+> +asmlinkage unsigned long sys_membind(unsigned long start, unsigned long len, 
+> +		unsigned long *mask_ptr, unsigned int mask_len, unsigned long policy)
+> +{
+> +	DECLARE_BITMAP(cpu_mask, NR_CPUS);
+> +	DECLARE_BITMAP(node_mask, MAX_NUMNODES);
+> +	struct vm_area_struct *vma = NULL;
+> +	struct address_space *mapping;
+> +	int error = 0;
+> +
+> +	/* Deal with getting cpu_mask from userspace & translating to node_mask */
+> +	if (mask_len > NR_CPUS) {
+> +		error = -EINVAL;
+> +		goto out;
+> +	}
+
+I don't like that check. It requires hardcoding NR_CPUs (which can be
+variable!) in the application. It would be better to allow arbitary
+length arguments, but only error when there is a bit set outside
+NR_CPUS. Of course arbitary would be hard regarding the copy from user,
+so perhaps use some very big limit (e.g. one page worth of bitmap) 
+
+
+> +	CLEAR_BITMAP(cpu_mask, NR_CPUS);
+> +	CLEAR_BITMAP(node_mask, MAX_NUMNODES);
+> +	if (copy_from_user(cpu_mask, mask_ptr, (mask_len+7)/8)) {
+> +		error = -EFAULT;
+> +		goto out;
+> +	}
+> +	cpumask_to_nodemask(cpu_mask, node_mask);
+> +
+> +	vma = find_vma(current->mm, start);
+> +	if (!(vma && vma->vm_file && vma->vm_ops && 
+> +		vma->vm_ops->nopage == shmem_nopage)) {
+> +		/* This isn't a shm segment.  For now, we bail. */
+> +		printk("%s: Can only bind shm(em) segments for now!\n", __FUNCTION__);
+
+Instead of __FUNCTION__ i would use current->comm here. 
+
+Or better perhaps just remove the error printks.
+
+-Andi
+
 

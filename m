@@ -1,54 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319290AbSH2SfF>; Thu, 29 Aug 2002 14:35:05 -0400
+	id <S319291AbSH2Sfb>; Thu, 29 Aug 2002 14:35:31 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319291AbSH2SfE>; Thu, 29 Aug 2002 14:35:04 -0400
-Received: from svr-ganmtc-appserv-mgmt.ncf.coxexpress.com ([24.136.46.5]:40719
-	"EHLO svr-ganmtc-appserv-mgmt.ncf.coxexpress.com") by vger.kernel.org
-	with ESMTP id <S319290AbSH2SfE>; Thu, 29 Aug 2002 14:35:04 -0400
-Subject: Re: [PATCH] misc. kernel preemption bits
-From: Robert Love <rml@tech9.net>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.44.0208291136180.2316-100000@home.transmeta.com>
-References: <Pine.LNX.4.44.0208291136180.2316-100000@home.transmeta.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 
-Date: 29 Aug 2002 14:39:25 -0400
-Message-Id: <1030646366.979.2573.camel@phantasy>
-Mime-Version: 1.0
+	id <S319293AbSH2Sfb>; Thu, 29 Aug 2002 14:35:31 -0400
+Received: from 2-210.ctame701-1.telepar.net.br ([200.193.160.210]:53683 "EHLO
+	2-210.ctame701-1.telepar.net.br") by vger.kernel.org with ESMTP
+	id <S319291AbSH2Sfa>; Thu, 29 Aug 2002 14:35:30 -0400
+Date: Thu, 29 Aug 2002 15:39:34 -0300 (BRT)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: riel@imladris.surriel.com
+To: Badari Pulavarty <pbadari@us.ibm.com>
+cc: linux-kernel@vger.kernel.org, <akpm@zip.com.au>,
+       Gerrit Huizenga <gerrit@us.ibm.com>,
+       Hans-J Tannenberger <hjt@us.ibm.com>,
+       Janet Morgan <janetmor@us.ibm.com>, Mike Anderson <andmike@us.ibm.com>,
+       Martin Bligh <mjbligh@us.ibm.com>
+Subject: Re: 2.5.32 IO performance issues
+In-Reply-To: <200208291820.g7TIKHA19433@eng2.beaverton.ibm.com>
+Message-ID: <Pine.LNX.4.44L.0208291538470.1857-100000@imladris.surriel.com>
+X-spambait: aardvark@kernelnewbies.org
+X-spammeplease: aardvark@nl.linux.org
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2002-08-29 at 14:38, Linus Torvalds wrote:
+On Thu, 29 Aug 2002, Badari Pulavarty wrote:
 
-> I think we should return silently, and simply consider the case of
-> disabled local interrupts to be equivalent to having preemption disabled.
-> 
-> So I would remove even the warning.
-> 
-> Comments?
+> I am having severe IO performance problems with 2.5.32 (2.5.31 works fine).
+> I was wondering what caused this.
+>
+> As you can see, IO rate went from
+>
+> 		384MB/sec with 6% CPU utilization on 2.5.31
+> 			to
+> 		120MB/sec with 19% CPU utilization on 2.5.32
+>
+> Any idea ?
 
-This is a tough question.
+384 MB/s is suspiciously fast.  What kind of disk subsystem
+do you have to achieve that speed ?
 
-I originally did just that but Ingo said we should aim to find the
-problem areas, too.  The issue is, for 99% of the cases, disabling
-interrupts really is equivalent to disabling preemption (e.g.
-preempt_schedule() is never called).  For the remaining 1% of the cases,
-it is possible to fix up the problems by playing safely with interrupts
-off.
+Or did 2.5.31 keep the dirty data in memory, instead of
+writing it to disk ? ;)
 
-We _must_ return since we are seeing these in the wild.  If we want to
-leave the debug checking to try to "fix" the remaining cases we can do
-so too.
+regards,
 
-How about this: add the return now (i.e. accept the patch as-is) and
-keep the debug check so we can continue to find areas that cause
-incorrect preemptions.  Before 2.6, I will send a patch to remove the
-check and just return silently.
+Rik
+-- 
+Bravely reimplemented by the knights who say "NIH".
 
-Sound good?
-
-	Robert Love
+http://www.surriel.com/		http://distro.conectiva.com/
 

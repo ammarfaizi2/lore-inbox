@@ -1,44 +1,88 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266583AbUGKMnS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266577AbUGKMz6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266583AbUGKMnS (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 11 Jul 2004 08:43:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266585AbUGKMnR
+	id S266577AbUGKMz6 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 11 Jul 2004 08:55:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266582AbUGKMz6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 11 Jul 2004 08:43:17 -0400
-Received: from colin2.muc.de ([193.149.48.15]:19721 "HELO colin2.muc.de")
-	by vger.kernel.org with SMTP id S266583AbUGKMnK (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 11 Jul 2004 08:43:10 -0400
-Date: 11 Jul 2004 14:43:07 +0200
-Date: Sun, 11 Jul 2004 14:43:07 +0200
-From: Andi Kleen <ak@muc.de>
-To: Ingo Molnar <mingo@redhat.com>
-Cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>
-Subject: Re: serious performance regression due to NX patch
-Message-ID: <20040711124307.GA88881@muc.de>
-References: <2giKE-67F-1@gated-at.bofh.it> <2gIc8-6pd-29@gated-at.bofh.it> <2gJ8a-72b-11@gated-at.bofh.it> <2gJhY-776-21@gated-at.bofh.it> <m31xjiam9q.fsf@averell.firstfloor.org> <Pine.LNX.4.58.0407110754280.26194@devserv.devel.redhat.com>
-Mime-Version: 1.0
+	Sun, 11 Jul 2004 08:55:58 -0400
+Received: from node-209-133-23-217.caravan.ru ([217.23.133.209]:2564 "EHLO
+	mail.tv-sign.ru") by vger.kernel.org with ESMTP id S266577AbUGKMzz
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 11 Jul 2004 08:55:55 -0400
+Message-ID: <40F139BA.F1F10B22@tv-sign.ru>
+Date: Sun, 11 Jul 2004 16:59:38 +0400
+From: Oleg Nesterov <oleg@tv-sign.ru>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.2.20 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+CC: Andrew Morton <akpm@osdl.org>, William Lee Irwin III <wli@holomorphy.com>,
+       David Gibson <david@gibson.dropbear.id.au>
+Subject: [PATCH] hugetlbfs private mappings.
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.58.0407110754280.26194@devserv.devel.redhat.com>
-User-Agent: Mutt/1.4.1i
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Jul 11, 2004 at 07:56:10AM -0400, Ingo Molnar wrote:
-> 
-> On Sun, 11 Jul 2004, Andi Kleen wrote:
-> 
-> > > +#ifdef __i386__
-> > 
-> > Won't do on x86-64.
-> 
-> well on x86-64 'non-executable' really means non-executable, and always
-> did, right? (and this is completely separate from the issue of whether the
-> process stack is executable or not. This is about x86 that didnt enforce
-> the vma's protection bit.)
+Hello.
 
-Not quite - there is 32bit emulation. And the 64bit version also doesn't
-do NX by default, but also relies on ELF header bits for this.
+Hugetlbfs silently coerce private mappings of hugetlb files
+into shared ones. So private writable mapping has MAP_SHARED
+semantics. I think, such mappings should be disallowed.
 
--Andi
+First, such behavior allows open hugetlbfs file O_RDONLY, and
+overwrite it via mmap(PROT_READ|PROT_WRITE, MAP_PRIVATE), so
+it is security bug.
+
+Second, private writable mmap() should fail just because kernel
+does not support this.
+
+I beleive, it is ok to allow private readonly hugetlb mappings,
+sys_mprotect() does not work with hugetlb vmas.
+
+There is another problem. Hugetlb mapping is always prefaulted,
+pages allocated at mmap() time. So even readonly mapping allows
+to enlarge the size of the hugetlbfs file, and steal huge pages
+without appropriative permissions.
+
+Patch on top of vm_pgoff fixes, see
+http://marc.theaimsgroup.com/?l=linux-kernel&m=108938233708584
+
+Oleg.
+
+Signed-off-by: Oleg Nesterov <oleg@tv-sign.ru>
+
+--- 2.6.7-mm7/fs/hugetlbfs/inode.c.pgoff	2004-07-11 15:32:09.000000000 +0400
++++ 2.6.7-mm7/fs/hugetlbfs/inode.c	2004-07-11 16:09:27.000000000 +0400
+@@ -52,6 +52,9 @@ static int hugetlbfs_file_mmap(struct fi
+ 	loff_t len, vma_len;
+ 	int ret;
+ 
++	if ((vma->vm_flags & (VM_MAYSHARE | VM_WRITE)) == VM_WRITE)
++		return -EINVAL;
++
+ 	if (vma->vm_pgoff & (HPAGE_SIZE / PAGE_SIZE - 1))
+ 		return -EINVAL;
+ 
+@@ -70,10 +73,19 @@ static int hugetlbfs_file_mmap(struct fi
+ 	file_accessed(file);
+ 	vma->vm_flags |= VM_HUGETLB | VM_RESERVED;
+ 	vma->vm_ops = &hugetlb_vm_ops;
++
++	ret = -ENOMEM;
++	len = vma_len + ((loff_t)vma->vm_pgoff << PAGE_SHIFT);
++	if (!(vma->vm_flags & VM_WRITE) && len > inode->i_size)
++		goto out;
++
+ 	ret = hugetlb_prefault(mapping, vma);
+-	len = vma_len +	((loff_t)vma->vm_pgoff << PAGE_SHIFT);
+-	if (ret == 0 && inode->i_size < len)
++	if (ret)
++		goto out;
++
++	if (inode->i_size < len)
+ 		inode->i_size = len;
++out:
+ 	up(&inode->i_sem);
+ 
+ 	return ret;

@@ -1,47 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263709AbSIQGeJ>; Tue, 17 Sep 2002 02:34:09 -0400
+	id <S263712AbSIQGkG>; Tue, 17 Sep 2002 02:40:06 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263712AbSIQGeJ>; Tue, 17 Sep 2002 02:34:09 -0400
-Received: from smtpde02.sap-ag.de ([155.56.68.170]:41942 "EHLO
-	smtpde02.sap-ag.de") by vger.kernel.org with ESMTP
-	id <S263709AbSIQGeJ>; Tue, 17 Sep 2002 02:34:09 -0400
-Message-ID: <3D86CF0E.3090003@sap.com>
-Date: Tue, 17 Sep 2002 08:43:26 +0200
-From: Christoph Rohland <cr@sap.com>
-Organization: SAP LinuxLab
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.8) Gecko/20020204
-X-Accept-Language: en-us
+	id <S263723AbSIQGkG>; Tue, 17 Sep 2002 02:40:06 -0400
+Received: from mex.italtel.it ([138.132.117.4]:25822 "EHLO mex.italtel.it")
+	by vger.kernel.org with ESMTP id <S263712AbSIQGkF>;
+	Tue, 17 Sep 2002 02:40:05 -0400
+Message-ID: <3D86BADD.8F54CA99@imads2.milano.italtel.it>
+Date: Tue, 17 Sep 2002 07:17:17 +0200
+From: Corrado Cappello <Corrado.Cappello@italtel.it>
+Organization: Italtel S.p.A.
+X-Mailer: Mozilla 4.5 [it] (WinNT; I)
+X-Accept-Language: it
 MIME-Version: 1.0
-To: Andrew Morton <akpm@digeo.com>
-CC: William Lee Irwin III <wli@holomorphy.com>, linux-mm@kvack.org,
-       hugh@veritas.com, linux-kernel@vger.kernel.org
-Subject: Re: dbench on tmpfs OOM's
-References: <20020917044317.GZ2179@holomorphy.com> <3D86B683.8101C1D1@digeo.com> <20020917051501.GM3530@holomorphy.com> <3D86BE4F.75C9B6CC@digeo.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+To: linux kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: PROBLEM: restore file in tar from a magnetic tape
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-SAP: out
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Andrew,
+If I use the same tape and the same environment (OS 2.4.3.12 and CPU
+ALPHA EV6) i have observed:
 
-Andrew Morton wrote:
-> William Lee Irwin III wrote:
->>I went through the nodes by hand. It's just a run of the mill
->>ZONE_NORMAL OOM coming out of the GFP_USER allocation. None of
->>the highmem zones were anywhere near ->pages_low.
->>
->>
-> 
-> erk.  Why is shmem using GFP_USER?
-> 
-> mnm:/usr/src/25> grep page_address mm/shmem.c
+    the system crash happens during rewind the tape; in fact if I
+substitute /dev/st0
+    with /dev/nst0 and so i don't active the "close" system call in
+rewind mode, 3 times on 3
+    tar file is restored.
 
-For inode and page vector allocation.
+    Now I want see what happens in controller's (QLOGIC ISP1020) driver
+during the close.
+   
+    Someone has any ideas?
 
-Greetings
-			Christoph
+    Thank you
 
-
-
+    cappelc
+-- 
++----------------------------------+
+ Corrado Cappello Italtel spa
+ TPD-SP-PE-U
+ E-Mail:corrado.cappello@italtel.it
+	Phone	(+39.2)43888991
+	Fax  	(+39.2)43888705
+	Mobile	(+39.2)43884212
++----------------------------------+

@@ -1,74 +1,76 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263275AbTGHOag (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 8 Jul 2003 10:30:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263201AbTGHOag
+	id S267381AbTGHOhz (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 8 Jul 2003 10:37:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267397AbTGHOhz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 8 Jul 2003 10:30:36 -0400
-Received: from dvmwest.gt.owl.de ([62.52.24.140]:2308 "EHLO dvmwest.gt.owl.de")
-	by vger.kernel.org with ESMTP id S263275AbTGHOae (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Jul 2003 10:30:34 -0400
-Date: Tue, 8 Jul 2003 16:45:10 +0200
-From: Jan-Benedict Glaw <jbglaw@lug-owl.de>
-To: Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Linksys gpl code [OT]
-Message-ID: <20030708144509.GE20605@lug-owl.de>
-Mail-Followup-To: Kernel <linux-kernel@vger.kernel.org>
-References: <1057663858.3959.41.camel@miyazaki>
+	Tue, 8 Jul 2003 10:37:55 -0400
+Received: from 12-226-168-214.client.attbi.com ([12.226.168.214]:3719 "EHLO
+	marta.kurtwerks.com") by vger.kernel.org with ESMTP id S267381AbTGHOhH
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 8 Jul 2003 10:37:07 -0400
+Date: Tue, 8 Jul 2003 10:51:43 -0400
+From: Kurt Wall <kwall@kurtwerks.com>
+To: Linux kernel <linux-kernel@vger.kernel.org>
+Subject: Re: syscall __NR_mmap2
+Message-ID: <20030708145143.GY16938@kurtwerks.com>
+References: <Pine.LNX.4.53.0307071655470.22074@chaos> <20030708003656.GC12127@mail.jlokier.co.uk> <Pine.LNX.4.53.0307080749160.24488@chaos> <20030708140546.GA15612@mail.jlokier.co.uk> <Pine.LNX.4.53.0307081033190.267@chaos>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="+JUInw4efm7IfTNU"
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1057663858.3959.41.camel@miyazaki>
-X-Operating-System: Linux mail 2.4.18 
-X-gpg-fingerprint: 250D 3BCF 7127 0D8C A444  A961 1DBD 5E75 8399 E1BB
-X-gpg-key: wwwkeys.de.pgp.net
-User-Agent: Mutt/1.5.4i
+In-Reply-To: <Pine.LNX.4.53.0307081033190.267@chaos>
+User-Agent: Mutt/1.4i
+X-Operating-System: Linux 2.4.21-krw
+X-Woot: Woot!
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Quoth Richard B. Johnson:
 
---+JUInw4efm7IfTNU
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+[...]
 
-On Tue, 2003-07-08 12:30:58 +0100, Matthew Hall <matt@ecsc.co.uk>
-wrote in message <1057663858.3959.41.camel@miyazaki>:
-> Hi lkml,
-> 	I don't know if anyone's noticed, but Linksys have opened up and
-> released their code.
->=20
-> http://www.linksys.com/support/gpl.asp
->=20
-> Don't know if it satisfies the gpl; i'm currently downloading the stuff
-> to see what's different from the release sources.
+> Yeah? So the Linux kernel now requires a specific vendor distribution?
+> Since when?
 
-I downloaded that kernel.tgz and diff'ed it out - it's a *hugh* patch
-removing tons of comments and #if 0 ... #endif parts. That makes it
-more complicated to find the "interesting" parts for us, but also it
-will get hard for them to ever port that changes over to 2.4.current...
+I don't think this vendor specific. The mmap2() man page I have comes
+from the man pages package maintained by Andries Brouwer (release 1.56).
+The LSM file says you can get them at 
+ftp://ftp.win.tue.nl/pub/linux-local/manpages
 
-MfG, JBG
 
---=20
-   Jan-Benedict Glaw       jbglaw@lug-owl.de    . +49-172-7608481
-   "Eine Freie Meinung in  einem Freien Kopf    | Gegen Zensur | Gegen Krieg
-    fuer einen Freien Staat voll Freier B=FCrger" | im Internet! |   im Ira=
-k!
-      ret =3D do_actions((curr | FREE_SPEECH) & ~(IRAQ_WAR_2 | DRM | TCPA));
+> So, to get the proper documentation of the Linux Kernel, I now
+> need to purchase a vendor's distribution??? I think not. I think
 
---+JUInw4efm7IfTNU
-Content-Type: application/pgp-signature
-Content-Disposition: inline
+No.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.2 (GNU/Linux)
+> the sys-calls need to be documented and I think that I have established
+> proof of that supposition.
+> 
+> Script started on Tue Jul  8 10:35:05 2003
+> # man mmap2
+> No manual entry for mmap2
+> # mmap
+> # man map
+> 
+> MMAP(2)             Linux Programmer's Manual             MMAP(2)
+> 
+> NAME
+>        mmap, munmap - map or unmap files or devices into memory
+> 
+> SYNOPSIS
+>        #include <sys/types.h>
+>        #include <sys/mman.h>
+> 
+>        caddr_t  mmap(caddr_t  addr,  size_t  len,  int prot , int
+>        flags, int fd, off_t offset );
+>        int munmap(caddr_t addr, size_t len);
+> 
+> DESCRIPTION
+>        WARNING: This is a BSD man page.  Linux 0.99.11 can't  map
+>        files, and can't do other things documented here.
 
-iD8DBQE/Ctj1Hb1edYOZ4bsRAmxSAJ9q3zWaLx0SObQEwie/RiJijosE+QCcDIjE
-/fYvgcuc1t1tOs9YICQokSw=
-=Duub
------END PGP SIGNATURE-----
+I'd say your man pages are woefully out of date.
 
---+JUInw4efm7IfTNU--
+Kurt
+-- 
+Do infants have as much fun in infancy as adults do in adultery?

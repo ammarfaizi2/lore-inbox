@@ -1,1727 +1,1466 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266116AbSKOMIl>; Fri, 15 Nov 2002 07:08:41 -0500
+	id <S266246AbSKOMMs>; Fri, 15 Nov 2002 07:12:48 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266122AbSKOMIl>; Fri, 15 Nov 2002 07:08:41 -0500
-Received: from precia.cinet.co.jp ([210.166.75.133]:43650 "EHLO
+	id <S266256AbSKOMMs>; Fri, 15 Nov 2002 07:12:48 -0500
+Received: from precia.cinet.co.jp ([210.166.75.133]:44930 "EHLO
 	precia.cinet.co.jp") by vger.kernel.org with ESMTP
-	id <S266116AbSKOMIC>; Fri, 15 Nov 2002 07:08:02 -0500
-Message-ID: <3DD4E530.57D3512D@cinet.co.jp>
-Date: Fri, 15 Nov 2002 21:14:40 +0900
+	id <S266246AbSKOMMS>; Fri, 15 Nov 2002 07:12:18 -0500
+Message-ID: <3DD4E62F.1B9B0A2C@cinet.co.jp>
+Date: Fri, 15 Nov 2002 21:18:55 +0900
 From: Osamu Tomita <tomita@cinet.co.jp>
 X-Mailer: Mozilla 4.8C-ja  [ja/Vine] (X11; U; Linux 2.5.47-ac4-pc98smp i686)
 X-Accept-Language: ja, en
 MIME-Version: 1.0
 To: Alan Cox <alan@lxorguk.ukuu.org.uk>
 CC: LKML <linux-kernel@vger.kernel.org>
-Subject: PC-9800 patch for 2.5.47-ac4: not merged yet (2/15) Core
+Subject: PC-9800 patch for 2.5.47-ac4: not merged yet (3/15) console
 References: <3DD4E2D5.AEF13F1@cinet.co.jp>
 Content-Type: multipart/mixed;
- boundary="------------5F116BE87D590F47EDED0B97"
+ boundary="------------9A47A2DBF8A2E3A7AAA7B9E6"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 This is a multi-part message in MIME format.
---------------5F116BE87D590F47EDED0B97
+--------------9A47A2DBF8A2E3A7AAA7B9E6
 Content-Type: text/plain; charset=iso-2022-jp
 Content-Transfer-Encoding: 7bit
 
-This is rest of core patch under arch/i386/.
+This is for VT console support.
 
 diffstat:
- arch/i386/Kconfig                       |   24 +++-
- arch/i386/Makefile                      |   15 ++
- arch/i386/kernel/setup.c                |   99 ----------------
- arch/i386/kernel/time.c                 |  115 ++-----------------
- arch/i386/kernel/timers/timer_pit.c     |   22 ++-
- arch/i386/kernel/timers/timer_tsc.c     |   94 ++-------------
- arch/i386/kernel/traps.c                |   12 --
- arch/i386/mach-generic/calibrate_tsc.h  |   90 +++++++++++++++
- arch/i386/mach-generic/mach_resources.h |  113 ++++++++++++++++++
- arch/i386/mach-generic/mach_time.h      |  122 ++++++++++++++++++++
- arch/i386/mach-generic/mach_traps.h     |   29 ++++
- arch/i386/mach-pc9800/calibrate_tsc.h   |   71 +++++++++++
- arch/i386/mach-pc9800/do_timer.h        |   80 +++++++++++++
- arch/i386/mach-pc9800/mach_resources.h  |  192 ++++++++++++++++++++++++++++++++  arch/i386/mach-pc9800/mach_time.h       |  136 ++++++++++++++++++++++
- arch/i386/mach-pc9800/mach_traps.h      |   27 ++++
- arch/i386/mach-pc9800/smpboot_hooks.h   |   33 +++++
- arch/i386/mach-summit/calibrate_tsc.h   |    1 
- arch/i386/mach-summit/mach_resources.h  |    1 
- arch/i386/mach-summit/mach_time.h       |    1 
- arch/i386/mach-summit/mach_traps.h      |    1 
- arch/i386/mach-visws/calibrate_tsc.h    |    1 
- arch/i386/mach-visws/mach_resources.h   |    1 
- arch/i386/mach-visws/mach_time.h        |    1 
- arch/i386/mach-visws/mach_traps.h       |    1 
- arch/i386/mach-voyager/calibrate_tsc.h  |    1 
- arch/i386/mach-voyager/mach_resources.h |    1 
- arch/i386/mach-voyager/mach_time.h      |    1 
- arch/i386/mach-voyager/mach_traps.h     |    1 
- 29 files changed, 994 insertions(+), 292 deletions(-)
+ drivers/char/Makefile          |    9 
+ drivers/char/console_macros.h  |   14 +
+ drivers/char/console_pc9800.h  |   14 +
+ drivers/char/consolemap.c      |   58 ++++-
+ drivers/char/pc9800.uni        |  260 ++++++++++++++++++++++
+ drivers/char/vt.c              |  464 +++++++++++++++++++++++++++++++++++------
+ drivers/char/vt_ioctl.c        |   19 +
+ include/linux/console.h        |   11 
+ include/linux/console_struct.h |   25 ++
+ include/linux/consolemap.h     |    1 
+ include/linux/tty.h            |    4 
+ include/linux/vt.h             |    1 
+ include/linux/vt_buffer.h      |    4 
+ 13 files changed, 814 insertions(+), 70 deletions(-)
 
 -- 
 Osamu Tomita
 tomita@cinet.co.jp
---------------5F116BE87D590F47EDED0B97
+--------------9A47A2DBF8A2E3A7AAA7B9E6
 Content-Type: text/plain; charset=iso-2022-jp;
- name="arch-i386.patch"
+ name="console.patch"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline;
- filename="arch-i386.patch"
+ filename="console.patch"
 
-diff -urN linux/arch/i386/Kconfig linux98/arch/i386/Kconfig
---- linux/arch/i386/Kconfig	Wed Nov 13 09:25:31 2002
-+++ linux98/arch/i386/Kconfig	Wed Nov 13 09:32:07 2002
-@@ -995,6 +995,12 @@
- # Visual Workstation support is utterly broken.
- # If you want to see it working mail an VW540 to hch@infradead.org 8)
- #bool 'SGI Visual Workstation support' CONFIG_VISWS
-+config PC9800
-+	bool "NEC PC-9800 architecture support"
-+	help
-+	  To make kernel for NEC PC-9801/PC-9821 architecture, say Y.
-+	  If say Y, kernel works -ONLY- on PC-9800 architecture.
-+
- config X86_VISWS_APIC
- 	bool
- 	depends on VISWS
-@@ -1087,7 +1093,7 @@
- 
- config EISA
- 	bool "EISA support"
--	depends on ISA
-+	depends on ISA && !PC9800
- 	---help---
- 	  The Extended Industry Standard Architecture (EISA) bus was
- 	  developed as an open alternative to the IBM MicroChannel bus.
-@@ -1103,7 +1109,7 @@
- 
- config MCA
- 	bool "MCA support"
--	depends on !VISWS
-+	depends on !(VISWS || PC9800)
- 	help
- 	  MicroChannel Architecture is found in some IBM PS/2 machines and
- 	  laptops.  It is a bus system similar to PCI or ISA. See
-@@ -1451,6 +1457,7 @@
- 
- config VGA_CONSOLE
- 	bool "VGA text console"
-+	depends on !PC9800
- 	help
- 	  Saying Y here will allow you to use Linux in text mode through a
- 	  display that complies with the generic VGA standard. Virtually
-@@ -1464,6 +1471,7 @@
- 
- config VIDEO_SELECT
- 	bool "Video mode selection support"
-+	depends on !PC9800
- 	---help---
- 	  This enables support for text mode selection on kernel startup. If
- 	  you want to take advantage of some high-resolution text mode your
-@@ -1477,6 +1485,18 @@
- 	  Read the file <file:Documentation/svga.txt> for more information
- 	  about the Video mode selection support. If unsure, say N.
- 
-+config GDC_CONSOLE
-+	bool "PC-9800 GDC text console"
-+	depends on PC9800
-+	default y
-+	help
-+	  This enables support for PC-9800 standard text mode console.
-+	  If use PC-9801/PC-9821, Say Y.
-+
-+config GDC_32BITACCESS
-+	bool "Enable 32-bit access to text video RAM"
-+	depends on GDC_CONSOLE
-+
- if EXPERIMENTAL
- 
- config MDA_CONSOLE
-diff -urN linux/arch/i386/Makefile linux98/arch/i386/Makefile
---- linux/arch/i386/Makefile	Wed Nov 13 09:25:32 2002
-+++ linux98/arch/i386/Makefile	Wed Nov 13 11:04:15 2002
-@@ -52,9 +52,13 @@
- ifdef CONFIG_VOYAGER
- MACHINE := mach-voyager
- else
-+ifdef CONFIG_PC9800
-+MACHINE	:= mach-pc9800
+diff -urN linux/drivers/char/Makefile linux98/drivers/char/Makefile
+--- linux/drivers/char/Makefile	Tue Nov  5 07:30:51 2002
++++ linux98/drivers/char/Makefile	Sun Nov 10 23:16:49 2002
+@@ -5,7 +5,11 @@
+ #
+ # This file contains the font map for the default (hardware) font
+ #
++ifneq ($(CONFIG_PC9800),y)
+ FONTMAPFILE = cp437.uni
 +else
- MACHINE	:= mach-generic
- endif
- endif
++FONTMAPFILE = pc9800.uni
 +endif
  
- ifdef CONFIG_X86_STACK_CHECK
- CFLAGS += -p
-@@ -74,15 +78,20 @@
- CFLAGS += -Iarch/i386/$(MACHINE) -Iarch/i386/mach-defaults
- AFLAGS += -Iarch/i386/$(MACHINE) -Iarch/i386/mach-defaults
+ obj-y	 += mem.o tty_io.o n_tty.o tty_ioctl.o pty.o misc.o random.o
  
--makeboot = $(call descend,arch/i386/boot,$(1))
-+ifndef CONFIG_PC9800
-+ARCHDIR=arch/i386/boot
-+else
-+ARCHDIR=arch/i386/boot98
-+endif
-+makeboot = $(call descend,$(ARCHDIR),$(1))
+@@ -14,7 +18,8 @@
  
- .PHONY: zImage bzImage compressed zlilo bzlilo zdisk bzdisk install \
- 		clean archclean archmrproper
+ export-objs     :=	busmouse.o vt.o generic_serial.o ip2main.o \
+ 			ite_gpio.o keyboard.o misc.o nvram.o random.o rtc.o \
+-			selection.o sonypi.o sysrq.o tty_io.o tty_ioctl.o
++			selection.o sonypi.o sysrq.o tty_io.o tty_ioctl.o \
++			upd4990a.o
  
- all: bzImage
+ obj-$(CONFIG_VT) += vt_ioctl.o vc_screen.o consolemap.o consolemap_deftbl.o selection.o keyboard.o
+ obj-$(CONFIG_HW_CONSOLE) += vt.o defkeymap.o
+@@ -51,6 +56,7 @@
  
--BOOTIMAGE=arch/i386/boot/bzImage
--zImage zlilo zdisk: BOOTIMAGE=arch/i386/boot/zImage
-+BOOTIMAGE=$(ARCHDIR)/bzImage
-+zImage zlilo zdisk: BOOTIMAGE=$(ARCHDIR)/zImage
+ obj-$(CONFIG_PRINTER) += lp.o
+ obj-$(CONFIG_TIPAR) += tipar.o
++obj-$(CONFIG_PC9800_OLDLP)) += lp_old98.o
  
- zImage bzImage: vmlinux
- 	+@$(call makeboot,$(BOOTIMAGE))
-diff -urN linux/arch/i386/kernel/setup.c linux98/arch/i386/kernel/setup.c
---- linux/arch/i386/kernel/setup.c	Tue Nov  5 10:16:18 2002
-+++ linux98/arch/i386/kernel/setup.c	Tue Nov  5 16:28:36 2002
-@@ -20,6 +20,7 @@
-  * This file handles the architecture-dependent parts of initialization
+ obj-$(CONFIG_BUSMOUSE) += busmouse.o
+ obj-$(CONFIG_DTLK) += dtlk.o
+@@ -58,6 +64,7 @@
+ obj-$(CONFIG_APPLICOM) += applicom.o
+ obj-$(CONFIG_SONYPI) += sonypi.o
+ obj-$(CONFIG_RTC) += rtc.o
++obj-$(CONFIG_RTC98) += upd4990a.o
+ obj-$(CONFIG_GEN_RTC) += genrtc.o
+ obj-$(CONFIG_EFI_RTC) += efirtc.o
+ ifeq ($(CONFIG_PPC),)
+diff -urN linux/drivers/char/console_macros.h linux98/drivers/char/console_macros.h
+--- linux/drivers/char/console_macros.h	Sat Oct 19 13:01:17 2002
++++ linux98/drivers/char/console_macros.h	Mon Oct 28 16:53:39 2002
+@@ -55,6 +55,10 @@
+ #define	s_reverse	(vc_cons[currcons].d->vc_s_reverse)
+ #define	ulcolor		(vc_cons[currcons].d->vc_ulcolor)
+ #define	halfcolor	(vc_cons[currcons].d->vc_halfcolor)
++#define def_attr	(vc_cons[currcons].d->vc_def_attr)
++#define ul_attr		(vc_cons[currcons].d->vc_ul_attr)
++#define half_attr	(vc_cons[currcons].d->vc_half_attr)
++#define bold_attr	(vc_cons[currcons].d->vc_bold_attr)
+ #define tab_stop	(vc_cons[currcons].d->vc_tab_stop)
+ #define palette		(vc_cons[currcons].d->vc_palette)
+ #define bell_pitch	(vc_cons[currcons].d->vc_bell_pitch)
+@@ -64,6 +68,16 @@
+ #define complement_mask (vc_cons[currcons].d->vc_complement_mask)
+ #define s_complement_mask (vc_cons[currcons].d->vc_s_complement_mask)
+ #define hi_font_mask	(vc_cons[currcons].d->vc_hi_font_mask)
++#define kanji_mode     (vc_cons[currcons].d->vc_kanji_mode)
++#define s_kanji_mode   (vc_cons[currcons].d->vc_s_kanji_mode)
++#define kanji_char1    (vc_cons[currcons].d->vc_kanji_char1)
++#define translate_ex   (vc_cons[currcons].d->vc_translate_ex)
++#define G0_charset_ex  (vc_cons[currcons].d->vc_G0_charset_ex)
++#define G1_charset_ex  (vc_cons[currcons].d->vc_G1_charset_ex)
++#define saved_G0_ex    (vc_cons[currcons].d->vc_saved_G0_ex)
++#define saved_G1_ex    (vc_cons[currcons].d->vc_saved_G1_ex)
++#define kanji_jis_mode (vc_cons[currcons].d->vc_kanji_jis_mode)
++#define s_kanji_jis_mode (vc_cons[currcons].d->vc_s_kanji_jis_mode)
+ 
+ #define vcmode		(vt_cons[currcons]->vc_mode)
+ 
+diff -urN linux/drivers/char/console_pc9800.h linux98/drivers/char/console_pc9800.h
+--- linux/drivers/char/console_pc9800.h	Thu Jan  1 09:00:00 1970
++++ linux98/drivers/char/console_pc9800.h	Mon Oct 28 11:48:10 2002
+@@ -0,0 +1,14 @@
++#ifndef __CONSOLE_PC9800_H
++#define __CONSOLE_PC9800_H
++
++#define BLANK_ATTR	0x00E1
++
++#define JIS_CODE       0x01
++#define EUC_CODE       0x00
++#define SJIS_CODE      0x02
++#define JIS_CODE_ASCII  0x00
++#define JIS_CODE_78     0x01
++#define JIS_CODE_83     0x02
++#define JIS_CODE_90     0x03
++
++#endif /* __CONSOLE_PC9800_H */
+diff -urN linux/drivers/char/consolemap.c linux98/drivers/char/consolemap.c
+--- linux/drivers/char/consolemap.c	Sat Oct 19 13:02:27 2002
++++ linux98/drivers/char/consolemap.c	Mon Oct 21 13:18:03 2002
+@@ -22,7 +22,7 @@
+ #include <linux/console_struct.h>
+ #include <linux/vt_kern.h>
+ 
+-static unsigned short translations[][256] = {
++unsigned short translations[][256] = {
+   /* 8-bit Latin-1 mapped to Unicode -- trivial mapping */
+   {
+     0x0000, 0x0001, 0x0002, 0x0003, 0x0004, 0x0005, 0x0006, 0x0007,
+@@ -162,7 +162,59 @@
+     0xf0e8, 0xf0e9, 0xf0ea, 0xf0eb, 0xf0ec, 0xf0ed, 0xf0ee, 0xf0ef,
+     0xf0f0, 0xf0f1, 0xf0f2, 0xf0f3, 0xf0f4, 0xf0f5, 0xf0f6, 0xf0f7,
+     0xf0f8, 0xf0f9, 0xf0fa, 0xf0fb, 0xf0fc, 0xf0fd, 0xf0fe, 0xf0ff
+-  }
++  },
++  /* JIS X0201 mapped to Unicode */
++  /* code marked with ** is not defined in JIS X0201.
++	 So 0x00 - 0x1f are mapped to same to Laten1,
++	 and others are mapped to PC-9800 internal font# directry */
++  {
++    0x0000, 0x0001, 0x0002, 0x0003, 0x0004, 0x0005, 0x0006, 0x0007,
++/*    **      **      **      **      **      **      **      **    */
++    0x0008, 0x0009, 0x000a, 0x000b, 0x000c, 0x000d, 0x000e, 0x000f,
++/*    **      **      **      **      **      **      **      **    */
++    0x0010, 0x0011, 0x0012, 0x0013, 0x0014, 0x0015, 0x0016, 0x0017,
++/*    **      **      **      **      **      **      **      **    */
++    0x0018, 0x0019, 0x001a, 0x001b, 0x001c, 0x001d, 0x001e, 0x001f,
++/*    **      **      **      **      **      **      **      **    */
++    0x0020, 0x0021, 0x0022, 0x0023, 0x0024, 0x0025, 0x0026, 0x0027,
++    0x0028, 0x0029, 0x002a, 0x002b, 0x002c, 0x002d, 0x002e, 0x002f,
++    0x0030, 0x0031, 0x0032, 0x0033, 0x0034, 0x0035, 0x0036, 0x0037,
++    0x0038, 0x0039, 0x003a, 0x003b, 0x003c, 0x003d, 0x003e, 0x003f,
++    0x0040, 0x0041, 0x0042, 0x0043, 0x0044, 0x0045, 0x0046, 0x0047,
++    0x0048, 0x0049, 0x004a, 0x004b, 0x004c, 0x004d, 0x004e, 0x004f,
++    0x0050, 0x0051, 0x0052, 0x0053, 0x0054, 0x0055, 0x0056, 0x0057,
++    0x0058, 0x0059, 0x005a, 0x005b, 0x00a5, 0x005d, 0x005e, 0x005f,
++    0x0060, 0x0061, 0x0062, 0x0063, 0x0064, 0x0065, 0x0066, 0x0067,
++    0x0068, 0x0069, 0x006a, 0x006b, 0x006c, 0x006d, 0x006e, 0x006f,
++    0x0070, 0x0071, 0x0072, 0x0073, 0x0074, 0x0075, 0x0076, 0x0077,
++    0x0078, 0x0079, 0x007a, 0x007b, 0x007c, 0x007d, 0x203e, 0xf07f,
++/*                                                            **   */
++    0xf080, 0xf081, 0xf082, 0xf083, 0xf084, 0xf085, 0xf086, 0xf087,
++/*    **      **      **      **      **      **      **      **    */
++    0xf088, 0xf089, 0xf08a, 0xf08b, 0xf08c, 0xf08d, 0xf08e, 0xf08f,
++/*    **      **      **      **      **      **      **      **    */
++    0xf090, 0xf091, 0xf092, 0xf093, 0xf094, 0xf095, 0xf096, 0xf097,
++/*    **      **      **      **      **      **      **      **    */
++    0xf098, 0xf099, 0xf09a, 0xf09b, 0xf09c, 0xf09d, 0xf09e, 0xf09f,
++/*    **      **      **      **      **      **      **      **    */
++    0xf0a0, 0xff61, 0xff62, 0xff63, 0xff64, 0xff65, 0xff66, 0xff67,
++/*    **                                                            */
++    0xff68, 0xff69, 0xff6a, 0xff6b, 0xff6c, 0xff6d, 0xff6e, 0xff6f,
++    0xff70, 0xff71, 0xff72, 0xff73, 0xff74, 0xff75, 0xff76, 0xff77,
++    0xff78, 0xff79, 0xff7a, 0xff7b, 0xff7c, 0xff7d, 0xff7e, 0xff7f,
++    0xff80, 0xff81, 0xff82, 0xff83, 0xff84, 0xff85, 0xff86, 0xff87,
++    0xff88, 0xff89, 0xff8a, 0xff8b, 0xff8c, 0xff8d, 0xff8e, 0xff8f,
++    0xff90, 0xff91, 0xff92, 0xff93, 0xff94, 0xff95, 0xff96, 0xff97,
++    0xff98, 0xff99, 0xff9a, 0xff9b, 0xff9c, 0xff9d, 0xff9e, 0xff9f,
++    0xf0e0, 0xf0e1, 0xf0e2, 0xf0e3, 0xf0e4, 0xf0e5, 0xf0e6, 0xf0e7,
++/*    **      **      **      **      **      **      **      **    */
++    0xf0e8, 0xf0e9, 0xf0ea, 0xf0eb, 0xf0ec, 0xf0ed, 0xf0ee, 0xf0ef,
++/*    **      **      **      **      **      **      **      **    */
++    0xf0f0, 0xf0f1, 0xf0f2, 0xf0f3, 0xf0f4, 0xf0f5, 0xf0f6, 0xf0f7,
++/*    **      **      **      **      **      **      **      **    */
++    0xf0f8, 0xf0f9, 0xf0fa, 0xf0fb, 0xf0fc, 0xf0fd, 0xf0fe, 0xf0ff
++/*    **      **      **      **      **      **      **      **    */
++  },
+ };
+ 
+ /* The standard kernel character-to-font mappings are not invertible
+@@ -176,7 +228,7 @@
+ 	u16 		**uni_pgdir[32];
+ 	unsigned long	refcount;
+ 	unsigned long	sum;
+-	unsigned char	*inverse_translations[4];
++	unsigned char	*inverse_translations[5];
+ 	int		readonly;
+ };
+ 
+diff -urN linux/drivers/char/pc9800.uni linux98/drivers/char/pc9800.uni
+--- linux/drivers/char/pc9800.uni	Thu Jan  1 09:00:00 1970
++++ linux98/drivers/char/pc9800.uni	Fri Aug 17 21:50:17 2001
+@@ -0,0 +1,260 @@
++#
++# Unicode table for PC-9800 console.
++# Copyright (C) 1998,2001  Linux/98 project (project Seraphim)
++#			   Kyoto University Microcomputer Club (KMC).
++#
++
++# Kore ha unicode wo 98 no ROM no font ni taio saseru tame no
++# map desu.
++
++# Characters for control codes.
++# PC-9800 uses 2-char sequences while Unicode uses 3-char for some codes.
++0x00	
++0x01	U+2401	# SH / SOH
++0x02	U+2402	# SX / SOX
++0x03	U+2403	# EX / ETX
++0x04	U+2404	# ET / EOT
++0x05	U+2405	# EQ / ENQ
++0x06	U+2406	# AK / ACK
++0x07	U+2407	# BL / BEL
++0x08	U+2408	# BS
++0x09	U+2409	# HT
++0x0a	U+240a	# LF
++0x0b		# HM / (VT)
++0x0c		# CL / (FF)
++0x0d	U+240d	# CR
++0x0e		# SO / (SS)
++0x0f	U+240f	# SI
++0x10	U+2410	# DE / DLE
++0x11	U+2411	# D1 / DC1
++0x12	U+2412	# D2 / DC2
++0x13	U+2413	# D3 / DC3
++0x14	U+2414	# D4 / DC4
++0x15	U+2415	# NK / NAK
++0x16	U+2416	# SN / SYN
++0x17	U+2417	# EB / ETB
++0x18	U+2418	# CN / CAN
++0x19	U+2419	# EM
++0x1a	U+241a	# SB / SUB
++0x1b	U+241b	# EC / ESC
++
++# arrow
++0x1c	U+2192 U+ffeb	# right
++0x1d	U+2190 U+ffe9	# left
++0x1e	U+2191 U+ffea	# up
++0x1f	U+2193 U+ffec	# down
++
++#
++# The ASCII range is identity-mapped, but some of the characters also
++# have to act as substitutes, especially the upper-case characters.
++#
++0x20	U+0020
++0x21	U+0021
++# U+00a8 is Latin-1 Supplement DIAELESIS.
++0x22	U+0022 U+00a8
++0x23	U+0023
++0x24	U+0024
++0x25	U+0025
++0x26	U+0026
++0x26	U+2019	# General Punctuation "RIGHT SINGLE QUOTATION MARK"
++0x27	U+0027 U+2032
++0x28	U+0028
++0x29	U+0029
++0x2a	U+002a
++0x2b	U+002b
++# U+00b8 is Latin-1 Supplement CEDILLA.
++0x2c	U+002c U+00b8
++# U+00b8 is Latin-1 Supplement SOFT HYPHEN.
++0x2d	U+002d U+00ad
++0x2d	U+2212	# Mathematical Operators "MINUS SIGN"
++0x2e	U+002e
++0x2f	U+002f
++0x2f	U+2044	# General Punctuation "FRACTION SLASH"
++0x2f	U+2215	# Mathematical Operators "DIVISION SLASH"
++0x30	U+0030
++0x31	U+0031
++0x32	U+0032
++0x33	U+0033
++0x34	U+0034
++0x35	U+0035
++0x36	U+0036
++0x37	U+0037
++0x38	U+0038
++0x39	U+0039
++0x3a	U+003a
++0x3a	U+003a	# Mathematical Operators "RATIO"
++0x3b	U+003b
++0x3c	U+003c
++0x3d	U+003d
++0x3e	U+003e
++0x3f	U+003f
++0x40	U+0040
++0x41	U+0041 U+00c0 U+00c1 U+00c2 U+00c3
++0x42	U+0042
++# U+00a9 is Latin-1 Supplement COPYRIGHT SIGN.
++0x43	U+0043 U+00a9
++0x44	U+0044
++0x45	U+0045 U+00c8 U+00ca U+00cb
++0x46	U+0046
++0x47	U+0047
++0x48	U+0048
++0x49	U+0049 U+00cc U+00cd U+00ce U+00cf
++0x4a	U+004a
++# U+212a: Letterlike Symbols "KELVIN SIGN"
++0x4b	U+004b U+212a
++0x4c	U+004c
++0x4d	U+004d
++0x4e	U+004e
++0x4f	U+004f U+00d2 U+00d3 U+00d4 U+00d5
++0x50	U+0050
++0x51	U+0051
++# U+00ae: Latin-1 Supplement "REGISTERED SIGN"
++0x52	U+0052 U+00ae
++0x53	U+0053
++0x54	U+0054
++0x55	U+0055 U+00d9 U+00da U+00db
++0x56	U+0056
++0x57	U+0057
++0x58	U+0058
++0x59	U+0059 U+00dd
++0x5a	U+005a
++0x5b	U+005b
++0x5c	U+00a5	# Latin-1 Supplement "YEN SIGN"
++0x5d	U+005d
++0x5e	U+005e
++0x5f	U+005f U+f804
++0x60	U+0060 U+2035
++0x61	U+0061 U+00e3
++0x62	U+0062
++0x63	U+0063
++0x64	U+0064
++0x65	U+0065
++0x66	U+0066
++0x67	U+0067
++0x68	U+0068
++0x69	U+0069
++0x6a	U+006a
++0x6b	U+006b
++0x6c	U+006c
++0x6d	U+006d
++0x6e	U+006e
++0x6f	U+006f U+00f5
++0x70	U+0070
++0x71	U+0071
++0x72	U+0072
++0x73	U+0073
++0x74	U+0074
++0x75	U+0075
++0x76	U+0076
++0x77	U+0077
++0x78	U+0078 U+00d7
++0x79	U+0079 U+00fd
++0x7a	U+007a
++0x7b	U+007b
++# U+00a6: Latin-1 Supplement "BROKEN (VERTICAL) BAR"
++0x7c	U+007c U+00a6
++0x7d	U+007d
++0x7e	U+007e
++
++# kuhaku
++0x7f	# U+2302
++
++# Block Elements.
++0x80	U+2581	# LOWER ONE EIGHTH BLOCK
++0x81	U+2582	# LOWER ONE QUARTER BLOCK
++0x82	U+2583	# LOWER THREE EIGHTHS BLOCK
++0x83	U+2584	# LOWER HALF BLOCK
++0x84	U+2585	# LOWER FIVE EIGHTHS BLOCK
++0x85	U+2586	# LOWER THREE QUARTERS BLOCK
++0x86	U+2587	# LOWER SEVEN EIGHTHS BLOCK
++0x87	U+2588	# FULL BLOCK
++0x88	U+258f	# LEFT ONE EIGHTH BLOCK
++0x89	U+258e	# LEFT ONE QUARTER BLOCK
++0x8a	U+258d	# LEFT THREE EIGHTHS BLOCK
++0x8b	U+258c	# LEFT HALF BLOCK
++0x8c	U+258b	# LEFT FIVE EIGHTHS BLOCK
++0x8d	U+258a	# LEFT THREE QUARTERS BLOCK
++0x8e	U+2589	# LEFT SEVEN EIGHTHS BLOCK
++
++# Box Drawing.
++0x8f	U+253c
++0x90	U+2534
++0x91	U+252c
++0x92	U+2524
++0x93	U+251c
++0x94	U+203e	# General Punctuation "OVERLINE" (= "SPACING OVERSCORE")
++0x95	U+2500	# Box Drawing "BOX DRAWING LIGHT HORIZONTAL"
++0x96	U+2502	# Box Drawing "BOX DRAWING LIGHT VERTICAL"
++0x96	U+ffe8	# Halfwidth symbol variants "HALFWIDTH FORMS LIGHT VERTICAL"
++0x97	U+2595	# Block Elements "RIGHT ONE EIGHTH BLOCK"
++0x98	U+250c
++0x99	U+2510
++0x9a	U+2514
++0x9b	U+2518
++
++0x9c	U+256d	# "BOX DRAWING LIGHT ARC DOWN AND RIGHT"
++0x9d	U+256e	# "BOX DRAWING LIGHT ARC DOWN AND LEFT"
++0x9e	U+2570	# "BOX DRAWING LIGHT ARC UP AND RIGHT"
++0x9f	U+256f	# "BOX DRAWING LIGHT ARC UP AND LEFT"
++
++0xa0	# another whitespace
++
++# Halfwidth CJK punctuation
++0xa1 - 0xa4	U+ff61 - U+ff64
++
++# Halfwidth Katakana variants
++0xa5 - 0xdf	U+ff65 - U+ff9f
++0xa5	U+00b7	# Latin-1 Supplement "MIDDLE DOT"
++0xdf	U+00b0	# Latin-1 Supplement "DEGREE SIGN"
++
++# Box Drawing
++0xe0	U+2550	# "BOX DRAWING DOUBLE HORIZONTAL"
++0xe1	U+255e	# "BOX DRAWING VERTICAL SINGLE AND RIGHT DOUBLE"
++0xe2	U+256a	# "BOX DRAWING VERTICAL SINGLE AND HORIZONTAL DOUBLE"
++0xe3	U+2561	# "BOX DRAWING VERTICAL SINGLE AND LEFT DOUBLE"
++
++# Geometric Shapes
++0xe4	U+25e2	# "BLACK LOWER RIGHT TRIANGLE"
++0xe5	U+25e3	# "BLACK LOWER LEFT TRIANGLE"
++0xe6	U+25e5	# "BLACK UPPER RIGHT TRIANGLE"
++0xe7	U+25e4	# "BLACK UPPER LEFT TRIANGLE"
++
++# Playing card symbols
++0xe8	U+2660	# "BLACK SPADE SUIT"
++0xe9	U+2665	# "BLACK HEART SUIT"
++0xea	U+2666	# "BLACK DIAMOND SUIT"
++0xeb	U+2663	# "BLACK CLUB SUIT"
++
++# Geometric Shapes
++0xec	U+25cf	# "BLACK CIRCLE"
++0xed	U+25cb U+25ef	# "WHITE CIRCLE", "LARGE CIRCLE"
++
++# Box Drawing
++0xee	U+2571	# "BOX DRAWING LIGHT DIAGONAL UPPER RIGHT TO LOWER LEFT"
++0xef	U+2572	# "BOX DRAWING LIGHT DIAGONAL UPPER LEFT TO LOWER RIGHT"
++0xf0	U+2573	# "BOX DRAWING LIGHT DIAGONAL CROSS"
++
++# CJK Unified Ideographs (XXX - should these be here?)
++0xf1	U+5186
++0xf2	U+5e74
++0xf3	U+6708
++0xf4	U+65e5
++0xf5	U+6642
++0xf6	U+5206
++0xf7	U+79d2
++
++# unassigned
++0xf8
++0xf9
++0xfa
++0xfb
++
++0xfc	U+005c	# "REVERSE SOLIDUS" / "BACKSLASH"
++0xfc	U+2216	# Mathematical Operators "SET MINUS"
++
++# unassigned
++0xfd
++0xfe
++0xff
++
++# End of pc9800.uni
+diff -urN linux/drivers/char/vt.c linux98/drivers/char/vt.c
+--- linux/drivers/char/vt.c	Mon Nov 11 12:28:29 2002
++++ linux98/drivers/char/vt.c	Wed Nov 13 16:46:37 2002
+@@ -90,6 +90,9 @@
+ #include <linux/devfs_fs_kernel.h>
+ #include <linux/vt_kern.h>
+ #include <linux/selection.h>
++#ifdef CONFIG_PC9800
++#define CONFIG_KANJI
++#endif
+ #include <linux/console_struct.h>
+ #include <linux/kbd_kern.h>
+ #include <linux/consolemap.h>
+@@ -108,6 +111,10 @@
+ 
+ #include "console_macros.h"
+ 
++#ifdef CONFIG_PC9800
++#include "console_pc9800.h"
++extern unsigned short translations[][256];
++#endif
+ 
+ const struct consw *conswitchp;
+ 
+@@ -143,6 +150,10 @@
+ static void blank_screen(unsigned long dummy);
+ static void gotoxy(int currcons, int new_x, int new_y);
+ static void save_cur(int currcons);
++#ifdef CONFIG_KANJI
++static void save_cur_kanji(int currcons);
++static void restore_cur_kanji(int currcons);
++#endif
+ static void reset_terminal(int currcons, int do_clear);
+ static void con_flush_chars(struct tty_struct *tty);
+ static void set_vesa_blanking(unsigned long arg);
+@@ -203,6 +214,11 @@
+ static struct timer_list console_timer;
+ 
+ /*
++ * Whether PC-9800 or not
++ */
++extern int pc98;
++
++/*
+  *	Low-Level Functions
+  */
+ 
+@@ -293,7 +309,7 @@
+ 		xx = nxx; yy = nyy;
+ 	}
+ 	for(;;) {
+-		u16 attrib = scr_readw(p) & 0xff00;
++		vram_char_t attrib = scr_readw(p) & 0xff00;
+ 		int startx = xx;
+ 		u16 *q = p;
+ 		while (xx < video_num_columns && count) {
+@@ -379,6 +395,8 @@
+ {
+ 	attr = build_attr(currcons, color, intensity, blink, underline, reverse ^ decscnm);
+ 	video_erase_char = (build_attr(currcons, color, 1, blink, 0, decscnm) << 8) | ' ';
++	if (pc98 && decscnm)
++		video_erase_char |= 0x0400; /* reverse */
+ }
+ 
+ /* Note: inverting the screen twice should revert to the original state */
+@@ -395,7 +413,7 @@
+ 	else {
+ 		u16 *q = p;
+ 		int cnt = count;
+-		u16 a;
++		vram_char_t a;
+ 
+ 		if (!can_do_color) {
+ 			while (cnt--) {
+@@ -425,11 +443,30 @@
+ 		do_update_region(currcons, (unsigned long) p, count);
+ }
+ 
++#ifdef CONFIG_KANJI
++/* can called form keyboard.c */
++void do_change_kanji_mode(int currcons, unsigned long mode)
++{
++	switch (mode) {
++	case 0:
++		kanji_mode = EUC_CODE;
++		break;
++	case 1:
++		kanji_mode = JIS_CODE;
++		break;
++	case 2:
++		kanji_mode = SJIS_CODE;
++		break;
++	}
++	kanji_char1 = 0;
++}
++#endif /* CONFIG_KANJI */
++
+ /* used by selection: complement pointer position */
+ void complement_pos(int currcons, int offset)
+ {
+ 	static unsigned short *p;
+-	static unsigned short old;
++	static vram_char_t old;
+ 	static unsigned short oldx, oldy;
+ 
+ 	if (p) {
+@@ -440,10 +477,15 @@
+ 	if (offset == -1)
+ 		p = NULL;
+ 	else {
+-		unsigned short new;
++		vram_char_t new;
+ 		p = screenpos(currcons, offset, 1);
+ 		old = scr_readw(p);
++#ifndef CONFIG_FB_EGC
+ 		new = old ^ complement_mask;
++#else
++		new = (old & 0xff0000ff) | ((old & 0xf000) >> 4)
++			| ((old & 0xf00) << 4);
++#endif
+ 		scr_writew(new, p);
+ 		if (DO_UPDATE) {
+ 			oldx = (offset >> 1) % video_num_columns;
+@@ -502,7 +544,7 @@
+ 
+ static void add_softcursor(int currcons)
+ {
+-	int i = scr_readw((u16 *) pos);
++	vram_char_t i = scr_readw((u16 *) pos);
+ 	u32 type = cursor_type;
+ 
+ 	if (! (type & 0x10)) return;
+@@ -638,8 +680,12 @@
+     complement_mask = 0;
+     can_do_color = 0;
+     sw->con_init(vc_cons[currcons].d, init);
+-    if (!complement_mask)
+-        complement_mask = can_do_color ? 0x7700 : 0x0800;
++    if (!complement_mask) {
++	if (pc98)
++        	complement_mask = 0x0400;
++	else
++        	complement_mask = can_do_color ? 0x7700 : 0x0800;
++    }
+     s_complement_mask = complement_mask;
+     video_size_row = video_num_columns<<1;
+     screenbuf_size = video_num_lines*video_size_row;
+@@ -671,7 +717,7 @@
+ 	    visual_init(currcons, 1);
+ 	    if (!*vc_cons[currcons].d->vc_uni_pagedir_loc)
+ 		con_set_default_unimap(currcons);
+-	    q = (long)kmalloc(screenbuf_size, GFP_KERNEL);
++	    q = (long)kmalloc(screenbuf_size + (pc98 ? screenbuf_size : 0), GFP_KERNEL);
+ 	    if (!q) {
+ 		kfree((char *) p);
+ 		vc_cons[currcons].d = NULL;
+@@ -713,7 +759,7 @@
+ 		    (cc == video_num_columns && ll == video_num_lines))
+ 			newscreens[currcons] = NULL;
+ 		else {
+-			unsigned short *p = (unsigned short *) kmalloc(ss, GFP_USER);
++			unsigned short *p = (unsigned short *)kmalloc(ss + (pc98 ? ss : 0), GFP_USER);
+ 			if (!p) {
+ 				for (i = first; i < currcons; i++)
+ 					if (newscreens[i])
+@@ -1077,6 +1123,9 @@
+ 				translate = set_translate(charset == 0
+ 						? G0_charset
+ 						: G1_charset,currcons);
++#ifdef CONFIG_KANJI
++				translate_ex = (charset == 0 ? G0_charset_ex : G1_charset_ex);
++#endif
+ 				disp_ctrl = 0;
+ 				toggle_meta = 0;
+ 				break;
+@@ -1085,6 +1134,9 @@
+ 				  * chars < 32 be displayed as ROM chars.
+ 				  */
+ 				translate = set_translate(IBMPC_MAP,currcons);
++#ifdef CONFIG_KANJI
++				translate_ex = 0;
++#endif
+ 				disp_ctrl = 1;
+ 				toggle_meta = 0;
+ 				break;
+@@ -1093,6 +1145,9 @@
+ 				  * high bit before displaying as ROM char.
+ 				  */
+ 				translate = set_translate(IBMPC_MAP,currcons);
++#ifdef CONFIG_KANJI
++				translate_ex = 0;
++#endif
+ 				disp_ctrl = 1;
+ 				toggle_meta = 1;
+ 				break;
+@@ -1253,6 +1308,10 @@
+ /* console_sem is held */
+ static void setterm_command(int currcons)
+ {
++	if (sw->con_setterm_command
++	    && sw->con_setterm_command(vc_cons[currcons].d))
++		return;
++
+ 	switch(par[0]) {
+ 		case 1:	/* set color for underline mode */
+ 			if (can_do_color && par[1] < 16) {
+@@ -1302,6 +1361,22 @@
+ 		case 14: /* set vesa powerdown interval */
+ 			vesa_off_interval = ((par[1] < 60) ? par[1] : 60) * 60 * HZ;
+ 			break;
++#ifdef CONFIG_KANJI
++		case 98:
++			if (par[1] < 10) /* change kanji mode */
++				do_change_kanji_mode(currcons, par[1]); /* 0208 */
++			else if (par[1] == 10) { /* save restore kanji mode */
++				switch (par[2]) {
++				case 1:
++					save_cur_kanji(currcons);
++					break;
++				case 2:
++					restore_cur_kanji(currcons);
++					break;
++				}
++			}
++			break;
++#endif /* CONFIG_KANJI */
+ 	}
+ }
+ 
+@@ -1379,8 +1454,26 @@
+ 	need_wrap = 0;
+ }
+ 
++#ifdef CONFIG_KANJI
++static void save_cur_kanji(int currcons)
++{
++        s_kanji_mode = kanji_mode;
++        s_kanji_jis_mode = kanji_jis_mode;
++}
++
++static void restore_cur_kanji(int currcons)
++{
++        kanji_mode = s_kanji_mode;
++        kanji_jis_mode = s_kanji_jis_mode;
++        kanji_char1 = 0;
++}
++#endif
++
+ enum { ESnormal, ESesc, ESsquare, ESgetpars, ESgotpars, ESfunckey,
+ 	EShash, ESsetG0, ESsetG1, ESpercent, ESignore, ESnonstd,
++#ifdef CONFIG_KANJI
++	ESsetJIS, ESsetJIS2,
++#endif
+ 	ESpalette };
+ 
+ /* console_sem is held (except via vc_init()) */
+@@ -1390,9 +1483,18 @@
+ 	bottom		= video_num_lines;
+ 	vc_state	= ESnormal;
+ 	ques		= 0;
++#ifndef CONFIG_KANJI
+ 	translate	= set_translate(LAT1_MAP,currcons);
+ 	G0_charset	= LAT1_MAP;
+ 	G1_charset	= GRAF_MAP;
++#else
++	translate	= set_translate(JP_MAP, currcons);
++	translate_ex    = 0;
++	G0_charset      = JP_MAP;
++	G0_charset_ex   = 0;
++	G1_charset      = GRAF_MAP;
++	G1_charset_ex   = 0;
++#endif
+ 	charset		= 0;
+ 	need_wrap	= 0;
+ 	report_mouse	= 0;
+@@ -1434,6 +1536,12 @@
+ 	bell_pitch = DEFAULT_BELL_PITCH;
+ 	bell_duration = DEFAULT_BELL_DURATION;
+ 
++#ifdef CONFIG_KANJI
++	kanji_mode = EUC_CODE;
++	kanji_char1 = 0;
++	kanji_jis_mode = JIS_CODE_ASCII;
++#endif
++
+ 	gotoxy(currcons,0,0);
+ 	save_cur(currcons);
+ 	if (do_clear)
+@@ -1476,11 +1584,17 @@
+ 	case 14:
+ 		charset = 1;
+ 		translate = set_translate(G1_charset,currcons);
++#ifdef CONFIG_KANJI
++		translate_ex = G1_charset_ex;
++#endif
+ 		disp_ctrl = 1;
+ 		return;
+ 	case 15:
+ 		charset = 0;
+ 		translate = set_translate(G0_charset,currcons);
++#ifdef CONFIG_KANJI
++		translate_ex = G0_charset_ex;
++#endif
+ 		disp_ctrl = 0;
+ 		return;
+ 	case 24: case 26:
+@@ -1537,6 +1651,11 @@
+ 		case ')':
+ 			vc_state = ESsetG1;
+ 			return;
++#ifdef CONFIG_KANJI
++		case '$':
++			vc_state = ESsetJIS;
++			return;
++#endif
+ 		case '#':
+ 			vc_state = EShash;
+ 			return;
+@@ -1786,8 +1905,25 @@
+ 			G0_charset = IBMPC_MAP;
+ 		else if (c == 'K')
+ 			G0_charset = USER_MAP;
+-		if (charset == 0)
++#ifdef CONFIG_KANJI
++		G0_charset_ex = 0;
++		if (c == 'J')
++			G0_charset = JP_MAP;
++		else if (c == 'I'){
++			G0_charset = JP_MAP;
++			G0_charset_ex = 1;
++		}
++#endif /* CONFIG_KANJI */
++		if (charset == 0) {
+ 			translate = set_translate(G0_charset,currcons);
++#ifdef CONFIG_KANJI
++			translate_ex = G0_charset_ex;
++#endif
++		}
++#ifdef CONFIG_KANJI
++		kanji_jis_mode = JIS_CODE_ASCII;
++		kanji_char1 = 0;
++#endif
+ 		vc_state = ESnormal;
+ 		return;
+ 	case ESsetG1:
+@@ -1799,10 +1935,51 @@
+ 			G1_charset = IBMPC_MAP;
+ 		else if (c == 'K')
+ 			G1_charset = USER_MAP;
+-		if (charset == 1)
++#ifdef CONFIG_KANJI
++		G1_charset_ex = 0;
++		if (c == 'J')
++			G1_charset = JP_MAP;
++		else if (c == 'I') {
++			G1_charset = JP_MAP;
++			G1_charset_ex = 1;
++		}
++#endif /* CONFIG_KANJI */
++		if (charset == 1) {
+ 			translate = set_translate(G1_charset,currcons);
++#ifdef CONFIG_KANJI
++			translate_ex = G1_charset_ex;
++#endif
++		}
++#ifdef CONFIG_KANJI
++		kanji_jis_mode = JIS_CODE_ASCII;
++		kanji_char1 = 0;
++#endif
++		vc_state = ESnormal;
++		return;
++#ifdef CONFIG_KANJI
++	case ESsetJIS:
++		if (c == '@')
++			kanji_jis_mode = JIS_CODE_78;
++		else if (c == 'B')
++			kanji_jis_mode = JIS_CODE_83;
++		else if (c == '('){
++			vc_state = ESsetJIS2;
++			return;
++		} else {
+ 		vc_state = ESnormal;
+ 		return;
++		}
++		vc_state = ESnormal;
++		kanji_char1 = 0;
++		return;
++	case ESsetJIS2:
++		if (c == 'D'){
++			kanji_jis_mode = JIS_CODE_90;
++			kanji_char1 = 0;
++		}
++		vc_state = ESnormal;
++		return;
++#endif /* CONIFG_KANJI */
+ 	default:
+ 		vc_state = ESnormal;
+ 	}
+@@ -1834,7 +2011,7 @@
+ 	}
+ #endif
+ 
+-	int c, tc, ok, n = 0, draw_x = -1;
++	int c, tc = 0, ok, n = 0, draw_x = -1;
+ 	unsigned int currcons;
+ 	unsigned long draw_from = 0, draw_to = 0;
+ 	struct vt_struct *vt = (struct vt_struct *)tty->driver_data;
+@@ -1891,48 +2068,151 @@
+ 		hide_cursor(currcons);
+ 
+ 	while (!tty->stopped && count) {
++		int realkanji = 0;
++		int kanjioverrun = 0;
+ 		c = *buf;
+ 		buf++;
+ 		n++;
+ 		count--;
+ 
+-		if (utf) {
+-		    /* Combine UTF-8 into Unicode */
+-		    /* Incomplete characters silently ignored */
+-		    if(c > 0x7f) {
+-			if (utf_count > 0 && (c & 0xc0) == 0x80) {
+-				utf_char = (utf_char << 6) | (c & 0x3f);
+-				utf_count--;
+-				if (utf_count == 0)
+-				    tc = c = utf_char;
+-				else continue;
+-			} else {
+-				if ((c & 0xe0) == 0xc0) {
+-				    utf_count = 1;
+-				    utf_char = (c & 0x1f);
+-				} else if ((c & 0xf0) == 0xe0) {
+-				    utf_count = 2;
+-				    utf_char = (c & 0x0f);
+-				} else if ((c & 0xf8) == 0xf0) {
+-				    utf_count = 3;
+-				    utf_char = (c & 0x07);
+-				} else if ((c & 0xfc) == 0xf8) {
+-				    utf_count = 4;
+-				    utf_char = (c & 0x03);
+-				} else if ((c & 0xfe) == 0xfc) {
+-				    utf_count = 5;
+-				    utf_char = (c & 0x01);
+-				} else
+-				    utf_count = 0;
+-				continue;
+-			      }
+-		    } else {
+-		      tc = c;
+-		      utf_count = 0;
+-		    }
+-		} else {	/* no utf */
+-		  tc = translate[toggle_meta ? (c|0x80) : c];
+-		}
++#ifdef CONFIG_KANJI
++		if (vc_state == ESnormal && !disp_ctrl) {
++			switch (kanji_jis_mode) {
++			case JIS_CODE_78:
++			case JIS_CODE_83:
++			case JIS_CODE_90:
++				if (utf)
++					break;
++				if (c >= 127 || c <= 0x20) {
++					kanji_char1 = 0;
++					break;
++				}
++				if (kanji_char1) {
++					tc = (((unsigned int)kanji_char1) << 8) |
++                        (((unsigned int)c) & 0x007f);
++					kanji_char1 = 0;
++					realkanji = 1;
++				} else {
++					kanji_char1 = ((unsigned int)c) & 0x007f;
++					continue;
++				} 
++				break;
++			case JIS_CODE_ASCII:
++			default:
++				switch (kanji_mode) {
++				case SJIS_CODE:
++					if (kanji_char1) {
++                        if ((0x40 <= c && c <= 0x7E) ||
++                            (0x80 <= c && c <= 0xFC)) {
++							realkanji = 1;
++							/* SJIS to JIS */
++							kanji_char1 <<= 1; /* 81H-9FH --> 22H-3EH */
++							/* EOH-EFH --> C0H-DEH */
++							c -= 0x1f;         /* 40H-7EH --> 21H-5FH */
++							/* 80H-9EH --> 61H-7FH */
++							/* 9FH-FCH --> 80H-DDH */
++							if (!(c & 0x80)) {
++								if (c < 0x61)
++									c++;
++								c += 0xde;
++							}
++							c &= 0xff;
++							c += 0xa1;
++							kanji_char1 += 0x1f;
++							tc = (kanji_char1 << 8) + c;
++							tc &= 0x7f7f;
++							kanji_char1 = 0;
++                        }
++					} else {
++                        if ((0x81 <= c && c <= 0x9f) ||
++                            (0xE0 <= c && c <= 0xEF)) {
++							realkanji = 1;
++							kanji_char1 = c;
++							continue;
++                        } else if (0xA1 <= c && c <= 0xDF) {
++							tc = (unsigned int)translations[JP_MAP][c];
++							goto hankana_skip;
++                        }
++					}
++					break;
++				case EUC_CODE:
++					if (utf)
++                        break;
++					if (c <= 0x7f) {
++                        kanji_char1 = 0;
++                        break;
++					}
++					if (kanji_char1) {
++                        if (kanji_char1 == 0x8e) {  /* SS2 */
++							/* realkanji ha tatenai */
++							tc = (unsigned int)translations[JP_MAP][c];
++							kanji_char1 = 0;
++							goto hankana_skip;
++                        } else {
++							tc = (((unsigned int)kanji_char1) << 8) |
++								(((unsigned int)c) & 0x007f);
++							kanji_char1 = 0;
++							realkanji = 1;
++                        }
++					} else {
++                        kanji_char1 = (unsigned int)c;
++                        continue;
++					}
++					break;
++				case JIS_CODE:
++					/* to be supported */
++					break;
++				} /* switch (kanji_mode) */
++			} /* switch (kanji_jis_mode) */
++		} /* if (vc_state == ESnormal) */
++
++#endif /* CONFIG_KANJI */
++		if (!realkanji) {
++			if (utf) {
++			    /* Combine UTF-8 into Unicode */
++			    /* Incomplete characters silently ignored */
++			    if(c > 0x7f) {
++				if (utf_count > 0 && (c & 0xc0) == 0x80) {
++					utf_char = (utf_char << 6) | (c & 0x3f);
++					utf_count--;
++					if (utf_count == 0)
++					    tc = c = utf_char;
++					else continue;
++				} else {
++					if ((c & 0xe0) == 0xc0) {
++					    utf_count = 1;
++					    utf_char = (c & 0x1f);
++					} else if ((c & 0xf0) == 0xe0) {
++					    utf_count = 2;
++					    utf_char = (c & 0x0f);
++					} else if ((c & 0xf8) == 0xf0) {
++					    utf_count = 3;
++					    utf_char = (c & 0x07);
++					} else if ((c & 0xfc) == 0xf8) {
++					    utf_count = 4;
++					    utf_char = (c & 0x03);
++					} else if ((c & 0xfe) == 0xfc) {
++					    utf_count = 5;
++					    utf_char = (c & 0x01);
++					} else
++					    utf_count = 0;
++					continue;
++				      }
++			    } else {
++			      tc = c;
++			      utf_count = 0;
++			    }
++			} else {	/* no utf */
++#ifndef CONFIG_KANJI
++			  tc = translate[toggle_meta ? (c|0x80) : c];
++#else
++			  tc = translate[(toggle_meta || translate_ex) ? (c | 0x80) : c];
++#endif
++			}
++		} /* if (!realkanji) */
++#ifdef CONFIG_KANJI
++	hankana_skip:
++#endif
+ 
+                 /* If the original code was a control character we
+                  * only allow a glyph to be displayed if the code is
+@@ -1949,43 +2229,71 @@
+                                          : CTRL_ACTION) >> c) & 1)))
+                         && (c != 127 || disp_ctrl)
+ 			&& (c != 128+27);
++                ok |= realkanji;
+ 
+ 		if (vc_state == ESnormal && ok) {
+-			/* Now try to find out how to display it */
+-			tc = conv_uni_to_pc(vc_cons[currcons].d, tc);
+-			if ( tc == -4 ) {
++			if (!realkanji) {
++				/* Now try to find out how to display it */
++				tc = conv_uni_to_pc(vc_cons[currcons].d, tc);
++				if ( tc == -4 ) {
+                                 /* If we got -4 (not found) then see if we have
+                                    defined a replacement character (U+FFFD) */
+-                                tc = conv_uni_to_pc(vc_cons[currcons].d, 0xfffd);
++       	                         tc = conv_uni_to_pc(vc_cons[currcons].d, 0xfffd);
+ 
+ 				/* One reason for the -4 can be that we just
+ 				   did a clear_unimap();
+ 				   try at least to show something. */
+-				if (tc == -4)
+-				     tc = c;
+-                        } else if ( tc == -3 ) {
++					if (tc == -4)
++					     tc = c;
++				} else if ( tc == -3 ) {
+                                 /* Bad hash table -- hope for the best */
+-                                tc = c;
+-                        }
+-			if (tc & ~charmask)
+-                                continue; /* Conversion failed */
++					tc = c;
++				}
++				if (tc & ~charmask)
++					continue; /* Conversion failed */
++			} /* !realkanji */
+ 
+ 			if (need_wrap || decim)
+ 				FLUSH
+ 			if (need_wrap) {
+ 				cr(currcons);
+ 				lf(currcons);
++				if (kanjioverrun) {
++					x++;
++					pos += 2;
++					kanjioverrun = 0;
++				}
+ 			}
+ 			if (decim)
+ 				insert_char(currcons, 1);
++#ifndef CONFIG_KANJI
+ 			scr_writew(himask ?
+ 				     ((attr << 8) & ~himask) + ((tc & 0x100) ? himask : 0) + (tc & 0xff) :
+ 				     (attr << 8) + tc,
+ 				   (u16 *) pos);
++#else /* CONFIG_KANJI */
++			if (realkanji) {
++				tc = ((tc >> 8) & 0xff) | ((tc << 8) & 0xff00); 
++				*((u16 *)pos) = (tc - 0x20) & 0xff7f;
++				*(pc9800_attr_offset((u16 *)pos)) = attr;
++				x ++;
++				pos += 2;
++				*((u16 *)pos) = (tc - 0x20) | 0x80;
++				*(pc9800_attr_offset((u16 *)pos)) = attr;
++			} else {
++				*((u16 *)pos) = tc & 0x00ff;
++				*(pc9800_attr_offset((u16 *)pos)) = attr;
++			}
++#endif /* !CONFIG_KANJI */
+ 			if (DO_UPDATE && draw_x < 0) {
+ 				draw_x = x;
+ 				draw_from = pos;
++				if (realkanji) {
++					draw_x --;
++					draw_from -= 2;
++				}
+ 			}
++#ifndef CONFIG_KANJI
+ 			if (x == video_num_columns - 1) {
+ 				need_wrap = decawm;
+ 				draw_to = pos+2;
+@@ -1993,6 +2301,16 @@
+ 				x++;
+ 				draw_to = (pos+=2);
+ 			}
++#else /* CONFIG_KANJI */
++			if (x >= video_num_columns - 1) {
++				need_wrap = decawm;
++				kanjioverrun = x - video_num_columns + 1;
++				draw_to = pos + 2;
++			} else {
++				x++;
++				draw_to = (pos += 2);
++			}
++#endif /* !CONFIG_KANJI */
+ 			continue;
+ 		}
+ 		FLUSH
+@@ -2419,9 +2737,17 @@
+ 		vc_cons[currcons].d->vc_palette[k++] = default_grn[j] ;
+ 		vc_cons[currcons].d->vc_palette[k++] = default_blu[j] ;
+ 	}
+-	def_color       = 0x07;   /* white */
+-	ulcolor		= 0x0f;   /* bold white */
+-	halfcolor       = 0x08;   /* grey */
++	if (pc98) {
++		def_color	= 0x07;		/* white */
++		def_attr	= 0xE1;
++		ul_attr		= 0x08;		/* underline */
++		half_attr	= 0x00;		/* ignore half color */
++		bold_attr	= 0xC1;		/* yellow */
++	} else {
++		def_color       = 0x07;   /* white */
++		ulcolor		= 0x0f;   /* bold white */
++		halfcolor       = 0x08;   /* grey */
++	}
+ 	init_waitqueue_head(&vt_cons[currcons]->paste_wait);
+ 	reset_terminal(currcons, do_clear);
+ }
+@@ -2462,7 +2788,12 @@
+ 		vt_cons[currcons] = (struct vt_struct *)
+ 				alloc_bootmem(sizeof(struct vt_struct));
+ 		visual_init(currcons, 1);
++#if defined CONFIG_PC9800 || defined CONFIG_FB
++		screenbuf
++			= (unsigned short *) alloc_bootmem(screenbuf_size * 2);
++#else
+ 		screenbuf = (unsigned short *) alloc_bootmem(screenbuf_size);
++#endif
+ 		kmalloced = 0;
+ 		vc_init(currcons, video_num_lines, video_num_columns, 
+ 			currcons || !sw->con_save_screen);
+@@ -2955,9 +3286,12 @@
+ /* used by selection */
+ u16 screen_glyph(int currcons, int offset)
+ {
+-	u16 w = scr_readw(screenpos(currcons, offset, 1));
++	vram_char_t w = scr_readw(screenpos(currcons, offset, 1));
+ 	u16 c = w & 0xff;
+ 
++	if (pc98)
++		return ((u16)(w >> 16) & 0xff00) | c;
++
+ 	if (w & hi_font_mask)
+ 		c |= 0x100;
+ 	return c;
+@@ -3019,8 +3353,10 @@
+ EXPORT_SYMBOL(default_red);
+ EXPORT_SYMBOL(default_grn);
+ EXPORT_SYMBOL(default_blu);
++#ifndef CONFIG_PC9800
+ EXPORT_SYMBOL(video_font_height);
+ EXPORT_SYMBOL(video_scan_lines);
++#endif
+ EXPORT_SYMBOL(vc_resize);
+ EXPORT_SYMBOL(fg_console);
+ EXPORT_SYMBOL(console_blank_hook);
+diff -urN linux/drivers/char/vt_ioctl.c linux98/drivers/char/vt_ioctl.c
+--- linux/drivers/char/vt_ioctl.c	Sat Oct 12 13:22:14 2002
++++ linux98/drivers/char/vt_ioctl.c	Sat Oct 12 14:18:52 2002
+@@ -63,9 +63,11 @@
+ asmlinkage long sys_ioperm(unsigned long from, unsigned long num, int on);
+ #endif
+ 
++#ifndef CONFIG_PC9800
+ unsigned int video_font_height;
+ unsigned int default_font_height;
+ unsigned int video_scan_lines;
++#endif
+ 
+ /*
+  * these are the valid i/o ports we're allowed to change. they map all the
+@@ -637,6 +639,17 @@
+ 		return 0;
+ 	}
+ 
++#ifdef CONFIG_PC9800
++	case VT_GDC_RESIZE:
++	{
++		if (!perm)
++			return -EPERM; 
++/*		con_adjust_height(0);*/
++		update_screen(console);
++		return 0;
++	}
++#endif 
++
+ 	case VT_SETMODE:
+ 	{
+ 		struct vt_mode tmp;
+@@ -828,7 +841,9 @@
+ 		__get_user(clin, &vtconsize->v_clin);
+ 		__get_user(vcol, &vtconsize->v_vcol);
+ 		__get_user(ccol, &vtconsize->v_ccol);
++#ifndef CONFIG_PC9800
+ 		vlin = vlin ? vlin : video_scan_lines;
++#endif
+ 		if ( clin )
+ 		  {
+ 		    if ( ll )
+@@ -853,10 +868,12 @@
+ 		if ( clin > 32 )
+ 		  return -EINVAL;
+ 		    
++#ifndef CONFIG_PC9800		    
+ 		if ( vlin )
+ 		  video_scan_lines = vlin;
+ 		if ( clin )
+ 		  video_font_height = clin;
++#endif
+ 		
+ 		return vc_resize_all(ll, cc);
+   	}
+@@ -1024,8 +1041,10 @@
+ 	vt_cons[new_console]->vt_mode.frsig = 0;
+ 	vt_cons[new_console]->vt_pid = -1;
+ 	vt_cons[new_console]->vt_newvt = -1;
++#ifndef CONFIG_PC9800
+ 	if (!in_interrupt())    /* Via keyboard.c:SAK() - akpm */
+ 		reset_palette(new_console) ;
++#endif
+ }
+ 
+ /*
+diff -urN linux/include/linux/console.h linux98/include/linux/console.h
+--- linux/include/linux/console.h	Sat Oct 19 13:01:51 2002
++++ linux98/include/linux/console.h	Mon Oct 28 11:31:37 2002
+@@ -17,6 +17,13 @@
+ #include <linux/types.h>
+ #include <linux/kdev_t.h>
+ #include <linux/spinlock.h>
++#include <linux/config.h>
++
++#ifndef CONFIG_PC9800
++typedef __u16 vram_char_t;
++#else
++typedef __u32 vram_char_t;
++#endif
+ 
+ struct vc_data;
+ struct console_font_op;
+@@ -32,7 +39,7 @@
+ 	void	(*con_init)(struct vc_data *, int);
+ 	void	(*con_deinit)(struct vc_data *);
+ 	void	(*con_clear)(struct vc_data *, int, int, int, int);
+-	void	(*con_putc)(struct vc_data *, int, int, int);
++	void	(*con_putc)(struct vc_data *, int, vram_char_t, int);
+ 	void	(*con_putcs)(struct vc_data *, const unsigned short *, int, int, int);
+ 	void	(*con_cursor)(struct vc_data *, int);
+ 	int	(*con_scroll)(struct vc_data *, int, int, int, int);
+@@ -48,6 +55,7 @@
+ 	void	(*con_invert_region)(struct vc_data *, u16 *, int);
+ 	u16    *(*con_screen_pos)(struct vc_data *, int);
+ 	unsigned long (*con_getxy)(struct vc_data *, unsigned long, int *, int *);
++	int	(*con_setterm_command)(struct vc_data *);
+ };
+ 
+ extern const struct consw *conswitchp;
+@@ -55,6 +63,7 @@
+ extern const struct consw dummy_con;	/* dummy console buffer */
+ extern const struct consw fb_con;	/* frame buffer based console */
+ extern const struct consw vga_con;	/* VGA text console */
++extern const struct consw gdc_con;	/* PC-9800 GDC text console */
+ extern const struct consw newport_con;	/* SGI Newport console  */
+ extern const struct consw prom_con;	/* SPARC PROM console */
+ 
+diff -urN linux/include/linux/console_struct.h linux98/include/linux/console_struct.h
+--- linux/include/linux/console_struct.h	Mon Nov 11 12:28:02 2002
++++ linux98/include/linux/console_struct.h	Wed Nov 13 16:51:14 2002
+@@ -9,6 +9,9 @@
+  * to achieve effects such as fast scrolling by changing the origin.
   */
  
 +#include <linux/config.h>
- #include <linux/sched.h>
- #include <linux/mm.h>
- #include <linux/tty.h>
-@@ -40,6 +41,7 @@
- #include <asm/setup.h>
- #include <asm/arch_hooks.h>
- #include "setup_arch_pre.h"
-+#include "mach_resources.h"
++#include <linux/console.h>
++
+ #define NPAR 16
  
- static inline char * __init machine_specific_memory_setup(void);
+ struct vc_data {
+@@ -25,9 +28,13 @@
+ 	unsigned char	vc_s_color;		/* Saved foreground & background */
+ 	unsigned char	vc_ulcolor;		/* Color for underline mode */
+ 	unsigned char	vc_halfcolor;		/* Color for half intensity mode */
++	unsigned char	vc_def_attr;	/* Default attributes */
++	unsigned char	vc_ul_attr;	/* Attribute for underline mode */
++	unsigned char	vc_half_attr;	/* Attribute for half intensity mode */
++	unsigned char	vc_bold_attr;	/* Attribute for bold mode */
+ 	unsigned short	vc_complement_mask;	/* [#] Xor mask for mouse pointer */
+ 	unsigned short	vc_hi_font_mask;	/* [#] Attribute set for upper 256 chars of font or 0 if not supported */
+-	unsigned short	vc_video_erase_char;	/* Background erase character */
++	vram_char_t	vc_video_erase_char;	/* Background erase character */
+ 	unsigned short	vc_s_complement_mask;	/* Saved mouse pointer mask */
+ 	unsigned int	vc_x, vc_y;		/* Cursor position */
+ 	unsigned int	vc_top, vc_bottom;	/* Scrolling region */
+@@ -82,6 +89,18 @@
+ 	struct vc_data **vc_display_fg;		/* [!] Ptr to var holding fg console for this display */
+ 	unsigned long	vc_uni_pagedir;
+ 	unsigned long	*vc_uni_pagedir_loc;  /* [!] Location of uni_pagedir variable for this console */
++#ifdef CONFIG_KANJI
++	unsigned char   vc_kanji_char1;
++	unsigned char   vc_kanji_mode;
++	unsigned char   vc_kanji_jis_mode;
++	unsigned char   vc_s_kanji_mode;
++	unsigned char   vc_s_kanji_jis_mode;
++	unsigned int    vc_translate_ex;
++	unsigned char   vc_G0_charset_ex;
++	unsigned char   vc_G1_charset_ex;
++	unsigned char   vc_saved_G0_ex;
++	unsigned char   vc_saved_G1_ex;
++#endif /* CONFIG_KANJI */
+ 	/* additional information is in vt_kern.h */
+ };
  
-@@ -97,98 +99,8 @@
- static char command_line[COMMAND_LINE_SIZE];
-        char saved_command_line[COMMAND_LINE_SIZE];
+@@ -105,6 +124,10 @@
+ #define CUR_HWMASK	0x0f
+ #define CUR_SWMASK	0xfff0
  
--struct resource standard_io_resources[] = {
--	{ "dma1", 0x00, 0x1f, IORESOURCE_BUSY },
--	{ "pic1", 0x20, 0x3f, IORESOURCE_BUSY },
--	{ "timer", 0x40, 0x5f, IORESOURCE_BUSY },
--	{ "keyboard", 0x60, 0x6f, IORESOURCE_BUSY },
--	{ "dma page reg", 0x80, 0x8f, IORESOURCE_BUSY },
--	{ "pic2", 0xa0, 0xbf, IORESOURCE_BUSY },
--	{ "dma2", 0xc0, 0xdf, IORESOURCE_BUSY },
--	{ "fpu", 0xf0, 0xff, IORESOURCE_BUSY }
--};
--#ifdef CONFIG_MELAN
--standard_io_resources[1] = { "pic1", 0x20, 0x21, IORESOURCE_BUSY };
--standard_io_resources[5] = { "pic2", 0xa0, 0xa1, IORESOURCE_BUSY };
--#endif
--
--#define STANDARD_IO_RESOURCES (sizeof(standard_io_resources)/sizeof(struct resource))
--
- static struct resource code_resource = { "Kernel code", 0x100000, 0 };
- static struct resource data_resource = { "Kernel data", 0, 0 };
--static struct resource vram_resource = { "Video RAM area", 0xa0000, 0xbffff, IORESOURCE_BUSY };
--
--/* System ROM resources */
--#define MAXROMS 6
--static struct resource rom_resources[MAXROMS] = {
--	{ "System ROM", 0xF0000, 0xFFFFF, IORESOURCE_BUSY },
--	{ "Video ROM", 0xc0000, 0xc7fff, IORESOURCE_BUSY }
--};
--
--#define romsignature(x) (*(unsigned short *)(x) == 0xaa55)
--
--static void __init probe_roms(void)
--{
--	int roms = 1;
--	unsigned long base;
--	unsigned char *romstart;
--
--	request_resource(&iomem_resource, rom_resources+0);
--
--	/* Video ROM is standard at C000:0000 - C7FF:0000, check signature */
--	for (base = 0xC0000; base < 0xE0000; base += 2048) {
--		romstart = isa_bus_to_virt(base);
--		if (!romsignature(romstart))
--			continue;
--		request_resource(&iomem_resource, rom_resources + roms);
--		roms++;
--		break;
--	}
--
--	/* Extension roms at C800:0000 - DFFF:0000 */
--	for (base = 0xC8000; base < 0xE0000; base += 2048) {
--		unsigned long length;
--
--		romstart = isa_bus_to_virt(base);
--		if (!romsignature(romstart))
--			continue;
--		length = romstart[2] * 512;
--		if (length) {
--			unsigned int i;
--			unsigned char chksum;
--
--			chksum = 0;
--			for (i = 0; i < length; i++)
--				chksum += romstart[i];
--
--			/* Good checksum? */
--			if (!chksum) {
--				rom_resources[roms].start = base;
--				rom_resources[roms].end = base + length - 1;
--				rom_resources[roms].name = "Extension ROM";
--				rom_resources[roms].flags = IORESOURCE_BUSY;
--
--				request_resource(&iomem_resource, rom_resources + roms);
--				roms++;
--				if (roms >= MAXROMS)
--					return;
--			}
--		}
--	}
--
--	/* Final check for motherboard extension rom at E000:0000 */
--	base = 0xE0000;
--	romstart = isa_bus_to_virt(base);
--
--	if (romsignature(romstart)) {
--		rom_resources[roms].start = base;
--		rom_resources[roms].end = base + 65535;
--		rom_resources[roms].name = "Extension ROM";
--		rom_resources[roms].flags = IORESOURCE_BUSY;
--
--		request_resource(&iomem_resource, rom_resources + roms);
--	}
--}
- 
- static void __init limit_regions (unsigned long long size)
- {
-@@ -820,11 +732,8 @@
- 			request_resource(res, &data_resource);
- 		}
- 	}
--	request_resource(&iomem_resource, &vram_resource);
- 
--	/* request I/O space for devices used on all i[345]86 PCs */
--	for (i = 0; i < STANDARD_IO_RESOURCES; i++)
--		request_resource(&ioport_resource, standard_io_resources+i);
-+	mach_request_resource( );
- 
- 	/* Tell the PCI layer not to allocate too close to the RAM area.. */
- 	low_mem_size = ((max_low_pfn << PAGE_SHIFT) + 0xfffff) & ~0xfffff;
-@@ -904,6 +813,8 @@
- #ifdef CONFIG_VT
- #if defined(CONFIG_VGA_CONSOLE)
- 	conswitchp = &vga_con;
-+#elif defined(CONFIG_GDC_CONSOLE)
-+	conswitchp = &gdc_con;
- #elif defined(CONFIG_DUMMY_CONSOLE)
- 	conswitchp = &dummy_con;
- #endif
-diff -urN linux/arch/i386/kernel/time.c linux98/arch/i386/kernel/time.c
---- linux/arch/i386/kernel/time.c	Mon Nov 11 15:46:05 2002
-+++ linux98/arch/i386/kernel/time.c	Mon Nov 11 16:24:07 2002
-@@ -54,12 +54,15 @@
- #include <asm/processor.h>
- #include <asm/timer.h>
- 
--#include <linux/mc146818rtc.h>
-+#include "mach_time.h"
-+
- #include <linux/timex.h>
- #include <linux/config.h>
- 
- #include <asm/arch_hooks.h>
- 
-+#include "io_ports.h"
-+
- extern spinlock_t i8259A_lock;
- int pit_latch_buggy;              /* extern */
- 
-@@ -134,69 +137,13 @@
- 	write_unlock_irq(&xtime_lock);
- }
- 
--/*
-- * In order to set the CMOS clock precisely, set_rtc_mmss has to be
-- * called 500 ms after the second nowtime has started, because when
-- * nowtime is written into the registers of the CMOS clock, it will
-- * jump to the next second precisely 500 ms later. Check the Motorola
-- * MC146818A or Dallas DS12887 data sheet for details.
-- *
-- * BUG: This routine does not handle hour overflow properly; it just
-- *      sets the minutes. Usually you'll only notice that after reboot!
-- */
- static int set_rtc_mmss(unsigned long nowtime)
- {
--	int retval = 0;
--	int real_seconds, real_minutes, cmos_minutes;
--	unsigned char save_control, save_freq_select;
-+	int retval;
- 
- 	/* gets recalled with irq locally disabled */
- 	spin_lock(&rtc_lock);
--	save_control = CMOS_READ(RTC_CONTROL); /* tell the clock it's being set */
--	CMOS_WRITE((save_control|RTC_SET), RTC_CONTROL);
--
--	save_freq_select = CMOS_READ(RTC_FREQ_SELECT); /* stop and reset prescaler */
--	CMOS_WRITE((save_freq_select|RTC_DIV_RESET2), RTC_FREQ_SELECT);
--
--	cmos_minutes = CMOS_READ(RTC_MINUTES);
--	if (!(save_control & RTC_DM_BINARY) || RTC_ALWAYS_BCD)
--		BCD_TO_BIN(cmos_minutes);
--
--	/*
--	 * since we're only adjusting minutes and seconds,
--	 * don't interfere with hour overflow. This avoids
--	 * messing with unknown time zones but requires your
--	 * RTC not to be off by more than 15 minutes
--	 */
--	real_seconds = nowtime % 60;
--	real_minutes = nowtime / 60;
--	if (((abs(real_minutes - cmos_minutes) + 15)/30) & 1)
--		real_minutes += 30;		/* correct for half hour time zone */
--	real_minutes %= 60;
--
--	if (abs(real_minutes - cmos_minutes) < 30) {
--		if (!(save_control & RTC_DM_BINARY) || RTC_ALWAYS_BCD) {
--			BIN_TO_BCD(real_seconds);
--			BIN_TO_BCD(real_minutes);
--		}
--		CMOS_WRITE(real_seconds,RTC_SECONDS);
--		CMOS_WRITE(real_minutes,RTC_MINUTES);
--	} else {
--		printk(KERN_WARNING
--		       "set_rtc_mmss: can't update from %d to %d\n",
--		       cmos_minutes, real_minutes);
--		retval = -1;
--	}
--
--	/* The following flags have to be released exactly in this order,
--	 * otherwise the DS12887 (popular MC146818A clone with integrated
--	 * battery and quartz) will not reset the oscillator and will not
--	 * update precisely 500 ms later. You won't find this mentioned in
--	 * the Dallas Semiconductor data sheets, but who believes data
--	 * sheets anyway ...                           -- Markus Kuhn
--	 */
--	CMOS_WRITE(save_control, RTC_CONTROL);
--	CMOS_WRITE(save_freq_select, RTC_FREQ_SELECT);
-+	retval = mach_set_rtc_mmss(nowtime);
- 	spin_unlock(&rtc_lock);
- 
- 	return retval;
-@@ -222,9 +169,9 @@
- 		 * on an 82489DX-based system.
- 		 */
- 		spin_lock(&i8259A_lock);
--		outb(0x0c, 0x20);
-+		outb(0x0c, PIC_MASTER_OCW3);
- 		/* Ack the IRQ; AEOI will end it automatically. */
--		inb(0x20);
-+		inb(PIC_MASTER_POLL);
- 		spin_unlock(&i8259A_lock);
- 	}
- #endif
-@@ -238,14 +185,14 @@
- 	 */
- 	if ((time_status & STA_UNSYNC) == 0 &&
- 	    xtime.tv_sec > last_rtc_update + 660 &&
--	    (xtime.tv_nsec / 1000) >= 500000 - ((unsigned) TICK_SIZE) / 2 &&
--	    (xtime.tv_nsec / 1000) <= 500000 + ((unsigned) TICK_SIZE) / 2) {
-+	    (xtime.tv_nsec / 1000) >= TIME1 - ((unsigned) TICK_SIZE) / 2 &&
-+	    (xtime.tv_nsec / 1000) <= TIME2 + ((unsigned) TICK_SIZE) / 2) {
- 		if (set_rtc_mmss(xtime.tv_sec) == 0)
- 			last_rtc_update = xtime.tv_sec;
- 		else
- 			last_rtc_update = xtime.tv_sec - 600; /* do it again in 60 s */
- 	}
--	    
-+
- #ifdef CONFIG_MCA
- 	if( MCA_bus ) {
- 		/* The PS/2 uses level-triggered interrupts.  You can't
-@@ -290,43 +237,15 @@
- /* not static: needed by APM */
- unsigned long get_cmos_time(void)
- {
--	unsigned int year, mon, day, hour, min, sec;
--	int i;
-+	unsigned long retval;
- 
- 	spin_lock(&rtc_lock);
--	/* The Linux interpretation of the CMOS clock register contents:
--	 * When the Update-In-Progress (UIP) flag goes from 1 to 0, the
--	 * RTC registers show the second which has precisely just started.
--	 * Let's hope other operating systems interpret the RTC the same way.
--	 */
--	/* read RTC exactly on falling edge of update flag */
--	for (i = 0 ; i < 1000000 ; i++)	/* may take up to 1 second... */
--		if (CMOS_READ(RTC_FREQ_SELECT) & RTC_UIP)
--			break;
--	for (i = 0 ; i < 1000000 ; i++)	/* must try at least 2.228 ms */
--		if (!(CMOS_READ(RTC_FREQ_SELECT) & RTC_UIP))
--			break;
--	do { /* Isn't this overkill ? UIP above should guarantee consistency */
--		sec = CMOS_READ(RTC_SECONDS);
--		min = CMOS_READ(RTC_MINUTES);
--		hour = CMOS_READ(RTC_HOURS);
--		day = CMOS_READ(RTC_DAY_OF_MONTH);
--		mon = CMOS_READ(RTC_MONTH);
--		year = CMOS_READ(RTC_YEAR);
--	} while (sec != CMOS_READ(RTC_SECONDS));
--	if (!(CMOS_READ(RTC_CONTROL) & RTC_DM_BINARY) || RTC_ALWAYS_BCD)
--	  {
--	    BCD_TO_BIN(sec);
--	    BCD_TO_BIN(min);
--	    BCD_TO_BIN(hour);
--	    BCD_TO_BIN(day);
--	    BCD_TO_BIN(mon);
--	    BCD_TO_BIN(year);
--	  }
-+
-+	retval = mach_get_cmos_time();
-+
- 	spin_unlock(&rtc_lock);
--	if ((year += 1900) < 1970)
--		year += 100;
--	return mktime(year, mon, day, hour, min, sec);
-+
-+	return retval;
- }
- 
- /* XXX this driverfs stuff should probably go elsewhere later -john */
-diff -urN linux/arch/i386/kernel/timers/timer_pit.c linux98/arch/i386/kernel/timers/timer_pit.c
---- linux/arch/i386/kernel/timers/timer_pit.c	Wed Nov 13 09:25:31 2002
-+++ linux98/arch/i386/kernel/timers/timer_pit.c	Wed Nov 13 09:32:08 2002
-@@ -16,6 +16,7 @@
- extern spinlock_t i8259A_lock;
- extern spinlock_t i8253_lock;
- #include "do_timer.h"
-+#include "io_ports.h"
- 
- static int init_pit(void)
- {
-@@ -64,7 +65,8 @@
- {
- 	int count;
- 
--	static int count_p = LATCH;    /* for the first call after boot */
-+	static int count_p;
-+	static int is_1st_boot = 1;    /* for the first call after boot */
- 	static unsigned long jiffies_p = 0;
- 
- 	/*
-@@ -72,12 +74,18 @@
- 	 */
- 	unsigned long jiffies_t;
- 
-+	/* for support LATCH is not constant */
-+	if (is_1st_boot) {
-+		is_1st_boot = 0;
-+		count_p = LATCH;
-+	}
-+
- 	/* gets recalled with irq locally disabled */
- 	spin_lock(&i8253_lock);
- 	/* timer count may underflow right here */
--	outb_p(0x00, 0x43);	/* latch the count ASAP */
-+	outb_p(0x00, PIT_MODE);	/* latch the count ASAP */
- 
--	count = inb_p(0x40);	/* read the latched count */
-+	count = inb_p(PIT_CH0);	/* read the latched count */
- 
- 	/*
- 	 * We do this guaranteed double memory access instead of a _p 
-@@ -85,13 +93,13 @@
- 	 */
-  	jiffies_t = jiffies;
- 
--	count |= inb_p(0x40) << 8;
-+	count |= inb_p(PIT_CH0) << 8;
- 	
-         /* VIA686a test code... reset the latch if count > max + 1 */
-         if (count > LATCH) {
--                outb_p(0x34, 0x43);
--                outb_p(LATCH & 0xff, 0x40);
--                outb(LATCH >> 8, 0x40);
-+                outb_p(0x34, PIT_MODE);
-+                outb_p(LATCH & 0xff, PIT_CH0);
-+                outb(LATCH >> 8, PIT_CH0);
-                 count = LATCH - 1;
-         }
- 	
-diff -urN linux/arch/i386/kernel/timers/timer_tsc.c linux98/arch/i386/kernel/timers/timer_tsc.c
---- linux/arch/i386/kernel/timers/timer_tsc.c	Mon Nov 11 15:46:05 2002
-+++ linux98/arch/i386/kernel/timers/timer_tsc.c	Mon Nov 11 16:39:36 2002
-@@ -12,6 +12,9 @@
- #include <asm/timer.h>
- #include <asm/io.h>
- 
-+#include "io_ports.h"
-+#include "calibrate_tsc.h"
-+
- extern int x86_udelay_tsc;
- extern spinlock_t i8253_lock;
- 
-@@ -19,8 +22,6 @@
- /* Number of usecs that the last interrupt was delayed */
- static int delay_at_last_interrupt;
- 
--static unsigned long last_tsc_low; /* lsb 32 bits of Time Stamp Counter */
--
- /* Cached *multiplier* to convert TSC counts to microseconds.
-  * (see the equation below).
-  * Equal to 2^32 * (1 / (clocks per usec) ).
-@@ -61,7 +62,12 @@
- {
- 	int count;
- 	int countmp;
--	static int count1=0, count2=LATCH;
-+	static int count1=0, count2, initialize = 1;
-+
-+	if (initialize) {
-+		count2 = LATCH;
-+		initialize = 0;
-+	}
- 	/*
- 	 * It is important that these two operations happen almost at
- 	 * the same time. We do the RDTSC stuff first, since it's
-@@ -79,10 +85,10 @@
- 	rdtscl(last_tsc_low);
- 
- 	spin_lock(&i8253_lock);
--	outb_p(0x00, 0x43);     /* latch the count ASAP */
-+	outb_p(0x00, PIT_MODE);     /* latch the count ASAP */
- 
--	count = inb_p(0x40);    /* read the latched count */
--	count |= inb(0x40) << 8;
-+	count = inb_p(PIT_CH0);    /* read the latched count */
-+	count |= inb(PIT_CH0) << 8;
- 	spin_unlock(&i8253_lock);
- 
- 	if (pit_latch_buggy) {
-@@ -104,83 +110,9 @@
- }
- 
- 
--/* ------ Calibrate the TSC ------- 
-- * Return 2^32 * (1 / (TSC clocks per usec)) for do_fast_gettimeoffset().
-- * Too much 64-bit arithmetic here to do this cleanly in C, and for
-- * accuracy's sake we want to keep the overhead on the CTC speaker (channel 2)
-- * output busy loop as low as possible. We avoid reading the CTC registers
-- * directly because of the awkward 8-bit access mechanism of the 82C54
-- * device.
-- */
--
--#define CALIBRATE_LATCH	(5 * LATCH)
--#define CALIBRATE_TIME	(5 * 1000020/HZ)
--
- static unsigned long __init calibrate_tsc(void)
- {
--       /* Set the Gate high, disable speaker */
--	outb((inb(0x61) & ~0x02) | 0x01, 0x61);
--
--	/*
--	 * Now let's take care of CTC channel 2
--	 *
--	 * Set the Gate high, program CTC channel 2 for mode 0,
--	 * (interrupt on terminal count mode), binary count,
--	 * load 5 * LATCH count, (LSB and MSB) to begin countdown.
--	 *
--	 * Some devices need a delay here.
--	 */
--	outb(0xb0, 0x43);			/* binary, mode 0, LSB/MSB, Ch 2 */
--	outb_p(CALIBRATE_LATCH & 0xff, 0x42);	/* LSB of count */
--	outb_p(CALIBRATE_LATCH >> 8, 0x42);       /* MSB of count */
--
--	{
--		unsigned long startlow, starthigh;
--		unsigned long endlow, endhigh;
--		unsigned long count;
--
--		rdtsc(startlow,starthigh);
--		count = 0;
--		do {
--			count++;
--		} while ((inb(0x61) & 0x20) == 0);
--		rdtsc(endlow,endhigh);
--
--		last_tsc_low = endlow;
--
--		/* Error: ECTCNEVERSET */
--		if (count <= 1)
--			goto bad_ctc;
--
--		/* 64-bit subtract - gcc just messes up with long longs */
--		__asm__("subl %2,%0\n\t"
--			"sbbl %3,%1"
--			:"=a" (endlow), "=d" (endhigh)
--			:"g" (startlow), "g" (starthigh),
--			 "0" (endlow), "1" (endhigh));
--
--		/* Error: ECPUTOOFAST */
--		if (endhigh)
--			goto bad_ctc;
--
--		/* Error: ECPUTOOSLOW */
--		if (endlow <= CALIBRATE_TIME)
--			goto bad_ctc;
--
--		__asm__("divl %2"
--			:"=a" (endlow), "=d" (endhigh)
--			:"r" (endlow), "0" (0), "1" (CALIBRATE_TIME));
--
--		return endlow;
--	}
--
--	/*
--	 * The CTC wasn't reliable: we got a hit on the very first read,
--	 * or the CPU was so fast/slow that the quotient wouldn't fit in
--	 * 32 bits..
--	 */
--bad_ctc:
--	return 0;
-+	return mach_calibrate_tsc();
- }
- 
- 
-diff -urN linux/arch/i386/kernel/traps.c linux98/arch/i386/kernel/traps.c
---- linux/arch/i386/kernel/traps.c	Tue Nov  5 10:16:18 2002
-+++ linux98/arch/i386/kernel/traps.c	Tue Nov  5 22:40:55 2002
-@@ -49,6 +49,8 @@
- #include <linux/irq.h>
- #include <linux/module.h>
- 
-+#include "mach_traps.h"
-+
- asmlinkage int system_call(void);
- asmlinkage void lcall7(void);
- asmlinkage void lcall27(void);
-@@ -452,8 +454,7 @@
- 	printk("You probably have a hardware problem with your RAM chips\n");
- 
- 	/* Clear and disable the memory parity error line. */
--	reason = (reason & 0xf) | 4;
--	outb(reason, 0x61);
-+	clear_mem_error(reason);
- }
- 
- static void io_check_error(unsigned char reason, struct pt_regs * regs)
-@@ -490,7 +491,7 @@
- 
- static void default_do_nmi(struct pt_regs * regs)
- {
--	unsigned char reason = inb(0x61);
-+	unsigned char reason = get_nmi_reason();
-  
- 	if (!(reason & 0xc0)) {
- #if CONFIG_X86_LOCAL_APIC
-@@ -514,10 +515,7 @@
- 	 * Reassert NMI in case it became active meanwhile
- 	 * as it's edge-triggered.
- 	 */
--	outb(0x8f, 0x70);
--	inb(0x71);		/* dummy */
--	outb(0x0f, 0x70);
--	inb(0x71);		/* dummy */
-+	reassert_nmi();
- }
- 
- static int dummy_nmi_callback(struct pt_regs * regs, int cpu)
-diff -urN linux/arch/i386/mach-generic/calibrate_tsc.h linux98/arch/i386/mach-generic/calibrate_tsc.h
---- linux/arch/i386/mach-generic/calibrate_tsc.h	Thu Jan  1 09:00:00 1970
-+++ linux98/arch/i386/mach-generic/calibrate_tsc.h	Tue Nov  5 22:15:11 2002
-@@ -0,0 +1,90 @@
-+/*
-+ *  arch/i386/mach-generic/calibrate_tsc.h
-+ *
-+ *  Machine specific calibrate_tsc() for generic.
-+ *  Split out from timer_tsc.c by Osamu Tomita <tomita@cinet.co.jp>
-+ */
-+/* ------ Calibrate the TSC ------- 
-+ * Return 2^32 * (1 / (TSC clocks per usec)) for do_fast_gettimeoffset().
-+ * Too much 64-bit arithmetic here to do this cleanly in C, and for
-+ * accuracy's sake we want to keep the overhead on the CTC speaker (channel 2)
-+ * output busy loop as low as possible. We avoid reading the CTC registers
-+ * directly because of the awkward 8-bit access mechanism of the 82C54
-+ * device.
-+ */
-+#ifndef _MACH_CALIBRATE_TSC_H
-+#define _MACH_CALIBRATE_TSC_H
-+
-+#define CALIBRATE_LATCH	(5 * LATCH)
-+#define CALIBRATE_TIME	(5 * 1000020/HZ)
-+
-+static unsigned long last_tsc_low; /* lsb 32 bits of Time Stamp Counter */
-+
-+static inline unsigned long mach_calibrate_tsc(void)
-+{
-+       /* Set the Gate high, disable speaker */
-+	outb((inb(0x61) & ~0x02) | 0x01, 0x61);
-+
-+	/*
-+	 * Now let's take care of CTC channel 2
-+	 *
-+	 * Set the Gate high, program CTC channel 2 for mode 0,
-+	 * (interrupt on terminal count mode), binary count,
-+	 * load 5 * LATCH count, (LSB and MSB) to begin countdown.
-+	 *
-+	 * Some devices need a delay here.
-+	 */
-+	outb(0xb0, PIT_MODE);			/* binary, mode 0, LSB/MSB, Ch 2 */
-+	outb(CALIBRATE_LATCH & 0xff, PIT_CH2);	/* LSB of count */
-+	outb(CALIBRATE_LATCH >> 8, PIT_CH2);	/* MSB of count */
-+
-+	{
-+		unsigned long startlow, starthigh;
-+		unsigned long endlow, endhigh;
-+		unsigned long count;
-+
-+		rdtsc(startlow,starthigh);
-+		count = 0;
-+		do {
-+			count++;
-+		} while ((inb(0x61) & 0x20) == 0);
-+		rdtsc(endlow,endhigh);
-+
-+		last_tsc_low = endlow;
-+
-+		/* Error: ECTCNEVERSET */
-+		if (count <= 1)
-+			goto bad_ctc;
-+
-+		/* 64-bit subtract - gcc just messes up with long longs */
-+		__asm__("subl %2,%0\n\t"
-+			"sbbl %3,%1"
-+			:"=a" (endlow), "=d" (endhigh)
-+			:"g" (startlow), "g" (starthigh),
-+			 "0" (endlow), "1" (endhigh));
-+
-+		/* Error: ECPUTOOFAST */
-+		if (endhigh)
-+			goto bad_ctc;
-+
-+		/* Error: ECPUTOOSLOW */
-+		if (endlow <= CALIBRATE_TIME)
-+			goto bad_ctc;
-+
-+		__asm__("divl %2"
-+			:"=a" (endlow), "=d" (endhigh)
-+			:"r" (endlow), "0" (0), "1" (CALIBRATE_TIME));
-+
-+		return endlow;
-+	}
-+
-+	/*
-+	 * The CTC wasn't reliable: we got a hit on the very first read,
-+	 * or the CPU was so fast/slow that the quotient wouldn't fit in
-+	 * 32 bits..
-+	 */
-+bad_ctc:
-+	return 0;
-+}
-+
-+#endif /* !_MACH_CALIBRATE_TSC_H */
-diff -urN linux/arch/i386/mach-generic/mach_resources.h linux98/arch/i386/mach-generic/mach_resources.h
---- linux/arch/i386/mach-generic/mach_resources.h	Thu Jan  1 09:00:00 1970
-+++ linux98/arch/i386/mach-generic/mach_resources.h	Mon Oct 21 09:59:22 2002
-@@ -0,0 +1,113 @@
-+/*
-+ *  arch/i386/mach-generic/mach_resources.h
-+ *
-+ *  Machine specific resource allocation for generic.
-+ *  Split out from setup.c by Osamu Tomita <tomita@cinet.co.jp>
-+ */
-+#ifndef _MACH_RESOURCES_H
-+#define _MACH_RESOURCES_H
-+
-+struct resource standard_io_resources[] = {
-+	{ "dma1", 0x00, 0x1f, IORESOURCE_BUSY },
-+	{ "pic1", 0x20, 0x3f, IORESOURCE_BUSY },
-+	{ "timer", 0x40, 0x5f, IORESOURCE_BUSY },
-+	{ "keyboard", 0x60, 0x6f, IORESOURCE_BUSY },
-+	{ "dma page reg", 0x80, 0x8f, IORESOURCE_BUSY },
-+	{ "pic2", 0xa0, 0xbf, IORESOURCE_BUSY },
-+	{ "dma2", 0xc0, 0xdf, IORESOURCE_BUSY },
-+	{ "fpu", 0xf0, 0xff, IORESOURCE_BUSY }
-+};
-+#ifdef CONFIG_MELAN
-+standard_io_resources[1] = { "pic1", 0x20, 0x21, IORESOURCE_BUSY };
-+standard_io_resources[5] = { "pic2", 0xa0, 0xa1, IORESOURCE_BUSY };
-+#endif
-+
-+#define STANDARD_IO_RESOURCES (sizeof(standard_io_resources)/sizeof(struct resource))
-+
-+static struct resource vram_resource = { "Video RAM area", 0xa0000, 0xbffff, IORESOURCE_BUSY };
-+
-+/* System ROM resources */
-+#define MAXROMS 6
-+static struct resource rom_resources[MAXROMS] = {
-+	{ "System ROM", 0xF0000, 0xFFFFF, IORESOURCE_BUSY },
-+	{ "Video ROM", 0xc0000, 0xc7fff, IORESOURCE_BUSY }
-+};
-+
-+#define romsignature(x) (*(unsigned short *)(x) == 0xaa55)
-+
-+static inline void probe_roms(void)
-+{
-+	int roms = 1;
-+	unsigned long base;
-+	unsigned char *romstart;
-+
-+	request_resource(&iomem_resource, rom_resources+0);
-+
-+	/* Video ROM is standard at C000:0000 - C7FF:0000, check signature */
-+	for (base = 0xC0000; base < 0xE0000; base += 2048) {
-+		romstart = isa_bus_to_virt(base);
-+		if (!romsignature(romstart))
-+			continue;
-+		request_resource(&iomem_resource, rom_resources + roms);
-+		roms++;
-+		break;
-+	}
-+
-+	/* Extension roms at C800:0000 - DFFF:0000 */
-+	for (base = 0xC8000; base < 0xE0000; base += 2048) {
-+		unsigned long length;
-+
-+		romstart = isa_bus_to_virt(base);
-+		if (!romsignature(romstart))
-+			continue;
-+		length = romstart[2] * 512;
-+		if (length) {
-+			unsigned int i;
-+			unsigned char chksum;
-+
-+			chksum = 0;
-+			for (i = 0; i < length; i++)
-+				chksum += romstart[i];
-+
-+			/* Good checksum? */
-+			if (!chksum) {
-+				rom_resources[roms].start = base;
-+				rom_resources[roms].end = base + length - 1;
-+				rom_resources[roms].name = "Extension ROM";
-+				rom_resources[roms].flags = IORESOURCE_BUSY;
-+
-+				request_resource(&iomem_resource, rom_resources + roms);
-+				roms++;
-+				if (roms >= MAXROMS)
-+					return;
-+			}
-+		}
-+	}
-+
-+	/* Final check for motherboard extension rom at E000:0000 */
-+	base = 0xE0000;
-+	romstart = isa_bus_to_virt(base);
-+
-+	if (romsignature(romstart)) {
-+		rom_resources[roms].start = base;
-+		rom_resources[roms].end = base + 65535;
-+		rom_resources[roms].name = "Extension ROM";
-+		rom_resources[roms].flags = IORESOURCE_BUSY;
-+
-+		request_resource(&iomem_resource, rom_resources + roms);
-+	}
-+}
-+
-+static inline void mach_request_resource(void)
-+{
-+	int i;
-+
-+	request_resource(&iomem_resource, &vram_resource);
-+
-+	/* request I/O space for devices used on all i[345]86 PCs */
-+	for (i = 0; i < STANDARD_IO_RESOURCES; i++)
-+		request_resource(&ioport_resource, standard_io_resources+i);
-+
-+}
-+
-+#endif /* !_MACH_RESOURCES_H */
-diff -urN linux/arch/i386/mach-generic/mach_time.h linux98/arch/i386/mach-generic/mach_time.h
---- linux/arch/i386/mach-generic/mach_time.h	Thu Jan  1 09:00:00 1970
-+++ linux98/arch/i386/mach-generic/mach_time.h	Mon Oct 21 10:07:35 2002
-@@ -0,0 +1,122 @@
-+/*
-+ *  arch/i386/mach-generic/mach_time.h
-+ *
-+ *  Machine specific set RTC function for generic.
-+ *  Split out from time.c by Osamu Tomita <tomita@cinet.co.jp>
-+ */
-+#ifndef _MACH_TIME_H
-+#define _MACH_TIME_H
-+
-+#include <linux/mc146818rtc.h>
-+
-+/* for check timing call set_rtc_mmss() 500ms     */
-+/* used in arch/i386/time.c::do_timer_interrupt() */
-+#define TIME1	500000
-+#define TIME2	500000
-+
-+/*
-+ * In order to set the CMOS clock precisely, set_rtc_mmss has to be
-+ * called 500 ms after the second nowtime has started, because when
-+ * nowtime is written into the registers of the CMOS clock, it will
-+ * jump to the next second precisely 500 ms later. Check the Motorola
-+ * MC146818A or Dallas DS12887 data sheet for details.
-+ *
-+ * BUG: This routine does not handle hour overflow properly; it just
-+ *      sets the minutes. Usually you'll only notice that after reboot!
-+ */
-+static inline int mach_set_rtc_mmss(unsigned long nowtime)
-+{
-+	int retval = 0;
-+	int real_seconds, real_minutes, cmos_minutes;
-+	unsigned char save_control, save_freq_select;
-+
-+	save_control = CMOS_READ(RTC_CONTROL); /* tell the clock it's being set */
-+	CMOS_WRITE((save_control|RTC_SET), RTC_CONTROL);
-+
-+	save_freq_select = CMOS_READ(RTC_FREQ_SELECT); /* stop and reset prescaler */
-+	CMOS_WRITE((save_freq_select|RTC_DIV_RESET2), RTC_FREQ_SELECT);
-+
-+	cmos_minutes = CMOS_READ(RTC_MINUTES);
-+	if (!(save_control & RTC_DM_BINARY) || RTC_ALWAYS_BCD)
-+		BCD_TO_BIN(cmos_minutes);
-+
-+	/*
-+	 * since we're only adjusting minutes and seconds,
-+	 * don't interfere with hour overflow. This avoids
-+	 * messing with unknown time zones but requires your
-+	 * RTC not to be off by more than 15 minutes
-+	 */
-+	real_seconds = nowtime % 60;
-+	real_minutes = nowtime / 60;
-+	if (((abs(real_minutes - cmos_minutes) + 15)/30) & 1)
-+		real_minutes += 30;		/* correct for half hour time zone */
-+	real_minutes %= 60;
-+
-+	if (abs(real_minutes - cmos_minutes) < 30) {
-+		if (!(save_control & RTC_DM_BINARY) || RTC_ALWAYS_BCD) {
-+			BIN_TO_BCD(real_seconds);
-+			BIN_TO_BCD(real_minutes);
-+		}
-+		CMOS_WRITE(real_seconds,RTC_SECONDS);
-+		CMOS_WRITE(real_minutes,RTC_MINUTES);
-+	} else {
-+		printk(KERN_WARNING
-+		       "set_rtc_mmss: can't update from %d to %d\n",
-+		       cmos_minutes, real_minutes);
-+		retval = -1;
-+	}
-+
-+	/* The following flags have to be released exactly in this order,
-+	 * otherwise the DS12887 (popular MC146818A clone with integrated
-+	 * battery and quartz) will not reset the oscillator and will not
-+	 * update precisely 500 ms later. You won't find this mentioned in
-+	 * the Dallas Semiconductor data sheets, but who believes data
-+	 * sheets anyway ...                           -- Markus Kuhn
-+	 */
-+	CMOS_WRITE(save_control, RTC_CONTROL);
-+	CMOS_WRITE(save_freq_select, RTC_FREQ_SELECT);
-+
-+	return retval;
-+}
-+
-+static inline unsigned long mach_get_cmos_time(void)
-+{
-+	unsigned int year, mon, day, hour, min, sec;
-+	int i;
-+
-+	/* The Linux interpretation of the CMOS clock register contents:
-+	 * When the Update-In-Progress (UIP) flag goes from 1 to 0, the
-+	 * RTC registers show the second which has precisely just started.
-+	 * Let's hope other operating systems interpret the RTC the same way.
-+	 */
-+	/* read RTC exactly on falling edge of update flag */
-+	for (i = 0 ; i < 1000000 ; i++)	/* may take up to 1 second... */
-+		if (CMOS_READ(RTC_FREQ_SELECT) & RTC_UIP)
-+			break;
-+	for (i = 0 ; i < 1000000 ; i++)	/* must try at least 2.228 ms */
-+		if (!(CMOS_READ(RTC_FREQ_SELECT) & RTC_UIP))
-+			break;
-+	do { /* Isn't this overkill ? UIP above should guarantee consistency */
-+		sec = CMOS_READ(RTC_SECONDS);
-+		min = CMOS_READ(RTC_MINUTES);
-+		hour = CMOS_READ(RTC_HOURS);
-+		day = CMOS_READ(RTC_DAY_OF_MONTH);
-+		mon = CMOS_READ(RTC_MONTH);
-+		year = CMOS_READ(RTC_YEAR);
-+	} while (sec != CMOS_READ(RTC_SECONDS));
-+	if (!(CMOS_READ(RTC_CONTROL) & RTC_DM_BINARY) || RTC_ALWAYS_BCD)
-+	  {
-+	    BCD_TO_BIN(sec);
-+	    BCD_TO_BIN(min);
-+	    BCD_TO_BIN(hour);
-+	    BCD_TO_BIN(day);
-+	    BCD_TO_BIN(mon);
-+	    BCD_TO_BIN(year);
-+	  }
-+	if ((year += 1900) < 1970)
-+		year += 100;
-+
-+	return mktime(year, mon, day, hour, min, sec);
-+}
-+
-+#endif /* !_MACH_TIME_H */
-diff -urN linux/arch/i386/mach-generic/mach_traps.h linux98/arch/i386/mach-generic/mach_traps.h
---- linux/arch/i386/mach-generic/mach_traps.h	Thu Jan  1 09:00:00 1970
-+++ linux98/arch/i386/mach-generic/mach_traps.h	Tue Nov  5 22:42:05 2002
-@@ -0,0 +1,29 @@
-+/*
-+ *  arch/i386/mach-generic/mach_traps.h
-+ *
-+ *  Machine specific NMI handling for generic.
-+ *  Split out from traps.c by Osamu Tomita <tomita@cinet.co.jp>
-+ */
-+#ifndef _MACH_TRAPS_H
-+#define _MACH_TRAPS_H
-+
-+static inline void clear_mem_error(unsigned char reason)
-+{
-+	reason = (reason & 0xf) | 4;
-+	outb(reason, 0x61);
-+}
-+
-+static inline unsigned char get_nmi_reason(void)
-+{
-+	return inb(0x61);
-+}
-+
-+static inline void reassert_nmi(void)
-+{
-+	outb(0x8f, 0x70);
-+	inb(0x71);		/* dummy */
-+	outb(0x0f, 0x70);
-+	inb(0x71);		/* dummy */
-+}
-+
-+#endif /* !_MACH_TRAPS_H */
-diff -urN linux/arch/i386/mach-pc9800/calibrate_tsc.h linux98/arch/i386/mach-pc9800/calibrate_tsc.h
---- linux/arch/i386/mach-pc9800/calibrate_tsc.h	Thu Jan  1 09:00:00 1970
-+++ linux98/arch/i386/mach-pc9800/calibrate_tsc.h	Tue Nov  5 22:19:50 2002
-@@ -0,0 +1,71 @@
-+/*
-+ *  arch/i386/mach-pc9800/calibrate_tsc.h
-+ *
-+ *  Machine specific calibrate_tsc() for PC-9800.
-+ *  Written by Osamu Tomita <tomita@cinet.co.jp>
-+ */
-+
-+/* ------ Calibrate the TSC ------- 
-+ * Return 2^32 * (1 / (TSC clocks per usec)) for do_fast_gettimeoffset().
-+ * Too much 64-bit arithmetic here to do this cleanly in C.
-+ * PC-9800:
-+ *  CTC cannot be used because some models (especially
-+ *  note-machines) may disable clock to speaker channel (#1)
-+ *  unless speaker is enabled.  We use ARTIC instead.
-+ */
-+#ifndef _MACH_CALIBRATE_TSC_H
-+#define _MACH_CALIBRATE_TSC_H
-+
-+#define CALIBRATE_LATCH	(5 * 307200/HZ) /* 0.050sec * 307200Hz = 15360 */
-+#define CALIBRATE_TIME	(5 * 1000020/HZ)
-+
-+static unsigned long last_tsc_low; /* lsb 32 bits of Time Stamp Counter */
-+
-+static inline unsigned long mach_calibrate_tsc(void)
-+{
-+
-+	unsigned long startlow, starthigh;
-+	unsigned long endlow, endhigh;
-+	unsigned short count;
-+
-+	for (count = inw(0x5c); inw(0x5c) == count; )
-+		;
-+	rdtsc(startlow,starthigh);
-+	count = inw(0x5c);
-+	while ((unsigned short)(inw(0x5c) - count) < CALIBRATE_LATCH)
-+		;
-+	rdtsc(endlow,endhigh);
-+
-+	last_tsc_low = endlow;
-+
-+	/* 64-bit subtract - gcc just messes up with long longs */
-+	__asm__("subl %2,%0\n\t"
-+		"sbbl %3,%1"
-+		:"=a" (endlow), "=d" (endhigh)
-+		:"g" (startlow), "g" (starthigh),
-+		 "0" (endlow), "1" (endhigh));
-+
-+	/* Error: ECPUTOOFAST */
-+	if (endhigh)
-+		goto bad_ctc;
-+
-+	/* Error: ECPUTOOSLOW */
-+	if (endlow <= CALIBRATE_TIME)
-+		goto bad_ctc;
-+
-+	__asm__("divl %2"
-+		:"=a" (endlow), "=d" (endhigh)
-+		:"r" (endlow), "0" (0), "1" (CALIBRATE_TIME));
-+
-+	return endlow;
-+
-+	/*
-+ 	* The CTC wasn't reliable: we got a hit on the very first read,
-+ 	* or the CPU was so fast/slow that the quotient wouldn't fit in
-+ 	* 32 bits..
-+ 	*/
-+bad_ctc:
-+	return 0;
-+}
-+
-+#endif /* !_MACH_CALIBRATE_TSC_H */
-diff -urN linux/arch/i386/mach-pc9800/do_timer.h linux98/arch/i386/mach-pc9800/do_timer.h
---- linux/arch/i386/mach-pc9800/do_timer.h	Thu Jan  1 09:00:00 1970
-+++ linux98/arch/i386/mach-pc9800/do_timer.h	Wed Oct 16 13:20:29 2002
-@@ -0,0 +1,80 @@
-+/* defines for inline arch setup functions */
-+
-+/**
-+ * do_timer_interrupt_hook - hook into timer tick
-+ * @regs:	standard registers from interrupt
-+ *
-+ * Description:
-+ *	This hook is called immediately after the timer interrupt is ack'd.
-+ *	It's primary purpose is to allow architectures that don't possess
-+ *	individual per CPU clocks (like the CPU APICs supply) to broadcast the
-+ *	timer interrupt as a means of triggering reschedules etc.
-+ **/
-+
-+static inline void do_timer_interrupt_hook(struct pt_regs *regs)
-+{
-+	do_timer(regs);
-+/*
-+ * In the SMP case we use the local APIC timer interrupt to do the
-+ * profiling, except when we simulate SMP mode on a uniprocessor
-+ * system, in that case we have to call the local interrupt handler.
-+ */
-+#ifndef CONFIG_X86_LOCAL_APIC
-+	x86_do_profile(regs);
++#ifndef CONFIG_PC9800
+ #define CUR_DEFAULT CUR_UNDERLINE
 +#else
-+	if (!using_apic_timer)
-+		smp_local_timer_interrupt(regs);
++#define CUR_DEFAULT CUR_BLOCK
 +#endif
-+}
+ 
+ #define CON_IS_VISIBLE(conp) (*conp->vc_display_fg == conp)
+diff -urN linux/include/linux/consolemap.h linux98/include/linux/consolemap.h
+--- linux/include/linux/consolemap.h	Sat Oct 19 13:02:34 2002
++++ linux98/include/linux/consolemap.h	Mon Oct 21 14:19:31 2002
+@@ -7,6 +7,7 @@
+ #define GRAF_MAP 1
+ #define IBMPC_MAP 2
+ #define USER_MAP 3
++#define JP_MAP 4
+ 
+ struct vc_data;
+ 
+diff -urN linux/include/linux/tty.h linux98/include/linux/tty.h
+--- linux/include/linux/tty.h	Sat Oct 19 13:01:54 2002
++++ linux98/include/linux/tty.h	Mon Oct 21 14:22:18 2002
+@@ -123,6 +123,10 @@
+ 
+ #define VIDEO_TYPE_PMAC		0x60	/* PowerMacintosh frame buffer. */
+ 
++#define VIDEO_TYPE_98NORMAL	0xa4	/* NEC PC-9800 normal */
++#define VIDEO_TYPE_9840		0xa5	/* NEC PC-9800 normal 40 lines */
++#define VIDEO_TYPE_98HIRESO	0xa6	/* NEC PC-9800 hireso */
 +
-+
-+/* you can safely undefine this if you don't have the Neptune chipset */
-+
-+#define BUGGY_NEPTUN_TIMER
-+
-+/**
-+ * do_timer_overflow - process a detected timer overflow condition
-+ * @count:	hardware timer interrupt count on overflow
-+ *
-+ * Description:
-+ *	This call is invoked when the jiffies count has not incremented but
-+ *	the hardware timer interrupt has.  It means that a timer tick interrupt
-+ *	came along while the previous one was pending, thus a tick was missed
-+ **/
-+static inline int do_timer_overflow(int count)
-+{
-+	int i;
-+
-+	spin_lock(&i8259A_lock);
-+	/*
-+	 * This is tricky when I/O APICs are used;
-+	 * see do_timer_interrupt().
-+	 */
-+	i = inb(0x00);
-+	spin_unlock(&i8259A_lock);
-+	
-+	/* assumption about timer being IRQ0 */
-+	if (i & 0x01) {
-+		/*
-+		 * We cannot detect lost timer interrupts ... 
-+		 * well, that's why we call them lost, don't we? :)
-+		 * [hmm, on the Pentium and Alpha we can ... sort of]
-+		 */
-+		count -= LATCH;
-+	} else {
-+#ifdef BUGGY_NEPTUN_TIMER
-+		/*
-+		 * for the Neptun bug we know that the 'latch'
-+		 * command doesnt latch the high and low value
-+		 * of the counter atomically. Thus we have to 
-+		 * substract 256 from the counter 
-+		 * ... funny, isnt it? :)
-+		 */
-+		
-+		count -= 256;
-+#else
-+		printk("do_slow_gettimeoffset(): hardware timer problem?\n");
-+#endif
-+	}
-+	return count;
-+}
-diff -urN linux/arch/i386/mach-pc9800/mach_resources.h linux98/arch/i386/mach-pc9800/mach_resources.h
---- linux/arch/i386/mach-pc9800/mach_resources.h	Thu Jan  1 09:00:00 1970
-+++ linux98/arch/i386/mach-pc9800/mach_resources.h	Sat Oct 26 17:35:19 2002
-@@ -0,0 +1,192 @@
-+/*
-+ *  arch/i386/mach-pc9800/mach_resources.h
-+ *
-+ *  Machine specific resource allocation for PC-9800.
-+ *  Written by Osamu Tomita <tomita@cinet.co.jp>
-+ */
-+#ifndef _MACH_RESOURCES_H
-+#define _MACH_RESOURCES_H
-+
-+static char str_pic1[] = "pic1";
-+static char str_dma[] = "dma";
-+static char str_pic2[] = "pic2";
-+static char str_calender_clock[] = "calender clock";
-+static char str_system[] = "system";
-+static char str_nmi_control[] = "nmi control";
-+static char str_kanji_rom[] = "kanji rom";
-+static char str_keyboard[] = "keyboard";
-+static char str_text_gdc[] = "text gdc";
-+static char str_crtc[] = "crtc";
-+static char str_timer[] = "timer";
-+static char str_graphic_gdc[] = "graphic gdc";
-+static char str_dma_ex_bank[] = "dma ex. bank";
-+static char str_beep_freq[] = "beep freq.";
-+static char str_mouse_pio[] = "mouse pio";
-+struct resource standard_io_resources[] = {
-+	{ str_pic1, 0x00, 0x00, IORESOURCE_BUSY },
-+	{ str_dma, 0x01, 0x01, IORESOURCE_BUSY },
-+	{ str_pic1, 0x02, 0x02, IORESOURCE_BUSY },
-+	{ str_dma, 0x03, 0x03, IORESOURCE_BUSY },
-+	{ str_dma, 0x05, 0x05, IORESOURCE_BUSY },
-+	{ str_dma, 0x07, 0x07, IORESOURCE_BUSY },
-+	{ str_pic2, 0x08, 0x08, IORESOURCE_BUSY },
-+	{ str_dma, 0x09, 0x09, IORESOURCE_BUSY },
-+	{ str_pic2, 0x0a, 0x0a, IORESOURCE_BUSY },
-+	{ str_dma, 0x0b, 0x0b, IORESOURCE_BUSY },
-+	{ str_dma, 0x0d, 0x0d, IORESOURCE_BUSY },
-+	{ str_dma, 0x0f, 0x0f, IORESOURCE_BUSY },
-+	{ str_dma, 0x11, 0x11, IORESOURCE_BUSY },
-+	{ str_dma, 0x13, 0x13, IORESOURCE_BUSY },
-+	{ str_dma, 0x15, 0x15, IORESOURCE_BUSY },
-+	{ str_dma, 0x17, 0x17, IORESOURCE_BUSY },
-+	{ str_dma, 0x19, 0x19, IORESOURCE_BUSY },
-+	{ str_dma, 0x1b, 0x1b, IORESOURCE_BUSY },
-+	{ str_dma, 0x1d, 0x1d, IORESOURCE_BUSY },
-+	{ str_dma, 0x1f, 0x1f, IORESOURCE_BUSY },
-+	{ str_calender_clock, 0x20, 0x20, 0 },
-+	{ str_dma, 0x21, 0x21, IORESOURCE_BUSY },
-+	{ str_calender_clock, 0x22, 0x22, 0 },
-+	{ str_dma, 0x23, 0x23, IORESOURCE_BUSY },
-+	{ str_dma, 0x25, 0x25, IORESOURCE_BUSY },
-+	{ str_dma, 0x27, 0x27, IORESOURCE_BUSY },
-+	{ str_dma, 0x29, 0x29, IORESOURCE_BUSY },
-+	{ str_dma, 0x2b, 0x2b, IORESOURCE_BUSY },
-+	{ str_dma, 0x2d, 0x2d, IORESOURCE_BUSY },
-+	{ str_system, 0x31, 0x31, IORESOURCE_BUSY },
-+	{ str_system, 0x33, 0x33, IORESOURCE_BUSY },
-+	{ str_system, 0x35, 0x35, IORESOURCE_BUSY },
-+	{ str_system, 0x37, 0x37, IORESOURCE_BUSY },
-+	{ str_nmi_control, 0x50, 0x50, IORESOURCE_BUSY },
-+	{ str_nmi_control, 0x52, 0x52, IORESOURCE_BUSY },
-+	{ "time stamp", 0x5c, 0x5f, IORESOURCE_BUSY },
-+	{ str_kanji_rom, 0xa1, 0xa1, IORESOURCE_BUSY },
-+	{ str_kanji_rom, 0xa3, 0xa3, IORESOURCE_BUSY },
-+	{ str_kanji_rom, 0xa5, 0xa5, IORESOURCE_BUSY },
-+	{ str_kanji_rom, 0xa7, 0xa7, IORESOURCE_BUSY },
-+	{ str_kanji_rom, 0xa9, 0xa9, IORESOURCE_BUSY },
-+	{ str_keyboard, 0x41, 0x41, IORESOURCE_BUSY },
-+	{ str_keyboard, 0x43, 0x43, IORESOURCE_BUSY },
-+	{ str_text_gdc, 0x60, 0x60, IORESOURCE_BUSY },
-+	{ str_text_gdc, 0x62, 0x62, IORESOURCE_BUSY },
-+	{ str_text_gdc, 0x64, 0x64, IORESOURCE_BUSY },
-+	{ str_text_gdc, 0x66, 0x66, IORESOURCE_BUSY },
-+	{ str_text_gdc, 0x68, 0x68, IORESOURCE_BUSY },
-+	{ str_text_gdc, 0x6a, 0x6a, IORESOURCE_BUSY },
-+	{ str_text_gdc, 0x6c, 0x6c, IORESOURCE_BUSY },
-+	{ str_text_gdc, 0x6e, 0x6e, IORESOURCE_BUSY },
-+	{ str_crtc, 0x70, 0x70, IORESOURCE_BUSY },
-+	{ str_crtc, 0x72, 0x72, IORESOURCE_BUSY },
-+	{ str_crtc, 0x74, 0x74, IORESOURCE_BUSY },
-+	{ str_crtc, 0x74, 0x74, IORESOURCE_BUSY },
-+	{ str_crtc, 0x76, 0x76, IORESOURCE_BUSY },
-+	{ str_crtc, 0x78, 0x78, IORESOURCE_BUSY },
-+	{ str_crtc, 0x7a, 0x7a, IORESOURCE_BUSY },
-+	{ str_timer, 0x71, 0x71, IORESOURCE_BUSY },
-+	{ str_timer, 0x73, 0x73, IORESOURCE_BUSY },
-+	{ str_timer, 0x75, 0x75, IORESOURCE_BUSY },
-+	{ str_timer, 0x77, 0x77, IORESOURCE_BUSY },
-+	{ str_graphic_gdc, 0xa0, 0xa0, IORESOURCE_BUSY },
-+	{ str_graphic_gdc, 0xa2, 0xa2, IORESOURCE_BUSY },
-+	{ str_graphic_gdc, 0xa4, 0xa4, IORESOURCE_BUSY },
-+	{ str_graphic_gdc, 0xa6, 0xa6, IORESOURCE_BUSY },
-+	{ "cpu", 0xf0, 0xf7, IORESOURCE_BUSY },
-+	{ "fpu", 0xf8, 0xff, IORESOURCE_BUSY },
-+	{ str_dma_ex_bank, 0x0e05, 0x0e05, 0 },
-+	{ str_dma_ex_bank, 0x0e07, 0x0e07, 0 },
-+	{ str_dma_ex_bank, 0x0e09, 0x0e09, 0 },
-+	{ str_dma_ex_bank, 0x0e0b, 0x0e0b, 0 },
-+	{ str_beep_freq, 0x3fd9, 0x3fd9, IORESOURCE_BUSY },
-+	{ str_beep_freq, 0x3fdb, 0x3fdb, IORESOURCE_BUSY },
-+	{ str_beep_freq, 0x3fdd, 0x3fdd, IORESOURCE_BUSY },
-+	{ str_beep_freq, 0x3fdf, 0x3fdf, IORESOURCE_BUSY },
-+	/* All PC-9800 have (exactly) one mouse interface.  */
-+	{ str_mouse_pio, 0x7fd9, 0x7fd9, 0 },
-+	{ str_mouse_pio, 0x7fdb, 0x7fdb, 0 },
-+	{ str_mouse_pio, 0x7fdd, 0x7fdd, 0 },
-+	{ str_mouse_pio, 0x7fdf, 0x7fdf, 0 },
-+	{ "mouse timer", 0xbfdb, 0xbfdb, 0 },
-+	{ "mouse irq", 0x98d7, 0x98d7, 0 },
-+};
-+
-+#define STANDARD_IO_RESOURCES (sizeof(standard_io_resources)/sizeof(struct resource))
-+
-+static struct resource tvram_resource = { "Text VRAM/CG window", 0xa0000, 0xa4fff, IORESOURCE_BUSY };
-+static struct resource gvram_brg_resource = { "Graphic VRAM (B/R/G)", 0xa8000, 0xbffff, IORESOURCE_BUSY };
-+static struct resource gvram_e_resource = { "Graphic VRAM (E)", 0xe0000, 0xe7fff, IORESOURCE_BUSY };
-+
-+/* System ROM resources */
-+#define MAXROMS 6
-+static struct resource rom_resources[MAXROMS] = {
-+	{ "System ROM", 0xe8000, 0xfffff, IORESOURCE_BUSY }
-+};
-+
-+static inline void probe_roms(void)
-+{
-+	int roms = 1;
-+	int i;
-+	__u8 *xrom_id;
-+
-+	request_resource(&iomem_resource, rom_resources+0);
-+
-+	xrom_id = (__u8 *) isa_bus_to_virt(PC9800SCA_XROM_ID + 0x10);
-+
-+	for (i = 0; i < 16; i++) {
-+		if (xrom_id[i] & 0x80) {
-+			int j;
-+
-+			for (j = i + 1; j < 16 && (xrom_id[j] & 0x80); j++)
-+				;
-+			rom_resources[roms].start = 0x0d0000 + i * 0x001000;
-+			rom_resources[roms].end = 0x0d0000 + j * 0x001000 - 1;
-+			rom_resources[roms].name = "Extension ROM";
-+			rom_resources[roms].flags = IORESOURCE_BUSY;
-+
-+			request_resource(&iomem_resource,
-+					  rom_resources + roms);
-+			if (++roms >= MAXROMS)
-+				return;
-+		}
-+	}
-+}
-+
-+static inline void mach_request_resource(void)
-+{
-+	int i;
-+
-+	if (PC9800_HIGHRESO_P()) {
-+		tvram_resource.start = 0xe0000;
-+		tvram_resource.end   = 0xe4fff;
-+		gvram_brg_resource.name  = "Graphic VRAM";
-+		gvram_brg_resource.start = 0xc0000;
-+		gvram_brg_resource.end   = 0xdffff;
-+	}
-+
-+	request_resource(&iomem_resource, &tvram_resource);
-+	request_resource(&iomem_resource, &gvram_brg_resource);
-+	if (!PC9800_HIGHRESO_P())
-+		request_resource(&iomem_resource, &gvram_e_resource);
-+
-+	for (i = 0; i < STANDARD_IO_RESOURCES; i++)
-+		request_resource(&ioport_resource, standard_io_resources + i);
-+
-+	if (PC9800_HIGHRESO_P() || PC9800_9821_P()) {
-+		static char graphics[] = "graphics";
-+		static struct resource graphics_resources[] = {
-+			{ graphics, 0x9a0, 0x9a0, 0 },
-+			{ graphics, 0x9a2, 0x9a2, 0 },
-+			{ graphics, 0x9a4, 0x9a4, 0 },
-+			{ graphics, 0x9a6, 0x9a6, 0 },
-+			{ graphics, 0x9a8, 0x9a8, 0 },
-+			{ graphics, 0x9aa, 0x9aa, 0 },
-+			{ graphics, 0x9ac, 0x9ac, 0 },
-+			{ graphics, 0x9ae, 0x9ae, 0 },
-+		};
-+
-+#define GRAPHICS_RESOURCES (sizeof(graphics_resources)/sizeof(struct resource))
-+
-+		for (i = 0; i < GRAPHICS_RESOURCES; i++)
-+			request_resource(&ioport_resource, graphics_resources + i);
-+	}
-+}
-+
-+#endif /* !_MACH_RESOURCES_H */
-diff -urN linux/arch/i386/mach-pc9800/mach_time.h linux98/arch/i386/mach-pc9800/mach_time.h
---- linux/arch/i386/mach-pc9800/mach_time.h	Thu Jan  1 09:00:00 1970
-+++ linux98/arch/i386/mach-pc9800/mach_time.h	Mon Oct 21 11:23:06 2002
-@@ -0,0 +1,136 @@
-+/*
-+ *  arch/i386/mach-pc9800/mach_time.h
-+ *
-+ *  Machine specific set RTC function for PC-9800.
-+ *  Written by Osamu Tomita <tomita@cinet.co.jp>
-+ */
-+#ifndef _MACH_TIME_H
-+#define _MACH_TIME_H
-+
-+#include <linux/upd4990a.h>
-+
-+/* for check timing call set_rtc_mmss() */
-+/* used in arch/i386/time.c::do_timer_interrupt() */
-+/*
-+ * Because PC-9800's RTC (NEC uPD4990A) does not allow setting
-+ * time partially, we always have to read-modify-write the
-+ * entire time (including year) so that set_rtc_mmss() will
-+ * take quite much time to execute.  You may want to relax
-+ * RTC resetting interval (currently ~11 minuts)...
-+ */
-+#define TIME1	1000000
-+#define TIME2	0
-+
-+static inline int mach_set_rtc_mmss(unsigned long nowtime)
-+{
-+	int retval = 0;
-+	int real_seconds, real_minutes, cmos_minutes;
-+	struct upd4990a_raw_data data;
-+
-+	upd4990a_get_time(&data, 1);
-+	cmos_minutes = (data.min >> 4) * 10 + (data.min & 0xf);
-+
-+	/*
-+	 * since we're only adjusting minutes and seconds,
-+	 * don't interfere with hour overflow. This avoids
-+	 * messing with unknown time zones but requires your
-+	 * RTC not to be off by more than 15 minutes
-+	 */
-+	real_seconds = nowtime % 60;
-+	real_minutes = nowtime / 60;
-+	if (((abs(real_minutes - cmos_minutes) + 15) / 30) & 1)
-+		real_minutes += 30;	/* correct for half hour time zone */
-+	real_minutes %= 60;
-+
-+	if (abs(real_minutes - cmos_minutes) < 30) {
-+		u8 temp_seconds = (real_seconds / 10) * 16 + real_seconds % 10;
-+		u8 temp_minutes = (real_minutes / 10) * 16 + real_minutes % 10;
-+
-+		if (data.sec != temp_seconds || data.min != temp_minutes) {
-+			data.sec = temp_seconds;
-+			data.min = temp_minutes;
-+			upd4990a_set_time(&data, 1);
-+		}
-+	} else {
-+		printk(KERN_WARNING
-+		       "set_rtc_mmss: can't update from %d to %d\n",
-+		       cmos_minutes, real_minutes);
-+		retval = -1;
-+	}
-+
-+	/* uPD4990A users' manual says we should issue Register Hold
-+	 * command after reading time, or future Time Read command
-+	 * may not work.  When we have set the time, this also starts
-+	 * the clock.
-+	 */
-+	upd4990a_serial_command(UPD4990A_REGISTER_HOLD);
-+
-+	return retval;
-+}
-+
-+#define RTC_SANITY_CHECK
-+
-+static inline unsigned long mach_get_cmos_time(void)
-+{
-+	int i;
-+	u8 prev, cur;
-+	unsigned int year;
-+#ifdef RTC_SANITY_CHECK
-+	int retry_count;
+ /*
+  * This character is the same as _POSIX_VDISABLE: it cannot be used as
+  * a c_cc[] character, but indicates that a particular special character
+diff -urN linux/include/linux/vt.h linux98/include/linux/vt.h
+--- linux/include/linux/vt.h	Sat Oct 19 13:02:30 2002
++++ linux98/include/linux/vt.h	Mon Oct 21 14:26:03 2002
+@@ -50,5 +50,6 @@
+ #define VT_RESIZEX      0x560A  /* set kernel's idea of screensize + more */
+ #define VT_LOCKSWITCH   0x560B  /* disallow vt switching */
+ #define VT_UNLOCKSWITCH 0x560C  /* allow vt switching */
++#define VT_GDC_RESIZE   0x5698
+ 
+ #endif /* _LINUX_VT_H */
+diff -urN linux/include/linux/vt_buffer.h linux98/include/linux/vt_buffer.h
+--- linux/include/linux/vt_buffer.h	Sat Oct 19 13:02:24 2002
++++ linux98/include/linux/vt_buffer.h	Mon Oct 21 14:28:40 2002
+@@ -19,6 +19,10 @@
+ #include <asm/vga.h>
+ #endif
+ 
++#ifdef CONFIG_GDC_CONSOLE
++#include <asm/gdc.h>
 +#endif
 +
-+	struct upd4990a_raw_data data;
-+
-+#ifdef RTC_SANITY_CHECK
-+	retry_count = 0;
-+ retry:
-+#endif
-+	/* Connect uPD4990A's DATA OUT pin to its 1Hz reference clock. */
-+	upd4990a_serial_command(UPD4990A_REGISTER_HOLD);
-+
-+	/* Catch rising edge of reference clock.  */
-+	prev = ~UPD4990A_READ_DATA();
-+	for (i = 0; i < 1800000; i++) { /* may take up to 1 second... */
-+		__asm__ ("outb %%al,%0" : : "N" (0x5f)); /* 0.6usec delay */
-+		cur = UPD4990A_READ_DATA();
-+		if (!(prev & cur & 1))
-+			break;
-+		prev = ~cur;
-+	}
-+
-+	upd4990a_get_time(&data, 0);
-+
-+#ifdef RTC_SANITY_CHECK
-+# define BCD_VALID_P(x, hi)	(((x) & 0x0f) <= 9 && (x) <= 0x ## hi)
-+# define DATA			((const unsigned char *) &data)
-+
-+	if (!BCD_VALID_P(data.sec, 59) ||
-+	    !BCD_VALID_P(data.min, 59) ||
-+	    !BCD_VALID_P(data.hour, 23) ||
-+	    data.mday == 0 || !BCD_VALID_P(data.mday, 31) ||
-+	    data.wday > 6 ||
-+	    data.mon < 1 || 12 < data.mon ||
-+	    !BCD_VALID_P(data.year, 99)) {
-+		printk(KERN_ERR "RTC clock data is invalid! "
-+			"(%02X %02X %02X %02X %02X %02X) - ",
-+			DATA[0], DATA[1], DATA[2], DATA[3], DATA[4], DATA[5]);
-+		if (++retry_count < 3) {
-+			printk("retrying (%d)\n", retry_count);
-+			goto retry;
-+		}
-+		printk("giving up, continuing\n");
-+	}
-+
-+# undef BCD_VALID_P
-+# undef DATA
-+#endif /* RTC_SANITY_CHECK */
-+
-+#define CVT(x)	(((x) & 0xF) + ((x) >> 4) * 10)
-+	if ((year = CVT(data.year) + 1900) < 1995)
-+		year += 100;
-+	return mktime(year, data.mon, CVT(data.mday),
-+		       CVT(data.hour), CVT(data.min), CVT(data.sec));
-+#undef CVT
-+}
-+
-+#endif /* !_MACH_TIME_H */
-diff -urN linux/arch/i386/mach-pc9800/mach_traps.h linux98/arch/i386/mach-pc9800/mach_traps.h
---- linux/arch/i386/mach-pc9800/mach_traps.h	Thu Jan  1 09:00:00 1970
-+++ linux98/arch/i386/mach-pc9800/mach_traps.h	Tue Nov  5 22:46:55 2002
-@@ -0,0 +1,27 @@
-+/*
-+ *  arch/i386/mach-pc9800/mach_traps.h
-+ *
-+ *  Machine specific NMI handling for PC-9800.
-+ *  Written by Osamu Tomita <tomita@cinet.co.jp>
-+ */
-+#ifndef _MACH_TRAPS_H
-+#define _MACH_TRAPS_H
-+
-+static inline void clear_mem_error(unsigned char reason)
-+{
-+	outb(0x08, 0x37);
-+	outb(0x09, 0x37);
-+}
-+
-+static inline unsigned char get_nmi_reason(void)
-+{
-+	return (inb(0x33) & 6) ? 0x80 : 0;
-+}
-+
-+static inline void reassert_nmi(void)
-+{
-+	outb(0x09, 0x50);	/* disable NMI once */
-+	outb(0x09, 0x52);	/* re-enable it */
-+}
-+
-+#endif /* !_MACH_TRAPS_H */
-diff -urN linux/arch/i386/mach-pc9800/smpboot_hooks.h linux98/arch/i386/mach-pc9800/smpboot_hooks.h
---- linux/arch/i386/mach-pc9800/smpboot_hooks.h	Thu Jan  1 09:00:00 1970
-+++ linux98/arch/i386/mach-pc9800/smpboot_hooks.h	Sun Sep 22 06:56:46 2002
-@@ -0,0 +1,33 @@
-+/* two abstractions specific to kernel/smpboot.c, mainly to cater to visws
-+ * which needs to alter them. */
-+
-+static inline void smpboot_clear_io_apic_irqs(void)
-+{
-+	io_apic_irqs = 0;
-+}
-+
-+static inline void smpboot_setup_warm_reset_vector(void)
-+{
-+	/*
-+	 * Install writable page 0 entry to set BIOS data area.
-+	 */
-+	local_flush_tlb();
-+
-+	/*
-+	 * Paranoid:  Set warm reset code and vector here back
-+	 * to default values.
-+	 */
-+	outb(0x0f, 0x37);	/* SHUT0 = 1 */
-+
-+	*((volatile long *) phys_to_virt(0x404)) = 0;
-+}
-+
-+static inline void smpboot_setup_io_apic(void)
-+{
-+	/*
-+	 * Here we can be sure that there is an IO-APIC in the system. Let's
-+	 * go and set it up:
-+	 */
-+	if (!skip_ioapic_setup && nr_ioapics)
-+		setup_IO_APIC();
-+}
-diff -urN linux/arch/i386/mach-summit/calibrate_tsc.h linux98/arch/i386/mach-summit/calibrate_tsc.h
---- linux/arch/i386/mach-summit/calibrate_tsc.h	Thu Jan  1 09:00:00 1970
-+++ linux98/arch/i386/mach-summit/calibrate_tsc.h	Mon Oct 21 02:46:34 2002
-@@ -0,0 +1 @@
-+#include "../mach-generic/calibrate_tsc.h"
-diff -urN linux/arch/i386/mach-summit/mach_resources.h linux98/arch/i386/mach-summit/mach_resources.h
---- linux/arch/i386/mach-summit/mach_resources.h	Thu Jan  1 09:00:00 1970
-+++ linux98/arch/i386/mach-summit/mach_resources.h	Sun Oct 20 18:11:27 2002
-@@ -0,0 +1 @@
-+#include "../mach-generic/mach_resources.h"
-diff -urN linux/arch/i386/mach-summit/mach_time.h linux98/arch/i386/mach-summit/mach_time.h
---- linux/arch/i386/mach-summit/mach_time.h	Thu Jan  1 09:00:00 1970
-+++ linux98/arch/i386/mach-summit/mach_time.h	Sun Oct 20 20:00:44 2002
-@@ -0,0 +1 @@
-+#include "../mach-generic/mach_time.h"
-diff -urN linux/arch/i386/mach-summit/mach_traps.h linux98/arch/i386/mach-summit/mach_traps.h
---- linux/arch/i386/mach-summit/mach_traps.h	Thu Jan  1 09:00:00 1970
-+++ linux98/arch/i386/mach-summit/mach_traps.h	Mon Oct 21 02:48:48 2002
-@@ -0,0 +1 @@
-+#include "../mach-generic/mach_traps.h"
-diff -urN linux/arch/i386/mach-visws/calibrate_tsc.h linux98/arch/i386/mach-visws/calibrate_tsc.h
---- linux/arch/i386/mach-visws/calibrate_tsc.h	Thu Jan  1 09:00:00 1970
-+++ linux98/arch/i386/mach-visws/calibrate_tsc.h	Mon Oct 21 02:46:34 2002
-@@ -0,0 +1 @@
-+#include "../mach-generic/calibrate_tsc.h"
-diff -urN linux/arch/i386/mach-visws/mach_resources.h linux98/arch/i386/mach-visws/mach_resources.h
---- linux/arch/i386/mach-visws/mach_resources.h	Thu Jan  1 09:00:00 1970
-+++ linux98/arch/i386/mach-visws/mach_resources.h	Sun Oct 20 18:11:27 2002
-@@ -0,0 +1 @@
-+#include "../mach-generic/mach_resources.h"
-diff -urN linux/arch/i386/mach-visws/mach_time.h linux98/arch/i386/mach-visws/mach_time.h
---- linux/arch/i386/mach-visws/mach_time.h	Thu Jan  1 09:00:00 1970
-+++ linux98/arch/i386/mach-visws/mach_time.h	Sun Oct 20 20:00:44 2002
-@@ -0,0 +1 @@
-+#include "../mach-generic/mach_time.h"
-diff -urN linux/arch/i386/mach-visws/mach_traps.h linux98/arch/i386/mach-visws/mach_traps.h
---- linux/arch/i386/mach-visws/mach_traps.h	Thu Jan  1 09:00:00 1970
-+++ linux98/arch/i386/mach-visws/mach_traps.h	Mon Oct 21 02:48:48 2002
-@@ -0,0 +1 @@
-+#include "../mach-generic/mach_traps.h"
-diff -urN linux/arch/i386/mach-voyager/calibrate_tsc.h linux98/arch/i386/mach-voyager/calibrate_tsc.h
---- linux/arch/i386/mach-voyager/calibrate_tsc.h	Thu Jan  1 09:00:00 1970
-+++ linux98/arch/i386/mach-voyager/calibrate_tsc.h	Mon Oct 21 02:46:34 2002
-@@ -0,0 +1 @@
-+#include "../mach-generic/calibrate_tsc.h"
-diff -urN linux/arch/i386/mach-voyager/mach_resources.h linux98/arch/i386/mach-voyager/mach_resources.h
---- linux/arch/i386/mach-voyager/mach_resources.h	Thu Jan  1 09:00:00 1970
-+++ linux98/arch/i386/mach-voyager/mach_resources.h	Sun Oct 20 18:11:27 2002
-@@ -0,0 +1 @@
-+#include "../mach-generic/mach_resources.h"
-diff -urN linux/arch/i386/mach-voyager/mach_time.h linux98/arch/i386/mach-voyager/mach_time.h
---- linux/arch/i386/mach-voyager/mach_time.h	Thu Jan  1 09:00:00 1970
-+++ linux98/arch/i386/mach-voyager/mach_time.h	Sun Oct 20 20:00:44 2002
-@@ -0,0 +1 @@
-+#include "../mach-generic/mach_time.h"
-diff -urN linux/arch/i386/mach-voyager/mach_traps.h linux98/arch/i386/mach-voyager/mach_traps.h
---- linux/arch/i386/mach-voyager/mach_traps.h	Thu Jan  1 09:00:00 1970
-+++ linux98/arch/i386/mach-voyager/mach_traps.h	Mon Oct 21 02:48:48 2002
-@@ -0,0 +1 @@
-+#include "../mach-generic/mach_traps.h"
+ #ifndef VT_BUF_HAVE_RW
+ #define scr_writew(val, addr) (*(addr) = (val))
+ #define scr_readw(addr) (*(addr))
 
---------------5F116BE87D590F47EDED0B97--
+--------------9A47A2DBF8A2E3A7AAA7B9E6--
 

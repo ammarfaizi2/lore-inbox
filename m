@@ -1,39 +1,30 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264784AbTFTV3n (ORCPT <rfc822;willy@w.ods.org>);
+	id S264826AbTFTV3n (ORCPT <rfc822;willy@w.ods.org>);
 	Fri, 20 Jun 2003 17:29:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264826AbTFTV33
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264801AbTFTV30
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 Jun 2003 17:29:29 -0400
-Received: from lindsey.linux-systeme.com ([80.190.48.67]:55312 "EHLO
-	mx00.linux-systeme.com") by vger.kernel.org with ESMTP
-	id S264784AbTFTV3X (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 Jun 2003 17:29:23 -0400
-From: Marc-Christian Petersen <m.c.p@wolk-project.de>
-Organization: Working Overloaded Linux Kernel
-To: David Christensen <davidc@connect4less.com>
-Subject: Re: make menuconfig error
-Date: Fri, 20 Jun 2003 23:42:57 +0200
-User-Agent: KMail/1.5.2
-Cc: Michael Buesch <fsdeveloper@yahoo.de>, mec@shout.net,
-       linux-kernel@vger.kernel.org
-References: <1056140839.31828.46.camel@pluto.connect4less.com> <200306202308.38124.m.c.p@wolk-project.de> <1056144983.31828.50.camel@pluto.connect4less.com>
-In-Reply-To: <1056144983.31828.50.camel@pluto.connect4less.com>
+	Fri, 20 Jun 2003 17:29:26 -0400
+Received: from fep04.swip.net ([130.244.199.132]:23475 "EHLO
+	fep04-svc.swip.net") by vger.kernel.org with ESMTP id S264830AbTFTV1n
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 20 Jun 2003 17:27:43 -0400
+Message-ID: <3EF3803A.3030707@tin.it>
+Date: Fri, 20 Jun 2003 23:44:26 +0200
+From: davide <danjde@tin.it>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; it-IT; rv:1.3) Gecko/20030313
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-15"
+To: destinatari-ignoti:;
+Subject: hhgghh...!!
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200306202342.57019.m.c.p@wolk-project.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 20 June 2003 23:36, David Christensen wrote:
-
-> You are correct Marc!  At least that's how I tripped it.
-:)
-
-http://marc.theaimsgroup.com/?l=linux-kernel&m=105394564118849&w=2
-
-ciao, Marc
+...excuse me for the stupid question...if possible could you suggest how 
+change the name of /lib/modules/kernel.xxx on /lib/modules/kernel.yyy in 
+phase of kernel compilation?....
+many many many many many thanks and excuse me still...
+bye!
 

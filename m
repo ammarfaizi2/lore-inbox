@@ -1,75 +1,87 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269557AbTGJRkn (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Jul 2003 13:40:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269561AbTGJRkn
+	id S269573AbTGJRtO (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Jul 2003 13:49:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269575AbTGJRtO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Jul 2003 13:40:43 -0400
-Received: from palrel12.hp.com ([156.153.255.237]:2432 "EHLO palrel12.hp.com")
-	by vger.kernel.org with ESMTP id S269557AbTGJRkb (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Jul 2003 13:40:31 -0400
-From: David Mosberger <davidm@napali.hpl.hp.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Thu, 10 Jul 2003 13:49:14 -0400
+Received: from mailrelay1.lanl.gov ([128.165.4.101]:47085 "EHLO
+	mailrelay1.lanl.gov") by vger.kernel.org with ESMTP id S269573AbTGJRtH
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 10 Jul 2003 13:49:07 -0400
+Subject: [PATCH] 2.4.22-pre4-bk update Documentation/Changes,
+	scripts/ver_linux for quota-tools.
+From: Steven Cole <elenstev@mesatop.com>
+To: Marcelo Tosatti <marcelo@conectiva.com.br>
+Cc: Christoph Hellwig <hch@infradead.org>, linux-kernel@vger.kernel.org
+Content-Type: text/plain
+Organization: 
+Message-Id: <1057860165.8753.164.camel@spc9.esa.lanl.gov>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.4-1.1mdk 
+Date: 10 Jul 2003 12:02:45 -0600
 Content-Transfer-Encoding: 7bit
-Message-ID: <16141.43130.657025.952793@napali.hpl.hp.com>
-Date: Thu, 10 Jul 2003 10:55:06 -0700
-To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: davidm@hpl.hp.com, linux-kernel@vger.kernel.org, torvalds@transmeta.com,
-       ak@suse.de
-Subject: Re: per_cpu fixes 
-In-Reply-To: <20030710015208.1E7A22C44B@lists.samba.org>
-References: <200307092120.h69LKTBH002759@napali.hpl.hp.com>
-	<20030710015208.1E7A22C44B@lists.samba.org>
-X-Mailer: VM 7.07 under Emacs 21.2.1
-Reply-To: davidm@hpl.hp.com
-X-URL: http://www.hpl.hp.com/personal/David_Mosberger/
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> On Thu, 10 Jul 2003 11:41:07 +1000, Rusty Russell <rusty@rustcorp.com.au> said:
+The recent discussion regarding versions of quota support in 2.4 and 2.5
+brought to my attention that quota-tools is not mentioned in 
+Documentation/Changes or checked in scripts/ver_linux.
 
-  Rusty> A compromise is possible.  I believe that the address of a
-  Rusty> per-cpu variable *must* be the same everywhere, but we can
-  Rusty> provide get & set macros which never expose an lvalue, and on
-  Rusty> IA64 could use the pinned TLB thing:
+Here is a patch for 2.4. A similar patch for 2.5 is on the way.
 
-  Rusty> /* Usage: set_cpu_local(myint, = 1), or set_cpu_local(mystruct,.member = 1) */
-  Rusty> #define set_cpu_local(var, assign) ...
+Steven
 
-  Rusty> /* Usage: get_cpu_local(myint), or get_cpu_local(mystruct).member */
-  Rusty> #define get_cpu_local(var)
-  Rusty> ...
+diff -ur 2.4-bk-current/Documentation/Changes 2.4-linux/Documentation/Changes
+--- 2.4-bk-current/Documentation/Changes	Thu Jul 10 10:42:48 2003
++++ 2.4-linux/Documentation/Changes	Thu Jul 10 11:26:23 2003
+@@ -57,6 +57,7 @@
+ o  jfsutils               1.0.12                  # fsck.jfs -V
+ o  reiserfsprogs          3.6.3                   # reiserfsck -V 2>&1|grep reiserfsprogs
+ o  pcmcia-cs              3.1.21                  # cardmgr -V
++o  quota-tools            3.09                    # quota -V
+ o  PPP                    2.4.0                   # pppd --version
+ o  isdn4k-utils           3.1pre1                 # isdnctrl 2>&1|grep version
+ 			  
+@@ -197,6 +198,14 @@
+ kernel source.  Pay attention when you recompile your kernel ;-).
+ Also, be sure to upgrade to the latest pcmcia-cs release.
+ 
++Quota-tools
++-----------
++
++Support for 32 bit uid's and gid's is required if you want to use
++the newer version 2 quota format.  Quota-tools version 3.07 and
++newer has this support.  Use the recommended version or newer
++from the table above.
++
+ Intel IA32 microcode
+ --------------------
+ 
+@@ -335,6 +344,10 @@
+ ---------
+ o  <ftp://pcmcia-cs.sourceforge.net/pub/pcmcia-cs/pcmcia-cs-3.1.21.tar.gz>
+ 
++Quota-tools
++----------
++o  <http://sourceforge.net/projects/linuxquota/>
++
+ Jade
+ ----
+ o  <ftp://ftp.jclark.com/pub/jade/jade-1.2.1.tar.gz>
+diff -ur 2.4-bk-current/scripts/ver_linux 2.4-linux/scripts/ver_linux
+--- 2.4-bk-current/scripts/ver_linux	Thu Jul 10 10:42:42 2003
++++ 2.4-linux/scripts/ver_linux	Thu Jul 10 10:54:42 2003
+@@ -42,6 +42,9 @@
+ cardmgr -V 2>&1| grep version | awk \
+ 'NR==1{print "pcmcia-cs             ", $3}'
+ 
++quota -V 2>&1 | grep version | awk \
++'NR==1{print "quota-tools           ", $NF}'
++
+ pppd --version 2>&1| grep version | awk \
+ 'NR==1{print "PPP                   ", $3}'
+ 
 
-You mean there would be three primitives:
 
- (1) get value from a per-CPU variable
- (2) set value of a per-CPU variable
- (3) get the (canonical) address of a per-CPU variable
 
-?
-
-If so, I could live with that.
-
-I don't like the proposed syntax for (2) very much, but I don't have a
-better suggestion and it may not matter much: for extremely
-performance-critical stuff (2) can be used and if you really hate the
-syntax, you can use (3) to get a pointer to the variable and then do
-the normal thing.
-
-On ia64, we should be able to implement (3) via a CPU-local variable
-which stores the per-CPU offset for a CPU.  Ideally, calculating the
-canonical address of CPU-local variable FOO would boil down to:
-
- movl ADDR = local_per_cpu_offset;;
- load ADDR = [ADDR];;				// read the per-CPU offset
- addl ADDR = (FOO - local_per_cpu_offset), ADDR	// calculate local addr of FOO
-
-I'm not sure we can coax gcc to generate exactly this code, but we
-should be able to get close and should definitely be able to avoid an
-array lookup and accessing remote memory (in the NUMA case).
-
-I suspect Andi could do something similar?
-
-	--david

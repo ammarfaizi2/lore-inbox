@@ -1,42 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292868AbSBVOGN>; Fri, 22 Feb 2002 09:06:13 -0500
+	id <S292870AbSBVOMo>; Fri, 22 Feb 2002 09:12:44 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292867AbSBVOGD>; Fri, 22 Feb 2002 09:06:03 -0500
-Received: from delta.ds2.pg.gda.pl ([213.192.72.1]:9203 "EHLO
-	delta.ds2.pg.gda.pl") by vger.kernel.org with ESMTP
-	id <S292868AbSBVOFt>; Fri, 22 Feb 2002 09:05:49 -0500
-Date: Fri, 22 Feb 2002 15:04:19 +0100 (MET)
-From: "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>
-Reply-To: "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>
-To: Dan Kegel <dank@kegel.com>
-cc: "David S. Miller" <davem@redhat.com>, linux-kernel@vger.kernel.org,
-        zab@zabbo.net
-Subject: Re: is CONFIG_PACKET_MMAP always a win?
-In-Reply-To: <3C75ED64.28CCFA6B@kegel.com>
-Message-ID: <Pine.GSO.3.96.1020222145834.5266D-100000@delta.ds2.pg.gda.pl>
-Organization: Technical University of Gdansk
+	id <S292869AbSBVOMe>; Fri, 22 Feb 2002 09:12:34 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:39684 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S292867AbSBVOM1>;
+	Fri, 22 Feb 2002 09:12:27 -0500
+Message-ID: <3C7651C7.59198769@mandrakesoft.com>
+Date: Fri, 22 Feb 2002 09:12:23 -0500
+From: Jeff Garzik <jgarzik@mandrakesoft.com>
+Organization: MandrakeSoft
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.5.5 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Vojtech Pavlik <vojtech@suse.cz>
+CC: Martin Dalecki <dalecki@evision-ventures.com>,
+        Gadi Oxman <gadio@netvision.net.il>,
+        Linus Torvalds <torvalds@transmeta.com>,
+        Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] 2.5.5-pre1 IDE cleanup 9
+In-Reply-To: <Pine.LNX.4.33.0202131434350.21395-100000@home.transmeta.com> <3C723B15.2030409@evision-ventures.com> <00a201c1bb8d$90dd2740$0300a8c0@lemon> <3C764B7C.2000609@evision-ventures.com> <20020222150323.A5530@suse.cz>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 21 Feb 2002, Dan Kegel wrote:
-
-> The important files are a bit buried.  The important ones seem to be
+Vojtech Pavlik wrote:
+> On Fri, Feb 22, 2002 at 02:45:32PM +0100, Martin Dalecki wrote:
+> > The chipset drivers will register lists of PCI-id's they can handle
+> > instead of the single only global list found in ide-pci.c.
 > 
-> ftp://ftp.inr.ac.ru/ip-routing/lbl-tools/README
-> ftp://ftp.inr.ac.ru/ip-routing/lbl-tools/libpcap-0.4-ss991029.dif.gz
-> ftp://ftp.inr.ac.ru/ip-routing/lbl-tools/libpcap-0.4.tar.gz
-> 
-> The .dif file contains the first example I've seen of
-> how to use socket option PACKET_RX_RING.
+> I think it'd be even better if the chipset drivers did the probing
+> themselves, and once they find the IDE device, they can register it with
+> the IDE core. Same as all the other subsystem do this.
 
- Too bad the changes did not get integrated -- libpcap 0.7.1 doesn't know
-anything about PACKET_RX_RING... 
+Yes.  I've mentioned before converting the IDE driver into a sort of
+structure, but it always boiled down to "that requires a complete
+rewrite" reply to me...  If someone accomplishes such, I would be happy.
+
+	Jeff
+
+
 
 -- 
-+  Maciej W. Rozycki, Technical University of Gdansk, Poland   +
-+--------------------------------------------------------------+
-+        e-mail: macro@ds2.pg.gda.pl, PGP key available        +
-
+Jeff Garzik      | "UNIX enhancements aren't."
+Building 1024    |           -- says /usr/games/fortune
+MandrakeSoft     |

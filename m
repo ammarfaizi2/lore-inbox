@@ -1,99 +1,102 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S276793AbRJKT4K>; Thu, 11 Oct 2001 15:56:10 -0400
+	id <S276803AbRJKT5k>; Thu, 11 Oct 2001 15:57:40 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S276800AbRJKT4B>; Thu, 11 Oct 2001 15:56:01 -0400
-Received: from zok.sgi.com ([204.94.215.101]:23212 "EHLO zok.sgi.com")
-	by vger.kernel.org with ESMTP id <S276793AbRJKTzs>;
-	Thu, 11 Oct 2001 15:55:48 -0400
-Message-ID: <XFMail.20011011145135.jkp@riker.nailed.org>
-X-Mailer: XFMail 1.5.0 on IRIX
-X-Priority: 3 (Normal)
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 8bit
-MIME-Version: 1.0
-In-Reply-To: <XFMail.20011011143922.jkp@riker.nailed.org>
-Date: Thu, 11 Oct 2001 14:51:35 -0500 (CDT)
-Organization: SGI, Inc.
-From: jkp@riker.nailed.org
-To: linux-kernel@vger.kernel.org
-Subject: IGNORE: RE: 2.4.10-ac12 compile error
+	id <S276813AbRJKT5V>; Thu, 11 Oct 2001 15:57:21 -0400
+Received: from mailrelay2.inwind.it ([212.141.54.102]:36820 "EHLO
+	mailrelay2.inwind.it") by vger.kernel.org with ESMTP
+	id <S276802AbRJKT5M>; Thu, 11 Oct 2001 15:57:12 -0400
+Message-Id: <3.0.6.32.20011011215917.01e78210@pop.tiscalinet.it>
+X-Mailer: QUALCOMM Windows Eudora Light Version 3.0.6 (32)
+Date: Thu, 11 Oct 2001 21:59:17 +0200
+To: Andrea Arcangeli <andrea@suse.de>, linux-kernel@vger.kernel.org
+From: Lorenzo Allegrucci <lenstra@tiscalinet.it>
+Subject: Re: 2.4.12aa1 [was Re: 2.4.11aa1 [was Re: 2.4.11pre6aa1]]
+In-Reply-To: <20011011123231.C714@athlon.random>
+In-Reply-To: <20011010051104.F726@athlon.random>
+ <20011009205516.F724@athlon.random>
+ <20011010051104.F726@athlon.random>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ignore. My own stupidity.
+At 12.32 11/10/01 +0200, Andrea Arcangeli wrote:
+>This update has further VM work (actually fixes compared to 2.4.11aa1),
+>I also changed my mind about a few bits, and I suggest to test it since
+>this one seems to run very well for me.
+>
+>Lorenzo and Jeffrey, I'd be interested if you could check with your
+>tests how it behaves compared to 2.4.12 vanilla.
+
+Linux-2.4.11:
+
+lenstra:~/src/qsort> time ./qsbench -n 90000000 -p 1 -s 140175100
+seed = 140175100
+71.020u 1.650s 2:20.74 51.6%    0+0k 0+0io 10652pf+0w
+lenstra:~/src/qsort> time ./qsbench -n 90000000 -p 1 -s 140175100
+seed = 140175100
+71.070u 1.650s 2:21.51 51.3%    0+0k 0+0io 10499pf+0w
+lenstra:~/src/qsort> time ./qsbench -n 90000000 -p 1 -s 140175100
+seed = 140175100
+70.790u 1.670s 2:21.01 51.3%    0+0k 0+0io 10641pf+0w
+
+lenstra:~/src/qsort> time ./qsbench -n 9000000 -p 10 -s 140175100
+63.500u 1.800s 1:34.06 69.4%    0+0k 0+0io 8836pf+0w
+lenstra:~/src/qsort> time ./qsbench -n 9000000 -p 10 -s 140175100
+63.020u 1.470s 1:20.22 80.3%    0+0k 0+0io 6394pf+0w
+lenstra:~/src/qsort> time ./qsbench -n 9000000 -p 10 -s 140175100
+63.130u 1.520s 1:12.21 89.5%    0+0k 0+0io 5676pf+0w
+lenstra:~/src/qsort> time ./qsbench -n 9000000 -p 10 -s 140175100
+62.820u 1.560s 1:12.61 88.6%    0+0k 0+0io 5433pf+0w
+lenstra:~/src/qsort> time ./qsbench -n 9000000 -p 10 -s 140175100
+63.070u 1.560s 1:14.83 86.3%    0+0k 0+0io 5811pf+0w
+lenstra:~/src/qsort> time ./qsbench -n 9000000 -p 10 -s 140175100
+63.160u 1.650s 1:17.84 83.2%    0+0k 0+0io 6036pf+0w
+
+lenstra:~/src/qsort> time ./qsbench -n 45000000 -p 2 -s 140175100
+71.290u 2.010s 1:50.11 66.5%    0+0k 0+0io 10462pf+0w
+lenstra:~/src/qsort> time ./qsbench -n 45000000 -p 2 -s 140175100
+71.490u 2.220s 1:49.62 67.2%    0+0k 0+0io 11413pf+0w
+lenstra:~/src/qsort> time ./qsbench -n 45000000 -p 2 -s 140175100
+71.280u 2.360s 1:54.79 64.1%    0+0k 0+0io 11110pf+0w
 
 
-On 11-Oct-2001 jkp@riker.nailed.org wrote:
-> I just downloaded the -ac12 patch to 2.4.10 and applied it over 2.4.10.
-> The patch applied fine (no rejects).
-> 
-> Compile produces this:
-> 
-> -Wno-trigraphs -O2 -fomit-frame-pointer -fno-strict-aliasing -fno-common
-> -pipe
-> -mpreferred-stack-boundary=2 -march=i586    -DEXPORT_SYMTAB -c serial.c
-> In file included from serial.c:172:
-> /usr/src/linux-2.4.10-ac12/include/linux/serialP.h:27:25: operator '(' has no
-> left operand
-> serial.c:192:25: operator '(' has no left operand
-> serial.c:195:25: operator '(' has no left operand
-> serial.c:216:51: operator '(' has no left operand
-> serial.c:668:25: operator '(' has no left operand
-> serial.c: In function `receive_chars':
-> serial.c:671: warning: implicit declaration of function `queue_task_irq_off'
-> serial.c:1423:25: operator '(' has no left operand
-> serial.c:1572:25: operator '(' has no left operand
-> serial.c:2148:25: operator '(' has no left operand
-> serial.c: In function `rs_write':
-> serial.c:1867: warning: implicit declaration of function `copy_from_user'
-> serial.c:2195:25: operator '(' has no left operand
-> serial.c:2372:25: operator '(' has no left operand
-> serial.c: In function `get_serial_info':
-> serial.c:2065: warning: implicit declaration of function `copy_to_user'
-> serial.c:2529:25: operator '(' has no left operand
-> serial.c:2544:25: operator '(' has no left operand
-> serial.c:3156:25: operator '(' has no left operand
-> serial.c:3822:25: operator '(' has no left operand
-> serial.c:3827:32: linux/symtab_begin.h: No such file or directory
-> serial.c:3830:30: linux/symtab_end.h: No such file or directory
-> serial.c: At top level:
-> serial.c:3826: variable `serial_syms' has initializer but incomplete type
-> serial.c:3828: warning: implicit declaration of function `X'
-> serial.c:3828: warning: excess elements in struct initializer
-> serial.c:3828: warning: (near initialization for `serial_syms')
-> serial.c:3829: warning: excess elements in struct initializer
-> serial.c:3829: warning: (near initialization for `serial_syms')
-> serial.c:5380:25: operator '(' has no left operand
-> serial.c:5383:25: operator '(' has no left operand
-> serial.c:5418:25: operator '(' has no left operand
-> serial.c:5421:25: operator '(' has no left operand
-> serial.c:5432:25: operator '(' has no left operand
-> serial.c:5439:25: operator '(' has no left operand
-> serial.c:2389: warning: `rs_break' defined but not used
-> serial.c:3826: warning: `serial_syms' defined but not used
-> make[3]: *** [serial.o] Error 1
-> make[3]: Leaving directory `/usr/src/linux-2.4.10-ac12/drivers/char'
-> make[2]: *** [first_rule] Error 2
-> make[2]: Leaving directory `/usr/src/linux-2.4.10-ac12/drivers/char'
-> make[1]: *** [_subdir_char] Error 2
-> make[1]: Leaving directory `/usr/src/linux-2.4.10-ac12/drivers'
-> make: *** [_dir_drivers] Error 2
-> 
-> All the lines above include the macro LINUX_VERSION_CODE which appears
-> to be undefined. About 50 other files compiled fine.
-> 
-> Thanks.
-> 
-> -- 
-> ----------------------------------
-> Jens Petersohn       x33128
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+
+Linux-2.4.12-aa1:
+
+lenstra:~/src/qsort> time ./qsbench -n 90000000 -p 1 -s 140175100
+seed = 140175100
+71.420u 2.110s 2:49.01 43.5%    0+0k 0+0io 16110pf+0w
+lenstra:~/src/qsort> time ./qsbench -n 90000000 -p 1 -s 140175100
+seed = 140175100
+70.960u 1.850s 2:45.05 44.1%    0+0k 0+0io 15463pf+0w
+lenstra:~/src/qsort> time ./qsbench -n 90000000 -p 1 -s 140175100
+seed = 140175100
+70.760u 1.980s 2:45.61 43.9%    0+0k 0+0io 15595pf+0w
+
+lenstra:~/src/qsort> time ./qsbench -n 9000000 -p 10 -s 140175100
+64.020u 1.940s 1:38.76 66.7%    0+0k 0+0io 10206pf+0w
+lenstra:~/src/qsort> time ./qsbench -n 9000000 -p 10 -s 140175100
+64.190u 1.410s 1:16.98 85.2%    0+0k 0+0io 6796pf+0w
+lenstra:~/src/qsort> time ./qsbench -n 9000000 -p 10 -s 140175100
+63.530u 1.520s 1:13.51 88.4%    0+0k 0+0io 5274pf+0w
+lenstra:~/src/qsort> time ./qsbench -n 9000000 -p 10 -s 140175100
+63.980u 1.370s 1:16.53 85.3%    0+0k 0+0io 6456pf+0w
+lenstra:~/src/qsort> time ./qsbench -n 9000000 -p 10 -s 140175100
+63.640u 1.680s 1:16.38 85.5%    0+0k 0+0io 6189pf+0w
+lenstra:~/src/qsort> time ./qsbench -n 9000000 -p 10 -s 140175100
+63.720u 1.500s 1:15.33 86.5%    0+0k 0+0io 5777pf+0w
+
+lenstra:~/src/qsort> time ./qsbench -n 45000000 -p 2 -s 140175100
+72.810u 2.010s 1:58.16 63.3%    0+0k 0+0io 14220pf+0w
+lenstra:~/src/qsort> time ./qsbench -n 45000000 -p 2 -s 140175100
+71.700u 2.290s 1:58.68 62.3%    0+0k 0+0io 13803pf+0w
+lenstra:~/src/qsort> time ./qsbench -n 45000000 -p 2 -s 140175100
+72.440u 2.220s 1:56.13 64.2%    0+0k 0+0io 12911pf+0w
+
+
+
 
 -- 
-----------------------------------
-Jens Petersohn       x33128
+Lorenzo

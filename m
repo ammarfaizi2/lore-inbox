@@ -1,40 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262021AbVCLVPA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262023AbVCLVTQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262021AbVCLVPA (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 12 Mar 2005 16:15:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261827AbVCLVPA
+	id S262023AbVCLVTQ (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 12 Mar 2005 16:19:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261827AbVCLVTP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 12 Mar 2005 16:15:00 -0500
-Received: from pfepb.post.tele.dk ([195.41.46.236]:54419 "EHLO
-	pfepb.post.tele.dk") by vger.kernel.org with ESMTP id S261358AbVCLVOw
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 12 Mar 2005 16:14:52 -0500
-Date: Sat, 12 Mar 2005 22:15:58 +0100
-From: Sam Ravnborg <sam@ravnborg.org>
-To: Romain Lievin <lkml@lievin.net>
-Cc: linux-kernel@vger.kernel.org, zippel@linux-m68k.org
-Subject: Re: [PATCH] Fix warning in gkc (make gconfig) {Scanned}
-Message-ID: <20050312211558.GA18623@mars.ravnborg.org>
-Mail-Followup-To: Romain Lievin <lkml@lievin.net>,
-	linux-kernel@vger.kernel.org, zippel@linux-m68k.org
-References: <20050309083612.GA15812@lievin.net>
+	Sat, 12 Mar 2005 16:19:15 -0500
+Received: from mustang.oldcity.dca.net ([216.158.38.3]:32199 "HELO
+	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S262023AbVCLVSe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 12 Mar 2005 16:18:34 -0500
+Subject: Re: spin_lock error in arch/i386/kernel/time.c on APM resume
+From: Lee Revell <rlrevell@joe-job.com>
+To: george@mvista.com
+Cc: Andrew Morton <akpm@osdl.org>, "J. Bruce Fields" <bfields@fieldses.org>,
+       Ingo Molnar <mingo@elte.hu>,
+       "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+In-Reply-To: <4233111A.5070807@mvista.com>
+References: <20050312131143.GA31038@fieldses.org>
+	 <4233111A.5070807@mvista.com>
+Content-Type: text/plain
+Date: Sat, 12 Mar 2005 16:18:31 -0500
+Message-Id: <1110662312.7723.16.camel@mindpipe>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050309083612.GA15812@lievin.net>
-User-Agent: Mutt/1.5.6i
+X-Mailer: Evolution 2.0.4 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Mar 09, 2005 at 09:36:12AM +0100, Romain Lievin wrote:
-> Hi,
+On Sat, 2005-03-12 at 07:56 -0800, George Anzinger wrote:
+> J. Bruce Fields wrote:
+> > On APM resume this morning on my Thinkpad X31, I got a "spin_lock is
+> > already locked" error; see below.  This doesn't happen on every resume,
+> > though it's happened before.  The kernel is 2.6.11 plus a bunch of
+> > (hopefully unrelated...) NFS patches.
+> > 
+> > Any ideas?
+> > 
+> Yesterday's night mare, todays bug :(
 > 
-> this patch against 2.6.11-rc3 fixes some warnings about GtkToolButton in gkc
-> (the GTK Kernel Configurator).
 
-Applied, 2 warnings fixed - 10 more to go.
-Care to take a look at them?
-Also gconfig does not support setting localversion - is this something you
-can fix too?
+Wait, so this is the same theoretical bug you discussed in the
+do_timer_interrupt thread?
 
-	Sam
+Wow, a real schroedinbug...
+
+Lee
+

@@ -1,56 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263604AbUDMQwL (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 Apr 2004 12:52:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263613AbUDMQwL
+	id S263274AbUDMQ5L (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 Apr 2004 12:57:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263598AbUDMQ5L
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 Apr 2004 12:52:11 -0400
-Received: from hqemgate02.nvidia.com ([216.228.112.145]:6407 "EHLO
-	hqemgate02.nvidia.com") by vger.kernel.org with ESMTP
-	id S263604AbUDMQwH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 Apr 2004 12:52:07 -0400
-Date: Tue, 13 Apr 2004 11:50:47 -0500
-From: Terence Ripperda <tripperda@nvidia.com>
-To: Andy Whitcroft <apw@shadowen.org>
-Cc: Terence Ripperda <tripperda@nvidia.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: PAT support
-Message-ID: <20040413165046.GD453@hygelac>
-Reply-To: Terence Ripperda <tripperda@nvidia.com>
-References: <4680790.1081848973@42.150.104.212.access.eclipse.net.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <4680790.1081848973@42.150.104.212.access.eclipse.net.uk>
-User-Agent: Mutt/1.4i
-X-Accept-Language: en
-X-Operating-System: Linux hrothgar 2.4.23
-X-OriginalArrivalTime: 13 Apr 2004 16:51:48.0148 (UTC) FILETIME=[9C5E7F40:01C42177]
+	Tue, 13 Apr 2004 12:57:11 -0400
+Received: from kinesis.swishmail.com ([209.10.110.86]:52744 "EHLO
+	kinesis.swishmail.com") by vger.kernel.org with ESMTP
+	id S263274AbUDMQ47 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 13 Apr 2004 12:56:59 -0400
+Message-ID: <407C1BEC.30801@techsource.com>
+Date: Tue, 13 Apr 2004 12:57:16 -0400
+From: Timothy Miller <miller@techsource.com>
+MIME-Version: 1.0
+To: Guillaume@Lacote.name
+CC: linux-kernel@vger.kernel.org, Linux@glacote.com
+Subject: Re: Using compression before encryption in device-mapper
+References: <200404131744.40098.Guillaume@Lacote.name>
+In-Reply-To: <200404131744.40098.Guillaume@Lacote.name>
+Content-Type: text/plain; charset=ISO-8859-15; format=flowed
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Apr 13, 2004 at 01:36:13AM -0700, apw@shadowen.org wrote:
-> But I did notice there appear to be no notes or
-> warnings on the issues of using PAT based mappings.  Cirtainly there are
-> some _very_ onerus restrictions which I have personally tested and found to
-> be true :(.  Perhaps we could get some big fat warning style comments.
 
-where would you like to see such warnings? arguably, all of the dangerous conditions should be handled by this core code to avoid problems (such as only using the first 4 pat entries, flushing the correct caches when updating the pat entries or pte bits). these problems really aren't all that different than any other cache aliasing/pte flushing issues that always exist, right?
 
-> + * According to the INTEL documentation it is the systems responsibility
-> + * to ensure that the PAT registers are kept in agreement on all processors
-> + * in a system.  Changing these registers must occu in a manner which
-> + * maintains the consistency of the processor caches and translation
-> + * lookaside buggers (TLB). 
+Guillaume Lacôte wrote:
+> Hi,
+> 
+> I hope this is the right place to post this message; I tried to keep it small.
+> Basically I really would like to implement compression at the dm level, 
+> despite all of the problems. The reason for this is that reducing redundancy 
+> through compression tremendously reduces the possibilities of success for an 
+> attacker. I had implemented this idea in a java archiver ( 
+> http://jsam.sourceforge.net ).
+> 
+> Although I am not a good kernel hacker, I have spent some time reading 
+> compressed-loop.c, loop-aes, dm-crypt.c, and various threads from lkml 
+> including http://www.uwsg.iu.edu/hypermail/linux/kernel/0402.2/0035.html
+> Thus I would appreciate if you could answer the following questions regarding 
+> the implementation of a "dm-compress" dm personality. 
+> 
+[snip]
 
-absolutely. I tried to handle this by initializing the pat entries as each cpu comes online at boot time, with cache flushes. I think Andi mentioned flushing the TLBs as well, I'll check up on that to make sure I'm doing that as well.
- 
-> Also, I have confirmed that if you have any Intel processors which do not
-> have the SS (Self Snoop) capability, you cannot have two independent
-> mappings to a page with different cache attributes.  I have been hit by
-> this and you get stale data returned from the cache.
+I have a suggestion.  If you're compressing only for the sake of 
+obfuscation, then don't really try to save any space.  Use a fast 
+compression algorithm which doesn't necessarily do a great job.
 
-certainly, that is more or less what this mechanism is intended to prevent. cmap_compare_cachings is an arch-dependent function, which allows architectures to allow/disallow different cache attributes. I certainly consider the current implementation to be a sample that needs some tweaking. for example, I forgot that I had allowed CACHED/NOCACHED overlaps, due to MTRRs that legally overlap like this. but that's probably not a situation we want for any other case, so I need to fix that.
+When you're going to write, compress the block.  If it gets smaller, 
+fine.  Store it in the same space it would have required even if it were 
+uncompressed.  If the block gets bigger, then store it uncompressed. 
+Whether or not the block could be compressed would be stored in metadata 
+(in the inode, I guess).
 
-Thanks,
-Terence

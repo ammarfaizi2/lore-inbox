@@ -1,48 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129228AbQLSBdw>; Mon, 18 Dec 2000 20:33:52 -0500
+	id <S129228AbQLSBsr>; Mon, 18 Dec 2000 20:48:47 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129319AbQLSBdn>; Mon, 18 Dec 2000 20:33:43 -0500
-Received: from mailhst2.its.tudelft.nl ([130.161.34.250]:52748 "EHLO
-	mailhst2.its.tudelft.nl") by vger.kernel.org with ESMTP
-	id <S129228AbQLSBdc>; Mon, 18 Dec 2000 20:33:32 -0500
-Date: Tue, 19 Dec 2000 01:57:33 +0100
-From: Erik Mouw <J.A.K.Mouw@ITS.TUDelft.NL>
-To: Ian Stirling <root@mauve.demon.co.uk>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: User based routing?
-Message-ID: <20001219015733.A960@arthur.ubicom.tudelft.nl>
-In-Reply-To: <200012181946.TAA06870@mauve.demon.co.uk>
+	id <S129319AbQLSBsi>; Mon, 18 Dec 2000 20:48:38 -0500
+Received: from mout0.freenet.de ([194.97.50.131]:63113 "EHLO mout0.freenet.de")
+	by vger.kernel.org with ESMTP id <S129228AbQLSBs1>;
+	Mon, 18 Dec 2000 20:48:27 -0500
+Date: Tue, 19 Dec 2000 03:25:31 +0000
+From: Ingo Rohloff <lundril@gmx.net>
+To: linux-kernel@vger.kernel.org
+Subject: A way to crash an 2.4-test11 kernel
+Message-ID: <20001219032531.A1922@flashline.chipnet>
+Mail-Followup-To: linux-kernel@vger.kernel.org
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <200012181946.TAA06870@mauve.demon.co.uk>; from root@mauve.demon.co.uk on Mon, Dec 18, 2000 at 07:46:51PM +0000
-Organization: Eric Conspiracy Secret Labs
-X-Eric-Conspiracy: There is no conspiracy!
+X-Mailer: Mutt 0.95.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Dec 18, 2000 at 07:46:51PM +0000, Ian Stirling wrote:
-> Are there any patches floating around?
-> Basically to allow for example a server to dial out to ISP's on behalf
-> of users, and give them full control over that interface.
-> I know about UML, and it's not quite suited.
-> I've not found anything searching archives, but maybe it's out there.
+Hi,
 
-Sounds like you're looking for masqdialer. It doesn't give full control
-to users (why should it), but it allows users to select from multiple
-ISPs.
+I found a way to crash an SMP 2.4-test11 kernel:
 
+1. Create a BIG file (lets say about 300-400 MByte)
+2. use losetup and the loop device to create an
+   ext2 filesystem within the file
+3. mount the file
+4. copy huge amounts of data into the file.
+   (for example copy your /usr directory into it.)
 
-Erik
+-> Kernel deadlocks after some time.
 
--- 
-J.A.K. (Erik) Mouw, Information and Communication Theory Group, Department
-of Electrical Engineering, Faculty of Information Technology and Systems,
-Delft University of Technology, PO BOX 5031,  2600 GA Delft, The Netherlands
-Phone: +31-15-2783635  Fax: +31-15-2781843  Email: J.A.K.Mouw@its.tudelft.nl
-WWW: http://www-ict.its.tudelft.nl/~erik/
+Could someone try to reproduce this behaviour ?
+
+so long
+  Ingo
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

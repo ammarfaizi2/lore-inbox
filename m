@@ -1,81 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264393AbTFPWhJ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 16 Jun 2003 18:37:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264396AbTFPWhJ
+	id S264424AbTFPWnZ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 16 Jun 2003 18:43:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264426AbTFPWnY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 16 Jun 2003 18:37:09 -0400
-Received: from e1.ny.us.ibm.com ([32.97.182.101]:61937 "EHLO e1.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S264393AbTFPWhD (ORCPT
+	Mon, 16 Jun 2003 18:43:24 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:20945 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id S264424AbTFPWnT (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 16 Jun 2003 18:37:03 -0400
+	Mon, 16 Jun 2003 18:43:19 -0400
+Date: Mon, 16 Jun 2003 15:52:51 -0700 (PDT)
+Message-Id: <20030616.155251.25131382.davem@redhat.com>
+To: niv@us.ibm.com
+Cc: girouard@us.ibm.com, stekloff@us.ibm.com, janiceg@us.ibm.com,
+       jgarzik@pobox.com, lkessler@us.ibm.com, linux-kernel@vger.kernel.org,
+       netdev@oss.sgi.com
 Subject: Re: patch for common networking error messages
-To: "David S. Miller" <davem@redhat.com>
-Cc: Daniel Stekloff <stekloff@us.ibm.com>, janiceg@us.ibm.com,
-       jgarzik@pobox.com, kenistonj@us.ibm.com,
-       Larry Kessler <lkessler@us.ibm.com>, linux-kernel@vger.kernel.org,
-       netdev@oss.sgi.com, niv@us.ibm.com
-X-Mailer: Lotus Notes Release 5.0.7  March 21, 2001
-Message-ID: <OFC2446DB8.6D4DA3ED-ON85256D47.007C79EE@us.ibm.com>
-From: Janice Girouard <girouard@us.ibm.com>
-Date: Mon, 16 Jun 2003 17:50:08 -0500
-X-MIMETrack: Serialize by Router on D01ML063/01/M/IBM(Release 6.0.1 w/SPRs JHEG5JQ5CD, THTO5KLVS6, JHEG5HMLFK, JCHN5K5PG9|March
- 27, 2003) at 06/16/2003 18:50:41
-MIME-Version: 1.0
-Content-type: text/plain; charset=US-ASCII
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <3EEE4880.3080505@us.ibm.com>
+References: <OFF1F6B3DC.30C0E5DE-ON85256D47.007AEFAF@us.ibm.com>
+	<20030616.152745.124055059.davem@redhat.com>
+	<3EEE4880.3080505@us.ibm.com>
+X-FalunGong: Information control.
+X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+   From: Nivedita Singhvi <niv@us.ibm.com>
+   Date: Mon, 16 Jun 2003 15:45:20 -0700
 
-From: David S. Miller <davem@redhat.com>
-   Date:06/16/2003 05:27 PM
+[ I removed this kenistonj@us.ibm.com from the CC:, it bounces... ]
 
-   And all the scripts checking for the existing messages in log files?
-   Screw them, right?
+   I'd agree a lot of thought (and agreement :))has to go
+   into this before changing minor nits and stuff, and not
+   causing too much disruption..Evolution, as opposed to
+   revolution ;).  I would hope that most wouldnt need changing..
 
-That's a good point.  One possible suggestion would be to submit more than
-one stdmsgs.h files.  One a legacy file, and one that is more consistent
-from message to message.. shooting for a gradual migration.
+There would be absolutely ZERO disruption if you guys would use you
+brains and implement what you're actually trying to achieve, a system
+event logging mechanism.
 
-Ultimately, I think standard messages would greatly support/simplify
-scripts, especially between the myriad of ethernet drivers.  Each one
-reports the data slightly differently, so you're error log analysis needs
-to recognize 100 or so ways of being told that the link just went down.
+We have a message queueing mechanism using sockets, called netlink,
+and you can make whatever actions in the kernel you think should be
+monitored go and stuff messages into this system event netlink socket.
 
-Janice
+Then, you don't have to standardize a bunch of absolutely silly
+strings (I mean, the concept is so incredibly stupid), you get events
+that are in a precisely defined format going over this netlink socket.
 
+Then whoever in userspace reads out the messages can interpret them
+however the fuck it wants to.  It is then trivial to parse the
+messages and filter them.  Furthermore, you could even transmit such
+messages over a network connection to a remote logging server as-is.
 
-
-
-
-
-                                                                                                                         
-                      "David S. Miller"                                                                                  
-                      <davem@redhat.com        To:       Janice Girouard/Austin/IBM@IBMUS                                
-                      >                        cc:       Daniel Stekloff/Beaverton/IBM@IBMUS,                            
-                                                janiceg@us.ltcfwd.linux.ibm.com, jgarzik@pobox.com,                      
-                      06/16/2003 05:27          kenistonj@us.ibm.com, Larry Kessler/Beaverton/IBM@IBMUS,                 
-                      PM                        linux-kernel@vger.kernel.org, netdev@oss.sgi.com,                        
-                                                niv@us.ltcfwd.linux.ibm.com                                              
-                                               Subject:  Re: patch for common networking error messages                  
-                                                                                                                         
-                                                                                                                         
-
-
-
-
-   From: Janice Girouard <girouard@us.ibm.com>
-   Date: Mon, 16 Jun 2003 17:29:15 -0500
-
-   For the sake of consistency and automatic error log analysis, it might
-be
-
-And all the scripts checking for the existing messages
-in log files?  Screw them, right?
-
-This whole idea is starting to leave a very bad taste in
-my mouth...
-
-
-
-
+And hey, look, for network links going up and down we have the hooks
+already.  Funny that...

@@ -1,60 +1,116 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265029AbUGIQXN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265044AbUGIQbi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265029AbUGIQXN (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 Jul 2004 12:23:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265037AbUGIQXM
+	id S265044AbUGIQbi (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 Jul 2004 12:31:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265041AbUGIQbg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 Jul 2004 12:23:12 -0400
-Received: from neptune.fsa.ucl.ac.be ([130.104.233.21]:48807 "EHLO
-	neptune.fsa.ucl.ac.be") by vger.kernel.org with ESMTP
-	id S265029AbUGIQXJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 Jul 2004 12:23:09 -0400
-Message-ID: <40EEC64B.1080907@246tNt.com>
-Date: Fri, 09 Jul 2004 18:22:35 +0200
-From: Sylvain Munaut <tnt@246tnt.com>
-User-Agent: Mozilla Thunderbird 0.5 (X11/20040404)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Kumar Gala <kumar.gala@freescale.com>
-Cc: Linux/PPC Development <linuxppc-dev@lists.linuxppc.org>,
-       LKML <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>,
-       Kumar Gala <kumar.gala@motorola.com>
-Subject: Re: [PATCH 1/2] Freescale MPC52xx support for 2.6 - Base part
-References: <40ED7C51.90103@246tNt.com> <17F799EA-D13C-11D8-A787-000393DBC2E8@freescale.com> <40EDE70C.40202@246tNt.com> <D3F66906-D1BF-11D8-B72C-000393DBC2E8@freescale.com>
-In-Reply-To: <D3F66906-D1BF-11D8-B72C-000393DBC2E8@freescale.com>
-X-Enigmail-Version: 0.83.3.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-MailScanner: Found to be clean
+	Fri, 9 Jul 2004 12:31:36 -0400
+Received: from frankvm.xs4all.nl ([80.126.170.174]:4746 "EHLO
+	janus.localdomain") by vger.kernel.org with ESMTP id S265042AbUGIQbb
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 9 Jul 2004 12:31:31 -0400
+Date: Fri, 9 Jul 2004 18:31:30 +0200
+From: Frank van Maarseveen <frankvm@xs4all.nl>
+To: linux-kernel@vger.kernel.org
+Subject: strange "file system was modified" report from e2fsck
+Message-ID: <20040709163130.GA6361@janus>
+Mail-Followup-To: Frank van Maarseveen <frankvm@xs4all.nl>,
+	linux-kernel@vger.kernel.org
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4.1i
+X-Subliminal-Message: Use Linux!
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+mke2fs -j
+mount it
+Fill disk as root with one huge >150GB file
+umount it
+e2fsck -f -v: ok
+mount it
+rm 150 GB file
+umount it
+e2fsck -f -v: ***** FILE SYSTEM WAS MODIFIED *****
 
-Kumar Gala wrote:
+After removing the big file and umounting the ext3 partition, e2fsck -f -v
+invariably reports that the file system has been modified. This doesn't
+happen for a small file.
 
->> > A few comments:
->> >
->> > cputable.c: * the 8280/52xx, maybe we should just have G2_LE, (same
->> > core exists in 8272, 8249, etc.)
->>
->> IMHO, yes it may be better.
->
->
->> > mpc52xx_setup.c: * what is cpu_52xx[]?
->>
->> A table with coefficients taken from datasheet. They're used to
->> compute the core frequency according to XLB bus frequency and external
->> jumper configurations.
->
->
-> Mind adding the above as a comment in the code.  :)
+e2fsck 1.34 (25-Jul-2003)
+Pass 1: Checking inodes, blocks, and sizes
+Pass 2: Checking directory structure
+Pass 3: Checking directory connectivity
+Pass 4: Checking reference counts
+Pass 5: Checking group summary information
+
+/dev/hdc1: ***** FILE SYSTEM WAS MODIFIED *****
+
+      11 inodes used (0%)
+       0 non-contiguous inodes (0.0%)
+         # of inodes with ind/dind/tind blocks: 0/0/0
+  621574 blocks used (1%)
+       0 bad blocks
+       0 large files
+
+       0 regular files
+       2 directories
+       0 character device files
+       0 block device files
+       0 fifos
+       0 links
+       0 symbolic links (0 fast symbolic links)
+       0 sockets
+--------
+       2 files
 
 
-Ok, I'll change the G2_LE and change the name/add a small comment to 
-cpu_52xx.
-I'll repost a new updated set of patch monday morning with just that if 
-I got no other comments.
+What is going on? should I be worried about it?
 
 
-Sylvain Munaut
+This was on an Redhat FC1 system with plain 2.4.26. tune2fs says:
+# tune2fs -l /dev/hdc1
+tune2fs 1.34 (25-Jul-2003)
+Filesystem volume name:   <none>
+Last mounted on:          <not available>
+Filesystem UUID:          67b89aec-eb20-4e37-ae19-4263319496f6
+Filesystem magic number:  0xEF53
+Filesystem revision #:    1 (dynamic)
+Filesystem features:      has_journal filetype sparse_super
+Default mount options:    (none)
+Filesystem state:         clean
+Errors behavior:          Continue
+Filesystem OS type:       Linux
+Inode count:              19546112
+Block count:              39072080
+Reserved block count:     1953604
+Free blocks:              38450506
+Free inodes:              19546101
+First block:              0
+Block size:               4096
+Fragment size:            4096
+Blocks per group:         32768
+Fragments per group:      32768
+Inodes per group:         16384
+Inode blocks per group:   512
+Filesystem created:       Thu Jul  8 21:26:18 2004
+Last mount time:          Fri Jul  9 18:10:51 2004
+Last write time:          Fri Jul  9 18:12:48 2004
+Mount count:              0
+Maximum mount count:      34
+Last checked:             Fri Jul  9 18:12:48 2004
+Check interval:           15552000 (6 months)
+Next check after:         Wed Jan  5 17:12:48 2005
+Reserved blocks uid:      0 (user root)
+Reserved blocks gid:      0 (group root)
+First inode:              11
+Inode size:               128
+Journal inode:            8
+Default directory hash:   tea
+Directory Hash Seed:      f719a1f4-e416-4699-b8d8-ce645600cd6d
+
+
+
+-- 
+Frank

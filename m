@@ -1,74 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261941AbVDCWwY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261938AbVDCW5n@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261941AbVDCWwY (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 3 Apr 2005 18:52:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261942AbVDCWwX
+	id S261938AbVDCW5n (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 3 Apr 2005 18:57:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261944AbVDCW5n
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 3 Apr 2005 18:52:23 -0400
-Received: from omc2-s17.bay6.hotmail.com ([65.54.249.27]:61828 "EHLO
-	OMC2-S17.phx.gbl") by vger.kernel.org with ESMTP id S261941AbVDCWwO
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 3 Apr 2005 18:52:14 -0400
-Message-ID: <BAY10-F33A32038B1B733A67892F7D93A0@phx.gbl>
-X-Originating-IP: [68.62.238.188]
-X-Originating-Email: [getarunsri@hotmail.com]
-In-Reply-To: <1112542263.27149.113.camel@localhost.localdomain>
-From: "Arun Srinivas" <getarunsri@hotmail.com>
-To: rostedt@goodmis.org, juhl-lkml@dif.dk
+	Sun, 3 Apr 2005 18:57:43 -0400
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:19679 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S261938AbVDCW5l (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 3 Apr 2005 18:57:41 -0400
+Date: Mon, 4 Apr 2005 00:57:29 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: David Brownell <david-b@pacbell.net>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: sched /HT processor
-Date: Mon, 04 Apr 2005 04:22:13 +0530
+Subject: Re: Re(2): fix u32 vs. pm message t in usb
+Message-ID: <20050403225729.GD13466@elf.ucw.cz>
+References: <20050403193216.961D5194084@smtp.etmail.cz> <200504031301.02179.david-b@pacbell.net>
 Mime-Version: 1.0
-Content-Type: text/plain; format=flowed
-X-OriginalArrivalTime: 03 Apr 2005 22:52:13.0598 (UTC) FILETIME=[C6C98BE0:01C5389F]
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200504031301.02179.david-b@pacbell.net>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi!
 
+> > Okay, you obviously have easy access to usb development trees...
+> > Do you think you could just take this patch as a basis and fix
+> > remaining u32 vs pm-message-t in usb? --p  
+> 
+> Fixing the "sparse -Wbitwise" messages, and addressing some other
+> behavior changes/bugs that crept in, was the idea.  That's already
+> done, but _without_ taking this as a basis (or breaking the sysfs
+> support etc).
 
->From: Steven Rostedt <rostedt@goodmis.org>
->To: Jesper Juhl <juhl-lkml@dif.dk>
->CC: Arun Srinivas <getarunsri@hotmail.com>,        LKML 
-><linux-kernel@vger.kernel.org>
->Subject: Re: sched /HT processor
->Date: Sun, 03 Apr 2005 11:31:03 -0400
->
->On Sun, 2005-04-03 at 13:17 +0200, Jesper Juhl wrote:
-> >
-> > A reschedule can happen once every ms, but also upon returning to
-> > userspace and when returning from an interrupt handler, and also when
-> > something in the kernel explicitly calls schedule() or sleeps (which in
-> > turn results in a call to schedule()). And each CPU runs schedule()
-> > independently.
-> > At least that's my understanding of it - if I'm wrong I hope someone on
-> > the list will correct me.
->
->You're correct, but I'll add some more details here.  The actual
->schedule happens when needed.  A schedule may not take place at every
->ms, if the task running is not done with its time slice and no events
->happened where another task should preempt it. If an RT task is running
->in a FIFO policy, then it will continue to run until it calls schedule
->itself or another process of higher priority preempts it.
->
->Now if you don't have PREEMPT turned on, than the schedule won't take
->place at all while a task is in the kernel, unless the task explicitly
->calls schedule.
->
->What happens on a timer interrupt where a task is done with its time
->slice or another event where a schedule should take place, is just the
->need_resched flag is set for the task.  On return from the interrupt the
->flag is checked, and if set a schedule is called.
->
->This is still a pretty basic description of what really happens, and if
->you want to learn more, just start searching the kernel code for
->schedule and need_resched. Don't forget to look in the asm code (ie
->entry.S, and dependent on your arch other *.S files).
->
->-- Steve
->
->
+Okay, if you fixed -Wbitwise, it should be all fixed...
 
-_________________________________________________________________
-News, views and gossip. http://www.msn.co.in/Cinema/ Get it all at MSN 
-Cinema!
+> The patches I sent fix everything I had time to test (just a subset
+> of the dozens of cases previously tested, probably covering the main
+> stuff that got broken) except the non-PCI platform_bus drivers where
+> pm_message_t has discarded essential functionality.  (Notably, info
+> about whether device clocks and/or power must be turned off.)
 
+At what places is essential functionality lost? I thought that u32
+state is pretty much always 3 ;-). Is there platform where it is not
+the case?
+
+Could you push also trivial bits that you could not test? I'd like to
+get rid of all "u32 state"s...
+
+> p.s. PCI-express patches don't belong with USB patches.  :)
+
+Oops, sorry. Same maintainer, though ;-).
+								Pavel
+-- 
+People were complaining that M$ turns users into beta-testers...
+...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!

@@ -1,93 +1,70 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262059AbTC1D2r>; Thu, 27 Mar 2003 22:28:47 -0500
+	id <S262180AbTC1Dod>; Thu, 27 Mar 2003 22:44:33 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262100AbTC1D2r>; Thu, 27 Mar 2003 22:28:47 -0500
-Received: from dp.samba.org ([66.70.73.150]:15043 "EHLO lists.samba.org")
-	by vger.kernel.org with ESMTP id <S262059AbTC1D2q>;
-	Thu, 27 Mar 2003 22:28:46 -0500
-From: Rusty Russell <rusty@rustcorp.com.au>
-To: Greg KH <greg@kroah.com>, Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>
-Cc: torvalds@transmeta.com, akpm@zip.com.au, linux-kernel@vger.kernel.org
-Subject: [PATCH] Fix PCI aliases.
-Date: Fri, 28 Mar 2003 14:39:49 +1100
-Message-Id: <20030328034001.A0CF82C014@lists.samba.org>
+	id <S262181AbTC1Dod>; Thu, 27 Mar 2003 22:44:33 -0500
+Received: from starcraft.mweb.co.za ([196.2.45.78]:26596 "EHLO
+	starcraft.mweb.co.za") by vger.kernel.org with ESMTP
+	id <S262180AbTC1Doc>; Thu, 27 Mar 2003 22:44:32 -0500
+Date: Fri, 28 Mar 2003 05:55:31 +0200
+From: Bongani Hlope <bonganilinux@mweb.co.za>
+To: Walt H <waltabbyh@comcast.net>
+Cc: thunder7@xs4all.nl, linux-kernel@vger.kernel.org
+Subject: Re: vesafb problem
+Message-Id: <20030328055531.7ee6ce73.bonganilinux@mweb.co.za>
+In-Reply-To: <3E837B7D.9010005@comcast.net>
+References: <3E8329D2.7040909@comcast.net>
+	<20030327190222.GA4060@middle.of.nowhere>
+	<3E835241.9060407@comcast.net>
+	<20030327233902.5963b0b1.bonganilinux@mweb.co.za>
+	<3E837B7D.9010005@comcast.net>
+X-Mailer: Sylpheed version 0.8.11 (GTK+ 1.2.10; i586-mandrake-linux-gnu)
+Mime-Version: 1.0
+Content-Type: multipart/signed; protocol="application/pgp-signature";
+ micalg="pgp-sha1"; boundary="=.3DLGQIP1cvji7p"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus, please apply.
+--=.3DLGQIP1cvji7p
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 
->From normal 2.5.66-bk2 build:
-*** Warning: Can't handle class_mask in drivers/net/acenic:FFFF00
+On Thu, 27 Mar 2003 14:30:21 -0800
+Walt H <waltabbyh@comcast.net> wrote:
 
-PCI class isn't the monolithic "match all or nothing" I guessed when I
-wrote the PCI table -> alias code.  Subdivide it into baseclass,
-subclass and interface.  Approved by Greg K-H.
+> Bongani Hlope wrote:
+> 
+> > Strange I'm having the same problem, but I only have 256MB of memory and my GeForce 2 only has 32MB. This is what's on my messages file:
+> > 
+> > 
+> > vesafb: framebuffer at 0xe0000000, mapped to 0xd0807000, size 32768k
+> > vesafb: mode is 800x600x16, linelength=1600, pages=3
+> > vesafb: protected mode interface info at c000:c060
+> > vesafb: scrolling: redraw
+> > vesafb: directcolor: size=0:5:6:5, shift=0:11:5:0
+> > Looking for splash picture.... found (800x600, 13683 bytes).
+> > Console: switching to colour frame buffer device 82x30
+> > fb0: VESA VGA frame buffer device
+> > 
+> 
+> Hmmm. That's a different problem than I'm experiencing. Your system 
+> appears to be correctly remapping the framebuffer and switching to it. 
+> You don't get a graphical boot? Seems as if you should from the log 
+> snippet you posted.
 
-Could be done backwards compatibly, but since noone's using it yet,
-why bother?
 
-Thanks,
-Rusty.
---
-  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.
+It is just black until X starts up, and if I try to switch to a virtual 
+terminal I get a corrupt screen
 
-Name: Subdivide PCI class for aliases
-Author: Rusty Russell
-Status: Tested on 2.5.66-bk2
+--=.3DLGQIP1cvji7p
+Content-Type: application/pgp-signature
 
-D: The previous handling of PCI class masks was too primitive: the
-D: class field is not "all or nothing" but has base class, subclass
-D: and interface fields.  This patch changes the alias form from:
-D: pci:vNdNsvNsdNcN to pci:vNdNsvNsdNbcNscNiN.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
 
-diff -urpN --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal linux-2.5.66-bk2/scripts/file2alias.c working-2.5.66-bk2-pci-alias/scripts/file2alias.c
---- linux-2.5.66-bk2/scripts/file2alias.c	2003-02-18 11:18:57.000000000 +1100
-+++ working-2.5.66-bk2-pci-alias/scripts/file2alias.c	2003-03-27 16:35:37.000000000 +1100
-@@ -81,10 +81,14 @@ static int do_usb_entry(const char *file
- 	return 1;
- }
- 
--/* Looks like: pci:vNdNsvNsdNcN. */
-+/* Looks like: pci:vNdNsvNsdNbcNscNiN. */
- static int do_pci_entry(const char *filename,
- 			struct pci_device_id *id, char *alias)
- {
-+	/* Class field can be divided into these three. */
-+	unsigned char baseclass, subclass, interface,
-+		baseclass_mask, subclass_mask, interface_mask;
-+
- 	id->vendor = TO_NATIVE(id->vendor);
- 	id->device = TO_NATIVE(id->device);
- 	id->subvendor = TO_NATIVE(id->subvendor);
-@@ -97,13 +101,26 @@ static int do_pci_entry(const char *file
- 	ADD(alias, "d", id->device != PCI_ANY_ID, id->device);
- 	ADD(alias, "sv", id->subvendor != PCI_ANY_ID, id->subvendor);
- 	ADD(alias, "sd", id->subdevice != PCI_ANY_ID, id->subdevice);
--	if (id->class_mask != 0 && id->class_mask != ~0) {
-+
-+	baseclass = (id->class) >> 16;
-+	baseclass_mask = (id->class_mask) >> 16;
-+	subclass = (id->class) >> 8;
-+	subclass_mask = (id->class_mask) >> 8;
-+	interface = id->class;
-+	interface_mask = id->class_mask;
-+
-+	if ((baseclass_mask != 0 && baseclass_mask != 0xFF)
-+	    || (subclass_mask != 0 && subclass_mask != 0xFF)
-+	    || (interface_mask != 0 && interface_mask != 0xFF)) {
- 		fprintf(stderr,
--			"*** Warning: Can't handle class_mask in %s:%04X\n",
-+			"*** Warning: Can't handle masks in %s:%04X\n",
- 			filename, id->class_mask);
- 		return 0;
- 	}
--	ADD(alias, "c", id->class_mask == ~0, id->class);
-+
-+	ADD(alias, "bc", baseclass_mask == 0xFF, baseclass);
-+	ADD(alias, "sc", subclass_mask == 0xFF, subclass);
-+	ADD(alias, "i", interface_mask == 0xFF, interface);
- 	return 1;
- }
- 
+iD8DBQE+g8fK+pvEqv8+FEMRAlc2AJ4itcTB+lXcGn/HAECDJ7P1qr97RQCeN+RJ
+llFyCJl1Uxzf/xMkXx0kcVs=
+=pfTM
+-----END PGP SIGNATURE-----
 
+--=.3DLGQIP1cvji7p--

@@ -1,60 +1,74 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132941AbRALFYC>; Fri, 12 Jan 2001 00:24:02 -0500
+	id <S135322AbRALFYw>; Fri, 12 Jan 2001 00:24:52 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135387AbRALFXx>; Fri, 12 Jan 2001 00:23:53 -0500
-Received: from femail3.sdc1.sfba.home.com ([24.0.95.83]:17040 "EHLO
-	femail3.sdc1.sfba.home.com") by vger.kernel.org with ESMTP
-	id <S132941AbRALFXm>; Fri, 12 Jan 2001 00:23:42 -0500
-Message-ID: <00c401c07c57$fab9e660$8d19b018@c779218a>
-From: "Nicholas Knight" <tegeran@home.com>
-To: <linux-kernel@vger.kernel.org>
-Subject: [semi-OT] Historic Linux Kernels.
-Date: Thu, 11 Jan 2001 21:24:47 -0800
+	id <S135378AbRALFYn>; Fri, 12 Jan 2001 00:24:43 -0500
+Received: from adsl-63-195-162-81.dsl.snfc21.pacbell.net ([63.195.162.81]:43529
+	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
+	id <S135322AbRALFYa>; Fri, 12 Jan 2001 00:24:30 -0500
+Date: Thu, 11 Jan 2001 21:23:52 -0800 (PST)
+From: Andre Hedrick <andre@linux-ide.org>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: dep <dennispowell@earthlink.net>, James Brents <James@nistix.com>,
+        linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: IDE DMA problems on 2.4.0 with vt82c686a driver
+In-Reply-To: <E14Gj32-0002ND-00@the-village.bc.nu>
+Message-ID: <Pine.LNX.4.10.10101112111040.31644-100000@master.linux-ide.org>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 5.50.4133.2400
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4133.2400
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-on kernel.org you can get old kernels clear back to 0.01 in
-http://www.kernel.org/pub/linux/kernel/Historic/
-but some things are missing, though nothing major
+On Thu, 11 Jan 2001, Alan Cox wrote:
 
-what's missing that I'm most interested in is the linux boot-disk that
-apparently came into being around .11.
+> > us who have via chipset motherboards, suggesting that it is limited 
+> > to that chipset, that chipset is ubiquitous, or via chipset 
+> > motherboard owners are generally the complaining type. no idea which 
+> > applies there, either.
 
-to quote from
-http://www.kernel.org/pub/linux/kernel/Historic/old-versions/RELNOTES-0.12:
-2) Test out the linux boot-disk with the root file system.
-<endquote>
+Sheesh, when you can reprogram the chipset identity so that you can make
+it appear to be mimic older chipsets that have current support, well you
+get the headache!
 
-and the .11 release notes/installation instructions (again quoting from
-http://www.kernel.org/pub/linux/kernel/Historic/old-versions/RELNOTES-0.12)
-INSTALLATION
-This is a SHORT install-note. The installation is very similar to 0.11,
-so read that (INSTALL-0.11) too.
-<endquote>
+> Or there are a lot of them. 90% of scsi bug reports I get are adaptec 29xx
+> driver. Thats not because the adaptec 29xx is the most sucky driver 8)
 
-none of these things are included in linux-0.11.tar.gz/bz2
+It is not so much the chipset of the drivers, it is the jokers making
+mainboards.  At the last meeting in Irvine there were issues about PCB
+lane designs and chipset that cause problems in crosstalk or create bad
+timing skews.  The problem is so wide spread in the industry that T13 is
+looking at drafting a possible design annex for defined how to test and
+create good hardware.  (I do not need the noise, I know this is what we
+should be doing and not screwing up/down hardware) ;-)
 
-I presume Linus just assumed that they'd be of no real interest to anyone
-looking at the old kernels, but they'd be of interest to me as I'm quite
-interested in what linux went through in early development beyond just
-reading about it, I prefer to actually see these things for myself :)
+> Firstly there are numerous reasons for CRC errors. At ATA100 even the track
+> length and the capacitance of the connectors becomes an issue. It is quite
+> possibly a driver issue. It could even be that specific combination of drives
+> and ide controller is right on the edge of the spec limits and just slightly
+> dipping over. It might be the odd power spike.
 
-So does anyone have these two things? (the .11 release notes/install
-instructions and boot/root diskette) If so, I'd be grateful if you could
-either point me to them, or email them to me (tegeran@Home.com)
+The 2.4.0 kernels now have the very first created in the software industry
+of ATA an auto-dma-crc transfer rate recovery callback.  Thus if you get
+only the 0x84/0x51 errors and there are no other problems and you chipset
+code is full-featured to have a hwif->speedproc callback, it will auto set
+the transfer-rate down until the iCRC errors stop.
 
-Thanks,
--NK
+> Providing the code is working sanely the odd CRC error shouldnt be a 
+> problem and should be causing a command retry. The CRC checking used in ATA
+> is very robust so unlike scsi parity errors which couldnt be ignored ATA
+> ones on occassion are probably fine
 
+(off to mark calender, a positive comment about ATA)
+
+> ATA100 is another testimony to the fact that pigs can be made to fly given 
+> sufficient thrust (to borrow an RFC)
+
+But the price to pay is SCSI noise in ATA devices, or was that pig lips
+flapping in the breeze...?
+
+
+Andre Hedrick
+Linux ATA Development
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

@@ -1,41 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261151AbTHFNfa (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 6 Aug 2003 09:35:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261180AbTHFNfa
+	id S261874AbTHFNyF (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 6 Aug 2003 09:54:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262439AbTHFNyF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 6 Aug 2003 09:35:30 -0400
-Received: from indianer.linux-kernel.at ([212.24.125.53]:18129 "EHLO
-	indianer.linux-kernel.at") by vger.kernel.org with ESMTP
-	id S261151AbTHFNf2 convert rfc822-to-8bit (ORCPT
+	Wed, 6 Aug 2003 09:54:05 -0400
+Received: from ns.suse.de ([213.95.15.193]:25609 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S261874AbTHFNx6 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 6 Aug 2003 09:35:28 -0400
-Message-Id: <200308061333.h76DX2dc013593@indianer.linux-kernel.at>
-From: Oliver Pitzeier <oliver@linux-kernel.at>
-To: herbert@13thfloor.at
-CC: Olaf Titz <olaf@bigred.inka.de>, linux-kernel@vger.kernel.org
-Subject: RE: chroot() breaks syslog() ?
-Date: Wed, 6 Aug 2003 15:34:33 +0200
-Organization: Linux Kernel Austria
-X-Mailer: Oracle Outlook Connector 3.4 40812
+	Wed, 6 Aug 2003 09:53:58 -0400
+To: Michael Buesch <fsdeveloper@yahoo.de>
+Cc: "lode leroy" <lode_leroy@hotmail.com>,
+       linux kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: 2.5.70 lockup while write()ing to /dev/hda1
+References: <Sea2-F12XkCBewSQRg600027013@hotmail.com>
+	<200308061447.46364.fsdeveloper@yahoo.de>
+From: Andreas Schwab <schwab@suse.de>
+X-Yow: Let's all show human CONCERN for REVEREND MOON's legal difficulties!!
+Date: Wed, 06 Aug 2003 15:38:43 +0200
+In-Reply-To: <200308061447.46364.fsdeveloper@yahoo.de> (Michael Buesch's
+ message of "Wed, 6 Aug 2003 14:47:33 +0200")
+Message-ID: <jehe4ux5wc.fsf@sykes.suse.de>
+User-Agent: Gnus/5.1002 (Gnus v5.10.2) Emacs/21.3.50 (gnu/linux)
 MIME-Version: 1.0
 Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8BIT
-X-MailScanner-Information: Please contact your Internet E-Mail Service Provider for more information
-X-MailScanner: Found to be clean
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Herbert Pötzl <herbert@13thfloor.at> wrote:
-[ ... ]
-> hmm, how will you avoid creation of special (devicenodes)
-> files if I have raw access to any partition? I can 'simply'
-> use xxd to create my special inodes on the medium ...
-> and I would not care if mount is enabled or not when I
-> wipe the root partition with dd ...
+Michael Buesch <fsdeveloper@yahoo.de> writes:
 
-AFAIK, there are possibilities to deny _RAW_ access to partitions, while in a chroot-jail... If not, I'll tell the grsec-team to implement a new feature. :)
+|> On Wednesday 06 August 2003 14:32, lode leroy wrote:
+|> > main()
+|> > {
+|> >     int f = open("/dev/hda1", O_RDWR);
+|> >     char buffer[8192];
+|> >     for(i=0;1;i++) {
+|> >        printf("%d\r", i);
+|> >        write(f, buffer, sizeof(buffer);
+|> 
+|> Shouldn't this be:
+|> 	write(f, buffer, sizeof(buffer) / sizeof(buffer[0]));
 
-Best regards,
- Oliver
+sizeof(char) == 1, always and everywhere.
 
+Andreas.
+
+-- 
+Andreas Schwab, SuSE Labs, schwab@suse.de
+SuSE Linux AG, Deutschherrnstr. 15-19, D-90429 Nürnberg
+Key fingerprint = 58CA 54C7 6D53 942B 1756  01D3 44D5 214B 8276 4ED5
+"And now for something completely different."

@@ -1,90 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293326AbSBYGQq>; Mon, 25 Feb 2002 01:16:46 -0500
+	id <S293338AbSBYHs4>; Mon, 25 Feb 2002 02:48:56 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293327AbSBYGQh>; Mon, 25 Feb 2002 01:16:37 -0500
-Received: from lsanca1-ar27-4-63-184-089.lsanca1.vz.dsl.gtei.net ([4.63.184.89]:1408
-	"EHLO barbarella.hawaga.org.uk") by vger.kernel.org with ESMTP
-	id <S293326AbSBYGQ1>; Mon, 25 Feb 2002 01:16:27 -0500
-Date: Sun, 24 Feb 2002 22:16:16 -0800 (PST)
-From: Ben Clifford <benc@hawaga.org.uk>
-To: <linux-kernel@vger.kernel.org>
-Subject: Re: Linux 2.5.5-dj1 - IPv6 not loading correctly.
-In-Reply-To: <Pine.LNX.4.33.0202241300100.11220-100000@barbarella.hawaga.org.uk>
-Message-ID: <Pine.LNX.4.33.0202242203080.21716-100000@barbarella.hawaga.org.uk>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S293339AbSBYHsp>; Mon, 25 Feb 2002 02:48:45 -0500
+Received: from nat-pool-rdu.redhat.com ([66.187.233.200]:52470 "EHLO
+	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
+	id <S293338AbSBYHsh>; Mon, 25 Feb 2002 02:48:37 -0500
+Date: Mon, 25 Feb 2002 02:48:17 -0500
+From: Jakub Jelinek <jakub@redhat.com>
+To: Luigi Genoni <kernel@Expansa.sns.it>
+Cc: "Paul G. Allen" <pgallen@randomlogic.com>,
+        "Linux kernel developer's mailing list" 
+	<linux-kernel@vger.kernel.org>
+Subject: Re: gcc-2.95.3 vs gcc-3.0.4
+Message-ID: <20020225024817.Q2434@devserv.devel.redhat.com>
+Reply-To: Jakub Jelinek <jakub@redhat.com>
+In-Reply-To: <3C775FEF.BDA0253C@randomlogic.com> <Pine.LNX.4.44.0202250100540.15348-100000@Expansa.sns.it>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <Pine.LNX.4.44.0202250100540.15348-100000@Expansa.sns.it>; from kernel@Expansa.sns.it on Mon, Feb 25, 2002 at 01:07:42AM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+On Mon, Feb 25, 2002 at 01:07:42AM +0100, Luigi Genoni wrote:
+> At this link:
+> 
+>  http://www.cs.utk.edu/~rwhaley/ATLAS/gcc30.html
+> 
+> you can find an interesting explanation why code compiled with gcc 3.0 is
+> mostly slower than code compiled with gcc 2.95 on x86 CPUs (but it is
+> really faster on other platforms like alpha and sparc64).
+> 
+> basically the main reasons semm to be the scheduler algorithm and the fpu
+> stack handling, but I suggest to read the full study.
+> 
+> 
+> I would be interested to know if this apply to gcc 3.1 too.
 
-On Sun, 24 Feb 2002, Ben Clifford wrote:
+Well, concerning reg-stack, you can completely get away without it in 3.1 
+by using -mfpmath=sse if you are targeting Pentium 3,4 or Athlon 4,xp,mp
+(for float math, for higher precision only for Pentium 4).
 
-> When ipv6.o is loaded, I get:
->
-> IPv6 v0.8 for NET4.0
-> Failed to initialize the ICMP6 control socket (err -97)
->
-> and lsmod shows:
-> ipv6    147968    -1 (uninitialized)
-
-More info on this:
-
-Looking at the code, the the ICMP6 control socket error is occurring
-because sock_register isn't called for inet6 until after the ICMP6 control
-socket is created (in af_inet6.c).
-
-However, the ICMP6 control socket create calls sock_create, which requires
-sock_register to have already been called.
-
-I have made the below change, which moves the protocol family registration
-higher up in the code.  It seems to make ipv6 work now.
-
-However, I'm concerned that this gives a small amount of time when the
-family is registered but not fully initialised.
-
-Is this bad?
-
-
-
-- --- /mnt/dev/hda11/2.5.5-dj1-snark-not-changed-much/net/ipv6/af_inet6.c	Tue Feb 19 18:10:53 2002
-+++ 2.5.5-dj1/net/ipv6/af_inet6.c	Sun Feb 24 22:13:38 2002
-@@ -675,6 +675,13 @@
- 	 */
- 	inet6_register_protosw(&rawv6_protosw);
-
-+	/* register the family here so that the init calls below will
-+	 * work. ?? is this dangerous ??
-+	 */
-+
-+	(void) sock_register(&inet6_family_ops);
-+
-+
- 	/*
- 	 *	ipngwg API draft makes clear that the correct semantics
- 	 *	for TCP and UDP is to consider one TCP and UDP instance
-@@ -719,9 +726,6 @@
- 	udpv6_init();
- 	tcpv6_init();
-
-- -	/* Now the userspace is allowed to create INET6 sockets. */
-- -	(void) sock_register(&inet6_family_ops);
-- -
- 	return 0;
-
- #ifdef CONFIG_PROC_FS
-
-- -- 
-
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.6 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
-
-iD8DBQE8eda0sYXoezDwaVARAn+uAJ4o8hCamGZzX6UnJVH8PWYfjLzBFQCeLZxw
-Fofq4Yo27N2juaxaMdZ+aXw=
-=so8+
------END PGP SIGNATURE-----
-
+	Jakub

@@ -1,45 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263268AbTDGF5H (for <rfc822;willy@w.ods.org>); Mon, 7 Apr 2003 01:57:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263269AbTDGF5H (for <rfc822;linux-kernel-outgoing>); Mon, 7 Apr 2003 01:57:07 -0400
-Received: from modemcable169.130-200-24.mtl.mc.videotron.ca ([24.200.130.169]:1568
-	"EHLO montezuma.mastecende.com") by vger.kernel.org with ESMTP
-	id S263268AbTDGF5G (for <rfc822;linux-kernel@vger.kernel.org>); Mon, 7 Apr 2003 01:57:06 -0400
-Date: Mon, 7 Apr 2003 02:04:05 -0400 (EDT)
-From: Zwane Mwaikambo <zwane@linuxpower.ca>
-X-X-Sender: zwane@montezuma.mastecende.com
-To: Linux Kernel <linux-kernel@vger.kernel.org>
-cc: Linus Torvalds <torvalds@transmeta.com>
-Subject: [PATCH][2.5] Disable irqbalance for single cpu SMP configurations
-Message-ID: <Pine.LNX.4.50.0304062214290.2268-100000@montezuma.mastecende.com>
+	id S263272AbTDGF7J (for <rfc822;willy@w.ods.org>); Mon, 7 Apr 2003 01:59:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263273AbTDGF7J (for <rfc822;linux-kernel-outgoing>); Mon, 7 Apr 2003 01:59:09 -0400
+Received: from dp.samba.org ([66.70.73.150]:37071 "EHLO lists.samba.org")
+	by vger.kernel.org with ESMTP id S263272AbTDGF7H (for <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 7 Apr 2003 01:59:07 -0400
+From: Paul Mackerras <paulus@au1.ibm.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <16017.2065.635724.992168@argo.ozlabs.ibm.com>
+Date: Mon, 7 Apr 2003 15:09:37 +1000
+To: Christoph Hellwig <hch@infradead.org>
+Cc: Rusty Russell <rusty@rustcorp.com.au>,
+       Fabrice Bellard <fabrice.bellard@free.fr>, linux-kernel@vger.kernel.org,
+       Marcelo Tosatti <marcelo@conectiva.com.br>
+Subject: Re: [PATCH] Qemu support for PPC
+In-Reply-To: <20030407065813.A27933@infradead.org>
+References: <20030407024858.C32422C014@lists.samba.org>
+	<20030407065813.A27933@infradead.org>
+X-Mailer: VM 7.14 under Emacs 21.2.2
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch disables irqbalance and doesn't spawn a kernel thread for 
-systems which run SMP kernels and only have one online cpu.
+Christoph Hellwig writes:
 
-Index: linux-2.5.66/arch/i386/kernel/io_apic.c
-===================================================================
-RCS file: /build/cvsroot/linux-2.5.66/arch/i386/kernel/io_apic.c,v
-retrieving revision 1.1.1.1
-diff -u -p -B -r1.1.1.1 io_apic.c
---- linux-2.5.66/arch/i386/kernel/io_apic.c	24 Mar 2003 23:40:27 -0000	1.1.1.1
-+++ linux-2.5.66/arch/i386/kernel/io_apic.c	7 Apr 2003 05:19:26 -0000
-@@ -603,6 +603,12 @@ static int __init balanced_irq_init(void
-         c = &boot_cpu_data;
- 	if (irqbalance_disabled)
- 		return 0;
-+	
-+	 /* disable irqbalance completely if there is only one processor online */
-+	if (num_online_cpus() < 2) {
-+		irqbalance_disabled = 1;
-+		return 0;
-+	}
- 	/*
- 	 * Enable physical balance only if more than 1 physical processor
- 	 * is present
+> On Mon, Apr 07, 2003 at 12:40:38PM +1000, Rusty Russell wrote:
+> > Paul, is this OK?
+> > 
+> > I'd like it in 2.4.21 if possible.
+> 
+> Please use sys_personality from userland. 
 
--- 
-function.linuxpower.ca
+sys_personality will fail if there isn't an exec_domain registered for
+the personality you want.  The *whole* *point* of Rusty's patch is to
+add an execution domain for x86 emulation so we *can* do sys_personality.
+
+Did you actually look at the patch, or was your mail just a knee-jerk?
+
+> And not, I don't think it should
+> go into 2.4.21.  Get it into 2.5 first.
+
+Why?  It's a well-contained patch that affects very little outside its
+own area, and is quite similar to other things that have been there
+for ages.  Anyway, it's not your call.
+
+Paul.

@@ -1,112 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280132AbRK0PEz>; Tue, 27 Nov 2001 10:04:55 -0500
+	id <S280016AbRK0PEw>; Tue, 27 Nov 2001 10:04:52 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280714AbRK0PDY>; Tue, 27 Nov 2001 10:03:24 -0500
-Received: from tux.rsn.bth.se ([194.47.143.135]:35977 "EHLO tux.rsn.bth.se")
-	by vger.kernel.org with ESMTP id <S280760AbRK0PDD>;
-	Tue, 27 Nov 2001 10:03:03 -0500
-Date: Tue, 27 Nov 2001 16:02:36 +0100 (CET)
-From: Martin Josefsson <gandalf@marcelothewonderpenguin.com>
-To: Rolf Fokkens <fokkensr@linux06.vertis.nl>
-cc: linux-kernel@vger.kernel.org, netfilter-devel@lists.samba.org
-Subject: Re: [BUG] vanilla 2.4.15 iptables/REDIRECT kernel oops
-In-Reply-To: <200111271143.MAA11403@linux06.vertis.nl>
-Message-ID: <Pine.LNX.4.21.0111271600420.23169-100000@tux.rsn.bth.se>
-X-message-flag: Get yourself a real mail client! http://www.washington.edu/pine/
+	id <S280822AbRK0PD1>; Tue, 27 Nov 2001 10:03:27 -0500
+Received: from mail.galactica.it ([212.41.208.19]:40719 "EHLO galactica.it")
+	by vger.kernel.org with ESMTP id <S280750AbRK0PC4>;
+	Tue, 27 Nov 2001 10:02:56 -0500
+From: "Matteo Sasso" <icemaze@tiscalinet.it>
+To: <linux-kernel@vger.kernel.org>
+Subject: Bug (?) report
+Date: Tue, 27 Nov 2001 16:04:30 +0100
+Message-ID: <GAELJDOEMJGDLHEONDIOEEBOCBAA.icemaze@tiscalinet.it>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2776.0)
+Importance: Normal
+X-MimeOLE: Produced By Microsoft MimeOLE V5.00.2919.6700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 27 Nov 2001, Rolf Fokkens wrote:
+I'm quite a new linux user and system administrator (my own!) and I
+encountered the following problems:
+1) As the system starts up and the mixer settings are loaded, modprobe
+complains that 'sound-slot-0' and 'sound-service-0-0' modules are not
+present (in my kernel/drivers/sound directory I got just ac97_codec.o,
+emu10k1, sound.o and soundcore.o). I've got a Sound Blaster Live! 5.1, a
+'2.4.16-pre1' kernel and kmod usually works good, failing only with sound
+(both with 'gom' mixer and with 'mpg123' player), so I have to 'modprobe
+emu10k1' manually.
+2) I tried for the first time to play a bit with kernel source and I was
+trying to lower console_loglevel in order to have all the startup printk's
+disappear. I lowered the DEFAULT_CONSOLE_LOGLEVEL constant in
+'kernel/printk.c' from '7' to '5' (just to be sure) but that wasn't enough
+to get rid of all those annoying KERN_INFO. Why didn't it work?
 
-I've forwarded this report to the place where it should be reported, the
-netfilter-devel@lists.samba.org mailinglist as I havn't seen this report
-there.
+Please feel free not to answer if you don't feel like. I know I can be buggy
+sometimes! :P
 
-/Martin
-
-> I got another kernel oops related to iptables/REDIRECT, this time it's a plain vanilla kernel 2.4.15
-> 
-> iptables -t nat -I PREROUTING -p tcp --dst 145.66.1.1 \
->                --dport 1080 -j REDIRECT --to 80 > /dev/null 2>&1
-> iptables -t nat -I OUTPUT     -p tcp --dst 145.66.1.1 \
->                --dport 1080 -j REDIRECT --to 80 > /dev/null 2>&1
-> 
-> This redirects connects to the machine itself (145.66.1.1) port 1080 to port
-> 80, which is where apache listens. Connecting to http://145.66.1.1:1080/ seems
-> to result in the reported oops, as reported before. It's very reproducable
-> here, on several machines. So enjoy!
-> 
-> Rolf
-> 
-> [fokkensr@iasdev fokkensr]$ ksymoops -k ksyms-2.4.15 -i -m /boot/System.map-2.4.15 -o /lib/modules/2.4.15/ < oops-2.4.15.txt
-> 
-> ksymoops 2.4.3 on i686 2.4.8-clk.  Options used
->      -V (default)
->      -k ksyms-2.4.15 (specified)
->      -l /proc/modules (default)
->      -o /lib/modules/2.4.15/ (specified)
->      -m /boot/System.map-2.4.15 (specified)
->      -i
-> 
-> Unable to handle kernel NULL pointer dereference at virtual address 0000034e
-> c0200cb5
-> *pde = 00000000
-> Oops:   0000
-> CPU:    0
-> EIP:    0010:[<c0200cb5>] not tainted
-> Using defaults from ksymoops -t elf32-i386 -a i386
-> EFLAGS: 00010246
-> eax: 000005dc ebx: f76b0ea0 ecx: f76be800 edx: 00000000
-> esi: f76b30ac edi: 00000000 ebp: f72ab224 esp: f7193d98
-> ds: 0010 es: 0018 ss: 0018
-> Stack: 00000001 f7192000 00000003 00000000 f76be800 c01f102d f76b0ea0 f76bc0ac
->        f72fa6d4 f76b0130 f76bc0c0 f7193dd8 c034bed8 c01ffb46 00000002 00000003
->        f76b0ea0 00000000 f76be800 c0200c14 0000003c f72fa6d4 f76b0130 f76bc0c0
-> Call Trace: <c01f102d> <c01ffb46> <c0200c14> <c0198c23> <c0216179>
->             <c0210238> <c02107f2> <c0210b23> <c020617f> <c0223acc> <c0223b06>
->             <c01e115d> <c0223acc> <c01e137b> <c01437ec> <c01076a3>
-> Code: 8a 87 4c 03 00 00 3c 02 74 0a 3c 01 75 0b f6 45 20 04 75 05
-> 
-> >>EIP; c0200cb4 <ip_queue_xmit2+a0/22c>   <=====
-> Trace; c01f102c <nf_hook_slow+19c/21c>
-> Trace; c01ffb46 <ip_queue_xmit+28e/300>
-> Trace; c0200c14 <ip_queue_xmit2+0/22c>
-> Trace; c0198c22 <generic_unplug_device+62/b0>
-> Trace; c0216178 <tcp_v4_send_check+6c/ac>
-> Trace; c0210238 <tcp_cwnd_restart+18/a4>
-> Trace; c02107f2 <tcp_transmit_skb+52e/5ec>
-> Trace; c0210b22 <tcp_push_one+8a/114>
-> Trace; c020617e <tcp_sendmsg+b3a/1370>
-> Trace; c0223acc <inet_sendmsg+0/40>
-> Trace; c0223b06 <inet_sendmsg+3a/40>
-> Trace; c01e115c <sock_sendmsg+80/a4>
-> Trace; c0223acc <inet_sendmsg+0/40>
-> Trace; c01e137a <sock_write+a2/ac>
-> Trace; c01437ec <sys_write+8c/c4>
-> Trace; c01076a2 <system_call+2e/34>
-> Code;  c0200cb4 <ip_queue_xmit2+a0/22c>
-> 00000000 <_EIP>:
-> Code;  c0200cb4 <ip_queue_xmit2+a0/22c>   <=====
->    0:   8a 87 4c 03 00 00         mov    0x34c(%edi),%al   <=====
-> Code;  c0200cba <ip_queue_xmit2+a6/22c>
->    6:   3c 02                     cmp    $0x2,%al
-> Code;  c0200cbc <ip_queue_xmit2+a8/22c>
->    8:   74 0a                     je     14 <_EIP+0x14> c0200cc8 <ip_queue_xmit2+b4/22c>
-> Code;  c0200cbe <ip_queue_xmit2+aa/22c>
->    a:   3c 01                     cmp    $0x1,%al
-> Code;  c0200cc0 <ip_queue_xmit2+ac/22c>
->    c:   75 0b                     jne    19 <_EIP+0x19> c0200ccc <ip_queue_xmit2+b8/22c>
-> Code;  c0200cc2 <ip_queue_xmit2+ae/22c>
->    e:   f6 45 20 04               testb  $0x4,0x20(%ebp)
-> Code;  c0200cc6 <ip_queue_xmit2+b2/22c>
->   12:   75 05                     jne    19 <_EIP+0x19> c0200ccc <ip_queue_xmit2+b8/22c>
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
+Thank you!
+--
+icemaze@tiscalinet.it
 

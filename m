@@ -1,90 +1,66 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S310511AbSBRMNE>; Mon, 18 Feb 2002 07:13:04 -0500
+	id <S293656AbSBRESI>; Sun, 17 Feb 2002 23:18:08 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S310510AbSBRMMz>; Mon, 18 Feb 2002 07:12:55 -0500
-Received: from hq.pm.waw.pl ([195.116.170.10]:8940 "EHLO hq.pm.waw.pl")
-	by vger.kernel.org with ESMTP id <S310505AbSBRMMr>;
-	Mon, 18 Feb 2002 07:12:47 -0500
-To: Francois Romieu <romieu@cogenit.fr>
-Cc: linux-kernel@vger.kernel.org, davem@redhat.com, torvalds@transmeta.com,
-        jgarzik@mandrakesoft.com
-Subject: Re: [PATCH] HDLC patch for 2.5.5 (0/3)
-In-Reply-To: <20020217193005.B14629@se1.cogenit.fr>
-From: Krzysztof Halasa <khc@pm.waw.pl>
-Date: 18 Feb 2002 13:09:19 +0100
-In-Reply-To: <20020217193005.B14629@se1.cogenit.fr>
-Message-ID: <m3zo27outs.fsf@defiant.pm.waw.pl>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S293657AbSBRER6>; Sun, 17 Feb 2002 23:17:58 -0500
+Received: from sydney1.au.ibm.com ([202.135.142.193]:64775 "EHLO
+	haven.ozlabs.ibm.com") by vger.kernel.org with ESMTP
+	id <S293656AbSBRERn>; Sun, 17 Feb 2002 23:17:43 -0500
+From: Rusty Russell <rusty@rustcorp.com.au>
+To: alan@redhat.com
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] 2.2 Trivial patches
+Date: Mon, 18 Feb 2002 15:17:31 +1100
+Message-Id: <E16cfF5-0001rX-00@wagner.rustcorp.com.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Hi Alan,
 
-Francois Romieu <romieu@cogenit.fr> writes:
+	Just one trivial patch this week for 2.2.
 
-> [0/3]:
+Cheers!
+Rusty.
 
-Looks ok for me.
+Trivial patch update against 2.2.21-pre2:
+René Scharfe <l.s.r@web.de>: [PATCH] compiler warnings in scripts_tkgen.c:
+  this patch fixes two compiler warnings during make xconfig which
+  turn up if one uses -Wshadow
 
-> - SIOCDEVICE -> SIOCWANDEV conversion
+diff -urN -I \$.*\$ --exclude TAGS -X /home/rusty/devel/kernel/kernel-patches/current-dontdiff --minimal /home/rusty/devel/kernel/linux-2.2.21-pre2/scripts/tkgen.c /home/rusty/devel/kernel/trivial-2.2.21-pre2/scripts/tkgen.c
+--- /home/rusty/devel/kernel/linux-2.2.21-pre2/scripts/tkgen.c	Mon May 28 13:57:45 2001
++++ /home/rusty/devel/kernel/trivial-2.2.21-pre2/scripts/tkgen.c	Mon Feb 18 15:15:43 2002
+@@ -587,11 +587,11 @@
+ 	case token_int:
+ 	    if ( cfg->value && *cfg->value == '$' )
+ 	    {
+-		int index = get_varnum( cfg->value+1 );
++		int i = get_varnum( cfg->value+1 );
+ 		printf( "\n" );
+-		if ( ! vartable[index].global_written )
++		if ( ! vartable[i].global_written )
+ 		{
+-		    global( vartable[index].name );
++		    global( vartable[i].name );
+ 		}
+ 		printf( "\t" );
+ 	    }
+@@ -956,7 +956,6 @@
+ static void end_proc( struct kconfig * scfg, int menu_num )
+ {
+     struct kconfig * cfg;
+-    int i;
+ 
+     printf( "\n\n\n" );
+     printf( "\tfocus $w\n" );
+@@ -1051,6 +1050,7 @@
+ 	    {
+ 		if ( cfg->token == token_tristate )
+ 		{
++		    int i;
+ 		    if ( ! vartable[cfg->nameindex].global_written )
+ 		    {
+ 			vartable[cfg->nameindex].global_written = 1;
 
-But I wonder if that's what we really want. IIRC, the conclusion was
-that we need a uniform interface for both LAN and WAN (with the ETHTOOL
-being replaced eventually by it). That was why I changed it to "DEVICE"
-the first time (for me personally, there is no problem with that).
-
-> [1/3]:
-> - struct if_settings in struct ifreq becomes struct if_settings *;
-> - anonymous data pointer in struct if_settings is now a pointer to a
->   union of struct containing l2 parameters. These structs can be of
->   arbitrary size. So far, hdlc_settings is the only one available;
-
-These two are IMHO bad :-(
-The union would then be as big as the largest struct.
-What's worse, the size would change when we add larger struct (i.e.
-new protocol), causing binary incompatibility. With my patch, if we
-add a new protocol (struct), existing utils would work.
-
-The whole
-+struct hdlc_settings {
-+	union {
-+		raw_hdlc_proto		raw_hdlc;
-+		cisco_proto		cisco;
-+		fr_proto		fr;
-+		fr_proto_pvc		fr_pvc;
-+		sync_serial_settings	sync;
-+		te1_settings		te1;
-+	} hdlcs_hdlcu;
-+};
-idea is IMHO bad - we need a variable size, separate structures for
-separate protocols/interfaces. I think we should avoid a union at all costs.
-
-Creating the new ioctl.h file seem ok to me.
-
-
-Remember that i.e. sync_serial_settings are not related to any HDLC
-protocol - that's just a physical interface which could be used for
-things like SDLC, transparent transmissions etc. - or even for async
-things (the synchronous interface can work in async mode as well).
-
-> [2/3]:
-> - conversion of drivers/net/wan/hdlc_xxx.c files.
-> 
-> [3/3]:
-> - some device are converted (c101.c/dscc4.c/farsync.c/n2.c).
-
-IMHO we could wait with the real code until the interface is stable.
-
-> Remarks:
-> - As hdlc_{raw/cisco/fr/x25} doesn't need knowledge of struct ifreq, I would 
-> happily pass them a pointer to a struct if_settings. This way the 2 stage 
-> ioctl would be clearer imho.
-
-Yes. The previous implementation depends on dev->do_ioctl and the
-whole "PRIVATE" ioctls idea. When it's dead, we no longer require the
-cmd/ifreq/etc.
--- 
-Krzysztof Halasa
-Network Administrator
+--
+  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.

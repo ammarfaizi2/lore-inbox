@@ -1,61 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313444AbSDGTkn>; Sun, 7 Apr 2002 15:40:43 -0400
+	id <S313447AbSDGTlb>; Sun, 7 Apr 2002 15:41:31 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313447AbSDGTkm>; Sun, 7 Apr 2002 15:40:42 -0400
-Received: from RAVEL.CODA.CS.CMU.EDU ([128.2.222.215]:39052 "EHLO
-	ravel.coda.cs.cmu.edu") by vger.kernel.org with ESMTP
-	id <S313444AbSDGTkl>; Sun, 7 Apr 2002 15:40:41 -0400
-Date: Sun, 7 Apr 2002 15:40:33 -0400
+	id <S313448AbSDGTla>; Sun, 7 Apr 2002 15:41:30 -0400
+Received: from probity.mcc.ac.uk ([130.88.200.94]:36370 "EHLO
+	probity.mcc.ac.uk") by vger.kernel.org with ESMTP
+	id <S313447AbSDGTl1>; Sun, 7 Apr 2002 15:41:27 -0400
+Date: Sun, 7 Apr 2002 20:41:14 +0100
+From: John Levon <movement@marcelothewonderpenguin.com>
 To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: linux-kernel@vger.kernel.org
+Cc: "Steven N. Hirsch" <shirsch@adelphia.net>, linux-kernel@vger.kernel.org
 Subject: Re: Two fixes for 2.4.19-pre5-ac3
-Message-ID: <20020407194032.GA15051@ravel.coda.cs.cmu.edu>
-Mail-Followup-To: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-	linux-kernel@vger.kernel.org
-In-Reply-To: <20020407173343.GA18940@compsoc.man.ac.uk> <E16uIB6-0006TQ-00@the-village.bc.nu>
+Message-ID: <20020407194114.GA21800@compsoc.man.ac.uk>
+In-Reply-To: <20020407173343.GA18940@compsoc.man.ac.uk> <E16uIf7-0006Zw-00@the-village.bc.nu>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.3.27i
-From: Jan Harkes <jaharkes@cs.cmu.edu>
+User-Agent: Mutt/1.3.25i
+X-Url: http://www.movementarian.org/
+X-Record: Bendik Singers - Afrotid
+X-Toppers: N/A
+X-Scanner: exiscan *16uIXP-0007QL-00*32bPFtgK2/Y* (Manchester Computing, University of Manchester)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Apr 07, 2002 at 08:18:16PM +0100, Alan Cox wrote:
-> > I'm a bit disappointed this has just gone in without any real discussion
-> > on the usefulness of this for certain circumstances :(
-> 
-> How about "there are no correct users". Its basically impossible to patch
-> the syscall table safely anyway. As Arjan pointed out there are races 
-> against module unload that on SMP are basically incurable. Doing the
-> right hooks makes the AFS code portable which is a big win.
+On Sun, Apr 07, 2002 at 08:49:17PM +0100, Alan Cox wrote:
 
-What they do in the syscall is still questionable in my opinion. AFS
-wants to have a process authentication group (PAG) associated with
-processes. The syscall rewrites some fields in the task structure,
-basically adds 'hidden' entries to the groups array. They should
-probably use something like the task-ornaments patch (was that by Dave
-Howells?), which is what I plan to use for Coda whenever they get merged
-into the mainline.
+> Removing it in the -ac tree is a good way to stimulate discussion
 
-Both Coda and AFS have semantically quite similar requirements for the
-PAG indentifier, a generic solution is probably better than having
-random modules hacking their stuff into the syscall table and task
-structures, which is why I do not consider their solution the right one.
+OK
 
-Either add getpag/newpag natively (good for yearly flamefests in
-linux-kernel), or the more generic task-ornaments so I can make a
-trivial module that adds /dev/pag, semantics could be as simple as
-reading returns the current pag, and writing adds a new pag as a
-task-ornament.
+> fixing the code that relies on it (except for the 99% of code relying on it
+> which is cracker authored trojans)
 
-Then both Coda and AFS can use the common mechanism and we'll get things
-like PAM support and PAG aware daemons more quickly and consistently.
-Anything that currently relies on setuid/setgid would f.i. benefit from
-this on Coda and AFS type filesystems, as we can tell the difference
-between administrator, random hacker, mail delivery process, nameserver,
-cron daemon even when they all have the uid 'root'.
+No doubt, but it's not much harder to look at nm vmlinux or System.map,
+so I don't see the security angle...
 
-Jan
+I'd be happy to bear the brunt of users moaning at me because they now
+have to apply a kernel patch (and I have to maintain it ...), iff there
+was some strongly technical reason the code has to change.
 
+regards
+john
+
+-- 
+"I never understood what's so hard about picking a unique
+ first and last name - and not going beyond the 6 character limit."
+ 	- Toon Moene

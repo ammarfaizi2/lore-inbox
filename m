@@ -1,60 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261898AbTLWQPD (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 23 Dec 2003 11:15:03 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261929AbTLWQPD
+	id S261953AbTLWQek (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 23 Dec 2003 11:34:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262030AbTLWQek
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 23 Dec 2003 11:15:03 -0500
-Received: from hostmaster.org ([80.110.173.103]:62859 "HELO hostmaster.org")
-	by vger.kernel.org with SMTP id S261898AbTLWQO5 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 23 Dec 2003 11:14:57 -0500
-Subject: 2.6.0/menuconfig->help
-From: Thomas Zehetbauer <thomasz@hostmaster.org>
-To: linux-kernel@vger.kernel.org
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-4GIcf4EPvNLWOamF+Y44"
-Message-Id: <1072196085.1433.15.camel@hostmaster.org>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 (1.4.5-8) 
-Date: Tue, 23 Dec 2003 17:14:50 +0100
+	Tue, 23 Dec 2003 11:34:40 -0500
+Received: from mail2-116.ewetel.de ([212.6.122.116]:47346 "EHLO
+	mail2.ewetel.de") by vger.kernel.org with ESMTP id S261953AbTLWQei
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 23 Dec 2003 11:34:38 -0500
+Date: Tue, 23 Dec 2003 17:34:28 +0100 (CET)
+From: Pascal Schmidt <der.eremit@email.de>
+To: Andrew Morton <akpm@osdl.org>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.0-mm1
+Message-ID: <Pine.LNX.4.44.0312231732001.926-100000@neptune.local>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-CheckCompat: OK
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---=-4GIcf4EPvNLWOamF+Y44
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+On Tue, 23 Dec 2003 06:20:14 +0100, you wrote in linux.kernel:
 
-I guess it is quite common that /usr/src/linux is owned by root and mode
-u=3DrwX,go=3DrX. For me it is also desirable that any unprivileged user can
-view the kernel configuration by calling *config. This basically works
-but viewing the description/help for a configuration option fails with
-menuconfig.
+>> +atapi-mo-support.patch
+>> 
+>>  Fix support for ATAPI MO drives (needs updating to reflect the changes 
+>>  in mt-ranier-support.patch).
+> Since the atapi-mo patch is mine, is there something I need to do?
 
-Tom
+I figured it out. ;) This small additional patch on top of mm1 is
+needed to get MO write support to work.
 
---=20
-  T h o m a s   Z e h e t b a u e r   ( TZ251 )
-  PGP encrypted mail preferred - KeyID 96FFCB89
-       mail pgp-key-request@hostmaster.org
 
-Error reading FAT record: Try the SKINNY one? (Y/N)
+--- linux-2.6.0-mm1/drivers/cdrom/cdrom.c	Tue Dec 23 17:26:27 2003
++++ linux-2.6.0-mm1-mo/drivers/cdrom/cdrom.c	Tue Dec 23 17:11:50 2003
+@@ -708,6 +708,8 @@ static int cdrom_open_write(struct cdrom
+ 		ret = cdrom_mrw_open_write(cdi);
+ 	else if (CDROM_CAN(CDC_DVD_RAM))
+ 		ret = cdrom_dvdram_open_write(cdi);
++	else if (CDROM_CAN(CDC_MO_DRIVE))
++		ret = 0;
+ 
+ 	return ret;
+ }
 
---=-4GIcf4EPvNLWOamF+Y44
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.3 (GNU/Linux)
-
-iQEVAwUAP+hp72D1OYqW/8uJAQKMuQf/ccffAeNsq+bRAkB6lhstCNU8x+7q3wGE
-OORgfyGzAc/Nb2ulU3YuzD8PS7PnOOczlyLtIF3+cFZOOvO+DKH2SmdQOV+vgaBX
-mYT31U/+3aMCe7gKpSRPMqPzPb+aisTQEh9cIW50G0gQ5dzNcSl5pBzxtSSosmkQ
-Tu2/l5VSrNhe3kLwl1wGP6ZBbfFcNgAhAG5+59DTDOKWqvlsCT2oVh6LzYqZ0pjG
-oyz1hqEyhl9fIKYZzkwWpKBBx9hmETQAutHuZWp5mgDimGlSMk6w8uf9Rctr6k3A
-pcuMeoch6BOSunWCnVJrQUeeTpNmuTQxpTa9bvYxcKMPqS2WeRpjPQ==
-=nwgi
------END PGP SIGNATURE-----
-
---=-4GIcf4EPvNLWOamF+Y44--
+-- 
+Ciao,
+Pascal
 

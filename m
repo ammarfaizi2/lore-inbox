@@ -1,69 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261480AbTIKRda (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 11 Sep 2003 13:33:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261425AbTIKRbu
+	id S261478AbTIKRdk (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 11 Sep 2003 13:33:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261475AbTIKRbk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 11 Sep 2003 13:31:50 -0400
-Received: from ns.suse.de ([195.135.220.2]:9449 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S261454AbTIKRZx (ORCPT
+	Thu, 11 Sep 2003 13:31:40 -0400
+Received: from amdext2.amd.com ([163.181.251.1]:12512 "EHLO amdext2.amd.com")
+	by vger.kernel.org with ESMTP id S261440AbTIKRSm (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 11 Sep 2003 13:25:53 -0400
-Date: Thu, 11 Sep 2003 19:25:50 +0200
-From: Andi Kleen <ak@suse.de>
-To: Jamie Lokier <jamie@shareable.org>
-Cc: willy@debian.org, linux-kernel@vger.kernel.org
-Subject: Re: Memory mapped IO vs Port IO
-Message-Id: <20030911192550.7dfaf08c.ak@suse.de>
-In-Reply-To: <20030911171205.GH29532@mail.jlokier.co.uk>
-References: <20030911160116.GI21596@parcelfarce.linux.theplanet.co.uk.suse.lists.linux.kernel>
-	<p73oexri9kx.fsf@oldwotan.suse.de>
-	<20030911162504.GL21596@parcelfarce.linux.theplanet.co.uk>
-	<20030911183136.01dfeb53.ak@suse.de>
-	<20030911171205.GH29532@mail.jlokier.co.uk>
-X-Mailer: Sylpheed version 0.8.9 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Thu, 11 Sep 2003 13:18:42 -0400
+Message-ID: <99F2150714F93F448942F9A9F112634C0638B19A@txexmtae.amd.com>
+From: richard.brunner@amd.com
+To: ak@suse.de, davej@redhat.com
+cc: torvalds@osdl.org, linux-kernel@vger.kernel.org, akpm@osdl.org
+Subject: RE: [PATCH] 2.6 workaround for Athlon/Opteron prefetch errata
+Date: Thu, 11 Sep 2003 12:17:57 -0500
+MIME-Version: 1.0
+X-Mailer: Internet Mail Service (5.5.2653.19)
+X-WSS-ID: 137E71C02325899-01-01
+Content-Type: text/plain;
+ charset=iso-8859-1
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 11 Sep 2003 18:12:05 +0100
-Jamie Lokier <jamie@shareable.org> wrote:
-
-> Andi Kleen wrote:
-> > Even a memory write is tens to hundres of cycles.
+> -----Original Message-----
+> From: Andi Kleen [mailto:ak@suse.de] 
+> Sent: Thursday, September 11, 2003 7:29 AM
 > 
-> Not from the CPU's perspective.  It is done in parallel with other
-> instructions.
+> On Thu, 11 Sep 2003 15:14:51 +0100
+> Dave Jones <davej@redhat.com> wrote:
+> 
+> > On Thu, Sep 11, 2003 at 04:01:08PM +0200, Andi Kleen wrote:
+> > 
+> >  > > What's wrong with the current status quo that just says 
+> >  > > "Athlon prefetch is broken"?
+> >  > It doesn't fix user space for once.
+> > 
+> > And for another, it cripples the earlier athlons which 
+> > don't have this
+> > errata. Andi's fix at least makes prefetch work again on 
+> > those boxes.
+> > It's also arguable that prefetch() helps the older K7's 
+> > more than the
+> > affected ones.
+> 
+> All Athlons have this Errata. I can trigger it on an old
+> 900Mhz pre XP Athlon too. You just have to use 3dnow prefetch
+> instead of SSE prefetch.
+> 
+> BTW the older Athlons currently don't use prefetch because 
+> the alternative
+> patcher does not handle 3dnow style prefetch.
+> 
 
-Only when there are more instructions to execute. But device
-driver code often does a following read e.g. to check if it can submit
-another request to the hardware.
-
-My claim is basically:
-
-Change everybody who currently does
-
-#ifdef CONFIG_MMIO
-	writel(... )
-	readl(...)
-#else
-	outl( ... ) 
-	inl ( ...) 
-#endif
-
-to 
-	if (dev->mmio) { 
-		writel(); 
-		real();
-	} else { 
-		outl();
-		inl();
-	} 
-
-and you will have a hard time to benchmark the difference on any non ancient system
-in actual driver operation.
-
--Andi
+Avoiding prefetch for all Athlons and earlier Opterons/Athlon64
+even in the kernel can really tank performance. And as Andi says
+it still doesn't solve user mode from hitting the errata.
+ 
+] -Rich ...
+] AMD Fellow
 

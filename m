@@ -1,40 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S283602AbRLDXo4>; Tue, 4 Dec 2001 18:44:56 -0500
+	id <S283585AbRLDXcQ>; Tue, 4 Dec 2001 18:32:16 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S283588AbRLDXor>; Tue, 4 Dec 2001 18:44:47 -0500
-Received: from yuha.menta.net ([212.78.128.42]:42747 "EHLO yuha.menta.net")
-	by vger.kernel.org with ESMTP id <S283597AbRLDXoh>;
-	Tue, 4 Dec 2001 18:44:37 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Ivanovich <ivanovich@menta.net>
-To: junio@siamese.dhis.twinsun.com, erik.tews@gmx.net (Erik Tews)
-Subject: Re: Strange messages with 2.4.16
-Date: Wed, 5 Dec 2001 00:44:15 +0100
-X-Mailer: KMail [version 1.2]
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20011203233612.J11967@no-maam.dyndns.org> <7vlmgjcy7u.fsf@siamese.dhis.twinsun.com>
-In-Reply-To: <7vlmgjcy7u.fsf@siamese.dhis.twinsun.com>
+	id <S283594AbRLDXcH>; Tue, 4 Dec 2001 18:32:07 -0500
+Received: from garrincha.netbank.com.br ([200.203.199.88]:43025 "HELO
+	netbank.com.br") by vger.kernel.org with SMTP id <S283585AbRLDXbv>;
+	Tue, 4 Dec 2001 18:31:51 -0500
+Date: Tue, 4 Dec 2001 21:31:40 -0200 (BRST)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: <riel@imladris.surriel.com>
+To: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>
+Cc: Lars Brinkhoff <lars.spam@nocrew.org>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        Larry McVoy <lm@bitmover.com>, <hps@intermeta.de>,
+        <linux-kernel@vger.kernel.org>
+Subject: Re: Linux/Pro [was Re: Coding style - a non-issue]
+In-Reply-To: <2455827301.1007478174@mbligh.des.sequent.com>
+Message-ID: <Pine.LNX.4.33L.0112042129160.4079-100000@imladris.surriel.com>
+X-spambait: aardvark@kernelnewbies.org
+X-spammeplease: aardvark@nl.linux.org
 MIME-Version: 1.0
-Message-Id: <01120500441500.01169@localhost.localdomain>
-Content-Transfer-Encoding: 7BIT
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-A Dimarts 04 Desembre 2001 07:10, junio@siamese.dhis.twinsun.com va escriure:
-> >>>>> "Erik" == Erik Tews <erik.tews@gmx.net> writes:
+On Tue, 4 Dec 2001, Martin J. Bligh wrote:
+
+> > Premise 3: it is far easier to take a bunch of operating system images
+> >    and make them share the parts they need to share (i.e., the page
+> >    cache), than to take a single image and pry it apart so that it
+> >    runs well on N processors.
 >
-> Erik> invalidate: busy buffer
-> Erik> ... What do they want to
-> Erik> tell me? Has anybody else seen this messages?
->
-> I see them during shutdown (or reboot); a quick grep shows that
-> they are coming from fs/buffer.c: invalidate_bdev().  My kernel
-> is with RAID-1, and without lvm.
+> Of course it's easier. But it seems like you're left with much more
+> work to reiterate in each application you write to run on this thing.
+> Do you want to do the work once in the kernel, or repeatedly in each
+> application?
 
-i get it _sometimes_ after a hdparm -t /dev/md0 which is a software RAID-0 
-stripe with 2 IDE hd. running 2.4.15-pre8
+There seems to be a little misunderstanding here; from what
+I gathered when talking to Larry, the idea behind ccClusters
+is that they provide a single system image in a NUMA box, but
+with separated operating system kernels.
 
-but no idea what it means.... 
+Of course, this is close to what a "single" NUMA kernel often
+ends up doing with much ugliness, so I think Larry's idea to
+construct NUMA OSes by putting individual kernels of nodes to
+work together makes a lot of sense.
 
-:-?
+regards,
+
+Rik
+-- 
+Shortwave goes a long way:  irc.starchat.net  #swl
+
+http://www.surriel.com/		http://distro.conectiva.com/
+

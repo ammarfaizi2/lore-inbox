@@ -1,98 +1,98 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270218AbTG3LUc (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 30 Jul 2003 07:20:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270335AbTG3LUc
+	id S271214AbTG3LOO (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 30 Jul 2003 07:14:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272005AbTG3LOO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 30 Jul 2003 07:20:32 -0400
-Received: from cm61.gamma179.maxonline.com.sg ([202.156.179.61]:7040 "EHLO
-	amaryllis.anomalistic.org") by vger.kernel.org with ESMTP
-	id S270218AbTG3LUT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 30 Jul 2003 07:20:19 -0400
-Date: Wed, 30 Jul 2003 19:20:14 +0800
-From: Eugene Teo <eugene.teo@eugeneteo.net>
-To: Con Kolivas <kernel@kolivas.org>
-Cc: Voluspa <lista1@telia.com>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] O11int for interactivity
-Message-ID: <20030730112014.GA994@eugeneteo.net>
-Reply-To: Eugene Teo <eugene.teo@eugeneteo.net>
-References: <20030730123122.3970c7bf.lista1@telia.com> <200307302051.33503.kernel@kolivas.org>
+	Wed, 30 Jul 2003 07:14:14 -0400
+Received: from ppp-217-133-42-200.cust-adsl.tiscali.it ([217.133.42.200]:59629
+	"EHLO dualathlon.random") by vger.kernel.org with ESMTP
+	id S271214AbTG3LOK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 30 Jul 2003 07:14:10 -0400
+Date: Wed, 30 Jul 2003 13:16:39 +0200
+From: Andrea Arcangeli <andrea@suse.de>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: Andrew Morton <akpm@osdl.org>, linas@austin.ibm.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: PATCH: Race in 2.6.0-test2 timer code
+Message-ID: <20030730111639.GI23835@dualathlon.random>
+References: <20030730082848.GC23835@dualathlon.random> <Pine.LNX.4.44.0307301223450.13299-100000@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="/9DWx/yDrRhgMJTb"
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200307302051.33503.kernel@kolivas.org>
-X-Operating-System: Linux 2.6.0-test2-mm1-kj1+O11.1int
-User-Agent: Mutt/1.5.4i
+In-Reply-To: <Pine.LNX.4.44.0307301223450.13299-100000@localhost.localdomain>
+User-Agent: Mutt/1.4i
+X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
+X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, Jul 30, 2003 at 12:31:23PM +0200, Ingo Molnar wrote:
+> 
+> On Wed, 30 Jul 2003, Andrea Arcangeli wrote:
+> 
+> > 
+> > 	cpu0			cpu1
+> > 	------------		--------------------
+> > 
+> > 	do_setitimer
+> > 				it_real_fn
+> > 	del_timer_sync		add_timer	-> crash
+> 
+> would you mind to elaborate the precise race? I cannot see how the above
+> sequence could crash on current 2.6:
+> 
+> del_timer_sync() takes the base pointer in timer->base and locks it, then
+> checks whether the timer has this base or not and repeats the sequence if
+> not. add_timer() locks the current CPU's base, then installs the timer and
+> sets timer->base. Where's the race?
 
---/9DWx/yDrRhgMJTb
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+not sure why you mention timer->base, you know the base lock means
+nothing if it's in two different cpus (if it meant anything, it would
+mean we'd still suffer the cacheline bouncing with timer ops running in
+different cpus). To make it more clear I edit timer.c deleting all
+spin_lock(&base->lock) so the base->lock won't make it look like it can
+serialize anything. I delete the local_irqsave too since it doesn't
+matter too for this example (also assume premption turned off so I don't
+need to add the preempt disable in place of the local irq save).
 
-[~] $ uname -a
-Linux amaryllis 2.6.0-test2-mm1-kj1+O11.1int #1 Wed Jul 30 18:57:37 SGT
-2003 i686 GNU/Linux
+so for this example we have this:
 
-Applied mm1, kj1 (kernel-janitor), and your O11.1int patch.
+int del_timer(struct timer_list *timer)
+{
+	tvec_base_t *base;
 
-when X is niced with -10, there are a 1-2 sec pause whenever I switched
-=66rom X to console.
+repeat:
+ 	base = timer->base;
+	if (!base)
+		return 0;
+	if (base != timer->base) {
+		goto repeat;
+	}
+	list_del(&timer->entry);
+	timer->base = NULL;
 
-when X is niced with 0, there are no skips, no pause, no whatsoever.
-even when I maximise aterm, there are no interruptions on my xmms when
-i hide, and unhide aterm. nothing unusual when i compile kernels.=20
+	return 1;
+}
 
-this is perhaps the best patch i ever applied from you.
+against this:
 
-Cheers,
-Eugene
+void add_timer(struct timer_list *timer)
+{
+	tvec_base_t *base = &get_cpu_var(tvec_bases);
+  
+  	BUG_ON(timer_pending(timer) || !timer->function);
 
-<quote sender=3D"Con Kolivas">
-> On Wed, 30 Jul 2003 20:31, Voluspa wrote:
-> > On 2003-07-30 8:41:46 Felipe Alfaro Solana wrote:
-> > > Wops! Wait a minute! O11.1 is great, but I've had a few XMMS skips
-> > > that I didn't have with O10. They're really difficult to reproduce,
-> >
-> > Can't reproduce your skips here with my light environment and O11.1 (on
-> > a PII 400, 128 meg mem, no desktop, Enlightenment as wm). Even as I
-> > write this my machine is under the most extreme load that I have -
-> > natural, not artificial:
->=20
-> Good test. Thanks.
->=20
-> > As to difference between O10 and O11.1 in feel... No comment. I'm too
-> > old to catch such small variations.
->=20
-> That's good, most of the difference was supposed to be in extremely unusu=
-al=20
-> circumstances. Felipe's issue is something I was concerned might happen (=
-not=20
-> specifically an audio issue per se but audio is a sensitive way to pick i=
-t=20
-> up) which is why all testing is important.
->=20
-> Con
->=20
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+	internal_add_timer(base, timer);
+	timer->base = base;
+	put_cpu_var(tvec_bases);
+}
 
---/9DWx/yDrRhgMJTb
-Content-Type: application/pgp-signature
-Content-Disposition: inline
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.2 (GNU/Linux)
+in del_timer, list_del can be reordered after the timer->base = NULL,
+the C compiler can do that. so list_del will run at the same time of
+internal_add_timer(base, timer) that does the list_add_tail.
 
-iD8DBQE/J6nucyGjihSg3eURAmx4AKCeXcsAtExyAAnQteZuWmOWaucYHgCginUA
-909fhjfnmrJfkzG2TCxyfwY=
-=RfWu
------END PGP SIGNATURE-----
+list_del and list_add_tail running at the same time will crash.
 
---/9DWx/yDrRhgMJTb--
+Andrea

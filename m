@@ -1,39 +1,69 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261608AbSI0Qye>; Fri, 27 Sep 2002 12:54:34 -0400
+	id <S261627AbSI0QzW>; Fri, 27 Sep 2002 12:55:22 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261627AbSI0Qyd>; Fri, 27 Sep 2002 12:54:33 -0400
-Received: from ns.suse.de ([213.95.15.193]:3591 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id <S261608AbSI0Qyd>;
-	Fri, 27 Sep 2002 12:54:33 -0400
-Date: Fri, 27 Sep 2002 18:59:49 +0200
-From: Andi Kleen <ak@suse.de>
-To: Roman Zippel <zippel@linux-m68k.org>
-Cc: Andi Kleen <ak@suse.de>, Linus Torvalds <torvalds@transmeta.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Put modules into linear mapping
-Message-ID: <20020927185949.A27271@wotan.suse.de>
-References: <20020927181445.A9595@wotan.suse.de> <Pine.LNX.4.44.0209271849180.338-100000@serv>
+	id <S261712AbSI0QzU>; Fri, 27 Sep 2002 12:55:20 -0400
+Received: from w089.z209220022.nyc-ny.dsl.cnc.net ([209.220.22.89]:47888 "HELO
+	yucs.org") by vger.kernel.org with SMTP id <S261627AbSI0QzS>;
+	Fri, 27 Sep 2002 12:55:18 -0400
+Subject: Re: using memset in a module
+From: Shaya Potter <spotter@cs.columbia.edu>
+To: Dan Aloni <da-x@gmx.net>
+Cc: "Randy.Dunlap" <rddunlap@osdl.org>, linux-kernel@vger.kernel.org
+In-Reply-To: <20020927152033.GA4710@callisto.yi.org>
+References: <Pine.LNX.4.33L2.0209261550410.32681-100000@dragon.pdx.osdl.net>
+	 <1033081345.3371.35.camel@zaphod>  <20020927152033.GA4710@callisto.yi.org>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1033145995.6867.40.camel@zaphod>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0209271849180.338-100000@serv>
-User-Agent: Mutt/1.3.22.1i
+X-Mailer: Ximian Evolution 1.1.1.99 (Preview Release)
+Date: 27 Sep 2002 12:59:56 -0400
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Sep 27, 2002 at 06:52:28PM +0200, Roman Zippel wrote:
-> > > If it's supposed to be a generic function, it makes sense, otherwise we
-> > > could just put it into module.c.
-> >
-> > Ok, I will change it.
+the problem was I was trying to use some gcc specific behavior.
+
+i.e.
+
+char devpts[15] = "/dev/pts";
+
+under 2.95 since memset isn't a builtin there has to be a reference to
+it, while under 2.96/3.2 there is a builtin, so there's no symbol
+needed.
+
+On Fri, 2002-09-27 at 11:20, Dan Aloni wrote:
+> On Thu, Sep 26, 2002 at 07:02:26PM -0400, Shaya Potter wrote:
+> > On Thu, 2002-09-26 at 18:51, Randy.Dunlap wrote:
+> > > On 26 Sep 2002, Shaya Potter wrote:
+> > > 
+> > > | I have a problem using memset in a module.
+> > > |
+> [snio]
+> > > What gcc options are you using?
+> > > You need -O2 at least.
+> > >           ^ upper-case letter O
+> > 
+> > 
+> > yes, using it.
+> > 
+> > gcc -Wall -DMODULE -DMODVERSIONS -D__KERNEL__ -DLINUX -DEXPORT_SYMTAB
+> > -I/usr/src/linux/include/ -I`pwd`/../migration
+> > -I`pwd`/..//virtualization -O2 -fomit-frame-pointer -pipe
+> > -fno-strength-reduce -malign-loops=2 -malign-jumps=2 -malign-functions=2
+> > -o fs1.o -c virtualizers/fs1.c
 > 
-> Any chance to use __HAVE_MODULE_MAP, so every arch (except sparc64/x86-64)
-> can automatically benefit from this?
-
-I can put it in asm-generic/
-
-But people have to check themselves if the vmalloc trick works for them.
-
--Andi
+> Try adding -nostdinc. Prehaps memset is picked up as 'extern' somehow.
+> If that doesn't work, compile with -E instead of -c and grep the
+> preprocessing output for memset, that may give a clue.
+> 
+> -- 
+> Dan Aloni
+> da-x@gmx.net
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 

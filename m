@@ -1,70 +1,35 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267993AbSIRRmc>; Wed, 18 Sep 2002 13:42:32 -0400
+	id <S268515AbSIRR4c>; Wed, 18 Sep 2002 13:56:32 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267995AbSIRRmc>; Wed, 18 Sep 2002 13:42:32 -0400
-Received: from mx2.elte.hu ([157.181.151.9]:494 "HELO mx2.elte.hu")
-	by vger.kernel.org with SMTP id <S267993AbSIRRmb>;
-	Wed, 18 Sep 2002 13:42:31 -0400
-Date: Wed, 18 Sep 2002 19:54:53 +0200 (CEST)
-From: Ingo Molnar <mingo@elte.hu>
-Reply-To: Ingo Molnar <mingo@elte.hu>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: Rik van Riel <riel@conectiva.com.br>, Andries Brouwer <aebr@win.tue.nl>,
+	id <S268631AbSIRR4b>; Wed, 18 Sep 2002 13:56:31 -0400
+Received: from hq.fsmlabs.com ([209.155.42.197]:47320 "EHLO hq.fsmlabs.com")
+	by vger.kernel.org with ESMTP id <S268515AbSIRRzj>;
+	Wed, 18 Sep 2002 13:55:39 -0400
+From: Cort Dougan <cort@fsmlabs.com>
+Date: Wed, 18 Sep 2002 11:58:35 -0600
+To: Ingo Molnar <mingo@elte.hu>
+Cc: Linus Torvalds <torvalds@transmeta.com>,
+       Rik van Riel <riel@conectiva.com.br>, Andries Brouwer <aebr@win.tue.nl>,
        William Lee Irwin III <wli@holomorphy.com>,
-       <linux-kernel@vger.kernel.org>
-Subject: Re: [patch] lockless, scalable get_pid(), for_each_process()
- elimination, 2.5.35-BK
-In-Reply-To: <Pine.LNX.4.44.0209181026550.1230-100000@home.transmeta.com>
-Message-ID: <Pine.LNX.4.44.0209181939150.24891-100000@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+       linux-kernel@vger.kernel.org
+Subject: Re: [patch] lockless, scalable get_pid(), for_each_process() elimination, 2.5.35-BK
+Message-ID: <20020918115835.B656@host110.fsmlabs.com>
+References: <20020918113551.A654@host110.fsmlabs.com> <Pine.LNX.4.44.0209182001110.25303-100000@localhost.localdomain>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <Pine.LNX.4.44.0209182001110.25303-100000@localhost.localdomain>; from mingo@elte.hu on Wed, Sep 18, 2002 at 08:02:56PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+You're talking about a different problem there.  Creating a thread within a
+realistic time-limit for a sensible number of threads is not a bad idea.
+Doing it for a huge number of threads may not be something that has to be
+done right away.  Don't screw up the low to middle-end - that trend is
+getting frightening in Linux.
 
-On Wed, 18 Sep 2002, Linus Torvalds wrote:
-
-> ... the worst-case-behaviour is basically impossible to trigger with any 
-> real load. 
-> 
-> The worst case does not happen for "100k threads" like you've made it 
-> sound like.
-> 
-> The worst case happens for "100k threads consecutive in the pid space".
-
-i always said consecutive PID range, in perhaps every previous mail.
-
-consecutive PID allocation is actually something applications do pretty
-often.
-
-or Apache threads with the 'max requests handled per thread' config value
-set to infinite, and a couple of thousand threads started up during init.
-
-or a phone line server that handles 100 thousand phone lines starts up
-100K threads, one per line. No need to restart any of those threads, and
-in fact it will never happen. They do use helper threads to do less timing
-critical stuff. Now the whole phone system locks up for 1.5 minutes every
-2 weeks or 2 months when the PID range overflows, how great. Now make that
-400 thousand phonelines, the lockup will will last 24 minutes.
-
-well, by this argument, Windows XP only crashes every couple of weeks, it
-happens rarely, who cares. Windows probably reboots faster than Linux will
-allocate the next PID, so it has better RT latencies. Phone server
-applications are inherently restartable anyway, even across hw crashes.
-
-and of course any quasy-RT behavior of the Linux kernel (which we *do*
-have in specific well-controlled scenarios) can be thrown out the window
-if processes or threads are allocated/destroyed.
-
-and even assuming that concecutive PIDs are a non-problem. Is fast PID
-allocation really that bad? Is a more compressed PID range necesserily
-bad? Is the avoidance of for_each_process and for_each_thread loops that
-bad? Even the current untuned patch, which admittedly duplicates some
-functionality (such as the pidhash), performs on par with the unpatched
-kernel, in thread creation benchmarks. (which is pretty much the only
-place that can show any increase in PID allocation/management overhead.)
-
-	Ingo
-
-
+} sorry, but creating a new thread within some realistic time limit,
+} independently of how all the other threads are layed out, is not something
+} i'd give up trying to solve.

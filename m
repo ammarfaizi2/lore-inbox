@@ -1,137 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129495AbRC3A1w>; Thu, 29 Mar 2001 19:27:52 -0500
+	id <S129679AbRC3BAI>; Thu, 29 Mar 2001 20:00:08 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129506AbRC3A1m>; Thu, 29 Mar 2001 19:27:42 -0500
-Received: from nrg.org ([216.101.165.106]:19780 "EHLO nrg.org")
-	by vger.kernel.org with ESMTP id <S129495AbRC3A1a>;
-	Thu, 29 Mar 2001 19:27:30 -0500
-Date: Thu, 29 Mar 2001 16:26:44 -0800 (PST)
-From: Nigel Gamble <nigel@nrg.org>
-Reply-To: nigel@nrg.org
-To: Rusty Russell <rusty@rustcorp.com.au>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH for 2.5] preemptible kernel
-In-Reply-To: <Pine.LNX.4.05.10103201525480.26853-100000@cosmic.nrg.org>
-Message-ID: <Pine.LNX.4.05.10103291555390.8122-100000@cosmic.nrg.org>
+	id <S129712AbRC3A76>; Thu, 29 Mar 2001 19:59:58 -0500
+Received: from web5204.mail.yahoo.com ([216.115.106.85]:44043 "HELO
+	web5204.mail.yahoo.com") by vger.kernel.org with SMTP
+	id <S129679AbRC3A7o>; Thu, 29 Mar 2001 19:59:44 -0500
+Message-ID: <20010330005903.2800.qmail@web5204.mail.yahoo.com>
+Date: Thu, 29 Mar 2001 16:59:03 -0800 (PST)
+From: Rob Landley <telomerase@yahoo.com>
+Subject: Original destination of transparent proxied connections?
+To: linux-kernel@vger.kernel.org
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 20 Mar 2001, Nigel Gamble wrote:
-> On Tue, 20 Mar 2001, Rusty Russell wrote:
-> > Thoughts?
-> 
-> Perhaps synchronize_kernel() could take the run_queue lock, mark all the
-> tasks on it and count them.  Any task marked when it calls schedule()
-> voluntarily (but not if it is preempted) is unmarked and the count
-> decremented.  synchronize_kernel() continues until the count is zero.
+Help.
 
-Hi Rusty,
+I thought transparent proxying would allow some means
+for the recipient of the proxied connections to find
+out what their original destination port and socket
+address were.  This does not seem to be the case.  The
+socket structure only has one address and one socket,
+and those have the source address, not the destination
+address.
 
-Here is an attempt at a possible version of synchronize_kernel() that
-should work on a preemptible kernel.  I haven't tested it yet.
+How do forward connections to a given address range to
+a user space program that then has the opportunity to
+bidirectionally munge the data in them and forward
+them on?  Transparent proxying works just fine
+assuming I only ever want to forward a single port to
+just one other machine...
 
+IPCHAINS isn't up to it.  Before I go and upgrade to
+the 2.4 kernel on production systems that ship Real
+Soon Now, could somebody give me at least an opinion
+on whether or not iptables and the 2.4 nat stuff can
+do this kind of thing without me having to modify the
+kernel to fill out a larger socket-oid structure?  (Is
+2.4 iptables documented anywhere yet?)
 
-static int sync_count = 0;
-static struct task_struct *syncing_task = NULL;
-static DECLARE_MUTEX(synchronize_kernel_mtx);
+I've got everything else.  If I could just get a
+destination address and port out of transparently
+proxied connections I'd be home free.  I'm amazed this
+data isn't there already, I must have missed something
+stupid.  How do sockets bound to multiple interfaces
+figure out which interface the connection came from?
 
-void
-synchronize_kernel()
-{
-	struct list_head *tmp;
-	struct task_struct *p;
+Rob
 
-	/* Guard against multiple calls to this function */
-	down(&synchronize_kernel_mtx);
-
-	/* Mark all tasks on the runqueue */
-	spin_lock_irq(&runqueue_lock);
-	list_for_each(tmp, &runqueue_head) {
-		p = list_entry(tmp, struct task_struct, run_list);
-		if (p == current)
-			continue;
-		if (p->state == TASK_RUNNING ||
-				(p->state == (TASK_RUNNING|TASK_PREEMPTED))) {
-			p->flags |= PF_SYNCING;
-			sync_count++;
-		}
-	}
-	if (sync_count == 0)
-		goto out;
-
-	syncing_task = current;
-	spin_unlock_irq(&runqueue_lock);
-
-	/*
-	 * Cause a schedule on every CPU, as for a non-preemptible
-	 * kernel
-	 */
-
-	/* Save current state */
-	cpus_allowed = current->cpus_allowed;
-	policy = current->policy;
-	rt_priority = current->rt_priority;
-
-	/* Create an unreal time task. */
-	current->policy = SCHED_FIFO;
-	current->rt_priority = 1001 + sys_sched_get_priority_max(SCHED_FIFO);
-
-	/* Make us schedulable on all CPUs. */
-	current->cpus_allowed = (1UL<<smp_num_cpus)-1;
-
-	/* Eliminate current cpu, reschedule */
-	while ((current->cpus_allowed &= ~(1 << smp_processor_id())) != 0)
-		schedule();
-
-	/* Back to normal. */
-	current->cpus_allowed = cpus_allowed;
-	current->policy = policy;
-	current->rt_priority = rt_priority;
-
-	/*
-	 * Wait, if necessary, until all preempted tasks
-	 * have reached a sync point.
-	 */
-
-	spin_lock_irq(&runqueue_lock);
-	for (;;) {
-		set_current_state(TASK_UNINTERRUPTIBLE);
-		if (sync_count == 0)
-			break;
-		spin_unlock_irq(&runqueue_lock);
-		schedule();
-		spin_lock_irq(&runqueue_lock);
-	}
-	current->state = TASK_RUNNING;
-	syncing_task =  NULL;
-out:
-	spin_unlock_irq(&runqueue_lock);
-
-	up(&synchronize_kernel_mtx);
-}
-
-And add this code to the beginning of schedule(), just after the
-runqueue_lock is taken (the flags field is probably not be the right
-place to put the synchronize mark; and the test should be optimized for
-the fast path in the same way as the other tests in schedule(), but you
-get the idea):
-
-	if ((prev->flags & PF_SYNCING) && !(prev->state & TASK_PREEMPTED)) {
-		prev->flags &= ~PF_SYNCING;
-		if (--sync_count == 0) {
-			syncing_task->state = TASK_RUNNING;
-			if (!task_on_runqueue(syncing_task))
-				add_to_runqueue(syncing_task);
-			syncing_task = NULL;
-		}
-
-	}
-
-Nigel Gamble                                    nigel@nrg.org
-Mountain View, CA, USA.                         http://www.nrg.org/
-
-MontaVista Software                             nigel@mvista.com
-
+__________________________________________________
+Do You Yahoo!?
+Get email at your own domain with Yahoo! Mail. 
+http://personal.mail.yahoo.com/?.refer=text

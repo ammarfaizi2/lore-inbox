@@ -1,57 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135270AbRAJMIv>; Wed, 10 Jan 2001 07:08:51 -0500
+	id <S135409AbRAJMMM>; Wed, 10 Jan 2001 07:12:12 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135421AbRAJMIb>; Wed, 10 Jan 2001 07:08:31 -0500
-Received: from chiara.elte.hu ([157.181.150.200]:61708 "HELO chiara.elte.hu")
-	by vger.kernel.org with SMTP id <S135270AbRAJMIX>;
-	Wed, 10 Jan 2001 07:08:23 -0500
-Date: Wed, 10 Jan 2001 13:07:53 +0100 (CET)
-From: Ingo Molnar <mingo@elte.hu>
-Reply-To: <mingo@elte.hu>
-To: Manfred Spraul <manfred@colorfullife.com>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: Re: [PLEASE-TESTME] Zerocopy networking patch, 2.4.0-1
-In-Reply-To: <3A5C4FAC.CA6E46A9@colorfullife.com>
-Message-ID: <Pine.LNX.4.30.0101101304330.1681-100000@e2>
+	id <S135412AbRAJMMC>; Wed, 10 Jan 2001 07:12:02 -0500
+Received: from snowstorm.mail.pipex.net ([158.43.192.97]:10212 "HELO
+	snowstorm.mail.pipex.net") by vger.kernel.org with SMTP
+	id <S135409AbRAJML5>; Wed, 10 Jan 2001 07:11:57 -0500
+From: Chris Rankin <rankinc@zip.com.au>
+Message-Id: <200101101206.f0AC68N00684@wittsend.ukgateway.net>
+Subject: Request for Data: Anyone out there with an ENSONIQ SoundScape?
+To: linux-kernel@vger.kernel.org, linux-sound@vger.kernel.org
+Date: Wed, 10 Jan 2001 12:06:07 +0000 (GMT)
+Reply-To: rankinc@zip.com.au
+X-Mailer: ELM [version 2.5 PL1]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
 
-On Wed, 10 Jan 2001, Manfred Spraul wrote:
+I am trying to add ISA-PNP support to the ENSONIQ SoundScape driver,
+but am suffering from a lack of examples: the only one I have is my
+own. Can anyone who is using the sscape.o driver to control their
+soundcard please email me with their working module parameters, plus
+the output from either pnpdump or /proc/isapnp? And if you have a
+SoundScape which doesn't have any pnpdump or /proc/isapnp output, then
+can you tell me about your card too?
 
-> > well, this is a performance problem if you are using threads. For normal
-> > processes there is no need for a SMP cross-call, there TLB flushes are
-> > local only.
-> >
-> But that would be ugly as hell:
-> so apache 2.0 would become slower with MSG_NOCOPY, whereas samba 2.2
-> would become faster.
+For example, my Soundscape has this ISA-PNP output:
 
-there *is* a cost of having a shared VM - and this is i suspect
-unavoidable.
+# more /proc/isapnp 
+Card 1 'ENS3081:ENSONIQ Soundscape' PnP version 1.0
+  Logical device 0 'ENS0000:Unknown'
+    Device is active
+    Active port 0x330,0x300
+    Active IRQ 5 [0x2],9 [0x2]
+    Active DMA 1,3
+    Resources 0
+      Priority preferred
+      Port 0x330-0x330, align 0xf, size 0x10, 16-bit address decoding
+      IRQ 5,7 High-Edge
+      IRQ 2/9 High-Edge
+      DMA 1 8-bit byte-count compatible
+      DMA 0,3 8-bit byte-count compatible
+...
 
-> Is is possible to move the responsibility for maitaining the copy to
-> the caller?
+And uses these module options:
+options sscape irq=5 dma=1 io=0x338 mpu_io=0x330 mpu_irq=9
 
-this needs a completion event i believe.
-
-> e.g. use msg_control, and then the caller can request either that a
-> signal is sent when that data is transfered, or that a variable is set
-> to 0.
-
-i believe a signal-based thing would be the right (and scalable) solution
-- the signal handler could free() the buffer.
-
-this makes sense even in the VM-assisted MSG_NOCOPY case, since one wants
-to do garbage collection of these in-flight buffers anyway. (not for
-correctness but for performance reasons - free()-ing and immediately
-reusing such a buffer would generate a COW.)
-
-	Ingo
-
+Cheers,
+Chris
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,58 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265351AbUAYXvJ (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 25 Jan 2004 18:51:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265362AbUAYXvI
+	id S263620AbUAYXp7 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 25 Jan 2004 18:45:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264137AbUAYXp7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 25 Jan 2004 18:51:08 -0500
-Received: from fw.osdl.org ([65.172.181.6]:33165 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S265351AbUAYXu5 (ORCPT
+	Sun, 25 Jan 2004 18:45:59 -0500
+Received: from mail.cyberus.ca ([209.197.145.21]:16105 "EHLO mail.cyberus.ca")
+	by vger.kernel.org with ESMTP id S263620AbUAYXp5 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 25 Jan 2004 18:50:57 -0500
-Date: Sun, 25 Jan 2004 15:48:51 -0800
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-To: mk.hannah@verizon.net
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Menuconfig Error
-Message-Id: <20040125154851.15600ef8.rddunlap@osdl.org>
-In-Reply-To: <40144617.7040901@verizon.net>
-References: <40144617.7040901@verizon.net>
-Organization: OSDL
-X-Mailer: Sylpheed version 0.9.8a (GTK+ 1.2.10; i686-pc-linux-gnu)
+	Sun, 25 Jan 2004 18:45:57 -0500
+Subject: Re: [RFC/PATCH] IMQ port to 2.6
+From: jamal <hadi@cyberus.ca>
+Reply-To: hadi@cyberus.ca
+To: "Vladimir B. Savkin" <master@sectorb.msk.ru>
+Cc: linux-kernel@vger.kernel.org, netdev@oss.sgi.com
+In-Reply-To: <20040125202148.GA10599@usr.lcm.msu.ru>
+References: <20040125152419.GA3208@penguin.localdomain>
+	 <20040125164431.GA31548@louise.pinerecords.com>
+	 <1075058539.1747.92.camel@jzny.localdomain>
+	 <20040125202148.GA10599@usr.lcm.msu.ru>
+Content-Type: text/plain
+Organization: jamalopolis
+Message-Id: <1075074316.1747.115.camel@jzny.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Ximian Evolution 1.2.2 
+Date: 25 Jan 2004 18:45:16 -0500
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 25 Jan 2004 22:41:27 +0000 Mark K Hannah <mk.hannah@verizon.net> wrote:
+On Sun, 2004-01-25 at 15:21, Vladimir B. Savkin wrote:
+> On Sun, Jan 25, 2004 at 02:22:19PM -0500, jamal wrote:
 
-| Following error received while trying to get into "Advanced Linux Sound 
-| Arch."  Crashes as soon as you select.
-| 
-| Also getting module compile errors...I assume it is because I can't get 
-| into ALSA parameters to shut off usbaudio under ALSA.
-| 
-| Using Mandrake 9.2 and kernel-source-2.4.22-10mdk
-| Mark Hannah
-| 
-| 
-| Menuconfig has encountered a possible error in one of the kernel's
-| configuration files and is unable to continue.  Here is the error
-| report:
-| 
-|  Q> scripts/Menuconfig: line 832: MCmenu78: command not found
-| 
-| Please report this to the maintainer <mec@shout.net>.  You may also
-| send a problem report to <linux-kernel@vger.kernel.org>.
-| 
-| Please indicate the kernel version you are trying to configure and
-| which menu you were trying to enter when this error occurred.
-| 
-| make: *** [menuconfig] Error 1
+> Think multiple clients connected via PPP. I want to shape traffic,
+> so ingress is out of question. I want different clients in a same
 
-That's caused by Mandrake's integration of ALSA in 2.4.x.
-Reportedly Mandrake has fixes for it, so please check with them.
+Ok, 
+a) why do you want to shape on ingress instead of policing?
+OR
+b) Why cant you achieve the same results by marking on ingress and
+shaping on egress? 
 
---
-~Randy
+> htb class, so using qdisc on each ppp interface is out of
+> question. It seems to me that IMQ is the only way to achieve my goals.
+
+By multiple clients i believe you mean you want to say "-i ppp+"?
+We had a long discussion on this a while back (search netdev) 
+and i think it is a valid point for dynamic devices like ppp. 
+We need to rethink how we do things. Theres a lot of valu in having per
+device tables (scalability being one).
+IMO, this alone does not justify the existence of IMQ. 
+We should do this (and other things) right, maybe a sync with the
+netfilter folks will be the right thing to do. 
+
+cheers,
+jamal
+

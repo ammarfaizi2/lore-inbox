@@ -1,70 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261899AbVCGXiY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261943AbVCHBQy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261899AbVCGXiY (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Mar 2005 18:38:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261771AbVCGXgq
+	id S261943AbVCHBQy (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Mar 2005 20:16:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261942AbVCHBMm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Mar 2005 18:36:46 -0500
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:41992 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S261824AbVCGXHF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Mar 2005 18:07:05 -0500
-Date: Tue, 8 Mar 2005 00:07:03 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: Andrew Morton <akpm@osdl.org>, Jesper Juhl <juhl-lkml@dif.dk>
-Cc: linux-kernel@vger.kernel.org
-Subject: [-mm patch] sound/oss/soundcard.c: remove an unused variable
-Message-ID: <20050307230703.GK3170@stusta.de>
-References: <20050304033215.1ffa8fec.akpm@osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050304033215.1ffa8fec.akpm@osdl.org>
-User-Agent: Mutt/1.5.6+20040907i
+	Mon, 7 Mar 2005 20:12:42 -0500
+Received: from a26.t1.student.liu.se ([130.236.221.26]:28860 "EHLO
+	mail.drzeus.cx") by vger.kernel.org with ESMTP id S261943AbVCHBKY
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 7 Mar 2005 20:10:24 -0500
+Message-ID: <422CFB6E.1020002@drzeus.cx>
+Date: Tue, 08 Mar 2005 02:10:06 +0100
+From: Pierre Ossman <drzeus-list@drzeus.cx>
+User-Agent: Mozilla Thunderbird  (X11/20041216)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Takashi Iwai <tiwai@suse.de>
+CC: Andrew Morton <akpm@osdl.org>, Mark Canter <marcus@vfxcomputing.com>,
+       rlrevell@joe-job.com, nish.aravamudan@gmail.com,
+       linux-kernel@vger.kernel.org, alsa-devel@lists.sourceforge.net
+Subject: Re: [Alsa-devel] Re: intel 8x0 went silent in 2.6.11
+References: <4227085C.7060104@drzeus.cx>	<29495f1d05030309455a990c5b@mail.gmail.com>	<Pine.LNX.4.62.0503031342270.19015@krusty.vfxcomputing.com>	<1109875926.2908.26.camel@mindpipe>	<Pine.LNX.4.62.0503031356150.19015@krusty.vfxcomputing.com>	<1109876978.2908.31.camel@mindpipe>	<Pine.LNX.4.62.0503031527550.30702@krusty.vfxcomputing.com>	<20050303154929.1abd0a62.akpm@osdl.org>	<4227ADE7.3080100@drzeus.cx>	<4228D013.8010307@drzeus.cx>	<s5hmztfwon1.wl@alsa2.suse.de>	<422CB68A.1050900@drzeus.cx> <s5hekerurz8.wl@alsa2.suse.de>
+In-Reply-To: <s5hekerurz8.wl@alsa2.suse.de>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Mar 04, 2005 at 03:32:15AM -0800, Andrew Morton wrote:
->...
-> Changes since 2.6.11-rc5-mm1:
->...
-> +verify_area-cleanup-sound.patch
->...
->  Replace verify_area() with access_ok() in lots of places.
->...
+Takashi Iwai wrote:
 
+>>>Look at /etc/asound.state whether it contains the value of "Headphone
+>>>Jack Sense" control true or false.
+>>> 
+>>>
+>>>      
+>>>
+>>It saves the setting once I've been in 2.6.11. From an earlier kernel
+>>there is no such entry.
+>>    
+>>
+>
+>Of course, the earlier version didn't have this.
+>
+>And did you take a look at the latest content?  What stands on it?
+>Maybe you once saved a value wrongly corrected by any reason?
+>
+>  
+>
+I'm not sure what you mean. In the 2.6.10 version the last entry is 
+'Stereo Mic'. In 2.6.11 there's 'Headphone Jack Sense' and 'Line Jack 
+Sense' following that.
+ From what I can tell every entry seems valid.
 
-This causes the following compile warning:
-
-<--  snip  -->
-
-...
-  CC      sound/oss/soundcard.o
-sound/oss/soundcard.c: In function `sound_ioctl':
-sound/oss/soundcard.c:332: warning: unused variable `err'
-...
-
-<--  snip  -->
-
-Trivial fix:
-
-
-<--  snip  -->
-
-
-This patch removes an unused variable.
-
-Signed-off-by: Adrian Bunk <bunk@stusta.de>
-
---- linux-2.6.11-mm1-full/sound/oss/soundcard.c.old	2005-03-07 23:52:35.000000000 +0100
-+++ linux-2.6.11-mm1-full/sound/oss/soundcard.c	2005-03-07 23:52:42.000000000 +0100
-@@ -329,7 +329,7 @@
- static int sound_ioctl(struct inode *inode, struct file *file,
- 		       unsigned int cmd, unsigned long arg)
- {
--	int err, len = 0, dtype;
-+	int len = 0, dtype;
- 	int dev = iminor(inode);
- 	void __user *p = (void __user *)arg;
- 
+Rgds
+Pierre
 

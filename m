@@ -1,42 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272891AbTG3Nb5 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 30 Jul 2003 09:31:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272892AbTG3Nb4
+	id S272898AbTG3NYs (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 30 Jul 2003 09:24:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272900AbTG3NYs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 30 Jul 2003 09:31:56 -0400
-Received: from mail-04.iinet.net.au ([203.59.3.36]:15117 "HELO
-	mail.iinet.net.au") by vger.kernel.org with SMTP id S272891AbTG3Nb4
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 30 Jul 2003 09:31:56 -0400
-Message-ID: <3F27C4A7.5030506@ii.net>
-Date: Wed, 30 Jul 2003 21:14:15 +0800
-From: Wade <neroz@ii.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5b) Gecko/20030724 Thunderbird/0.1a
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] O11int for interactivity
-References: <200307301038.49869.kernel@kolivas.org>	 <1059553792.548.2.camel@teapot.felipe-alfaro.com>	 <200307301040.38858.m.c.p@wolk-project.de>	 <1059557903.3f27920f97d4a@kolivas.org> <1059569806.525.2.camel@teapot.felipe-alfaro.com>
-In-Reply-To: <1059569806.525.2.camel@teapot.felipe-alfaro.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Wed, 30 Jul 2003 09:24:48 -0400
+Received: from main.gmane.org ([80.91.224.249]:4010 "EHLO main.gmane.org")
+	by vger.kernel.org with ESMTP id S272898AbTG3NYr (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 30 Jul 2003 09:24:47 -0400
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: mru@users.sourceforge.net (=?iso-8859-1?q?M=E5ns_Rullg=E5rd?=)
+Subject: Re: BK2CVS up to date
+Date: Wed, 30 Jul 2003 15:16:57 +0200
+Message-ID: <yw1xispknohi.fsf@users.sourceforge.net>
+References: <20030730124515.GA19748@work.bitmover.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
+X-Complaints-To: usenet@main.gmane.org
+User-Agent: Gnus/5.1002 (Gnus v5.10.2) XEmacs/21.4 (Rational FORTRAN, linux)
+Cancel-Lock: sha1:f+aR5Z0ceqmkt1Tbo+SIDS6xj/w=
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Felipe Alfaro Solana wrote:
-> On Wed, 2003-07-30 at 11:38, Con Kolivas wrote:
-> 
-> 
->>The obvious question still needs to be asked here. How does vanilla compare to
->>vanilla +O11.1?
-> 
-> 
-> Vanilla has serious interactivity problems for me. Vanilla + O11.1 is
-> the second best scheduler I've ever used (the best is clearly O10). So
-> this, indeed, are good news, at least for me :-)
-> 
+Larry McVoy <lm@bitmover.com> writes:
 
-O10 is better(the best I've used so far) for me too.
+> There was a pause in the updating of the 2.5 CVS tree exported from the
+> 2.5 BK tree; it was related to the move to the new colo.  The trees are
+> up to date now and I suspect that Ben's BK2SVN mirror will be updated
+> soon as well.
+
+That reminds me that (last time I checked (last week)) the CVS tag for
+2.4.21 was missing.  There's only a tag for 2.4.21-pre8, which is
+equal to 2.4.21, but, IMHO, the final version should have a tag.
+
+-- 
+Måns Rullgård
+mru@users.sf.net
 

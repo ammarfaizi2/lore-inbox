@@ -1,45 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263265AbTDVRAh (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Apr 2003 13:00:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263272AbTDVRAh
+	id S263228AbTDVQ4R (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Apr 2003 12:56:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263234AbTDVQ4Q
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Apr 2003 13:00:37 -0400
-Received: from lucidpixels.com ([66.45.37.187]:1222 "HELO lucidpixels.com")
-	by vger.kernel.org with SMTP id S263265AbTDVRAg (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Apr 2003 13:00:36 -0400
-Date: Tue, 22 Apr 2003 13:12:41 -0400 (EDT)
-From: war <war@lucidpixels.com>
-X-X-Sender: war@p300
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       copycat@jx165.net
-Subject: Re: HPT366/368/370 IDE/SCSI-EMULATION PROBLEMS (2.4.x)
-In-Reply-To: <1051027697.15159.42.camel@dhcp22.swansea.linux.org.uk>
-Message-ID: <Pine.LNX.4.55.0304221307260.17590@p300>
-References: <Pine.LNX.4.55.0304221213510.25378@p300>
- <1051027697.15159.42.camel@dhcp22.swansea.linux.org.uk>
+	Tue, 22 Apr 2003 12:56:16 -0400
+Received: from nat-pool-rdu.redhat.com ([66.187.233.200]:11329 "EHLO
+	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
+	id S263228AbTDVQ4F (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 22 Apr 2003 12:56:05 -0400
+Date: Tue, 22 Apr 2003 13:07:57 -0400 (EDT)
+From: Ingo Molnar <mingo@redhat.com>
+X-X-Sender: mingo@devserv.devel.redhat.com
+To: William Lee Irwin III <wli@holomorphy.com>
+cc: "Martin J. Bligh" <mbligh@aracnet.com>, Andrew Morton <akpm@digeo.com>,
+       Andrea Arcangeli <andrea@suse.de>, <mingo@elte.hu>, <hugh@veritas.com>,
+       <dmccr@us.ibm.com>, Linus Torvalds <torvalds@transmeta.com>,
+       <linux-kernel@vger.kernel.org>, <linux-mm@kvack.org>
+Subject: Re: objrmap and vmtruncate
+In-Reply-To: <20030422165842.GG8931@holomorphy.com>
+Message-ID: <Pine.LNX.4.44.0304221303160.24424-100000@devserv.devel.redhat.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Kernel 2.4.18-3 (RedHat-7.3) (no kernel modifications)
 
-Drives: WD800JB (6)
-        WD1200JB (6)
+On Tue, 22 Apr 2003, William Lee Irwin III wrote:
 
-Controller = HPT ATA/100 Rocket (3 of these)
+> ISTR it being something on the order of running 32 instances of top(1),
+> one per cpu, and then trying to fork().
 
-The oops I will have to get back to you on, cannot access box at this
-time.
+oh, have you run any of the /proc fixes floating around? It still has some
+pretty bad (quadratic) stuff left in, and done under tasklist_lock
+read-help - if any write_lock_irq() of the tasklist lock hits this code
+then you get an NMI assert. Please try either Manfred's or mine.
 
-On Tue, 22 Apr 2003, Alan Cox wrote:
+	Ingo
 
-> I need a lot more info than that to debug it.
->
-> Precisely what oops data (with symbols), what drives, what controller
-> version, what 2.4.x kernel version
->
->
+

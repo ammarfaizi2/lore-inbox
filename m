@@ -1,43 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129155AbRB1Jed>; Wed, 28 Feb 2001 04:34:33 -0500
+	id <S129393AbRB1Jjx>; Wed, 28 Feb 2001 04:39:53 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129393AbRB1JeX>; Wed, 28 Feb 2001 04:34:23 -0500
-Received: from limdns2.unilim.fr ([164.81.1.5]:23638 "EHLO limdns2.unilim.fr")
-	by vger.kernel.org with ESMTP id <S129155AbRB1JeH> convert rfc822-to-8bit;
-	Wed, 28 Feb 2001 04:34:07 -0500
-Message-Id: <4.2.0.58.20010228103140.00bafab0@pop.unilim.fr>
-X-Mailer: QUALCOMM Windows Eudora Pro Version 4.2.0.58 
-Date: Wed, 28 Feb 2001 10:34:03 +0100
-To: linux-kernel@vger.kernel.org
-From: Nicolas Viers - SCI Limoges <viers@unilim.fr>
-Subject: Pb with 3c 575 Fast ethernet Pcmcia
-Mime-Version: 1.0
-Content-Type: text/plain; charset="iso-8859-1"; format=flowed
-Content-Transfer-Encoding: 8BIT
+	id <S129440AbRB1Jjn>; Wed, 28 Feb 2001 04:39:43 -0500
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:54020 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S129393AbRB1Jjf>; Wed, 28 Feb 2001 04:39:35 -0500
+Subject: Re: rx_copybreak value for non-i386 architectures
+To: jsun@mvista.com (Jun Sun)
+Date: Wed, 28 Feb 2001 09:42:51 +0000 (GMT)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <3A9C6336.D2E086A6@mvista.com> from "Jun Sun" at Feb 27, 2001 06:32:22 PM
+X-Mailer: ELM [version 2.5 PL1]
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E14Y38I-0005Iu-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I don't know how to make my 3c575Ct works with Mandrake 7.2
-When i start linux the network seems to be ok (ifconfig)
-But the pc doesn't speak with the network.
-I have the erreor message:
-interrupt posted but not delivered -- IRQ blocked by another device ?
+> for non-i386 architectures.  Once I thought I understood it and it seems
+> related to cache line alignment.  However, I am not sure exactly about the
+> reason now.  Can someone enlighten me a little bit?
 
-I change the irq with no result.
+A lot of pci net cards can only start packets on a 4 byte boundary. A lot
+of CPU's need 4 byte aligned read/writes for performance. The ethernet header
+is howerver 14 bytes long.
 
-I try to start linux with "noapic" and no result.
-This ethernet card works with Windows 95 on the same pc.
+For CPU's with poor unaligned performance it turns out better to copy or
+copy/checksum the data so the IP/TCP headers are aligned. If the card can
+hit 16bit boundaries then you will see card drivers doing
 
-Do you have an idea ?
 
-Thaks a lot
+	alloc_skb(blah)
 
-____________________________________________________________
+	skb_reserve(skb, 2);
 
-Nicolas Viers               |  Service Commun Informatique
-Mél: viers@unilim.fr        |  123, avenue Albert Thomas
-                             |     87060 Limoges cedex
-Tel: 05-55-45-77-09         |  Fax: 05-55-45-75-95
-		  http://www.unilim.fr/sci
-____________________________________________________________
+to align the header of he buffer so that the IP data is aligned
+
+

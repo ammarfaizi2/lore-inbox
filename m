@@ -1,31 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269739AbRH0XRZ>; Mon, 27 Aug 2001 19:17:25 -0400
+	id <S269829AbRH0XTF>; Mon, 27 Aug 2001 19:19:05 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269779AbRH0XRI>; Mon, 27 Aug 2001 19:17:08 -0400
-Received: from ppp0.ocs.com.au ([203.34.97.3]:10251 "HELO mail.ocs.com.au")
-	by vger.kernel.org with SMTP id <S269739AbRH0XQy>;
-	Mon, 27 Aug 2001 19:16:54 -0400
-X-Mailer: exmh version 2.1.1 10/15/1999
-From: Keith Owens <kaos@ocs.com.au>
-To: sacx@zebra.sibnet.ro
-cc: linux-kernel@vger.kernel.org
-Subject: Re: module 
-In-Reply-To: Your message of "Mon, 27 Aug 2001 18:51:49 -0400."
-             <Pine.LNX.4.33L2.0108271826510.32587-100000@zebra.sibnet.ro> 
-Mime-Version: 1.0
+	id <S269778AbRH0XS4>; Mon, 27 Aug 2001 19:18:56 -0400
+Received: from mailout02.sul.t-online.com ([194.25.134.17]:55045 "EHLO
+	mailout02.sul.t-online.de") by vger.kernel.org with ESMTP
+	id <S269756AbRH0XSn>; Mon, 27 Aug 2001 19:18:43 -0400
+Message-ID: <3B8AD317.D6434681@t-online.de>
+Date: Tue, 28 Aug 2001 01:09:11 +0200
+From: SPATZ1@t-online.de (Frank Schneider)
+X-Mailer: Mozilla 4.76 [de] (X11; U; Linux 2.4.3-test i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: zaitcev@redhat.com
+CC: linux-kernel@vger.kernel.org
+Subject: Re: A tester is needed with dual P3 and USB
+In-Reply-To: <20010827182204.A25212@devserv.devel.redhat.com> <20010828014211.A29068@netppl.fi>
 Content-Type: text/plain; charset=us-ascii
-Date: Tue, 28 Aug 2001 09:17:07 +1000
-Message-ID: <3265.998954227@ocs3.ocs-net>
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 27 Aug 2001 18:51:49 -0400 (EDT), 
-<sacx@zebra.sibnet.ro> wrote:
->c027b7f0 function_R__ver_function (# cat /proc/ksyms | grep function)
->P.S. I'm a newbie in kernel hacking and I don't want to disturb you but
+Pekka Pietikainen schrieb:
+> 
+> On Mon, Aug 27, 2001 at 06:22:04PM -0400, Pete Zaitcev wrote:
+> > Hi, All:
+> >
+> > I received a complaint that a UP kernel hangs on boot if USB is
+> > enabled. SMP works. An SMP kernel started with "nosmp" hangs too.
+> > The reporter is, umm, how shall I put it... is a power user.
+> > I need someone to help me to track the problem down, because
+> > I am curious. I heard of SMP hangs before, but a UP hang is
+> > a novel idea.
+> >
+> > The box is VA Linux 1000 (similar to IBM Netfinity 4000r).
+> > Kernel is 2.4.8-ac10.
+> Doesn't VA use one of those Intel boards which have the problem
+> with theis BIOS, which is seen as a hang with the adaptec driver?
 
-Always read the FAQ before asking questions.  You will find this
-question answered in the lkml FAQ which appears at the end of every
-mail on lkml.
+Thats the problem i can reproduce here (ASUS-P2B-DS with Dual PIII/850,
+USB and AHA2940U2W-SCSI onboard, Kernel 2.4.2/3-SMP), SMP-Kernels with
+option "nosmp" simply stop when they try to access the SCSI-System, the
+aic7xxx-driver loads (no matter if build-in or module), but stucks at
+initializing the first device.
+No Ooop or crash, it simply does nothing any more.
+
+But a "real" UP-Kernel (i used the one from RH7.1, 2.4.2-UP) has no
+problems with booting here.
+
+Solong..
+Frank.
+
+--
+Frank Schneider, <SPATZ1@T-ONLINE.DE>.                           
+... -.-
 

@@ -1,57 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262363AbVAENPd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262358AbVAENSS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262363AbVAENPd (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 5 Jan 2005 08:15:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262361AbVAENPd
+	id S262358AbVAENSS (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 5 Jan 2005 08:18:18 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262365AbVAENSS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 5 Jan 2005 08:15:33 -0500
-Received: from eurogra4543-2.clients.easynet.fr ([212.180.52.86]:5078 "HELO
-	server5.heliogroup.fr") by vger.kernel.org with SMTP
-	id S262363AbVAENPX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 5 Jan 2005 08:15:23 -0500
-From: Hubert Tonneau <hubert.tonneau@fullpliant.org>
-To: Francois Romieu <romieu@fr.zoreil.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.10 TCP troubles
-Date: Wed, 05 Jan 2005 12:50:57 GMT
-Message-ID: <0508ECY12@server5.heliogroup.fr>
-X-Mailer: Pliant 93
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+	Wed, 5 Jan 2005 08:18:18 -0500
+Received: from bay-bridge.veritas.com ([143.127.3.10]:14862 "EHLO
+	MTVMIME03.enterprise.veritas.com") by vger.kernel.org with ESMTP
+	id S262358AbVAENSJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 5 Jan 2005 08:18:09 -0500
+Date: Wed, 5 Jan 2005 13:17:48 +0000 (GMT)
+From: Hugh Dickins <hugh@veritas.com>
+X-X-Sender: hugh@localhost.localdomain
+To: Christoph Hellwig <hch@infradead.org>
+cc: "Serge E. Hallyn" <serue@us.ibm.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [RFC] [PATCH] merge *_vm_enough_memory()s into a common helper
+In-Reply-To: <20050105112554.GB31119@infradead.org>
+Message-ID: <Pine.LNX.4.44.0501051311060.2844-100000@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Francois Romieu wrote:
->
-> Hubert Tonneau <hubert.tonneau@fullpliant.org> :
-> > Here is the senario:
-> > the Linux machine is writting through libsmbclient
-> > to an OSX machine running Samba
+On Wed, 5 Jan 2005, Christoph Hellwig wrote:
+> On Tue, Jan 04, 2005 at 03:48:33PM -0600, Serge E. Hallyn wrote:
+> > The attached patch introduces a __vm_enough_memory function in
+> > security/security.c which is used by cap_vm_enough_memory,
+> > dummy_vm_enough_memory, and selinux_vm_enough_memory.  This has
+> > been discussed on the lsm mailing list.
 > > 
-> > Switching the Linux machine from 2.6.8 to 2.6.10 made the network speed
-> > drop drastically: 20 seconds with 2.6.8, 800 seconds with 2.6.10
+> > Are there any objections to or comments on this patch?
 > 
-> Are there any differences in:
-> - dmesg output
+> Maybe this function should go into mm/ ?
 
-No.
+My thought exactly: yes, please do move it back into mm/,
+where it started out before security/ came into the picture.
 
-> - /proc/interrupts 
-> - disk traffic
-> - tcpdump output (of course there will)
+But where in mm?  I suppose either mm/mmap.c where vm_committed_space
+is still declared, or (that strange ragbag) mm/swap.c where the
+CONFIG_SMP vm_acct_memory is.
 
-I cannot see anymore since it's our main production server, so I switched
-back at once. Sorry about that. Anyway, both network traffic and disk traffic
-was very low.
-
-The problem is not related to the Linux machine beeing slow because the network
-exchange was very fast with other gigabit with flow control connected machines.
-The problem seems to me to be related to the way the TCP layer is handling small
-troubles (probably lost packets on the Mac side because the Linux machine is
-gigabit connected to the switch, with flow control enabled, and the Mac is
-100 Mbps connected, full duplex, but without flow control).
-
-Please notice that the Linux machine is the client, and is pushing files to
-the Mac, which is quite unusual. If the Mac was the client pulling files from
-the PC, I bet things might be very different.
+Hugh
 

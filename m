@@ -1,54 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288377AbSAQIzX>; Thu, 17 Jan 2002 03:55:23 -0500
+	id <S288447AbSAQIyd>; Thu, 17 Jan 2002 03:54:33 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288342AbSAQIzQ>; Thu, 17 Jan 2002 03:55:16 -0500
-Received: from aboukir-101-1-1-maz.adsl.nerim.net ([62.4.18.26]:25990 "EHLO
-	crisis.wild-wind.fr.eu.org") by vger.kernel.org with ESMTP
-	id <S288377AbSAQIzD>; Thu, 17 Jan 2002 03:55:03 -0500
+	id <S288395AbSAQIyX>; Thu, 17 Jan 2002 03:54:23 -0500
+Received: from dell-paw-3.cambridge.redhat.com ([195.224.55.237]:43511 "EHLO
+	passion.cambridge.redhat.com") by vger.kernel.org with ESMTP
+	id <S288342AbSAQIyH>; Thu, 17 Jan 2002 03:54:07 -0500
+X-Mailer: exmh version 2.4 06/23/2000 with nmh-1.0.4
+From: David Woodhouse <dwmw2@infradead.org>
+X-Accept-Language: en_GB
+In-Reply-To: <20020116204345.A22055@thyrsus.com> 
+In-Reply-To: <20020116204345.A22055@thyrsus.com>  <20020116164758.F12306@thyrsus.com> <esr@thyrsus.com> <200201162156.g0GLukCj017833@tigger.cs.uni-dortmund.de> <20020116164758.F12306@thyrsus.com> <26592.1011230762@redhat.com> 
 To: esr@thyrsus.com
-Cc: Linux Kernel List <linux-kernel@vger.kernel.org>
-Subject: Re: Calling EISA experts
-In-Reply-To: <20020117015456.A628@thyrsus.com>
-Organization: Metropolis -- Nowhere
-X-Attribution: maz
-X-Baby-1: =?iso-8859-1?q?Lo=EBn?= 12 juin 1996 13:10
-X-Baby-2: None
-X-Love-1: Gone
-X-Love-2: Crazy-Cat
-Reply-to: mzyngier@freesurf.fr
-From: Marc ZYNGIER <mzyngier@freesurf.fr>
-Date: 17 Jan 2002 09:54:39 +0100
-Message-ID: <wrppu492w8g.fsf@hina.wild-wind.fr.eu.org>
-In-Reply-To: <20020117015456.A628@thyrsus.com>
-MIME-Version: 1.0
+Cc: Horst von Brand <brand@jupiter.cs.uni-dortmund.de>,
+        linux-kernel@vger.kernel.org, kbuild-devel@lists.sourceforge.net
+Subject: Re: CML2-2.1.3 is available 
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Date: Thu, 17 Jan 2002 08:53:59 +0000
+Message-ID: <3515.1011257639@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> "Eric" == Eric S Raymond <esr@thyrsus.com> writes:
 
-Eric> Does anything in /proc or elswhere reliably register the
-Eric> presence of EISA?
+esr@thyrsus.com said:
+>  Wha's happened is that I, and others, have merged in a lot of
+> information  about what cards can be plugged into which platforms.
+> That information has been turned into dependency/visibility rules. 
 
-On my dual PPro, /proc/pci shows :
+> Here are some examples from the network cards... 
 
-  Bus  0, device   2, function  0:
-    Non-VGA unclassified device: Intel Corp. 82375EB (rev 21).
-      Master Capable.  Latency=248.  
+Hmmm, yes. I think I see at least two errors in that small selection, if I
+understand it correctly. But as these are obviously behavioural changes, and
+you've said you won't make behavioural changes in the first push of CML2 to
+Linus, we can safely ignore them for now - they're lined up for your second
+wave of patches, right?
 
-This is a PCI-EISA bridge.
+This is why the behavioural changes must be separate from the initial
+conversion, btw. They _do_ need separate attention from the gruntwork of
+translating CML1 to CML2.
 
-Eric> Failing that, have any motherboards existed that had both PCI
-Eric> and EISA slots?
+--
+dwmw2
 
-I have two of this kind : This dual Pentium Pro (Nec motherboard), and
-a Digital AlphaServer 1000.
 
-Most high-end Pentium-Pro motherboard had both PCI and EISA slots.
-
-Regards,
-
-        Marc.
--- 
-Places change, faces change. Life is so very strange.

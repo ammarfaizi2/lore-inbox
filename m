@@ -1,265 +1,274 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263778AbUGLVxQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263761AbUGLVz1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263778AbUGLVxQ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 Jul 2004 17:53:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263775AbUGLVxQ
+	id S263761AbUGLVz1 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 Jul 2004 17:55:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263806AbUGLVz1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 Jul 2004 17:53:16 -0400
-Received: from bay-bridge.veritas.com ([143.127.3.10]:51765 "EHLO
-	MTVMIME03.enterprise.veritas.com") by vger.kernel.org with ESMTP
-	id S263761AbUGLVwW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 Jul 2004 17:52:22 -0400
-Date: Mon, 12 Jul 2004 22:52:07 +0100 (BST)
+	Mon, 12 Jul 2004 17:55:27 -0400
+Received: from bay-bridge.veritas.com ([143.127.3.10]:36172 "EHLO
+	MTVMIME02.enterprise.veritas.com") by vger.kernel.org with ESMTP
+	id S263761AbUGLVxd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 12 Jul 2004 17:53:33 -0400
+Date: Mon, 12 Jul 2004 22:53:20 +0100 (BST)
 From: Hugh Dickins <hugh@veritas.com>
 X-X-Sender: hugh@localhost.localdomain
 To: Andrew Morton <akpm@osdl.org>
-cc: Manfred Spraul <manfred@colorfullife.com>, <linux-kernel@vger.kernel.org>
-Subject: [PATCH] rmaplock 2/6 SLAB_DESTROY_BY_RCU
+cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] rmaplock 4/6 mm lock ordering
 In-Reply-To: <Pine.LNX.4.44.0407122248060.4005-100000@localhost.localdomain>
-Message-ID: <Pine.LNX.4.44.0407122250390.4005-100000@localhost.localdomain>
+Message-ID: <Pine.LNX.4.44.0407122252410.4005-100000@localhost.localdomain>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-With page_map_lock gone, how to stabilize page->mapping's anon_vma while
-acquiring anon_vma->lock in page_referenced_anon and try_to_unmap_anon?
+With page_map_lock out of the way, there's no need for page_referenced
+and try_to_unmap to use trylocks - provided we switch anon_vma->lock and
+mm->page_table_lock around in anon_vma_prepare.  Though I suppose it's
+possible that we'll find that vmscan makes better progress with trylocks
+than spinning - we're free to choose trylocks again if so.
 
-The page cannot actually be freed (vmscan holds reference), but however
-much we check page_mapped (which guarantees that anon_vma is in use - or
-would guarantee that if we added suitable barriers), there's no locking
-against page becoming unmapped the instant after, then anon_vma freed.
-
-It's okay to take anon_vma->lock after it's freed, so long as it remains
-a struct anon_vma (its list would become empty, or perhaps reused for an
-unrelated anon_vma: but no problem since we always check that the page
-located is the right one); but corruption if that memory gets reused for
-some other purpose.
-
-This is not unique: it's liable to be problem whenever the kernel tries
-to approach a structure obliquely.  It's generally solved with an atomic
-reference count; but one advantage of anon_vma over anonmm is that it
-does not have such a count, and it would be a backward step to add one.
-
-Therefore... implement SLAB_DESTROY_BY_RCU flag, to guarantee that such
-a kmem_cache_alloc'ed structure cannot get freed to other use while the
-rcu_read_lock is held i.e. preempt disabled; and use that for anon_vma.
-
-I hope SLAB_DESTROY_BY_RCU can be useful elsewhere; but though it's safe
-for little anon_vma, I'd hesitate before using it generally, on shrinker
-caches or kmem_cache_destroyable caches.
+Try to update the mm lock ordering documentation in filemap.c.
+But I still find it confusing, and I've no idea of where to stop.
+So add the mm lock ordering list I can understand to rmap.c.
 
 Signed-off-by: Hugh Dickins <hugh@veritas.com>
 
- include/linux/slab.h |    1 
- mm/rmap.c            |   50 ++++++++++++++++++++++++++++---------------
- mm/slab.c            |   59 +++++++++++++++++++++++++++++++++++++++++++++------
- 3 files changed, 87 insertions(+), 23 deletions(-)
+ mm/filemap.c |   15 ++++++----
+ mm/rmap.c    |   82 ++++++++++++++++++++++++++++++++---------------------------
+ 2 files changed, 54 insertions(+), 43 deletions(-)
 
---- rmaplock2/include/linux/slab.h	2004-07-09 10:53:44.000000000 +0100
-+++ rmaplock3/include/linux/slab.h	2004-07-12 18:20:35.250832360 +0100
-@@ -45,6 +45,7 @@ typedef struct kmem_cache_s kmem_cache_t
- #define SLAB_RECLAIM_ACCOUNT	0x00020000UL	/* track pages allocated to indicate
- 						   what is reclaimable later*/
- #define SLAB_PANIC		0x00040000UL	/* panic if kmem_cache_create() fails */
-+#define SLAB_DESTROY_BY_RCU	0x00080000UL	/* defer freeing pages to RCU */
- 
- /* flags passed to a constructor func */
- #define	SLAB_CTOR_CONSTRUCTOR	0x001UL		/* if not set, then deconstructor */
---- rmaplock2/mm/rmap.c	2004-07-12 18:20:22.338795288 +0100
-+++ rmaplock3/mm/rmap.c	2004-07-12 18:20:35.274828712 +0100
-@@ -30,6 +30,7 @@
- #include <linux/slab.h>
- #include <linux/init.h>
- #include <linux/rmap.h>
-+#include <linux/rcupdate.h>
- 
- #include <asm/tlbflush.h>
- 
-@@ -159,8 +160,31 @@ static void anon_vma_ctor(void *data, km
- 
- void __init anon_vma_init(void)
- {
--	anon_vma_cachep = kmem_cache_create("anon_vma",
--		sizeof(struct anon_vma), 0, SLAB_PANIC, anon_vma_ctor, NULL);
-+	anon_vma_cachep = kmem_cache_create("anon_vma", sizeof(struct anon_vma),
-+			0, SLAB_DESTROY_BY_RCU|SLAB_PANIC, anon_vma_ctor, NULL);
-+}
-+
-+/*
-+ * Getting a lock on a stable anon_vma from a page off the LRU is
-+ * tricky: page_lock_anon_vma rely on RCU to guard against the races.
-+ */
-+static struct anon_vma *page_lock_anon_vma(struct page *page)
-+{
-+	struct anon_vma *anon_vma = NULL;
-+	unsigned long anon_mapping;
-+
-+	rcu_read_lock();
-+	anon_mapping = (unsigned long) page->mapping;
-+	if (!(anon_mapping & PAGE_MAPPING_ANON))
-+		goto out;
-+	if (!page_mapped(page))
-+		goto out;
-+
-+	anon_vma = (struct anon_vma *) (anon_mapping - PAGE_MAPPING_ANON);
-+	spin_lock(&anon_vma->lock);
-+out:
-+	rcu_read_unlock();
-+	return anon_vma;
- }
+--- rmaplock3/mm/filemap.c	2004-07-09 10:53:46.000000000 +0100
++++ rmaplock4/mm/filemap.c	2004-07-12 18:20:48.023890560 +0100
+@@ -60,7 +60,6 @@
+  *      ->swap_list_lock
+  *        ->swap_device_lock	(exclusive_swap_page, others)
+  *          ->mapping->tree_lock
+- *    ->page_map_lock()		(try_to_unmap_file)
+  *
+  *  ->i_sem
+  *    ->i_mmap_lock		(truncate->unmap_mapping_range)
+@@ -83,16 +82,20 @@
+  *    ->sb_lock			(fs/fs-writeback.c)
+  *    ->mapping->tree_lock	(__sync_single_inode)
+  *
++ *  ->i_mmap_lock
++ *    ->anon_vma.lock		(vma_adjust)
++ *
++ *  ->anon_vma.lock
++ *    ->page_table_lock		(anon_vma_prepare and various)
++ *
+  *  ->page_table_lock
+  *    ->swap_device_lock	(try_to_unmap_one)
+  *    ->private_lock		(try_to_unmap_one)
+  *    ->tree_lock		(try_to_unmap_one)
+  *    ->zone.lru_lock		(follow_page->mark_page_accessed)
+- *    ->page_map_lock()		(page_add_anon_rmap)
+- *      ->tree_lock		(page_remove_rmap->set_page_dirty)
+- *      ->private_lock		(page_remove_rmap->set_page_dirty)
+- *      ->inode_lock		(page_remove_rmap->set_page_dirty)
+- *    ->anon_vma.lock		(anon_vma_prepare)
++ *    ->private_lock		(page_remove_rmap->set_page_dirty)
++ *    ->tree_lock		(page_remove_rmap->set_page_dirty)
++ *    ->inode_lock		(page_remove_rmap->set_page_dirty)
+  *    ->inode_lock		(zap_pte_range->set_page_dirty)
+  *    ->private_lock		(zap_pte_range->__set_page_dirty_buffers)
+  *
+--- rmaplock3/mm/rmap.c	2004-07-12 18:20:35.274828712 +0100
++++ rmaplock4/mm/rmap.c	2004-07-12 18:20:48.025890256 +0100
+@@ -18,9 +18,30 @@
+  */
  
  /*
-@@ -235,19 +259,15 @@ out:
- static int page_referenced_anon(struct page *page)
+- * Locking: see "Lock ordering" summary in filemap.c.
+- * In swapout, page_map_lock is held on entry to page_referenced and
+- * try_to_unmap, so they trylock for i_mmap_lock and page_table_lock.
++ * Lock ordering in mm:
++ *
++ * inode->i_sem	(while writing or truncating, not reading or faulting)
++ *   inode->i_alloc_sem
++ *
++ * When a page fault occurs in writing from user to file, down_read
++ * of mmap_sem nests within i_sem; in sys_msync, i_sem nests within
++ * down_read of mmap_sem; i_sem and down_write of mmap_sem are never
++ * taken together; in truncation, i_sem is taken outermost.
++ *
++ * mm->mmap_sem
++ *   page->flags PG_locked (lock_page)
++ *     mapping->i_mmap_lock
++ *       anon_vma->lock
++ *         mm->page_table_lock
++ *           zone->lru_lock (in mark_page_accessed)
++ *           swap_list_lock (in swap_free etc's swap_info_get)
++ *             swap_device_lock (in swap_duplicate, swap_info_get)
++ *             mapping->private_lock (in __set_page_dirty_buffers)
++ *             inode_lock (in set_page_dirty's __mark_inode_dirty)
++ *               sb_lock (within inode_lock in fs/fs-writeback.c)
++ *               mapping->tree_lock (widely used, in set_page_dirty,
++ *                         in arch-dependent flush_dcache_mmap_lock,
++ *                         within inode_lock in __sync_single_inode)
+  */
+ 
+ #include <linux/mm.h>
+@@ -64,28 +85,32 @@ int anon_vma_prepare(struct vm_area_stru
+ 	might_sleep();
+ 	if (unlikely(!anon_vma)) {
+ 		struct mm_struct *mm = vma->vm_mm;
+-		struct anon_vma *allocated = NULL;
++		struct anon_vma *allocated, *locked;
+ 
+ 		anon_vma = find_mergeable_anon_vma(vma);
+-		if (!anon_vma) {
++		if (anon_vma) {
++			allocated = NULL;
++			locked = anon_vma;
++			spin_lock(&locked->lock);
++		} else {
+ 			anon_vma = anon_vma_alloc();
+ 			if (unlikely(!anon_vma))
+ 				return -ENOMEM;
+ 			allocated = anon_vma;
++			locked = NULL;
+ 		}
+ 
+ 		/* page_table_lock to protect against threads */
+ 		spin_lock(&mm->page_table_lock);
+ 		if (likely(!vma->anon_vma)) {
+-			if (!allocated)
+-				spin_lock(&anon_vma->lock);
+ 			vma->anon_vma = anon_vma;
+ 			list_add(&vma->anon_vma_node, &anon_vma->head);
+-			if (!allocated)
+-				spin_unlock(&anon_vma->lock);
+ 			allocated = NULL;
+ 		}
+ 		spin_unlock(&mm->page_table_lock);
++
++		if (locked)
++			spin_unlock(&locked->lock);
+ 		if (unlikely(allocated))
+ 			anon_vma_free(allocated);
+ 	}
+@@ -225,8 +250,7 @@ static int page_referenced_one(struct pa
+ 	if (address == -EFAULT)
+ 		goto out;
+ 
+-	if (!spin_trylock(&mm->page_table_lock))
+-		goto out;
++	spin_lock(&mm->page_table_lock);
+ 
+ 	pgd = pgd_offset(mm, address);
+ 	if (!pgd_present(*pgd))
+@@ -287,9 +311,6 @@ static int page_referenced_anon(struct p
+  * of references it found.
+  *
+  * This function is only called from page_referenced for object-based pages.
+- *
+- * The spinlock address_space->i_mmap_lock is tried.  If it can't be gotten,
+- * assume a reference count of 0, so try_to_unmap will then have a go.
+  */
+ static int page_referenced_file(struct page *page)
  {
- 	unsigned int mapcount;
--	struct anon_vma *anon_vma = (void *) page->mapping - PAGE_MAPPING_ANON;
-+	struct anon_vma *anon_vma;
- 	struct vm_area_struct *vma;
- 	int referenced = 0;
+@@ -315,8 +336,7 @@ static int page_referenced_file(struct p
+ 	 */
+ 	BUG_ON(!PageLocked(page));
  
--	/*
--	 * Recheck mapcount: it is not safe to take anon_vma->lock after
--	 * last page_remove_rmap, since struct anon_vma might be reused.
--	 */
--	mapcount = page_mapcount(page);
--	if (!mapcount)
-+	anon_vma = page_lock_anon_vma(page);
-+	if (!anon_vma)
- 		return referenced;
+-	if (!spin_trylock(&mapping->i_mmap_lock))
+-		return 0;
++	spin_lock(&mapping->i_mmap_lock);
  
--	spin_lock(&anon_vma->lock);
-+	mapcount = page_mapcount(page);
- 	list_for_each_entry(vma, &anon_vma->head, anon_vma_node) {
- 		referenced += page_referenced_one(page, vma, &mapcount);
- 		if (!mapcount)
-@@ -628,18 +648,14 @@ out_unlock:
+ 	/*
+ 	 * i_mmap_lock does not stabilize mapcount at all, but mapcount
+@@ -468,8 +488,7 @@ static int try_to_unmap_one(struct page 
+ 	 * We need the page_table_lock to protect us from page faults,
+ 	 * munmap, fork, etc...
+ 	 */
+-	if (!spin_trylock(&mm->page_table_lock))
+-		goto out;
++	spin_lock(&mm->page_table_lock);
+ 
+ 	pgd = pgd_offset(mm, address);
+ 	if (!pgd_present(*pgd))
+@@ -568,7 +587,7 @@ out:
+ #define CLUSTER_SIZE	min(32*PAGE_SIZE, PMD_SIZE)
+ #define CLUSTER_MASK	(~(CLUSTER_SIZE - 1))
+ 
+-static int try_to_unmap_cluster(unsigned long cursor,
++static void try_to_unmap_cluster(unsigned long cursor,
+ 	unsigned int *mapcount, struct vm_area_struct *vma)
+ {
+ 	struct mm_struct *mm = vma->vm_mm;
+@@ -585,8 +604,7 @@ static int try_to_unmap_cluster(unsigned
+ 	 * We need the page_table_lock to protect us from page faults,
+ 	 * munmap, fork, etc...
+ 	 */
+-	if (!spin_trylock(&mm->page_table_lock))
+-		return SWAP_FAIL;
++	spin_lock(&mm->page_table_lock);
+ 
+ 	address = (vma->vm_start + cursor) & CLUSTER_MASK;
+ 	end = address + CLUSTER_SIZE;
+@@ -643,7 +661,6 @@ static int try_to_unmap_cluster(unsigned
+ 
+ out_unlock:
+ 	spin_unlock(&mm->page_table_lock);
+-	return SWAP_AGAIN;
+ }
  
  static int try_to_unmap_anon(struct page *page)
- {
--	struct anon_vma *anon_vma = (void *) page->mapping - PAGE_MAPPING_ANON;
-+	struct anon_vma *anon_vma;
- 	struct vm_area_struct *vma;
- 	int ret = SWAP_AGAIN;
- 
--	/*
--	 * Recheck mapped: it is not safe to take anon_vma->lock after
--	 * last page_remove_rmap, since struct anon_vma might be reused.
--	 */
--	if (!page_mapped(page))
-+	anon_vma = page_lock_anon_vma(page);
-+	if (!anon_vma)
- 		return ret;
- 
--	spin_lock(&anon_vma->lock);
- 	list_for_each_entry(vma, &anon_vma->head, anon_vma_node) {
- 		ret = try_to_unmap_one(page, vma);
- 		if (ret == SWAP_FAIL || !page_mapped(page))
---- rmaplock2/mm/slab.c	2004-07-09 10:53:46.000000000 +0100
-+++ rmaplock3/mm/slab.c	2004-07-12 18:20:35.277828256 +0100
-@@ -91,6 +91,7 @@
- #include	<linux/cpu.h>
- #include	<linux/sysctl.h>
- #include	<linux/module.h>
-+#include	<linux/rcupdate.h>
- 
- #include	<asm/uaccess.h>
- #include	<asm/cacheflush.h>
-@@ -139,11 +140,13 @@
- 			 SLAB_POISON | SLAB_HWCACHE_ALIGN | \
- 			 SLAB_NO_REAP | SLAB_CACHE_DMA | \
- 			 SLAB_MUST_HWCACHE_ALIGN | SLAB_STORE_USER | \
--			 SLAB_RECLAIM_ACCOUNT | SLAB_PANIC)
-+			 SLAB_RECLAIM_ACCOUNT | SLAB_PANIC | \
-+			 SLAB_DESTROY_BY_RCU)
- #else
- # define CREATE_MASK	(SLAB_HWCACHE_ALIGN | SLAB_NO_REAP | \
- 			 SLAB_CACHE_DMA | SLAB_MUST_HWCACHE_ALIGN | \
--			 SLAB_RECLAIM_ACCOUNT | SLAB_PANIC)
-+			 SLAB_RECLAIM_ACCOUNT | SLAB_PANIC | \
-+			 SLAB_DESTROY_BY_RCU)
- #endif
- 
- /*
-@@ -190,6 +193,29 @@ struct slab {
- };
- 
- /*
-+ * struct slab_rcu
-+ *
-+ * slab_destroy on a SLAB_DESTROY_BY_RCU cache uses this structure to
-+ * arrange for kmem_freepages to be called via RCU.  This is useful if
-+ * we need to approach a kernel structure obliquely, from its address
-+ * obtained without the usual locking.  We can lock the structure to
-+ * stabilize it and check it's still at the given address, only if we
-+ * can be sure that the memory has not been meanwhile reused for some
-+ * other kind of object (which our subsystem's lock might corrupt).
-+ *
-+ * rcu_read_lock before reading the address, then rcu_read_unlock after
-+ * taking the spinlock within the structure expected at that address.
-+ *
-+ * We assume struct slab_rcu can overlay struct slab when destroying.
-+ * Care needed to use kmem_cache_destroy on a SLAB_DESTROY_BY_RCU cache.
-+ */
-+struct slab_rcu {
-+	struct rcu_head		head;
-+	kmem_cache_t		*cachep;
-+	void			*addr;
-+};
-+
-+/*
-  * struct array_cache
+@@ -673,9 +690,6 @@ static int try_to_unmap_anon(struct page
+  * contained in the address_space struct it points to.
   *
-  * Per cpu structures
-@@ -883,6 +909,16 @@ static void kmem_freepages(kmem_cache_t 
- 		atomic_sub(1<<cachep->gfporder, &slab_reclaim_pages);
- }
- 
-+static void kmem_rcu_free(struct rcu_head *head)
-+{
-+	struct slab_rcu *slab_rcu = (struct slab_rcu *) head;
-+	kmem_cache_t *cachep = slab_rcu->cachep;
-+
-+	kmem_freepages(cachep, slab_rcu->addr);
-+	if (OFF_SLAB(cachep))
-+		kmem_cache_free(cachep->slabp_cache, slab_rcu);
-+}
-+
- #if DEBUG
- 
- #ifdef CONFIG_DEBUG_PAGEALLOC
-@@ -1036,6 +1072,8 @@ static void check_poison_obj(kmem_cache_
+  * This function is only called from try_to_unmap for object-based pages.
+- *
+- * The spinlock address_space->i_mmap_lock is tried.  If it can't be gotten,
+- * return a temporary error.
   */
- static void slab_destroy (kmem_cache_t *cachep, struct slab *slabp)
+ static int try_to_unmap_file(struct page *page)
  {
-+	void *addr = slabp->s_mem - slabp->colouroff;
-+
- #if DEBUG
- 	int i;
- 	for (i = 0; i < cachep->num; i++) {
-@@ -1071,10 +1109,19 @@ static void slab_destroy (kmem_cache_t *
- 		}
- 	}
- #endif
--	
--	kmem_freepages(cachep, slabp->s_mem-slabp->colouroff);
--	if (OFF_SLAB(cachep))
--		kmem_cache_free(cachep->slabp_cache, slabp);
-+
-+	if (unlikely(cachep->flags & SLAB_DESTROY_BY_RCU)) {
-+		struct slab_rcu *slab_rcu;
-+
-+		slab_rcu = (struct slab_rcu *) slabp;
-+		slab_rcu->cachep = cachep;
-+		slab_rcu->addr = addr;
-+		call_rcu(&slab_rcu->head, kmem_rcu_free);
-+	} else {
-+		kmem_freepages(cachep, addr);
-+		if (OFF_SLAB(cachep))
-+			kmem_cache_free(cachep->slabp_cache, slabp);
-+	}
- }
+@@ -689,9 +703,7 @@ static int try_to_unmap_file(struct page
+ 	unsigned long max_nl_size = 0;
+ 	unsigned int mapcount;
  
- /**
+-	if (!spin_trylock(&mapping->i_mmap_lock))
+-		return ret;
+-
++	spin_lock(&mapping->i_mmap_lock);
+ 	while ((vma = vma_prio_tree_next(vma, &mapping->i_mmap,
+ 					&iter, pgoff, pgoff)) != NULL) {
+ 		ret = try_to_unmap_one(page, vma);
+@@ -714,8 +726,10 @@ static int try_to_unmap_file(struct page
+ 			max_nl_size = cursor;
+ 	}
+ 
+-	if (max_nl_size == 0)	/* any nonlinears locked or reserved */
++	if (max_nl_size == 0) {	/* any nonlinears locked or reserved */
++		ret = SWAP_FAIL;
+ 		goto out;
++	}
+ 
+ 	/*
+ 	 * We don't try to search for this page in the nonlinear vmas,
+@@ -742,19 +756,13 @@ static int try_to_unmap_file(struct page
+ 			while (vma->vm_mm->rss &&
+ 				cursor < max_nl_cursor &&
+ 				cursor < vma->vm_end - vma->vm_start) {
+-				ret = try_to_unmap_cluster(
+-						cursor, &mapcount, vma);
+-				if (ret == SWAP_FAIL)
+-					break;
++				try_to_unmap_cluster(cursor, &mapcount, vma);
+ 				cursor += CLUSTER_SIZE;
+ 				vma->vm_private_data = (void *) cursor;
+ 				if ((int)mapcount <= 0)
+ 					goto out;
+ 			}
+-			if (ret != SWAP_FAIL)
+-				vma->vm_private_data =
+-					(void *) max_nl_cursor;
+-			ret = SWAP_AGAIN;
++			vma->vm_private_data = (void *) max_nl_cursor;
+ 		}
+ 		cond_resched_lock(&mapping->i_mmap_lock);
+ 		max_nl_cursor += CLUSTER_SIZE;
 

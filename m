@@ -1,49 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262110AbUC1RHb (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 28 Mar 2004 12:07:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262130AbUC1RHb
+	id S262124AbUC1RY0 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 28 Mar 2004 12:24:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262080AbUC1RY0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 28 Mar 2004 12:07:31 -0500
-Received: from mxsf08.cluster1.charter.net ([209.225.28.208]:2573 "EHLO
-	mxsf08.cluster1.charter.net") by vger.kernel.org with ESMTP
-	id S262110AbUC1RH2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 28 Mar 2004 12:07:28 -0500
-Subject: Re: 2.6.5-rc2-mm[34] causes drop in DRI FPS
-From: Glenn Johnson <glennpj@charter.net>
-To: Marc-Christian Petersen <m.c.p@wolk-project.de>
-Cc: Kernel <linux-kernel@vger.kernel.org>, Ingo Molnar <mingo@elte.hu>,
+	Sun, 28 Mar 2004 12:24:26 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:22228 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S262063AbUC1RYX
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 28 Mar 2004 12:24:23 -0500
+Message-ID: <40670A36.3000005@pobox.com>
+Date: Sun, 28 Mar 2004 12:24:06 -0500
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030703
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Jamie Lokier <jamie@shareable.org>
+CC: Nick Piggin <nickpiggin@yahoo.com.au>, linux-ide@vger.kernel.org,
+       Linux Kernel <linux-kernel@vger.kernel.org>,
        Andrew Morton <akpm@osdl.org>
-In-Reply-To: <200403281830.12976@WOLK>
-References: <1080435375.8280.1.camel@gforce.johnson.home>
-	 <20040328090637.GA11056@elte.hu>
-	 <1080490657.9667.7.camel@gforce.johnson.home>  <200403281830.12976@WOLK>
-Content-Type: text/plain
-Message-Id: <1080493275.7969.2.camel@gforce.johnson.home>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Sun, 28 Mar 2004 11:01:15 -0600
+Subject: Re: [PATCH] speed up SATA
+References: <4066021A.20308@pobox.com> <40661049.1050004@yahoo.com.au> <406611CA.3050804@pobox.com> <406616EE.80301@pobox.com> <4066191E.4040702@yahoo.com.au> <40662108.40705@pobox.com> <20040328135124.GA32597@mail.shareable.org>
+In-Reply-To: <20040328135124.GA32597@mail.shareable.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2004-03-28 at 10:30, Marc-Christian Petersen wrote:
-> On Sunday 28 March 2004 18:17, Glenn Johnson wrote:
+Jamie Lokier wrote:
+> Jeff Garzik wrote:
 > 
-> Hi Glenn,
+>>TCQ-on-write for ATA disks is yummy because you don't really know what 
+>>the heck the ATA disk is writing at the present time.  By the time the 
+>>Linux disk scheduler gets around to deciding it has a nicely merged and 
+>>scheduled set of requests, it may be totally wrong for the disk's IO 
+>>scheduler.  TCQ gives the disk a lot more power when the disk integrates 
+>>writes into its internal IO scheduling.
 > 
-> > > > > It could be the AGP changes.  Please do a `patch -p1 -R' of
-> > > > > bk-agpgart.patch and retest?
-> > > > I reverted that patch and retested but it did not solve the problem. I
-> > > > am still only seeing about 180 fps with glxgears.
-> > > what does 'glxinfo | grep rendering' show?
 > 
-> what about reverting "DRM-cvs-update.patch"?
+> Does TCQ-on-write allow you to do ordered write commits, as with barriers,
+> but without needing full cache flushes, and still get good performance?
 
-I have not tried that but has that patch been in the tree for some time
-now? My DRI works fine with 2.6.5-rc2-mm2, which has that patch.
+Nope, TCQ is just a bunch of commands rather than one.  There are no 
+special barrier indicators you can pass down with a command.
 
---
-Glenn Johnson
-glennpj@charter.net
+	Jeff
+
+
+
 

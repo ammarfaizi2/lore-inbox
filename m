@@ -1,69 +1,129 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261471AbTICAsY (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 2 Sep 2003 20:48:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261447AbTICAsY
+	id S261608AbTICAzZ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 2 Sep 2003 20:55:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261214AbTICAzZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 2 Sep 2003 20:48:24 -0400
-Received: from note.orchestra.cse.unsw.EDU.AU ([129.94.242.24]:434 "HELO
-	note.orchestra.cse.unsw.EDU.AU") by vger.kernel.org with SMTP
-	id S261423AbTICAsV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 2 Sep 2003 20:48:21 -0400
-From: Neil Brown <neilb@cse.unsw.edu.au>
-To: Andre Tomt <andre@tomt.net>
-Date: Wed, 3 Sep 2003 10:47:41 +1000
+	Tue, 2 Sep 2003 20:55:25 -0400
+Received: from mion.elka.pw.edu.pl ([194.29.160.35]:19672 "EHLO
+	mion.elka.pw.edu.pl") by vger.kernel.org with ESMTP id S261608AbTICAzW
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 2 Sep 2003 20:55:22 -0400
+From: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
+To: steveb@unix.lancs.ac.uk
+Subject: Re: corruption with A7A266+200GB disk?
+Date: Wed, 3 Sep 2003 02:55:28 +0200
+User-Agent: KMail/1.5
+References: <E19uBCi-00054b-00@wing0.lancs.ac.uk>
+In-Reply-To: <E19uBCi-00054b-00@wing0.lancs.ac.uk>
+Cc: linux-kernel@vger.kernel.org
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+  charset="iso-8859-2"
 Content-Transfer-Encoding: 7bit
-Message-ID: <16213.14893.955734.797630@gargle.gargle.HOWL>
-Cc: linux-kernel@vger.kernel.org, linux-raid@vger.kernel.org, mingo@redhat.com
-Subject: Re: md: bug in file md.c, line 1440 (2.4.22)
-In-Reply-To: message from Andre Tomt on Saturday August 30
-References: <3F5017CA.4080700@tomt.net>
-X-Mailer: VM 7.17 under Emacs 21.3.2
-X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
-	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
-	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
+Content-Disposition: inline
+Message-Id: <200309030255.28645.bzolnier@elka.pw.edu.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Saturday August 30, andre@tomt.net wrote:
-> Heya :-)
-> 
-> Having a funny showstopper problem here with md, the autostart fails 
-> miserably with "md: bug in file md.c, line 1440"
-> 
-> Here's the story;
-and a sad one it is...
 
-> md:	**********************************
-> md:	* <COMPLETE RAID STATE PRINTOUT> *
-> md:	**********************************
-> md5: <hda9> array superblock:
-> md:  SB: (V:0.90.0) ID:<80012e77.b449af86.6bccffae.ddda9474> CT:3e4caa02
-> md:     L1 S24394560 ND:-22 RD:2 md5 LO:0 CS:32768
-> md:     UT:3f50117d ST:1 AD:2 WD:2 FD:-24 SD:0 CSUM:a62f39ca E:0000006d
->      D  0:  DISK<N:0,hdc9(22,9),R:0,S:6>
->      D  1:  DISK<N:1,hda9(3,9),R:1,S:6>
->      D  2:  DISK<N:2,[dev 00:00](0,0),R:2,S:9>
->      D  3:  DISK<N:0,[dev 00:00](0,0),R:0,S:9>
->      D  4:  DISK<N:0,[dev 00:00](0,0),R:0,S:9>
+Corruption is fixed in 2.6.0-test4.
 
-Your problem is that these extra slots (N:0) are flagged as failed
-(S:9) and this confuses md.c.
+Unfortunately it seems your IDE chipset doesnt support LBA48,
+so you wont be able to access full capacity (137GB limit).
 
-If you get mdadm 1.3.0 and apply the three patches that can be found
-in
-   http://cgi.cse.unsw.edu.au/~neilb/source/mdadm/patch/applied/
+If you are ready to take a risk (again ;-) ) you can remove
+"hwif->no_lba48 = ..." line from a drivers/ide/pci/alim15x3.c,
+recompile and retest without using DMA (add "ide=nodma"
+boot option).  Maybe LBA48 will work in PIO mode.
 
-and then stop the array and use:
-   mdadm --assemble --update=summaries /dev/md5 /dev/sda9 /dev/sdc9
+--bartlomiej
 
-then it should fix things up for you.
-You will need to do a similar thing for all of the arrays.
-This will be difficult for md2 as it is 'root'.  You will need to boot
-a rescue disc to fix this one.
+On Tuesday 02 of September 2003 15:28, steveb@unix.lancs.ac.uk wrote:
+> I just got a new 200GB disk (WDC WD2000JB) for my home machine (Asus
+> A7A266, Ali chipset). I put some partitions on it like so:
+>   hda1:   100MB - /boot
+>   hda2:  8192MB - /
+>   hda3:  1024MB - swap
+>   hda4:  the rest (about 190GB I guess) - /home
+>
+> I find that when I mkfs on /home, I get massive filesystem corruption on /
+> When I fsck / (and restore the deleted files) I get massive filesystem
+> corruption on /home. Luckily all my real data is still on my old disk...
+>
+> I reduced the size of /home to 40GB and everything was fine.
+> I see the same behaviour with both 2.6.0test3 and 2.4.22.
+> My guess is that writes to very high numbered blocks are wrapping round
+> to lower numbered blocks in some way.
+>
+> so...anyone else seen this? Is it a known driver problem?
+> Or is it a hardware issue?
+> Anyone care to suggest stuff to try? The contents of the disk are toast
+> (pretty much) so I can do destructive tests if it'll help...
+>
+> Output from lspci looks like this:
+>   00:00.0 Host bridge: ALi Corporation M1647 Northbridge [MAGiK 1 /
+> MobileMAGiK 1] (rev 04) 00:01.0 PCI bridge: ALi Corporation PCI to AGP
+> Controller
+>   00:02.0 USB Controller: ALi Corporation USB 1.1 Controller (rev 03)
+>   00:04.0 IDE interface: ALi Corporation M5229 IDE (rev c4)
+>   00:05.0 Multimedia audio controller: C-Media Electronics Inc CM8738 (rev
+> 10) 00:06.0 USB Controller: ALi Corporation USB 1.1 Controller (rev 03)
+> 00:07.0 ISA bridge: ALi Corporation M1533 PCI to ISA Bridge [Aladdin IV]
+> 00:0a.0 Ethernet controller: Intel Corp. 82557/8/9 [Ethernet Pro 100] (rev
+> 0c) 00:0b.0 Ethernet controller: Intel Corp. 82557/8/9 [Ethernet Pro 100]
+> (rev 0c) 00:0d.0 Multimedia audio controller: Ensoniq 5880 AudioPCI (rev
+> 02) 00:11.0 Bridge: ALi Corporation M7101 PMU
+>   01:00.0 VGA compatible controller: ATI Technologies Inc Rage 128 PF/PRO
+> AGP 4x TMDS
+>
+> Thanks in advance,
+>
+> Steve Bennett
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+>
+> I just got a new 200GB disk (WDC WD2000JB) for my home machine (Asus
+> A7A266, Ali chipset). I put some partitions on it like so:
+>   hda1:   100MB - /boot
+>   hda2:  8192MB - /
+>   hda3:  1024MB - swap
+>   hda4:  the rest (about 190GB I guess) - /home
+>
+> I find that when I mkfs on /home, I get massive filesystem corruption on /
+> When I fsck / (and restore the deleted files) I get massive filesystem
+> corruption on /home. Luckily all my real data is still on my old disk...
+>
+> I reduced the size of /home to 40GB and everything was fine.
+> I see the same behaviour with both 2.6.0test3 and 2.4.22.
+> My guess is that writes to very high numbered blocks are wrapping round
+> to lower numbered blocks in some way.
+>
+> so...anyone else seen this? Is it a known driver problem?
+> Or is it a hardware issue?
+> Anyone care to suggest stuff to try? The contents of the disk are toast
+> (pretty much) so I can do destructive tests if it'll help...
+>
+> Output from lspci looks like this:
+>   00:00.0 Host bridge: ALi Corporation M1647 Northbridge [MAGiK 1 /
+> MobileMAGiK 1] (rev 04) 00:01.0 PCI bridge: ALi Corporation PCI to AGP
+> Controller
+>   00:02.0 USB Controller: ALi Corporation USB 1.1 Controller (rev 03)
+>   00:04.0 IDE interface: ALi Corporation M5229 IDE (rev c4)
+>   00:05.0 Multimedia audio controller: C-Media Electronics Inc CM8738 (rev
+> 10) 00:06.0 USB Controller: ALi Corporation USB 1.1 Controller (rev 03)
+> 00:07.0 ISA bridge: ALi Corporation M1533 PCI to ISA Bridge [Aladdin IV]
+> 00:0a.0 Ethernet controller: Intel Corp. 82557/8/9 [Ethernet Pro 100] (rev
+> 0c) 00:0b.0 Ethernet controller: Intel Corp. 82557/8/9 [Ethernet Pro 100]
+> (rev 0c) 00:0d.0 Multimedia audio controller: Ensoniq 5880 AudioPCI (rev
+> 02) 00:11.0 Bridge: ALi Corporation M7101 PMU
+>   01:00.0 VGA compatible controller: ATI Technologies Inc Rage 128 PF/PRO
+> AGP 4x TMDS
+>
+> Thanks in advance,
+>
+> Steve Bennett
 
-I have not idea how it got the failed flag.
-
-NeilBrown

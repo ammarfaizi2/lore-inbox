@@ -1,60 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262309AbUDETA1 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 5 Apr 2004 15:00:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263125AbUDETA1
+	id S263125AbUDETC3 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 5 Apr 2004 15:02:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263137AbUDETC3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 Apr 2004 15:00:27 -0400
-Received: from kamikaze.scarlet-internet.nl ([213.204.195.165]:11161 "EHLO
-	kamikaze.scarlet-internet.nl") by vger.kernel.org with ESMTP
-	id S262309AbUDETAZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 Apr 2004 15:00:25 -0400
-Message-ID: <1081191622.4071acc6e100c@webmail.dds.nl>
-Date: Mon,  5 Apr 2004 21:00:22 +0200
-From: wdebruij@dds.nl
-To: Greg KH <greg@kroah.com>
-Cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>
-Subject: Re: [ANNOUNCE] various linux kernel devtools : device handling/memory mapping/profiling/etc
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-User-Agent: Internet Messaging Program (IMP) 3.2.1
+	Mon, 5 Apr 2004 15:02:29 -0400
+Received: from ppp-217-133-42-200.cust-adsl.tiscali.it ([217.133.42.200]:4014
+	"EHLO dualathlon.random") by vger.kernel.org with ESMTP
+	id S263125AbUDETC1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 5 Apr 2004 15:02:27 -0400
+Date: Mon, 5 Apr 2004 21:02:25 +0200
+From: Andrea Arcangeli <andrea@suse.de>
+To: Marcus Hartig <m.f.h@web.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.5-aa1
+Message-ID: <20040405190225.GL2234@dualathlon.random>
+References: <40707888.80006@web.de> <200404041859.47940.jeffpc@optonline.net> <20040405002028.GB21069@dualathlon.random> <4071A601.5000402@web.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <4071A601.5000402@web.de>
+User-Agent: Mutt/1.4.1i
+X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
+X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, Apr 05, 2004 at 08:31:29PM +0200, Marcus Hartig wrote:
+> Andrea Arcangeli wrote:
+> 
+> >That should reduce the scope of the problem, I had a look at the
+> >diff between rc3 and 2.6.5 final but I found nothing obvious that could
+> >explain your problem (yet).
+> 
+> It seems to be CONFIG_PREEMPT. I have compiled the 2.6.5-aa1 only without 
+> it and ET runs now 30min without a signal11.
 
+sounds good, probably a preempt bug in the alsa code or an rcu issue or
+something like that. my tree has the most important fixes in the
+writeback code from Takashi to provide the same lowlatency w/ or w/o
+CONFIG_PREEMPT so you shouldn't notice much difference either ways. It
+was a good decision to leave preempt off for higher reliability too,
+preempt isn't just a matter of spinlocks, sometime you need explicit
+preempt_disable to make it work right.
 
-On Monday 05 April 2004 18:23, Greg KH wrote:
-> I don't see anything in there that will work properly for udev.  Am I
-> just missing the code somewhere?  Remember, for udev to work, you have
-> to create stuff in sysfs, which I don't see this code doing.
-indeed, automatic creation of the device files is not yet incorporated under 
-udev, but at least it then reverts back to the oldstyle (mknod) device file 
-system, right? That's a work in progress as my systems don't actually use 
-udev just yet.
-
-> Ick, you are using pci_find_device() which is racy, depreciated, and
-> does not play nice with the rest of the kernel.  Yes, it's the lowest
-> common denominater accross 2.2, 2.4, and 2.6, but please don't sink to
-> that level if you don't have to.  For 2.6 it's just not acceptable.
-
-hmm, really? thanks for the tip. I basically looked at O'Reilly's book when I 
-coded that. Do you have a quick alternative for me to use?
-
->
-> I agree that at times the current kernel driver api learning curve is a
-> bit steep.  But people are working to reduce that curve where they can,
-> and it's one of my main priorities for 2.7.  Any help and suggestions
-> that you might have in that area are greatly appreciated.
->
-perhaps some of this code (when cleaned up) can serve as a guide. I was 
-actually wondering when a 2.7 release was scheduled.
-
-Thanks for taking the time to look at the code,
-
-Willem
-
-
-ps: my regular smtp server stopped, so I had to copy-paste this into webmail.
-Therefore, the in-reply-to, etc. tags are ommitted, possibly causing a
-threadbreak. Sorry.
+still it'd be nice to fix it purerly as an exercise, exercises are
+useful nevertheless ;).

@@ -1,87 +1,73 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262737AbTGAQxN (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Jul 2003 12:53:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262861AbTGAQxN
+	id S262763AbTGAQzz (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Jul 2003 12:55:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262861AbTGAQzz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Jul 2003 12:53:13 -0400
-Received: from filesrv1.system-techniques.com ([199.33.245.55]:54662 "EHLO
-	filesrv1.baby-dragons.com") by vger.kernel.org with ESMTP
-	id S262737AbTGAQxM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Jul 2003 12:53:12 -0400
-Date: Tue, 1 Jul 2003 13:07:30 -0400 (EDT)
-From: "Mr. James W. Laferriere" <babydr@baby-dragons.com>
-To: Larry McVoy <lm@bitmover.com>
-cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: bkbits.net is down
-In-Reply-To: <20030701145041.GA18394@work.bitmover.com>
-Message-ID: <Pine.LNX.4.56.0307011306090.1716@filesrv1.baby-dragons.com>
-References: <20030621135812.GE14404@work.bitmover.com>
- <20030621190944.GA13396@work.bitmover.com> <20030622002614.GA16225@work.bitmover.com>
- <20030623053713.GA6715@work.bitmover.com> <20030625013302.GB2525@work.bitmover.com>
- <20030626231752.E5633@ucw.cz> <20030626212102.GA19056@work.bitmover.com>
- <1056711200.3174.23.camel@dhcp22.swansea.linux.org.uk>
- <20030627145727.GB18676@work.bitmover.com> <1056728645.3174.48.camel@dhcp22.swansea.linux.org.uk>
- <20030701145041.GA18394@work.bitmover.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Tue, 1 Jul 2003 12:55:55 -0400
+Received: from ns.suse.de ([213.95.15.193]:36882 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S262763AbTGAQzx (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 1 Jul 2003 12:55:53 -0400
+Date: Tue, 1 Jul 2003 19:09:38 +0200
+From: Andi Kleen <ak@suse.de>
+To: James Bottomley <James.Bottomley@steeleye.com>
+Cc: axboe@suse.de, grundler@parisc-linux.org, davem@redhat.com,
+       suparna@in.ibm.com, linux-kernel@vger.kernel.org,
+       alex_williamson@hp.com, bjorn_helgaas@hp.com
+Subject: Re: [RFC] block layer support for DMA IOMMU bypass mode
+Message-Id: <20030701190938.2332f0a8.ak@suse.de>
+In-Reply-To: <1057077975.2135.54.camel@mulgrave>
+References: <1057077975.2135.54.camel@mulgrave>
+X-Mailer: Sylpheed version 0.8.9 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-	Hello Larry ,  The inserted eamil was dropped on the list awhile
-	back .  See after .sig .  JimL
+On 01 Jul 2003 11:46:12 -0500
+James Bottomley <James.Bottomley@steeleye.com> wrote:
 
-On Tue, 1 Jul 2003, Larry McVoy wrote:
-> Does anyone know how to enable caching on a mylex AcceleRAID 170 (aka
-> DAC960) SCSI controller?  We've got the bkbits.net data mirrored at
-> rackspace.com but the controllers are read and write cache disabled.
-> I read the driver source and it doesn't offer this ability via the
-> /proc configuration space which is where I would have expected it.
-> Is this a bios only thing?
--- 
-       +------------------------------------------------------------------+
-       | James   W.   Laferriere | System    Techniques | Give me VMS     |
-       | Network        Engineer |     P.O. Box 854     |  Give me Linux  |
-       | babydr@baby-dragons.com | Coudersport PA 16915 |   only  on  AXP |
-       +------------------------------------------------------------------+
-On Mon, 5 Feb 2001, Dan Jones wrote:
-> Date: Mon, 05 Feb 2001 17:28:05 -0800
-> From: Dan Jones <djones@valinux.com>
-> To: octave klaba <oles@ovh.net>
-> Cc: "linux-raid@vger.kernel.org" <linux-raid@vger.kernel.org>
-> Subject: Re: DAC960 & cache
->
-> octave klaba wrote:
-> >
-> > Hello,
-> >
-> > On Mylex 170 we have, the read/write cache disabled.
-> > How can I switch it on ? Since we have it with raid-1
-> > and the hd has the cache too, do we lose the data if
-> > the server caches ?
-> >
-> > Thanks
-> > Octave
-> >
-> > DAC960#0:   Logical Drives:
-> > DAC960#0:     /dev/rd/c0d0: RAID-1, Online, 35807232 blocks
-> > DAC960#0:                   Logical Device Initialized, BIOS Geometry:
-> > 255/63
-> > DAC960#0:                   Stripe Size: 64KB, Segment Size: 8KB
-> > DAC960#0:                   Read Cache Disabled, Write Cache Disabled
-> > -
-> > To unsubscribe from this list: send the line "unsubscribe linux-raid" in
-> > the body of a message to majordomo@vger.kernel.org
->
-> The cache policy can be switched via the Mylex firmware. Check out
-> Mylex's searchable FAQ. Try searching on enable cache. The
-> instructions cover the DACCF firmware. EzAssist will be different:
->
-> http://mylex.custhelp.com/cgi-bin/mylex.cfg/php/enduser/home.php
->
-> The A170 doesn't have a battery, so remember to allow the cache to
-> flush before resetting or power cycling your system:
-> --
-> Dan Jones, Manager, Storage Products          VA Linux Systems
-> V:(510)687-6737 F:(510)683-8602               47071 Bayside Parkway
-> djones@valinux.com                            Fremont, CA 94538
+> 
+> Some IOMMUs come with a "bypass" mode, where the IOMMU won't try to
+> translate the physical address coming from the device but will instead
+> place it directly on the memory bus. For some machines (ia-64, and
+> possibly x86_64) any address not programmed into the IOMMU for
+
+That's the case on x86_64 yes.
+
+
+> The Problem:
+> 
+> At the moment, the block layer assumes segments may be virtually
+> mergeable (i.e. two phsically discondiguous pages may be treated as a
+> single SG entity for DMA because the IOMMU will patch up the
+> discontinuity) if an IOMMU is present in the system.  This effectively
+> stymies using bypass mode, because segments may not be virtually merged
+> in a bypass operation.
+
+I assume on 2.5 has this problem, not 2.4, right?
+
+> 
+> The Solution:
+> 
+> Is to teach the block layer not to virtually merge segments if either
+> segment may be bypassed.  To that end, the block layer has to know what
+> the physical dma mask is (not the bounce limit, which is different) and
+> it must also know the address bits that must be asserted in bypass
+> mode.  To that end, I've introduced a new #define for asm/io.h
+> 
+> BIO_VMERGE_BYPASS_MASK
+
+But a mask is not good for AMD64 because there is no guarantee 
+that the bypass/iommu address is checkable using a mask
+(K8 uses an memory hole for IOMMU purposes and for various
+reasons the hole can be anywhere in the address space)
+
+This means x86_64 needs an function. Also the name is quite weird and 
+the issue is not really BIO  specific. How about just calling it
+iommu_address() ?
+
+
+-Andi

@@ -1,54 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287324AbRL3Dyl>; Sat, 29 Dec 2001 22:54:41 -0500
+	id <S287328AbRL3EEb>; Sat, 29 Dec 2001 23:04:31 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287327AbRL3DyW>; Sat, 29 Dec 2001 22:54:22 -0500
-Received: from ns.suse.de ([213.95.15.193]:7178 "HELO Cantor.suse.de")
-	by vger.kernel.org with SMTP id <S287324AbRL3DyJ>;
-	Sat, 29 Dec 2001 22:54:09 -0500
-Date: Sun, 30 Dec 2001 04:54:08 +0100 (CET)
-From: Dave Jones <davej@suse.de>
-To: Larry McVoy <lm@bitmover.com>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Benjamin LaHaise <bcrl@redhat.com>,
-        Oliver Xymoron <oxymoron@waste.org>,
-        Christer Weinigel <wingel@hog.ctrl-c.liu.se>,
-        <linux-kernel@vger.kernel.org>
-Subject: Re: The direction linux is taking
-In-Reply-To: <20011229184921.B27114@work.bitmover.com>
-Message-ID: <Pine.LNX.4.33.0112300415230.3122-100000@Appserv.suse.de>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S287332AbRL3EEW>; Sat, 29 Dec 2001 23:04:22 -0500
+Received: from garrincha.netbank.com.br ([200.203.199.88]:43524 "HELO
+	netbank.com.br") by vger.kernel.org with SMTP id <S287328AbRL3EEH>;
+	Sat, 29 Dec 2001 23:04:07 -0500
+Date: Sun, 30 Dec 2001 02:03:58 -0200
+From: Arnaldo Carvalho de Melo <acme@conectiva.com.br>
+To: Keith Owens <kaos@ocs.com.au>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        Kernel Janitor Project 
+	<kernel-janitor-discuss@lists.sourceforge.net>
+Subject: Re: [ANNOUNCE] include dependency graph script
+Message-ID: <20011230020358.E2856@conectiva.com.br>
+Mail-Followup-To: Arnaldo Carvalho de Melo <acme@conectiva.com.br>,
+	Keith Owens <kaos@ocs.com.au>,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+	Kernel Janitor Project <kernel-janitor-discuss@lists.sourceforge.net>
+In-Reply-To: <20011230013033.A2856@conectiva.com.br> <23616.1009684530@ocs3.intra.ocs.com.au>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <23616.1009684530@ocs3.intra.ocs.com.au>
+User-Agent: Mutt/1.3.23i
+X-Url: http://advogato.org/person/acme
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 29 Dec 2001, Larry McVoy wrote:
+Em Sun, Dec 30, 2001 at 02:55:30PM +1100, Keith Owens escreveu:
+> On Sun, 30 Dec 2001 01:30:33 -0200, 
+> Arnaldo Carvalho de Melo <acme@conectiva.com.br> wrote:
+> >	For the people that like me, Daniel Phillips and Manfred Spraul are
+> >working on pruning the include dependencies in the kernel sources I made a
+> >simple script to make a graphviz file to plot the dependencies in a nice
+> >graphic, its available at:
+> >
+> >http://www.kernel.org/pub/linux/kernel/people/acme/hviz
+> 
+> I suggest that you prune linux/config.h and autoconf.h from all graphs.
+> The dependency system does not depend directly on those files, instead
+> it depends on individual config options.
+> 
+> It makes more sense to list the individual config options that an
+> include file depends on, see the code in scripts/mkdep.c.  Even then it
+> would be better to suppress the config options by default and only list
+> them when requested.
 
-> that people avoid merge conflicts because they hurt, because of
-> the poor tools.
->
->     "Docter it hurts when I have to merge"
->     "So don't do that."
+Thanks for the comments, this was a quick hack, I'll probably rewrite it in
+python gleaning code from a tool we have here in Conectiva to prune/analise
+the RPM packages dependency hell.
 
-What I've seen happen quite frequently...
-
-developer a: "Hey, here's a patch to do aaaa"
-
-maintainer: "Ah, I've already sent Linus a patch to merge changes from
-developer b in this area, but your changes look ok. can you resync when
-Linus puts next patch out, and send me the rediffed copy again?"
-
-developer: "Sure, no problem".
-
-Alternatively its maintainer telling developer a "Ah, I've a bunch of
-stuff queued from developer b, you guys need to talk on this and work
-out how to get this stuff working together, get back to me when you've
-work it out".
-
-People management rather than source management systems.
-
-Dave.
-
--- 
-| Dave Jones.        http://www.codemonkey.org.uk
-| SuSE Labs
-
+- Arnaldo

@@ -1,87 +1,116 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131740AbRBJTeq>; Sat, 10 Feb 2001 14:34:46 -0500
+	id <S130529AbRBJTf4>; Sat, 10 Feb 2001 14:35:56 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131641AbRBJTeg>; Sat, 10 Feb 2001 14:34:36 -0500
-Received: from gear.torque.net ([204.138.244.1]:43786 "EHLO gear.torque.net")
-	by vger.kernel.org with ESMTP id <S131477AbRBJTe0>;
-	Sat, 10 Feb 2001 14:34:26 -0500
-Message-ID: <3A8595DC.B33CB0B2@torque.net>
-Date: Sat, 10 Feb 2001 14:26:20 -0500
-From: Douglas Gilbert <dougg@torque.net>
-X-Mailer: Mozilla 4.72 [en] (X11; U; Linux 2.4.1 i586)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-CC: linux-scsi@vger.kernel.org, ishikawa@yk.rim.or.jp
-Subject: Re: devfs: "cd" device not showing up initially. [Fwd: Scan past lun 7 
- in
+	id <S131714AbRBJTfq>; Sat, 10 Feb 2001 14:35:46 -0500
+Received: from ns.caldera.de ([212.34.180.1]:49928 "EHLO ns.caldera.de")
+	by vger.kernel.org with ESMTP id <S130529AbRBJTfd>;
+	Sat, 10 Feb 2001 14:35:33 -0500
+Date: Sat, 10 Feb 2001 20:34:42 +0100
+From: Christoph Hellwig <hch@caldera.de>
+To: torvalds@transmeta.com
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] Use slab in pipe code
+Message-ID: <20010210203442.A8973@caldera.de>
+Mail-Followup-To: torvalds@transmeta.com, linux-kernel@vger.kernel.org
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+X-Mailer: Mutt 1.0i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- 	
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Hi Linus,
 
-Ishikawa <ishikawa@yk.rim.or.jp> wrote:
->
-> I have begun using devfs for about a couple of weeks now and
-> thank you for the great addition to linux.
-> Now I am happy to see the device names on the
-> scsi chain which won't be changed just because
-> I add/delete a device.
->
-> However, I noticed that there seems to be a subtle interaction of
-> devfs (+devfsd) and
-> the device names that appear under luns for
-> a scsi chain.
->
-> Namely the name "generic" or "disc" seem to
-> exist from the start (after bootup), but
-> the entry "cd" doesn't exist until I do something
-> about accessing the CD somehow.
-> (It seems that I fail the initial
-> attempt to mount due to the missing name.)
->
-> [snip, ls on /dev/scsi/* looks correct]
->
-> Is it possible that the accessing the CD using the
-> compatibility device name /dev/sr* forced
-> the creation of the "cd" device name?
+this patch makes the pipe code use the slab allocator instead of
+kmalloc/kfree.  The changes are pretty small, so I think it's ok
+for the stable series.
 
-Yes, the LOOKUP rule caused 'modprobe sr_mod' to be
-executed, then your cd devices will be visible in
-devfs and accessible. Under the old /dev system
-they were always "visible" but not accessible until
-you loaded sr_mod .
+	Christoph
 
-> I consider the possibility of module loading. Both SCSI CD and
-> SCSI generic (sg) are modules now.
-> I checked /etc/devfs/devfs.conf (experimental Debian package
-> puts the config file here! ) has the following line:
->
->    LOOKUP  .*              MODLOAD
->
-> So the module autoloading ought to work. ("generic" exists
-> somehow from the start.)
+-- 
+Of course it doesn't work. We've performed a software upgrade.
 
-Chiaki,
-The upper level scsi drivers (sd, sr, st, osst and sg) register
-and unregister device names with devfs. After the mid level
-recognizes a new scsi device it calls the detect() function
-in the builtin upper level drivers and those that are currently
-loaded as modules. That is your "problem", sr_mod.o is not
-loaded until you do something like "ls -l /dev/sr0" (due to
-that LOOKUP rule in /etc/devfsd.conf). The lsmod command will
-show which modules are loaded (in your case look for sr_mod).
 
-There is no "push" mechanism in the scsi mid level to load
-the sr_mod.o module when it sees a device with SCSI type
-CDROM. Devfs (specifically devfsd) supplies various "pull"
-mechanisms (e.g. LOOKUP) to load that module.
-
-Doug Gilbert
-
+--- linux-2.4.2-pre3/fs/pipe.c	Sat Feb 10 20:03:33 2001
++++ linux/fs/pipe.c	Sat Feb 10 20:36:57 2001
+@@ -21,8 +21,13 @@
+  * 
+  * Reads with count = 0 should always return 0.
+  * -- Julian Bradfield 1999-06-07.
++ *
++ * Use slab allocator instead of kmalloc/kfree.
++ * -- Christoph Hellwig 2001-02-07
+  */
+ 
++static kmem_cache_t * pipe_cachep;
++
+ /* Drop the inode semaphore and wait for a pipe event, atomically */
+ void pipe_wait(struct inode * inode)
+ {
+@@ -448,7 +453,7 @@
+ 	if (!page)
+ 		return NULL;
+ 
+-	inode->i_pipe = kmalloc(sizeof(struct pipe_inode_info), GFP_KERNEL);
++	inode->i_pipe = kmem_cache_alloc(pipe_cachep, SLAB_KERNEL);
+ 	if (!inode->i_pipe)
+ 		goto fail_page;
+ 
+@@ -578,7 +583,7 @@
+ 	put_unused_fd(i);
+ close_f12_inode:
+ 	free_page((unsigned long) PIPE_BASE(*inode));
+-	kfree(inode->i_pipe);
++	kmem_cache_free(pipe_cachep, inode->i_pipe);
+ 	inode->i_pipe = NULL;
+ 	iput(inode);
+ close_f12:
+@@ -635,15 +640,28 @@
+ 
+ static int __init init_pipe_fs(void)
+ {
+-	int err = register_filesystem(&pipe_fs_type);
+-	if (!err) {
+-		pipe_mnt = kern_mount(&pipe_fs_type);
+-		err = PTR_ERR(pipe_mnt);
+-		if (IS_ERR(pipe_mnt))
+-			unregister_filesystem(&pipe_fs_type);
+-		else
+-			err = 0;
+-	}
++	int err = -ENOMEM;
++
++	pipe_cachep = kmem_cache_create("pipe_cache",
++			sizeof(struct pipe_inode_info), 0,
++			SLAB_HWCACHE_ALIGN, NULL, NULL);
++	if (pipe_cachep == NULL)
++		goto err_out;
++	
++	err = register_filesystem(&pipe_fs_type);
++	if (err)
++		goto err_out;
++
++	pipe_mnt = kern_mount(&pipe_fs_type);
++
++	err = PTR_ERR(pipe_mnt);
++	if (!IS_ERR(pipe_mnt))
++		return 0;
++
++	unregister_filesystem(&pipe_fs_type);
++
++err_out:
++	kmem_cache_destroy(pipe_cachep);
+ 	return err;
+ }
+ 
+@@ -651,6 +669,7 @@
+ {
+ 	unregister_filesystem(&pipe_fs_type);
+ 	kern_umount(pipe_mnt);
++	kmem_cache_destroy(pipe_cachep);
+ }
+ 
+ module_init(init_pipe_fs)
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

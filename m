@@ -1,73 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129431AbRAWJS0>; Tue, 23 Jan 2001 04:18:26 -0500
+	id <S129607AbRAWJQE>; Tue, 23 Jan 2001 04:16:04 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129704AbRAWJQC>; Tue, 23 Jan 2001 04:16:02 -0500
-Received: from hal.astr.lu.lv ([195.13.134.67]:12037 "EHLO hal.astr.lu.lv")
-	by vger.kernel.org with ESMTP id <S129669AbRAWI0O>;
-	Tue, 23 Jan 2001 03:26:14 -0500
-Content-Type: text/plain;
-  charset="iso-8859-13"
-From: Andris Pavenis <pavenis@latnet.lv>
-To: rgooch@atnf.csiro.au
-Subject: Re: devfs breakage in 2.4.0 release
-Date: Tue, 23 Jan 2001 10:25:50 +0200
-X-Mailer: KMail [version 1.2]
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <01010615285000.00465@hal> <01011213352000.00369@hal>
-In-Reply-To: <01011213352000.00369@hal>
-MIME-Version: 1.0
-Message-Id: <01012310255000.31379@hal>
-Content-Transfer-Encoding: 8bit
+	id <S129706AbRAWJQA>; Tue, 23 Jan 2001 04:16:00 -0500
+Received: from expanse.dds.nl ([194.109.10.118]:33041 "EHLO expanse.dds.nl")
+	by vger.kernel.org with ESMTP id <S129446AbRAWHya>;
+	Tue, 23 Jan 2001 02:54:30 -0500
+Date: Tue, 23 Jan 2001 08:54:18 +0100
+From: Ookhoi <ookhoi@dds.nl>
+To: linux-kernel@vger.kernel.org
+Subject: bootp starts before network device?
+Message-ID: <20010123085418.U21704@ookhoi.dds.nl>
+Reply-To: ookhoi@dds.nl
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.1.14i
+X-Uptime: 5:14pm  up 56 days,  6:26, 24 users,  load average: 0.00, 0.04, 0.09
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 12 January 2001 13:35, Andris Pavenis wrote:
-> On Saturday 06 January 2001 15:28, Andris Pavenis wrote:
-> > Noticed following devfs related problems with kernel version 2.4.0 on one
-> > Pentium 200MMX box (the same problem with 2.4.0-ac2, but earlier
-> > 2.4.0-test10 doesn't have this problem)
-> >
-> > I was able to reproduce it reliably by following steps:
-> >          - booted machine in runlevel 3
-> >          - logged in as user and started MC (on first console)
-> >          - logged out
-> >          - logged in as different user (in this case root) and tried to
-> > start MC again
-> >
-> > This time it hangs. The source of problem appears to be devfs related as
-> > devfsd exited with error message that it cannot state vcc/1 as there is
-> > no such file or directory. Related parts of log files (boot parameter
-> > devfs=dall) and other related information (I hope...) is in attachment.
-> > Of course MC is not behaving nicely, but the primary source of problem
-> > seems to be devfs
->
-> As I tested devfsd dies after I'm logging out (very often on P200MMX,
-> much more seldom on P3 700). I suspect some devfs related race
->
-> > On this machine kernel was compiled for Pentium CPUs. I tried to
-> > reproduce the same on a different machine with Pentium III 700 using
-> > kernel 2.4.0. It took more relogging as on Pentium 200, but I got the
-> > same problem once (on slower machine I was able to reproduce it more
-> > reliably).
->
-> I tries 2.4.1-pre3 and got the same. Modifying devfsd.c to retry stating
-> some times before giving up workarounds the problem (As far as I tested
-> I'm getting only one retry ...)
->
-> Perhaps it's kernel's bug anyway, but I think it's doesn't harm to make
-> devfsd slightly more errorproof. I'm including patch for devfsd (I had also
-> to define __USE_GNU to get devfsd compile with glibc-2.2 at all ...)
->
-> Of course best solution would be to fix the race itself (it appeared
-> sometimes between 2.4.0-test10 and 2.4.0-test12, first one is OK) ....
->
+Hi,
 
-I spent some time building various kernels on P200MMX box I have this problem
-to happen more often. It looks that problem appears in 2.4.0-test12-pre8
-but is not present in 2.4.0-test12-pre7
+I try to boot my vaio c1ve with an usb floppy drive and a kernel with
+bootp and nfs root support. Unfortunately, it doesn't work, and the
+reason for that seemes to be that bootp starts before the nic is
+detected.
 
-Andris
+It says: IP-Config: No network devices available.
+
+a few lines below that the nic (3com 575) is detected. 
+Of course it fails to do the nfs mount.
+
+This is with kernel 2.4.1-pre9. 
+
+I've used root nfs and bootp a lot with older kernels (2.3, 2.4-test),
+but older kernels wont boot on the vaio.
+
+Is there a way to delay bootp, or move the nic detection up? Should I
+send more info (.config)?
+
+Tia.
+
+		Ookhoi
+
+PS, also tried to mount root image from floppy, but that fails too. The
+floppy drive gets detected (usb support in the kernel), but it doesn't
+seem to connect /dev/sda to it (the fdd is available via /dev/sda
+according to the Internet). I have scsi support (disk and generic).
+Maybe someone has a suggestion on this too?
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

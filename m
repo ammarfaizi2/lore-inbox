@@ -1,83 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261948AbVBJVRL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261290AbVBJVVN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261948AbVBJVRL (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Feb 2005 16:17:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261952AbVBJVRL
+	id S261290AbVBJVVN (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Feb 2005 16:21:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261322AbVBJVVN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Feb 2005 16:17:11 -0500
-Received: from ipcop.bitmover.com ([192.132.92.15]:17301 "EHLO
-	mail.bitmover.com") by vger.kernel.org with ESMTP id S261948AbVBJVRF
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Feb 2005 16:17:05 -0500
-Date: Thu, 10 Feb 2005 13:17:00 -0800
-To: Alexandre Oliva <aoliva@redhat.com>
-Cc: Stelian Pop <stelian@popies.net>, Francois Romieu <romieu@fr.zoreil.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [RFC] Linux Kernel Subversion Howto
-Message-ID: <20050210211700.GA26361@bitmover.com>
-Mail-Followup-To: lm@bitmover.com,
-	Alexandre Oliva <aoliva@redhat.com>,
-	Stelian Pop <stelian@popies.net>,
-	Francois Romieu <romieu@fr.zoreil.com>, linux-kernel@vger.kernel.org
-References: <20050204201157.GN27707@bitmover.com> <20050204214015.GF5028@deep-space-9.dsnet> <20050204233153.GA28731@electric-eye.fr.zoreil.com> <20050205193848.GH5028@deep-space-9.dsnet> <20050205233841.GA20875@bitmover.com> <20050208154343.GH3537@crusoe.alcove-fr> <20050208155845.GB14505@bitmover.com> <ord5vatdph.fsf@livre.redhat.lsd.ic.unicamp.br> <20050209155113.GA10659@bitmover.com> <or7jlgpxio.fsf@livre.redhat.lsd.ic.unicamp.br>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <or7jlgpxio.fsf@livre.redhat.lsd.ic.unicamp.br>
-User-Agent: Mutt/1.5.6+20040907i
-From: lm@bitmover.com (Larry McVoy)
+	Thu, 10 Feb 2005 16:21:13 -0500
+Received: from mail.scitechsoft.com ([63.195.13.67]:935 "EHLO
+	mail.scitechsoft.com") by vger.kernel.org with ESMTP
+	id S261290AbVBJVVJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 10 Feb 2005 16:21:09 -0500
+Message-ID: <420BD03A.3030501@scitechsoft.com>
+Date: Thu, 10 Feb 2005 13:20:58 -0800
+From: Kendall Bennett <kendallb@scitechsoft.com>
+User-Agent: Mozilla Thunderbird 1.0 (Windows/20041206)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Matthew Garrett <mjg59@srcf.ucam.org>
+CC: Jon Smirl <jonsmirl@gmail.com>,
+       =?ISO-8859-1?Q?Ville_Syrj=E4l=E4?= <syrjala@sci.fi>,
+       Bill Davidsen <davidsen@tmr.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Pavel Machek <pavel@ucw.cz>, ncunningham@linuxmail.org,
+       Carl-Daniel Hailfinger <c-d.hailfinger.devel.2005@gmx.net>,
+       ACPI List <acpi-devel@lists.sourceforge.net>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [RFC] Reliable video POSTing on resume
+References: <1107695583.14847.167.camel@localhost.localdomain>	 <420BB267.8060108@tmr.com> <20050210192554.GA15726@sci.fi>	 <1108066096.4085.69.camel@tyrosine>	 <9e473391050210121756874a84@mail.gmail.com>	 <1108067388.4085.74.camel@tyrosine>	 <9e47339105021012341c94c441@mail.gmail.com>	 <420BC814.4050102@scitechsoft.com> <1108069596.4085.78.camel@tyrosine>
+In-Reply-To: <1108069596.4085.78.camel@tyrosine>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Alexandre,
+Matthew Garrett said the following on 2/10/2005 1:06 PM:
+> On Thu, 2005-02-10 at 12:46 -0800, Kendall Bennett wrote:
+> 
+> 
+>>So perhaps this problem is something similar?
+> 
+> 
+> I don't think so - if I dd out of ROM, I get something that looks like a
+> video BIOS (and, indeed, I can make VBE calls to and from it). The
+> problem is jumping to c000:0003 and executing - this has the effect of
+> turning off the backlight and giving an illegal instruction error
+> (I /think/ - I may be getting the machine I have here confused with one
+> a tester has...)
 
-It seems like you've made up your mind that we are operating out of pure
-self interest and have no desire to help you or anyone else unless we
-get something out of it.  In other words, we're making our decisions
-based on the net positive/negative effect on our business.
+Laptops are a little different as they will make calls from the Video 
+BIOS into the system BIOS, so you need to make sure that the system BIOS 
+is also available in the execution environment. So if you are using an 
+x86 emulator, you need to make sure the system BIOS is mapped into the 
+emulator image and that any necessary resources it might need are available.
 
-Is that a fair assessment of your position?  
+Regards,
 
-It's clear that the path we took has generated illwill amongst some of
-you, the web is full of BK license is awful pages, etc.  It's a matter
-of the public record that we had at least some idea that this was going
-to happen, we didn't expect that you'd all be happy with this arrangement.
-
-So if we knew that doing this would hurt our business, which according
-you is the only thing we care about, then why would we do it?  The usual
-response is the marketing value we get out of it.  Yes, we certainly do
-get some positive marketing out of this.  We also get a ton of negative
-marketing, you are aware of that, right?
-
-Is it your opinion that the postive marketing we get outweighs the
-negative?  That's possible, I don't think it's true, but lets suppose it
-is.  That's only part of the picture.  The other part is that we are
-taking a huge risk by giving away the product to very group that is most
-motivated to copy it, and if a good enough copy existed it is unlikely
-our business would success.
-
-If you are willing to believe that we have good good enough management
-here that we were aware of this, and we added up the illwill and the IP
-risk and did it anyway.  Why?  Why would any business do something that
-was obviously a poor business decision?  Please don't take the cheap
-shot and say we are idiots, the founder of your company has advised us
-from day one as have others.  We knew what we were doing.  
-
-Can you offer any plausible explanation other than a good faith desire
-to help the open source community, albeit in a non-traditional way?
-
-
-This is perhaps a hard concept to grasp but we are basically saying we're
-willing to help everyone except the people who want to take our business
-away.  I would guess that over 99.999% of the open source in the world
-has nothing to do with SCM.  That's a lot of source that we can help.
-You are saying we are an evil money grubbing corporation because we
-don't want to give our technology to our competitors.  Fair enough,
-that's true, we don't.  What you aren't admitting is that we have done
-a lot of good for your community, we continue to provide the tools,
-the support, the infrastructure, and we do it in spite of it not being
-a very good business decision.  If we get no credit in your mind for
-all of that then I don't think we have any basis for further discussion.
 -- 
----
-Larry McVoy                lm at bitmover.com           http://www.bitkeeper.com
+Kendall Bennett
+Chief Executive Officer
+SciTech Software, Inc.
+Phone: (530) 894 8400
+http://www.scitechsoft.com
+
+~ SciTech SNAP - The future of device driver technology! ~
+

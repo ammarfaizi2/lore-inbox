@@ -1,85 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268998AbUJELez@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268987AbUJELry@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268998AbUJELez (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Oct 2004 07:34:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268995AbUJELez
+	id S268987AbUJELry (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Oct 2004 07:47:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268989AbUJELrx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Oct 2004 07:34:55 -0400
-Received: from holly.csn.ul.ie ([136.201.105.4]:26553 "EHLO holly.csn.ul.ie")
-	by vger.kernel.org with ESMTP id S269001AbUJELej (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Oct 2004 07:34:39 -0400
-Date: Tue, 5 Oct 2004 12:34:37 +0100 (IST)
-From: Dave Airlie <airlied@linux.ie>
-X-X-Sender: airlied@skynet
-To: torvalds@osdl.org, Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: [bk pull] DRM: Kconfig update
-Message-ID: <Pine.LNX.4.58.0410051233090.27829@skynet>
+	Tue, 5 Oct 2004 07:47:53 -0400
+Received: from mail.convergence.de ([212.227.36.84]:61603 "EHLO
+	email.convergence2.de") by vger.kernel.org with ESMTP
+	id S268987AbUJELrv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 5 Oct 2004 07:47:51 -0400
+Message-ID: <416289B9.2080208@linuxtv.org>
+Date: Tue, 05 Oct 2004 13:47:05 +0200
+From: Michael Hunold <hunold@linuxtv.org>
+User-Agent: Mozilla Thunderbird 0.8 (X11/20040913)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Linus Torvalds <torvalds@osdl.org>
+CC: Andrew Morton <akpm@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: [PATCH][2.6] Fix error path in Video4Linux dpc7146 driver
+X-Enigmail-Version: 0.86.1.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: multipart/mixed;
+ boundary="------------020300090409060907040406"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+This is a multi-part message in MIME format.
+--------------020300090409060907040406
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 
-Hi Linus,
+Hi,
 
-This is just a proper fix to stop the i830/i915 being built into the same
-kernel I missed Romans post that contained it until now...
+this patch fixes an error path in my dpc7146 Video4Linux driver.
 
-Please do a
+The I2C adapter wasn't de-registered correctly in case the video card 
+wasn't found. When the I2C subsystem tried to speak with the dangling 
+I2C adapter later on, usually an oops happened.
 
-	bk pull bk://drm.bkbits.net/drm-2.6
+Please apply.
 
-This will include the latest DRM changes and will update the following files:
+Regards
+Michael Hunold.
 
- drivers/char/drm/Kconfig |   12 ++++++++----
- 1 files changed, 8 insertions(+), 4 deletions(-)
+--------------020300090409060907040406
+Content-Type: text/plain;
+ name="v4l_dpc7146_fix.diff"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="v4l_dpc7146_fix.diff"
 
-through these ChangeSets:
+diff -ura linux-2.6.9-rc3/drivers/media/video/dpc7146.c b/drivers/media/video/dpc7146.c
+--- linux-2.6.9-rc3/drivers/media/video/dpc7146.c	2004-10-05 13:34:45.000000000 +0200
++++ b/drivers/media/video/dpc7146.c	2004-10-05 13:40:54.000000000 +0200
+@@ -123,6 +123,7 @@
+ 	/* check if all devices are present */
+ 	if( 0 == dpc->saa7111a ) {
+ 		DEB_D(("dpc_v4l2.o: dpc_attach failed for this device.\n"));	
++		i2c_del_adapter(&dpc->i2c_adapter);
+ 		kfree(dpc);
+ 		return -ENODEV;
+ 	}
 
-<airlied@starflyer.(none)> (04/10/05 1.2051)
-   drm: Stop i830 and i915 both being build at same time
-
-   Roman Zippel submitted this to lk but I missed it, it does
-   what I tried to do badly before.
-
-   Signed-off-by: Dave Airlie <airlied@linux.ie>
-
-diff -Nru a/drivers/char/drm/Kconfig b/drivers/char/drm/Kconfig
---- a/drivers/char/drm/Kconfig	2004-10-05 19:30:37 +10:00
-+++ b/drivers/char/drm/Kconfig	2004-10-05 19:30:37 +10:00
-@@ -55,9 +55,13 @@
- 	  selected, the module will be called i810.  AGP support is required
- 	  for this driver to work.
-
--config DRM_I830
--	tristate "Intel 830M, 845G, 852GM, 855GM, 865G"
-+choice
-+	prompt "Intel 830M, 845G, 852GM, 855GM, 865G"
- 	depends on DRM && AGP && AGP_INTEL
-+	optional
-+
-+config DRM_I830
-+	tristate "i830 driver"
- 	help
- 	  Choose this option if you have a system that has Intel 830M, 845G,
- 	  852GM, 855GM or 865G integrated graphics.  If M is selected, the
-@@ -65,8 +69,7 @@
- 	  to work. This driver will eventually be replaced by the i915 one.
-
- config DRM_I915
--	tristate "Intel 830M, 845G, 852GM, 855GM, 865G, 915G"
--	depends on DRM && AGP && AGP_INTEL
-+	tristate "i915 driver"
- 	help
- 	  Choose this option if you have a system that has Intel 830M, 845G,
- 	  852GM, 855GM 865G or 915G integrated graphics.  If M is selected, the
-@@ -74,6 +77,7 @@
- 	  to work. This driver will eventually replace the I830 driver, when
- 	  later release of X start to use the new DDX and DRI.
-
-+endchoice
-
- config DRM_MGA
- 	tristate "Matrox g200/g400"
+--------------020300090409060907040406--

@@ -1,37 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id <S129219AbQKXFR0>; Fri, 24 Nov 2000 00:17:26 -0500
+        id <S129632AbQKXF3N>; Fri, 24 Nov 2000 00:29:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-        id <S129632AbQKXFRR>; Fri, 24 Nov 2000 00:17:17 -0500
-Received: from leibniz.math.psu.edu ([146.186.130.2]:24044 "EHLO math.psu.edu")
-        by vger.kernel.org with ESMTP id <S129219AbQKXFRH>;
-        Fri, 24 Nov 2000 00:17:07 -0500
-Date: Thu, 23 Nov 2000 23:47:04 -0500 (EST)
-From: Alexander Viro <viro@math.psu.edu>
-To: Gregory Maxwell <greg@linuxpower.cx>
-cc: Andries.Brouwer@cwi.nl, alan@lxorguk.ukuu.org.uk, bernds@redhat.com,
-        linux-kernel@vger.kernel.org, torvalds@transmeta.com
-Subject: Re: gcc 2.95.2 is buggy
-In-Reply-To: <20001123233454.B27831@xi.linuxpower.cx>
-Message-ID: <Pine.GSO.4.21.0011232344580.12702-100000@weyl.math.psu.edu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+        id <S131682AbQKXF2y>; Fri, 24 Nov 2000 00:28:54 -0500
+Received: from vp175103.reshsg.uci.edu ([128.195.175.103]:57353 "EHLO
+        moisil.dev.hydraweb.com") by vger.kernel.org with ESMTP
+        id <S129632AbQKXF2v>; Fri, 24 Nov 2000 00:28:51 -0500
+Date: Thu, 23 Nov 2000 20:58:39 -0800
+Message-Id: <200011240458.eAO4wdf20288@moisil.dev.hydraweb.com>
+From: Ion Badulescu <ionut@moisil.cs.columbia.edu>
+To: Guest section DW <dwguest@win.tue.nl>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: ext2 filesystem corruptions back from dead? 2.4.0-test11
+In-Reply-To: <20001123135252.A4149@win.tue.nl>
+User-Agent: tin/1.4.4-20000803 ("Vet for the Insane") (UNIX) (Linux/2.2.18pre21 (i586))
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-On Thu, 23 Nov 2000, Gregory Maxwell wrote:
-
-> On Fri, Nov 24, 2000 at 02:57:45AM +0100, Andries.Brouwer@cwi.nl wrote:
-> > but in the meantime there is good confirmation.
-> > This really is a bug in gcc 2.95.2.
+On Thu, 23 Nov 2000 13:52:52 +0100, Guest section DW <dwguest@win.tue.nl> wrote:
+> On Thu, Nov 23, 2000 at 05:03:00PM +1100, Neil Brown wrote:
 > 
-> ... RedHat's GCC snapshot "2.96" handles this case just fine. 
+>> Oh, good.  It's not just me and Tigran then.
+> 
+> You have it all backwards. It would be good if it were
+> just you and Tigran. Unfortunately it also hits me.
+> 
+> (I am reorganizing my disks, copying large trees from
+> one place to the other. Always doing a diff -r between
+> old and new before removing the old version.
+> Yesterday I had a diff -r showing that the old version
+> was corrupted and the new was OK. Of course a second
+> look showed that the old version also was OK, the corruption
+> must have been in the buffer cache, not on disk.)
 
-Now, if you can isolate the relevant part of the diff between 2.95.2 and
-RH 2.96...
+Are these disks IDE disks by any chance?
 
+Ion
+
+-- 
+  It is better to keep your mouth shut and be thought a fool,
+            than to open it and remove all doubt.
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

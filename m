@@ -1,44 +1,66 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S274062AbRJFLfp>; Sat, 6 Oct 2001 07:35:45 -0400
+	id <S274162AbRJFMUQ>; Sat, 6 Oct 2001 08:20:16 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S273723AbRJFLfg>; Sat, 6 Oct 2001 07:35:36 -0400
-Received: from mailhst2.its.tudelft.nl ([130.161.34.250]:34823 "EHLO
-	mailhst2.its.tudelft.nl") by vger.kernel.org with ESMTP
-	id <S274062AbRJFLfX>; Sat, 6 Oct 2001 07:35:23 -0400
-Date: Sat, 6 Oct 2001 13:35:38 +0200
-From: Erik Mouw <J.A.K.Mouw@ITS.TUDelft.NL>
-To: Russell King <rmk@arm.linux.org.uk>
-Cc: "Adam J. Richter" <adam@yggdrasil.com>, jamey.hicks@compaq.com,
-        linux-kernel@vger.kernel.org
-Subject: Re: linux-2.4.11-pre4/drivers/mtd/bootldr.c does not compile
-Message-ID: <20011006133538.C12624@arthur.ubicom.tudelft.nl>
-In-Reply-To: <200110052048.NAA19993@baldur.yggdrasil.com> <20011005231732.B19985@flint.arm.linux.org.uk> <20011006120015.A12624@arthur.ubicom.tudelft.nl> <20011006111829.D23628@flint.arm.linux.org.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20011006111829.D23628@flint.arm.linux.org.uk>; from rmk@arm.linux.org.uk on Sat, Oct 06, 2001 at 11:18:29AM +0100
-Organization: Eric Conspiracy Secret Labs
-X-Eric-Conspiracy: There is no conspiracy!
+	id <S275122AbRJFMUG>; Sat, 6 Oct 2001 08:20:06 -0400
+Received: from sphinx.mythic-beasts.com ([195.82.107.246]:57101 "EHLO
+	sphinx.mythic-beasts.com") by vger.kernel.org with ESMTP
+	id <S274162AbRJFMTx>; Sat, 6 Oct 2001 08:19:53 -0400
+Date: Sat, 6 Oct 2001 13:20:23 +0100 (BST)
+From: <chris@scary.beasts.org>
+X-X-Sender: <cevans@sphinx.mythic-beasts.com>
+To: <linux-kernel@vger.kernel.org>
+Subject: VM: 2.4.10ac4 vs. 2.4.11pre2
+Message-ID: <Pine.LNX.4.33.0110061252450.17262-100000@sphinx.mythic-beasts.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Oct 06, 2001 at 11:18:29AM +0100, Russell King wrote:
-> On Sat, Oct 06, 2001 at 12:00:15PM +0200, Erik Mouw wrote:
-> > Did you ever get a motivation on why they want to pass it from the boot
-> > loader? It sounds like a particularly bad idea to me.
-> 
-> See Jamey Hicks mail on linux-arm-kernel of the 24th September.
 
-Hmm, I missed that one. I'll followup on linux-arm-kernel.
+Hi,
+
+Here are some test results. Results are averaged over multiple runs.
+Comments and conclusions below.
+
+                     2.4.11pre2        2.4.10ac4
+dbench 8             34Mbyte/sec       40Mbyte/sec
+dbench 32            7.7Mbyte/sec      14Mbyte/sec
+bonnie++ write       17.5Mbyte/sec     18Mbyte/sec
+bonnie++ rewrite     5.6Mbyte/sec      5.8Mbyte/sec
+bonnie++ read        24Mbyte/sec       24.5Mbyte/sec
+kernel stress build  212min24s         229m54s
+linear swap test     1m30s             2m15s
+bonnie++ creat()     7200              9600  [*]
+bonnie++ stat()      2100              9000  [*]
+bonnie++ unlink()    5300              30000 [*]
+
+[*] either the ext2 directory optimization in 2.4.10ac is influencing the
+test, or 2.4.11pre2 VM has a problem caching inodes.
+
+Comments + conclusions
+----------------------
+
+- The 2.4.11pre2 VM is considerably more stable, where "stable" is defined
+as repeatable test scores and consistent performance. The 2.4.10ac4 VM is
+all over the place.
+
+- Both kernels exhibit similar interactive response under load.
+
+- The 2.4.11pre2 VM performs substantially better in tests which invoke
+swapping.
+
+- Surprisingly, the 2.4.10ac4 kernel does much much better at dbench. The
+2.4.11pre2 performance is alleged to have regressed since 2.4.10pre10?
+
+- I have not tried 2.4.11pre4, but the report of streaming i/o causing
+swapping is concerning.
 
 
-Erik
+Note that the above results were generated using a very simple (and
+extensible) script. VM developers would do well to spend the 30 seconds
+writing a similar script, and post results along with proposed VM patches.
 
--- 
-J.A.K. (Erik) Mouw, Information and Communication Theory Group, Department
-of Electrical Engineering, Faculty of Information Technology and Systems,
-Delft University of Technology, PO BOX 5031,  2600 GA Delft, The Netherlands
-Phone: +31-15-2783635  Fax: +31-15-2781843  Email: J.A.K.Mouw@its.tudelft.nl
-WWW: http://www-ict.its.tudelft.nl/~erik/
+Cheers
+Chris
+

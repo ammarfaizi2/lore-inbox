@@ -1,50 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282102AbRKWJ6h>; Fri, 23 Nov 2001 04:58:37 -0500
+	id <S282098AbRKWKAr>; Fri, 23 Nov 2001 05:00:47 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282101AbRKWJ6R>; Fri, 23 Nov 2001 04:58:17 -0500
-Received: from ppp-RAS1-1-103.dialup.eol.ca ([64.56.224.103]:23559 "EHLO
-	node0.opengeometry.ca") by vger.kernel.org with ESMTP
-	id <S282098AbRKWJ6M>; Fri, 23 Nov 2001 04:58:12 -0500
-Date: Fri, 23 Nov 2001 04:56:58 -0500
-From: William Park <opengeometry@yahoo.ca>
-To: =?euc-kr?Q?Christian_Borntr=E4ger?= <linux-kernel@borntraeger.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: PC-133 RAM + VIA 686B -> 4 x DIMM or 3 x DIMM ?
-Message-ID: <20011123045658.A3170@node0.opengeometry.ca>
-Mail-Followup-To: =?euc-kr?Q?Christian_Borntr=E4ger?= <linux-kernel@borntraeger.net>,
-	linux-kernel@vger.kernel.org
-In-Reply-To: <20011123043303.A3043@node0.opengeometry.ca> <E167CsI-0004Xg-00@mrvdom03.schlund.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=euc-kr
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <E167CsI-0004Xg-00@mrvdom03.schlund.de>; from linux-kernel@borntraeger.net on Fri, Nov 23, 2001 at 10:43:20AM +0100
+	id <S282112AbRKWKAh>; Fri, 23 Nov 2001 05:00:37 -0500
+Received: from mailrelay1.lrz-muenchen.de ([129.187.254.101]:58766 "EHLO
+	mailrelay1.lrz-muenchen.de") by vger.kernel.org with ESMTP
+	id <S282098AbRKWKA1>; Fri, 23 Nov 2001 05:00:27 -0500
+Date: Fri, 23 Nov 2001 11:00:17 +0100 (MET)
+From: <Oliver.Neukum@lrz.uni-muenchen.de>
+X-X-Sender: <ui222bq@sun3.lrz-muenchen.de>
+To: Rik van Riel <riel@conectiva.com.br>
+cc: Jochen Striepe <jochen@tolot.escape.de>, rpjday <rpjday@mindspring.com>,
+        <linux-kernel@vger.kernel.org>
+Subject: Re: is 2.4.15 really available at www.kernel.org?
+In-Reply-To: <Pine.LNX.4.33L.0111230747410.4079-100000@imladris.surriel.com>
+Message-Id: <Pine.SOL.4.33.0111231059320.7403-100000@sun3.lrz-muenchen.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Nov 23, 2001 at 10:43:20AM +0100, Christian Bornträger wrote:
-> > I'm confused by conflicting rumors about VIA 686B chipset:
-> >     - some people can get only 3 x DIMM working at PC-133.
-> >     - others report that all 4 x DIMM are working at PC-133.
-> 
-> First of all: 
-> This is offtopic for the ___linux kernel___ mailing list.
+On Fri, 23 Nov 2001, Rik van Riel wrote:
 
-I tried *.abit, *.asus, *.tyan, *.linux.hardware newsgroups, but got
-nowhere.  This was my last resort.
+> On Fri, 23 Nov 2001, Jochen Striepe wrote:
+>
+> > I am *much* more irritated by:
+> >
+> > $ uname -r
+> > 2.4.15-greased-turkey
+>
+> Would you really have preferred 2.4.15-sitting-duck  ?
 
-> 
-> Nevertheless:
-> VIA686B is the southbridge and has no memory controller.
-> The VIA694X-northbridge has 6 memory banks.
-> 
-> if the 3rd and 4th module are single sided its ok. 
-> If the 3rd module is double sided you cannot plugin a 4th module.
+speedful-penguin ?
 
-Thanks!
+	Regards
+		Oliver
 
--- 
-William Park, Open Geometry Consulting, <opengeometry@yahoo.ca>.
-8 CPU cluster, NAS, (Slackware) Linux, Python, LaTeX, Vim, Mutt, Tin
+

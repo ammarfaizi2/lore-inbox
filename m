@@ -1,42 +1,31 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271496AbTGQP1y (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Jul 2003 11:27:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271497AbTGQP1y
+	id S271494AbTGQPfG (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Jul 2003 11:35:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271500AbTGQPfG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Jul 2003 11:27:54 -0400
-Received: from genius.impure.org.uk ([195.82.120.210]:2230 "EHLO
-	genius.impure.org.uk") by vger.kernel.org with ESMTP
-	id S271496AbTGQP1u (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Jul 2003 11:27:50 -0400
-Date: Thu, 17 Jul 2003 16:42:12 +0100
-From: Dave Jones <davej@codemonkey.org.uk>
-To: Andrea Arcangeli <andrea@suse.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.4.22pre6aa1
-Message-ID: <20030717154211.GA4280@suse.de>
-Mail-Followup-To: Dave Jones <davej@codemonkey.org.uk>,
-	Andrea Arcangeli <andrea@suse.de>, linux-kernel@vger.kernel.org
-References: <20030717102857.GA1855@dualathlon.random>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030717102857.GA1855@dualathlon.random>
-User-Agent: Mutt/1.5.4i
+	Thu, 17 Jul 2003 11:35:06 -0400
+Received: from 81-2-122-30.bradfords.org.uk ([81.2.122.30]:133 "EHLO
+	81-2-122-30.bradfords.org.uk") by vger.kernel.org with ESMTP
+	id S271494AbTGQPfE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 17 Jul 2003 11:35:04 -0400
+Date: Thu, 17 Jul 2003 16:58:57 +0100
+From: John Bradford <john@grabjohn.com>
+Message-Id: <200307171558.h6HFwvju003135@81-2-122-30.bradfords.org.uk>
+To: geert@linux-m68k.org, torvalds@osdl.org
+Subject: Re: Fix IDE initialization when we don't probe for interrupts.
+Cc: alan@lxorguk.ukuu.org.uk, B.Zolnierkiewicz@elka.pw.edu.pl,
+       jgarzik@pobox.com, linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jul 17, 2003 at 12:28:57PM +0200, Andrea Arcangeli wrote:
+> Another trick is the `IDE doubler' for Amiga (but I guess you can make it work
+> on any IDE interface): with a few diodes you can map the second bank of 8 IDE
+> registers to a second IDE chain, doubling the number of devices you can
+> attach.
 
- > Only in 2.4.21rc8aa1: 00_cpufreq-1
- > 
- > 	Dropped (would better go in mainline than in -aa
+Does Linux actually support that, (on any architecture)?
 
-Proposed for 2.4.23. Marcelo doesn't seem to have any objections.
+I was just imagining a RAID array on laptops which only have one IDE controller...
 
- > I already tried it and it doesn't do what I need
-
-You know where to report bugs...
-
-		Dave
-
+John.

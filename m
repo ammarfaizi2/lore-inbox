@@ -1,49 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264755AbSK0USu>; Wed, 27 Nov 2002 15:18:50 -0500
+	id <S264743AbSK0URr>; Wed, 27 Nov 2002 15:17:47 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264749AbSK0USu>; Wed, 27 Nov 2002 15:18:50 -0500
-Received: from pat.uio.no ([129.240.130.16]:51087 "EHLO pat.uio.no")
-	by vger.kernel.org with ESMTP id <S264755AbSK0USa>;
-	Wed, 27 Nov 2002 15:18:30 -0500
+	id <S264745AbSK0URr>; Wed, 27 Nov 2002 15:17:47 -0500
+Received: from pop.infolink.com.br ([200.187.64.7]:57864 "EHLO
+	www3.infolink.com.br") by vger.kernel.org with ESMTP
+	id <S264743AbSK0URq>; Wed, 27 Nov 2002 15:17:46 -0500
+Message-ID: <B0058086469@www3.infolink.com.br>
+From: "Universo Online" <uol@uol.com.br>
+To: linux-kernel@vger.kernel.org
+Subject: Assine UOL!
+Reply-To: "Universo Online" <uol@uol.com.br>
+Date: 27 Nov 2002 17:24:40 -0300
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <15845.10815.450247.316196@charged.uio.no>
-Date: Wed, 27 Nov 2002 21:25:35 +0100
-To: "Stephen C. Tweedie" <sct@redhat.com>
-Cc: Jeremy Fitzhardinge <jeremy@goop.org>,
-       Ext2 devel <ext2-devel@lists.sourceforge.net>,
-       NFS maillist <nfs@lists.sourceforge.net>,
-       Linux Kernel List <linux-kernel@vger.kernel.org>
-Subject: Re: [Ext2-devel] Re: [NFS] htree+NFS (NFS client bug?)
-In-Reply-To: <20021127150053.A2948@redhat.com>
-References: <1038354285.1302.144.camel@sherkaner.pao.digeo.com>
-	<shsptsrd761.fsf@charged.uio.no>
-	<1038387522.31021.188.camel@ixodes.goop.org>
-	<20021127150053.A2948@redhat.com>
-X-Mailer: VM 7.00 under 21.4 (patch 6) "Common Lisp" XEmacs Lucid
-Reply-To: trond.myklebust@fys.uio.no
-From: Trond Myklebust <trond.myklebust@fys.uio.no>
+Content-Type: text/plain
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> " " == Stephen C Tweedie <sct@redhat.com> writes:
+Assine UOL!
 
-     > So I suspect that this is a root a client problem --- the
-     > client has repeated a READDIR despite being told that the
-     > previous reply was EOF
+Assine já o maior provedor da América Latina!
 
-I disagree. As far as the client is concerned, it has just been asked
-to read the entry that corresponds to that particular cookie.  If
-glibc issued a new readdir request (which is what I suspect has
-happened here), the NFS client has no idea what the previous reply
-was, or even where it was positioned within the page cache (the latter
-may have been cleared). All it can do is look up the cookie afresh and
-start reading from there.
+O UOL têm planos super acessíveis para você e toda
+a sua família, a preços imbatíveis!
 
-IOW: A cookie should *always* be unique. There are no exceptions to
-this rule.
+Sem dúvida o melhor presente de natal que você
+podia esperar.
 
-Cheers,
-  Trond
+Assine já!
+
+http://gasset.uol.com.br/pl_cad/deonde?cod_promo=0DM&origem_assinatura=Z
+
+PS: Clicando agora neste link você pode experimentar
+o UOL por um mês SEM PAGAR NADA!!!
+
+http://gasset.uol.com.br/pl_cad/deonde?cod_promo=0DM&origem_assinatura=Z
+
+--------------------------------------------------------
+Isso não é SPAM. Você está recebendo essa mensagem por
+ter se cadastrado em um ou mais Boletins do UOL.
+

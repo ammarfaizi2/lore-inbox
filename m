@@ -1,44 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262539AbVAPQY6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262538AbVAPQ2u@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262539AbVAPQY6 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 16 Jan 2005 11:24:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262538AbVAPQY6
+	id S262538AbVAPQ2u (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 16 Jan 2005 11:28:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262541AbVAPQ2u
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 16 Jan 2005 11:24:58 -0500
-Received: from mail-in-05.arcor-online.net ([151.189.21.45]:49298 "EHLO
-	mail-in-05.arcor-online.net") by vger.kernel.org with ESMTP
-	id S262540AbVAPQXb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 16 Jan 2005 11:23:31 -0500
-From: Bodo Eggert <7eggert@gmx.de>
-Subject: Re: User space out of memory approach
-To: Edjard Souza Mota <edjard@gmail.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Ilias Biris <xyz.biris@gmail.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Reply-To: 7eggert@gmx.de
-Date: Sun, 16 Jan 2005 17:28:26 +0100
-References: <fa.lcmt90h.1j1scpn@ifi.uio.no> <fa.ht4gei4.1g5odia@ifi.uio.no>
-User-Agent: KNode/0.7.7
-MIME-Version: 1.0
+	Sun, 16 Jan 2005 11:28:50 -0500
+Received: from mail.mellanox.co.il ([194.90.237.34]:56737 "EHLO
+	mtlex01.yok.mtl.com") by vger.kernel.org with ESMTP id S262538AbVAPQ2A
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 16 Jan 2005 11:28:00 -0500
+Date: Sun, 16 Jan 2005 18:28:16 +0200
+From: "Michael S. Tsirkin" <mst@mellanox.co.il>
+To: linux-kernel@vger.kernel.org, kbuild-devel@lists.sourceforge.net
+Subject: Re: changing local version requires full rebuild
+Message-ID: <20050116162816.GA4715@mellanox.co.il>
+Reply-To: "Michael S. Tsirkin" <mst@mellanox.co.il>
+References: <20050116152242.GA4537@mellanox.co.il> <20050116161622.GC3090@mars.ravnborg.org>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7Bit
-Message-Id: <E1CqDGM-0000wi-00@be1.7eggert.dyndns.org>
+Content-Disposition: inline
+In-Reply-To: <20050116161622.GC3090@mars.ravnborg.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Edjard Souza Mota wrote:
+Hello!
+Quoting r. Sam Ravnborg (sam@ravnborg.org) "Re: changing local version requires full rebuild":
+> On Sun, Jan 16, 2005 at 05:22:42PM +0200, Michael S. Tsirkin wrote:
+> > Hi!
+> > Is it just me, or does changing the local version always require
+> > a full kernel rebuild?
+> > 
+> > If so, I'd like to fix it, since I like copying
+> > my kernel source with --preserve and changing the
+> > local version, then going back to the old version in case of
+> > a crash.
+> > Its important to change the local version to force 
+> > make install and make modules_install to put things in a separate
+> > directory.
+> 
+> Just tried it out here.
+> After cp -Ra only a limited part of the kernel rebuilds.
+> o oiu.c in ieee directory - because it dependson the shell script
+> o A number of drivers that include version.h
+> 	- This should be changed so local version does not affect
+> 	  the reast of version.h.
+> o Other stuff that is always build if kernel has changed
+> 
+> Do you use "echo -mylocalver > localversion" to change the local version?
+> 
+> 	Sam
 
-> What do you think about the point we are trying to make, i.e., moving the
-> ranking of PIDs to be killed to user space?
+No, I do makemenuconfig to edit the version. Is that right?
 
-If my system needs the OOM killer, it's usurally unresponsive to most
-userspace applications. A normal daemon would be swapped out before the
-runaway dhcpd grows larger than the web cache. It would have to be a mlocked
-RT task started from early userspace. It would be difficult to set up (unless
-you upgrade your distro), and almost nobody will feel like tweaking it to
-take the benefit (OOM == -ECANNOTHAPPEN).
-
-What about creating a linked list of (stackable) algorhithms which can be
-extended by loading modules and resorted using {proc,sys}fs? It will avoid
-the extra process, the extra CPU time (and task switches) to frequently
-update the list and I think it will decrease the typical amount of used
-memory, too.
+mst

@@ -1,32 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317840AbSFSKg0>; Wed, 19 Jun 2002 06:36:26 -0400
+	id <S317842AbSFSKho>; Wed, 19 Jun 2002 06:37:44 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317839AbSFSKgZ>; Wed, 19 Jun 2002 06:36:25 -0400
-Received: from h0002b3889ac1.ne.client2.attbi.com ([66.30.33.81]:2824 "HELO
-	DKESOVB3.ne.client2.attbi.com") by vger.kernel.org with SMTP
-	id <S317838AbSFSKgX>; Wed, 19 Jun 2002 06:36:23 -0400
-From: finesttools@netzero.net
-To: <>
-Subject: Make your windows disappear!
-Date: Wed, 19 Jun 2002 06:36:27 -0400
-X-Mailer: QUALCOMM Windows Eudora Pro Version 4.1
-Content-Type: text/plain; charset="us-ascii"
-X-Priority: 3
-X-MSMail-Priority: Normal
-Message-Id: <20020619103623Z317838-22020+7121@vger.kernel.org>
+	id <S317844AbSFSKhn>; Wed, 19 Jun 2002 06:37:43 -0400
+Received: from pc-62-31-66-56-ed.blueyonder.co.uk ([62.31.66.56]:31360 "EHLO
+	sisko.scot.redhat.com") by vger.kernel.org with ESMTP
+	id <S317842AbSFSKhl>; Wed, 19 Jun 2002 06:37:41 -0400
+Date: Wed, 19 Jun 2002 11:37:34 +0100
+From: "Stephen C. Tweedie" <sct@redhat.com>
+To: Alexander Viro <viro@math.psu.edu>
+Cc: "Stephen C. Tweedie" <sct@redhat.com>, DervishD <raul@pleyades.net>,
+       Linux-kernel <linux-kernel@vger.kernel.org>,
+       ext2-devel@lists.sourceforge.net
+Subject: Re: Shrinking ext3 directories
+Message-ID: <20020619113734.D2658@redhat.com>
+References: <20020618225005.A7897@redhat.com> <Pine.GSO.4.21.0206181812220.13571-100000@weyl.math.psu.edu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <Pine.GSO.4.21.0206181812220.13571-100000@weyl.math.psu.edu>; from viro@math.psu.edu on Tue, Jun 18, 2002 at 06:18:49PM -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Cleaning windows can be a hassle - getting them streak-free and perfectly clean can be 
-almost impossible without the right cleaner.
+Hi,
 
-If you would like to receive more information about how to make your home and automotive
-glass and mirrors so clean they become almost invisible, please REPLY to this email and
-enter "glass cleaner" in the SUBJECT line - make sure it's the SUBJECT line otherwise our
-system will not recognize your request!
+On Tue, Jun 18, 2002 at 06:18:49PM -0400, Alexander Viro wrote:
+ 
+> IOW, making sure that empty blocks in the end of directory get freed
+> is a matter of 10-20 lines.  If you want such patch - just tell, it's
+> half an hour of work...
 
-If you are not interested in these products please accept our apologies for this intrusion. To stop
-further emails from us, please reply to this email and enter "remove" in the subject line.
+It's certainly easier at the tail, but with htree we may have
+genuinely enormous directories and being able to hole-punch arbitrary
+coalesced blocks could be a huge win.  Also, doing the coalescing
+block by block is likely to be far easier for ext3 than truncating
+the directory arbitrarily back in one go.  
 
-Thank you.
+Chopping a large directory at once brings back the truncate()
+nightmare of having to make an unbounded disk operation seem atomic,
+even if it has to get split over multiple transactions.  Incremental
+coalescing should allow us to know in advance how many disk blocks we
+might end up touching for the operation, so we can guarantee to do it
+in one transaction.
+
+Cheers,
+ Stephen
+

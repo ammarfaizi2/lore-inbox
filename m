@@ -1,66 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266682AbTGKUWl (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 11 Jul 2003 16:22:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266683AbTGKUWl
+	id S266669AbTGKUVW (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 11 Jul 2003 16:21:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266665AbTGKUT3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 11 Jul 2003 16:22:41 -0400
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:45842 "EHLO
+	Fri, 11 Jul 2003 16:19:29 -0400
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:19986 "EHLO
 	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id S266682AbTGKUWB convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 11 Jul 2003 16:22:01 -0400
+	id S266620AbTGKUTJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 11 Jul 2003 16:19:09 -0400
 To: linux-kernel@vger.kernel.org
 From: "H. Peter Anvin" <hpa@zytor.com>
 Subject: Re: Style question: Should one check for NULL pointers?
-Date: 11 Jul 2003 13:36:25 -0700
+Date: 11 Jul 2003 13:33:18 -0700
 Organization: Transmeta Corporation, Santa Clara CA
-Message-ID: <ben749$mkp$1@cesium.transmeta.com>
-References: <Pine.LNX.4.44L0.0307101606060.22398-100000@netrider.rowland.org> <200307111932.h6BJWMr5004606@eeyore.valparaiso.cl>
+Message-ID: <ben6ue$mj9$1@cesium.transmeta.com>
+References: <Pine.LNX.4.44L0.0307102233230.12370-100000@netrider.rowland.org> <3F0EC9C9.4090307@inet.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Disclaimer: Not speaking for Transmeta in any way, shape, or form.
 Copyright: Copyright 2003 H. Peter Anvin - All Rights Reserved
-Content-Transfer-Encoding: 8BIT
-X-MIME-Autoconverted: from 8bit to quoted-printable by deepthought.transmeta.com id h6BKaRF22744
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Followup to:  <200307111932.h6BJWMr5004606@eeyore.valparaiso.cl>
-By author:    Horst von Brand <vonbrand@inf.utfsm.cl>
+Followup to:  <3F0EC9C9.4090307@inet.com>
+By author:    Eli Carter <eli.carter@inet.com>
 In newsgroup: linux.dev.kernel
->
-> Alan Stern <stern@rowland.harvard.edu> said:
+> > 
+> > Not really needed, since a segfault will produce almost as much 
+> > information as a BUG_ON().  Certainly it will produce enough to let a 
+> > developer know that the pointer was NULL.
 > 
-> [...]
+> Your first message said, "I see no reason for pure paranoia, 
+> particularly if it's not commented as such."  A BUG_ON() call makes it 
+> clear that the condition should never happen.  Dereferencing a NULL 
+> leaves the question of whether NULL is an unhandled case or invalid 
+> input.  BUG_ON() is an explicit paranoia check, and with a bit of 
+> preprocessing magic, you could compile out all of those checks.
 > 
-> > Suppose everything is working correctly and the pointer never is NULL.  
-> > Then it really doesn't matter whether you check or not;  the loss in code
-> > speed and size is completely negligible (except maybe deep in some inner
-> > loop).  But there is a loss in code clarity; when I see a check like that
-> > it makes me think, "What's that doing there?  Can that pointer ever be
-> > NULL, or is someone just being paranoid?"  Distractions of that sort don't
-> > help when trying to read code.
-> 
-> My personal paranoia when reading code goes the other way: How can I be
-> sure it won´t ever be NULL?  Maybe it can't be now (and to find that out an
-> hour grepping around goes by), but the very next patch introduces the
-> possibility.  Better have the function do an extra check, or make sure
-> somehow the assumption won't _ever_ be violated. But that is a large (huge,
-> even) cost, so...
+> So it documents invalid input conditions, allows you to eliminate the 
+> checks in the name of speed or your personal preference, or use them to 
+> help with debugging/testing.
 > 
 
-And you just shot yourself in the foot, majorly, because you tested
-for NULLness and then took the action you anticipated might have been
-appropriate, which really it wasn't, and you allowed a kernel with
-now-corrupt data structures to continue to run.
+... but it also bloats the code, in this case, in many ways
+needlessly.  You don't want to compile out all BUG_ON()'s, just the
+ones that wouldn't be checked for anyway.
 
-This is bad.  This is extrememly bad.  And your "forward thinking"
-*caused* it.
-
-A null pointer dereference in the kernel is fatal for a reason.  It
-indicates that there are interfaces that aren't consistent, and your
-data structures are now completely unreliable.
+In fact, have a macro that explicitly tests for nullness by
+dereferencing a pointer might be a good idea; on most architectures it
+will be a lot cheaper than BUG_ON() (which usually requires an
+explicit test), and the compiler at least has a prayer at optimizing
+it out.
 
 	-hpa
 -- 

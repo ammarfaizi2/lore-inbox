@@ -1,53 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130010AbQLLVpE>; Tue, 12 Dec 2000 16:45:04 -0500
+	id <S129385AbQLLVxQ>; Tue, 12 Dec 2000 16:53:16 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129965AbQLLVoy>; Tue, 12 Dec 2000 16:44:54 -0500
-Received: from zikova.cvut.cz ([147.32.235.100]:25362 "EHLO zikova.cvut.cz")
-	by vger.kernel.org with ESMTP id <S130076AbQLLVop>;
-	Tue, 12 Dec 2000 16:44:45 -0500
-From: "Petr Vandrovec" <VANDROVE@vc.cvut.cz>
-Organization: CC CTU Prague
-To: John Cavan <johncavan@home.com>
-Date: Tue, 12 Dec 2000 22:13:21 MET-1
-MIME-Version: 1.0
-Content-type: text/plain; charset=US-ASCII
-Content-transfer-encoding: 7BIT
+	id <S129450AbQLLVxH>; Tue, 12 Dec 2000 16:53:07 -0500
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:45575 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S129385AbQLLVwx>; Tue, 12 Dec 2000 16:52:53 -0500
 Subject: Re: 2.2.16 SMP: mtrr errors
-CC: " Paul C. Nendick" <pauly@enteract.com>, linux-kernel@vger.kernel.org
-X-mailer: Pegasus Mail v3.40
-Message-ID: <F7CD5C16569@vcnet.vc.cvut.cz>
+To: johncavan@home.com (John Cavan)
+Date: Tue, 12 Dec 2000 21:23:30 +0000 (GMT)
+Cc: VANDROVE@vc.cvut.cz (Petr Vandrovec),
+        pauly@enteract.com ( Paul C. Nendick), linux-kernel@vger.kernel.org
+In-Reply-To: <3A3693A8.E0BA83B7@home.com> from "John Cavan" at Dec 12, 2000 04:07:52 PM
+X-Mailer: ELM [version 2.5 PL1]
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E145wtZ-0001pn-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 12 Dec 00 at 16:07, John Cavan wrote:
-> Petr Vandrovec wrote:
-> > > kernel: mtrr: base(0xd4000000) is not aligned on a size(0x1800000) boundary
-> > > last message repeated 2 times
-> > 
-> > For some strange reason X thinks that you have 24MB of memory on the G450.
-> > You can either create 32MB write-combining region at 0xd4000000, or
-> > teach X that your device occupies 32MB and not 24 (you should do it anyway,
-> > region size can be only power of two)...
-> 
 > Petr, the Matrox card splits the memory between the two video screens
 > when running in a multi-head configuration and "pretends" that it is two
 > distinct cards. Thus, a 32 mb card will register an mtrr for 24mb and
 > for 8mb seperately when in this mode.
 
-That's wrong. They must first register MTRR and then split it to
-24+8, as they cannot register 24MB range. They can split it
-16+16, or (16+8)+8, but at cost of 1 (or 2) additional MTRR entries -
-and there is very limited number of possible MTRRs.
+That is a driver bug. The intel processors only support MTRR's on certain
+power boundaries/sizes. The fall through is intended. 
 
-Matroxfb also splits Matrox memory in 24:8, but it registers only one
-region in mtrr. Of course, in X, as mtrr registration is done by map
-videomemory, you must tell this function to not register mtrr...
+> to fall through, but is this correct? I've inserted a break at the end
+> of the Intel switch before and have not had problems, but I left it out
 
-                                            Best regards,
-                                                Petr Vandrovec
-                                                vandrove@vc.cvut.cz
-                                                
+Lucky
+
+> in the latest couple of kernels because of all the mtrr work being done,
+> waiting to see if there was resolution.
+
+The Matrox driver needs to register a single 32Mb MTRR
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

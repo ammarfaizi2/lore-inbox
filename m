@@ -1,84 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262626AbTCZXek>; Wed, 26 Mar 2003 18:34:40 -0500
+	id <S262652AbTCZXjs>; Wed, 26 Mar 2003 18:39:48 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262635AbTCZXek>; Wed, 26 Mar 2003 18:34:40 -0500
-Received: from [200.71.196.122] ([200.71.196.122]:42718 "EHLO rp")
-	by vger.kernel.org with ESMTP id <S262626AbTCZXei> convert rfc822-to-8bit;
-	Wed, 26 Mar 2003 18:34:38 -0500
-Message-ID: <410-22003342702754850@rp>
-X-Priority: 1
-X-MSMail-Priority: High
-From: impresoras@chile.com
-To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: Servicio mantencion y reparacion de impresoras. Responsabilidad.
-Date: Wed, 26 Mar 2003 20:27:54 -0400
+	id <S262663AbTCZXjs>; Wed, 26 Mar 2003 18:39:48 -0500
+Received: from natsmtp01.webmailer.de ([192.67.198.81]:63427 "EHLO
+	post.webmailer.de") by vger.kernel.org with ESMTP
+	id <S262652AbTCZXjp>; Wed, 26 Mar 2003 18:39:45 -0500
+Message-Id: <200303262350.h2QNoqje015366@post.webmailer.de>
+From: Arnd Bergmann <arnd@bergmann-dalldorf.de>
+Subject: Re: [PATCH] s390 update (3/9): listing & kerntypes.
+To: Christoph Hellwig <hch@infradead.org>, linux-kernel@vger.kernel.org,
+       schwidefsky@de.ibm.com
+Date: Thu, 27 Mar 2003 00:20:07 +0100
+References: <20030326164014$3fac@gated-at.bofh.it> <20030326202006$09c8@gated-at.bofh.it>
+User-Agent: KNode/0.7.2
 MIME-Version: 1.0
-Content-type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7Bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Impresoras Chile.com
-CyberPro Computacion 
+Christoph Hellwig wrote:
 
-1.-  Servicio de mantencion y reparacion de Impresoras. 
-2.- Servicio de mantencion y reparacion de Computadores. 
+> On Wed, Mar 26, 2003 at 05:32:12PM +0100, Martin Schwidefsky wrote:
+>> 
+>> > No.  Either we add Kerntypes to the architecture-independent code (I'm
+>> all
+>> > for it!) or not at all.  Cludging this into s390-specific code is a very,
+>> > very bad idea.
+AFAIK, s390 is the only architecture that has hardware support for taking
+system dumps without the lkcd patch. Since the lkcd patch does not
+appear to be going into mainline linux and most s390 users want the
+kerntypes anyway (every distributor includes them), arch/s390/boot
+seems to be the right place to put them.
 
-Responsabilidad.
+>> Well, even if the Kerntypes gets added to the architecture-independent code
+>> we still would need some special s390 includes to get all the types we need.
+> 
+> The patches from the lkcd folks don't seem to need additional includes.
+> Please argue with them instead of trying to push such changes through the
+> backdoor.
+You need to include the struct definition for every data type that you
+want lcrash to know about. E.g. if you want to analyse scsi structures
+in a crash dump, you have to include drivers/scsi/scsi.h.
+Most internal information about s390 devices is in structs defined
+in drivers/s390/cio/, so we need them as well.
 
-Atencion, linux-kernel@vger.kernel.org
+This is not an attempt to sneak the (mostly unrelated) lkcd patch in. If they
+ever get included, we can still do a merge of the kerntypes file, but until 
+then it is just a tiny architecture special file that everybody else can 
+ignore.
 
-Junto con saludarle.. deseamos presentarle nuestro servicio para su casa o empresa :
-Venta, Mantencion y reparacion de impresoras.
-(Santiago - Area Metropolitana)
-
-Cuando paga hoy por solo revision ?  actualmente : 1,5 UF mas iva como minimo
-
-Nuestro servicio
-Marcas como : Okidata - HP - Panasonic - Epson - Canon - Brother - Xerox - etc.
-
-Nuestros Valores :
-Matriz de Punto       $ 15.000.-
-Injeccion de Tinta     $ 15.000.-
-Impresora Laser       $ 15.000.-
-Impresora Termica    $ 15.000.-
-
-Vamos hasta usted. (consultar)
-Presupuesto, retiro y entrega a domicilio de impresoras. valor $ 5.000.-
-En caso de aceptar presupuesto.. solo se cobra valor mantencion o reparacion.
-
-Celular : 09 2899800
-Patricio Leon Soto
-Rut : 12.462.578-5
-Direccion : Varsovia 1207 - Maipu
-
-En nuestro caso contamos con el testimonio de garantia y calidad de servicio de los siguientes empresarios y ejecutivos de empresas e instituciones :
-Rose Maria Gie - Asociacion de Couriers de Chile
-Jorge Ortuzar Vasquez - Subgerente Programas y eventos Sofofa
-Sergio Sarmiento - Gerente Alucasa
-Francisco Maldonado - Gerente Corcin
-Roberto Fantuzzi - Presidente Asexma
-Mauricio Fry - Gerente Asexma
-Sergio Garcia - Gerente Plasfichile
-Claudio Perez - Gerente Comercial - Instituto Formacion Empresarial IFE
-Alicia Bobadilla - Facultad de Derecho Universidad de Chile
-Carlos Perez - Gerente Comercial Adexus Chile
-Carlos Valdes - Corredora de Propiedades Valdes
-Embalajes Coloso
-Francisco Bueno - Edelpa
-Ricardo Abdala - Envases PC
-Christian Schalpers - Avis Rentacar
-Max Parra - Gerente Comercial - Manufacturas de Cuero Matt Bags
-Jorge Maestre - Tubo Pack
-Cesar Giliberto - Vigamil
-Carlos Sepulveda - Veramonte
-Entre otros
-
-Nota :
-Si no desea recibir nuestra información , autoresponder este mail con el asunto REMOVER, para retirar de nuestras base.
-
-Bajo el decreto s.1618 titulo 3° aprobado por el 105 Congreso "Base de las Normativas Internacionales sobre SPAM, este E-MAIL no podrá ser considerado SPAM mientras incluya una forma de ser removido. Si Ud. no desea seguir recibiendo nuestra información, reenvíenos este mensaje colocando en el asunto: remover
-
-
-
+        Arnd <><

@@ -1,87 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266531AbUHaEfg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266547AbUHaEic@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266531AbUHaEfg (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 31 Aug 2004 00:35:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266543AbUHaEfg
+	id S266547AbUHaEic (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 31 Aug 2004 00:38:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266550AbUHaEic
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 31 Aug 2004 00:35:36 -0400
-Received: from TYO201.gate.nec.co.jp ([202.32.8.214]:11707 "EHLO
-	tyo201.gate.nec.co.jp") by vger.kernel.org with ESMTP
-	id S266531AbUHaEfd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 31 Aug 2004 00:35:33 -0400
-Message-ID: <00ee01c48f13$acb88160$f97d220a@linux.bs1.fc.nec.co.jp>
-From: "Kaigai Kohei" <kaigai@ak.jp.nec.com>
-To: <paulmck@us.ibm.com>, "Stephen Smalley" <sds@epoch.ncsc.mil>
-Cc: "SELinux-ML(Eng)" <selinux@tycho.nsa.gov>,
-       "Linux Kernel ML(Eng)" <linux-kernel@vger.kernel.org>,
-       "James Morris" <jmorris@redhat.com>
-References: <032901c486ba$a3478970$f97d220a@linux.bs1.fc.nec.co.jp> <1093014789.16585.186.camel@moss-spartans.epoch.ncsc.mil> <042b01c489ab$8a871ce0$f97d220a@linux.bs1.fc.nec.co.jp> <1093361844.1800.150.camel@moss-spartans.epoch.ncsc.mil> <024501c48a89$12d30b30$f97d220a@linux.bs1.fc.nec.co.jp> <1093449047.6743.186.camel@moss-spartans.epoch.ncsc.mil> <02b701c48b41$b6b05100$f97d220a@linux.bs1.fc.nec.co.jp> <1093526652.9280.104.camel@moss-spartans.epoch.ncsc.mil> <066f01c48e82$f4ec3530$f97d220a@linux.bs1.fc.nec.co.jp> <1093880119.5447.87.camel@moss-spartans.epoch.ncsc.mil> <20040830161328.GC1243@us.ibm.com>
-Subject: Re: [PATCH]SELinux performance improvement by RCU (Re: RCU issue with SELinux)
-Date: Tue, 31 Aug 2004 13:33:33 +0900
+	Tue, 31 Aug 2004 00:38:32 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:13805 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S266547AbUHaEi3
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 31 Aug 2004 00:38:29 -0400
+Message-ID: <413400B6.6040807@pobox.com>
+Date: Tue, 31 Aug 2004 00:38:14 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040803
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
+To: Linus Torvalds <torvalds@osdl.org>
+CC: Tom Vier <tmv@comcast.net>, linux-kernel@vger.kernel.org
+Subject: Re: silent semantic changes with reiser4
+References: <20040825163225.4441cfdd.akpm@osdl.org> <20040825233739.GP10907@legion.cup.hp.com> <20040825234629.GF2612@wiggy.net> <1093480940.2748.35.camel@entropy> <20040826044425.GL5414@waste.org> <1093496948.2748.69.camel@entropy> <20040826053200.GU31237@waste.org> <20040826075348.GT1284@nysv.org> <20040826163234.GA9047@delft.aura.cs.cmu.edu> <Pine.LNX.4.58.0408260936550.2304@ppc970.osdl.org> <20040831033950.GA32404@zero> <Pine.LNX.4.58.0408302055270.2295@ppc970.osdl.org>
+In-Reply-To: <Pine.LNX.4.58.0408302055270.2295@ppc970.osdl.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2800.1409
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1409
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Stephen, Paul, thanks for your comments.
-
-> > > The attached take-4 patches replace the avc_lock in security/selinux/avc.c
-> > > by the lock-less read access with RCU.
-> > 
-> > Thanks.  Was there a reason you didn't move the rcu_read_lock call after
-> > the avc_insert call per the suggestion of Paul McKenney, or was that
-> > just an oversight?  No need to send a new patch, just ack whether or not
-> > you meant to switch the order there.
+Linus Torvalds wrote:
 > 
-> One reason might be because I called it out in the text of my message,
-> but failed to put it in my patch.  :-/  Of course, if there is some reason
-> why moving the rcu_read_lock() call is bad, I would like to know for
-> my own education.
+> On Mon, 30 Aug 2004, Tom Vier wrote:
+> 
+> 
+>>On Thu, Aug 26, 2004 at 09:48:04AM -0700, Linus Torvalds wrote:
+>>
+>>> - safely synchronize globally visible data structures
+>>>That's quite fundamental. 99% of what a kernel does is exactly that. TCP
+>>>would be in user space too, if it wasn't for _exactly_ this issue. A lot
+>>
+>>What about microkernels? They do tcp in userspace.
+> 
+> 
+> No they don't. They do TCP in a separate address space from user space, 
+> that just also happens to be separate from the "microkernel address 
+> space".
+> 
+> So a microkernel will have _more_ address spaces, and they won't be "user
+> space". They'll be "server deamon space" or something. Now, that's also
+> why they tend to have performance problems - because you need to copy the
+> data between different address spaces, and switch the CPU context etc
+> around.
 
-In my understanding, the issue is the Paul's suggestion as follows:
 
-> So I do not believe that avc_insert() needs rcu_read_lock().
-> Unless I am missing something, the rcu_read_lock() acquired
-> in avc_has_perm_noaudit() should be moved after the call to
-> avc_insert().
+Man, this thread came a long way.  I peek in and see a pet topic...
 
-I don't move the rcu_read_lock() because of the possibility of preemption
-between the spin_unlock_irqrestore() in avc_insert() and the rcu_read_lock()
-which may be inserted after avc_insert() in avc_has_perm_noaudit().
 
-When it's returning from avc_insert(), we can't ignore the possibility
-that execution is preempted in this timing.
-Therefore, I didn't move rcu_read_lock() in spite of its redundancy.
+_My_ own definition of microkernel, which differs from traditional CS, 
+is where I would love to see Linux go:  move as much as humanly possible 
+to userspace, such that, the kernel only contains pagecache operations, 
+driver fast paths, and security checks.  Move slow paths, including ACPI 
+probing, PCI bus walking, driver init/reset paths, some of the ioctl 
+handling, to userspace.  Be willing to accept extra context switches as 
+a cost in all but the fast paths.
 
-If rcu_read_lock() was moved after avc_insert()
-[ in avc_insert() ]----------------------------
-                :
-        spin_lock_irqsave(&avc_cache.slots_lock[hvalue], flag);
-        list_for_each_entry(pos, &avc_cache.slots[hvalue], list) {
-                :
-        }
-        list_add_rcu(&node->list, &avc_cache.slots[hvalue]);
-found:
-        spin_unlock_irqrestore(&avc_cache.slots_lock[hvalue], flag);  ---------
-        //  +--> including preempt_enable()                               |
-                It has the danger of releasing the 'node'.                V
-    }                                                                preemption
-out:                                                                     is
-    return node;                                                       possible
-}
------------------------------------------------
-Because it's legal to hold the rcu_read_lock() twice as Paul says,
-we should do it for safety.
-It's the reason that I didn't move rcu_read_lock() at this point,
-and it might be lack of my explanation, sorry.
+What you have left after you move all the slow paths to userspace is my 
+version of a microkernel.  The kernel is still monolithic and a single 
+address space, but a lot smaller.
 
-Thanks.
---------
-Kai Gai <kaigai@ak.jp.nec.com>
+Now this (a) is likely just a pipe dream and (b) will increase 
+complexity because each driver will _require_ a userspace component, but 
+hey... you gotta have goals in life.
+
+	Jeff
+
 

@@ -1,47 +1,79 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262328AbTKRKgo (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 18 Nov 2003 05:36:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262337AbTKRKgo
+	id S262529AbTKRKxb (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 18 Nov 2003 05:53:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262546AbTKRKxa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 18 Nov 2003 05:36:44 -0500
-Received: from events-for-love.de ([217.160.111.84]:42438 "EHLO it-people.org")
-	by vger.kernel.org with ESMTP id S262328AbTKRKgn (ORCPT
+	Tue, 18 Nov 2003 05:53:30 -0500
+Received: from ozlabs.org ([203.10.76.45]:58530 "EHLO ozlabs.org")
+	by vger.kernel.org with ESMTP id S262529AbTKRKx3 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 18 Nov 2003 05:36:43 -0500
-From: Eckhard Jokisch <e.jokisch@u-code.de>
-Reply-To: e.jokisch@u-code.de
-To: linux-kernel@vger.kernel.org
-Subject: Hard lockup with reiserfs in 2.4.22 an2.4.20
-Date: Tue, 18 Nov 2003 11:37:10 +0100
-User-Agent: KMail/1.5.4
+	Tue, 18 Nov 2003 05:53:29 -0500
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-15"
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200311181137.10908.e.jokisch@u-code.de>
+Message-ID: <16313.64022.203052.444584@cargo.ozlabs.ibm.com>
+Date: Tue, 18 Nov 2003 21:53:10 +1100
+From: Paul Mackerras <paulus@samba.org>
+To: torvalds@osdl.org
+Cc: anton@samba.org, linux-kernel@vger.kernel.org
+Subject: [PATCH] PPC64: Fix possible race in syscall restart
+X-Mailer: VM 7.17 under Emacs 21.3.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
-I'm not subscribed to the list - please CC me replies.
+Linus, please apply.
 
-I experienced hardl lockups and instant reboots with a possibly corrupted 
-reiserfs. I didn't find anything like this with goolge so I post it here.
+This is the PPC64 counterpart of the fix for the potential race in the
+syscall restart code that has gone into other architectures.  It resets
+current_thread_info()->restart_block.fn to do_no_syscall_restart in
+the sigreturn code.
 
-The lockup occures reproduceable when a specific user accesses a file in a 3.6 
-reiserfs partition. Even Magic-Sysreq seems to not work. 
-The instant reboot happens when I try to copy this users HOME to a different 
-location on a different filessystem. 
-I'm rather sure that the fs is damaged because I tried reiserfsck  and will 
-have to repair with --rebuild-tree.
+Thanks,
+Paul.
 
-Please let me know if this error is already known and where to find 
-information about it.
-
-If not I will keep the corrupted fs for testing and bugtracking.
-
-Greets
-Eckhard Jokisch
-
+diff -urN ppc64-linux-2.5/arch/ppc64/kernel/signal.c ppc64-2.5/arch/ppc64/kernel/signal.c
+--- ppc64-linux-2.5/arch/ppc64/kernel/signal.c	2003-10-22 21:59:05.000000000 +1000
++++ ppc64-2.5/arch/ppc64/kernel/signal.c	2003-11-17 08:52:15.000000000 +1100
+@@ -220,6 +220,9 @@
+ 	sigset_t set;
+ 	stack_t st;
+ 
++	/* Always make any pending restarted system calls return -EINTR */
++	current_thread_info()->restart_block.fn = do_no_restart_syscall;
++
+ 	if (verify_area(VERIFY_READ, uc, sizeof(*uc)))
+ 		goto badframe;
+ 
+@@ -354,8 +357,6 @@
+ {
+ 	switch ((int)regs->result) {
+ 	case -ERESTART_RESTARTBLOCK:
+-		current_thread_info()->restart_block.fn = do_no_restart_syscall;
+-		/* fallthrough */
+ 	case -ERESTARTNOHAND:
+ 		/* ERESTARTNOHAND means that the syscall should only be
+ 		 * restarted if there was no handler for the signal, and since
+diff -urN ppc64-linux-2.5/arch/ppc64/kernel/signal32.c ppc64-2.5/arch/ppc64/kernel/signal32.c
+--- ppc64-linux-2.5/arch/ppc64/kernel/signal32.c	2003-10-22 21:59:05.000000000 +1000
++++ ppc64-2.5/arch/ppc64/kernel/signal32.c	2003-11-17 08:54:29.000000000 +1100
+@@ -300,6 +300,9 @@
+ 	struct sigcontext32 *sc = (struct sigcontext32 *)(u64)newsp;
+ 	int i;
+ 
++	/* Always make any pending restarted system calls return -EINTR */
++	current_thread_info()->restart_block.fn = do_no_restart_syscall;
++
+ 	if (verify_area(VERIFY_WRITE, frame, sizeof(*frame)))
+ 		goto badframe;
+ 	if (regs->msr & MSR_FP)
+@@ -420,6 +423,9 @@
+ 	int i;
+ 	mm_segment_t old_fs;
+ 
++	/* Always make any pending restarted system calls return -EINTR */
++	current_thread_info()->restart_block.fn = do_no_restart_syscall;
++
+ 	/* Adjust the inputted reg1 to point to the first rt signal frame */
+ 	rt_sf = (struct rt_sigframe_32 *)(regs->gpr[1] + __SIGNAL_FRAMESIZE32);
+ 	/* Copy the information from the user stack  */

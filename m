@@ -1,146 +1,132 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262766AbTKWRRf (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 23 Nov 2003 12:17:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262770AbTKWRRf
+	id S263173AbTKWRYP (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 23 Nov 2003 12:24:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263387AbTKWRYP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 23 Nov 2003 12:17:35 -0500
-Received: from intra.cyclades.com ([64.186.161.6]:31390 "EHLO
-	intra.cyclades.com") by vger.kernel.org with ESMTP id S262766AbTKWRRb
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 23 Nov 2003 12:17:31 -0500
-Date: Sun, 23 Nov 2003 15:08:06 -0200 (BRST)
-From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-X-X-Sender: marcelo@logos.cnet
-To: Arkadiusz Miskiewicz <arekm@pld-linux.org>
-Cc: Alan Cox <alan@redhat.com>, Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
-       <linux-kernel@vger.kernel.org>
-Subject: Re: modular IDE in 2.4.23
-In-Reply-To: <200311231310.38793.arekm@pld-linux.org>
-Message-ID: <Pine.LNX.4.44.0311231502530.1292-100000@logos.cnet>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Sun, 23 Nov 2003 12:24:15 -0500
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:25594 "HELO
+	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
+	id S263173AbTKWRYD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 23 Nov 2003 12:24:03 -0500
+Date: Sun, 23 Nov 2003 18:23:56 +0100
+From: Adrian Bunk <bunk@fs.tum.de>
+To: David Brownell <david-b@pacbell.net>
+Cc: linux-kernel@vger.kernel.org, greg@kroah.com,
+       linux-usb-devel@lists.sourceforge.net
+Subject: [2.6 patch] improce USB Gadget Kconfig
+Message-ID: <20031123172356.GB16828@fs.tum.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+The patch below contains small changes to the USB Gadget Kconfig.
 
+The main change is that multiple modular peripheral controllers are no 
+longer allowed (currently only one is there, but this may change).
 
+cu
+Adrian
 
-On Sun, 23 Nov 2003, Arkadiusz Miskiewicz wrote:
-
-> On Sunday 23 of November 2003 01:54, Arkadiusz Miskiewicz wrote:
-> > Could you give more specific hints how to fix ,,other stuff''?
-> Did this in not the right way probably but it works fine for me (just modular 
-> ide tested):
-> 
-> http://cvs.pld-linux.org/cgi-bin/cvsweb/SOURCES/linux-2.4.23-modular-ide.patch?rev=1.9
-> 
-> [misiek@arm ~]$ lsmod | grep ide
-> ide-scsi                9904   0
-> scsi_mod               93888   2 [sg ide-scsi]
-> ide-cd                 30944   0
-> cdrom                  29248   0 [ide-cd]
-> ide-disk               16076  13
-> ide-core              104504  13 [ide-scsi ide-cd ide-disk pdc202xx_new 
-> via82cxxx]
-> 
-> Thanks for hint (now only cmd640 isse left for me).
-> 
-> > > Alan
-
-Arkadiusz, 
-
-I agree with you that modular IDE (I dont care that much about the 
-cmd640 really) should work on 2.4.23.
-
-I dont think the "ide-probe-mini" is required though. Just calling 
-the ide-probe.o init functions from IDE init should work right?
-
-Does the attached patch work for you (it moves ide-probe into ide-core, 
-as Alan mentioned) ? 
-
-diff -Naur -X /home/marcelo/lib/dontdiff linux-2.4.23-rc4/drivers/ide/Makefile linux-2.4.23-rc3/drivers/ide/Makefile
---- linux-2.4.23-rc4/drivers/ide/Makefile	2003-11-23 16:45:41.000000000 +0000
-+++ linux-2.4.23-rc3/drivers/ide/Makefile	2003-11-23 16:29:04.000000000 +0000
-@@ -9,7 +9,7 @@
+--- linux-2.6.0-test9-mm4/drivers/usb/gadget/Kconfig.old	2003-11-23 17:17:51.000000000 +0100
++++ linux-2.6.0-test9-mm4/drivers/usb/gadget/Kconfig	2003-11-23 17:52:24.000000000 +0100
+@@ -3,10 +3,9 @@
+ #    (a) a peripheral controller, and
+ #    (b) the gadget driver using it.
  #
+-# for 2.5 kbuild, drivers/usb/gadget/Kconfig
+ # source this at the end of drivers/usb/Kconfig
+ #
+-menuconfig USB_GADGET
++config USB_GADGET
+ 	tristate "Support for USB Gadgets"
+ 	depends on EXPERIMENTAL
+ 	help
+@@ -32,16 +31,24 @@
+ 	   If in doubt, say "N" and don't enable these drivers; most people
+ 	   don't have this kind of hardware (except maybe inside Linux PDAs).
  
- 
--export-objs := ide-iops.o ide-taskfile.o ide-proc.o ide.o ide-probe.o ide-dma.o ide-lib.o setup-pci.o ide-io.o ide-disk.o
-+export-objs := ide-iops.o ide-taskfile.o ide-proc.o ide.o ide-dma.o ide-lib.o setup-pci.o ide-io.o ide-disk.o ide-probe.o
- 
- all-subdirs	:= arm legacy pci ppc raid
- mod-subdirs	:= arm legacy pci ppc raid
-@@ -28,8 +28,8 @@
- 
- # Core IDE code - must come before legacy
- 
--ide-core-objs	:= ide-iops.o ide-taskfile.o ide.o ide-lib.o ide-io.o ide-default.o ide-proc.o
--ide-detect-objs	:= ide-probe.o ide-geometry.o
-+ide-core-objs	:= ide-iops.o ide-taskfile.o ide.o ide-lib.o ide-io.o ide-default.o ide-proc.o ide-probe.o
-+ide-detect-objs	:= ide-geometry.o 
- 
- 
- ifeq ($(CONFIG_BLK_DEV_IDEPCI),y)
-diff -Naur -X /home/marcelo/lib/dontdiff linux-2.4.23-rc4/drivers/ide/ide-probe.c linux-2.4.23-rc3/drivers/ide/ide-probe.c
---- linux-2.4.23-rc4/drivers/ide/ide-probe.c	2003-11-23 16:42:08.000000000 +0000
-+++ linux-2.4.23-rc3/drivers/ide/ide-probe.c	2003-11-23 16:27:53.000000000 +0000
-@@ -1416,7 +1416,7 @@
- #ifdef MODULE
- extern int (*ide_xlate_1024_hook)(kdev_t, int, int, const char *);
- 
--int init_module (void)
-+int ideprobe_init_module(void)
- {
- 	unsigned int index;
- 	
-@@ -1428,10 +1428,14 @@
- 	return 0;
- }
- 
--void cleanup_module (void)
-+void ideprobe_cleanup_module (void)
- {
- 	ide_probe = NULL;
- 	ide_xlate_1024_hook = 0;
- }
++menu "USB Gadget options"
++	depends on USB_GADGET!=n
 +
-+EXPORT_SYMBOL(ideprobe_init_module);
-+EXPORT_SYMBOL(ideprobe_cleanup_module);
- MODULE_LICENSE("GPL");
+ #
+ # USB Peripheral Controller Support
+ #
 +
- #endif /* MODULE */
-diff -Naur -X /home/marcelo/lib/dontdiff linux-2.4.23-rc4/drivers/ide/ide.c linux-2.4.23-rc3/drivers/ide/ide.c
---- linux-2.4.23-rc4/drivers/ide/ide.c	2003-11-23 16:46:51.000000000 +0000
-+++ linux-2.4.23-rc3/drivers/ide/ide.c	2003-11-23 16:50:39.000000000 +0000
-@@ -3059,6 +3059,7 @@
- 
- int init_module (void)
- {
-+	ideprobe_init_module();
- 	parse_options(options);
- 	return ide_init();
- }
-@@ -3080,6 +3081,7 @@
- 	proc_ide_destroy();
- #endif
- 	devfs_unregister (ide_devfs_handle);
-+	ideprobe_cleanup_module();
- }
- 
- #else /* !MODULE */
-diff -Naur -X /home/marcelo/lib/dontdiff linux-2.4.23-rc4/include/linux/ide.h linux-2.4.23-rc3/include/linux/ide.h
---- linux-2.4.23-rc4/include/linux/ide.h	2003-11-23 16:43:17.000000000 +0000
-+++ linux-2.4.23-rc3/include/linux/ide.h	2003-11-23 16:29:30.000000000 +0000
-@@ -1615,6 +1615,9 @@
- extern int idescsi_attach(ide_drive_t *);
- extern int idescsi_init(void);
- 
-+extern int ideprobe_init_module(void);
-+extern void ideprobe_cleanup_module(void);
++#
++# only one gadget controller driver, linked statically or as a module
++# (depending on whether USB_GADGET is y or m)
++#
 +
- extern void ide_scan_pcibus(int scan_direction) __init;
- extern int ide_pci_register_driver(struct pci_driver *driver);
- extern void ide_pci_unregister_driver(struct pci_driver *driver);
-
-
+ choice
+ 	prompt "USB Peripheral Controller Support"
+-	depends on USB_GADGET
+ 
+-config USB_NET2280
+-	tristate "NetChip 2280 USB Peripheral Controller"
+-	depends on PCI && USB_GADGET
++config USB_TMP_NET2280
++	bool "NetChip 2280 USB Peripheral Controller"
++	depends on PCI
+ 	help
+ 	   NetChip 2280 is a PCI based USB peripheral controller which
+ 	   supports both full and high speed USB 2.0 data transfers.  
+@@ -56,19 +63,28 @@
+ 
+ endchoice
+ 
++config USB_NET2280
++	tristate
++	default USB_TMP_NET2280 && USB_GADGET
++
++
+ #
+ # USB Gadget Drivers
+ #
++
++#
++# at most one gadget driver statically linked,
++# OR any number of gadget drivers, linked as modules
++#
++
+ choice
+ 	prompt "USB Gadget Drivers"
+ 	depends on USB_GADGET
+ 	default USB_ETH
+ 
+-# FIXME want a cleaner dependency/config approach for drivers.
+-
+ config USB_ZERO
+ 	tristate "Gadget Zero (DEVELOPMENT)"
+-	depends on USB_GADGET && (USB_DUMMY_HCD || USB_NET2280 || USB_PXA2XX || USB_SA1100)
++	depends on USB_DUMMY_HCD || USB_NET2280 || USB_PXA2XX || USB_SA1100
+ 	help
+ 	  Gadget Zero is a two-configuration device.  It either sinks and
+ 	  sources bulk data; or it loops back a configurable number of
+@@ -110,7 +126,7 @@
+ 
+ config USB_ETH
+ 	tristate "Ethernet Gadget"
+-	depends on USB_GADGET && NET && (USB_DUMMY_HCD || USB_NET2280 || USB_PXA2XX || USB_SA1100)
++	depends on NET && (USB_DUMMY_HCD || USB_NET2280 || USB_PXA2XX || USB_SA1100)
+ 	help
+ 	  This driver implements Ethernet style communication, in either
+ 	  of two ways:
+@@ -155,7 +171,7 @@
+ 
+ config USB_GADGETFS
+ 	tristate "Gadget Filesystem (EXPERIMENTAL)"
+-	depends on USB_GADGET && (USB_DUMMY_HCD || USB_NET2280 || USB_PXA2XX) && EXPERIMENTAL
++	depends on (USB_DUMMY_HCD || USB_NET2280 || USB_PXA2XX) && EXPERIMENTAL
+ 	help
+ 	  This driver provides a filesystem based API that lets user mode
+ 	  programs implement a single-configuration USB device, including
+@@ -179,4 +195,4 @@
+ 
+ endchoice
+ 
+-# endmenuconfig
++endmenu

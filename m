@@ -1,61 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261198AbVB1HlN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261201AbVB1HpA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261198AbVB1HlN (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 28 Feb 2005 02:41:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261201AbVB1HlN
+	id S261201AbVB1HpA (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 28 Feb 2005 02:45:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261215AbVB1HpA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 28 Feb 2005 02:41:13 -0500
-Received: from fire.osdl.org ([65.172.181.4]:23234 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S261198AbVB1HlF (ORCPT
+	Mon, 28 Feb 2005 02:45:00 -0500
+Received: from mail.kroah.org ([69.55.234.183]:1455 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S261201AbVB1Ho6 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 28 Feb 2005 02:41:05 -0500
-Date: Sun, 27 Feb 2005 23:39:43 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Guillaume Thouvenin <guillaume.thouvenin@bull.net>
-Cc: kaigai@ak.jp.nec.com, marcelo.tosatti@cyclades.com, davem@redhat.com,
-       jlan@sgi.com, lse-tech@lists.sourceforge.net,
-       linux-kernel@vger.kernel.org, netdev@oss.sgi.com,
-       elsa-devel@lists.sourceforge.net
-Subject: Re: [Lse-tech] Re: A common layer for Accounting packages
-Message-Id: <20050227233943.6cb89226.akpm@osdl.org>
-In-Reply-To: <1109575236.8549.14.camel@frecb000711.frec.bull.fr>
-References: <42168D9E.1010900@sgi.com>
-	<20050218171610.757ba9c9.akpm@osdl.org>
-	<421993A2.4020308@ak.jp.nec.com>
-	<421B955A.9060000@sgi.com>
-	<421C2B99.2040600@ak.jp.nec.com>
-	<421CEC38.7010008@sgi.com>
-	<421EB299.4010906@ak.jp.nec.com>
-	<20050224212839.7953167c.akpm@osdl.org>
-	<20050227094949.GA22439@logos.cnet>
-	<4221E548.4000008@ak.jp.nec.com>
-	<20050227140355.GA23055@logos.cnet>
-	<42227AEA.6050002@ak.jp.nec.com>
-	<1109575236.8549.14.camel@frecb000711.frec.bull.fr>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+	Mon, 28 Feb 2005 02:44:58 -0500
+Date: Sun, 27 Feb 2005 23:44:08 -0800
+From: Greg KH <greg@kroah.com>
+To: Eric Gaumer <gaumerel@ecs.fullerton.edu>
+Cc: Alexey Dobriyan <adobriyan@mail.ru>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] orinoco rfmon
+Message-ID: <20050228074407.GA25480@kroah.com>
+References: <4220BB87.2010806@ecs.fullerton.edu> <200502262259.30897.adobriyan@mail.ru> <4220FC1D.6010404@ecs.fullerton.edu>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <4220FC1D.6010404@ecs.fullerton.edu>
+User-Agent: Mutt/1.5.8i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Guillaume Thouvenin <guillaume.thouvenin@bull.net> wrote:
->
->    Ok the protocol is maybe too "basic" but with this mechanism the user
->  space application that uses the fork connector can start and stop the
->  send of messages. This implementation needs somme improvements because
->  currently, if two application are using the fork connector one can
->  enable it and the other don't know if it is enable or not, but the idea
->  is here I think.
+On Sat, Feb 26, 2005 at 02:45:49PM -0800, Eric Gaumer wrote:
+> What is the difference between u* and uint*_t ? Both are derived from the 
+> same basic data type.
+> 
+> typedef unsigned char __u8;
+> typedef         __u8            uint8_t;
+> 
+> And...
+> 
+> typedef unsigned char u8;
 
-Yes.  But this problem can be solved in userspace, with a little library
-function and a bit of locking.
+Don't use the uint*_t types, they are not correct.  See the lkml
+archives for why this is true.
 
-IOW: use the library to enable/disable the fork connector rather than
-directly doing syscalls.
+Use the u8 for when you are in the kernel, and __u8 when you need it for
+a variable that crosses the userspace/kernelspace barrier.
 
-It has the problem that if a client of that library crashes, the counter
-gets out of whack, but really, it's not all _that_ important, and to handle
-this properly in-kernel each client would need an open fd against some
-object so we can do the close-on-exit thing properly.  You'd need to create
-a separate netlink socket for the purpose.
+thanks,
+
+greg k-h

@@ -1,46 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261229AbTD1RmY (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 28 Apr 2003 13:42:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261231AbTD1RmY
+	id S261222AbTD1Rou (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 28 Apr 2003 13:44:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261225AbTD1Rou
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 28 Apr 2003 13:42:24 -0400
-Received: from dsl081-067-005.sfo1.dsl.speakeasy.net ([64.81.67.5]:10192 "EHLO
-	renegade") by vger.kernel.org with ESMTP id S261229AbTD1RmV (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 28 Apr 2003 13:42:21 -0400
-Date: Mon, 28 Apr 2003 10:54:23 -0700
-From: Zack Brown <zbrown@tumblerings.org>
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Cc: David Woodhouse <dwmw2@infradead.org>
-Subject: archives of bk commits mailing list
-Message-ID: <20030428175423.GJ24397@renegade>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.3i
+	Mon, 28 Apr 2003 13:44:50 -0400
+Received: from CPE-65-30-34-80.kc.rr.com ([65.30.34.80]:1922 "EHLO
+	cognition.home.hanaden.com") by vger.kernel.org with ESMTP
+	id S261222AbTD1Rot (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 28 Apr 2003 13:44:49 -0400
+Message-ID: <3EAD6B7C.4090108@hanaden.com>
+Date: Mon, 28 Apr 2003 12:57:16 -0500
+From: Hanasaki JiJi <hanasaki@hanaden.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4b) Gecko/20030426
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Linux - LIST <linux-kernel@vger.kernel.org>
+Subject: iptables NAT entry times out but connects from firewall
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi folks,
+There is a firewall with two NICs and the below rule to allow an 
+internal host to connect out to smtp servers on the internet.  Some 
+hosts have a connection timeout on a connect from $INTERNAL_IP_OF_SMTP 
+yet connect from the firewall just fine.
 
-Does anyone have mboxes for the two bk commits (head and 24) mailing lists,
-going back to the beginning? It would be great if you could make these
-available somewhere. I asked David, but he doesn't have them. He explained
-how to recreate them with BK, but I don't think I qualify for the free license.
+iptables -t nat -A POSTROUTING -p tcp -o $NIC_EXTERNAL \
+        --dport 25 -s $INTERNAL_IP_OF_SMTP -j MASQUERADE
 
-David told me
-> http://cvs.infradead.org/cgi-bin/cvsweb.cgi/bkexport/
-> 
-> Then with a current BK repository do something like
->
-> for a in 'bk changes -rv2.5.68.. -D:I:\ ` do  
->         echo From nobody@nowhere
->         mailcset.sh $a
-> done > mbox
+ex:
+on firewall:
+	telnet csoc-mail-msfc.csoconline.com 25
+	
+	above connects ok
 
-Be well,
-Zack
+on $INTERNAL_IP_OF_SMTP
+	telnet csoc-mail-msfc.csoconline.com 25
 
--- 
-Zack Brown
+	connection times out
+

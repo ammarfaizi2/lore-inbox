@@ -1,44 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261576AbVAMLGY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261591AbVAMLGW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261576AbVAMLGY (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 13 Jan 2005 06:06:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261599AbVAMLDm
+	id S261591AbVAMLGW (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 13 Jan 2005 06:06:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261586AbVAMLEQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 13 Jan 2005 06:03:42 -0500
-Received: from smartmx-02.inode.at ([213.229.60.34]:63654 "EHLO
-	smartmx-02.inode.at") by vger.kernel.org with ESMTP id S261576AbVAMKwd
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 13 Jan 2005 05:52:33 -0500
-Subject: Re: [fuse-devel] Merging?
-From: Bernhard Schauer <linux-kernel-list@acousta.at>
-Reply-To: schauer@acousta.at
-To: Miklos Szeredi <miklos@szeredi.hu>, lkml <linux-kernel@vger.kernel.org>
-In-Reply-To: <E1CoisR-0001Hi-00@dorka.pomaz.szeredi.hu>
-References: <loom.20041231T155940-548@post.gmane.org>
-	 <E1ClQi2-0004BO-00@dorka.pomaz.szeredi.hu>
-	 <E1CoisR-0001Hi-00@dorka.pomaz.szeredi.hu>
-Content-Type: text/plain
-Date: Thu, 13 Jan 2005 11:52:02 +0100
-Message-Id: <1105613522.6178.9.camel@FC3-bernhard-1.acousta.local>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.2 (2.0.2-3) 
+	Thu, 13 Jan 2005 06:04:16 -0500
+Received: from venus.vidconference.de ([212.227.158.183]:27087 "EHLO
+	baldur.vidconference.de") by vger.kernel.org with ESMTP
+	id S261591AbVAMK5p (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 13 Jan 2005 05:57:45 -0500
+Message-ID: <41E65427.1020808@vidsoft.de>
+Date: Thu, 13 Jan 2005 11:57:43 +0100
+From: Gregor Jasny <jasny@vidsoft.de>
+User-Agent: Mozilla Thunderbird 0.9 (X11/20041124)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+CC: alsa-devel@lists.sourceforge.net
+Subject: Re: [Alsa-devel] Linux 2.6.10 OOPS
+References: <41E63A75.1020107@vidsoft.de> <s5hzmzda9iu.wl@alsa2.suse.de>
+In-Reply-To: <s5hzmzda9iu.wl@alsa2.suse.de>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Well, there doesn't seem to be a great rush to include FUSE in the
-> kernel.  Maybe they just don't realize what they are missing out on ;)
+Takashi Iwai wrote:
+>>After removing an USB webcam with a built-in microphone (snd-usb-audio)
+>>the kernel oopsed and the PS/2 keyboard wasn't working anymore.
+> 
+> Yeah this is a known problem.  This seems to be introduced recently.
+> IIRC, it didn't happen with the USB stack on 2.6.9.
 
-I'm a little bit confused... a few weeks ago I read a thread regarding
-the remove of some - unneeded ? - symbols from IEEE1394 core. Some
-persons in the discussion told, that everything should be included into
-kernel mainline, cause if not, symbols needed may be removed. 
+At least on Fedora Core 3 with 2.6.9-1.667 it is happening, too.
+ From a posting on the PWC mailing list:
 
-Now here is the discussion about including FUSE into kernel... So WHAT?
-In any case, I do not think that FUSE, compiled in as module, could
-bother someone. 
-
-regards
-
-Bernhard 
-
+ > I'm using FC3 with kernel version  2.6.9-1.667 and no other
+ > usb devices (in fact no other external devices) on a an
+ > ibm thinkpad t42 laptop.

@@ -1,82 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317416AbSGDNzu>; Thu, 4 Jul 2002 09:55:50 -0400
+	id <S317418AbSGDOGy>; Thu, 4 Jul 2002 10:06:54 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317418AbSGDNzt>; Thu, 4 Jul 2002 09:55:49 -0400
-Received: from [217.167.51.129] ([217.167.51.129]:22518 "EHLO zion.wanadoo.fr")
-	by vger.kernel.org with ESMTP id <S317416AbSGDNzs>;
-	Thu, 4 Jul 2002 09:55:48 -0400
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: <linux-kernel@vger.kernel.org>
-Subject: Possible LVM bug in 2.4.19-rc1
-Date: Thu, 4 Jul 2002 15:59:55 +0200
-Message-Id: <20020704135956.17419@192.168.4.1>
-X-Mailer: CTM PowerMail 3.1.2 F <http://www.ctmdev.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	id <S317419AbSGDOGx>; Thu, 4 Jul 2002 10:06:53 -0400
+Received: from smtp.intrex.net ([209.42.192.250]:18705 "EHLO intrex.net")
+	by vger.kernel.org with ESMTP id <S317418AbSGDOGw>;
+	Thu, 4 Jul 2002 10:06:52 -0400
+Date: Thu, 4 Jul 2002 10:15:01 -0400
+From: jlnance@intrex.net
+To: linux-kernel@vger.kernel.org
+Subject: Re: [Ext2-devel] Re: Shrinking ext3 directories
+Message-ID: <20020704101501.A19611@tricia.dyndns.org>
+References: <20020619113734.D2658@redhat.com> <E17LF65-0001K4-00@starship> <20020621160659.C2805@redhat.com> <E17PyXt-0000hm-00@starship>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <E17PyXt-0000hm-00@starship>; from phillips@arcor.de on Thu, Jul 04, 2002 at 06:48:45AM +0200
+X-Declude-Sender: jlnance@intrex.net [216.181.42.97]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi !
+On Thu, Jul 04, 2002 at 06:48:45AM +0200, Daniel Phillips wrote:
+> > behaviour under certain application workloads.  With the half-md4, at
+> > least we can expect decent worst-case behaviour unless we're under
+> > active attack (ie. only maliscious apps get hurt).
+> 
+> OK, anti-hash-attack is on the list of things to do, and it's fairly
+> clear how to go about it:
 
-Olaf and I have been tracking down a bug where the kernel died
-into lvm_blk_open() during boot on pmac, and later on other PPCs
-when trying to access an unconfigured LVM block device (or an
-LVM minor not associated yet). This typically happened in the
-pmac root discovery code which walks all gendisks, but I beleive
-there are other possible exploits.
- 
-Here's what I've tracked down so far:
+Is it really worth the trouble and complexity to do anti-hash-attack?
+What is the worst that could happen if someone managed to create a bunch
+of files that hashed to the same value?
 
-  static int lvm_blk_open(struct inode *inode, struct file *file)
-  {
-  	int minor = MINOR(inode->i_rdev);
-  	lv_t *lv_ptr;
-  	vg_t *vg_ptr = vg[VG_BLK(minor)];
-
-  	P_DEV("blk_open MINOR: %d  VG#: %d  LV#: %d  mode: %s%s\n",
-	        minor, VG_BLK(minor), LV_BLK(minor),
-  	      MODE_TO_STR(file->f_mode));
-
-  #ifdef LVM_TOTAL_RESET
-	  if (lvm_reset_spindown > 0)
-	  	return -EPERM;
-  #endif
-
-  	if (vg_ptr != NULL &&
-  	    (vg_ptr->vg_status & VG_ACTIVE) &&
-
-  .../...
-
-At this point, no association have been made. That is VG_BLK(minor)
-will return vg_lv_map[minor].vg_number which has been initialized
-to ABS_MAX_VG in lvm_init_vars().
-
-That means that vg_ptr is set to vg[ABS_MAX_VG], which is right outside
-the array bounds, as vg is declared to be
-
-  /* volume group descriptor area pointers */
-  vg_t *vg[ABS_MAX_VG];
-
-So, as soon as we dereference vg_ptr, we get whatever garbage is located
-right after the array, and not the NULL value we would expect for a non
-initialized association.
-
-If my understanding is correct, then a simple fix would be to
-
-  /* volume group descriptor area pointers */
--  vg_t *vg[ABS_MAX_VG];
-+  vg_t *vg[ABS_MAX_VG+1];
-
-though it's a bit hackish... maybe we should just test
-VG_BLK < ABS_MAX_VG
-
-Also, the loop initializing vg array to NULL can probably be removed
-from lvm_init_vars as vg is part of the BSS and thus cleared by default.
-
-Did I miss something ?
-
-Ben.
-
-
+Jim

@@ -1,69 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316672AbSGGXuv>; Sun, 7 Jul 2002 19:50:51 -0400
+	id <S316673AbSGGX7U>; Sun, 7 Jul 2002 19:59:20 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316673AbSGGXuu>; Sun, 7 Jul 2002 19:50:50 -0400
-Received: from 12-231-243-94.client.attbi.com ([12.231.243.94]:57102 "HELO
-	kroah.com") by vger.kernel.org with SMTP id <S316672AbSGGXut>;
-	Sun, 7 Jul 2002 19:50:49 -0400
-Date: Sun, 7 Jul 2002 16:51:14 -0700
-From: Greg KH <greg@kroah.com>
-To: Dave Hansen <haveblue@us.ibm.com>
-Cc: Thunder from the hill <thunder@ngforever.de>,
-       kernel-janitor-discuss 
-	<kernel-janitor-discuss@lists.sourceforge.net>,
-       linux-kernel@vger.kernel.org
-Subject: Re: BKL removal
-Message-ID: <20020707235114.GE18298@kroah.com>
-References: <Pine.LNX.4.44.0207071551180.10105-100000@hawkeye.luckynet.adm> <3D28C3F0.7010506@us.ibm.com>
+	id <S316674AbSGGX7T>; Sun, 7 Jul 2002 19:59:19 -0400
+Received: from jalon.able.es ([212.97.163.2]:33245 "EHLO jalon.able.es")
+	by vger.kernel.org with ESMTP id <S316673AbSGGX7T>;
+	Sun, 7 Jul 2002 19:59:19 -0400
+Date: Mon, 8 Jul 2002 02:01:53 +0200
+From: "J.A. Magallon" <jamagallon@able.es>
+To: "J.A. Magallon" <jamagallon@able.es>
+Cc: Andrea Arcangeli <andrea@suse.de>, linux-kernel@vger.kernel.org
+Subject: Re: 2.4.19rc1aa1
+Message-ID: <20020708000153.GC6080@werewolf.able.es>
+References: <20020629023459.GA1531@inspiron.ols.wavesec.org> <20020707234906.GA6080@werewolf.able.es>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
 Content-Disposition: inline
-In-Reply-To: <3D28C3F0.7010506@us.ibm.com>
-User-Agent: Mutt/1.4i
-X-Operating-System: Linux 2.2.21 (i586)
-Reply-By: Sun, 09 Jun 2002 19:34:23 -0700
+Content-Transfer-Encoding: 7BIT
+In-Reply-To: <20020707234906.GA6080@werewolf.able.es>; from jamagallon@able.es on Mon, Jul 08, 2002 at 01:49:06 +0200
+X-Mailer: Balsa 1.3.6
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Jul 07, 2002 at 03:42:56PM -0700, Dave Hansen wrote:
-> BKL use isn't right or wrong -- it isn't a case of creating a deadlock 
-> or a race.  I'm picking a relatively random function from "grep -r 
-> lock_kernel * | grep /usb/".  I'll show what I think isn't optimal 
-> about it.
-> 
-> "up" is a local variable.  There is no point in protecting its 
-> allocation.  If the goal is to protect data inside "up", there should 
-> probably be a subsystem-level lock for all "struct uhci_hcd"s or a 
-> lock contained inside of the structure itself.  Is this the kind of 
-> example you're looking for?
 
-Nice example, it proves my previous points:
-	- you didn't send this to the author of the code, who is very
-	  responsive when you do.
-	- you didn't send this to the linux-usb-devel list, which is a
-	  very responsive list.
-	- this is in the file drivers/usb/host/uhci-debug.c, which by
-	  its very nature leads you to believe that this is not critical
-	  code at all.  This is true if you look at the code.
-	- it looks like you could just remove the BKL entirely from this
-	  call, and not just move it around the kmalloc() call.  But
-	  since I don't understand all of the different locking rules
-	  inside the uhci-hcd.c driver, I'm not going to do this.  I'll
-	  let the author of the driver do that, incase it really matters
-	  (and yes, the locking in the uhci-hcd driver is tricky, but
-	  nicely documented.)
-	- this file is about to be radically rewritten, to use driverfs
-	  instead of procfs, as the recent messages on linux-usb-devel
-	  state.  So any patch you might make will probably be moot in
-	  about 3 days :)  Again, contacting the author/maintainer is
-	  the proper thing to do.
-	- even if you remove the BKL from this code, what have you
-	  achieved?  A faster kernel?  A very tiny bit smaller kernel,
-	  yes, but not any faster overall.  This is not on _any_
-	  critical
-	  path.
+On 2002.07.08 J.A. Magallon wrote:
+>
+>On 2002.06.29 Andrea Arcangeli wrote:
+>>Only booted it on the laptop so far.
+>>
+>>URL:
+>>
+>>	http://www.us.kernel.org/pub/linux/kernel/people/andrea/kernels/v2.4/2.4.19rc1aa1.gz
+>>	http://www.us.kernel.org/pub/linux/kernel/people/andrea/kernels/v2.4/2.4.19rc1aa1/
+>>
+>>Changelog:
+>>
+>
+>I think the build system for e100 is buggy. You end up with 2 copies of e100.o:
+>
 
-thanks,
+This seems to do the trick. Is it correct ?
 
-greg k-h
+--- linux/drivers/net/Makefile.orig     2002-07-08 01:54:05.000000000 +0200
++++ linux/drivers/net/Makefile  2002-07-08 01:55:33.000000000 +0200
+@@ -67,7 +67,9 @@
+ obj-$(CONFIG_VORTEX) += 3c59x.o mii.o
+ obj-$(CONFIG_NE2K_PCI) += ne2k-pci.o 8390.o
+ obj-$(CONFIG_PCNET32) += pcnet32.o mii.o
++ifeq ($(CONFIG_E100),y)
+ obj-$(CONFIG_E100) += e100/e100.o
++endif
+ obj-$(CONFIG_EEPRO100) += eepro100.o mii.o
+ obj-$(CONFIG_TLAN) += tlan.o
+ obj-$(CONFIG_EPIC100) += epic100.o mii.o
+
+-- 
+J.A. Magallon             \   Software is like sex: It's better when it's free
+mailto:jamagallon@able.es  \                    -- Linus Torvalds, FSF T-shirt
+Linux werewolf 2.4.19-rc1-jam1, Mandrake Linux 8.3 (Cooker) for i586
+gcc (GCC) 3.1.1 (Mandrake Linux 8.3 3.1.1-0.7mdk)

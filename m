@@ -1,61 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262522AbUJ0TYF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262645AbUJ0TYF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262522AbUJ0TYF (ORCPT <rfc822;willy@w.ods.org>);
+	id S262645AbUJ0TYF (ORCPT <rfc822;willy@w.ods.org>);
 	Wed, 27 Oct 2004 15:24:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262577AbUJ0TWa
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262635AbUJ0TWj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 27 Oct 2004 15:22:30 -0400
-Received: from vana.vc.cvut.cz ([147.32.240.58]:10880 "EHLO vana.vc.cvut.cz")
-	by vger.kernel.org with ESMTP id S262522AbUJ0TRr (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 27 Oct 2004 15:17:47 -0400
-Date: Wed, 27 Oct 2004 21:17:28 +0200
-From: Petr Vandrovec <vandrove@vc.cvut.cz>
-To: Greg KH <greg@kroah.com>
-Cc: Norbert Preining <preining@logic.at>, linux-kernel@vger.kernel.org,
-       Andrew Morton <akpm@osdl.org>
-Subject: Re: 2.6.10-mm1, class_simple_* and GPL addition
-Message-ID: <20041027191728.GA6897@vana.vc.cvut.cz>
-References: <20041027135052.GE32199@gamma.logic.tuwien.ac.at> <20041027153715.GB13991@kroah.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Wed, 27 Oct 2004 15:22:39 -0400
+Received: from out002pub.verizon.net ([206.46.170.141]:57241 "EHLO
+	out002.verizon.net") by vger.kernel.org with ESMTP id S262628AbUJ0S60
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 27 Oct 2004 14:58:26 -0400
+From: Gene Heskett <gene.heskett@verizon.net>
+Reply-To: gene.heskett@verizon.net
+Organization: Organization: None, detectable by casual observers
+To: linux-kernel@vger.kernel.org
+Subject: Re: [BK PATCHES] ide-2.6 update
+Date: Wed, 27 Oct 2004 14:58:17 -0400
+User-Agent: KMail/1.7
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Chuck Ebbert <76306.1226@compuserve.com>,
+       Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
+References: <200410271213_MC3-1-8D44-F2D8@compuserve.com> <1098893896.4304.23.camel@localhost.localdomain>
+In-Reply-To: <1098893896.4304.23.camel@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20041027153715.GB13991@kroah.com>
-User-Agent: Mutt/1.5.6+20040907i
+Message-Id: <200410271458.17499.gene.heskett@verizon.net>
+X-Authentication-Info: Submitted using SMTP AUTH at out002.verizon.net from [141.153.91.102] at Wed, 27 Oct 2004 13:58:20 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Oct 27, 2004 at 08:37:16AM -0700, Greg KH wrote:
-> On Wed, Oct 27, 2004 at 03:50:52PM +0200, Norbert Preining wrote:
-> > Hi Andrew!
-> > 
-> > The change from 
-> > 	EXPORT_SYMBOL
-> > to
-> > 	EXPORT_SYMBOL_GPL
-> > for class_simple_* makes the nvidia module useless as it uses several:
-> > nvidia: Unknown symbol class_simple_device_add
-> > nvidia: Unknown symbol class_simple_destroy
-> > nvidia: Unknown symbol class_simple_device_remove
-> > nvidia: Unknown symbol class_simple_create
-> 
-> I think these changes are only in the Gentoo modified version of the
-> driver, right?  I don't think that nvidia wrote the driver that way.
+On Wednesday 27 October 2004 12:18, Alan Cox wrote:
+>On Mer, 2004-10-27 at 17:10, Chuck Ebbert wrote:
+>>         - accept bad Maxtor drive serial number
+>
+>This should not be applied. If your drive is no longer reporting its
+>serial number then its faulty.
 
-VMware's vmnet is broken by this too.  VMware was asked by RedHat to 
-add udev compatibility to the code, and now you are saying that both
-RedHat and VMware were wasting resources for nothing, as you decided that
-you'll turn existing interface into GPL only without providing
-alternative way?
+ISTR he wrote that he had 2 (identical?) drives that were reporting 
+the same serial number.  Somewhat, but not exactly like I have two 
+different epson printers, both usb driven, and which except for the 
+reported serial number, return otherwise identical data when queried 
+by the usb drivers during dmesg.  Which I find odd because one is a 
+C82, 4 color model, and the other is a Photo 820, 6 color model.
 
-> > and if yes, if there is a way to fix nvidia kernel modules (or others)
-> > using this device management interface.
-> 
-> Get them to change the license on their code.
-
-Why?  You have more rights to the sources now than with GPL,
-why we should restrict ourself?
-						Best regards,
-							Petr Vandrovec
-
-
+-- 
+Cheers, Gene
+"There are four boxes to be used in defense of liberty:
+ soap, ballot, jury, and ammo. Please use in that order."
+-Ed Howdershelt (Author)
+99.28% setiathome rank, not too shabby for a WV hillbilly
+Yahoo.com attorneys please note, additions to this message
+by Gene Heskett are:
+Copyright 2004 by Maurice Eugene Heskett, all rights reserved.

@@ -1,51 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319214AbSHWTud>; Fri, 23 Aug 2002 15:50:33 -0400
+	id <S319260AbSHWTua>; Fri, 23 Aug 2002 15:50:30 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319263AbSHWTt3>; Fri, 23 Aug 2002 15:49:29 -0400
-Received: from [195.39.17.254] ([195.39.17.254]:24960 "EHLO Elf.ucw.cz")
-	by vger.kernel.org with ESMTP id <S319217AbSHWTtQ>;
-	Fri, 23 Aug 2002 15:49:16 -0400
-Date: Fri, 2 Nov 2001 08:20:21 +0000
+	id <S319258AbSHWTtm>; Fri, 23 Aug 2002 15:49:42 -0400
+Received: from [195.39.17.254] ([195.39.17.254]:25472 "EHLO Elf.ucw.cz")
+	by vger.kernel.org with ESMTP id <S319260AbSHWTtT>;
+	Fri, 23 Aug 2002 15:49:19 -0400
+Date: Fri, 2 Nov 2001 12:33:59 +0000
 From: Pavel Machek <pavel@suse.cz>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: James Bottomley <James.Bottomley@HansenPartnership.com>,
-       linux-kernel@vger.kernel.org, Linus Torvalds <torvalds@transmeta.com>
-Subject: Re: Boot failure in 2.5.31 BK with new TLS patch
-Message-ID: <20011102082020.U35@toy.ucw.cz>
-References: <200208171516.g7HFGpK03104@localhost.localdomain> <Pine.LNX.4.44.0208171810260.29714-100000@localhost.localdomain>
+To: "Dmitry N. Hramtsov" <hdn@nsu.ru>
+Cc: linux-kernel@vger.kernel.org, Jan Kara <jack@suse.cz>
+Subject: Re: vfsv0 quota patch
+Message-ID: <20011102123359.A35@toy.ucw.cz>
+References: <Pine.LNX.4.44.0208191220390.28677-100000@aurora.nsu.ru>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 X-Mailer: Mutt 1.0.1i
-In-Reply-To: <Pine.LNX.4.44.0208171810260.29714-100000@localhost.localdomain>; from mingo@elte.hu on Sat, Aug 17, 2002 at 06:17:45PM +0200
+In-Reply-To: <Pine.LNX.4.44.0208191220390.28677-100000@aurora.nsu.ru>; from hdn@nsu.ru on Mon, Aug 19, 2002 at 12:26:31PM +0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 Hi!
 
-> > The boot problem only happens with my quad pentium cards, the dyad
-> > pentium and 486 are fine.  Originally, a voyager system with quad cards
-> > just wouldn't boot (this was in the 2.2.x days).  Eventually, by trial
-> > and error and long debug of the boot process I discovered it would boot
-> > if the GDT was 8 bytes aligned (actually, the manuals say it should be
-> > 16 byte aligned, so perhaps we should also add this to the Linux
-> > setup.S?). [...]
+> Could you tell me where can I get vfsv0 quota patch for 2.4.19 or
+> 2.4.20-preX?  Unfortunately, link
 > 
-> indeed it's not aligned:
+> ftp://atrey.karlin.mff.cuni.cz/pub/local/jack/quota/v2.4/
 > 
-> 	c010025c T cpu_gdt_descr
-> 
-> could you align it by adding this line replacing the ALIGN line that
-> preceeds the cpu_gdt_descr definition in head.S:
-> 
-> 	.align 32
-> 
-> we want to align the GDT to 32 bytes anyway, we have optimized it for
-> cache layout, and didnt realize that it wasnt aligned to begin with ...
+> does not work cause host atrey.karlin.mff.cuni.cz inaccessible.
 
-You might want to .align L1_CACHE_SIZE (or something), IIRC P4s have bigger
-cachelines than 32.
-								Pave
+Atrey has been recovered from flooded building, its back online but
+with changed IP address. Wait at most 24hours for DNS update.
+
+								Pavel
 -- 
 Philips Velo 1: 1"x4"x8", 300gram, 60, 12MB, 40bogomips, linux, mutt,
 details at http://atrey.karlin.mff.cuni.cz/~pavel/velo/index.html.

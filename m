@@ -1,61 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S310974AbSCPV5o>; Sat, 16 Mar 2002 16:57:44 -0500
+	id <S311024AbSCPWEE>; Sat, 16 Mar 2002 17:04:04 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S310940AbSCPV5e>; Sat, 16 Mar 2002 16:57:34 -0500
-Received: from ptldme-mls2.maine.rr.com ([24.93.159.133]:30448 "EHLO
-	ptldme-mls2.maine.rr.com") by vger.kernel.org with ESMTP
-	id <S310912AbSCPV50>; Sat, 16 Mar 2002 16:57:26 -0500
-Message-ID: <3C93BEDC.32F15E3E@maine.rr.com>
-Date: Sat, 16 Mar 2002 16:53:32 -0500
-From: "David B. Stevens" <dsteven3@maine.rr.com>
-Organization: Penguin Preservation Society
-X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.19-pre3-ac1 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Alexander Hoogerhuis <alexh@ihatent.com>
-CC: Platinum Control Computer <pcc@boneserver.analogic.com>,
-        linux-kernel@vger.kernel.org
-Subject: Re: Information
-In-Reply-To: <Pine.LNX.3.95.1020315101925.9425A-100000@boneserver.analogic.com> <m3g031z9y4.fsf@lapper.ihatent.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S311023AbSCPWDo>; Sat, 16 Mar 2002 17:03:44 -0500
+Received: from ns.suse.de ([213.95.15.193]:59406 "HELO Cantor.suse.de")
+	by vger.kernel.org with SMTP id <S310912AbSCPWDi>;
+	Sat, 16 Mar 2002 17:03:38 -0500
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Nice values for kernel modules
+In-Reply-To: <Pine.LNX.4.33.0203161300300.1089-100000@einstein.homenet.suse.lists.linux.kernel> <E16mICa-0006mr-00@the-village.bc.nu.suse.lists.linux.kernel>
+From: Andi Kleen <ak@suse.de>
+Date: 16 Mar 2002 23:03:36 +0100
+In-Reply-To: Alan Cox's message of "16 Mar 2002 18:40:02 +0100"
+Message-ID: <p73d6y4187b.fsf@oldwotan.suse.de>
+X-Mailer: Gnus v5.7/Emacs 20.6
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Or fifty weeks late;-)
+Alan Cox <alan@lxorguk.ukuu.org.uk> writes:
 
-Alexander Hoogerhuis wrote:
+> > Ability to bypass the stupid commercial time-locked licences (at some time
+> > wordperfect demo was locked like that and my timetravel module turned a
+> > demo into full product -- users were happy, at least according to emails I
+> > received :)
 > 
-> Ever noticed you're two weeks early with this one?
+> Not any more. Under the DMCA your time travel module probably makes you
+> a fugtive from US justice 8)
 > 
-> ttfn,
-> A
-> 
-> Platinum Control Computer <pcc@boneserver.analogic.com> writes:
-> 
-> > From:     Universal(r) News(tm)
-> > Dateline: Santa Clara, California
-> >           March 14, 2002
-> >
-> >        Linus Torvalds,  the  creator of the  world's  second most
-> >        common Operating System, Linux, will soon become the owner
-> >        of the world's largest software company, Microsoft.
-> >
-> >        William Gates, the present CEO of Microsoft, announced today
-> >        that because of  an  accounting  error in  Microsoft  Money,
-> >        a program developed and distributed by Microsoft,  it became
-> >        possible for  an outsider to  gain control of the company by
-> >        acquiring a negative amount of outstanding stock.
-> >
-> >        Through his attorney,  Melvin Beli,  Linus announced  that he
-> >        had no intention of selling his  negative shares of Microsoft
-> >        stock which caused the  accounting overflow.  As soon  as  he
-> >        is able  to  take  a  short leave-of-absence  from  Transmeta,
-> >        Linus plans to move the Redmond operation to Afghanistan.
-> >
+> In general though calling into the syscall table by hand is a bad move. If
+> the function you are calling is generically useful then its much better to
+> work out whether the real function should be exported.
 
-> Alexander Hoogerhuis                               | alexh@ihatent.com
-> CCNP - CCDP - MCNE - CCSE                          | +47 908 21 485
-> "You have zero privacy anyway. Get over it."  --Scott McNealy
-> -
+Some programs depends on tapping the system call table. For example private
+ice and oprofile do this for execve and other calls to know when a new 
+process is started. It would be possible to add function pointers to all these
+functions, but just tapping the system call table actually looks cleaner
+to me. 
+
+[yes, the approach has module unload races, but these modules tend to just 
+make themselves not unloadable]
+
+-Andi

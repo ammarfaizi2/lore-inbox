@@ -1,53 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129250AbRCHQ3N>; Thu, 8 Mar 2001 11:29:13 -0500
+	id <S129216AbRCHQlX>; Thu, 8 Mar 2001 11:41:23 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129249AbRCHQ3D>; Thu, 8 Mar 2001 11:29:03 -0500
-Received: from viper.haque.net ([64.0.249.226]:8580 "EHLO mail.haque.net")
-	by vger.kernel.org with ESMTP id <S129240AbRCHQ2w>;
-	Thu, 8 Mar 2001 11:28:52 -0500
-Date: Thu, 8 Mar 2001 11:28:03 -0500 (EST)
-From: "Mohammad A. Haque" <mhaque@haque.net>
-To: Venkatesh Ramamurthy <Venkateshr@ami.com>
-cc: "'Alan Cox'" <alan@lxorguk.ukuu.org.uk>, <linux-kernel@vger.kernel.org>
-Subject: RE: Microsoft begining to open source Windows 2000?
-In-Reply-To: <1355693A51C0D211B55A00105ACCFE64E952C5@ATL_MS1>
-Message-ID: <Pine.LNX.4.32.0103081124210.9614-100000@viper.haque.net>
+	id <S129240AbRCHQlN>; Thu, 8 Mar 2001 11:41:13 -0500
+Received: from [64.64.109.142] ([64.64.109.142]:58125 "EHLO
+	quark.didntduck.org") by vger.kernel.org with ESMTP
+	id <S129216AbRCHQlF>; Thu, 8 Mar 2001 11:41:05 -0500
+Message-ID: <3AA7B5C8.22D8DC7E@didntduck.org>
+Date: Thu, 08 Mar 2001 11:39:36 -0500
+From: Brian Gerst <bgerst@didntduck.org>
+X-Mailer: Mozilla 4.73 [en] (WinNT; U)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Michael Rothwell <rothwell@holly-springs.nc.us>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: opening files in /proc, and modules
+In-Reply-To: <200103081651.f28GpkQ04042@513.holly-springs.nc.us>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 8 Mar 2001, Venkatesh Ramamurthy wrote:
+Michael Rothwell wrote:
+> 
+> How can I detect that open() has been called on a file in procfs that a
+> module provides? If I modprobe my module, open one or more if its proc
+> entries, then rmmod the module while the proc files are still open, then
+> the deletion of those entries is deferred. When I close the file(s), the
+> kernel oopses. I need to be able to detect open() and close() in order
+> to increment/decrement the reference count for my module, to prevent it
+> from being rmmoded when in use. Any tips?
+> 
+> Thanks!
 
-> My initial thought after seeing this article was that microsoft was testing
-> its waters on open sourcing. If i have 1500 licenses then i would get the
-> source. If i find any bug in thier source , i  would report to microsoft or
-> send a patch and they would put it in thier next version. Is this not the
-> same way Linux Kernel is developed?. Only thing microsoft does not want to
-> immediately go full open sourcing and get embarrased at the hands of linux
-> people.
->
+Really, the procfs needs a pointer to the module so it can do the
+reference before calling the code in the module.
 
-making a patch means you've modfied the source which you are not allowed
-to do. The most you can do is report the bug through normal channels
-(you dont even have priority in reporting bugs since you have the code).
+--
 
-at least _ANYONE_ was able to contribute to linux. not just people with
-gobs of money. I'm not even gonna comment on the embarrasement bit. The
-one consultant quoted in the article summed it pretty nicely.
-
-Also notice that you're now paying MS so you can find their bugs. Very
-nice.
-
--- 
-
-=====================================================================
-Mohammad A. Haque                              http://www.haque.net/
-                                               mhaque@haque.net
-
-  "Alcohol and calculus don't mix.             Project Lead
-   Don't drink and derive." --Unknown          http://wm.themes.org/
-                                               batmanppc@themes.org
-=====================================================================
-
+				Brian Gerst

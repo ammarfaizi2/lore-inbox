@@ -1,40 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135853AbRAGRPn>; Sun, 7 Jan 2001 12:15:43 -0500
+	id <S136009AbRAGRWY>; Sun, 7 Jan 2001 12:22:24 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136009AbRAGRPd>; Sun, 7 Jan 2001 12:15:33 -0500
-Received: from www.wen-online.de ([212.223.88.39]:50701 "EHLO wen-online.de")
-	by vger.kernel.org with ESMTP id <S135853AbRAGRPS>;
-	Sun, 7 Jan 2001 12:15:18 -0500
-Date: Sun, 7 Jan 2001 18:09:23 +0100 (CET)
-From: Mike Galbraith <mikeg@wen-online.de>
-To: "Richard B. Johnson" <root@chaos.analogic.com>
-cc: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: posix_types.h  error
-In-Reply-To: <Pine.LNX.3.95.1010107084031.25234A-100000@chaos.analogic.com>
-Message-ID: <Pine.Linu.4.10.10101071723420.1054-100000@mikeg.weiden.de>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S136063AbRAGRWP>; Sun, 7 Jan 2001 12:22:15 -0500
+Received: from celticclans.com ([216.181.87.36]:41989 "EHLO celticclans.com")
+	by vger.kernel.org with ESMTP id <S136009AbRAGRWB>;
+	Sun, 7 Jan 2001 12:22:01 -0500
+Message-Id: <5.0.2.1.2.20010107121926.03587280@sirius.onopordon.net>
+X-Mailer: QUALCOMM Windows Eudora Version 5.0.2
+Date: Sun, 07 Jan 2001 12:21:58 -0500
+To: Scott Laird <laird@internap.com>
+From: Jeff Forbes <jgf@stellarhost.com>
+Subject: Re: PROBLEM with raid5 and 2.4.0 kernel
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.21.0101070842391.13842-100000@lairdtest1.intern
+ ap.com>
+In-Reply-To: <5.0.2.1.2.20010107112405.03223780@celticclans.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 7 Jan 2001, Richard B. Johnson wrote:
+Sure enough, when I changed the processor type from
+Pentium-Pro/Celeron/Pentium-II
+to
+Pentium-III
+(which is the type of processor in the machine) it works.
 
-> On Sun, 7 Jan 2001, Mike Galbraith wrote:
-> 
-> > Seriously though, the constraints look fine to me (and the register
-> > name is there in the output constraint).  I'd say you have a busted
-> > compiler.  None of the named compilers gripe.
-> >
-> 
-> None of the named compilers gripe? Where, prey tell, do I get the source-
-> code of a compiler that works? The only source provided in the site
-> listed in the Documentation does not.
 
-It's not the only source there.. egcs-1.1.2 is there as well.  You can
-also try egcs.cygnus.com/pub/egcs or a mirror.
+At 08:43 AM 01/07/2001 -0800, Scott Laird wrote:
 
-	-Mike
+>It works if you compile the kernel with the processor type set to Pentium
+>II or higher, or disable RAID5.  I've been meaning to report this one, but
+>2.4.0 was released before I had time to test the last prerelease, and I
+>haven't had time to test the final release yet.
+
+Jeffrey Forbes, Ph.D.
+http://www.stellarhost.com
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

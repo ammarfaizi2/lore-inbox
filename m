@@ -1,35 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262975AbTCLAO5>; Tue, 11 Mar 2003 19:14:57 -0500
+	id <S261708AbTCLAaU>; Tue, 11 Mar 2003 19:30:20 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261730AbTCLAOd>; Tue, 11 Mar 2003 19:14:33 -0500
-Received: from pizda.ninka.net ([216.101.162.242]:50409 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S261729AbTCLAMx>;
-	Tue, 11 Mar 2003 19:12:53 -0500
-Date: Tue, 11 Mar 2003 16:23:23 -0800 (PST)
-Message-Id: <20030311.162323.94095868.davem@redhat.com>
-To: shemminger@osdl.org
-Cc: torvalds@transmeta.com, linux-kernel@vger.kernel.org,
-       linux-net@vger.kernel.org
-Subject: Re: [PATCH] (8/8) Kill brlock
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <1047428123.15872.113.camel@dell_ss3.pdx.osdl.net>
-References: <Pine.LNX.4.44.0303091831560.2129-100000@home.transmeta.com>
-	<1047428123.15872.113.camel@dell_ss3.pdx.osdl.net>
-X-FalunGong: Information control.
-X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+	id <S262972AbTCLAaT>; Tue, 11 Mar 2003 19:30:19 -0500
+Received: from e34.co.us.ibm.com ([32.97.110.132]:59101 "EHLO
+	e34.co.us.ibm.com") by vger.kernel.org with ESMTP
+	id <S261708AbTCLA16>; Tue, 11 Mar 2003 19:27:58 -0500
+Date: Tue, 11 Mar 2003 16:29:03 -0800
+From: "Martin J. Bligh" <mbligh@aracnet.com>
+To: Andrew Morton <akpm@digeo.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Warning: dev (pts(136,0)) tty->count(5) != #fd's(4) in tty_open
+Message-ID: <47650000.1047428943@flay>
+In-Reply-To: <20030311162153.493a305e.akpm@digeo.com>
+References: <45750000.1047426594@flay> <20030311162153.493a305e.akpm@digeo.com>
+X-Mailer: Mulberry/2.1.2 (Linux/x86)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: Stephen Hemminger <shemminger@osdl.org>
-   Date: 11 Mar 2003 16:15:23 -0800
+>> I'm getting lots of these messages whilst running big SDET runs on
+>> an 16-way machine ... anyone recognize them?
+>> (64-bk3 + a few patches).
+>> 
+>> dev (pts(136,0)) tty->count(4) != #fd's(3) in release_dev
+> 
+> The file_list_lock patches affect this.  Do you have those applied?
 
-   Previous patches killed all remaining uses of brlock so bye.
-   
-I'm all for this once patch 2/8 gets fixed up :-)
+Yes, sorry ... was running out the door, crap description ;-)
+ 
+> If so, and if it is repeatable, this might help.  (Unlikely, but it might).
 
-So what is the new way to say "stop all incoming packet
-processing while I update data structure X"?
+Mmm ... OK. will try that. Thanks,
+
+M.
+

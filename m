@@ -1,64 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265987AbSKKJiQ>; Mon, 11 Nov 2002 04:38:16 -0500
+	id <S265990AbSKKJwv>; Mon, 11 Nov 2002 04:52:51 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265988AbSKKJiP>; Mon, 11 Nov 2002 04:38:15 -0500
-Received: from pizda.ninka.net ([216.101.162.242]:3508 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S265987AbSKKJiP>;
-	Mon, 11 Nov 2002 04:38:15 -0500
-Date: Mon, 11 Nov 2002 01:43:28 -0800 (PST)
-Message-Id: <20021111.014328.87369858.davem@redhat.com>
-To: geert@linux-m68k.org
-Cc: alan@lxorguk.ukuu.org.uk, hch@infradead.org, torvalds@transmeta.com,
-       linux-kernel@vger.kernel.org, dledford@redhat.com
-Subject: Re: [PATCH] NCR53C9x ESP: C99 designated initializers
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <Pine.GSO.4.21.0211111029030.20946-100000@vervain.sonytel.be>
-References: <1036939080.1005.10.camel@irongate.swansea.linux.org.uk>
-	<Pine.GSO.4.21.0211111029030.20946-100000@vervain.sonytel.be>
-X-FalunGong: Information control.
-X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S265993AbSKKJwv>; Mon, 11 Nov 2002 04:52:51 -0500
+Received: from 213-187-164-2.dd.nextgentel.com ([213.187.164.2]:1968 "EHLO
+	mail.pronto.tv") by vger.kernel.org with ESMTP id <S265990AbSKKJwu> convert rfc822-to-8bit;
+	Mon, 11 Nov 2002 04:52:50 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Roy Sigurd Karlsbakk <roy@karlsbakk.net>
+Organization: ProntoTV AS
+To: "Heusden van, FJJ (Folkert)" <F.J.J.Heusden@rn.rabobank.nl>,
+       "Linux Kernel Development" <linux-kernel@vger.kernel.org>
+Subject: Re: random PID patch
+Date: Mon, 11 Nov 2002 10:57:35 +0100
+User-Agent: KMail/1.4.1
+References: <11D18F9E879627-470@_rabobank.nl_>
+In-Reply-To: <11D18F9E879627-470@_rabobank.nl_>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <200211111057.35125.roy@karlsbakk.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: Geert Uytterhoeven <geert@linux-m68k.org>
-   Date: Mon, 11 Nov 2002 10:31:23 +0100 (MET)
+On Monday 11 November 2002 09:40, Heusden van, FJJ (Folkert) wrote:
+> Hi,
+>
+> I've ported my random-PID-patch from 2.2.19 to 2.4.19.
+> It should be downloadable from
+> http://www.vanheusden.com/Linux/fp-2.4.19.patch.gz
+> (or follow the link from
+> http://www.vanheusden.com/Linux/kernel_patches.php3 )
 
-[ Doug, you should just care about my eh_reset callback comments ]
+hm
 
-   On 10 Nov 2002, Alan Cox wrote:
-   > Reset is called with the lock held surely. How can the wait_event be
-   > right ? 
-   
-   I don't know. I just ported the Sun/SPARC ESP SCSI driver changes in 2.5.45 to
-   the NCR53C9x ESP SCSI drivers. If you're right, the same bug is present in
-   esp.c.
-   
-   Dave?
-   
-That's a little inconvenient.
+what's the point of random PIDs?
 
-I have to wait for an interrupt from the chip to know the RESET
-started by the eh_reset_bus_handler code is done, and I'm certainly
-not going to spin there for 5 seconds or however long it decides to
-take. :-)
+-- 
+Roy Sigurd Karlsbakk, Datavaktmester
+ProntoTV AS - http://www.pronto.tv/
+Tel: +47 9801 3356
 
-Either eh_reset_bus_handler needs to be allowed to sleep, or it needs
-to be changed so that an "RESET in progress, please wait" status can
-be returned.
+Computers are like air conditioners.
+They stop working when you open Windows.
 
-Doug?
-
-   BTW, what about merging esp.c and NCR53C9x.c?
-   
-I don't have the time to abstract away all of the various DMA portion
-of the ESP chip handling to allow that.  There are 12 different
-combinations of ESP + DMA controller combinations on Sparc, so if you
-do the changes you'll need to test that :-)
-
-Franks a lot,
-David S. Miller
-davem@redhat.com

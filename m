@@ -1,18 +1,18 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261401AbSKBSTx>; Sat, 2 Nov 2002 13:19:53 -0500
+	id <S261361AbSKBR4s>; Sat, 2 Nov 2002 12:56:48 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261402AbSKBSTw>; Sat, 2 Nov 2002 13:19:52 -0500
-Received: from gateway.cinet.co.jp ([210.166.75.129]:2900 "EHLO
+	id <S261367AbSKBR4r>; Sat, 2 Nov 2002 12:56:47 -0500
+Received: from gateway.cinet.co.jp ([210.166.75.129]:59987 "EHLO
 	precia.cinet.co.jp") by vger.kernel.org with ESMTP
-	id <S261401AbSKBSS5>; Sat, 2 Nov 2002 13:18:57 -0500
-Date: Sun, 3 Nov 2002 03:25:09 +0900
+	id <S261361AbSKBRyh>; Sat, 2 Nov 2002 12:54:37 -0500
+Date: Sun, 3 Nov 2002 03:00:47 +0900
 From: Osamu Tomita <tomita@cinet.co.jp>
 To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
 Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
        Linus Torvalds <torvalds@transmeta.com>
-Subject: [RFC][Patchset 20/20] Support for PC-9800 (video)
-Message-ID: <20021103032509.O1536@precia.cinet.co.jp>
+Subject: [RFC][Patchset 9/20] Support for PC-9800 (IDE)
+Message-ID: <20021103030047.Q1536@precia.cinet.co.jp>
 References: <20021103023345.A1536@precia.cinet.co.jp>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII;
@@ -24,1083 +24,1355 @@ X-Mailer: Balsa 1.2.4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a part 20/20 of patchset for add support NEC PC-9800 architecture,
+This is a part 9/20 of patchset for add support NEC PC-9800 architecture,
 against 2.5.45.
 
 Summary:
-  New driver support for PC-9800 standard text console.
+  IDE driver modules
+   - IO port address change.
+   - add support PC-9800 specific feature. (shared IRQ, serialize)
 
 diffstat:
-  drivers/video/Makefile |    1  drivers/video/gdccon.c |  834 +++++++++++++++++++++++++++++++++++++++++++++++++
-  include/asm-i386/gdc.h |  217 ++++++++++++
-  3 files changed, 1052 insertions(+)
+  drivers/ide/Kconfig         |    5  drivers/ide/ide-disk.c      |   67 +++
+  drivers/ide/ide-geometry.c  |    2  drivers/ide/ide-probe.c     |   23 -
+  drivers/ide/ide-proc.c      |    3  drivers/ide/ide.c           |   14  drivers/ide/legacy/Makefile |    5  drivers/ide/legacy/hd98.c   |  904 
+++++++++++++++++++++++++++++++++++++++++++++
+  drivers/ide/legacy/pc9800.c |   82 +++
+  include/asm-i386/ide.h      |   18  include/linux/hdreg.h       |   19  include/linux/ide.h         |    2  12 files changed, 1138 insertions(+), 6 
+deletions(-)
 
 patch:
-diff -urN linux/drivers/video/Makefile linux98/drivers/video/Makefile
---- linux/drivers/video/Makefile	Sat Oct 19 13:01:12 2002
-+++ linux98/drivers/video/Makefile	Mon Oct 28 23:47:29 2002
-@@ -19,6 +19,7 @@
-  obj-$(CONFIG_PROM_CONSOLE)        += promcon.o promcon_tbl.o
-  obj-$(CONFIG_STI_CONSOLE)         += sticon.o sticon-bmode.o sticore.o
-  obj-$(CONFIG_VGA_CONSOLE)         += vgacon.o
-+obj-$(CONFIG_GDC_CONSOLE)         += gdccon.o
-  obj-$(CONFIG_MDA_CONSOLE)         += mdacon.o
-   obj-$(CONFIG_FONT_SUN8x16)        += font_sun8x16.o
-diff -urN linux/drivers/video/gdccon.c linux98/drivers/video/gdccon.c
---- linux/drivers/video/gdccon.c	Thu Jan  1 09:00:00 1970
-+++ linux98/drivers/video/gdccon.c	Mon Oct 28 17:53:54 2002
-@@ -0,0 +1,834 @@
+diff -urN linux/drivers/ide/Kconfig linux98/drivers/ide/Kconfig
+--- linux/drivers/ide/Kconfig	Thu Oct 31 13:23:12 2002
++++ linux98/drivers/ide/Kconfig	Sat Nov  2 18:23:53 2002
+@@ -998,6 +998,11 @@
+   	  If unsure, say N.
+  +config BLK_DEV_IDE_PC9800
++	bool
++	depends on PC9800
++	default y
++
+  ##if [ "$CONFIG_IDE_TASKFILE_IO" = "y" ]; then
+  ##  dep_mbool CONFIG_BLK_DEV_TF_DISK $CONFIG_BLK_DEV_IDEDISK
+  ##else
+diff -urN linux/drivers/ide/ide-disk.c linux98/drivers/ide/ide-disk.c
+--- linux/drivers/ide/ide-disk.c	Thu Oct 31 13:23:12 2002
++++ linux98/drivers/ide/ide-disk.c	Thu Oct 31 16:45:25 2002
+@@ -1596,6 +1596,71 @@
+  		blk_queue_max_sectors(&drive->queue, 2048);
+  #endif
+  +#ifdef CONFIG_PC9800
++	/* XXX - need more checks */
++	if (!drive->nobios && !drive->scsi && !drive->removable) {
++		/* PC-9800's BIOS do pack drive numbers to be continuous,
++		   so extra work is needed here.  */
++
++		/* drive information passed from boot/setup.S */
++		struct drive_info_struct {
++			u16 cyl;
++			u8 sect, head;
++			u16 ssize;
++		} __attribute__ ((packed));
++		extern struct drive_info_struct drive_info[];
++
++		/* this pointer must be advanced only when *DRIVE is
++		   really hard disk. */
++		static struct drive_info_struct *info = drive_info;
++
++		if (info < &drive_info[4] && info->cyl) {
++			drive->cyl  = drive->bios_cyl  = info->cyl;
++			drive->head = drive->bios_head = info->head;
++			drive->sect = drive->bios_sect = info->sect;
++			++info;
++		}
++	}
++
++	/* =PC98 MEMO=
++	   physical capacity =< 65535*8*17 sect. : H/S=8/17 (fixed)
++	   physical capacity > 65535*8*17 sect. : use physical geometry
++	   (65535*8*17 = 8912760 sectors)
++	*/
++	printk("%s: CHS: physical %d/%d/%d, logical %d/%d/%d, BIOS %d/%d/%d\n",
++	       drive->name,
++	       id->cyls,	id->heads,	id->sectors,
++	       id->cur_cyls,	id->cur_heads,	id->cur_sectors,
++	       drive->bios_cyl,	drive->bios_head,drive->bios_sect);
++	if (!drive->cyl || !drive->head || !drive->sect) {
++		drive->cyl     = drive->bios_cyl  = id->cyls;
++		drive->head    = drive->bios_head = id->heads;
++		drive->sect    = drive->bios_sect = id->sectors;
++		printk("%s: not BIOS-supported device.\n",drive->name);
++	}
++	/* calculate drive capacity, and select LBA if possible */
++	init_idedisk_capacity(drive);
++
++	/*
++	 * if possible, give fdisk access to more of the drive,
++	 * by correcting bios_cyls:
++	 */
++	capacity = idedisk_capacity(drive);
++	if (capacity < 8912760 &&
++	   (drive->head != 8 || drive->sect != 17)) {
++		drive->head = drive->bios_head = 8;
++		drive->sect = drive->bios_sect = 17;
++		drive->cyl  = drive->bios_cyl  =
++			capacity / (drive->bios_head * drive->bios_sect);
++		printk("%s: Fixing Geometry :: CHS=%d/%d/%d to CHS=%d/%d/%d\n",
++			   drive->name,
++			   id->cur_cyls,id->cur_heads,id->cur_sectors,
++			   drive->bios_cyl,drive->bios_head,drive->bios_sect);
++		id->cur_cyls    = drive->bios_cyl;
++		id->cur_heads   = drive->bios_head;
++		id->cur_sectors = drive->bios_sect;
++	}
++#else /* !CONFIG_PC9800 */
+  	/* Extract geometry if we did not already have one for the drive */
+  	if (!drive->cyl || !drive->head || !drive->sect) {
+  		drive->cyl     = drive->bios_cyl  = id->cyls;
+@@ -1629,6 +1694,8 @@
+  	if ((capacity >= (drive->bios_cyl * drive->bios_sect * drive->bios_head)) &&
+  	    (!drive->forced_geom) && drive->bios_sect && drive->bios_head)
+  		drive->bios_cyl = (capacity / drive->bios_sect) / drive->bios_head;
++#endif  /* CONFIG_PC9800 */
++
+  	printk (KERN_INFO "%s: %ld sectors", drive->name, capacity);
+   	/* Give size in megabytes (MB), not mebibytes (MiB). */
+diff -urN linux/drivers/ide/ide-geometry.c linux98/drivers/ide/ide-geometry.c
+--- linux/drivers/ide/ide-geometry.c	Sat Oct 19 13:02:28 2002
++++ linux98/drivers/ide/ide-geometry.c	Sat Oct 19 15:08:56 2002
+@@ -6,6 +6,7 @@
+  #include <linux/mc146818rtc.h>
+  #include <asm/io.h>
+  +#ifndef CONFIG_PC9800
+  /*
+   * We query CMOS about hard disks : it could be that we have a SCSI/ESDI/etc
+   * controller that is BIOS compatible with ST-506, and thus showing up in our
+@@ -81,6 +82,7 @@
+  	}
+  #endif
+  }
++#endif /* !CONFIG_PC9800 */
+    extern unsigned long current_capacity (ide_drive_t *);
+diff -urN linux/drivers/ide/ide-probe.c linux98/drivers/ide/ide-probe.c
+--- linux/drivers/ide/ide-probe.c	Thu Oct 31 13:23:12 2002
++++ linux98/drivers/ide/ide-probe.c	Thu Oct 31 16:45:25 2002
+@@ -55,6 +55,11 @@
+  #include <asm/io.h>
+   /*
++ *  Whether PC-9800 architecture or not.
++ */
++extern int pc98;
++
 +/*
-+ * linux/drivers/video/gdccon.c
-+ * Low level GDC based console driver for NEC PC-9800 series
+   * CompactFlash cards and their brethern pretend to be removable
+   * hard disks, except:
+   *	(1) they never have a slave unit, and
+@@ -554,7 +559,7 @@
+   	if (hwif->mmio == 2)
+  		return 0;
+-	addr_errs  = hwif_check_region(hwif->io_ports[IDE_DATA_OFFSET], 1);
++	addr_errs  = hwif_check_region(hwif->io_ports[IDE_DATA_OFFSET], pc98 ? 2 : 1);
+  	for (i = IDE_ERROR_OFFSET; i <= IDE_STATUS_OFFSET; i++)
+  		addr_errs += hwif_check_region(hwif->io_ports[i], 1);
+  	if (hwif->io_ports[IDE_CONTROL_OFFSET])
+@@ -603,7 +608,9 @@
+  	}
+   	for (i = IDE_DATA_OFFSET; i <= IDE_STATUS_OFFSET; i++)
+-		hwif_request_region(hwif->io_ports[i], 1, hwif->name);
++		hwif_request_region(hwif->io_ports[i],
++					(pc98 && i == IDE_DATA_OFFSET) ? 2 : 1,
++					hwif->name);
+  }
+   //EXPORT_SYMBOL(hwif_register);
+@@ -620,7 +627,7 @@
+   	if (hwif->noprobe)
+  		return;
+-#ifdef CONFIG_BLK_DEV_IDE
++#if !defined(CONFIG_PC9800) && defined(CONFIG_BLK_DEV_IDE)
+  	if (hwif->io_ports[IDE_DATA_OFFSET] == HD_DATA) {
+  		extern void probe_cmos_for_drives(ide_hwif_t *);
+  		probe_cmos_for_drives(hwif);
+@@ -631,6 +638,9 @@
+  #if CONFIG_BLK_DEV_PDC4030
+  	    (hwif->chipset != ide_pdc4030 || hwif->channel == 0) &&
+  #endif /* CONFIG_BLK_DEV_PDC4030 */
++#if CONFIG_BLK_DEV_IDE_PC9800
++	    (hwif->chipset != ide_pc9800 || !hwif->mate->present) &&
++#endif
+  	    (hwif_check_regions(hwif))) {
+  		u16 msgout = 0;
+  		for (unit = 0; unit < MAX_DRIVES; ++unit) {
+@@ -950,7 +960,7 @@
+  	/* all CPUs; safe now that hwif->hwgroup is set up */
+  	spin_unlock_irqrestore(&ide_lock, flags);
+  -#if !defined(__mc68000__) && !defined(CONFIG_APUS) && !defined(__sparc__)
++#if !defined(__mc68000__) && !defined(CONFIG_APUS) && !defined(__sparc__) && !defined(CONFIG_PC9800)
+  	printk("%s at 0x%03lx-0x%03lx,0x%03lx on irq %d", hwif->name,
+  		hwif->io_ports[IDE_DATA_OFFSET],
+  		hwif->io_ports[IDE_DATA_OFFSET]+7,
+@@ -960,6 +970,11 @@
+  		hwif->io_ports[IDE_DATA_OFFSET],
+  		hwif->io_ports[IDE_DATA_OFFSET]+7,
+  		hwif->io_ports[IDE_CONTROL_OFFSET], __irq_itoa(hwif->irq));
++#elif defined(CONFIG_PC9800)
++	printk("%s at 0x%03lx-0x%03lx,0x%03lx on irq %d", hwif->name,
++		hwif->io_ports[IDE_DATA_OFFSET],
++		hwif->io_ports[IDE_DATA_OFFSET]+15,
++		hwif->io_ports[IDE_CONTROL_OFFSET], hwif->irq);
+  #else
+  	printk("%s at %x on irq 0x%08x", hwif->name,
+  		hwif->io_ports[IDE_DATA_OFFSET], hwif->irq);
+diff -urN linux/drivers/ide/ide-proc.c linux98/drivers/ide/ide-proc.c
+--- linux/drivers/ide/ide-proc.c	Mon Sep 16 11:18:30 2002
++++ linux98/drivers/ide/ide-proc.c	Mon Sep 16 13:53:42 2002
+@@ -365,6 +365,9 @@
+  		case ide_cy82c693:	name = "cy82c693";	break;
+  		case ide_4drives:	name = "4drives";	break;
+  		case ide_pmac:		name = "mac-io";	break;
++#ifdef CONFIG_PC9800
++		case ide_pc9800:	name = "pc9800";	break;
++#endif
+  		default:		name = "(unknown)";	break;
+  	}
+  	len = sprintf(page, "%s\n", name);
+diff -urN linux/drivers/ide/ide.c linux98/drivers/ide/ide.c
+--- linux/drivers/ide/ide.c	Thu Oct 31 13:23:13 2002
++++ linux98/drivers/ide/ide.c	Thu Oct 31 16:45:25 2002
+@@ -189,6 +189,11 @@
+  static int	ide_intr_lock;
+  #endif /* __mc68000__ || CONFIG_APUS */
+  +/*
++ *  Whether PC-9800 architecture or not.
++ */
++extern int pc98;
++
+  #ifdef CONFIG_IDEDMA_AUTO
+  int noautodma = 0;
+  #else
+@@ -1657,7 +1662,8 @@
+  	}
+  	for (i = IDE_DATA_OFFSET; i <= IDE_STATUS_OFFSET; i++) {
+  		if (hwif->io_ports[i]) {
+-			hwif_release_region(hwif->io_ports[i], 1);
++			hwif_release_region(hwif->io_ports[i],
++					(pc98 && i == IDE_DATA_OFFSET) ? 2 : 1);
+  		}
+  	}
+  }
+@@ -3009,6 +3015,12 @@
+  	}
+  #endif /* CONFIG_BLK_DEV_IDEPCI */
+  +#ifdef CONFIG_BLK_DEV_IDE_PC9800
++	{
++		extern void ide_probe_for_pc9800(void);
++		ide_probe_for_pc9800();
++	}
++#endif
+  #ifdef CONFIG_ETRAX_IDE
+  	{
+  		extern void init_e100_ide(void);
+diff -urN linux/drivers/ide/legacy/Makefile linux98/drivers/ide/legacy/Makefile
+--- linux/drivers/ide/legacy/Makefile	Sat Oct 12 13:21:34 2002
++++ linux98/drivers/ide/legacy/Makefile	Sun Oct 13 11:07:36 2002
+@@ -2,6 +2,7 @@
+  obj-$(CONFIG_BLK_DEV_ALI14XX)		+= ali14xx.o
+  obj-$(CONFIG_BLK_DEV_DTC2278)		+= dtc2278.o
+  obj-$(CONFIG_BLK_DEV_HT6560B)		+= ht6560b.o
++obj-$(CONFIG_BLK_DEV_IDE_PC9800)	+= pc9800.o
+  obj-$(CONFIG_BLK_DEV_PDC4030)		+= pdc4030.o
+  obj-$(CONFIG_BLK_DEV_QD65XX)		+= qd65xx.o
+  obj-$(CONFIG_BLK_DEV_UMC8672)		+= umc8672.o
+@@ -15,7 +16,11 @@
+  obj-$(CONFIG_BLK_DEV_IDECS)		+= ide-cs.o
+   # Last of all
++ifneq ($(CONFIG_PC9800),y)
+  obj-$(CONFIG_BLK_DEV_HD)		+= hd.o
++else
++obj-$(CONFIG_BLK_DEV_HD)		+= hd98.o
++endif
+   EXTRA_CFLAGS	:= -Idrivers/ide
+  diff -urN linux/drivers/ide/legacy/hd98.c linux98/drivers/ide/legacy/hd98.c
+--- linux/drivers/ide/legacy/hd98.c	Thu Jan  1 09:00:00 1970
++++ linux98/drivers/ide/legacy/hd98.c	Sat Oct 26 15:42:09 2002
+@@ -0,0 +1,904 @@
++/*
++ *  Copyright (C) 1991, 1992  Linus Torvalds
 + *
-+ * Created 24 Dec 1998 by Linux/98 project
++ * This is the low-level hd interrupt support. It traverses the
++ * request-list, using interrupts to jump between functions. As
++ * all the functions are called within interrupts, we may not
++ * sleep. Special care is recommended.
 + *
-+ * based on:
-+ * linux/drivers/video/vgacon.c in Linux 2.1.131 by Geert Uytterhoeven
-+ * linux/char/gdc.c in Linux/98 2.1.57 by Linux/98 project
-+ * linux/char/console.c in Linux/98 2.1.57 by Linux/98 project
++ *  modified by Drew Eckhardt to check nr of hd's from the CMOS.
++ *
++ *  Thanks to Branko Lankester, lankeste@fwi.uva.nl, who found a bug
++ *  in the early extended-partition checks and added DM partitions
++ *
++ *  IRQ-unmask, drive-id, multiple-mode, support for ">16 heads",
++ *  and general streamlining by Mark Lord.
++ *
++ *  Removed 99% of above. Use Mark's ide driver for those options.
++ *  This is now a lightweight ST-506 driver. (Paul Gortmaker)
++ *
++ *  Modified 1995 Russell King for ARM processor.
++ *
++ *  Bugfix: max_sectors must be <= 255 or the wheels tend to come
++ *  off in a hurry once you queue things up - Paul G. 02/2001
++ */
++
++/* Uncomment the following if you want verbose error reports. */
++/* #define VERBOSE_ERRORS */
++
++#include <linux/errno.h>
++#include <linux/signal.h>
++#include <linux/sched.h>
++#include <linux/timer.h>
++#include <linux/fs.h>
++#include <linux/kernel.h>
++#include <linux/genhd.h>
++#include <linux/slab.h>
++#include <linux/string.h>
++#include <linux/ioport.h>
++#include <linux/mc146818rtc.h> /* CMOS defines */
++#include <linux/init.h>
++#include <linux/blkpg.h>
++#include <linux/hdreg.h>
++
++#define REALLY_SLOW_IO
++#include <asm/system.h>
++#include <asm/io.h>
++#include <asm/uaccess.h>
++
++#define MAJOR_NR HD_MAJOR
++#define DEVICE_NR(device) (minor(device)>>6)
++#include <linux/blk.h>
++
++#include "io_ports.h"
++
++#ifdef __arm__
++#undef  HD_IRQ
++#endif
++#include <asm/irq.h>
++#ifdef __arm__
++#define HD_IRQ IRQ_HARDDISK
++#endif
++
++/* Hd controller regster ports */
++
++#define HD_DATA		0x640	/* _CTL when writing */
++#define HD_ERROR	0x642	/* see err-bits */
++#define HD_NSECTOR	0x644	/* nr of sectors to read/write */
++#define HD_SECTOR	0x646	/* starting sector */
++#define HD_LCYL		0x648	/* starting cylinder */
++#define HD_HCYL		0x64a	/* high byte of starting cyl */
++#define HD_CURRENT	0x64c	/* 101dhhhh , d=drive, hhhh=head */
++#define HD_STATUS	0x64e	/* see status-bits */
++#define HD_FEATURE	HD_ERROR	/* same io address, read=error, write=feature */
++#define HD_PRECOMP	HD_FEATURE	/* obsolete use of this port - predates IDE */
++#define HD_COMMAND	HD_STATUS	/* same io address, read=status, write=cmd */
++
++#define HD_CMD		0x74c	/* used for resets */
++#define HD_ALTSTATUS	0x74c	/* same as HD_STATUS but doesn't clear irq */
++
++/* Bits of HD_STATUS */
++#define ERR_STAT		0x01
++#define INDEX_STAT		0x02
++#define ECC_STAT		0x04	/* Corrected error */
++#define DRQ_STAT		0x08
++#define SEEK_STAT		0x10
++#define SERVICE_STAT		SEEK_STAT
++#define WRERR_STAT		0x20
++#define READY_STAT		0x40
++#define BUSY_STAT		0x80
++
++/* Bits for HD_ERROR */
++#define MARK_ERR		0x01	/* Bad address mark */
++#define TRK0_ERR		0x02	/* couldn't find track 0 */
++#define ABRT_ERR		0x04	/* Command aborted */
++#define MCR_ERR			0x08	/* media change request */
++#define ID_ERR			0x10	/* ID field not found */
++#define MC_ERR			0x20	/* media changed */
++#define ECC_ERR			0x40	/* Uncorrectable ECC error */
++#define BBD_ERR			0x80	/* pre-EIDE meaning:  block marked bad */
++#define ICRC_ERR		0x80	/* new meaning:  CRC error during transfer */
++
++static spinlock_t hd_lock = SPIN_LOCK_UNLOCKED;
++
++#define TIMEOUT_VALUE	(6*HZ)
++#define	HD_DELAY	0
++
++#define MAX_ERRORS     16	/* Max read/write errors/sector */
++#define RESET_FREQ      8	/* Reset controller every 8th retry */
++#define RECAL_FREQ      4	/* Recalibrate every 4th retry */
++#define MAX_HD		2
++
++#define STAT_OK		(READY_STAT|SEEK_STAT)
++#define OK_STATUS(s)	(((s)&(STAT_OK|(BUSY_STAT|WRERR_STAT|ERR_STAT)))==STAT_OK)
++
++static void recal_intr(void);
++static void bad_rw_intr(void);
++
++static char recalibrate[MAX_HD];
++static char special_op[MAX_HD];
++
++static int reset;
++static int hd_error;
++
++#define SUBSECTOR(block) (CURRENT->current_nr_sectors > 0)
++
++/*
++ *  This struct defines the HD's and their types.
++ */
++struct hd_i_struct {
++	unsigned int head,sect,cyl,wpcom,lzone,ctl;
++};
++	 
++#ifdef HD_TYPE
++struct hd_i_struct hd_info[] = { HD_TYPE };
++static int NR_HD = ((sizeof (hd_info))/(sizeof (struct hd_i_struct)));
++#else
++struct hd_i_struct hd_info[MAX_HD];
++static int NR_HD;
++#endif
++
++static struct gendisk *hd_gendisk[MAX_HD];
++
++static struct timer_list device_timer;
++
++#define TIMEOUT_VALUE (6*HZ)
++
++#define SET_TIMER							\
++	do {								\
++		mod_timer(&device_timer, jiffies + TIMEOUT_VALUE);	\
++	} while (0)
++
++static void (*do_hd)(void) = NULL;
++#define SET_HANDLER(x) \
++if ((do_hd = (x)) != NULL) \
++	SET_TIMER; \
++else \
++	del_timer(&device_timer);
++
++
++#if (HD_DELAY > 0)
++unsigned long last_req;
++
++unsigned long read_timer(void)
++{
++        extern spinlock_t i8253_lock;
++	unsigned long t, flags;
++	int i;
++
++	spin_lock_irqsave(&i8253_lock, flags);
++	t = jiffies * 11932;
++    	outb_p(0, PIT_MODE);
++	i = inb_p(PIT_CH0);
++	i |= inb(PIT_CH0) << 8;
++	spin_unlock_irqrestore(&i8253_lock, flags);
++	return(t - i);
++}
++#endif
++
++void __init hd_setup(char *str, int *ints)
++{
++	int hdind = 0;
++
++	if (ints[0] != 3)
++		return;
++	if (hd_info[0].head != 0)
++		hdind=1;
++	hd_info[hdind].head = ints[2];
++	hd_info[hdind].sect = ints[3];
++	hd_info[hdind].cyl = ints[1];
++	hd_info[hdind].wpcom = 0;
++	hd_info[hdind].lzone = ints[1];
++	hd_info[hdind].ctl = (ints[2] > 8 ? 8 : 0);
++	NR_HD = hdind+1;
++}
++
++static void dump_status (const char *msg, unsigned int stat)
++{
++	char devc;
++
++	devc = !blk_queue_empty(QUEUE) ? 'a' + DEVICE_NR(CURRENT->rq_dev) : '?';
++#ifdef VERBOSE_ERRORS
++	printk("hd%c: %s: status=0x%02x { ", devc, msg, stat & 0xff);
++	if (stat & BUSY_STAT)	printk("Busy ");
++	if (stat & READY_STAT)	printk("DriveReady ");
++	if (stat & WRERR_STAT)	printk("WriteFault ");
++	if (stat & SEEK_STAT)	printk("SeekComplete ");
++	if (stat & DRQ_STAT)	printk("DataRequest ");
++	if (stat & ECC_STAT)	printk("CorrectedError ");
++	if (stat & INDEX_STAT)	printk("Index ");
++	if (stat & ERR_STAT)	printk("Error ");
++	printk("}\n");
++	if ((stat & ERR_STAT) == 0) {
++		hd_error = 0;
++	} else {
++		hd_error = inb(HD_ERROR);
++		printk("hd%c: %s: error=0x%02x { ", devc, msg, hd_error & 0xff);
++		if (hd_error & BBD_ERR)		printk("BadSector ");
++		if (hd_error & ECC_ERR)		printk("UncorrectableError ");
++		if (hd_error & ID_ERR)		printk("SectorIdNotFound ");
++		if (hd_error & ABRT_ERR)	printk("DriveStatusError ");
++		if (hd_error & TRK0_ERR)	printk("TrackZeroNotFound ");
++		if (hd_error & MARK_ERR)	printk("AddrMarkNotFound ");
++		printk("}");
++		if (hd_error & (BBD_ERR|ECC_ERR|ID_ERR|MARK_ERR)) {
++			printk(", CHS=%d/%d/%d", (inb(HD_HCYL)<<8) + inb(HD_LCYL),
++				inb(HD_CURRENT) & 0xf, inb(HD_SECTOR));
++			if (!blk_queue_empty(QUEUE))
++				printk(", sector=%ld", CURRENT->sector);
++		}
++		printk("\n");
++	}
++#else
++	printk("hd%c: %s: status=0x%02x.\n", devc, msg, stat & 0xff);
++	if ((stat & ERR_STAT) == 0) {
++		hd_error = 0;
++	} else {
++		hd_error = inb(HD_ERROR);
++		printk("hd%c: %s: error=0x%02x.\n", devc, msg, hd_error & 0xff);
++	}
++#endif
++}
++
++void check_status(void)
++{
++	int i = inb(HD_STATUS);
++
++	if (!OK_STATUS(i)) {
++		dump_status("check_status", i);
++		bad_rw_intr();
++	}
++}
++
++static int controller_busy(void)
++{
++	int retries = 100000;
++	unsigned char status;
++
++	do {
++		status = inb(HD_STATUS);
++	} while ((status & BUSY_STAT) && --retries);
++	return status;
++}
++
++static int status_ok(void)
++{
++	unsigned char status = inb(HD_STATUS);
++
++	if (status & BUSY_STAT)
++		return 1;	/* Ancient, but does it make sense??? */
++	if (status & WRERR_STAT)
++		return 0;
++	if (!(status & READY_STAT))
++		return 0;
++	if (!(status & SEEK_STAT))
++		return 0;
++	return 1;
++}
++
++static int controller_ready(unsigned int drive, unsigned int head)
++{
++	int retry = 100;
++
++	do {
++		if (controller_busy() & BUSY_STAT)
++			return 0;
++		outb(0xA0 | (drive<<4) | head, HD_CURRENT);
++		if (status_ok())
++			return 1;
++	} while (--retry);
++	return 0;
++}
++
++static void hd_out(unsigned int drive,unsigned int nsect,unsigned int sect,
++		unsigned int head,unsigned int cyl,unsigned int cmd,
++		void (*intr_addr)(void))
++{
++	unsigned short port;
++
++#if (HD_DELAY > 0)
++	while (read_timer() - last_req < HD_DELAY)
++		/* nothing */;
++#endif
++	if (reset)
++		return;
++	if (!controller_ready(drive, head)) {
++		reset = 1;
++		return;
++	}
++	SET_HANDLER(intr_addr);
++	outb(hd_info[drive].ctl,HD_CMD);
++	port=HD_DATA + 2;
++	outb(hd_info[drive].wpcom>>2, port); port += 2;
++	outb(nsect, port); port += 2;
++	outb(sect, port); port += 2;
++	outb(cyl, port); port += 2;
++	outb(cyl>>8, port); port += 2;
++	outb(0xA0|(drive<<4)|head, port); port += 2;
++	outb(cmd, port);
++}
++
++static void hd_request (void);
++
++static int drive_busy(void)
++{
++	unsigned int i;
++	unsigned char c;
++
++	for (i = 0; i < 500000 ; i++) {
++		c = inb(HD_STATUS);
++		if ((c & (BUSY_STAT | READY_STAT | SEEK_STAT)) == STAT_OK)
++			return 0;
++	}
++	dump_status("reset timed out", c);
++	return 1;
++}
++
++static void reset_controller(void)
++{
++	int	i;
++
++	outb(4,HD_CMD);
++	for(i = 0; i < 1000; i++) barrier();
++	outb(hd_info[0].ctl & 0x0f,HD_CMD);
++	for(i = 0; i < 1000; i++) barrier();
++	if (drive_busy())
++		printk("hd: controller still busy\n");
++	else if ((hd_error = inb(HD_ERROR)) != 1)
++		printk("hd: controller reset failed: %02x\n",hd_error);
++}
++
++static void reset_hd(void)
++{
++	static int i;
++
++repeat:
++	if (reset) {
++		reset = 0;
++		i = -1;
++		reset_controller();
++	} else {
++		check_status();
++		if (reset)
++			goto repeat;
++	}
++	if (++i < NR_HD) {
++		special_op[i] = recalibrate[i] = 1;
++		hd_out(i,hd_info[i].sect,hd_info[i].sect,hd_info[i].head-1,
++			hd_info[i].cyl,WIN_SPECIFY,&reset_hd);
++		if (reset)
++			goto repeat;
++	} else
++		hd_request();
++}
++
++/*
++ * Ok, don't know what to do with the unexpected interrupts: on some machines
++ * doing a reset and a retry seems to result in an eternal loop. Right now I
++ * ignore it, and just set the timeout.
++ *
++ * On laptops (and "green" PCs), an unexpected interrupt occurs whenever the
++ * drive enters "idle", "standby", or "sleep" mode, so if the status looks
++ * "good", we just ignore the interrupt completely.
++ */
++void unexpected_hd_interrupt(void)
++{
++	unsigned int stat = inb(HD_STATUS);
++
++	if (stat & (BUSY_STAT|DRQ_STAT|ECC_STAT|ERR_STAT)) {
++		dump_status ("unexpected interrupt", stat);
++		SET_TIMER;
++	}
++}
++
++/*
++ * bad_rw_intr() now tries to be a bit smarter and does things
++ * according to the error returned by the controller.
++ * -Mika Liljeberg (liljeber@cs.Helsinki.FI)
++ */
++static void bad_rw_intr(void)
++{
++	int dev;
++
++	if (blk_queue_empty(QUEUE))
++		return;
++	dev = DEVICE_NR(CURRENT->rq_dev);
++	if (++CURRENT->errors >= MAX_ERRORS || (hd_error & BBD_ERR)) {
++		end_request(CURRENT, 0);
++		special_op[dev] = recalibrate[dev] = 1;
++	} else if (CURRENT->errors % RESET_FREQ == 0)
++		reset = 1;
++	else if ((hd_error & TRK0_ERR) || CURRENT->errors % RECAL_FREQ == 0)
++		special_op[dev] = recalibrate[dev] = 1;
++	/* Otherwise just retry */
++}
++
++static inline int wait_DRQ(void)
++{
++	int retries = 100000, stat;
++
++	while (--retries > 0)
++		if ((stat = inb(HD_STATUS)) & DRQ_STAT)
++			return 0;
++	dump_status("wait_DRQ", stat);
++	return -1;
++}
++
++static void read_intr(void)
++{
++	int i, retries = 100000;
++
++	do {
++		i = (unsigned) inb(HD_STATUS);
++		if (i & BUSY_STAT)
++			continue;
++		if (!OK_STATUS(i))
++			break;
++		if (i & DRQ_STAT)
++			goto ok_to_read;
++	} while (--retries > 0);
++	dump_status("read_intr", i);
++	bad_rw_intr();
++	hd_request();
++	return;
++ok_to_read:
++	insw(HD_DATA,CURRENT->buffer,256);
++	CURRENT->sector++;
++	CURRENT->buffer += 512;
++	CURRENT->errors = 0;
++	i = --CURRENT->nr_sectors;
++	--CURRENT->current_nr_sectors;
++#ifdef DEBUG
++	printk("hd%c: read: sector %ld, remaining = %ld, buffer=0x%08lx\n",
++		dev+'a', CURRENT->sector, CURRENT->nr_sectors,
++		(unsigned long) CURRENT->buffer+512);
++#endif
++	if (CURRENT->current_nr_sectors <= 0)
++		end_request(CURRENT, 1);
++	if (i > 0) {
++		SET_HANDLER(&read_intr);
++		return;
++	}
++	(void) inb(HD_STATUS);
++#if (HD_DELAY > 0)
++	last_req = read_timer();
++#endif
++	if (!blk_queue_empty(QUEUE))
++		hd_request();
++	return;
++}
++
++static void write_intr(void)
++{
++	int i;
++	int retries = 100000;
++
++	do {
++		i = (unsigned) inb(HD_STATUS);
++		if (i & BUSY_STAT)
++			continue;
++		if (!OK_STATUS(i))
++			break;
++		if ((CURRENT->nr_sectors <= 1) || (i & DRQ_STAT))
++			goto ok_to_write;
++	} while (--retries > 0);
++	dump_status("write_intr", i);
++	bad_rw_intr();
++	hd_request();
++	return;
++ok_to_write:
++	CURRENT->sector++;
++	i = --CURRENT->nr_sectors;
++	--CURRENT->current_nr_sectors;
++	CURRENT->buffer += 512;
++	if (!i || (CURRENT->bio && !SUBSECTOR(i)))
++		end_request(CURRENT, 1);
++	if (i > 0) {
++		SET_HANDLER(&write_intr);
++		outsw(HD_DATA,CURRENT->buffer,256);
++		local_irq_enable();
++	} else {
++#if (HD_DELAY > 0)
++		last_req = read_timer();
++#endif
++		hd_request();
++	}
++	return;
++}
++
++static void recal_intr(void)
++{
++	check_status();
++#if (HD_DELAY > 0)
++	last_req = read_timer();
++#endif
++	hd_request();
++}
++
++/*
++ * This is another of the error-routines I don't know what to do with. The
++ * best idea seems to just set reset, and start all over again.
++ */
++static void hd_times_out(unsigned long dummy)
++{
++	unsigned int dev;
++
++	do_hd = NULL;
++
++	if (blk_queue_empty(QUEUE))
++		return;
++
++	disable_irq(HD_IRQ);
++	local_irq_enable();
++	reset = 1;
++	dev = DEVICE_NR(CURRENT->rq_dev);
++	printk("hd%c: timeout\n", dev+'a');
++	if (++CURRENT->errors >= MAX_ERRORS) {
++#ifdef DEBUG
++		printk("hd%c: too many errors\n", dev+'a');
++#endif
++		end_request(CURRENT, 0);
++	}
++	local_irq_disable();
++	hd_request();
++	enable_irq(HD_IRQ);
++}
++
++int do_special_op (unsigned int dev)
++{
++	if (recalibrate[dev]) {
++		recalibrate[dev] = 0;
++		hd_out(dev,hd_info[dev].sect,0,0,0,WIN_RESTORE,&recal_intr);
++		return reset;
++	}
++	if (hd_info[dev].head > 16) {
++		printk ("hd%c: cannot handle device with more than 16 heads - giving up\n", dev+'a');
++		end_request(CURRENT, 0);
++	}
++	special_op[dev] = 0;
++	return 1;
++}
++
++/*
++ * The driver enables interrupts as much as possible.  In order to do this,
++ * (a) the device-interrupt is disabled before entering hd_request(),
++ * and (b) the timeout-interrupt is disabled before the sti().
++ *
++ * Interrupts are still masked (by default) whenever we are exchanging
++ * data/cmds with a drive, because some drives seem to have very poor
++ * tolerance for latency during I/O. The IDE driver has support to unmask
++ * interrupts for non-broken hardware, so use that driver if required.
++ */
++static void hd_request(void)
++{
++	unsigned int dev, block, nsect, sec, track, head, cyl;
++
++	if (do_hd)
++		return;
++repeat:
++	del_timer(&device_timer);
++	local_irq_enable();
++
++	if (blk_queue_empty(QUEUE)) {
++		do_hd = NULL;
++		return;
++	}
++
++	if (reset) {
++		local_irq_disable();
++		reset_hd();
++		return;
++	}
++	dev = DEVICE_NR(CURRENT->rq_dev);
++	block = CURRENT->sector;
++	nsect = CURRENT->nr_sectors;
++	if (dev >= NR_HD) {
++		printk("hd: bad disk number: %d\n", dev);
++		end_request(CURRENT, 0);
++		goto repeat;
++	}
++	if (block >= get_capacity(hd_gendisk[dev]) ||
++	    ((block+nsect) > get_capacity(hd_gendisk[dev]))) {
++		printk("%s: bad access: block=%d, count=%d\n",
++			hd_gendisk[dev]->disk_name, block, nsect);
++		end_request(CURRENT, 0);
++		goto repeat;
++	}
++
++	if (special_op[dev]) {
++		if (do_special_op(dev))
++			goto repeat;
++		return;
++	}
++	sec   = block % hd_info[dev].sect + 1;
++	track = block / hd_info[dev].sect;
++	head  = track % hd_info[dev].head;
++	cyl   = track / hd_info[dev].head;
++#ifdef DEBUG
++	printk("hd%c: %sing: CHS=%d/%d/%d, sectors=%d, buffer=0x%08lx\n",
++		dev+'a', (CURRENT->cmd == READ)?"read":"writ",
++		cyl, head, sec, nsect, (unsigned long) CURRENT->buffer);
++#endif
++	if(CURRENT->flags & REQ_CMD) {
++		switch (rq_data_dir(CURRENT)) {
++		case READ:
++			hd_out(dev,nsect,sec,head,cyl,WIN_READ,&read_intr);
++			if (reset)
++				goto repeat;
++			break;
++		case WRITE:
++			hd_out(dev,nsect,sec,head,cyl,WIN_WRITE,&write_intr);
++			if (reset)
++				goto repeat;
++			if (wait_DRQ()) {
++				bad_rw_intr();
++				goto repeat;
++			}
++			outsw(HD_DATA,CURRENT->buffer,256);
++			break;
++		default:
++			printk("unknown hd-command\n");
++			end_request(CURRENT, 0);
++			break;
++		}
++	}
++}
++
++static void do_hd_request (request_queue_t * q)
++{
++	disable_irq(HD_IRQ);
++	hd_request();
++	enable_irq(HD_IRQ);
++}
++
++static int hd_ioctl(struct inode * inode, struct file * file,
++	unsigned int cmd, unsigned long arg)
++{
++	struct hd_geometry *loc = (struct hd_geometry *) arg;
++	int dev;
++
++	if ((!inode) || kdev_none(inode->i_rdev))
++		return -EINVAL;
++	dev = DEVICE_NR(inode->i_rdev);
++	if (dev >= NR_HD)
++		return -EINVAL;
++	switch (cmd) {
++		case HDIO_GETGEO:
++		{
++			struct hd_geometry g; +			if (!loc)  return -EINVAL;
++			g.heads = hd_info[dev].head;
++			g.sectors = hd_info[dev].sect;
++			g.cylinders = hd_info[dev].cyl;
++			g.start = get_start_sect(inode->i_bdev);
++			return copy_to_user(loc, &g, sizeof g) ? -EFAULT : 0; +		}
++
++		default:
++			return -EINVAL;
++	}
++}
++
++static int hd_open(struct inode * inode, struct file * filp)
++{
++	int target =  DEVICE_NR(inode->i_rdev);
++	if (target >= NR_HD)
++		return -ENODEV;
++	return 0;
++}
++
++/*
++ * Releasing a block device means we sync() it, so that it can safely
++ * be forgotten about...
++ */
++
++extern struct block_device_operations hd_fops;
++
++static void hd_interrupt(int irq, void *dev_id, struct pt_regs *regs)
++{
++	void (*handler)(void) = do_hd;
++
++	do_hd = NULL;
++	del_timer(&device_timer);
++	if (!handler)
++		handler = unexpected_hd_interrupt;
++	handler();
++	local_irq_enable();
++}
++
++static struct block_device_operations hd_fops = {
++	.open =		hd_open,
++	.ioctl =	hd_ioctl,
++};
++
++/*
++ * This is the hard disk IRQ description. The SA_INTERRUPT in sa_flags
++ * means we run the IRQ-handler with interrupts disabled:  this is bad for
++ * interrupt latency, but anything else has led to problems on some
++ * machines.
++ *
++ * We enable interrupts in some of the routines after making sure it's
++ * safe.
++ */
++
++static int __init hd_init(void)
++{
++	int drive;
++	if (register_blkdev(MAJOR_NR,"hd",&hd_fops)) {
++		printk("hd: unable to get major %d for hard disk\n",MAJOR_NR);
++		return -1;
++	}
++	blk_init_queue(BLK_DEFAULT_QUEUE(MAJOR_NR), do_hd_request, &hd_lock);
++	blk_queue_max_sectors(BLK_DEFAULT_QUEUE(MAJOR_NR), 255);
++	init_timer(&device_timer);
++	device_timer.function = hd_times_out;
++	blk_queue_hardsect_size(QUEUE, 512);
++
++#ifdef __i386__
++	if (!NR_HD) {
++		extern struct drive_info drive_info;
++		unsigned char *BIOS = (unsigned char *) &drive_info;
++		unsigned long flags;
++#ifndef CONFIG_PC9800
++		int cmos_disks;
++#endif
++
++		for (drive=0 ; drive<2 ; drive++) {
++			hd_info[drive].cyl = *(unsigned short *) BIOS;
++			hd_info[drive].head = *(3+BIOS);
++			hd_info[drive].sect = *(2+BIOS);
++			hd_info[drive].wpcom = 0;
++			hd_info[drive].ctl = *(3+BIOS) > 8 ? 8 : 0;
++			hd_info[drive].lzone = *(unsigned short *) BIOS;
++			if (hd_info[drive].cyl && NR_HD == drive)
++				NR_HD++;
++			BIOS += 6;
++		}
++
++	}
++#endif /* __i386__ */
++#ifdef __arm__
++	if (!NR_HD) {
++		/* We don't know anything about the drive.  This means
++		 * that you *MUST* specify the drive parameters to the
++		 * kernel yourself.
++		 */
++		printk("hd: no drives specified - use hd=cyl,head,sectors"
++			" on kernel command line\n");
++	}
++#endif
++	if (!NR_HD)
++		goto out;
++
++	for (drive=0 ; drive < NR_HD ; drive++) {
++		struct gendisk *disk = alloc_disk();
++		if (!disk)
++			goto Enomem;
++		disk->major = MAJOR_NR;
++		disk->first_minor = drive << 6;
++		disk->minor_shift = 6;
++		disk->fops = &hd_fops;
++		sprintf(disk->disk_name, "hd%c", 'a'+drive);
++		hd_gendisk[drive] = disk;
++	}
++	for (drive=0 ; drive < NR_HD ; drive++) {
++		sector_t size = hd_info[drive].head *
++			hd_info[drive].sect * hd_info[drive].cyl;
++		set_capacity(hd_gendisk[drive], size);
++		printk ("%s: %ldMB, CHS=%d/%d/%d\n",
++			hd_gendisk[drive]->disk_name,
++			size / 2048, hd_info[drive].cyl,
++			hd_info[drive].head, hd_info[drive].sect);
++	}
++
++	if (request_irq(HD_IRQ, hd_interrupt, SA_INTERRUPT, "hd", NULL)) {
++		printk("hd: unable to get IRQ%d for the hard disk driver\n",
++			HD_IRQ);
++		goto out1;
++	}
++
++	if (!request_region(HD_DATA, 2, "hd(data)")) {
++		printk(KERN_WARNING "hd: port 0x%x busy\n", HD_DATA);
++		NR_HD = 0;
++		free_irq(HD_IRQ, NULL);
++		return;
++	}
++
++	if (!request_region(HD_DATA + 2, 1, "hd"))
++	{
++		printk(KERN_WARNING "hd: port 0x%x busy\n", HD_DATA);
++		goto out2;
++	}
++
++	if (!request_region(HD_DATA + 4, 1, "hd"))
++	{
++		printk(KERN_WARNING "hd: port 0x%x busy\n", HD_DATA);
++		goto out3;
++	}
++
++	if (!request_region(HD_DATA + 6, 1, "hd"))
++	{
++		printk(KERN_WARNING "hd: port 0x%x busy\n", HD_DATA);
++		goto out4;
++	}
++
++	if (!request_region(HD_DATA + 8, 1, "hd"))
++	{
++		printk(KERN_WARNING "hd: port 0x%x busy\n", HD_DATA);
++		goto out5;
++	}
++
++	if (!request_region(HD_DATA + 10, 1, "hd"))
++	{
++		printk(KERN_WARNING "hd: port 0x%x busy\n", HD_DATA);
++		goto out6;
++	}
++
++	if (!request_region(HD_DATA + 12, 1, "hd"))
++	{
++		printk(KERN_WARNING "hd: port 0x%x busy\n", HD_DATA);
++		goto out7;
++	}
++
++	if (!request_region(HD_CMD, 1, "hd(cmd)"))
++	{
++		printk(KERN_WARNING "hd: port 0x%x busy\n", HD_CMD);
++		goto out8;
++	}
++
++	if (!request_region(HD_CMD + 2, 1, "hd(cmd)"))
++	{
++		printk(KERN_WARNING "hd: port 0x%x busy\n", HD_CMD);
++		goto out9;
++	}
++
++	for(drive=0; drive < NR_HD; drive++) {
++		struct hd_i_struct *p = hd_info + drive;
++		set_capacity(hd_gendisk[drive], p->head * p->sect * p->cyl);
++		add_disk(hd_gendisk[drive]);
++	}
++	return 0;
++
++out9:
++	release_region(HD_CMD, 1);
++out8:
++	release_region(HD_DATA + 12, 1);
++out7:
++	release_region(HD_DATA + 10, 1);
++out6:
++	release_region(HD_DATA + 8, 1);
++out5:
++	release_region(HD_DATA + 6, 1);
++out4:
++	release_region(HD_DATA + 4, 1);
++out3:
++	release_region(HD_DATA + 2, 1);
++out2:
++	release_region(HD_DATA, 2);
++	free_irq(HD_IRQ, NULL);
++out1:
++	for (drive = 0; drive < NR_HD; drive++)
++		put_disk(hd_gendisk[drive]);
++	NR_HD = 0;
++out:
++	del_timer(&device_timer);
++	unregister_blkdev(MAJOR_NR,"hd");
++	blk_cleanup_queue(BLK_DEFAULT_QUEUE(MAJOR_NR));
++	return -1;
++Enomem:
++	while (drive--)
++		put_disk(hd_gendisk[drive]);
++	goto out;
++}
++
++static int parse_hd_setup (char *line) {
++	int ints[6];
++
++	(void) get_options(line, ARRAY_SIZE(ints), ints);
++	hd_setup(NULL, ints);
++
++	return 1;
++}
++__setup("hd=", parse_hd_setup);
++
++module_init(hd_init);
+diff -urN linux/drivers/ide/legacy/pc9800.c linux98/drivers/ide/legacy/pc9800.c
+--- linux/drivers/ide/legacy/pc9800.c	Thu Jan  1 09:00:00 1970
++++ linux98/drivers/ide/legacy/pc9800.c	Tue Oct  8 17:06:39 2002
+@@ -0,0 +1,82 @@
++/*
++ *  ide_pc9800.c
++ *
++ *  Copyright (C) 1997-2000  Linux/98 project,
++ *			     Kyoto University Microcomputer Club.
 + */
 +
 +#include <linux/config.h>
-+#include <linux/types.h>
-+#include <linux/sched.h>
-+#include <linux/fs.h>
 +#include <linux/kernel.h>
-+#include <linux/tty.h>
-+#include <linux/console.h>
-+#include <linux/console_struct.h>
-+#include <linux/string.h>
-+#include <linux/kd.h>
-+#include <linux/slab.h>
-+#include <linux/vt_kern.h>
-+#include <linux/selection.h>
-+#include <linux/spinlock.h>
 +#include <linux/ioport.h>
++#include <linux/ide.h>
 +#include <linux/init.h>
 +
 +#include <asm/io.h>
 +#include <asm/pc9800.h>
 +
-+static spinlock_t gdc_lock = SPIN_LOCK_UNLOCKED;
++#define PC9800_IDE_BANKSELECT	0x432
 +
-+static char str_gdc_master[] = "GDC (master)";
-+static char str_gdc_slave[] = "GDC (slave)";
-+static char str_crtc[] = "crtc";
-+static struct resource gdc_console_resources[] = {
-+    {str_gdc_master, 0x60, 0x60, 0},
-+    {str_gdc_master, 0x62, 0x62, 0},
-+    {str_gdc_master, 0x64, 0x64, 0},
-+    {str_gdc_master, 0x66, 0x66, 0},
-+    {str_gdc_master, 0x68, 0x68, 0},
-+    {str_gdc_master, 0x6a, 0x6a, 0},
-+    {str_gdc_master, 0x6c, 0x6c, 0},
-+    {str_gdc_master, 0x6e, 0x6e, 0},
-+    {str_crtc, 0x70, 0x70, 0},
-+    {str_crtc, 0x72, 0x72, 0},
-+    {str_crtc, 0x74, 0x74, 0},
-+    {str_crtc, 0x76, 0x76, 0},
-+    {str_crtc, 0x78, 0x78, 0},
-+    {str_crtc, 0x7a, 0x7a, 0},
-+    {str_gdc_slave, 0xa0, 0xa0, 0},
-+    {str_gdc_slave, 0xa2, 0xa2, 0},
-+    {str_gdc_slave, 0xa4, 0xa4, 0},
-+    {str_gdc_slave, 0xa6, 0xa6, 0},
-+};
++#define DEBUG
 +
-+#define GDC_CONSOLE_RESOURCES (sizeof(gdc_console_resources)/sizeof(struct resource))
-+
-+#define BLANK 0x0020
-+#define BLANK_ATTR 0x00e1
-+
-+/* GDC/GGDC port# */
-+#define GDC_COMMAND 0x62
-+#define GDC_PARAM 0x60
-+#define GDC_STAT 0x60
-+#define GDC_DATA 0x62
-+
-+#define MODE_FF1	(0x0068)	/* mode F/F register 1 */
-+
-+#define  MODE_FF1_ATR_SEL	(0x00)	/* 0: vertical line 1: 8001 graphic */
-+#define  MODE_FF1_GRAPHIC_MODE	(0x02)	/* 0: color 1: mono */
-+#define  MODE_FF1_COLUMN_WIDTH	(0x04)	/* 0: 80col 1: 40col */
-+#define  MODE_FF1_FONT_SEL	(0x06)	/* 0: 6x8 1: 7x13 */
-+#define  MODE_FF1_GRP_MODE	(0x08)	/* 0: display odd-y raster 1: not */
-+#define  MODE_FF1_KAC_MODE	(0x0a)	/* 0: code access 1: dot access */
-+#define  MODE_FF1_NVMW_PERMIT	(0x0c)	/* 0: protect 1: permit */
-+#define  MODE_FF1_DISP_ENABLE	(0x0e)	/* 0: enable 1: disable */
-+
-+#define GGDC_COMMAND 0xa2
-+#define GGDC_PARAM 0xa0
-+#define GGDC_STAT 0xa0
-+#define GGDC_DATA 0xa2
-+
-+/* GDC status */
-+#define GDC_DATA_READY		(1 << 0)
-+#define GDC_FIFO_FULL		(1 << 1)
-+#define GDC_FIFO_EMPTY		(1 << 2)
-+#define GGDC_FIFO_EMPTY		GDC_FIFO_EMPTY
-+#define GDC_DRAWING		(1 << 3)
-+#define GDC_DMA_EXECUTE		(1 << 4)	/* nonsense on 98 */
-+#define GDC_VERTICAL_SYNC	(1 << 5)
-+#define GDC_HORIZONTAL_BLANK	(1 << 6)
-+#define GDC_LIGHTPEN_DETECT	(1 << 7)	/* nonsense on 98 */
-+
-+#define ATTR_G		(1U << 7)
-+#define ATTR_R		(1U << 6)
-+#define ATTR_B		(1U << 5)
-+#define ATTR_GRAPHIC	(1U << 4)
-+#define ATTR_VERTBAR	ATTR_GRAPHIC	/* vertical bar */
-+#define ATTR_UNDERLINE	(1U << 3)
-+#define ATTR_REVERSE	(1U << 2)
-+#define ATTR_BLINK	(1U << 1)
-+#define ATTR_NOSECRET	(1U << 0)
-+#define AMASK_NOCOLOR	(ATTR_GRAPHIC | ATTR_UNDERLINE | ATTR_REVERSE \
-+			 | ATTR_BLINK | ATTR_NOSECRET)
-+
-+/*
-+ *  Interface used by the world
-+ */
-+static const char *gdccon_startup(void);
-+static void gdccon_init(struct vc_data *c, int init);
-+static void gdccon_deinit(struct vc_data *c);
-+static void gdccon_cursor(struct vc_data *c, int mode);
-+static int gdccon_switch(struct vc_data *c);
-+static int gdccon_blank(struct vc_data *c, int blank);
-+static int gdccon_scrolldelta(struct vc_data *c, int lines);
-+static int gdccon_set_origin(struct vc_data *c);
-+static void gdccon_save_screen(struct vc_data *c);
-+static int gdccon_scroll(struct vc_data *c, int t, int b, int dir, int lines);
-+static u8 gdccon_build_attr(struct vc_data *c, u8 color, u8 intensity, u8 blink, u8 underline, u8 reverse);
-+static void gdccon_invert_region(struct vc_data *c, u16 *p, int count);
-+static unsigned long gdccon_uni_pagedir[2];
-+
-+/* Description of the hardware situation */
-+static unsigned long   gdc_vram_base;		/* Base of video memory */
-+static unsigned long   gdc_vram_end;		/* End of video memory */
-+static unsigned int    gdc_video_num_columns = 80;
-+						/* Number of text columns */
-+static unsigned int    gdc_video_num_lines = 25;
-+						/* Number of text lines */
-+static int	       gdc_can_do_color = 1;	/* Do we support colors? */
-+static unsigned char   gdc_video_type;		/* Card type */
-+static unsigned char   gdc_hardscroll_enabled;
-+static unsigned char   gdc_hardscroll_user_enable = 1;
-+static int	       gdc_vesa_blanked = 0;
-+static unsigned int    gdc_rolled_over = 0;
-+
-+#define DISP_FREQ_AUTO 0
-+#define DISP_FREQ_25k  1
-+#define DISP_FREQ_31k  2
-+
-+static unsigned int    gdc_disp_freq = DISP_FREQ_AUTO;
-+
-+#define gdc_attr_offset(x) ((typeof(x))((unsigned long)(x)+0x2000))
-+
-+#define	gdc_outb(val, port)	outb_p((val), (port))
-+#define	gdc_inb(port)		inb_p(port)
-+
-+#define __gdc_write_command(cmd)	gdc_outb((cmd), GDC_COMMAND)
-+#define __gdc_write_param(param)	gdc_outb((param), GDC_PARAM)
-+
-+static const char * __init gdccon_startup(void)
++static void
++pc9800_select(ide_drive_t *drive)
 +{
-+	const char *display_desc = NULL;
-+	unsigned long hdots = gdc_video_num_lines * 16;
-+	int i;
++#ifdef DEBUG
++	byte old;
 +
-+	while (!(inb_p(GDC_STAT) & GDC_FIFO_EMPTY));
-+	while (!(inb_p(GGDC_STAT) & GDC_FIFO_EMPTY));
-+	spin_lock_irq(&gdc_lock);	 
-+	outb_p(0x0c, GDC_COMMAND);	/* STOP */
-+	outb_p(0x0c, GGDC_COMMAND);	/* STOP */
-+	if (PC9800_9821_P() && gdc_disp_freq == DISP_FREQ_AUTO) {
-+		if (gdc_video_num_lines >= 30 || (inb(0x9a8) & 0x01)) {
-+			gdc_disp_freq = DISP_FREQ_31k;
-+		}
-+	}
++	/* Too noisy: */
++	/* printk(KERN_DEBUG "pc9800_select(%s)\n", drive->name); */
 +
-+	if (PC9800_9821_P() && gdc_disp_freq == DISP_FREQ_31k) {
-+		outb_p(0x01, 0x9a8);   /* 31.47KHz */
-+		outb_p(0x0e, GDC_COMMAND);  /* SYNC, DE deny */
-+		outb_p(0x00, GDC_PARAM);  /* CHR, F, I, D, G, S = 0 */
-+		outb_p(0x4e, GDC_PARAM);  /* C/R = 78 (80 chars) */
-+		outb_p(0x4b, GDC_PARAM);  /* VSL = 2(3) ; HS = 11 */
-+		outb_p(0x0c, GDC_PARAM);  /* HFP = 3    ; VSH = 0(VS=2) */
-+		outb_p(0x03, GDC_PARAM);  /* DS, PH = 0 ; HBP = 3 */
-+		outb_p(0x06, GDC_PARAM);  /* VH, VL = 0 ; VFP = 6 */
-+		outb_p(hdots & 0xff, GDC_PARAM);  /* LFL */
-+		outb_p(0x94 | ((hdots >> 8) & 0x03), GDC_PARAM);
-+						/* VBP = 37   ; LFH */
-+		outb_p(0x47, GDC_COMMAND);  /* PITCH */
-+		outb_p(0x50, GDC_PARAM);
-+
-+		outb_p(0x70, GDC_COMMAND);  /* SCROLL */
-+		outb_p(0x00, GDC_PARAM);
-+		outb_p(0x00, GDC_PARAM);
-+		outb_p((hdots << 4) & 0xf0, GDC_PARAM);  /* SL1=592 (0x250) */
-+		outb_p((hdots >> 4) & 0x3f, GDC_PARAM);
-+
-+		outb_p(0x0e, GGDC_COMMAND);  /* SYNC, DE deny */
-+		outb_p(0x00, GGDC_PARAM);  /* CHR, F, I, D, G, S = 0 */
-+		outb_p(0x4e, GGDC_PARAM);  /* C/R = 78 (80 chars) */
-+		outb_p(0x4b, GGDC_PARAM);  /* VSL = 2(3) ; HS = 11 */
-+		outb_p(0x0c, GGDC_PARAM);  /* HFP = 3    ; VSH = 0(VS=2) */
-+		outb_p(0x03, GGDC_PARAM);  /* DS, PH = 0 ; HBP = 3 */
-+		outb_p(0x06, GGDC_PARAM);  /* VH, VL = 0 ; VFP = 6 */
-+		outb_p(hdots & 0xff, GGDC_PARAM);  /* LFL */
-+		outb_p(0x94 | ((hdots >> 8) & 0x03), GGDC_PARAM);
-+						/* VBP = 37   ; LFH */
-+	} else {
-+		outb_p(0x00, 0x9a8);   /* 24.83 KHz */
-+		outb_p(0x0e, GDC_COMMAND);  /* SYNC, DE deny */
-+		outb_p(0x00, GDC_PARAM);  /* CHR, F, I, D, G, S = 0 */
-+		outb_p(0x4e, GDC_PARAM);  /* C/R = 78 (80 chars) */
-+		outb_p(0x07, GDC_PARAM);  /* VSL = 0(3) ; HS = 7 */
-+		outb_p(0x25, GDC_PARAM);  /* HFP = 9    ; VSH = 1(VS=8) */
-+		outb_p(0x07, GDC_PARAM);  /* DS, PH = 0 ; HBP = 7 */
-+		outb_p(0x07, GDC_PARAM);  /* VH, VL = 0 ; VFP = 7 */
-+		outb_p(hdots & 0xff, GDC_PARAM);  /* LFL */
-+		outb_p(0x64 | ((hdots >> 8) & 0x03), GDC_PARAM);
-+						/* VBP = 25   ; LFH */
-+		outb_p(0x47, GDC_COMMAND);  /* PITCH */
-+		outb_p(0x50, GDC_PARAM);
-+
-+		outb_p(0x70, GDC_COMMAND);  /* SCROLL */
-+		outb_p(0x00, GDC_PARAM);
-+		outb_p(0x00, GDC_PARAM);
-+		outb_p((hdots << 4) & 0xf0, GDC_PARAM);  /* SL1=592 (0x250) */
-+		outb_p((hdots >> 4) & 0x3f, GDC_PARAM);
-+
-+		outb_p(0x0e, GGDC_COMMAND);  /* SYNC */
-+		outb_p(0x00, GGDC_PARAM);
-+		outb_p(0x4e, GGDC_PARAM);
-+		outb_p(0x07, GGDC_PARAM);
-+		outb_p(0x25, GGDC_PARAM);
-+		outb_p(0x07, GGDC_PARAM);
-+		outb_p(0x07, GGDC_PARAM);
-+		outb_p(hdots & 0xff, GGDC_PARAM);  /* LFL */
-+		outb_p(0x64 | ((hdots >> 8) & 0x03), GGDC_PARAM);
-+						/* VBP = 25   ; LFH */
-+	}
-+
-+	outb_p(0x47, GGDC_COMMAND);  /* PITCH */ +	outb_p(0x28, GGDC_PARAM);
-+
-+	outb_p(0x0d, GDC_COMMAND);	/* START */
-+	outb_p(0x0d, GGDC_COMMAND);	/* START */
-+	spin_unlock_irq(&gdc_lock);	 
-+
-+	gdc_vram_base = (unsigned long)phys_to_virt(0xa0000);
-+	/* Last few bytes of text VRAM area are for NVRAM. */
-+	gdc_vram_end = gdc_vram_base + 0x1fe0;
-+
-+	if (!PC9800_HIGHRESO_P()) {
-+		gdc_video_type = VIDEO_TYPE_98NORMAL;
-+		display_desc = "NEC PC-9800 Normal";
-+	} else {
-+		gdc_video_type = VIDEO_TYPE_98HIRESO;
-+		display_desc = "NEC PC-9800 High Resolution";
-+	}
-+
-+	gdc_hardscroll_enabled = gdc_hardscroll_user_enable;
-+	 
-+	for (i = 0; i < GDC_CONSOLE_RESOURCES; i++)
-+		request_resource(&ioport_resource, gdc_console_resources + i);
-+
-+	return display_desc;
++	outb(0x80, PC9800_IDE_BANKSELECT);
++	old = inb(PC9800_IDE_BANKSELECT);
++	if (old != HWIF(drive)->index)
++		printk(KERN_DEBUG "ide-pc9800: switching bank #%d -> #%d\n",
++			old, HWIF(drive)->index);
++#endif
++	outb(HWIF(drive)->index, PC9800_IDE_BANKSELECT);
 +}
 +
-+static void gdccon_init(struct vc_data *c, int init)
++void __init
++ide_probe_for_pc9800(void)
 +{
-+	unsigned long p;
-+	 
-+	/* We cannot be loaded as a module, therefore init is always 1 */
-+	c->vc_can_do_color = gdc_can_do_color;
-+	c->vc_cols = gdc_video_num_columns;
-+	c->vc_rows = gdc_video_num_lines;
-+	c->vc_complement_mask = ATTR_REVERSE << 8;
-+	p = *c->vc_uni_pagedir_loc;
-+	if (c->vc_uni_pagedir_loc == &c->vc_uni_pagedir
-+	    || !--c->vc_uni_pagedir_loc[1])
-+		con_free_unimap(c->vc_num);
++	byte tmp;
 +
-+	c->vc_uni_pagedir_loc = gdccon_uni_pagedir;
-+	gdccon_uni_pagedir[1]++;
-+	if (!gdccon_uni_pagedir[0] && p)
-+		con_set_default_unimap(c->vc_num);
-+}
++	if (!PC9800_9821_P() /* || !PC9821_IDEIF_DOUBLE_P() */)
++		return;
 +
-+static inline void gdc_set_mem_top(struct vc_data *c)
-+{
-+	unsigned long flags;
-+	unsigned long origin = (c->vc_visible_origin - gdc_vram_base) / 2;
-+
-+	spin_lock_irqsave(&gdc_lock, flags);
-+	while (!(inb_p(GDC_STAT) & GDC_FIFO_EMPTY));
-+	__gdc_write_command(0x70);			/* SCROLL */
-+	__gdc_write_param(origin);			/* SAD1 (L) */
-+	__gdc_write_param((origin >> 8) & 0x1f);	/* SAD1 (H) */
-+	spin_unlock_irqrestore(&gdc_lock, flags);
-+}
-+
-+static void gdccon_deinit(struct vc_data *c)
-+{
-+	/* When closing the last console, reset video origin */
-+	if (!--gdccon_uni_pagedir[1]) {
-+		c->vc_visible_origin = gdc_vram_base;
-+		gdc_set_mem_top(c);
-+		con_free_unimap(c->vc_num);
++	if (check_region(PC9800_IDE_BANKSELECT, 1)) {
++		printk(KERN_ERR
++			"ide: bank select port (%#x) is already occupied!\n",
++			PC9800_IDE_BANKSELECT);
++		return;
 +	}
 +
-+	c->vc_uni_pagedir_loc = &c->vc_uni_pagedir;
-+	con_set_default_unimap(c->vc_num);
-+}
++	/* Do actual probing. */
++	if ((tmp = inb(PC9800_IDE_BANKSELECT)) == (byte) ~0
++	    || (outb(tmp ^ 1, PC9800_IDE_BANKSELECT),
++		/* Next outb is dummy for reading status. */
++		outb(0x80, PC9800_IDE_BANKSELECT),
++		inb(PC9800_IDE_BANKSELECT) != (tmp ^ 1))) {
++		printk(KERN_INFO
++			"ide: pc9800 type bank selecting port not found\n");
++		return;
++	}
++	/* Restore original value, just in case. */
++	outb(tmp, PC9800_IDE_BANKSELECT);
 +
-+#if 0
-+/* Translate ANSI terminal color code to GDC color code.  */
-+#define BGR_TO_GRB(bgr)	((((bgr) & 4) >> 2) | (((bgr) & 3) << 1))
++	request_region(PC9800_IDE_BANKSELECT, 1, "ide0/1 bank");
++
++	/* These ports are probably used by IDE I/F.  */
++	request_region(0x430, 1, "ide");
++	request_region(0x435, 1, "ide");
++
++	if (ide_hwifs[0].io_ports[IDE_DATA_OFFSET] == HD_DATA
++	    && ide_hwifs[1].io_ports[IDE_DATA_OFFSET] == HD_DATA) {
++		ide_hwifs[0].chipset = ide_pc9800;
++		ide_hwifs[0].mate = &ide_hwifs[1];
++		ide_hwifs[0].selectproc = pc9800_select;
++		ide_hwifs[1].chipset = ide_pc9800;
++		ide_hwifs[1].mate = &ide_hwifs[0];
++		ide_hwifs[1].selectproc = pc9800_select;
++	}
++}
+diff -urN linux/include/asm-i386/ide.h linux98/include/asm-i386/ide.h
+--- linux/include/asm-i386/ide.h	Sat Oct 12 13:21:31 2002
++++ linux98/include/asm-i386/ide.h	Sun Oct 13 23:17:54 2002
+@@ -26,6 +26,9 @@
+  static __inline__ int ide_default_irq(ide_ioreg_t base)
+  {
+  	switch (base) {
++#ifdef CONFIG_PC9800
++		case 0x640: return 9;
++#endif /* CONFIG_PC9800 */
+  		case 0x1f0: return 14;
+  		case 0x170: return 15;
+  		case 0x1e8: return 11;
+@@ -39,7 +42,11 @@
+   static __inline__ ide_ioreg_t ide_default_io_base(int index)
+  {
++#ifndef CONFIG_PC9800
+  	static unsigned long ata_io_base[MAX_HWIFS] = { 0x1f0, 0x170, 0x1e8, 0x168, 0x1e0, 0x160 };
++#else /* CONFIG_PC9800 */
++	static unsigned long ata_io_base[MAX_HWIFS] = { 0x640, 0x640, 0, 0, 0, 0 };
++#endif /* !CONFIG_PC9800 */
+   	return ata_io_base[index];
+  }
+@@ -48,13 +55,24 @@
+  {
+  	ide_ioreg_t reg = data_port;
+  	int i;
++#ifdef CONFIG_PC9800
++	ide_ioreg_t increment = data_port == 0x640 ? 2 : 1;
++#endif
+   	for (i = IDE_DATA_OFFSET; i <= IDE_STATUS_OFFSET; i++) {
+  		hw->io_ports[i] = reg;
++#ifndef CONFIG_PC9800
+  		reg += 1;
 +#else
-+#define RGB_TO_GRB(rgb)	((((rgb) & 4) >> 1) | (((rgb) & 2) << 1) | ((rgb) & 1))
++		reg += increment;
 +#endif
-+
-+static const u8 gdccon_color_table[] = {
-+#define C(color)	((RGB_TO_GRB (color) << 5) | ATTR_NOSECRET)
-+	C(0), C(1), C(2), C(3), C(4), C(5), C(6), C(7)
-+#undef C
-+};
-+
-+static u8 gdccon_build_attr(struct vc_data *c, u8 color, u8 intensity, u8 blink, u8 underline, u8 reverse)
-+{
-+	u8 attr = gdccon_color_table[color & 0x07];
-+
-+	if (!gdc_can_do_color)
-+		attr = (intensity == 0 ? 0x61
-+			: intensity == 2 ? 0xe1 : 0xa1);
-+
-+	if (underline)
-+		attr |= 0x08;
-+
-+	/* ignore intensity */
-+#if 0
-+	if(intensity == 0)
-+		;
-+	else if (intensity == 2)
-+		attr |= 0x10; /* virtical line */
-+#else
-+	if (intensity == 0) {
-+		if (attr == c->vc_def_attr)
-+			attr = c->vc_half_attr;
-+		else
-+			attr |= c->vc_half_attr & AMASK_NOCOLOR;
-+	} else if (intensity == 2) {
-+		if (attr == c->vc_def_attr)
-+			attr = c->vc_bold_attr;
-+		else
-+			attr |= c->vc_bold_attr & AMASK_NOCOLOR;
-+	}
+  	}
+  	if (ctrl_port) {
+  		hw->io_ports[IDE_CONTROL_OFFSET] = ctrl_port;
++#ifdef CONFIG_PC9800
++	} else if (data_port == 0x640) {
++		hw->io_ports[IDE_CONTROL_OFFSET] = 0x74c;
 +#endif
-+	if (reverse)
-+		attr |= ATTR_REVERSE;
-+
-+	if ((color & 0x07) == 0) {	/* foreground color == black */
-+		/* Fake background color by reversed character
-+		   as GDC cannot set background color.  */
-+		attr |= gdccon_color_table[(color >> 4) & 0x07];
-+		attr ^= ATTR_REVERSE;
-+	}
-+
-+	if (blink)
-+		attr |= ATTR_BLINK;
-+
-+	return attr;
-+}
-+
-+static void gdccon_invert_region(struct vc_data *c, u16 *p, int count)
-+{
-+	while (count--) {
-+		*((u16 *)(gdc_attr_offset(p))) ^= ATTR_REVERSE;
-+		p++;
-+	}
-+}
-+
-+static u8 gdc_csrform_lr = 15;			/* Lines/Row */
-+static u16 gdc_csrform_bl_bd = ((12 << 6)	/* BLinking Rate */
-+				| (0 << 5));	/* Blinking Disable */
-+
-+static inline void gdc_hide_cursor(void)
-+{
-+    __gdc_write_command(0x4b);		/* CSRFORM */
-+    __gdc_write_param(gdc_csrform_lr);	/* CS = 0, CE = 0, L/R = ? */
-+}
-+
-+static inline void gdc_show_cursor(int cursor_start, int cursor_finish)
-+{
-+    __gdc_write_command(0x4b);		/* CSRFORM */
-+    __gdc_write_param(0x80 | gdc_csrform_lr);		/* CS = 1 */
-+    __gdc_write_param(cursor_start | gdc_csrform_bl_bd);
-+    __gdc_write_param((cursor_finish << 3) | (gdc_csrform_bl_bd >> 8));
-+}
-+
-+static void gdccon_cursor(struct vc_data *c, int mode)
-+{
-+    unsigned long flags;
-+    u16 ead;
-+
-+    if (c->vc_origin != c->vc_visible_origin)
-+	gdccon_scrolldelta(c, 0);
-+
-+    spin_lock_irqsave(&gdc_lock, flags);
-+    while (!(inb_p(GDC_STAT) & GDC_FIFO_EMPTY));
-+    spin_unlock_irqrestore(&gdc_lock, flags);
-+    switch (mode) {
-+	case CM_ERASE:
-+	    gdc_hide_cursor();
-+	    break;
-+
-+	case CM_MOVE:
-+	case CM_DRAW:
-+	    switch (c->vc_cursor_type & 0x0f) {
-+		case CUR_UNDERLINE:
-+		    gdc_show_cursor(14, 15);	/* XXX font height */
-+		    break;
-+
-+		case CUR_TWO_THIRDS:
-+		    gdc_show_cursor(5, 15);	/* XXX */
-+		    break;
-+
-+		case CUR_LOWER_THIRD:
-+		    gdc_show_cursor(11, 15);	/* XXX */
-+		    break;
-+
-+		case CUR_LOWER_HALF:
-+		    gdc_show_cursor(8, 15);	/* XXX */
-+		    break;
-+
-+		case CUR_NONE:
-+		    gdc_hide_cursor();
-+		    break;
-+
-+          	default:
-+		    gdc_show_cursor(0, 15);	/* XXX */
-+		    break;
-+	    }
-+
-+	    spin_lock_irqsave(&gdc_lock, flags);
-+	    __gdc_write_command(0x49);		/* CSRW */
-+	    ead = (c->vc_pos - gdc_vram_base) >> 1;
-+	    __gdc_write_param(ead);
-+	    __gdc_write_param((ead >> 8) & 0x1f);
-+	    spin_unlock_irqrestore(&gdc_lock, flags);
-+	    break;
-+    }
-+
-+}
-+
-+static int gdccon_switch(struct vc_data *c)
-+{
-+	/*
-+	 * We need to save screen size here as it's the only way
-+	 * we can spot the screen has been resized and we need to
-+	 * set size of freshly allocated screens ourselves.
-+	 */
-+	gdc_video_num_columns = c->vc_cols;
-+	gdc_video_num_lines = c->vc_rows;
-+	if (c->vc_origin != (unsigned long)c->vc_screenbuf
-+	    && gdc_vram_base <= c->vc_origin && c->vc_origin < gdc_vram_end) {
-+		_scr_memcpyw_to((u16 *)c->vc_origin,
-+				(u16 *)c->vc_screenbuf,
-+				c->vc_screenbuf_size);
-+		_scr_memcpyw_to((u16 *)gdc_attr_offset(c->vc_origin),
-+				(u16 *)((char *)c->vc_screenbuf
-+					 + c->vc_screenbuf_size),
-+				c->vc_screenbuf_size);
-+	} else
-+		printk(KERN_WARNING
-+			"gdccon: switch (vc #%d) called on origin=%lx\n",
-+			c->vc_num, c->vc_origin);
-+
-+	return 0;	/* Redrawing not needed */
-+}
-+
-+static int gdccon_set_palette(struct vc_data *c, unsigned char *table)
-+{
-+	return -EINVAL;
-+}
-+
-+#define RELAY0		0x01
-+#define RELAY0_GDC	0x00
-+#define RELAY0_ACCEL	0x01
-+#define RELAY1		0x02
-+#define RELAY1_INTERNAL	0x00
-+#define RELAY1_EXTERNAL	0x02
-+#define IO_RELAY	0x0fac
-+#define IO_DPMS		0x09a2
-+static unsigned char relay_mode = RELAY0_GDC | RELAY1_INTERNAL;
-+
-+static void gdc_vesa_blank(int mode)
-+{
-+    unsigned char stat;
-+
-+    spin_lock_irq(&gdc_lock);
-+
-+    relay_mode = inb_p(IO_RELAY);
-+    if ((relay_mode & (RELAY0 | RELAY1)) != (RELAY0_GDC | RELAY1_INTERNAL)) {
-+#ifdef CONFIG_DONTTOUCHRELAY
-+	spin_unlock_irq(&gdc_lock);
-+	return;
-+#else
-+	outb_p((relay_mode & ~(RELAY0 | RELAY1)) |
-+	       RELAY0_GDC | RELAY1_INTERNAL , IO_RELAY);
-+#endif
-+    }
-+
-+    if (mode & VESA_VSYNC_SUSPEND) {
-+	stat = inb_p(IO_DPMS);
-+	outb_p(stat | 0x80, IO_DPMS);
-+    }
-+    if (mode & VESA_HSYNC_SUSPEND) {
-+	stat = inb_p(IO_DPMS);
-+	outb_p(stat | 0x40, IO_DPMS);
-+    }
-+
-+    spin_unlock_irq(&gdc_lock);
-+}
-+
-+static void gdc_vesa_unblank(void)
-+{
-+    unsigned char stat;
-+
-+#ifdef CONFIG_DONTTOUCHRELAY
-+    if (relay_mode & (RELAY0 | RELAY1))
-+	return;
-+#endif
-+
-+    spin_lock_irq(&gdc_lock);
-+
-+    stat = inb_p(0x09a2);
-+    outb_p(stat & ~0xc0, IO_DPMS);
-+    if (relay_mode & (RELAY0 | RELAY1))
-+	outb_p(relay_mode, IO_RELAY);
-+
-+    spin_unlock_irq(&gdc_lock);
-+}
-+
-+static int gdccon_blank(struct vc_data *c, int blank)
-+{
-+	switch (blank) {
-+	case 0:				/* Unblank */
-+		if (gdc_vesa_blanked) {
-+			gdc_vesa_unblank();
-+			gdc_vesa_blanked = 0;
-+		}
-+
-+		outb(MODE_FF1_DISP_ENABLE | 1, MODE_FF1);
-+
-+		/* Tell console.c that it need not to restore the screen */
-+		return 0;
-+
-+	case 1:				/* Normal blanking */
-+		/* Disable displaying */
-+		outb(MODE_FF1_DISP_ENABLE | 0, MODE_FF1);
-+
-+		/* Tell console.c that it need not to reset origin */
-+		return 0;
-+
-+	case -1:			/* Entering graphic mode */
-+		return 1;
-+
-+	default:			/* VESA blanking */
-+		if (gdc_video_type == VIDEO_TYPE_98NORMAL
-+		    || gdc_video_type == VIDEO_TYPE_9840
-+		    || gdc_video_type == VIDEO_TYPE_98HIRESO) {
-+			gdc_vesa_blank(blank - 1);
-+			gdc_vesa_blanked = blank;
-+		}
-+
-+		return 0;
-+	}
-+}
-+
-+static int gdccon_font_op(struct vc_data *c, struct console_font_op *op)
-+{
-+	return -ENOSYS;
-+}
-+
-+static int gdccon_scrolldelta(struct vc_data *c, int lines)
-+{
-+	if (!lines)			/* Turn scrollback off */
-+		c->vc_visible_origin = c->vc_origin;
-+	else {
-+		int vram_size = gdc_vram_end - gdc_vram_base;
-+		int margin = c->vc_size_row /* * 4 */;
-+		int ul, we, p, st;
-+
-+		if (gdc_rolled_over > c->vc_scr_end - gdc_vram_base + margin) {
-+			ul = c->vc_scr_end - gdc_vram_base;
-+			we = gdc_rolled_over + c->vc_size_row;
-+		} else {
-+			ul = 0;
-+			we = vram_size;
-+		}
-+
-+		p = (c->vc_visible_origin - gdc_vram_base - ul + we)
-+			% we + lines * c->vc_size_row;
-+		st = (c->vc_origin - gdc_vram_base - ul + we) % we;
-+		if (p < margin)
-+			p = 0;
-+
-+		if (p > st - margin)
-+			p = st;
-+		c->vc_visible_origin = gdc_vram_base + (p + ul) % we;
-+	}
-+
-+	gdc_set_mem_top(c);
-+	return 1;
-+}
-+
-+static int gdccon_set_origin(struct vc_data *c)
-+{
-+	c->vc_origin = c->vc_visible_origin = gdc_vram_base;
-+	gdc_set_mem_top(c);
-+	gdc_rolled_over = 0;
-+	return 1;
-+}
-+
-+static void gdccon_save_screen(struct vc_data *c)
-+{
-+	static int gdc_bootup_console = 0;
-+
-+	if (!gdc_bootup_console) {
-+		/* This is a gross hack, but here is the only place we can
-+		 * set bootup console parameters without messing up generic
-+		 * console initialization routines.
-+		 */
-+		gdc_bootup_console = 1;
-+		c->vc_x = ORIG_X;
-+		c->vc_y = ORIG_Y;
-+	}
-+
-+	_scr_memcpyw_from((u16 *)c->vc_screenbuf,
-+				(u16 *)c->vc_origin, c->vc_screenbuf_size);
-+	_scr_memcpyw_from((u16 *)((char *)c->vc_screenbuf + c->vc_screenbuf_size), (u16 *)gdc_attr_offset(c->vc_origin), c->vc_screenbuf_size);
-+}
-+
-+static int gdccon_scroll(struct vc_data *c, int t, int b, int dir, int lines)
-+{
-+	unsigned long oldo;
-+	unsigned int delta;
-+
-+	if (t || b != c->vc_rows)
-+		return 0;
-+
-+	if (c->vc_origin != c->vc_visible_origin)
-+		gdccon_scrolldelta(c, 0);
-+
-+	if (!gdc_hardscroll_enabled || lines >= c->vc_rows / 2)
-+		return 0;
-+
-+	oldo = c->vc_origin;
-+	delta = lines * c->vc_size_row;
-+	if (dir == SM_UP) {
-+		if (c->vc_scr_end + delta >= gdc_vram_end) {
-+			_scr_memcpyw((u16 *)gdc_vram_base,
-+				    (u16 *)(oldo + delta),
-+				    c->vc_screenbuf_size - delta);
-+			_scr_memcpyw((u16 *)gdc_attr_offset(gdc_vram_base),
-+				    (u16 *)gdc_attr_offset(oldo + delta),
-+				    c->vc_screenbuf_size - delta);
-+			c->vc_origin = gdc_vram_base;
-+			gdc_rolled_over = oldo - gdc_vram_base;
-+		} else
-+			c->vc_origin += delta;
-+
-+		_scr_memsetw((u16 *)(c->vc_origin + c->vc_screenbuf_size - delta), c->vc_video_erase_char & 0xff, delta);
-+		_scr_memsetw((u16 *)gdc_attr_offset(c->vc_origin + c->vc_screenbuf_size - delta), c->vc_video_erase_char >> 8, delta);
-+	} else {
-+		if (oldo - delta < gdc_vram_base) {
-+			_scr_memmovew((u16 *)(gdc_vram_end - c->vc_screenbuf_size + delta), (u16 *)oldo, c->vc_screenbuf_size - delta);
-+			_scr_memmovew((u16 *)gdc_attr_offset(gdc_vram_end - c->vc_screenbuf_size + delta), (u16 *)gdc_attr_offset(oldo), c->vc_screenbuf_size - 
-delta);
-+			c->vc_origin = gdc_vram_end - c->vc_screenbuf_size;
-+			gdc_rolled_over = 0;
-+		} else
-+			c->vc_origin -= delta;
-+
-+		c->vc_scr_end = c->vc_origin + c->vc_screenbuf_size;
-+		_scr_memsetw((u16 *)(c->vc_origin), c->vc_video_erase_char & 0xff, delta);
-+		_scr_memsetw((u16 *)gdc_attr_offset(c->vc_origin), c->vc_video_erase_char >> 8, delta);
-+	}
-+
-+	c->vc_scr_end = c->vc_origin + c->vc_screenbuf_size;
-+	c->vc_visible_origin = c->vc_origin;
-+	gdc_set_mem_top(c);
-+	c->vc_pos = (c->vc_pos - oldo) + c->vc_origin;
-+	return 1;
-+}
-+
-+static int gdccon_setterm_command(struct vc_data *c)
-+{
-+	switch (c->vc_par[0]) {
-+	case 1: /* set attr for underline mode */
-+		if (c->vc_npar < 2) {
-+			if (c->vc_par[1] < 16)
-+				c->vc_ul_attr = gdccon_color_table[color_table[c->vc_par[1]] & 7];
-+		} else {
-+			if (c->vc_par[2] < 256)
-+				c->vc_ul_attr = c->vc_par[2];
-+		}
-+
-+		if (c->vc_underline)
-+			goto update_attr;
-+
-+		return 1;
-+
-+	case 2:	/* set attr for half intensity mode */
-+		if (c->vc_npar < 2) {
-+			if (c->vc_par[1] < 16)
-+				c->vc_half_attr = gdccon_color_table[color_table[c->vc_par[1]] & 7];
-+		}
-+		else {
-+			if (c->vc_par[2] < 256)
-+				c->vc_half_attr = c->vc_par[2];
-+		}
-+
-+		if (c->vc_intensity == 0)
-+			goto update_attr;
-+
-+		return 1;
-+
-+	case 3: /* set color for bold mode */
-+		if (c->vc_npar < 2) {
-+			if (c->vc_par[1] < 16)
-+				c->vc_bold_attr = gdccon_color_table[color_table[c->vc_par[1]] & 7];
-+		} else {
-+			if (c->vc_par[2] < 256)
-+				c->vc_bold_attr = c->vc_par[2];
-+		}
-+
-+		if (c->vc_intensity == 2)
-+			goto update_attr;
-+
-+		return 1;
-+	}
-+
-+	return 0;
-+
-+update_attr:
-+	c->vc_attr = gdccon_build_attr(c,
-+					c->vc_color, c->vc_intensity,
-+					c->vc_blink, c->vc_underline,
-+					c->vc_reverse);
-+	return 1;
-+}
-+
-+/*
-+ *  The console `switch' structure for the GDC based console
-+ */
-+
-+static int gdccon_dummy(struct vc_data *c)
-+{
-+	return 0;
-+}
-+
-+#define DUMMY (void *) gdccon_dummy
-+
-+const struct consw gdc_con = {
-+	.con_startup =		gdccon_startup,
-+	.con_init =		gdccon_init,
-+	.con_deinit =		gdccon_deinit,
-+	.con_clear =		DUMMY,
-+	.con_putc =		DUMMY,
-+	.con_putcs =		DUMMY,
-+	.con_cursor =		gdccon_cursor,
-+	.con_scroll =		gdccon_scroll,
-+	.con_bmove =		DUMMY,
-+	.con_switch =		gdccon_switch,
-+	.con_blank =		gdccon_blank,
-+	.con_font_op =		gdccon_font_op,
-+	.con_set_palette =	gdccon_set_palette,
-+	.con_scrolldelta =	gdccon_scrolldelta,
-+	.con_set_origin =	gdccon_set_origin,
-+	.con_save_screen =	gdccon_save_screen,
-+	.con_build_attr =	gdccon_build_attr,
-+	.con_invert_region =	gdccon_invert_region,
-+	.con_setterm_command =	gdccon_setterm_command
-+};
-+
-+static int __init gdc_setup(char *str)
-+{
-+	unsigned long tmp_ulong;
-+	char *opt, *orig_opt, *endp;
-+
-+	while ((opt = strsep(&str, ",")) != NULL) {
-+		int force = 0;
-+
-+		orig_opt = opt;
-+		if (!strncmp(opt, "force", 5)) {
-+			force = 1;
-+			opt += 5;
-+		}
-+
-+		if (!strcmp(opt, "mono"))
-+			gdc_can_do_color = 0;
-+		else if ((tmp_ulong = simple_strtoul(opt, &endp, 0)) > 0) {
-+			if (!strcmp(endp, "lines")
-+			    || (!strcmp(endp, "linesforce") && (force == 1))) {
-+				if (!force
-+				    && (tmp_ulong < 20
-+					|| (!PC9800_9821_P()
-+					    && 25 < tmp_ulong)
-+					|| 37 < tmp_ulong))
-+					printk(KERN_ERR
-+						"gdccon: %d is out of bound"
-+						" for number of lines\n",
-+						(int)tmp_ulong);
-+				else
-+					gdc_video_num_lines = tmp_ulong;
-+			} else if (!strcmp(endp, "kHz")) {
-+				if (tmp_ulong == 24 || tmp_ulong == 25)
-+					gdc_disp_freq = DISP_FREQ_25k;
-+				else
-+					printk(KERN_ERR "gdccon: `%s' ignored\n",
-+						orig_opt);
-+			} else
-+				printk(KERN_ERR "gdccon: unknown option `%s'\n",
-+					orig_opt);
-+		} else
-+			printk(KERN_ERR "gdccon: unknown option `%s'\n",
-+				orig_opt);
-+	}
-+
-+	return 1; +}
-+
-+__setup("gdccon=", gdc_setup);
-+ 
-+/*
-+ * We will follow Linus's indenting style...
-+ *
-+ * Local variables:
-+ * c-basic-offset: 8
-+ * End:
-+ */
-diff -urN linux/include/asm-i386/gdc.h linux98/include/asm-i386/gdc.h
---- linux/include/asm-i386/gdc.h	Thu Jan  1 09:00:00 1970
-+++ linux98/include/asm-i386/gdc.h	Mon Oct 28 21:44:40 2002
-@@ -0,0 +1,217 @@
-+/*
-+ *  gdc.h - macro & inline functions for accessing GDC text-VRAM
-+ *
-+ *  Copyright (C) 1997-2002   Osamu Tomita <tomita@cinet.co.jp>
-+ *			      KITAGAWA Takurou,
-+ *			      UGAWA Tomoharu,
-+ *			      TAKAI Kosuke
-+ *			      (Linux/98 Project)
-+ */
-+#ifndef _LINUX_ASM_GDC_H_
-+#define _LINUX_ASM_GDC_H_
-+
+  	} else {
+  		hw->io_ports[IDE_CONTROL_OFFSET] = hw->io_ports[IDE_DATA_OFFSET] + 0x206;
+  	}
+diff -urN linux/include/linux/hdreg.h linux98/include/linux/hdreg.h
+--- linux/include/linux/hdreg.h	Sat Oct 12 13:22:07 2002
++++ linux98/include/linux/hdreg.h	Sat Oct 12 19:38:02 2002
+@@ -5,11 +5,13 @@
+   * This file contains some defines for the AT-hd-controller.
+   * Various sources.
+   */
 +#include <linux/config.h>
+   /* ide.c has its own port definitions in "ide.h" */
+   #define HD_IRQ		14
+  +#ifndef CONFIG_PC9800
+  /* Hd controller regs. Ref: IBM AT Bios-listing */
+  #define HD_DATA		0x1f0		/* _CTL when writing */
+  #define HD_ERROR	0x1f1		/* see err-bits */
+@@ -25,6 +27,23 @@
+   #define HD_CMD		0x3f6		/* used for resets */
+  #define HD_ALTSTATUS	0x3f6		/* same as HD_STATUS but doesn't clear irq */
++#else /* CONFIG_PC9800 */
++/* Hd controller regs. for NEC PC-9800 */
++#define HD_DATA		0x640	/* _CTL when writing */
++#define HD_ERROR	0x642	/* see err-bits */
++#define HD_NSECTOR	0x644	/* nr of sectors to read/write */
++#define HD_SECTOR	0x646	/* starting sector */
++#define HD_LCYL		0x648	/* starting cylinder */
++#define HD_HCYL		0x64a	/* high byte of starting cyl */
++#define HD_CURRENT	0x64c	/* 101dhhhh , d=drive, hhhh=head */
++#define HD_STATUS	0x64e	/* see status-bits */
++#define HD_FEATURE	HD_ERROR	/* same io address, read=error, write=feature */
++#define HD_PRECOMP	HD_FEATURE	/* obsolete use of this port - predates IDE */
++#define HD_COMMAND	HD_STATUS	/* same io address, read=status, write=cmd */
 +
-+#define PC9800_VRAM_ATTR_OFFSET 0x2000
-+
-+#define GDC_MAP_MEM(x) (unsigned long)phys_to_virt(x)
-+
-+#define gdc_readb(x) (*(x))
-+#define gdc_writeb(x,y) (*(y) = (x))
-+
-+extern int	fbcon_softback_size;
-+
-+#ifdef CONFIG_FB_EGC
-+#define pc9800_attr_offset(p) \
-+		((u16 *)((u32)(p) + \
-+		(((u32)(p) >= (u32)(vc_cons[currcons].d->vc_screenbuf) \
-+			&& (u32)(p) < (u32)(vc_cons[currcons].d->vc_screenbuf) \
-+				+ vc_cons[currcons].d->vc_screenbuf_size) ? \
-+		vc_cons[currcons].d->vc_screenbuf_size : fbcon_softback_size)))
-+#else
-+#define pc9800_attr_offset(p) \
-+		((u16 *)((u32)(p) + \
-+			(((u32)(p) >= (u32)(__va(0xa0000)) \
-+				&& (u32)(p) < (u32)(__va(0xa2000))) ? \
-+			0x2000 : vc_cons[currcons].d->vc_screenbuf_size)))
-+#endif
-+
-+#define VT_BUF_HAVE_RW
-+#define scr_writew(val, p) \
-+	{ \
-+		*((u16 *)(p)) = (u16)(((val) >> 16) & 0xff00) \
-+			| (u16)((val) & 0xff); \
-+		*(pc9800_attr_offset(p)) = (u16)((val) >> 8); \
-+	}
-+
-+#define scr_readw(p) \
-+	( \
-+		(*((u16 *)(p)) & 0xff) | ((*((u16 *)(p)) & 0xff00) << 16) \
-+		| ((*(pc9800_attr_offset(p)) & 0xff) << 8) \
-+	)
-+
-+#define VT_BUF_HAVE_MEMSETW
-+extern inline void
-+_scr_memsetw(u16 *s, u16 c, unsigned int count)
-+{
-+#ifdef CONFIG_GDC_32BITACCESS
-+	__asm__ __volatile__ ("shr%L1 %1
-+	jz 2f
-+" /*	cld	kernel code now assumes DF = 0 any time */ "\
-+	test%L0 %3,%0
-+	jz 1f
-+	stos%W2
-+	dec%L1 %1
-+1:	shr%L1 %1
-+	rep
-+	stos%L2
-+	jnc 2f
-+	stos%W2
-+	rep
-+	stos%W2
-+2:"
-+			      : "=D"(s), "=c"(count)
-+			      : "a"((((u32) c) << 16) | c), "g"(2),
-+			        "0"(s), "1"(count));
-+#else
-+	__asm__ __volatile__ ("rep\n\tstosw"
-+			      : "=D"(s), "=c"(count)
-+			      : "0"(s), "1"(count / 2), "a"(c));
-+#endif	 
-+}
-+
-+#define scr_memsetw(s, c, count) \
-+	{ \
-+	_scr_memsetw((s), (u16)(((c) >> 16) & 0xff00) | (u16)((c) & 0xff), \
-+		       	(count)); \
-+	_scr_memsetw(pc9800_attr_offset(s), ((u16)(c)) >> 8, (count)); \
-+	}
-+
-+#define VT_BUF_HAVE_MEMCPYW
-+extern inline void
-+_scr_memcpyw(u16 *d, u16 *s, unsigned int count)
-+{
-+#if 1 /* def CONFIG_GDC_32BITACCESS */
-+	__asm__ __volatile__ ("shr%L2 %2
-+	jz 2f
-+" /*	cld	*/ "\
-+	test%L0 %3,%0
-+	jz 1f
-+	movs%W0
-+	dec%L2 %2
-+1:	shr%L2 %2
-+	rep
-+	movs%L0
-+	jnc 2f
-+	movs%W0
-+2:"
-+			      : "=D"(d), "=S"(s), "=c"(count)
-+			      : "g"(2), "0"(d), "1"(s), "2"(count));
-+#else
-+	__asm__ __volatile__ ("rep\n\tmovsw"
-+			      : "=D"(d), "=S"(s), "=c"(count)
-+			      : "0"(d), "1"(s), "2"(count / 2));
-+#endif
-+}
-+
-+#define scr_memcpyw(d, s, count) \
-+	{ \
-+	_scr_memcpyw((d), (s), (count)); \
-+	_scr_memcpyw(pc9800_attr_offset(d), pc9800_attr_offset(s), (count)); \
-+	}
-+
-+extern inline void
-+_scr_memrcpyw(u16 *d, u16 *s, unsigned int count)
-+{
-+#if 1 /* def CONFIG_GDC_32BITACCESS */
-+	u16 tmp;
-+
-+	__asm__ __volatile__ ("shr%L3 %3
-+	jz 2f
-+	std
-+	lea%L1 -4(%1,%3,2),%1
-+	lea%L2 -4(%2,%3,2),%2
-+	test%L1 %4,%1
-+	jz 1f
-+	mov%W0 2(%2),%0
-+	sub%L2 %4,%2
-+	dec%L3 %3
-+	mov%W0 %0,2(%1)
-+	sub%L1 %4,%1
-+1:	shr%L3 %3
-+	rep
-+	movs%L0
-+	jnc 3f
-+	mov%W0 2(%2),%0
-+	mov%W0 %0,2(%1)
-+3:	cld
-+2:"
-+			      : "=r"(tmp), "=D"(d), "=S"(s), "=c"(count)
-+			      : "g"(2), "1"(d), "2"(s), "3"(count));
-+#else
-+	__asm__ __volatile__ ("std\n\trep\n\tmovsw\n\tcld"
-+			      : "=D"(d), "=S"(s), "=c"(count)
-+			      : "0"((void *) d + count - 2),
-+			        "1"((void *) s + count - 2), "2"(count / 2));
-+#endif	 
-+}
-+
-+#define VT_BUF_HAVE_MEMMOVEW
-+extern inline void
-+_scr_memmovew(u16 *d, u16 *s, unsigned int count)
-+{
-+	if (d > s)
-+		_scr_memrcpyw(d, s, count);
-+	else
-+		_scr_memcpyw(d, s, count);
-+}	 
-+
-+#define scr_memmovew(d, s, count) \
-+	{ \
-+	_scr_memmovew((d), (s), (count)); \
-+	_scr_memmovew(pc9800_attr_offset(d), pc9800_attr_offset(s), (count)); \
-+	}
-+
-+#define VT_BUF_HAVE_MEMCPYF
-+extern inline void
-+_scr_memcpyw_from(u16 *d, u16 *s, unsigned int count)
-+{
-+#ifdef CONFIG_GDC_32BITACCESS
-+	/* VRAM is quite slow, so we align source pointer (%esi)
-+	   to double-word alignment. */
-+	__asm__ __volatile__ ("shr%L2 %2
-+	jz 2f
-+" /*	cld	*/ "\
-+	test%L0 %3,%0
-+	jz 1f
-+	movs%W0
-+	dec%L2 %2
-+1:	shr%L2 %2
-+	rep
-+	movs%L0
-+	jnc 2f
-+	movs%W0
-+2:"
-+			      : "=D"(d), "=S"(s), "=c"(count)
-+			      : "g"(2), "0"(d), "1"(s), "2"(count));
-+#else
-+	__asm__ __volatile__ ("rep\n\tmovsw"
-+			      : "=D"(d), "=S"(s), "=c"(count)
-+			      : "0"(d), "1"(s), "2"(count / 2));
-+#endif
-+}
-+
-+#define scr_memcpyw_from(d, s, count) \
-+	{ \
-+	_scr_memcpyw_from((d), (s), (count)); \
-+	_scr_memcpyw_from(pc9800_attr_offset(d), pc9800_attr_offset(s), \
-+				(count)); \
-+	}
-+
-+#ifdef CONFIG_GDC_32BITACCESS
-+# define _scr_memcpyw_to _scr_memcpyw
-+#else
-+# define _scr_memcpyw_to _scr_memcpyw_from
-+#endif
-+
-+#endif /* _LINUX_ASM_GDC_H_ */
++#define HD_CMD		0x74c	/* used for resets */
++#define HD_ALTSTATUS	0x74c	/* same as HD_STATUS but doesn't clear irq */
++#endif /* CONFIG_PC9800 */
+   /* remainder is shared between hd.c, ide.c, ide-cd.c, and the hdparm utility */
+  diff -urN linux/include/linux/ide.h linux98/include/linux/ide.h
+--- linux/include/linux/ide.h	Sat Oct 12 13:21:41 2002
++++ linux98/include/linux/ide.h	Sat Oct 12 14:18:54 2002
+@@ -286,7 +286,7 @@
+  		ide_qd65xx,	ide_umc8672,	ide_ht6560b,
+  		ide_pdc4030,	ide_rz1000,	ide_trm290,
+  		ide_cmd646,	ide_cy82c693,	ide_4drives,
+-		ide_pmac,	ide_etrax100,	ide_acorn
++		ide_pmac,	ide_etrax100,	ide_acorn,	ide_pc9800
+  } hwif_chipset_t;
+   typedef struct ide_io_ops_s {

@@ -1,57 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129210AbQLAPXN>; Fri, 1 Dec 2000 10:23:13 -0500
+	id <S129183AbQLAPbR>; Fri, 1 Dec 2000 10:31:17 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129449AbQLAPXD>; Fri, 1 Dec 2000 10:23:03 -0500
-Received: from probity.mcc.ac.uk ([130.88.200.94]:1796 "EHLO probity.mcc.ac.uk")
-	by vger.kernel.org with ESMTP id <S129210AbQLAPW4>;
-	Fri, 1 Dec 2000 10:22:56 -0500
-Date: Fri, 1 Dec 2000 14:52:11 +0000 (GMT)
-From: John Levon <moz@compsoc.man.ac.uk>
-To: Jamie Manley <jamie@homebrewcomputing.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.2.18pre24 and drm/agpgart static?
-In-Reply-To: <20001129203752.A15218@homebrewcomputing.com>
-Message-ID: <Pine.LNX.4.21.0012011450270.1317-100000@mrworry.compsoc.man.ac.uk>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S129408AbQLAPbH>; Fri, 1 Dec 2000 10:31:07 -0500
+Received: from mx7.port.ru ([194.67.23.44]:4028 "EHLO mx7.port.ru")
+	by vger.kernel.org with ESMTP id <S129183AbQLAPa6>;
+	Fri, 1 Dec 2000 10:30:58 -0500
+From: "Guennadi Liakhovetski" <gvlyakh@mail.ru>
+To: linux-kernel@vger.kernel.org
+Subject: Re[2]: DMA !NOT ONLY! for triton again...
+Mime-Version: 1.0
+X-Mailer: mPOP Web-Mail 2.19
+X-Originating-IP: 143.167.4.62 via proxy [143.167.1.16]
+Reply-To: "Guennadi Liakhovetski" <gvlyakh@mail.ru>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Message-Id: <E141rfr-0009SD-00@f11.mail.ru>
+Date: Fri, 01 Dec 2000 18:00:31 +0300
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 29 Nov 2000, Jamie Manley wrote:
+Glad all this discussion helped at least one of us:-))
 
-> Finally got around to trying the 2.2.18pre series and the agp/drm
-> backport and noticed something odd at bootup.  Here's an extract from
-> dmesg:
-> 
-> Linux agpgart interface v0.99 (c) Jeff Hartmann
-> agpgart: Maximum main memory to use for agp memory: 440M
-> agpgart: Detected Intel 440BX chipset
-> agpgart: AGP aperture is 64M @ 0xe0000000
-> 
-> A bit later:
-> 
-> [drm] The mga drm module requires the agpgart module to function correctly
-> Please load the agpgart module before you load the mga module
-> 
-> Although XFree86 seems to be happy enough loading the dri and drm
-> modules.
-> 
-> Is this supposed to only work with modules?  .config snippet:
-> 
-> CONFIG_AGP=y
-> CONFIG_AGP_INTEL=y
+As for me, as I already mentioned in my last posting - I don't know why BIOS makes the difference (as in your case) if ide.txt says it shouldn't?! Ok, chipset, perhaps, is fine. But what about the hard drive? You told you had WDC AC21600H. Can you PLEASE check waht CCC is marked on its label? PLEASE! I am trying to get an answer from WD on this, but not yet alas...
 
-Probably you have modversions enabled (CONFIG_MODVERSION=y). Disable that
-and try again, or build as modules. 2.4 fixed this problem in the proper
-way, but I don't know what's going to happen about 2.2 ...
+And - COME ON, GUYS! - somebody MUST know the answer - how to spot the guilty one - kernel configuration / BIOS / chipset / disk???
 
-john
+Guennadi
 
--- 
-"Penguins are so sensitive to my needs."
-	- Lyle Lovett 
-
+> back in, started playing in the bios.  Finally fixed it.  I was getting > the same operation not permitted, that you
+> were,until i got that bios setting. But it's making me 
+> wonder if it's something similar in your bios!
+> I know it wasn't the actual UDMA setting in the bios, i'm 
+> wondering what it was though.  I'll put a keyboard on it,
+> and poke around tonight or this weekend.
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

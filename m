@@ -1,73 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263721AbUC3PfU (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 Mar 2004 10:35:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263728AbUC3PfT
+	id S263735AbUC3PgE (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 Mar 2004 10:36:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263734AbUC3PgE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 Mar 2004 10:35:19 -0500
-Received: from chaos.analogic.com ([204.178.40.224]:34435 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP id S263721AbUC3PcR
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 Mar 2004 10:32:17 -0500
-Date: Tue, 30 Mar 2004 10:33:50 -0500 (EST)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-X-X-Sender: root@chaos
-Reply-To: root@chaos.analogic.com
-To: Willy Tarreau <willy@w.ods.org>
-cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Len Brown <len.brown@intel.com>,
-       Arkadiusz Miskiewicz <arekm@pld-linux.org>,
-       Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       ACPI Developers <acpi-devel@lists.sourceforge.net>
-Subject: Re: [ACPI] Re: Linux 2.4.26-rc1 (cmpxchg vs 80386 build)
-In-Reply-To: <20040330150949.GA22073@alpha.home.local>
-Message-ID: <Pine.LNX.4.53.0403301019570.6451@chaos>
-References: <A6974D8E5F98D511BB910002A50A6647615F6939@hdsmsx402.hd.intel.com>
- <1080535754.16221.188.camel@dhcppc4> <20040329052238.GD1276@alpha.home.local>
- <1080598062.983.3.camel@dhcppc4> <1080651370.25228.1.camel@dhcp23.swansea.linux.org.uk>
- <Pine.LNX.4.53.0403300814350.5311@chaos> <20040330142215.GA21931@alpha.home.local>
- <Pine.LNX.4.53.0403300943520.6151@chaos> <20040330150949.GA22073@alpha.home.local>
+	Tue, 30 Mar 2004 10:36:04 -0500
+Received: from kinesis.swishmail.com ([209.10.110.86]:46606 "EHLO
+	kinesis.swishmail.com") by vger.kernel.org with ESMTP
+	id S263733AbUC3Pfo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 30 Mar 2004 10:35:44 -0500
+Message-ID: <40699843.7030005@techsource.com>
+Date: Tue, 30 Mar 2004 10:54:43 -0500
+From: Timothy Miller <miller@techsource.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Jens Axboe <axboe@suse.de>
+CC: Jeff Garzik <jgarzik@pobox.com>, Andrea Arcangeli <andrea@suse.de>,
+       Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>,
+       William Lee Irwin III <wli@holomorphy.com>,
+       Nick Piggin <nickpiggin@yahoo.com.au>, linux-ide@vger.kernel.org,
+       Linux Kernel <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>
+Subject: Re: [PATCH] speed up SATA
+References: <4066021A.20308@pobox.com> <200403282030.11743.bzolnier@elka.pw.edu.pl> <20040328183010.GQ24370@suse.de> <200403282045.07246.bzolnier@elka.pw.edu.pl> <406720A7.1050501@pobox.com> <20040329005502.GG3039@dualathlon.random> <40679FE3.3080007@pobox.com> <20040329130410.GH3039@dualathlon.random> <40687CF0.3040206@pobox.com> <20040330110928.GR24370@suse.de>
+In-Reply-To: <20040330110928.GR24370@suse.de>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 30 Mar 2004, Willy Tarreau wrote:
-
->
-> > > OK, so why not compile the cmpxchg instruction even on i386 targets
-> > > to let generic kernels stay compatible with everything, but disable
-> > > ACPI at boot if the processor does not feature cmpxchg ? This could
-> > > be helpful for boot/install kernels which try to support a wide
-> > > range of platforms, and may need ACPI to correctly enable interrupts
-> > > on others.
-> > >
-> > > Cheers,
-> > > Willy
-> > >
-> >
-> > Because it would get used (by the compiler) in other code as well!
-> > As soon as the 386 sees it, you get an "invalid instruction trap"
-> > and you are dead.
->
-> That's not what I meant. I only meant to declare the cmpxchg() function.
-
-It's not a function. It is actual op-codes. If you compile with
-'486 or higher, the C compiler is free to spew out these op-codes
-any time it thinks it's a viable instruction sequence. Since
-it basically replaces two other op-codes, gcc might certainly use
-if for optimization.
-
-This is independent of the macro that is defined in a header to
-use this sequence .
 
 
-[SNIPPED...]
+Jens Axboe wrote:
 
+> 
+> 
+> Here's a quickly done patch that attempts to adjust the value based on a
+> previous range of completed requests. It changes ->max_sectors to be a
+> hardware limit, adding ->optimal_sectors to be our max issued io target.
+> It is split on READ and WRITE. The target is to keep request execution
+> time under BLK_IORATE_TARGET, which is 50ms in this patch. read-ahead
+> max window is kept within a single request in size.
+> 
+[snip]
 
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.4.24 on an i686 machine (797.90 BogoMips).
-            Note 96.31% of all statistics are fiction.
+Awesome patch!
 
+One question I have is about how you are determining optimal request 
+size.  You are basing this on the _maximum_ performance of the device, 
+but there could be huge differences between min and max performance. 
+Would it be better to compute optimal based on worst-case performance? 
+Or averaged over time?
+
+Idealy, we'd have a running average where one hit of worst-case will 
+have an impact, but if that happens only once, it'll drop out of the 
+average, and best-case events will be considered but tempered as well.
+
+If we're going for real-time, then we want to avoid any latency over 
+50ms.  In that case, we'd want to go based on worst-case, although it 
+would still be good to let, say, an occasional hardware glitch which had 
+slow response to not have permanent impact.
 

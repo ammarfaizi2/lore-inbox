@@ -1,72 +1,78 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S276914AbRJKUyO>; Thu, 11 Oct 2001 16:54:14 -0400
+	id <S276920AbRJKVCf>; Thu, 11 Oct 2001 17:02:35 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S276917AbRJKUyF>; Thu, 11 Oct 2001 16:54:05 -0400
-Received: from leibniz.math.psu.edu ([146.186.130.2]:8186 "EHLO math.psu.edu")
-	by vger.kernel.org with ESMTP id <S276914AbRJKUx5>;
-	Thu, 11 Oct 2001 16:53:57 -0400
-Date: Thu, 11 Oct 2001 16:54:23 -0400 (EDT)
-From: Alexander Viro <viro@math.psu.edu>
-To: Andries.Brouwer@cwi.nl
-cc: adilger@turbolabs.com, arvest@orphansonfire.com,
-        linux-kernel@vger.kernel.org
-Subject: Re: 2.4.11 loses sda9
-In-Reply-To: <UTC200110112029.UAA31163.aeb@cwi.nl>
-Message-ID: <Pine.GSO.4.21.0110111632220.24742-100000@weyl.math.psu.edu>
+	id <S276922AbRJKVCZ>; Thu, 11 Oct 2001 17:02:25 -0400
+Received: from radium.jvb.tudelft.nl ([130.161.76.91]:5124 "HELO
+	radium.jvb.tudelft.nl") by vger.kernel.org with SMTP
+	id <S276920AbRJKVCN>; Thu, 11 Oct 2001 17:02:13 -0400
+From: "Robbert Kouprie" <robbert@radium.jvb.tudelft.nl>
+To: "'Alan Cox'" <alan@lxorguk.ukuu.org.uk>
+Cc: <linux-kernel@vger.kernel.org>
+Subject: RE: eepro100.c bug on 10Mbit half duplex (kernels 2.4.5 / 2.4.10 / 2.4.11pre6 / 2.4.11 / 2.4.10ac11)
+Date: Thu, 11 Oct 2001 23:02:53 +0200
+Message-ID: <000001c15298$17f03790$020da8c0@nitemare>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook, Build 10.0.2627
+X-MIMEOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
+Importance: Normal
+In-Reply-To: <E15rlb9-0004QK-00@the-village.bc.nu>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Alan,
 
+Your fix seems to have eliminated the problem. I found this strange, as
+the device ids still did not match mine. So I added a PRINTK line in the
+test, and found that _with_ your fix it DOES NOT get triggered. The ac
+kernel WITH the bug however DOES trigger the test. 
 
-On Thu, 11 Oct 2001 Andries.Brouwer@cwi.nl wrote:
+So, as I have tested both your and Linus' driver (in which the whole
+"if" was missing), one has to conclude that both the bug in de ac driver
+AND the whole missing line in Linus' kernel made the test succeed, where
+is actually SHOULD NOT succeed. So actually my NIC is perfectly ok, but
+not in combination with a workaround for a bug it doesn't have ;) This
+was what broke things.
 
-> > You know what problems with unified device struct I've brought before.
+So, the 10Mbit half-duplex workaround breaks stuff on the devices that
+do not suffer from the bug. This is dangerous... ;)
+
+Anyway, I'm upgraded to 100Mbit now, and the bug is fixed, so I'm happy
+:)
+Thanx for your help.
+
+Regards,
+- Robbert
+
+> -----Original Message-----
+> From: Alan Cox [mailto:alan@lxorguk.ukuu.org.uk] 
+> Sent: donderdag 11 oktober 2001 21:34
+> To: Robbert Kouprie
+> Cc: 'Alan Cox'; linux-kernel@vger.kernel.org
+> Subject: Re: eepro100.c bug on 10Mbit half duplex (kernels 
+> 2.4.5 / 2.4.10 / 2.4.11pre6 / 2.4.11 / 2.4.10ac11)
 > 
-> I don't mind splitting kdev_t into kbdev_t and kcdev_t.
-> Keeping the former requires a cast or a union somewhere.
-> Splitting requires some code duplication.
-> Altogether there is very little difference between the two setups.
-
-typedef struct block_device *kbdev_t;
- 
-Aside of 1:5 vowels to consonants ratio I've no problems with that.
-
-> Remains the question, let me repeat:
-> "Al, I never understood why you want to introduce a struct block_device *
->  to do precisely what kdev_t was designed to do."
 > 
-> I see that you are making small steps away from my goal, so I hope
-> you know very precisely where you want to go and how to get there.
-
-Right now we have a big and fairly nasty mix of the stuff that can be
-turned in pointer to block device, pointer to character device _and_
-stuff that is used as numbers.  Moreover, allocation policy for these
-structures is a tricky beast - block ones are mostly sane now, but
-character are most definitely not. Right now we have places where
-we look up the blocksize, etc. with nothing more than a number.
-Actually, recent changes, as much as I'd prefer to see them done only
-in 2.5, help in that respect - they remove one of the major sources
-of that.  Switching get_...size() to stuct block_device * (or kbdev_t
-is you like to spell it that way) is a good thing, but it deserves
-a separate patch.  And no, changing definition of kdev_t is not a
-good idea right now - too large patch and too many places to audit.
-
-Resulting setup is going to be pretty close, indeed, but getting
-there is going to take some work.
-
-> > But that's 2.5 stuff
+> >        if ((pdev->device=0x2449) || ( (pdev->device > 0x1030) &&
+>                       ^^^^^^^
 > 
-> Yes, precisely. But you do not wait for 2.5 but start walking already.
-
-We needed to switch partition-related code to pagecache; _that_ was the
-result of changes that were, IMO, bad idea at that point.  But these
-changes were done and we have to deal with the fallout.  Getting to the
-address_space of device in question requires pointer to structure.  So
-the choice is between merging your patch on top of Andrea's stuff +
-fixes to said stuff and praying  and  propagating pointer to existing
-object in places where we need it and trying to debug that.  Somehow
-the latter variant seems less painful.
+> Well thats a bug (just fixed)
+> 
+> > My device's id is: 	8086:1229 - Intel, 82557 [Ethernet Pro 100]
+> > The present ids are: 	8086:1030 - 82559 InBusiness 10/100
+> > 				8086:1031-1039 - are not listed in my db
+> > 				8086:2449 - 82820 820 (Camino 2) Chipset
+> > Ethernet
+> > 
+> > For one thing, in Linus' 2.4.12 the if condition at line 802 isn't
+> > present at all, so that sure isn't gonna work.
+> 
+> Try enabling the test regardless and seeing if it helps on your box
+> 
+> 
 

@@ -1,42 +1,157 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266199AbUFPHWU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266206AbUFPHYH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266199AbUFPHWU (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Jun 2004 03:22:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266205AbUFPHWU
+	id S266206AbUFPHYH (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Jun 2004 03:24:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266207AbUFPHYH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Jun 2004 03:22:20 -0400
-Received: from crianza.bmb.uga.edu ([128.192.34.109]:5249 "EHLO crianza")
-	by vger.kernel.org with ESMTP id S266199AbUFPHWT (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Jun 2004 03:22:19 -0400
-Date: Wed, 16 Jun 2004 03:22:13 -0400
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: tg3 wrong speed
-Message-ID: <20040616072213.GG13868@porto.bmb.uga.edu>
-Reply-To: foo@porto.bmb.uga.edu
-References: <20040615062236.GA12818@porto.bmb.uga.edu> <20040615030932.3ff1be80.akpm@osdl.org> <20040615150036.GB12818@porto.bmb.uga.edu> <20040615162607.5805a97e.akpm@osdl.org> <20040616024842.GC13672@porto.bmb.uga.edu> <20040615195822.7e7151aa.akpm@osdl.org> <20040616041313.GC13868@porto.bmb.uga.edu> <20040615212516.521bbb3f.akpm@osdl.org>
+	Wed, 16 Jun 2004 03:24:07 -0400
+Received: from p213.54.91.16.tisdip.tiscali.de ([213.54.91.16]:42369 "EHLO
+	stralsunder-10.homelinux.org") by vger.kernel.org with ESMTP
+	id S266206AbUFPHXd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 16 Jun 2004 03:23:33 -0400
+Date: Wed, 16 Jun 2004 09:23:44 +0200
+From: Andreas Schmidt <andy@space.wh1.tu-dresden.de>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Frequent system freezes after kernel bug
+Message-ID: <20040616072344.GC28402@rocket>
+References: <20040612183742.GE1733@rocket>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII;
+	Format=Flowed	DelSp=Yes
 Content-Disposition: inline
-In-Reply-To: <20040615212516.521bbb3f.akpm@osdl.org>
-User-Agent: Mutt/1.5.5.1+cvs20040105i
-From: foo@porto.bmb.uga.edu
+Content-Transfer-Encoding: 7BIT
+In-Reply-To: <20040612183742.GE1733@rocket> (from andy@space.wh1.tu-dresden.de on Sat, Jun 12, 2004 at 20:37:42 +0200)
+X-Mailer: Balsa 2.0.17
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jun 15, 2004 at 09:25:16PM -0700, Andrew Morton wrote:
-> So what do we conclude from this?  It booted OK, but the serial console
-> broke, and perhaps the serial driver broke, and perhaps the tg3 driver
-> broke?
+On 2004.06.12 20:37, Andreas Schmidt wrote:
+> Hi,
+> 
+> in the last few days I have experienced frequent system freezes
+> apparently related to kernel bugs on one box here. Unfortunately,
+> that's just the same system serving as router and local fileserver  
+> for
+I have removed the tainted fcdsl-module and tried to crash the machine  
+by generating a steady harddisk activity. Writing to a partition with  
+EXT2 resulted in two non-fatal bugs in buffer.c after several hours:
 
-I just booted 2.6.7, and eth1 came up in 100Mbit mode as happened with
--mm, and packet loss ensued.  I think maybe that the switch is only
-allowing 1000Mbit operation.  I rebooted into single user mode to
-restore the old kernel, but the second time eth1 came up at 1000Mbit so
-the networking works now.  The serial console is no better than before,
-but not completely broken like in -mm.
+19:09:32
+kernel:  kernel BUG at buffer.c:575!
+kernel: invalid operand: 0000
+kernel: CPU:    0
+kernel: EIP:    0010:[__insert_into_lru_list+28/112]    Not tainted
+kernel: EFLAGS: 00010206
+kernel: eax: 00000000   ebx: 00000002   ecx: d2e980c0   edx: c02ad6cc
+kernel: esi: d2e980c0   edi: d2e980c0   ebp: 00000001   esp: c4677ebc
+kernel: ds: 0018   es: 0018   ss: 0018
+kernel: Process cp (pid: 4081, stackpage=c4677000)
+kernel: Stack: 00000002 c0135a36 d2e980c0 00000002 d2e980c0 00001000  
+c0135a4a d2e980c0
+kernel:        c0136443 d2e980c0 00001000 dc1bc0c0 06261000 00000000  
+00001000 00000000
+kernel:        c0136ab4 dc1bc0c0 c130e514 00000000 00001000 c130e514  
+bffff404 d1c7b000
+kernel: Call Trace:    [__refile_buffer+86/96] [refile_buffer+10/16]  
+[__block_commit_write+131/208] [generic_commit_write+52/96]  
+[do_generic_file_write+654/976]
+kernel:   [generic_file_write+259/288] [sys_write+150/240] [system_call 
++51/56]
+kernel:
+kernel: Code: 0f 0b 3f 02 e5 57 21 c0 83 3a 00 75 05 89 0a 89 49 24 8b  
+02
 
-I'll leave 2.6.7 running today and see how it does.
+04:47:01
+kernel:  kernel BUG at buffer.c:575!
+kernel: invalid operand: 0000
+kernel: CPU:    0
+kernel: EIP:
+0010:[__insert_into_lru_list+28/112]    Not tainted
+kernel: EFLAGS: 00010206
+kernel: eax: 00000000   ebx: 00000002   ecx: d07e80c0   edx: c02ad6cc
+kernel: esi: d07e80c0   edi: d07e80c0   ebp: 00000001   esp: c2d85ebc
+kernel: ds: 0018   es: 0018   ss: 0018
+kernel: Process cp (pid: 760, stackpage=c2d85000)
+kernel: Stack: 00000002 c0135a36 d07e80c0 00000002 d07e80c0 00001000  
+c0135a4a d07e80c0
+kernel:        c0136443 d07e80c0 00001000 cee62ac0 0c7b4000 00000000  
+00001000 00000000
+kernel:        c0136ab4 cee62ac0 c14be3d4 00000000 00001000 c14be3d4  
+bffff3d4 db98b000
+kernel: Call Trace:    [__refile_buffer+86/96] [refile_buffer+10/16]  
+[__block_commit_write+131/208] [generic_commit_write+52/96]  
+[do_generic_file_write+654/976]
+kernel:   [generic_file_write+259/288] [sys_write+150/240] [system_call 
++51/56]
+kernel:
+kernel: Code: 0f 0b 3f 02 e5 57 21 c0 83 3a 00 75 05 89 0a 89 49 24 8b  
+02
 
--ryan
+
+Thereafter, I tried to continuously writing to an EXT3 partition, which  
+after just about half an hour resulted in bugs in buffer.c and   
+transaction.c. This time, the system froze again. "init 6" stopped  
+after sending the KILL signal because the processes with IDs "ca" and   
+"1" to "6" were hanging. Here's the output:
+
+kernel:  kernel BUG at buffer.c:575!
+kernel: invalid operand: 0000
+kernel: CPU:    0
+kernel: EIP:    0010:[__insert_into_lru_list+28/112]    Not tainted
+kernel: EFLAGS: 00010206
+kernel: eax: 00000000   ebx: 00000002   ecx: d07b80c0   edx: c02ad6cc
+kernel: esi: d07b80c0   edi: d07b80c0   ebp: 00000001   esp: c6195e6c
+kernel: ds: 0018   es: 0018   ss: 0018
+kernel: Process cp (pid: 3627, stackpage=c6195000)
+kernel: Stack: 00000002 c0135a36 d07b80c0 00000002 d07b80c0 00001000  
+c0135a4a d07b80c0
+kernel:        c0136443 d07b80c0 00001000 c648bc80 07df7000 00000000  
+00001000 00000000
+kernel:        c0136ab4 c648bc80 c105c770 00000000 00001000 c105c770  
+bffff3e4 c648bc80
+kernel: Call Trace:    [__refile_buffer+86/96] [refile_buffer+10/16]  
+[__block_commit_write+131/208] [generic_commit_write+52/96]  
+[ext3_commit_write+305/448]
+kernel:   [do_generic_file_write+654/976] [generic_file_write+259/288]  
+[ext3_file_write+35/192] [sys_write+150/240] [system_call+51/56]
+kernel:
+kernel: Code: 0f 0b 3f 02 e5 57 21 c0 83 3a 00 75 05 89 0a 89 49 24 8b  
+02
+kernel:  <0>Assertion failure in journal_start() at transaction.c:251:  
+"handle->h_transaction->t_journal == journal"
+kernel: kernel BUG at transaction.c:251!
+kernel: invalid operand: 0000
+kernel: CPU:    0
+kernel: EIP:    0010:[journal_start+74/192]   Not tainted
+kernel: EFLAGS: 00010282
+kernel: eax: 0000006c   ebx: d3ea6600   ecx: df37e000   edx: 00000001
+kernel: esi: dfe49800   edi: c6194000   ebp: 00000040   esp: c6195c10
+kernel: ds: 0018   es: 0018   ss: 0018
+kernel: Process cp (pid: 3627, stackpage=c6195000)
+kernel: Stack: c021b240 c021b46c c021b220 000000fb c021b440 d3ea6600  
+dfae0c00 c419d6c0
+kernel:        c015ea38 dfe49800 00000002 c419d6c0 dfae0c00 00000001  
+c014642e c419d6c0
+kernel:        c419d6c0 c419d72c d163cec0 c0128c93 c419d6c0 00000001  
+c419d6c0 c419d72c
+kernel: Call Trace:    [ext3_dirty_inode+88/256] [__mark_inode_dirty 
++46/144] [do_generic_file_write+211/976] [ide_start_request+382/432]  
+[generic_file_write+259/288]
+kernel:   [ext3_file_write+35/192] [do_acct_process+571/592]  
+[acct_process+25/39] [do_exit+105/592] [do_invalid_op+0/160] [die 
++86/96]
+kernel:   [do_invalid_op+140/160] [__insert_into_lru_list+28/112]  
+[ext3_get_block_handle+426/640] [ext3_get_block_handle+242/640]  
+[error_code+52/60] [__insert_into_lru_list+28/112]
+kernel:   [__refile_buffer+86/96] [refile_buffer+10/16]  
+[__block_commit_write+131/208] [generic_commit_write+52/96]  
+[ext3_commit_write+305/448] [do_generic_file_write+654/976]
+kernel:   [generic_file_write+259/288] [ext3_file_write+35/192]  
+[sys_write+150/240] [system_call+51/56]
+kernel:
+kernel: Code: 0f 0b fb 00 20 b2 21 c0 83 c4 14 ff 43 08 89 d8 eb 59 8d  
+74
+
+Best regards,
+
+Andreas

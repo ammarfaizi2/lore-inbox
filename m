@@ -1,62 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264968AbUEYQmj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264961AbUEYQsM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264968AbUEYQmj (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 25 May 2004 12:42:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264969AbUEYQmj
+	id S264961AbUEYQsM (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 25 May 2004 12:48:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264969AbUEYQsM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 25 May 2004 12:42:39 -0400
-Received: from dsl093-002-214.det1.dsl.speakeasy.net ([66.93.2.214]:54539 "EHLO
-	pumpkin.fieldses.org") by vger.kernel.org with ESMTP
-	id S264968AbUEYQmf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 25 May 2004 12:42:35 -0400
-Date: Tue, 25 May 2004 12:42:33 -0400
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [RFD] Explicitly documenting patch submission
-Message-ID: <20040525164232.GD28169@fieldses.org>
-References: <Pine.LNX.4.58.0405222341380.18601@ppc970.osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.58.0405222341380.18601@ppc970.osdl.org>
-User-Agent: Mutt/1.5.6i
-From: "J. Bruce Fields" <bfields@fieldses.org>
+	Tue, 25 May 2004 12:48:12 -0400
+Received: from rwcrmhc11.comcast.net ([204.127.198.35]:50399 "EHLO
+	rwcrmhc11.comcast.net") by vger.kernel.org with ESMTP
+	id S264961AbUEYQsK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 25 May 2004 12:48:10 -0400
+Message-ID: <40B36A0E.5080509@kegel.com>
+Date: Tue, 25 May 2004 08:45:18 -0700
+From: Dan Kegel <dank@kegel.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040113
+X-Accept-Language: en, de-de
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: bringing back 'make symlinks'?
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, May 22, 2004 at 11:46:29PM -0700, Linus Torvalds wrote:
-> This is not about proving authorship - it's about documenting the
-> process. This does not replace or preclude things like PGP-signed
-> emails, this is _documenting_ how we work, so that we can show people
-> who don't understand the open source process.
+In the 2.4 kernel, 'make symlinks' created the symlinks needed
+to use the kernel tree's headers for building a gcc/glibc toolchain.
 
-What aspects of the process do you want to document?
+In the 2.6 kernel, you can do the same thing with 'include include/asm'.
+Unless you're trying to build arm or cris, or maybe others, in which case you also need
+'include/asm-$(ARCH)/.arch'.
 
-The patch-submission process can be more complicated than a simple path
-up a heirarchy of maintainers--patches get bounced around a lot
-sometimes.
+That's fine, but it means that a script (like crosstool) or a book (like LFS)
+that's trying to build a gcc/glibc toolchain for both 2.4 and 2.6 ends up
+with a section like
 
-If you're trying to document who contributes "intellectual property" to
-the kernel, then documenting the process of creating the patch would
-seem more important than documenting the actual submission--any
-significant change is often the result of complicated discussions
-between multiple parties who wouldn't necessarily appear in the chain of
-submittors.
+case "$KERNEL_VERSION.$KERNEL_PATCHLEVEL.x" in
+2.2.x|2.4.x) make ARCH=$ARCH symlinks    include/linux/version.h
+              ;;
+2.6.x)       make ARCH=$ARCH include/asm include/linux/version.h
+              case $ARCH in
+              arm*|cris*) make ARCH=$ARCH include/asm-$ARCH/.arch
+                          ;;
+              esac
+              ;;
+*)           abort "Unsupported kernel version $KERNEL_VERSION.$KERNEL_PATCHLEVEL"
+esac
 
-I gues I'm still a little vague as to exactly what sort of questions we
-expect to be able to answer using this new documentation.
+which is a bit ugly.  It'd be nice if 'make symlinks' did the neccesary
+stuff in 2.6, too.  Think a patch to do that would be accepted?
+- Dan
 
-A couple examples (which I think aren't too farfetched):
-	* Developer A submits a patch which is dropped by maintainer B.
-	  I later notice this and resubmit A's patch to B.  I don't
-	  change the patch at all, and the resubmission is my only
-	  contribution to the process.  Do I need to tag on my own
-	  "Signed-off-by" line?
-	* I write a patch.  Developers X and Y suggest significant
-	  changes.  I make the changes before I submit them to maintainer
-	  Z.  Suppose the changes are significant enough that I no longer
-	  feel comfortable representing myself as the sole author of the
-	  patch.  Should I also be asking developer X  and Y to add their
-	  own "Signed-off-by" lines?
-
---Bruce Fields
+-- 
+My technical stuff: http://kegel.com
+My politics: see http://www.misleader.org for examples of why I'm for regime change

@@ -1,66 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292581AbSB0Trw>; Wed, 27 Feb 2002 14:47:52 -0500
+	id <S292917AbSB0T7K>; Wed, 27 Feb 2002 14:59:10 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292918AbSB0TrR>; Wed, 27 Feb 2002 14:47:17 -0500
-Received: from web12308.mail.yahoo.com ([216.136.173.106]:12 "HELO
-	web12308.mail.yahoo.com") by vger.kernel.org with SMTP
-	id <S292579AbSB0Tq0>; Wed, 27 Feb 2002 14:46:26 -0500
-Message-ID: <20020227194620.69620.qmail@web12308.mail.yahoo.com>
-Date: Wed, 27 Feb 2002 11:46:20 -0800 (PST)
-From: Raghu Angadi <raghuangadi@yahoo.com>
-Subject: Re: Fw: memory corruption in tcp bind hash buckets on SMP?
-To: kuznet@ms2.inr.ac.ru, "David S. Miller" <davem@redhat.com>
-Cc: raghuangadi@yahoo.com, linux-kernel@vger.kernel.org
-In-Reply-To: <200202271904.WAA09439@ms2.inr.ac.ru>
+	id <S292918AbSB0T6t>; Wed, 27 Feb 2002 14:58:49 -0500
+Received: from e1.ny.us.ibm.com ([32.97.182.101]:17094 "EHLO e1.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id <S292917AbSB0T6U>;
+	Wed, 27 Feb 2002 14:58:20 -0500
+Date: Wed, 27 Feb 2002 11:57:57 -0800
+From: Hanna Linder <hannal@us.ibm.com>
+To: Andrew Morton <akpm@zip.com.au>,
+        "Martin J. Bligh" <Martin.Bligh@us.ibm.com>
+cc: Hanna Linder <hannal@us.ibm.com>, linux-kernel@vger.kernel.org,
+        lse-tech@lists.sourceforge.net, viro@math.psu.edu
+Subject: Re: [Lse-tech] lockmeter results comparing 2.4.17, 2.5.3, and 2.5.5
+Message-ID: <19890000.1014839877@w-hlinder.des>
+In-Reply-To: <3C7D374B.4621F9BA@zip.com.au>
+In-Reply-To: <10460000.1014833979@w-hlinder.des>,	<10460000.1014833979@w-hlinder.des> <67850000.1014834875@flay> <3C7D374B.4621F9BA@zip.com.au>
+X-Mailer: Mulberry/2.1.0 (Linux/x86)
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---- kuznet@ms2.inr.ac.ru wrote:
-> Hello!
+
+--On Wednesday, February 27, 2002 11:45:15 -0800 Andrew Morton <akpm@zip.com.au> wrote:
+
+> The big one is lru_list_lock, of course.  I'll be releasing code in
+> the next couple of days which should take that off the map.  Testing
+> would be appreciated.
+
+	Ill be glad to run this again with your patch. Also, John Hawkes
+has an even bigger system and keeps hitting lru_list_lock too.
 > 
-> > I think his analysis is alright but he patch is questionable.
-> 
-> Yes. "if (tb) tcp_tw_put(tw)" cannot be right, no doubts.
+> I have a concern about the lockmeter results.  Lockmeter appears
+> to be measuring lock frequency and hold times and contention.  But
+> is it measuring the cost of the cacheline transfers?   
 
-In timewait_kill(), tb is set only _after_ it has been removed from the
-established (if it exist there). In _hashdance() tw is inserted into
-established _before_ it is inserted into bindhash. So the above is one way of
-saying do tw_put() when it has been deleted from _both_ the lists.
-Also note that patch removes "if (!tw->pprev) return;" thingy. Infact this
-return sort of implied you never thought tw could be deleted from ehash and
-not from bind hash.
+	This has come up a few times on lse-tech. Lockmeter doesnt
+measure cacheline hits/misses/bouncing. However, someone said
+kernprof could be used to access performance registers on the Pentium
+chip to get this info. I don't know anyone who has tried that though.
+	I am working on a patch to decrease cacheline bouncing and it
+would be great to see some specific results. Is anyone working on a tool 
+that could measure cache hits/misses/bouncing?
 
-> Seems, it is enough to remove from bind hash _before_ established.
-> 
-> The idea was that bind hash is pure slave of another state, so that
-> it need not refcounting at all. Note that adding the second increment
-> does not help: when we verify that leakage (the situation, when
-> bucket is in bind hash, but has no timer running) is impossible
-> we immediately arrive to elimination of the refcount.
-> 
-> Raghu, could you check the variant with inverted order of removal?
-> Do you see holes? From my side... I need to think more. :-)
-
-Just the inteverted order of removal will fix _this_ perticular case.
-But we still end up doing tw_put() in timewait_kill() even though tw is still
-in the bind list (just got inserted on the other processor). This seems
-conceptually incorrect or confusing. The refcnt increment in tw_hashdance()
-is for these two lists and tw_put() in timewait_kill() should correspond to
-the deletion from _both_ the lists. 
- 
-If you want to avoid timewait_kill() getting called twice altogether.. then
-its a different issue.
-
-Raghu.
-
-> Alexey
+Hanna
 
 
-__________________________________________________
-Do You Yahoo!?
-Yahoo! Greetings - Send FREE e-cards for every occasion!
-http://greetings.yahoo.com
+

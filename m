@@ -1,67 +1,86 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262740AbTI1W7w (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 28 Sep 2003 18:59:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262743AbTI1W7w
+	id S262745AbTI1XCo (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 28 Sep 2003 19:02:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262761AbTI1XCo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 28 Sep 2003 18:59:52 -0400
-Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:8919 "HELO
-	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
-	id S262740AbTI1W7u (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 28 Sep 2003 18:59:50 -0400
-Date: Mon, 29 Sep 2003 00:59:41 +0200
-From: Adrian Bunk <bunk@fs.tum.de>
-To: netdev@oss.sgi.com, davem@redhat.com, pekkas@netcore.fi
-Cc: lksctp-developers@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: RFC: [2.6 patch] disallow modular IPv6
-Message-ID: <20030928225941.GW15338@fs.tum.de>
+	Sun, 28 Sep 2003 19:02:44 -0400
+Received: from ziggy.one-eyed-alien.net ([64.169.228.100]:64786 "EHLO
+	ziggy.one-eyed-alien.net") by vger.kernel.org with ESMTP
+	id S262745AbTI1XCj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 28 Sep 2003 19:02:39 -0400
+Date: Sun, 28 Sep 2003 16:02:38 -0700
+From: Matthew Dharm <mdharm-kernel@one-eyed-alien.net>
+To: Kernel Developer List <linux-kernel@vger.kernel.org>,
+       Linux SCSI list <linux-scsi@vger.kernel.org>
+Subject: error in drivers/block/scsi_ioctl.c and ll_rw_block.c?
+Message-ID: <20030928160238.A18507@one-eyed-alien.net>
+Mail-Followup-To: Kernel Developer List <linux-kernel@vger.kernel.org>,
+	Linux SCSI list <linux-scsi@vger.kernel.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed; micalg=pgp-md5;
+	protocol="application/pgp-signature"; boundary="9jxsPFA5p3P2qPhR"
 Content-Disposition: inline
-User-Agent: Mutt/1.4.1i
+User-Agent: Mutt/1.2.5i
+Organization: One Eyed Alien Networks
+X-Copyright: (C) 2003 Matthew Dharm, all rights reserved.
+X-Message-Flag: Get a real e-mail client.  http://www.mutt.org/
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-It seems modular IPv6 doesn't work 100% reliable, e.g. after looking at 
-the code it doesn't seem to be a good idea to compile a kernel without 
-IPv6 support and later build and install IPv6 modules. Is there a great 
-need for modular IPv6 or is the patch below to disallow modular IPv6 OK?
 
-diffstat output:
+--9jxsPFA5p3P2qPhR
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
- net/Kconfig      |    2 +-
- net/sctp/Kconfig |    6 ------
- 2 files changed, 1 insertion(+), 7 deletions(-)
+While working on usb-storage (a virtual SCSI HBA), I noticed that the
+command 'eject /dev/scd0' sent a START_STOP command to the device with the
+data direction set to SCSI_DATA_WRITE but a transfer length of zero.  This
+causes a problem for some code paths.
 
-cu
-Adrian
+For clarity, the START_STOP command doesn't want to move any data at all.
 
+It looks to me like the error is a combination of
+drivers/block/scsi_ioctl.c and ll_rw_block.c
 
---- linux-2.6.0-test6-full/net/Kconfig.old	2003-09-29 00:53:05.000000000 +0200
-+++ linux-2.6.0-test6-full/net/Kconfig	2003-09-29 00:55:55.000000000 +0200
-@@ -117,7 +117,7 @@
- 
- #   IPv6 as module will cause a CRASH if you try to unload it
- config IPV6
--	tristate "The IPv6 protocol (EXPERIMENTAL)"
-+	bool "The IPv6 protocol (EXPERIMENTAL)"
- 	depends on INET && EXPERIMENTAL
- 	---help---
- 	  This is experimental support for the next version of the Internet
---- linux-2.6.0-test6-full/net/sctp/Kconfig.old	2003-09-29 00:50:11.000000000 +0200
-+++ linux-2.6.0-test6-full/net/sctp/Kconfig	2003-09-29 00:52:55.000000000 +0200
-@@ -5,14 +5,8 @@
- menu "SCTP Configuration (EXPERIMENTAL)"
- 	depends on INET && EXPERIMENTAL
- 
--config IPV6_SCTP__
--	tristate
--	default y if IPV6=n
--	default IPV6 if IPV6
--
- config IP_SCTP
- 	tristate "The SCTP Protocol (EXPERIMENTAL)"
--	depends on IPV6_SCTP__
- 	---help---
- 	  Stream Control Transmission Protocol
- 
+scsi_ioctl.c calls blk_get_request(q, WRITE, __GFP_WAIT) to allocate the
+request -- specifying WRITE here is one problem.
+
+In ll_rw_block.c, blk_get_request() calls BUG_ON(rq !=3D READ && rw !=3D WR=
+ITE)
+-- in other words, it can only allocate a request for reading or writing,
+but not for no data.  I'm not familiar with this code, but it looks like
+requests are tracked by data direction, so making this accept NONE may be
+difficult.
+
+One possible solution may be to re-write the CDROMEJECT ioctl into a call
+to sg_scsi_ioctl(), but that doesn't fix the general problem with
+ll_rw_block.c -- if, indeed, that is a problem.
+
+Matt
+
+--=20
+Matthew Dharm                              Home: mdharm-usb@one-eyed-alien.=
+net=20
+Maintainer, Linux USB Mass Storage Driver
+
+It's not that hard.  No matter what the problem is, tell the customer=20
+to reinstall Windows.
+					-- Nurse
+User Friendly, 3/22/1998
+
+--9jxsPFA5p3P2qPhR
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.6 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
+
+iD8DBQE/d2iOIjReC7bSPZARAoCfAJ9W2zvI3ro1vVBGLEuKBBicDa/QfQCfQMgl
+zdzsCP+Ahr4c5f6aRXion+A=
+=zt2T
+-----END PGP SIGNATURE-----
+
+--9jxsPFA5p3P2qPhR--

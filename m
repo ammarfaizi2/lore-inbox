@@ -1,48 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261847AbVDESFJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261878AbVDESFm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261847AbVDESFJ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Apr 2005 14:05:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261881AbVDESCQ
+	id S261878AbVDESFm (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Apr 2005 14:05:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261836AbVDESFf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Apr 2005 14:02:16 -0400
-Received: from stat16.steeleye.com ([209.192.50.48]:11398 "EHLO
-	hancock.sc.steeleye.com") by vger.kernel.org with ESMTP
-	id S261847AbVDERsb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Apr 2005 13:48:31 -0400
-Subject: Re: [SCSI] Driver Broken in 2.6.x (attemp 2)
-From: James Bottomley <James.Bottomley@SteelEye.com>
-To: |TEcHNO| <techno@punkt.pl>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>,
-       SCSI Mailing List <linux-scsi@vger.kernel.org>
-In-Reply-To: <4252CA25.70803@punkt.pl>
-References: <4252CA25.70803@punkt.pl>
-Content-Type: text/plain
-Date: Tue, 05 Apr 2005 12:48:23 -0500
-Message-Id: <1112723304.6463.17.camel@mulgrave>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 (2.0.4-2) 
+	Tue, 5 Apr 2005 14:05:35 -0400
+Received: from tetsuo.zabbo.net ([207.173.201.20]:53208 "EHLO tetsuo.zabbo.net")
+	by vger.kernel.org with ESMTP id S261861AbVDESDh (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 5 Apr 2005 14:03:37 -0400
+Message-ID: <4252D2FE.5010500@zabbo.net>
+Date: Tue, 05 Apr 2005 11:03:42 -0700
+From: Zach Brown <zab@zabbo.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux x86_64; en-US; rv:1.7.2) Gecko/20040803
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Arjan van de Ven <arjan@infradead.org>
+Cc: Joel Becker <Joel.Becker@oracle.com>, linux-kernel@vger.kernel.org,
+       linux-fsdevel@vger.kernel.org
+Subject: Re: [PATCH] configfs, a filesystem for userspace-driven kernel	object
+ configuration
+References: <20050403195728.GH31163@ca-server1.us.oracle.com> <1112635079.6270.68.camel@laptopd505.fenrus.org>
+In-Reply-To: <1112635079.6270.68.camel@laptopd505.fenrus.org>
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2005-04-05 at 19:25 +0200, |TEcHNO| wrote:
-> 	This is my second attemp to make anyone notice the bug that is in the 
-> 2.6.x tree. While many people tried to put blame on nvidia, here's a log 
-> that shows that it's purely kernel fault not to work.
-> 	At the end of this mail you can find some logs which show how 2.4.x and 
-> 2.6.x kernels work with my card. I hope now someone can really  show 
-> intrest into this, it's a shame something in 2.4.x worked (not perfect 
-> but worked), and fails completely (system hang) in 2.6.x.
-> 	It's also not nice if the system hangs (in 2.4.x) for a few seconds 
-> while getting a preview (form the scanner), and gets jaggy and useless 
-> while scanning, a userspace app (runned form normal user) shoudl not do 
-> so, and it's not using more than 20% of CPU.
+Arjan van de Ven wrote:
+> On Sun, 2005-04-03 at 12:57 -0700, Joel Becker wrote:
+> 
+>>Folks,
+>>	I humbly submit configfs.  With configfs, a configfs
+>>config_item is created via an explicit userspace operation: mkdir(2).
+>>It is destroyed via rmdir(2).  The attributes appear at mkdir(2) time,
+>>and can be read or modified via read(2) and write(2).  readdir(3)
+>>queries the list of items and/or attributes.
+>>	The lifetime of the filesystem representation is completely
+>>driven by userspace.  The lifetime of the objects themselves are managed
+>>by a kref, but at rmdir(2) time they disappear from the filesystem.
+> 
+> 
+> does that mean you rmdir a non-empty directory ??
 
-I don't think anyone has the actual hardware, without which it's quite
-difficult to fix the problem.
+Yeah, but only attributes and default groups are automatically torn
+down.  You can't rmdir() an item that is the destination of links and
+you can't rmdir() groups that still contain items.
 
-What was the last 2.6 kernel version that this worked with?
-
-James
-
-
+- z

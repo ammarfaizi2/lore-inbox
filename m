@@ -1,67 +1,78 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129458AbQLXABt>; Sat, 23 Dec 2000 19:01:49 -0500
+	id <S129458AbQLXAIX>; Sat, 23 Dec 2000 19:08:23 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129632AbQLXABa>; Sat, 23 Dec 2000 19:01:30 -0500
-Received: from uucp.nl.uu.net ([193.79.237.146]:51950 "EHLO uucp.nl.uu.net")
-	by vger.kernel.org with ESMTP id <S129458AbQLXAB0>;
-	Sat, 23 Dec 2000 19:01:26 -0500
-Date: Sun, 24 Dec 2000 00:10:11 +0100 (CET)
-From: kees <kees@schoen.nl>
-To: "J . A . Magallon" <jamagallon@able.es>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: linux-2.2.19pre3
-In-Reply-To: <20001223144411.A835@werewolf.able.es>
-Message-ID: <Pine.LNX.4.21.0012240009560.1877-100000@schoen3.schoen.nl>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S129595AbQLXAIM>; Sat, 23 Dec 2000 19:08:12 -0500
+Received: from devnull.owl.de ([193.174.11.4]:32526 "EHLO devnull.owl.de")
+	by vger.kernel.org with ESMTP id <S129458AbQLXAIA>;
+	Sat, 23 Dec 2000 19:08:00 -0500
+Date: Sun, 24 Dec 2000 00:36:48 +0100
+From: Matthias Schniedermeyer <ms@citd.de>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: Michael Chen <michaelc@turbolinux.com.cn>, alan@lxorguk.ukuu.org.uk,
+        linux-kernel@vger.kernel.org
+Subject: Re: About Celeron processor memory barrier problem
+Message-ID: <20001224003648.A4642@citd.de>
+In-Reply-To: <4015029078.19991223172443@turbolinux.com.cn> <Pine.LNX.4.10.10012230920330.2066-100000@penguin.transmeta.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+X-Mailer: Mutt 1.0i
+In-Reply-To: <Pine.LNX.4.10.10012230920330.2066-100000@penguin.transmeta.com>; from torvalds@transmeta.com on Sat, Dec 23, 2000 at 09:21:51AM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi
+> >         I found that when I compiled the 2.4 kernel with the option
+> >     of Pentium III or Pentium 4 on a Celeron's PC, it could cause  the
+> >     system hang at very beginning boot stage, and I found the problem
+> >     is cause by the fact that Intel Celeron doesn't have a real memory
+> >     barrier,but when you choose the Pentium III option, the kernel
+> >     assume the processor has a real memory barrier.
+> >     Here is a patch to fix it:
+> 
+> No.
+> 
+> The fix is to not lie to the configurator.
+> 
+> A Celeron isn't a PIII, and you shouldn't tell the configure that it is.
+> 
+> The whole point of being able to choose the CPU to optimize for is that we
+> can optimize things at compile-time.
 
-That did it, thanks
-Kees
+This is what 2.2.17 thinks about my Celeron 600MHz
 
-On Sat, 23 Dec 2000, J . A . Magallon wrote:
+processor       : 0
+vendor_id       : GenuineIntel
+cpu family      : 6
+model           : 8
+model name      : Pentium III (Coppermine)
+stepping        : 6
+cpu MHz         : 601.374
+cache size      : 128 KB
+fdiv_bug        : no
+hlt_bug         : no
+sep_bug         : no
+f00f_bug        : no
+coma_bug        : no
+fpu             : yes
+fpu_exception   : yes
+cpuid level     : 2
+wp              : yes
+flags           : fpu vme de pse tsc msr pae mce cx8 sep mtrr pge mca cmov
+pat pse36 mmx fxsr xmm
+bogomips        : 1199.31
 
-> 
-> On 2000.12.23 kees wrote:
-> > Hi,
-> > 
-> > Trying to build 2.2.18+pe-patch-2.2.19-3 gives:
-> > 
-> >  
-> > /usr/bin/cc -D__KERNEL__ -I/usr/src/linux/include -Wall -Wstrict-prototypes
-> > -O2
-> > -fomit-frame-pointer -fno-strict-aliasing -D__SMP__ -pipe -fno-strength-reduce
-> > -m486 -malign-loops=2 -malign-jumps=2 -malign-functions=2 -DCPU=686   -c -o
-> > ne2k-pci.o ne2k-pci.c
-> > ne2k-pci.c: In function `ne2k_pci_probe':
-> > ne2k-pci.c:246: `version' undeclared (first use in this function)
-> > ne2k-pci.c:246: (Each undeclared identifier is reported only once
-> 
-> Sorry, I checked the driver as module but not built into the kernel.
-> Try this patch:
-> 
-> --- linux-2.2.19-pre3/drivers/net/ne2k-pci.c.org        Sat Dec 23 14:40:28 2000
-> +++ linux-2.2.19-pre3/drivers/net/ne2k-pci.c    Sat Dec 23 14:41:09 2000
-> @@ -243,7 +243,7 @@
->                 {
->                         static unsigned version_printed = 0;
->                         if (version_printed++ == 0)
-> -                               printk(KERN_INFO "%s", version);
-> +                               printk(KERN_INFO "%s %s", version1,version2);
->                 }
->  #endif
-> 
-> 
-> -- 
-> J.A. Magallon                                         $> cd pub
-> mailto:jamagallon@able.es                             $> more beer
-> 
-> Linux werewolf 2.2.19-pre3 #1 SMP Fri Dec 22 02:38:17 CET 2000 i686
-> 
+
+
+
+
+
+Bis denn
+
+-- 
+Real Programmers consider "what you see is what you get" to be just as 
+bad a concept in Text Editors as it is in women. No, the Real Programmer
+wants a "you asked for it, you got it" text editor -- complicated, 
+cryptic, powerful, unforgiving, dangerous.
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

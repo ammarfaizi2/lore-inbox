@@ -1,68 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318194AbSIJWSm>; Tue, 10 Sep 2002 18:18:42 -0400
+	id <S318188AbSIJWRj>; Tue, 10 Sep 2002 18:17:39 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318191AbSIJWSm>; Tue, 10 Sep 2002 18:18:42 -0400
-Received: from scaup.mail.pas.earthlink.net ([207.217.120.49]:44478 "EHLO
-	scaup.mail.pas.earthlink.net") by vger.kernel.org with ESMTP
-	id <S318182AbSIJWRy>; Tue, 10 Sep 2002 18:17:54 -0400
-Date: Tue, 10 Sep 2002 18:25:17 -0400
-To: jonathan@buzzard.org.uk, john.weber@linuxhq.com
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Toshiba Laptop Support and IRQ Locks
-Message-ID: <20020910222517.GA14056@rushmore>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4i
-From: rwhron@earthlink.net
+	id <S318182AbSIJWRj>; Tue, 10 Sep 2002 18:17:39 -0400
+Received: from auscon.arc.nasa.gov ([143.232.69.76]:43905 "EHLO
+	rudi.arc.nasa.gov") by vger.kernel.org with ESMTP
+	id <S318188AbSIJWRf>; Tue, 10 Sep 2002 18:17:35 -0400
+Content-Type: text/plain;
+  charset="us-ascii"
+From: Dan Christian <dchristian@mail.arc.nasa.gov>
+Reply-To: dchristian@mail.arc.nasa.gov
+Organization: NASA Ames Research Center
+To: linux-kernel@vger.kernel.org
+Subject: 2.4.18 serial drops characters with 16654
+Date: Tue, 10 Sep 2002 15:22:16 -0700
+User-Agent: KMail/1.4.1
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
+Message-Id: <200209101522.16321.dchristian@mail.arc.nasa.gov>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Alrighty then, the patch below uses spinlocks instead of cli() and
-> friends -- to conform to the new irq locking mechanism -- and some minor
-> module changes while we're at it.
+I've got a 2.4.18-10 (RedHat) running on a 2 processor Athlon (1.5Ghz).
 
-The patch seems mangled in:
-http://marc.theaimsgroup.com/?l=linux-kernel&m=102832986723995&w=2
-I'd like to try it if someone has an unmangled version.
+If I send data over a PCI 16654 serial card (Connect Tech Blue Heat) and 
+RTSCTS flow control is used, characters are dropped.  The drops are 
+pretty consistent.  As far as I can tell, the data can only be lost in 
+the driver (I'm re-trying the write until all the data gets out).
 
-2.5.34 compile on my toshiba tecra 8000 stopped with:
+If I use a 16550, then everything is fine.  Unfortunely, I can't get rid 
+of the 16654s.
 
-drivers/built-in.o: In function `tosh_fn_status':
-drivers/built-in.o(.text+0x17569): undefined reference to `save_flags'
-drivers/built-in.o(.text+0x1756e): undefined reference to `cli'
-drivers/built-in.o(.text+0x1757f): undefined reference to `restore_flags'
-drivers/built-in.o: In function `tosh_emulate_fan':
+If is use a 1 processor Athlon running 2.4.9-34 (RedHat), then 
+everything is fine.
 
-The patch below gets it to compile and boot.
+I haven't been about to test the 2.4.18 SMP system in single processor 
+mode, because the IO-APIC goes nuts.  But that's another bug...
 
-diff -ruN linux-2.5.34/drivers/char/toshiba.c linux/drivers/char/toshiba.c
---- linux-2.5.34/drivers/char/toshiba.c 2002-05-21 01:07:42.000000000 -0400
-+++ linux/drivers/char/toshiba.c        2002-09-10 17:30:27.000000000 -0400
-@@ -57,6 +57,7 @@
- #define TOSH_DEBUG 0
+Anybody know why the serial driver is losing data?
 
- #include <linux/module.h>
-+#include <linux/interrupt.h>
- #include <linux/version.h>
- #include <linux/kernel.h>
- #include <linux/sched.h>
+I'm not on linux-kernel, so please reply directly.
 
-The keyboard isn't working though.  That may be a config issue.
-
-egrep ^C.*INPUT .config
-CONFIG_INPUT=y
-CONFIG_INPUT_MOUSEDEV=y
-CONFIG_INPUT_MOUSEDEV_PSAUX=y
-CONFIG_INPUT_MOUSEDEV_SCREEN_X=1024
-CONFIG_INPUT_MOUSEDEV_SCREEN_Y=768
-CONFIG_INPUT_KEYBOARD=y
-
-I haven't tried 2.5 on the laptop for a long time.  
-Anyone running 2.5 on a toshiba laptop?  A tecra 8000?
-
--- 
-Randy Hron
-http://home.earthlink.net/~rwhron/kernel/bigbox.html
-
+-Dan

@@ -1,54 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266055AbTFWOTp (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 23 Jun 2003 10:19:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266056AbTFWOTp
+	id S266059AbTFWObl (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 23 Jun 2003 10:31:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266061AbTFWObk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 23 Jun 2003 10:19:45 -0400
-Received: from mail010.syd.optusnet.com.au ([210.49.20.138]:27576 "EHLO
-	mail010.syd.optusnet.com.au") by vger.kernel.org with ESMTP
-	id S266055AbTFWOTn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 23 Jun 2003 10:19:43 -0400
-Date: Tue, 24 Jun 2003 00:32:26 +1000
-To: Alan Cox <alan@redhat.com>
+	Mon, 23 Jun 2003 10:31:40 -0400
+Received: from mail-in-05.arcor-online.net ([151.189.21.45]:27331 "EHLO
+	mail-in-05.arcor-online.net") by vger.kernel.org with ESMTP
+	id S266059AbTFWObe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 23 Jun 2003 10:31:34 -0400
+From: Daniel Phillips <phillips@arcor.de>
+To: Linus Torvalds <torvalds@transmeta.com>, torvalds@osdl.org
+Subject: Re: [PATCH] Please restore my (c)
+Date: Mon, 23 Jun 2003 16:46:36 +0200
+User-Agent: KMail/1.5.2
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.4.21-ac2
-Message-ID: <20030623143226.GA15804@cancer>
-References: <200306221701.h5MH1Wh15378@devserv.devel.redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+References: <200306231515.05621.phillips@arcor.de>
+In-Reply-To: <200306231515.05621.phillips@arcor.de>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <200306221701.h5MH1Wh15378@devserv.devel.redhat.com>
-User-Agent: Mutt/1.5.4i
-From: Stewart Smith <stewart@linux.org.au>
+Message-Id: <200306231646.36716.phillips@arcor.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Jun 22, 2003 at 01:01:32PM -0400, Alan Cox wrote:
-> Not yet resynchronized with Marcelo 2.4.22-pre1. XFS should work still but
-> may need some updates for the O_DIRECT changes. The exploding audio driver
-> problem should be fixed.
-> 
-> Linux 2.4.21-ac2
-<snip>
-> o	O_DIRECT race fixes				(Stephen Tweedie)
-> 	| Tweaked a little to merge with XFS. XFS folks should double
-> 	| check these.
+On Monday 23 June 2003 15:15, Daniel Phillips wrote:
+> This patch restores my copyright notice for the HTree directory index,
+> inadvertently omitted during the conversion from Ext2 to Ext3.
 
-Been running for a bit over an hour under (relatively) heavy load.
-Dual PII 350,
-2.4.21-ac2 compile,
-tridge's fstest.c (samba.org/ftp/unpacked/junkcode/fstest.c) in various
-configurations
-cp -rl linux-2.5.72 linux-2.5.73
-patch to 2.5.73
+Whoops, please ignore that, it's already in:
 
-all on XFS partition (/ is ext3, /home (where i work) is xfs)
-all going okay (i.e. no weirdness) and tests passed.
+  http://marc.theaimsgroup.com/?l=bk-commits-head&m=105617678915942&w=2
 
-so if anything is wrong, it's at least a (bit) obscure :)
+Thanks to Jens for pointing that out.
 
---
-Stewart Smith
-Vice President, Linux Australia
-http://www.linux.org.au (personal: http://www.flamingspork.com)
+Regards,
+
+Daniel
+

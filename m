@@ -1,55 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264554AbUD1AYa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264550AbUD1AVT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264554AbUD1AYa (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Apr 2004 20:24:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264545AbUD1AXV
+	id S264550AbUD1AVT (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Apr 2004 20:21:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264546AbUD1AVT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Apr 2004 20:23:21 -0400
-Received: from mail1.hello-penguin.com ([193.228.81.146]:17541 "EHLO
-	mail.hello-penguin.com") by vger.kernel.org with ESMTP
-	id S264531AbUD1AR7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Apr 2004 20:17:59 -0400
-Date: Wed, 28 Apr 2004 02:10:38 +0200
-From: Stefan Traby <stefan@hello-penguin.com>
-To: Christoph Hellwig <hch@infradead.org>, Hans Reiser <reiser@namesys.com>,
-       Chris Mason <mason@suse.com>, Linus Torvalds <torvalds@osdl.org>,
-       linux-kernel@vger.kernel.org, reiserfs-list@namesys.com, akpm@osdl.org
-Subject: Re: I oppose Chris and Jeff's patch to add an unnecessary additional namespace to ReiserFS
-Message-ID: <20040428001038.GA6083@hello-penguin.com>
-Reply-To: Stefan Traby <stefan@hello-penguin.com>
-References: <1082750045.12989.199.camel@watt.suse.com> <408D3FEE.1030603@namesys.com> <20040426203314.A6973@infradead.org> <408E986F.90506@namesys.com> <20040427183400.A20221@infradead.org> <408E9F42.2080804@namesys.com> <20040427190439.A20646@infradead.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040427190439.A20646@infradead.org>
-Organization: Stefan Traby Services && Consulting
-X-Operating-System: Linux 2.4.25-kotzmaster (i686)
-X-MIL: A-6172171143
-User-Agent: Mutt/1.5.5.1+cvs20040105i
-X-Lotto: Suggested Lotto numbers (Austrian 6 out of 45): 2 6 15 17 19 26
+	Tue, 27 Apr 2004 20:21:19 -0400
+Received: from stokkie.demon.nl ([82.161.49.184]:4501 "HELO stokkie.net")
+	by vger.kernel.org with SMTP id S264540AbUD1ATD (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 27 Apr 2004 20:19:03 -0400
+Date: Wed, 28 Apr 2004 02:18:59 +0200 (CEST)
+From: "Robert M. Stockmann" <stock@stokkie.net>
+To: Tim Hockin <thockin@hockin.org>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Blacklist binary-only modules lying about their license
+In-Reply-To: <20040428000952.GA19522@hockin.org>
+Message-ID: <Pine.LNX.4.44.0404280210510.16360-100000@hubble.stokkie.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-AntiVirus: scanned for viruses by AMaViS 0.2.2 (ftp://crashrecovery.org/pub/linux/amavis/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Apr 27, 2004 at 07:04:39PM +0100, Christoph Hellwig wrote:
+On Tue, 27 Apr 2004, Tim Hockin wrote:
 
-> I also still think someone who does most work in the last years on a fs
-> (Chris on reiserfs v3) should be considered maintainer, but that's just my
-> 2cents and I'd rather leave that to you guys.
+> On Wed, Apr 28, 2004 at 01:59:08AM +0200, Robert M. Stockmann wrote:
+> > > What the hell are you going on about?  Unnamed structures are a
+> > > syntactical construct and have ZILCH to do with runtime.
+> > 
+> > I thought so too, until your semi open-source link kit is linked to that
+> > brand-new linux kernel source tree, and at the same time the binary
+> > components of your link-kit have become incompatible with that newer kernel. 
+> 
+> This is possible with any structure, named or unnamed.  It's called an
+> ABI, and it's one of the reasons that binary modules suck.  It doesn't
+> have *anything* to do with unnamed structures.  At all.  And if you think
+> so, show me code.
 
-I agree and add my 2cents to this statement.
-(Euro-cent, so it has a value :)
+here's a example :
 
-Chris wrote on 5 Apr: "If there is some technical objection to the
-                       patches I'd really like to discuss it."
+http://www.promise.com/support/file/driver/1_fasttrak_tx4000_partial_source_1.00.0.19.zip
 
-Nothing happened since then and
-I simply do not consider the $600k payment of DARPA for V4 development
-as a technical objection against work on V3 - but hey - 
-you can always prove me wrong by rejecting Chris patches.
+> 
+> > > Opaque types have been available FOREVER.
+> > 
+> > sure, but can one qualify that as Open Source?
+> 
+> If used properly (and they are used in Linux, I believe) they can be very
+> handy.  It's a non-sequiter.  no coding technique, no matter how
+> incoherent, is incompatible with open source.
 
+Opaque types should be no problem. However the complete definition must reside
+somewhere _inside_ the complete source. Opaque types is even a bless, i agree.
+It summarizes code to only reflect what is essential, instead of repeating
+tedious and long struct types and defines. However if Opaque types are used
+inside a partial_source tree, where the complete definition is hidden
+inside the binary only closed source parts, then its the complete opposite
+of what i would call a bless.
+
+Robert
 -- 
+Robert M. Stockmann - RHCE
+Network Engineer - UNIX/Linux Specialist
+crashrecovery.org  stock@stokkie.net
 
-  ciao - 
-    Stefan
-
-"          GNU's Not Unix          --              IIS Isn't Secure          "

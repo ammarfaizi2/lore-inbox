@@ -1,50 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266539AbUGKJy1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266544AbUGKJzz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266539AbUGKJy1 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 11 Jul 2004 05:54:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266543AbUGKJy1
+	id S266544AbUGKJzz (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 11 Jul 2004 05:55:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266543AbUGKJzz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 11 Jul 2004 05:54:27 -0400
-Received: from mx1.elte.hu ([157.181.1.137]:10429 "EHLO mx1.elte.hu")
-	by vger.kernel.org with ESMTP id S266541AbUGKJyN (ORCPT
+	Sun, 11 Jul 2004 05:55:55 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:16591 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S266541AbUGKJzi (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 11 Jul 2004 05:54:13 -0400
-Date: Sun, 11 Jul 2004 11:50:39 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org, arjanv@redhat.com,
-       linux-audio-dev@music.columbia.edu
-Subject: Re: [announce] [patch] Voluntary Kernel Preemption Patch
-Message-ID: <20040711095039.GA22391@elte.hu>
-References: <20040709182638.GA11310@elte.hu> <20040710222510.0593f4a4.akpm@osdl.org> <20040711093209.GA17095@elte.hu> <20040711024518.7fd508e0.akpm@osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040711024518.7fd508e0.akpm@osdl.org>
-User-Agent: Mutt/1.4.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=0, required 5.9
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: 0
+	Sun, 11 Jul 2004 05:55:38 -0400
+Date: Sun, 11 Jul 2004 05:52:59 -0400 (EDT)
+From: Ingo Molnar <mingo@redhat.com>
+X-X-Sender: mingo@devserv.devel.redhat.com
+To: davidm@hpl.hp.com
+cc: suresh.b.siddha@intel.com, jun.nakajima@intel.com,
+       Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>,
+       linux-ia64@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: serious performance regression due to NX patch
+In-Reply-To: <Pine.LNX.4.58.0407110536130.2248@devserv.devel.redhat.com>
+Message-ID: <Pine.LNX.4.58.0407110550340.4229@devserv.devel.redhat.com>
+References: <200407100528.i6A5SF8h020094@napali.hpl.hp.com>
+ <Pine.LNX.4.58.0407110437310.26065@devserv.devel.redhat.com>
+ <Pine.LNX.4.58.0407110536130.2248@devserv.devel.redhat.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-* Andrew Morton <akpm@osdl.org> wrote:
+On Sun, 11 Jul 2004, Ingo Molnar wrote:
 
-> Ingo Molnar <mingo@elte.hu> wrote:
-> >
-> > For all the
-> >  other 200 might_sleep() points it doesnt matter much.
+> > ok, agreed. I'll check that it still does the right thing on x86.
 > 
-> Sorry, but an additional 100 might_sleep()s is surely excessive for
-> debugging purposes, and unneeded for latency purposes: all these sites
-> are preemptible anyway.
+> it doesnt seem to do the right thing for !PT_GNU_STACK applications on 
+> x86:
 
-nono, i mean the existing ones. (it's 116 not 200) There's no plan to
-add another 100, you've seen all the ones we found to be necessary for
-this.
+how about the patch below? This way we recognize the fact that x86 didnt
+have any executability check previously at the point where we discover
+that it's a 'legacy' binary.
 
 	Ingo
+
+--- linux/fs/binfmt_elf.c.orig3	
++++ linux/fs/binfmt_elf.c	
+@@ -627,8 +627,14 @@ static int load_elf_binary(struct linux_
+ 				executable_stack = EXSTACK_DISABLE_X;
+ 			break;
+ 		}
++#ifdef __i386_
++	/*
++	 * Legacy x86 binaries have an expectation of executability for
++	 * virtually all their address-space - turn executability on:
++	 */
+ 	if (i == elf_ex.e_phnum)
+ 		def_flags |= VM_EXEC | VM_MAYEXEC;
++#endif
+ 
+ 	/* Some simple consistency checks for the interpreter */
+ 	if (elf_interpreter) {

@@ -1,80 +1,65 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287401AbSAUQvm>; Mon, 21 Jan 2002 11:51:42 -0500
+	id <S287421AbSAUQxc>; Mon, 21 Jan 2002 11:53:32 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287421AbSAUQvc>; Mon, 21 Jan 2002 11:51:32 -0500
-Received: from hq.fsmlabs.com ([209.155.42.197]:36618 "EHLO hq.fsmlabs.com")
-	by vger.kernel.org with ESMTP id <S287401AbSAUQvU>;
-	Mon, 21 Jan 2002 11:51:20 -0500
-Date: Mon, 21 Jan 2002 09:50:51 -0700
-From: yodaiken@fsmlabs.com
-To: Daniel Phillips <phillips@bonn-fries.net>
-Cc: yodaiken@fsmlabs.com, george anzinger <george@mvista.com>,
-        Momchil Velikov <velco@fadata.bg>,
-        Arjan van de Ven <arjan@fenrus.demon.nl>,
-        Roman Zippel <zippel@linux-m68k.org>, linux-kernel@vger.kernel.org
-Subject: Re: [2.4.17/18pre] VM and swap - it's really unusable
-Message-ID: <20020121095051.B14139@hq.fsmlabs.com>
-In-Reply-To: <E16PZbb-0003i6-00@the-village.bc.nu> <E16SgwP-0001iN-00@starship.berlin> <20020121090602.A13715@hq.fsmlabs.com> <E16ShcU-0001ip-00@starship.berlin>
+	id <S287425AbSAUQxW>; Mon, 21 Jan 2002 11:53:22 -0500
+Received: from penguin.e-mind.com ([195.223.140.120]:31504 "EHLO
+	penguin.e-mind.com") by vger.kernel.org with ESMTP
+	id <S287421AbSAUQxU>; Mon, 21 Jan 2002 11:53:20 -0500
+Date: Mon, 21 Jan 2002 17:54:10 +0100
+From: Andrea Arcangeli <andrea@suse.de>
+To: "David S. Miller" <davem@redhat.com>
+Cc: reid.hekman@ndsu.nodak.edu, linux-kernel@vger.kernel.org, akpm@zip.com.au,
+        alan@lxorg.ukuu.org
+Subject: Re: Athlon PSE/AGP Bug
+Message-ID: <20020121175410.G8292@athlon.random>
+In-Reply-To: <1011610422.13864.24.camel@zeus> <20020121.053724.124970557.davem@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2i
-In-Reply-To: <E16ShcU-0001ip-00@starship.berlin>; from phillips@bonn-fries.net on Mon, Jan 21, 2002 at 05:48:30PM +0100
-Organization: FSM Labs
+User-Agent: Mutt/1.3.12i
+In-Reply-To: <20020121.053724.124970557.davem@redhat.com>; from davem@redhat.com on Mon, Jan 21, 2002 at 05:37:24AM -0800
+X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
+X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jan 21, 2002 at 05:48:30PM +0100, Daniel Phillips wrote:
-> On January 21, 2002 05:06 pm, yodaiken@fsmlabs.com wrote:
-> > On Mon, Jan 21, 2002 at 05:05:01PM +0100, Daniel Phillips wrote:
-> > > > I think of "benefit", perhaps naiively, in terms of something that can
-> > > > be measured or demonstrated rather than just announced.
-> > > 
-> > > But you see why asap scheduling improves latency/throughput *in theory*, 
-> > 
-> > Nope. And I don't even see a relationship between preemption and asap I/O
-> > schedulding. What make you think that I/O threads won't be preempted by
-> > other threads?
+On Mon, Jan 21, 2002 at 05:37:24AM -0800, David S. Miller wrote:
+>    From: Reid Hekman <reid.hekman@ndsu.nodak.edu>
+>    Date: 21 Jan 2002 04:53:39 -0600
+>    
+>    As I have a couple systems that may/may not be affected, I'm seeking
+>    some clarification. Is this an effect of the errata published by AMD in
+>    the Athlon models 4 & 6 revision guides as "INVLPG Instruction Does Not
+>    Flush Entire Four-Megabyte Page Properly with Certain Linear Addresses"?
+>    That errata lists all Athlon Thunderbirds as affected and all Athlon
+>    Palominos except for stepping A5. 
+>    
+>    Regardless of specific errata listings, will future workarounds be
+>    enabled based on cpuid or via a test for the bug itself?
 > 
-> Consider a thread reading from disk in such a way that readahead is no help, 
-> i.e., perhaps the disk is fragmented.  At each step the IO thread schedules a 
-> read and sleeps until the read completes, then schedules the next one.  At 
-> the same time there is a hog in the kernel, or perhaps there is 
-> competition from other tasks using the kernel.  In any event, it will 
-> frequently transpire that at the time the disk IO completes there is somebody 
-> in the kernel.  Without preemption the IO thread has to wait until the kernel 
-> hog blocks, hits a scheduling point or exits the kernel.
+> The funny part is, if this published errata is the problem, it cannot
+> be a problem under Linux since we never invalidate 4MB pages.  We
+> create them at boot time and they never change after that.
 
+correct, furthmore it cannot even trigger if you invlpg with an address
+page aligned (4mbyte aligned in this case) like we would always do in
+linux anyways, we never use invlpg on misaligned addresses, no matter if
+the page is a 4M or a 4k page.  And I guess with PAE enabled it cannot
+even trigger in first place (it speaks only about 4M pages, pae only
+provides 2M pages instead).
 
-So your claim is that:
-	Preemption improves latency when there are both kernel cpu bound
-	tasks and tasks that are I/O bound with very low cache hit
-	rates?
+I think this is a very very minor issue, I doubt anybody ever triggered
+it in real life with linux.
 
-Is that it?
+And Gentoo is shipping a kernel with preempt and rmaps included, so it
+can crash anytime anyways, no matter how good the cpu is, so if they
+got crashes with such a kernel (maybe even with nvidia driver) that's
+normal. I was speaking today with a trusted party doing vm benchmarking
+and rmap crashes the kernel reproducibly under a stright calloc while
+swapping heavily, so clearly the implementation is still broken. preempt
+additionally will mess up all the locking into the nvidia driver as
+well. so if the combination of the two runs for some time without any
+lockup that's pure luck IMHO.
 
-Can you give me an example of a CPU bound task that runs
-mostly in kernel? Doesn't that seem like a kernel bug?
-
-> Naturally I constructed this case to show the effect most clearly.  There are 
-
-How about a plausible case?
-
-> many possible variations on the above scenario.  It does seem to explain the 
-> latency/throughput improvements that have been reported in practice.
-
-I still keep missing these reports. Can you help me here?
-(Obviously "my laptop seems more effervescent" is not what I'm looking
- for.)
-
-
-
-
-
--- 
----------------------------------------------------------
-Victor Yodaiken 
-Finite State Machine Labs: The RTLinux Company.
- www.fsmlabs.com  www.rtlinux.com
-
+Andrea

@@ -1,81 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261409AbTHYD7j (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 24 Aug 2003 23:59:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261284AbTHYD7j
+	id S261363AbTHYEDv (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 25 Aug 2003 00:03:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261415AbTHYEDv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 24 Aug 2003 23:59:39 -0400
-Received: from ms-smtp-03.texas.rr.com ([24.93.36.231]:1973 "EHLO
-	ms-smtp-03.texas.rr.com") by vger.kernel.org with ESMTP
-	id S261409AbTHYD7h (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 24 Aug 2003 23:59:37 -0400
-Message-ID: <3F4989A7.2000104@austin.rr.com>
-Date: Sun, 24 Aug 2003 22:59:35 -0500
-From: Steve French <smfrench@austin.rr.com>
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.0.2) Gecko/20030208 Netscape/7.02
-X-Accept-Language: en-us, en
+	Mon, 25 Aug 2003 00:03:51 -0400
+Received: from TYO202.gate.nec.co.jp ([210.143.35.52]:24781 "EHLO
+	TYO202.gate.nec.co.jp") by vger.kernel.org with ESMTP
+	id S261363AbTHYEDu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 25 Aug 2003 00:03:50 -0400
+To: Mike Fedyk <mfedyk@matchmail.com>
+Cc: John Bradford <john@grabjohn.com>, hch@lst.de, torvalds@osdl.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] fix the -test3 input config damages
+References: <200308221757.h7MHv3uS000585@81-2-122-30.bradfords.org.uk>
+	<20030822180030.GI1040@matchmail.com>
+Reply-To: Miles Bader <miles@gnu.org>
+System-Type: i686-pc-linux-gnu
+Blat: Foop
+From: Miles Bader <miles@lsi.nec.co.jp>
+Date: 25 Aug 2003 13:03:24 +0900
+In-Reply-To: <20030822180030.GI1040@matchmail.com>
+Message-ID: <buo3cfqidtf.fsf@mcspd15.ucom.lsi.nec.co.jp>
 MIME-Version: 1.0
-To: Jeff Garzik <jgarzik@pobox.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: via rhine network failure on 2.6.0-test4
-References: <3F491E69.5090206@austin.rr.com> <3F497614.4090600@pobox.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jeff is probably right - /proc/interrupts is similar on both the failing 
-(test4) and working (test3) except for the eth0 entry (the via rhine 
-chipset on the motherboard) assigned to IRQ11 in test3 and IRQ5 in test4.
+Mike Fedyk <mfedyk@matchmail.com> writes:
+> I think I like CONFIG_NONSTD_ABI better.
 
-Differences in the boot.msg between test3 and test4 start with an entry 
-"PM Adding info for No Bus: legacy" in the working one which is not 
-found in the failing (test4) boot.msg.   There are differences in the 
-"ACPI Subsystem revision" number that is logged.  Various ACPI related 
-messages are found in the failing boot.msg before "ACPI interpreter 
-enabled"    In the good one (test3) following the PCI: Probing PCI 
-hardware line are a series of "PM: Adding info for ..". messages which 
-look like they are finding  various PCI devices (these are not found in 
-the failing test4 case).
+ABIs are typically thought of as being CPU/platform-specific, so this
+seems wrong -- an embedded platform may in fact standardize on never
+having `big unix' features X, Y, & Z.
 
-I am experimenting with disabling ACPI on test4 to see if that bypasses 
-the problem.
-
-
-Jeff Garzik wrote:
-
-> Steve French wrote:
->
->> The via rhine driver fails to get a dhcp address on my test system on 
->> 2.6.0-test4.   ethereal shows no dhcp request leaving the box but 
->> ifconfig does show the device and it is detected in /proc/pci.   
->> Switching from the test3 vs.  test4 snapshots built with equivalent 
->> configure options on the same system (SuSE 8.2) - test3 works but 
->> test4 does not.   This is using essentially the default config for 
->> both the test3 and test4 cases - the only changes are SMP disabled, 
->> scsi devices disabled, Athlon, via-rhine enabled in network devices 
->> and a handful of additional filesystems enabled, debug memory 
->> allocations enabled.   This is the first time in many months that I 
->> have seen problems with the via-rhine driver on 2.6
->>
->> Analyzing the code differences between 2.6.0-test3 and test4 (in 
->> via-rhine.c) is not very promising since the only line that has 
->> changed (kfree to free_netdev) is in the routine via_rhine_remove_one 
->> that seems unlikely to cause problems sending data on the network.
->>
->> Ideas as to what could have caused the regression?
->
->
->
-> Does /proc/interrupts show any interrupts being received on your eth 
-> device?  Does dmesg report any irq assignment problems, or similar?
->
-> This sounds like ACPI or irq routing related.
->
->     Jeff
->
->
->
->
-
-
+-Miles
+-- 
+Would you like fries with that?

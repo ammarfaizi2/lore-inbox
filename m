@@ -1,42 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264211AbUEXJKz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264197AbUEXJMR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264211AbUEXJKz (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 24 May 2004 05:10:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264192AbUEXJKR
+	id S264197AbUEXJMR (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 24 May 2004 05:12:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264192AbUEXJMQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 24 May 2004 05:10:17 -0400
-Received: from fw.osdl.org ([65.172.181.6]:57284 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S264196AbUEXItg (ORCPT
+	Mon, 24 May 2004 05:12:16 -0400
+Received: from gate.corvil.net ([213.94.219.177]:63753 "EHLO corvil.com")
+	by vger.kernel.org with ESMTP id S264206AbUEXJId (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 24 May 2004 04:49:36 -0400
-Date: Mon, 24 May 2004 01:49:01 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Stephen Rothwell <sfr@canb.auug.org.au>
-Cc: torvalds@osdl.org, linuxppc64-dev@lists.linuxppc.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] dynamic addition of virtual disks on PPC64 iSeries
-Message-Id: <20040524014901.04530a24.akpm@osdl.org>
-In-Reply-To: <20040524184126.11aeffd3.sfr@canb.auug.org.au>
-References: <20040524162039.5f6ca3e0.sfr@canb.auug.org.au>
-	<20040523232920.2fb0640a.akpm@osdl.org>
-	<20040524184126.11aeffd3.sfr@canb.auug.org.au>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Mon, 24 May 2004 05:08:33 -0400
+Message-ID: <40B1BB78.70508@draigBrady.com>
+Date: Mon, 24 May 2004 10:08:08 +0100
+From: P@draigBrady.com
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040124
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Willy Tarreau <willy@w.ods.org>
+CC: linux-kernel@vger.kernel.org, Christoph Hellwig <hch@lst.de>,
+       akpm@osdl.org
+Subject: Re: i486 emu in mainline?
+References: <20040522234059.GA3735@infradead.org> <20040523082912.GA16071@alpha.home.local> <20040523105130.GA588@samarkand.rivenstone.net> <20040523115936.GB16726@alpha.home.local>
+In-Reply-To: <20040523115936.GB16726@alpha.home.local>
+Content-Type: text/plain; charset=ISO-8859-15; format=flowed
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Stephen Rothwell <sfr@canb.auug.org.au> wrote:
->
-> On Sun, 23 May 2004 23:29:20 -0700 Andrew Morton <akpm@osdl.org> wrote:
-> >
-> > Or to generate a hotplug event when a disk is added?  Even if there's no
-> > notification to the kernel, it should be possible to generate the hotplug
-> > events in response to a /proc-based trigger.
+Willy Tarreau wrote:
+> On Sun, May 23, 2004 at 06:51:30AM -0400, Joseph Fannin wrote:
 > 
-> Of course, it occurs to me that hotplug events must be happening (I guess
-> add_disk does it) as udev was quite happily creating hte device nodes for
-> me ...
+>>On Sun, May 23, 2004 at 10:29:12AM +0200, Willy Tarreau wrote:
+>>
+>>>On Sun, May 23, 2004 at 01:40:59AM +0200, Christoph Hellwig wrote:
+>>>
+>>>>These days gcc uses i486+ only instruction by default in libstdc++ so
+>>>>most modern distros wouldn't work on i386 cpus anymore.  To make it work
+>>>>again Debian merged Willy Tarreau's patch to trap those and emulate them
+>>>>on real i386 cpus.  The patch is extremely non-invasive and would
+>>>>certainly be usefull for mainline.  Any reason not to include it?
+>>
+>>>  - I couldn't emulate locks, so this will break on SMP systems, and so
+>>>    will it if you need to access some memory share with an external
+>>>    microcontroller or something like that.
+>>
+>>    Does this mean that programs that use the NPTL will work on
+>>non-SMP 386s?
+> 
+> I have no idea. Why would NPTL not work on i386 ?
 
-Handy.  So the patch stands as-is?
+i386 doesn't have the necessary instructions.
+It's my understanding that the following is not being maintained:
+http://sources.redhat.com/ml/libc-hacker/2004-05/msg00019.html
+
+Pádraig.

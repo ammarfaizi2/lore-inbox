@@ -1,75 +1,85 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265820AbUFXVHi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263820AbUFXVJN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265820AbUFXVHi (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Jun 2004 17:07:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265680AbUFXVGi
+	id S263820AbUFXVJN (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Jun 2004 17:09:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265691AbUFXVIP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Jun 2004 17:06:38 -0400
-Received: from mail.kroah.org ([65.200.24.183]:15267 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S265693AbUFXVDW (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Jun 2004 17:03:22 -0400
-Date: Thu, 24 Jun 2004 13:59:37 -0700
-From: Greg KH <greg@kroah.com>
-To: Jeff Garzik <jgarzik@pobox.com>
-Cc: Jeremy Katz <jeremy.katz@gmail.com>,
-       Stephen Rothwell <sfr@canb.auug.org.au>, Andrew Morton <akpm@osdl.org>,
-       Linus <torvalds@osdl.org>, LKML <linux-kernel@vger.kernel.org>,
-       katzj@redhat.com
-Subject: Re: [PATCH] PPC64 iSeries viodasd proc file
-Message-ID: <20040624205936.GA2009@kroah.com>
-References: <20040618165436.193d5d35.sfr@canb.auug.org.au> <40D305B4.4030009@pobox.com> <20040618151753.GA21596@infradead.org> <cb5afee1040620125272ab9f06@mail.gmail.com> <20040621060435.GA28384@kroah.com> <cb5afee10406210914451dc6@mail.gmail.com> <cb5afee10406231415293e90c0@mail.gmail.com> <20040623220303.GD6548@kroah.com> <40DA2272.8050106@pobox.com>
+	Thu, 24 Jun 2004 17:08:15 -0400
+Received: from [141.211.133.132] ([141.211.133.132]:45700 "EHLO
+	lade.trondhjem.org") by vger.kernel.org with ESMTP id S265825AbUFXVGt convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 24 Jun 2004 17:06:49 -0400
+Subject: Re: [PATCH] Make POSIX locks compatible with the NPTL thread model
+From: Trond Myklebust <trond.myklebust@fys.uio.no>
+To: Andreas Gruenbacher <agruen@suse.de>, Chris Wright <chrisw@osdl.org>
+Cc: Andrew Morton <akpm@osdl.org>, linux-fsdevel@vger.kernel.org,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <200406241356.19925.agruen@suse.de>
+References: <1088010468.5806.52.camel@lade.trondhjem.org>
+	 <200406241356.19925.agruen@suse.de>
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 8BIT
+Message-Id: <1088111176.5194.64.camel@lade.trondhjem.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <40DA2272.8050106@pobox.com>
-User-Agent: Mutt/1.5.6i
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Thu, 24 Jun 2004 17:06:16 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jun 23, 2004 at 08:38:10PM -0400, Jeff Garzik wrote:
-> >But what you can use is the MODULE_DEVICE_TABLE() information in the
-> >modules to try to help you out here.  That details a mapping of what
-> >kind of devices that specific driver supports.
+På to , 24/06/2004 klokka 07:56, skreiv Andreas Gruenbacher:
+
+> There are local and remote locks, and both of them need a pid discriminator. 
+> We have used the files_struct pointer so far which was either a struct 
+> files_struct pointer or a struct nlm_host pointer. By using pointers we had a 
+> host+pid "uniquifier". Now we could change the fields from:
 > 
-> No, it details what devices a driver supports, not what _type_ of 
-> devices the driver supports.
-
-Yes, you are correct. 
-
-> >>Note: this should not mean that we then go and remove currently
-> >>existing stuff in /proc.  Deprecate it and then it can go away in time
-> >>as people switch.  Having to have a flag day is very painful.  It's
-> >>far easier to deprecate in one stable series with a new interface
-> >>available and then start removing the old ones as things start to
-> >>switch over.  If it really is an improvement, then getting people to
-> >>change won't be difficult.
-> >
-> >
-> >I agree, I don't think that many things have disappeared from /proc just
-> >yet, right?  You should just have more information than what you
-> >previously did, right?  Or did scsi drop their /proc support fully?
+> 	struct file_lock {
+> 		[...]
+> 		fl_owner_t fl_owner;
+> 		unsigned int fl_pid;
+> 		[...]
+> 	};
 > 
-> Concrete example:  modprobe sx8.  Now, what block devices did it detect?
+> to:
+> 
+> 	struct file_lock {
+> 		[...]
+> 		struct nlm_host *fl_host;	/* NULL for local locks */
+> 		unsigned int fl_pid;
+> 		[...]
+> 	};
+> 
+> There would be no casting of other types into a fl_host here.
 
-Could we determine this in 2.4?
+This was what the second patch I sent in did. However there is a flaw:
+see Chris's Oops which shows that CLONE_FILES can still screw us...
 
-Anyway, how about this assuming sx8 is a pci driver:
-	- look in /sys/bus/pci/drivers/sx8/
-	- for every device listed in that directory do:
-		- `tree | grep block` or however you want to search the
-		  tree for the block symlink, find is probably nicer
-		  here.
-		- that gives you the base block device, then go into the
-		  /sys/block/FOUND_BLOCK_DEVICE to find the individual
-		  partitions if needed.
+Seeing that Oops, I'm starting to believe that the only way we can
+achieve both goals of making the locking rules robust *and*
+self-consistent is to scrap the fl_pid field...
 
-Or work backwards if you want to:
-	- tally up every /sys/block/*/device symlink, and see if they
-	  point to a device owned by the sx8 driver.
+If we do that, we end up with a situation in which an fcntl(F_GETLK)
+call can return bogus values in the "pid" field, if someone calls
+clone(CLONE_FILES) (without CLONE_THREAD). Also if someone calls
+clone(CLONE_THREAD) (omitting CLONE_FILES) then fcntl(F_UNLCK) will fail
+to clear all locks with the same pid. Finally we will still be saddled
+with steal_locks()...
 
-Does that work for you?
+HOWEVER
 
-thanks,
+At least NFS, CIFS,... will be able to set up ->lock() methods that are
+consistent with what the VFS is doing above them, so that close() will
+indeed free the same locks on the remote system as on the local system.
+Currently that is not the case...
+Note that doing this will require some work. In particular the NFS Lock
+Manager protocol (used by NFSv2/v3 but not NFSv4) assumes that a 32-bit
+"pid" field labels the lockowner. We would somehow have to convert the
+lock->fl_owner into such a field - trivial on 32-bit systems, but less
+so on systems with 64-bit pointers.
+On the NLM/lockd server side, we need to stuff those same 32-bit "pid'
+fields into the fl_lock fields in such a way that the "pid" values from
+different clients do not conflict.
 
-greg k-h
+
+Cheers,
+  Trond

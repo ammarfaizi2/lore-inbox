@@ -1,62 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264551AbSIQSxF>; Tue, 17 Sep 2002 14:53:05 -0400
+	id <S264472AbSIQSmb>; Tue, 17 Sep 2002 14:42:31 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264555AbSIQSxF>; Tue, 17 Sep 2002 14:53:05 -0400
-Received: from uucp.cistron.nl ([62.216.30.38]:12556 "EHLO ncc1701.cistron.net")
-	by vger.kernel.org with ESMTP id <S264551AbSIQSxE>;
-	Tue, 17 Sep 2002 14:53:04 -0400
-From: "Miquel van Smoorenburg" <miquels@cistron.nl>
-Subject: 2.4.20-pre7: disk statistics still buggy
-Date: Tue, 17 Sep 2002 18:57:38 +0000 (UTC)
-Organization: Cistron
-Message-ID: <am7tv2$9d4$1@ncc1701.cistron.net>
-Content-Type: text/plain; charset=iso-8859-15
-X-Trace: ncc1701.cistron.net 1032289058 9636 62.216.29.67 (17 Sep 2002 18:57:38 GMT)
-X-Complaints-To: abuse@cistron.nl
-X-Newsreader: trn 4.0-test76 (Apr 2, 2001)
-Originator: miquels@cistron-office.nl (Miquel van Smoorenburg)
-To: linux-kernel@vger.kernel.org
+	id <S264486AbSIQSmb>; Tue, 17 Sep 2002 14:42:31 -0400
+Received: from svr-ganmtc-appserv-mgmt.ncf.coxexpress.com ([24.136.46.5]:46090
+	"EHLO svr-ganmtc-appserv-mgmt.ncf.coxexpress.com") by vger.kernel.org
+	with ESMTP id <S264472AbSIQSm2>; Tue, 17 Sep 2002 14:42:28 -0400
+Subject: Re: [PATCH] BUG(): sched.c: Line 944
+From: Robert Love <rml@tech9.net>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.44.0209171826160.6719-100000@localhost.localdomain>
+References: <Pine.LNX.4.44.0209171826160.6719-100000@localhost.localdomain>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 
+Date: 17 Sep 2002 14:47:22 -0400
+Message-Id: <1032288442.5149.98.camel@phantasy>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-It appears that this issue has been brought to attention earlier-
-in Juli. http://www.uwsg.iu.edu/hypermail/linux/kernel/0207.1/0323.html
+On Tue, 2002-09-17 at 12:26, Ingo Molnar wrote:
 
-"running" and "aveq" make no sense. They are negative, or very large.
+> On Tue, 17 Sep 2002, Linus Torvalds wrote:
+> 
+> > On the other hand, we do have other ways to test the preempt count
+> > inside the scheduler. In particular, we might just move the
+> > "in_atomic()" check a few lines downwards, at which point we've released
+> > the kernel lock and explicitly disabled preemption, so at that point the
+> > test should be even simpler with fewer conditionals..
+> 
+> indeed ...
 
-$ uname -a
-Linux news3 2.4.20-pre7 #3 Mon Sep 16 22:24:30 CEST 2002 i686 unknown
+OK so do we want to do (a):
 
-$ cat /proc/partitions  
-major minor  #blocks  name     rio rmerge rsect ruse wio wmerge wsect wuse running use aveq
+(moved down to after the preempt_disable() and release_kernel_lock())
 
-   8     0    4455211 sda 9468 17946 168570 84970 58539 138667 1318468 2299240 0 424760 2387770
-   8     1     388988 sda1 1791 6471 16524 8770 7176 36164 86980 630690 0 121450 642610
-   8     2    1027185 sda2 2652 3510 48930 19510 5192 13422 149120 483330 0 146790 503250
-   8     3    1027185 sda3 986 6318 58066 23860 44741 81072 1006808 806890 0 326530 830750
-   8     4          1 sda4 0 0 0 0 0 0 0 0 0 0 0
-   8     5    1027154 sda5 1 0 8 10 0 0 0 0 0 10 10
-   8     6     983444 sda6 4035 1638 45018 32780 1430 8009 75560 378330 0 66560 411110
-   8    16   17921835 sdb 41833 5476 378082 695070 1538817 743210 18273672 124155110 0 5687460 124877060
-   8    17   17921008 sdb1 41832 5473 378074 695050 1538817 743210 18273672 124155110 0 5687440 124877040
-   8    32    4455211 sdc 1 3 8 10 0 0 0 0 0 10 10
-   8    33    4454018 sdc1 0 0 0 0 0 0 0 0 0 0 0
-  34     0  160086528 hdg 130366 872 262476 30290 5651 282658 576618 1264780 -2 78008350 -154744510
-  34     1   10241406 hdg1 53082 150 106464 10690 1519 77083 157204 227620 0 35260 238310
-  34     2    1028160 hdg2 7322 152 14948 4460 354 9756 20220 65410 0 27060 69870
-  34     3  148810095 hdg3 69961 567 141056 15130 3778 195819 399194 971750 0 95020 986880
-  33     0  160086528 hde 130667 907 263148 26730 5724 286473 584394 978180 -2 78010550 -155034670
-  33     1   10241406 hde1 53238 154 106784 9760 1530 77462 157984 176760 0 34360 186520
-  33     2    1028160 hde2 7340 140 14960 3010 364 9785 20298 45160 0 24770 48170
-  33     3  148810095 hde3 70088 610 141396 13950 3830 199226 406112 756260 0 88690 770210
-  22     0  160086528 hdc 131752 65445 394394 31250 5652 281531 574366 877100 -3 78008160 -233020570
-  22     1   10241406 hdc1 54333 64788 238242 14880 1531 77367 157796 134490 0 35320 149370
-  22     2    1028160 hdc2 7314 147 14922 3000 368 9734 20204 48880 0 24350 51880
-  22     3  148810095 hdc3 70104 507 141222 13360 3753 194430 396366 693730 0 86780 707090
-   3     0  160086528 hda 131753 66451 396408 37550 5706 285265 581942 897340 -3 78006620 -233002320
-   3     1   10241406 hda1 54329 64788 238234 14830 1524 77489 158026 154110 0 35810 168940
-   3     2    1028160 hda2 7363 142 15010 3640 364 9770 20268 47870 0 25190 51510
-   3     3  148810095 hda3 70060 1518 143156 19070 3818 198006 403648 695360 0 92700 714430
+if (likely(current->state != TASK_ZOMBIE)
+	if (unlikely((preempt_count() & ~PREEMPT_ACTIVE) != 1))
+		...
+
+or go with (b) where we split schedule() into schedule(),
+exit_schedule(), and do_schedule().
+
+	Robert Love
 
 

@@ -1,47 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318552AbSGaXgP>; Wed, 31 Jul 2002 19:36:15 -0400
+	id <S317464AbSGaXfE>; Wed, 31 Jul 2002 19:35:04 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318558AbSGaXgP>; Wed, 31 Jul 2002 19:36:15 -0400
-Received: from samba.sourceforge.net ([198.186.203.85]:32468 "HELO
-	lists.samba.org") by vger.kernel.org with SMTP id <S318552AbSGaXgO>;
-	Wed, 31 Jul 2002 19:36:14 -0400
-From: Rusty Russell <rusty@rustcorp.com.au>
-To: Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>
-Cc: Roman Zippel <zippel@linux-m68k.org>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] automatic module_init ordering 
-In-reply-to: Your message of "Wed, 31 Jul 2002 12:06:52 EST."
-             <Pine.LNX.4.44.0207311201000.19799-100000@chaos.physics.uiowa.edu> 
-Date: Thu, 01 Aug 2002 09:28:19 +1000
-Message-Id: <20020731234108.36C064D62@lists.samba.org>
+	id <S318552AbSGaXfE>; Wed, 31 Jul 2002 19:35:04 -0400
+Received: from [143.166.83.88] ([143.166.83.88]:12809 "HELO
+	AUSADMMSRR501.aus.amer.dell.com") by vger.kernel.org with SMTP
+	id <S317464AbSGaXfD>; Wed, 31 Jul 2002 19:35:03 -0400
+X-Server-Uuid: ff595059-9672-488a-bf38-b4dee96ef25b
+Message-ID: <F44891A593A6DE4B99FDCB7CC537BBBBB839AD@AUSXMPS308.aus.amer.dell.com>
+From: Matt_Domsch@Dell.com
+To: peter@chubb.wattle.id.au
+cc: pavel@ucw.cz, viro@math.psu.edu, Andries.Brouwer@cwi.nl,
+       linux-kernel@vger.kernel.org
+Subject: RE: 2.5.28 and partitions
+Date: Wed, 31 Jul 2002 18:38:24 -0500
+MIME-Version: 1.0
+X-Mailer: Internet Mail Service (5.5.2650.21)
+X-WSS-ID: 1156AB7B5243327-01-01
+Content-Type: text/plain; 
+ charset=iso-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In message <Pine.LNX.4.44.0207311201000.19799-100000@chaos.physics.uiowa.edu> y
-ou write:
-> On Wed, 31 Jul 2002, Rusty Russell wrote:
+> Matt> What's wrong with EFI GUID scheme (GPT) (other than it wasn't
+> Matt> invented by Linux folks)?
 > 
-> > My PARAM code actually maps - to _ in parameter parsing, for exactly
-> > this reason.  And only a complete idiot would put , in a module name,
-> > so I don't care 8)
-> 
-> Tell that to the author of 53c7,8xx.o ;)
+> Nothing, except it's not used on all platforms yet.
 
-Consider that done.
+(set boot issues aside for now)
+It could.  I use it on x86 and IA-64 now.  I think Richard Hirst found the
+last (knock on wood) of my endianness bugs about 6 months ago, so I know it
+works on BE and LE non-Intel machines.  It's in the partitioning menu, not
+specific to arch.  The only arch dependency in code is on asm-ia64/efi.h for
+some typedefs, which is annoying but not hard to fix if desired (move
+relevant bits to include/linux/efi.h).
 
-> > As it happens, the configuration doesn't allow more than one to be
-> > built in (they can all be modules though), so it's not actually a
-> > problem even after parameter unification.
-> 
-> Hmmh, I think that'll need some testing. It will be fine if only one of 
-> the three is "y", the others being "n/undef". However, it looks like it's 
-> possible to have sth like "m/m/y", which would go wrong with the current 
-> approach.
+> For my machines the *only* reason for having a legacy partitioning
+> scheme is to allow booting.
 
-That's a bug.  That configuration makes no sense (the modules won't
-load).  Hmmm... more Config.in complexity coming up 8(
+As you point out, booting is BIOS-specific.  So for now boot a disk with a
+native scheme (where your OS resides already) and mount that 64XB file
+system for data afterwords.  By the time that doesn't work, 32-bit CPUs will
+be dead anyhow.
 
-Rusty.
+Thanks,
+Matt
+
 --
-  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.
+Matt Domsch
+Sr. Software Engineer, Lead Engineer, Architect
+Dell Linux Solutions www.dell.com/linux
+Linux on Dell mailing lists @ http://lists.us.dell.com
+#1 US Linux Server provider for 2001 and Q1/2002! (IDC May 2002)
+

@@ -1,45 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318786AbSHWMwS>; Fri, 23 Aug 2002 08:52:18 -0400
+	id <S318789AbSHWMxb>; Fri, 23 Aug 2002 08:53:31 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318787AbSHWMwS>; Fri, 23 Aug 2002 08:52:18 -0400
-Received: from chaos.analogic.com ([204.178.40.224]:2432 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP
-	id <S318786AbSHWMwR>; Fri, 23 Aug 2002 08:52:17 -0400
-Date: Fri, 23 Aug 2002 08:56:21 -0400 (EDT)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-Reply-To: root@chaos.analogic.com
-To: ic@aleph1.net
-cc: linux-kernel@vger.kernel.org
-Subject: Re: process 0
-In-Reply-To: <20020823121115.GA31534@aleph1.net>
-Message-ID: <Pine.LNX.3.95.1020823085056.169A-100000@chaos.analogic.com>
+	id <S318790AbSHWMxb>; Fri, 23 Aug 2002 08:53:31 -0400
+Received: from e35.co.us.ibm.com ([32.97.110.133]:60316 "EHLO
+	e35.co.us.ibm.com") by vger.kernel.org with ESMTP
+	id <S318789AbSHWMx2>; Fri, 23 Aug 2002 08:53:28 -0400
+Subject: Re: netperf3 results on 2.5.25 kernel
+To: Eric Lemoine <Eric.Lemoine@ens-lyon.fr>
+Cc: linux-kernel@vger.kernel.org, lse-tech@lists.sourceforge.net,
+       lse-tech-admin@lists.sourceforge.net
+X-Mailer: Lotus Notes Release 5.0.7  March 21, 2001
+Message-ID: <OF3BE9157D.2B6CD78B-ON87256C1E.0046E571@boulder.ibm.com>
+From: "Mala Anand" <manand@us.ibm.com>
+Date: Fri, 23 Aug 2002 07:56:49 -0500
+X-MIMETrack: Serialize by Router on D03NM123/03/M/IBM(Release 5.0.10 |March 22, 2002) at
+ 08/23/2002 06:56:50 AM
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 23 Aug 2002 ic@aleph1.net wrote:
 
-> Hi.
-> Maybe this is a little off topic, but does what is the real status of
-> Process 0 (swapper) ?
-> Some people keep telling me it doesn't exist, but on some kernel crashes
-> I can see "process swapper (pid 0, process nr 0, ...)"
-> 
-> Can someone help me ?
+Eric wrote...
+>> I did a comparison test on 2.4.17, 2.5.25 stock kernels and on 2.5.25
+>> with NAPI enabled e1000 driver using netperf3, tcp_stream 1 adapter
+>> test using UNI kernels. The test setup/results can be found at:
+>>
+http://www-124.ibm.com/developerworks/opensource/linuxperf/netperf/results/july_02/netperf2.5.25results.htm
 
-Well, it kind-of exists. It's what the CPU does when there is nothing
-else to do. Sort of like:
 
-		for(;;)
-                    schedule();
+>On which machine(s) do you actually test the kernels? Source machine?
+>Destination machine? Or both?
 
-It's also where it 'goes' if init returns <grin>.
+On both the server and the client, I used the respective kernels.
+However I used the cpu usage from the server since my objective
+is to stress the server in this test.
 
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.4.18 on an i686 machine (797.90 BogoMips).
-The US military has given us many words, FUBAR, SNAFU, now ENRON.
-Yes, top management were graduates of West Point and Annapolis.
+
+
+Regards,
+    Mala
+
+
+   Mala Anand
+   IBM Linux Technology Center - Kernel Performance
+   E-mail:manand@us.ibm.com
+   http://www-124.ibm.com/developerworks/opensource/linuxperf
+   http://www-124.ibm.com/developerworks/projects/linuxperf
+   Phone:838-8088; Tie-line:678-8088
+
+
+
 

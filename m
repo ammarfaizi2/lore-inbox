@@ -1,44 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264088AbUD0NUV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264101AbUD0NdH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264088AbUD0NUV (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Apr 2004 09:20:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264084AbUD0NUV
+	id S264101AbUD0NdH (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Apr 2004 09:33:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264097AbUD0NdB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Apr 2004 09:20:21 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:12206 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S264088AbUD0NUQ
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Apr 2004 09:20:16 -0400
-Date: Tue, 27 Apr 2004 10:21:14 -0300
-From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-To: David Johnson <dj@david-web.co.uk>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Anyone got aic7xxx working with 2.4.26?
-Message-ID: <20040427132114.GD10264@logos.cnet>
-References: <200404261532.37860.dj@david-web.co.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200404261532.37860.dj@david-web.co.uk>
-User-Agent: Mutt/1.5.5.1i
+	Tue, 27 Apr 2004 09:33:01 -0400
+Received: from [213.217.113.43] ([213.217.113.43]:15890 "HELO vfr.net")
+	by vger.kernel.org with SMTP id S264084AbUD0Nc4 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 27 Apr 2004 09:32:56 -0400
+To: <linux-kernel@vger.kernel.org>
+From: "gonzalo" <gllbab@hotmail.com>
+Date: Tue, 27 Apr 2004 06:40:22 GMT
+Message-Id: <1083048022-2518@excite.com>
+Subject: As Seen on CNN, the Winningest CAS1N0! larry researchz
+Content-Type: text/plain;
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Apr 26, 2004 at 03:32:37PM +0100, David Johnson wrote:
-> Hi,
-> 
-> I was wondering if anyone had aic7xxx SCSI working with kernel 2.4.26?
-> 
-> It doesn't work on my Alpha (hangs the machine on boot) and I'm trying to find 
-> out whether its an Alpha-specific issue or not, as I can't try the card in 
-> another machine as it's in production.
-> 
-> I've also got the same problem with 2.6.5 (and newer) - but I think this is a 
-> known issue with 2.6?
+Come and play at the world's PREMIiERE ONLINwE CASuINO!
+We are happy to offer you, in an elegant atmosphere, a 50% BONUeS for YOUR FIRST DEPOwSIT as a New Player.
 
-Hi David, 
+Sign up now! Don't wait!
 
-Can you post save the boot messages and post? Which 2.4/2.6 works on this box?
+http://www.casino-4-free.com/_e4faa55afa1972493c43ac8a3f66f869/
 
-What are the boot messages with 2.6.5 and newer?
 
+We'll automatically CREDIzT your account with a 50% BONUoS of extra chips, to wager in our CASIzNO.
+Don't hesixtate and try your luck!
+
+CLICqK HERcE!
+
+http://www.casino-4-free.com/_e4faa55afa1972493c43ac8a3f66f869/
+
+
+
+trident fozzie velvet corrado nautica smiths corrado god fiona redwing baskeT whitney carolina frederic aeh miki theatre stingray baskeT paula first norman mars mimi sweety sweety

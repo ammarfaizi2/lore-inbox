@@ -1,73 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135929AbRARUrZ>; Thu, 18 Jan 2001 15:47:25 -0500
+	id <S135447AbRARUxH>; Thu, 18 Jan 2001 15:53:07 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135931AbRARUrJ>; Thu, 18 Jan 2001 15:47:09 -0500
-Received: from c916083-a.pinol1.sfba.home.com ([24.1.112.33]:52626 "HELO
-	wraith") by vger.kernel.org with SMTP id <S135914AbRARUqr>;
-	Thu, 18 Jan 2001 15:46:47 -0500
-X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
-To: linux-kernel@vger.kernel.org, linux-lvm@sistina.com
-Subject: *** ANNOUNCEMENT *** LVM 0.9.1 beta2 available at www.sistina.com 
- (fwd)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Thu, 18 Jan 2001 12:43:35 -0800
-From: "Michael J. Declerck" <declerck@sistina.com>
-Message-Id: <20010118204335.35DCBE0B7@wraith>
+	id <S135567AbRARUw6>; Thu, 18 Jan 2001 15:52:58 -0500
+Received: from nat-pool-e.redhat.com ([199.183.24.21]:49156 "EHLO
+	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
+	id <S135447AbRARUwt>; Thu, 18 Jan 2001 15:52:49 -0500
+Date: Thu, 18 Jan 2001 15:50:42 -0500 (EST)
+From: Ingo Molnar <mingo@redhat.com>
+To: <kuznet@ms2.inr.ac.ru>
+cc: Rick Jones <raj@cup.hp.COM>, <linux-kernel@vger.kernel.org>
+Subject: Re: [Fwd: [Fwd: Is sendfile all that sexy? (fwd)]]
+In-Reply-To: <200101182030.XAA08626@ms2.inr.ac.ru>
+Message-ID: <Pine.LNX.4.30.0101181547580.24913-100000@devserv.devel.redhat.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I am posting this for Heinz Mauelshagen since he is experiencing network
-difficulties at this time and didn't know when he would be back on-line.
 
-Message follows ->
-------------------------------------------------------------------------------
---
-Hi all,
+On Thu, 18 Jan 2001 kuznet@ms2.inr.ac.ru wrote:
 
-a tarball of the Linux Logical Volume Manager 0.9.1 beta2 is available now at
+> Actually, TUX-1.1 (Ingo, do I not lie, did you not kill this code?)
+> does this. It does not ack quickly, when complete request is received
+> and still not answered, so that all the redundant acks disappear.
 
-   <http://www.sistina.com/>
+(it's TUX 2.0 meanwhile), and yes, TUX uses it. We speculatively delay ACK
+of parsed input packet in the hope of merging it with the first output
+packet. If the output frame does not happen for 200 msecs then we send a
+standalone ACK to be RFC-conform. This way TUX can do single-packet web
+replies for small requests. (well, plus SYN-ACK and FIN-ACK)
 
-for download (Follow the "LVM download page" link).
-
-
-This release fixes several bugs including the vgextend(8) related oops.
-See the CHANGELOG file contained in the tarball for further information.
-
-We'ld appreciate a couple of days for test feedback before pushing a 2.4.[0|1]
-patch to Linus.
-
-Please test and feed back related information to <linux-lvm@sistina.com>.
-
-Thanks a lot for your support of LVM.
-
-- -- 
-
-Regards,
-Heinz    -- The LVM Guy --
-
-*** Software bugs are stupid.
-    Nevertheless it needs not so stupid people to solve them ***
-
-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-
-Heinz Mauelshagen                                 Sistina Software Inc.
-Senior Consultant/Developer                       Am Sonnenhang 11
-                                                  56242 Marienrachdorf
-                                                  Germany
-Mauelshagen@Sistina.com                           +49 2626 141200
-                                                       FAX 924446
-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-
-------- End of Forwarded Message
-
-
-
----
-Michael Declerck, declerck@sistina.com   +1.510.823.7991
-
+	Ingo
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

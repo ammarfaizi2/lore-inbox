@@ -1,63 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267043AbRHWOgu>; Thu, 23 Aug 2001 10:36:50 -0400
+	id <S267534AbRHWOqb>; Thu, 23 Aug 2001 10:46:31 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267140AbRHWOga>; Thu, 23 Aug 2001 10:36:30 -0400
-Received: from fe1.rdc-kc.rr.com ([24.94.163.48]:32516 "EHLO mail1.wi.rr.com")
-	by vger.kernel.org with ESMTP id <S267043AbRHWOgJ>;
-	Thu, 23 Aug 2001 10:36:09 -0400
-Message-ID: <3B85161F.7060908@wi.rr.com>
-Date: Thu, 23 Aug 2001 09:41:35 -0500
-From: Carl <crazy@wi.rr.com>
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:0.9.2+) Gecko/20010728
-X-Accept-Language: en-us
+	id <S267621AbRHWOqV>; Thu, 23 Aug 2001 10:46:21 -0400
+Received: from relay02.cablecom.net ([62.2.33.102]:33298 "EHLO
+	relay02.cablecom.net") by vger.kernel.org with ESMTP
+	id <S267534AbRHWOqK>; Thu, 23 Aug 2001 10:46:10 -0400
+Message-Id: <200108231446.f7NEkMk29499@mail.swissonline.ch>
+Content-Type: text/plain; charset=US-ASCII
+From: Christian Widmer <cwidmer@iiic.ethz.ch>
+Reply-To: cwidmer@iiic.ethz.ch
+To: Mark Hahn <hahn@physics.mcmaster.ca>
+Subject: Re: hardware checksumming
+Date: Thu, 23 Aug 2001 16:46:15 +0200
+X-Mailer: KMail [version 1.3]
+In-Reply-To: <Pine.LNX.4.10.10108231354000.6061-100000@coffee.psychology.mcmaster.ca>
+In-Reply-To: <Pine.LNX.4.10.10108231354000.6061-100000@coffee.psychology.mcmaster.ca>
+Cc: linux-kernel@vger.kernel.org
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: [PATCH] sonypi and byteswapped apm minutes.
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+On Thursday 23 August 2001 15:54, you wrote:
+> > is hardware support by a NIC for checksum generation / offloading not
+> > quite usless? the checksumming enging can only be used when UDP/TCP
+> > packets are <= the MTU of the NIC (e.g 1500 bytes).
+>
+> checksums can be chained.
+yes that might be easy fores belonging together come one after the other. so 
+the NIC ha transmit, since all chained frams only to trak one 
+fragmentet packet. but receiving is will become difficult since different
+conections can arrive interleaved. something else: the NIC needs quite
+a lot of ram or huge fifios. if not it will have to transfer the data twice 
+through the PCI (checksumm are at the beginig of a packet not the
+end). nobody did spend a second on thinking to implement all in hard-
+ware when the interet protokol was desinged.
 
-I have a Sony Viao SR-33, and the sonypi driver would not work until I 
-applied this patch.
+do you know any NIC that is capable of chaining? currenty i've a dp83820
+on my desc and at the moment im not eaven shure if checksumming can
+be chained over multiple descriptions (describing one single ethernet frame).
 
---- linux-2.4.9.orig/drivers/char/sonypi.c      Wed Jul  4 16:41:33 2001
-+++ linux-2.4.9/drivers/char/sonypi.c   Thu Aug 23 09:17:06 2001
-@@ -630,7 +630,7 @@
-
-         sonypi_call1(0x82);
-         sonypi_call2(0x81, 0xff);
--       sonypi_call1(0x92);
-+       sonypi_call1(0x82);
-
-         printk(KERN_INFO "sonypi: Sony Programmable I/O Controller 
-driver v%d.%d
-.\n",
-                SONYPI_DRIVER_MAJORVERSION,
-
-I don't know if this works for the general case or if this machine is a 
-special case.  I hope people with other vaio models will check.
-
-Also this machine suffers from the swap_apm issue, here is a patch.
-
---- linux-2.4.9.orig/arch/i386/kernel/dmi_scan.c        Mon Aug 13 
-18:39:28 2001
-+++ linux-2.4.9/arch/i386/kernel/dmi_scan.c     Thu Aug 23 09:03:41 2001
-@@ -354,6 +354,11 @@
-                         MATCH(DMI_BIOS_VERSION, "R0121Z1"),
-                         MATCH(DMI_BIOS_DATE, "05/11/00"), NO_MATCH
-                         } },
-+       { swab_apm_power_in_minutes, "Sony VAIO", {     /* Handle 
-problems with APM on Sony Vaio PCG-SR33 */
-+                       MATCH(DMI_BIOS_VENDOR, "Phoenix Technologies LTD"),
-+                       MATCH(DMI_BIOS_VERSION, "R0211D1"),
-+                       MATCH(DMI_BIOS_DATE, "05/30/01"), NO_MATCH
-+                       } },
-         { NULL, }
-  };
-
-Thanks.
-
+>
+> > i expact that UDP/TCP packets are in general bigger than that or is
+> > exactly
+>
+> TCP packets are certainly never larger than the MTU.

@@ -1,63 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129220AbQKPQpW>; Thu, 16 Nov 2000 11:45:22 -0500
+	id <S131044AbQKPQqm>; Thu, 16 Nov 2000 11:46:42 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129222AbQKPQpO>; Thu, 16 Nov 2000 11:45:14 -0500
-Received: from mlx3.unm.edu ([129.24.8.189]:29216 "HELO mlx3.unm.edu")
-	by vger.kernel.org with SMTP id <S129220AbQKPQpE>;
-	Thu, 16 Nov 2000 11:45:04 -0500
-Date: Thu, 16 Nov 2000 09:15:00 -0700 (MST)
-From: Todd <todd@unm.edu>
-To: linux-kernel@vger.kernel.org
-Subject: hw or other prob?
-Message-ID: <Pine.A41.4.21.0011160908240.39700-100000@aix04.unm.edu>
+	id <S130540AbQKPQqc>; Thu, 16 Nov 2000 11:46:32 -0500
+Received: from panic.ohr.gatech.edu ([130.207.47.194]:63762 "EHLO
+	havoc.gtf.org") by vger.kernel.org with ESMTP id <S131148AbQKPQqM>;
+	Thu, 16 Nov 2000 11:46:12 -0500
+Message-ID: <3A14082F.2BF01D85@mandrakesoft.com>
+Date: Thu, 16 Nov 2000 11:15:43 -0500
+From: Jeff Garzik <jgarzik@mandrakesoft.com>
+Organization: MandrakeSoft
+X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.4.0-test11 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+CC: David Woodhouse <dwmw2@infradead.org>, David Hinds <dhinds@valinux.com>,
+        torvalds@transmeta.com, tytso@valinux.com,
+        linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] pcmcia event thread. (fwd)
+In-Reply-To: <E13wRag-0007ym-00@the-village.bc.nu>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-folx,
+Alan Cox wrote:
+> the modules from David Hinds and Linus
+> pcmcia are not 100% binary compatible for all cases.
 
-on 2.4.0-test6 i got a bunch of the following log messages and then the
-console went dead (well, power-saving monitor and no amount of activity
-on the keyboard or mouse made it wake up), but the machine still responded
-to pings (could not connect w/ telnet or ssh or rlogin). 
+What cases are these?
 
-does this look like a genuine hw problem or should i upgrade to a newer
-2.4.0 test kernel?  i'm happy to do any troubleshooting suggested.
+David's been pretty good about putting 2.4.x support into pcmcia_cs
+package...
 
-log messages (lots and lots of them.  they all look just like this):
-
-Nov 12 06:43:30 zapata kernel: APIC error interrupt on CPU#0, should never
-happen. 
-Nov 12 06:43:30 zapata kernel: ... APIC ESR0: 00000002 
-Nov 12 06:43:30 zapata kernel: ... APIC ESR1: 00000002 
-Nov 12 06:43:30 zapata kernel: ... bit 1: APIC Receive CS Error (hw
-problem). 
-Nov 12 06:43:30 zapata kernel: APIC error interrupt on CPU#1, should never
-happen. 
-Nov 12 06:43:30 zapata kernel: ... APIC ESR0: 00000002 
-Nov 12 06:43:30 zapata kernel: ... APIC ESR1: 00000002 
-Nov 12 06:43:30 zapata kernel: ... bit 1: APIC Receive CS Error (hw
-problem). 
-Nov 12 07:43:18 zapata kernel: APIC error interrupt on CPU#1, should never
-happen. 
-Nov 12 07:43:18 zapata kernel: ... APIC ESR0: 00000002 
-Nov 12 07:43:18 zapata kernel: ... APIC ESR1: 00000002 
-Nov 12 07:43:18 zapata kernel: ... bit 1: APIC Receive CS Error (hw
-problem). 
-Nov 12 07:43:18 zapata kernel: APIC error interrupt on CPU#0, should never
-happen. 
-
-machine is smp pIII450 running on a intel N440bx mb.  main disk is ide,
-but i'm using sym53c8xx to access two scsi disks in a logical volume.
-
-thanks,
-
-
-todd underwood
-todd@unm.edu
-
+-- 
+Jeff Garzik             |
+Building 1024           | The chief enemy of creativity is "good" sense
+MandrakeSoft            |          -- Picasso
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,42 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262131AbULQTYq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262136AbULQT1U@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262131AbULQTYq (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 17 Dec 2004 14:24:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262133AbULQTYp
+	id S262136AbULQT1U (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 17 Dec 2004 14:27:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262133AbULQTYy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 17 Dec 2004 14:24:45 -0500
-Received: from e2.ny.us.ibm.com ([32.97.182.142]:56719 "EHLO e2.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S262131AbULQTYR (ORCPT
+	Fri, 17 Dec 2004 14:24:54 -0500
+Received: from e3.ny.us.ibm.com ([32.97.182.143]:4844 "EHLO e3.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S262134AbULQTYS (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 17 Dec 2004 14:24:17 -0500
-Date: Fri, 17 Dec 2004 11:22:11 -0800
+	Fri, 17 Dec 2004 14:24:18 -0500
+Date: Fri, 17 Dec 2004 11:18:20 -0800
 From: Greg KH <greg@kroah.com>
-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Cc: Pavel Machek <pavel@ucw.cz>,
-       Linux-pm mailing list <linux-pm@lists.osdl.org>,
-       Andrew Morton <akpm@zip.com.au>,
-       Linux Kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: [linux-pm] Re: Cleanup PCI power states
-Message-ID: <20041217192211.GC21238@kroah.com>
-References: <20041116130445.GA10085@elf.ucw.cz> <20041116155613.GA1309@kroah.com> <20041117120857.GA6952@openzaurus.ucw.cz> <20041124234057.GF4649@kroah.com> <20041125113913.GC1027@elf.ucw.cz> <20041217000629.GB11531@kroah.com> <1103269727.14209.21.camel@gaston>
+To: Robert Love <rml@ximian.com>
+Cc: ambx1@neo.rr.com, linux-kernel@vger.kernel.org, mochel@digitalimplant.org,
+       len.brown@intel.com, shaohua.li@intel.com,
+       Bjorn Helgaas <bjorn.helgaas@hp.com>
+Subject: Re: [RFC] Device Resource Management
+Message-ID: <20041217191819.GA21238@kroah.com>
+References: <20041211054509.GA2661@neo.rr.com> <20041216041405.GA23223@kroah.com> <1103173505.6052.282.camel@localhost>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1103269727.14209.21.camel@gaston>
+In-Reply-To: <1103173505.6052.282.camel@localhost>
 User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Dec 17, 2004 at 08:48:46AM +0100, Benjamin Herrenschmidt wrote:
-> On Thu, 2004-12-16 at 16:06 -0800, Greg KH wrote:
+On Thu, Dec 16, 2004 at 12:05:05AM -0500, Robert Love wrote:
+> On Wed, 2004-12-15 at 20:14 -0800, Greg KH wrote:
 > 
-> > > +EXPORT_SYMBOL(pci_choose_state);
-> > 
-> > EXPORT_SYMBOL_GPL() perhaps?
+> > Why would it matter if we export this info to userspace?  Do any
+> > userspace programs care about this information?
 > 
-> Ugh ? Why GPL only ? That's meant to be used by pretty much all
-> pci_driver's
+> We'd love to be able to view and manipulate resource information from
+> HAL.  As HAL replaces vendor-specific solutions such as, say, kudzu, it
+> will need to make device/driver decisions and implement work arounds, so
+> this information is incredibly invaluable, let alone just neat to have.
 
-Ok, fine.  I just have to ask the question :)
+Ok, fair enough.  I keep forgetting about the PnP resource mess, I guess
+I just want to block that nastiness out of my brain...
+
+thanks,
 
 greg k-h

@@ -1,60 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267509AbUHSXJQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267522AbUHSXMg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267509AbUHSXJQ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 19 Aug 2004 19:09:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267493AbUHSXJB
+	id S267522AbUHSXMg (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 19 Aug 2004 19:12:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267520AbUHSXM1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 19 Aug 2004 19:09:01 -0400
-Received: from opersys.com ([64.40.108.71]:36623 "EHLO www.opersys.com")
-	by vger.kernel.org with ESMTP id S267510AbUHSXIM (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 19 Aug 2004 19:08:12 -0400
-Message-ID: <4125312F.7020108@opersys.com>
-Date: Thu, 19 Aug 2004 19:01:03 -0400
-From: Karim Yaghmour <karim@opersys.com>
-Reply-To: karim@opersys.com
-Organization: Opersys inc.
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030624 Netscape/7.1
-X-Accept-Language: en-us, en, fr, fr-be, fr-ca, fr-fr
+	Thu, 19 Aug 2004 19:12:27 -0400
+Received: from web14926.mail.yahoo.com ([216.136.225.84]:13659 "HELO
+	web14926.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S267517AbUHSXMD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 19 Aug 2004 19:12:03 -0400
+Message-ID: <20040819231158.97039.qmail@web14926.mail.yahoo.com>
+Date: Thu, 19 Aug 2004 16:11:58 -0700 (PDT)
+From: Jon Smirl <jonsmirl@yahoo.com>
+Subject: Re: [PATCH] add PCI ROMs to sysfs
+To: Martin Mares <mj@ucw.cz>
+Cc: "Pallipadi, Venkatesh" <venkatesh.pallipadi@intel.com>,
+       Greg KH <greg@kroah.com>, Jesse Barnes <jbarnes@engr.sgi.com>,
+       linux-pci@atrey.karlin.mff.cuni.cz, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Petr Vandrovec <VANDROVE@vc.cvut.cz>,
+       Benjamin Herrenschmidt <benh@kernel.crashing.org>
+In-Reply-To: <20040819140152.GB12634@ucw.cz>
 MIME-Version: 1.0
-To: Miles Lane <miles.lane@comcast.net>
-CC: linux-kernel@vger.kernel.org, Thomas Zanussi <trz@us.ibm.com>,
-       Richard J Moore <richardj_moore@uk.ibm.com>,
-       Robert Wisniewski <bob@watson.ibm.com>,
-       Michel Dagenais <michel.dagenais@polymtl.ca>
-Subject: Re: DTrace-like analysis possible with future Linux kernels?
-References: <200408191822.48297.miles.lane@comcast.net>
-In-Reply-To: <200408191822.48297.miles.lane@comcast.net>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+--- Martin Mares <mj@ucw.cz> wrote:
+> I was thinking again about the VGA ROM's and I tend to believe that
+> even if you happen to guess correctly where is the ROM shadowed, it
+> would be better to show the _original_ ROM image and deliver the
+> shadow copy as a separate file. (If somebody decides to initialize 
+> the VGA manually by running the code in the ROM, is the shadow copy
+> any better?)
 
-Miles Lane wrote:
-> http://www.theregister.co.uk/2004/07/08/dtrace_user_take/:
-> 
-> "Sun sees DTrace as a big advantage for Solaris over other versions of Unix 
-> and Linux."
+The shadowing logic is a must have for laptops. BenH and I discovered
+this the hard way. Some laptops take the system and video ROM images,
+combine them and then compress them into a ROM. At boot time these ROM
+images are decompressed into RAM at C0000 and F0000. For these system
+the only place to get the ROM data for things like video timings is
+from the shadow area. Putting the shadow logic into the shared ROM code
+lets up remove it from all of the video drivers. This lets us write
+video drivers that don't care if the card is primary or secondary.
 
-We've been pushing for the inclusion of the Linux Trace Toolkit in the kernel
-for the past 5 years. As of late, it seems that the pending argument against
-its inclusion is: How is this useful to end users? In answer to that, I had
-already posted the same pointer as above:
-http://marc.theaimsgroup.com/?l=linux-kernel&m=108938594031379&w=2
+Video cards that are using the shadow copy don't need to be initially
+reset. Since they are your boot display the system BIOS must have
+already initialized them. Instead the you need the shadow image since
+it may contain the timing data needed to change modes on a laptop display.
 
-Since then, I've had the chance to discuss this matter at the Kernel Summit,
-and again I was told that this was a sales problem (i.e. it must be
-demonstrated that this is actually useful to users.) So, as the developers
-of the Linux Trace Toolkit, it would help us a lot if you could explain to
-this list why the sort of functionality provided by DTrace is something you
-would personally find useful.
+=====
+Jon Smirl
+jonsmirl@yahoo.com
 
-Thanks,
 
-Karim
--- 
-Author, Speaker, Developer, Consultant
-Pushing Embedded and Real-Time Linux Systems Beyond the Limits
-http://www.opersys.com || karim@opersys.com || 1-866-677-4546
-
+		
+__________________________________
+Do you Yahoo!?
+Yahoo! Mail is new and improved - Check it out!
+http://promotions.yahoo.com/new_mail

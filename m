@@ -1,41 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267723AbSLSXPi>; Thu, 19 Dec 2002 18:15:38 -0500
+	id <S267218AbSLSXYw>; Thu, 19 Dec 2002 18:24:52 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267724AbSLSXPi>; Thu, 19 Dec 2002 18:15:38 -0500
-Received: from ithilien.qualcomm.com ([129.46.51.59]:12942 "EHLO
-	ithilien.qualcomm.com") by vger.kernel.org with ESMTP
-	id <S267723AbSLSXPh>; Thu, 19 Dec 2002 18:15:37 -0500
-Message-Id: <5.1.0.14.2.20021219151718.0477f198@mail1.qualcomm.com>
-X-Mailer: QUALCOMM Windows Eudora Version 5.1
-Date: Thu, 19 Dec 2002 15:23:31 -0800
-To: jt@hpl.hp.com, Linux kernel mailing list <linux-kernel@vger.kernel.org>
-From: Max Krasnyansky <maxk@qualcomm.com>
-Subject: Re: [PATCH/RFC] New module refcounting for net_proto_family
-In-Reply-To: <20021219230856.GA8392@bougret.hpl.hp.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+	id <S267374AbSLSXYw>; Thu, 19 Dec 2002 18:24:52 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:12302 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S267218AbSLSXYw>; Thu, 19 Dec 2002 18:24:52 -0500
+Date: Thu, 19 Dec 2002 15:30:23 -0800 (PST)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: "H. Peter Anvin" <hpa@transmeta.com>
+cc: Jamie Lokier <lk@tantalophile.demon.co.uk>, <bart@etpmod.phys.tue.nl>,
+       <davej@codemonkey.org.uk>, <terje.eggestad@scali.com>,
+       <drepper@redhat.com>, <matti.aarnio@zmailer.org>, <hugh@veritas.com>,
+       <mingo@elte.hu>, <linux-kernel@vger.kernel.org>
+Subject: Re: Intel P6 vs P7 system call performance
+In-Reply-To: <Pine.LNX.4.44.0212191437220.5879-100000@penguin.transmeta.com>
+Message-ID: <Pine.LNX.4.44.0212191519260.6279-100000@penguin.transmeta.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-At 03:08 PM 12/19/2002 -0800, Jean Tourrilhes wrote:
->Max Krasnyansky wrote :
->> Ok. Drop me a note and I'll push this stuff to BK were you can pull from. 
->> In the mean time I'll go bug other folks :). I want to do same kinda changes 
->> for the TTY ldisc code.
->> 
->> Max
->
->        Go for it, I've got the exact same problem with IrDA (both
->socket and tty ldisc). 
-Sockets should work with my patch and I'll fix ldisc today or tomorrow.
 
->Maybe worth sending an entry for the FAQ of Rusty and include PPP maintainer 
->in the loop.
-Ok.
+On Thu, 19 Dec 2002, Linus Torvalds wrote:
+> 
+> So it's between 0-4 cycles on machines that take 200 - 1000 cycles for
+> just the system call overhead.
 
->P.S. : Talking about it, I'm away for Chrismas & New-Year...
-Happy holidays then.
+Side note: I'd expect indirect calls - and especially the predictable 
+ones, like this - to maintain competitive behaviour on CPU's. Even the P4, 
+which usually has really bad worst-case behaviour for more complex 
+instructions (just look at the 2000 cycles for a regular int80/iret and 
+shudder) does a indirect call without huge problems.
 
-Max
+That's because indirect calls are actually very common, and to some degree 
+getting _more_ so with the proliferation of OO languages (and I'm 
+discounting the "indirect call" that is just a return statement - they've 
+obviously always been common, but a return stack means that CPU 
+optimizations for "ret" instructions are different from "real" indirect 
+calls).
+
+So I don't worry about the indirection per se. I'd worry a lot more about
+some of the tricks people mentioned (ie the "pushl $0xfffff000 ; ret"  
+approach probably sucks quite badly on some CPU's, simply because it does
+bad things to return stacks on modern CPU's - not necessarily visible in 
+microbenchmarks, but..).
+
+			Linus
 

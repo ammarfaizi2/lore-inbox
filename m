@@ -1,66 +1,72 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263760AbSLBChF>; Sun, 1 Dec 2002 21:37:05 -0500
+	id <S263837AbSLBCix>; Sun, 1 Dec 2002 21:38:53 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263794AbSLBChF>; Sun, 1 Dec 2002 21:37:05 -0500
-Received: from packet.digeo.com ([12.110.80.53]:62080 "EHLO packet.digeo.com")
-	by vger.kernel.org with ESMTP id <S263760AbSLBChE>;
-	Sun, 1 Dec 2002 21:37:04 -0500
-Message-ID: <3DEAC905.86769170@digeo.com>
-Date: Sun, 01 Dec 2002 18:44:21 -0800
-From: Andrew Morton <akpm@digeo.com>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.5.46 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Stephen Rothwell <sfr@canb.auug.org.au>
-CC: LKML <linux-kernel@vger.kernel.org>
-Subject: Re: Maximum Physical Memory on 2.4 and ia32
-References: <20021202120835.4ecb87fd.sfr@canb.auug.org.au>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 02 Dec 2002 02:44:25.0723 (UTC) FILETIME=[BA349CB0:01C299AC]
+	id <S263968AbSLBCix>; Sun, 1 Dec 2002 21:38:53 -0500
+Received: from pimout2-ext.prodigy.net ([207.115.63.101]:39878 "EHLO
+	pimout2-ext.prodigy.net") by vger.kernel.org with ESMTP
+	id <S263837AbSLBCiv>; Sun, 1 Dec 2002 21:38:51 -0500
+Date: Sun, 1 Dec 2002 18:46:21 -0800
+From: Joshua Kwan <joshk@mspencer.net>
+To: Eric Blade <eblade@blackmagik.dynup.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.4.20 DRM/DRI issue with Radeon
+Message-Id: <20021201184621.14576d1c.joshk@mspencer.net>
+In-Reply-To: <1038790613.4691.757.camel@cpq>
+References: <20021201143233.MIKG4739.fep01-svc.ttyl.com@localhost>
+	<20021201124208.16b0ae70.joshk@mspencer.net>
+	<1038790613.4691.757.camel@cpq>
+X-Mailer: Sylpheed version 0.8.6cvs7 (GTK+ 1.2.10; )
+Mime-Version: 1.0
+Content-Type: multipart/signed; protocol="application/pgp-signature";
+ micalg="pgp-sha1"; boundary="=.,o86s'cArWk56l"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Stephen Rothwell wrote:
-> 
-> Hi all,
-> 
-> This may be a FAQ (but I did search).
-> 
-> Given this statement by RedHat:
-> 
-> "RAM Limitations on IA32
-> 
-> Red Hat Linux releases based on the 2.4 kernel -- including Red Hat Linux
-> 7.1, 7.2, 7.3 and Red Hat Linux Advanced Server 2.1 -- support a maximum
-> of 16GB of RAM. Previous product announcements from Red Hat suggested that
-> Red Hat Linux 7.1 (and by extension, other releases based on the 2.4
-> kernel) supported up to 64GB of RAM. A more accurate statement is the
-> 2.4-based kernels included in Red Hat Linux 7.1, 7.2, 7.3 and Red Hat
-> Linux Advanced Server 2.1 support the hardware extensions that support up
-> to 64GB of RAM. This is an important distinction: while the hardware will
-> indeed support up to 64GB of physical memory, the operating system design
-> limits the supported physical memory to approximately 16GB."
-> 
-> (http://www.redhat.com/services/techsupport/production/GSS_caveat.html)
-> What are the "operating system design limits" that restrict the amount of
-> supported memory to 16GB?
+--=.,o86s'cArWk56l
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 
-It's a practical limit.  The mem_map array alone would consume 720 megabytes,
-so you have no normal-zone memory left.
+I think it makes sense, since DRI is designed to work on top of agpgart.
+Can someone confirm this guess for me? Or make me look like a moron?
 
-At 16G, mem_map[] consumes 180 megabytes and there's 540ish megabytes
-of normal zone left for general use.
+BTW, the following quoted message was not posted to lkml previously, so
+I am attaching it in its entirety.
 
-Even at this 20:1 highmem:lowmem ratio, the system will be struggling.
-Any time you have normal-zone data structures which are pinned by
-pages, the maths gets you in the end.
+-Josh
 
-buffer_heads, pagetable pages, radix-tree nodes, pte_chains and inodes
-are normal-zone data structures which, depending on the kernel version,
-may be pinned into the normal zone by highmem pages.
+Rabid cheeseburgers forced Eric Blade<eblade@blackmagik.dynup.net> to
+write this on 01 Dec 2002 19:56:42-0500:	
 
-In 2.5, with ext2's no-buffer-head option, shared pagetables, highpte,
-with your fingers crossed and the wind in the south east, 32G might
-be practical.
+> On Sun, 2002-12-01 at 15:42, Joshua Kwan wrote:
+> > I'm stumped, really. Try building it INTO the kernel (ie Y instead
+> > of M.) This is what I did and it works. Or maybe you should get
+> > XFree86 4.2.1, which is what I have: 
+> 
+> 
+> This has little to do with the topic at hand, but I figured since we
+> were discussing the Radeon and DRM/DRI, I thought I'd ask this one.
+> 
+>  Am I correct in my assumption that the Radeon DRI code does not work
+> with PCI versions of the Radeon?  I have a Radeon 7500 PCI (since this
+> box that's designed as a "server" doesn't have AGP ports), and have
+> been completely unable to get DRI to work at all.  I didn't have any
+> problems on my other box, which has an AGP Voodoo 3 in it.
+> 
+>   Thanks,
+>       - Eric
+> 
+> 
+
+--=.,o86s'cArWk56l
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
+
+iD8DBQE96sl/6TRUxq22Mx4RAuSUAJsGQZY3f2FIMY77LUKqJ6Tr9tG8HACgggQD
+FDNh6irzNn7EjlHoaIFjIn4=
+=JgmT
+-----END PGP SIGNATURE-----
+
+--=.,o86s'cArWk56l--

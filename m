@@ -1,43 +1,61 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314195AbSDQXVF>; Wed, 17 Apr 2002 19:21:05 -0400
+	id <S314196AbSDQXYi>; Wed, 17 Apr 2002 19:24:38 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314194AbSDQXVE>; Wed, 17 Apr 2002 19:21:04 -0400
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:15622 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S314195AbSDQXVD>; Wed, 17 Apr 2002 19:21:03 -0400
-To: linux-kernel@vger.kernel.org
-From: "H. Peter Anvin" <hpa@zytor.com>
-Subject: Re: 1 Terabyte+ Disk Support?
-Date: 17 Apr 2002 16:18:58 -0700
-Organization: Transmeta Corporation, Santa Clara CA
-Message-ID: <a9kvt2$2pq$1@cesium.transmeta.com>
-In-Reply-To: <F50W2lSYgCSrlrCv3wB00016f23@hotmail.com>
-stribution: 
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Disclaimer: Not speaking for Transmeta in any way, shape, or form.
-Copyright: Copyright 2002 H. Peter Anvin - All Rights Reserved
+	id <S314199AbSDQXYh>; Wed, 17 Apr 2002 19:24:37 -0400
+Received: from adsl-63-194-239-202.dsl.lsan03.pacbell.net ([63.194.239.202]:31229
+	"EHLO mmp-linux.matchmail.com") by vger.kernel.org with ESMTP
+	id <S314196AbSDQXYg>; Wed, 17 Apr 2002 19:24:36 -0400
+Date: Wed, 17 Apr 2002 16:26:34 -0700
+From: Mike Fedyk <mfedyk@matchmail.com>
+To: Kent Borg <kentborg@borg.org>
+Cc: "Jeff V. Merkey" <jmerkey@vger.timpanogas.org>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>, nick@snowman.net,
+        Baldur Norddahl <bbn-linux-kernel@clansoft.dk>,
+        Mike Dresser <mdresser_l@windsormachine.com>,
+        linux-kernel@vger.kernel.org
+Subject: Re: IDE/raid performance
+Message-ID: <20020417232634.GC574@matchmail.com>
+Mail-Followup-To: Kent Borg <kentborg@borg.org>,
+	"Jeff V. Merkey" <jmerkey@vger.timpanogas.org>,
+	Alan Cox <alan@lxorguk.ukuu.org.uk>, nick@snowman.net,
+	Baldur Norddahl <bbn-linux-kernel@clansoft.dk>,
+	Mike Dresser <mdresser_l@windsormachine.com>,
+	linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.21.0204171108480.3300-100000@ns> <E16xrfQ-0002VF-00@the-village.bc.nu> <20020417102722.B26720@vger.timpanogas.org> <20020417134716.D10041@borg.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Followup to:  <F50W2lSYgCSrlrCv3wB00016f23@hotmail.com>
-By author:    "bob dobalina" <mrdobalina@hotmail.com>
-In newsgroup: linux.dev.kernel
+On Wed, Apr 17, 2002 at 01:47:16PM -0400, Kent Borg wrote:
 > 
-> The cut-off point for large disks in Redhat 6.2 and 7.2 appears to be around 
-> 900 Gigabytes, I can get both Redhat 6.2 and 7.2 to see up to around 900 
-> gigs as 1 disk. I've heard about a 64-bit IO patch for an older 2.x.x 'pre8' 
-> release kernel but would like to know if theres a way to get this 
-> accomplished with Redhat 6.2/Kernel 2.2.14-5. Any insight into this problem 
-> would be greatly appreciated!
+> On Wed, Apr 17, 2002 at 10:27:22AM -0700, Jeff V. Merkey wrote:
+> > From my analysis with 3Ware at 32 drive configurations, you really
+> > need to power the drives from a separate power supply is you have 
+> > more than 16 devices.  They really suck the power during initial 
+> > spinup.
 > 
+> It seems an obvious help would be to have the option of spinning up
+> the drives one at a time at 2-3 second intervals.  I know a fast drive
+> doesn't get up to speed in 3 seconds, but the nastiest draw is going
+> to be over by then.
+> 
+> A machine with 32 drives is pretty serious stuff and probably isn't
+> booting in a few seconds anyway--another 60-some seconds might be a
+> desirable option.
+> 
+> Does this exist anywhere?  Would it have to be a BIOS feature?
 
-Upgrade to 2.4.18.
+I doubt it.
 
-	-hpa
--- 
-<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
-"Unix gives you enough rope to shoot yourself in the foot."
-http://www.zytor.com/~hpa/puzzle.txt	<amsp@zytor.com>
+All of the IDE drives I have used spin up when power is applied.  Most of
+the scsi (except for some really old ones) have a jumper that tells the
+drive to wait until it receives a message from the scsi controller to spin up.
+
+I'd imagine that IDE would need some protocol spec changes before this could
+be supported (at least a "spin the drive up" message...).
+
+Mike

@@ -1,44 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267544AbSLSGfv>; Thu, 19 Dec 2002 01:35:51 -0500
+	id <S267568AbSLSGm6>; Thu, 19 Dec 2002 01:42:58 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267545AbSLSGfv>; Thu, 19 Dec 2002 01:35:51 -0500
-Received: from packet.digeo.com ([12.110.80.53]:7382 "EHLO packet.digeo.com")
-	by vger.kernel.org with ESMTP id <S267544AbSLSGfu>;
-	Thu, 19 Dec 2002 01:35:50 -0500
-Message-ID: <3E016A9F.52A4048@digeo.com>
-Date: Wed, 18 Dec 2002 22:43:43 -0800
-From: Andrew Morton <akpm@digeo.com>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.5.52 i686)
-X-Accept-Language: en
+	id <S267566AbSLSGm6>; Thu, 19 Dec 2002 01:42:58 -0500
+Received: from [212.209.10.215] ([212.209.10.215]:12699 "EHLO miranda.axis.se")
+	by vger.kernel.org with ESMTP id <S267568AbSLSGm5>;
+	Thu, 19 Dec 2002 01:42:57 -0500
+Message-ID: <3C6BEE8B5E1BAC42905A93F13004E8AB017DE565@mailse01.axis.se>
+From: Mikael Starvik <mikael.starvik@axis.com>
+To: "'Alan Cox'" <alan@lxorguk.ukuu.org.uk>,
+       "'Christoph Hellwig'" <hch@infradead.org>
+Cc: "'Marcelo Tosatti'" <marcelo@conectiva.com.br>,
+       "'starvik@axis.com'" <mikael.starvik@axis.com>,
+       "'lkml'" <linux-kernel@vger.kernel.org>
+Subject: RE: Linux 2.4.21-pre2
+Date: Thu, 19 Dec 2002 07:49:32 +0100
 MIME-Version: 1.0
-To: "Timothy D. Witham" <wookie@osdl.org>
-CC: Alan Cox <alan@redhat.com>, Linus Torvalds <torvalds@transmeta.com>,
-       Dave Jones <davej@codemonkey.org.uk>,
-       Horst von Brand <vonbrand@inf.utfsm.cl>, linux-kernel@vger.kernel.org
-Subject: Re: Freezing.. (was Re: Intel P6 vs P7 system call performance)
-References: <200212181908.gBIJ82M03155@devserv.devel.redhat.com> <1040276082.1476.30.camel@localhost.localdomain>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 19 Dec 2002 06:43:43.0897 (UTC) FILETIME=[F95DD890:01C2A729]
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Timothy D. Witham" wrote:
-> 
-> Related thought:
-> 
->   One of the things that we are trying to do is to automate
-> patch testing.
-> 
->   The PLM (www.osdl.org/plm) takes every patch that it gets
-> and does a quick "Does it compile test".  Right now there
-> are only 4 kernel configuration files that we try but we are
-> going to be adding more.  We could expand this to 100's
-> if needed as it would just be a matter of adding additional
-> hardware to make the compiles go faster in parallel.
+>It reverts the s/extern __inline__/static __inline__/g changes
 
-It would be valuable to be able to test that things compile
-cleanly on non-ia32 machines.  And boot, too.
+We have replaced all static inline with extern inline to keep
+the size of the image down when compiling with GCC 3.2 
+(because the maximum size to inline has changed in 3.2 I think,
+I can get a clarification from the gcc-cris guy if necessary).
+Is this a non preferred way to do it?
 
-That's probably a lot of ongoing work though.
+>a junk file in arch/cris/drivers/bluetooth/bt.patch
+
+Why is it junk? The bluetooth options should only be visible
+if you have an OpenBT source tree available. The Makefile 
+in arch/cris/drivers/bluetooth/ checks your tree and then
+runs the patch. This was previously done with a perl 
+script instead. In the long run we should probably switch
+to the official Bluetooth stack in Linux (i.e. Bluez).
+
+>although if Axis would glance over and fixup the ide bits
+>that would be great as its not a platform I have access too
+
+Yes, I will take a look at it
+
+/Mikael

@@ -1,63 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264465AbTGGVJd (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 7 Jul 2003 17:09:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264490AbTGGVJd
+	id S264463AbTGGVS3 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 7 Jul 2003 17:18:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264487AbTGGVS3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 7 Jul 2003 17:09:33 -0400
-Received: from smtp804.mail.sc5.yahoo.com ([66.163.168.183]:47703 "HELO
-	smtp804.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S264465AbTGGVJb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 7 Jul 2003 17:09:31 -0400
-Subject: Re: Unable to grab 2.5 tree via bkbits
-From: Stephen Torri <storri@sbcglobal.net>
-To: Jeff Garzik <jgarzik@pobox.com>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <3F09E2E7.7020500@pobox.com>
-References: <1057610739.11432.18.camel@base>  <3F09E2E7.7020500@pobox.com>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-e16Ls7AUF7xz3hk5ov0v"
-Organization: 
-Message-Id: <1057613044.912.22.camel@base>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.4- 
-Date: 07 Jul 2003 16:24:04 -0500
+	Mon, 7 Jul 2003 17:18:29 -0400
+Received: from cpe-24-221-190-179.ca.sprintbbd.net ([24.221.190.179]:35749
+	"EHLO myware.akkadia.org") by vger.kernel.org with ESMTP
+	id S264463AbTGGVS2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 7 Jul 2003 17:18:28 -0400
+Message-ID: <3F09E6EF.8000806@redhat.com>
+Date: Mon, 07 Jul 2003 14:32:31 -0700
+From: Ulrich Drepper <drepper@redhat.com>
+Organization: Red Hat, Inc.
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5a) Gecko/20030703 Thunderbird/0.1a
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: root@chaos.analogic.com
+CC: Linux kernel <linux-kernel@vger.kernel.org>
+Subject: Re: syscall __NR_mmap2
+References: <Pine.LNX.4.53.0307071655470.22074@chaos>
+In-Reply-To: <Pine.LNX.4.53.0307071655470.22074@chaos>
+X-Enigmail-Version: 0.80.0.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
---=-e16Ls7AUF7xz3hk5ov0v
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+Richard B. Johnson wrote:
 
-On Mon, 2003-07-07 at 16:15, Jeff Garzik wrote:
-> Just to verify, I'm definitely able to pull and clone from=20
-> http://linux.bkbits.net/linux-2.5 ...  I even cut-n-pasted your first=20
-> command line to be sure.
->=20
-> It sounds like a local problem... disk space?  no rights to write to curd=
-ir?
+> write(1, "Addr = 000b8000\n", 16)       = 16
+> open("/dev/mem", O_RDWR)                = 3
+> mmap2(0xb8000, 8192, PROT_READ|PROT_WRITE, MAP_SHARED|MAP_FIXED, 3, 0xb8000) = 0xb8000
 
-Its  a local problem. No write permissions set.=20
+mmap64() (and if you compile glibc with an adequate minimal kernel
+requirement mmap as well) is implemented using mmap2.  It works nicely.
+ Admittedly, I haven't used the stock 2.4 kernel.  And I also haven't
+used /dev/mem.  But at least for the first part I would expect to see
+problem reports since the code is used and glibc wouldn't work.
 
-Bitkeeper: Can you write the bk client to alert the user that it was
-unable to write to the local directory? It would help alert people to
-set things up properly.
+In your code, assuming this is x86, do you really want to read the
+memory starting at address 0xb8000000?  This is what your code does.  I
+don't know enough about the kernel memory layout to say whether
+something is supposed to be there or not.
 
-Stephen
---=20
-Stephen Torri <storri@sbcglobal.net>
-
---=-e16Ls7AUF7xz3hk5ov0v
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
+- -- 
+- --------------.                        ,-.            444 Castro Street
+Ulrich Drepper \    ,-----------------'   \ Mountain View, CA 94041 USA
+Red Hat         `--' drepper at redhat.com `---------------------------
 -----BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.2 (GNU/Linux)
+Version: GnuPG v1.2.1 (GNU/Linux)
 
-iD8DBQA/CeT0mXRzpT81NcgRAlaGAJ9o88wRsQb4igaZtI3OxT7Cwp9+rgCfSyNb
-thDVLavqsvnFLqa+AMg1i0Y=
-=Hx5z
+iD8DBQE/Cebv2ijCOnn/RHQRAukcAKCbI3cTMvmAsHxRWX2ralSqUlcp8ACfTBRU
+PNoh4p0/XrWFWXk9JnbnNyk=
+=DQ6S
 -----END PGP SIGNATURE-----
-
---=-e16Ls7AUF7xz3hk5ov0v--
 

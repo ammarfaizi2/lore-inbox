@@ -1,86 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291862AbSBHWA6>; Fri, 8 Feb 2002 17:00:58 -0500
+	id <S291869AbSBHWDS>; Fri, 8 Feb 2002 17:03:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291869AbSBHWAu>; Fri, 8 Feb 2002 17:00:50 -0500
-Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:4358 "EHLO
-	master.linux-ide.org") by vger.kernel.org with ESMTP
-	id <S291862AbSBHWAa>; Fri, 8 Feb 2002 17:00:30 -0500
-Date: Fri, 8 Feb 2002 13:50:50 -0800 (PST)
-From: Andre Hedrick <andre@linuxdiskcert.org>
-To: Pavel Machek <pavel@ucw.cz>
-cc: Alexander Viro <viro@math.psu.edu>,
-        kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: Warning, 2.5.3 eats filesystems
-In-Reply-To: <20020208111457.GA117@elf.ucw.cz>
-Message-ID: <Pine.LNX.4.10.10202081349550.15165-100000@master.linux-ide.org>
-MIME-Version: 1.0
+	id <S291871AbSBHWDJ>; Fri, 8 Feb 2002 17:03:09 -0500
+Received: from lacrosse.corp.redhat.com ([12.107.208.154]:13065 "EHLO
+	lacrosse.corp.redhat.com") by vger.kernel.org with ESMTP
+	id <S291869AbSBHWC6>; Fri, 8 Feb 2002 17:02:58 -0500
+Date: Fri, 8 Feb 2002 17:02:57 -0500
+From: Benjamin LaHaise <bcrl@redhat.com>
+To: Suparna Bhattacharya <suparna@in.ibm.com>
+Cc: linux-aio@kvack.org, linux-kernel@vger.kernel.org
+Subject: Re: patch: aio + bio for raw io
+Message-ID: <20020208170257.A12788@redhat.com>
+In-Reply-To: <20020208025313.A11893@redhat.com> <20020208151009.A1810@in.ibm.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20020208151009.A1810@in.ibm.com>; from suparna@in.ibm.com on Fri, Feb 08, 2002 at 03:10:09PM +0530
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 8 Feb 2002, Pavel Machek wrote:
+On Fri, Feb 08, 2002 at 03:10:09PM +0530, Suparna Bhattacharya wrote:
+> You chose to add a kvec_cb field to the bio structure rather than use
+> bi_private ?
 
-> Hi!
-> 
-> > > > > 2.5.3 managed to damage my ext2 filesystem (few lost directories);
-> > > > > beware.
-> > > 
-> > > > I can confirm that there are filesystem corruption issues with 2.5.3;
-> > > > after this message I rebooted and did a forced fsck which turned up
-> > > > around a half dozen inodes where the block count in the inode itself was
-> > > > too high.
-> > > 
-> > > Exactly the same thing here, and I bet it _is_ 2.5.3 and not a relict from
-> > > a 2.5.3-pre patch because I switched directly from 2.4.17 to 2.5.3
-> > > without ever using any pre patch at this machine.
-> > 
-> > Very interesting.  Which filesystems are mounted (other than ext2) and
-> > are you been able to reproduce it on 2.5.3-pre6?
-> 
-> Mounted filesystems:
-> 
-> /dev/hda2 on / type ext2 (rw)
-> none on /proc type proc (rw)
-> ...
-> none on /proc type proc (rw)
-> /dev/hda3 on /suse type ext2 (rw)
-> none on /proc type proc (rw)
-> none on /proc/bus/usb type usbdevfs (rw)
-> /dev/cfs0 on /overlay type coda (rw)
-> 
-> (I wander what is responsible for mounting /proc hundred times?)
-> 
-> But... you should know that I'm strongly suspecting ide subsystem:
-> 
-> Feb  8 12:08:02 amd kernel: hda: status timeout: status=0xd0 { Busy }
-> Feb  8 12:08:02 amd kernel: hda: drive not ready for command
-> Feb  8 12:08:02 amd kernel: ide0: reset: success
-> Feb  8 12:09:26 amd kernel: hda: status timeout: status=0xd0 { Busy }
-> Feb  8 12:09:26 amd kernel: hda: drive not ready for command
-> Feb  8 12:09:26 amd kernel: ide0: reset: success
-> Feb  8 12:12:27 amd kernel: hda: status timeout: status=0xd0 { Busy }
-> Feb  8 12:12:27 amd kernel: hda: drive not ready for command
-> Feb  8 12:12:27 amd kernel: ide0: reset: success
-> 
-> I'm trying to test it with md5sum, but so far it behaves ok. [I wonder
-> what directory I'll loose this time ... :-(]
-> 									Pavel
-> 
-> -- 
-> (about SSSCA) "I don't say this lightly.  However, I really think that the U.S.
-> no longer is classifiable as a democracy, but rather as a plutocracy." --hpa
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
+Yup.  I'm lazy.  Also, the cb struct actually needs 2 pointers, so just 
+bi_private isn't enough.
 
-Yep I warned about multmode pio.
-I think I finally have a fix which does not use a copy of the request.
+> For the raw path, you are OK since you never have to copy data out of 
+> the kvecs after i/o completion, and unmap_kvec only looks at veclet pages. 
+> So the fact block can change the offset and len fields in the veclets 
+> doesn't affect you, but thought I'd mention it as a point of caution
+> anyhow ...
 
+Ugh.  That sounds like something bio should not be doing.  If someone 
+wants to fix it, such a patch would be much appreciated, otherwise it'll 
+wait until I'm back in Canada.
 
-Andre Hedrick
-Linux Disk Certification Project                Linux ATA Development
-
+		-ben

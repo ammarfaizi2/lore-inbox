@@ -1,93 +1,75 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278358AbRJMSug>; Sat, 13 Oct 2001 14:50:36 -0400
+	id <S278356AbRJMSv4>; Sat, 13 Oct 2001 14:51:56 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278356AbRJMSu1>; Sat, 13 Oct 2001 14:50:27 -0400
-Received: from ip122-15.asiaonline.net ([202.85.122.15]:22188 "EHLO
-	uranus.planet.rcn.com.hk") by vger.kernel.org with ESMTP
-	id <S278358AbRJMSuG>; Sat, 13 Oct 2001 14:50:06 -0400
-Message-ID: <3BC88B44.E461CB63@rcn.com.hk>
-Date: Sun, 14 Oct 2001 02:43:16 +0800
-From: David Chow <davidchow@rcn.com.hk>
-Organization: Resources Computer Network Ltd.
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.2-2smp i686)
-X-Accept-Language: zh_TW, en
+	id <S278359AbRJMSvr>; Sat, 13 Oct 2001 14:51:47 -0400
+Received: from zeus.kernel.org ([204.152.189.113]:42399 "EHLO zeus.kernel.org")
+	by vger.kernel.org with ESMTP id <S278356AbRJMSvh>;
+	Sat, 13 Oct 2001 14:51:37 -0400
+Message-ID: <3BC88AB3.2040707@laotraesquina.com.ar>
+Date: Sat, 13 Oct 2001 15:40:51 -0300
+From: Pablo Alcaraz <pabloa@laotraesquina.com.ar>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.4) Gecko/20010913
+X-Accept-Language: es-ar, en-us
 MIME-Version: 1.0
-To: Andreas Schwab <schwab@suse.de>
-CC: linux-kernel@vger.kernel.org, nfs-devel@linux.kernel.org,
-        nfs@lists.sourceforge.net
-Subject: Re: [PATCH] NFSv3 symlink bug
-In-Reply-To: <jelmiuj7w2.fsf@sykes.suse.de>
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+To: linux-kernel@vger.kernel.org
+CC: Linus Torvalds <torvalds@transmeta.com>,
+        Jamie Lokier <lk@tantalophile.demon.co.uk>,
+        "Eric W. Biederman" <ebiederm@xmission.com>
+Subject: Re: Security question: "Text file busy" overwriting executables but not shared libraries?
+In-Reply-To: <Pine.LNX.4.33.0110130956350.8707-100000@penguin.transmeta.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Not just that. the call to vfs_symlink on an NFS v3 mounted filesystem,
-the dentry that passed to vfs_symlink did not result with an inode
-member it remains null. This also lead to problem in the dcache and
-didn't have a d_instantiate() and d_add() in the nfs_symlink() . I have
-proved this is a bug. in kernel version 2.4.0 up to 2.4.10 . Not tested
-with 2.4.12 and 2.4.11 . This will not affect most of the process
-context calls, since after creating a symlink on the filesystem, because
-the dentry is not valid in the dcache, the call to the created link will
-result in a subsequent inode_lookup(). This will affect the performance
-a little bit but this bug voids the VFS standard. We are developing
-kernel modules that have file system operations, we are get stucked when
-using the NFS . NFS maintainers please help or at least acknowledge or
-otherwise we will start bug fix the code. Thanks.
+Whatever will be the chosen solution, it would have to allow to 
+overwrite all the executables and libraries files (if we have enough 
+permissions).
 
-regards,
+Because:
 
-David Chow (DC)
+- If I overwrite a shared library and then one running program crash, it 
+will be my fault (as system administrator) or mistake.. ;-)
 
-Andreas Schwab wrote:
-> 
-> The NFSv3 server in the 2.4.10 kernel has a bug in the symlink
-> implementation.  The target pathname of the symlink is not necessarily
-> zero terminated when passed to vfs_symlink.  This does not happen with
-> NFSv2, because it explicitly zero terminates the string when decoding it
-> from XDR (xdr_decode_string does this), but NFSv3 uses
-> xdr_decode_string_inplace.  As a result you may get a spurious
-> ENAMETOOLONG when trying to create a symbolic link on a NFSv3 mounted
-> filesystem (if the length of the target path is a multiple of four).  If
-> you don't get an error the created symlink will have random characters
-> appended, which exposes kernel memory to user space (that's why it's a
-> security problem).
-> 
-> This patch changes the NFSv3 xdr function to use xdr_decode_string for the
-> symlink target, which seems to be the easiest solution.  I also considered
-> adding an additional parameter to vfs_symlink to pass the length, but that
-> requires changes in each and every filesystem and changes the VFS API.
-> That could be a task for 2.5.x.
-> 
-> --- linux/fs/nfsd/nfs3xdr.c.~1~ Fri Sep 21 06:02:01 2001
-> +++ linux/fs/nfsd/nfs3xdr.c     Tue Oct  2 16:12:27 2001
-> @@ -99,7 +99,11 @@
->         char            *name;
->         int             i;
-> 
-> -       if ((p = xdr_decode_string_inplace(p, namp, lenp, NFS3_MAXPATHLEN)) != NULL) {
-> +       /*
-> +        * Cannot use xdr_decode_string_inplace here, the name must be
-> +        * zero terminated for vfs_symlink.
-> +        */
-> +       if ((p = xdr_decode_string(p, namp, lenp, NFS3_MAXPATHLEN)) != NULL) {
->                 for (i = 0, name = *namp; i < *lenp; i++, name++) {
->                         if (*name == '\0')
->                                 return NULL;
-> 
-> Andreas.
-> 
-> --
-> Andreas Schwab                                  "And now for something
-> Andreas.Schwab@suse.de                          completely different."
-> SuSE Labs, SuSE GmbH, Schanzäckerstr. 10, D-90443 Nürnberg
-> Key fingerprint = 58CA 54C7 6D53 942B 1756  01D3 44D5 214B 8276 4ED5
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+- It is probable that one file library is updated within one more global 
+update, then probably I restart later the new demon or program. So if 
+the program crash I'll fix the problem eventually.
 
-
+- The previous version of a file library that I am replacing can depend 
+on another file that the installer of the new version of the program 
+simply erases it. For example:
+
+a.so depends of b.so
+
+but
+
+a_new_version.so does not depend of b.so.
+
+When I or an installer install the new program version, me or the 
+installer erase b.so because the new version doesn't use it.
+
+So, that it matters if a program can or can't access to the old version 
+of a.so if b.so was erased?
+
+And eventually, if I decide to update a library, I would have to do it 
+(I suspect it would be the same case with executables files). It doesn't 
+the matter if the change implies a fault in a running program.
+
+
+It can be that this serves so that a hacker can attack the system... or 
+I could hang a program when this is not my objective. Maybe a flag in 
+/proc/somewhere would be am useful thing:
+
+- if it's 1, I can overwrite all the libraries and executables files (If 
+I've permission, etc.);
+
+- if it's 0, I can not overwrite anything If it's in use.
+
+I only want that everybody respect my right to do the wrong or stupid 
+thing. This is an system administrator right :-)
+
+
+Pablo
+
+

@@ -1,75 +1,72 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316067AbSEZNUn>; Sun, 26 May 2002 09:20:43 -0400
+	id <S316069AbSEZNWJ>; Sun, 26 May 2002 09:22:09 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316072AbSEZNUm>; Sun, 26 May 2002 09:20:42 -0400
-Received: from ppp-217-133-218-67.dialup.tiscali.it ([217.133.218.67]:130 "EHLO
-	home.ldb.ods.org") by vger.kernel.org with ESMTP id <S316067AbSEZNUl>;
-	Sun, 26 May 2002 09:20:41 -0400
-Subject: Re: How to send GnuPG signed mail to linux-kernel and maintainers?
-From: Luca Barbieri <ldb@ldb.ods.org>
-To: Dave Jones <davej@suse.de>
-Cc: Linux-Kernel ML <linux-kernel@vger.kernel.org>
-In-Reply-To: <20020526145018.H16102@suse.de>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature";
-	boundary="=-/j5PveOR0GKatHV4j7Ar"
-X-Mailer: Ximian Evolution 1.0.5 
-Date: 26 May 2002 15:20:34 +0200
-Message-Id: <1022419234.4072.46.camel@ldb>
+	id <S316072AbSEZNWI>; Sun, 26 May 2002 09:22:08 -0400
+Received: from twilight.ucw.cz ([195.39.74.230]:44984 "EHLO twilight.ucw.cz")
+	by vger.kernel.org with ESMTP id <S316069AbSEZNWG>;
+	Sun, 26 May 2002 09:22:06 -0400
+Date: Sun, 26 May 2002 15:22:04 +0200
+From: Vojtech Pavlik <vojtech@suse.cz>
+To: Martin Dalecki <dalecki@evision-ventures.com>,
+        linux-kernel@vger.kernel.org
+Subject: [patch] Trivial: move PCI ID definitions from ide-pci.c to pci_ids.h
+Message-ID: <20020526152204.A18812@ucw.cz>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---=-/j5PveOR0GKatHV4j7Ar
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-
-On Sun, 2002-05-26 at 14:50, Dave Jones wrote:
-> On Sun, May 26, 2002 at 02:29:07PM +0200, Luca Barbieri wrote:
->  > Not using digital signatures is obviously not an option since there is
->  > no way to prove that a message was not authentic (if it contains a
->  > trojan patch, for example). 
-> 
-> Just because a patch has been signed does not mean it somehow manages
-> to bypass peer review.
-> 
-> If the patch is correct, it gets applied. If it's not obviously correct,
-> it gets reviewed by someone more familiar with the code.
-> 
-> Some people have a hard enough time getting patches they believe are
-> legitimate features/fixes past Al Viro, Dave Miller and the likes.
-> The chances of a trojan patch getting past them is I would hope, extremely minimal.
-
-Signing a patch and getting it applied are completely separate issues.
-OTOH, if Linus or anyone else has a policy of dropping all mail using
-non-plaintext encodings, sending it using such an encoding is a sure way
-of preventing its application.
-
-What I was trying to say is that someone might post a trojan patch with
-my name and after it gets rejected, I might get accused of trying to get
-it applied. And if the forger somehow manages to get it applied the
-damage to me is even greater.
-
-Another problem that arises from unsigned messages and people not
-verifying signed ones is that someone may send a message pretending that
-it is from a legitimate maintainer of a patchset (including you) and
-announce a new version of the patchset with a changed URL.
-If the patchset maintainer doesn't immediately notice the problem,
-several people might apply the patchset, trusting the maintainer, before
-the forgery is exposed.
+ChangeSet@1.585, 2002-05-26 15:19:41+02:00, vojtech@twilight.ucw.cz
+  This cset moves a PCI ID definition from ide-pci.c to
+  pci_ids.h where it belongs.
 
 
---=-/j5PveOR0GKatHV4j7Ar
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
+ drivers/ide/ide-pci.c   |    6 +-----
+ include/linux/pci_ids.h |    4 ++++
+ 2 files changed, 5 insertions(+), 5 deletions(-)
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.7 (GNU/Linux)
 
-iD8DBQA88OEidjkty3ft5+cRAqUGAJ0bAmiFfZOyqN0+tpnPePbJnvUjrwCgjPr0
-jm+CyT7tRoMHsdzHZ9pxUj4=
-=X4NY
------END PGP SIGNATURE-----
+diff -Nru a/drivers/ide/ide-pci.c b/drivers/ide/ide-pci.c
+--- a/drivers/ide/ide-pci.c	Sun May 26 15:20:16 2002
++++ b/drivers/ide/ide-pci.c	Sun May 26 15:20:16 2002
+@@ -27,10 +27,6 @@
+ 
+ #include "pcihost.h"
+ 
+-/* Missing PCI device IDs: */
+-#define PCI_VENDOR_ID_HINT 0x3388
+-#define PCI_DEVICE_ID_HINT 0x8013
+-
+ /*
+  * This is the list of registered PCI chipset driver data structures.
+  */
+@@ -756,7 +752,7 @@
+ 	},
+ 	{
+ 		vendor: PCI_VENDOR_ID_HINT,
+-		device: PCI_DEVICE_ID_HINT,
++		device: PCI_DEVICE_ID_HINT_VXPROII_IDE,
+ 		bootable: ON_BOARD
+ 	},
+ 	{
+diff -Nru a/include/linux/pci_ids.h b/include/linux/pci_ids.h
+--- a/include/linux/pci_ids.h	Sun May 26 15:20:16 2002
++++ b/include/linux/pci_ids.h	Sun May 26 15:20:16 2002
+@@ -1787,3 +1787,7 @@
+ #define PCI_DEVICE_ID_MICROGATE_USC	0x0010
+ #define PCI_DEVICE_ID_MICROGATE_SCC	0x0020
+ #define PCI_DEVICE_ID_MICROGATE_SCA	0x0030
++
++#define PCI_VENDOR_ID_HINT		0x3388
++#define PCI_DEVICE_ID_HINT_VXPROII_IDE	0x8013
++
 
---=-/j5PveOR0GKatHV4j7Ar--
+
+
+-- 
+Vojtech Pavlik
+SuSE Labs

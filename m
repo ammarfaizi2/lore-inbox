@@ -1,51 +1,59 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280831AbRKBVEc>; Fri, 2 Nov 2001 16:04:32 -0500
+	id <S280833AbRKBVFm>; Fri, 2 Nov 2001 16:05:42 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280833AbRKBVEW>; Fri, 2 Nov 2001 16:04:22 -0500
-Received: from host213-121-105-27.in-addr.btopenworld.com ([213.121.105.27]:711
-	"HELO mail.dark.lan") by vger.kernel.org with SMTP
-	id <S280831AbRKBVEM>; Fri, 2 Nov 2001 16:04:12 -0500
-Subject: Re: [OT] Intel chipset development documents
-From: Greg Sheard <greg@ecsc.co.uk>
-To: Martin Mares <mj@ucw.cz>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20011102183829.A31651@atrey.karlin.mff.cuni.cz>
-In-Reply-To: <1004721050.20610.7.camel@lemsip> 
-	<20011102183829.A31651@atrey.karlin.mff.cuni.cz>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/0.16.100+cvs.2001.11.02.08.57 (Preview Release)
-Date: 02 Nov 2001 21:03:43 +0000
-Message-Id: <1004735023.21120.12.camel@lemsip>
-Mime-Version: 1.0
+	id <S280834AbRKBVFd>; Fri, 2 Nov 2001 16:05:33 -0500
+Received: from fungus.teststation.com ([212.32.186.211]:30729 "EHLO
+	fungus.teststation.com") by vger.kernel.org with ESMTP
+	id <S280833AbRKBVFM>; Fri, 2 Nov 2001 16:05:12 -0500
+Date: Fri, 2 Nov 2001 22:05:09 +0100 (CET)
+From: Urban Widmark <urban@teststation.com>
+To: Hans-Joachim Baader <hjb@pro-linux.de>
+cc: <linux-kernel@vger.kernel.org>, <jgarzik@mandrakesoft.com>
+Subject: Re: 2.4.14-3 via-rhine lockup
+In-Reply-To: <20011101225957.G679@mandel.hjb.de>
+Message-ID: <Pine.LNX.4.30.0111022127250.1842-100000@cola.teststation.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2001-11-02 at 17:38, Martin Mares wrote:
-> Hello!
-> 
-> > Hi all. Apologies for OT, but this seems the best place to ask.
-> > Intel have removed documentation for the 430VX (Triton) chipset from
-> > their developer site. I'm trying to check that the access details for
-> > the Southbridge are the same as for the 440BX chipset, since I'm working
-> > on some code for direct PCI access. If they're not, could somebody
-> > please let me have the relevant documentation?
-> 
-> I guess I could have some 430VX documentation at home (will check
-> tomorrow).
-> 
-> As far as I remember, Configuration Type 1 should be supported since
-> the earliest Intel chipset, Type 2 could vary.
-> 
+On Thu, 1 Nov 2001, Hans-Joachim Baader wrote:
 
-Thanks for that Martin, much appreciated.
+> Hi,
+> 
+> I sent the following message a few days ago but I didn't see it on LKML.
+> Did it reach you? Anyway here it is again.
 
-I already have the configuration type down (it's 1), but the 430VX and
-also the VIA 585 seem only to report host bridges. I'm unable to spot
-the piece of code which does different PCI-related things for these
-chipsets in the kernel. Does anybody know if a workaround is applied?
+Yes, I got it haven't done anything about it yet (I blame the snow ...)
 
-Regards,
-Greg.
+
+> I couldn't get the output into a file but if necessary I'll try again.
+
+My idea was to compare before and after ...
+
+> Oct 28 18:51:22 mandel kernel: eth0: exiting interrupt, status=0x0000.
+> Oct 28 18:51:24 mandel kernel: eth0: Interrupt, status 0001.
+> Oct 28 18:51:24 mandel kernel:  In via_rhine_rx(), entry 11 status 00409700.
+> Oct 28 18:51:24 mandel kernel:   via_rhine_rx() status is 00409700.
+> Oct 28 18:51:24 mandel kernel: eth0: exiting interrupt, status=0x0000.
+> Oct 28 18:51:24 mandel kernel: eth0: Transmit frame #2859186 queued in slot 1.
+> Oct 28 18:51:24 mandel kernel: eth0: Interrupt, status 0002.
+> Oct 28 18:51:24 mandel kernel: eth0: exiting interrupt, status=0x0000.
+> 
+> 
+> > After it stops working, do you still get log messages from it?
+> > Including via_rhine_rx()?
+> 
+> Yes, the above output is from the non-working state.
+
+But everything looks fine. As I read that the card is still receiving data
+and generating interrupts. After "Transmit frame" you get an interrupt
+with status=2 (IntrTxDone) and you get rx interrupts as well.
+
+One thing that is odd is that the rx status is always the same and a
+broadcast, when sending something do you get anything other than
+"via_rhine_rx() status is 00409700" ?
+
+/Urban
 

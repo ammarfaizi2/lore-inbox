@@ -1,64 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265219AbUGGQor@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265222AbUGGQpQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265219AbUGGQor (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 Jul 2004 12:44:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265222AbUGGQor
+	id S265222AbUGGQpQ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 Jul 2004 12:45:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265225AbUGGQpQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 Jul 2004 12:44:47 -0400
-Received: from fw.osdl.org ([65.172.181.6]:35725 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S265219AbUGGQop (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 Jul 2004 12:44:45 -0400
-Date: Wed, 7 Jul 2004 09:40:08 -0700
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-To: Leszek <leszek@serwer.3miasto.net>
-Cc: linux-kernel@vger.kernel.org, akpm <akpm@osdl.org>, urban@teststation.com
-Subject: [PATCH] smbfs compilation warning in 2.6.7
-Message-Id: <20040707094008.5504bf05.rddunlap@osdl.org>
-In-Reply-To: <Pine.NEB.4.60.0407071528060.25796@serwer.3miasto.net>
-References: <Pine.NEB.4.60.0407071528060.25796@serwer.3miasto.net>
-Organization: OSDL
-X-Mailer: Sylpheed version 0.9.10 (GTK+ 1.2.10; i686-pc-linux-gnu)
-X-Face: +5V?h'hZQPB9<D&+Y;ig/:L-F$8p'$7h4BBmK}zo}[{h,eqHI1X}]1UhhR{49GL33z6Oo!`
- !Ys@HV,^(Xp,BToM.;N_W%gT|&/I#H@Z:ISaK9NqH%&|AO|9i/nB@vD:Km&=R2_?O<_V^7?St>kW
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Wed, 7 Jul 2004 12:45:16 -0400
+Received: from rwcrmhc13.comcast.net ([204.127.198.39]:13302 "EHLO
+	rwcrmhc13.comcast.net") by vger.kernel.org with ESMTP
+	id S265222AbUGGQpL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 7 Jul 2004 12:45:11 -0400
+Message-ID: <40EC2898.1090306@comcast.net>
+Date: Wed, 07 Jul 2004 12:45:12 -0400
+From: John Richard Moser <nigelenki@comcast.net>
+User-Agent: Mozilla Thunderbird 0.7.1 (X11/20040630)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Con Kolivas <kernel@kolivas.org>
+CC: linux kernel mailing list <linux-kernel@vger.kernel.org>,
+       ck kernel mailing list <ck@vds.kolivas.org>
+Subject: Re: 2.6.7-ck5
+References: <40EC13C5.2000101@kolivas.org>
+In-Reply-To: <40EC13C5.2000101@kolivas.org>
+X-Enigmail-Version: 0.84.2.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 7 Jul 2004 15:33:46 +0200 (CEST) Leszek wrote:
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-| 
-| gcc 2.95.4  ( Debian Woody's default ) , kernel 2.6.7 from kernel.org 
-| gives me the following compilation warning:
-| 
-| fs/smbfs/file.o
-|    in function smb_file_sendfile
-|    line 274: unknown conversion type character 'z' in format
-| 
-| Please CC me in your answers as I am not subscribed to the list.
+I'm on gentoo here, and just copied the ck2 ebuild to ck5, and it missed
+on a patch called ck-sources-2.6.IPTables-RDoS.  Any idea what this is,
+and is it already in?
 
+Con, I have no idea where it came from, but could mail it to you (I
+won't post it to the list because it's not mine and I have issues about
+doing such things) if you want.  I'm not sure if it applied to ck3; it
+may have not existed at the time.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
 
-
-Use %Zd to eliminate a compiler warning in printk.
-
-diffstat:=
- fs/smbfs/file.c |    2 +-
- 1 files changed, 1 insertion(+), 1 deletion(-)
-
-diff -Naurp ./fs/smbfs/file.c~smbfs_printk ./fs/smbfs/file.c
---- ./fs/smbfs/file.c~smbfs_printk	2004-06-15 22:19:53.000000000 -0700
-+++ ./fs/smbfs/file.c	2004-07-07 09:39:21.886168160 -0700
-@@ -271,7 +271,7 @@ smb_file_sendfile(struct file *file, lof
- 
- 	status = smb_revalidate_inode(dentry);
- 	if (status) {
--		PARANOIA("%s/%s validation failed, error=%zd\n",
-+		PARANOIA("%s/%s validation failed, error=%Zd\n",
- 			 DENTRY_PATH(dentry), status);
- 		goto out;
- 	}
-
---
-~Randy
+iD8DBQFA7CiWhDd4aOud5P8RAsxMAJ4+Jfx/l4m7LUxoKZa/io1FF2S+kQCghf5v
+SN/TVYqZa756rnUtNsVBI+4=
+=qwGv
+-----END PGP SIGNATURE-----

@@ -1,59 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264614AbUEJKcr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264610AbUEJKn7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264614AbUEJKcr (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 10 May 2004 06:32:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264607AbUEJKcq
+	id S264610AbUEJKn7 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 10 May 2004 06:43:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264616AbUEJKn7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 10 May 2004 06:32:46 -0400
-Received: from ns0.eris.qinetiq.com ([128.98.1.1]:1649 "HELO
-	mail.eris.qinetiq.com") by vger.kernel.org with SMTP
-	id S264614AbUEJKc3 convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 10 May 2004 06:32:29 -0400
-From: Mark Watts <m.watts@eris.qinetiq.com>
-Organization: QinetiQ
-To: linux-kernel@vger.kernel.org, Jeff Garzik <jgarzik@pobox.com>
-Subject: Inno3D DM-8301 SATA cards
-Date: Mon, 10 May 2004 11:29:06 +0100
-User-Agent: KMail/1.5.3
-MIME-Version: 1.0
-Content-Type: Text/Plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Content-Description: clearsigned data
+	Mon, 10 May 2004 06:43:59 -0400
+Received: from delerium.kernelslacker.org ([81.187.208.145]:36494 "EHLO
+	delerium.codemonkey.org.uk") by vger.kernel.org with ESMTP
+	id S264610AbUEJKld (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 10 May 2004 06:41:33 -0400
+Date: Mon, 10 May 2004 11:40:14 +0100
+From: Dave Jones <davej@redhat.com>
+To: Olaf Hering <olh@suse.de>
+Cc: Linus Torvalds <torvalds@osdl.org>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Linux 2.6.6
+Message-ID: <20040510104014.GA21671@redhat.com>
+Mail-Followup-To: Dave Jones <davej@redhat.com>, Olaf Hering <olh@suse.de>,
+	Linus Torvalds <torvalds@osdl.org>,
+	Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <Pine.LNX.4.58.0405091954240.3028@ppc970.osdl.org> <20040510083905.GA18603@suse.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200405101129.10672.m.watts@eris.qinetiq.com>
+In-Reply-To: <20040510083905.GA18603@suse.de>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+On Mon, May 10, 2004 at 10:39:05AM +0200, Olaf Hering wrote:
+ > cp: cannot open `linux-2.6.6/drivers/char/agp/isoch.c' for reading: Permission denied
 
+I don't know about the other files, but this one hasn't changed
+in almost a year. How come this is only a problem now ?
+What happened?
 
-Jeff,
-
-http://www.inno3d.com/eio/products_sata_pci_host.html
-
-Do you happen to know if the above cards work in linux (libata)?
-- From the picture on the website, it looks like they use a Silicon Image chip, 
-but I can't see which one.
-
-Cheers,
-
-Mark.
-
-- -- 
-Mark Watts
-Senior Systems Engineer
-QinetiQ Trusted Information Management
-Trusted Solutions and Services group
-GPG Public Key ID: 455420ED
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.3 (GNU/Linux)
-
-iD8DBQFAn1l1Bn4EFUVUIO0RAoNgAJ4iTPPY8btJOUgrj4xUDXblLyPIdQCg2rAE
-Bmc6TIb45TlagyPuruQj6dk=
-=+jYu
------END PGP SIGNATURE-----
+		Dave
 

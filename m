@@ -1,41 +1,28 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289792AbSAQQ1m>; Thu, 17 Jan 2002 11:27:42 -0500
+	id <S289605AbSAQQYM>; Thu, 17 Jan 2002 11:24:12 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289867AbSAQQ1c>; Thu, 17 Jan 2002 11:27:32 -0500
-Received: from f96.law11.hotmail.com ([64.4.17.96]:51726 "EHLO hotmail.com")
-	by vger.kernel.org with ESMTP id <S289792AbSAQQ1X>;
-	Thu, 17 Jan 2002 11:27:23 -0500
-X-Originating-IP: [156.153.254.10]
-From: "Balbir Singh" <balbir_soni@hotmail.com>
-To: davem@redhat.com
+	id <S289867AbSAQQYD>; Thu, 17 Jan 2002 11:24:03 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:28939 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S289605AbSAQQXw>; Thu, 17 Jan 2002 11:23:52 -0500
+Subject: Re: vw-war
+To: cwidmer@iiic.ethz.ch
+Date: Thu, 17 Jan 2002 16:35:40 +0000 (GMT)
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: [BUG] Suspected bug in getpeername and getsockname
-Date: Thu, 17 Jan 2002 08:27:17 -0800
-Mime-Version: 1.0
-Content-Type: text/plain; format=flowed
-Message-ID: <F96rPJjUsZ6G7KCk5sm0001ad67@hotmail.com>
-X-OriginalArrivalTime: 17 Jan 2002 16:27:17.0581 (UTC) FILETIME=[D45A07D0:01C19F73]
+In-Reply-To: <Pine.GSO.4.10.10201171642220.21534-100000@raf23> from "Christian Widmer" at Jan 17, 2002 04:59:29 PM
+X-Mailer: ELM [version 2.5 PL6]
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E16RFVs-0004Aj-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-What I was trying to state is that the protocol specific
-code does not get to see the length passed from the user.
-The protocol specific code would like to look at what
-the user passed.
+> your knowlage together. if your willing to do so, you might be able to
+> write a vm that is comparable to vm of a freebsd. 
 
-Balbir
-
->You totally missed what move_addr_to_user() does, which is in fact
->truncate the copied len to what the user supplied.  Also, the comments
->in move_addr_to_user even quote the bits of 1003.1g you a referring
->to.
->
->In short, the bug you suggest is not there.
-
-
-
-
-_________________________________________________________________
-Send and receive Hotmail on your mobile device: http://mobile.msn.com
-
+Rik's rmap11 seems to be giving me basically identical behaviour to FreeBSD.
+Now there is sort of a reason for that - Rik spent a lot of time looking at
+the FreeBSD VM and talking with FreeBSD VM wizards.

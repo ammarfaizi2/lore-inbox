@@ -1,44 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269169AbTGORRz (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Jul 2003 13:17:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269166AbTGORRz
+	id S269107AbTGORV2 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Jul 2003 13:21:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269120AbTGORV2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Jul 2003 13:17:55 -0400
-Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:17351
-	"EHLO lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
-	id S269169AbTGORRx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Jul 2003 13:17:53 -0400
-Subject: Re: 2.6.0-test1-ac1 Matrox Compile Error
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Dave Jones <davej@codemonkey.org.uk>
-Cc: James Simmons <jsimmons@infradead.org>, dank@reflexsecurity.com,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20030715171354.GA12899@suse.de>
-References: <bf19d5$d00$1@main.gmane.org>
-	 <Pine.LNX.4.44.0307151740040.7091-100000@phoenix.infradead.org>
-	 <20030715171354.GA12899@suse.de>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Organization: 
-Message-Id: <1058290204.3857.51.camel@dhcp22.swansea.linux.org.uk>
+	Tue, 15 Jul 2003 13:21:28 -0400
+Received: from bristol.phunnypharm.org ([65.207.35.130]:3262 "EHLO
+	bristol.phunnypharm.org") by vger.kernel.org with ESMTP
+	id S269107AbTGORVU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 15 Jul 2003 13:21:20 -0400
+Date: Tue, 15 Jul 2003 13:36:25 -0400
+From: Ben Collins <bcollins@debian.org>
+To: linux-kernel@vger.kernel.org
+Subject: SVN linux-2.6 repo
+Message-ID: <20030715173625.GR20685@phunnypharm.org>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
-Date: 15 Jul 2003 18:30:05 +0100
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Maw, 2003-07-15 at 18:13, Dave Jones wrote:
-> On Tue, Jul 15, 2003 at 05:40:52PM +0100, James Simmons wrote:
-> 
->  > > you'll need to build VT support.
->  > Ug. That is wrong. Fbdev driver are independent of the console layer.
-> 
-> Regardless, the number of people falling over this issue is still
-> somewhere in the region of "silly".
-> The only people who would want to turn off VT support are likely to
-> be embedded folks, so why not move this under CONFIG_EMBEDDED ?
-> and force it to '=y' for everyone else ?
+I've made a symlink from linux-2.6 to the linux-2.5 repo for the SVN
+checkouts. I am assuming that the 2.5 tree will simply be renamed to
+2.6, but I haven't heard back from Larry about that.
 
-Seconded  - care to send me a diff for -ac2 8)
+If you want, you can do:
 
+svn switch --relocate svn://svn.kernel.org/linux-2.5 \
+	svn://svn.kernel.org/linux-2.6
+
+To change to the new URL for an existing checkout, or checkout using the
+new URL of svn://svn.kernel.org/linux-2.6/trunk.
+
+
+
+-- 
+Debian     - http://www.debian.org/
+Linux 1394 - http://www.linux1394.org/
+Subversion - http://subversion.tigris.org/
+Deqo       - http://www.deqo.com/

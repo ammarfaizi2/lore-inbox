@@ -1,239 +1,153 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261176AbVCOLpo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261171AbVCOLsZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261176AbVCOLpo (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Mar 2005 06:45:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261171AbVCOLpo
+	id S261171AbVCOLsZ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Mar 2005 06:48:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261179AbVCOLsZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Mar 2005 06:45:44 -0500
-Received: from ms-smtp-03.nyroc.rr.com ([24.24.2.57]:64910 "EHLO
-	ms-smtp-03.nyroc.rr.com") by vger.kernel.org with ESMTP
-	id S261176AbVCOLpM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Mar 2005 06:45:12 -0500
-Date: Tue, 15 Mar 2005 06:44:58 -0500 (EST)
-From: Steven Rostedt <rostedt@goodmis.org>
-X-X-Sender: rostedt@localhost.localdomain
-Reply-To: rostedt@goodmis.org
-To: Lee Revell <rlrevell@joe-job.com>
-cc: Ingo Molnar <mingo@elte.hu>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [patch] Real-Time Preemption, -RT-2.6.11-rc3-V0.7.38-01
-In-Reply-To: <Pine.LNX.4.58.0503141024530.697@localhost.localdomain>
-Message-ID: <Pine.LNX.4.58.0503150641030.6456@localhost.localdomain>
-References: <20050204100347.GA13186@elte.hu>  <1108789704.8411.9.camel@krustophenia.net>
-  <Pine.LNX.4.58.0503100323370.14016@localhost.localdomain> 
- <Pine.LNX.4.58.0503100447150.14016@localhost.localdomain> 
- <20050311095747.GA21820@elte.hu>  <Pine.LNX.4.58.0503110508360.19798@localhost.localdomain>
-  <20050311101740.GA23120@elte.hu>  <Pine.LNX.4.58.0503110521390.19798@localhost.localdomain>
-  <20050311024322.690eb3a9.akpm@osdl.org>  <Pine.LNX.4.58.0503110754240.19798@localhost.localdomain>
-  <20050311153817.GA32020@elte.hu>  <Pine.LNX.4.58.0503111440190.22043@localhost.localdomain>
-  <1110574019.19093.23.camel@mindpipe> <1110578809.19661.2.camel@mindpipe>
- <Pine.LNX.4.58.0503140214360.697@localhost.localdomain>
- <Pine.LNX.4.58.0503140427560.697@localhost.localdomain>
- <Pine.LNX.4.58.0503140509170.697@localhost.localdomain>
- <Pine.LNX.4.58.0503141024530.697@localhost.localdomain>
+	Tue, 15 Mar 2005 06:48:25 -0500
+Received: from grendel.digitalservice.pl ([217.67.200.140]:55513 "HELO
+	mail.digitalservice.pl") by vger.kernel.org with SMTP
+	id S261171AbVCOLsH convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 15 Mar 2005 06:48:07 -0500
+From: "Rafael J. Wysocki" <rjw@sisk.pl>
+To: Pavel Machek <pavel@ucw.cz>
+Subject: Re: swsusp_restore crap
+Date: Tue, 15 Mar 2005 12:51:00 +0100
+User-Agent: KMail/1.7.1
+Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+       Linux Kernel list <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>
+References: <1110857069.29123.5.camel@gaston> <1110857516.29138.9.camel@gaston> <20050315110309.GA1344@elf.ucw.cz>
+In-Reply-To: <20050315110309.GA1344@elf.ucw.cz>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+  charset="iso-8859-2"
+Content-Transfer-Encoding: 8BIT
+Content-Disposition: inline
+Message-Id: <200503151251.01109.rjw@sisk.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
 
+On Tuesday, 15 of March 2005 12:03, Pavel Machek wrote:
+> On Út 15-03-05 14:31:56, Benjamin Herrenschmidt wrote:
+> > On Tue, 2005-03-15 at 14:24 +1100, Benjamin Herrenschmidt wrote:
+> > > Hi Pavel !
+> > > 
+> > > Please kill that swsusp_restore() call that itself calls
+> > > flush_tlb_global(), it's junk. First, the flush_tlb_global() thing is
+> > > arch specific, and that's all swsusp_restore() does. Then, the asm just
+> > > calls this before returning to C code, so it makes no sense to have a
+> > > hook there. The x86 asm can have it's own call to some arch stuff if it
+> > > wants or just do the tlb flush in asm...
+> > 
+> > Better, here is a patch... (note: flush_tlb_global() is an x86'ism,
+> > doesn't exist on ppc, thus breaks compile, and that has nothing to do in
+> > the generic code imho, it should be clearly defined as the
+> > responsibility of the asm code).
+> 
+> x86-64 needs this, too.... Otherwise it looks okay.
 
-I've realized that my previous patch had too many problems with the way
-the journaling system works.  So I went back to my first approach but
-added the journal_head lock as one global lock to keep the buffer head
-size smaller. I only added the state lock to the buffer head. I've tested
-this for some time now, and it works well (for the test at least). I'll
-recompile it with PREEMPT_DESKTOP to see if that works too.
+It breaks compilation on i386 either, because nr_copy_pages_check
+is static in swsusp.c.  May I propose the following patch instead (tested on
+x86-64 and i386)?
 
+Greets,
+Rafael
 
--- Steve
+Signed-off-by: Rafael J. Wysocki <rjw@sisk.pl>
 
-
-
-diff -ur linux-2.6.11-final-V0.7.40-00.orig/fs/buffer.c linux-2.6.11-final-V0.7.40-00/fs/buffer.c
---- linux-2.6.11-final-V0.7.40-00.orig/fs/buffer.c	2005-03-02 02:38:10.000000000 -0500
-+++ linux-2.6.11-final-V0.7.40-00/fs/buffer.c	2005-03-15 03:41:15.000000000 -0500
-@@ -3003,6 +3003,9 @@
- 		preempt_disable();
- 		__get_cpu_var(bh_accounting).nr++;
- 		recalc_bh_state();
-+#ifdef CONFIG_PREEMPT_RT
-+		spin_lock_init(&ret->b_jstate_lock);
-+#endif
- 		preempt_enable();
- 	}
- 	return ret;
-diff -ur linux-2.6.11-final-V0.7.40-00.orig/fs/jbd/journal.c linux-2.6.11-final-V0.7.40-00/fs/jbd/journal.c
---- linux-2.6.11-final-V0.7.40-00.orig/fs/jbd/journal.c	2005-03-02 02:37:49.000000000 -0500
-+++ linux-2.6.11-final-V0.7.40-00/fs/jbd/journal.c	2005-03-15 03:49:10.000000000 -0500
-@@ -82,6 +82,8 @@
-
- static int journal_convert_superblock_v1(journal_t *, journal_superblock_t *);
-
-+spinlock_t journal_head_lock = SPIN_LOCK_UNLOCKED;
-+
- /*
-  * Helper function used to manage commit timeouts
-  */
-diff -ur linux-2.6.11-final-V0.7.40-00.orig/include/linux/buffer_head.h linux-2.6.11-final-V0.7.40-00/include/linux/buffer_head.h
---- linux-2.6.11-final-V0.7.40-00.orig/include/linux/buffer_head.h	2005-03-02 02:37:45.000000000 -0500
-+++ linux-2.6.11-final-V0.7.40-00/include/linux/buffer_head.h	2005-03-15 03:42:22.000000000 -0500
-@@ -62,6 +62,13 @@
- 	bh_end_io_t *b_end_io;		/* I/O completion */
-  	void *b_private;		/* reserved for b_end_io */
- 	struct list_head b_assoc_buffers; /* associated with another mapping */
-+
-+#ifdef CONFIG_PREEMPT_RT
-+	/*
-+	 * Fixme: This should be in the journal code.
-+	 */
-+	spinlock_t b_jstate_lock;	/* lock for journal state. */
-+#endif
- };
-
- /*
-diff -ur linux-2.6.11-final-V0.7.40-00.orig/include/linux/jbd.h linux-2.6.11-final-V0.7.40-00/include/linux/jbd.h
---- linux-2.6.11-final-V0.7.40-00.orig/include/linux/jbd.h	2005-03-02 02:38:19.000000000 -0500
-+++ linux-2.6.11-final-V0.7.40-00/include/linux/jbd.h	2005-03-15 03:45:33.000000000 -0500
-@@ -314,6 +314,13 @@
- TAS_BUFFER_FNS(RevokeValid, revokevalid)
- BUFFER_FNS(Freed, freed)
-
-+#ifdef CONFIG_PREEMPT_RT
-+extern spinlock_t journal_head_lock;
-+#define PICK_SPIN_LOCK(otype,bit,name) spin_##otype(&bh->b_##name##_lock)
-+#else
-+#define PICK_SPIN_LOCK(otype,bit,name) bit_spin_##otype(bit,bh->b_state);
-+#endif
-+
- static inline struct buffer_head *jh2bh(struct journal_head *jh)
- {
- 	return jh->b_bh;
-@@ -326,24 +333,36 @@
-
- static inline void jbd_lock_bh_state(struct buffer_head *bh)
- {
--	bit_spin_lock(BH_State, &bh->b_state);
-+	PICK_SPIN_LOCK(lock,BH_State,jstate);
+diff -Nrup linux-2.6.11-bk10-a/arch/i386/power/cpu.c linux-2.6.11-bk10-b/arch/i386/power/cpu.c
+--- linux-2.6.11-bk10-a/arch/i386/power/cpu.c	2005-03-15 09:20:53.000000000 +0100
++++ linux-2.6.11-bk10-b/arch/i386/power/cpu.c	2005-03-15 12:16:57.000000000 +0100
+@@ -147,6 +147,15 @@ void restore_processor_state(void)
+ 	__restore_processor_state(&saved_context);
  }
-
- static inline int jbd_trylock_bh_state(struct buffer_head *bh)
- {
--	return bit_spin_trylock(BH_State, &bh->b_state);
-+	return PICK_SPIN_LOCK(trylock,BH_State,jstate);
- }
-
- static inline int jbd_is_locked_bh_state(struct buffer_head *bh)
- {
--	return bit_spin_is_locked(BH_State, &bh->b_state);
-+	return PICK_SPIN_LOCK(is_locked,BH_State,jstate);
- }
-
- static inline void jbd_unlock_bh_state(struct buffer_head *bh)
- {
--	bit_spin_unlock(BH_State, &bh->b_state);
-+	PICK_SPIN_LOCK(unlock,BH_State,jstate);
-+}
-+#undef PICK_SPIN_LOCK
-+
-+#ifdef CONFIG_PREEMPT_RT
-+static inline void jbd_lock_bh_journal_head(struct buffer_head *bh)
+ 
++asmlinkage int __swsusp_flush_tlb(void)
 +{
-+	spin_lock(&journal_head_lock);
- }
-
-+static inline void jbd_unlock_bh_journal_head(struct buffer_head *bh)
-+{
-+	spin_unlock(&journal_head_lock);
++	swsusp_restore_check();
++
++	/* Even mappings of "global" things (vmalloc) need to be fixed */
++	__flush_tlb_global();
++	return 0;
 +}
-+#else /* !CONFIG_PREEMPT_RT */
- static inline void jbd_lock_bh_journal_head(struct buffer_head *bh)
- {
- 	bit_spin_lock(BH_JournalHead, &bh->b_state);
-@@ -353,6 +372,7 @@
- {
- 	bit_spin_unlock(BH_JournalHead, &bh->b_state);
- }
-+#endif /* CONFIG_PREEMPT_RT */
-
- struct jbd_revoke_table_s;
-
-diff -ur linux-2.6.11-final-V0.7.40-00.orig/include/linux/spinlock.h linux-2.6.11-final-V0.7.40-00/include/linux/spinlock.h
---- linux-2.6.11-final-V0.7.40-00.orig/include/linux/spinlock.h	2005-03-14 06:00:54.000000000 -0500
-+++ linux-2.6.11-final-V0.7.40-00/include/linux/spinlock.h	2005-03-15 03:40:31.000000000 -0500
-@@ -774,6 +774,10 @@
- }))
-
-
-+#ifndef CONFIG_PREEMPT_RT
 +
-+/* These are just plain evil! */
+ /* Needed by apm.c */
+ EXPORT_SYMBOL(save_processor_state);
+ EXPORT_SYMBOL(restore_processor_state);
+diff -Nrup linux-2.6.11-bk10-a/arch/i386/power/swsusp.S linux-2.6.11-bk10-b/arch/i386/power/swsusp.S
+--- linux-2.6.11-bk10-a/arch/i386/power/swsusp.S	2005-03-15 09:20:53.000000000 +0100
++++ linux-2.6.11-bk10-b/arch/i386/power/swsusp.S	2005-03-15 12:16:28.000000000 +0100
+@@ -58,5 +58,6 @@ done:
+ 	movl saved_context_edi, %edi
+ 
+ 	pushl saved_context_eflags ; popfl
+-	call swsusp_restore
 +
- /*
-  *  bit-based spin_lock()
-  *
-@@ -789,10 +793,15 @@
- 	 * busywait with less bus contention for a good time to
- 	 * attempt to acquire the lock bit.
- 	 */
--#if defined(CONFIG_SMP) || defined(CONFIG_DEBUG_SPINLOCK) || defined(CONFIG_PREEMPT)
--	while (test_and_set_bit(bitnum, addr))
--		while (test_bit(bitnum, addr))
-+	preempt_disable();
-+#if defined(CONFIG_SMP) || defined(CONFIG_DEBUG_SPINLOCK)
-+	while (test_and_set_bit(bitnum, addr)) {
-+		while (test_bit(bitnum, addr)) {
-+			preempt_enable();
- 			cpu_relax();
-+			preempt_disable();
-+		}
-+	}
- #endif
- 	__acquire(bitlock);
++	call	__swsusp_flush_tlb
+ 	ret
+diff -Nrup linux-2.6.11-bk10-a/arch/x86_64/kernel/suspend_asm.S linux-2.6.11-bk10-b/arch/x86_64/kernel/suspend_asm.S
+--- linux-2.6.11-bk10-a/arch/x86_64/kernel/suspend_asm.S	2005-03-15 09:20:53.000000000 +0100
++++ linux-2.6.11-bk10-b/arch/x86_64/kernel/suspend_asm.S	2005-03-15 12:14:47.000000000 +0100
+@@ -89,5 +89,6 @@ done:
+ 	movq saved_context_r14(%rip), %r14
+ 	movq saved_context_r15(%rip), %r15
+ 	pushq saved_context_eflags(%rip) ; popfq
+-	call	swsusp_restore
++
++	call	__swsusp_flush_tlb
+ 	ret
+diff -Nrup linux-2.6.11-bk10-a/arch/x86_64/kernel/suspend.c linux-2.6.11-bk10-b/arch/x86_64/kernel/suspend.c
+--- linux-2.6.11-bk10-a/arch/x86_64/kernel/suspend.c	2005-03-02 08:38:09.000000000 +0100
++++ linux-2.6.11-bk10-b/arch/x86_64/kernel/suspend.c	2005-03-15 12:15:25.000000000 +0100
+@@ -154,4 +154,11 @@ void fix_processor_context(void)
+ 
  }
-@@ -802,9 +811,12 @@
-  */
- static inline int bit_spin_trylock(int bitnum, unsigned long *addr)
- {
--#if defined(CONFIG_SMP) || defined(CONFIG_DEBUG_SPINLOCK) || defined(CONFIG_PREEMPT)
--	if (test_and_set_bit(bitnum, addr))
-+	preempt_disable();
-+#if defined(CONFIG_SMP) || defined(CONFIG_DEBUG_SPINLOCK)
-+	if (test_and_set_bit(bitnum, addr)) {
-+		preempt_enable();
- 		return 0;
-+	}
+ 
++int __swsusp_flush_tlb(void)
++{
++	swsusp_restore_check();
+ 
++	/* Even mappings of "global" things (vmalloc) need to be fixed */
++	__flush_tlb_global();
++	return 0;
++}
+diff -Nrup linux-2.6.11-bk10-a/include/linux/suspend.h linux-2.6.11-bk10-b/include/linux/suspend.h
+--- linux-2.6.11-bk10-a/include/linux/suspend.h	2005-03-15 09:21:23.000000000 +0100
++++ linux-2.6.11-bk10-b/include/linux/suspend.h	2005-03-15 12:20:06.000000000 +0100
+@@ -68,6 +68,8 @@ static inline void disable_nonboot_cpus(
+ static inline void enable_nonboot_cpus(void) {}
  #endif
- 	__acquire(bitlock);
- 	return 1;
-@@ -815,11 +827,12 @@
-  */
- static inline void bit_spin_unlock(int bitnum, unsigned long *addr)
- {
--#if defined(CONFIG_SMP) || defined(CONFIG_DEBUG_SPINLOCK) || defined(CONFIG_PREEMPT)
-+#if defined(CONFIG_SMP) || defined(CONFIG_DEBUG_SPINLOCK)
- 	BUG_ON(!test_bit(bitnum, addr));
- 	smp_mb__before_clear_bit();
- 	clear_bit(bitnum, addr);
- #endif
-+	preempt_enable();
- 	__release(bitlock);
+ 
++void swsusp_restore_check(void);
++
+ void save_processor_state(void);
+ void restore_processor_state(void);
+ struct saved_context;
+diff -Nrup linux-2.6.11-bk10-a/kernel/power/swsusp.c linux-2.6.11-bk10-b/kernel/power/swsusp.c
+--- linux-2.6.11-bk10-a/kernel/power/swsusp.c	2005-03-15 09:21:23.000000000 +0100
++++ linux-2.6.11-bk10-b/kernel/power/swsusp.c	2005-03-15 12:18:36.000000000 +0100
+@@ -906,14 +906,9 @@ int swsusp_suspend(void)
+ 	return error;
  }
+ 
+-
+-asmlinkage int swsusp_restore(void)
++void swsusp_restore_check(void)
+ {
+ 	BUG_ON (nr_copy_pages_check != nr_copy_pages);
+-	
+-	/* Even mappings of "global" things (vmalloc) need to be fixed */
+-	__flush_tlb_global();
+-	return 0;
+ }
+ 
+ int swsusp_resume(void)
 
-@@ -828,12 +841,15 @@
-  */
- static inline int bit_spin_is_locked(int bitnum, unsigned long *addr)
- {
--#if defined(CONFIG_SMP) || defined(CONFIG_DEBUG_SPINLOCK) || defined(CONFIG_PREEMPT)
-+#if defined(CONFIG_SMP) || defined(CONFIG_DEBUG_SPINLOCK)
- 	return test_bit(bitnum, addr);
-+#elif defined CONFIG_PREEMPT
-+	return preempt_count();
- #else
- 	return 1;
- #endif
- }
-+#endif /* CONFIG_PREEMPT_RT */
-
- #define DEFINE_SPINLOCK(name) \
- 	spinlock_t name __cacheline_aligned_in_smp = _SPIN_LOCK_UNLOCKED(name)
+-- 
+- Would you tell me, please, which way I ought to go from here?
+- That depends a good deal on where you want to get to.
+		-- Lewis Carroll "Alice's Adventures in Wonderland"

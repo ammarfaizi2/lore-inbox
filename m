@@ -1,60 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267687AbUBSCdo (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 Feb 2004 21:33:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267711AbUBSCdn
+	id S266967AbUBRWuf (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 Feb 2004 17:50:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267163AbUBRWue
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 Feb 2004 21:33:43 -0500
-Received: from mion.elka.pw.edu.pl ([194.29.160.35]:61587 "EHLO
-	mion.elka.pw.edu.pl") by vger.kernel.org with ESMTP id S267687AbUBSCd2
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 Feb 2004 21:33:28 -0500
-From: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
-To: Jochen Becker <jochen@linux.it4free.de>
-Subject: Re: 2.6.3
-Date: Thu, 19 Feb 2004 03:39:41 +0100
-User-Agent: KMail/1.5.3
-References: <1077154272.3471.3.camel@jbdesktop> <20040218174630.05253fd6.akpm@osdl.org> <1077155738.3471.7.camel@jbdesktop>
-In-Reply-To: <1077155738.3471.7.camel@jbdesktop>
-Cc: jgarzik@pobox.com, linux-kernel@vger.kernel.org
+	Wed, 18 Feb 2004 17:50:34 -0500
+Received: from dp.samba.org ([66.70.73.150]:6111 "EHLO lists.samba.org")
+	by vger.kernel.org with ESMTP id S267150AbUBRWuY (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 18 Feb 2004 17:50:24 -0500
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200402190339.41053.bzolnier@elka.pw.edu.pl>
+Message-ID: <16435.60448.70856.791580@samba.org>
+Date: Thu, 19 Feb 2004 09:50:08 +1100
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: "H. Peter Anvin" <hpa@zytor.com>, linux-kernel@vger.kernel.org
+Subject: Re: UTF-8 and case-insensitivity
+In-Reply-To: <Pine.LNX.4.58.0402181427230.2686@home.osdl.org>
+References: <16433.38038.881005.468116@samba.org>
+	<16433.47753.192288.493315@samba.org>
+	<Pine.LNX.4.58.0402170704210.2154@home.osdl.org>
+	<16434.41376.453823.260362@samba.org>
+	<c0uj52$3mg$1@terminus.zytor.com>
+	<Pine.LNX.4.58.0402171859570.2686@home.osdl.org>
+	<4032D893.9050508@zytor.com>
+	<Pine.LNX.4.58.0402171919240.2686@home.osdl.org>
+	<16435.55700.600584.756009@samba.org>
+	<Pine.LNX.4.58.0402181422180.2686@home.osdl.org>
+	<Pine.LNX.4.58.0402181427230.2686@home.osdl.org>
+X-Mailer: VM 7.18 under Emacs 21.3.1
+Reply-To: tridge@samba.org
+From: tridge@samba.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 19 of February 2004 02:55, Jochen Becker wrote:
-> hello recievers
-> andrew say to me that i have to send this to you.
+Linus,
 
-Hi,
+ > And I bet the performance advantages of _not_ doing native case 
+ > insensitivity are likely to dominate hugely.
 
-> Jochen
->
-> orig mail :
->
-> Am Do, den 19.02.2004 schrieb Andrew Morton um 02:46:
-> > Jochen Becker <jochen@linux.it4free.de> wrote:
-> > > Hello Linus / Andrew
-> > >
-> > > i have now compiled the kernel 2.6.3 and have problems
-> > > a) the time out for the ide driver sil serial ata is to long when their
-> > > is no harddisc installed. the kernel detects 2 times for 10 secounds
-> >
-> > Please report this to
-> >
-> > Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl> and
-> > Jeff Garzik <jgarzik@pobox.com> and
-> > linux-kernel@vger.kernel.org
+This part I just don't understand at all. The proposed changes would
+be extremely cheap performance wise as you are just replacing one hash
+with another, and dealing with one extra context bit in the
+dcache. There is no way that this could come anywhere near the cost of
+doing linear directory scans.
 
-Thanks for the report.  Unfortunately this is a known issue
-(http://bugzilla.kernel.org/show_bug.cgi?id=1009) and solution
-requires adding proper SATA detection to IDE driver which I won't do
-(cause there is libata SATA driver and libata SiI driver now).
-Though you can workaround it using "idex=noprobe" kernel parameter.
+The hash function would be slightly more expensive (when enabled), but
+not much, especially when you put in the obvious optimisation for 7
+bit characters. The string comparison function in a couple of places
+would also become more expensive, but once again it would only be
+expensive for case-insensitive processes and benefits from the 7 bit
+optimisation so that the average case will only be very slightly more
+expensive than the current function.
 
---bart
+Fair enough that you don't want to do this for code complexity
+reasons, but please don't tell me it would be slower than what we have
+to do now. 
 
+Try an strace of Samba trying to unlink() a non-existant file in a
+large directory. It's enough to make you want to curl up and die :)
+
+Cheers, Tridge

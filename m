@@ -1,47 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267744AbTBRMcb>; Tue, 18 Feb 2003 07:32:31 -0500
+	id <S267786AbTBRMgR>; Tue, 18 Feb 2003 07:36:17 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267762AbTBRMcb>; Tue, 18 Feb 2003 07:32:31 -0500
-Received: from 205-158-62-139.outblaze.com ([205.158.62.139]:11194 "HELO
-	spf1.us.outblaze.com") by vger.kernel.org with SMTP
-	id <S267744AbTBRMca>; Tue, 18 Feb 2003 07:32:30 -0500
-Message-ID: <20030218124218.20981.qmail@linuxmail.org>
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Disposition: inline
-Content-Transfer-Encoding: 7bit
-MIME-Version: 1.0
-X-Mailer: MIME-tools 5.41 (Entity 5.404)
-From: "Paolo Ciarrocchi" <ciarrocchi@linuxmail.org>
+	id <S267787AbTBRMgR>; Tue, 18 Feb 2003 07:36:17 -0500
+Received: from web20508.mail.yahoo.com ([216.136.226.143]:111 "HELO
+	web20508.mail.yahoo.com") by vger.kernel.org with SMTP
+	id <S267786AbTBRMgQ>; Tue, 18 Feb 2003 07:36:16 -0500
+Message-ID: <20030218124616.72541.qmail@web20508.mail.yahoo.com>
+Date: Tue, 18 Feb 2003 04:46:16 -0800 (PST)
+From: GAURAV YADAV <gaurav_christmas@yahoo.com>
+Subject: newbie question :- installation problemo 0x44 error partition gone, please help me.
 To: linux-kernel@vger.kernel.org
-Cc: ciarrocchi@linuxmail.org
-Date: Tue, 18 Feb 2003 20:42:18 +0800
-Subject: Make rpm doesn't work
-X-Originating-Ip: 62.101.98.215
-X-Originating-Server: ws5-2.us4.outblaze.com
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all,
-I tried the following:
-[root@frodo linux-2.5.61]# make rpm
-make: *** No rule to make target `clean', needed by `rpm'.  Stop.
+hello to all,
 
-Not because I really need an rpm kernel, just because I wanted
-to try the process.
+i have a problem,
+i have two hard disks
 
-I looked at the Makefile but I can't understand why it doesn't 
-work.
+hda - > 4GB
+hdb - > 40GB
+hda has no partitions and windowsME is installed
+hdb has 12 partitions ( including Linux Native and
+Swap file system)
 
-Do you have to fill a bug report to bugzilla.kernel.org ?
+while i was installing linux7.1
+when i was in Diskurid for partitioning
+it told filesystem as 0x44 instead of Win95 FAT,
+but i ignored it and went ahead installing Linux.
+It went really very fine with no problems.
+but when i restarted it is showing me partitions
+of hdb in cfidsk but when i want to mount it is not
+mounting
+and say 'are you trying to mount extended partition?'
+and in cfdisk also it is showing partitions as
+Unknown,
+Even windows is not recognising those partitions of
+hdb. Is all my data lost forever, i am having very
+important data on my disk regarding my studies.
+Please help, as my friends have told i will get my 
+answers here.
+Please send it to me personally at
+gaurav_christmas@yahoo.com
+as i cannot subscribe to it because of my meagreness
+of yahoo account space.
+so after an hour i will unsubscribe from the list.
 
-Ciao,
-       Paolo
 
+Thanks in advance.
+-gaurav.
 
--- 
-______________________________________________
-http://www.linuxmail.org/
-Now with e-mail forwarding for only US$5.95/yr
+=====
+^^_^^^^^.^'^.^^^.^^^.^^^.^^^.^^-^-^^^^^_^^^^^^^^_^^^^^^^^_^^^_^^^^^_^^
+|^|^| g . ' . u . r . a . v .  -^-  i  m  s e l ' i n g  u  t'is  i'ea
+_\-/_ n . ' . i . s . e . world |   i  o n l y  s a y  u  n e e d  i t
+mailto:nicholantis@bigfoot.com / mailto:gaurav_christmas@yahoo.com _.-
+|-=--mi-icq-no--75797811------/-get-what-u-like-/-like-what-u-get----|
+|_|f  I  can  I m a g i n e__/it  I  can  A c h i e v e  it_._.-.-._.|
+-only.believe.in.miracles--com'andment:.just.c.murphy's.law.in.ur.life
 
-Powered by Outblaze
+__________________________________________________
+Do you Yahoo!?
+Yahoo! Shopping - Send Flowers for Valentine's Day
+http://shopping.yahoo.com

@@ -1,55 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S276468AbRJIMCL>; Tue, 9 Oct 2001 08:02:11 -0400
+	id <S276793AbRJIMLM>; Tue, 9 Oct 2001 08:11:12 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S276666AbRJIMCC>; Tue, 9 Oct 2001 08:02:02 -0400
-Received: from 202-54-39-145.tatainfotech.co.in ([202.54.39.145]:22793 "EHLO
-	brelay.tatainfotech.com") by vger.kernel.org with ESMTP
-	id <S276468AbRJIMBw>; Tue, 9 Oct 2001 08:01:52 -0400
-Date: Tue, 9 Oct 2001 17:53:11 +0530 (IST)
-From: "SATHISH.J" <sathish.j@tatainfotech.com>
-To: linux-kernel <linux-kernel@vger.kernel.org>,
-        Stephane List <stephane.list@fr.alcove.com>
-Subject: Re: Reg-network driver.
-In-Reply-To: <20011009105731.A835@alcove-fr>
-Message-ID: <Pine.LNX.4.10.10110091750390.11843-100000@blrmail>
+	id <S276950AbRJIMLD>; Tue, 9 Oct 2001 08:11:03 -0400
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:10504 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S276840AbRJIMK4>; Tue, 9 Oct 2001 08:10:56 -0400
+Subject: Re: [PATCH] change name of rep_nop
+To: kaos@ocs.com.au (Keith Owens)
+Date: Tue, 9 Oct 2001 13:15:49 +0100 (BST)
+Cc: benh@kernel.crashing.org (Benjamin Herrenschmidt),
+        linux-kernel@vger.kernel.org
+In-Reply-To: <30619.1002627002@ocs3.intra.ocs.com.au> from "Keith Owens" at Oct 09, 2001 09:30:02 PM
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E15qvnZ-0003xo-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi stephane,
+> consider modules as well as the kernel.  modutils 2.4.8 added support
+> for ppc archdata to allow dynamic patching of modules using the ftr
+> data.  There also has to be code in kernel/module.c::module_arch_init()
+> to take the archdata and do whatever is required.
 
- I have cscope installed to search source files.
-I could not find "register_netdevice()" functionthrough it. I want to see
-where it calls the driver initialisation.
-Please help me out.
+I am considering the possibility for the x86 ppro fix but firstly I want
+to be sure the spin_unlock change is necessary. The PCI one is much less
+of an impact since we don't go around doing it all the time.
 
-Thanks in advance,
-Warm regards,
-sathish.j
-On Tue, 9 Oct 2001, Stephane List wrote:
+> If anybody starts doing dynamic patching, please let me know so I can
+> handle modutils and module_arch_init().
 
-> On Tue, Oct 09, 2001 at 02:35:37PM +0530, SATHISH.J wrote :
-> > Hi all,
-> > I am trying to learn network drivers. Trying to initialise the driver we
-> > call "register_netdev()". This function in turn calls
-> > "register_netdevice()". Please tell me where register_netdevice() is
-> > defined. I want to see the code because the init function of the driver is
-> > called from function only as I heard. Please tell me where
-> > "register_netdevice()" and "unregister_netdevice()" are defined in the
-> > code.
-> > 
-> You can see it with :
-> 
-> http://lxr.linux.no/ident?i=register_netdevice
-> 
-> 
-> You can also install LXR on your own PC.
-> 
-> Stephane
-> -- 
-> Stephane LIST                     -- <stephane.list@fr.alcove.com>
-> Alcove, liberating software       -- <http://www.alcove.com/>
-> 
+For testing purposes it won't be needed thankfully - a non nop patched
+module might just be a tiny bit slower. 
 
+Anyway firstly I have to reasonably show PPro errata 66/92 are what is
+causing the odd weird ppro crash (the evidence so far is the xchg
+based unlock helps). The WC v UC misordered store one is a proven case,
+as is the 0x70000000->0x7003FFFF wbinvd hang which turns up on some ppro
+boxes that never got the bios E820 fixup
+
+Alan

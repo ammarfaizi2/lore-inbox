@@ -1,66 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266891AbUIAP3a@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266896AbUIAPbe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266891AbUIAP3a (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Sep 2004 11:29:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266890AbUIAP33
+	id S266896AbUIAPbe (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Sep 2004 11:31:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266890AbUIAP3h
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Sep 2004 11:29:29 -0400
-Received: from jive.SoftHome.net ([66.54.152.27]:19687 "HELO jive.SoftHome.net")
-	by vger.kernel.org with SMTP id S266892AbUIAP2w (ORCPT
+	Wed, 1 Sep 2004 11:29:37 -0400
+Received: from zeus.kernel.org ([204.152.189.113]:23234 "EHLO zeus.kernel.org")
+	by vger.kernel.org with ESMTP id S266894AbUIAP3E (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Sep 2004 11:28:52 -0400
-Message-ID: <4135EAAE.3030605@softhome.net>
-Date: Wed, 01 Sep 2004 17:28:46 +0200
-From: "Ihar 'Philips' Filipau" <filia@softhome.net>
-User-Agent: Mozilla Thunderbird 0.7.1 (Macintosh/20040626)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Helge Hafting <helge.hafting@hist.no>, arjanv@redhat.com,
-       viro@parcelfarce.linux.theplanet.co.uk
-CC: Linux Kernel ML <linux-kernel@vger.kernel.org>
-Subject: Re: f_ops flag to speed up compatible ioctls in linux kernel
-References: <courier.41359B53.00007549@softhome.net>            <20040901095229.GA11908@devserv.devel.redhat.com> <courier.4135A19B.00007EA5@softhome.net> <4135B9FC.7050602@hist.no> <4135CEB4.5020102@softhome.net>
-In-Reply-To: <4135CEB4.5020102@softhome.net>
+	Wed, 1 Sep 2004 11:29:04 -0400
+To: linux-kernel@vger.kernel.org
+Path: not-for-mail
+From: Bill Davidsen <davidsen@tmr.com>
+Newsgroups: mail.linux-kernel
+Subject: Re: Driver retries disk errors.
+Date: Wed, 01 Sep 2004 11:18:30 -0400
+Organization: TMR Associates, Inc
+Message-ID: <ch4oq3$fse$1@gatekeeper.tmr.com>
+References: <20040831170016.GF17261@harddisk-recovery.com><20040830163931.GA4295@bitwizard.nl> <1093968767.597.14.camel@localhost.localdomain>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
+X-Trace: gatekeeper.tmr.com 1094051460 16270 192.168.12.100 (1 Sep 2004 15:11:00 GMT)
+X-Complaints-To: abuse@tmr.com
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040803
+X-Accept-Language: en-us, en
+In-Reply-To: <1093968767.597.14.camel@localhost.localdomain>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ihar 'Philips' Filipau wrote:
+Alan Cox wrote:
+> On Maw, 2004-08-31 at 18:00, Erik Mouw wrote:
 > 
-> P.P.S. Hm. Why not implement ioctl2()? which will be linked directly to 
-> device by its driver? - numbering will be internal to driver, and 
-> provide entry point into driver for user space applications. No one 
-> likes mess with ioctl()s in Linux - no device driver developers, nor 
-> users. But what is really needed - is just call into driver. Paramenter 
-> - single pointer have being proved to be sufficient.
+>>>For non hard disk cases many devices do want and need retry.
+>>
+>>And many others do not. CompactFlash readers are usually implemented as
+>>a USB storage device, which on its turn is implemented as a SCSI
+>>"disk". So far I haven't seen a CompactFlash which could be "fixed" by
+>>retries.
 > 
+> 
+> It does no harm trying. It does real harm not being conservative and
+> losing peoples data. You recover people's data after its lost, the
+> IDE layer's job is to make sure it doesn't get lost in the first place.
+> 
+> 
+>>(1) Imagine an application doing a linear read on a file with an 8
+>>block read ahead and the last block being bad. The kernel will try to
+>>read that bad block 16 times, but because the IDE driver also has 8
+>>retries, the kernel will try to read that bad block *64* times. It
+>>usually takes an IDE drive about 2 seconds to figure out a block is
+>>bad, so the application gets stuck for 2 minutes in that single bad
+>>block.
+> 
+> 
+> Right now I know of no way to tell which is readahead for a failed
+> command or of telling the block layer to forget them. Fix this at the
+> block layer and IDE can abort the readahead sequence happily enough
+> because IDE is too dumb to have issued further commands to the drive at
+> this point.
 
-   Ok. Now I recalled those mess with ioctl()s - someone have tryed to 
-implement virtual methods from OO languages with file descriptors and 
-miserably failed.
+If would probably be good to retry "read what you were asked, nothing 
+more" on error, to avoid passing back errors caused by readahead. I 
+suspect this would avoid some issues reading data off CD as well, where 
+one software can read clean and another ends with a short image and error.
 
-   I have never used ioctl()s for anything asides calling my drivers. I 
-have seens people using ioctl codes for special functionality for block 
-devices.
-
-   Position "ioctl()s bad" is not related to drivers per se. People 
-decided to not introduce another calls like eject_media(fd) or 
-get_info(fd) - but instead implement ioctl() which will magically work 
-on all fd's of block devices.
-   That where mistake is. That the kind of ioctl()s, which are bad. 
-ioctl() is for something what doesn't have interface. If something have 
-stable interface - it must be moved over to sys/library calls.
-
-   Instead of "painful ioctl()s" - I would rather start with solving 
-this problem for standard devices: making a way to implement efficiently 
-common functions for device classes. (terminals, block devices, network 
-interfaces, etc). And start obsoleting/removing ioctl()s.
-
-   I like aproach of *BSD - they routinely implement library/sys calls 
-for things like that. I used if_*/getif* calls to find/operate network 
-interfaces - it is much more usable & better documented, than Linux' 
-bunch of magic ioctl()s (again) on _any_ network socket. Why on any? Why 
-we cannot have special device to operate on list of interfaces?
-
-   I believe people here on LKML identified problem incorrectly.
+-- 
+    -bill davidsen (davidsen@tmr.com)
+"The secret to procrastination is to put things off until the
+  last possible moment - but no longer"  -me

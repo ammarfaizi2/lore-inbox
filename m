@@ -1,62 +1,91 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261428AbUCDDPj (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 3 Mar 2004 22:15:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261427AbUCDDPj
+	id S261427AbUCDD3X (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 3 Mar 2004 22:29:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261429AbUCDD3X
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 Mar 2004 22:15:39 -0500
-Received: from mailgate2.mysql.com ([213.136.52.47]:37298 "EHLO
-	mailgate.mysql.com") by vger.kernel.org with ESMTP id S261428AbUCDDPa
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 Mar 2004 22:15:30 -0500
-Subject: Re: 2.4.23aa2 (bugfixes and important VM improvements for the high
-	end)
-From: Peter Zaitsev <peter@mysql.com>
-To: Andrea Arcangeli <andrea@suse.de>
-Cc: Rik van Riel <riel@redhat.com>, "Martin J. Bligh" <mbligh@aracnet.com>,
-       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-In-Reply-To: <20040229014357.GW8834@dualathlon.random>
-References: <20040228072926.GR8834@dualathlon.random>
-	 <Pine.LNX.4.44.0402280950500.1747-100000@chimarrao.boston.redhat.com>
-	 <20040229014357.GW8834@dualathlon.random>
+	Wed, 3 Mar 2004 22:29:23 -0500
+Received: from fmr01.intel.com ([192.55.52.18]:4328 "EHLO hermes.fm.intel.com")
+	by vger.kernel.org with ESMTP id S261427AbUCDD3V (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 3 Mar 2004 22:29:21 -0500
+Subject: Re: [ACPI] swsusp/s3: Assembly interactions need asmlinkage
+From: Len Brown <len.brown@intel.com>
+To: Pavel Machek <pavel@suse.cz>
+Cc: Rusty trivial patch monkey Russell <trivial@rustcorp.com.au>,
+       Andrew Morton <akpm@zip.com.au>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Stefan Seyfried <seife@suse.de>,
+       ACPI Developers <acpi-devel@lists.sourceforge.net>
+In-Reply-To: <A6974D8E5F98D511BB910002A50A6647615F309E@hdsmsx402.hd.intel.com>
+References: <A6974D8E5F98D511BB910002A50A6647615F309E@hdsmsx402.hd.intel.com>
 Content-Type: text/plain
-Organization: MySQL
-Message-Id: <1078370073.3403.759.camel@abyss.local>
+Organization: 
+Message-Id: <1078370935.12987.514.camel@dhcppc4>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Wed, 03 Mar 2004 19:14:34 -0800
+X-Mailer: Ximian Evolution 1.2.3 
+Date: 03 Mar 2004 22:28:56 -0500
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2004-02-28 at 17:43, Andrea Arcangeli wrote:
+Applied.
 
-> > 
-> > Definately not what we expected, but a nice surprise nontheless.
+thanks,
+-Len
+
+On Tue, 2004-02-24 at 08:00, Pavel Machek wrote:
+> Hi!
 > 
-> this is the first time I hear something like this. Maybe you mean the
-> 4:4 was actually using more ram for the SGA? Just curious.
-
-I actually recently Did MySQL benchmarks using DBT2 MySQL port.
-
-The test box was  4Way Xeon w HT,  4Gb RAM,  8 SATA Disks in RAID10.
-
-I used RH AS 3.0 for tests (2.4.21-9.ELxxx)
-
-For Disk Bound workloads (200 Warehouse) I got 1250TPM for "hugemem" vs
-1450TPM for "smp" kernel, which is some 14% slowdown.
-
-For CPU bound load (10 Warehouses) I got 7000TPM instead of 4500TPM,
-which is over 35% slowdown.
-
-
-
-
-
--- 
-Peter Zaitsev, Senior Support Engineer
-MySQL AB, www.mysql.com
-
-Meet the MySQL Team at User Conference 2004! (April 14-16, Orlando,FL)
-  http://www.mysql.com/uc2004/
+> swsusp/s3 assembly parts, and parts called from assembly are not
+> properly marked asmlinkage; that leads to double fault on resume when
+> someone compiles kernel with regparm. Thanks go to Stefan Seyfried for
+> discovering this. Please apply,
+>                                                                 Pavel
+> 
+> --- tmp/linux/drivers/acpi/hardware/hwsleep.c   2004-02-05
+> 01:53:59.000000000 +0100
+> +++ linux/drivers/acpi/hardware/hwsleep.c       2004-02-23
+> 21:47:23.000000000 +0100
+> @@ -205,7 +205,7 @@
+>   *
+>  
+> ******************************************************************************/
+>  
+> -acpi_status
+> +acpi_status asmlinkage
+>  acpi_enter_sleep_state (
+>         u8                              sleep_state)
+>  {
+> --- tmp/linux/include/linux/suspend.h   2004-02-24 13:21:40.000000000
+> +0100
+> +++ linux/include/linux/suspend.h       2004-02-23 20:57:04.000000000
+> +0100
+> @@ -82,4 +82,10 @@
+>  }
+>  #endif /* CONFIG_PM */
+>  
+> +asmlinkage extern void do_magic(int is_resume);
+> +asmlinkage extern void do_magic_resume_1(void);
+> +asmlinkage extern void do_magic_resume_2(void);
+> +asmlinkage extern void do_magic_suspend_1(void);
+> +asmlinkage extern void do_magic_suspend_2(void);
+> +
+>  #endif /* _LINUX_SWSUSP_H */
+> 
+> -- 
+> When do you have a heart between your knees?
+> [Johanka's followup: and *two* hearts?]
+> 
+> 
+> -------------------------------------------------------
+> SF.Net is sponsored by: Speed Start Your Linux Apps Now.
+> Build and deploy apps & Web services for Linux with
+> a free DVD software kit from IBM. Click Now!
+> http://ads.osdn.com/?ad_id=1356&alloc_id=3438&op=click
+> _______________________________________________
+> Acpi-devel mailing list
+> Acpi-devel@lists.sourceforge.net
+> https://lists.sourceforge.net/lists/listinfo/acpi-devel
+> 
 

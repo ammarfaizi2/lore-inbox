@@ -1,31 +1,73 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290413AbSAPLNv>; Wed, 16 Jan 2002 06:13:51 -0500
+	id <S290417AbSAPL1q>; Wed, 16 Jan 2002 06:27:46 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290412AbSAPLNl>; Wed, 16 Jan 2002 06:13:41 -0500
-Received: from gw.wizards.com ([209.221.142.132]:59304 "EHLO
-	fungusaur.wizards.com") by vger.kernel.org with ESMTP
-	id <S289124AbSAPLN2>; Wed, 16 Jan 2002 06:13:28 -0500
-Message-Id: <5.1.0.14.0.20020116115713.00a96ec0@popmail.libero.it>
-X-Mailer: QUALCOMM Windows Eudora Version 5.1
-Date: Wed, 16 Jan 2002 12:13:11 +0100
-To: linux-kernel@vger.kernel.org
-From: Luca Adesso <ladesso@libero.it>
-Subject: iptables and 2.4.17
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; format=flowed
+	id <S290418AbSAPL1g>; Wed, 16 Jan 2002 06:27:36 -0500
+Received: from ns.suse.de ([213.95.15.193]:13839 "HELO Cantor.suse.de")
+	by vger.kernel.org with SMTP id <S290417AbSAPL1b>;
+	Wed, 16 Jan 2002 06:27:31 -0500
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: linux-kernel@vger.kernel.org, bcrl@redhat.com
+Subject: Re: [PATCH] Re: 2.5.3-pre1 compile error
+In-Reply-To: <20020115192048.G17477@redhat.com.suse.lists.linux.kernel> <Pine.LNX.4.33.0201151628440.1140-100000@penguin.transmeta.com.suse.lists.linux.kernel>
+From: Andi Kleen <ak@suse.de>
+Date: 16 Jan 2002 12:27:28 +0100
+In-Reply-To: Linus Torvalds's message of "16 Jan 2002 01:33:44 +0100"
+Message-ID: <p73pu4aa63j.fsf@oldwotan.suse.de>
+X-Mailer: Gnus v5.7/Emacs 20.6
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-There is some problem with iptables modules and kernel 2.4.17 ?
-I'm using 2.4.10 and it works fine; I tried on another computer at work the 
-2.4.17 but I got unresolved symbol errors
-ip_tables.o: unresolved symbol nf_unregister_sockopt
-ip_tables.o: unresolved symbol nf_register_sockopt
+Linus Torvalds <torvalds@transmeta.com> writes:
+> 
+> > +#ifndef __ASM__ATOMIC_H
+> > +#include <asm/atomic.h>
+> > +#endif
+> 
+> Please do not assume knowdledge of what the different header files use to
+> define their re-entrancy.
+> 
+> Just do
+> 
+> 	#include <asm/atomic.h>
+> 
+> and be done with it.
 
-I downloaded 2.4.16 and compiled with the same configuration and it works fine.
-I have Slackware 7.0
+The first check is done automatically by the gcc preprocessor 
+anyways (it has a special check for the #ifndef BLA_H #define BLA_H #endif
+construct for whole files and doesn't even bother to open them again on a 
+second include). So it's completely unnecessary. 
 
-Please CC me for the reply.
-Thanks.
+Someone added some of these useless checks to 2.5.3pre1. Here is a patch
+to remove them. Please consider applying.
 
+--- linux-2.5.3pre1/include/linux/file.h-o	Wed Jan 16 12:24:09 2002
++++ linux-2.5.3pre1/include/linux/file.h	Wed Jan 16 12:25:10 2002
+@@ -5,12 +5,8 @@
+ #ifndef __LINUX_FILE_H
+ #define __LINUX_FILE_H
+ 
+-#ifndef _LINUX_POSIX_TYPES_H	/* __FD_CLR */
+ #include <linux/posix_types.h>
+-#endif
+-#ifndef __LINUX_COMPILER_H	/* unlikely */
+ #include <linux/compiler.h>
+-#endif
+ 
+ /*
+  * The default fd array needs to be at least BITS_PER_LONG,
+--- linux-2.5.3pre1/include/linux/init_task.h-o	Wed Jan 16 12:24:09 2002
++++ linux-2.5.3pre1/include/linux/init_task.h	Wed Jan 16 12:25:27 2002
+@@ -1,9 +1,7 @@
+ #ifndef _LINUX__INIT_TASK_H
+ #define _LINUX__INIT_TASK_H
+ 
+-#ifndef __LINUX_FILE_H
+ #include <linux/file.h>
+-#endif
+ 
+ #define INIT_FILES \
+ { 							\
+
+
+-Andi

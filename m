@@ -1,53 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293184AbSCUQQJ>; Thu, 21 Mar 2002 11:16:09 -0500
+	id <S311593AbSCUQXk>; Thu, 21 Mar 2002 11:23:40 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S310249AbSCUQQA>; Thu, 21 Mar 2002 11:16:00 -0500
-Received: from chaos.analogic.com ([204.178.40.224]:4224 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP
-	id <S293184AbSCUQPy>; Thu, 21 Mar 2002 11:15:54 -0500
-Date: Thu, 21 Mar 2002 11:16:04 -0500 (EST)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-Reply-To: root@chaos.analogic.com
-To: Linux kernel <linux-kernel@vger.kernel.org>
-Subject: remount file-system mount change?
-Message-ID: <Pine.LNX.3.95.1020321110453.349A-100000@chaos.analogic.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S311595AbSCUQXb>; Thu, 21 Mar 2002 11:23:31 -0500
+Received: from acolyte.thorsen.se ([193.14.93.247]:48901 "HELO
+	acolyte.hack.org") by vger.kernel.org with SMTP id <S311593AbSCUQXT>;
+	Thu, 21 Mar 2002 11:23:19 -0500
+From: Christer Weinigel <wingel@acolyte.hack.org>
+To: linux-kernel@vger.kernel.org
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Hiroshi MIURA <miura@da-cha.org>,
+        anders.wallin@mvista.com
+Subject: NatSemi SC1200 timer problems
+Message-Id: <20020321162312.7241DF5B@acolyte.hack.org>
+Date: Thu, 21 Mar 2002 17:23:12 +0100 (CET)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
 
-Any `mountd` gurus,
+I'm seeing some very strange problems with a NatSemi SC1200 based
+system.  The problems is that the code to read the PIT counter
+sometimes returns the bytes swapped:
 
-This kind of entry in /etc/exports used to let anybody in
-the world read/write/delete from the file-system identified.
+    outb(0, 0x43);
+    count = inb(0x40);
+    count |= inb(0x40) << 8;
 
-#/etc/exports
-/scratch	*(rw,no_root_squash)
+This sometimes gives 0x822e instead of 0x2e82 that is reasonable.  I
+first thought this was a bug in another driver, but sometimes the
+counter read from the timer would be 0xd5dd and that value should be
+impossible to get, so I'm starting to suspect the hardware.
 
-I don't know when it stopped working, but now I have to put in
-individual host-names to allow access.
+Besides this, I have a report that the TSC sometimes jumps ahead, so
+that the reported time of day will be about 7 seconds more than it
+should be.  
 
-Is this part of some new 'security' thing or is it a bug? If it's
-part of some new security thing, how do I reasonably enter the
-IP addresses of a few hundred unknown lap-tops and other dynamic
-systems?
+Does any of this sound familar?
 
-If it's a bug, some more information is that from host 'foo' it is
-no longer possible to do:
+Hiroshi MIURA <miura@da-cha.org> has a patch for a Cyrix CX5520 i8254
+timer bug on his web page, but I have been unable to find any
+information on the net on what the bug actually is.  Could you tell me
+a bit more about it?  I'm trying to figure out if it has reappeared in
+the SC1200 or if this is a completely new problem.
 
-	mount foo:/scratch /mnt
+Alan, i think did a patch to disable the TSC on the MediaGX and I have
+seen posts by you where you say about the MediaGX that "It reports a
+TSC but the TSC is unreliable at least in certain strange
+circumstances".  Do you refer to the TSC being stopped or turned off
+on halt or suspend or is it a completely different problem?  Could you
+please tell me what kind of problems you saw?
 
-...regardless of whatever is in /etc/exports, including 'localhost'
-or specific IP addresses. I can't network-mount a host onto itself
-anymore. This was useful to see what a remote-host would encounter
-with, for instance, sym-links.
+Regards,
+   Christer (pulling his hair in confusion)
 
-Cheers,
-Dick Johnson
-
-Penguin : Linux version 2.4.18 on an i686 machine (797.90 BogoMips).
-
-                 Windows-2000/Professional isn't.
-
+-- 
+"Just how much can I get away with and still go to heaven?"

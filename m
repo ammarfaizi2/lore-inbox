@@ -1,49 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263124AbUDESdv (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 5 Apr 2004 14:33:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263129AbUDESdv
+	id S263126AbUDESd7 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 5 Apr 2004 14:33:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263129AbUDESd6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 Apr 2004 14:33:51 -0400
-Received: from moraine.clusterfs.com ([66.246.132.190]:50145 "EHLO
-	moraine.clusterfs.com") by vger.kernel.org with ESMTP
-	id S263124AbUDESdu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 Apr 2004 14:33:50 -0400
-Date: Mon, 5 Apr 2004 09:17:23 -0600
-From: Andreas Dilger <adilger@clusterfs.com>
-To: =?iso-8859-1?Q?Vladim=EDr_T=F8ebick=FD?= <druid@mail.cz>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Filesystem strangeness (ext3)
-Message-ID: <20040405151723.GC19054@schnapps.adilger.int>
-Mail-Followup-To: =?iso-8859-1?Q?Vladim=EDr_T=F8ebick=FD?= <druid@mail.cz>,
-	linux-kernel@vger.kernel.org
-References: <1014938126.20040405120812@xhost.cz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <1014938126.20040405120812@xhost.cz>
-User-Agent: Mutt/1.4.1i
-X-GPG-Key: 1024D/0D35BED6
-X-GPG-Fingerprint: 7A37 5D79 BF1B CECA D44F  8A29 A488 39F5 0D35 BED6
+	Mon, 5 Apr 2004 14:33:58 -0400
+Received: from mailgate4.cinetic.de ([217.72.192.167]:31365 "EHLO
+	mailgate4.cinetic.de") by vger.kernel.org with ESMTP
+	id S263126AbUDESd5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 5 Apr 2004 14:33:57 -0400
+Message-ID: <4071A601.5000402@web.de>
+Date: Mon, 05 Apr 2004 20:31:29 +0200
+From: Marcus Hartig <m.f.h@web.de>
+Organization: Linux of Borgs
+User-Agent: Mozilla Thunderbird 0.5+ (X11/20040323)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Andrea Arcangeli <andrea@suse.de>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.5-aa1
+References: <40707888.80006@web.de> <200404041859.47940.jeffpc@optonline.net> <20040405002028.GB21069@dualathlon.random>
+In-Reply-To: <20040405002028.GB21069@dualathlon.random>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Apr 05, 2004  12:08 +0200, Vladimír Tøebický wrote:
-> Error while iterating over blocks in inode 523442: Illegal triply indirect block found
-> Segmentation fault
-> 
-> Linux master 2.4.22 #1 Sat Sep 20 14:26:11 CEST 2003 i686 unknown
-> e2fsck 1.27 (8-Mar-2002)
->         Using EXT2FS Library version 1.27, 8-Mar-2002
-> The device is /dev/md1:
+Andrea Arcangeli wrote:
 
-Best to get newer version of e2fsck and try again.  Latest released version
-of e2fsprogs is 1.35.
+> That should reduce the scope of the problem, I had a look at the
+> diff between rc3 and 2.6.5 final but I found nothing obvious that could
+> explain your problem (yet).
 
-Cheers, Andreas
---
-Andreas Dilger
-http://sourceforge.net/projects/ext2resize/
-http://www-mddsp.enel.ucalgary.ca/People/adilger/
+It seems to be CONFIG_PREEMPT. I have compiled the 2.6.5-aa1 only without 
+it and ET runs now 30min without a signal11.
 
+
+Marcus

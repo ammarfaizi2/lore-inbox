@@ -1,65 +1,183 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291854AbSBNTzS>; Thu, 14 Feb 2002 14:55:18 -0500
+	id <S291862AbSBNT5T>; Thu, 14 Feb 2002 14:57:19 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291859AbSBNTzI>; Thu, 14 Feb 2002 14:55:08 -0500
-Received: from nat-pool-meridian.redhat.com ([12.107.208.200]:57160 "EHLO
-	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
-	id <S291854AbSBNTy4>; Thu, 14 Feb 2002 14:54:56 -0500
-Date: Thu, 14 Feb 2002 14:54:54 -0500
-From: Pete Zaitcev <zaitcev@redhat.com>
-To: John Weber <john.weber@linuxhq.com>
-Cc: Pete Zaitcev <zaitcev@redhat.com>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] YMFPCI Patches
-Message-ID: <20020214145454.A23902@devserv.devel.redhat.com>
-In-Reply-To: <3C6BDE9A.4070906@linuxhq.com> <20020214125904.A2591@devserv.devel.redhat.com> <3C6C12DC.7030406@linuxhq.com>
+	id <S291861AbSBNT5K>; Thu, 14 Feb 2002 14:57:10 -0500
+Received: from skunk.directfb.org ([212.84.236.169]:16787 "EHLO
+	skunk.convergence.de") by vger.kernel.org with ESMTP
+	id <S291859AbSBNT5C>; Thu, 14 Feb 2002 14:57:02 -0500
+Date: Thu, 14 Feb 2002 20:56:03 +0100
+From: Denis Oliver Kropp <dok@directfb.org>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] NeoMagic FPU fix (2.4.18-pre9-ac3)
+Message-ID: <20020214195603.GA16688@skunk.convergence.de>
+Reply-To: Denis Oliver Kropp <dok@directfb.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/mixed; boundary="ZGiS0Q5IWpPtfppv"
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <3C6C12DC.7030406@linuxhq.com>; from john.weber@linuxhq.com on Thu, Feb 14, 2002 at 02:41:16PM -0500
+User-Agent: Mutt/1.3.27i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Date: Thu, 14 Feb 2002 14:41:16 -0500
-> From: John Weber <john.weber@linuxhq.com>
 
-> >>Here's a patch (against 2.5.4) that makes a little change to 
-> >>sound/Config.in that makes my kernel link (and my YMF sound work :).
-> > 
-> > Your mailer corrupted both of them
-> 
-> I am using Mozilla, so I don't know what it did to the patches.
-> I've sent them as attachments this time.
+--ZGiS0Q5IWpPtfppv
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-OK, I approve, but honestly, I do not care much for 2.5.
-If Linus applies, fine. If not - fine too. ALSA makes it pretty
-irrelevant anyhow... And I am happy to discard the maintainer's
-mantle. Let the penguin insult some other sucker.
 
--- Pete
+Hi,
 
-P.S. Un-MIMEd patch
+here is a patch for my NeoMagic framebuffer driver that
+removes all floating stuff. I also added me to CREDITS as
+I forgot the last time. The driver version is 0.3.2 now.
 
---- linux-2.5.4/sound/oss/Config.in	Thu Feb 14 11:00:32 2002
-+++ linux-2.5.5/sound/oss/Config.in	Thu Feb 14 11:01:46 2002
-@@ -103,6 +103,9 @@
- dep_tristate '  VIA 82C686 Audio Codec' CONFIG_SOUND_VIA82CXXX $CONFIG_PCI
- dep_mbool    '  VIA 82C686 MIDI' CONFIG_MIDI_VIA82CXXX $CONFIG_SOUND_VIA82CXXX
+It applies against Linux 2.4.18-pre9-ac3 which had version
+0.3.0 of the driver while the last version was 0.3.1.
+
+So this patch is not applyable to the 2.5 tree. I will do
+another one for 2.5 and 2.5-dj, too. So that all trees have
+the same version.
+
+-- 
+Best regards,
+  Denis Oliver Kropp
+
+.------------------------------------------.
+| DirectFB - Hardware accelerated graphics |
+| http://www.directfb.org/                 |
+"------------------------------------------"
+
+           convergence integrated media GmbH
+
+--ZGiS0Q5IWpPtfppv
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: attachment; filename="neofb-0.3.2-linux-2.4.18-pre9-ac3.diff"
+
+diff -uraN linux-2.4.18-pre9-ac3/CREDITS linux/CREDITS
+--- linux-2.4.18-pre9-ac3/CREDITS	Thu Feb 14 18:38:28 2002
++++ linux/CREDITS	Thu Feb 14 20:44:42 2002
+@@ -1656,6 +1656,13 @@
+ S: San Antonio, Texas 78269-1886
+ S: USA
  
-+dep_tristate '  Yamaha YMF7xx PCI audio (native mode)' CONFIG_SOUND_YMFPCI $CONFIG_PCI
-+dep_mbool '    Yamaha PCI legacy ports support' CONFIG_SOUND_YMFPCI_LEGACY $CONFIG_SOUND_YMFPCI
++N: Denis O. Kropp
++E: dok@directfb.org
++D: NeoMagic framebuffer driver
++S: Badensche Str. 46
++S: 10715 Berlin
++S: Germany
 +
- dep_tristate '  OSS sound modules' CONFIG_SOUND_OSS $CONFIG_SOUND
+ N: Andrzej M. Krzysztofowicz
+ E: ankry@mif.pg.gda.pl
+ D: Some 8-bit XT disk driver and devfs hacking 
+diff -uraN linux-2.4.18-pre9-ac3/drivers/video/neofb.c linux/drivers/video/neofb.c
+--- linux-2.4.18-pre9-ac3/drivers/video/neofb.c	Thu Feb 14 18:38:30 2002
++++ linux/drivers/video/neofb.c	Thu Feb 14 20:41:37 2002
+@@ -12,9 +12,15 @@
+  * archive for more details.
+  *
+  *
++ * 0.3.2
++ *  - got rid of all floating point (dok)
++ *
++ * 0.3.1
++ *  - added module license (dok)
++ *
+  * 0.3
+- *  - hardware accelerated clear and move for 2200 and above
+- *  - maximum allowed dotclock is handled now
++ *  - hardware accelerated clear and move for 2200 and above (dok)
++ *  - maximum allowed dotclock is handled now (dok)
+  *
+  * 0.2.1
+  *  - correct panning after X usage (dok)
+@@ -29,10 +35,10 @@
+  * - ioctl for internal/external switching
+  * - blanking
+  * - 32bit depth support, maybe impossible
+- * - disable automatic pan on sync, need specs
++ * - disable pan-on-sync, need specs
+  *
+  * BUGS
+- * - white margin on bootup (colormap problem?)
++ * - white margin on bootup like with tdfxfb (colormap problem?)
+  *
+  */
  
- if [ "$CONFIG_SOUND_OSS" = "y" -o "$CONFIG_SOUND_OSS" = "m" ]; then
-@@ -164,8 +167,6 @@
-    dep_tristate '    Yamaha FM synthesizer (YM3812/OPL-3) support' CONFIG_SOUND_YM3812 $CONFIG_SOUND_OSS
-    dep_tristate '    Yamaha OPL3-SA1 audio controller' CONFIG_SOUND_OPL3SA1 $CONFIG_SOUND_OSS
-    dep_tristate '    Yamaha OPL3-SA2 and SA3 based PnP cards' CONFIG_SOUND_OPL3SA2 $CONFIG_SOUND_OSS
--   dep_tristate '    Yamaha YMF7xx PCI audio (native mode)' CONFIG_SOUND_YMFPCI $CONFIG_SOUND_OSS $CONFIG_PCI
--   dep_mbool '      Yamaha PCI legacy ports support' CONFIG_SOUND_YMFPCI_LEGACY $CONFIG_SOUND_YMFPCI
-    dep_tristate '    6850 UART support' CONFIG_SOUND_UART6850 $CONFIG_SOUND_OSS
-   
-    dep_tristate '    Gallant Audio Cards (SC-6000 and SC-6600 based)' CONFIG_SOUND_AEDSP16 $CONFIG_SOUND_OSS
+@@ -68,7 +74,7 @@
+ #include "neofb.h"
+ 
+ 
+-#define NEOFB_VERSION "0.3"
++#define NEOFB_VERSION "0.3.2"
+ 
+ /* --------------------------------------------------------------------- */
+ 
+@@ -81,7 +87,8 @@
+ 
+ #ifdef MODULE
+ 
+-MODULE_AUTHOR("(c) 2001  Denis Oliver Kropp <dok@convergence.de>");
++MODULE_AUTHOR("(c) 2001-2002  Denis Oliver Kropp <dok@convergence.de>");
++MODULE_LICENSE("GPL");
+ MODULE_DESCRIPTION("FBDev driver for NeoMagic PCI Chips");
+ MODULE_PARM(disabled, "i");
+ MODULE_PARM_DESC(disabled, "Disable this driver's initialization.");
+@@ -861,13 +868,12 @@
+   return err;
+ }
+ 
+-#error "Floating point maths. This needs fixing before this driver is safe"
+ /*
+  * neoCalcVCLK --
+  *
+  * Determine the closest clock frequency to the one requested.
+  */
+-#define REF_FREQ 14.31818
++#define REF_FREQ 0xe5174  /* 14.31818 in 16.16 fixed point */
+ #define MAX_N 127
+ #define MAX_D 31
+ #define MAX_F 1
+@@ -875,17 +881,18 @@
+ static void neoCalcVCLK (const struct neofb_info *info, struct neofb_par *par, long freq)
+ {
+   int n, d, f;
+-  double f_out;
+-  double f_diff;
+   int n_best = 0, d_best = 0, f_best = 0;
+-  double f_best_diff = 999999.0;
+-  double f_target = freq/1000.0;
++  int f_best_diff = (999999 << 16); /* 16.16 */
++  int f_target = (freq << 16) / 1000; /* 16.16 */
+ 
+   for (f = 0; f <= MAX_F; f++)
+     for (n = 0; n <= MAX_N; n++)
+       for (d = 0; d <= MAX_D; d++)
+ 	{
+-	  f_out = (n+1.0)/((d+1.0)*(1<<f))*REF_FREQ;
++          int f_out;  /* 16.16 */
++          int f_diff; /* 16.16 */
++
++	  f_out = ((((n+1) << 16)  /  ((d+1)*(1<<f))) >> 16)  *  REF_FREQ;
+ 	  f_diff = abs(f_out-f_target);
+ 	  if (f_diff < f_best_diff)
+ 	    {
+@@ -912,12 +919,12 @@
+   par->VCLK3Denominator = d_best;
+ 
+ #ifdef NEOFB_DEBUG
+-  printk ("neoVCLK: f:%f NumLow=%d NumHi=%d Den=%d Df=%f\n",
+-	  f_target,
++  printk ("neoVCLK: f:%d NumLow=%d NumHi=%d Den=%d Df=%d\n",
++	  f_target >> 16,
+ 	  par->VCLK3NumeratorLow,
+ 	  par->VCLK3NumeratorHigh,
+ 	  par->VCLK3Denominator,
+-	  f_best_diff);
++	  f_best_diff >> 16);
+ #endif
+ }
+ 
 
+--ZGiS0Q5IWpPtfppv--

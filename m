@@ -1,63 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264795AbUFLN6U@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264798AbUFLN7R@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264795AbUFLN6U (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 12 Jun 2004 09:58:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264798AbUFLN6U
+	id S264798AbUFLN7R (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 12 Jun 2004 09:59:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264801AbUFLN7R
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 12 Jun 2004 09:58:20 -0400
-Received: from zulo.virutass.net ([62.151.20.186]:9938 "EHLO mx.larebelion.net")
-	by vger.kernel.org with ESMTP id S264795AbUFLN6P convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 12 Jun 2004 09:58:15 -0400
-From: Manuel Arostegui Ramirez <manuel@todo-linux.com>
-To: stian@nixia.no, linux-kernel@vger.kernel.org
-Subject: Re: timer + fpu stuff locks my console race
-Date: Sat, 12 Jun 2004 15:45:08 +0200
-User-Agent: KMail/1.5
-References: <1404.83.109.11.80.1087046920.squirrel@nepa.nlc.no>
-In-Reply-To: <1404.83.109.11.80.1087046920.squirrel@nepa.nlc.no>
+	Sat, 12 Jun 2004 09:59:17 -0400
+Received: from zero.aec.at ([193.170.194.10]:16389 "EHLO zero.aec.at")
+	by vger.kernel.org with ESMTP id S264798AbUFLN6W (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 12 Jun 2004 09:58:22 -0400
+To: David Ford <david+challenge-response@blue-labs.org>
+cc: akpm@osdl.org, B.Zolnierkiewicz@elka.pw.edu.pl,
+       linux-kernel@vger.kernel.org
+Subject: Re: [culprit found] Re: [boot hang] 2.6.7-rc2, VIA VT8237
+References: <23tuk-7Os-7@gated-at.bofh.it> <23tDX-7UV-17@gated-at.bofh.it>
+	<23tNH-834-27@gated-at.bofh.it> <23wix-1FP-19@gated-at.bofh.it>
+	<2652y-760-19@gated-at.bofh.it>
+From: Andi Kleen <ak@muc.de>
+Date: Sat, 12 Jun 2004 15:58:17 +0200
+In-Reply-To: <2652y-760-19@gated-at.bofh.it> (David Ford's message of "Sat,
+ 12 Jun 2004 03:00:18 +0200")
+Message-ID: <m34qpgzxmu.fsf@averell.firstfloor.org>
+User-Agent: Gnus/5.110003 (No Gnus v0.3) Emacs/21.2 (gnu/linux)
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 8BIT
-Content-Disposition: inline
-Message-Id: <200406121545.08651.manuel@todo-linux.com>
-X-Virus: by Larebelion
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-El Sábado 12 Junio 2004 15:28, stian@nixia.no escribió:
-> Forgot to update the diff file after I fixed some bogus stuff. This patch
-> file compiles. Please report if it works or not for 2.4.26 (I'm lacking
-> that damn Internett connection on my linux box). So much for vaccation.
->
-> Stian Skjelstad
->
-> diff -ur linux-2.4.26/kernel/signal.c
-> linux-2.4.26-fpuhotfix/kernel/signal.c --- linux-2.4.26/kernel/signal.c    
->    2004-02-18 14:36:32.000000000 +0100 +++
-> linux-2.4.26-fpuhotfix/kernel/signal.c      2004-06-12
-> 15:26:10.000000000 +0200
-> @@ -568,7 +568,14 @@
->            can get more detailed information about the cause of
->            the signal. */
->         if (sig < SIGRTMIN && sigismember(&t->pending.signal, sig))
-> +       {
-> +               if (sig==8)
-> +               {
-> +                       printk("Attempt to exploit known bug, process=%s
-> pid=%d uid=%d\n", t->comm, t->pid, t->uid);
-> +                       do_exit(0);
-> +               }
->                 goto out;
-> +       }
->
->         ret = deliver_signal(sig, info, t);
->  out:
+David Ford <david+challenge-response@blue-labs.org> writes:
 
-I'm going to try the patch on a 2.4.20-8 in about one hour.
-Thanks
+> Culprit found.  If CONFIG_IOMMU_DEBUG is enabled, the machine will
+> hang on boot at the partition check when using the VIA driver.
 
--- 
-Manuel Arostegui Ramirez #Linux Registered User 200896
+The real culprit is buggy VIA silicon. Use this patch.
+
+-Andi
+
+---------------------------------------------------------------
+Enable VIA softmmu workaround for iommu=force/IOMMU_DEBUG too
+
+diff -u linux-2.6.7rc3-bk3/arch/x86_64/kernel/io_apic.c-o linux-2.6.7rc3-bk3/arch/x86_64/kernel/io_apic.c
+--- linux-2.6.7rc3-bk3/arch/x86_64/kernel/io_apic.c-o	2004-06-11 03:02:42.000000000 +0200
++++ linux-2.6.7rc3-bk3/arch/x86_64/kernel/io_apic.c	2004-06-12 15:46:35.000000000 +0200
+@@ -252,7 +252,8 @@
+ 				switch (vendor) { 
+ 				case PCI_VENDOR_ID_VIA:
+ #ifdef CONFIG_GART_IOMMU
+-					if (end_pfn >= (0xffffffff>>PAGE_SHIFT) &&
++					if ((end_pfn >= (0xffffffff>>PAGE_SHIFT) ||
++					     force_iommu) &&
+ 					    !iommu_aperture_allowed) {
+ 						printk(KERN_INFO
+     "Looks like a VIA chipset. Disabling IOMMU. Overwrite with \"iommu=allowed\"\n");
 

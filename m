@@ -1,53 +1,33 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263573AbTJ0V3I (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 27 Oct 2003 16:29:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263575AbTJ0V3I
+	id S263575AbTJ0Vbm (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 27 Oct 2003 16:31:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263582AbTJ0Vbm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 27 Oct 2003 16:29:08 -0500
-Received: from mail-in-03.arcor-online.net ([151.189.21.43]:52655 "EHLO
-	mail-in-03.arcor-online.net") by vger.kernel.org with ESMTP
-	id S263573AbTJ0V3G (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 27 Oct 2003 16:29:06 -0500
-From: Daniel Phillips <phillips@arcor.de>
-To: Lars Marowsky-Bree <lmb@suse.de>, Nick Piggin <piggin@cyberone.com.au>
-Subject: Re: [PATCH] ide write barrier support
-Date: Mon, 27 Oct 2003 23:35:17 +0200
-User-Agent: KMail/1.5.3
-Cc: Jens Axboe <axboe@suse.de>, Linux Kernel <linux-kernel@vger.kernel.org>
-References: <20031013140858.GU1107@suse.de> <200310262206.53904.phillips@arcor.de> <20031027102919.GC13640@marowsky-bree.de>
-In-Reply-To: <20031027102919.GC13640@marowsky-bree.de>
+	Mon, 27 Oct 2003 16:31:42 -0500
+Received: from bluebox.CS.Princeton.EDU ([128.112.136.38]:57489 "EHLO
+	bluebox.CS.Princeton.EDU") by vger.kernel.org with ESMTP
+	id S263575AbTJ0Vbl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 27 Oct 2003 16:31:41 -0500
+Date: Mon, 27 Oct 2003 16:31:40 -0500 (EST)
+From: Yaoping Ruan <yruan@CS.Princeton.EDU>
+To: linux-kernel@vger.kernel.org
+Subject: /proc/cpuinfo & top
+In-Reply-To: <5.1.0.14.2.20031022014409.00bd4aa0@hesiod>
+Message-ID: <Pine.LNX.4.58.0310221233040.14330@opus.cs.princeton.edu>
+References: <5.1.0.14.2.20031022014409.00bd4aa0@hesiod>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200310272235.17845.phillips@arcor.de>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 27 October 2003 11:29, Lars Marowsky-Bree wrote:
-> On 2003-10-26T23:06:53,
->
->    Daniel Phillips <phillips@arcor.de> said:
-> > Not entirely within the multipath virtual device, that's the problem.
-> > If it could stay somehow all within one device driver then ok, but
-> > since we want to build this modularly, as a device mapper target,
-> > there are API issues.
->
-> Are you seeing problems with the write-ordering properties of
-> multipathing? If so, what is the issue with handling them in the DM
-> target once?
+Hi,
 
-No, no problem.  A multipath write barrier can be handled by blocking incoming 
-writes in the target and waiting for all outstanding writes to complete.  I'd 
-prefer to let the write barrier flow down the pipe to the SCSI disk if I 
-could, but there are technical challenges.  Mainly I need to know if an 
-ordered write is able to read its buffer into the drive's cache while it is 
-waiting for preceding commands to complete; if so it would be worth putting 
-the effort into developing the flow-through scheme.
+I compiled 2.4.21 kernel with SMP and High-MEM enabled on a dual-CPU box,
+but surprised to see there're 4 CPUs in /proc/cpuinfo and top. But
+/proc/cpuinfo is correct if SMP is disable during kernel configuration.
+Did anybody experience this before?
 
-Regards,
+Many thanks in advance
 
-Daneil
-
+- Yaoping Ruan

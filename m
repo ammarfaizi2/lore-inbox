@@ -1,63 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267721AbUIWQ3Z@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267725AbUIWQbk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267721AbUIWQ3Z (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Sep 2004 12:29:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267650AbUIWQ3M
+	id S267725AbUIWQbk (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Sep 2004 12:31:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266538AbUIWQbd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Sep 2004 12:29:12 -0400
-Received: from fgwmail5.fujitsu.co.jp ([192.51.44.35]:6529 "EHLO
-	fgwmail5.fujitsu.co.jp") by vger.kernel.org with ESMTP
-	id S266345AbUIWQ1D (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Sep 2004 12:27:03 -0400
-Date: Fri, 24 Sep 2004 01:23:01 +0900
-From: Keiichiro Tokunaga <tokunaga.keiich@jp.fujitsu.com>
-To: Keshavamurthy Anil S <anil.s.keshavamurthy@intel.com>
-Cc: len.brown@intel.com, acpi-devel@lists.sourceforge.net,
-       lhns-devel@lists.sourceforge.net, linux-ia64@vger.kernel.org,
-       linux-kernel@vger.kernel.org, tokunaga.keiich@jp.fujitsu.com
-Subject: [PATCH][0/4] NUMA node handling support for ACPI container driver
-Message-Id: <20040924012301.000007c6.tokunaga.keiich@jp.fujitsu.com>
-In-Reply-To: <20040920094719.H14208@unix-os.sc.intel.com>
-References: <20040920092520.A14208@unix-os.sc.intel.com>
-	<20040920094719.H14208@unix-os.sc.intel.com>
-Organization: FUJITSU LIMITED
-X-Mailer: Sylpheed version 0.8.7 (GTK+ 1.3.0; Win32)
+	Thu, 23 Sep 2004 12:31:33 -0400
+Received: from rwcrmhc13.comcast.net ([204.127.198.39]:41679 "EHLO
+	rwcrmhc13.comcast.net") by vger.kernel.org with ESMTP
+	id S267650AbUIWQbG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 23 Sep 2004 12:31:06 -0400
+Subject: __attribute__((always_inline)) fiasco
+From: Albert Cahalan <albert@users.sf.net>
+To: linux-kernel mailing list <linux-kernel@vger.kernel.org>
+Cc: rth@twiddle.net
+Content-Type: text/plain
+Organization: 
+Message-Id: <1095956778.4966.940.camel@cube>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Ximian Evolution 1.2.4 
+Date: 23 Sep 2004 12:26:18 -0400
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 20 Sep 2004 09:47:19 -0700, Keshavamurthy Anil S wrote:
-> Changes from previous release:
-> 1) Typo fix- ACPI004 to ACPI0004
-> 2) Added depends on EXPERIMENTAL in Kconfig file
-> 
-> ---
-> Name:container_drv.patch
-> Status: Tested on 2.6.9-rc1
-> Signed-off-by: Anil S Keshavamurthy <anil.s.keshavamurthy@intel.com>
-> Depends:	
-> Version: applies on 2.6.9-rc1
-> Description:
-> This is the very early version on the Container driver which supports
-> hotplug notifications on ACPI0004, PNP0A05 and PNP0A06 devices.
-> 	Changes from previous release:
-> 	1) Mergerd the typo fix patch which changes "ACPI004" to "ACPI0004"
-> ---
+> I'm displeased with someone's workaround for decisions made by
+> the (rather weak) inliner in gcc 3.[123].  In particular, that
+> someone doesn't understand all of the implications of always_inline.
+...
+> In the Alpha port I have a number of places in which I have 
+> functions that I would like inlined when they are called directly,
+> but I also need to take their address so that they may be registered
+> as part of a dispatch vector for the specific machine model.
+>
+> This scheme fails because my functions got marked always_inline
+> behind my back, which means they didn't get emitted in the right
+> place.
 
-I have made a patchset to add 'NUMA node handling support' to
-your patchset.  If a container that is identical to NUMA node is
-hotplugged, this handles NUMA related stuffs.  For instance,
-creating/deleting sysfs directories and files of node, data structures,
-and etc...
+If it hurts, don't do that. It looks like bloat anyway.
 
-  - numa_hp_base.patch
-  - numa_hp_ia64.patch
-  - acpi_numa_hp.patch
-  - container_for_numa.patch
+Are benchmarks significantly affected if you remove the inline?
+If so, simply have a second function:
 
-Status: Tested on 2.6.9-rc2 including your patchset posted earlier.
+extern void uninline_foo(void);
+...
+void uninline_foo(void)
+{
+        foo();
+}
 
-Thanks,
-Keiichiro Tokunaga
+> Rather than fight the unwinnable fight to remove this hack entirely,
+> may I ask that at least one of the different names for inline, e.g.
+> __inline__, be left un-touched so that it can be used by those that
+> understand what the keyword is supposed to mean?
+>
+> Of course, there does not exist a variant that isn't used by all
+> sorts of random code, so presumably all existing occurences would
+> have to get renamed to plan "inline" in order to keep people happy..
+
+Hey, I argued for INLINE when the static/extern changes
+came along. That's the sanest, because one never knows
+what the next annoying compiler will demand. Then you
+can have one of:
+
+#define INLINE
+#define INLINE inline
+#define INLINE static inline  // an oxymoron
+#define INLINE extern inline  // an oxymoron
+#define INLINE __force_inline
+#define INLINE __attribute__((always_inline))
+#define INLINE _Pragma("inline")
+#define INLINE __inline_or_die_you_foul_compiler
+#define INLINE _Please inline
+
+

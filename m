@@ -1,46 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261982AbTICM3g (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 3 Sep 2003 08:29:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262005AbTICM3g
+	id S262012AbTICMhZ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 3 Sep 2003 08:37:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262013AbTICMhZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 Sep 2003 08:29:36 -0400
-Received: from [62.241.33.80] ([62.241.33.80]:56071 "EHLO
-	mx00.linux-systeme.com") by vger.kernel.org with ESMTP
-	id S261982AbTICM3f (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 Sep 2003 08:29:35 -0400
-From: Marc-Christian Petersen <m.c.p@wolk-project.de>
-Organization: Working Overloaded Linux Kernel
-To: "Mehmet Ceyran" <mceyran@web.de>, <linux-kernel@vger.kernel.org>
-Subject: Re: Who maintains drivers/sound/i810_audio.c?
-Date: Wed, 3 Sep 2003 14:29:01 +0200
-User-Agent: KMail/1.5.3
-References: <001f01c37215$fe6bc060$0100a8c0@server1>
-In-Reply-To: <001f01c37215$fe6bc060$0100a8c0@server1>
+	Wed, 3 Sep 2003 08:37:25 -0400
+Received: from mail2.sonytel.be ([195.0.45.172]:46991 "EHLO witte.sonytel.be")
+	by vger.kernel.org with ESMTP id S262012AbTICMhY (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 3 Sep 2003 08:37:24 -0400
+Date: Wed, 3 Sep 2003 14:36:34 +0200 (MEST)
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+To: Roman Zippel <zippel@linux-m68k.org>
+cc: Jamie Lokier <jamie@shareable.org>, Kars de Jong <jongk@linux-m68k.org>,
+       Linux/m68k kernel mailing list 
+	<linux-m68k@lists.linux-m68k.org>,
+       Linux Kernel Development <linux-kernel@vger.kernel.org>
+Subject: Re: x86, ARM, PARISC, PPC, MIPS and Sparc folks please run this
+In-Reply-To: <Pine.LNX.4.44.0309031407050.20748-100000@serv>
+Message-ID: <Pine.GSO.4.21.0309031436020.6985-100000@waterleaf.sonytel.be>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200309031429.01672.m.c.p@wolk-project.de>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 03 September 2003 14:22, Mehmet Ceyran wrote:
+On Wed, 3 Sep 2003, Roman Zippel wrote:
+> On Wed, 3 Sep 2003, Geert Uytterhoeven wrote:
+> > > Does the 68020 even _have_ the equivalent of a store buffer?
+> > 
+> > Good question :-)
+> > 
+> > After I sent the previous mail, I realized the '030 has 256 bytes I cache and
+> > 256 bytes D cache, while the '020 has 256 bytes I cache only.
+> 
+> BTW the 020/030 caches are VIVT (and also only writethrough), the 040/060 
+> caches are PIPT.
 
-Hi Mehmet,
+That explains a bit. But the '060 stores are coherent, while the '040 stores
+aren't.
 
-> I found and fixed a little bug in the "Intel ICH (i8xx), SiS 7012,
-> NVidia nForce Audio or AMD 768/811x" driver (kernel 2.4.23-pre2) that
-> occured on my laptop with SiS 7012 onBoard sound and wanted to
-> contribute it to the official kernel sources.
-> In the maintainers file that came with the kernel I couldn't find the
-> maintainer of that particular driver so I'd appreciate if someone lead
-> me to the correct mailing list so I can post the bug and my patch to the
-> right place.
+Gr{oetje,eeting}s,
 
-It seems Alan is maintaining i8xx audio, but Alan is away for 1 year now. 
-Anyway, you could send him your patch CC'ing LKML.
+						Geert
 
-ciao, Marc
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+							    -- Linus Torvalds
 

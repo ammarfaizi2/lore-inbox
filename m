@@ -1,45 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266294AbUGES2W@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266341AbUGES2z@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266294AbUGES2W (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 5 Jul 2004 14:28:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266296AbUGES2W
+	id S266341AbUGES2z (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 5 Jul 2004 14:28:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266370AbUGES2z
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 Jul 2004 14:28:22 -0400
-Received: from netrider.rowland.org ([192.131.102.5]:7684 "HELO
-	netrider.rowland.org") by vger.kernel.org with SMTP id S266294AbUGES2V
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 Jul 2004 14:28:21 -0400
-Date: Mon, 5 Jul 2004 14:28:20 -0400 (EDT)
-From: Alan Stern <stern@rowland.harvard.edu>
-X-X-Sender: stern@netrider.rowland.org
-To: janne <sniff@xxx.ath.cx>
-cc: Duncan Sands <baldrick@free.fr>, <linux-usb-users@lists.sourceforge.net>,
-       <linux-kernel@vger.kernel.org>
-Subject: Re: linux 2.6.7, usb2 data corruption & lockups & poor performance
-In-Reply-To: <Pine.LNX.4.40.0407050318490.20551-200000@xxx.xxx>
-Message-ID: <Pine.LNX.4.44L0.0407051424290.15781-100000@netrider.rowland.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Mon, 5 Jul 2004 14:28:55 -0400
+Received: from fed1rmmtao10.cox.net ([68.230.241.29]:47025 "EHLO
+	fed1rmmtao10.cox.net") by vger.kernel.org with ESMTP
+	id S266341AbUGES2w (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 5 Jul 2004 14:28:52 -0400
+Date: Mon, 5 Jul 2004 11:28:51 -0700
+From: Tom Rini <trini@kernel.crashing.org>
+To: Olaf Hering <olh@suse.de>
+Cc: Andrew Morton <akpm@osdl.org>, linuxppc-dev@lists.linuxppc.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] biarch gcc support for ppc32
+Message-ID: <20040705182851.GH2146@smtp.west.cox.net>
+References: <20040704112420.GA13748@suse.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040704112420.GA13748@suse.de>
+User-Agent: Mutt/1.5.6+20040523i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 5 Jul 2004, janne wrote:
+On Sun, Jul 04, 2004 at 01:24:20PM +0200, Olaf Hering wrote:
 
-> Updated kernel to 2.6.7, apparently bttv and pci overloading are not
-> issues here: I got usb2 to crash with nothing else loading the pci bus
-> except light network traffic. usb2 read speed improved from 5-15MBytes/s
-> to over 20MBytes/s when i switched it to a kt600 motherboard.
-> But still it's over 10MBytes/s less than the manufacturer's claimed
-> sustained data rate.
+> 
+> a native powerpc64-linux gcc can not compile a ppc32 kernel properly.
+> This patch fixes it. It was copied from ppc64.
+> The change to vmlinux.lds.S fixes this error:
 
-Why do you say that you got usb2 to crash?  The log you posted clearly 
-shows that the crash originated in the reiserfs code, caused by a series 
-of I/O errors.
+Have all of these changes been tested with a ppc32 compiler as well?
+If so, this looks fine.
 
-Your log doesn't give any indication why those I/O errors occurred; in 
-fact it starts in the middle of the errors.  If you want to find out what 
-really went wrong, you will have to turn on the usb-storage debugging 
-option in your kernel's configuration.
-
-Alan Stern
-
+-- 
+Tom Rini
+http://gate.crashing.org/~trini/

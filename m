@@ -1,59 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261369AbVALULX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261404AbVALUPI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261369AbVALULX (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 12 Jan 2005 15:11:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261332AbVALT7o
+	id S261404AbVALUPI (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 12 Jan 2005 15:15:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261394AbVALUMW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 12 Jan 2005 14:59:44 -0500
-Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:38297 "EHLO
-	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id S261326AbVALTqz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 12 Jan 2005 14:46:55 -0500
-Date: Tue, 11 Jan 2005 21:18:10 +0100
-From: Pavel Machek <pavel@ucw.cz>
-To: Mikael Pettersson <mikpe@csd.uu.se>
-Cc: Pavel Machek <pavel@ucw.cz>, Bernard Blackham <bernard@blackham.com.au>,
-       Shaw <shawv@comcast.net>, linux-kernel@vger.kernel.org
-Subject: Re: Screwy clock after apm suspend
-Message-ID: <20050111201810.GA1464@openzaurus.ucw.cz>
-References: <20050109224711.GF1353@elf.ucw.cz> <200501092328.54092.shawv@comcast.net> <20050110074422.GA17710@mussel> <20050110105759.GM1353@elf.ucw.cz> <20050110174804.GC4641@blackham.com.au> <20050111001426.GF1444@elf.ucw.cz> <20050111011611.GE4641@blackham.com.au> <16867.51258.916944.195917@alkaid.it.uu.se> <20050111131019.GA1324@openzaurus.ucw.cz> <16867.57217.358323.945559@alkaid.it.uu.se>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <16867.57217.358323.945559@alkaid.it.uu.se>
-User-Agent: Mutt/1.3.27i
+	Wed, 12 Jan 2005 15:12:22 -0500
+Received: from fw.osdl.org ([65.172.181.6]:46217 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S261362AbVALULL (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 12 Jan 2005 15:11:11 -0500
+Date: Wed, 12 Jan 2005 12:10:59 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Davide Libenzi <davidel@xmailserver.org>
+cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Hugh Dickins <hugh@veritas.com>
+Subject: Re: Make pipe data structure be a circular list of pages, rather
+ than
+In-Reply-To: <Pine.LNX.4.58.0501121148330.28987@bigblue.dev.mdolabs.com>
+Message-ID: <Pine.LNX.4.58.0501121201140.2310@ppc970.osdl.org>
+References: <Pine.LNX.4.44.0501091946020.3620-100000@localhost.localdomain>
+ <Pine.LNX.4.58.0501091713300.2373@ppc970.osdl.org>
+ <Pine.LNX.4.58.0501091830120.2373@ppc970.osdl.org>
+ <Pine.LNX.4.58.0501121148330.28987@bigblue.dev.mdolabs.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
 
->  > >  > Looking harder, in arch/i386/kernel/apm.c the system time is also
->  > >  > saved and restored in a very similar way to timer_suspend/resume.
->  > >  > Would this account for the time drift in APM mode? (sleep time being
->  > >  > accounted for twice?)
->  > > 
->  > > No, apm.c's update to xtime is absolute, just like time.c's.
->  > > Doing both is pointless but not harmful. (I've already tried
->  > > with apm.c's xtime update commented out, but the time-warp
->  > > bug remained.)
->  > > 
->  > > My 0.02 SEK says it's the jiffies update that's broken.
->  > 
->  > Okay, can you
->  > 
->  > * kill jiffie update (x86-64, too)
->  > * remove apm.c variant
->  > * test it (or make someone test it) with apm?
->  > 
->  > I now see the drift with acpi, too :-(. I can do the acpi testing...
+
+On Wed, 12 Jan 2005, Davide Libenzi wrote:
+
+> On Sun, 9 Jan 2005, Linus Torvalds wrote:
 > 
-> I'm away from my APM laptop until Friday, but I'll do this test then.
+> > On Sun, 9 Jan 2005, Linus Torvalds wrote:
+> > > 
+> > > Since you guys stupidly showed interest, here's a very first-order
+> > > approximation of filling the pipe from some other source.
+> > 
+> > Here's a somewhat fixed and tested version, which actually does something 
+> > on x86.
+> 
+> Question. How do you think to splice() skb pages, or any other non page-based
+> format?
 
-Now I recall why jiffies need to be updated: if they are not, ps
-shows wrong process start times after resume.
+That's why there's an "offset/length" pair. Right now the only limitation 
+is actually
+ - that at least the start of the area can be described as a "struct page
+   *" (this means that things like a PCI MMIO mapping cannot be spliced -
+   but that's true for other reasons anyway, since a "memcpy()" doesn't
+   even work on such things on most architectures)
+ - that it be mappable with kmap() (this means that if it's a multi-page 
+   thing, it needs to be in low memory currently).
 
-If it causes worse problems, we may temporarily back that out, but...
-				Pavel
--- 
-64 bytes from 195.113.31.123: icmp_seq=28 ttl=51 time=448769.1 ms         
+The second thing would actually going away in a full implementation
+anyway, to be replaced by "map this page in" and "unmap this page" buffer
+operations. We need those "map" operations in order to handle other
+"prepare for copy" situations, notably waiting for disk IO to be finished
+(ie I want to be able to splice pages to the pipe without having to wait
+for them - you'd wait for the contents only when the data itself is
+needed).
 
+My example patch (which I didn't post publicly because it's a
+work-in-progress) already made offset/length be "unsigned int", exactly
+because I foresee the "page" possibly being part of a hugetlb page, or at
+least a bigger multi-page allocation.
+
+[ Side note: even the first issue - PCI MMIO or other descriptor that 
+  doesn't normally have a "struct page *" associated with it - could 
+  in theory be handled by just creating a fake "struct page", and hiding 
+  the information into it. Then the map/unmap functions would just have to 
+  return the virtual address that is usable for a memcpy - since on _some_ 
+  architectures you can actually do a memcpy on IO space too. That might 
+  be useful for things like AGP or similar that depend on architecture- 
+  specific issues anyway ]
+
+		Linus

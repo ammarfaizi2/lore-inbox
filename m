@@ -1,45 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id <S130425AbQK3Qlq>; Thu, 30 Nov 2000 11:41:46 -0500
+        id <S130367AbQK3QpG>; Thu, 30 Nov 2000 11:45:06 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-        id <S130356AbQK3Qlg>; Thu, 30 Nov 2000 11:41:36 -0500
-Received: from brutus.conectiva.com.br ([200.250.58.146]:1775 "EHLO
-        brutus.conectiva.com.br") by vger.kernel.org with ESMTP
-        id <S129539AbQK3Qht>; Thu, 30 Nov 2000 11:37:49 -0500
-Date: Thu, 30 Nov 2000 14:06:55 -0200 (BRDT)
-From: Rik van Riel <riel@conectiva.com.br>
-To: Bob Tanner <tanner@real-time.com>
-cc: linux-kernel@vger.kernel.org, Andrea Arcangeli <andrea@suse.de>
-Subject: Re: PROBLEM: do_try_free_pages failed for python
-In-Reply-To: <20001129183919.B7640@real-time.com>
-Message-ID: <Pine.LNX.4.21.0011301405450.26098-100000@duckman.distro.conectiva>
+        id <S130322AbQK3Qo4>; Thu, 30 Nov 2000 11:44:56 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:275 "EHLO
+        the-village.bc.nu") by vger.kernel.org with ESMTP
+        id <S130512AbQK3QnY>; Thu, 30 Nov 2000 11:43:24 -0500
+Subject: Re: high load & poor interactivity on fast thread creation
+To: a.installe@ieee.org
+Date: Thu, 30 Nov 2000 16:12:53 +0000 (GMT)
+Cc: linux-kernel@vger.kernel.org, ainstalle@filepool.com
+In-Reply-To: <20001130081443.A8118@bach.iverlek.kotnet.org> from "Arnaud Installe" at Nov 30, 2000 08:14:43 AM
+X-Mailer: ELM [version 2.5 PL1]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E141WKO-0007S9-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 29 Nov 2000, Bob Tanner wrote:
+> When creating a lot of Java threads per second linux slows down to a
+> crawl.  I don't think this happens on NT, probably because NT doesn't
+> create new threads as fast as Linux does.
 
-> [1.] One line summary of the problem: PROBLEM: do_try_free_pages
-> failed for python
-> 
-> [2.] Full description of the problem/report: Running 2.2.18pre22
-> on a dual Sparc20 with 128Mb of RAM.
+Also probably the Java implementation on NT is not creating true threads for
+each java thread as the IBM java seems to.
 
-The important thing to know here is if you had swap
-free when this error was occuring or not. If you
-still had lots of swap free, this may mean that VM
-in 2.2 still has some bugs left ...
+> Is there a way (setting ?) to solve this problem ?  Rate-limit the number
+> of threads created ?  The problem occurred on linux 2.2, IBM Java 1.1.8.
 
-regards,
-
-Rik
---
-Hollywood goes for world dumbination,
-	Trailer at 11.
-
-		http://www.surriel.com/
-http://www.conectiva.com/	http://distro.conectiva.com.br/
+The programming real answer is replace threads with state machines and all
+your stuff runs faster. Thats often easy to say and hard to do.
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

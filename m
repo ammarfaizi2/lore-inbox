@@ -1,226 +1,98 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131773AbRCOQWN>; Thu, 15 Mar 2001 11:22:13 -0500
+	id <S131782AbRCOQ3X>; Thu, 15 Mar 2001 11:29:23 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131775AbRCOQWE>; Thu, 15 Mar 2001 11:22:04 -0500
-Received: from mta05.mail.au.uu.net ([203.2.192.85]:40926 "EHLO
-	mta05.mail.mel.aone.net.au") by vger.kernel.org with ESMTP
-	id <S131773AbRCOQVr>; Thu, 15 Mar 2001 11:21:47 -0500
-Content-Type: Multipart/Mixed;
-  charset="iso-8859-1";
-  boundary="------------Boundary-00=_MTY860XQDE6N86CED3PA"
-From: Matt Johnston <lkml4@caifex.org>
-To: Andrew Morton <andrewm@uow.edu.au>
-Subject: Re: OOPS when switching consoles while closing X.
-Date: Fri, 16 Mar 2001 00:22:33 +0800
-X-Mailer: KMail [version 1.2.1]
-In-Reply-To: <01031521172400.04174@box.caifex.org> <3AB0CD57.FB97B4C@uow.edu.au>
-In-Reply-To: <3AB0CD57.FB97B4C@uow.edu.au>
-Cc: linux-kernel@vger.kernel.org
+	id <S131784AbRCOQ3N>; Thu, 15 Mar 2001 11:29:13 -0500
+Received: from zeus.kernel.org ([209.10.41.242]:18134 "EHLO zeus.kernel.org")
+	by vger.kernel.org with ESMTP id <S131782AbRCOQ3B> convert rfc822-to-8bit;
+	Thu, 15 Mar 2001 11:29:01 -0500
+Date: Thu, 15 Mar 2001 17:20:18 +0100 (CET)
+From: Martin Josefsson <gandalf@wlug.westbo.se>
+To: Rik van Riel <riel@conectiva.com.br>
+cc: Mårten Wikström <Marten.Wikstrom@framfab.se>,
+        "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>,
+        netdev@oss.sgi.com
+Subject: Re: How to optimize routing performance
+In-Reply-To: <Pine.LNX.4.21.0103150929080.4165-100000@imladris.rielhome.conectiva>
+Message-ID: <Pine.LNX.4.21.0103151705170.27951-100000@tux.rsn.bth.se>
 MIME-Version: 1.0
-Message-Id: <01031600223400.00711@box.caifex.org>
+Content-Type: TEXT/PLAIN; charset=iso-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, 15 Mar 2001, Rik van Riel wrote:
 
---------------Boundary-00=_MTY860XQDE6N86CED3PA
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 8bit
+> On Thu, 15 Mar 2001, [ISO-8859-1] Mårten Wikström wrote:
+> 
+> > I've performed a test on the routing capacity of a Linux 2.4.2 box
+> > versus a FreeBSD 4.2 box. I used two Pentium Pro 200Mhz computers with
+> > 64Mb memory, and two DEC 100Mbit ethernet cards. I used a Smartbits
+> > test-tool to measure the packet throughput and the packet size was set
+> > to 64 bytes. Linux dropped no packets up to about 27000 packets/s, but
+> > then it started to drop packets at higher rates. Worse yet, the output
+> > rate actually decreased, so at the input rate of 40000 packets/s
+> > almost no packets got through. The behaviour of FreeBSD was different,
+> > it showed a steadily increased output rate up to about 70000 packets/s
+> > before the output rate decreased. (Then the output rate was apprx.
+> > 40000 packets/s).
+> 
+> > So, my question is: are these figures true, or is it possible to
+> > optimize the kernel somehow? The only changes I have made to the
+> > kernel config was to disable advanced routing.
+> 
+> There are some flow control options in the kernel which should
+> help. From your description, it looks like they aren't enabled
+> by default ...
 
-Ok.
+You want to have CONFIG_NET_HW_FLOWCONTROL enabled. If you don't the
+kernel gets _alot_ of interrupts from the NIC and dosn't have any cycles
+left to do anything. So you want to turn this on!
 
-I had -ac20 sources installed, but was using -ac17 results, so I guess it 
-would look wrong...
+> At the NordU/USENIX conference in Stockholm (this february) I
+> saw a nice presentation on the flow control code in the Linux
+> networking code and how it improved networking performance.
+> I'm pretty convinced that flow control _should_ be saving your
+> system in this case.
 
-Attached now is the -ac20 ksymoops output, using correct System.map, though 
-I'm not sure about:
+That was probably Jamal Hadi and Robert Olsson. They have been optimizing
+the tulip driver. These optimizations havn't been integrated with the
+"vanilla" driver yet, but I hope the can integrate it soon.
 
-"Warning (compare_maps): ksyms_base symbol 
-__VERSIONED_SYMBOL(shmem_file_setup) not found in System.map.  Ignoring 
-ksyms_base entry"
+They have one version that is very optimized and then they have one
+version that have even more optimizations, ie. it uses polling at high
+interruptload.
 
-Is this normal?
+you will find these drivers here:
+ftp://robur.slu.se/pub/Linux/net-development/
+The latest versions are:
+tulip-ss010111.tar.gz
+and
+tulip-ss010116-poll.tar.gz
 
-I've also attached the -ac20 dmesg.
-The oops seems to occur most often when X has heavy disk activity, probably 
-swapping (64 megs RAM here).
+> OTOH, if they _are_ enabled, the networking people seem to have
+> a new item for their TODO list. ;)
 
-Cheers,
-Matt Johnston
+Yup.
 
+You can take a look here too:
 
-On Thu, 15 Mar 2001 22:10, you wrote:
-> Matt Johnston wrote:
-> > Hi.
-> >
-> > I've had a semi-reproducable oops with the kernel. It happens when I'm
-> > shutting down X (Xfree86 4.02 cvs), while it is closing all open apps
-> > (KDE 2.1.1 cvs). I switch to a text console (ctrl-alt-F2 etc), and it
-> > crashes almost as soon as the text console is there.
->
-> Someone is calling console functions from interrupt context.
-> Unfortunately your backtrace looks wrong.  Could you
-> please rerun ksymoops and send me the output?  Make
-> sure you're using the correct System.map (ksymoops -m).
->
-> It should be pretty straightforward to fix.  While we're there
-> we'll do something about do_SAK(), which is acquiring the
-> tasklist_lock from interrupt context.  For heaven's sake.
->
-> -
+http://robur.slu.se/Linux/net-development/jamal/FF-html/
 
---------------Boundary-00=_MTY860XQDE6N86CED3PA
-Content-Type: text/plain;
-  charset="iso-8859-1";
-  name="ksymoops-ac20.txt"
-Content-Transfer-Encoding: base64
-Content-Disposition: attachment; filename="ksymoops-ac20.txt"
+This is the presentation they gave at OLS (IIRC)
 
-a3N5bW9vcHMgMi4zLjcgb24gaTY4NiAyLjQuMi1hYzIwLiAgT3B0aW9ucyB1c2VkCiAgICAgLVYg
-KGRlZmF1bHQpCiAgICAgLWsgL3Byb2Mva3N5bXMgKHNwZWNpZmllZCkKICAgICAtbCAvcHJvYy9t
-b2R1bGVzIChzcGVjaWZpZWQpCiAgICAgLW8gL2xpYi9tb2R1bGVzLzIuNC4yLWFjMjAvIChzcGVj
-aWZpZWQpCiAgICAgLW0gL3Vzci9zcmMvbGludXgvU3lzdGVtLm1hcCAoc3BlY2lmaWVkKQoKV2Fy
-bmluZyAoY29tcGFyZV9tYXBzKToga3N5bXNfYmFzZSBzeW1ib2wgX19WRVJTSU9ORURfU1lNQk9M
-KHNobWVtX2ZpbGVfc2V0dXApIG5vdCBmb3VuZCBpbiBTeXN0ZW0ubWFwLiAgSWdub3Jpbmcga3N5
-bXNfYmFzZSBlbnRyeQppbnZhbGlkIG9wZXJhbmQ6IDAwMDAKQ1BVOiAwCkVJUDogMDAxMDpbPGMw
-MTE1MjBmPl0KVXNpbmcgZGVmYXVsdHMgZnJvbSBrc3ltb29wcyAtdCBlbGYzMi1pMzg2IC1hIGkz
-ODYKRUZMQUdTOiAwMDAxMDIxMwplYXg6IGZmZmZmZmZmIGVieDogYzExMTExMjAgZWN4OiAwMDAw
-MDI2NCBlZHg6IGMzZDhhMDAwCmVzaTogYzNkOGEwMDAgZWRpOiBjM2Q4YTE2OSBlYnA6IDAwMDAw
-MDAwIGVzcDogYzAyMDdlNjgKZHM6IDAwMTggZXM6IDAwMTggc3M6IDAwMTgKU3RhY2s6IGMwMTg5
-MDYwIGMzZDhhMDczIGMwMTdkM2JmIGMzZDhhMDAwIGMzZDhhNTY4IGMzZDhhMTY4IDAwMDAwMDAw
-IGMwMjA3ZmE0CjAwMDAwMDE2IGMxMTJjMDAwIDczMThjNGExIDAwMDAwMDAwIDAwMDBmZmEwIGMz
-ZDhhNTY5IGMzZDhhMTY5IGMwMTkwZmU1IApjMDI1ODM2MCBjMDE5MDkzMCAwMDAwMDNlOCBjMDE5
-MGU0OCAwMDAwMDFmNiBjMTEyYmMwMCAwMDAwMDAwMCBjMDI1ODM2MApDYWxsIFRyYWNlOiBbPGMw
-MTg5MDYwPl0gWzxjMDE3ZDNiZj5dIFs8YzAxOTBmZTU+XSBbPGMwMTkwOTMwPl0gWzxjMDE5MGU0
-OD5dIFs8YzAxY2VjMjg+XSBbPGMwMTk0M2RkPl0gCls8YzAxOGQ0NTA+XSBbPGMwMThkNGE5Pl0g
-WzxjMDE3Yjg5NT5dIFs8YzAxMTg5MTQ+XSBbPGMwMTFhYzU2Pl0gWzxjMDExODgzZj5dIFs8YzAx
-MTg3Nzg+XSBbPGMwMTE4NjdmPl0gCls8YzAxMGEwNTE+XSBbPGMwMTA3MTIwPl0gWzxjMDEwNzEy
-MD5dIFs8YzAxMDhkYjA+XSBbPGMwMTA3MTIwPl0gWzxjMDEwNzEyMD5dIFs8YzAxMDAwMTg+XSBb
-PGMwMTA3MTQzPl0gCls8YzAxMDcxYTk+XSBbPGMwMTA1MDAwPl0gWzxjMDEwMDE5MT5dCkNvZGU6
-IDBmIDBiIGI5IDAwIDk1IDFmIGMwIGZmIDBkIDAwIDk1IDFmIGMwIDBmIDg4IGEyIGMwIDBiIDAw
-IGM3Cgo+PkVJUDsgYzAxMTUyMGYgPGFjcXVpcmVfY29uc29sZV9zZW0rZi8zMD4gICA8PT09PT0K
-VHJhY2U7IGMwMTg5MDYwIDxjb25fZmx1c2hfY2hhcnMrMTAvMjQ+ClRyYWNlOyBjMDE3ZDNiZiA8
-bl90dHlfcmVjZWl2ZV9idWYrZTJiL2VkYz4KVHJhY2U7IGMwMTkwZmU1IDxpZGVfZG1hcHJvYysx
-M2QvMjAwPgpUcmFjZTsgYzAxOTA5MzAgPGlkZV9kbWFfaW50ciswLzljPgpUcmFjZTsgYzAxOTBl
-NDggPGRtYV90aW1lcl9leHBpcnkrMC82MD4KVHJhY2U7IGMwMWNlYzI4IDxfX2NvbnN0X3VkZWxh
-eSsxYy8yND4KVHJhY2U7IGMwMTk0M2RkIDxkb19yd19kaXNrKzEzMS8zMTg+ClRyYWNlOyBjMDE4
-ZDQ1MCA8c3RhcnRfcmVxdWVzdCsxMzQvMjA0PgpUcmFjZTsgYzAxOGQ0YTkgPHN0YXJ0X3JlcXVl
-c3QrMThkLzIwND4KVHJhY2U7IGMwMTdiODk1IDxmbHVzaF90b19sZGlzYytkZC9lND4KVHJhY2U7
-IGMwMTE4OTE0IDxfX3J1bl90YXNrX3F1ZXVlKzRjLzY4PgpUcmFjZTsgYzAxMWFjNTYgPHRxdWV1
-ZV9iaCsxNi8xYz4KVHJhY2U7IGMwMTE4ODNmIDxiaF9hY3Rpb24rMWIvNjA+ClRyYWNlOyBjMDEx
-ODc3OCA8dGFza2xldF9oaV9hY3Rpb24rM2MvNjA+ClRyYWNlOyBjMDExODY3ZiA8ZG9fc29mdGly
-cSszZi82ND4KVHJhY2U7IGMwMTBhMDUxIDxkb19JUlErYTEvYjA+ClRyYWNlOyBjMDEwNzEyMCA8
-ZGVmYXVsdF9pZGxlKzAvMjg+ClRyYWNlOyBjMDEwNzEyMCA8ZGVmYXVsdF9pZGxlKzAvMjg+ClRy
-YWNlOyBjMDEwOGRiMCA8cmV0X2Zyb21faW50ciswLzIwPgpUcmFjZTsgYzAxMDcxMjAgPGRlZmF1
-bHRfaWRsZSswLzI4PgpUcmFjZTsgYzAxMDcxMjAgPGRlZmF1bHRfaWRsZSswLzI4PgpUcmFjZTsg
-YzAxMDAwMTggPHN0YXJ0dXBfMzIrMTgvMTM5PgpUcmFjZTsgYzAxMDcxNDMgPGRlZmF1bHRfaWRs
-ZSsyMy8yOD4KVHJhY2U7IGMwMTA3MWE5IDxjcHVfaWRsZSs0MS81ND4KVHJhY2U7IGMwMTA1MDAw
-IDxlbXB0eV9iYWRfcGFnZSswLzEwMDA+ClRyYWNlOyBjMDEwMDE5MSA8TDYrMC8yPgpDb2RlOyAg
-YzAxMTUyMGYgPGFjcXVpcmVfY29uc29sZV9zZW0rZi8zMD4KMDAwMDAwMDAgPF9FSVA+OgpDb2Rl
-OyAgYzAxMTUyMGYgPGFjcXVpcmVfY29uc29sZV9zZW0rZi8zMD4gICA8PT09PT0KICAgMDogICAw
-ZiAwYiAgICAgICAgICAgICAgICAgICAgIHVkMmEgICAgICA8PT09PT0KQ29kZTsgIGMwMTE1MjEx
-IDxhY3F1aXJlX2NvbnNvbGVfc2VtKzExLzMwPgogICAyOiAgIGI5IDAwIDk1IDFmIGMwICAgICAg
-ICAgICAgbW92ICAgICQweGMwMWY5NTAwLCVlY3gKQ29kZTsgIGMwMTE1MjE2IDxhY3F1aXJlX2Nv
-bnNvbGVfc2VtKzE2LzMwPgogICA3OiAgIGZmIDBkIDAwIDk1IDFmIGMwICAgICAgICAgZGVjbCAg
-IDB4YzAxZjk1MDAKQ29kZTsgIGMwMTE1MjFjIDxhY3F1aXJlX2NvbnNvbGVfc2VtKzFjLzMwPgog
-ICBkOiAgIDBmIDg4IGEyIGMwIDBiIDAwICAgICAgICAganMgICAgIGJjMGI1IDxfRUlQKzB4YmMw
-YjU+IGMwMWQxMmM0IDxzdGV4dF9sb2NrKzE3Yy9mMzI+CkNvZGU7ICBjMDExNTIyMiA8YWNxdWly
-ZV9jb25zb2xlX3NlbSsyMi8zMD4KICAxMzogICBjNyAwMCAwMCAwMCAwMCAwMCAgICAgICAgIG1v
-dmwgICAkMHgwLCglZWF4KQoKIDwwPiBLZXJuZWwgcGFuaWM6IEFpZWUsIGtpbGxpbmcgaW50ZXJy
-dXB0IGhhbmRsZXIhCgoxIHdhcm5pbmcgaXNzdWVkLiAgUmVzdWx0cyBtYXkgbm90IGJlIHJlbGlh
-YmxlLgo=
+And this is the final result:
 
---------------Boundary-00=_MTY860XQDE6N86CED3PA
-Content-Type: text/plain;
-  charset="iso-8859-1";
-  name="dmesg.txt"
-Content-Transfer-Encoding: base64
-Content-Disposition: attachment; filename="dmesg.txt"
+http://robur.slu.se/Linux/net-development/jamal/FF-html/img26.htm
 
-TGludXggdmVyc2lvbiAyLjQuMi1hYzIwIChtYXR0QGJveC5jYWlmZXgub3JnKSAoZ2NjIHZlcnNp
-b24gMi45NS4yIDE5OTkxMDI0IChyZWxlYXNlKSkgIzMgVGh1IE1hciAxNSAyMjozMDowOCBXU1Qg
-MjAwMQpCSU9TLXByb3ZpZGVkIHBoeXNpY2FsIFJBTSBtYXA6CiBCSU9TLWU4MjA6IDAwMDAwMDAw
-MDAwOWZjMDAgQCAwMDAwMDAwMDAwMDAwMDAwICh1c2FibGUpCiBCSU9TLWU4MjA6IDAwMDAwMDAw
-MDAwMDA0MDAgQCAwMDAwMDAwMDAwMDlmYzAwIChyZXNlcnZlZCkKIEJJT1MtZTgyMDogMDAwMDAw
-MDAwMDAyMDAwMCBAIDAwMDAwMDAwMDAwZTAwMDAgKHJlc2VydmVkKQogQklPUy1lODIwOiAwMDAw
-MDAwMDAzZWYwMDAwIEAgMDAwMDAwMDAwMDEwMDAwMCAodXNhYmxlKQogQklPUy1lODIwOiAwMDAw
-MDAwMDAwMDA4MDAwIEAgMDAwMDAwMDAwM2ZmMDAwMCAoQUNQSSBkYXRhKQogQklPUy1lODIwOiAw
-MDAwMDAwMDAwMDA4MDAwIEAgMDAwMDAwMDAwM2ZmODAwMCAoQUNQSSBOVlMpCiBCSU9TLWU4MjA6
-IDAwMDAwMDAwMDAwMDEwMDAgQCAwMDAwMDAwMGZlYzAwMDAwIChyZXNlcnZlZCkKIEJJT1MtZTgy
-MDogMDAwMDAwMDAwMDAwMTAwMCBAIDAwMDAwMDAwZmVlMDAwMDAgKHJlc2VydmVkKQogQklPUy1l
-ODIwOiAwMDAwMDAwMDAwMDgwMDAwIEAgMDAwMDAwMDBmZmY4MDAwMCAocmVzZXJ2ZWQpCk9uIG5v
-ZGUgMCB0b3RhbHBhZ2VzOiAxNjM2OAp6b25lKDApOiA0MDk2IHBhZ2VzLgp6b25lKDEpOiAxMjI3
-MiBwYWdlcy4Kem9uZSgyKTogMCBwYWdlcy4KS2VybmVsIGNvbW1hbmQgbGluZTogcm9vdD0vZGV2
-L2hkYTYgcm8gQk9PVF9JTUFHRT0yNDJhYzIwCkluaXRpYWxpemluZyBDUFUjMApEZXRlY3RlZCAz
-OTguMjA3IE1IeiBwcm9jZXNzb3IuCkNvbnNvbGU6IGNvbG91ciBWR0ErIDgweDMwCkNhbGlicmF0
-aW5nIGRlbGF5IGxvb3AuLi4gNzk0LjYyIEJvZ29NSVBTCk1lbW9yeTogNjI1NzZrLzY1NDcyayBh
-dmFpbGFibGUgKDg0MGsga2VybmVsIGNvZGUsIDI1MDhrIHJlc2VydmVkLCAyMDRrIGRhdGEsIDE2
-OGsgaW5pdCwgMGsgaGlnaG1lbSkKRGVudHJ5LWNhY2hlIGhhc2ggdGFibGUgZW50cmllczogODE5
-MiAob3JkZXI6IDQsIDY1NTM2IGJ5dGVzKQpCdWZmZXItY2FjaGUgaGFzaCB0YWJsZSBlbnRyaWVz
-OiAxMDI0IChvcmRlcjogMCwgNDA5NiBieXRlcykKUGFnZS1jYWNoZSBoYXNoIHRhYmxlIGVudHJp
-ZXM6IDE2Mzg0IChvcmRlcjogNCwgNjU1MzYgYnl0ZXMpCklub2RlLWNhY2hlIGhhc2ggdGFibGUg
-ZW50cmllczogNDA5NiAob3JkZXI6IDMsIDMyNzY4IGJ5dGVzKQpDUFU6IEJlZm9yZSB2ZW5kb3Ig
-aW5pdCwgY2FwczogMDE4M2ZiZmYgMDAwMDAwMDAgMDAwMDAwMDAsIHZlbmRvciA9IDAKQ1BVOiBM
-MSBJIGNhY2hlOiAxNkssIEwxIEQgY2FjaGU6IDE2SwpDUFU6IEwyIGNhY2hlOiAxMjhLCkludGVs
-IG1hY2hpbmUgY2hlY2sgYXJjaGl0ZWN0dXJlIHN1cHBvcnRlZC4KSW50ZWwgbWFjaGluZSBjaGVj
-ayByZXBvcnRpbmcgZW5hYmxlZCBvbiBDUFUjMC4KQ1BVOiBBZnRlciB2ZW5kb3IgaW5pdCwgY2Fw
-czogMDE4M2ZiZmYgMDAwMDAwMDAgMDAwMDAwMDAgMDAwMDAwMDAKQ1BVOiBBZnRlciBnZW5lcmlj
-LCBjYXBzOiAwMTgzZmJmZiAwMDAwMDAwMCAwMDAwMDAwMCAwMDAwMDAwMApDUFU6IENvbW1vbiBj
-YXBzOiAwMTgzZmJmZiAwMDAwMDAwMCAwMDAwMDAwMCAwMDAwMDAwMApDUFU6IEludGVsIENlbGVy
-b24gKE1lbmRvY2lubykgc3RlcHBpbmcgMDAKRW5hYmxpbmcgZmFzdCBGUFUgc2F2ZSBhbmQgcmVz
-dG9yZS4uLiBkb25lLgpDaGVja2luZyAnaGx0JyBpbnN0cnVjdGlvbi4uLiBPSy4KUE9TSVggY29u
-Zm9ybWFuY2UgdGVzdGluZyBieSBVTklGSVgKbXRycjogdjEuMzkgKDIwMDEwMzEyKSBSaWNoYXJk
-IEdvb2NoIChyZ29vY2hAYXRuZi5jc2lyby5hdSkKbXRycjogZGV0ZWN0ZWQgbXRyciB0eXBlOiBJ
-bnRlbApQQ0k6IFBDSSBCSU9TIHJldmlzaW9uIDIuMTAgZW50cnkgYXQgMHhmZGI5MSwgbGFzdCBi
-dXM9MQpQQ0k6IFVzaW5nIGNvbmZpZ3VyYXRpb24gdHlwZSAxClBDSTogUHJvYmluZyBQQ0kgaGFy
-ZHdhcmUKUENJOiBVc2luZyBJUlEgcm91dGVyIFBJSVggWzgwODYvNzExMF0gYXQgMDA6MDcuMApM
-aW1pdGluZyBkaXJlY3QgUENJL1BDSSB0cmFuc2ZlcnMuCkxpbnV4IE5FVDQuMCBmb3IgTGludXgg
-Mi40CkJhc2VkIHVwb24gU3dhbnNlYSBVbml2ZXJzaXR5IENvbXB1dGVyIFNvY2lldHkgTkVUMy4w
-MzkKSW5pdGlhbGl6aW5nIFJUIG5ldGxpbmsgc29ja2V0CmFwbTogQklPUyB2ZXJzaW9uIDEuMiBG
-bGFncyAweDAzIChEcml2ZXIgdmVyc2lvbiAxLjE0KQpTdGFydGluZyBrc3dhcGQgdjEuOApwdHk6
-IDI1NiBVbml4OTggcHR5cyBjb25maWd1cmVkCmJsb2NrOiBxdWV1ZWQgc2VjdG9ycyBtYXgvbG93
-IDQxNTE0a0IvMTM4MzhrQiwgMTI4IHNsb3RzIHBlciBxdWV1ZQpVbmlmb3JtIE11bHRpLVBsYXRm
-b3JtIEUtSURFIGRyaXZlciBSZXZpc2lvbjogNi4zMQppZGU6IEFzc3VtaW5nIDMzTUh6IHN5c3Rl
-bSBidXMgc3BlZWQgZm9yIFBJTyBtb2Rlczsgb3ZlcnJpZGUgd2l0aCBpZGVidXM9eHgKUElJWDQ6
-IElERSBjb250cm9sbGVyIG9uIFBDSSBidXMgMDAgZGV2IDM5ClBJSVg0OiBjaGlwc2V0IHJldmlz
-aW9uIDEKUElJWDQ6IG5vdCAxMDAlIG5hdGl2ZSBtb2RlOiB3aWxsIHByb2JlIGlycXMgbGF0ZXIK
-ICAgIGlkZTA6IEJNLURNQSBhdCAweGZmYTAtMHhmZmE3LCBCSU9TIHNldHRpbmdzOiBoZGE6RE1B
-LCBoZGI6cGlvCiAgICBpZGUxOiBCTS1ETUEgYXQgMHhmZmE4LTB4ZmZhZiwgQklPUyBzZXR0aW5n
-czogaGRjOkRNQSwgaGRkOnBpbwpoZGE6IFFVQU5UVU0gRklSRUJBTEwgRVg2LjRBLCBBVEEgRElT
-SyBkcml2ZQpoZGM6IFRPU0hJQkEgRFZELVJPTSBTRC1NMTIwMiwgQVRBUEkgQ0QvRFZELVJPTSBk
-cml2ZQppZGUwIGF0IDB4MWYwLTB4MWY3LDB4M2Y2IG9uIGlycSAxNAppZGUxIGF0IDB4MTcwLTB4
-MTc3LDB4Mzc2IG9uIGlycSAxNQpoZGE6IDEyNTk0OTYwIHNlY3RvcnMgKDY0NDkgTUIpIHcvNDE4
-S2lCIENhY2hlLCBDSFM9Nzg0LzI1NS82MywgVURNQSgzMykKUGFydGl0aW9uIGNoZWNrOgogaGRh
-OiBoZGExIGhkYTIgPCBoZGE1IGhkYTYgaGRhNyA+Ck5FVDQ6IExpbnV4IFRDUC9JUCAxLjAgZm9y
-IE5FVDQuMApJUCBQcm90b2NvbHM6IElDTVAsIFVEUCwgVENQCklQOiByb3V0aW5nIGNhY2hlIGhh
-c2ggdGFibGUgb2YgNTEyIGJ1Y2tldHMsIDRLYnl0ZXMKVENQOiBIYXNoIHRhYmxlcyBjb25maWd1
-cmVkIChlc3RhYmxpc2hlZCA0MDk2IGJpbmQgNDA5NikKTkVUNDogVW5peCBkb21haW4gc29ja2V0
-cyAxLjAvU01QIGZvciBMaW51eCBORVQ0LjAuClZGUzogTW91bnRlZCByb290IChleHQyIGZpbGVz
-eXN0ZW0pIHJlYWRvbmx5LgpGcmVlaW5nIHVudXNlZCBrZXJuZWwgbWVtb3J5OiAxNjhrIGZyZWVk
-CkFkZGluZyBTd2FwOiAxMjg0ODRrIHN3YXAtc3BhY2UgKHByaW9yaXR5IC0xKQpJQS0zMiBNaWNy
-b2NvZGUgVXBkYXRlIERyaXZlcjogdjEuMDggPHRpZ3JhbkB2ZXJpdGFzLmNvbT4KbWljcm9jb2Rl
-OiBDUFUwIHVwZGF0ZWQgZnJvbSByZXZpc2lvbiA0IHRvIDEwLCBkYXRlPTA1MDUxOTk5Cm1pY3Jv
-Y29kZTogZnJlZWQgMjA0OCBieXRlcwplczEzNzE6IHZlcnNpb24gdjAuMjcgdGltZSAyMjo0MTox
-NCBNYXIgMTUgMjAwMQplczEzNzE6IGZvdW5kIGNoaXAsIHZlbmRvciBpZCAweDEyNzQgZGV2aWNl
-IGlkIDB4MTM3MSByZXZpc2lvbiAweDA0ClBDSTogRm91bmQgSVJRIDkgZm9yIGRldmljZSAwMDow
-Yy4wCmVzMTM3MTogZm91bmQgZXMxMzcxIHJldiA0IGF0IGlvIDB4ZWYwMCBpcnEgOQplczEzNzE6
-IGZlYXR1cmVzOiBqb3lzdGljayAweDAKYWM5N19jb2RlYzogQUM5NyBBdWRpbyBjb2RlYywgaWQ6
-IDB4NDM1MjoweDU5MDMgKENpcnJ1cyBMb2dpYyBDUzQyOTcpCmVzMTM3MTogdW5sb2FkaW5nCklB
-LTMyIE1pY3JvY29kZSBVcGRhdGUgRHJpdmVyIHYxLjA4IHVucmVnaXN0ZXJlZAplczEzNzE6IHZl
-cnNpb24gdjAuMjcgdGltZSAyMjo0MToxNCBNYXIgMTUgMjAwMQplczEzNzE6IGZvdW5kIGNoaXAs
-IHZlbmRvciBpZCAweDEyNzQgZGV2aWNlIGlkIDB4MTM3MSByZXZpc2lvbiAweDA0ClBDSTogRm91
-bmQgSVJRIDkgZm9yIGRldmljZSAwMDowYy4wCmVzMTM3MTogZm91bmQgZXMxMzcxIHJldiA0IGF0
-IGlvIDB4ZWYwMCBpcnEgOQplczEzNzE6IGZlYXR1cmVzOiBqb3lzdGljayAweDAKYWM5N19jb2Rl
-YzogQUM5NyBBdWRpbyBjb2RlYywgaWQ6IDB4NDM1MjoweDU5MDMgKENpcnJ1cyBMb2dpYyBDUzQy
-OTcpCkNTTElQOiBjb2RlIGNvcHlyaWdodCAxOTg5IFJlZ2VudHMgb2YgdGhlIFVuaXZlcnNpdHkg
-b2YgQ2FsaWZvcm5pYQpQUFAgZ2VuZXJpYyBkcml2ZXIgdmVyc2lvbiAyLjQuMQpEZXRlY3RlZCBQ
-YXJhbWV0ZXJzIElycT0xMSBCYXNlQWRkcmVzcz0weGU4MDAgQ29tQWRkcmVzcz0weGVmZjAKTHVj
-ZW50IE1vZGVtIGRyaXZlciB2ZXJzaW9uIDUuNzhlICgyMDAwLTA4LTA5KSB3aXRoIFNFUklBTF9Q
-Q0kgZW5hYmxlZAp0dHlTMDAgYXQgMHhlODAwIChpcnEgPSAxMSkgaXMgYSBMdWNlbnQKUFBQIEJT
-RCBDb21wcmVzc2lvbiBtb2R1bGUgcmVnaXN0ZXJlZApQUFAgRGVmbGF0ZSBDb21wcmVzc2lvbiBt
-b2R1bGUgcmVnaXN0ZXJlZAppcF90YWJsZXM6IChjKTIwMDAgTmV0ZmlsdGVyIGNvcmUgdGVhbQpp
-cF9jb25udHJhY2sgKDUxMSBidWNrZXRzLCA0MDg4IG1heCkKVW5kbyBwYXJ0aWFsIGxvc3MgMTMw
-Ljk1LjEyOC4zLzIyIGMxIGwxIHNzMi8yIHAxCg==
+As you can see the throughput is a _lot_ higher with this driver.
 
---------------Boundary-00=_MTY860XQDE6N86CED3PA--
+One final note: The makefile in at least tulip-ss010111.tar.gz is in the
+old format (not the new as 2.4.0-testX introduced), but you can copy the
+makefile from the "vanilla" driver and It'lll work like a charm.
+
+Please redo your tests with this driver and report the results to me and
+this list. I really want to know how it compares against FreeBSD.
+
+/Martin
+

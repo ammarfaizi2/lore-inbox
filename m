@@ -1,44 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269505AbRGaWRp>; Tue, 31 Jul 2001 18:17:45 -0400
+	id <S269514AbRGaWfP>; Tue, 31 Jul 2001 18:35:15 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269506AbRGaWRf>; Tue, 31 Jul 2001 18:17:35 -0400
-Received: from imladris.infradead.org ([194.205.184.45]:27657 "EHLO
-	infradead.org") by vger.kernel.org with ESMTP id <S269505AbRGaWRY>;
-	Tue, 31 Jul 2001 18:17:24 -0400
-Date: Tue, 31 Jul 2001 23:17:13 +0100 (BST)
-From: Riley Williams <rhw@MemAlpha.CX>
-X-X-Sender: <rhw@infradead.org>
-To: Craig Milo Rogers <rogers@ISI.EDU>
-cc: Matti Aarnio <matti.aarnio@zmailer.org>,
-        Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: OT: Virii on vger.kernel.org lists 
-In-Reply-To: <22369.996603164@ISI.EDU>
-Message-ID: <Pine.LNX.4.33.0107312312360.31582-100000@infradead.org>
+	id <S269517AbRGaWe5>; Tue, 31 Jul 2001 18:34:57 -0400
+Received: from tahallah.demon.co.uk ([158.152.175.193]:29704 "EHLO
+	tahallah.demon.co.uk") by vger.kernel.org with ESMTP
+	id <S269508AbRGaWei>; Tue, 31 Jul 2001 18:34:38 -0400
+Date: Tue, 31 Jul 2001 22:37:14 +0100 (BST)
+From: Alex Buell <alex.buell@tahallah.demon.co.uk>
+X-X-Sender: <alex@tahallah.demon.co.uk>
+Reply-To: <alex.buell@tahallah.demon.co.uk>
+To: J Sloan <jjs@toyota.com>
+cc: "Paul G. Allen" <pgallen@randomlogic.com>,
+        Linux kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [OT] Re: OT: M$Exchange stuff for Linux/UNIX? [was: Re: Test
+ mail]
+In-Reply-To: <3B671D57.2907823E@lexus.com>
+Message-ID: <Pine.LNX.4.33.0107312233070.9689-100000@tahallah.demon.co.uk>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
-Hi Craig.
+On Tue, 31 Jul 2001, J Sloan wrote:
 
- >> Is there any way we can set up an automatic virus scan of all
- >> attachments at vger, and have it deal with any virii at source?
+> There was talk that microsoft would kill any attempt to sell Openmail
+> to a 3rd party, since the idea is to eliminate alternatives to
+> exchange.
 
- > Better than that, simply strip all non-text MIME attachments, or
- > bounce the messages containing them.  End of story.
+HP will continue to support OpemMail for at least five more years. Please,
+recommend it to your employers. If they get a significant income from
+people who take up OpenMail, it will wake up people at HP.
 
-Two problems with that:
+It would be nice if HP stuck it to M$ up the arse by releasing it as open
+source when the five years' are up.
 
- 1. Some virii are text attachments. Your fix doesn't deal wioth them.
+-- 
+Hey, they *are* out to get you, but it's nothing personal.
 
- 2. The maintainer of the XXX driver just uploaded a large patch that
-    fixes a major bug in their driver to the mailing list, and zip'd
-    it up to reduce its size. You just bounced it...
-
-Basically, that particular fix causes pain and gives no gain, so as
-far as I'm concerned, it's a non-starter...
-
-Best wishes from Riley.
+http://www.tahallah.demon.co.uk
 

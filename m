@@ -1,36 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261376AbSJUNlz>; Mon, 21 Oct 2002 09:41:55 -0400
+	id <S261381AbSJUNpA>; Mon, 21 Oct 2002 09:45:00 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261328AbSJUNlz>; Mon, 21 Oct 2002 09:41:55 -0400
-Received: from pc1-cwma1-5-cust42.swa.cable.ntl.com ([80.5.120.42]:17844 "EHLO
-	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S261376AbSJUNlw>; Mon, 21 Oct 2002 09:41:52 -0400
-Subject: Re: Question: Favorite Linux kernel book?
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: EricAltendorf@orst.edu
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <200210171033.06451.EricAltendorf@orst.edu>
-References: <200210171033.06451.EricAltendorf@orst.edu>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
-Date: 21 Oct 2002 15:03:38 +0100
-Message-Id: <1035209018.27318.115.camel@irongate.swansea.linux.org.uk>
+	id <S261394AbSJUNpA>; Mon, 21 Oct 2002 09:45:00 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:21004 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S261381AbSJUNmj>;
+	Mon, 21 Oct 2002 09:42:39 -0400
+Date: Mon, 21 Oct 2002 14:48:45 +0100
+From: Matthew Wilcox <willy@debian.org>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Matthew Wilcox <willy@debian.org>, Alexander Viro <viro@math.psu.edu>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] work around duff ABIs
+Message-ID: <20021021144845.H5285@parcelfarce.linux.theplanet.co.uk>
+References: <20021020053147.C5285@parcelfarce.linux.theplanet.co.uk> <1035202419.27318.60.camel@irongate.swansea.linux.org.uk>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <1035202419.27318.60.camel@irongate.swansea.linux.org.uk>; from alan@lxorguk.ukuu.org.uk on Mon, Oct 21, 2002 at 01:13:39PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2002-10-17 at 18:33, Eric Altendorf wrote:
-> I was just wondering if anyone had any recommendations for reading 
-> material to introduce the Linux kernel, design & code.
+On Mon, Oct 21, 2002 at 01:13:39PM +0100, Alan Cox wrote:
+> On Sun, 2002-10-20 at 05:31, Matthew Wilcox wrote:
+> > 
+> > *sigh*.  i hate this kind of bullshit.  please, don't anyone ever try
+> > to pass 64-bit args through the syscall interface again.
 > 
-> I haven't found any online documentation that is as complete and 
-> introductory as I like (obviously the kernel code itself is complete, 
-> but... :-)
+> Please bury this crap in arch/hppa/
 
-Also two other books - Linux device drivers is good. If you are new to
-kernels and hardware the best book on Linux is in some ways Andy
-Tanenbaum's Operating Systems. Its not about Linux but its one of the
-best intros to the whole topic.
+and arch/mips?
 
+-- 
+Revolutions do not require corporate support.

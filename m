@@ -1,59 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262686AbTJXWR3 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 24 Oct 2003 18:17:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262680AbTJXWR2
+	id S262683AbTJXWR0 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 24 Oct 2003 18:17:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262680AbTJXWR0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 24 Oct 2003 18:17:28 -0400
-Received: from pat.ukc.ac.uk ([129.12.21.15]:61404 "EHLO pat.kent.ac.uk")
-	by vger.kernel.org with ESMTP id S262687AbTJXWNj (ORCPT
+	Fri, 24 Oct 2003 18:17:26 -0400
+Received: from fw.osdl.org ([65.172.181.6]:21229 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S262686AbTJXWMi (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 24 Oct 2003 18:13:39 -0400
-Date: Fri, 24 Oct 2003 22:44:44 +0100
-From: Adam Sampson <azz@us-lot.org>
-To: urban@teststation.com
-Cc: linux-kernel@vger.kernel.org
-Subject: Odd st_blocks values from smbfs in 2.6.0-test8
-Message-ID: <20031024214444.GA23948@cartman.at.fivegeeks.net>
+	Fri, 24 Oct 2003 18:12:38 -0400
+Date: Fri, 24 Oct 2003 15:12:36 -0700
+From: Chris Wright <chrisw@osdl.org>
+To: marcelo.tosatti@cyclades.com
+Cc: sarnold@immunix.com, linux-kernel@vger.kernel.org
+Subject: [PATCH] sysctl core_setuid_ok fix
+Message-ID: <20031024151236.B19328@osdlab.pdx.osdl.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-X-Homepage: http://offog.org/
-User-Agent: Mutt/1.5.4i
-X-UKC-Mail-System: No virus detected
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hiya.
+[Resend, to fix bad Cc: adress]
 
-I've just installed 2.6.0-test8 -- it works beautifully, but I did
-notice this odd bit of behaviour from smbfs that I haven't previously
-seen. It appears that it's producing an odd value for the st_blocks stat
-value:
+The sysctl kern_table entry part of the core_setuid_ok patch has wrong
+ctl_name.  Patch below is against current 2.4.23-pre8-bk.  Seth Arnold
+pointed this problem out to me.
 
-$ smbmount //server/share mnt
-$ cd mnt
-$ echo hello >hello
-$ ls -l hello
--rwxr--r--    1 nobody   nogroup         6 Oct 24 22:38 hello
-$ stat hello
-  File: `hello'
-  Size: 6               Blocks: 1048576    IO Block: 4096   regular file
-Device: fh/15d  Inode: 1641        Links: 1    
-Access: (0744/-rwxr--r--)  Uid: ( 9999/  nobody)   Gid: ( 9999/ nogroup)
-Access: 2003-10-24 22:38:58.000000000 +0100
-Modify: 2003-10-24 22:38:58.000000000 +0100
-Change: 2003-10-24 22:38:58.000000000 +0100
-
-$ du -a hello
-524288  hello
-$ du -ah hello
-512M    hello
-
-The server here's Samba 3.0.1pre1, but it does the same with Samba 2 as
-well.
-
-Thanks,
-
+thanks,
+-chris
 -- 
-Adam Sampson <azz@us-lot.org>                        <http://offog.org/>
+Linux Security Modules     http://lsm.immunix.org     http://lsm.bkbits.net
+
+
+===== kernel/sysctl.c 1.28 vs edited =====
+--- 1.28/kernel/sysctl.c	Wed Oct  8 07:35:22 2003
++++ edited/kernel/sysctl.c	Fri Oct 24 14:37:35 2003
+@@ -180,7 +180,7 @@
+ 	 0644, NULL, &proc_dointvec},
+ 	{KERN_CORE_USES_PID, "core_uses_pid", &core_uses_pid, sizeof(int),
+ 	 0644, NULL, &proc_dointvec},
+-	{KERN_CORE_USES_PID, "core_setuid_ok", &core_setuid_ok, sizeof(int),
++	{KERN_CORE_SETUID, "core_setuid_ok", &core_setuid_ok, sizeof(int),
+ 	0644, NULL, &proc_dointvec},
+ 	{KERN_CORE_PATTERN, "core_pattern", core_pattern, 64,
+ 	 0644, NULL, &proc_dostring, &sysctl_string},
+

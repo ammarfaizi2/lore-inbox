@@ -1,45 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262876AbSJaQru>; Thu, 31 Oct 2002 11:47:50 -0500
+	id <S263267AbSJaQcx>; Thu, 31 Oct 2002 11:32:53 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262811AbSJaQru>; Thu, 31 Oct 2002 11:47:50 -0500
-Received: from mario.gams.at ([194.42.96.10]:22093 "EHLO mario.gams.at")
-	by vger.kernel.org with ESMTP id <S262876AbSJaQq5> convert rfc822-to-8bit;
-	Thu, 31 Oct 2002 11:46:57 -0500
-X-Mailer: exmh version 2.5 01/15/2001 with nmh-1.0.3
-From: Bernd Petrovitsch <bernd@gams.at>
-To: Matt Porter <porter@cox.net>
-cc: Mark Mielke <mark@mark.mielke.cc>, Adrian Bunk <bunk@fs.tum.de>,
-       Rasmus Andersen <rasmus@jaquet.dk>, linux-kernel@vger.kernel.org
-Subject: Re: CONFIG_TINY 
-References: <20021031100855.A3407@home.com> 
-In-reply-to: Your message of "Thu, 31 Oct 2002 10:08:55 MST."
-             <20021031100855.A3407@home.com> 
-X-url: http://www.luga.at/~bernd/
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8BIT
-Date: Thu, 31 Oct 2002 17:52:59 +0100
-Message-ID: <22051.1036083179@frodo.gams.co.at>
+	id <S263218AbSJaQb7>; Thu, 31 Oct 2002 11:31:59 -0500
+Received: from fmr05.intel.com ([134.134.136.6]:10741 "EHLO
+	hermes.jf.intel.com") by vger.kernel.org with ESMTP
+	id <S263215AbSJaQbc>; Thu, 31 Oct 2002 11:31:32 -0500
+Message-ID: <F2DBA543B89AD51184B600508B68D4000EFF43C9@fmsmsx103.fm.intel.com>
+From: "Nakajima, Jun" <jun.nakajima@intel.com>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Linus Torvalds <torvalds@transmeta.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       "Mallick, Asit K" <asit.k.mallick@intel.com>,
+       "Saxena, Sunil" <sunil.saxena@intel.com>
+Subject: RE: [PATCH] fixes for building kernel 2.5.45 using Intel compiler
+Date: Thu, 31 Oct 2002 08:37:48 -0800
+MIME-Version: 1.0
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Matt Porter <porter@cox.net> wrote:
->Thank you.  This is exactly why in the last CONFIG_TINY thread I made
->it clear that a one-size-fits-all option is not all that helpful for
->serious embedded systems designers.
->
->Collecting these parameters in a single tweaks.h file and perhaps using
->things like CONFIG_TINY, CONFIG_DESKTOP, CONFIG_FOO as profile selectors
+> -----Original Message-----
+> From: Alan Cox [mailto:alan@lxorguk.ukuu.org.uk]
+> 
+> On Thu, 2002-10-31 at 03:17, Nakajima, Jun wrote:
+> >  asmlinkage int sys_iopl(unsigned long unused)
+> >  {
+> > -	struct pt_regs * regs = (struct pt_regs *) &unused;
+> > +	volatile struct pt_regs * regs = (struct pt_regs *) &unused;
+> 
+> Why is this needed ?
 
-In an ideal world there would be several options invidually 
-selectable.
+Becaues the compiler optimization removes the following code without it.
+	regs->eflags = (regs->eflags & 0xffffcfff) | (level << 12);
 
-	Bernd
--- 
-Bernd Petrovitsch                              Email : bernd@gams.at
-g.a.m.s gmbh                                  Fax : +43 1 205255-900
-Prinz-Eugen-Straße 8                    A-1040 Vienna/Austria/Europe
-                     LUGA : http://www.luga.at
+The compiler provides access to the argument 'unused' in the stack
+(asmlinkage, 
+i.e. __attribute__ ((regparm(0))), but it thinks modifying the stack 
+more than that is not effective anyway. So it elimites the code under
+optimizations. 
+
+> 
+> 
+> > -	IGNLABEL "HmacRxUc",
+> > -	IGNLABEL "HmacRxDiscard",
+> > -	IGNLABEL "HmacRxAccepted",
+> > +	IGNLABEL /* "HmacTxMc", */
+> > +	IGNLABEL /* "HmacTxBc", */
+> 
+> You seem to be removing fields from the struct - have you 
+> tested this ?
+> 
+No, it's not removing fields from there. The original definition of IGNLABLE
+is 
+	#define IGNLABEL 0&(int)
+And
+	IGNLABEL "HmacRxUc",
+simpile ends up 0, (in gcc). But this is just causing (a lot of) warnings,
+so I take this out.
+
+Jun
+
 
 

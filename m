@@ -1,49 +1,58 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317470AbSFDXZb>; Tue, 4 Jun 2002 19:25:31 -0400
+	id <S317471AbSFDX0V>; Tue, 4 Jun 2002 19:26:21 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317471AbSFDXZa>; Tue, 4 Jun 2002 19:25:30 -0400
-Received: from ns.suse.de ([213.95.15.193]:15375 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id <S317470AbSFDXZ3>;
-	Tue, 4 Jun 2002 19:25:29 -0400
-Date: Wed, 5 Jun 2002 01:25:30 +0200
-From: Dave Jones <davej@suse.de>
-To: "Grover, Andrew" <andrew.grover@intel.com>
-Cc: "'Pavel Machek'" <pavel@suse.cz>, Brad Hards <bhards@bigpond.net.au>,
-        Linus Torvalds <torvalds@transmeta.com>,
-        Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [patch] i386 "General Options" - begone [take 2]
-Message-ID: <20020605012529.F4751@suse.de>
-Mail-Followup-To: Dave Jones <davej@suse.de>,
-	"Grover, Andrew" <andrew.grover@intel.com>,
-	'Pavel Machek' <pavel@suse.cz>, Brad Hards <bhards@bigpond.net.au>,
-	Linus Torvalds <torvalds@transmeta.com>,
-	Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <59885C5E3098D511AD690002A5072D3C02AB7ED9@orsmsx111.jf.intel.com>
-Mime-Version: 1.0
+	id <S317488AbSFDX0U>; Tue, 4 Jun 2002 19:26:20 -0400
+Received: from smtp-server6.tampabay.rr.com ([65.32.1.43]:7116 "EHLO
+	smtp-server6.tampabay.rr.com") by vger.kernel.org with ESMTP
+	id <S317471AbSFDX0R>; Tue, 4 Jun 2002 19:26:17 -0400
+Message-ID: <3CFD4CCE.9DB9BF52@cfl.rr.com>
+Date: Tue, 04 Jun 2002 19:27:10 -0400
+From: Mark Hounschell <dmarkh@cfl.rr.com>
+Reply-To: dmarkh@cfl.rr.com
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.18-lcrs i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Austin Gonyou <austin@digitalroadkill.net>
+CC: Jan Hudec <bulb@ucw.cz>, kernelnewbies@nl.linux.org,
+        linux-kernel@vger.kernel.org
+Subject: Re: Load kernel module automatically
+In-Reply-To: <20020604193806.58478.qmail@web14905.mail.yahoo.com>
+		  <20020604222743.GA15714@artax.karlin.mff.cuni.cz> <1023231270.9282.23.camel@UberGeek>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jun 04, 2002 at 04:09:48PM -0700, Grover, Andrew wrote:
- 
- > > Can you confirm that you're not advocating a "ACPI or Legacy" 
- > > approach ?
- > > I think you're aware of the dragons that lie that way, but I 
- > > want to be sure my suspicions are unfounded.
- > All I can say is using just *part* of ACPI will cause some machine,
- > somewhere, to not work. I want to avoid scenarios where that happens. If
- > there are issues with that, can we discuss them asap, perhaps now?
+Austin Gonyou wrote:
+> 
+> On Tue, 2002-06-04 at 17:27, Jan Hudec wrote:
+> > On Tue, Jun 04, 2002 at 03:38:06PM -0400, Michael Zhu wrote:
+> > > Hi, I built a kernel module. I can load it into the
+> > > kernle using insmod command. But each time when I
+> > > reboot my computer I couldn't find it any more. I mean
+> > > I need to use the insmod to load the module each time
+> > > I reboot the computer. How can I modify the
+> > > configuration so that the Linux OS can load my module
+> > > automatically during reboot? I need to copy my module
+> > > to the following directory?
+> > >   /lib/modules/2.4.7-10/
+> >
+> > Kernel does not seek for modules to load in any way. Actually, in usual
+> > installation there are tons of modules compiled an mostly unused. You
+> > must put the insmod command (or better modprobe command) somewhere in
+> > the init scripts. Since I expect your installation is RedHat (the kernel
+> > version looks like a RedHat one), there should already be one a it
+> > should be loading all modules listed in /etc/modules.conf (not sure abou
+> > the exact name - I don't have RedHat).
+> 
+> Isn't that what modules.conf (conf.modules on some) is for though? To
+> have lists of available devices and load modules if their services are
+> used?(i.e. ifup eth0, but eth0 doesn't exist at boot time, so ifup calls
+> a utility that loads the module, then ifup continues to run)
+> 
+The utility is built into the kernel, it's called kmod and uses /etc/modules.conf
+as it's config file....
 
-Think vendor kernel. There we want to run on ancient pre-ACPI boxes,
-and super duper new box with borken/non-existant legacy tables.
-So just keep in mind that compiling both into the kernel is a must have
-requirement.
 
-    Dave.
-
--- 
-| Dave Jones.        http://www.codemonkey.org.uk
-| SuSE Labs
+Mark

@@ -1,88 +1,69 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270712AbTGUU0O (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Jul 2003 16:26:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270724AbTGUU0O
+	id S270426AbTGUU1Q (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Jul 2003 16:27:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270693AbTGUU1Q
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Jul 2003 16:26:14 -0400
-Received: from main.gmane.org ([80.91.224.249]:39599 "EHLO main.gmane.org")
-	by vger.kernel.org with ESMTP id S270712AbTGUUZk (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Jul 2003 16:25:40 -0400
-X-Injected-Via-Gmane: http://gmane.org/
+	Mon, 21 Jul 2003 16:27:16 -0400
+Received: from co239024-a.almel1.ov.home.nl ([217.120.226.100]:50564 "EHLO
+	localhost.localdomain") by vger.kernel.org with ESMTP
+	id S270426AbTGUU1H (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 21 Jul 2003 16:27:07 -0400
+Date: Mon, 21 Jul 2003 22:40:35 +0200 (CEST)
+From: Aschwin Marsman <a.marsman@aYniK.com>
+X-X-Sender: marsman@localhost.localdomain
 To: linux-kernel@vger.kernel.org
-From: Jan Rychter <jan@rychter.com>
-Subject: Re: Suspend on one machine, resume elsewhere
-Date: Mon, 21 Jul 2003 13:41:33 -0700
-Message-ID: <m2adb7bojm.fsf@tnuctip.rychter.com>
-References: <20030716083758.GA246@elf.ucw.cz> <200307161037.LAA01628@mauve.demon.co.uk>
- <20030716104026.GC138@elf.ucw.cz>
- <20030716195129.A9277@informatik.tu-chemnitz.de>
- <20030716181551.GD138@elf.ucw.cz> <m2r84m8jhh.fsf@tnuctip.rychter.com>
- <20030720225342.GA866@elf.ucw.cz>
-Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="=-=-=";
-	micalg=pgp-sha1; protocol="application/pgp-signature"
-X-Complaints-To: usenet@main.gmane.org
-X-Spammers-Please: blackholeme@rychter.com
-User-Agent: Gnus/5.1003 (Gnus v5.10.3) XEmacs/21.4 (Rational FORTRAN, linux)
-Cancel-Lock: sha1:nb9VDtpEVu47B/ny/WCFMJ3smek=
+Subject: 2.4.22-pre7: are security issues solved?
+Message-ID: <Pine.LNX.4.44.0307212234390.3580-100000@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---=-=-=
-Content-Transfer-Encoding: quoted-printable
+Hi,
 
->>>>> "Pavel" =3D=3D Pavel Machek <pavel@ucw.cz>:
- Pavel> Hi!
- > If you want to migrate programs between machines, run UMLinux, same
- > config, on both machines. Ouch and you'll need swsusp for UMLinux,
- > too
- >
- > That might be more important than you think.
- >>
- Pavel> :-). Well, it is also harder than you probably think, because
- Pavel> UML is *very* strange architecture and it is not at all easy to
- Pavel> save/restore its state. There were some patches in that area,
- Pavel> but it never worked (AFAIK).
- >>
- >> ... but there are many people who dream about swsusp for UMLinux.
- >>
- >> Particularly some laptop users who want to suspend (at least the
- >> most critical long-running applications) and/or find Linux way too
- >> unstable and requiring frequent reboots.
- >>
- >> The day UMLinux gets swsusp, I'm moving my XEmacs, mozilla and some
- >> other toys into a UML machine and staying there. Hopefully then a
- >> single problem with a USB driver, keventd running wild, or other
- >> frequently encountered breakage won't be taking my entire world
- >> down.
+Red Hat has released a new kernel today, that fixes several security issues.
+I currently use 2.4.22-pre7, are those security issues solved in this kernel
+too? Below are the descriptions from the errata:
 
- Pavel> Well, then you may as well help porting swsusp to UML ;-).
+> CAN-2003-0461: /proc/tty/driver/serial reveals the exact character counts
+> for serial links. This could be used by a local attacker to infer password
+> lengths and inter-keystroke timings during password entry.
 
- Pavel> OTOH, single problem with suspend *will* then bring your entire
- Pavel> world down :-(. You would be able to rollback, through.=20=20
+> CAN-2003-0462: Paul Starzetz discovered a file read race condition existing
+> in the execve() system call, which could cause a local crash.
 
-But that's significantly better than any USB problem or any ALSA problem
-or any ACPI problem bringing down my entire world, which is the current
-situation with Linux 2.4.
+> CAN-2003-0464: A recent change in the RPC code set the reuse flag on
+> newly-created sockets. Olaf Kirch noticed that his could allow normal
+> users to bind to UDP ports used for services such as nfsd.
 
-I have the impression that the core developers are unaware of the fact
-of how unstable Linux has become, particularly on laptops. I guess if
-you do kernel work and reboot often, you never notice that. Besides,
-doing stability work is "unfashionable"...
+> CAN-2003-0476: The execve system call in Linux 2.4.x records the file
+> descriptor of the executable process in the file table of the calling
+> process, allowing local users to gain read access to restricted file
+> descriptors.
 
-=2D-J. (duly trying to report all bugs encountered)
+> CAN-2003-0501: The /proc filesystem in Linux allows local users to obtain
+> sensitive information by opening various entries in /proc/self before
+> executing a setuid program. This causes the program to fail to change the
+> ownership and permissions of already opened entries.
 
---=-=-=
-Content-Type: application/pgp-signature
+> CAN-2003-0550: The STP protocol is known to have no security, which could
+> allow attackers to alter the bridge topology. STP is now turned off by
+> default.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.2 (GNU/Linux)
+> CAN-2003-0551: STP input processing was lax in its length checking, which
+> could lead to a denial of service.
 
-iD8DBQA/HFAFLth4/7/QhDoRAhbaAJ4pe648h5EpmX8BciZJOo4c78YGNACdGQ5G
-IvblLsZJrJvURQjutZsqm64=
-=lM2O
------END PGP SIGNATURE-----
---=-=-=--
+> CAN-2003-0552: Jerry Kreuscher discovered that the Forwarding table could
+> be spoofed by sending forged packets with bogus source addresses the same
+> as the local host. 
+
+Have fun,
+ 
+Aschwin Marsman
+ 
+--
+aYniK Software Solutions         all You need is Knowledge
+P.O. box 134                     NL-7600 AC Almelo - the Netherlands
+a.marsman@aYniK.com              http://www.aYniK.com
 

@@ -1,65 +1,57 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315758AbSEJCrq>; Thu, 9 May 2002 22:47:46 -0400
+	id <S315762AbSEJDLF>; Thu, 9 May 2002 23:11:05 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315759AbSEJCrp>; Thu, 9 May 2002 22:47:45 -0400
-Received: from smtprelay7.dc2.adelphia.net ([64.8.50.39]:16271 "EHLO
-	smtprelay7.dc2.adelphia.net") by vger.kernel.org with ESMTP
-	id <S315758AbSEJCro>; Thu, 9 May 2002 22:47:44 -0400
-Message-ID: <001001c1f7cb$a0454300$6501a8c0@mrrmnh.adelphia.net>
-From: "jeff millar" <wa1hco@adelphia.net>
-To: "Tomas Szepe" <szepe@pinerecords.com>
-Cc: "ML-linux-kernel" <linux-kernel@vger.kernel.org>
-In-Reply-To: <20020509203719.A3746@averell> <Pine.LNX.4.44.0205091445570.2626-100000@sparrow.websense.net> <20020509200818.GB31055@louise.pinerecords.com>
-Subject: Re: CML2 [was Re: PATCH & call for help: Marking ISA only drivers]
-Date: Thu, 9 May 2002 22:37:20 -0400
+	id <S315764AbSEJDLE>; Thu, 9 May 2002 23:11:04 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:9734 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S315762AbSEJDLD>;
+	Thu, 9 May 2002 23:11:03 -0400
+Message-ID: <3CDB3AFA.31A377F@zip.com.au>
+Date: Thu, 09 May 2002 20:14:02 -0700
+From: Andrew Morton <akpm@zip.com.au>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-pre4 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
+To: Silvan <silvan@windows-sucks.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Kernel 2.4.18 + ext3 = filesystem corruption
+In-Reply-To: <200205092156.12911.silvan@windows-sucks.com>
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2600.0000
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Some personal thoughts from a Linux user.  Seems like several possibilities
-for Eric's attitude...
+Interesting domain name.
 
-    1. waiting for people to see the need for CML2
-    2. waiting for people who said they could do it better to put up
-    3. totally disgusted by the attitude and behavior on the list
-    4. all of the above
+Silvan wrote:
+> 
+> ...
+>  I had a filesystem explosion (across the board corruption on all ext3
+>  partitions, brought to my attention by a rather nasty series of EXT3_fs
+>  errors and an immediate crash) about a month back.
+> ...
 
-I never got CML2 to work correctly and found Eric to act helpful but to not
-really help.  It surprised me that he knew little about how people (me)
-actually used kernel config and build scripts.
+I've just re-reviewed the 2.4.16 -> 2.4.18 diffs.  There's really
+nothing there which could explain this.  We have:
 
-Free software has to attract people...developers can't force it.  CML2
-required powerful, knowledgeable kernel developers to change and they didn't
-want to.
+- lots of s/bread/sb_bread/etc.  Which is rather unfortunate because
+  it complicates any attempt to back out to 2.4.16's ext3.
 
------ Original Message -----
-From: "Tomas Szepe" <szepe@pinerecords.com>
-To: "William Stearns" <wstearns@pobox.com>
-Cc: "Andi Kleen" <ak@muc.de>; "ML-linux-kernel"
-<linux-kernel@vger.kernel.org>
-Sent: Thursday, May 09, 2002 4:08 PM
-Subject: CML2 [was Re: PATCH & call for help: Marking ISA only drivers]
+- A bug fix for locking journal buffers (the infamous "request_list
+  destroyed" bug)
 
+- Some error-path-only code which remounts the fs readonly rather than taking
+  down the machine when the unexpected happens.
 
-> > I did quite a bit of this work for CML2 - bus dependencies can be
-> > found in the CML2 sources.
->
-> Btw, what happened to CML2?
-> I haven't seen any updates since about February and haven't almost
-> certainly stumbled upon a post from ESR for quite long either.
->
-> T.
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+> 
+>  My hardware:
+> 
+>  AMD K7-1000 on ASUS A7V (VIA Apollo KT133a chipset, integrated Promise
+>  ATA-100 controller), 256 MB RAM, Linksys 10/100E NIC, USR PCI Performance
+>  Pro modem, SB PCI 128, Riva TNT2 AGP video (running at 4X in BIOS and in X),
+>  CREATIVE CD-RW RW8439E, CD-950E/TKU, Maxtor 94610H6, generic PS/2 mouse,
+>  generic FD, and a 104-key keyboard.
 
+I'd be suspecting this, frankly.   Might be an IDE failure.
+
+-

@@ -1,50 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263142AbVCXSS4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263144AbVCXSWE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263142AbVCXSS4 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Mar 2005 13:18:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263145AbVCXSSz
+	id S263144AbVCXSWE (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Mar 2005 13:22:04 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261270AbVCXSWE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Mar 2005 13:18:55 -0500
-Received: from mx1.elte.hu ([157.181.1.137]:57986 "EHLO mx1.elte.hu")
-	by vger.kernel.org with ESMTP id S263142AbVCXSSZ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Mar 2005 13:18:25 -0500
-Date: Thu, 24 Mar 2005 19:17:52 +0100
-From: Ingo Molnar <mingo@elte.hu>
-To: Steven Rostedt <rostedt@goodmis.org>
-Cc: linux-kernel@vger.kernel.org, Esben Nielsen <simlo@phys.au.dk>
-Subject: Re: [patch] Real-Time Preemption, -RT-2.6.12-rc1-V0.7.41-07
-Message-ID: <20050324181752.GA25412@elte.hu>
-References: <20050322100153.GA23143@elte.hu> <20050322112856.GA25129@elte.hu> <20050323061601.GE1294@us.ibm.com> <20050323063317.GB31626@elte.hu> <20050324052854.GA1298@us.ibm.com> <20050324053456.GA14494@elte.hu> <Pine.LNX.4.58.0503240310490.18714@localhost.localdomain> <Pine.LNX.4.58.0503240341280.18714@localhost.localdomain> <20050324113912.GA20911@elte.hu> <Pine.LNX.4.58.0503240916210.18714@localhost.localdomain>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.58.0503240916210.18714@localhost.localdomain>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+	Thu, 24 Mar 2005 13:22:04 -0500
+Received: from mtagate4.de.ibm.com ([195.212.29.153]:53633 "EHLO
+	mtagate4.de.ibm.com") by vger.kernel.org with ESMTP id S263144AbVCXSTh
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 24 Mar 2005 13:19:37 -0500
+In-Reply-To: <1111645464.5569.15.camel@gaston>
+References: <1111645464.5569.15.camel@gaston>
+Mime-Version: 1.0 (Apple Message framework v619.2)
+Message-Id: <6ab08e99eb9f0823f7f7fb12e728e90d@kernel.crashing.org>
+Cc: Andrew Morton <akpm@osdl.org>, linuxppc-dev list <linuxppc-dev@ozlabs.org>,
+       Linux Kernel list <linux-kernel@vger.kernel.org>
+From: Segher Boessenkool <segher@kernel.crashing.org>
+Subject: Re: [PATCH] ppc32/64: Map prefetchable PCI without guarded bit
+Date: Thu, 24 Mar 2005 19:20:43 +0100
+To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+X-Mailer: Apple Mail (2.619.2)
+X-MIMETrack: Itemize by SMTP Server on D12ML064/12/M/IBM(Release 6.53HF247 | January 6, 2005) at
+ 24/03/2005 19:19:33,
+	Serialize by Router on D12ML064/12/M/IBM(Release 6.53HF247 | January 6, 2005) at
+ 24/03/2005 19:19:35,
+	Serialize complete at 24/03/2005 19:19:35
+Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> While experimenting with framebuffer access performances, we noticed a
+> very significant improvement in write access to it when not setting
+> the "guarded" bit on the MMU mappings. This bit basically says that
+> reads and writes won't have side effects (it allows speculation).
 
-* Steven Rostedt <rostedt@goodmis.org> wrote:
+Unless the data is already in cache.
 
-> On an SMP machine, there may even be a chance of a lower priority 
-> process that gets it. That would be possible if the low priority 
-> process on the other CPU tries to grab the lock just after it was 
-> released but before the just woken up high priorty processes get 
-> scheduled. So there's a window where the lock is open, and the lower 
-> priority process snagged it just before the others got in.
+> It appears that it also disables write combining.
 
-that's always a possibility, on UP too: if a lower priority task manages 
-to acquire a lock 'just before' a highprio thread got interested in it 
-there's no way to undo that.
+When the page is also cache-inhibited, it indeed does.
 
-but for the other reasons the explicit approach looks better.
 
-	Ingo
+Btw, did you ever get to fix the problem with mapping the last page
+of physical address space via /dev/mem ?
+
+
+Segher
+

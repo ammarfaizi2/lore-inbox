@@ -1,39 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S270319AbRIBX0i>; Sun, 2 Sep 2001 19:26:38 -0400
+	id <S270314AbRIBXZT>; Sun, 2 Sep 2001 19:25:19 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S270333AbRIBX02>; Sun, 2 Sep 2001 19:26:28 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:33926 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S270319AbRIBX0U>;
-	Sun, 2 Sep 2001 19:26:20 -0400
-Date: Sun, 02 Sep 2001 16:26:32 -0700 (PDT)
-Message-Id: <20010902.162632.55510336.davem@redhat.com>
-To: willy@debian.org
-Cc: thunder7@xs4all.nl, parisc-linux@lists.parisc-linux.org,
+	id <S270319AbRIBXY7>; Sun, 2 Sep 2001 19:24:59 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:41746 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S270314AbRIBXYz>;
+	Sun, 2 Sep 2001 19:24:55 -0400
+Date: Mon, 3 Sep 2001 00:25:14 +0100
+From: Matthew Wilcox <willy@debian.org>
+To: "David S. Miller" <davem@redhat.com>
+Cc: willy@debian.org, thunder7@xs4all.nl, parisc-linux@lists.parisc-linux.org,
         linux-kernel@vger.kernel.org
-Subject: Re: [parisc-linux] documented Oops running big-endian reiserfs on
- parisc architecture
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <20010903002514.X5126@parcelfarce.linux.theplanet.co.uk>
-In-Reply-To: <20010902150023.U5126@parcelfarce.linux.theplanet.co.uk>
-	<20010902.160441.92583890.davem@redhat.com>
-	<20010903002514.X5126@parcelfarce.linux.theplanet.co.uk>
-X-Mailer: Mew version 2.0 on Emacs 21.0 / Mule 5.0 (SAKAKI)
+Subject: Re: [parisc-linux] documented Oops running big-endian reiserfs on parisc architecture
+Message-ID: <20010903002514.X5126@parcelfarce.linux.theplanet.co.uk>
+In-Reply-To: <20010902105538.A15344@middle.of.nowhere> <20010902150023.U5126@parcelfarce.linux.theplanet.co.uk> <20010902.160441.92583890.davem@redhat.com>
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20010902.160441.92583890.davem@redhat.com>; from davem@redhat.com on Sun, Sep 02, 2001 at 04:04:41PM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: Matthew Wilcox <willy@debian.org>
-   Date: Mon, 3 Sep 2001 00:25:14 +0100
-   
-   No, we just haven't bothered to implement it yet.  Not many people
-   use IPX these days.
-   
-IPX is not the only way this can happen.  Normal IPv4 can get
-it with some ethernet cards on receive.
+On Sun, Sep 02, 2001 at 04:04:41PM -0700, David S. Miller wrote:
+>    From: Matthew Wilcox <willy@debian.org>
+>    Date: Sun, 2 Sep 2001 15:00:23 +0100
+> 
+>    On Sun, Sep 02, 2001 at 10:55:38AM +0200, thunder7@xs4all.nl wrote:
+>    > ReiserFS version 3.6.25
+>    > bonnie[163]: Unaligned data reference 28
+>    
+>    As it says, an unaligned data reference.
+>    
+> BTW, you should not be OOPSing on this as unaligned references are
+> defined as completely normal, especially in the networking.
+> 
+> Is it impossible to handle unaligned access traps properly on
+> parisc?  If so, well you have some problems...
 
-Later,
-David S. Miller
-davem@redhat.com
+No, we just haven't bothered to implement it yet.  Not many people
+use IPX these days.
+
+-- 
+Revolutions do not require corporate support.

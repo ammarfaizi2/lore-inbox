@@ -1,46 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263252AbUEGNtF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263589AbUEGOXf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263252AbUEGNtF (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 7 May 2004 09:49:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263584AbUEGNtF
+	id S263589AbUEGOXf (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 7 May 2004 10:23:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263591AbUEGOXf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 7 May 2004 09:49:05 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:15277 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S263252AbUEGNtD
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 7 May 2004 09:49:03 -0400
-Date: Fri, 7 May 2004 10:49:54 -0300
-From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-To: Eyal Lebedinsky <eyal@eyal.emu.id.au>
-Cc: linux-kernel@vger.kernel.org, Greg KH <greg@kroah.com>
-Subject: Re: Linux 2.4.27-pre2
-Message-ID: <20040507134954.GC10613@logos.cnet>
-References: <20040503230911.GE7068@logos.cnet> <40997DAF.9070107@eyal.emu.id.au>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <40997DAF.9070107@eyal.emu.id.au>
-User-Agent: Mutt/1.5.5.1i
+	Fri, 7 May 2004 10:23:35 -0400
+Received: from ida.rowland.org ([192.131.102.52]:5124 "HELO ida.rowland.org")
+	by vger.kernel.org with SMTP id S263589AbUEGOXc (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 7 May 2004 10:23:32 -0400
+Date: Fri, 7 May 2004 10:23:29 -0400 (EDT)
+From: Alan Stern <stern@rowland.harvard.edu>
+X-X-Sender: stern@ida.rowland.org
+To: Daniel Blueman <daniel.blueman@gmx.net>
+cc: linux-kernel@vger.kernel.org, <linux-usb-devel@lists.sourceforge.net>
+Subject: Re: [linux-usb-devel] [linux-2.6.5] oops when plugging CDC USB
+ network device...
+In-Reply-To: <8293.1083936045@www3.gmx.net>
+Message-ID: <Pine.LNX.4.44L0.0405071022221.1035-100000@ida.rowland.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, May 06, 2004 at 09:50:07AM +1000, Eyal Lebedinsky wrote:
-> Marcelo Tosatti wrote:
-> >Hi, 
-> >
-> >Here goes the second pre release of 2.4.27 -pre2
-> 
-> While configuring I get:
->     For AMD SHPC only: Use $HRT for resource/configuration 
->     (CONFIG_HOTPLUG_PCI_SHPC_PHPRM_LEGACY) [N/y/?] (NEW) ?
-> 
->   Sorry, no help available for this option yet.
-> 
-> There are more. 2.4 is our stable branch and I expect all
-> help to be present - is this not the policy now?
+On Fri, 7 May 2004, Daniel Blueman wrote:
 
-Eyal,
+> When plugging a Motorola SurfBoard 5100 device into my box, khubd oopses.
+> Kernel is stock linux-2.6.5.
+> 
+> Chipset is nForce 2 (OHCI), USB 2 EHCI controller disabled, so just USB 1.1
+> controller active.
+> 
+> Please CC me if more information would be handy.
+> 
+> Harvested from kernel logs:
 
-Right, there should be basic documentation available.
+> usb 1-1: Product: USB Cable Modem
+> usb 1-1: registering 1-1:1.0 (config #1, interface 0)
+> usbnet 1-1:1.0: usb_probe_interface
+> usbnet 1-1:1.0: usb_probe_interface - got id
+> Unable to handle kernel NULL pointer dereference at virtual address 00000004
+>  printing eip:
+> c028ff64
+> *pde = 00000000
+> Oops: 0000 [#1]
+> DEBUG_PAGEALLOC
+> CPU:    0
+> EIP:    0060:[<c028ff64>]    Not tainted
+> EFLAGS: 00010296   (2.6.5) 
+> EIP is at usb_disable_interface+0x14/0x50
 
-Greg?
+This has been fixed in 2.6.6.
+
+Alan Stern
+

@@ -1,48 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132520AbRDQDAF>; Mon, 16 Apr 2001 23:00:05 -0400
+	id <S132529AbRDQDUI>; Mon, 16 Apr 2001 23:20:08 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132521AbRDQC7z>; Mon, 16 Apr 2001 22:59:55 -0400
-Received: from james.kalifornia.com ([208.179.59.2]:26470 "EHLO
-	james.kalifornia.com") by vger.kernel.org with ESMTP
-	id <S132520AbRDQC7r>; Mon, 16 Apr 2001 22:59:47 -0400
-Message-ID: <3ADBA2C5.3000002@kalifornia.com>
-Date: Mon, 16 Apr 2001 18:56:21 -0700
-From: Ben Ford <ben@kalifornia.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux 2.2.17-14 i686; en-US; rv:0.8.1+) Gecko/20010416
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Randolph Bentson <bentson@grieg.holmsjoen.com>
-CC: Miles Lane <miles@megapathdsl.net>, linux-kernel@vger.kernel.org
-Subject: Re: Kernel 2.5 Workshop RealVideo streams -- next time, please get better audio.
-In-Reply-To: <3ADB922B.4DE1F9A4@megapathdsl.net> <20010416185305.B22650@grieg.holmsjoen.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S132530AbRDQDT6>; Mon, 16 Apr 2001 23:19:58 -0400
+Received: from snark.tuxedo.org ([207.106.50.26]:25103 "EHLO snark.thyrsus.com")
+	by vger.kernel.org with ESMTP id <S132529AbRDQDTn>;
+	Mon, 16 Apr 2001 23:19:43 -0400
+Date: Mon, 16 Apr 2001 23:20:48 -0400
+From: "Eric S. Raymond" <esr@thyrsus.com>
+To: Peter Samuelson <peter@cadcamlab.org>
+Cc: james rich <james.rich@m.cc.utah.edu>, linux-kernel@vger.kernel.org,
+        kbuild-devel@lists.sourceforge.net
+Subject: Re: CML2 1.1.3 is available
+Message-ID: <20010416232048.B23989@thyrsus.com>
+Reply-To: esr@thyrsus.com
+Mail-Followup-To: "Eric S. Raymond" <esr@thyrsus.com>,
+	Peter Samuelson <peter@cadcamlab.org>,
+	james rich <james.rich@m.cc.utah.edu>, linux-kernel@vger.kernel.org,
+	kbuild-devel@lists.sourceforge.net
+In-Reply-To: <3ADB69BF.7040305@reutershealth.com> <Pine.GSO.4.05.10104161622110.17365-100000@pipt.oz.cc.utah.edu> <20010416205556.A22960@thyrsus.com> <20010416202820.A22319@cadcamlab.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20010416202820.A22319@cadcamlab.org>; from peter@cadcamlab.org on Mon, Apr 16, 2001 at 08:28:20PM -0500
+Organization: Eric Conspiracy Secret Labs
+X-Eric-Conspiracy: There is no conspiracy
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Randolph Bentson wrote:
+Peter Samuelson <peter@cadcamlab.org>:
+> Wait ... I thought you were just using Python bindings to Tk.  Are you
+> telling us the Tk library, which for 8 or 10 years has been pretty much
+> *the* X toolkit/widget set for scripting, does not include an interface
+> to X resources?
 
->On Mon, Apr 16, 2001 at 05:45:31PM -0700, Miles Lane wrote:
->
->>There is one major shortcoming of the recordings.
->>Usually, only the comments of the presenter(s)
->>can be heard.
->>
->
->I've heard of conferences where a wireless audience
->microphone was put inside a Nerf ball.  It could
->then be tossed to the audience member who wished
->to speak.
->
-That sounds more Linux-like  *lol*
-
+If it does, it's not in any of the documentation I've ever seen.
 -- 
-Three things are certain:
-Death, taxes, and lost data
-Guess which has occurred.
-- - - - - - - - - - - - - - - - - - - -
-Patched Micro$oft servers are secure today . . . but tomorrow is another story!
+		<a href="http://www.tuxedo.org/~esr/">Eric S. Raymond</a>
 
-
-
+"This country, with its institutions, belongs to the people who
+inhabit it. Whenever they shall grow weary of the existing government,
+they can exercise their constitutional right of amending it or their
+revolutionary right to dismember it or overthrow it."
+	-- Abraham Lincoln, 4 April 1861

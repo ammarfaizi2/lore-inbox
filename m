@@ -1,43 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264945AbSKSBVF>; Mon, 18 Nov 2002 20:21:05 -0500
+	id <S265058AbSKSB0t>; Mon, 18 Nov 2002 20:26:49 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264976AbSKSBVF>; Mon, 18 Nov 2002 20:21:05 -0500
-Received: from h00e098094f32.ne.client2.attbi.com ([24.60.234.83]:16004 "EHLO
-	linux.local") by vger.kernel.org with ESMTP id <S264945AbSKSBVE>;
-	Mon, 18 Nov 2002 20:21:04 -0500
-Date: Mon, 18 Nov 2002 20:27:32 -0500
-Message-Id: <200211190127.gAJ1RWg11023@linux.local>
-From: Jim Houston <jim.houston@attbi.com>
-To: linux-kernel@vger.kernel.org,
-       high-res-timers-discourse@lists.sourceforge.net,
-       ltp-list@lists.sourceforge.net, jim.houston@ccur.com,
-       plars@linuxtestproject.org
-Subject: Re: LTP - gettimeofday02 FAIL
-Reply-to: jim.houston@attbi.com
+	id <S265114AbSKSB0s>; Mon, 18 Nov 2002 20:26:48 -0500
+Received: from x35.xmailserver.org ([208.129.208.51]:56715 "EHLO
+	x35.xmailserver.org") by vger.kernel.org with ESMTP
+	id <S265058AbSKSB0r>; Mon, 18 Nov 2002 20:26:47 -0500
+X-AuthUser: davidel@xmailserver.org
+Date: Mon, 18 Nov 2002 17:34:13 -0800 (PST)
+From: Davide Libenzi <davidel@xmailserver.org>
+X-X-Sender: davide@blue1.dev.mcafeelabs.com
+To: Dan Kegel <dank@kegel.com>
+cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [rfc] epoll interface change and glibc bits ...
+In-Reply-To: <3DD98B79.20102@kegel.com>
+Message-ID: <Pine.LNX.4.44.0211181733070.979-100000@blue1.dev.mcafeelabs.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, 18 Nov 2002, Dan Kegel wrote:
 
-Hi Everyone,
+> Davide Libenzi wrote:
+> >>I'd be happy to contribute better doc... has the man page
+> >>for sys_epoll been written yet?
+> >
+> > http://www.xmailserver.org/linux-patches/epoll.2
+> > http://www.xmailserver.org/linux-patches/epoll_create.2
+> > http://www.xmailserver.org/linux-patches/epoll_ctl.2
+> > http://www.xmailserver.org/linux-patches/epoll_wait.2
+> >
+> > it is going to change though with the latest talks about the interface.
+>
+> Hmm.  Right off the bat, I see a terminology problem.
+> The man page says
+>
+> .SH NAME
+> epoll \- edge triggered asynchronous I/O facility
+>
+> That's going to confuse some users.  They might think
+> epoll can actually initiate I/O.  Better to say
+>
+> epoll \- edge triggered I/O readiness notification facility
 
-I just tried gettimeofday02 on an old pentium-pro dual processor, and yes
-the time goes backwards with a 2.5.48 kernel.
+Yes, maybe sounds better ...
 
-I believe that this is the result of lost ticks.  It has gotten much
-easier to lose a tick since HZ was changed to 1000.  When the timer
-interrupt is delayed, the other processors will continue to keep reasonable
-time (based on the TSC), but when the timer interrupt eventually happens,
-it will add one tick's worth of nanoseconds to xtime.tv_nsec and set
-last_tsc_low to the current tsc value.  The other processors now base
-their time on this new last_tsc_low and  will see time go backwards.
-I accidentally configured in the ACPI power management code and was
-disappointed to find that it routinely caused a 9 milli-second interrupt
-lock-out (on my 1GHz Athlon).  With the old 100 Hz clock, this delay would
-be detected by reading the PIT timer.  With 1000 Hz, the timer would  reload
-several times and all we see is a fraction of a tick.
 
-I'm interested in this because I'm working on my "alternative Posix timers
-patch".  It gets confused when time backs up.
+> Second, epoll_ctl(2) doesn't define the meaning of the
+> event mask.  It should give the allowed bits and define
+> their meanings.  If we use the traditional POLLIN etc, we
+> can say
+>    POLLIN - the fd has become ready for reading
+>    POLLOUT - the fd has become ready for writing
+>    Note: If epoll tells you e.g. POLLIN, it means that
+>             poll will tell you the same thing,
+>             since poll gives the current status,
+>             and epoll gives changes in status.
 
-Jim Houston - Concurrent Computer Corp.
+I will have to change man pages also to fit EPOLL* definitions.
+
+
+
+- Davide
+
+

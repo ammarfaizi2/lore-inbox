@@ -1,34 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265205AbSLQRWv>; Tue, 17 Dec 2002 12:22:51 -0500
+	id <S265470AbSLQR0H>; Tue, 17 Dec 2002 12:26:07 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265230AbSLQRWv>; Tue, 17 Dec 2002 12:22:51 -0500
-Received: from [209.135.48.206] ([209.135.48.206]:47280 "HELO
-	mstaeo0b.dsrusi.com") by vger.kernel.org with SMTP
-	id <S265205AbSLQRWt> convert rfc822-to-8bit; Tue, 17 Dec 2002 12:22:49 -0500
-X-MimeOLE: Produced By Microsoft Exchange V6.0.5762.3
-content-class: urn:content-classes:message
+	id <S265475AbSLQR0H>; Tue, 17 Dec 2002 12:26:07 -0500
+Received: from cpe-24-221-190-179.ca.sprintbbd.net ([24.221.190.179]:26548
+	"EHLO myware.akkadia.org") by vger.kernel.org with ESMTP
+	id <S265470AbSLQR0G>; Tue, 17 Dec 2002 12:26:06 -0500
+Message-ID: <3DFF5FFE.8070305@redhat.com>
+Date: Tue, 17 Dec 2002 09:33:50 -0800
+From: Ulrich Drepper <drepper@redhat.com>
+Organization: Red Hat, Inc.
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3b) Gecko/20021216
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Subject: [patch] "fully HT-aware scheduler" support, 2.5.31-BK-curr
-Date: Tue, 17 Dec 2002 12:27:22 -0500
-Message-ID: <33F012255162604984A3F4BDA95C6EC402264877@mstaex1b.DSRUSI.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: [patch] "fully HT-aware scheduler" support, 2.5.31-BK-curr
-Thread-Index: AcKl8hCXSn8gtBGaEdejLgBQ2hK7KA==
-From: "Walton, Shane" <swalton@dsrnet.com>
-To: <mingo@elte.hu>
-Cc: <linux-kernel@vger.kernel.org>
+To: dada1 <dada1@cosmosbay.com>
+CC: Linus Torvalds <torvalds@transmeta.com>,
+       Dave Jones <davej@codemonkey.org.uk>, Ingo Molnar <mingo@elte.hu>,
+       linux-kernel@vger.kernel.org, hpa@transmeta.com
+Subject: Re: Intel P6 vs P7 system call performance
+References: <Pine.LNX.4.44.0212162140500.1644-100000@home.transmeta.com> <3DFF023E.6030401@redhat.com> <000b01c2a5bd$ebb6e870$760010ac@edumazet>
+In-Reply-To: <000b01c2a5bd$ebb6e870$760010ac@edumazet>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Has the 2.5.31-BK-curr patch for HT been included into any stable builds for the 2.4 tree?  If not, has it been included in the most recent 2.5 tree?  Thank you for your time and I look forward to hearing from you.
-Regards,
+dada1 wrote:
 
-Shane M. Walton, Software Engineer
-Digital System Resources, Inc.
-swalton@dsrnet.com
-703.234.1674
+> You could have only one routine that would need a relocation / patch at
+> dynamic linking stage :
+
+That's a horrible way to deal with this in DSOs.  THere is no writable
+and executable segment and it would have to be created which means
+enormous additional setup costs and higher memory requirement.  I'm not
+going to use any scode modification.
+
+-- 
+--------------.                        ,-.            444 Castro Street
+Ulrich Drepper \    ,-----------------'   \ Mountain View, CA 94041 USA
+Red Hat         `--' drepper at redhat.com `---------------------------
 

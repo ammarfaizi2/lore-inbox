@@ -1,53 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268576AbUHYCW3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266376AbUHYCYp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268576AbUHYCW3 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 Aug 2004 22:22:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268531AbUHYCW1
+	id S266376AbUHYCYp (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 Aug 2004 22:24:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268531AbUHYCYp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 Aug 2004 22:22:27 -0400
-Received: from viper.oldcity.dca.net ([216.158.38.4]:25790 "HELO
-	viper.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S266376AbUHYCWW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 Aug 2004 22:22:22 -0400
-Subject: Re: NForce 2 support
-From: Lee Revell <rlrevell@joe-job.com>
-To: Dr NoName <spamacct11@yahoo.com>
-Cc: chakkerz_dev@optusnet.com.au, linux-kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <20040825020538.55821.qmail@web12306.mail.yahoo.com>
-References: <20040825020538.55821.qmail@web12306.mail.yahoo.com>
-Content-Type: text/plain
-Message-Id: <1093400541.5678.9.camel@krustophenia.net>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Tue, 24 Aug 2004 22:22:22 -0400
-Content-Transfer-Encoding: 7bit
+	Tue, 24 Aug 2004 22:24:45 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:23763 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S266376AbUHYCYg (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 24 Aug 2004 22:24:36 -0400
+Date: Tue, 24 Aug 2004 22:24:28 -0400 (EDT)
+From: James Morris <jmorris@redhat.com>
+X-X-Sender: jmorris@thoron.boston.redhat.com
+To: Jean-Luc Cooke <jlcooke@engsoc.org>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Preliminary paper on collisions in SHA-2 Family
+In-Reply-To: <20040823173220.GM27426@engsoc.org>
+Message-ID: <Xine.LNX.4.44.0408242223490.23342-100000@thoron.boston.redhat.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2004-08-24 at 22:05, Dr NoName wrote:
-> > nforce 2 works sweet with the exception of sound
-> > which has been broken in 2.6.7 and 
-> > 2.6.8.1 causing system crashes. If you have a
-> > soundcard not to worry, if you are 
-> > gonna run onboard ... wait and see with 2.6.9 brings
-> 
-> 
-> is that with the open source drivers or nvidia
-> proprietary ones? How do the two sets of drivers
-> compare?
-> 
+On Mon, 23 Aug 2004, Jean-Luc Cooke wrote:
 
-The open source sound drivers do not work as well as the binary ones. 
-SPDIF/AC3 does not work in the current ALSA driver and nvidia will not
-release the required documentation to get it working.  Worse, the
-binary-only driver is an OSS and not an ALSA driver!  Unbelievable.
+> Hashes to look towards?
+>   Whirlpool
+>   Tiger
 
-The network driver had to be reverse engineered.  Apparently nvidia
-engineers helped to get the gigabit support and some other features
-working, but only after people had to reverse engineer the basic
-functions.
+Whirlpool has just gone into bk, thanks to Aaron Grothe.
 
-Stick with VIA.  Nvidia is not Linux friendly.
 
-Lee
+- James
+-- 
+James Morris
+<jmorris@redhat.com>
+
+
 

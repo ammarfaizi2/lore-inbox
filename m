@@ -1,76 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285709AbSAZRdb>; Sat, 26 Jan 2002 12:33:31 -0500
+	id <S285720AbSAZRgc>; Sat, 26 Jan 2002 12:36:32 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S285720AbSAZRdV>; Sat, 26 Jan 2002 12:33:21 -0500
-Received: from pD9E103E5.dip.t-dialin.net ([217.225.3.229]:11648 "EHLO fefe.de")
-	by vger.kernel.org with ESMTP id <S285709AbSAZRdK>;
-	Sat, 26 Jan 2002 12:33:10 -0500
-Date: Sat, 26 Jan 2002 18:33:03 +0100
-From: Felix von Leitner <usenet-20020126@fefe.de>
-To: linux-kernel@vger.kernel.org
-Subject: Re: [ACPI] ACPI mentioned on lwn.net/kernel
-Message-ID: <20020126173303.GC11344@fefe.de>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-In-Reply-To: <200201251550.g0PFoIPa002738@tigger.cs.uni-dortmund.de> <200201250802.32508.bodnar42@phalynx.dhs.org> <jeelkes8y5.fsf@sykes.suse.de> <a2sv2s$ge3$1@penguin.transmeta.com>
-Mime-Version: 1.0
+	id <S285747AbSAZRgW>; Sat, 26 Jan 2002 12:36:22 -0500
+Received: from natpost.webmailer.de ([192.67.198.65]:29595 "EHLO
+	post.webmailer.de") by vger.kernel.org with ESMTP
+	id <S285720AbSAZRgT>; Sat, 26 Jan 2002 12:36:19 -0500
+Date: Sat, 26 Jan 2002 18:36:37 +0100
+From: Roland Arendes <roland@arendes.de>
+X-Mailer: The Bat! (v1.53d) Personal
+Reply-To: Roland Arendes <roland@arendes.de>
+X-Priority: 3 (Normal)
+Message-ID: <73506817655.20020126183637@arendes.de>
+To: "Stolle, Martin (KIV)" <MStolle@kiv.de>
+Cc: "'linux-kernel@vger.kernel.org '" <linux-kernel@vger.kernel.org>
+Subject: Re: kernel 2.4.17 with -rmap VM patch ROCKS!!!
+In-Reply-To: <4353BABFDF95D311BFC30004AC4CB22AAE3495@sdar000001.kiv-da.de>
+In-Reply-To: <4353BABFDF95D311BFC30004AC4CB22AAE3495@sdar000001.kiv-da.de>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <a2sv2s$ge3$1@penguin.transmeta.com>
-User-Agent: Mutt/1.3.25i
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Thus spake Linus Torvalds (torvalds@transmeta.com):
-> >These are all startup costs that are lost in the noise the longer the
-> >program runs.
-> That's a load of bull.
 
-Agreed.  I like to plug my diet libc slides at this point which (I hope)
-make a point about this with network programming as an example.  See
-http://www.fefe.de/dietlibc/talk.pdf for details.
+hi Stolle, Martin (KIV),
 
-> Startup costs tend to _dominate_ most applications, except for
-> benchmarks, scientific loads and games/multimedia.
+SMK> I installed 2.4.17-rmap-11c and later 2.4.17-rmap-12a on my
+SMK> 2-CPU-Pentium-III
+SMK> and on one of my 4-CPU-Xeon-III's, and since then, the machine isn't
+SMK> swapping any
+SMK> longer.
+SMK> Thanks to you and Rik van Riels!
+SMK> I would like if Rik's kernel patches would go into standard.
+SMK> They are really well!
 
-> Not surprisingly, those three categories are also the ones where lots of
-> optimizer tuning is regularly done. But it's a _small_ subset of the
-> general application load.
+I can really agree to those statements. It also seems that my
+harddrives are more quiet and faster, because the heavy swap-accesses
+of the official 2.4.17 are gone.
 
-Exactly.  However, due to these optimizations the trend goes to large
-long-running monster applications like Mozilla or GNOME and KDE.  KDE
-does not ask me whether I want to run those 20 processes all the time.
-It just starts them.  And new processes are forked off a long running
-process because the start-up cost has become so large.
+(It's now even possible to compile a 2.4.17 with -j2 on a SMP system with 64MB
+without swap-usage! Yes, it's a lower end system :)
 
-> Note that not only do startup costs often dominate the rest, they are
-> psychologically very important.
+Marcelo: I recommend the rmap12a-patch for the official stable tree. Please
+have a look at rmap12a!
 
-That is not just psychological.  Most developers would do good to visit
-a close university or school and see what kind of machines they use
-there.  Ever tried installing Debian on a Sparc SLC?  It took a little
-over 24 hours.  Compiling a kernel takes over 12 hours on that box IIRC.
-But that's not the point.  This hardware was very much usable a few
-years ago.  Today it's practically futile to use it.  You are waiting
-more than you are working.  On my desktop Athlon, 1.3 million CPU cycles
-static start-up cost for running a dynamically linked glibc program may
-not look like much.  But my statically linked ls does an ls -rtl of a
-directory with 10 files in less time.
+-roland
 
-> It's sad that gcc relegates "optimize for size" to a second-class
-> citizen.  Instead of having a "-Os" (that optimizes for size and doesn't
-> work together with other optimizations), it would be better to have a
-> "-Olargecode", which explicitly enables "don't care about code size" for
-> those (few) applications where it makes sense.
-
-What do you mean with "does not work together with other optimizations"?
-I use -Os all the time.  Actually, -Os often produces faster code than
--O2 or -O3!  What other optimizations do you mean?  I don't need much
-other optimizer options besides -fomit-frame-pointer and -march=athlon
-if you link PIC code and use an Athlon.
-
-And since -funroll-loops and -finline-functions are enabled explicitly
-(or the latter with -O3 and larger by people who don't know what they
-are doing), I think gcc already does what you want it to do ;)
-
-Felix

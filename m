@@ -1,46 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262964AbREWDH2>; Tue, 22 May 2001 23:07:28 -0400
+	id <S262970AbREWDWE>; Tue, 22 May 2001 23:22:04 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262966AbREWDHS>; Tue, 22 May 2001 23:07:18 -0400
-Received: from nat-pool-meridian.redhat.com ([199.183.24.200]:4943 "EHLO
-	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
-	id <S262964AbREWDHI>; Tue, 22 May 2001 23:07:08 -0400
-Date: Tue, 22 May 2001 23:07:08 -0400
-From: Pete Zaitcev <zaitcev@redhat.com>
-Message-Id: <200105230307.f4N378P19951@devserv.devel.redhat.com>
-To: h.verhagen@chello.nl, linux-kernel@vger.kernel.org
-Subject: Re: Oops on booting 2.4.4
-In-Reply-To: <mailman.990573660.4187.linux-kernel2news@redhat.com>
-In-Reply-To: <mailman.990573660.4187.linux-kernel2news@redhat.com>
+	id <S262968AbREWDVy>; Tue, 22 May 2001 23:21:54 -0400
+Received: from panic.ohr.gatech.edu ([130.207.47.194]:35492 "HELO
+	havoc.gtf.org") by vger.kernel.org with SMTP id <S262967AbREWDVl>;
+	Tue, 22 May 2001 23:21:41 -0400
+Message-ID: <3B0B2CBA.19D081C9@mandrakesoft.com>
+Date: Tue, 22 May 2001 23:21:30 -0400
+From: Jeff Garzik <jgarzik@mandrakesoft.com>
+Organization: MandrakeSoft
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.5-pre5 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Linus Torvalds <torvalds@transmeta.com>,
+        Alexander Viro <viro@math.psu.edu>, Andries.Brouwer@cwi.nl,
+        linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] struct char_device
+In-Reply-To: <Pine.LNX.4.21.0105221936030.4713-100000@penguin.transmeta.com> <3B0B28A9.7556908D@mandrakesoft.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> May 23 02:46:24 localhost kernel: Process kudzu (pid: 219,
-> stackpage=c7845000)
-> May 23 02:46:24 localhost kernel: Stack: c12607e0 00000400 00000400
-> c73aa000 c122a060 c122a05c c122a058 c88fbb20
-> May 23 02:46:24 localhost kernel:        000003f1 000003f1 c014ab80
-> c73aa3f1 c7845f9c 00000000 00000400 ffffffea
-> May 23 02:46:24 localhost kernel:        c7f43f60 00000400 bffff4b8
-> c7f2e220 c12607e0 00000000 00000000 c73aa000
-> May 23 02:46:24 localhost kernel: Call Trace: [<c88fbb20>]
-> [proc_file_read+184/464] [sys_read+142/196] [system_call+51/56]
-> May 23 02:46:24 localhost kernel: Call Trace: [<c88fbb20>] [<c014ab80>]
-> [<c012e83e>] [<c0106aeb>]
+Jeff Garzik wrote:
+> /dev/sda <-> partition_blkdev <-> /dev/disk{0,1,2,3,4}
+> /dev/hda <-> partition_blkdev <-> /dev/disk{5,6,7}
 
-A module deregistered incorrectly, or has a race between
-post-load activities and unload. One way or another it left
-a dangling proc entry.
+I also point out that handling disk partitions as a -tiny- remapping
+blkdev also has the advantage of making it easy to have a single request
+device per hardware device (a simple remap shouldn't require its own
+request queue, right?), while remapping devices flexibility to do their
+own request queue management.
 
-The oops does not provide off-stack information, so it's impossible
-to tell what particular modules is the culprit.
 
-> May 23 02:46:24 localhost kernel: hub.c: USB new device connect on
-> bus1/2, assigned device number 2
-> May 23 02:46:24 localhost kernel: usb.c: USB device 2 (vend/prod
-> 0x4a9/0x2204) is not claimed by any active driver.
+> I do grant you that an offset at bh submit time is faster, but IMHO
+> partitions -not- as a remapping blkdev are an ugly special case.
 
-What is this thing you have on USB? Try to run without it.
-
--- Pete
+think of the simplifications possible, when partitions are just another
+block device, just like anything else...  No special partitions arrays
+in the lowlevel blkdev, etc.

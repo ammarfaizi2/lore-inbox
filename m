@@ -1,43 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289298AbSBEABk>; Mon, 4 Feb 2002 19:01:40 -0500
+	id <S289307AbSBEADA>; Mon, 4 Feb 2002 19:03:00 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289299AbSBEABa>; Mon, 4 Feb 2002 19:01:30 -0500
-Received: from adsl-66-127-195-58.dsl.snfc21.pacbell.net ([66.127.195.58]:38280
-	"EHLO panda.mostang.com") by vger.kernel.org with ESMTP
-	id <S289298AbSBEABT>; Mon, 4 Feb 2002 19:01:19 -0500
-Date: Mon, 4 Feb 2002 16:01:18 -0800
-Message-Id: <200202050001.g1501Io04183@panda.mostang.com>
+	id <S289299AbSBEACv>; Mon, 4 Feb 2002 19:02:51 -0500
+Received: from paloma17.e0k.nbg-hannover.de ([62.181.130.17]:8632 "HELO
+	paloma17.e0k.nbg-hannover.de") by vger.kernel.org with SMTP
+	id <S289306AbSBEACg>; Mon, 4 Feb 2002 19:02:36 -0500
+Content-Type: text/plain;
+  charset="iso-8859-15"
+From: Dieter =?iso-8859-15?q?N=FCtzel?= <Dieter.Nuetzel@hamburg.de>
+Organization: DN
+To: Andreas Tscharner <starfire@dplanet.ch>
+Subject: Re: New scheduler in 2.4. series?
+Date: Tue, 5 Feb 2002 01:02:24 +0100
+X-Mailer: KMail [version 1.3.2]
+Cc: Marcelo Tosatti <marcelo@conectiva.com.br>,
+        Linux Kernel List <linux-kernel@vger.kernel.org>,
+        Andrea Arcangeli <andrea@suse.de>, Ingo Molnar <mingo@elte.hu>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-From: David Mosberger-Tang <David.Mosberger@acm.org>
-Reply-to: David.Mosberger@acm.org
-To: linux-ia64@linuxia64.org
-cc: linux-kernel@vger.kernel.org
-Subject: ia-64 linux kernel book available
-X-URL: http://www.mostang.com/~davidm/
+Content-Transfer-Encoding: 8bit
+Message-Id: <20020205000246Z289306-13996+17271@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-We are happy to announce that our book is now in stock at various book
-stores.  The title of the book is:
+On Monday, 4. February 2002 22:19, Andreas Tscharner wrote:
+> Hello World,
+> Hello Marcelo,
+>
+> Is there any chance, that the new scheduler will be in the 2.4 series soon?
 
-	 ia-64 linux kernel: design and implementation
+I think "we" should start with the "remaining" -aa patches for 
+2.4.19-pre1/-pre2, finally...
 
-As the title suggests, the book focuses on describing how the Linux
-kernel works on the IA-64 architecture (aka, "Itanium Processor
-Family" or "IPF").  The book also describes the hardware abstraction
-interface of Linux and as such could be of interest to kernel
-developers using other platforms.
-
-For more information, please visit:
-
-    http://www.lia64.org/book/
+Yes, I know that I repeate my point, but it is time.
 
 Thanks,
+	Dieter
+-- 
+Dieter Nützel
+Graduate Student, Computer Science
 
-	--davidm
-
-PS: This will be the only mail of this nature sent to these mailing
-    lists.  Thanks for your understanding.
+University of Hamburg
+Department of Computer Science
+@home: Dieter.Nuetzel@hamburg.de

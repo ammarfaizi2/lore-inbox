@@ -1,54 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262472AbSJ0RC2>; Sun, 27 Oct 2002 12:02:28 -0500
+	id <S261238AbSJ0Rin>; Sun, 27 Oct 2002 12:38:43 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262474AbSJ0RC1>; Sun, 27 Oct 2002 12:02:27 -0500
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:37685 "EHLO
-	frodo.biederman.org") by vger.kernel.org with ESMTP
-	id <S262472AbSJ0RCZ>; Sun, 27 Oct 2002 12:02:25 -0500
-To: Luca Barbieri <ldb@ldb.ods.org>
-Cc: Linux-Kernel ML <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH][RFC] x86 multiple user-mode privilege rings
-References: <1035686893.2272.20.camel@ldb>
-From: ebiederm@xmission.com (Eric W. Biederman)
-Date: 27 Oct 2002 10:06:40 -0700
-In-Reply-To: <1035686893.2272.20.camel@ldb>
-Message-ID: <m11y6blskf.fsf@frodo.biederman.org>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.1
-MIME-Version: 1.0
+	id <S261331AbSJ0Rin>; Sun, 27 Oct 2002 12:38:43 -0500
+Received: from 12-231-249-244.client.attbi.com ([12.231.249.244]:43528 "HELO
+	kroah.com") by vger.kernel.org with SMTP id <S261238AbSJ0Rim>;
+	Sun, 27 Oct 2002 12:38:42 -0500
+Date: Sun, 27 Oct 2002 09:42:49 -0800
+From: Greg KH <greg@kroah.com>
+To: "H. J. Lu" <hjl@lucon.org>
+Cc: Jeff Garzik <jgarzik@pobox.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: PATCH: Support PCI device sorting (Re: PCI device order problem)
+Message-ID: <20021027174249.GA12811@kroah.com>
+References: <20021026144441.A13479@lucon.org> <3DBB1150.2030800@pobox.com> <20021026152043.A13850@lucon.org> <3DBB1743.6060309@pobox.com> <20021026155342.A14378@lucon.org> <3DBB1E29.5020402@pobox.com> <20021026165315.A15269@lucon.org> <3DBB2BE7.70208@pobox.com> <3DBB2DB9.3000803@pobox.com> <20021026172526.A15641@lucon.org>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20021026172526.A15641@lucon.org>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Luca Barbieri <ldb@ldb.ods.org> writes:
-
-> Short explaination: 
-> This patch implements a feature called "x86 multiring", which is a
-> shorthand for x86 multiple user-mode privilege rings support. 
-> It allows user-mode programs to create DPL 1 and 2 segments and get a
-> modifiable per-process copy of IDT. 
+On Sat, Oct 26, 2002 at 05:25:26PM -0700, H. J. Lu wrote:
+> On Sat, Oct 26, 2002 at 08:05:13PM -0400, Jeff Garzik wrote:
+> > Jeff Garzik wrote:
+> > 
+> > > s/__devinit/__init/ and the implementation looks ok to me
+> > 
+> > 
+> > 
+> > ...except if your patch can be called in hotplug paths...
 > 
-> User Mode Linux can use these features to implement a syscall mechanism
-> identical to the one used by the kernel-mode kernel, and thus much
-> faster than the current one, with free memory protection and with zero
-> context switches. 
+> There are plenty of __devini in arch/i386/kernel/pci-pc.c. I will leave
+> mine alone.
 
-But there are privilege switches.
- 
-> Wine could also use it to achieve fast syscall-level emulation of
-> Windows NT (and, to a lesser extent, Windows 3.1 and 9x). 
-> 
-> Obviously there is some risk of the patch creating security holes. 
+That is because those functions can be called in PCI hotplug paths,
+since yours is only called during init, it should be marked as such.
 
-Let me get the gist of the idea.
-To accelerate UML, and wine type applications:
-1) setup segments with restricted limits, so their children cannot
-   write into their supervisor process even though they share a mm.
-2) load a special system call table that switches processor modes
-   when any system call is activated.
+thanks,
 
-Unless I am mistaken all of the above can be accomplished without
-using the cpus multiple rings of privilege.  Which would allow nesting
-only limited by the address space reduction of each task.
-
-Eric
+greg k-h

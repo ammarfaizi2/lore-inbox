@@ -1,66 +1,85 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262367AbVCPLBl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262547AbVCPLEK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262367AbVCPLBl (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Mar 2005 06:01:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262541AbVCPLBl
+	id S262547AbVCPLEK (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Mar 2005 06:04:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262546AbVCPLEK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Mar 2005 06:01:41 -0500
-Received: from dd3624.kasserver.com ([81.209.188.85]:44725 "EHLO
-	dd3624.kasserver.com") by vger.kernel.org with ESMTP
-	id S262367AbVCPLBj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Mar 2005 06:01:39 -0500
-From: <shenkel@gmail.com>
-Message-ID: <16952.4619.28663.456755@gargle.gargle.HOWL>
-Date: Wed, 16 Mar 2005 12:01:31 +0100
-To: davem@davemloft.net
-Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] Fix unaligned accesses in tcp_input_parse
-X-Mailer: VM 7.17 under 21.4 (patch 17) "Jumbo Shrimp" XEmacs Lucid
-X-Spam-Flag: NO
-X-Spam-score: -1.4
+	Wed, 16 Mar 2005 06:04:10 -0500
+Received: from mail.tv-sign.ru ([213.234.233.51]:34788 "EHLO several.ru")
+	by vger.kernel.org with ESMTP id S262547AbVCPLEB (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 16 Mar 2005 06:04:01 -0500
+Message-ID: <423821F9.19FD92C8@tv-sign.ru>
+Date: Wed, 16 Mar 2005 15:09:29 +0300
+From: Oleg Nesterov <oleg@tv-sign.ru>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.2.20 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Ingo Molnar <mingo@elte.hu>
+Cc: Christoph Lameter <christoph@lameter.com>, linux-kernel@vger.kernel.org,
+       Shai Fultheim <Shai@Scalex86.org>, Andrew Morton <akpm@osdl.org>
+Subject: Re: [PATCH 2/2] del_timer_sync: proof of concept
+References: <4231E959.141F7D85@tv-sign.ru> <Pine.LNX.4.58.0503111254270.25992@server.graphe.net> <42371941.CCBAB134@tv-sign.ru> <20050316090024.GB11582@elte.hu>
+Content-Type: text/plain; charset=koi8-r
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+Ingo Molnar wrote:
+>
+> * Oleg Nesterov <oleg@tv-sign.ru> wrote:
+>
+> > New rules:
+> > 	->_base &  1	: is timer pending
+> > 	->_base & ~1	: timer's base
+>
+> how would it look like if we had a separate timer->pending field after
+> all? Would it be faster/cleaner?
 
-TCP options are not guaranteed to be aligned at all, so we should use
-get_unaligned when accessing u16- or u32-values in the TCP
-options header to avoid alignment errors on some platforms. The patch
-applies to vanilla 2.6.11.
+The only change visible outside kernel/timer.c is:
 
-Ciao,
-Sven
+ static inline int timer_pending(const struct timer_list * timer)
+ {
+-	return timer->base != NULL;
++	return timer->base & 1;
+ }
 
-Signed-off-by: Sven Henkel <shenkel@gmail.com>
+Currently __get_base() usage in the kernel/time.c suboptimal and
+should be cleanuped, I see no other problems with performance.
 
---- linux-2.6.11/net/ipv4/tcp_input.c.orig	2005-03-02 14:43:31.000000000 +0100
-+++ linux-2.6.11/net/ipv4/tcp_input.c	2005-03-02 14:43:33.000000000 +0100
-@@ -71,6 +71,7 @@
- #include <net/tcp.h>
- #include <net/inet_common.h>
- #include <linux/ipsec.h>
-+#include <asm/unaligned.h>
- 
- int sysctl_tcp_timestamps = 1;
- int sysctl_tcp_window_scaling = 1;
-@@ -3007,7 +3008,7 @@ void tcp_parse_options(struct sk_buff *s
- 	  			switch(opcode) {
- 				case TCPOPT_MSS:
- 					if(opsize==TCPOLEN_MSS && th->syn && !estab) {
--						u16 in_mss = ntohs(*(__u16 *)ptr);
-+						u16 in_mss = ntohs(get_unaligned((__u16 *)ptr));
- 						if (in_mss) {
- 							if (opt_rx->user_mss && opt_rx->user_mss < in_mss)
- 								in_mss = opt_rx->user_mss;
-@@ -3034,8 +3035,8 @@ void tcp_parse_options(struct sk_buff *s
- 						if ((estab && opt_rx->tstamp_ok) ||
- 						    (!estab && sysctl_tcp_timestamps)) {
- 							opt_rx->saw_tstamp = 1;
--							opt_rx->rcv_tsval = ntohl(*(__u32 *)ptr);
--							opt_rx->rcv_tsecr = ntohl(*(__u32 *)(ptr+4));
-+							opt_rx->rcv_tsval = ntohl(get_unaligned((__u32 *)ptr));
-+							opt_rx->rcv_tsecr = ntohl(get_unaligned((__u32 *)(ptr+4)));
- 						}
- 					}
- 					break;
+> (we dont need to keep them small _that_ bad - if there's a good reason
+> we should rather add a clean new field than to encode two fields into
+> one field and complicate the code.)
 
+I think that separate timer->pending field will require more changes,
+because we can't read/write base+pending atomically.
+
+int del_timer()
+{
+again:
+	if (!timer->pending)	// not strictly necessary, but it is
+		return 0;	// nice to avoid locking
+	base = timer->base;
+	if (!base)
+		return 0;
+
+	spin_lock(base->lock);
+
+	if (!timer->pending) {
+		spin_unlock();
+		goto again;
+	}
+	if (timer->base != base) {
+		spin_unlock();
+		goto again;
+	}
+	....	
+}
+
+Note also, that we have to audit every timer->base usage anyway,
+because currently it mix base and pending.
+
+But may be you are right, the encoding of a bit in a pointer is
+indeed weird.
+
+Oleg.

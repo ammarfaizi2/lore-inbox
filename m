@@ -1,69 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264006AbUKZVug@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262362AbUKZV4U@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264006AbUKZVug (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 26 Nov 2004 16:50:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264001AbUKZTxs
+	id S262362AbUKZV4U (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 26 Nov 2004 16:56:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264029AbUKZVzf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 26 Nov 2004 14:53:48 -0500
-Received: from zeus.kernel.org ([204.152.189.113]:53187 "EHLO zeus.kernel.org")
-	by vger.kernel.org with ESMTP id S262480AbUKZTbX (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 26 Nov 2004 14:31:23 -0500
-Date: Thu, 25 Nov 2004 17:56:17 +0100
-From: Pavel Machek <pavel@ucw.cz>
-To: Nigel Cunningham <ncunningham@linuxmail.org>
+	Fri, 26 Nov 2004 16:55:35 -0500
+Received: from pop5-1.us4.outblaze.com ([205.158.62.125]:43188 "HELO
+	pop5-1.us4.outblaze.com") by vger.kernel.org with SMTP
+	id S263959AbUKZVvX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 26 Nov 2004 16:51:23 -0500
+Subject: Re: Suspend 2 merge: 49/51: Checksumming
+From: Nigel Cunningham <ncunningham@linuxmail.org>
+Reply-To: ncunningham@linuxmail.org
+To: Pavel Machek <pavel@ucw.cz>
 Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Suspend 2 merge: 4/51: Get module list.
-Message-ID: <20041125165617.GC476@openzaurus.ucw.cz>
-References: <1101292194.5805.180.camel@desktop.cunninghams> <1101293104.5805.203.camel@desktop.cunninghams>
+In-Reply-To: <20041125235622.GI2909@elf.ucw.cz>
+References: <1101292194.5805.180.camel@desktop.cunninghams>
+	 <1101300589.5805.392.camel@desktop.cunninghams>
+	 <20041125235622.GI2909@elf.ucw.cz>
+Content-Type: text/plain
+Message-Id: <1101427251.27250.166.camel@desktop.cunninghams>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1101293104.5805.203.camel@desktop.cunninghams>
-User-Agent: Mutt/1.3.27i
+X-Mailer: Ximian Evolution 1.4.6-1mdk 
+Date: Fri, 26 Nov 2004 11:00:51 +1100
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+Hi.
 
-> This provides access to the list of loaded modules for suspend's
-> debugging output. When a cycle finishes, suspend outputs something the
-> following:
+On Fri, 2004-11-26 at 10:56, Pavel Machek wrote:
+> Hi!
 > 
-> > Please include the following information in bug reports:
-> > - SUSPEND core   : 2.1.5.7
-> > - Kernel Version : 2.6.9
-> > - Compiler vers. : 3.3
-> > - Modules loaded : tuner bttv videodev snd_seq_oss snd_seq_midi_event
-> > snd_seq snd_pcm_oss snd_mixer_oss snd_intel8x0 snd_ac97_codec snd_pcm
-> > snd_timer snd_page_alloc snd_mpu401_uart snd_rawmidi snd_seq_device
-> > snd soundcore visor usbserial usblp joydev evdev usbmouse usbhid
-> > uhci_hcd usbcore ppp_deflate zlib_deflate zlib_inflate bsd_comp
-> > ipt_LOG ipt_state ipt_MASQUERADE iptable_nat ip_conntrack
-> > ipt_multiport ipt_REJECT iptable_filter ip_tables ppp_async
-> > ppp_generic slhc crc_ccitt video_buf v4l2_common btcx_risc Win4Lin
-> > mki_adapter radeon agpgart parport_pc lp parport sg ide_cd sr_mod
-> > cdrom floppy af_packet e1000 loop dm_mod tsdev suspend_bootsplash
-> > suspend_text suspend_swap suspend_block_io suspend_lzf suspend_core
-> > - Attempt number : 9
-> > - Parameters     : 0 2304 32768 1 0 4096 5
-> > - Limits         : 261680 pages RAM. Initial boot: 252677.
-> > - Overall expected compression percentage: 0.
-> > - LZF Compressor enabled.
-> >   Compressed 922112000 bytes into 437892038 (52 percent compression).
-> > - Swapwriter active.
-> >   Swap available for image: 294868 pages.
-> > - Debugging compiled in.
-> > - Preemptive kernel.
-> > - SMP kernel.
-> > - Highmem Support.
-> > - I/O speed: Write 72 MB/s, Read 119 MB/s.
+> > A plugin for verifying the consistency of an image. Working with kdb, it
+> > can look up the locations of variations. There will always be some
+> > variations shown, simply because we're touching memory before we get
+> > here and as we check the image.
 > 
-> Including the modules loaded is very helpful for debugging problems.
+> Debugging code, can live as external patch pretty well.
 
-It might be usefull as an add-on patch when people are actually debugging it,
-but I do not think it is needed for mainline. You can just do lsmod before suspend...
-				Pavel
+Doesn't most of the kernel have debugging code in it? Maybe not as much,
+but most of the kernel isn't doing the same thing. Remember we have the
+option of compiling it out. If it lives as a separate patch, we're just
+making more work for me (I have to maintain the debug version and then
+make some transformation on it to get the mainline version).
+
+By the way, I'm really appreciating your interaction over all these
+points. I was getting worried that I wasn't getting enough. I should say
+now, too, that I'm away all weekend, so you won't get replies tomorrow
+and the day after.
+
+Thanks and regards,
+
+Nigel
 -- 
-64 bytes from 195.113.31.123: icmp_seq=28 ttl=51 time=448769.1 ms         
+Nigel Cunningham
+Pastoral Worker
+Christian Reformed Church of Tuggeranong
+PO Box 1004, Tuggeranong, ACT 2901
+
+You see, at just the right time, when we were still powerless, Christ
+died for the ungodly.		-- Romans 5:6
 

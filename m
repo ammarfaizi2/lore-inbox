@@ -1,37 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292657AbSCILRq>; Sat, 9 Mar 2002 06:17:46 -0500
+	id <S292648AbSCILQR>; Sat, 9 Mar 2002 06:16:17 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292652AbSCILRg>; Sat, 9 Mar 2002 06:17:36 -0500
-Received: from smtpzilla2.xs4all.nl ([194.109.127.138]:24326 "EHLO
-	smtpzilla2.xs4all.nl") by vger.kernel.org with ESMTP
-	id <S292657AbSCILRX>; Sat, 9 Mar 2002 06:17:23 -0500
-Message-ID: <3C89EF33.B0CB77BD@linux-m68k.org>
-Date: Sat, 09 Mar 2002 12:17:07 +0100
-From: Roman Zippel <zippel@linux-m68k.org>
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.18 i686)
-X-Accept-Language: en
+	id <S292652AbSCILQG>; Sat, 9 Mar 2002 06:16:06 -0500
+Received: from samba.sourceforge.net ([198.186.203.85]:4868 "HELO
+	lists.samba.org") by vger.kernel.org with SMTP id <S292648AbSCILPy>;
+	Sat, 9 Mar 2002 06:15:54 -0500
+From: Paul Mackerras <paulus@samba.org>
 MIME-Version: 1.0
-To: Cort Dougan <cort@fsmlabs.com>
-CC: Rik van Riel <riel@conectiva.com.br>,
-        "Jonathan A. George" <JGeorge@greshamstorage.com>,
-        linux-kernel@vger.kernel.org
-Subject: Re: Kernel SCM: When does CVS fall down where it REALLY matters?
-In-Reply-To: <3C87FD12.8060800@greshamstorage.com> <Pine.LNX.4.44L.0203072057510.2181-100000@imladris.surriel.com> <20020307170334.D5423@host110.fsmlabs.com>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-ID: <15497.61055.615126.619184@argo.ozlabs.ibm.com>
+Date: Sat, 9 Mar 2002 22:14:07 +1100 (EST)
+To: Juan Quintela <quintela@mandrakesoft.com>
+Cc: Benjamin LaHaise <bcrl@redhat.com>,
+        Linus Torvalds <torvalds@transmeta.com>,
+        Linux Kernel <linux-kernel@vger.kernel.org>, linux-mm@kvack.org
+Subject: Re: [bkpatch] do_mmap cleanup
+In-Reply-To: <m2y9h2mqph.fsf@trasno.mitica>
+In-Reply-To: <20020308185350.E12425@redhat.com>
+	<m2y9h2mqph.fsf@trasno.mitica>
+X-Mailer: VM 6.75 under Emacs 20.7.2
+Reply-To: paulus@samba.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Juan Quintela writes:
 
-Cort Dougan wrote:
+> Please, don't do that, export another function that does exactly that.
+> sys_munmap is declared as asmlinkage, and some architectures (at
+> least ppc used to have) need especial code to be able to call
+> asmlinkage functions from inside the kernel.
 
-> Only doing a given merge once is great.  That's a big time-saver over the
-> long term.
+Huh?  asmlinkage doesn't do anything on PPC, and never has.  It only
+makes any difference on i386 and ia64 - see include/linux/linkage.h.
 
-Could someone explain me, how this "merge once" works? How is this
-different from cvs? I mean, cvs is capable of doing merges, if new
-changes are not at the same position.
-
-bye, Roman
+Paul.

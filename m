@@ -1,30 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281239AbRKVSqN>; Thu, 22 Nov 2001 13:46:13 -0500
+	id <S281449AbRKVSwo>; Thu, 22 Nov 2001 13:52:44 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281277AbRKVSqE>; Thu, 22 Nov 2001 13:46:04 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:24842 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S281239AbRKVSpu>; Thu, 22 Nov 2001 13:45:50 -0500
-Date: Thu, 22 Nov 2001 10:40:14 -0800 (PST)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Erik Andersen <andersen@codepoet.org>
-cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] fix SCSI non-blocksize reads
-In-Reply-To: <20011122102054.A11961@codepoet.org>
-Message-ID: <Pine.LNX.4.33.0111221039530.1479-100000@penguin.transmeta.com>
+	id <S281337AbRKVSwg>; Thu, 22 Nov 2001 13:52:36 -0500
+Received: from shed.alex.org.uk ([195.224.53.219]:43742 "HELO shed.alex.org.uk")
+	by vger.kernel.org with SMTP id <S281326AbRKVSw1>;
+	Thu, 22 Nov 2001 13:52:27 -0500
+Date: Thu, 22 Nov 2001 18:52:24 -0000
+From: Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>
+Reply-To: Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>
+To: linux-kernel@vger.kernel.org
+Cc: Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>
+Subject: What are the recommended software RAID patch(es) for 2.2.20?
+Message-ID: <2173081930.1006455144@[195.224.237.69]>
+X-Mailer: Mulberry/2.1.0 (Win32)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+What are the recommended software RAID patch(es) for 2.2.20.
 
-On Thu, 22 Nov 2001, Erik Andersen wrote:
->
-> Would you like a patch that also fixes all the other SCSI drivers
-> to use block_size() then, so they will be consistent?
+I have applied, but not yet tested, raid-2.2.19-A1, which
+fails on one hunk in init.c which I think is unimportant
+(seemingly 2.2.20 has a full boot line to device translation
+table without conditionality of compilation).
 
-Eventually yes, although right now I'd like to have the minimal fix.
+Do I need to apply anything else? (-A2, -A3, -B1, -B2 or
+whatever) in which case where do I get them from? (not
+kernel.org/people/mingo or wherever, apparently).
 
-		Linus
-
+--
+Alex Bligh

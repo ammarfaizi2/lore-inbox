@@ -1,53 +1,83 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261946AbTJSAvw (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 18 Oct 2003 20:51:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261950AbTJSAvw
+	id S261920AbTJSArR (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 18 Oct 2003 20:47:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261946AbTJSArR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 18 Oct 2003 20:51:52 -0400
-Received: from dyn-ctb-210-9-243-127.webone.com.au ([210.9.243.127]:14340 "EHLO
-	chimp.local.net") by vger.kernel.org with ESMTP id S261946AbTJSAvv
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 18 Oct 2003 20:51:51 -0400
-Message-ID: <3F91E01C.4090507@cyberone.com.au>
-Date: Sun, 19 Oct 2003 10:51:40 +1000
-From: Nick Piggin <piggin@cyberone.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030827 Debian/1.4-3
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Daniel Egger <degger@fhm.edu>
-CC: linux-kernel@vger.kernel.org, rob@landley.net
-Subject: Re: Where's the bzip2 compressed linux-kernel patch?
-References: <200310180018.21818.rob@landley.net>	 <3F90CFE5.5000801@cyberone.com.au> <1066477155.5606.34.camel@sonja>
-In-Reply-To: <1066477155.5606.34.camel@sonja>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Sat, 18 Oct 2003 20:47:17 -0400
+Received: from adsl-63-194-133-30.dsl.snfc21.pacbell.net ([63.194.133.30]:43649
+	"EHLO penngrove.fdns.net") by vger.kernel.org with ESMTP
+	id S261920AbTJSArP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 18 Oct 2003 20:47:15 -0400
+From: John Mock <kd6pag@qsl.net>
+To: Linux Kernel list <linux-kernel@vger.kernel.org>
+Subject: test8: uhci-hcd fails after software suspend [Bug #1373]
+Message-Id: <E1AB1j8-0001kc-00@penngrove.fdns.net>
+Date: Sat, 18 Oct 2003 17:47:22 -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On VAIO R505RE after software suspend (either flavor), USB controller seems
+to get hopelessly confused:
 
+    Debian GNU/Linux testing/unstable tvr-vaio tty1
 
-Daniel Egger wrote:
+    tvr-vaio login: root
+    Password:
+    Last login: Sat Oct 18 14:53:29 2003 on tty1
+    Linux tvr-vaio 2.6.0-test8 #3 Sat Oct 18 10:51:09 PDT 2003 i686 GNU/Linux
+    You have new mail.
+    tvr-vaio:~# sync; echo 4b > /proc/acpi/sleep
 
->Am Sam, den 18.10.2003 schrieb Nick Piggin um 07:30:
->
->
->>This came up on the list a while back. IIRC the conclusion was that
->>runtime memory usage and speed, and not so significant compression
->>improvement over gzip.
->>
->
->I quick test with a PowerPC kernel and the normal vmlinux image reveals
->that this is nonsense. 
->
->-rwxr-xr-x    1 root     root      2766490 2003-09-27 22:29 vmlinux
->-rwxr-xr-x    1 root     root      1149410 2003-09-27 22:29 vmlinux.gz
->-rwxr-xr-x    1 root     root      1062999 2003-09-27 22:29 vmlinux.bz2
->
->This is a 86411 bytes or 8.1% reduction, seems significant to me...
->
+	[press power button]  lilo: 2.6.0-test8 resume=/dev/hda7
 
-Sure, it might be worth it in some cases. I didn't mean improvement
-wasn't measurable at all.
+    drivers/usb/host/uhci-hcd.c: 1840: host controller halted. very bad
+    hub 3-0:1.0: new USB device on port 1, assigned address 3
+    tvr-vaio:~# e100: eth0 NIC Link is Up 100 Mbps Full duplex
+    drivers/usb/host/uhci-hcd.c: 1840: host controller halted. very bad
+    drivers/usb/host/uhci-hcd.c: 1840: host controller halted. very bad
+    drivers/usb/host/uhci-hcd.c: 1840: host controller halted. very bad
+    drivers/usb/host/uhci-hcd.c: 1840: host controller halted. very bad
+    drivers/usb/host/uhci-hcd.c: 1840: host controller halted. very bad
+    usb 3-1: control timeout on ep0out
+    drivers/usb/host/uhci-hcd.c: 1840: host controller halted. very bad
+    drivers/usb/host/uhci-hcd.c: 1840: host controller halted. very bad
+    drivers/usb/host/uhci-hcd.c: 1840: host controller halted. very bad
+    usb 3-1: control timeout on ep0out
 
+    tvr-vaio:~#
+    tvr-vaio:~# cat > /tmp/console.log
 
+The relevant 'dmesg' and '.config' are contained in bugzilla:
+
+    http://bugzilla.kernel.org/show_bug.cgi?id=1373
+
+The workaround is to 'rmmod uhci-hcd' in the hiberation script, but this
+isn't a great solution for something with a file system, like a digital 
+camera.  
+
+'uhci-hcd.c' does attempt to handle suspend/resume, but that process may
+be buggy.  I did make the bug seem to go away by commenting a few things
+out:
+
+	static int uhci_resume(struct usb_hcd *hcd)
+	{
+		struct uhci_hcd *uhci = hcd_to_uhci(hcd);
+
+		pci_set_master(uhci->hcd.pdev);
+
+	//	if (uhci->state == UHCI_SUSPENDED)
+	//		uhci->resume_detect = 1;
+	//	else {
+			reset_hc(uhci);
+			start_hc(uhci);
+	//	}
+		uhci->hcd.state = USB_STATE_RUNNING;
+		return 0;
+	}
+
+Which merely suggests to me that the problem isn't intractable.  When it
+awakens from hibernation, it indeed recognizes the Sony flash device and
+reassigns a SCSI address accordingly.  So there may be hope... 
+
+			       -- JM

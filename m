@@ -1,71 +1,61 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271614AbRIOALX>; Fri, 14 Sep 2001 20:11:23 -0400
+	id <S271597AbRIOAMN>; Fri, 14 Sep 2001 20:12:13 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271613AbRIOALN>; Fri, 14 Sep 2001 20:11:13 -0400
-Received: from bacchus.veritas.com ([204.177.156.37]:43424 "EHLO
-	bacchus-int.veritas.com") by vger.kernel.org with ESMTP
-	id <S271597AbRIOAKz>; Fri, 14 Sep 2001 20:10:55 -0400
-Date: Sat, 15 Sep 2001 01:12:43 +0100 (BST)
-From: Hugh Dickins <hugh@veritas.com>
-To: Marcelo Tosatti <marcelo@conectiva.com.br>
-cc: Linus Torvalds <torvalds@transmeta.com>,
-        Rik van Riel <riel@conectiva.com.br>,
-        lkml <linux-kernel@vger.kernel.org>
-Subject: Re: 2.4.10pre VM changes: Potential race condition on swap code
-In-Reply-To: <Pine.LNX.4.21.0109141747210.4708-100000@freak.distro.conectiva>
-Message-ID: <Pine.LNX.4.21.0109150050060.1151-100000@localhost.localdomain>
+	id <S271598AbRIOAMF>; Fri, 14 Sep 2001 20:12:05 -0400
+Received: from cr213096-a.rchrd1.on.wave.home.com ([24.157.75.69]:19206 "EHLO
+	cr213096-a.rchrd1.on.wave.home.com") by vger.kernel.org with ESMTP
+	id <S271597AbRIOALy>; Fri, 14 Sep 2001 20:11:54 -0400
+Message-ID: <3BA29CC2.8030008@phobos.sharif.edu>
+Date: Fri, 14 Sep 2001 20:11:46 -0400
+From: Masoud Sharbiani <masu@cr213096-a.rchrd1.on.wave.home.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux 2.2.19 i686; en-US; rv:0.9.1) Gecko/20010610
+X-Accept-Language: en-us
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Bruce Blinn <blinn@MissionCriticalLinux.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Reading Windows CD on Linux 2.4.6
+In-Reply-To: <3BA26542.21DC105A@MissionCriticalLinux.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 14 Sep 2001, Marcelo Tosatti wrote:
-> 
-> I would prefer to make get_swap_page() not lock the swap lock anymore,
-> making it necessary to its callers to do the locking themselves. So:
-> 
-> try_to_swap_out() {
-> 	swap_device_lock()
-> 	get_swap_page()
-> 	add_to_swap_cache()
-> 	swap_device_unlock()
-> }
-> 
-> read_swap_cache_async() {
-> 	page = alloc_page(page)
-> 	swap_device_lock()
-> 	if(!swap_map[offset]) {
-> 		page_cache_release(page)
-> 		swap_device_unlock()
-> 		return 1;
-> 	}
-> 	alias = __find_page()
-> 	if (!alias) {
-> 		swap_map[offset]++;
-> 		add_to_swap_cache(page)
-> 	}
-> 	swap_device_unlock()
-> 	rw_swap_page(page)
-> }
+Hi,
+Can you generate a cdrom image which has that problem (and less than 50 
+megs) in order
+to test?
+thanks,
+Masoud
+Bruce Blinn wrote:
 
-This does gloss over the distinction between the swap_list_lock()
-and the swap_device_lock(si).  The latter is the more crucial here,
-but difficult to use in this way.  Though if you were to throw it
-away and convert to swap_list_lock() throughout, I wonder if we'd
-lose much (only gain on systems with just one swap area).  But I
-wasn't daring to combine them myself.
+>Hello:
+>
+>I sent the following message to the kernel newbies mailing list, and it
+>was suggested that I send it to the kernel mailing list.  I am not a
+>subscriber of this mailing list, so I would appreciate any replies being
+>sent to me directly.
+>
+>-----------------------
+>
+>I have found that after upgrading from 2.2.19 to 2.4.6, I can no longer
+>read CD-ROMs that were created under Windows.  Since they work fine on
+>2.2.19, I assume there is some configuration option that has changed,
+>but I did not see anything that looked suspicious.
+>
+>I can mount the CD and list the files on it, but when I try to access
+>one of the files on it, I get an IO error.
+>
+>When I created the disk on Windows, I selected the option to "Organize
+>the disc so it can be read in most standard CD-ROM drives...".  On
+>Linux, I selected the kernel options for ISO 9660 and the Joliet
+>extensions.
+>
+>Does anyone have any ideas about what I am doing wrong?
+>
+>Thanks,
+>Bruce
+>
 
-> If you don't have that one already done, I can write it as soon as you
-> answer me.
 
-Don't wait on me: I'm not ready with my implementation yet, and
-you think a lot faster than I do.  If you find you can resolve
-the details, go ahead.  Beware shmem_writepage, where the one
-page metamorphoses from being a file page to being a swap page.
-Do you intend to scrap the BKL bracketing now?
-
-I hope to resume tomorrow, unless you've sewn it up by then.
-
-Hugh
 

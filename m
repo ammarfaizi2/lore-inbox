@@ -1,43 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261444AbVAGOvC@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261465AbVAGOw2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261444AbVAGOvC (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 7 Jan 2005 09:51:02 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261447AbVAGOvC
+	id S261465AbVAGOw2 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 7 Jan 2005 09:52:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261461AbVAGOw1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 7 Jan 2005 09:51:02 -0500
-Received: from wproxy.gmail.com ([64.233.184.199]:7742 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261444AbVAGOux (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 7 Jan 2005 09:50:53 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:mime-version:content-type:content-transfer-encoding;
-        b=MAUQhBqLAqeMLVffHT973jH8T4+9ETVvxzhiX5Yhkfn0yUhTQz6nIYN0CXZh+yLGSRldsiGpCst58DBeL+lV8NjyZ8RRCy2b9WgLindz44plaPQJY0yxoFDYR0412UijtkhNaxiFHEnK8pRFzSTNJEHUgxw0J2VN1EG5modvRZA=
-Message-ID: <297f4e01050107065060e0b2ad@mail.gmail.com>
-Date: Fri, 7 Jan 2005 15:50:52 +0100
-From: Ikke <ikke.lkml@gmail.com>
-Reply-To: Ikke <ikke.lkml@gmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: kobject_uevent
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Fri, 7 Jan 2005 09:52:27 -0500
+Received: from alog0071.analogic.com ([208.224.220.86]:2944 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP id S261447AbVAGOv3
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 7 Jan 2005 09:51:29 -0500
+Date: Fri, 7 Jan 2005 09:50:35 -0500 (EST)
+From: linux-os <linux-os@chaos.analogic.com>
+Reply-To: linux-os@analogic.com
+To: Lukasz Kosewski <lkosewsk@nit.ca>
+cc: Andrew Morton <akpm@osdl.org>, Arjan van de Ven <arjan@infradead.org>,
+       vgoyal@in.ibm.com, Linux kernel <linux-kernel@vger.kernel.org>,
+       linux-scsi@vger.kernel.org
+Subject: Re: SCSI aic7xxx driver: Initialization Failure over a kdump reboot
+In-Reply-To: <41DEA2E8.8030701@nit.ca>
+Message-ID: <Pine.LNX.4.61.0501070945540.12958@chaos.analogic.com>
+References: <1105014959.2688.296.camel@2fwv946.in.ibm.com>
+ <1105013524.4468.3.camel@laptopd505.fenrus.org> <20050106195043.4b77c63e.akpm@osdl.org>
+ <41DE15C7.6030102@nit.ca> <41DEA2E8.8030701@nit.ca>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-One of the new features of 2.6.10 (well, AFAIK its new) is the
-kobject_uevent function set.
-Currently only some places send out events like this, so I was
-thinking to add some more.
+On Fri, 7 Jan 2005, Lukasz Kosewski wrote:
 
-Question is: how can I test this? Is there any userland program that
-catches these events and prints some information on them to the
-screen?
+> Lukasz Kosewski wrote:
+>> Andrew Morton wrote:
+>> 
+>>>> looks like the following is happening:
+>>>> the controller wants to send an irq (probably from previous life)
+>>>> then suddenly the driver gets loaded
+>>>> * which registers an irq handler
+>>>> * which does pci_enable_device()
+>>>> and .. the irq goes through. the irq handler just is not yet expecting 
+>>>> this irq, so
+>>>> returns "uh dunno not mine"
+>>>> the kernel then decides to disable the irq on the apic level
+>>>> and then the driver DOES need an irq during init
+>>>> ... which never happens.
+>>>> 
+>>> 
+>>> 
+>>> yes, that's exactly what e100 was doing on my laptop last month.  Fixed
+>>> that by arranging for the NIC to be reset before the call to
+>>> pci_set_master().
+>
+> After reading this again when I /wasn't/ semi-comatose, I retract my 
+> statement insofar as it wouldn't help you (but I think it's still rather 
+> necessary) :)
+>
+> The system did exactly what I'm talking about (which it didn't do for me, 
+> possibly because the board/processor didn't support APIC).  I guess my 
+> question to you is:  do you have other devices sharing this interrupt?  In 
+> other words, are you /sure/ that it's the adaptec controller which is setting 
+> the interrupt line high?
+>
+> Luke Kosewski
+> Human Cannonball
+> Net Integration Technologies
 
-I found out Kay Siever and RML's (maybe some others too?) work on
-kernel->userspace events, but the syntax used there seems to be
-somewhat different. Kay's got a listener
-(http://vrfy.org/projects/kdbusd/kdbusd.c), but is this one
-compatible?
 
-Regards, Ikke
+Note that Linux-2.6.10 PCI code will report the __wrong__ IRQ
+unless pci_enable_device() is executed first! Hopefully, there
+may be an additional callable procedure in the future that
+sets up the IRQ routing independent of actually enabling the
+device. In the meantime, enable the device before you believe
+dev->irq.
+
+
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.6.10 on an i686 machine (5537.79 BogoMips).
+  Notice : All mail here is now cached for review by Dictator Bush.
+                  98.36% of all statistics are fiction.

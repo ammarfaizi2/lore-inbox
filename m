@@ -1,122 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268065AbUH2QRT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268076AbUH2QUf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268065AbUH2QRT (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 29 Aug 2004 12:17:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268066AbUH2QRT
+	id S268076AbUH2QUf (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 29 Aug 2004 12:20:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268080AbUH2QUf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 29 Aug 2004 12:17:19 -0400
-Received: from c002781a.fit.bostream.se ([217.215.235.8]:2696 "EHLO
-	mail.tnonline.net") by vger.kernel.org with ESMTP id S268065AbUH2QRI
+	Sun, 29 Aug 2004 12:20:35 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:24782 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S268066AbUH2QUa
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 29 Aug 2004 12:17:08 -0400
-Date: Sun, 29 Aug 2004 18:18:28 +0200
-From: Spam <spam@tnonline.net>
-Reply-To: Spam <spam@tnonline.net>
-X-Priority: 3 (Normal)
-Message-ID: <584579467.20040829181828@tnonline.net>
-To: Horst von Brand <vonbrand@inf.utfsm.cl>
-CC: Andrew Morton <akpm@osdl.org>, wichert@wiggy.net, jra@samba.org,
-       torvalds@osdl.org, <reiser@namesys.com>, <hch@lst.de>,
-       <linux-fsdevel@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
-       <flx@namesys.com>, <reiserfs-list@namesys.com>
+	Sun, 29 Aug 2004 12:20:30 -0400
+Date: Sun, 29 Aug 2004 17:20:27 +0100
+From: viro@parcelfarce.linux.theplanet.co.uk
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Hans Reiser <reiser@namesys.com>, Helge Hafting <helgehaf@aitel.hist.no>,
+       Rik van Riel <riel@redhat.com>, Spam <spam@tnonline.net>,
+       Jamie Lokier <jamie@shareable.org>, David Masover <ninja@slaphack.com>,
+       Diego Calleja <diegocg@teleline.es>, christophe@saout.de,
+       vda@port.imtp.ilyichevsk.odessa.ua, christer@weinigel.se,
+       Andrew Morton <akpm@osdl.org>, wichert@wiggy.net, jra@samba.org,
+       hch@lst.de, linux-fsdevel@vger.kernel.org,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>, flx@namesys.com,
+       reiserfs-list@namesys.com
 Subject: Re: silent semantic changes with reiser4
-In-Reply-To: <200408272358.i7RNweGh002703@localhost.localdomain>
-References: Message from Spam <spam@tnonline.net>    of "Thu, 26 Aug 2004
- 13:15:47 +0200." <1453776111.20040826131547@tnonline.net>
- <200408272358.i7RNweGh002703@localhost.localdomain>
-MIME-Version: 1.0
+Message-ID: <20040829162027.GN21964@parcelfarce.linux.theplanet.co.uk>
+References: <Pine.LNX.4.44.0408272158560.10272-100000@chimarrao.boston.redhat.com> <Pine.LNX.4.58.0408271902410.14196@ppc970.osdl.org> <20040828170515.GB24868@hh.idb.hist.no> <Pine.LNX.4.58.0408281038510.2295@ppc970.osdl.org> <4131074D.7050209@namesys.com> <Pine.LNX.4.58.0408282159510.2295@ppc970.osdl.org>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.58.0408282159510.2295@ppc970.osdl.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sat, Aug 28, 2004 at 10:01:23PM -0700, Linus Torvalds wrote:
+> 
+> 
+> On Sat, 28 Aug 2004, Hans Reiser wrote:
+> >
+> > I object to openat().....
+> 
+> Sound slike you object to O_XATTRS, not openat() itself.
+> 
+> Realize that openat() works independently of any special streams, it's
+> fundamentally a "look up name starting from this file" (rather than
+> "starting from root" or "starting from cwd").
 
-  
+Linus, openat() is trivial to implement in userland *IF* we are talking
+about stuff already in namespace.  Proof:
 
-> Spam <spam@tnonline.net> said:
->> Andrew Morton <akpm@osdl.org> said:
+int openat(int fd, char *path, int flags, mode_t mode)
+{
+	int len = snprintf(NULL, 0, "/proc/self/%d/%s", fd, path);
+	char name[len + 1];
+	sprintf(name, "/proc/self/%d/%s", fd, path);
+	return open(name, flags, mode);
+}
 
-> [...]
+7 lines.  Replace VLA with alloca() or malloc() in pre-C99 environment.
 
->> > For example, some image file formats already support embedded metadata, do
->> > they not?
+In other words, there's nothing magical about syscall itself - compatibility
+with Solaris is not an issue here.  And basic functionality (i.e. what you've
+described above) can be trivially achieved with no extra primitives at all.
 
->>   Yes, JPEG, TIFF and PNG files for example. But, if you modify any of
->>   these  with  an application that doesn't support the extensions then
->>   you will loose them.
+Now, if you want to use that puppy as explicit indicator of magic steps taken,
+fine, but that again says nothing about the primitives we want to express the
+magic steps in question - reproducing openat() as one of the libc functions
+won't be hard anyway.
 
-> As you will each time you muck around with your files-are-directories.
-> Nothing new there.
-
->>   Also,  you  are thinking _very_ narrowly now. There are thousands of
->>   file  formats.  Implementing  the  support  for  meta-data/ streams/
->>   attributes  in  the  kernel  will  make  it  possible  to  use  this
->>   generically for all files.
-
-> So the _kernel_ has to know about thousands of formats, just in case it
-> some blue day it comes across a strange file? Better leave that to the
-> applications.
-
-  No,  not  at all. The only think the kernel would need to support is
-  the actual meta files and streams - not the contents of the streams.
-  That is up to the applications to know and use.
-
-  The  idea  with  plugins  to reiser4 would allow someone to create a
-  plugin that would export the thumbnails from TIFF and JPEG images as
-  separate streams.
-
-> You will _not_ be able to define a single format for extra data about the
-> file, there will be differing extra data for different users (do you
-> suggest a root-only file with special writable pouches for "graphical icon
-> for the file" for each user on the system?!), so the idea in itself is
-> doomed from the start.
-
-  We  do  not need to define a single format. You are locking yourself
-  to  the contents of streams and meta files.
-
-  If  someone  likes  the  idea of a plugin that would allow for icons
-  then  that  may  be  it. It would be up to application developers to
-  know  about  this and use it. Perhaps they could agree on a standard
-  even.
->>   I  use  this  in  Windows  quite much.
-
-> Then use it and be happy. No need to screw up Linux for that.
-
-  This  wouldn't  screw anything up besides allowing for extending the
-  functionality.  There  is noone that forces you to enable and instll
-  plugins,  use  extra attributes or meta info. All of this always was
-  optional (as I see it).
-
->>                                          I put information description
->>   fields  for  lots  of  different  files. These descriptions are then
->>   searchable etc. I could use the command prompt to copy the files and
->>   the descriptions would still be there.
-
-> The descriptions might make sense to _you_, _now_. No guarantee they make
-> any sense (or are in the least useful) for other users on your system, and
-> I might want them in arabic or some such. The descriptions might make no
-> sense to you in a couple of years.
-
-  So? The same may be for your own word documents etc. It doesn't mean
-  I do not find it useful now, or that anyone else might not. Shall we
-  not  include  features  because "someone" on the same system may not
-  use it? Seems very backward to me.
-
-  If   I   include   a filestream, description.xml, then that wouldn't
-  affect  anyone. I would know how to read the file, and that would be
-  enough.
-
->>   Secondly, do you expect file managers like Nautilus and Konqueror to
->>   support  every piece of file format on the planet so they could read
->>   information directly from the documents?
-
-> That's their (self-selected) job, yes.
-
-  Yes  and  no.  I  used  them  as example but there are lots of other
-  programs  that  can access files. Midnight commander, cp, tar, email
-  programs and lots of others.
-
-  besides, I think it would be easier for them to 1) write plugins and
-  2)  just  use normal file access method to provide the extra data to
-  the users.
-
+So I have to agree with Hans on that one - I believe that as a fundamental
+primitive it's wrong choice.  Convenient to have in libc - sure, why not?

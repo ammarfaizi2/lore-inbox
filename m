@@ -1,72 +1,83 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266768AbUITRKZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266808AbUITRQC@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266768AbUITRKZ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Sep 2004 13:10:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266867AbUITRI6
+	id S266808AbUITRQC (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Sep 2004 13:16:02 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266534AbUITRQC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Sep 2004 13:08:58 -0400
-Received: from fire.osdl.org ([65.172.181.4]:2220 "EHLO fire-1.osdl.org")
-	by vger.kernel.org with ESMTP id S266768AbUITRIP (ORCPT
+	Mon, 20 Sep 2004 13:16:02 -0400
+Received: from mail4.utc.com ([192.249.46.193]:43770 "EHLO mail4.utc.com")
+	by vger.kernel.org with ESMTP id S266808AbUITRPd (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Sep 2004 13:08:15 -0400
-Subject: Re: Linux 2.6.9-rc2 (compile stats)
-From: John Cherry <cherry@osdl.org>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.58.0409130937050.4094@ppc970.osdl.org>
-References: <Pine.LNX.4.58.0409130937050.4094@ppc970.osdl.org>
-Content-Type: text/plain
-Message-Id: <1095700064.2867.30.camel@cherrybomb.pdx.osdl.net>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.4 
-Date: Mon, 20 Sep 2004 10:07:45 -0700
+	Mon, 20 Sep 2004 13:15:33 -0400
+Message-ID: <414F1010.2060504@cybsft.com>
+Date: Mon, 20 Sep 2004 12:14:56 -0500
+From: "K.R. Foley" <kr@cybsft.com>
+Organization: Cybersoft Solutions, Inc.
+User-Agent: Mozilla Thunderbird 0.8 (X11/20040913)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Ingo Molnar <mingo@elte.hu>
+CC: linux-kernel@vger.kernel.org, Lee Revell <rlrevell@joe-job.com>,
+       Mark_H_Johnson@Raytheon.com
+Subject: Re: [patch] voluntary-preempt-2.6.9-rc2-mm1-S1
+References: <20040906110626.GA32320@elte.hu> <200409061348.41324.rjw@sisk.pl> <1094473527.13114.4.camel@boxen> <20040906122954.GA7720@elte.hu> <20040907092659.GA17677@elte.hu> <20040907115722.GA10373@elte.hu> <1094597988.16954.212.camel@krustophenia.net> <20040908082050.GA680@elte.hu> <1094683020.1362.219.camel@krustophenia.net> <20040909061729.GH1362@elte.hu> <20040919122618.GA24982@elte.hu>
+In-Reply-To: <20040919122618.GA24982@elte.hu>
+X-Enigmail-Version: 0.86.1.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2004-09-13 at 09:40, Linus Torvalds wrote:
-> Various things all over the map, most of them not necessarily very visible 
-> to most people. ALSA update, and tons of small fixes pretty much 
-> everywhere.
+Ingo Molnar wrote:
+> i've released the -S1 VP patch:
 > 
-> The one thing that people may actually _notice_ is that you get a lot more 
-> warnings for some drivers due to the stricter type-checks for PCI memory 
-> mapping. They are harmless (code generation should be the same), and we'll 
-> work on trying to fix up the drivers as we go along, but they can be a bit 
-> daunting if you happen to enable some of the less type-friendly drivers 
-> right now..
+>   http://redhat.com/~mingo/voluntary-preempt/voluntary-preempt-2.6.9-rc2-mm1-S1
 > 
-> 		Linus
+> NOTE: this patch is against Andrew's -mm tree and the VP patchset will
+> stay based on -mm until the merging process has been finished.
 > 
+> to get a 2.6.9-rc2-mm1-VP-S1 kernel, the patching order is:
 > 
+>    http://kernel.org/pub/linux/kernel/v2.6/linux-2.6.8.tar.bz2
+>  + http://kernel.org/pub/linux/kernel/v2.6/testing/patch-2.6.9-rc2.bz2
+>  + http://kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.9-rc2/2.6.9-rc2-mm1/2.6.9-rc2-mm1.bz2
+>  + http://redhat.com/~mingo/voluntary-preempt/voluntary-preempt-2.6.9-rc2-mm1-S1
+> 
+> Changes relative to -S0:
+> 
+> - lots of merging. A good chunk of the VP patch latency breakers and
+>   support patches are in -mm already.
+> 
+> - integrated my 'preemptible big kernel lock' patch into VP. This makes 
+>   all BKL code preemptible while keeping correctness. A new debugging 
+>   infrastructure has been added to catch code that might use the BKL
+>   in an unsafe way. If the debugging check triggers it will print 
+>   messages like:
+> 
+>     using smp_processor_id() in preemptible code: bash/1020
+> 
+>   please report such messages and backtraces to me. Most of the messages 
+>   i've fixed so far were false positives, but one bug has been caught 
+>   already via this.
+> 
+>   Also, this BKL patch allowed the removal of two questionable 
+>   latency breakers: the tty.c and the DRM BKL relaxation hack.
+> 
+> - fixed an SMP hardirq redirection bug - IRQ threads could be bound to 
+>   multiple CPUs resulting in potentially illegal preemption of hardirq
+>   contexts.
+> 
+> - temporarily dropped the ppc/ppc64 GENERIC_HARDIRQS changes, they broke
+>   and i cannot test them.
+> 
+> Reports, comments welcome,
+> 
+> 	Ingo
+> -
 
-Linux 2.6 Compile Statistics (gcc 3.2.2)
-Warnings/Errors Summary
+Is anyone else having trouble getting this to build on x86 smp? I am 
+getting undefined references to smp_processor_id within most, if not 
+all, modules.
 
-Kernel         bzImage    bzImage  bzImage  modules  bzImage   modules
-             (defconfig)  (allno)  (allyes) (allyes) (allmod) (allmod)
------------  -----------  -------- -------- -------- -------- ---------
-2.6.9-rc2      0w/0e       0w/0e  3036w/0e   41w/0e  11w/0e   3655w/0e
-2.6.9-rc1      0w/0e       0w/0e    77w/10e   4w/0e   3w/0e     68w/0e
-2.6.8.1        0w/0e       0w/0e    78w/ 0e   4w/0e   1w/0e     72w/0e
-2.6.8          0w/0e       0w/0e    78w/ 0e   4w/0e   1w/0e     72w/0e
-
-
-Linux 2.6 (mm tree) Compile Statistics (gcc 3.2.2)
-
-Kernel            bzImage   bzImage  bzImage  modules  bzImage  modules
-                (defconfig) (allno) (allyes) (allyes) (allmod) (allmod)
---------------- ---------- -------- -------- -------- -------- --------
-2.6.9-rc2-mm1     0w/0e     2w/0e  3541w/9e   41w/0e   3w/9e   3567w/0e
-2.6.9-rc1-mm4     0w/0e     1w/0e    55w/0e    3w/0e   2w/0e     48w/0e
-2.6.9-rc1-mm3     0w/0e     0w/0e    55w/13e   3w/0e   1w/0e     49w/1e
-2.6.9-rc1-mm2     0w/0e     0w/0e    53w/11e   3w/0e   1w/0e     47w/0e
-2.6.9-rc1-mm1     0w/0e     0w/0e    80w/0e    4w/0e   1w/0e     74w/0e
-
-Web page with links to complete details:
-   http://developer.osdl.org/cherry/compile/
-
-John
-
-
-
+kr

@@ -1,42 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267713AbUHPPYb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267750AbUHPPYc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267713AbUHPPYb (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 16 Aug 2004 11:24:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267750AbUHPPYZ
+	id S267750AbUHPPYc (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 16 Aug 2004 11:24:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267711AbUHPPU3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 16 Aug 2004 11:24:25 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:485 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S267702AbUHPPUN (ORCPT
+	Mon, 16 Aug 2004 11:20:29 -0400
+Received: from omx3-ext.sgi.com ([192.48.171.20]:49586 "EHLO omx3.sgi.com")
+	by vger.kernel.org with ESMTP id S267713AbUHPPTG (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 16 Aug 2004 11:20:13 -0400
-Date: Mon, 16 Aug 2004 11:19:58 -0400 (EDT)
-From: James Morris <jmorris@redhat.com>
-X-X-Sender: jmorris@dhcp83-76.boston.redhat.com
-To: Kaigai Kohei <kaigai@ak.jp.nec.com>
-cc: "SELinux-ML(Eng)" <selinux@tycho.nsa.gov>,
-       "Linux Kernel ML(Eng)" <linux-kernel@vger.kernel.org>,
-       Stephen Smalley <sds@epoch.ncsc.mil>
-Subject: Re: RCU issue with SELinux (Re: SELINUX performance issues)
-In-Reply-To: <019201c48374$09efc510$f97d220a@linux.bs1.fc.nec.co.jp>
-Message-ID: <Xine.LNX.4.44.0408161119160.4659-100000@dhcp83-76.boston.redhat.com>
+	Mon, 16 Aug 2004 11:19:06 -0400
+Date: Mon, 16 Aug 2004 08:18:11 -0700 (PDT)
+From: Christoph Lameter <clameter@sgi.com>
+X-X-Sender: clameter@schroedinger.engr.sgi.com
+To: Ray Bryant <raybry@sgi.com>
+cc: "David S. Miller" <davem@redhat.com>, linux-ia64@vger.kernel.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: page fault fastpath: Increasing SMP scalability by introducing
+ pte locks?
+In-Reply-To: <41205BAA.9030800@sgi.com>
+Message-ID: <Pine.LNX.4.58.0408160817210.8293@schroedinger.engr.sgi.com>
+References: <Pine.LNX.4.58.0408150630560.324@schroedinger.engr.sgi.com>
+ <20040815130919.44769735.davem@redhat.com> <Pine.LNX.4.58.0408151552280.3370@schroedinger.engr.sgi.com>
+ <20040815165827.0c0c8844.davem@redhat.com> <Pine.LNX.4.58.0408151703580.3751@schroedinger.engr.sgi.com>
+ <20040815185644.24ecb247.davem@redhat.com> <Pine.LNX.4.58.0408151924250.4480@schroedinger.engr.sgi.com>
+ <41205BAA.9030800@sgi.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 16 Aug 2004, Kaigai Kohei wrote:
+On Mon, 16 Aug 2004, Ray Bryant wrote:
 
-> Is removing direct reference to AVC-Entry approach acceptable?
-> 
-> I'll try to consider this issue further.
+> Something else to worry about here is mm->rss.  Previously, this was updated
+> only with the page_table_lock held, so concurrent increments were not a
+> problem.  rss may need to converted be an atomic_t if you use pte_locks.
+> It may be that an approximate value for rss is good enough, but I'm not sure
+> how to bound the error that could be introduced by a couple of hundred
+> processers handling page faults in parallel and updating rss without locking
+> it or making it an atomic_t.
 
-Sure, if you can make it work without problems.
-
-
-
-- James
--- 
-James Morris
-<jmorris@redhat.com>
-
+Correct. There are a number of issues that may have to be addressed but
+first we need to agree on a general idea how to proceed.
 

@@ -1,39 +1,88 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319172AbSIJO5K>; Tue, 10 Sep 2002 10:57:10 -0400
+	id <S319159AbSIJOyq>; Tue, 10 Sep 2002 10:54:46 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319173AbSIJO5J>; Tue, 10 Sep 2002 10:57:09 -0400
-Received: from zeus.kernel.org ([204.152.189.113]:29595 "EHLO zeus.kernel.org")
-	by vger.kernel.org with ESMTP id <S319172AbSIJO5J>;
-	Tue, 10 Sep 2002 10:57:09 -0400
-Date: Tue, 10 Sep 2002 11:09:38 -0300 (BRT)
-From: Marcelo Tosatti <marcelo@conectiva.com.br>
-X-X-Sender: marcelo@freak.distro.conectiva
-To: Hans Reiser <reiser@namesys.com>
-Cc: linux-kernel@vger.kernel.org, <green@namesys.com>
-Subject: Re: [BK] ReiserFS changesets for 2.4 (performs writes more than 4k
- at a time)
-In-Reply-To: <3D7DF05E.7030903@namesys.com>
-Message-ID: <Pine.LNX.4.44.0209101108590.16288-100000@freak.distro.conectiva>
+	id <S319160AbSIJOyq>; Tue, 10 Sep 2002 10:54:46 -0400
+Received: from e21.nc.us.ibm.com ([32.97.136.227]:14492 "EHLO
+	e21.nc.us.ibm.com") by vger.kernel.org with ESMTP
+	id <S319159AbSIJOyo> convert rfc822-to-8bit; Tue, 10 Sep 2002 10:54:44 -0400
+Subject: Early SPECWeb99 results on 2.5.33 with TSO on e1000
+To: inux-net@vger.kernel.org, linux-kernel@vger.kernel.org, netdev@oss.sgi.com
+X-Mailer: Lotus Notes Release 5.0.7  March 21, 2001
+Message-ID: <OF085D17C8.33546271-ON87256C30.005200C4@boulder.ibm.com>
+From: "Mala Anand" <manand@us.ibm.com>
+Date: Tue, 10 Sep 2002 09:59:27 -0500
+X-MIMETrack: Serialize by Router on D03NM123/03/M/IBM(Release 5.0.10 |March 22, 2002) at
+ 09/10/2002 08:59:27 AM
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-type: text/plain; charset=iso-8859-1
+Content-transfer-encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+I am resending this note with the subject heading, so that
+it can be viewed through the subject catagory.
+
+ > "David S. Miller" wrote:
+>> NAPI is also not the panacea to all problems in the world.
+
+   >Mala did some testing on this a couple of weeks back. It appears that
+   >NAPI damaged performance significantly.
 
 
-On Tue, 10 Sep 2002, Hans Reiser wrote:
 
->   This patch should only go in if 2.4.20 is 3 weeks or more away,
-> otherwise it should wait for the next pre1.
->
-> It passes all of our testing, but it is the kind of code that is more
-> likely than most to have elusive lurking bugs.  It cannot be tested in
-> 2.5 first because 2.5 is too broken at this particular moment.  For the
-> lkml readers let me say that it also should not go onto any distros
-> without three weeks of testing.;-)
+>http://www-124.ibm.com/developerworks/opensource/linuxperf/netperf/results/july_02/netperf2.5.25results.htm
 
-So lets wait for 2.4.21pre for this one.
 
-We already have enough stuff to be tested on 2.4.20-pre for reiserfs.
+
+>Unfortunately it is not listed what e1000 and core NAPI
+>patch was used. Also, not listed, are the RX/TX mitigation
+>and ring sizes given to the kernel module upon loading.
+The default driver that is included in 2.5.25 kernel for Intel
+gigabit adapter was used for the baseline test and the NAPI driver
+was downloaded from Robert Olsson's website. I have updated my web
+page to include Robert's patch. However it is given there for reference
+purpose only. Except for the ones mentioned explicitly the rest of
+the configurable values used are default. The default for RX/TX mitigation
+is 64 microseconds and the default ring size is 80.
+
+I have added statistics collected during the test to my web site. I do
+want to analyze and understand how NAPI can be improved in my tcp_stream
+test. Last year around November, when I first tested NAPI, I did find NAPI
+results better than the baseline using udp_stream. However I am
+concentrating on tcp_stream since that is where NAPI can be improved in
+my setup. I will update the website as I do more work on this.
+
+
+>Robert can comment on optimal settings
+I saw Robert's postings. Looks like he may have a more recent version of
+NAPI
+driver than the one I used. I also see 2.5.33 has NAPI, I will move to
+2.5.33
+and continue my work on that.
+
+
+>Robert and Jamal can make a more detailed analysis of Mala's
+>graphs than I.
+Jamal has questioned about socket buffer size that I used, I have tried
+132k
+socket buffer size in the past and I didn't see much difference in my
+tests.
+I will add that to my list again.
+
+
+Regards,
+    Mala
+
+
+   Mala Anand
+   IBM Linux Technology Center - Kernel Performance
+   E-mail:manand@us.ibm.com
+   http://www-124.ibm.com/developerworks/opensource/linuxperf
+   http://www-124.ibm.com/developerworks/projects/linuxperf
+   Phone:838-8088; Tie-line:678-8088
+
+
+
+
 

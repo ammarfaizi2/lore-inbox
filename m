@@ -1,60 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261330AbTAXRIj>; Fri, 24 Jan 2003 12:08:39 -0500
+	id <S267784AbTAXRFJ>; Fri, 24 Jan 2003 12:05:09 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261295AbTAXRIj>; Fri, 24 Jan 2003 12:08:39 -0500
-Received: from yuzuki.cinet.co.jp ([61.197.228.219]:36481 "EHLO
-	yuzuki.cinet.co.jp") by vger.kernel.org with ESMTP
-	id <S267672AbTAXRI1>; Fri, 24 Jan 2003 12:08:27 -0500
-Message-ID: <3E31752A.92C47F90@cinet.co.jp>
-Date: Sat, 25 Jan 2003 02:17:30 +0900
-From: Osamu Tomita <tomita@cinet.co.jp>
-X-Mailer: Mozilla 4.8C-ja  [ja/Vine] (X11; U; Linux 2.5.59-pc98smp i686)
-X-Accept-Language: ja
+	id <S267786AbTAXRFJ>; Fri, 24 Jan 2003 12:05:09 -0500
+Received: from web80310.mail.yahoo.com ([66.218.79.26]:51736 "HELO
+	web80310.mail.yahoo.com") by vger.kernel.org with SMTP
+	id <S267784AbTAXRFI>; Fri, 24 Jan 2003 12:05:08 -0500
+Message-ID: <20030124171415.34636.qmail@web80310.mail.yahoo.com>
+Date: Fri, 24 Jan 2003 09:14:15 -0800 (PST)
+From: Kevin Lawton <kevinlawton2001@yahoo.com>
+Subject: Re: Simple patches for Linux as a guest OS in a plex86 VM (please consider)
+To: Pavel Machek <pavel@ucw.cz>
+Cc: kernel list <linux-kernel@vger.kernel.org>
+In-Reply-To: <20030124154935.GB20371@elf.ucw.cz>
 MIME-Version: 1.0
-To: Hiroshi Miura <miura@da-cha.org>
-CC: vojtech@suse.cz, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 2.5.59] support japanese JP106 keyboard on new console.
-References: <20030124031453.0A29F11775F@triton2>
-Content-Type: text/plain; charset=iso-2022-jp
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I have a question.
+--- Pavel Machek <pavel@ucw.cz> wrote:
 
-Hiroshi Miura wrote:
-> 
-> Hi,
-> 
-> After re-writting a console layer, a japanese keyboard is not supported (or degraded).
-> This patch fixs it.
-> 
-> A USB keyboard driver may have same problem, but I don't have one.
-> 
-> --- linux-2.5.59/drivers/input/keyboard/atkbd.c 2002-12-03 07:59:41.000000000 +0900
-> +++ edited/linux-2.5.59/drivers/input/keyboard/atkbd.c  2003-01-24 09:13:11.000000000 +0900
-> @@ -309,6 +309,12 @@
->         if (atkbd_command(atkbd, &atkbd->oldset, ATKBD_CMD_GSCANSET))
->                 atkbd->oldset = 2;
-> 
-> +       if (atkbd->id == 0xab02) {
-> +               printk("atkbd: jp109(106) keyboard found\n");
-> +               param[0] = atkbd_set;
-> +               atkbd_command(atkbd, param, ATKBD_CMD_SSCANSET);
-> +               return 5;
-> +       }
->  /*
->   * For known special keyboards we can go ahead and set the correct set.
->   * We check for NCD PS/2 Sun, NorthGate OmniKey 101 and
-> @@ -531,6 +537,12 @@
->         else
->                 memcpy(atkbd->keycode, atkbd_set2_keycode, sizeof(atkbd->keycode));
-> 
-> +       if (atkbd->set == 5) {
-> +               atkbd->keycode[0x13] = 0x70;  /* Hiragana/Katakana */
-I'm interesting in the reason to use keycode 0x70 for 'Hiragana/Katakana' key.
-Please clarify.
+> How is plex86-aware-linux running under plex86 different from user
+> mode linux?
 
-Regard,
-Osamu Tomita
+With plex86, the goal is to run the stock x86 port.  Plex86 is also
+x86-specific.
+
+> Do you think you can make it faster?
+
+To get any level of security with UML, you need to use "jailed mode"
+in which performance takes a big beating.  To fix this, you need
+patches to Linux as a host, to make it offer a better environment
+for running UML guests.  From a commercial perspective, then you have
+a patched Linux host + totally different port of a Linux guest.
+>From a fun perspective, I think UML is fantastic achievement.
+
+What I'm aiming for is a stock Linux host and a stock Linux guest,
+the small mods to macroize PUSHF/POPF being a minor concession
+to accomodate a broken PVI support in x86.
+
+
+-Kevin
+
+__________________________________________________
+Do you Yahoo!?
+New DSL Internet Access from SBC & Yahoo!
+http://sbc.yahoo.com

@@ -1,42 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277294AbRKHSR2>; Thu, 8 Nov 2001 13:17:28 -0500
+	id <S273345AbRKHSSh>; Thu, 8 Nov 2001 13:18:37 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277380AbRKHSRQ>; Thu, 8 Nov 2001 13:17:16 -0500
-Received: from rtlab.med.cornell.edu ([140.251.145.175]:28295 "HELO
-	openlab.rtlab.org") by vger.kernel.org with SMTP id <S277294AbRKHSRM>;
-	Thu, 8 Nov 2001 13:17:12 -0500
-Date: Thu, 8 Nov 2001 13:17:12 -0500 (EST)
-From: "Calin A. Culianu" <calin@ajvar.org>
-To: Robert Love <rml@tech9.net>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: Re: Any lingering Athlon bugs in Kernel 2.4.14?
-In-Reply-To: <1005241894.939.37.camel@phantasy>
-Message-ID: <Pine.LNX.4.30.0111081315500.4578-100000@rtlab.med.cornell.edu>
+	id <S277512AbRKHSS0>; Thu, 8 Nov 2001 13:18:26 -0500
+Received: from gans.physik3.uni-rostock.de ([139.30.44.2]:1284 "EHLO
+	gans.physik3.uni-rostock.de") by vger.kernel.org with ESMTP
+	id <S273345AbRKHSSI>; Thu, 8 Nov 2001 13:18:08 -0500
+Date: Thu, 8 Nov 2001 19:10:05 +0100 (CET)
+From: Tim Schmielau <tim@physik3.uni-rostock.de>
+To: <kuznet@ms2.inr.ac.ru>
+cc: "David S. Miller" <davem@redhat.com>, <jgarzik@mandrakesoft.com>,
+        <andrewm@uow.edu.au>, <linux-kernel@vger.kernel.org>,
+        <torvalds@transmeta.com>, <adilger@turbolabs.com>,
+        <netdev@oss.sgi.com>, <ak@muc.de>
+Subject: Re: [PATCH] net/ipv4/*, net/core/neighbour.c jiffies cleanup
+In-Reply-To: <200111081754.UAA24454@ms2.inr.ac.ru>
+Message-ID: <Pine.LNX.4.30.0111081900090.6561-100000@gans.physik3.uni-rostock.de>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 8 Nov 2001, Robert Love wrote:
-
-> On Thu, 2001-11-08 at 11:46, Calin A. Culianu wrote:
-> > Hi, I am wondering if maybe there are any lingering Athlon bugs in Kernel
-> > 2.4.14?
-> > [...]
-> > Any help/advice/thoughts/even flames would be appreciated... :)
+> >    jiffies cleanup patch of the day follows. Mostly boring changes of jiffies
+> >    comparisons to use time_{before,after} in order to handle jiffies
+> >    wraparound correctly.
 >
-> Would you mind trying Alan's tree?  Get linux-2.4.13 and
-> patch-2.4.13-ac7.  The newest is 2.4.13-ac8, but stick with 7 for now.
-
-I wouldn't mind trying his tree at all.  Does his tree somehow use the
-older VM, or does it try to address Athlon bugs more aggressively? Ie: Why
-is this a great idea?  (Apart from Alan's tree just being really cool).
-
--Calin
-
-> > Ie, give kernel 2.4.13-ac7 a whirl.
+> I want to _ask_ one thing people working on these changes.
+> _Please_, defer this edit to 2.5. The changes are very good,
+> but time for them is very bad.
 >
-> 	Robert Love
->
+
+Agreed. For now I will only post patches for code that really _is_ broken.
+I've already learned that from the discussion with David Miller.
+This way I might miss some places getting the comparison wrong, but
+changes will be less intrusive.
+
+However, I definitely want to see a 2.4.x someday that is able to run
+for more that 497 days.
+
+
+Tim
 

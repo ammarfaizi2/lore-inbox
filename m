@@ -1,58 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261549AbSJ1WSs>; Mon, 28 Oct 2002 17:18:48 -0500
+	id <S261560AbSJ1WVS>; Mon, 28 Oct 2002 17:21:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261545AbSJ1WSQ>; Mon, 28 Oct 2002 17:18:16 -0500
-Received: from e31.co.us.ibm.com ([32.97.110.129]:21214 "EHLO
-	e31.co.us.ibm.com") by vger.kernel.org with ESMTP
-	id <S261352AbSJ1WRp>; Mon, 28 Oct 2002 17:17:45 -0500
-Message-ID: <3DBDB664.7050808@watson.ibm.com>
-Date: Mon, 28 Oct 2002 17:12:52 -0500
-From: Shailabh Nagar <nagar@watson.ibm.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.9) Gecko/20020408
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: bert hubert <ahu@ds9a.nl>
-Cc: Hanna Linder <hannal@us.ibm.com>, linux-kernel@vger.kernel.org,
-       davidel@xmailserver.org, linux-aio@vger.kernel.org,
-       lse-tech@lists.sourceforge.net
-Subject: Re: [Lse-tech] Re: [PATCH] epoll more scalable than poll
-References: <53100000.1035832459@w-hlinder> <20021028220809.GB27798@outpost.ds9a.nl>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S261573AbSJ1WVS>; Mon, 28 Oct 2002 17:21:18 -0500
+Received: from dp.samba.org ([66.70.73.150]:51113 "EHLO lists.samba.org")
+	by vger.kernel.org with ESMTP id <S261560AbSJ1WVQ>;
+	Mon, 28 Oct 2002 17:21:16 -0500
+From: Rusty Russell <rusty@rustcorp.com.au>
+To: dipankar@gamebox.net
+Cc: Hugh Dickins <hugh@veritas.com>, Mingming Cao <cmm@us.ibm.com>,
+       Andrew Morton <akpm@zip.com.au>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH]updated ipc lock patch 
+In-reply-to: Your message of "Tue, 29 Oct 2002 01:30:59 +0530."
+             <20021029013059.A13287@dikhow> 
+Date: Tue, 29 Oct 2002 08:41:19 +1100
+Message-Id: <20021028222738.3316B2C4D9@lists.samba.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-bert hubert wrote:
-> On Mon, Oct 28, 2002 at 11:14:19AM -0800, Hanna Linder wrote:
+In message <20021029013059.A13287@dikhow> you write:
+> Hi Rusty,
 > 
-> 
->>	The results of our testing show not only does the system call 
->>interface to epoll perform as well as the /dev interface but also that epoll 
->>is many times better than standard poll. No other implementations of poll 
-> 
-> 
-> Hanna,
-> 
-> Sure that this works? The following trivial program doesn't work on stdinput
-> when I'd expect it to. It just waits until the timeout passes end then
-> returns 0. It also does not work on a file, which is to be expected,
-> although 'select' returns with an immediate availability of data on a file
-> according to SuS.
+> I am pathologically late in catching up lkml, so if I missed some
+> context here, I apologize in advance. I have just started looking
+> at mm6 ipc code and I want to point out a few things.
 
-I'm checking this and will let you know.
+That's OK, I'm still 1500 behind 8(
 
+	If all current uses are embedded, can we remove the "void
+*arg" and reduce the size of struct rcu_head by 25%?  Users can always
+embed it in their own struct which has a "void *arg", but if that's
+the uncommon case, it'd be nice to slim it a little.
 
-> Furthermore, there is some const weirdness going on, the ephttpd server has
-> a different second argument to sys_epoll_wait.
+	It'd also be nice to change the double linked list to a single
+too: as far as I can tell the only issue is the list_add_tail in
+call_rcu(): how important is this ordering?  It can be done by keeping
+a head as well as a tail pointer if required.
 
-You're right. The ephttpd server on Davide's page needs to add a cast
-(struct pollfd const **) to the second arg passed to sys_epoll_wait.
-The version of dphttpd used to generate the results had that fix in it.
+I'd be happy to prepare a patch, to avoid more complaints of bloat 8)
 
+> That said, it seems that Ming/Hugh's patch does allocate
+> the rcu_head at the time of *growing* the array. It is just
+> that they allocate it for the freeing array rather than the
+> allocated array. I don't see how this is semantically different
+> from clubbing the two allocations other than the fact that
+> smaller number of allocation calls would likely reduce the
+> likelyhood of allocation failures.
 
+We must be looking at different variants of the patch.  This one does:
+IPC_RMID -> freeary() -> ipc_rcu_free -> kmalloc.
 
--- Shailabh
-
-
+Cheers,
+Rusty.
+--
+  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.

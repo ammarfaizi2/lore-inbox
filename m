@@ -1,88 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265069AbTLKPA0 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 11 Dec 2003 10:00:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265081AbTLKPA0
+	id S265094AbTLKOz6 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 11 Dec 2003 09:55:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265098AbTLKOz6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 11 Dec 2003 10:00:26 -0500
-Received: from holomorphy.com ([199.26.172.102]:55781 "EHLO holomorphy.com")
-	by vger.kernel.org with ESMTP id S265069AbTLKPAR (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 11 Dec 2003 10:00:17 -0500
-Date: Thu, 11 Dec 2003 07:00:11 -0800
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Raul Miller <moth@magenta.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: PROBLEM: Linux 2.6.0-test11 only lets me use 1GB out of 2GB ram.
-Message-ID: <20031211150011.GF8039@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Raul Miller <moth@magenta.com>, linux-kernel@vger.kernel.org
-References: <C033B4C3E96AF74A89582654DEC664DB0672F1@aruba.maner.org> <3FD7FCF5.7030109@cyberone.com.au> <3FD801B3.7080604@wmich.edu> <20031211054111.GX8039@holomorphy.com> <20031211094148.G28449@links.magenta.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20031211094148.G28449@links.magenta.com>
-Organization: The Domain of Holomorphy
-User-Agent: Mutt/1.5.4i
+	Thu, 11 Dec 2003 09:55:58 -0500
+Received: from [195.255.196.126] ([195.255.196.126]:31953 "EHLO
+	gw.compusonic.fi") by vger.kernel.org with ESMTP id S265094AbTLKOzx
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 11 Dec 2003 09:55:53 -0500
+Date: Thu, 11 Dec 2003 16:54:54 +0200 (EET)
+From: Hannu Savolainen <hannu@opensound.com>
+X-X-Sender: hannu@zeus.compusonic.fi
+To: viro@parcelfarce.linux.theplanet.co.uk
+Cc: Linus Torvalds <torvalds@osdl.org>, Larry McVoy <lm@bitmover.com>,
+       Andre Hedrick <andre@linux-ide.org>,
+       Arjan van de Ven <arjanv@redhat.com>, Valdis.Kletnieks@vt.edu,
+       Kendall Bennett <KendallB@scitechsoft.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: Driver API (was Re: Linux GPL and binary module exception clause?)
+In-Reply-To: <20031211133307.GK4176@parcelfarce.linux.theplanet.co.uk>
+Message-ID: <Pine.LNX.4.58.0312111648030.15937@zeus.compusonic.fi>
+References: <Pine.LNX.4.58.0312100852210.29676@home.osdl.org>
+ <20031210175614.GH6896@work.bitmover.com> <Pine.LNX.4.58.0312100959180.29676@home.osdl.org>
+ <20031210180822.GI6896@work.bitmover.com> <Pine.LNX.4.58.0312101016010.29676@home.osdl.org>
+ <20031210183833.GJ6896@work.bitmover.com> <Pine.LNX.4.58.0312101108150.29676@home.osdl.org>
+ <Pine.LNX.4.58.0312102256520.3787@zeus.compusonic.fi>
+ <20031211100627.GJ4176@parcelfarce.linux.theplanet.co.uk>
+ <Pine.LNX.4.58.0312111427530.12975@zeus.compusonic.fi>
+ <20031211133307.GK4176@parcelfarce.linux.theplanet.co.uk>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Dec 10, 2003 at 09:41:11PM -0800, William Lee Irwin III wrote:
->> You're probably thinking of 2:2 split patches.
->> 2:2 splits are at least technically ABI violations, which is probably
->> why this isn't merged etc. Applications sensitive to it are uncommon.
->> Yes, the SVR4 i386 ELF/ABI spec literally mandates 0xC0000000 as the
->> top of the process address space.
+On Thu, 11 Dec 2003 viro@parcelfarce.linux.theplanet.co.uk wrote:
 
-On Thu, Dec 11, 2003 at 09:41:48AM -0500, Raul Miller wrote:
-> Apologies if I'm asking about the obvious, but... 
-> [1] isn't 0xC0000000 at 3GB?  
+> On Thu, Dec 11, 2003 at 02:47:49PM +0200, Hannu Savolainen wrote:
+>
+> > In a charcter driver all you need to know from the inode structure is
+> > basicly just the device (minor) number. It's not hard to implement the
+> > ABI layer so that the minor number can be provided regardless of the
+> > changes made to the kernel behind it.
+>
+> Not good enough (if you want a demonstration, check USB character devices
+> and the nightmare stuff happening around handling of minor->object mapping
+> there).
+I'm not talking about USB character devices. I'm not talking about
+hot-plugging. For sure it will be very difficult or even impossible to
+handle this kind of issues. I'm only talking about simple character
+device drivers. Ok, you can remove the major/minor mechanism entirely from
+Linux. Then we have a problem but I'm sure there will be some easy
+workaround even then.
 
-It is.
+Best regards,
 
-
-On Thu, Dec 11, 2003 at 09:41:48AM -0500, Raul Miller wrote:
-> [2] Even if ELF did restrict a user process to 1GB (which I'm pretty
-> sure it doesn't), wouldn't the kernel still be able to manage 2GB of
-> user memory?
-
-You have it backward. The SVR4/i386 ELF ABI specification is requiring
-userspace to be granted at least 3GB of address space.
-
-This does not necessarily present a restriction for the kernel;
-consider task gates (mingo did it by hand).
-
-
-On Thu, Dec 11, 2003 at 09:41:48AM -0500, Raul Miller wrote:
-> Probably my real question is: "what's this about 2:2 split patches"?
-> Basically, I thought "linux supports 2GB ram" had been been the case
-> since the dark ages.  It's hard for me to comprehend how highmem, or 64
-> bit cpus, could have much to do with a 1GB limit.
-
-You should probably ignore this thread. It's probably not relevant to
-you.
-
-
-On Thu, Dec 11, 2003 at 09:41:48AM -0500, Raul Miller wrote:
-> [In my fantasies, I was thinking that the system came up with only 1GB of
-> the memory easily usable, and that the lack of support for my hardware
-> meant that it couldn't be properly reconfigured.  But I recognize that
-> I haven't spent the time researching this to see if in fact this is
-> the case.]
-
-Highmem support gets you this on ia32. Other architectures can support it
-with less overhead.
-
-
-On Thu, Dec 11, 2003 at 09:41:48AM -0500, Raul Miller wrote:
-> I am in the process of bringing up an cross compilation environment for
-> amd64 -- I need to do that anyways -- and I'll try building a real 64
-> bit kernel to see if that helps any.  If that doesn't, I guess I'll try
-> a couple 4G highmem kernels (one 64 bit, one 32 bit).  If nothing else,
-> that will eat up some time...
-
-If you have such a cpu why are you bothering with highmem (or wondering
-if > 2GB is supported)?
-
-
--- wli
+Hannu
+-----
+Hannu Savolainen (hannu@opensound.com)
+http://www.opensound.com (Open Sound System (OSS))
+http://www.compusonic.fi (Finnish OSS pages)
+OH2GLH QTH: Karkkila, Finland LOC: KP20CM

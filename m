@@ -1,38 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272028AbRHVPST>; Wed, 22 Aug 2001 11:18:19 -0400
+	id <S271672AbRHVP0J>; Wed, 22 Aug 2001 11:26:09 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272029AbRHVPSI>; Wed, 22 Aug 2001 11:18:08 -0400
-Received: from garrincha.netbank.com.br ([200.203.199.88]:22278 "HELO
-	netbank.com.br") by vger.kernel.org with SMTP id <S272028AbRHVPRz>;
-	Wed, 22 Aug 2001 11:17:55 -0400
-Date: Wed, 22 Aug 2001 12:17:55 -0300 (BRST)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: <riel@imladris.rielhome.conectiva>
-To: Ricky Beam <jfbeam@bluetopia.net>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, <linux-kernel@vger.kernel.org>
-Subject: Re: Qlogic/FC firmware
-In-Reply-To: <Pine.GSO.4.33.0108220031190.6389-100000@sweetums.bluetronic.net>
-Message-ID: <Pine.LNX.4.33L.0108221217220.5646-100000@imladris.rielhome.conectiva>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
+	id <S272029AbRHVPZ7>; Wed, 22 Aug 2001 11:25:59 -0400
+Received: from ns.suse.de ([213.95.15.193]:46093 "HELO Cantor.suse.de")
+	by vger.kernel.org with SMTP id <S271672AbRHVPZs>;
+	Wed, 22 Aug 2001 11:25:48 -0400
+To: Chris Friesen <cfriesen@nortelnetworks.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: why no call to add_interrupt_randomness() on PPC?
+In-Reply-To: <3B83C430.7E5F59C3@nortelnetworks.com.suse.lists.linux.kernel>
+From: Andi Kleen <ak@suse.de>
+Date: 22 Aug 2001 17:26:01 +0200
+In-Reply-To: Chris Friesen's message of "22 Aug 2001 16:44:06 +0200"
+Message-ID: <oupitfgnmk6.fsf@pigdrop.muc.suse.de>
+User-Agent: Gnus/5.0803 (Gnus v5.8.3) Emacs/20.7
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 22 Aug 2001, Ricky Beam wrote:
+Chris Friesen <cfriesen@nortelnetworks.com> writes:
 
-> So basically, you had no fucking clue
+> With all the talk about randomness, I went to see where my current system
+> (2.2.19 on PPC) was getting random numbers from.  I was kind of surprised to see
+> that there is no call to add_interrupt_randomness() in arch/ppc/kernel/irq.c.
+> 
+> Does anyone know why this call is not present in ppc_irq_dispatch_handler()? 
+> Would it be appropriate for me to make a patch for this?  Who would be the
+> appropriate person to send this to?
 
-Since you're the expert, why won't we all wait for
-YOUR patch to fix the problem? ;)
+Nobody except for a few really obscure drivers use SA_SAMPLE_RANDOM
+with their interrupt handlers (none on ppc as far as I can see) On
+i386 all the gathering is normally done via the keyboard/mouse drivers
+and the blk interface. The reason e.g. Macs normally do not gather
+entropy is that they're using the new input layer for keyboard and
+mouse which for some reason doesn't feed its events into the entropy
+pool. I believe Wojtech did a patch for it, but I don't know if it has
+been merged into the ppc tree yet.
 
-Rik
---
-IA64: a worthy successor to i860.
-
-http://www.surriel.com/		http://distro.conectiva.com/
-
-Send all your spam to aardvark@nl.linux.org (spam digging piggy)
-
+-Andi

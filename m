@@ -1,84 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262676AbUJ0UXs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262632AbUJ0UYb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262676AbUJ0UXs (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 27 Oct 2004 16:23:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262619AbUJ0UXD
+	id S262632AbUJ0UYb (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 27 Oct 2004 16:24:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262628AbUJ0UUW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 27 Oct 2004 16:23:03 -0400
-Received: from h-68-165-86-241.dllatx37.covad.net ([68.165.86.241]:4988 "EHLO
-	sol.microgate.com") by vger.kernel.org with ESMTP id S262597AbUJ0UQv
+	Wed, 27 Oct 2004 16:20:22 -0400
+Received: from fmr03.intel.com ([143.183.121.5]:52621 "EHLO
+	hermes.sc.intel.com") by vger.kernel.org with ESMTP id S262676AbUJ0URd
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 27 Oct 2004 16:16:51 -0400
-Subject: Re: pl2303/usb-serial driver problem in 2.4.27-pre6
-From: Paul Fulghum <paulkf@microgate.com>
-To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-Cc: Greg KH <greg@kroah.com>, Oleksiy <Oleksiy@kharkiv.com.ua>,
-       LKML <linux-kernel@vger.kernel.org>
-In-Reply-To: <1098576844.5996.27.camel@at2.pipehead.org>
-References: <416A6CF8.5050106@kharkiv.com.ua>
-	 <20041012171004.GB11750@kroah.com>  <20041023180625.GA12113@logos.cnet>
-	 <1098572412.5996.6.camel@at2.pipehead.org>
-	 <1098576844.5996.27.camel@at2.pipehead.org>
-Content-Type: text/plain
-Message-Id: <1098908206.2856.17.camel@deimos.microgate.com>
+	Wed, 27 Oct 2004 16:17:33 -0400
+Date: Wed, 27 Oct 2004 13:14:27 -0700
+From: Rajesh Shah <rajesh.shah@intel.com>
+To: Li Shaohua <shaohua.li@intel.com>
+Cc: ACPI-DEV <acpi-devel@lists.sourceforge.net>,
+       lkml <linux-kernel@vger.kernel.org>, Len Brown <len.brown@intel.com>,
+       greg@kroah.com, Pavel Machek <pavel@suse.cz>
+Subject: Re: [Proposal]Another way to save/restore PCI config space for suspend/resume
+Message-ID: <20041027131427.C2382@unix-os.sc.intel.com>
+Reply-To: Rajesh Shah <rajesh.shah@intel.com>
+References: <1098766257.8433.7.camel@sli10-desk.sh.intel.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7) 
-Date: Wed, 27 Oct 2004 15:16:46 -0500
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <1098766257.8433.7.camel@sli10-desk.sh.intel.com>; from shaohua.li@intel.com on Tue, Oct 26, 2004 at 12:50:57PM +0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2004-10-23 at 19:14, Paul Fulghum wrote:
-> This change fits the reported symptom (loss of receive data).
+On Tue, Oct 26, 2004 at 12:50:57PM +0800, Li Shaohua wrote:
+> Hi,
+> We suffer from PCI config space issue for a long time, which causes many
+> system can't correctly resume. Current Linux mechanism isn't sufficient.
+> Here is a another idea: 
+> Record all PCI writes in Linux kernel, and redo all the write after
+> resume in order. The idea assumes Firmware will restore all PCI config
+> space to the boot time state, which is true at least for IA32.
 > 
-> The change preserves line status errors
-> across multiple read interrupt callbacks until the error
-> can be applied to the contents of the next read bulk callback.
-> 
-> What looks wrong to me is that the line status error,
-> which should be associated with an individual character,
-> is applied to the entire contents of the next bulk read.
-> Wouldn't this potentially invalidate good data?
-> 
-> I'm not familiar with the operation of USB-serial converters,
-> so I don't know exactly how the flow of read interrupt and
-> read bulk callbacks are implemented to handle character errors.
-> 
-> If I was to guess, before the change, errors were lost
-> (overwritten by the next read interrupt callback)
-> so the mask was added to preserve the error.
-> But the error is applied to more data than it should,
-> causing loss of valid receive data.
+A large percentage of them may be irrelevant with respect to 
+suspend/resume (e.g. pci device tree and resource scan...).  Apart 
+from the performance problems, generic code doing device specific 
+config accesses may have correctness problems. For example, you 
+will not be able to capture/replay config cycles or other device 
+specific initialization (e.g. using memory mapped IO) that BIOS may 
+have done before boot. This may be required for correct access to
+device specific areas. The same thing is true about device specific 
+config accesses that may have been done by the corresponding 
+driver after boot. Without device specific knowledge, we may see 
+unpredictable behavior and non-repeatable and hard to debug problems.
 
-USB CDC 1.1 does not specify how these error indications
-relate to subsequent bulk data packets. I could not find
-manufacturer info that helps. BSD drivers don't do
-error processing at all.
+I don't see how generic code can do the right thing for device
+specific accesses. Devices like p2p bridges that have standard
+definitions can be handled separately.
 
-Here is a patch that applies the error only to the
-next receive byte instead of all bytes in the
-next read bulk packet.
-
-Greg: Any comment?
-
-Oleksiy: Can you try this patch?
-
-Thanks,
-Paul
-
--- 
-Paul Fulghum
-paulkf@microgate.com
-
---- linux-2.4.28-pre4/drivers/usb/serial/pl2303.c	2004-08-07 18:26:05.000000000 -0500
-+++ linux-2.4.28-pre4-mg/drivers/usb/serial/pl2303.c	2004-10-27 15:09:09.000000000 -0500
-@@ -799,6 +799,7 @@ static void pl2303_read_bulk_callback (s
- 				tty_flip_buffer_push(tty);
- 			}
- 			tty_insert_flip_char (tty, data[i], tty_flag);
-+			tty_flag = TTY_NORMAL;
- 		}
- 		tty_flip_buffer_push (tty);
- 	}
-
+Rajesh
 

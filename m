@@ -1,72 +1,95 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265413AbUAAVC1 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 Jan 2004 16:02:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264879AbUAAVB4
+	id S264879AbUAAVC2 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 Jan 2004 16:02:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264905AbUAAVBr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 Jan 2004 16:01:56 -0500
-Received: from colo.khms.westfalen.de ([213.239.196.208]:64910 "EHLO
-	colo.khms.westfalen.de") by vger.kernel.org with ESMTP
-	id S264884AbUAAU4K (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 Jan 2004 15:56:10 -0500
-Date: 01 Jan 2004 21:43:00 +0200
-From: kaih@khms.westfalen.de (Kai Henningsen)
-To: linux-kernel@vger.kernel.org
-Message-ID: <900eUExXw-B@khms.westfalen.de>
-In-Reply-To: <200401010634.28559.rob@landley.net>
-Subject: Re: udev and devfs - The final word
-X-Mailer: CrossPoint v3.12d.kh12 R/C435
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Organization: Organisation? Me?! Are you kidding?
-References: <18Cz7-7Ep-7@gated-at.bofh.it> <20040101001549.GA17401@win.tue.nl> <1072917113.11003.34.camel@fur> <1072917113.11003.34.camel@fur> <200401010634.28559.rob@landley.net>
-X-No-Junk-Mail: I do not want to get *any* junk mail.
-Comment: Unsolicited commercial mail will incur an US$100 handling fee per received mail.
-X-Fix-Your-Modem: +++ATS2=255&WO1
+	Thu, 1 Jan 2004 16:01:47 -0500
+Received: from amsfep14-int.chello.nl ([213.46.243.22]:21019 "EHLO
+	amsfep14-int.chello.nl") by vger.kernel.org with ESMTP
+	id S264879AbUAAUCw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 1 Jan 2004 15:02:52 -0500
+Date: Thu, 1 Jan 2004 21:02:50 +0100
+Message-Id: <200401012002.i01K2o9i031822@callisto.of.borg>
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+To: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>
+Cc: Linux Kernel Development <linux-kernel@vger.kernel.org>,
+       Geert Uytterhoeven <geert@linux-m68k.org>
+Subject: [PATCH 365] ncr53c7xx SCSI
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-rob@landley.net (Rob Landley)  wrote on 01.01.04 in <200401010634.28559.rob@landley.net>:
+ncr53c7xx: Cleanup prototypes for ncr53c7xx_init()
 
-> On Wednesday 31 December 2003 18:31, Rob Love wrote:
-> > On Wed, 2003-12-31 at 19:15, Andries Brouwer wrote:
-> > > My plan has been to essentially use a hashed disk serial number
-> > > for this "any old unique value". The problem is that "any old"
-> > > is easy enough, but "unique" is more difficult.
-> > > Naming devices is very difficult, but in some important cases,
-> > > like SCSI or IDE disks, that would work and give a stable name.
-> >
-> > Yup.
-> >
-> > > The kernel must not invent consecutive numbers - that does not
-> > > lead to stable names. Setting this up correctly is nontrivial.
-> >
-> > This is definitely an interesting problem space.
-> >
-> > I agree wrt just inventing consecutive numbers.  If there was a nice way
-> > to trivially generate a random and unique number from some
-> > device-inherent information, that would be nice.
-> >
-> > 	Rob Love
->
-> Fundamental problem: "Unique" depends on the other devices in the system.
-> You can't guarantee unique by looking at one device, more or less by
-> definition.
+--- linux-2.6.0/drivers/scsi/53c7xx.c	2003-08-09 21:43:12.000000000 +0200
++++ linux-m68k-2.6.0/drivers/scsi/53c7xx.c	2003-11-03 21:44:14.000000000 +0100
+@@ -1102,8 +1102,8 @@
+ }
+ 
+ /* 
+- * Function : static int ncr53c7xx_init(Scsi_Host_Template *tpnt, int board, 
+- *	int chip, u32 base, int io_port, int irq, int dma, long long options,
++ * Function : int ncr53c7xx_init(Scsi_Host_Template *tpnt, int board, int chip,
++ *	unsigned long base, int io_port, int irq, int dma, long long options,
+  *	int clock);
+  *
+  * Purpose : initializes a NCR53c7,8x0 based on base addresses,
+--- linux-2.6.0/drivers/scsi/53c7xx.h	2003-05-05 10:31:51.000000000 +0200
++++ linux-m68k-2.6.0/drivers/scsi/53c7xx.h	2003-11-03 21:45:33.000000000 +0100
+@@ -1600,5 +1600,9 @@
+ /* Paranoid people could use panic() here. */
+ #define FATAL(host) shutdown((host));
+ 
++extern int ncr53c7xx_init(Scsi_Host_Template *tpnt, int board, int chip,
++			  unsigned long base, int io_port, int irq, int dma,
++			  long long options, int clock);
++
+ #endif /* NCR53c710_C */
+ #endif /* NCR53c710_H */
+--- linux-2.6.0/drivers/scsi/amiga7xx.c	2003-07-29 18:19:08.000000000 +0200
++++ linux-m68k-2.6.0/drivers/scsi/amiga7xx.c	2003-11-03 21:45:40.000000000 +0100
+@@ -30,9 +30,6 @@
+ 
+ #include<linux/stat.h>
+ 
+-extern int ncr53c7xx_init (Scsi_Host_Template *tpnt, int board, int chip, 
+-			   unsigned long base, int io_port, int irq, int dma,
+-			   long long options, int clock);
+ 
+ int __init amiga7xx_detect(Scsi_Host_Template *tpnt)
+ {
+--- linux-2.6.0/drivers/scsi/bvme6000.c	2003-07-29 18:19:09.000000000 +0200
++++ linux-m68k-2.6.0/drivers/scsi/bvme6000.c	2003-11-03 21:47:55.000000000 +0100
+@@ -23,9 +23,6 @@
+ 
+ #include<linux/stat.h>
+ 
+-extern int ncr53c7xx_init(Scsi_Host_Template *tpnt, int board, int chip,
+-			  unsigned long base, int io_port, int irq, int dma,
+-			  long long options, int clock);
+ 
+ int bvme6000_scsi_detect(Scsi_Host_Template *tpnt)
+ {
+--- linux-2.6.0/drivers/scsi/mvme16x.c	2003-07-29 18:19:10.000000000 +0200
++++ linux-m68k-2.6.0/drivers/scsi/mvme16x.c	2003-11-03 21:45:52.000000000 +0100
+@@ -21,9 +21,6 @@
+ 
+ #include<linux/stat.h>
+ 
+-extern int ncr53c7xx_init(Scsi_Host_Template *tpnt, int board, int chip,
+-			  unsigned long base, int io_port, int irq, int dma,
+-			  long long options, int clock);
+ 
+ int mvme16x_scsi_detect(Scsi_Host_Template *tpnt)
+ {
 
-This is actually not fundamental at all.
+Gr{oetje,eeting}s,
 
-The best-known exception is probably the MAC address. But it is not the  
-only example of devices having true unique information.
+						Geert
 
-It is certainly true, though, that there are devices without this kind of  
-info.
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
 
-And remember that you can sometimes use secondary information. With any  
-kind of read-write storage device, it might be possible to create such a  
-piece of information and store it onto that device.
-
-Moral: keep the identifier creation framework flexible enough so that you  
-can chose device-specific means to produce useful identifiers. (And, use  
-long identifiers, as they're less likely to be duplicated in general.)
-
-MfG Kai
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+							    -- Linus Torvalds

@@ -1,52 +1,99 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261662AbUL0Bkt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261668AbUL0Bkq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261662AbUL0Bkt (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 26 Dec 2004 20:40:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261681AbUL0Bkt
+	id S261668AbUL0Bkq (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 26 Dec 2004 20:40:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261681AbUL0Bkq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 26 Dec 2004 20:40:49 -0500
-Received: from wproxy.gmail.com ([64.233.184.196]:25590 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261662AbUL0Bkp (ORCPT
+	Sun, 26 Dec 2004 20:40:46 -0500
+Received: from MAIL.13thfloor.at ([212.16.62.51]:43493 "EHLO mail.13thfloor.at")
+	by vger.kernel.org with ESMTP id S261668AbUL0Bkm (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 26 Dec 2004 20:40:45 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
-        b=rTkWrXAHvjp3MfDbW6D5B+fDsnTF4IB1oSui0+0y1uBK96D4WBgSIFHBBy8rZwHbljOzAjIafI6EG/yDHEqu79BpYI8n+W1OVjnTi5V8lXT19w2RNV4Txl/MSQdjlKO3tiOBe3Ya0T0/2KtY0hGdoTAbl9isG46p9PWhkFyouvM=
-Message-ID: <58cb370e041226174019e75e23@mail.gmail.com>
-Date: Mon, 27 Dec 2004 02:40:45 +0100
-From: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
-Reply-To: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
-To: Andreas Steinmetz <ast@domdv.de>
-Subject: Re: Linux 2.6.10-ac1
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <41CF649E.20409@domdv.de>
+	Sun, 26 Dec 2004 20:40:42 -0500
+Date: Mon, 27 Dec 2004 02:40:41 +0100
+From: Herbert Poetzl <herbert@13thfloor.at>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Linux-VServer <vserver@list.linux-vserver.org>
+Subject: The Future of Linux Capabilities ...
+Message-ID: <20041227014041.GA30550@mail.13thfloor.at>
+Mail-Followup-To: Linus Torvalds <torvalds@osdl.org>,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+	Linux-VServer <vserver@list.linux-vserver.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-References: <1104103881.16545.2.camel@localhost.localdomain>
-	 <58cb370e04122616577e1bd33@mail.gmail.com> <41CF649E.20409@domdv.de>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 27 Dec 2004 02:25:50 +0100, Andreas Steinmetz <ast@domdv.de> wrote:
-> Bartlomiej Zolnierkiewicz wrote:
-> > What do you need 'serialize' option for?
-> 
-> I didn't check if the problem is gone with 2.6.10 but there's boards
-> like my tyan 2885 which do need the serialize option to work properly
-> for add-on ide controllers.
-> 
->  From the X86-64 patch release notes of Andi Kleen:
-> 
-> Reports that dual Tyan S2885 and S2880 can lock up when multiple IDE
-> channels are stressed in parallel. "noapic" or "ideX=serialize" seems to
-> work around it. Andre Hedrick thinks it's a generic bug/race in the IDE
-> code.
->
-> Do you want to force people to disable the io-apic just because of
-> option removal? In my case the serialized devices are a disk and a
-> dvd-rw which is rarely used, so disabling the io-apic is a bad solution.
 
-No, I want them to fix the problem - whenever it is - ide or apic code. :)
+Hi Linus!
+Hi Folks!
+
+as linux-vserver is heavily using (and depending) on
+the linux capability system, and we are always trying
+to improve things for users and developers I wonder
+how the future of this capability system looks like ...
+
+I would not spend too much time on that, if we would
+not need to improve that system by splitting up (or
+working around) some capabilities which are too coarse
+(or too general) to be useful ...
+
+good examples for such capabilities are:
+
+	#define CAP_NET_ADMIN        12
+
+	/* Allow locking of shared memory segments */
+	/* Allow mlock and mlockall (which doesn't really
+		have anything to do with IPC) */
+
+	#define CAP_IPC_LOCK         14
+
+	#define CAP_SYS_ADMIN        21
+	#define CAP_SYS_RESOURCE     24
+
+especially CAP_NET_ADMIN and CAP_SYS_ADMIN contain
+more than 20 different aspects ...
+
+we are currently aware of three different solutions
+to refine the capability system, and I would like to
+hear some opinions and get a statement from mainline
+(good, impossible, crap, don't care, or whatever ;) 
+
+   I)	extend the capability type kernel_cap_t to
+	64 (or more) bit, add new syscalls cap*64()	 
+	and let the 'old' interface just see the lower
+	32 bit
+
+  II)	add 32 (or more) sub-capabilities which depend
+	on the parent capability to be usable, and add
+	appropriate syscalls for them.
+
+	example: CAP_IPC_LOCK gets two subcapabilities
+	(e.g. SCAP_SHM_LOCK and SCAP_MEM_LOCK) which
+
+ III)	(linux-vserver specific solution)
+	add a (compile time) CAP_MASK to declare which
+	caps have subcaps, then use per context subcaps
+	for known subfeatures and an additional cap_t
+	to cover 'all other' aspects of the capability
+
+	example: CAP_IPC_LOCK in CAP_MASK, plus the
+	SCAP_MEM_LOCK subcapability, now having IPC_LOCK
+	in the tasks caps doesn't do anything without
+	the corresponding IPC_LOCK in the context or
+	the SCAP_MEM_LOCK capability where appropriate
+
+I think that all three solutions are usable for our
+project, so I can live pretty well with III, but I think
+refining the capability system might be something which
+is useful for mainline ...
+
+TIA,
+Herbert
+
+
+
+
+

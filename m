@@ -1,51 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264870AbRFTKAD>; Wed, 20 Jun 2001 06:00:03 -0400
+	id <S264869AbRFTJyy>; Wed, 20 Jun 2001 05:54:54 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264871AbRFTJ7x>; Wed, 20 Jun 2001 05:59:53 -0400
-Received: from malvek.artecdesign.ee ([194.204.53.4]:61530 "EHLO
-	malvek.artecdesign.ee") by vger.kernel.org with ESMTP
-	id <S264870AbRFTJ7s>; Wed, 20 Jun 2001 05:59:48 -0400
-Message-ID: <3B307415.C80C0C59@artecdesign.ee>
-Date: Wed, 20 Jun 2001 11:59:50 +0200
-From: Heiki Kask <heiki.kask@artecdesign.ee>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.2.18custom i686)
-X-Accept-Language: en
-MIME-Version: 1.0
+	id <S264870AbRFTJyn>; Wed, 20 Jun 2001 05:54:43 -0400
+Received: from firewall.sch.bme.hu ([152.66.215.213]:1664 "EHLO
+	singular.sch.bme.hu") by vger.kernel.org with ESMTP
+	id <S264869AbRFTJyk>; Wed, 20 Jun 2001 05:54:40 -0400
+Date: Wed, 20 Jun 2001 11:56:36 +0200 (CEST)
+From: =?ISO-8859-2?Q?Kajt=E1r_Zsolt?= <soci@firewall.sch.bme.hu>
 To: linux-kernel@vger.kernel.org
-Subject: cs5530 and UDMA implementation questions
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+cc: rusty@rustcorp.com.au
+Subject: Re: Iptables ipt_unclean bug?
+Message-ID: <Pine.LNX.4.21.0106201130470.274-100000@firewall.sch.bme.hu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+> In message <Pine.LNX.4.21.0106190104020.414-100000@firewall.sch.bme.hu>
+> you write:
+> >
+> > Hi all!
+> >
+> > I think it's possible to hang the kernel useing isic 0.05
+> > (www.packetfactory.net/Projects/ISIC/), when there's a unclean match
+> > in iptables rules.
 
-I have following problems/questions I could not find answer from the
-kernel source code:
+> Thanks for the bug report. I've just done an audit of the unclean
+> code: patch against 2.4.5 is below. There were some bad thinkos there,
+> two fatal.
 
-- cs5530.c does not initialize hwif->speedproc hook. This means that
-hdparm -X does not call routine for chipset registers reprogramming.
-Did I miss something?
+2 infinite loops ;)
 
-- how chipset/disk initialization is supposed to work?
+After patching now everything seems to be ok.
 
-When kernel is compiled without CONFIG_IDEDMA_PCI_AUTO, then there are
-no calls performed to initialize  chipset for PIO or UDMA mode and
-therefore there is no possibility to recalculate IDE timings for
-different bus speeds (if it is implemented)  before root filesystem gets
-mounted.
-This  is basically OK when BIOS or BIOS replacement is initializing
-IDE controller to match the bus speed and the kernel does not make
-attempt to reprogram IDE controller, but then there is no sense to
-implement the feature at all because nobody will change bus speed at
-runtime, I guess.
+But there must be some other bug somewhere in TCP/IP stack or af_packet
+(or my machine is just crap ;) ), because after ~5 mins I can still hang
+my kernel on loopback WITHOUT iptables... Will check which one is on fault
+on my home network...
 
-Thanks for listening.
-
-heiki
-
-
-
+							-soci-
 
 

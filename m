@@ -1,171 +1,255 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267154AbTAPSaw>; Thu, 16 Jan 2003 13:30:52 -0500
+	id <S267191AbTAPSqO>; Thu, 16 Jan 2003 13:46:14 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267156AbTAPSaw>; Thu, 16 Jan 2003 13:30:52 -0500
-Received: from e35.co.us.ibm.com ([32.97.110.133]:28069 "EHLO
-	e35.co.us.ibm.com") by vger.kernel.org with ESMTP
-	id <S267154AbTAPSar>; Thu, 16 Jan 2003 13:30:47 -0500
-Date: Thu, 16 Jan 2003 10:32:07 -0800
-From: "Martin J. Bligh" <mbligh@aracnet.com>
-To: Linus Torvalds <torvalds@transmeta.com>
-cc: linux-kernel <linux-kernel@vger.kernel.org>, hohnbaum@us.ibm.com,
-       Erich Focht <efocht@ess.nec.de>
-Subject: [PATCH] (3/3) NUMA rebalancer
-Message-ID: <2140000.1042741927@flay>
-X-Mailer: Mulberry/2.1.2 (Linux/x86)
-MIME-Version: 1.0
+	id <S267193AbTAPSqO>; Thu, 16 Jan 2003 13:46:14 -0500
+Received: from 12-231-249-244.client.attbi.com ([12.231.249.244]:25103 "HELO
+	kroah.com") by vger.kernel.org with SMTP id <S267191AbTAPSqH>;
+	Thu, 16 Jan 2003 13:46:07 -0500
+Date: Thu, 16 Jan 2003 10:54:30 -0800
+From: Greg KH <greg@kroah.com>
+To: marcelo@conectiva.com.br
+Cc: linux-usb-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
+Subject: [BK PATCH] USB changes for 2.4.21-pre3
+Message-ID: <20030116185430.GB32287@kroah.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Patch from Erich Focht
+Hi,
 
-This adds a hook to rebalance globally across nodes every NODE_BALANCE_RATE
-iterations of the rebalancer. This allows us to easily tune on an architecture
-specific basis how often we wish to rebalance - machines with higher NUMA
-ratios (more expensive off-node access) will want to do this less often.
-It's currently set to 100 for NUMA-Q and 10 for other machines. If the 
-imbalance between nodes is > 125%, we'll rebalance them. The hook for this
-is added to the NUMA definition of cpus_to_balance, so again, no impact
-on non-NUMA machines.
+Here are some USB updates and bugfixes for 2.4.21-pre3.
 
+Please pull from:  bk://linuxusb.bkbits.net/marcelo-2.4
 
-diff -urpN -X /home/fletch/.diff.exclude numasched2/include/asm-generic/topology.h numasched3/include/asm-generic/topology.h
---- numasched2/include/asm-generic/topology.h	Sun Nov 17 20:29:22 2002
-+++ numasched3/include/asm-generic/topology.h	Wed Jan 15 19:26:01 2003
-@@ -48,4 +48,9 @@
- #define __node_to_memblk(node)		(0)
- #endif
- 
-+/* Cross-node load balancing interval. */
-+#ifndef NODE_BALANCE_RATE
-+#define NODE_BALANCE_RATE 10
-+#endif
-+
- #endif /* _ASM_GENERIC_TOPOLOGY_H */
-diff -urpN -X /home/fletch/.diff.exclude numasched2/include/asm-i386/topology.h numasched3/include/asm-i386/topology.h
---- numasched2/include/asm-i386/topology.h	Thu Jan  9 19:16:11 2003
-+++ numasched3/include/asm-i386/topology.h	Wed Jan 15 19:26:01 2003
-@@ -61,6 +61,9 @@ static inline int __node_to_first_cpu(in
- /* Returns the number of the first MemBlk on Node 'node' */
- #define __node_to_memblk(node) (node)
- 
-+/* Cross-node load balancing interval. */
-+#define NODE_BALANCE_RATE 100
-+
- #else /* !CONFIG_NUMA */
- /*
-  * Other i386 platforms should define their own version of the 
-diff -urpN -X /home/fletch/.diff.exclude numasched2/include/asm-ia64/topology.h numasched3/include/asm-ia64/topology.h
---- numasched2/include/asm-ia64/topology.h	Sun Nov 17 20:29:20 2002
-+++ numasched3/include/asm-ia64/topology.h	Wed Jan 15 19:26:01 2003
-@@ -60,4 +60,7 @@
-  */
- #define __node_to_memblk(node) (node)
- 
-+/* Cross-node load balancing interval. */
-+#define NODE_BALANCE_RATE 10
-+
- #endif /* _ASM_IA64_TOPOLOGY_H */
-diff -urpN -X /home/fletch/.diff.exclude numasched2/include/asm-ppc64/topology.h numasched3/include/asm-ppc64/topology.h
---- numasched2/include/asm-ppc64/topology.h	Thu Jan  9 19:16:12 2003
-+++ numasched3/include/asm-ppc64/topology.h	Wed Jan 15 19:26:01 2003
-@@ -46,6 +46,9 @@ static inline unsigned long __node_to_cp
- 	return mask;
- }
- 
-+/* Cross-node load balancing interval. */
-+#define NODE_BALANCE_RATE 10
-+
- #else /* !CONFIG_NUMA */
- 
- #define __cpu_to_node(cpu)		(0)
-diff -urpN -X /home/fletch/.diff.exclude numasched2/kernel/sched.c numasched3/kernel/sched.c
---- numasched2/kernel/sched.c	Wed Jan 15 19:56:42 2003
-+++ numasched3/kernel/sched.c	Wed Jan 15 20:01:12 2003
-@@ -67,6 +67,7 @@
- #define INTERACTIVE_DELTA	2
- #define MAX_SLEEP_AVG		(2*HZ)
- #define STARVATION_LIMIT	(2*HZ)
-+#define NODE_THRESHOLD          125
- 
- /*
-  * If a task is 'interactive' then we reinsert it in the active
-@@ -155,6 +156,8 @@ struct runqueue {
- 	int prev_nr_running[NR_CPUS];
- #ifdef CONFIG_NUMA
- 	atomic_t *node_nr_running;
-+	unsigned int nr_balanced;
-+	int prev_node_load[MAX_NUMNODES];
- #endif
- 	task_t *migration_thread;
- 	struct list_head migration_queue;
-@@ -735,14 +738,52 @@ void sched_balance_exec(void)
- 	}
- }
- 
--static inline unsigned long cpus_to_balance(int this_cpu)
-+/*
-+ * Find the busiest node. All previous node loads contribute with a 
-+ * geometrically deccaying weight to the load measure:
-+ *      load_{t} = load_{t-1}/2 + nr_node_running_{t}
-+ * This way sudden load peaks are flattened out a bit.
-+ */
-+static int find_busiest_node(int this_node)
-+{
-+	int i, node = -1, load, this_load, maxload;
-+	
-+	this_load = maxload = (this_rq()->prev_node_load[this_node] >> 1)
-+		+ atomic_read(&node_nr_running[this_node]);
-+	this_rq()->prev_node_load[this_node] = this_load;
-+	for (i = 0; i < numnodes; i++) {
-+		if (i == this_node)
-+			continue;
-+		load = (this_rq()->prev_node_load[i] >> 1)
-+			+ atomic_read(&node_nr_running[i]);
-+		this_rq()->prev_node_load[i] = load;
-+		if (load > maxload && (100*load > NODE_THRESHOLD*this_load)) {
-+			maxload = load;
-+			node = i;
-+		}
-+	}
-+	return node;
-+}
-+
-+static inline unsigned long cpus_to_balance(int this_cpu, runqueue_t *this_rq)
- {
--	return __node_to_cpu_mask(__cpu_to_node(this_cpu));
-+	int this_node = __cpu_to_node(this_cpu);
-+	/*
-+	 * Avoid rebalancing between nodes too often.
-+	 * We rebalance globally once every NODE_BALANCE_RATE load balances.
-+	 */
-+	if (++(this_rq->nr_balanced) == NODE_BALANCE_RATE) {
-+		int node = find_busiest_node(this_node);
-+		this_rq->nr_balanced = 0;
-+		if (node >= 0)
-+			return (__node_to_cpu_mask(node) | (1UL << this_cpu));
-+	}
-+	return __node_to_cpu_mask(this_node);
- }
- 
- #else /* !CONFIG_NUMA */
- 
--static inline unsigned long cpus_to_balance(int this_cpu)
-+static inline unsigned long cpus_to_balance(int this_cpu, runqueue_t *this_rq)
- {
- 	return cpu_online_map;
- }
-@@ -890,7 +931,7 @@ static void load_balance(runqueue_t *thi
- 	task_t *tmp;
- 
- 	busiest = find_busiest_queue(this_rq, this_cpu, idle, &imbalance,
--					cpus_to_balance(this_cpu));
-+					cpus_to_balance(this_cpu, this_rq));
- 	if (!busiest)
- 		goto out;
- 
+The individual patches will be sent in follow up messages to this email
+to you and the linux-usb-devel mailing list.
+
+thanks,
+
+greg k-h
+
+ Documentation/Configure.help       |   44 +
+ MAINTAINERS                        |    8 
+ drivers/usb/Config.in              |    1 
+ drivers/usb/Makefile               |    1 
+ drivers/usb/hcd/ehci-dbg.c         |   30 -
+ drivers/usb/konicawc.c             |  938 +++++++++++++++++++++++++++++++++++++
+ drivers/usb/scanner.c              |  120 +---
+ drivers/usb/scanner.h              |   29 -
+ drivers/usb/serial/ipaq.c          |    2 
+ drivers/usb/serial/ipaq.h          |    4 
+ drivers/usb/serial/usbserial.c     |    6 
+ drivers/usb/storage/unusual_devs.h |   22 
+ drivers/usb/usb-skeleton.c         |    2 
+ drivers/usb/usbnet.c               |   22 
+ include/linux/usb_scanner_ioctl.h  |    9 
+ 15 files changed, 1093 insertions(+), 145 deletions(-)
+-----
+
+ChangeSet@1.1025, 2003-01-16 10:51:04-08:00, ganesh@tuxtop.vxindia.veritas.com
+  [PATCH] Added ids for the Dell Axim and Toshiba E740. Thanks to Ian Molton
+
+ drivers/usb/serial/ipaq.c |    2 ++
+ drivers/usb/serial/ipaq.h |    4 ++++
+ 2 files changed, 6 insertions(+)
+------
+
+ChangeSet@1.1024, 2003-01-16 10:44:04-08:00, greg@kroah.com
+  USB: Move the scanner ioctls to usb_scanner_ioctl.h to allow access by archs that need it.
+  
+  Specifically arches that need to thunk between a 32 bit userspace
+  and a 64 bit kernel.
+  
+  Thanks to Dave Miller for proding me to make this change.
+
+ drivers/usb/scanner.h             |    7 +------
+ include/linux/usb_scanner_ioctl.h |    9 +++++++++
+ 2 files changed, 10 insertions(+), 6 deletions(-)
+------
+
+ChangeSet@1.1023, 2003-01-15 13:32:10-08:00, greg@kroah.com
+  Merge kroah.com:/home/linux/linux/BK/bleeding-2.4
+  into kroah.com:/home/linux/linux/BK/gregkh-2.4
+
+ Documentation/Configure.help |   22 ++++++++++++++++++----
+ 1 files changed, 18 insertions(+), 4 deletions(-)
+------
+
+ChangeSet@1.971.1.12, 2003-01-15 12:51:56-08:00, henning@meier-geinitz.de
+  [PATCH] Add maintainer for USB scanner driver
+
+ MAINTAINERS |    8 ++++++++
+ 1 files changed, 8 insertions(+)
+------
+
+ChangeSet@1.971.1.11, 2003-01-15 12:51:27-08:00, henning@meier-geinitz.de
+  [PATCH] scanner.c: endpoint detection cleanup
+  
+  This patch makes endpoint detection more generic. Basically, only one
+  bulk-in endpoint is required, everything else is optional.
+  
+  The patch is on top of the PV8630 removal patch.
+
+ drivers/usb/scanner.c |   55 +++++++++++++++++++-------------------------------
+ 1 files changed, 21 insertions(+), 34 deletions(-)
+------
+
+ChangeSet@1.971.1.10, 2003-01-15 12:50:12-08:00, henning@meier-geinitz.de
+  [PATCH] scanner.c, scanner.h: Remove PV8630 ioctls
+  
+  This patch removes the inofficial ioctls that were used to support the
+  PV8630 USB-over-Parport chipset. They were already ifdefed out.
+  Instead of them, the more generic (and official) SCANNER_IOCTL_CTRLMSG
+  should be used. The last software that used the old ioctl
+  (sane-hp4200) switched to the new ioctls a long time ago.
+  
+  This patch is ontop of the "user-supplied" patch.
+
+ drivers/usb/scanner.c |   52 +-------------------------------------------------
+ drivers/usb/scanner.h |   15 --------------
+ 2 files changed, 3 insertions(+), 64 deletions(-)
+------
+
+ChangeSet@1.971.1.9, 2003-01-15 12:49:35-08:00, henning@meier-geinitz.de
+  [PATCH] scanner.c: print user-supplied ids only on start-up
+  
+  With this patch, information about user-supplied ids is printed only
+  once at startup instead of everytime any USB device is plugged in.
+  
+  The patch is on top of the new ids patch.
+
+ drivers/usb/scanner.c |    8 ++++----
+ 1 files changed, 4 insertions(+), 4 deletions(-)
+------
+
+ChangeSet@1.971.1.8, 2003-01-15 12:48:51-08:00, henning@meier-geinitz.de
+  [PATCH] : scanner.h, scanner.c: New vendor/product ids for visioneer scanners
+  
+  This patch adds vendor/product ids for two Visioneer scanners.
+
+ drivers/usb/scanner.c |    3 +++
+ drivers/usb/scanner.h |    4 +++-
+ 2 files changed, 6 insertions(+), 1 deletion(-)
+------
+
+ChangeSet@1.971.1.7, 2003-01-12 23:17:07-08:00, spse@secret.org.uk
+  [PATCH] USB: Backport konicawc driver to 2.4
+  
+  This patch adds support for webcams based on a konica chipset
+  (eg Intel YC76). It is a backport from 2.5
+
+ Documentation/Configure.help |   15 
+ drivers/usb/Config.in        |    1 
+ drivers/usb/Makefile         |    1 
+ drivers/usb/konicawc.c       |  938 +++++++++++++++++++++++++++++++++++++++++++
+ 4 files changed, 955 insertions(+)
+------
+
+ChangeSet@1.971.1.6, 2003-01-12 00:01:28-08:00, greg@kroah.com
+  [PATCH] USB bluetooth: fix incorrect url in help text.
+
+ Documentation/Configure.help |    3 +--
+ 1 files changed, 1 insertion(+), 2 deletions(-)
+------
+
+ChangeSet@1.971.1.5, 2003-01-11 23:45:51-08:00, randy.dunlap@verizon.net
+  [PATCH] usb-skeleton MINOR_BASE change
+  
+  USB_SKEL_MINOR_BASE should be a multiple of 16 to work
+  correctly with the way that minors are assigned (in blocks
+  of 16) in Linux 2.4.x.
+
+ drivers/usb/usb-skeleton.c |    2 +-
+ 1 files changed, 1 insertion(+), 1 deletion(-)
+------
+
+ChangeSet@1.954.1.5, 2003-01-09 01:02:07-08:00, greg@kroah.com
+  [PATCH] USB: fix ehci build problem for older versions of gcc
+
+ drivers/usb/hcd/ehci-dbg.c |   30 ++++++++----------------------
+ 1 files changed, 8 insertions(+), 22 deletions(-)
+------
+
+ChangeSet@1.971.1.3, 2003-01-08 16:45:23-08:00, alan@lxorguk.ukuu.org.uk
+  [PATCH] PATCH: more unusual USB storage devices
+  
+  IBM memory key
+  Epson 785EPX PCMCIA slot
+  Konica KD-200Z camera
+
+ drivers/usb/storage/unusual_devs.h |   22 ++++++++++++++++++++++
+ 1 files changed, 22 insertions(+)
+------
+
+ChangeSet@1.971.1.2, 2003-01-08 16:45:11-08:00, henning@meier-geinitz.de
+  [PATCH] USB scanner driver: updated Configure.help
+  
+  This patch removes the link in Configure.help to
+  Documentation/usb/scanner-hp-sane.txt which was removed by the
+  documentation update.
+
+ Documentation/Configure.help |    4 ++--
+ 1 files changed, 2 insertions(+), 2 deletions(-)
+------
+
+ChangeSet@1.954.1.4, 2003-01-08 10:13:02-08:00, neilt@slimy.greenend.org.uk
+  [PATCH] USB Serial patch.
+  
+  I got a PL2303 USB serial converter a few days ago, and got your driver
+  up and running fairly quickly.  The problem is that I got an oops when I
+  rmmod-ed the drivers.  The pl2303 uses two interfaces but registers only
+  the second (technically wrong, I guess, but should work).  When pl2303.o
+  is removed, it attempts to deregister the first interface (which has no
+  effect), so the second interface remains registered with usbserial.  The
+  old struct serial still points at the removed pl2303 driver so things go
+  pop when anything touches it.
+  
+  I think the PL2303 hack in usb_serial_probe should not change the
+  "interface" variable, which gets stored in serial->interface, since
+  usbcore will register whatever "ifnum" says.  I think that's enough
+  waffle.  The patch is below.  Keep up the good work!
+
+ drivers/usb/serial/usbserial.c |    6 ++++--
+ 1 files changed, 4 insertions(+), 2 deletions(-)
+------
+
+ChangeSet@1.954.1.3, 2003-01-08 08:36:06-08:00, henning@meier-geinitz.de
+  [PATCH] scanner.c: remove "magic" number for interface
+  
+  On Tue, Dec 24, 2002 at 12:40:06AM +0100, Oliver Neukum wrote:
+  >
+  > > Well, the reason I didn't use one was that I didn't found one in
+  > > usb.h/usb_ch9.h for 16. It's also not listed on www.usb.org.
+  > >
+  > > lsusb calls it "Data". However, I'm not sure if this is a hex/dec
+  > > error and they really mean "Data" = dec 10, not 0x10 (=dec 16).
+  > >
+  > > Shall I define a local symbolic name (e.g.
+  > > STRANGE_HP_SCANJET_INTERFACE_CLASS)? But I really don't know what this
+  > > class is. I only know that it's used by a Hewlett-Packard ScanJet
+  > > 3300c and Genius HR6 USB - Vivid III.
+  >
+  > Better that than a bare number.
+  
+  Patch attached.
+
+ drivers/usb/scanner.c |    2 +-
+ drivers/usb/scanner.h |    3 +++
+ 2 files changed, 4 insertions(+), 1 deletion(-)
+------
+
+ChangeSet@1.954.1.2, 2003-01-06 15:48:16-08:00, david-b@pacbell.net
+  [PATCH] zaurus B500 (sl-5600?) & usbnet
+  
+  More Zaurii.  That model will be interesting from the
+  perspective of "usb gadget drivers", lots of flexible
+  endpoints are available.
+
+ drivers/usb/usbnet.c |   22 ++++++++++++++++++++--
+ 1 files changed, 20 insertions(+), 2 deletions(-)
+------
 

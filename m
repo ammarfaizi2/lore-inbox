@@ -1,48 +1,81 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261870AbSJNPir>; Mon, 14 Oct 2002 11:38:47 -0400
+	id <S261807AbSJNPff>; Mon, 14 Oct 2002 11:35:35 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261872AbSJNPir>; Mon, 14 Oct 2002 11:38:47 -0400
-Received: from [66.70.28.20] ([66.70.28.20]:57610 "EHLO
-	maggie.piensasolutions.com") by vger.kernel.org with ESMTP
-	id <S261870AbSJNPiq>; Mon, 14 Oct 2002 11:38:46 -0400
-Date: Mon, 14 Oct 2002 17:40:54 +0200
-From: DervishD <raul@pleyades.net>
-To: Peter <cogwepeter@cogweb.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Known 'issues' about 2.4.19...
-Message-ID: <20021014154054.GH596@DervishD>
-References: <Pine.LNX.4.44.0209221038300.21911-100000@greenie.frogspace.net> <Pine.LNX.4.44.0210140805400.23844-100000@greenie.frogspace.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <Pine.LNX.4.44.0210140805400.23844-100000@greenie.frogspace.net>
-User-Agent: Mutt/1.4i
-Organization: Pleyades Net
+	id <S261835AbSJNPff>; Mon, 14 Oct 2002 11:35:35 -0400
+Received: from mx1.elte.hu ([157.181.1.137]:55982 "HELO mx1.elte.hu")
+	by vger.kernel.org with SMTP id <S261807AbSJNPfe>;
+	Mon, 14 Oct 2002 11:35:34 -0400
+Date: Mon, 14 Oct 2002 17:52:34 +0200 (CEST)
+From: Ingo Molnar <mingo@elte.hu>
+Reply-To: Ingo Molnar <mingo@elte.hu>
+To: William Lee Irwin III <wli@holomorphy.com>
+Cc: Linus Torvalds <torvalds@transmeta.com>, <linux-kernel@vger.kernel.org>,
+       <linux-mm@kvack.org>
+Subject: Re: [patch, feature] nonlinear mappings, prefaulting support,
+ 2.5.42-F8
+In-Reply-To: <20021014152048.GC4488@holomorphy.com>
+Message-ID: <Pine.LNX.4.44.0210141739510.8792-100000@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-    Hi Peter :)
 
-> Hi Paul,
+On Mon, 14 Oct 2002, William Lee Irwin III wrote:
 
-    Raúl ;))
+> > well, i dont agree with vectorizing everything, unless it's some really
+> > lightweight thing and/or the operation is somehow naturally vectorized.  
+> > (block and network IO, etc.)
+> 
+> I would say it makes sense for its intended purpose, as large volumes of
+> pages are expected to be remapped this way.
 
-> You might want to try 2.4.19-ac4, the latest -ac revision to the
-> stable kernel.
+volume alone does not necessiate a vectored API - everything depends on
+whether the volume comes in chunks, ie. is predictable. For things like a
+LRU DB-cache the order of new cache entries are largely unpredictable.  
+Even if predictable then they are mostly continuous in the file space, ie.
+properly vectorized by the API already. There might be cases where there
+are bulk mappings, but the common case i'm quite sure isnt. Just like we
+dont have bulk mmap() support either. But, if it really turns out to be a
+problem then a bulk API can be added later on, which would just build upon
+the existing syscall.
 
-    I was considering it instead of plain vanilla 2.4.19.
+> The VM_RANDOM flag was a safety net I believed to be beneficial, in part
+> because userspace would be limited in how it can utilize the remapping
+> facility without guarantees that mappings are not implicitly established
+> in ways it does not expect.
 
-> The system froze for a minute and then let up. Some mm issue.
+if this is really an issue then we could force vma->vm_page_prot to
+PROT_NONE within remap_file_pages(), so at least all subsequent faults
+will be PROT_NONE and the user would have to explicitly re-mprotect() the
+vma again to change this.
 
-    Reproducible with plain 2.4.19?
+> > how would you do this actually, without other restrictions?
+> 
+> It would be easy to keep the VM_RANDOM flag for truly random vma's, and
+> check for file offsets matching in the prefault path for others.
 
-> The most recent -ac kernels are likely fine too, but there appear
-> to be some residual ide and ide-scsi issues (could be minor) and
-> Andre is off fishing.
+there is no 'VM_RANDOM' flag right now - because *any* shared mapping can
+be used with remap_file_pages(). I think forcing the default protection to
+PROT_NONE should solve the problem - this is the most logical thing to do
+in the MAP_LOCKED case as well.
 
-    Probably they will be solved in 2.4.20-acX when released :) Andre
-deserves a vacation time ;)))
+> A nonblocking filemap_populate() may partially populate a virtual
+> address range and the user may later fault in pages not file offset
+> contiguous in the prefaulted region as opposed to discovering them as
+> not present. For the MAP_LOCKED | PROT_NONE scenario this would apply
+> only with a nonblocking prefault on a MAP_LOCKED vma, where the caller
+> would find stale mappings where the prefault operation failed, and even
+> if the nonblocking path invalidated the pte's one would still return to
+> faulting in of the wrong pages. This is a safety question limiting the
+> usefulness of nonblocking prefaults on scatter gather vma's to
+> userspace.
 
-    Raúl
+this too is handled by changing the default protection to PROT_NONE. A
+user would have to deliberately change the protection to get rid of this
+safety net - at which point no harm will be done, the user will get what
+he asked for.
+
+	Ingo
+

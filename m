@@ -1,51 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266489AbUFUWGy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266466AbUFUWT1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266489AbUFUWGy (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Jun 2004 18:06:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266490AbUFUWGx
+	id S266466AbUFUWT1 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Jun 2004 18:19:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266490AbUFUWT1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Jun 2004 18:06:53 -0400
-Received: from mailsrv1.tranzpeer.net ([202.180.66.207]:2273 "EHLO
-	mailsrv1.tranzpeer.net") by vger.kernel.org with ESMTP
-	id S266489AbUFUWGu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Jun 2004 18:06:50 -0400
-Message-ID: <40D74DA3.4080106@flying-brick.caverock.net.nz>
-Date: Mon, 21 Jun 2004 22:05:40 +0100
-From: The Viking <viking@flying-brick.caverock.net.nz>
-Organization: The Flying Brick System
-User-Agent: Mozilla Thunderbird 0.6 (Windows/20040502)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-CC: viking@flying-brick.caverock.net.nz
-Subject: [Fwd: Re: gcc3.3.2, kernel-2.6.6, and Mandrake 10.0 compiling problem.]
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Mon, 21 Jun 2004 18:19:27 -0400
+Received: from pfepb.post.tele.dk ([195.41.46.236]:50316 "EHLO
+	pfepb.post.tele.dk") by vger.kernel.org with ESMTP id S266466AbUFUWTZ
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 21 Jun 2004 18:19:25 -0400
+Date: Tue, 22 Jun 2004 00:31:09 +0200
+From: Sam Ravnborg <sam@ravnborg.org>
+To: Andreas Gruenbacher <agruen@suse.de>
+Cc: Martin Schlemmer <azarah@nosferatu.za.org>,
+       Sam Ravnborg <sam@ravnborg.org>,
+       Linux Kernel Mailing Lists <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH 0/2] kbuild updates
+Message-ID: <20040621223108.GC2903@mars.ravnborg.org>
+Mail-Followup-To: Andreas Gruenbacher <agruen@suse.de>,
+	Martin Schlemmer <azarah@nosferatu.za.org>,
+	Sam Ravnborg <sam@ravnborg.org>,
+	Linux Kernel Mailing Lists <linux-kernel@vger.kernel.org>
+References: <20040620211905.GA10189@mars.ravnborg.org> <200406210026.43988.agruen@suse.de> <1087771141.14794.89.camel@nosferatu.lan> <200406210151.43325.agruen@suse.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200406210151.43325.agruen@suse.de>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, Jun 21, 2004 at 01:51:43AM +0200, Andreas Gruenbacher wrote:
+> > But my original concern (that the only way to figure where the source
+> > are for the running kernel will be broken) is still valid.
 > 
-> Does this happen randomly, not in the same place each time?
-> If yes, this usually happens with flakey hardware.
-> I had this problem just yesterday. My box survives memtest86
-> and cpuburn, yet gcc segfaults within minute or two.
-> Relaxing DDR timing (Trcd: 2->3) eliminated segvs.
+> User-space stuff that needs access to kernel headers at build time is a 
+> problem. But for those programs, depending on the running kernel instead of 
+> simply looking in /usr/src/linux is an even bigger problem: What guarantees 
+> that the first time the program is run, the kernel will still be the same? So 
+> depending on the running kernel is definitely wrong. Depending 
+> on /usr/src/linux is also wrong; ideally those programs should look 
+> in /usr/include/{linux,asm}. Unfortunately these headers are not always 
+> recent enough, and so recently added definitions may be missing.
+
+But Martin has a point here.
+How to figure out for example the number of arguments to remap_page_range.
+One could do some grepping in the mm.h file, or one could try to compile
+a minimal module calling this function.
+If we go for the simple version by grepping we need to figure out where
+to find the source. In the past this was simple - just follow the
+build symlink. But now kernels may be shipped with separate source
+and output directory exposing the weakness of this method.
+A much more reliable way is to build a simple module.
+If the module build succeeds that specific version
+of remap_page_range is OK.
+
+nvidia does something similar, but they take the false assumption
+that the running kernel is always the one being build for.
+So they call gcc direct.
+
+Other modules uses the grep method - which will fail when the kernel
+is build with separate output and source directories.
+
 > 
-> OTOH, note that there exist K6's with nasty bug:
-> in some very rare circumstances (you have to have more than 32MB or RAM,
-> you must modify data lying exactly N*32MB away from your current
-> instruction pointer, etc...) CPU erroneously execute an instruction
-> twice. As you can imagine, that will make your computer very unhappy.
+> > Makefile-pre_M_flag - 100% valid kbuild Makefile for kernels that
+> >                       do not support M=
+> >
+> > Makefile-post_M_flag - 100% valid kbuild Makefile for kernels
+> >                        supporting M=
+> 
+> Right now I would collapse the pre/post Makefiles and use SUBDIRS instead. 
+> There is no easy and reliable test for M= support, and it's only cosmetic. 
+> Sam will probably disagree.
 
-As I said, I've done all of that. My guess is: it's not a hardware problem, it 
-seems to be consistently at exactly the same place every single time.
-I have no way of measuring whether my compiler modifies data exactly Nx32Mb 
-away...and as I have 192Mb, I don't know if that's even the fault, though I've 
-got a K6-II@500MHz (running at 533MHz, more stable that way- keeps behaving 
-strangely at 500MHz)
-I'm still scratching my head about it, frankly. I finally found my local 
-Mandrake kernel source tree, so I'll see if the toolchain even builds that. If 
-it doesn't, then I'll have to hunt in other areas for answers.
+SUBDIRS were kept for backward compatibility - and I realise it will stay
+for a long time. The implementation were kept straightforward so no problem.
 
-Cheers, and thanks for your comments.
-The Viking
+	Sam

@@ -1,42 +1,38 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316500AbSHXP33>; Sat, 24 Aug 2002 11:29:29 -0400
+	id <S316532AbSHXPbn>; Sat, 24 Aug 2002 11:31:43 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316519AbSHXP32>; Sat, 24 Aug 2002 11:29:28 -0400
-Received: from zork.zork.net ([66.92.188.166]:37837 "EHLO zork.zork.net")
-	by vger.kernel.org with ESMTP id <S316500AbSHXP32>;
-	Sat, 24 Aug 2002 11:29:28 -0400
-To: linux-kernel@vger.kernel.org
+	id <S316535AbSHXPbn>; Sat, 24 Aug 2002 11:31:43 -0400
+Received: from p50887F28.dip.t-dialin.net ([80.136.127.40]:16804 "EHLO
+	hawkeye.luckynet.adm") by vger.kernel.org with ESMTP
+	id <S316532AbSHXPbn>; Sat, 24 Aug 2002 11:31:43 -0400
+Date: Sat, 24 Aug 2002 09:35:45 -0600 (MDT)
+From: Thunder from the hill <thunder@lightweight.ods.org>
+X-X-Sender: thunder@hawkeye.luckynet.adm
+To: Dan Egli <dan@shortcircuit.dyndns.org>
+cc: linux-kernel@vger.kernel.org
 Subject: Re: CONFIDENTIAL/URGENT
-In-Reply-To: <20020824141732Z316258-685+36424@vger.kernel.org>
-	<006a01c24b82$f4f3b840$9600a8c0@yamatto>
-From: Sean Neakums <sneakums@zork.net>
-Organization: The Emadonics Institute
-X-Worst-Pick-Up-Line-Ever: "Hey baby, wanna peer with my leafnode instance?"
-X-Groin-Mounted-Steering-Wheel: "Arrrr... it's driving me nuts!"
-X-Message-Flag: Message text advisory: SALACIOUS IMAGININGS, IMPROPER
- FORETHOUGHT
-X-Mailer: Norman
-Mail-Followup-To: linux-kernel@vger.kernel.org
-Date: Sat, 24 Aug 2002 16:33:41 +0100
-Message-ID: <6u7kignuei.fsf@zork.zork.net>
-User-Agent: Gnus/5.090007 (Oort Gnus v0.07) Emacs/21.2
- (i386-debian-linux-gnu)
+In-Reply-To: <006a01c24b82$f4f3b840$9600a8c0@yamatto>
+Message-ID: <Pine.LNX.4.44.0208240934370.3234-100000@hawkeye.luckynet.adm>
+X-Location: Potsdam-Babelsberg; Germany
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-commence  Dan Egli quotation:
+Hi,
 
-> Hey, look. The number is getting bigger :> Now they want to offer us
-> $29 Million US. If only it was real :>
+On Sat, 24 Aug 2002, Dan Egli wrote:
+> Hey, look. The number is getting bigger :> Now they want to offer us $29
+> Million US. If only it was real :>
 
-If it weren't for people like you, a lot less spam would end up in
-with my legitimate mail.
+I know people who will hand you $50M if you bring them names and numbers 
+of the people behind these messages (If only the lists are long enough ;-)
 
+			Thunder
 -- 
- /                          |
-[|] Sean Neakums            |  Questions are a burden to others;
-[|] <sneakums@zork.net>     |      answers a prison for oneself.
- \                          |
+--./../...-/. -.--/---/..-/.-./..././.-../..-. .---/..-/.../- .-
+--/../-./..-/-/./--..-- ../.----./.-../.-.. --./../...-/. -.--/---/..-
+.- -/---/--/---/.-./.-./---/.--/.-.-.-
+--./.-/-.../.-./.././.-../.-.-.-
+

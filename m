@@ -1,48 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262424AbUKQSAA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262343AbUKQQkQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262424AbUKQSAA (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 17 Nov 2004 13:00:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262443AbUKQR7l
+	id S262343AbUKQQkQ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 17 Nov 2004 11:40:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262399AbUKQQhi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 17 Nov 2004 12:59:41 -0500
-Received: from mail.euroweb.hu ([193.226.220.4]:46982 "HELO mail.euroweb.hu")
-	by vger.kernel.org with SMTP id S262427AbUKQR4w (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 17 Nov 2004 12:56:52 -0500
-To: nikita@clusterfs.com
-CC: greg@kroah.com, linux-kernel@vger.kernel.org,
-       linux-fsdevel@vger.kernel.org
-In-reply-to: <16795.33515.187015.492860@thebsh.namesys.com> (message from
-	Nikita Danilov on Wed, 17 Nov 2004 19:57:15 +0300)
-Subject: Re: [PATCH] [Request for inclusion] Filesystem in Userspace
-References: <E1CToBi-0008V7-00@dorka.pomaz.szeredi.hu>
-	<Pine.LNX.4.58.0411151423390.2222@ppc970.osdl.org>
-	<E1CTzKY-0000ZJ-00@dorka.pomaz.szeredi.hu>
-	<84144f0204111602136a9bbded@mail.gmail.com>
-	<E1CU0Ri-0000f9-00@dorka.pomaz.szeredi.hu>
-	<20041116120226.A27354@pauline.vellum.cz>
-	<E1CU3tO-0000rV-00@dorka.pomaz.szeredi.hu>
-	<20041116163314.GA6264@kroah.com>
-	<E1CURx6-0005Qf-00@dorka.pomaz.szeredi.hu> <16795.33515.187015.492860@thebsh.namesys.com>
-Message-Id: <E1CUU2P-0005g4-00@dorka.pomaz.szeredi.hu>
-From: Miklos Szeredi <miklos@szeredi.hu>
-Date: Wed, 17 Nov 2004 18:56:13 +0100
+	Wed, 17 Nov 2004 11:37:38 -0500
+Received: from clock-tower.bc.nu ([81.2.110.250]:60644 "EHLO
+	localhost.localdomain") by vger.kernel.org with ESMTP
+	id S262401AbUKQQfD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 17 Nov 2004 11:35:03 -0500
+Subject: RE: [patch] prefer TSC over PM Timer
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: dean gaudet <dean-list-linux-kernel@arctic.org>
+Cc: "Pallipadi, Venkatesh" <venkatesh.pallipadi@intel.com>,
+       john stultz <johnstul@us.ibm.com>, lkml <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.61.0411161738370.13681@twinlark.arctic.org>
+References: <88056F38E9E48644A0F562A38C64FB60035C613D@scsmsx403.amr.corp.intel.com>
+	 <Pine.LNX.4.61.0411161738370.13681@twinlark.arctic.org>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Message-Id: <1100705495.32698.38.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
+Date: Wed, 17 Nov 2004 15:31:35 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mer, 2004-11-17 at 01:50, dean gaudet wrote:
+> on a tangent... has the local apic timer ever been considered?  it's fixed 
+> rate, and my measurements show it in the same performance ballpark as TSC.
+> 
 
-> /sys/fs used to exist for for some. Moreover, /sys/fs/foofs/ was added
-> automagically when foofs file system type was registered. But it was
-> ultimately removed, because nobody took the time to fix all races
-> between accessing /sys/fs/foofs/gadget and
-> umount/filesystem-module-unloading. 
+It would certainly work for the SMP cases which are most of the "hard"
+cases where TSC breaks. This seems to be a good path to me and although
+C3 would fail as has been pointed out a C3 resume is sufficiently
+expensive that fixing up the tsc offset on the resume from PMTMR isn't
+going to kill anyone.
 
-I don't see why this would be any harder for filesystem code than for
-other types of drivers.  Maybe someone can enlighten me.
+> hey wait, what exactly is the problem with TSC on NUMA?  don't you just 
+> need some per-cpu data (epoch and calibration) to make it work?
 
-Anyway, I can try to clean it up: remove all the racy bits and keep
-what I need (which is mainly just the /sys/fs directory).  Where can I
-find the most recent version of this?
-
-Thanks,
-Miklos
+You have unrelated clocks that drift over time. You can't just calibrate
+them.
+Its different to the BP6 for example where you at least know the CPU
+clocks are fixed ratio. 

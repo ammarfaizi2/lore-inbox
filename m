@@ -1,42 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263315AbSJHXZu>; Tue, 8 Oct 2002 19:25:50 -0400
+	id <S261401AbSJHXqt>; Tue, 8 Oct 2002 19:46:49 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263238AbSJHXZk>; Tue, 8 Oct 2002 19:25:40 -0400
-Received: from fmr01.intel.com ([192.55.52.18]:36578 "EHLO hermes.fm.intel.com")
-	by vger.kernel.org with ESMTP id <S263283AbSJHXYF>;
-	Tue, 8 Oct 2002 19:24:05 -0400
-Message-ID: <39B5C4829263D411AA93009027AE9EBB1EF28EFB@fmsmsx35.fm.intel.com>
-From: "Luck, Tony" <tony.luck@intel.com>
-To: lse-tech@lists.sourceforge.net
-Cc: "Kamble, Nitin A" <nitin.a.kamble@intel.com>, linux-kernel@vger.kernel.org,
-       tomlins@cam.org, akpm@digeo.com,
-       "'Martin J. Bligh'" <mbligh@aracnet.com>
-Subject: RE: [Lse-tech] [RFC] numa slab for 2.5.41-mm1
-Date: Tue, 8 Oct 2002 16:29:45 -0700 
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain;
-	charset="ISO-8859-1"
+	id <S261760AbSJHXpc>; Tue, 8 Oct 2002 19:45:32 -0400
+Received: from noodles.codemonkey.org.uk ([213.152.47.19]:37852 "EHLO
+	noodles.internal") by vger.kernel.org with ESMTP id <S261401AbSJHXor>;
+	Tue, 8 Oct 2002 19:44:47 -0400
+Date: Wed, 9 Oct 2002 00:52:52 +0100
+From: Dave Jones <davej@codemonkey.org.uk>
+To: Jeff Chua <jchua@fedex.com>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: bug 2 cpus shows as 4 cpus
+Message-ID: <20021008235252.GA22321@suse.de>
+Mail-Followup-To: Dave Jones <davej@codemonkey.org.uk>,
+	Jeff Chua <jchua@fedex.com>,
+	Linux Kernel <linux-kernel@vger.kernel.org>
+References: <Pine.LNX.4.42.0210090733280.367-100000@silk.corp.fedex.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.42.0210090733280.367-100000@silk.corp.fedex.com>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Manfred Spraul wrote:
+On Wed, Oct 09, 2002 at 07:39:37AM +0800, Jeff Chua wrote:
+ > 
+ > I'm running 2.4.20-pre9 on DELL server with Xeon dual processors, but
+ > /proc/cpuinfo shows not 2, but "4" cpus!
+ > The bogomips semms to indicate 2 cpus. (3971.48 is about 2GHz x 2).
+ > Is this problem related to Xeon? I've other SMP boxes with P3, but they
+ > reports correctly 2 cpus.
 
-> - is it possible implement ptr_to_nodeid()
->   on all archs efficiently? It will happen for every kfree().
+P4 xeon has hyperthreading.
 
-The best platform independent way that I came up with was to stash
-the node id in the page structure ... the initial patch that Nitin
-posted included code for this (and it's all my fault that this
-added an extra element to the page structure).  I think that you
-suggested that slab could overload the use of some existing field
-if we wanted to pursue this direction.
-
-If ptr_to_nodeid() is made a platform dependent function, then
-there are some platforms that can do this very efficiently (since
-the nodeid is embedded in some of the high-order address bits), and
-some for which this is complex (e.g. platforms that concatenate
-memory from each node).
-
--Tony
+-- 
+| Dave Jones.        http://www.codemonkey.org.uk

@@ -1,58 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265974AbUHSNKb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266073AbUHSNOj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265974AbUHSNKb (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 19 Aug 2004 09:10:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266065AbUHSNKb
+	id S266073AbUHSNOj (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 19 Aug 2004 09:14:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266096AbUHSNOj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 19 Aug 2004 09:10:31 -0400
-Received: from albireo.ucw.cz ([81.27.203.89]:8067 "EHLO albireo.ucw.cz")
-	by vger.kernel.org with ESMTP id S265974AbUHSNK1 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 19 Aug 2004 09:10:27 -0400
-Date: Thu, 19 Aug 2004 15:10:26 +0200
-From: Martin Mares <mj@ucw.cz>
-To: Joerg Schilling <schilling@fokus.fraunhofer.de>
-Cc: kernel@wildsau.enemy.org, diablod3@gmail.com, linux-kernel@vger.kernel.org
-Subject: Re: PATCH: cdrecord: avoiding scsi device numbering for ide devices
-Message-ID: <20040819131026.GA9813@ucw.cz>
-References: <200408041233.i74CX93f009939@wildsau.enemy.org> <d577e5690408190004368536e9@mail.gmail.com> <4124A024.nail7X62HZNBB@burner>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Thu, 19 Aug 2004 09:14:39 -0400
+Received: from mion.elka.pw.edu.pl ([194.29.160.35]:20697 "EHLO
+	mion.elka.pw.edu.pl") by vger.kernel.org with ESMTP id S266073AbUHSNOh
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 19 Aug 2004 09:14:37 -0400
+From: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
+To: Jens Axboe <axboe@suse.de>
+Subject: Re: serialize access to ide device
+Date: Thu, 19 Aug 2004 15:14:13 +0200
+User-Agent: KMail/1.6.2
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>
+References: <20040802131150.GR10496@suse.de>
+In-Reply-To: <20040802131150.GR10496@suse.de>
+MIME-Version: 1.0
 Content-Disposition: inline
-In-Reply-To: <4124A024.nail7X62HZNBB@burner>
-User-Agent: Mutt/1.3.28i
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200408191514.13022.bzolnier@elka.pw.edu.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello!
+On Monday 02 August 2004 15:11, Jens Axboe wrote:
+> Hi Bart,
 
-> It makes no sense to comment things if you don't know what's going on.
-> So please avoid comments like this in the future.
-> 
-> Your statement "it may be now moved to non-free in Debian in the near future"
-> is just complete nonsense. Of course, I am in discussions with Debian people 
-> about the best method to force SuSE not to publish broken versions of cdrtools 
-> in the future.
+Hi,
 
-Hmmm, it seems that the matter is so complicated that even you don't know what's
-going on ;-)  The latest issue of Debian Weekly News explicitly mentions that
-cdrecord has to go to non-free unless the license additions get changed.
+Late reply follows...
 
-> Let me comment what SuSE is currently doing with cdrtools:
+> 2.6 breaks really really easily if you have any traffic on a device and
+> issue a hdparm (or similar) command to it. Things like set_using_dma()
+> and ide_set_xfer_rate() just stomp all over the drive regardless of what
+> it's doing right now.
 
-You accuse Linux distributors of being non-cooperative, but I think that the
-major cause of not cooperating is that just everybody in the Linux world does
-not share your set of dogmata, the recent discussion about addressing devices
-being a prime example. Although I very much appreciate your experience with
-CD recording, I feel that the ways of referring to devices should be best
-left to Linux developers.
+Yep, known problem.
 
-(BTW: I am not sure I haven't missed anything in the long cdrecord-related
-threads on the LKML, but I still haven't seen what is exactly so broken on the
-cdrecord shipped by SUSE.)
+> I hacked something up for the SUSE kernel to fix this _almost_, it still
+> doesn't handle cases where you want to serialize across more than a
+> single channel. Not a common case, but I think there is such hardware
+> out there (which?).
+>
+> Clearly something needs to be done about this, it's extremely
+> frustrating not to be able to reliably turn on dma on a drive at all.
+> I'm just tossing this one out there to solve 99% of the case, I'd like
+> some input from you on what you feel we should do.
 
-				Have a nice fortnight
--- 
-Martin `MJ' Mares   <mj@ucw.cz>   http://atrey.karlin.mff.cuni.cz/~mj/
-Faculty of Math and Physics, Charles University, Prague, Czech Rep., Earth
-System going down at 5 pm to install scheduler bug.
+What about adding new kind of REQ_SPECIAL request and converting 
+set_using_dma(), set_xfer_rate(), ..., to be callback functions for this 
+request?
+
+This should be a lot cleaner and will cover 100% cases.
+
+Bartlomiej

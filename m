@@ -1,55 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288071AbSBDBdK>; Sun, 3 Feb 2002 20:33:10 -0500
+	id <S288102AbSBDBfb>; Sun, 3 Feb 2002 20:35:31 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288083AbSBDBdB>; Sun, 3 Feb 2002 20:33:01 -0500
-Received: from relay1.pair.com ([209.68.1.20]:11013 "HELO relay.pair.com")
-	by vger.kernel.org with SMTP id <S288071AbSBDBct>;
-	Sun, 3 Feb 2002 20:32:49 -0500
-X-pair-Authenticated: 24.126.75.99
-Message-ID: <3C5DE630.508DE9DB@kegel.com>
-Date: Sun, 03 Feb 2002 17:38:56 -0800
-From: Dan Kegel <dank@kegel.com>
-X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.7-10 i686)
-X-Accept-Language: en
+	id <S288113AbSBDBfZ>; Sun, 3 Feb 2002 20:35:25 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:42248 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S288102AbSBDBfF>; Sun, 3 Feb 2002 20:35:05 -0500
+Message-ID: <3C5DE537.1070401@zytor.com>
+Date: Sun, 03 Feb 2002 17:34:47 -0800
+From: "H. Peter Anvin" <hpa@zytor.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.6) Gecko/20011120
+X-Accept-Language: en-us, en, sv
 MIME-Version: 1.0
-To: Aaron Sethman <androsyn@ratbox.org>
-CC: Kev <klmitch@MIT.EDU>, Arjen Wolfs <arjen@euro.net>,
-        coder-com@undernet.org, feedback@distributopia.com,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: Re: [Coder-Com] Re: PROBLEM: high system usage / poor SMPnetwork 
- performance
-In-Reply-To: <Pine.LNX.4.44.0202032019250.3086-100000@simon.ratbox.org>
-Content-Type: text/plain; charset=us-ascii
+To: Rob Landley <landley@trommello.org>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: [RFC] x86 ELF bootable kernels/Linux booting Linux/LinuxBIOS
+In-Reply-To: <m1elk7d37d.fsf@frodo.biederman.org> <20020203225841.IBCK18525.femail19.sdc1.sfba.home.com@there> <3C5DC138.3080106@zytor.com> <20020203234556.DOZQ23516.femail25.sdc1.sfba.home.com@there>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Aaron Sethman wrote:
+Rob Landley wrote:
+ >
+
+> On the other hand, 
+> very few systems in the field seem to boot and install entirely through the 
+> network unless they're meant to be diskless...
 > 
-> > 2. you need to wrap your read()/write() calls on the socket with code
-> > that notices EWOULDBLOCK
-> This is perhaps the part we it disagrees with our code.  I will
-> investigate this part.  The way we normally do things is have callbacks
-> per fd, that get called when our event occurs doing the read, or, write
-> directly.  
 
-That sounds totally fine; in fact, it's how my Poller library works.
 
-> We do check for the EWOULDBLOCK stuff and re-register the
-> event.
+Most systems build 1999 or later seem to support diskless booting, with 
+the main exception being laptops.
 
-But do you remember that this fd is ready until EWOULDBLOCK?
-i.e. if you're notified that an fd is ready, and then you
-don't for whatever reason continue to do I/O on it until EWOULDBLOCK,
-you'll never ever be notified that it's ready again.
-If your code assumes that it will be notified again anyway,
-as with poll(), it will be sorely disappointed.
+	-hpa
 
-> The thing we do not currently do is, attempt to read or write
-> unless we've received notification first.  This is what I am assuming is
-> breaking it.
 
-Yeah, that would break it, too, I think.
-
-- Dan

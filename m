@@ -1,39 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271011AbRIHVAD>; Sat, 8 Sep 2001 17:00:03 -0400
+	id <S271147AbRIHVRN>; Sat, 8 Sep 2001 17:17:13 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271138AbRIHU7x>; Sat, 8 Sep 2001 16:59:53 -0400
-Received: from munch.iskp.uni-bonn.de ([131.220.220.83]:6148 "EHLO
-	munch.iskp.uni-bonn.de") by vger.kernel.org with ESMTP
-	id <S271011AbRIHU7k> convert rfc822-to-8bit; Sat, 8 Sep 2001 16:59:40 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Harald van Pee <pee@iskp.uni-bonn.de>
-Organization: Uni-Bonn
-To: linux-kernel@vger.kernel.org
-Subject: 2.4.10pre10 seems to be very unstable with raid 0 and nfs
-Date: Sat, 8 Sep 2001 22:59:55 +0200
-X-Mailer: KMail [version 1.2]
-MIME-Version: 1.0
-Message-Id: <01090822595500.22683@munch>
-Content-Transfer-Encoding: 7BIT
+	id <S271501AbRIHVRE>; Sat, 8 Sep 2001 17:17:04 -0400
+Received: from h24-64-71-161.cg.shawcable.net ([24.64.71.161]:38134 "EHLO
+	webber.adilger.int") by vger.kernel.org with ESMTP
+	id <S271147AbRIHVQv>; Sat, 8 Sep 2001 17:16:51 -0400
+From: Andreas Dilger <adilger@turbolabs.com>
+Date: Sat, 8 Sep 2001 15:15:39 -0600
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: Andrea Arcangeli <andrea@suse.de>,
+        Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        Alexander Viro <viro@math.psu.edu>
+Subject: Re: linux-2.4.10-pre5
+Message-ID: <20010908151539.F32553@turbolinux.com>
+Mail-Followup-To: Linus Torvalds <torvalds@transmeta.com>,
+	Andrea Arcangeli <andrea@suse.de>,
+	Kernel Mailing List <linux-kernel@vger.kernel.org>,
+	Alexander Viro <viro@math.psu.edu>
+In-Reply-To: <20010908191954.C11329@athlon.random> <Pine.LNX.4.33.0109081028390.936-100000@penguin.transmeta.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.33.0109081028390.936-100000@penguin.transmeta.com>
+User-Agent: Mutt/1.3.20i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-I'm not subscribed to the list, but maybe this information can help you to 
-check your code.
+On Sep 08, 2001  10:30 -0700, Linus Torvalds wrote:
+> I'll merge the blkdev in pagecache very early in 2.5.x, but I'm a bit
+> nervous about merging it in 2.4.x.
+> 
+> That said, if you'll give a description of how you fixed the aliasing
+> issues etc, maybe I'd be less nervous. Putting it in the page cache is
+> 100% the right thing to do, so in theory I'd really like to merge it
+> earlier rather than later, but...
 
-I have tried to use linux raid 0.9 with kernel 2.4.9-ac9. 
-This is on a Asus A7V266 with two ide disks at the VIA vt8233 ide controler, 
-NIC Realtek 8139too.
+I think this may have bad interactions with the filesystems, which still
+use buffer cache for metadata.  If the block devices move to page cache,
+so should the filesystems.
 
-Everything works fast and stable, but if I read files remotly I got very 
-often: 
-Stale NFS file handle.
+For example, the "tune2fs" program will modify parts of the superblock
+from user space (fields that are read-only from the kernel, e.g. label,
+reserved blocks count, etc), because it knows that the data read/written
+on /dev/hda1 is coherent with that in the kernel for the filesystem
+on /dev/hda1.  The same is true with e2fsck - the metadata should be
+kept coherent from user-space and kernel-space or bad things happen.
 
-With 2.410.pre5 I don't see this message any longer, but the machine freezes 
-completly after a few minutes while I'm reading from remote (no messages in 
-the logfile).
+Cheers, Andreas
+-- 
+Andreas Dilger  \ "If a man ate a pound of pasta and a pound of antipasto,
+                 \  would they cancel out, leaving him still hungry?"
+http://www-mddsp.enel.ucalgary.ca/People/adilger/               -- Dogbert
 
-Regards
-Harald

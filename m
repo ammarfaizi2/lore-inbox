@@ -1,17 +1,18 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131095AbRCGP5t>; Wed, 7 Mar 2001 10:57:49 -0500
+	id <S131076AbRCGQGT>; Wed, 7 Mar 2001 11:06:19 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131099AbRCGP5j>; Wed, 7 Mar 2001 10:57:39 -0500
-Received: from colorfullife.com ([216.156.138.34]:44811 "EHLO colorfullife.com")
-	by vger.kernel.org with ESMTP id <S131095AbRCGP53>;
-	Wed, 7 Mar 2001 10:57:29 -0500
-Message-ID: <000201c0a71f$3a48fae0$5517fea9@local>
+	id <S131092AbRCGQGK>; Wed, 7 Mar 2001 11:06:10 -0500
+Received: from colorfullife.com ([216.156.138.34]:46091 "EHLO colorfullife.com")
+	by vger.kernel.org with ESMTP id <S131076AbRCGQGF>;
+	Wed, 7 Mar 2001 11:06:05 -0500
+Message-ID: <001501c0a720$76782030$5517fea9@local>
 From: "Manfred Spraul" <manfred@colorfullife.com>
-To: "Jamie Lokier" <lk@tantalophile.demon.co.uk>
+To: "Andrea Barisani" <lcars@infis.univ.trieste.it>
 Cc: <linux-kernel@vger.kernel.org>
-Subject: Re: Hashing and directories
-Date: Wed, 7 Mar 2001 16:56:36 +0100
+In-Reply-To: <Pine.LNX.4.10.10103071458560.9169-100000@sole.infis.univ.trieste.it>
+Subject: Re: Kernel 2.4.2 command execution hangs and then succeded after 2  minutes....!? STRACE-DUMP
+Date: Wed, 7 Mar 2001 17:04:05 +0100
 MIME-Version: 1.0
 Content-Type: text/plain;
 	charset="iso-8859-1"
@@ -23,43 +24,51 @@ X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4133.2400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jamie wrote:
 
-> Linus Torvalds wrote:
-> > The long-term solution for this is to create the new VM space for
-the
-> > new process early, and add it to the list of mm_struct's that the
-> > swapper knows about, and then just get rid of the
-pages[MAX_ARG_PAGES]
-> > array completely and instead just populate the new VM directly. That
-> > way the destination is swappable etc, and you can also remove the
-> > "put_dirty_page()" loop later on, as the pages will already be in
-their
-> > right places.
+----- Original Message -----
+From: "Andrea Barisani" <lcars@infis.univ.trieste.it>
+To: "Manfred Spraul" <manfred@colorfullife.com>
+Cc: <linux-kernel@vger.kernel.org>
+Sent: Wednesday, March 07, 2001 3:03 PM
+Subject: Re: Kernel 2.4.2 command execution hangs and then succeded
+after 2 minutes....!? STRACE-DUMP
+
+
+> On Wed, 7 Mar 2001, Manfred Spraul wrote:
+>
+> > Could you use strace and check what the apps are doing during these
+2
+> > minutes?
 > >
-> > It's definitely not a one-liner, but if somebody really feels
-strongly
-> > about this, then I can tell already that the above is the only way
-to do
-> > it sanely.
+> > Perhaps it's a variation of the nis hang:
+> > 2.4 doesn't forword udp error messages to the user space app, and
+thus a
+> > nis query to a nonexistant nis server blocks until the udp packets
+time
+> > out.
+> >
+>
+> Here are the three traces (mc,pine,tar)
+> The system hangs for minutes in the last part, before the interrupt
+> Sorry for the size of this email...:)
 
->  Yup. We discussed this years ago, and it nobody thought it important
+I got a new DSL connection last week, and right now I have a flat rate
+:-)
 
-> enough. mm->mmlist didn't exist then, and creating it it _just_ for
+> sendto(5,
+";\255Cn\0\0\0\0\0\0\0\2\0\1\206\240\0\0\0\2\0\0\0\3\0\0"..., 56, 0,
+{sin_family=AF_INET, sin_port=htons(111),
+sin_addr=inet_addr("127.0.0.1")}}, 16) = 56
+That's the problem:
+NIS is configured and tries to connect to the NIS server on localhost.
+It uses portmap to locate the server, but portmap is not running.
+2.2 just forwarded the error message to the application, but 2.4
+silently ignores the error message because these error messages caused
+spurious application faults.
 
-> this feature seemed too intrusive. I agree it's the only sane way to
-
-> completely remove the limit.
-
-I'm not sure that this is the right way: It means that every exec() must
-call dup_mmap(), and usually only to copy a few hundert bytes. But I
-don't see a sane alternative. I won't propose to create a temporary file
-in a kernel tmpfs mount ;-)
+Check your nis configuration (afaik /etc/nsswitch.conf)
 
 --
-
     Manfred
-
-
 
 

@@ -1,36 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277013AbRJQSAc>; Wed, 17 Oct 2001 14:00:32 -0400
+	id <S277012AbRJQRzM>; Wed, 17 Oct 2001 13:55:12 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277022AbRJQSAW>; Wed, 17 Oct 2001 14:00:22 -0400
-Received: from minus.inr.ac.ru ([193.233.7.97]:2067 "HELO ms2.inr.ac.ru")
-	by vger.kernel.org with SMTP id <S277013AbRJQSAI>;
-	Wed, 17 Oct 2001 14:00:08 -0400
-From: kuznet@ms2.inr.ac.ru
-Message-Id: <200110171758.VAA22159@ms2.inr.ac.ru>
-Subject: Re: [NFS] NFSD over TCP: TCP broken?
-To: kalele@veritas.COM (Shirish Kalele)
-Date: Wed, 17 Oct 2001 21:58:37 +0400 (MSK DST)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <023a01c15708$a275d270$3291b40a@fserv2000.net> from "Shirish Kalele" at Oct 17, 1 04:45:00 am
-X-Mailer: ELM [version 2.4 PL24]
+	id <S277011AbRJQRzC>; Wed, 17 Oct 2001 13:55:02 -0400
+Received: from mailgate5.cinetic.de ([217.72.192.165]:47509 "EHLO
+	mailgate5.cinetic.de") by vger.kernel.org with ESMTP
+	id <S277013AbRJQRyt>; Wed, 17 Oct 2001 13:54:49 -0400
+Date: Mon, 15 Oct 2001 17:35:34 +0200 (CEST)
+From: Pascal Schmidt <pleasure.and.pain@web.de>
+To: Erik Tews <erik.tews@gmx.net>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: 2.4.12-ac1: BUG in sched.c:712
+In-Reply-To: <20011015140507.D22287@no-maam.dyndns.org>
+Message-ID: <Pine.LNX.4.33.0110151731400.979-100000@neptune.sol.net>
 MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello!
+On Mon, 15 Oct 2001, Erik Tews wrote:
 
-> where the interleaving gets in.
+> I am very sure that this oops is related to mppp. There seems to be a
+> bug in the mppp-code which produces exactly this output (the lines with
+> -1 at the end and then a oops during sceduling). I asked at the
+> isdn4linux-devel-list but the mppp-code seems to be so dirty that they
+> think it would be easyer to rewrite it than debugging it. So I think
+> there will be no fast solution for this problem.
+If it only happens when the ISP drops the connection while running mppp, I
+can easily avoid the situation until a solution gets developed. My ISP
+drops the connection automatically after 12 hours but allows immediate
+reconnection. So a little magic with ip-up, cron, and ip-down is enough to
+avoid the bug, I can easily disable mppp and the connection a few minutes
+before the 12 hours pass and then bring the connection and mppp back up a
+few moments later.
 
-I do not think that you diagnosed the problem correctly.
-nfsd used non blocking io and write to tcp is strictly atomic in this case.
+-- 
+Ciao, Pascal
 
+-<[ pharao90@tzi.de, netmail 2:241/215.72, home http://cobol.cjb.net/) ]>-
 
->		 I'm not sure if TCP should be handling this
-> or NFSD. From what little I know, TCP should serialize requests it gets and
-> atomically write them out,
-
-However, it does not and it should not. Like concurrent write()
-to any other file, the result is unpredictably interleaved data.
-
-Alexey

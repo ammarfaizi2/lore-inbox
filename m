@@ -1,88 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265053AbUHNUVT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265141AbUHNUYm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265053AbUHNUVT (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 14 Aug 2004 16:21:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265134AbUHNUVT
+	id S265141AbUHNUYm (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 14 Aug 2004 16:24:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265134AbUHNUYm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 14 Aug 2004 16:21:19 -0400
-Received: from dh138.citi.umich.edu ([141.211.133.138]:61570 "EHLO
-	lade.trondhjem.org") by vger.kernel.org with ESMTP id S265053AbUHNUTx convert rfc822-to-8bit
+	Sat, 14 Aug 2004 16:24:42 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:40629 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S265141AbUHNUXs
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 14 Aug 2004 16:19:53 -0400
-Subject: Re: PATCH [2/7] Fix posix locking code
-From: Trond Myklebust <trond.myklebust@fys.uio.no>
-To: Christoph Hellwig <hch@infradead.org>
-Cc: Linux Filesystem Development <linux-fsdevel@vger.kernel.org>,
-       linux-kernel@vger.kernel.org, Linus Torvalds <torvalds@osdl.org>,
-       Andrew Morton <akpm@osdl.org>
-In-Reply-To: <20040814205306.A22261@infradead.org>
-References: <1092511792.4109.22.camel@lade.trondhjem.org>
-	 <20040814205306.A22261@infradead.org>
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8BIT
-Message-Id: <1092514790.4109.52.camel@lade.trondhjem.org>
+	Sat, 14 Aug 2004 16:23:48 -0400
+Date: Sat, 14 Aug 2004 21:23:43 +0100
+From: viro@parcelfarce.linux.theplanet.co.uk
+To: Chris Wright <chrisw@osdl.org>
+Cc: James Morris <jmorris@redhat.com>, Andrew Morton <akpm@osdl.org>,
+       Stephen Smalley <sds@epoch.ncsc.mil>, neilb@cse.unsw.edu.au,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH][LIBFS] Move transaction file ops into libfs + cleanup (update)
+Message-ID: <20040814202343.GA12308@parcelfarce.linux.theplanet.co.uk>
+References: <Xine.LNX.4.44.0408131157350.23262-100000@dhcp83-76.boston.redhat.com> <Xine.LNX.4.44.0408141231300.27007-100000@dhcp83-76.boston.redhat.com> <20040814125501.U1973@build.pdx.osdl.net>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Sat, 14 Aug 2004 16:19:51 -0400
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040814125501.U1973@build.pdx.osdl.net>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-På lau , 14/08/2004 klokka 15:53, skreiv Christoph Hellwig:
-> On Sat, Aug 14, 2004 at 03:29:53PM -0400, Trond Myklebust wrote:
-> >  VFS: Enable filesystems and to hook certain functions for copying
-> >       locks, and freeing locks using the new struct file_lock_operations.
-> > 
-> >  VFS: Enable lock managers (i.e. lockd) to hook functions for comparing
-> >       lock ownership using the new struct lock_manager_operations.
-> 
-> Please document these operations and their locking rules in
-> Documentation/filesystems/Locking
+On Sat, Aug 14, 2004 at 12:55:01PM -0700, Chris Wright wrote:
+> Looks nice. I didn't realize you were working on this consolidation too.
+> I cooked up a similar patch.  In this case the user loads its inode
+> specific write_ops on open, then just uses the generic helpers.  I also
+> fully serialized all write/read transactions per inode.  It's lightly
+> tested.  If there's anything you like in there, feel free to use it.
 
-Right here...
+This is *wrong*.
 
-diff -u --recursive --new-file linux-2.6.8.1-07-cleanup_posix/Documentation/filesystems/Locking linux-2.6.8.1-08-Documentation/Documentation/filesystems/Locking
---- linux-2.6.8.1-07-cleanup_posix/Documentation/filesystems/Locking	2004-08-14 14:27:32.000000000 -0400
-+++ linux-2.6.8.1-08-Documentation/Documentation/filesystems/Locking	2004-08-14 16:07:11.000000000 -0400
-@@ -276,21 +276,34 @@
- internal fs locking and real critical areas are much smaller than the areas
- filesystems protect now.
- 
----------------------------- file_lock ------------------------------------
-+----------------------- file_lock_operations ------------------------------
- prototypes:
--	void (*fl_notify)(struct file_lock *);	/* unblock callback */
- 	void (*fl_insert)(struct file_lock *);	/* lock insertion callback */
- 	void (*fl_remove)(struct file_lock *);	/* lock removal callback */
-+	void (*fl_copy_lock)(struct file_lock *, struct file_lock *);
-+	void (*fl_release_private)(struct file_lock *);
-+
- 
- locking rules:
--		BKL	may block
--fl_notify:	yes	no
--fl_insert:	yes	no
--fl_remove:	yes	no
-+			BKL	may block
-+fl_insert:		yes	no
-+fl_remove:		yes	no
-+fl_copy_lock:		yes	no
-+fl_release_private:	yes	yes
-+
-+----------------------- lock_manager_operations ---------------------------
-+prototypes:
-+	int (*fl_compare_owner)(struct file_lock *, struct file_lock *);
-+	void (*fl_notify)(struct file_lock *);  /* unblock callback */
-+
-+locking rules:
-+			BKL	may block
-+fl_compare_owner:	yes	no
-+fl_notify:		yes	no
-+
- 	Currently only NLM provides instances of this class. None of the
- them block. If you have out-of-tree instances - please, show up. Locking
- in that area will change.
--
- --------------------------- buffer_head -----------------------------------
- prototypes:
- 	void (*b_end_io)(struct buffer_head *bh, int uptodate);
+First of all, it ties you to ->i_ino values.  Which is OK on a specific
+fs, but not in a generic helper functions.
 
+What's more, there is no point in any extra structures here - you are
+getting a file-specific method anyway, so you make it ->write() (which
+is where behaviour differs) instead of ->open().  Which kills the
+need of callbacks.
+
+As a general rule, it's better to provide several helpers and let the
+users of interface call them rather than trying to fit everything into
+callbacks, flags, etc.
+
+Consider for instance a driver that wants one such request/reply file.
+With your scheme it will have to declare two functions - foo_write_op()
+and foo_open(), the latter being a boilerplate _and_ declare (for fsck
+knows what reason) a single-element array so that foo_open() could pass
+array - file->f_dentry->d_inode->i_ino, only to compensate for use of
+->i_ino in your helper.
+
+Lots of glue for no good reason _and_ a new function type to deal with.
+As opposed to one function (foo_write()) that is a normal instance of
+->write() and is actually smaller than your foo_write_op() + foo_open().
+No arrays, no magic, no boilerplate code...

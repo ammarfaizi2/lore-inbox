@@ -1,45 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264960AbRFUNa0>; Thu, 21 Jun 2001 09:30:26 -0400
+	id <S264957AbRFUNag>; Thu, 21 Jun 2001 09:30:36 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264956AbRFUNaQ>; Thu, 21 Jun 2001 09:30:16 -0400
-Received: from mx3.sac.fedex.com ([199.81.208.11]:58886 "EHLO
-	mx3.sac.fedex.com") by vger.kernel.org with ESMTP
-	id <S264958AbRFUNaH>; Thu, 21 Jun 2001 09:30:07 -0400
-Date: Thu, 21 Jun 2001 21:31:01 +0800 (SGT)
-From: Jeff Chua <jeffchua@silk.corp.fedex.com>
-X-X-Sender: <root@boston.corp.fedex.com>
-To: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: needed this to run 2.4.6-pre4
-Message-ID: <Pine.LNX.4.33.0106212128241.272-100000@boston.corp.fedex.com>
+	id <S264956AbRFUNa1>; Thu, 21 Jun 2001 09:30:27 -0400
+Received: from d06lmsgate-2.uk.ibm.com ([195.212.29.2]:60153 "EHLO
+	d06lmsgate-2.uk.ibm.com") by vger.kernel.org with ESMTP
+	id <S264957AbRFUNaT> convert rfc822-to-8bit; Thu, 21 Jun 2001 09:30:19 -0400
+Importance: Normal
+Subject: Re: temperature standard - global config option?
+To: Jonathan Morton <chromi@cyberspace.org>
+Cc: kaih@khms.westfalen.de (Kai Henningsen), linux-kernel@vger.kernel.org
+X-Mailer: Lotus Notes Release 5.0.5  September 22, 2000
+Message-ID: <OFE74ECCAE.A9CB9437-ON80256A72.0045BC45@portsmouth.uk.ibm.com>
+From: "Richard J Moore" <richardj_moore@uk.ibm.com>
+Date: Thu, 21 Jun 2001 13:45:22 +0100
+X-MIMETrack: Serialize by Router on D06ML023/06/M/IBM(Release 5.0.6 |December 14, 2000) at
+ 21/06/2001 14:28:51
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-type: text/plain; charset=iso-8859-1
+Content-transfer-encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-still not in 2.4.6-pre4. Without this, you'll get a lot of undefined
-symbols referencing do_softirq
+> 59.42886726469 ±2°C is obviously ludicrous, even if that's
+> what my calculator gives me.  I should instead write 59 ±2°C, since
 
-Jeff
-[ jchua@fedex.com ]
+So, if I follow you argument then shouldn't you be writing 58 ±2°C or
+should it be 60 ±2°C ?
 
---- include/asm-i386/softirq.h	Thu Jun 14 17:10:34 2001
-+++ include/asm-i386/softirq.h.new	Thu Jun 14 17:17:15 2001
-@@ -36,13 +36,13 @@
- 									\
- 			".section .text.lock,\"ax\";"			\
- 			"2: pushl %%eax; pushl %%ecx; pushl %%edx;"	\
--			"call do_softirq;"				\
-+			"call %c1;"					\
- 			"popl %%edx; popl %%ecx; popl %%eax;"		\
- 			"jmp 1b;"					\
- 			".previous;"					\
- 									\
- 		: /* no output */					\
--		: "r" (ptr)						\
-+		: "r" (ptr), "i" (do_softirq)				\
- 		/* no registers clobbered */ );				\
- } while (0)
 
+Richard Moore -  RAS Project Lead - Linux Technology Centre (ATS-PIC).
+http://oss.software.ibm.com/developerworks/opensource/linux
+Office: (+44) (0)1962-817072, Mobile: (+44) (0)7768-298183
+IBM UK Ltd,  MP135 Galileo Centre, Hursley Park, Winchester, SO21 2JN, UK
 

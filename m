@@ -1,78 +1,50 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314228AbSEIT1R>; Thu, 9 May 2002 15:27:17 -0400
+	id <S314230AbSEITcC>; Thu, 9 May 2002 15:32:02 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314230AbSEIT1Q>; Thu, 9 May 2002 15:27:16 -0400
-Received: from e31.co.us.ibm.com ([32.97.110.129]:45738 "EHLO
-	e31.co.us.ibm.com") by vger.kernel.org with ESMTP
-	id <S314228AbSEIT1P>; Thu, 9 May 2002 15:27:15 -0400
-Date: Thu, 09 May 2002 14:27:00 -0500
-From: Dave McCracken <dmccr@us.ibm.com>
-To: Marcelo Tosatti <marcelo@conectiva.com.br>
-cc: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: [PATCH 2.4] Thread group exit problem reappeared.
-Message-ID: <43390000.1020972420@baldur.austin.ibm.com>
-X-Mailer: Mulberry/2.2.0 (Linux/x86)
+	id <S314232AbSEITcB>; Thu, 9 May 2002 15:32:01 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:35596 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S314230AbSEITcA>;
+	Thu, 9 May 2002 15:32:00 -0400
+Message-ID: <3CDACE73.6692A31E@zip.com.au>
+Date: Thu, 09 May 2002 12:30:59 -0700
+From: Andrew Morton <akpm@zip.com.au>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-pre4 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: multipart/mixed; boundary="==========890320887=========="
+To: "David S. Miller" <davem@redhat.com>
+CC: indigoid@higherplane.net, dank@kegel.com, khttpd-users@alt.org,
+        linux-kernel@vger.kernel.org
+Subject: Re: khttpd rotten?
+In-Reply-To: <20020509114009.GD3855@higherplane.net> <20020509.042938.78984470.davem@redhat.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---==========890320887==========
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+"David S. Miller" wrote:
+> 
+>    From: john slee <indigoid@higherplane.net>
+>    Date: Thu, 9 May 2002 21:40:09 +1000
+> 
+>    tux is more an application than an interface or mechanism.  applications
+>    historically haven't been distributed as part of the main kernel tree.
+> 
+> Arguable nfsd is an application.
+> 
+> Providing a direct in-kernel link between the page cache and providing
+> content (be it HTTP, FTP, NFS files, whatever) over sockets is a very
+> powerful concept.
 
+We want to expose all the zerocopy infrastructure to
+userspace so all relevant applications can benefit.
 
-A long time ago there was thread group code that at exit time tried to
-reparent a task to another task in the thread group.  I discovered a major
-race condition in this code, and submitted a patch that removed it.  This
-patch was accepted in, I thin, 2.4.12.  The code reappeared in 2.4.18,
-breaking applications that use thread groups.
+The concern with moving one (major) application into the
+kernel is that this will weaken the testing/motivation to get
+zerocopy, aio and sophisticated notifications working well
+for userspace.
 
-As part of chasing this down, I figured out a way to remove the race
-condition while still preserving this behavior.  I've attached a patch
-against 2.4.19-pre8 that fixes it.
+Everyone who cares will end up implementing things as
+TUX modules.
 
-Dave McCracken
-
-======================================================================
-Dave McCracken          IBM Linux Base Kernel Team      1-512-838-3059
-dmccr@us.ibm.com                                        T/L   678-3059
-
---==========890320887==========
-Content-Type: text/plain; charset=us-ascii; name="exit-2.4.19-pre8.diff"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment; filename="exit-2.4.19-pre8.diff"; size=797
-
---- linux-2.4.19-pre8/./kernel/exit.c	Tue May  7 09:18:14 2002
-+++ linux-2.4.19-pre8-reparent/./kernel/exit.c	Tue May  7 10:01:56 2002
-@@ -152,7 +152,7 @@
- 
- /*
-  * When we die, we re-parent all our children.
-- * Try to give them to another thread in our process
-+ * Try to give them to another thread in our thread
-  * group, and if no such member exists, give it to
-  * the global child reaper process (ie "init")
-  */
-@@ -162,8 +162,14 @@
- 
- 	read_lock(&tasklist_lock);
- 
--	/* Next in our thread group */
--	reaper = next_thread(father);
-+	/* Next in our thread group, if they're not already exiting */
-+	reaper = father;
-+	do {
-+		reaper = next_thread(reaper);
-+		if (!(reaper->flags & PF_EXITING))
-+			break;
-+	} while (reaper != father);
-+
- 	if (reaper == father)
- 		reaper = child_reaper;
- 
-
---==========890320887==========--
-
+-

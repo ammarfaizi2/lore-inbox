@@ -1,28 +1,26 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265966AbUHHQyi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265970AbUHHRNU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265966AbUHHQyi (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 8 Aug 2004 12:54:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265970AbUHHQyi
+	id S265970AbUHHRNU (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 8 Aug 2004 13:13:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265974AbUHHRNU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 8 Aug 2004 12:54:38 -0400
-Received: from gprs214-125.eurotel.cz ([160.218.214.125]:22144 "EHLO
-	amd.ucw.cz") by vger.kernel.org with ESMTP id S265966AbUHHQyg (ORCPT
+	Sun, 8 Aug 2004 13:13:20 -0400
+Received: from gprs214-135.eurotel.cz ([160.218.214.135]:10368 "EHLO
+	amd.ucw.cz") by vger.kernel.org with ESMTP id S265970AbUHHRNT (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 8 Aug 2004 12:54:36 -0400
-Date: Sun, 8 Aug 2004 18:54:16 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: Nigel Cunningham <ncunningham@linuxmail.org>
-Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-       David Brownell <david-b@pacbell.net>, Oliver Neukum <oliver@neukum.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Patrick Mochel <mochel@digitalimplant.org>
-Subject: Re: What PM should be and do (Was Re: Solving suspend-level confusion)
-Message-ID: <20040808165416.GB2668@elf.ucw.cz>
-References: <20040730164413.GB4672@elf.ucw.cz> <200408031928.08475.david-b@pacbell.net> <1091588163.5225.77.camel@gaston> <200408032030.41410.david-b@pacbell.net> <1091594872.3191.71.camel@laptop.cunninghams> <1091595224.1899.99.camel@gaston> <1091595545.3303.80.camel@laptop.cunninghams>
+	Sun, 8 Aug 2004 13:13:19 -0400
+Date: Sun, 8 Aug 2004 19:13:05 +0200
+From: Pavel Machek <pavel@suse.cz>
+To: Patrick Mochel <mochel@digitalimplant.org>
+Cc: Andrew Morton <akpm@zip.com.au>,
+       kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: -mm swsusp: do not default to platform/firmware
+Message-ID: <20040808171305.GB3298@elf.ucw.cz>
+References: <20040728222445.GA18210@elf.ucw.cz> <Pine.LNX.4.50.0408012313350.4359-100000@monsoon.he.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1091595545.3303.80.camel@laptop.cunninghams>
+In-Reply-To: <Pine.LNX.4.50.0408012313350.4359-100000@monsoon.he.net>
 X-Warning: Reading this can be dangerous to your mental health.
 User-Agent: Mutt/1.5.5.1+cvs20040105i
 Sender: linux-kernel-owner@vger.kernel.org
@@ -30,23 +28,24 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 Hi!
 
-> Yes. I'm not trying to give drivers an inconsistent state, just delaying
-> suspending some until the last minute....
+> > -mm swsusp now defaults to platform/firmware suspend... That's
+> > certainly unexpected, changes behaviour from previous version, and
+> > only works on one of three machines I have here. I'd like the default
+> > to be changed back. Please apply,
 > 
-> Suspend 2 algorithm:
-> 
-> 1. Prepare image (freeze processes, allocate memory, eat memory etc)
-> 2. Power down all drivers not used while writing image
-> 3. Write LRU pages. ('pageset 2')
-> 4. Quiesce remaining drivers, save CPU state, to atomic copy of
-> remaining ram.
-> 5. Resume quiesced drivers.
+> I'd rather leave it, and put pressure on the platform implementations to
+> be made to work. If you want to shutdown, then specify it on the command
+> line before you suspend (or add it to the suspend script).
 
-Hmm, this means pretty complex subtree handling.. Perhaps it would be
-possible to make "quiesce/unquiesce" support in drivers so that this
-is not needed?
+I'm afraid that we'll get big storm of complains "swsusp does not
+work after merge from -mm tree", "switch to shutdown method", "oh, it
+works now". I assume it works in less than 30% of cases... it really
+should not be default.
+
+Oh and "firmware" suspend should never ever be autoselected -- it
+needs completely different suspend partition layout which is
+mainboard-specific....
 								Pavel
-
 -- 
 People were complaining that M$ turns users into beta-testers...
 ...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!

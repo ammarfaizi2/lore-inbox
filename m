@@ -1,40 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261169AbTINOOB (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 14 Sep 2003 10:14:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261171AbTINOOB
+	id S261153AbTINOIu (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 14 Sep 2003 10:08:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261155AbTINOIu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 14 Sep 2003 10:14:01 -0400
-Received: from zero.aec.at ([193.170.194.10]:6409 "EHLO zero.aec.at")
-	by vger.kernel.org with ESMTP id S261169AbTINOOA (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 14 Sep 2003 10:14:00 -0400
-Date: Sun, 14 Sep 2003 16:13:46 +0200
-From: Andi Kleen <ak@muc.de>
-To: Jamie Lokier <jamie@shareable.org>
-Cc: Andi Kleen <ak@muc.de>, linux-kernel@vger.kernel.org, jh@suse.cz
-Subject: Re: stack alignment in the kernel was Re: nasm over gas?
-Message-ID: <20030914141346.GA1194@averell>
-References: <rZQN.83u.21@gated-at.bofh.it> <uw6d.3hD.35@gated-at.bofh.it> <uxED.5Rz.9@gated-at.bofh.it> <uYbM.26o.3@gated-at.bofh.it> <uZUr.4QR.25@gated-at.bofh.it> <v4qU.3h1.27@gated-at.bofh.it> <vog2.7k4.23@gated-at.bofh.it> <m31xuk8cnu.fsf_-_@averell.firstfloor.org> <20030914135431.GB16525@mail.jlokier.co.uk>
+	Sun, 14 Sep 2003 10:08:50 -0400
+Received: from mail.jlokier.co.uk ([81.29.64.88]:15251 "EHLO
+	mail.jlokier.co.uk") by vger.kernel.org with ESMTP id S261153AbTINOIt
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 14 Sep 2003 10:08:49 -0400
+Date: Sun, 14 Sep 2003 15:08:39 +0100
+From: Jamie Lokier <jamie@shareable.org>
+To: Rusty Russell <rusty@rustcorp.com.au>
+Cc: Felipe W Damasio <felipewd@terra.com.br>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] kernel/futex.c: Uneeded memory barrier
+Message-ID: <20030914140839.GC16525@mail.jlokier.co.uk>
+References: <3F620E61.4080604@terra.com.br> <20030914114054.CC7CE2C0A7@lists.samba.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20030914135431.GB16525@mail.jlokier.co.uk>
-User-Agent: Mutt/1.4i
+In-Reply-To: <20030914114054.CC7CE2C0A7@lists.samba.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Sep 14, 2003 at 02:54:31PM +0100, Jamie Lokier wrote:
-> > A compiler option to turn it off would make sense to save .text space
-> > and eliminate these useless instructions. Especially since the kernel
-> > entry points make no attempt to align the stack to 16 byte anyways,
-> > so most likely the stack adjustments do not even work.
-> 
-> There is an option:
-> 
-> 	-mpreferred-stack-boundary=2
+Rusty Russell wrote:
+> I personally *HATE* the set_task_state()/__set_task_state() macros.
+> Simple assignments shouldn't be hidden behind macros, unless there's
+> something really subtle involved.
 
-Hmm. The i386 Makefile sets that already. Where exactly did you see
-bogus stack adjustments in kernel code?
+There _is_ something subtle involved.  Back in ye olde days, folk
+would set current->state directly.  Andrea Arcangeli noticed a subtle
+race condition, where a memory barrier is needed after assigning the
+state and before testing whatever condition the task is waiting on,
+otherwise the state could be written after the condition was tested.
 
--Andi
+That's when all assignments to current->state were changed to
+set_task_state().
+
+Sprinkling special kinds of memory barrier into all the drivers is not
+the kind of thing driver writers get right.  Also if you look at the
+details, the barrier is quite an unusual kind on i386, using the
+"xchg" instruction, and it only needs to be a CPU barrier on SMP
+systems.
+
+> Personally, when there's a normal and a __ version of a function, I
+> use the normal version unless there's a real (performance or
+> correctness) reason.  (ie. I prefer the "think less" version 8).
+
+It's always correct to use the "normal" version of set_task_state().
+
+The places where __set_task_state() is used are performance tweaks,
+because the memory barrier is not for free.  That's why you see it
+throughout "core" kernel code, where the authors devote more energy to
+thinking about the SMP subtleties.
+
+-- Jamie

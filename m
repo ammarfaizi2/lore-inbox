@@ -1,61 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291311AbSAaVLM>; Thu, 31 Jan 2002 16:11:12 -0500
+	id <S291314AbSAaVOC>; Thu, 31 Jan 2002 16:14:02 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291312AbSAaVLF>; Thu, 31 Jan 2002 16:11:05 -0500
-Received: from mail.sonytel.be ([193.74.243.200]:46534 "EHLO mail.sonytel.be")
-	by vger.kernel.org with ESMTP id <S291311AbSAaVKv>;
-	Thu, 31 Jan 2002 16:10:51 -0500
-Date: Thu, 31 Jan 2002 22:08:08 +0100 (MET)
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-To: Martin Dalecki <dalecki@evision-ventures.com>
-cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        Linus Torvalds <torvalds@transmeta.com>,
-        Alexander Viro <viro@math.psu.edu>,
-        Daniel Phillips <phillips@bonn-fries.net>, mingo@elte.hu,
-        Rob Landley <landley@trommello.org>,
-        Linux Kernel Development <linux-kernel@vger.kernel.org>
-Subject: Re: A modest proposal -- We need a patch penguin
-In-Reply-To: <3C59353F.3080208@evision-ventures.com>
-Message-ID: <Pine.GSO.4.21.0201312205230.24581-100000@vervain.sonytel.be>
+	id <S291317AbSAaVNw>; Thu, 31 Jan 2002 16:13:52 -0500
+Received: from [217.9.226.246] ([217.9.226.246]:47488 "HELO
+	merlin.xternal.fadata.bg") by vger.kernel.org with SMTP
+	id <S291314AbSAaVNk>; Thu, 31 Jan 2002 16:13:40 -0500
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: Rik van Riel <riel@conectiva.com.br>, Andrea Arcangeli <andrea@suse.de>,
+        John Stoffel <stoffel@casc.com>, <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] Radix-tree pagecache for 2.5
+In-Reply-To: <Pine.LNX.4.33.0201311047200.1682-100000@penguin.transmeta.com>
+From: Momchil Velikov <velco@fadata.bg>
+In-Reply-To: <Pine.LNX.4.33.0201311047200.1682-100000@penguin.transmeta.com>
+Date: 31 Jan 2002 23:12:53 +0200
+Message-ID: <87y9ierzqi.fsf@fadata.bg>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.1
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 31 Jan 2002, Martin Dalecki wrote:
-> Alan Cox wrote:
-> >>A "small stuff" maintainer may indeed be a good idea. The maintainer could
-> >>be the same as somebody who does bigger stuff too, but they should be
-> >>clearly different things - trivial one-liners that do not add anything
-> >>new, only fix obvious stuff (to the point where nobody even needs to think
-> >>about it - if I'd start getting any even halfway questionable patches from
-> >>the "small stuff" maintainer, it wouldn't work).
-> >>
-> And then we are still just discussing here how to get things IN. But 
-> there apparently currently is
-> nearly no way to get things OUT of the kernel tree. Old obsolete drivers 
-> used by some
-> computer since archeologists should be killed (Atari, Amiga, support, 
-> obsolete drivers and so on).
-> Just let *them* maintains theyr separate kernel tree...
+>>>>> "Linus" == Linus Torvalds <torvalds@transmeta.com> writes:
 
-Come'on, m68k is not dead yet!
+Linus> On Thu, 31 Jan 2002, Rik van Riel wrote:
+>> 
+>> It's still a question whether we'll want to use 128 as
+>> the branch factor or another number ... but I'm sure
+>> somebody will figure that out (and it can be changed
+>> later, it's just one define).
 
-We do our best to keep the m68k tree in sync. In fact that's much less work
-than feeding back our changes to Linus, since hacking code needs less retries
-than sending patches :-)
+Linus> Actually, I think the big question is whether somebody is willing to clean
+Linus> up and fix the "move_from_swap_cache()" issue with block_flushpage.
 
-(but we all know that since we're discussing it in this thread... ;-)
+Ah, almost forgot it. The patch removes ``next_hash'' and
+``pprev_hash'' from ``struct page'', which breaks ARM and sparc64.
 
-Gr{oetje,eeting}s,
-
-						Geert
-
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
-
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-							    -- Linus Torvalds
+Regards,
+-velco
 

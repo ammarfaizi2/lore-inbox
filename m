@@ -1,121 +1,81 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265539AbUALQ04 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 Jan 2004 11:26:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265586AbUALQ04
+	id S266208AbUALQl0 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 Jan 2004 11:41:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266212AbUALQl0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 Jan 2004 11:26:56 -0500
-Received: from nwkea-mail-2.sun.com ([192.18.42.14]:1729 "EHLO
-	nwkea-mail-2.sun.com") by vger.kernel.org with ESMTP
-	id S265539AbUALQ0w (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 Jan 2004 11:26:52 -0500
-Date: Mon, 12 Jan 2004 11:26:30 -0500
-From: Mike Waychison <Michael.Waychison@Sun.COM>
-Subject: Re: [autofs] [RFC] Towards a Modern Autofs
-In-reply-to: <Pine.LNX.4.58.0401122356100.6362@raven.themaw.net>
-To: raven@themaw.net
-Cc: Jim Carter <jimc@math.ucla.edu>,
-       autofs mailing list <autofs@linux.kernel.org>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>
-Message-id: <4002CAB6.3000800@sun.com>
-MIME-version: 1.0
-Content-type: multipart/signed;
- boundary=------------enig4349031CA658B7AE40F974E7;
- protocol="application/pgp-signature"; micalg=pgp-sha1
-X-Accept-Language: en
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5) Gecko/20031107
- Debian/1.5-3
-X-Enigmail-Version: 0.82.2.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-References: <Pine.LNX.4.33.0401101325280.2403-100000@wombat.indigo.net.au>
- <40029C19.409@sun.com> <Pine.LNX.4.58.0401122356100.6362@raven.themaw.net>
+	Mon, 12 Jan 2004 11:41:26 -0500
+Received: from gwyn.tux.org ([199.184.165.135]:2478 "EHLO gwyn.tux.org")
+	by vger.kernel.org with ESMTP id S266208AbUALQlY (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 12 Jan 2004 11:41:24 -0500
+Date: Mon, 12 Jan 2004 11:41:23 -0500 (EST)
+From: Samuel S Chessman <chessman@tux.org>
+To: <LINUX-390@VM.MARIST.EDU>, <linux-kernel@vger.kernel.org>
+Subject: [PATCH] s390 2.4.24 typo and missing include 
+Message-ID: <Pine.LNX.4.30.0401121132480.19861-300000@gwyn.tux.org>
+MIME-Version: 1.0
+Content-Type: MULTIPART/MIXED; BOUNDARY="-1194883163-1815809157-1073925586=:19861"
+Content-ID: <Pine.LNX.4.30.0401121140550.23884@gwyn.tux.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
---------------enig4349031CA658B7AE40F974E7
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+  This message is in MIME format.  The first part should be readable text,
+  while the remaining parts are likely unreadable without MIME-aware tools.
+  Send mail to mime@docserver.cac.washington.edu for more info.
 
-raven@themaw.net wrote:
+---1194883163-1815809157-1073925586=:19861
+Content-Type: TEXT/PLAIN; CHARSET=US-ASCII
+Content-ID: <Pine.LNX.4.30.0401121140551.23884@gwyn.tux.org>
 
->On Mon, 12 Jan 2004, Mike Waychison wrote:
->
->  
->
->>>Transparency of an autofs filesystem (as I'm calling it) is the situation
->>>where, given a map
->>>
->>>/usr	/man1	server:/usr/man1
->>>	/man2	server:/usr/man2
->>>
->>>where the filesystem /usr contains, say a directory lib, that needs to be
->>>available while also seeing the automounted directories.
->>>
->>> 
->>>
->>>      
->>>
->>I see.  This requires direct mount triggers to do properly.  Trying to 
->>do it with some sort of passthrough to the underlying filesystem is a 
->>nightmare waiting to happen..
->>
->>    
->>
->
->So what are we saying here?
->
->We install triggers at /usr/man1 and /usr/man2.
->Then suppose the map had a nobrowse option.
->Does the trigger also take care of hiding man1 and man2?
->
->Is there some definition of these triggers?
->  
->
-The example above is a direct map entry with no root offset.  The 
-semantics are different than if it were an indirect map with browsing 
-enable. 
+The following two patches are needed to get linux 2.4.24 to compile
+s390 linux.  I have not had a chance to ipl to test if 2.4.24 runs
+but these were necessary to compile.
+The typo is only discovered if CONFIG_SMP is undefined.
 
-I tested this out against other automount implementations and discovered 
-that direct map entries with no root offsets should be broken down into 
-several direct map entries with root offsets.. so:
-
-/usr   /man1   server:/usr/man1   \
-          /man2   server:/usr/man2
-
-is the same as the two distinct entries:
-
-/usr/man1   server:/usr/man1
-/usr/man2   server:/usr/man2
-
-Now that I think about it, the discussion in my proposal paper about 
-multimounts with no root offsets probably isn't required.
+Attached README and patch.
 
 -- 
-Mike Waychison
-Sun Microsystems, Inc.
-1 (650) 352-5299 voice
-1 (416) 202-8336 voice
-mailto: Michael.Waychison@Sun.COM
-http://www.sun.com
+   Sam Chessman                                         chessman (a) tux.org
+    First do what's necessary, then what's possible, finally the impossible.
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-NOTICE:  The opinions expressed in this email are held by me, 
-and may not represent the views of Sun Microsystems, Inc.
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ 
+---1194883163-1815809157-1073925586=:19861
+Content-Type: TEXT/PLAIN; CHARSET=US-ASCII; NAME=README
+Content-Transfer-Encoding: BASE64
+Content-ID: <Pine.LNX.4.30.0401121139460.19861@gwyn.tux.org>
+Content-Description: Patch Readme
+Content-Disposition: ATTACHMENT; FILENAME=README
 
+TW9uIEphbiAxMiAxMToyNDozMCBFU1QgMjAwNA0KbGludXgga2VybmVsIDIu
+NC4yNCBzMzkwIHBhdGNoZXMgYnkgU2FtIENoZXNzbWFuIGNoZXNzbWFuQHR1
+eC5vcmcNCg0KbGludXgtMi40LjI0L2RyaXZlcnMvczM5MC9jaGFyL2N0cmxj
+aGFyLmMgYWRkIGVycm5vLmggZm9yIEVJTlZBTAkNCg0KbGludXgtMi40LjI0
+L2RyaXZlcnMvczM5MC9jaGFyL2h3Y19ydy5jCWZpeCB0eXBvIGluIG5vbi1T
+TVAgaWZkZWYgYmxvY2sNCmxpbnV4LTIuNC4yNC9kcml2ZXJzL3MzOTAvY2hh
+ci9od2NfcncuYwlhZGQgYnJlYWsgYWZ0ZXIgZGVmYXVsdDogY2FzZQ0K
+---1194883163-1815809157-1073925586=:19861
+Content-Type: TEXT/PLAIN; charset=US-ASCII; name="s390.2.4.24.patch"
+Content-Transfer-Encoding: BASE64
+Content-ID: <Pine.LNX.4.30.0401121141230.23884@gwyn.tux.org>
+Content-Description: unified context diff
+Content-Disposition: attachment; filename="s390.2.4.24.patch"
 
---------------enig4349031CA658B7AE40F974E7
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.2 (GNU/Linux)
-Comment: Using GnuPG with Debian - http://enigmail.mozdev.org
-
-iD8DBQFAAsq4dQs4kOxk3/MRAuO/AKCOZDrXEzeuiotXs7DKwPDbO7s7FQCggyQt
-t90Go9Kqf9D+0f/Be52arLE=
-=Fpm0
------END PGP SIGNATURE-----
-
---------------enig4349031CA658B7AE40F974E7--
-
+LS0tIGRyaXZlcnMvczM5MC9jaGFyL2N0cmxjaGFyLmMub3JpZwkyMDAzLTA4
+LTI1IDA3OjQ0OjQyLjAwMDAwMDAwMCAtMDQwMA0KKysrIGRyaXZlcnMvczM5
+MC9jaGFyL2N0cmxjaGFyLmMJMjAwNC0wMS0xMiAxMDoyMjowNi4wMDAwMDAw
+MDAgLTA1MDANCkBAIC05LDYgKzksNyBAQA0KIA0KICNpbmNsdWRlIDxsaW51
+eC9jb25maWcuaD4NCiAjaW5jbHVkZSA8bGludXgvc3RkZGVmLmg+DQorI2lu
+Y2x1ZGUgPGxpbnV4L2Vycm5vLmg+DQogI2luY2x1ZGUgPGxpbnV4L3N5c3Jx
+Lmg+DQogI2luY2x1ZGUgPGxpbnV4L2N0eXBlLmg+DQogI2luY2x1ZGUgPGxp
+bnV4L2ludGVycnVwdC5oPg0KDQotLS0gZHJpdmVycy9zMzkwL2NoYXIvaHdj
+X3J3LmMub3JpZwkyMDAyLTExLTI4IDE4OjUzOjE0LjAwMDAwMDAwMCAtMDUw
+MA0KKysrIGRyaXZlcnMvczM5MC9jaGFyL2h3Y19ydy5jCTIwMDQtMDEtMTIg
+MTA6MjU6MzYuMDAwMDAwMDAwIC0wNTAwDQpAQCAtMTY2Miw3ICsxNjYyLDcg
+QEANCiAJcHN3X3QgcXVpZXNjZV9wc3c7DQogDQogCXF1aWVzY2VfcHN3Lm1h
+c2sgPSBfRFdfUFNXX01BU0s7DQotCXF1ZWlzY2VfcHN3LmFkZHIgPSAweGZm
+ZjsNCisJcXVpZXNjZV9wc3cuYWRkciA9IDB4ZmZmOw0KIAlfX2xvYWRfcHN3
+IChxdWllc2NlX3Bzdyk7DQogfQ0KIA0KQEAgLTIyNDcsNiArMjI0Nyw3IEBA
+DQogCQkJCQl1bmNvbmRpdGlvbmFsX3JlYWRfMiAoZXh0X2ludF9wYXJhbSk7
+DQogCQkJCQlicmVhazsNCiAJCQkJZGVmYXVsdDoNCisJCQkJCWJyZWFrOw0K
+IAkJCQl9DQogCQkJfQ0KIAkJfQ0K
+---1194883163-1815809157-1073925586=:19861--

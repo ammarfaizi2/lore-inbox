@@ -1,39 +1,31 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264948AbRGACl5>; Sat, 30 Jun 2001 22:41:57 -0400
+	id <S264944AbRGACk1>; Sat, 30 Jun 2001 22:40:27 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264949AbRGAClr>; Sat, 30 Jun 2001 22:41:47 -0400
-Received: from nat-pool-meridian.redhat.com ([199.183.24.200]:32266 "EHLO
-	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
-	id <S264948AbRGAClg>; Sat, 30 Jun 2001 22:41:36 -0400
-Date: Sat, 30 Jun 2001 22:41:36 -0400
-From: Pete Zaitcev <zaitcev@redhat.com>
-Message-Id: <200107010241.f612fa209443@devserv.devel.redhat.com>
-To: guthrie@home.martnet.com, linux-kernel@vger.kernel.org
-Subject: Re: unable to read from IDE tape
-In-Reply-To: <mailman.993932281.2803.linux-kernel2news@redhat.com>
-In-Reply-To: <mailman.993932281.2803.linux-kernel2news@redhat.com>
+	id <S264948AbRGACkR>; Sat, 30 Jun 2001 22:40:17 -0400
+Received: from ppp0.ocs.com.au ([203.34.97.3]:30482 "HELO mail.ocs.com.au")
+	by vger.kernel.org with SMTP id <S264944AbRGACkG>;
+	Sat, 30 Jun 2001 22:40:06 -0400
+X-Mailer: exmh version 2.1.1 10/15/1999
+From: Keith Owens <kaos@ocs.com.au>
+To: Russell King <rmk@arm.linux.org.uk>
+cc: "Adam J. Richter" <adam@yggdrasil.com>, alan@lxorguk.ukuu.org.uk,
+        linux-kernel@vger.kernel.org
+Subject: Re: linux-2.4.6-pre6: numerous dep_{bool,tristate} $CONFIG_ARCH_xxx bugs 
+In-Reply-To: Your message of "Sat, 30 Jun 2001 16:01:01 +0100."
+             <20010630160101.G12788@flint.arm.linux.org.uk> 
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Sun, 01 Jul 2001 12:39:59 +1000
+Message-ID: <6558.993955199@ocs3.ocs-net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Lately, I have been having problems reading from from my HP Colorado IDE
-> tape drive.  I can use mt to get the status of the drive and to forward the
-> drive to a different file.  I can even use tar to write to the tape.
-> But whenever I try to read the tar files that I have written to tape, I
-> get an I/O error, and there doesn't even seem to be any attempt by the
-> driver to read the tape.  This is currently happening under 2.4.5, and
-> has been happening undeer at least 2.4.2 and 2.4.3, I think it was also
-> happening under 2.4.1 as well.
->[...]
-> Any thoughts on what might be wrong?
+On Sat, 30 Jun 2001 16:01:01 +0100, 
+Russell King <rmk@arm.linux.org.uk> wrote:
+>I have confirmed that Keith Owens patch doesn't work with xconfig - you
+>can't select any option which has been define_bool'd to 'n'.
 
-No good thoughts, the driver is simply horrible...
-You might be able to pick some interesting info by
-running with tape->debug_level set to 4 (There is an option,
-but I forget what. Just assign 4 to it after
-a call to idetape_add_settings. Be prepared for a lots of
-tracing.
+My patch only define_bool's the arch variables.  None of those are
+selectable.
 
-If you come up with any patches, post them to the list.
-
--- Pete

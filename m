@@ -1,47 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313758AbSDHV1h>; Mon, 8 Apr 2002 17:27:37 -0400
+	id <S313759AbSDHV1s>; Mon, 8 Apr 2002 17:27:48 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313759AbSDHV1g>; Mon, 8 Apr 2002 17:27:36 -0400
-Received: from gw.wmich.edu ([141.218.1.100]:11752 "EHLO gw.wmich.edu")
-	by vger.kernel.org with ESMTP id <S313758AbSDHV1g>;
-	Mon, 8 Apr 2002 17:27:36 -0400
-Subject: Re: Make swsusp actually work
-From: Ed Sweetman <ed.sweetman@wmich.edu>
-To: brian@worldcontrol.com
-Cc: Pavel Machek <pavel@ucw.cz>, alan@redhat.com,
-        kernel list <linux-kernel@vger.kernel.org>
-In-Reply-To: <20020408211558.GA1864@top.worldcontrol.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.3 
-Date: 08 Apr 2002 17:27:26 -0400
-Message-Id: <1018301252.485.0.camel@psuedomode>
+	id <S313761AbSDHV1r>; Mon, 8 Apr 2002 17:27:47 -0400
+Received: from imladris.infradead.org ([194.205.184.45]:16145 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id <S313759AbSDHV1q>; Mon, 8 Apr 2002 17:27:46 -0400
+Date: Mon, 8 Apr 2002 22:27:42 +0100
+From: Christoph Hellwig <hch@infradead.org>
+To: Robert Love <rml@tech9.net>
+Cc: "Kuppuswamy, Priyadarshini" <Priyadarshini.Kuppuswamy@compaq.com>,
+        linux-kernel@vger.kernel.org
+Subject: Re: system call for finding the number of cpus??
+Message-ID: <20020408222742.A28352@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Robert Love <rml@tech9.net>,
+	"Kuppuswamy,  Priyadarshini" <Priyadarshini.Kuppuswamy@compaq.com>,
+	linux-kernel@vger.kernel.org
+In-Reply-To: <6B003D25ADBDE347B5542AFE6A55B42E01A4451A@tayexc13.americas.cpqcorp.net> <1018301108.913.167.camel@phantasy>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2002-04-08 at 17:15, brian@worldcontrol.com wrote:
-> On Mon, Apr 08, 2002 at 01:37:26AM +0200, Pavel Machek wrote:
-> > Hi!
-> > 
-> > There were two bugs, and linux/mm.h one took me *very* long to
-> > find... Well, those bits used for zone should have been marked. Plus I
-> > hack ide_..._suspend code not to panic, and it now seems to
-> > work. [Sorry, 2pm, have to get some sleep.]
+On Mon, Apr 08, 2002 at 05:25:08PM -0400, Robert Love wrote:
+> Linux does not implement such a syscall.  Note
 > 
-> I've applied both this patch and the earlier one, and now my
-> 2.4.19-pre5-ac3 system can suspend and it can resume.  However,
-> when it resumed, I was stuck in the kernel SysRq function.
+> 	cat /proc/cpuinfo | grep processor | wc -l
 > 
-> Couldn't get out of it.
+> works and is simple; you do not have to do it via script - execute it in
+> your C program, save the one-line output, and atoi() it.
 
-press alt Sysrq again and then enter
-
-> And nothing seemed to work, other than it kept displaying the
-> help each time I touched a key.
-> 
-> On the other hand, the swsusp in 2.4.18-WOLK3.3 works correctly.
-> 
-
-
+I guess there is at least one architecture on which it breaks..
+See http://people.nl.linux.org/~hch/cpuinfo/ for details.

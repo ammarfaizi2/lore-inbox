@@ -1,46 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270713AbTGUVJ6 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Jul 2003 17:09:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270715AbTGUVJ6
+	id S270726AbTGUVM1 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Jul 2003 17:12:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270728AbTGUVM0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Jul 2003 17:09:58 -0400
-Received: from ppp-217-133-42-200.cust-adsl.tiscali.it ([217.133.42.200]:58241
-	"EHLO x30.random") by vger.kernel.org with ESMTP id S270713AbTGUVJ5
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Jul 2003 17:09:57 -0400
-Date: Mon, 21 Jul 2003 17:21:55 -0400
-From: Andrea Arcangeli <andrea@suse.de>
-To: Larry McVoy <lm@work.bitmover.com>, Mike Fedyk <mfedyk@matchmail.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: Fwd: Re: Bug Report: 2.4.22-pre5: BUG in page_alloc (fwd)
-Message-ID: <20030721212155.GF4677@x30.linuxsymposium.org>
-References: <20030721190226.GA14453@matchmail.com> <20030721194514.GA5803@work.bitmover.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030721194514.GA5803@work.bitmover.com>
-User-Agent: Mutt/1.4i
-X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
-X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
+	Mon, 21 Jul 2003 17:12:26 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:5649 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S270726AbTGUVMS (ORCPT
+	<rfc822;linux-kernel@vger.redhat.com>);
+	Mon, 21 Jul 2003 17:12:18 -0400
+Message-ID: <3F1C5C26.10607@kolumbus.fi>
+Date: Tue, 22 Jul 2003 00:33:26 +0300
+From: =?ISO-8859-1?Q?Mika_Penttil=E4?= <mika.penttila@kolumbus.fi>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.2) Gecko/20030208 Netscape/7.02
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Pavel Machek <pavel@suse.cz>
+CC: linux-kernel@vger.redhat.com
+Subject: Re: swsusp / 2.6.0-test1
+References: <1058805510.15585.7.camel@simulacron> <20030721193615.GB473@elf.ucw.cz>
+X-MIMETrack: Itemize by SMTP Server on marconi.hallinto.turkuamk.fi/TAMK(Release 5.0.8 |June
+ 18, 2001) at 22.07.2003 00:28:37,
+	Serialize by Router on notes.hallinto.turkuamk.fi/TAMK(Release 5.0.10 |March
+ 22, 2002) at 22.07.2003 00:28:08,
+	Serialize complete at 22.07.2003 00:28:08
+Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Larry,
 
-On Mon, Jul 21, 2003 at 12:45:14PM -0700, Larry McVoy wrote:
-> You don't need the tags, use dates.  You can get the date range you want 
-> with an rlog of the ChangeSet file and then use those dates.
+Pavel Machek wrote:
 
-I realized I could do this, and it can of course be automated with an
-additional bkcvs specific hack in cvsps. But the tag in every file would
-have kept the functionality generic with the already available -r
-option, and since I can't see any downside in the tag in the files, I
-prefer that generic way.
+>Hi!
+>
+>  
+>
+>>swsusp is working fine, but mplayer
+>>in sdl and xv output mode displays a blank
+>>screen after a resume. 
+>>    
+>>
+>
+>  
+>
+>You probably need to write suspend/resume support for your card.
+>
+>								Pavel
+>  
+>
 
-But if you're sure the tags aren't coming back we can start adding the
-automation to cvsps.
+Just wondering what kind of support for suspend/resume is "enough", say 
+for video cards? Surely not the pci configuration space, you need to 
+restore video mode, color maps, gfx engine state etc etc...what about 
+frame buffer contents on card? Probably yes. Sounds like a lot of code, 
+and different thing for every possible video card. Is there some general 
+guidance here? Is drivers/video soon bloating with tons of 
+suspend/resume code? I hope I am wrong :)
 
-thanks,
+--Mika
 
-Andrea
+

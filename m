@@ -1,125 +1,74 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267219AbTAGAi5>; Mon, 6 Jan 2003 19:38:57 -0500
+	id <S267221AbTAGAzd>; Mon, 6 Jan 2003 19:55:33 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267221AbTAGAi5>; Mon, 6 Jan 2003 19:38:57 -0500
-Received: from air-2.osdl.org ([65.172.181.6]:33204 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id <S267219AbTAGAix>;
-	Mon, 6 Jan 2003 19:38:53 -0500
-Date: Mon, 6 Jan 2003 16:44:11 -0800 (PST)
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-X-X-Sender: <rddunlap@dragon.pdx.osdl.net>
-To: Andrew Morton <akpm@digeo.com>
-cc: Linus Torvalds <torvalds@transmeta.com>,
-       Tom Rini <trini@kernel.crashing.org>, <linux-kernel@vger.kernel.org>
-Subject: [PATCH] configurable LOG_BUF_SIZE (update-2)
-In-Reply-To: <3E1A17DB.D400C900@digeo.com>
-Message-ID: <Pine.LNX.4.33L2.0301061620150.15416-100000@dragon.pdx.osdl.net>
+	id <S267243AbTAGAzd>; Mon, 6 Jan 2003 19:55:33 -0500
+Received: from hawk.mail.pas.earthlink.net ([207.217.120.22]:57042 "EHLO
+	hawk.mail.pas.earthlink.net") by vger.kernel.org with ESMTP
+	id <S267221AbTAGAzc>; Mon, 6 Jan 2003 19:55:32 -0500
+Date: Mon, 6 Jan 2003 17:55:26 -0800 (PST)
+From: James Simmons <jsimmons@infradead.org>
+X-X-Sender: <jsimmons@maxwell.earthlink.net>
+To: Linus Torvalds <torvalds@transmeta.com>
+cc: Linux Fbdev development list 
+	<linux-fbdev-devel@lists.sourceforge.net>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: [BK FBDEV updates]
+Message-ID: <Pine.LNX.4.33.0301061753120.2196-100000@maxwell.earthlink.net>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 6 Jan 2003, Andrew Morton wrote:
 
-| "Randy.Dunlap" wrote:
-| >
-| > ...
-| >  21 files changed, 540 insertions(+), 45 deletions(-)
-|
-| Oh gack.   And you've got stuff like "if numaq" in the sparc64
-| config files.
-|
-| You did have a version which instantiated a common $TOPDIR/kernel/Kconfig
-| and just included that in arch/<arch>/Kconfig.  Seems a better
-| approach to me.
+Linus, please do a
 
-Andrew, I don't see a need just now for the new kernel/Kconfig file
-since dependency/ordering issues are (supposed to be) gone in Kconfig
-vs. old config.in files.
+	bk pull http://fbdev.bkbits.net:8080/fbdev-2.5
 
-However, having the Log Buffer size selection in only one place instead
-of in 20 arch-specific files is a good thing IMO.
+This will update the following files:
 
-Here's a much smaller patch that just changes the current (2.5.54-bk4)
-Kconfig to depend on DEBUG_KERNEL (could be EXPERIMENTAL though) instead
-of always making it visible, and makes it one number (a shift value).
+ include/video/font.h            |   24
+ arch/m68k/kernel/m68k_defs.c    |    2
+ drivers/video/Makefile          |    3
+ drivers/video/aty/atyfb_base.c  |    4
+ drivers/video/console/fbcon.c   |   90 +-
+ drivers/video/console/sticon.c  |   40 -
+ drivers/video/console/sticore.c |    8
+ drivers/video/fbmem.c           |    1
+ drivers/video/i810/i810.h       |    2
+ drivers/video/i810/i810_accel.c |   11
+ drivers/video/i810/i810_dvt.c   |    2
+ drivers/video/i810/i810_main.c  |   51 -
+ drivers/video/i810/i810_main.h  |   79 --
+ drivers/video/riva/Makefile     |    2
+ drivers/video/riva/fbdev.c      | 1468 +++++++++++++++++++---------------------
+ drivers/video/riva/nv_driver.c  |  212 +++++
+ drivers/video/riva/riva_hw.c    |  350 +++++++--
+ drivers/video/riva/rivafb.h     |   15
+ drivers/video/sstfb.c           |  707 +++++++++----------
+ drivers/video/sstfb.h           |   31
+ include/linux/font.h            |   30
+ 21 files changed, 1725 insertions(+), 1407 deletions(-)
 
-I'd like to have this version applied to 2.5.54++.  Linus, how is it?
+through these ChangeSets:
 
-Thanks,
--- 
-~Randy
+<jsimmons@maxwell.earthlink.net> (03/01/06 1.972)
+   [RIVA FBDEV] Driver now uses its own fb_open and fb_release function again.
+   It has no ill effects. The drivers uses strickly hardware acceleration
+   so we don't need cfb_fillrect and cfb_copyarea.
 
+   Cleaned up font.h. Geerts orignal pacth broke them up into a font.h in
+   video and one in linux. Now I put them back together again in
+   include/linux. The m68k platform has been updated for this change.
 
+<jsimmons@maxwell.earthlink.net> (03/01/06 1.971)
+   Added resize support for the framebuffer console. Now you can change the
+   console size via stty. Also support for color palette changing on VC
+   switch is supported.
 
-
---- ./init/Kconfig%LGBUF	Mon Jan  6 16:01:55 2003
-+++ ./init/Kconfig	Mon Jan  6 16:38:35 2003
-@@ -82,50 +82,21 @@
- 	  building a kernel for install/rescue disks or your system is very
- 	  limited in memory.
-
--choice
--	prompt "Kernel log buffer size"
--	default LOG_BUF_SHIFT_17 if ARCH_S390
--	default LOG_BUF_SHIFT_16 if X86_NUMAQ || IA64
--	default LOG_BUF_SHIFT_15 if SMP
--	default LOG_BUF_SHIFT_14
--	help
--	  Select kernel log buffer size from this list (power of 2).
--	  Defaults:  17 (=> 128 KB for S/390)
--		     16 (=> 64 KB for x86 NUMAQ or IA-64)
--	             15 (=> 32 KB for SMP)
--	             14 (=> 16 KB for uniprocessor)
--
--config LOG_BUF_SHIFT_17
--	bool "128 KB"
--	default y if ARCH_S390
--
--config LOG_BUF_SHIFT_16
--	bool "64 KB"
--	default y if X86_NUMAQ || IA64
--
--config LOG_BUF_SHIFT_15
--	bool "32 KB"
--	default y if SMP
--
--config LOG_BUF_SHIFT_14
--	bool "16 KB"
--
--config LOG_BUF_SHIFT_13
--	bool "8 KB"
--
--config LOG_BUF_SHIFT_12
--	bool "4 KB"
--
--endchoice
--
- config LOG_BUF_SHIFT
--	int
--	default 17 if LOG_BUF_SHIFT_17=y
--	default 16 if LOG_BUF_SHIFT_16=y
--	default 15 if LOG_BUF_SHIFT_15=y
--	default 14 if LOG_BUF_SHIFT_14=y
--	default 13 if LOG_BUF_SHIFT_13=y
--	default 12 if LOG_BUF_SHIFT_12=y
-+	int "Kernel log buffer size" if DEBUG_KERNEL
-+	default 17 if ARCH_S390
-+	default 16 if X86_NUMAQ || IA64
-+	default 15 if SMP
-+	default 14
-+	help
-+	  Select kernel log buffer size as a power of 2.
-+	  Defaults and Examples:
-+	  	     17 => 128 KB for S/390
-+		     16 => 64 KB for x86 NUMAQ or IA-64
-+	             15 => 32 KB for SMP
-+	             14 => 16 KB for uniprocessor
-+		     13 =>  8 KB
-+		     12 =>  4 KB
-
- endmenu
-
+<jsimmons@maxwell.earthlink.net> (03/01/06 1.970)
+   I810 fbdev updates. Cursor fix for ati mach 64 cards on big endian machines.
+   Buffer over flow fix for fbcon putcs function. C99 initializers for the
+   STI console drivers. Voodoo 1/2 and NVIDIA driver updates.
 
 

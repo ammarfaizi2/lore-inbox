@@ -1,60 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272980AbRI3Hxs>; Sun, 30 Sep 2001 03:53:48 -0400
+	id <S273054AbRI3IBl>; Sun, 30 Sep 2001 04:01:41 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272991AbRI3Hxj>; Sun, 30 Sep 2001 03:53:39 -0400
-Received: from garrincha.netbank.com.br ([200.203.199.88]:60937 "HELO
-	netbank.com.br") by vger.kernel.org with SMTP id <S272980AbRI3HxX>;
-	Sun, 30 Sep 2001 03:53:23 -0400
-Date: Sun, 30 Sep 2001 04:52:49 -0300 (BRST)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: <riel@imladris.rielhome.conectiva>
-To: Kenneth Johansson <ken@canit.se>
-Cc: <mingo@elte.hu>, "Randy.Dunlap" <rddunlap@osdlab.org>,
-        Andreas Dilger <adilger@turbolabs.com>, <linux-kernel@vger.kernel.org>,
-        <linux-net@vger.kernel.org>, <netdev@oss.sgi.com>
-Subject: Re: [patch] netconsole-2.4.10-B1
-In-Reply-To: <3BB693AC.6E2DB9F4@canit.se>
-Message-ID: <Pine.LNX.4.33L.0109300448210.19147-100000@imladris.rielhome.conectiva>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
+	id <S273099AbRI3IBb>; Sun, 30 Sep 2001 04:01:31 -0400
+Received: from mauve.demon.co.uk ([158.152.209.66]:62336 "EHLO
+	mauve.demon.co.uk") by vger.kernel.org with ESMTP
+	id <S273054AbRI3IBU>; Sun, 30 Sep 2001 04:01:20 -0400
+From: Ian Stirling <root@mauve.demon.co.uk>
+Message-Id: <200109300801.JAA10353@mauve.demon.co.uk>
+Subject: Mad OOM killer on the loose...
+To: linux-kernel@vger.kernel.org
+Date: Sun, 30 Sep 2001 09:01:44 +0100 (BST)
+X-Mailer: ELM [version 2.5 PL2]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 30 Sep 2001, Kenneth Johansson wrote:
-> Ingo Molnar wrote:
->
-> > sorry :-) definitions of netconsole-terms:
-> >
-> > 'server': the host that is the source of the messages. Ie. the box that
-> >           runs the netconsole.o module. It serves log messages to the
-> >           client.
-> >
-> > 'client': the host that receives the messages. This box is running the
-> >           netconsole-client.c program.
->
-> Servers is usually the thing waiting for something to be sent to it,
-> the client is the sending part(initiator). this works for web servers
-> , X servers, log servers but strangley not for netconsole where
-> everything is backwards.
+While trying to resolve a deeply bizarre oops (happened when dialing one
+ISP but not another) on my athlon 550/200M ram:
 
-Owww crap.  The majority of web traffic is _from_ the
-server _to_ the client. Same for ftp, realaudio, etc...
+I downloaded and compiled 2.4.10.
+After compiling, my first impression was that it wasn't as snappy as
+2.4.0-test7 that I'd been using before.
+Second impression was that as I started running edonkey (p2p file
+sharing program) root-owned processes were getting killed, in order to 
+cache the data being read by edonkey, while hashig it's temporary files.
+(these files have lots of holes, if that might be important)
 
-In fact, usually the server is the _remote_ machine and
-the client is the _local_ machine. Anybody who believes
-in having the client remote and the server local should
-be shipped off to whereever the server is ;)
+There were about 40M worth of real programs running, and 150Mb available
+for cache.
+9 times out of 10, edonkey will now crash on startup (it's RSS is only
+perhaps 4M), often taking other processes some owned by root with it.
+When this first manifested, I saw 
+ __alloc_pages: 0-order allocation failed (gfp=0x1d 2/0) from c012a718
+(seems to be the address of _alloc_pages)
+Sep 30 07:55:25 mauve last message repeated 4 times
 
-regards,
+While trying to see if I could fix this somewhat, I found someone had
+absconded with /proc/sys/vm/freepages.
+Is there any documentation on the new way?
+(I was reading Documentation/sysctl/vm.txt)
 
-Rik
--- 
-IA64: a worthy successor to i860.
-
-http://www.surriel.com/		http://distro.conectiva.com/
-
-Send all your spam to aardvark@nl.linux.org (spam digging piggy)
-
+P
+(I was reading Documentation/sys/vm.txt

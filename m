@@ -1,46 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278687AbRJSWZU>; Fri, 19 Oct 2001 18:25:20 -0400
+	id <S278685AbRJSWZU>; Fri, 19 Oct 2001 18:25:20 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278688AbRJSWZL>; Fri, 19 Oct 2001 18:25:11 -0400
-Received: from c1313109-a.potlnd1.or.home.com ([65.0.121.190]:56073 "HELO
-	kroah.com") by vger.kernel.org with SMTP id <S278685AbRJSWY5>;
-	Fri, 19 Oct 2001 18:24:57 -0400
-Date: Fri, 19 Oct 2001 15:16:05 -0700
-From: Greg KH <greg@kroah.com>
-To: linux-kernel@vger.kernel.org
-Subject: [PATCH] Hotplug PCI driver for 2.4.13-pre5
-Message-ID: <20011019151605.A1093@kroah.com>
+	id <S278686AbRJSWZL>; Fri, 19 Oct 2001 18:25:11 -0400
+Received: from smtp015.mail.yahoo.com ([216.136.173.59]:7946 "HELO
+	smtp015.mail.yahoo.com") by vger.kernel.org with SMTP
+	id <S278687AbRJSWY7>; Fri, 19 Oct 2001 18:24:59 -0400
+X-Apparently-From: <nietzel@yahoo.com>
+Message-Id: <5.1.0.14.0.20011019235606.00a43a80@pop.mail.yahoo.com>
+X-Mailer: QUALCOMM Windows Eudora Version 5.1
+Date: Sat, 20 Oct 2001 00:27:27 -0700
+To: linux-smp <linux-smp@vger.kernel.org>, linux-kernel@vger.kernel.org
+From: Earle Nietzel <nietzel@yahoo.com>
+Subject: Virtual Wire v.s. APIC
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.23i
-X-Operating-System: Linux 2.2.19 (i586)
+Content-Type: text/plain; charset="us-ascii"; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Under the new 2.4.x series kernel, should you use the APIC mode?
 
-Another release of the PCI Hotplug core and the Compaq PCI Hotplug
-driver for 2.4.13-pre5 is at:
- 	http://www.kroah.com/linux/hotplug/pci-hotplug-2001_10_19-2.4.13-pre5.patch.gz
-With a full changelog at:
- 	http://www.kroah.com/linux/hotplug/pci-hotplug-Changelog
+Or do you have to continue using the Virtual Wire mode?
 
-modutils >= 2.4.10 is required to use this version of the driver.
+Thanks for any answers...
 
-Changes since the last release:
- 	- forward ported to 2.4.13-pre5
-	- no longer needs ddfs.  The PCI Hotplug core is now the pcihpfs
-	  filesystem.
-	- some source code renames to the Compaq driver.
-	- added spinlock to protect the list of hotplug slots.
 
-TODO:
- 	- Port the Linux PPC hotplug pci controller driver to the
-	  hotplug pci core interface, whenever Anton sends me an
-	  updated file...
 
-thanks,
 
-greg k-h
+
+P.S. I am only participating on the linux-smp so any linux-kernel replies 
+please forward me a copy, thanx.
+
+
+_________________________________________________________
+Do You Yahoo!?
+Get your free @yahoo.com address at http://mail.yahoo.com
+

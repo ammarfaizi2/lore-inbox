@@ -1,47 +1,30 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132695AbRDOQXy>; Sun, 15 Apr 2001 12:23:54 -0400
+	id <S132697AbRDOQdf>; Sun, 15 Apr 2001 12:33:35 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132696AbRDOQXp>; Sun, 15 Apr 2001 12:23:45 -0400
-Received: from humbolt.nl.linux.org ([131.211.28.48]:16228 "EHLO
-	humbolt.nl.linux.org") by vger.kernel.org with ESMTP
-	id <S132695AbRDOQXf>; Sun, 15 Apr 2001 12:23:35 -0400
-From: Daniel Phillips <phillips@nl.linux.org>
-To: lk@tantalophile.demon.co.uk, phillips@nl.linux.org
-Subject: Re: [RFC] Ext2 Directory Index - File Structure
-Cc: acahalan@cs.uml.edu, linux-kernel@vger.kernel.org
-Message-Id: <20010415162320Z92253-21911+19@humbolt.nl.linux.org>
-Date: Sun, 15 Apr 2001 18:23:18 +0200
+	id <S132696AbRDOQdZ>; Sun, 15 Apr 2001 12:33:25 -0400
+Received: from quechua.inka.de ([212.227.14.2]:17512 "EHLO mail.inka.de")
+	by vger.kernel.org with ESMTP id <S132697AbRDOQdK>;
+	Sun, 15 Apr 2001 12:33:10 -0400
+To: linux-kernel@vger.kernel.org
+Subject: Re: SCSI tape corruption problem
+In-Reply-To: <200104140823.KAA30162@vulcan.alphanet.ch>
+Date: Sun, 15 Apr 2001 15:04:31 +0200
+From: Olaf Titz <olaf@bigred.inka.de>
+Message-Id: <E14omCe-0003m1-00@hunte.bigred.inka.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->Daniel Phillips wrote:
-> > Jamie Lokier wrote:
-> > > Daniel Phillips wrote:
-> > > > ls already can't handle the directories I'm working with on a regular
-> > > > basis.  It's broken and needs to be fixed.  A merge sort using log n
-> > > > temporary files is not hard to write.
-> > >
-> > > ls -U | sort
-> > >
-> > > should do the trick.
-> >
-> > Um, yep.  Now ls should do that itself instead of giving up with an error.
->
-> Sorting 1 million 30-character strings does not require temporary files
-> on a machine with > 35 MB anyway, and that can be virtual, so if anyone
-> cares about ls sorting huge directories I suggest improving the
-> in-memory sort.
+>    tar cvf - . | gzip -9 | dd of=/dev/tapes/tape0 bs=32k
 
-I got this today:
+I have a tool which compresses individual files in a tar archive
+instead of the whole archive[1]. That one tries hard to write only in
+standard 10kb blocks to emulate tar's behavior towards the drive.
+I'll try in a few days (when I'm back from holidays) if I have this
+error on my scsi tape too (bad) and if the compression program affects
+it.
 
-	ls -U <big directory> 
-	ls: Memory exhausted
+Olaf
 
-Since this occured while nothing else was active, it's probably a MM bug
-and I will chase it further.  However, it also shows that ls is well and
-truly borked.  If anybody is going to work on it I'd suggest not only
-improving the in-memory sort but adding a custom file-based sort or exec
-sort as a fallback.
---
-Daniel
+[1] <URL:http://sites.inka.de/bigred/sw/tarmill-0.22.tar.gz>
+

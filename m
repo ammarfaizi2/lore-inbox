@@ -1,63 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131921AbRABVJG>; Tue, 2 Jan 2001 16:09:06 -0500
+	id <S129563AbRABVKH>; Tue, 2 Jan 2001 16:10:07 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131907AbRABVI4>; Tue, 2 Jan 2001 16:08:56 -0500
-Received: from palrel1.hp.com ([156.153.255.242]:5127 "HELO palrel1.hp.com")
-	by vger.kernel.org with SMTP id <S131889AbRABVIr>;
-	Tue, 2 Jan 2001 16:08:47 -0500
-Message-Id: <200101022039.MAA27208@milano.cup.hp.com>
-To: "David S. Miller" <davem@redhat.com>
-Cc: linux-kernel@vger.kernel.org, alan@lxorguk.ukuu.org.uk,
-        parisc-linux@thepuffingroup.com
-Subject: Re: [PATCH] move xchg/cmpxchg to atomic.h 
-In-Reply-To: Your message of "Tue, 02 Jan 2001 01:03:48 PST."
-             <200101020903.BAA14334@pizda.ninka.net> 
-Date: Tue, 02 Jan 2001 12:39:46 -0800
-From: Grant Grundler <grundler@cup.hp.com>
+	id <S129764AbRABVJ5>; Tue, 2 Jan 2001 16:09:57 -0500
+Received: from piglet.twiddle.net ([207.104.6.26]:64778 "EHLO
+	piglet.twiddle.net") by vger.kernel.org with ESMTP
+	id <S131801AbRABVJl>; Tue, 2 Jan 2001 16:09:41 -0500
+Date: Tue, 2 Jan 2001 12:39:13 -0800
+From: Richard Henderson <rth@twiddle.net>
+To: Ghadi Shayban <ghad@triad.rr.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Error compiling 2.4 with CVS gcc on Athlon
+Message-ID: <20010102123913.A19554@twiddle.net>
+In-Reply-To: <3A523635.8080003@triad.rr.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+X-Mailer: Mutt 1.0pre3us
+In-Reply-To: <3A523635.8080003@triad.rr.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, Jan 02, 2001 at 03:12:37PM -0500, Ghadi Shayban wrote:
+> {standard input}: Assembler messages:
+> {standard input}:139: Error: bad register name `%%mm0'
 
-David,
-Sorry for being dense - but I don't see the problem in using
-a spinlock to implement xchg(). The example algorithm looks broken.
-Or am I missing something obvious here?
+This is, in fact, a compiler bug.  Somehow the "%%" in the
+source didn't print as "%" as expected.
 
-"David S. Miller" wrote:
-> It is very common to do things like:
-> 
-> producer(elem)
-> {
-> 	elem->next = list->head;
-> 	xchg(&list->head, elem);
-> }
-> 
-> consumer()
-> {
-> 	local_list = xchg(&list->head, NULL);
-> 	for_each(elem, local_list)
-> 		do_something(elem);
-> }
 
-producer() looks broken. The problem is two producers can race and
-one will put the wrong value of list->head in elem->next.
-
-I think prepending to list->head needs to either be protected by a spinlock
-or be a per-cpu data structure. consumer() should be ok assuming the code
-can tolerate picking up "late arrivals" in the next pass.
-Or am I missing something obvious here?
-
-It's worse if producer were inlined: the arch specific optimisers might
-re-order the "elem->next = list->head" statement to be quite a bit more
-than 1 or 2 cycles from the xchg() operation.
-
-thanks,
-grant
-
-Grant Grundler
-Unix Systems Enablement Lab
-+1.408.447.7253
+r~
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

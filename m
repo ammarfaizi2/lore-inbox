@@ -1,40 +1,35 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261578AbTDBTbh>; Wed, 2 Apr 2003 14:31:37 -0500
+	id <S261453AbTDBThR>; Wed, 2 Apr 2003 14:37:17 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261620AbTDBTbh>; Wed, 2 Apr 2003 14:31:37 -0500
-Received: from e34.co.us.ibm.com ([32.97.110.132]:48823 "EHLO
-	e34.co.us.ibm.com") by vger.kernel.org with ESMTP
-	id <S261578AbTDBTbg>; Wed, 2 Apr 2003 14:31:36 -0500
-Date: Wed, 02 Apr 2003 11:33:01 -0800
-From: "Martin J. Bligh" <mbligh@aracnet.com>
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: [Bug 533] New: Some PnP Devices - USR Robotics modem do not have a generic name
-Message-ID: <172830000.1049311981@flay>
-X-Mailer: Mulberry/2.1.2 (Linux/x86)
+	id <S261620AbTDBThR>; Wed, 2 Apr 2003 14:37:17 -0500
+Received: from meryl.it.uu.se ([130.238.12.42]:37034 "EHLO meryl.it.uu.se")
+	by vger.kernel.org with ESMTP id <S261453AbTDBThP>;
+	Wed, 2 Apr 2003 14:37:15 -0500
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+Message-ID: <16011.16021.699436.97176@gargle.gargle.HOWL>
+Date: Wed, 2 Apr 2003 21:48:37 +0200
+From: mikpe@csd.uu.se
+To: Andi Kleen <ak@suse.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH][2.4.21-pre6] update x86_64 for kernel_thread change
+In-Reply-To: <1049311995.10050.47.camel@averell>
+References: <16011.14209.703212.772185@gargle.gargle.HOWL>
+	<1049311995.10050.47.camel@averell>
+X-Mailer: VM 6.90 under Emacs 20.7.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-http://bugme.osdl.org/show_bug.cgi?id=533
+Andi Kleen writes:
+ > On Wed, 2003-04-02 at 21:18, Mikael Pettersson wrote:
+ > > Building an x86_64 kernel from 2.4.21-pre6 results in two linkage
+ > > errors due to the recent kernel_thread to arch_kernel_thread name change.
+ > > This patch updates x86_64 for that change.
+ > 
+ > You need more changes to fix the ptrace hole completely.
 
-           Summary: Some PnP Devices - USR Robotics modem do not have a
-                    generic name
-    Kernel Version: 2.5.5x-2.5.66-bk3+
-            Status: NEW
-          Severity: normal
-             Owner: ambx1@neo.rr.com
-         Submitter: spstarr@sh0n.net
+More generic fixes or more x86_64-specific fixes?
 
-
-Distribution: LFS
-Hardware Environment: IBM 300PL 6892-N2U (Katmai) 300Mhz
-Problem Description: the ID USR0006's PnP name entry in the generic driver name
-file is missing, should be "U.S. Robotics Sportster 33600 FAX/Voice Int" this is
-displayed when PnP detects the device on boot however.
-
-Currently, it is empty (null).
-
+/Mikael

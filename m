@@ -1,66 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262561AbREZXYf>; Sat, 26 May 2001 19:24:35 -0400
+	id <S262580AbREZX0Z>; Sat, 26 May 2001 19:26:25 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262573AbREZXY0>; Sat, 26 May 2001 19:24:26 -0400
+	id <S262358AbREZXYW>; Sat, 26 May 2001 19:24:22 -0400
 Received: from zeus.kernel.org ([209.10.41.242]:20647 "EHLO zeus.kernel.org")
-	by vger.kernel.org with ESMTP id <S262561AbREZW6v>;
-	Sat, 26 May 2001 18:58:51 -0400
-Date: Sat, 26 May 2001 20:14:42 +0200
+	by vger.kernel.org with ESMTP id <S262569AbREZW6x>;
+	Sat, 26 May 2001 18:58:53 -0400
+Date: Sat, 26 May 2001 17:03:06 +0200
 From: Andrea Arcangeli <andrea@suse.de>
-To: "Ingo T. Storm" <it@lapavoni.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.4.5 does not link on Ruffian (alpha)
-Message-ID: <20010526201442.D1834@athlon.random>
-In-Reply-To: <3B0BFE90.CE148B7@kjist.ac.kr> <20010523210923.A730@athlon.random> <022e01c0e5fc$39ac0cf0$2e2ca8c0@buxtown.de> <20010526193649.B1834@athlon.random>
+To: Rik van Riel <riel@conectiva.com.br>
+Cc: Ben LaHaise <bcrl@redhat.com>, Linus Torvalds <torvalds@transmeta.com>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
+Subject: Re: Linux-2.4.5
+Message-ID: <20010526170306.X9634@athlon.random>
+In-Reply-To: <20010526163233.U9634@athlon.random> <Pine.LNX.4.21.0105261135200.30264-100000@imladris.rielhome.conectiva>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20010526193649.B1834@athlon.random>; from andrea@suse.de on Sat, May 26, 2001 at 07:36:49PM +0200
+In-Reply-To: <Pine.LNX.4.21.0105261135200.30264-100000@imladris.rielhome.conectiva>; from riel@conectiva.com.br on Sat, May 26, 2001 at 11:36:22AM -0300
 X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
 X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, May 26, 2001 at 07:36:49PM +0200, Andrea Arcangeli wrote:
-> I got exactly the above when compiling for dp264 so I sent to Linus a
-> patch to fix those compile problems, now I suspect my fix broke the
-> generic compile :(, I will check that.
+On Sat, May 26, 2001 at 11:36:22AM -0300, Rik van Riel wrote:
+> On Sat, 26 May 2001, Andrea Arcangeli wrote:
+> > > No Comment(tm)   *grin*
+> > 
+> > I'm having lots of fun, thanks.
+> 
+> Now _this_ is tweaking magic limits ;)
 
-2.4.5aa1 compiles fine, but 2.4.5 doesn't, don't know why yet. Please
-backout this patch from 2.4.5 for now, this should be the right thing to
-do in the long run:
-
-diff -urN alpha/arch/alpha/kernel/sys_dp264.c alpha-1/arch/alpha/kernel/sys_dp264.c
---- alpha/arch/alpha/kernel/sys_dp264.c	Sun Apr  1 01:17:07 2001
-+++ alpha-1/arch/alpha/kernel/sys_dp264.c	Wed May 23 02:43:49 2001
-@@ -16,15 +16,18 @@
- #include <linux/pci.h>
- #include <linux/init.h>
- 
-+#define __EXTERN_INLINE inline
-+#include <asm/io.h>
-+#include <asm/core_tsunami.h>
-+#undef  __EXTERN_INLINE
-+
- #include <asm/ptrace.h>
- #include <asm/system.h>
- #include <asm/dma.h>
- #include <asm/irq.h>
- #include <asm/bitops.h>
- #include <asm/mmu_context.h>
--#include <asm/io.h>
- #include <asm/pgtable.h>
--#include <asm/core_tsunami.h>
- #include <asm/hwrpb.h>
- 
- #include "proto.h"
-
-
-Now I will start a robot that will tell me in some hour of computations
-which of the patches in my tree actually makes me to need the above
-patch to compile both generic and dp264 correctly. After I localized the
-offender patch it should be very easy to found why I need the above and
-2.4.5 doesn't.
+Others agreed that the real source of the create_buffers could be just
+too few reserved pages in the unused_list, the unused_list is the only
+"deadlock avoidance logic" designed to avoid create_buffers to deadlock,
+so I really don't see why you don't listen to me and you just assume my
+idea is obviously wrong while it obviously isn't. The only thing I can
+do is to laugh while reading your illogical "No Comment(tm)   *grin*",
+if I would take such comment serously I would just ignore the VM and
+stay in other subsystem where those funny things never happens as far I
+can tell, which I'm not going to do just because of your new funny "No
+Comment(tm) *grin*". If for any reason you notice I somehow invite those
+things to happen please let me know and I will certainly try to get
+better from my part.
 
 Andrea

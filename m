@@ -1,30 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262795AbSJLDtr>; Fri, 11 Oct 2002 23:49:47 -0400
+	id <S262794AbSJLDtn>; Fri, 11 Oct 2002 23:49:43 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262796AbSJLDtr>; Fri, 11 Oct 2002 23:49:47 -0400
-Received: from dp.samba.org ([66.70.73.150]:32733 "EHLO lists.samba.org")
-	by vger.kernel.org with ESMTP id <S262795AbSJLDtr>;
-	Fri, 11 Oct 2002 23:49:47 -0400
-Date: Sat, 12 Oct 2002 13:51:41 +1000
-From: Anton Blanchard <anton@samba.org>
-To: Dave Hansen <haveblue@us.ibm.com>
-Cc: lkml <linux-kernel@vger.kernel.org>
+	id <S262795AbSJLDtm>; Fri, 11 Oct 2002 23:49:42 -0400
+Received: from 2-225.ctame701-1.telepar.net.br ([200.193.160.225]:44977 "EHLO
+	2-225.ctame701-1.telepar.net.br") by vger.kernel.org with ESMTP
+	id <S262794AbSJLDtm>; Fri, 11 Oct 2002 23:49:42 -0400
+Date: Sat, 12 Oct 2002 00:55:08 -0300 (BRT)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: riel@imladris.surriel.com
+To: "David S. Miller" <davem@redhat.com>
+cc: haveblue@us.ibm.com, <linux-kernel@vger.kernel.org>
 Subject: Re: [lart] /bin/ps output
-Message-ID: <20021012035141.GC7050@krispykreme>
-References: <3DA798B6.9070400@us.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3DA798B6.9070400@us.ibm.com>
-User-Agent: Mutt/1.4i
+In-Reply-To: <20021011.203806.38715834.davem@redhat.com>
+Message-ID: <Pine.LNX.4.44L.0210120054030.22735-100000@imladris.surriel.com>
+X-spambait: aardvark@kernelnewbies.org
+X-spammeplease: aardvark@nl.linux.org
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, 11 Oct 2002, David S. Miller wrote:
 
-> Man, this looks ugly.  I'm just waiting for Bill Irwin, or Anton to 
-> trump me, though.
+	[ 8 gazillion kernel threads ]
 
-Id like to oblige but I hear the list has a 100kB limit :)
+> We could make them threads of process 0 :-)
 
-Anton
+That was my first thought too, but on second thought I think we've
+got an excessive amount of kernel threads and should do something
+about that...
+
+regards,
+
+Rik
+-- 
+Bravely reimplemented by the knights who say "NIH".
+http://www.surriel.com/		http://distro.conectiva.com/
+Current spamtrap:  <a href=mailto:"october@surriel.com">october@surriel.com</a>
+

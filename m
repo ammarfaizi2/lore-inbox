@@ -1,41 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id <S130473AbQK1VIw>; Tue, 28 Nov 2000 16:08:52 -0500
+        id <S130867AbQK1VJW>; Tue, 28 Nov 2000 16:09:22 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-        id <S130299AbQK1VIm>; Tue, 28 Nov 2000 16:08:42 -0500
-Received: from tahallah.claranet.co.uk ([212.126.138.206]:28166 "EHLO
-        tahallah.clara.co.uk") by vger.kernel.org with ESMTP
-        id <S130007AbQK1VIh>; Tue, 28 Nov 2000 16:08:37 -0500
-Date: Tue, 28 Nov 2000 16:36:53 +0000 (GMT)
-From: Alex Buell <alex.buell@tahallah.clara.co.uk>
-Reply-To: <alex.buell@tahallah.clara.co.uk>
-To: "Jeff V. Merkey" <jmerkey@timpanogas.org>
-cc: Mailing List - Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: 2.2.18-23 w/Frame Buffer (LEVEL IV)
-In-Reply-To: <3A22E894.4E15E71@timpanogas.org>
-Message-ID: <Pine.LNX.4.30.0011281635410.5212-100000@tahallah.clara.co.uk>
+        id <S130866AbQK1VJD>; Tue, 28 Nov 2000 16:09:03 -0500
+Received: from battlejitney.wdhq.scyld.com ([216.254.93.178]:44795 "EHLO
+        vaio.greennet") by vger.kernel.org with ESMTP id <S130299AbQK1VI4>;
+        Tue, 28 Nov 2000 16:08:56 -0500
+Date: Tue, 28 Nov 2000 15:41:10 -0500 (EST)
+From: Donald Becker <becker@scyld.com>
+To: Eli Carter <eli.carter@inet.com>
+cc: linux-kernel@vger.kernel.org, alan@lxorguk.ukuu.org.uk
+Subject: Re: [PATCH] lance.c - dev_kfree_skb() then reference skb->len
+In-Reply-To: <3A23F490.69688B84@inet.com>
+Message-ID: <Pine.LNX.4.10.10011281534540.862-100000@vaio.greennet>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 27 Nov 2000, Jeff V. Merkey wrote:
+On Tue, 28 Nov 2000, Eli Carter wrote:
 
-> A level IV issue in 2.2.18-23.  With frame buffer enabled, upon boot,
-> the OS is displaying four penguin images instead of one penguin in the
-> upper left corner of the screen.  Looks rather tacky.  Also puts the
-> VGA text mode default into mode 274.  Is this what's supposed to
-> happen?
+> Patch is against 2.2.17, drivers/net/lance.c.
+> I believe this to be "obviously correct," but please correct me if I'm
+> wrong.
+> This moves a reference to skb->len to before the possible
+> dev_kfree_skb(skb) call.  Though it appears to work as is, I suspect it
+> is incorrect.
 
-Have you ever used a box with more than one processor? Looks like you have
-four processors on that box.
+This patch looks reasonable.
 
-Cheers,
-Alex
--- 
-Tie me up, tie me down!
+Perhaps it would be better to have the driver retain the skbuff until the
+transmit succeeds, and only then add the length to the stats.  But this
+specific bug is related the ISA bounce buffer code.  Any ISA card is in
+the "legacy" category, so it's better to make minimal change needed to
+correct the obvious potential problem.
 
-http://www.tahallah.clara.co.uk
+
+
+Donald Becker				becker@scyld.com
+Scyld Computing Corporation		http://www.scyld.com
+410 Severn Ave. Suite 210		Second Generation Beowulf Clusters
+Annapolis MD 21403			410-990-9993
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

@@ -1,43 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317622AbSGFGVJ>; Sat, 6 Jul 2002 02:21:09 -0400
+	id <S317497AbSGFHpv>; Sat, 6 Jul 2002 03:45:51 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317623AbSGFGVI>; Sat, 6 Jul 2002 02:21:08 -0400
-Received: from holomorphy.com ([66.224.33.161]:385 "EHLO holomorphy")
-	by vger.kernel.org with ESMTP id <S317622AbSGFGVG>;
-	Sat, 6 Jul 2002 02:21:06 -0400
-Date: Fri, 5 Jul 2002 23:22:44 -0700
-From: William Lee Irwin III <wli@holomorphy.com>
-To: john slee <indigoid@higherplane.net>
-Cc: Peter Svensson <petersv@psv.nu>, linux-kernel@vger.kernel.org
-Subject: Re: x86 Page Sizes
-Message-ID: <20020706062244.GT22961@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	john slee <indigoid@higherplane.net>,
-	Peter Svensson <petersv@psv.nu>, linux-kernel@vger.kernel.org
-References: <1025129491.1144.7.camel@icbm> <Pine.LNX.4.44.0206270832400.1602-100000@cheetah.psv.nu> <20020706003616.GB17010@higherplane.net>
+	id <S317533AbSGFHpu>; Sat, 6 Jul 2002 03:45:50 -0400
+Received: from kweetal.tue.nl ([131.155.2.7]:18449 "EHLO kweetal.tue.nl")
+	by vger.kernel.org with ESMTP id <S317497AbSGFHpt>;
+	Sat, 6 Jul 2002 03:45:49 -0400
+Date: Sat, 6 Jul 2002 09:48:24 +0200
+From: Andries Brouwer <aebr@win.tue.nl>
+To: Bill Davidsen <davidsen@tmr.com>
+Cc: Adrian Bunk <bunk@fs.tum.de>, Jochen Suckfuell <jo-lkml@suckfuell.net>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Disk IO statistics still buggy
+Message-ID: <20020706074824.GA24771@win.tue.nl>
+References: <Pine.NEB.4.44.0207042030350.14934-100000@mimas.fachschaften.tu-muenchen.de> <Pine.LNX.3.96.1020706000838.12039A-100000@gatekeeper.tmr.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Description: brief message
 Content-Disposition: inline
-In-Reply-To: <20020706003616.GB17010@higherplane.net>
+In-Reply-To: <Pine.LNX.3.96.1020706000838.12039A-100000@gatekeeper.tmr.com>
 User-Agent: Mutt/1.3.25i
-Organization: The Domain of Holomorphy
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jun 27, 2002 at 08:35:05AM +0200, Peter Svensson wrote:
->> The x86 cpus can use 4K or 4M pages in the hardware. The 4M pages are 
+On Sat, Jul 06, 2002 at 12:15:47AM -0400, Bill Davidsen wrote:
 
-On Sat, Jul 06, 2002 at 10:36:17AM +1000, john slee wrote:
-> DDJ ran an article quite a few years on this very topic.  i'm sure they
-> also mentioned that some processors (ppro/p2 onwards?) are capable of
-> 2MiB pages
+> > Marcelos' BK repository (that will become 2.4.19-rc2) includes a patch to
+> > remove these statistics completely from /proc/partitions...
+> 
+> Is this the new Linux way of life? Removing modules is hard, GET RID OF
+> THE FEATURE! Stats in /proc/partitions are not always correct, GET RID OF
+> THE FEATURE!
 
-This has been rehashed too many times. There is a nice table in Intel's
-processor manuals (the 3rd volumes on System Programming) describing
-which combinations of options give which page sizes.
+Shouting and exclamation marks - a bad sign.
 
+You are mistaken. This has never been a feature.
+It is not in 2.4.18, and it looks like it will not be in 2.4.19.
 
-Cheers,
-Bill
+It is in some vendor kernels, but it is ugly and causes various problems.
+If somebody cares about having statistics she should submit a patch
+adding /proc/diskstat.
+
+Andries

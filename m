@@ -1,50 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264882AbUGBS2w@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264880AbUGBS3Q@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264882AbUGBS2w (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 2 Jul 2004 14:28:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264884AbUGBS2w
+	id S264880AbUGBS3Q (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 2 Jul 2004 14:29:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264884AbUGBS3Q
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 2 Jul 2004 14:28:52 -0400
-Received: from pixpat.austin.ibm.com ([192.35.232.241]:48500 "EHLO
-	falcon10.austin.ibm.com") by vger.kernel.org with ESMTP
-	id S264882AbUGBS2v (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 2 Jul 2004 14:28:51 -0400
-Message-Id: <200407021828.i62ISFkh008489@falcon10.austin.ibm.com>
-X-Mailer: exmh version 2.6.3 04/04/2003 with nmh-1.1
-In-reply-to: <20040702165013.GB25914@apps.cwi.nl> 
-To: Andries Brouwer <Andries.Brouwer@cwi.nl>
-cc: Szakacsits Szabolcs <szaka@sienet.hu>,
-       "Patrick J. LoPresti" <patl@users.sourceforge.net>, bug-parted@gnu.org,
-       "K.G." <k_guillaume@libertysurf.fr>,
-       Steffen Winterfeldt <snwint@suse.de>, Thomas Fehr <fehr@suse.de>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [RFC] Restoring HDIO_GETGEO semantics (was: Re: workaround for BIOS / CHS stuff) 
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Fri, 02 Jul 2004 13:28:15 -0500
-From: dwm@austin.ibm.com
+	Fri, 2 Jul 2004 14:29:16 -0400
+Received: from hera.cwi.nl ([192.16.191.8]:31427 "EHLO hera.cwi.nl")
+	by vger.kernel.org with ESMTP id S264880AbUGBS3K (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 2 Jul 2004 14:29:10 -0400
+Date: Fri, 2 Jul 2004 20:28:54 +0200 (MEST)
+From: <Andries.Brouwer@cwi.nl>
+Message-Id: <UTC200407021828.i62ISse29171.aeb@smtp.cwi.nl>
+To: akpm@osdl.org, hirofumi@mail.parknet.co.jp, torvalds@osdl.org
+Subject: [PATCH] fat/inode.c
+Cc: linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Two years ago, OGAWA Hirofumi removed some ugly code and
+added a few simple tests to the FAT filesystem code,
+intended to avoid recognizing non-FAT as FAT (for people who
+fail to specify rootfstype=, forcing the kernel to guess).
 
-On Fri, 02 Jul 2004 18:50:13 +0200, Andries Brouwer wrote:
->On Fri, Jul 02, 2004 at 06:17:53PM +0200, Szakacsits Szabolcs wrote:
->
->> Please also note, so far nobody stepped forward to fix parted.
->
->Nobody asked, but I wouldnt mind fixing this particular
->aspect of parted.
->
->If nobody else wants to maintain it I can take it, but then
->"maintain" means: zero development, just bugfixes.
->
->Andries
+That worked fairly well, until this year.
+I have now seen a thread in Czech and a report from Holland
+that involved the "FAT: bogus sectors-per-track value"
+error message.
 
-Andries,
+The patch below removes this test again. The advantage is that
+some real-life FAT filesystems can be mounted again.
+The disadvantage that more non-FAT fss will be accepted as FAT.
 
-  Any chance I could put my hat in the ring, so to speak, to be the 
-  maintainer?
+Ferry van Steen <freaky@bananateam.nl> reports
+"the patch Andries Brouwer gave me seems to work".
 
-++doug
+Signed-off-by: Andries Brouwer <aeb@cwi.nl>
 
-
+diff -uprN -X /linux/dontdiff a/fs/fat/inode.c b/fs/fat/inode.c
+--- a/fs/fat/inode.c	2004-06-24 17:11:20
++++ b/fs/fat/inode.c	2004-07-02 19:25:21
+@@ -830,18 +830,12 @@ int fat_fill_super(struct super_block *s
+ 		brelse(bh);
+ 		goto out_invalid;
+ 	}
+-	if (!b->secs_track) {
+-		if (!silent)
+-			printk(KERN_ERR "FAT: bogus sectors-per-track value\n");
+-		brelse(bh);
+-		goto out_invalid;
+-	}
+-	if (!b->heads) {
+-		if (!silent)
+-			printk(KERN_ERR "FAT: bogus number-of-heads value\n");
+-		brelse(bh);
+-		goto out_invalid;
+-	}
++
++	/*
++	 * Earlier we checked here that b->secs_track and b->head are nonzero,
++	 * but it turns out valid FAT filesystems can have zero there.
++	 */
++
+ 	media = b->media;
+ 	if (!FAT_VALID_MEDIA(media)) {
+ 		if (!silent)

@@ -1,48 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272935AbTG3QAL (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 30 Jul 2003 12:00:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272932AbTG3QAL
+	id S272974AbTG3QGZ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 30 Jul 2003 12:06:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272976AbTG3QGZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 30 Jul 2003 12:00:11 -0400
-Received: from mailgw.cvut.cz ([147.32.3.235]:47578 "EHLO mailgw.cvut.cz")
-	by vger.kernel.org with ESMTP id S272959AbTG3QAB (ORCPT
+	Wed, 30 Jul 2003 12:06:25 -0400
+Received: from [217.222.53.238] ([217.222.53.238]:19467 "EHLO mail.gts.it")
+	by vger.kernel.org with ESMTP id S272974AbTG3QGX (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 30 Jul 2003 12:00:01 -0400
-From: "Petr Vandrovec" <VANDROVE@vc.cvut.cz>
-Organization: CC CTU Prague
-To: Wakko Warner <wakko@animx.eu.org>
-Date: Wed, 30 Jul 2003 17:59:39 +0200
+	Wed, 30 Jul 2003 12:06:23 -0400
+Message-ID: <3F27ECFA.5020005@gts.it>
+Date: Wed, 30 Jul 2003 18:06:18 +0200
+From: Stefano Rivoir <s.rivoir@gts.it>
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.4b) Gecko/20030507
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-type: text/plain; charset=US-ASCII
-Content-transfer-encoding: 7BIT
-Subject: Re: matroxfb and 2.6.0-test2
-Cc: linux-kernel@vger.kernel.org
-X-mailer: Pegasus Mail v3.50
-Message-ID: <8B72D532CC7@vcnet.vc.cvut.cz>
+To: Andrew Morton <akpm@osdl.org>
+Cc: lista1@telia.com, linux-kernel@vger.kernel.org
+Subject: Re: Disk performance degradation
+References: <20030729182138.76ff2d96.lista1@telia.com>	<3F2786E9.9010808@gts.it> <20030730035524.65cfc39a.akpm@osdl.org>
+In-Reply-To: <20030730035524.65cfc39a.akpm@osdl.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 30 Jul 03 at 11:43, Wakko Warner wrote:
-> > I assume that machine is otherwise OK. Can you capture 'dmesg' from
-> > such boot and post them?
+Andrew Morton wrote:
+
+> Stefano Rivoir <s.rivoir@gts.it> wrote:
+
+>>Thanks for the hint. This seems to make things a little better, but I'm
+>>still far away from 2.4 performances. I thought that anticipatory sched
+>>could be part of the problem, and booting with elevator=deadline
+>>does a little better... but using 2.4 is completely another thing.
+>>By the way, -a 512 vs -a 8 is a kernel "change" or an hdpam one?
 > 
-> First: 2.6.0-test2 does not come up with a blank screen.
+> 
+> What makes you think it is a disk performance problem at all?  All we know
+> is that KDE applications take longer to start up, yes?
 
-What is on screen? Correct 640x480 picture?
+> How much memory is in that machine?  Can you run a `vmstat 1' trace during
+> the "slow" operations?
 
-> Second: using fbset to set another mode (1024x768-60) causes a blank screen
-> but changing vts gives me the screen back.  It must be using a different
-> frequency since the screen is not inthe same place.  setting 680x480-60
-> makes it look right again.  The actual resolution doesn't appear to change. 
-> If I have enough written to the screen after issueing the 1024x768, the text
-> becomes garbled (old text seems to interlace into current.
+I think I've got it. 2.4 fails to load DRI, so when X is up there is
+memory available until the load of gnucash, the last operation. 2.6
+loads dri and probably this eats too much too early, causing the
+system to touch swap since the first operation after X startup. This
+does not happen anymore disabling DRI in X.
 
-Do you use matroxfb-2.5.72 patch or not? You are not supposed to use
-fbset on stock 2.6.x kernel (without patch above), you should use
-stty cols & rows to set videomode under 2.6.x kernels (you can try
-using fbset -pixclock to set refresh, but never change picture size
-through fbset).
-                                            Petr Vandrovec
-                                            
+Sorry for wasting your time :(
+
+Thanks.
+
+-- 
+Stefano RIVOIR
+GTS Srl
+
+
 

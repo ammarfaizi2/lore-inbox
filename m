@@ -1,51 +1,54 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316529AbSEPATq>; Wed, 15 May 2002 20:19:46 -0400
+	id <S316530AbSEPA1a>; Wed, 15 May 2002 20:27:30 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316530AbSEPATo>; Wed, 15 May 2002 20:19:44 -0400
-Received: from vladimir.pegasys.ws ([64.220.160.58]:40716 "HELO
-	vladimir.pegasys.ws") by vger.kernel.org with SMTP
-	id <S316529AbSEPASL>; Wed, 15 May 2002 20:18:11 -0400
-Date: Wed, 15 May 2002 17:18:06 -0700
-From: jw schultz <jw@pegasys.ws>
-To: "Bloch, Jack" <Jack.Bloch@icn.siemens.com>
-Cc: "'linux-kernel@vger.kernel.org.'" <linux-kernel@vger.kernel.org>
-Subject: Re: Device driver question
-Message-ID: <20020515171806.L840@pegasys.ws>
-Mail-Followup-To: jw schultz <jw@pegasys.ws>,
-	"Bloch, Jack" <Jack.Bloch@icn.siemens.com>,
-	"'linux-kernel@vger.kernel.org.'" <linux-kernel@vger.kernel.org>
-In-Reply-To: <180577A42806D61189D30008C7E632E87938E1@boca213a.boca.ssc.siemens.com>
+	id <S316531AbSEPA13>; Wed, 15 May 2002 20:27:29 -0400
+Received: from CPE00c0f0141dc1.cpe.net.cable.rogers.com ([24.42.47.5]:43919
+	"EHLO jukie.net") by vger.kernel.org with ESMTP id <S316530AbSEPA12>;
+	Wed, 15 May 2002 20:27:28 -0400
+Date: Wed, 15 May 2002 20:27:20 -0400
+From: Bart Trojanowski <bart@jukie.net>
+To: linux-kernel@vger.kernel.org
+Subject: Q: x86 interrupt arrival after cli
+Message-ID: <20020515202720.D15996@jukie.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed; micalg=pgp-md5;
+	protocol="application/pgp-signature"; boundary="bajzpZikUji1w+G9"
 Content-Disposition: inline
-User-Agent: Mutt/1.3.12i
+User-Agent: Mutt/1.2.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, May 15, 2002 at 09:17:21AM -0400, Bloch, Jack wrote:
-> I am relatively new to Linux (< 6 months). We have designed an embedded
-> system (on compact PCI) running on a Pentium III 700Mhz cPCI machine. This
-> machine supports upt to 6 cPCI boards for specific functions (this is our
-> own HW). I have already written the device drivers for these boards and the
-> system is running. I have a specific case where our HW can generate a
-> special interrupt. In this case I simply want the ISR to halt the system
-> (i.e. take the same action as if I typed halt from the command line). How
-> can I from within my device driver cause a halt? Please CC me specifically
-> on any replies.
-> 
-> Thanks in advance. 
 
-I am assuming you are running more than just the kernel.
-You could just post a signal to init (pid 1).
-SIGINT would be a top candidate.
+--bajzpZikUji1w+G9
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Take a look at powerd, init and inittab.
+Quick question for the x86 gurus:
 
+If a hardware interrupt arrives within a spin_lock_irqsave &
+spin_unlock_irqrestore will the interrupt handler associated with said
+interrupt be called immediately after the spinlock is released? =20
 
--- 
-________________________________________________________________
-	J.W. Schultz            Pegasystems Technologies
-	email address:		jw@pegasys.ws
+I am interested in any delays, even those less then a jiffie.
 
-		Remember Cernan and Schmitt
+Cheers,
+Bart.
+
+--=20
+				WebSig: http://www.jukie.net/~bart/sig/
+
+--bajzpZikUji1w+G9
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.7 (GNU/Linux)
+
+iD8DBQE84vzo/zRZ1SKJaI8RAhagAKDer6aYff+OKpbaC+8rtpp2tQTATQCdHJ54
+3Ult9tqMO4zeSsQW+xQsZTc=
+=m91A
+-----END PGP SIGNATURE-----
+
+--bajzpZikUji1w+G9--

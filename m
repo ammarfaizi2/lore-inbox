@@ -1,41 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280904AbRKYP7T>; Sun, 25 Nov 2001 10:59:19 -0500
+	id <S280897AbRKYP6t>; Sun, 25 Nov 2001 10:58:49 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280907AbRKYP7K>; Sun, 25 Nov 2001 10:59:10 -0500
-Received: from yinyang.hjsoft.com ([205.231.166.38]:9735 "EHLO
-	yinyang.hjsoft.com") by vger.kernel.org with ESMTP
-	id <S280904AbRKYP7B>; Sun, 25 Nov 2001 10:59:01 -0500
-Date: Sun, 25 Nov 2001 10:55:31 -0500 (EST)
-From: "Mr. Shannon Aldinger" <god@yinyang.hjsoft.com>
-Reply-To: god@yinyang.hjsoft.com
+	id <S280904AbRKYP6j>; Sun, 25 Nov 2001 10:58:39 -0500
+Received: from mailout05.sul.t-online.com ([194.25.134.82]:8402 "EHLO
+	mailout05.sul.t-online.de") by vger.kernel.org with ESMTP
+	id <S280897AbRKYP6d>; Sun, 25 Nov 2001 10:58:33 -0500
+Subject: Re: PATCH: gcc3.0.2 workaround for 8139too
+From: Ali Akcaagac <ali.akcaagac@stud.fh-wilhelmshaven.de>
 To: linux-kernel@vger.kernel.org
-Subject: Re: Severe Linux 2.4 kernel memory leakage
-In-Reply-To: <1006702226.1316.2.camel@gandalf.chabotc.com>
-Message-ID: <Pine.LNX.4.40.0111251053390.7809-100000@yinyang.hjsoft.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+In-Reply-To: <slrna02427.3v.reneb@orac.aais.org>
+In-Reply-To: <1006394515.14661.0.camel@ulixys>
+	<1006691124.320.0.camel@ulixys>  <slrna02427.3v.reneb@orac.aais.org>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/0.99.2 (Preview Release)
+Date: 25 Nov 2001 16:57:59 +0100
+Message-Id: <1006703880.5039.0.camel@ulixys>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+On Sun, 2001-11-25 at 16:37, Rene Blokland wrote:
+> cd d*/n*
+> sh ../../foo
+> cd /linux
+> make
+> There you go!
 
-On 25 Nov 2001, Chris Chabot wrote:
+ok, i haven't tested this and don't even know if this works here. i for
+now belive that it will work but that error has a _reason_ to happen for
+some unknown issues. i'd better go for a cleaner solution right now then
+forcing some crashes that _may_ happen because of borked _assembly_ code
+that may be generated..
 
-> Of 430Mb, (counting ps aux res values), just below 80 Mb is used by the
-> applications. the rest is just 'missing'.
->
+what i am thinking now (and i may be wrong). let's say i compile it your
+way everything will be fine no visible errors and so on. now i use that
+driver. everything works but under certain circumstances it may jump
+into that CASE and crash because the compilers wasn't able to create a
+clean code for it.
 
-Are you using tmpfs, that had problems in the earlier 2.4.x's IIRC.
+at least it was a quick solution to solve my personal needs that i
+wanted to share with others maybe people not so involved into fixing
+stuff.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.6 (GNU/Linux)
-Comment: Made with pgp4pine 1.76
+but thank you. i will try this one out as soon as i update my kernel :)
 
-iEYEARECAAYFAjwBFHwACgkQwtU6L/A4vVDmzgCeITZ6/njcztWClfPfthOGTnfE
-io8An0l2BPZIyJGhhXijFfYoTl/OsTyL
-=Q2bB
------END PGP SIGNATURE-----
-
+-- 
+Name....: Ali Akcaagac
+Status..: Student Of Computer & Economic Science
+E-Mail..: mailto:ali.akcaagac@stud.fh-wilhelmshaven.de
+WWW.....: http://www.fh-wilhelmshaven.de/~akcaagaa
 

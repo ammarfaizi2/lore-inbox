@@ -1,56 +1,72 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265062AbUAAUzc (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 Jan 2004 15:55:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264931AbUAAUzI
+	id S265413AbUAAVC1 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 Jan 2004 16:02:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264879AbUAAVB4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 Jan 2004 15:55:08 -0500
-Received: from amsfep14-int.chello.nl ([213.46.243.22]:2398 "EHLO
-	amsfep14-int.chello.nl") by vger.kernel.org with ESMTP
-	id S264933AbUAAUDs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 Jan 2004 15:03:48 -0500
-Date: Thu, 1 Jan 2004 21:03:45 +0100
-Message-Id: <200401012003.i01K3jc7031963@callisto.of.borg>
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-To: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>
-Cc: Linux Kernel Development <linux-kernel@vger.kernel.org>,
-       Geert Uytterhoeven <geert@linux-m68k.org>
-Subject: [PATCH 390] Amiga Buddha/CatWeasel IDE
+	Thu, 1 Jan 2004 16:01:56 -0500
+Received: from colo.khms.westfalen.de ([213.239.196.208]:64910 "EHLO
+	colo.khms.westfalen.de") by vger.kernel.org with ESMTP
+	id S264884AbUAAU4K (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 1 Jan 2004 15:56:10 -0500
+Date: 01 Jan 2004 21:43:00 +0200
+From: kaih@khms.westfalen.de (Kai Henningsen)
+To: linux-kernel@vger.kernel.org
+Message-ID: <900eUExXw-B@khms.westfalen.de>
+In-Reply-To: <200401010634.28559.rob@landley.net>
+Subject: Re: udev and devfs - The final word
+X-Mailer: CrossPoint v3.12d.kh12 R/C435
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Organization: Organisation? Me?! Are you kidding?
+References: <18Cz7-7Ep-7@gated-at.bofh.it> <20040101001549.GA17401@win.tue.nl> <1072917113.11003.34.camel@fur> <1072917113.11003.34.camel@fur> <200401010634.28559.rob@landley.net>
+X-No-Junk-Mail: I do not want to get *any* junk mail.
+Comment: Unsolicited commercial mail will incur an US$100 handling fee per received mail.
+X-Fix-Your-Modem: +++ATS2=255&WO1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Buddha/CatWeasel IDE: Make sure the core IDE driver doesn't try to request the
-MMIO ports a second time, since this will fail.
+rob@landley.net (Rob Landley)  wrote on 01.01.04 in <200401010634.28559.rob@landley.net>:
 
---- linux-2.6.0/drivers/ide/legacy/buddha.c	2003-02-25 10:21:12.000000000 +0100
-+++ linux-m68k-2.6.0/drivers/ide/legacy/buddha.c	2003-12-07 10:44:56.000000000 +0100
-@@ -146,6 +146,7 @@
- void __init buddha_init(void)
- {
- 	hw_regs_t hw;
-+	ide_hwif_t *hwif;
- 	int i, index;
- 
- 	struct zorro_dev *z = NULL;
-@@ -212,8 +213,9 @@
- 						IRQ_AMIGA_PORTS);
- 			}	
- 			
--			index = ide_register_hw(&hw, NULL);
-+			index = ide_register_hw(&hw, &hwif);
- 			if (index != -1) {
-+				hwif->mmio = 2;
- 				printk("ide%d: ", index);
- 				switch(type) {
- 				case BOARD_BUDDHA:
+> On Wednesday 31 December 2003 18:31, Rob Love wrote:
+> > On Wed, 2003-12-31 at 19:15, Andries Brouwer wrote:
+> > > My plan has been to essentially use a hashed disk serial number
+> > > for this "any old unique value". The problem is that "any old"
+> > > is easy enough, but "unique" is more difficult.
+> > > Naming devices is very difficult, but in some important cases,
+> > > like SCSI or IDE disks, that would work and give a stable name.
+> >
+> > Yup.
+> >
+> > > The kernel must not invent consecutive numbers - that does not
+> > > lead to stable names. Setting this up correctly is nontrivial.
+> >
+> > This is definitely an interesting problem space.
+> >
+> > I agree wrt just inventing consecutive numbers.  If there was a nice way
+> > to trivially generate a random and unique number from some
+> > device-inherent information, that would be nice.
+> >
+> > 	Rob Love
+>
+> Fundamental problem: "Unique" depends on the other devices in the system.
+> You can't guarantee unique by looking at one device, more or less by
+> definition.
 
-Gr{oetje,eeting}s,
+This is actually not fundamental at all.
 
-						Geert
+The best-known exception is probably the MAC address. But it is not the  
+only example of devices having true unique information.
 
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+It is certainly true, though, that there are devices without this kind of  
+info.
 
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-							    -- Linus Torvalds
+And remember that you can sometimes use secondary information. With any  
+kind of read-write storage device, it might be possible to create such a  
+piece of information and store it onto that device.
+
+Moral: keep the identifier creation framework flexible enough so that you  
+can chose device-specific means to produce useful identifiers. (And, use  
+long identifiers, as they're less likely to be duplicated in general.)
+
+MfG Kai

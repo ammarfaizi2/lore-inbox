@@ -1,68 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263117AbUHJJiS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263733AbUHJJix@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263117AbUHJJiS (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 Aug 2004 05:38:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263733AbUHJJiS
+	id S263733AbUHJJix (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 Aug 2004 05:38:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263740AbUHJJix
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 Aug 2004 05:38:18 -0400
-Received: from mail.dt.e-technik.Uni-Dortmund.DE ([129.217.163.1]:7315 "EHLO
-	mail.dt.e-technik.uni-dortmund.de") by vger.kernel.org with ESMTP
-	id S263117AbUHJJiM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 Aug 2004 05:38:12 -0400
-Date: Tue, 10 Aug 2004 11:38:12 +0200
-From: Matthias Andree <matthias.andree@gmx.de>
-To: Joerg Schilling <schilling@fokus.fraunhofer.de>
-Cc: axboe@suse.de, James.Bottomley@steeleye.com, alan@lxorguk.ukuu.org.uk,
-       eric@lammerts.org, linux-kernel@vger.kernel.org
-Subject: Re: PATCH: cdrecord: avoiding scsi device numbering for ide devices
-Message-ID: <20040810093812.GH10361@merlin.emma.line.org>
-Mail-Followup-To: Joerg Schilling <schilling@fokus.fraunhofer.de>,
-	axboe@suse.de, James.Bottomley@steeleye.com,
-	alan@lxorguk.ukuu.org.uk, eric@lammerts.org,
-	linux-kernel@vger.kernel.org
-References: <200408091443.i79EhYKP010656@burner.fokus.fraunhofer.de>
+	Tue, 10 Aug 2004 05:38:53 -0400
+Received: from holomorphy.com ([207.189.100.168]:34279 "EHLO holomorphy.com")
+	by vger.kernel.org with ESMTP id S263733AbUHJJiq (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 10 Aug 2004 05:38:46 -0400
+Date: Tue, 10 Aug 2004 02:38:31 -0700
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Ingo Molnar <mingo@elte.hu>, Jesse Barnes <jbarnes@engr.sgi.com>,
+       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       Nick Piggin <nickpiggin@yahoo.com.au>
+Subject: Re: 2.6.8-rc3-mm2
+Message-ID: <20040810093831.GM11200@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	Ingo Molnar <mingo@elte.hu>, Jesse Barnes <jbarnes@engr.sgi.com>,
+	Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+	Nick Piggin <nickpiggin@yahoo.com.au>
+References: <20040809112550.2ea19dbf.akpm@osdl.org> <200408091132.39752.jbarnes@engr.sgi.com> <200408091217.50786.jbarnes@engr.sgi.com> <20040809195323.GU11200@holomorphy.com> <20040809204357.GX11200@holomorphy.com> <20040809211042.GY11200@holomorphy.com> <20040809224546.GZ11200@holomorphy.com> <20040810063445.GE11200@holomorphy.com> <20040810080430.GA25866@elte.hu> <20040810090051.GK11200@holomorphy.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <200408091443.i79EhYKP010656@burner.fokus.fraunhofer.de>
-User-Agent: Mutt/1.5.6i
+In-Reply-To: <20040810090051.GK11200@holomorphy.com>
+User-Agent: Mutt/1.5.6+20040722i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Joerg Schilling schrieb am 2004-08-09:
+On Mon, Aug 09, 2004 at 03:45:46PM -0700, William Lee Irwin III wrote:
+>>> None of the printk()'s in do_boot_cpu() appear essential. The
+>>> following also boots:
 
-> 
-> >From: Jens Axboe <axboe@suse.de>
-> 
-> >> Please try again after you had a look into the cdrtools sources.
-> >> 
-> >> Cdrecord also needs privilleges to lock memory and to raise prioirity.
-> 
-> >They are not required, or at least not with the version I use. It warns
-> >of failing to set priority and lock memory, I can continue fine though.
-> >With the casual burning of CDs I do, it's never been a problem.
-> 
-> You should believe people who know better.....
+On Tue, Aug 10, 2004 at 10:04:30AM +0200, Ingo Molnar wrote:
+>> the key seems to be not doing fork_idle() call via keventd?
+>> i'm wondering about:
 
-J�rg, this is insulting. Who knows better than Jens if his computer has
-needed burn-proof and if his writes have been successful?  You for one
-don't. I don't either but at least I don't claim to.
+On Tue, Aug 10, 2004 at 02:00:51AM -0700, William Lee Irwin III wrote:
+> It deadlocks with or without the fork_idle() call being via keventd;
+> the printk change is what makes the difference. =(
 
-There may be problems with insufficient privileges, problems when pages
-aren't locked into memory, problems when cdrecord doesn't have realtime
-priority, but that doesn't mean everyone encounters them.
+Okay, it deadlocks with both mdelay(1000) and yield() in place of the
+printk(). Trying manual calls to schedule() and local_irq_enable() next.
 
-The maintainer's (your) definition of "works" or "no problem" and the
-end user's definition of "works" or "no problem" differ by an order of
-magnitude. Such is a developer's life.
 
-So consider refining the warnings and tell users what CAN happen if they
-continue without root privileges and add a 15 s timer so they can read,
-abort and retry with sudo.
-
--- 
-Matthias Andree
-
-NOTE YOU WILL NOT RECEIVE MY MAIL IF YOU'RE USING SPF!
-Encrypted mail welcome: my GnuPG key ID is 0x052E7D95 (PGP/MIME preferred)
+-- wli

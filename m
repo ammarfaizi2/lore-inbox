@@ -1,47 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267801AbUHUUbg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267793AbUHUUf4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267801AbUHUUbg (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 21 Aug 2004 16:31:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267793AbUHUUbf
+	id S267793AbUHUUf4 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 21 Aug 2004 16:35:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267797AbUHUUf4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 21 Aug 2004 16:31:35 -0400
-Received: from mustang.oldcity.dca.net ([216.158.38.3]:58836 "HELO
-	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S267801AbUHUUbM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 21 Aug 2004 16:31:12 -0400
-Subject: Re: Linux Incompatibility List
-From: Lee Revell <rlrevell@joe-job.com>
-To: Wakko Warner <wakko@animx.eu.org>
-Cc: "David N. Welton" <davidw@dedasys.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <20040821202058.GA9218@animx.eu.org>
-References: <87r7q0th2n.fsf@dedasys.com>
-	 <20040821201632.GA7622@digitasaru.net> <20040821202058.GA9218@animx.eu.org>
-Content-Type: text/plain
-Message-Id: <1093120274.854.145.camel@krustophenia.net>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Sat, 21 Aug 2004 16:31:14 -0400
+	Sat, 21 Aug 2004 16:35:56 -0400
+Received: from omx3-ext.sgi.com ([192.48.171.20]:53647 "EHLO omx3.sgi.com")
+	by vger.kernel.org with ESMTP id S267793AbUHUUfy (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 21 Aug 2004 16:35:54 -0400
+From: Jesse Barnes <jbarnes@engr.sgi.com>
+To: William Lee Irwin III <wli@holomorphy.com>
+Subject: Re: 2.6.8.1-mm3
+Date: Sat, 21 Aug 2004 16:35:45 -0400
+User-Agent: KMail/1.6.2
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+References: <20040820031919.413d0a95.akpm@osdl.org> <200408211559.41655.jbarnes@engr.sgi.com> <20040821202435.GA1510@holomorphy.com>
+In-Reply-To: <20040821202435.GA1510@holomorphy.com>
+MIME-Version: 1.0
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Message-Id: <200408211635.46227.jbarnes@engr.sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2004-08-21 at 16:20, Wakko Warner wrote:
-> > >Ideas/comments/suggestions are welcome at this stage.
-> > 
-> > Sounds interesting; is there a vendor blacklist (i.e. vendors that are
-> >   either hostile toward or simply don't care about Linux and their products
-> >   just won't ever work with Linux?)
-> 
-> Broadcom's wireless chips come to mind...
+On Saturday, August 21, 2004 4:24 pm, William Lee Irwin III wrote:
+> Yet this criterion involves no performance metric; if it were a
+> benchmark it would quantify performance in a meaningful, reproducible,
+> and cross-system comparable way. AFAICT it's just being used as a
+> stress test for the dcache RCU issue.
 
-Nvidia.  AFAIK all nvidia Linux drivers are either binary-only or
-reverse-engineered.
+Sorry, I should have been clearer, I was only disagreeing with the last part: 
+"There is also precisely zero relevance the benchmark has to anything real 
+users would do."  Making kernbench run fast isn't a priority, but making sure 
+it doesn't run slow and hurt other apps is important, so in that sense it's a 
+useful benchmark, even if we're just using it as a load like you say above.
 
-To add insult to injury they have a stupid 20+page 'Nvidia Linux
-Advantage' whitepaper on their site that conveniently fails to mention
-the above.  They probably spent more money for some marketroid to put
-that together than they ever spent on actually supporting Linux.
+> On Sat, Aug 21, 2004 at 03:59:41PM -0400, Jesse Barnes wrote:
+> > Yep, I'm very excited about this.  It makes working with such systems to
+> > improve other things infinitely easier (i.e. possible).
+>
+> Stress test again...
 
-Lee
+Huh?  I guess booting on a machine this big is something of a stress test. :)
 
+> On Sat, Aug 21, 2004 at 03:59:41PM -0400, Jesse Barnes wrote:
+> > Well, this isn't a very good benchmark for discovering things that we
+> > don't already know (e.g. dcache and RCU issues).  Now that things appear
+> > to be working however, we can start doing more realistic benchmarks.
+>
+> I'll be happy to see those happen instead of kernel compiles. =)
+
+Yep, me too (though kernbench *is* frighteningly easy to setup and run :).
+
+> I can take it for a spin here to make sure it does the right thing.
+
+Ok, thanks.
+
+Jesse

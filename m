@@ -1,56 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135182AbRDLNGZ>; Thu, 12 Apr 2001 09:06:25 -0400
+	id <S135178AbRDLNMq>; Thu, 12 Apr 2001 09:12:46 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135184AbRDLNGP>; Thu, 12 Apr 2001 09:06:15 -0400
-Received: from smtp4vepub.gte.net ([206.46.170.25]:64631 "EHLO
-	smtp4ve.mailsrvcs.net") by vger.kernel.org with ESMTP
-	id <S135182AbRDLNGF>; Thu, 12 Apr 2001 09:06:05 -0400
-Message-ID: <3AD5A7C4.D740ED74@neuronet.pitt.edu>
-Date: Thu, 12 Apr 2001 09:04:04 -0400
-From: "Rafael E. Herrera" <raffo@neuronet.pitt.edu>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.3 i686)
-X-Accept-Language: en
+	id <S135179AbRDLNMg>; Thu, 12 Apr 2001 09:12:36 -0400
+Received: from ns.suse.de ([213.95.15.193]:24070 "HELO Cantor.suse.de")
+	by vger.kernel.org with SMTP id <S135178AbRDLNMY>;
+	Thu, 12 Apr 2001 09:12:24 -0400
+Date: Thu, 12 Apr 2001 15:12:23 +0200 (CEST)
+From: Dave Jones <davej@suse.de>
+To: Steven Cole <elenstev@mesatop.com>
+Cc: <esr@thyrsus.com>, Aaron Lehmann <aaronl@vitelus.com>,
+        Michael Elizabeth Chastain <chastain@cygnus.com>,
+        <kbuild-devel@lists.sourceforge.net>, <linux-kernel@vger.kernel.org>
+Subject: Re: [kbuild-devel] Re: CML2 1.0.0 release announcement
+In-Reply-To: <01041206002400.19748@gopnik.dom-duraki>
+Message-ID: <Pine.LNX.4.30.0104121506110.13766-100000@Appserv.suse.de>
 MIME-Version: 1.0
-To: Petr Vandrovec <VANDROVE@vc.cvut.cz>
-CC: Chris Meadors <clubneon@hereintown.net>, linux-kernel@vger.kernel.org,
-        linux-fbdev@vuser.vu.union.edu
-Subject: Re: [PATCH] matroxfb and mga XF4 driver coexistence...
-In-Reply-To: <4BEDDEE649D@vcnet.vc.cvut.cz>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Petr Vandrovec wrote:
-> 
-> On 11 Apr 01 at 14:55, Chris Meadors wrote:
-> >
-> > I would like to see this fixed as much as anyone (even complained to the
-> > XFree people from SuSE last ALS).  But I don't think the fix should be in
-> > the kernel.  XF4 needs to be fixed.  The problem doesn't just effect the
-> > maxtroxfb, but also the vgacon video mode selection.
-> 
-> But only users using matroxfb complains to me and/or to linux-kernel ;-)
-> You know, it worked last week, but it does not work anymore today. And
-> only thing I changed was kernel. So it must be in kernel...
-> 
-> > If I put anything other than "normal" or "extended" in the "vga=" line of
-> > my lilo.conf the machine starts okay, but upon exiting X bad stuff
-> 
-> It is first time I see that other drivers than mga one has troubles.
+On Thu, 12 Apr 2001, Steven Cole wrote:
 
-I think he's referrig to the matrox cards. I have mentioned this
-happening to me in this list. I've a G450, if I use anything other than
-'normal', going in and out of X makes my text console go blank. I don't
-use the frame buffer, by the way.
- 
-> > I don't use the matroxfb driver so this patch wouldn't help me, and is
-> > also why I say XFree 4.0 needs to be fixed.
-> 
-> Buy matrox and use matroxfb. It will fix problem for you, then...
+> Excuse me, but this seems to be something of a red herring.
+> ...
+>  Adding seconds or tens of seconds at this time on 2001 hardware will
+> seem very moot by the time 2.5/2.6 is at the point 2.4.x is now.
 
-If the problem occurs whithout the frame buffer on, the problem seems to
-be on the X server.
--- 
-     Rafael
+Adding tens of seconds per build is not acceptable when you're building
+a lot of kernels each day.
+
+The beginning of this thread showed a 15 second stall on an Athlon 800,
+vs a 1 second startup for the old system. The point now is that
+Eric _is_ working on improving the performance. (Which was probably
+in another post you missed).
+
+> If you haven't seen my posts here before, I just joined this list last night.
+
+Find a list archive, read the beginning of the thread.
+
+regards,
+
+Dave.
+

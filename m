@@ -1,102 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261715AbVBEJJx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263639AbVBEJLu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261715AbVBEJJx (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 5 Feb 2005 04:09:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266512AbVBEJI1
+	id S263639AbVBEJLu (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 5 Feb 2005 04:11:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264829AbVBEJLt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 5 Feb 2005 04:08:27 -0500
-Received: from postfix3-1.free.fr ([213.228.0.44]:31205 "EHLO
-	postfix3-1.free.fr") by vger.kernel.org with ESMTP id S263925AbVBEJHJ
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 5 Feb 2005 04:07:09 -0500
-Message-ID: <42048CBC.8070700@free.fr>
-Date: Sat, 05 Feb 2005 10:07:08 +0100
-From: matthieu castet <castet.matthieu@free.fr>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.5) Gecko/20050105 Debian/1.7.5-1
-X-Accept-Language: fr-fr, en, en-us
-MIME-Version: 1.0
-To: matthieu castet <castet.matthieu@free.fr>
-Cc: Linux Kernel list <linux-kernel@vger.kernel.org>,
-       Len Brown <len.brown@intel.com>, acpi-devel@lists.sourceforge.net
-Subject: Re: [PATCH] PNPACPI parser fix
-References: <4203AFC5.8070308@free.fr>
-In-Reply-To: <4203AFC5.8070308@free.fr>
-Content-Type: multipart/mixed;
- boundary="------------000704070800050502040905"
+	Sat, 5 Feb 2005 04:11:49 -0500
+Received: from gate.crashing.org ([63.228.1.57]:23272 "EHLO gate.crashing.org")
+	by vger.kernel.org with ESMTP id S264094AbVBEJLC (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 5 Feb 2005 04:11:02 -0500
+Subject: Re: [PATCH] PPC/PPC64: Introduce CPU_HAS_FEATURE() macro
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Olof Johansson <olof@austin.ibm.com>
+Cc: Pekka Enberg <penberg@gmail.com>,
+       linuxppc64-dev <linuxppc64-dev@ozlabs.org>,
+       linuxppc-dev list <linuxppc-dev@ozlabs.org>,
+       Linux Kernel list <linux-kernel@vger.kernel.org>,
+       Paul Mackerras <paulus@samba.org>, Anton Blanchard <anton@samba.org>,
+       Tom Rini <trini@kernel.crashing.org>, "H. Peter Anvin" <hpa@zytor.com>,
+       Andrew Morton <akpm@osdl.org>, penberg@cs.helsinki.fi
+In-Reply-To: <20050204172041.GA17586@austin.ibm.com>
+References: <20050204072254.GA17565@austin.ibm.com>
+	 <84144f0205020400172d89eddf@mail.gmail.com>
+	 <20050204172041.GA17586@austin.ibm.com>
+Content-Type: text/plain
+Date: Sat, 05 Feb 2005 20:08:53 +1100
+Message-Id: <1107594534.30270.3.camel@gaston>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.3 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------000704070800050502040905
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+On Fri, 2005-02-04 at 11:20 -0600, Olof Johansson wrote:
+> On Fri, Feb 04, 2005 at 10:17:48AM +0200, Pekka Enberg wrote:
+> > Please drop the CPU_FTR_##x macro magic as it makes grepping more
+> > complicated. If the enum names are too long, just do s/CPU_FTR_/CPU_/g
+> > or something similar. Also, could you please make this a static inline
+> > function?
 
-Hi,
+I tend to agree with Pekka...
 
-matthieu castet wrote:
-> Hi,
+> I considered that for a while, but decided against it because:
 > 
-> This patch is very old (11/2004), but never get merged even if acked by 
-> Shaohua Li.
-> As you can see in the bugzilla report 
-> (http://bugzilla.kernel.org/show_bug.cgi?id=3912), it solve parsing 
-> issue in the pnpacpi core : the pnpacpi parser supposed that are no
-> resource after EndDependentFn.
-> 
-> Please apply this patch.
-> Thanks.
-> 
-> Matthieu CASTET
+> * cpu-has-feature(cpu-feature-foo) v cpu-has-feature(foo): I picked the
+> latter for readability.
 
-oops, the attachement was wrong.
+I don't think it really matters compared to the usefullness of grep, and
+is still more readable than the old way...
 
-Here is the patch.
+> * Renaming CPU_FTR_<x> -> CPU_<x> makes it less obvious that
+> it's actually a cpu feature it's describing (i.e. CPU_ALTIVEC vs
+> CPU_FTR_ALTIVEC).
+
+Agreed.
+
+> * Renaming would clobber the namespace, CPU_* definitions are used in
+> other places in the tree.
+> * Can't make it an inline and still use the preprocessor concatenation.
+
+I'd like to keep the constants as-is and have the stuff inline with no
+macro trick as Pekka suggest since I did use grep on those things quite
+often.
+
+> That being said, you do have a point about grepability. However,
+> personally I'd be more likely to look for CPU_HAS_FEATURE than the
+> feature itself when reading the code, and would find that easily. The
+> other way around (finding all uses of a feature) is harder, but the
+> concatenation macro is right below the bit definitions and easy to spot.
+
+No, when I grep, i'm looking for the feature itself...
+
+Ben.
 
 
-Regards,
-
-Matthieu
-
---------------000704070800050502040905
-Content-Type: text/x-patch;
- name="pnpacpi_parser.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="pnpacpi_parser.patch"
-
---- linux-2.6.9/drivers/pnp/pnpacpi/rsparser.c.old	2004-11-12 22:55:10.000000000 +0100
-+++ linux-2.6.9/drivers/pnp/pnpacpi/rsparser.c	2004-11-20 10:44:36.000000000 +0100
-@@ -443,6 +443,7 @@
- 
- struct acpipnp_parse_option_s {
- 	struct pnp_option *option;
-+	struct pnp_option *option_independent;
- 	struct pnp_dev *dev;
- };
- 
-@@ -506,7 +507,15 @@
- 			parse_data->option = option;	
- 			break;
- 		case ACPI_RSTYPE_END_DPF:
--			return AE_CTRL_TERMINATE;
-+			/*only one EndDependentFn is allowed*/
-+			if (!parse_data->option_independent) {
-+				pnp_warn("PnPACPI: more than one EndDependentFn");
-+				return AE_ERROR;
-+			}
-+			parse_data->option = parse_data->option_independent;
-+			parse_data->option_independent = NULL;
-+			break;
- 		default:
- 			pnp_warn("PnPACPI:Option type: %d not handle", res->id);
- 			return AE_ERROR;
-@@ -524,6 +533,7 @@
- 	parse_data.option = pnp_register_option_independent(dev);
- 	if (!parse_data.option)
- 		return AE_ERROR;
-+	parse_data.option_independent = parse_data.option;
- 	parse_data.dev = dev;
- 	status = acpi_walk_resources(handle, METHOD_NAME__PRS, 
- 		pnpacpi_option_resource, &parse_data);
-
---------------000704070800050502040905--

@@ -1,77 +1,107 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317221AbSGZHLC>; Fri, 26 Jul 2002 03:11:02 -0400
+	id <S317269AbSGZHL7>; Fri, 26 Jul 2002 03:11:59 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317253AbSGZHLC>; Fri, 26 Jul 2002 03:11:02 -0400
-Received: from samba.sourceforge.net ([198.186.203.85]:9689 "HELO
-	lists.samba.org") by vger.kernel.org with SMTP id <S317221AbSGZHLB>;
-	Fri, 26 Jul 2002 03:11:01 -0400
-From: Rusty Trivial Russell <rusty@rustcorp.com.au>
-To: akpm@zip.com.au, linux-kernel@vger.kernel.org
-Subject: [TRIVIAL] implement kmem_cache_size
-Date: Fri, 26 Jul 2002 16:45:33 +1000
-Message-Id: <20020726071520.361F44806@lists.samba.org>
+	id <S317276AbSGZHL6>; Fri, 26 Jul 2002 03:11:58 -0400
+Received: from [195.63.194.11] ([195.63.194.11]:56582 "EHLO
+	mail.stock-world.de") by vger.kernel.org with ESMTP
+	id <S317269AbSGZHLz>; Fri, 26 Jul 2002 03:11:55 -0400
+Message-ID: <3D40F5CE.8010705@evision.ag>
+Date: Fri, 26 Jul 2002 09:10:06 +0200
+From: Marcin Dalecki <dalecki@evision.ag>
+Reply-To: martin@dalecki.de
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1b) Gecko/20020722
+X-Accept-Language: en-us, en, pl, ru
+MIME-Version: 1.0
+To: Linus Torvalds <torvalds@transmeta.com>
+CC: Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: [PATCH] 2.5.28 IDE 103
+References: <Pine.LNX.4.33.0207241410040.3542-100000@penguin.transmeta.com>
+Content-Type: multipart/mixed;
+ boundary="------------050200000404040905070608"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From:  Christoph Hellwig <hch@lst.de>
+This is a multi-part message in MIME format.
+--------------050200000404040905070608
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 
-  Currently there is no way to find out the effective object size of a slab
-  cache.  XFS has lots of IRIX-derived code that want to do zalloc() style
-  allocations on zones (which are implemented as slab caches in XFS/Linux)
-  and thus needs to know about it.  There are three ways do implement it:
-  
-  a) implement kmem_cache_zalloc
-  b) make the xfs zone a struct of kmem_cache_t and a size variable
-  c) implement kmem_cache_size
-  
-  The current XFS tree does a) but I absolutely don't like it as encourages
-  people to use kmem_cache_zalloc for new code instead of thinking about
-  how to utilize slab object reuse.  b) would be easy, but I guess
-  kmem_cache_size is usefull enough to get into the kernel.
-  
-  Trivial patch to implement  kmem_cache_size (doesn't change any existing
-  code) appended:
-  
-  
+- Remove pseudo headers for nonexisting support of not existing
+   hardware from Big Black Boxen code.
 
---- trivial-2.5.28/include/linux/slab.h.orig	Fri Jul 26 16:37:00 2002
-+++ trivial-2.5.28/include/linux/slab.h	Fri Jul 26 16:37:00 2002
-@@ -57,6 +57,7 @@
- extern int kmem_cache_shrink(kmem_cache_t *);
- extern void *kmem_cache_alloc(kmem_cache_t *, int);
- extern void kmem_cache_free(kmem_cache_t *, void *);
-+extern unsigned int kmem_cache_size(kmem_cache_t *);
- 
- extern void *kmalloc(size_t, int);
- extern void kfree(const void *);
---- trivial-2.5.28/kernel/ksyms.c.orig	Fri Jul 26 16:37:00 2002
-+++ trivial-2.5.28/kernel/ksyms.c	Fri Jul 26 16:37:00 2002
-@@ -105,6 +105,7 @@
- EXPORT_SYMBOL(kmem_cache_shrink);
- EXPORT_SYMBOL(kmem_cache_alloc);
- EXPORT_SYMBOL(kmem_cache_free);
-+EXPORT_SYMBOL(kmem_cache_size);
- EXPORT_SYMBOL(kmalloc);
- EXPORT_SYMBOL(kfree);
- EXPORT_SYMBOL(vfree);
---- trivial-2.5.28/mm/slab.c.orig	Fri Jul 26 16:37:00 2002
-+++ trivial-2.5.28/mm/slab.c	Fri Jul 26 16:37:00 2002
-@@ -1647,6 +1647,15 @@
- 	local_irq_restore(flags);
- }
- 
-+unsigned int kmem_cache_size(kmem_cache_t *cachep)
-+{
-+#if DEBUG
-+	if (cachep->flags & SLAB_RED_ZONE)
-+		return (cachep->objsize - 2*BYTES_PER_WORD);
-+#endif
-+	return cachep->objsize;
-+}
-+
- kmem_cache_t * kmem_find_general_cachep (size_t size, int gfpflags)
- {
- 	cache_sizes_t *csizep = cache_sizes;
--- 
-  Don't blame me: the Monkey is driving
+--------------050200000404040905070608
+Content-Type: text/plain;
+ name="ide-103.diff"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="ide-103.diff"
+
+diff -durNp -x '*.[ao]' -x '*~' -x '*.cmd' -x '*.orig' -x '*.rej' -x 'vmlinu*' -x bzImage -x bootsect -x conmakehash -x setup -x build -x asm -x config -x '.*' -x consolemap_deftbl.c -x defkeymap.c -x devlist.h -x classlist.h -x autoconf.h -x compile.h -x version.h -x System.map -x gen-devlist -x fixdep -x split-include linux-2.5.28/include/asm-s390/hdreg.h linux/include/asm-s390/hdreg.h
+--- linux-2.5.28/include/asm-s390/hdreg.h	2002-07-24 23:03:31.000000000 +0200
++++ linux/include/asm-s390/hdreg.h	1970-01-01 01:00:00.000000000 +0100
+@@ -1,13 +0,0 @@
+-/*
+- *  linux/include/asm-arm/hdreg.h
+- *
+- *  Copyright (C) 1994-1996  Linus Torvalds & authors
+- */
+-
+-#ifndef __ASMS390_HDREG_H
+-#define __ASMS390_HDREG_H
+-
+-typedef unsigned long ide_ioreg_t;
+-
+-#endif /* __ASMS390_HDREG_H */
+-
+diff -durNp -x '*.[ao]' -x '*~' -x '*.cmd' -x '*.orig' -x '*.rej' -x 'vmlinu*' -x bzImage -x bootsect -x conmakehash -x setup -x build -x asm -x config -x '.*' -x consolemap_deftbl.c -x defkeymap.c -x devlist.h -x classlist.h -x autoconf.h -x compile.h -x version.h -x System.map -x gen-devlist -x fixdep -x split-include linux-2.5.28/include/asm-s390/ide.h linux/include/asm-s390/ide.h
+--- linux-2.5.28/include/asm-s390/ide.h	2002-07-24 23:03:28.000000000 +0200
++++ linux/include/asm-s390/ide.h	1970-01-01 01:00:00.000000000 +0100
+@@ -1,27 +0,0 @@
+-/*
+- *  linux/include/asm-s390/ide.h
+- *
+- *  Copyright (C) 1994-1996  Linus Torvalds & authors
+- */
+-
+-/* s390 does not have IDE */
+-
+-#ifndef __ASMS390_IDE_H
+-#define __ASMS390_IDE_H
+-
+-#ifdef __KERNEL__
+-
+-#ifndef MAX_HWIFS
+-#define MAX_HWIFS	0
+-#endif
+-
+-/*
+- * We always use the new IDE port registering,
+- * so these are fixed here.
+- */
+-#define ide_default_io_base(i)		((ide_ioreg_t)0)
+-#define ide_default_irq(b)		(0)
+-
+-#endif /* __KERNEL__ */
+-
+-#endif /* __ASMS390_IDE_H */
+diff -durNp -x '*.[ao]' -x '*~' -x '*.cmd' -x '*.orig' -x '*.rej' -x 'vmlinu*' -x bzImage -x bootsect -x conmakehash -x setup -x build -x asm -x config -x '.*' -x consolemap_deftbl.c -x defkeymap.c -x devlist.h -x classlist.h -x autoconf.h -x compile.h -x version.h -x System.map -x gen-devlist -x fixdep -x split-include linux-2.5.28/include/asm-s390x/hdreg.h linux/include/asm-s390x/hdreg.h
+--- linux-2.5.28/include/asm-s390x/hdreg.h	2002-07-24 23:03:31.000000000 +0200
++++ linux/include/asm-s390x/hdreg.h	1970-01-01 01:00:00.000000000 +0100
+@@ -1,13 +0,0 @@
+-/*
+- *  linux/include/asm-arm/hdreg.h
+- *
+- *  Copyright (C) 1994-1996  Linus Torvalds & authors
+- */
+-
+-#ifndef __ASMS390_HDREG_H
+-#define __ASMS390_HDREG_H
+-
+-typedef unsigned long ide_ioreg_t;
+-
+-#endif /* __ASMS390_HDREG_H */
+-
+
+--------------050200000404040905070608--
+

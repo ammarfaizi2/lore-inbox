@@ -1,75 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261939AbUCJEgZ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 9 Mar 2004 23:36:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261943AbUCJEgZ
+	id S262000AbUCJFHh (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 10 Mar 2004 00:07:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262072AbUCJFHh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 Mar 2004 23:36:25 -0500
-Received: from ext-ch1gw-3.online-age.net ([216.34.191.37]:1699 "EHLO
-	ext-ch1gw-3.online-age.net") by vger.kernel.org with ESMTP
-	id S261939AbUCJEgX convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 Mar 2004 23:36:23 -0500
-X-MimeOLE: Produced By Microsoft Exchange V6.0.6521.0
-content-class: urn:content-classes:message
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Subject: RE: PROBLEM::  irreversible Memory growth of process in mmap()-munmap() calls 
-Date: Wed, 10 Mar 2004 10:06:12 +0530
-Message-ID: <62DD37292ED5464CBB142913FC65F8AB0A5C3B2E@BANMLVEM01.e2k.ad.ge.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: PROBLEM::  irreversible Memory growth of process in mmap()-munmap() calls 
-Thread-Index: AcQF22J/c7dRuVQMQviHPHLb+CwLPgAfxXTw
-From: "Kumar, Rajneesh \(MED\)" <rajneesh.kumar@med.ge.com>
-To: "Michael Frank" <mhf@linuxmail.org>, <linux-kernel@vger.kernel.org>
-X-OriginalArrivalTime: 10 Mar 2004 04:36:17.0711 (UTC) FILETIME=[3A88B3F0:01C40659]
+	Wed, 10 Mar 2004 00:07:37 -0500
+Received: from smtp9.wanadoo.fr ([193.252.22.22]:28404 "EHLO
+	mwinf0901.wanadoo.fr") by vger.kernel.org with ESMTP
+	id S262000AbUCJFHe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 10 Mar 2004 00:07:34 -0500
+Date: Wed, 10 Mar 2004 06:08:04 +0000
+From: Philippe Elie <phil.el@wanadoo.fr>
+To: Thomas Schlichter <thomas.schlichter@web.de>
+Cc: Andrew Morton <akpm@osdl.org>, Andreas Schwab <schwab@suse.de>,
+       linux-kernel@vger.kernel.org, "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>
+Subject: Re: [2.6.4-rc2] bogus semicolon behind if()
+Message-ID: <20040310060804.GB2958@zaniah>
+References: <200403090014.03282.thomas.schlichter@web.de> <20040308162947.4d0b831a.akpm@osdl.org> <20040309070127.GA2958@zaniah> <200403091208.20556.thomas.schlichter@web.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200403091208.20556.thomas.schlichter@web.de>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, 09 Mar 2004 at 12:08 +0000, Thomas Schlichter wrote:
 
-The program  was originally compiled on gcc 3.3.2.  Is that a problem ?
+> As I wrote a few days ago I have problems with that ChangeSet,
+>   (http://marc.theaimsgroup.com/?l=linux-kernel&m=107840458123059&w=2)
+> so I did examine it closer.
 
- Would appriciate your help.
+errmm, http://tinyurl.com/2jbe4
 
+Maciej, you wrote this patch, any comment ?
 
+> so I did examine it closer.
+> 
+> My results are:
+> 1. The semicolons behind the if()'s cannot be there intentionally.
+> 2. To fix my problem, timer_ack must be set to 1 for my (integrated) APIC, and 
+> as my CPU has a TSC, this cannot be correct for me:
+> -	timer_ack = 1;
+> +	if (nmi_watchdog == NMI_IO_APIC && !APIC_INTEGRATED(ver))
+> +		timer_ack = 1;
+> +	else
+> +		timer_ack = !cpu_has_tsc;
 
-
-
-
-Regards
-Rajneesh Kumar
-
-GSP, GEMS-GTO
-GE Medical Systems
-John F Welch Technology Center
-#152, EPIP. Phase 2
-Whitefield, Bangalore.560 066
-
-Ph :        (080) - 2503 3412
-Dialcom: *901 3412
-mail:       rajneesh.kumar@med.ge.com
-
-
------Original Message-----
-From: Michael Frank [mailto:mhf@linuxmail.org]
-Sent: Tuesday, March 09, 2004 5:20 PM
-To: Kumar, Rajneesh (MED); linux-kernel@vger.kernel.org
-Subject: Re: PROBLEM:: irreversible Memory growth of process in
-mmap()-munmap() calls 
+I don't get the figure, this code in check_timer() is called by
+setup_IO_APIC so APIC_INTEGRATED(ver) is always 0 ?
 
 
+> I changed that if(...) to
+> 	if (nmi_watchdog == NMI_IO_APIC || APIC_INTEGRATED(ver))
+> which works fine for me here, but I am not 100% sure if this is what the 
+> author of the original patch ment and if it still fixes the original 
+> problem...
+ 
+
+regards,
+Phil
 
 
-On Tue, 9 Mar 2004 14:50:35 +0530, Kumar, Rajneesh (MED) <rajneesh.kumar@med.ge.com> wrote:
-> [1.] One line summary of the problem:   irreversible Memory growth of process in mmap()-munmap() calls
-> 1) Linux ( Compiled with gcc 3.2.2) :  The memory size of process grows when files are mapped during first iteration of while loop. But there in no change in size after unmapping the file. However My expectations was drop in size of memory after munmap( ). On more point of interest  is  there is no
-growth in memory after subsequent iterations of while loop.
-
-Assuming you are talking about x86, gcc322 has produced the crappiest kernel code ever encountered. Even simple userspace apps got broen by it.
-
-Suggest to change compilers to gcc295 or gcc323+ or gcc331+.
-
-Regards
-Michael

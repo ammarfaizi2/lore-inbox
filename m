@@ -1,49 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S276014AbRJBJ42>; Tue, 2 Oct 2001 05:56:28 -0400
+	id <S275994AbRJBJ42>; Tue, 2 Oct 2001 05:56:28 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S276010AbRJBJ4K>; Tue, 2 Oct 2001 05:56:10 -0400
-Received: from ns.ithnet.com ([217.64.64.10]:1038 "HELO heather.ithnet.com")
-	by vger.kernel.org with SMTP id <S275999AbRJBJz5>;
-	Tue, 2 Oct 2001 05:55:57 -0400
-Date: Tue, 2 Oct 2001 11:56:20 +0200
-From: Stephan von Krawczynski <skraw@ithnet.com>
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Problem compiling aic7xxx_old.c in 2.4.11-pre2
-Message-Id: <20011002115620.636a7c9b.skraw@ithnet.com>
-Organization: ith Kommunikationstechnik GmbH
-X-Mailer: Sylpheed version 0.6.2 (GTK+ 1.2.10; i686-pc-linux-gnu)
+	id <S275999AbRJBJ4N>; Tue, 2 Oct 2001 05:56:13 -0400
+Received: from mail.zmailer.org ([194.252.70.162]:30220 "EHLO zmailer.org")
+	by vger.kernel.org with ESMTP id <S275994AbRJBJzr>;
+	Tue, 2 Oct 2001 05:55:47 -0400
+Date: Tue, 2 Oct 2001 12:56:14 +0300
+From: Matti Aarnio <matti.aarnio@zmailer.org>
+To: Pavel Machek <pavel@suse.cz>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Ethernet Error Correction
+Message-ID: <20011002125614.M1144@mea-ext.zmailer.org>
+In-Reply-To: <20010925223437.A21831@atrey.karlin.mff.cuni.cz> <20010926004345.D11046@mea-ext.zmailer.org> <20010927142251.A58@toy.ucw.cz> <20011002112921.A7117@suse.cz> <20011002114801.A19015@atrey.karlin.mff.cuni.cz>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20011002114801.A19015@atrey.karlin.mff.cuni.cz>; from pavel@suse.cz on Tue, Oct 02, 2001 at 11:48:01AM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+On Tue, Oct 02, 2001 at 11:48:01AM +0200, Pavel Machek wrote:
+> > > > 	Also, generic PROMISC mode still drops off received frames
+> > > > 	with CRC error.
+> > > 
+> > > Hmm, sounds good. Someone should create tool for communication over
+> > > ethernet with broken crc's. Such communication would be stealth from
+> > > normal tcpdump. Do it on your provider's network to escape accounting ;^)
+> > 
+> > But still you'll see the number of errors on your eth card
+> > skyrocketing, so you'd grow quite suspicious. 
+> 
+> Yep, but it would be _very_ hard for you to find the cause. You'd
+> probably chase ghosts trying to replace cables, etc, never finding
+> what happens.
 
-FYI:
+	This kind of use will need its own network driver, which
+	will count errors differently, of course.
 
+> 							Pavel
 
-
-ld -m elf_i386 -r -o scsi_mod.o scsi.o hosts.o scsi_ioctl.o constants.o
-scsicam.o scsi_proc.o scsi_error.o scsi_obsolete.o scsi_queue.o scsi_lib.o
-scsi_merge.o scsi_dma.o scsi_scan.o scsi_syms.o
-gcc -D__KERNEL__ -I/usr/src/linux-2.4.10/include -Wall -Wstrict-prototypes
--Wno-trigraphs -O2 -fomit-frame-pointer -fno-strict-aliasing -fno-common -pipe
--mpreferred-stack-boundary=2 -march=i686    -c -o aic7xxx_old.o aic7xxx_old.c
-aic7xxx_old.c:11966: parse error before string constant
-aic7xxx_old.c:11966: warning: type defaults to `int' in declaration of
-`MODULE_LICENSE'
-aic7xxx_old.c:11966: warning: function declaration isn't a prototype
-aic7xxx_old.c:11966: warning: data definition has no type or storage class
-make[3]: *** [aic7xxx_old.o] Error 1
-make[3]: Leaving directory `/usr/src/linux-2.4.10/drivers/scsi'
-make[2]: *** [first_rule] Error 2
-make[2]: Leaving directory `/usr/src/linux-2.4.10/drivers/scsi'
-make[1]: *** [_subdir_scsi] Error 2
-make[1]: Leaving directory `/usr/src/linux-2.4.10/drivers'
-make: *** [_dir_drivers] Error 2
-
-
-Regards,
-Stephan
+/Matti Aarnio

@@ -1,45 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263947AbRFEJdl>; Tue, 5 Jun 2001 05:33:41 -0400
+	id <S263948AbRFEJgk>; Tue, 5 Jun 2001 05:36:40 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263943AbRFEJda>; Tue, 5 Jun 2001 05:33:30 -0400
-Received: from nilpferd.fachschaften.tu-muenchen.de ([129.187.176.79]:58821
-	"HELO nilpferd.fachschaften.tu-muenchen.de") by vger.kernel.org
-	with SMTP id <S263948AbRFEJdV>; Tue, 5 Jun 2001 05:33:21 -0400
-Date: Tue, 5 Jun 2001 11:33:19 +0200 (CEST)
-From: Adrian Bunk <bunk@fs.tum.de>
-X-X-Sender: <bunk@mars.fachschaften.tu-muenchen.de>
-To: Paul Mackerras <paulus@samba.org>
+	id <S263949AbRFEJga>; Tue, 5 Jun 2001 05:36:30 -0400
+Received: from mail.iwr.uni-heidelberg.de ([129.206.104.30]:13449 "EHLO
+	mail.iwr.uni-heidelberg.de") by vger.kernel.org with ESMTP
+	id <S263948AbRFEJgK>; Tue, 5 Jun 2001 05:36:10 -0400
+Date: Tue, 5 Jun 2001 11:36:04 +0200 (CEST)
+From: Bogdan Costescu <bogdan.costescu@iwr.uni-heidelberg.de>
+To: Kip Macy <kmacy@netapp.com>
 cc: <linux-kernel@vger.kernel.org>
-Subject: Re: Inconsistent "#ifdef __KERNEL__" on different architectures
-In-Reply-To: <15132.23395.553496.50934@argo.ozlabs.ibm.com>
-Message-ID: <Pine.NEB.4.33.0106051124320.18917-100000@mars.fachschaften.tu-muenchen.de>
+Subject: Re: Looking for device to write device driver for
+In-Reply-To: <Pine.GSO.4.10.10106031613160.14668-100000@orbit-fe.eng.netapp.com>
+Message-ID: <Pine.LNX.4.33.0106051131490.5137-100000@kenzo.iwr.uni-heidelberg.de>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 5 Jun 2001, Paul Mackerras wrote:
+On Sun, 3 Jun 2001, Kip Macy wrote:
 
->...
-> This is why I added #ifdef __KERNEL__ around most of the contents
-> of include/asm-ppc/*.h.  It was done deliberately to flush out those
-> programs which are depending on kernel headers when they shouldn't.
+> I then tried to get the interface information from 3com on their new
+> 3cr990 card to add IPsec offload support to the linux driver.
 
-Whatever the right policy is, the main concern in my initial mail was the
-_consistency_ of the kernel headers between different architectures.
-So when you want to flush out these programs I see no reason to
-inconsistetly change it only on one architecture.
+Which Linux driver ? They only provide a 2.2 one which is in an alpha
+stage (as written in it!).
 
+> They responded by telling me that due to IP-heavy nature of the product
+> that they would not be releasing the interface.
 
-> Paul.
+You were much luckier than me. To me, they said that they don't provide
+any support for Linux with these cards when I was only asking for docs for
+how to use their own firmware to do basic operations!
 
-cu
-Adrian
+Sincerely,
 
--- 
-A "No" uttered from deepest conviction is better and greater than a
-"Yes" merely uttered to please, or what is worse, to avoid trouble.
-                -- Mahatma Ghandi
+Bogdan Costescu
 
+IWR - Interdisziplinaeres Zentrum fuer Wissenschaftliches Rechnen
+Universitaet Heidelberg, INF 368, D-69120 Heidelberg, GERMANY
+Telephone: +49 6221 54 8869, Telefax: +49 6221 54 8868
+E-mail: Bogdan.Costescu@IWR.Uni-Heidelberg.De
 

@@ -1,47 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267411AbUH1KZJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266705AbUH1KZK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267411AbUH1KZJ (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 28 Aug 2004 06:25:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267415AbUH1KWg
+	id S266705AbUH1KZK (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 28 Aug 2004 06:25:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263736AbUH1KWP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 28 Aug 2004 06:22:36 -0400
-Received: from smtp3.libero.it ([193.70.192.127]:40885 "EHLO smtp3.libero.it")
-	by vger.kernel.org with ESMTP id S267411AbUH1KTu (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 28 Aug 2004 06:19:50 -0400
-From: Giacomo Lozito <city_hunter@azzurra.org>
-To: linux-kernel@vger.kernel.org
-Subject: Re: PROBLEM: cdrecord as normal user broken with kernel 2.6.8.1
-Date: Sat, 28 Aug 2004 12:22:13 +0200
-User-Agent: KMail/1.7
+	Sat, 28 Aug 2004 06:22:15 -0400
+Received: from smtp208.mail.sc5.yahoo.com ([216.136.130.116]:40556 "HELO
+	smtp208.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S267401AbUH1KTR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 28 Aug 2004 06:19:17 -0400
+Message-ID: <41305BFF.6040209@yahoo.com.au>
+Date: Sat, 28 Aug 2004 20:18:39 +1000
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040810 Debian/1.7.2-2
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
+To: Andrew Morton <akpm@osdl.org>
+CC: "Rafael J. Wysocki" <rjw@sisk.pl>, linuxram@us.ibm.com, hugh@veritas.com,
+       dice@mfa.kfki.hu, vda@port.imtp.ilyichevsk.odessa.ua,
+       linux-kernel@vger.kernel.org
+Subject: Re: data loss in 2.6.9-rc1-mm1
+References: <Pine.LNX.4.44.0408271950460.8349-100000@localhost.localdomain>	<1093669312.11648.80.camel@dyn319181.beaverton.ibm.com>	<41301E27.2020504@yahoo.com.au>	<200408281144.50704.rjw@sisk.pl> <20040828024504.70407b43.akpm@osdl.org>
+In-Reply-To: <20040828024504.70407b43.akpm@osdl.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200408281222.14293.city_hunter@azzurra.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Andrew Morton wrote:
+> "Rafael J. Wysocki" <rjw@sisk.pl> wrote:
+> 
+>>Well, guys, to make it 100% clear: if I apply the Nick's patch to the 
+>> 2.6.9-rc1-mm1 tree, it will fix the data loss issue.  Is that right?
+> 
+> 
+> Should do.
 
-It's crystal clear that applications should run correctly with a kernel,
-and it is not the kernel that should be made to work with them.
-By the way, things are already getting fixed in next kernel releases.
+It passes test cases that would previously fail here, so consider it
+lightly tested. Note that the patch is on top of 2.6.9-rc1 though,
+it becomes slightly deranged when applying straight onto mm. So don't
+do that.
 
-Nevertheless, a problem exists.
-I wouldn't expect relevant things (such as CD burning) to broke within stable 
-series of a kernel. It's ok if things break with 2.5 or 2.7, but should it be 
-the same for 2.6?
+...
 
-In my humble opinion, a nice and good way to tighten security for some 
-commands was to give it as an option in ATA/ATAPI/MFM/RLL or SCSI section in 
-kernel configuration.
-That way people could read "this option improves security, it will become 
-standard in later kernels, but be aware that it could make cdrecording tools 
-not functional when they are run from a normal user account"
-and people could decide what to do.
+>  Or revert
+> 
+> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.9-rc1/2.6.9-rc1-mm1/broken-out/re-fix-pagecache-reading-off-by-one-cleanup.patch
+> 
+> and then
+> 
+> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.9-rc1/2.6.9-rc1-mm1/broken-out/re-fix-pagecache-reading-off-by-one.patch
+> 
+> 
+> 
 
-Wasn't that more reasonable?
-
-Regards,
-Giacomo Lozito
+Once you have these backed out mine should apply fine, but it only closes
+some performance (not correctness) corner cases that the above patches
+attempted to.

@@ -1,44 +1,74 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130532AbRC0G2M>; Tue, 27 Mar 2001 01:28:12 -0500
+	id <S130552AbRC0GdW>; Tue, 27 Mar 2001 01:33:22 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130552AbRC0G2C>; Tue, 27 Mar 2001 01:28:02 -0500
-Received: from ma-northadams1-47.nad.adelphia.net ([24.51.236.47]:44807 "EHLO
-	sparrow.net") by vger.kernel.org with ESMTP id <S130532AbRC0G1v>;
-	Tue, 27 Mar 2001 01:27:51 -0500
-Date: Tue, 27 Mar 2001 01:27:09 -0500
-From: Eric Buddington <eric@sparrow.nad.adelphia.net>
-To: linux-kernel@vger.kernel.org
-Subject: 386 'ls' gets SIGILL iff /proc is mounted
-Message-ID: <20010327012709.I59@sparrow.nad.adelphia.net>
-Reply-To: ebuddington@wesleyan.edu
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-Organization: ECS Labs
-X-Eric-Conspiracy: there is no conspiracy
+	id <S130577AbRC0GdN>; Tue, 27 Mar 2001 01:33:13 -0500
+Received: from tomts7.bellnexxia.net ([209.226.175.40]:34780 "EHLO
+	tomts7-srv.bellnexxia.net") by vger.kernel.org with ESMTP
+	id <S130552AbRC0Gc6>; Tue, 27 Mar 2001 01:32:58 -0500
+Date: Tue, 27 Mar 2001 01:32:24 -0500 (EST)
+From: Scott Murray <scott@spiteful.org>
+To: <sl@fireplug.net>
+cc: <amit@muppetlabs.com>, <linux-kernel@vger.kernel.org>
+Subject: Re: question \ information request on init \ boot sequence when
+ using initrd
+In-Reply-To: <99p487$18m$1@whiskey.enposte.net>
+Message-ID: <Pine.LNX.4.30.0103270108190.14734-100000@godzilla.spiteful.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-2.4.2-ac23 nfsroot on a 386SX/20 with 6Mb RAM
+On 26 Mar 2001, Stuart Lynne wrote:
 
-On boot to single user, 'ls' and 'ls -l' work fine.
+> In article <985660830.32357@whiskey.enposte.net>,
+> Amit D Chaudhary <amit@muppetlabs.com> wrote:
+[snip]
+> You can run your linuxrc with:
+>
+> 	init=/linuxrc
 
-After mounting /proc, 'ls' still works, but 'ls -l' fails
-with SIGILL after reading /etc/timezone (so says strace).
+Yes.
 
-Unmounting /proc fixes the problem. Unmounting /dev doesn't.
+> and then end your /linuxrc with:
+>
+> 	exec /sbin/init
 
-I also, just now, had a spate of 'permission denied' errors
-while trying to ls /dev/ subdirectories, and unexpected stale NFS handles.
+No.  He's doing a pivot_root to a new root filesystem.  You have
+to do the 'exec chroot . /sbin/init ...' command given in the file
+Documentation/initrd.txt in order for init to start up correctly.
 
-The problems are varied enough that I suspect bad hardware, but would
-flaky RAM cause such similar failures repeatedly? And is there a way
-to test RAM explicitly?
+Having played with pivoting to a ramfs out of an initrd for the
+last several days, I can think of a couple of possible problems.
+The first is that Amit's final linuxrc command:
 
-Any tips appreciated, either to me (ebuddington@wesleyan.edu) or to
-the list.
+>exec sbin/chroot . sbin/init.new 3 <dev/console >dev/console 2>&1
 
--Eric
+is different from what's described in initrd.txt.  I'm using the
+exact line that's in there in my linuxrc, and it works fine.
+Amit, try changing that line to:
+
+exec chroot . /sbin/init.new 3 <dev/console >dev/console 2>&1
+
+and see if that works.  This does require having chroot in your
+initrd, but that is mentioned in initrd.txt as a requirement
+anyways.  If init.new is the wrapper that I think was mentioned
+here previously, I'd suggest just trying a regular init and doing
+the umount and free of the ramdisk later somewhere in your
+rc.sysinit or equivalent.
+
+The second potential problem I can think of would be a missing
+dev/console node in the new root filesystem.  I think I experienced
+a similar failure mode once last Friday; it may have been the time
+I forgot to mount devfs on /dev in my new root filesystem.
+
+Scott
+
+
+--
+=============================================================================
+Scott Murray                                        email: scott@spiteful.org
+http://www.spiteful.org (coming soon)                 ICQ: 10602428
+-----------------------------------------------------------------------------
+     "Good, bad ... I'm the guy with the gun." - Ash, "Army of Darkness"
 

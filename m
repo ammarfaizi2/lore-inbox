@@ -1,42 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262868AbTHZPGR (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 26 Aug 2003 11:06:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262960AbTHZPGR
+	id S261342AbTHZO25 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 26 Aug 2003 10:28:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264077AbTHZOR1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Aug 2003 11:06:17 -0400
-Received: from gw-nl6.philips.com ([212.153.235.103]:35272 "EHLO
-	gw-nl6.philips.com") by vger.kernel.org with ESMTP id S262868AbTHZPFX
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Aug 2003 11:05:23 -0400
-Message-ID: <3F4B777E.50807@basmevissen.nl>
-Date: Tue, 26 Aug 2003 17:06:38 +0200
-From: Bas Mevissen <ml@basmevissen.nl>
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:1.4) Gecko/20030624
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Linux-kernel <linux-kernel@vger.kernel.org>
-Subject: 2.4.xx and configuring PCMCIA cards without cardutils
-X-Enigmail-Version: 0.76.5.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Tue, 26 Aug 2003 10:17:27 -0400
+Received: from ns.virtualhost.dk ([195.184.98.160]:6561 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S264108AbTHZOQl (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 26 Aug 2003 10:16:41 -0400
+Date: Tue, 26 Aug 2003 16:16:14 +0200
+From: Jens Axboe <axboe@suse.de>
+To: Samphan Raruenrom <samphan@nectec.or.th>
+Cc: Christoph Hellwig <hch@infradead.org>, linux-kernel@vger.kernel.org,
+       Linux TLE Team <rdi1@opentle.org>,
+       Marcelo Tosatti <marcelo@conectiva.com.br>
+Subject: Re: [Rdi1] Re: [PATCH] Add MOUNT_STATUS ioctl to cdrom device
+Message-ID: <20030826141614.GE862@suse.de>
+References: <3F4A53ED.60801@nectec.or.th> <20030825195026.A10305@infradead.org> <3F4B0343.7050605@nectec.or.th> <20030826083249.B20776@infradead.org> <3F4B23E2.8040401@nectec.or.th> <20030826105613.A23356@infradead.org> <20030826095830.GA20693@suse.de> <3F4B44C2.4030406@nectec.or.th> <20030826113633.GA22124@suse.de> <3F4B561A.2000103@nectec.or.th>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3F4B561A.2000103@nectec.or.th>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Tue, Aug 26 2003, Samphan Raruenrom wrote:
+> Jens Axboe wrote:
+> >On Tue, Aug 26 2003, Samphan Raruenrom wrote:
+> >>>Exactly. You poll media events from the drive, and upon an eject request
+> >>>you try and umount it. If it suceeds, you eject the tray. 
+> >>No, it seems impossible to sense the eject request (right?). This
+> >No it isn't, in fact there are several ways to do it. Just by searching
+> >this list you should be able to find them.
+> 
+> YES!! 
+> http://www.ussg.iu.edu/hypermail/linux/kernel/0202.0/att-0603/01-cd_poll.c
+> get_media_event() = 1 -> eject
+> Thanks :-)  I think you can't imagine how happy I am now. Thank you again.
 
-For a small computer, I want to use PCMCIA compiled into the kernel. I 
-only have 1 network card (fixed) in a PCMCIA slot. The kernel should 
-boot (from disk) with a NFS root. Because I want to keep things as small 
-as possible, I want to go without an initrd with cardutils.
+I'm surprised you didn't find these things up front.
 
-So I'm wondering how to configure the network card from kernel space, if 
-possible at all.
+> >>is what I really did with the patched kernel and patched magicdev.
+> >magicdev is a piece of crap.
+> 
+> Why? I read all its code. Because of 2 sec. polling?
 
-Regards,
+Because it relies on unreliable mechanisms instead of using the proper
+support. That makes it 100% crap in my eyes, unusable.
 
-Bas.
+> >I think you need to spend a little more time thinking/researching this
+> >problem. At least it really looks like you are going about it all wrong.
+> 
+> You've just put me on the right track. Thank you very much. I really
+> appreciate your and every others insightful comments.
 
+No problem.
 
+-- 
+Jens Axboe
 

@@ -1,44 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268258AbUIGU6j@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268592AbUIGU7R@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268258AbUIGU6j (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Sep 2004 16:58:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268592AbUIGU6j
+	id S268592AbUIGU7R (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Sep 2004 16:59:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268602AbUIGU7R
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Sep 2004 16:58:39 -0400
-Received: from fw.osdl.org ([65.172.181.6]:18580 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S268258AbUIGU6g (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Sep 2004 16:58:36 -0400
-Date: Tue, 7 Sep 2004 13:56:31 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: David Howells <dhowells@redhat.com>
-Cc: arjanv@redhat.com, hch@infradead.org,
-       viro@parcelfarce.linux.theplanet.co.uk, linux-kernel@vger.kernel.org
-Subject: Re: Where's the key management patchset at?
-Message-Id: <20040907135631.0ef139e0.akpm@osdl.org>
-In-Reply-To: <22970.1094563283@redhat.com>
-References: <20040907033255.78128ebd.akpm@osdl.org>
-	<20040907031856.58f33b99.akpm@osdl.org>
-	<20040904032913.441631e6.akpm@osdl.org>
-	<20040904022656.31447b51.akpm@osdl.org>
-	<20040903224513.0154c1d3.akpm@osdl.org>
-	<24752.1094234169@redhat.com>
-	<12766.1094289316@redhat.com>
-	<14279.1094293508@redhat.com>
-	<13781.1094551789@redhat.com>
-	<14622.1094552807@redhat.com>
-	<22970.1094563283@redhat.com>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+	Tue, 7 Sep 2004 16:59:17 -0400
+Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:55219 "EHLO
+	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
+	id S268592AbUIGU7M (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 7 Sep 2004 16:59:12 -0400
+Date: Tue, 7 Sep 2004 22:59:11 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: Hans Reiser <reiser@namesys.com>
+Cc: Andrew Morton <akpm@digeo.com>,
+       Linux Kernel <linux-kernel@vger.kernel.org>,
+       Linus Torvalds <torvalds@osdl.org>, reiserfs-list@namesys.com
+Subject: Re: silent semantic changes in reiser4 (brief attempt to document the idea of what reiser4 wants to do with metafiles and why
+Message-ID: <20040907205911.GA17555@atrey.karlin.mff.cuni.cz>
+References: <41323AD8.7040103@namesys.com> <20040831131201.GA1609@elf.ucw.cz> <413E170F.9000204@namesys.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <413E170F.9000204@namesys.com>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-David Howells <dhowells@redhat.com> wrote:
->
-> I'd like to dispense with keyfs.
+Hi!
 
-Let's do that then.  I'll keep the patch alive in -mm.  If someone can come
-along and demonstrate a solid reason for needing keyfs then we can
-reevaluate.
+> >What about choosing just "..." instead of "metas"? "metas" is string
+> >that needs translation etc, while "..." is nicely neutral.
+> >
+> >cat /sound_of_silence.mp3/.../author
+> >
+> >does not look bad, either...
+
+> "..." is pretty good, but I think it has been used by others, but I 
+> really forget who.  I could live with "...", but I think "metas" and 
+> "..metas" will collide less often.  Apparently Meta is a finnish name or 
+> something, so Linus does not like it.  The exact string is really not 
+> very important to me.  I agree that "..." is elegant.
+
+Well, "..." is mostly used by script kiddies -- they usually have
+their rootkit collection there :-).
+
+It would be nice to decide on one escape into "meta" namespace,
+uservfs and similar projects probably should be converted to use same
+escape.
+
+[Uservfs currently uses things like cat /tmp/foo.tgz#utar/bar.gz#ugz
+... essentially using # as another separator. It should probably be
+converted to use same meta escape].
+
+								Pavel
+
+

@@ -1,40 +1,93 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317003AbSFWJBR>; Sun, 23 Jun 2002 05:01:17 -0400
+	id <S316970AbSFWJt3>; Sun, 23 Jun 2002 05:49:29 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317004AbSFWJBQ>; Sun, 23 Jun 2002 05:01:16 -0400
-Received: from mons.uio.no ([129.240.130.14]:14815 "EHLO mons.uio.no")
-	by vger.kernel.org with ESMTP id <S317003AbSFWJBP>;
-	Sun, 23 Jun 2002 05:01:15 -0400
-To: Skip Gaede <sgaede@attbi.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Memory abuse with NFS Root filesystem?
-References: <200206221648.36450.sgaede@attbi.com>
-From: Trond Myklebust <trond.myklebust@fys.uio.no>
-Date: 23 Jun 2002 11:01:12 +0200
-In-Reply-To: <200206221648.36450.sgaede@attbi.com>
-Message-ID: <shs4rfuid2f.fsf@charged.uio.no>
-User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.4 (Common Lisp)
+	id <S316982AbSFWJt2>; Sun, 23 Jun 2002 05:49:28 -0400
+Received: from mx2.elte.hu ([157.181.151.9]:22985 "HELO mx2.elte.hu")
+	by vger.kernel.org with SMTP id <S316970AbSFWJt1>;
+	Sun, 23 Jun 2002 05:49:27 -0400
+Date: Sun, 23 Jun 2002 11:47:22 +0200 (CEST)
+From: Ingo Molnar <mingo@elte.hu>
+Reply-To: Ingo Molnar <mingo@elte.hu>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: "Bhavesh P. Davda" <bhavesh@avaya.com>, <linux-kernel@vger.kernel.org>,
+       Linus Torvalds <torvalds@transmeta.com>,
+       Marcelo Tosatti <marcelo@conectiva.com.br>
+Subject: Re: [PATCH] SCHED_FIFO and SCHED_RR scheduler fix, kernel 2.2.21
+In-Reply-To: <E17LUWf-0001YA-00@the-village.bc.nu>
+Message-ID: <Pine.LNX.4.44.0206231144050.3489-100000@e2>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> " " == Skip Gaede <sgaede@attbi.com> writes:
 
-     > Local boot: slabinfo after 30 minutes: size-2048 5 50 2048 3 25
-     > 1
+On Fri, 21 Jun 2002, Alan Cox wrote:
 
-     > NFS Root: slabinfo after 15 & 60 minutes size-2048 187 228 2048
-     > 94 114 1 (15 min) size-2048 918 928 2048 460 464 1 (60 min)
+> > What's going on with the kernel community? I posted a similar fix for 
+> > the 2.4.18 kernel, and it hasn't been picked up there either.
+> 
+> I've not seen that one. However the -ac tree uses a different scheduler
+> anyway. You should check if 2.4.19pre has the same problem and if so
+> mail Marcelo directly a patch
 
-     > Anyone ever seen or heard of this before? Any thoughts on how
-     > to isolate this to a root cause?
+the O(1) scheduler does not have this problem, so the -ac tree is ok.
 
-Have you tried combining the 'local boot' test with NFS?
+for vanilla 2.4.18/2.4.19-pre i've created a compromise patch which
+reduces the impact and fixes RT behavior (attached). There was no further
+comment from Bhavesh, so i assumed it's all a done deal ... Marcelo,
+please apply.
 
-AFAICS there are no memory leaks on NFS with x86 systems, but there
-might be something wierd going on with other architectures.
+	Ingo
 
-Cheers,
-   Trond
+--- linux/kernel/sched.c.orig	Thu Jun 13 20:14:31 2002
++++ linux/kernel/sched.c	Thu Jun 13 23:33:41 2002
+@@ -324,7 +324,10 @@
+  */
+ static inline void add_to_runqueue(struct task_struct * p)
+ {
+-	list_add(&p->run_list, &runqueue_head);
++	if (p->policy == SCHED_OTHER)
++		list_add(&p->run_list, &runqueue_head);
++	else
++		list_add_tail(&p->run_list, &runqueue_head);
+ 	nr_running++;
+ }
+ 
+@@ -334,12 +337,6 @@
+ 	list_add_tail(&p->run_list, &runqueue_head);
+ }
+ 
+-static inline void move_first_runqueue(struct task_struct * p)
+-{
+-	list_del(&p->run_list);
+-	list_add(&p->run_list, &runqueue_head);
+-}
+-
+ /*
+  * Wake up a process. Put it on the run-queue if it's not
+  * already there.  The "current" process is always on the
+@@ -955,9 +952,6 @@
+ 	retval = 0;
+ 	p->policy = policy;
+ 	p->rt_priority = lp.sched_priority;
+-	if (task_on_runqueue(p))
+-		move_first_runqueue(p);
+-
+ 	current->need_resched = 1;
+ 
+ out_unlock:
+--- linux/kernel/timer.c.orig	Thu Jun 13 20:17:04 2002
++++ linux/kernel/timer.c	Thu Jun 13 20:23:15 2002
+@@ -585,7 +585,8 @@
+ 	if (p->pid) {
+ 		if (--p->counter <= 0) {
+ 			p->counter = 0;
+-			p->need_resched = 1;
++			if (p->policy != SCHED_FIFO)
++				p->need_resched = 1;
+ 		}
+ 		if (p->nice > 0)
+ 			kstat.per_cpu_nice[cpu] += user_tick;
+
+

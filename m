@@ -1,46 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262583AbSJGTBN>; Mon, 7 Oct 2002 15:01:13 -0400
+	id <S262548AbSJGSwL>; Mon, 7 Oct 2002 14:52:11 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262584AbSJGTBN>; Mon, 7 Oct 2002 15:01:13 -0400
-Received: from modemcable166.48-200-24.mtl.mc.videotron.ca ([24.200.48.166]:17540
-	"EHLO xanadu.home") by vger.kernel.org with ESMTP
-	id <S262583AbSJGTBK>; Mon, 7 Oct 2002 15:01:10 -0400
-Date: Mon, 7 Oct 2002 15:06:38 -0400 (EDT)
-From: Nicolas Pitre <nico@cam.org>
-X-X-Sender: nico@xanadu.home
-To: Pavel Machek <pavel@suse.cz>
-cc: Ulrich Drepper <drepper@redhat.com>, Larry McVoy <lm@bitmover.com>,
-       lkml <linux-kernel@vger.kernel.org>
-Subject: Re: New BK License Problem?
-In-Reply-To: <20021007011512.B6352@elf.ucw.cz>
-Message-ID: <Pine.LNX.4.44.0210071451150.913-100000@xanadu.home>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S262544AbSJGSv5>; Mon, 7 Oct 2002 14:51:57 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:62875 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S262539AbSJGSuy>;
+	Mon, 7 Oct 2002 14:50:54 -0400
+Date: Mon, 07 Oct 2002 11:49:36 -0700 (PDT)
+Message-Id: <20021007.114936.51301887.davem@redhat.com>
+To: pavel@ucw.cz
+Cc: bcollins@debian.org, lm@bitmover.com, linux-kernel@vger.kernel.org
+Subject: Re: BK is *evil* corporate software
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <20021007001137.A6352@elf.ucw.cz>
+References: <20021005175437.GK585@phunnypharm.org>
+	<20021005112552.A9032@work.bitmover.com>
+	<20021007001137.A6352@elf.ucw.cz>
+X-FalunGong: Information control.
+X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 7 Oct 2002, Pavel Machek wrote:
+   From: Pavel Machek <pavel@ucw.cz>
+   Date: Mon, 7 Oct 2002 00:11:37 +0200
+   
+   (as it stands you want $5000 for any bk-using developer inside
+   RedHat and SuSE).
 
-> > You can do this today.  rsync a BK tree and use GNU CSSC to check out
-> > the sources.  We maintained SCCS compat for exactly that reason.
-> > You've had the ability to ignore the BKL since day one if you aren't
-> > running the BK binaries.
-> 
-> Would someone write nice HOWTO do this?
-> 
-> And where's guarantee that you are not migrating BK to proprietary
-> format to cut this off once someone writes the HOWTO?
+Stop spreading crap and fud.  I, and nobody else at Red Hat, give or
+need to give Larry one dime to use BK for kernel work.
 
-Please stop the paranoia and have faith.  Where's guarantee you won't be hit 
-by a bus today?
+And to be honest, I get better support from Larry for *free* than
+you'll most often get when paying some company for software support.
+This is a fact.  When was the last time you got a ring on your cell
+phone 4 minutes after emailing a bug report to someone?
 
-If BK migrates to proprietary format everybody will notice and you'll still
-have the opportunity to rescue a not too old repository and carry on with
-life using whatever alternate SCM you wish.  If such a thing happened Lary
-would be publicly and universally discredited and he's not looking for that
-I'm sure.
-
-
-Nicolas
-
+Larry isn't Microsoft, and whether you choose to recognize the
+positive things he does for kernel development or not is your
+decision.

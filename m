@@ -1,57 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262458AbUCCOYU (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 3 Mar 2004 09:24:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262460AbUCCOYU
+	id S262460AbUCCO31 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 3 Mar 2004 09:29:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262473AbUCCO31
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 Mar 2004 09:24:20 -0500
-Received: from ddc.ilcddc.com ([12.35.229.4]:1548 "EHLO ddcnyntd.ddc-ny.com")
-	by vger.kernel.org with ESMTP id S262458AbUCCOYS (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 Mar 2004 09:24:18 -0500
-Message-ID: <89760D3F308BD41183B000508BAFAC4104B16FC0@DDCNYNTD>
-From: RANDAZZO@ddc-web.com
-To: linux-kernel@vger.kernel.org
-Subject: custom Pci netdevice using DMA
-Date: Wed, 3 Mar 2004 09:13:27 -0500 
+	Wed, 3 Mar 2004 09:29:27 -0500
+Received: from x35.xmailserver.org ([69.30.125.51]:63141 "EHLO
+	x35.xmailserver.org") by vger.kernel.org with ESMTP id S262460AbUCCO30
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 3 Mar 2004 09:29:26 -0500
+X-AuthUser: davidel@xmailserver.org
+Date: Wed, 3 Mar 2004 06:29:48 -0800 (PST)
+From: Davide Libenzi <davidel@xmailserver.org>
+X-X-Sender: davide@bigblue.dev.mdolabs.com
+To: "Richard B. Johnson" <root@chaos.analogic.com>
+cc: Roland Dreier <roland@topspin.com>, <linux-kernel@vger.kernel.org>
+Subject: Re: poll() in 2.6 and beyond
+In-Reply-To: <Pine.LNX.4.53.0403030736350.11111@chaos>
+Message-ID: <Pine.LNX.4.44.0403030627440.26030-100000@bigblue.dev.mdolabs.com>
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2656.59)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-All:
+On Wed, 3 Mar 2004, Richard B. Johnson wrote:
 
-I have a PCI device (uses DMA), that was originally designed for an RTOS...
+> Clearly this task is sleeping in do_poll.
 
-The device takes physical host address pointers (written to the card via bar
-space).
+I don't believe anyone ever argued that do_poll() sleeps. You were saying 
+that poll_wait() was sleeping, that is different.
 
-When data is received from the network, the pci card will DMA the data
-directly to the
-host asynchronously....
 
-after a certain amt of data is received, an interrupt is gen'd and the host
-goes and looks at the data..
+- Davide
 
-For transmitting, the host gives the pci device a physical host address
-value and the pci device will DMA the
-data, from the host, that is pointed to......
 
-...............................
-This above design does not work in Linux 2.4.  I understand that I must use
-the dma functions (pci_alloc_*,
-virt_to_bus, etc), but can't figure out what is the best way???
-
-Any help?
-Feel free to ask more details if needed.....
-
--Mike
-
- 
-"This message may contain company proprietary information. If you are not
-the intended recipient, any disclosure, copying, distribution or reliance on
-the contents of this message is prohibited. If you received this message in
-error, please delete and notify me."
 

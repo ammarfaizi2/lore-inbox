@@ -1,42 +1,59 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271318AbRH3Fub>; Thu, 30 Aug 2001 01:50:31 -0400
+	id <S272094AbRH3GsK>; Thu, 30 Aug 2001 02:48:10 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272077AbRH3FuV>; Thu, 30 Aug 2001 01:50:21 -0400
-Received: from mx01-a.netapp.com ([198.95.226.53]:44532 "EHLO
-	mx01-a.netapp.com") by vger.kernel.org with ESMTP
-	id <S271318AbRH3FuC>; Thu, 30 Aug 2001 01:50:02 -0400
-Date: Wed, 29 Aug 2001 22:50:13 -0700 (PDT)
-From: Kip Macy <kmacy@netapp.com>
-To: Elan Feingold <efeingold@mn.rr.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Multithreaded core dumps
-In-Reply-To: <000c01c13113$91d7c060$0400000a@gorilla>
-Message-ID: <Pine.GSO.4.10.10108292242080.10391-100000@cranford-fe.eng.netapp.com>
+	id <S272119AbRH3Gru>; Thu, 30 Aug 2001 02:47:50 -0400
+Received: from wiproecmx1.wipro.com ([164.164.31.5]:5777 "EHLO
+	wiproecmx1.wipro.com") by vger.kernel.org with ESMTP
+	id <S272094AbRH3Grm>; Thu, 30 Aug 2001 02:47:42 -0400
+From: "Anand Ashok Kulkarni" <anand.karni@wipro.com>
+To: linux-kernel@vger.kernel.org
+Message-ID: <e7de7e605a.e605ae7de7@wipro.com>
+Date: Thu, 30 Aug 2001 11:45:27 +0500
+X-Mailer: Netscape Webmail
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Language: en
+Subject: libpcap
+X-Accept-Language: en
+Content-Type: multipart/mixed;
+	boundary="------------InterScan_NT_MIME_Boundary"
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> 
-> 0. Am I wrong or confused about the state of postmortem multithreaded
-> debugging under Linux?
 
-At least as of mid-2.2 series this was certainly my experience. It was
-very frustrating that the thread/process that dumped core was not the one
-that dereferenced a bad pointer/failed an assert but the process group
-leader.
+This is a multi-part message in MIME format.
 
-> 
-> 2. If this is simply something that nobody is working on because other
-> things are more interesting, can anybody give me a few pointers on where
-> to start?
-> 
+--------------InterScan_NT_MIME_Boundary
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 
-I am inclined to believe that that is the case. Unfortunately, I have no
-advice to give - but I am writing because I think that it would be neat if
-you have the time and the inclination for you to document your findings as
-you progress and put them on the web. 
+how do i install libpcap?
+the makefile.in requires to be given 5-6 paths. what paths shud be
+given.
+also after insalling lidpcap what all sud be done before installing
+TCP/DUMP.
 
-			-Kip
+andy
 
+
+--------------InterScan_NT_MIME_Boundary
+Content-Type: text/plain;
+	name="Wipro_Disclaimer.txt"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment;
+	filename="Wipro_Disclaimer.txt"
+
+-----------------------------------------------------------------------------------------------------------------------
+Information transmitted by this E-MAIL is proprietary to Wipro Limited and
+is intended for use only by the individual or entity to which it is
+addressed, and may contain information that is privileged, confidential or
+exempt from disclosure under applicable law. If you are not the intended
+recipient or it appears that this mail has been forwarded to you without
+proper authority, you are notified that any use or dissemination of this
+information in any manner is strictly prohibited. In such cases, please
+notify us immediately at mailto:mailadmin@wipro.com and delete this mail
+from your records.
+------------------------------------------------------------------------------------------------------------------------
+
+--------------InterScan_NT_MIME_Boundary--

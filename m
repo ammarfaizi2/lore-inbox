@@ -1,48 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S279617AbRJXWH7>; Wed, 24 Oct 2001 18:07:59 -0400
+	id <S279614AbRJXWI7>; Wed, 24 Oct 2001 18:08:59 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S279615AbRJXWHu>; Wed, 24 Oct 2001 18:07:50 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:34689 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S279614AbRJXWHj>;
-	Wed, 24 Oct 2001 18:07:39 -0400
-Date: Wed, 24 Oct 2001 15:08:04 -0700 (PDT)
-Message-Id: <20011024.150804.15268320.davem@redhat.com>
-To: toon@vdpas.hobby.nl
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: linux-2.4.13 high SWAP
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <20011024234826.A19967@vdpas.hobby.nl>
-In-Reply-To: <200110241936.RAA04632@inter.lojasrenner.com.br>
-	<9r73pv$8h1$1@penguin.transmeta.com>
-	<20011024234826.A19967@vdpas.hobby.nl>
-X-Mailer: Mew version 2.0 on Emacs 21.0 / Mule 5.0 (SAKAKI)
+	id <S279615AbRJXWIv>; Wed, 24 Oct 2001 18:08:51 -0400
+Received: from host154.207-175-42.redhat.com ([207.175.42.154]:614 "EHLO
+	lacrosse.corp.redhat.com") by vger.kernel.org with ESMTP
+	id <S279614AbRJXWIn>; Wed, 24 Oct 2001 18:08:43 -0400
+Date: Wed, 24 Oct 2001 23:09:17 +0100
+From: Tim Waugh <twaugh@redhat.com>
+To: Kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: linux-2.4.12 / linux-2.4.13 parallel port problem
+Message-ID: <20011024230917.H7544@redhat.com>
+In-Reply-To: <3BD6BF43.D347719B@firsdown.demon.co.uk> <20011024143601.M7544@redhat.com> <3BD6D7E8.BDC1AB2B@firsdown.demon.co.uk> <20011024160533.R7544@redhat.com> <3BD6E413.5AF9D7EF@firsdown.demon.co.uk>
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/signed; micalg=pgp-md5;
+	protocol="application/pgp-signature"; boundary="us3A5CS7YF6eDUQT"
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <3BD6E413.5AF9D7EF@firsdown.demon.co.uk>; from daveg@firsdown.demon.co.uk on Wed, Oct 24, 2001 at 04:53:56PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: toon@vdpas.hobby.nl
-   Date: Wed, 24 Oct 2001 23:48:26 +0200
 
-   The command `make modules_install' results in the following output:
-   
-   if [ -r System.map ]; then /sbin/depmod -ae -F System.map  2.4.13; fi
-   depmod: *** Unresolved symbols in /lib/modules/2.4.13/kernel/fs/ramfs/ramfs.o
-   depmod: 	activate_page
-   
-   Maybe an #include of some header file is missing somewhere?
+--us3A5CS7YF6eDUQT
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-No, the fix is even simpler:
+On Wed, Oct 24, 2001 at 04:53:56PM +0100, Dave Garry wrote:
 
---- ../vanilla/linux/kernel/ksyms.c	Wed Oct 17 14:32:50 2001
-+++ kernel/ksyms.c	Wed Oct 24 14:45:31 2001
-@@ -116,6 +116,7 @@
- EXPORT_SYMBOL(get_unmapped_area);
- EXPORT_SYMBOL(init_mm);
- EXPORT_SYMBOL(deactivate_page);
-+EXPORT_SYMBOL(activate_page);
- #ifdef CONFIG_HIGHMEM
- EXPORT_SYMBOL(kmap_high);
- EXPORT_SYMBOL(kunmap_high);
+> modprobe verbose_probing=1 irq=7 gives exactly the same results.
+
+This turned out to be because parport_pc ignores a supplied irq when
+no io parameter is also supplied.  'io=0x378 irq=7' works fine.
+
+Tim.
+*/
+
+--us3A5CS7YF6eDUQT
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.6 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
+
+iD8DBQE71zwNyaXy9qA00+cRAvDYAJ0UpmoYPpeqIkeld79eTmXk1t04ggCfcnMK
+jqlfscuOpbq4bqwydvG1vv8=
+=DApV
+-----END PGP SIGNATURE-----
+
+--us3A5CS7YF6eDUQT--

@@ -1,76 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261566AbTETWyT (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 May 2003 18:54:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261450AbTETWxx
+	id S261548AbTEUHee (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 21 May 2003 03:34:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261544AbTEUHea
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 May 2003 18:53:53 -0400
-Received: from smtp6.wanadoo.fr ([193.252.22.28]:44305 "EHLO
-	mwinf0303.wanadoo.fr") by vger.kernel.org with ESMTP
-	id S261383AbTETWwL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 May 2003 18:52:11 -0400
-From: Duncan Sands <baldrick@wanadoo.fr>
-To: linux-usb-devel@lists.sourceforge.net
-Subject: [PATCH 12/14] USB speedtouch: remove useless NULL pointer checks
-Date: Wed, 21 May 2003 01:05:06 +0200
-User-Agent: KMail/1.5.1
-Cc: Greg KH <greg@kroah.com>, linux-kernel@vger.kernel.org
-MIME-Version: 1.0
+	Wed, 21 May 2003 03:34:30 -0400
+Received: from dp.samba.org ([66.70.73.150]:35565 "EHLO lists.samba.org")
+	by vger.kernel.org with ESMTP id S261506AbTEUHb4 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 21 May 2003 03:31:56 -0400
+Date: Wed, 21 May 2003 17:44:56 +1000
+From: David Gibson <david@gibson.dropbear.id.au>
+To: Greg KH <greg@kroah.com>
+Cc: Manuel Estrada Sainz <ranty@debian.org>,
+       LKML <linux-kernel@vger.kernel.org>,
+       Simon Kelley <simon@thekelleys.org.uk>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>, jt@hpl.hp.com,
+       Pavel Roskin <proski@gnu.org>, Oliver Neukum <oliver@neukum.org>
+Subject: Re: request_firmware() hotplug interface, third round and a halve
+Message-ID: <20030521074456.GH23736@zax>
+Mail-Followup-To: David Gibson <david@gibson.dropbear.id.au>,
+	Greg KH <greg@kroah.com>, Manuel Estrada Sainz <ranty@debian.org>,
+	LKML <linux-kernel@vger.kernel.org>,
+	Simon Kelley <simon@thekelleys.org.uk>,
+	Alan Cox <alan@lxorguk.ukuu.org.uk>, jt@hpl.hp.com,
+	Pavel Roskin <proski@gnu.org>, Oliver Neukum <oliver@neukum.org>
+References: <20030517221921.GA28077@ranty.ddts.net> <20030521072318.GA12973@kroah.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200305210105.06006.baldrick@wanadoo.fr>
+In-Reply-To: <20030521072318.GA12973@kroah.com>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The stats field is never NULL.
+On Wed, May 21, 2003 at 12:23:18AM -0700, Greg Kroah-Hartman wrote:
+> > +struct firmware_priv {
+> > +	char fw_id[FIRMWARE_NAME_MAX];
+> > +	struct completion completion;
+> > +	struct bin_attribute attr_data;
+> > +	struct firmware *fw;
+> > +	s32 loading:2;
+> > +	u32 abort:1;
+> 
+> Why s32 and u32?  Why not just ints for both of them?
 
- speedtch.c |   12 ++++--------
- 1 files changed, 4 insertions(+), 8 deletions(-)
+And for that matter, I don't think there's any point using bitfields,
+61 bits is not worth it.
 
-
-diff -Nru a/drivers/usb/misc/speedtch.c b/drivers/usb/misc/speedtch.c
---- a/drivers/usb/misc/speedtch.c	Wed May 21 00:41:05 2003
-+++ b/drivers/usb/misc/speedtch.c	Wed May 21 00:41:05 2003
-@@ -358,8 +358,7 @@
- 
- 	/* is skb long enough ? */
- 	if (skb->len < pdu_length) {
--		if (ctx->vcc->stats)
--			atomic_inc (&ctx->vcc->stats->rx_err);
-+		atomic_inc (&ctx->vcc->stats->rx_err);
- 		return NULL;
- 	}
- 
-@@ -378,8 +377,7 @@
- 	/* check crc */
- 	if (pdu_crc != crc) {
- 		dbg ("udsl_decode_aal5: crc check failed!");
--		if (ctx->vcc->stats)
--			atomic_inc (&ctx->vcc->stats->rx_err);
-+		atomic_inc (&ctx->vcc->stats->rx_err);
- 		return NULL;
- 	}
- 
-@@ -387,8 +385,7 @@
- 	skb_trim (skb, length);
- 
- 	/* update stats */
--	if (ctx->vcc->stats)
--		atomic_inc (&ctx->vcc->stats->rx);
-+	atomic_inc (&ctx->vcc->stats->rx);
- 
- 	vdbg ("udsl_decode_aal5 returns pdu 0x%p with length %d", skb, skb->len);
- 	return skb;
-@@ -760,8 +757,7 @@
- 			dev_kfree_skb (skb);
- 		instance->current_skb = NULL;
- 
--		if (vcc->stats)
--			atomic_inc (&vcc->stats->tx);
-+		atomic_inc (&vcc->stats->tx);
- 	}
- 
- 	goto made_progress;
-
+-- 
+David Gibson			| For every complex problem there is a
+david@gibson.dropbear.id.au	| solution which is simple, neat and
+				| wrong.
+http://www.ozlabs.org/people/dgibson

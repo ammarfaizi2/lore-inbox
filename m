@@ -1,36 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261233AbVCQVsp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261167AbVCQVxX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261233AbVCQVsp (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Mar 2005 16:48:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261228AbVCQVq5
+	id S261167AbVCQVxX (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Mar 2005 16:53:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261228AbVCQVxV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Mar 2005 16:46:57 -0500
-Received: from extgw-uk.mips.com ([62.254.210.129]:58884 "EHLO
-	mail.linux-mips.net") by vger.kernel.org with ESMTP id S261220AbVCQVpc
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Mar 2005 16:45:32 -0500
-Date: Thu, 17 Mar 2005 21:44:19 +0000
-From: Ralf Baechle <ralf@linux-mips.org>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Jesper Juhl <juhl-lkml@dif.dk>, yuasa@hh.iij4u.or.jp,
-       linux-kernel@vger.kernel.org
-Subject: Re: [patch][resend] convert a remaining verify_area to access_ok (was: Re: [PATCH 2.6.11-mm1] mips: more convert verify_area to access_ok) (fwd)
-Message-ID: <20050317214419.GB14882@linux-mips.org>
-References: <Pine.LNX.4.62.0503162227270.2558@dragon.hyggekrogen.localhost> <20050316145524.18787569.akpm@osdl.org>
+	Thu, 17 Mar 2005 16:53:21 -0500
+Received: from hermine.aitel.hist.no ([158.38.50.15]:55314 "HELO
+	hermine.aitel.hist.no") by vger.kernel.org with SMTP
+	id S261167AbVCQVwy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 17 Mar 2005 16:52:54 -0500
+Date: Thu, 17 Mar 2005 22:56:14 +0100
+To: regatta <regatta@gmail.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 32Bit vs 64Bit
+Message-ID: <20050317215614.GA30388@hh.idb.hist.no>
+References: <5a3ed5650503160744730b7db4@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20050316145524.18787569.akpm@osdl.org>
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <5a3ed5650503160744730b7db4@mail.gmail.com>
+User-Agent: Mutt/1.5.6+20040907i
+From: Helge Hafting <helgehaf@aitel.hist.no>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Mar 16, 2005 at 02:55:24PM -0800, Andrew Morton wrote:
+On Wed, Mar 16, 2005 at 06:44:51PM +0300, regatta wrote:
+> Hi everyone,
+> 
+> I have a question about the 64Bit mode in AMD 64bit
+> 
+> My question is if I run a 32Bit application in Optreon AMD 64Bit with
+> Linux 64Bit does this give my any benefit ? I mean running 32Bit
+> application in 64Bit machine with 64 Linux is it better that running
+> it in 32Bit or doesn't make any different at all ?
+> 
+There are quite a few indirect benefits:
 
-> That's tricky stuff you're playing with, so I'd prefer it came in via Ralf.
-> However I can queue it up locally so it doesn't get forgotten.
+The kernel itself might be faster because it takes advantage
+of extra registers and so on.  So the app might wait less on
+its syscalls.
 
-Did look good except I recently turned uaccess.h upside down for the
-sake of sparse.
+Also, this app may be 32-bit but surely a lot of other programs
+will be available as 64-bit software and will be faster.  That
+leaves more time for running your 32-bit app.
 
-  Ralf
+Helge Hafting

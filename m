@@ -1,22 +1,20 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269932AbRHIQwS>; Thu, 9 Aug 2001 12:52:18 -0400
+	id <S269892AbRHIQ7k>; Thu, 9 Aug 2001 12:59:40 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269892AbRHIQwI>; Thu, 9 Aug 2001 12:52:08 -0400
-Received: from walnut.prs.k12.nj.us ([192.152.5.216]:31625 "EHLO
-	walnut.prs.k12.nj.us") by vger.kernel.org with ESMTP
-	id <S269859AbRHIQvz>; Thu, 9 Aug 2001 12:51:55 -0400
-Date: Thu, 9 Aug 2001 12:51:02 -0400
-From: andrew_ferguson@walnut.prs.k12.nj.us
+	id <S269994AbRHIQ7a>; Thu, 9 Aug 2001 12:59:30 -0400
+Received: from adsl-151-204-73-220.delval.adsl.bellatlantic.net ([151.204.73.220]:6736
+	"EHLO linajudo.owsla.net") by vger.kernel.org with ESMTP
+	id <S269981AbRHIQ7U>; Thu, 9 Aug 2001 12:59:20 -0400
+Date: Thu, 9 Aug 2001 11:14:08 -0400
+From: Andrew Ferguson <andrew@owsla.cjb.net>
 To: linux-kernel@vger.kernel.org
 Subject: Compile Error in 2.4.7-ac10
-Message-ID: <20010809125102.E17007@linajudo.princeton.edu>
-In-Reply-To: <20010809111408.A19599@linajudo.princeton.edu>
+Message-ID: <20010809111408.A19599@linajudo.princeton.edu>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7BIT
-In-Reply-To: <20010809111408.A19599@linajudo.princeton.edu>; from andrew@owsla.cjb.net on Thu, Aug 09, 2001 at 11:14:08 -0400
-X-Mailer: Balsa 1.2.pre1
+X-Mailer: Balsa 1.1.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
@@ -51,4 +49,4 @@ problem. I can give more information as needed. Thanks.
 _________________________________________________
 Andrew Ferguson
 http://owsla.cjb.net | andrew@owsla.cjb.net
-Tintin Webring: http://owsla.cjb.net/tintin/ring/
+AfterStep WM Project: http://www.afterstep.org

@@ -1,43 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265298AbRF0IQW>; Wed, 27 Jun 2001 04:16:22 -0400
+	id <S265304AbRF0IcM>; Wed, 27 Jun 2001 04:32:12 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265300AbRF0IQL>; Wed, 27 Jun 2001 04:16:11 -0400
-Received: from h24-65-193-28.cg.shawcable.net ([24.65.193.28]:52466 "EHLO
-	webber.adilger.int") by vger.kernel.org with ESMTP
-	id <S265298AbRF0IP7>; Wed, 27 Jun 2001 04:15:59 -0400
-From: Andreas Dilger <adilger@turbolinux.com>
-Message-Id: <200106270815.f5R8FGT0001788@webber.adilger.int>
-Subject: Re: mm and Oops
-In-Reply-To: <UTC200106270232.EAA456067.aeb@vlet.cwi.nl> "from Andries.Brouwer@cwi.nl
- at Jun 27, 2001 04:32:16 am"
-To: Andries.Brouwer@cwi.nl
-Date: Wed, 27 Jun 2001 02:15:16 -0600 (MDT)
-CC: linux-kernel@vger.kernel.org
-X-Mailer: ELM [version 2.4ME+ PL87 (25)]
+	id <S265306AbRF0IcC>; Wed, 27 Jun 2001 04:32:02 -0400
+Received: from leibniz.math.psu.edu ([146.186.130.2]:18323 "EHLO math.psu.edu")
+	by vger.kernel.org with ESMTP id <S265304AbRF0Ib6>;
+	Wed, 27 Jun 2001 04:31:58 -0400
+Date: Wed, 27 Jun 2001 04:31:55 -0400 (EDT)
+From: Alexander Viro <viro@math.psu.edu>
+To: "Magnus Naeslund(f)" <mag@fbab.net>
+cc: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Maximum mountpoints + chrooted login
+In-Reply-To: <002b01c0fee0$6429bc00$020a0a0a@totalmef>
+Message-ID: <Pine.GSO.4.21.0106270422400.19655-100000@weyl.math.psu.edu>
 MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andries writes:
-> After sending util-linux out, I booted a kernel that had kdev_t
-> a pointer type, to see whether that still works.
-> And all (minus md/lvm/nfs that didnt compile)...
 
-Yes, LVM totally abuses kdev_t (assumes = dev_t in user space).
-Changing kdev_t should force this to be cleaned up.
 
-> The second one is the use of a special constant B_FREE
-> as device value to indicate that the buffer is free.
-> I'll look at this tomorrow but perhaps someone knows:
-> must the constant B_FREE (used only in fs/buffer.c) be nonzero?
-> If so, then we probably need a bitfield to indicate "free".
-> Otherwise we can use 0 ("no device") as value.
+On Wed, 27 Jun 2001, Magnus Naeslund(f) wrote:
 
-Isn't a device = 0 used for NFS root?
+> I was thinking of doing a chrooted login for some ssh accounts.
+> The plan is this:
 
-Cheers, Andreas
--- 
-Andreas Dilger  \ "If a man ate a pound of pasta and a pound of antipasto,
-                 \  would they cancel out, leaving him still hungry?"
-http://www-mddsp.enel.ucalgary.ca/People/adilger/               -- Dogbert
+[snip CLONE_NAMESPACE-by-hands]
+ 
+> Does this seem like a bad idea?
+> (then please tell me why :))
+
+Mostly because there's a better way to do that. Yes, such scheme would
+work (that + massive pending fs/super.c cleanups was the main reason why
+I didn't go for proper solution in 2.4.0-test*). However, instead of
+crufting up kinda-sorta namespaces one could use the real thing. Relevant
+cleanups of superblock handling will go in in 2.5.very_early and the
+rest of patch (namespace proper) takes about 10Kb.
+
+You can simply say clone(CLONE_NAMESPACE,NULL) and you get an independent
+set of mounts to play with. mount/umount whatever you want before dropping
+the root priveleges. All children of that process will share its namespace.
+When the last one goes away everything will be garbage-collected - no
+need to umount anything on logout.
+
+> One problem could be the _massive_ mounts, 3*online_users.
+> Are there any limits/drawbacks doing it like this?
+
+With the mntcache in - not really. It fixes the main performance problem.
+Memory cost is sizeof(struct vfsmount)*total amount of mountpoints. I.e.
+about 100 bytes per mountpoint. That's it.
+

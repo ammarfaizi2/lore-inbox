@@ -1,55 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S275316AbTHMSlz (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 13 Aug 2003 14:41:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S275341AbTHMSlG
+	id S275344AbTHMSku (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 13 Aug 2003 14:40:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S275325AbTHMSiz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 13 Aug 2003 14:41:06 -0400
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:38411 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S275316AbTHMSjA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 13 Aug 2003 14:39:00 -0400
-Date: Wed, 13 Aug 2003 19:38:55 +0100
-From: Russell King <rmk@arm.linux.org.uk>
-To: Jeff Garzik <jgarzik@pobox.com>
-Cc: Greg KH <greg@kroah.com>, "David S. Miller" <davem@redhat.com>,
-       rddunlap@osdl.org, davej@redhat.com, willy@debian.org,
-       linux-kernel@vger.kernel.org,
-       kernel-janitor-discuss@lists.sourceforge.net
-Subject: Re: C99 Initialisers
-Message-ID: <20030813193855.E20676@flint.arm.linux.org.uk>
-Mail-Followup-To: Jeff Garzik <jgarzik@pobox.com>, Greg KH <greg@kroah.com>,
-	"David S. Miller" <davem@redhat.com>, rddunlap@osdl.org,
-	davej@redhat.com, willy@debian.org, linux-kernel@vger.kernel.org,
-	kernel-janitor-discuss@lists.sourceforge.net
-References: <3F3986ED.1050206@pobox.com> <20030812173742.6e17f7d7.rddunlap@osdl.org> <20030813004941.GD2184@redhat.com> <32835.4.4.25.4.1060743746.squirrel@www.osdl.org> <3F39AFDF.1020905@pobox.com> <20030813031432.22b6a0d6.davem@redhat.com> <20030813173150.GA3317@kroah.com> <3F3A79CA.6010102@pobox.com> <20030813180245.GC3317@kroah.com> <3F3A82C3.5060006@pobox.com>
+	Wed, 13 Aug 2003 14:38:55 -0400
+Received: from crosslink-village-512-1.bc.nu ([81.2.110.254]:23033 "EHLO
+	dhcp23.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id S275316AbTHMSiF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 13 Aug 2003 14:38:05 -0400
+Subject: Re: 2.6.0-test3-mm1: scheduling while atomic (ext3?)
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Dave Jones <davej@redhat.com>
+Cc: Andi Kleen <ak@suse.de>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20030813163927.GE2184@redhat.com>
+References: <20030813025542.32429718.akpm@osdl.org.suse.lists.linux.kernel>
+	 <1060772769.8009.4.camel@localhost.localdomain.suse.lists.linux.kernel>
+	 <20030813042544.5064b3f4.akpm@osdl.org.suse.lists.linux.kernel>
+	 <1060774803.8008.24.camel@localhost.localdomain.suse.lists.linux.kernel>
+	 <p7365l17o70.fsf@oldwotan.suse.de>
+	 <1060778924.8008.39.camel@localhost.localdomain>
+	 <20030813131457.GD32290@wotan.suse.de>
+	 <1060783794.8008.62.camel@dhcp23.swansea.linux.org.uk>
+	 <20030813142055.GC9179@wotan.suse.de>
+	 <1060788009.8957.5.camel@dhcp23.swansea.linux.org.uk>
+	 <20030813163927.GE2184@redhat.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Message-Id: <1060799859.9131.23.camel@dhcp23.swansea.linux.org.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <3F3A82C3.5060006@pobox.com>; from jgarzik@pobox.com on Wed, Aug 13, 2003 at 02:26:11PM -0400
-X-Message-Flag: Your copy of Microsoft Outlook is vulnerable to viruses. See www.mutt.org for more details.
+X-Mailer: Ximian Evolution 1.4.3 (1.4.3-3) 
+Date: 13 Aug 2003 19:37:40 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Aug 13, 2003 at 02:26:11PM -0400, Jeff Garzik wrote:
-> Again, my philosophy:  put the data in its most natural form.  In 
-> CS-speak, domain-specific languages.  So, just figure out what you want 
-> the data files to look like, and I'll volunteer to write the parser for it.
+And one other update
 
-But what's the point of the extra complexity?  People already put
-references to other structures in the driver_data element, and
-enums, so completely splitting the device IDs from the module
-source is not going to be practical.
-
-Are you thinking of a parser which outputs C code for the module to
-include?  That might be made to work, but it doesn't sound as elegant
-as the solution being described previously in this thread.
-
-"Make the easy things easy (PCI_DEVICE(vendor,device)) and make the
-not so easy things possible (the long form)"
-
--- 
-Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
-             http://www.arm.linux.org.uk/personal/aboutme.html
+Winchip C6 - MMX, extended MMX
+Winchip II+ , MMX, extended MMX, 3Dnow (dunno if it has
+prefetch I don't have one of these)
 

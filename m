@@ -1,47 +1,112 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267708AbUJRTv2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267737AbUJRTv3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267708AbUJRTv2 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 18 Oct 2004 15:51:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267798AbUJRTvS
+	id S267737AbUJRTv3 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 18 Oct 2004 15:51:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267785AbUJRTu6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 18 Oct 2004 15:51:18 -0400
-Received: from stat16.steeleye.com ([209.192.50.48]:46474 "EHLO
-	hancock.sc.steeleye.com") by vger.kernel.org with ESMTP
-	id S267708AbUJRTpz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 18 Oct 2004 15:45:55 -0400
-Subject: Re: cciss update [2/2] fixes for Steeleye Lifekeeper
-From: James Bottomley <James.Bottomley@SteelEye.com>
-To: mikem <mikem@beardog.cca.cpqcorp.net>
-Cc: Christoph Hellwig <hch@infradead.org>, Andrew Morton <akpm@osdl.org>,
-       Jens Axboe <axboe@suse.de>, Linux Kernel <linux-kernel@vger.kernel.org>,
-       SCSI Mailing List <linux-scsi@vger.kernel.org>
-In-Reply-To: <20041018163532.GA24511@beardog.cca.cpqcorp.net>
-References: <20041013212253.GB9866@beardog.cca.cpqcorp.net>
-	<20041014083900.GB7747@infradead.org> <1097764660.2198.11.camel@mulgrave>
-	<20041014183948.GA12325@infradead.org> <1097852716.1718.9.camel@mulgrave> 
-	<20041018163532.GA24511@beardog.cca.cpqcorp.net>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-9) 
-Date: 18 Oct 2004 14:45:24 -0500
-Message-Id: <1098128731.2011.296.camel@mulgrave>
-Mime-Version: 1.0
+	Mon, 18 Oct 2004 15:50:58 -0400
+Received: from chaos.analogic.com ([204.178.40.224]:2688 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP id S267730AbUJRTt3
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 18 Oct 2004 15:49:29 -0400
+Date: Mon, 18 Oct 2004 15:49:15 -0400 (EDT)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+Reply-To: root@chaos.analogic.com
+To: Aleksey Gorelov <Aleksey_Gorelov@Phoenix.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: [BUG] in i386 semaphores.
+In-Reply-To: <5F106036E3D97448B673ED7AA8B2B6B3017FBE1C@scl-exch2k.phoenix.com>
+Message-ID: <Pine.LNX.4.61.0410181529350.4356@chaos.analogic.com>
+References: <5F106036E3D97448B673ED7AA8B2B6B3017FBE1C@scl-exch2k.phoenix.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2004-10-18 at 11:35, mikem wrote:
-> This patch only registers the controller if no logical drives are configured. It will not result in all possible logical drives being added. I added printk's to the driver to show me what I'm registering.
-> What I see is the controller registers every time, and only drives that are phsically configured are registered. That is true for reserved drives, also.
+On Mon, 18 Oct 2004, Aleksey Gorelov wrote:
 
-It also looks like this device is always the one used when the array
-comes on line, so it's only a shadow for as long as the actual array has
-none of it's storage configured.  OK.
+>
+> Hi.
+>
+> I sent this yesterday, but seems like it missed the list somehow :
+>
+>  There are several assembly 'helpers' in arch/i386/semaphore.c, for
+> example, __up_wakeup. __up_wakeup's purpose is to call C function:
+> asmlinkage void __up(struct semaphore *sem)
+>
+> this is how it does it:
+>
+> 	pushl %eax
+> 	pushl %edx
+> 	pushl %ecx
+> 	call __up
+> 	popl %ecx
+> 	popl %edx
+> 	popl %eax
+>
 
-The code also seems to imply that we use a single block queue for all of
-the array devices ... isn't that a bit inefficient?
+__up is declared 'asmlinkage', which means that conventional
+'C' calling convention is used, that eax and/or edx/eax pair
+is used for return values and the input values are pushed on
+  the stack. The last parameter passed is a pointer in %ecx.
 
-James
+Therefore, the called 'C' function, that 'knows' only about
+the first parameter passed, will get the correct pointer value.
+The 'C' function also never changes the value of that pointer,
+only something that it points to.
+
+Now, wake_up() gets a pointer to the variable sem->wait. wake_up()
+never modifies 'sem', only sem->wait.
+
+>  As one can see, actual parameter in %ecx is not only being copied in
+> formal parameter sem (which is correct), but also being restored from it
+> after function call via %ecx (which is incorrect). Since formal
+> parameter is not a constant one, it may be overwritten inside C
+> function, or gcc may (and in fact does that in some cases) use it for
+> something else.
+> If we want to keep %ecx, correct behavior would be
+>
 
 
+> 	pushl %ecx
+> 	pushl %ecx
+> 	call _up
+> 	add $4, %ecx
+> 	popl %ecx
+>
 
+Very wrong. In fact, it would unbalance the stack. The register
+value, %ecx must be restored exactly as the code does it. One
+can't assume that %ecx magically got changed and needs to be
+'corrected'.
+
+Maybe you meant:
+
+ 	pushl	%eax
+ 	pushl	%edx
+ 	pushl	%ecx
+ 	call	__up
+ 	addl	$0x04, %esp	# Bypass ecx on stack
+ 	popl	%edx
+ 	popl	%eax
+
+At least the stack would be correct and the return-address wouldn't
+be clobbered. However, now ecx ends up being whatever value some
+called 'C' function left it. This will result in a system failure
+because previous code expected all registers to be preserved.
+
+> Above applies for other functions in semaphore.c in latest 2.6 kernels.
+> 2.4 might also be affected.
+>
+> Thanks,
+> Aleks.
+>
+
+It 'taint broke. Don't "fix" it.
+
+
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.6.8 on an i686 machine (5537.79 BogoMips).
+             Note 96.31% of all statistics are fiction.
 

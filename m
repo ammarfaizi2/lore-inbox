@@ -1,59 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262624AbVA0TZU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262689AbVA0T2l@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262624AbVA0TZU (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 27 Jan 2005 14:25:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262689AbVA0TZU
+	id S262689AbVA0T2l (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 27 Jan 2005 14:28:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262695AbVA0T2l
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 27 Jan 2005 14:25:20 -0500
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:32266 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S262624AbVA0TZM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 27 Jan 2005 14:25:12 -0500
-Date: Thu, 27 Jan 2005 19:25:04 +0000
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: Phil Oester <kernel@linuxace.com>
-Cc: Robert Olsson <Robert.Olsson@data.slu.se>, Andrew Morton <akpm@osdl.org>,
-       torvalds@osdl.org, alexn@dsv.su.se, kas@fi.muni.cz,
-       linux-kernel@vger.kernel.org, netdev@oss.sgi.com
-Subject: Re: Memory leak in 2.6.11-rc1?
-Message-ID: <20050127192504.D3036@flint.arm.linux.org.uk>
-Mail-Followup-To: Phil Oester <kernel@linuxace.com>,
-	Robert Olsson <Robert.Olsson@data.slu.se>,
-	Andrew Morton <akpm@osdl.org>, torvalds@osdl.org, alexn@dsv.su.se,
-	kas@fi.muni.cz, linux-kernel@vger.kernel.org, netdev@oss.sgi.com
-References: <20050123095608.GD16648@suse.de> <20050123023248.263daca9.akpm@osdl.org> <20050123200315.A25351@flint.arm.linux.org.uk> <20050124114853.A16971@flint.arm.linux.org.uk> <20050125193207.B30094@flint.arm.linux.org.uk> <20050127082809.A20510@flint.arm.linux.org.uk> <20050127004732.5d8e3f62.akpm@osdl.org> <16888.58622.376497.380197@robur.slu.se> <20050127164918.C3036@flint.arm.linux.org.uk> <20050127183745.GA13365@linuxace.com>
+	Thu, 27 Jan 2005 14:28:41 -0500
+Received: from waste.org ([216.27.176.166]:43935 "EHLO waste.org")
+	by vger.kernel.org with ESMTP id S262689AbVA0T2f (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 27 Jan 2005 14:28:35 -0500
+Date: Thu, 27 Jan 2005 11:28:15 -0800
+From: Matt Mackall <mpm@selenic.com>
+To: Bill Davidsen <davidsen@tmr.com>
+Cc: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>,
+       Andrew Morton <akpm@osdl.org>, "Theodore Ts'o" <tytso@mit.edu>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] SHA1 clarify kerneldoc
+Message-ID: <20050127192815.GF4573@waste.org>
+References: <20050125215015.GQ12076@waste.org> <41F93164.9000508@tmr.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20050127183745.GA13365@linuxace.com>; from kernel@linuxace.com on Thu, Jan 27, 2005 at 10:37:45AM -0800
+In-Reply-To: <41F93164.9000508@tmr.com>
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jan 27, 2005 at 10:37:45AM -0800, Phil Oester wrote:
-> On Thu, Jan 27, 2005 at 04:49:18PM +0000, Russell King wrote:
-> > so obviously the GC does appear to be working - as can be seen from the
-> > number of entries in /proc/net/rt_cache.  However, the number of objects
-> > in the slab cache does grow day on day.  About 4 days ago, it was only
-> > about 600 active objects.  Now it's more than twice that, and it'll
-> > continue increasing until it hits 8192, where upon it's game over.
-> 
-> I can confirm the behavior you are seeing -- does seem to be a leak
-> somewhere.  Below from a heavily used gateway with 26 days uptime:
-> 
-> # wc -l /proc/net/rt_cache ; grep ip_dst /proc/slabinfo
->   12870 /proc/net/rt_cache
-> ip_dst_cache       53327  57855
-> 
-> Eventually I get the dst_cache overflow errors and have to reboot.
+On Thu, Jan 27, 2005 at 01:22:28PM -0500, Bill Davidsen wrote:
+> >  *
+> >  * This function generates a SHA1 digest for a single. Be warned, it
+>                                                   ^^^^^^
+> Is this a term I don't know, "single" as a noun, or should "512 bit 
+> block" follow, as it does in crypto/sha1 from rc1-bk1 which is what I 
+> have handy?
 
-Can you provide some details, eg kernel configuration, loaded modules
-and a brief overview of any netfilter modules you may be using.
+That'll teach me to add comments.
 
-Maybe we can work out what's common between our setups.
+Signed-off-by: Matt Mackall <mpm@selenic.com>
+
+Index: rc2mm1/lib/sha1.c
+===================================================================
+--- rc2mm1.orig/lib/sha1.c	2005-01-27 11:24:23.000000000 -0800
++++ rc2mm1/lib/sha1.c	2005-01-27 11:25:19.000000000 -0800
+@@ -27,9 +27,10 @@
+  * @data:   512 bits of data to hash
+  * @W:      80 words of workspace (see note)
+  *
+- * This function generates a SHA1 digest for a single. Be warned, it
+- * does not handle padding and message digest, do not confuse it with
+- * the full FIPS 180-1 digest algorithm for variable length messages.
++ * This function generates a SHA1 digest for a single 512-bit block.
++ * Be warned, it does not handle padding and message digest, do not
++ * confuse it with the full FIPS 180-1 digest algorithm for variable
++ * length messages.
+  *
+  * Note: If the hash is security sensitive, the caller should be sure
+  * to clear the workspace. This is left to the caller to avoid
+
 
 -- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 PCMCIA      - http://pcmcia.arm.linux.org.uk/
-                 2.6 Serial core
+Mathematics is the supreme nostalgia of our time.

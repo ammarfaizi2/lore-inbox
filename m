@@ -1,39 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268866AbUHLXY6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268886AbUHLXZQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268866AbUHLXY6 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 12 Aug 2004 19:24:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268886AbUHLXY4
+	id S268886AbUHLXZQ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 12 Aug 2004 19:25:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268880AbUHLXZP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 12 Aug 2004 19:24:56 -0400
-Received: from zero.aec.at ([193.170.194.10]:24069 "EHLO zero.aec.at")
-	by vger.kernel.org with ESMTP id S268880AbUHLXYj (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 12 Aug 2004 19:24:39 -0400
-To: "Theodore Ts'o" <tytso@mit.edu>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: New concept of ext3 disk checks
-References: <2ssbz-jB-1@gated-at.bofh.it> <2swyz-3ny-13@gated-at.bofh.it>
-From: Andi Kleen <ak@muc.de>
-Date: Fri, 13 Aug 2004 01:24:33 +0200
-In-Reply-To: <2swyz-3ny-13@gated-at.bofh.it> (Theodore Ts'o's message of
- "Fri, 13 Aug 2004 00:50:07 +0200")
-Message-ID: <m3acx0szwu.fsf@averell.firstfloor.org>
-User-Agent: Gnus/5.110003 (No Gnus v0.3) Emacs/21.2 (gnu/linux)
+	Thu, 12 Aug 2004 19:25:15 -0400
+Received: from prgy-npn1.prodigy.com ([207.115.54.37]:23684 "EHLO
+	oddball.prodigy.com") by vger.kernel.org with ESMTP id S268875AbUHLXXm
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 12 Aug 2004 19:23:42 -0400
+Message-ID: <411BFCD3.1070703@tmr.com>
+Date: Thu, 12 Aug 2004 19:27:15 -0400
+From: Bill Davidsen <davidsen@tmr.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040803
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Newsgroups: mail.linux-kernel
+To: Florian Schirmer <jolt@tuxbox.org>
+CC: Matthias Andree <matthias.andree@gmx.de>,
+       Gene Heskett <gene.heskett@verizon.net>, linux-kernel@vger.kernel.org
+Subject: Re: PATCH: cdrecord: avoiding scsi device numbering for ide devices
+References: <20040811002455.GA7537@merlin.emma.line.org><20040811002455.GA7537@merlin.emma.line.org> <4119EF1D.2040102@tuxbox.org>
+In-Reply-To: <4119EF1D.2040102@tuxbox.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Theodore Ts'o <tytso@mit.edu> writes:
+Florian Schirmer wrote:
 
-> 4) If there were no errors detecting by the fsck run, run the command
-> "tune2fs -C 0 -T now /dev/XXX" on the live filesystem.  This sets the
-> mount count and last filesystem checked time to the appropriate values
-> in the superblock.
+> With burn-proof on you get a disc which is still usable but with some 
+> pits/lands missing/misplaced. With burnproof off you get a completely 
+> unusable disc. So whats the _real_ point behind disabling burn proof?
 
-Is it safe now to run tune2fs on a mounted busy fs? afaik it would
-need at least support to quiescence the fs temporarily. Otherwise you 
-have a race window where changes to the superblock could get lost.
+There are some people who would rather not have a CD at all if it is 
+even slightly defective. Jorg is one of those, and I am for backups. I 
+also verify backup CDs with his c2scan option to see just how clean the 
+burn is.
 
--Andi
+There's an option, you can use it or not. Maybe a burnfree CD will be 
+just as good in 3-4 years, but CDs are cheap, I'll burn another if need 
+be. I don't know how much this helps, but I understand terms like "good 
+faith effort" and "best practices." I have no problem with making the 
+user specify that option.
 
+-- 
+    -bill davidsen (davidsen@tmr.com)
+"The secret to procrastination is to put things off until the
+  last possible moment - but no longer"  -me

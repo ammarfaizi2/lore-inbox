@@ -1,56 +1,50 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313416AbSEHMMU>; Wed, 8 May 2002 08:12:20 -0400
+	id <S313702AbSEHMTe>; Wed, 8 May 2002 08:19:34 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313563AbSEHMMT>; Wed, 8 May 2002 08:12:19 -0400
-Received: from [195.63.194.11] ([195.63.194.11]:59400 "EHLO
-	mail.stock-world.de") by vger.kernel.org with ESMTP
-	id <S313416AbSEHMMS>; Wed, 8 May 2002 08:12:18 -0400
-Message-ID: <3CD9075C.6080505@evision-ventures.com>
-Date: Wed, 08 May 2002 13:09:16 +0200
-From: Martin Dalecki <dalecki@evision-ventures.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; pl-PL; rv:1.0rc1) Gecko/20020419
-X-Accept-Language: en-us, pl
+	id <S313578AbSEHMTd>; Wed, 8 May 2002 08:19:33 -0400
+Received: from chaos.analogic.com ([204.178.40.224]:49024 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP
+	id <S313571AbSEHMTc>; Wed, 8 May 2002 08:19:32 -0400
+Date: Wed, 8 May 2002 08:21:00 -0400 (EDT)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+Reply-To: root@chaos.analogic.com
+To: "Serguei I. Ivantsov" <administrator@svitonline.com>
+cc: linux-gcc@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: Measure time
+In-Reply-To: <abaokj$ugl$1@news.lucky.net>
+Message-ID: <Pine.LNX.3.95.1020508081422.3374A-100000@chaos.analogic.com>
 MIME-Version: 1.0
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-CC: Linus Torvalds <torvalds@transmeta.com>,
-        Padraig Brady <padraig@antefacto.com>,
-        Anton Altaparmakov <aia21@cantab.net>,
-        Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] 2.5.14 IDE 56
-In-Reply-To: <E175QP9-0001RO-00@the-village.bc.nu>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Uz.ytkownik Alan Cox napisa?:
->>RedHat even disables all this chip set specific reporting in theyr
->>public kernels. OK kudzu is using it, but it does not *rely on it*.
-> 
-> 
-> The boot kernel has a lot of it disabled not the main ones.
-> 
-> 
->>Heck kudzu is running all the time I rebooted my system during
->>developement and nothing ugly did happen.
-> 
-> 
-> I can't speak directly for the Kudzu maintainer but I can say that having
-> a sane way to obtain the list of ide devices (all of them not just non 
-> pcmcia) and the device bindings/type has been a long standing request.
-> 
-> If 2.6 breaks a 2.4 installer and nothing else I don't think its a big 
-> disaster and the cleanup may well be justified
+On Wed, 8 May 2002, Serguei I. Ivantsov wrote:
 
+> Hello!
+> 
+> Is there any function for high precision time measuring.
+> time() returns only in second. I need nanoseconds.
+> 
+> --
+>  Regards,
+>   Serguei I. Ivantsov
+>    GSC Game World
+> 
 
-Well personally I would just love if there where a "go ahead and don't
-care about "compatibility" for the following:
+gettimeofday() returns seconds/microseconds. If you need nanoseconds,
+you can read CPU clock cycles in Intel machines with (assembly) rdtsc
+instructions and convert, based upon the CPU clock.
 
-Make hdX gone and use the scsi device major/minor number stuff instead.
+If you really need nanosecond resolution in code that may be
+interrupted or preempted at any time, you are in a world of hurt.
+I suggest you review the requirement. You may need a TMS320C30 or
+similar DSP standing alone.
 
-And then just making the ATA driver looking like if it where some
-incapable SCSI would actually reduce tons of code from kudzu and
-friends without the need for any adjustment there.
+Cheers,
+Dick Johnson
 
+Penguin : Linux version 2.4.18 on an i686 machine (797.90 BogoMips).
+
+                 Windows-2000/Professional isn't.
 

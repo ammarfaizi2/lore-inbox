@@ -1,178 +1,154 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261294AbTD0SUo (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 27 Apr 2003 14:20:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261300AbTD0SUo
+	id S261300AbTD0SXp (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 27 Apr 2003 14:23:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261305AbTD0SXp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 27 Apr 2003 14:20:44 -0400
-Received: from smtp-out.comcast.net ([24.153.64.115]:1887 "EHLO
-	smtp-out.comcast.net") by vger.kernel.org with ESMTP
-	id S261294AbTD0SUi convert rfc822-to-8bit (ORCPT
+	Sun, 27 Apr 2003 14:23:45 -0400
+Received: from ant.hiwaay.net ([216.180.54.10]:18447 "EHLO mail.hiwaay.net")
+	by vger.kernel.org with ESMTP id S261300AbTD0SXi (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 27 Apr 2003 14:20:38 -0400
-Date: Sun, 27 Apr 2003 14:31:25 -0400
-From: rmoser <mlmoser@comcast.net>
-Subject: Re: Re:  Swap Compression
-In-reply-to: <20030427175147.GA5174@wohnheim.fh-wedel.de>
-To: =?UNKNOWN?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
-Cc: linux-kernel@vger.kernel.org
-Message-id: <200304271431250990.01A281C7@smtp.comcast.net>
-MIME-version: 1.0
-X-Mailer: Calypso Version 3.30.00.00 (3)
-Content-type: text/plain; charset=ISO-8859-1
-Content-transfer-encoding: 8BIT
-References: <200304251848410590.00DEC185@smtp.comcast.net>
- <20030426091747.GD23757@wohnheim.fh-wedel.de>
- <200304261148590300.00CE9372@smtp.comcast.net>
- <20030426160920.GC21015@wohnheim.fh-wedel.de>
- <200304262224040410.031419FD@smtp.comcast.net>
- <20030427090418.GB6961@wohnheim.fh-wedel.de>
- <200304271324370750.01655617@smtp.comcast.net>
- <20030427175147.GA5174@wohnheim.fh-wedel.de>
+	Sun, 27 Apr 2003 14:23:38 -0400
+Date: Sun, 27 Apr 2003 13:35:53 -0500
+From: Chris Adams <cmadams@hiwaay.net>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Why DRM exists [was Re: Flame Linus to a crisp!]
+Message-ID: <20030427183553.GA955879@hiwaay.net>
+References: <fa.ivrgub8.1ci079c@ifi.uio.no>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030427165959.GC6820@work.bitmover.com>
+User-Agent: Mutt/1.4i
+Organization: HiWAAY Internet Services
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Once upon a time, Larry McVoy  <lm@bitmover.com> said:
+>What seems to be forgotten is that the people who are locking things up
+>are the people who own those things and the people who are complaining
+>are the people who got those things, illegally, for free.
 
+Stop right there - you are wrong.  That is just the corporate party line
+used to justify stripping consumers of their rights.
 
-*********** REPLY SEPARATOR  ***********
+In the US (I don't know about the rest of the world), we have a legal
+right (upheld many times by the courts) to "fair use".  Much of the DRM
+is a way for companies to deny the people that buy a product their legal
+fair use rights.  This has been through the courts numerous times with
+VCRs and photocopiers.
 
-On 4/27/2003 at 7:51 PM Jörn Engel wrote:
+I am allowed to make copies for personal use, such as taking an audio CD
+and creating MP3s so I can listen on another device.  Music companies
+and the RIAA are trying to remove that right.  I have a TiVo so I can
+watch TV at my convenience instead of some network programmer's idea of
+when I should watch, but some networks want to ban TiVo-like devices as
+well (despite "time shifting" with VCRs having been upheld by the courts
+as fair use).
 
->On Sun, 27 April 2003 13:24:37 -0400, rmoser wrote:
->> >int fox_compress(unsigned char *input, unsigned char *output,
->> >		uint32_t inlen, uint32_t *outlen);
->> >
->> >int fox_decompress(unsigned char *input, unsigned char *output,
->> >		uint32_t inlen, uint32_t *outlen);
->> 
->> Ey? uint32_t*?  I assume that's a mistake....
->
->Nope. outlen is changed, you need a pointer here.
->
+I want to play DVDs under Linux legally.  According to the laws, I've
+bought the DVD and the right to play it (and even make backup copies
+under fair use).  However, the DVD consortium has restricted my (court
+upheld) right to do this.  The DMCA just adds criminal enforcement for
+this.
 
-ahh okay, gotcha
+>Napster is a good example.  I don't
+>like the record companies any better than anyone else but they do own
+>the material and you either respect the rules or the record companies
+>will lock it up and force you to respect the rules.
 
->> Anyhow, this wasn't what
->> I was asking.  What I was asking was about how to determine how much
->> data to send to compress it.  Read the message again, the whole thing
->> this time.
->
->I did. But modularity is the key here. The whole idea may be great or
->plain bullshit, depending on the benchmarks. Which one it is depends
->on the compression algorithm used, among other things. Maybe your
->compression algo is better for some machines, zlib for others, etc.
->
+The way a lot of people USED Napster was illegal.  That doesn't mean
+that Napster should be made illegal.  Also, there are plenty of civil
+laws regarding copyright infringement; why do we need additional laws
+making it also a criminal offense?
 
-Yeah I know.  I really need to get a working user-space version of this
-thing so I can bench it against source tarballs and extractions from
-/dev/random a bunch of times.
+>The open source community, in my opinion, is certainly a contributing
+>factor in the emergence of the DMCA and DRM efforts.  This community
+>thinks it is perfectly acceptable to copy anything that they find useful.
+>Take a look at some of the recent BK flamewars and over and over you
+>will see people saying "we'll clone it".
 
+Again - stop right there.  Reverse engineering to copy something has
+been upheld by the courts many times.  We probably wouldn't be here if
+Compaq, Phoenix, and others hadn't reverse engineered the IBM PC BIOS.
+The patent side of things protects against this; is BK covered by any
+patents?
 
->Why should someone decide on an algorithm before measuring?
->
+You have every right to defend your trademark (and you should, or it
+becomes diluted).  Unless BK is covered by one or more patents, you have
+no right to tell people they can't take their time reverse engineering
+it (if it takes as many man-years to build as you say, why do you
+worry?).
 
-Erm.  You can use any one of the other algos you want, there's a lot
-out there.  Go ahead and try zlib/gzip/bzip2/7zip/compress if you
-want.  I just figured, the simplest algo would hopefully be the fastest.
-But really we need some finished code to make this work :-)
+>That's not unique to BK,
+>it's the same with anything else which is viewed as useful.  And nobody
+>sees anything wrong with that, or copying music, whatever.  "If it's
+>useful, take it" is the attitude.
 
-The real reason I'm working on this is because I favor speed completely
-over size in this application.  It's all modular; make the interface for the
-kernel module flexible enough to push in gzip/bzip2 modules or whatever
-else you want:
+By your logic, why do you support Linux?  It is just copying Unix.
 
-<M> Swap partition support
-____<M> Compressed Swap
-________<M> fcomp
-____________<M> fcomp-extended support
-________<M> zlib
-________<M> gzip
-________<M> bzip2
-________<M> compress
-____<M> Swap on RAM
+>This problem is pervasive, it's not just a handful of people.  Upon the
+>advice of several of the leading kernel developers, I contacted Pavel's
+>boss at SuSE and said "how about you nudge Pavel onto something more
+>productive" and he said that he couldn't control Pavel.
 
-As far as I know, zlib, gzip, and compress use Huffman trees.  I am pretty
-sure about zlib, not sure about the others.  gzip I believe uses 16 bit
-backpointers as well, which means you need a 64k processing window
-for [de]compression, not to mention that it takes more work.  bzip2 we
-all know is CPU-intensive, or at least it was last time I checked.
+Why don't YOU don't something more productive with your time other than
+call someone's boss and complain?
 
->> >Then the mm code can pick any useful size for compression.
->> 
->> Eh?  I rather the code alloc space itself and do all its own handling. 
->That
->> way you don't have to second-guess the buffer size for decompressed
->> data if you don't do all-at-once decompression (i.e. decompressing x86
->> segments, all-at-once would be to decompress the whole compressed
->> block of N size to 64k, where partial would be to pull in N/n at a time
->and
->> decompress in n sets of N/n, which would give varying sized output).
->
->Segments are old, stupid and x86 only. What you want is a number of
->pages, maybe just one at a time. Always compress chunks of the same
->size and you don't have to guess the decompressed size.
->
+>That's nonsense
+>and everyone knows that.  If one of my employees were doing something
+>like that, it would be trivial to say "choose between your job and that".
+>But Garloff just shrugged it off as not his problem.
 
-Yeah true.  But for guessing the decompressed size I meant like when
-you don't want to load the WHOLE block into RAM at once.  Ahh, so you
-swap in pages?  Well whatever unit you swap in, that's how you should
-compress things.  Look I'm confusing myself here, just ignore anything
-that sounds retarded--I'm just a kid after all :-p
+Get a life.  Are you going to call Transmeta and complain about Linus
+working on something that rips off SCO's "intellectual property" (some
+of which may even be covered by patents, something BK doesn't have)?
 
->> Another thing is that the code isn't made to strictly stick to
->compressing
->> or decompressing a whole input all at once; you may break down the
->> input into smaller pieces.  Therefore it does need to think about how
->much
->> it's gonna actually tell you to pull off when you inquire about the size
->to
->> remove from the stream (for compression at least), because you might
->> break it if you pull too much data off midway through compression.  The
->> advantage of this method is in when you're A) Compressing files, and
->> B) trying to do this kind of thing on EXTREMELY low RAM systems,
->> where you can't afford to pass whole buffers back and forth.  (Think 4
->meg)
->
->a) Even with 4M, two pages of 4k each don't hurt that much. If they
->do, the whole compression trick doesn't pay off at all.
->b) Compression ratios usually suck with small buffers.
->
-a)
-True, two chunks of 4k don't hurt.  But how big are swap pages?  Assuming
-the page can't be compressed at all, it's [page size / 256] * 3 + [page size]
-for the maximum compressed data size.  (4144 bytes for 4k of absolutely
-non-redundant data within 256 bytes).
+You chose to step into the frying pan; don't complain about the heat.
 
-b)
-Yeah they do.  But to find the compression performance (ratio) loss, you
-do [max pointer distance]/[block size], meaning like for this one
-256/[page size].  If you do a 4k page size, you lose 6.25% of the compression
-performance (so if we average 2:1, we'll average 1.875:1).  What IS the page
-size the kernel uses?
+>Corporations are certainly watching things like our efforts with
+>BitKeeper, as well as the other companies who are trying to play nice
+>with the open source world.  What are they learning?  That if you don't
+>lock it up, the open source world has no conscience, no respect, and will
+>steal anything that isn't locked down.  Show me a single example of the
+>community going "no, we can't take that, someone else did all the work
+>to produce it, we didn't".
 
->> You do actually understand the code, right?  I have this weird habit of
->> making code and doing such obfuscating comments that people go
->> "WTF is this?" when they see it.  Then again, you're probably about
->> 12 classes past me in C programming, so maybe it's just my logic that's
->> flawed. :)
->
->I didn't look that far yet. What you could do, is read through
->/usr/src/linux/Documentation/CodingStyle. It is just so much nicer
->(and faster) to read and sticking to it usually produces better code.
->
+There are things that Red Hat won't ship because they are protected
+under patents (good or bad).  Patents are the protection the US system
+offers; if you don't come up with something original enough to rate a
+patent, then anyone can copy it.
 
-Eh, I should just crack open the kernel source and immitate it.  But I have
-that file on my hard disk, so mebbe I should look.  Mebbe I should take a
-whack at getting the compression algo to work too, instead of pushing it
-on someone else.
+>Good luck finding it.  Instead you get "hey,
+>that's cool, let's copy it".  With no acknowledgement that the creation
+>of the product took 100x the effort it takes to copy the product.
 
+Please name something that "the creation of the product took 100x the
+effort it takes to copy".  How much effort has gone into Linux, Wine,
+GNOME, KDE, OpenOffice, etc. that originally was targeted to copy
+another product?
 
->Jörn
->
->-- 
->Beware of bugs in the above code; I have only proved it correct, but
->not tried it.
->-- Donald Knuth
+>Do you think that corporations are going sit by and watch you do that and
+>do nothing to stop you?  Of course they aren't, they have a strong self
+>preservation instinct and they have the resources to apply to the problem.
+>The DMCA, DRM, all that stuff is just the beginning.  You will respond
+>with all sorts of clever hacks to get around it and they will respond
+>with even more clever hacks to stop you.  They have both more resources
+>and more at stake so they will win.
 
+No, because a growing number of people won't play their game.  People
+are already bringing challenges to the DMCA, as more people realize the
+implications of it.
 
+>The depressing thing is that it is so obvious to me that the corporations
+>will win, they will protect themselves, they have the money to lobby the
+>government to get the laws they want and build the technology they need.
+>The more you push back the more locked up things will become.
 
+Then you have nothing to worry about, since you are one of the
+corporations.  You can "lock up" BK and try to silence the critics (as
+you have already said you've gone after at least one person).
+-- 
+Chris Adams <cmadams@hiwaay.net>
+Systems and Network Administrator - HiWAAY Internet Services
+I don't speak for anybody but myself - that's enough trouble.

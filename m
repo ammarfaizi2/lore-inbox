@@ -1,67 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266136AbUI0GG0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266163AbUI0GMj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266136AbUI0GG0 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 27 Sep 2004 02:06:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266149AbUI0GGZ
+	id S266163AbUI0GMj (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 27 Sep 2004 02:12:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266173AbUI0GMj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 27 Sep 2004 02:06:25 -0400
-Received: from fgwmail5.fujitsu.co.jp ([192.51.44.35]:11967 "EHLO
-	fgwmail5.fujitsu.co.jp") by vger.kernel.org with ESMTP
-	id S266136AbUI0GGX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 27 Sep 2004 02:06:23 -0400
-Date: Mon, 27 Sep 2004 15:08:09 +0900
-From: Kenji Kaneshige <kaneshige.kenji@jp.fujitsu.com>
-Subject: Re: acpi-devel@lists.sourceforge.net,
- linux-ia64@vger.kernel.orgRe: [PATCH] Updated patches for PCI IRQ resource
- deallocation support [3/3]
-In-reply-to: <Pine.LNX.4.53.0409251730580.2763@musoma.fsmlabs.com>
-To: Zwane Mwaikambo <zwane@linuxpower.ca>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>,
-       Greg Kroah-Hartmann <greg@kroah.com>, Len Brown <len.brown@intel.com>,
-       tony.luck@intel.com, Andrew Morton <akpm@osdl.org>
-Message-id: <4157AE49.7080306@jp.fujitsu.com>
-MIME-version: 1.0
-Content-type: text/plain; charset=us-ascii; format=flowed
-Content-transfer-encoding: 7bit
-X-Accept-Language: ja
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; ja-JP; rv:1.4)
- Gecko/20030624 Netscape/7.1 (ax)
-References: <2HRhX-6Ad-21@gated-at.bofh.it>
- <Pine.LNX.4.53.0409251436390.2914@musoma.fsmlabs.com>
- <Pine.LNX.4.53.0409251730580.2763@musoma.fsmlabs.com>
+	Mon, 27 Sep 2004 02:12:39 -0400
+Received: from smtp810.mail.sc5.yahoo.com ([66.163.170.80]:57003 "HELO
+	smtp810.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S266155AbUI0GMe convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 27 Sep 2004 02:12:34 -0400
+From: Dmitry Torokhov <dtor_core@ameritech.net>
+To: Keshavamurthy Anil S <anil.s.keshavamurthy@intel.com>
+Subject: Re: [ACPI] PATCH-ACPI based CPU hotplug[2/6]-ACPI Eject interface support
+Date: Mon, 27 Sep 2004 01:12:28 -0500
+User-Agent: KMail/1.6.2
+Cc: Len Brown <len.brown@intel.com>, acpi-devel@lists.sourceforge.net,
+       LHNS list <lhns-devel@lists.sourceforge.net>,
+       Linux IA64 <linux-ia64@vger.kernel.org>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+References: <20040920092520.A14208@unix-os.sc.intel.com> <200409201812.45933.dtor_core@ameritech.net> <20040924162823.B27778@unix-os.sc.intel.com>
+In-Reply-To: <20040924162823.B27778@unix-os.sc.intel.com>
+MIME-Version: 1.0
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 8BIT
+Message-Id: <200409270112.29422.dtor_core@ameritech.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Zwane Mwaikambo wrote:
-
-> On Sat, 25 Sep 2004, Zwane Mwaikambo wrote:
-> 
->> Hmm, what happens here if that vector was queued just before the local irq 
->> disable in spin_lock_irqsave(idesc->lock...) ? Then when we unlock we'll 
->> call do_IRQ to handle the irq associated with that vector. I haven't seen 
->> the usage but it appears that iosapic_unregister_intr requires some 
->> serialisation.
-> 
-> Ignore this, i misread some of the code.
-> 
-> Thanks Kenji,
-> 	Zwane
-> 
-
-OK.
-BTW, I was able to find a bug thanks to your comment :-)
-The following 'spin_lock(&iosapic_lock)' was missing. I'll update
-the patch.
-
-	if (unlikely(idesc->action)) {
-		iosapic_intr_info[vector].refcnt++;
-MISSING =>	spin_unlock(&iosapic_lock);
-		spin_unlock_irqrestore(&idesc->lock, flags);
-		printk(KERN_WARNING "Cannot unregister GSI. IRQ %u is still in use.\n", irq);
-		return;
-	}
-
-Thanks,
-Kenji Kaneshige
+On Friday 24 September 2004 06:28 pm, Keshavamurthy Anil S wrote:
+> +typedef void acpi_device_sysfs_files(struct kobject *,
+> +                               const struct attribute *);
+> +
+> +static void setup_sys_fs_device_files(struct acpi_device *dev,
+> +               acpi_device_sysfs_files *func);
+> +
+> +#define create_sysfs_device_files(dev) \
+> +       setup_sys_fs_device_files(dev, (acpi_device_sysfs_files *)&sysfs_create_file)
+> +#define remove_sysfs_device_files(dev) \
+> +       setup_sys_fs_device_files(dev, (acpi_device_sysfs_files *)&sysfs_remove_file)
 
 
+Hi Anil,
+
+It looks very nice except for the part above. I am really confused what the
+purpose of this code is... It looks like it just complicates things?
+
+-- 
+Dmitry

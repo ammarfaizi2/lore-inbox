@@ -1,42 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266717AbUG1BEc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266745AbUG1BIR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266717AbUG1BEc (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Jul 2004 21:04:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266744AbUG1BEc
+	id S266745AbUG1BIR (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Jul 2004 21:08:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266747AbUG1BIQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Jul 2004 21:04:32 -0400
-Received: from hera.kernel.org ([63.209.29.2]:54928 "EHLO hera.kernel.org")
-	by vger.kernel.org with ESMTP id S266717AbUG1BEb (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Jul 2004 21:04:31 -0400
-To: linux-kernel@vger.kernel.org
-From: hpa@zytor.com (H. Peter Anvin)
-Subject: Re: tty1 and italian charset ...
-Date: Wed, 28 Jul 2004 01:03:10 +0000 (UTC)
-Organization: Transmeta Corporation, Santa Clara CA
-Message-ID: <ce6u0e$c3t$1@terminus.zytor.com>
-References: <200407261647.40006.AlberT@SuperAlberT.it>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-15
-Content-Transfer-Encoding: 8bit
-X-Trace: terminus.zytor.com 1090976590 12414 127.0.0.1 (28 Jul 2004 01:03:10 GMT)
-X-Complaints-To: news@terminus.zytor.com
-NNTP-Posting-Date: Wed, 28 Jul 2004 01:03:10 +0000 (UTC)
-X-Newsreader: trn 4.0-test76 (Apr 2, 2001)
+	Tue, 27 Jul 2004 21:08:16 -0400
+Received: from smtp011.mail.yahoo.com ([216.136.173.31]:18270 "HELO
+	smtp011.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S266745AbUG1BIO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 27 Jul 2004 21:08:14 -0400
+Message-ID: <4106FC7A.9010102@yahoo.com.au>
+Date: Wed, 28 Jul 2004 11:08:10 +1000
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7) Gecko/20040707 Debian/1.7-5
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Jesse Barnes <jbarnes@engr.sgi.com>
+CC: Dimitri Sivanich <sivanich@sgi.com>,
+       "Siddha, Suresh B" <suresh.b.siddha@intel.com>,
+       Andrew Morton <akpm@osdl.org>, Anton Blanchard <anton@samba.org>,
+       Andi Kleen <ak@suse.de>, Ingo Molnar <mingo@elte.hu>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       John Hawkes <hawkes@sgi.com>
+Subject: Re: [PATCH] consolidate sched domains
+References: <41008386.9060009@yahoo.com.au> <200407261106.33173.jbarnes@engr.sgi.com> <4105CBD9.7080209@yahoo.com.au> <200407270915.40600.jbarnes@engr.sgi.com>
+In-Reply-To: <200407270915.40600.jbarnes@engr.sgi.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Followup to:  <200407261647.40006.AlberT@SuperAlberT.it>
-By author:    "Emiliano 'AlberT' Gabrielli" <AlberT@SuperAlberT.it>
-In newsgroup: linux.dev.kernel
+Jesse Barnes wrote:
+> On Monday, July 26, 2004 8:28 pm, Nick Piggin wrote:
 > 
-> I already used "loadkeys it" and it seems to success, but tty1 still doesn't 
-> prints "òàèìù" characters.
+>>You'll also want Jack Steiner's one liner. (I've sent all these to Andrew.)
+> 
+> 
+> Including the consolidation patch?
 > 
 
-Sounds like you're trying to print Latin-1 on an UTF-8 console or vice versa.
+Yep.
 
-	echo -ne '\\033%G'	-- Enable UTF-8
-	echo -ne '\\033%@'	-- Disable UTF-8
+> 
+>>Looks pretty neat. It may even be usable in the generic setup code if more
+>>architectures start needing it.
+>>
+>>For now, put it in your arch code when it is ready to be merged up of
+>>course.
+>>I would be very interested to see what sort of performance improvements you
+>>get out of the scheduler...
+> 
+> 
+> Ok, this new patch has no effect on platforms that don't define 
+> ARCH_HAS_SCHED_DOMAIN, but changes the arch specific callback.  I didn't want 
+> to duplicate all the code you just ripped out, but if you think that's best I 
+> can...
+> 
 
-	-hpa
+Except that architectures now can't override arch_init_sched_domains now.
+Hmm.. I guess yours is the right way to go and we could put it in generic
+code. Well get back to me when you have something that does the right thing
+for you on your big systems.
+
+Thanks.

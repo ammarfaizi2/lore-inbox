@@ -1,34 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261593AbSLHUAn>; Sun, 8 Dec 2002 15:00:43 -0500
+	id <S261599AbSLHUDV>; Sun, 8 Dec 2002 15:03:21 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261594AbSLHUAm>; Sun, 8 Dec 2002 15:00:42 -0500
-Received: from packet.digeo.com ([12.110.80.53]:31981 "EHLO packet.digeo.com")
-	by vger.kernel.org with ESMTP id <S261593AbSLHUAm>;
-	Sun, 8 Dec 2002 15:00:42 -0500
-Message-ID: <3DF3A6B0.A67A70BD@digeo.com>
-Date: Sun, 08 Dec 2002 12:08:16 -0800
-From: Andrew Morton <akpm@digeo.com>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.5.46 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Anton Blanchard <anton@samba.org>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: 2.5.50 + e100 benchmarking
-References: <20021208124444.GA18751@krispykreme>
+	id <S261624AbSLHUDV>; Sun, 8 Dec 2002 15:03:21 -0500
+Received: from noodles.codemonkey.org.uk ([213.152.47.19]:53894 "EHLO
+	noodles.internal") by vger.kernel.org with ESMTP id <S261599AbSLHUDU>;
+	Sun, 8 Dec 2002 15:03:20 -0500
+Date: Sun, 8 Dec 2002 20:08:12 +0000
+From: Dave Jones <davej@codemonkey.org.uk>
+To: linux-kernel@vger.kernel.org
+Subject: Re: 2.5 ide cd writing
+Message-ID: <20021208200812.GA14766@suse.de>
+Mail-Followup-To: Dave Jones <davej@codemonkey.org.uk>,
+	linux-kernel@vger.kernel.org
+References: <20021206225427.GA17864@perseus.homeunix.net>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 08 Dec 2002 20:08:16.0563 (UTC) FILETIME=[8B92E030:01C29EF5]
+Content-Disposition: inline
+In-Reply-To: <20021206225427.GA17864@perseus.homeunix.net>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Anton Blanchard wrote:
-> 
-> On the send side (sock_source) the higher interrupt rate shows up.
-> (hmm I wonder how we got idle time here, cyclesoak should have sucked
-> all of it up).
+On Fri, Dec 06, 2002 at 05:54:27PM -0500, Justin Pryzby wrote:
+ > I remember reading somewhere that writing to an ide cd writer under
+ > 2.5/2.6 would not require scsi emulation (as it is for 2.4).  Has it
+ > been implemented, and if so, where can I find information on how to use
+ > it?
 
-That has to be a CPU scheduler problem; I think Andrea identified
-a glitch which could do that.
+http://lwn.net/Articles/13160/
+http://lwn.net/Articles/13538/
 
-Could you put together an isolated testcase?
+		Dave
+
+-- 
+| Dave Jones.        http://www.codemonkey.org.uk
+| SuSE Labs

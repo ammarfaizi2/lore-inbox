@@ -1,71 +1,94 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262328AbTLIBnT (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 8 Dec 2003 20:43:19 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262331AbTLIBnT
+	id S262369AbTLICFd (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 8 Dec 2003 21:05:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262373AbTLICFd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 Dec 2003 20:43:19 -0500
-Received: from adsl-67-121-154-253.dsl.pltn13.pacbell.net ([67.121.154.253]:17803
-	"EHLO triplehelix.org") by vger.kernel.org with ESMTP
-	id S262328AbTLIBnS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 Dec 2003 20:43:18 -0500
-Date: Mon, 8 Dec 2003 17:43:16 -0800
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Of Mice and Linux
-Message-ID: <20031209014316.GC10767@triplehelix.org>
-Mail-Followup-To: joshk@triplehelix.org,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <3FD4BD1B.1060708@coyotegulch.com> <20031208195203.GB28031@iucha.net> <3FD4E58E.10605@coyotegulch.com>
+	Mon, 8 Dec 2003 21:05:33 -0500
+Received: from mtvcafw.SGI.COM ([192.48.171.6]:51225 "EHLO zok.sgi.com")
+	by vger.kernel.org with ESMTP id S262369AbTLICFa (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 8 Dec 2003 21:05:30 -0500
+Date: Tue, 9 Dec 2003 13:03:22 +1100
+From: Nathan Scott <nathans@sgi.com>
+To: pinotj@club-internet.fr
+Cc: torvalds@osdl.org, hch@lst.de, neilb@cse.unsw.edu.au,
+       manfred@colorfullife.com, akpm@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: [Oops]  i386 mm/slab.c (cache_flusharray)
+Message-ID: <20031209020322.GA1798@frodo>
+References: <mnet2.1070931455.23402.pinotj@club-internet.fr>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="c3bfwLpm8qysLVxt"
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <3FD4E58E.10605@coyotegulch.com>
-User-Agent: Mutt/1.5.4i
-From: Joshua Kwan <joshk@triplehelix.org>
+In-Reply-To: <mnet2.1070931455.23402.pinotj@club-internet.fr>
+User-Agent: Mutt/1.5.3i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, Dec 09, 2003 at 01:57:35AM +0100, pinotj@club-internet.fr wrote:
+> Results about testing on test11 this week-end.
 
---c3bfwLpm8qysLVxt
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+thanks.
 
-On Mon, Dec 08, 2003 at 03:56:46PM -0500, Scott Robert Ladd wrote:
-> Is it possible for Linux to kill a Microsoft (or any) mouse via the USB=
-=20
-> port? I hadn't seriously considered that problem... I don't have the=20
-> proper test equipment to check the voltages on the USBs to see if=20
-> something is amiss.
+>   ---
+>   ld: page allocation failure. order:0, mode:0x8d0
+>   Unable to handle kernel NULL pointer dereference at virtual address 00000074
+>   c01d4cbd
+>   *pde = 00000000
+>   Oops: 0002 [#1]
+>   CPU:    0
+>   EIP:    0060:[_xfs_trans_alloc+149/160]    Not tainted
+>   EIP:    0060:[<c01d4cbd>]    Not tainted
+>   ---
 
-Frankly, I've been using a Microsoft USB IntelliMouse on my laptop since
-2.5.59, because they're so damn cheap. Hasn't broken yet and I use it
-daily.
+Ah, yes, I know what this is (and can reproduce it) and I don't
+have a fix as yet.  This is an unrelated problem - basically,
+we are doing kmem_cache_alloc with __GFP_NOFAIL set within XFS,
+but the allocations are failing and returning NULL (but we are
+assuming they will not).
 
---=20
-Joshua Kwan
+You (and I) are hitting this more frequently now because Linus'
+patch bypasses the slab allocator and is more expensive in terms
+of memory used.  However, I have heard of one person who hit this
+"in the wild" too, so its something we will need to address.
 
---c3bfwLpm8qysLVxt
-Content-Type: application/pgp-signature
-Content-Disposition: inline
+[ Christoph, is this failure expected?  I think you/Steve made
+some changes there to use __GFP_NOFAIL and assume it wont fail?
+(in 2.4 we do memory allocations differently to better handle
+failures, but that code was removed...) ]
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.3 (GNU/Linux)
+> 
+>  B. With Ext3 (and without XFS)
+> 
+>   1. no patch
+>   same as I.A.1
+>   2. patch-xfs & patch-slab
+>   Compilations looked good but I got a lot of errors in my logs:
+> 
+>   ---
+>   kernel: ld: page allocation failure. order:0, mode:0x50
+>   last message repeated 31 times
+>   klogd: page allocation failure. order:0, mode:0x50
+>   last message repeated 63 times
+>   kswapd0: page allocation failure. order:0, mode:0x50
+>   ENOMEM in journal_alloc_journal_head, retrying.
+>   ion failure. order:0, mode:0x50
+>   kswapd0: page allocation failure. order:0, mode:0x50
+>   last message repeated 291 times
 
-iQIVAwUBP9UosqOILr94RG8mAQKlUQ//TA7ddG/7e3522V5dVF9k0ps3RKVrejD9
-5dvVo4zABN2zfTBs67ur1gdzjoANWel7Xv5sy6RZLFOhI0TW2NWdEbf4kZ7zO1U+
-stzbOxhi2f3HZLP3mCNZbc74/qhdiuycqDJQT99XqqGHrJC2aTmgl5k3sD0PXmw6
-4NxEl17AJZTSA8DXhA1bYtWg/yHonbGHB7J02PbW5HTO+vLoi3z0jrVu2XZh5tjy
-oIqx0jtQMB4QmXkdNG7gzb/nIFTCWlBPhHG+NDavjkxQ7SaUmuZpiqmw00z9LNiM
-mLev1+FzeHO4TC/g/wf1NCgavsjwPsYDn6LvmTX/0BynXVJnZIMDO1p1Mkn54qDT
-AZF+e5IPu4czkp+wPyiYkLLD8r8t5jwOIa+m1uKUj7iwG6YTitO2gz19TioN3Hhm
-6XBTUd4hW/lhzjwYj5uXsn7mh1g+PmKI1ONzIPHULWzWzO5VUUHujaNxPsvgpnIY
-FTX+3olxhU6xLrdQSzeMJvy+Y/JlfAckWPyznvlCtdbhqZA3el6TTs8aQ6ZEhkIF
-eHpfCrk5S+JKMTvdGdYIbbBU05lIsSrvZChjFzIrdATbe2V8a3EwX4F8qya5E3aj
-881U89YxeHbxVFglhS5GPktFP3ZuUv4e2sTAJCMJuABJROcC/NbOkquWPtFHWdL2
-ZAh8QUnl9xQ=
-=uz8/
------END PGP SIGNATURE-----
+I expect that this is a similar issue to the above, but from
+ext2/3's point of view.
 
---c3bfwLpm8qysLVxt--
+> 
+> Tests in I. confirm that it's not an XFS-only problem but seems to
+> affect page allocation for fs in general.
+> I hope these oops will be clearer to you. I still have no problem with test9.
+
+FWIW and IIRC, we didn't push any XFS changes (nothing major
+anyway, that I could foresee causing this) on to Linus in
+between -test9 and -test11.
+
+cheers.
+
+-- 
+Nathan

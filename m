@@ -1,55 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261324AbTE1Wwm (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 28 May 2003 18:52:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261444AbTE1Wwl
+	id S261561AbTE1WzV (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 28 May 2003 18:55:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261548AbTE1WzF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 28 May 2003 18:52:41 -0400
-Received: from smtp-out1.iol.cz ([194.228.2.86]:60611 "EHLO smtp-out1.iol.cz")
-	by vger.kernel.org with ESMTP id S261324AbTE1Wwi (ORCPT
+	Wed, 28 May 2003 18:55:05 -0400
+Received: from main.gmane.org ([80.91.224.249]:19918 "EHLO main.gmane.org")
+	by vger.kernel.org with ESMTP id S261561AbTE1WxS (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 28 May 2003 18:52:38 -0400
-Date: Thu, 29 May 2003 01:05:34 +0200
-From: Pavel Machek <pavel@suse.cz>
-To: Andrew Morton <akpm@digeo.com>
-Cc: mikpe@csd.uu.se, miltonm@bga.com, linux-kernel@vger.kernel.org,
-       Manfred Spraul <manfred@colorfullife.com>
-Subject: Re: [PATCH] fix oops on resume from apm bios initiated suspend
-Message-ID: <20030528230534.GC2236@elf.ucw.cz>
-References: <200305280643.h4S6hRQF028038@sullivan.realtime.net> <20030528111401.GB342@elf.ucw.cz> <16084.46712.707240.943086@gargle.gargle.HOWL> <20030528152827.5387e033.akpm@digeo.com>
+	Wed, 28 May 2003 18:53:18 -0400
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: Raja R Harinath <harinath@cs.umn.edu>
+Subject: Re: [CHECKER][PATCH] cmpci user-pointer fix
+Date: Wed, 28 May 2003 18:06:32 -0500
+Organization: Dept. of Computer Science, Univ. of Minnesota
+Message-ID: <d98ysqk6x3.fsf@cs.umn.edu>
+References: <5C5CFB74-9149-11D7-8297-000A95A0560C@us.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030528152827.5387e033.akpm@digeo.com>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.3i
+X-Complaints-To: usenet@main.gmane.org
+User-Agent: Gnus/5.1003 (Gnus v5.10.3) Emacs/21.3.50 (gnu/linux)
+Cancel-Lock: sha1:kQvptPvN12sHqWGhME7y9TpT+HM=
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+Hi,
 
-> >  > > -	load_LDT(&current->mm->context);	/* This does lldt */
-> >  > > +	load_LDT(&current->active_mm->context);	/* This does lldt */
-> > 
-> > No one has still explained WHY kapmd's current->mm is NULL for some people,
-> > while it obviously is non-NULL for many others.
-> 
-> All kernel threads have current->mm = NULL, via daemonize()->exit_mm().  So
-> the question becomes "why does this code get called by kernel threads for
-> some people, and not for others"?  Pavel?
+Hollis Blanchard <hollisb@us.ibm.com> writes:
+[snip]
+> I believe the attached patch fixes it. cm_write was calling access_ok,
+> but after that you must still access user space through the
+> get/put/copy*_user functions. It should be safe to return -EFAULT at
+> these points in cm_write, since there are other returns already in the
+> code above and below that. Compile-tested only.
+[snip]
+> --- linux-2.5.70/sound/oss/cmpci.c.orig	Sat May 24 19:00:00 2003
+> +++ linux-2.5.70/sound/oss/cmpci.c	Wed May 28 14:53:15 2003
+> @@ -580,15 +580,17 @@
+>  	spin_unlock_irqrestore(&s->lock, flags);
+>  }
+>  
+> -static void trans_ac3(struct cm_state *s, void *dest, const char *source, int size)
+> +static int trans_ac3(struct cm_state *s, void *dest, const char *source, int size)
 
-I believe it depends on what process happens to be current at time of
-suspend. That can be randomly kernel thread or user process.
+Shouldn't 'source' get the new __user annotation, then:
 
-Some people use APM, some people use ACPI, and sometimes APM suspend
-is triggered because of BIOS, sometimes because user said apm -s...
+  const char * __user source
 
-> Also, is there any point in doing load_LDT(&current->active_mm->context)
-> for a kernel thread?
+IIRC.
 
-Yes, we want system to be similar state it was when we suspended, to
-prevent heisenbugs.
-								Pavel
+>  {
+>  	int   i = size / 2;
+> +	int err;
+>  	unsigned long data;
+>  	unsigned long *dst = (unsigned long *) dest;
+>  	unsigned short *src = (unsigned short *)source;
+
+Likewise with 'src'.
+
+- Hari
 -- 
-When do you have a heart between your knees?
-[Johanka's followup: and *two* hearts?]
+Raja R Harinath ------------------------------ harinath@cs.umn.edu
+

@@ -1,35 +1,30 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S275023AbTHGBqw (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 6 Aug 2003 21:46:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S275025AbTHGBqw
+	id S274991AbTHGBmb (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 6 Aug 2003 21:42:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S275025AbTHGBmb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 6 Aug 2003 21:46:52 -0400
-Received: from in02-fes2.whowhere.com ([209.202.220.219]:42457 "HELO
-	whowhere.com") by vger.kernel.org with SMTP id S275023AbTHGBqv
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 6 Aug 2003 21:46:51 -0400
+	Wed, 6 Aug 2003 21:42:31 -0400
+Received: from drw-smtp2.csm.com.au ([203.19.223.141]:1719 "EHLO
+	drw-smtp2.csm.com.au") by vger.kernel.org with ESMTP
+	id S274991AbTHGBma (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 6 Aug 2003 21:42:30 -0400
+Subject: 
 To: linux-kernel@vger.kernel.org
-Date: Thu, 07 Aug 2003 09:46:44 +0800
-From: "Solaris Wildchild" <digitalkapre@eudoramail.com>
-Message-ID: <EKMGIMAKKAEGHEAA@whowhere.com>
-Mime-Version: 1.0
-X-Sent-Mail: off
-Reply-To: digitalkapre@eudoramail.com
-X-Mailer: MailCity Service
-X-Priority: 3
-Subject: (No Subject)
-X-Sender-Ip: 66.187.104.2
-Organization: Lycos Mail  (http://www.mail.eudoramail.com)
-Content-Type: text/plain; charset=us-ascii
-Content-Language: en
-Content-Transfer-Encoding: 7bit
+X-Mailer: Lotus Notes Release 6.0.1CF1 March 04, 2003
+Message-ID: <OF486B2729.2527539C-ON69256D7B.00095BE2-69256D7B.000960C3@csm.com.au>
+From: joshua.gooding@csm.com.au
+Date: Thu, 7 Aug 2003 11:12:26 +0930
+X-MIMETrack: Serialize by Router on DRW-DOM1/csm/com/AU(Release 6.0.1CF1 | March 06, 2003) at
+ 07/08/2003 11:12:26 AM
+MIME-Version: 1.0
+Content-type: text/plain; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-unsubscribe linux-kernel
 
 
-Need a new email address that people can remember
-Check out the new EudoraMail at
-http://www.eudoramail.com
+
+
+unsubscribe
+

@@ -1,100 +1,148 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316588AbSHBSVR>; Fri, 2 Aug 2002 14:21:17 -0400
+	id <S316585AbSHBSYr>; Fri, 2 Aug 2002 14:24:47 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316591AbSHBSVR>; Fri, 2 Aug 2002 14:21:17 -0400
-Received: from tomcat.admin.navo.hpc.mil ([204.222.179.33]:53306 "EHLO
-	tomcat.admin.navo.hpc.mil") by vger.kernel.org with ESMTP
-	id <S316588AbSHBSVO>; Fri, 2 Aug 2002 14:21:14 -0400
-Date: Fri, 2 Aug 2002 13:24:44 -0500 (CDT)
-From: Jesse Pollard <pollard@tomcat.admin.navo.hpc.mil>
-Message-Id: <200208021824.NAA41066@tomcat.admin.navo.hpc.mil>
+	id <S316591AbSHBSYr>; Fri, 2 Aug 2002 14:24:47 -0400
+Received: from mgate14.so-net.ne.jp ([210.139.254.161]:30597 "EHLO
+	mgate14.so-net.ne.jp") by vger.kernel.org with ESMTP
+	id <S316585AbSHBSYn>; Fri, 2 Aug 2002 14:24:43 -0400
+Message-ID: <3D4ACEC4.3050601@turbolinux.co.jp>
+Date: Sat, 03 Aug 2002 03:26:12 +0900
+From: Go Taniguchi <go@turbolinux.co.jp>
+User-Agent: Mozilla/5.0 (X11; U; Linux i586; ja-JP; rv:1.0.0) Gecko/20020613
+X-Accept-Language: ja, en-us, en
+MIME-Version: 1.0
 To: linux-kernel@vger.kernel.org
-Subject: Re: manipulating sigmask from filesystems and drivers
-X-Mailer: [XMailTool v3.1.2b]
+Subject: Re: Booting problem, 2.4.19-rc5-ac1, ali15x3
+References: <9cfu1mp5kru.fsf@rogue.ncsl.nist.gov>	<9cfd6t1nwuh.fsf@rogue.ncsl.nist.gov> <20020802171218.016b3d70.gigerstyle@gmx.ch>
+Content-Type: multipart/mixed;
+ boundary="------------000002030805050808000200"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus Torvalds <torvalds@transmeta.com>:
->On Fri, 2 Aug 2002, Jamie Lokier wrote:
+This is a multi-part message in MIME format.
+--------------000002030805050808000200
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+
+Hi,
+
+Please apply and test this patch.
+Probably pci_config_byte 0x79 is vendor specifics.
+Newer japanese hardware which use ALi IDE with Crusoe got hang up.
+
+This patch will solve the following problems without option 'ide0=ata66 ide1=ata66'
+
+ >>With rc5, I get this same error unless I have 'ide0=ata66 ide1=ata66'
+ >>on the kernel command line.  However, -ac1 hangs with or without these
+ >>options.
+
+
+gigerstyle@gmx.ch wrote:
+> On 02 Aug 2002 10:45:10 -0400
+> Ian Soboroff <ian.soboroff@nist.gov> wrote:
+> 
+> Hi 
+> 
+> I have written before regarding the same problem. I noticed that I have mentioned the wrong kernel version. Of course I meant the 2.4.19-rc5-ac1 and 2.4.19-rc3-ac5. It happens on a Sony Vaio Gr114EK. I will now try the same solution like Ian.
+> 
+> greets
+> 
+> marc
+> 
+> 
+>>Alan,
 >>
->> Linus Torvalds wrote:
->> > Sending somebody a SIGKILL (or any signal that kills the process) is
->> > different (in my opinion) from a signal that interrupts a system call in
->> > order to run a signal handler.
+>>2.4.19-rc5-ac1 hangs on boot on my laptop (Fujitsu P-series, TM5800
+>>CPU), whereas plain[1] rc5 boots fine.  The hang appears to be during IDE
+>>detection:
 >>
->> So it's ok to have truncated log entries (or more realistically,
->> truncated simple database entries) if the logging program is killed?
->
->This is why I said
->
-> "Which is what we want in generic_file_read() (and _probably_
->  generic_file_write() as well, but that's slightly more debatable)"
->
->The "slightly more debatable" comes exactly from the thing you mention.
->
->The thing is, "read()" on a file doesn't have any side effects outside the
->process that does it, so if you kill the process, doing a partial read is
->always ok (yeah, you can come up with thread examples etc where you can
->see the state, but I think those are so contrieved as to not really merit
->much worry and certainly have no existing programs issues).
->
->With write(), you have to make a judgement call. Unlike read, a truncated
->write _is_ visible outside the killed process. But exactly like read()
->there _are_ system management reasons why you may really need to kill
->writers. So the debatable point comes from whether you want to consider a
->killing signal to be "exceptional enough" to warrant the partial write.
->
->I can see both sides. I personally think I'd prefer the "if I kill a
->process, I want it dead _now_" approach, but this definitely _is_ up for
->discussion (unlike the signal handler case).
+>>...
+>>block: 704 slots per queue, batch=176
+>>Uniform Multi-Platform E-IDE driver Revision: 6.31
+>>ide: Assuming 33MHz system bus speed for PIO modes; override with idebus=XX
+>>ALI15X3: IDE controller on PCI bus 00 dev 78
+>>PCI: No IRQ known for interrupt pin A of device 00:0f.0. Please try using pci=biosirq
+>>ALI15X3: chipset revision 195
+>>ALI15X3: not 100% native mode: will probe irqs later
+>>
+>>With rc5, I get this same error unless I have 'ide0=ata66 ide1=ata66'
+>>on the kernel command line.  However, -ac1 hangs with or without these
+>>options.
+>>
+>>I had this same problem under rc3-ac1, and rc2-ac2 (last two -ac
+>>kernels I tried), so this looks to be a long-term problem.  I'm hoping
+>>maybe I can help debug it before it gets into Marcelo's tree.
+>>
+>>ian
+>>
+>>[1] Actually, one one-liner patche to extend the ext3 journal
+>>commit interval to 30 seconds.
+>>-
 
-There has been cases (and systems) in the past that have provided BOTH
-interpretations:
+--------------000002030805050808000200
+Content-Type: text/plain;
+ name="patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="patch"
 
-1. current kill -9 action:
+--- linux/drivers/ide/alim15x3.c~	2002-08-03 03:06:10.000000000 +0900
++++ linux/drivers/ide/alim15x3.c	2002-08-03 03:07:15.000000000 +0900
+@@ -37,6 +37,7 @@
+ static int ali_get_info(char *buffer, char **addr, off_t offset, int count);
+ extern int (*ali_display_info)(char *, char **, off_t, int);  /* ide-proc.c */
+ static struct pci_dev *bmide_dev;
++static int enable_south = 0;
+ 
+ char *fifo[4] = {
+ 	"FIFO Off",
+@@ -605,6 +606,7 @@
+ 		pci_read_config_byte(dev, 0x4b, &tmpbyte);
+ 		pci_write_config_byte(dev, 0x4b, tmpbyte | 0x08);
+ 
++		if( enable_south ){
+ 		/*
+ 		 * set south-bridge's enable bit, m1533, 0x79
+ 		 */
+@@ -620,6 +622,7 @@
+ 			 */
+ 			pci_write_config_byte(isa_dev, 0x79, tmpbyte | 0x02);
+ 		}
++		}
+ 	} else {
+ 		/*
+ 		 * revision 0x20 (1543-E, 1543-F)
+@@ -671,6 +674,7 @@
+ 		pci_read_config_byte(dev, 0x4b, &tmpbyte);
+ 		pci_write_config_byte(dev, 0x4b, tmpbyte | 0x08);
+ 
++		if( enable_south ){
+ 		/*
+ 		 * set south-bridge's enable bit, m1533, 0x79
+ 		 */
+@@ -686,6 +690,7 @@
+ 			 */
+ 			pci_write_config_byte(isa_dev, 0x79, tmpbyte | 0x02);
+ 		}
++		}
+ #endif /* ALI_INIT_CODE_TEST */
+ 		/*
+ 		 * Ultra66 cable detection (from Host View)
+@@ -821,3 +826,13 @@
+ 	ide_setup_pci_device(dev, d);
+ }
+ 
++static int __init enable_south_setup(char *str)
++{
++/*	printk("ALI15X3: enable_south_setup %d\n", str);        */
++	if(strcmp(str, "enable_south") == 0)
++		enable_south = 1;
++	return 1;
++}
++
++__setup("alim15x3=", enable_south_setup);
++
 
-	terminates process as soon as current process returns or is in
-	the process of returning to user mode. This is normal, and prevents
-	most partial writes. This is applicable to things like data base
-	servers, log servers, and journaling processes.
+--------------000002030805050808000200--
 
-2. Kill, and abort outstanding I/O.
-
-	This casues partial log writes, corrupts databases (usually), and will
-	cause any process to terminate.
-
-When is #2 used:
-	a. real time systems where the device handling MUST be terminated now.
-	b. system shutdown for emergencies (this allows filesystems to
-	   finsh flushing, but user processes may be stuck writing to an
-	   audio/parallel device... procedure is to use kill -15, wait a
-	   second or two, kill -9 wait a second or two, KILL UNCONDITIONALLY,
-	   and then shutdown anyway).
-	   Other uses:
-		b1. fire, flood, power failure (act of god)
-		b2. system overtemp (loss of AC cooling...)
-		b3. disk drive failures (to stop writing to a drive, abort
-		    DMA actions, controller failure detection - no need to
-		    propagate errors to a raid...)
-		b4. safety related aborts in time critical applications
-
-Item b3 allows a system with some pretty catastrophic hardware
-failures to actually do something and shutdown/clean up as much as possible
-without just hanging - which will also introduce partial log writes...
-
-I worked on one system that determined the main disk controller was failing,
-and proceded to request a power cycle on all disk drives attached to that
-particular controller to attempt to clear the failure. All user processes
-were killed, a detailed diagnostic was provided, then the system shut itself
-off.
-
-In realtime underwater survey systems we used such an abort to cancel
-expensive operations that were already in progress (expensive if it
-finished - setting off remote explosives via an external controller).
-
--------------------------------------------------------------------------
-Jesse I Pollard, II
-Email: pollard@navo.hpc.mil
-
-Any opinions expressed are solely my own.

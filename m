@@ -1,56 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264777AbTFLNDV (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 12 Jun 2003 09:03:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264779AbTFLNDV
+	id S264780AbTFLNHR (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 12 Jun 2003 09:07:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264782AbTFLNHQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 12 Jun 2003 09:03:21 -0400
-Received: from kweetal.tue.nl ([131.155.3.6]:50440 "EHLO kweetal.tue.nl")
-	by vger.kernel.org with ESMTP id S264777AbTFLNDU (ORCPT
+	Thu, 12 Jun 2003 09:07:16 -0400
+Received: from outpost.ds9a.nl ([213.244.168.210]:10382 "EHLO outpost.ds9a.nl")
+	by vger.kernel.org with ESMTP id S264780AbTFLNHN (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 12 Jun 2003 09:03:20 -0400
-Date: Thu, 12 Jun 2003 15:17:04 +0200
-From: Andries Brouwer <aebr@win.tue.nl>
-To: Matti Aarnio <matti.aarnio@zmailer.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: open(.. O_DIRECT ..) difference in between Linux and FreeBSD ..
-Message-ID: <20030612151704.A2588@pclin040.win.tue.nl>
-References: <20030612111437.GE28900@mea-ext.zmailer.org>
+	Thu, 12 Jun 2003 09:07:13 -0400
+Date: Thu, 12 Jun 2003 15:20:58 +0200
+From: bert hubert <ahu@ds9a.nl>
+To: perex@suse.cz, linux-kernel@vger.kernel.org, alsa-devel@alsa-project.org
+Subject: [updated] Re: snd_pcm_oss: Oopsen with resampling
+Message-ID: <20030612132058.GA18938@outpost.ds9a.nl>
+Mail-Followup-To: bert hubert <ahu@ds9a.nl>, perex@suse.cz,
+	linux-kernel@vger.kernel.org, alsa-devel@alsa-project.org
+References: <20030612124528.GA18274@outpost.ds9a.nl>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20030612111437.GE28900@mea-ext.zmailer.org>; from matti.aarnio@zmailer.org on Thu, Jun 12, 2003 at 02:14:37PM +0300
+In-Reply-To: <20030612124528.GA18274@outpost.ds9a.nl>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jun 12, 2003 at 02:14:37PM +0300, Matti Aarnio wrote:
+On Thu, Jun 12, 2003 at 02:45:28PM +0200, bert hubert wrote:
 
-> I have been debugging long and hard a thing where IO is done
-> with O_DIRECT flag applied to open(2).
-> 
-> Unlike Linux, FreeBSD (where this flag originates, apparently) does
-> _not_ require that read()/write() happens from page aligned memory
-> areas, and/or be of page-size multiples in size.
-> 
-> This needs at least wording in  open(2) man-page
+> Anyhow, when playing at 22050 Hz, I get the oops below after about 200ms of
+> sound, at 44010 there is no problem. It doesn't always occur though.
 
-Ha Matti, I was going to suggest you to send a patch to the man page
-maintainer, but maybe the wording you ask for is there already and
-you just have some outdated version of the manpages?
+This is wrong. What actually causes the oops is playing two sounds
+simultaneously. It doesn't happen if I send two identical mono .wav sounds
+at the same time, but it does when xmms is playing a stereo mp3 and I send a
+mono .wav sound.
 
-Andries
+Playing a stereo .wav and two mono wav's does not trigger this.
 
-       O_DIRECT
-              Try to minimize cache effects of  the  I/O  to  and
-              from  this file.  In general this will degrade per-
-              formance, but it is useful in  special  situations,
-              such  as  when  applications  do their own caching.
-              File  I/O  is  done  directly  to/from  user  space
-              buffers.  The I/O is synchronous, i.e., at the com-
-              pletion of the read(2)  or  write(2)  system  call,
-              data   is  guaranteed  to  have  been  transferred.
-              Transfer sizes, and the alignment  of  user  buffer
-              and  file offset must all be multiples of the logi-
-              cal block size of the file system.
+Regards,
 
+bert
+
+-- 
+http://www.PowerDNS.com      Open source, database driven DNS Software 
+http://lartc.org           Linux Advanced Routing & Traffic Control HOWTO

@@ -1,28 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267642AbTBEA4y>; Tue, 4 Feb 2003 19:56:54 -0500
+	id <S267633AbTBEAyL>; Tue, 4 Feb 2003 19:54:11 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267643AbTBEA4y>; Tue, 4 Feb 2003 19:56:54 -0500
-Received: from nat-pool-rdu.redhat.com ([66.187.233.200]:5412 "EHLO
-	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
-	id <S267642AbTBEA4y>; Tue, 4 Feb 2003 19:56:54 -0500
-Date: Tue, 4 Feb 2003 20:06:25 -0500
-From: Pete Zaitcev <zaitcev@redhat.com>
-To: Marc-Christian Petersen <m.c.p@wolk-project.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: NGROUPS patch in 2.4
-Message-ID: <20030204200625.B30628@devserv.devel.redhat.com>
-References: <20030203165115.C21506@devserv.devel.redhat.com> <200302041038.29019.m.c.p@wolk-project.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <200302041038.29019.m.c.p@wolk-project.de>; from m.c.p@wolk-project.de on Tue, Feb 04, 2003 at 10:38:29AM +0100
+	id <S267636AbTBEAyL>; Tue, 4 Feb 2003 19:54:11 -0500
+Received: from smtpzilla1.xs4all.nl ([194.109.127.137]:56841 "EHLO
+	smtpzilla1.xs4all.nl") by vger.kernel.org with ESMTP
+	id <S267633AbTBEAyL>; Tue, 4 Feb 2003 19:54:11 -0500
+Date: Wed, 5 Feb 2003 02:03:38 +0100 (CET)
+From: Roman Zippel <zippel@linux-m68k.org>
+X-X-Sender: roman@serv
+To: "Robert P. J. Day" <rpjday@mindspring.com>
+cc: Linux kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: cleanup of filesystems menu
+In-Reply-To: <Pine.LNX.4.44.0302041512090.16603-100000@dell>
+Message-ID: <Pine.LNX.4.44.0302050148490.32518-100000@serv>
+References: <Pine.LNX.4.44.0302041512090.16603-100000@dell>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> is the attached one the one you are searching for?! :)
+Hi,
 
-No, that's the one which conflicts and I'm trying to adjust.
+On Tue, 4 Feb 2003, Robert P. J. Day wrote:
 
--- Pete
+>   http://www.xenotime.net/linux/kconfig/kconfig-fs-2.5.59b.patch
+> 
+> currently, it still has leading asterisks in front of the
+> config entries to support editing in emacs outline mode, 
+> but future patches will have these removed.
+
+Hmm, you are abusing comments somewhat, please don't use "<<<< ... >>>>"
+If there is a large group of options it should be in it's own submenu or 
+I'd rather add something else to group these options logically together.
+Maybe it's better to just sort the options logically in the first step and 
+do the rest separately.
+
+bye, Roman
+

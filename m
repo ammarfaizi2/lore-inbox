@@ -1,55 +1,76 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S310367AbSCLDBm>; Mon, 11 Mar 2002 22:01:42 -0500
+	id <S310371AbSCLDLP>; Mon, 11 Mar 2002 22:11:15 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S310371AbSCLDBd>; Mon, 11 Mar 2002 22:01:33 -0500
-Received: from supreme.pcug.org.au ([203.10.76.34]:54691 "EHLO pcug.org.au")
-	by vger.kernel.org with ESMTP id <S310367AbSCLDBW>;
-	Mon, 11 Mar 2002 22:01:22 -0500
-Date: Tue, 12 Mar 2002 13:59:49 +1100
-From: Stephen Rothwell <sfr@canb.auug.org.au>
-To: Andrea Arcangeli <andrea@suse.de>
-Cc: oskar@osk.mine.nu, linux-kernel@vger.kernel.org
-Subject: Re: directory notifications lost after fork?
-Message-Id: <20020312135949.3be7d9ca.sfr@canb.auug.org.au>
-In-Reply-To: <20020312022046.R10413@dualathlon.random>
-In-Reply-To: <20020310210802.GA1695@oskar>
-	<20020311112652.E10413@dualathlon.random>
-	<20020312120452.3038c4bc.sfr@canb.auug.org.au>
-	<20020312022046.R10413@dualathlon.random>
-X-Mailer: Sylpheed version 0.7.2 (GTK+ 1.2.10; i386-debian-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	id <S310372AbSCLDLG>; Mon, 11 Mar 2002 22:11:06 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:29708 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S310371AbSCLDKz>;
+	Mon, 11 Mar 2002 22:10:55 -0500
+Message-ID: <3C8D71AC.3080305@mandrakesoft.com>
+Date: Mon, 11 Mar 2002 22:10:36 -0500
+From: Jeff Garzik <jgarzik@mandrakesoft.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.8) Gecko/20020214
+X-Accept-Language: en
+MIME-Version: 1.0
+To: "J. Dow" <jdow@earthlink.net>
+CC: Linus Torvalds <torvalds@transmeta.com>,
+        LKML <linux-kernel@vger.kernel.org>
+Subject: Re: [patch] My AMD IDE driver, v2.7
+In-Reply-To: <Pine.LNX.4.33.0203111741310.8121-100000@home.transmeta.com> <3C8D667F.5040208@mandrakesoft.com> <01a401c1c970$aeb74110$1125a8c0@wednesday>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Adrea,
+J. Dow wrote:
 
-On Tue, 12 Mar 2002 02:20:46 +0100 Andrea Arcangeli <andrea@suse.de> wrote:
+>From: "Jeff Garzik" <jgarzik@mandrakesoft.com>
 >
-> If somebody overrides the dnotify on the same file, he should become the
-> new owner, that's not handled in the below patch.
+>>Second, if you are issuing device commands from userspace, you need to 
+>>deal with synchronization with the commands being issued from kernel space.
+>>
+>Generally speaking, yes.
+>
+cool
 
-My contention is that if some process (not in the same thread group as the
-process that originally set up the directory notifier) tries to set up a
-directory notifier on the same file descriptor (i.e. they are a child of
-the original process), then they should get their own notifier.  The
-parent can remove their notifier if they want to.
+>>Third, if you have synchronization, that's a good and easy point to add 
+>>-optional- filtering.
+>>
+>And while I see your point I still ask, "But why?" To make this work the
+>way it should work you will need a special table of normally disallowed
+>commands that are allowed for each specific device on the IDE buses
+>within a machine.
+>
+[...]
 
-Notice that multiple processes can have notifiers enabled for the same
-directory (even with a different set of flags).
+>It might be a good exercise, Jeff, to define the filters in such a way
+>that potentially harmful commands can be adequately filters while other
+>potentially "saving" commands can be allowed even if they differ only in
+>parameters. It is also interesting to note that direct userland ATA and
+>
+I'm afraid I may have been confusing to the casual reader, because the 
+current thread of discussion mutated from talking about (among other 
+things) implementation details of the existing ATA raw command "filter" 
+and the existing interface for issuing raw ATA commands.
 
-My patch makes directory notifiers per thread group instead of per process
-tree (which they are now).
+You can, certainly, make a filter that addresses the issues you list. 
+ The existing filter is mainly a correctness filter -- it ensures that 
+only known and standard ATA commands are passed down to the actual 
+devices.  It filters out vendor-specific commands as well as potentially 
+nefarious future commands like COPYPROTECT or somesuch.
 
-> Secondly I prefer to return -EPERM to userspace if somebody tries to
-> drop a dnotify that it doesn't own, it gives more information back to
-> userspace.
+So, to summarize my points on the thread so far (as modified by Linus's 
+responses to me):
 
-This would be equivalent to returning -EPERM if you tried to remove a
-lock on a file when you didn't set it ...
+1) There should be a raw device command interface (not ATA or SCSI specific)
+2) There should be kernel interfaces for the standard cases, so that the 
+raw device command interface is often not needed
+3) There should be capability to optionally install filter the raw 
+device command interface.  The filter is built into the kernel at 
+compile-time, but can also be disabled at boot time.
 
--- 
-Cheers, Stephen Rothwell                    sfr@canb.auug.org.au
-http://www.canb.auug.org.au/~sfr/
+    Jeff
+
+
+
+

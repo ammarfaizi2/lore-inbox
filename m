@@ -1,44 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id <S129097AbQKWRIV>; Thu, 23 Nov 2000 12:08:21 -0500
+        id <S129153AbQKWRWP>; Thu, 23 Nov 2000 12:22:15 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-        id <S129153AbQKWRIL>; Thu, 23 Nov 2000 12:08:11 -0500
-Received: from ns.caldera.de ([212.34.180.1]:47881 "EHLO ns.caldera.de")
-        by vger.kernel.org with ESMTP id <S129097AbQKWRHy>;
-        Thu, 23 Nov 2000 12:07:54 -0500
-Date: Thu, 23 Nov 2000 17:37:11 +0100
-Message-Id: <200011231637.RAA25892@ns.caldera.de>
-From: Christoph Hellwig <hch@caldera.de>
-To: tori@tellus.mine.nu (Tobias Ringstrom)
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Too long network device names corrupts kernel
-X-Newsgroups: caldera.lists.linux.kernel
-In-Reply-To: <Pine.LNX.4.21.0011231642110.32263-100000@svea.tellus>
-User-Agent: tin/1.4.1-19991201 ("Polish") (UNIX) (Linux/2.2.14 (i686))
+        id <S129351AbQKWRWF>; Thu, 23 Nov 2000 12:22:05 -0500
+Received: from atbode61.informatik.tu-muenchen.de ([131.159.1.165]:36994 "EHLO
+        atbode61.informatik.tu-muenchen.de") by vger.kernel.org with ESMTP
+        id <S129153AbQKWRV7>; Thu, 23 Nov 2000 12:21:59 -0500
+Date: Thu, 23 Nov 2000 17:49:52 +0100
+From: Georg Acher <acher@in.tum.de>
+To: Rui Sousa <rsousa@grad.physics.sunysb.edu>
+Cc: Michael Elkins <me@sigpipe.org>, usb@in.tum.de,
+        linux-kernel@vger.kernel.org
+Subject: Re: PROBLEM: kernel 2.4.0-test11-ac1 hang with usb-uhci and emu10k1
+Message-ID: <20001123174952.B7591@in.tum.de>
+Mail-Followup-To: Rui Sousa <rsousa@grad.physics.sunysb.edu>,
+        Michael Elkins <me@sigpipe.org>, usb@in.tum.de,
+        linux-kernel@vger.kernel.org
+In-Reply-To: <20001123020203.A30491@toesinperil.com> <Pine.LNX.4.21.0011231028030.17678-100000@grad.physics.sunysb.edu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+X-Mailer: Mutt 1.0pre3i
+In-Reply-To: <Pine.LNX.4.21.0011231028030.17678-100000@grad.physics.sunysb.edu>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <Pine.LNX.4.21.0011231642110.32263-100000@svea.tellus> you wrote:
-> Btw, does anyone know of a C function that works like strncpy, but does
-> add a terminating null character, event if the string does not fit, ro
-> does one have to do str[5]=0 first, and then strncpy(str,src,4)?
+On Thu, Nov 23, 2000 at 04:35:33PM +0000, Rui Sousa wrote:
+> On Thu, 23 Nov 2000, Michael Elkins wrote:
+> 
+> Usb controller is sharing a interrupt with the emu10k1.
+> For what I know the emu10k1 driver doesn't have any problem
+> sharing irq's, so I would blame the usb driver...
 
-strlcpy.
+usb-uhci doesn't also have any problem with sharing irqs:
 
-Check 'http://www.FreeBSD.org/cgi/man.cgi?query=strlcpy&apropos=0&sektion=0&
-manpath=OpenBSD+2.6&format=html' for details.
+> cat /proc/interrupts
+ 10:    5597981          XT-PIC  aic7xxx, eth0, usb-uhci
 
-Originally for OpenBSD, most UNICES (NetBSD, FreeBSD, Solaris,
-UnixWare, OpenServer) have it in libc now.
-
-Glibc is missing it because my patch did not get accepted.
-
-If there is interest in having this in the kernel I could come up with a patch.
-
-	Christoph
+Hm, no one left to blame...
+I would debug it as follows:
+Place various printks in the initialization code (reset_hc(), start_hc() and
+alloc_uhci) and find out after which printk it hangs. Then it would be
+possible to investigate this further...
 
 -- 
-Always remember that you are unique.  Just like everyone else.
+         Georg Acher, acher@in.tum.de         
+         http://www.in.tum.de/~acher/
+          "Oh no, not again !" The bowl of petunias          
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,100 +1,70 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262568AbTFTJlE (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 Jun 2003 05:41:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262577AbTFTJlE
+	id S262589AbTFTJtO (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 Jun 2003 05:49:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262598AbTFTJtO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 Jun 2003 05:41:04 -0400
-Received: from 211.187-201-80.adsl.skynet.be ([80.201.187.211]:64012 "EHLO
-	obelix.village-gaulois") by vger.kernel.org with ESMTP
-	id S262568AbTFTJlA convert rfc822-to-8bit (ORCPT
+	Fri, 20 Jun 2003 05:49:14 -0400
+Received: from p164.ats40.donpac.ru ([217.107.128.164]:52892 "EHLO donpac.ru")
+	by vger.kernel.org with ESMTP id S262589AbTFTJtN (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 Jun 2003 05:41:00 -0400
-Subject: Re: xircom card bus with 2.4.21 link trouble (was: xircom card bus
-	with 2.4.20 link trouble)
-From: Arnaud Ligot <spyroux@freegates.be>
-To: LKML <linux-kernel@vger.kernel.org>
-In-Reply-To: <1056101484.6724.18.camel@portable>
-References: <1056101193.6728.14.camel@portable>
-	 <1056101484.6724.18.camel@portable>
-Content-Type: text/plain; charset=iso-8859-15
-Message-Id: <1056102885.6727.21.camel@portable>
+	Fri, 20 Jun 2003 05:49:13 -0400
+Date: Fri, 20 Jun 2003 14:03:09 +0400
+To: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] PnP Changes for 2.5.72
+Message-ID: <20030620100309.GE786@pazke>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+References: <20030618234418.GC333@neo.rr.com> <20030619093632.A29602@flint.arm.linux.org.uk> <20030619234249.GA31392@neo.rr.com> <20030620065547.B7431@flint.arm.linux.org.uk> <20030620061020.GC786@pazke> <20030620081021.C7431@flint.arm.linux.org.uk>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.0 
-Date: 20 Jun 2003 11:54:45 +0200
-Content-Transfer-Encoding: 8BIT
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="y2zxS2PfCDLh6JVG"
+Content-Disposition: inline
+In-Reply-To: <20030620081021.C7431@flint.arm.linux.org.uk>
+User-Agent: Mutt/1.5.4i
+From: Andrey Panin <pazke@donpac.ru>
+X-Spam-Score: -11.7 (-----------)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-against me ;-)
 
-with a lot of tries... there are is a """solution"""
-- put the card
-- the led link blink
-- you MUST define an IP with ifconfig
-- the led link stop blinking !!!
+--y2zxS2PfCDLh6JVG
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-is that a bug ?
+On 171, 06 20, 2003 at 08:10:22AM +0100, Russell King wrote:
+> On Fri, Jun 20, 2003 at 10:10:20AM +0400, Andrey Panin wrote:
+> > It was me who added this crappy quirk.
+>=20
+> It helps when the people with the problems are reading the list. 8)
+>
+> > My ELine modem which identified itself "Rockwell 56K ACF II Fax+Data+Vo=
+ice
+> > Modem" was going mad when its IRQ was shared with any device. So I deci=
+ded
+> > to add this quirk.
+>=20
+> Can you remember any further details?  Eg, was it when sharing with other
+> serial ports (and were these serial ports in use), or any thing else?
 
-thanks
+Modem IRQ4 (IIRC) wash shared with onboard serial port and in this configur=
+ation
+there were massive receive data losses on the modem.
 
-Arnaud
+--=20
+Andrey Panin		| Linux and UNIX system administrator
+pazke@donpac.ru		| PGP key: wwwkeys.pgp.net
 
-Le ven 20/06/2003 à 11:31, Arnaud Ligot a écrit :
-> /me auto slaps 
-> 
-> with the 2.4.20, it work but it don't work with 2.4.21.
-> Sorry
-> 
-> Le ven 20/06/2003 à 11:26, Arnaud Ligot a écrit :
-> > Hello,
-> > 
-> > Since I run the 2.4.21 kernel (+bootsplash patch), (I didn't try without
-> > this patch but I think it is not the problem), my Xircom Cardbus don't
-> > work any more! In fact, I put the card into the pcmcia slot, the pc
-> > detect it, load the correct module (xirc2ps_cb), start eth1 but the led
-> > link (both side) blinks.
-> > I have try with a hub 10, a ethernet card 10 and an ethernet card
-> > 10/100. I have so try 2 cables... but same problem.
-> > I have try to impose the ethernet type of link mii-tool -A10BaseT-HD and
-> > -F10BaseT-HD.
-> > 
-> > Thanks
-> > 
-> > Arnaud
-> > 
-> > extract of /var/messages (10mbps):
-> > ------
-> > Jun 20 08:34:49 portable kernel: cs: memory probe 0xa0000000-0xa0ffffff:
-> > clean.
-> > Jun 20 08:34:49 portable kernel: xirc2ps_cs.c 1.31 1998/12/09 19:32:55
-> > (dd9jn+kvh)
-> > Jun 20 08:34:53 portable kernel: eth1: autonegotiation failed; using
-> > 10mbs
-> > Jun 20 08:34:53 portable kernel: eth1: MII selected
-> > Jun 20 08:34:53 portable kernel: eth1: media 10BaseT, silicon revision 0
-> > Jun 20 08:34:53 portable kernel: eth1: Xircom: port 0x300, irq 3, hwaddr
-> > 00:80:C7:CC:1F:A
-> > 2
-> > Jun 20 08:34:54 portable kernel: eth1: autonegotiation failed; using
-> > 10mbs
-> > Jun 20 08:34:54 portable kernel: eth1: MII selected
-> > Jun 20 08:34:54 portable kernel: eth1: media 10BaseT, silicon revision 0
-> > Jun 20 08:34:59 portable kernel: eth1: autonegotiation failed; using
-> > 10mbs
-> > Jun 20 08:34:59 portable kernel: eth1: MII selected
-> > ....
-> > -----
-> > 
-> > short extract of /var/messages (100mbps):
-> > -----
-> > Jun 20 10:14:52 portable kernel: eth1: MII link partner: 05e1
-> > Jun 20 10:14:52 portable kernel: eth1: MII selected
-> > Jun 20 10:14:52 portable kernel: eth1: media 100BaseT, silicon revision
-> > 5
-> > -----
-> > 
-> > ----
--- 
-Arnaud Ligot <spyroux@freegates.be>
+--y2zxS2PfCDLh6JVG
+Content-Type: application/pgp-signature
+Content-Disposition: inline
 
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.2 (GNU/Linux)
+
+iD8DBQE+8tvdby9O0+A2ZecRApp4AKCrbHjryKy61SahGDO5geg5MNjiyQCgydE4
+e1KsLYCJHmXRTNNPQxokm34=
+=T8le
+-----END PGP SIGNATURE-----
+
+--y2zxS2PfCDLh6JVG--

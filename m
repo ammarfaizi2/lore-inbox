@@ -1,71 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265124AbUHJO2j@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265928AbUHJOc4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265124AbUHJO2j (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 Aug 2004 10:28:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265305AbUHJO2j
+	id S265928AbUHJOc4 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 Aug 2004 10:32:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266183AbUHJOc4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 Aug 2004 10:28:39 -0400
-Received: from digitalimplant.org ([64.62.235.95]:51076 "HELO
-	digitalimplant.org") by vger.kernel.org with SMTP id S265124AbUHJO2e
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 Aug 2004 10:28:34 -0400
-Date: Tue, 10 Aug 2004 07:28:26 -0700 (PDT)
-From: Patrick Mochel <mochel@digitalimplant.org>
-X-X-Sender: mochel@monsoon.he.net
-To: Pavel Machek <pavel@suse.cz>
-cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-       Linux Kernel list <linux-kernel@vger.kernel.org>,
-       David Brownell <david-b@pacbell.net>
-Subject: Re: [RFC] Fix Device Power Management States
-In-Reply-To: <20040810100751.GC9034@atrey.karlin.mff.cuni.cz>
-Message-ID: <Pine.LNX.4.50.0408100700460.13807-100000@monsoon.he.net>
-References: <Pine.LNX.4.50.0408090311310.30307-100000@monsoon.he.net>
- <1092098425.14102.69.camel@gaston> <Pine.LNX.4.50.0408092131260.24154-100000@monsoon.he.net>
- <20040810100751.GC9034@atrey.karlin.mff.cuni.cz>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Tue, 10 Aug 2004 10:32:56 -0400
+Received: from viper.oldcity.dca.net ([216.158.38.4]:46298 "HELO
+	viper.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S265928AbUHJOcy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 10 Aug 2004 10:32:54 -0400
+Subject: Re: PATCH: cdrecord: avoiding scsi device numbering for ide devices
+From: Lee Revell <rlrevell@joe-job.com>
+To: =?ISO-8859-1?Q?M=E5ns_Rullg=E5rd?= <mru@kth.se>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <yw1xisbrflws.fsf@kth.se>
+References: <1092082920.5761.266.camel@cube>
+	 <cone.1092092365.461905.29067.502@pc.kolivas.org>
+	 <1092099669.5759.283.camel@cube>  <yw1xisbrflws.fsf@kth.se>
+Content-Type: text/plain; charset=ISO-8859-1
+Message-Id: <1092148392.5818.6.camel@mindpipe>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Tue, 10 Aug 2004 10:33:13 -0400
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, 2004-08-10 at 04:16, Måns Rullgård wrote:
+> Albert Cahalan <albert@users.sf.net> writes:
+> 
+> >> Last time I gave 
+> >> superuser privilege to cdrecord it locked my machine - clearly it wasn't 
+> >> rt_task safe.
+> >
+> > So, you've been working on the scheduler anyway...
+> > An option to reserve some portion of CPU time for
+> > emergency use (say, 5% after 1 second has passed)
+> > would let somebody get out of this situation.
+> 
+> Another option would be an Alt-Sysrq-something that lowered all RT
+> processes to normal levels.
 
-On Tue, 10 Aug 2004, Pavel Machek wrote:
+I hate to derail a good flame-fest, but this would be extremely useful,
+for more than burning CDs.  Anytime you are dealing with a SCHED_FIFO
+process a bug can lock the machine, this would be useful for hacking
+jackd for example.
 
-> Can you explain why this class-based quiescing is good idea? It seems
-> to me that "quiesce this tree" is pretty much same as "suspend this
-> tree", and can be handled in the same way.
->
-> Nigel wanted to do class-based quiescing, but if we make quiescing
-> fast enough, it should be okay to do whole tree, always. (And I
-> believe quiescing *can* be fast enough).
+If someone wants to code this up I and the other people on jackit-devel
+would gladly test it.
 
-It has nothing to do with speed and everything to do with domains of
-responsibility. Each device belongs to 1 device class.  That class and the
-assoicated class device represent the functional interface(s) to the
-physical device. While the physical device controls physical attributes,
-like actual I/O and power states, the class controls the logical
-interface.
+Lee
 
-When we quiesce/stop a device, we need to make sure that the device is
-going to either finish or cancel its current I/O transactions. If we do
-that at a hardware, the higher levels may think the device has gone awry
-and completely disable it. If we do it at a higher level, we can make
-sure that the request is gracefully delayed. We can also make sure that
-there are no new connnections to the device in a saner manner (by simply
-removing the class device from the list of advertised interfaces), rather
-than adding logic to every low-level driver to stop/restart I/O.
-
-Plus, and not that I'm a feature-monger, the code is useful in other
-cases. To throw a buzzword, it's the same as effectively 'taking the
-device offline', since it implies the hardware is claimed by a driver but
-not accepting connections and effectively idle.
-
-AFAICT, it should also provide a necessary piece of infrastructure for
-some upcoming resource management patches (from Adam Belay) that rely on
-userspace being able to disable/enable a device, change its resources, and
-restart it (ideally with transparency).
-
-And, if it turns out to be too hard, then we can rethink it and start
-over. :)
-
-
-	Pat

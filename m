@@ -1,51 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272697AbTG1HSm (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 28 Jul 2003 03:18:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272701AbTG1HSm
+	id S272689AbTG1HOZ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 28 Jul 2003 03:14:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272693AbTG1HOZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 28 Jul 2003 03:18:42 -0400
-Received: from smtpzilla1.xs4all.nl ([194.109.127.137]:27406 "EHLO
-	smtpzilla1.xs4all.nl") by vger.kernel.org with ESMTP
-	id S272697AbTG1HSl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 28 Jul 2003 03:18:41 -0400
-Message-ID: <01a601c354da$9710cc10$cd01a8c0@llewella>
-From: "Bas Bloemsaat" <bloemsaa@xs4all.nl>
-To: "Ben Greear" <greearb@candelatech.com>,
-       "David S. Miller" <davem@redhat.com>,
-       "Carlos Velasco" <carlosev@newipnet.com>, <netdev@oss.sgi.com>,
-       <linux-kernel@vger.kernel.org>
-References: <Pine.LNX.4.53.0307272239570.2743@vialle.bloemsaat.com> <20030727151234.6e2aa57e.davem@redhat.com> <3F248AE5.4000204@candelatech.com>
-Subject: Re: [2.4 PATCH] bugfix: ARP respond on all devices
-Date: Mon, 28 Jul 2003 09:33:46 +0200
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2800.1158
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1165
+	Mon, 28 Jul 2003 03:14:25 -0400
+Received: from pop.gmx.net ([213.165.64.20]:16295 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S272689AbTG1HOY (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 28 Jul 2003 03:14:24 -0400
+Message-Id: <5.2.1.1.2.20030728093215.01be8f68@pop.gmx.net>
+X-Mailer: QUALCOMM Windows Eudora Version 5.2.1
+Date: Mon, 28 Jul 2003 09:33:47 +0200
+To: Con Kolivas <kernel@kolivas.org>
+From: Mike Galbraith <efault@gmx.de>
+Subject: Re: [patch] sched-2.6.0-test1-G6, interactivity changes
+Cc: Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>,
+       Ingo Molnar <mingo@elte.hu>, LKML <linux-kernel@vger.kernel.org>
+In-Reply-To: <200307281705.01471.kernel@kolivas.org>
+References: <5.2.1.1.2.20030728065857.01bc9708@pop.gmx.net>
+ <Pine.LNX.4.44.0307271535590.22937-100000@localhost.localdomain>
+ <5.2.1.1.2.20030728065857.01bc9708@pop.gmx.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all,
-
-> > Not a bug.  This behavior is on purpose.
-First of all I'm sorry I rubbed some old sores. I didn't know the behaviour was on purpose, and I did google for it. Could have
-saved my weekend, had I known.
-
-> >Bas's problem can be solved by him giving a "preferred source"
-> >to each of his IPV4 routes and setting the "arpfilter" sysctl
-> >variable for his devices to "1".
+At 05:05 PM 7/28/2003 +1000, Con Kolivas wrote:
+>On Mon, 28 Jul 2003 16:04, Mike Galbraith wrote:
+> > to recharge his sleep_avg.  He stays low priority.  Kobiashi-maru:  X can't
 >
-> Yes, it's another approach to solve his problem. But he must play with routing.
+> > Conclusion accuracy/inaccuracy aside, I'd like to see if anyone else can
+> > reproduce that second scenario.
+>
+>Yes I can reproduce it, but we need the Kirk approach and cheat. Some
+>workaround for tasks that have fallen onto the expired array but shouldn't be
+>there needs to be created. But first we need to think of one before we can
+>create one...
 
-Routing isn't solving anything here, it's too dynamic. Only one of the devices has a fixed IP, and handles a link to the outside,
-among others. The other is on DHCP: addresses can change without warning. Both are on the same ethernet segment.
+Oh good, it's not my poor little box.  My experimental tree already has a 
+"Kirk" ;-)
 
-I've looked at the hidden patch, and it's capable of doing this right. I do think this has to be solved at the device layer. It's
-quite counter intuitive the way it is now. My vote goes to hidden.
-
-Regards,
-Bas
-
-
-
+         -Mike 
 

@@ -1,39 +1,29 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313157AbSEVMwG>; Wed, 22 May 2002 08:52:06 -0400
+	id <S313181AbSEVMzE>; Wed, 22 May 2002 08:55:04 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313179AbSEVMwF>; Wed, 22 May 2002 08:52:05 -0400
-Received: from imailg1.svr.pol.co.uk ([195.92.195.179]:52802 "EHLO
-	imailg1.svr.pol.co.uk") by vger.kernel.org with ESMTP
-	id <S313157AbSEVMwE>; Wed, 22 May 2002 08:52:04 -0400
-Date: Wed, 22 May 2002 13:51:28 +0100
-To: linux-kernel@vger.kernel.org, linux-lvm@sistina.com, lvm-devel@sistina.com
-Subject: [Announce] device-mapper beta3 (fast snapshots)
-Message-ID: <20020522125128.GA2009@fib011235813.fsnet.co.uk>
-Mime-Version: 1.0
+	id <S313182AbSEVMzD>; Wed, 22 May 2002 08:55:03 -0400
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:4112 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S313181AbSEVMzC>; Wed, 22 May 2002 08:55:02 -0400
+Subject: Re: nVidia NIC/IDE/something support?
+To: fchabaud@free.fr
+Date: Wed, 22 May 2002 14:15:16 +0100 (BST)
+Cc: pavel@suse.cz, linux-kernel@vger.kernel.org
+In-Reply-To: <200205220605.g4M65cI14609@colombe.home.perso> from "fchabaud@free.fr" at May 22, 2002 08:05:35 AM
+X-Mailer: ELM [version 2.5 PL6]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.28i
-From: Joe Thornber <joe@fib011235813.fsnet.co.uk>
+Content-Transfer-Encoding: 7bit
+Message-Id: <E17AVxU-0001bm-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Beta3 of device-mapper is now available at:
+> nvidia help for swsusp would be nice also. I tried the patch on my
+> desktop for the first time and it seems to work reliably (even from X)
+> except that 3D is lost after resume. That's rather curious: menus
+> without highlights or things like that.
 
-   ftp://ftp.sistina.com/pub/LVM2/device-mapper/device-mapper-beta3.0.tgz
-
-The accompanying LVM2 toolset:
-
-   ftp://ftp.sistina.com/pub/LVM2/tools/LVM2.0-beta3.0.tgz
-
-The main addition for this release is high performance persistent
-snapshots, see http://people.sistina.com/~thornber/snap_performance.html
-for a comparison with LVM1 and EVMS.
-
-Please be warned that snapshots will deadlock under load on 2.4.18
-kernels due to a bug in the VM syste, 2.4.19-pre8 works fine.
-
-pvmove is now the only major feature that LVM2 lacks compared with
-LVM1.
-
-- The LVM2 team (Patrick Caulfield, Alasdair Kergon, Joe Thornber)
+I've seen a few machines where you have to reinitialize the GART. Thats
+where the pm hooks for the agpgart code came from. That may be worth a try.

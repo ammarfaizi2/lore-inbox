@@ -1,42 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261874AbTAVQvf>; Wed, 22 Jan 2003 11:51:35 -0500
+	id <S261894AbTAVRFY>; Wed, 22 Jan 2003 12:05:24 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261894AbTAVQvf>; Wed, 22 Jan 2003 11:51:35 -0500
-Received: from e35.co.us.ibm.com ([32.97.110.133]:64477 "EHLO
-	e35.co.us.ibm.com") by vger.kernel.org with ESMTP
-	id <S261874AbTAVQve>; Wed, 22 Jan 2003 11:51:34 -0500
-Date: Wed, 22 Jan 2003 09:07:39 -0800
-From: Hanna Linder <hannal@us.ibm.com>
-Reply-To: Hanna Linder <hannal@us.ibm.com>
-To: Hui_Ning@3com.com, linux-kernel@vger.kernel.org
-cc: hannal@us.ibm.com
-Subject: Re: kernel profiling
-Message-ID: <8960000.1043255259@w-hlinder>
-In-Reply-To: <OF36859B84.3678DE43-ON86256CB6.00029EEA@3com.com>
-References: <OF36859B84.3678DE43-ON86256CB6.00029EEA@3com.com>
-X-Mailer: Mulberry/2.2.1 (Linux/x86)
-MIME-Version: 1.0
+	id <S261996AbTAVRFY>; Wed, 22 Jan 2003 12:05:24 -0500
+Received: from RAVEL.CODA.CS.CMU.EDU ([128.2.222.215]:23204 "EHLO
+	ravel.coda.cs.cmu.edu") by vger.kernel.org with ESMTP
+	id <S261894AbTAVRFX>; Wed, 22 Jan 2003 12:05:23 -0500
+Date: Wed, 22 Jan 2003 12:14:29 -0500
+To: linux-kernel@vger.kernel.org
+Subject: Re: [OFFTOPIC] RMS and reactions to him
+Message-ID: <20030122171428.GA25735@ravel.coda.cs.cmu.edu>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+References: <009601c2bd1f$6f966bc0$e501a8c0@saturn> <E18Zh8j-0000vf-00@fencepost.gnu.org>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
+In-Reply-To: <E18Zh8j-0000vf-00@fencepost.gnu.org>
+User-Agent: Mutt/1.4i
+From: Jan Harkes <jaharkes@cs.cmu.edu>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---On Tuesday, January 21, 2003 06:34:34 PM -0600 Hui_Ning@3com.com wrote:
-> 
-> hi,
-> 
-> I am trying to do kernel profile using kernprof with the patch provided by
-> SGI on 2.4.18. I can't find the 2.95.3 gcc patch that must be used to
-> compile the kernel( the info on sgi's web site somehow is broken).  Does
-> anybody know where the patch is ? or any alternative I can use, like
-> a more stable gcc version without the need for a patch?
+On Fri, Jan 17, 2003 at 07:47:13PM -0500, Richard Stallman wrote:
+> I see a hint of "give up, it's hopeless" in your message.
 
-Hello,
+But it is hopeless, I tried, but it didn't work,
 
-	I found that the default red hat 7.3 compiler (gcc-2.96-110)
-did not need the patch and ran kernprof fine. 
+    jaharkes@ravel:/usr/src$ mv linux Gnu/Linux
+    mv: cannot move `linux' to `Gnu/Linux': No such file or directory
 
-Hanna
+
+Sigh, I guess I'll just have to learn to live with it.
+
+Jan
 

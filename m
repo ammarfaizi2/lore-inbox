@@ -1,44 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269462AbUI3TzA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269442AbUI3T7O@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269462AbUI3TzA (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 30 Sep 2004 15:55:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269469AbUI3TzA
+	id S269442AbUI3T7O (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 30 Sep 2004 15:59:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269469AbUI3T7O
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 30 Sep 2004 15:55:00 -0400
-Received: from adsl-63-197-226-105.dsl.snfc21.pacbell.net ([63.197.226.105]:14494
-	"EHLO cheetah.davemloft.net") by vger.kernel.org with ESMTP
-	id S269462AbUI3Ty3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 30 Sep 2004 15:54:29 -0400
-Date: Thu, 30 Sep 2004 12:53:17 -0700
-From: "David S. Miller" <davem@davemloft.net>
-To: Jeff Garzik <jgarzik@pobox.com>
-Cc: torvalds@osdl.org, franz_pletz@t-online.de, michal@rokos.info,
-       linux-kernel@vger.kernel.org, akpm@osdl.org, manfred@colorfullife.com
-Subject: Re: [PATCH 2.6] Natsemi - remove compilation warnings
-Message-Id: <20040930125317.5622a909.davem@davemloft.net>
-In-Reply-To: <415C4EC5.4040603@pobox.com>
-References: <200409230958.31758.michal@rokos.info>
-	<200409231618.56861.michal@rokos.info>
-	<415C37D8.20203@t-online.de>
-	<Pine.LNX.4.58.0409300951150.2403@ppc970.osdl.org>
-	<415C4EC5.4040603@pobox.com>
-X-Mailer: Sylpheed version 0.9.12 (GTK+ 1.2.10; sparc-unknown-linux-gnu)
-X-Face: "_;p5u5aPsO,_Vsx"^v-pEq09'CU4&Dc1$fQExov$62l60cgCc%FnIwD=.UF^a>?5'9Kn[;433QFVV9M..2eN.@4ZWPGbdi<=?[:T>y?SD(R*-3It"Vj:)"dP
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Thu, 30 Sep 2004 15:59:14 -0400
+Received: from [62.206.217.67] ([62.206.217.67]:46259 "EHLO gw.localnet")
+	by vger.kernel.org with ESMTP id S269442AbUI3T7D (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 30 Sep 2004 15:59:03 -0400
+Message-ID: <415C6582.2090405@trash.net>
+Date: Thu, 30 Sep 2004 21:58:58 +0200
+From: Patrick McHardy <kaber@trash.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040413 Debian/1.6-5
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Frank van Maarseveen <frankvm@xs4all.nl>
+CC: Christian <evil@g-house.de>, linux-kernel@vger.kernel.org
+Subject: Re: ip_nat_helper  / ip_conntrack_core issues with recent 2.6 kernels
+References: <4137B825.8080801@g-house.de> <20040930193945.GA10777@janus>
+In-Reply-To: <20040930193945.GA10777@janus>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 30 Sep 2004 14:21:57 -0400
-Jeff Garzik <jgarzik@pobox.com> wrote:
+Frank van Maarseveen wrote:
 
-> Wouldn't it be better to just phase out the base of dev->base_addr 
-> completely?  I tend to prefer adding a "void __iomem *regs" to struct 
-> netdev_private, and ignore dev->base_addr completely.
+>I see that one too in 2.6.9-rc2:
+>Sep 30 21:33:47 iapetus kernel: NF_IP_ASSERT: net/ipv4/netfilter/ip_conntrack_core.c:658(init_conntrack)
+>Sep 30 21:34:30 iapetus last message repeated 3 times
+>Sep 30 21:35:38 iapetus last message repeated 4 times
+>
+>while lftp'ing to get -rc3. No problems doing so.
+>  
+>
+It's harmless and already fixed in -rc3.
 
-Yes, this is the way to go.
+Regards
+Patrick
 
-(BTW, Jeff, technically it's the 'ifmap' that the user uses
- to pass base_addr into the kernel.  The kernel drivers use
- the netdev struct one, which is an unsigned long)

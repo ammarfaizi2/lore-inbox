@@ -1,89 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265031AbUGIKX4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265040AbUGIK0D@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265031AbUGIKX4 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 Jul 2004 06:23:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265040AbUGIKX4
+	id S265040AbUGIK0D (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 Jul 2004 06:26:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265074AbUGIK0D
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 Jul 2004 06:23:56 -0400
-Received: from delta.ds3.agh.edu.pl ([149.156.124.3]:45830 "EHLO
-	pluto.ds14.agh.edu.pl") by vger.kernel.org with ESMTP
-	id S265031AbUGIKXx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 Jul 2004 06:23:53 -0400
-From: =?iso-8859-2?q?Pawe=B3_Sikora?= <pluto@ds14.agh.edu.pl>
-To: Michael Buesch <mbuesch@freenet.de>
-Subject: Re: GCC 3.4 and broken inlining.
-Date: Fri, 9 Jul 2004 12:23:47 +0200
-User-Agent: KMail/1.6.2
-Cc: linux kernel mailing list <linux-kernel@vger.kernel.org>
-References: <2fFzK-3Zz-23@gated-at.bofh.it> <20040709054657.GA52213@muc.de> <200407091143.41955.mbuesch@freenet.de>
-In-Reply-To: <200407091143.41955.mbuesch@freenet.de>
+	Fri, 9 Jul 2004 06:26:03 -0400
+Received: from zero.aec.at ([193.170.194.10]:55049 "EHLO zero.aec.at")
+	by vger.kernel.org with ESMTP id S265040AbUGIKZ7 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 9 Jul 2004 06:25:59 -0400
+To: akpm@osdl.org
+Subject: gcc 3.5 compile fixes
+cc: linux-kernel@vger.kernel.org
+From: Andi Kleen <ak@muc.de>
+Date: Fri, 09 Jul 2004 12:25:56 +0200
+Message-ID: <m3r7rlpjd7.fsf@averell.firstfloor.org>
+User-Agent: Gnus/5.110003 (No Gnus v0.3) Emacs/21.2 (gnu/linux)
 MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200407091223.47516.pluto@ds14.agh.edu.pl>
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 09 of July 2004 11:43, Michael Buesch wrote:
-> Quoting Andi Kleen <ak@muc.de>:
-> > It's too bad that i386 doesn't enable -funit-at-a-time, that improves
-> > the inlining heuristics greatly.
->
-> From the gcc manpage:
->
-> -O2 turns on all optimization flags specified by -O. It
-> also turns on the following optimization flags: -fforce-mem
-> -foptimize-sibling-calls -fstrength-reduce -fcse-follow-jumps
-> -fcse-skip-blocks -frerun-cse-after-loop -frerun-loop-opt
-> -fgcse -fgcse-lm -fgcse-sm -fgcse-las -fdelete-null-pointer-checks
-> -fexpensive-optimizations -fregmove -fschedule-insns
-> -fschedule-insns2 -fsched-interblock -fsched-spec -fcaller-saves
-> -fpeephole2 -freorder-blocks -freorder-functions -fstrict-aliasing
-> -funit-at-a-time -falign-functions -falign-jumps -falign-loops
-> ^^^^^^^^^^^^^^^^
-> -falign-labels -fcrossjumping
->
-> Do I miss something?
 
-# gcc-3.4.1/gcc/opts.c
+I tried to compile 2.6.7-bk9 with a recent gcc 3.5 snapshot on i386
+and x86-64. It gave a lot of warnings and a lot of compile errors
+for make allyesconfig.
 
-  if (optimize >= 2)
-    {
-(...)
-      flag_unit_at_a_time = 1;
-    }
+On x86-64 it miscompiled the kernel (due to kernel bugs); I will send
+fixes for that separately.
 
-btw).
+Most compile errors were about mixing extern and static declarations
+of the same symbol. I fixed this all except for the au88x0 driver
+in ALSA which had a too broken module setup (someone else will have 
+to tackle that)
 
-I *don't trust* manpages ;)
+I got one gcc internal compiler error while compiling the sunrpc 
+gss module. I filed an gcc bug for that. 
 
-# man gcc
+One problem was that it didn't always inline fix_to_virt() which
+resulted in undefined symbols. (gcc 3.4 and up doesn't set always 
+inline for normal inline). I fixed this by defining a new macro
+__always_inline in compiler.h and using that for fix_to_virt
 
--fomit-frame-pointer
+Another issue (I think already fixed in -mm) was that memmove()
+needs to be moved out of line.
 
-   Don't keep the frame pointer in a register for functions that don't
-   need one.  This avoids the instructions to save, set up and restore
-   frame pointers; it also makes an extra register available in many
-   functions.  It also makes debugging impossible on some machines.
-               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-   (...)
-   Enabled at levels -O, -O2, -O3, -Os.
-   ^^^^^^^
+The result were a lot of patches for a lot of files. Instead
+of spamming l-k with them all I put them in 
+http://www.firstfloor.org/~andi/35/ 
+Andrew, please consider adding them to your tree.
 
-  if (optimize >= 1)
-    {
-(...)
-#ifdef CAN_DEBUG_WITHOUT_FP
-      flag_omit_frame_pointer = 1;
-#endif
-(...)
+The resulting i386 kernel booted on one machine; but failed to find
+the SCSI disks on another (didn't investigate what the problem 
+was on the later, some more work needed on that)  
 
-finally, at ix86 -O[123s] doesn't turn on -fomit-frame-pointer.
-manpage tells somethine else...
+-Andi
 
--- 
-/* Copyright (C) 2003, SCO, Inc. This is valuable Intellectual Property. */
-
-                           #define say(x) lie(x)

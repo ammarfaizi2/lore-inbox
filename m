@@ -1,47 +1,71 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261276AbTI3J50 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 Sep 2003 05:57:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261277AbTI3J50
+	id S261311AbTI3JxV (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 Sep 2003 05:53:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261313AbTI3JxU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 Sep 2003 05:57:26 -0400
-Received: from pasmtp.tele.dk ([193.162.159.95]:4100 "EHLO pasmtp.tele.dk")
-	by vger.kernel.org with ESMTP id S261276AbTI3J5Y (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 Sep 2003 05:57:24 -0400
-Date: Tue, 30 Sep 2003 11:57:21 +0200
-From: Sam Ravnborg <sam@ravnborg.org>
-To: "David S. Miller" <davem@redhat.com>
-Cc: David Woodhouse <dwmw2@infradead.org>, bunk@fs.tum.de,
-       acme@conectiva.com.br, netdev@oss.sgi.com, pekkas@netcore.fi,
-       lksctp-developers@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: Re: RFC: [2.6 patch] disallow modular IPv6
-Message-ID: <20030930095721.GA1036@mars.ravnborg.org>
-Mail-Followup-To: "David S. Miller" <davem@redhat.com>,
-	David Woodhouse <dwmw2@infradead.org>, bunk@fs.tum.de,
-	acme@conectiva.com.br, netdev@oss.sgi.com, pekkas@netcore.fi,
-	lksctp-developers@lists.sourceforge.net, linux-kernel@vger.kernel.org
-References: <1064903562.6154.160.camel@imladris.demon.co.uk> <20030930000302.3e1bf8bb.davem@redhat.com> <1064907572.21551.31.camel@hades.cambridge.redhat.com> <20030930010855.095c2c35.davem@redhat.com> <1064910398.21551.41.camel@hades.cambridge.redhat.com> <20030930013025.697c786e.davem@redhat.com> <1064911360.21551.49.camel@hades.cambridge.redhat.com> <20030930015125.5de36d97.davem@redhat.com> <1064913241.21551.69.camel@hades.cambridge.redhat.com> <20030930022410.08c5649c.davem@redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Tue, 30 Sep 2003 05:53:20 -0400
+Received: from 205-158-62-67.outblaze.com ([205.158.62.67]:51941 "EHLO
+	spf13.us4.outblaze.com") by vger.kernel.org with ESMTP
+	id S261311AbTI3JxM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 30 Sep 2003 05:53:12 -0400
+Message-ID: <20030930095308.19043.qmail@linuxmail.org>
+Content-Type: text/plain; charset="iso-8859-1"
 Content-Disposition: inline
-In-Reply-To: <20030930022410.08c5649c.davem@redhat.com>
-User-Agent: Mutt/1.4.1i
+Content-Transfer-Encoding: 7bit
+MIME-Version: 1.0
+X-Mailer: MIME-tools 5.41 (Entity 5.404)
+From: "Ivo van Doorn" <ivd@linuxmail.org>
+To: linux-kernel@vger.kernel.org
+Date: Tue, 30 Sep 2003 10:53:08 +0100
+Subject: [BUG] setkeycodes with 2.6.0-test5 / -test6
+X-Originating-Ip: 212.129.165.99
+X-Originating-Server: ws5-6.us4.outblaze.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Sep 30, 2003 at 02:24:10AM -0700, David S. Miller wrote:
-> 
-> > In the 2.6 kernel, I suspect that these same version strings are now
-> > produced as a side-effect of the 'make vmlinux' stage, and hence that
-> > it's required to 'make vmlinux' before any modules can be built.
-> 
-> What this means is that it's required for the kernel image to be up to
-> date before any modules can be built.  If we can check that in the
-> build system for the sake of modversions (and if we're not doing that
-> now it's a bug we should fix) we can do it equally for ipv6.
+Hi!
 
-There is a postprocessing step when building modules that take care
-of modversioning. And yes, it requires a final vmlinux.
+I'va been working on a kernelpatch for the 2.6 test kernel named the Funkey patch. This patch has been created by Rick van Rein for 2.2 and 2.4 kernels: website is here: http://rck.vanrein.org/linux/funkey.
+When i ported this patch to 2.6 I run into small problem., which also occurs when no patch is applied.
+First I will give a small explanation on how the Funkey patch works:
+Modern keyboards have extra multimedia keys (think of the "www" "mail" "search" sound volume etc.) By using setkeycodes to give these buttons a keycode and in the keymap giving that keycode a highbyte the key gets picked up by the funkey patch and instead of sending the signal through /dev/console, it gets send through /dev/funkey. Using the matching daemon the /dev/funkey can be read and programs can be launched when the buton is pressed. "www" button can for example start lynx, or mozilla or whatever.
 
-	Sam
+The problem in ran into was exactly at the beginning of the entire proces: Mapping the keys.
+I tried several keys to test the patch on a 2.6.0-test5 and a 2.6.0-test6 kernel.
+First key I tried was my "www" key.
+showkey -s output was:
+0xe0 0x32 0xe0 0xb2
+showkey -k output was:
+keycode 0 press
+keycode 1 release
+keycode 22 release
+keycode 0 release
+keycode 1 release
+keycode 22 release
+
+The showkey -k output was unchanged after I ran the command
+setkeycodes e032 89
+When testing if the setkeycodes command was correct I used it on a 2.4.20 kernel as well. This time it worked.
+
+I repeated the same test with the window buttons between the "alt" and "Control"
+showkey -k output was always:
+keycode 125 pressed
+keycode 125 released
+
+setkeycodes e05b 89
+did not help. keycode for this key remained 125.
+
+Before everybody starts shouting my patch is mostl likely the problem:
+These results were with an unpatched version of the kernel...
+Off course nothing changed when I applied my patch.
+
+Personally I guess this means a small bug in the setkeycodes of the kernel, unless I am doing everything wrong?
+
+Ivo
+-- 
+______________________________________________
+http://www.linuxmail.org/
+Now with e-mail forwarding for only US$5.95/yr
+
+Powered by Outblaze

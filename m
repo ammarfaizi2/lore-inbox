@@ -1,78 +1,114 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261847AbVAHKnm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261813AbVAHKp5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261847AbVAHKnm (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 8 Jan 2005 05:43:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261873AbVAHHuz
+	id S261813AbVAHKp5 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 8 Jan 2005 05:45:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261789AbVAHKok
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 8 Jan 2005 02:50:55 -0500
-Received: from mail.kroah.org ([69.55.234.183]:49029 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S261874AbVAHFsT convert rfc822-to-8bit
+	Sat, 8 Jan 2005 05:44:40 -0500
+Received: from science.horizon.com ([192.35.100.1]:13120 "HELO
+	science.horizon.com") by vger.kernel.org with SMTP id S261822AbVAHIZm
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 8 Jan 2005 00:48:19 -0500
-Subject: Re: [PATCH] USB and Driver Core patches for 2.6.10
-In-Reply-To: <11051632601397@kroah.com>
-X-Mailer: gregkh_patchbomb
-Date: Fri, 7 Jan 2005 21:47:41 -0800
-Message-Id: <11051632612059@kroah.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-To: linux-usb-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Content-Transfer-Encoding: 7BIT
-From: Greg KH <greg@kroah.com>
+	Sat, 8 Jan 2005 03:25:42 -0500
+Date: 8 Jan 2005 08:25:35 -0000
+Message-ID: <20050108082535.24141.qmail@science.horizon.com>
+From: linux@horizon.com
+To: linux-kernel@vger.kernel.org, torvalds@osdl.org
+Subject: Re: Make pipe data structure be a circular list of pages, rather
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ChangeSet 1.1938.444.17, 2004/12/21 10:01:15-08:00, greg@kroah.com
+>  - add a "tee(in, out1, out2)" system call that duplicates the pages 
+>    (again, incrementing their reference count, not copying the data) from 
+>    one pipe to two other pipes.
 
-USB: explicitly mark the endianness of some visor data fields.
+H'm... the version that seemed natural to me was an asymmetrical one-way
+tee, such as "tee(in, out, len, flags)" might be better, where the next
+<len> bytes are *both* readable on fd "in" *and* copied to fd "out".
 
-Signed-off-by: Greg Kroah-Hartman <greg@kroah.com>
+You can make it a two-way tee with an additional "splice(in, out2, len)"
+call, so you haven't lost expressiveness, and it makes three-way and
+higher tees easier to construct.
 
 
- drivers/usb/serial/visor.c |    4 +---
- drivers/usb/serial/visor.h |    6 +++---
- 2 files changed, 4 insertions(+), 6 deletions(-)
+But then I realized that I might be thinking about a completely different
+implementation than you... I was thinking asynchronous, while perhaps
+you were thinking synchronous.
+
+A simple example of the difference:
+
+int
+main(void)
+{
+	fd *dest = open("/dev/null", O_WRONLY);
+	FILE *src = popen("/usr/bin/yes", "r");
+	splice(fileno(src), dest, SPLICE_INFINITY, 0);
+	return 0;
+}
+
+Will this process exit without being killed?  I was imagining yes,
+it would exit immediately, but perhaps "no" makes more sense.
+
+Ding!  Oh, of course, it couldn't exit, or cleaning up after the following
+mess would be far more difficult:
+
+int
+main(void)
+{
+	int fd[2];
+	pipe(fd);
+	write(fd[1], "Hello, world!\n", 14);
+	splice(fd[0], fd[1], SPLICE_INFINITY, 0);
+	return 0;
+}
+
+With the synchronous model, the two-output tee() call makes more sense, too.
+Still, it would be nice to be able to produce n identical output streams
+without needing n-1 processes to do it  Any ideas?  Perhaps
+
+int
+tee(int infd, int const *outfds, unsigned noutfds, loff_t size, unsigned flags)
+
+As for the issue of coalescing:
+> This is the main reason why I want to avoid coalescing if possible: if you
+> never coalesce, then each "pipe_buffer" is complete in itself, and that
+> simplifies locking enormously.
+>
+> (The other reason to potentially avoid coalescing is that I think it might
+> be useful to allow the "sendmsg()/recvmsg()" interfaces that honour packet
+> boundaries. The new pipe code _is_ internally "packetized" after all).
+
+It is somewhat offensive that the minimum overhead for a 1-byte write
+is a struct pipe_buffer plus a full page.
+
+But yes, keeping a pipe_buffer simple is a BIG win.  So how about the
+following coalescing strategy, which complicates the reader not at all:
+
+- Each pipe writing fd holds a reference to a page and an offset within
+  that page.
+- When writing some data, see if the data will fit in the remaining
+  portion of the page.
+  - If it will not, then dump the page, allocate a fresh one, and set
+    the offset to 0.
+    - Possible optimization: If the page's refcount is 1 (nobody else
+      still has a reference to the page, and we would free it if we
+      dropped it), then just recycle it directly.
+- Copy the written data (up to a maximum of 1 page) to the current write page.
+- Bump the page's reference count (to account for the pipe_buffer pointer) and
+  queue an appropriate pipe_buffer.
+- Increment the offset by the amount of data written to the page.
+- Decrement the amount of data remaining to be written and repeat if necessary.
+
+This allocates one struct pipe_buffer (8 bytes) per write, but not a whole
+page.  And it does so by exploiting the exact "we don't care what the rest
+of the page is used for" semantics that make the abstraction useful.
+
+The only waste is that, as written, every pipe writing fd keeps a page
+allocated even if the pipe is empty.  Perhaps the vm could be taught to
+reclaim those references if necessary?
 
 
-diff -Nru a/drivers/usb/serial/visor.c b/drivers/usb/serial/visor.c
---- a/drivers/usb/serial/visor.c	2005-01-07 15:41:55 -08:00
-+++ b/drivers/usb/serial/visor.c	2005-01-07 15:41:55 -08:00
-@@ -734,9 +734,7 @@
- 	if (retval == sizeof(*connection_info)) {
- 	        connection_info = (struct visor_connection_info *)transfer_buffer;
- 
--		le16_to_cpus(&connection_info->num_ports);
--		num_ports = connection_info->num_ports;
--
-+		num_ports = le16_to_cpu(connection_info->num_ports);
- 		for (i = 0; i < num_ports; ++i) {
- 			switch (connection_info->connections[i].port_function_id) {
- 				case VISOR_FUNCTION_GENERIC:
-diff -Nru a/drivers/usb/serial/visor.h b/drivers/usb/serial/visor.h
---- a/drivers/usb/serial/visor.h	2005-01-07 15:41:55 -08:00
-+++ b/drivers/usb/serial/visor.h	2005-01-07 15:41:55 -08:00
-@@ -89,7 +89,7 @@
-  * VISOR_GET_CONNECTION_INFORMATION returns data in the following format
-  ****************************************************************************/
- struct visor_connection_info {
--	__u16	num_ports;
-+	__le16	num_ports;
- 	struct {
- 		__u8	port_function_id;
- 		__u8	port;
-@@ -135,12 +135,12 @@
- struct palm_ext_connection_info {
- 	__u8 num_ports;		
- 	__u8 endpoint_numbers_different;
--	__u16 reserved1;
-+	__le16 reserved1;
- 	struct {
- 		__u32 port_function_id;
- 		__u8 port;
- 		__u8 end_point_info;
--		__u16 reserved;
-+		__le16 reserved;
- 	} connections[2];
- };
- 
-
+It's also worth documenting atomicity guarantees and poll/select
+semantics.  The above algorithm is careful to always queue the first
+PAGE_SIZE bytes of any write atomically, which I believe is what is
+historically expected.  It would be possible to have writes larger than
+PIPE_BUF fill in the trailing end of any partial page as well.

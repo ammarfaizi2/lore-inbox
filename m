@@ -1,68 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S136308AbRAGSfT>; Sun, 7 Jan 2001 13:35:19 -0500
+	id <S136339AbRAGSla>; Sun, 7 Jan 2001 13:41:30 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136339AbRAGSfJ>; Sun, 7 Jan 2001 13:35:09 -0500
-Received: from cx97923-a.phnx3.az.home.com ([24.9.112.194]:54285 "EHLO
-	grok.yi.org") by vger.kernel.org with ESMTP id <S136308AbRAGSe4>;
-	Sun, 7 Jan 2001 13:34:56 -0500
-Message-ID: <3A58C57A.131BFEF2@candelatech.com>
-Date: Sun, 07 Jan 2001 12:37:30 -0700
-From: Ben Greear <greearb@candelatech.com>
-Organization: Candela Technologies
-X-Mailer: Mozilla 4.72 [en] (X11; U; Linux 2.2.16 i586)
-X-Accept-Language: en
+	id <S136410AbRAGSlV>; Sun, 7 Jan 2001 13:41:21 -0500
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:10512 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S136339AbRAGSlI>; Sun, 7 Jan 2001 13:41:08 -0500
+Subject: Re: [PATCH] hisax/sportster dependency error
+To: kai@thphy.uni-duesseldorf.de (Kai Germaschewski)
+Date: Sun, 7 Jan 2001 18:42:13 +0000 (GMT)
+Cc: stodden@in.tum.de (Daniel Stodden), linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.30.0101060338180.13176-100000@vaio> from "Kai Germaschewski" at Jan 07, 2001 12:11:21 AM
+X-Mailer: ELM [version 2.5 PL1]
 MIME-Version: 1.0
-To: jamal <hadi@cyberus.ca>
-CC: Alan Cox <alan@lxorguk.ukuu.org.uk>, "David S. Miller" <davem@redhat.com>,
-        linux-kernel@vger.kernel.org, netdev@oss.sgi.com
-Subject: Re: [PATCH] hashed device lookup (Does NOT meet Linus' sumission
-In-Reply-To: <Pine.GSO.4.30.0101071317440.18916-100000@shell.cyberus.ca>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-Id: <E14FKlk-00037v-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-jamal wrote:
+> > according to sportster.c:get_io_range, this appears to be perfectly
+> > intentional, request_regioning 64x8 byte from 0x268 in 1024byte-steps.
 > 
-> On Sun, 7 Jan 2001, Ben Greear wrote:
-> 
-> > > Question: How do devices with hardware vlan support fit into your model ?
-> >
-> > I don't know of any, and I'm not sure how they would be supported.
-> >
-> 
-> erm, this is a MUST. You MUST factor the hardware VLANs and be totaly
-> 802.1q compliant. Also of interest is 802.1P and D. We must have full
-> compliance, not some toy emulation.
+> AFAIK, this is because the hardware is stupid and does decode the higher
+> address lines. Therefore, the IO ports are mirrored every 1024 bytes and
+> should be reserved to avoid potential conflicts with other devices.
 
-I have seen neither hardware nor spec sheets on how these NICs are doing
-VLAN 'support'.  So, I don't know what the best way to support them is.
-
-If it requires driver changes, then the ethernet driver folks will need
-to be involved.
-
-There is also a difference between supporting hardware VLAN solutions
-and being 100% compliant:  If I can send/receive packets that are
-100% compliant from an RTL 8139 NIC, then as far as the world (ie Switch) knows,
-I am 100% compliant.
-
-If the specific VLAN hardware features are not supported in some exotic
-NIC, then that should just mean slightly less performance, or worst cast,
-not supporting that particular NIC.
-
-My vlan code supports setting of Priority bits already (thats' the .1P, right?)
-
-What is the .1D stuff about?
-
-> 
-> cheers,
-> jamal
-
--- 
-Ben Greear (greearb@candelatech.com)  http://www.candelatech.com
-Author of ScryMUD:  scry.wanfear.com 4444        (Released under GPL)
-http://scry.wanfear.com               http://scry.wanfear.com/~greear
+Almost every 10bit decode ISA card is like that. You don't need to do the
+work. The PCI alloc rules already cover it.
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

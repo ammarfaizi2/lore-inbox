@@ -1,54 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263393AbSJFOL7>; Sun, 6 Oct 2002 10:11:59 -0400
+	id <S261618AbSJFORV>; Sun, 6 Oct 2002 10:17:21 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261619AbSJFOL7>; Sun, 6 Oct 2002 10:11:59 -0400
-Received: from daimi.au.dk ([130.225.16.1]:41696 "EHLO daimi.au.dk")
-	by vger.kernel.org with ESMTP id <S263393AbSJFOL6>;
-	Sun, 6 Oct 2002 10:11:58 -0400
-Message-ID: <3DA045F1.8E0FDCEA@daimi.au.dk>
-Date: Sun, 06 Oct 2002 16:17:21 +0200
-From: Kasper Dupont <kasperd@daimi.au.dk>
-Organization: daimi.au.dk
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.18-10smp i686)
-X-Accept-Language: en
+	id <S261625AbSJFORU>; Sun, 6 Oct 2002 10:17:20 -0400
+Received: from mail.zedat.fu-berlin.de ([130.133.1.48]:38035 "EHLO
+	Mail.ZEDAT.FU-Berlin.DE") by vger.kernel.org with ESMTP
+	id <S261618AbSJFORU>; Sun, 6 Oct 2002 10:17:20 -0400
+Message-Id: <m17yCIx-006hSwC@Mail.ZEDAT.FU-Berlin.DE>
+Content-Type: text/plain; charset=US-ASCII
+From: Oliver Neukum <oliver@neukum.name>
+To: Andrew Morton <akpm@digeo.com>, Rob Landley <landley@trommello.org>
+Subject: Re: The reason to call it 3.0 is the desktop (was Re: [OT] 2.6 not 3.0 - (NUMA))
+Date: Sun, 6 Oct 2002 15:44:17 +0200
+X-Mailer: KMail [version 1.3.2]
+Cc: Linus Torvalds <torvalds@transmeta.com>,
+       "Martin J. Bligh" <mbligh@aracnet.com>, linux-kernel@vger.kernel.org
+References: <Pine.LNX.4.44.0210041610220.2465-100000@home.transmeta.com> <200210060130.g961UjY2206214@pimout2-ext.prodigy.net> <3D9F9CD5.CEB61219@digeo.com>
+In-Reply-To: <3D9F9CD5.CEB61219@digeo.com>
 MIME-Version: 1.0
-To: Arjan van de Ven <arjanv@redhat.com>
-CC: Andy Pfiffer <andyp@osdl.org>, Michal Jaegermann <michal@harddata.com>,
-       "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: Re: export of sys_call_table
-References: <20021003153943.E22418@openss7.org>
-		<1033682560.28850.32.camel@irongate.swansea.linux.org.uk> 
-		<20021003171013.B22986@mail.harddata.com>  <1033691520.28254.6.camel@andyp> <1033723207.1733.4.camel@localhost.localdomain>
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Arjan van de Ven wrote:
-> 
-> I wonder why kmonte can't just use a reboot notifier.... existing
-> infrastructure already ;(
+On Sunday 06 October 2002 04:15, Andrew Morton wrote:
+> Rob Landley wrote:
+> > And the work that matters for the desktop is LATENCY work.
+>
+> 100% true.
 
-Because it doesn't hook sys_reboot to get notified about reboots.
-It hooks sys_reboot to add new calls, it could have been a new
-system call, but what monte does is slightly related to a reboot.
+Not 100%.
+First of all desktop work is driver work. Desktop users tend to get pissed
+if their shiny new webcam or DSL does not work.
+And thinks like the hotplugging subsystems are essential.
+Handling of removable media still is less than optimal.
 
-I have myself added a feature to monte where it was essential to
-hook the sys_reboot call and do something else when a reboot was
-requested. Maybe I could have used a reboot notifier.
+Then there's the issue of application startup. There's not enough
+read ahead. This is especially sad, as the order of page faults is at
+least partially predictable.
 
-What really bothers me about monte is:
-1) Doesn't work on SMP
-2) Doesn't seem to be maintened (does it even work on 2.5)?
-3) Is not completely stable
-4) Only available as a module, cannot be compiled in kernel.
-5) I couldn't get my additional feature working with the latest
-   version of monte.
+Another thing that sucks in desktop enviroments is displaying directories.
+Asynchronous IO will somewhat help, but you can't do an asynchronous stat.
+Now do this while a compiler is running. Deadline IO scheduling will help
+but a real helper would be read ahead on directory, inode and multi file 
+level.
 
-Perhaps there is some better alternative which I don't know?
-
--- 
-Kasper Dupont -- der bruger for meget tid på usenet.
-For sending spam use mailto:aaarep@daimi.au.dk
-or mailto:mcxumhvenwblvtl@skrammel.yaboo.dk
+	Regards
+		Oliver

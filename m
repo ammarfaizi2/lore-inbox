@@ -1,62 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261988AbVBPFZK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261991AbVBPFa5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261988AbVBPFZK (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Feb 2005 00:25:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261990AbVBPFZK
+	id S261991AbVBPFa5 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Feb 2005 00:30:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261992AbVBPFa5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Feb 2005 00:25:10 -0500
-Received: from MAIL.13thfloor.at ([212.16.62.51]:44160 "EHLO mail.13thfloor.at")
-	by vger.kernel.org with ESMTP id S261988AbVBPFZE (ORCPT
+	Wed, 16 Feb 2005 00:30:57 -0500
+Received: from fsmlabs.com ([168.103.115.128]:64174 "EHLO fsmlabs.com")
+	by vger.kernel.org with ESMTP id S261991AbVBPFat (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Feb 2005 00:25:04 -0500
-Date: Wed, 16 Feb 2005 06:25:03 +0100
-From: Herbert Poetzl <herbert@13thfloor.at>
-To: Andrea Arcangeli <andrea@cpushare.com>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: seccomp for 2.6.11-rc4
-Message-ID: <20050216052503.GA24484@mail.13thfloor.at>
-Mail-Followup-To: Andrea Arcangeli <andrea@cpushare.com>,
-	Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-References: <20050121100606.GB8042@dualathlon.random> <20050215093244.GU13712@opteron.random>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050215093244.GU13712@opteron.random>
-User-Agent: Mutt/1.4.1i
+	Wed, 16 Feb 2005 00:30:49 -0500
+Date: Tue, 15 Feb 2005 22:31:24 -0700 (MST)
+From: Zwane Mwaikambo <zwane@arm.linux.org.uk>
+To: Andrew Morton <akpm@osdl.org>
+cc: lkml <linux-kernel@vger.kernel.org>, Rusty Russell <rusty@rustcorp.com.au>,
+       Ingo Molnar <mingo@elte.hu>, Nathan Lynch <nathanl@austin.ibm.com>
+Subject: [PATCH] Run softirqs on proper processor on offline
+In-Reply-To: <20050216020628.GA25596@otto>
+Message-ID: <Pine.LNX.4.61.0502152227090.26742@montezuma.fsmlabs.com>
+References: <20050211232821.GA14499@otto> <Pine.LNX.4.61.0502121019080.26742@montezuma.fsmlabs.com>
+ <20050214215948.GA22304@otto> <20050215070217.GB13568@elte.hu>
+ <20050216020628.GA25596@otto>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Feb 15, 2005 at 10:32:44AM +0100, Andrea Arcangeli wrote:
-> Hello,
-> 
-> This is the latest version against 2.6.11-rc4:
-> 
-> 	http://www.kernel.org/pub/linux/kernel/people/andrea/patches/v2.6/2.6.11-rc4/seccomp
-> 
-> I'd need it merged into mainline at some point, unless anybody has
-> strong arguments against it. All I can guarantee here, is that I'll back
-> it out myself in the future, iff Cpushare will fail and nobody else
-> started using it in the meantime for similar security purposes.
+Ensure that we only offline the processor when it's safe and never run 
+softirqs in another processor's ksoftirqd context. This also gets rid of 
+the warnings in ksoftirqd on cpu offline.
 
-hmm, just an idea, but have you thought about using
-an indirect syscall table for your purposes?
+Signed-off-by: Zwane Mwaikambo <zwane@arm.linux.org.uk>
 
- current->syscall_table 
-
-and have a table for every 'mode' you want to use ...
-
-or maybe have a 'mask' for every syscall (in a 
-separate table) which describes the allowed 'modes'
-
-just because checking the syscall number in a loop
-doesn't look very scaleable to me ... 
-
-best,
-Herbert
-
-> Thanks.
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+Index: linux-2.6.11-rc3-mm2/kernel/softirq.c
+===================================================================
+RCS file: /home/cvsroot/linux-2.6.11-rc3-mm2/kernel/softirq.c,v
+retrieving revision 1.1.1.1
+diff -u -p -B -r1.1.1.1 softirq.c
+--- linux-2.6.11-rc3-mm2/kernel/softirq.c	11 Feb 2005 05:14:57 -0000	1.1.1.1
++++ linux-2.6.11-rc3-mm2/kernel/softirq.c	12 Feb 2005 18:24:54 -0000
+@@ -355,8 +355,12 @@ static int ksoftirqd(void * __bind_cpu)
+ 	set_current_state(TASK_INTERRUPTIBLE);
+ 
+ 	while (!kthread_should_stop()) {
+-		if (!local_softirq_pending())
++		preempt_disable();
++		if (!local_softirq_pending()) {
++			preempt_enable_no_resched();
+ 			schedule();
++			preempt_disable();
++		}
+ 
+ 		__set_current_state(TASK_RUNNING);
+ 
+@@ -364,14 +368,14 @@ static int ksoftirqd(void * __bind_cpu)
+ 			/* Preempt disable stops cpu going offline.
+ 			   If already offline, we'll be on wrong CPU:
+ 			   don't process */
+-			preempt_disable();
+ 			if (cpu_is_offline((long)__bind_cpu))
+ 				goto wait_to_die;
+ 			do_softirq();
+-			preempt_enable();
++			preempt_enable_no_resched();
+ 			cond_resched();
++			preempt_disable();
+ 		}
+-
++		preempt_enable();
+ 		set_current_state(TASK_INTERRUPTIBLE);
+ 	}
+ 	__set_current_state(TASK_RUNNING);

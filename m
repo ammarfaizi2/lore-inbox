@@ -1,38 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261990AbRE3UNP>; Wed, 30 May 2001 16:13:15 -0400
+	id <S262009AbRE3UOp>; Wed, 30 May 2001 16:14:45 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262009AbRE3UNF>; Wed, 30 May 2001 16:13:05 -0400
-Received: from garrincha.netbank.com.br ([200.203.199.88]:12808 "HELO
-	netbank.com.br") by vger.kernel.org with SMTP id <S261990AbRE3UNB>;
-	Wed, 30 May 2001 16:13:01 -0400
-Date: Wed, 30 May 2001 17:12:41 -0300 (BRST)
-From: Rik van Riel <riel@conectiva.com.br>
-To: Tania Oka <tania@centurysys.co.jp>
-Cc: linux-kernel@vger.kernel.org, glenn@centurysys.co.jp
-Subject: Re: boundary condition bug in do_mmap()
-In-Reply-To: <3B14B3A2.2843422E@centurysys.co.jp>
-Message-ID: <Pine.LNX.4.21.0105301712170.13062-100000@imladris.rielhome.conectiva>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
+	id <S262012AbRE3UOf>; Wed, 30 May 2001 16:14:35 -0400
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:58119 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S262009AbRE3UO0>; Wed, 30 May 2001 16:14:26 -0400
+Subject: Re: Plain 2.4.5 VM... (and 2.4.5-ac3)
+To: linuxkernel@AdvancedResearch.org (Vincent Stemen)
+Date: Wed, 30 May 2001 21:11:20 +0100 (BST)
+Cc: alan@lxorguk.ukuu.org.uk (Alan Cox),
+        torvalds@transmeta.com (Linus Torvalds), linux-kernel@vger.kernel.org,
+        mikeg@wen-online.de (Mike Galbraith)
+In-Reply-To: <01053014585700.01976@quark> from "Vincent Stemen" at May 30, 2001 02:58:57 PM
+X-Mailer: ELM [version 2.5 PL3]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E155CJM-0006XT-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 30 May 2001, Tania Oka wrote:
+> There was a new 8139too driver added to the the 2.4.5 (I think) kernel
+> which Alan Cox took back out and reverted to the old one in his
+> 2.4.5-ac? versions because it is apparently causing lockups.
+> Shouldn't this new driver have been released in a 2.5.x development
+> kernel and proven there before replacing the one in the production
+> kernel?  I haven't even seen a 2.5.x kernel released yet.
 
->     if ((offset + PAGE_ALIGN(len)) < offset)
-
-Why are you mailing this the week after it was
-fixed ?  :)
-
-Rik
---
-Virtual memory is like a game you can't win;
-However, without VM there's truly nothing to lose...
-
-http://www.surriel.com/		http://distro.conectiva.com/
-
-Send all your spam to aardvark@nl.linux.org (spam digging piggy)
+Nope. The 2.4.3 one is buggy too - but differently (and it turns out a 
+little less) buggy. Welcome to software.
 

@@ -1,47 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265037AbTFTXur (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 Jun 2003 19:50:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265038AbTFTXuq
+	id S265038AbTFTXvy (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 Jun 2003 19:51:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265043AbTFTXvy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 Jun 2003 19:50:46 -0400
-Received: from 216-239-45-4.google.com ([216.239.45.4]:48610 "EHLO
-	216-239-45-4.google.com") by vger.kernel.org with ESMTP
-	id S265037AbTFTXup (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 Jun 2003 19:50:45 -0400
-Date: Fri, 20 Jun 2003 17:04:46 -0700
-From: Frank Cusack <fcusack@fcusack.com>
-To: Larry McVoy <lm@work.bitmover.com>, linux-kernel@vger.kernel.org
-Subject: Re: [OT] Re: Troll Tech [was Re: Sco vs. IBM]
-Message-ID: <20030620170446.C28636@google.com>
-References: <063301c32c47$ddc792d0$3f00a8c0@witbe> <1056027789.3ef1b48d3ea2e@support.tuxbox.dk> <03061908145500.25179@tabby> <20030619141443.GR29247@fs.tum.de> <bcsolt$37m$2@news.cistron.nl> <20030619165916.GA14404@work.bitmover.com> <20030620001217.G6248@almesberger.net> <20030620120910.3f2cb001.skraw@ithnet.com> <20030620142436.GB14404@work.bitmover.com>
+	Fri, 20 Jun 2003 19:51:54 -0400
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:6139 "HELO
+	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
+	id S265038AbTFTXvv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 20 Jun 2003 19:51:51 -0400
+Date: Sat, 21 Jun 2003 02:05:50 +0200
+From: Adrian Bunk <bunk@fs.tum.de>
+To: Marcelo Tosatti <marcelo@conectiva.com.br>, andrew.grover@intel.com
+Cc: linux-kernel@vger.kernel.org, acpi-devel@lists.sourceforge.net,
+       trivial@rustcorp.com.au
+Subject: [2.4 patch] add three ACPI Configure.help entries
+Message-ID: <20030621000550.GP29247@fs.tum.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20030620142436.GB14404@work.bitmover.com>; from lm@bitmover.com on Fri, Jun 20, 2003 at 07:24:36AM -0700
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jun 20, 2003 at 07:24:36AM -0700, Larry McVoy wrote:
->     I've said for years that the open source world is all about
->     reimplementing and not about new innovation.
+The patch below adds Configure.help entries for three ACPI options added 
+in 2.4.22-pre1 (help texts stolen from 2.5).
 
-Almost spot-on.
+Please apply
+Adrian
 
-Where it's off is
 
-- It's not ALL about reimplenting.  Didn't Solaris' prstat come AFTER top?
-  Anyway I'm sure there are lots of examples here, maybe not LARGE pieces
-  of code (although I'll point to TeX since every exception needs an
-  exception as well), but I think you discount open source innovation
-  too much.  All of the ATTENTION is on the bits that are reimplementations
-  because that's how mass markets work.
-
-- Just because two people independenty implement something doesn't mean
-  one of them is REimplementing.
-
-Isn't bk simply a reimplementation of p4 by your argument?
-
-/fc
-
+--- linux-2.4.22-pre1-full/Documentation/Configure.help.old	2003-06-21 01:51:34.000000000 +0200
++++ linux-2.4.22-pre1-full/Documentation/Configure.help	2003-06-21 02:00:54.000000000 +0200
+@@ -18691,6 +18691,20 @@
+   down the system.  Until then, you can cat it, and see output when
+   a button is pressed.
+ 
++CONFIG_ACPI_BATTERY
++  This driver adds support for battery information through
++  /proc/acpi/battery. If you have a mobile system with a battery, 
++  say Y.
++
++CONFIG_ACPI_FAN
++  This driver adds support for ACPI fan devices, allowing user-mode 
++  applications to perform basic fan control (on, off, status).
++
++CONFIG_ACPI_PROCESSOR
++  This driver installs ACPI as the idle handler for Linux, and uses
++  ACPI C2 and C3 processor states to save power, on systems that
++  support it.
++
+ ACPI AC Adapter
+ CONFIG_ACPI_AC
+   This driver adds support for the AC Adapter object, which indicates

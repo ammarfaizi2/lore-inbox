@@ -1,43 +1,38 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315805AbSFPCWB>; Sat, 15 Jun 2002 22:22:01 -0400
+	id <S315806AbSFPCxT>; Sat, 15 Jun 2002 22:53:19 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315806AbSFPCWA>; Sat, 15 Jun 2002 22:22:00 -0400
-Received: from ccs.covici.com ([209.249.181.196]:26773 "EHLO ccs.covici.com")
-	by vger.kernel.org with ESMTP id <S315805AbSFPCWA>;
-	Sat, 15 Jun 2002 22:22:00 -0400
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <15627.63040.620383.846497@ccs.covici.com>
-Date: Sat, 15 Jun 2002 22:21:52 -0400
-From: John covici <covici@ccs.covici.com>
-To: Sam Ravnborg <sam@ravnborg.org>
-Cc: linux-kernel@vger.kernel.org
+	id <S315856AbSFPCxS>; Sat, 15 Jun 2002 22:53:18 -0400
+Received: from chaos.physics.uiowa.edu ([128.255.34.189]:39116 "EHLO
+	chaos.physics.uiowa.edu") by vger.kernel.org with ESMTP
+	id <S315806AbSFPCxS>; Sat, 15 Jun 2002 22:53:18 -0400
+Date: Sat, 15 Jun 2002 21:53:00 -0500 (CDT)
+From: Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>
+X-X-Sender: kai@chaos.physics.uiowa.edu
+To: John covici <covici@ccs.covici.com>
+cc: Sam Ravnborg <sam@ravnborg.org>, <linux-kernel@vger.kernel.org>
 Subject: Re: 2.5.21 make problem
-In-Reply-To: <20020616010006.A19935@mars.ravnborg.org>
-X-Mailer: VM 7.05 under Emacs 21.3.50.1
-Reply-To: covici@ccs.covici.com
+In-Reply-To: <15627.63040.620383.846497@ccs.covici.com>
+Message-ID: <Pine.LNX.4.44.0206152149190.7247-100000@chaos.physics.uiowa.edu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I did the mrproper then the make with the clean and then the make
-without the clean in that order and still no results.
 
 
-on Sunday 06/16/2002 Sam Ravnborg(sam@ravnborg.org) wrote
- > On Sat, Jun 15, 2002 at 06:38:57PM -0400, John covici wrote:
- > > I had the bright idea of taking the clean out of there, so I was left
- > > with
- > > make dep bzImage modules_install 2>&1 |tee foo
- > > 
- > > but that didn't help -- thought it would.
- > 
- > I have once seen something similar.
- > Have you tried "make mrproper" to clean up and try again?
- > 
- > 	Sam
+On Sat, 15 Jun 2002, John covici wrote:
 
--- 
-         John Covici
-         covici@ccs.covici.com
+> I did the mrproper then the make with the clean and then the make
+> without the clean in that order and still no results.
+
+Could you mail me your .config and the exact commands which lead to the
+failure (off-list). Actually, can you send your top-level Makefile as
+well.
+
+Can you reproduce the problem on an clean kernel.org tree (no further
+patches applied? I suspect something went wrong with the extra patches you 
+applied.
+
+--Kai
+

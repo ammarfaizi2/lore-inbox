@@ -1,40 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318896AbSIIUfC>; Mon, 9 Sep 2002 16:35:02 -0400
+	id <S318895AbSIIUeV>; Mon, 9 Sep 2002 16:34:21 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318912AbSIIUe5>; Mon, 9 Sep 2002 16:34:57 -0400
-Received: from mx2.elte.hu ([157.181.151.9]:30107 "HELO mx2.elte.hu")
-	by vger.kernel.org with SMTP id <S318884AbSIIUes>;
-	Mon, 9 Sep 2002 16:34:48 -0400
-Date: Mon, 9 Sep 2002 22:43:51 +0200 (CEST)
-From: Ingo Molnar <mingo@elte.hu>
-Reply-To: Ingo Molnar <mingo@elte.hu>
-To: Daniel Jacobowitz <dan@debian.org>
-Cc: Linus Torvalds <torvalds@transmeta.com>, <linux-kernel@vger.kernel.org>
-Subject: Re: do_syslog/__down_trylock lockup in current BK
-In-Reply-To: <20020909201516.GA7465@nevyn.them.org>
-Message-ID: <Pine.LNX.4.44.0209092243160.19642-100000@localhost.localdomain>
+	id <S318896AbSIIUeV>; Mon, 9 Sep 2002 16:34:21 -0400
+Received: from dsl-213-023-039-209.arcor-ip.net ([213.23.39.209]:6337 "EHLO
+	starship") by vger.kernel.org with ESMTP id <S318895AbSIIUeT>;
+	Mon, 9 Sep 2002 16:34:19 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Daniel Phillips <phillips@arcor.de>
+To: Andrew Morton <akpm@digeo.com>
+Subject: Re: Calculating kernel logical address ..
+Date: Mon, 9 Sep 2002 22:41:30 +0200
+X-Mailer: KMail [version 1.3.2]
+Cc: Jesse Barnes <jbarnes@sgi.com>,
+       "Richard B. Johnson" <root@chaos.analogic.com>,
+       "'David S. Miller'" <davem@redhat.com>, linux-kernel@vger.kernel.org
+References: <019f01c25826$c553f310$9e10a8c0@IMRANPC> <E17oTES-0006qj-00@starship> <3D7CF93A.972FCC8D@digeo.com>
+In-Reply-To: <3D7CF93A.972FCC8D@digeo.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Message-Id: <E17oVLe-0006uT-00@starship>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Monday 09 September 2002 21:40, Andrew Morton wrote:
+> We need a general-purpose "read or write these pages to this blockdev"
+> library function.
 
-the following assert triggers and catches the lockup:
+I thought bio was supposed to be that.  In what way does it not suffice?
+Simply because of not having a suitable wrapper?
 
---- linux/kernel/exit.c.orig	Mon Sep  9 21:59:24 2002
-+++ linux/kernel/exit.c	Mon Sep  9 22:38:44 2002
-@@ -461,6 +461,8 @@
- 		ptrace_unlink (p);
- 
- 		list_del_init(&p->sibling);
-+		if (p->parent == father && p->parent == p->real_parent)
-+			BUG();
- 		p->parent = p->real_parent;
- 		list_add_tail(&p->sibling, &p->parent->children);
- 	}
+> For mtdblk, LVM1/LVM2 and probably swapper_space.
+> With that we can remove the block IO stuff from kiovecs.  And convert
+> the other drivers to use get_user_pages() directly into an ad-hoc private
+> page array.  Those things would allow kiovecs/kiobufs to be retired.
 
-so somehow we can end up having parent == real_parent?
+As far as pressing generic_direct_IO into use for this purpose goes, why
+not forget about that (crufty looking) layer and sit directly on top of
+bio?
 
-	Ingo
-
+-- 
+Daniel

@@ -1,50 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262187AbTCWAvf>; Sat, 22 Mar 2003 19:51:35 -0500
+	id <S262186AbTCWAvO>; Sat, 22 Mar 2003 19:51:14 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262190AbTCWAvf>; Sat, 22 Mar 2003 19:51:35 -0500
-Received: from natsmtp01.webmailer.de ([192.67.198.81]:30637 "EHLO
-	post.webmailer.de") by vger.kernel.org with ESMTP
-	id <S262187AbTCWAvd>; Sat, 22 Mar 2003 19:51:33 -0500
-Date: Sun, 23 Mar 2003 02:03:39 +0100
-From: Dominik Brodowski <linux@brodo.de>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       B.Zolnierkiewicz@elka.pw.edu.pl
-Subject: Re: 2.5.65-ac2 -- hda/ide trouble on ICH4
-Message-ID: <20030323010338.GA886@brodo.de>
-References: <20030322140337.GA1193@brodo.de> <1048350905.9219.1.camel@irongate.swansea.linux.org.uk> <20030322162502.GA870@brodo.de> <1048354921.9221.17.camel@irongate.swansea.linux.org.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1048354921.9221.17.camel@irongate.swansea.linux.org.uk>
-User-Agent: Mutt/1.4i
+	id <S262187AbTCWAvO>; Sat, 22 Mar 2003 19:51:14 -0500
+Received: from phoenix.mvhi.com ([195.224.96.167]:12811 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id <S262186AbTCWAvN>; Sat, 22 Mar 2003 19:51:13 -0500
+Date: Sun, 23 Mar 2003 01:02:15 +0000 (GMT)
+From: James Simmons <jsimmons@infradead.org>
+To: Alan Cox <alan@redhat.com>
+cc: Jeff Garzik <jgarzik@pobox.com>, <linux-kernel@vger.kernel.org>
+Subject: Re: Linux 2.5.65-ac3
+In-Reply-To: <200303230044.h2N0i9r32560@devserv.devel.redhat.com>
+Message-ID: <Pine.LNX.4.44.0303230059340.27069-100000@phoenix.infradead.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Mar 22, 2003 at 05:42:02PM +0000, Alan Cox wrote:
-> On Sat, 2003-03-22 at 16:25, Dominik Brodowski wrote:
-> > > Where is the lock, what does the NMI oopser show ?
-> > 
-> > The lock is directly "below" that line -- and the NMI oopser isn't
-> > triggered, AFAICT
+
+> > Once your tty and ide bits are merged, what's left on the plate (in your 
+> > opinion) before 2.6.0-test1?
 > 
-> Anything useful off right-alt scroll-lock etc ?
+> 32bit dev_t is a showstopper
+> 
+> then 
+> 
+> Debugging, debugging, and more debugging
+> Driver porting
+> Driver resyncs with 2.4
+> Finding the remaining scsi bugs
+> A ton more IDE work before I am happy
+> Fixing the pci api hotplug races
+> DRM 4.3 cleaned up and working
 
-not from this debugging source - USB wireless keyboard :) - however, ~1000
-printks later I've found out the following: the kernel spins in the while()
-loop in drivers/ide/ide_register_driver:
-
-	while (!list_empty(&list)) {
-		ide_drive_t *drive = list_entry(list.next, ide_drive_t,
-list);
-		list_del_init(&drive->list);
-		if (drive->present)
-			ata_attach(drive);
-	}
+The framebuffer code needs alot of work. I have most of it done. I hope 
+linus pulls my latest changes soon.
 
 
-It was called by ide_register_driver, which itself got called by
-idedisk_init. 
 
-	Dominik
+
+
+
+

@@ -1,65 +1,69 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266454AbUBFEBa (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Feb 2004 23:01:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266455AbUBFEBa
+	id S266455AbUBFEHh (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Feb 2004 23:07:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266463AbUBFEHh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Feb 2004 23:01:30 -0500
-Received: from ppp-217-133-42-200.cust-adsl.tiscali.it ([217.133.42.200]:16306
-	"EHLO dualathlon.random") by vger.kernel.org with ESMTP
-	id S266454AbUBFEBZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Feb 2004 23:01:25 -0500
-Date: Fri, 6 Feb 2004 05:01:23 +0100
-From: Andrea Arcangeli <andrea@suse.de>
-To: john stultz <johnstul@us.ibm.com>
-Cc: lkml <linux-kernel@vger.kernel.org>, Andi Kleen <ak@suse.de>,
-       Ulrich Drepper <drepper@redhat.com>, Jamie Lokier <jamie@shareable.org>,
-       Chris McDermott <lcm@us.ibm.com>,
-       Wim Coekaerts <wim.coekaerts@oracle.com>,
-       Joel Becker <Joel.Becker@oracle.com>,
-       "Martin J. Bligh" <mbligh@aracnet.com>
-Subject: Re: [RFC][PATCH] linux-2.6.2_vsyscall-gtod_B2.patch
-Message-ID: <20040206040123.GN31926@dualathlon.random>
-References: <1076037045.757.21.camel@cog.beaverton.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1076037045.757.21.camel@cog.beaverton.ibm.com>
-User-Agent: Mutt/1.4.1i
-X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
-X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
+	Thu, 5 Feb 2004 23:07:37 -0500
+Received: from relay04.roc.ny.frontiernet.net ([66.133.131.37]:5600 "EHLO
+	relay04.roc.ny.frontiernet.net") by vger.kernel.org with ESMTP
+	id S266455AbUBFEHf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 5 Feb 2004 23:07:35 -0500
+Message-ID: <4021C152.3080501@xfs.org>
+Date: Wed, 04 Feb 2004 22:06:42 -0600
+From: Steve Lord <lord@xfs.org>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6b) Gecko/20031205 Thunderbird/0.4
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Andrew Morton <akpm@osdl.org>
+CC: ak@suse.de, linux-kernel@vger.kernel.org, kenneth.w.chen@intel.com
+Subject: Re: Limit hash table size
+References: <B05667366EE6204181EABE9C1B1C0EB5802441@scsmsx401.sc.intel.com.suse.lists.linux.kernel> <20040205155813.726041bd.akpm@osdl.org.suse.lists.linux.kernel> <p73isilkm4x.fsf@verdi.suse.de> <4021AC9F.4090408@xfs.org> <20040205191240.13638135.akpm@osdl.org>
+In-Reply-To: <20040205191240.13638135.akpm@osdl.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Feb 05, 2004 at 07:10:46PM -0800, john stultz wrote:
-> @@ -6,6 +9,8 @@
->  	.globl __kernel_vsyscall
->  	.type __kernel_vsyscall,@function
->  __kernel_vsyscall:
-> +	cmp $__NR_gettimeofday, %eax
-> +	je .Lvgettimeofday
->  .LSTART_vsyscall:
+Andrew Morton wrote:
+> Steve Lord <lord@xfs.org> wrote:
+> 
+>> I have seen some dire cases with the dcache, SGI had some boxes with
+>> millions of files out there, and every night a cron job would come
+>> along and suck them all into memory. Resources got tight at some point,
+>> and as more inodes and dentries were being read in, the try to free
+>> pages path was continually getting called. There was always something
+>> in filesystem cache which could get freed, and the inodes and dentries
+>> kept getting more and more of the memory.
+> 
+> 
+> There are a number of variables here.  Certainly, the old
+> inodes-pinned-by-highmem pagecache will cause this to happen - badly.  2.6
+> is pretty aggressive at killing off those inodes.
+> 
+> What kernel was it?
+> 
+> Was it a highmem box?  If so, was the filesystem in question placing
+> directory pagecache in highmem?  If so, that was really bad on older 2.4:
+> the directory pagecache in highmem pins down all directory inodes.
+> 
 
-this is the sort of slowdown that could be avoided with the fixed
-address.
+This is where my memory gets a little hazy, its been a few months.
+This would have been a 2.4 kernel (probably around 2.4.21)
+on an Altix, the filesystem was XFS. So no highmem, but definitely
+not your standard kernel.
 
-with regards to Ulrich's security related comments, this won't make any
-difference compared to the fixed address version either, since the
-vsyscall page is still at a fixed address in the fixmap area, and
-nevertheless regardless the vgettimeofday api, the sysenter instruction
-is always placed at a fixed address in the address space for the
-sysenter vsyscall support, so at the light of the i386 current status,
-those comments w.r.t to security make even less sense.
+I never had time to dig into it too much, but I always thought that
+on machines with large amounts of memory it was too easy for the
+inode and dcache pools to get very large at the expense of the
+regular memory zones. While there were pages available, the dcache
+and inode zones could just keep on growing. If you run a big
+enough find you get lots of memory into the dcache zone and
+have a hard time getting it out again.
 
-This has the feature that it doesn't need the LD_PRELOAD and it's sort
-of backwards compatible, but it is equivalent in terms of security and
-as a matter of fact it's less efficient and the worst part is that not
-only it makes gettimeofday slower, it makes _all_ the syscall slower
-(slowing down vgettimeofday wouldn't matter since we're improving it
-huge anyways).
+And it was try_to_free_pages I was referring to.
 
-I prefer the previous version, glibc has to be changed at the same time
-with the kernel anyways to use the sysenter. I think it's not nice to
-speedup gettimeofday by slowing down all other syscalls, when we can
-implement it running all syscalls at full speed with the optimal API of
-x86-64.
+It does look like 2.6 does better, but I don't have quite the
+amount of memory on my laptop....
+
+Steve

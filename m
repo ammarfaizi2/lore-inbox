@@ -1,35 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S270314AbRIVNfk>; Sat, 22 Sep 2001 09:35:40 -0400
+	id <S270795AbRIVNnC>; Sat, 22 Sep 2001 09:43:02 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271032AbRIVNfa>; Sat, 22 Sep 2001 09:35:30 -0400
-Received: from se1.cogenit.fr ([195.68.53.173]:1193 "EHLO cogenit.fr")
-	by vger.kernel.org with ESMTP id <S270314AbRIVNfS>;
-	Sat, 22 Sep 2001 09:35:18 -0400
-Date: Sat, 22 Sep 2001 15:35:27 +0200
-From: Francois Romieu <romieu@cogenit.fr>
-To: Andreas Steinmetz <ast@domdv.de>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: spurious interrupt with ac kernel but not with vanilla
-Message-ID: <20010922153527.B26955@se1.cogenit.fr>
-In-Reply-To: <41B7E064ABA@vcnet.vc.cvut.cz> <XFMail.20010921192411.ast@domdv.de>
-Mime-Version: 1.0
+	id <S271005AbRIVNmw>; Sat, 22 Sep 2001 09:42:52 -0400
+Received: from CPE-61-9-150-176.vic.bigpond.net.au ([61.9.150.176]:8946 "EHLO
+	e4.eyal.emu.id.au") by vger.kernel.org with ESMTP
+	id <S270795AbRIVNmh>; Sat, 22 Sep 2001 09:42:37 -0400
+Message-ID: <3BAC94BF.EFCA9404@eyal.emu.id.au>
+Date: Sat, 22 Sep 2001 23:40:15 +1000
+From: Eyal Lebedinsky <eyal@eyal.emu.id.au>
+Organization: Eyal at Home
+X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.10-pre13 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: Re: "hde: timeout waiting for DMA": message gone, same behaviour
+In-Reply-To: <20010921134402.A975@gerg.ca> <20010921205356.A1104@suse.cz> <20010921150806.A2453@gerg.ca> <20010921154903.A621@gerg.ca> <20010921215622.A1282@suse.cz> <20010921164304.A545@gerg.ca> <20010922100451.A2229@suse.cz> <OE3183UV8wAddX47sFo00001649@hotmail.com>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <XFMail.20010921192411.ast@domdv.de>; from ast@domdv.de on Fri, Sep 21, 2001 at 07:24:11PM +0200
-X-Organisation: Marie's fan club - I
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andreas Steinmetz <ast@domdv.de> :
-[...]
-> Same behaviour on a bunch of EpoX 8KTA+, KT133. Didn't care about it. Doesn't
-> happen on a variety of PIII boards (Intel clones and Asus) so it looks like a
-> KT133 issue. Kernel config is UP with APIC support on all systems.
+I had the pleasure of a visit from the DMA fairy before. I found two
+things that sometimes help.
 
-Got it here on plain old Intel BX (Asus) + PII + vanilla. A few minutes or
-one/two hours after reboot. So far, so good.
+1) reorganize the PCI cards to alter the interrupt sharing. This is
+   a tiresome trial-and-error process that worked for me. When you
+   find a working setup, close the case and use it [1].
 
--- 
-Ueimor
+2) Are you using APIC? try booting "noapic" and see how it goes
+
+[1] The good old ham radio method of fixing a radio. Poke around with
+a screwdriver, pushing the bits (these was in the days of valves and
+such)
+around until at some point, touching some object, the problem (whistle,
+noise, cracking) stops. Solder the screwdriver to that object.
+
+--
+Eyal Lebedinsky (eyal@eyal.emu.id.au) <http://samba.anu.edu.au/eyal/>

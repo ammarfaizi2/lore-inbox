@@ -1,44 +1,431 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287499AbRLaOs5>; Mon, 31 Dec 2001 09:48:57 -0500
+	id <S287535AbRLaPFU>; Mon, 31 Dec 2001 10:05:20 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287529AbRLaOsq>; Mon, 31 Dec 2001 09:48:46 -0500
-Received: from adsl-212-59-30-243.takas.lt ([212.59.30.243]:24052 "EHLO
-	gintaras.vetrunge.lt.eu.org") by vger.kernel.org with ESMTP
-	id <S287499AbRLaOsf>; Mon, 31 Dec 2001 09:48:35 -0500
-Date: Mon, 31 Dec 2001 16:48:26 +0200
-From: Marius Gedminas <mgedmin@centras.lt>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Why would a valid DVD show zero files on Linux?
-Message-ID: <20011231144826.GA1541@gintaras>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-In-Reply-To: <E16L2G8-00050T-00@the-village.bc.nu> <3C307464.2253E26@obviously.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3C307464.2253E26@obviously.com>
-User-Agent: Mutt/1.3.24i
-X-URL: http://ice.dammit.lt/~mgedmin/
+	id <S287534AbRLaPFM>; Mon, 31 Dec 2001 10:05:12 -0500
+Received: from tourian.nerim.net ([62.4.16.79]:47373 "HELO tourian.nerim.net")
+	by vger.kernel.org with SMTP id <S287529AbRLaPFD>;
+	Mon, 31 Dec 2001 10:05:03 -0500
+Message-ID: <3C307E9C.60002@free.fr>
+Date: Mon, 31 Dec 2001 16:05:00 +0100
+From: Lionel Bouton <Lionel.Bouton@free.fr>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.7+) Gecko/20011229
+X-Accept-Language: en-us
+MIME-Version: 1.0
+To: John Fremlin <john@fremlin.de>, Linux <linux-kernel@vger.kernel.org>,
+        Daniela Engert <dani@ngrt.de>, Andre Hedrick <hedrick@kernel.org>,
+        Mike <maneman@gmx.net>, "Bryan O'Sullivan" <bos@serpentine.com>,
+        Chris Shutters <cshutters@ebiz-tech.com>
+Subject: Re: [PATCH] SIS IDE ATA100 fixup, please test
+In-Reply-To: <86n100x1bu.fsf@notus.ireton.fremlin.de>	<3C2F6DE1.9070402@free.fr> <86u1u8z44l.fsf@notus.ireton.fremlin.de>	<3C2FAEEE.7010207@free.fr> <86k7v3qx88.fsf@notus.ireton.fremlin.de>
+Content-Type: multipart/mixed;
+ boundary="------------050904020700050404070101"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Dec 31, 2001 at 09:21:24AM -0500, Bryce Nesbitt wrote:
-> > The autodetection is working. Your DVD has a UDF file system on it and a
-> > blank iso9660 one.
+This is a multi-part message in MIME format.
+--------------050904020700050404070101
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+
+Warning : previous patch was oviously bad for anything but ATA100 SIS 
+controller. Thanks to John Fremlin for the proof-reading.
+New patch attached.
+
+John Fremlin wrote:
+
+> Lionel Bouton <Lionel.Bouton@free.fr> writes:
 > 
-> Understood.   However, why can't that combination "just work"?  Changing
-> /etc/fstab every time I switch between sticking in a CD-ROM and DVD-ROM is not cool.
-> Certainly that "other operating system" does not make me do that.
+> [...]
+> 
+> 
+>>+static unsigned int capabilities = 0x00000000;
+>>
+> 
+> Can't you make this per dev in some way?
 
-I used to have two lines in my /etc/fstab: one to mount /dev/cdrom on
-/cdrom as iso9660, another to mount /dev/cdrom on /cdudf as udf.  Then
-it's simply a matter of mount /cdrom or mount /cdudf.
 
-Of course, that "other operating system" does not require you to
-manually mount CD-ROMs at all.
+Is there a SIS standalone IDE controller? I'm not aware of such a beast, 
+only know integrated chipsets.
+Anyhow here's a line of the original sis5513.c :
 
-Marius Gedminas
--- 
-Thus spake the master programmer:
-        "After three days without programming, life becomes meaningless."
-                -- Geoffrey James, "The Tao of Programming"
+static struct pci_dev *bmide_dev;
+
+If I'm not mistaken, the driver was not designed for multiple devices. I 
+don't want to rewrite sis5513.c (yet), if there's need for such support, 
+see end of mail.
+
+
+> 
+> [...]
+> 
+> 
+>>+	if (capabilities && SIS5513_FLAG_ATA_100) {
+>>
+> 
+> Typo?
+> 
+> [...]
+> 
+> 
+>>+	if (capabilities && SIS5513_FLAG_ATA_100) {
+>>
+> 
+> Ditto?
+> 
+> [...]
+> 
+> 
+>>+	if (capabilities && SIS5513_FLAG_ATA_100) {
+>>
+> 
+> Aarrgh
+> 
+> 
+
+
+Beginners like me should not code stuffed with chocolate!
+Can someone pass me a spare brown paper bag please?
+
+
+>>+		switch(timing) { /*   active  recovery
+>>+					  v     v */
+>>+		case 4:		test1 = 0x30|0x01; break;
+>>+		case 3:		test1 = 0x30|0x03; break;
+>>+		case 2:		test1 = 0x40|0x04; break;
+>>+		case 1:		test1 = 0x60|0x07; break;
+>>+		default:	break;
+>>+		}
+>>+		pci_write_config_byte(dev, drive_pci, test1);
+>>+		return; /* temporary hack for tests */
+>>
+> 
+> Is this the new magic you have added?
+> 
+> [...]
+> 
+
+
+It's a part of it yes. Other parts should fix the cycle time and the 
+compatibility mode too. Less importantly the /proc/sis/ide should be 
+correct now.
+
+
+> 
+>>+	if (capabilities & SIS5513_FLAG_ATA_100) {
+>>
+> 
+> Aaah much better
+> 
+
+
+I'll punch one hole in my paper bag.
+
+
+> [...]
+> 
+> I think that this driver needs to be tested on something that is not
+> ATA 100 :-)
+> 
+
+
+It'll surely fail. How 3 simple chars can ruin your day...
+New patch attached should correct the problem.
+
+I've a rewritten sis5513.c in the works. I'll address code "prettiness" 
+in this future one.
+If there's a need for multiple SIS IDE controller devices I'll put the 
+support in this new one too.
+
+LB.
+
+--------------050904020700050404070101
+Content-Type: text/plain;
+ name="sis.patch4"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="sis.patch4"
+
+--- linux-orig/drivers/ide/sis5513.c	Mon Dec 31 01:01:41 2001
++++ linux/driver/ide/sis5513.c	Mon Dec 31 15:46:00 2001
+@@ -37,8 +37,11 @@
+ #define SIS5513_FLAG_ATA_16		0x00000001
+ #define SIS5513_FLAG_ATA_33		0x00000002
+ #define SIS5513_FLAG_ATA_66		0x00000004
++#define SIS5513_FLAG_ATA_100		0x00000008
+ #define SIS5513_FLAG_LATENCY		0x00000010
+ 
++static unsigned int capabilities = 0x00000000;
++
+ static const struct {
+ 	const char *name;
+ 	unsigned short host_id;
+@@ -48,15 +51,15 @@
+ 	{ "SiS540",	PCI_DEVICE_ID_SI_540,	SIS5513_FLAG_ATA_66, },
+ 	{ "SiS620",	PCI_DEVICE_ID_SI_620,	SIS5513_FLAG_ATA_66|SIS5513_FLAG_LATENCY, },
+ 	{ "SiS630",	PCI_DEVICE_ID_SI_630,	SIS5513_FLAG_ATA_66|SIS5513_FLAG_LATENCY, },
+-	{ "SiS635",	PCI_DEVICE_ID_SI_635,	SIS5513_FLAG_ATA_66|SIS5513_FLAG_LATENCY, },
++	{ "SiS635",	PCI_DEVICE_ID_SI_635,	SIS5513_FLAG_ATA_100|SIS5513_FLAG_LATENCY, },
+ 	{ "SiS640",	PCI_DEVICE_ID_SI_640,	SIS5513_FLAG_ATA_66|SIS5513_FLAG_LATENCY, },
+-	{ "SiS645",	PCI_DEVICE_ID_SI_645,	SIS5513_FLAG_ATA_66|SIS5513_FLAG_LATENCY, },
+-	{ "SiS650",	PCI_DEVICE_ID_SI_650,	SIS5513_FLAG_ATA_66|SIS5513_FLAG_LATENCY, },
+-	{ "SiS730",	PCI_DEVICE_ID_SI_730,	SIS5513_FLAG_ATA_66|SIS5513_FLAG_LATENCY, },
+-	{ "SiS735",	PCI_DEVICE_ID_SI_735,	SIS5513_FLAG_ATA_66|SIS5513_FLAG_LATENCY, },
+-	{ "SiS740",	PCI_DEVICE_ID_SI_740,	SIS5513_FLAG_ATA_66|SIS5513_FLAG_LATENCY, },
+-	{ "SiS745",	PCI_DEVICE_ID_SI_745,	SIS5513_FLAG_ATA_66|SIS5513_FLAG_LATENCY, },
+-	{ "SiS750",	PCI_DEVICE_ID_SI_750,	SIS5513_FLAG_ATA_66|SIS5513_FLAG_LATENCY, },
++	{ "SiS645",	PCI_DEVICE_ID_SI_645,	SIS5513_FLAG_ATA_100|SIS5513_FLAG_LATENCY, },
++	{ "SiS650",	PCI_DEVICE_ID_SI_650,	SIS5513_FLAG_ATA_100|SIS5513_FLAG_LATENCY, },
++	{ "SiS730",	PCI_DEVICE_ID_SI_730,	SIS5513_FLAG_ATA_100|SIS5513_FLAG_LATENCY, },
++	{ "SiS735",	PCI_DEVICE_ID_SI_735,	SIS5513_FLAG_ATA_100|SIS5513_FLAG_LATENCY, },
++	{ "SiS740",	PCI_DEVICE_ID_SI_740,	SIS5513_FLAG_ATA_100|SIS5513_FLAG_LATENCY, },
++	{ "SiS745",	PCI_DEVICE_ID_SI_745,	SIS5513_FLAG_ATA_100|SIS5513_FLAG_LATENCY, },
++	{ "SiS750",	PCI_DEVICE_ID_SI_750,	SIS5513_FLAG_ATA_100|SIS5513_FLAG_LATENCY, },
+ 	{ "SiS5591",	PCI_DEVICE_ID_SI_5591,	SIS5513_FLAG_ATA_33, },
+ 	{ "SiS5597",	PCI_DEVICE_ID_SI_5597,	SIS5513_FLAG_ATA_33, },
+ 	{ "SiS5600",	PCI_DEVICE_ID_SI_5600,	SIS5513_FLAG_ATA_33, },
+@@ -148,6 +151,17 @@
+ 	"6 PCICLK", "12 PCICLK"
+ };
+ 
++static char* cycle_time_ata100[] = {
++	"Reserved", "2 CLK",
++	"3 CLK", "4 CLK",
++	"5 CLK", "6 CLK",
++	"7 CLK", "8 CLK",
++	"9 CLK", "10 CLK",
++	"11 CLK", "12 CLK",
++	"Reserved", "Reserved",
++	"Reserved", "Reserved"
++};
++
+ static int sis_get_info (char *buffer, char **addr, off_t offset, int count)
+ {
+ 	int rc;
+@@ -189,11 +203,19 @@
+ 	p += sprintf(p, "                UDMA %s \t \t \t UDMA %s\n",
+ 		     (reg & 0x80)  ? "Enabled" : "Disabled",
+ 		     (reg1 & 0x80) ? "Enabled" : "Disabled");
+-	p += sprintf(p, "                UDMA Cycle Time    %s \t UDMA Cycle Time    %s\n",
+-		     cycle_time[(reg & 0x70) >> 4], cycle_time[(reg1 & 0x70) >> 4]);
+-	p += sprintf(p, "                Data Active Time   %s \t Data Active Time   %s\n",
+-		     active_time[(reg & 0x07)], active_time[(reg1 &0x07)] ); 
+-
++	if (capabilities & SIS5513_FLAG_ATA_100) {
++		p += sprintf(p, "                UDMA Cycle Time    %s \t UDMA Cycle Time    %s\n",
++			     cycle_time_ata100[reg & 0x0F], cycle_time_ata100[reg1 & 0x0F]);
++		rc = pci_read_config_byte(bmide_dev, 0x40, &reg);
++		rc = pci_read_config_byte(bmide_dev, 0x44, &reg1);
++		p += sprintf(p, "                Data Active Time   %s \t Data Active Time   %s\n",
++			    active_time[(reg & 0x70) >> 4], active_time[(reg1 & 0x70) >> 4]);
++	} else {
++		p += sprintf(p, "                UDMA Cycle Time    %s \t UDMA Cycle Time    %s\n",
++			     cycle_time[(reg & 0x70) >> 4], cycle_time[(reg1 & 0x70) >> 4]);
++		p += sprintf(p, "                Data Active Time   %s \t Data Active Time   %s\n",
++			     active_time[(reg & 0x07)], active_time[(reg1 &0x07)] ); 
++	}
+ 	rc = pci_read_config_byte(bmide_dev, 0x40, &reg);
+ 	rc = pci_read_config_byte(bmide_dev, 0x44, &reg1);
+ 	p += sprintf(p, "                Data Recovery Time %s \t Data Recovery Time %s\n",
+@@ -213,10 +235,19 @@
+ 	p += sprintf(p, "                UDMA %s \t \t \t UDMA %s\n",
+ 		     (reg & 0x80)  ? "Enabled" : "Disabled",
+ 		     (reg1 & 0x80) ? "Enabled" : "Disabled");
+-	p += sprintf(p, "                UDMA Cycle Time    %s \t UDMA Cycle Time    %s\n",
+-		     cycle_time[(reg & 0x70) >> 4], cycle_time[(reg1 & 0x70) >> 4]);
+-	p += sprintf(p, "                Data Active Time   %s \t Data Active Time   %s\n",
+-		     active_time[(reg & 0x07)], active_time[(reg1 &0x07)] ); 
++	if (capabilities & SIS5513_FLAG_ATA_100) {
++		p += sprintf(p, "                UDMA Cycle Time    %s \t UDMA Cycle Time    %s\n",
++			     cycle_time_ata100[reg & 0x0F], cycle_time_ata100[reg1 & 0x0F]);
++		rc = pci_read_config_byte(bmide_dev, 0x42, &reg);
++		rc = pci_read_config_byte(bmide_dev, 0x46, &reg1);
++		p += sprintf(p, "                Data Active Time   %s \t Data Active Time   %s\n",
++			    active_time[(reg & 0x70) >> 4], active_time[(reg1 & 0x70) >> 4]);
++	} else {
++		p += sprintf(p, "                UDMA Cycle Time    %s \t UDMA Cycle Time    %s\n",
++			     cycle_time[(reg & 0x70) >> 4], cycle_time[(reg1 & 0x70) >> 4]);
++		p += sprintf(p, "                Data Active Time   %s \t Data Active Time   %s\n",
++			     active_time[(reg & 0x07)], active_time[(reg1 &0x07)] );
++	}
+ 
+ 	rc = pci_read_config_byte(bmide_dev, 0x42, &reg);
+ 	rc = pci_read_config_byte(bmide_dev, 0x46, &reg1);
+@@ -229,6 +260,7 @@
+ byte sis_proc = 0;
+ extern char *ide_xfer_verbose (byte xfer_rate);
+ 
++/* Enables Prefetch and Postwrite on drive */
+ static void config_drive_art_rwp (ide_drive_t *drive)
+ {
+ 	ide_hwif_t *hwif	= HWIF(drive);
+@@ -243,8 +275,10 @@
+ 	
+ 	if ((reg4bh & rw_prefetch) != rw_prefetch)
+ 		pci_write_config_byte(dev, 0x4b, reg4bh|rw_prefetch);
++	printk("SIS5513: config_drive_art_rwp, drive %d\n", drive->dn);
+ }
+ 
++/* Set active and recovery time */
+ static void config_art_rwp_pio (ide_drive_t *drive, byte pio)
+ {
+ 	ide_hwif_t *hwif	= HWIF(drive);
+@@ -274,6 +308,8 @@
+ 
+ 	timing = (xfer_pio >= pio) ? xfer_pio : pio;
+ 
++	printk("SIS5513: config_drive_art_rwp_pio, drive %d, pio %d, timing %d\n",
++	       drive->dn, pio, timing);
+ /*
+  *               Mode 0       Mode 1     Mode 2     Mode 3     Mode 4
+  * Active time    8T (240ns)  6T (180ns) 4T (120ns) 3T  (90ns) 3T  (90ns)
+@@ -291,6 +327,19 @@
+ 		default:	return;
+ 	}
+ 
++	if (capabilities & SIS5513_FLAG_ATA_100) {
++		switch(timing) { /*   active  recovery
++					  v     v */
++		case 4:		test1 = 0x30|0x01; break;
++		case 3:		test1 = 0x30|0x03; break;
++		case 2:		test1 = 0x40|0x04; break;
++		case 1:		test1 = 0x60|0x07; break;
++		default:	break;
++		}
++		pci_write_config_byte(dev, drive_pci, test1);
++		return; /* temporary hack for tests */
++	}
++
+ 	pci_read_config_byte(dev, drive_pci, &test1);
+ 	pci_read_config_byte(dev, drive_pci|0x01, &test2);
+ 
+@@ -298,8 +347,8 @@
+ 	 * Do a blanket clear of active and recovery timings.
+ 	 */
+ 
+-	test1 &= ~0x07;
+-	test2 &= ~0x0F;
++	test1 &= ~0x0F;
++	test2 &= ~0x07;
+ 
+ 	switch(timing) {
+ 		case 4:		test1 |= 0x01; test2 |= 0x03; break;
+@@ -340,6 +389,9 @@
+ 	byte			drive_pci, test1, test2;
+ 	byte			unmask, four_two, mask = 0;
+ 
++	printk("SIS5513: sis5513_tune_chipset, drive %d, speed %d\n",
++	       drive->dn, speed);
++
+ 	if (host_dev) {
+ 		switch(host_dev->device) {
+ 			case PCI_DEVICE_ID_SI_530:
+@@ -379,6 +431,7 @@
+ 	pci_read_config_byte(dev, drive_pci, &test1);
+ 	pci_read_config_byte(dev, drive_pci|0x01, &test2);
+ 
++	/* If not an UDMA mode switch off udma bit */
+ 	if ((speed <= XFER_MW_DMA_2) && (test2 & 0x80)) {
+ 		pci_write_config_byte(dev, drive_pci|0x01, test2 & ~0x80);
+ 		pci_read_config_byte(dev, drive_pci|0x01, &test2);
+@@ -386,7 +439,31 @@
+ 		pci_write_config_byte(dev, drive_pci|0x01, test2 & ~unmask);
+ 	}
+ 
+-	switch(speed) {
++	if (capabilities & SIS5513_FLAG_ATA_100) {
++		switch(speed) {
++#ifdef CONFIG_BLK_DEV_IDEDMA
++		case XFER_UDMA_5: mask = 0x01; break;
++		case XFER_UDMA_4: mask = 0x02; break;
++		case XFER_UDMA_3: mask = 0x04; break;
++		case XFER_UDMA_2: mask = 0x05; break;
++		case XFER_UDMA_1: mask = 0x07; break;
++		case XFER_UDMA_0: mask = 0x0B; break;
++		case XFER_MW_DMA_2:
++		case XFER_MW_DMA_1:
++		case XFER_MW_DMA_0:
++		case XFER_SW_DMA_2:
++		case XFER_SW_DMA_1:
++		case XFER_SW_DMA_0: break;
++#endif /* CONFIG_BLK_DEV_IDEDMA */
++		case XFER_PIO_4: return((int) config_chipset_for_pio(drive, 4));
++		case XFER_PIO_3: return((int) config_chipset_for_pio(drive, 3));
++		case XFER_PIO_2: return((int) config_chipset_for_pio(drive, 2));
++		case XFER_PIO_1: return((int) config_chipset_for_pio(drive, 1));
++		case XFER_PIO_0:
++		default:	 return((int) config_chipset_for_pio(drive, 0));
++		}
++	} else {
++		switch(speed) {
+ #ifdef CONFIG_BLK_DEV_IDEDMA
+ 		case XFER_UDMA_5: mask = 0x80; break;
+ 		case XFER_UDMA_4: mask = 0x90; break;
+@@ -407,10 +484,16 @@
+ 		case XFER_PIO_1: return((int) config_chipset_for_pio(drive, 1));
+ 		case XFER_PIO_0:
+ 		default:	 return((int) config_chipset_for_pio(drive, 0));
++		}
+ 	}
+ 
+-	if (speed > XFER_MW_DMA_2)
+-		pci_write_config_byte(dev, drive_pci|0x01, test2|mask);
++	if (speed > XFER_MW_DMA_2) {
++		if (capabilities & SIS5513_FLAG_ATA_100) {
++			pci_write_config_byte(dev, drive_pci|0x01, 0x80|mask);
++		} else {
++			pci_write_config_byte(dev, drive_pci|0x01, test2|mask);
++		}
++	}
+ 
+ 	drive->current_speed = speed;
+ 	return ((int) ide_config_drive_speed(drive, speed));
+@@ -437,6 +520,9 @@
+ 	byte udma_66		= eighty_ninty_three(drive);
+ 	byte ultra_100		= 0;
+ 
++	printk("SIS5513: config_chipset_for_dma, drive %d, ultra %d\n",
++	       drive->dn, ultra);
++
+ 	if (host_dev) {
+ 		switch(host_dev->device) {
+ 			case PCI_DEVICE_ID_SI_635:
+@@ -583,6 +669,7 @@
+ 			continue;
+ 
+ 		host_dev = host;
++		capabilities = SiSHostChipInfo[i].flags;
+ 		printk(SiSHostChipInfo[i].name);
+ 		printk("\n");
+ 		if (SiSHostChipInfo[i].flags & SIS5513_FLAG_LATENCY) {
+@@ -592,12 +679,22 @@
+ 	}
+ 
+ 	if (host_dev) {
+-		byte reg52h = 0;
++		if (capabilities & SIS5513_FLAG_ATA_100) {
++			byte reg49h = 0;
+ 
+-		pci_read_config_byte(dev, 0x52, &reg52h);
+-		if (!(reg52h & 0x04)) {
+-			/* set IDE controller to operate in Compabitility mode only */
+-			pci_write_config_byte(dev, 0x52, reg52h|0x04);
++			pci_read_config_byte(dev, 0x49, &reg49h);
++			if (!(reg49h & 0x01)) {
++				/* set IDE controller to operate in Compabitility mode only */
++				pci_write_config_byte(dev, 0x49, reg49h|0x01);
++			}
++		} else {
++			byte reg52h = 0;
++
++			pci_read_config_byte(dev, 0x52, &reg52h);
++			if (!(reg52h & 0x04)) {
++				/* set IDE controller to operate in Compabitility mode only */
++				pci_write_config_byte(dev, 0x52, reg52h|0x04);
++			}
+ 		}
+ #if defined(DISPLAY_SIS_TIMINGS) && defined(CONFIG_PROC_FS)
+ 		if (!sis_proc) {
+
+--------------050904020700050404070101--
+

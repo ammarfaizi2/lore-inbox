@@ -1,109 +1,83 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266124AbUGEOYA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266120AbUGEOZw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266124AbUGEOYA (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 5 Jul 2004 10:24:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266126AbUGEOYA
+	id S266120AbUGEOZw (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 5 Jul 2004 10:25:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266127AbUGEOZw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 Jul 2004 10:24:00 -0400
-Received: from mailgate.pit.comms.marconi.com ([169.144.68.6]:8885 "EHLO
-	mailgate.pit.comms.marconi.com") by vger.kernel.org with ESMTP
-	id S266124AbUGEOX5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 Jul 2004 10:23:57 -0400
-Message-ID: <313680C9A886D511A06000204840E1CF08F42FD5@whq-msgusr-02.pit.comms.marconi.com>
-From: "Povolotsky, Alexander" <Alexander.Povolotsky@marconi.com>
-To: "'Mike Galbraith'" <efault@gmx.de>
-Cc: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
-Subject: Maximum frequency of re-scheduling (minimum time quantum) questi 
-	n
-Date: Mon, 5 Jul 2004 10:23:49 -0400 
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+	Mon, 5 Jul 2004 10:25:52 -0400
+Received: from outmx001.isp.belgacom.be ([195.238.3.51]:18081 "EHLO
+	outmx001.isp.belgacom.be") by vger.kernel.org with ESMTP
+	id S266120AbUGEOZh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 5 Jul 2004 10:25:37 -0400
+Subject: Re: question about /proc/<PID>/mem in 2.4
+From: FabF <fabian.frederick@skynet.be>
+To: Tigran Aivazian <tigran@aivazian.fsnet.co.uk>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.44.0407051518300.18740-100000@localhost.localdomain>
+References: <Pine.LNX.4.44.0407051518300.18740-100000@localhost.localdomain>
+Content-Type: text/plain
+Message-Id: <1089037523.2129.15.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
+Date: Mon, 05 Jul 2004 16:25:23 +0200
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Corrected couple of "typos" in my previous e-mail
+On Mon, 2004-07-05 at 16:22, Tigran Aivazian wrote:
+> On Mon, 5 Jul 2004, FabF wrote:
+> > > I noticed that in 2.4.x kernels the fs/proc/base.c:mem_read() function has 
+> > > this permission check:
+> > > 
+> > >         if (!MAY_PTRACE(task) || !may_ptrace_attach(task))
+> > >                 return -ESRCH;
+> > > 
+> > > Are you sure it shouldn't be like this instead:
+> > > 
+> > >         if (!MAY_PTRACE(task) && !may_ptrace_attach(task))
+> > >                 return -ESRCH;
+> > > 
+> > > Because, normally MAY_PTRACE() is 0 (i.e. for any process worth looking at :)
+> > > so may_ptrace_attach() is never even called.
+> > > 
+> > MAY_PTRACE is 1 normally AFAICS.The check as it stands wants both to
+> > have non zero returns so is more restrictive than the one you're asking
+> > for.
+> 
+> MAY_PTRACE is defined as:
+> 
+> #define MAY_PTRACE(task) \
+>         (task == current || \
+>         (task->parent == current && \
+>         (task->ptrace & PT_PTRACED) && task->state == TASK_STOPPED))
+> 
+> so, if a process (current) is interested in another process (task) which
+> is not itself and not one of its children then MAY_PTRACE is 0. and the
+> test in mem_read() immediately returns ESRCH error without checking
+> may_ptrace_attach() at all. I questioned this behaviour as being too
+> restrictive and would like to know the reason for it.
+> 
+> Surely, the super user (i.e. CAP_SYS_PTRACE in this context) should be 
+> allowed to read any process' memory without having to do the 
+> PTRACE_ATTACH/PTRACE_PEEKUSER kind of thing which strace(8) is doing?
 
------Original Message-----
-From: Povolotsky, Alexander 
-Sent: Monday, July 05, 2004 10:19 AM
-To: 'linux-kernel@vger.kernel.org'
-Cc: 'Mike Galbraith'
-Subject: RE: Maximum frequency of re-scheduling (minimum time quantum)
-questio n
+FYI may_ptrace_attach plugged somewhere between 2.4.21 & 22.This one get
+used as is (ie without MAY_PTRACE) in proc_pid_environ but dunno about
+reason why CAP_SYS_PTRACE isn't authoritative elsewhere.
+
+Regards,
+FabF
 
 
-Hello Mike,
 
-Thanks for replying/answering !
+> 
+> Kind regards
+> Tigran
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
 
->but as noted, wakeup of higher priority 
->threads can preempt current at (almost) any time, so a slice may be spread 
->over an indeterminate amount of time.  
-
-Mike - the part of my original question was - what is the minimum "measure"
-(in time ticks or is it a fraction of the time tick ?) of that "(almost) any
-time" ? In another words, what is the latency between the moment, when the
-higher priority process (or thread ) is becoming available  to run (and
-assuming that "schedule()" system call is not explicitly called at that time
-...) and the moment when the scheduler STARTS (I am not including context
-switch time into the question here) the process of preemtion (start of the
-context switch). Is this time  settable (at compile time ) ? 
-
->If you're looking for an interface into the scheduler that allows you to 
->twiddle slice length 
-
-you mean at the run time (vs compile time), I assume ?
-
-> , there is none.
-
-Thanks,
-Alex(ander) Povolotsky
-
------Original Message-----
-From: Mike Galbraith [mailto:efault@gmx.de]
-Sent: Monday, July 05, 2004 9:39 AM
-To: Povolotsky, Alexander
-Subject: Re: Maximum frequency of re-scheduling (minimum time quantum)
-questio n
-
-
-At 04:13 AM 7/5/2004 -0400, you wrote:
->Hello,
->
->In Linux 2.6 kernel, configured with SCHED_RR, - could rescheduling be set
->to be attempted (and executed when appropriate) at EVERY CLOCK TICK, thus
->allowing the "other" process/thread (if available and ready at the moment)
->with the higher (highest at that time) priority or, otherwise, with the
-same
->priority (the "next" process/thread in the same Round Robin queue, from
->which the "current" process/thread was "picked" ) to preempt the "current"
->process/thread ?
-
-Well, you _could_ set (albeit only at compile time) the maximum timeslice 
-to be 1 ms if you so desired, that would do the rapid round robin between 
-peer threads thing you want.  Note however, that this won't give you a 
-predictable 1 ms of cpu though, since a thread of higher priority, once 
-awakened, will preempt anything of lower priority, and repeatedly receive 
-renewed slices as long as it wants cpu and has not exhausted it's priority 
-bonus... lower priority threads can starve.
-
->If EVERY CLOCK TICK is not conceptually possible (please note, that I am
-not
->claiming that frequent rescheduling is "good", I am just asking to what
->measure it is possible ...) - then what is the minimum "rescheduling" time
->quantum (measured in clock ticks) is settable/possible ?
->
->What is the default value (which I presume was chosen as "optimal" ?) ?
-
-Timeslices are normally 100ms, but as noted, wakeup of higher priority 
-threads can preempt current at (almost) any time, so a slice may be spread 
-over an indeterminate amount of time.  Also note that SCHED_FIFO tasks 
-_have_ no slice, so queue rotation only happens at sleep time for this 
-class of tasks.
-
-If you're looking for an interface into the scheduler that allows you to 
-twiddle slice length, there is none.
-
-         -Mike 

@@ -1,44 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263411AbUDUQ0O@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263425AbUDUQ0n@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263411AbUDUQ0O (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 21 Apr 2004 12:26:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263435AbUDUQ0N
+	id S263425AbUDUQ0n (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 21 Apr 2004 12:26:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263450AbUDUQ0n
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 21 Apr 2004 12:26:13 -0400
-Received: from zcars04f.nortelnetworks.com ([47.129.242.57]:19906 "EHLO
-	zcars04f.nortelnetworks.com") by vger.kernel.org with ESMTP
-	id S263411AbUDUQ0L (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 21 Apr 2004 12:26:11 -0400
-Message-ID: <4086A077.2000705@nortelnetworks.com>
-Date: Wed, 21 Apr 2004 12:25:27 -0400
-X-Sybari-Space: 00000000 00000000 00000000 00000000
-From: Chris Friesen <cfriesen@nortelnetworks.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040113
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: root@chaos.analogic.com
-CC: netdev@oss.sgi.com,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: tcp vulnerability?  haven't seen anything on it here...
-References: <40869267.30408@nortelnetworks.com> <Pine.LNX.4.53.0404211153550.1169@chaos>
-In-Reply-To: <Pine.LNX.4.53.0404211153550.1169@chaos>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Wed, 21 Apr 2004 12:26:43 -0400
+Received: from mail.cyclades.com ([64.186.161.6]:39127 "EHLO mail.cyclades.com")
+	by vger.kernel.org with ESMTP id S263425AbUDUQ0j (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 21 Apr 2004 12:26:39 -0400
+Date: Wed, 21 Apr 2004 13:27:16 -0300
+From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+To: Jason Brian Friedrich <jf@domainbox.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [Kernel 2.4.26] Booting from Adaptec PCI-X 133 29320 Rev C
+Message-ID: <20040421162716.GE15950@logos.cnet>
+References: <40865DFD.9000405@domainbox.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <40865DFD.9000405@domainbox.de>
+User-Agent: Mutt/1.5.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Richard B. Johnson wrote:
-
-> The vulnerabilities were discussed on US news reports as being
-> like somebody discovered they could disconnect your electricity
-> if they had some wire-cutters.
+On Wed, Apr 21, 2004 at 01:41:49PM +0200, Jason Brian Friedrich wrote:
+> Hello everyone,
 > 
-> Those guys in the UK just don't have anything else to do! It
-> seems that they discovered that if you tap-into some network
-> physical media you could disrupt it!
+> we can not boot from an "Adaptec PCI-X 133 29320 Rev C" device when 
+> using 2.4.26. We get a kernel panic and that the kernel could not 
+> mount root (VFS: Unable to mount root fs on 08:03). With 2.4.25 
+> everything works properly (its the same config) but we need the 
+> security patches included in 2.4.26.
+> 
+> I have not found any entries in the changelog about changes in the 
+> scsi drivers.
 
-The impression I got was that some equipment was much more vulnerable 
-due to having a) massive windows, and b) using sequential source ports, 
-making it much easier to guess even if you can't tap the line.
+Jason, can you please save the boot messages from both 2.4.25 and 2.4.26? 
 
-Chris
+Maybe you have a serial console around or at least you copy the relevant 
+parts (the card detection success with 2.4.25 and the card detection failure 
+with 2.4.26), plus the config files for both cases, and send us?
+
+That would be helpful. There are no aic7xxx changes in 2.4.26. Are you using ACPI?

@@ -1,96 +1,58 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S276522AbRI2PXL>; Sat, 29 Sep 2001 11:23:11 -0400
+	id <S276523AbRI2PeB>; Sat, 29 Sep 2001 11:34:01 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S276523AbRI2PXB>; Sat, 29 Sep 2001 11:23:01 -0400
-Received: from moutvdom01.kundenserver.de ([195.20.224.200]:8481 "EHLO
-	moutvdom01.kundenserver.de") by vger.kernel.org with ESMTP
-	id <S276522AbRI2PWw>; Sat, 29 Sep 2001 11:22:52 -0400
-From: Christian =?iso-8859-1?q?Borntr=E4ger?= 
-	<linux-kernel@borntraeger.net>
-To: linux-kernel@vger.kernel.org, andre@linux-ide.org
-Subject: RFC (patch below) Re: ide drive problem?
-Date: Sat, 29 Sep 2001 17:21:16 +0200
-X-Mailer: KMail [version 1.3.1]
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Mark Hahn <hahn@physics.mcmaster.ca>
-In-Reply-To: <E15myH3-00076i-00@the-village.bc.nu>
-In-Reply-To: <E15myH3-00076i-00@the-village.bc.nu>
+	id <S276524AbRI2Pdv>; Sat, 29 Sep 2001 11:33:51 -0400
+Received: from mi1-90.dialup.tiscalinet.it ([62.11.51.90]:2820 "EHLO
+	Linux.tiscalinet.it") by vger.kernel.org with ESMTP
+	id <S276523AbRI2Pdp>; Sat, 29 Sep 2001 11:33:45 -0400
+Date: Fri, 28 Sep 2001 15:18:06 +0200
+Message-Id: <200109281318.f8SDI6r01123@Linux.tiscalinet.it>
+From: bescir@hotmail.com
+Subject: error using dd with Linux 2.4.10 
+To: linux-kernel@vger.kernel.org
+X-Originating-IP: 127.0.0.1
+X-Mailer: Webmin 0.87
 MIME-Version: 1.0
-Content-Type: Multipart/Mixed;
-  boundary="------------Boundary-00=_GZJFKS4YND8PISU5IZVZ"
-Message-Id: <E15nLxO-0001yx-00@mrvdom00.schlund.de>
+Content-Type: multipart/mixed; boundary="--------1001683086"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+This is a multi-part message in MIME format.
+----------1001683086
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
 
---------------Boundary-00=_GZJFKS4YND8PISU5IZVZ
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
-
-Hi List, Hi Andre,
-
-as Mark Hahn made a FAQ entry for the =20
-
-hde: dma_intr: status=3D0x51 { DriveReady SeekComplete Error }
-hde: dma_intr: error=3D0x84 { DriveStatusError BadCRC }
-
-message, I think we should point all users to this FAQ. I saw this messag=
-e
-and questions about it very often in this list, so we should help the use=
-rs=20
-to find a fast solution. You know, only a few people read a manual, even =
-in=20
-error case.
-
-Now the output looks like:
-
-hde: dma_intr: status=3D0x51 { DriveReady SeekComplete Error }
-hde: dma_intr: error=3D0x84 { DriveStatusError BadCRC }
-
-For further Informations please check: http://www.tux.org/lkml/#s13-3
-
-
-
-This patch applies correct for 2.4.9ac14 and 2.4.10
-
-diff -r -u linux/drivers/ide/ide.c linux-new/drivers/ide/ide.c
---- linux/drivers/ide/ide.c     Fri Sep 28 17:36:54 2001
-+++ linux-new/drivers/ide/ide.c Sat Sep 29 17:03:36 2001
-@@ -935,6 +935,9 @@
-                                        printk(", sector=3D%ld", HWGROUP(=
-drive)->rq->sector);
-                        }
-                }
-+               if ((stat & READY_STAT) && (stat & SEEK_STAT) && (stat & =
-ERR_STAT)
-+                && (err & ABRT_ERR) && (err & ICRC_ERR))
-+                       printk("\nFor further Informations please check: =
-http://www.tux.org/lkml/#s13-3\n");
- #endif /* FANCY_STATUS_DUMPS */
-                printk("\n");
-        }
-
-
-greetings
-
-Christian Borntr=E4ger
---------------Boundary-00=_GZJFKS4YND8PISU5IZVZ
-Content-Type: text/x-diff;
-  charset="iso-8859-1";
-  name="m.patch"
-Content-Transfer-Encoding: base64
-Content-Disposition: attachment; filename="m.patch"
-
-ZGlmZiAtciAtdSBsaW51eC9kcml2ZXJzL2lkZS9pZGUuYyBsaW51eC1uZXcvZHJpdmVycy9pZGUv
-aWRlLmMKLS0tIGxpbnV4L2RyaXZlcnMvaWRlL2lkZS5jCUZyaSBTZXAgMjggMTc6MzY6NTQgMjAw
-MQorKysgbGludXgtbmV3L2RyaXZlcnMvaWRlL2lkZS5jCVNhdCBTZXAgMjkgMTc6MDM6MzYgMjAw
-MQpAQCAtOTM1LDYgKzkzNSw5IEBACiAJCQkJCXByaW50aygiLCBzZWN0b3I9JWxkIiwgSFdHUk9V
-UChkcml2ZSktPnJxLT5zZWN0b3IpOwogCQkJfQogCQl9CisJCWlmICgoc3RhdCAmIFJFQURZX1NU
-QVQpICYmIChzdGF0ICYgU0VFS19TVEFUKSAmJiAoc3RhdCAmIEVSUl9TVEFUKQorCQkgJiYgKGVy
-ciAmIEFCUlRfRVJSKSAmJiAoZXJyICYgSUNSQ19FUlIpKQorCQkgICAgICAgIHByaW50aygiXG5G
-b3IgZnVydGhlciBJbmZvcm1hdGlvbnMgcGxlYXNlIGNoZWNrOiBodHRwOi8vd3d3LnR1eC5vcmcv
-bGttbC8jczEzLTNcbiIpOwogI2VuZGlmCS8qIEZBTkNZX1NUQVRVU19EVU1QUyAqLwogCQlwcmlu
-dGsoIlxuIik7CiAJfQo=
-
---------------Boundary-00=_GZJFKS4YND8PISU5IZVZ--
+For your info:
+this  happens on my PC when trying a "dd" on my SCSI CD (Pioneer CD-ROM
+changer DRM-6324X) connected to the sym53c895 SCSI controller after the
+"upgrade" to kernel version 2.4.10 from 2.4.9. Note that with 2.4.9
+everything went O.K.
+ 
+root@anaconda:~# dd if=/dev/scd6 of=/dev/null
+dd: /dev/scd6: Input/output error
+400+0 records in
+400+0 records out
+ 
+root@anaconda:~# tail  /var/log/syslog
+Sep 28 18:10:47 anaconda kernel:  I/O error: dev 0b:06, sector 400
+Sep 28 18:10:47 anaconda kernel: scsi0 channel 0 : resetting for second
+half of
+retries.
+Sep 28 18:10:47 anaconda kernel: SCSI bus is being reset for host 0
+channel 0.
+Sep 28 18:10:47 anaconda kernel: sym53c8xx_reset: pid=0 reset_flags=1
+serial_num
+ber=0 serial_number_at_timeout=0
+Sep 28 18:10:47 anaconda kernel: scsi0: device driver called scsi_done()
+for a s
+ynchronous reset.
+Sep 28 18:10:47 anaconda kernel: sym53c895-0: Downloading SCSI SCRIPTS.
+Sep 28 18:10:47 anaconda kernel: sym53c895-0: SCSI bus mode change from
+80 to 80
+-
+To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Please read the FAQ at  http://www.tux.org/lkml/
+----------1001683086--

@@ -1,38 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132865AbRDIWfJ>; Mon, 9 Apr 2001 18:35:09 -0400
+	id <S132867AbRDIWzZ>; Mon, 9 Apr 2001 18:55:25 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132868AbRDIWe7>; Mon, 9 Apr 2001 18:34:59 -0400
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:15890 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S132865AbRDIWeo>; Mon, 9 Apr 2001 18:34:44 -0400
-Subject: Re: No 100 HZ timer !
-To: mikulas@artax.karlin.mff.cuni.cz (Mikulas Patocka)
-Date: Mon, 9 Apr 2001 23:35:44 +0100 (BST)
-Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), mbs@mc.com (Mark Salisbury),
-        jdike@karaya.com (Jeff Dike), schwidefsky@de.ibm.com,
-        linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.3.96.1010410002852.4212A-100000@artax.karlin.mff.cuni.cz> from "Mikulas Patocka" at Apr 10, 2001 12:31:08 AM
-X-Mailer: ELM [version 2.5 PL1]
+	id <S132868AbRDIWzQ>; Mon, 9 Apr 2001 18:55:16 -0400
+Received: from d-airlock141.esatclear.ie ([194.145.133.141]:52239 "HELO
+	tcob1.net") by vger.kernel.org with SMTP id <S132867AbRDIWzF>;
+	Mon, 9 Apr 2001 18:55:05 -0400
+From: "Sean Rima" <lists@tcob1.net>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Sound problem with 2.2.19
+Message-ID: <9ateb2$rom$2@tcob1.net>
+Date: Monday, 09 Apr 2001 23:50:10 +000
+X-Mailer: Internet Rex gateway (2.57 beta 4)
+In-Reply-To: <9at636$pf9$2@tcob1.net>
+X-Fido-From: Sean Rima, 2:0/0
+X-Fido-To: Sean Rima
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E14mkGA-000341-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > Its worth doing even on the ancient x86 boards with the PIT.
-> 
-> Note that programming the PIT is sloooooooow and doing it on every timer
-> add_timer/del_timer would be a pain.
+Originally to: Sean Rima
 
-You only have to do it occasionally.
+ * Sean Rima's head hit the keyboard and wrote:
 
-When you add a timer newer than the current one 
-	(arguably newer by at least 1/2*HZ sec)
-When you finish running the timers at an interval and the new interval is
-significantly larger than the current one.
+ SR> I am sorry if this is old news but I have not seen any mention of it in the
+SR> list.
 
-Remember each tick we poke the PIT anyway
+SR> I keep getting "kernel: Sound error: Couldn't allocate DMA buffer" in my
+SR> syslog. However sound was working until this morning. The machine uptime is
+SR> below :)
+
+SR> The PC is a IBM PS/2 486DX2, with an AWE32 with 256k. The PC is fitted with
+SR> 16mb of ram. I have never reported a problem before so excuse if it is a bit
+SR> strange.
+
+Since this posting, in fact  in the last 2 minutes, sound has reappeared. I
+haven't rebooted, changed anything and all the same processes are still
+running.
+
+Sean
+-- 
+GNUPG ID 92B9D0CF    | YAIM: thecivvie                | Fidonet and BBS
+ICQ: 679813          | Homepage: http://www.tcob1.net | Newsportal at
+Linux User: #124682  | AIM: tcobone                   | tcob1.uklinux.net
+My last power cut was 3d, 6h and 48m ago on Linux 2.2.19.
+<-> Information
+This message originated from a Fidonet system and was gated at
+There Can Only be 1 (http://www.tcob1.net)
+For information of Fidonet visit http://www.fidonet.org
+Please do not respond direct to this message but via the 
 

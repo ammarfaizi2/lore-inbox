@@ -1,50 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266551AbUFQPRI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264833AbUFQPSg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266551AbUFQPRI (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Jun 2004 11:17:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266548AbUFQPRI
+	id S264833AbUFQPSg (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Jun 2004 11:18:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266537AbUFQPSg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Jun 2004 11:17:08 -0400
-Received: from ozlabs.org ([203.10.76.45]:26846 "EHLO ozlabs.org")
-	by vger.kernel.org with ESMTP id S266545AbUFQPQ5 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Jun 2004 11:16:57 -0400
-Date: Fri, 18 Jun 2004 01:11:53 +1000
-From: Anton Blanchard <anton@samba.org>
-To: "Salyzyn, Mark" <mark_salyzyn@adaptec.com>
-Cc: Christoph Hellwig <hch@infradead.org>, Alan Cox <alan@redhat.com>,
-       linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org
-Subject: Re: PATCH: Further aacraid work
-Message-ID: <20040617151153.GA30514@krispykreme>
-References: <547AF3BD0F3F0B4CBDC379BAC7E4189FD2402C@otce2k03.adaptec.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <547AF3BD0F3F0B4CBDC379BAC7E4189FD2402C@otce2k03.adaptec.com>
-User-Agent: Mutt/1.5.6+20040523i
+	Thu, 17 Jun 2004 11:18:36 -0400
+Received: from 140.006.050.210.cust.mel.idc.iprimus.net.au ([210.50.6.140]:30215
+	"EHLO bonkers.disegno.com.au") by vger.kernel.org with ESMTP
+	id S264833AbUFQPSd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 17 Jun 2004 11:18:33 -0400
+Date: Fri, 18 Jun 2004 01:17:31 +1000 (EST)
+From: Finn Thain <ft01@webmastery.com.au>
+To: Andreas Schwab <schwab@suse.de>
+cc: Geert Uytterhoeven <geert@linux-m68k.org>,
+       Linux/m68k <linux-m68k@lists.linux-m68k.org>,
+       Linux Kernel Development <linux-kernel@vger.kernel.org>
+Subject: Re: make checkstack on m68k
+In-Reply-To: <je3c4uqum0.fsf@sykes.suse.de>
+Message-ID: <Pine.LNX.4.58.0406180048180.13963@bonkers.disegno.com.au>
+References: <Pine.GSO.4.58.0406161845490.1249@waterleaf.sonytel.be>
+ <je3c4uqum0.fsf@sykes.suse.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- 
-> This would not be such an issue if Linux provided large SG elements
-> rather than the fubar descending page order ones they issue today. If
-> this could be fixed, I'd not even be interested in the optimization of
-> the SG.
+On Thu, 17 Jun 2004, Andreas Schwab wrote:
 
-Please divert some of your anger towards your manufacturer of dodgy
-hardware. Any sane hardware with an IOMMU handles this just fine.
-eg on ppc64 running a disk test:
+> Geert Uytterhoeven <geert@linux-m68k.org> writes:
+>
+> > I tried to add m68k support to `make checkstack', but got stuck due to my
+> > limited knowledge of complex perl expressions. I actually need to catch both
+> > expressions (incl. the one I commented out). Anyone who can help?
+>
+> Untested:
+>
+>   $re = qr/.*(?:linkw %fp,|addw )#-([0-9]{1,4})(?:,%sp)?$/o;
+>
+> Andreas.
 
-sg size    in        out
-1           3      47569
-2           0       2591
-3           0       1123
-4           0        447
-5           0        429
-...
-62       5095          0
-64      47061          0
+I think that should be addaw, not addw. And it may be necessary to remove
+the $ anchor at the end.
 
-The IOMMU is taking 62-64 entry SG lists and producing 1-5 entry lists.
+Your solution makes very nice use of the fact that objdump produces
+exactly one comma for those opcodes :)
 
-Anton
+-F

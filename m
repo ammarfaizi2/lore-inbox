@@ -1,47 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269127AbRHBU3C>; Thu, 2 Aug 2001 16:29:02 -0400
+	id <S269137AbRHBUmN>; Thu, 2 Aug 2001 16:42:13 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269118AbRHBU2w>; Thu, 2 Aug 2001 16:28:52 -0400
-Received: from perninha.conectiva.com.br ([200.250.58.156]:20746 "HELO
-	perninha.conectiva.com.br") by vger.kernel.org with SMTP
-	id <S269127AbRHBU2q>; Thu, 2 Aug 2001 16:28:46 -0400
-Date: Thu, 2 Aug 2001 17:28:48 -0300 (BRST)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: <riel@duckman.distro.conectiva>
-To: "Jeffrey W. Baker" <jwbaker@acm.org>
-Cc: "Richard B. Johnson" <root@chaos.analogic.com>,
-        <linux-kernel@vger.kernel.org>
-Subject: Re: Ongoing 2.4 VM suckage
-In-Reply-To: <Pine.LNX.4.33L.0108021714070.5582-100000@duckman.distro.conectiva>
-Message-ID: <Pine.LNX.4.33L.0108021728130.5582-100000@duckman.distro.conectiva>
+	id <S269140AbRHBUmE>; Thu, 2 Aug 2001 16:42:04 -0400
+Received: from smtp018.mail.yahoo.com ([216.136.174.115]:8463 "HELO
+	smtp018.mail.yahoo.com") by vger.kernel.org with SMTP
+	id <S269137AbRHBUlx>; Thu, 2 Aug 2001 16:41:53 -0400
+X-Apparently-From: <rajeev?bector@yahoo.com>
+From: "Rajeev Bector" <rajeev_bector@yahoo.com>
+To: "Linux-Kernel" <linux-kernel@vger.kernel.org>
+Subject: finding out module name from an address  ?
+Date: Thu, 2 Aug 2001 13:39:12 -0700
+Message-ID: <GIEMIEJKPLDGHDJKJELAGECPCCAA.rajeev_bector@yahoo.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2910.0)
+Importance: Normal
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2479.0006
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2 Aug 2001, Rik van Riel wrote:
-> On Thu, 2 Aug 2001, Jeffrey W. Baker wrote:
->
-> > I'm about the zillionth person to complain about this problem on
-> > this list.  It is completely unacceptable to say that I can't
-> > use the memory on my machines because the kernel is too hungry
-> > for cache.
->
-> Fully agreed. The problem is that getting a solution which
-> works in a multizoned VM isn't all that easy, otherwise we
-> would have fixed it ages ago ...
+Hi,
+  I am trying to write a patched kmalloc() which
+will track the caller function using 
+__builtin_return_address(0). From that address,
+is there a clean way to figure out if the address
+belongs to a loadable module and if yes, get
+to the module structure of that module so
+that I can log on the basis of module->name
 
-Well, actually there are a few known solutions to this
-problem, but they are not really an option for the 2.4
-series since they require large code changes...
-
-Rik
---
-Executive summary of a recent Microsoft press release:
-   "we are concerned about the GNU General Public License (GPL)"
+Thanks
+Rajeev
 
 
-		http://www.surriel.com/
-http://www.conectiva.com/	http://distro.conectiva.com/
+_________________________________________________________
+Do You Yahoo!?
+Get your free @yahoo.com address at http://mail.yahoo.com
 

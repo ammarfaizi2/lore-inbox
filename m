@@ -1,43 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129630AbQJ3VFX>; Mon, 30 Oct 2000 16:05:23 -0500
+	id <S129213AbQJ3VJE>; Mon, 30 Oct 2000 16:09:04 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129632AbQJ3VFO>; Mon, 30 Oct 2000 16:05:14 -0500
-Received: from ppp0.ocs.com.au ([203.34.97.3]:12558 "HELO mail.ocs.com.au")
-	by vger.kernel.org with SMTP id <S129630AbQJ3VFE>;
-	Mon, 30 Oct 2000 16:05:04 -0500
-X-Mailer: exmh version 2.1.1 10/15/1999
-From: Keith Owens <kaos@ocs.com.au>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: linux_developer@hotmail.com (Linux Kernel Developer),
-        linux-kernel@vger.kernel.org
-Subject: Re: Need info on the use of certain datastructures and the first C++ keyword patch for 2.2.17 
-In-Reply-To: Your message of "Mon, 30 Oct 2000 18:16:44 -0000."
-             <E13qJUE-00075t-00@the-village.bc.nu> 
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Tue, 31 Oct 2000 08:04:57 +1100
-Message-ID: <9624.972939897@ocs3.ocs-net>
+	id <S129564AbQJ3VIy>; Mon, 30 Oct 2000 16:08:54 -0500
+Received: from [24.65.192.120] ([24.65.192.120]:35056 "EHLO webber.adilger.net")
+	by vger.kernel.org with ESMTP id <S129213AbQJ3VIo>;
+	Mon, 30 Oct 2000 16:08:44 -0500
+From: Andreas Dilger <adilger@turbolinux.com>
+Message-Id: <200010302108.e9UL8cJ12524@webber.adilger.net>
+Subject: Re: 2.2.X patch query
+In-Reply-To: <Pine.LNX.4.10.10010301935480.10495-100000@infradead.org>
+ "from Riley Williams at Oct 30, 2000 08:01:32 pm"
+To: Riley Williams <rhw@memalpha.cx>
+Date: Mon, 30 Oct 2000 14:08:38 -0700 (MST)
+CC: Linux kernel development list <linux-kernel@vger.kernel.org>
+X-Mailer: ELM [version 2.4ME+ PL73 (25)]
+MIME-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 30 Oct 2000 18:16:44 +0000 (GMT), 
-Alan Cox <alan@lxorguk.ukuu.org.uk> wrote:
->> 2.4 symbol generation code never sees the C++ names, 2.5 code might.
->> To detect a mismatch between kernel headers and the module version
->> file, I have to generate the checksum for the consumer of the symbol
->> (C++) as well as the generator of the symbol (C) and compare them.
->
->These are structure field names. They aren't part of a symbol and are only
->part of your checksum computation which is done on the C headers so a constant.
->
->If we were renaming variables or actual objects I'd agree. But structure names
->are fine so long as we only use C names for the module checksum computation
+Riley Williams writes:
+> I'm NOT planning on making panics automatically dump to floppy. What I
+> was looking at instead was to add a SysRq option to dump the current
+> syslog buffer to floppy. This would be available at any time, but ONLY
+> if the kernel has SYSRQ support compiled in, and has additionally
+> enabled CONFIG_SYSRQ_DUMPLOG (which appears when SYSRQ is enabled). In
+> addition, it would need to be enabled at runtime, probably by writing
+> to a root-owned /proc file with 0600 permissions.
 
-The checksum is done on the output from the preprocessor, not the
-headers.  Changing field names via preprocessor flags gives different
-checksums for structures.
+Just as an FYI, there is a patch that does essentially what you are
+looking at: kmsgdump, by Willy Tarreau.  It does a syslog dump to
+floppy with SysRq-D, and has the excellent feature that it writes a
+(simple) MS-DOS formatted floppy, which also has a "pass-through"
+boot sector, so you can leave it in the floppy drive and it will not
+halt booting.  You can have syslog sizes up to 64kB.  It also supports
+printing to the printer port.
 
+http://www-miaif.lip6.fr/willy/pub/linux-patches/kmsgdump/
+
+This would actually be very handy in conjunction with the "loadable
+sysrq functions" patch that has been posted here a couple of times.
+
+I suspect that such a patch wouldn't make it into 2.2 or 2.4.  I also
+don't see why you want to have a strangely formatted floppy, since even
+a regular 1.44 format will hold your proposed maximum 1MB buffer.  Since
+the printk buffer is pinned kernel memory, you probably don't want that
+any larger (if 1MB at all).
+
+Cheers, Andreas
+-- 
+Andreas Dilger  \ "If a man ate a pound of pasta and a pound of antipasto,
+                 \  would they cancel out, leaving him still hungry?"
+http://www-mddsp.enel.ucalgary.ca/People/adilger/               -- Dogbert
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,94 +1,58 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130129AbRCGEtw>; Tue, 6 Mar 2001 23:49:52 -0500
+	id <S130202AbRCGFGx>; Wed, 7 Mar 2001 00:06:53 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130130AbRCGEtm>; Tue, 6 Mar 2001 23:49:42 -0500
-Received: from zooty.lancs.ac.uk ([148.88.16.231]:45231 "EHLO
-	zooty.lancs.ac.uk") by vger.kernel.org with ESMTP
-	id <S130129AbRCGEtW>; Tue, 6 Mar 2001 23:49:22 -0500
-Message-Id: <l03130314b6cb68d824fd@[192.168.239.101]>
-In-Reply-To: <3AA57268.3070603@devries.tv>
+	id <S130201AbRCGFGn>; Wed, 7 Mar 2001 00:06:43 -0500
+Received: from sunny.pacific.net.au ([210.23.129.40]:2249 "EHLO
+	sunny.pacific.net.au") by vger.kernel.org with ESMTP
+	id <S130138AbRCGFGb>; Wed, 7 Mar 2001 00:06:31 -0500
+Message-Id: <200103070505.f2755jT17569@typhaon.pacific.net.au>
+X-Mailer: exmh version 2.3.1 01/18/2001 (debian 2.3.1-1) with nmh-1.0.4+dev
+To: Lincoln Dale <ltd@cisco.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Incoming TCP TOS: A simple question, I would have thought... 
+In-Reply-To: Message from Lincoln Dale <ltd@cisco.com> 
+   of "Wed, 07 Mar 2001 15:33:44 +1100." <4.3.2.7.2.20010307153216.01b85d58@mira-sjcm-3.cisco.com> 
+In-Reply-To: <4.3.2.7.2.20010307153216.01b85d58@mira-sjcm-3.cisco.com> 
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Date: Wed, 7 Mar 2001 04:30:10 +0000
-To: Peter DeVries <peter@devries.tv>, linux-kernel@vger.kernel.org
-From: Jonathan Morton <chromi@cyberspace.org>
-Subject: Re: Drive corruption with VIA VT82C686A (ABIT KT7-RAID) - Still -
+Content-Type: text/plain; charset=us-ascii
+Date: Wed, 07 Mar 2001 16:05:45 +1100
+From: David Luyer <david_luyer@pacific.net.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->VP_IDE: IDE controller on PCI bus 00 dev 39
->VP_IDE: chipset revision 16
->VP_IDE: not 100% native mode: will probe irqs later
->ide: Assuming 33MHz system bus speed for PIO modes; override with idebus=xx
->VP_IDE: VIA vt82c686a (rev 22) IDE UDMA66 controller on pci00:07.1
->    ide0: BM-DMA at 0xd000-0xd007, BIOS settings: hda:DMA, hdb:pio
->    ide1: BM-DMA at 0xd008-0xd00f, BIOS settings: hdc:DMA, hdd:pio
->hda: WDC WD205BA, ATA DISK drive
->hdc: TOSHIBA DVD-ROM SD-M1202, ATAPI CD/DVD-ROM drive
->ide0 at 0x1f0-0x1f7,0x3f6 on irq 14
->ide1 at 0x170-0x177,0x376 on irq 15
->hda: 40088160 sectors (20525 MB) w/2048KiB Cache, CHS=2495/255/63, UDMA(33)
->hdc: ATAPI 32X DVD-ROM drive, 256kB Cache, DMA
+> getsockopt(fd, SOL_IP, IP_TOS, ..
 
-...
+Doesn't work.  Returns the TOS of outgoing packets, which defaults to 0 even if
+there is a TOS set on incoming traffic... that was what I tried in my first 
+test program.
 
->PCI: Found IRQ 10 for device 00:08.0
->PCI: The same IRQ used for device 00:07.2
->PCI: The same IRQ used for device 00:07.3
->3c59x.c:LK1.1.12 06 Jan 2000  Donald Becker and others.
->http://www.scyld.com/network/vortex.html $Revision: 1.102.2.46 $
->See Documentation/networking/vortex.txt
->eth0: 3Com PCI 3c905C Tornado at 0xdc00,  00:01:03:30:0f:3a, IRQ 10
->  product code 'HN' rev 00.3 date 11-03-00
->  8K byte-wide RAM 5:3 Rx:Tx split, autoselect/Autonegotiate interface.
->  MII transceiver found at address 24, status 782d.
->  Enabling bus-master transmits and whole-frame receives.
+David.
 
-...
-
->PCI: Found IRQ 10 for device 00:07.2
->PCI: The same IRQ used for device 00:07.3
->PCI: The same IRQ used for device 00:08.0
->uhci.c: USB UHCI at I/O 0xd400, IRQ 10
->uhci.c: detected 2 ports
->usb.c: new USB bus registered, assigned bus number 1
->hub.c: USB hub found
->hub.c: 2 ports detected
->PCI: Found IRQ 10 for device 00:07.3
->PCI: The same IRQ used for device 00:07.2
->PCI: The same IRQ used for device 00:08.0
->uhci.c: USB UHCI at I/O 0xd800, IRQ 10
->uhci.c: detected 2 ports
->usb.c: new USB bus registered, assigned bus number 2
->hub.c: USB hub found
->hub.c: 2 ports detected
-
-...
-
->eth0: using NWAY autonegotiation
->eth0: command 0x2800 took 33590 usecs! Please tell andrewm@uow.edu.au
->hda: DMA disabled
->VFS: Disk change detected on device ide1(22,0)
->hdc: DMA disabled
-
-I suggest moving your network card to a different PCI slot, which should
-partially resolve those IRQ conflicts and may improve reliability.
-
---------------------------------------------------------------
-from:     Jonathan "Chromatix" Morton
-mail:     chromi@cyberspace.org  (not for attachments)
-big-mail: chromatix@penguinpowered.com
-uni-mail: j.d.morton@lancaster.ac.uk
-
-The key to knowledge is not to rely on people to teach you it.
-
-Get VNC Server for Macintosh from http://www.chromatix.uklinux.net/vnc/
-
------BEGIN GEEK CODE BLOCK-----
-Version 3.12
-GCS$/E/S dpu(!) s:- a20 C+++ UL++ P L+++ E W+ N- o? K? w--- O-- M++$ V? PS
-PE- Y+ PGP++ t- 5- X- R !tv b++ DI+++ D G e+ h+ r- y+
------END GEEK CODE BLOCK-----
+> cheers,
+> 
+> lincoln.
+> 
+> At 03:00 PM 7/03/2001 +1100, David Luyer wrote:
+> 
+> >I've scrolled through various code in net/ipv4, and I can't see how to query
+> >the TOS of an incoming TCP stream (or at the least, the TOS of the SYN which
+> >initiated the connection).
+> >
+> >Someone has sent in a feature request for squid which would require this,
+> >presumably so they can set the TOS in their routers and have the squid caches
+> >honour the TOS to select performance (via delay pools, multiple parents,
+> >different outgoing IP or similar).  However I can't see how to get the TOS for
+> >a TCP socket out of the kernel short of having an open raw socket watching for
+> >SYNs and looking at the TOS on them.
+> >
+> >Any pointers?
+> >
+> >David.
+-- 
+David Luyer                                        Phone:   +61 3 9674 7525
+Engineering Projects Manager   P A C I F I C       Fax:     +61 3 9699 8693
+Pacific Internet (Australia)  I N T E R N E T      Mobile:  +61 4 1111 2983
+http://www.pacific.net.au/                         NASDAQ:  PCNTF
 
 

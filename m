@@ -1,82 +1,62 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130532AbRDGTg5>; Sat, 7 Apr 2001 15:36:57 -0400
+	id <S130552AbRDGTkh>; Sat, 7 Apr 2001 15:40:37 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130552AbRDGTgj>; Sat, 7 Apr 2001 15:36:39 -0400
-Received: from e31.co.us.ibm.com ([32.97.110.129]:21153 "EHLO
-	e31.bld.us.ibm.com") by vger.kernel.org with ESMTP
-	id <S130532AbRDGTdr>; Sat, 7 Apr 2001 15:33:47 -0400
-Subject: Re: [PATCH for 2.5] preemptible kernel
-To: Andi Kleen <ak@suse.de>
-Cc: ak@suse.de, linux-kernel@vger.kernel.org, lse-tech@lists.sourceforge.net,
-        nigel@nrg.org, rusty@rustcorp.com.au
-X-Mailer: Lotus Notes Release 5.0.3 (Intl) 21 March 2000
-Message-ID: <OF37B0793C.6B15F182-ON88256A27.0007C3EF@LocalDomain>
-From: "Paul McKenney" <Paul.McKenney@us.ibm.com>
-Date: Fri, 6 Apr 2001 18:25:36 -0700
-X-MIMETrack: Serialize by Router on D03NM045/03/M/IBM(Release 5.0.6 |December 14, 2000) at
- 04/07/2001 01:33:31 PM
+	id <S130820AbRDGTk1>; Sat, 7 Apr 2001 15:40:27 -0400
+Received: from panic.ohr.gatech.edu ([130.207.47.194]:58801 "HELO
+	havoc.gtf.org") by vger.kernel.org with SMTP id <S130552AbRDGTkR>;
+	Sat, 7 Apr 2001 15:40:17 -0400
+Message-ID: <3ACF6D1D.63A2A2FE@mandrakesoft.com>
+Date: Sat, 07 Apr 2001 15:40:13 -0400
+From: Jeff Garzik <jgarzik@mandrakesoft.com>
+Organization: MandrakeSoft
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.4-pre1 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-type: text/plain; charset=us-ascii
+To: Tim Waugh <twaugh@redhat.com>
+Cc: =?iso-8859-1?Q?G=E9rard?= Roudier <groudier@club-internet.fr>,
+        Michael Reinelt <reinelt@eunet.at>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Multi-function PCI devices
+In-Reply-To: <3ACECA8F.FEC9439@eunet.at> <Pine.LNX.4.10.10104071043360.1085-100000@linux.local> <20010407200053.B3280@redhat.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Tim Waugh wrote:
+> If we have to do this, then Gunther's approach (multifunc_quirks or
+> whatever) looks a lot better than having a separate driver for every
+> single multi-IO card.
 
-Andi, thank you for the background!  More comments interspersed...
+Who said you have to have a separate driver for every single multi-IO
+card?  A single driver could support all serial+parallel multi-IO cards,
+for example.
 
-> On Fri, Apr 06, 2001 at 04:52:25PM -0700, Paul McKenney wrote:
-> > 1.   On a busy system, isn't it possible for a preempted task
-> >      to stay preempted for a -long- time, especially if there are
-> >      lots of real-time tasks in the mix?
->
-> The problem you're describing is probably considered too hard to
-> solve properly (bad answer, but that is how it is currently)
->
-> Yes there is. You can also force a normal (non preemptive) kernel
-> into complete livelock by just giving it enough network traffic
-> to do, so that it always works in the high priority network
-> softirq or doing the same with some other interrupt.
->
-> Just when this happens a lot of basic things will stop working (like
-> page cleaning, IO flushing etc.), so your callbacks or module unloads
-> not running are probably the least of your worries.
->
-> The same problem applies to a smaller scale to real time processes;
-> kernel services normally do not run real-time, so they can be starved.
->
-> Priority inversion is not handled in Linux kernel ATM BTW, there
-> are already situations where a realtime task can cause a deadlock
-> with some lower priority system thread (I believe there is at least
-> one case of this known with realtime ntpd on 2.4)
+Due to the differences in busses and hardware implementations and such,
+typically you want to provide two pieces of code for each common
+hardware subsystem (like "parport" or "serial"):  foo_lib.c and
+foo_card.c.
 
-I see your point here, but need to think about it.  One question:
-isn't it the case that the alternative to using synchronize_kernel()
-is to protect the read side with explicit locks, which will themselves
-suppress preemption?  If so, why not just suppress preemption on the read
-side in preemptible kernels, and thus gain the simpler implementation
-of synchronize_kernel()?  You are not losing any preemption latency
-compared to a kernel that uses traditional locks, in fact, you should
-improve latency a bit since the lock operations are more expensive than
-are simple increments and decrements.  As usual, what am I missing
-here?  ;-)
+foo_lib.c is the guts of the hardware support, and it provides an
+[un]register_foodev() interface.  foo_card.c is totally separate, and it
+holds the PCI or ISAPNP or USB device ids.  foo_card does all the
+hardware detection, and calls register_foodev() for each hardware device
+it finds.
 
-> > 2.   Isn't it possible to get in trouble even on a UP if a task
-> >      is preempted in a critical region?  For example, suppose the
-> >      preempting task does a synchronize_kernel()?
->
-> Ugly. I guess one way to solve it would be to readd the 2.2 scheduler
-> taskqueue, and just queue a scheduler callback in this case.
+For small subsystems, this is obviously overkill.  But for common
+subsystems like serial or parport, this makes complete sense.  If an
+sbus device appears that acts just like a PC parallel port, all DaveM
+needs to do is write a parport_sbus.c shim which calls
+register_foodev().  No patching one central file necessary to add
+support for a new bus.
 
-Another approach would be to define a "really low" priority that noone
-other than synchronize_kernel() was allowed to use.  Then the UP
-implementation of synchronize_kernel() could drop its priority to
-this level, yield the CPU, and know that all preempted tasks must
-have obtained and voluntarily yielded the CPU before synchronize_kernel()
-gets it back again.
+Regards,
 
-I still prefer suppressing preemption on the read side, though I
-suppose one could claim that this is only because I am -really-
-used to it.  ;-)
+	Jeff
 
-                              Thanx, Paul
 
+-- 
+Jeff Garzik       | Sam: "Mind if I drive?"
+Building 1024     | Max: "Not if you don't mind me clawing at the dash
+MandrakeSoft      |       and shrieking like a cheerleader."

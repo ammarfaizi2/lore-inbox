@@ -1,52 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288834AbSBMUCf>; Wed, 13 Feb 2002 15:02:35 -0500
+	id <S288845AbSBMUCp>; Wed, 13 Feb 2002 15:02:45 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288821AbSBMUC2>; Wed, 13 Feb 2002 15:02:28 -0500
-Received: from dialin-145-254-133-228.arcor-ip.net ([145.254.133.228]:3588
-	"EHLO dale.home") by vger.kernel.org with ESMTP id <S288834AbSBMUCM>;
-	Wed, 13 Feb 2002 15:02:12 -0500
-Date: Wed, 13 Feb 2002 21:01:56 +0100
-From: Alex Riesen <fork0@users.sourceforge.net>
-To: Oleg Drokin <green@namesys.com>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>,
-        Luigi Genoni <kernel@Expansa.sns.it>
-Subject: Re: [reiserfs-dev] 2.5.4-pre1: zero-filled files reiserfs
-Message-ID: <20020213210156.A506@steel>
-Reply-To: Alex Riesen <fork0@users.sourceforge.net>
-In-Reply-To: <20020213085653.A5957@namesys.com> <Pine.LNX.4.44.0202131206190.19885-100000@Expansa.sns.it> <20020213160851.A894@namesys.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20020213160851.A894@namesys.com>
-User-Agent: Mutt/1.3.23i
+	id <S288821AbSBMUCf>; Wed, 13 Feb 2002 15:02:35 -0500
+Received: from perninha.conectiva.com.br ([200.250.58.156]:36621 "HELO
+	perninha.conectiva.com.br") by vger.kernel.org with SMTP
+	id <S288845AbSBMUCV>; Wed, 13 Feb 2002 15:02:21 -0500
+Date: Wed, 13 Feb 2002 16:52:34 -0200 (BRST)
+From: Marcelo Tosatti <marcelo@conectiva.com.br>
+To: Hugh Dickins <hugh@veritas.com>
+Cc: Linus Torvalds <torvalds@transmeta.com>, Andrew Morton <akpm@zip.com.au>,
+        Andrea Arcangeli <andrea@suse.de>,
+        Rik van Riel <riel@conectiva.com.br>,
+        "David S. Miller" <davem@redhat.com>,
+        Benjamin LaHaise <bcrl@redhat.com>, Gerd Knorr <kraxel@bytesex.org>,
+        Dave Jones <davej@suse.de>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] __free_pages_ok oops
+In-Reply-To: <Pine.LNX.4.21.0202121929230.1468-100000@localhost.localdomain>
+Message-ID: <Pine.LNX.4.21.0202131652050.20915-100000@freak.distro.conectiva>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Feb 13, 2002 at 04:08:51PM +0300, Oleg Drokin wrote:
-> Hello!
-> 
-> On Wed, Feb 13, 2002 at 12:11:14PM +0100, Luigi Genoni wrote:
-> 
-> > > > I run slackware 8.0.49, and there was no log replaying.
-> > then I do a normal reboot in 2.4.17, without any fsck,
-> > there is log reply, it is a normal reboot.
-> Some confusion is going on.
-> So do you have log replay or you do not have log replay?
-> 
-> > Well, some files get corrupted.
-> Ok. That's definitely bad. You said you see corruptions on two boxes, right?
-> Is it as simple as boot into 2.5.4, reiserfsck (and see no errors),
-> mount an fs, do something, type "reboot" and  reboot into 2.5.4 again,
-> and viola - here are zeroed files. Right?
-> 
-> > I saw I am not the only one with this kind of corruption, I remember at
-> > less one related mail.
-> There was flaky hardware on the other report. And I think Alex Riesen
-> cannot reproduce zero files anymore.
 
-Correct. After applying your patch, indeed.
-I'm really sorry, i hado no much time to experiment and try
-again without the patch. Should i try, btw?
 
--alex
+On Tue, 12 Feb 2002, Hugh Dickins wrote:
+
+> On Sat, 9 Feb 2002, Benjamin LaHaise wrote:
+> > On Fri, Feb 08, 2002 at 05:46:56PM +0000, Hugh Dickins wrote:
+> > > Ben, you probably have an AIO opinion here.  Is there a circumstance
+> > > in which AIO can unpin a user page at interrupt time, after the
+> > > calling task has (exited or) unmapped the page?
+> > 
+> > If the user unmaps the page, then aio is left holding the last reference 
+> > to the page and will unmap it from irq or bh context (potentially task 
+> > context too).  With networked aio, pages from userspace (anonymous or 
+> > page cache pages) will be released by the network stack from bh context.  
+> > Even now, I'm guess that should be possible with the zero copy flag...
+
+Hugh. Are you sure we can free a page from IRQ/BH context with _current_
+2.4 ? 
+
+Please make sure so. 
+

@@ -1,118 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263099AbVCME67@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262890AbVCMFFc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263099AbVCME67 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 12 Mar 2005 23:58:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263079AbVCME5o
+	id S262890AbVCMFFc (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 13 Mar 2005 00:05:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262885AbVCMFFT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 12 Mar 2005 23:57:44 -0500
-Received: from rwcrmhc12.comcast.net ([216.148.227.85]:8605 "EHLO
-	rwcrmhc12.comcast.net") by vger.kernel.org with ESMTP
-	id S263077AbVCME5Z (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 12 Mar 2005 23:57:25 -0500
-Message-ID: <4233C834.40903@acm.org>
-Date: Sat, 12 Mar 2005 22:57:24 -0600
-From: Corey Minyard <minyard@acm.org>
-User-Agent: Mozilla/5.0 (X11; U; Linux x86_64; en-US; rv:1.7.2) Gecko/20040804
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>, lkml <linux-kernel@vger.kernel.org>
-Subject: [PATCH] Add sysfs support to the IPMI driver
-Content-Type: multipart/mixed;
- boundary="------------050707000903080502020903"
+	Sun, 13 Mar 2005 00:05:19 -0500
+Received: from pat.uio.no ([129.240.130.16]:50819 "EHLO pat.uio.no")
+	by vger.kernel.org with ESMTP id S263166AbVCMFEq (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 13 Mar 2005 00:04:46 -0500
+Subject: Re: [CHECKER] inconsistent NFS stat cache (NFS on ext3, 2.6.11)
+From: Trond Myklebust <trond.myklebust@fys.uio.no>
+To: Junfeng Yang <yjf@stanford.edu>
+Cc: nfs@lists.sourceforge.net,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       ext2-devel@lists.sourceforge.net, mc@cs.Stanford.EDU
+In-Reply-To: <Pine.GSO.4.44.0503120335160.12085-100000@elaine24.Stanford.EDU>
+References: <Pine.GSO.4.44.0503120335160.12085-100000@elaine24.Stanford.EDU>
+Content-Type: text/plain
+Date: Sun, 13 Mar 2005 00:04:27 -0500
+Message-Id: <1110690267.24123.7.camel@lade.trondhjem.org>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.4 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------050707000903080502020903
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+lau den 12.03.2005 Klokka 03:56 (-0800) skreiv Junfeng Yang:
+> Hi,
+> 
+> We checked NFS on top of ext3 using FiSC (our file system model checker)
+> and found a case where NFS stat cache can contain inconsistent entries.
+> 
+> Basically, to trigger this inconsistency, just do the following steps:
+> 1. create a file A1, write a few bytes to it, so A1 is 4 words
+> 2. create a hard link A2, pointing to A1
+> 3. stat on A2. A2's size is 4 words
+> 4. truncate A1 to a larger size, write a few bytes at the end. now it's
+> 1031 words.
+> 5. stat on A2. it's size is still 4 words, which should be 1031 words
+> 
+> We have a test case to re-create this warning.  You can download it at
+> http://fisc.stanford.edu/bug16/crash.c.  It includes some sudo commands
+> to mount nfs partitions, which you might want to change according to your
+> local settings.
+> 
+> cat /etc/exports shows:
+> /mnt/sbd0-export          localhost(rw,sync)
+> /mnt/sbd1-export          localhost(rw,sync)
+> 
+> Let me know if you have any problems reproducing the warning. We'd
+> appreciate any confirmations/clarifications.
+> 
 
-The IPMI driver has long needed to tie into the device model (and I've 
-long been hoping someone else would do it).  I finally gave up and spent 
-the time to learn how to do it.  I think this is right, it seems to work 
-on on my system.
+This is a known problem. Turn off the (default - grrr) subtree checking
+export option on the server, and it will all work properly. The subtree
+checking option violates the NFS standards for filehandle generation in
+so many ways, that it isn't even funny.
 
--Corey
+Cheers,
+  Trond
 
---------------050707000903080502020903
-Content-Type: text/x-patch;
- name="ipmi-sysfs.diff"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="ipmi-sysfs.diff"
+-- 
+Trond Myklebust <trond.myklebust@fys.uio.no>
 
-Add support for sysfs to the IPMI device interface.
-
-Signed-off-by: Corey Minyard <minyard@acm.org>
-
-Index: linux-2.6.11-mm1/drivers/char/ipmi/ipmi_devintf.c
-===================================================================
---- linux-2.6.11-mm1.orig/drivers/char/ipmi/ipmi_devintf.c
-+++ linux-2.6.11-mm1/drivers/char/ipmi/ipmi_devintf.c
-@@ -44,6 +44,7 @@
- #include <linux/ipmi.h>
- #include <asm/semaphore.h>
- #include <linux/init.h>
-+#include <linux/device.h>
- 
- #define IPMI_DEVINTF_VERSION "v33"
- 
-@@ -519,15 +520,24 @@
- 		 " interface.  Other values will set the major device number"
- 		 " to that value.");
- 
-+static struct class_simple *ipmi_class;
-+
- static void ipmi_new_smi(int if_num)
- {
-+	char                  name[10];
-+	dev_t                 dev = MKDEV(ipmi_major, if_num);
-+
- 	devfs_mk_cdev(MKDEV(ipmi_major, if_num),
- 		      S_IFCHR | S_IRUSR | S_IWUSR,
- 		      "ipmidev/%d", if_num);
-+
-+	snprintf(name, sizeof(name), "ipmi%d", if_num);
-+	class_simple_device_add(ipmi_class, dev, NULL, name);
- }
- 
- static void ipmi_smi_gone(int if_num)
- {
-+	class_simple_device_remove(MKDEV(ipmi_major, if_num));
- 	devfs_remove("ipmidev/%d", if_num);
- }
- 
-@@ -548,8 +558,15 @@
- 	printk(KERN_INFO "ipmi device interface version "
- 	       IPMI_DEVINTF_VERSION "\n");
- 
-+	ipmi_class = class_simple_create(THIS_MODULE, "ipmi");
-+	if (IS_ERR(ipmi_class)) {
-+		printk(KERN_ERR "ipmi: can't register device class\n");
-+		return PTR_ERR(ipmi_class);
-+	}
-+
- 	rv = register_chrdev(ipmi_major, DEVICE_NAME, &ipmi_fops);
- 	if (rv < 0) {
-+		class_simple_destroy(ipmi_class);
- 		printk(KERN_ERR "ipmi: can't get major %d\n", ipmi_major);
- 		return rv;
- 	}
-@@ -563,6 +580,7 @@
- 	rv = ipmi_smi_watcher_register(&smi_watcher);
- 	if (rv) {
- 		unregister_chrdev(ipmi_major, DEVICE_NAME);
-+		class_simple_destroy(ipmi_class);
- 		printk(KERN_WARNING "ipmi: can't register smi watcher\n");
- 		return rv;
- 	}
-@@ -573,6 +591,7 @@
- 
- static __exit void cleanup_ipmi(void)
- {
-+	class_simple_destroy(ipmi_class);
- 	ipmi_smi_watcher_unregister(&smi_watcher);
- 	devfs_remove(DEVICE_NAME);
- 	unregister_chrdev(ipmi_major, DEVICE_NAME);
-
---------------050707000903080502020903--

@@ -1,61 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266721AbUIMUyg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267703AbUIMVBf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266721AbUIMUyg (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Sep 2004 16:54:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267703AbUIMUyg
+	id S267703AbUIMVBf (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Sep 2004 17:01:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267829AbUIMVBf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Sep 2004 16:54:36 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:3305 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S266721AbUIMUyd (ORCPT
+	Mon, 13 Sep 2004 17:01:35 -0400
+Received: from fw.osdl.org ([65.172.181.6]:26265 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S267703AbUIMVBC (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Sep 2004 16:54:33 -0400
-Message-ID: <41460906.9080307@redhat.com>
-Date: Mon, 13 Sep 2004 16:54:30 -0400
-From: Neil Horman <nhorman@redhat.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.0; hi, Mom) Gecko/20020604 Netscape/7.01
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Felipe W Damasio <felipewd@terra.com.br>
-CC: Linux Kernel <linux-kernel@vger.kernel.org>
+	Mon, 13 Sep 2004 17:01:02 -0400
+Date: Mon, 13 Sep 2004 14:01:01 -0700
+From: Chris Wright <chrisw@osdl.org>
+To: Neil Horman <nhorman@redhat.com>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>
 Subject: Re: [PATCH] close race condition in shared memory mapping/unmapping
-References: <4146041F.2040106@redhat.com> <414607C7.4000801@terra.com.br>
-In-Reply-To: <414607C7.4000801@terra.com.br>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Message-ID: <20040913140101.S1973@build.pdx.osdl.net>
+References: <4146041F.2040106@redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <4146041F.2040106@redhat.com>; from nhorman@redhat.com on Mon, Sep 13, 2004 at 04:33:35PM -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Felipe W Damasio wrote:
->     Hi Neil,
-> 
-> Neil Horman wrote:
-> 
->> +    down(&shm_ids.sem);
->>      shp = shm_lock(shmid);
->>      if(shp == NULL) {
->> +        shm_unlock(shp);
->> +        up(&shm_ids.sem);
->>          err = -EINVAL;
->>          goto out;
->>      }
-> 
-> 
->     Trying to unlock a NULL pointer?
-> 
->     Cheers,
-> 
-> Felipe
-Crap, good catch.  I'll repost with that fixed.  Anything else you see a 
-problem with?
-Regards
-Neil
+* Neil Horman (nhorman@redhat.com) wrote:
+> Hey all-
+> 	Found this the other day poking through the ipc code.  There appears to 
+> be a race condition in the counter that records how many processes are 
+> accessing a given shared memory segment.  In most places the shm_nattch 
+> variable is protected by the shm_ids.sem semaphore, but there are a few 
+> openings which appear to be able to allow a corruption of this variable 
+> when run on SMP systems.  I've attached a patch to 2.6.9-rc2 for review. 
+>   The locking may be a little over-aggressive (I was following examples 
+> from other points in this file), but I figure better safe than sorry :).
 
+Are you sure you've got this right?  I thought that the shmid_kernel
+struct protects shm_nattch with a local (per structure) lock which is
+embedded in kern_ipc_perm.  Did you find shm_nattch changes w/out
+shm_lock/shm_unlock around it?  I believe shm_ids.sem is protecting the
+id allocation, not per object data such as shm_nattch.
+
+thanks,
+-chris
 -- 
-/***************************************************
-  *Neil Horman
-  *Software Engineer
-  *Red Hat, Inc.
-  *nhorman@redhat.com
-  *gpg keyid: 1024D / 0x92A74FA1
-  *http://pgp.mit.edu
-  ***************************************************/
+Linux Security Modules     http://lsm.immunix.org     http://lsm.bkbits.net

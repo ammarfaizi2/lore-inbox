@@ -1,38 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135819AbRAWD3P>; Mon, 22 Jan 2001 22:29:15 -0500
+	id <S136054AbRAWDbQ>; Mon, 22 Jan 2001 22:31:16 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135922AbRAWD3F>; Mon, 22 Jan 2001 22:29:05 -0500
-Received: from isunix.it.ilstu.edu ([138.87.124.103]:60428 "EHLO
-	isunix.it.ilstu.edu") by vger.kernel.org with ESMTP
-	id <S135819AbRAWD3E>; Mon, 22 Jan 2001 22:29:04 -0500
-From: Tim Hockin <thockin@isunix.it.ilstu.edu>
-Message-Id: <200101230301.VAA13439@isunix.it.ilstu.edu>
-Subject: Re: [PATCH] PCI-Devices and ServerWorks chipset
-To: macro@ds2.pg.gda.pl (Maciej W. Rozycki)
-Date: Mon, 22 Jan 2001 21:01:36 -0600 (CST)
-Cc: mj@suse.cz (Martin Mares), al10@inf.tu-dresden.de (Adam Lackorzynski),
-        linux-kernel@vger.kernel.org (Kernel Mailing List)
-In-Reply-To: <Pine.GSO.3.96.1010117122300.22695B-100000@delta.ds2.pg.gda.pl> from "Maciej W. Rozycki" at Jan 17, 2001 12:25:39 PM
-X-Mailer: ELM [version 2.5 PL3]
-MIME-Version: 1.0
+	id <S136055AbRAWDa4>; Mon, 22 Jan 2001 22:30:56 -0500
+Received: from sgigate.SGI.COM ([204.94.209.1]:25335 "EHLO
+	gate-sgigate.sgi.com") by vger.kernel.org with ESMTP
+	id <S136054AbRAWDaw>; Mon, 22 Jan 2001 22:30:52 -0500
+Date: Mon, 22 Jan 2001 06:24:42 -0200
+From: Ralf Baechle <ralf@uni-koblenz.de>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Coding Style
+Message-ID: <20010122062442.B1052@bacchus.dhis.org>
+In-Reply-To: <3A68809B.E12EF3D9@purplecoder.com> <20010121030005.B4626@emma1.emma.line.org>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20010121030005.B4626@emma1.emma.line.org>; from matthias.andree@stud.uni-dortmund.de on Sun, Jan 21, 2001 at 03:00:05AM +0100
+X-Accept-Language: de,en,fr
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > patch is wrong -- it doesn't make any sense to scan a bus _range_. The registers
-> > 0x44 and 0x45 are probably ID's of two primary buses and the code should scan
-> > both of them, but not the space between them.
+On Sun, Jan 21, 2001 at 03:00:05AM +0100, Matthias Andree wrote:
+
+> >   int function(int x)   
+> >   {
+> >     body of function    // correctly braced and commented :)
+> >   }
 > 
+> So you claim // is a correct C comment? Poor guy :)
 
-0x44 is the primary bus number of the host bridge, and 0x45 is the
-subordinate bus number for the bridge.  Just like a PCI-PCI bridge, but
-different :)  Since there are two CNB30 functions, each has unique values
-for this.  The primary bus of the second bridge must be the subordinate bus
-of the first bridge + 1.  PRIMARY(1) = SUBORDINATE(0) + 1;
+Current drafts of C9X implement // comments; virtually every halfway
+current C compiler I've used during the last years implements it.
 
-Tim
+  Ralf
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

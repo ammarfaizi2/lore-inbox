@@ -1,60 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263565AbUDGNiH (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 Apr 2004 09:38:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263551AbUDGNiH
+	id S263593AbUDGNqx (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 Apr 2004 09:46:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263617AbUDGNqx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 Apr 2004 09:38:07 -0400
-Received: from sea2-f12.sea2.hotmail.com ([207.68.165.12]:10002 "EHLO
-	hotmail.com") by vger.kernel.org with ESMTP id S263565AbUDGNiE
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 Apr 2004 09:38:04 -0400
-X-Originating-IP: [212.143.127.195]
-X-Originating-Email: [zstingx@hotmail.com]
-From: "sting sting" <zstingx@hotmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: panic when adding root=/LABEL=/  in grub.conf - newbie
-Date: Wed, 07 Apr 2004 16:37:57 +0300
+	Wed, 7 Apr 2004 09:46:53 -0400
+Received: from MailBox.iNES.RO ([80.86.96.21]:48652 "EHLO MailBox.iNES.RO")
+	by vger.kernel.org with ESMTP id S263593AbUDGNqu (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 7 Apr 2004 09:46:50 -0400
+Subject: Re: Rewrite Kernel
+From: Dumitru Ciobarcianu <Dumitru.Ciobarcianu@iNES.RO>
+To: Sean Neakums <sneakums@zork.net>
+Cc: Mohamed Aslan <mkernel@linuxmail.org>, linux-kernel@vger.kernel.org
+In-Reply-To: <6un05oszfx.fsf@zork.zork.net>
+References: <20040407125406.209FC39834A@ws5-1.us4.outblaze.com>
+	 <6un05oszfx.fsf@zork.zork.net>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-r+SI54FDw6UHLPFcj++5"
+Organization: iNES Group
+Message-Id: <1081345589.7617.13.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; format=flowed
-Message-ID: <Sea2-F121U1x4ykaaEv0001bc59@hotmail.com>
-X-OriginalArrivalTime: 07 Apr 2004 13:37:58.0865 (UTC) FILETIME=[8A4C3C10:01C41CA5]
+X-Mailer: Ximian Evolution 1.5.6 
+Date: Wed, 07 Apr 2004 16:46:29 +0300
+X-RAVMilter-Version: 8.4.1(snapshot 20020919) (MailBox.iNES.RO)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
 
-I am working with kenel 2.4.20 on Intel x86.
-Now I Had downloaded a kernel source to a different folder and build it.
-I added an entry in grub.conf
-When I choose to load that kernel everything is OK.
-It works wth no problem.
-But under /boot I see nothing of the original files (there is only one file 
-there , kernel.h).
+--=-r+SI54FDw6UHLPFcj++5
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-The output of mount  is :
+On Wed, 2004-04-07 at 14:13 +0100, Sean Neakums wrote:
+> Why not just write a program to translate 'C' code into assembly?
 
-/dev/hda3 on / type ext3 (rw)
-none on /proc type proc (rw)
-none on /dev/pts type devpts (rw,gid=5,mode=620)
-none on /dev/shm type tmpfs (rw)
 
-when I add the following in grub.conf (to the option of choosing to load 
-this kernel)
+You mean like a .... compiler ? :)
 
-root=/LABEL=/
 
-I get the the following panic message:
-VFS: cannot open root device = "LABEL=/" or 00:00
-Please append a correct "root= "  boot option.
-Kernel panic : VFS: unable to mount root fs on 00:00
+--=20
+Cioby
 
-Any idea?
-Any help will be appreciated.
 
-Sting
+--=-r+SI54FDw6UHLPFcj++5
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
 
-_________________________________________________________________
-Add photos to your messages with MSN 8. Get 2 months FREE*. 
-http://join.msn.com/?page=features/featuredemail
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+
+iD8DBQBAdAY1QisRnSkd59cRAgBEAJ9SuYR9xumnsZVYPYB+wxHpNXPj9ACfcYsr
+e0ruqs9wERuSDlaZrEE6t8c=
+=RowR
+-----END PGP SIGNATURE-----
+
+--=-r+SI54FDw6UHLPFcj++5--
 

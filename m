@@ -1,67 +1,97 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265211AbUIWAaE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265768AbUIWAaW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265211AbUIWAaE (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Sep 2004 20:30:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265800AbUIWAaD
+	id S265768AbUIWAaW (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Sep 2004 20:30:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265800AbUIWAaW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Sep 2004 20:30:03 -0400
-Received: from e31.co.us.ibm.com ([32.97.110.129]:27524 "EHLO
-	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S265211AbUIWA36
+	Wed, 22 Sep 2004 20:30:22 -0400
+Received: from undl.funcitec.rct-sc.br ([200.135.30.197]:45188 "HELO
+	mail.undl.org.br") by vger.kernel.org with SMTP id S265768AbUIWAaD
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Sep 2004 20:29:58 -0400
-Date: Wed, 22 Sep 2004 19:29:42 -0500
-To: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>, paulus@samba.org,
-       linux-kernel@vger.kernel.org, anton@samba.org,
-       Andrew Morton <akpm@osdl.org>
-Subject: Re: [PATCH] [PPC64] [TRIVIAL] Janitor whitespace in pSeries_pci.c
-Message-ID: <20040923002942.GB18954@austin.ibm.com>
-References: <20040920221933.GB1872@austin.ibm.com> <20040920223121.GC1872@austin.ibm.com> <200409211407.09764.vda@port.imtp.ilyichevsk.odessa.ua> <20040921161216.GD1872@austin.ibm.com> <20040922231700.GE30109@MAIL.13thfloor.at>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040922231700.GE30109@MAIL.13thfloor.at>
-User-Agent: Mutt/1.5.6+20040818i
-From: Linas Vepstas <linas@austin.ibm.com>
+	Wed, 22 Sep 2004 20:30:03 -0400
+Message-ID: <415218EE.8000207@undl.org.br>
+Date: Wed, 22 Sep 2004 21:29:34 -0300
+From: Carlos Eduardo Medaglia Dyonisio <medaglia@undl.org.br>
+User-Agent: Mozilla Thunderbird 0.7.1 (X11/20040626)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+CC: medaglia@undl.org.br, akpm@osdl.org, torvalds@osdl.org
+Subject: [PATCH][2.6.9-rc2] Fix types.h
+Content-Type: multipart/mixed;
+ boundary="------------060305060501020708000706"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Sep 23, 2004 at 01:17:00AM +0200, Herbert Poetzl was heard to remark:
-> On Tue, Sep 21, 2004 at 11:12:16AM -0500, Linas Vepstas wrote:
-> > On Tue, Sep 21, 2004 at 02:07:09PM +0300, Denis Vlasenko was heard to remark:
-> > > On Tuesday 21 September 2004 01:31, Linas Vepstas wrote:
-> > > > 
-> > > > Forgot to attach the actual patch.
-> > > > 
-> > > > On Mon, Sep 20, 2004 at 05:19:33PM -0500, Linas Vepstas was heard to remark:
-> > > > > Hi,
-> > > > 
-> > > > 
-> > > > This file mixes tabs with 8 spaces, leading to poor display 
-> > > > if one's editor doesn't have tab-stops set to 8.   Please apply.
-> > > 
-> > > There are lots of such places.
-> > > Automated scripts can easily produce megabytes worth of whitespace
-> > > patches.
-> > > 
-> > > As I understand, such patches aren't accepted because
-> > > merging pain is much greater than gain.
-> > > Typically whitespace cleanups are piggybacked on some code changes.
-> > 
-> > Last time I sent in a combined whitespace plus other-fixes patch, 
-> > I was asked to do the opposite, and split them apart.  I'm just
-> > trying to do the right thing; I have other pending patches for this 
-> > file, and I'm waiting for the backlog to clear out before I submit
-> > those.
-> 
-> well, I'd like to know if full whitespace cleanup
-> (trailing and indentation) _is_ something which
-> is interesting for linux mainline ...
-> 
-> because if so, I probably could provide a bunch of
-> patches too ... 
+This is a multi-part message in MIME format.
+--------------060305060501020708000706
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 
-Hey, don't wreck it for me; I want this applied because I actually 
-read this file every couple of days.  No need to clean up any files 
-that *I* don't read...
+Hi!
 
---linas
+This patch fixes troubles when compiling some applications that include
+<linux/byteorder/little_endian.h>, like xmms. When I was compiling xmms
+I've got:
+In file included from /usr/include/asm/byteorder.h:57,
+                   from /usr/include/linux/cdrom.h:14,
+                   from cdaudio.h:60,
+                   from cdaudio.c:21:
+/usr/include/linux/byteorder/little_endian.h:43: error: parse error
+before "__cpu_to_le64p"
+/usr/include/linux/byteorder/little_endian.h: In function `__cpu_to_le64p':
+/usr/include/linux/byteorder/little_endian.h:45: error: `__le64'
+undeclared (first use in this function)
+...etc...
+
+I've put the __le(16|32|64) and __be(16|32|64) typedefs out of #ifndef
+__KERNEL_STRICT_NAMES and now everything is working. Xmms is compiling
+fine, and linux kernel too. :)
+
+Maybe I made something wrong, because this is my first patch to linux
+kernel... But everything is working fine for me.
+
+Regards,
+Cadu
+
+
+--------------060305060501020708000706
+Content-Type: text/plain;
+ name="patch-types.h.diff"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="patch-types.h.diff"
+
+--- linux-2.6.9-rc2/include/linux/types.h	2004-09-13 02:33:23.000000000 -0300
++++ linux/include/linux/types.h	2004-09-18 14:16:27.000000000 -0300
+@@ -140,6 +140,13 @@
+ #define pgoff_t unsigned long
+ #endif
+ 
++#endif /* __KERNEL_STRICT_NAMES */
++
++/*
++ * Below are truly Linux-specific types that should never collide with
++ * any application/library that wants linux/types.h.
++ */
++
+ #ifdef __CHECKER__
+ #define __bitwise __attribute__((bitwise))
+ #else
+@@ -153,13 +160,6 @@
+ typedef __u64 __bitwise __le64;
+ typedef __u64 __bitwise __be64;
+ 
+-#endif /* __KERNEL_STRICT_NAMES */
+-
+-/*
+- * Below are truly Linux-specific types that should never collide with
+- * any application/library that wants linux/types.h.
+- */
+-
+ struct ustat {
+ 	__kernel_daddr_t	f_tfree;
+ 	__kernel_ino_t		f_tinode;
+
+
+--------------060305060501020708000706--

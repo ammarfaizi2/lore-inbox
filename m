@@ -1,109 +1,130 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264469AbTLMGfQ (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 13 Dec 2003 01:35:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264484AbTLMGfQ
+	id S264484AbTLMGns (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 13 Dec 2003 01:43:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264485AbTLMGnr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 13 Dec 2003 01:35:16 -0500
-Received: from k-kdom.nishanet.com ([65.125.12.2]:63755 "EHLO
-	mail2k.k-kdom.nishanet.com") by vger.kernel.org with ESMTP
-	id S264469AbTLMGfF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 13 Dec 2003 01:35:05 -0500
-Message-ID: <3FDAB2FC.7040302@nishanet.com>
-Date: Sat, 13 Dec 2003 01:34:36 -0500
-From: Bob <recbo@nishanet.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6b) Gecko/20031205 Thunderbird/0.4
-X-Accept-Language: en-us, en
+	Sat, 13 Dec 2003 01:43:47 -0500
+Received: from mail-06.iinet.net.au ([203.59.3.38]:53378 "HELO
+	mail.iinet.net.au") by vger.kernel.org with SMTP id S264484AbTLMGno
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 13 Dec 2003 01:43:44 -0500
+Message-ID: <3FDAB517.4000309@cyberone.com.au>
+Date: Sat, 13 Dec 2003 17:43:35 +1100
+From: Nick Piggin <piggin@cyberone.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030827 Debian/1.4-3
+X-Accept-Language: en
 MIME-Version: 1.0
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Working nforce2, was Re: Fixes for nforce2 hard lockup, apic,
- io-apic, udma133 covered
-References: <200312072312.01013.ross@datscreative.com.au> <200312111655.25456.ross@datscreative.com.au> <1071143274.2272.4.camel@big.pomac.com> <200312111912.27811.ross@datscreative.com.au> <1071165161.2271.22.camel@big.pomac.com> <20031211182108.GA353@tesore.local> <3FD98A1F.901@nishanet.com> <20031212165929.GA187@tesore.local>
-In-Reply-To: <20031212165929.GA187@tesore.local>
+To: Rusty Russell <rusty@rustcorp.com.au>
+CC: linux-kernel <linux-kernel@vger.kernel.org>,
+       Anton Blanchard <anton@samba.org>, Ingo Molnar <mingo@redhat.com>,
+       "Martin J. Bligh" <mbligh@aracnet.com>,
+       "Nakajima, Jun" <jun.nakajima@intel.com>, Mark Wong <markw@osdl.org>
+Subject: Re: [CFT][RFC] HT scheduler
+References: <20031213022038.300B22C2C1@lists.samba.org>
+In-Reply-To: <20031213022038.300B22C2C1@lists.samba.org>
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-hackers be clever--
 
-"system temperature was getting -- above 40 deg C. CPU was getting up to 
-49 deg C...how poorly it's thermal management was operating then. Now 
-with the new patches, and ultimately, BIOS update, system temperature is 
-about 35 deg C -JesseAllen"
 
-Maybe that tells me that my bios update fixed my
-lockup problems without turning on cpu disconnect
-or even by turning it off with no doc as face-saver
-and not allowing me to see a choice in setup, since
-like yours before cpu disconnect working my temp
-is 41C most of the time and 48C under a
-heavy load, possibly 49C, the exact range you
-are looking at before you had cpu disconnect
-working
+Rusty Russell wrote:
 
-or they turned cpu disconnect off without saying
-anything, buying time, saving embarrassment
-
-anyway it's probably off here since I have exactly
-the same heat profile
-
-I have 120mm fans one in one out, blowing air
-across Zalman cpu and gpu heatsinks, no 80mm
-extra Zalman fan. amd xp 3000+ 333mhz 1:1
-arctic silver compound on heatsinks
-
-Thermal 1: ok, 41.0 degrees C 105.8 degrees F
- - 41C in X, running realplayer
- - 48C compile a fat kernel or several heavy tasks
-
--Bob
-
-Jesse Allen wrote:
-
-> ....I compiled a new kernel without the disconnect off patch, or the 
-> ack delay. These are the exact patches I used on 2.6.0-test11:
+>In message <3FD9679A.1020404@cyberone.com.au> you write:
 >
->patch-2.6.0-test11-bk8.bz2
->acpi-2.6.0t11.patch acpi bugfixes from Maciej.
->nforce-ioapic-timer-2.6t11.patch from Ross Dickson.  Timer patch.
->forcedeth.patch Patch stolen from -test10-mm1?  Unused.
->forcedeth-update-2.patch Same.
->
->Sure enough, under this kernel, no lockups.  Athcool reported Disconnect was "on".
->
->I decided to wait till this morning, to try the BIOS "C1 Disconnect" set to enabled.  Still no lockups under this kernel.  Tried a vanilla kernel, no lockups (but timer and watchdog messed up still).  Now that I read your message Bob, I understand what you are saying.  Luckily, the updated BIOS changelog states "Add C1 disconnect item."  And this exact version seems to have fixed it, and now we have an exact fix (another one?) to refer to.
->
->So the fix was absolutely a BIOS fix.
->
-...but we're stuck looking at smoke and mirrors,
-when the kernel might be able to work around
-bioses that have not been "updated". Or to put
-it another way, "voodoo" may be done by
-kernel if not done by bios. Whatever is being
-tweaked may be accessible to kernel code.
-
-I can't read anything useful in my bios flash
-file w6570nms.760 which is contained in--
-
->>http://download.msi.com.tw/support/bos_exe/6570v76.exe
+>>Thanks for having a look Rusty. I'll try to convince you :)
 >>
-
->>Nvidia X driver for ti4200 agp8 still locks up linux though,
->>but X nv works fine. agp8 3d may expose the timer issue.
->>
->>    
+>>As you know, the domain classes is not just for HT, but can do multi levels
+>>of NUMA, and it can be built by architecture specific code which is good
+>>for Opteron, for example. It doesn't need CONFIG_SCHED_SMT either, of 
+>>course,
+>>or CONFIG_NUMA even: degenerate domains can just be collapsed (code isn't
+>>there to do that now).
 >>
 >
->That's either an nvidia driver problem, or agpgart-nforce problem.  I'd try 4x agp, and or NVAGP (or agpgart, if already using NVAGP).  If you think it's the timer, try the timer patch, or with nolapic noapic.
+>Yes, but this isn't what we really want.  I'm actually accusing you of
+>lacking ambition 8)
 >
->Jesse
 >
-Thanks, I've tried all of those except passing agp4 or agp2
-to the nvidia X "nvidia" driver. Another clue that it's related
-to interrupts or timing of access to interrupts is that before
-I put another card on the pci bus I could get into X for a
-few seconds with the nvidia driver before linux locked up,
-now with an elan pcmcia 32-bit cardbus pci card that claims
-it needs its own interrupt(can't give it one yet!) X just locks
-up linux on load.
+>>Shared runqueues I find isn't so flexible. I think it perfectly describes
+>>the P4 HT architecture, but what happens if (when) siblings get seperate
+>>L1 caches? What about SMT, CMP, SMP and NUMA levels in the POWER5?
+>>
+>
+>It describes every HyperThread implementation I am aware of today, so
+>it suits us fine for the moment.  Runqueues may still be worth sharing
+>even if L1 isn't, for example.
+>
+
+Possibly. But it restricts your load balancing to a specific case, it
+eliminates any possibility of CPU affinity: 4 running threads on 1 HT
+CPU for example, they'll ping pong from one cpu to the other happily.
+
+I could get domains to do the same thing, but at the moment a CPU only looks
+at its sibling's runqueue if they are unbalanced or is about to become idle.
+I'm pretty sure domains can do anything shared runqueues can. I don't know
+if you're disputing this or not?
+
+>
+>>The large SGI (and I imagine IBM's POWER5s) systems need things like
+>>progressive balancing backoff and would probably benefit with a more
+>>heirachical balancing scheme so all the balancing operations don't kill
+>>the system.
+>>
+>
+>But this is my point.  Scheduling is one part of the problem.  I want
+>to be able to have the arch-specific code feed in a description of
+>memory and cpu distances, bandwidths and whatever, and have the
+>scheduler, slab allocator, per-cpu data allocation, page cache, page
+>migrator and anything else which cares adjust itself based on that.
+>
+>Power 4 today has pairs of CPUs on a die, four dies on a board, and
+>four boards in a machine.  I want one infrastructure to descibe it,
+>not have to do program every infrastructure from arch-specific code.
+>
+
+(Plus two threads / siblings per CPU, right?)
+
+I agree with you here. You know, we could rename struct sched_domain, add
+a few fields to it and it becomes what you want. Its a _heirachical set_
+of _sets of cpus sharing a certian property_ (underlining to aid grouping.
+
+Uniform access to certian memory ranges could easily be one of these
+properties. There is already some info about the amount of cache shared,
+that also could be expanded on.
+
+(Perhaps some exotic architecture  would like scheduling and memory a bit
+more decoupled, but designing for *that* before hitting it would be over
+engineering).
+
+I'm not going to that because 2.6 doesn't need a generalised topology
+because nothing makes use of it. Perhaps if something really good came up
+in 2.7, there would be a case for backporting it. 2.6 does need improvements
+to the scheduler though.
+
+>
+>>w26 does ALL this, while sched.o is 3K smaller than Ingo's shared runqueue
+>>patch on NUMA and SMP, and 1K smaller on UP (although sched.c is 90 lines
+>>longer). kernbench system time is down nearly 10% on the NUMAQ, so it isn't
+>>hurting performance either.
+>>
+>
+>Agreed, but Ingo's shared runqueue patch is poor implementation of a
+>good idea: I've always disliked it.  I'm halfway through updating my
+>patch, and I really think you'll like it better.  It's not
+>incompatible with NUMA changes, in fact it's fairly non-invasive.
+>
+
+But if sched domains are accepted, there is no need for shared runqueues,
+because as I said they can do anything sched domains can, so the code would
+just be a redundant specialisation - unless you specifically wanted to share
+locks & data with siblings.
+
+I must admit I didn't look at your implementation. I look forward to it.
+I'm not against shared runqueues. If my stuff doesn't get taken then of
+course I'd rather shrq gets in than nothing at all, as I told Ingo. I
+obviously just like sched domains better ;)
+
+

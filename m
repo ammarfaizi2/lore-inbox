@@ -1,54 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267356AbUIOUHF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267352AbUIOUJN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267356AbUIOUHF (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Sep 2004 16:07:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267350AbUIOUG7
+	id S267352AbUIOUJN (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Sep 2004 16:09:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267370AbUIOUJM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Sep 2004 16:06:59 -0400
-Received: from hibernia.jakma.org ([212.17.55.49]:16525 "EHLO
-	hibernia.jakma.org") by vger.kernel.org with ESMTP id S267356AbUIOUFM
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Sep 2004 16:05:12 -0400
-Date: Wed, 15 Sep 2004 21:04:38 +0100 (IST)
-From: Paul Jakma <paul@clubi.ie>
-X-X-Sender: paul@fogarty.jakma.org
-To: Netdev <netdev@oss.sgi.com>
-cc: leonid.grossman@s2io.com, Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: The ultimate TOE design
-In-Reply-To: <4148991B.9050200@pobox.com>
-Message-ID: <Pine.LNX.4.61.0409152102050.23011@fogarty.jakma.org>
-References: <4148991B.9050200@pobox.com>
-X-NSA: arafat al aqsar jihad musharef jet-A1 avgas ammonium qran inshallah allah al-akbar martyr iraq saddam hammas hisballah rabin ayatollah korea vietnam revolt mustard gas british airways washington
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+	Wed, 15 Sep 2004 16:09:12 -0400
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:23306 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S267352AbUIOUHy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 15 Sep 2004 16:07:54 -0400
+Date: Wed, 15 Sep 2004 21:07:49 +0100
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Roland Dreier <roland@topspin.com>,
+       =?iso-8859-1?Q?J=F6rn_Engel?= <joern@wohnheim.fh-wedel.de>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Being more anal about iospace accesses..
+Message-ID: <20040915210749.A31396@flint.arm.linux.org.uk>
+Mail-Followup-To: Linus Torvalds <torvalds@osdl.org>,
+	Roland Dreier <roland@topspin.com>,
+	=?iso-8859-1?Q?J=F6rn_Engel?= <joern@wohnheim.fh-wedel.de>,
+	Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <Pine.LNX.4.58.0409081543320.5912@ppc970.osdl.org> <Pine.LNX.4.58.0409150737260.2333@ppc970.osdl.org> <Pine.LNX.4.58.0409150859100.2333@ppc970.osdl.org> <20040915165450.GD6158@wohnheim.fh-wedel.de> <524qlzxxka.fsf@topspin.com> <Pine.LNX.4.58.0409151024510.2333@ppc970.osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <Pine.LNX.4.58.0409151024510.2333@ppc970.osdl.org>; from torvalds@osdl.org on Wed, Sep 15, 2004 at 10:39:02AM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 15 Sep 2004, Jeff Garzik wrote:
+On Wed, Sep 15, 2004 at 10:39:02AM -0700, Linus Torvalds wrote:
+> In other words, think of "void *" as a pointer to storage. Not "char"  
+> (which is the C name for a signed byte),
 
-> Put simply, the "ultimate TOE card" would be a card with network ports, a 
-> generic CPU (arm, mips, whatever.), some RAM, and some flash.  This card's 
-> "firmware" is the Linux kernel, configured to run as a _totally indepenent 
-> network node_, with IP address(es) all its own.
->
-> Then, your host system OS will communicate with the Linux kernel running on 
-> the card across the PCI bus, using IP packets (64K fixed MTU).
+Common Programming Error #99: "char" is implementation whether it is
+signed or may be unsigned.  Only a "char" type qualified by "signed"
+or "unsigned" can be relied upon to have the requested property.
 
-> My dream is that some vendor will come along and implement such a 
-> design, and sell it in enough volume that it's US$100 or less. 
-> There are a few cards on the market already where implementing this 
-> design _may_ be possible, but they are all fairly expensive.
-
-The intel IXP's are like the above, XScale+extra-bits host-on-a-PCI 
-card running Linux. Or is that what you were referring to with 
-"<cards exist> but they are all fairly expensive."?
-
-> 	Jeff
-
-regards,
 -- 
-Paul Jakma	paul@clubi.ie	paul@jakma.org	Key ID: 64A2FF6A
-Fortune:
-There is nothing so easy but that it becomes difficult when you do it
-reluctantly.
- 		-- Publius Terentius Afer (Terence)
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:  2.6 PCMCIA      - http://pcmcia.arm.linux.org.uk/
+                 2.6 Serial core

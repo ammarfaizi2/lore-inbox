@@ -1,80 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261165AbUKHSHC@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261152AbUKHSL5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261165AbUKHSHC (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 8 Nov 2004 13:07:02 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261914AbUKHRE6
+	id S261152AbUKHSL5 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 8 Nov 2004 13:11:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261156AbUKHSLT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 Nov 2004 12:04:58 -0500
-Received: from fw.osdl.org ([65.172.181.6]:26795 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S261912AbUKHQNO (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 Nov 2004 11:13:14 -0500
-Date: Mon, 8 Nov 2004 08:13:09 -0800 (PST)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Sripathi Kodi <sripathik@in.ibm.com>
-cc: linux-kernel@vger.kernel.org, Roland McGrath <roland@redhat.com>,
-       Ingo Molnar <mingo@elte.hu>, Andrew Morton <akpm@osdl.org>,
-       dino@in.ibm.com
-Subject: Re: [PATCH] do_wait fix for 2.6.10-rc1
-In-Reply-To: <Pine.LNX.4.58.0411080744320.24286@ppc970.osdl.org>
-Message-ID: <Pine.LNX.4.58.0411080806400.24286@ppc970.osdl.org>
-References: <418B4E86.4010709@in.ibm.com> <Pine.LNX.4.58.0411051101500.30457@ppc970.osdl.org>
- <418F826C.2060500@in.ibm.com> <Pine.LNX.4.58.0411080744320.24286@ppc970.osdl.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Mon, 8 Nov 2004 13:11:19 -0500
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:41995 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S261155AbUKHSHa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 8 Nov 2004 13:07:30 -0500
+Date: Mon, 8 Nov 2004 19:06:56 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: Corey Minyard <cminyard@mvista.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: RFC: [2.6 patch] small IPMI cleanup
+Message-ID: <20041108180656.GA15077@stusta.de>
+References: <20041106222839.GS1295@stusta.de> <418FB0EA.90006@mvista.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <418FB0EA.90006@mvista.com>
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, Nov 08, 2004 at 11:46:18AM -0600, Corey Minyard wrote:
 
+> Adrian,
 
-On Mon, 8 Nov 2004, Linus Torvalds wrote:
-> 
-> In fact, it looks like the "bail_ref" case has _another_ bug: since it 
-> returns zero, we may still be _using_ the task pointer (to get to the next 
-> task), so we must NOT do a "put_task_struct()" intil we've re-acquired the 
-> tasklist_lock.
+Hi Corey,
 
-Actually, this part of the patch is bogus. If our "put_task_struct" is the
-last one, it doesn't help at all that we're insidfe the tasklist_lock. 
-We'll just release the task structure ourselves.
+> All these things are tools used by external modules that have not yet 
+> made it into the mainstream kernel.  Also, there are other users of 
 
-The problem remains, though: "do_wait()" does end up accessing "tsk" in
+OK.
 
-	tsk = next_thread(tsk);
+> these functions that are perhaps not in the kernel yet (and perhaps 
+> never make it into the mainstream kernel).  Some of the statics do need 
+> to be cleaned up, though.
 
-and as far as I can see, "tsk" may be gone by then.
+Why shouldn't they make it into the mainstream kernel?
 
-Is there anything else protecting us? This looks like a serious (if 
-extremely unlikely) bug..
+> The IPMI driver was designed so that in-kernel users can use it as 
+> easily as userland users.  So these are important parts of the interface.
 
-Anyway, here's an updated patch for Sripathi's original problem, with a 
-better comment, and with the put_task_struct back where it was originally 
-since it shouldn't matter.
+For userland users, a global kernel function (even if EXPORT_SYMBOL'ed) 
+is useless.
 
-Help me, Obi-Wan McGrath,
+> -Corey
 
-		Linus
+cu
+Adrian
 
-----
-===== kernel/exit.c 1.166 vs edited =====
---- 1.166/kernel/exit.c	2004-11-04 11:13:19 -08:00
-+++ edited/kernel/exit.c	2004-11-08 08:08:18 -08:00
-@@ -1202,6 +1202,18 @@
- bail_ref:
- 		put_task_struct(p);
- 		read_lock(&tasklist_lock);
-+
-+		/*
-+		 * We are returning to the wait loop without having successfully
-+		 * removed the process, and a zero value. That means that the wait
-+		 * will continue - but somebody else might have reaped a child
-+		 * (maybe this one) that we already decided was eligible.
-+		 *
-+		 * As a result, we need to make sure that we don't wait for
-+		 * children forever - they might be all gone. So mark us
-+		 * running, and the "schedule()" in do_wait() is fine.
-+		 */
-+		current->state = TASK_RUNNING;
- 		return 0;
- 	}
- 
+-- 
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
+

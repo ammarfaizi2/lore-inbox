@@ -1,47 +1,63 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313415AbSDPAPl>; Mon, 15 Apr 2002 20:15:41 -0400
+	id <S313430AbSDPAgO>; Mon, 15 Apr 2002 20:36:14 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313416AbSDPAPk>; Mon, 15 Apr 2002 20:15:40 -0400
-Received: from adsl-63-194-239-202.dsl.lsan03.pacbell.net ([63.194.239.202]:58357
-	"EHLO mmp-linux.matchmail.com") by vger.kernel.org with ESMTP
-	id <S313415AbSDPAPk>; Mon, 15 Apr 2002 20:15:40 -0400
-Date: Mon, 15 Apr 2002 17:17:49 -0700
-From: Mike Fedyk <mfedyk@matchmail.com>
-To: Andi Kleen <ak@suse.de>
-Cc: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>,
-        "David S. Miller" <davem@redhat.com>, taka@valinux.co.jp,
-        linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] zerocopy NFS updated
-Message-ID: <20020416001749.GY23513@matchmail.com>
-Mail-Followup-To: Andi Kleen <ak@suse.de>,
-	Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>,
-	"David S. Miller" <davem@redhat.com>, taka@valinux.co.jp,
-	linux-kernel@vger.kernel.org
-In-Reply-To: <20020411.164134.85392767.taka@valinux.co.jp> <20020411.203823.67879801.taka@valinux.co.jp> <20020411.043614.02328218.davem@redhat.com> <200204111257.g3BCvOX10348@Port.imtp.ilyichevsk.odessa.ua> <20020411151616.A1239@wotan.suse.de>
+	id <S313424AbSDPAgN>; Mon, 15 Apr 2002 20:36:13 -0400
+Received: from mail.webmaster.com ([216.152.64.131]:39565 "EHLO
+	shell.webmaster.com") by vger.kernel.org with ESMTP
+	id <S313423AbSDPAgI> convert rfc822-to-8bit; Mon, 15 Apr 2002 20:36:08 -0400
+From: David Schwartz <davids@webmaster.com>
+To: <kpierre@fit.edu>
+CC: <linux-kernel@vger.kernel.org>
+X-Mailer: PocoMail 2.61 (1025) - Licensed Version
+Date: Mon, 15 Apr 2002 17:36:01 -0700
+In-Reply-To: <3CBAF8EC.6070403@fit.edu>
+Subject: Re: Memory Leaking. Help!
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.28i
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Message-ID: <20020416003603.AAA11784@shell.webmaster.com@whenever>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Apr 11, 2002 at 03:16:16PM +0200, Andi Kleen wrote:
-> On Thu, Apr 11, 2002 at 04:00:37PM -0200, Denis Vlasenko wrote:
-> > On 11 April 2002 09:36, David S. Miller wrote:
-> > > No, you must block truncate operations on the file until the client
-> > > ACK's the nfsd read request if you wish to use sendfile() with
-> > > nfsd.
-> > 
-> > Which shouldn't be a big performance problem unless I am unaware
-> > of some real-life applications doing heavy truncates.
-> 
-> Every unlink does a truncate. There are applications that delete files
-> a lot.
 
-Is this true at the filesystem level or only in memory?  If so, I could
-immagine that it would make it much harder to undelete a file when you don't
-even know how big it was (file set to 0 size)...
 
-Why is this required?  Could someone say quickly (as I'm sure it's probably
-quite complex) or point me to some references?
+On Mon, 15 Apr 2002 11:59:40 -0400, Kervin Pierre wrote:
+>Eugenio Mastroviti wrote:
+>>much data as it can in memory. The actual memory in use (check with
+>>'free') is total-(buffers+cache)= 2.2-(0.37+1.51)GB=about 320 MB, which
+>
+>This is interesting.  What exactly is buffers and cache used for?
+
+	It is used to keep information that the kernel might otherwise throw away in 
+case it is needed later. It is also used to accumulate writes so that they 
+can be made at a time where they can be done more efficiently.
+
+>I had the same issue with the original poster with a new server.  A
+>fresh install with nothing significant running ( no bind nor sendmail,
+>etc. ) reported that over 450 out of 512 MB was used, but looking at the
+>process usage on top I barely got 5% memory usage by process.  If the
+>above calculation ( memory use = total - buffers - cache ) is correct
+>then the memory use drops to ~100 MB.
+
+	So you now have a ton of information. You have 512Mb of physical RAM, 450 of 
+that is being used. 100Mb of that is process memory, 350Mb of that is buffers 
+and cache.
+
+>I guess what's confusing is that total memory usuage is including
+>buffers and cache.  If that memory is available to applications,
+>shouldn't it be removed from the "total used" figure?
+
+	Are you arguing that you shouldn't have all the information the kernel is 
+providing you? That some of it should be hidden from you and memory should be 
+said to be free when it really isn't?
+
+	All of your physical memory, less what is used by the kernel itself, is 
+always available to applications. That memory is being used. Really.
+
+	If you don't want your memory to be used, take it out of your computer. You 
+paid good money for it. The kernel is using it. You should be happy.
+
+	DS
+
+

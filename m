@@ -1,53 +1,121 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262828AbULRDg5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262831AbULRDqb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262828AbULRDg5 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 17 Dec 2004 22:36:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262831AbULRDg5
+	id S262831AbULRDqb (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 17 Dec 2004 22:46:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262832AbULRDqb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 17 Dec 2004 22:36:57 -0500
-Received: from out001pub.verizon.net ([206.46.170.140]:6909 "EHLO
-	out001.verizon.net") by vger.kernel.org with ESMTP id S262828AbULRDgz
+	Fri, 17 Dec 2004 22:46:31 -0500
+Received: from out012pub.verizon.net ([206.46.170.137]:9601 "EHLO
+	out012.verizon.net") by vger.kernel.org with ESMTP id S262831AbULRDq0
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 17 Dec 2004 22:36:55 -0500
-From: Gene Heskett <gene.heskett@verizon.net>
-Reply-To: gene.heskett@verizon.net
-Organization: Organization: None, detectable by casual observers
-To: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] hid-core: Configurable USB HID Mouse Interrupt Polling Interval
-Date: Fri, 17 Dec 2004 22:36:54 -0500
-User-Agent: KMail/1.7
-Cc: Mikkel Krautz <krautz@gmail.com>, vojtech@suse.cz
-References: <1103335970.15567.15.camel@localhost> <20041218012725.GB25628@kroah.com> <41C3B068.4000605@gmail.com>
-In-Reply-To: <41C3B068.4000605@gmail.com>
+	Fri, 17 Dec 2004 22:46:26 -0500
+Message-ID: <41C3A827.9090301@verizon.net>
+Date: Fri, 17 Dec 2004 22:46:47 -0500
+From: Jim Nelson <james4765@verizon.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040922
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
+To: Jan Dittmer <jdittmer@ppp0.net>
+CC: kernel-janitors@lists.osdl.org, linux-kernel@vger.kernel.org,
+       akpm@osdl.org
+Subject: Re: [PATCH] esp: replace cli()/sti() with spin_lock_irqsave()/spin_unlock_irqrestore()
+References: <20041217231915.14919.49991.15433@localhost.localdomain> <41C385FC.3010109@ppp0.net>
+In-Reply-To: <41C385FC.3010109@ppp0.net>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200412172236.54282.gene.heskett@verizon.net>
-X-Authentication-Info: Submitted using SMTP AUTH at out001.verizon.net from [151.205.47.244] at Fri, 17 Dec 2004 21:36:54 -0600
+X-Authentication-Info: Submitted using SMTP AUTH at out012.verizon.net from [209.158.220.243] at Fri, 17 Dec 2004 21:46:25 -0600
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 17 December 2004 23:22, Mikkel Krautz wrote:
->On Fri, 17 Dec 2004 19:43:23 -0500, Gene Heskett
->
-><gene.heskett@verizon.net> wrote:
-> > Mikkel, could you please turn off the word wrap in your MTA's
-> > composer and repost this? I'd like to try it.
->
->Sorry about that.
->Here's a repost. Now even with a diffstat:
->
-Looks good, saved  it, thanks.
+Jan Dittmer wrote:
+> James Nelson wrote:
+> 
+>>This is an attempt to make the esp driver SMP-correct.
+> 
+> 
+> You're trying to protect the info data, correct? Could you please
+> add a comment to the locks which data structures need to be
+> protected by them?!
+> Just blindly replacing cli/sti with spin_(un)lock doesn't make it
+> SMP save.
+> 
 
--- 
-Cheers, Gene
-"There are four boxes to be used in defense of liberty:
- soap, ballot, jury, and ammo. Please use in that order."
--Ed Howdershelt (Author)
-99.30% setiathome rank, not too shabby for a WV hillbilly
-Yahoo.com attorneys please note, additions to this message
-by Gene Heskett are:
-Copyright 2004 by Maurice Eugene Heskett, all rights reserved.
+*sigh* Thought it wouldn't be that easy.
+
+
+
+> 
+>>diff -urN --exclude='*~' linux-2.6.10-rc3-mm1-original/drivers/char/esp.c linux-2.6.10-rc3-mm1/drivers/char/esp.c
+>>--- linux-2.6.10-rc3-mm1-original/drivers/char/esp.c	2004-12-03 16:52:13.000000000 -0500
+>>+++ linux-2.6.10-rc3-mm1/drivers/char/esp.c	2004-12-17 18:11:31.275037730 -0500
+>>@@ -212,14 +214,14 @@
+>> 	if (serial_paranoia_check(info, tty->name, "rs_stop"))
+>> 		return;
+>> 	
+>>-	save_flags(flags); cli();
+>>+	spin_lock_irqsave(&esp_lock, flags);
+> 
+> 
+> info can change between return and lock
+> 
+
+Okay.  I see what you are talking about.  I'll dig into it tomorrow (after some 
+sleep).
+
+OTOH, this would have been SMP-incorrect even before cli()/sti() was dropped in 2.5 .
+
+> 
+>> 	if (info->IER & UART_IER_THRI) {
+>> 		info->IER &= ~UART_IER_THRI;
+>> 		serial_out(info, UART_ESI_CMD1, ESI_SET_SRV_MASK);
+>> 		serial_out(info, UART_ESI_CMD2, info->IER);
+>> 	}
+>> 
+>>-	restore_flags(flags);
+>>+	spin_unlock_irqrestore(&esp_lock, flags);
+>> }
+>> 
+>> static void rs_start(struct tty_struct *tty)
+>>@@ -230,13 +232,13 @@
+>> 	if (serial_paranoia_check(info, tty->name, "rs_start"))
+>> 		return;
+>> 	
+>>-	save_flags(flags); cli();
+>>+	spin_lock_irqsave(&esp_lock, flags);
+> 
+> 
+> same here.
+> 
+> 
+>> 	if (info->xmit_cnt && info->xmit_buf && !(info->IER & UART_IER_THRI)) {
+>> 		info->IER |= UART_IER_THRI;
+>> 		serial_out(info, UART_ESI_CMD1, ESI_SET_SRV_MASK);
+>> 		serial_out(info, UART_ESI_CMD2, info->IER);
+>> 	}
+>>-	restore_flags(flags);
+>>+	spin_unlock_irqrestore(&esp_lock, flags);
+>> }
+>> 
+>> /*
+> 
+> 
+> Didn't read the rest. Are you sure you didn't introduce a deadlock in
+> the interrupt handler? {transmit,receiver}_chars_{pio,dma} also try to take
+> the lock.
+> 
+
+Hm.  I made the assumption (silly me) that the code was inherently SMP-correct, 
+and just needed the function calls replaced.
+
+Live and learn.
+
+Jim
+
+> Jan
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
 

@@ -1,37 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265405AbRGEXCl>; Thu, 5 Jul 2001 19:02:41 -0400
+	id <S265465AbRGEXBv>; Thu, 5 Jul 2001 19:01:51 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265461AbRGEXCc>; Thu, 5 Jul 2001 19:02:32 -0400
-Received: from c1313109-a.potlnd1.or.home.com ([65.0.121.190]:57873 "HELO
-	kroah.com") by vger.kernel.org with SMTP id <S265405AbRGEXCW>;
-	Thu, 5 Jul 2001 19:02:22 -0400
-Date: Thu, 5 Jul 2001 16:00:33 -0700
-From: Greg KH <greg@kroah.com>
-To: Davide Libenzi <davidel@xmailserver.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: about include/linux/macros.h ...
-Message-ID: <20010705160033.C6136@kroah.com>
-In-Reply-To: <20010705151725.A6021@kroah.com> <XFMail.20010705153503.davidel@xmailserver.org>
+	id <S265461AbRGEXBl>; Thu, 5 Jul 2001 19:01:41 -0400
+Received: from mailhost.tue.nl ([131.155.2.5]:50482 "EHLO mailhost.tue.nl")
+	by vger.kernel.org with ESMTP id <S265465AbRGEXB0>;
+	Thu, 5 Jul 2001 19:01:26 -0400
+Message-ID: <20010706010107.A1956@win.tue.nl>
+Date: Fri, 6 Jul 2001 01:01:07 +0200
+From: Guest section DW <dwguest@win.tue.nl>
+To: Wakko Warner <wakko@animx.eu.org>, Aaron Lehmann <aaronl@vitelus.com>
+Cc: Stephen C Burns <sburns@farpointer.net>, linux-kernel@vger.kernel.org,
+        83710@bugs.debian.org
+Subject: Re: [OT] Re: LILO calling modprobe?
+In-Reply-To: <20010705224245.A1789@win.tue.nl> <20010705140330.C22723@vitelus.com> <20010705180331.A10315@animx.eu.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <XFMail.20010705153503.davidel@xmailserver.org>; from davidel@xmailserver.org on Thu, Jul 05, 2001 at 03:35:03PM -0700
-X-Operating-System: Linux 2.2.19 (i586)
+X-Mailer: Mutt 0.93i
+In-Reply-To: <20010705180331.A10315@animx.eu.org>; from Wakko Warner on Thu, Jul 05, 2001 at 06:03:31PM -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jul 05, 2001 at 03:35:03PM -0700, Davide Libenzi wrote:
+On Thu, Jul 05, 2001 at 06:03:31PM -0400, Wakko Warner wrote:
+
+> > > Before doing anything LILO v21 collects the hda, hdb, sda, sdb info.
+> > > There is no problem, certainly no kernel problem.
+> > 
+> > Sure it isn't a problem, but it's really annoying if it won't need to
+> > touch hda anyway.
+> > 
+> > Is there a reason that it does this?
 > 
-> Ok, let's continue like this :
+> I believe there is.  It wants to find what drive is bios drive 80h.
 
-I know, look at the ones that I am personally responsible for:
+Yes.
 
-./drivers/usb/serial/usbserial.c:#define MAX(a,b)    (((a)>(b))?(a):(b))
-./drivers/usb/serial/io_edgeport.h:  #define MAX(a,b)        (((a)>(b))?(a):(b))
+> I had a machine at work with both ide and scsi.  ide hdd was hdc and ide
+> cdrom was hda just to keep lilo from thinking hdc is the first bios drive
+> which infact sda was
 
-I'm not disagreeing about the current mess, just trying to explain why
-this mess is there.
+But why don't you use the bios keyword? From lilo.conf(5):
 
-greg k-h
+              For example,
+
+                     disk=/dev/sda
+                          bios=0x80
+                     disk=/dev/hda
+                          bios=0x81
+
+              would say that your SCSI disk  is  the  first  BIOS
+              disk,  and  your  (primary  master) IDE disk is the
+              second BIOS disk.

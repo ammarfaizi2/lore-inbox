@@ -1,160 +1,90 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282967AbRLWOkr>; Sun, 23 Dec 2001 09:40:47 -0500
+	id <S283938AbRLWOlR>; Sun, 23 Dec 2001 09:41:17 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S283782AbRLWOki>; Sun, 23 Dec 2001 09:40:38 -0500
-Received: from kiruna.synopsys.com ([204.176.20.18]:8140 "HELO
-	kiruna.synopsys.com") by vger.kernel.org with SMTP
-	id <S282967AbRLWOk1>; Sun, 23 Dec 2001 09:40:27 -0500
-Message-ID: <3C25ECBF.AF0E819C@Synopsys.COM>
-Date: Sun, 23 Dec 2001 15:39:59 +0100
-From: Harald Dunkel <harri@synopsys.COM>
-Reply-To: harri@synopsys.COM
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.17 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
+	id <S283782AbRLWOlJ>; Sun, 23 Dec 2001 09:41:09 -0500
+Received: from zeus.city.tvnet.hu ([195.38.100.182]:49288 "EHLO
+	zeus.city.tvnet.hu") by vger.kernel.org with ESMTP
+	id <S283938AbRLWOlA>; Sun, 23 Dec 2001 09:41:00 -0500
+Subject: via ide issue info
+From: Sipos Ferenc <sferi@dumballah.tvnet.hu>
 To: linux-kernel@vger.kernel.org
-Subject: Patch: Support for grub at installation time
-Content-Type: multipart/mixed;
- boundary="------------96D855C91D04051D742DE622"
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/1.0 (Preview Release)
+Date: 23 Dec 2001 15:44:47 +0100
+Message-Id: <1009118687.1438.14.camel@zeus.city.tvnet.hu>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------96D855C91D04051D742DE622
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Hi!
 
-Hi folks,
+Ok, here are the requested infos:
 
-Below you can find a tiny patch to add 2 new targets to the top level 
-Makefile: bzgrub and zgrub. This is a suggestion about how the Grub 
-boot loader could be supported.
+----------VIA BusMastering IDE Configuration----------------
+Driver Version:                     3.29
+South Bridge:                       VIA vt82c686a
+Revision:                           ISA 0x14 IDE 0x6
+Highest DMA rate:                   UDMA66
+BM-DMA base:                        0xffa0
+PCI clock:                          33MHz
+Master Read  Cycle IRDY:            0ws
+Master Write Cycle IRDY:            0ws
+BM IDE Status Register Read Retry:  yes
+Max DRDY Pulse Width:               No limit
+-----------------------Primary IDE-------Secondary IDE------
+Read DMA FIFO flush:          yes                 yes
+End Sector FIFO flush:         no                  no
+Prefetch Buffer:              yes                 yes
+Post Write Buffer:            yes                 yes
+Enabled:                       no                 yes
+Simplex only:                  no                  no
+Cable Type:                   40w                 40w
+-------------------drive0----drive1----drive2----drive3-----
+Transfer Mode:        PIO       PIO      UDMA      UDMA
+Address Setup:      120ns     120ns      30ns      30ns
+Cmd Active:         480ns     480ns      90ns      90ns
+Cmd Recovery:       480ns     480ns      30ns      30ns
+Data Active:        330ns     330ns      90ns      90ns
+Data Recovery:      270ns     270ns      30ns      30ns
+Cycle Time:         600ns     600ns      45ns      60ns
+Transfer Rate:    3.3MB/s   3.3MB/s  44.0MB/s  33.0MB/s
 
-It would be nice if you could consider this patch to be included in 
-one of the future kernels. I am not the kernel patch specialist, so 
-please excuse if I missed to follow a specific procedure.
+/dev/hdc:
 
+ Model=WDC WD136AA, FwRev=80.10A80, SerialNo=WD-WM6780207230
+ Config={ HardSect NotMFM HdSw>15uSec SpinMotCtl Fixed DTR>5Mbs
+FmtGapReq }
+ RawCHS=16383/16/63, TrkSize=57600, SectSize=600, ECCbytes=40
+ BuffType=DualPortCache, BuffSize=2048kB, MaxMultSect=16, MultSect=off
+ CurCHS=16383/16/63, CurSects=-66060037, LBA=yes, LBAsects=26564832
+ IORDY=on/off, tPIO={min:120,w/IORDY:120}, tDMA={min:120,rec:120}
+ PIO modes: pio0 pio1 pio2 pio3 pio4 
+ DMA modes: mdma0 mdma1 mdma2 udma0 udma1 udma2 
+ AdvancedPM=no
+ Drive Supports : Reserved : ATA-1 ATA-2 ATA-3 ATA-4 
 
-Regards
+/dev/hdd:
 
-Harri
---
-Harald Dunkel | dunkel@Synopsys.COM  |  Against stupidity the very gods
-Synopsys GmbH | Kaiserstr. 100       |  Themselves contend in vain. 
-52134 Herzogenrath, Germany          |  
-+49 2407 9558 (fax? 44: 0)           |  Schiller, The Maid of Orleans
---------------96D855C91D04051D742DE622
-Content-Type: text/plain; charset=us-ascii;
- name="grub.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="grub.patch"
+ Model=Pioneer DVD-ROM ATAPIModel DVD-104S 020, FwRev=E2.06, SerialNo=
+ Config={ Fixed Removeable DTR<=5Mbs DTR>10Mbs nonMagnetic }
+ RawCHS=0/0/0, TrkSize=0, SectSize=0, ECCbytes=0
+ BuffType=13395, BuffSize=64kB, MaxMultSect=0
+ (maybe): CurCHS=0/0/0, CurSects=0, LBA=yes, LBAsects=0
+ IORDY=on/off, tPIO={min:120,w/IORDY:120}, tDMA={min:120,rec:120}
+ PIO modes: pio0 pio1 pio2 pio3 pio4 
+ DMA modes: sdma0 sdma1 sdma2 mdma0 mdma1 mdma2 udma0 udma1 *udma2 
+ AdvancedPM=no
+ Drive Supports : Reserved : ATA-1 ATA-2 ATA-3 ATA-4 
 
-diff -cr linux.orig/Documentation/kbuild/commands.txt linux/Documentation/kbuild/commands.txt
-*** linux.orig/Documentation/kbuild/commands.txt	Fri Jul 28 21:50:51 2000
---- linux/Documentation/kbuild/commands.txt	Sun Dec 23 14:36:09 2001
-***************
-*** 24,38 ****
-  text interface, or 'make xconfig' for an X interface using TCL/TK.
-  
-  'make bzImage' will leave your new kernel image in arch/i386/boot/bzImage.
-! You can also use 'make bzdisk' or 'make bzlilo'.
-  
-! See the lilo documentation for more information on how to use lilo.
-  You can also use the 'loadlin' program to boot Linux from MS-DOS.
-  
-  Some computers won't work with 'make bzImage', either due to hardware
-  problems or very old versions of lilo or loadlin.  If your kernel image
-! is small, you may use 'make zImage', 'make zdisk', or 'make zlilo'
-! on theses systems.
-  
-  If you find a file name 'vmlinux' in the top directory of the source tree,
-  just ignore it.  This is an intermediate file and you can't boot from it.
---- 24,38 ----
-  text interface, or 'make xconfig' for an X interface using TCL/TK.
-  
-  'make bzImage' will leave your new kernel image in arch/i386/boot/bzImage.
-! You can also use 'make bzdisk', 'make bzgrub' or 'make bzlilo'.
-  
-! See the documentation for more information on how to use lilo or grub.
-  You can also use the 'loadlin' program to boot Linux from MS-DOS.
-  
-  Some computers won't work with 'make bzImage', either due to hardware
-  problems or very old versions of lilo or loadlin.  If your kernel image
-! is small, you may use 'make zImage', 'make zdisk', 'make zgrub', or 
-! 'make zlilo' on theses systems.
-  
-  If you find a file name 'vmlinux' in the top directory of the source tree,
-  just ignore it.  This is an intermediate file and you can't boot from it.
-diff -cr linux.orig/Documentation/kbuild/makefiles.txt linux/Documentation/kbuild/makefiles.txt
-*** linux.orig/Documentation/kbuild/makefiles.txt	Tue Feb 13 23:13:42 2001
---- linux/Documentation/kbuild/makefiles.txt	Sun Dec 23 14:39:49 2001
-***************
-*** 427,432 ****
---- 427,433 ----
-      bootpfile		alpha, ia64
-      bzImage		i386, m68k
-      bzdisk		i386
-+     bzgrub		i386
-      bzlilo		i386
-      compressed		i386, m68k, mips, mips64, sh
-      dasdfmt		s390
-***************
-*** 446,451 ****
---- 447,453 ----
-      zImage		arm, i386, m68k, mips, mips64, ppc, sh
-      zImage.initrd	ppc
-      zdisk		i386, mips, mips64, sh
-+     zgrub		i386
-      zinstall		arm
-      zlilo		i386
-      znetboot.initrd	ppc
-diff -cr linux.orig/arch/i386/Makefile linux/arch/i386/Makefile
-*** linux.orig/arch/i386/Makefile	Thu Apr 12 21:20:31 2001
---- linux/arch/i386/Makefile	Sun Dec 23 13:37:16 2001
-***************
-*** 111,116 ****
---- 111,117 ----
-  FORCE: ;
-  
-  .PHONY: zImage bzImage compressed zlilo bzlilo zdisk bzdisk install \
-+ 		zgrub bzgrub \
-  		clean archclean archmrproper archdep
-  
-  zImage: vmlinux
-***************
-*** 128,133 ****
---- 129,140 ----
-  	@$(MAKEBOOT) BOOTIMAGE=bzImage zlilo
-  bzlilo: vmlinux
-  	@$(MAKEBOOT) BOOTIMAGE=bzImage zlilo
-+ 
-+ zgrub: vmlinux
-+ 	@$(MAKEBOOT) BOOTIMAGE=zImage zgrub
-+ 
-+ bzgrub: vmlinux
-+ 	@$(MAKEBOOT) BOOTIMAGE=bzImage zgrub
-  
-  zdisk: vmlinux
-  	@$(MAKEBOOT) BOOTIMAGE=zImage zdisk
-diff -cr linux.orig/arch/i386/boot/Makefile linux/arch/i386/boot/Makefile
-*** linux.orig/arch/i386/boot/Makefile	Sun Aug  5 22:13:19 2001
---- linux/arch/i386/boot/Makefile	Sun Dec 23 13:48:10 2001
-***************
-*** 36,41 ****
---- 36,46 ----
-  	cp $(TOPDIR)/System.map $(INSTALL_PATH)/
-  	if [ -x /sbin/lilo ]; then /sbin/lilo; else /etc/lilo/install; fi
-  
-+ zgrub: $(CONFIGURE) $(BOOTIMAGE)
-+ 	cat $(BOOTIMAGE) > /boot/vmlinuz-$(KERNELRELEASE)
-+ 	cp $(TOPDIR)/System.map /boot/System.map-$(KERNELRELEASE)
-+ 	if [ -x /sbin/update-grub ]; then /sbin/update-grub; fi
-+ 
-  install: $(CONFIGURE) $(BOOTIMAGE)
-  	sh -x ./install.sh $(KERNELRELEASE) $(BOOTIMAGE) $(TOPDIR)/System.map "$(INSTALL_PATH)"
-  
+As I mentioned, the bios recognizes my hd as an udma4 capable device, so
+it's not a cable issue, I think, the driver won't detect properly the
+cables. By the way, it would be good to have driver parameters, that
+help setting the prefetch buffer and post write buffer on, because on
+the secondary channel, it's off by default, I'm using powertweak to
+enable them. Thx.
 
---------------96D855C91D04051D742DE622--
+Paco
+
 

@@ -1,38 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268229AbUHXTiI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268245AbUHXTjw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268229AbUHXTiI (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 Aug 2004 15:38:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268240AbUHXTiI
+	id S268245AbUHXTjw (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 Aug 2004 15:39:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268252AbUHXTjw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 Aug 2004 15:38:08 -0400
-Received: from imladris.demon.co.uk ([193.237.130.41]:16905 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id S268229AbUHXTiG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 Aug 2004 15:38:06 -0400
-Date: Tue, 24 Aug 2004 20:38:04 +0100
-From: Christoph Hellwig <hch@infradead.org>
-To: Chris Friesen <cfriesen@nortelnetworks.com>
-Cc: Linux kernel <linux-kernel@vger.kernel.org>
-Subject: Re: ppc64 cross compiler hangs in infinite loop while compiling kernel/posix-timers.c optimised
-Message-ID: <20040824203804.A32368@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Chris Friesen <cfriesen@nortelnetworks.com>,
-	Linux kernel <linux-kernel@vger.kernel.org>
-References: <412B9758.5050804@nortelnetworks.com>
+	Tue, 24 Aug 2004 15:39:52 -0400
+Received: from cantor.suse.de ([195.135.220.2]:23682 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S268245AbUHXTjm (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 24 Aug 2004 15:39:42 -0400
+Subject: Re: [PATCH][0/7] xattr consolidation and support for ramfs & tmpfs
+From: Andreas Gruenbacher <agruen@suse.de>
+To: James Morris <jmorris@redhat.com>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <Xine.LNX.4.44.0408231408030.13728-100000@thoron.boston.redhat.com>
+References: <Xine.LNX.4.44.0408231408030.13728-100000@thoron.boston.redhat.com>
+Content-Type: text/plain
+Organization: SUSE Labs
+Message-Id: <1093376475.20259.112.camel@winden.suse.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <412B9758.5050804@nortelnetworks.com>; from cfriesen@nortelnetworks.com on Tue, Aug 24, 2004 at 03:30:32PM -0400
-X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by phoenix.infradead.org
-	See http://www.infradead.org/rpr.html
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Tue, 24 Aug 2004 21:41:16 +0200
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Aug 24, 2004 at 03:30:32PM -0400, Chris Friesen wrote:
-> I'm using a crosstool-generated ppc64 cross compiler for ppc.  Specifically, its 
-> the 3.4.0 compiler.
+On Mon, 2004-08-23 at 20:14, James Morris wrote:
+> This series of patches consolidates some common xattr logic into libfs,
+> saving significant code duplication and making it easier for filesystem
+> writers to implement xattr support.
+> 
+> The ext3, ext2 and devpts filesytems are then converted to use the new
+> API, and xattr support is added to ramfs and tmpfs.
 
-Upgrade to gcc 3.4.1, this is a bug in 3.4.1 (and unfortunately not mentioned
-in the relnotes for 3.4.1)
+That's a nice improvement.
 

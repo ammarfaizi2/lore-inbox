@@ -1,50 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263512AbTC3Dot>; Sat, 29 Mar 2003 22:44:49 -0500
+	id <S263511AbTC3Doo>; Sat, 29 Mar 2003 22:44:44 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263515AbTC3Dot>; Sat, 29 Mar 2003 22:44:49 -0500
-Received: from pcow035o.blueyonder.co.uk ([195.188.53.121]:26372 "EHLO
-	blueyonder.co.uk") by vger.kernel.org with ESMTP id <S263512AbTC3Dos>;
-	Sat, 29 Mar 2003 22:44:48 -0500
-Subject: Re: 2.5 module-init-tools/mk_initrd problems
-From: Sid Boyce <sboyce@blueyonder.co.uk>
-To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-In-Reply-To: <1048970779.847.70.camel@barrabas>
-References: <1048970779.847.70.camel@barrabas>
-Content-Type: text/plain
+	id <S263512AbTC3Don>; Sat, 29 Mar 2003 22:44:43 -0500
+Received: from franka.aracnet.com ([216.99.193.44]:15323 "EHLO
+	franka.aracnet.com") by vger.kernel.org with ESMTP
+	id <S263511AbTC3Don>; Sat, 29 Mar 2003 22:44:43 -0500
+Date: Sat, 29 Mar 2003 19:55:59 -0800
+From: "Martin J. Bligh" <mbligh@aracnet.com>
+Reply-To: LKML <linux-kernel@vger.kernel.org>
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: [Bug 520] New: setkey -DP hangs system (fwd)
+Message-ID: <196990000.1048996559@[10.10.2.4]>
+X-Mailer: Mulberry/2.2.1 (Linux/x86)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 
-Date: 30 Mar 2003 03:56:06 +0000
-Message-Id: <1048996566.847.82.camel@barrabas>
-Mime-Version: 1.0
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-	OK, found the problem, the mkinitrd script was looking for modules .o
-instead of .ko, fixed script. I discovered that the RedHat source rpm
-contained a mkinitrd script for 2.4 kernels.
-Regards
-Sid.
 
-On Sat, 2003-03-29 at 20:46, Sid Boyce wrote:
-> 	On both SuSE 8.1 and Mandrake 9.1rc2, I can't get mk_initrd to find
-> modules.
-> 	I've installed module-init-tools 0.9.10 (SuSE 8.1) and 0.9.9 (Mandrake
-> 9.1rc2), mkinitrd 3.4.32 (SuSE 8.1) and 3.1.6 (Mandrake). "depmod -ae
-> 2.5.66-ac1" finds no problems. 
-> "mkinitrd --preload reiserfs --preload aic7xxx /boot/initrd-2.5.66-ac1
-> 2.5.66-ac1" returns message on both systems e.g "no module reiserfs
-> found for kernel 2.5.66-ac1".
->  strace says it's at least trying to look in the right top directory ...
-> stat64("/lib/modules/2.5.66-ac1", {st_mode=S_IFDIR|0755, st_size=288,
-> ...}) = 0
-> 	I can't see why it's not searching further down to where the module is.
-> Regards
-> Sid.
-> -- 
-> Sid Boyce ... hamradio G3VBV ... Cessna/Warrior Pilot
-> Linux only shop
--- 
-Sid Boyce ... hamradio G3VBV ... Cessna/Warrior Pilot
-Linux only shop
+http://bugme.osdl.org/show_bug.cgi?id=520
+
+           Summary: setkey -DP hangs system
+    Kernel Version: 2.5.63
+            Status: NEW
+          Severity: normal
+             Owner: acme@conectiva.com.br
+         Submitter: linux-bugs@treblig.org
+
+
+Distribution: Debian
+Hardware Environment: Dual Athlon MP on Tyan S2460, 3c905c net card
+Software Environment: Uptodate debian/sid, ipsec-tool-0.2.2
+Problem Description: System hangs (maybe oops?) on doing a setkey -DP
+
+Steps to reproduce:
+Both hangs have come when doing a
+
+setkey -DP
+
+I'm just trying to figure out the 2.5.x ipsec stuff.  Doing setkey -DP after
+setting a pair of spd's seems OK, but then I run racoon (foreground with -F and
+a few -v's) and ping a destination.  This gives an error about not being able to
+setup the sa, so I kil racoon; repeat and tweak a few times, then do the setkey
+-DP and it dies.
 

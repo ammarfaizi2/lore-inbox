@@ -1,58 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268581AbUHXXxT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268540AbUHYACN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268581AbUHXXxT (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 Aug 2004 19:53:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268540AbUHXXxS
+	id S268540AbUHYACN (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 Aug 2004 20:02:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268719AbUHYACN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 Aug 2004 19:53:18 -0400
-Received: from main.gmane.org ([80.91.224.249]:46221 "EHLO main.gmane.org")
-	by vger.kernel.org with ESMTP id S268698AbUHXXue (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 Aug 2004 19:50:34 -0400
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: fraga@abusar.org ( =?ISO-8859-1?Q?D=E2niel?= Fraga)
-Subject: Re: Linux 2.6.9-rc1
-Date: Tue, 24 Aug 2004 23:46:04 +0000 (UTC)
-Organization: http://www.turbonerd.hpg.ig.com.br
-Message-ID: <cggjvs$bv9$1@sea.gmane.org>
-References: <Pine.LNX.4.58.0408240031560.17766@ppc970.osdl.org>
-    <20040824184245.GE5414@waste.org>
-    <Pine.LNX.4.58.0408241221390.17766@ppc970.osdl.org>
-Reply-To: fraga@abusar.org
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
-X-Complaints-To: usenet@sea.gmane.org
-X-Gmane-NNTP-Posting-Host: 200-207-206-233.dsl.telesp.net.br
-X-Newsreader: knews 1.0c.0
+	Tue, 24 Aug 2004 20:02:13 -0400
+Received: from mail8.fw-bc.sony.com ([160.33.98.75]:9377 "EHLO
+	mail8.fw-bc.sony.com") by vger.kernel.org with ESMTP
+	id S268540AbUHYAAq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 24 Aug 2004 20:00:46 -0400
+Message-ID: <412BD812.9020005@am.sony.com>
+Date: Tue, 24 Aug 2004 17:06:42 -0700
+From: Tim Bird <tim.bird@am.sony.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7) Gecko/20040616
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Andrew Morton <akpm@osdl.org>
+CC: linux-kernel@vger.kernel.org
+Subject: [PATCH] advice to use good patch subject, for SubmittingPatches
+References: <20040822013402.5917b991.akpm@osdl.org>	<20040823202158.GJ4418@holomorphy.com> <20040823231454.62734afb.akpm@osdl.org>
+In-Reply-To: <20040823231454.62734afb.akpm@osdl.org>
+X-Enigmail-Version: 0.85.0.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <Pine.LNX.4.58.0408241221390.17766@ppc970.osdl.org>,
-	Linus Torvalds <torvalds@osdl.org> writes:
+Andrew Morton wrote:
+> I'd prefer it if you (and everyone else) could give a meaningful
+> English-language Subject: to patches, please.
+> 
+> A well-chosen patch Subject: becomes a sort of globally-unique key by which
+> the patch is tracked - I munge it into a patch filename and it propagates
+> all the way into bitkeeper.  It can be used for searching email folders,
+> googling, inter-developer discussion, etc, etc.
 
-> Any reason for your preference? 
+I think this is great advice that should be canonized... :-)
 
-	Linus, sorry but I can't agree with your decision.
-    
-    I'm not a developer, just an user and for me at least, there's no
-sense in supplying a patch related do 2.6.8 instead of 2.6.8.1.
+diffstat good-subject-advice.patch:
+  Documentation/SubmittingPatches |   11 ++++++++++-
 
-	I always update my kernel when the official patch is announced and
-I'd expect to follow a well defined order (2.6.8 -> 2.6.8.1 ->
-2.6.9...).
 
-	Suppose we had 2.6.8.1, 2.6.8.2, 2.6.8.3 until 2.6.8.10. Should I
-remove 10 patches just to update to 2.6.9? For me it's a waste of time.
+diff -u -X /home/tbird/dontdiff -pruN alp1.orig/Documentation/SubmittingPatches alp1/Documentation/SubmittingPatches
+--- alp1.orig/Documentation/SubmittingPatches	2004-08-14 03:54:47.000000000 -0700
++++ alp1/Documentation/SubmittingPatches	2004-08-24 16:52:32.957986032 -0700
+@@ -77,7 +80,7 @@
+  http://developer.osdl.org/rddunlap/scripts/patching-scripts.tgz
 
-	I know you kernel developers use BK or some other method, but...
+  Andrew Morton's patch scripts:
+-http://www.zip.com.au/~akpm/linux/patches/patch-scripts-0.16
++http://www.zip.com.au/~akpm/linux/patches/patch-scripts-0.18
 
-	Thanks.
+  2) Describe your changes.
 
--- 
-http://Processo.tk (1001 dias)
-http://U-br.tk
-Linux 2.6.7
-São Paulo - SP
+@@ -257,7 +260,16 @@
+  and other kernel developers more easily distinguish patches from other
+  e-mail discussions.
 
++Also, provide a useful (but short) description in the subject line:
++Andrew Morton once said:
+
++"I'd prefer it if [everyone] could give a meaningful
++English-language Subject: to patches, please.
++
++A well-chosen patch Subject: becomes a sort of globally-unique key by which
++the patch is tracked - I munge it into a patch filename and it propagates
++all the way into bitkeeper.  It can be used for searching email folders,
++googling, inter-developer discussion, etc, etc."
+
+  11) Sign your work
+
+
+=============================
+Tim Bird
+Architecture Group Co-Chair, CE Linux Forum
+Senior Staff Engineer, Sony Electronics
+E-mail: tim.bird@am.sony.com
+=============================

@@ -1,81 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268026AbUHVQzM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268028AbUHVQzm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268026AbUHVQzM (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 22 Aug 2004 12:55:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268029AbUHVQzM
+	id S268028AbUHVQzm (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 22 Aug 2004 12:55:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268029AbUHVQzm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 22 Aug 2004 12:55:12 -0400
-Received: from [213.188.213.77] ([213.188.213.77]:18079 "EHLO
-	server1.navynet.it") by vger.kernel.org with ESMTP id S268026AbUHVQzD
+	Sun, 22 Aug 2004 12:55:42 -0400
+Received: from mazurek.man.lodz.pl ([212.51.192.15]:12933 "EHLO
+	mazurek.man.lodz.pl") by vger.kernel.org with ESMTP id S268028AbUHVQzh
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 22 Aug 2004 12:55:03 -0400
-From: "Massimo Cetra" <mcetra@navynet.it>
-To: "'Nick Piggin'" <nickpiggin@yahoo.com.au>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: RE: Production comparison between 2.4.27 and 2.6.8.1
-Date: Sun, 22 Aug 2004 18:54:57 +0200
-Message-ID: <000a01c48868$c1b334e0$0600640a@guendalin>
+	Sun, 22 Aug 2004 12:55:37 -0400
+Date: Sun, 22 Aug 2004 18:55:29 +0200 (CEST)
+From: Piotr Goczal <bilbo@mazurek.man.lodz.pl>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: PROBLEM: Promise Fast Track SX6000 i2o driver.
+In-Reply-To: <1093184419.24617.5.camel@localhost.localdomain>
+Message-ID: <Pine.LNX.4.58.0408221854310.2571@mazurek.man.lodz.pl>
+References: <Pine.LNX.4.58.0408211012500.2571@mazurek.man.lodz.pl> 
+ <1093173914.24272.45.camel@localhost.localdomain> 
+ <Pine.LNX.4.58.0408221606520.2571@mazurek.man.lodz.pl>
+ <1093184419.24617.5.camel@localhost.localdomain>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook, Build 10.0.2627
-In-Reply-To: <4127F7FD.5060804@yahoo.com.au>
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1441
-Importance: Normal
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-mazurek.man.lodz.pl-MailScanner-Information: Please contact bilbo@man.lodz.pl
+X-mazurek.man.lodz.pl-MailScanner: Found to be clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Nick Piggin Wrote:
-> I wouldn't worry too much about hdparm measurements. If you 
-> want to test the streaming throughput of the disk, run dd 
-> if=big-file of=/dev/null or a large write+sync.
-> 
-> Regarding your worse non-RAID XFS database results, try 
-> booting 2.6 with elevator=deadline and test again. If yes, 
-> are you using queueing (TCQ) on your disks?
+On Sun, 22 Aug 2004, Alan Cox wrote:
 
-Done another test.
-This time I created a 256Mb ramdisk, formatted it as ext3 and mounted as
-data partition.
+> As I understand it the new firmware isn't I2O so I2O would be the wrong
+> driver anyway. If Promise own source code drivers support it then that
+> is at least as good as documentation 8). Are promise own drivers for the
+> sx6000 GPL or not ?
 
-Results are the following:
-2.6.8.1:
-A)
-real    0m0.437s
-user    0m0.036s
-sys     0m0.013s
+Fortunatelly: YES
 
-B)
-real    0m37.307s
-user    0m3.212s
-sys     0m1.287s
+[bilbo@pc-bilbo st6000src_1.34]$ more pti_st.c
+/*+M*************************************************************************
+ * Promise SuperTrak device driver for Linux.
+ *
+ * Copyright (c) 2001  Promise Technology, Inc.
+ *
+ *  This program is free software; you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation; either version 2 of the License, or
+ *  (at your option) any later version.
+ *
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program; if not, write to the Free Software
+ *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  
+USA
+ *
+ * 
+--------------------------------------------------------------------------
+ * Copyright (c) 1999-2001 Promise Technology, Inc.
+ * All rights reserved.
 
+Regards
 
-2.4.7:
-A)
-real    0m0.437s
-user    0m0.024s
-sys     0m0.010s
-
-B)
-real    0m38.180s
-user    0m2.950s
-sys     0m1.602s
-
-
-In this case results are comparable.
-What is the difference, so?
-2.6 performs better reading from disk.
-Avoiding PCI, SATA and disks on this test makes 2.4 and 2.6 perform in
-the same way.
-
-Hope this helps.
-
-Massimo Cetra
-
-
-
-
+Piotr Goczal

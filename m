@@ -1,43 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261799AbUAUEgA (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 Jan 2004 23:36:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266056AbUAUEgA
+	id S265961AbUAUE24 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 Jan 2004 23:28:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265964AbUAUE24
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 Jan 2004 23:36:00 -0500
-Received: from dp.samba.org ([66.70.73.150]:24545 "EHLO lists.samba.org")
-	by vger.kernel.org with ESMTP id S261799AbUAUEfx (ORCPT
+	Tue, 20 Jan 2004 23:28:56 -0500
+Received: from dp.samba.org ([66.70.73.150]:52704 "EHLO lists.samba.org")
+	by vger.kernel.org with ESMTP id S265961AbUAUE2y (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 Jan 2004 23:35:53 -0500
-From: Rusty Russell <rusty@rustcorp.com.au>
-To: Tim Hockin <thockin@hockin.org>
-Cc: Nick Piggin <piggin@cyberone.com.au>, vatsa@in.ibm.com,
-       lhcs-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org,
-       torvalds@osdl.org, akpm@osdl.org, rml@tech9.net
-Subject: Re: CPU Hotplug: Hotplug Script And SIGPWR 
-In-reply-to: Your message of "Mon, 19 Jan 2004 22:52:07 -0800."
-             <20040120065207.GA10993@hockin.org> 
-Date: Wed, 21 Jan 2004 10:51:11 +1100
-Message-Id: <20040121043608.571732C094@lists.samba.org>
+	Tue, 20 Jan 2004 23:28:54 -0500
+Date: Wed, 21 Jan 2004 15:27:04 +1100
+From: Anton Blanchard <anton@samba.org>
+To: linux-kernel@vger.kernel.org
+Subject: [PATCH] initialise cpu_vm_mask in init_mm
+Message-ID: <20040121042704.GB4372@krispykreme>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.5.1+cvs20040105i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In message <20040120065207.GA10993@hockin.org> you write:
-> On Tue, Jan 20, 2004 at 05:43:59PM +1100, Nick Piggin wrote:
-> > Seems less robust and more ad hoc than SIGPWR, however.
-> 
-> Disagree.  SIGPWR will kill any process that doesn't catch it.  That's
-> policy.  It seems more robust to let the hotplug script decide what to do.
-> If it wants to kill each unrunnable task with SIGPWR, it can.  But if it
-> wants to let them live, it can.
 
-The proposal was to send SIGPWR only if they don't have it set to the
-default, for this reason.
+Hi,
 
-I think that if your patch goes in, it will complement this solution
-nicely.
+Some architectures use cpu_vm_mask to optimise TLB flushes. On ppc64 we
+are now using a common flush infrastructure that handles both userspace
+and kernelspace (vmalloc) pages. In order to avoid triggering this
+optimisation we need to mark the init mm as having scheduled on all
+cpus.
 
-Thanks!
-Rusty.
---
-  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.
+Things currently work by luck (we check for the cpu only having run on
+the local cpu, and the field is initialised to 0), but it would be safer
+to initialise it CPU_MASK_ALL.
+
+Anton
+
+===== include/linux/init_task.h 1.27 vs edited =====
+--- 1.27/include/linux/init_task.h	Tue Aug 19 12:46:23 2003
++++ edited/include/linux/init_task.h	Wed Jan 21 15:04:09 2004
+@@ -40,6 +40,7 @@
+ 	.mmap_sem	= __RWSEM_INITIALIZER(name.mmap_sem),	\
+ 	.page_table_lock =  SPIN_LOCK_UNLOCKED, 		\
+ 	.mmlist		= LIST_HEAD_INIT(name.mmlist),		\
++	.cpu_vm_mask	= CPU_MASK_ALL,				\
+ 	.default_kioctx = INIT_KIOCTX(name.default_kioctx, name),	\
+ }
+ 

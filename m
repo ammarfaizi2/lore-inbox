@@ -1,35 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280012AbRJ3Qrf>; Tue, 30 Oct 2001 11:47:35 -0500
+	id <S280022AbRJ3QyP>; Tue, 30 Oct 2001 11:54:15 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280015AbRJ3Qr0>; Tue, 30 Oct 2001 11:47:26 -0500
-Received: from host154.207-175-42.redhat.com ([207.175.42.154]:7174 "EHLO
-	lacrosse.corp.redhat.com") by vger.kernel.org with ESMTP
-	id <S280012AbRJ3QrV>; Tue, 30 Oct 2001 11:47:21 -0500
-Date: Tue, 30 Oct 2001 11:47:57 -0500
-From: Benjamin LaHaise <bcrl@redhat.com>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: Rik van Riel <riel@conectiva.com.br>, Andrea Arcangeli <andrea@suse.de>,
-        "David S. Miller" <davem@redhat.com>, linux-kernel@vger.kernel.org
+	id <S280023AbRJ3QyG>; Tue, 30 Oct 2001 11:54:06 -0500
+Received: from penguin.e-mind.com ([195.223.140.120]:34828 "EHLO
+	penguin.e-mind.com") by vger.kernel.org with ESMTP
+	id <S280022AbRJ3Qxw>; Tue, 30 Oct 2001 11:53:52 -0500
+Date: Tue, 30 Oct 2001 17:54:17 +0100
+From: Andrea Arcangeli <andrea@suse.de>
+To: Giuliano Pochini <pochini@shiny.it>
+Cc: Rik van Riel <riel@conectiva.com.br>, linux-kernel@vger.kernel.org,
+        "David S. Miller" <davem@redhat.com>,
+        Linus Torvalds <torvalds@transmeta.com>,
+        Benjamin LaHaise <bcrl@redhat.com>
 Subject: Re: please revert bogus patch to vmscan.c
-Message-ID: <20011030114757.D29266@redhat.com>
-In-Reply-To: <Pine.LNX.4.33L.0110301324410.2963-100000@imladris.surriel.com> <Pine.LNX.4.33.0110300835140.8603-100000@penguin.transmeta.com>
+Message-ID: <20011030175417.K1340@athlon.random>
+In-Reply-To: <Pine.LNX.4.33L.0110301324410.2963-100000@imladris.surriel.com> <XFMail.20011030171353.pochini@shiny.it>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <Pine.LNX.4.33.0110300835140.8603-100000@penguin.transmeta.com>; from torvalds@transmeta.com on Tue, Oct 30, 2001 at 08:38:31AM -0800
+User-Agent: Mutt/1.3.12i
+In-Reply-To: <XFMail.20011030171353.pochini@shiny.it>; from pochini@shiny.it on Tue, Oct 30, 2001 at 05:13:53PM +0100
+X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
+X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Oct 30, 2001 at 08:38:31AM -0800, Linus Torvalds wrote:
-> Now, it's not true on _all_ PPC's.
+On Tue, Oct 30, 2001 at 05:13:53PM +0100, Giuliano Pochini wrote:
 > 
-> The sane PPC setups actually have a regular soft-filled TLB, and last I
-> saw that actually performed _better_ than the stupid architected hash-
-> chains. And for the broken OS's (ie AIX) that wants the hash-chains, you
-> can always make the soft-fill TLB do the stupid thing..
+> >> But of course going from page flush to the mm flush is fine from my part
+> >> too. As Linus noted a few days ago during swapout we're going to block
+> >> and reschedule all the time, so the range flush is going to be a noop in
+> > 
+> > Only on architectures where the TLB (or equivalent) is
+> > small and only capable of holding entries for one address
+> > space at a time.
+> > 
+> > It's simply not true on eg PPC.
+> 
+> #ifdef ?
 
-User Mode Linux has effectively an infinitely sized TLB.
+yes, but not for ppc, for alpha and all other archs without accessed bit
+provided in hardware (and cached in the tlb). the flush_mm proposed by
+Ben looks fine for x86 too, it's a waste only for archs without accessed
+bit.
 
-		-ben
+I think an #ifndef HAVE_NO_ACCESS_BIT_IN_TLB or something like that,
+then define that in asm-alpha/ and the other archs without accessed bit.
+
+OTOH, it probably doesn't make much difference so maybe it doesn't worth
+the effort.
+
+Andrea

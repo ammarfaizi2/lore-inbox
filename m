@@ -1,86 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268040AbTAIX0o>; Thu, 9 Jan 2003 18:26:44 -0500
+	id <S268050AbTAIXan>; Thu, 9 Jan 2003 18:30:43 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268067AbTAIX0o>; Thu, 9 Jan 2003 18:26:44 -0500
-Received: from [198.92.195.114] ([198.92.195.114]:22791 "EHLO meetpoint.home")
-	by vger.kernel.org with ESMTP id <S268040AbTAIX0m>;
-	Thu, 9 Jan 2003 18:26:42 -0500
-Date: Thu, 9 Jan 2003 18:35:30 -0500 (EST)
-From: Ken Ryan <newsryan@leesburg-geeks.org>
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Hardware IP [was: Re: Why is Nvidia given GPL'd code ...]
-Message-ID: <Pine.LNX.4.21.0301091805420.4923-100000@meetpoint.home>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S268049AbTAIXan>; Thu, 9 Jan 2003 18:30:43 -0500
+Received: from bitmover.com ([192.132.92.2]:19358 "EHLO mail.bitmover.com")
+	by vger.kernel.org with ESMTP id <S268050AbTAIXam>;
+	Thu, 9 Jan 2003 18:30:42 -0500
+Date: Thu, 9 Jan 2003 15:39:23 -0800
+From: Larry McVoy <lm@bitmover.com>
+To: Richard Stallman <rms@gnu.org>
+Cc: "Vlad@Vlad.geekizoid.com" <vlad@vlad.geekizoid.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: Nvidia and its choice to read the GPL "differently"
+Message-ID: <20030109233923.GI15590@work.bitmover.com>
+Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
+	Richard Stallman <rms@gnu.org>,
+	"Vlad@Vlad.geekizoid.com" <vlad@vlad.geekizoid.com>,
+	linux-kernel@vger.kernel.org
+References: <010101c2b786$794d87a0$0200a8c0@wsl3> <E18WlsS-0000Xp-00@fencepost.gnu.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <E18WlsS-0000Xp-00@fencepost.gnu.org>
+User-Agent: Mutt/1.4i
+X-MailScanner: Found to be clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, Jan 09, 2003 at 06:14:20PM -0500, Richard Stallman wrote:
+> GNU, the system we were developing, was most of the early GNU/Linux
+> system in 1992.  GNU in 1992 included non-GNU packages such as X11,
+> and TeX.
 
-Helge Hafting (helgehaf@aitel.hist.no) wrote:
->Perhaps their driver contains some IP. But I seriously doubt the
->programming specs for their chips contains such secrets. It is
->not as if we need the entire chip layout - it is basically
->things like:
->
->"To achieve effect X, write command code 0x3477 into register 5
->and the new coordinates into registers 75-78. Then wait 2.03ms before
->attempting to access the chip again..."
->
->Something is very wrong if they _can't_ release that sort of
->information.
->Several other manufacturers have no problem with this. 
+Wow.  That might be one for the quotes file:
 
-Note I have absolutely no knowledge of the internals of NVidia chips,
-though I have had exposure to others (and designed two).
+    "GNU ... was of the early GNU/Linux system.  GNU ... included non-GNU"
 
-First, there is lots of closed IP blocks available for ASICs.  Things
-like PCI interfaces, memory controllers, embedded processors, etc.
-Generally they have very strict NDAs.  Generally it is possible to design
-a clean-room equivalent to substitute for something licensed, but with the
-pace of development required to stay competitive in the graphics business
-it's unlikely NVidia can spare the dozens of engineers necessary to design
-and validate an IP block just so they can opensource drivers.  They might
-save some royalties, but with royalties spread over a bazillion shipped
-chips it's unlikely to be significant.
+Well, that certainly explains a lot.  If you define GNU as "anything
+which might be found on a Linux distro including non-GNU packages",
+your position starts to make a certain twisted sense.  Only one problem
+with that: if it wasn't GNU, it wasn't GNU, which means, Richard, you
+are crackin' smoke and may need a vacation.  19 years of hard effort is 
+a long time, have you considered retirement?  You've certainly earned it.
 
-Second, a device like a GPU is extremely complex. Write-wait-write
-works fine for a printer port, but a GPU amounts to an entire 
-processing subsystem in its own right, with all that implies (see
-SMP, distributed processing, etc. and all the joy associated with those).
-Especially modern high-performance GPUs which have on-chip resources for
-coordinate transforms and programmable shaders, the complexity far exceeds
-that of the entire rest of the computer.
-
-Third, even if it weren't for IP licensing, the programming information
-for a chip can be very sensitive.
-
-For example: one aspect of a GPU which is extremely sensitive to any 
-graphics vendor is framebuffer architecture.  How are the color components
-stored, how is data read for texture mapping vs. video vs. Z buffer, 
-how does it make effective use of DRAM devices (which have extremely
-different behavior when accessed linearly vs. randomly), how is data
-cached, how is arbitration done among multiple accesses, the list goes on.
-It is nearly impossible to write a high performance OpenGL driver without
-knowing at least some of that information, and these architecture choices 
-can make or break the performance of a GPU.  So to me it's entirely
-understandable that NVidia doesn't want anyone to know how they do
-it.  [Note that for console stuff or basic graphics all GPUs I've heard 
-of can be put into a VGA compatibility mode which may or may not have some
-degree of accelleration].
-
-To some extent these details can be buried; I imagine this is how ATI
-can consider releasing open-source drivers for their chips (I have no
-knowledge of ATI chips either).  The notion that their closed-source
-drivers will be higher performance tells me that the real juicy stuff
-is still being kept under wraps.  Perhaps that same strategy isn't
-possible with NVidia's architecture.  Or perhaps ATI  simply figures they
-can release driver source but not chip information itself, and assume by
-the time a competitor can puzzle out their code they'll be selling the
-next generation parts!
-
-Just my 2-cent attempt to add some information into the flamewar...
-
-		Ken Ryan
-
-
+Oh, by the way, have you updated the GNU kernel pages to reflect the new
+proper name: Linux/Hurd?  I'd really appreciate it if you could get to that.
+-- 
+---
+Larry McVoy            	 lm at bitmover.com           http://www.bitmover.com/lm 

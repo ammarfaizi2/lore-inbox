@@ -1,40 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266281AbUHMR0r@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266263AbUHMR3i@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266281AbUHMR0r (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 13 Aug 2004 13:26:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266284AbUHMR0q
+	id S266263AbUHMR3i (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 13 Aug 2004 13:29:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266284AbUHMR3g
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 13 Aug 2004 13:26:46 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:47809 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S266281AbUHMR0M (ORCPT
+	Fri, 13 Aug 2004 13:29:36 -0400
+Received: from omx3-ext.SGI.COM ([192.48.171.20]:61662 "EHLO omx3.sgi.com")
+	by vger.kernel.org with ESMTP id S266263AbUHMR1l (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 13 Aug 2004 13:26:12 -0400
-Date: Fri, 13 Aug 2004 19:26:05 +0200
-From: Jens Axboe <axboe@suse.de>
-To: Stefan Meyknecht <sm0407@nurfuerspam.de>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] cdrom: MO-drive open write fix (trivial)
-Message-ID: <20040813172605.GA9673@suse.de>
-References: <200408061833.30751.sm0407@nurfuerspam.de> <200408071412.17411.sm0407@nurfuerspam.de> <20040809063323.GB10418@suse.de> <200408131917.48833.sm0407@nurfuerspam.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Fri, 13 Aug 2004 13:27:41 -0400
+From: Jesse Barnes <jbarnes@engr.sgi.com>
+To: akpm@osdl.org, linux-kernel@vger.kernel.org
+Subject: [PATCH] don't print per-cpu delay loop calibration
+Date: Fri, 13 Aug 2004 10:27:22 -0700
+User-Agent: KMail/1.6.2
+Cc: Greg Edwards <edwardsg@sgi.com>
+MIME-Version: 1.0
 Content-Disposition: inline
-In-Reply-To: <200408131917.48833.sm0407@nurfuerspam.de>
+Content-Type: Multipart/Mixed;
+  boundary="Boundary-00=_6nPHBEoHBXAz6kf"
+Message-Id: <200408131027.22720.jbarnes@engr.sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Aug 13 2004, Stefan Meyknecht wrote:
-> Hi,
-> 
-> Jens Axboe <axboe@suse.de> wrote:
-> > Patch looks fine (last hunk is a little code, but that's not your
-> > fault). Thanks!
-> 
-> Do you consider including the patch into 2.6.8 or is it too late? 
-> Please mail me if something is missing or to resend.
 
-IMHO it's fine for 2.6.8, please resend the patch and CC Linus.
+--Boundary-00=_6nPHBEoHBXAz6kf
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 
--- 
-Jens Axboe
+People are mainly concerned with showing off their total bogomips, not per-cpu 
+bogomips, so turn it into a KERN_DEBUG message for the benefit of systems 
+with lots of CPUs.
 
+Signed-off-by: Jesse Barnes <jbarnes@sgi.com>
+
+Thanks,
+Jesse
+
+--Boundary-00=_6nPHBEoHBXAz6kf
+Content-Type: text/plain;
+  charset="us-ascii";
+  name="quiet-calibrating-delay-loop.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment;
+	filename="quiet-calibrating-delay-loop.patch"
+
+===== init/main.c 1.149 vs edited =====
+--- 1.149/init/main.c	2004-06-27 00:19:38 -07:00
++++ edited/init/main.c	2004-08-13 09:53:37 -07:00
+@@ -196,7 +196,7 @@
+ 
+ 	loops_per_jiffy = (1<<12);
+ 
+-	printk("Calibrating delay loop... ");
++	printk(KERN_DEBUG "Calibrating delay loop... ");
+ 	while ((loops_per_jiffy <<= 1) != 0) {
+ 		/* wait for "start of" clock tick */
+ 		ticks = jiffies;
+
+--Boundary-00=_6nPHBEoHBXAz6kf--

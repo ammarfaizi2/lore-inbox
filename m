@@ -1,36 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269812AbTGKHHW (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 11 Jul 2003 03:07:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269813AbTGKHHW
+	id S266619AbTGKHs4 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 11 Jul 2003 03:48:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269813AbTGKHs4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 11 Jul 2003 03:07:22 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:18642 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S269812AbTGKHGj (ORCPT
+	Fri, 11 Jul 2003 03:48:56 -0400
+Received: from ns.virtualhost.dk ([195.184.98.160]:34523 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S266619AbTGKHsz (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 11 Jul 2003 03:06:39 -0400
-Date: Fri, 11 Jul 2003 09:20:28 +0200
+	Fri, 11 Jul 2003 03:48:55 -0400
+Date: Fri, 11 Jul 2003 10:03:35 +0200
 From: Jens Axboe <axboe@suse.de>
-To: "Miller, Mike (OS Dev)" <mike.miller@hp.com>
-Cc: marcelo@conectiva.com.br, alan@lxorguk.ukuu.org.uk,
-       linux-kernel@vger.kernel.org
-Subject: Re: cciss updates for 2.4.22-pre3  [1 of 6]
-Message-ID: <20030711072028.GB843@suse.de>
-References: <D4CFB69C345C394284E4B78B876C1CF104052A5D@cceexc23.americas.cpqcorp.net>
+To: Ivan Gyurdiev <ivg2@cornell.edu>
+Cc: LKML <linux-kernel@vger.kernel.org>
+Subject: Re: 2.5.75 does not boot - TCQ oops
+Message-ID: <20030711080335.GD843@suse.de>
+References: <200307102251.42787.ivg2@cornell.edu>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <D4CFB69C345C394284E4B78B876C1CF104052A5D@cceexc23.americas.cpqcorp.net>
+In-Reply-To: <200307102251.42787.ivg2@cornell.edu>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jul 10 2003, Miller, Mike (OS Dev) wrote:
-> These patches can be installed in any order EXCEPT the final 2 of the
-> 6. They are name p1* & p2* respectively.
+On Thu, Jul 10 2003, Ivan Gyurdiev wrote:
+> See, 
+> 
+> http://www.ussg.iu.edu/hypermail/linux/kernel/0307.0/0515.html
+> 
+> where the bug is described for 2.5.74.
+> I got no replies, and the bug persists in 2.5.75 (+bk patches).
+> 
+> Note:
+> The machine boots with TASKFILE on, TCQ is causing the problem.
 
-Mike, the 6 patches all look fine to me. However, your mailer has
-screwed them up. There are random line breaks in there. For (partly, at
-least) broken mailers, attachments are sometimes more reliable.
+Looks like IDE using the queue before it has been setup, probably Bart
+broke it when he moved the TCQ init around. I'll take a look.
 
 -- 
 Jens Axboe

@@ -1,72 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316820AbSGQWm0>; Wed, 17 Jul 2002 18:42:26 -0400
+	id <S316798AbSGQWk5>; Wed, 17 Jul 2002 18:40:57 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316821AbSGQWm0>; Wed, 17 Jul 2002 18:42:26 -0400
-Received: from smtpzilla2.xs4all.nl ([194.109.127.138]:61200 "EHLO
-	smtpzilla2.xs4all.nl") by vger.kernel.org with ESMTP
-	id <S316820AbSGQWmX>; Wed, 17 Jul 2002 18:42:23 -0400
-Date: Thu, 18 Jul 2002 00:45:20 +0200 (CEST)
-From: Roman Zippel <zippel@linux-m68k.org>
-X-X-Sender: roman@serv
-To: Daniel Phillips <phillips@arcor.de>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: [RFC] new module format
-In-Reply-To: <E17UvVM-0004Pp-00@starship>
-Message-ID: <Pine.LNX.4.44.0207172338150.8911-100000@serv>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S316803AbSGQWk5>; Wed, 17 Jul 2002 18:40:57 -0400
+Received: from pintail.mail.pas.earthlink.net ([207.217.120.122]:46261 "EHLO
+	pintail.mail.pas.earthlink.net") by vger.kernel.org with ESMTP
+	id <S316798AbSGQWk4>; Wed, 17 Jul 2002 18:40:56 -0400
+Date: Wed, 17 Jul 2002 14:42:30 -0400
+To: lse-tech@lists.sourceforge.net
+Cc: linux-kernel@vger.kernel.org
+Subject: cpu affinity and lmbench - ac and mjc
+Message-ID: <20020717184230.GA11256@rushmore>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4i
+From: rwhron@earthlink.net
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+LMbench shows some differences several local 
+communication, local bandwidth, and context switch 
+metrics between 2.4.19-pre10-ac2 and 2.4.19-pre10-mjc1.
 
-On Wed, 17 Jul 2002, Daniel Phillips wrote:
+The latency/bandwidth differences are similar to
+2.4.19-pre10aa2 and 2.4.19-jam2, but bigger.  
 
-> > The start/stop methods are not needed to fix the races, they allow better
-> > control of the unload process.
->
-> I'm afraid it must show that I didn't read the previous threads closely
-> enough, but what is the specific benefit supposed to be, if not to address
-> the races?
+In trying to isolate the differences in the aa/jam
+series, it appeared the irqrate/irqbalance in jam2
+was the differentiating factor.  
 
-The basic idea is to allow modules to let the unload fail. The unload
-process would basically look like this:
+mjc1 and ac2 are similar to jam/aa. mjc1 is a patchset
+to ac2.  mjc1 doesn't include irqrate/irqbalance though.
 
-	unregister all interfaces;
-	if (no users)
-		free all resources;
+I ran ac2 with 1 cpu enabled on a quad xeon to get a
+better idea of how processor affinity affects lmbench.
 
-These two phases have to be done anyway, making it explicit in the module
-interface gives more control to the user, e.g. you can disallow the
-mounting of a new fs, while others are still mounted.
+Analysis of mjc1, ac2, and ac2 with 1 cpu is here:
 
-> > For filesystems it's only simpler because they only have a single entry
-> > point, but the basic problem is always the same.
->
-> What do you mean by single entry point?  Mount?  Register_filesystem?
+http://home.earthlink.net/~rwhron/kernel/lmbench_affinity.html
 
-I meant the first entry point into the module code that needs to be
-protected (e.g. get_sb during mount).
+comments, suggestions welcome.
 
-> So, I'm still hoping to hear a substantive reason why the filesystem model
-> can't be applied in general to all forms of modular code.
-
-It's possible to use the filesystem model, but it's unnecessary complex
-and inflexible. It should be possible to keep try_inc_mod_count() out of
-the hot paths, but you have to call it e.g. at every single open().
-Another problem is that the more interfaces a module has (e.g. proc), the
-harder it becomes to unload a module (or the easier it becomes to prevent
-the unloading of a module).
-
->  To remind you
-> of the issue: the proposition is that the subsystem in the module is
-> always capable of knowing when the module is quiescent, because it does
-> whatever is necessary to keep track of the users and what they're doing.
-
-The problem is that the module can't do anything with that information, at
-the time cleanup_module() is called it's already to late. That information
-has currently to be managed completely outside of the module.
-
-bye, Roman
+-- 
+Randy Hron
+http://home.earthlink.net/~rwhron/kernel/bigbox.html
 

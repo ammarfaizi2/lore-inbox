@@ -1,52 +1,70 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262506AbUDAFnD (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 Apr 2004 00:43:03 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262514AbUDAFnD
+	id S262504AbUDAFuY (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 Apr 2004 00:50:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262514AbUDAFuX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 Apr 2004 00:43:03 -0500
-Received: from out004pub.verizon.net ([206.46.170.142]:57219 "EHLO
-	out004.verizon.net") by vger.kernel.org with ESMTP id S262506AbUDAFm7
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 Apr 2004 00:42:59 -0500
-Date: Wed, 31 Mar 2004 21:36:58 -0800
-From: "Randy.Dunlap" <randy.dunlap@verizon.net>
-To: arnd@arndb.de
-Cc: lkml <linux-kernel@vger.kernel.org>
-Subject: Re: CDFS
-Message-Id: <20040331213658.692871e4.randy.dunlap@verizon.net>
-In-Reply-To: <20040331112520.58e9056c.rddunlap@osdl.org>
-References: <20040331112520.58e9056c.rddunlap@osdl.org>
-Organization: YPO4
+	Thu, 1 Apr 2004 00:50:23 -0500
+Received: from fw.osdl.org ([65.172.181.6]:28610 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S262504AbUDAFuU (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 1 Apr 2004 00:50:20 -0500
+Date: Wed, 31 Mar 2004 21:44:17 -0800
+From: "Randy.Dunlap" <rddunlap@osdl.org>
+To: Andrew Morton <akpm@osdl.org>
+Cc: yusufg@outblaze.com, linux-kernel@vger.kernel.org
+Subject: Re: Strange output from exportfs in 2.6.5-rc3-mm1
+Message-Id: <20040331214417.41ea2635.rddunlap@osdl.org>
+In-Reply-To: <20040331213902.147036f3.akpm@osdl.org>
+References: <20040331030439.GA23306@outblaze.com>
+	<20040331144031.360c2c3f.rddunlap@osdl.org>
+	<20040331213902.147036f3.akpm@osdl.org>
+Organization: OSDL
 X-Mailer: Sylpheed version 0.9.8a (GTK+ 1.2.10; i686-pc-linux-gnu)
-X-Face: +5V?h'hZQPB9<D&+Y;ig/:L-F$8p'$7h4BBmK}zo}[{h,eqHI1X}]1UhhR{49GL33z6Oo!`
- !Ys@HV,^(Xp,BToM.;N_W%gT|&/I#H@Z:ISaK9NqH%&|AO|9i/nB@vD:Km&=R2_?O<_V^7?St>kW
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-X-Authentication-Info: Submitted using SMTP AUTH at out004.verizon.net from [4.5.45.142] at Wed, 31 Mar 2004 23:42:57 -0600
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-| Date: Fri, 19 Mar 2004 17:45:37 +0100
-| From: Arnd Bergmann
-| 
-| 
-| On Fri, 19 Mar 2004, Randy.Dunlap wrote:
-| 
-| > <plug>
-| > Some other Linux fs-es:
-| >   http://www.xenotime.net/linux/linux-fs.html
-| 
-| <plug mode="another">
-| Nice list, maybe you can also add xip2fs (http://linuxvm.org/Patches/).
-| </plug>
-| 
-| > </plug>
+On Wed, 31 Mar 2004 21:39:02 -0800 Andrew Morton <akpm@osdl.org> wrote:
 
-OK, updated.
+| "Randy.Dunlap" <rddunlap@osdl.org> wrote:
+| >
+| > On Wed, 31 Mar 2004 11:04:39 +0800 Yusuf Goolamabbas wrote:
+| > 
+| >  | In 2.6.5-rc3-mm1, I saw the following via dmesg
+| >  | 
+| >  | exportfs: no version for "init_module" found: kernel tainted.
+| >  | 
+| >  | I am exporting a few filesystems via NFS but this is the first 2.6.x
+| >  | kernel in which I have seen the above message
+| >  | Output of lsmod
+| >  | 
+| >  | nfsd                   94344  - 
+| >  | exportfs                5440  - 
+| >  | lockd                  59912  - 
+| >  | sunrpc                134312  - 
+| >  | e100                   28196  - 
+| >  | ext3                  116104  - 
+| >  | jbd                    55416  - 
+| >  | aic7xxx               164588  - 
+| >  | sd_mod                 17696  - 
+| >  | scsi_mod              109200  - 
+| > 
+| >  I can't reproduce that with 2.6.5-rc3-mm3 (but there are no
+| >  changes to exportfs in -mm3).
+| 
+| You probably didn't have modversions enabled?
 
-Thanks,
+Not the first time; I did the second time, but when I booted,
+it rebooted for me during early init (repeatable).  :(
+(P4 2-proc)  Then I went home.  I can look into this more
+tomorrow... or is this a known issue?
+
+| Rusty sent me this:
+
+OK.
 
 --
 ~Randy

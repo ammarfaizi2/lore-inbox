@@ -1,38 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265785AbUF2Ppx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265787AbUF2Psm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265785AbUF2Ppx (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 29 Jun 2004 11:45:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265787AbUF2Ppx
+	id S265787AbUF2Psm (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 29 Jun 2004 11:48:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265789AbUF2Psm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 29 Jun 2004 11:45:53 -0400
-Received: from outpost.ds9a.nl ([213.244.168.210]:1937 "EHLO outpost.ds9a.nl")
-	by vger.kernel.org with ESMTP id S265785AbUF2Ppx (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 29 Jun 2004 11:45:53 -0400
-Date: Tue, 29 Jun 2004 17:45:51 +0200
-From: bert hubert <ahu@ds9a.nl>
-To: Debi Janos <debi.janos@freemail.hu>
+	Tue, 29 Jun 2004 11:48:42 -0400
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:51724 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S265787AbUF2Psl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 29 Jun 2004 11:48:41 -0400
+Date: Tue, 29 Jun 2004 16:48:32 +0100
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: Andrey Ulanov <Andrey.Ulanov@acronis.com>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.7-mm1 - 2.6.7-mm4 weird http behavior
-Message-ID: <20040629154551.GA6181@outpost.ds9a.nl>
-Mail-Followup-To: bert hubert <ahu@ds9a.nl>,
-	Debi Janos <debi.janos@freemail.hu>, linux-kernel@vger.kernel.org
-References: <freemail.20040529152006.85505@fm4.freemail.hu>
+Subject: Re: [PATCH] PCMCIA bug fix
+Message-ID: <20040629164832.C24951@flint.arm.linux.org.uk>
+Mail-Followup-To: Andrey Ulanov <Andrey.Ulanov@acronis.com>,
+	linux-kernel@vger.kernel.org
+References: <20040629153809.GA6531@dhcp6-7.acronis.ru>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <freemail.20040529152006.85505@fm4.freemail.hu>
-User-Agent: Mutt/1.3.28i
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20040629153809.GA6531@dhcp6-7.acronis.ru>; from Andrey.Ulanov@acronis.com on Tue, Jun 29, 2004 at 07:38:09PM +0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jun 29, 2004 at 03:20:06PM +0200, Debi Janos wrote:
-> I am found an interesting (bug?) feature in kernels between
-> 2.6.7-mm1 and 2.6.7-mm4
+On Tue, Jun 29, 2004 at 07:38:09PM +0400, Andrey Ulanov wrote:
+> I tested with one of ieee1394+usb2.0 PCMCIA adapters. Worked fine.
+> Without this patch only first device (ieee1394 controller) was
+> detected.
 
-Without further looking at it, try checking if ECN is turned on.
-/proc/sys/net/ipv4/tcp_ecn if memory serves me well.
+Can you provide the lspci output, and a better description of the
+problem you're trying to solve please?
 
 -- 
-http://www.PowerDNS.com      Open source, database driven DNS Software 
-http://lartc.org           Linux Advanced Routing & Traffic Control HOWTO
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:  2.6 PCMCIA      - http://pcmcia.arm.linux.org.uk/
+                 2.6 Serial core

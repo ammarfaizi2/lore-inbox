@@ -1,93 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261727AbUBVTqN (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 22 Feb 2004 14:46:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261733AbUBVTqN
+	id S261734AbUBVTsA (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 22 Feb 2004 14:48:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261735AbUBVTsA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 22 Feb 2004 14:46:13 -0500
-Received: from vana.vc.cvut.cz ([147.32.240.58]:55052 "EHLO vana.vc.cvut.cz")
-	by vger.kernel.org with ESMTP id S261727AbUBVTqI (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 22 Feb 2004 14:46:08 -0500
-Date: Sun, 22 Feb 2004 20:46:02 +0100
-From: Petr Vandrovec <vandrove@vc.cvut.cz>
-To: "Martin J. Bligh" <mbligh@aracnet.com>
-Cc: Steve Kieu <haiquy@yahoo.com>, kernel <linux-kernel@vger.kernel.org>,
-       Paul Larson <plars@linuxtestproject.org>
-Subject: Re: 2.6.3-mjb1  vmware modules compile error..
-Message-ID: <20040222194602.GC28697@vana.vc.cvut.cz>
-References: <20040222011344.GB7483@vana.vc.cvut.cz> <20040222034938.1016.qmail@web10407.mail.yahoo.com> <20040222042853.GD7483@vana.vc.cvut.cz> <35790000.1077464951@[10.10.2.4]>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Sun, 22 Feb 2004 14:48:00 -0500
+Received: from mion.elka.pw.edu.pl ([194.29.160.35]:35475 "EHLO
+	mion.elka.pw.edu.pl") by vger.kernel.org with ESMTP id S261734AbUBVTr5
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 22 Feb 2004 14:47:57 -0500
+From: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
+To: Sam Ravnborg <sam@ravnborg.org>, Pavel Machek <pavel@ucw.cz>
+Subject: Re: [1/3] kgdb-lite for 2.6.3
+Date: Sun, 22 Feb 2004 20:54:25 +0100
+User-Agent: KMail/1.5.3
+Cc: Andrew Morton <akpm@zip.com.au>,
+       kernel list <linux-kernel@vger.kernel.org>,
+       "Amit S. Kale" <akale@users.sourceforge.net>
+References: <20040222160417.GA9535@elf.ucw.cz> <20040222202211.GA2063@mars.ravnborg.org>
+In-Reply-To: <20040222202211.GA2063@mars.ravnborg.org>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <35790000.1077464951@[10.10.2.4]>
-User-Agent: Mutt/1.5.5.1+cvs20040105i
+Message-Id: <200402222054.25332.bzolnier@elka.pw.edu.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Feb 22, 2004 at 07:49:12AM -0800, Martin J. Bligh wrote:
-> >> bash-2.05b# make      
-> >> Unable to find VMware installation database. Using
-> >> 'vmware'.
-> >> Building for VMware Workstation 3.2.0.
-> >> Using 2.6.x kernel build system.
-> >> make -C /lib/modules/2.6.1-mm4/build/include/..
-> >> SUBDIRS=$PWD SRCROOT=$PWD/. modu
-> >> les
-> >> make[1]: Entering directory `/vol/hdb5/linux'
-> >> *** Warning: Overriding SUBDIRS on the command line
-> >> can cause
-> >> ***          inconsistencies
-> >> make[2]: `arch/i386/kernel/asm-offsets.s' is up to
-> >> date.
-> >>   CHK     include/asm-i386/asm_offsets.h
-> >>   CC [M]  /root/vmmon-6/linux/driver.o
-> >> driver.c:7:27: driver-config.h: No such file or
-> >> directory
-> > 
-> >> I just extract the vmmon.tar from the vmware-any---
-> >> package and run make in the source dir. It works with
-> >> all vanila kernels and mm tree, but not with mjb1.
-> > 
-> > WTF? It prepends $(TOPDIR)/ to all include paths. I have
-> > no idea what is this supposed to do, but I can guarantee
-> > that I'm not going to support that kernel.
-> > 				Petr Vandrovec
-> > 
-> 
-> Sigh. That's gcov. Paul, any idea why it's doing that?
-
-Maybe doing:
-
-new1_c_flags = $(patsubst -I$(TOPDIR)//%,-I/%,$(c_flags:-I%=-I$(TOPDIR)/%))
-
-would fix a problem.
-							Petr Vandrovec
-
-> 
-> M.
-> 
-> 
-> > diff -purN -X /home/mbligh/.diff.exclude 000-virgin/scripts/Makefile.build 790-irq_vector/scripts/Makefile.build
-> > --- 000-virgin/scripts/Makefile.build   2003-10-14 15:50:40.000000000 -0700
-> > +++ 790-irq_vector/scripts/Makefile.build       2004-02-18 16:23:03.000000000 -0800
-> > @@ -128,7 +128,16 @@ cmd_cc_i_c       = $(CPP) $(c_flags)   -
-> >  quiet_cmd_cc_o_c = CC $(quiet_modtag)  $@
-> > 
-> >  ifndef CONFIG_MODVERSIONS
-> > -cmd_cc_o_c = $(CC) $(c_flags) -c -o $@ $<
-> > +new1_c_flags = $(c_flags:-I%=-I$(TOPDIR)/%)
-> > +new2_c_flags = $(new1_c_flags:-Wp%=)
-> > +PWD = $(TOPDIR)
+On Sunday 22 of February 2004 21:22, Sam Ravnborg wrote:
+> Just some random comments after browsing the code.
+>
+> 	Sam
+>
 > > +
-> > +quiet_cmd_cc_o_c = CC $(quiet_modtag)  $@
-> > +cmd_cc_o_c = $(CC) $(c_flags) -E -o $@ $< \
-> > +               && cd $(dir $<) \
-> > +               && $(CC) $(new2_c_flags) -c -o $(notdir $@) $(notdir $<) \
-> > +               && cd $(TOPDIR)
-> > +#cmd_cc_o_c = $(CC) $(c_flags) -c -o $@ $<
-> > 
-> >  else
-> >  # When module versioning is enabled the following steps are executed:
-> 
-> 
+> > +int kgdb_hexToLong(char **ptr, long *longValue);
+>
+> A patch has been posted by Tom Rini to convert this to the
+> linux naming: kgdb_hex2long(...).
+>
+> +static const char hexchars[] = "0123456789abcdef";
+> Grepping after 0123456789 in the src tree gives a lot of hits.
+> Maybe we should pull in some functionality from klibc, and place it in lib/
+> at some point in time.
+
+It is already there, in lib/vsprintf.c: simple_strtoul() and simple_strtol().
+
+--bart
+

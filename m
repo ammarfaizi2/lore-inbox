@@ -1,44 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278630AbRKAJpW>; Thu, 1 Nov 2001 04:45:22 -0500
+	id <S278633AbRKAJpC>; Thu, 1 Nov 2001 04:45:02 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278632AbRKAJpC>; Thu, 1 Nov 2001 04:45:02 -0500
-Received: from zeus.kernel.org ([204.152.189.113]:28299 "EHLO zeus.kernel.org")
-	by vger.kernel.org with ESMTP id <S278630AbRKAJoz>;
-	Thu, 1 Nov 2001 04:44:55 -0500
-Content-Type: text/plain;
-  charset="iso-8859-1"
-From: Hasch@t-online.de (Juergen Hasch)
-To: linux-kernel@vger.kernel.org,
-        Thomas =?iso-8859-1?q?Lang=E5s?= <tlan@stud.ntnu.no>
-Subject: Re: Intel EEPro 100 with kernel drivers
-Date: Thu, 1 Nov 2001 10:43:36 +0100
-X-Mailer: KMail [version 1.3]
-Cc: linux-kernel@vger.kernel.org, J Sloan <jjs@pobox.com>
-In-Reply-To: <20011029021339.B23985@stud.ntnu.no> <15zDX1-1svMLQC@fwd03.sul.t-online.com> <20011101100637.B20259@stud.ntnu.no>
-In-Reply-To: <20011101100637.B20259@stud.ntnu.no>
+	id <S278632AbRKAJox>; Thu, 1 Nov 2001 04:44:53 -0500
+Received: from nydalah028.sn.umu.se ([130.239.118.227]:65159 "EHLO
+	x-files.giron.wox.org") by vger.kernel.org with ESMTP
+	id <S278630AbRKAJom>; Thu, 1 Nov 2001 04:44:42 -0500
+Message-ID: <014501c162ba$05d57980$0201a8c0@HOMER>
+From: "Martin Eriksson" <nitrax@giron.wox.org>
+To: "Tim Hockin" <thockin@sun.com>
+Cc: "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.21.0110290333300.12058-200000@athy.aslab.com> <3BE07523.5A540AE@sun.com>
+Subject: Re: [PATCH] IDE: hpt366.c and serverworks.c 
+Date: Thu, 1 Nov 2001 10:46:03 +0100
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Message-ID: <15zENy-0f1aOOC@fwd03.sul.t-online.com>
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2600.0000
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Am Donnerstag, 1. November 2001 10:06 schrieb Thomas Langås:
-> Juergen Hasch:
->
-> I'm testing now, however, running eepro100-diag gave me some interessting
-> output:
->
-> Sleep mode is enabled.  This is not recommended. Under high load the card
-> may not respond to PCI requests, and thus cause a master abort.
->
-> How do I disable sleepmode? I've never even enabled it.
+Does the hpt366 driver work in 2.4.13 ? In that case, might you diff it
+against a clean 2.4.13 kernel?
 
-The sleep bit is sometimes enabled by default (it was for me).
-You can clear it with eepro100-diag (I think it was the -Gww option).
+----- Original Message -----
+From: "Tim Hockin" <thockin@sun.com>
+To: <andre@aslab.com>
+Cc: "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>
+Sent: Wednesday, October 31, 2001 11:03 PM
+Subject: [PATCH] IDE: hpt366.c and serverworks.c
 
-The documentation for eepro100-diag is somehow sparse, but
-clearing the sleep bit was discussed on the eepro100 mailing list at 
-scyld.com in great detail. You might want to browse the archives there.
 
-...Juergen
+> Andre,
+> Attached you'll find the patch to hpt366.c (against your base you sent me)
+> and serverworks.c.  Both of these have been in use for some time.
+
+

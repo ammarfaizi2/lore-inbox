@@ -1,46 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318360AbSG3R2h>; Tue, 30 Jul 2002 13:28:37 -0400
+	id <S318359AbSG3RXx>; Tue, 30 Jul 2002 13:23:53 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318365AbSG3R2h>; Tue, 30 Jul 2002 13:28:37 -0400
-Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:33293 "EHLO
-	gatekeeper.tmr.com") by vger.kernel.org with ESMTP
-	id <S318360AbSG3R2g>; Tue, 30 Jul 2002 13:28:36 -0400
-Date: Tue, 30 Jul 2002 13:25:37 -0400 (EDT)
-From: Bill Davidsen <davidsen@tmr.com>
-To: Jakob Oestergaard <jakob@unthought.net>
-cc: Roy Sigurd Karlsbakk <roy@karlsbakk.net>,
-       Kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: RAID problems
-In-Reply-To: <20020725121109.GA25999@unthought.net>
-Message-ID: <Pine.LNX.3.96.1020730132122.4849A-100000@gatekeeper.tmr.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S318360AbSG3RXx>; Tue, 30 Jul 2002 13:23:53 -0400
+Received: from ns.itep.ru ([193.124.224.35]:25863 "EHLO ns.itep.ru")
+	by vger.kernel.org with ESMTP id <S318359AbSG3RXw>;
+	Tue, 30 Jul 2002 13:23:52 -0400
+Date: Tue, 30 Jul 2002 21:27:07 +0400
+From: Roman Kagan <Roman.Kagan@itep.ru>
+To: linux-kernel@vger.kernel.org
+Cc: "T.Raykoff" <traykoff@snet.net>
+Subject: Re: 2.4.18 IDE channels block each other under load?
+Message-ID: <20020730172707.GE30271@panda.itep.ru>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 25 Jul 2002, Jakob Oestergaard wrote:
+ Hi,
 
-> Just like the last time you asked this question on linux-kernel, the
-> answer is in the Software RAID HOWTO, section 6.1, and it is still
-> available at
+I'm by no means an expert in this, just a guess:
+
+On Tue, Jul 30, 2002 at 05:09:22PM +0000, T.Raykoff wrote:
+> This lockup only happens under write load.  Heavy reads don't cause the 
+> prob.  Hmmmm.
 > 
-> http://unthought.net/Software-RAID.HOWTO/Software-RAID.HOWTO-6.html#ss6.1
+> Not sure that it really is memory thrashing.  The box is unloaded and 
+> really has about 1GB free, to use for buffer as it sees fit.  No I/O to 
+> the swap file going on, cause there is no mounted swap.
 > 
-> Nothing has changed  :)
+> Check this out:
 > 
-> If you feel that the answer there is inadequate, please let me know.
+> dd if=/dev/zero of=/dev/hda bs=1024
+> 
+> then:
+> 
+> fdisk /dev/hdc
+> 
+> "q"
+> 
+> fdisk blocks in the close() call.... for well over 15 minutes!
+> 
+> As soon as dd ends cause /dev/hda is at EOF, fisk::close() returns in a 
+> moment.
 
-I think he did by asking for help again. You might well have pointed him
-at a newsgroup or mailing list (there was one for RAID) so he could get
-some interractive support.
+When you quit from fdisk it does a sync() right after the close().  I
+suspect that fdisk gets stuck in that sync() rather than close().  (You
+said strace reported close() as the last syscall - it's the last one
+completed.)  The write on one of the channels doesn't let sync() return.
 
-Why does no one seem surprised that one drive failed and the system marked
-four bad instead of using the spare in the first place? That's a more
-interesting question.
+To make sure I'd try to check (e.g. with /proc/<pid>/fd) if fdisk still
+has /dev/hdc open during the dd.
 
--- 
-bill davidsen <davidsen@tmr.com>
-  CTO, TMR Associates, Inc
-Doing interesting things with little computers since 1979.
-
+  Cheers,
+  	Roman.

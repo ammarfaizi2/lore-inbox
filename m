@@ -1,31 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S376367AbUKBH0z@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S380006AbUKBHgM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S376367AbUKBH0z (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 2 Nov 2004 02:26:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S446940AbUKBHV5
+	id S380006AbUKBHgM (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 2 Nov 2004 02:36:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S375835AbUKBHgM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 2 Nov 2004 02:21:57 -0500
-Received: from fw.osdl.org ([65.172.181.6]:35027 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S376195AbUKBHVK (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 2 Nov 2004 02:21:10 -0500
-Date: Tue, 2 Nov 2004 00:19:07 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: dhowells@redhat.com
-Cc: torvalds@osdl.org, davidm@snapgear.com, linux-kernel@vger.kernel.org,
-       uclinux-dev@uclinux.org
-Subject: Re: [PATCH 4/14] FRV: Bitops fixes
-Message-Id: <20041102001907.6bf3cc50.akpm@osdl.org>
-In-Reply-To: <200411011930.iA1JUK4w023176@warthog.cambridge.redhat.com>
-References: <76b4a884-2c3c-11d9-91a1-0002b3163499@redhat.com>
-	<200411011930.iA1JUK4w023176@warthog.cambridge.redhat.com>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Tue, 2 Nov 2004 02:36:12 -0500
+Received: from plus.ds14.agh.edu.pl ([149.156.124.14]:48567 "EHLO
+	plus.ds14.agh.edu.pl") by vger.kernel.org with ESMTP
+	id S447731AbUKBHfg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 2 Nov 2004 02:35:36 -0500
+Date: Tue, 2 Nov 2004 08:35:34 +0100 (CET)
+From: Pawel Sikora <pluto@pld-linux.org>
+X-X-Sender: pld@plus.ds14.agh.edu.pl
+To: Nick Piggin <nickpiggin@yahoo.com.au>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [oops] lib/vsprintf.c
+In-Reply-To: <418728CA.1090707@yahoo.com.au>
+Message-ID: <Pine.LNX.4.60.0411020826520.12803@plus.ds14.agh.edu.pl>
+References: <200411020719.55570.pluto@pld-linux.org> <418728CA.1090707@yahoo.com.au>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-I'm just going to drop this one.  Please test and fix
-it on x86?
+On Tue, 2 Nov 2004, Nick Piggin wrote:
+
+> Pawe Sikora wrote:
+>> Hi,
+>> 
+>> vsprintf.c-      case 's':
+>> vsprintf.c-                    s = va_arg(args, char *);
+>> vsprintf.c-                    if ((unsigned long)s < PAGE_SIZE)
+>> vsprintf.c-                           s = "<NULL>";
+>> vsprintf.c-
+>> vsprintf.c:      OOPS!  =>     len = strnlen(s, precision);
+>> 
+>
+> But it is the kernel module that's buggy. What's the problem?
+>
+>
+
+I think that block similar to setjmp/longjmp should be placed
+around such dangerous places to refues future oops.
+That's all.

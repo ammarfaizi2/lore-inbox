@@ -1,100 +1,102 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262571AbVAEWCf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262584AbVAEWSP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262571AbVAEWCf (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 5 Jan 2005 17:02:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262581AbVAEWCf
+	id S262584AbVAEWSP (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 5 Jan 2005 17:18:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262587AbVAEWSP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 5 Jan 2005 17:02:35 -0500
-Received: from pop5-1.us4.outblaze.com ([205.158.62.125]:33510 "HELO
-	pop5-1.us4.outblaze.com") by vger.kernel.org with SMTP
-	id S262580AbVAEWBz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 5 Jan 2005 17:01:55 -0500
-Subject: Re: Swsusp hanging the second time
-From: Nigel Cunningham <ncunningham@linuxmail.org>
-Reply-To: ncunningham@linuxmail.org
-To: Oliver Neukum <oliver@neukum.org>
-Cc: Pavel Machek <pavel@ucw.cz>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <200501052204.34646.oliver@neukum.org>
-References: <200501041154.19030.oliver@neukum.org>
-	 <20050104110839.GF18777@elf.ucw.cz>  <200501052204.34646.oliver@neukum.org>
-Content-Type: text/plain
-Message-Id: <1104962577.3127.22.camel@desktop.cunninghams>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6-1mdk 
-Date: Thu, 06 Jan 2005 09:02:58 +1100
+	Wed, 5 Jan 2005 17:18:15 -0500
+Received: from rly-ip04.mx.aol.com ([64.12.138.8]:4816 "EHLO
+	rly-ip04.mx.aol.com") by vger.kernel.org with ESMTP id S262584AbVAEWSH
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 5 Jan 2005 17:18:07 -0500
+Message-ID: <41DC67EF.50105@yahoo.co.uk>
+Date: Wed, 05 Jan 2005 22:19:27 +0000
+From: christos gentsis <christos_gentsis@yahoo.co.uk>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20041020
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: "Luis R. Rodriguez" <mcgrof@studorgs.rutgers.edu>
+CC: linux-kernel@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: Open hardware wireless cards
+References: <20050105200526.GL5159@ruslug.rutgers.edu>
+In-Reply-To: <20050105200526.GL5159@ruslug.rutgers.edu>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+X-AOL-IP: 195.93.52.87
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi.
+Luis R. Rodriguez wrote:
 
-That makes perfect sense: If you get a hang the second time, it's
-generally because something loaded during the first resume didn't handle
-the suspend properly, and is in a 'bad' state now. USB and DRI are the
-main sources of those issues at the moment. The solution would be to
-stop usb and unload the drivers prior to suspending, and reload/restart
-afterwards. I do this with my USB mouse (having switched to a text
-console) with no ill effects. YMMV.
+>On Wed, Jan 05, 2005 at 02:24:47PM -0500, Luis R. Rodriguez wrote:
+><-- snip -->
+>
+>  
+>
+>>As far as support for the new chipsets goes -- sorry -- we won't be able
+>>to support it as I don't think even Conexant has a final well tested
+>>linux source base ready for 2.6. And even if we are given a source base
+>>there is nothing we can do to get around the need for the closed-source 
+>>softmac libs that it relies on. As much as I'd like to support it, I
+>>don't want to get a headache to support something I cannot modify so I
+>>won't be willing to support a half-opened driver as the atheros driver.
+>>    
+>>
+>
+>I'd also like to add...
+>
+>For those of you frustrated about our current wireless driver situation
+>in open platforms --
+>
+>I think we probably will have this trouble with most modern hardware for a while
+>(graphics cards, wireless driver, etc). A lot of has to do with patent
+>infringement issues, "intellectual property" protection, and other
+>business-oriented excuses.
+>
+>What I think we probably will have to do is just work torwards seeing if
+>we can come up with our own open wireless hardware. I know there was
+>a recent thread on lkml about an open video card -- anyone know where
+>that ended up?
+>
+>If we can't come up with our own project to work on open hardware we can
+>also just see if its feasible to purchase hardware companies on the
+>verge of going backrupt and buy them out and release the specs/etc (a la
+>blender). Can someone do the math here? I'm lazy.
+>
+>	Luis
+>
+>  
+>
+hello anyone
 
-Regards,
+i thing that i didn't get the point... what did suppose to mean "we can 
+come up with our own open wireless hardware". does it means that the 
+kernel/ Linux community to design a complete hardware from scratch?
 
-Nigel
+I'm don't know if there is people that would like to work in a project 
+like that. if there is people that would like to do it i don't know if 
+they can do it...
 
-On Thu, 2005-01-06 at 08:04, Oliver Neukum wrote:
-> Am Dienstag, 4. Januar 2005 12:08 schrieb Pavel Machek:
-> > Hi!
-> > 
-> > > there's a second, more serious problem with this laptop. It hangs the
-> > > in the second swsusp cycle on suspension.
-> > > As before 2.6.10, i386/UP/no highmem.
-> > > On the screen I get the two messages "radeonfb resumed!" and
-> > > "setting latency" superimposed and it hangs forever. This is a regression
-> > > the previous user commented: "It worked under 2.6.6"
-> > 
-> > Unless it was on the same hardware/config, I'd not call it regression.
-> > 
-> > Anyway two suspends in the row seem to work here on 2.6.10+my
-> > patches. I suspect you have problems with some more obscure driver.
-> > 
-> > Can you try going with minimal driver config to see if it is
-> > reproducible? If it is broken even with minimal drivers, I'll try
-> > harder to reproduce it here (but I believe it will just go away).
-> 
-> The culprit seems to be EHCI, possibly together with UHCI only.
-> 
-> 0000:00:1d.0 USB Controller: Intel Corp. 82801DB USB (Hub #1) (rev 03) (prog-if 00 [UHCI])
->         Subsystem: Toshiba America Info Systems: Unknown device ff10
->         Flags: bus master, medium devsel, latency 0, IRQ 11
->         I/O ports at 1200 [size=32]
-> 
-> 0000:00:1d.1 USB Controller: Intel Corp. 82801DB USB (Hub #2) (rev 03) (prog-if 00 [UHCI])
->         Subsystem: Toshiba America Info Systems: Unknown device ff10
->         Flags: bus master, medium devsel, latency 0, IRQ 11
->         I/O ports at 1220 [size=32]
-> 
-> 0000:00:1d.2 USB Controller: Intel Corp. 82801DB USB (Hub #3) (rev 03) (prog-if 00 [UHCI])
->         Subsystem: Toshiba America Info Systems: Unknown device ff10
->         Flags: bus master, medium devsel, latency 0, IRQ 11
->         I/O ports at 1240 [size=32]
-> 
-> 0000:00:1d.7 USB Controller: Intel Corp. 82801DB USB2 (rev 03) (prog-if 20 [EHCI])
->         Subsystem: Toshiba America Info Systems: Unknown device ff10
->         Flags: bus master, medium devsel, latency 0
->         Memory at f4000000 (32-bit, non-prefetchable)
->         Capabilities: <available only to root>
-> 
-> 	Regards
-> 		Oliver
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
--- 
-Nigel Cunningham
-Software Engineer, Canberra, Australia
-http://www.cyclades.com
+in case that i would had the choice then i get my wireless card, to make 
+a new my one based to the design of someone that i don't know, not 
+knowing if it is going to work in all cases and environments and knowing 
+that i would use FPGA instead of ICs created for this functionality... i 
+would not do it... i know what means designing hardware even if i don't 
+have great experience in that (only some basic experience in Verilog...) 
+i think that an idea like that is much closer to the opercores 
+situation...(www.opencores.org)
 
-Ph: +61 (2) 6292 8028      Mob: +61 (417) 100 574
+According to my understanding, the problem with the wireless cards 
+drivers and generally the drivers can be solved in two ways... first 
+convincing the companies to produce the drivers or help other people 
+code them.
+OR
+reverse engineering to the win drivers...(i think that this is harder)
 
+i never understand way companies don't help with the drivers under 
+linux.... in any way they are going to sell more products...
+
+any way sorry for the long text and C.U. around.
+
+Christos
+ 

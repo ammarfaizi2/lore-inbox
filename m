@@ -1,50 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261855AbSKRJoS>; Mon, 18 Nov 2002 04:44:18 -0500
+	id <S261934AbSKRJzk>; Mon, 18 Nov 2002 04:55:40 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261868AbSKRJoS>; Mon, 18 Nov 2002 04:44:18 -0500
-Received: from modemcable017.51-203-24.mtl.mc.videotron.ca ([24.203.51.17]:1446
-	"EHLO montezuma.mastecende.com") by vger.kernel.org with ESMTP
-	id <S261855AbSKRJoR>; Mon, 18 Nov 2002 04:44:17 -0500
-Date: Mon, 18 Nov 2002 04:53:36 -0500 (EST)
-From: Zwane Mwaikambo <zwane@holomorphy.com>
-X-X-Sender: zwane@montezuma.mastecende.com
-To: Taral <taral@taral.net>
-cc: alsa-devel@lists.sourceforge.net, <linux-kernel@vger.kernel.org>
-Subject: Re: Oops when removing snd-timer
-In-Reply-To: <Pine.LNX.4.44.0211180347320.1538-100000@montezuma.mastecende.com>
-Message-ID: <Pine.LNX.4.44.0211180450230.1538-100000@montezuma.mastecende.com>
+	id <S261900AbSKRJzk>; Mon, 18 Nov 2002 04:55:40 -0500
+Received: from smtpzilla1.xs4all.nl ([194.109.127.137]:22287 "EHLO
+	smtpzilla1.xs4all.nl") by vger.kernel.org with ESMTP
+	id <S261894AbSKRJzj>; Mon, 18 Nov 2002 04:55:39 -0500
+Date: Mon, 18 Nov 2002 11:02:00 +0100 (CET)
+From: Roman Zippel <zippel@linux-m68k.org>
+X-X-Sender: roman@serv
+To: Rusty Russell <rusty@rustcorp.com.au>
+cc: Doug Ledford <dledford@redhat.com>,
+       Linux Scsi Mailing List <linux-scsi@vger.kernel.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Alexander Viro <viro@math.psu.edu>,
+       Linus Torvalds <torvalds@transmeta.com>
+Subject: Re: Why /dev/sdc1 doesn't show up... 
+In-Reply-To: <20021118085928.82D7F2C30D@lists.samba.org>
+Message-ID: <Pine.LNX.4.44.0211181054330.2109-100000@serv>
+References: <20021118085928.82D7F2C30D@lists.samba.org>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 18 Nov 2002, Zwane Mwaikambo wrote:
+Hi,
 
-> Looks like you loaded ens137x.c and then that driver got unloaded leaving 
-> the callback still valid, then the core timer code decided to walk off a 
-> cliff using that pointer.
+On Mon, 18 Nov 2002, Rusty Russell wrote:
 
-Not really the case, probably from pcm code.
+> And it *still* means you need two paths for your code: one for "I know
+> it's not actually "active" yet, but I'm doing init and I need to
+> access it anyway".  So every interface gains significant complexity by
+> effectively implementing their own "live" flag...
 
-> 0xc0365322 is in snd_timer_free (sound/core/timer.c:676).
-> 671     static int snd_timer_free(snd_timer_t *timer)
-> 672     {
-> 673             snd_assert(timer != NULL, return -ENXIO);
-> 674             if (timer->private_free)
-> 675                     timer->private_free(timer);
-> 676             snd_magic_kfree(timer);
-> 677             return 0;
-> 678     }
-> 
-> The problem seems to be a sort of chicken/egg case? We can't rely on 
-> modules being around even with this inter dependency case.
+Rusty, you know how refcounts work? Especially the "if 
+(atomic_dec_and_test(&obj->ref)) cleanup(obj)" part is really interesting.
 
-Perhaps driver specific code should be doing as much of their own cleanup 
-as possible. I'm still wondering how this managed to unload without that 
-getting run, unless its a simple case of forgetting a failure path.
-
-	Zwane
--- 
-function.linuxpower.ca
+bye, Roman
 

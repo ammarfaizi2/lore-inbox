@@ -1,75 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289487AbSA2Kmq>; Tue, 29 Jan 2002 05:42:46 -0500
+	id <S289481AbSA2KrG>; Tue, 29 Jan 2002 05:47:06 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289481AbSA2Kmh>; Tue, 29 Jan 2002 05:42:37 -0500
-Received: from dark.pcgames.pl ([195.205.62.2]:55955 "EHLO dark.pcgames.pl")
-	by vger.kernel.org with ESMTP id <S289462AbSA2KmW>;
-	Tue, 29 Jan 2002 05:42:22 -0500
-Date: Tue, 29 Jan 2002 11:42:07 +0100 (CET)
-From: Krzysztof Oledzki <ole@ans.pl>
-X-X-Sender: <ole@dark.pcgames.pl>
-To: Tim Moore <timothymoore@bigfoot.com>
-cc: kernel <linux-kernel@vger.kernel.org>
-Subject: Re: 2.2.21pre2; ide_set_handler; DMA timeout
-In-Reply-To: <3C562B7C.A9BF209C@bigfoot.com>
-Message-ID: <Pine.LNX.4.33.0201291122500.16536-100000@dark.pcgames.pl>
+	id <S289492AbSA2Kq5>; Tue, 29 Jan 2002 05:46:57 -0500
+Received: from thebsh.namesys.com ([212.16.7.65]:9486 "HELO thebsh.namesys.com")
+	by vger.kernel.org with SMTP id <S289481AbSA2Kqv>;
+	Tue, 29 Jan 2002 05:46:51 -0500
+Message-ID: <3C567D93.7030602@namesys.com>
+Date: Tue, 29 Jan 2002 13:46:43 +0300
+From: Hans Reiser <reiser@namesys.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.7+) Gecko/20020123
+X-Accept-Language: en-us
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Alexander Viro <viro@math.psu.edu>
+CC: Daniel Phillips <phillips@bonn-fries.net>,
+        Linus Torvalds <torvalds@transmeta.com>,
+        Josh MacDonald <jmacd@CS.Berkeley.EDU>, linux-kernel@vger.kernel.org,
+        reiserfs-list@namesys.com, reiserfs-dev@namesys.com
+Subject: Re: [reiserfs-dev] Re: Note describing poor dcache utilization under high memory pressure
+In-Reply-To: <Pine.GSO.4.21.0201281927320.6592-100000@weyl.math.psu.edu>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Alexander Viro wrote:
 
-
-Hello,
-
-On Mon, 28 Jan 2002, Tim Moore wrote:
-
-> 2.2.21pre2 + ide.2.2.21.05042001-Ole.patch + raid-2.2.20-A0
-> Abit BP6 w EC10, RU BIOS, 1.28 hpt366 BIOS
 >
-> Got this error
+>On Tue, 29 Jan 2002, Hans Reiser wrote:
 >
-> hdi: timeout waiting for DMA
-> hdi: ide_dma_timeout: Lets do it again!stat = 0x58, dma_stat = 0x20
-> hdi: DMA disabled
-> hdi: irq timeout: status=0xd0 { Busy }
-> hdi: DMA disabled
-> hdi: ide_set_handler: handler not null; old=c019c89c, new=c019c89c
-> bug: kernel timer added twice at c019c73e.
-> ide4: reset: success
+>>This fails to recover an object (e.g. dcache entry) which is used once, 
+>>and then spends a year in cache on the same page as an object which is 
+>>hot all the time.  This means that the hot set of objects becomes 
+>>diffused over an order of magnitude more pages than if garbage 
+>>collection squeezes them all together.  That makes for very poor caching.
+>>
 >
-> during I/O testing on a RAID0 set but no freeze, crash or oops.
-> Hopefully there are not SMP spinlock problems still hanging around.
-> I am willing to do specific testing if requested.  Machine data below.
-Hm.. ide.2.2.21.05042001-Ole.patch is just Hedrick's ide.2.2.19.05042001.patch
-modified to apply cleanly to 2.2.21pre2+new via driver. Did you have this
-problem before (2.2.19/2.2.20)?
+>Any GC that is going to move active dentries around is out of question.
+>It would need a locking of such strength that you would be the first
+>to cry bloody murder - about 5 seconds after you look at the scalability
+>benchmarks.
+>
+>
 
-> Also note CPU ID reporting changed from 2.2.20 as this board
-> has always running PGA370 Celeron 533's which used to be correctly
-> identified "Intel Celeron (Mendocino) stepping 05" and are now
-> incorrectly identified "Intel Mobile Pentium II stepping 05".
-Hm.. That is strange. You should ask Alan Cox. He is the maintainer of
-2.2.x kernels.
+I don't mean to suggest that the dentry cache locking is an easy problem 
+to solve, but the problem discussed is a real one, and it is sufficient 
+to illustrate that the unified cache is fundamentally flawed as an 
+algorithm compared to using subcache plugins.
 
-> smp kernel: HPT366: onboard version of chipset, pin1=1 pin2=2
-> smp kernel: PCI: HPT366: Fixing interrupt 18 pin 2 to ZERO
-> smp kernel: HPT366: IDE controller on PCI bus 00 dev 99
-> smp kernel: HPT366: chipset revision 1
-> smp kernel: HPT366: not 100% native mode: will probe irqs later
-> smp kernel:     ide4: BM-DMA at 0xc000-0xc007, BIOS settings: hdi:pio, hdj:pio
-<CIACH>
-> smp kernel: hdi: FUJITSU MPE3084AE, ATA DISK drive
-
-Is this FUJITSU (hdi) connected to HPT? If so, the problem may be in hpt
-driver. You may check some more recent version of IDE backport from
-2.4.x: http://www.ans.pl/ide/testing - the latest is ide.2.2.21.01282002-Ole,
-but the new version of hpt driver has not been yet backported. I'm going
-to do it tomorrow.
-
-
-Best regards,
-
-				Krzysztof Oledzki
+Hans
 

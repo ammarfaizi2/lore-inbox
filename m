@@ -1,48 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266473AbUHVVpH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266469AbUHVVl1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266473AbUHVVpH (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 22 Aug 2004 17:45:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266484AbUHVVlo
+	id S266469AbUHVVl1 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 22 Aug 2004 17:41:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266319AbUHVVjm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 22 Aug 2004 17:41:44 -0400
-Received: from the-village.bc.nu ([81.2.110.252]:15248 "EHLO
+	Sun, 22 Aug 2004 17:39:42 -0400
+Received: from the-village.bc.nu ([81.2.110.252]:13712 "EHLO
 	localhost.localdomain") by vger.kernel.org with ESMTP
-	id S266473AbUHVVlR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 22 Aug 2004 17:41:17 -0400
-Subject: Re: DTrace-like analysis possible with future Linux kernels?
+	id S266351AbUHVViy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 22 Aug 2004 17:38:54 -0400
+Subject: RE: Cursed Checksums
 From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Tonnerre <tonnerre@thundrix.ch>
-Cc: Joerg Schilling <schilling@fokus.fraunhofer.de>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20040822203321.GI19768@thundrix.ch>
-References: <2vipq-7O8-15@gated-at.bofh.it> <2vj2b-8md-9@gated-at.bofh.it>
-	 <2vDtS-bq-19@gated-at.bofh.it> <E1ByXMd-00007M-4A@localhost>
-	 <412770EA.nail9DO11D18Y@burner> <412889FC.nail9MX1X3XW5@burner>
-	 <Pine.LNX.4.58.0408221450540.297@neptune.local>
-	 <m37jrr40zi.fsf@zoo.weinigel.se> <20040822192646.GH19768@thundrix.ch>
-	 <4128FE94.nail9U42DA799@burner>  <20040822203321.GI19768@thundrix.ch>
+To: Josan Kadett <corporate@superonline.com>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <S268085AbUHVUD4/20040822200356Z+207@vger.kernel.org>
+References: <S268085AbUHVUD4/20040822200356Z+207@vger.kernel.org>
 Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-Message-Id: <1093207139.25041.6.camel@localhost.localdomain>
+Message-Id: <1093206990.25041.3.camel@localhost.localdomain>
 Mime-Version: 1.0
 X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Sun, 22 Aug 2004 21:38:59 +0100
+Date: Sun, 22 Aug 2004 21:36:30 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sul, 2004-08-22 at 21:33, Tonnerre wrote:
-> > -	What are the minimum requirements for a machine to run Linux?
+On Sul, 2004-08-22 at 22:03, Josan Kadett wrote:
+> Perhaps there is a way to recompute IP header checksums before they get into
+> the interface? As I outlined, I have found a way to manipulate IP source
+> address before the packet is flushed to system, but a means of recalculating
+> the IP header checksum after that manipulation should be found. Because even
+> if I ignore IP header CRC in one system, all other boxes connected to this
+> machine has to be patched the same. That is impossible anyway.
 > 
-> Intel 8086  processor with  a few ko  of RAM,  with a floppy  drive, a
-> monitor and a floppy, I think. If you take only the normal kernel into
-> account that will be an 80386 processor.
+> Only if I could find a way to recalculate the checksum in IP headers by
+> doing a simple hack to the kernel, everything would be alright. 
 
-Minimum for an x86 kernel is about 2Mb and 386 CPU. The 8086 subset
-kernel isn't really "Linux", its more an escaped insanity. For non x86
-you need a bottom end mmuless 32bit processor and a couple of Mb.
+Providing your hardware isn't doing the checksums then you can do 
+this. Each ethernet packet driver with pass packets up to the 
+layer above (netif_rx()). Something like
 
-There are folks driving the size down (the -tiny patches) because
-2Mb for the entire system is still too large for some users.
+	skb->protocol = eth_type_trans(...)
+	/* Check packet here */
+	whack_packet(skb->h.raw skb->len);
+	netif_rx(skb);
 
-Alan
+in the driver. Before the netif_rx you can validly mangle the bits
+
 

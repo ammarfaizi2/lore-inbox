@@ -1,42 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262251AbTISBjk (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 18 Sep 2003 21:39:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262253AbTISBjk
+	id S262258AbTISB60 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 18 Sep 2003 21:58:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262259AbTISB60
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 18 Sep 2003 21:39:40 -0400
-Received: from ms-smtp-01.rdc-kc.rr.com ([24.94.166.115]:15313 "EHLO
-	ms-smtp-01.rdc-kc.rr.com") by vger.kernel.org with ESMTP
-	id S262251AbTISBjj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 18 Sep 2003 21:39:39 -0400
-Date: Thu, 18 Sep 2003 20:39:10 -0500
-From: Greg Norris <haphazard@kc.rr.com>
+	Thu, 18 Sep 2003 21:58:26 -0400
+Received: from dsl092-233-042.phl1.dsl.speakeasy.net ([66.92.233.42]:32417
+	"EHLO whisper.qrpff.net") by vger.kernel.org with ESMTP
+	id S262258AbTISB6Z (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 18 Sep 2003 21:58:25 -0400
+X-All-Your-Base: Are Belong To Us!!!
+X-Envelope-Recipient: linux-kernel@vger.kernel.org
+X-Envelope-Sender: oliver@klozoff.com
+Message-ID: <3F6A61E9.1060407@klozoff.com>
+Date: Thu, 18 Sep 2003 21:54:49 -0400
+From: Stevie-O <oliver@klozoff.com>
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:1.5b) Gecko/20030827
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
 To: linux-kernel@vger.kernel.org
-Subject: Re: Re: 2.6.0-test5 usbserial oops
-Message-ID: <20030919013910.GA1343@glitch.localdomain>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-References: <20030911044650.GA10064@kroah.com> <20030911175755.GA13334@kroah.com> <20030911223224.GA1345@glitch.localdomain> <20030918040955.GB2849@kroah.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030918040955.GB2849@kroah.com>
-User-Agent: Mutt/1.5.4i
+Subject: vmalloc and DMA
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Sep 17, 2003 at 09:09:55PM -0700, Greg KH wrote:
-> > I'm still getting an (apparently) identical oops.  I've attached the
-> > ksymoops output (your patch was applied for this one), along with the
-> > debugging messages you requested previously.  Let me know if I can
-> > provide any additional info.
-> 
-> Does this happen on 2.6.0-test5-bk3?
+I need to treat a large number of pages (about 128) as continuous.  However, I 
+need to DMA to that memory from a device.  The device has a built-in 
+scatter-gather feature, so I don't need to worry about whether the pages are 
+physically contiguous.  Looking through LXR revealed a  function called 
+vmalloc_32.  My questions are these:
 
-I can confirm that this is still an issue on 2.6.0-test5-bk5... I
-didn't test -bk3 explicitly (although I certainly will if you like), as
-I assume that any relevant changes will be in -bk5 as well.  The oops
-appears to be essentially identical, so I'm omitting it and the debug
-output in order to conserve bandwidth.  If you want to see it anyway,
-just let me know.
+(1) Is vmalloc_32 going to stick around for a while?
+(2) Is it appropriate to vmalloc_32(512<<10) and then grab the underlying 
+addresses for DMA?
+(3) If it *is* appropriate, what's the proper way to get to those underlying 
+addresses? I saw a virt_to_page macro somewhere...
 
-Thanx!
+
+-- 
+- Stevie-O
+
+Real Programmers use COPY CON PROGRAM.EXE
+
+

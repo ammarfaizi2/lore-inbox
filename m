@@ -1,52 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261811AbREPHXx>; Wed, 16 May 2001 03:23:53 -0400
+	id <S261810AbREPHYN>; Wed, 16 May 2001 03:24:13 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261807AbREPHXn>; Wed, 16 May 2001 03:23:43 -0400
-Received: from hood.tvd.be ([195.162.196.21]:30709 "EHLO hood.tvd.be")
-	by vger.kernel.org with ESMTP id <S261808AbREPHXc>;
-	Wed, 16 May 2001 03:23:32 -0400
-Date: Wed, 16 May 2001 09:21:43 +0200 (CEST)
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-To: Richard Gooch <rgooch@ras.ucalgary.ca>
-cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        Ingo Oeser <ingo.oeser@informatik.tu-chemnitz.de>,
-        Linus Torvalds <torvalds@transmeta.com>,
-        Neil Brown <neilb@cse.unsw.edu.au>,
-        Jeff Garzik <jgarzik@mandrakesoft.com>,
-        "H. Peter Anvin" <hpa@transmeta.com>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        viro@math.psu.edu
+	id <S261808AbREPHXy>; Wed, 16 May 2001 03:23:54 -0400
+Received: from mailout00.sul.t-online.com ([194.25.134.16]:31751 "EHLO
+	mailout00.sul.t-online.com") by vger.kernel.org with ESMTP
+	id <S261810AbREPHXt>; Wed, 16 May 2001 03:23:49 -0400
+Date: 16 May 2001 09:17:00 +0200
+From: kaih@khms.westfalen.de (Kai Henningsen)
+To: linux-kernel@vger.kernel.org
+Message-ID: <80x0j$9mw-B@khms.westfalen.de>
+In-Reply-To: <01051602593001.00406@starship>
 Subject: Re: LANANA: To Pending Device Number Registrants
-In-Reply-To: <200105152141.f4FLff300686@vindaloo.ras.ucalgary.ca>
-Message-ID: <Pine.LNX.4.05.10105160921220.23225-100000@callisto.of.borg>
+X-Mailer: CrossPoint v3.12d.kh6 R/C435
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Organization: Organisation? Me?! Are you kidding?
+In-Reply-To: <Pine.LNX.4.33.0105151713020.30128-100000@xanadu.home> <Pine.LNX.4.33.0105151713020.30128-100000@xanadu.home> <01051602593001.00406@starship>
+X-No-Junk-Mail: I do not want to get *any* junk mail.
+Comment: Unsolicited commercial mail will incur an US$100 handling fee per received mail.
+X-Fix-Your-Modem: +++ATS2=255&WO1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 15 May 2001, Richard Gooch wrote:
-> Alan Cox writes:
-> > > 	len = readlink ("/proc/self/3", buffer, buflen);
-> > > 	if (strcmp (buffer + len - 2, "cd") != 0) {
-> > > 		fprintf (stderr, "Not a CD-ROM! Bugger off.\n");
-> > > 		exit (1);
-> > 
-> > And on my box cd is the cabbage dicer whoops
-> 
-> Actually, no, because it's guaranteed that a trailing "/cd" is a
-> CD-ROM. That's the standard.
+phillips@bonn-fries.net (Daniel Phillips)  wrote on 16.05.01 in <01051602593001.00406@starship>:
 
-Then  check for `/cd' at the end instead of `cd' :-)
+> On Tuesday 15 May 2001 23:20, Nicolas Pitre wrote:
+> > Personally, I'd really like to see /dev/ttyS0 be the first detected
+> > serial port on a system, /dev/ttyS1 the second, etc.
+>
+> There are well-defined rules for the first four on PC's.  The ttySx
+> better match the labels the OEM put on the box.
 
-Gr{oetje,eeting}s,
+Sorry, but that turns out not to be the case.
 
-						Geert
+There are some rules for devices called COMx (x=1..4, ports much more than  
+interrupts[1]), but I haven't ever seen a box that had a "ttySx" label  
+from the manufacturer. And you can easily renumber those; the BIOS uses a  
+4-entry lookup table for the ports.
 
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+[1] COM1=3F8, COM2=2F8, COM3=3E8, COM2=2E8
 
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-							    -- Linus Torvalds
-
+MfG Kai

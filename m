@@ -1,41 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266125AbUFRQ2W@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266121AbUFRQ2J@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266125AbUFRQ2W (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Jun 2004 12:28:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266128AbUFRQ2W
+	id S266121AbUFRQ2J (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Jun 2004 12:28:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266124AbUFRQ2J
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Jun 2004 12:28:22 -0400
-Received: from 153.Red-213-4-13.pooles.rima-tde.net ([213.4.13.153]:9477 "EHLO
-	kerberos.felipe-alfaro.com") by vger.kernel.org with ESMTP
-	id S266125AbUFRQ2S (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Jun 2004 12:28:18 -0400
-Subject: Re: 2.6.7-ck1
-From: Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>
-To: Con Kolivas <kernel@kolivas.org>
-Cc: Linux Kernel Mailinglist <linux-kernel@vger.kernel.org>
-In-Reply-To: <200406162122.51430.kernel@kolivas.org>
-References: <200406162122.51430.kernel@kolivas.org>
-Content-Type: text/plain
-Date: Fri, 18 Jun 2004 18:28:13 +0200
-Message-Id: <1087576093.2057.1.camel@teapot.felipe-alfaro.com>
-Mime-Version: 1.0
-X-Mailer: Evolution 1.5.9.1 (1.5.9.1-2) 
-Content-Transfer-Encoding: 7bit
+	Fri, 18 Jun 2004 12:28:09 -0400
+Received: from fw.osdl.org ([65.172.181.6]:23763 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S266121AbUFRQ2F (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 18 Jun 2004 12:28:05 -0400
+Date: Fri, 18 Jun 2004 09:27:22 -0700 (PDT)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Geert Uytterhoeven <geert@linux-m68k.org>
+cc: Linux/m68k <linux-m68k@lists.linux-m68k.org>,
+       Linux Kernel Development <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] cross-sparse
+In-Reply-To: <Pine.GSO.4.58.0406172304170.1495@waterleaf.sonytel.be>
+Message-ID: <Pine.LNX.4.58.0406180925210.4669@ppc970.osdl.org>
+References: <Pine.GSO.4.58.0406172304170.1495@waterleaf.sonytel.be>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2004-06-16 at 21:22 +1000, Con Kolivas wrote: 
-> -----BEGIN PGP SIGNED MESSAGE-----
-> Hash: SHA1
+
+
+On Thu, 17 Jun 2004, Geert Uytterhoeven wrote:
 > 
-> Patchset update. The focus of this patchset is on system responsiveness with
-> emphasis on desktops, but the scope of scheduler changes now makes this patch 
-> suitable to servers as well.
+> I wanted to give sparse a try on m68k, and noticed the current infrastructure
+> doesn't handle cross-compilation (no sane m68k people compile kernels natively
+> anymore, unless they run a Debian autobuilder ;-).
+> 
+> After hacking the include paths in the sparse sources, installing the resulting
+> binary as m68k-linux-sparse, and applying the following patch, it seems to work
+> fine!
 
-I've found some interaction problems between, what I think it's, the
-staircase scheduler and swsusp. With vanilla 2.6.7, swsusp is able to
-save ~9000 pages to disk in less than 5 seconds, where as 2.6.7-ck1
-takes more than 1 minute to save the same amount of pages when
-suspending to disk.
+Hmm.. It does make sense, but at the same time, sparse isn't even really 
+supposed to _care_ about the architecture. Especially not for a kernel 
+build.
 
+Which part breaks when not just using the native sparse? As far as I know, 
+a kernel build should use all-kernel header files, with the exception of 
+"stdarg.h" which I thought was also architecture-independent (but hey, 
+maybe I'm just a retard, and am wrong).
 
+		Linus

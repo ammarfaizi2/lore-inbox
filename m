@@ -1,58 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S274931AbTHFInv (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 6 Aug 2003 04:43:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S274935AbTHFInv
+	id S274936AbTHFIxH (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 6 Aug 2003 04:53:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S274939AbTHFIxH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 6 Aug 2003 04:43:51 -0400
-Received: from mail.uptime.at ([62.116.87.11]:27030 "EHLO mail.uptime.at")
-	by vger.kernel.org with ESMTP id S274931AbTHFInj (ORCPT
+	Wed, 6 Aug 2003 04:53:07 -0400
+Received: from smtp01.web.de ([217.72.192.180]:56594 "EHLO smtp.web.de")
+	by vger.kernel.org with ESMTP id S274936AbTHFIxE (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 6 Aug 2003 04:43:39 -0400
-From: "Oliver Pitzeier" <o.pitzeier@uptime.at>
-To: "'Olaf Titz'" <olaf@bigred.inka.de>, <linux-kernel@vger.kernel.org>,
-       "=?us-ascii?Q?'Herbert_Potzl'?=" <herbert@13thfloor.at>
-Subject: RE: chroot() breaks syslog() ?
-Date: Wed, 6 Aug 2003 10:42:40 +0200
-Organization: UPtime system solutions
-Message-ID: <000701c35bf6$b370ea70$020b10ac@pitzeier.priv.at>
+	Wed, 6 Aug 2003 04:53:04 -0400
+From: Mathias =?utf-8?q?Fr=C3=B6hlich?= <Mathias.Froehlich@web.de>
+To: johnstul@us.ibm.com
+Subject: Re: [RFC][PATCH] linux-2.6.0-test2_mtrr-race-fix_A0
+Date: Wed, 6 Aug 2003 10:52:18 +0200
+User-Agent: KMail/1.5.2
+Cc: linux-kernel@vger.kernel.org
 MIME-Version: 1.0
 Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook, Build 10.0.4510
-In-Reply-To: 
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1165
-Importance: Normal
-X-MailScanner-Information: Please contact UPtime Systemloesungen for more information
-X-MailScanner: clean
-X-MailScanner-SpamCheck: not spam (whitelisted), SpamAssassin (score=-5.8,
-	required 4.1, BAYES_01 -5.40, QUOTED_EMAIL_TEXT -0.38)
+  charset="utf-8"
+Content-Transfer-Encoding: 8bit
+Content-Disposition: inline
+Message-Id: <200308061052.18550.Mathias.Froehlich@web.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > IMHO, devfs in chroot environment, is defeating the purpose 
-> > because if you have access to raw devices, like the device
-> > your chroot dir is on, 
-> > you can easily mount that device again, and voila you have 
-> > access to 
-> > the full tree, if you
-> 
-> You need to be root to mount the device, and as root you can 
-> also create the device special file. A chroot environment 
-> does not reliably guard against root breaking out of it.
 
-That's not completly wrong nor is it completly true. :)
+Hi,
 
-You _CAN_ guard yourself from root's breaking out of some chroot environment.
-Using grsec (www.grsecurity.net). Denying double-chroots, creation of special
-files within chroot-environments and if you like it... Deny mounting within
-chroot. :)
+You should not remove the barrier past mtrr change. If you do that, it is 
+possible that cpu's run with inconsistent mtrrs. This can have bad 
+sideeffects since at least the cache snooping protocol used by intel uses 
+assumptions about the cachability of memory regions. Those information about 
+the cachability is also taken from the mtrrs as far as I remember.
+This intel cpu developer manual, which documented the early PII and PPro 
+chips, recommended this algorithm. Since actual intel cpus use the same old 
+cpu to chipset bus protocol, this old documentation most propably still 
+applies.
 
-There are many options provided - just use 'em. :)
+So the conclusion is that as far as you don't know the exact way all those SMP 
+protocols between chipsets and CPUs with all the possible sideeffects very 
+well, dont't change this behavour.
 
-Best regards,
- Oliver
+But I'm shure that fixes to the stack allocated variable problem are welcome 
+:)
+
+   Greetings
+
+      Mathias Fröhlich
+
+-- 
+Mathias Fröhlich, email: Mathias.Froehlich@web.de
+old email was: frohlich@na.uni-tuebingen.de
 

@@ -1,107 +1,167 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263738AbTHJLPe (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 10 Aug 2003 07:15:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264030AbTHJLNx
+	id S263597AbTHJLMi (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 10 Aug 2003 07:12:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263738AbTHJLKr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 10 Aug 2003 07:13:53 -0400
-Received: from mail.gmx.de ([213.165.64.20]:16267 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S263952AbTHJLM6 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 10 Aug 2003 07:12:58 -0400
-Message-Id: <5.2.1.1.2.20030810122144.019bdb00@pop.gmx.net>
-X-Mailer: QUALCOMM Windows Eudora Version 5.2.1
-Date: Sun, 10 Aug 2003 13:17:07 +0200
-To: Simon Kirby <sim@netnation.com>
-From: Mike Galbraith <efault@gmx.de>
-Subject: Re: [PATCH]O14int
-Cc: Con Kolivas <kernel@kolivas.org>, linux-kernel@vger.kernel.org
-In-Reply-To: <20030810084827.GA30869@netnation.com>
-References: <200308091036.18208.kernel@kolivas.org>
- <20030808220821.61cb7174.lista1@telia.com>
- <200308091036.18208.kernel@kolivas.org>
+	Sun, 10 Aug 2003 07:10:47 -0400
+Received: from yue.hongo.wide.ad.jp ([203.178.139.94]:36620 "EHLO
+	yue.hongo.wide.ad.jp") by vger.kernel.org with ESMTP
+	id S263597AbTHJLKA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 10 Aug 2003 07:10:00 -0400
+Date: Sun, 10 Aug 2003 20:10:09 +0900 (JST)
+Message-Id: <20030810.201009.77128484.yoshfuji@linux-ipv6.org>
+To: davem@redhat.com
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH 7/9] convert drivers/scsi to virt_to_pageoff()
+From: YOSHIFUJI Hideaki / =?iso-2022-jp?B?GyRCNUhGIzFRTEAbKEI=?= 
+	<yoshfuji@linux-ipv6.org>
+In-Reply-To: <20030810020444.48cb740b.davem@redhat.com>
+References: <20030810013041.679ddc4c.davem@redhat.com>
+	<20030810090556.GY31810@waste.org>
+	<20030810020444.48cb740b.davem@redhat.com>
+Organization: USAGI Project
+X-URL: http://www.yoshifuji.org/%7Ehideaki/
+X-Fingerprint: 90 22 65 EB 1E CF 3A D1 0B DF 80 D8 48 07 F8 94 E0 62 0E EA
+X-PGP-Key-URL: http://www.yoshifuji.org/%7Ehideaki/hideaki@yoshifuji.org.asc
+X-Face: "5$Al-.M>NJ%a'@hhZdQm:."qn~PA^gq4o*>iCFToq*bAi#4FRtx}enhuQKz7fNqQz\BYU]
+ $~O_5m-9'}MIs`XGwIEscw;e5b>n"B_?j/AkL~i/MEa<!5P`&C$@oP>ZBLP
+X-Mailer: Mew version 2.2 on Emacs 20.7 / Mule 4.1 (AOI)
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; format=flowed
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-At 01:48 AM 8/10/2003 -0700, Simon Kirby wrote:
->On Sat, Aug 09, 2003 at 10:36:17AM +1000, Con Kolivas wrote:
->
-> > On Sat, 9 Aug 2003 06:08, Voluspa wrote:
-> > > On 2003-08-08 15:49:25 Con Kolivas wrote:
-> > > > More duck tape interactivity tweaks
-> > >
-> > > Do you have a premonition... Game-test goes down in flames. Volatile to
-> > > the extent where I can't catch head or tail. It can behave like in
-> > > A3-O12.2 or as an unpatched 2.6.0-test2. Trigger badness by switching to
-> > > a text console.
-> >
-> > Ah. There's the answer. You've totally changed the behaviour of the
-> > application in question by moving to the text console. No longer is it the
-> > sizable cpu hog that it is when it's in the foreground on X, so you've
-> > totally changed it's behaviour and how it is treated.
->
->I haven't been following this as closely as I would have liked to
->(recent vacation and all), but I am definitely seeing issues with the
->recent 2.5.x, 2.6.x-testx secheduler code and have been looking over
->these threads.
->
->I don't really understand why these changes were made at all to the
->scheduler.  As I understand it, the 2.2.x and older 2.4.x scheduler was
->simple in that it allowed any process to wake up if it had available
->ticks, and would switch to that process if any new event occurred and
->woke it up.  The rest was just limiting the ticks based on nice value
->and remembering to switch when the ticks run out.
->
->It seems that newer schedulers are now temporarily postponing the
->waking up of other processes when the running process is running with
->"preemptive" ticks, and that there's all sorts of hacks involved in
->trying to hide the bad effects of this decision.
+[7/9] convert drivers/scsi to virt_to_pageoff().
+ 
+Index: linux-2.6/drivers/scsi/3w-xxxx.c
+===================================================================
+RCS file: /home/cvs/linux-2.5/drivers/scsi/3w-xxxx.c,v
+retrieving revision 1.34
+diff -u -r1.34 3w-xxxx.c
+--- linux-2.6/drivers/scsi/3w-xxxx.c	17 Jul 2003 17:43:53 -0000	1.34
++++ linux-2.6/drivers/scsi/3w-xxxx.c	10 Aug 2003 09:30:32 -0000
+@@ -2112,7 +2112,7 @@
+ 	if (cmd->request_bufflen == 0)
+ 		return 0;
+ 
+-	mapping = pci_map_page(pdev, virt_to_page(cmd->request_buffer), ((unsigned long)cmd->request_buffer & ~PAGE_MASK), cmd->request_bufflen, dma_dir);
++	mapping = pci_map_page(pdev, virt_to_page(cmd->request_buffer), virt_to_pageoff(cmd->request_buffer), cmd->request_bufflen, dma_dir);
+ 
+ 	if (mapping == 0) {
+ 		printk(KERN_WARNING "3w-xxxx: tw_map_scsi_single_data(): pci_map_page() failed.\n");
+Index: linux-2.6/drivers/scsi/ide-scsi.c
+===================================================================
+RCS file: /home/cvs/linux-2.5/drivers/scsi/ide-scsi.c,v
+retrieving revision 1.80
+diff -u -r1.80 ide-scsi.c
+--- linux-2.6/drivers/scsi/ide-scsi.c	18 Jul 2003 20:29:54 -0000	1.80
++++ linux-2.6/drivers/scsi/ide-scsi.c	10 Aug 2003 09:30:32 -0000
+@@ -761,8 +761,8 @@
+ 		printk ("ide-scsi: %s: building DMA table for a single buffer (%dkB)\n", drive->name, pc->request_transfer >> 10);
+ #endif /* IDESCSI_DEBUG_LOG */
+ 		bh->bi_io_vec[0].bv_page = virt_to_page(pc->scsi_cmd->request_buffer);
++		bh->bi_io_vec[0].bv_offset = virt_to_pageoff(pc->scsi_cmd->request_buffer);
+ 		bh->bi_io_vec[0].bv_len = pc->request_transfer;
+-		bh->bi_io_vec[0].bv_offset = (unsigned long) pc->scsi_cmd->request_buffer & ~PAGE_MASK;
+ 		bh->bi_size = pc->request_transfer;
+ 	}
+ 	return first_bh;
+Index: linux-2.6/drivers/scsi/megaraid.c
+===================================================================
+RCS file: /home/cvs/linux-2.5/drivers/scsi/megaraid.c,v
+retrieving revision 1.43
+diff -u -r1.43 megaraid.c
+--- linux-2.6/drivers/scsi/megaraid.c	17 Jul 2003 17:43:53 -0000	1.43
++++ linux-2.6/drivers/scsi/megaraid.c	10 Aug 2003 09:30:32 -0000
+@@ -2275,8 +2275,7 @@
+ 	if( !cmd->use_sg ) {
+ 
+ 		page = virt_to_page(cmd->request_buffer);
+-
+-		offset = ((unsigned long)cmd->request_buffer & ~PAGE_MASK);
++		offset = virt_to_pageoff(cmd->request_buffer);
+ 
+ 		scb->dma_h_bulkdata = pci_map_page(adapter->dev,
+ 						  page, offset,
+Index: linux-2.6/drivers/scsi/qlogicfc.c
+===================================================================
+RCS file: /home/cvs/linux-2.5/drivers/scsi/qlogicfc.c,v
+retrieving revision 1.34
+diff -u -r1.34 qlogicfc.c
+--- linux-2.6/drivers/scsi/qlogicfc.c	17 Jul 2003 17:43:53 -0000	1.34
++++ linux-2.6/drivers/scsi/qlogicfc.c	10 Aug 2003 09:30:32 -0000
+@@ -1283,8 +1283,7 @@
+ 		}
+ 	} else if (Cmnd->request_bufflen && Cmnd->sc_data_direction != PCI_DMA_NONE) {
+ 		struct page *page = virt_to_page(Cmnd->request_buffer);
+-		unsigned long offset = ((unsigned long)Cmnd->request_buffer &
+-					~PAGE_MASK);
++		unsigned long offset = virt_to_pageoff(Cmnd->request_buffer);
+ 		dma_addr_t busaddr = pci_map_page(hostdata->pci_dev,
+ 						  page, offset,
+ 						  Cmnd->request_bufflen,
+@@ -1927,8 +1926,7 @@
+ 	 */
+ 	busaddr = pci_map_page(hostdata->pci_dev,
+ 			       virt_to_page(&hostdata->control_block),
+-			       ((unsigned long) &hostdata->control_block &
+-				~PAGE_MASK),
++			       virt_to_pageoff(&hostdata->control_block),
+ 			       sizeof(hostdata->control_block),
+ 			       PCI_DMA_BIDIRECTIONAL);
+ 
+Index: linux-2.6/drivers/scsi/sg.c
+===================================================================
+RCS file: /home/cvs/linux-2.5/drivers/scsi/sg.c,v
+retrieving revision 1.54
+diff -u -r1.54 sg.c
+--- linux-2.6/drivers/scsi/sg.c	17 Jul 2003 17:43:53 -0000	1.54
++++ linux-2.6/drivers/scsi/sg.c	10 Aug 2003 09:30:33 -0000
+@@ -1813,7 +1813,7 @@
+ 					break;
+ 			}
+ 			sclp->page = virt_to_page(p);
+-			sclp->offset = (unsigned long) p & ~PAGE_MASK;
++			sclp->offset = virt_to_pageoff(p);
+ 			sclp->length = ret_sz;
+ 
+ 			SCSI_LOG_TIMEOUT(5, printk("sg_build_build: k=%d, a=0x%p, len=%d\n",
+Index: linux-2.6/drivers/scsi/sym53c8xx.c
+===================================================================
+RCS file: /home/cvs/linux-2.5/drivers/scsi/sym53c8xx.c,v
+retrieving revision 1.39
+diff -u -r1.39 sym53c8xx.c
+--- linux-2.6/drivers/scsi/sym53c8xx.c	18 Jul 2003 16:56:15 -0000	1.39
++++ linux-2.6/drivers/scsi/sym53c8xx.c	10 Aug 2003 09:30:33 -0000
+@@ -1162,8 +1162,7 @@
+ 
+ 	mapping = pci_map_page(pdev,
+ 			       virt_to_page(cmd->request_buffer),
+-			       ((unsigned long)cmd->request_buffer &
+-				~PAGE_MASK),
++			       virt_to_pageoff(cmd->request_buffer),
+ 			       cmd->request_bufflen, dma_dir);
+ 	__data_mapped(cmd) = 1;
+ 	__data_mapping(cmd) = mapping;
+Index: linux-2.6/drivers/scsi/arm/scsi.h
+===================================================================
+RCS file: /home/cvs/linux-2.5/drivers/scsi/arm/scsi.h,v
+retrieving revision 1.2
+diff -u -r1.2 scsi.h
+--- linux-2.6/drivers/scsi/arm/scsi.h	19 May 2003 17:48:30 -0000	1.2
++++ linux-2.6/drivers/scsi/arm/scsi.h	10 Aug 2003 09:30:33 -0000
+@@ -23,7 +23,7 @@
+ 	BUG_ON(bufs + 1 > max);
+ 
+ 	sg->page   = virt_to_page(SCp->ptr);
+-	sg->offset = ((unsigned int)SCp->ptr) & ~PAGE_MASK;
++	sg->offset = virt_to_pageoff(SCp->ptr);
+ 	sg->length = SCp->this_residual;
+ 
+ 	if (bufs)
 
-I don't see this as a bad decision at all, it's just that there are some 
-annoying cases where the deliberate starvation which works nicely in my 
-favor for both interactivity and throughput in most cases can and does kick 
-my ass in others.  This is nothing new.  I have no memory of the scheduler 
-ever being perfect (0.96->today).  This scheduler is very nice to me; it's 
-very simple, it's generally highly effective, and it's easily 
-tweakable.  It just has some irritating rough edges.
-
->If this is indeed what is going on, what is the reasoning behind it?
->I didn't really see any problems before with the simple scheduler, so
->it seems to me like this may just be a hack to make poorly-written
->applications seem to be a bit "faster" by starving other processes of
->CPU when the poorly-written applications decide they want to do
->something (such as rendering a page with a large table in Mozilla
->-- grr).  Is this really making a large enough difference to be worth
->all of this trouble?
->
->To me it would seem the best algorithm would be what we had before all
->of this started.  Isn't it best to switch to a task as soon as an event
->(such as disk I/O finishing or a mouse move waking up X to read mouse
->input) occurs for both latency and cache reasons (queued in LIFO
->order)?  DMA may make some this more complicated, I don't know.
-
-Hmm.  If a mouse event happened to be queued but not yet run when a slew of 
-disk events arrived, LIFO would immediately suck.  LIFO may be good for the 
-cache, but it doesn't seem like it could be good for average 
-latency.  Other than that, what you describe is generally what 
-happens.  Tasks which are waiting for hardware a lot rapidly attain a very 
-high priority, and preempt whoever happened to service the interrupt 
-(waker) almost instantly.  I'd have to look closer at the old scheduler to 
-be sure, but I don't think there's anything much different between old/new 
-handling.
-
->I am seeing similar starvation problems that others are seeing in these
->threads.  At first it was whenever I clicked a link in Mozilla -- xmms
->would stop, sometimes for a second or so, on a Celeron 466 MHz machine.
-
-Do you see this with test-X and Ingo's latest changes too?  I can only 
-imagine one scenario off the top of my head where this could happen; if 
-xmms exhausted a slice while STARVATION_LIMIT is exceeded, it could land in 
-the expired array and remain unserviced for the period of time it takes for 
-all tasks remaining in the active array to exhaust their slices.  Seems 
-like that should be pretty rare though.
-
-         -Mike 
-
+-- 
+Hideaki YOSHIFUJI @ USAGI Project <yoshfuji@linux-ipv6.org>
+GPG FP: 9022 65EB 1ECF 3AD1 0BDF  80D8 4807 F894 E062 0EEA

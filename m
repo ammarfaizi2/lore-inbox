@@ -1,58 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266953AbTCFMQ5>; Thu, 6 Mar 2003 07:16:57 -0500
+	id <S264628AbTCFMQ4>; Thu, 6 Mar 2003 07:16:56 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267778AbTCFMQ5>; Thu, 6 Mar 2003 07:16:57 -0500
-Received: from draco.cus.cam.ac.uk ([131.111.8.18]:56040 "EHLO
-	draco.cus.cam.ac.uk") by vger.kernel.org with ESMTP
-	id <S266953AbTCFMQz>; Thu, 6 Mar 2003 07:16:55 -0500
-Date: Thu, 6 Mar 2003 12:27:26 +0000 (GMT)
-From: Anton Altaparmakov <aia21@cantab.net>
-To: "Randy.Dunlap" <rddunlap@osdl.org>
-cc: linux-kernel@vger.kernel.org, linux-ntfs-dev@lists.sourceforge.net
-Subject: Re: [Linux-NTFS-Dev] ntfs OOPS (2.5.63)
-In-Reply-To: <33061.4.64.238.61.1046931564.squirrel@www.osdl.org>
-Message-ID: <Pine.SOL.3.96.1030306122447.1983A-100000@draco.cus.cam.ac.uk>
+	id <S267778AbTCFMQz>; Thu, 6 Mar 2003 07:16:55 -0500
+Received: from bay-bridge.veritas.com ([143.127.3.10]:16738 "EHLO
+	mtvmime03.VERITAS.COM") by vger.kernel.org with ESMTP
+	id <S264628AbTCFMQy>; Thu, 6 Mar 2003 07:16:54 -0500
+Date: Thu, 6 Mar 2003 12:29:14 +0000 (GMT)
+From: Hugh Dickins <hugh@veritas.com>
+X-X-Sender: hugh@localhost.localdomain
+To: Andrew Morton <akpm@digeo.com>
+cc: Petr Vandrovec <vandrove@vc.cvut.cz>,
+       Helge Hafting <helgehaf@aitel.hist.no>, <linux-kernel@vger.kernel.org>
+Subject: [PATCH] vm_area_struct slab corruption
+Message-ID: <Pine.LNX.4.44.0303061208470.2196-100000@localhost.localdomain>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset="us-ascii"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 5 Mar 2003, Randy.Dunlap wrote:
+Fix vm_area_struct slab corruption due to mremap's move_vma mistaking
+(okay, okay, _my_ mistaking) how do_munmap splits vmas in one case.
 
-> > Hi Randy,
-> >
-> > Could you try to turn on debugging in the NTFS driver (compile option in the
-> > menus), then once ntfs module is loaded (or otherwise anytime) as root do:
-> >
-> > echo -1 > /proc/sys/fs/ntfs-debug
-> >
-> > Then mount and to the directory changes. Assuming that you get the bug again
-> > could you send me the captured kernel log output? (Note there will be
-> > massive amounts of output.)
-> >
-> > The code looks ok and I can't reproduce here so it would be helpful to see
-> > if there are any oddities on your partition. Just to make sure it is not the
-> > compiler, could you do a "make fs/ntfs/inode.S" and send me that as well?
-> >
-> > Thanks,
-> 
-> Anton,
-> 
-> I'll get to this in another day or so.
-> 
-> The help text for NTFS_DEBUG says to use 1 to enable it
-> or 0 to disable it.  What does -1 do?
+This patch fits do_munmap to move_vma's expectation: you may well feel
+that's the wrong way round to fix it (and not the way I promised a few
+days ago), but at present I'm more comfortable with this simpler fix;
+and it does seem preferable for do_munmap to reuse the existing vma.
 
-It doesn't matter. We just test "if not zero do debug output". The old
-ntfs driver used to use different bits for different error messages so -1
-would enable all of them and I have stuck to using -1...
+Hugh
 
-Thanks,
-
-	Anton
--- 
-Anton Altaparmakov <aia21 at cantab.net> (replace at with @)
-Linux NTFS maintainer / IRC: #ntfs on irc.freenode.net
-WWW: http://linux-ntfs.sf.net/ & http://www-stu.christs.cam.ac.uk/~aia21/
+--- 2.5.64/mm/mmap.c	Wed Mar  5 07:26:34 2003
++++ linux/mm/mmap.c	Thu Mar  6 11:47:44 2003
+@@ -1258,20 +1258,24 @@
+  
+ 	/*
+ 	 * If we need to split any vma, do it now to save pain later.
++	 *
++	 * Note: mremap's move_vma VM_ACCOUNT handling assumes a partially
++	 * unmapped vm_area_struct will remain in use: so lower split_vma
++	 * places tmp vma above, and higher split_vma places tmp vma below.
+ 	 */
+ 	if (start > mpnt->vm_start) {
+ 		if (split_vma(mm, mpnt, start, 0))
+ 			return -ENOMEM;
+ 		prev = mpnt;
+-		mpnt = mpnt->vm_next;
+ 	}
+ 
+ 	/* Does it split the last one? */
+ 	last = find_vma(mm, end);
+ 	if (last && end > last->vm_start) {
+-		if (split_vma(mm, last, end, 0))
++		if (split_vma(mm, last, end, 1))
+ 			return -ENOMEM;
+ 	}
++	mpnt = prev? prev->vm_next: mm->mmap;
+ 
+ 	/*
+ 	 * Remove the vma's, and unmap the actual pages
 

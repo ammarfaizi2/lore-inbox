@@ -1,60 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S275369AbTHGO5L (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Aug 2003 10:57:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S275368AbTHGO5F
+	id S275386AbTHGO7z (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Aug 2003 10:59:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S275376AbTHGO5v
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Aug 2003 10:57:05 -0400
-Received: from dhcp75.ists.dartmouth.edu ([129.170.249.155]:49792 "EHLO
-	uml.karaya.com") by vger.kernel.org with ESMTP id S275387AbTHGOzI
+	Thu, 7 Aug 2003 10:57:51 -0400
+Received: from dhcp75.ists.dartmouth.edu ([129.170.249.155]:48768 "EHLO
+	uml.karaya.com") by vger.kernel.org with ESMTP id S275386AbTHGOy6
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Aug 2003 10:55:08 -0400
-Message-Id: <200308071459.h77ExCVt001984@uml.karaya.com>
+	Thu, 7 Aug 2003 10:54:58 -0400
+Message-Id: <200308071459.h77Ex8FL001966@uml.karaya.com>
 X-Mailer: exmh version 2.4 06/23/2000 with nmh-1.0.4
 To: torvalds@odsl.com
 cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] UML build updates 
+Subject: [PATCH] UML filesystems 
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Date: Thu, 07 Aug 2003 10:59:12 -0400
+Date: Thu, 07 Aug 2003 10:59:08 -0400
 From: Jeff Dike <jdike@addtoit.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 Please pull
-	http://jdike.stearns.org:5000/build-2.5
+	http://jdike.stearns.org:5000/fs-2.5
 
-This update brings the UML build up to 2.6.0-test2.
+This adds the two UML filesystems to the 2.5 tree - hostfs allows a directory
+on the host to be mounted as a filesystem inside UML, and hppfs is an overlay
+over /proc which allows the content of the UML's /proc to be controlled from
+the host.
+
+These are going into fs/hostfs and fs/hppfs.
 
 				Jeff
 
- arch/um/Kconfig                 |   28 ++++++++++++++++
- arch/um/Kconfig_net             |   70 ----------------------------------------
- arch/um/Makefile                |   39 ++++++++++++++--------
- arch/um/Makefile-i386           |   20 +++++++----
- arch/um/Makefile-skas           |    6 +--
- arch/um/config.release          |    1 
- arch/um/defconfig               |    1 
- arch/um/drivers/Makefile        |    2 -
- arch/um/dyn.lds.S               |    8 +++-
- arch/um/kernel/Makefile         |    8 +---
- arch/um/kernel/config.c.in      |    4 --
- arch/um/kernel/skas/Makefile    |   22 +++++++-----
- arch/um/sys-i386/Makefile       |   10 +++--
- arch/um/uml.lds.S               |    8 +++-
- include/asm-um/common.lds.S     |   34 ++++++++++++++++++-
- include/asm-um/module-generic.h |    6 +++
- include/asm-um/module-i386.h    |   13 +++++++
- 17 files changed, 158 insertions(+), 122 deletions(-)
 
-ChangeSet@1.1455.16.1, 2003-07-25 09:30:48-04:00, jdike@uml.karaya.com
-  Fixed the clash in Kconfig with the binfmt options being moved to
-  fs/Kconfig.binfmt.
+ arch/um/Kconfig         |   13 
+ fs/Makefile             |    2 
+ fs/hostfs/Makefile      |   36 +
+ fs/hostfs/hostfs.h      |   79 +++
+ fs/hostfs/hostfs_kern.c |  960 ++++++++++++++++++++++++++++++++++++++++++++++++
+ fs/hostfs/hostfs_user.c |  355 +++++++++++++++++
+ fs/hppfs/Makefile       |   19 
+ fs/hppfs/hppfs_kern.c   |  811 ++++++++++++++++++++++++++++++++++++++++
+ 8 files changed, 2275 insertions(+)
 
-ChangeSet@1.1215.148.2, 2003-07-17 15:05:33-04:00, jdike@uml.karaya.com
-  Added BINFMT_ELF until I catch up to whenever fs/Kconfig.binfmt
-  appears.
+ChangeSet@1.1455.16.2, 2003-07-28 12:53:38-04:00, jdike@uml.karaya.com
+  Merged the 2.6.0 updates, which I seemed to have forgotten when I released the
+ patch.
 
-ChangeSet@1.1215.148.1, 2003-07-17 10:06:21-04:00, jdike@uml.karaya.com
-  Untangling my repositories.  Added back the build and config changes.
+ChangeSet@1.1455.16.1, 2003-07-25 02:17:21-04:00, jdike@uml.karaya.com
+  Merge uml.karaya.com:/home/jdike/linux/2.5/linus-2.6.0-test1
+  into uml.karaya.com:/home/jdike/linux/2.5/fs-2.5
+
+ChangeSet@1.1215.148.2, 2003-07-17 15:10:03-04:00, jdike@uml.karaya.com
+  Added a const to the declaration of hppfs_read_super to shut the
+  compiler up.
+
+ChangeSet@1.1215.148.1, 2003-07-17 10:30:31-04:00, jdike@uml.karaya.com
+  Added the build and config options for hostfs and hpppfs.
 

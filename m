@@ -1,64 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129228AbQLOSRs>; Fri, 15 Dec 2000 13:17:48 -0500
+	id <S130128AbQLOSTS>; Fri, 15 Dec 2000 13:19:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129370AbQLOSRi>; Fri, 15 Dec 2000 13:17:38 -0500
-Received: from lsb-catv-1-p021.vtxnet.ch ([212.147.5.21]:11536 "EHLO
-	almesberger.net") by vger.kernel.org with ESMTP id <S129228AbQLOSRc>;
-	Fri, 15 Dec 2000 13:17:32 -0500
-Date: Fri, 15 Dec 2000 18:46:44 +0100
-From: Werner Almesberger <Werner.Almesberger@epfl.ch>
-To: ferret@phonewave.net
-Cc: Alexander Viro <viro@math.psu.edu>, LA Walsh <law@sgi.com>,
-        lkml <linux-kernel@vger.kernel.org>
-Subject: Re: Linus's include file strategy redux
-Message-ID: <20001215184644.R573@almesberger.net>
-In-Reply-To: <20001215152137.K599@almesberger.net> <Pine.LNX.3.96.1001215090857.16439A-100000@tarot.mentasm.org>
+	id <S129732AbQLOSTI>; Fri, 15 Dec 2000 13:19:08 -0500
+Received: from obelix.hrz.tu-chemnitz.de ([134.109.132.55]:18647 "EHLO
+	obelix.hrz.tu-chemnitz.de") by vger.kernel.org with ESMTP
+	id <S129370AbQLOSS4>; Fri, 15 Dec 2000 13:18:56 -0500
+Date: Fri, 15 Dec 2000 19:47:35 +0100
+From: Ingo Oeser <ingo.oeser@informatik.tu-chemnitz.de>
+To: Eckhard Jokisch <e.jokisch@u-code.de>
+Cc: linux-kernel@vger.kernel.org, Dave Jones <davej@suse.de>,
+        "H . Peter Anvin" <hpa@zytor.com>
+Subject: Re: test12 lockups -- need feedback
+Message-ID: <20001215194735.K829@nightmaster.csn.tu-chemnitz.de>
+In-Reply-To: <00121418523403.16098@eckhard>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.3.96.1001215090857.16439A-100000@tarot.mentasm.org>; from ferret@phonewave.net on Fri, Dec 15, 2000 at 09:15:23AM -0800
+User-Agent: Mutt/1.2i
+In-Reply-To: <00121418523403.16098@eckhard>; from e.jokisch@u-code.de on Thu, Dec 14, 2000 at 06:52:34PM +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ferret@phonewave.net wrote:
-> Just out of curiosity, what would happen with redirection if your source
-> tree for 'the currently running kernel' version happens to be configured
-> for a different 'the currently running kernel', perhaps a machine of a
-> foreign arch that you are cross-compiling for?
+On Thu, Dec 14, 2000 at 06:52:34PM +0000, Eckhard Jokisch wrote:
+> Is it possible that there is something wrong with the 8139too driver? 
+> ( I also use a card with 8139 chip )
+> Or do you use the "old" rtl8139 ? With that I don't have any problems.
+> I have an extra machine here where I can do all testing - how can I help?
 
-Two choices:
- 1) try to find an alternative. If there's none, fail.
- 2) make the corresponding asm or asm/arch branch available (non-trivial
-    and maybe not desirable)
+I have no Realtek-Card and have the same lockup.
 
-> I do this: I use ONE machine to compile kernels for five: four i386 and
-> one SUN4C. My other machines don't even HAVE /usr/src/linux, so where does
-> this redirection leave them?
+I also got a hard lockup (but with Oops) while calling the
+"vendor CPU init" function during system boot.
 
-Depends on your distribution: if it doesn't install any kernel-specific
-headers, you wouldn't be able to compile programs requiring anything
-beyond what it provided by your libc. Otherwise, there could be a
-default location (such as /usr/src/linux is a default location now).
+This was on Cyrix III.
 
-The main advantage of a script would be that one could easily compile
-for multiple kernels, e.g. with
+PS: CC'ed hpa, because he is cpu-detection maintainer and davej,
+   because he added Cyrix III support and might know details ;-)
 
-export TARGET_KERNEL=2.0.4
-make
+Regards
 
-Even if your system is running 2.4.13-test1.
-
-The architecture could be obtained from the tree or the tree could be
-picked based on the architecture. This is a policy decision that could
-be hidden in the script.
-
-- Werner
-
+Ingo Oeser
 -- 
-  _________________________________________________________________________
- / Werner Almesberger, ICA, EPFL, CH           Werner.Almesberger@epfl.ch /
-/_IN_N_032__Tel_+41_21_693_6621__Fax_+41_21_693_6610_____________________/
+10.+11.03.2001 - 3. Chemnitzer LinuxTag <http://www.tu-chemnitz.de/linux/tag>
+         <<<<<<<<<<<<       come and join the fun       >>>>>>>>>>>>
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

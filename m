@@ -1,53 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292996AbSCEMcb>; Tue, 5 Mar 2002 07:32:31 -0500
+	id <S293042AbSCEMel>; Tue, 5 Mar 2002 07:34:41 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293042AbSCEMcW>; Tue, 5 Mar 2002 07:32:22 -0500
-Received: from perninha.conectiva.com.br ([200.250.58.156]:4101 "HELO
-	perninha.conectiva.com.br") by vger.kernel.org with SMTP
-	id <S292996AbSCEMcH>; Tue, 5 Mar 2002 07:32:07 -0500
-Date: Tue, 5 Mar 2002 09:31:49 -0300 (BRT)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: riel@duckman.distro.conectiva
-To: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>
-Cc: Andrea Arcangeli <andrea@suse.de>,
-        linux-kernel <linux-kernel@vger.kernel.org>,
-        <lse-tech@lists.sourceforge.net>
-Subject: Re: [PATCH] breaking up the pagemap_lru_lock in rmap
-In-Reply-To: <793424263.1015276658@[10.10.2.3]>
-Message-ID: <Pine.LNX.4.44L.0203050930070.1413-100000@duckman.distro.conectiva>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S293044AbSCEMeb>; Tue, 5 Mar 2002 07:34:31 -0500
+Received: from green.csi.cam.ac.uk ([131.111.8.57]:8866 "EHLO
+	green.csi.cam.ac.uk") by vger.kernel.org with ESMTP
+	id <S293042AbSCEMeQ>; Tue, 5 Mar 2002 07:34:16 -0500
+Message-Id: <5.1.0.14.2.20020305122312.026b9180@pop.cus.cam.ac.uk>
+X-Mailer: QUALCOMM Windows Eudora Version 5.1
+Date: Tue, 05 Mar 2002 12:36:54 +0000
+To: Martin Dalecki <dalecki@evision-ventures.com>
+From: Anton Altaparmakov <aia21@cam.ac.uk>
+Subject: Re: [PATCH] 2.5.6-pre2 IDE cleanup 16
+Cc: Zwane Mwaikambo <zwane@linux.realnet.co.sz>,
+        Linux Kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <3C84B093.5020401@evision-ventures.com>
+In-Reply-To: <Pine.LNX.4.44.0203051307080.12437-100000@netfinity.realnet.co.sz>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 4 Mar 2002, Martin J. Bligh wrote:
+At 11:48 05/03/02, Martin Dalecki wrote:
+>5. No body is using it as of now and therefore nobody should miss it.
 
-> > Maybe that's more a sympthom that the rmap is doing
-> > something silly with the lock acquired,
->
-> It seems that we're reusing the pagemap_lru_lock for both the lru chain
-> and the pte chain locking, which is hurting somewhat. Maybe a per-zone
-> lock is enough to break this up (would also dispose of cross-node lock
-> cacheline bouncing) ... I still think the two chains need to be seperated
-> from each other though.
+That is a very bold statement which is incorrect. I remember reading at 
+least one post to lkml from a company who is using the Taskfile ioctls and 
+having a lot of praise for them. Sorry I delete older lkml stuff so I can't 
+quote you the post but I am sure you could find it in the archives if you 
+tried to look.
 
-Absolutely agreed.  I'll happily accept patches for this,
-but unfortunately don't have the time to implement this
-myself right now.
+Considering your massive amount of changes which are, A) completely 
+uncoordinated with Andre, and B) going well beyond what one could consider 
+cleanup, I am still waiting to see you place your name as IDE maintainer... 
+Clearly you have taken over maintenance now so stand up to it.
 
-The reason the pagemap_lru_lock protects both the lru
-lists and the pte_chain lists is that it was the easiest
-way to get -rmap running on SMP and I had (and still have)
-a pretty large TODO list of -rmap and unrelated things...
+Best regards,
 
-regards,
+Anton
 
-Rik
+
 -- 
-Will hack the VM for food.
-
-http://www.surriel.com/		http://distro.conectiva.com/
+   "I've not lost my mind. It's backed up on tape somewhere." - Unknown
+-- 
+Anton Altaparmakov <aia21 at cam.ac.uk> (replace at with @)
+Linux NTFS Maintainer / WWW: http://linux-ntfs.sf.net/
+ICQ: 8561279 / WWW: http://www-stu.christs.cam.ac.uk/~aia21/
 

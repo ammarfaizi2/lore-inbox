@@ -1,41 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129351AbQKBJzI>; Thu, 2 Nov 2000 04:55:08 -0500
+	id <S129599AbQKBKXm>; Thu, 2 Nov 2000 05:23:42 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129523AbQKBJy6>; Thu, 2 Nov 2000 04:54:58 -0500
-Received: from Prins.externet.hu ([212.40.96.161]:62981 "EHLO
-	prins.externet.hu") by vger.kernel.org with ESMTP
-	id <S129351AbQKBJyu>; Thu, 2 Nov 2000 04:54:50 -0500
-Date: Thu, 2 Nov 2000 10:54:44 +0100 (CET)
-From: Narancs 1 <narancs1@externet.hu>
-To: kraxel@goldbach.in-berlin.de
-cc: linux-kernel@vger.kernel.org
-Subject: vesafb doesn't work in 240t10?
-Message-ID: <Pine.LNX.4.02.10011021050140.10126-100000@prins.externet.hu>
+	id <S129981AbQKBKXd>; Thu, 2 Nov 2000 05:23:33 -0500
+Received: from panic.ohr.gatech.edu ([130.207.47.194]:37637 "EHLO
+	havoc.gtf.org") by vger.kernel.org with ESMTP id <S129599AbQKBKXU>;
+	Thu, 2 Nov 2000 05:23:20 -0500
+Message-ID: <3A01408D.6DBE85F9@mandrakesoft.com>
+Date: Thu, 02 Nov 2000 05:23:09 -0500
+From: Jeff Garzik <jgarzik@mandrakesoft.com>
+Organization: MandrakeSoft
+X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.2.18pre18 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Narancs 1 <narancs1@externet.hu>
+CC: kraxel@goldbach.in-berlin.de, linux-kernel@vger.kernel.org
+Subject: Re: vesafb doesn't work in 240t10?
+In-Reply-To: <Pine.LNX.4.02.10011021050140.10126-100000@prins.externet.hu>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dear developers!
+Narancs 1 wrote:
+> I used to start vesafb like this:
+> /etc/lilo.conf:
+> vga=317
 
-I used to start vesafb like this:
-/etc/lilo.conf: 
-vga=317
+> I want to start the kernel in 1024x768 16 bit
+> How to do it?
+> I've read Doc*/fb/vesafb.txt
 
+vga takes a decimal number, but the number in vesafb.txt is
+hexidecimal.  Let us convert 0x317 to decimal:
 
-Now kernel doesn't accept this.
-it complains that this is not a valid mode id.
-So what?
+[jgarzik@rum linux_2_4]$ perl -e 'printf "%d\n", 0x317;'
+791
 
-I want to start the kernel in 1024x768 16 bit
-How to do it?
-I've read Doc*/fb/vesafb.txt
-That is not true now.
+So, use "vga=791" in your lilo.conf.
 
-10x
-Narancs v1
-
+-- 
+Jeff Garzik             | Dinner is ready when
+Building 1024           | the smoke alarm goes off.
+MandrakeSoft            |	-/usr/games/fortune
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

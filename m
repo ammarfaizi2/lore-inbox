@@ -1,66 +1,82 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288668AbSAIBBm>; Tue, 8 Jan 2002 20:01:42 -0500
+	id <S288677AbSAIBLQ>; Tue, 8 Jan 2002 20:11:16 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288669AbSAIBBd>; Tue, 8 Jan 2002 20:01:33 -0500
-Received: from theirongiant.zip.net.au ([61.8.0.198]:3474 "EHLO
-	theirongiant.zip.net.au") by vger.kernel.org with ESMTP
-	id <S288668AbSAIBBZ>; Tue, 8 Jan 2002 20:01:25 -0500
-Date: Wed, 9 Jan 2002 12:01:22 +1100
-From: CaT <cat@zip.com.au>
-To: linux-kernel@vger.kernel.org
-Subject: undefined reference to `local symbols in discarded section .text.exit
-Message-ID: <20020109010122.GC822@zip.com.au>
-Mime-Version: 1.0
+	id <S288678AbSAIBLH>; Tue, 8 Jan 2002 20:11:07 -0500
+Received: from gear.torque.net ([204.138.244.1]:6670 "EHLO gear.torque.net")
+	by vger.kernel.org with ESMTP id <S288673AbSAIBK7>;
+	Tue, 8 Jan 2002 20:10:59 -0500
+Message-ID: <3C3B9853.740E71DA@torque.net>
+Date: Tue, 08 Jan 2002 20:09:39 -0500
+From: Douglas Gilbert <dougg@torque.net>
+X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.5.2-pre9 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: admin@nextframe.net
+CC: torvalds@transmeta.com, linux-kernel@vger.kernel.org,
+        linux-scsi@vger.kernel.org
+Subject: Re: [PATCH] drivers/scsi/psi240i.c - io_request_lock fix
+In-Reply-To: <20020108150738.B6168@sexything>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.25i
-Organisation: Furball Inc.
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I have modules and hotplug turned on (but nothing turned on in the
-hotplug suboptions) but I get this error anyway:
+Morten Helgesen wrote:
+> 
+> Hey Linus and the rest of you.
+> 
+> A simple fix for the io_request_lock issue leftovers in drivers/scsi/psi240i.c.
+> Not tested, but compiles. Diffed against 2.5.2-pre10. Please apply.
+> 
 
-        /usr/src/linux/arch/i386/lib/lib.a /usr/src/linux/lib/lib.a
-/usr/src/linux/arch/i386/lib/lib.a \
-        --end-group \
-        -o vmlinux
-net/network.o(.text.lock+0x1730): undefined reference to `local symbols
-in discarded section .text.exit'
-make: *** [vmlinux] Error 1
+Morten,
+There is a bit more involved than just switching
+io_request_lock to host_lock. The former is global
+so it could be called from anywhere.
 
-I've tried to track it down but I can't find what is triggering it. This
-is with 2.4.18-pre2 with the following net related config options in:
+>From the look of this line in the patch:
+> +       struct Scsi_Host *host = PsiHost[irq - 10];
 
-CONFIG_NETDEVICES=y
-CONFIG_DUMMY=y
-CONFIG_NET_ETHERNET=y
-CONFIG_NET_PCI=y
-CONFIG_TULIP=y
-CONFIG_TULIP_MWI=y
-CONFIG_PPP=y
-CONFIG_PPP_ASYNC=y
-CONFIG_PPP_DEFLATE=y
-CONFIG_PPP_BSDCOMP=y
-CONFIG_PPPOE=y
-CONFIG_PACKET=y
-CONFIG_PACKET_MMAP=y
-CONFIG_NETLINK_DEV=y
-CONFIG_NETFILTER=y
-CONFIG_NETFILTER_DEBUG=y
-CONFIG_UNIX=y
-CONFIG_INET=y
-CONFIG_IP_MULTICAST=y
-CONFIG_SYN_COOKIES=y
+It will work if the first controller is allocated irq 10,
+the second one irq 11, etc.   Unlikely ...
 
-Help? I can't compile 2 kernels cos of this now and I need to with one
-of them to try and track down a netfilter bug (this isn't the config
-section for that kernel though).
+Looking at that driver it seems that it will need a
+bit of surgery to pass perhaps a Scsi_Cmnd pointer
+through the request_irq() function so you can
+follow a pointer chain in do_Irq_Handler() to get
+hold of the appropriate host_lock.
 
--- 
-SOCCER PLAYER IN GENITAL-BITING SCANDAL  ---  "It was something between
-friends that I thought would have no importance until this morning when
-I got up and saw all  the commotion in the news,"  Gallardo told a news
-conference. "It stunned me."
-Reyes told Marca that he had "felt a slight pinch."
+In the lk 2.5 series host_lock should indeed be held
+when the callback "scsi_done" is invoked and that
+most likely occurs in Irq_Handler(). So that is right.
+
+BTW To get a better idea of what is involved, diff the
+sym53c8xx driver in lk 2.4.15 and the one in the
+lk 2.5 series now [kudos to Gerard Roudier].
+
+
+Having been burnt by a well meaning advansys patch that
+converted a kernel compile time error into a kernel
+boot time freeze, it is a bit worrying the number
+of "untested" patches of this nature appearing on lkml.
+
+Doug Gilbert
+
+
+> --- vanilla-linux-2.5.2-pre10/drivers/scsi/psi240i.c    Tue Jan  8 10:57:31 2002
+> +++ patched-linux-2.5.2-pre10/drivers/scsi/psi240i.c    Tue Jan  8 14:48:56 2002
+> @@ -370,10 +370,11 @@
+>  static void do_Irq_Handler (int irq, void *dev_id, struct pt_regs *regs)
+>         {
+>         unsigned long flags;
+> +       struct Scsi_Host *host = PsiHost[irq - 10];
+> 
+> -       spin_lock_irqsave(&io_request_lock, flags);
+> +       spin_lock_irqsave(&host->host_lock, flags);
+>         Irq_Handler(irq, dev_id, regs);
+> -       spin_unlock_irqrestore(&io_request_lock, flags);
+> +       spin_unlock_irqrestore(&host->host_lock, flags);
+>         }
+>  /****************************************************************
+>   *     Name:   Psi240i_QueueCommand

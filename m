@@ -1,58 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129220AbQKHTav>; Wed, 8 Nov 2000 14:30:51 -0500
+	id <S129258AbQKHTr6>; Wed, 8 Nov 2000 14:47:58 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129224AbQKHTac>; Wed, 8 Nov 2000 14:30:32 -0500
-Received: from chaos.analogic.com ([204.178.40.224]:21376 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP
-	id <S129220AbQKHTaY>; Wed, 8 Nov 2000 14:30:24 -0500
-Date: Wed, 8 Nov 2000 14:29:57 -0500 (EST)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-Reply-To: root@chaos.analogic.com
-To: Marcus Meissner <Marcus.Meissner@caldera.de>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: tcp/ip connections and downed/removed netdevs
-In-Reply-To: <20001108201840.A23731@ns.caldera.de>
-Message-ID: <Pine.LNX.3.95.1001108142702.9671A-100000@chaos.analogic.com>
+	id <S129224AbQKHTrr>; Wed, 8 Nov 2000 14:47:47 -0500
+Received: from mauve.csi.cam.ac.uk ([131.111.8.38]:8652 "EHLO
+	mauve.csi.cam.ac.uk") by vger.kernel.org with ESMTP
+	id <S129102AbQKHTrf>; Wed, 8 Nov 2000 14:47:35 -0500
+From: "James A. Sutherland" <jas88@cam.ac.uk>
+To: George Anzinger <george@mvista.com>
+Subject: Re: Installing kernel 2.4
+Date: Wed, 8 Nov 2000 19:43:46 +0000
+X-Mailer: KMail [version 1.0.28]
+Content-Type: text/plain; charset=US-ASCII
+Cc: Horst von Brand <vonbrand@inf.utfsm.cl>,
+        "Jeff V. Merkey" <jmerkey@vger.timpanogas.org>,
+        linux-kernel@vger.kernel.org
+In-Reply-To: <200011081205.eA8C5ui27838@pincoya.inf.utfsm.cl> <00110816543500.01639@dax.joh.cam.ac.uk> <3A098F11.1B89EB7B@mvista.com>
+In-Reply-To: <3A098F11.1B89EB7B@mvista.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Message-Id: <00110819463200.01915@dax.joh.cam.ac.uk>
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 8 Nov 2000, Marcus Meissner wrote:
+On Wed, 08 Nov 2000, George Anzinger wrote:
+> But, here the customer did run the configure code (he said he did not
+> change anything).  Isn't this where the machine should be diagnosed and
+> the right options chosen?  Need a way to say it is a cross build, but
+> that shouldn't be too hard.
 
-> Hi,
-> 
-> I have a rather strange problem in regard to routing and tcp/ip connections.
-> 
-> My setup:
-> 	- default route to eth0, metric 2
-> 	- ppp dialin to static ip (ppp0), is another default route, metric 0
-> 
-> I open a telnet connection over the ppp0 interface.
-> 
-> I then down and remove the ppp0 interface (ifconfig -a ppp0 shows 'no such
-> device'), the default route over ppp0 is gone.
+Why default to incompatibility?! If the user explicitly says "I really do want
+a kernel which only works on this specific machine as it is now, and I want it
+to break otherwise", fine. Don't make it a default!
 
-No. Look in /etc/ppp/ip_up /etc/ppp/ip_down. Read the docs. These control
-what gets set/reset when the ppp connection is set up or torn down.
-
-You can configure to do anything you want, including completely
-reconfiguring your network when a ppp connection is established.
-
-This is not a kernel affair.
+BTW: Has anyone benchmarked the different optimizations - i.e. how much
+difference does optimizing for a Pentium make when running on a PII? More to
+the point, how about optimizing non-exclusively for a Pentium, so the code
+still runs on earlier CPUs?
 
 
-Cheers,
-Dick Johnson
-
-Penguin : Linux version 2.4.0 on an i686 machine (799.54 BogoMips).
-
-"Memory is like gasoline. You use it up when you are running. Of
-course you get it all back when you reboot..."; Actual explanation
-obtained from the Micro$oft help desk.
-
-
+James.
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

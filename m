@@ -1,69 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S143881AbRAHOBa>; Mon, 8 Jan 2001 09:01:30 -0500
+	id <S143665AbRAHOBA>; Mon, 8 Jan 2001 09:01:00 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S143886AbRAHOBW>; Mon, 8 Jan 2001 09:01:22 -0500
-Received: from c-025.static.AT.KPNQwest.net ([193.154.188.25]:38387 "EHLO
-	stefan.sime.com") by vger.kernel.org with ESMTP id <S143881AbRAHOBM>;
-	Mon, 8 Jan 2001 09:01:12 -0500
-Date: Mon, 8 Jan 2001 15:00:11 +0100
-From: Stefan Traby <stefan@hello-penguin.com>
-To: Alexander Viro <viro@math.psu.edu>
-Cc: Stefan Traby <stefan@hello-penguin.com>,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org,
-        drepper@gnu.org
-Subject: Re: ramfs problem... (unlink of sparse file in "D" state)
-Message-ID: <20010108150011.A13441@stefan.sime.com>
-Reply-To: Stefan Traby <stefan@hello-penguin.com>
-In-Reply-To: <20010108141721.C13072@stefan.sime.com> <Pine.GSO.4.21.0101080821450.4061-100000@weyl.math.psu.edu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <Pine.GSO.4.21.0101080821450.4061-100000@weyl.math.psu.edu>; from viro@math.psu.edu on Mon, Jan 08, 2001 at 08:35:10AM -0500
-Organization: Stefan Traby Services && Consulting
-X-Operating-System: Linux 2.4.0-fijiji0 (i686)
-X-APM: 100% 400 min
+	id <S143852AbRAHOAv>; Mon, 8 Jan 2001 09:00:51 -0500
+Received: from eden.dei.uc.pt ([193.137.203.230]:19986 "EHLO eden.dei.uc.pt")
+	by vger.kernel.org with ESMTP id <S143665AbRAHOAc>;
+	Mon, 8 Jan 2001 09:00:32 -0500
+From: Antonio Miguel Trindade <trindade@student.dei.uc.pt>
+Organization: D.E.I F.C.T.U.C.
+To: linux-kernel@vger.kernel.org
+Subject: Mouse problem on VIA chipset mobo
+Date: Mon, 8 Jan 2001 14:00:01 +0000
+X-Mailer: KMail [version 1.1.99]
+Content-Type: text/plain; charset=US-ASCII
+MIME-Version: 1.0
+Message-Id: <01010814000100.18384@polaris>
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jan 08, 2001 at 08:35:10AM -0500, Alexander Viro wrote:
-> On Mon, 8 Jan 2001, Stefan Traby wrote:
-> > Try 'getconf LINK_MAX /ramfs'.
-> > While the result (127) is in some way SuS/POSIXLY_CORRECT,
-> > it's not the truth.
-> > 
-> > Why not start to fix this problem outside the funny switch/case in glibc ?
-> > The filesystem itself should able to handle this.
-> 
-> Sigh... And the API would be?
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-Oh, IMHO that's not too important.
-API should be accepted by you and Ulrich Drepper.
-API should not be expected to return static values. (for example: reiserfs
-may return different values dependend on filesystem-version)
 
-I think the easiest way would be to define ioctls for this.
-So VFS needs no changes; the only discussion would be about the
-standard name for "request-names", and Ulrich could fall back to
-his magic calculations if EINVAL is returned.
+   I don't know if this is the right place to ask this, but here it goes:
 
-Because I have no knowledge on this I suggest that you and Ulrich fight
-together on a more flexible solution than the current one. I guess
-that Linus would accept this without thinking too much about it.
+   I have a Microsoft Intellimouse 1.2 connected to the PS/2 port of my VIA 
+chipset based mobo, and frequently it sends mouse move and button press 
+events that are nothing but annoying. The mouse cursor moves all the way down 
+and left and acts like I'm pressing the right mouse button... 
 
--- 
+   Is this a bug in the kernel, the hardware or what?
 
-  ciao - 
-    Stefan
+   Please help...
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.4 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
 
-"     ( cd /lib ; ln -s libBrokenLocale-2.2.so libNiedersachsen.so )     "
-    
-Stefan Traby                Linux/ia32               fax:  +43-3133-6107-9
-Mitterlasznitzstr. 13       Linux/alpha            phone:  +43-3133-6107-2
-8302 Nestelbach             Linux/sparc       http://www.hello-penguin.com
-Austria                                    mailto://st.traby@opengroup.org
-Europe                                   mailto://stefan@hello-penguin.com
+iD8DBQE6WcfkKh8km1Ma45URAk9NAJ9rJXHfsPlAC8P3KsO86ZbARXFQgACfcbkN
+nvFA++nUrlJNPKrNSdrST2U=
+=1A2z
+-----END PGP SIGNATURE-----
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,53 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270328AbTHBStK (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 2 Aug 2003 14:49:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270332AbTHBStK
+	id S270332AbTHBSt1 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 2 Aug 2003 14:49:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270338AbTHBSt1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 2 Aug 2003 14:49:10 -0400
-Received: from holomorphy.com ([66.224.33.161]:38884 "EHLO holomorphy")
-	by vger.kernel.org with ESMTP id S270328AbTHBStI (ORCPT
+	Sat, 2 Aug 2003 14:49:27 -0400
+Received: from www.13thfloor.AT ([212.16.59.250]:51162 "EHLO www.13thfloor.at")
+	by vger.kernel.org with ESMTP id S270332AbTHBStZ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 2 Aug 2003 14:49:08 -0400
-Date: Sat, 2 Aug 2003 11:50:17 -0700
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Piotr Kierklo <P.Kierklo@elka.pw.edu.pl>
+	Sat, 2 Aug 2003 14:49:25 -0400
+Date: Sat, 2 Aug 2003 20:49:32 +0200
+From: Herbert =?iso-8859-1?Q?P=F6tzl?= <herbert@13thfloor.at>
+To: Sean Estabrooks <seanlkml@rogers.com>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: My kernel hangs once a day
-Message-ID: <20030802185017.GB32488@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Piotr Kierklo <P.Kierklo@elka.pw.edu.pl>,
+Subject: Re: .config in bzImage ?
+Message-ID: <20030802184932.GA12057@www.13thfloor.at>
+Reply-To: herbert@13thfloor.at
+Mail-Followup-To: Sean Estabrooks <seanlkml@rogers.com>,
 	linux-kernel@vger.kernel.org
-References: <Pine.SOL.4.30.0308022029410.20976-101000@mion.elka.pw.edu.pl>
+References: <093901c35924$f3040ed0$7f0a0a0a@lappy7>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-In-Reply-To: <Pine.SOL.4.30.0308022029410.20976-101000@mion.elka.pw.edu.pl>
-Organization: The Domain of Holomorphy
-User-Agent: Mutt/1.5.4i
+In-Reply-To: <093901c35924$f3040ed0$7f0a0a0a@lappy7>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Aug 02, 2003 at 08:38:49PM +0200, Piotr Kierklo wrote:
-> Finally I have decided to submit my kernel oopses I have been
-> experiencing. It became annoying since i switched to use Linux as my
-> primary OS. They happen average once a day. I am not sure whether it is an
-> ext3 bug or memory problems, so I am sending them to this address I have
-> found in Documentation dir of kernel tree.
-> I am using Slackware linux with 2.4.21 kernel:
-> Linux repetus 2.4.21-ow2 #14 sob sie 2 17:07:14 CEST 2003 i686 unknown
-> unknown GNU/Linux
-> Kernel is tainted, as I am using NVIDIA graphics driver to run my X11.
-> Bugs happen both in text as in graphical mode. Most of them are somewhat
-> connected to kswapd, as it is the most frequent phrase I observed in them.
-> Please contact if you need more info.
+On Sat, Aug 02, 2003 at 02:36:12PM -0400, Sean Estabrooks wrote:
+> There was some talk of the .config file being included
+> within bzImage.  Did this ever happen?  If so, how 
+> does one extract the .config from the resulting image?
 
-Unfortunately the nvidia bits are a showstopper; we just can't know
-anything about the internals like we do for un-tainted kernels, so
-you have to go to nvidia about such things.
+hmm, since ages I use for 2.4.x a small patch, which
+includes the .config in the kernel image (gzipped or 
+bzip2ed). this information can be retrieved from the
+procfs by zcat /proc/config.gz or bzcat /proc/config.bz2
+respectively ...
 
-Alternatively, if you can reproduce it while the kernel is untainted
-(without nvidia) then we can get an idea of what might be going on.
+you can get the patch for recent 2.4.x kernels from
+my pages http://www.13thfloor.at/VServer/Patches.shtml
+(they are 03_kconfig* in the patchsets)
 
+for example for 2.4.22-pre10, this would be ...
+http://www.13thfloor.at/VServer/patches-2.4.22-p10c17/03_kconfig-2.4.22-pre3.patch.bz2
 
--- wli
+HTH,
+Herbert
+
+> Cheers,
+> Sean
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/

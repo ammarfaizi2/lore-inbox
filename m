@@ -1,92 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261949AbUBWQnN (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 23 Feb 2004 11:43:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261952AbUBWQnM
+	id S261959AbUBWQpY (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 23 Feb 2004 11:45:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261958AbUBWQpF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 23 Feb 2004 11:43:12 -0500
-Received: from nsmtp.pacific.net.th ([203.121.130.117]:54014 "EHLO
-	nsmtp.pacific.net.th") by vger.kernel.org with ESMTP
-	id S261949AbUBWQnG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 23 Feb 2004 11:43:06 -0500
-Date: Tue, 24 Feb 2004 00:42:57 +0800
-From: "Michael Frank" <mhf@linuxmail.org>
-To: "Bill Davidsen" <davidsen@tmr.com>, "Krzysztof Halasa" <khc@pm.waw.pl>
-Subject: Re: ACPI and ISA IRQ 9, Linux 2.4
-Cc: linux-kernel@vger.kernel.org
-References: <m3isi3n9wa.fsf@defiant.pm.waw.pl> <403A25B0.5090104@tmr.com>
-Content-Type: text/plain; charset=US-ASCII;
-	format=flowed	delsp=yes
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-ID: <opr3t0pvx24evsfm@smtp.pacific.net.th>
-In-Reply-To: <403A25B0.5090104@tmr.com>
-User-Agent: Opera M2/7.50 (Linux, build 600)
+	Mon, 23 Feb 2004 11:45:05 -0500
+Received: from mx2.elte.hu ([157.181.151.9]:47309 "EHLO mx2.elte.hu")
+	by vger.kernel.org with ESMTP id S261953AbUBWQo3 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 23 Feb 2004 11:44:29 -0500
+Date: Mon, 23 Feb 2004 17:45:29 +0100
+From: Ingo Molnar <mingo@elte.hu>
+To: Jamie Lokier <jamie@shareable.org>
+Cc: Pavel Machek <pavel@ucw.cz>, Linus Torvalds <torvalds@osdl.org>,
+       Tridge <tridge@samba.org>,
+       Al Viro <viro@parcelfarce.linux.theplanet.co.uk>,
+       "H. Peter Anvin" <hpa@zytor.com>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: explicit dcache <-> user-space cache coherency, sys_mark_dir_clean(), O_CLEAN
+Message-ID: <20040223164529.GA5085@elte.hu>
+References: <20040219182948.GA3414@mail.shareable.org> <Pine.LNX.4.58.0402191124080.1270@ppc970.osdl.org> <20040220120417.GA4010@elte.hu> <Pine.LNX.4.58.0402200733350.1107@ppc970.osdl.org> <20040220170438.GA19722@elte.hu> <Pine.LNX.4.58.0402200911260.2533@ppc970.osdl.org> <20040220184822.GA23460@elte.hu> <20040221075853.GA828@elte.hu> <20040223105953.GA2992@openzaurus.ucw.cz> <20040223135520.GA30321@mail.shareable.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040223135520.GA30321@mail.shareable.org>
+User-Agent: Mutt/1.4.1i
+X-ELTE-SpamVersion: MailScanner-4.26.8-itk2 SpamAssassin 2.63 ClamAV 0.65
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 23 Feb 2004 11:09:20 -0500, Bill Davidsen <davidsen@tmr.com> wrote:
 
-> Krzysztof Halasa wrote:
->> Hi,
->>
->> I think this is a known problem, but I don't know how to fix it:
->>
->> I have a dual Pentium-2 machine (non-SCSI Asus P2B-D), latest BIOS with
->> ACPI etc. It has an ISA card (serial port) using IRQ 9 (I can't change
->> the IRQ). It works fine without ACPI, Linux 2.4 lists IRQ 9 as
->> APIC edge-triggered.
->>
->> With acpi=force (due to BIOS date) IRQ 9 is used by ACPI. /proc/interrupts
->> lists it as APIC level-triggered, and the ISA card no longer generates
->> interrupts.
->>
->> IRQ 9 is set to "ISA" in BIOS setup. acpi_irq_isa=9 doesn't help.
->>
->> Is is possible to fix it? Or is it just impossible to use ISA IRQ 9
->> with ACPI?
->>
->> More details available on request, of course.
->
-> I have a similar problem, and my aha1520 can't be moved off irq9 without
-> cutting traces on the system board. How bad is it without ACPI at all? I
-> tried that for a while, and several other things didn't work, and it
-> looks as if the aha1520 driver won't share irq anyway, and something
-> else (I forget) wants that irq as well.
->
-> I boot into 2.4 to do backups, fortunately the only thing on the SCSI.
->
->
+* Jamie Lokier <jamie@shareable.org> wrote:
 
-Try to reduce or eliminate IRQ sharing.
+> Another issue is that most machines don't have nanosecond resolution
+> clocks (e.g. m68k is limited to timer interrupt resolution, and some
+> x86 machines cannot use the cycle counter), [...]
 
-See also Documentation/kernel-parameters.txt
+this is not an issue, with the monotonicity solution i suggested: if
+prev_time == curr_time then curr_time.tv_nsec++.
 
-acpi_irq_balance essentially disables PCI IRQ sharing as long as there
-are enough IRQs available .
+> [...] and most filesystems don't store them either.
 
-acpi_irq_pci adds IRQs to the list of IRQs allocatable to PCI.
+their problem. There's at least one filesystem that does it right (XFS),
+the rest will be handled via natural selection.
 
-acpi_irq_isa adds IRQs to the list of IRQs allocatable to ISA.
+> The right place to put the delay is in the kernel, when mtime is set
+> or when it is read, or both.
 
-If you have unused ISA IRQs, in particular 3,4,5,6,7 such as HW wo serial,
-printer and ancient sound and need IRQ9 on isa, put this on the kernel
-command line:
+no need to delay anything - just do the tv_nsec++ thing!
 
-	acpi_irq_balance acpi_irq_pci=3,4,5,6,7 acpi_irq_isa=9
-
-Adjust the lists of IRQs to suit your HW, eg if you got ttyS0 on ISA take
-out IRQ4 on PCI and move it to the ISA side.
-
-Hopefully with a bit of experimenting the problems mentioned can be solved.
-
-For testing it is suggested to also put init=/bin/sh on the command line
-to avoid a full boot.
-
-I like to use the opportunity to thank Len Brown to have implemented these
-functions which greatly enhance the flexibility of ACPI IRQ management :)
-
-
-Regards
-Michael
-
+	Ingo

@@ -1,39 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281124AbRKEMz0>; Mon, 5 Nov 2001 07:55:26 -0500
+	id <S281126AbRKENCF>; Mon, 5 Nov 2001 08:02:05 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281125AbRKEMzG>; Mon, 5 Nov 2001 07:55:06 -0500
-Received: from humbolt.nl.linux.org ([131.211.28.48]:16324 "EHLO
-	humbolt.nl.linux.org") by vger.kernel.org with ESMTP
-	id <S281124AbRKEMzE>; Mon, 5 Nov 2001 07:55:04 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Daniel Phillips <phillips@bonn-fries.net>
-To: "MaxiM Basunov" <maxim@idknet.com>, <linux-kernel@vger.kernel.org>
-Subject: Re: Page cache
-Date: Mon, 5 Nov 2001 13:56:05 +0100
-X-Mailer: KMail [version 1.3.2]
-In-Reply-To: <015001c165f4$c7f0fed0$05dda8c0@maxim>
-In-Reply-To: <015001c165f4$c7f0fed0$05dda8c0@maxim>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <20011105125455Z17086-18972+109@humbolt.nl.linux.org>
+	id <S281127AbRKENB4>; Mon, 5 Nov 2001 08:01:56 -0500
+Received: from holomorphy.com ([216.36.33.161]:9155 "EHLO holomorphy")
+	by vger.kernel.org with ESMTP id <S281126AbRKENBl>;
+	Mon, 5 Nov 2001 08:01:41 -0500
+Date: Mon, 5 Nov 2001 05:00:21 -0800
+From: William Lee Irwin III <wli@holomorphy.com>
+To: linux-kernel@vger.kernel.org
+Subject: [PATCH] repair bootmem memory leak
+Message-ID: <20011105050021.D26577@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	linux-kernel@vger.kernel.org
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Description: brief message
+Content-Disposition: inline
+User-Agent: Mutt/1.3.17i
+Organization: The Domain of Holomorphy
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On November 5, 2001 01:24 pm, MaxiM Basunov wrote:
-> Hello.
-> 
-> I have server with 1G RAM.
-> And i want to run Oracle WITHOUT swapping it to disk...
-> 
-> how to reduce desires of a kernel about page cache?
-> Mem:  1028692K av, 1023600K used,    5092K free, 678340K cached...
-> 
-> if i disable swap, linux runs kswapd with "load average 35"...
-> 
-> Kernel 2.4.9
+While developing my fresh bootmem, the testing I did to ensure there
+were no memory leaks discovered a caller leaking memory:
 
-Please try upgrading to kernel 2.4.13.
 
---
-Daniel
+diff -urN linux-virgin/arch/i386/kernel/setup.c linux/arch/i386/kernel/setup.c
+--- linux-virgin/arch/i386/kernel/setup.c	Fri Oct  5 14:45:00 2001
++++ linux/arch/i386/kernel/setup.c	Sat Oct 27 12:57:39 2001
+@@ -926,7 +926,7 @@
+ 	 * bootmem allocator with an invalid RAM area.
+ 	 */
+ 	reserve_bootmem(HIGH_MEMORY, (PFN_PHYS(start_pfn) +
+-			 bootmap_size + PAGE_SIZE-1) - (HIGH_MEMORY));
++			 		bootmap_size) - (HIGH_MEMORY));
+ 
+ 	/*
+ 	 * reserve physical page 0 - it's a special BIOS page on many boxes,
+
+reserve_boootmem_core() already ensures that the endpoint of the
+interval to reserve is rounded up to a page boundary, and so this
+(demonstrably) leaks a page whenever
+	PFN_PHYS(start_pfn) + bootmap_size + PAGE_SIZE -1
+is not page-aligned.
+
+
+Cheers,
+Bill
+-----------------
+willir@us.ibm.com

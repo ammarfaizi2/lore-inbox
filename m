@@ -1,44 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264690AbSKMVXz>; Wed, 13 Nov 2002 16:23:55 -0500
+	id <S264711AbSKMVZM>; Wed, 13 Nov 2002 16:25:12 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264697AbSKMVXy>; Wed, 13 Nov 2002 16:23:54 -0500
-Received: from modemcable166.48-200-24.mtl.mc.videotron.ca ([24.200.48.166]:34438
-	"EHLO xanadu.home") by vger.kernel.org with ESMTP
-	id <S264690AbSKMVXw>; Wed, 13 Nov 2002 16:23:52 -0500
-Date: Wed, 13 Nov 2002 16:29:24 -0500 (EST)
-From: Nicolas Pitre <nico@cam.org>
-X-X-Sender: nico@xanadu.home
-To: Andreas Steinmetz <ast@domdv.de>
-cc: Sam Ravnborg <sam@ravnborg.org>, Bill Davidsen <davidsen@tmr.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: make distclean and make dep??
-In-Reply-To: <3DD2C0BE.80002@domdv.de>
-Message-ID: <Pine.LNX.4.44.0211131628010.16858-100000@xanadu.home>
+	id <S264714AbSKMVZM>; Wed, 13 Nov 2002 16:25:12 -0500
+Received: from mailout01.sul.t-online.com ([194.25.134.80]:9405 "EHLO
+	mailout01.sul.t-online.com") by vger.kernel.org with ESMTP
+	id <S264711AbSKMVZI> convert rfc822-to-8bit; Wed, 13 Nov 2002 16:25:08 -0500
+Content-Type: text/plain;
+  charset="us-ascii"
+From: Marc-Christian Petersen <m.c.p@wolk-project.de>
+To: linux-kernel@vger.kernel.org
+Subject: Re: sk98lin driver in 2.5.47
+Date: Wed, 13 Nov 2002 22:31:18 +0100
+User-Agent: KMail/1.4.3
+Organization: WOLK - Working Overloaded Linux Kernel
+Cc: Stuart Anderson <sba@srl.caltech.edu>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Transfer-Encoding: 8BIT
+Message-Id: <200211132231.18870.m.c.p@wolk-project.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 13 Nov 2002, Andreas Steinmetz wrote:
+Hi Stuart,
 
-> Sam Ravnborg wrote:
-> > On Wed, Nov 13, 2002 at 02:32:27PM -0500, Bill Davidsen wrote:
-> >>Also noted, somewhere between 2.5.45 and 2.5.46 distclean vanished from 
-> >>"make help." It's really useful to have distclean work to build patched 
-> >>kernels for distribution, hopefully this is an oversight and not a new 
-> >>policy.
-> > 
-> > Since they are equal I removed the help for the less used version.
-> 
-> Not so nice. /me e.g. is used to distclean, never used mrproper and 
-> distclean is a standard target in most projects, so people are probably 
-> more used to distclean than mrproper which is kernel specific.
+> I have been unable to compile the SysKonnect sk98lin GigE driver
+> under linux-2.5.x. Is there a patch for the following linker
+> problem of built-in.o? The following is from 2.5.47-ac2.
+> drivers/built-in.o: In function `SkPnmiInit':
+> drivers/built-in.o(.text+0x3a346): undefined reference to `__udivdi3'
+> drivers/built-in.o: In function `SkPnmiEvent':
+> drivers/built-in.o(.text+0x3ae97): undefined reference to `__udivdi3'
+> drivers/built-in.o: In function `SensorStat':
+> drivers/built-in.o(.text+0x3c0fd): undefined reference to `__udivdi3'
+> drivers/built-in.o(.text+0x3c16d): undefined reference to `__udivdi3'
+> drivers/built-in.o: In function `General':
+> drivers/built-in.o(.text+0x3de99): undefined reference to `__udivdi3'
+I have the same problems with any patch|driver in any kernel (2.4 and 2.5). 
+I've talked to a technician at SysKonnect and he told me that my linker is 
+broken and he also mentioned that Debian is known to have a broken linker (I 
+cannot confirm this in any way!)
 
-I agree with this.
+Sorry, I don't have more info's about that.
 
-If one of them must go then it should be mrproper.
+-- 
+Kind regards
+        Marc-Christian Petersen
 
+http://sourceforge.net/projects/wolk
 
-Nicolas
-
+PGP/GnuPG Key: 1024D/569DE2E3DB441A16
+Fingerprint: 3469 0CF8 CA7E 0042 7824 080A 569D E2E3 DB44 1A16
+Key available at www.keyserver.net. Encrypted e-mail preferred.

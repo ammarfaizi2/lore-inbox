@@ -1,67 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261418AbUKFQsy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261420AbUKFQyp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261418AbUKFQsy (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 6 Nov 2004 11:48:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261420AbUKFQsy
+	id S261420AbUKFQyp (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 6 Nov 2004 11:54:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261422AbUKFQyp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 6 Nov 2004 11:48:54 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:42406 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S261418AbUKFQsw
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 6 Nov 2004 11:48:52 -0500
-Message-ID: <418D0066.9040002@pobox.com>
-Date: Sat, 06 Nov 2004 11:48:38 -0500
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040922
-X-Accept-Language: en-us, en
+	Sat, 6 Nov 2004 11:54:45 -0500
+Received: from [213.85.13.118] ([213.85.13.118]:61825 "EHLO tau.rusteko.ru")
+	by vger.kernel.org with ESMTP id S261420AbUKFQyn (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 6 Nov 2004 11:54:43 -0500
+From: Nikita Danilov <nikita@clusterfs.com>
 MIME-Version: 1.0
-To: Chris Wedgwood <cw@f00f.org>
-CC: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>,
-       LKML <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH 1/3] WIN_* -> ATA_CMD_* conversion: add new entries to
- ata.h
-References: <20041103091101.GC22469@taniwha.stupidest.org> <418AE8C0.3040205@pobox.com> <58cb370e041105051635c15281@mail.gmail.com> <20041106032305.GB6060@taniwha.stupidest.org>
-In-Reply-To: <20041106032305.GB6060@taniwha.stupidest.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-ID: <16781.436.710721.667909@gargle.gargle.HOWL>
+Date: Sat, 6 Nov 2004 19:54:12 +0300
+To: Andrea Arcangeli <andrea@novell.com>
+Cc: Nick Piggin <piggin@cyberone.com.au>, Jesse Barnes <jbarnes@sgi.com>,
+       Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
+       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       linux-mm@kvack.org
+Subject: Re: [PATCH] Remove OOM killer from try_to_free_pages / all_unreclaimable braindamage
+In-Reply-To: <20041106153209.GC3851@dualathlon.random>
+References: <20041105200118.GA20321@logos.cnet>
+	<200411051532.51150.jbarnes@sgi.com>
+	<20041106012018.GT8229@dualathlon.random>
+	<418C2861.6030501@cyberone.com.au>
+	<20041106015051.GU8229@dualathlon.random>
+	<16780.46945.925271.26168@thebsh.namesys.com>
+	<20041106153209.GC3851@dualathlon.random>
+X-Mailer: VM 7.17 under 21.5 (patch 17) "chayote" (+CVS-20040321) XEmacs Lucid
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Chris Wedgwood wrote:
-> ===== include/linux/ata.h 1.19 vs edited =====
-> --- 1.19/include/linux/ata.h	2004-11-02 11:32:44 -08:00
-> +++ edited/include/linux/ata.h	2004-11-05 19:04:41 -08:00
-> @@ -122,6 +122,27 @@
->  	ATA_CMD_SET_FEATURES	= 0xEF,
->  	ATA_CMD_PACKET		= 0xA0,
->  
-> +	/* ATA devices commands (used by legacy IDE code) */
-> +	ATA_CMD_NOP		= 0x00,
-> +	ATA_CMD_SRST		= 0x08,
-> +	ATA_CMD_RESTORE		= 0x10,
-> +	ATA_CMD_MULTREAD_EXT	= 0x29,
-> +	ATA_CMD_READ_NATIVE_MAX_EXT = 0x27,
-> +	ATA_CMD_MULTWRITE_EXT	= 0x39,
-> +	ATA_CMD_SPECIFY		= 0x91, /* set geom */
-> +	ATA_CMD_SMART		= 0xB0,
-> +	ATA_CMD_MULTREAD	= 0xC4,
-> +	ATA_CMD_MULTWRITE	= 0xC5,
-> +	ATA_CMD_MULTSET		= 0xC6,
-> +	ATA_CMD_DOORLOCK	= 0xDE,
-> +	ATA_CMD_DOORUNLOCK	= 0xDF,
-> +	ATA_CMD_STANDBYNOW1	= 0xE0,
-> +	ATA_CMD_IDLEIMMEDIATE	= 0xE1,
-> +	ATA_CMD_ID_ATA_DMA	= 0xEE,
-> +	ATA_CMD_READ_NATIVE_MAX	= 0xF8,
-> +	ATA_CMD_SET_MAX		= 0xF9,
-> +	ATA_CMD_SET_MAX_EXT	= 0x37,
+Andrea Arcangeli writes:
+ > On Sat, Nov 06, 2004 at 02:37:05PM +0300, Nikita Danilov wrote:
+ > > We need page-reservation API of some sort. There were several attempts
+ > > to introduce this, but none get into mainline.
+ > 
+ > they're already in under the name of mempools
 
-No need for a separate "section" for ATA_CMD_xxx used by libata versus 
-IDE driver.  ATA_CMD_xxx are just constants, available for any user. 
-There is no discernible order in current linux/ata.h, so feel free to 
-alphabetize or order by opcode (or just leave as-is).
+I am talking about slightly different thing. Think of some operation
+that calls find_or_create_page(). find_or_create_page() doesn't know
+about memory reserved in mempools, it uses alloc_page() directly. If one
+wants to guarantee that compound operation has enough memory to
+complete, memory should be reserved at the lowest level---in the page
+allocator.
 
-	Jeff
+ > 
+ > I'm perfectly aware the fs tends to be the less correct places in terms
+ > of allocations, and luckily it's not an heavy memory user, so I still
 
+Either you are kidding, or we are facing very different workloads. In
+the world of file-system development, file-system is (not surprisingly)
+single largest memory consumer.
 
+ > have to see a deadlock in getblk or create_buffers or similar. It's
+ > mostly a correctness issue (math proof it can't deadlock, right now it
+ > can if more tasks all get stuck in getblk at the same time during a hard
+ > oom condition etc..).
 
+Add here mmap that can dirty all physical memory behind your back, and
+delayed disk block allocation that forces ->writepage() to allocate
+potentially huge extent when memory is already tight and hope of having
+a proof becomes quite remote.
+
+Nikita.

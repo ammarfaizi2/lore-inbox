@@ -1,45 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280678AbRKYELD>; Sat, 24 Nov 2001 23:11:03 -0500
+	id <S280686AbRKYEUX>; Sat, 24 Nov 2001 23:20:23 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280686AbRKYEKv>; Sat, 24 Nov 2001 23:10:51 -0500
-Received: from cc361913-a.flrtn1.occa.home.com ([24.0.193.171]:40078 "EHLO
-	mirai.cx") by vger.kernel.org with ESMTP id <S280678AbRKYEKr>;
-	Sat, 24 Nov 2001 23:10:47 -0500
-Message-ID: <3C006F44.201DC73F@pobox.com>
-Date: Sat, 24 Nov 2001 20:10:44 -0800
-From: J Sloan <jjs@pobox.com>
-Organization: J S Concepts
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.15-ll-preempt-tux2 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Patrick McFarland <unknown@panax.com>
-CC: war <war@starband.net>, linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.4.16-pre1
-In-Reply-To: <Pine.LNX.4.21.0111241744250.12119-100000@freak.distro.conectiva> <Pine.LNX.4.33.0111241311040.2591-100000@penguin.transmeta.com> <20011124205632.C241@localhost> <20011124211204.D241@localhost> <3C0058CF.D97D0E2B@starband.net> <20011124214114.E241@localhost>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S280703AbRKYEUN>; Sat, 24 Nov 2001 23:20:13 -0500
+Received: from nat-pool-meridian.redhat.com ([199.183.24.200]:50939 "EHLO
+	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
+	id <S280686AbRKYEUJ>; Sat, 24 Nov 2001 23:20:09 -0500
+Date: Sat, 24 Nov 2001 23:20:08 -0500
+From: Pete Zaitcev <zaitcev@redhat.com>
+Message-Id: <200111250420.fAP4K8724540@devserv.devel.redhat.com>
+To: satch@concentric.net, linux-kernel@vger.kernel.org
+Subject: Re: Journaling pointless with today's hard disks?
+In-Reply-To: <mailman.1006644421.6553.linux-kernel2news@redhat.com>
+In-Reply-To: <tgpu68gw34.fsf@mercury.rus.uni-stuttgart.de> <20011124103642.A32278@vega.ipal.net> <20011124184119.C12133@emma1.emma.line.org> <tgy9kwf02c.fsf@mercury.rus.uni-stuttgart.de> <mailman.1006644421.6553.linux-kernel2news@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Patrick McFarland wrote:
+>[...]
+> It is the responsibility of the power monitor to detect a power-fail event 
+> and tell the drive(s) that a power-fail event is occurring.
 
-> What If I get up one day, and I cant print? Or build isos?
+> Most power supplies are not designed to hold up for more than 30-60 ms at 
+> full load upon removal of mains power.  Power-fail detect typically 
+> requires 12 ms (three-quarters cycle average at 60 Hz) or 15 ms 
+> (three-quarters cycle average at 50 Hz) to detect that mains power has 
+> failed, leaving your system a very short time to abort that long queue of 
+> disk write commands.
 
-Who would switch kernels on you while you sleep?
+This is a total crap argument, because you invent an impossible
+request, pretend that your opponent made that request, then show
+that it's impossible to fulfill the impossible requesti. No shit,
+sherlock! Of course it's "a very short time to abort that long
+queue of disk write commands".
 
->  The Kernel needs Quality Assurance.
+However, what is asked here is entirely different: disks must
+complete writes of sectors that they started writing, this is all.
+They do not need to report _anything_ to the host, in fact they
+may ignore the host interface completely the moment the power
+failure sequence is triggered. Neither they need to do anything
+about queued commands: abort them, discard in any way, or whatever.
+Just complete the sector, and start head landing sequence.
 
-Yep, and that's what the vendors do for you.
+IBM Deskstar is completely broken, and that's a fact.
 
-Stick with the tested, QA'd, vendor-supplied
-kernel unless you're a developer or a skilled,
-adventurous sys admin who reads lkml!
+BTW, hpa went on how he was buying IBM drives, how good they were,
+and what a surprise it was that IBM fucked Deskstar. Hardly a
+surprise. The first time I heard of IBM drive was a horror story.
+Our company was making RAID arrays, and we sourced new IBM SCSI disks.
+They were qualified through a rigorous testing as it was the
+procedure in the company. So, after a while they started to fail.
+It turned out that bearings leaked grease to platters. Of course,
+we shipped tens of thousands of those when IBM explained to us
+that every one of them will die in a year. We shipped Seagates
+ever after.
 
-kernel tarballs are NOT for mom -
-
-cu
-
-jjs
-
-
+-- Pete

@@ -1,318 +1,43 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315619AbSFCWZy>; Mon, 3 Jun 2002 18:25:54 -0400
+	id <S315629AbSFCWb2>; Mon, 3 Jun 2002 18:31:28 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315628AbSFCWZx>; Mon, 3 Jun 2002 18:25:53 -0400
-Received: from e31.co.us.ibm.com ([32.97.110.129]:17094 "EHLO
-	e31.co.us.ibm.com") by vger.kernel.org with ESMTP
-	id <S315619AbSFCWZq>; Mon, 3 Jun 2002 18:25:46 -0400
-Date: Mon, 3 Jun 2002 15:21:23 -0700
-From: Russ Weight <rweight@us.ibm.com>
-To: mingo@elte.hu
-Cc: torvalds@transmeta.com, lkml <linux-kernel@vger.kernel.org>
-Subject: [PATCH 2.5.20] Scalable CPU bitmasks
-Message-ID: <20020603152123.A5461@us.ibm.com>
-Mime-Version: 1.0
+	id <S315630AbSFCWb1>; Mon, 3 Jun 2002 18:31:27 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:32530 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S315629AbSFCWb1>;
+	Mon, 3 Jun 2002 18:31:27 -0400
+Message-ID: <3CFBEDEE.EE74C5B1@zip.com.au>
+Date: Mon, 03 Jun 2002 15:30:09 -0700
+From: Andrew Morton <akpm@zip.com.au>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-pre8 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Linus Torvalds <torvalds@transmeta.com>
+CC: Chris Mason <mason@suse.com>, lkml <linux-kernel@vger.kernel.org>
+Subject: Re: [patch 12/16] fix race between writeback and unlink
+In-Reply-To: <1023142233.31475.23.camel@tiny> <Pine.LNX.4.44.0206031514110.868-100000@home.transmeta.com>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Linus Torvalds wrote:
+> 
+> On 3 Jun 2002, Chris Mason wrote:
+> >
+> > Or am I missing something?
+> 
+> No. I think that in the long run we really would want all of the writeback
+> preallocation should happen in the "struct file", not in "struct inode".
+> And they should be released at file close ("release()"), not at iput()
+> time.
 
-          This patch implements a scalable bitmask specifically
-  for tracking CPUs. It consists of two architecture-independent
-  files, cpumap.h and cpumap.c. These files add a new datatype and
-  supporting functions which allow for future expansion to a CPU count 
-  which is not confined to the bit-size of (unsigned long).  The new
-  datatype (cpumap_t) and supporting interfaces are optimized at
-  compile-time according to the definition of NR_CPUS.
-  
-          
-  	These interfaces provide a path for gradual code migration to
-  prepare for the support of systems with larger than 32 processors.
-  One of the primary goals is to provide current functionality without
-  affecting performance. The following is a list of bitmasks that could
-  be converted to the new datatype.
-  
-          phys_cpu_present_map
-          cpu_initialized
-          wait_init_idle
-          cpu_online_map/cpu_present_mask
-          cpu_callin_map
-          cpu_callout_map
-  
-  NOTE:   The cpumap_to_ulong() and cpumap_ulong_to_cpumap() interfaces
-          are provided specifically for migration. If these interfaces are
-          used when NR_CPUS is greater than the bitsize of (unsigned long),
-          they will cause a link-time failure.
+That would be a lot nicer.
 
-diff -Nru a/include/linux/cpumap.h b/include/linux/cpumap.h
---- /dev/null	Wed Dec 31 16:00:00 1969
-+++ b/include/linux/cpumap.h	Mon Jun  3 12:58:34 2002
-@@ -0,0 +1,110 @@
-+/*
-+ * cpumap_t data type and supporting functions
-+ *
-+ * Copyright (c) 2002 IBM Corp.
-+ *
-+ *	01/25/02 Initial Version 	Russ Weight <rweight@us.ibm.com>
-+ *	03/20/02 Move larger functions to cpumap.c	Russ Weight
-+ *
-+ * All rights reserved.
-+ *
-+ * This program is free software; you can redistribute it and/or modify
-+ * it under the terms of the GNU General Public License as published by
-+ * the Free Software Foundation; either version 2 of the License, or (at
-+ * your option) any later version.
-+ *
-+ * This program is distributed in the hope that it will be useful, but
-+ * WITHOUT ANY WARRANTY; without even the implied warranty of
-+ * MERCHANTABILITY OR FITNESS FOR A PARTICULAR PURPOSE, GOOD TITLE or
-+ * NON INFRINGEMENT.  See the GNU General Public License for more
-+ * details.
-+ *
-+ * You should have received a copy of the GNU General Public License
-+ * along with this program; if not, write to the Free Software
-+ * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
-+ *
-+ */
-+#ifndef __LINUX_CPUMAP_H
-+#define __LINUX_CPUMAP_H
-+
-+#include <linux/config.h>
-+#include <linux/threads.h>
-+#include <asm/types.h>
-+
-+#define CPUMAP_SIZE       ((NR_CPUS + BITS_PER_LONG - 1) / BITS_PER_LONG)
-+
-+#ifndef __ASSEMBLY__
-+#include <linux/bitops.h>
-+typedef unsigned long cpumap_t[CPUMAP_SIZE];
-+
-+/*
-+ * The following interfaces are the same regardless of CPUMAP_SIZE
-+ */
-+#define cpumap_clear_bit	clear_bit
-+#define cpumap_set_bit		set_bit
-+#define cpumap_test_and_set_bit	test_and_set_bit
-+#define cpumap_test_bit		test_bit
-+
-+#if (NR_CPUS % BITS_PER_LONG)
-+#define CPUMAP_FILLMASK	((1 << (NR_CPUS % BITS_PER_LONG)) -1)
-+#else
-+#define CPUMAP_FILLMASK	(~0UL)
-+#endif
-+
-+/*
-+ * The following macros and prototype are used to format
-+ * a cpumap_t object for display. This function knows the 
-+ * minimum size required, which is provided as CPUMAP_BUFSIZE.
-+ *
-+ * The CPUMAP_BUFSIZE is an exact calcuation of the byte count
-+ * required to display a cpumap_t object.
-+ */
-+
-+#define CPUMAP_BUFSIZE (((sizeof(long) * 2) + 1) * CPUMAP_SIZE + 2)
-+
-+#if BITS_PER_LONG > 32
-+#define CPUMAP_FORMAT_STR	"%016lx"
-+#else
-+#define CPUMAP_FORMAT_STR	"%08lx"
-+#endif
-+extern char *cpumap_format(cpumap_t map, char *buf, int size);
-+
-+#if CPUMAP_SIZE == 1
-+/*
-+ * The following interfaces are optimized for the case where
-+ * CPUMAP_SIZE==1 (i.e. a single unsigned long). The single
-+ * CPU case falls into the CPUMAP_SIZE==1 case.
-+ */
-+#define cpumap_to_ulong(cpumap)			(cpumap[0])
-+#define cpumap_ulong_to_cpumap(bitmap, cpumap)	(cpumap[0] = bitmap)
-+#define cpumap_is_empty(cpumap) 		(cpumap[0] == 0)
-+#define cpumap_cmp_mask(map1, map2)		(map1[0] ==  map2[0])
-+#define cpumap_clear_mask(cpumap)		(cpumap[0] = 0)
-+#define cpumap_fill(cpumap)			(cpumap[0] = CPUMAP_FILLMASK)
-+#define cpumap_copy_mask(srcmap, destmap) 	(destmap[0] = srcmap[0])
-+#define cpumap_and_mask(map1, map2, result)	(result[0] = map1[0] & map2[0])
-+
-+#else
-+
-+/*
-+ * The cpumap_to_ulong() and cpumap_ulong_to_cpumap() functions
-+ * are provided to facilitate migration to the cpumap_t datatype.
-+ * As currently defined, they are only valid for CPUMAP_SIZE==1.
-+ * If they are referenced when CPUMAP_SIZE > 1, then we call a
-+ * bogus function name in order to trigger a link-time error.
-+ */
-+extern unsigned long __bad_cpumap_to_ulong(void);
-+extern void __bad_cpumap_ulong_to_cpumap(void);
-+#define cpumap_to_ulong(cpumap)			__bad_cpumap_to_ulong()
-+#define cpumap_ulong_to_cpumap(bitmap, cpumap)	__bad_cpumap_ulong_to_cpumap()
-+
-+extern int cpumap_is_empty(cpumap_t map);
-+extern int cpumap_cmp_mask(cpumap_t map1, cpumap_t map2);
-+extern void cpumap_clear_mask(cpumap_t cpumap);
-+extern void cpumap_fill(cpumap_t cpumap);
-+extern void cpumap_copy_mask(cpumap_t srcmap, cpumap_t destmap);
-+extern void cpumap_and_mask(cpumap_t map1, cpumap_t map2, cpumap_t result);
-+
-+#endif
-+#endif
-+#endif
-diff -Nru a/lib/Makefile b/lib/Makefile
---- a/lib/Makefile	Mon Jun  3 12:58:34 2002
-+++ b/lib/Makefile	Mon Jun  3 12:58:34 2002
-@@ -9,10 +9,10 @@
- L_TARGET := lib.a
- 
- export-objs := cmdline.o dec_and_lock.o rwsem-spinlock.o rwsem.o \
--	       crc32.o rbtree.o radix-tree.o
-+	       crc32.o rbtree.o radix-tree.o cpumap.o
- 
- obj-y := errno.o ctype.o string.o vsprintf.o brlock.o cmdline.o \
--	 bust_spinlocks.o rbtree.o radix-tree.o
-+	 bust_spinlocks.o rbtree.o radix-tree.o cpumap.o
- 
- obj-$(CONFIG_RWSEM_GENERIC_SPINLOCK) += rwsem-spinlock.o
- obj-$(CONFIG_RWSEM_XCHGADD_ALGORITHM) += rwsem.o
-diff -Nru a/lib/cpumap.c b/lib/cpumap.c
---- /dev/null	Wed Dec 31 16:00:00 1969
-+++ b/lib/cpumap.c	Mon Jun  3 12:58:34 2002
-@@ -0,0 +1,132 @@
-+/*
-+ * Supporting functions for cpumap_t data type
-+ *
-+ * Copyright (c) 2002 IBM Corp.
-+ *
-+ *	03/20/02 Initial Version 	Russ Weight <rweight@us.ibm.com>
-+ *
-+ * All rights reserved.
-+ *
-+ * This program is free software; you can redistribute it and/or modify
-+ * it under the terms of the GNU General Public License as published by
-+ * the Free Software Foundation; either version 2 of the License, or (at
-+ * your option) any later version.
-+ *
-+ * This program is distributed in the hope that it will be useful, but
-+ * WITHOUT ANY WARRANTY; without even the implied warranty of
-+ * MERCHANTABILITY OR FITNESS FOR A PARTICULAR PURPOSE, GOOD TITLE or
-+ * NON INFRINGEMENT.  See the GNU General Public License for more
-+ * details.
-+ *
-+ * You should have received a copy of the GNU General Public License
-+ * along with this program; if not, write to the Free Software
-+ * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
-+ *
-+ */
-+#include <linux/kernel.h>
-+#include <linux/cpumap.h>
-+#include <asm/string.h>
-+
-+/* Not all architectures define BUG() */
-+#ifndef BUG
-+  #define BUG() do { \
-+	printk("kernel BUG at %s:%d!\n", __FILE__, __LINE__); \
-+	* ((char *) 0) = 0; \
-+  } while (0)
-+#endif /* BUG */
-+
-+/*
-+ * The cpumap_format() function is used to format a cpumap_t
-+ * object for display. This function knows the minimum size
-+ * required, which is provided as CPUMAP_BUFSIZE.
-+ */
-+char *cpumap_format(cpumap_t map, char *buf, int size)
-+{
-+	if (size < CPUMAP_BUFSIZE) {
-+		BUG();
-+	}
-+
-+#if CPUMAP_SIZE > 1
-+	sprintf(buf, "0x" CPUMAP_FORMAT_STR, map[CPUMAP_SIZE-1]);
-+	{
-+		int i;
-+		char *p = buf + strlen(buf);
-+		for (i = CPUMAP_SIZE-2; i >= 0; i--, p += (sizeof(long) + 1)) {
-+			sprintf(p, " " CPUMAP_FORMAT_STR, map[i]);
-+		}
-+	}
-+#else
-+	sprintf(buf, "0x" CPUMAP_FORMAT_STR, map[0]);
-+#endif
-+	return(buf);
-+}
-+
-+#if CPUMAP_SIZE > 1
-+/*
-+ * The following interfaces are provided for (CPUMAP_SIZE > 1).
-+ * For the case of (CPUMAP_SIZE==1) (i.e. a single unsigned long),
-+ * the same interfaces are provided as inline functions in cpumap.h.
-+ */
-+int cpumap_is_empty(cpumap_t cpumap)
-+{
-+	int i;
-+	for (i = 0; i < CPUMAP_SIZE; i++) {
-+		if (cpumap[i] !=  0) {
-+			return 0;
-+		}
-+	}
-+	return 1;
-+}
-+
-+/*
-+ * Return 1 (non-zero) if they are equal, 0 if not equal
-+ */
-+int cpumap_cmp_mask(cpumap_t map1, cpumap_t map2)
-+{
-+	int i;
-+	for (i = 0; i < CPUMAP_SIZE; i++) {
-+		if (map1[i] !=  map2[i]) {
-+			return 0;
-+		}
-+	}
-+	return 1;
-+}
-+
-+void cpumap_clear_mask(cpumap_t cpumap)
-+{
-+	int i;
-+	for (i = 0; i < CPUMAP_SIZE; i++) {
-+		cpumap[i] = 0UL;
-+	}
-+}
-+
-+void cpumap_fill(cpumap_t cpumap)
-+{
-+	int i;
-+	for (i = 0; i < (CPUMAP_SIZE - 1); i++) {
-+		cpumap[i] = ~0UL;
-+	}
-+	cpumap[CPUMAP_SIZE - 1] = CPUMAP_FILLMASK;
-+}
-+
-+/*
-+ * The following interfaces are optimized for the case where
-+ * CPUMAP_SIZE==1 (i.e. a single unsigned long).
-+ */
-+void cpumap_copy_mask(cpumap_t srcmap, cpumap_t destmap)
-+{
-+	int i;
-+	for (i = 0; i < CPUMAP_SIZE; i++) {
-+		destmap[i] = srcmap[i];
-+	}
-+}
-+
-+void cpumap_and_mask(cpumap_t map1, cpumap_t map2, cpumap_t result)
-+{
-+	int i;
-+	for (i = 0; i < CPUMAP_SIZE; i++) {
-+		result[i] = map1[i] & map2[i];
-+	}
-+}
-+
-+#endif
+But why does ext2_put_inode() even exist?  We're already throwing
+away the prealloc window in ext2_release_file?  I guess for
+shared mappings over spares files: if all file handles have
+closed off, we still need to make allocations against that
+inode, yes?
 
--- 
-Russ Weight
+-

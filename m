@@ -1,42 +1,32 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S274035AbRISLgA>; Wed, 19 Sep 2001 07:36:00 -0400
+	id <S274037AbRISLqb>; Wed, 19 Sep 2001 07:46:31 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S274037AbRISLfu>; Wed, 19 Sep 2001 07:35:50 -0400
-Received: from ns.ithnet.com ([217.64.64.10]:54532 "HELO heather.ithnet.com")
-	by vger.kernel.org with SMTP id <S274035AbRISLfm>;
-	Wed, 19 Sep 2001 07:35:42 -0400
-Date: Wed, 19 Sep 2001 13:36:02 +0200
-From: Stephan von Krawczynski <skraw@ithnet.com>
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Compile Problem in 2.4.10-pre12
-Message-Id: <20010919133602.664a6d5a.skraw@ithnet.com>
-Organization: ith Kommunikationstechnik GmbH
-X-Mailer: Sylpheed version 0.6.2 (GTK+ 1.2.10; i686-pc-linux-gnu)
+	id <S274040AbRISLqV>; Wed, 19 Sep 2001 07:46:21 -0400
+Received: from alex.intersurf.net ([216.115.129.11]:30986 "HELO
+	alex.intersurf.net") by vger.kernel.org with SMTP
+	id <S274037AbRISLqL>; Wed, 19 Sep 2001 07:46:11 -0400
+Date: Wed, 19 Sep 2001 06:46:34 -0500
+From: Mark Orr <markorr@intersurf.com>
+To: linux-kernel@vger.kernel.org
+Subject: 2.4.10pre12 -- PPP compile problem;  tty_register_ldisc hanging
+Message-Id: <20010919064634.6d9cb22d.markorr@intersurf.com>
+X-Mailer: Sylpheed version 0.6.2 (GTK+ 1.2.8; i586-pc-linux-gnu)
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
 
-What is this:
+Just compiled up 2.4.10pre12 (w/ the wakeup_bdflush fix)
+and once modules are finished, on install+depmod it's telling
+me that ppp_async.c has an unresolved symbol
+tty_register_ldisc.
 
-if [ -r System.map ]; then /sbin/depmod -ae -F System.map  2.4.10-pre12; fi
-depmod: *** Unresolved symbols in
-/lib/modules/2.4.10-pre12/kernel/drivers/net/ppp_async.o
-depmod:         tty_register_ldisc
-depmod: *** Unresolved symbols in
-/lib/modules/2.4.10-pre12/kernel/drivers/net/ppp_synctty.o
-depmod:         tty_register_ldisc
+The pre12 patch shows it was removed from an EXPORT_SYMBOL
+line in net/netsyms.c.
 
-?
-
-System.map says:
-c017a478 T tty_register_ldisc
-
-so symbol should be there, or not?
-
-Regards,
-Stephan
+--
+Mark Orr
+markorr@intersurf.com

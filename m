@@ -1,128 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261898AbVCOV6A@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261903AbVCOV7C@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261898AbVCOV6A (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Mar 2005 16:58:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261901AbVCOV6A
+	id S261903AbVCOV7C (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Mar 2005 16:59:02 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261901AbVCOV7C
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Mar 2005 16:58:00 -0500
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:28944 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S261898AbVCOV5Z (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Mar 2005 16:57:25 -0500
-Date: Tue, 15 Mar 2005 21:57:20 +0000
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: Chris Wright <chrisw@osdl.org>
-Cc: Alexander Nyberg <alexn@dsv.su.se>, linux-kernel@vger.kernel.org,
-       akpm@osdl.org
-Subject: Re: Capabilities across execve
-Message-ID: <20050315215719.A12283@flint.arm.linux.org.uk>
-Mail-Followup-To: Chris Wright <chrisw@osdl.org>,
-	Alexander Nyberg <alexn@dsv.su.se>, linux-kernel@vger.kernel.org,
-	akpm@osdl.org
-References: <1110627748.2376.6.camel@boxen> <20050313032117.GA28536@shell0.pdx.osdl.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20050313032117.GA28536@shell0.pdx.osdl.net>; from chrisw@osdl.org on Sat, Mar 12, 2005 at 07:21:17PM -0800
+	Tue, 15 Mar 2005 16:59:02 -0500
+Received: from simmts6.bellnexxia.net ([206.47.199.164]:5832 "EHLO
+	simmts6-srv.bellnexxia.net") by vger.kernel.org with ESMTP
+	id S261903AbVCOV6y (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 15 Mar 2005 16:58:54 -0500
+Message-ID: <1027.10.10.10.24.1110923764.squirrel@linux1>
+In-Reply-To: <20050315204413.GF20253@csail.mit.edu>
+References: <20050315204413.GF20253@csail.mit.edu>
+Date: Tue, 15 Mar 2005 16:56:04 -0500 (EST)
+Subject: Re: OOM problems with 2.6.11-rc4
+From: "Sean" <seanlkml@sympatico.ca>
+To: "Noah Meyerhans" <noahm@csail.mit.edu>
+Cc: linux-kernel@vger.kernel.org
+User-Agent: SquirrelMail/1.4.4-2
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-Priority: 3 (Normal)
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Mar 12, 2005 at 07:21:17PM -0800, Chris Wright wrote:
-> * Alexander Nyberg (alexn@dsv.su.se) wrote:
-> > This makes it possible for a root-task to pass capabilities to
-> > nonroot-task across execve. The root-task needs to change it's
-> > cap_inheritable mask and set prctl(PR_SET_KEEPCAPS, 1) to pass on
-> > capabilities. 
-> 
-> This overloads keepcaps, which could surprise to existing users.
+On Tue, March 15, 2005 3:44 pm, Noah Meyerhans said:
+> Hello.  We have a server, currently running 2.6.11-rc4, that is
+> experiencing similar OOM problems to those described at
+> http://groups-beta.google.com/group/fa.linux.kernel/msg/9633559fea029f6e
+> and discussed further by several developers here (the summary is at
+> http://www.kerneltraffic.org/kernel-traffic/kt20050212_296.html#6)  We
+> are running 2.6.11-rc4 because it contains the patches that Andrea
+> mentioned in the kerneltraffic link.  The problem was present in 2.6.10
+> as well.  We can try newer 2.6 kernels if it helps.
+>
+> The machine in question is a dual Xeon system with 2 GB of RAM, 3.5 GB
+> of swap, and several TB of NFS exported filesystems.  One notable point
+> is that this machine has been running in overcommit mode 2
+> (/proc/sys/vm/overcommit_memory = 2) and the OOM killer is still being
+> triggered, which is allegedly not supposed to be possible according to
+> the kerneltraffic.org document above.  We had been running in overcommit
+> mode 0 until about a month ago, and experienced similar OOM problems
+> then as well.
 
-Chris,
+We're seeing this on our dual Xeon box too, with 4 GB of RAM and 2GB of
+swap (no NFS) using stock RHEL 4 kernel.   The only thing that seems to
+keep it from happening is setting /proc/sys/vm/vfs_cache_pressure to
+10000.
 
-Since you seem to be knowledgeable about the capability system, I have
-a question.
+Sean
 
-As part of the libcap library (found on Fedora and such like), there are
-several programs supplied with it - execcap and sucap for instance:
 
-usage: execcap <caps> <command-path> [command-args...]
-
-  This program is a wrapper that can be used to limit the Inheritable
-  capabilities of a program to be executed.  Note, this wrapper is
-  intended to assist in overcoming a lack of support for filesystem
-  capability attributes and should be used to launch other files.
-  This program should _NOT_ be made setuid-0.
-
-usage: sucap <user> <group> <command-path> [command-args...]
-
-  This program is a wrapper that change UID but not privileges of a
-  program to be executed.
-  Note, this wrapper is intended to assist in overcoming a lack of support
-  for filesystem capability attributes and should be used to launch other
-  files. This program should _NOT_ be made setuid-0.
-
-At some point, I decided I'd like to run a certain program non-root
-with certain capabilities only.  I looked at the above two programs
-and stupidly thought they'd actually allow me to do this.
-
-However, the way the kernel is setup today, this seems impossible to
-achieve, which tends to make the whole idea of capabilities completely
-and utterly useless.
-
-How is this stuff supposed to work?  Are my ideas of what's supposed
-to be achievable completely wrong, although they look completely
-reasonable to me.
-
-Don't get me wrong - the capability system seems great at permanently
-revoking capabilities via /proc/sys/kernel/cap-bound, and dropping
-them within an application provided it remains UID0.  Apart from that,
-capabilities seem completely useless.
-
-For example:
-
-bash-2.05a# execcap all-ep /bin/sh -c 'getpcaps $$'
-Capabilities for `5036': =ep cap_setpcap-ep
-
-Note carefully that the requested capabilities haven't been granted:
-
-capset(0x19980330, 0, {, , })           = 0
-execve("/bin/sh", ["/bin/sh", "-c", "getpcaps $$"], [/* 19 vars */]) = 0
-
-The reason this happens is that we're still running UID0, and UID0 on
-execve appears to re-gain all privileges.  This is fine of you're
-running in compatibility mode.  So, in order to do this, we want to
-drop from UID0 _first_ and then play around with capabilities.  Great,
-we have the sucap program to do that for us.  So we can do:
-
-	sucap rmk rmk execcap <capabilities> program args
-
-Or can we?
-
-bash-2.05a# sucap rmk rmk /bin/sh -c 'getpcaps $$'
-Caps: =ep cap_setpcap-ep
-Caps: =
-[debug] uid:501, real uid:501
-sucaps: capsetp: Operation not permitted
-sucap: child did not exit cleanly.
-
-Oh dear, I guess sucap doesn't work after all.  (It forks a child
-process, the parent then switches UID, the child then tries to
-capsetp() the parent - which of course won't work without the
-cap_setpcap.  Since the kernel never grants this capability in the
-first place to *anyone*... it seems to be something of a lost cause.
-
-Don't get me wrong - the current behaviour is secure.  But it's so
-secure that it gets in the way of things which should appear to work.
-
-I forget precisely what I wanted to achieve with this, and why I
-couldn't just make the program do it itself...  It may have been a
-script running from cron periodically which needed just one or two
-capabilities in order to operate, rather than the whole truck load
-you get by running it as root.  What I do remember is that my goal
-of running the script with minimal capabilities was completely
-*impossible* to achieve.
-
--- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 Serial core

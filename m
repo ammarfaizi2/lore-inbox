@@ -1,33 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278086AbRJKDv7>; Wed, 10 Oct 2001 23:51:59 -0400
+	id <S278087AbRJKEQN>; Thu, 11 Oct 2001 00:16:13 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278085AbRJKDvt>; Wed, 10 Oct 2001 23:51:49 -0400
-Received: from c1313109-a.potlnd1.or.home.com ([65.0.121.190]:23058 "HELO
-	kroah.com") by vger.kernel.org with SMTP id <S278086AbRJKDvi>;
-	Wed, 10 Oct 2001 23:51:38 -0400
-Date: Wed, 10 Oct 2001 20:44:30 -0700
-From: Greg KH <greg@kroah.com>
-To: Colin Bayer <vogon_jeltz@users.sourceforge.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: USB "raced timeout" errors on boot (2.4.11)
-Message-ID: <20011010204430.A11048@kroah.com>
-In-Reply-To: <3BC51513.8040604@users.sourceforge.net>
+	id <S278088AbRJKEQD>; Thu, 11 Oct 2001 00:16:03 -0400
+Received: from host154.207-175-42.redhat.com ([207.175.42.154]:19573 "EHLO
+	lacrosse.corp.redhat.com") by vger.kernel.org with ESMTP
+	id <S278087AbRJKEP5>; Thu, 11 Oct 2001 00:15:57 -0400
+Date: Thu, 11 Oct 2001 00:16:20 -0400
+From: Benjamin LaHaise <bcrl@redhat.com>
+To: Chris Mason <mason@suse.com>
+Cc: Richard Gooch <rgooch@ras.ucalgary.ca>,
+        Andreas Dilger <adilger@turbolabs.com>,
+        Doug McNaught <doug@wireboard.com>,
+        Lew Wolfgang <wolfgang@sweet-haven.com>, linux-kernel@vger.kernel.org
+Subject: Re: Dump corrupts ext2?
+Message-ID: <20011011001620.A18775@redhat.com>
+In-Reply-To: <Pine.LNX.4.33.0110101558210.7049-100000@train.sweet-haven.com><m3elob3xao.fsf@belphigor.mcnaught.org><20011010173449.Q10443@turbolinux.com> <200110110133.f9B1XtN28012@vindaloo.ras.ucalgary.ca> <1160370000.1002764921@tiny>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <3BC51513.8040604@users.sourceforge.net>
-User-Agent: Mutt/1.3.21i
-X-Operating-System: Linux 2.2.19 (i586)
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <1160370000.1002764921@tiny>; from mason@suse.com on Wed, Oct 10, 2001 at 09:48:41PM -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Oct 10, 2001 at 08:42:11PM -0700, Colin Bayer wrote:
-> Whenever I boot with my brand-new 2.4.11 kernel, I get the following 
-> series of errors (this snippet's from /var/log/messages):
+On Wed, Oct 10, 2001 at 09:48:41PM -0400, Chris Mason wrote:
+> The bug where dump could corrupt things was when getblk and the
+> block device both used the buffer cache.  That issue hasn't changed.
 
-Please search the archives before posting :)
+Let me emphasize this: 2.4.11+ will still exhibit filesystem corruption if 
+the block device is accessed.  The only way to avoid this is to use raw io, 
+in which case you know you're not getting a coherent view of things, so...
 
-http://marc.theaimsgroup.com/?l=linux-kernel&m=100275934931831&w=2
-
-greg k-h
+		-ben

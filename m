@@ -1,48 +1,71 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129340AbQLEPPG>; Tue, 5 Dec 2000 10:15:06 -0500
+	id <S129226AbQLEPTv>; Tue, 5 Dec 2000 10:19:51 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129707AbQLEPOv>; Tue, 5 Dec 2000 10:14:51 -0500
-Received: from [193.120.224.170] ([193.120.224.170]:49029 "EHLO
-	florence.itg.ie") by vger.kernel.org with ESMTP id <S129370AbQLEPOn>;
-	Tue, 5 Dec 2000 10:14:43 -0500
-Date: Tue, 5 Dec 2000 14:44:13 +0000 (GMT)
-From: Paul Jakma <paulj@itg.ie>
-To: Steve Hill <steve@navaho.co.uk>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: Serial Console
-In-Reply-To: <Pine.LNX.4.21.0012051202120.1578-100000@sorbus.navaho>
-Message-ID: <Pine.LNX.4.30.0012051439070.31704-100000@rossi.itg.ie>
+	id <S129228AbQLEPTm>; Tue, 5 Dec 2000 10:19:42 -0500
+Received: from pak145.pakuni.net ([205.138.121.145]:42492 "EHLO
+	postal.paktronix.com") by vger.kernel.org with ESMTP
+	id <S129226AbQLEPTZ>; Tue, 5 Dec 2000 10:19:25 -0500
+Date: Tue, 5 Dec 2000 08:43:27 -0600 (CST)
+From: "Matthew G. Marsh" <mgm@paktronix.com>
+To: Ivan Passos <lists@cyclades.com>
+cc: Linux Kernel List <linux-kernel@vger.kernel.org>, netdev@oss.sgi.com
+Subject: Re: [RFC-2] Configuring Synchronous Interfaces in Linux
+In-Reply-To: <Pine.LNX.4.10.10012042135090.5269-100000@main.cyclades.com>
+Message-ID: <Pine.LNX.4.10.10012050835370.1199-100000@netmonster.pakint.net>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 5 Dec 2000, Steve Hill wrote:
+On Mon, 4 Dec 2000, Ivan Passos wrote:
 
->
-> I'm building boxes with the console set to /dev/ttyS0.
+> Hello,
 
-how? symlink to /dev/ttyS0, or with console=ttyS0 boot option?
+[snip details...]
+ 
+> I'm willing to go for this implementation, but I wanted to know first:
+> - whether ifconfig is the right place to do it;
 
-> However, I can't
-> guarantee that there will always be a term plugged into the serial
-> port.  If there is no term on the port, eventually the buffer fills and
-> any processes that write to the console (i.e. init) block.  Is there some
-> option somewhere to stop this happening (i.e. either ignoring the
-> flow-control or just allowing the buffer to overflow)?
+I would like to note an objection to using ifconfig to carry all of this.
+For example I do not use or even have ifconfig on any of my systems as I
+only use/need/want Alexey's ip utility to perform all of those tasks. 
 
-IIRC/AFAIK:
+I would rather have an independant utility that could set and check the
+settings of all of these variables for whatever classes of networking
+connections existed. This would provide a cleaner split between the
+protocol configuration (IPv4, IPv6, IPX, ...) and the device (V.##,
+10/100, 4/16/100, etc) parameters. 
 
-use /dev/console (char, 5,1) for all your programmes and boot the
-kernel with serial console support and .
+Such a split should make for a cleaner configuration structure WRT virtual
+devices as well which for the most part deal with the protocol config and
+do not need much device config. 
 
-/dev/console will go to serial, but afaik it doesn't block for lack of
-a terminal. (has something to do with /dev/console being semantically
-different to /dev/tty..., eg it doesn't block, not sure of the exact
-details).
+FWIW: Alexey's ip has replaced both ifconfig and route on my systems.
+Something that could now replace having several different card config
+utils around with one binary would be fantastic.
 
---paulj
+> - where I should create the new ioctl's to handle these new parameters.
+> 
+> Suggestions / comments are more than welcome.
+> 
+> Later,
+> Ivan
+
+Thanks! I will volunteer to test/break/etc as my coding skills verge
+beyond ludicrous. 
+
+--------------------------------------------------
+Matthew G. Marsh,  President
+Paktronix Systems LLC
+1506 North 59th Street
+Omaha  NE  68104
+Phone: (402) 932-7250
+Email: mgm@paktronix.com
+WWW:  http://www.paktronix.com
+--------------------------------------------------
+
+
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

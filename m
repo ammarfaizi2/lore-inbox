@@ -1,74 +1,84 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S311577AbSCTFu6>; Wed, 20 Mar 2002 00:50:58 -0500
+	id <S311574AbSCTFtP>; Wed, 20 Mar 2002 00:49:15 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S311575AbSCTFum>; Wed, 20 Mar 2002 00:50:42 -0500
-Received: from vasquez.zip.com.au ([203.12.97.41]:21520 "EHLO
-	vasquez.zip.com.au") by vger.kernel.org with ESMTP
-	id <S311572AbSCTFuf>; Wed, 20 Mar 2002 00:50:35 -0500
-Message-ID: <3C9822CD.47ED9565@zip.com.au>
-Date: Tue, 19 Mar 2002 21:49:01 -0800
-From: Andrew Morton <akpm@zip.com.au>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-pre2 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Rahul Karnik <rahul@genebrew.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: 3Com 556B Tornado not working
-In-Reply-To: <33032.192.168.1.1.1016594386.squirrel@porsche.genebrew.com>
+	id <S311572AbSCTFtF>; Wed, 20 Mar 2002 00:49:05 -0500
+Received: from 203-109-249-30.ihug.net ([203.109.249.30]:11022 "EHLO
+	boags.getsystems.com") by vger.kernel.org with ESMTP
+	id <S311575AbSCTFsu>; Wed, 20 Mar 2002 00:48:50 -0500
+Date: Wed, 20 Mar 2002 16:48:38 +1100
+From: Zenaan Harkness <zen@getsystems.com>
+To: Paul Davis <pbd@Op.Net>
+Cc: alsa-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
+Subject: Re: [Alsa-devel] Re: Playback stutters - Correction
+Message-ID: <20020320164838.A32243@getsystems.com>
+In-Reply-To: <20020320150503.A31328@getsystems.com> <200203200412.XAA07872@renoir.op.net> <20020320163214.A31970@getsystems.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Rahul Karnik wrote:
+On Wed, Mar 20, 2002 at 04:32:15PM +1100, Zenaan Harkness wrote:
+> On Tue, Mar 19, 2002 at 11:15:12PM -0500, Paul Davis wrote:
+> > >I am getting the same with stock 2.4.18, DELL Inspiron laptop (Maestro
+> > >3i), my test is:
+> > >
+> > >copy a cd image file from one partition to another, while trying to play
+> > >an mp3 using mpg123.
+> > >
+> > >The mp3 skips all over the place.
+> > 
+> > since you almost certainly have IDE drivers, have you configured them
+> > correctly using hdparm? these are source of considerable scheduling
+> > latency, in ways that AFAIK are not improved by any of the "latency
+> > reducing" patches available. don't ask me how to configure them - i
+> > only use SCSI drives - but a quick google search should reveal
+> > relevant advice.
 > 
-> I have a HP Omnibook 500 with a 3Com 556B miniPCI ethernet/modem combo. Try
-> as I might, I can't seem to get the card to connect to the network. My
-> question is, how do I figure out what is the problem here? At this point, I
-> do not know if the card or the kernel is at fault. Please CC me as I am not
-> subscribed to the list.
+> thanks
 > 
+> hdparm improves the situation, but I still get some (minimal) skips now:
+> 
+> zen8100a:~# hdparm /dev/hda
+> 
+> /dev/hda:
+>  multcount    = 16 (on)
+>  I/O support  =  1 (32-bit)
+>  unmaskirq    =  1 (on)
+>  using_dma    =  1 (on)
+>  keepsettings =  0 (off)
+>  nowerr       =  0 (off)
+>  readonly     =  0 (off)
+>  readahead    =  8 (on)
+>  geometry     = 7296/255/63, sectors = 117210240, start = 0
+>  busstate     =  1 (on)
+> 
+> 
+> My current 'test':
+>  - playing an mp3
+>  - running make clean && make bzImage
+>  - copying a cd image between two partitions
+>  - loading up the odd application (eg. mozilla)
+> 
+> With hdparm settings I've tried:
+>  - 2.4.18 + preempt + lockbreak
+>  - 2.4.18 + lowlatency
+>  - 2.4.19-pre3-ac3 + preempt
+> 
+> These seem to all give the same minimal skips with above activities.
+> 
+> No skips with only the kernel compile (not doing the large copy).
 
-Seems that link negotiation didn't go right.
+CORRECTION:
+Just retested with full hdparm (added -u setting) settings on
+2.4.19-pre3-ac+preempt, and no skipping with above activities. This
+seems pretty good.
 
-> Mar 19 22:24:30 quicksilver kernel: eth0: Media override to transceiver 8
-> (Autonegotiate).
+I could generate skips when switching from X to text console. Could not
+generate skip when cycling virtual desktops within X (at high key repeat
+rate). Again this seems pretty good.
 
-How did you manage to get this message to come out with a modular
-driver?  Are there other driver options in modules.conf?
-
-First-up you should avoid using any special negotiation and
-transceiver options and just let the card work it out.
-
-> ...
-> Transceiver type in use:  Autonegotiate.
->  MAC settings: half-duplex.
-
-Do you expect half-duplex?
-
-> ...
->    Able to perform Auto-negotiation, negotiation not complete.
-> ...
->  Link partner capability is 0001:.
->    Negotiation did not complete.
-
-Lots of bad things there.  Remove any special options, then
-re-run mii-diag and vortex-diag.  If your cables and peer
-are behaving then you should see happy output indicating the
-desired duplex, speed and negotiation status.
-
-If it still doesn't work, try statically assigning the IP
-address (get rid of DHCP somehow).  There were some workarounds
-in later drivers for strange interactions between some hardware
-combinations and some DHCP clients.
-
-If it *still* doesn't work then it's time to sniff the connection
-and try to see those arp messages.
-
-And try different cables, different link peers.
-
-And try another you-know-which operating system.  If that works OK
-then we know the hardware's good.
-
--
+thanks
+zen

@@ -1,57 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317984AbSGLFyc>; Fri, 12 Jul 2002 01:54:32 -0400
+	id <S317986AbSGLGRx>; Fri, 12 Jul 2002 02:17:53 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317985AbSGLFyb>; Fri, 12 Jul 2002 01:54:31 -0400
-Received: from [203.190.77.145] ([203.190.77.145]:30255 "HELO noc.chikka.com")
-	by vger.kernel.org with SMTP id <S317984AbSGLFya>;
-	Fri, 12 Jul 2002 01:54:30 -0400
-Message-ID: <035401c22969$3c39a1b0$6b48becb@noc2>
-From: "louie miranda" <louie@chikka.com>
-To: <linux-kernel@vger.kernel.org>
-References: <20020706074824.GA24771@win.tue.nl> <Pine.LNX.4.44.0207060740020.10105-100000@hawkeye.luckynet.adm> <20020709190019.A19394@ds217-115-141-141.dedicated.hosteurope.de> <20020712054632.GN855@suse.de>
-Subject: no msg when linux-kernel boot.
-Date: Fri, 12 Jul 2002 13:59:07 +0800
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 5.50.4807.1700
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4807.1700
+	id <S317987AbSGLGRw>; Fri, 12 Jul 2002 02:17:52 -0400
+Received: from samba.sourceforge.net ([198.186.203.85]:61658 "HELO
+	lists.samba.org") by vger.kernel.org with SMTP id <S317986AbSGLGRu>;
+	Fri, 12 Jul 2002 02:17:50 -0400
+From: Rusty Russell <rusty@rustcorp.com.au>
+To: rth@twiddle.net
+Cc: linux-kernel@vger.kernel.org
+Subject: per-cpu data...
+Date: Fri, 12 Jul 2002 16:01:52 +1000
+Message-Id: <20020712062058.25F21415D@lists.samba.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+IIUC, __per_cpu_data is insufficient for Alpha as stands, to use
+thread-specific gcc tricks (__thread prepended to the decl, even
+though they had a perfectly good __attribute__ extension already).
 
-I saw this server twice. When she boots, it does not show extra kernel
-"echo, requests" (Initializations)
+So, I guess we're stuck with something like:
 
-ex:
+DECLARE_PER_CPU(int x);
 
+If we're going to do this, we can also mangle the name as well to
+avoid accidental "direct" accesses:
 
-LILO: linux...
-Booting the kernel
+eg:
+	#define DECLARE_PER_CPU(var) 
+		var##__percpu __attribute__((section(".percpu")))
 
-and after that it pauses for a little while
+	/* If not SMP: */
+	#define per_cpu(var) var##__percpu
 
-and just shows the login prompt
+(From my reading, ## on "int x" and "__per_cpu" is well-defined).
 
-
-Linux
-
-Login:
-
-
----
-
-Any ideas on this is much appreciated..
-
-
-
-
-
-Thanks,
-Louie...
-
+Thoughts?
+Rusty.
+--
+  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.

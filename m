@@ -1,97 +1,103 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262861AbVBDAE5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263103AbVBDANU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262861AbVBDAE5 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Feb 2005 19:04:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262963AbVBDAE5
+	id S263103AbVBDANU (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Feb 2005 19:13:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263100AbVBDANU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Feb 2005 19:04:57 -0500
-Received: from gateway-1237.mvista.com ([12.44.186.158]:44027 "EHLO
-	av.mvista.com") by vger.kernel.org with ESMTP id S262861AbVBDAEZ
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Feb 2005 19:04:25 -0500
-Message-ID: <4202BBF9.3020104@mvista.com>
-Date: Thu, 03 Feb 2005 17:04:09 -0700
-From: "Mark A. Greer" <mgreer@mvista.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030701
-X-Accept-Language: en-us, en
+	Thu, 3 Feb 2005 19:13:20 -0500
+Received: from smtp202.mail.sc5.yahoo.com ([216.136.129.92]:15230 "HELO
+	smtp202.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S263337AbVBDANB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 3 Feb 2005 19:13:01 -0500
+Message-ID: <4202BE05.9090901@yahoo.com.au>
+Date: Fri, 04 Feb 2005 11:12:53 +1100
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.5) Gecko/20050105 Debian/1.7.5-1
+X-Accept-Language: en
 MIME-Version: 1.0
-To: Alexey Dobriyan <adobriyan@mail.ru>
-CC: Greg KH <greg@kroah.com>, phil@netroedge.com, sensors@stimpy.netroedge.com,
-       linux-kernel@vger.kernel.org, khali@linux-fr.org
-Subject: Re: [PATCH][I2C] Marvell mv64xxx i2c driver
-References: <200502020315.14281.adobriyan@mail.ru> <200502031556.59319.adobriyan@mail.ru> <4202779C.6010304@mvista.com> <200502040238.57048.adobriyan@mail.ru>
-In-Reply-To: <200502040238.57048.adobriyan@mail.ru>
+To: =?UTF-8?B?77+9?= <terje_fb@yahoo.no>
+CC: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
+       Linus Torvalds <torvalds@osdl.org>
+Subject: Re: 2.6.10: kswapd spins like crazy
+References: <20050203195033.29314.qmail@web51608.mail.yahoo.com>
+In-Reply-To: <20050203195033.29314.qmail@web51608.mail.yahoo.com>
 Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alexey Dobriyan wrote:
+Terje Fåberg wrote:
+> Terje Fåberg <terje_fb@yahoo.no> skrev: 
+> 
+> 
+>>The kernel is compiling right now, but I cannot 
+>>reboot this machine until six or seven o'clock
+>>tonight (CET). I will report then.
+> 
+> 
+> Well, well, I rebooted the same kernel, now with
+> MAGIC-SYSRQ enabled.  At first the kswapd-effect
+> wouldn't show up, but now the image is much clearer
+> than before. kswapd eats constantly 95% cpu time while
+> the system is "idle".
+> 
+> The System is quite sluggish. Switching between
+> applications needs ages. After Eclipse has been active
+> for a few minutes, I it lasts 45 seconds until enough
+> of Mozilla is swapped back in, and Mozilla has redrawn
+> its window. 
+> 
+> Complete info including SysRq-Meminfo is attached.
+> 
 
->On Thursday 03 February 2005 21:12, Mark A. Greer wrote:
->
->  
->
->>>>+		mv64xxx_i2c_fsm(drv_data, status);
->>>>        
->>>>
->>>It can set drv_data->rc to -ENODEV or -EIO. In both cases ->action goes to
->>>MV64XXX_I2C_ACTION_SEND_STOP and mv64xxx_i2c_do_action() will writel()
->>>something. Is it correct to _not_ check ->rc here?
->>>      
->>>
->>I think so.  It still needs to go into do_action even when rc != 0 (in 
->>which case it'll do a STOP condition).
->>    
->>
->
->Ok. Thanks for the explanation. Agree, ->rc should be left as is.
->
+Thanks very much, this is a good help.
 
-Okay.
+> galileo:~# cat /proc/vmstat > pre ; sleep 10 ; cat /proc/vmstat > post
+> 
+> galileo:~# cat pre
+...
+> pgscan_kswapd_high 0
+> pgscan_kswapd_normal 2504667
+> pgscan_kswapd_dma 615532032
+...
+> 
+> galileo:~# cat post
+...
+> pgscan_kswapd_high 0
+> pgscan_kswapd_normal 2504667
+> pgscan_kswapd_dma 649881006
+...
 
->  
->
->>--- a/include/linux/i2c-id.h
->>+++ b/include/linux/i2c-id.h
->>    
->>
->
->  
->
->>+					/* 0x170000 - USB		*/
->>+					/* 0x180000 - Virtual buses	*/
->>+#define I2C_ALGO_MV64XXX 0x190000       /* Marvell mv64xxx i2c ctlr	*/
->>    
->>
->
->While I searched for typos and you're fixing them, au1550 owned 0x170000.
->2.6.11-rc3 says:
->
->	#define I2C_ALGO_AU1550 0x170000 /* Au1550 PSC algorithm */
->
->So, I'd remove first two comments.
->
+So we can see it is trying to scan the DMA zone.
 
-I added the comments b/c of this email from Jean Delvare, 
-http://www.uwsg.iu.edu/hypermail/linux/kernel/0501.3/0977.html.  The 
-relevant part being:
+> galileo:~# dmesg 
+> [...]
+> SysRq : Show Memory
+> Mem-info:
+> DMA per-cpu:
+> cpu 0 hot: low 2, high 6, batch 1
+> cpu 0 cold: low 0, high 2, batch 1
+> Normal per-cpu:
+> cpu 0 hot: low 32, high 96, batch 16
+> cpu 0 cold: low 0, high 32, batch 16
+> HighMem per-cpu: empty
+> 
+> Free pages:        7872kB (0kB HighMem)
+> Active:48698 inactive:86241 dirty:0 writeback:0 unstable:0 free:1968 slab:4509 mapped:50560 pagetables:1717
+> DMA free:80kB min:80kB low:100kB high:120kB active:0kB inactive:11716kB present:16384kB pages_scanned:123 all_unreclaimable? no
+> protections[]: 0 0 0
 
-"0x170000 is reserved within the legacy i2c project for an USB algorithm,
-and 0x180000 for virtual busses. Could you please use 0x190000 instead,
-so as to avoid future collisions?"
+This is the reason why: DMA only has 80K free, and kswapd won't stop until either 120K
+is free, or all_unreclaimable gets switched on.
 
-It looks like I2C_ALGO_AU1550 was just added so my guess is Jean is 
-correct and I2C_ALGO_AU1550 should be made 0x1a0000 (or I move mine back 
-one).  Would someone confirm that 0x170000 is used by legacy i2c stuffs? 
-I don't really know where to look.  If so, I can easily make a patch 
-moving it back.
+Now clearly all_unreclaimable should be getting set if nothing can be reclaimed (although
+it is possible that non pagecache allocating and freeing can mess it up, that's unlikely).
 
->Oh, and the last note: current sparse and gcc 4 don't produce any warnings.
->  
->
+Hmm, your DMA zone has no active pages, and pages_scanned (which triggers all_unreclaimable)
+is only incremented when scanning the active list. But I wonder, if the pages can't be
+freed, why aren't they being put on the active list?
 
-Cool!
+Nick
 
-Mark
+PS. let's not release 2.6.11 just yet :\
 

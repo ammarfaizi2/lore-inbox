@@ -1,41 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278428AbRJZLfn>; Fri, 26 Oct 2001 07:35:43 -0400
+	id <S278391AbRJZL3D>; Fri, 26 Oct 2001 07:29:03 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278410AbRJZLfd>; Fri, 26 Oct 2001 07:35:33 -0400
-Received: from hermine.idb.hist.no ([158.38.50.15]:7952 "HELO
-	hermine.idb.hist.no") by vger.kernel.org with SMTP
-	id <S278403AbRJZLfR>; Fri, 26 Oct 2001 07:35:17 -0400
-Message-ID: <3BD94A65.1A8E6B84@idb.hist.no>
-Date: Fri, 26 Oct 2001 13:35:02 +0200
-From: Helge Hafting <helgehaf@idb.hist.no>
-X-Mailer: Mozilla 4.76 [no] (X11; U; Linux 2.4.13 i686)
-X-Accept-Language: no, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Re: [RFC] New Driver Model for 2.5
-In-Reply-To: <E15wjqP-0004kD-00@the-village.bc.nu>
+	id <S278403AbRJZL2y>; Fri, 26 Oct 2001 07:28:54 -0400
+Received: from penguin.e-mind.com ([195.223.140.120]:26961 "EHLO
+	penguin.e-mind.com") by vger.kernel.org with ESMTP
+	id <S278391AbRJZL2i>; Fri, 26 Oct 2001 07:28:38 -0400
+Date: Fri, 26 Oct 2001 13:29:08 +0200
+From: Andrea Arcangeli <andrea@suse.de>
+To: Chris Ahna <christopher.j.ahna@intel.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Avoid a race in complete_change_console()
+Message-ID: <20011026132908.C30905@athlon.random>
+In-Reply-To: <20011025210744.A17499@intel.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.3.12i
+In-Reply-To: <20011025210744.A17499@intel.com>; from christopher.j.ahna@intel.com on Thu, Oct 25, 2001 at 09:07:44PM -0700
+X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
+X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox wrote:
+On Thu, Oct 25, 2001 at 09:07:44PM -0700, Chris Ahna wrote:
+> Can someone familiar with this code comment on the correctness of this
+> patch?  The patch is against vanilla 2.4.13.  Thanks,
 
-> 
-> > But if I say "suspend", and the kernel refuses, I will kill the offending
-> > piece of crap from sg.c before you can blink an eye.
-> 
-> Thats fine by me. Anyone wanting to be able to burn cds safely can run a
-> -ac kernel tree
+I'm not very familiar with it, but it seems sane fix. Only detail is
+that the vc_mode can only be KD_TEXT after the reset_vc but the
+additional check doesn't hurt and it makes it indipendent by the
+reset_vc details.
 
-Telling the kernel to suspend while burning a CD is
-on the same level as ejecting the CD while burning.  
-It has to go wrong.  Someone explicitly asking for
-trouble might as well get it.
-
-The really dumb users is probably using a GUI tool
-for either activity, that one may of course refuse
-to ruin the burn.
-
-Helge Hafting
+Andrea

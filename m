@@ -1,56 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262193AbVANVuS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262108AbVANVGa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262193AbVANVuS (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 14 Jan 2005 16:50:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262171AbVANVtS
+	id S262108AbVANVGa (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 14 Jan 2005 16:06:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262165AbVANVEC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 14 Jan 2005 16:49:18 -0500
-Received: from opersys.com ([64.40.108.71]:37895 "EHLO www.opersys.com")
-	by vger.kernel.org with ESMTP id S262195AbVANVqp (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 14 Jan 2005 16:46:45 -0500
-Message-ID: <41E83F84.7080102@opersys.com>
-Date: Fri, 14 Jan 2005 16:54:12 -0500
-From: Karim Yaghmour <karim@opersys.com>
-Reply-To: karim@opersys.com
-Organization: Opersys inc.
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040805 Netscape/7.2
-X-Accept-Language: en-us, en, fr, fr-be, fr-ca, fr-fr
+	Fri, 14 Jan 2005 16:04:02 -0500
+Received: from bay-bridge.veritas.com ([143.127.3.10]:57296 "EHLO
+	MTVMIME01.enterprise.veritas.com") by vger.kernel.org with ESMTP
+	id S261999AbVANUzi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 14 Jan 2005 15:55:38 -0500
+Date: Fri, 14 Jan 2005 20:55:10 +0000 (GMT)
+From: Hugh Dickins <hugh@veritas.com>
+X-X-Sender: hugh@localhost.localdomain
+To: Hsu I-Chieh <ejhsu@msn.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: A question about anonymous page
+In-Reply-To: <BAY5-F7C011AC3F39F654AACBBEA48B0@phx.gbl>
+Message-ID: <Pine.LNX.4.44.0501142043180.2973-100000@localhost.localdomain>
 MIME-Version: 1.0
-To: Sam Ravnborg <sam@ravnborg.org>
-CC: Andrew Morton <akpm@osdl.org>, linux-kernel <linux-kernel@vger.kernel.org>,
-       LTT-Dev <ltt-dev@shafik.org>
-Subject: Re: [PATCH 2/8 ] ltt for 2.6.10 : core headers
-References: <41E76279.5020507@opersys.com> <20050114205507.GD8385@mars.ravnborg.org>
-In-Reply-To: <20050114205507.GD8385@mars.ravnborg.org>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="us-ascii"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-Hello Sam,
-
-Sam Ravnborg wrote:
-> include/linux/*.h is supposed to include only definitions used by other
-> parts of the kernel.
-> Definitions used only internally by ltt shall stay in kernel/
+On Fri, 14 Jan 2005, Hsu I-Chieh wrote:
 > 
-> This is generally agreed upon, but not yet common practice.
+> I want to know if there is any condition that anonymous pages (allocated by 
+> do_anonymous_page) may be mapped in process page tables two or more times.
 
-Should there be a kernel/ltt-core.h or should I just put all required
-definitions in kernel/ltt-core.c? The latter would result in a
-cluttered C file, I think. Though there aren't any .h's in kernel/,
-so I'm not sure what's the best way to proceed here.
+An anonymous page mapped at different places in a single user address space?
+No (except for the reserved zero page, used on read fault).  But mapped into
+different user address spaces, forked off from a common ancestor?  Yes (and
+might even be at different positions if mremap has been used to move some).
 
-> Btw. did you run it through sparse?
-> Not that I found something, but did not see sparse annotation at first
-> sight.
+Unless we have a bug - why do you ask?
 
-No I haven't. I've added it to my to-do list.
+Hugh
 
-Karim
--- 
-Author, Speaker, Developer, Consultant
-Pushing Embedded and Real-Time Linux Systems Beyond the Limits
-http://www.opersys.com || karim@opersys.com || 1-866-677-4546

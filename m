@@ -1,57 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261219AbVB1HuU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261357AbVB1Hwd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261219AbVB1HuU (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 28 Feb 2005 02:50:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261269AbVB1HuU
+	id S261357AbVB1Hwd (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 28 Feb 2005 02:52:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261269AbVB1Hwd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 28 Feb 2005 02:50:20 -0500
-Received: from edu.joroinen.fi ([194.89.68.130]:64219 "EHLO edu.joroinen.fi")
-	by vger.kernel.org with ESMTP id S261219AbVB1HuN (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 28 Feb 2005 02:50:13 -0500
-Date: Mon, 28 Feb 2005 09:50:12 +0200
-From: Pasi =?iso-8859-1?Q?K=E4rkk=E4inen?= <pasik@iki.fi>
-To: LM Sensors <sensors@stimpy.netroedge.com>,
-       LKML <linux-kernel@vger.kernel.org>
-Subject: Re: [RFT] Preliminary w83627ehf hardware monitoring driver
-Message-ID: <20050228075012.GN25818@edu.joroinen.fi>
-References: <20050226191142.6288b2ef.khali@linux-fr.org> <20050227131027.GM25818@edu.joroinen.fi> <20050227184837.2563a454.khali@linux-fr.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20050227184837.2563a454.khali@linux-fr.org>
-User-Agent: Mutt/1.5.6+20040523i
+	Mon, 28 Feb 2005 02:52:33 -0500
+Received: from ylpvm25-ext.prodigy.net ([207.115.57.56]:33965 "EHLO
+	ylpvm25.prodigy.net") by vger.kernel.org with ESMTP id S261357AbVB1HwM
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 28 Feb 2005 02:52:12 -0500
+Message-ID: <4222CCB6.1080005@ecs.fullerton.edu>
+Date: Sun, 27 Feb 2005 23:48:06 -0800
+From: Eric Gaumer <gaumerel@ecs.fullerton.edu>
+User-Agent: Debian Thunderbird 1.0 (X11/20050117)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] orinoco rfmon
+References: <4220BB87.2010806@ecs.fullerton.edu> <200502262259.30897.adobriyan@mail.ru> <4220FC1D.6010404@ecs.fullerton.edu> <20050228074407.GA25480@kroah.com>
+In-Reply-To: <20050228074407.GA25480@kroah.com>
+X-Enigmail-Version: 0.90.0.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: multipart/signed; micalg=pgp-sha1;
+ protocol="application/pgp-signature";
+ boundary="------------enigB9FB7359B136F53412181987"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Feb 27, 2005 at 06:48:37PM +0100, Jean Delvare wrote:
-> Hi Pasi,
-> 
-> > Do you know about driver for W83627THF watchdog? I'm using Supermicro
-> > P8SCI motherboard, and I haven't found working driver for it..
-> 
-> Have you tried w83627hf_wdt? I took a quick look at the W83627HF and
-> W83627THF datasheets and watchdog timer seems to work identically. Since
-> the driver doesn't seem to identify the chip (it probably should, BTW),
-> I'd expect it to work.
-> 
+This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
+--------------enigB9FB7359B136F53412181987
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 
-Yes, I have tried it. It doesn't work. 
+Greg KH wrote:
+> On Sat, Feb 26, 2005 at 02:45:49PM -0800, Eric Gaumer wrote:
+>
+>>What is the difference between u* and uint*_t ? Both are derived from the
+>>same basic data type.
+>>
+>>typedef unsigned char __u8;
+>>typedef         __u8            uint8_t;
+>>
+>>And...
+>>
+>>typedef unsigned char u8;
+>
+>
+> Don't use the uint*_t types, they are not correct.  See the lkml
+> archives for why this is true.
+>
+> Use the u8 for when you are in the kernel, and __u8 when you need it for
+> a variable that crosses the userspace/kernelspace barrier.
+>
+> thanks,
+>
 
-The machine reboots always after the watchdog timeout set in the BIOS. I've
-tried with the example watchdog daemon from the watchdog.txt, and with the
-Debian "watchdog" package.
+Thanks, I'll dig up those archives.
 
-When I enable the debug messages and logging in the Debian watchdog package,
-I can see that the watchdog daemon gets stuck while trying to update the
-/dev/watchdog.. so the driver hangs..
 
--- Pasi Kärkkäinen
-       
-                                   ^
-                                .     .
-                                 Linux
-                              /    -    \
-                             Choice.of.the
-                           .Next.Generation.
+--
+"Education is what remains after one has forgotten everything he learned in school."
+	- Albert Einstein
+
+--------------enigB9FB7359B136F53412181987
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: OpenPGP digital signature
+Content-Disposition: attachment; filename="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.0 (GNU/Linux)
+Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
+
+iD8DBQFCIsy2ZWL8hfFdQekRAjV0AKCVp/+FucA8H9mZEfp1WU5hJpXENwCeIAJS
+1BP3v2n3GcKbvAzlSznKlZk=
+=RyyV
+-----END PGP SIGNATURE-----
+
+--------------enigB9FB7359B136F53412181987--

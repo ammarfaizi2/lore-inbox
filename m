@@ -1,41 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261430AbVCHFaw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261545AbVCHFd0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261430AbVCHFaw (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 8 Mar 2005 00:30:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261436AbVCHFav
+	id S261545AbVCHFd0 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 8 Mar 2005 00:33:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261561AbVCHFch
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 8 Mar 2005 00:30:51 -0500
-Received: from pat.uio.no ([129.240.130.16]:44427 "EHLO pat.uio.no")
-	by vger.kernel.org with ESMTP id S261430AbVCHFaq (ORCPT
+	Tue, 8 Mar 2005 00:32:37 -0500
+Received: from mail.kroah.org ([69.55.234.183]:59372 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S261553AbVCHFc3 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 8 Mar 2005 00:30:46 -0500
-Subject: Re: NFS client bug in 2.6.8-2.6.11
-From: Trond Myklebust <trond.myklebust@fys.uio.no>
-To: Bernardo Innocenti <bernie@develer.com>
-Cc: lkml <linux-kernel@vger.kernel.org>,
-       Neil Conway <nconway_kernel@yahoo.co.uk>, nfs@lists.sourceforge.net
-In-Reply-To: <422D2FDE.2090104@develer.com>
-References: <422D2FDE.2090104@develer.com>
-Content-Type: text/plain
-Date: Tue, 08 Mar 2005 00:30:31 -0500
-Message-Id: <1110259831.11712.1.camel@lade.trondhjem.org>
+	Tue, 8 Mar 2005 00:32:29 -0500
+Date: Mon, 7 Mar 2005 21:32:19 -0800
+From: Greg KH <greg@kroah.com>
+To: alan@redhat.com
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, luc@saillard.org,
+       torvalds@osdl.org
+Subject: Re: [PATCH] Restore PWC driver
+Message-ID: <20050308053219.GB16222@kroah.com>
+References: <200503072216.j27MGLqR024373@hera.kernel.org> <20050308052643.GA16222@kroah.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 
-Content-Transfer-Encoding: 7bit
-X-MailScanner-Information: This message has been scanned for viruses/spam. Contact postmaster@uio.no if you have questions about this scanning
-X-UiO-MailScanner: No virus found
-X-UiO-Spam-info: not spam, SpamAssassin (score=-3.359, required 12,
-	autolearn=disabled, AWL 1.59, FORGED_RCVD_HELO 0.05,
-	UIO_MAIL_IS_INTERNAL -5.00)
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050308052643.GA16222@kroah.com>
+User-Agent: Mutt/1.5.8i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ty den 08.03.2005 Klokka 05:53 (+0100) skreiv Bernardo Innocenti:
+On Mon, Mar 07, 2005 at 09:26:43PM -0800, Greg KH wrote:
+> So, who's going to fix up:
 
-> Appears to be a client bug.
+Add:
+	- the sparse warnings.
+to that list.
 
-Why?
+Oh, and those sparse warnings show that this driver is now completely
+broken on big-endian boxes. 
 
--- 
-Trond Myklebust <trond.myklebust@fys.uio.no>
+So, who should I be bouncing the emails that I'm about to get from the
+angry mob of ppc users/developers that always throw large, blunt objects
+at me whenever I add code that breaks on their machines?
 
+Ick, ick, ick...
+
+greg k-h

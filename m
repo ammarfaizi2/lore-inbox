@@ -1,53 +1,42 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317253AbSFGOTL>; Fri, 7 Jun 2002 10:19:11 -0400
+	id <S317285AbSFGOTq>; Fri, 7 Jun 2002 10:19:46 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317281AbSFGOTK>; Fri, 7 Jun 2002 10:19:10 -0400
-Received: from 196-41-175-250.mtnns.net ([196.41.175.250]:2317 "EHLO
-	penguin.wetton.prism.co.za") by vger.kernel.org with ESMTP
-	id <S317253AbSFGOTK>; Fri, 7 Jun 2002 10:19:10 -0400
-Date: Fri, 7 Jun 2002 16:17:05 +0200
-From: Bernd Jendrissek <berndj@prism.co.za>
+	id <S317284AbSFGOTp>; Fri, 7 Jun 2002 10:19:45 -0400
+Received: from tomts8.bellnexxia.net ([209.226.175.52]:54921 "EHLO
+	tomts8-srv.bellnexxia.net") by vger.kernel.org with ESMTP
+	id <S317281AbSFGOTo>; Fri, 7 Jun 2002 10:19:44 -0400
+From: "Geoff Wood" <sales@xtendcorp.com>
+Subject: Xtend Announces Caviar 3.0
 To: linux-kernel@vger.kernel.org
-Cc: akpm@zip.com.au
-Subject: Re: [patch 2/16] list_head debugging
-Message-ID: <20020607161705.V2270@prism.co.za>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 1.0pre3us
+Content-Type: text/plain;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+Reply-To: sales@xtendcorp.com
+Date: Fri, 7 Jun 2002 10:21:00 -0500
+X-Priority: 3
+X-Library: Indy 8.0.25
+Message-Id: <20020607141942.FPBQ14183.tomts8-srv.bellnexxia.net@EdsPC>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[sorry for the nonexistent In-Reply-To/whatever headers - cutting&pasting]
+Finally, a software application designed by people in Telecommunications for people in Telecommunications.
 
-Andrew Morton wrote:
->   A common and very subtle bug is to use list_heads which aren't on any
->   lists. It causes kernel memory corruption which is observed long after
->   the offending code has executed.
->
->   The patch nulls out the dangling pointers so we get a nice oops at the
->   site of the buggy code.
+Xtend announces Release 3.0 of it's Caviar Telecommunications product. Caviar is an acronym for Customer Activation Verification Information Accounting and Retention. Release 3.0 of Caviar is currently available for the Telecommunications industry.  It will change the way you do business.
 
-I'm not current with the kernel tree, but will one such oops occur in
-netfilter?  See
+*Reduce customer churn
+*Full rating, billing, invoicing and collections
+*360 view Customer Care
+*Track multiple plans and products
+*Full provisioning
 
-http://lists.samba.org/pipermail/netfilter-announce/2002/000010.html
+Contact me and let me show you how or to schedule your own personal web demo.
 
-Hmm, no.  A DoS maybe?
+Geoff Wood
+Xtend Software
+www.xtendcorp.com
+geoff@xtendcorp.com
 
->   --- 2.5.19/include/linux/list.h~list-debug Sat Jun 1 01:18:05 2002
->   +++ 2.5.19-akpm/include/linux/list.h Sat Jun 1 01:18:05 2002
->   @@ -94,6 +94,11 @@ static __inline__ void __list_del(struct
->    static __inline__ void list_del(struct list_head *entry)
->    {
->            __list_del(entry->prev, entry->next);
->   + /*
->   + * This is debug. Remove it when the kernel has no bugs ;)
->   + */
->   + entry->next = 0;
->   + entry->prev = 0;
->    }
->
->    /**
 
-Bernd Jendrissek
+
+
+
+To remove yourself from this list, reply with the subject "unsubscribe".

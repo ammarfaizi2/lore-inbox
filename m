@@ -1,124 +1,175 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264154AbUGRPAT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264261AbUGRPfn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264154AbUGRPAT (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 18 Jul 2004 11:00:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264192AbUGRPAT
+	id S264261AbUGRPfn (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 18 Jul 2004 11:35:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264265AbUGRPfn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 18 Jul 2004 11:00:19 -0400
-Received: from wblv-254-37.telkomadsl.co.za ([165.165.254.37]:28095 "EHLO
-	gateway.lan") by vger.kernel.org with ESMTP id S264154AbUGRPAH
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 18 Jul 2004 11:00:07 -0400
-Subject: Re: Linux 2.6.8-rc2
-From: Martin Schlemmer <azarah@nosferatu.za.org>
-Reply-To: Martin Schlemmer <azarah@nosferatu.za.org>
-To: Jens Olav Nygaard <jens_olav.nygaard@chello.no>
-Cc: Linux Kernel Mailing Lists <linux-kernel@vger.kernel.org>
-In-Reply-To: <40FA6377.8000206@chello.no>
+	Sun, 18 Jul 2004 11:35:43 -0400
+Received: from havoc.gtf.org ([216.162.42.101]:33723 "EHLO havoc.gtf.org")
+	by vger.kernel.org with ESMTP id S264261AbUGRPfh (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 18 Jul 2004 11:35:37 -0400
+Date: Sun, 18 Jul 2004 11:35:35 -0400
+From: David Eger <eger@havoc.gtf.org>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: [PATCH] pmac_zilog: serial minors taken failure path fix (resend/combined)
+Message-ID: <20040718153535.GA5169@havoc.gtf.org>
 References: <Pine.LNX.4.58.0407172237370.12598@ppc970.osdl.org>
-	 <1090149153.3198.3.camel@paragon.slim>
-	 <20040718113552.GA23190@middle.of.nowhere>  <40FA6377.8000206@chello.no>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-5f18Hq35oWLK1xk05Z9d"
-Message-Id: <1090162964.9751.1.camel@nosferatu.lan>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Sun, 18 Jul 2004 17:02:44 +0200
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.58.0407172237370.12598@ppc970.osdl.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Dear Linus,
 
---=-5f18Hq35oWLK1xk05Z9d
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+It turns out that the pmac_zilog fix just patched over the symptom of
+a bad failure path.  Please apply this to properly fix the problem.
+There are three patches (and a more lengthy explanation) of this over
+in the pmac_zilog thread:
 
-On Sun, 2004-07-18 at 13:48, Jens Olav Nygaard wrote:=20
-> > From: Jurgen Kramer <gtm.kramer@inter.nl.net>
->=20
-> >>Just gave it a try. My EHCI controller is still failing (Asus P4C800-E
-> >>i875p) as in the 2.6.7-mm series.
-> >>
-> >><snip>
-> >>ACPI: PCI interrupt 0000:00:1d.7[D] -> GSI 23 (level, low) -> IRQ 23
-> >>ehci_hcd 0000:00:1d.7: EHCI Host Controller
-> >>ehci_hcd 0000:00:1d.7: BIOS handoff failed (104, 1010001)
-> >>ehci_hcd 0000:00:1d.7: can't reset
-> >>ehci_hcd 0000:00:1d.7: init 0000:00:1d.7 fail, -95
-> >>ehci_hcd: probe of 0000:00:1d.7 failed with error -95
-> >>USB Universal Host Controller Interface driver v2.2
-> >><snip>
->=20
-> This is also what I see (on my Asus P4P800) more or less:
->=20
-> ACPI: PCI interrupt 0000:00:1d.7[D] -> GSI 23 (level, low) -> IRQ 23
-> ehci_hcd 0000:00:1d.7: Intel Corp. 82801EB/ER (ICH5/ICH5R) USB2 EHCI Cont=
-roller
-> ehci_hcd 0000:00:1d.7: BIOS handoff failed (104, 1010001)
-> ehci_hcd 0000:00:1d.7: can't reset
-> ehci_hcd 0000:00:1d.7: init 0000:00:1d.7 fail, -95
-> ehci_hcd: probe of 0000:00:1d.7 failed with error -95
->=20
-> The funny thing is, it has happened with various kernel snapshots
-> (right term for the 2.6.7-bk??-patches?) but not all.
-> I thought I had one (2.6.7-bk17) which didn't give this response,
-> but now it does, and I suspect the problem is really something else.
-> (Some automatic irq assignment to usb-hardware?)
->=20
-> I'm not into kernel source hacking so I can't really say much more.
->=20
-> Jurriaan:
->=20
-> > That is most probably something in your bios. My Epox 4PCA3+ (also i875
-> > chipset) says:
->=20
-> Then it's in mine also.
++ one to fix the dev major/minor is taken failure path
++ one to patch the patch (stupid mistake), and
++ one to restore the default ppc config to what it had been 
+  (apologies to Hollis and trini) 
 
-As I said in previous mail, my p4c800-e dlx works fine:
+Here are all three combined for your convenience.
 
----=20
-ACPI: PCI interrupt 0000:00:1d.7[D] -> GSI 23 (level, low) -> IRQ 193
-ehci_hcd 0000:00:1d.7: Intel Corp. 82801EB/ER (ICH5/ICH5R) USB2 EHCI Contro=
-ller
-PCI: Setting latency timer of device 0000:00:1d.7 to 64
-ehci_hcd 0000:00:1d.7: irq 193, pci mem f9968c00
-ehci_hcd 0000:00:1d.7: new USB bus registered, assigned bus number 1
-PCI: cache line size of 128 is not supported by device 0000:00:1d.7
-ehci_hcd 0000:00:1d.7: USB 2.0 enabled, EHCI 1.00, driver 2004-May-10
----
+-dte
 
-You using the latest bios version?  Maybe check if there is a beta
-bios available ?
+I've tracked down the core issue giving me the oops wrt pmac_zilog.
 
-I saw somebody said newer bios versions do not work (Locks after
-ACPI init).  I am not sure if this is related, but for our boards
-you do not want ISAPNP or PNPBIOS, just ACPI (it used to oops at
-some stage - either after ACPI init or PNP init), and I did enable
-CONFIG_PNP ...
+When you have two serial drivers, (e.g. 8250 and PMAC_ZILOG) they both say
 
----
-# grep PNP .config
-CONFIG_PNP=3Dy
-# CONFIG_PNP_DEBUG is not set
-# CONFIG_ISAPNP is not set
-# CONFIG_PNPBIOS is not set
-# CONFIG_BLK_DEV_IDEPNP is not set
-# CONFIG_IP_PNP is not set
----
+"I want to reserve X ports starting with major TTY_MAJOR and minor 64".
 
+By the time pmac_zilog gets there, the ports it requests are already
+reserved.  Unfortunately, init_pmz() doesn't check for pmz_register()
+failure, and so it merrily goes on to register the half-initialized
+pmac_zilog driver with the power management subsystem.
+ 
+This path provides a proper failure path.
 
---=20
-Martin Schlemmer
+Also: 
 
---=-5f18Hq35oWLK1xk05Z9d
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
+Restore ppc configs now that I know people use AT Keyboards on CHRP and PReP
+machines, and the zilog driver is no longer Oops'ing.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
+Signed-off-by: David Eger <eger@havoc.gtf.org>
 
-iD4DBQBA+pEUqburzKaJYLYRAl67AJoDGct0vYN2UNwA3EEddj1+unKYVgCY8lMH
-8ncPUNs0Uy7ks48cWOLOlA==
-=QwgC
------END PGP SIGNATURE-----
-
---=-5f18Hq35oWLK1xk05Z9d--
-
+diff -Nru a/arch/ppc/defconfig b/arch/ppc/defconfig
+--- a/arch/ppc/defconfig	2004-07-18 11:29:40 -04:00
++++ b/arch/ppc/defconfig	2004-07-18 11:29:41 -04:00
+@@ -689,7 +689,7 @@
+ # Input Device Drivers
+ #
+ CONFIG_INPUT_KEYBOARD=y
+-# CONFIG_KEYBOARD_ATKBD is not set
++CONFIG_KEYBOARD_ATKBD=y
+ # CONFIG_KEYBOARD_SUNKBD is not set
+ # CONFIG_KEYBOARD_LKKBD is not set
+ # CONFIG_KEYBOARD_XTKBD is not set
+@@ -724,8 +724,8 @@
+ #
+ # Non-8250 serial port support
+ #
+-# CONFIG_SERIAL_CORE is not set
+-# CONFIG_SERIAL_PMACZILOG is not set
++CONFIG_SERIAL_CORE=y
++CONFIG_SERIAL_PMACZILOG=y
+ # CONFIG_SERIAL_PMACZILOG_CONSOLE is not set
+ CONFIG_UNIX98_PTYS=y
+ CONFIG_LEGACY_PTYS=y
+diff -Nru a/drivers/serial/pmac_zilog.c b/drivers/serial/pmac_zilog.c
+--- a/drivers/serial/pmac_zilog.c	2004-07-18 11:29:40 -04:00
++++ b/drivers/serial/pmac_zilog.c	2004-07-18 11:29:40 -04:00
+@@ -1433,6 +1433,7 @@
+ 			ioremap(np->addrs[np->n_addrs - 1].address, 0x1000);
+ 		if (uap->rx_dma_regs == NULL) {	
+ 			iounmap((void *)uap->tx_dma_regs);
++			uap->tx_dma_regs = NULL;
+ 			uap->flags &= ~PMACZILOG_FLAG_HAS_DMA;
+ 			goto no_dma;
+ 		}
+@@ -1490,7 +1491,6 @@
+ 	uap->port.ops = &pmz_pops;
+ 	uap->port.type = PORT_PMAC_ZILOG;
+ 	uap->port.flags = 0;
+-	spin_lock_init(&uap->port.lock);
+ 
+ 	/* Setup some valid baud rate information in the register
+ 	 * shadows so we don't write crap there before baud rate is
+@@ -1508,10 +1508,13 @@
+ {
+ 	struct device_node *np;
+ 
+-	iounmap((void *)uap->control_reg);
+ 	np = uap->node;
++	iounmap((void *)uap->rx_dma_regs);
++	iounmap((void *)uap->tx_dma_regs);
++	iounmap((void *)uap->control_reg);
+ 	uap->node = NULL;
+ 	of_node_put(np);
++	memset(uap, 0, sizeof(struct uart_pmac_port));
+ }
+ 
+ /*
+@@ -1798,7 +1801,7 @@
+ 	 * Register this driver with the serial core
+ 	 */
+ 	rc = uart_register_driver(&pmz_uart_reg);
+-	if (rc != 0)
++	if (rc)
+ 		return rc;
+ 
+ 	/*
+@@ -1808,10 +1811,19 @@
+ 		struct uart_pmac_port *uport = &pmz_ports[i];
+ 		/* NULL node may happen on wallstreet */
+ 		if (uport->node != NULL)
+-			uart_add_one_port(&pmz_uart_reg, &uport->port);
++			rc = uart_add_one_port(&pmz_uart_reg, &uport->port);
++		if (rc)
++			goto err_out;
+ 	}
+ 
+ 	return 0;
++err_out:
++	while (i-- > 0) {
++		struct uart_pmac_port *uport = &pmz_ports[i];
++		uart_remove_one_port(&pmz_uart_reg, &uport->port);
++	}
++	uart_unregister_driver(&pmz_uart_reg);
++	return rc;
+ }
+ 
+ static struct of_match pmz_match[] = 
+@@ -1841,6 +1853,7 @@
+ 
+ static int __init init_pmz(void)
+ {
++	int rc, i;
+ 	printk(KERN_INFO "%s\n", version);
+ 
+ 	/* 
+@@ -1862,7 +1875,16 @@
+ 	/*
+ 	 * Now we register with the serial layer
+ 	 */
+-	pmz_register();
++	rc = pmz_register();
++	if (rc) {
++		printk(KERN_ERR 
++			"pmac_zilog: Error registering serial device, disabling pmac_zilog.\n"
++		 	"pmac_zilog: Did another serial driver already claim the minors?\n"); 
++		/* effectively "pmz_unprobe()" */
++		for (i=0; i < pmz_ports_count; i++)
++			pmz_dispose_port(&pmz_ports[i]);
++		return rc;
++	}
+ 	
+ 	/*
+ 	 * Then we register the macio driver itself

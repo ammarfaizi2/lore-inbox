@@ -1,71 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261856AbVAaLQW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261857AbVAaLVR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261856AbVAaLQW (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 31 Jan 2005 06:16:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261857AbVAaLQW
+	id S261857AbVAaLVR (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 31 Jan 2005 06:21:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261858AbVAaLVR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 31 Jan 2005 06:16:22 -0500
-Received: from 13.2-host.augustakom.net ([80.81.2.13]:18597 "EHLO phoebee.mail")
-	by vger.kernel.org with ESMTP id S261856AbVAaLQR (ORCPT
+	Mon, 31 Jan 2005 06:21:17 -0500
+Received: from wproxy.gmail.com ([64.233.184.203]:41255 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261857AbVAaLVM (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 31 Jan 2005 06:16:17 -0500
-Date: Mon, 31 Jan 2005 12:16:16 +0100
-From: Martin Zwickel <martin.zwickel@technotrend.de>
-To: "Kiniger, Karl (GE Healthcare)" <karl.kiniger@med.ge.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: How peek at tcp socket data w/o reading it
-Message-ID: <20050131121616.1d35c69a@phoebee>
-In-Reply-To: <20050131104532.GA3208@wszip-kinigka.euro.med.ge.com>
-References: <20050131104532.GA3208@wszip-kinigka.euro.med.ge.com>
-X-Mailer: Sylpheed-Claws 0.9.12cvs53 (GTK+ 1.2.10; i686-pc-linux-gnu)
-X-Operating-System: Linux Phoebee 2.6.7-rc2-mm2 i686 Intel(R) Pentium(R) 4
- CPU 2.40GHz
-X-Face: $rTNP}#i,cVI9h"0NVvD.}[fsnGqI%3=N'~,}hzs<FnWK/T]rvIb6hyiSGL[L8S,Fj`u1t.
- ?J0GVZ4&
-Organization: Technotrend AG
+	Mon, 31 Jan 2005 06:21:12 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:date:to:cc:subject:message-id:mail-followup-to:references:mime-version:content-type:content-disposition:in-reply-to:user-agent:from;
+        b=EBEgjyJv4PT47tuYMJiKZbHNFMtR5+GIyHgCmfMk5Y0MgJWgfNODz4wwMxxxWi6nrkf3am4ZDyDhdag6xQOiYUc3E8cst0odwmxwiWY2TrFHFbDmt+cpVYRUTN1p8wZ+MxyPny90VoCSkEHC0ao0Gb9FgRFoK589lGvmJXOcs7g=
+Date: Mon, 31 Jan 2005 06:21:06 -0500
+To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Cc: Andrew Morton <akpm@osdl.org>, Sean Neakums <sneakums@zork.net>,
+       linux-kernel@vger.kernel.org
+Subject: Re: Fw: Re: 2.6.11-rc2-mm2
+Message-ID: <20050131112106.GA3494@samarkand.rivenstone.net>
+Mail-Followup-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+	Andrew Morton <akpm@osdl.org>, Sean Neakums <sneakums@zork.net>,
+	linux-kernel@vger.kernel.org
+References: <20050129163117.1626d404.akpm@osdl.org> <1107155510.5905.2.camel@gaston>
 Mime-Version: 1.0
-Content-Type: multipart/signed;
- boundary=Signature_Mon__31_Jan_2005_12_16_16_+0100_HxHGgpsm_yobO0yw;
- protocol="application/pgp-signature"; micalg=pgp-sha1
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1107155510.5905.2.camel@gaston>
+User-Agent: Mutt/1.4i
+From: Joseph Fannin <jfannin@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---Signature_Mon__31_Jan_2005_12_16_16_+0100_HxHGgpsm_yobO0yw
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: quoted-printable
+On Mon, Jan 31, 2005 at 06:11:50PM +1100, Benjamin Herrenschmidt wrote:
+> On Sat, 2005-01-29 at 16:31 -0800, Andrew Morton wrote:
+> It seems -mm2 definitely has some problems regarding loading of modules,
+> it pretty much fails loading all of them for me with some
+> kobject_register errors, I haven't really found out what was up, but
+> then, I didn't have much time neither.
+> 
+> radeonfb built-in operations seem to be ok on my PowerBook3,5 (ATI M9
+> based), I'll try on a PowerBook5,4 (same as yours) tomorrow hopefully.
+> 
+> Does the machine hang with the screen completely cleared ? Do you see
+> the penguin logo ? Did you try just using pmac_defconfig ?
 
-On Mon, 31 Jan 2005 11:45:32 +0100
-"Kiniger, Karl (GE Healthcare)" <karl.kiniger@med.ge.com> bubbled:
+    I'm getting a blank screen with radeonfb on two boxes here as
+well. One is a beige g3, the other is i386; both have PCI Radeon 7000s
+with radeonfb non-modular. 
 
-> Hi,
->=20
-> hack wanted:
->=20
-> is it possible to peek a few bytes from a tcp socket which is
-> ready to read without actually reading the data? (or some
-> means to push already read data back similar to ungetc)
+    On the PC I could see the earliest kernel messages in VGA text
+mode before radeonfb took over and the screen went blank -- no
+penguin, and the logo is enabled.  Booting with radeonfb:off seemed to
+work except for the module problem in -rc2-mm2:
 
-ret =3D recv(fd, buf, len, MSG_PEEK);
+    On the ppc box I tried both -rc2-mm1 and -rc2-mm2.  Both hung and
+then rebooted after 3 minutes, so it seems to be panicing somewhere.
+I backed the massive-radeonfb patch out of -mm2 and radeonfb worked,
+so I got as far as the module thing again.
 
+    So yeah, it's possible that there's something in -mm1 that panics
+my ppc, and radeonfb is just making a blank screen, but it seems more
+likely that radeonfb is panicing.  I tried to get netconsole working
+on both machines, but it didn't work out for unrelated reasons.
 
---=20
-MyExcuse:
-telnet: Unable to connect to remote host: Connection refused
-
-Martin Zwickel <martin.zwickel@technotrend.de>
-Research & Development
-
-TechnoTrend AG <http://www.technotrend.de>
-
---Signature_Mon__31_Jan_2005_12_16_16_+0100_HxHGgpsm_yobO0yw
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.6 (GNU/Linux)
-
-iD8DBQFB/hOAmjLYGS7fcG0RAkFbAKCuVqxPQyQ+Nr/a3jrE5p48w6mbSgCgqzE9
-zL1msg1nvAyW7vh2IXlKrSQ=
-=/3zu
------END PGP SIGNATURE-----
-
---Signature_Mon__31_Jan_2005_12_16_16_+0100_HxHGgpsm_yobO0yw--
+    Hopefully I'll have more time to poke at this tomorrow; maybe this
+is helpful somehow.
+-- 
+Joseph Fannin
+jfannin@gmail.com

@@ -1,36 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280938AbRKHA4p>; Wed, 7 Nov 2001 19:56:45 -0500
+	id <S281191AbRKHAso>; Wed, 7 Nov 2001 19:48:44 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280918AbRKHA4e>; Wed, 7 Nov 2001 19:56:34 -0500
-Received: from james.kalifornia.com ([208.179.59.2]:31024 "EHLO
-	james.kalifornia.com") by vger.kernel.org with ESMTP
-	id <S280807AbRKHA4Z>; Wed, 7 Nov 2001 19:56:25 -0500
-Message-ID: <3BE9D7BD.7030308@blue-labs.org>
-Date: Wed, 07 Nov 2001 19:54:21 -0500
-From: David Ford <david@blue-labs.org>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.5+) Gecko/20011101
-X-Accept-Language: en-us
+	id <S281220AbRKHAsY>; Wed, 7 Nov 2001 19:48:24 -0500
+Received: from saturn.cs.uml.edu ([129.63.8.2]:42247 "EHLO saturn.cs.uml.edu")
+	by vger.kernel.org with ESMTP id <S281210AbRKHAsU>;
+	Wed, 7 Nov 2001 19:48:20 -0500
+From: "Albert D. Cahalan" <acahalan@cs.uml.edu>
+Message-Id: <200111080047.fA80lxk105204@saturn.cs.uml.edu>
+Subject: Re: PROPOSAL: /proc standards (was dot-proc interface [was: /proc
+To: linux-kernel@alex.org.uk
+Date: Wed, 7 Nov 2001 19:47:58 -0500 (EST)
+Cc: acahalan@cs.uml.edu (Albert D. Cahalan),
+        viro@math.psu.edu (Alexander Viro), jfbeam@bluetopia.net (Ricky Beam),
+        roy@karlsbakk.net (Roy Sigurd Karlsbakk),
+        linux-kernel@vger.kernel.org (Linux Kernel Mail List)
+In-Reply-To: <1832004393.1005153898@[10.132.113.67]> from "Alex Bligh - linux-kernel" at Nov 07, 2001 05:24:58 PM
+X-Mailer: ELM [version 2.5 PL2]
 MIME-Version: 1.0
-To: antirez <antirez@invece.org>
-CC: "Brenneke, Matthew Jeffrey (UMR-Student)" <mbrennek@umr.edu>,
-        "'H. Peter Anvin'" <hpa@zytor.com>,
-        "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
-Subject: Re: Yet another design for /proc. Or actually /kernel.
-In-Reply-To: <6CAC36C3427CEB45A4A6DF0FBDABA56D59C91D@umr-mail03.cc.umr.edu> <20011108012051.C568@blu>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-That doesn't solve anything if the data value includes ( or ).  It just 
-avoids ' ' in the data value and adds complexity.
+Alex Bligh - linux writes:
 
--d
+>    sure it's easier to strip out a spurious 'kb' that
+>    gets added after a number, than to deal with (say)
+>    an extra inserted DWORD with no version traching.
 
-antirez wrote:
+Design the kernel to make doing this difficult.
+Define some offsets as follows:
 
->((dev/hda1)(/home/mbrennek/stuff and)(vfat)(rw)(0)(0))
->((/dev/hda2)(/var/tmp)(ext2)(rw)(0)(0))
->
+#define FOO_PID 0
+#define FOO_PPID 1
 
+Now, how is anyone going to create "an extra inserted DWORD"
+between those? They'd need to renumber FOO_PPID and any other
+values that come after it.
+
+The "DWORD" idea is messed up too BTW. Use __u64 everywhere.

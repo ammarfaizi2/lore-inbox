@@ -1,50 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262101AbUKJTKZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262035AbUKJTPK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262101AbUKJTKZ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 10 Nov 2004 14:10:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262035AbUKJTKZ
+	id S262035AbUKJTPK (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 10 Nov 2004 14:15:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262036AbUKJTPK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 Nov 2004 14:10:25 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:56027 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S262102AbUKJTJS
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 Nov 2004 14:09:18 -0500
-Date: Wed, 10 Nov 2004 13:41:36 -0200
-From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-To: Nigel Cunningham <ncunningham@linuxmail.org>
-Cc: Tim Bird <tim.bird@am.sony.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Patrick Mochel <mochel@digitalimplant.org>
-Subject: Re: CELF interest in suspend-to-flash
-Message-ID: <20041110154136.GA12444@logos.cnet>
-References: <419256F8.3010305@am.sony.com> <1100109991.12290.41.camel@desktop.cunninghams>
+	Wed, 10 Nov 2004 14:15:10 -0500
+Received: from fw.osdl.org ([65.172.181.6]:12972 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S262035AbUKJTPF (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 10 Nov 2004 14:15:05 -0500
+Date: Wed, 10 Nov 2004 11:14:52 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: dcn@sgi.com (Dean Nelson)
+Cc: linux-kernel@vger.kernel.org, nickpiggin@yahoo.com.au,
+       Christoph Hellwig <hch@lst.de>
+Subject: Re: kthread realtime priorities and exporting 
+ sys_sched_setscheduler()
+Message-Id: <20041110111452.1724b353.akpm@osdl.org>
+In-Reply-To: <4192424B.mailxNJY11KR1G@aqua.americas.sgi.com>
+References: <4192424B.mailxNJY11KR1G@aqua.americas.sgi.com>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1100109991.12290.41.camel@desktop.cunninghams>
-User-Agent: Mutt/1.5.5.1i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Nov 11, 2004 at 05:06:31AM +1100, Nigel Cunningham wrote:
-> Hi.
+dcn@sgi.com (Dean Nelson) wrote:
+>
+> I'm trying to push XP[C|NET] out to the community. (For further details:
+> http://marc.theaimsgroup.com/?l=linux-ia64&m=109337050919186&w=2 )
 > 
-> On Thu, 2004-11-11 at 04:59, Tim Bird wrote:
-> > Hi all,
-> > 
-> > Lately, the CE Linux Forum power management working group is showing some
-> > interest in suspend-to-flash.  Is there any current work in this area?
-> > 
-> > Who should we talk to if we want to get involved with this (or lead
-> > an effort if there isn't one)?
-> 
-> Can flash be treated as a swap device at the moment? If so, it might
-> simply be a matter of specifying the same parameter used in swapon for
-> the resume2= boot parameter.
+> An objection was raised over the exporting and calling of
+> sys_sched_setscheduler(), which XPC calls to make its kthreads
+> run at realtime priorities. Without this change we found that it
+> was possible for user processes to be given a higher effective
+> priority than the kthreads used by XPC. The upshot of this was
+> that the latencies incurred by XPC increased 300 times in the
+> test example given. If XPC's kthreads were given realtime
+> priorities this did not happen. (For further details:
+> http://marc.theaimsgroup.com/?l=linux-ia64&m=109337503100067&w=2 )
 
-Sure, you only need to have the flash as a block device (ie driven 
-by the IDE code).
+I'd disagree with Christoph on that.  Being able to set the scheduling
+policy from a module-based kernel thread is a sensible thing to be able to
+do, and you can do it by issuing a direct trap anyway.
 
-> If more work is required, I'd happily help, although I might be a little
-> slow: I'm only work on this on a voluntary basis at the moment (looking
-> for full time work, from next month though).
+EXPORT_SYMBOL_GPL() would be preferred.
+
+Possibly it could be done by adding a variant of kthread_create() which has
+a new `policy' argument, but it doesn't really seem worth the fuss.

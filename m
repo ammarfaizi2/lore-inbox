@@ -1,47 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265243AbSKNVY2>; Thu, 14 Nov 2002 16:24:28 -0500
+	id <S265236AbSKNVPZ>; Thu, 14 Nov 2002 16:15:25 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265246AbSKNVY2>; Thu, 14 Nov 2002 16:24:28 -0500
-Received: from adsl-66-127-195-58.dsl.snfc21.pacbell.net ([66.127.195.58]:16023
-	"EHLO panda.mostang.com") by vger.kernel.org with ESMTP
-	id <S265243AbSKNVY1>; Thu, 14 Nov 2002 16:24:27 -0500
-MIME-Version: 1.0
+	id <S265238AbSKNVPZ>; Thu, 14 Nov 2002 16:15:25 -0500
+Received: from pasky.ji.cz ([62.44.12.54]:37870 "HELO machine.sinus.cz")
+	by vger.kernel.org with SMTP id <S265236AbSKNVPZ>;
+	Thu, 14 Nov 2002 16:15:25 -0500
+Date: Thu, 14 Nov 2002 22:22:18 +0100
+From: Petr Baudis <pasky@ucw.cz>
+To: torvalds@transmeta.com, zippel@linux-m68k.org
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] [TRIVIAL] [kconfig] Merge error of singlemenu mconf patch
+Message-ID: <20021114212218.GG2644@pasky.ji.cz>
+Mail-Followup-To: torvalds@transmeta.com, zippel@linux-m68k.org,
+	linux-kernel@vger.kernel.org
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <15828.5673.94643.36160@panda.mostang.com>
-Date: Thu, 14 Nov 2002 13:31:21 -0800
-To: William Lee Irwin III <wli@holomorphy.com>
-Cc: David Mosberger-Tang <David.Mosberger@acm.org>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [patch] remove hugetlb syscalls
-In-Reply-To: <20021114203411.GG22031@holomorphy.com>
-References: <Pine.LNX.4.44L.0211132239370.3817-100000@imladris.surriel.com>
-	<08a601c28bbb$2f6182a0$760010ac@edumazet>
-	<20021114141310.A25747@infradead.org>
-	<ugel9oavk4.fsf@panda.mostang.com>
-	<20021114203411.GG22031@holomorphy.com>
-X-Mailer: VM 7.03 under Emacs 21.2.1
-Reply-To: David.Mosberger@acm.org
-X-URL: http://www.mostang.com/~davidm/
-From: davidm@mostang.com (David Mosberger-Tang)
+Content-Disposition: inline
+User-Agent: Mutt/1.4i
+X-message-flag: Outlook : A program to spread viri, but it can do mail too.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> On Thu, 14 Nov 2002 12:34:11 -0800, William Lee Irwin III <wli@holomorphy.com> said:
+  Hello,
 
-  William> (3) ->f_op->mmap() will hand -EINVAL back to userspace
-  William> instead of automatically placing the vma, for explicit and
-  William> 0 start adresses
+  this patch (against 2.5.47) fixes apparent merge error of my menuconfig
+singlemenu patch, accepted before 2.5.47 release. In that patch, following
+modification to lxdialog was needed - without this change, the highlighting of
+the menu items' hotkey is broken (the first '+' is highlighted).
 
-This sounds like a receipe for creating unportable programs because
-the alignment constraints will be different from one platform to
-another.  (Adding gethugepagesize() in libc would alleviate the
-problem but it wouldn't solve it completely.)
+  Please apply.
 
-Overall, it does sound to me that the hugetlbfs is so specialized that
-it would be much cleaner to provide a separate interface at the
-user-level.  That would leave more flexibility should the
-implementation change over time (which it well might).
+ scripts/lxdialog/util.c |    2 +-
+ 1 files changed, 1 insertion(+), 1 deletion(-)
 
-	--david
+  Kind regards,
+                                Petr Baudis
+
+diff -ru linux/scripts/lxdialog/util.c linux+pasky/scripts/lxdialog/util.c
+--- linux/scripts/lxdialog/util.c	Wed Nov  6 21:50:00 2002
++++ linux+pasky/scripts/lxdialog/util.c	Thu Nov 14 22:15:55 2002
+@@ -348,7 +348,7 @@
+ 		c = tolower(string[i]);
+ 
+ 		if (strchr("<[(", c)) ++in_paren;
+-		if (strchr(">])", c)) --in_paren;
++		if (strchr(">])", c) && in_paren > 0) --in_paren;
+ 
+ 		if ((! in_paren) && isalpha(c) && 
+ 		     strchr(exempt, c) == 0)

@@ -1,51 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269120AbUINCHi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269111AbUINCJn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269120AbUINCHi (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Sep 2004 22:07:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269112AbUINCFs
+	id S269111AbUINCJn (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Sep 2004 22:09:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269112AbUINCIX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Sep 2004 22:05:48 -0400
-Received: from holomorphy.com ([207.189.100.168]:56463 "EHLO holomorphy.com")
-	by vger.kernel.org with ESMTP id S269106AbUINCEd (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Sep 2004 22:04:33 -0400
-Date: Mon, 13 Sep 2004 19:04:17 -0700
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Constantine Gavrilov <constg@qlusters.com>
-Cc: Christoph Hellwig <hch@infradead.org>, bugs@x86-64.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: Calling syscalls from x86-64 kernel results in a crash on Opteron machines
-Message-ID: <20040914020417.GH9106@holomorphy.com>
-References: <4145A8E1.8010409@qlusters.com> <20040913153803.A27282@infradead.org> <4145B750.6060900@qlusters.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <4145B750.6060900@qlusters.com>
-Organization: The Domain of Holomorphy
-User-Agent: Mutt/1.5.6+20040722i
+	Mon, 13 Sep 2004 22:08:23 -0400
+Received: from smtp200.mail.sc5.yahoo.com ([216.136.130.125]:56233 "HELO
+	smtp200.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S269116AbUINCHK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 13 Sep 2004 22:07:10 -0400
+Message-ID: <41465244.9010603@yahoo.com.au>
+Date: Tue, 14 Sep 2004 12:07:00 +1000
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040820 Debian/1.7.2-4
+X-Accept-Language: en
+MIME-Version: 1.0
+To: hotdog day <hotdogday@gmail.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.9-rc2 and Hyperthreading. (SMT)
+References: <7798951e04091317273b1bed29@mail.gmail.com>
+In-Reply-To: <7798951e04091317273b1bed29@mail.gmail.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Christoph Hellwig wrote:
->> Which you shouldn't do in the first place.
+hotdog day wrote:
+> I have been testing the 2.6.9-rc1, and 2.6.9-rc2 kernel patches over
+> the past couple days and have been having some issues with
+> hyperthreading (SMT) turned on.
+> 
+> This problem first exhibited itself when I was testing 
+> 2.6.9-rc2-mm2-love2. I noticed the following quirks that ONLY show
+> themselves with hyperthreading enabled on my 3.0C Pentium 4.
+> 
+> Random HARD LOCKS. No messages from the kernel. Just a good swift hard lock.
+> 
+> Hard locks when mounting two cdrom drives in quick succession. 
+> 
+> Turning off hyperthreading solves these issues.  Going back to 2.6.8.1
+> solves these issues.
+> 
+> I then tried 2.6.9-rc1 with no mm or love patches. I had the exact same issues. 
+> 
+> Today I downloaded the prepatch to 2.6.9-rc2 and applied it to clean
+> 2.6.8 source. The issues are still there.
+> 
+> I hope someone is paying attention to the way scheduler tweaks and
+> changes are affecting SMT enabled kernels. I don't think anyone wants
+> to disable features of their hardware in order to run an optimized
+> scheduler.
 
-On Mon, Sep 13, 2004 at 06:05:52PM +0300, Constantine Gavrilov wrote:
-> Function kernel_thread() on i386 is implemented by putting the args to 
-> appropriate regs and calling int 0x80, resulting in a system call 
-> clone() on i386.
-> I have also found the "syscall" instruction in x86-64 kernel specific 
-> code (it does not call _syscall() macros directly, though). So, 
-> "shouldn't do" is a bit too strong.
-> What I am writing is an application, and not interface. As such, it is 
-> not much different from its requierements from a user-space application. 
-> If user-space application may call system calls, why a kernel space 
-> application cannot?
-> And BTW, kernel-space applications have their own place even if the 
-> concept seems foreign to you.
-
-This is not something we particularly endorse, but when making syscalls
-the function calls sys_foo() suffice. Also, ia32 does not use syscall
-traps for kernel_thread() in current 2.6.x
-
-
--- wli
+Try turning off CONFIG_SCHED_SMT and see how you go. Thanks.

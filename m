@@ -1,44 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131974AbQL2TYv>; Fri, 29 Dec 2000 14:24:51 -0500
+	id <S132020AbQL2Thw>; Fri, 29 Dec 2000 14:37:52 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132020AbQL2TYk>; Fri, 29 Dec 2000 14:24:40 -0500
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:41479 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S131974AbQL2TYa>; Fri, 29 Dec 2000 14:24:30 -0500
-Subject: Re: linux 2.2.19pre and thttpd (VM-global problem?)
-To: ppetru@ppetru.net (Petru Paler)
-Date: Fri, 29 Dec 2000 18:56:09 +0000 (GMT)
-Cc: jakob@unthought.net (Jakob Østergaard),
-        andrea@suse.de (Andrea Arcangeli), pegasus@telemach.net (Jure Pecar),
+	id <S132088AbQL2Thm>; Fri, 29 Dec 2000 14:37:42 -0500
+Received: from penguin.e-mind.com ([195.223.140.120]:57437 "EHLO
+	penguin.e-mind.com") by vger.kernel.org with ESMTP
+	id <S132020AbQL2The>; Fri, 29 Dec 2000 14:37:34 -0500
+Date: Fri, 29 Dec 2000 20:06:57 +0100
+From: Andrea Arcangeli <andrea@suse.de>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Petru Paler <ppetru@ppetru.net>, Jure Pecar <pegasus@telemach.net>,
         linux-kernel@vger.kernel.org, thttpd@bomb.acme.com
-In-Reply-To: <20001229202120.C573@ppetru.net> from "Petru Paler" at Dec 29, 2000 08:21:20 PM
-X-Mailer: ELM [version 2.5 PL1]
-MIME-Version: 1.0
+Subject: Re: linux 2.2.19pre and thttpd (VM-global problem?)
+Message-ID: <20001229200657.B16261@athlon.random>
+In-Reply-To: <20001229165340.C12791@athlon.random> <E14C4bd-0005bM-00@the-village.bc.nu>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E14C4hI-0005cK-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Disposition: inline
+In-Reply-To: <E14C4bd-0005bM-00@the-village.bc.nu>; from alan@lxorguk.ukuu.org.uk on Fri, Dec 29, 2000 at 06:50:18PM +0000
+X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
+X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> They do boost performance on SMP (because you can have N (N=3Dnr. of CP=
-> Us)
-> threads serving data).
+On Fri, Dec 29, 2000 at 06:50:18PM +0000, Alan Cox wrote:
+> Your cgi will keep the other CPU occupied, or run two of them. thttpd has
+> superb scaling properties compared to say apache.
 
-Depends on memory bandwidth, caches, locking overhead and a million other
-issues. 
+I think with 8 CPUs and 8 NICs (usual benchmark setup) you want more than 1 cpu
+serving static data and it should be more efficient if it's threaded and
+sleeping in accept() instead of running eight of them (starting from sharing
+tlb entries and avoiding flushes probably without the need of CPU binding).
 
-> >  on keeping it single-threaded - unless someone can tell me that's a =
-> bad
-> >  idea)
-> 
-> Keep it single threaded if you run on UP only...
-
-Theory - SMP needs threading
-Practice is generally a little different
-
-
+Andrea
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

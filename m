@@ -1,119 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267344AbUIJJdL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267345AbUIJJhr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267344AbUIJJdL (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Sep 2004 05:33:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267338AbUIJJba
+	id S267345AbUIJJhr (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Sep 2004 05:37:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267364AbUIJJhp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Sep 2004 05:31:30 -0400
-Received: from checkpoint-out.gate.uni-erlangen.de ([131.188.28.69]:42694 "EHLO
-	amd.ucw.cz") by vger.kernel.org with ESMTP id S267335AbUIJJa7 (ORCPT
+	Fri, 10 Sep 2004 05:37:45 -0400
+Received: from [213.91.207.82] ([213.91.207.82]:13441 "EHLO adsl.nucleusys.com")
+	by vger.kernel.org with ESMTP id S267345AbUIJJfI (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Sep 2004 05:30:59 -0400
-Date: Fri, 10 Sep 2004 10:47:04 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: kernel list <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@zip.com.au>,
-       Patrick Mochel <mochel@digitalimplant.org>
-Subject: swsusp: progress in percent
-Message-ID: <20040910084704.GB12751@elf.ucw.cz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.4i
+	Fri, 10 Sep 2004 05:35:08 -0400
+Date: Fri, 10 Sep 2004 12:34:54 +0300 (EEST)
+From: Petko Manolov <petkan@nucleusys.com>
+To: Greg KH <greg@kroah.com>
+cc: Andrew Morton <akpm@osdl.org>, eric.valette@free.fr,
+       linux-kernel@vger.kernel.org
+Subject: Re: 2.6.9-rc1-mm4 badness in rtl8150.c ethernet driver : fixed
+In-Reply-To: <20040909223605.GA17655@kroah.com>
+Message-ID: <Pine.LNX.4.61.0409101212420.22115@bender.nucleusys.com>
+References: <413DB68C.7030508@free.fr> <4140256C.5090803@free.fr>
+ <20040909152454.14f7ebc9.akpm@osdl.org> <20040909223605.GA17655@kroah.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
-
-swsusp currently has very poor progress indication. Thanks to Erik
-Rigtorp <erik@rigtorp.com>, we have percentages there, so people know
-how long wait to expect. Please apply,
-
-[I'd prefer this to be start of "next batch" of changes to linus. It
-would be nice if linus could pull previous version from power tree...]
-
-From: Erik Rigtorp <erik@rigtorp.com>
-Signed-off-by: Pavel Machek <pavel@suse.cz>
-
-								Pavel
-
---- clean-mm/kernel/power/disk.c	2004-09-07 21:12:33.000000000 +0200
-+++ linux-mm/kernel/power/disk.c	2004-09-08 22:47:41.000000000 +0200
-@@ -91,10 +91,20 @@
- 
- static void free_some_memory(void)
- {
--	printk("Freeing memory: ");
--	while (shrink_all_memory(10000))
--		printk(".");
--	printk("|\n");
-+	unsigned int i = 0;
-+	unsigned int tmp;
-+	unsigned long pages = 0;
-+	char *p = "-\\|/";
-+	
-+	printk("Freeing memory...  ");
-+	while ((tmp = shrink_all_memory(10000))) {
-+		pages += tmp;
-+		printk("\b%c", p[i]);
-+		i++;
-+		if (i > 3)
-+			i = 0;
-+	}
-+	printk("\bdone (%li pages freed)\n", pages);
- }
- 
- 
---- clean-mm/kernel/power/swsusp.c	2004-09-07 21:12:33.000000000 +0200
-+++ linux-mm/kernel/power/swsusp.c	2004-09-09 08:56:20.000000000 +0200
-@@ -296,15 +292,19 @@
- {
- 	int error = 0;
- 	int i;
--
--	printk( "Writing data to swap (%d pages): ", nr_copy_pages );
-+	unsigned int mod = nr_copy_pages / 100;
-+	
-+	if (!mod)
-+		mod = 1;
-+	
-+	printk( "Writing data to swap (%d pages)...     ", nr_copy_pages );
- 	for (i = 0; i < nr_copy_pages && !error; i++) {
--		if (!(i%100))
--			printk( "." );
-+		if (!(i%mod))
-+			printk( "\b\b\b\b%3d%%", i / mod );
- 		error = write_page((pagedir_nosave+i)->address,
- 					  &((pagedir_nosave+i)->swap_address));
- 	}
--	printk(" %d Pages done.\n",i);
-+	printk("\b\b\b\bdone\n");
- 	return error;
- }
- 
-@@ -1153,14 +1120,18 @@
- 	struct pbe * p;
- 	int error;
- 	int i;
--
-+	int mod = nr_copy_pages / 100;
-+	
-+	if (!mod)
-+		mod = 1;
-+	
- 	if ((error = swsusp_pagedir_relocate()))
- 		return error;
- 
--	printk( "Reading image data (%d pages): ", nr_copy_pages );
-+	printk( "Reading image data (%d pages):     ", nr_copy_pages );
- 	for(i = 0, p = pagedir_nosave; i < nr_copy_pages && !error; i++, p++) {
--		if (!(i%100))
--			printk( "." );
-+		if (!(i%mod))
-+			printk( "\b\b\b\b%3d%%", i / mod );
- 		error = bio_read_page(swp_offset(p->swap_address),
- 				  (void *)p->address);
- 	}
 
 
+On Thu, 9 Sep 2004, Greg KH wrote:
+
+> On Thu, Sep 09, 2004 at 03:24:54PM -0700, Andrew Morton wrote:
+>> Eric Valette <eric.valette@free.fr> wrote:
+>>>
+>>> Here is a small patch that makes the card functionnal again. I've
+>>> forwarded the patch to driver author also.
+>>>
+>>> --- linux/drivers/usb/net/rtl8150.c-2.6.9-rc1-mm4.orig	2004-09-09 11:15:11.000000000 +0200
+>>> +++ linux/drivers/usb/net/rtl8150.c	2004-09-09 11:15:46.000000000 +0200
+>>> @@ -341,7 +341,7 @@
+>>>
+>>>  static int rtl8150_reset(rtl8150_t * dev)
+>>>  {
+>>> -	u8 data = 0x11;
+>>> +	u8 data = 0x10;
+>>
+>> hm, OK.  Presumably the change (which comes in via the bk-usb tree) was
+>> made for a reason.  So I suspect both versions are wrong ;)
+>>
+>> But it might be risky for Greg to merge this patch up at present.
+>
+> As all your patch does is revert the patch in my tree (it was a one line
+> change), mainline should work just fine for you, right?
+>
+> I'll defer to Petkan as to what to do about this, as he sent me that
+> patch for a good reason I imagine :)
+
+Steven Hein <ssh@sgi.com> sent me a patch that supposedly fix device 
+registers misinitialization when it is being frequently reseted.
+
+RTL8150 is quite flaky piece of HW so i first tested the new value and it 
+did work for me.  That's why i decided to send it to Greg.
+
+I would say lets wait for some time and see if we'll break someone else's
+heart and then reverse the patch.  Another solution is to restore the 
+original value and add new module parameter, so whoever thinks
+anything != 0x10 work better for him will be free to change it.
+
+
+ 		Petko

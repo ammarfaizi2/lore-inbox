@@ -1,46 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262419AbVBBXTB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262482AbVBBX06@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262419AbVBBXTB (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Feb 2005 18:19:01 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262586AbVBBXPf
+	id S262482AbVBBX06 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Feb 2005 18:26:58 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262390AbVBBX0N
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Feb 2005 18:15:35 -0500
-Received: from 213-239-205-147.clients.your-server.de ([213.239.205.147]:21150
-	"EHLO debian.tglx.de") by vger.kernel.org with ESMTP
-	id S262467AbVBBXLH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Feb 2005 18:11:07 -0500
-Subject: Re: Copyright / licensing question
-From: Thomas Gleixner <tglx@linutronix.de>
-Reply-To: tglx@linutronix.de
-To: Frank klein <frnk_kln@yahoo.com>
-Cc: LKML <linux-kernel@vger.kernel.org>
-In-Reply-To: <20050202144915.94462.qmail@web42106.mail.yahoo.com>
-References: <20050202144915.94462.qmail@web42106.mail.yahoo.com>
-Content-Type: text/plain
-Date: Thu, 03 Feb 2005 00:11:04 +0100
-Message-Id: <1107385864.21196.632.camel@tglx.tec.linutronix.de>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.3 (2.0.3-2) 
-Content-Transfer-Encoding: 7bit
+	Wed, 2 Feb 2005 18:26:13 -0500
+Received: from digitalimplant.org ([64.62.235.95]:34229 "HELO
+	digitalimplant.org") by vger.kernel.org with SMTP id S262961AbVBBXXn
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 2 Feb 2005 18:23:43 -0500
+Date: Wed, 2 Feb 2005 15:23:30 -0800 (PST)
+From: Patrick Mochel <mochel@digitalimplant.org>
+X-X-Sender: mochel@monsoon.he.net
+To: Pavel Roskin <proski@gnu.org>
+cc: linux-kernel@vger.kernel.org, Greg Kroah-Hartman <greg@kroah.com>
+Subject: Re: Please open sysfs symbols to proprietary modules
+In-Reply-To: <Pine.LNX.4.62.0502021723280.5515@localhost.localdomain>
+Message-ID: <Pine.LNX.4.50.0502021520200.1538-100000@monsoon.he.net>
+References: <Pine.LNX.4.62.0502021723280.5515@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2005-02-02 at 06:49 -0800, Frank klein wrote:
-> I am having some licensing questions. It would be
-> really great if you can clarify on them
-> 
-> 1. For explaining the internals of a filesystem in
-> detail, I need to take their code from kernel sources
-> 'as it is' in the book. Do I need to take any
-> permissions from the owner/maintainer regarding this ?
-> Will it violate any license if reproduce the driver
-> source code in my book ??
 
-Legally, not if you mention the licence of the code clearly. 
+On Wed, 2 Feb 2005, Pavel Roskin wrote:
 
-Personaly, I think it's a question of etiquette whether to contact the
-authors or not.
+> Hello!
+>
+> I'm writing a module under a proprietary license.  I decided to use sysfs
+> to do the configuration.  Unfortunately, all sysfs exports are available
+> to GPL modules only because they are exported by EXPORT_SYMBOL_GPL.
+>
+> I have found the original e-mail where this change was proposed:
+> http://www.ussg.iu.edu/hypermail/linux/kernel/0409.3/0345.html
+>
+> Patrick writes:
+>
+> "The users of these functions are all, in most cases, other subsystems,
+> which provide a layer of abstraction for the downstream users (drivers,
+> etc)."
+>
+> Maybe it was true in September 2004, but it's not true in February 2005.
+> sysfs has become a standard way to make configurable parameters available
+> to userspace, just like sysctl and ioctl.
+>
+> All I want to do is to have a module that would create subdirectories for
+> some network interfaces under /sys/class/net/*/, which would contain
+> additional parameters for those interfaces.  I'm not creating a new
+> subsystem or anything like that.  sysctl is not good because the data is
+> interface specific.  ioctl on a socket would be OK, although it wouldn't
+> be easily scriptable.  The restriction on sysfs symbols would just force
+> me to write a proprietary userspace utility to set those parameters
+> instead of using a shell script.
+>
+> My understanding is that EXPORT_SYMBOL_GPL is only useful for symbols so
+> specific to the kernel that the modules that use them would be effectively
+> based on GPL code.  But a module providing its internal state to the
+> userspace doesn't need to be based on the kernel code in any way.
+>
+> Please replace every EXPORT_SYMBOL_GPL with EXPORT_SYMBOL in fs/sysfs/*.c
 
-tglx
+No, thanks. Nothing has changed dramatically enough in 5 months to
+necessitate this change, and it's certainly not going to happen for a
+single binary driver.
 
+What is wrong with creating a (GPL'd) abstraction layer that exports
+symbols to the proprietary modules?
+
+Thanks,
+
+
+	Pat
 

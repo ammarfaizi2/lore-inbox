@@ -1,48 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261784AbSJVSxx>; Tue, 22 Oct 2002 14:53:53 -0400
+	id <S264934AbSJVStG>; Tue, 22 Oct 2002 14:49:06 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262126AbSJVSxw>; Tue, 22 Oct 2002 14:53:52 -0400
-Received: from kweetal.tue.nl ([131.155.2.7]:41070 "EHLO kweetal.tue.nl")
-	by vger.kernel.org with ESMTP id <S261784AbSJVSxu>;
-	Tue, 22 Oct 2002 14:53:50 -0400
-Date: Tue, 22 Oct 2002 20:59:58 +0200
-From: Andries Brouwer <aebr@win.tue.nl>
-To: Christoph Hellwig <hch@infradead.org>,
-       Jan Kasprzak <kas@informatics.muni.cz>, linux-kernel@vger.kernel.org,
-       marcelo@conectiva.com.br
-Subject: Re: 2.4.20-pre11 /proc/partitions read
-Message-ID: <20021022185958.GB26585@win.tue.nl>
-References: <20021022161957.N26402@fi.muni.cz> <20021022184034.GA26585@win.tue.nl> <20021022194514.B3867@infradead.org>
+	id <S264935AbSJVStG>; Tue, 22 Oct 2002 14:49:06 -0400
+Received: from to-velocet.redhat.com ([216.138.202.10]:26862 "EHLO
+	touchme.toronto.redhat.com") by vger.kernel.org with ESMTP
+	id <S264934AbSJVStD>; Tue, 22 Oct 2002 14:49:03 -0400
+Date: Tue, 22 Oct 2002 14:55:10 -0400
+From: Benjamin LaHaise <bcrl@redhat.com>
+To: Gerrit Huizenga <gh@us.ibm.com>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       "Martin J. Bligh" <mbligh@aracnet.com>,
+       Rik van Riel <riel@conectiva.com.br>,
+       "Eric W. Biederman" <ebiederm@xmission.com>,
+       Bill Davidsen <davidsen@tmr.com>, Dave McCracken <dmccr@us.ibm.com>,
+       Andrew Morton <akpm@digeo.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Linux Memory Management <linux-mm@kvack.org>
+Subject: Re: [PATCH 2.5.43-mm2] New shared page table patch
+Message-ID: <20021022145510.H20957@redhat.com>
+References: <1035310934.31917.124.camel@irongate.swansea.linux.org.uk> <E184442-0001zQ-00@w-gerrit2>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20021022194514.B3867@infradead.org>
-User-Agent: Mutt/1.3.25i
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <E184442-0001zQ-00@w-gerrit2>; from gh@us.ibm.com on Tue, Oct 22, 2002 at 11:47:37AM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Oct 22, 2002 at 07:45:14PM +0100, Christoph Hellwig wrote:
+On Tue, Oct 22, 2002 at 11:47:37AM -0700, Gerrit Huizenga wrote:
+> Hmm.  Isn't it great that 2.6/3.0 will be stable soon and we can
+> start working on this for 2.7/3.1?
 
-> Andries, have you actually CHECKED whether he has it enabled?
+Sure, but we should delete the syscalls now and just use the filesystem 
+as the intermediate API.
 
-No.  I do not claim that his problem was caused by the stats.
-It is just that I get reports from people with mysterious mount
-and fdisk problems that go away when CONFIG_BLK_STATS is disabled.
-And requests from RedHat to put ugly patches into mount to
-tell stdio to use a larger buffer, increasing the probability that
-all is read in one go.
-
-
-> I rather suspect it's the following bug (introduce by me, but not
-> depend on CONFIG_BLK_STATS):
-
-Good!
-
-So the very reproducible problem is solved, and only the
-sporadic random problem is left.
-
-I still hope that you will remove it again.
-
-Andries
-
+		-ben
+-- 
+"Do you seek knowledge in time travel?"

@@ -1,43 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264200AbUDRXM1 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 18 Apr 2004 19:12:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264207AbUDRXM1
+	id S264206AbUDRXOA (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 18 Apr 2004 19:14:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264207AbUDRXOA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 18 Apr 2004 19:12:27 -0400
-Received: from gate.crashing.org ([63.228.1.57]:17820 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S264200AbUDRXM0 (ORCPT
+	Sun, 18 Apr 2004 19:14:00 -0400
+Received: from vse.vse.cz ([146.102.16.2]:61154 "EHLO vse.vse.cz")
+	by vger.kernel.org with ESMTP id S264206AbUDRXN4 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 18 Apr 2004 19:12:26 -0400
-Subject: [PATCH] Fix typo in previous patch
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Linus Torvalds <torvalds@osdl.org>,
-       Linux Kernel list <linux-kernel@vger.kernel.org>
-Content-Type: text/plain
-Message-Id: <1082329606.13458.7.camel@gaston>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Mon, 19 Apr 2004 09:06:46 +1000
+	Sun, 18 Apr 2004 19:13:56 -0400
+Message-ID: <40830BB3.4020302@okac.org>
+Date: Mon, 19 Apr 2004 01:13:55 +0200
+From: Kamil Okac <kamil@okac.org>
+User-Agent: Mozilla Thunderbird 0.5 (Windows/20040207)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: Re: via 6420 pata/sata controller
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is my brown paper bag day, I sent you the wrong patch for
-fixing the deadlock in rtas.c, here's one to apply on top of current
-bk that fixes build. Sorry.
+ >Bartlomiej Zolnierkiewicz wrote:
+ >> On Tuesday 30 of March 2004 15:24, Zdenek Tlusty wrote:
+ >>
+ >>>hello,
+ >>>
+ >>>I have problem with via 6420 controller under linux (I have mandrake 9.1
+ >>>with kernel 2.4.25 with libata patch version 16).
+ >>>This controller has two sata and one pata channels. Sata channel 
+works fine
+ >>>with libata. My problem is with pata channel. I have pata hard disk 
+on this
+ >>>controller. Bios of the controller detected this disk but linux did not.
+ >>>What is the current status of the driver for this controller?
+ >>>Thank you for your time.
+ >>
+ >>
+ >> There are some patches floating around adding support for VT6410
+ >> (not VT6420) to generic IDE PCI driver.  This controller may also work
+ >> with generic IDE PCI driver (PCI VendorID/ProductID needs to be added
+ >> to drivers/ide/pci/generic.h and drivers/ide/pci/generic.c).
+ >
+ >VT 6420 should be added to via82cxxx.c, since it does the necessary bus
+ >setup and such.  AFAICS it is programmed just like all the other VIA
+ >PATA controllers.
+ >
+ >> BTW Does anybody has contacts in VIA?
+ >
+ >Sure...  I'll check my VT 6420 cards as well.  It should just be another
+ >PCI id added to via82cxxx.c.
+ >
+ >	Jeff
+ >
 
-===== arch/ppc64/kernel/rtas.c 1.28 vs edited =====
---- 1.28/arch/ppc64/kernel/rtas.c	Mon Apr 19 02:13:09 2004
-+++ edited/arch/ppc64/kernel/rtas.c	Mon Apr 19 09:05:35 2004
-@@ -505,7 +505,7 @@
- {
- 	struct rtas_args *rtas_args = &(get_paca()->xRtas);
- 
--	local_irq_disable(s);
-+	local_irq_disable();
- 
- 	rtas_args->token = rtas_token("stop-self");
- 	BUG_ON(rtas_args->token == RTAS_UNKNOWN_SERVICE);
+Hello,
 
+I tried to modify via82cxxx.c and .h, but was unsuccessful. Has anyone 
+got it to work properly?
 
+   Kamil Okac

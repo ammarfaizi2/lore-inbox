@@ -1,51 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272305AbRHXUAV>; Fri, 24 Aug 2001 16:00:21 -0400
+	id <S272304AbRHXUCV>; Fri, 24 Aug 2001 16:02:21 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272311AbRHXUAL>; Fri, 24 Aug 2001 16:00:11 -0400
-Received: from chaos.analogic.com ([204.178.40.224]:39296 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP
-	id <S272313AbRHXT7x>; Fri, 24 Aug 2001 15:59:53 -0400
-Date: Fri, 24 Aug 2001 15:59:55 -0400 (EDT)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-Reply-To: root@chaos.analogic.com
-To: Ross Vandegrift <ross@willow.seitz.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.4 broken on 486SX
-In-Reply-To: <20010824154233.A10048@willow.seitz.com>
-Message-ID: <Pine.LNX.3.95.1010824155107.11043A-100000@chaos.analogic.com>
+	id <S272311AbRHXUCL>; Fri, 24 Aug 2001 16:02:11 -0400
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:48900 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S272304AbRHXUBy>; Fri, 24 Aug 2001 16:01:54 -0400
+Subject: Re: Is it bad to have lots of sleeping tasks?
+To: ddade@digitalstatecraft.com
+Date: Fri, 24 Aug 2001 21:05:09 +0100 (BST)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <F45F3VcuiDqPkMseLHP00010e68@hotmail.com> from "Donald Dade" at Aug 24, 2001 12:39:42 PM
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E15aNCX-0006PH-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 24 Aug 2001, Ross Vandegrift wrote:
+> My questions are these:
+> 1) Are there any kernel structures that are O(n) or just as bad, where n is 
+> the total number of processes, not just the total number of runnable 
+> processes? i.e. will the performance of the system be adversely affected by 
+> the number of tasks in wait queues?
 
-> Hello all,
-> 
-> 	I've tried many versions of 2.4 kernels on a 486SX that I have,
-> and none of them will boot.
-[SNIPPED stuff with no new-lines]
+Linus scheduler is pretty dire beyond about 8 runnable threads, but very 
+good below that. It also has a refresh loop that is O(n) tasks, which is
+strange, and actually looks easily to eliminate.
 
-You need to compile as a '386. Modify ../linux/.config to enable
-CONFIG_M386=y under "Processor type and features". Delete all other
-lines until "General Setup". Then execute:
+The critical bit is threads runnable at any given time. When that is low as
+it is in almost all normal workloads the performance of the scheduler is
+very good indeed.
 
-	make oldconfig
+> 2) If I have 1000 threads, and each calls sleep(), I assume that my 
+...
+> difference in the system's responsiveness?
 
-Linux 2.4.1 boots fine on a '386. If that doesn't work, you may
-have to back-rev your 'C' compiler.
+Read kernel/timer.c.
 
-I'm using egcs-2.91.66 which works okay. Some newer versions may
-generate code that can't run on a `386.
-
-Cheers,
-Dick Johnson
-
-Penguin : Linux version 2.4.1 on an i686 machine (799.53 BogoMips).
-
-    I was going to compile a list of innovations that could be
-    attributed to Microsoft. Once I realized that Ctrl-Alt-Del
-    was handled in the BIOS, I found that there aren't any.
-
-
+Alan

@@ -1,85 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266643AbUHIPyb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266347AbUHIP5p@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266643AbUHIPyb (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 9 Aug 2004 11:54:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266582AbUHIPwj
+	id S266347AbUHIP5p (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 9 Aug 2004 11:57:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266126AbUHIPzC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 9 Aug 2004 11:52:39 -0400
-Received: from e33.co.us.ibm.com ([32.97.110.131]:17100 "EHLO
-	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S266717AbUHIPuW
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 9 Aug 2004 11:50:22 -0400
-Message-Id: <200408091550.i79FoDat359564@westrelay02.boulder.ibm.com>
-Subject: [PATCH 2/2] blk_queue_tags_resize_failure
-To: axboe@suse.de
-Cc: linux-kernel@vger.kernel.org, brking@us.ibm.com
-From: brking@us.ibm.com
-Date: Mon, 09 Aug 2004 10:50:12 -0500
+	Mon, 9 Aug 2004 11:55:02 -0400
+Received: from the-village.bc.nu ([81.2.110.252]:36809 "EHLO
+	localhost.localdomain") by vger.kernel.org with ESMTP
+	id S266347AbUHIPwd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 9 Aug 2004 11:52:33 -0400
+Subject: Re: dynamic /dev security hole?
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Eric Lammerts <eric@lammerts.org>
+Cc: Marc Ballarin <Ballarin.Marc@gmx.de>, Greg KH <greg@kroah.com>,
+       albert@users.sourceforge.net,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.58.0408090025590.26834@vivaldi.madbase.net>
+References: <20040808162115.GA7597@kroah.com>
+	 <1091969260.5759.125.camel@cube>
+	 <20040808175834.59758fc0.Ballarin.Marc@gmx.de>
+	 <20040808162115.GA7597@kroah.com>
+	 <20040809000727.1eaf917b.Ballarin.Marc@gmx.de>
+	 <Pine.LNX.4.58.0408090025590.26834@vivaldi.madbase.net>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Message-Id: <1092062974.14153.26.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
+Date: Mon, 09 Aug 2004 15:49:36 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Llu, 2004-08-09 at 05:40, Eric Lammerts wrote:
+> Just an idea for a fix for this problem: If udev would change the
+> permissions to 000 and ownership to root.root just before it unlinks
+> the device node, the copy would become useless.
 
-Fixes blk_queue_resize_tags to properly handle allocation failures. Currently,
-if a memory allocation failure occurs during blk_queue_resize_tags, the tag map
-ends up getting freed, which should not happen. The old tag map should be preserved
-and only the resize should fail.
+Unfortunately not the whole story. The permissions are checked at open
+time not on read/write/ioctl so once I have the device opened you
+lose. That means you may have to fix the permissions and ownership
+before trying to unload the device. The unload will fail if it is still
+busy but if not then nobody will be able to open the dev node and
+whatever file it now points to.
 
-Signed-off-by: Brian King <brking@us.ibm.com>
----
 
- linux-2.6.8-rc3-bjking1/drivers/block/ll_rw_blk.c |   20 ++++++++++++--------
- 1 files changed, 12 insertions(+), 8 deletions(-)
-
-diff -puN drivers/block/ll_rw_blk.c~blk_queue_tags_resize_failure drivers/block/ll_rw_blk.c
---- linux-2.6.8-rc3/drivers/block/ll_rw_blk.c~blk_queue_tags_resize_failure	2004-08-09 10:26:38.000000000 -0500
-+++ linux-2.6.8-rc3-bjking1/drivers/block/ll_rw_blk.c	2004-08-09 10:29:30.000000000 -0500
-@@ -532,6 +532,8 @@ static int
- init_tag_map(request_queue_t *q, struct blk_queue_tag *tags, int depth)
- {
- 	int bits, i;
-+	struct request **tag_index;
-+	unsigned long *tag_map;
- 
- 	if (depth > q->nr_requests * 2) {
- 		depth = q->nr_requests * 2;
-@@ -539,29 +541,31 @@ init_tag_map(request_queue_t *q, struct 
- 				__FUNCTION__, depth);
- 	}
- 
--	tags->tag_index = kmalloc(depth * sizeof(struct request *), GFP_ATOMIC);
--	if (!tags->tag_index)
-+	tag_index = kmalloc(depth * sizeof(struct request *), GFP_ATOMIC);
-+	if (!tag_index)
- 		goto fail;
- 
- 	bits = (depth / BLK_TAGS_PER_LONG) + 1;
--	tags->tag_map = kmalloc(bits * sizeof(unsigned long), GFP_ATOMIC);
--	if (!tags->tag_map)
-+	tag_map = kmalloc(bits * sizeof(unsigned long), GFP_ATOMIC);
-+	if (!tag_map)
- 		goto fail;
- 
--	memset(tags->tag_index, 0, depth * sizeof(struct request *));
--	memset(tags->tag_map, 0, bits * sizeof(unsigned long));
-+	memset(tag_index, 0, depth * sizeof(struct request *));
-+	memset(tag_map, 0, bits * sizeof(unsigned long));
- 	tags->max_depth = depth;
- 	tags->real_max_depth = bits * BITS_PER_LONG;
-+	tags->tag_index = tag_index;
-+	tags->tag_map = tag_map;
- 
- 	/*
- 	 * set the upper bits if the depth isn't a multiple of the word size
- 	 */
- 	for (i = depth; i < bits * BLK_TAGS_PER_LONG; i++)
--		__set_bit(i, tags->tag_map);
-+		__set_bit(i, tag_map);
- 
- 	return 0;
- fail:
--	kfree(tags->tag_index);
-+	kfree(tag_index);
- 	return -ENOMEM;
- }
- 
-_

@@ -1,61 +1,92 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262382AbVAUPMZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262384AbVAUPP3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262382AbVAUPMZ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 21 Jan 2005 10:12:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262384AbVAUPMZ
+	id S262384AbVAUPP3 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 21 Jan 2005 10:15:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262386AbVAUPP3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 21 Jan 2005 10:12:25 -0500
-Received: from ns.suse.de ([195.135.220.2]:45220 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S262382AbVAUPMW (ORCPT
+	Fri, 21 Jan 2005 10:15:29 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:11957 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S262384AbVAUPPR (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 21 Jan 2005 10:12:22 -0500
-Date: Fri, 21 Jan 2005 16:12:18 +0100
-From: Andi Kleen <ak@suse.de>
-To: Oleg Nesterov <oleg@tv-sign.ru>
-Cc: Andi Kleen <ak@suse.de>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] fix put_user under mmap_sem in sys_get_mempolicy()
-Message-ID: <20050121151218.GA21389@wotan.suse.de>
-References: <41F116DB.3BA37CEB@tv-sign.ru> <20050121142908.GA3487@wotan.suse.de> <41F12773.AAC62D5C@tv-sign.ru>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <41F12773.AAC62D5C@tv-sign.ru>
+	Fri, 21 Jan 2005 10:15:17 -0500
+Message-ID: <41F11C66.5000707@sgi.com>
+Date: Fri, 21 Jan 2005 10:14:46 -0500
+From: Prarit Bhargava <prarit@sgi.com>
+User-Agent: Mozilla Thunderbird 0.9 (X11/20041103)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org, vojtech@suse.cz
+Subject: [PATCH][RFC]: Clean up resource allocation in i8042 driver
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jan 21, 2005 at 07:01:55PM +0300, Oleg Nesterov wrote:
-> Andi Kleen wrote:
-> >
-> > I suppose this simpler patch has the same effect (also untested).
-> >
-> > 	if (flags & ~(unsigned long)(MPOL_F_NODE|MPOL_F_ADDR))
-> > 		return -EINVAL;
-> >@@ -502,6 +502,10 @@
-> > 			pol = vma->vm_ops->get_policy(vma, addr);
-> > 		else
-> > 			pol = vma->vm_policy;
-> >+		pol2 = mpol_copy(pol);
-> >+		up_read(&mm->mmap_sem);
-> >+		if (IS_ERR(pol2)) 
-> >+			return PTR_ERR(pol2);
-> >
-> 
-> I don't think so. With MPOL_F_ADDR|MPOL_F_NODE sys_get_mempolicy
-> calls lookup_node()->get_user_pages() few lines below, so we can't
-> up_read(&mm->mmap_sem) here.
+Hi,
 
-True.
+The following patch cleans up resource allocations in the i8042 driver 
+when initialization fails.
 
-> 
-> > It's hard to figure out what your patch actually does because
-> > of all the gratious white space changes.
-> 
-> For your convenience here is the code with the patch applied.
+Please consider for tree application.  Patch is generated against 
+current bk pull.
 
-Looks reasonable. 
+Thanks,
 
--Andi
+P.
 
-P.S.: Again if you really care about these class of deadlocks take a look at
-tasklist_lock.
+Signed-off-by: Prarit Bhargava <prarit@sgi.com>
+
+===== i8042.c 1.71 vs edited =====
+--- 1.71/drivers/input/serio/i8042.c    2005-01-03 08:11:49 -05:00
++++ edited/i8042.c      2005-01-21 10:02:20 -05:00
+@@ -696,7 +696,10 @@
+                unsigned char param;
+ 
+                if (i8042_command(&param, I8042_CMD_CTL_TEST)) {
+-                       printk(KERN_ERR "i8042.c: i8042 controller self test timeout.\n");
++                       if (i8042_read_status() != 0xFF)
++                               printk(KERN_ERR "i8042.c: i8042 controller self test timeout.\n");
++                       else
++                               printk(KERN_ERR "i8042.c: no i8042 controller found.\n");
+                        return -1;
+                }
+ 
+                }
+
+@@ -1011,21 +1014,34 @@
+        i8042_timer.function = i8042_timer_func;
+ 
+        if (i8042_platform_init())
++       {
++               del_timer_sync(&i8042_timer);
+                return -EBUSY;
++       }
+ 
+        i8042_aux_values.irq = I8042_AUX_IRQ;
+        i8042_kbd_values.irq = I8042_KBD_IRQ;
+ 
+        if (i8042_controller_init())
++       {
++               i8042_platform_exit();
++               del_timer_sync(&i8042_timer);
+                return -ENODEV;
++       }
+ 
+        err = driver_register(&i8042_driver);
+        if (err)
++       {
++               i8042_platform_exit();
++               del_timer_sync(&i8042_timer);
+                return err;
++       }
+
+        i8042_platform_device = platform_device_register_simple("i8042", -1, NULL, 0);
+        if (IS_ERR(i8042_platform_device)) {
+                driver_unregister(&i8042_driver);
++               i8042_platform_exit();
++               del_timer_sync(&i8042_timer);
+                return PTR_ERR(i8042_platform_device);
+        }
+
+
 

@@ -1,89 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264219AbTE0WRy (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 May 2003 18:17:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264244AbTE0WRy
+	id S264272AbTE0WTr (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 May 2003 18:19:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264244AbTE0WTr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 May 2003 18:17:54 -0400
-Received: from imladris.demon.co.uk ([193.237.130.41]:50568 "EHLO
-	imladris.demon.co.uk") by vger.kernel.org with ESMTP
-	id S264219AbTE0WRu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 May 2003 18:17:50 -0400
-Subject: Re: [PATCH] mark shrinkable slabs as being reclaimable
-From: David Woodhouse <dwmw2@infradead.org>
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Cc: akpm@digeo.com
-In-Reply-To: <200305252319.h4PNJkpJ027852@hera.kernel.org>
-References: <200305252319.h4PNJkpJ027852@hera.kernel.org>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1054074662.26966.4.camel@imladris.demon.co.uk>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5.dwmw2) 
-Date: Tue, 27 May 2003 23:31:02 +0100
+	Tue, 27 May 2003 18:19:47 -0400
+Received: from meryl.it.uu.se ([130.238.12.42]:47083 "EHLO meryl.it.uu.se")
+	by vger.kernel.org with ESMTP id S264305AbTE0WTn (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 27 May 2003 18:19:43 -0400
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-SA-Exim-Rcpt-To: linux-kernel@vger.kernel.org, akpm@digeo.com
-X-SA-Exim-Scanned: No; SAEximRunCond expanded to false
+Message-ID: <16083.59285.554113.476566@gargle.gargle.HOWL>
+Date: Wed, 28 May 2003 00:32:53 +0200
+From: mikpe@csd.uu.se
+To: "Martin J. Bligh" <mbligh@aracnet.com>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>, andrey@assol.mipt.ru
+Subject: Re: [Bug 747] New: Compile the kernel
+In-Reply-To: <9410000.1054049751@[10.10.2.4]>
+References: <9410000.1054049751@[10.10.2.4]>
+X-Mailer: VM 6.90 under Emacs 20.7.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2003-05-25 at 23:11, Linux Kernel Mailing List wrote:
-> ChangeSet 1.1308, 2003/05/25 15:11:47-07:00, akpm@digeo.com
-> 
-> 	[PATCH] mark shrinkable slabs as being reclaimable
-> 	
-> 	All slabs which can be reclaimed via VM presure are marked as being
-> 	shrinkable, so the core slab code will keep count of their pages.
+Martin J. Bligh writes:
+ >            Summary: Compile the kernel
+ >     Kernel Version: 2.5.70
+ >             Status: NEW
+ >           Severity: normal
+ >              Owner: mbligh@aracnet.com
+ >          Submitter: andrey@assol.mipt.ru
+ > 
+ > 
+ > Distribution: RedHat 7.0
+ > Hardware Environment: Pentium-MMX 200MHz
+ > Software Environment: gcc-2.95.3
+ > Problem Description:
+ > 
+ > 1)
+ > make[1]: `arch/i386/kernel/asm-offsets.s' is up to date.
+ >   CHK     include/asm-i386/asm_offsets.h
+ >   Starting the build. KBUILD_BUILTIN=1 KBUILD_MODULES=
+ >   CHK     include/linux/compile.h
+ >   AS      arch/i386/kernel/vsyscall.o
+ > /tmp/ccBLzWOG.s: Assembler messages:
+ > /tmp/ccBLzWOG.s:982: Error: Unknown pseudo-op:  `.incbin'
+ > /tmp/ccBLzWOG.s:987: Error: Unknown pseudo-op:  `.incbin'
+ > make[1]: *** [arch/i386/kernel/vsyscall.o] Error 1
+ > make: *** [arch/i386/kernel] Error 2
 
-If my understanding of this is correct -- stuff that will be freed on
-prune_icache() or other memory pressure should be marked such -- then...
-
-> diff -Nru a/fs/jffs/inode-v23.c b/fs/jffs/inode-v23.c
-> --- a/fs/jffs/inode-v23.c	Sun May 25 16:19:51 2003
-> +++ b/fs/jffs/inode-v23.c	Sun May 25 16:19:51 2003
-> @@ -1806,9 +1806,11 @@
->  	jffs_proc_root = proc_mkdir("jffs", proc_root_fs);
->  #endif
->  	fm_cache = kmem_cache_create("jffs_fm", sizeof(struct jffs_fm),
-> -				     0, SLAB_HWCACHE_ALIGN, NULL, NULL);
-> +				     0, SLAB_HWCACHE_ALIGN|SLAB_RECLAIM_ACCOUNT, 
-> +				     NULL, NULL);
-
-No.
-
->  	node_cache = kmem_cache_create("jffs_node",sizeof(struct jffs_node),
-> -				       0, SLAB_HWCACHE_ALIGN, NULL, NULL);
-> +				       0, SLAB_HWCACHE_ALIGN|SLAB_RECLAIM_ACCOUNT, 
-> +				       NULL, NULL);
-
-No.
-
-> diff -Nru a/fs/jffs2/malloc.c b/fs/jffs2/malloc.c
-> --- a/fs/jffs2/malloc.c	Sun May 25 16:19:51 2003
-> +++ b/fs/jffs2/malloc.c	Sun May 25 16:19:51 2003
-> @@ -73,7 +73,8 @@
->  
->  	inode_cache_slab = kmem_cache_create("jffs2_inode_cache",
->  					     sizeof(struct jffs2_inode_cache),
-> -					     0, JFFS2_SLAB_POISON, NULL, NULL);
-> +					     0, JFFS2_SLAB_POISON|SLAB_RECLAIM_ACCOUNT, 
-> +					     NULL, NULL);
-
-No.
-
-> --- a/fs/jffs2/super.c	Sun May 25 16:19:51 2003
-> +++ b/fs/jffs2/super.c	Sun May 25 16:19:51 2003
-> @@ -299,7 +299,7 @@
->  
->  	jffs2_inode_cachep = kmem_cache_create("jffs2_i",
->  					     sizeof(struct jffs2_inode_info),
-> -					     0, SLAB_HWCACHE_ALIGN,
-> +					     0, SLAB_HWCACHE_ALIGN|SLAB_RECLAIM_ACCOUNT,
->  					     jffs2_i_init_once, NULL);
-
-Yes.
-
--- 
-dwmw2
-
-
+NOTABUG. You need newer binutils. Read Documentation/Changes.

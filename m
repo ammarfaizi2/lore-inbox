@@ -1,80 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261199AbUJWOjM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261201AbUJWOib@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261199AbUJWOjM (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 23 Oct 2004 10:39:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261259AbUJWOjL
+	id S261201AbUJWOib (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 23 Oct 2004 10:38:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261249AbUJWOia
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 23 Oct 2004 10:39:11 -0400
-Received: from nysv.org ([213.157.66.145]:61318 "EHLO nysv.org")
-	by vger.kernel.org with ESMTP id S261199AbUJWOg6 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 23 Oct 2004 10:36:58 -0400
-Date: Sat, 23 Oct 2004 17:36:47 +0300
-To: linux-kernel@vger.kernel.org
-Subject: Re: HARDWARE: Open-Source-Friendly Graphics Cards -- Viable?
-Message-ID: <20041023143647.GQ26192@nysv.org>
+	Sat, 23 Oct 2004 10:38:30 -0400
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:6150 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S261201AbUJWOhy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 23 Oct 2004 10:37:54 -0400
+Date: Sat, 23 Oct 2004 16:37:21 +0200
+From: Adrian Bunk <bunk@stusta.de>
+To: Andrew Morton <akpm@osdl.org>, Hans Reiser <reiser@namesys.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.9-mm1
+Message-ID: <20041023143721.GB5110@stusta.de>
+References: <20041022032039.730eb226.akpm@osdl.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <4176E08B.2050706@techsource.com>
-User-Agent: Mutt/1.5.6i
-From: mjt@nysv.org (Markus  =?ISO-8859-1?Q?=20T=F6rnqvist?=)
+In-Reply-To: <20041022032039.730eb226.akpm@osdl.org>
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I have been thinking about this aloud on IRC for quite a while, just wishing
-someone with the resources would get into the same idea, and now it finally
-happened :) Hooray! :)
+On Fri, Oct 22, 2004 at 03:20:39AM -0700, Andrew Morton wrote:
+>...
+>   - reiser4: not sure, really.  The namespace extensions were disabled,
+>     although all the code for that is still present.  Linus's filesystem
+>     criterion used to be "once lots of people are using it, preferably when
+>     vendors are shipping it".  That's a bit of a chicken and egg thing though.
+>     Needs more discussion.
+>...
 
-Timothy Miller Wrote:
 
->(1) Would the sales volumes of this product be enough to make it worth 
->producing (ie. profitable)?
+The REISER4_LARGE_KEY option must not be present if reiser4 was merged.
 
-This seems the biggest concern, but I'd say yes. Of course, promotion
-besides Word of Mouth would be needed, I guess.
+Depending on the compile-time setting of this option, there are two 
+incompatible reiser4 file systems.
 
-I see it as an issue that you should get them cheap, say almost non-profit,
-to companies who sell pre-installed Linux boxes, just to get volume, fame
-and name.
-
->(2) How much would you be willing to pay for it?
-
-Unsure, but looking at the kerneltrap page, it doesn't seem likely it'd
-be too expensive. I'd shell out the extra bucks for the cause, and hope
-other people would as well.
-
->(3) How do you feel about the choice of neglecting 3D performance as a 
->priority?  How important is 3D performance?  In what cases is it not?
-
-I do like my 3D. Well, I get by with my current Radeon 9000; it's fast
-enough without having to resort to the binary drivers. This is what I
-bought it for. If it has any chance of being on-par or a little
-better, I'm there to buy it. Even if it wasn't a real upgrade but
-a vote of the wallet.
-
->(4) How much extra would you be willing to pay for excellent 3D performance?
-
-Impossible to say, time would tell, but I would be willing
-
->(5) What's most important to you, performance, price, or stability?
-
-Freedom ;)
-I wouldn't buy a card that wouldn't have the three aforementioned features.
-But performance isn't all that critical, I prefer a sharper picture over
-a blurry fast one.
-
-Anyway, this also has the chance of catching the eye of an
-open-source-friendly angel, which always something to hope for.
-
-What about distribution of this card? "Order from the factory" or
-"buy at the store nearest you"?
-
-Well, my two cents.. Best of luck, and I hope this goes through.
-It may not beat the shit out of nvidia and ati in the beginning, but
-every effort starts small.
+cu
+Adrian
 
 -- 
-mjt
 
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
 

@@ -1,68 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129270AbRCHQgX>; Thu, 8 Mar 2001 11:36:23 -0500
+	id <S129274AbRCHQmn>; Thu, 8 Mar 2001 11:42:43 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129272AbRCHQgN>; Thu, 8 Mar 2001 11:36:13 -0500
-Received: from 513.holly-springs.nc.us ([216.27.31.173]:772 "EHLO
-	513.holly-springs.nc.us") by vger.kernel.org with ESMTP
-	id <S129270AbRCHQgJ>; Thu, 8 Mar 2001 11:36:09 -0500
-Message-Id: <200103081726.f28HQ0Q04099@513.holly-springs.nc.us>
-Subject: Re: opening files in /proc, and modules
-From: Michael Rothwell <rothwell@holly-springs.nc.us>
+	id <S129272AbRCHQmd>; Thu, 8 Mar 2001 11:42:33 -0500
+Received: from roadrunner.inf.hs-anhalt.de ([193.25.37.130]:58380 "EHLO
+	roadrunner.inf.hs-anhalt.de") by vger.kernel.org with ESMTP
+	id <S129249AbRCHQmV>; Thu, 8 Mar 2001 11:42:21 -0500
+Message-ID: <3AA7B66D.B32E0FF2@darmstadt.gmd.de>
+Date: Thu, 08 Mar 2001 17:42:21 +0100
+From: Tino Keitel <tino.keitel@darmstadt.gmd.de>
+X-Mailer: Mozilla 4.6 [de] (WinNT; I)
+X-Accept-Language: de
+MIME-Version: 1.0
 To: linux-kernel@vger.kernel.org
-In-Reply-To: <200103081651.f28GpkQ04042@513.holly-springs.nc.us>
-Content-Type: text/plain
-X-Mailer: Evolution (0.9/+cvs.2001.03.06.23.22 - Preview Release)
-Date: 08 Mar 2001 11:35:42 -0500
-Mime-Version: 1.0
+Subject: crashes if accassing FAT MO
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Figured it out -- I think. This appears to be the answer:
+Hi folks,
 
-In struct proc_dir_entry,set the fill_inode function pointer to a
-callback to handle refcounts.
+I use kernel 2.4.2. If I try to access files on a 640 MB MO (2048 bytes
+hardware sector size) and the MO is using FAT fs I only got messages
+like these:
 
-struct proc_dir_entry
-{
-...
-void (*fill_inode)(struct inode *, int);
-...
-};
+Unable to handle kernel NULL pointer dereference at virtual address
+00000000
+ printing eip:
+00000000
+*pde = 00000000
+Oops: 0000
+CPU:    0
+EIP:    0010:[<00000000>]
+EFLAGS: 00010286
+eax: 00000000   ebx: c798d740   ecx: 00000003   edx: c798d740
+esi: ffffffea   edi: 00000000   ebp: 00004000   esp: c576bf88
+ds: 0018   es: 0018   ss: 0018
+Process cat (pid: 458, stackpage=c576b000)
+Stack: cc993428 c798d740 0804b220 00004000 c798d760 c012d465 c798d740
+0804b220
+       00004000 c798d760 c576a000 00004000 0804b220 bffff994 c0108d43
+00000003
+       0804b220 00004000 00004000 0804b220 bffff994 00000003 0000002b
+0000002b
+Call Trace: [<cc993428>] [<c012d465>] [<c0108d43>]
 
+Code:  Bad EIP value.
+Segmentation fault
 
-void fill_inode_cb(struct inode *i, int v)
-{
- if (v==0)
- {
-  MOD_DEC_USE_COUNT;
-  return;
- };
- if (v==1)
- {
-  MOD_INC_USE_COUNT;
-  return;
- };
-};
+There are no problems if I use ext2fs, exept that I can't use them for
+data exchange with Windows. It also works with 2.2 kernels but the MO
+drive will be much slower.
 
-
-... right?  :)
-
-
-On 08 Mar 2001 11:01:28 -0500, Michael Rothwell wrote:
-> How can I detect that open() has been called on a file in procfs that a
-> module provides? If I modprobe my module, open one or more if its proc
-> entries, then rmmod the module while the proc files are still open, then
-> the deletion of those entries is deferred. When I close the file(s), the
-> kernel oopses. I need to be able to detect open() and close() in order
-> to increment/decrement the reference count for my module, to prevent it
-> from being rmmoded when in use. Any tips?
-> 
-> Thanks! 
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-
+Tino

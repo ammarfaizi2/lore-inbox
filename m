@@ -1,78 +1,61 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264112AbRFPCAh>; Fri, 15 Jun 2001 22:00:37 -0400
+	id <S264183AbRFPC1u>; Fri, 15 Jun 2001 22:27:50 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264183AbRFPCA1>; Fri, 15 Jun 2001 22:00:27 -0400
-Received: from mx.ma.nma.ne.jp ([61.125.128.21]:47247 "HELO mx.ma.nma.ne.jp")
-	by vger.kernel.org with SMTP id <S264112AbRFPCAU>;
-	Fri, 15 Jun 2001 22:00:20 -0400
-Message-ID: <3B2ABC9E.E79086A6@ma.nma.ne.jp>
-Date: Sat, 16 Jun 2001 10:55:42 +0900
-From: Masaki Tsuji <jammasa@ma.nma.ne.jp>
-X-Mailer: Mozilla 4.75 [ja] (Windows NT 5.0; U)
-X-Accept-Language: ja
-MIME-Version: 1.0
+	id <S264401AbRFPC1j>; Fri, 15 Jun 2001 22:27:39 -0400
+Received: from norma.kjist.ac.kr ([203.237.41.18]:62214 "EHLO
+	norma.kjist.ac.kr") by vger.kernel.org with ESMTP
+	id <S264183AbRFPC10>; Fri, 15 Jun 2001 22:27:26 -0400
+Date: Sat, 16 Jun 2001 11:27:53 +0900
+Message-Id: <200106160227.f5G2Rrp19469@norma.kjist.ac.kr>
+From: root <root@norma.kjist.ac.kr>
 To: linux-kernel@vger.kernel.org
-Subject: [PATCH] tulip.c
-Content-Type: text/plain; charset=iso-2022-jp
-Content-Transfer-Encoding: 7bit
+Subject: Re: 2.4.5-ac6 and 2.4.4-ac11 boot fails with APIC timer
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dear sirs,
 
 
-Few year ago, I wrote patch for tulipl.c(kernel-version 2.0.35)
- that works on MX98715,and I found that it mostly work version 2.2.1 and 2.2.11.
-So I'll send patch for tulip.c(kernel-version 2.2.1, 2.2.11)
+> The message on the screen 
+>
+> calibrating APIC timer ..... 
+> .... CPU clock speed is 1395.7390MHz 
+> ... host bus clock speed is 0.0000 MHz 
+> cpu: 0, clocks: 0, slic: 0 
+>
+> Then nothing. I had to push the reset button at this point. 
+> ACPI and APM were disabled from the kernel config. 
+>
+> This boot failure messages was obtained from 
+> Pentium4 board GB-450(?) from Intel, NVIDIA M64 video. 
+> Sound Blaster 128 PCI. Netgear PNIC fast ethernet.... 
+>   
+> The same kernel was able to boot up the other Pentium 4 board from 
+> Gigabyte flawlessly. So, it depends on the motherboard manufacturers. 
+>
+> Regards to all. 
+>
+> G. Hugh Song 
 
-I tested it on 2.2.1 to 2.2.13, but I think it should work on 2.2.1 to 2.2.13.
-Not need on later 2.2.14 
+Replying to my own message:
+
+When I chose "No" to "APIC support on uniprocessors", the above error
+message disappeared and the machine booted up OK with 2.4.5-ac13.
+Please refer to the following diff:
+
+diff .config.old .config
+63,65c63
+< CONFIG_X86_UP_APIC=y
+< # CONFIG_X86_UP_IOAPIC is not set
+< CONFIG_X86_LOCAL_APIC=y
+---
+> # CONFIG_X86_UP_APIC is not set
 
 
-Masaki
---
+I think that APIC thing was defined by Intel themselves.
+They should have implemented it the best.  How much penalty do I pay 
+by not choosing "yes" to "APIC support on uniprocessors"?
 
+Best regards,
 
---- linux-2.2.1-org/drivers/net/tulip.c	Wed Jan 20 06:18:45 1999
-+++ linux-2.2.1-fw/drivers/net/tulip.c	Thu Mar  8 06:50:51 2001
-@@ -317,7 +317,7 @@
- enum tulip_offsets {
- 	CSR0=0,    CSR1=0x08, CSR2=0x10, CSR3=0x18, CSR4=0x20, CSR5=0x28,
- 	CSR6=0x30, CSR7=0x38, CSR8=0x40, CSR9=0x48, CSR10=0x50, CSR11=0x58,
--	CSR12=0x60, CSR13=0x68, CSR14=0x70, CSR15=0x78 };
-+	CSR12=0x60, CSR13=0x68, CSR14=0x70, CSR15=0x78, CSR20=0xa0 };
- 
- /* The bits in the CSR5 status registers, mostly interrupt sources. */
- enum status_bits {
-@@ -817,11 +817,17 @@
- 			outl(0x0201F078, ioaddr + 0xB8); /* Turn on autonegotiation. */
- 		}
- 		break;
--	case MX98713: case MX98715: case MX98725:
-+	case MX98713:
- 		outl(0x00000000, ioaddr + CSR6);
- 		outl(0x000711C0, ioaddr + CSR14); /* Turn on NWay. */
- 		outl(0x00000001, ioaddr + CSR13);
- 		break;
-+	case MX98715: case MX98725:
-+		outl(0x03a60200, ioaddr + CSR6);
-+		outl(0x000711C4, ioaddr + CSR14); /* Turn on NWay. */
-+		outl(0x00000001, ioaddr + CSR13);
-+		outl(inl(ioaddr + CSR9)|0x30000000L, ioaddr + CSR9);
-+		break;
- 	}
- 
- 	return dev;
-@@ -1543,9 +1549,9 @@
- 		if (media_cap[dev->if_port] & MediaIsMII) {
- 			new_csr6 = 0x020E0000;
- 		} else if (media_cap[dev->if_port] & MediaIsFx) {
--			new_csr6 = 0x028600000;
-+			new_csr6 = 0x02860000;
- 		} else
--			new_csr6 = 0x038600000;
-+			new_csr6 = 0x03820000;
- 		if (tulip_debug > 1)
- 			printk(KERN_DEBUG "%s: No media description table, assuming "
- 				   "%s transceiver, CSR12 %2.2x.\n",
+G. Hugh Song

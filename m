@@ -1,42 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263527AbTLDVxK (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 4 Dec 2003 16:53:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263528AbTLDVxK
+	id S263523AbTLDVtP (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 4 Dec 2003 16:49:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263527AbTLDVtP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Dec 2003 16:53:10 -0500
-Received: from may.nosdns.com ([207.44.240.96]:11223 "EHLO may.nosdns.com")
-	by vger.kernel.org with ESMTP id S263527AbTLDVxI (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Dec 2003 16:53:08 -0500
-Date: Thu, 4 Dec 2003 14:52:42 -0700
-From: "Russell \"Elik\" Rademacher" <elik@webspires.com>
-X-Mailer: The Bat! (v2.00.6) Business
-Reply-To: "Rusell \"Elik\" Rademacher" <elik@webspires.com>
-X-Priority: 3 (Normal)
-Message-ID: <5410840093.20031204145242@webspires.com>
-To: linux-kernel@vger.kernel.org
-Subject: Hyperthreading Xeons Support - 2.4 Kernel - Patch Anyone?
-MIME-Version: 1.0
+	Thu, 4 Dec 2003 16:49:15 -0500
+Received: from mta4.rcsntx.swbell.net ([151.164.30.28]:24030 "EHLO
+	mta4.rcsntx.swbell.net") by vger.kernel.org with ESMTP
+	id S263523AbTLDVtN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 4 Dec 2003 16:49:13 -0500
+Date: Thu, 4 Dec 2003 13:48:50 -0800
+From: Mike Fedyk <mfedyk@matchmail.com>
+To: Rob Landley <rob@landley.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Is there a "make hole" (truncate in middle) syscall?
+Message-ID: <20031204214850.GG29119@mis-mike-wstn.matchmail.com>
+Mail-Followup-To: Rob Landley <rob@landley.net>,
+	linux-kernel@vger.kernel.org
+References: <200312041432.23907.rob@landley.net>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-X-MailScanner-Information: Please contact the ISP for more information
-X-MailScanner: Found to be clean
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - may.nosdns.com
-X-AntiAbuse: Original Domain - vger.kernel.org
-X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
-X-AntiAbuse: Sender Address Domain - webspires.com
+Content-Disposition: inline
+In-Reply-To: <200312041432.23907.rob@landley.net>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello folks,
+On Thu, Dec 04, 2003 at 02:32:23PM -0600, Rob Landley wrote:
+> You can make a file with a hole by seeking past it and never writing to that 
+> bit, but is there any way to punch a hole in a file after the fact?  (I mean 
+> other with lseek and write.  Having a sparse file as the result....)
+> 
 
-    I been wondering what the position on the developers on the hyperthreading on 2.4.x series kernels? I know it is fully supported in 2.6.x series, but it used to be supported on 2.4.20 and below and now it disappeared on 2.4.21 to 2.4.23 as far reporting the hyperthreaded Xeons processors.  If there is a patch for this that enables it and support it, I would appreciate it so I can get this back on the kernel and have it running.
+No, Linux doesn't have this feature.
 
-    Lot of my clients are complaining about it saying they spents $$$$ for Xeons processors and linux 2.4.x don't support it anymore or don't report the number of processors properly anymore.  I for one want to shut them up. :)
--- 
-Best regards,
-Russell "Elik" Rademacher
-Freelance Remote System Adminstrator/Tech Support    
+> What are the downsides of holes?  (How big do they have to be to actually save 
+> space, is there a performance penalty to having a file with 1000 4k holes in 
+> it, etc...)
 
+When you copy them, you need to use tools that know about sparse files and
+how to deal with them.  Also, you will only save space on block aligned
+contiguous zeros at least the length of one block.

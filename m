@@ -1,99 +1,163 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267140AbTGKWcp (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 11 Jul 2003 18:32:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267106AbTGKWcn
+	id S267190AbTGKWe5 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 11 Jul 2003 18:34:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267196AbTGKWe5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 11 Jul 2003 18:32:43 -0400
-Received: from electric-eye.fr.zoreil.com ([213.41.134.224]:12553 "EHLO
-	fr.zoreil.com") by vger.kernel.org with ESMTP id S267108AbTGKWbU
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 11 Jul 2003 18:31:20 -0400
-Date: Sat, 12 Jul 2003 00:45:01 +0200
-From: Francois Romieu <romieu@fr.zoreil.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: linux-kernel@vger.kernel.org, torvalds@osdl.org
-Subject: [PATCH] Re: PATCH: Merge AD1889 driver from 2.4
-Message-ID: <20030712004501.B25528@electric-eye.fr.zoreil.com>
-References: <200307111821.h6BILFpr017428@hraefn.swansea.linux.org.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Fri, 11 Jul 2003 18:34:57 -0400
+Received: from rwcrmhc11.comcast.net ([204.127.198.35]:51884 "EHLO
+	rwcrmhc11.comcast.net") by vger.kernel.org with ESMTP
+	id S267190AbTGKWed (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 11 Jul 2003 18:34:33 -0400
+From: Ivan Gyurdiev <ivg2@cornell.edu>
+Reply-To: ivg2@cornell.edu
+Organization: ( )
+To: Jens Axboe <axboe@suse.de>
+Subject: Re: 2.5.75 does not boot - TCQ oops
+Date: Fri, 11 Jul 2003 16:58:09 -0400
+User-Agent: KMail/1.5.2
+References: <200307102251.42787.ivg2@cornell.edu> <20030711082817.GE843@suse.de> <20030711083437.GG843@suse.de>
+In-Reply-To: <20030711083437.GG843@suse.de>
+Cc: LKML <linux-kernel@vger.kernel.org>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <200307111821.h6BILFpr017428@hraefn.swansea.linux.org.uk>; from alan@lxorguk.ukuu.org.uk on Fri, Jul 11, 2003 at 07:21:15PM +0100
+Message-Id: <200307111658.09925.ivg2@cornell.edu>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The following patch may help:
 
-- include/linux/wrapper.h doesn't exist in 2.5.75 and none of it's content
-  is used by the driver;
-- s/MINOR/minor/;
-- KConfig/Makefile update.
+Patch confirmed to work - the machine boots.
+Unfortunately the long term result looked something like:
 
+Objects Without Names: 2580
+Empty Lost Dirs Removed: 12294
+Dirs Linked to lost+found: 192
+Dirs Without Stats Data: 141
+....
 
- sound/oss/Kconfig  |    7 +++++++
- sound/oss/Makefile |    1 +
- sound/oss/ad1889.c |    6 +++---
- 3 files changed, 11 insertions(+), 3 deletions(-)
+Most massive fs corruption I've ever had. 
+Twice. (I tried it again to get a log, but I don't know if it will be 
+helpful).
 
-diff -puN sound/oss/ad1889.c~ahum-merge-ad1889 sound/oss/ad1889.c
---- linux-2.5.75-20030711_0808/sound/oss/ad1889.c~ahum-merge-ad1889	Sat Jul 12 00:40:26 2003
-+++ linux-2.5.75-20030711_0808-fr/sound/oss/ad1889.c	Sat Jul 12 00:40:26 2003
-@@ -37,7 +37,7 @@
- #include <linux/soundcard.h>
- #include <linux/ac97_codec.h>
- #include <linux/sound.h>
--#include <linux/wrapper.h>
-+#include <linux/interrupt.h>
- 
- #include <asm/delay.h>
- #include <asm/io.h>
-@@ -749,7 +749,7 @@ static int ad1889_ioctl(struct inode *in
- static int ad1889_open(struct inode *inode, struct file *file)
- {
- 	/* check minor; only support /dev/dsp atm */
--	if (MINOR(inode->i_rdev) != 3)
-+	if (minor(inode->i_rdev) != 3)
- 		return -ENXIO;
- 	
- 	file->private_data = ad1889_dev;
-@@ -782,7 +782,7 @@ static struct file_operations ad1889_fop
- /************************* /dev/mixer interfaces ************************ */
- static int ad1889_mixer_open(struct inode *inode, struct file *file)
- {
--	if (ad1889_dev->ac97_codec->dev_mixer != MINOR(inode->i_rdev))
-+	if (ad1889_dev->ac97_codec->dev_mixer != minor(inode->i_rdev))
- 		return -ENODEV;
- 
- 	file->private_data = ad1889_dev->ac97_codec;
-diff -puN sound/oss/Kconfig~ahum-merge-ad1889 sound/oss/Kconfig
---- linux-2.5.75-20030711_0808/sound/oss/Kconfig~ahum-merge-ad1889	Sat Jul 12 00:40:26 2003
-+++ linux-2.5.75-20030711_0808-fr/sound/oss/Kconfig	Sat Jul 12 00:40:26 2003
-@@ -598,6 +598,13 @@ config SOUND_AD1816
- 	  If you compile the driver into the kernel, you have to add
- 	  "ad1816=<io>,<irq>,<dma>,<dma2>" to the kernel command line.
- 
-+config SOUND_AD1889
-+	tristate "AD1889 based cards (AD1819 codec) (EXPERIMENTAL)"
-+	depends on EXPERIMENTAL && SOUND_OSS
-+	help
-+	  Say M here if you have a sound card based on the Analog Devices
-+	  AD1889 chip.
-+
- config SOUND_SGALAXY
- 	tristate "Aztech Sound Galaxy (non-PnP) cards"
- 	depends on SOUND_OSS
-diff -puN sound/oss/Makefile~ahum-merge-ad1889 sound/oss/Makefile
---- linux-2.5.75-20030711_0808/sound/oss/Makefile~ahum-merge-ad1889	Sat Jul 12 00:40:26 2003
-+++ linux-2.5.75-20030711_0808-fr/sound/oss/Makefile	Sat Jul 12 00:40:26 2003
-@@ -33,6 +33,7 @@ obj-$(CONFIG_SOUND_VIDC)	+= vidc_mod.o
- obj-$(CONFIG_SOUND_WAVEARTIST)	+= waveartist.o
- obj-$(CONFIG_SOUND_SGALAXY)	+= sgalaxy.o ad1848.o
- obj-$(CONFIG_SOUND_AD1816)	+= ad1816.o
-+obj-$(CONFIG_SOUND_AD1889)	+= ad1889.o ac97_codec.o
- obj-$(CONFIG_SOUND_ACI_MIXER)	+= aci.o
- obj-$(CONFIG_SOUND_AWE32_SYNTH)	+= awe_wave.o
- 
+I blamed the reiserfs bk work at first (which I applied along with your tcq 
+patch), but I noted that the fs only gets corrupted with a tcq-enabled kernel 
+(every time it seems...).
 
-_
+The machine boots and the filesystem (reiserfs) check says:
+Zero bit found in on-disk bitmap after the last valid bit. Switching to 
+fix-fixable pass. After which it detects various types of corruption.
+(eventually it breaks with fork: Cannot allocate memory - is this a 
+fsck.reiserfs problem?)
+
+Here's parts of a log with fastboot on (skip the fs check).
+The reiser filesystem had just been repaired, and here it breaks again.
+I don't know if I should be sending this to you, but I think tcq causes the 
+corruption, since non-tcq 2.5.75 and 2.5.74 appear to run fine.
+
+Kernel command line: auto BOOT_IMAGE=2.5.75-2 ro root=306 single fastboot
+...
+
+Uniform Multi-Platform E-IDE driver Revision: 7.00alpha2
+ide: Assuming 33MHz system bus speed for PIO modes; override with idebus=xx
+VP_IDE: IDE controller at PCI slot 0000:00:11.1
+ACPI: No IRQ known for interrupt pin A of device 0000:00:11.1 - using IRQ 255
+VP_IDE: chipset revision 6
+VP_IDE: not 100% native mode: will probe irqs later
+ide: Assuming 33MHz system bus speed for PIO modes; override with idebus=xx
+VP_IDE: VIA vt8235 (rev 00) IDE UDMA133 controller on pci0000:00:11.1
+    ide0: BM-DMA at 0xe000-0xe007, BIOS settings: hda:DMA, hdb:pio
+    ide1: BM-DMA at 0xe008-0xe00f, BIOS settings: hdc:DMA, hdd:pio
+hda: IC35L080AVVA07-0, ATA DISK drive
+anticipatory scheduling elevator
+ide0 at 0x1f0-0x1f7,0x3f6 on irq 14
+hdc: TOSHIBA DVD-ROM SD-R1102, ATAPI CD/DVD-ROM drive
+ide1 at 0x170-0x177,0x376 on irq 15
+hda: max request size: 128KiB
+hda: host protected area => 1
+hda: 160836480 sectors (82348 MB) w/1863KiB Cache, CHS=159560/16/63, UDMA(100)
+hda: tagged command queueing enabled, command queue depth 8
+ /dev/ide/host0/bus0/target0/lun0: p1 p2 < p5 p6 p7 >
+.....
+BIOS EDD facility v0.09 2003-Jan-22, 1 devices found
+....
+
+Reiserfs journal params: device hda6, size 8192, journal first block 18, max 
+trans len 1024, max batch 900, max commit age 30, max trans age 30
+reiserfs: checking transaction log (hda6) for (hda6)
+Using r5 hash to sort names
+VFS: Mounted root (reiserfs filesystem) readonly.
+Mounted devfs on /dev
+Freeing unused kernel memory: 152k freed
+Real Time Clock Driver v1.11
+Adding 512024k swap on /dev/hda5.  Priority:-1 extents:1
+vs-4080: reiserfs_free_block: free_block (hda6:895404)[dev:blocknr]: bit 
+already cleared
+vs-4080: reiserfs_free_block: free_block (hda6:895260)[dev:blocknr]: bit 
+already cleared
+vs-4080: reiserfs_free_block: free_block (hda6:895259)[dev:blocknr]: bit 
+already cleared
+vs-4080: reiserfs_free_block: free_block (hda6:895258)[dev:blocknr]: bit 
+already cleared
+vs-4080: reiserfs_free_block: free_block (hda6:895257)[dev:blocknr]: bit 
+already cleared
+vs-4080: reiserfs_free_block: free_block (hda6:895256)[dev:blocknr]: bit 
+already cleared
+vs-4080: reiserfs_free_block: free_block (hda6:895255)[dev:blocknr]: bit 
+already cleared
+vs-4080: reiserfs_free_block: free_block (hda6:895254)[dev:blocknr]: bit 
+already cleared
+vs-4080: reiserfs_free_block: free_block (hda6:895253)[dev:blocknr]: bit 
+already cleared
+vs-4080: reiserfs_free_block: free_block (hda6:895249)[dev:blocknr]: bit 
+already cleared
+vs-4080: reiserfs_free_block: free_block (hda6:895248)[dev:blocknr]: bit 
+already cleared
+vs-4080: reiserfs_free_block: free_block (hda6:895247)[dev:blocknr]: bit 
+already cleared
+vs-4080: reiserfs_free_block: free_block (hda6:895246)[dev:blocknr]: bit 
+already cleared
+vs-4080: reiserfs_free_block: free_block (hda6:895245)[dev:blocknr]: bit 
+already cleared
+vs-4080: reiserfs_free_block: free_block (hda6:895244)[dev:blocknr]: bit 
+already cleared
+vs-4080: reiserfs_free_block: free_block (hda6:895243)[dev:blocknr]: bit 
+already cleared
+vs-4080: reiserfs_free_block: free_block (hda6:895242)[dev:blocknr]: bit 
+already cleared
+vs-4080: reiserfs_free_block: free_block (hda6:895241)[dev:blocknr]: bit 
+already cleared
+vs-4080: reiserfs_free_block: free_block (hda6:895240)[dev:blocknr]: bit 
+already cleared
+vs-4080: reiserfs_free_block: free_block (hda6:895187)[dev:blocknr]: bit 
+already cleared
+
+> --- drivers/ide/ide-dma.c~	2003-07-11 10:21:04.492561920 +0200
+> +++ drivers/ide/ide-dma.c	2003-07-11 10:25:28.183474808 +0200
+> @@ -572,10 +572,6 @@
+>  	if (HWIF(drive)->ide_dma_host_on(drive))
+>  		return 1;
+>
+> -#ifdef CONFIG_BLK_DEV_IDE_TCQ_DEFAULT
+> -	HWIF(drive)->ide_dma_queued_on(drive);
+> -#endif
+> -
+>  	return 0;
+>  }
+>
+> --- drivers/ide/ide-disk.c~	2003-07-11 10:30:51.783280160 +0200
+> +++ drivers/ide/ide-disk.c	2003-07-11 10:31:09.873530024 +0200
+> @@ -1665,6 +1665,10 @@
+>  	drive->no_io_32bit = id->dword_io ? 1 : 0;
+>  	if (drive->id->cfs_enable_2 & 0x3000)
+>  		write_cache(drive, (id->cfs_enable_2 & 0x3000));
+> +
+> +#ifdef CONFIG_BLK_DEV_IDE_TCQ_DEFAULT
+> +	HWIF(drive)->ide_dma_queued_on(drive);
+> +#endif
+>  }
+>
+>  static int idedisk_cleanup (ide_drive_t *drive)
+

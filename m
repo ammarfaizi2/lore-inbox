@@ -1,35 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284280AbSABVX4>; Wed, 2 Jan 2002 16:23:56 -0500
+	id <S284300AbSABVU4>; Wed, 2 Jan 2002 16:20:56 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284866AbSABVW5>; Wed, 2 Jan 2002 16:22:57 -0500
-Received: from ns.suse.de ([213.95.15.193]:62215 "HELO Cantor.suse.de")
-	by vger.kernel.org with SMTP id <S284763AbSABVWS>;
-	Wed, 2 Jan 2002 16:22:18 -0500
-Date: Wed, 2 Jan 2002 22:22:17 +0100 (CET)
-From: Dave Jones <davej@suse.de>
-To: Bill Nottingham <notting@redhat.com>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, <esr@thyrsus.com>,
-        Linux Kernel List <linux-kernel@vger.kernel.org>
-Subject: Re: ISA slot detection on PCI systems?
-In-Reply-To: <20020102162349.A957@apone.devel.redhat.com>
-Message-ID: <Pine.LNX.4.33.0201022219270.427-100000@Appserv.suse.de>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S284335AbSABVUB>; Wed, 2 Jan 2002 16:20:01 -0500
+Received: from vindaloo.ras.ucalgary.ca ([136.159.55.21]:43217 "EHLO
+	vindaloo.ras.ucalgary.ca") by vger.kernel.org with ESMTP
+	id <S284282AbSABVS6>; Wed, 2 Jan 2002 16:18:58 -0500
+Date: Wed, 2 Jan 2002 14:18:34 -0700
+Message-Id: <200201022118.g02LIYN28610@vindaloo.ras.ucalgary.ca>
+From: Richard Gooch <rgooch@ras.ucalgary.ca>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: nahshon@actcom.co.il, linux-kernel@vger.kernel.org
+Subject: Re: SCSI host numbers?
+In-Reply-To: <E16LsWL-0005Rg-00@the-village.bc.nu>
+In-Reply-To: <200201021931.g02JV1R27294@vindaloo.ras.ucalgary.ca>
+	<E16LsWL-0005Rg-00@the-village.bc.nu>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2 Jan 2002, Bill Nottingham wrote:
+Alan Cox writes:
+> > Comments? Got a suggestion for which file the generic function should
+> > go into? I figure on stripping the leading "devfs_" part of the
+> > function names.
+> 
+> Sounds sensible to me. I guess it belongs in lib/ somewhere ?
 
-> > And newer ones. I've seen 'Full length ISA slot' reported on a laptop
-> > for eg.
-> I have an ia64 here that, according to dmidecode, has a
-> 32bit NUBUS slot in it. AFAIK, that's not the case. ;)
+I was thinking perhaps lib/unique.c
 
-*grin*, for some things, DMI is reliable, others its down to whether
-individual bios vendors decide to add the relevant strings.
+				Regards,
 
--- 
-| Dave Jones.        http://www.codemonkey.org.uk
-| SuSE Labs
-
+					Richard....
+Permanent: rgooch@atnf.csiro.au
+Current:   rgooch@ras.ucalgary.ca

@@ -1,49 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263735AbUH0Lme@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263775AbUH0Lnl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263735AbUH0Lme (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 27 Aug 2004 07:42:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263743AbUH0Lme
+	id S263775AbUH0Lnl (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 27 Aug 2004 07:43:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263743AbUH0Lnl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 27 Aug 2004 07:42:34 -0400
-Received: from acheron.informatik.uni-muenchen.de ([129.187.214.135]:14034
-	"EHLO acheron.informatik.uni-muenchen.de") by vger.kernel.org
-	with ESMTP id S263735AbUH0LmV (ORCPT
+	Fri, 27 Aug 2004 07:43:41 -0400
+Received: from forte.mfa.kfki.hu ([148.6.72.11]:42905 "EHLO forte.mfa.kfki.hu")
+	by vger.kernel.org with ESMTP id S263775AbUH0Lng (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 27 Aug 2004 07:42:21 -0400
-Message-ID: <412F1E1A.40905@bio.ifi.lmu.de>
-Date: Fri, 27 Aug 2004 13:42:18 +0200
-From: Frank Steiner <fsteiner-mail@bio.ifi.lmu.de>
-User-Agent: Mozilla Thunderbird 0.6 (X11/20040503)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: "Randy.Dunlap" <rddunlap@osdl.org>
-Cc: markb@wetlettuce.com, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.8.1: ip auto-config accepts wrong packages
-References: <412C5E80.8050603@bio.ifi.lmu.de>	<1093439062.25506.12.camel@mbpc.signal.qinetiq.com>	<412CA518.7090109@bio.ifi.lmu.de>	<1093448839.25506.57.camel@mbpc.signal.qinetiq.com>	<412DBBF0.3090107@bio.ifi.lmu.de> <20040826091722.54a0cc72.rddunlap@osdl.org>
-In-Reply-To: <20040826091722.54a0cc72.rddunlap@osdl.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Fri, 27 Aug 2004 07:43:36 -0400
+Date: Fri, 27 Aug 2004 13:43:35 +0200
+From: Gergely Tamas <dice@mfa.kfki.hu>
+To: Tim Schmielau <tim@physik3.uni-rostock.de>
+Cc: linux-kernel@vger.kernel.org, akpm@osdl.org
+Subject: Re: data loss in 2.6.9-rc1-mm1
+Message-ID: <20040827114334.GB4467@mfa.kfki.hu>
+References: <20040827105543.GA10563@mfa.kfki.hu> <Pine.LNX.4.53.0408271313200.9045@gockel.physik3.uni-rostock.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.53.0408271313200.9045@gockel.physik3.uni-rostock.de>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Randy.Dunlap wrote:
+Hi!
 
-> Maybe fixed by
-> http://linux.bkbits.net:8080/linux-2.5/cset@412a4a00MfXRfzWB5kTFo9NXM1Q3hw?nav=index.html|ChangeSet@-7d
-> 
-> i.e., fix is already merged, I think.
+ > What does ls -l testfile.1 give?
 
-Yes, that's exactly describing the problem I encountered, and indeed
-fixes it :-) I have to admit that I didn't know this page yet... I will
-check there first before reporting bugs in the future!
+$ ls -l testfile{,.1}
+-rw-r--r--  1 dice users 10485760 Aug 27 13:25 testfile
+-rw-r--r--  1 dice users 10481664 Aug 27 13:25 testfile.1
 
-Thanks a lot!
+ > What you describe actually can be correct behaviour, since the file is
+ > all zeros.
 
-cu,
-Frank
--- 
-Dipl.-Inform. Frank Steiner   Web:  http://www.bio.ifi.lmu.de/~steiner/
-Lehrstuhl f. Bioinformatik    Mail: http://www.bio.ifi.lmu.de/~steiner/m/
-LMU, Amalienstr. 17           Phone: +49 89 2180-4049
-80333 Muenchen, Germany       Fax:   +49 89 2180-99-4049
+Same test with other source file...
 
+$ dd if=linux-2.6.8.1.tar.bz2 of=testfile bs=$((1024*1024)) count=10
+10+0 records in
+10+0 records out
+10485760 bytes transferred in 0.061916 seconds (169354917 bytes/sec)
+
+$ du -sb testfile
+10485760        testfile
+
+$ cat testfile > testfile.1
+
+$ du -sb testfile.1
+10481664        testfile.1
+
+ > Although yes, it seems highly improbable someone implemented an 
+ > optimization that cuts away just one of 2560 pages.
+
+Thanks,
+Gergely

@@ -1,58 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288736AbSBZXLa>; Tue, 26 Feb 2002 18:11:30 -0500
+	id <S287552AbSBZXOK>; Tue, 26 Feb 2002 18:14:10 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288071AbSBZXLU>; Tue, 26 Feb 2002 18:11:20 -0500
-Received: from tolkor.sgi.com ([192.48.180.13]:52099 "EHLO tolkor.sgi.com")
-	by vger.kernel.org with ESMTP id <S287552AbSBZXLP>;
-	Tue, 26 Feb 2002 18:11:15 -0500
-Subject: Re: Congrats Marcelo,
-From: Steve Lord <lord@sgi.com>
-To: Daniel Phillips <phillips@bonn-fries.net>
-Cc: Andreas Dilger <adilger@turbolabs.com>,
-        "Dennis, Jim" <jdennis@snapserver.com>,
-        "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
-In-Reply-To: <E16f8Ey-0002qn-00@starship.berlin>
-In-Reply-To: <2D0AFEFEE711D611923E009027D39F2B153AD4@cdserv.meridian-data.com>
-	<20020226140644.U12832@lynx.adilger.int>
-	<1014760581.5993.159.camel@jen.americas.sgi.com> 
-	<E16f8Ey-0002qn-00@starship.berlin>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/1.0.2 
-Date: 26 Feb 2002 17:07:32 -0600
-Message-Id: <1014764852.9994.191.camel@jen.americas.sgi.com>
+	id <S287817AbSBZXOB>; Tue, 26 Feb 2002 18:14:01 -0500
+Received: from smtp-out-7.wanadoo.fr ([193.252.19.26]:10224 "EHLO
+	mel-rto7.wanadoo.fr") by vger.kernel.org with ESMTP
+	id <S287552AbSBZXNt>; Tue, 26 Feb 2002 18:13:49 -0500
+Date: Wed, 27 Feb 2002 00:12:46 +0100
+From: wwp <subscript@free.fr>
+To: "J.A. Magallon" <jamagallon@able.es>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: low latency & preemtible kernels
+Message-Id: <20020227001246.58608e37.subscript@free.fr>
+In-Reply-To: <20020226235510.E6197@werewolf.able.es>
+In-Reply-To: <200202261918.53190.Dieter.Nuetzel@hamburg.de>
+	<20020226235510.E6197@werewolf.able.es>
+Organization: -
+X-Mailer: Sylpheed version 0.7.2claws7 (GTK+ 1.2.10; )
 Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2002-02-24 at 17:39, Daniel Phillips wrote:
+Hi J.A.,
+
+
+On Tue, 26 Feb 2002 23:55:10 +0100 "J.A. Magallon" <jamagallon@able.es> wrote:
+
+[snip]
+> >Try 2.4.18-rc4-jam2 for example. It should apply against 2.4.18 final, too.
+> >
 > 
-> I'd really like to see XFS go in, but don't you think 2.5 is the place,
-> with a view to 2.4 submission in due course?
+> Correction: jam2 is O(1)-multi-queue scheduler + low-latency, no
+> preeemt there.
 
-This is my thinking, but the way 2.5 is diverging the argument that
-xfs being stable in 2.5 prior to going into 2.4 probably will not mean
-too much at the end of the day since the interfaces will probably
-have diverged so much by then - and the interfaces are where the
-nasties tend to come out. The core of XFS is pretty darn stable.
+Won't 2.4.18-jam1 better?
 
-> 
-> As far as making the case goes, do you have time to make a list of
-> places where XFS goes outside fs/xfs, and why?
 
-I have had about 20 emails since I got yours ;-) One of the reasons
-I have not been attempting to submit XFS is that I have too many 
-other things going on right now, hopefully things are getting 
-quieter and I can take a shot at this again. I will see how tomorrow
-goes ....
+Regards,
 
-Steve
-
-> 
-> -- 
-> Daniel
 -- 
-
-Steve Lord                                      voice: +1-651-683-3511
-Principal Engineer, Filesystem Software         email: lord@sgi.com
+wwp

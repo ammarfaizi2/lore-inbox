@@ -1,61 +1,66 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265508AbSKKOba>; Mon, 11 Nov 2002 09:31:30 -0500
+	id <S265587AbSKKOqs>; Mon, 11 Nov 2002 09:46:48 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265547AbSKKOba>; Mon, 11 Nov 2002 09:31:30 -0500
-Received: from ns.suse.de ([213.95.15.193]:53009 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id <S265508AbSKKOb3>;
-	Mon, 11 Nov 2002 09:31:29 -0500
-To: "Randy.Dunlap" <rddunlap@osdl.org>
-Cc: "Henning P. Schmiedehausen" <hps@intermeta.de>,
-       <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Re: sscanf("-1", "%d", &i) fails, returns 0
-References: <Pine.LNX.4.33L2.0211101854350.22017-100000@dragon.pdx.osdl.net>
-X-Yow: Talking Pinhead Blues:
- Oh, I LOST my ``HELLO KITTY'' DOLL and I get BAD reception on
-  channel TWENTY-SIX!!
- Th'HOSTESS FACTORY is closin' down and I just heard ZASU PITTS
-  has been DEAD for YEARS..  (sniff)
- My PLATFORM SHOE collection was CHEWED up by th'dog, ALEXANDER
-  HAIG won't let me take a SHOWER 'til Easter.. (snurf)
- So I went to the kitchen, but WALNUT PANELING whup me
-  upside mah HAID!! (on no, no, no..  Heh, heh)
-From: Andreas Schwab <schwab@suse.de>
-Date: Mon, 11 Nov 2002 15:38:15 +0100
-In-Reply-To: <Pine.LNX.4.33L2.0211101854350.22017-100000@dragon.pdx.osdl.net> ("Randy.Dunlap"'s
- message of "Sun, 10 Nov 2002 19:05:05 -0800 (PST)")
-Message-ID: <jewunkgoiw.fsf@sykes.suse.de>
-User-Agent: Gnus/5.090007 (Oort Gnus v0.07) Emacs/21.3.50 (ia64-suse-linux)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+	id <S265673AbSKKOqs>; Mon, 11 Nov 2002 09:46:48 -0500
+Received: from ma-northadams1b-126.bur.adelphia.net ([24.52.166.126]:640 "EHLO
+	ma-northadams1b-126.bur.adelphia.net") by vger.kernel.org with ESMTP
+	id <S265587AbSKKOqr>; Mon, 11 Nov 2002 09:46:47 -0500
+Date: Mon, 11 Nov 2002 09:54:34 -0500
+From: Eric Buddington <eric@ma-northadams1b-126.nad.adelphia.net>
+To: linux-kernel@vger.kernel.org
+Subject: 2.5.47: oops/panic in ide_inint_queue
+Message-ID: <20021111095434.A86@ma-northadams1b-126.nad.adelphia.net>
+Reply-To: ebuddington@wesleyan.edu
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+Organization: ECS Labs
+X-Eric-Conspiracy: there is no conspiracy
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Randy.Dunlap" <rddunlap@osdl.org> writes:
+linux-2.5.47, mostly modules
 
-|> On Sun, 10 Nov 2002, Henning P. Schmiedehausen wrote:
-|> 
-|> | "Randy.Dunlap" <rddunlap@osdl.org> writes:
-|> |
-|> | >+		digit = *str;
-|> | >+		if (is_sign && digit == '-')
-|> | >+			digit = *(str + 1);
-|> |
-|> | If signed is not allowed and you get a "-", you're in an error case
-|> | again...
-|> 
-|> Yes, and a 0 value is returned.
-|> IOW, asking for an unsigned number (in the format string)
-|> and getting "-123" does return 0.
+vendor_id       : AuthenticAMD
+cpu family      : 6
+model           : 4
+model name      : AMD Athlon(tm) Processor
+stepping        : 2
+cpu MHz         : 945.791
+cache size      : 256 KB
 
-Not in C.  According to the standard scanf is supposed to convert the
-value to unsinged and return that.
+pty: 256 Unix98 ptys configured
+Uniform Multi-Platform E-IDE driver Revision: 7.00alpha2
+ide: Assuming 66MHz system bus speed for PIO modes
+hdc: _NEC CD-RW NR-7800A, ATAPI CD/DVD-ROM drive
+Unable to handle kernel NULL pointer dereference at virtual address 00000000
+ printing eip:
+00000000
+*pde = 00000000
+Oops: 0000
+ 
+CPU:    0
+EIP:    0060:[<00000000>]    Not tainted
+EFLAGS: 00010282
+eax: c04ba870   ebx: c04ba91c   ecx: 00000000   edx: 00000000
+esi: c04ba92c   edi: c04ba870   ebp: c126c000   esp: c126def4
+ds: 0068   es: 0068   ss: 0068
+Process swapper (pid: 1, threadinfo=c126c000 task=c126a040)
+Stack: c024de5f c04ba91c 00000001 c043b680 c04ba91c c12e6ce4 c024e055 c04ba91c 
+       c0255c20 20000000 c04ba880 c12e6ce4 c024e310 c04ba880 c126c000 00000000 
+       00000296 00000000 00000001 c04ba870 00000000 c04ba880 c024e5e4 c04ba870 
+Call Trace:
+ [<c024de5f>] ide_init_queue+0x9f/0xb0
+ [<c024e055>] init_irq+0x1e5/0x3d0
+ [<c0255c20>] ide_intr+0x0/0x180
+ [<c024e310>] alloc_disks+0x70/0xd0
+ [<c024e5e4>] hwif_init+0xf4/0x2a0
+ [<c024e8ae>] ideprobe_init+0xee/0x100
+ [<c010507a>] init+0x3a/0x160
+ [<c0105040>] init+0x0/0x160
+ [<c010717d>] kernel_thread_helper+0x5/0x18
 
-Andreas.
-
--- 
-Andreas Schwab, SuSE Labs, schwab@suse.de
-SuSE Linux AG, Deutschherrnstr. 15-19, D-90429 Nürnberg
-Key fingerprint = 58CA 54C7 6D53 942B 1756  01D3 44D5 214B 8276 4ED5
-"And now for something completely different."
+Code:  Bad EIP value.
+ <0>Kernel panic: Attempted to kill init!

@@ -1,43 +1,67 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290822AbSBLIEQ>; Tue, 12 Feb 2002 03:04:16 -0500
+	id <S290827AbSBLIMi>; Tue, 12 Feb 2002 03:12:38 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290824AbSBLIEG>; Tue, 12 Feb 2002 03:04:06 -0500
-Received: from xsmtp.ethz.ch ([129.132.97.6]:38137 "EHLO xfe3.d.ethz.ch")
-	by vger.kernel.org with ESMTP id <S290822AbSBLID4>;
-	Tue, 12 Feb 2002 03:03:56 -0500
-Message-ID: <3C68CBB6.9050709@debian.org>
-Date: Tue, 12 Feb 2002 09:00:54 +0100
-From: Giacomo Catenazzi <cate@debian.org>
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:0.9.4) Gecko/20011128 Netscape6/6.2.1
-X-Accept-Language: en-us, en
+	id <S290824AbSBLIMT>; Tue, 12 Feb 2002 03:12:19 -0500
+Received: from inje.iskon.hr ([213.191.128.16]:43393 "EHLO inje.iskon.hr")
+	by vger.kernel.org with ESMTP id <S290827AbSBLIMK>;
+	Tue, 12 Feb 2002 03:12:10 -0500
+To: Jakub Travnik <J.Travnik@sh.cvut.cz>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: emu10k1 - interrupt storm?
+In-Reply-To: <3C684A88.5070307@sh.cvut.cz>
+Reply-To: zlatko.calusic@iskon.hr
+X-Face: s71Vs\G4I3mB$X2=P4h[aszUL\%"`1!YRYl[JGlC57kU-`kxADX}T/Bq)Q9.$fGh7lFNb.s
+ i&L3xVb:q_Pr}>Eo(@kU,c:3:64cR]m@27>1tGl1):#(bs*Ip0c}N{:JGcgOXd9H'Nwm:}jLr\FZtZ
+ pri/C@\,4lW<|jrq^<):Nk%Hp@G&F"r+n1@BoH
+From: Zlatko Calusic <zlatko.calusic@iskon.hr>
+Date: Tue, 12 Feb 2002 09:12:04 +0100
+In-Reply-To: <3C684A88.5070307@sh.cvut.cz> (Jakub Travnik's message of "Mon,
+ 11 Feb 2002 23:49:44 +0100")
+Message-ID: <dny9hzunjf.fsf@magla.zg.iskon.hr>
+User-Agent: Gnus/5.090005 (Oort Gnus v0.05) XEmacs/21.4 (Common Lisp,
+ i386-debian-linux)
 MIME-Version: 1.0
-To: David Ford <david+cert@blue-labs.org>, kbuild-devel@lists.sourceforge.net
-CC: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: kernel config core dump w/ bad inpu
-In-Reply-To: <fa.fhrqjcv.n7sq1s@ifi.uio.no>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 12 Feb 2002 08:03:55.0269 (UTC) FILETIME=[D11C7350:01C1B39B]
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-David Ford wrote:
+Jakub Travnik <J.Travnik@sh.cvut.cz> writes:
 
-> SYM53C8XX Version 2 SCSI support (CONFIG_SCSI_SYM53C8XX_2) [N/y/m/?] 
-> (NEW) y
->  DMA addressing mode (CONFIG_SCSI_SYM53C8XX_DMA_ADDRESSING_MODE) [1] 
-> (NEW) y
-> scripts/Configure: line 245: 14353 Segmentation fault      (core dumped) 
-> expr \( \( $ans + 0 \) \>= $min \) \& \( $ans \<= $max \) >/dev/null 2>&1
+> Hello and sorry for replying late,
+>
+> I did experienced same problems with emu10k1 on 2.4.8 (as is in Mandrake 8.1).
+>
+> After modprobing emu10k1, interrupts per second (as reported by vmstat)
+> start to increase and in few minutes they were as high as 70000 per second.
+> rmmod-ing emu10k1 caused number of interrupts per second to slowly decrease.
+>
+> Following setting affected this:
+>
+> In BIOS setup, PCI options:
+> Interrupts triggered by
+> 1, edge
+> 2, level
+
+Unfortunately I don't have that setting in my BIOS.
+
+>
+> value 'edge' causes problems,
+> value 'level' makes thing work without problems.
+>
+
+But anyway, emu10k1 on irq 5 already uses level type:
+
+  5:       5193       5183   IO-APIC-level  EMU10K1
 
 
-This is a bug of 'expr/bash', but anyway the the Configure should discard
-non numeric value before to compare it.
+> If you are experiencing problems with this, set to 'level'.
+>
 
+Eventually, I forced esd to exit after few seconds of inactivity. That
+way I at least don't have interrupt storms when I don't have any sound
+output through esd.
 
-	giacomo
-
- 
-
-
+Regards,
+-- 
+Zlatko

@@ -1,192 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131785AbRASQxo>; Fri, 19 Jan 2001 11:53:44 -0500
+	id <S131957AbRASQzp>; Fri, 19 Jan 2001 11:55:45 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131957AbRASQxg>; Fri, 19 Jan 2001 11:53:36 -0500
-Received: from e4.ny.us.ibm.com ([32.97.182.104]:58757 "EHLO e4.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id <S131785AbRASQxX>;
-	Fri, 19 Jan 2001 11:53:23 -0500
-Importance: Normal
-Subject: Re: [Lse-tech] Re: multi-queue scheduler update
-To: nick@snowman.net
-Cc: lse-tech@lists.sourceforge.net, linux-kernel@vger.kernel.org
-X-Mailer: Lotus Notes Release 5.0.3 (Intl) 21 March 2000
-Message-ID: <OF5A18B646.F4D0BD08-ON852569D9.005B61A8@pok.ibm.com>
-From: "Hubertus Franke" <frankeh@us.ibm.com>
-Date: Fri, 19 Jan 2001 11:47:52 -0500
-X-MIMETrack: Serialize by Router on D01ML244/01/M/IBM(Release 5.0.6 |December 14, 2000) at
- 01/19/2001 11:53:15 AM
+	id <S132486AbRASQzf>; Fri, 19 Jan 2001 11:55:35 -0500
+Received: from burdell.cc.gatech.edu ([130.207.3.207]:40966 "EHLO
+	burdell.cc.gatech.edu") by vger.kernel.org with ESMTP
+	id <S131957AbRASQzY>; Fri, 19 Jan 2001 11:55:24 -0500
+From: "J.D. Hollis" <jdhollis@cc.gatech.edu>
+To: <linux-kernel@vger.kernel.org>
+Subject: class handles
+Date: Fri, 19 Jan 2001 11:49:44 -0500
+Message-ID: <CBECJLMFDMBGLDALACILMEHMCHAA.jdhollis@cc.gatech.edu>
 MIME-Version: 1.0
-Content-type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2910.0)
+Importance: Normal
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4133.2400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+I've been working on automatic assignment of unique class handles inside of
+a system call.  I came across the function qdisc_alloc_handle in
+net/sch_api.c, and I tried to use that.  it didn't work, and I'm sure I'm
+missing something obvious.  I don't think I clearly understand how handles
+are used in the kernel.  could someone explain to me how they work?  I've
+read the source code and the comments, but I'm still not clear on just how
+it all fits together.  thanks.
 
-In the sched_yield benchmark case this is not a problem , because the
-threads don't have any memory footprint, all cloned.
-The chatroom, I agree with you. However, I assume that these big irons
-(8-ways) will be pretty much loaded with at least 1MB cache. Maybe at this
-point another cite with an 8-way system and small cache could run this. I
-don't know whether those actually exists.
+j.d.
 
-Alternatively, we could setup a smaller 4-way system (we have a 4-way
-300MHZ-P-II Xeon, with 512MB cache) that would fit into your class and we
-could also collect the numbers on those and post those.
+p.s. could you please cc me, as I'm not subscribed to linux-kernel at the
+moment.
 
-We are automizing the reboot process right now where we are modifying the
-lilol.conf so we can run many tests with different "maxcpus=.." unattended.
+---
+J.D. Hollis (jdhollis@cc.gatech.edu)
 
-So little to do, so much time... ahhh make that so little time, so much to
-do.
-
-Hubertus Franke
-Enterprise Linux Group (Mgr),  Linux Technology Center (Member Scalability)
-, OS-PIC (Chair)
-email: frankeh@us.ibm.com
-(w) 914-945-2003    (fax) 914-945-4425   TL: 862-2003
-
-
-
-nick@snowman.net on 01/19/2001 11:33:34 AM
-
-To:   Hubertus Franke/Watson/IBM@IBMUS
-cc:   David Lang <dlang@diginsite.com>, Mike Kravetz
-      <mkravetz@sequent.com>, Andrea Arcangeli <andrea@suse.de>,
-      lse-tech@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject:  Re: [Lse-tech] Re: multi-queue scheduler update
-
-
-
-You might want to rerun the tests with less cache heavy procs.  The 2meg
-xeons you are using could distort things from what the average linux user
-would see (running with 256-512k cache).
-     Nick
-
-On Fri, 19 Jan 2001, Hubertus Franke wrote:
-
->
-> Sure, we are measuring that as well.
-> We are running all these benchmarks and configurations that I mentioned
-in
-> my previous message on
-> 1-2-4-6- and 8 way configurations.
-> We have posted some preliminary results on older kernels on the website:
->
-> http://lse.sourceforge.net/scheduling/prelim.html
->
-> MQ scheduler is meaningless for a UP kernel that is only build under the
-> SMP flag.
-> The priority==tablebased scheduler does make sense to run on a UP (i.e.
-not
-> SMP compiled) kernel.
-> Some more fine-tuning of the current code base might improve that case,
-> because affinity is not a concern
-> I can simply go to my top table hash, retrieve the first P entry with
-> !P->has_cpu and I am ready to go.
->
-> Hubertus Franke
-> Enterprise Linux Group (Mgr),  Linux Technology Center (Member
-Scalability)
-> , OS-PIC (Chair)
-> email: frankeh@us.ibm.com
-> (w) 914-945-2003    (fax) 914-945-4425   TL: 862-2003
->
->
->
-> David Lang <dlang@diginsite.com>@lists.sourceforge.net on 01/19/2001
-> 11:06:37 AM
->
-> Sent by:  lse-tech-admin@lists.sourceforge.net
->
->
-> To:   Mike Kravetz <mkravetz@sequent.com>
-> cc:   Andrea Arcangeli <andrea@suse.de>,
-<lse-tech@lists.sourceforge.net>,
->       <linux-kernel@vger.kernel.org>
-> Subject:  Re: [Lse-tech] Re: multi-queue scheduler update
->
->
->
-> another thing that would be interesting is what is the overhead on UP or
-> small (2-4 way) SMP machines
->
-> David Lang
->
-> On Thu, 18 Jan 2001, Mike Kravetz wrote:
->
-> > Date: Thu, 18 Jan 2001 16:52:25 -0800
-> > From: Mike Kravetz <mkravetz@sequent.com>
-> > To: Andrea Arcangeli <andrea@suse.de>
-> > Cc: lse-tech@lists.sourceforge.net, linux-kernel@vger.kernel.org
-> > Subject: Re: [Lse-tech] Re: multi-queue scheduler update
-> >
-> > On Fri, Jan 19, 2001 at 01:26:16AM +0100, Andrea Arcangeli wrote:
-> > > On Thu, Jan 18, 2001 at 03:53:11PM -0800, Mike Kravetz wrote:
-> > > > Here are some very preliminary numbers from sched_test_yield
-> > > > (which was previously posted to this (lse-tech) list by Bill
-> > > > Hartner).  Tests were run on a system with 8 700 MHz Pentium
-> > > > III processors.
-> > > >
-> > > >                            microseconds/yield
-> > > > # threads      2.2.16-22           2.4        2.4-multi-queue
-> > > > ------------   ---------         --------     ---------------
-> > > > 16               18.740            4.603         1.455
-> > >
-> > > I remeber the O(1) scheduler from Davide Libenzi was beating the
-> mainline O(N)
-> > > scheduler with over 7 tasks in the runqueue (actually I'm not sure if
-> the
-> > > number was 7 but certainly it was under 10). So if you also use a
-O(1)
-> > > scheduler too as I guess (since you have a chance to run fast on the
-> lots of
-> > > tasks running case) the most interesting thing is how you score with
-> 2/4/8
-> > > tasks in the runqueue (I think the tests on the O(1) scheduler patch
-> was done
-> > > at max on a 2-way SMP btw). (the argument for which Davide's patch
-> wasn't
-> > > included is that most machines have less than 4/5 tasks in the
-runqueue
-> at the
-> > > same time)
-> > >
-> > > Andrea
-> >
-> > Thanks for the suggestion.  The only reason I hesitated to test with
-> > a small number of threads is because I was under the assumption that
-> > this particular benchmark may have problems if the number of threads
-> > was less than the number of processors.  I'll give the tests a try
-> > with a smaller number of threads.  I'm also open to suggestions for
-> > what benchmarks/test methods I could use for scheduler testing.  If
-> > you remember what people have used in the past, please let me know.
-> >
-> > --
-> > Mike Kravetz                                 mkravetz@sequent.com
-> > IBM Linux Technology Center
-> > -
-> > To unsubscribe from this list: send the line "unsubscribe linux-kernel"
-> in
-> > the body of a message to majordomo@vger.kernel.org
-> > Please read the FAQ at http://www.tux.org/lkml/
-> >
->
-> _______________________________________________
-> Lse-tech mailing list
-> Lse-tech@lists.sourceforge.net
-> http://lists.sourceforge.net/lists/listinfo/lse-tech
->
->
->
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel"
-in
-> the body of a message to majordomo@vger.kernel.org
-> Please read the FAQ at http://www.tux.org/lkml/
->
-
-
-
+"That which is overdesigned, too highly specific, anticipates outcome; the
+anticipation of outcome guarantees, if not failure, the absence of grace." -
+`All Tomorrow's Parties', William Gibson
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

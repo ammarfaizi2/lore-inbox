@@ -1,40 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261384AbSIZPTa>; Thu, 26 Sep 2002 11:19:30 -0400
+	id <S261385AbSIZPYs>; Thu, 26 Sep 2002 11:24:48 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261383AbSIZPTa>; Thu, 26 Sep 2002 11:19:30 -0400
-Received: from dbl.q-ag.de ([80.146.160.66]:3477 "EHLO dbl.q-ag.de")
-	by vger.kernel.org with ESMTP id <S261381AbSIZPTa>;
-	Thu, 26 Sep 2002 11:19:30 -0400
-Message-ID: <3D9326AF.4050803@colorfullife.com>
-Date: Thu, 26 Sep 2002 17:24:31 +0200
-From: Manfred Spraul <manfred@colorfullife.com>
-User-Agent: Mozilla/4.0 (compatible; MSIE 5.5; Windows NT 4.0)
-X-Accept-Language: en, de
-MIME-Version: 1.0
-To: William Lee Irwin III <wli@holomorphy.com>
-CC: Andrew Morton <akpm@digeo.com>, Ed Tomlinson <tomlins@cam.org>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [patch 3/4] slab reclaim balancing
-References: <3D931608.3040702@colorfullife.com> <20020926142054.GR3530@holomorphy.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	id <S261386AbSIZPYs>; Thu, 26 Sep 2002 11:24:48 -0400
+Received: from dodge.jordet.nu ([217.13.8.142]:18442 "EHLO dodge.hybel")
+	by vger.kernel.org with ESMTP id <S261385AbSIZPYr>;
+	Thu, 26 Sep 2002 11:24:47 -0400
+Subject: Re: Mouse/Keyboard problems with 2.5.38
+From: Stian Jordet <liste@jordet.nu>
+To: Vojtech Pavlik <vojtech@suse.cz>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20020926133725.A8851@ucw.cz>
+References: <1032996672.11642.6.camel@chevrolet>
+	<20020926105853.A168142@ucw.cz> <1033039991.708.6.camel@chevrolet> 
+	<20020926133725.A8851@ucw.cz>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 
+Date: 26 Sep 2002 17:30:09 +0200
+Message-Id: <1033054211.587.6.camel@chevrolet>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-William Lee Irwin III wrote:
+tor, 2002-09-26 kl. 13:37 skrev Vojtech Pavlik:
+> Hmm, have you looked into 'dmesg'? It prints the information with
+> KERN_DEBUG priority, which often won't make it on the screen or into the
+> logs ...
 > 
-> This might need testing on large-memory 64-bit boxen for that, since
-> ZONE_NORMAL pressure outweighs many other considerations on my boxen.
+> > I did, however, find out that if I press SHIFT+what
+> > ever of the buttons arrows, insert, home, page up/down, delete and end,
+> > I get just the same behaviour. It does not happen with CTRL or ALT.
 > 
+> Can you try passing 'i8042_direct' on the kernel command line to see if
+> it cures the problem? It looks like your keyboard is doing some very
+> strange 84-key-at-emulation, stranger than others do ...
+> 
+You had, ofcourse right, it was in my syslog. But the keystroke that
+make my computer freeze isn't there. This is the last line:
 
-Most of them will be SMP, correct? For SMP, 95% of the memory operations 
-occur in the per-cpu arrays. I'm not sure if a slab is really the right 
-backend behind the per-cpu arrays - perhaps a algorithms that's more 
-aggressive toward finding freeable pages would be a better choice, even 
-if it needs more cpu time for sorting/searching through the partially 
-allocated pages.
+kernel: atkbd.c: Received 1d flags 00
 
---
-	Manfred
+But I find this line several places, so it's obviously not the one
+causing the crash. Altough, when passing i8042_direct to the kernel,
+everything works just as expected. My keyboard is a Logitech Cordless
+Desktop. The keyboard and mouse shares the same receiver, which both is
+connected via ps/2. 
+
+Best regards,
+Stian Jordet
 

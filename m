@@ -1,49 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262978AbUC2REw (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 29 Mar 2004 12:04:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262984AbUC2RDr
+	id S262983AbUC2REx (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 29 Mar 2004 12:04:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262998AbUC2RE0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 29 Mar 2004 12:03:47 -0500
-Received: from gprs214-218.eurotel.cz ([160.218.214.218]:34946 "EHLO
-	amd.ucw.cz") by vger.kernel.org with ESMTP id S262978AbUC2Qjn (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 29 Mar 2004 11:39:43 -0500
-Date: Mon, 29 Mar 2004 18:39:12 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: "J. Grant" <jg-lists@jguk.org>
-Cc: andersen@codepoet.org, Linux-Kernel ML <linux-kernel@vger.kernel.org>,
-       tech_support2@sdesigns.com
-Subject: Re: Rimax Linux DVD/DivX player firwmare source code
-Message-ID: <20040329163912.GA1478@elf.ucw.cz>
-References: <405A0EB2.40105@jguk.org> <20040318224953.GA14730@codepoet.org> <405B9FD6.7050100@jguk.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <405B9FD6.7050100@jguk.org>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.4i
+	Mon, 29 Mar 2004 12:04:26 -0500
+Received: from fw.osdl.org ([65.172.181.6]:7337 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S263014AbUC2Q7s (ORCPT
+	<rfc822;Linux-Kernel@Vger.Kernel.ORG>);
+	Mon, 29 Mar 2004 11:59:48 -0500
+Message-Id: <200403291659.i2TGxQ214736@mail.osdl.org>
+Date: Mon, 29 Mar 2004 08:59:14 -0800 (PST)
+From: markw@osdl.org
+Subject: Re: Reiser4 needs more testers
+To: reiser@namesys.com
+cc: Nikita@namesys.com, Reiserfs-Dev@namesys.com, Reiserfs-List@namesys.com,
+       Linux-Kernel@Vger.Kernel.ORG, cliff@lindows.com, tom.welch@lindows.com,
+       garloff@suse.de, drobbins@gentoo.org, reiserrf@hotmail.com
+In-Reply-To: <406462C1.5020507@namesys.com>
+MIME-Version: 1.0
+Content-Type: TEXT/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+I've run through another test on STP with the latest snapshot against
+reiser4 and reiserfs for comparison.  Reiser4 still seems to be lagging
+behind reiserfs in our DBT-2 workload (the bigger number is better in
+the metric):
 
-> Thanks for the info.
+          metric  url to test results
+          ------  ---------------------------------
+reiser4   1208    http://khack.osdl.org/stp/290774/
+reiserfs  1819    http://khack.osdl.org/stp/290775/
+
+Mark
+
+On 26 Mar, Hans Reiser wrote:
+> We have one NFS related bug remaining, and one mmap all of memory 
+> related bug (and performance issue) that you can hit using iozone.  We 
+> will fix both of these in next week's snapshot, they were both multi-day 
+> bug fixes.  When they are fixed, unless users/distros find bugs next 
+> week we will submit it for inclusion in the -mm and then the official 
+> kernel.
 > 
-> I wonder if there is anyone at OSDN (I think these are the main managers
-> of Linux?) who we could contact who would be able to encourage these
-> companies to provide the source code to licensee's? (and comply with the
-> licence in general etc).
+> We hope it is now fairly stable for average users if you avoid those two 
+> issues (we need to get rid of those dire warnings about its 
+> stability...., we will remember that next snapshot....;-) )
 > 
-> The firmware I have seems to be based on linux v2.4.17-uc0, with a
-> EM850908/EM85xx0912 chipset support.  Compiled by someone with username
-> lizq@SRCSRV.  The two modules are a front panel/remote control module,
-> and "KHWL.O" by Emmanuel Michon and Fabrice Gautier of Sigma
-> Designs.
+> We need a lot more real user testers, because we have run out of scripts 
+> that can crash it, and there are distros that would like to ship it 
+> soon.  Please also complain to vitaly@namesys.com and ramon@namesys.com 
+> about poor documentation, etc., ....
+> 
+> The new reiser4 snapshot (against 2.6.5-rc2) is available at
+> 
+> http://www.namesys.com/snapshots/2004.03.26/
 
-Contact free software foundation, they have some experience.
-
-							Pavel 
--- 
-When do you have a heart between your knees?
-[Johanka's followup: and *two* hearts?]

@@ -1,46 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317349AbSILVlO>; Thu, 12 Sep 2002 17:41:14 -0400
+	id <S315198AbSILVve>; Thu, 12 Sep 2002 17:51:34 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317365AbSILVlN>; Thu, 12 Sep 2002 17:41:13 -0400
-Received: from e35.co.us.ibm.com ([32.97.110.133]:16638 "EHLO
-	e35.co.us.ibm.com") by vger.kernel.org with ESMTP
-	id <S317349AbSILVlN>; Thu, 12 Sep 2002 17:41:13 -0400
-Subject: 
-To: Thunder from the hill <thunder@lightweight.ods.org>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Giuliano Pochini <pochini@shiny.it>, <riel@conectiva.com.br>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>
-X-Mailer: Lotus Notes Release 5.0.7  March 21, 2001
-Message-ID: <OF7E3379EC.41D998B8-ON88256C32.0075ED3F@boulder.ibm.com>
-From: "Jim Sibley" <jlsibley@us.ibm.com>
-Date: Thu, 12 Sep 2002 14:41:18 -0700
-X-MIMETrack: Serialize by Router on D03NM801/03/M/IBM(Release 5.0.10 |March 22, 2002) at
- 09/12/2002 03:45:06 PM
+	id <S315717AbSILVve>; Thu, 12 Sep 2002 17:51:34 -0400
+Received: from pD9E23F87.dip.t-dialin.net ([217.226.63.135]:6120 "EHLO
+	hawkeye.luckynet.adm") by vger.kernel.org with ESMTP
+	id <S315198AbSILVvd>; Thu, 12 Sep 2002 17:51:33 -0400
+Date: Thu, 12 Sep 2002 15:56:19 -0600 (MDT)
+From: Thunder from the hill <thunder@lightweight.ods.org>
+X-X-Sender: thunder@hawkeye.luckynet.adm
+To: Jesse Pollard <pollard@admin.navo.hpc.mil>
+cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Jim Sibley <jlsibley@us.ibm.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Giuliano Pochini <pochini@shiny.it>, <riel@conectiva.com.br>
+Subject: Re: Killing/balancing processes when overcommited
+In-Reply-To: <200209121619.53111.pollard@admin.navo.hpc.mil>
+Message-ID: <Pine.LNX.4.44.0209121551310.10048-100000@hawkeye.luckynet.adm>
+X-Location: Dorndorf/Steudnitz; Germany
 MIME-Version: 1.0
-Content-type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->Only if you assume that a bunch of users tries very hard to use up all the
+Hi,
 
-resources...
+On Thu, 12 Sep 2002, Jesse Pollard wrote:
+> ulimit is a per login limit, not a global per user limit.
 
-Not true. A sudden surge in legitmate traffic can stretch the limits
-unwittingly or a new legitmate appliation can stretch the limits in an
-unexpected way. If there is such a surge, who has priority?
+I see... Wonderous that I've forgot that.
 
-I have cause similar random behaviour 1) if I have a lot users doing little
-things, 2) a few big users doing big things, 3) a  mix of users doing
-various things or 4) one  users doing bad things. And in any of the cases,
-I have no say in whose going to get killed.
+> Now, which of these processes should be killed?
 
-And I don't have to try very hard and I don't have to be the super user.
+...the last of the user who has the most processes?
 
-Regards, Jim
-Linux S/390-zSeries Support, SEEL, IBM Silicon Valley Labs
-t/l 543-4021, 408-463-4021, jlsibley@us.ibm.com
-*** Grace Happens ***
+I still don't think that a whitelist could be that good. And however, it 
+doesn't stand against my suggestion. Firstly kill processes which likely 
+deadloop on malloc, then the unlisted, and then the rest. All under the 
+cover of overcommitment...
 
+...Linux, the best-tinkered OOM-killing operating system...
 
+			Thunder
+-- 
+--./../...-/. -.--/---/..-/.-./..././.-../..-. .---/..-/.../- .-
+--/../-./..-/-/./--..-- ../.----./.-../.-.. --./../...-/. -.--/---/..-
+.- -/---/--/---/.-./.-./---/.--/.-.-.-
+--./.-/-.../.-./.././.-../.-.-.-
 

@@ -1,54 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264302AbUEDKq3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264311AbUEDLCF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264302AbUEDKq3 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 4 May 2004 06:46:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264309AbUEDKq3
+	id S264311AbUEDLCF (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 4 May 2004 07:02:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264312AbUEDLCF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 4 May 2004 06:46:29 -0400
-Received: from icms2.netcentral.co.uk ([212.57.235.197]:29905 "EHLO
-	icms2.netcentral.co.uk") by vger.kernel.org with ESMTP
-	id S264302AbUEDKq1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 4 May 2004 06:46:27 -0400
-Message-Id: <200405041046.i44AkGA20476@ken.astraware.co.uk>
-From: "=?ISO-8859-1?Q?support@mail.astraware.co.uk?=" 
-	<support@mail.astraware.co.uk>
-To: "=?ISO-8859-1?Q?linux-kernel@vger.kernel.org?=" 
-	<linux-kernel@vger.kernel.org>
-Date: Tue May  4 11:46:16 2004
-Subject: =?ISO-8859-1?Q?Automated Reply from support@mail.astraware.co.uk?=
-Content-Language: en
-Content-Type: text/plain; charset="ISO-8859-1"
-MIME-Version: 1.0
-X-IC-MailScanner-MailScanner-Information: Please contact support@netcentral.co.uk for more information
-X-IC-MailScanner: Found to be clean
-X-IC-MailScanner-MailScanner-SpamCheck: not spam, SpamAssassin (score=3.66,
-	required 4.2, AWL -0.94, DATE_IN_PAST_06_12 0.60, INVALID_DATE 2.00,
-	TO_ADDRESS_EQ_REAL 2.00)
-X-IC-MailScanner-MailScanner-SpamScore: 3
+	Tue, 4 May 2004 07:02:05 -0400
+Received: from serenity.mcc.ac.uk ([130.88.200.93]:1810 "EHLO
+	serenity.mcc.ac.uk") by vger.kernel.org with ESMTP id S264311AbUEDLCC
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 4 May 2004 07:02:02 -0400
+Date: Tue, 4 May 2004 12:02:01 +0100
+From: John Levon <levon@movementarian.org>
+To: Mikael Pettersson <mikpe@csd.uu.se>
+Cc: linux-kernel@vger.kernel.org, oprofile-list@lists.sourceforge.net,
+       torvalds@osdl.org
+Subject: Re: [PATCH] allow drivers to claim the lapic NMI watchdog HW
+Message-ID: <20040504110200.GA9880@compsoc.man.ac.uk>
+References: <200405040233.i442X1GO025270@harpo.it.uu.se>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200405040233.i442X1GO025270@harpo.it.uu.se>
+User-Agent: Mutt/1.3.25i
+X-Url: http://www.movementarian.org/
+X-Record: King of Woolworths - L'Illustration Musicale
+X-Scanner: exiscan for exim4 (http://duncanthrax.net/exiscan/) *1BKxgX-000AEO-DQ*yygCpQQOJxs*
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+On Tue, May 04, 2004 at 04:33:01AM +0200, Mikael Pettersson wrote:
 
-Thank you for contacting Astraware Support. This is an automated reply just to let you know that we have received your email and will reply in person as soon as possible.
+> +/* lapic_nmi_owner:
+> + * +1: the lapic NMI hardware is assigned to the lapic NMI watchdog
+> + *  0: the lapic NMI hardware is unassigned
 
-In the meantime, why not check our Support Knowledgebase at http://www.astraware.com/kb ?  Although we will reply with an answer, you might find the solution here first, which means you can get back to playing your game as soon as possible!
+If we're going to have a mini state machine, can't we at least use some
+defines for each state...
 
-Kind regards and thank you for your patience!
+> +		lapic_nmi_owner -= 2; /* +1 -> -1, 0 -> -2 */
 
-Karan and the Customer Support team
-support@astraware.com
+...and make this into some readable english via a little helper?
 
--- 
-This message has been scanned for viruses and
-dangerous content by MailScanner, and is
-believed to be clean.
-Internet Central Virus Scanner
-For queries or information please contact:-
-=================================
-Internet Central Technical Support
+> -EXPORT_SYMBOL(disable_lapic_nmi_watchdog);
+> -EXPORT_SYMBOL(enable_lapic_nmi_watchdog);
+> +EXPORT_SYMBOL(reassign_lapic_nmi_watchdog);
+> +EXPORT_SYMBOL(release_lapic_nmi_watchdog);
 
-        Tel: 01782 667766
+I don't like this new naming. Since the patch is really all about
+ownership of the local APIC, can't we call it something like
 
- http://www.internet-central.net
+acquire_lapic_nmi()
+release_lapic_nmi()
 
+Neither perfctr nor oprofile have anything to do with watchdogs, so
+this:
+
+> -	disable_lapic_nmi_watchdog();
+> +	if (reassign_lapic_nmi_watchdog() < 0) {
+
+Looks a little weird now.
+
+regards
+john

@@ -1,45 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262531AbULDGQH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262533AbULDHAL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262531AbULDGQH (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 4 Dec 2004 01:16:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262534AbULDGQH
+	id S262533AbULDHAL (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 4 Dec 2004 02:00:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262534AbULDHAL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 4 Dec 2004 01:16:07 -0500
-Received: from mail.ccdaust.com.au ([203.29.88.42]:57914 "EHLO
-	gateway.ccdaust.com.au") by vger.kernel.org with ESMTP
-	id S262531AbULDGQE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 4 Dec 2004 01:16:04 -0500
-Message-ID: <41B15615.3020001@wasp.net.au>
-Date: Sat, 04 Dec 2004 10:15:49 +0400
-From: Brad Campbell <brad@wasp.net.au>
-User-Agent: Mozilla Thunderbird 0.6+ (X11/20041109)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Dieter Stueken <stueken@conterra.de>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: libata-dev queue updated
-References: <41B07FC3.9040506@conterra.de>
-In-Reply-To: <41B07FC3.9040506@conterra.de>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Sat, 4 Dec 2004 02:00:11 -0500
+Received: from av6-2-sn2.hy.skanova.net ([81.228.8.107]:62676 "EHLO
+	av6-2-sn2.hy.skanova.net") by vger.kernel.org with ESMTP
+	id S262533AbULDHAG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 4 Dec 2004 02:00:06 -0500
+Date: Sat, 4 Dec 2004 08:00:04 +0100 (CET)
+Message-Id: <200412040700.iB4704311162@d1o405.telia.com>
+From: "Voluspa" <lista4@comhem.se>
+Reply-To: "Voluspa" <lista4@comhem.se>
+To: andrea@suse.de
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] oom killer (Core)
+X-Mailer: SF Webmail
+X-SF-webmail-clientstamp: [213.64.150.229] 2004-12-04 08:00:04
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dieter Stueken wrote:
->> * ATA passthru (read: SMART support)
-> 
-> 
-> is it still unsafe to use passthru concurrently
-> to normal disk I/O, as stated earlier?
 
-It appears to be safe with a UP machine at the moment. (Read as: I have been beating it hard for 
-over a month with no issues.) SMP is known to have a race which may not be good.
+On 2004-12-03 23:08:55 Andrea Arcangeli wrote:
 
+>You mean my patch is preventing your machine to boot? Then you're doing
+>something else wrong because it's impossible my patch is preventing 
+>your machine to boot.
 
+Same experience as Thomas here. Full stop like his first log (no errors)
+. PIII (Celeron) 900@1 gig, 256 meg mem, 1 gig swap, preempt enabled.
 
--- 
-Brad
-                    /"\
-Save the Forests   \ /     ASCII RIBBON CAMPAIGN
-Burn a Greenie.     X      AGAINST HTML MAIL
-                    / \
+Tried your patch since the oom killer slaughtered a very important app 
+here when another one ran amok. Not fork spawnings, just ram-eating. Was 
+blender (3d renderer) in "Sequence Editor" mode when i hit alt-a (for 
+animate) on a pretty large set of stills. Eventually blender got killed 
+also, twice...
+
+Kernel 2.6.9 with nick p-s? patch for the buggy kswapd (100 percent cpu, 
+without using any swap).
+
+Mvh
+Mats Johannesson
+

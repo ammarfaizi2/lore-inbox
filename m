@@ -1,72 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265813AbUFSEZy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265812AbUFSEhe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265813AbUFSEZy (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 19 Jun 2004 00:25:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265812AbUFSEZy
+	id S265812AbUFSEhe (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 19 Jun 2004 00:37:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265816AbUFSEhb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 19 Jun 2004 00:25:54 -0400
-Received: from e4.ny.us.ibm.com ([32.97.182.104]:51946 "EHLO e4.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S265813AbUFSEZo (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 19 Jun 2004 00:25:44 -0400
-Subject: Re: Atomic operation for physically moving a page (for memory
-	defragmentation)
-From: Dave Hansen <haveblue@us.ibm.com>
-To: Ashwin Rao <ashwin_s_rao@yahoo.com>
-Cc: Valdis.Kletnieks@vt.edu, linux-kernel <linux-kernel@vger.kernel.org>,
-       linux-mm <linux-mm@kvack.org>
-In-Reply-To: <20040619031536.61508.qmail@web10902.mail.yahoo.com>
-References: <20040619031536.61508.qmail@web10902.mail.yahoo.com>
-Content-Type: text/plain
-Message-Id: <1087619137.4921.93.camel@nighthawk>
+	Sat, 19 Jun 2004 00:37:31 -0400
+Received: from bay16-f87.bay16.hotmail.com ([65.54.186.137]:60169 "EHLO
+	hotmail.com") by vger.kernel.org with ESMTP id S265812AbUFSEh3
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 19 Jun 2004 00:37:29 -0400
+X-Originating-IP: [220.224.38.16]
+X-Originating-Email: [kartik_me@hotmail.com]
+From: "kartikey bhatt" <kartik_me@hotmail.com>
+To: latten@austin.ibm.com, linux-kernel@vger.kernel.org
+Subject: Re: RSA
+Date: Sat, 19 Jun 2004 10:07:29 +0530
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Fri, 18 Jun 2004 21:25:38 -0700
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; format=flowed
+Message-ID: <BAY16-F87HOzyfyz5b600007d3e@hotmail.com>
+X-OriginalArrivalTime: 19 Jun 2004 04:37:29.0376 (UTC) FILETIME=[20F8AA00:01C455B7]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2004-06-18 at 20:15, Ashwin Rao wrote:
-> The problem is the memory fragmentation. The code i am
-> writing is for the memory defragmentation as proposed
-> by Daniel Phillips, my project partner Alok mooley has
-> given mailed a simple prototype in the mid of feb.
 
-Ahhh....  *That* code :)  Do you have an updated version you'd like to
-share?  I'm curious how you integrated the suggestions from February.  
+I would like to work on coding of algorithms and
+especially developing mpi_t for kernel.
 
-> > (*) Yes, I know the BKL isn't something you want to
-> > grab if you can help it.
-> 
-> Isnt it a bad idea to take the BKL, the performance of
-> SMP systems will drastically be hampered.
+Kartikey
 
-Only during a defragment operation.  Are you planning to run the system
-under constant defragmentation?
 
-> > However, if we're on an unlikely error path or
-> > similar and other options aren't suitable...
-> 
-> Maintaining atomicity in uniprocessor systems is easy
-> by preempt_enable and preempt_disable during the
-> operation. This implementation cannot be used for SMP
-> systems. 
-> Now during the time a page is copied/updatede if a
-> page is accessed the copied contents become invalid,
-> as updation is not done. Also during updation a
-> similar situation might arise.
-> The problem we are facing is to maintain the atomicity
-> of this operation on SMP boxes.
+>From: Joy Latten <latten@austin.ibm.com>
+>To: kartik_me@hotmail.com
+>CC: linux-kernel@vger.kernel.org, serue@us.ibm.com
+>Subject: Re: RSA
+>Date: Fri, 18 Jun 2004 21:56:10 -0500
+>
+>Great!! Thanks!  What are you interested in doing?
+>
+>Joy
+>-------------------------------------------------------------
+>
+>
+>i would like to contribute.
+>
+>On Tue, 15 Jun 2004, Joy Latten wrote:
+>
+>Is anyone working on implementing RSA encryption/decryption into the
+>kernel's cryptoapi? If not, I was considering starting such a project.
+>
+>James wrote:
+>
+>Not that I know of.  Would you be looking at this in terms of a generic
+>asymmetric crypto API?
+>
+>_________________________________________________________________
+>Screensavers for every mood! Jazz up your screen!
+>http://www.msn.co.in/Download/screensaver/ Bring your PC to life!
+>
 
-I think what you really want to do is keep anybody else from making a
-new pte to the page, once you've invalidated all of the existing ones,
-right?
-
-Holding a lock_page() should do the trick.  Anybody that goes any pulls
-the page out of the page cache has to do a lock_page() and check
-page->mapping before they can establish a pte to it, so you can stop
-that.  Since you're invalidating page->mapping before you move the page
-(you *are* doing this, right?), it will end up working itself out.  
-
--- Dave
+_________________________________________________________________
+Expressions unlimited! The all new MSN Messenger! 
+http://server1.msn.co.in/sp04/messenger/  Change the way you communicate!
 

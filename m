@@ -1,35 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262686AbTCTWK2>; Thu, 20 Mar 2003 17:10:28 -0500
+	id <S262678AbTCTWI3>; Thu, 20 Mar 2003 17:08:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262687AbTCTWK1>; Thu, 20 Mar 2003 17:10:27 -0500
-Received: from smtp.terra.es ([213.4.129.129]:37630 "EHLO tsmtp4.mail.isp")
-	by vger.kernel.org with ESMTP id <S262686AbTCTWK0>;
-	Thu, 20 Mar 2003 17:10:26 -0500
-Date: Thu, 20 Mar 2003 23:18:17 +0100
-From: Arador <diegocg@teleline.es>
-To: Jeff Garzik <jgarzik@pobox.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Release of 2.4.21
-Message-Id: <20030320231817.02a63d75.diegocg@teleline.es>
-In-Reply-To: <20030320210305.GH8256@gtf.org>
-References: <20030320200019$6ddc@gated-at.bofh.it>
-	<20030320203015$4839@gated-at.bofh.it>
-	<8765qdg46i.fsf@deneb.enyo.de>
-	<20030320210305.GH8256@gtf.org>
-X-Mailer: Sylpheed version 0.8.10 (GTK+ 1.2.10; i386-debian-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	id <S262675AbTCTWIV>; Thu, 20 Mar 2003 17:08:21 -0500
+Received: from nat-pool-rdu.redhat.com ([66.187.233.200]:6443 "EHLO
+	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
+	id <S262671AbTCTWHx>; Thu, 20 Mar 2003 17:07:53 -0500
+Subject: Re: [Patch] ext3_journal_stop inode access
+From: "Stephen C. Tweedie" <sct@redhat.com>
+To: Andrew Morton <akpm@digeo.com>
+Cc: ext3 users list <ext3-users@redhat.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       linux-fsdevel@vger.kernel.org, Stephen Tweedie <sct@redhat.com>
+In-Reply-To: <20030320161230.3c4e0f47.akpm@digeo.com>
+References: <1048185825.2491.386.camel@sisko.scot.redhat.com>
+	 <20030320131523.6c56d10f.akpm@digeo.com>
+	 <1048196202.2491.603.camel@sisko.scot.redhat.com>
+	 <20030320161230.3c4e0f47.akpm@digeo.com>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+Organization: 
+Message-Id: <1048198730.2491.626.camel@sisko.scot.redhat.com>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-3) 
+Date: 20 Mar 2003 22:18:50 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 20 Mar 2003 16:03:05 -0500
-Jeff Garzik <jgarzik@pobox.com> wrote:
+Hi,On Fri, 2003-03-21 at 00:12, Andrew Morton wrote:
 
-> 10,001 that still exist?  People are blowing this ptrace bug WAY
-> out of proportion.   The only reason why it demands a modicum of
+> > Well, there's still the
+> > 	if (err)
+> > 		__ext3_std_error(inode->i_sb, where, err);
+> > case in ext3_journal_stop() to worry about
+> 
+> We already have that.
 
-Indeed, everybody i know is recompiling and rebooting; although
-they're just plain linux where they're the one users and 
-remote login isn't allowed.....
+Only if we fix the underlying problem --- I was only pointing out that
+even if we drop the setting of s_dirt entirely, which was what we were
+trying to fix, we can't avoid having to find the sb.
+
+> But I'm not particularly fussed either way - it will only be 100-200 bytes of
+> code saved.
+
+Yep, but there are probably other places we can find where we can avoid
+passing the sb around too if we have the back-pointer. I guess it makes
+sense to go ahead with that.
+
+> The journal and the superblock have a definite one-to-one relationship - I think the
+> backpointer makes sense.  But whatever - I'll let you flip that coin.
+
+OK, go for it and I'll merge for 2.4.
+
+Cheers,
+ Stephen
+

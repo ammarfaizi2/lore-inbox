@@ -1,65 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285692AbSAUBMM>; Sun, 20 Jan 2002 20:12:12 -0500
+	id <S288851AbSAUBMm>; Sun, 20 Jan 2002 20:12:42 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288851AbSAUBMD>; Sun, 20 Jan 2002 20:12:03 -0500
-Received: from penguin.e-mind.com ([195.223.140.120]:8256 "EHLO
-	penguin.e-mind.com") by vger.kernel.org with ESMTP
-	id <S285692AbSAUBLm>; Sun, 20 Jan 2002 20:11:42 -0500
-Date: Mon, 21 Jan 2002 02:12:24 +0100
-From: Andrea Arcangeli <andrea@suse.de>
-To: Andi Kleen <ak@suse.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: performance of O_DIRECT on md/lvm
-Message-ID: <20020121021224.O21279@athlon.random>
-In-Reply-To: <200201181743.g0IHhO226012@street-vision.com.suse.lists.linux.kernel> <3C48607C.35D3DDFF@redhat.com.suse.lists.linux.kernel> <20020120201603.L21279@athlon.random.suse.lists.linux.kernel> <p734rlg90ga.fsf@oldwotan.suse.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.12i
-In-Reply-To: <p734rlg90ga.fsf@oldwotan.suse.de>; from ak@suse.de on Sun, Jan 20, 2002 at 10:28:21PM +0100
-X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
-X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
+	id <S288921AbSAUBMd>; Sun, 20 Jan 2002 20:12:33 -0500
+Received: from thebsh.namesys.com ([212.16.7.65]:12816 "HELO
+	thebsh.namesys.com") by vger.kernel.org with SMTP
+	id <S288851AbSAUBMX>; Sun, 20 Jan 2002 20:12:23 -0500
+Message-ID: <3C4B6A0D.5000006@namesys.com>
+Date: Mon, 21 Jan 2002 04:08:29 +0300
+From: Hans Reiser <reiser@namesys.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.7) Gecko/20011221
+X-Accept-Language: en-us
+MIME-Version: 1.0
+To: Rik van Riel <riel@conectiva.com.br>
+CC: Shawn Starr <spstarr@sh0n.net>, linux-kernel@vger.kernel.org
+Subject: Re: Possible Idea with filesystem buffering.
+In-Reply-To: <Pine.LNX.4.33L.0201202252070.32617-100000@imladris.surriel.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Jan 20, 2002 at 10:28:21PM +0100, Andi Kleen wrote:
-> Andrea Arcangeli <andrea@suse.de> writes:
-> > 
-> > if you read in chunks of a few mbytes per read syscall, the lack of
-> > readahead shouldn't make much difference (this is true for both raid and
-> > standalone device). If there's a relevant difference it's more liekly an
-> > issue with the blocksize.
-> 
-> The problem with that is that doing overlapping IO requires much more
-> effort (you need threads in user space). If you don't do overlapping
-> IO you add a latency bubble for each round trip to user space after you
-> read one big chunk and submitting the request for the next big chunk.
-> Your disk will not be constantly streaming, because of these pauses where
-> it doesn't have an request to process. 
+Rik van Riel wrote:
 
-correct, we can't keep the pipeline always full, the larger the size of
-the read/write, the lower it will matter, this is the only way to hide
-the pipeline stall at the moment (like with rawio).
+>On Mon, 21 Jan 2002, Hans Reiser wrote:
+>
+>>Not if you provide a proper design of a master cache manager.
+>>Really, all you have to do is have the subcache managers designed to
+>>free the same number of pages on average in response to pressure, and
+>>to pressure them in proportion to their size, and it is pretty simple
+>>for VM.
+>>
+>
+>I take it you're volunteering to bring ext3, XFS, JFS,
+>JFFS2, NFS, the inode & dentry cache and smbfs into
+>shape so reiserfs won't get unbalanced ?
+>
+>regards,
+>
+>Rik
+>
+If they use writepage(), then the job of balancing cache cleaning is 
+done, we just use
+writepage as their pressuring mechanism.  Any FS that wants to optimize 
+cleaning
+can implement a VFS method, and any FS that wants to optimize freeing 
+can implement a VFS method,
+and all others can use their generic VM current mechanisms.
 
-> The application could do it using some aio setup, but it gets rather
-> complicated and the kernel already knows how to do that well.
+Hans
 
-yes, in short the API to allow the userspace to keep the I/O pipeline
-full with a ring of user buffers is not available at the moment.
-
-As you say one could try to workaround it by threading the I/O in
-userspace but it would get rather dirty (and with a scheduling
-overhead).
-
-> 
-> I think an optional readahead mode for O_DIRECT would be useful. 
-
-to do transparent readahead we'll need to use the pagecache, so we'd need
-to make copies of pages with the cpu between usermemory and pagecache,
-but the nicer part of O_DIRECT is that it skips the costly copies
-with the cpu on the membus, so I usually disagree about trying to allow
-O_DIRECT to support readahead. I believe if you need readahead, you
-probably shouldn't use O_DIRECT in the first place.
-
-Andrea

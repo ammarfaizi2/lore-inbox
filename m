@@ -1,95 +1,59 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316683AbSFJGhr>; Mon, 10 Jun 2002 02:37:47 -0400
+	id <S316635AbSFJGdj>; Mon, 10 Jun 2002 02:33:39 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316684AbSFJGhq>; Mon, 10 Jun 2002 02:37:46 -0400
-Received: from h24-67-14-151.cg.shawcable.net ([24.67.14.151]:25077 "EHLO
-	webber.adilger.int") by vger.kernel.org with ESMTP
-	id <S316683AbSFJGhp>; Mon, 10 Jun 2002 02:37:45 -0400
-Date: Mon, 10 Jun 2002 00:35:10 -0600
-From: Andreas Dilger <adilger@clusterfs.com>
-To: Dawson Engler <engler@csl.Stanford.EDU>
-Cc: linux-kernel@vger.kernel.org, mc@cs.Stanford.EDU
-Subject: Re: [CHECKER] 54 missing null pointer checks in 2.4.17
-Message-ID: <20020610063510.GG20388@turbolinux.com>
-Mail-Followup-To: Dawson Engler <engler@csl.Stanford.EDU>,
-	linux-kernel@vger.kernel.org, mc@cs.Stanford.EDU
-In-Reply-To: <20020610052807.GB20388@turbolinux.com> <200206100607.XAA17282@csl.Stanford.EDU>
+	id <S316681AbSFJGdi>; Mon, 10 Jun 2002 02:33:38 -0400
+Received: from smtp-in.sc5.paypal.com ([216.136.155.8]:6841 "EHLO
+	smtp-in.sc5.paypal.com") by vger.kernel.org with ESMTP
+	id <S316635AbSFJGdh>; Mon, 10 Jun 2002 02:33:37 -0400
+Date: Sun, 9 Jun 2002 23:33:27 -0700
+From: Brad Heilbrun <heilb@megapathdsl.com>
+To: linux-kernel@vger.kernel.org, torvalds@transmeta.com
+Subject: Re: [PATCH] 2.5.21 pnpbios compile error.
+Message-ID: <20020610063327.GA19217@paypal.com>
+Mail-Followup-To: linux-kernel@vger.kernel.org, torvalds@transmeta.com
+In-Reply-To: <200206101347.07394.corporal_pisang@counter-strike.com.my>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.3.28i
-X-GPG-Key: 1024D/0D35BED6
-X-GPG-Fingerprint: 7A37 5D79 BF1B CECA D44F  8A29 A488 39F5 0D35 BED6
+User-Agent: Mutt/1.3.27i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Jun 09, 2002  23:07 -0700, Dawson Engler wrote:
-> > > /u2/engler/mc/oses/linux/2.4.17/fs/jbd/journal.c
-> > > 	 * Do we need to do a data copy?
-> > > 	 */
-> > > 
-> > > 	if (need_copy_out && !done_copy_out) {
-> > > 		char *tmp;
-> > > Start --->
-> > > 		tmp = jbd_rep_kmalloc(jh2bh(jh_in)->b_size, GFP_NOFS);
-> > > 
-> > > 		jh_in->b_frozen_data = tmp;
-> > > Error --->
-> > > 		memcpy (tmp, mapped_data, jh2bh(jh_in)->b_size);
-> > 
-> > Note that jbd_rep_kmalloc() is a special case, and will not currently
-> > return NULL.  This macro calls  __jbd_rep_kmalloc(..., retry=1) which
-> > means "repeat the allocation until it succeeds" so the code path
-> > "if (!retry) return NULL" can never actually happen from this caller.
-> > The logic is somewhat convoluted, so it is not surprising that the
-> > checker didn't distinguish this case (it would have to have done the
-> > "constant" evaluation to drop the NULL return path from the code).
+On Mon, Jun 10, 2002 at 01:47:07PM +0800, Corporal Pisang wrote:
+> I get this error compiling 2.5.21
 > 
-> Interesting.  The checker infers which functions can plausibly return
-> null by counting, for each function f:
-> 	1.  how many callsites check f's return value against null
->  versus 
-> 	2.how many do not.  
-> In this case the reason we were checking jbd_rep_kmalloc (actually
-> __jbd_kmalloc) was because five other callers in jbd checked it:
-> 
-> linux/2.4.17/fs/jbd/journal.c:695:journal_init_common: NOTE:NULL:692:695:[EXAMPLE=__jbd_kmalloc:692]
-> linux/2.4.17/fs/jbd/transaction.c:54:get_transaction: NOTE:NULL:50:54:[EXAMPLE=__jbd_kmalloc:50]
-> linux/2.4.17/fs/jbd/transaction.c:233:journal_start: NOTE:NULL:230:233:[EXAMPLE=__jbd_kmalloc:230]
-> linux/2.4.17/fs/jbd/transaction.c:339:journal_try_start: NOTE:NULL:336:339:[EXAMPLE=__jbd_kmalloc:336]
-> linux/2.4.17/fs/jbd/transaction.c:895:journal_get_undo_access: NOTE:NULL:885:895:[EXAMPLE=__jbd_kmalloc:885]
-> 
-> which means there are indeed bugs in jbd, just not the one we flagged ;-)
+> make[2]: Entering directory `/usr/src/linux/drivers/pnp'
+>   gcc -Wp,-MD,.pnpbios_proc.o.d -D__KERNEL__ -I/usr/src/linux/include -Wall 
+> -Wstrict-prototypes -Wno-trigraphs -O2 -fomit-frame-pointer 
+> -fno-strict-aliasing -fno-common -pipe -mpreferred-stack-boundary=2 
+> -march=athlon  -nostdinc -iwithprefix include    
+> -DKBUILD_BASENAME=pnpbios_proc   -c -o pnpbios_proc.o pnpbios_proc.c
+> pnpbios_proc.c:193: parse error before "pnpbios_proc_init"
 
-Ah, but the checker is still (subtly) wrong in this case.  The difference
-is that "jbd_kmalloc()" (a macro calling __jbd_kmalloc in the 5 functions
-which check the return code) depends on the "journal_oom_retry" variable
-to determine whether or not it is "allowed" to return NULL.  In contrast,
-the one call to "jbd_rep_kmalloc()" flagged above is a macro which
-calls __jbd_kmalloc() with "retry = 1" so it is never allowed to fail
-and return NULL.
+Another casualty of the recent header cleanup. Trivial patch
+below. The rest of the files in this directory look clean as far as
+__init and __exit calls go.
 
-I can agree that this is really tricky to spot via the checker,
-because the function itself is allowed to return NULL (depending on
-the "retry" parameter), but in the flagged case it will never return
-NULL (which is the whole point of the retries inside __jbd_kmalloc()
-because it is not allowed to fail the allocation at this point).  So,
-while the 5 other callers are correct in checking the return value
-(because journal_oom_retry might be 0 and the allocations could fail),
-the lone caller which does not check the return value is also correct
-because retry is always 1 in this case.
+diff -Nur linux-2.5/drivers/pnp/pnpbios_proc.c~ linux-2.5/drivers/pnp/pnpbios_proc.c
+--- linux-2.5/drivers/pnp/pnpbios_proc.c~	Sun Jun  9 23:01:13 2002
++++ linux-2.5/drivers/pnp/pnpbios_proc.c	Sun Jun  9 23:01:24 2002
+@@ -28,6 +28,7 @@
+ #include <linux/types.h>
+ #include <linux/proc_fs.h>
+ #include <linux/pnpbios.h>
++#include <linux/init.h>
+ 
+ static struct proc_dir_entry *proc_pnp = NULL;
+ static struct proc_dir_entry *proc_pnp_boot = NULL;
 
-Needless to say, I still think the checker tool is the best thing since
-sliced bread and I don't mind getting false positives like this because
-in most cases the checker is correct.  Have you thought about supporting
-"checker meta comments" (like lint did) to allow one to flag a piece of
-code as being "correct" for a certain check so that it doesn't always
-show up on your test runs?
 
-Cheers, Andreas
---
-Andreas Dilger
-http://www-mddsp.enel.ucalgary.ca/People/adilger/
-http://sourceforge.net/projects/ext2resize/
+-- 
+
+Thank you,
+
+Brad Heilbrun
+Administrator, Network Operations
+PayPal, Inc.
+650.864.8200 - noc@paypal.com
 

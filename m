@@ -1,52 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264455AbSIVS3s>; Sun, 22 Sep 2002 14:29:48 -0400
+	id <S264456AbSIVSeq>; Sun, 22 Sep 2002 14:34:46 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264456AbSIVS3s>; Sun, 22 Sep 2002 14:29:48 -0400
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:34320 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S264455AbSIVS3r>; Sun, 22 Sep 2002 14:29:47 -0400
-Date: Sun, 22 Sep 2002 11:35:55 -0700 (PDT)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Roman Zippel <zippel@linux-m68k.org>
-cc: Ingo Molnar <mingo@elte.hu>, Karim Yaghmour <karim@opersys.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       LTT-Dev <ltt-dev@shafik.org>
-Subject: Re: [PATCH] LTT for 2.5.38 1/9: Core infrastructure
-In-Reply-To: <Pine.LNX.4.44.0209221830400.8911-100000@serv>
-Message-ID: <Pine.LNX.4.44.0209221130060.1455-100000@home.transmeta.com>
+	id <S264457AbSIVSeq>; Sun, 22 Sep 2002 14:34:46 -0400
+Received: from ip68-13-110-204.om.om.cox.net ([68.13.110.204]:3200 "EHLO
+	dad.molina") by vger.kernel.org with ESMTP id <S264456AbSIVSep>;
+	Sun, 22 Sep 2002 14:34:45 -0400
+Date: Sun, 22 Sep 2002 13:37:55 -0500 (CDT)
+From: Thomas Molina <tmolina@cox.net>
+X-X-Sender: tmolina@dad.molina
+To: Mikael Pettersson <mikpe@csd.uu.se>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.5.37 broke the floppy driver
+In-Reply-To: <200209212301.BAA08451@harpo.it.uu.se>
+Message-ID: <Pine.LNX.4.44.0209221334170.829-100000@dad.molina>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sun, 22 Sep 2002, Mikael Pettersson wrote:
 
-On Sun, 22 Sep 2002, Roman Zippel wrote:
+> With 2.5.37, doing a write to floppy makes the kernel print
+> "blk: request botched" and a few seconds later instantly reboot
+> the machine (w/o any further messages). 2.5.36 works fine.
 > 
-> To summarize: You find tracing useful, but software tracing is only of
-> limited value in areas you're working at.
->
-> What about other developers, which only want to develop a simple driver,
-> without having to understand the whole kernel? Traces still work where
-> printk() or kgdb don't work. I think it's reasonable to ask an user to
-> enable tracing and reproduce the problem, which you can't reproduce
-> yourself.
+> "dd bs=8k if=bzImage of=/dev/fd0" triggers this every time.
 
-That makes adding source bloat ok? I've debugged some drivers with 
-dprintk() style tracing, and it often makes the code harder to follow, 
-even if it eds up being compiled away. 
+I duplicated this on 2.5.37-bk as well as 2.5.38-bk.  Maybe we have an 
+off-by-one error?  I see the following under 2.5.38-bk:
 
->From what I've seen from the LTT thing, it's too heavy-weight to be good
-for many things (taking SMP-global locks for trace events is _not_ a good
-idea if the trace is for doing things like doing performance tracing,
-where a tracer that adds synchronization fundamentally _changes_ what is
-going on in ways that have nothing to do with timing).
+[tmolina@dad boot]$ dd if=bzImage of=/dev/fd0
+dd: writing to `/dev/fd0': No space left on device
+5+0 records in
+4+0 records out
 
-I suspect we'll want to have some form of event tracing eventually, but
-I'm personally pretty convinced that it needs to be a per-CPU thing, and 
-the core mechanism would need to be very lightweight. It's easier to build 
-up complexity on top of a lightweight interface than it is to make a 
-lightweight interface out of a heavy one.
+If I repeate the command I get lines of the 
+blk: request botched messages with the following flashed briefly on the 
+screen (I wouldn't have seen it if I weren't looking for it):
 
-			Linus
+dd: writing to `/dev/fd0': No space left on device
+1441+0 records in
+1440+0 records out
+
 

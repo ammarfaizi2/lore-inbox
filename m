@@ -1,45 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261419AbUJZTFO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261437AbUJZTJL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261419AbUJZTFO (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 26 Oct 2004 15:05:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261406AbUJZTFL
+	id S261437AbUJZTJL (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 26 Oct 2004 15:09:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261440AbUJZTJK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Oct 2004 15:05:11 -0400
-Received: from mail.dif.dk ([193.138.115.101]:63397 "EHLO mail.dif.dk")
-	by vger.kernel.org with ESMTP id S261419AbUJZTE7 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Oct 2004 15:04:59 -0400
-Date: Tue, 26 Oct 2004 21:13:19 +0200 (CEST)
-From: Jesper Juhl <juhl-lkml@dif.dk>
-To: linux-kernel@vger.kernel.org
-Subject: Would auto setting CONFIG_RTC make sense when building SMP kernel?
-Message-ID: <Pine.LNX.4.61.0410262108041.3277@dragon.hygekrogen.localhost>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Tue, 26 Oct 2004 15:09:10 -0400
+Received: from e34.co.us.ibm.com ([32.97.110.132]:42636 "EHLO
+	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S261437AbUJZTIl
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 26 Oct 2004 15:08:41 -0400
+Subject: Re: PROPOSAL:  New NEW development model
+From: Josh Boyer <jdub@us.ibm.com>
+To: John Richard Moser <nigelenki@comcast.net>
+Cc: William Lee Irwin III <wli@holomorphy.com>, linux-kernel@vger.kernel.org
+In-Reply-To: <417E966D.8090208@comcast.net>
+References: <417E8422.3020009@comcast.net>
+	 <20041026174730.GL17038@holomorphy.com>  <417E966D.8090208@comcast.net>
+Content-Type: text/plain
+Message-Id: <1098817715.9350.2.camel@weaponx.rchland.ibm.com>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7) 
+Date: Tue, 26 Oct 2004 14:08:35 -0500
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, 2004-10-26 at 13:24, John Richard Moser wrote:
+> 
+> | This is not useful to distinguish your "suggestion" from the status quo.
+> |
+> 
+> Help me out here, what's the status quo?
 
-Hi,
+Pretty much exactly what you described already.  Instead of "Volatile"
+being name 2.7, it's essentially 2.6.N-rcX.  (Or whatever Linus has
+chosen as the new naming convention for as yet to be released stuff.)
 
-I've been wondering if it would make sense to auto enable CONFIG_RTC when 
-CONFIG_SMP is set?
+At least that's how your proposal reads to me.
 
-I'm judging entirely from this bit of text from the CONFIG_RTC help text : 
-
-[...]
-If you run Linux on a multiprocessor machine and said Y to
-"Symmetric Multi Processing" above, you should say Y here to read
-and set the RTC in an SMP compatible fashion.
-[...]
-
-Isn't it always desirable to be able to set the clock in an SMP compatible 
-fashion if the kernel is indeed build for SMP?
-
-If it would make sense to make such a change I'll be happy to supply a 
-patch.
-
---
-Jesper Juhl
-
+josh
 

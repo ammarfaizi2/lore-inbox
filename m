@@ -1,45 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266109AbTFWTIk (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 23 Jun 2003 15:08:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266110AbTFWTIk
+	id S266110AbTFWTQx (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 23 Jun 2003 15:16:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266113AbTFWTQx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 23 Jun 2003 15:08:40 -0400
-Received: from nat9.steeleye.com ([65.114.3.137]:65287 "EHLO
-	fenric.sc.steeleye.com") by vger.kernel.org with ESMTP
-	id S266109AbTFWTIh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 23 Jun 2003 15:08:37 -0400
-Date: Mon, 23 Jun 2003 15:21:22 -0400 (EDT)
-From: Paul Clements <kernel@steeleye.com>
-Reply-To: Paul.Clements@steeleye.com
-To: Bernd Eckenfels <ecki@calista.eckenfels.6bone.ka-ip.net>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: [RFC][PATCH] nbd driver for 2.5.72
-In-Reply-To: <E19Tbyp-0004mi-00@calista.inka.de>
-Message-ID: <Pine.LNX.4.10.10306231515130.28273-100000@clements.sc.steeleye.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Mon, 23 Jun 2003 15:16:53 -0400
+Received: from almesberger.net ([63.105.73.239]:23827 "EHLO
+	host.almesberger.net") by vger.kernel.org with ESMTP
+	id S266110AbTFWTQw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 23 Jun 2003 15:16:52 -0400
+Date: Mon, 23 Jun 2003 16:30:30 -0300
+From: Werner Almesberger <wa@almesberger.net>
+To: linux-kernel@vger.kernel.org
+Subject: Re: [OT] Re: Troll Tech [was Re: Sco vs. IBM]
+Message-ID: <20030623163030.D1418@almesberger.net>
+References: <1056027789.3ef1b48d3ea2e@support.tuxbox.dk> <03061908145500.25179@tabby> <20030619141443.GR29247@fs.tum.de> <bcsolt$37m$2@news.cistron.nl> <20030619165916.GA14404@work.bitmover.com> <20030620001217.G6248@almesberger.net> <20030620120910.3f2cb001.skraw@ithnet.com> <20030620142436.GB14404@work.bitmover.com> <20030620121834.A1418@almesberger.net> <20030620152447.GB17563@work.bitmover.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030620152447.GB17563@work.bitmover.com>; from lm@bitmover.com on Fri, Jun 20, 2003 at 08:24:47AM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Larry McVoy wrote:
+> The point I'm trying to make is could we please think about how create
+> a world that is sustainable and based completely on open source?
 
+Apparently, the filters guarding linux-kernel didn't like my reply,
+and silently discarded it :-( Anyway, you can read it at
+http://www.almesberger.net/misc/mail-linux-bank.txt
 
-On Sat, 21 Jun 2003, Bernd Eckenfels wrote:
+It's a collection of ideas regarding the creation a set of payment
+collection and distribution organizations.
 
-> Is anybody aware of a journalling nbd, which keeps track of unsynced
-> changes, so a fast reintegration is possible?
-> 
-> Well perhaps this is a property of the md device, instead... hmm. Is there
-> such a function available? Could be some left over from snapshot code.
+Wishful fiction, for sure, but may still be entertaining reading :-)
 
-Assuming that you use raid1 over nbd, you could try Peter T Breuer's patches 
-for raid1 (called fr1) that allow the use of a bitmap for resyncing. I am 
-also currently working on expanding on his patches to make the bitmap 
-persistent (stored in a file) and to allow asynchronous writing to the 
-"backup" (in this case, nbd) device.
+- Werner
 
-Stay tuned...more details on linux-raid about this...
-
---
-Paul
-
+-- 
+  _________________________________________________________________________
+ / Werner Almesberger, Buenos Aires, Argentina         wa@almesberger.net /
+/_http://www.almesberger.net/____________________________________________/

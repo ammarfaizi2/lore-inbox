@@ -1,42 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264384AbTLBUpN (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 2 Dec 2003 15:45:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264386AbTLBUpN
+	id S264373AbTLBUin (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 2 Dec 2003 15:38:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264363AbTLBUh4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 2 Dec 2003 15:45:13 -0500
-Received: from mail3.ithnet.com ([217.64.64.7]:50326 "HELO
-	heather-ng.ithnet.com") by vger.kernel.org with SMTP
-	id S264384AbTLBUpI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 2 Dec 2003 15:45:08 -0500
-X-Sender-Authentication: net64
-Date: Tue, 2 Dec 2003 21:45:04 +0100
-From: Stephan von Krawczynski <skraw@ithnet.com>
-To: Arnaldo Carvalho de Melo <acme@conectiva.com.br>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.4 future
-Message-Id: <20031202214504.713c8a45.skraw@ithnet.com>
-In-Reply-To: <20031202202435.GS15165@conectiva.com.br>
-References: <Pine.LNX.4.44.0312011212090.13692-100000@logos.cnet>
-	<200312011226.04750.nbensa@gmx.net>
-	<20031202115436.GA10288@physik.tu-cottbus.de>
-	<20031202120315.GK13388@conectiva.com.br>
-	<20031202210904.48706476.skraw@ithnet.com>
-	<20031202202435.GS15165@conectiva.com.br>
-Organization: ith Kommunikationstechnik GmbH
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Tue, 2 Dec 2003 15:37:56 -0500
+Received: from web41201.mail.yahoo.com ([66.218.93.34]:27737 "HELO
+	web41201.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S264377AbTLBUgu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 2 Dec 2003 15:36:50 -0500
+Message-ID: <20031202203648.64084.qmail@web41201.mail.yahoo.com>
+Date: Tue, 2 Dec 2003 12:36:48 -0800 (PST)
+From: Jin Suh <jinssuh@yahoo.com>
+Subject: [2.6.0-test11]: It doesn't boot with a bootcd
+To: linux-kernel@vger.kernel.org
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2 Dec 2003 18:24:35 -0200
-Arnaldo Carvalho de Melo <acme@conectiva.com.br> wrote:
+Hi,
 
-> And I was on this list _way_ before 2.4.11, 2.6 has, IMHO, a different story.
+I've been trying to build a bootcd with 2.6.0-test11 but it doesn't boot either
+with framebuffer or without framebuffer. I also tried 2.6.0-testX-mm[1,2] but
+same problems. I could make it work on test6 with no framebuffer once. But
+test7 to test11 never worked. My bootcd works fine with 2.4.20. I upgraded
+bin-utils, linux-utils, other tools and  libraries to use 2.6.0 following the
+Documentation/Changes file. My kernel config file is nothing special. It is
+based on 2.4.20 and added few things like XFS. I used to see Oops crashes but I
+don't see those any more but it stops in middle of booting and hangs. If any
+bootcd builders are out there and have any experiences on 2.6.0-testx, please
+let me know. Thanks in advance!
 
-A story can only be judged _after_ it is history.
+Jin
 
-Regards,
-Stephan
+
+__________________________________
+Do you Yahoo!?
+Free Pop-Up Blocker - Get it now
+http://companion.yahoo.com/

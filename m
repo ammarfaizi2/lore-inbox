@@ -1,60 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S311650AbSCNQS1>; Thu, 14 Mar 2002 11:18:27 -0500
+	id <S311653AbSCNQSi>; Thu, 14 Mar 2002 11:18:38 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S311654AbSCNQSU>; Thu, 14 Mar 2002 11:18:20 -0500
-Received: from zeus.kernel.org ([204.152.189.113]:20431 "EHLO zeus.kernel.org")
-	by vger.kernel.org with ESMTP id <S311650AbSCNQSE>;
-	Thu, 14 Mar 2002 11:18:04 -0500
-Date: Thu, 14 Mar 2002 17:13:00 +0100
-From: Dave Jones <davej@suse.de>
-To: Bill Davidsen <davidsen@tmr.com>
-Cc: Andrea Arcangeli <andrea@suse.de>,
-        Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: 2.4.19pre3aa2
-Message-ID: <20020314171300.H19636@suse.de>
-Mail-Followup-To: Dave Jones <davej@suse.de>,
-	Bill Davidsen <davidsen@tmr.com>, Andrea Arcangeli <andrea@suse.de>,
-	Linux Kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <20020314133223.B19636@suse.de> <Pine.LNX.3.96.1020314104230.9248A-100000@gatekeeper.tmr.com>
-Mime-Version: 1.0
+	id <S311654AbSCNQSb>; Thu, 14 Mar 2002 11:18:31 -0500
+Received: from green.mif.pg.gda.pl ([153.19.42.8]:57093 "EHLO
+	green.mif.pg.gda.pl") by vger.kernel.org with ESMTP
+	id <S311653AbSCNQSO>; Thu, 14 Mar 2002 11:18:14 -0500
+From: Andrzej Krzysztofowicz <ankry@green.mif.pg.gda.pl>
+Message-Id: <200203141617.RAA17200@green.mif.pg.gda.pl>
+Subject: Re: make xconfig question
+To: root@codeman.linux-systeme.org
+Date: Thu, 14 Mar 2002 17:17:56 +0100 (CET)
+Cc: linux-kernel@vger.kernel.org (kernel list)
+In-Reply-To: <200203141211.g2ECBq110052@sunrise.pg.gda.pl> from "Andrzej Krzysztofowicz" at Mar 14, 2002 01:11:53 PM
+X-Mailer: ELM [version 2.5 PL0pre8]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <Pine.LNX.3.96.1020314104230.9248A-100000@gatekeeper.tmr.com>; from davidsen@tmr.com on Thu, Mar 14, 2002 at 10:53:01AM -0500
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Mar 14, 2002 at 10:53:01AM -0500, Bill Davidsen wrote:
- 
- >   Since vendors (and consultants) like to build a single kernel for use on
- > multiple machines, it would be nice if this could be done by some init
- > code (released) and a module. 
- 
- The relevant code is (where possible) marked as __init already.
- So the init code gets thrown away whether needed or not.
- 
- >   The code actually looks so small as to be unworthy of an option
- 
- It's not a matter of codesize, it's a correctness issue in the source.
- #ifndef CONFIG_M686 is wrong. It assumes a P6 is the only CPU family
- in existence without the bug, despite the fact there are probably close
- to a dozen others.
+> 
+> what EXACTLY does that means:
+> 
+> root@codeman:/usr/src/linux# make xconfig
+> rm -f include/asm
+> ( cd include ; ln -sf asm-i386 asm)
+> make -C scripts kconfig.tk
+> make[1]: Entering directory `/usr/src/linux-2.4.18-mcp3-WOLK/scripts'
+> cat header.tk >> ./kconfig.tk
+> ./tkparse < ../arch/i386/config.in >> kconfig.tk
+> statement not in menu
 
- > that many people would set it off not knowing was it was much less whether
- > they needed it. This is not like a missing FPU where you can do a graceful
- > reject of the instructions, if you have the bug and not the fix you are
- > vulnerable to sudden total failures, correct?
+It means active statement (not define_* or if) located after
+	mainmenu_name
 
- No. You at worse vulnerable to a malicious user running hand-crafted code
- (no compiler generates this code-sequence) bringing down the machine.
+but not between any
+	mainmenu_option next_comment
+	[...]
+	endmenu
+pair.
+May be after last "endmenu" or between menus.
+xconfig can't detect which file the problem is located in.
 
- The proposal however was not to remove anything that we currently have.
- Every kernel that is possible to be run on an affected box (i386/i486/i586)
- would still have the workaround present. We just won't generate it in
- Cyrix III, Athlon, Pentium 4, etc kernels..
-
+> make[1]: *** [kconfig.tk] Error 1
+> make[1]: Leaving directory `/usr/src/linux-2.4.18-mcp3-WOLK/scripts'
+> make: *** [xconfig] Error 2
+> 
+> I cannot figure out what i have modified wrong in the arch/i386/config.in
+> And i don't understand what "statement not in menu" means EXACTLY.
 
 -- 
-| Dave Jones.        http://www.codemonkey.org.uk
-| SuSE Labs
+=======================================================================
+  Andrzej M. Krzysztofowicz               ankry@mif.pg.gda.pl
+  phone (48)(58) 347 14 61
+Faculty of Applied Phys. & Math.,   Technical University of Gdansk

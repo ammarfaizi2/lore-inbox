@@ -1,49 +1,131 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263986AbSLLMZT>; Thu, 12 Dec 2002 07:25:19 -0500
+	id <S262808AbSLLMWJ>; Thu, 12 Dec 2002 07:22:09 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263991AbSLLMZT>; Thu, 12 Dec 2002 07:25:19 -0500
-Received: from pc2-cwma1-4-cust129.swan.cable.ntl.com ([213.105.254.129]:49605
-	"EHLO irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S263986AbSLLMZT>; Thu, 12 Dec 2002 07:25:19 -0500
-Subject: Re: Linux 2.4.21-pre1 IDE
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: andersen@codepoet.org
-Cc: Marcelo Tosatti <marcelo@conectiva.com.br>,
-       lkml <linux-kernel@vger.kernel.org>
-In-Reply-To: <20021212013546.GA30408@codepoet.org>
-References: <Pine.LNX.4.50L.0212101834240.23096-100000@freak.distro.conectiva> 
-	<20021212013546.GA30408@codepoet.org>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
-Date: 12 Dec 2002 13:10:48 +0000
-Message-Id: <1039698648.21446.30.camel@irongate.swansea.linux.org.uk>
-Mime-Version: 1.0
+	id <S262812AbSLLMWJ>; Thu, 12 Dec 2002 07:22:09 -0500
+Received: from wiprom2mx2.wipro.com ([203.197.164.42]:52223 "EHLO
+	wiprom2mx2.wipro.com") by vger.kernel.org with ESMTP
+	id <S262808AbSLLMWH> convert rfc822-to-8bit; Thu, 12 Dec 2002 07:22:07 -0500
+x-mimeole: Produced By Microsoft Exchange V6.0.5762.3
+content-class: urn:content-classes:message
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Subject: [BENCHMARK] TIO bench mm2 patch better than mm1 patch
+Date: Thu, 12 Dec 2002 17:59:34 +0530
+Message-ID: <94F20261551DC141B6B559DC4910867201DECD@blr-m3-msg.wipro.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: [BENCHMARK] TIO bench mm2 patch better than mm1 patch
+Thread-Index: AcKh2iBX0uqxfl5HSvinLGh2+VQy6A==
+From: "Aniruddha M Marathe" <aniruddha.marathe@wipro.com>
+To: <linux-kernel@vger.kernel.org>
+X-OriginalArrivalTime: 12 Dec 2002 12:29:35.0156 (UTC) FILETIME=[21306F40:01C2A1DA]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2002-12-12 at 01:35, Erik Andersen wrote:
->     hda: DMA disabled
->     ^^^^^^^^^^^^^^^^^
-> 
-> What's up with this?  For each drive in my system it claims it
-> has disabled DMA.  But hdparm later reports that DMA is in fact
-> enabled.  In fact, later on the kernel ever reports the drive
-> as being in UDMA 100 mode...  I think these "DMA disabled"
-> messages are bogus.
+Hi,
+Here are the results of comparison of Kernel 2.5.51 with mm2 patch and 2.5.51 with mm1 patch.  
+Please see the mail in full size window to avoid text wrap problem. 
+Key findings of the comparison:
+1. Great reduction in maximum latency.
+2. better throughput of CPU mainly because less usage for same work.
+3. mega-bytes transfered per second have also improved.
 
-Cosmetic and known. It in fact turns DMA back on - quietly
+many optimizations done in the pathces. they must perform :)
 
->     ide2 at 0x1800-0x1807,0xac02 on irq 11
->     hda: host protected area => 1
->     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
->     hda: 160836480 sectors (82348 MB) w/1863KiB Cache, CHS=10011/255/63, UDMA(100)
-> 
-> Now we see the funky "host protected area => 1" message.  As
-> discussed earlier with Andre, this message should be removed from
-> the kernel.  The message as written implies that the driv
+*******************************************************************************
+                             TIO BENCH PERFORMANCE RESULT
+             		     LINUX KERNEL 2.5.51 with mm2
+			     Date: December 12TH 2002
+*******************************************************************************
+No size specified, using 252 MB
 
-Before 2.4.21 agreed
+Unit information
+================
+File size = megabytes
+Blk Size  = bytes
+Rate      = megabytes per second
+CPU%      = percentage of CPU used during the test
+Latency   = milliseconds
+Lat%      = percent of requests that took longer than X seconds
+CPU Eff   = Rate divided by CPU% - throughput per cpu load
+
+Sequential Reads
+                              File  Blk   Num                   Avg      Maximum      Lat%     Lat%    CPU
+Identifier                    Size  Size  Thr   Rate  (CPU%)  Latency    Latency      >2s      >10s    Eff
+---------------------------- ------ ----- ---  ------ ------ --------- -----------  -------- -------- -----
+2.5.51                        252   4096   10    8.81 5.345%    12.244     1894.78   0.00000  0.00000   165
+
+Random Reads
+                              File  Blk   Num                   Avg      Maximum      Lat%     Lat%    CPU
+Identifier                    Size  Size  Thr   Rate  (CPU%)  Latency    Latency      >2s      >10s    Eff
+---------------------------- ------ ----- ---  ------ ------ --------- -----------  -------- -------- -----
+2.5.51                        252   4096   10    0.51 0.750%   206.139     1306.27   0.00000  0.00000    68
+
+Sequential Writes
+                              File  Blk   Num                   Avg      Maximum      Lat%     Lat%    CPU
+Identifier                    Size  Size  Thr   Rate  (CPU%)  Latency    Latency      >2s      >10s    Eff
+---------------------------- ------ ----- ---  ------ ------ --------- -----------  -------- -------- -----
+2.5.51                        252   4096   10   17.56 32.68%     3.841    28833.24   0.05625  0.00156    54
+
+Random Writes
+                              File  Blk   Num                   Avg      Maximum      Lat%     Lat%    CPU
+Identifier                    Size  Size  Thr   Rate  (CPU%)  Latency    Latency      >2s      >10s    Eff
+---------------------------- ------ ----- ---  ------ ------ --------- -----------  -------- -------- -----
+2.5.51                        252   4096   10    0.72 1.013%     3.694     4066.20   0.07500  0.00000    71
+
+*******************************************************************************
+                             TIO BENCH PERFORMANCE RESULT
+             		     LINUX KERNEL 2.5.51 with mm1
+			     Date: December 11TH 2002
+*******************************************************************************
+Unit information
+================
+File size = megabytes
+Blk Size  = bytes
+Rate      = megabytes per second
+CPU%      = percentage of CPU used during the test
+Latency   = milliseconds
+Lat%      = percent of requests that took longer than X seconds
+CPU Eff   = Rate divided by CPU% - throughput per cpu load
+
+Sequential Reads
+                              File  Blk   Num                   Avg      Maximum      Lat%     Lat%    CPU
+Identifier                    Size  Size  Thr   Rate  (CPU%)  Latency    Latency      >2s      >10s    Eff
+---------------------------- ------ ----- ---  ------ ------ --------- -----------  -------- -------- -----
+2.5.51                        252   4096   10    8.57 5.375%    12.720     1712.91   0.00000  0.00000   159
+
+Random Reads
+                              File  Blk   Num                   Avg      Maximum      Lat%     Lat%    CPU
+Identifier                    Size  Size  Thr   Rate  (CPU%)  Latency    Latency      >2s      >10s    Eff
+---------------------------- ------ ----- ---  ------ ------ --------- -----------  -------- -------- -----
+2.5.51                        252   4096   10    0.50 1.073%   205.984     1278.60   0.00000  0.00000    47
+
+Sequential Writes
+                              File  Blk   Num                   Avg      Maximum      Lat%     Lat%    CPU
+Identifier                    Size  Size  Thr   Rate  (CPU%)  Latency    Latency      >2s      >10s    Eff
+---------------------------- ------ ----- ---  ------ ------ --------- -----------  -------- -------- -----
+2.5.51                        252   4096   10   17.86 33.77%     3.850    21603.95   0.06406  0.00000    53
+
+Random Writes
+                              File  Blk   Num                   Avg      Maximum      Lat%     Lat%    CPU
+Identifier                    Size  Size  Thr   Rate  (CPU%)  Latency    Latency      >2s      >10s    Eff
+---------------------------- ------ ----- ---  ------ ------ --------- -----------  -------- -------- -----
+2.5.51                        252   4096   10    0.77 1.091%     0.736     1551.03   0.00000  0.00000    70
+
+========================================================================================================================
 
 
+Regards,
+---------------------------------------------------------------
+Aniruddha Marathe
+Systems Engineer,
+4th floor, WIPRO technologies,
+53/1, Hosur road,
+Madivala,
+Bangalore - 560068
+Karnataka, India
+Phone: +91-80-5502001 extension 5092
+E-mail: aniruddha.marathe@wipro.com
+---------------------------------------------------------------

@@ -1,59 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261785AbUDCPWo (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 3 Apr 2004 10:22:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261804AbUDCPWo
+	id S261802AbUDCPlw (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 3 Apr 2004 10:41:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261832AbUDCPlw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 3 Apr 2004 10:22:44 -0500
-Received: from gprs214-163.eurotel.cz ([160.218.214.163]:20864 "EHLO
-	amd.ucw.cz") by vger.kernel.org with ESMTP id S261785AbUDCPWm (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 3 Apr 2004 10:22:42 -0500
-Date: Sat, 3 Apr 2004 17:22:28 +0200
-From: Pavel Machek <pavel@suse.cz>
-To: Takashi Iwai <tiwai@suse.de>
-Cc: Rajsekar <rajsekar@peacock.iitm.ernet.in>, linux-kernel@vger.kernel.org
-Subject: Re: alsamixer muting when restoring from suspend.
-Message-ID: <20040403152227.GA212@elf.ucw.cz>
-References: <y49y8phn2op.fsf@sahana.cs.iitm.ernet.in> <s5hk710vy8x.wl@alsa2.suse.de> <20040402205723.GJ195@elf.ucw.cz> <s5h8yhdxo58.wl@alsa2.suse.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <s5h8yhdxo58.wl@alsa2.suse.de>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.4i
+	Sat, 3 Apr 2004 10:41:52 -0500
+Received: from smtp-roam.Stanford.EDU ([171.64.10.152]:8880 "EHLO
+	smtp-roam.Stanford.EDU") by vger.kernel.org with ESMTP
+	id S261802AbUDCPlu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 3 Apr 2004 10:41:50 -0500
+Message-ID: <406EDB43.6030401@stanford.edu>
+Date: Sat, 03 Apr 2004 17:41:55 +0200
+From: Andy Lutomirski <luto@stanford.edu>
+User-Agent: Mozilla Thunderbird 0.5 (Windows/20040207)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Stephen Smalley <sds@epoch.ncsc.mil>, Andrew Morton <akpm@osdl.org>
+CC: Chris Wright <chrisw@osdl.org>, luto@myrealbox.com,
+       lkml <linux-kernel@vger.kernel.org>
+Subject: Re: capabilitiescompute_cred
+References: <20040402033231.05c0c337.akpm@osdl.org>	 <1080912069.27706.42.camel@moss-spartans.epoch.ncsc.mil>	 <20040402111554.E21045@build.pdx.osdl.net>  <406DCB32.8070403@stanford.edu> <1080942432.28777.109.camel@moss-spartans.epoch.ncsc.mil>
+In-Reply-To: <1080942432.28777.109.camel@moss-spartans.epoch.ncsc.mil>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+Stephen Smalley wrote:
 
-> > > > This I think is not a problem but rather a subtle bug.
-> > > > 
-> > > > Alsamixer by default mutes all channels when loaded.
-> > > > So when I `swsusp' my comp while I listen to music and restore the music
-> > > > plays from where it left alright, but the channels are muted.
-> > > > Is there a way to unmute them implicitly when restoring.
-> > > 
-> > > which driver?
-> > > not all drivers have suspend/resume callbacks.
-> > 
-> > Could it be solved at higher layer, perhaps? Setting volume is common
-> > to all drivers, and some kind of generic_alsa_suspend every alsa
-> > driver would call might help...
+> On Fri, 2004-04-02 at 15:21, Andy Lutomirski wrote:
 > 
-> the problem is also that you need to reinitialize the chip after
-> resume.  the restoration of mixer config could be done by calling
-> "alsactl store" at the suspend and "alsactl restore" at the resume in
-> the user space.  can apmd work for such a purpose even for software
-> suspend?
+>>I agree in principle, but it would still be nice to have a simple way to 
+>>have useful capabilities without setting up a MAC system.  I don't see a 
+>>capabilities fix adding any significant amount of code; it just takes 
+>>some effort to get it right.
+> 
+> 
+> I'm not opposed to making the existing capability logic more useable; I
+> just think that capabilities will ultimately be superseded by TE.
+>  
+> 
+>>You can find my attempts to get it right in the 
+>>linux-kernel archives, and I'll probably try to get something into 2.7 
+>>when it forks.  With or without MAC, having a functioning capability 
+>>system wouldn't hurt security.
+> 
+> 
+> Does revising the capability logic need to wait on 2.7?  Have you
+> changed the logic significantly since the last patch you posted to lkml?
+> 
 
-Userspace should not be involved in suspend/resume. Having in-kernel
-equivalent of alsactl store / alsactl restore might help alsa driver
-authors... And might be enough for suspend-to-disk to +/- work. (Well,
-unless sound was playing when user requested suspend, that one needs
-proper support).
+I don't _think_ it's changed, but I'll double-check that in a few days 
+(I'm out of town).  I'll also rediff my patch.  Should it be a config 
+option?
 
-								Pavel
--- 
-When do you have a heart between your knees?
-[Johanka's followup: and *two* hearts?]
+Anyway, I have no strong objection to seeing a change in 2.6 -- there's 
+just some risk that it could break something that depends on the current 
+(broken, undocumented) behavior.
+
+Andrew:  would you be willing to put a capabilities fix into -mm?
+
+--Andy

@@ -1,58 +1,90 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S283057AbRK1Ohf>; Wed, 28 Nov 2001 09:37:35 -0500
+	id <S283060AbRK1OhZ>; Wed, 28 Nov 2001 09:37:25 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S283058AbRK1Oh0>; Wed, 28 Nov 2001 09:37:26 -0500
-Received: from inswsod01.gs.com ([207.17.37.10]:17597 "HELO inswsod01.gs.com")
-	by vger.kernel.org with SMTP id <S283057AbRK1OhH>;
-	Wed, 28 Nov 2001 09:37:07 -0500
-Message-Id: <D28C5BE01ECBD41198ED00D0B7E4C9DA08E1AE3E@gsny31e.ny.fw.gs.com>
-From: "Galappatti, Kishantha" <Kishantha.Galappatti@gs.com>
-To: "'Pedro M. Rodrigues'" <pmanuel@myrealbox.com>,
-        Wayne Whitney <whitney@math.berkeley.edu>,
-        Andre Hedrick <andre@linux-ide.org>
-Cc: LKML <linux-kernel@vger.kernel.org>
-Subject: RE: Journaling pointless with today's hard disks?
-Date: Wed, 28 Nov 2001 09:36:59 -0500
+	id <S282147AbRK1OhG>; Wed, 28 Nov 2001 09:37:06 -0500
+Received: from gw-nl5.philips.com ([212.153.235.99]:13582 "EHLO
+	gw-nl5.philips.com") by vger.kernel.org with ESMTP
+	id <S283058AbRK1Ogy>; Wed, 28 Nov 2001 09:36:54 -0500
+From: peter.kourzanov@philips.com
+To: Clayton@notessmtp-nl1.philips.com, Mark <mark.clayton@netplane.com>
+Subject: Re: PROBLEM: Using Philips CDD3610 cd-writer crashes my system wi th every
+ 2.4 kernel
+Importance: Normal
+Cc: <linux-kernel@vger.kernel.org>
+Date: Wed, 28 Nov 2001 15:36:48 +0100
+Message-ID: <OF1D94621D.1FE14FED-ONC1256B12.004FF80B@diamond.philips.com>
+X-MIMETrack: Serialize by Router on ehv501soh/H/SERVER/PHILIPS(Release 5.0.5 |September
+ 22, 2000) at 28/11/2001 15:37:09
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2650.21)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+Content-type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-im curious also.. what do you mean you've "exposed" yourself already? is
-this a trade secret?
+Try this:
 
---kish
+http://www2.ce-europe.philips.com/do/session/5239006/vsid/1354/cid/1104877/cmpid/1165/url/http://www.ce-europe.philips.com/prd/support_download.jsp
 
------Original Message-----
-From: Pedro M. Rodrigues [mailto:pmanuel@myrealbox.com]
-Sent: Wednesday, November 28, 2001 6:53 AM
-To: Wayne Whitney; Andre Hedrick
-Cc: LKML
-Subject: Re: Journaling pointless with today's hard disks?
+Sorry for this mess, I didn't design the web page.
 
+Get the first file in there.
 
-
-   Just curious but what can a selfttest mode and consequent block 
-test do to inspire you such worry? Are we dealing with the mob or 
-something of the sort when we buy an IBM 75GXP disk? 
+----- Original Message -----
+From: "Clayton, Mark" <mark.clayton@netplane.com>
+To: "Peter Kourzanov" <Peter_Kourzanov/EHV/RESEARCH/PHILIPS@EMEA3>
+Sent: Wednesday 28 November 2001 15:25
+Subject: RE: PROBLEM: Using Philips CDD3610 cd-writer crashes my system wi th every 2.4 kernel
 
 
-/Pedro
+>
+> Hello,
+>
+> I also have the CDD3610.  Recently I went looking for firmware
+> upgrade on philips.com.  I couldn't find a support area for
+> this CDRWer.  Can you tell me where to find the firmware?
+>
+> Many Thanks,
+> Mark
+> --
+> Mark Clayton                       mclayton@netplane.com
+> NetPlane Systems Inc               http://www.netplane.com
+> 888 Washington Street              Tel: (781) 329-3200 x5355
+> Dedham MA 02026                    Fax: (781) 329-4148
+> --
+> [root@hjinc mclayton] /sbin/insmod stddisclaimer.o
+>
+>
+> > -----Original Message-----
+> > From: peter.kourzanov@philips.com [mailto:peter.kourzanov@philips.com]
+> > Sent: Wednesday, November 28, 2001 9:08 AM
+> > To: Marko.vanDooren@student.kuleuven.ac.be
+> > Cc: linux-kernel@vger.kernel.org
+> > Subject: PROBLEM: Using Philips CDD3610 cd-writer crashes my
+> > system with
+> > every 2.4 kernel
+> >
+> >
+> > Hi Marko,
+> >
+> > I used to have this problem, but its simply solvable by
+> > upgrading the firmware from 3.01 to 3.09. For some unknown
+> > reason 3.01 stops working with 2.4. You also get 700mb CD
+> > support for free;-)
+> >
+> > Greets,
+> > Pjotr Kourzanov
+> >
+> >
+> >
+> > -
+> > To unsubscribe from this list: send the line "unsubscribe
+> > linux-kernel" in
+> > the body of a message to majordomo@vger.kernel.org
+> > More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> > Please read the FAQ at  http://www.tux.org/lkml/
+> >
+>
+>
 
-On 27 Nov 2001 at 13:52, Andre Hedrick wrote:
 
-> 
-> 
-> What you have done is trigger a process to have the device go into a
-> selftest mode to perform a block test.  I would tell you more but I
-> may have exposed myself already.
-> 
 
--
-To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
-Please read the FAQ at  http://www.tux.org/lkml/

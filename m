@@ -1,101 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261893AbTJWXkt (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Oct 2003 19:40:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261895AbTJWXkt
+	id S261879AbTJWXhH (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Oct 2003 19:37:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261890AbTJWXhH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Oct 2003 19:40:49 -0400
-Received: from gprs147-238.eurotel.cz ([160.218.147.238]:13440 "EHLO
-	amd.ucw.cz") by vger.kernel.org with ESMTP id S261893AbTJWXkm (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Oct 2003 19:40:42 -0400
-Date: Fri, 24 Oct 2003 01:40:19 +0200
-From: Pavel Machek <pavel@suse.cz>
-To: George Anzinger <george@mvista.com>
-Cc: john stultz <johnstul@us.ibm.com>, Patrick Mochel <mochel@osdl.org>,
-       kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: [pm] fix time after suspend-to-*
-Message-ID: <20031023234019.GB714@elf.ucw.cz>
-References: <20031022233306.GA6461@elf.ucw.cz> <1066866741.1114.71.camel@cog.beaverton.ibm.com> <20031023081750.GB854@openzaurus.ucw.cz> <3F9838B4.5010401@mvista.com>
+	Thu, 23 Oct 2003 19:37:07 -0400
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:5076 "HELO
+	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
+	id S261879AbTJWXhD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 23 Oct 2003 19:37:03 -0400
+Date: Fri, 24 Oct 2003 01:37:00 +0200
+From: Adrian Bunk <bunk@fs.tum.de>
+To: Andrew Morton <akpm@osdl.org>
+Cc: suparna@in.ibm.com, daniel@osdl.org, linux-aio@kvack.org,
+       linux-kernel@vger.kernel.org, pbadari@us.ibm.com
+Subject: Re: Patch for Retry based AIO-DIO (Was AIO and DIO testingon2.6.0-test7-mm1)
+Message-ID: <20031023233700.GJ21490@fs.tum.de>
+References: <1066432378.2133.40.camel@ibm-c.pdx.osdl.net> <20031020142727.GA4068@in.ibm.com> <1066693673.22983.10.camel@ibm-c.pdx.osdl.net> <20031021121113.GA4282@in.ibm.com> <1066869631.1963.46.camel@ibm-c.pdx.osdl.net> <20031023104923.GA11543@in.ibm.com> <20031023135030.GA11807@in.ibm.com> <20031023155937.41b0eeda.akpm@osdl.org> <20031023232006.GH21490@fs.tum.de> <20031023162539.0051249d.akpm@osdl.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <3F9838B4.5010401@mvista.com>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.4i
+In-Reply-To: <20031023162539.0051249d.akpm@osdl.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
-
-> >>Forgive me, I'm not totally familiar w/ the sysfs/pm stuff, but normally
-> >>you need to have the xtime_lock to safely manipulate xtime. Also,
-> >>couldn't you just call settimeofday() instead?  The bit about manually
-> >>setting the timezone also confuses me, as we don't normally do this at
-> >>bootup in the kernel.  
-> >>
+On Thu, Oct 23, 2003 at 04:25:39PM -0700, Andrew Morton wrote:
+> Adrian Bunk <bunk@fs.tum.de> wrote:
 > >
-> >
-> >I took it straight from apm.c... But it is well possible that it needs
-> >some locking. OTOH this runs with interrupts disabled, perhaps
-> >thats enough?
+> > On Thu, Oct 23, 2003 at 03:59:37PM -0700, Andrew Morton wrote:
+> > > Suparna Bhattacharya <suparna@in.ibm.com> wrote:
+> > > >
+> > > > It turns out that backing out gcc-Os.patch (on RH 9) or switching 
+> > > > to a system with an older compiler version made those errors go away.
+> > > 
+> > > Ho hum, so we have our answer.
+> > > 
+> > > Adrian, how do you feel about slotting this under CONFIG_EMBEDDED?
+> > 
+> > That was in the first version of the patch, but Christoph Hellwig asked 
+> > to drop the EMBEDDED.
 > 
-> I lost (never saw) the first of this thread, BUT, if this is 2.6, I 
-> strongly recommend that settimeofday() NOT be called.  It will try to 
-> adjust wall_to_motonoic, but, as this appears to be a correction for time 
-> lost while sleeping, wall_to_monotonic should not change.
-> 
-> As to locking, ints off for UP, but you need the full lock for SMP systems.
+> That was before we knew that it craps out when compiled on RH9.
 
-Okay, suspend is currently not supported on SMP, but we should play it
-safe. What about this one? [Compile tested only, have to get some sleep.]
+And one of the arguments I had for making it dependent on EXPERIMENTAL 
+instead of enabling it unconditionally was:
 
-								Pavel
+- it's less tested (there might be miscompilations in some part of the
+  kernel with some supported compilers)
 
---- clean/arch/i386/kernel/time.c	2003-10-09 00:13:14.000000000 +0200
-+++ linux/arch/i386/kernel/time.c	2003-10-24 01:38:04.000000000 +0200
-@@ -271,16 +271,37 @@
- 	unsigned long retval;
- 
- 	spin_lock(&rtc_lock);
--
- 	retval = mach_get_cmos_time();
--
- 	spin_unlock(&rtc_lock);
- 
- 	return retval;
- }
- 
-+static long clock_cmos_diff;
-+
-+static int pit_suspend(struct sys_device *dev, u32 state)
-+{
-+	/*
-+	 * Estimate time zone so that set_time can update the clock
-+	 */
-+	clock_cmos_diff = -get_cmos_time();
-+	clock_cmos_diff += get_seconds();
-+	return 0;
-+}
-+
-+static int pit_resume(struct sys_device *dev)
-+{
-+	write_seqlock_irq(&xtime_lock);
-+	xtime.tv_sec = get_cmos_time() + clock_cmos_diff;
-+	xtime.tv_nsec = 0; 
-+	write_sequnlock_irq(&xtime_lock);
-+	return 0;
-+}
-+
- static struct sysdev_class pit_sysclass = {
- 	set_kset_name("pit"),
-+	.resume = pit_resume,
-+	.suspend = pit_suspend,
- };
- 
- /* XXX this driverfs stuff should probably go elsewhere later -john */
+-Os has it's benefits on some systems, so it shouldn't be totally hidden 
+under EMBEDDED. OTOH, it's less tested, so only people who know what 
+they are doing should use it (EXPERIMENTAL plus help text).
 
+cu
+Adrian
 
 -- 
-When do you have a heart between your knees?
-[Johanka's followup: and *two* hearts?]
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
+

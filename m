@@ -1,134 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262480AbTD3WqJ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 30 Apr 2003 18:46:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262482AbTD3WqI
+	id S262485AbTD3Wxd (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 30 Apr 2003 18:53:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262489AbTD3Wxd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 30 Apr 2003 18:46:08 -0400
-Received: from pointblue.com.pl ([62.89.73.6]:14093 "EHLO pointblue.com.pl")
-	by vger.kernel.org with ESMTP id S262480AbTD3WqG (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 30 Apr 2003 18:46:06 -0400
-Subject: [PATCH] ieee1394.c on - compilation errors
-From: Grzegorz Jaskiewicz <gj@pointblue.com.pl>
-To: lkml <linux-kernel@vger.kernel.org>
-Cc: Linus <torvalds@transmeta.com>
-Content-Type: multipart/mixed; boundary="=-stKVpX3efOZ9FVbDIjtP"
-Organization: K4 labs
-Message-Id: <1051743594.5267.7.camel@flat41>
+	Wed, 30 Apr 2003 18:53:33 -0400
+Received: from jstevenson.plus.com ([212.159.71.212]:25281 "EHLO
+	alpha.stev.org") by vger.kernel.org with ESMTP id S262485AbTD3Wx2
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 30 Apr 2003 18:53:28 -0400
+Subject: Re: software reset
+From: James Stevenson <james@stev.org>
+To: joe briggs <jbriggs@briggsmedia.com>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <200304291037.13598.jbriggs@briggsmedia.com>
+References: <200304291037.13598.jbriggs@briggsmedia.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.3 (1.0.3-6) 
+Date: 01 May 2003 00:12:37 +0100
+Message-Id: <1051744358.1529.7.camel@god.stev.org>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.4 
-Date: 30 Apr 2003 23:59:54 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi
 
---=-stKVpX3efOZ9FVbDIjtP
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
+1 way to get a garentee reboot is to use a 2nd computer a parrell port
+and a resistor + relay and get the relay to short the reset pins
+on the MB of the machine you wish to reboot.
 
-Hello there!
+You could set this up to reboot up 2 8 machine usign cheap hardware
+like a 486 or something.
 
-Another trivial, monkeys job patch.
+On Tue, 2003-04-29 at 15:37, joe briggs wrote:
+> Can anyone tell me how to absolutely force a reset on a i386?  Specifically, 
+> is there a system call that will call the assembly instruction to assert the 
+> RESET bus line? I try to use the "reboot(LINUX_REBOOT_CMD_RESTART,0,0,NULL)" 
+> call, but it will not always work.  Occassionally, I experience a "missed 
+> interrupt" on a Promise IDE controller, and while I can telnet into the 
+> system, I can't reset it.  Any help greatly appreciated!  Since these systems 
+> are 1000's of miles away, the need to remotely reset it paramont.
+> 
+> 
+> -- 
+> Joe Briggs
+> Briggs Media Systems
+> 105 Burnsen Ave.
+> Manchester NH 01304 USA
+> TEL/FAX 603-232-3115 MOBILE 603-493-2386
+> www.briggsmedia.com
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 
-Anyway, it is good to look at some changes and learn :)
 
-
-1) dev->class_num does not exists anymore
-
-
--- 
-Grzegorz Jaskiewicz <gj@pointblue.com.pl>
-K4 labs
-
---=-stKVpX3efOZ9FVbDIjtP
-Content-Description: 
-Content-Disposition: inline; filename=ieee1394.patch
-Content-Type: text/x-patch; charset=ISO-8859-2
-Content-Transfer-Encoding: 7bit
-
-diff -u -r org/drivers/ieee1394/nodemgr.c popsuty/drivers/ieee1394/nodemgr.c
---- org/drivers/ieee1394/nodemgr.c	2003-04-30 22:22:39.000000000 +0100
-+++ popsuty/drivers/ieee1394/nodemgr.c	2003-04-30 23:41:52.000000000 +0100
-@@ -364,9 +364,6 @@
-         struct unit_directory *ud;
- 	struct ieee1394_device_id *id;
- 
--	if (dev->class_num != DEV_CLASS_UNIT_DIRECTORY)
--		return 0;
--
- 	ud = container_of(dev, struct unit_directory, device);
- 	driver = container_of(drv, struct hpsb_protocol_driver, driver);
- 
-@@ -494,18 +491,15 @@
- static struct device nodemgr_dev_template_ud = {
- 	.bus		= &ieee1394_bus_type,
- 	.release	= nodemgr_release_ud,
--	.class_num	= DEV_CLASS_UNIT_DIRECTORY,
- };
- 
- static struct device nodemgr_dev_template_ne = {
- 	.bus		= &ieee1394_bus_type,
- 	.release	= nodemgr_release_ne,
--	.class_num	= DEV_CLASS_NODE,
- };
- 
- static struct device nodemgr_dev_template_host = {
- 	.bus		= &ieee1394_bus_type,
--	.class_num	= DEV_CLASS_HOST,
- };
- 
- 
-@@ -727,9 +721,6 @@
-         struct guid_search_baton *search = __data;
-         struct node_entry *ne;
- 
--        if (dev->class_num != DEV_CLASS_NODE)
--                return 0;
--
-         ne = container_of(dev, struct node_entry, device);
- 
-         if (ne->guid == search->guid) {
-@@ -764,9 +755,6 @@
- 	struct nodeid_search_baton *search = __data;
- 	struct node_entry *ne;
- 
--	if (dev->class_num != DEV_CLASS_NODE)
--		return 0;
--
- 	ne = container_of(dev, struct node_entry, device);
- 
- 	if (ne->host == search->host && ne->nodeid == search->nodeid) {
-@@ -1131,9 +1119,6 @@
- 	if (!dev)
- 		return -ENODEV;
- 
--	if (dev->class_num != DEV_CLASS_UNIT_DIRECTORY)
--		return -ENODEV;
--
- 	ud = container_of(dev, struct unit_directory, device);
- 
- 	scratch = buffer;
-@@ -1258,9 +1243,6 @@
- 	struct node_entry *ne = __data;
- 	struct unit_directory *ud;
- 
--	if (dev->class_num != DEV_CLASS_UNIT_DIRECTORY)
--		return 0;
--
- 	ud = container_of(dev, struct unit_directory, device);
- 
- 	if (&ne->device != ud->device.parent)
-@@ -1446,9 +1428,6 @@
- 	struct cleanup_baton *cleanup = __data;
- 	struct node_entry *ne;
- 
--	if (dev->class_num != DEV_CLASS_NODE)
--		return 0;
--
- 	ne = container_of(dev, struct node_entry, device);
- 
- 	if (ne->host != cleanup->host)
-
---=-stKVpX3efOZ9FVbDIjtP--
 

@@ -1,45 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267423AbTAQHZT>; Fri, 17 Jan 2003 02:25:19 -0500
+	id <S267417AbTAQHXa>; Fri, 17 Jan 2003 02:23:30 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267421AbTAQHZT>; Fri, 17 Jan 2003 02:25:19 -0500
-Received: from dell-paw-3.cambridge.redhat.com ([195.224.55.237]:63483 "EHLO
-	passion.cambridge.redhat.com") by vger.kernel.org with ESMTP
-	id <S267418AbTAQHZS>; Fri, 17 Jan 2003 02:25:18 -0500
-X-Mailer: exmh version 2.5 13/07/2001 with nmh-1.0.4
-From: David Woodhouse <dwmw2@infradead.org>
-X-Accept-Language: en_GB
-In-Reply-To: <20030116180913.C15981@twiddle.net> 
-References: <20030116180913.C15981@twiddle.net>  <20030114171457.E5751@twiddle.net> <20030117015756.409DF2C437@lists.samba.org> 
-To: Richard Henderson <rth@twiddle.net>
-Cc: Rusty Russell <rusty@rustcorp.com.au>, linux-kernel@vger.kernel.org,
-       davem@vger.kernel.org
-Subject: Re: [module-init-tools] fix weak symbol handling 
+	id <S267418AbTAQHXa>; Fri, 17 Jan 2003 02:23:30 -0500
+Received: from meg.hrz.tu-chemnitz.de ([134.109.132.57]:32652 "EHLO
+	meg.hrz.tu-chemnitz.de") by vger.kernel.org with ESMTP
+	id <S267417AbTAQHX3>; Fri, 17 Jan 2003 02:23:29 -0500
+Date: Thu, 16 Jan 2003 18:29:20 +0100
+From: Ingo Oeser <ingo.oeser@informatik.tu-chemnitz.de>
+To: Andreas Hartmann <andreas.hartmann@fiducia.de>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [i2c-piix4.o: IBM Laptop detected; this module may corrupt your serial eeprom! Refusing to load module!] on xSeries 232 -Server
+Message-ID: <20030116182920.V628@nightmaster.csn.tu-chemnitz.de>
+References: <OFDA940B31.E3BDE6F7-ON41256CB0.0049452E@fag.fiducia.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Date: Fri, 17 Jan 2003 07:34:14 +0000
-Message-ID: <30299.1042788854@passion.cambridge.redhat.com>
+Content-Disposition: inline
+User-Agent: Mutt/1.2i
+In-Reply-To: <OFDA940B31.E3BDE6F7-ON41256CB0.0049452E@fag.fiducia.de>; from andreas.hartmann@fiducia.de on Thu, Jan 16, 2003 at 02:45:12PM +0100
+X-Spam-Score: -2.7 (--)
+X-Scanner: exiscan for exim4 (http://duncanthrax.net/exiscan/) *18ZQzK-0002e3-00*gOQodTCSeYw*
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
 
-rth@twiddle.net said:
-> > > No.  The semantics I need is if A references a weak symbol S 
-> > > and *no one* implements it, then S resolves to NULL.
-> > 
-> > Sorry, I was unclear.  I want to know the dependency semantics:
-> 
-> If B exports S, should depmod believe A needs B, or not?  Your patch
-> leaves that semantic (all it does is suppress the errors).
-> Well, that depends on whether A defines S or not.  If A does define S,
-> then I don't care.  I'd say "no", A does not depend on B.  If A does
-> not define S, then most definitely "yes", as with any other
-> definition.
+On Thu, Jan 16, 2003 at 02:45:12PM +0100, Andreas Hartmann wrote:
+> I'm using kernel 2.4.19 (SuSE 8.1; k_deflt-2.4.19-174 - actual
+> patch release) on an IBM xSeries 232 Server. When I'm trying to
+> load the module i2c-piix4, the module claims, it would be
+> running on an IBM Laptop. This is definitely wrong.  The old
+> SuSE kernel (k_deflt-2.4.19-49) didn't show this problem.
 
-As long as doing so doesn't make modprobe fail to load A when B isn't 
-present or refuses to load. Otherwise what was the point in making it weak?
+Looks like those "xSeries 232 Server" are not very handy laptops ;-)
 
---
-dwmw2
+Regards
 
-
+Ingo Oeser, which day you made today
+-- 
+Science is what we can tell a computer. Art is everything else. --- D.E.Knuth

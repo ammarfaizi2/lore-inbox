@@ -1,56 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S279787AbRJ0GaP>; Sat, 27 Oct 2001 02:30:15 -0400
+	id <S279785AbRJ0Gft>; Sat, 27 Oct 2001 02:35:49 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S279786AbRJ0GaF>; Sat, 27 Oct 2001 02:30:05 -0400
-Received: from mail118.mail.bellsouth.net ([205.152.58.58]:17456 "EHLO
-	imf18bis.bellsouth.net") by vger.kernel.org with ESMTP
-	id <S279785AbRJ0G37>; Sat, 27 Oct 2001 02:29:59 -0400
-Message-ID: <3BDA5492.110358F2@mandrakesoft.com>
-Date: Sat, 27 Oct 2001 02:30:42 -0400
-From: Jeff Garzik <jgarzik@mandrakesoft.com>
-Organization: MandrakeSoft
-X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.13-pre5 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Pavel Roskin <proski@gnu.org>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] More ioctls for VIA sound driver, Flash 5 now fixed
-In-Reply-To: <Pine.LNX.4.33.0110262134440.1121-100000@portland.hansa.lan>
-Content-Type: text/plain; charset=us-ascii
+	id <S279786AbRJ0Gff>; Sat, 27 Oct 2001 02:35:35 -0400
+Received: from zero.tech9.net ([209.61.188.187]:61450 "EHLO zero.tech9.net")
+	by vger.kernel.org with ESMTP id <S279785AbRJ0GfY>;
+	Sat, 27 Oct 2001 02:35:24 -0400
+Subject: Re: [PATCH] random.c bugfix
+From: Robert Love <rml@tech9.net>
+To: Andreas Dilger <adilger@turbolabs.com>
+Cc: =?ISO-8859-1?Q?Ren=E9?= Scharfe <l.s.r@web.de>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        Linus Torvalds <torvalds@transmeta.com>, Alan Cox <alan@redhat.com>
+In-Reply-To: <20011027002142.D23590@turbolinux.com>
+In-Reply-To: <m15xL0J-007qTxC@smtp.web.de> 
+	<20011027002142.D23590@turbolinux.com>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/0.16.99+cvs.2001.10.25.15.53 (Preview Release)
+Date: 27 Oct 2001 02:35:55 -0400
+Message-Id: <1004164556.3274.14.camel@phantasy>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Pavel Roskin wrote:
-> 
-> Hello!
-> 
-> Flash plugin version 5 refuses to work with the VIA 82Cxxx driver.  It
-> turns out that Flash uses SNDCTL_DSP_NONBLOCK on /dev/dsp, which is not
-> supported by the driver.
-> 
-> I also looked what other ioctls can be implemented easily on VIA 82Cxxx.
-> There is another one - SNDCTL_DSP_GETTRIGGER.  Everything else is not
-> trivial, sorry.
-> 
-> This patch add support for SNDCTL_DSP_NONBLOCK and SNDCTL_DSP_GETTRIGGER.
-> It can be found at http://www.red-bean.com/~proski/linux/via-ioctl.diff
-> 
-> Flash 5 plugin plays just fine after applying the patch (check e.g.
-> http://wcrb.com/sparks.html)
+On Sat, 2001-10-27 at 02:21, Andreas Dilger wrote:
+> OK, my bad.  At least the random variable-name cleanups let you SEE where
+> we are supposed to be using word sizes and byte sizes.  Even you were
+> confused about it ;-)
 
-Thanks, applied.
+I went over your original patch good; I am surprised I missed this. :/
+Nonetheless, only with the new cleanups could anyone spot this.
 
-I always thought SNDCTL_DSP_NONBLOCK was stupid and never implemented
-it, since the same can be accomplished via fcntl(2).  But not only this
-but also some soundmodem utilities require this ioctl.  Sigh.  :)
+> Well, this is a matter of taste.  With my code, it is correct regardless
+> of how tmp is declared, while with your code you assume tmp is TMP_BUF_SIZE
+> words, and that it is declared with a 4-byte type.  Both ways are resolved
+> at compile time, so using "sizeof(tmp)/4" or "sizeof(tmp)*8" doesn't add
+> any run-time overhead.
 
-	Jeff
+I think I prefer your sizeof() method, if for nothing else but that we
+can keep it consistent -- we can always take the sizeof a variable and
+not everything has its size in a define.
 
+Furthermore, sizeof(tmp) certainly means "size of the variable temp"
+while TMP_BUF_SIZE could be the size of anything related to tmp -- the
+buffer it points to (if it were a pointer), a buffer in it (if it were a
+struct), etc.  Since it all compiles to the same, it is not a huge
+issue.  Just my two bits...
 
--- 
-Jeff Garzik      | Only so many songs can be sung
-Building 1024    | with two lips, two lungs, and one tongue.
-MandrakeSoft     |         - nomeansno
+> I don't have a strong opinion either way, if Linus and/or Alan have a
+> preference to do it one way or the other.
+
+...but I'm not Alan or Linus ;)
+
+	Robert Love
 

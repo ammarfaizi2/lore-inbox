@@ -1,44 +1,54 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315338AbSFDRw0>; Tue, 4 Jun 2002 13:52:26 -0400
+	id <S315438AbSFDRxG>; Tue, 4 Jun 2002 13:53:06 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315372AbSFDRwZ>; Tue, 4 Jun 2002 13:52:25 -0400
-Received: from 12-224-36-73.client.attbi.com ([12.224.36.73]:3337 "HELO
-	kroah.com") by vger.kernel.org with SMTP id <S315338AbSFDRwY>;
-	Tue, 4 Jun 2002 13:52:24 -0400
-Date: Tue, 4 Jun 2002 10:49:53 -0700
-From: Greg KH <greg@kroah.com>
-To: Patrick Mochel <mochel@osdl.org>
+	id <S315379AbSFDRxE>; Tue, 4 Jun 2002 13:53:04 -0400
+Received: from nat-pool-rdu.redhat.com ([66.187.233.200]:1702 "EHLO
+	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
+	id <S315374AbSFDRwu>; Tue, 4 Jun 2002 13:52:50 -0400
+Date: Tue, 4 Jun 2002 13:52:47 -0400
+From: Pete Zaitcev <zaitcev@redhat.com>
+Message-Id: <200206041752.g54HqlW04012@devserv.devel.redhat.com>
+To: Ian Soboroff <ian.soboroff@nist.gov>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: device model documentation 2/3
-Message-ID: <20020604174952.GD28805@kroah.com>
-In-Reply-To: <Pine.LNX.4.33.0206040918490.654-100000@geena.pdx.osdl.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4i
-X-Operating-System: Linux 2.2.21 (i586)
-Reply-By: Tue, 07 May 2002 14:47:04 -0700
+Subject: Re: Patch for broken Dell C600 and I5000
+In-Reply-To: <mailman.1023209101.6092.linux-kernel2news@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jun 04, 2002 at 09:25:17AM -0700, Patrick Mochel wrote:
+>> Some time ago I had to work around broken BIOS in Dell C600
+>> and Linus accepted the patch (it was before Marcelo, IIRC). All this
+>> time BIOS writers continued to search for the bottom in the barrel
+>> of brokenness and now we have I5000 brain damaged in a similar way.
+>> Since I5000 is broken even before it sleeps, I made a different
+>> workaround.
 > 
-> Document 2: driver.txt
+> What is the problem this fixes?  I don't have any problems with my
+> C600 suspending and resuming (2.4.19pre7-ac4).  Some of the comments
+> look BIOS-version-specific... why not just upgrade the BIOS?  (The
+> comment I saw referred to version A06, but I have A17!)
 > 
-> This document includes two important points. For one, there is finally the 
-> much promised description on the intended use of the power management 
-> callbacks. 
-> 
-> Second, there is a proposed callback: init(). This would break driver 
-> initialization apart from probe(). This has been discussed in the past, 
-> and I believe with a positive result. If there are no objections, I will 
-> implement the callback. Otherwise, I will fix the document. 
+> Correct me if I'm missing something here... I didn't read the patch
+> too carefully...
 
-I think this is a good idea, at least for the USB drivers, and should be
-implemented.
+There is an explanation in the comments. I am not surprised
+that your C600 works, because your kernel has the old workaround
+for the C600 specifically (activated by DMI scan).
+Upgrades do not help, because: 1) they do not fix the problem,
+2) even if they did, many could not do it, 3) even if your C600
+worked perfectly, there is a number of 5000's and 5000e's in
+the field which are broken.
 
-Thanks for writing up the documentation on this, it makes working with
-the new code a much easier process :)
+You can test your C600 with A17 by doing this. Apply the patch
+(this removes the old workaround), build, reboot. Without
+explicit parameter the new workaround is not activated.
+Kill gpm. Verify that psaux is not open by doing
+"cat /proc/interrupts". Suspend and resume. Very carefuly
+type something - keyboard should be working. Now touch the
+touchpad. If your keyboard locks, A17 is no better than A06.
+If keyboard continues to work, A17 is good, and you may ignore
+the rest of this discussion.
 
-greg k-h
+-- Pete
+
+P.S. Your list gateway mangles subjects.

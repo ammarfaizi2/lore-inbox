@@ -1,45 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S286188AbSBOCLf>; Thu, 14 Feb 2002 21:11:35 -0500
+	id <S285829AbSBOCKp>; Thu, 14 Feb 2002 21:10:45 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286303AbSBOCL3>; Thu, 14 Feb 2002 21:11:29 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:33810 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S286188AbSBOCLS>;
-	Thu, 14 Feb 2002 21:11:18 -0500
-Message-ID: <3C6C6E3C.8452F48B@mandrakesoft.com>
-Date: Thu, 14 Feb 2002 21:11:08 -0500
-From: Jeff Garzik <jgarzik@mandrakesoft.com>
-Organization: MandrakeSoft
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.17-2mdksmp i686)
-X-Accept-Language: en
+	id <S286188AbSBOCK0>; Thu, 14 Feb 2002 21:10:26 -0500
+Received: from ip68-3-107-226.ph.ph.cox.net ([68.3.107.226]:55181 "EHLO
+	grok.yi.org") by vger.kernel.org with ESMTP id <S285829AbSBOCKV>;
+	Thu, 14 Feb 2002 21:10:21 -0500
+Message-ID: <3C6C6E0C.6000309@candelatech.com>
+Date: Thu, 14 Feb 2002 19:10:20 -0700
+From: Ben Greear <greearb@candelatech.com>
+Organization: Candela Technologies
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.4) Gecko/20011019 Netscape6/6.2
+X-Accept-Language: en-us
 MIME-Version: 1.0
-To: Pavel Machek <pavel@suse.cz>
-CC: Linus Torvalds <torvalds@transmeta.com>,
-        "David S. Miller" <davem@redhat.com>, dalecki@evision-ventures.com,
-        linux-kernel@vger.kernel.org
-Subject: Re: PATCH 2.5.4 i810_audio, bttv, working at all.
-In-Reply-To: <Pine.LNX.4.33.0202131043230.13632-100000@home.transmeta.com> <3C6AA01A.51517C48@mandrakesoft.com> <20020214092753.A37@toy.ucw.cz>
-Content-Type: text/plain; charset=us-ascii
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: copy_from_user returns a positive value?
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Pavel Machek wrote:
-> 
-> Hi!
-> 
-> > As an experiment a couple months ago, I got most of the PCI net drivers
-> > down to ~200-300 lines of C code apiece, by factoring out common code
-> > patterns into M4 macros.  "m4 netdrivers.m4 epic100.tmpl > epic100.c"
-> 
-> This is slightly extreme, right?
-> 
-> But I'd like to see resulting epic100.tmpl ;-).
+I have an IOCTL defined something like this:
 
-When you have to maintain more than 10 "cookie cutter" net drivers that
-are 80-90% the same, you start to want such extremes :)
+	_IOWR (0xfe, (30<<3 + 0), __u8 [696])
+
+I'm really passing in a structure of size 696 (does that matter)?
+
+When I make the copy from user call:
+
+       if ((ret = copy_from_user(&reqconf, arg, sizeof(reqconf)))) {
+          printk("ERROR: copy_from_user returned: %i, sizeof(reqconf): %i\n",
+                 ret, sizeof(reqconf));
+          return ret;
+       }
+
+I see this printed out:
+
+ERROR: copy_from_user returned: 696, sizeof(reqconf): 696
+
+
+According to some docs I saw on the web, it should return 0, or the
+number it has left to copy.  So, why does it have 696 bytes left
+to copy??
+
+Thanks,
+Ben
+
 
 -- 
-Jeff Garzik      | "I went through my candy like hot oatmeal
-Building 1024    |  through an internally-buttered weasel."
-MandrakeSoft     |             - goats.com
+Ben Greear <greearb@candelatech.com>       <Ben_Greear AT excite.com>
+President of Candela Technologies Inc      http://www.candelatech.com
+ScryMUD:  http://scry.wanfear.com     http://scry.wanfear.com/~greear
+
+

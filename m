@@ -1,49 +1,83 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268383AbUI2NKK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268400AbUI2NKx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268383AbUI2NKK (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 29 Sep 2004 09:10:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268370AbUI2NKI
+	id S268400AbUI2NKx (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 29 Sep 2004 09:10:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268370AbUI2NKw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 29 Sep 2004 09:10:08 -0400
-Received: from imladris.demon.co.uk ([193.237.130.41]:33540 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id S268383AbUI2NJM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 29 Sep 2004 09:09:12 -0400
-Date: Wed, 29 Sep 2004 14:09:10 +0100
-From: Christoph Hellwig <hch@infradead.org>
-To: Andrea Carpani <andrea.carpani@criticalpath.net>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Adaptec aic79xx driver status
-Message-ID: <20040929140909.A12373@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Andrea Carpani <andrea.carpani@criticalpath.net>,
-	Linux Kernel <linux-kernel@vger.kernel.org>
-References: <415AB021.70605@criticalpath.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Wed, 29 Sep 2004 09:10:52 -0400
+Received: from hhlx01.visionsystems.de ([62.145.30.242]:53650 "EHLO
+	hhlx01.visionsystems.de") by vger.kernel.org with ESMTP
+	id S268367AbUI2NJ6 convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 29 Sep 2004 09:09:58 -0400
+From: Roland =?utf-8?q?Ca=C3=9Febohm?= 
+	<roland.cassebohm@VisionSystems.de>
+Organization: Vision Systems GmbH
+To: linux-kernel@vger.kernel.org
+Subject: Re: Serial driver hangs
+Date: Wed, 29 Sep 2004 15:09:38 +0200
+User-Agent: KMail/1.6.2
+Cc: Paul Fulghum <paulkf@microgate.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Russell King <rmk+lkml@arm.linux.org.uk>
+References: <200409281734.38781.roland.cassebohm@visionsystems.de> <1096409562.14082.53.camel@localhost.localdomain> <1096420364.6003.29.camel@at2.pipehead.org>
+In-Reply-To: <1096420364.6003.29.camel@at2.pipehead.org>
+MIME-Version: 1.0
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <415AB021.70605@criticalpath.net>; from andrea.carpani@criticalpath.net on Wed, Sep 29, 2004 at 02:52:49PM +0200
-X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by phoenix.infradead.org
-	See http://www.infradead.org/rpr.html
+Content-Type: text/plain;
+  charset="utf-8"
+Content-Transfer-Encoding: 8BIT
+Message-Id: <200409291509.39187.roland.cassebohm@visionsystems.de>
+X-OriginalArrivalTime: 29 Sep 2004 13:09:40.0059 (UTC) FILETIME=[940542B0:01C4A625]
+X-AntiVirus: checked by AntiVir Milter 1.0.6; AVE 6.27.0.12; VDF 6.27.0.79
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Sep 29, 2004 at 02:52:49PM +0200, Andrea Carpani wrote:
-> As of linux 2.6.8.1 the aic79xx driver included is version 1.3.11 which 
-> dates back to July 11, 2003.
-> 
-> On my Tyan B2881 the used scsi controller has a lot of problems: as soon 
-> as I try to transfer some data I get a frozen scsi subsystem and a dump 
-> in the syslog messages.
-> 
-> I hope to be able to solve these problems by using the new driver found 
-> at http://people.freebsd.org/~gibbs/linux/SRC/
-> 
-> My question is: why isn't the new version included in the main tree?
+Hi,
 
-Because it's broken in various ways.  We're working with Adaptec to get
-the fixes merged but not the bogus parts.  But as Justin didn't cooperate
-the new engineer in his position has a hard time to untangle the mess, so
-it'll take a while.
+Am Mittwoch, 29. September 2004 03:12 schrieb Paul Fulghum:
+> On Tue, 2004-09-28 at 17:12, Alan Cox wrote:
+> > We have throttle()/unthrottle(). Drivers also know if
+> > they can't push data.
+>
+> Yes, though these are manipulated by the ldisc
+> in relation to the ldisc receive buffer.
+> Coordinating the use of these functions between
+> a buffering layer (like the flip buffer) and
+> the ldisc would require each to have
+> knowledge of the other's state to know who
+> calls what and when (yuck).
+>
+> But much of that may go away when...
+>
+> > TTY_DONT_FLIP has to die.
+>
+> *bang*
+>
+> Until then, flushing the UART receive
+> FIFO and dropping the bytes (and updating
+> overrun stat) seems a reasonable short term
+> solution to stop the machine from locking up
+> while leaving the device in a recoverable state.
+>
+> We can even mark it with *FIXME* in a comment.
+> That always seems to work :-)
 
+I have made a little test, at which the receive interrupt is 
+disabled in that state. It seems to be no improvement to the 
+solution of just trow away the bytes of the FIFO. In both 
+cases characters got lost.
+
+So I think you are right, it would be the best to make the 
+simple solution with flushing the UART receive FIFO till the 
+flip buffer implementation will be reworked.
+
+Roland
+-- 
+___________________________________________________
+
+VS Vision Systems GmbH, Industrial Image Processing
+Dipl.-Ing. Roland Caßebohm
+Aspelohe 27A, D-22848 Norderstedt, Germany
+Mail: roland.cassebohm@visionsystems.de
+http://www.visionsystems.de
+___________________________________________________

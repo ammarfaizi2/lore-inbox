@@ -1,46 +1,210 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262085AbTDAHKz>; Tue, 1 Apr 2003 02:10:55 -0500
+	id <S262096AbTDAHUK>; Tue, 1 Apr 2003 02:20:10 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262096AbTDAHKz>; Tue, 1 Apr 2003 02:10:55 -0500
-Received: from [12.47.58.55] ([12.47.58.55]:39675 "EHLO pao-ex01.pao.digeo.com")
-	by vger.kernel.org with ESMTP id <S262085AbTDAHKy>;
-	Tue, 1 Apr 2003 02:10:54 -0500
-Date: Mon, 31 Mar 2003 23:22:27 -0800
-From: Andrew Morton <akpm@digeo.com>
-To: Zwane Mwaikambo <zwane@linuxpower.ca>
-Cc: linux-kernel@vger.kernel.org, gibbs@scsiguy.com
-Subject: Re: aic7(censored) use after free in 2.5.66
-Message-Id: <20030331232227.3f9c9c5f.akpm@digeo.com>
-In-Reply-To: <Pine.LNX.4.50.0304010155470.8773-100000@montezuma.mastecende.com>
-References: <Pine.LNX.4.50.0304010141200.8773-100000@montezuma.mastecende.com>
-	<Pine.LNX.4.50.0304010155470.8773-100000@montezuma.mastecende.com>
-X-Mailer: Sylpheed version 0.8.9 (GTK+ 1.2.10; i586-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	id <S262100AbTDAHUK>; Tue, 1 Apr 2003 02:20:10 -0500
+Received: from franka.aracnet.com ([216.99.193.44]:26554 "EHLO
+	franka.aracnet.com") by vger.kernel.org with ESMTP
+	id <S262096AbTDAHUH>; Tue, 1 Apr 2003 02:20:07 -0500
+Date: Mon, 31 Mar 2003 23:31:21 -0800
+From: "Martin J. Bligh" <mbligh@aracnet.com>
+To: linux-kernel <linux-kernel@vger.kernel.org>
+cc: lse-tech <lse-tech@lists.sourceforge.net>
+Subject: 2.5.66-mjb2
+Message-ID: <15110000.1049182281@[10.10.2.4]>
+X-Mailer: Mulberry/2.2.1 (Linux/x86)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 01 Apr 2003 07:22:11.0009 (UTC) FILETIME=[690F7310:01C2F81F]
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Zwane Mwaikambo <zwane@linuxpower.ca> wrote:
->
-> > Slab corruption: start=f7d66248, expend=f7d662c7, problemat=f7d662ac
-> > Last user: [<c024f0b7>](ahc_linux_free_device+0x27/0x60)
-> > Data: 
-> 
-> This probably wants; Or if we can sleep in all the paths, a  
-> synchronize_kernel after del_timer should suffice.
+The patchset contains mainly scalability and NUMA stuff, and anything 
+else that stops things from irritating me. It's meant to be pretty stable, 
+not so much a testing ground for new stuff.
 
-Yes, but no.
+I'd be very interested in feedback from anyone willing to test on any 
+platform, however large or small.
 
-The corruption was at offset 52 decimal into struct ahc_linux_device. 
-Without knowing your config it is hard for me to work out what you have at
-that offset.   Rebuild your kernel with -g and do:
+ftp://ftp.kernel.org/pub/linux/kernel/people/mbligh/2.5.66/patch-2.5.66-mjb2.bz2
 
-(gdb) p/d &(((struct ahc_linux_device *)0)->maxtags)
+additional:
 
-until you find which member is at offset 52.
+ftp://ftp.kernel.org/pub/linux/kernel/people/mbligh/2.5.66/shpte
 
-Something incremented that field by one after it was freed.
+Since 2.5.66-mjb1 (~ = changed, + = added, - = dropped)
+
+Notes:
+
+Now in Linus' tree:
+
+New: 
++ tcp_speedup					Martin J. Bligh
+	Speedup TCP (avoid double copy) as suggested by Linus
++ early_printk_fix				Keith Mannthey
+	Fix commandline parsing in early printk (yay!)
++ disable preempt				Martin J. Bligh
+	I broke preempt somehow, temporarily disable it to stop accidents
++ sched_idle					Martin J. Bligh
+	Call load_balance with proper idle flag (pointed out by John Hawkes)
++ diskstats					Rick Lindsley
+	Make disk stats available in /proc so they scale to lotsa disks.
++ cs46xx_lib					Martin J. Bligh
+	Fix silly compiler warning in cs46xx_lib
+
+Pending:
+Hyperthreaded scheduler (Ingo Molnar)
+objrmap bugfixes for nonlinear vma's (Dave McCracken)
+Seperate kernel PMDs per process (Dave Hansen)
+Non-PAE aligned kernel splits (Dave Hansen)
+scheduler callers profiling (Anton or Bill Hartner)
+PPC64 NUMA patches (Anton)
+Child runs first (akpm)
+Kexec
+e1000 fixes
+Update the lost timer ticks code
+
+Present in this patch:
+
+early_printk					Dave Hansen et al.
+	Allow printk before console_init
+
+confighz					Andrew Morton / Dave Hansen
+	Make HZ a config option of 100 Hz or 1000 Hz
+
+config_page_offset				Dave Hansen / Andrea
+	Make PAGE_OFFSET a config option
+
+vmalloc_stats					Dave Hansen
+	Expose useful vmalloc statistics
+
+numameminfo					Martin Bligh / Keith Mannthey
+	Expose NUMA meminfo information under /proc/meminfo.numa
+
+schedstat					Rick Lindsley
+	Provide stats about the scheduler under /proc/schedstat
+
+schedstat2					Rick Lindsley
+	Provide more stats about the scheduler under /proc/schedstat
+
+schedstat-scripts				Rick Lindsley
+	Provide some scripts for schedstat analysis under scripts/
+
+sched_tunables					Robert Love
+	Provide tunable parameters for the scheduler (+ NUMA scheduler)
+
+irq_affinity					Martin J. Bligh
+	Workaround for irq_affinity on clustered apic mode systems (eg x440)
+
+partial_objrmap					Dave McCracken
+	Object based rmap for filebacked pages.
+
+objrmap_fix					Dave McCracken
+	Fix detection of anon pages
+
+objrmap_fixes					Dave McCracken / Hugh Dickins
+	Fix up some mapped sizing bugs in objrmap
+
+objrmap_mapcount				Dave McCracken
+	Fix up some mapped sizing bugs in objrmap
+
+kgdb						Andrew Morton / Various People
+	The older version of kgdb, synched with 2.5.54-mm1
+
+kprobes						Vamsi Krishna S
+	Add kernel probes hooks to the kernel
+
+thread_info_cleanup (4K stacks pt 1)		Dave Hansen / Ben LaHaise
+	Prep work to reduce kernel stacks to 4K
+	
+interrupt_stacks    (4K stacks pt 2)		Dave Hansen / Ben LaHaise
+	Create a per-cpu interrupt stack.
+
+stack_usage_check   (4K stacks pt 3)		Dave Hansen / Ben LaHaise
+	Check for kernel stack overflows.
+
+4k_stack            (4K stacks pt 4)		Dave Hansen
+	Config option to reduce kernel stacks to 4K
+
+fix_kgdb					Dave Hansen
+	Fix interaction between kgdb and 4K stacks
+
+stacks_from_slab				William Lee Irwin
+	Take kernel stacks from the slab cache, not page allocation.
+
+thread_under_page				William Lee Irwin
+	Fix THREAD_SIZE < PAGE_SIZE case
+
+lkcd						LKCD team
+	Linux kernel crash dump support
+
+percpu_loadavg					Martin J. Bligh
+	Provide per-cpu loadaverages, and real load averages
+
+spinlock_inlining				Andrew Morton
+	Inline spinlocks for profiling. Made into a ugly config option by me.
+
+summit_pcimap					Matt Dobson
+	Provide pci bus -> node mapping for x440
+
+# shpte						Dave McCracken
+	Shared pagetables
+
+reiserfs_dio					Mingming Cao
+	DIO for Reiserfs
+
+concurrent_balloc				Alex Tomas
+	Concurrent ext2 block allocation - makes SDET & dbench go whizzy fast.
+
+concurrent_inode				Alex Tomas
+	Concurrent ext2 inode allocation - makes SDET & dbench go whizzy fast.
+
+sched_interactive				Ingo Molnar
+	Bugfix for interactive scheduler
+
+kgdb_cleanup					Martin J. Bligh
+	Stop kgdb renaming schedule to do_schedule when it's not even enabled
+
+3c509_fix					Martin J. Bligh
+	Fix warning in 3c509 driver.
+
+acenic_fix					Martin J. Bligh
+	Fix warning in acenic driver
+
+sisfix						Martin J. Bligh
+	Fix warning & bug in sis900 driver
+
+scsi_sysfs_fix					Martin J. Bligh
+	Fix error in scsi_sysfs.
+
+local_balance_exec				Martin J. Bligh
+	Modify balance_exec to use node-local queues when idle
+
+d_notify					Andrew Morton
+	Convert dparent_lock do dentry->d_lock
+
+membind						Matt Dobson
+	NUMA memory binding API
+
+tcp_speedup					Martin J. Bligh
+	Speedup TCP (avoid double copy) as suggested by Linus
+
+early_printk_fix				Keith Mannthey
+	Fix commandline parsing in early printk (yay!)
+
+disable preempt					Martin J. Bligh
+	I broke preempt somehow, temporarily disable it to stop accidents
+
+sched_idle					Martin J. Bligh
+	Call load_balance with proper idle flag (pointed out by John Hawkes)
+
+diskstats					Rick Lindsley
+	Make disk stats available in /proc so they scale to lotsa disks.
+
+cs46xx_lib					Martin J. Bligh
+	Fix silly compiler warning in cs46xx_lib
+
+-mjb						Martin J. Bligh
+	Add a tag to the makefile
 

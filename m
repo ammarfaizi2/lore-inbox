@@ -1,45 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315222AbSGRAIG>; Wed, 17 Jul 2002 20:08:06 -0400
+	id <S315266AbSGRAIn>; Wed, 17 Jul 2002 20:08:43 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315266AbSGRAIG>; Wed, 17 Jul 2002 20:08:06 -0400
-Received: from p508879A0.dip.t-dialin.net ([80.136.121.160]:60062 "EHLO
-	hawkeye.luckynet.adm") by vger.kernel.org with ESMTP
-	id <S315222AbSGRAIG>; Wed, 17 Jul 2002 20:08:06 -0400
-Date: Wed, 17 Jul 2002 18:10:38 -0600 (MDT)
-From: Thunder from the hill <thunder@ngforever.de>
-X-X-Sender: thunder@hawkeye.luckynet.adm
-To: Pete Zaitcev <zaitcev@redhat.com>
-cc: Linus Torvalds <torvalds@transmeta.com>, <linux-kernel@vger.kernel.org>
-Subject: Re: close return value
-In-Reply-To: <200207180001.g6I015f02681@devserv.devel.redhat.com>
-Message-ID: <Pine.LNX.4.44.0207171809200.3452-100000@hawkeye.luckynet.adm>
-X-Location: Dorndorf; Germany
+	id <S315430AbSGRAIn>; Wed, 17 Jul 2002 20:08:43 -0400
+Received: from perninha.conectiva.com.br ([200.250.58.156]:26129 "HELO
+	perninha.conectiva.com.br") by vger.kernel.org with SMTP
+	id <S315266AbSGRAIk>; Wed, 17 Jul 2002 20:08:40 -0400
+Date: Wed, 17 Jul 2002 20:17:47 -0300 (BRT)
+From: Marcelo Tosatti <marcelo@conectiva.com.br>
+X-X-Sender: marcelo@freak.distro.conectiva
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Andre Hedrick <andre@linux-ide.org>, Klaus Dittrich <kladit@t-online.de>,
+       linux mailing-list <linux-kernel@vger.kernel.org>
+Subject: Re: 2.4.19rc2 and Promise RAID controller
+In-Reply-To: <1026937029.1688.160.camel@irongate.swansea.linux.org.uk>
+Message-ID: <Pine.LNX.4.44.0207172017280.25929-100000@freak.distro.conectiva>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
 
-On Wed, 17 Jul 2002, Pete Zaitcev wrote:
-> The problem with errors from close() is that NOTHING SMART can be
-> done by the application when it receives it. And application can:
-> 
->  a) print a message "Your data are lost, have a nice day\n".
->  b) loop retrying close() until it works.
->  c) do (a) then (b).
+Klaus,
 
-(a) is much saner than silently loosing data.
+Could you please set CONFIG_PDC202XX_FORCE to on and see what happens?
 
-							Regards,
-							Thunder
--- 
-(Use http://www.ebb.org/ungeek if you can't decode)
-------BEGIN GEEK CODE BLOCK------
-Version: 3.12
-GCS/E/G/S/AT d- s++:-- a? C++$ ULAVHI++++$ P++$ L++++(+++++)$ E W-$
-N--- o?  K? w-- O- M V$ PS+ PE- Y- PGP+ t+ 5+ X+ R- !tv b++ DI? !D G
-e++++ h* r--- y- 
-------END GEEK CODE BLOCK------
+On 17 Jul 2002, Alan Cox wrote:
+
+> On Wed, 2002-07-17 at 17:54, Andre Hedrick wrote:
+> >
+> > This is just proves that accepting the patch code from Promise will begin
+> > to remove basic support for hardware.  I warned everyone of this and
+> > people do not listen.  So I suggest that you find another vendors product
+> > to use as the PDC20270 shall not be supported anymore.
+>
+> Andre, this is not the case. We all agreed to sort out the raid detect.
+> I sent Marcelo a diff and some instructions. He applied the diff but I
+> guess my instructions were too confusing. It'll get fixed for -rc3
+>
+> If you want a conspiracy to play with look elsewhere (there are no
+> shortage of real ones 8))
+>
 

@@ -1,52 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264340AbTDXA1Z (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Apr 2003 20:27:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264346AbTDXA1Z
+	id S264360AbTDXAbq (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Apr 2003 20:31:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264362AbTDXAbp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Apr 2003 20:27:25 -0400
-Received: from [12.47.58.232] ([12.47.58.232]:45248 "EHLO
-	pao-ex01.pao.digeo.com") by vger.kernel.org with ESMTP
-	id S264340AbTDXA1X (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Apr 2003 20:27:23 -0400
-Date: Wed, 23 Apr 2003 17:37:20 -0700
-From: Andrew Morton <akpm@digeo.com>
-To: Nigel Cunningham <ncunningham@clear.net.nz>
-Cc: cat@zip.com.au, pavel@ucw.cz, mbligh@aracnet.com, gigerstyle@gmx.ch,
-       geert@linux-m68k.org, linux-kernel@vger.kernel.org
-Subject: Re: Fix SWSUSP & !SWAP
-Message-Id: <20030423173720.6cc5ee50.akpm@digeo.com>
-In-Reply-To: <1051143408.4305.15.camel@laptop-linux>
-References: <1051136725.4439.5.camel@laptop-linux>
-	<1584040000.1051140524@flay>
-	<20030423235820.GB32577@atrey.karlin.mff.cuni.cz>
-	<20030423170759.2b4e6294.akpm@digeo.com>
-	<20030424001733.GB678@zip.com.au>
-	<1051143408.4305.15.camel@laptop-linux>
-X-Mailer: Sylpheed version 0.8.9 (GTK+ 1.2.10; i586-pc-linux-gnu)
+	Wed, 23 Apr 2003 20:31:45 -0400
+Received: from almesberger.net ([63.105.73.239]:47366 "EHLO
+	host.almesberger.net") by vger.kernel.org with ESMTP
+	id S264360AbTDXAbo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 23 Apr 2003 20:31:44 -0400
+Date: Wed, 23 Apr 2003 21:43:33 -0300
+From: Werner Almesberger <wa@almesberger.net>
+To: Jamie Lokier <jamie@shareable.org>
+Cc: "Martin J. Bligh" <mbligh@aracnet.com>,
+       Matthias Schniedermeyer <ms@citd.de>, Marc Giger <gigerstyle@gmx.ch>,
+       linux-kernel <linux-kernel@vger.kernel.org>, pat@suwalski.net
+Subject: Re: [Bug 623] New: Volume not remembered.
+Message-ID: <20030423214332.H3557@almesberger.net>
+References: <21660000.1051114998@[10.10.2.4]> <20030423164558.GA12202@citd.de> <1508310000.1051116963@flay> <20030423183413.C1425@almesberger.net> <1560860000.1051133781@flay> <20030423191427.D3557@almesberger.net> <1570840000.1051136330@flay> <20030424001134.GD26806@mail.jlokier.co.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 24 Apr 2003 00:39:24.0420 (UTC) FILETIME=[F426DC40:01C309F9]
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030424001134.GD26806@mail.jlokier.co.uk>; from jamie@shareable.org on Thu, Apr 24, 2003 at 01:11:34AM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Nigel Cunningham <ncunningham@clear.net.nz> wrote:
->
-> On Thu, 2003-04-24 at 12:17, CaT wrote:
-> > I'm curious. What does a swapfile solve that a swapdev does not? Either
-> > way you need to prealloc the case (either have a chunky file in a
-> > partition or a partition set aside) or you need to keep enough room
-> > avail to fit the file when it's needed.
-> 
-> Nothing but further bloat in swsusp :> With a swapfile, we need to know
-> the location of the file (and be able to find it again when it changes,
-> and know how to find the next block in the file system - it might be
-> fragmented).
+Jamie Lokier wrote:
+> Even when the microphone is disabled, you still get (a) the sound of
+> nearby mobile phone radio signals (my laptop is very bad for this),
+> (b) a scary load "pop" as the sound system pulses the speaker.  This
+> is particularly bad with powered external speakers, as you wonder
+> whether it is good for them.
 
-That's because swsusp is using the mm/page_io.c functions for suspend, but
-is using the fs/buffer.c functions direct to the blockdev for resume.
+Good points.
 
-If you can use the swapper_space a_ops for both suspend and resume (say:
-"cleanup") then it will just work.
+>    A standard audio module option "volume=X" meaning "set volume X%
+>    when the module initialises".
 
+I don't quite see how this would make user space any less
+fancy:
+
+# insmod audio_driver volume=`retrieve_volume`
+
+versus
+
+# insmod audio_driver
+# aumix -L >/dev/null
+
+only that the latter can do a lot more, so you may want it even
+if the module lets you set the volume. And the module solution
+doesn't help with monolithic kernels. (And I doubt you'd want
+this to be a kernel command line parameter. Talk about fancy.)
+
+> Then anything with a fancy enough userspace [...]
+
+echo 'aumix -L >/dev/null' >>/etc/rc.d/rc.local
+
+Wow, that was hard :-) (Okay, things get a tad more complex if
+you have more than one mixer.)
+
+- Werner
+
+-- 
+  _________________________________________________________________________
+ / Werner Almesberger, Buenos Aires, Argentina         wa@almesberger.net /
+/_http://www.almesberger.net/____________________________________________/

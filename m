@@ -1,39 +1,27 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288544AbSA0UGG>; Sun, 27 Jan 2002 15:06:06 -0500
+	id <S288565AbSA0USq>; Sun, 27 Jan 2002 15:18:46 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288565AbSA0UFt>; Sun, 27 Jan 2002 15:05:49 -0500
-Received: from [195.66.192.167] ([195.66.192.167]:17938 "EHLO
-	Port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with ESMTP
-	id <S288595AbSA0UFQ>; Sun, 27 Jan 2002 15:05:16 -0500
-Message-Id: <200201272003.g0RK3sE20379@Port.imtp.ilyichevsk.odessa.ua>
-Content-Type: text/plain; charset=US-ASCII
-From: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
-Reply-To: vda@port.imtp.ilyichevsk.odessa.ua
-To: linux-kernel@vger.kernel.org
-Subject: Kudos to NFS developers
-Date: Sun, 27 Jan 2002 22:03:56 -0200
-X-Mailer: KMail [version 1.3.2]
-Cc: Trond Myklebust <trond.myklebust@fys.uio.no>
+	id <S288661AbSA0USh>; Sun, 27 Jan 2002 15:18:37 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:522 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S288565AbSA0USZ>; Sun, 27 Jan 2002 15:18:25 -0500
+Subject: Re: 2.4.17 multiple Oops and file corruption on I845 MB
+To: koehlekr@ucrwcu.rwc.uc.edu (Ken)
+Date: Sun, 27 Jan 2002 19:47:16 +0000 (GMT)
+Cc: linux-kernel@vger.kernel.org, bugs@linux-ide.org
+In-Reply-To: <3C4EE4C8.6FF3B2AF@ucrwcu.rwc.uc.edu> from "Ken" at Jan 23, 2002 11:28:56 AM
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E16UvGm-0002Jx-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I want to say that when I decided to put my main Linux box on NFS I thought 
-it wouldn't be painless. In fact, it was.
+> I am attempting to run RedHat 7.2 with a 2.4.17 kernel with Andre
+> Hedrick's IDE patches
 
-I am able to run a couple of workstations with shared NFS root fs (ro),
-/usr (rw) and /home (rw). It works wonderfully over 100MBit eth and 
-surprisingly good over 10MBit.
+Does it do it without Andre's patches ?
 
-I rebooted NFS server on several occasions while clients were using it and 
-witnessed that they handle this perfectly. No information is lost, apps just 
-continue to happily run after server is up again.
-
-I want to say big fat "THANK YOU!" to all NFS developers, testers and patch 
-submitters!
-
-Happy hacking!
---
-vda

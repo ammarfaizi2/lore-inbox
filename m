@@ -1,72 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264565AbUAFQeO (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 Jan 2004 11:34:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264547AbUAFQcK
+	id S264557AbUAFQfN (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 Jan 2004 11:35:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264563AbUAFQe0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 Jan 2004 11:32:10 -0500
-Received: from [139.30.44.16] ([139.30.44.16]:4744 "EHLO
-	gockel.physik3.uni-rostock.de") by vger.kernel.org with ESMTP
-	id S264522AbUAFQbZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 Jan 2004 11:31:25 -0500
-Date: Tue, 6 Jan 2004 17:30:39 +0100 (CET)
-From: Tim Schmielau <tim@physik3.uni-rostock.de>
-To: Andrew Morton <akpm@osdl.org>
-cc: James Bottomley <James.Bottomley@SteelEye.com>, johnstultz@us.ibm.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] fix get_jiffies_64 to work on voyager
-In-Reply-To: <20040106081947.3d51a1d5.akpm@osdl.org>
-Message-ID: <Pine.LNX.4.53.0401061727270.8423@gockel.physik3.uni-rostock.de>
-References: <1073405053.2047.28.camel@mulgrave> <20040106081947.3d51a1d5.akpm@osdl.org>
+	Tue, 6 Jan 2004 11:34:26 -0500
+Received: from umhlanga.stratnet.net ([12.162.17.40]:26315 "EHLO
+	umhlanga.STRATNET.NET") by vger.kernel.org with ESMTP
+	id S264557AbUAFQdn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 6 Jan 2004 11:33:43 -0500
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       linux-ide@vger.kernel.org
+Subject: Re: [PATCH] libata update
+References: <200401041413.20573.marchand@kde.org> <3FFA80BE.2040205@pobox.com>
+X-Message-Flag: Warning: May contain useful information
+X-Priority: 1
+X-MSMail-Priority: High
+From: Roland Dreier <roland@topspin.com>
+Date: 06 Jan 2004 08:33:39 -0800
+In-Reply-To: <3FFA80BE.2040205@pobox.com>
+Message-ID: <52ekudvxy4.fsf@topspin.com>
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.4 (Common Lisp)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+X-OriginalArrivalTime: 06 Jan 2004 16:33:41.0419 (UTC) FILETIME=[D8254FB0:01C3D472]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 6 Jan 2004, Andrew Morton wrote:
+Hi Jeff and others,
 
-> James Bottomley <James.Bottomley@SteelEye.com> wrote:
-> >
-> > This patch
-> > 
-> > 
-> >  ChangeSet@1.1534.5.2, 2003-12-30 15:40:23-08:00, akpm@osdl.org
-> >    [PATCH] ia32 jiffy wrapping fixes
-> > 
-> >  Causes the voyager boot to hang.  The problem is this change:
-> > 
-> >  --- a/arch/i386/kernel/timers/timer_tsc.c       Tue Jan  6 09:57:34 2004
-> >  +++ b/arch/i386/kernel/timers/timer_tsc.c       Tue Jan  6 09:57:34 2004
-> >  @@ -141,7 +140,7 @@
-> >   #ifndef CONFIG_NUMA
-> >          if (!use_tsc)
-> >   #endif
-> >  -               return (unsigned long long)jiffies * (1000000000 / HZ);
-> >  +               return (unsigned long long)get_jiffies_64() *
-> >  (1000000000 / HZ);
-> 
-> Hm, OK.  I hit the same deadlock when running with the "don't require TSCs
-> to be synchronised in sched_clock()" patch from -mm.  The fix for that is
-> below.  I shall accelerate it.
-> 
-> --- 25/arch/i386/kernel/timers/timer_tsc.c~sched_clock-2.6.0-A1-deadlock-fix	2003-12-30 00:45:09.000000000 -0800
-> +++ 25-akpm/arch/i386/kernel/timers/timer_tsc.c	2003-12-30 00:45:09.000000000 -0800
-> @@ -140,7 +140,8 @@ unsigned long long sched_clock(void)
->  #ifndef CONFIG_NUMA
->  	if (!use_tsc)
->  #endif
-> -		return (unsigned long long)get_jiffies_64() * (1000000000 / HZ);
-> +		/* jiffies might overflow but this is not a big deal here */
-> +		return (unsigned long long)jiffies * (1000000000 / HZ);
->  
->  	/* Read the Time Stamp Counter */
->  	rdtscll(this_offset);
+On the topic of Silicon Image SATA support, how do things look for
+supporting the SiI 3512?  This chip seems to be pretty common on
+Nforce3 boards.
 
-Yes, please revert that change. When I tested it, I didn't realize I need 
-NUMA or clear use_tsc to actually cover the change. And it's indeed not a 
-big deal.
+I had a look on the SiI web site and they say the programming
+interface is very close to the 3112.  Unfortunately their data sheets
+don't seem to be freely available so I can't tell how close the
+interface really is (or do the work to add 3512 support myself).
 
-The proposed get_jiffies_64() change however looks quite fragile to me.
-
-Sorry,
-Tim
+Thanks,
+  Roland

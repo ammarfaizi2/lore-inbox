@@ -1,81 +1,83 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262506AbVBXWHp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262509AbVBXWJ5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262506AbVBXWHp (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Feb 2005 17:07:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262509AbVBXWHp
+	id S262509AbVBXWJ5 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Feb 2005 17:09:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262514AbVBXWJ4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Feb 2005 17:07:45 -0500
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:15111 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S262506AbVBXWHf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Feb 2005 17:07:35 -0500
-Date: Thu, 24 Feb 2005 23:07:33 +0100
-From: Adrian Bunk <bunk@stusta.de>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Andries Brouwer <aebr@win.tue.nl>, linux-kernel@vger.kernel.org
-Subject: [2.6 patch] mark BLK_DEV_PS2 as BROKEN
-Message-ID: <20050224220732.GM8651@stusta.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.6+20040907i
+	Thu, 24 Feb 2005 17:09:56 -0500
+Received: from smarthost1.sentex.ca ([64.7.153.18]:27409 "EHLO
+	smarthost1.sentex.ca") by vger.kernel.org with ESMTP
+	id S262509AbVBXWJt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 24 Feb 2005 17:09:49 -0500
+From: "Stuart MacDonald" <stuartm@connecttech.com>
+To: "'Greg Folkert'" <greg@gregfolkert.net>
+Cc: "'LKML'" <linux-kernel@vger.kernel.org>
+Subject: RE: Greg's Decree! (was Re: Linus' decrees?)
+Date: Thu, 24 Feb 2005 17:08:33 -0500
+Organization: Connect Tech Inc.
+Message-ID: <002201c51abd$712cf500$294b82ce@stuartm>
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook, Build 10.0.6626
+Importance: Normal
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2180
+In-Reply-To: <1109280654.14960.5.camel@king.gregfolkert.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andries Brouwer proposed this patch with the following comment:
+From: Greg Folkert [mailto:greg@gregfolkert.net] 
+> On Thu, 2005-02-24 at 15:03 -0500, Stuart MacDonald wrote:
+> > Recently I ran across
+> > 
+> > http://groups.google.ca/groups?hl=en&lr=lang_en&safe=off&selm=
+> > 1033074519.2698.5.
+> > camel%40localhost.localdomain
+> > 
+> > Is there a collection point for Linus' decrees?
+> > 
+> > The LSB (http://www.linuxbase.org/) seems to be mostly involved with
+> > how a distro is laid out, and not much to do with the kernel.
+> 
+> Okay, Linus decreed... oh yeah.
+> Exactly what is wrong with the method anyway?
+> You on Crack?
 
-<--  snip  -->
+Uh, what? I'm not sure what you're trying to say with the above,
+except that maybe you think I was implying that the
+/lib/modules/`uname -r`/build method is somehow wrong. Which I wasn't,
+and I'm not even sure how you'd come to that conclusion from my post.
 
-As observed earlier, ps2esdi was broken as a module,
-and the passing of geometry boot parameters is broken.
-But does it still work with kernels 2.3 or later?
-I think it does, but failed to verify that.
+And no, I'm not on crack.
 
-I found an IBM PS/2 model 70-A21 with 8 MB and 120 MB ESDI disk.
-Tried a few distribution boot floppies to see whether they would boot.
+> Make TONS-O-SENSE to state the obvious. IOW the statement was all meant
+> to say *DO IT THIS WAY AND NO OTHER* as nobody else honors any other
+> method.
 
-Slackware has special ibmmca bootdisks.
-SW 3.3 - Linux 2.1.43 - boots fine
-SW 4.0 - Linux 2.2.6 - hangs
-SW 7.0 - Linux 2.2.13 - boots fine
-SW 8.1 - Linux 2.4.18 - boots, but every single command is killed by OOM
-SW 10.0 - Linux 2.4.26 - kernel panic: no 386 supported
+The post I reference mentions that Linus once said that a standard
+method to locate the source for a particular kernel would be to have
+it at /lib/modules/`uname -r`/build. This seems to be a symlink for
+vanilla kernels, and actual source for the FC3 installed kernels I
+have handy.
 
-Then Debian:
-Woody - Linux 2.2.10 - boots fine, but the rootdisk hangs
-Sarge - Linux 2.4.27 - does not recognize the ESDI disk, and the rootdisk
- crashes by OOM.
+I had not heard this before, and it turns out to be handy for me. In
+the past I have also seen Linus state things like "binary drivers are
+bad" and "drm is okay".
 
-So, good luck with 2.1 and 2.2 kernels, only failures with later kernels.
+So what I'm wondering is, is there a location on the net where Linus'
+statements about how the kernel is to be are collected? ie, Where the
+above statements could all be found, with cites.
 
-What about other people? The two major Linux/MCA sites were
-http://glycerine.itsmm.uni.edu/mca (also referenced in Documentation/mca.txt)
-but it doesnt exist any longer, and http://www.dgmicro.com/mca/,
-which still exists ("last update: Jan 28 1999"), but the binaries
-it refers to live on ftp.dgmicro.com, which isn't there anymore.
+I'm thinking there's probably other info about the standard way of
+doing things in regards to the kernel (all aspects thereof) that Linus
+has put forth that might be handy for me to know, and I'm hoping that
+there's a handy dandy collection that I can peruse.
 
-Concerning the speed:
-I measured this ESDI disk under Linux as transferring 50 kB/s,
-that is 4% of the speed the IBM specs claim. Also other Linux users
-complained that the disk is much faster under DOS.
+I guess what I'm looking for is a collection of linux kernel policies.
+Is there such a collection?
 
-<--  snip  -->
-
-
-My proposal for this patch would be to get it into one 2.6 kernel (is it 
-too late for 2.6.11?) and wait if anyone was still using it and screams, 
-and remove it a few months later otherwise.
-
-
---- a/drivers/block/Kconfig	2004-12-29 03:39:44.000000000 +0100
-+++ b/drivers/block/Kconfig	2005-01-11 12:35:25.000000000 +0100
-@@ -42,7 +42,7 @@ config MAC_FLOPPY
- 
- config BLK_DEV_PS2
- 	tristate "PS/2 ESDI hard disk support"
--	depends on MCA && MCA_LEGACY
-+	depends on MCA && MCA_LEGACY && BROKEN
- 	help
- 	  Say Y here if you have a PS/2 machine with a MCA bus and an ESDI
- 	  hard disk.
+..Stu
 

@@ -1,43 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S286354AbRLTTzJ>; Thu, 20 Dec 2001 14:55:09 -0500
+	id <S286278AbRLTUEa>; Thu, 20 Dec 2001 15:04:30 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286357AbRLTTy7>; Thu, 20 Dec 2001 14:54:59 -0500
-Received: from ares.sot.com ([195.74.13.236]:17674 "EHLO ares.sot.com")
-	by vger.kernel.org with ESMTP id <S286354AbRLTTyk>;
-	Thu, 20 Dec 2001 14:54:40 -0500
-Date: Thu, 20 Dec 2001 21:54:38 +0200 (EET)
-From: Yaroslav Popovitch <yp@sot.com>
-To: linux-kernel@vger.kernel.org
-Subject: PM: What do this messages describe?
-In-Reply-To: <Pine.LNX.4.10.10111071706080.31120-100000@ares.sot.com>
-Message-ID: <Pine.LNX.4.10.10112202150070.27092-100000@ares.sot.com>
+	id <S286360AbRLTUEV>; Thu, 20 Dec 2001 15:04:21 -0500
+Received: from mail3.aracnet.com ([216.99.193.38]:45323 "EHLO
+	mail3.aracnet.com") by vger.kernel.org with ESMTP
+	id <S286357AbRLTUEK>; Thu, 20 Dec 2001 15:04:10 -0500
+Date: Thu, 20 Dec 2001 12:04:08 -0800 (PST)
+From: "M. Edward (Ed) Borasky" <znmeb@aracnet.com>
+To: Henning Schmiedehausen <henning@forge.intermeta.de>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: aio
+In-Reply-To: <9vt6vd$528$1@forge.intermeta.de>
+Message-ID: <Pine.LNX.4.33.0112201200250.22702-100000@shell1.aracnet.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dec 20 12:11:19 test1 kernel: Uhhuh. NMI received for unknown reason 3d.
-Dec 20 12:11:19 test1 kernel: Dazed and confused, but trying to continue
-Dec 20 12:11:19 test1 kernel: Do you have a strange power saving mode
-enabled?
-Dec 20 12:11:53 test1 kernel: Uhhuh. NMI received for unknown reason 2d.
-Dec 20 12:11:53 test1 kernel: Dazed and confused, but trying to continue
-Dec 20 12:11:53 test1 kernel: Do you have a strange power saving mode
-enabled?    
+On Thu, 20 Dec 2001, Henning Schmiedehausen wrote:
 
-Is something really wrong? Can be this caused by such options:
-[*] Power Management support                                       
-   [ ]   ACPI support
-   < >   Advanced Power Management BIOS support
+> "David S. Miller" <davem@redhat.com> writes:
+>
+> >neither here nor there.  Java is going to be dead in a few years, and
+> >let's just agree to disagree about this particular point ok?
+>
+> Care to point out why? Because of Sun or because of C#?
 
-Kernel-2.4.12
+Because MSFT is bigger than SUNW :-) As that great American philosopher,
+Damon Runyon, once said, "The race is not always to the swift, nor the
+battle to the strong -- but that's the way to bet!"
+--
+M. Edward Borasky
 
-THX,YP
+znmeb@borasky-research.net
+http://www.borasky-research.net
 
--
-Mr. Yaroslav Popovitch yp@sot.com       - tel. +372 6419975
-SOT Finnish Software Engineering Ltd.   - fax  +372 6419975
-Kreutzwaldi 7-4, 10124  TALLINN         - http://www.sot.com
-ESTONIA                                 - http://bestlinux.net
+If I had 40 billion dollars for every software monopoly that sells an
+unwieldy and hazardously complex development environment and is run by
+an arrogant college dropout with delusions of grandeur who treats his
+employees like serfs while he is acclaimed as a man of compelling
+vision, I'd be a wealthy man.
 

@@ -1,48 +1,76 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S283314AbRLDSwm>; Tue, 4 Dec 2001 13:52:42 -0500
+	id <S283310AbRLDSvC>; Tue, 4 Dec 2001 13:51:02 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S283223AbRLDSvF>; Tue, 4 Dec 2001 13:51:05 -0500
-Received: from dsl254-112-233.nyc1.dsl.speakeasy.net ([216.254.112.233]:60084
-	"EHLO snark.thyrsus.com") by vger.kernel.org with ESMTP
-	id <S283163AbRLDStr>; Tue, 4 Dec 2001 13:49:47 -0500
-Date: Tue, 4 Dec 2001 13:41:49 -0500
-From: "Eric S. Raymond" <esr@thyrsus.com>
-To: =?iso-8859-1?Q?Ra=FAl_N=FA=F1ez_de_Arenas_Coronado?= 
-	<raul@viadomus.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [kbuild-devel] Converting the 2.5 kernel to kbuild 2.5
-Message-ID: <20011204134149.O16578@thyrsus.com>
-Reply-To: esr@thyrsus.com
-Mail-Followup-To: "Eric S. Raymond" <esr@thyrsus.com>,
-	=?iso-8859-1?Q?Ra=FAl_N=FA=F1ez_de_Arenas_Coronado?= <raul@viadomus.com>,
-	linux-kernel@vger.kernel.org
-In-Reply-To: <E16BKL5-0001yJ-00@DervishD.viadomus.com>
+	id <S282392AbRLDStq>; Tue, 4 Dec 2001 13:49:46 -0500
+Received: from noodles.codemonkey.org.uk ([62.49.180.5]:30103 "EHLO
+	noodles.codemonkey.org.uk") by vger.kernel.org with ESMTP
+	id <S283288AbRLDSsP>; Tue, 4 Dec 2001 13:48:15 -0500
+Date: Tue, 4 Dec 2001 18:49:25 +0000
+From: Dave Jones <davej@suse.de>
+To: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: [PATCH][CFT] x86 setup 2.2 backport
+Message-ID: <20011204184925.A7495@suse.de>
+Mail-Followup-To: Dave Jones <davej@suse.de>,
+	Linux Kernel <linux-kernel@vger.kernel.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <E16BKL5-0001yJ-00@DervishD.viadomus.com>; from raul@viadomus.com on Tue, Dec 04, 2001 at 07:30:43PM +0100
-Organization: Eric Conspiracy Secret Labs
-X-Eric-Conspiracy: There is no conspiracy
+User-Agent: Mutt/1.3.22.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Raúl Núñez de Arenas Coronado <raul@viadomus.com>:
->     Eric, I think that this is an important issue and that the
-> decision about adding such a big dependence to the kernel should be
-> studied with care, and not imposed.
+I recently backported a lot of stuff from 2.4's setup.c and friends
+back to 2.2.20. Some of this stuff hasn't been updated since ~2.3.99
+or so, which was just before hpa's big cleanup in that area.
 
-Fine, try to argue that with Linus.  I suspect he'll decide he has better
-things to think about, and ignore you.
+The feedback I got from the first version of this patch was pretty
+good, the only really missing bit being the cache-sizing looked odd
+on P4's. Unless someone shouts too loudly, I'll push this to Alan
+at some point soon.
+
+regards,
+Dave.
+
+Patch is against 2.2.20, and is available for download from
+ http://www.codemonkey.org.uk/patches/2.2/x86resync-2.diff
+
+
+Summary of changes:
+x86resync-2.diff
+- Extra AMD K5 support.
+- Backport improved Intel cache sizing (Should work better for P4).
+- Small amd_init() improvements to match 2.4.
+
+x86resync-1.diff
+- updated bluesmoke.c
+  - MSR number typo bugfix
+  - extra non-Intel architecture support.
+- setup.c
+  - P4 right justified name string fixup
+  - Fix up c->x86_cache_size on machines with 0K L2 cache
+  - Fix up cache size on Cyrix MediaGx
+  - Enable MMX extensions on MII (Alan)
+  - Fix up misplaced brace in Cyrix setup path.
+  - Add recognition of RiSE CPUs.
+  - Update cpuid_level when disabling serial number (Hugh Dickins)
+  - Initialise Centaur CPUs from the same codepath as the other vendors
+    instead of in print_cpu_info()
+  - Recognise all types of Celerons/Mobile PII's
+  - boottime 'serialnumber' option to leave serial # enabled.
+  - Improved Centaur Winchip handling.
+  - Recognise 386/486 in c->x86_model_id (Cesar Barros)
+  - Several bug workarounds moved from bugs.h to setup.c
+  - Other small cleanups.
+  - Overall source cleaning to bring in line with 2.4
+
+- drivers/char/random.c drivers/char/mem.c
+  arch/i386/mtrr.c, msr.c, time.c, microcode.c
+  - uses test/clear/set bit macros
+
+The 2.4 stuff is still cleaner than 2.2's, but this at least
+gets things a lot closer to each other making any future resyncs easier.
+
 -- 
-		<a href="http://www.tuxedo.org/~esr/">Eric S. Raymond</a>
-
-Society in every state is a blessing, but government even in its best
-state is but a necessary evil; in its worst state an intolerable one;
-for when we suffer, or are exposed to the same miseries *by a
-government*, which we might expect in a country *without government*,
-our calamities is heightened by reflecting that we furnish the means
-by which we suffer."
-	-- Thomas Paine
+| Dave Jones.                    http://www.codemonkey.org.uk
+| SuSE Labs .

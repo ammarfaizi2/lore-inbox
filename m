@@ -1,34 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129148AbQKHTQ5>; Wed, 8 Nov 2000 14:16:57 -0500
+	id <S129595AbQKHTTR>; Wed, 8 Nov 2000 14:19:17 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129475AbQKHTQv>; Wed, 8 Nov 2000 14:16:51 -0500
-Received: from vega.services.brown.edu ([128.148.19.202]:31227 "EHLO
-	vega.brown.edu") by vger.kernel.org with ESMTP id <S129148AbQKHTQj>;
-	Wed, 8 Nov 2000 14:16:39 -0500
-Message-Id: <4.3.2.7.2.20001108141644.00ac2350@postoffice.brown.edu>
-X-Mailer: QUALCOMM Windows Eudora Version 4.3.2
-Date: Wed, 08 Nov 2000 14:19:00 -0500
+	id <S129580AbQKHTTH>; Wed, 8 Nov 2000 14:19:07 -0500
+Received: from ns.caldera.de ([212.34.180.1]:4365 "EHLO ns.caldera.de")
+	by vger.kernel.org with ESMTP id <S129569AbQKHTSr>;
+	Wed, 8 Nov 2000 14:18:47 -0500
+Date: Wed, 8 Nov 2000 20:18:40 +0100
+From: Marcus Meissner <Marcus.Meissner@caldera.de>
 To: linux-kernel@vger.kernel.org
-From: David Feuer <David_Feuer@brown.edu>
-Subject: Re: Installing kernel 2.4
+Subject: tcp/ip connections and downed/removed netdevs
+Message-ID: <20001108201840.A23731@ns.caldera.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; format=flowed
+Content-Type: text/plain; charset=us-ascii
+X-Mailer: Mutt 1.0i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-It might be convenient to have a completely unoptimized 386 kernel.  While 
-this would obviously be non-optimal in all cases, it would be compatible 
-with everything and probably faster on non-386 than a 386-optimized 
-kernel.  Of course, the gains are probably not worth the time it would take 
-to write one, as I would hope that most linux users are willing to compile 
-their own kernels...
+Hi,
 
---
-This message has been brought to you by the letter alpha and the number pi.
-David Feuer
-David_Feuer@brown.edu
+I have a rather strange problem in regard to routing and tcp/ip connections.
 
+My setup:
+	- default route to eth0, metric 2
+	- ppp dialin to static ip (ppp0), is another default route, metric 0
+
+I open a telnet connection over the ppp0 interface.
+
+I then down and remove the ppp0 interface (ifconfig -a ppp0 shows 'no such
+device'), the default route over ppp0 is gone.
+
+Symptom:
+	The telnet connection hangs.
+
+	No packets are transmitted over the still alive eth0 defaultroute.
+	tcpdump -i eth0 shows 0 packets, "netstata -a" shows an increasing
+	SendQ on the connection.
+
+	If I dialin again, the still hanging packets get transmitted to
+	the target.
+
+I am not sure, but should this be?
+
+Shouldn't packets get routed over eth0 in the case an interface vanishes?
+
+Ciao, Marcus
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

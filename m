@@ -1,42 +1,35 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267704AbUBTAal (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 19 Feb 2004 19:30:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267681AbUBTA3v
+	id S267657AbUBTAfT (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 19 Feb 2004 19:35:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267594AbUBTAda
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 19 Feb 2004 19:29:51 -0500
-Received: from hera.cwi.nl ([192.16.191.8]:38070 "EHLO hera.cwi.nl")
-	by vger.kernel.org with ESMTP id S267675AbUBTAVJ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 19 Feb 2004 19:21:09 -0500
-From: Andries.Brouwer@cwi.nl
-Date: Fri, 20 Feb 2004 01:21:01 +0100 (MET)
-Message-Id: <UTC200402200021.i1K0L1525525.aeb@smtp.cwi.nl>
-To: hpa@transmeta.com, linux-kernel@vger.kernel.org
-Subject: kernel too big
+	Thu, 19 Feb 2004 19:33:30 -0500
+Received: from mail.shareable.org ([81.29.64.88]:29056 "EHLO
+	mail.shareable.org") by vger.kernel.org with ESMTP id S267602AbUBTAUj
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 19 Feb 2004 19:20:39 -0500
+Date: Fri, 20 Feb 2004 00:20:34 +0000
+From: Jamie Lokier <jamie@shareable.org>
+To: Jeff Sipek <jeffpc@optonline.net>
+Cc: thockin@sun.com, Linux Kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: sysconf - exposing constants to userspace
+Message-ID: <20040220002034.GC5590@mail.shareable.org>
+References: <20040219204820.GC9155@sun.com> <200402191630.47047.jeffpc@optonline.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200402191630.47047.jeffpc@optonline.net>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In 2.5.61 hpa changed
+Jeff Sipek wrote:
+> I think that making something in /sys would make the most sense,
+> with one constant per file. We could dump the consts files to for
+> example /sys/consts, or make a logical directory structure to make
+> navigation easier.
 
--      /* 0x28000*16 = 2.5 MB, conservative estimate for the current maximum */
--      if (sys_size > (is_big_kernel ? 0x28000 : DEF_SYSSIZE))
-+      /* 0x40000*16 = 4.0 MB, reasonable estimate for the current maximum */
-+      if (sys_size > (is_big_kernel ? 0x40000 : DEF_SYSSIZE))
-              die("System is too big. ...");
+Isn't that very similar to the /proc/sys/kernel we have now?
 
-(with comment "bootsect removal").
-
-Today I find for a 2.6.3 machine that it boots with 2994 kB and
-crashes at boot time with 3005 kB.
-
-Thus, it looks like this "reasonable estimate" is too optimistic.
-
-If I understand correctly, the real requirement is that
-_end must stay below 8MB (unless the initial page tables
-in head.S are made larger). A crash occurs with _end = c07fcf8c.
-
-Maybe these "conservative" or "reasonable" estimates should be
-replaced by a text on _end?
-
-Andries
+-- Jamie

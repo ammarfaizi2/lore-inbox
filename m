@@ -1,35 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267303AbTAPWbc>; Thu, 16 Jan 2003 17:31:32 -0500
+	id <S267306AbTAPWec>; Thu, 16 Jan 2003 17:34:32 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267306AbTAPWbc>; Thu, 16 Jan 2003 17:31:32 -0500
-Received: from dell-paw-3.cambridge.redhat.com ([195.224.55.237]:48887 "EHLO
-	passion.cambridge.redhat.com") by vger.kernel.org with ESMTP
-	id <S267303AbTAPWbb>; Thu, 16 Jan 2003 17:31:31 -0500
-X-Mailer: exmh version 2.5 13/07/2001 with nmh-1.0.4
-From: David Woodhouse <dwmw2@infradead.org>
-X-Accept-Language: en_GB
-In-Reply-To: <200301161814.h0GIEbb02258@linux.local> 
-References: <200301161814.h0GIEbb02258@linux.local> 
-To: jim.houston@attbi.com
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [patch] IDE OnTrack remap for 2.5.58 
-Mime-Version: 1.0
+	id <S267309AbTAPWec>; Thu, 16 Jan 2003 17:34:32 -0500
+Received: from e33.co.us.ibm.com ([32.97.110.131]:5623 "EHLO e33.co.us.ibm.com")
+	by vger.kernel.org with ESMTP id <S267306AbTAPWeb>;
+	Thu, 16 Jan 2003 17:34:31 -0500
+Date: Thu, 16 Jan 2003 14:36:02 -0800
+From: "Martin J. Bligh" <mbligh@aracnet.com>
+To: Linus Torvalds <torvalds@transmeta.com>
+cc: linux-kernel <linux-kernel@vger.kernel.org>,
+       Andrew Theurer <habanero@us.ibm.com>
+Subject: Re: [PATCH] (0/3) NUMA aware scheduler
+Message-ID: <125260000.1042756562@flay>
+In-Reply-To: <Pine.LNX.4.44.0301161225260.1175-100000@penguin.transmeta.com>
+References: <Pine.LNX.4.44.0301161225260.1175-100000@penguin.transmeta.com>
+X-Mailer: Mulberry/2.1.2 (Linux/x86)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Date: Thu, 16 Jan 2003 22:40:24 +0000
-Message-ID: <14093.1042756824@passion.cambridge.redhat.com>
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> Applied. 
 
-jim.houston@attbi.com said:
-> +#if defined(CONFIG_BLK_DEV_IDE) || defined(CONFIG_BLK_DEV_IDE_MODULE)
+Thank you!
+ 
+> I also have to say that I hope this means that the HT-specific scheduler 
+> stuff will go away. HT _should_ be just another NuMA issue, and right now 
+> the two seem to be just slightly different ways of covering the same 
+> needs.
 
-Don't ever do that. Modules can be built later and shouldn't affect the 
-static kernel unless it's _absolutely_ necessary. And were these weird 
-partitioning schemes specific to IDE anyway?
+Yup, Andrew Theurer from our performance team has been working on this.
+Initial results look encouraging.
 
---
-dwmw2
+> However, I'm going away for two weeks starting tomorrow, so even if there 
+> is some experimental HT/NUMA patch, I don't want it at this point. The 
+> NUMA scheduler merge is more of a "get the infrastructure in place" thing 
+> for me right now.
 
+Absolutely. Hopefully by the time you return we'll have a structure for
+hyperthreading in place that's reasonably tuned ;-)
+
+There's some more tuning and tweaking we could do to the NUMA machines as
+well (I'm looking at how to implement Ingo's feedback), but I'm convinced
+the infrastructure is correct.
+
+Thanks,
+
+M.
 

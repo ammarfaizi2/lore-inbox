@@ -1,45 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131307AbRECPTk>; Thu, 3 May 2001 11:19:40 -0400
+	id <S131323AbRECPUK>; Thu, 3 May 2001 11:20:10 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131323AbRECPTa>; Thu, 3 May 2001 11:19:30 -0400
-Received: from home.paris.trader.com ([195.68.19.162]:60646 "EHLO
-	jbueno.netclub") by vger.kernel.org with ESMTP id <S131307AbRECPTQ>;
-	Thu, 3 May 2001 11:19:16 -0400
-Message-ID: <3AF17704.FD37C133@trader.com>
-Date: Thu, 03 May 2001 17:19:32 +0200
-From: Joseph Bueno <joseph.bueno@trader.com>
-X-Mailer: Mozilla 4.73 [en] (X11; I; Linux 2.2.15-4mdkfb i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: =?iso-8859-1?Q?s=E9bastien?= person <sebastien.person@sycomore.fr>
-CC: Mark Hahn <hahn@coffee.psychology.mcmaster.ca>,
-        liste noyau linux <linux-kernel@vger.kernel.org>
-Subject: Re: NEWBEE "reverse ioctl" or someting like
-In-Reply-To: <20010503142929.773147bf.sebastien.person@sycomore.fr>
-		<Pine.LNX.4.10.10105030845110.4386-100000@coffee.psychology.mcmaster.ca> <20010503155746.2b87edd0.sebastien.person@sycomore.fr>
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+	id <S131386AbRECPUA>; Thu, 3 May 2001 11:20:00 -0400
+Received: from rhlx01.fht-esslingen.de ([134.108.34.10]:3238 "EHLO
+	rhlx01.fht-esslingen.de") by vger.kernel.org with ESMTP
+	id <S131323AbRECPTu>; Thu, 3 May 2001 11:19:50 -0400
+Date: Thu, 3 May 2001 17:19:46 +0200
+From: Andreas Mohr <a.mohr@mailto.de>
+To: mirabilos <eccesys@topmail.de>
+Cc: linux-kernel@vger.kernel.org, YipingChen@via.com.tw
+Subject: Re: Whether can we put our company's  linux driver into linux kernel?
+Message-ID: <20010503171946.A15726@rhlx01.fht-esslingen.de>
+Reply-To: andi@rhlx01.fht-esslingen.de
+In-Reply-To: <611C3E2A972ED41196EF0050DA92E0760265D595@EXCHANGE2> <001101c0d3e2$b0620f60$de00a8c0@homeip.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <001101c0d3e2$b0620f60$de00a8c0@homeip.net>; from eccesys@topmail.de on Thu, May 03, 2001 at 03:06:24PM -0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-sébastien person wrote:
+On Thu, May 03, 2001 at 03:06:24PM -0000, mirabilos wrote:
+> Hmmm is he sure he knows what linux is...?
+> I dunno whether he has understood the concept right,
+> maybe he'll post a WDM driver ;-)
 > 
-> Le Thu, 3 May 2001 08:46:05 -0400 (EDT)
-> Mark Hahn <hahn@coffee.psychology.mcmaster.ca> à écrit :
-> 
-> > > I think that use of pipe isn't preconised because I must fork process
-> > > to use pipe,
-> >
-> > I guess you mean "because a user-level process would block on the pipe".
-> > and you don't want to block.  the alternative is to use a signal.
-> 
-> yes but with a signal I am able to share data beetween user space and kernel
-> space ? I must also use copy_to_user ?
+> -mirabilos
+Hey, come on, this is a legitimate question.
+It's been a bit "uninformed", yes, but that's not really an excuse for making
+such comments ;-)
+Furthermore you posted this with a Windoze client (outlock), so it's even
+less of an excuse :)
 
-You will not get any data with the signal but your user-level application
-can use an ioctl when it receives this signal and get the data.
+To the original poster:
+I'm not really authoritative on driver submission, but I'd read the file
+/usr/src/linux/SubmittingDrivers for info on how to do that, if I were you.
 
---
-Joseph Bueno
-NetClub/Trader.com
+New VIA drivers are very good for Linux anyway ! :-)
+(thanks !)
+
+Andreas Mohr

@@ -1,62 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261378AbVCOQSk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261446AbVCOQYy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261378AbVCOQSk (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Mar 2005 11:18:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261403AbVCOQR5
+	id S261446AbVCOQYy (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Mar 2005 11:24:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261388AbVCOQXM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Mar 2005 11:17:57 -0500
-Received: from holly.csn.ul.ie ([136.201.105.4]:13288 "EHLO holly.csn.ul.ie")
-	by vger.kernel.org with ESMTP id S261380AbVCOQPo (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Mar 2005 11:15:44 -0500
-Date: Tue, 15 Mar 2005 16:15:42 +0000 (GMT)
-From: Dave Airlie <airlied@linux.ie>
-X-X-Sender: airlied@skynet
-To: Dave Jones <davej@redhat.com>
-Cc: Andrew Clayton <andrew@digital-domain.net>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org, dri-devel@lists.sourceforge.net
-Subject: Re: drm lockups since 2.6.11-bk2
-In-Reply-To: <20050315143629.GA27654@redhat.com>
-Message-ID: <Pine.LNX.4.58.0503151610560.443@skynet>
-References: <Pine.LNX.4.58.0503151033110.22756@skynet> <20050315143629.GA27654@redhat.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Tue, 15 Mar 2005 11:23:12 -0500
+Received: from e35.co.us.ibm.com ([32.97.110.133]:12768 "EHLO
+	e35.co.us.ibm.com") by vger.kernel.org with ESMTP id S261403AbVCOQWF
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 15 Mar 2005 11:22:05 -0500
+Subject: Re: [Ext2-devel] Re: inode cache, dentry cache, buffer heads usage
+From: Badari Pulavarty <pbadari@us.ibm.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: ext2-devel <ext2-devel@lists.sourceforge.net>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20050314144103.0d6ed063.akpm@osdl.org>
+References: <1110394558.24286.203.camel@dyn318077bld.beaverton.ibm.com>
+	 <20050310174751.522c5420.akpm@osdl.org>
+	 <1110835692.24286.288.camel@dyn318077bld.beaverton.ibm.com>
+	 <20050314141128.7da95c34.akpm@osdl.org>
+	 <1110838395.24286.297.camel@dyn318077bld.beaverton.ibm.com>
+	 <20050314144103.0d6ed063.akpm@osdl.org>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1110903430.24286.336.camel@dyn318077bld.beaverton.ibm.com>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
+Date: 15 Mar 2005 08:17:11 -0800
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, 2005-03-14 at 14:41, Andrew Morton wrote:
+> Badari Pulavarty <pbadari@us.ibm.com> wrote:
+> >
+> > On Mon, 2005-03-14 at 14:11, Andrew Morton wrote:
+> > > Badari Pulavarty <pbadari@us.ibm.com> wrote:
+> > > >
+> > > > On Thu, 2005-03-10 at 17:47, Andrew Morton wrote:
+> > > > > Badari Pulavarty <pbadari@us.ibm.com> wrote:
+> > > > > >
+> > > > > > So, why is these slab cache are not getting purged/shrinked even
+> > > > > >  under memory pressure ? (I have seen lowmem as low as 6MB). What
+> > > > > >  can I do to keep the machine healthy ?
+> > > > > 
+> > > > > Tried increasing /proc/sys/vm/vfs_cache_pressure?  (That might not be in
+> > > > > 2.6.8 though).
+> > > > > 
+> > > > > 
+> > > > 
+> > > > Yep. This helped shrink the slabs, but we end up eating up lots of
+> > > > the lowmem in Buffers. Is there a way to shrink buffers ?
+> > > 
+> > > It would require some patchwork.  Why is it a problem?  That memory is
+> > > reclaimable.
+> > > 
+> > 
+> > Well, machine pauses for 5-30 seconds for each vi,cscope, write() etc.
+> 
+> Why?
 
->  >
->  > I might get time to do a code review, my main worry is that all the
->  > problems reported with those patches in -mm made it into the patchset that
->  > went into Linus.. mainly things like forgetting to memset certain
->  > structures to 0 and sillies like that...
->
-> I saw one report where the recent drm security hole fix broke dri
-> for one user.  Whilst it seems an isolated incident, could this have
-> more impact than we first realised ?
+Dunno. Trying to figure out whats happening here. Lowmem pressure was
+the top on our list - but nothing to prove it - yet.
 
-the radeon security changes? I've gotten no bad feedback on those neither
-has dri-devel, so I've assumed they were all fine (usually radeon bug
-reports get back fairly quickly as everyone has one ..),
+> 
+> > > How'd you get 1.8gig of lowmem?
+> > 
+> > 2:2 split
+> > 
+> 
+> Does a normal kernel exhibit the pauses?
 
-the multi-bridge stuff is definitely broken as I've seen radeon and r128
-reports on it .. and it looks most like 2.6.11-bk2 broke things and I
-haven't merged anything until -bk7 ...
+We haven't tried 3:1 split on this machine for a while. This machine
+starts to slow down over the time. (It is up for last 70 days). We are
+trying to collect all the info and also try everything possible to
+understand issues - before we reboot.
 
->
-> Worse case scenario we can drop out the multi-bridge support for now
-> if it needs work. Mike left SGI now, so we'll need to find someone else
-> with access to a Prism to make sure it still works correctly on a
-> real multi-gart system.
-
-I'd like to make it work I'm sure it is some thing small wrong, but I've
-no access for > 1 week to my radeon machine so unless someone else picks
-it up we may need to drop it for now..
-
-Dave.
-
--- 
-David Airlie, Software Engineer
-http://www.skynet.ie/~airlied / airlied at skynet.ie
-Linux kernel - DRI, VAX / pam_smb / ILUG
+Thanks,
+Badari
 

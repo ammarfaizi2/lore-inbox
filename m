@@ -1,40 +1,96 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289461AbSAJOWy>; Thu, 10 Jan 2002 09:22:54 -0500
+	id <S289467AbSAJObP>; Thu, 10 Jan 2002 09:31:15 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289464AbSAJOWo>; Thu, 10 Jan 2002 09:22:44 -0500
-Received: from spaans.ds9a.nl ([213.244.168.214]:5102 "HELO spaans.ds9a.nl")
-	by vger.kernel.org with SMTP id <S289461AbSAJOWe>;
-	Thu, 10 Jan 2002 09:22:34 -0500
-Date: Thu, 10 Jan 2002 15:22:46 +0100
-From: Jasper Spaans <j@sp3r.net>
-To: David Balazic <david.balazic@uni-mb.si>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Simple local DOS
-Message-ID: <20020110142246.GB19345@spaans.ds9a.nl>
-In-Reply-To: <3C3D9B2B.2DDB72CB@uni-mb.si> <1010671055.26821.4.camel@bip> <3C3D9F55.8C617D80@uni-mb.si>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-15
-Content-Disposition: inline
-In-Reply-To: <3C3D9F55.8C617D80@uni-mb.si>
-User-Agent: Mutt/1.3.25i
-Organization: http://www.insultant.nl/
-X-Copyright: Copyright 2002 C. Jasper Spaans - All Rights Reserved
+	id <S289465AbSAJObE>; Thu, 10 Jan 2002 09:31:04 -0500
+Received: from nat.transgeek.com ([66.92.79.28]:58095 "HELO smtp.transgeek.com")
+	by vger.kernel.org with SMTP id <S289463AbSAJOat>;
+	Thu, 10 Jan 2002 09:30:49 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Craig Christophel <merlin@transgeek.com>
+To: linux-kernel@vger.kernel.org
+Subject: buffer.c lock_kernel() -- removal
+Date: Thu, 10 Jan 2002 09:31:24 -0500
+X-Mailer: KMail [version 1.3.1]
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <20020110102805.536F8C738A@smtp.transgeek.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jan 10, 2002 at 03:04:05PM +0100, David Balazic wrote:
-> > > how do I start chvt if I have a locked up console system ?
-> > Ctrl-Alt-F1 ?
-> Which part of "locked up console system" you don't understand ? :-)
+Included is a patch against buffer.c that removes the 
+lock_kernel()/unlock_kernel() pairs in the few functions that they exist.  
 
-In that case, log in through telnet, become root, and type 'chvt 1'.
+This is for 2.5>2.5.2-pre10.
 
-Works like a charm here.
+I beleive that I checked all of the member functions for locking schematics 
+but if you can prove me wrong -- go for it.   The only issue I can see would 
+be if DQUOT_SYNC() didn't do a lock_kernel() inside itself; but it does so 
+that is taken care of (utilizing BKL only if dquot is compiled in).  Well 
+after all of that, here is the patch for review.  
 
-Regards,
--- 
-Jasper Spaans
-http://jsp.ds9a.nl/contact/
-Tel/Fax: +31-84-8749842
-``Got no clue? Too bad for you.''
+
+Craig. 
+
+Index: linux/fs/buffer.c
+diff -u linux/fs/buffer.c:1.3 linux/fs/buffer.c:1.4
+--- linux/fs/buffer.c:1.3	Wed Jan  9 02:18:26 2002
++++ linux/fs/buffer.c	Thu Jan 10 09:14:10 2002
+@@ -322,14 +322,12 @@
+ 	kdev_t dev = sb->s_dev;
+ 	sync_buffers(dev, 0);
+ 
+-	lock_kernel();
+ 	sync_inodes_sb(sb);
+ 	DQUOT_SYNC(sb);
+ 	lock_super(sb);
+ 	if (sb->s_dirt && sb->s_op && sb->s_op->write_super)
+ 		sb->s_op->write_super(sb);
+ 	unlock_super(sb);
+-	unlock_kernel();
+ 
+ 	return sync_buffers(dev, 1);
+ }
+@@ -345,7 +343,6 @@
+ {
+ 	sync_buffers(dev, 0);
+ 
+-	lock_kernel();
+ 	sync_inodes(dev);
+ 	if (!kdev_none(dev)) {
+ 		struct super_block *sb = get_super(dev);
+@@ -356,7 +353,6 @@
+ 	} else
+ 			DQUOT_SYNC(NULL);
+ 	sync_supers(dev);
+-	unlock_kernel();
+ 
+ 	return sync_buffers(dev, 1);
+ }
+@@ -387,7 +383,6 @@
+ 	kdev_t dev;
+ 	int ret;
+ 
+-	lock_kernel();
+ 	/* sync the inode to buffers */
+ 	write_inode_now(inode, 0);
+ 
+@@ -401,7 +396,6 @@
+ 	/* .. finally sync the buffers to disk */
+ 	dev = inode->i_dev;
+ 	ret = sync_buffers(dev, 1);
+-	unlock_kernel();
+ 	return ret;
+ }
+ 
+@@ -2559,10 +2553,8 @@
+ 
+ static int sync_old_buffers(void)
+ {
+-	lock_kernel();
+ 	sync_unlocked_inodes();
+ 	sync_supers(NODEV);
+-	unlock_kernel();
+ 
+ 	for (;;) {
+ 		struct buffer_head *bh;

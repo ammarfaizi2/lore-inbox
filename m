@@ -1,68 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261932AbTFXLG1 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 Jun 2003 07:06:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261939AbTFXLG1
+	id S261944AbTFXLMX (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 Jun 2003 07:12:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261956AbTFXLMW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 Jun 2003 07:06:27 -0400
-Received: from smtpzilla3.xs4all.nl ([194.109.127.139]:25094 "EHLO
-	smtpzilla3.xs4all.nl") by vger.kernel.org with ESMTP
-	id S261932AbTFXLG0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 Jun 2003 07:06:26 -0400
-From: vanstadentenbrink@ahcfaust.nl
-To: linux-kernel@vger.kernel.org
-Date: Tue, 24 Jun 2003 13:20:36 +0200
-MIME-Version: 1.0
-Subject: RE: GPL violations by wireless manufacturers
-Message-ID: <3EF85024.4477.78EB14@localhost>
-In-reply-to: <MDEHLPKNGKAHNMBLJOLKKEEDDOAA.davids@webmaster.com>
-References: <3EF83FAF.24578.38A16F@localhost>
-X-mailer: Pegasus Mail for Windows (v4.11)
-Content-type: text/plain; charset=US-ASCII
-Content-transfer-encoding: 7BIT
-Content-description: Mail message body
+	Tue, 24 Jun 2003 07:12:22 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:47255 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S261944AbTFXLMW
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 24 Jun 2003 07:12:22 -0400
+Date: Tue, 24 Jun 2003 12:26:30 +0100
+From: Matthew Wilcox <willy@debian.org>
+To: Marek Michalkiewicz <marekm@amelek.gda.pl>
+Cc: Matthew Wilcox <willy@debian.org>, linux-kernel@vger.kernel.org,
+       acpi-devel@lists.sourceforge.net
+Subject: Re: [ACPI] MS-6368L ACPI IRQ problem still in 2.4.21
+Message-ID: <20030624112630.GB451@parcelfarce.linux.theplanet.co.uk>
+References: <20030623221541.GA8096@alf.amelek.gda.pl> <20030623222311.GD25982@parcelfarce.linux.theplanet.co.uk> <20030624054612.GA20235@alf.amelek.gda.pl>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030624054612.GA20235@alf.amelek.gda.pl>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[ Please CC replies as I am not subscribed ]
+On Tue, Jun 24, 2003 at 07:46:12AM +0200, Marek Michalkiewicz wrote:
+> On Mon, Jun 23, 2003 at 11:23:11PM +0100, Matthew Wilcox wrote:
+> > Have you patched 2.4.21 with the latest ACPI patch, or is this vanilla
+> > 2.4.21?
+> 
+> Vanilla 2.4.21 - tried 2.4.21-ac1 once, but it said Oops at boot time
+> (something about the VIA686A sound driver - not related to ACPI).
 
-In response to DS:
+The ACPI code in 2.4.21 is something like 18 months old now.  It's
+basically unmaintainable.  Fortunately, 2.4.22 should have an ACPI update.
 
-> So is a Linux distribution "a whole which is a work based on the" Linux
-> kernel? Would you argue that RedHat can't include proprietary software on
-> the same CD as the Linux kernel? All the software on the CD, assuming it's
-> Linux software, likewise extends the kernel through a well-defined boundary.
-
-No, definitely not. If that were the case, SuSE and Lindows etc. etc. 
-would not be able to distribute proprietary software together with 
-GPL'ed software. The GPL calls this 'mere aggregation':
-
-"In addition, mere aggregation of another work not based on the 
-Program with the Program (or with a work based on the Program) on a 
-volume of a storage or distribution medium does not bring the other 
-work under the scope of this License."
-
-These wireless products are different. The user doesn't have a choice 
-to use or not to use the non-gpl'ed kernel module. He can not prevent 
-the module from loading, he can not remove it from the running kernel 
-and the device doesn't operate without the module. The module and the 
-embedded Linux OS on the device are so interconnected that they can 
-not be considered 'seperate works' under the GPL. Therefore the 
-kernel module actually is GPL software itself.
-
-Buffalo Technology's response indicates that they agree with me (or 
-perhaps they just don't want any trouble).
-
-In response to Zack Gilburd:
-
-> ...But where are the downloads? :-\
-
-They don't have to offer the source as a download under the GPL. They 
-just have to enable you to get to the source. As soon as Buffalo puts 
-on the their website that they use GPL'ed software (they said they 
-would do that within 48 hours) you should be able to request and 
-receive the source code of the embedded Linux OS as well as the 
-source code of the kernel module.
-
-
-Richard Ten Brink
+-- 
+"It's not Hollywood.  War is real, war is primarily not about defeat or
+victory, it is about death.  I've seen thousands and thousands of dead bodies.
+Do you think I want to have an academic debate on this subject?" -- Robert Fisk

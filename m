@@ -1,32 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272266AbRH3PXI>; Thu, 30 Aug 2001 11:23:08 -0400
+	id <S272265AbRH3PV6>; Thu, 30 Aug 2001 11:21:58 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272269AbRH3PW6>; Thu, 30 Aug 2001 11:22:58 -0400
-Received: from nycsmtp1fb.rdc-nyc.rr.com ([24.29.99.76]:52242 "EHLO nyc.rr.com")
-	by vger.kernel.org with ESMTP id <S272266AbRH3PWo>;
-	Thu, 30 Aug 2001 11:22:44 -0400
-Message-ID: <3B8E5A50.3040703@nyc.rr.com>
-Date: Thu, 30 Aug 2001 11:22:56 -0400
-From: John Weber <weber@nyc.rr.com>
-Organization: My House
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.3) Gecko/20010802
-X-Accept-Language: en-us
+	id <S272266AbRH3PVs>; Thu, 30 Aug 2001 11:21:48 -0400
+Received: from shed.alex.org.uk ([195.224.53.219]:61338 "HELO shed.alex.org.uk")
+	by vger.kernel.org with SMTP id <S272265AbRH3PVj>;
+	Thu, 30 Aug 2001 11:21:39 -0400
+Date: Thu, 30 Aug 2001 16:21:48 +0100
+From: Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>
+Reply-To: Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>
+To: Stefan Fleiter <stefan.fleiter@gmx.de>, linux-kernel@vger.kernel.org
+Cc: Alex Bligh - linux-kernel <linux-kernel@alex.org.uk>
+Subject: Re: [ANNOUNCE] Diet /sbin/hotplug package released
+Message-ID: <3117682009.999188508@[10.132.112.53]>
+In-Reply-To: <20010830124700.A3694@shuttle.mothership.home.dhs.org>
+In-Reply-To: <20010830124700.A3694@shuttle.mothership.home.dhs.org>
+X-Mailer: Mulberry/2.1.0 (Win32)
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: ATAPI Floppy Problem
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I get the following error on reboot...
 
-Aug 30 02:31:17 boolean kernel: ide-floppy: hdc: I/O error, pc = 5a, key 
-=  5, asc = 24, ascq =  0
 
-I have a ZIP 100, and am currently using ide-floppy driver 0.97 
-(included with linux 2.4.9).
+--On Thursday, August 30, 2001 12:47 PM +0200 Stefan Fleiter 
+<stefan.fleiter@gmx.de> wrote:
 
-Suggestions?
+> Does it really make any sense to optimize for size and at the same time
+> force the user to install a bash compatible shell?
 
+No, that's why diet /sbin/hotplug didn't require any shell (as I understood
+it), whereas the normal hotplug suite does.
+
+--
+Alex Bligh

@@ -1,42 +1,73 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313157AbSDUGAn>; Sun, 21 Apr 2002 02:00:43 -0400
+	id <S310637AbSDUG16>; Sun, 21 Apr 2002 02:27:58 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313138AbSDUGAm>; Sun, 21 Apr 2002 02:00:42 -0400
-Received: from h24-67-14-151.cg.shawcable.net ([24.67.14.151]:1533 "EHLO
-	webber.adilger.int") by vger.kernel.org with ESMTP
-	id <S313093AbSDUGAl>; Sun, 21 Apr 2002 02:00:41 -0400
-From: Andreas Dilger <adilger@clusterfs.com>
-Date: Sat, 20 Apr 2002 23:59:06 -0600
-To: Andrew Morton <akpm@zip.com.au>
-Cc: torvalds@transmeta.com, linux-kernel@vger.kernel.org
+	id <S310666AbSDUG15>; Sun, 21 Apr 2002 02:27:57 -0400
+Received: from leibniz.math.psu.edu ([146.186.130.2]:45517 "EHLO math.psu.edu")
+	by vger.kernel.org with ESMTP id <S310637AbSDUG14>;
+	Sun, 21 Apr 2002 02:27:56 -0400
+Date: Sun, 21 Apr 2002 02:27:56 -0400 (EDT)
+From: Alexander Viro <viro@math.psu.edu>
+To: Ian Molton <spyro@armlinux.org>
+cc: linux-kernel@vger.kernel.org
 Subject: Re: BK, deltas, snapshots and fate of -pre...
-Message-ID: <20020421055906.GA3017@turbolinux.com>
-Mail-Followup-To: Andrew Morton <akpm@zip.com.au>, torvalds@transmeta.com,
-	linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.GSO.4.21.0204202347010.27210-100000@weyl.math.psu.edu> <20020420.205958.123241031.davem@redhat.com> <3CC240EB.AAD35A09@zip.com.au>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.28i
-X-GPG-Key: 1024D/0D35BED6
-X-GPG-Fingerprint: 7A37 5D79 BF1B CECA D44F  8A29 A488 39F5 0D35 BED6
+In-Reply-To: <20020421054253.4803852a.spyro@armlinux.org>
+Message-ID: <Pine.GSO.4.21.0204210044430.27210-100000@weyl.math.psu.edu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Apr 20, 2002  21:32 -0700, Andrew Morton wrote:
-> Dailies (nice) would need some distinguishing feature in EXTRAVERSION,
-> please.  "-20Apr02" would suit.  (I suspect if that started happening,
-> the -pre's would become redundant.  But that can be decided at a later
-> stage)
 
-Well, hopefully it will be "-pre020420" so that increasing kernel
-versions can be sorted...  Also, skip releasing snapshots on days
-when no new deltas have been applied...
 
-Cheers, Andreas
---
-Andreas Dilger
-http://www-mddsp.enel.ucalgary.ca/People/adilger/
-http://sourceforge.net/projects/ext2resize/
+On Sun, 21 Apr 2002, Ian Molton wrote:
+
+> I take it as blatently obvious that BK isnt a barrier to entry, as the old
+> methods still work fine.
+> 
+> what I /do/ appreciate is that by including directions to proprietary tools
+> in the docs, we are heading down a greased incline, so to speak.
+
+
+Sigh...  When it comes to software there are three systems of beliefs.
+One of them:
+
+	* Thou shalt know by your heart that all software sucks.
+	* Beware of those who say that their software does not suck, for they
+	  are either fools or liars.
+	* Beware of those who give you garments and do not allow to mend them,
+	  for sooner or later thou shalt find what needs mending.
+	* But beware also of those who give you badly rotten garments and say
+	  "Thou shalt prefer that above everything, for thou art allowed to
+	  mend it".
+	* Thou shalt not treat software as a living being, for it is not one.
+	* Choose a license of thine liking for sofware thou writest and do not
+	  blame those who choose differently for software they write.
+	* Know when to say "It can be mended, I shalt do that" and when to
+	  say "It is rotten beyond repair".
+	* Choose free over non-free when it is better or when thou art willing
+	  to fix what is broken.
+	* When shit happens, think how to fix it.
+
+Another:
+
+	* All software wants to be free
+	* Thou shalt not use non-free software
+	* Thou shalt not mention non-free software
+	* Thou shalt make all thine software free
+	* Thou shalt choose free above working, even if free one is broken
+	  beyond repair
+	* When shit happens, add new features
+
+and the last one:
+
+	* Our 3133t! K3wl! Software! Does Not Suck!!!
+	* Always choose our software above everything else
+	* When shit happens, we add new features
+
+
+If you happen to believe in second variant, you have my condolence as
+long as you don't force your beliefs on everybody else.  If you choose
+to emulate door-to-door pests^H^H^H^Hreachers - don't expect to be
+treated differently.
 

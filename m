@@ -1,50 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280938AbRKTG2c>; Tue, 20 Nov 2001 01:28:32 -0500
+	id <S280749AbRKTGkD>; Tue, 20 Nov 2001 01:40:03 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280939AbRKTG2W>; Tue, 20 Nov 2001 01:28:22 -0500
-Received: from [196.28.7.2] ([196.28.7.2]:19146 "HELO netfinity.realnet.co.sz")
-	by vger.kernel.org with SMTP id <S280938AbRKTG2A>;
-	Tue, 20 Nov 2001 01:28:00 -0500
-Date: Tue, 20 Nov 2001 08:17:30 +0200 (SAST)
-From: Zwane Mwaikambo <zwane@linux.realnet.co.sz>
-X-X-Sender: <zwane@netfinity.realnet.co.sz>
-To: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: MP FP struct in the EBDA
-Message-ID: <Pine.LNX.4.33.0111200814170.30806-100000@netfinity.realnet.co.sz>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S280934AbRKTGjw>; Tue, 20 Nov 2001 01:39:52 -0500
+Received: from 24-25-196-177.san.rr.com ([24.25.196.177]:13330 "HELO
+	acmay.homeip.net") by vger.kernel.org with SMTP id <S280749AbRKTGjh>;
+	Tue, 20 Nov 2001 01:39:37 -0500
+Date: Mon, 19 Nov 2001 22:39:34 -0800
+From: andrew may <acmay@acmay.homeip.net>
+To: Curt McCutchin <sitruc@mailandnews.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Another wonderful OOPS! (why not tainted?)
+Message-ID: <20011119223934.A20507@ecam.san.rr.com>
+In-Reply-To: <20011119224528.3fae4411.sitruc@mailandnews.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+X-Mailer: Mutt 1.0pre3us
+In-Reply-To: <20011119224528.3fae4411.sitruc@mailandnews.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, Nov 19, 2001 at 10:45:28PM -0600, Curt McCutchin wrote:
+> -------------
+> -debian woody
+> -kernel 2.4.13 with robert love's preemptable-kernel patch (no visible difference of X snappiness)
+> -reiserfs
+> -ALSA 0.9.0beta8a sound driver
+> -NVidia 1.0-1541 driver
 
-I just noticed the following comment in mpparse.c:find_intel_smp
+Don't expect anyone to decode the OOPs but one thing that may cause problems is the
+preempt patch and the stock NVidia driver. I think spinlocks get noop'ed in a standard
+kernel build but the SMP builds and the preempt builds have non-trivial spinlocks. 
+You might have a chance to run the SMP NVidia driver with the preempt patch. or you
+may have to wait until the NVidia people build against a kernel with the preempt patch.
 
-"If it is an SMP machine we should know now, unless the
-configuration is in an EISA/MCA bus machine with an extended bios data
-area."
+The nvnews site has a forum for the NVidia driver and you might try this report there.
 
-I'd presume this statement isn't true today, e.g. one of the IBM Netfinity
-boxes here (3500M20) has the MP tables in the EBDA. Also how come we
-search the whole EBDA (4k)? Whilst the MP 1.4 spec sheet says search the
-first kilobyte only.
+http://www.nvnews.net/cgi-bin/ultimatebb.cgi?action=intro
 
-<--snip-->
-address = *(unsigned short *)phys_to_virt(0x40E);
-address <<= 4;
-smp_scan_config(address, 0x1000);
-<--snip-->
+The other question would be why did the oops not list the kernel as tainted?
 
-The FreeBSD (4.3-REL) MP probe code also only searches the first K
-(mp_machdep.c:mp_probe)
-
-if ((segment = (u_long) * (u_short *) (KERNBASE + 0x40e)) != 0) {
-	/* search first 1K of EBDA */
-	target = (u_int32_t) (segment << 4);
-	if ((x = search_for_sig(target, 1024 / 4)) >= 0)
-		goto found;
-
-Just Curious,
-	Zwane Mwaikambo
-
+> Nov 19 21:10:42 snotball kernel: EIP:    0010:[<c0148e84>]    Not tainted
+> Nov 19 21:10:42 snotball kernel: EFLAGS: 00013a13
+> Nov 19 21:10:42 snotball kernel: eax: d3b76713   ebx: d3b76780   ecx: d3e08d08   edx: d3b76780
+> Nov 19 21:10:42 snotball kernel: esi: c023d5a0   edi: c1606240   ebp: d3c02940   esp: d58f7eec
+> Nov 19 21:10:42 snotball kernel: ds: 0018   es: 0018   ss: 0018
+> Nov 19 21:10:42 snotball kernel: Process XFree86 (pid: 220, stackpage=d58f7000)
+> Nov 19 21:10:42 snotball kernel: Stack: d3b76780 d3c02940 d3b76780 c01461ad d3b76780 d3b88340 d3b76780 c01351a6 
+> Nov 19 21:10:42 snotball kernel:        d3c02940 d421b0c0 d421b0c0 47813000 d421b3c0 c0125906 d421b0c0 47813000 
+> Nov 19 21:10:42 snotball kernel:        00060000 00000000 c0125cb1 c176ae00 d421b0c0 47813000 00060000 d421b3c0 
+> Nov 19 21:10:42 snotball kernel: Call Trace: [<c01461ad>] [<c01351a6>] [<c0125906>] [<c0125cb1>] [<c01916da>] 
+> Nov 19 21:10:42 snotball kernel:    [<c010c4f6>] [<c0106e5b>] 
+> Nov 19 21:10:42 snotball kernel: Code: 08 89 4a 04 89 11 89 43 08 89 43 0c 80 8b 08 01 00 00 10 ff 
 

@@ -1,55 +1,107 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262897AbUDHWqN (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 8 Apr 2004 18:46:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263000AbUDHWqM
+	id S261786AbUDHWvW (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 8 Apr 2004 18:51:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262906AbUDHWvW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 8 Apr 2004 18:46:12 -0400
-Received: from fw.osdl.org ([65.172.181.6]:14007 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S262897AbUDHWqG (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 8 Apr 2004 18:46:06 -0400
-Date: Thu, 8 Apr 2004 15:47:42 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Andy Whitcroft <apw@shadowen.org>
-Cc: kenneth.w.chen@intel.com, raybry@sgi.com, mbligh@aracnet.com,
-       linux-kernel@vger.kernel.org, anton@samba.org, sds@epoch.ncsc.mil,
-       ak@suse.de, lse-tech@lists.sourceforge.net, linux-ia64@vger.kernel.org
-Subject: Re: HUGETLB commit handling.
-Message-Id: <20040408154742.3faf7141.akpm@osdl.org>
-In-Reply-To: <15037082.1081445730@42.150.104.212.access.eclipse.net.uk>
-References: <15037082.1081445730@42.150.104.212.access.eclipse.net.uk>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i586-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Thu, 8 Apr 2004 18:51:22 -0400
+Received: from web40502.mail.yahoo.com ([66.218.78.119]:36904 "HELO
+	web40502.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S261786AbUDHWvS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 8 Apr 2004 18:51:18 -0400
+Message-ID: <20040408225114.94370.qmail@web40502.mail.yahoo.com>
+Date: Thu, 8 Apr 2004 15:51:14 -0700 (PDT)
+From: Sergiy Lozovsky <serge_lozovsky@yahoo.com>
+Subject: Re: kernel stack challenge 
+To: Horst von Brand <vonbrand@inf.utfsm.cl>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <200404080430.i384TvCw005203@eeyore.valparaiso.cl>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andy Whitcroft <apw@shadowen.org> wrote:
->
-> We have been looking at the HUGETLB page commit issue (offlist) and are
-> close a final merged patch.
 
-Be aware that I've merged a patch from Bill which does all the hugetlb code
-unduplication.  A thousand lines gone:
+--- Horst von Brand <vonbrand@inf.utfsm.cl> wrote:
+> Sergiy Lozovsky <serge_lozovsky@yahoo.com> said:
+> > --- Horst von Brand <vonbrand@inf.utfsm.cl> wrote:
+> > > Sergiy Lozovsky <serge_lozovsky@yahoo.com> said:
+> 
+> [...]
+> 
+> > > > I started exactly with that. I found out
+> shortly that
+> > > > have no idea of functionality needed for such
+> kind of
+> > > > system.
+> 
+> > > Come back when you have found out.
+> 
+> > Sorry. I live in the real world. In 1999 I had
+> servers
+> > to protect. One of them was hacked and I started
+> to
+> > look for tools which could protect servers. I
+> found
+> > NOTHING. (there were some Intrusion Detection
+> Systems,
+> > which would alert you when your server was ALREADY
+> > hacked - it was completely unacceptable for me).
+> 
+> We had an unwellcome visitor in 2001... scrapped
+> SomeOtherUnix shortly
+> thereafter (a "security fix" installed a "remote
+> administration facility"
+> (complete with an extremely nice, well-known hole),
+> which the cracker then
+> used to "remotely administer" our machine...), no
+> further trouble since it
+> is all Linux now. Just be careful in what you
+> install, how you configure,
+> and keep patches up to date.
+> 
+> I.e., a bit of common sense and care goes a _long_
+> way. Security is mostly
+> a _people_ affair, and has much to do with being
+> careful and attention to
+> detail, it is not at all technical. Trying to solve
+> such a people problem
+> with (misguided) technical measures gets you
+> nowhere.
 
- 25-akpm/arch/i386/mm/hugetlbpage.c    |  264 ----------------------------------
- 25-akpm/arch/ia64/mm/hugetlbpage.c    |  251 --------------------------------
- 25-akpm/arch/ppc64/mm/hugetlbpage.c   |  257 ---------------------------------
- 25-akpm/arch/sh/mm/hugetlbpage.c      |  258 ---------------------------------
- 25-akpm/arch/sparc64/mm/hugetlbpage.c |  259 ---------------------------------
- 25-akpm/fs/hugetlbfs/inode.c          |    2 
- 25-akpm/include/linux/hugetlb.h       |    7 
- 25-akpm/kernel/sysctl.c               |    6 
- 25-akpm/mm/Makefile                   |    1 
- 25-akpm/mm/hugetlb.c                  |  245 +++++++++++++++++++++++++++++++
- 10 files changed, 263 insertions(+), 1287 deletions(-)
+I completely agree with you on that. Security is not
+only technical issues. I was an owner of the company
+when our server was hacked, so I did all explanations
+for down time with our customers. (Downtime was
+significant - server was collocated in another country
+and it took quite a while for reinstall Linux -
+different time zone, nobody on 24x7 duty...).
 
-Of course, this buggers up everyone else's patches, but I do think this
-work has to come first.
+Advice to apply all new patches is good, one should do
+that. But there are problems:
 
-I still need to test this on ppc64 and ia64.  I've dropped a rollup against
-2.6.5 at http://www.zip.com.au/~akpm/linux/patches/stuff/mc3.bz2 which you
-should work against until I get -mc3 out for real.
+1. One should monitor patch development constantly and
+be paid for that job (additional expenses).
+2. Will be patch available in time and would it be
+possible to find it - there are questions.
+3. Some patches are created after security hole was
+exploited. I don't want to be among these first sites
+:-)
 
+So, even if you patched everything - there are
+security holes anyway (patches will be developed in
+the future). If it is not production server - not a
+big deal. If it is production - downtimes should be
+minimal and stealing of sensitive information is
+unacceptable. If kernel is slow - I'll buy faster
+hardware with SMP if needed - it's not an issue at
+all. Not enough - I'll install cluster, but I can't
+allow system to be compromised.
+
+Serge.
+
+
+__________________________________
+Do you Yahoo!?
+Yahoo! Small Business $15K Web Design Giveaway 
+http://promotions.yahoo.com/design_giveaway/

@@ -1,45 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261236AbVALElg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261227AbVALEnK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261236AbVALElg (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 Jan 2005 23:41:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261227AbVALEld
+	id S261227AbVALEnK (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 Jan 2005 23:43:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261247AbVALEnK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 Jan 2005 23:41:33 -0500
-Received: from smtp105.rog.mail.re2.yahoo.com ([206.190.36.83]:35960 "HELO
-	smtp105.rog.mail.re2.yahoo.com") by vger.kernel.org with SMTP
-	id S261236AbVALElZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 Jan 2005 23:41:25 -0500
-Subject: [PATCH]add '--extra=+f' to ctags in Makefile in order to search
-	for file names
-From: John Kacur <jkacur@rogers.com>
-Reply-To: jkacur@rogers.com
-To: kai@germaschewski.name, sam@ravnborg.org
+	Tue, 11 Jan 2005 23:43:10 -0500
+Received: from web60609.mail.yahoo.com ([216.109.119.83]:18875 "HELO
+	web60609.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S261227AbVALEnA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 11 Jan 2005 23:43:00 -0500
+Comment: DomainKeys? See http://antispam.yahoo.com/domainkeys
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com;
+  b=ELcpQNGzaqGK1wj9XA9zMFGzZxsOcvvT8fBxKtTJu6Q0fFIep7vOy3q5Vx/tKNdZvc1433XsSIJ3lWgiWLdWFG9XLoR2uflYq337r59cURzFUNErwVYW1rHOCTGWmhNYJ/0S7ac68/CwW1Ys+dqHEKdggcCgLWeuzghbDbMSWuA=  ;
+Message-ID: <20050112044259.53078.qmail@web60609.mail.yahoo.com>
+Date: Tue, 11 Jan 2005 20:42:59 -0800 (PST)
+From: selvakumar nagendran <kernelselva@yahoo.com>
+Subject: RE: pipe_wait illustration needed
+To: Robert White <rwhite@casabyte.com>
 Cc: linux-kernel@vger.kernel.org
-Content-Type: text/plain
-Message-Id: <1105504220.5047.42.camel@linux.site>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Tue, 11 Jan 2005 23:30:20 -0500
-Content-Transfer-Encoding: 7bit
+In-Reply-To: <!~!UENERkVCMDkAAQACAAAAAAAAAAAAAAAAABgAAAAAAAAA2ZSI4XW+fk25FhAf9BqjtMKAAAAQAAAA7xtIU7X1ME2CYTYfWWlaDQEAAAAA@casabyte.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I usually add the following to ctags in the Makefile so I can search for
-file names in my editor. If you think others would find this useful too,
-then please apply.
+--- Robert White <rwhite@casabyte.com> wrote:
 
---- linux-2.6.10/Makefile.orig  2005-01-11 22:45:30.971843616 -0500
-+++ linux-2.6.10/Makefile       2005-01-11 22:56:07.308105800 -0500
-@@ -1167,7 +1167,7 @@
- define cmd_tags
-        rm -f $@; \
-        CTAGSF=`ctags --version | grep -i exuberant >/dev/null && echo
-"-I __initdata,__exitdata,EXPORT_SYMBOL,EXPORT_SYMBOL_NOVERS"`; \
--       $(all-sources) | xargs ctags $$CTAGSF -a
-+       $(all-sources) | xargs ctags $$CTAGSF -a --extra=+f
- endef
+In order to understand the calling of schedule() you
+have to think in 
+terms of time
+and strangers.  In particular time passing irregularly
+and other 
+programs/events
+coming along and changing your state.  There are lots
+of good books 
+that will do a
+better version of explaining all this stuff that I,
+but I will give you 
+---------
+ thank u for ur help. Can u give me the names of some
+of those books so that I can get additional
+information
+from them? 
 
- TAGS: FORCE
+Regards,
+selva
 
 
 
+		
+__________________________________ 
+Do you Yahoo!? 
+Yahoo! Mail - now with 250MB free storage. Learn more.
+http://info.mail.yahoo.com/mail_250

@@ -1,36 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262170AbRFMJds>; Wed, 13 Jun 2001 05:33:48 -0400
+	id <S262674AbRFMJeH>; Wed, 13 Jun 2001 05:34:07 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262660AbRFMJdh>; Wed, 13 Jun 2001 05:33:37 -0400
+	id <S262660AbRFMJd5>; Wed, 13 Jun 2001 05:33:57 -0400
 Received: from cisco7500-mainGW.gts.cz ([194.213.32.131]:6916 "EHLO bug.ucw.cz")
-	by vger.kernel.org with ESMTP id <S262170AbRFMJd0>;
-	Wed, 13 Jun 2001 05:33:26 -0400
-Date: Tue, 12 Jun 2001 16:06:44 +0000
+	by vger.kernel.org with ESMTP id <S262674AbRFMJdu>;
+	Wed, 13 Jun 2001 05:33:50 -0400
+Message-ID: <20010613004116.A26811@bug.ucw.cz>
+Date: Wed, 13 Jun 2001 00:41:16 +0200
 From: Pavel Machek <pavel@suse.cz>
-To: stas.orel@mailcity.com
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [patch] do proper cleanups before requesting irq
-Message-ID: <20010612160643.B33@toy.ucw.cz>
-In-Reply-To: <01061202405801.06615@localhost.localdomain>
+To: ognen@gene.pbi.nrc.ca, linux-kernel@vger.kernel.org
+Subject: Re: threading question
+In-Reply-To: <Pine.LNX.4.30.0106121213570.24593-100000@gene.pbi.nrc.ca>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 1.0.1i
-In-Reply-To: <01061202405801.06615@localhost.localdomain>; from stas_orel@yahoo.com on Tue, Jun 12, 2001 at 03:53:57AM +0400
+X-Mailer: Mutt 0.93i
+In-Reply-To: <Pine.LNX.4.30.0106121213570.24593-100000@gene.pbi.nrc.ca>; from ognen@gene.pbi.nrc.ca on Tue, Jun 12, 2001 at 12:24:04PM -0600
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 Hi!
 
-> The problem is that there are comparisons of pointers to task_struct when
-> deciding if the task is alive. If one task dies and other one starts, it is
-> possible (is it?) that the task structure of the newly created task resides
-> at the very address where was the dead one's, so comparing pointers is not
-> reliable. This patch changes it to comparisons of task's pids.
-> Can anyone, please, atleast tell me if this patch is correct?
+> I am a summer student implementing a multi-threaded version of a very
+> popular bioinformatics tool. So far it compiles and runs without problems
+> (as far as I can tell ;) on Linux 2.2.x, Sun Solaris, SGI IRIX and Compaq
+> OSF/1 running on Alpha. I have ran a lot of timing tests compared to the
+> sequential version of the tool on all of these machines (most of them are
+> dual-CPU, although I am also running tests on 12-CPU Solaris and 108 CPU
+> SGI IRIX). On dual-CPU machines the speedups are as follows: my version
+> is 1.88 faster than the sequential one on IRIX, 1.81 times on Solaris,
+> 1.8 times on OSF/1, 1.43 times on Linux 2.2.x and 1.52 times on Linux 2.4
+> kernel. Why are the numbers on Linux machines so much lower? It is
+> the
 
-it might be better but it is not correct. pids are reused, too
+But this is all different hw, no?
+
+So dual cpu SPARC is more efficient than dual cpu i686. Maybe SPARCs
+have faster RAM and slower cpus... 
+								Pavel
 -- 
-Philips Velo 1: 1"x4"x8", 300gram, 60, 12MB, 40bogomips, linux, mutt,
-details at http://atrey.karlin.mff.cuni.cz/~pavel/velo/index.html.
-
+I'm pavel@ucw.cz. "In my country we have almost anarchy and I don't care."
+Panos Katsaloulis describing me w.r.t. patents at discuss@linmodems.org

@@ -1,46 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263951AbTCWWFf>; Sun, 23 Mar 2003 17:05:35 -0500
+	id <S263953AbTCWWJu>; Sun, 23 Mar 2003 17:09:50 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263953AbTCWWFe>; Sun, 23 Mar 2003 17:05:34 -0500
-Received: from a089148.adsl.hansenet.de ([213.191.89.148]:1922 "EHLO
-	ds666.starfleet") by vger.kernel.org with ESMTP id <S263951AbTCWWFd>;
-	Sun, 23 Mar 2003 17:05:33 -0500
-Message-ID: <3E7E3248.7070307@portrix.net>
-Date: Sun, 23 Mar 2003 23:16:40 +0100
-From: Jan Dittmer <j.dittmer@portrix.net>
-Organization: portrix.net GmbH
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4a) Gecko/20030305
+	id <S263954AbTCWWJu>; Sun, 23 Mar 2003 17:09:50 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:45748 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S263953AbTCWWJt>;
+	Sun, 23 Mar 2003 17:09:49 -0500
+Message-ID: <3E7E335C.2050509@pobox.com>
+Date: Sun, 23 Mar 2003 17:21:16 -0500
+From: Jeff Garzik <jgarzik@pobox.com>
+Organization: none
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20021213 Debian/1.2.1-2.bunk
 X-Accept-Language: en
 MIME-Version: 1.0
-To: Dominik Brodowski <linux@brodo.de>
-CC: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       B.Zolnierkiewicz@elka.pw.edu.pl
-Subject: Re: ide: indeed, using list_for_each_entry_safe removes endless looping
- / hang [Was: Re: 2.5.65-ac2 -- hda/ide trouble on ICH4]
-References: <20030322140337.GA1193@brodo.de> <1048350905.9219.1.camel@irongate.swansea.linux.org.uk> <20030322162502.GA870@brodo.de> <1048354921.9221.17.camel@irongate.swansea.linux.org.uk> <20030323010338.GA886@brodo.de> <1048434472.10729.28.camel@irongate.swansea.linux.org.uk> <20030323145915.GA865@brodo.de> <1048444868.10729.54.camel@irongate.swansea.linux.org.uk> <20030323181532.GA6819@brodo.de> <20030323182554.GA1270@brodo.de>
-In-Reply-To: <20030323182554.GA1270@brodo.de>
+To: "Martin J. Bligh" <mbligh@aracnet.com>
+CC: James Bourne <jbourne@mtroyal.ab.ca>, linux-kernel@vger.kernel.org,
+       Robert Love <rml@tech9.net>, Martin Mares <mj@ucw.cz>,
+       Alan Cox <alan@redhat.com>, Stephan von Krawczynski <skraw@ithnet.com>,
+       szepe@pinerecords.com, arjanv@redhat.com, Pavel Machek <pavel@ucw.cz>
+Subject: Re: Ptrace hole / Linux 2.2.25
+References: <20030323193457.GA14750@atrey.karlin.mff.cuni.cz><200303231938.h2NJcAq14927@devserv.devel.redhat.com><20030323194423.GC14750@atrey.karlin.mff.cuni.cz> <1048448838.1486.12.camel@phantasy.awol.org><20030323195606.GA15904@atrey.karlin.mff.cuni.cz> <1048450211.1486.19.camel@phantasy.awol.org><402760000.1048451441@[10.10.2.4]> <20030323203628.GA16025@atrey.karlin.mff.cuni.cz> <Pine.LNX.4.51.0303231410250.17155@skuld.mtroyal.ab.ca> <920000.1048456387@[10.10.2.4]>
+In-Reply-To: <920000.1048456387@[10.10.2.4]>
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dominik Brodowski wrote:
-> On Sun, Mar 23, 2003 at 07:15:33PM +0100, Dominik Brodowski wrote:
->>Just got it to boot :) -- the while(!list_empty...) { list_entry ... looks
->>suspicious. Might be better to use list_for_each_safe() which is designed
->>exactly for this purpouse. I'm currently recompiling
->>2.5.65-bk-current-as-of-yesterday with the attached patch. Let's see whether
->>it works with this kernel, too...
-> 
-> 
-> Yes, it also works with 2.5.65-bkX.
-> 
+Martin J. Bligh wrote:
+> I think this would be valuable .. the other thing that really needs to
+> be present is a "common vendor" kernel where changes that are common
+> to most distros are merged (eg O(1) scheduler, etc). Personally, I think 
+> that's what mainline should be doing ... but if other people disagree,
+> then I, at least, would see value in a separate tree to do this.
 
-Yes, my system also boots again :)
 
-Thanks,
 
-Jan
+akpm has suggested something like this in the past.  I respectfully 
+disagree.
+
+The 2.4 kernel will not benefit from constant churn of backporting core 
+kernel changes like a new scheduler.  We need to let it settle, simply 
+get it stable, and concentrate on fixing key problems in 2.6.  Otherwise 
+you will never have a stable 2.4 tree, and it will look suspiciously 
+more and more like 2.6 as time goes by.  Constantly breaking working 
+configurations and changing core behaviors is _not_ the way to go for 2.4.
+
+I see 2.4 O(1) scheduler and similar features as _pain_ brought on the 
+vendors by themselves (and their customers).
+
+Surely it is better to concentrate developer time and mindshare on 
+making 2.6 sane?
+
+	Jeff
+
+
+
 

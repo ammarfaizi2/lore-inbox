@@ -1,71 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268083AbUHVTvK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268085AbUHVUD7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268083AbUHVTvK (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 22 Aug 2004 15:51:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268085AbUHVTvK
+	id S268085AbUHVUD7 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 22 Aug 2004 16:03:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268086AbUHVUD7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 22 Aug 2004 15:51:10 -0400
-Received: from h002.c000.snv.cp.net ([209.228.32.66]:2202 "HELO
-	c000.snv.cp.net") by vger.kernel.org with SMTP id S268083AbUHVTvC
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 22 Aug 2004 15:51:02 -0400
-X-Sent: 22 Aug 2004 19:51:01 GMT
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 7bit
+	Sun, 22 Aug 2004 16:03:59 -0400
+Received: from qfep05.superonline.com ([212.252.122.162]:24517 "EHLO
+	qfep05.superonline.com") by vger.kernel.org with ESMTP
+	id S268085AbUHVUD4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 22 Aug 2004 16:03:56 -0400
+From: "Josan Kadett" <corporate@superonline.com>
+To: "'Alan Cox'" <alan@lxorguk.ukuu.org.uk>
+Cc: <linux-kernel@vger.kernel.org>
+Subject: RE: Cursed Checksums
+Date: Sun, 22 Aug 2004 23:03:54 +0200
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Cc: romieu@fr.zoreil.com, jgarzik@pobox.com
-From: dag@bakke.com
-Subject: Re: RTL-8139 Network card slow down on 2.6.8.1-mm
-X-Sent-From: dag@bakke.com
-Date: Sun, 22 Aug 2004 12:50:45 -0700 (PDT)
-X-Mailer: Web Mail 5.6.4-0
-Message-Id: <20040822125101.13842.h009.c000.wm@mail.bakke.com.criticalpath.net>
+Content-Type: text/plain;
+	charset="US-ASCII"
+Content-Transfer-Encoding: 7bit
+X-Mailer: Microsoft Office Outlook, Build 11.0.5510
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1409
+In-Reply-To: <1093174820.24319.60.camel@localhost.localdomain>
+Thread-Index: AcSIRh5CXoA6qujqT3yX0egGDwhtIAARKgxg
+Message-Id: <S268085AbUHVUD4/20040822200356Z+207@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Francois, Jeff
+Perhaps there is a way to recompute IP header checksums before they get into
+the interface? As I outlined, I have found a way to manipulate IP source
+address before the packet is flushed to system, but a means of recalculating
+the IP header checksum after that manipulation should be found. Because even
+if I ignore IP header CRC in one system, all other boxes connected to this
+machine has to be patched the same. That is impossible anyway.
 
-I have noticed an anomaly with the 8139C network card which I would like
-to hear your opinion about, if you have time to spare.
-I don't think it is the same problem which started this thread.
+Only if I could find a way to recalculate the checksum in IP headers by
+doing a simple hack to the kernel, everything would be alright. 
 
-I have been testing a specific kind of networking equipment with two
-laptops equipped with RTL8139C cardbus cards. 
-I use the application 'iperf' to measure troughput.
-To establish the base level bandwidth, I use a crossover cable between
-the two PCs, and measure the bandwidth "back to back".
+-----Original Message-----
+From: linux-kernel-owner@vger.kernel.org
+[mailto:linux-kernel-owner@vger.kernel.org] On Behalf Of Alan Cox
+Sent: Sunday, August 22, 2004 1:40 PM
+To: Josan Kadett
+Cc: Linux Kernel Mailing List
+Subject: Re: Cursed Checksums
 
-With UDP, I easily achieve around 93-94 Mbps with these cards, be it
-one-way or two-way traffic.
+It depends on your hardware. With modern network cards we do the
+checksum processing in hardware. For older setups passing a packet
+through a Linux box won't directly help as the ttl recomputation is done
+without recalculation from scratch.
 
-With TCP, I achieve 92-93 Mbps with one-way traffic. Two-way traffic is
-variable, and my main question revolves around this fact.
+We also have a pile of paths for checksumming including copy/checksum
+rolled into one so it isn't easy to remove there.
 
-I have on one, single occation been able to measure 90 Mbps two-way TCP
-traffic. More common is 86-87 Mbps. Occasionally, two-way traffic drops
-down to 67 Mbps. The only way to get it back up is to pull the cards and
-put them back in.
+I'd take up the issue with the vendor of the broken object. If its
+something like an internal prototype you need to test then you'll
+probably have to write a user space application using raw sockets to
+communicate with it and do the fixups/passthrough in use space. Pretty
+horrible either way.
 
-If there had been packet drops (I need to generate stats here...) I'd
-understand it if the TCP protocol was throttling the troughput. But I am
-not convinced that is the issue here.
-
-
-- What troughput (2way, TCP) should I be able to achieve with the
-RTL8139C and the 8139too driver?
-
-- Does the hardware support flow control?
-
-- Is there a particular reason the NAPI patch for the 8139 isn't merged
-yet?
-
-I am currently testing with 2.6.8.1 + the 8139 napi patch + the two 8139
-patches in -mm1.
+Alan
 
 
-Regards,
+Alan
+-
+To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Please read the FAQ at  http://www.tux.org/lkml/
 
 
-Dag B.
+

@@ -1,41 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263558AbUCTWik (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 20 Mar 2004 17:38:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263561AbUCTWik
+	id S263564AbUCTWpl (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 20 Mar 2004 17:45:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263565AbUCTWpl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 20 Mar 2004 17:38:40 -0500
-Received: from mail.gmx.de ([213.165.64.20]:50334 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S263558AbUCTWij (ORCPT
+	Sat, 20 Mar 2004 17:45:41 -0500
+Received: from holomorphy.com ([207.189.100.168]:48521 "EHLO holomorphy.com")
+	by vger.kernel.org with ESMTP id S263564AbUCTWpj (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 20 Mar 2004 17:38:39 -0500
-X-Authenticated: #4512188
-Message-ID: <405CC7EC.9030205@gmx.de>
-Date: Sat, 20 Mar 2004 23:38:36 +0100
-From: "Prakash K. Cheemplavam" <PrakashKC@gmx.de>
-User-Agent: Mozilla Thunderbird 0.5 (X11/20040216)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: "Prakash K. Cheemplavam" <PrakashKC@gmx.de>
-CC: Zilvinas Valinskas <zilvinas@gemtek.lt>,
-       Linus Torvalds <torvalds@osdl.org>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Linux 2.6.5-rc2, hotplug and ohci-hcd issue
-References: <Pine.LNX.4.58.0403191937160.1106@ppc970.osdl.org> <405C1B14.6000206@gmx.de> <20040320132334.GB13028@gemtek.lt> <405C979A.8070200@gmx.de>
-In-Reply-To: <405C979A.8070200@gmx.de>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Sat, 20 Mar 2004 17:45:39 -0500
+Date: Sat, 20 Mar 2004 14:45:18 -0800
+From: William Lee Irwin III <wli@holomorphy.com>
+To: rmk@arm.linux.org.uk, Jaroslav Kysela <perex@suse.cz>,
+       Linus Torvalds <torvalds@osdl.org>, LKML <linux-kernel@vger.kernel.org>
+Subject: Re: can device drivers return non-ram via vm_ops->nopage?
+Message-ID: <20040320224518.GQ2045@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	rmk@arm.linux.org.uk, Jaroslav Kysela <perex@suse.cz>,
+	Linus Torvalds <torvalds@osdl.org>,
+	LKML <linux-kernel@vger.kernel.org>
+References: <20040320133025.GH9009@dualathlon.random> <20040320144022.GC2045@holomorphy.com> <20040320150621.GO9009@dualathlon.random> <20040320154419.A6726@flint.arm.linux.org.uk> <Pine.LNX.4.58.0403201651520.1816@pnote.perex-int.cz> <20040320160911.B6726@flint.arm.linux.org.uk> <Pine.LNX.4.58.0403202038530.1816@pnote.perex-int.cz> <20040320222341.J6726@flint.arm.linux.org.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040320222341.J6726@flint.arm.linux.org.uk>
+User-Agent: Mutt/1.5.5.1+cvs20040105i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Prakash K. Cheemplavam wrote:
+On Sat, Mar 20, 2004 at 08:44:44PM +0100, Jaroslav Kysela wrote:
+>> Yes, I'm sorry about that, but the ->nopage usage was requested by Jeff
+>> Garzik and we're not gurus for the VM stuff. Because we're probably first
+>> starting using of this mapping scheme, it resulted to problems.
 
-> I maybe found something: I compiled "force module unloading" into 
-> kernel, and now it doesn't seem to hang, though I don't understand why 
-> it should make a difference, as nothing is forced. I have to test a bit 
-> more.
+On Sat, Mar 20, 2004 at 10:23:41PM +0000, Russell King wrote:
+> Well, I've been told to effectively screw my idea by David Woodhouse,
+> so may I make the radical suggestion that rm -rf linux/sound would
+> also fix the problem.  No, didn't think that was acceptable either.
+> Ok, so, how the fsck do we fix the sound drivers?  How do we mmap()
+> memory provided by dma_alloc_coherent() into user space portably?
+> It appears from what David Woodhouse has been going on about, even
+> providing an architecture dma_coherent_to_page() interface isn't
+> acceptable.
+> If we can't answer that question, we might as well remove ALSA and
+> OSS from the kernel because they are abusing existing kernel
+> interfaces in ways which can not be solved.
 
-I was wrong, above doesn't work. It still hangs. I don't know how to 
-circumvent it. Something seems to be broken.
+Is there any possibility of an extension to remap_area_pages() that
+could resolve this? I can't say I fully understood and/or remember
+the issue with it that you pointed out.
 
-Prakash
+
+-- wli

@@ -1,38 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263155AbTJaJah (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 31 Oct 2003 04:30:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263176AbTJaJah
+	id S263151AbTJaJ1t (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 31 Oct 2003 04:27:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263153AbTJaJ1t
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 31 Oct 2003 04:30:37 -0500
-Received: from main.gmane.org ([80.91.224.249]:53721 "EHLO main.gmane.org")
-	by vger.kernel.org with ESMTP id S263155AbTJaJaa (ORCPT
+	Fri, 31 Oct 2003 04:27:49 -0500
+Received: from fw.osdl.org ([65.172.181.6]:65507 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S263151AbTJaJ1s (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 31 Oct 2003 04:30:30 -0500
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: Karol Czachorowski <narel@fantastyka.net>
-Subject: [BUG] via82cxxx in 2.6.0-textX
-Date: Fri, 31 Oct 2003 10:30:29 +0100
-Message-ID: <pan.2003.10.31.09.30.29.205245@fantastyka.net>
+	Fri, 31 Oct 2003 04:27:48 -0500
+Date: Fri, 31 Oct 2003 01:29:46 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: ahuisman@cistron.nl, linux-kernel@vger.kernel.org, nuno.silva@vgertech.com
+Subject: Re: READAHEAD
+Message-Id: <20031031012946.3adedc14.akpm@osdl.org>
+In-Reply-To: <20031031012846.48fa233c.akpm@osdl.org>
+References: <bnrdqi$uho$1@news.cistron.nl>
+	<20031030134407.0c97c86e.akpm@osdl.org>
+	<3FA25377.3050207@cistron.nl>
+	<20031031012846.48fa233c.akpm@osdl.org>
+X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-Complaints-To: usenet@sea.gmane.org
-User-Agent: Pan/0.14.2 (This is not a psychotic episode. It's a cleansing moment of clarity. (Debian GNU/Linux))
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I have Duron 850 on VIA 82c686b motherboard (ATA 100). Stable kernels
-works ok, but in 2.6 series I've got troubles with disk operations.
-Whenever I'm copying files it takes 100% of my CPU and load of a system
-grows up to 5-10 (especially if it's a big file). Even reading of floppy
-disk (or cdrom) gives similar effects.
-I don't know which information will be usefull - dmesg, hdparm, lspci and
-config of my kernel are here:
-http://syjon.fantastyka.net/~narel/2.6
+Andrew Morton <akpm@osdl.org> wrote:
+>
+> Please, just use time, cat, dd, etc.
+> 
+>  	mount /dev/xxx /mnt/yyy
+>  	dd if=/dev/zero of=/mnt/yyy/x bs=1M count=1024
+>  	umount /dev/xxx
+>  	mount /dev/xxx /mnt/yyy
+>  	time cat /mnt/yyy/x > /dev/null
 
-Karol
-
-
-
+And you can do the same against /dev/hdaN if you have a scratch
+partition; that would be interesting.

@@ -1,122 +1,125 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132674AbRBRKmr>; Sun, 18 Feb 2001 05:42:47 -0500
+	id <S132688AbRBRK6Z>; Sun, 18 Feb 2001 05:58:25 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132692AbRBRKmi>; Sun, 18 Feb 2001 05:42:38 -0500
-Received: from zooty.lancs.ac.uk ([148.88.16.231]:9096 "EHLO zooty.lancs.ac.uk")
-	by vger.kernel.org with ESMTP id <S132674AbRBRKmS>;
-	Sun, 18 Feb 2001 05:42:18 -0500
-Message-Id: <l0313034cb6b549ad70fa@[192.168.239.101]>
-In-Reply-To: <200102180823.f1I8Nqr16293@gate.dodgy.net.au>
-In-Reply-To: <l0313034bb6b52c1d7efa@[192.168.239.101]> from "Jonathan
- Morton" at Feb 18, 2001 07:38:15 AM
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Date: Sun, 18 Feb 2001 10:41:54 +0000
-To: Darren Tucker <dtucker@zip.com.au>, linux-kernel@vger.kernel.org
-From: Jonathan Morton <chromi@cyberspace.org>
-Subject: Re: re. too long mac address for --mac-source netfilter option
+	id <S132692AbRBRK6F>; Sun, 18 Feb 2001 05:58:05 -0500
+Received: from limes.hometree.net ([194.231.17.49]:60773 "EHLO
+	limes.hometree.net") by vger.kernel.org with ESMTP
+	id <S132688AbRBRK5y>; Sun, 18 Feb 2001 05:57:54 -0500
+To: linux-kernel@vger.kernel.org
+Date: Sun, 18 Feb 2001 10:57:03 +0000 (UTC)
+From: "Henning P. Schmiedehausen" <hps@tanstaafl.de>
+Message-ID: <96o9pv$j3j$1@forge.intermeta.de>
+Organization: INTERMETA - Gesellschaft fuer Mehrwertdienste mbH
+In-Reply-To: <5.0.0.25.0.20010216170349.01efc030@mail.etinc.com>, <20010217151407.E26627@alcove.wittsend.com>
+Reply-To: hps@tanstaafl.de
+Subject: Re: Linux stifles innovation...
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> >1) I know that some of the the MAC addresses given by tcpdump are
->> >invalid. Is this a bug? In what?
->>
->> Nope.  The addresses (with mostly zeroes) are like IP addressses with many
->> zeroes or '255' - they handle concepts like "broadcast" or "me".
->
->Huh? It's a vanilla unicast IP datagram over ethernet. Not broadcast or
->multicast. It should have the MAC addresses of the source and destination
->devices. (In fact, it does, since I've just fired up SMS network monitor
->on my work laptop and sniffed it.)
->
->It's like the destination address in the ethernet frame is being stomped
->before being handed to tcpdump
+mhw@wittsend.com (Michael H. Warfield) writes:
 
-Or, it hasn't acquired it yet because it hasn't passed through the Ethernet
-hardware.  So it'll read as the generic MAC address for "me" (0:0:0:0:0:1)
-until it actually goes on the wire and comes back off again.  This is
-almost certainly what's happening in the outgoing packet.
+>	No...  Close Source and proprietary protocols are then anthema to
+>BOTH progress and innovation.  When innovation is done in a close arena, it
 
-In the case of the reply packet, which is an ICMP error message, the source
-MAC address is all zeroes - this may simply be an indication saying "this
-packet could have come from anywhere, please don't reply".  The packet
-causing the ICMP error message is detailed within the ICMP message itself,
-and the host where the error originated is detailed in the IP header.
+These are two different things! Proprietary protocols are the death to
+variety and customer choice! 
 
-.... runs some tests on own hardware ....
+I personally are perfectly happy with closed source and open
+protocols. Show me a compareable product to BEA WebLogic, which is
+free. But if I consider this closed source program to suck, I can
+still take my application and deploy it on a free EJB container with a
+free servlet engine. I don't lose with closed source here. And the
+closed source vendor is forced to compete with open source
+products. Which in the end gives me a better product. I'm happy with
+upgrades and release cycles where I get one new release and some bug
+fixes in six months. Not a new release all two days. And I'm happy
+that I can call a support line or open a bug ticket with a
+vendor. Yes, there are vendors which care about bug tickets and fix
+bugs in their products.
 
-OK, now I'm confused.  I'm watching tcpdump of some perfectly ordinary
-stuff going on between a 2.2.16 machine (helium, using eepro) and a 2.4.1
-box (lithium, using via-rhine).  Here's an NTP exchange:
+The division "Open Source - all bugs are fixed in shortest time"
+vs. "Close Source - no bugs are fixed at all and only updates are
+sold" is IMHO plain wrong. And e.g. in Germany, where there is
+something called "Gewaehrleistungsfrist" which is six months after
+selling a product, vendors are held by the law (!) to fix bugs. And
+again, companies like M$ try to circument this with "EULAs" which,
+according to some lawyers do not uphold in court. But according to my
+knowledge, noone in Germany has ever tried to sue M$ to force them to
+comply to this law.
 
-10:01:51.113583 < 0:50:ba:aa:77:88 0:0:0:0:0:1 ip 90:
-lithium.chromatix.org.uk.ntp > helium.chromatix.org.uk.ntp: v4 client strat
-4
-poll 6 prec -17 dist 0.019088 disp 0.036071 ref
-helium.chromatix.org.uk@3191479248.131119996 orig 3191479248.135523006 rec
--0.004402999 xmt +62.985828995 (DF) (ttl 64, id 0)
-                         4500 004c 0000 4000 4011 da7b c0a8 ef6b
-                         c0a8 ef68 007b 007b 0038 1076 2304 06ef
-                         0000 04e3 0000 093c c0a8 ef68 be3a 1bd0
-                         2191 148f be3a 1bd0 22b1 a2a4 be3a 1bd0
-                         2191 148f be3a 1c0f 1f10 ecb7
+Microsoft tries to circumvent this competition with proprietary
+protocols and non-interchangeablity. Why do they bash Java? Why do
+they push something like C#? Because they don't want _NO_
+competition. They "embrace and extend". And the patent the extensions.
 
-This packet is incoming to helium, and it shows the MAC address of lithium
-along with the so-called "me" address I mentioned.
+Many other companies take the challenge of open source and open
+protocols and try to compete with open source products. And they do it
+really well! I have to see Oracle to lose a significant percentage of
+their Enterprise RDBMS to free software (And please don't quote me the
+"Nasa switches to MySQL" article. This is fine but then again for them, 
+Oracle wasn't a good choice in the first place. ;-) )
 
-10:01:51.123585 > 0:0:0:0:0:0 0:aa:0:aa:7a:86 ip 90:
-helium.chromatix.org.uk.ntp > lithium.chromatix.org.uk.ntp: v4 server strat
-3 p
-oll 6 prec -16 dist 0.015533 disp 0.026077 ref
-dns.lancs.ac.uk@3191478910.586125016 orig 3191479311.121352002 rec
-+0.002871999 xmt +0.003857000 (ttl 64, id 42171)
-                         4500 004c a4bb 0000 4011 75c0 c0a8 ef68
-                         c0a8 ef6b 007b 007b 0038 621a 2403 06f0
-                         0000 03fa 0000 06ad 9458 0804 be3a 1a7e
-                         960c 49ba be3a 1c0f 1f10 ecb7 be3a 1c0f
-                         1fcd 24e1 be3a 1c0f 200d b270
+Innovation today happens with protocols. With ideas. With interoperability.  
+On the Internet. Open Source and Closed Source are competitors and
+open source and free software _forces_ company to make better software
+if they want to compete.
 
-This one is outgoing, and it contains helium's *OWN* MAC address, and the
-all-zeroes one.  I'm fairly sure NTP doesn't use broadcast, at least in my
-configuration.
+Microsoft tries to avoid the competition and wants to lock their
+customers into the Windows - IIS - ASP - .NET - C# cycle with
+proprietary protocols, languages and platforms, because then they know
+that for these customers, changing into _any_ other environment (be it
+the LAMP, FreeBSD-PostgreSQL-Python, Zope, Oracle, Cold Fusion or
+anything _else_) is so hard, that the customers won't do. 
 
-10:08:24.365128 M 0:0:94:61:aa:83 1:0:0:0:0:0 0004 50: snap atalkarp aarp
-len 28 op 256 htype 256 ptype 0x9b80 halen 6 palen 4
-                         aaaa 0300 0000 80f3 0001 809b 0604 0001
-                         0000 9461 aa83 00ff 00a3 0000 0000 0000
-                         00ff 00ad
+Setting up a network of "Microsoft certified professionals" which
+repeat the ideology from Redmond on and on, really helps here. It is
+almost like the roman-catholic church. ;-)
 
-This is an interesting one - it's a multicast packet from one of my Macs,
-performing some obscure AppleTalk thing (AARP == AppleTalk Address
-Resolution Protocol, so it's really not that obscure).  Notice the
-pseudo-MAC is different here than in the incoming NTP packet.  The real
-MAC, in the first MAC field, is that of the Mac sending the AARP query
-(turns out to be the Quadra, after searching through the control panels on
-the several Macs I have).
+Microsoft don't really care about "Open Source", "Closed Source", GNU,
+Linux, BSD and all the stuff. They only care about "Competition" and
+"Market share". Anything that endangers their market share is a
+threat.
 
-.... reconsiders situation ....
+>	Without Open Source and it's predecessors, we would not have the
+>Internet as we know it today.  Companies back then (and I worked for
 
-Looks like it could either be a bug, or an obscure feature which neither of
-us have noticed yet.  From the tcpdump manpage: "On ethernets, the source
-and destination addresses, protocol and packet length are printed."  This
-may well be the case, but it doesn't match up with what's showing up in the
-above traces, or in yours either.
+No. Without Cisco and Sun, we wouldn't have a working internet at
+all. And they do closed products with open protocols. And that's IMHO
+the point.
 
---------------------------------------------------------------
-from:     Jonathan "Chromatix" Morton
-mail:     chromi@cyberspace.org  (not for attachments)
-big-mail: chromatix@penguinpowered.com
-uni-mail: j.d.morton@lancaster.ac.uk
+>some of them) could not envision a network as we know it now.  Several
+>of them saw no future what so ever in the "Internet".  One of them even
+>went so far as to proclaim that Novell was the be all and end all of
+>networking and nothing would ever amount to anything on this petty worthless
+>Internet thing.
 
-The key to knowledge is not to rely on people to teach you it.
+>	History has proved them wrong and history has proved that Open
+>Source is the provider of choices not the limiter of choices.
 
-Get VNC Server for Macintosh from http://www.chromatix.uklinux.net/vnc/
+No. Open protocols and Open ideas are. Open source is just a part of
+the whole picture. Every company that tries to lock their customers
+into their products, are a threat to the Internet and to users and
+customers. That's where Novell from your example failed. They failed
+because of IPX and their inability to adjust to the emerging IP
+environment.
 
------BEGIN GEEK CODE BLOCK-----
-Version 3.12
-GCS$/E/S dpu(!) s:- a20 C+++ UL++ P L+++ E W+ N- o? K? w--- O-- M++$ V? PS
-PE- Y+ PGP++ t- 5- X- R !tv b++ DI+++ D G e+ h+ r- y+
------END GEEK CODE BLOCK-----
+Novell failed because they tried to push a small vertical, expensive
+product (file and print serving) when a competitor started to give the
+"peer-to-peer" and server network away with their baseline product
+("Windows"). Not because they made a close source product.
 
+"We give away for free, what you sell". Microsoft got Novell with
+this. They got Netscape with this. They will try to get the next
+competitor with this, too. They can't get Linux with this and that's
+why they're afraid. And that's where such a Linux-bashing article
+comes from.
 
+	Regards
+		Henning
+-- 
+Dipl.-Inf. (Univ.) Henning P. Schmiedehausen       -- Geschaeftsfuehrer
+INTERMETA - Gesellschaft fuer Mehrwertdienste mbH     hps@intermeta.de
+
+Am Schwabachgrund 22  Fon.: 09131 / 50654-0   info@intermeta.de
+D-91054 Buckenhof     Fax.: 09131 / 50654-20   

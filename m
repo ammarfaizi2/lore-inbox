@@ -1,52 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288661AbSA0UZh>; Sun, 27 Jan 2002 15:25:37 -0500
+	id <S288675AbSA0VJb>; Sun, 27 Jan 2002 16:09:31 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288685AbSA0UZ2>; Sun, 27 Jan 2002 15:25:28 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:7434 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S288671AbSA0UZR>; Sun, 27 Jan 2002 15:25:17 -0500
-Subject: Re: Preempt & how long it takes to interrupt (was Re: [2.4.17/18pre] VM and swap - it's really unusable)
-To: landley@trommello.org (Rob Landley)
-Date: Sun, 27 Jan 2002 20:37:19 +0000 (GMT)
-Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), pavel@suse.cz (Pavel Machek),
-        helgehaf@aitel.hist.no (Helge Hafting), linux-kernel@vger.kernel.org
-In-Reply-To: <20020122195437.LDTC21740.femail36.sdc1.sfba.home.com@there> from "Rob Landley" at Jan 22, 2002 06:52:29 AM
-X-Mailer: ELM [version 2.5 PL6]
+	id <S288685AbSA0VJU>; Sun, 27 Jan 2002 16:09:20 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:10762 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S288675AbSA0VJF>; Sun, 27 Jan 2002 16:09:05 -0500
+To: linux-kernel@vger.kernel.org
+From: "H. Peter Anvin" <hpa@zytor.com>
+Subject: Re: CRAP in 2.4.18-pre7
+Date: 27 Jan 2002 13:08:49 -0800
+Organization: Transmeta Corporation, Santa Clara CA
+Message-ID: <a31q91$upd$1@nell.transmeta.com>
+In-Reply-To: <20020126171545.GB11344@fefe.de> <3C542FE6.7C56D6BD@mandrakesoft.com> <3C5439C1.6000305@evision-ventures.com> <3C543E86.7F0FA37A@gmx.net>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E16Uw3D-0002bm-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Disclaimer: Not speaking for Transmeta in any way, shape, or form.
+Copyright: Copyright 2002 H. Peter Anvin - All Rights Reserved
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> >carefully disables an IRQ on the card so that it can avoid spinlocking on 
-> >uniprocessor boxes.
+Followup to:  <3C543E86.7F0FA37A@gmx.net>
+By author:    root <gunther.mayer@gmx.net>
+In newsgroup: linux.dev.kernel
 > 
-> Sounds like a bit of a kludge, but it's not my code.  However, without 
-> preempt aren't spinlocks basically NOPs on uniprocessor boxes?  What did I 
-> miss?
+> You don't need a hub to have collisions.
+> 
+> Duplex mismatch (i.e. one card in full-duplex, the other in half-duplex)
+> would just show 10-50 KByte/sec transfer rates typically.
+> 
+> The card's statistics about "collisions" and "late collisions" would
+> positively prove if this is the case.
+> 
 
-spin lock is a nop on uniprocessor. That is much of the point of this. Most
-ne2000's are in uniprocessor boxes so they are primary target
+Not all cards correctly autoconfigure across a crossover cable (they
+should, but not all do).  When autoconfigure is screwed up, as you
+indicate above, things will be *VERY* messed up.
 
-> An NE2K cannot go faster than 10baseT.  (Never designed to.  It's an old ISA 
-
-Wrong. There are multiple 100Mbit NE2000 clones (notably PCMCIA ones). I
-have one in my laptop for example.
-
-> testing the patch complaining about, AND one that seems like it could be 
-> addressed by using IRQ disabling as a latency guard in addition to spinlocks.
-
-I dont believe anyone has tested the driver hard with pre-empt. Its not that
-this driver can't be fixed. Its that this is one tiny example of maybe 
-thousands of other similar flaws lurking. There is no obvious automated way
-to find them either.
-
-> If it's holding the lock for several miliseconds, the overhead of acquiring 
-> the lock in the first place isn't exactly a show-stopper, is it?
-
-I don't hold the lock with interrupts off for several milliseconds
-
-Alan
+	-hpa
+-- 
+<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
+"Unix gives you enough rope to shoot yourself in the foot."
+http://www.zytor.com/~hpa/puzzle.txt	<amsp@zytor.com>

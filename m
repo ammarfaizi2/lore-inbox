@@ -1,69 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264939AbSL0OMS>; Fri, 27 Dec 2002 09:12:18 -0500
+	id <S264945AbSL0OjF>; Fri, 27 Dec 2002 09:39:05 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264943AbSL0OMS>; Fri, 27 Dec 2002 09:12:18 -0500
-Received: from outpost.ds9a.nl ([213.244.168.210]:27327 "EHLO outpost.ds9a.nl")
-	by vger.kernel.org with ESMTP id <S264939AbSL0OMQ>;
-	Fri, 27 Dec 2002 09:12:16 -0500
-Date: Fri, 27 Dec 2002 15:20:33 +0100
-From: bert hubert <ahu@ds9a.nl>
-To: pavel@suse.cz
-Cc: linux-kernel@vger.kernel.org
-Subject: swsusp in 2.5.53 BUG on kernel/suspend.c line 718
-Message-ID: <20021227142032.GA6945@outpost.ds9a.nl>
-Mail-Followup-To: bert hubert <ahu@ds9a.nl>, pavel@suse.cz,
-	linux-kernel@vger.kernel.org
+	id <S264954AbSL0OjF>; Fri, 27 Dec 2002 09:39:05 -0500
+Received: from uni02du.unity.ncsu.edu ([152.1.13.102]:44672 "EHLO
+	uni02du.unity.ncsu.edu") by vger.kernel.org with ESMTP
+	id <S264945AbSL0OjE>; Fri, 27 Dec 2002 09:39:04 -0500
+From: jlnance@unity.ncsu.edu
+Date: Fri, 27 Dec 2002 09:47:18 -0500
+To: linux-kernel@vger.kernel.org
+Subject: Help with modules
+Message-ID: <20021227144718.GA2567@ncsu.edu>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.3.28i
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+Hello All,
+    I am having some problems using the 2.5.53 kernel because my module
+scripts dont work.  I got the modutils-2.4.21-10 SRPM package from
+ftp.kernel.org/pub/linux/kernel/people/rusty/modules. I verified that
+it contains both the old modutils and the new module-init-tools source
+code.  I built it and installed the resulting RPM on my Red Hat 8.0
+machine.  When I boot, I get messages about modprobe failing:
 
-I wanted to try software suspend again in Linux as 2.5 is doing almost
-everything pretty well for me already.
+ Dec 27 08:56:39 tricia modprobe: FATAL: Module hid not found.
+ Dec 27 08:56:39 tricia rc.sysinit: Initializing USB HID interface:  failed
+ Dec 27 08:56:39 tricia modprobe: FATAL: Module keybdev not found.
+ Dec 27 08:56:39 tricia rc.sysinit: Initializing USB keyboard:  failed
+ Dec 27 08:56:39 tricia modprobe: FATAL: Module mousedev not found.
+ Dec 27 08:56:39 tricia rc.sysinit: Initializing USB mouse:  failed
 
-I boot my uniprocessor Pentium III laptop with:
+and none of my modules get loaded.
 
-kernel (hd0,0)/boot/vmlinuz-2.5.53 root=/dev/hda1 resume=/dev/hda2
+If I boot the stock Red Hat 8.0 kernel using the new modutils, everything
+seems to work fine (and its a lot more modular than the 2.5.53 kernel I
+am trying to use).
 
-# swapon -s
-Filename				Type		Size	Used Priority
-/dev/hda2                               partition	489972	0    -1
+I have a modules.conf file, but I think I read somewhere that the newer
+modutils want a modprobe.conf file which I dont have.  That may be the
+problem, but thats just a guess (and I dont know what should go in
+that file).
 
-$ cat /proc/meminfo 
-MemTotal:       191240 kB
+I would certainly appreciate any suggestions anyone might have for fixing
+my setup.  I would like to help test the 2.5.X kernels, but this has
+been an difficult series of kernels to follow casually.  Hopefully this
+is the last big obstacle.
 
-When I suspend, things proceed swimmingly, I see a lot of dots printed and
-processes entering the refrigerator, until line 718 is hit in
-kernel/suspend.c:
+Thanks,
 
-   if (nr_copy_pages != count_and_copy_data_pages(pagedir_nosave)) /* copy */
-       BUG();
-
-When I aded some printks, it turns out that count_and_copy_data pages
-returns 5440 (decimal) and that nr_copy_pages is 5458, 18 more. Before this
-function is called, the address c034c000 was printed twice prefixed with
-'nosave', once during each call of count_and_copy_data_pages it appears.
-
-So it appears some pages were freed in the critical section!
-
-Another interesting note is that pdflush reported 'Bogus wakeup' twice
-during the refrigeration phase. I also see two pdflushes running.
-
-If I remove the BUG();, on resume it crashes on an unhandled NULL pointer,
-the EIP is in a function aptly named do_magic() at +0x9e.
-
-Compiler is gcc 3.2.1. Anything I can do to help, just let me know!
-
-Regards,
-
-bert
-
--- 
-http://www.PowerDNS.com      Open source, database driven DNS Software 
-http://lartc.org           Linux Advanced Routing & Traffic Control HOWTO
-http://netherlabs.nl                         Consulting
+Jim

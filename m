@@ -1,46 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264991AbUJARCT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265093AbUJARCe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264991AbUJARCT (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 1 Oct 2004 13:02:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265044AbUJARCT
+	id S265093AbUJARCe (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 1 Oct 2004 13:02:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265044AbUJARCe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 1 Oct 2004 13:02:19 -0400
-Received: from clock-tower.bc.nu ([81.2.110.250]:37522 "EHLO
+	Fri, 1 Oct 2004 13:02:34 -0400
+Received: from clock-tower.bc.nu ([81.2.110.250]:38546 "EHLO
 	localhost.localdomain") by vger.kernel.org with ESMTP
-	id S264991AbUJARCS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 1 Oct 2004 13:02:18 -0400
+	id S265093AbUJARCb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 1 Oct 2004 13:02:31 -0400
 Subject: Re: Possible GPL Violation of Linux in Amstrad's E3 Videophone.
 From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: jonathan@jonmasters.org
-Cc: Ralph Corderoy <ralph@inputplus.co.uk>,
-       Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>,
+To: Ralph Corderoy <ralph@inputplus.co.uk>
+Cc: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>,
        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <35fb2e5904100109246f43ee7b@mail.gmail.com>
-References: <alan@lxorguk.ukuu.org.uk>
-	 <1096640407.21940.33.camel@localhost.localdomain>
-	 <200410011559.i91FxfH13266@blake.inputplus.co.uk>
-	 <35fb2e5904100109246f43ee7b@mail.gmail.com>
+In-Reply-To: <200410011559.i91FxfH13266@blake.inputplus.co.uk>
+References: <200410011559.i91FxfH13266@blake.inputplus.co.uk>
 Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-Message-Id: <1096646380.21962.64.camel@localhost.localdomain>
+Message-Id: <1096646383.21940.66.camel@localhost.localdomain>
 Mime-Version: 1.0
 X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Fri, 01 Oct 2004 16:59:44 +0100
+Date: Fri, 01 Oct 2004 17:00:06 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Gwe, 2004-10-01 at 17:24, Jon Masters wrote:
-> I'm planning to do a review of the E3 so I'll be sure to look in to
-> these issues then.
+On Gwe, 2004-10-01 at 16:59, Ralph Corderoy wrote:
+> And the written offer is in the welcome email *now* but probably wasn't
+> until I hassled them. 
 
-Everything I've seen from Amstrad on the subject has ben friendly,
-helpful and clear. I've dealt with a few cases of vendors clearly
-trying to break the rules, but Amstrad is not one of them. They answer
-email, they give clear and honest answers, and the code is out there.
+Well fine, you can't magically fix mistakes in documentation. You'd also
+I think find the law took the same view. 
 
-If anyone has a copy of the emailer source btw (or gets one for review
-so has a download option ;)) then it would be nice to stick it up for
-ftp for all.
+> *After that* you get a `welcome email' containing the written offer.
+> Sorry, but I have the binaries once I walk out the shop.  Where's my
+> written offer?  What do I do if I bought one and got it shipped to
+> France and so it won't `phone home'?
 
-Alan
+You know I regularly hear people talking about the "spirit of the
+license", but that goes in both directions. From discussions my own
+impression is that in this case they may or may not have forgotten to
+put it in the manual but they've done their best to be compliant and
+they have no desire not to be compliant.
+
 

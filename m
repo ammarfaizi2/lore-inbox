@@ -1,60 +1,32 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S136348AbREIL40>; Wed, 9 May 2001 07:56:26 -0400
+	id <S136354AbREIMan>; Wed, 9 May 2001 08:30:43 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136354AbREIL4R>; Wed, 9 May 2001 07:56:17 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:35338 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id <S136348AbREILz6>;
-	Wed, 9 May 2001 07:55:58 -0400
-Date: Wed, 9 May 2001 13:55:53 +0200
-From: Jens Axboe <axboe@suse.de>
-To: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: patch: packet-0.0.2k
-Message-ID: <20010509135553.R521@suse.de>
+	id <S136361AbREIMad>; Wed, 9 May 2001 08:30:33 -0400
+Received: from [195.6.125.97] ([195.6.125.97]:15372 "EHLO looping.sycomore.fr")
+	by vger.kernel.org with ESMTP id <S136354AbREIMaS>;
+	Wed, 9 May 2001 08:30:18 -0400
+Date: Wed, 9 May 2001 14:28:16 +0200
+From: sebastien person <sebastien.person@sycomore.fr>
+To: liste noyau linux <linux-kernel@vger.kernel.org>
+Subject: signal
+Message-Id: <20010509142816.2af8bbbd.sebastien.person@sycomore.fr>
+X-Mailer: Sylpheed version 0.4.64 (GTK+ 1.2.6; i586-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Hi, 
 
-Put up the final packet-0.0.2k patch, against 2.4.4 and 2.4.5-pre1.
-A more complete changelog, since packet-0.0.2j:
+I'm trying to send signal from a kernel module to an user prog.
+(is it possible ?)
 
-        - Fix b_count bh bug, forgot to release buffers
-        - Fix lock_buffer buf
-        - Remove pkt_gather_data rerun to print buggy buffer list, that
-          bug has been fixed.
-        - Changed proc layout to /proc/driver/pktcdvd/pktcdvdX, one file
-          per writer. Also compiles without proc fs support now.
-        - Set quiet bit on write cache settings, drive may not support
-          it
-        - Remove PACKET_WAKEUP ioctl (buggy too, noticed by jgarzik)
-        - Merge with 2.4.5-pre1
-        - Added recovery mode
-        - (with above) Added relocate_blocks super operation
-        - Missing break in PACKET_GET_STATS ioctl
-        - invalidate_device changes
-        - Always piggy buffers to maintain b_end_io consistency
-        - Change several BUG's to complain and abort nicely
-        - Remove __dump_rq from ll_rw_blk and SCSI
-        - Updated INSTALL and FAQ
-        - Added kernel UDF diff
-        - Fixup end_request handling
-        - Put unplug back in
-        - Rewrite kernel thread setup/exit
-        - Set device RO on BLKROSET
+But I've found two ways : kill() or sys_kill().
 
-*.kernel.org/pub/linux/kernel/people/axboe/packet/
+what is the best way ??
 
-The sourceforge packages are going up as I write this, so should be
-there very soon. Note that a UDF patch is now included against the
-kernel UDF, so you don't have to use cvs udf for a stable setup.
+Thanks
 
-Background -- this is a module that allows transparent writing to CD-RW
-(CD-R will follow) discs, so you can use it as a big floppy basically.
-
--- 
-Jens Axboe
-
+sebastien person

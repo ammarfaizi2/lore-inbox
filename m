@@ -1,48 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262850AbVCDLVa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262845AbVCDLVa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262850AbVCDLVa (ORCPT <rfc822;willy@w.ods.org>);
+	id S262845AbVCDLVa (ORCPT <rfc822;willy@w.ods.org>);
 	Fri, 4 Mar 2005 06:21:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262852AbVCDLQV
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262877AbVCDLRI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Mar 2005 06:16:21 -0500
-Received: from webapps.arcom.com ([194.200.159.168]:65296 "EHLO
-	webapps.arcom.com") by vger.kernel.org with ESMTP id S262855AbVCDLLu
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Mar 2005 06:11:50 -0500
-Subject: Re: RFD: Kernel release numbering
-From: Ian Campbell <icampbell@arcom.com>
-To: Russell King <rmk+lkml@arm.linux.org.uk>
-Cc: Andrew Morton <akpm@osdl.org>, Dave Jones <davej@redhat.com>,
-       Linus Torvalds <torvalds@osdl.org>, Jeff Garzik <jgarzik@pobox.com>,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <20050304105247.B3932@flint.arm.linux.org.uk>
-References: <Pine.LNX.4.58.0503021340520.25732@ppc970.osdl.org>
-	 <20050302230634.A29815@flint.arm.linux.org.uk> <42265023.20804@pobox.com>
-	 <Pine.LNX.4.58.0503021553140.25732@ppc970.osdl.org>
-	 <20050303002733.GH10124@redhat.com> <20050302203812.092f80a0.akpm@osdl.org>
-	 <20050304105247.B3932@flint.arm.linux.org.uk>
-Content-Type: text/plain
-Organization: Arcom Control Systems
-Date: Fri, 04 Mar 2005 11:11:38 +0000
-Message-Id: <1109934698.7304.2.camel@icampbell-debian>
+	Fri, 4 Mar 2005 06:17:08 -0500
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:62613 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S262881AbVCDLPd (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 4 Mar 2005 06:15:33 -0500
+Date: Fri, 4 Mar 2005 12:15:18 +0100
+From: Pavel Machek <pavel@suse.cz>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org, mjg59@scrf.ucam.org, hare@suse.de
+Subject: Re: swsusp: allow resume from initramfs
+Message-ID: <20050304111518.GM1345@elf.ucw.cz>
+References: <20050304101631.GA1824@elf.ucw.cz> <20050304030410.3bc5d4dc.akpm@osdl.org>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.3 
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 04 Mar 2005 11:17:14.0500 (UTC) FILETIME=[B7CBA440:01C520AB]
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20050304030410.3bc5d4dc.akpm@osdl.org>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2005-03-04 at 10:52 +0000, Russell King wrote:
+On Pá 04-03-05 03:04:10, Andrew Morton wrote:
+> Pavel Machek <pavel@suse.cz> wrote:
+> >
+> > When using a fully modularized kernel it is necessary to activate
+> >  resume manually as the device node might not be available during
+> >  kernel init.
+> 
+> I don't understand how this can be affected by the modularness of the
+> kernel.  Can you explain a little more?
+> 
+> Would it not be simpler to just add "resume=03:02" to the boot
+> command line?
 
-> Unfortunately, http://l4x.org/k/ doesn't save any build logs for
-> investigation.
+Problem is if 03:02 is IDE module, and you don't have it built into
+kernel. Then you want to insmod it from initramfs, and only then
+activate resume.
 
-If you click the 'Fail' then it seems to keep the make output etc.
-
-Ian.
+For some reasons (probably good ones) distributions insists on having
+everything as modules. At least SuSE and Debian want this... It also
+allows stuff like graphically asking "you booted wrong kernel, do you
+want me to wipe the signature, or will you reboot the correct kernel",
+because you can do it userspace in initrd before actually calling
+resume.
+								Pavel
 -- 
-Ian Campbell, Senior Design Engineer
-                                        Web: http://www.arcom.com
-Arcom, Clifton Road,                    Direct: +44 (0)1223 403 465
-Cambridge CB1 7EA, United Kingdom       Phone:  +44 (0)1223 411 200
-
+People were complaining that M$ turns users into beta-testers...
+...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!

@@ -1,54 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262038AbTATJPW>; Mon, 20 Jan 2003 04:15:22 -0500
+	id <S263313AbTATJ1K>; Mon, 20 Jan 2003 04:27:10 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262838AbTATJPW>; Mon, 20 Jan 2003 04:15:22 -0500
-Received: from mx2.elte.hu ([157.181.151.9]:63723 "HELO mx2.elte.hu")
-	by vger.kernel.org with SMTP id <S262038AbTATJPV>;
-	Mon, 20 Jan 2003 04:15:21 -0500
-Date: Mon, 20 Jan 2003 10:28:27 +0100 (CET)
-From: Ingo Molnar <mingo@elte.hu>
-Reply-To: Ingo Molnar <mingo@elte.hu>
-To: Erich Focht <efocht@ess.nec.de>
-Cc: Michael Hohnbaum <hohnbaum@us.ibm.com>,
-       "Martin J. Bligh" <mbligh@aracnet.com>,
-       Matthew Dobson <colpatch@us.ibm.com>,
-       Christoph Hellwig <hch@infradead.org>, Robert Love <rml@tech9.net>,
-       Andrew Theurer <habanero@us.ibm.com>,
-       Linus Torvalds <torvalds@transmeta.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       lse-tech <lse-tech@lists.sourceforge.net>
-Subject: Re: [patch] sched-2.5.59-A2
-In-Reply-To: <200301190009.32245.efocht@ess.nec.de>
-Message-ID: <Pine.LNX.4.44.0301201022540.2585-100000@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S264610AbTATJ1K>; Mon, 20 Jan 2003 04:27:10 -0500
+Received: from pollux.et6.tu-harburg.de ([134.28.85.242]:14721 "EHLO
+	mail.et6.tu-harburg.de") by vger.kernel.org with ESMTP
+	id <S263313AbTATJ1J>; Mon, 20 Jan 2003 04:27:09 -0500
+Subject: Re: Promise SuperTrak SX6000 w/ kernel 2.4.20
+From: Sebastian Zimmermann <S.Zimmermann@tu-harburg.de>
+To: "Juergen \"George\"   " Sawinski <george@mpimf-heidelberg.mpg.de>
+Cc: "linux-kernel@vger" <linux-kernel@vger.kernel.org>
+In-Reply-To: <1042716221.10222.4.camel@volans>
+References: <1042712859.14520.39.camel@antares.et6.tu-harburg.de>
+	 <1042716221.10222.4.camel@volans>
+Content-Type: text/plain
+Organization: Technical University Hamburg-Harburg
+Message-Id: <1043055372.1132.7.camel@antares.et6.tu-harburg.de>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.0 
+Date: 20 Jan 2003 10:36:12 +0100
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-On Sun, 19 Jan 2003, Erich Focht wrote:
-
-> The results:
-> - kernbench UserTime is best for the 2.5.59 scheduler (623s). IngoB0
->   best value 627.33s for idle=20ms, busy=2000ms.
-> - hackbench: 2.5.59 scheduler is significantly better for all
->   measurements.
+Am Don, 2003-01-16 um 12.23 schrieb Juergen "George" Sawinski:
+> It shouldn't find /dev/hde ... /dev/hdj (there's some problem with the
+> detection mechanism), as these are I2O devices, and thus it's
+> /dev/i2o/hd?. You have to stop the discovery process by adding 
 > 
-> I suppose this comes from the fact that the 2.5.59 version has the
-> chance to load_balance across nodes when a cpu goes idle. No idea what
-> other reason it could be... Maybe anybody else?
+> hde=noprobe hdf=noprobe hdg=noprobe hdh=noprobe hdi=noprobe hdj=noprobe
+> 
+> to the lilo append variable.
 
-this shows that agressive idle-rebalancing is the most important factor. I
-think this means that the unification of the balancing code should go into
-the other direction: ie. applying the ->nr_balanced logic to the SMP
-balancer as well.
+Yes, thank you. Now I can boot. (I also had to add /dev/hdm and /dev/hdo
+though.)
 
-kernelbench is the kind of benchmark that is most sensitive to over-eager
-global balancing, and since the 2.5.59 ->nr_balanced logic produced the
-best results, it clearly shows it's not over-eager. hackbench is one that
-is quite sensitive to under-balancing. Ie. trying to maximize both will
-lead us to a good balance.
+Nonetheless, I still consider this a kernel bug. The kernel should boot
+without the workaround as it did with version 2.4.18.
 
-	Ingo
+Sebastian
+
 

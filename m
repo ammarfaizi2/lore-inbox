@@ -1,73 +1,98 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262012AbVCASQY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262017AbVCASdq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262012AbVCASQY (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Mar 2005 13:16:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262011AbVCASQX
+	id S262017AbVCASdq (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Mar 2005 13:33:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262019AbVCASdq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Mar 2005 13:16:23 -0500
-Received: from [68.114.131.130] ([68.114.131.130]:6663 "HELO virgin.net")
-	by vger.kernel.org with SMTP id S262009AbVCASQP (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Mar 2005 13:16:15 -0500
-Message-ID: <f1f001c51e80$a862edb0$afeffc9f@dary.tlpensdwopjnhsr>
-Reply-To: "Commissions" <dary.tlpensdwopjnhsr@virgin.net>
-From: "Commissions" <dary.tlpensdwopjnhsr@virgin.net>
-To: "February.2005 - Payments." <linux-net@vger.kernel.org>
-Subject: FEB_earnings statement - Highest yet
-Date: Tue, 01 Mar 2005 20:03:57 +0300
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2800.1123
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1123
+	Tue, 1 Mar 2005 13:33:46 -0500
+Received: from e35.co.us.ibm.com ([32.97.110.133]:10491 "EHLO
+	e35.co.us.ibm.com") by vger.kernel.org with ESMTP id S262017AbVCASdi
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 1 Mar 2005 13:33:38 -0500
+Date: Tue, 1 Mar 2005 12:33:33 -0600
+To: Jesse Barnes <jbarnes@engr.sgi.com>
+Cc: linux-pci@atrey.karlin.mff.cuni.cz, Matthew Wilcox <matthew@wil.cx>,
+       Linus Torvalds <torvalds@osdl.org>, Jeff Garzik <jgarzik@pobox.com>,
+       Hidetoshi Seto <seto.hidetoshi@jp.fujitsu.com>,
+       Linux Kernel list <linux-kernel@vger.kernel.org>,
+       linux-ia64@vger.kernel.org,
+       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+       "Luck, Tony" <tony.luck@intel.com>
+Subject: Re: [PATCH/RFC] I/O-check interface for driver's error handling
+Message-ID: <20050301183333.GB1220@austin.ibm.com>
+References: <422428EC.3090905@jp.fujitsu.com> <Pine.LNX.4.58.0503010844470.25732@ppc970.osdl.org> <20050301165904.GN28741@parcelfarce.linux.theplanet.co.uk> <200503010910.29460.jbarnes@engr.sgi.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200503010910.29460.jbarnes@engr.sgi.com>
+User-Agent: Mutt/1.5.6+20040818i
+From: Linas Vepstas <linas@austin.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-To contact us, please do_not_replyto.
-See the bottom of this email to contact us by telephone or email.
+On Tue, Mar 01, 2005 at 09:10:29AM -0800, Jesse Barnes was heard to remark:
+> On Tuesday, March 1, 2005 8:59 am, Matthew Wilcox wrote:
+> > The MCA handler has to go and figure out what the hell just happened
+> > (was it a DIMM error, PCI bus error, etc).  
 
+I assume "MCA" stands for machine check architecture .. except that 
+is not how it currently works, at least not on the systems I work with.  
 
-It's absolutely right. You are going to get emails like this very soon
+The PCI bridge chips on many IBM ppc64 pSereies boxes can detect 
+PCI errors and handle them "cleanly", without causing machine checks;
+so can some PCI-Express chips (Seto is the expert on PCI-Express,
+I'm not).
 
-Quickly, send me an email or call me and you will get real com.miss.ion
-emails with this 
-subject line and big, big comm_ission pa.yments from all the bus_inesses
-you pro_mote. 
+On ppc64, after a PCI error, the pci slot is "isolated":  all i/o 
+to and from the device is cut off (including dma).  I/O reads return
+all 0xff's (which is what an empty pci/pcmcia slot returns).  
 
-To pro.ve it, for a limit_ed per_iod I will give.you 10 sign_ups (that will
-p.a.y. to
- j.o.i.n. your bus.in.ess) and I will not ask you for a sin.gle cent/penny
-to get you 
-star-ted. Use these to gen_erate an in.stant in.com_e.
+There are three low-level firmware api's:
+-- ask if a slot is "isolated" (returns yes/no)
+-- reset the pci card (assert the #RST pci signal)
+-- un-isolate the pci slot 
 
-Then sitback & watch the_sign_ups join_you inst_antly in their droves and
-without you 
-having to do much_at all.
+The current ppc64 code doesn't use Seto's API, but it could, that
+is the direction I'm moving towards.  
 
-At the end of March you will get comm_ission state_ments showing that you
-have
-ear.ned tens_of thou_s_ands of doll_ars from your existing
-bus..iness.oppo.rtun.it.ies. 
+I don't know if PCI-Express "isolates" the slot; Seto, can you provide
+an overview of what the PCI-Express spec says?
 
-Miss. this and def_in.it.ely miss.out on the ea-sie.st and fas.test mo.ney
-that you will 
-ever ma.ke from your bu.sin_ess opp.or-tuni.ty
+> > If we're lucky, we get all the information that allows us to figure
+> > out which device it was (eg a destination address that matches a BAR),
 
-You can call me on 00 44 7913658094 or +44 7913658094 or from USA 001 44
-7913658094
-or email me on sdf12@tiscali.co.uk
+Seto's API allows drivers to find out is thier PCI slot is isolated.
+So it works for me.
 
-Please ring my number if you can't get through via email. My number is a
-normal rate UK mobile telephone.
+> > then we could have a ->error method in the pci_driver that handles it.
+> > If there's no ->error method, at leat call ->remove so one device only
+> > takes itself down.
 
-Best of Luck Stephanie Jones
+The tricky part is what to do with multi-function cards/slots
+(e.g. a pci bus error on a bridge that has multiple devices under it).
+In this case, multiple device drivers are affected.  Thus, no single
+device driver can handle the recovery of the bridge chip.
 
+The current proposal (and prototype) has a "master recovery thread"
+to handle the coordinated reset of the pci controller.  This master
+recovery thyread makes three calls in struct pci_driver:
 
-If you want to stop getting my emails please send me an email to
-sdf12@tiscali.co.uk with "US" in the 
-subject.
+   void (*frozen) (struct pci_dev *);  /* called when dev is first frozen */
+   void (*thawed) (struct pci_dev *);  /* called after card is reset */
+   void (*perm_failure) (struct pci_dev *);  /* called if card is dead */
 
+The master recovery thread runs in the kernel.  Earlier suggestions said
+"run it in user space, use pci hotplug, use udev, etc." However, if
+you get a pci error on a scsi card, you can't shell script 
+"umount /dev/sdX; rmmod scsi; clear_pci_error; insmod scsi; mount /dev/sdX"
+beacuse you can't umount an open filesystem, and you can't really close
+it (I fiddled with prototyping some of this, but its ugly and painful
+and bizarre and outside my area of expertise :)
 
+FWIW, the current prototype tries to do a pci hotplug if the above
+routines aren't implemented in struct pci_driver.  It can recover 
+from pci errors on ethernet cards, and I have one scsi driver that
+successfully recovers with above API, and am working on adding recovery
+to the symbios driver.
+
+--linas

@@ -1,37 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265030AbTIDOEe (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 4 Sep 2003 10:04:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265029AbTIDOEe
+	id S265005AbTIDNy4 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 4 Sep 2003 09:54:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264984AbTIDNyz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Sep 2003 10:04:34 -0400
-Received: from www.mail15.com ([194.186.131.96]:18444 "EHLO www.mail15.com")
-	by vger.kernel.org with ESMTP id S265030AbTIDOEc (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Sep 2003 10:04:32 -0400
-Message-ID: <3F57462C.9030107@hotmail.com>
-Date: Thu, 04 Sep 2003 07:03:24 -0700
-From: walt <wa1ter@hotmail.com>
-Organization: none
-User-Agent: Mozilla/5.0 (X11; U; FreeBSD i386; en-US; rv:1.5b) Gecko/20030830
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Jeff Garzik <jgarzik@pobox.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: tg3/Broadcom gigabit driver just got worse in 2.4.23-pre3
-References: <3F569AF8.9040507@myrealbox.com> <3F573529.8060906@pobox.com>
-In-Reply-To: <3F573529.8060906@pobox.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Thu, 4 Sep 2003 09:54:55 -0400
+Received: from gsd.di.uminho.pt ([193.136.20.132]:52097 "EHLO
+	bbb.lsd.di.uminho.pt") by vger.kernel.org with ESMTP
+	id S265015AbTIDNxc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 4 Sep 2003 09:53:32 -0400
+Date: Thu, 4 Sep 2003 14:53:26 +0100
+From: Luciano Miguel Ferreira Rocha <luciano@lsd.di.uminho.pt>
+To: "Brown, Len" <len.brown@intel.com>
+Cc: linux-kernel@vger.kernel.org, acpi-devel@lists.sourceforge.net
+Subject: Re: 2.4.22-xx powerdown oddities
+Message-ID: <20030904135326.GA24657@lsd.di.uminho.pt>
+Mail-Followup-To: Luciano Miguel Ferreira Rocha <luciano@lsd.di.uminho.pt>,
+	"Brown, Len" <len.brown@intel.com>, linux-kernel@vger.kernel.org,
+	acpi-devel@lists.sourceforge.net
+References: <BF1FE1855350A0479097B3A0D2A80EE009FCFA@hdsmsx402.hd.intel.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <BF1FE1855350A0479097B3A0D2A80EE009FCFA@hdsmsx402.hd.intel.com>
+User-Agent: Mutt/1.4.1i
+X-Disclaimer: 'Author of this message is not responsible for any harm done to reader's computer.'
+X-Organization: 'GSD'
+X-Section: 'BIC'
+X-Priority: '1 (Highest)'
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jeff Garzik wrote:
-> Does 2.4.23-pre2 work for you?
-> 
+On Wed, Sep 03, 2003 at 11:55:57PM -0400, Brown, Len wrote:
+> Luciano,
+> This does sound like a regression.
+> Can I trouble you to dump the info into a bugzilla report so we can make
+> sure it stays in the queue and gets fixed?
 
-Yes, as long as I do the one-time ifconfig down/up cycle
-after each reboot -- the same as it's been since 2.4.-21-pre5.
+*Sigh*
 
-The really bad stuff was just introduced yesterday in 23-pre3.
+I will, but I don't know when. While trying to make speedstep to work on
+my PIIX4 I damaged the ide controller. Or it's just in a bad mood, I don't
+know. But I can only boot with a floppy and for the moment I have other
+things to do.
 
+Regards,
+Luciano Rocha

@@ -1,45 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S133073AbRDLIpF>; Thu, 12 Apr 2001 04:45:05 -0400
+	id <S133075AbRDLIpz>; Thu, 12 Apr 2001 04:45:55 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S133074AbRDLIoz>; Thu, 12 Apr 2001 04:44:55 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:65165 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S133073AbRDLIot>;
-	Thu, 12 Apr 2001 04:44:49 -0400
-From: "David S. Miller" <davem@redhat.com>
-MIME-Version: 1.0
+	id <S133076AbRDLIph>; Thu, 12 Apr 2001 04:45:37 -0400
+Received: from smtp1.cern.ch ([137.138.128.38]:11023 "EHLO smtp1.cern.ch")
+	by vger.kernel.org with ESMTP id <S133074AbRDLIpV>;
+	Thu, 12 Apr 2001 04:45:21 -0400
+Date: Thu, 12 Apr 2001 10:45:13 +0200
+From: Jamie Lokier <lk@tantalophile.demon.co.uk>
+To: watermodem <aquamodem@ameritech.net>
+Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: Re: No 100 HZ timer !
+Message-ID: <20010412104513.D25536@pcep-jamie.cern.ch>
+In-Reply-To: <E14n0J3-0004U6-00@the-village.bc.nu> <3AD53C66.92B8D6BE@ameritech.net>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <15061.27388.843554.687422@pizda.ninka.net>
-Date: Thu, 12 Apr 2001 01:44:44 -0700 (PDT)
-To: Alexander Viro <viro@math.psu.edu>
-Cc: Jeff Garzik <jgarzik@mandrakesoft.com>,
-        Andreas Dilger <adilger@turbolinux.com>, kowalski@datrix.co.za,
-        linux-kernel@vger.kernel.org, Linus Torvalds <torvalds@transmeta.com>
-Subject: Re: [CFT][PATCH] Re: Fwd: Re: memory usage - dentry_cache
-In-Reply-To: <Pine.GSO.4.21.0104120257070.18135-100000@weyl.math.psu.edu>
-In-Reply-To: <3AD550F0.8058FAA@mandrakesoft.com>
-	<Pine.GSO.4.21.0104120257070.18135-100000@weyl.math.psu.edu>
-X-Mailer: VM 6.75 under 21.1 (patch 13) "Crater Lake" XEmacs Lucid
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <3AD53C66.92B8D6BE@ameritech.net>; from aquamodem@ameritech.net on Thu, Apr 12, 2001 at 12:25:58AM -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+watermodem wrote:
+> As somebody who is now debating how to measure latencies in a 
+> giga-bit ethernet environment with several components doing 
+> L3 switching in much less than 10 micro-seconds ... (hardware)
+> I agree that some method is need to achieve higher resolutions.  
+> (Sigh... I will likely need to buy something big and expensive)
+> {this is for a system to make use of L. Yarrow's little protocol}
 
-Alexander Viro writes:
- > OK, how about wider testing? Theory: prune_dcache() goes through the
- > list of immediately killable dentries and tries to free given amount.
- > It has a "one warning" policy - it kills dentry if it sees it twice without
- > lookup finding that dentry in the interval. Unfortunately, as implemented
- > it stops when it had freed _or_ warned given amount. As the result, memory
- > pressure on dcache is less than expected.
+Use Alteon/Netgear cards, everyone else seems to be :-)  We get
+measurements on the order of 100ns, if we are just measuring network
+latencies.  (Data is not transferred over the PCI bus).
 
-The reason the code is how it is right now is there used to be a bug
-where that goto spot would --count but not check against zero, making
-count possibly go negative and then you'd be there for a _long_ time
-:-)
-
-Just a FYI...
-
-Later,
-David S. Miller
-davem@redhat.com
+-- Jamie

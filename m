@@ -1,48 +1,32 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288675AbSANCiz>; Sun, 13 Jan 2002 21:38:55 -0500
+	id <S288677AbSANCjP>; Sun, 13 Jan 2002 21:39:15 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288690AbSANCiq>; Sun, 13 Jan 2002 21:38:46 -0500
-Received: from garrincha.netbank.com.br ([200.203.199.88]:17418 "HELO
-	netbank.com.br") by vger.kernel.org with SMTP id <S288675AbSANCih>;
-	Sun, 13 Jan 2002 21:38:37 -0500
-Date: Mon, 14 Jan 2002 00:38:21 -0200 (BRST)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: <riel@imladris.surriel.com>
-To: Duraid Madina <duraid@fl.net.au>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: Re: Any non-BS VM work queued for 2.5?
-In-Reply-To: <1010956364.50291.0.camel@simplex.idesign.fl.net.au>
-Message-ID: <Pine.LNX.4.33L.0201140037080.32617-100000@imladris.surriel.com>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S288689AbSANCjF>; Sun, 13 Jan 2002 21:39:05 -0500
+Received: from mnh-1-17.mv.com ([207.22.10.49]:39435 "EHLO ccure.karaya.com")
+	by vger.kernel.org with ESMTP id <S288677AbSANCiz>;
+	Sun, 13 Jan 2002 21:38:55 -0500
+Message-Id: <200201140239.VAA05299@ccure.karaya.com>
+X-Mailer: exmh version 2.0.2
+To: linux-kernel@vger.kernel.org
+Subject: Try #3: UML has been sent to Linus again
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Sun, 13 Jan 2002 21:39:39 -0500
+From: Jeff Dike <jdike@karaya.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 14 Jan 2002, Duraid Madina wrote:
+This patch is against 2.5.2-pre11 and is available at 
+http://prdownloads.sourceforge.net/user-mode-linux/uml-patch-2.5.2-pre11.bz2
 
-> 	A good spot o' webtrawling has left me with the impression that
-> Rik Riel is Linux's only hope of ever competing with FreeBSD on large
-> jobs other than dbench.
->
-> 	Is this true? Judging by the ease with which AA's hackwork made
-> it into 2.4, I think we may all be, well, fucked.
+It's also available from the other UML mirrors - they are listed at 
+http://user-mode-linux.sourceforge.net/dl-sf.html
 
-I take it you're volunteering to do tests of the AA VM and
-of my -rmap VM patch, pointing out weak points in both VMs?
+This UML is the same as the 2.4.17-5 patch.
 
-(not necessarily performance bugs ... more situations where
-one or both of the VMs just "fall apart completely", the stuff
-that really needs to be fixed)
+Note - Ingo's scheduler has broken UML in a fairly fundamental way by holding
+IRQs off across a context switch.  See my separate LKML post for the gory
+details.
 
-regards,
-
-Rik
--- 
-"Linux holds advantages over the single-vendor commercial OS"
-    -- Microsoft's "Competing with Linux" document
-
-http://www.surriel.com/		http://distro.conectiva.com/
-
+                                Jeff

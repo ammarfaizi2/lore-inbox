@@ -1,33 +1,33 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281175AbRKLACZ>; Sun, 11 Nov 2001 19:02:25 -0500
+	id <S281171AbRKLABe>; Sun, 11 Nov 2001 19:01:34 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281180AbRKLACS>; Sun, 11 Nov 2001 19:02:18 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:32777 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S281175AbRKLACN>; Sun, 11 Nov 2001 19:02:13 -0500
-Subject: Re: 2.4.15-pre3: missing functions
-To: eyal@eyal.emu.id.au (Eyal Lebedinsky)
-Date: Mon, 12 Nov 2001 00:09:26 +0000 (GMT)
-Cc: linux-kernel@vger.kernel.org (list linux-kernel)
-In-Reply-To: <3BEEF1CA.51423E2@eyal.emu.id.au> from "Eyal Lebedinsky" at Nov 12, 2001 08:46:50 AM
-X-Mailer: ELM [version 2.5 PL6]
-MIME-Version: 1.0
+	id <S281175AbRKLABY>; Sun, 11 Nov 2001 19:01:24 -0500
+Received: from host154.207-175-42.redhat.com ([207.175.42.154]:55189 "EHLO
+	lacrosse.corp.redhat.com") by vger.kernel.org with ESMTP
+	id <S281171AbRKLABS>; Sun, 11 Nov 2001 19:01:18 -0500
+Date: Sun, 11 Nov 2001 19:01:14 -0500
+From: Benjamin LaHaise <bcrl@redhat.com>
+To: Mike Galbraith <mikeg@wen-online.de>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [RFT] final cur of tr based current for -ac8
+Message-ID: <20011111190114.A31746@redhat.com>
+In-Reply-To: <20011110173331.F17437@redhat.com> <Pine.LNX.4.33.0111111119270.305-100000@mikeg.weiden.de>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E1634fG-0003xQ-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <Pine.LNX.4.33.0111111119270.305-100000@mikeg.weiden.de>; from mikeg@wen-online.de on Sun, Nov 11, 2001 at 11:58:30AM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> depmod: *** Unresolved symbols in
-> /lib/modules/2.4.15-pre3/kernel/drivers/md/lvm-mod.o
-> depmod:         free_kiovec_sz
-> depmod:         alloc_kiovec_sz
-> 
-> These are in a newer (in 2.4.13-ac8) fs/iobuf.c which has many changes
-> relative to this (pre3) so a simple copy accross may be too drastic.
+On Sun, Nov 11, 2001 at 11:58:30AM +0100, Mike Galbraith wrote:
+> The below seems to make flogging noises, but is likely too soggy.
 
-Thanks I'll sort that one out. It needs to drop back to using alloc_kiovec
-and free_kiovec for the Linus tree
+Erk, the behaviour of str with your patch isn't quite compatible 
+enough for a smooth transition.  What is really needed is to have 
+"str" error out or generate the existing strl with a huge warning 
+about unspecified type.  Either way the kernel has to work with 
+both old and new tools for a brief period of time.
 
+		-ben

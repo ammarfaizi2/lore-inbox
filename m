@@ -1,55 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131378AbRCSHWB>; Mon, 19 Mar 2001 02:22:01 -0500
+	id <S129506AbRCSHvF>; Mon, 19 Mar 2001 02:51:05 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131376AbRCSHVm>; Mon, 19 Mar 2001 02:21:42 -0500
-Received: from cisco7500-mainGW.gts.cz ([194.213.32.131]:1796 "EHLO bug.ucw.cz")
-	by vger.kernel.org with ESMTP id <S131365AbRCSHVi>;
-	Mon, 19 Mar 2001 02:21:38 -0500
-Message-ID: <20010318233955.D13058@bug.ucw.cz>
-Date: Sun, 18 Mar 2001 23:39:55 +0100
-From: Pavel Machek <pavel@suse.cz>
-To: "J. Michael Kolbe" <wicked@convergence.de>, linux-kernel@vger.kernel.org
-Subject: Re: sysrq.txt
-In-Reply-To: <20010316161919.A30690@midget.convergence.de>
-Mime-Version: 1.0
+	id <S131369AbRCSHuz>; Mon, 19 Mar 2001 02:50:55 -0500
+Received: from csl.Stanford.EDU ([171.64.66.149]:18110 "EHLO csl.Stanford.EDU")
+	by vger.kernel.org with ESMTP id <S129506AbRCSHuq>;
+	Mon, 19 Mar 2001 02:50:46 -0500
+From: Dawson Engler <engler@csl.Stanford.EDU>
+Message-Id: <200103190749.XAA24359@csl.Stanford.EDU>
+Subject: [CHECKER] 10 additional >= 1K stack variables
+To: linux-kernel@vger.kernel.org
+Date: Sun, 18 Mar 2001 23:49:52 -0800 (PST)
+Cc: mc@cs.Stanford.EDU
+X-Mailer: ELM [version 2.5 PL1]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 0.93i
-In-Reply-To: <20010316161919.A30690@midget.convergence.de>; from J. Michael Kolbe on Fri, Mar 16, 2001 at 04:19:19PM +0100
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+Hi,
 
-> I've found that the Sysrq Keys on Apple Computers
-> are 'Keypad+-F13-<command key>', maybe it would
-> be a good idea to include that in Documentation/sysrq.txt.
-> 
-> The Patch:
+after some config problems were fixed, there were 10 additional stack
+variables found that were >= 1K in size.   (Though the two tty_io* ones 
+are already known.)
 
-This patch is reversed, but otherwise looks okay. Generate
-non-reversed one and mail it to linus, possibly saying I agree.
-								Pavel
+Dawson
 
-> +++ sysrq.txt   Tue Dec 12 20:46:38 2000
-> @@ -29,8 +29,6 @@
->             You send a BREAK, then within 5 seconds a command key. Sending
->             BREAK twice is interpreted as a normal BREAK.
->  
-> -On Mac   - Press 'Keypad+-F13-<command key>'
-> -
->  On other - If you know of the key combos for other architectures, please
->             let me know so I can add them to this section.
-> 
-> 
-> regards,
-> jmk
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-
--- 
-I'm pavel@ucw.cz. "In my country we have almost anarchy and I don't care."
-Panos Katsaloulis describing me w.r.t. patents at discuss@linmodems.org
+/u2/engler/mc/oses/linux/2.4.1/drivers/char/tty_io.c:2030:tty_unregister_devfs: ERROR:VAR:2030:2030: suspicious var 'tty' = 3112 bytes
+/u2/engler/mc/oses/linux/2.4.1/drivers/char/tty_io.c:1995:tty_register_devfs: ERROR:VAR:1995:1995: suspicious var 'tty' = 3112 bytes
+/u2/engler/mc/oses/linux/2.4.1/drivers/i2o/i2o_proc.c:2492:i2o_proc_read_lan_alt_addr: ERROR:VAR:2492:2492: suspicious var 'result' = 2060 bytes
+/u2/engler/mc/oses/linux/2.4.1/net/irda/af_irda.c:1743:irda_setsockopt: ERROR:VAR:1743:1743: suspicious var 'ias_opt' = 1356 bytes
+/u2/engler/mc/oses/linux/2.4.1/net/irda/af_irda.c:1981:irda_getsockopt: ERROR:VAR:1981:1981: suspicious var 'ias_opt' = 1356 bytes
+/u2/engler/mc/oses/linux/2.4.1/drivers/block/../../lib/inflate.c:750:inflate_dynamic: ERROR:VAR:750:750: suspicious var 'll' = 1264 bytes
+/u2/engler/mc/oses/linux/2.4.1/drivers/block/../../lib/inflate.c:301:huft_build: ERROR:VAR:301:301: suspicious var 'v' = 1152 bytes
+/u2/engler/mc/oses/linux/2.4.1/drivers/block/../../lib/inflate.c:688:inflate_fixed: ERROR:VAR:688:688: suspicious var 'l' = 1152 bytes
+/u2/engler/mc/oses/linux/2.4.1/fs/devfs/base.c:3156:devfsd_read: ERROR:VAR:3156:3156: suspicious var 'info' = 1056 bytes
+/u2/engler/mc/oses/linux/2.4.1/drivers/net/wan/cycx_x25.c:983:hex_dump: ERROR:VAR:983:983: suspicious var 'hex' = 1024 bytes

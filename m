@@ -1,42 +1,31 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268503AbUHTRsE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268448AbUHTRvQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268503AbUHTRsE (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 Aug 2004 13:48:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268592AbUHTRsE
+	id S268448AbUHTRvQ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 Aug 2004 13:51:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268455AbUHTRvP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 Aug 2004 13:48:04 -0400
-Received: from e5.ny.us.ibm.com ([32.97.182.105]:39621 "EHLO e5.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S268503AbUHTRsB (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 Aug 2004 13:48:01 -0400
-Subject: Re: ketchup versus patch-kernel
-From: Dave Hansen <haveblue@us.ibm.com>
-To: Sam Ravnborg <sam@ravnborg.org>
-Cc: "Randy.Dunlap" <rddunlap@osdl.org>, Matt Mackall <mpm@selenic.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20040820193835.GB7298@mars.ravnborg.org>
-References: <1093021608.15662.1228.camel@nighthawk>
-	 <20040820193835.GB7298@mars.ravnborg.org>
-Content-Type: text/plain
-Message-Id: <1093024052.15662.1245.camel@nighthawk>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Fri, 20 Aug 2004 10:47:32 -0700
-Content-Transfer-Encoding: 7bit
+	Fri, 20 Aug 2004 13:51:15 -0400
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:53153 "EHLO
+	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
+	id S268448AbUHTRvO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 20 Aug 2004 13:51:14 -0400
+To: Andrew Morton <akpm@osdl.org>
+cc: <linux-kernel@vger.kernel.org>
+Subject: [PATCH 0/14] kexec for 2.6.8.1-mm2
+From: ebiederm@xmission.com (Eric W. Biederman)
+Date: 20 Aug 2004 11:50:00 -0600
+Message-ID: <m18yc97l87.fsf@ebiederm.dsl.xmission.com>
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) Emacs/21.2
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2004-08-20 at 12:38, Sam Ravnborg wrote:
-> On Fri, Aug 20, 2004 at 10:06:48AM -0700, Dave Hansen wrote:
-> > Since 2.6.8.1 came out, I'm sure a lot of automated tools stopped
-> > working, ketchup included. 
-> 
-> Can someone please explain to me what is the difference between
-> patch-kernel and ketchup?
 
-In my view, there's no basic difference in their intention: turn one
-kernel version into another.  Although, ketchup does handle a few more
-things like downloads, gpg, and a wider variety of trees like -mm, -mjb
-and -tiny.  
--- Dave
+Here come my set of kexec patches against 2.6.8.1-mm2
+
+This is everything except the handful that look too
+experimental to be generally safe, or useful.
+
+Eric
 

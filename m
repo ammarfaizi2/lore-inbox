@@ -1,33 +1,31 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282200AbRK2Apd>; Wed, 28 Nov 2001 19:45:33 -0500
+	id <S282229AbRK2Aod>; Wed, 28 Nov 2001 19:44:33 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282240AbRK2Ap1>; Wed, 28 Nov 2001 19:45:27 -0500
-Received: from www.transvirtual.com ([206.14.214.140]:3853 "EHLO
-	www.transvirtual.com") by vger.kernel.org with ESMTP
-	id <S282228AbRK2Ao6>; Wed, 28 Nov 2001 19:44:58 -0500
-Date: Wed, 28 Nov 2001 16:44:38 -0800 (PST)
-From: James Simmons <jsimmons@transvirtual.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: Linus Torvalds <torvalds@transmeta.com>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        Linux console project <linuxconsole-dev@lists.sourceforge.net>
+	id <S282228AbRK2AoO>; Wed, 28 Nov 2001 19:44:14 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:64786 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S282200AbRK2Anz>; Wed, 28 Nov 2001 19:43:55 -0500
 Subject: Re: [PATCH] vc_tty addition
-In-Reply-To: <E169FR1-0006jZ-00@the-village.bc.nu>
-Message-ID: <Pine.LNX.4.10.10111281644030.4098-100000@www.transvirtual.com>
+To: jsimmons@transvirtual.com (James Simmons)
+Date: Thu, 29 Nov 2001 00:52:15 +0000 (GMT)
+Cc: alan@lxorguk.ukuu.org.uk (Alan Cox),
+        torvalds@transmeta.com (Linus Torvalds),
+        linux-kernel@vger.kernel.org (Linux Kernel Mailing List),
+        linuxconsole-dev@lists.sourceforge.net (Linux console project)
+In-Reply-To: <Pine.LNX.4.10.10111281627190.4098-100000@www.transvirtual.com> from "James Simmons" at Nov 28, 2001 04:39:31 PM
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E169FR1-0006jZ-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> accessing /dev/console only effects the first console in the list instead
+> of all of them. If this is true then that means /dev/consoel can exist
+> without /dev/tty which could be a good thing.
 
-> > accessing /dev/console only effects the first console in the list instead
-> > of all of them. If this is true then that means /dev/consoel can exist
-> > without /dev/tty which could be a good thing.
-> 
-> Currently the "console" doesn't need to include a tty device - if its only
-> being hit with printk output. 
-
-Then should we make TTY console aka /dev/console support a option?
-
-
+Currently the "console" doesn't need to include a tty device - if its only
+being hit with printk output. 

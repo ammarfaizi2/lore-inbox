@@ -1,85 +1,134 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265647AbRFWGBw>; Sat, 23 Jun 2001 02:01:52 -0400
+	id <S265653AbRFWGVt>; Sat, 23 Jun 2001 02:21:49 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265649AbRFWGBm>; Sat, 23 Jun 2001 02:01:42 -0400
-Received: from f00f.stub.clear.net.nz ([203.167.224.51]:42244 "HELO
-	metastasis.f00f.org") by vger.kernel.org with SMTP
-	id <S265647AbRFWGBa>; Sat, 23 Jun 2001 02:01:30 -0400
-Date: Sat, 23 Jun 2001 18:01:26 +1200
-From: Chris Wedgwood <cw@f00f.org>
-To: Dag Wieers <dag@wieers.com>
-Cc: LKML <linux-kernel@vger.kernel.org>
-Subject: Re: Should __FD_SETSIZE still be set to 1024 ?
-Message-ID: <20010623180126.A4755@metastasis.f00f.org>
-In-Reply-To: <20010623034849.A3728@metastasis.f00f.org> <Pine.LNX.4.33.0106221811020.27761-100000@horsea.3ti.be>
+	id <S265655AbRFWGV3>; Sat, 23 Jun 2001 02:21:29 -0400
+Received: from front2.mail.megapathdsl.net ([66.80.60.30]:24593 "EHLO
+	front2.mail.megapathdsl.net") by vger.kernel.org with ESMTP
+	id <S265653AbRFWGVY>; Sat, 23 Jun 2001 02:21:24 -0400
+Subject: Re: [OT]Re: One more ZDNet article with BillG hammering Linux and
+	Open Source.
+From: Miles Lane <miles@megapathdsl.net>
+To: Gerhard Mack <gmack@innerfire.net>
+Cc: Ben Ford <ben@kalifornia.com>, linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.10.10106222042460.9000-100000@innerfire.net>
+In-Reply-To: <Pine.LNX.4.10.10106222042460.9000-100000@innerfire.net>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/0.10.99 (Preview Release)
+Date: 22 Jun 2001 23:27:55 -0700
+Message-Id: <993277680.25169.1.camel@agate>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <Pine.LNX.4.33.0106221811020.27761-100000@horsea.3ti.be>; from dag@wieers.com on Fri, Jun 22, 2001 at 06:25:41PM +0200
-X-No-Archive: Yes
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jun 22, 2001 at 06:25:41PM +0200, Dag Wieers wrote:
+On 22 Jun 2001 20:45:14 -0700, Gerhard Mack wrote:
+> On Fri, 22 Jun 2001, Ben Ford wrote:
+> 
+> > Miles Lane wrote:
+> > 
+> > >http://www.zdnet.com/zdnn/stories/news/0,4586,2777283,00.html
+> > >
+> > [ . . . ]
+> > 
+> > Hey, Bill, here's my address, can you ship me the full source to Word?
+> 
+> Funny but by giving it to you they could really screw you when it comes to
+> opensource work.  If you think the GPL is viral you havn't seen "shared
+> source".. at least the GPL only applies to derived works.
 
-    So if someone wants to increase it for an application he needs to
-    be sure that everything that it is linked with is compiled with a
-    similar __FD_SETSIZE ?
+Here's the kicker.  I went to Microsoft's site and tried to find
+a copy of their Shared Software License or some approximation
+thereof.  All I found was a bunch of Craig Mundie's blathering
+and some critiques of the GPL:
 
-Well... only things that care about __FD_SETSIZE :)
-    
-    Why can you safely increase the value in Squid then ?
+   http://www.microsoft.com/business/licensing/sharedsource.asp
 
-Because it has been tested and works. I assume libc doesn't care is
-this value is increased, not sure about other libraries.
+How can we evaluate if there is any point in asking BillG for
+the Word source code if they won't even show us the blighted
+license?  What I suspect is that there IS no "Shared Source
+License."  And, even if there were, Microsoft doesn't want
+anyone to see it because that would allow a direct comparison
+with the GPL, LGPL and so on.  Heaven forbid that apples should
+be compared to apples!
 
-Using libc5 and linux 2.1.9x + scts large-fd patch (which got merged
-in later kernels), I manged to work with 100K FDs without too many
-problems.
+What they appear to have is a hodgepodge of different ways
+of "sharing" source code.  Here's an excerpt from:
 
-The defintion of 'fd_set' changes with __FD_SETSIZE, so anything
-makes these kind of assumptions might break.
+http://www.microsoft.com/BUSINESS/licensing/sscommitment.asp
+--------------------------------------------------
+Some examples of Shared Source already being implemented at Microsoft:
 
-For example, if you have some code which assumes this is 1024 and you
-try to copy a value into a preallocated array of structure it
-defined, then it will break.
+Research source licensing. For nearly a decade, Microsoft Research has
+licensed Microsoft Windows source code to more than 100 academic
+institutions in 23 countries. For more information, see Microsoft 
+Research University Programs.  
 
-So will precompiled code such as:
+Enterprise licensing program. Source code for Windows 2000 and
+subsequent releases of Windows is available for licensing at no charge
+to more than 1,000 enterprise customers in the United States. We also
+have a pilot program expanding the ESLP to 12 additional countries. 
 
-struct cookie {
-	int	type;
-	fd_set	chocolate_feeds;
-	int	cc_count;
-}monster;
+ISV source licensing. We are developing a program for licensing Windows
+source code to top tier ISVs (independent software vendors) for
+development and support purposes.  
 
-sort of thing; because fd_set's size will be wrong.
+OEM source licensing. Windows source code has been licensed for years to
+leading OEMs to assist in the development and support of their consumer
+and server products.  
 
-    Yes, but still, why 1024 ?
+Windows CE source code access. We are licensing Windows CE source code
+through Platform Builder 3.0 (generally available to all developers).
+Microsoft will be broadening and adding to the community support
+mechanisms through the Platform Builder Program. In the second half of
+this year we will offer academic site licenses for Windows CE source
+code. 
 
-Because thats what is has been for a very long time, a safe default.
+Expanded level of Windows CE source access. Additionally, we have
+announced an expanded level of Windows CE source access to, (i) our
+leading silicon vendor partners via the Windows Embedded Strategic
+Silicon Alliance program, and (ii) our leading system integrator
+partners via the Innovation Alliance Program.  
 
-If your application knows better, it can change it.
+Sample code. Over the years Microsoft has made millions of lines of
+source code freely available to developers through resources such as
+SDKs, DDKs, and MSDN. Check out the MSDN Online Code Center. 
 
-    No, squid takes the lowest of both (FD_SETSIZE and SQUID_MAXFD)
-    in main.c.  And the Squid configure gets the FD_SETSIZE value
-    from linux/posix_types.h ;(
+.NET Framework submitted to ECMA standards body. We have announced that
+the specifications for the .NET Framework have been submitted to the
+ECMA standards body, enabling others to implement and evolve this
+technology in a platform-independent manner so that it is can be rapidly
+and widely adopted on an industry-side basis. For more information, see
+ECMA Standardization. 
 
-Really? I though for the last couple of years squid would use poll
-over select anyhow?
-    
-    I'm still not convinced that something might break, since everybody
-    advices to increase __FD_SETSIZE before compiling Squid.
+These Shared Source programs will be joined in the coming months by
+programs covering additional products and technologies. The realization
+of our .NET vision will rely heavily on the Shared Source philosophy. We
+also plan to introduce a Shared Source license crafted to the needs of
+our customers and partners in governments around the world. This
+government source license will be similar in nature to the license we
+offer our large enterprise customers today. Still in the works are new
+source sharing ideas for our ISV partners as well.
+----------------------------------
 
-So do it then.
-    
-    And if linux/posix_types.h defines the limit of open file
-    descriptors of the system, 1024 is (IMO) a wrong number. But then
-    again, nobody bothered to change it...
+My interpretation of this excerpt is that Microsoft figures out
+what rights it wants to allow each of these categories of 
+developers/users and then incredibly restricts the freedom of
+anyone who sees their code to change, port or use the code in
+any way at all.  My impression is that they are happy to have
+grad students look at the NT code, because they want really
+smart people to get used to using NT all the time and then
+graduate and go become Microsoft borgs.
 
-Because 1024 works everywhere, a large or smaller value might not.
+What I imagine happens is that if you ask for source code, they 
+decide whether they want to show it to you, then they make you 
+sign away your life (such as freedom to work on any code vaguely 
+like the code they're going to show you) and then they sue you 
+into bankruptcy or out-of-court settlement if you breathe in a 
+way they don't like.
 
+I'd be happy if Bill and his merry band proved me wrong,
+but I really doubt that'll happen.
 
+	Miles
 
-  --cw

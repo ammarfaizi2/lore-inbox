@@ -1,47 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130026AbQLXQqy>; Sun, 24 Dec 2000 11:46:54 -0500
+	id <S129759AbQLXRSA>; Sun, 24 Dec 2000 12:18:00 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130235AbQLXQqp>; Sun, 24 Dec 2000 11:46:45 -0500
-Received: from www.wen-online.de ([212.223.88.39]:23045 "EHLO wen-online.de")
-	by vger.kernel.org with ESMTP id <S130026AbQLXQq1>;
-	Sun, 24 Dec 2000 11:46:27 -0500
-Date: Sun, 24 Dec 2000 17:13:44 +0100 (CET)
-From: Mike Galbraith <mikeg@wen-online.de>
-To: Andreas Franck <afranck@gmx.de>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Fatal Oops on boot with 2.4.0testX and recent GCC snapshots
-In-Reply-To: <00122320144900.00517@dg1kfa.ampr.org>
-Message-ID: <Pine.Linu.4.10.10012241656500.439-100000@mikeg.weiden.de>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S130148AbQLXRRu>; Sun, 24 Dec 2000 12:17:50 -0500
+Received: from [194.213.32.137] ([194.213.32.137]:25348 "EHLO bug.ucw.cz")
+	by vger.kernel.org with ESMTP id <S129759AbQLXRRo>;
+	Sun, 24 Dec 2000 12:17:44 -0500
+Message-ID: <20001223233448.F541@bug.ucw.cz>
+Date: Sat, 23 Dec 2000 23:34:48 +0100
+From: Pavel Machek <pavel@suse.cz>
+To: Michael Chen <michaelc@turbolinux.com.cn>, alan@lxorguk.ukuu.org.uk,
+        torvalds@transmeta.com
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: About Celeron processor memory barrier problem
+In-Reply-To: <4015029078.19991223172443@turbolinux.com.cn>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+X-Mailer: Mutt 0.93i
+In-Reply-To: <4015029078.19991223172443@turbolinux.com.cn>; from michael chen on Thu, Dec 23, 1999 at 05:24:43PM +0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 23 Dec 2000, Andreas Franck wrote:
+Hi!
 
-> Hi Mike, hello linux-kernel audience,
-> 
-> > I had the same, with the last few snapshots I tried, but 20001218 seems
-> > to work ok.
-> > dmesg|head -1
-> > Linux version 2.4.0-test13ikd (root@el-kaboom) (gcc version gcc-2.97
-> > 20001218 (experimental)) #18 Sat Dec 23 17:43:29 CET 2000
-> 
-> Hmm, would have been nice, but it crashes here with 20001222, nevertheless. 
-> For which CPU do you have your kernel configured? It might be a CPU specific 
-> issue, I'll try to compile for Pentium I and 486, now, and report my results.
+> diff -Nur linux/include/asm-i386/system.h linux.new/include/asm-i386/system.h
+> --- linux/include/asm-i386/system.h     Mon Dec 11 19:26:39 2000
+> +++ linux.new/include/asm-i386/system.h Sat Dec 23 16:06:01 2000
+> @@ -274,7 +274,14 @@
+>  #ifndef CONFIG_X86_XMM
+>  #define mb()   __asm__ __volatile__ ("lock; addl $0,0(%%esp)": : :"memory")
+>  #else
+> -#define mb()   __asm__ __volatile__ ("sfence": : :"memory")
+> +#define mb()  do { \
+> +       if ( cpu_has_xmm ) { \
+                ~~~~~~~~~~~~~~~~~~
 
-Yes, hmm indeed.  Try these two things.
+Cost of test may well be bigger than gain by using sfence...
 
-1. make DECLARE_MUTEX_LOCKED(sem) in bdflush_init() static.
-2. compile with frame pointers.  (normal case for IKD)
+Pavel
 
-My IKD tree works with either option, but not with neither.  I haven't
-figured out why yet.
-
-	-Mike
-
+-- 
+I'm pavel@ucw.cz. "In my country we have almost anarchy and I don't care."
+Panos Katsaloulis describing me w.r.t. patents at discuss@linmodems.org
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

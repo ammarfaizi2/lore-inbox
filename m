@@ -1,70 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263385AbUDBAhD (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 Apr 2004 19:37:03 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263389AbUDBAhD
+	id S263161AbUDBAkL (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 Apr 2004 19:40:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263419AbUDBAkL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 Apr 2004 19:37:03 -0500
-Received: from fw.osdl.org ([65.172.181.6]:21202 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S263385AbUDBAfw (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 Apr 2004 19:35:52 -0500
-Date: Thu, 1 Apr 2004 16:37:15 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Andi Kleen <ak@suse.de>
-Cc: weigand@i1.informatik.uni-erlangen.de, gcc@gcc.gnu.org,
-       linux-kernel@vger.kernel.org, schwidefsky@de.ibm.com
-Subject: Re: Linux 2.6 nanosecond time stamp weirdness breaks GCC build
-Message-Id: <20040401163715.3592cedc.akpm@osdl.org>
-In-Reply-To: <20040401220957.5f4f9ad2.ak@suse.de>
-References: <200404011928.VAA23657@faui1d.informatik.uni-erlangen.de>
-	<20040401220957.5f4f9ad2.ak@suse.de>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i586-pc-linux-gnu)
+	Thu, 1 Apr 2004 19:40:11 -0500
+Received: from mail.shareable.org ([81.29.64.88]:31125 "EHLO
+	mail.shareable.org") by vger.kernel.org with ESMTP id S263161AbUDBAkD
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 1 Apr 2004 19:40:03 -0500
+Date: Fri, 2 Apr 2004 01:39:37 +0100
+From: Jamie Lokier <jamie@shareable.org>
+To: Peter Williams <peterw@aurema.com>
+Cc: Arjan van de Ven <arjanv@redhat.com>,
+       Albert Cahalan <albert@users.sourceforge.net>,
+       "Randy.Dunlap" <rddunlap@osdl.org>, ak@muc.de,
+       Richard.Curnow@superh.com, aeb@cwi.nl,
+       linux-kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: finding out the value of HZ from userspace
+Message-ID: <20040402003937.GC28520@mail.shareable.org>
+References: <1079453698.2255.661.camel@cube> <20040320095627.GC2803@devserv.devel.redhat.com> <1079794457.2255.745.camel@cube> <405CDA9C.6090109@aurema.com> <20040331134009.76ca3b6d.rddunlap@osdl.org> <1080776817.2233.2326.camel@cube> <20040401155420.GB25502@mail.shareable.org> <20040401160132.GB13294@devserv.devel.redhat.com> <20040401163047.GD25502@mail.shareable.org> <406CAEB6.6080709@aurema.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <406CAEB6.6080709@aurema.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andi Kleen <ak@suse.de> wrote:
->
-> he solution from back then I actually liked best was to just round
-> up to the next second instead of rounding down when going from 1s 
-> resolution to ns.
+Peter Williams wrote:
+> >When we go to a tickless kernel and offer high-resolution timers to
+> >userspace, then it will be irrelevant.  Until then, or if the kernel
+> >goes tickless but limits the resolution of timers for efficiency, the
+> >value of HZ is still relevant.
 > 
-> -Andi
-> 
-> e.g. like this for ext3 (untested). Does that fix your problem?
-> 
-> diff -u linux-2.6.5rc3-work/fs/ext3/inode.c-o linux-2.6.5rc3-work/fs/ext3/inode.c
-> --- linux-2.6.5rc3-work/fs/ext3/inode.c-o	2004-04-01 22:07:43.000000000 +0200
-> +++ linux-2.6.5rc3-work/fs/ext3/inode.c	2004-04-01 22:08:49.000000000 +0200
-> @@ -2624,9 +2624,11 @@
->  	}
->  	raw_inode->i_links_count = cpu_to_le16(inode->i_nlink);
->  	raw_inode->i_size = cpu_to_le32(ei->i_disksize);
-> -	raw_inode->i_atime = cpu_to_le32(inode->i_atime.tv_sec);
-> -	raw_inode->i_ctime = cpu_to_le32(inode->i_ctime.tv_sec);
-> -	raw_inode->i_mtime = cpu_to_le32(inode->i_mtime.tv_sec);
-> +	/* round up because we cannot store nanoseconds. This avoids
-> +	   the time jumping back when the inode is loaded again. */
-> +	raw_inode->i_atime = cpu_to_le32(inode->i_atime.tv_sec + 1);
-> +	raw_inode->i_ctime = cpu_to_le32(inode->i_ctime.tv_sec + 1);
-> +	raw_inode->i_mtime = cpu_to_le32(inode->i_mtime.tv_sec + 1);
->  	raw_inode->i_blocks = cpu_to_le32(inode->i_blocks);
->  	raw_inode->i_dtime = cpu_to_le32(ei->i_dtime);
->  	raw_inode->i_flags = cpu_to_le32(ei->i_flags);
+> The resolution will always be limited.  That's the nature of digital 
+> systems.  Unlimited resolution would require real "real" numbers and 
+> that's not possible.  The nearest you get on a digital system is the 
+> floating point APPROXIMATION to real numbers.
 
-I think this will cause the inode timestamps to keep on creeping forwards.
+Sure, but HZ will still be irrelevant.  There won't be a HZ to report.
 
-How about in ext3_read_inode() you do:
+> IMHO, as I've said several times, USER_HZ should be changed to be equal 
+> to or greater than HZ.  In fact, if having USER_HZ greater than HZ would 
+> still make it unusable for your purposes, I'd change that opinion to say 
+> USER_HZ should be equal to HZ (or, in other words, cease to exist).
 
-	inode->i_atime.tv_sec = le32_to_cpu(raw_inode->i_atime);
-	inode->i_ctime.tv_sec = le32_to_cpu(raw_inode->i_ctime);
-	inode->i_mtime.tv_sec = le32_to_cpu(raw_inode->i_mtime);
--	inode->i_atime.tv_nsec = inode->i_ctime.tv_nsec = inode->i_mtime.tv_nsec = 0;
-+	inode->i_atime.tv_nsec = inode->i_ctime.tv_nsec = inode->i_mtime.tv_nsec = 999999999;
+It's not possible to change USER_HZ.  There are too many programs with
+the number hard-coded into the binary.  The best we could do is make
+the HZ userspace macro non-constant, so it calls sysconf(_SC_CLK_TCK),
+and wait a few years until practically all programs being used no
+longer contain a hard-coded constant.  Then we could get rid of USER_HZ again.
 
-?
-
-It still has problems, but I think they're smaller ones.
+-- Jamie

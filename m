@@ -1,50 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262324AbVAELQh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262328AbVAELTV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262324AbVAELQh (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 5 Jan 2005 06:16:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262327AbVAELQh
+	id S262328AbVAELTV (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 5 Jan 2005 06:19:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262330AbVAELTV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 5 Jan 2005 06:16:37 -0500
-Received: from bbned23-32-100.dsl.hccnet.nl ([80.100.32.23]:25559 "EHLO
-	fw-loc.vanvergehaald.nl") by vger.kernel.org with ESMTP
-	id S262324AbVAELQf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 5 Jan 2005 06:16:35 -0500
-Date: Wed, 5 Jan 2005 12:16:32 +0100
-From: Toon van der Pas <toon@hout.vanvergehaald.nl>
-To: linux-kernel@vger.kernel.org
-Subject: Re: 50% CPU user usage but top doesn't list any CPU unfriendly task
-Message-ID: <20050105111632.GA7664@hout.vanvergehaald.nl>
-References: <5a2cf1f6050103134611114dbd@mail.gmail.com> <200501040851.23287.norbert-kernel@edusupport.nl> <5a2cf1f6050104024368eb1424@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <5a2cf1f6050104024368eb1424@mail.gmail.com>
-User-Agent: Mutt/1.5.6i
+	Wed, 5 Jan 2005 06:19:21 -0500
+Received: from out001pub.verizon.net ([206.46.170.140]:39165 "EHLO
+	out001.verizon.net") by vger.kernel.org with ESMTP id S262328AbVAELTO
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 5 Jan 2005 06:19:14 -0500
+Message-ID: <41DBCD43.2000104@cwazy.co.uk>
+Date: Wed, 05 Jan 2005 06:19:31 -0500
+From: Jim Nelson <james4765@cwazy.co.uk>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040922
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Christoph Hellwig <hch@lst.de>
+CC: Brian Gerst <bgerst@didntduck.org>, linuxppc-dev@ozlabs.org,
+       paulus@samba.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 0/7] ppc: remove cli()/sti() from arch/ppc/*
+References: <20050104214048.21749.85722.89116@localhost.localdomain> <41DB4E99.3060200@didntduck.org> <41DB5476.9040103@cwazy.co.uk> <20050105092659.GA27103@lst.de>
+In-Reply-To: <20050105092659.GA27103@lst.de>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Authentication-Info: Submitted using SMTP AUTH at out001.verizon.net from [209.158.220.243] at Wed, 5 Jan 2005 05:19:11 -0600
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jan 04, 2005 at 11:43:39AM +0100, jerome lacoste wrote:
-> On Tue, 4 Jan 2005 08:51:23 +0100, Norbert van Nobelen
-> <norbert-kernel@edusupport.nl> wrote:
-> > The load and the CPU useage are two separate things:
-> > Load: Defined by a programmer on an estimate on which his program is running
-> > 100% fulltime, thus consuming little or more CPU/IO.
-> > The interesting program you mention is the VoIP application. Is this program
-> > multithreaded and is every thread using a little bit of CPU? Than it quickly
-> > adds up to the mentioned 40%. 
+Christoph Hellwig wrote:
+> On Tue, Jan 04, 2005 at 09:44:06PM -0500, Jim Nelson wrote:
 > 
-> There are some threads in that app, not that many, and none show in
-> the top listing (which displays at least 30 entries). So I don't think
-> this sum scenario is valid.
+>>Brian Gerst wrote:
+>>
+>>
+>>>James Nelson wrote:
+>>>
+>>>
+>>>>This series of patches is to remove the last cli()/sti() function 
+>>>>calls in arch/ppc.
+>>>>
+>>>>These are the only instances in active code that grep could find.
+>>>
+>>>
+>>>Are you sure none of these need real spinlocks instead of just 
+>>>disabling interrupts?
+>>>
+>>>-- 
+>>>               Brian Gerst
+>>>
+>>
+>>These are for single-processor systems, mostly evaluation boards and 
+>>embedded processors.  I coudn't find any reference to multiprocessor 
+>>setups for the processors in question after a peruse of the code or a 
+>>quick google on the boards in question.
+> 
+> 
+> think CONFIG_PREEMPT.  In either case a spinlock becomes
+> lock_irq_disable in the !SMP, !PREEMPT case but it documents the
+> intention a whole lot better.
+> 
+> Also you're locking only in a single plpace which is a ***BIG*** warning
+> sign.  At least look at the other users of the data structure, it's
+> extremly likely they'll need locking aswell.
+> 
 
-The correct display of threaded processes in top should be fixed by
-the combination of procps-3.2.4 and the linux-2.6.10 kernel.
-This according to the text in the announcement of procps-3.2.4.
-I didn't test it yet, though.
+Some of the cli() uses were in shutdown and IRQ setup code, where you'd just need 
+to disable interrupts.  There are a few files that will need a more thourough 
+going-through, however.
 
-Regards,
-Toon.
--- 
-"Debugging is twice as hard as writing the code in the first place.
-Therefore, if you write the code as cleverly as possible, you are,
-by definition, not smart enough to debug it." - Brian W. Kernighan
+I'll start checking those later.
+
+Jim

@@ -1,66 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263303AbTLSM5S (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 19 Dec 2003 07:57:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262864AbTLSM4K
+	id S263504AbTLSMzu (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 19 Dec 2003 07:55:50 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262762AbTLSMyn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 19 Dec 2003 07:56:10 -0500
-Received: from user-12hcje4.cable.mindspring.com ([69.22.77.196]:59799 "EHLO
-	bender.davehollis.com") by vger.kernel.org with ESMTP
-	id S263303AbTLSMqL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 19 Dec 2003 07:46:11 -0500
-Subject: Re: VLAN switching in linux kernel...
-From: David T Hollis <dhollis@davehollis.com>
-To: Madhavi <madhavis@sasken.com>
+	Fri, 19 Dec 2003 07:54:43 -0500
+Received: from www01.ies.inet6.fr ([62.210.153.201]:53438 "EHLO
+	smtp.ies.inet6.fr") by vger.kernel.org with ESMTP id S263062AbTLSMcY
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 19 Dec 2003 07:32:24 -0500
+Message-ID: <3FE2EFD5.6000009@inet6.fr>
+Date: Fri, 19 Dec 2003 13:32:21 +0100
+From: Lionel Bouton <Lionel.Bouton@inet6.fr>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6b) Gecko/20031205 Thunderbird/0.4
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Oliver Hunt <ojh16@student.canterbury.ac.nz>
 Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.33.0312191736510.17109-100000@pcz-madhavis.sasken.com>
-References: <Pine.LNX.4.33.0312191736510.17109-100000@pcz-madhavis.sasken.com>
-Content-Type: text/plain
-Message-Id: <1071837956.8316.1.camel@dhollis-lnx.kpmg.com>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 (1.4.5-8) 
-Date: Fri, 19 Dec 2003 07:45:58 -0500
+Subject: Re: IDE issues
+References: <3FE43492.3020703@student.canterbury.ac.nz>
+In-Reply-To: <3FE43492.3020703@student.canterbury.ac.nz>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2003-12-19 at 07:13, Madhavi wrote:
-> Hi,
-> 
-> I have a doubt regarding the VLAN operation of the Standard Linux kernel
-> (linux-2.4.20).
-> 
-> My network setup is something like this:
-> 
-> ---+---------------+------ VLAN ID 200
->    |eth0.200       |eth0.200
-> +------+       +------+
-> |  HA  |       |Router|
-> +------+       +------+
->                    |eth1.300
-> -----------+-------------- VLAN ID 300
->            |eth0.300
->         +------+
->         |  HB  |
->         +------+
-> 
-> When I send ping packets from HA to HB over the interface eth0.200, is
-> possible for the Router (using linux-2.4.20 with CONFIG_8021Q option) to
-> switch packets from VLAN 200 to VLAN 300?
-> 
-> Is this VLAN switching functionality supported by the standard linux kernel?
-> Is there some extra configuration, some patches or sources that can support
-> this feature for linux?
-> 
-> I would be a great help to me if someone could answer this or give some
-> pointers to this?
-> 
-> Thanks & Regards
-> Madhavi.
-> 
+Oliver Hunt wrote the following on 12/20/2003 12:37 PM :
 
-You would route between the two VLANs.  They are two different broadcast
-domains, you need to route them at Layer 3.  HA would have a route or
-default gw pointed at ROUTER which has IP forwarding turned on and you
-should be able to hit HB.
+> I was using 2.6.0-test11 on a gentoo install on this system and my 
+> system worked fine, however that install died earlier this week, and 
+> now i'm running debian.  The configuration in gentoo didn't boot for 
+> debian so i reset everything from scratch.
+>
+> [...]
+
+
+>CONFIG_BLK_DEV_SIS5513=y
+>  
+>
+Might be either a too old kernel version without proper support for your 
+SiS chipset or shaky local APIC support.
+I suppose you use a 2.4 kernel with debian. Which version is it ?
+What is the chipset (or the motherboard) model ?
+
+-- 
+Lionel Bouton - inet6
+---------------------------------------------------------------------
+   o              Siege social: 51, rue de Verdun - 92158 Suresnes
+  /      _ __ _   Acces Bureaux: 33 rue Benoit Malon - 92150 Suresnes
+ / /\  /_  / /_   France
+ \/  \/_  / /_/   Tel. +33 (0) 1 41 44 85 36
+  Inetsys S.A.    Fax  +33 (0) 1 46 97 20 10
+ 
 

@@ -1,45 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261444AbVAXPfC@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261303AbVAXPnd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261444AbVAXPfC (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 24 Jan 2005 10:35:02 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261303AbVAXPfC
+	id S261303AbVAXPnd (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 24 Jan 2005 10:43:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261524AbVAXPnd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 24 Jan 2005 10:35:02 -0500
-Received: from mail.ocs.com.au ([202.147.117.210]:4549 "EHLO mail.ocs.com.au")
-	by vger.kernel.org with ESMTP id S261301AbVAXPe6 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 24 Jan 2005 10:34:58 -0500
-X-Mailer: exmh version 2.6.3_20040314 03/14/2004 with nmh-1.0.4
-From: Keith Owens <kaos@sgi.com>
-To: gowda_avinash@emc.com
-Cc: kdb@oss.sgi.com, linux-kernel@vger.kernel.org, linux-ia64@vger.kernel.org
-Subject: Re: Announce: kdb v4.4 is available for kernel 2.6.10 
-In-reply-to: Your message of "Mon, 24 Jan 2005 15:21:08 -0000."
-             <50C05B7AA7D6924FB5E384EF14BC647BC451EE@inba1mx2.corp.emc.com> 
+	Mon, 24 Jan 2005 10:43:33 -0500
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:52239 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S261303AbVAXPnb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 24 Jan 2005 10:43:31 -0500
+Date: Mon, 24 Jan 2005 15:43:26 +0000
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: Sam Ravnborg <sam@ravnborg.org>, Linus Torvalds <torvalds@osdl.org>,
+       Linux Kernel List <linux-kernel@vger.kernel.org>
+Subject: ARM undefined symbols.  Again.
+Message-ID: <20050124154326.A5541@flint.arm.linux.org.uk>
+Mail-Followup-To: Sam Ravnborg <sam@ravnborg.org>,
+	Linus Torvalds <torvalds@osdl.org>,
+	Linux Kernel List <linux-kernel@vger.kernel.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Date: Tue, 25 Jan 2005 02:34:52 +1100
-Message-ID: <14122.1106580892@ocs3.ocs.com.au>
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 24 Jan 2005 15:21:08 -0000, 
-gowda_avinash@emc.com wrote:
->All:
->I tried to get Kdb working on SuSe 9 ia64 box (kernel version
->2.6.5-7.111.19). Turns out that the keyboard/machine goes into a hang state.
->I have a usb keyboard!
->
->Googling around I found that Keith had disabled the USB keyboard support
->some time back due to changes in some APIs (kernel version
->linux-2.6.5-SLES9_SP1_BRANCH).
->
->Is this something that could be a cause for my problem? Should I think about
->upgrading my kernel to 2.6.10 (hoping that the issue's been fixed in this
->version)?
+Sam,
 
-The USB keyboard support in KDB was written by HP, because their
-systems have USB keyboards.  I have no hardware to test on, so I have
-to rely on HP to keep the USB patches in KDB up to date.  That has not
-happened recently.
+Where did the hacks go which detect the silent failure of the ARM binutils?
 
+I'm asking because I've just spent all of today trying to work out why
+the hell code isn't working, only to find that it's all down to the
+toolchain problem not being detected by kbuild.  IOW, the code sequence:
+
+        mov     r0, #CR1A_SMPE
+
+where CR1A_SMPE is undefined, assembles to:
+
+c001224c:       e3a00000        mov     r0, #0  ; 0x0
+
+without any warnings or errors, and links a successful kernel, leaving
+this in System.map:
+
+         U CR1A_SMPE
+
+I absolutely must have the kernel build system detecting this binutils
+problem when it occurs.
+
+-- 
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:  2.6 PCMCIA      - http://pcmcia.arm.linux.org.uk/
+                 2.6 Serial core

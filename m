@@ -1,35 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268756AbTCCULG>; Mon, 3 Mar 2003 15:11:06 -0500
+	id <S268760AbTCCUPJ>; Mon, 3 Mar 2003 15:15:09 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268764AbTCCULG>; Mon, 3 Mar 2003 15:11:06 -0500
-Received: from 81-2-122-30.bradfords.org.uk ([81.2.122.30]:17159 "EHLO
-	81-2-122-30.bradfords.org.uk") by vger.kernel.org with ESMTP
-	id <S268756AbTCCULG>; Mon, 3 Mar 2003 15:11:06 -0500
-From: John Bradford <john@grabjohn.com>
-Message-Id: <200303032023.h23KN7dv002026@81-2-122-30.bradfords.org.uk>
-Subject: Re: wait_on_buffer
-To: welie@bezeqint.net (Elie)
-Date: Mon, 3 Mar 2003 20:23:07 +0000 (GMT)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <JLEOIKOLJCFPEIJOOOECOEIHCEAA.welie@bezeqint.net> from "Elie" at Mar 03, 2003 10:06:15 PM
-X-Mailer: ELM [version 2.5 PL6]
-MIME-Version: 1.0
+	id <S268761AbTCCUPI>; Mon, 3 Mar 2003 15:15:08 -0500
+Received: from serenity.mcc.ac.uk ([130.88.200.93]:63506 "EHLO
+	serenity.mcc.ac.uk") by vger.kernel.org with ESMTP
+	id <S268760AbTCCUPI>; Mon, 3 Mar 2003 15:15:08 -0500
+Date: Mon, 3 Mar 2003 20:25:34 +0000
+From: John Levon <levon@movementarian.org>
+To: William Lee Irwin III <wli@holomorphy.com>, linux-kernel@vger.kernel.org,
+       ambx1@neo.rr.com
+Cc: torvalds@transmeta.com
+Subject: Re: [PATCH] Another bitop on boolean in pnpbios
+Message-ID: <20030303202534.GA24517@compsoc.man.ac.uk>
+References: <20030303054235.GA58427@compsoc.man.ac.uk> <20030303095643.GO1195@holomorphy.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <20030303095643.GO1195@holomorphy.com>
+User-Agent: Mutt/1.3.25i
+X-Url: http://www.movementarian.org/
+X-Record: Mr. Scruff - Trouser Jazz
+X-Scanner: exiscan for exim4 (http://duncanthrax.net/exiscan/) *18pwVC-0000BW-00*vOn38D7kPgo*
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> It has been 40 hours since my post about cp -a hanging on my drive. I
-> haven't gotten a response, and I assume based on the traffic on this list, I
-> am not going to get one. So I really could use some help, and if anyone can
-> help me to get this hard disk to work I would appreiciate it. If there is
-> another list I can try for more help please let me know. To sum up, I cp -a
-> hangs at random times. ps shows wait_on_buffer on etx3/ get_grequest after I
-> reformatted the partitions to ext2. One time the entire system froze. There
-> are no errors in any logs. The hd is a Maxtor 91360U4 with 13g. 
-> Kernel is 2.4-18. Red Hat 8.0.
+On Mon, Mar 03, 2003 at 01:56:43AM -0800, William Lee Irwin III wrote:
 
-Can you reproduce the problem with 2.4.20 or 2.4.21-pre5?
+> pnpbios_is_static() could probably use the same treatment.
 
-John.
+Sure. Linus, at least one  of the below actually broke...
+
+regards
+john
+
+--- linux-linus/include/linux/pnpbios.h	2003-01-13 22:43:41.000000000 +0000
++++ linux/include/linux/pnpbios.h	2003-03-03 20:28:43.000000000 +0000
+@@ -85,8 +85,8 @@
+ #define PNPBIOS_BOOTABLE		0x0010
+ #define PNPBIOS_DOCK			0x0020
+ #define PNPBIOS_REMOVABLE		0x0040
+-#define pnpbios_is_static(x) ((x)->flags & 0x0100) == 0x0000
+-#define pnpbios_is_dynamic(x) (x)->flags & 0x0080
++#define pnpbios_is_static(x) (((x)->flags & 0x0100) == 0x0000)
++#define pnpbios_is_dynamic(x) ((x)->flags & 0x0080)
+ 
+ /* 0x8000 through 0xffff are OEM defined */
+ 

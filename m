@@ -1,54 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270480AbTGXDbs (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Jul 2003 23:31:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270483AbTGXDbs
+	id S271055AbTGXDdw (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Jul 2003 23:33:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271066AbTGXDdv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Jul 2003 23:31:48 -0400
-Received: from user145.net484.nc.sprint-hsd.net ([65.40.169.145]:25779 "EHLO
-	mail1.lvwnet.com") by vger.kernel.org with ESMTP id S270480AbTGXDbr
+	Wed, 23 Jul 2003 23:33:51 -0400
+Received: from postman1.arcor-online.net ([151.189.0.187]:48864 "EHLO
+	postman.arcor.de") by vger.kernel.org with ESMTP id S271055AbTGXDdu
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Jul 2003 23:31:47 -0400
-Message-ID: <3F1F56AE.8020503@lvwnet.com>
-Date: Wed, 23 Jul 2003 23:46:54 -0400
-From: Vinnie <listacct1@lvwnet.com>
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:1.2.1) Gecko/20021130
-X-Accept-Language: en-us, en
+	Wed, 23 Jul 2003 23:33:50 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Johannes Halmann <softpro@gmx.net>
+Reply-To: ahljoh@uni.de
+To: linux-kernel@vger.kernel.org
+Subject: Re: directory inclusion in ext2/ext3
+Date: Thu, 24 Jul 2003 05:48:34 +0200
+X-Mailer: KMail [version 1.3.2]
 MIME-Version: 1.0
-To: Philippe Troin <phil@fifi.org>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: 2.4.19 (and newer) - prob with the new adaptec aic7xxx driver
- and Promise UltraTrak100 TX2
-References: <3F1F5397.8000001@lvwnet.com> <87ispsd229.fsf@ceramic.fifi.org>
-In-Reply-To: <87ispsd229.fsf@ceramic.fifi.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 7BIT
+Message-Id: <20030724034833.5D63B371@mendocino>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Philippe Troin wrote:
+On Thu, 24 Jul 2003 03:00:17 +0200 Mike Fedyk wrote:
+>> my idea of solving this is to have
+>> an inclusion directive in directory-files...
+>> 
+>> has nobody ever felt the lack of such functionality??
 
->>In a nutshell, the problem goes like this:
->>
->>If I compile the kernel to use the NEW aic7xxx adaptec driver, the
->>SCSI bus hangs almost immediately upon commencement of a large write
->>operation, such as attempting to copy a 500MB file from one of the
->>internal client machines to a SMB shared directory on this server.
->>The problem is reproducible on 2.4.19 and 2.4.20 kernels, if I use the
->>"new" aic7xxx driver.
-> 
-> 
-> 8< snip >8
-> 
-> Have you tried the updated aic7xxx driver at
-> http://people.freebsd.org/~gibbs/linux/SRC/ ?
-> 
-> AFAIK it fixes a lot of problems with aic7xxx and was not included in
-> 2.4.21 for technicalities.
+> What exactly does this help you to do?
+> What do you want to accomplish?
 
-Hi Phil,
+hmm, i have a lot of huge files on different hard drives and wish to access 
+them in a uniform fashion. i would like to sort ALL files in subdirectories 
+but have no need for an LVM, RAID or similar. for example:
 
-Thanks for that REALLY quick reply!  I will go check it out.
+/mnt/drive1/category1
+/mnt/drive1/category2
+/mnt/drive2/category1
+/mnt/drive2/category2
 
-vinnie
+(the data is so huge, that it is not possible to always merge categories on a 
+single disk!)
+what i would like to do now is to be able to display all files of "cat1" and 
+"cat2" respectively in "/mnt/union/category1" and "/mnt/union/category2". yet 
+i don't wish to simply link the directories as this would complicate access 
+with growing number of hard drives the data is spread on!
 
+it's a bit weird to explain, i hope it's understandable now :-)))
+
+Johannes

@@ -1,57 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262000AbTEZPSF (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 26 May 2003 11:18:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262143AbTEZPSF
+	id S261365AbTEZPnI (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 26 May 2003 11:43:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261678AbTEZPnI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 26 May 2003 11:18:05 -0400
-Received: from h80ad26a4.async.vt.edu ([128.173.38.164]:7316 "EHLO
-	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
-	id S262000AbTEZPSE (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
-	Mon, 26 May 2003 11:18:04 -0400
-Message-Id: <200305261531.h4QFVDa7011934@turing-police.cc.vt.edu>
-X-Mailer: exmh version 2.6.3 04/04/2003 with nmh-1.0.4+dev
-To: linux-kernel@vger.kernel.org
-Subject: Janitors, or Illuminati?
-From: Valdis.Kletnieks@vt.edu
+	Mon, 26 May 2003 11:43:08 -0400
+Received: from node-d-1ea6.a2000.nl ([62.195.30.166]:10487 "EHLO
+	laptop.fenrus.com") by vger.kernel.org with ESMTP id S261365AbTEZPnH
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 26 May 2003 11:43:07 -0400
+Subject: Re: [RFC] HZ entry in /proc/sys/kernel
+From: Arjan van de Ven <arjanv@redhat.com>
+Reply-To: arjanv@redhat.com
+To: Grzegorz Jaskiewicz <gj@pointblue.com.pl>
+Cc: lkml <linux-kernel@vger.kernel.org>, Jens Axboe <axboe@suse.de>
+In-Reply-To: <1053950030.2028.4.camel@nalesnik.localhost>
+References: <1053950030.2028.4.camel@nalesnik.localhost>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-an2qrUAvlGu6MbammIQ7"
+Organization: Red Hat, Inc.
+Message-Id: <1053951356.32566.3.camel@laptop.fenrus.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_-1518020223P";
-	 micalg=pgp-sha1; protocol="application/pgp-signature"
-Content-Transfer-Encoding: 7bit
-Date: Mon, 26 May 2003 11:31:13 -0400
+X-Mailer: Ximian Evolution 1.3.3 (1.3.3-2) (Preview Release)
+Date: 26 May 2003 14:15:57 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---==_Exmh_-1518020223P
-Content-Type: text/plain; charset=us-ascii
 
-While we're on the "Why didn't you send the patches to the right place?" topic..
+--=-an2qrUAvlGu6MbammIQ7
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-The Kernel Janitors are often referenced, but there's not much of a pointer
-to them in the source tree.
+On Mon, 2003-05-26 at 13:53, Grzegorz Jaskiewicz wrote:
+> I have seen few scripts allready that are assuming HZ=3D=3D100.
+> Afaik this value is different in 2.5/2.4 for the same arch.
 
-% cd /usr/src/linux-2.5.69
-% grep -ri janitor .
-./fs/affs/Changes:- sizeof changes from Kernel Janitor Project
-./include/asm-sparc/elf.h:} while(0); /* Janitors: Don't touch this colon. */
-./CREDITS:D: Various Janitor work.
-./CREDITS:D: petty kernel janitor (byteorder, ufs)
+No it's not actually.
+The userspace interface is constant/stable and in units of HZ=3D100 even
+though the kernel HZ might be different.
 
-The lines in CREDITS reference Dave Jones and Francois-Rene Rideau.
 
-I'm not sure if MAINTAINERS is the right place for a blurb for them,
-or if it should be elsewhere.  Any opinions?
-
---==_Exmh_-1518020223P
-Content-Type: application/pgp-signature
+--=-an2qrUAvlGu6MbammIQ7
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
 
 -----BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
-Comment: Exmh version 2.5 07/13/2001
+Version: GnuPG v1.2.2 (GNU/Linux)
 
-iD8DBQE+0jNAcC3lWbTT17ARAkrHAJ0SxiT69hxofUZxnUmqRnWyLoXZ3gCbBQcO
-b5qC8Gmeu5rcJ4TL9IF2L3c=
-=sGNH
+iD8DBQA+0gV8xULwo51rQBIRAlWRAJ0fKwYOdFSXjun/1Lc50TpHwtBzwgCcDs03
+MIJK9LZXfrWkcNVOL00XCvw=
+=NqMy
 -----END PGP SIGNATURE-----
 
---==_Exmh_-1518020223P--
+--=-an2qrUAvlGu6MbammIQ7--

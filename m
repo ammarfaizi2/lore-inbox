@@ -1,55 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268848AbRH1UBV>; Tue, 28 Aug 2001 16:01:21 -0400
+	id <S267650AbRH1UHA>; Tue, 28 Aug 2001 16:07:00 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269593AbRH1UBL>; Tue, 28 Aug 2001 16:01:11 -0400
-Received: from darkwing.uoregon.edu ([128.223.142.13]:45213 "EHLO
-	darkwing.uoregon.edu") by vger.kernel.org with ESMTP
-	id <S268511AbRH1UA5>; Tue, 28 Aug 2001 16:00:57 -0400
-Date: Tue, 28 Aug 2001 13:01:22 -0700 (PDT)
-From: Joel Jaeggli <joelja@darkwing.uoregon.edu>
-X-X-Sender: <joelja@twin.uoregon.edu>
-To: Linux Kernel Mailing List <linux-kernel@vger.rutgers.edu>
-Subject: 2.4.9ac3 fails to boot (due to agpgart)...
-Message-ID: <Pine.LNX.4.33.0108281052590.29611-100000@twin.uoregon.edu>
+	id <S267534AbRH1UGu>; Tue, 28 Aug 2001 16:06:50 -0400
+Received: from otter.mbay.net ([206.40.79.2]:18182 "EHLO otter.mbay.net")
+	by vger.kernel.org with ESMTP id <S266806AbRH1UGp> convert rfc822-to-8bit;
+	Tue, 28 Aug 2001 16:06:45 -0400
+From: jalvo@mbay.net (John Alvord)
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: torvalds@transmeta.com (Linus Torvalds),
+        viro@math.psu.edu (Alexander Viro), linux-kernel@vger.kernel.org
+Subject: Re: [IDEA+RFC] Possible solution for min()/max() war
+Date: Tue, 28 Aug 2001 20:06:23 GMT
+Message-ID: <3b8bf989.1927813@mail.mbay.net>
+In-Reply-To: <E15bgl2-0005oW-00@the-village.bc.nu>
+In-Reply-To: <E15bgl2-0005oW-00@the-village.bc.nu>
+X-Mailer: Forte Agent 1.5/32.451
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is an rcc/serverworks IIIHE-sl box (dual pIII-1ghz) with root on a
-aic7xxx controller integrated on the mainboard...
+On Tue, 28 Aug 2001 12:10:12 +0100 (BST), Alan Cox
+<alan@lxorguk.ukuu.org.uk> wrote:
 
-as soon a the kernel gets to initializing the agpgart. the message:
+>> Or, with the 2.4.9 approach, it's just a single macro (well, and another
+>> one for "max()"). And when somebody needs a new type, he doesn't have to
+>> worry about creating a new instantiation of the macro.
+>
+>The unfortunate thing is that its min and max as opposed to typed_min and
+>typed_max (with min/max set up to error), since its now a nightmare to 
+>maintain compatibility between two allegedly stable releases of the same
+>kernel, as well as with 2.2
+>
+>Had it been typed_min(a,b,c) then 2.2 could have stayed compatible and the
+>glue would have been simple
 
-"posted write buffer flush took more than three seconds"
+Does the new min/max definitions hurt portability to and from Linux?
 
-begins scrolling down the screen...
-
-the last line before it happens is:
-
-"maximum memory available for agp is 816MB"
-
-which seems like a reasonable number (the machine has 1GB)
-
-alt-sysrq b will still reboot the machine at that point...
-
-disabling agpgart support eliminaates the issue...
-
-joelja
-
-
-
--- 
---------------------------------------------------------------------------
-Joel Jaeggli				       joelja@darkwing.uoregon.edu
-Academic User Services			     consult@gladstone.uoregon.edu
-     PGP Key Fingerprint: 1DE9 8FCA 51FB 4195 B42A 9C32 A30D 121E
---------------------------------------------------------------------------
-It is clear that the arm of criticism cannot replace the criticism of
-arms.  Karl Marx -- Introduction to the critique of Hegel's Philosophy of
-the right, 1843.
-
-
-
-
+john alvord

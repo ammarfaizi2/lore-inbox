@@ -1,70 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263695AbTKKTWt (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 Nov 2003 14:22:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263697AbTKKTWt
+	id S263715AbTKKTnV (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 Nov 2003 14:43:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263717AbTKKTnV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 Nov 2003 14:22:49 -0500
-Received: from oobleck.astro.cornell.edu ([132.236.6.230]:44501 "EHLO
-	oobleck.astro.cornell.edu") by vger.kernel.org with ESMTP
-	id S263695AbTKKTV5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 Nov 2003 14:21:57 -0500
-Date: Tue, 11 Nov 2003 14:21:56 -0500
-Message-Id: <200311111921.hABJLur16428@oobleck.astro.cornell.edu>
-From: Joe Harrington <jh@oobleck.astro.cornell.edu>
+	Tue, 11 Nov 2003 14:43:21 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:10760 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id S263715AbTKKTnU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 11 Nov 2003 14:43:20 -0500
 To: linux-kernel@vger.kernel.org
-Subject: Via KT600 support?
-CC: jh@oobleck.astro.cornell.edu
-Reply-To: jh@oobleck.astro.cornell.edu
+From: "H. Peter Anvin" <hpa@zytor.com>
+Subject: Re: kernel.bkbits.net off the air
+Date: 11 Nov 2003 11:43:04 -0800
+Organization: Transmeta Corporation, Santa Clara CA
+Message-ID: <bore48$ubl$1@cesium.transmeta.com>
+References: <fa.eto0cvm.1v20528@ifi.uio.no> <fa.onl48uv.1tmeb21@ifi.uio.no> <3FB0EEB5.5010804@myrealbox.com> <200311111438.47868.andrew@walrond.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Disclaimer: Not speaking for Transmeta in any way, shape, or form.
+Copyright: Copyright 2003 H. Peter Anvin - All Rights Reserved
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I am having show-stopper difficulties getting Linux to run on my Asus
-A7V600 motherboard, which sports the Via KT600 chipset.
+Followup to:  <200311111438.47868.andrew@walrond.org>
+By author:    Andrew Walrond <andrew@walrond.org>
+In newsgroup: linux.dev.kernel
+> 
+> My preferred solution is a single sequence file as described by Adreas:
+> 
+> Assuming sequence starts at 0,
+> 
+> To modify the repository, +1 to sequence file contents, modify repo, +1 to 
+> sequence
+> 
+> To get a coherent copy,
+> do
+> 	seq1 = read(sequence file)
+> 	rsync repo
+> 	seq2 = read(sequence file)
+> until seq1==seq2 and !(seq1&1)
+> 
 
-During install of Fedora Core 1, Fedora Core test3, Red Hat 9, and
-Debian 3.0r1, the install fails at a random point, generally during
-the non-interactive package loading phase.  The most recent kernel
-with the problem is kernel-2.4.22-1.2115.nptl in the Fedora Core 1
-release.  The problem is 100% reproducible.
+OK... this still doesn't deal with how to get mirrors to pick stuff up
+with a minimum of fuss.  The "minimum of fuss" bit is *extremely*
+important... I still haven't managed to get all mirrors to use rsync.
 
-VC messages indicate problems in different programs each time.
-Generally the failure happens during package installation, but
-sometimes it happens earlier.  After the first indication of a
-problem, one can generally still switch VCs, but eventually that stops
-working, too.  Frequently, there are several programs indicating
-problems in the VC screens.
-
-In three months of trials, I have never gotten any install to run to
-completion on this machine.  I have used the same media for each of
-the distros above to install other machines.
-
-The hardware:
-
-Asus A7V600 mobo (VIA KT600 chipset)
-AMD 2800+XP CPU
-1536 MB DDR333 (3 sticks)
-IDE disks (250GB WD)
-IDE CD/DVD reader
-
-On Morphix 0.4-1 (a live-CD linux distro), this configuration boots,
-but crashes during large file copies (1GB or larger generally does it,
-but it can happen much sooner than that, or occasionally take longer).
-
-Things I have tried:
-noapic nolapic acpi=off pci=noacpi allowcddma nodma
-in various combinations and individually.  None worked.  I also
-changed "APIC" to "PIC" in the BIOS, to no avail.
-
-I have tested and replaced the hardware extensively over the past
-several months of chasing this problem down.  The problem is not
-damaged hardware.  I suspect it is a problem with chipset support in
-the kernel.  However, I have not been able to find a reliable source
-of information about the support status of various chipsets and
-motherboard features in the kernel.
-
-Please reply directly as I am not subscribed to linux-kernel.
-
-Thanks,
-
---jh--
+	-hpa
+-- 
+<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
+If you send me mail in HTML format I will assume it's spam.
+"Unix gives you enough rope to shoot yourself in the foot."
+Architectures needed: ia64 m68k mips64 ppc ppc64 s390 s390x sh v850 x86-64

@@ -1,57 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262416AbTJXQ7s (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 24 Oct 2003 12:59:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262418AbTJXQ7s
+	id S262418AbTJXRFX (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 24 Oct 2003 13:05:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262419AbTJXRFX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 24 Oct 2003 12:59:48 -0400
-Received: from smtp2.libero.it ([193.70.192.52]:5785 "EHLO smtp2.libero.it")
-	by vger.kernel.org with ESMTP id S262416AbTJXQ7o (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 24 Oct 2003 12:59:44 -0400
-Date: Fri, 24 Oct 2003 18:55:53 +0200
-From: "M. Fioretti" <m.fioretti@inwind.it>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Unbloating the kernel, was: :mem=16MB laptop testing
-Message-ID: <20031024165553.GB933@inwind.it>
-Reply-To: "M. Fioretti" <m.fioretti@inwind.it>
-References: <HMQWM7$61FA432C2B793029C11F4F77EEAABD1F@libero.it> <Pine.LNX.4.44.0310140917540.3754-100000@chimarrao.boston.redhat.com> <20031014143047.GA6332@ncsu.edu> <3F8CE3EB.8040907@storm.ca> <bnbi95$3qn$1@gatekeeper.tmr.com>
+	Fri, 24 Oct 2003 13:05:23 -0400
+Received: from node-d-1ea6.a2000.nl ([62.195.30.166]:31732 "EHLO
+	laptop.fenrus.com") by vger.kernel.org with ESMTP id S262418AbTJXRFS
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 24 Oct 2003 13:05:18 -0400
+Subject: Re: Copying .config to /lib/modules/`uname -r`/kernel
+From: Arjan van de Ven <arjanv@redhat.com>
+Reply-To: arjanv@redhat.com
+To: Pavel Roskin <proski@gnu.org>
+Cc: Muli Ben-Yehuda <mulix@mulix.org>, linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.56.0310241234010.1701@marabou.research.att.com>
+References: <Pine.LNX.4.58.0310240406230.17536@portland.hansa.lan>
+	 <20031024155343.GP5017@actcom.co.il>
+	 <Pine.LNX.4.56.0310241234010.1701@marabou.research.att.com>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-ihV9LmxhV0LT5YAyeTk8"
+Organization: Red Hat, Inc.
+Message-Id: <1067015103.5255.1.camel@laptop.fenrus.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <bnbi95$3qn$1@gatekeeper.tmr.com>
-User-Agent: Mutt/1.4i
+X-Mailer: Ximian Evolution 1.4.5 (1.4.5-5) 
+Date: Fri, 24 Oct 2003 19:05:04 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Oct 24, 2003 15:59:33 at 03:59:33PM +0000, bill davidsen (davidsen@tmr.com) wrote:
 
-> | > If we can ensure that Linux keeps working on these machines, it
-> | > will be a good thing.
-> 
-> Agreed, until you start to talk cluster. If you pay for electricity,
-> newer machines use less per MHz. One of those $200 "Lindows" boxen
-> from Wal-Mart starts to look good about the 2nd old Pentium!
+--=-ihV9LmxhV0LT5YAyeTk8
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-May I ask you to elaborate on this? Less per MHz doesn't matter much
-if the frequency is much higher, or it does? I mean, if you put, say,
-a 133 MHz pentium and a 1 GB pentium to do the same thing with the
-same SW (mail server, for example), the 1GB system may use less per
-MHz (newer silicon, lower voltage, etc...) and its flip-flops toggle
-for a smaller percentage of time, but its electricity bill will still
-be the higher one, or not?
+On Fri, 2003-10-24 at 18:50, Pavel Roskin wrote:
+\
+> It's missing on Red Hat Linux.
 
-In general: has anybody ever done *this* kind of benchmarks? Comparing
-electricity consumption among different systems doing just the same
-task?
+It's not missing. For 2.4 kernels you don't need it to build external
+modules against. For the 2.6 kernel rpms
+(http://people.redhat.com/arjanv/2.5/ </shamelessplug>) the config is
+there as required
 
-TIA,
-	Marco Fioretti
 
--- 
-Marco Fioretti                 m.fioretti, at the server inwind.it
-Red Hat for low memory         http://www.rule-project.org/en/
 
-A good man is intelligent, and a bad man is also an idiot. Moral and
-intellectual characteristics go together - Jorge Luis Borges
+--=-ihV9LmxhV0LT5YAyeTk8
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
 
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.2 (GNU/Linux)
+
+iD8DBQA/mVu/xULwo51rQBIRAkaQAJ9TSH56JHT81g5nS/H3w/3IGtdzpQCggJlv
+eYvosQ2Rp2tGCPvzbJo5TlY=
+=orSu
+-----END PGP SIGNATURE-----
+
+--=-ihV9LmxhV0LT5YAyeTk8--

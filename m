@@ -1,46 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131336AbRCHMEW>; Thu, 8 Mar 2001 07:04:22 -0500
+	id <S131341AbRCHMHw>; Thu, 8 Mar 2001 07:07:52 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131337AbRCHMEM>; Thu, 8 Mar 2001 07:04:12 -0500
-Received: from sv.moemoe.gr.jp ([211.10.15.35]:22541 "HELO mail.moemoe.gr.jp")
-	by vger.kernel.org with SMTP id <S131336AbRCHMEG>;
-	Thu, 8 Mar 2001 07:04:06 -0500
-Date: Thu, 08 Mar 2001 21:03:38 +0900
-From: Keitaro Yosimura <ramsy@10art-ni.co.jp>
-To: mvw@planets.elm.net
-Subject: quota on 32bit-uid patch
-Cc: linux-kernel@vger.kernel.org
-Message-Id: <20010308205016.C2F4.RAMSY@10art-ni.co.jp>
+	id <S131343AbRCHMHm>; Thu, 8 Mar 2001 07:07:42 -0500
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:61707 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S131341AbRCHMH0>; Thu, 8 Mar 2001 07:07:26 -0500
+Subject: Re: Linux kernel - and regular sync'ing?
+To: dushaw@munk.apl.washington.edu (Brian Dushaw)
+Date: Thu, 8 Mar 2001 12:09:51 +0000 (GMT)
+Cc: linux-kernel@vger.kernel.org,
+        dushaw@munk.apl.washington.edu (Brian Dushaw)
+In-Reply-To: <Pine.LNX.4.30.0103071959050.17257-100000@munk.apl.washington.edu> from "Brian Dushaw" at Mar 07, 2001 08:21:06 PM
+X-Mailer: ELM [version 2.5 PL1]
 MIME-Version: 1.0
-Content-Type: text/plain; charset="US-ASCII"
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-Mailer: Becky! ver. 2.00.03
+Message-Id: <E14azEv-0002qR-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Marco van Wieringen, Linus, and any hackers.
+> at irregular intervals of 10-30 seconds, most likely calls to sync, so
+> that the disk never gets to sleep for long.  I've followed advice in the
+> various HOWTO's, e.g. modifying the line "ud::once:/sbin/update" in
+> /etc/inittab to only sync once an hour, to no avail.  Watching "top", it
 
-I've ported my quota patches for 2.4.2.
+Thats actually I think poor advice - it wont help and its asking to lose data
 
-based on 
- ftp://atrey.karlin.mff.cuni.cz/pub/local/jack/quota/v2.4/quota-fix-2.4.0-test12-1.diff.gz
- ftp://atrey.karlin.mff.cuni.cz/pub/local/jack/quota/v2.4/quota-patch-2.4.0-test12-1.diff.gz
+>    Can you offer me any advice?  Any tweeks I can make to tell the system
+> that sync'ing only once every 5 minutes is o.k.?
 
-You can download the patches from
-http://www.moemoe.gr.jp/~ramsy/Files/Linux/quota/patch-2.4.2-ky2.patch.bz2
+You machine can sync continually - providing it isnt writing data. The real
+question is not 'why is it syncing' but 'what is it syncing'.
 
-RedHat 7.0.X's quota are not ready for 32bit-uid.
-You can download the patched rpm from...
-http://www.moemoe.gr.jp/~ramsy/Files/Linux/quota/quota-2.00-3ky3.src.rpm
-http://www.moemoe.gr.jp/~ramsy/Files/Linux/quota/quota-2.00-3ky3.i386.rpm
-(this rpm build on RedHat-7.0.1J. please rebuild src.rpm.)
+The normal answer is file access times, and you can turn those off with the
+noatime mount option.
 
-please merge the kernel&tool patchs:)
+To quote the linux on palmax page
 
-Thanks.
+   For startup my /etc/rc.d/rc.local contains the following lines.
+mount -o remount,rw,noatime /
+/sbin/hdparm -S 15 /dev/hda
 
-<|> YOSHIMURA 'ramsy' Keitaro / Japan Linux Association
-<|> mailto:ramsy@linux.or.jp
-<|> http://jla.linux.or.jp/index.html
-
+   The  "noatime"  setting  turns off the writing back of 'last accessed'
+   times  to  files. This means reading/opening files does not cause disk
+   wakeups.  The  hdparm -S 15 command sets the disk to spin down after 1
+   minute  15 seconds (you can play with the value).

@@ -1,45 +1,58 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129562AbRALS5R>; Fri, 12 Jan 2001 13:57:17 -0500
+	id <S131138AbRALTEc>; Fri, 12 Jan 2001 14:04:32 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130599AbRALS5H>; Fri, 12 Jan 2001 13:57:07 -0500
-Received: from penguin.e-mind.com ([195.223.140.120]:60213 "EHLO
-	penguin.e-mind.com") by vger.kernel.org with ESMTP
-	id <S129562AbRALS4t>; Fri, 12 Jan 2001 13:56:49 -0500
-Date: Fri, 12 Jan 2001 19:57:15 +0100
-From: Andrea Arcangeli <andrea@suse.de>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.4.1-pre1 breaks XFree 4.0.2 and "w"
-Message-ID: <20010112195715.A30496@athlon.random>
-In-Reply-To: <Pine.LNX.4.10.10101120931520.1806-100000@penguin.transmeta.com> <E14H8PC-0004hZ-00@the-village.bc.nu> <93nipc$1vp$1@penguin.transmeta.com>
-Mime-Version: 1.0
+	id <S130599AbRALTEX>; Fri, 12 Jan 2001 14:04:23 -0500
+Received: from [213.253.36.78] ([213.253.36.78]:53255 "HELO
+	blackhole.uknet.spacesurfer.com") by vger.kernel.org with SMTP
+	id <S130072AbRALTEM>; Fri, 12 Jan 2001 14:04:12 -0500
+Message-ID: <3A5F55AF.9651CCF1@spacesurfer.com>
+Date: Fri, 12 Jan 2001 19:06:23 +0000
+From: Patrick <patrick@spacesurfer.com>
+Reply-To: pim@uknet.spacesurfer.com
+Organization: SpaceSurfer Ltd.
+X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.2.16-22 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: Kernel oops in tcp_ipv4.c
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <93nipc$1vp$1@penguin.transmeta.com>; from torvalds@transmeta.com on Fri, Jan 12, 2001 at 10:35:24AM -0800
-X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
-X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jan 12, 2001 at 10:35:24AM -0800, Linus Torvalds wrote:
-> Andreas argument was that earlier kernels weren't consistent, and as
-> such we shouldn't even bother to try to make newer kernels consistent. 
-> We would be better off reporting our internal inconsistencies the way
-> earlier kernels did - the kernel would be confusing, but at least it
-> would be consistently confusing ;)
+I am running a medium-high traffic web server on an SMP machine. I have
+always had problems with linux hanging (No syslog messages and no
+console response). I have tried kernel versions 2.2.12, 2.2.14 and
+2.2.16
+Recently I tried 2.2.17, this kernel was up for about a month, before
+there was a kernel oops. The syslog messages are:
 
-The earlier kernels were 98% consistent in providing the "cpu_has" information
-via /proc/cpuinfo that is true information too.
+Jan 11 21:10:06 ws2 kernel: tcp_v4_hash: bug, socket state is 1 
+Jan 11 21:10:06 ws2 kernel: Unable to handle kernel NULL pointer
+dereference at virtual address 00000000 
+Jan 11 21:10:06 ws2 kernel: current->tss.cr3 = 0ca7c000, %cr3 = 0ca7c000 
+Jan 11 21:10:06 ws2 kernel: *pde = 00000000 
+Jan 11 21:10:06 ws2 kernel: Oops: 0002 
+Jan 11 21:10:06 ws2 kernel: CPU:    0 
 
-What I am suggesting is to fix the few places to make the /proc/cpuinfo 100%
-consistent reporting "cpu_has", and to provide the "can_I_use" information in
-another place (for example with /proc/osinfo or a new "osflags" row in
-/proc/cpuinfo).
+The code that outputs the first message is in tcp_ipv4.c, and was added
+in version 2.2.17. The code deliberately causes a kernel oops when it
+encounters this bug, presumably because the IP stack is unusable at this
+point.
 
-This way we are 100% consistent and we don't lose the "cpu_has" information.
+If this code was deliberately added then presumably someone knows what
+might cause the problem. Is there a patch somewhere that fixes this
+problem?
 
-Andrea
+regards,
+Patrick
+
+-- 
+Patrick Mackinlay                                patrick@spacesurfer.com
+ICQ: 59277981                                        tel: +44 7050699851
+                                                     fax: +44 7050699852
+SpaceSurfer Limited                          http://www.spacesurfer.com/
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

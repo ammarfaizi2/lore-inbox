@@ -1,118 +1,211 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261369AbUJXNsN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261474AbUJXNxR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261369AbUJXNsN (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 24 Oct 2004 09:48:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261478AbUJXNqI
+	id S261474AbUJXNxR (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 24 Oct 2004 09:53:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261489AbUJXNvT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 24 Oct 2004 09:46:08 -0400
-Received: from mail09.syd.optusnet.com.au ([211.29.132.190]:62340 "EHLO
-	mail09.syd.optusnet.com.au") by vger.kernel.org with ESMTP
-	id S261499AbUJXNkB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 24 Oct 2004 09:40:01 -0400
-Message-ID: <417BB099.1050501@kolivas.org>
-Date: Sun, 24 Oct 2004 23:39:37 +1000
-From: Con Kolivas <kernel@kolivas.org>
-User-Agent: Mozilla Thunderbird 0.8 (X11/20040913)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux <linux-kernel@vger.kernel.org>, CK Kernel <ck@vds.kolivas.org>
-Subject: 2.6.9-ck2
-X-Enigmail-Version: 0.86.1.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: multipart/signed; micalg=pgp-sha1;
- protocol="application/pgp-signature";
- boundary="------------enigC8B8B4D8CF5B7252211E3735"
+	Sun, 24 Oct 2004 09:51:19 -0400
+Received: from verein.lst.de ([213.95.11.210]:62630 "EHLO mail.lst.de")
+	by vger.kernel.org with ESMTP id S261478AbUJXNsU (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 24 Oct 2004 09:48:20 -0400
+Date: Sun, 24 Oct 2004 15:48:12 +0200
+From: Christoph Hellwig <hch@lst.de>
+To: hirofumi@mail.parknet.co.jp
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] merge msdos_fs_{i,sb}.h into msdos_fs.h
+Message-ID: <20041024134812.GA20353@lst.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.28i
+X-Spam-Score: -4.901 () BAYES_00
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
---------------enigC8B8B4D8CF5B7252211E3735
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
 
-These are patches designed to improve system responsiveness with
-specific emphasis on the desktop, but configurable to any workload.
-
-http://ck.kolivas.org/patches/2.6/2.6.9/2.6.9-ck2/patch-2.6.9-ck2.bz2
-
-web:
-http://kernel.kolivas.org
-all patches:
-http://ck.kolivas.org/patches/
-Split patches and a server specific patch available.
-
-
-Added:
-  +mwII-oc.diff
-Linking hardmaplimit to overcommit is no longer required as hardmaplimit
-is not set by default, and there was a compile problem with modules.
-This backs it out.
-
-  +back-sched-net-fix-scheduling-latencies-in-__release_sock.patch
-Something about this patch from the low latency hacks in combination
-with -ck causes a panic on nmap with some hardware (only on -ck). Remove
-it for now.
-
-  +ll-config1.diff
-Change the default low latency config options to have the debug off by
-default.
-
-  +fix-bad-segment-coalescing-in-blk_recalc_rq_segments.patch
-A bugfix for i/o scheduler which improves performance under heavy i/o load.
-
-  +vm-pages_scanned-active_list.patch
-A nasty bug that caused kswapd to get stuck consuming heaps of cpu which
-was in mainline 2.6.9 was tracked down by some of my users (thanks!) and
-fixed by Nick Piggin (thanks!).
-
-  +269ck2-version.diff
-Version
-
-
-Removed:
-  -ll-config.diff
-This disabled preempting the BKL which actually seems quite safe on
-further testing.
-
-
-Full Patchlist:
-2.6.9_to_staircase9.0.diff
-schedrange.diff
-schedbatch2.5.diff
-schediso2.8.diff
-mwII.diff
-mwII-oc.diff
-1g_lowmem1_i386.diff
-cfq2-20041019.patch
-block_fix.diff
-defaultcfq.diff
-269rc4-mingo_ll.diff
-back-sched-net-fix-scheduling-latencies-in-__release_sock.patch
-269rc4-mingo-bkl.diff
-ll-config1.diff
-cddvd-cmdfilter-drop.patch
-nvidia_compat.diff
-fix-bad-segment-coalescing-in-blk_recalc_rq_segments.patch
-vm-pages_scanned-active_list.patch
-269ck2-version.diff
-
-
-Cheers,
-Con
-
-
---------------enigC8B8B4D8CF5B7252211E3735
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: OpenPGP digital signature
-Content-Disposition: attachment; filename="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.6 (GNU/Linux)
-Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
-
-iD8DBQFBe7CnZUg7+tp6mRURAna1AJ9mLwF1MFZNTxYuhg5PJ3+ccsAOrwCePUwQ
-iE0hqq8ZaPa0fINqgOP7o5Y=
-=axRj
------END PGP SIGNATURE-----
-
---------------enigC8B8B4D8CF5B7252211E3735--
+--- 1.42/include/linux/msdos_fs.h	2004-10-20 10:12:10 +02:00
++++ edited/include/linux/msdos_fs.h	2004-10-20 22:06:30 +02:00
+@@ -189,8 +189,84 @@
+ #include <linux/buffer_head.h>
+ #include <linux/string.h>
+ #include <linux/nls.h>
+-#include <linux/msdos_fs_i.h>
+-#include <linux/msdos_fs_sb.h>
++#include <linux/fs.h>
++
++struct fat_mount_options {
++	uid_t fs_uid;
++	gid_t fs_gid;
++	unsigned short fs_fmask;
++	unsigned short fs_dmask;
++	unsigned short codepage;  /* Codepage for shortname conversions */
++	char *iocharset;          /* Charset used for filename input/display */
++	unsigned short shortname; /* flags for shortname display/create rule */
++	unsigned char name_check; /* r = relaxed, n = normal, s = strict */
++	unsigned quiet:1,         /* set = fake successful chmods and chowns */
++		 showexec:1,      /* set = only set x bit for com/exe/bat */
++		 sys_immutable:1, /* set = system files are immutable */
++		 dotsOK:1,        /* set = hidden and system files are named '.filename' */
++		 isvfat:1,        /* 0=no vfat long filename support, 1=vfat support */
++		 utf8:1,	  /* Use of UTF8 character set (Default) */
++		 unicode_xlate:1, /* create escape sequences for unhandled Unicode */
++		 numtail:1,       /* Does first alias have a numeric '~1' type tail? */
++		 atari:1,         /* Use Atari GEMDOS variation of MS-DOS fs */
++		 nocase:1;	  /* Does this need case conversion? 0=need case conversion*/
++};
++
++#define FAT_HASH_BITS	8
++#define FAT_HASH_SIZE	(1UL << FAT_HASH_BITS)
++#define FAT_HASH_MASK	(FAT_HASH_SIZE-1)
++
++/*
++ * MS-DOS file system in-core superblock data
++ */
++struct msdos_sb_info {
++	unsigned short sec_per_clus; /* sectors/cluster */
++	unsigned short cluster_bits; /* log2(cluster_size) */
++	unsigned int cluster_size;   /* cluster size */
++	unsigned char fats,fat_bits; /* number of FATs, FAT bits (12 or 16) */
++	unsigned short fat_start;
++	unsigned long fat_length;    /* FAT start & length (sec.) */
++	unsigned long dir_start;
++	unsigned short dir_entries;  /* root dir start & entries */
++	unsigned long data_start;    /* first data sector */
++	unsigned long clusters;      /* number of clusters */
++	unsigned long root_cluster;  /* first cluster of the root directory */
++	unsigned long fsinfo_sector; /* sector number of FAT32 fsinfo */
++	struct semaphore fat_lock;
++	int prev_free;               /* previously allocated cluster number */
++	int free_clusters;           /* -1 if undefined */
++	struct fat_mount_options options;
++	struct nls_table *nls_disk;  /* Codepage used on disk */
++	struct nls_table *nls_io;    /* Charset used for input and display */
++	void *dir_ops;		     /* Opaque; default directory operations */
++	int dir_per_block;	     /* dir entries per block */
++	int dir_per_block_bits;	     /* log2(dir_per_block) */
++
++	spinlock_t inode_hash_lock;
++	struct hlist_head inode_hashtable[FAT_HASH_SIZE];
++};
++
++#define FAT_CACHE_VALID	0	/* special case for valid cache */
++
++/*
++ * MS-DOS file system inode data in memory
++ */
++struct msdos_inode_info {
++	spinlock_t cache_lru_lock;
++	struct list_head cache_lru;
++	int nr_caches;
++	/* for avoiding the race between fat_free() and fat_get_cluster() */
++	unsigned int cache_valid_id;
++
++	loff_t mmu_private;
++	int i_start;	/* first cluster or 0 */
++	int i_logstart;	/* logical first cluster */
++	int i_attrs;	/* unused attribute bits */
++	int i_ctime_ms;	/* unused change time in milliseconds */
++	loff_t i_pos;	/* on-disk position of directory entry or 0 */
++	struct hlist_node i_fat_hash;	/* hash by i_location */
++	struct inode vfs_inode;
++};
+ 
+ static inline struct msdos_sb_info *MSDOS_SB(struct super_block *sb)
+ {
+--- 1.10/include/linux/msdos_fs_i.h	2004-10-20 10:12:09 +02:00
++++ edited/include/linux/msdos_fs_i.h	2004-10-20 22:05:57 +02:00
+@@ -1,29 +0,0 @@
+-#ifndef _MSDOS_FS_I
+-#define _MSDOS_FS_I
+-
+-#include <linux/fs.h>
+-
+-/*
+- * MS-DOS file system inode data in memory
+- */
+-
+-#define FAT_CACHE_VALID	0	/* special case for valid cache */
+-
+-struct msdos_inode_info {
+-	spinlock_t cache_lru_lock;
+-	struct list_head cache_lru;
+-	int nr_caches;
+-	/* for avoiding the race between fat_free() and fat_get_cluster() */
+-	unsigned int cache_valid_id;
+-
+-	loff_t mmu_private;
+-	int i_start;	/* first cluster or 0 */
+-	int i_logstart;	/* logical first cluster */
+-	int i_attrs;	/* unused attribute bits */
+-	int i_ctime_ms;	/* unused change time in milliseconds */
+-	loff_t i_pos;	/* on-disk position of directory entry or 0 */
+-	struct hlist_node i_fat_hash;	/* hash by i_location */
+-	struct inode vfs_inode;
+-};
+-
+-#endif
+===== include/linux/msdos_fs_sb.h 1.16 vs edited =====
+--- 1.16/include/linux/msdos_fs_sb.h	2004-10-20 10:12:09 +02:00
++++ edited/include/linux/msdos_fs_sb.h	2004-10-20 22:05:59 +02:00
+@@ -1,60 +0,0 @@
+-#ifndef _MSDOS_FS_SB
+-#define _MSDOS_FS_SB
+-
+-/*
+- * MS-DOS file system in-core superblock data
+- */
+-
+-struct fat_mount_options {
+-	uid_t fs_uid;
+-	gid_t fs_gid;
+-	unsigned short fs_fmask;
+-	unsigned short fs_dmask;
+-	unsigned short codepage;  /* Codepage for shortname conversions */
+-	char *iocharset;          /* Charset used for filename input/display */
+-	unsigned short shortname; /* flags for shortname display/create rule */
+-	unsigned char name_check; /* r = relaxed, n = normal, s = strict */
+-	unsigned quiet:1,         /* set = fake successful chmods and chowns */
+-		 showexec:1,      /* set = only set x bit for com/exe/bat */
+-		 sys_immutable:1, /* set = system files are immutable */
+-		 dotsOK:1,        /* set = hidden and system files are named '.filename' */
+-		 isvfat:1,        /* 0=no vfat long filename support, 1=vfat support */
+-		 utf8:1,	  /* Use of UTF8 character set (Default) */
+-		 unicode_xlate:1, /* create escape sequences for unhandled Unicode */
+-		 numtail:1,       /* Does first alias have a numeric '~1' type tail? */
+-		 atari:1,         /* Use Atari GEMDOS variation of MS-DOS fs */
+-		 nocase:1;	  /* Does this need case conversion? 0=need case conversion*/
+-};
+-
+-#define FAT_HASH_BITS	8
+-#define FAT_HASH_SIZE	(1UL << FAT_HASH_BITS)
+-#define FAT_HASH_MASK	(FAT_HASH_SIZE-1)
+-
+-struct msdos_sb_info {
+-	unsigned short sec_per_clus; /* sectors/cluster */
+-	unsigned short cluster_bits; /* log2(cluster_size) */
+-	unsigned int cluster_size;   /* cluster size */
+-	unsigned char fats,fat_bits; /* number of FATs, FAT bits (12 or 16) */
+-	unsigned short fat_start;
+-	unsigned long fat_length;    /* FAT start & length (sec.) */
+-	unsigned long dir_start;
+-	unsigned short dir_entries;  /* root dir start & entries */
+-	unsigned long data_start;    /* first data sector */
+-	unsigned long clusters;      /* number of clusters */
+-	unsigned long root_cluster;  /* first cluster of the root directory */
+-	unsigned long fsinfo_sector; /* sector number of FAT32 fsinfo */
+-	struct semaphore fat_lock;
+-	int prev_free;               /* previously allocated cluster number */
+-	int free_clusters;           /* -1 if undefined */
+-	struct fat_mount_options options;
+-	struct nls_table *nls_disk;  /* Codepage used on disk */
+-	struct nls_table *nls_io;    /* Charset used for input and display */
+-	void *dir_ops;		     /* Opaque; default directory operations */
+-	int dir_per_block;	     /* dir entries per block */
+-	int dir_per_block_bits;	     /* log2(dir_per_block) */
+-
+-	spinlock_t inode_hash_lock;
+-	struct hlist_head inode_hashtable[FAT_HASH_SIZE];
+-};
+-
+-#endif

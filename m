@@ -1,53 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S286345AbRLTTQj>; Thu, 20 Dec 2001 14:16:39 -0500
+	id <S286343AbRLTTRJ>; Thu, 20 Dec 2001 14:17:09 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286343AbRLTTQa>; Thu, 20 Dec 2001 14:16:30 -0500
-Received: from pc3-stoc4-0-cust138.mid.cable.ntl.com ([213.107.175.138]:12037
-	"EHLO buzz.ichilton.co.uk") by vger.kernel.org with ESMTP
-	id <S286339AbRLTTQV>; Thu, 20 Dec 2001 14:16:21 -0500
-From: "Ian Chilton" <ian@ichilton.co.uk>
-To: <sparclinux@vger.kernel.org>, <linux-kernel@vger.kernel.org>
-Subject: Re: 2.4.17-rc1 wont do nfs root on Javastation
-Date: Thu, 20 Dec 2001 19:16:01 -0000
-Message-ID: <000001c1898a$c32e7b20$0a01a8c0@dipsy>
+	id <S286341AbRLTTRA>; Thu, 20 Dec 2001 14:17:00 -0500
+Received: from white.pocketinet.com ([12.17.167.5]:38197 "EHLO
+	white.pocketinet.com") by vger.kernel.org with ESMTP
+	id <S286339AbRLTTQl>; Thu, 20 Dec 2001 14:16:41 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Nicholas Knight <nknight@pocketinet.com>
+Reply-To: nknight@pocketinet.com
+To: Dave Jones <davej@suse.de>, Randolph Bentson <bentson@grieg.holmsjoen.com>
+Subject: Re: Changing KB, MB, and GB to KiB, MiB, and GiB in Configure.help.
+Date: Thu, 20 Dec 2001 11:07:58 -0800
+X-Mailer: KMail [version 1.3.1]
+Cc: Matt Bernstein <matt@theBachChoir.org.uk>, Steven Cole <scole@lanl.gov>,
+        <esr@thyrsus.com>, <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.33.0112201955570.2519-100000@Appserv.suse.de>
+In-Reply-To: <Pine.LNX.4.33.0112201955570.2519-100000@Appserv.suse.de>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook, Build 10.0.2616
-Importance: Normal
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
+Content-Transfer-Encoding: 7BIT
+Message-ID: <WHITEbGU1s4RmUBdiAG000002f9@white.pocketinet.com>
+X-OriginalArrivalTime: 20 Dec 2001 19:15:00.0443 (UTC) FILETIME=[9EB7EAB0:01C1898A]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+On Thursday 20 December 2001 11:00 am, Dave Jones wrote:
+> On Thu, 20 Dec 2001, Randolph Bentson wrote:
+> > I'm afraid I have to disagree with you.  Not enough people
+> > know that KB stands for 1000B.  I know through experience that
+> > KB is often used for 1024B.  The introduction of KiB makes it
+> > clear that 1024B is intended.
+>
+> Given the confusion its raised in this thread already, this strikes
+> me as a particularly bad change. Some of those definitions in
+> Configure.help have been there for the better part of 10 years
 
-I now have a much better fix for the "Javastation wont boot new 2.4
-kernels" problem which requires no modification to the kernel but rather
-to PROLL.
+My *mind* has had those definitions hard-coded for the better part of 8 
+years. This is only going to serve to confuse newcomers (and for that 
+matter, anyone who doesn't read this thread.) 
 
-I have made the following files available at:
-http://www.sparclinux.co.uk/files/javastation/proll/
-
-proll_14.tar.gz - The normal PROLL straight from Pete's site
-proll-14-nfsroot.diff - My patch to allow nfsroot with the newer kernels
-proll.mrcoffee.ID14-nfsroot.gz - A mrcoffee binary - UNTESTED!
-proll.krups.ID14-nfsroot.gz - A krups binary
-
-(I don't have a MrCoffee so can't test this one).
-
-I think Pete is going to release ID15 with the patch already applied.
-
-
-My Krups kernel is also at:
-http://www.sparclinux.co.uk/files/javastation/kernel/
-
-
-Bye for Now,
-
-Ian
+to: linux-kernel
+from: Joe Newbie[1-areallyfrigginbignumber]
+date: mid-2.5 continuing well beyond any foreseeable date.
+message: "What's a GiB? And why are the Men in Black taking over the 
+kernel?"
 
 
+I leave you with that thought.

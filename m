@@ -1,61 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262952AbUB0Slo (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 27 Feb 2004 13:41:44 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262939AbUB0SlK
+	id S263107AbUB0Smy (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 27 Feb 2004 13:42:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262939AbUB0Slu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 27 Feb 2004 13:41:10 -0500
-Received: from chaos.analogic.com ([204.178.40.224]:22658 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP id S262952AbUB0Sjo
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 27 Feb 2004 13:39:44 -0500
-Date: Fri, 27 Feb 2004 13:42:12 -0500 (EST)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-X-X-Sender: root@chaos
-Reply-To: root@chaos.analogic.com
-To: Chris Friesen <cfriesen@nortelnetworks.com>
-cc: "Grover, Andrew" <andrew.grover@intel.com>,
-       Helge Hafting <helgehaf@aitel.hist.no>, linux-kernel@vger.kernel.org
-Subject: Re: Why no interrupt priorities?
-In-Reply-To: <403F894C.1050808@nortelnetworks.com>
-Message-ID: <Pine.LNX.4.53.0402271336010.8356@chaos>
-References: <F760B14C9561B941B89469F59BA3A8470255F02D@orsmsx401.jf.intel.com>
- <403F894C.1050808@nortelnetworks.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Fri, 27 Feb 2004 13:41:50 -0500
+Received: from hera.kernel.org ([63.209.29.2]:55501 "EHLO hera.kernel.org")
+	by vger.kernel.org with ESMTP id S262935AbUB0Sla (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 27 Feb 2004 13:41:30 -0500
+To: linux-kernel@vger.kernel.org
+From: hpa@zytor.com (H. Peter Anvin)
+Subject: Re: BOOT_CS
+Date: Fri, 27 Feb 2004 18:41:26 +0000 (UTC)
+Organization: Transmeta Corporation, Santa Clara CA
+Message-ID: <c1o30m$iae$1@terminus.zytor.com>
+References: <20040226121713.21924.qmail@web11804.mail.yahoo.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-Trace: terminus.zytor.com 1077907286 18767 63.209.29.3 (27 Feb 2004 18:41:26 GMT)
+X-Complaints-To: news@terminus.zytor.com
+NNTP-Posting-Date: Fri, 27 Feb 2004 18:41:26 +0000 (UTC)
+X-Newsreader: trn 4.0-test76 (Apr 2, 2001)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 27 Feb 2004, Chris Friesen wrote:
+Followup to:  <20040226121713.21924.qmail@web11804.mail.yahoo.com>
+By author:    =?iso-8859-1?q?Etienne=20Lorrain?= <etienne_lorrain@yahoo.fr>
+In newsgroup: linux.dev.kernel
+> 
+>   This interface is nice when the VCPI is loaded and running, but if
+>  only EMM386 is loaded and VCPI not active you cannot use it.
+> 
 
-> Grover, Andrew wrote:
->
-> > If a device later in the handler chain is also interrupting, then the
-> > interrupt will immediately trigger again. The irq line will remain
-> > asserted until nobody is asserting it.
->
-> I thought I saw examples of edge-triggered shared interrupts earlier in
-> the thread.  Doesn't that give the reason for this behaviour?
->
-> Chris
->
-> --
-> Chris Friesen                    | MailStop: 043/33/F10
-> Nortel Networks                  | work: (613) 765-0557
-> 3500 Carling Avenue              | fax:  (613) 765-2986
-> Nepean, ON K2H 8E9 Canada        | email: cfriesen@nortelnetworks.com
+This has nothing to do with anything.  You're totally confused.
 
-In the early IBM/AT, there was a port to which a user of
-a shared "edge" interrupt could write. If the interrupt
-line was still asserted, this would generate another edge.
+I'm referring to a hook in the kernel; it has nothing to do with VCPI,
+EMM386 or LOADLIN, except that the latter uses the kernel interface
+when using VCPI.
 
-This meant that any ISR needed to know about other users
-of the same interrupt. This is probably why it didn't
-catch on.
-
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.4.24 on an i686 machine (797.90 BogoMips).
-            Note 96.31% of all statistics are fiction.
-
+	-hpa
 

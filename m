@@ -1,19 +1,19 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264508AbTLGTsu (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 7 Dec 2003 14:48:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264509AbTLGTsu
+	id S264493AbTLGTrR (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 7 Dec 2003 14:47:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264504AbTLGTrR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 7 Dec 2003 14:48:50 -0500
-Received: from postal.usc.edu ([128.125.253.6]:61340 "EHLO postal.usc.edu")
-	by vger.kernel.org with ESMTP id S264508AbTLGTsl (ORCPT
+	Sun, 7 Dec 2003 14:47:17 -0500
+Received: from postal.usc.edu ([128.125.253.6]:16028 "EHLO postal.usc.edu")
+	by vger.kernel.org with ESMTP id S264493AbTLGTrB (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 7 Dec 2003 14:48:41 -0500
-Date: Sun, 07 Dec 2003 11:48:44 -0800
+	Sun, 7 Dec 2003 14:47:01 -0500
+Date: Sun, 07 Dec 2003 11:47:03 -0800
 From: Lee <weifeil@usc.edu>
-Subject: PROBLEM: Use too large hard disk space when compiling the 2.6.0-testx
+Subject: PROBLEM:can't load module "ide-cd" automatically(2.6.0-test10)
 To: linux-kernel@vger.kernel.org
-Message-id: <00a501c3bcfb$200b71e0$0300a8c0@tiger>
+Message-id: <009d01c3bcfa$e409a8b0$0300a8c0@tiger>
 MIME-version: 1.0
 X-MIMEOLE: Produced By Microsoft MimeOLE V6.00.2800.1165
 X-Mailer: Microsoft Outlook Express 6.00.2800.1158
@@ -24,18 +24,17 @@ X-MSMail-priority: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-1. Under kernel 2.6.0-testx,  the compiling process always uses huge disk
-space.
-2. Unlike under 2.4.x kernel, the compiling process of 2.6.0-testx used and
-exhausted about 500MB hard disk space. The /lib/modules/2.6.0-test10
-directory occupied 114920 kb. I don't know why the modules use so huge
-space. But in 2.4.x, /lib/modules/2.4.23 directory is 15232 kb. The .config
-file I used to compile the kernel are the same.
-3. Keyword: compiling process, hard   disk space.
+1. Under kernel 2.6.0-test10, I can't load module "ide-cd" automatically.
+2. Unlike under 2.4.x kernel, I must load "cdrom" and "ide-cd" module by
+hand or use shell scripts to do it under 2.6.0-test10 kernel, although I
+didn't change  .config file. If I want to mount my cdrom disk without
+loading these modules, it always tells me that " mount:/dev/cdrom is not a
+valid block device".
+3. Keyword: module, ide-cd
 4.Kernel Version:Linux version 2.6.0-test10 (root@king) (gcc version 3.2
 20020903 (Red Hat Linux 8.0 3.2-7)) #1 Wed Nov 26 21:40:32 PST 2003
 5.
-6. Script: make modules, make modules_install
+6. Script: mount  /dev/cdrom
 
 7.Environment:
 

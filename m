@@ -1,76 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268838AbUHLWCD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268810AbUHLVU1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268838AbUHLWCD (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 12 Aug 2004 18:02:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268817AbUHLV7G
+	id S268810AbUHLVU1 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 12 Aug 2004 17:20:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268800AbUHLVUT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 12 Aug 2004 17:59:06 -0400
-Received: from gprs214-76.eurotel.cz ([160.218.214.76]:61830 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S268812AbUHLV53 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 12 Aug 2004 17:57:29 -0400
-Date: Thu, 12 Aug 2004 23:56:44 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: Nigel Cunningham <ncunningham@linuxmail.org>,
-       kernel list <linux-kernel@vger.kernel.org>
-Subject: suspend2 with smp
-Message-ID: <20040812215644.GA20021@elf.ucw.cz>
+	Thu, 12 Aug 2004 17:20:19 -0400
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:4323 "HELO
+	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
+	id S268806AbUHLVTZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 12 Aug 2004 17:19:25 -0400
+Date: Thu, 12 Aug 2004 23:19:17 +0200
+From: Adrian Bunk <bunk@fs.tum.de>
+To: chrisw@osdl.org
+Cc: linux-security-module@wirex.com, linux-kernel@vger.kernel.org
+Subject: [2.6 patch] small simplification for two SECURITY dependencies
+Message-ID: <20040812211916.GO13377@fs.tum.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.5.1+cvs20040105i
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
 
-At some point I claimed that SMP support in suspend2 is "probably
-broken". I guess I should post more data:
+I'd suggest the patch below to let the SECURITY_CAPABILITIES and 
+SECURITY_ROOTPLUG dependencies look a bit more simple.
 
-It is broken in theory.
 
-+/*
-+ * Save and restore processor state for secondary processors.
-+ * IRQs (and therefore preemption) are already disabled
-+ * when we enter here (IPI).
-+ */
-+
-+void smp_suspend2_lowlevel(void * info)
-+{
-+       smp_mb();
-+       barrier();
-+       if (now_resuming) {
-+               __asm__( "movl %%ecx,%%cr3\n" ::"c"(__pa(swsusp_pg_dir)));
-+
-+               kernel_fpu_begin();
-+               atomic_inc(&suspend_cpu_counter);
-+               smp_mb();
-+               barrier();
-#+               while ((software_suspend_state & SOFTWARE_SUSPEND_FREEZE_SMP) ||
-#+                       (atomic_read(&suspend_cpu_counter) != smp_processor_id())) {
-#+                       cpu_relax();
-#+                       smp_mb();
-+               }
-+               my_saved_context = (unsigned char *) (suspend2_saved_contexts + smp_processor_id());
-+               for (loop = sizeof(struct suspend2_saved_context); loop--; loop)
-+                       *(((unsigned char *) &suspend2_saved_context) + loop - 1) = *(my_saved_context + loop - 1);
-+               restore_processor_context();
-+               FLUSH_LOCAL_TLB();
-+               atomic_dec(&suspend_cpu_counter);
+Signed-off-by: Adrian Bunk <bunk@fs.tum.de>
 
-CPU is basically looping in loop marked by #, while its memory is
-being overwriten. Now, the code probably works in practice, but it
-should be really written in assembly so that compiler can not do
-something stupid.
+--- linux-2.6.8-rc4-mm1-full-3.4/security/Kconfig.old	2004-08-12 23:16:17.000000000 +0200
++++ linux-2.6.8-rc4-mm1-full-3.4/security/Kconfig	2004-08-12 23:16:34.000000000 +0200
+@@ -43,14 +43,14 @@
+ 
+ config SECURITY_CAPABILITIES
+ 	tristate "Default Linux Capabilities"
+-	depends on SECURITY!=n
++	depends on SECURITY
+ 	help
+ 	  This enables the "default" Linux capabilities functionality.
+ 	  If you are unsure how to answer this question, answer Y.
+ 
+ config SECURITY_ROOTPLUG
+ 	tristate "Root Plug Support"
+-	depends on USB && SECURITY!=n
++	depends on USB && SECURITY
+ 	help
+ 	  This is a sample LSM module that should only be used as such.
+ 	  It prevents any programs running with egid == 0 if a specific
 
-Compilers are not designed to deal with their stack (etc) randomly
-overwritten, so compiler may do anything it wants here. I see that -O0
-may help a lot here, but it simply is not the right thing to do.
-
-At least /* FIXME: should be rewritten to assembly */ should be added there.
-
-								Pavel
--- 
-People were complaining that M$ turns users into beta-testers...
-...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!

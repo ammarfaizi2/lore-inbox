@@ -1,103 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S270293AbUJUHio@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S270399AbUJUIHG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270293AbUJUHio (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 21 Oct 2004 03:38:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270266AbUJUHiA
+	id S270399AbUJUIHG (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 21 Oct 2004 04:07:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270395AbUJUH7c
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 21 Oct 2004 03:38:00 -0400
-Received: from smtp804.mail.sc5.yahoo.com ([66.163.168.183]:53659 "HELO
-	smtp804.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S270405AbUJUHaO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 21 Oct 2004 03:30:14 -0400
-From: Dmitry Torokhov <dtor_core@ameritech.net>
-To: Vojtech Pavlik <vojtech@suse.cz>
-Subject: [PATCH 7/7] Input: remove pm_dev from core
-Date: Thu, 21 Oct 2004 02:30:02 -0500
-User-Agent: KMail/1.6.2
-Cc: LKML <linux-kernel@vger.kernel.org>
-References: <200410210223.45498.dtor_core@ameritech.net> <200410210228.57067.dtor_core@ameritech.net> <200410210229.33358.dtor_core@ameritech.net>
-In-Reply-To: <200410210229.33358.dtor_core@ameritech.net>
-MIME-Version: 1.0
+	Thu, 21 Oct 2004 03:59:32 -0400
+Received: from mx1.elte.hu ([157.181.1.137]:20383 "EHLO mx1.elte.hu")
+	by vger.kernel.org with ESMTP id S270336AbUJUHy4 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 21 Oct 2004 03:54:56 -0400
+Date: Thu, 21 Oct 2004 09:56:13 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Chris Wright <chrisw@osdl.org>
+Cc: johansen@immunix.com, Stephen Smalley <sds@epoch.ncsc.mil>,
+       Thomas Bleher <bleher@informatik.uni-muenchen.de>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [RFC][PATCH] delay rq_lock acquisition in setscheduler
+Message-ID: <20041021075613.GC20573@elte.hu>
+References: <20041020183238.U2357@build.pdx.osdl.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200410210230.04156.dtor_core@ameritech.net>
+In-Reply-To: <20041020183238.U2357@build.pdx.osdl.net>
+User-Agent: Mutt/1.4.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-===================================================================
+* Chris Wright <chrisw@osdl.org> wrote:
 
+> Hi Ingo,
+> 
+> Doing access control checks with rq_lock held can cause deadlock when
+> audit messages are created (via printk or audit infrastructure), as
+> noted by both SELinux and SubDomain folks.  This patch will let the
+> security checks happen w/out lock held, then re-sample the p->policy
+> in case it was raced.  Original patch from John Johansen, with some
+> updates from me.  What do you think?
 
-ChangeSet@1.1971, 2004-10-20 00:57:45-05:00, dtor_core@ameritech.net
-  Input: get rid of pm_dev in input core as it is deprecated and
-         nothing uses it anyway.
-  
-  Signed-off-by: Dmitry Torokhov <dtor@mail.ru>
+i dont this this patch is correct, because it changes semantics by
+pushing a security-subsystem failure back into userspace. There's
+nothing wrong with two tasks trying to change a third task's policy in
+parallel - our API allows that.
 
+I agree that this is a very special case of lock dependency and that the
+security subsystem should not be burdened with double-buffering messages
+just to avoid the runqueue lock on syslogd wakeup. Only this single
+scheduling-related system-call is affected by this problem.
 
- drivers/input/input.c                      |    4 ----
- drivers/input/touchscreen/h3600_ts_input.c |    5 +++--
- include/linux/input.h                      |    1 -
- 3 files changed, 3 insertions(+), 7 deletions(-)
+i think the right solution would be to retry the permission check if the
+policy has changed (an unlikely event). It is livelockable the same way
+seqlocks are livelockable so i'd not worry about it too much. It is also
+preemptible with PREEMPT so not a big issue. Also, the check & repeat
+code should possibly be #ifdef CONFIG_SECURITY.
 
-
-===================================================================
-
-
-
-diff -Nru a/drivers/input/input.c b/drivers/input/input.c
---- a/drivers/input/input.c	2004-10-21 02:14:33 -05:00
-+++ b/drivers/input/input.c	2004-10-21 02:14:33 -05:00
-@@ -17,7 +17,6 @@
- #include <linux/module.h>
- #include <linux/random.h>
- #include <linux/major.h>
--#include <linux/pm.h>
- #include <linux/proc_fs.h>
- #include <linux/kmod.h>
- #include <linux/interrupt.h>
-@@ -460,9 +459,6 @@
- 	struct list_head * node, * next;
- 
- 	if (!dev) return;
--
--	if (dev->pm_dev)
--		pm_unregister(dev->pm_dev);
- 
- 	del_timer_sync(&dev->timer);
- 
-diff -Nru a/drivers/input/touchscreen/h3600_ts_input.c b/drivers/input/touchscreen/h3600_ts_input.c
---- a/drivers/input/touchscreen/h3600_ts_input.c	2004-10-21 02:14:33 -05:00
-+++ b/drivers/input/touchscreen/h3600_ts_input.c	2004-10-21 02:14:33 -05:00
-@@ -100,6 +100,7 @@
-  */
- struct h3600_dev {
- 	struct input_dev dev;
-+	struct pm_dev *pm_dev;
- 	struct serio *serio;
- 	unsigned char event;	/* event ID from packet */
- 	unsigned char chksum;
-@@ -452,8 +453,8 @@
- 
- 	//h3600_flite_control(1, 25);     /* default brightness */
- #ifdef CONFIG_PM
--	ts->dev.pm_dev = pm_register(PM_ILLUMINATION_DEV, PM_SYS_LIGHT,
--					h3600ts_pm_callback);
-+	ts->pm_dev = pm_register(PM_ILLUMINATION_DEV, PM_SYS_LIGHT,
-+				h3600ts_pm_callback);
- 	printk("registered pm callback\n");
- #endif
- 	input_register_device(&ts->dev);
-diff -Nru a/include/linux/input.h b/include/linux/input.h
---- a/include/linux/input.h	2004-10-21 02:14:33 -05:00
-+++ b/include/linux/input.h	2004-10-21 02:14:33 -05:00
-@@ -806,7 +806,6 @@
- 	unsigned int repeat_key;
- 	struct timer_list timer;
- 
--	struct pm_dev *pm_dev;
- 	struct pt_regs *regs;
- 	int state;
- 
+	Ingo

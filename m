@@ -1,55 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261798AbTEHQGH (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 8 May 2003 12:06:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261807AbTEHQGG
+	id S261835AbTEHQLQ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 8 May 2003 12:11:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261843AbTEHQLQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 8 May 2003 12:06:06 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:60378 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S261798AbTEHQGD (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 8 May 2003 12:06:03 -0400
-Date: Thu, 8 May 2003 18:17:59 +0200
-From: Jens Axboe <axboe@suse.de>
-To: markw@osdl.org
-Cc: piggin@cyberone.com.au, akpm@digeo.com, linux-kernel@vger.kernel.org
-Subject: Re: OSDL DBT-2 AS vs. Deadline 2.5.68-mm2
-Message-ID: <20030508161759.GF20941@suse.de>
-References: <3EB9B5BA.4080607@cyberone.com.au> <200305081612.h48GCUW25789@mail.osdl.org>
+	Thu, 8 May 2003 12:11:16 -0400
+Received: from orion.netbank.com.br ([200.203.199.90]:260 "EHLO
+	orion.netbank.com.br") by vger.kernel.org with ESMTP
+	id S261835AbTEHQLO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 8 May 2003 12:11:14 -0400
+Date: Thu, 8 May 2003 13:24:35 -0300
+From: Arnaldo Carvalho de Melo <acme@conectiva.com.br>
+To: "David S. Miller" <davem@redhat.com>
+Cc: alan@lxorguk.ukuu.org.uk, haveblue@us.ibm.com, akpm@digeo.com,
+       rmk@arm.linux.org.uk, rddunlap@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: The magical mystical changing ethernet interface order
+Message-ID: <20030508162434.GB9526@conectiva.com.br>
+Mail-Followup-To: Arnaldo Carvalho de Melo <acme@conectiva.com.br>,
+	"David S. Miller" <davem@redhat.com>, alan@lxorguk.ukuu.org.uk,
+	haveblue@us.ibm.com, akpm@digeo.com, rmk@arm.linux.org.uk,
+	rddunlap@osdl.org, linux-kernel@vger.kernel.org
+References: <3EB98878.5060607@us.ibm.com> <1052395526.23259.0.camel@rth.ninka.net> <1052405730.10038.51.camel@dhcp22.swansea.linux.org.uk> <20030508.075438.52189319.davem@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200305081612.h48GCUW25789@mail.osdl.org>
+In-Reply-To: <20030508.075438.52189319.davem@redhat.com>
+X-Url: http://advogato.org/person/acme
+Organization: Conectiva S.A.
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, May 08 2003, markw@osdl.org wrote:
-> On  8 May, Nick Piggin wrote:
-> > markw@osdl.org wrote:
-> > 
-> >>I've collected some data from STP to see if it's useful or if there's
-> >>anything else that would be useful to collect. I've got some tests
-> >>queued up for the newer patches, but I wanted to put out what I had so
-> >>far.
-> >>
-> > Thanks. It looks like AS isn't doing too badly here. Newer mm kernels
-> > have some more AS changes, and the dynamic struct request patch which
-> > would be good to test.
-> > 
-> > Are you using TCQ on your disks?
-> > 
+Em Thu, May 08, 2003 at 07:54:38AM -0700, David S. Miller escreveu:
+>    From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+>    Date: 08 May 2003 15:55:31 +0100
 > 
-> There's a queue depth being set.  Is that a good indicator that TCQ is
-> being used?  If not, I'd be happy to verify it.
+>    Unfortunately for the ISA driver code we *have* to rely on link
+>    order or rip out the __init stuff and use Space.c type hacks.
+>    
+> I do no argue that needing an invocation order is bogus.
+> I merely disagree with the way we're trying to achieve it.
+> 
+> You don't need Space.c magic, the linker in binutils has mechanisms by
+> which this can be accomplished and we already use this in 2.5.x
+> 
+> Have a peek at __define_initcall($NUM,fn), imagine it with one more
+> argument $PRIO.  It might look like this:
+> 
+> #define __define_initcall(level,prio,fn) \
+>         static initcall_t __initcall_##fn __attribute__
+>         ((unused,__section__ ("\.initcall" level "." prio ".init"))) = fn
+> 
+> Use the 'prio' number to define the ordering.  The default for
+> modules that don't care about relative ordering within a class
+> use a value like "9999" or something like that.
 
-The queue depth being set, is the highest queueing depth that the scsi
-mid layer will throw at you. The actual TCQ depth may be lower, depends
-on the hardware. aacraid, iirc, has a pretty big depth so I woudldn't be
-surprised if it could use all of those 128 tags.
-
-It would be interesting to see a forced depth of 2 with AS against the
-stock case of 128 (and deadline).
-
--- 
-Jens Axboe
-
+I was thinking of a different implementation, that I just made sure to forgot
+as this one seems _much_ nicer indeed.
+ 
+- Arnaldo

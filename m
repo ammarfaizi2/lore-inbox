@@ -1,29 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268402AbRHJOTj>; Fri, 10 Aug 2001 10:19:39 -0400
+	id <S268432AbRHJOXK>; Fri, 10 Aug 2001 10:23:10 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268432AbRHJOT3>; Fri, 10 Aug 2001 10:19:29 -0400
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:8720 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S268402AbRHJOTT>; Fri, 10 Aug 2001 10:19:19 -0400
-Subject: Re: [PATCH] double DRM - fixes
-To: ankry@green.mif.pg.gda.pl (Andrzej Krzysztofowicz)
-Date: Fri, 10 Aug 2001 15:20:55 +0100 (BST)
-Cc: alan@lxorguk.ukuu.org.uk (Alan Cox),
-        linux-kernel@vger.kernel.org (kernel list), faith@valinux.com,
-        elenstev@mesatop.com
-In-Reply-To: <no.id> from "Andrzej Krzysztofowicz" at Aug 10, 2001 03:33:01 PM
-X-Mailer: ELM [version 2.5 PL5]
+	id <S269317AbRHJOW7>; Fri, 10 Aug 2001 10:22:59 -0400
+Received: from dire.bris.ac.uk ([137.222.10.60]:10885 "EHLO dire.bris.ac.uk")
+	by vger.kernel.org with ESMTP id <S268432AbRHJOWw>;
+	Fri, 10 Aug 2001 10:22:52 -0400
+Date: Fri, 10 Aug 2001 15:22:27 +0100 (BST)
+From: Matt <madmatt@bits.bris.ac.uk>
+To: Linux kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Writes to mounted devices containing file-systems.
+In-Reply-To: <Pine.SOL.3.96.1010810143222.9790A-100000@draco.cus.cam.ac.uk>
+Message-ID: <Pine.LNX.4.21.0108101520400.7343-100000@bits.bris.ac.uk>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E15VD9j-00013C-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> BTW: Alan, do you think it would be worth to be able to compile both versions
->      together (in the modular case) ?
+Anton Altaparmakov mentioned the following:
 
-it seems tricky to get right. Vendors are going to know which X they shipped
-and end users build with the right DRM...
+| Anyway, the kernel could never provide you with ultimate security without
+| sacrificing all functionality. Once they get in, they will get root and
+| once they have root you have lost, you need to have a system without a
+| root user and with nobody having capabilities to do things like load
+| modules, etc... There are so many local exploits that you would lose
+| for sure. If the attacker cannot write to raw device, he will unmount and
+| then write to it or he will load a module to send commands to your HD at
+| ATAPI or SCSI level and kill your hd that way...
+
+Couldn't you run something like LIDS? This can be used to lock permissions
+down so that root can't unmount filesystems, write to raw devices, etc.
+
+Matt
+

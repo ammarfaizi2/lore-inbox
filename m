@@ -1,423 +1,287 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292594AbSCIHTF>; Sat, 9 Mar 2002 02:19:05 -0500
+	id <S292582AbSCIHTE>; Sat, 9 Mar 2002 02:19:04 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292231AbSCIHQz>; Sat, 9 Mar 2002 02:16:55 -0500
+	id <S292539AbSCIHQ2>; Sat, 9 Mar 2002 02:16:28 -0500
 Received: from zeus.kernel.org ([204.152.189.113]:61645 "EHLO zeus.kernel.org")
-	by vger.kernel.org with ESMTP id <S292550AbSCIHPm>;
-	Sat, 9 Mar 2002 02:15:42 -0500
-X-Mailer: exmh version 2.5 01/15/2001 with nmh-1.0
-From: Paul Menage <pmenage@ensim.com>
-To: viro@math.psu.edu, Hanna Linder <hannal@us.ibm.com>,
-        linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] 2.5.6 Fast Walk Dcache (improved) 
-cc: pmenage@ensim.com
-In-Reply-To: Your message of "Fri, 08 Mar 2002 18:03:27 PST."
-             <E16jWCl-0007cf-00@pmenage-dt.ensim.com> 
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Fri, 08 Mar 2002 18:59:13 -0800
-Message-Id: <E16jX4j-0007gz-00@pmenage-dt.ensim.com>
+	by vger.kernel.org with ESMTP id <S292549AbSCIHPl>;
+	Sat, 9 Mar 2002 02:15:41 -0500
+Date: Fri, 08 Mar 2002 21:48:38 -0500
+From: Thomas Hood <jdthood@mail.com>
+Subject: Re: PnP BIOS driver status
+In-Reply-To: <E16jWYf-0008Q4-00@the-village.bc.nu>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Brian Gerst <bgerst@didntduck.org>, linux-kernel@vger.kernel.org
+Message-id: <1015642119.941.49.camel@thanatos>
+MIME-version: 1.0
+X-Mailer: Evolution/1.0.2
+Content-type: text/plain
+Content-transfer-encoding: 7bit
+In-Reply-To: <E16jWYf-0008Q4-00@the-village.bc.nu>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->I've reworked the patch somewhat to give the following features:
->
+Here the patch for Alan (which also includes the
+kpnpbios -> kpnpbiosd change):
 
-Oops - that was a slightly non-functional version of the patch, as 
-exec_permission_lite() had somehow got renamed to exec_permission().
-
-Here's the correct one.
-
-diff -daur linux-2.5.6/fs/dcache.c linux-2.5.6.dcache/fs/dcache.c
---- linux-2.5.6/fs/dcache.c	Fri Mar  8 10:34:58 2002
-+++ linux-2.5.6.dcache/fs/dcache.c	Fri Mar  8 17:07:40 2002
-@@ -691,18 +691,7 @@
- 	return dentry_hashtable + (hash & D_HASHMASK);
- }
+--- linux-2.4.19-pre2-ac3/drivers/pnp/pnpbios_core.c_ORIG	Fri Mar  8 17:35:44 2002
++++ linux-2.4.19-pre2-ac3/drivers/pnp/pnpbios_core.c	Fri Mar  8 21:43:10 2002
+@@ -139,10 +139,16 @@
  
--/**
-- * d_lookup - search for a dentry
-- * @parent: parent dentry
-- * @name: qstr of name we wish to find
-- *
-- * Searches the children of the parent dentry for the name in question. If
-- * the dentry is found its reference count is incremented and the dentry
-- * is returned. The caller must use d_put to free the entry when it has
-- * finished using it. %NULL is returned on failure.
-- */
-- 
--struct dentry * d_lookup(struct dentry * parent, struct qstr * name)
-+struct dentry * __d_lookup(struct dentry * parent, struct qstr * name)  
- {
- 	unsigned int len = name->len;
- 	unsigned int hash = name->hash;
-@@ -710,7 +699,6 @@
- 	struct list_head *head = d_hash(parent,hash);
- 	struct list_head *tmp;
+ static spinlock_t pnp_bios_lock;
  
--	spin_lock(&dcache_lock);
- 	tmp = head->next;
- 	for (;;) {
- 		struct dentry * dentry = list_entry(tmp, struct dentry, d_hash);
-@@ -730,16 +718,37 @@
- 			if (memcmp(dentry->d_name.name, str, len))
- 				continue;
- 		}
--		__dget_locked(dentry);
--		dentry->d_vfs_flags |= DCACHE_REFERENCED;
--		spin_unlock(&dcache_lock);
-+		if(!(dentry->d_vfs_flags & DCACHE_REFERENCED)) {
-+			dentry->d_vfs_flags |= DCACHE_REFERENCED;
-+		}
- 		return dentry;
- 	}
--	spin_unlock(&dcache_lock);
- 	return NULL;
- }
- 
- /**
-+ * d_lookup - search for a dentry
-+ * @parent: parent dentry
-+ * @name: qstr of name we wish to find
-+ *
-+ * Searches the children of the parent dentry for the name in question. If
-+ * the dentry is found its reference count is incremented and the dentry
-+ * is returned. The caller must use d_put to free the entry when it has
-+ * finished using it. %NULL is returned on failure.
-+ */
-+ 
-+struct dentry * d_lookup(struct dentry * parent, struct qstr * name)
-+{
-+	struct dentry * dentry;
-+	spin_lock(&dcache_lock);
-+	dentry = __d_lookup(parent,name);
-+	if(dentry)
-+		__dget_locked(dentry);
-+	spin_unlock(&dcache_lock);
-+	return dentry;
-+}
-+
-+/**
-  * d_validate - verify dentry provided from insecure source
-  * @dentry: The dentry alleged to be valid child of @dparent
-  * @dparent: The parent dentry (known to be valid)
-diff -daur linux-2.5.6/fs/namei.c linux-2.5.6.dcache/fs/namei.c
---- linux-2.5.6/fs/namei.c	Fri Mar  8 10:34:58 2002
-+++ linux-2.5.6.dcache/fs/namei.c	Fri Mar  8 17:16:30 2002
-@@ -265,11 +265,37 @@
-  * Internal lookup() using the new generic dcache.
-  * SMP-safe
-  */
--static struct dentry * cached_lookup(struct dentry * parent, struct qstr * name, int flags)
-+
-+/*for fastwalking*/
-+static void __undo_locked(struct nameidata *nd, struct dentry *dentry) {
-+	dget_locked(nd->dentry);
-+	if(dentry)
-+		dget_locked(dentry);
-+	mntget(nd->mnt);
-+	spin_unlock(&dcache_lock);
-+	nd->flags &= ~LOOKUP_LOCKED;
-+}
-+
-+static inline void undo_locked(struct nameidata *nd, struct dentry *dentry)
- {
--	struct dentry * dentry = d_lookup(parent, name);
-+	if(nd->flags & LOOKUP_LOCKED) 
-+		__undo_locked(nd, dentry);
-+}
-+		
 +/*
-+ * For fast path lookup while holding the dcache_lock. 
-+ * SMP-safe
-+ */
-+static struct dentry * cached_lookup(struct nameidata * nd, struct qstr * name, int flags)
-+{
-+	struct dentry * dentry = NULL;
-+	if(nd->flags & LOOKUP_LOCKED) 
-+		dentry = __d_lookup(nd->dentry, name);
-+	else
-+		dentry = d_lookup(nd->dentry, name);
- 
- 	if (dentry && dentry->d_op && dentry->d_op->d_revalidate) {
-+		undo_locked(nd, dentry);
- 		if (!dentry->d_op->d_revalidate(dentry, flags) && !d_invalidate(dentry)) {
- 			dput(dentry);
- 			dentry = NULL;
-@@ -279,6 +305,34 @@
- }
- 
- /*
-+ * Short-cut version of permission(), for calling by
-+ * path_walk(), when dcache lock is held.  Combines parts
-+ * of permission() and vfs_permission(), and tests ONLY for
-+ * MAY_EXEC permission.
++ * call_pnp_bios
 + *
-+ * If appropriate, check DAC only.  If not appropriate, or
-+ * short-cut DAC fails, then call permission() to do more
-+ * complete permission check.
++ * Call with the pnp_bios_lock held and with irqs disabled.
++ * On some boxes IRQ's during PnP BIOS calls are deadly.
 + */
-+static inline int exec_permission_lite(struct inode *inode)
-+{
-+	umode_t	mode = inode->i_mode;
 +
-+	if ((inode->i_op && inode->i_op->permission))
-+		return -EACCES;
-+
-+	if (current->fsuid == inode->i_uid)
-+		mode >>= 6;
-+	else if (in_group_p(inode->i_gid))
-+		mode >>= 3;
-+
-+	if (mode & MAY_EXEC)
-+		return 0;
-+
-+	return -EACCES;
-+}
-+
-+/*
-  * This is called when everything else fails, and we actually have
-  * to go to the low-level filesystem to find out what we should do..
-  *
-@@ -472,7 +526,11 @@
- 		struct qstr this;
- 		unsigned int c;
- 
--		err = permission(inode, MAY_EXEC);
-+		err = exec_permission_lite(inode);
-+		if(err) {
-+			undo_locked(nd, NULL);
-+			err = permission(inode, MAY_EXEC);
-+		}
- 		dentry = ERR_PTR(err);
-  		if (err)
- 			break;
-@@ -507,6 +565,7 @@
- 			case 2:	
- 				if (this.name[1] != '.')
- 					break;
-+				undo_locked(nd, NULL);
- 				follow_dotdot(nd);
- 				inode = nd->dentry->d_inode;
- 				/* fallthrough */
-@@ -523,16 +582,20 @@
- 				break;
- 		}
- 		/* This does the actual lookups.. */
--		dentry = cached_lookup(nd->dentry, &this, LOOKUP_CONTINUE);
-+		dentry = cached_lookup(nd, &this, LOOKUP_CONTINUE);
- 		if (!dentry) {
-+			undo_locked(nd, NULL);
- 			dentry = real_lookup(nd->dentry, &this, LOOKUP_CONTINUE);
- 			err = PTR_ERR(dentry);
- 			if (IS_ERR(dentry))
- 				break;
- 		}
- 		/* Check mountpoints.. */
--		while (d_mountpoint(dentry) && __follow_down(&nd->mnt, &dentry))
--			;
-+		if(d_mountpoint(dentry)){
-+			undo_locked(nd, dentry);
-+			while (d_mountpoint(dentry) && __follow_down(&nd->mnt, &dentry))
-+				;
-+		}
- 
- 		err = -ENOENT;
- 		inode = dentry->d_inode;
-@@ -543,6 +606,7 @@
- 			goto out_dput;
- 
- 		if (inode->i_op->follow_link) {
-+			undo_locked(nd, dentry);
- 			err = do_follow_link(dentry, nd);
- 			dput(dentry);
- 			if (err)
-@@ -555,7 +619,12 @@
- 			if (!inode->i_op)
- 				break;
- 		} else {
--			dput(nd->dentry);
-+			if (!(nd->flags & LOOKUP_LOCKED)) {
-+				dentry_stat.slowwalks ++;
-+				dput(nd->dentry);
-+			} else {
-+				dentry_stat.fastwalks ++;
-+			}
- 			nd->dentry = dentry;
- 		}
- 		err = -ENOTDIR; 
-@@ -575,6 +644,7 @@
- 			case 2:	
- 				if (this.name[1] != '.')
- 					break;
-+				undo_locked(nd, NULL);
- 				follow_dotdot(nd);
- 				inode = nd->dentry->d_inode;
- 				/* fallthrough */
-@@ -586,7 +656,8 @@
- 			if (err < 0)
- 				break;
- 		}
--		dentry = cached_lookup(nd->dentry, &this, 0);
-+		dentry = cached_lookup(nd, &this, 0);
-+		undo_locked(nd, dentry); 
- 		if (!dentry) {
- 			dentry = real_lookup(nd->dentry, &this, 0);
- 			err = PTR_ERR(dentry);
-@@ -626,11 +697,14 @@
- 		else if (this.len == 2 && this.name[1] == '.')
- 			nd->last_type = LAST_DOTDOT;
- return_base:
-+		undo_locked(nd, NULL);
- 		return 0;
- out_dput:
-+		undo_locked(nd, dentry);
- 		dput(dentry);
- 		break;
- 	}
-+	undo_locked(nd, dentry);
- 	path_release(nd);
- return_err:
- 	return err;
-@@ -707,17 +781,30 @@
- static inline int
- walk_init_root(const char *name, struct nameidata *nd)
+ static inline u16 call_pnp_bios(u16 func, u16 arg1, u16 arg2, u16 arg3,
+                                 u16 arg4, u16 arg5, u16 arg6, u16 arg7)
  {
-+	unsigned int flags = nd->flags;
- 	read_lock(&current->fs->lock);
- 	if (current->fs->altroot && !(nd->flags & LOOKUP_NOALT)) {
-+
-+		nd->flags &= ~LOOKUP_LOCKED;
-+
- 		nd->mnt = mntget(current->fs->altrootmnt);
- 		nd->dentry = dget(current->fs->altroot);
- 		read_unlock(&current->fs->lock);
- 		if (__emul_lookup_dentry(name,nd))
- 			return 0;
-+
-+		nd->flags = flags;
-+
- 		read_lock(&current->fs->lock);
- 	}
--	nd->mnt = mntget(current->fs->rootmnt);
--	nd->dentry = dget(current->fs->root);
-+	nd->mnt = current->fs->rootmnt;
-+	nd->dentry = current->fs->root;
-+	if(flags & LOOKUP_LOCKED) {
-+		read_lock(&dcache_lock);
-+	} else {
-+		mntget(nd->mnt);
-+		dget(nd->dentry);
-+	}
- 	read_unlock(&current->fs->lock);
- 	return 1;
- }
-@@ -736,6 +823,23 @@
- 	return 1;
- }
+-	unsigned long flags;
+ 	u16 status;
  
-+int path_lookup(const char *name, unsigned int flags, struct nameidata *nd)
-+{
-+	nd->last_type = LAST_ROOT; /* if there are only slashes... */
-+	nd->flags = flags | LOOKUP_LOCKED;
-+	if (*name=='/'){
-+		if(!walk_init_root(name, nd)) 
-+			return 0;
-+	} else{
-+		read_lock(&current->fs->lock);
-+		spin_lock(&dcache_lock);
-+		nd->mnt = current->fs->pwdmnt;
-+		nd->dentry = current->fs->pwd;
-+		read_unlock(&current->fs->lock);
-+	}
-+	return (path_walk(name, nd));
-+}
-+
- /*
-  * Restricted form of lookup. Doesn't follow links, single-component only,
-  * needs parent already locked. Doesn't follow mounts.
-@@ -744,6 +848,7 @@
- struct dentry * lookup_hash(struct qstr *name, struct dentry * base)
- {
- 	struct dentry * dentry;
-+	struct nameidata nd;
- 	struct inode *inode;
- 	int err;
- 
-@@ -753,6 +858,9 @@
- 	if (err)
- 		goto out;
- 
-+	nd.dentry = base;
-+	nd.flags = 0;
-+
  	/*
- 	 * See if the low-level filesystem might want
- 	 * to use its own hash..
-@@ -764,7 +872,7 @@
- 			goto out;
- 	}
+@@ -152,9 +158,6 @@
+ 	if(pnp_bios_is_utter_crap)
+ 		return PNP_FUNCTION_NOT_SUPPORTED;
  
--	dentry = cached_lookup(base, name, 0);
-+	dentry = cached_lookup(&nd, name, 0);
- 	if (!dentry) {
- 		struct dentry *new = d_alloc(base, name);
- 		dentry = ERR_PTR(-ENOMEM);
-diff -daur linux-2.5.6/include/linux/dcache.h linux-2.5.6.dcache/include/linux/dcache.h
---- linux-2.5.6/include/linux/dcache.h	Fri Mar  8 10:34:59 2002
-+++ linux-2.5.6.dcache/include/linux/dcache.h	Fri Mar  8 17:07:09 2002
-@@ -33,7 +33,8 @@
- 	int nr_unused;
- 	int age_limit;          /* age in seconds */
- 	int want_pages;         /* pages requested by system */
--	int dummy[2];
-+	int fastwalks;
-+	int slowwalks;
- };
- extern struct dentry_stat_t dentry_stat;
- 
-@@ -220,6 +221,7 @@
- 
- /* appendix may either be NULL or be used for transname suffixes */
- extern struct dentry * d_lookup(struct dentry *, struct qstr *);
-+extern struct dentry * __d_lookup(struct dentry *, struct qstr *);
- 
- /* validate "insecure" dentry pointer */
- extern int d_validate(struct dentry *, struct dentry *);
-diff -daur linux-2.5.6/include/linux/fs.h linux-2.5.6.dcache/include/linux/fs.h
---- linux-2.5.6/include/linux/fs.h	Fri Mar  8 10:34:59 2002
-+++ linux-2.5.6.dcache/include/linux/fs.h	Fri Mar  8 16:33:42 2002
-@@ -1273,12 +1273,15 @@
-  *  - require a directory
-  *  - ending slashes ok even for nonexistent files
-  *  - internal "there are more path compnents" flag
-+ *  - locked when lookup done with dcache_lock held
-  */
- #define LOOKUP_FOLLOW		(1)
- #define LOOKUP_DIRECTORY	(2)
- #define LOOKUP_CONTINUE		(4)
- #define LOOKUP_PARENT		(16)
- #define LOOKUP_NOALT		(32)
-+#define LOOKUP_LOCKED		(64)
-+
+-	/* On some boxes IRQ's during PnP BIOS calls are deadly.  */
+-	spin_lock_irqsave(&pnp_bios_lock, flags);
+-	__cli();
+ 	__asm__ __volatile__(
+ 	        "pushl %%ebp\n\t"
+ 		"pushl %%edi\n\t"
+@@ -184,7 +187,6 @@
+ 		  "i" (0)
+ 		: "memory"
+ 	);
+-	spin_unlock_irqrestore(&pnp_bios_lock, flags);
+ 	
+ 	/* If we get here and this is set then the PnP BIOS faulted on us. */
+ 	if(pnp_bios_is_utter_crap)
+@@ -220,7 +222,7 @@
  /*
-  * Type of the last component on LOOKUP_PARENT
+  * Call this only after init time
   */
-@@ -1309,13 +1312,7 @@
- extern int FASTCALL(path_init(const char *, unsigned, struct nameidata *));
- extern int FASTCALL(path_walk(const char *, struct nameidata *));
- extern int FASTCALL(link_path_walk(const char *, struct nameidata *));
--static inline int path_lookup(const char *path, unsigned flags, struct nameidata *nd)
--{
--	int error = 0;
--	if (path_init(path, flags, nd))
--		error = path_walk(path, nd);
--	return error;
--}
-+extern int FASTCALL(path_lookup(const char *, unsigned, struct nameidata *));
- extern void path_release(struct nameidata *);
- extern int follow_down(struct vfsmount **, struct dentry **);
- extern int follow_up(struct vfsmount **, struct dentry **);
-
+-static int pnp_bios_present(void)
++static inline int pnp_bios_present(void)
+ {
+ 	return (pnp_bios_hdr != NULL);
+ }
+@@ -254,11 +256,14 @@
+  */
+ static int __pnp_bios_dev_node_info(struct pnp_dev_node_info *data)
+ {
++	unsigned long flags;
+ 	u16 status;
+ 	if (!pnp_bios_present())
+ 		return PNP_FUNCTION_NOT_SUPPORTED;
++	spin_lock_irqsave(&pnp_bios_lock, flags);
+ 	Q2_SET_SEL(PNP_TS1, data, sizeof(struct pnp_dev_node_info));
+ 	status = call_pnp_bios(PNP_GET_NUM_SYS_DEV_NODES, 0, PNP_TS1, 2, PNP_TS1, PNP_DS, 0, 0);
++	spin_unlock_irqrestore(&pnp_bios_lock, flags);
+ 	data->no_nodes &= 0xff;
+ 	return status;
+ }
+@@ -287,14 +292,17 @@
+  */
+ static int __pnp_bios_get_dev_node(u8 *nodenum, char boot, struct pnp_bios_node *data)
+ {
++	unsigned long flags;
+ 	u16 status;
+ 	if (!pnp_bios_present())
+ 		return PNP_FUNCTION_NOT_SUPPORTED;
+ 	if ( !boot & pnpbios_dont_use_current_config )
+ 		return PNP_FUNCTION_NOT_SUPPORTED;
++	spin_lock_irqsave(&pnp_bios_lock, flags);
+ 	Q2_SET_SEL(PNP_TS1, nodenum, sizeof(char));
+ 	Q2_SET_SEL(PNP_TS2, data, 64 * 1024);
+ 	status = call_pnp_bios(PNP_GET_SYS_DEV_NODE, 0, PNP_TS1, 0, PNP_TS2, boot ? 2 : 1, PNP_DS, 0);
++	spin_unlock_irqrestore(&pnp_bios_lock, flags);
+ 	return status;
+ }
+ 
+@@ -316,13 +324,16 @@
+  */
+ static int __pnp_bios_set_dev_node(u8 nodenum, char boot, struct pnp_bios_node *data)
+ {
++	unsigned long flags;
+ 	u16 status;
+ 	if (!pnp_bios_present())
+ 		return PNP_FUNCTION_NOT_SUPPORTED;
+ 	if ( !boot & pnpbios_dont_use_current_config )
+ 		return PNP_FUNCTION_NOT_SUPPORTED;
++	spin_lock_irqsave(&pnp_bios_lock, flags);
+ 	Q2_SET_SEL(PNP_TS1, data, /* *((u16 *) data)*/ 65536);
+ 	status = call_pnp_bios(PNP_SET_SYS_DEV_NODE, nodenum, 0, PNP_TS1, boot ? 2 : 1, PNP_DS, 0, 0);
++	spin_unlock_irqrestore(&pnp_bios_lock, flags);
+ 	return status;
+ }
+ 
+@@ -350,11 +361,14 @@
+  */
+ static int pnp_bios_get_event(u16 *event)
+ {
++	unsigned long flags;
+ 	u16 status;
+ 	if (!pnp_bios_present())
+ 		return PNP_FUNCTION_NOT_SUPPORTED;
++	spin_lock_irqsave(&pnp_bios_lock, flags);
+ 	Q2_SET_SEL(PNP_TS1, event, sizeof(u16));
+ 	status = call_pnp_bios(PNP_GET_EVENT, 0, PNP_TS1, PNP_DS, 0, 0 ,0 ,0);
++	spin_unlock_irqrestore(&pnp_bios_lock, flags);
+ 	return status;
+ }
+ #endif
+@@ -365,10 +379,13 @@
+  */
+ static int pnp_bios_send_message(u16 message)
+ {
++	unsigned long flags;
+ 	u16 status;
+ 	if (!pnp_bios_present())
+ 		return PNP_FUNCTION_NOT_SUPPORTED;
++	spin_lock_irqsave(&pnp_bios_lock, flags);
+ 	status = call_pnp_bios(PNP_SEND_MESSAGE, message, PNP_DS, 0, 0, 0, 0, 0);
++	spin_unlock_irqrestore(&pnp_bios_lock, flags);
+ 	return status;
+ }
+ #endif
+@@ -379,11 +396,14 @@
+  */
+ static int pnp_bios_dock_station_info(struct pnp_docking_station_info *data)
+ {
++	unsigned long flags;
+ 	u16 status;
+ 	if (!pnp_bios_present())
+ 		return PNP_FUNCTION_NOT_SUPPORTED;
++	spin_lock_irqsave(&pnp_bios_lock, flags);
+ 	Q2_SET_SEL(PNP_TS1, data, sizeof(struct pnp_docking_station_info));
+ 	status = call_pnp_bios(PNP_GET_DOCKING_STATION_INFORMATION, 0, PNP_TS1, PNP_DS, 0, 0, 0, 0);
++	spin_unlock_irqrestore(&pnp_bios_lock, flags);
+ 	return status;
+ }
+ #endif
+@@ -395,11 +415,14 @@
+  */
+ static int pnp_bios_set_stat_res(char *info)
+ {
++	unsigned long flags;
+ 	u16 status;
+ 	if (!pnp_bios_present())
+ 		return PNP_FUNCTION_NOT_SUPPORTED;
++	spin_lock_irqsave(&pnp_bios_lock, flags);
+ 	Q2_SET_SEL(PNP_TS1, info, *((u16 *) info));
+ 	status = call_pnp_bios(PNP_SET_STATIC_ALLOCED_RES_INFO, 0, PNP_TS1, PNP_DS, 0, 0, 0, 0);
++	spin_unlock_irqrestore(&pnp_bios_lock, flags);
+ 	return status;
+ }
+ #endif
+@@ -410,11 +433,14 @@
+  */
+ static int __pnp_bios_get_stat_res(char *info)
+ {
++	unsigned long flags;
+ 	u16 status;
+ 	if (!pnp_bios_present())
+ 		return PNP_FUNCTION_NOT_SUPPORTED;
++	spin_lock_irqsave(&pnp_bios_lock, flags);
+ 	Q2_SET_SEL(PNP_TS1, info, 64 * 1024);
+ 	status = call_pnp_bios(PNP_GET_STATIC_ALLOCED_RES_INFO, 0, PNP_TS1, PNP_DS, 0, 0, 0, 0);
++	spin_unlock_irqrestore(&pnp_bios_lock, flags);
+ 	return status;
+ }
+ 
+@@ -433,12 +459,15 @@
+  */
+ static int pnp_bios_apm_id_table(char *table, u16 *size)
+ {
++	unsigned long flags;
+ 	u16 status;
+ 	if (!pnp_bios_present())
+ 		return PNP_FUNCTION_NOT_SUPPORTED;
++	spin_lock_irqsave(&pnp_bios_lock, flags);
+ 	Q2_SET_SEL(PNP_TS1, table, *size);
+ 	Q2_SET_SEL(PNP_TS2, size, sizeof(u16));
+ 	status = call_pnp_bios(PNP_GET_APM_ID_TABLE, 0, PNP_TS2, 0, PNP_TS1, PNP_DS, 0, 0);
++	spin_unlock_irqrestore(&pnp_bios_lock, flags);
+ 	return status;
+ }
+ #endif
+@@ -448,11 +477,14 @@
+  */
+ static int __pnp_bios_isapnp_config(struct pnp_isa_config_struc *data)
+ {
++	unsigned long flags;
+ 	u16 status;
+ 	if (!pnp_bios_present())
+ 		return PNP_FUNCTION_NOT_SUPPORTED;
++	spin_lock_irqsave(&pnp_bios_lock, flags);
+ 	Q2_SET_SEL(PNP_TS1, data, sizeof(struct pnp_isa_config_struc));
+ 	status = call_pnp_bios(PNP_GET_PNP_ISA_CONFIG_STRUC, 0, PNP_TS1, PNP_DS, 0, 0, 0, 0);
++	spin_unlock_irqrestore(&pnp_bios_lock, flags);
+ 	return status;
+ }
+ 
+@@ -470,11 +502,14 @@
+  */
+ static int __pnp_bios_escd_info(struct escd_info_struc *data)
+ {
++	unsigned long flags;
+ 	u16 status;
+ 	if (!pnp_bios_present())
+ 		return ESCD_FUNCTION_NOT_SUPPORTED;
++	spin_lock_irqsave(&pnp_bios_lock, flags);
+ 	Q2_SET_SEL(PNP_TS1, data, sizeof(struct escd_info_struc));
+ 	status = call_pnp_bios(PNP_GET_ESCD_INFO, 0, PNP_TS1, 2, PNP_TS1, 4, PNP_TS1, PNP_DS);
++	spin_unlock_irqrestore(&pnp_bios_lock, flags);
+ 	return status;
+ }
+ 
+@@ -493,13 +528,16 @@
+  */
+ static int __pnp_bios_read_escd(char *data, u32 nvram_base)
+ {
++	unsigned long flags;
+ 	u16 status;
+ 	if (!pnp_bios_present())
+ 		return ESCD_FUNCTION_NOT_SUPPORTED;
++	spin_lock_irqsave(&pnp_bios_lock, flags);
+ 	Q2_SET_SEL(PNP_TS1, data, 64 * 1024);
+ 	set_base(gdt[PNP_TS2 >> 3], nvram_base);
+ 	set_limit(gdt[PNP_TS2 >> 3], 64 * 1024);
+ 	status = call_pnp_bios(PNP_READ_ESCD, 0, PNP_TS1, PNP_TS2, PNP_DS, 0, 0, 0);
++	spin_unlock_irqrestore(&pnp_bios_lock, flags);
+ 	return status;
+ }
+ 
+@@ -518,13 +556,16 @@
+  */
+ static int pnp_bios_write_escd(char *data, u32 nvram_base)
+ {
++	unsigned long flags;
+ 	u16 status;
+ 	if (!pnp_bios_present())
+ 		return ESCD_FUNCTION_NOT_SUPPORTED;
++	spin_lock_irqsave(&pnp_bios_lock, flags);
+ 	Q2_SET_SEL(PNP_TS1, data, 64 * 1024);
+ 	set_base(gdt[PNP_TS2 >> 3], nvram_base);
+ 	set_limit(gdt[PNP_TS2 >> 3], 64 * 1024);
+ 	status = call_pnp_bios(PNP_WRITE_ESCD, 0, PNP_TS1, PNP_TS2, PNP_DS, 0, 0, 0);
++	spin_unlock_irqrestore(&pnp_bios_lock, flags);
+ 	return status;
+ }
+ #endif
+@@ -606,7 +647,7 @@
+ 	int docked = -1, d = 0;
+ 	daemonize();
+ 	reparent_to_init();
+-	strcpy(current->comm, "kpnpbios");
++	strcpy(current->comm, "kpnpbiosd");
+ 	while(!unloading && !signal_pending(current))
+ 	{
+ 		int status;
 

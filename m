@@ -1,54 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262231AbTD3RdS (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 30 Apr 2003 13:33:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262253AbTD3RdS
+	id S262228AbTD3RfX (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 30 Apr 2003 13:35:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262253AbTD3RfX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 30 Apr 2003 13:33:18 -0400
-Received: from buttons.universal-fasteners.com ([205.138.133.26]:24276 "HELO
-	universal-fasteners.com") by vger.kernel.org with SMTP
-	id S262231AbTD3RdR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 30 Apr 2003 13:33:17 -0400
-Date: Wed, 30 Apr 2003 13:45:38 -0400
-From: Jim Penny <jpenny@universal-fasteners.com>
-To: Larry McVoy <lm@bitmover.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Why DRM exists [was Re: Flame Linus to a crisp!]
-Message-ID: <20030430174538.GL939@universal-fasteners.com>
-References: <20030430135919.GB32300@work.bitmover.com> <Pine.LNX.4.44.0304301047050.23589-100000@mooru.gurulabs.com> <20030430172107.GA25347@work.bitmover.com>
+	Wed, 30 Apr 2003 13:35:23 -0400
+Received: from smtp-out2.iol.cz ([194.228.2.87]:38100 "EHLO smtp-out2.iol.cz")
+	by vger.kernel.org with ESMTP id S262228AbTD3RfW (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 30 Apr 2003 13:35:22 -0400
+Date: Wed, 30 Apr 2003 19:45:30 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: jt@hpl.hp.com
+Cc: Linux kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: 2.4.21-rc1 compile failure [toshoboe]
+Message-ID: <20030430174530.GA453@elf.ucw.cz>
+References: <20030429015841.GA17454@bougret.hpl.hp.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20030430172107.GA25347@work.bitmover.com>
-User-Agent: Mutt/1.5.4i
+In-Reply-To: <20030429015841.GA17454@bougret.hpl.hp.com>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.3i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Apr 30, 2003 at 10:21:07AM -0700, Larry McVoy wrote:
-> So I don't agree that the DRM stuff is all about protecting audio/video
-> content at all, I think it goes much further than that.  Maybe I'm
-> wrong, maybe DRM isn't all about that, but the point remains that there
-> is lots of activity in the directions I'm describing and whether it
-> falls under DRM, DMCA, Trusted Computing, Palladium, of BuzzWord2000,
-> the activity exists.  And I think it exists at least in part because
-> of the threat of the open source reimplementations.  I'm starting to
-> think I'm the only person on this list who thinks that, that may be,
-> but in the business world that I move in pretty much everyone thinks that.
+Hi!
 
-But the timeline is simply wrong.  DMCA is an implementation of the WIPO
-TRIPS treaties, which was passed in 1996, well before open-source was a
-common topic.
+> > I get compile failure for 2.4.21-rc1:
+> > 
+> > "in irda_device_init: undefined reference to toshoboe_init".
+> 
+> 	Non-modular IrDA is not supported in 2.4.X and is known to be
+> broken in various way (see bottom of my web page). This was fixed in
+> 2.5.24, but won't be fixed in the 2.4.X serie. However, I always
+> accept trivial patches...
+> 	Have fun...
 
-See http://www.public-domain.org/wipo/dec96/dec96.html
-In particular, note the EFF comment and the comment by "Software
-Developers".  Even these most relevant sources simply did not raise the
-issue.
+Fix was to kill toshoboe_init() from irda_device_init(): it is
+module_init() so it gets called, anyway.
 
-DRM is another issue.  I think it is primarily an effect of the Hollywood
-reality distortion field.  They think that useful computers that are not
-Turing complete can be built; and if such machines cannot be built, well, 
-Hollywood thinks that digital communication is error free and occurs 
-without charge and with infinite bandwidth at infinite distance, putting 
-them permanently out of business.
+Unfortunately toshoboe in 2.4.21-rc1 works as badly as in 2.5: the
+"new" driver does not even detect it and the "old" driver breaks with
+max_baud > 9600.
 
-Jim Penny
+								Pavel
+
+-- 
+When do you have a heart between your knees?
+[Johanka's followup: and *two* hearts?]

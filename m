@@ -1,42 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267689AbSLTCQ1>; Thu, 19 Dec 2002 21:16:27 -0500
+	id <S267730AbSLTCTa>; Thu, 19 Dec 2002 21:19:30 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267687AbSLTCQ1>; Thu, 19 Dec 2002 21:16:27 -0500
-Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:27116
-	"EHLO irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S267689AbSLTCQ0>; Thu, 19 Dec 2002 21:16:26 -0500
-Subject: Re: Intel P6 vs P7 system call performance
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Pavel Machek <pavel@ucw.cz>
-Cc: Linus Torvalds <torvalds@transmeta.com>,
-       "H. Peter Anvin" <hpa@transmeta.com>,
-       Ulrich Drepper <drepper@redhat.com>,
-       "Nakajima, Jun" <jun.nakajima@intel.com>,
-       Matti Aarnio <matti.aarnio@zmailer.org>,
-       Hugh Dickins <hugh@veritas.com>, Dave Jones <davej@codemonkey.org.uk>,
-       Ingo Molnar <mingo@elte.hu>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20021218234512.GA705@elf.ucw.cz>
-References: <3DFFED33.2020201@transmeta.com>
-	<Pine.LNX.4.44.0212172005500.1230-100000@home.transmeta.com> 
-	<20021218234512.GA705@elf.ucw.cz>
-Content-Type: text/plain
+	id <S267736AbSLTCTa>; Thu, 19 Dec 2002 21:19:30 -0500
+Received: from deimos.hpl.hp.com ([192.6.19.190]:26111 "EHLO deimos.hpl.hp.com")
+	by vger.kernel.org with ESMTP id <S267730AbSLTCT1>;
+	Thu, 19 Dec 2002 21:19:27 -0500
+From: David Mosberger <davidm@napali.hpl.hp.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
-Date: 20 Dec 2002 03:05:15 +0000
-Message-Id: <1040353515.30925.16.camel@irongate.swansea.linux.org.uk>
-Mime-Version: 1.0
+Message-ID: <15874.32773.829438.109509@napali.hpl.hp.com>
+Date: Thu, 19 Dec 2002 18:27:17 -0800
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Grant Grundler <grundler@cup.hp.com>, mj@ucw.cz,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       turukawa@icc.melco.co.jp
+Subject: Re: PATCH 2.5.x disable BAR when sizing
+In-Reply-To: <1040352868.30778.12.camel@irongate.swansea.linux.org.uk>
+References: <20021219213712.0518B12CB2@debian.cup.hp.com>
+	<1040352868.30778.12.camel@irongate.swansea.linux.org.uk>
+X-Mailer: VM 7.07 under Emacs 21.2.1
+Reply-To: davidm@hpl.hp.com
+X-URL: http://www.hpl.hp.com/personal/David_Mosberger/
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2002-12-18 at 23:45, Pavel Machek wrote:
-> IIRC, segment 0x40 was special in BIOS days, and some APM bioses
-> blindly access 0x40 even from protected mode (windows have segment
-> 0x40 with base 0x400....) Is that issue you are hitting?
+>>>>> On 20 Dec 2002 02:54:28 +0000, Alan Cox <alan@lxorguk.ukuu.org.uk> said:
 
-Well the spec says it is not special. Windows leaves it pointing to
-0x400 and if you don't do that your APM doesn't work.
+  Alan> On Thu, 2002-12-19 at 21:37, Grant Grundler wrote:
+  >>  Martin, In April 2002, turukawa@icc.melco.co.jp sent a 2.4.x
+  >> patch to disable BARs while the BARs were being sized.  I've
+  >> "forward ported" this patch to 2.5.x (appended).  turukawa's
+  >> excellent problem description and original posting are here:
+  >> https://lists.linuxia64.org/archives//linux-ia64/2002-April/003302.html
+  >>
+  >> David Mosberger agrees this is an "obvious fix".  We've been
+  >> using this in the ia64 2.4 code stream since about August.
 
-Alan
+  Alan> We've rejected this twice already from different people.
 
+  Alan> Nothing says your memory can't be behind the bridge and you
+  Alan> just turned memory access off. Whoops bang, game over.
+
+  Alan> And yes this happens on some PC class systems.
+
+And yet it's OK to remap that memory?  That seems unlikely.
+
+	--david

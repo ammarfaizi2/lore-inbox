@@ -1,59 +1,98 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268628AbRGZTtR>; Thu, 26 Jul 2001 15:49:17 -0400
+	id <S268665AbRGZTv5>; Thu, 26 Jul 2001 15:51:57 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268660AbRGZTtH>; Thu, 26 Jul 2001 15:49:07 -0400
-Received: from bacchus.veritas.com ([204.177.156.37]:3986 "EHLO
-	bacchus-int.veritas.com") by vger.kernel.org with ESMTP
-	id <S268628AbRGZTtE>; Thu, 26 Jul 2001 15:49:04 -0400
-Date: Thu, 26 Jul 2001 20:50:23 +0100 (BST)
-From: Hugh Dickins <hugh@veritas.com>
-To: Jeremy Linton <jlinton@interactivesi.com>
-cc: mingo@elte.hu, Anton Blanchard <anton@samba.org>,
-        linux-kernel@vger.kernel.org
-Subject: Re: highmem-2.4.7-A0 [Re: kmap() while holding spinlock]
-In-Reply-To: <00bc01c11600$4c3901a0$bef7020a@mammon>
-Message-ID: <Pine.LNX.4.21.0107262012210.1120-100000@localhost.localdomain>
+	id <S268667AbRGZTvs>; Thu, 26 Jul 2001 15:51:48 -0400
+Received: from postfix2-1.free.fr ([213.228.0.9]:54022 "HELO
+	postfix2-1.free.fr") by vger.kernel.org with SMTP
+	id <S268665AbRGZTvf> convert rfc822-to-8bit; Thu, 26 Jul 2001 15:51:35 -0400
+Date: Thu, 26 Jul 2001 21:49:04 +0200 (CEST)
+From: =?ISO-8859-1?Q?G=E9rard_Roudier?= <groudier@free.fr>
+X-X-Sender: <groudier@gerard>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: richard offer <offer@sgi.com>, Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: unitialized variable in 2.4.7 (sym53c8xx, dmi_scan)
+In-Reply-To: <E15PW9s-0002hY-00@the-village.bc.nu>
+Message-ID: <20010726213543.W1488-100000@gerard>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: TEXT/PLAIN; charset=ISO-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
-On Thu, 26 Jul 2001, Jeremy Linton wrote:
-> > > [...] or to do the clearing (and copying) speculatively, after
-> > > allocating the page but before locking the pagetable lock. This might
-> > > lead to a bit more work in the pagefault-race case, but we dont care
-> > > about that window. It will on the other hand reduce pagetable_lock
-> > > contention (because the clearing/copying is done outside the lock), so
-> > > perhaps this solution is better.
+
+
+On Wed, 25 Jul 2001, Alan Cox wrote:
+
+> >  static __init int disable_ide_dma(struct dmi_blacklist *d)
+> >  {
+> >  #ifdef CONFIG_BLK_DEV_IDE
+> > @@ -169,6 +170,7 @@
+> >  #endif
+> >         return 0;
+> >  }
+> > +#endif
+>
+> This just makes it harder to finish the merges
+>
+> > makes that automatic.
+> > ===== drivers/scsi/sym53c8xx.c 1.6 vs edited =====
+> > --- 1.6/drivers/scsi/sym53c8xx.c        Thu Jul  5 04:28:16 2001
+> > +++ edited/drivers/scsi/sym53c8xx.c     Wed Jul 25 13:37:10 2001
+> > @@ -6991,7 +6991,7 @@
 > >
-> > the attached highmem-2.4.7-A0 patch implements this method in both
-> > affected functions. Comments?
->     It seems to me that the problem is more fundamental than that. Excuse my
-> ignorance, but what keeps the 'old_page' (and associated pte, checked two
-> lines down) from disappearing somewhere between the lock drop, alloc page
-> and the copy from the old page? Normally if this happens it appears the new
-> page gets dropped and the fault occurs again, and is resolved in a
-> potentially different way.
+> >  static void ncr_soft_reset(ncb_p np)
+> >  {
+> > -       u_char istat;
+> > +       u_char istat=0;
+> >         int i;
+> >
+> >         if (!(np->features & FE_ISTAT1) || !(INB (nc_istat1) & SRUN))
+>
+> And this means when we get a real bug with istat not being assigned it
+> wont be seen.
 
-I was about to answer this by pointing out that, although the pte may
-change and the old_page be reused for some other purpose while we drop
-the lock, the old_page won't actually "disappear".  It will remain
-physically present, just containing irrelevant data: there won't be
-any danger from copying the wrong data, we just notice further down
-that the pte changed and discard this copy and fault again (or not).
+This will not happen (istat will never be used unitialised).
+The compiler has enough information to know about this at compile time as
+the full code below demonstrates clearly:
 
-But in writing, I realize (perhaps it's your very point, understated)
-that it's conceivable (though *very* unlikely) that the old_page is
-reused for some other purpose while we do the copy, then freed from
-that use and reused for its original purpose by the time we regain the
-lock: so that the pte_same() test succeeds yet the copied data is wrong.
+--
 
-Either do_wp_page() needs page_cache_get(old_page) before dropping
-page_table_lock, page_cache_release(old_page) after reacquiring it;
-or the kmap()s done while the lock is dropped, but copy_user_page()
-and kunmap()s left until the lock has been reacquired.  Ingo?
+static void ncr_soft_reset(ncb_p np)
+{
+	u_char istat;
+	int i;
 
-Hugh
+	if (!(np->features & FE_ISTAT1) || !(INB (nc_istat1) & SRUN))
+		goto do_chip_reset;
+
+	OUTB (nc_istat, CABRT);
+	for (i = 100000 ; i ; --i) {
+		istat = INB (nc_istat);
+		if (istat & SIP) {
+			INW (nc_sist);
+		}
+		else if (istat & DIP) {
+			if (INB (nc_dstat) & ABRT);
+				break;
+		}
+		UDELAY(5);
+	}
+	OUTB (nc_istat, 0);
+	if (!i)
+		printk("%s: unable to abort current chip operation, "
+		       "ISTAT=0x%02x.\n", ncr_name(np), istat);
+do_chip_reset:
+	ncr_chip_reset(np);
+}
+
+--
+
+IMO, the problem should be reported to the compiler maintainers. By
+assigning some fake definitions to FE_ISTAT1, SRUN, INB(), etc...,
+the code above should help them fix the compiler paranoia disease.
+Changing the driver code looks like an odd idea.
+
+  Gérard.
 

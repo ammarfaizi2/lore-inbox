@@ -1,48 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280328AbRKNIQb>; Wed, 14 Nov 2001 03:16:31 -0500
+	id <S280343AbRKNIUL>; Wed, 14 Nov 2001 03:20:11 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280339AbRKNIQV>; Wed, 14 Nov 2001 03:16:21 -0500
-Received: from mail128.mail.bellsouth.net ([205.152.58.88]:55473 "EHLO
-	imf28bis.bellsouth.net") by vger.kernel.org with ESMTP
-	id <S280328AbRKNIQM>; Wed, 14 Nov 2001 03:16:12 -0500
-Message-ID: <3BF22835.FBEA8D66@mandrakesoft.com>
-Date: Wed, 14 Nov 2001 03:15:49 -0500
-From: Jeff Garzik <jgarzik@mandrakesoft.com>
-Organization: MandrakeSoft
-X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.14 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: David Weinehall <tao@acc.umu.se>
-CC: Benjamin LaHaise <bcrl@redhat.com>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] reformat mtrr.c to conform to CodingStyle
-In-Reply-To: <20011112232539.A14409@redhat.com> <20011113121022.L1778@lynx.no> <20011114085714.V17761@khan.acc.umu.se>
+	id <S280351AbRKNIUB>; Wed, 14 Nov 2001 03:20:01 -0500
+Received: from mail.cb.monarch.net ([24.244.11.6]:23056 "EHLO
+	baca.cb.monarch.net") by vger.kernel.org with ESMTP
+	id <S280343AbRKNITy>; Wed, 14 Nov 2001 03:19:54 -0500
+Date: Wed, 14 Nov 2001 01:17:32 -0700
+From: "Peter J. Braam" <braam@clusterfilesystem.com>
+To: linux-kernel@vger.kernel.org
+Subject: Makefile for external modules
+Message-ID: <20011114011732.D18465@lustre.dyn.ca.clusterfilesystem.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-David Weinehall wrote:
-> I don't think Lindent does everything 100% correct; at least its
-> formatting of switch/case does look a little fishy:
-> 
->         switch (option) {
->         case 1:
->                 /* blaha */
-> 
-> That feels kind of odd compared to the rest of the codingstyle.
-> 
-> Comments?!
+Hi, 
 
-hehe now we really get into personal preference.
+Rumor has it that there is now a simple way to build modules outside
+the kernel tree.  I'm told that you place a kernel style makefile in
+your directory and do:
 
-I like the above case statement style, because I see no value in
-additional indentation.  The code is presented one level deeper than the
-switch statement, which is key.  'case' keywords merely separate the
-properly-indented code.  IMHO of course :)
+make -C /usr/src/linux MOD_SUB_DIRS=/my/module/dir modules
 
--- 
-Jeff Garzik      | Only so many songs can be sung
-Building 1024    | with two lips, two lungs, and one tongue.
-MandrakeSoft     |         - nomeansno
+It almost works, but loops. What is wrong? 
+
+Thanks!
+
+- Peter -
+
 

@@ -1,55 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265661AbUFSMba@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265685AbUFSMdY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265661AbUFSMba (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 19 Jun 2004 08:31:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265685AbUFSMb3
+	id S265685AbUFSMdY (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 19 Jun 2004 08:33:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265690AbUFSMdY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 19 Jun 2004 08:31:29 -0400
-Received: from mail.dif.dk ([193.138.115.101]:7905 "EHLO mail.dif.dk")
-	by vger.kernel.org with ESMTP id S265661AbUFSMb2 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 19 Jun 2004 08:31:28 -0400
-Date: Sat, 19 Jun 2004 14:30:32 +0200 (CEST)
-From: Jesper Juhl <juhl-lkml@dif.dk>
-To: John Cherry <cherry@osdl.org>
-Cc: linux-kernel@vger.kernel.org, Geert Uytterhoeven <geert@linux-m68k.org>,
-       James Simmons <jsimmons@infradead.org>,
-       Linux Frame Buffer Device Development 
-	<linux-fbdev-devel@lists.sourceforge.net>
-Subject: Fix warning in tdfxfb.c (Was: Re: IA32 (2.6.7 - 2004-06-18.22.30)
- - 2 New warnings (gcc 3.2.2))
-In-Reply-To: <200406191135.i5JBZsXL017823@cherrypit.pdx.osdl.net>
-Message-ID: <Pine.LNX.4.56.0406191425340.18856@jjulnx.backbone.dif.dk>
-References: <200406191135.i5JBZsXL017823@cherrypit.pdx.osdl.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Sat, 19 Jun 2004 08:33:24 -0400
+Received: from werewolf.schneelocke.net ([62.8.212.6]:28222 "EHLO
+	werewolf.schneelocke.net") by vger.kernel.org with ESMTP
+	id S265685AbUFSMdU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 19 Jun 2004 08:33:20 -0400
+Date: Sat, 19 Jun 2004 14:29:01 +0200
+From: lkml@gl00on.net
+To: linux-kernel@vger.kernel.org
+Subject: Re: Stop the Linux kernel madness
+Message-ID: <20040619122901.GA26584@werewolf.schneelocke.net>
+References: <20040618082708.GD12881@suse.de> <Pine.LNX.4.44.0406181037180.8065-100000@chimarrao.boston.redhat.com> <20040618151315.GC1863@holomorphy.com> <20040618153350.GB20632@lug-owl.de> <Pine.LNX.4.58.0406190808390.4199@bushido>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.58.0406190808390.4199@bushido>
+X-Face: "/lf:;F?1M2u`>bt]h&FhSRZ"hM>a_b!7A;I1Lc!rWw'INc+S-NYk<I%I(qa022%$mEk'8v2DDinL*7g_?Z`d+cnKut<JfZ,TYTI&KrBTM-?({z<=M221B=!b@'PI5~nv:%F7xeFxBBY!6l5b+Gu:NX&7@.k474ZfXn*|?j^6s"E]&7nRc0M}X92&=8FXi)#'<uUij+4#S:c]>|&?>I2.KiJMku(vOc0|'VK#FGE5:F~+BwY$Ddi)?fp[&xy/89jGCVnS/[aN-[Z0bGuM./UD}3*c5AbucK=l!8(&^4=\qH}_(M]r`t3:_OjYFu
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 19 Jun 2004, John Cherry wrote:
+> > For what I guess, those should better be native Indian speakers...
+> 
+> Iroquois or Souix?
 
-> drivers/video/tdfxfb.c:1104: warning: initialization discards qualifiers from pointer target type
-
-Here's a patch for that.
-
-The issue is that the mask member of struct fb_cursor is const, so
-we shouldn't be assigning it to a non-const char*
-
-Signed-off-by: Jesper Juhl <juhl-lkml@dif.dk>
-
---- linux-2.6.7-orig/drivers/video/tdfxfb.c	2004-06-16 07:19:02.000000000 +0200
-+++ linux-2.6.7/drivers/video/tdfxfb.c	2004-06-19 14:25:16.000000000 +0200
-@@ -1101,7 +1101,7 @@ static int tdfxfb_cursor(struct fb_info
- 		 */
- 		u8 *cursorbase = (u8 *) info->cursor.image.data;
- 		char *bitmap = (char *)cursor->image.data;
--		char *mask = cursor->mask;
-+		const char *mask = cursor->mask;
- 		int i, j, k, h = 0;
-
- 		for (i = 0; i < 64; i++) {
+How about Navajo? That's (supposedly) a beautiful language.
 
 
---
-Jesper Juhl <juhl-lkml@dif.dk>
+-- 
+ 2:27PM  up 136 days, 23:41, 1 user, load averages: 0.15, 0.13, 0.11
 
+A Hausdorff topological space is a continuous image of the unit interval if 
+and only if it is a compact connected locally connected metrizable space.

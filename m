@@ -1,59 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S274886AbRIVBke>; Fri, 21 Sep 2001 21:40:34 -0400
+	id <S274885AbRIVBkY>; Fri, 21 Sep 2001 21:40:24 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S274887AbRIVBkZ>; Fri, 21 Sep 2001 21:40:25 -0400
-Received: from mail207.mail.bellsouth.net ([205.152.58.147]:20687 "EHLO
-	imf07bis.bellsouth.net") by vger.kernel.org with ESMTP
-	id <S274886AbRIVBkM>; Fri, 21 Sep 2001 21:40:12 -0400
-Subject: Strange messages
-From: Louis Garcia <louisg00@bellsouth.net>
-To: linux-kernel@vger.kernel.org
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/0.13 (Preview Release)
-Date: 21 Sep 2001 21:40:36 -0400
-Message-Id: <1001122844.3555.6.camel@tiger>
+	id <S274887AbRIVBkP>; Fri, 21 Sep 2001 21:40:15 -0400
+Received: from ppp0.ocs.com.au ([203.34.97.3]:58383 "HELO mail.ocs.com.au")
+	by vger.kernel.org with SMTP id <S274885AbRIVBkA>;
+	Fri, 21 Sep 2001 21:40:00 -0400
+X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
+From: Keith Owens <kaos@ocs.com.au>
+To: Stephen Torri <storri@ameritech.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Announce: ksymoops 2.4.3 is available 
+In-Reply-To: Your message of "Fri, 21 Sep 2001 12:43:21 -0400."
+             <Pine.LNX.4.33.0109211238010.1454-100000@base.torri.linux> 
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Sat, 22 Sep 2001 11:39:12 +1000
+Message-ID: <15764.1001122752@ocs3.intra.ocs.com.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I'm getting an message from modprobe. I think it's related to agpgart:
+On Fri, 21 Sep 2001 12:43:21 -0400 (EDT), 
+Stephen Torri <storri@ameritech.net> wrote:
+>ksymoops.c:114:1: directives may not be used inside a macro argument
 
-Sep 21 19:46:48 tiger crond: crond startup succeeded
-Sep 21 19:46:49 tiger xfs: xfs startup succeeded
-Sep 21 19:46:49 tiger xfs: listening on port 7100 
-Sep 21 19:46:49 tiger xfs: ignoring font path element
-/usr/X11R6/lib/X11/fonts/CID (unreadable) 
-Sep 21 19:46:49 tiger xfs: ignoring font path element
-/usr/X11R6/lib/X11/fonts/local (unreadable) 
-Sep 21 19:46:50 tiger smb: smbd startup succeeded
-Sep 21 19:46:50 tiger smb: nmbd startup succeeded
-Sep 21 19:46:50 tiger anacron: anacron startup succeeded
-Sep 21 19:46:50 tiger atd: atd startup succeeded
-Sep 21 19:46:51 tiger linuxconf: Running Linuxconf hooks:  succeeded
-Sep 21 19:46:56 tiger modprobe: modprobe: Can't locate module
-char-major-226
-Sep 21 19:46:56 tiger modprobe: modprobe: Can't locate module
-char-major-226
-Sep 21 19:46:56 tiger kernel: Linux agpgart interface v0.99 (c) Jeff
-Hartmann
-Sep 21 19:46:56 tiger kernel: agpgart: Maximum main memory to use for
-agp memory: 27M
-Sep 21 19:46:56 tiger kernel: agpgart: Detected Intel 440BX chipset
-Sep 21 19:46:56 tiger kernel: agpgart: AGP aperture is 64M @ 0xec000000
-Sep 21 19:46:57 tiger kernel: [drm] AGP 0.99 on Intel 440BX @ 0xec000000
-64MB
-Sep 21 19:46:57 tiger kernel: [drm] Initialized radeon 1.1.1 20010405 on
-minor 0
-Sep 21 19:47:16 tiger gdm(pam_unix)[937]: session opened for user
-louisg00 by (uid=0)
-Sep 21 19:47:24 tiger gnome-name-server[1067]: starting
-Sep 21 19:47:24 tiger gnome-name-server[1067]: name server starting
+Some versions of glibc define prinf as a macro instead of a function.
+That is quite legal but it stops you using #ifdef inside printf calls.
+I will change ksymoops to work around that.
 
-3D seems to be working. I'm working on a Redhat roswell2 with
-kernel-2.4.10pre13.
+>symbol.c:220:58: warning: trigraph ??> ignored
+>symbol.c:221:44: warning: trigraph ??> ignored
+>symbol.c:225:49: warning: trigraph ??> ignored
+>symbol.c:226:35: warning: trigraph ??> ignored
 
-Louis
-
+I believe that is a gcc bug.  The text is
+            snprintf(map, size,
+                     options->hex ? "<END_OF_CODE+%llx/????>"
+                    : "<END_OF_CODE+%lld/????>",
+                offset);
+gcc is complaining about trigraphs but they are inside a string
+constant, not in code.  IMHO gcc should not flag trigraphs in string
+constants, report it as a gcc bug.
 

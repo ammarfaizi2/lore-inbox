@@ -1,48 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314459AbSDRVHB>; Thu, 18 Apr 2002 17:07:01 -0400
+	id <S314460AbSDRVUG>; Thu, 18 Apr 2002 17:20:06 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314460AbSDRVHA>; Thu, 18 Apr 2002 17:07:00 -0400
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:2829 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S314459AbSDRVHA>; Thu, 18 Apr 2002 17:07:00 -0400
-To: linux-kernel@vger.kernel.org
-From: "H. Peter Anvin" <hpa@zytor.com>
-Subject: Re: SSE related security hole
-Date: 18 Apr 2002 14:06:36 -0700
-Organization: Transmeta Corporation, Santa Clara CA
-Message-ID: <a9ncgs$2s2$1@cesium.transmeta.com>
-In-Reply-To: <20020418183639.20946.qmail@science.horizon.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Disclaimer: Not speaking for Transmeta in any way, shape, or form.
-Copyright: Copyright 2002 H. Peter Anvin - All Rights Reserved
+	id <S314461AbSDRVUF>; Thu, 18 Apr 2002 17:20:05 -0400
+Received: from adsl-63-194-239-202.dsl.lsan03.pacbell.net ([63.194.239.202]:54770
+	"EHLO mmp-linux.matchmail.com") by vger.kernel.org with ESMTP
+	id <S314460AbSDRVUF>; Thu, 18 Apr 2002 17:20:05 -0400
+Date: Thu, 18 Apr 2002 14:22:20 -0700
+From: Mike Fedyk <mfedyk@matchmail.com>
+To: Helge Hafting <helgehaf@aitel.hist.no>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: IDE/raid performance
+Message-ID: <20020418212220.GH574@matchmail.com>
+Mail-Followup-To: Helge Hafting <helgehaf@aitel.hist.no>,
+	linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.21.0204171108480.3300-100000@ns> <E16xrfQ-0002VF-00@the-village.bc.nu> <20020417102722.B26720@vger.timpanogas.org> <20020417134716.D10041@borg.org> <20020417232634.GC574@matchmail.com> <3CBE78A0.D5AD8AC2@aitel.hist.no>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Followup to:  <20020418183639.20946.qmail@science.horizon.com>
-By author:    linux@horizon.com
-In newsgroup: linux.dev.kernel
+On Thu, Apr 18, 2002 at 09:41:20AM +0200, Helge Hafting wrote:
+> Mike Fedyk wrote:
+> 
+> > I'd imagine that IDE would need some protocol spec changes before this could
+> > be supported (at least a "spin the drive up" message...).
+> > 
+> Exists already.  You may use hdparm to tell IDE drives
+> to spin up and down or even set a timeout.  This is
+> mostly for power-saving or no-noise setups.
 >
-> Um, people here seem to be assuming that, in the absence of MMX,
-> fninit *doesn't* leak information.
-> 
-> I thought it was well-known to just clear (set to all-ones) the
-> tag register and not alter the actual floating-point registers.
-> 
-> Thus, it seems quite feasible to reset the tag word with FLDENV and
-> store out the FPU registers, even on an 80387.
-> 
-> Isn't this the same security hole?  Shouldn't there be 8 FLDZ instructions
-> (or equivalent) in the processor state initialization?
+
+Oh yes, I know about that, but didn't remember it when I posted.
+
+> So they could indeed add a jumper to IDE drives to let them
+> power up in the spun-down state.  But that's not what
+> the vast majority of one-disk users want.
 > 
 
-Perhaps the right thing to do is to have a description in data of the
-desired initialization state and just F[NX]RSTOR it?
+This is the specific thing I was talking about.  Even if the drive can power
+down with a command, it doesn't wait for a command to perform the spinup
+when power is applied, and that's what's missing.
 
-	-hpa
--- 
-<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
-"Unix gives you enough rope to shoot yourself in the foot."
-http://www.zytor.com/~hpa/puzzle.txt	<amsp@zytor.com>
+It seems like there is already protocol support in IDE, so the drive just
+needs a way to be configured...  Maybe some drives will allow software
+config of this when they implement it?
+

@@ -1,70 +1,59 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285023AbSAUMJ4>; Mon, 21 Jan 2002 07:09:56 -0500
+	id <S285093AbSAUMMg>; Mon, 21 Jan 2002 07:12:36 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S285060AbSAUMJq>; Mon, 21 Jan 2002 07:09:46 -0500
-Received: from e1.ny.us.ibm.com ([32.97.182.101]:26844 "EHLO e1.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id <S285023AbSAUMJh>;
-	Mon, 21 Jan 2002 07:09:37 -0500
-Date: Mon, 21 Jan 2002 17:40:39 +0530
-From: Maneesh Soni <maneesh@in.ibm.com>
-To: lse-tech <lse-tech@lists.sourceforge.net>
-Cc: LKML <linux-kernel@vger.kernel.org>, Dipankar Sarma <dipankar@in.ibm.com>,
-        Paul McKenney <Paul.McKenney@us.ibm.com>, viro@math.psu.edu,
-        anton@samba.org, andrea@suse.dec, tytso@mit.edu
-Subject: [RFC] Peeling off dcache_lock
-Message-ID: <20020121174039.D8289@in.ibm.com>
-Reply-To: maneesh@in.ibm.com
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
+	id <S285226AbSAUMM1>; Mon, 21 Jan 2002 07:12:27 -0500
+Received: from garrincha.netbank.com.br ([200.203.199.88]:42244 "HELO
+	netbank.com.br") by vger.kernel.org with SMTP id <S285093AbSAUMMO>;
+	Mon, 21 Jan 2002 07:12:14 -0500
+Date: Mon, 21 Jan 2002 10:12:03 -0200 (BRST)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: <riel@imladris.surriel.com>
+To: Hans Reiser <reiser@namesys.com>
+Cc: Shawn Starr <spstarr@sh0n.net>, <linux-kernel@vger.kernel.org>
+Subject: Re: Possible Idea with filesystem buffering.
+In-Reply-To: <3C4BF71D.4010209@namesys.com>
+Message-ID: <Pine.LNX.4.33L.0201211003000.32617-100000@imladris.surriel.com>
+X-spambait: aardvark@kernelnewbies.org
+X-spammeplease: aardvark@nl.linux.org
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi All,
+On Mon, 21 Jan 2002, Hans Reiser wrote:
 
-We have been doing experiments with dcache_lock to provide some relief from it.
-Though dcache_lock is not a very hot lock in comparision to BKL but on higher
-end machines it becomes quite contentious. We would like to have feedbacks,
-comments about the approach taken and guidance on how to improve this further.
+> >It seems you're still assuming that different filesystems will
+> >all see the same kind of load.
+>
+> I don't understand this comment.
 
-As dcache_lock is acquired maximum number of times while doing lookup, the main
-idea was to remove dcache_lock from d_lookup. With the help of Read Copy Update
-it is possible to lookup the hash list of dentries without taking dcache_lock
-but as d_lookup also updates the lru list, removing dcache_lock from d_lookup
-was not straight forward. Various approaches were tried for that and the most
-successful is doing lazy updation of lru list. 
+[snip]
 
-Using this the dcache_lock contention was down from 16.5% to 0.95% on an 
-8-way SMP box and lock utilization was down from 5.3% to 0.89%
+> The VM should apply pressure to the caches.  It should define an
+> interface that subcache managers act in response to.  The larger a
+> subcache is, the more percentage of total memory pressure it should
+> receive.
 
-The patch for lazy lru updation using RCU can be found here:
+Wrong.  If one filesystem is actively being used (eg. kernel
+compile) and the other filesystem's cache isn't being used
+(this one held the tarball of the kernel source) then the
+cache which is being used actively should receive less
+pressure than the cache which doesn't hold any active pages.
 
-http://lse.sourceforge.net/locking/dcache/patches/2.4.17/dcache_rcu-lazy_lru-2.4.17-06.patch
+We really want to evict the kernel tarball from memory while
+keeping the kernel source and object files resident.
 
-The basic conecpt for this approach is to not update the lru list in d_lookup
-facilitating lockless d_lookup. The lru list can now have dentries with non zero
-reference count also. The lru list is updated while pruning dentry cache. The
-dcache_lock is kept around so that there are no changes in the update side 
-locking.
+This is exactly the reason why each filesystem cannot manage
+its own cache ... it doesn't know anything about what the
+system as a whole is doing.
 
-The implementation details for lazy lru list updation and other approaches
-can be found here:
+regards,
 
-http://lse.sourceforge.net/locking/dcache/dcache_lock.html 
-
-The above patch works fine with various file systems like ext2, JFS, ext3, /procand has been tested ok with ltp-20020108, dbench, httperf. And doesnot not have
-any adverse effects on uni processor performance.
-
-
-Regards,
-Maneesh
-
-
+Rik
 -- 
-Maneesh Soni
-IBM Linux Technology Center, 
-IBM India Software Lab, Bangalore.
-Phone: +91-80-5044999 email: maneesh@in.ibm.com
-http://lse.sourceforge.net/locking/rcupdate.html
+"Linux holds advantages over the single-vendor commercial OS"
+    -- Microsoft's "Competing with Linux" document
+
+http://www.surriel.com/		http://distro.conectiva.com/
+

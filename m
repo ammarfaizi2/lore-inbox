@@ -1,139 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261856AbVBIRYu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261857AbVBIR0F@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261856AbVBIRYu (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Feb 2005 12:24:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261858AbVBIRYu
+	id S261857AbVBIR0F (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Feb 2005 12:26:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261858AbVBIR0F
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Feb 2005 12:24:50 -0500
-Received: from rwcrmhc12.comcast.net ([216.148.227.85]:49026 "EHLO
-	rwcrmhc12.comcast.net") by vger.kernel.org with ESMTP
-	id S261856AbVBIRY2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Feb 2005 12:24:28 -0500
-Message-ID: <420A474B.2030608@acm.org>
-Date: Wed, 09 Feb 2005 11:24:27 -0600
+	Wed, 9 Feb 2005 12:26:05 -0500
+Received: from sccrmhc13.comcast.net ([204.127.202.64]:38350 "EHLO
+	sccrmhc13.comcast.net") by vger.kernel.org with ESMTP
+	id S261857AbVBIRZz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 9 Feb 2005 12:25:55 -0500
+Message-ID: <420A47A1.8020007@acm.org>
+Date: Wed, 09 Feb 2005 11:25:53 -0600
 From: Corey Minyard <minyard@acm.org>
 User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040913
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
 To: Andrew Morton <akpm@osdl.org>, lkml <linux-kernel@vger.kernel.org>
-Subject: [PATCH] Update to IPMI driver to support old DMI spec
+Subject: [PATCH] Fix IPMI SMBus driver to select the I2C layer instead of
+ depend on it
 Content-Type: multipart/mixed;
- boundary="------------070803070304050808050104"
+ boundary="------------000105090209000904020404"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 This is a multi-part message in MIME format.
---------------070803070304050808050104
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+--------------000105090209000904020404
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 
-BTW, I'm also working with the person who had the trouble with the I2C 
-non-blocking driver updates, but we haven't figured it out yet.  
-Hopefully soon.  (Though that has nothing to do with this patch.)
+This is on top of the IPMI SMBus driver in the current mm kernel.
 
 Thanks,
 
 -Corey
 
---------------070803070304050808050104
+--------------000105090209000904020404
 Content-Type: text/plain;
- name="ipmi_olddmi.diff"
+ name="ipmi_smb_config.diff"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline;
- filename="ipmi_olddmi.diff"
+ filename="ipmi_smb_config.diff"
 
-The 1999 version of the DMI spec had a different configuration
-than the newer versions for the IPMI configuration information.
-This patch handles the differences between the two.
+Make the IPMI SMBus select I2C, not depend on it, so I2C gets
+enabled properly when the IPMI SMBus is enabled.
 
 Signed-off-by: Corey Minyard <minyard@acm.org>
 
-Index: linux-2.6.11-rc3/drivers/char/ipmi/ipmi_si_intf.c
+Index: linux-2.6.11-rc3/drivers/char/ipmi/Kconfig
 ===================================================================
---- linux-2.6.11-rc3.orig/drivers/char/ipmi/ipmi_si_intf.c
-+++ linux-2.6.11-rc3/drivers/char/ipmi/ipmi_si_intf.c
-@@ -1578,46 +1578,53 @@
- 	u8		*data = (u8 *)dm;
- 	unsigned long  	base_addr;
- 	u8		reg_spacing;
-+	u8              len = dm->length; 
- 	dmi_ipmi_data_t *ipmi_data = dmi_data+intf_num;
+--- linux-2.6.11-rc3.orig/drivers/char/ipmi/Kconfig
++++ linux-2.6.11-rc3/drivers/char/ipmi/Kconfig
+@@ -53,7 +53,8 @@
  
- 	ipmi_data->type = data[4];
- 
- 	memcpy(&base_addr, data+8, sizeof(unsigned long));
--	if (base_addr & 1) {
--		/* I/O */
--		base_addr &= 0xFFFE;
-+	if (len >= 0x11) {
-+		if (base_addr & 1) {
-+			/* I/O */
-+			base_addr &= 0xFFFE;
-+			ipmi_data->addr_space = IPMI_IO_ADDR_SPACE;
-+		}
-+		else {
-+			/* Memory */
-+			ipmi_data->addr_space = IPMI_MEM_ADDR_SPACE;
-+		}
-+		/* If bit 4 of byte 0x10 is set, then the lsb for the address
-+		   is odd. */
-+		ipmi_data->base_addr = base_addr | ((data[0x10] & 0x10) >> 4);
-+
-+		ipmi_data->irq = data[0x11];
-+
-+		/* The top two bits of byte 0x10 hold the register spacing. */
-+		reg_spacing = (data[0x10] & 0xC0) >> 6;
-+		switch(reg_spacing){
-+		case 0x00: /* Byte boundaries */
-+		    ipmi_data->offset = 1;
-+		    break;
-+		case 0x01: /* 32-bit boundaries */
-+		    ipmi_data->offset = 4;
-+		    break;
-+		case 0x02: /* 16-byte boundaries */
-+		    ipmi_data->offset = 16;
-+		    break;
-+		default:
-+		    /* Some other interface, just ignore it. */
-+		    return -EIO;
-+		}
-+	} else {
-+		/* Old DMI spec. */
-+		ipmi_data->base_addr = base_addr;
- 		ipmi_data->addr_space = IPMI_IO_ADDR_SPACE;
--	}
--	else {
--		/* Memory */
--		ipmi_data->addr_space = IPMI_MEM_ADDR_SPACE;
--	}
--
--	/* The top two bits of byte 0x10 hold the register spacing. */
--	reg_spacing = (data[0x10] & 0xC0) >> 6;
--	switch(reg_spacing){
--	case 0x00: /* Byte boundaries */
- 		ipmi_data->offset = 1;
--		break;
--	case 0x01: /* 32-bit boundaries */
--		ipmi_data->offset = 4;
--		break;
--	case 0x02: /* 16-byte boundaries */
--		ipmi_data->offset = 16;
--		break;
--	default:
--		/* Some other interface, just ignore it. */
--		return -EIO;
- 	}
- 
- 	ipmi_data->slave_addr = data[6];
- 
--	/* If bit 4 of byte 0x10 is set, then the lsb for the address
--	   is odd. */
--	ipmi_data->base_addr = base_addr | ((data[0x10] & 0x10) >> 4);
--
--	ipmi_data->irq = data[0x11];
--
- 	if (is_new_interface(-1, ipmi_data->addr_space,ipmi_data->base_addr)) {
- 		dmi_data_entries++;
- 		return 0;
+ config IPMI_SMB
+        tristate 'IPMI SMBus handler'
+-       depends on IPMI_HANDLER && I2C
++       depends on IPMI_HANDLER
++       select I2C
+        help
+          Provides a driver for a SMBus interface to a BMC, meaning that you
+ 	 have a driver that must be accessed over an I2C bus instead of a
 
---------------070803070304050808050104--
+--------------000105090209000904020404--

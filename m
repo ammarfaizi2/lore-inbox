@@ -1,46 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284732AbSA0MZ0>; Sun, 27 Jan 2002 07:25:26 -0500
+	id <S286821AbSA0Mce>; Sun, 27 Jan 2002 07:32:34 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S285593AbSA0MZO>; Sun, 27 Jan 2002 07:25:14 -0500
-Received: from pc3-redb4-0-cust131.bre.cable.ntl.com ([213.106.223.131]:7673
-	"HELO opel.itsolve.co.uk") by vger.kernel.org with SMTP
-	id <S284732AbSA0MZE>; Sun, 27 Jan 2002 07:25:04 -0500
-Date: Sun, 27 Jan 2002 12:25:01 +0000
-From: Mark Zealey <mark@zealos.org>
-To: lkml <linux-kernel@vger.kernel.org>
-Subject: Re: fonts corruption with 3dfx drm module
-Message-ID: <20020127122501.GA23825@itsolve.co.uk>
-In-Reply-To: <20020127113553Z287979-13997+10785@vger.kernel.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20020127113553Z287979-13997+10785@vger.kernel.org>
-User-Agent: Mutt/1.3.25i
-X-Operating-System: Linux sunbeam 2.4.17-wli2 
-X-Homepage: http://zealos.org/
+	id <S287115AbSA0McY>; Sun, 27 Jan 2002 07:32:24 -0500
+Received: from waldorf.cs.uni-dortmund.de ([129.217.4.42]:7593 "EHLO
+	waldorf.cs.uni-dortmund.de") by vger.kernel.org with ESMTP
+	id <S286821AbSA0McP>; Sun, 27 Jan 2002 07:32:15 -0500
+Message-Id: <200201271232.g0RCW7EK012415@tigger.cs.uni-dortmund.de>
+To: John Kodis <kodis@mail630.gsfc.nasa.gov>, linux-kernel@vger.kernel.org,
+        palmerj@zanshin.gsfc.nasa.gov
+Subject: Re: Mounting OS-X "Unix" filesystems on Linux 
+In-Reply-To: Message from John Kodis <kodis@mail630.gsfc.nasa.gov> 
+   of "Fri, 25 Jan 2002 12:18:37 EST." <20020125171837.GA31376@tux.gsfc.nasa.gov> 
+Date: Sun, 27 Jan 2002 13:32:07 +0100
+From: Horst von Brand <brand@jupiter.cs.uni-dortmund.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Jan 27, 2002 at 12:15:01PM +0000, Diego Calleja wrote:
+John Kodis <kodis@mail630.gsfc.nasa.gov> said:
+> I'm trying to mount an OS-X Unix filesystem on Linux.  I haven't had
+> any luck at this, and wondered whether this is a known problem, or if
+> I'm doing something wrong.
+> 
+> I formatted a zip disk on a Mac OS-X, selecting the "Unix" filesystem
+> type and no partitions.  I then inserted this disk in the /dev/hdd,
+> the zip drive on my PC.  I tried mounting hdd and hdd1 through hdd4
+> using types of auto, ufs, udf, sysv, and one or two others, all to no
+> avail.
 
-> I can see fonts corruption when switching from X to console. I use last
-> stable kernel, but it's been hapenning from earlier versions. I use
-> iso-8959-15 fonts in console, with tdfx drm module for X, my video card is voodoo 3 3000 PCI.
-> I hope this can help.
+Try fdisk(8) on it, it might tell you of any strange partitioning. Or the
+Mac might have written to the device (not a partition). Get hold of the
+first Kb or so of each partition, file(1) might be able to find out what it
+is.
 
-Yes, I've been seeing this too, it's happened in 2.2.19, 2.2.20 and 2.4.17 (for
-me). Voodoo banshee PCI card.. it can be annoying, but another switch usially
-fixes it...
-
+Good luck!
 -- 
-
-Mark Zealey
-mark@zealos.org
-mark@itsolve.co.uk
-
-UL++++>$ G!>(GCM/GCS/GS/GM) dpu? s:-@ a16! C++++>$ P++++>+++++$ L+++>+++++$
-!E---? W+++>$ N- !o? !w--- O? !M? !V? !PS !PE--@ PGP+? r++ !t---?@ !X---?
-!R- b+ !tv b+ DI+ D+? G+++ e>+++++ !h++* r!-- y--
-
-(www.geekcode.com)
+Horst von Brand			     http://counter.li.org # 22616

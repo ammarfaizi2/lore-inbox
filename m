@@ -1,32 +1,61 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S136491AbRD3Q6M>; Mon, 30 Apr 2001 12:58:12 -0400
+	id <S136489AbRD3Q5B>; Mon, 30 Apr 2001 12:57:01 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136493AbRD3Q56>; Mon, 30 Apr 2001 12:57:58 -0400
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:4617 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S136491AbRD3Q5j>; Mon, 30 Apr 2001 12:57:39 -0400
-Subject: Re: 2.4.4 Sound corruption [PATCH]
-To: c.p.botha@its.tudelft.nl
-Date: Mon, 30 Apr 2001 17:58:40 +0100 (BST)
-Cc: linux-kernel@vger.kernel.org, jgarzik@mandrakesoft.com, goemon@anime.net
-In-Reply-To: <20010430030626.A7981@dutidad.twi.tudelft.nl> from "Charl P. Botha" at Apr 30, 2001 03:06:26 AM
-X-Mailer: ELM [version 2.5 PL1]
+	id <S136491AbRD3Q4w>; Mon, 30 Apr 2001 12:56:52 -0400
+Received: from colorfullife.com ([216.156.138.34]:26631 "EHLO colorfullife.com")
+	by vger.kernel.org with ESMTP id <S136489AbRD3Q4g>;
+	Mon, 30 Apr 2001 12:56:36 -0400
+Message-ID: <003901c0d196$89d8f2d0$5517fea9@local>
+From: "Manfred Spraul" <manfred@colorfullife.com>
+To: <root@chaos.analogic.com>
+Cc: <hosler@lugs.org.sg>, <linux-kernel@vger.kernel.org>
+Subject: Re: AC'97 (VT82C686A) 
+Date: Mon, 30 Apr 2001 18:56:37 +0200
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-Message-Id: <E14uH0V-0008Hk-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 5.50.4133.2400
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4133.2400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Attached is a patch to the quirks.c in linux kernel 2.4.4 that fixes the
-> sound corruption problem (thanks to Dan Hollis for the info).  Do I have to
-> send this anywhere else as well?
+> Observe that the PCI DWORD (long) register at DWORD offset 15 consists
+> of 4 byte-wide registers (from the PCI specification), Max_lat,
+> Min_Gnt, Interrupt pin, and interrupt line. Nothing has to fit into
+> 4 bits, you have 8 bits. I haven't looked at the Linux code, but if
+> it provides only 4 bits for the IRQ, it's broken.
 
-It seems very broken
+I don't have the PCI specification, but at least some network cards
+ignore all writes to that register. It's only an interface between the
+bios and os. (pnic-82c168: "Interrupt Line. This 8-bit register will be
+written by the POST software. The value of this register indicates which
+input of the system interrupt controller PNIC's interrupt pin is
+connected to."). The AC97 documentation says that only the low 4 bits
+are writable. Perhaps it reconfigures itself if
+someone writes to that register? Linux never writes to the low byte of
+DWORD offset 15.
 
-> -	{ PCI_FIXUP_FINAL,	PCI_VENDOR_ID_VIA,	PCI_DEVICE_ID_VIA_8363_0,	quirk_vialatency },
-> +	{ PCI_FIXUP_FINAL,	PCI_VENDOR_ID_VIA,	PCI_DEVICE_ID_VIA_82C686,	quirk_vialatency },
+Greg, what's the value of 'dev->irq'? Usually drivers should never read
+offset 3C, instead they should use 'dev->irq'.
 
-You are hacking the wrong chip..
+arch/i386/kernel/mpparse should figure out where the interrupts arrive.
+If that doesn't work: the MP table is documented at
+http://developer.intel.com/design/pentium/datashts/24201606.pdf
+and one of the debugging options in arch/i386/kernel/mpparse.c will
+print all interrupt routing entries during boot up.
+
+The routing entries are (bus, function and pin) -> io apic pin, and the
+values for bus, function and pin are known.
+
+--
+    Manfred
+
+
+
+
+
+

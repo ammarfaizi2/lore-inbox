@@ -1,96 +1,71 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264370AbRFGIcE>; Thu, 7 Jun 2001 04:32:04 -0400
+	id <S264377AbRFGI6b>; Thu, 7 Jun 2001 04:58:31 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264371AbRFGIbn>; Thu, 7 Jun 2001 04:31:43 -0400
-Received: from age.cs.columbia.edu ([128.59.22.100]:9743 "EHLO
-	age.cs.columbia.edu") by vger.kernel.org with ESMTP
-	id <S264370AbRFGIbd>; Thu, 7 Jun 2001 04:31:33 -0400
-Date: Thu, 7 Jun 2001 01:31:26 -0700 (PDT)
-From: Ion Badulescu <ionut@cs.columbia.edu>
-To: Tom Sightler <ttsig@tuxyturvy.com>
-cc: <linux-kernel@vger.kernel.org>, <arjan@fenrus.demon.nl>
-Subject: Re: xircom_cb problems
-In-Reply-To: <991884643.3b1ef5637fca7@eargle.com>
-Message-ID: <Pine.LNX.4.33.0106070118320.22593-100000@age.cs.columbia.edu>
+	id <S264378AbRFGI6W>; Thu, 7 Jun 2001 04:58:22 -0400
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:56620 "EHLO
+	flinx.biederman.org") by vger.kernel.org with ESMTP
+	id <S264377AbRFGI6R>; Thu, 7 Jun 2001 04:58:17 -0400
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Break 2.4 VM in five easy steps
+In-Reply-To: <Pine.LNX.4.21.0106070109210.5128-100000@penguin.transmeta.com>
+From: ebiederm@xmission.com (Eric W. Biederman)
+Date: 07 Jun 2001 02:54:34 -0600
+In-Reply-To: <Pine.LNX.4.21.0106070109210.5128-100000@penguin.transmeta.com>
+Message-ID: <m1u21s4qlx.fsf@frodo.biederman.org>
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) Emacs/20.5
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 6 Jun 2001, Tom Sightler wrote:
+Linus Torvalds <torvalds@transmeta.com> writes:
 
-> At home where I have a 10Mb half-duplex hub connection all of the drivers work
-> properly.
-
-All right, that's expected.
-
-> At work where I have a 10/100Mb full-duplex switch connection the drivers work
-> exactly as I described before:
+> On 7 Jun 2001, Eric W. Biederman wrote:
 > 
-> 2.4.4-ac11 -- mostly works fine -- minor problems awaking from sleep
+> No - I suspect that we're not actually doing all that much IO at all, and
+> the real reason for the lock-up is just that the current algorithm is so
+> bad that when it starts to act exponentially worse it really _is_ taking
+> minutes of CPU time following pointers and generally not being very nice
+> on the CPU cache etc..
 
-Can you run some performance testing with this driver, though? The speed
-of ftp transfers in both directions would be a good measure. The reason
-I'm asking is because we saw really poor performance on 100Mb full-duplex,
-something like 200-300KB/s when receiving.
-
-> 2.4.5-ac9 -- keeps logging "Link is absent" then "Linux is 100 mbit" over and
-> over when trying to pull an IP address via dhcp using pump or dhcpcd. 
-
-pump likes to bring the interface up and down and up and down, so those 
-messages are not necessarily unusual.
-
-Hmm. I have an idea though. In set_half_duplex, we shouldn't touch the MII 
-if the new autoneg value is the same as the old one. It should certainly 
-help with things like pump. Arjan, what do you think?
-
-> Interestingly manually setting an IP address seems to work fine with
-> this driver.
-
-That's very good to know. So most likely the repeated up/down that pump's 
-doing is upsetting the card.
-
-> I'll do this tomorrow morning when I get in and report back.  Thanks
-> for the help, I'd really like to see this card get stable as we have
-> it in a lot of our laptops here at work.
-
-And we'd like to thank you for your patience and for your help diagnosing 
-the problem. Let's hope we can solve it quickly..
-
-I'm attaching a small patch that does what I proposed above -- can you 
-give it a try as well?
-
-Thanks,
-Ion
-
--- 
-  It is better to keep your mouth shut and be thought a fool,
-            than to open it and remove all doubt.
-------------------------
---- linux-2.4-ac/drivers/net/pcmcia/xircom_cb.c.old	Thu Jun  7 01:27:07 2001
-+++ linux-2.4-ac/drivers/net/pcmcia/xircom_cb.c	Thu Jun  7 01:28:13 2001
-@@ -1092,13 +1092,15 @@
+Hmm.  Unless I am mistaken the complexity is O(SwapPages*VMSize)
+Which is very bad, but no where near exponentially horrible.
  
- 	/* tell the MII not to advertise 10/100FDX */
- 	tmp = mdio_read(card, 0, 4);
--	printk("xircom_cb: capabilities changed from %#x to %#x\n",
--	       tmp, tmp & ~0x140);
--	tmp &= ~0x140;
--	mdio_write(card, 0, 4, tmp);
--	/* restart autonegotiation */
--	tmp = mdio_read(card, 0, 0);
--	mdio_write(card, 0, 0, tmp | 0x1200);
-+	if (tmp != tmp & ~0x140) {
-+		printk("xircom_cb: capabilities changed from %#x to %#x\n",
-+		       tmp, tmp & ~0x140);
-+		tmp &= ~0x140;
-+		mdio_write(card, 0, 4, tmp);
-+		/* restart autonegotiation */
-+		tmp = mdio_read(card, 0, 0);
-+		mdio_write(card, 0, 0, tmp | 0x1200);
-+	}
- 
- 	if (rx)
- 		activate_receiver(card);
+> The bulk of the work is walking the process page tables thousands and
+> thousands of times. Expensive.
 
+Definitely.  I played following the page tables in a good way a while
+back, and even when you do it right the process is slow.  Is 
+if (need_resched) {
+        schedule();
+}
+A good idiom to use when you know you have a loop that will take a
+long time.  Because even if we do this right we should do our best to
+avoid starving other processes in the system 
+
+Hmm.  There is a nasty case with turning the walk inside out.  When we
+read a page into RAM there could still be other users of that page
+that still refer to the swap entry.  So we cannot immediately remove
+the page from the swap cache.  Unless we want to break sharing and
+increase the demands upon the virtual memory when we are shrinking
+it...  
+
+ 
+> > If this is going on I think we need to look at our delayed
+> > deallocation policy a little more carefully.
+> 
+> Agreed. I already talked in private with some people about just
+> re-visiting the issue of the lazy de-allocation. It has nice properties,
+> but it certainly appears as if the nasty cases just plain outweigh the
+> advantages.
+
+I'm trying to remember the advantages.  Besides not having to care
+that a page is a swap page in free_pte.  If there really is some value
+in not handling the pages there (and I seem to recall something about
+pages under I/O).  It might at least be worth putting the pages on
+their own LRU list.  So that kswapd can cruch through the list
+whenever it wakes up and gives a bunch of free pages.
+
+Eric

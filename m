@@ -1,97 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265089AbUFBIwo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265187AbUFBI4P@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265089AbUFBIwo (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Jun 2004 04:52:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265187AbUFBIwo
+	id S265187AbUFBI4P (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Jun 2004 04:56:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265206AbUFBI4P
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Jun 2004 04:52:44 -0400
-Received: from [213.239.201.226] ([213.239.201.226]:64994 "EHLO
-	mail.shadowconnect.com") by vger.kernel.org with ESMTP
-	id S265089AbUFBIwl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Jun 2004 04:52:41 -0400
-Message-ID: <40BD96E3.20903@shadowconnect.com>
-Date: Wed, 02 Jun 2004 10:59:15 +0200
-From: Markus Lidel <Markus.Lidel@shadowconnect.com>
-User-Agent: Mozilla Thunderbird 0.6 (Windows/20040502)
-X-Accept-Language: en-us, en
+	Wed, 2 Jun 2004 04:56:15 -0400
+Received: from Spamfilter.post.RO ([80.86.96.12]:53962 "EHLO
+	spamfilter.post.ro") by vger.kernel.org with ESMTP id S265187AbUFBI4O
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 2 Jun 2004 04:56:14 -0400
+From: dahood@post.ro
+X-Priority: 3
 MIME-Version: 1.0
-To: Davide Rossetti <davide.rossetti@roma1.infn.it>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Problem with ioremap which returns NULL in 2.6 kernel
-References: <40BC788A.3020103@shadowconnect.com> <20040601142122.GA7537@havoc.gtf.org> <40BC9EF7.4060502@shadowconnect.com> <40BCB821.5050903@roma1.infn.it>
-In-Reply-To: <40BCB821.5050903@roma1.infn.it>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Message-Id: <40BD9615.000002.22735@server.post.ro>
+Date: Wed, 2 Jun 2004 11:55:47 +0300 (EEST)
+Content-Type: Text/Plain
 Content-Transfer-Encoding: 7bit
+To: linux-kernel@vger.kernel.org
+Subject: Locking pages in memory
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+Hi,
 
-Davide Rossetti wrote:
->>>> could someone help me with a ioremap problem. If there are two 
->>>> controllers plugged in, the ioremap request for the first controller 
->>>> is successfull, but the second returns NULL. Here is the output of 
->>>> the driver:
->>>> i2o: Checking for PCI I2O controllers...
->>>> i2o: I2O controller on bus 0 at 72.
->>>> i2o: PCI I2O controller at 0xD0000000 size=134217728
->>>> I2O: MTRR workaround for Intel i960 processor
->>>> i2o/iop0: Installed at IRQ17
->>>> i2o: I2O controller on bus 0 at 96.
->>>> i2o: PCI I2O controller at 0xD8000000 size=134217728
->>>> i2o: Unable to map controller.
->>> If "size=xxxx" indicates the size you are remapping, then that's
-> I saw the same problem on a PCI card with a 128MB BAR. it is triggered 
-> on an Tyan opteron mobo, while on a old Dell P4 mobo it is ok. I 
+I'm trying to lock some pages from a mmaped user memory (say user_addr). (mmap on a file)
+For this I did the following (in a kernel module):
+1. with get_user I fault every page into the memory, then I get the physical address of each page.
+2. I put PG_reserved and do a get_page on each page.
+3. After I finish using the memory, I truncate the file used for mmap to 0, and close the file descriptor(this is done in user space).
+4. In kernel space, I do set_page_count to 1, for every page, clear PG_reserved, and do put_page.
 
-Ah, so it could maybe a mainboard problem?
+My problem is that in kernel 2.4, this works perfectly, while in 2.6, when I do put_page, I get an bad state on page, because page_mapped is not 0 (page->pte.direct != 0), which means that the page in take into account into rmap. But because the page is PG_reserved, I think it shoudn't be.
 
-> followed a bit the source code for ioremap and found two places in which 
-> it can fail,
->    area = get_vm_area(size, VM_IOREMAP);
->    if (!area)
->        return NULL;
->    addr = area->addr;
->    if (remap_area_pages(VMALLOC_VMADDR(addr), phys_addr, size, flags)) {
->        vfree(addr);
->        return NULL;
->    }
-> I had not time to add debug printk and recompila the kernel to check 
-> which one is faulty...
-> The strange thing is that the BARs seems to be laid out correctly, so it 
-> does not look like a bios bug...
+Is there is something more that I should do in kernel 2.6 if I'm using reserved pages, more than in 2.4?  
 
-But even if it's not a bug, maybe a BIOS update would help...
+In kernel 2.4, I know that is my responsability to set the page count to 1, when I'm sure that there is no one else using the pages, and put_page to kernel. 
 
-I'll check this out too...
+I tried a workaround in 2.6, by setting page->pte.direct=0, before doing the final put_page. In this way, the put_page function is happy, but when I try do large allocation in user space program, I keep getting segmentation fault, so I think that the pte.direct hack is not ok.
 
->>> probably too large an area to be remapping.  Try remapping only the
->>> memory area needed, and not the entire area.
->> Is there a way, to increase the size, which could be remapped, or is 
->> there a way, to find out what is the maximum size which could be 
->> remapped?
-> we tried with half and it was ok, then we moved up a bit and found the 
-> maximum around 80MB I think...
-
-Okay, i'll let try it out with only 64MB.
-
-
-Thanks for your help!
-
-Best regards,
-
-
-Markus Lidel
-------------------------------------------
-Markus Lidel (Senior IT Consultant)
-
-Shadow Connect GmbH
-Carl-Reisch-Weg 12
-D-86381 Krumbach
-Germany
-
-Phone:  +49 82 82/99 51-0
-Fax:    +49 82 82/99 51-11
-
-E-Mail: Markus.Lidel@shadowconnect.com
-URL:    http://www.shadowconnect.com
+Thank you,
+Dan

@@ -1,50 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S274062AbRISNlz>; Wed, 19 Sep 2001 09:41:55 -0400
+	id <S274052AbRISNiP>; Wed, 19 Sep 2001 09:38:15 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S274061AbRISNlp>; Wed, 19 Sep 2001 09:41:45 -0400
-Received: from skiathos.physics.auth.gr ([155.207.123.3]:50345 "EHLO
-	skiathos.physics.auth.gr") by vger.kernel.org with ESMTP
-	id <S274053AbRISNl3>; Wed, 19 Sep 2001 09:41:29 -0400
-Date: Wed, 19 Sep 2001 16:41:08 +0300 (EET DST)
-From: Liakakis Kostas <kostas@skiathos.physics.auth.gr>
-To: VDA <VDA@port.imtp.ilyichevsk.odessa.ua>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Re[2]: [PATCH] Athlon bug stomper. Pls apply.
-In-Reply-To: <1022874923.20010919160805@port.imtp.ilyichevsk.odessa.ua>
-Message-ID: <Pine.GSO.4.21.0109191619570.22381-100000@skiathos.physics.auth.gr>
+	id <S274053AbRISNiG>; Wed, 19 Sep 2001 09:38:06 -0400
+Received: from garrincha.netbank.com.br ([200.203.199.88]:46089 "HELO
+	netbank.com.br") by vger.kernel.org with SMTP id <S274052AbRISNhy>;
+	Wed, 19 Sep 2001 09:37:54 -0400
+Date: Wed, 19 Sep 2001 10:38:03 -0300 (BRST)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: <riel@imladris.rielhome.conectiva>
+To: Alexander Viro <viro@math.psu.edu>
+Cc: Linus Torvalds <torvalds@transmeta.com>,
+        Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Linux 2.4.10-pre11
+In-Reply-To: <Pine.GSO.4.21.0109181354470.27125-100000@weyl.math.psu.edu>
+Message-ID: <Pine.LNX.4.33L.0109191037240.4279-100000@imladris.rielhome.conectiva>
+X-spambait: aardvark@kernelnewbies.org
+X-spammeplease: aardvark@nl.linux.org
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, 18 Sep 2001, Alexander Viro wrote:
+> On Tue, 18 Sep 2001, Linus Torvalds wrote:
+>
+> > Funny that you mention it, because I actually have a cunning plan, and
+> > you're an unwitting part of it.
+>
+> /me swears
 
-I am just opposing to be forced to use a fix when a fix isn't really
-needed on my setup.
+No need to get stressed, if you don't like it you don't
+do it and Linus will have to do things himself ;)
 
+Rik
+-- 
+IA64: a worthy successor to i860.
 
-On Wed, 19 Sep 2001, VDA wrote:
+http://www.surriel.com/		http://distro.conectiva.com/
 
-> Look into pci-pc.c amd quirks.c: do you want to make all those
-> config options too?
-
-I will, and if I find something done not needed I might complain again.
-
-> Also, do you want people to spend days finding out why their
-> once stable system with their brand new, faster processor
-> started to oops, finally giving up and posting about this to lkml?
-
-I dont suppose it will take more than an hour for somebody to notice that
-under the "Optimized for K7" option there is another called "Enable 55.7=0
-fix for K7 that oops all over the place"
-
-Please calm down. I never suggested your fix is wrong. It was a long
-awaited one indeed. I only suggested that it be applied wherever it needs
-to be, not blindly whenever a KT133/A setup is seen.
-
-If you don't agree with my view, just say why, don't go arround mocking me
-about it.
-
--K.
-
+Send all your spam to aardvark@nl.linux.org (spam digging piggy)
 

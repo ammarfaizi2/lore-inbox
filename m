@@ -1,49 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261533AbUKGDt7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261535AbUKGEtt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261533AbUKGDt7 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 6 Nov 2004 22:49:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261535AbUKGDt7
+	id S261535AbUKGEtt (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 6 Nov 2004 23:49:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261536AbUKGEtt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 6 Nov 2004 22:49:59 -0500
-Received: from smtp805.mail.sc5.yahoo.com ([66.163.168.184]:47226 "HELO
-	smtp805.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S261533AbUKGDt5 convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 6 Nov 2004 22:49:57 -0500
-From: Dmitry Torokhov <dtor_core@ameritech.net>
-To: linux-input@atrey.karlin.mff.cuni.cz
-Subject: Re: [2.6 patch] small input cleanup
-Date: Sat, 6 Nov 2004 22:49:54 -0500
-User-Agent: KMail/1.6.2
-Cc: Adrian Bunk <bunk@stusta.de>, vojtech@suse.cz,
-       linux-joystick@atrey.karlin.mff.cuni.cz, linux-kernel@vger.kernel.org
-References: <20041107031256.GD14308@stusta.de>
-In-Reply-To: <20041107031256.GD14308@stusta.de>
+	Sat, 6 Nov 2004 23:49:49 -0500
+Received: from bay-bridge.veritas.com ([143.127.3.10]:18298 "EHLO
+	MTVMIME01.enterprise.veritas.com") by vger.kernel.org with ESMTP
+	id S261535AbUKGEtr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 6 Nov 2004 23:49:47 -0500
+Date: Sun, 7 Nov 2004 04:49:27 +0000 (GMT)
+From: Hugh Dickins <hugh@veritas.com>
+X-X-Sender: hugh@localhost.localdomain
+To: Chiaki <ishikawa@yk.rim.or.jp>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Configuration system bug? : tmpfs listing in /proc/filesystems
+    when TMPFS was not configured!?
+In-Reply-To: <418D8470.9070907@yk.rim.or.jp>
+Message-ID: <Pine.LNX.4.44.0411070436080.12803-100000@localhost.localdomain>
 MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 8BIT
-Message-Id: <200411062249.54887.dtor_core@ameritech.net>
+Content-Type: text/plain; charset="us-ascii"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Sun, 7 Nov 2004, Chiaki wrote:
+> Should not this line be ifdef'ed out???
+> That is, should we modify the line like this?
+> 
+> #ifdef CONFIG_TMPFS
+> 	error = register_filesystem(&tmpfs_fs_type);
+> #endif
 
-On Saturday 06 November 2004 10:12 pm, Adrian Bunk wrote:
-> The patch below does the following cleanups under drivers/input/ :
-> - make some needlessly global code static
-> - remove the completely unused EXPORT_SYMBOL'ed function gameport_rescan
+I'd be more inclined to register under a different
+name than "tmpfs" in the !CONFIG_TMPFS case.
 
-It will be used (but in some transformed) once I finish gameport sysfs
-support, but it probably need not be exported.
+But as I said in my earlier reply to you (which you should have
+received before you sent this?), it's been like this ever since
+2.4.4 when "tmpfs" and CONFIG_TMPFS came into being, so I don't
+see why we need to change it now.
+
+The real 2.4.9 error is fixed by the patch below that I sent then:
+does that solve your problems?
+
+Hugh
+
+--- 2.6.9/mm/shmem.c	2004-10-18 22:56:29.000000000 +0100
++++ linux/mm/shmem.c	2004-11-06 21:04:41.743173040 +0000
+@@ -1904,6 +1904,8 @@ static int shmem_fill_super(struct super
+ 		sbinfo->max_inodes = inodes;
+ 		sbinfo->free_inodes = inodes;
+ 	}
++#else
++	sb->s_flags |= MS_NOUSER;
+ #endif
  
-> - make the EXPORT_SYMBOL'ed function ps2_sendbyte static since it isn't
->   used outside the file where it's defined
+ 	sb->s_maxbytes = SHMEM_MAX_BYTES;
 
-libps2 is a library for communicating with standard PS/2 device and while
-the function is not currently used it is part of the interface. I would
-like to leave the function as is.
-
--- 
-Dmitry

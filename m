@@ -1,39 +1,77 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261564AbTFCWQY (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 Jun 2003 18:16:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261566AbTFCWQY
+	id S261566AbTFCWV1 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 3 Jun 2003 18:21:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261589AbTFCWV1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 Jun 2003 18:16:24 -0400
-Received: from taba2.icmc.usp.br ([143.107.231.16]:18601 "EHLO
-	mail.icmc.usp.br") by vger.kernel.org with ESMTP id S261564AbTFCWQX
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 3 Jun 2003 18:16:23 -0400
-Date: Tue, 3 Jun 2003 19:26:42 -0300 (EST)
-From: William Voorsluys <william@icmc.usp.br>
-To: linux-kernel@vger.kernel.org
-Subject: NPTL/SMP/NUMA
-Message-ID: <Pine.GSO.4.05.10306031914120.1819-100000@ceci>
+	Tue, 3 Jun 2003 18:21:27 -0400
+Received: from post-21.mail.nl.demon.net ([194.159.73.20]:55300 "EHLO
+	post-21.mail.nl.demon.net") by vger.kernel.org with ESMTP
+	id S261566AbTFCWV0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 3 Jun 2003 18:21:26 -0400
+Message-ID: <3EDD2260.20200@maatwerk.net>
+Date: Wed, 04 Jun 2003 00:34:08 +0200
+From: Mauk van der Laan <mauk.lists@maatwerk.net>
+User-Agent: Mozilla/5.0 (Windows; U; Win98; en-US; rv:1.0.1) Gecko/20020826
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: siimage slow on 2.4.21-rc6-ac2
+References: <3EDD1C87.5090906@maatwerk.net> <1054675355.9233.73.camel@dhcp22.swansea.linux.org.uk>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Alan Cox wrote:
 
-I've been reading about the advantages of the NPTL threads library but I
-couldn't find the answers for some questions. The main doubt is related to
-its advantages on SMP machines.
-Many things have been made on the kernel to make the threads library
-better, like the introduction of futexes, changes on the signal handling
-mechanism, use of new architecture specific data structures, and so on. A
-lot is said about the benefits of using the new threads implementations on
-SMP machines. I'd like to know which changes have been made specifically
-thinking on SMP machines, and which have been made to other purposes?
-Is there any feature on the library/kernel that make it possible to
-exploit the benefits of NUMA systems?
+>On Maw, 2003-06-03 at 23:09, Mauk van der Laan wrote:
+>  
+>
+>>I just tested the siimage driver in 2.4.21-rc6-ac2. The errors i get in 
+>>-rc6 have disappeared but
+>>the computer becomes unresponsive (20 seconds between screen switches) 
+>>when I run bonnie
+>>and the disk is very slow:
+>>    
+>>
+>
+>Sounds like your system has switched back to PIO.
+>
+>  
+>
+Yes, it did. Nothing in the log, though.
 
-Thanks
+Still having problems:
+hdparm -d1 -X66 /dev/hdg
+mke2fs /dev/hdg1
 
-William 
+See the empty lines and the funny r 18 line?
+
+Jun  4 00:28:56 debby kernel: blk: queue c0407c34, I/O limit 4095Mb 
+(mask 0xffffffff)
+Jun  4 00:29:42 debby kernel: hdg: dma_timer_expiry: dma status == 0x21
+Jun  4 00:29:52 debby kernel: hdg: dma timeout retry: status=0xd8 { Busy }
+Jun  4 00:29:52 debby kernel:
+Jun  4 00:29:52 debby kernel: hdg: DMA disabled
+Jun  4 00:29:52 debby kernel: ide3: reset phy, status=0x00000113, 
+siimage_reset
+Jun  4 00:30:22 debby kernel: ide3: reset timed-out, status=0xd8
+Jun  4 00:30:22 debby kernel: hdg: status timeout: status=0xd8 { Busy }
+Jun  4 00:30:22 debby kernel:
+Jun  4 00:30:22 debby kernel: ide3: reset phy, status=0x00000113, 
+siimage_reset
+Jun  4 00:30:52 debby kernel: r 18
+Jun  4 00:30:52 debby kernel: end_request: I/O error, dev 22:01 (hdg), 
+sector 20
+Jun  4 00:30:52 debby kernel: end_request: I/O error, dev 22:01 (hdg), 
+sector 22
+Jun  4 00:30:52 debby kernel: end_request: I/O error, dev 22:01 (hdg), 
+sector 4088
+Jun  4 00:30:52 debby kernel: end_request: I/O error, dev 22:01 (hdg), 
+sector 4090
+(lots more of these)
+
+Mauk
+
 

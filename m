@@ -1,47 +1,65 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130247AbQKTULw>; Mon, 20 Nov 2000 15:11:52 -0500
+	id <S130364AbQKTUMk>; Mon, 20 Nov 2000 15:12:40 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130522AbQKTULe>; Mon, 20 Nov 2000 15:11:34 -0500
-Received: from [194.73.73.138] ([194.73.73.138]:31878 "EHLO ruthenium")
-	by vger.kernel.org with ESMTP id <S129831AbQKTULU>;
-	Mon, 20 Nov 2000 15:11:20 -0500
-Date: Mon, 20 Nov 2000 19:41:11 +0000 (GMT)
-From: davej@suse.de
-To: "Michael J. Dikkema" <mjd@moot.mb.ca>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Abit VP6 HPT370 support?
-In-Reply-To: <Pine.LNX.4.21.0011201227001.3379-100000@sliver.moot.mb.ca>
-Message-ID: <Pine.LNX.4.21.0011201930120.2645-100000@neo.local>
+	id <S130335AbQKTUMX>; Mon, 20 Nov 2000 15:12:23 -0500
+Received: from front7m.grolier.fr ([195.36.216.57]:46263 "EHLO
+	front7m.grolier.fr") by vger.kernel.org with ESMTP
+	id <S129831AbQKTULr>; Mon, 20 Nov 2000 15:11:47 -0500
+Message-ID: <3A197E1A.A936D847@neurontech.fr>
+Date: Mon, 20 Nov 2000 20:40:10 +0100
+From: Vincent Marty <jvmarty@neurontech.fr>
+X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.2.18pre22 i586)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: linux-kernel@vger.kernel.org, Vincent Marty <vmarty@neurontech.fr>,
+        Dominique Gence <dgence@neurontech.fr>
+Subject: Dual Via694 M/B locks during 2.4.0-test11 boot. APIC pb ?
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 20 Nov 2000, Michael J. Dikkema wrote:
+Hello
 
-> Does Linux 2.4pre support the raid controller on the abit vp6? The kernel
-> says it supports the 370, but it doesn't mention raid. I was confused as
-> to if there was a difference or not.
+I am using a Gigabyte 6VXDC7 Dual Pentium III MB.
+This motherboard uses a Via 694 chipset. cf
+http://www.giga-byte.com/products/6vxdc7.htm
 
-I have a standalone card with the HPT370 chipset doing RAID fine.
-Or at least did until one of the drives died within an hour of using it.
-This was drive failure, not the card though. Whilst it was working,
-it seemed to be working fine. :)
+With the 2.4.0-test11-pre1 kernel the system freezes during boot. I
+suspect APIC pbs.
 
-> Also, OT, does anyone know if the controller is managed through hardware
-> or through software?
+Can anybody help me ?
+Thanks. Vincent
 
-The packaging / manual for this card suggests that its hardware based.
-If it isn't, it's extremely misleading.
+Below is the content of the screen when 2.4.0-test11-pre1 freezes during
+boot.
 
-regards,
-
-Dave.
-
--- 
-| Dave Jones <davej@suse.de>  http://www.suse.de/~davej
-| SuSE Labs
+Getting VERSION : 40011
+Getting VERSION : 40011
+Getting ID : 0
+Getting ID : f000000
+Getting LVT0 : 700
+Getting LVT1 : 400
+enabled ExtINT on CPU#0
+ESR value before enabling vector : 00000084
+ESR value after enabling vector : 00000000
+CPU present map : 3
+Booting processor 1/1 eip 2000
+Setting warm reset code and vector
+1
+2
+3
+Asserting INIT
+Waiting for send to finish...
++ Deasserting INIT.
+Waiting for send to finish...
++# startup loops : 2
+Sending STARTUP #1.
+After apic_write
+Startup point 1
+Waiting for send to finish...
++
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

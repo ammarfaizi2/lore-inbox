@@ -1,38 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267518AbUHRTJz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267536AbUHRTSH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267518AbUHRTJz (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 Aug 2004 15:09:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267536AbUHRTJz
+	id S267536AbUHRTSH (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 Aug 2004 15:18:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267543AbUHRTSH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 Aug 2004 15:09:55 -0400
-Received: from pfepa.post.tele.dk ([195.41.46.235]:18233 "EHLO
-	pfepa.post.tele.dk") by vger.kernel.org with ESMTP id S267518AbUHRTJx
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 Aug 2004 15:09:53 -0400
-Date: Wed, 18 Aug 2004 23:10:00 +0200
-From: Sam Ravnborg <sam@ravnborg.org>
-To: Coywolf Qi Hunt <coywolf@greatcn.org>
-Cc: Sam Ravnborg <sam@ravnborg.org>, akpm@osdl.org, kai@tp1.ruhr-uni-bochum.de,
-       linux-kernel@vger.kernel.org
-Subject: Re: [patch] remove obsolete HEAD in kbuild
-Message-ID: <20040818211000.GA21714@mars.ravnborg.org>
-Mail-Followup-To: Coywolf Qi Hunt <coywolf@greatcn.org>,
-	Sam Ravnborg <sam@ravnborg.org>, akpm@osdl.org,
-	kai@tp1.ruhr-uni-bochum.de, linux-kernel@vger.kernel.org
-References: <411F3A48.2030201@greatcn.org> <20040815174915.GA7265@mars.ravnborg.org> <412016AA.6030006@greatcn.org> <20040816205230.GA21047@mars.ravnborg.org> <41218562.9040204@greatcn.org> <20040817211258.GA20246@mars.ravnborg.org> <4122E477.4010601@greatcn.org>
+	Wed, 18 Aug 2004 15:18:07 -0400
+Received: from pimout3-ext.prodigy.net ([207.115.63.102]:15270 "EHLO
+	pimout3-ext.prodigy.net") by vger.kernel.org with ESMTP
+	id S267536AbUHRTSE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 18 Aug 2004 15:18:04 -0400
+Date: Wed, 18 Aug 2004 12:18:02 -0700
+From: Chris Wedgwood <cw@f00f.org>
+To: Shriram R <shriram1976@yahoo.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Effect of deleting executables of running programs
+Message-ID: <20040818191802.GC7749@taniwha.stupidest.org>
+References: <20040818181646.28610.qmail@web11412.mail.yahoo.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <4122E477.4010601@greatcn.org>
-User-Agent: Mutt/1.5.6i
+In-Reply-To: <20040818181646.28610.qmail@web11412.mail.yahoo.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Aug 18, 2004 at 01:09:11PM +0800, Coywolf Qi Hunt wrote:
-> 
-> Makefile: remove obsolete HEAD
-> arch/cris/Makefile: replace HEAD with assignment to head-y
+On Wed, Aug 18, 2004 at 11:16:46AM -0700, Shriram R wrote:
 
-Thanks, applied.
+> a) I always thought that once a job is running, the executable is
+> entirely loaded into memory and the abcd.out file is no longer
+> needed.
 
-	Sam
+Not always, but it doesn't matter since the file actually is removed
+from disk until the the last running instance terminates.
+
+> If so, then why does the a running job crash on deleting abcd.out?
+
+I have no idea.  But removing an executable whilst running isn't
+uncommon, when you upgrade ayour machine this happens many times with
+applications and libraries.
+
+> b) To what extent can I trust that the rest of the 6-7 jobs that are
+> running have not been affected by this deletion of "abcd.out" ?
+
+Since one crashed already and there are no details as to why I have no
+idea.
+
+
+  --cw

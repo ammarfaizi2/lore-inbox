@@ -1,47 +1,61 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316092AbSEJTl5>; Fri, 10 May 2002 15:41:57 -0400
+	id <S316096AbSEJTxz>; Fri, 10 May 2002 15:53:55 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316093AbSEJTl4>; Fri, 10 May 2002 15:41:56 -0400
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:16138 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S316092AbSEJTl4>; Fri, 10 May 2002 15:41:56 -0400
-To: linux-kernel@vger.kernel.org
-From: torvalds@transmeta.com (Linus Torvalds)
-Subject: Re: x86 question: Can a process have > 3GB memory?
-Date: Fri, 10 May 2002 19:41:44 +0000 (UTC)
-Organization: Transmeta Corporation
-Message-ID: <abh7po$dph$1@penguin.transmeta.com>
-In-Reply-To: <Pine.LNX.3.96.1020510145244.14035A-100000@gatekeeper.tmr.com> <E176GHv-0006ee-00@the-village.bc.nu>
-X-Trace: palladium.transmeta.com 1021059704 25415 127.0.0.1 (10 May 2002 19:41:44 GMT)
-X-Complaints-To: news@transmeta.com
-NNTP-Posting-Date: 10 May 2002 19:41:44 GMT
-Cache-Post-Path: palladium.transmeta.com!unknown@penguin.transmeta.com
-X-Cache: nntpcache 2.4.0b5 (see http://www.nntpcache.org/)
+	id <S316097AbSEJTxy>; Fri, 10 May 2002 15:53:54 -0400
+Received: from delta.ds2.pg.gda.pl ([213.192.72.1]:20438 "EHLO
+	delta.ds2.pg.gda.pl") by vger.kernel.org with ESMTP
+	id <S316096AbSEJTxw>; Fri, 10 May 2002 15:53:52 -0400
+Date: Fri, 10 May 2002 21:54:06 +0200 (MET DST)
+From: "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>
+To: "David S. Miller" <davem@redhat.com>
+cc: dizzy@roedu.net, linux-kernel@vger.kernel.org
+Subject: Re: mmap, SIGBUS, and handling it
+In-Reply-To: <20020510.095600.90795538.davem@redhat.com>
+Message-ID: <Pine.GSO.3.96.1020510213633.16282A-100000@delta.ds2.pg.gda.pl>
+Organization: Technical University of Gdansk
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <E176GHv-0006ee-00@the-village.bc.nu>,
-Alan Cox  <alan@lxorguk.ukuu.org.uk> wrote:
->> kernel. It would be possible to allow program access to this RAM, although
->> both Kernel and gcc support would be needed. M$ had "huge" memory models
->> to go over 64k in the old 8086 days, doing loads of segment registers.
->
->Alas that is not quite the case. You still have a 4Gb virtual address
->space. If you want > 32bits, get a > 32bit processor. This one isnt as
->simple as add segmentation and 'large model'
+On Fri, 10 May 2002, David S. Miller wrote:
 
-Well, you _could_ use the P bit on the segments and "page" them in on
-demand with mmap. That would get you a model very similar to the old
-16-big large model: no single object can be bigger than 2GB, but you can
-have a total object size of something like 40 bits.
+> He's talking about how SIG_IGN should behave.
 
-No kernel support needed, actually. It's all there with the LDT stuff.
+ So do I.
 
-But yes, compiler support and a recompiled glibc. And it would break all
-programs that assume a flat address space.
+> If you want non-default behavior, specify a signal handler instead
+> of SIG_IGN.
 
-And it would really _suck_ performance-wise if your working set is big
-enough to cause you to have to switch mmap's a lot.
+ Well, SIG_IGN is non-default (user-specified) behavior -- SIG_DFL is. 
 
-			Linus
+>     Why should we enforce policy on a user?  If one wants to ignore such
+>    signals for whatever reason, let him do that. 
+>    
+> We don't specify any policy other than the behavior of SIG_IGN which
+> is to kill off the process for SIGBUS.
+
+ Making a special exception to well-defined semantics because it seems
+less useful for a certain case is policy.  SIG_IGN means to ignore a
+signal (except from SIGKILL, SIGSTOP, SIGCONT signals that cannot be
+ignored, but that's a result of how they work and it is explicitly
+specified in standards) -- everything else is unexpected semantics. 
+
+> If you specify a handler you can have SIGBUS do whatever you want it
+> to.  There are no enforced limitations, only a specified behavior
+> for SIG_IGN when used for SIGBUS.
+> 
+> The original poster has solved his problem, yet you continue to argue
+> one and on and on.
+
+ s/argue/discuss/
+
+ Anyway, since the code seems to work like I describe/expect, there is
+really no problem for me.  Haven't you meant SIG_DFL, actually? 
+
+-- 
++  Maciej W. Rozycki, Technical University of Gdansk, Poland   +
++--------------------------------------------------------------+
++        e-mail: macro@ds2.pg.gda.pl, PGP key available        +
+

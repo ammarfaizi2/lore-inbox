@@ -1,51 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291903AbSBAS12>; Fri, 1 Feb 2002 13:27:28 -0500
+	id <S291906AbSBAS36>; Fri, 1 Feb 2002 13:29:58 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291902AbSBAS1S>; Fri, 1 Feb 2002 13:27:18 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:28173 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S291901AbSBAS1A>; Fri, 1 Feb 2002 13:27:00 -0500
-Message-ID: <3C5ADDD1.6000608@zytor.com>
-Date: Fri, 01 Feb 2002 10:26:25 -0800
-From: "H. Peter Anvin" <hpa@zytor.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.6) Gecko/20011120
-X-Accept-Language: en-us, en, sv
+	id <S291905AbSBAS3s>; Fri, 1 Feb 2002 13:29:48 -0500
+Received: from mrelay1.cc.umr.edu ([131.151.1.120]:32144 "EHLO smtp.umr.edu")
+	by vger.kernel.org with ESMTP id <S291901AbSBAS3c> convert rfc822-to-8bit;
+	Fri, 1 Feb 2002 13:29:32 -0500
+X-MimeOLE: Produced By Microsoft Exchange V6.0.5762.3
+content-class: urn:content-classes:message
 MIME-Version: 1.0
-To: "Eric W. Biederman" <ebiederm@xmission.com>
-CC: "Erik A. Hendriks" <hendriks@lanl.gov>, Andrew Morton <akpm@zip.com.au>,
-        linux-kernel@vger.kernel.org, Werner Almesberger <wa@almesberger.net>
-Subject: Re: [RFC] x86 ELF bootable kernels/Linux booting Linux/LinuxBIOS
-In-Reply-To: <m1elk7d37d.fsf@frodo.biederman.org>	<3C586355.A396525B@zip.com.au> <m1zo2vb5rt.fsf@frodo.biederman.org>	<3C58B078.3070803@zytor.com> <m1vgdjb0x0.fsf@frodo.biederman.org>	<3C58CAE0.4040102@zytor.com> <20020131103516.I26855@lanl.gov>	<m1elk6t7no.fsf@frodo.biederman.org> <3C59DB56.2070004@zytor.com>	<m1r8o5a80f.fsf@frodo.biederman.org> <3C5A5F25.3090101@zytor.com> <m1hep19pje.fsf@frodo.biederman.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Subject: Artificially starving a process for CPU/Disk/etc?
+Date: Fri, 1 Feb 2002 12:29:32 -0600
+Message-ID: <A69C6C0DB9068F40AC122C194F9DBEF0AEBD@umr-mail1.umr.edu>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: Artificially starving a process for CPU/Disk/etc?
+Thread-Index: AcGrTmjaHR0wPxXCEda/IgBQVgAgFQ==
+From: "Neulinger, Nathan" <nneul@umr.edu>
+To: <linux-kernel@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Eric W. Biederman wrote:
+I've got a situation where I want to simulate a server process getting starved for cpu/paging to death/etc. I realize I could renice the process(s) and then create artificial loading on the machine, but is there any way to do this more effectively?
 
-> 
-> What is magic about interactivity?  What makes this a different
-> problem?  We approach booting from totally different perspectives,
-> which makes communicating clearly hard.  
-> 
-> If you spell out individual problems I will show you how I would solve
-> them.
-> 
+I.e. is there some hack I could use to tell a particular set of processes that they get like 0.05% of the cpu time, even during idle?
 
+The idea is to simulate a server that has gone south, but still be able to do monitoring/debug/analysis on that server to see what happens. During this happening in a real situation, you'd be unable to monitor on the box, cause it would be close to dead.
 
-It makes it a very different problem because YOU DON'T KNOW WHAT YOU'RE 
-BOOTING UNTIL THE USER TELLS YOU.
+-- Nathan
 
-In fact, depending on just exactly what you're doing, you might not even 
-know what you're booting until you have already gotten several items 
-downloaded (consider, for example, a device-probing bootloader.)
-
-Therefore, the bootloader must be able to obtain boot medium services 
-not just once and for all, but on a back-and-forth basis.  There needs 
-to be an API between the boot loader and the firmware, and just 
-"stuffing it into memory" doesn't count.
-
-	-hpa
-
-
+------------------------------------------------------------
+Nathan Neulinger                       EMail:  nneul@umr.edu
+University of Missouri - Rolla         Phone: (573) 341-4841
+Computing Services                       Fax: (573) 341-4216

@@ -1,53 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265955AbUGPB6q@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266177AbUGPCNu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265955AbUGPB6q (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 Jul 2004 21:58:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266177AbUGPB6p
+	id S266177AbUGPCNu (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 Jul 2004 22:13:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266240AbUGPCNu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 Jul 2004 21:58:45 -0400
-Received: from mtvcafw.SGI.COM ([192.48.171.6]:300 "EHLO omx3.sgi.com")
-	by vger.kernel.org with ESMTP id S265955AbUGPB6o (ORCPT
+	Thu, 15 Jul 2004 22:13:50 -0400
+Received: from e5.ny.us.ibm.com ([32.97.182.105]:16814 "EHLO e5.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S266177AbUGPCNt (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 15 Jul 2004 21:58:44 -0400
-From: Jesse Barnes <jbarnes@engr.sgi.com>
+	Thu, 15 Jul 2004 22:13:49 -0400
+Subject: sched domains bringup race?
+From: Dave Hansen <haveblue@us.ibm.com>
 To: Nick Piggin <nickpiggin@yahoo.com.au>
-Subject: Re: [PATCH] reduce inter-node balancing frequency
-Date: Thu, 15 Jul 2004 21:58:17 -0400
-User-Agent: KMail/1.6.2
-Cc: "Martin J. Bligh" <mbligh@aracnet.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       John Hawkes <hawkes@sgi.com>
-References: <200407151829.20069.jbarnes@engr.sgi.com> <200407152038.32755.jbarnes@engr.sgi.com> <40F733D2.2000309@yahoo.com.au>
-In-Reply-To: <40F733D2.2000309@yahoo.com.au>
-MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-1"
+Cc: "Matthew C. Dobson [imap]" <colpatch@us.ibm.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Content-Type: text/plain
+Message-Id: <1089944026.32312.47.camel@nighthawk>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Thu, 15 Jul 2004 19:13:46 -0700
 Content-Transfer-Encoding: 7bit
-Message-Id: <200407152158.17605.jbarnes@engr.sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday, July 15, 2004 9:48 pm, Nick Piggin wrote:
-> Yeah, these numbers actually used to be a lot higher, but someone
-> at Intel (I forget who it was right now) found them to be too high
-> on even a 32 way SMT system. They could probably be raised a *little*
-> bit in the generic code.
+I keep getting oopses for the non-boot CPU in find_busiest_group(). 
+This occurs the first time that the CPU goes idle.  Those groups are set
+up in sched_init_smp(), which is called after smp_init():
 
-Ok, but I wouldn't want to hurt the performance of small machines at all.  If 
-possible, I'd rather just add another level to the hierarchy if MAX_NUMNODES 
-> some value.
+static int init(void * unused)
+{
+	...
+        fixup_cpu_present_map();
+        smp_init();
+        sched_init_smp();
 
-> > We may have enough information to do that already... I'll look.
->
-> The plan is to allow arch overridable SD_CPU/NODE_INIT macros for
-> those architectures that just look like a regular SMT+SMP+NUMA, and
-> have the generic code set them up.
+But, the idle threads for the secondary CPUs are initialized in
+smp_init().  So, what happens when a CPU tries to schedule (using sched
+domains) before sched_init_smp() completes?  I think it goes boom! :)
 
-Would simply creating a 'supernode' scheduling domain work with the existing 
-scheduler?  My thought was that in the ia64 code we'd create them for every N 
-regular nodes; its children would be the regular nodes with the existing 
-defaults.
+Anyway, I was thinking that we should just hold the runqueue lock on the
+non-boot CPUs until the sched domain init code is done.  Does that sound
+feasible?
 
-Thanks,
-Jesse
+-- Dave
+

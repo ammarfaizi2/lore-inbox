@@ -1,72 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261677AbUL3RYI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261681AbUL3Ro2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261677AbUL3RYI (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 30 Dec 2004 12:24:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261678AbUL3RYH
+	id S261681AbUL3Ro2 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 30 Dec 2004 12:44:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261682AbUL3Ro2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 30 Dec 2004 12:24:07 -0500
-Received: from rproxy.gmail.com ([64.233.170.202]:44935 "EHLO rproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261677AbUL3RX4 (ORCPT
+	Thu, 30 Dec 2004 12:44:28 -0500
+Received: from [61.49.235.157] ([61.49.235.157]:16883 "EHLO adam.yggdrasil.com")
+	by vger.kernel.org with ESMTP id S261681AbUL3RoW (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 30 Dec 2004 12:23:56 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
-        b=ioHQS/P7O2Gj6nJ9MJuASoJ9Nwf8q/Mns/oH0IKu+LLrdueFhH+PI1ys/8SQw4eeOCnmhJa+uwj0BOyGFhhvDWv1azNQIPkKod+SmYX5aqQbQlfRjZEx1CZ+DyL2NS9JHc4hM3oP9jwHu+iFPztSx7/+MNnHYiesPYYImnC7/KA=
-Message-ID: <105c793f041230092344e152d7@mail.gmail.com>
-Date: Thu, 30 Dec 2004 12:23:55 -0500
-From: Andrew Haninger <ahaning@gmail.com>
-Reply-To: Andrew Haninger <ahaning@gmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: Logitech PS/2 touchpad on 2.6.X not working along bottom and right sides.
-In-Reply-To: <105c793f04123009183bcc7dd1@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-References: <105c793f04122907116b571ebf@mail.gmail.com>
-	 <cr16ho$eh1$1@tangens.hometree.net>
-	 <105c793f041230080734d71c4a@mail.gmail.com>
-	 <200412301203.44484.dtor_core@ameritech.net>
-	 <105c793f04123009183bcc7dd1@mail.gmail.com>
+	Thu, 30 Dec 2004 12:44:22 -0500
+Date: Thu, 30 Dec 2004 09:33:32 -0800
+From: "Adam J. Richter" <adam@yggdrasil.com>
+Message-Id: <200412301733.iBUHXW719876@adam.yggdrasil.com>
+To: maneesh@in.ibm.com
+Subject: Re: [Patch] Do not allocate sysfs_dirent.s_children for non-directories
+Cc: akpm@osdl.org, chrisw@osdl.org, greg@kroah.com,
+       linux-kernel@vger.kernel.org, viro@parcelfarce.linux.theplanet.co.uk
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-And again, the previously-unforwarded-to-the-list bit.
+On Thu, 30 Dec 2004 19:05:29 +0530, Maneesh Soni wrote:
+>On Thu, Dec 02, 2004 at 07:20:35PM -0800, Adam J. Richter wrote:
+>> 	The following patch, against a heavily hacked 2.6.10-rc2-bk15
+>> sysfs tree, removes the s_children field from sysfs_dirent and
+>> creates a new structure just for directories named sysfs_dir, which
+>> embeds a sysfs_dirent and also adds s_children.  Directories allocate
+>> a sysfs_dir; non-directories allocate a sysfs_dirent.  There are
+>> two separate kmem caches for the different data types.
+>> 
+>> 	Not allocating s_children from each non-directory saves
+>> two pointers (8 bytes) for each of the 2573 non-directory nodes
+>> in my sysfs tree, or about 20kB on unswappable memory, but
+>> having another kmem cache probably wastes an average of half
+>> a page in memory fragmentation and then there is are few
+>> bytes from the new code and the additional kmem_cache_t
+>> structure, so I would guess it probably saves about 16kB in
+>> practice.
+>> 
+>> 	In the future, I hope to make a similar change for symbolic
+>> links.
+>> 
+>> 	By the way, this patch will also make it easier for me to
+>> try to unpin sysfs directories because there are a few other
+>> fields specific to directories that I would want to store
+>> in sysfs_dir.
+>> 
 
--Andy
 
+>Apart from a couple of diff'ing related comments, I feel the code looks 
+>some what complicated. I think we can directly link sysfs_dir to 
+>directory dentries and sysfs_dirent to non-directory dentries instead 
+>of always linking sysfs_dirent to d_fsdata. To differentiate between the
+>two types of structures linked to dentry's d_fsdata field, we can use
+>S_ISDIR(dentry->d_inode->i_mode). This will avoid using container_of() and 
+>the dentry_to_sysfs_dir() conversions.
 
-> Yes, you can. Booting with psmouse.proto=bare will force the touchpad
-> into standard PS/2 mode. You may also try booting with
-> psmouse.proto=imps and psmouse.proto=exps - maybe one of these 2 will
-> give you virtual scrolling.
->
-> If psmouse is compiled as a module you will have to add
->
->         options psmouse proto=bare
->
-> to your /etc/modprobe.conf
->
-> Btw, what device/protocol are you using in X? I'd advise setting it
-> to "dev/input/mice" and "ExplorerPS/2" so if your touchad is indeed
-> sending scroll events X would use them. Could you post your config,
-> please?
+>Most of the places we may not need to find what type of struct d_fsdata points
+>to. Like in sysfs_make_dirent(), first param has to be sysfs_dir as the parent
+>dentry corresponds to a sysfs directory.
 
-I'm using the /dev/mouse device for X with protocol 'auto'.
+>In sysfs_lookup() also, we know parent dentry corresponds to sysfs directory
+>so dentry's d_fsdata will point to sysfs_dir instead of sysfs_dirent.
 
-Here's the relevant portion of my XF86Config:
+	In the future, I want to make a change so that attributes in
+a named struct attribute_group do not each have a struct dirent.
+In that case, it is possible that the attribute_group will only need
+a struct sysfs_dirent, not a struct sysfs_dir.
 
-Section "InputDevice"
-        Identifier  "Mouse0"
-        Driver      "mouse"
-        Option      "Protocol" "auto"
-        Option      "Device" "/dev/mouse"
-EndSection
-
-Unfortunately, I'm not currently physically at the machine (I only
-have ssh access currently), so I can't try this stuff right away.
-However, I will try your suggestions when I'm next at the machine
-later today.
-
-(Also, I'm now realizing that my subject for this thread was wrong, so
-I've edited it a bit.)
+                    __     ______________
+Adam J. Richter        \ /
+adam@yggdrasil.com      | g g d r a s i l

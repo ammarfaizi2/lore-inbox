@@ -1,76 +1,64 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313312AbSDUOSg>; Sun, 21 Apr 2002 10:18:36 -0400
+	id <S313267AbSDUOZ3>; Sun, 21 Apr 2002 10:25:29 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313334AbSDUOSf>; Sun, 21 Apr 2002 10:18:35 -0400
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:57684 "EHLO
-	frodo.biederman.org") by vger.kernel.org with ESMTP
-	id <S313312AbSDUOSf>; Sun, 21 Apr 2002 10:18:35 -0400
-To: Christoph Hellwig <hch@infradead.org>
-Cc: Chris Abbey <linux@cabbey.net>, linux-kernel@vger.kernel.org
-Subject: Re: possible GPL violation involving linux kernel code
-In-Reply-To: <20020421074858.A8318@infradead.org>
-	<Pine.LNX.4.33.0204210147550.26531-100000@tweedle.cabbey.net>
-	<20020421121732.A16765@infradead.org>
-From: ebiederm@xmission.com (Eric W. Biederman)
-Date: 21 Apr 2002 08:10:35 -0600
-Message-ID: <m11yd93zxg.fsf@frodo.biederman.org>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.1
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S313313AbSDUOZ2>; Sun, 21 Apr 2002 10:25:28 -0400
+Received: from hera.cwi.nl ([192.16.191.8]:51667 "EHLO hera.cwi.nl")
+	by vger.kernel.org with ESMTP id <S313267AbSDUOZ2>;
+	Sun, 21 Apr 2002 10:25:28 -0400
+From: Andries.Brouwer@cwi.nl
+Date: Sun, 21 Apr 2002 16:25:08 +0200 (MEST)
+Message-Id: <UTC200204211425.g3LEP8Q25419.aeb@smtp.cwi.nl>
+To: torvalds@transmeta.com, viro@math.psu.edu
+Subject: Re: BK, deltas, snapshots and fate of -pre...
+Cc: adilger@clusterfs.com, akpm@zip.com.au, linux-kernel@vger.kernel.org,
+        spyro@armlinux.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Christoph Hellwig <hch@infradead.org> writes:
+> FWIW, I doubt that dropping -pre completely in favour of dayly snapshots
+> is a good idea - "2.5.N-preM oopses when ..." is preferable to
+> "snapshot YY/MM/DD oopses when..." simply because it's easier to match
+> bug reports that way.
 
-> On Sun, Apr 21, 2002 at 01:52:34AM -0500, Chris Abbey wrote:
-> > Today, Christoph Hellwig wrote:
-> > > Calm down
-> > 
-> > I am calm. As I said, I didn't want to post it, but that's the
-> > best way to get word to the copyright holders, who are the only
-> > ones that can act on any violations.
-> 
-> Blah.  First thing you'd do if you were serious would be to contact
-> Promise.  If they have a support person that has a little more clue
-> than their driver guys they'd point you to the OpenLinux kernel source
-> RPM and you wouldn't even have to make so much noise.
-> 
-> > 
-> > > - OpenLinux driver disks are supposed to contain the standard
-> > > modules in addition to the new ones.  You can find your sources in
-> > > /usr/src/linux.
-> > 
-> > Not on that floppy you don't, nor in the download that included the
-> > floppy image, nor in any offer contained within that disk/image, nor
-> > on promise's website along with that image.
-> 
-> Where the heck did you get the impression from that this is required by
-> the GPL?
-> 
-> 	Christoph
-GPL section 3
+: Dailies (nice) would need some distinguishing feature in EXTRAVERSION,
+: please.  "-20Apr02" would suit.
 
-  3. You may copy and distribute the Program (or a work based on it,
-under Section 2) in object code or executable form under the terms of
-Sections 1 and 2 above provided that you also do one of the following:
+= Well, hopefully it will be "-pre020420" so that increasing kernel
+= versions can be sorted...  Also, skip releasing snapshots on days
+= when no new deltas have been applied...
 
-    a) Accompany it with the complete corresponding machine-readable
-    source code, which must be distributed under the terms of Sections
-    1 and 2 above on a medium customarily used for software interchange; or,
+In the good old days we had frequent releases.
+For example, the 1.3 series went from 1.3.1 to 1.3.100
+in eleven months, an average of one patch every three days.
 
-    b) Accompany it with a written offer, valid for at least three
-    years, to give any third party, for a charge no more than your
-    cost of physically performing source distribution, a complete
-    machine-readable copy of the corresponding source code, to be
-    distributed under the terms of Sections 1 and 2 above on a medium
-    customarily used for software interchange; or,
+These days we have pre-patches (15 since Feb 1), and patches
+(5 since Feb 1) showing an average of one patch every four days.
+So, maybe there is a small slow-down, or maybe the testintervals
+were chosen unfortunately.
 
-    c) Accompany it with the information you received as to the offer
-    to distribute corresponding source code.  (This alternative is
-    allowed only for noncommercial distribution and only if you
-    received the program in object code or executable form with such
-    an offer, in accord with Subsection b above.)
+If it is possible to increase the fequency with which patches are
+released, then that is very good. There is no need to invent new
+numbering schemes. Indeed, I would be in favour of collapsing
+the present scheme (for 2.5), and call everything patch-2.5.N,
+no reason to panic when N reaches into the hundreds.
 
+The reason I object to "-20Apr02" or "-pre020420" is that it
+makes it difficult to see whether there are missing patches
+in a given archive. Sequential numbering is better.
+(Moreover, there might be two patches on one day, there is a
+handful of examples already.)
 
-Eric
+Concerning the collapsing of patches and prepatches:
+For a stable series like 2.4 one needs pre-patches to have a
+test-period. For an unstable series like 2.5 pre-patches only
+cause a small amount of hassle (the naming is different, they
+live in different directories, the patches are not incremental,
+incremental patches again have a different naming scheme)
+and as far as I can see the presumed advantage, namely that the
+result of a patch is more stable than that of a pre-patch, is
+absent so far in the 2.5 series. Maybe prepatches should first
+be reinvented again shortly before the release of 2.6.
+
+Andries
+

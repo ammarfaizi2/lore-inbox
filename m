@@ -1,69 +1,91 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261373AbTHSUMV (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 19 Aug 2003 16:12:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261367AbTHSUMI
+	id S261300AbTHSTsD (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 19 Aug 2003 15:48:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261305AbTHSTrv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 19 Aug 2003 16:12:08 -0400
-Received: from fw.osdl.org ([65.172.181.6]:47591 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S261373AbTHSUK5 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 19 Aug 2003 16:10:57 -0400
-Date: Tue, 19 Aug 2003 13:11:24 -0700
-From: Dave Olien <dmo@osdl.org>
-To: Ricky Beam <jfbeam@bluetronic.net>
-Cc: Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Mail List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] move DAC960 GAM IOCTLs into a new device
-Message-ID: <20030819201124.GB12439@osdl.org>
-References: <20030819181801.GA11704@osdl.org> <Pine.GSO.4.33.0308191542450.7750-100000@sweetums.bluetronic.net> <20030819200625.GA12439@osdl.org>
-Mime-Version: 1.0
+	Tue, 19 Aug 2003 15:47:51 -0400
+Received: from web14911.mail.yahoo.com ([216.136.225.249]:14700 "HELO
+	web14911.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S261300AbTHSTpF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 19 Aug 2003 15:45:05 -0400
+Message-ID: <20030819194503.10122.qmail@web14911.mail.yahoo.com>
+Date: Tue, 19 Aug 2003 12:45:03 -0700 (PDT)
+From: Jon Smirl <jonsmirl@yahoo.com>
+Subject: Standard driver call to enable/disable PCI ROM
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030819200625.GA12439@osdl.org>
-User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+I needed to enable a PCI ROM and read a few things
+from it, and then disable it again. It might be worth
+adding a standard PCI API in 2.6 for this.
 
-A little more... regarding where this file actually lives....  Why not
-put it in /dev/rd/dac960_gam?
+Here's the code I used...
 
-I don't have a GOOD answer to that.  Since I'm using the miscellaneous
-device registration, it happens that devfs puts the name in the
-same directory with other such devices... nvram, etc.  So as a default
-I decided to keep the name with the other miscellaneous devices.
+static void * __init aty128_map_ROM(struct pci_dev
+                   *dev, const struct aty128fb_par
+*par)
+{
+   void *rom;
+   struct resource *r =
+      &dev->resource[PCI_ROM_RESOURCE];
+                                                      
+   /* assign address if it doesn't have one */
+   if (r->start == 0)
+      pci_assign_resource(dev,
+                                    PCI_ROM_RESOURCE);
+                                                      
+   /* enable if needed */
+   if (!(r->flags & PCI_ROM_ADDRESS_ENABLE)) {
+      pci_write_config_dword(dev,
+                     dev->rom_base_reg, r->start | 
+                     PCI_ROM_ADDRESS_ENABLE);
+      r->flags |= PCI_ROM_ADDRESS_ENABLE;
+   }
+   rom = ioremap(r->start, r->end - r->start + 1);
+   if (!rom) {
+     printk(KERN_ERR "aty128fb: ROM failed to map\n");
+     return NULL;
+   }
+   /* Very simple test to make sure it appeared */
+   if (readb(rom) != 0x55) {
+      printk(KERN_ERR "aty128fb: Invalid ROM
+            signature %x should be 0x55\n",
+readb(rom));          
+      aty128_unmap_ROM(dev, rom);
+      return NULL;
+   }
+   return rom;
+}
+                                            
+static void __init aty128_unmap_ROM(struct pci_dev
+                                             *dev,
+void * rom)
+{
+   /* leave it disabled and unassigned */
+   struct resource *r =
+         &dev->resource[PCI_ROM_RESOURCE];
+                                            
+   iounmap(rom);
+                                            
+   r->flags &= ~PCI_ROM_ADDRESS_ENABLE;
+   r->end -= r->start;
+   r->start = 0;
+   /* This will disable and set address to unassigned
+*/
+   pci_write_config_dword(dev, dev->rom_base_reg, 0);
+   release_resource(r);
+}
 
-If there's a good reason for moving it elsewhere, I'm open to that.
 
-On Tue, Aug 19, 2003 at 01:06:25PM -0700, Dave Olien wrote:
-> 
-> The interface to the original ioctl() was strange.  One of the
-> arguments to the ioctl() was the controller number you wanted to operate
-> on.  So, opening /dev/rd/c0d0 with O_NONBLOCK flag gave you a fd to
-> operate on ANY of the controllers.
-> 
-> One of the operations you can perform is to ask how many controllers
-> there are, and what their types are.
-> 
-> I've kept the original ioctl() argument structure. So you still pass
-> in the controller number you want to work with. But at least now the
-> file name the RAID control application opens is divorced from any
-> controller number.
-> 
-> There are lots of ways this could be made nicer.  I've just
-> tried to get rid of the single ugliest part without changing it so much that
-> it would be difficult to get the older applications to work again.
-> 
-> On Tue, Aug 19, 2003 at 03:57:56PM -0400, Ricky Beam wrote:
-> > On Tue, 19 Aug 2003, Dave Olien wrote:
-> > >...  It introduces a new "miscellaneous" device
-> > >named /dev/dac960_gam.  It uses minor device number 252 of the miscellaneous
-> > >character devices.
-> > 
-> > And what happens when there are more than one DAC in the system?  Why not
-> > put it where the rest of the DAC devices are? (/dev/rd/gam/c0 or something)
-> > 
-> > --Ricky
-> > 
-> > 
+=====
+Jon Smirl
+jonsmirl@yahoo.com
+
+__________________________________
+Do you Yahoo!?
+Yahoo! SiteBuilder - Free, easy-to-use web site design software
+http://sitebuilder.yahoo.com

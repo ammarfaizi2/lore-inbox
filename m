@@ -1,53 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264084AbRFNVkn>; Thu, 14 Jun 2001 17:40:43 -0400
+	id <S264089AbRFNVmW>; Thu, 14 Jun 2001 17:42:22 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264083AbRFNVkj>; Thu, 14 Jun 2001 17:40:39 -0400
-Received: from ns.snowman.net ([63.80.4.34]:51471 "EHLO ns.snowman.net")
-	by vger.kernel.org with ESMTP id <S264084AbRFNVkY>;
-	Thu, 14 Jun 2001 17:40:24 -0400
-Date: Thu, 14 Jun 2001 17:40:11 -0400 (EDT)
-From: <nick@snowman.net>
-To: "David S. Miller" <davem@redhat.com>
-cc: Kip Macy <kmacy@netapp.com>,
+	id <S264086AbRFNVmS>; Thu, 14 Jun 2001 17:42:18 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:18100 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S264087AbRFNVly>;
+	Thu, 14 Jun 2001 17:41:54 -0400
+From: "David S. Miller" <davem@redhat.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <15145.12192.199302.981306@pizda.ninka.net>
+Date: Thu, 14 Jun 2001 14:41:52 -0700 (PDT)
+To: nick@snowman.net
+Cc: Kip Macy <kmacy@netapp.com>,
         Linux Kernel List <linux-kernel@vger.kernel.org>
 Subject: Re: 3com Driver and the 3XP Processor
+In-Reply-To: <Pine.LNX.4.21.0106141739140.16013-100000@ns>
 In-Reply-To: <15145.11935.992736.767777@pizda.ninka.net>
-Message-ID: <Pine.LNX.4.21.0106141739140.16013-100000@ns>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	<Pine.LNX.4.21.0106141739140.16013-100000@ns>
+X-Mailer: VM 6.75 under 21.1 (patch 13) "Crater Lake" XEmacs Lucid
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-So are there any intresting changes one can make to the acenic?  I've got
-one, mostly unused right now.  I've been told it is mostly a pair or R5ks
-hooked back to back.  Would anyone have a recommendation for a replacement
-to the 3cr990?
-	Nick
 
-On Thu, 14 Jun 2001, David S. Miller wrote:
+nick@snowman.net writes:
+ > So are there any intresting changes one can make to the acenic?
 
-> 
-> nick@snowman.net writes:
->  > Erm, that is going to be a problem.  Crypto benifits more from open source
->  > than any other market segment, and binary only drivers for linux are not
->  > the way to go.  I guess I need to get rid of my 5-10 3cr990s and replace
->  > them with someone else's product?
-> 
-> Many of us on the networking developer team believe that making the
-> programming interface to the cpus on the Tigon3 is the biggest mistake
-> 3com could ever make.
-> 
-> What made the Acenic so ubiquitous and interesting was that you could
-> program the firmware on the board to do whatever you like.  They even
-> provided an entire firmware developer kit so you could hack on it.
-> 
-> So many useful projects came from this capability.
-> 
-> I feel dirty working on the Tigon3 driver for 2.4.x because of this.
-> 
-> Later,
-> David S. Miller
-> davem@redhat.com
-> 
+Like I said, there is an entire firmware developer kit, so the only
+limit is your imagination and coding skills :-)
 
+Later,
+David S. Miller
+davem@redhat.com

@@ -1,98 +1,106 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264826AbSJaKlP>; Thu, 31 Oct 2002 05:41:15 -0500
+	id <S264818AbSJaKlF>; Thu, 31 Oct 2002 05:41:05 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264828AbSJaKlO>; Thu, 31 Oct 2002 05:41:14 -0500
-Received: from e34.co.us.ibm.com ([32.97.110.132]:60618 "EHLO
-	e34.co.us.ibm.com") by vger.kernel.org with ESMTP
-	id <S264826AbSJaKlK>; Thu, 31 Oct 2002 05:41:10 -0500
-Date: Thu, 31 Oct 2002 16:23:30 +0530
-From: Dipankar Sarma <dipankar@in.ibm.com>
-To: Maneesh Soni <maneesh@in.ibm.com>
-Cc: Al Viro <viro@math.psu.edu>, LKML <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@digeo.com>, Anton Blanchard <anton@au1.ibm.com>,
-       Paul McKenney <paul.mckenney@us.ibm.com>
-Subject: Re: dcache_rcu [performance results]
-Message-ID: <20021031162330.B12797@in.ibm.com>
-Reply-To: dipankar@in.ibm.com
-References: <20021030161912.E2613@in.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20021030161912.E2613@in.ibm.com>; from maneesh@in.ibm.com on Wed, Oct 30, 2002 at 04:19:12PM +0530
+	id <S264822AbSJaKlF>; Thu, 31 Oct 2002 05:41:05 -0500
+Received: from maruja.satec.es ([213.164.38.66]:24043 "EHLO satec.es")
+	by vger.kernel.org with ESMTP id <S264818AbSJaKlB>;
+	Thu, 31 Oct 2002 05:41:01 -0500
+From: "Adriano Galano" <adriano@satec.es>
+To: "'LKML'" <linux-kernel@vger.kernel.org>
+Subject: Kernel bug in 2.4.7-10smp...
+Date: Thu, 31 Oct 2002 11:41:17 +0100
+Message-ID: <00dc01c280ca$0ba447e0$6f20a4d5@adriano>
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="US-ASCII"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook CWS, Build 9.0.2416 (9.0.2910.0)
+Importance: Normal
+In-Reply-To: <15809.2056.151239.230395@robur.slu.se>
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Oct 30, 2002 at 04:19:12PM +0530, Maneesh Soni wrote:
-> Hello Viro,
-> 
-> Please consider forwarding the following patch ito Linus for dcache lookup 
-> using Read Copy Update. The patch has been there in -mm kernel since 
-> 2.5.37-mm1. The patch is stable. A couple of bugs reported are solved. It 
-> helps a great deal on higher end SMP machines and there is no performance 
-> regression on UP and lower end SMP machines as seen in Dipankar's kernbench 
-> numbers.
-> 
-> http://marc.theaimsgroup.com/?l=linux-kernel&m=103462075416638&w=2
-> 
+Hi:
 
-Anton (Blanchard) did some benchmarking with this
-in a 24-way ppc64 box and the results showed why we need this patch.
-Here are some performace comparisons based on a multi-user benchmark 
-that Anton ran with vanilla 2.5.40 and 2.5.40-mm. 
+I'm using RH Linux 7.2 (kernel 2.4.7-10smp) in one Compaq Proliant ML570
+with 4 Xeon procesors at 900MHz and one Compaq Smart Array 5300 Controller
+with 6x73 GB SCSI disk with ext3 filesystem.
 
-http://lse.sourceforge.net/locking/dcache/summary.png
+It was working OK, but I have one trouble, description below, and the
+computer it's stopped. Could someone help me? How could I fix it?
 
-base = 2.5.40
-base-nops = 2.5.40 but ps command in benchmark scripts commented out
-mm = 2.5.40-mm
-mm-nops = 2.5.40-mm but ps command in benchmark scripts commented out
+Oct 20 04:13:24 virtual3 kernel: Unable to handle kernel paging request
+at virtual address a5e7ba0b
+Oct 20 04:13:24 virtual3 kernel: printing eip:
+Oct 20 04:13:24 virtual3 kernel: c0144d00
+Oct 20 04:13:24 virtual3 kernel: *pde = 00000000
+Oct 20 04:13:24 virtual3 kernel: Oops: 0000
+Oct 20 04:13:24 virtual3 kernel: CPU: 0
+Oct 20 04:13:24 virtual3 kernel: EIP: 0010:[cdfind+16/48]
+Oct 20 04:13:24 virtual3 kernel: EIP: 0010:[]
+Oct 20 04:13:24 virtual3 kernel: EFLAGS: 00010287
+Oct 20 04:13:24 virtual3 kernel: eax: a5e7b9ff ebx: f5c898c0 ecx:
+00004402 edx: c0313630
+Oct 20 04:13:24 virtual3 kernel: esi: f5c898c0 edi: 00004402 ebp:
+c0313630 esp: d80dbe04
+Oct 20 04:13:24 virtual3 kernel: ds: 0018 es: 0018 ss: 0018
+Oct 20 04:13:24 virtual3 kernel: Process updatedb (pid: 30973,
+stackpage=d80db000)
+Oct 20 04:13:24 virtual3 kernel: Stack: c0144d60 00004402 c0313630
+000000b0 f5c898c0 f5c898c0 00004402 f6a7dc00
+Oct 20 04:13:24 virtual3 kernel: c013d079 00004402 00000000 f88573a3
+f5c898c0 00002180 00004402 f67a1de0
+Oct 20 04:13:24 virtual3 kernel: f679e354 00000282 00000000 c09aec60
+d934ad80 00000002 c0152fbf 00000000
+Oct 20 04:13:24 virtual3 kernel: Call Trace: [cdget+64/224]
+[init_special_inode+57/192]
+[eepro100:__insmod_eepro100_O/lib/modules/2.4.7-10smp/kernel/drivers/+-62166
+1/96]
+[get_new_inode+79/384] [get_new_inode+227/384]
+Oct 20 04:13:24 virtual3 kernel: Call Trace: [] [] [] [] []
+Oct 20 04:13:24 virtual3 kernel: [iget4+217/240]
+[eepro100:__insmod_eepro100_O/lib/modules/2.4.7-10smp/kernel/drivers/+-61714
+4/96]
+[real_lookup+115/272] [path_walk+1646/2288] [__user_walk+58/96]
+[sys_lstat64+19/112]
+Oct 20 04:13:24 virtual3 kernel: [] [] [] [] [] []
+Oct 20 04:13:24 virtual3 kernel: [error_code+56/64] [system_call+51/56]
+Oct 20 04:13:24 virtual3 kernel: [] []
+Oct 20 04:13:24 virtual3 kernel:
+Oct 20 04:13:24 virtual3 kernel: Code: 66 39 48 0c 75 0a f0 ff 40 08 c3
+90 8d 74 26 00 8b 00 39 d0
+Oct 20 15:21:11 virtual3 kernel: <5>ENOMEM in
+journal_get_undo_access_Rsmp_b86db3be, retrying.
+Oct 20 15:58:12 virtual3 kernel: ENOMEM in
+journal_get_undo_access_Rsmp_b86db3be, retrying.
+Oct 20 15:59:33 virtual3 kernel: ENOMEM in do_get_write_access,
+retrying.
+Oct 20 16:09:35 virtual3 kernel: ENOMEM in
+journal_get_undo_access_Rsmp_b86db3be, retrying.
+Oct 20 17:33:15 virtual3 kernel: ENOMEM in
+journal_get_undo_access_Rsmp_b86db3be, retrying.
+Oct 20 17:59:53 virtual3 kernel: ENOMEM in
+journal_get_undo_access_Rsmp_b86db3be, retrying.
+Oct 20 18:28:11 virtual3 kernel: ENOMEM in do_get_write_access,
+retrying.
+Oct 20 19:02:55 virtual3 kernel: ENOMEM in
+journal_get_undo_access_Rsmp_b86db3be, retrying.
+Oct 20 20:37:57 virtual3 kernel: ENOMEM in
+journal_get_undo_access_Rsmp_b86db3be, retrying.
 
-Here is a profile output snippet of base and mm runs at 200 scripts -
+Best regards,
 
-base :
-
-Hits Percentage Function
-------------------------
-75185 100.00 total
-11215 14.92 path_lookup
-8578 11.41 atomic_dec_and_lock
-5763 7.67 do_lookup
-5745 7.64 proc_pid_readlink
-4344 5.78 page_remove_rmap
-2144 2.85 page_add_rmap
-1587 2.11 link_path_walk
-1531 2.04 proc_check_root
-1461 1.94 save_remaining_regs
-1345 1.79 inode_change_ok
-1236 1.64 ext2_free_blocks
-1215 1.62 ext2_new_block
-1067 1.42 d_lookup
-1053 1.40 number
-907 1.21 release_pages
+-Adriano (bryam)
+--
+Adriano M. Galano Diez
+System & Network Engineer
+http://www.satec.es
+Phone: (+34) 917 089 000
+Sourceforge.NET Linux Kernel Foundry Guide http://sf.net/foundry/linuxkernel
 
 
-mm :
 
-Hits Percentage Function
-62369 100.00 total
-5802 9.30 page_remove_rmap 
-4092 6.56 atomic_dec_and_lock
-3887 6.23 proc_pid_readlink
-3207 5.14 follow_mount
-2979 4.78 page_add_rmap
-2066 3.31 save_remaining_regs 
-1856 2.98 d_lookup
-1629 2.61 number
-1235 1.98 release_pages
-1168 1.87 pSeries_flush_hash_range
-1154 1.85 do_page_fault
-1026 1.65 copy_page
-1009 1.62 path_lookup
-
-
-Thanks
--- 
-Dipankar Sarma  <dipankar@in.ibm.com> http://lse.sourceforge.net
-Linux Technology Center, IBM Software Lab, Bangalore, India.

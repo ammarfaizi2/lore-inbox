@@ -1,60 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268299AbUJSCH6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267863AbUJSCRb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268299AbUJSCH6 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 18 Oct 2004 22:07:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268293AbUJSCH6
+	id S267863AbUJSCRb (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 18 Oct 2004 22:17:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268293AbUJSCRb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 18 Oct 2004 22:07:58 -0400
-Received: from cantor.suse.de ([195.135.220.2]:46246 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S267928AbUJSCE0 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 18 Oct 2004 22:04:26 -0400
-Date: Tue, 19 Oct 2004 04:04:26 +0200
-From: Andi Kleen <ak@suse.de>
-To: linux-kernel@vger.kernel.org, discuss@x86-64.org
-Subject: 4level-2.6.9-1 released
-Message-ID: <20041019020425.GA32393@wotan.suse.de>
+	Mon, 18 Oct 2004 22:17:31 -0400
+Received: from mail.dt.e-technik.Uni-Dortmund.DE ([129.217.163.1]:4280 "EHLO
+	mail.dt.e-technik.uni-dortmund.de") by vger.kernel.org with ESMTP
+	id S267863AbUJSCR0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 18 Oct 2004 22:17:26 -0400
+Date: Tue, 19 Oct 2004 04:17:19 +0200
+From: Matthias Andree <matthias.andree@gmx.de>
+To: Linux-Kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: 2.6.9 BK build broken
+Message-ID: <20041019021719.GA22924@merlin.emma.line.org>
+Mail-Followup-To: Linux-Kernel mailing list <linux-kernel@vger.kernel.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+BitKeeper fails to build (error message with GCC 3.4, ICE with GCC 3.3):
 
-I put a new version of the 4level page table patchkit at 
+Parent repository is bk://linux.bkbits.net/linux-2.5
+MD5KEY: 417454bfpfdm0m7rr7xnJadPA4ioZA
 
-ftp://ftp.suse.com/pub/people/ak/4level/4level-2.6.9-1.gz
+KEY of latest changeset:
+torvalds@ppc970.osdl.org|ChangeSet|20041018234151|19286
 
-It extends the Linux VM to understand 4level page tables and extends
-the virtual address room of each x86-64 process to be 128TB (previously
-512GB) 
+$ LANG=C make CC=/opt/gcc-3.4/bin/gcc
+...
+  LDS     arch/i386/kernel/vsyscall.lds
+  AS      arch/i386/kernel/vsyscall-int80.o
+  SYSCALL arch/i386/kernel/vsyscall-int80.so
+  AS      arch/i386/kernel/vsyscall-sysenter.o
+  SYSCALL arch/i386/kernel/vsyscall-sysenter.so
+  AS      arch/i386/kernel/vsyscall.o
+In file included from include/linux/init.h:5,
+                 from arch/i386/kernel/vsyscall.S:1:
+include/linux/compiler.h:20: syntax error in macro parameter list
+make[1]: *** [arch/i386/kernel/vsyscall.o] Error 1
+make: *** [arch/i386/kernel] Error 2
 
-The extension is quite straight forward without any significant
-redesign. The new level is called pml4.
+$ nl -ba include/linux/compiler.h | grep -5 20
+    15  # define __safe
+    16  # define __force
+    17  # define __iomem
+    18  # define __chk_user_ptr(x) (void)0
+    19  # define __chk_io_ptr(x) (void)0
+    20  #define __builtin_warning(x, ...) (1)
+    21  #endif
+    22
+    23  #ifdef __KERNEL__
+    24
+    25  #ifndef __ASSEMBLY__
 
-The patch needs some simple changes to all architectures.
+$ /opt/gcc-3.4/bin/gcc --version
+gcc (GCC) 3.4.2
+Copyright (C) 2004 Free Software Foundation, Inc.
+...
 
-Changes compared to 4level-2.6.9rc4-2: 
-- Merged with 2.6.9 (release, not -final) 
-- Converted more architectures.
-
-Porting status:
-- i386   works with 2/3 levels.
-- x86-64 works with 4 levels.
-- ppc64  works with 3 levels
-- ia64   works with 3 levels
-- sh     converted, but was unable to compile because it's broken in mainline
-- ppc32  converted, compiles, not tested.
-- alpha  converted, boots
-- sparc64 converted, compiles, not tested
-- arm*/h8300/cris/m32r/m68k*/mips/parisc/s390/sh64/um/v850: still need to be converted
-For many of them it's difficult because they don't even compile in mainline.
-
-More testing on x86-64 and other architectures and new architecture ports would be 
-appreciated. 
-
-The changes needed to convert an architecture over are relatively simple, 
-see the i386 port as an example.
-
--Andi
-
+-- 
+Matthias Andree

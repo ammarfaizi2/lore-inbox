@@ -1,95 +1,103 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129609AbQJ3Sxv>; Mon, 30 Oct 2000 13:53:51 -0500
+	id <S129338AbQJ3S4v>; Mon, 30 Oct 2000 13:56:51 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129593AbQJ3Sxl>; Mon, 30 Oct 2000 13:53:41 -0500
-Received: from deckard.concept-micro.com ([62.161.229.193]:9570 "EHLO
-	deckard.concept-micro.com") by vger.kernel.org with ESMTP
-	id <S129112AbQJ3Sxe>; Mon, 30 Oct 2000 13:53:34 -0500
-Message-ID: <XFMail.20001030195540.petchema@concept-micro.com>
-X-Mailer: XFMail 1.4.4 on Linux
-X-Priority: 3 (Normal)
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
-MIME-Version: 1.0
-In-Reply-To: <39FD9A2D.951BB5A7@haque.net>
-Date: Mon, 30 Oct 2000 19:55:40 +0100 (CET)
-X-Face: #eTSL0BRng*(!i1R^[)oey6`SJHR{3Sf4dc;"=af8%%;d"%\#"Hh0#lYfJBcm28zu3r^/H^
- d6!9/eElH'p0'*,L3jz_UHGw"+[c1~ceJxAr(^+{(}|DTZ"],r[jSnwQz$/K&@MT^?J#p"n[J>^O[\
- "%*lo](u?0p=T:P9g(ta[hH@uvv
-Organization: Concept Micro
-From: Pierre Etchemaite <petchema@concept-micro.com>
-To: Mohammad Haque <mhaque@haque.net>
-Subject: Re: ide/disk perf?
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
+	id <S129631AbQJ3S4b>; Mon, 30 Oct 2000 13:56:31 -0500
+Received: from h-205-217-237-46.netscape.com ([205.217.237.46]:63425 "EHLO
+	netscape.com") by vger.kernel.org with ESMTP id <S129628AbQJ3S4W>;
+	Mon, 30 Oct 2000 13:56:22 -0500
+Date: Mon, 30 Oct 2000 10:55:38 -0800
+From: John Gardiner Myers <jgmyers@netscape.com>
+Subject: Re: Readiness vs. completion (was: Re: Linux's implementation of
+ poll()not scalable?)
+To: dank@alumni.caltech.edu
+Cc: linux-kernel@vger.kernel.org
+Message-id: <39FDC42A.CD9C3D12@netscape.com>
+MIME-version: 1.0
+X-Mailer: Mozilla 4.74 [en] (WinNT; U)
+Content-type: multipart/signed; protocol="application/x-pkcs7-signature";
+ micalg=sha1; boundary=------------ms79E15C2DB0A6E0AFB635B732
+X-Accept-Language: en
+In-Reply-To: <39FCC2B8.DA281B4C@alumni.caltech.edu>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+This is a cryptographically signed message in MIME format.
 
-Le 30-Oct-2000, Mohammad Haque écrivait :
-> At the bottom is the IDE/ATA part of my .config. let me knwo if I am
-> missing something. Should I worry about the Multi_Mode configuration?
-
-I have it enabled, however I never used any HPT366 controller, so YMMV. 
-The BX chipset is what I tested the most.
-
-># ATA/IDE/MFM/RLL support
->#
-> CONFIG_IDE=y
-> CONFIG_BLK_DEV_IDE=y
-> CONFIG_BLK_DEV_IDEDISK=y
-># CONFIG_IDEDISK_MULTI_MODE is not set
-> CONFIG_BLK_DEV_IDECD=y
-> CONFIG_BLK_DEV_IDESCSI=m
-> CONFIG_BLK_DEV_IDEPCI=y
-> CONFIG_IDEPCI_SHARE_IRQ=y
-> CONFIG_BLK_DEV_IDEDMA_PCI=y
-> CONFIG_BLK_DEV_OFFBOARD=y
-> CONFIG_IDEDMA_PCI_AUTO=y
-> CONFIG_BLK_DEV_IDEDMA=y
-> CONFIG_BLK_DEV_HPT366=y
-> CONFIG_BLK_DEV_PIIX=y
-> CONFIG_PIIX_TUNING=y
-> CONFIG_IDEDMA_AUTO=y
-> CONFIG_BLK_DEV_IDE_MODES=y
-
-Looks very similar to my own settings
-
-CONFIG_IDE=y
-CONFIG_BLK_DEV_IDE=y
-CONFIG_BLK_DEV_IDEDISK=y
-CONFIG_IDEDISK_MULTI_MODE=y
-CONFIG_BLK_DEV_IDECD=y
-CONFIG_BLK_DEV_IDEPCI=y
-CONFIG_IDEPCI_SHARE_IRQ=y
-CONFIG_BLK_DEV_IDEDMA_PCI=y
-CONFIG_IDEDMA_PCI_AUTO=y
-CONFIG_BLK_DEV_IDEDMA=y
-CONFIG_BLK_DEV_PIIX=y
-CONFIG_PIIX_TUNING=y
-CONFIG_IDEDMA_AUTO=y
-CONFIG_BLK_DEV_IDE_MODES=y
+--------------ms79E15C2DB0A6E0AFB635B732
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 
 
-But I only do 
 
-        hdparm -qu1c1k1 idedevice
+Dan Kegel wrote:
+> IMHO you're describing a situation where a 'completion notification event'
+> (as with aio) would be more appropriate than a 'readiness notification event'
+> (as with poll).
 
-at boot time. Also, I've found 
+I've found that I want both types of events, preferably through the same
+interface.  To provide a "completion notification event" interface on
+top of an existing nonblocking interface, one needs an "async poll"
+mechanism with edge-triggered events with no event coalescing.
 
-        append="ide0=autotune ide1=autotune"
+You are correct in recognizing NT completion ports from my description. 
+While the NT completion port interface is ugly as sin, it gets a number
+of performance issues right.
 
-in my lilo.conf, left from earlier testing session. Remarks in ide.c say it
-only has influence on PIO modes, so unless the comment is obsolete I guess I
-could as well remove that line.
+> And, come to think of it, network programmers usually can be categorized
+> into the same two groups :-)  Each style of programming is an acquired taste.
 
-Best regards,
-Pierre.
+I would say that the "completion notification" style is a paradigm
+beyond the "readiness notification" style.  I started with the select()
+model of network programming and have since learned the clear
+superiority of the "completion notificatin" style.
+--------------ms79E15C2DB0A6E0AFB635B732
+Content-Type: application/x-pkcs7-signature; name="smime.p7s"
+Content-Transfer-Encoding: base64
+Content-Disposition: attachment; filename="smime.p7s"
+Content-Description: S/MIME Cryptographic Signature
 
-
--- 
-Linux blade.workgroup 2.4.0-test10 #1 Mon Oct 30 15:30:15 CET 2000 i686 unknown
-  7:55pm  up  4:12,  5 users,  load average: 1.11, 1.20, 1.38
+MIIIXwYJKoZIhvcNAQcCoIIIUDCCCEwCAQExCzAJBgUrDgMCGgUAMAsGCSqGSIb3DQEHAaCC
+BlkwggMMMIICdaADAgECAgIeFDANBgkqhkiG9w0BAQQFADCBkzELMAkGA1UEBhMCVVMxCzAJ
+BgNVBAgTAkNBMRYwFAYDVQQHEw1Nb3VudGFpbiBWaWV3MRswGQYDVQQKExJBbWVyaWNhIE9u
+bGluZSBJbmMxGTAXBgNVBAsTEEFPTCBUZWNobm9sb2dpZXMxJzAlBgNVBAMTHkludHJhbmV0
+IENlcnRpZmljYXRlIEF1dGhvcml0eTAeFw0wMDA2MDIxNzE1MjlaFw0wMDExMjkxNzE1Mjla
+MIGCMRMwEQYKCZImiZPyLGQBGRYDY29tMRgwFgYKCZImiZPyLGQBGRYIbmV0c2NhcGUxIzAh
+BgkqhkiG9w0BCQEWFGpnbXllcnNAbmV0c2NhcGUuY29tMRMwEQYDVQQDEwpKb2huIE15ZXJz
+MRcwFQYKCZImiZPyLGQBARMHamdteWVyczCBnzANBgkqhkiG9w0BAQEFAAOBjQAwgYkCgYEA
+0+WYWlf3g+u6vFEBJwo+4Cxz0PM5GUuqOHGVkjPFTeGjR05BUJADWm8mZDoAhUuIVuTvixCx
+AB0f5JzDWmIIWbB0ea92RwOHdibSS3bT0BTwKNTgt+PQAH3ZdH+IjmGAZI6/J+5Ob3m43ZZl
+o/3lfGEd4O7gAJY62Sy76MgO1O0CAwEAAaN+MHwwEQYJYIZIAYb4QgEBBAQDAgWgMA4GA1Ud
+DwEB/wQEAwIEsDAfBgNVHSMEGDAWgBSiO2Uy9/cbifxVDQcBvIdIWv2QPTA2BggrBgEFBQcB
+AQQqMCgwJgYIKwYBBQUHMAGGGmh0dHA6Ly9uc29jc3AubmV0c2NhcGUuY29tMA0GCSqGSIb3
+DQEBBAUAA4GBAGPAOC3FZineuE0PLv+pKc52i5uz+lpHzvssmUrr5FNSSD3M+DBow7Sd3YW+
+vyPVAxH+MZ5RtE+If/aDDYQhgpCtbujQb5wPVRS5ZCmKpAC0eOnP12jcUDLr1tfhyBIlIvJQ
+6xGKj7ckSK6G7lNxuQ8a12v/v2yEEk2uADg51oY7MIIDRTCCAq6gAwIBAgIBJzANBgkqhkiG
+9w0BAQQFADCB0TELMAkGA1UEBhMCWkExFTATBgNVBAgTDFdlc3Rlcm4gQ2FwZTESMBAGA1UE
+BxMJQ2FwZSBUb3duMRowGAYDVQQKExFUaGF3dGUgQ29uc3VsdGluZzEoMCYGA1UECxMfQ2Vy
+dGlmaWNhdGlvbiBTZXJ2aWNlcyBEaXZpc2lvbjEkMCIGA1UEAxMbVGhhd3RlIFBlcnNvbmFs
+IEZyZWVtYWlsIENBMSswKQYJKoZIhvcNAQkBFhxwZXJzb25hbC1mcmVlbWFpbEB0aGF3dGUu
+Y29tMB4XDTk5MDYwMzIyMDAzNFoXDTAxMDYwMjIyMDAzNFowgZMxCzAJBgNVBAYTAlVTMQsw
+CQYDVQQIEwJDQTEWMBQGA1UEBxMNTW91bnRhaW4gVmlldzEbMBkGA1UEChMSQW1lcmljYSBP
+bmxpbmUgSW5jMRkwFwYDVQQLExBBT0wgVGVjaG5vbG9naWVzMScwJQYDVQQDEx5JbnRyYW5l
+dCBDZXJ0aWZpY2F0ZSBBdXRob3JpdHkwgZ8wDQYJKoZIhvcNAQEBBQADgY0AMIGJAoGBAOLv
+Xyx2Q4lLGl+z5fiqb4svgU1n/71KD2MuxNyF9p4sSSYg/wAX5IiIad79g1fgoxEZEarW3Lzv
+s9IVLlTGbny/2bnDRtMJBYTlU1xI7YSFmg47PRYHXPCzeauaEKW8waTReEwG5WRB/AUlYybr
+7wzHblShjM5UV7YfktqyEkuNAgMBAAGjaTBnMBIGA1UdEwEB/wQIMAYBAf8CAQAwHQYDVR0l
+BBYwFAYIKwYBBQUHAwQGCCsGAQUFBwMCMBEGCWCGSAGG+EIBAQQEAwIBAjAfBgNVHSMEGDAW
+gBRyScJzNMZV9At2coF+d/SH58ayDjANBgkqhkiG9w0BAQQFAAOBgQC6UH38ALL/QbQHCDkM
+IfRZSRcIzI7TzwxW8W/oCxppYusGgltprB2EJwY5yQ5+NRPQfsCPnFh8AzEshxDVYjtw1Q6x
+ZIA0Tln6xlnmRt5OaAh1QPUdjCnWrnetyT1p5ECNRJdGb756wFiksR9qpw8pUYqBDSmOneQP
+MwuPjSQ97DGCAc4wggHKAgEBMIGaMIGTMQswCQYDVQQGEwJVUzELMAkGA1UECBMCQ0ExFjAU
+BgNVBAcTDU1vdW50YWluIFZpZXcxGzAZBgNVBAoTEkFtZXJpY2EgT25saW5lIEluYzEZMBcG
+A1UECxMQQU9MIFRlY2hub2xvZ2llczEnMCUGA1UEAxMeSW50cmFuZXQgQ2VydGlmaWNhdGUg
+QXV0aG9yaXR5AgIeFDAJBgUrDgMCGgUAoIGKMBgGCSqGSIb3DQEJAzELBgkqhkiG9w0BBwEw
+HAYJKoZIhvcNAQkFMQ8XDTAwMTAzMDE4NTUzOFowIwYJKoZIhvcNAQkEMRYEFOdosWP99uRF
+oWD+wzA7GSGI1Zn0MCsGCSqGSIb3DQEJDzEeMBwwCgYIKoZIhvcNAwcwDgYIKoZIhvcNAwIC
+AgCAMA0GCSqGSIb3DQEBAQUABIGARxp6Omjdl+sSFlK5FHOZr8qo+P99WqpKdMkm8YGwIPnf
+eNmrl7YZuYR/UpH28ETovb6VlLNzbS4wws4PzDFYpqcPE+8YqYY5C8V7IVId/EPZdU8424cM
+P4CHu6HZYSpx88dW1Fo4oUvEnRwAO7852jj/V9D+hu7wlXH6NoPUDqw=
+--------------ms79E15C2DB0A6E0AFB635B732--
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

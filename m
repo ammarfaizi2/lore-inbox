@@ -1,70 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267629AbUH3OTF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267552AbUH3OYN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267629AbUH3OTF (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 30 Aug 2004 10:19:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267552AbUH3OTE
+	id S267552AbUH3OYN (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 30 Aug 2004 10:24:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267619AbUH3OYN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 30 Aug 2004 10:19:04 -0400
-Received: from clusterfw.beelinegprs.net ([217.118.66.232]:47782 "EHLO
-	crimson.namesys.com") by vger.kernel.org with ESMTP id S267491AbUH3OSt
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 30 Aug 2004 10:18:49 -0400
-Date: Mon, 30 Aug 2004 18:10:56 +0400
-From: Alex Zarochentsev <zam@namesys.com>
-To: Giuliano Pochini <pochini@shiny.it>
-Cc: Linus Torvalds <torvalds@osdl.org>,
-       ReiserFS List <reiserfs-list@namesys.com>, linux-kernel@vger.kernel.org,
-       linux-fsdevel@vger.kernel.org, Hans Reiser <reiser@namesys.com>,
-       Jamie Lokier <jamie@shareable.org>, Christoph Hellwig <hch@lst.de>
-Subject: Re: silent semantic changes with reiser4
-Message-ID: <20040830141055.GS5108@backtop.namesys.com>
-References: <Pine.LNX.4.58.0408260919380.2304@ppc970.osdl.org> <XFMail.20040827111855.pochini@shiny.it>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <XFMail.20040827111855.pochini@shiny.it>
-User-Agent: Mutt/1.4.1i
+	Mon, 30 Aug 2004 10:24:13 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:51138 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S267552AbUH3OYK (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 30 Aug 2004 10:24:10 -0400
+Message-ID: <41333879.2040902@redhat.com>
+Date: Mon, 30 Aug 2004 10:23:53 -0400
+From: Neil Horman <nhorman@redhat.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.0; hi, Mom) Gecko/20020604 Netscape/7.01
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: =?ISO-8859-1?Q?Marc_Str=E4mke?= <marcstraemke.work@gmx.net>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Problem accessing Sandisk CompactFlash Cards (Connected to the
+ IDE bus)
+References: <cgs2c1$ccg$1@sea.gmane.org> <4131DC5D.8060408@redhat.com> <cgsuq2$7cb$1@sea.gmane.org> <41326FE1.2050508@redhat.com> <20040830010712.GC12313@logos.cnet> <cguj7n$gur$1@sea.gmane.org>
+In-Reply-To: <cguj7n$gur$1@sea.gmane.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Aug 27, 2004 at 11:18:55AM +0200, Giuliano Pochini wrote:
+Marc Strämke wrote:
+> Marcelo Tosatti wrote:
 > 
-> On 26-Aug-2004 Linus Torvalds wrote:
+>> Indeed this is a typo but has been fixed on 2.4.26:
+>>
+>>         if (drive->removable && id != NULL) {
 > 
-> > I advocated (long ago) something like this for /dev handling, just because
-> > I think it would make sense to have
-> >
-> >       /dev/hda        <- special file
-> >       /dev/hda/part1  <- partition 1 (aka /dev/hda1)
-> 
-> This breaks the r4 semantics if I understood it correctly. 
+> It never gets past this check because drive->removable is not set!
+Theres actually a more interesting difference to notice:
 
-Reiser4 currently links /metas/ directory under each reiser4 fs object. 
-Reiser4 "silently" allows regular file to be a directory for that.
+In the working dmesg output I see this:
+ > hda: SanDisk SDCFB-128, CFA DISK drive
 
-That is only an example how an fs object may link its internal hierarchical
-structure to the fs tree.  /dev/hda/-as-a-dir is another example, but, I am
-afraid, it is not a reiser4 business to look into the devices.  Devfs or its
-successor may do it. 
+While in the non working dmesg output we have:
+ > hdb: SanDisk SDCFB-128, ATA DISK drive
 
-> Because
-> /partN are not simply associated to the file, they are part of the
-> file. ie. when I modify /dev/hda I also change /dev/hda/partN and
-> vice-versa. I don't see any pratical problem, though.
-> 
-> 
-> > Still, I really do like the idea of merging the notion of file and
-> > directory into one notion of "container". I absolutely _detest_ files with
-> > internal structure that tools have to know about (ie I hate seeing all
-> > those embedded formats that I can't use "grep" on - MIME being one case).
-> > I'd much rather see a "group of files"  and a "file with a grouping of
-> > information".
-> 
-> You're actually looking for a database with a legacy fs-like interface :)
-> 
-> 
-> --
-> Giuliano.
+Tracing back through the code it looks to me like we get the ATA disk 
+print in the event that this test in do_identify:
+/*
+  * Check for an ATAPI device
+  */
+  if (cmd == WIN_PIDENTIFY) {
 
+that would explain why the drive_is_flashcard test is getting skipped, 
+why setting removable is making no difference, and why your card is 
+being identified as an ATA device.  It looks as though the WIN_PIDENTIFY 
+command is sent down to this routine from ide_probe_for_drive in this 
+snip of code:
+
+/* if !(success||timed-out) */
+                 if (do_probe(drive, WIN_IDENTIFY) >= 2) {
+                         /* look for ATAPI device */
+                         (void) do_probe(drive, WIN_PIDENTIFY);
+                 }
+
+So it would seem that WIN_PIDENTIFY is issued only if a WIN_IDENTIFY 
+command fails with an rc greater than 2.  I would suggest instrumenting 
+this area of the code to see what the WIN_IDENTIFY command is returning 
+on the working and non-working systems.  I'm betting you will find a 
+difference, and we'll be able to track down the problem from there.
+
+HTH
+Neil
 -- 
-Alex.
+/***************************************************
+  *Neil Horman
+  *Software Engineer
+  *Red Hat, Inc.
+  *nhorman@redhat.com
+  *gpg keyid: 1024D / 0x92A74FA1
+  *http://pgp.mit.edu
+  ***************************************************/

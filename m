@@ -1,57 +1,33 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281463AbRLICAg>; Sat, 8 Dec 2001 21:00:36 -0500
+	id <S281557AbRLICLr>; Sat, 8 Dec 2001 21:11:47 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281484AbRLICA0>; Sat, 8 Dec 2001 21:00:26 -0500
-Received: from vasquez.zip.com.au ([203.12.97.41]:28431 "EHLO
-	vasquez.zip.com.au") by vger.kernel.org with ESMTP
-	id <S281463AbRLICAN>; Sat, 8 Dec 2001 21:00:13 -0500
-Message-ID: <3C12C57C.FF93FAC0@zip.com.au>
-Date: Sat, 08 Dec 2001 17:59:24 -0800
-From: Andrew Morton <akpm@zip.com.au>
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.17-pre5 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: zlatko.calusic@iskon.hr
-CC: sct@redhat.com, linux-mm@kvack.org, linux-kernel@vger.kernel.org
-Subject: Re: ext3 writeback mode slower than ordered mode?
-In-Reply-To: <871yi5wh93.fsf@atlas.iskon.hr>
+	id <S281558AbRLICLh>; Sat, 8 Dec 2001 21:11:37 -0500
+Received: from mail.ocs.com.au ([203.34.97.2]:61194 "HELO mail.ocs.com.au")
+	by vger.kernel.org with SMTP id <S281557AbRLICLZ>;
+	Sat, 8 Dec 2001 21:11:25 -0500
+X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
+From: Keith Owens <kaos@ocs.com.au>
+To: Jerrad Pierce <belg4mit@dirty-bastard.pthbb.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.4.14/16 load reboots 
+In-Reply-To: Your message of "Sat, 08 Dec 2001 15:22:27 CDT."
+             <200112082022.fB8KMRJ27452@dirty-bastard.pthbb.org> 
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Date: Sun, 09 Dec 2001 13:11:10 +1100
+Message-ID: <17725.1007863870@ocs3.intra.ocs.com.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Zlatko Calusic wrote:
-> 
-> Hi!
-> 
-> My apologies if this is an FAQ, and I'm still catching up with
-> the linux-kernel list.
-> 
-> Today I decided to convert my /tmp partition to be mounted in
-> writeback mode, as I noticed that ext3 in ordered mode syncs every 5
-> seconds and that is something defenitely not needed for /tmp, IMHO.
-> 
-> Then I did some tests in order to prove my theory. :)
-> 
-> But, alas, writeback is slower.
-> 
+On Sat, 08 Dec 2001 15:22:27 -0500, 
+Jerrad Pierce <belg4mit@dirty-bastard.pthbb.org> wrote:
+>PS> Why doesn't the CPU type *default* to whatever is listed
+>in /proc/cpunifo? I say only default ince I realize people
+>do build for other architectures.
 
-I cannot reproduce this.  Using http://www.zip.com.au/~akpm/writer.c
+In 2.5 there will be an option to probe the current hardware and
+generate a specific config.
 
-ext2:            0.03s user 1.43s system 97% cpu 1.501 total
-ext3 writeback:  0.02s user 2.33s system 96% cpu 2.431 total
-ext3 ordered:    0.02s user 2.52s system 98% cpu 2.574 total
+http://people.debian.org/~cate/files/kautoconfigure/autoconfigure/
 
-ext3 is significantly more costly in either journalling mode,
-probably because of the bitmap manipulation - each time we allocate
-a block to the file, we have to muck around doing all sorts
-of checks and list manipulations against the buffer which holds
-the bitmap.  Not only is this costly, but ext2 speculatively
-sets a bunch of bits at the same time, which ext3 cannot do
-for consistency reasons.
-
-There are a few things we can do to pull this back, but given that
-this is all pretty insignificant once you actually start doing disk
-IO, we couldn't justify the risk of destabilising the filesystem
-for small gains.

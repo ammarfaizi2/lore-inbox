@@ -1,49 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264890AbUEQEas@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264888AbUEQEmR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264890AbUEQEas (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 17 May 2004 00:30:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264888AbUEQEas
+	id S264888AbUEQEmR (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 17 May 2004 00:42:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264891AbUEQEmR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 17 May 2004 00:30:48 -0400
-Received: from willy.net1.nerim.net ([62.212.114.60]:7436 "EHLO
-	willy.net1.nerim.net") by vger.kernel.org with ESMTP
-	id S264890AbUEQEaL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 17 May 2004 00:30:11 -0400
-Date: Mon, 17 May 2004 06:29:04 +0200
-From: Willy Tarreau <willy@w.ods.org>
-To: Tomasz Chmielewski <mangoo@interia.pl>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: root fs on usb - is patching kernel still needed?
-Message-ID: <20040517042903.GB578@alpha.home.local>
-References: <40A7BDBC.9010209@interia.pl>
+	Mon, 17 May 2004 00:42:17 -0400
+Received: from fw.osdl.org ([65.172.181.6]:1157 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S264888AbUEQEmP (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 17 May 2004 00:42:15 -0400
+Date: Sun, 16 May 2004 21:39:40 -0700
+From: "Randy.Dunlap" <rddunlap@osdl.org>
+To: lkml <linux-kernel@vger.kernel.org>
+Cc: akpm <akpm@osdl.org>
+Subject: [PATCH] correct ps2esdi module parm name
+Message-Id: <20040516213940.0e381f88.rddunlap@osdl.org>
+Organization: OSDL
+X-Mailer: Sylpheed version 0.9.8a (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <40A7BDBC.9010209@interia.pl>
-User-Agent: Mutt/1.4i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
 
-On Sun, May 16, 2004 at 09:15:08PM +0200, Tomasz Chmielewski wrote:
-> Are there any solutions for this problem in stable or pre- kernel tree 
-> yet (2.4 or 2.6)? If not, will such a solution be ever included in a 
-> stable kernel?
+// Linux 2.6.6
+// module parameter name is incorrect (looks like a thinko);
+// module cannot be loaded as is;
 
-AFAICT, none has been merged (yet).
+There is no global "track" variable, and just above the patched area is:
 
-> Or maybe are there any easier solutions for this (some lilo or grub 
-> option?)
+static int cyl[MAX_HD] = {-1,-1};
+static int head[MAX_HD] = {-1, -1};
+static int sect[MAX_HD] = {-1, -1};
 
-An initrd might do the trick, although it's sometimes unconvenient to use :
-- lilo (or grub) loads the initrd into memory
-- lilo (or grub) loads the kernel and executes it
-- the kernel sees the initrd and mounts it and executes /linuxrc
-- linuxrc can load USB modules and wait the required amount of time
-- linuxrc then mounts the root fs and does the pivot_root() and exits
-- the kernel finally boots /sbin/init from your USB FS.
 
-Regards,
-Willy
+diffstat:=
+ drivers/block/ps2esdi.c |    2 +-
+ 1 files changed, 1 insertion(+), 1 deletion(-)
 
+
+diff -Naurp ./drivers/block/ps2esdi.c~orig ./drivers/block/ps2esdi.c
+--- ./drivers/block/ps2esdi.c~orig	2004-05-09 19:31:56.000000000 -0700
++++ ./drivers/block/ps2esdi.c	2004-05-16 21:19:49.000000000 -0700
+@@ -180,7 +180,7 @@ static int sect[MAX_HD] = {-1, -1};
+ MODULE_PARM(tp720esdi, "i");
+ MODULE_PARM(cyl, "i");
+ MODULE_PARM(head, "i");
+-MODULE_PARM(track, "i");
++MODULE_PARM(sect, "i");
+ MODULE_LICENSE("GPL");
+ 
+ int init_module(void) {
+
+
+--
+~Randy

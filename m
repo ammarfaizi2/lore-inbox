@@ -1,374 +1,299 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292362AbSCAVvK>; Fri, 1 Mar 2002 16:51:10 -0500
+	id <S292576AbSCAVuu>; Fri, 1 Mar 2002 16:50:50 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292565AbSCAVvE>; Fri, 1 Mar 2002 16:51:04 -0500
-Received: from heavymetal.isc.de ([195.64.96.45]:18295 "EHLO mail1.isys.net")
-	by vger.kernel.org with ESMTP id <S292362AbSCAVur>;
-	Fri, 1 Mar 2002 16:50:47 -0500
-Message-ID: <3C7FF7E8.9020200@gmx.net>
-Date: Fri, 01 Mar 2002 22:51:36 +0100
-From: Fredo David <FredoDavid@gmx.net>
-User-Agent: Mozilla/5.0 (Windows; U; Win98; de-DE; rv:0.9.4) Gecko/20011019 Netscape6/6.2
-X-Accept-Language: de,en,no
-MIME-Version: 1.0
+	id <S292565AbSCAVum>; Fri, 1 Mar 2002 16:50:42 -0500
+Received: from smtp1.libero.it ([193.70.192.51]:38342 "EHLO smtp1.libero.it")
+	by vger.kernel.org with ESMTP id <S292362AbSCAVu3>;
+	Fri, 1 Mar 2002 16:50:29 -0500
+From: Andrea Ferraris <andrea_ferraris@libero.it>
+Reply-To: andrea_ferraris@libero.it
+Date: Fri, 1 Mar 2002 22:48:23 +0100
+X-Mailer: KMail [version 1.1.99]
+Content-Type: text/plain; charset=US-ASCII
 To: linux-kernel@vger.kernel.org
-Subject: PROBLEM: IDS2000 crashed during kernel oops.
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+In-Reply-To: <200203010955.BAA00986@adam.yggdrasil.com>
+In-Reply-To: <200203010955.BAA00986@adam.yggdrasil.com>
+Subject: 2.4.18 OOPSes
+Cc: Marcelo Tosatti <marcelo@conectiva.com.br>
+MIME-Version: 1.0
+Message-Id: <02030122482308.12079@af>
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
+The PC is a P II 200Mhz with 128 MB RAM and a Promise ATA/66
+controller, 2 ATA/100 60 GB disks ,a 3com 590 card.
+It is a Rh 7.2 system with all patches applied, with raid1 sw and ext3 file
+systems.
 
-[1.] One line summary of the problem:
+I get worse oopses with the 2.4.17 kernel and with the original RH 7.2
+kernel and the same with ext2 instead of ext3.
 
-	IDS.2000 crashed during a kernel oops.
+The machine is a backup server with RH rsync-2.4.6-10 and I get oopses
+after transferring to the PC about 2-4 GB of data.
+
+For better information here you are the dmesg output and the the ksymoops of
+the crashes:
+
+Linux version 2.4.18 (root@backup) (gcc version 2.96 20000731 (Red Hat
+Linux7.1  2.96-98)) #1 Thu Feb 28 22:55:12 MET 2002
+BIOS-provided physical RAM map:
+ BIOS-e820: 0000000000000000 - 00000000000a0000 (usable)
+ BIOS-e820: 00000000000f0000 - 0000000000100000 (reserved)
+ BIOS-e820: 0000000000100000 - 0000000008000000 (usable)
+ BIOS-e820: 00000000ffff0000 - 0000000100000000 (reserved)
+On node 0 totalpages: 32768
+zone(0): 4096 pages.
+zone(1): 28672 pages.
+zone(2): 0 pages.
+No local APIC present or hardware disabled
+Kernel command line: ro root=/dev/md0
+Initializing CPU#0
+Detected 199.743 MHz processor.
+Console: colour VGA+ 80x25
+Calibrating delay loop... 398.95 BogoMIPS
+Memory: 127060k/131072k available (907k kernel code, 3628k reserved, 238k
+data,
+204k init, 0k highmem)
+Dentry-cache hash table entries: 16384 (order: 5, 131072 bytes)
+Inode-cache hash table entries: 8192 (order: 4, 65536 bytes)
+Mount-cache hash table entries: 2048 (order: 2, 16384 bytes)
+Buffer-cache hash table entries: 8192 (order: 3, 32768 bytes)
+Page-cache hash table entries: 32768 (order: 5, 131072 bytes)
+CPU: Before vendor init, caps: 008001bf 00000000 00000000, vendor = 0
+Intel Pentium with F0 0F bug - workaround enabled.
+CPU: After vendor init, caps: 008001bf 00000000 00000000 00000000
+CPU:     After generic, caps: 008001bf 00000000 00000000 00000000
+CPU:             Common caps: 008001bf 00000000 00000000 00000000
+CPU: Intel Pentium MMX stepping 03
+Checking 'hlt' instruction... OK.
+POSIX conformance testing by UNIFIX
+PCI: PCI BIOS revision 2.10 entry at 0xfb130, last bus=0
+PCI: Using configuration type 1
+PCI: Probing PCI hardware
+PCI: Using IRQ router PIIX [8086/7110] at 00:07.0
+Limiting direct PCI/PCI transfers.
+Linux NET4.0 for Linux 2.4
+Based upon Swansea University Computer Society NET3.039
+Initializing RT netlink socket
+Starting kswapd
+VFS: Diskquotas version dquot_6.4.0 initialized
+Journalled Block Device driver loaded
+Detected PS/2 Mouse Port.
+pty: 256 Unix98 ptys configured
+Software Watchdog Timer: 0.05, timer margin: 60 sec
+block: 128 slots per queue, batch=32
+Uniform Multi-Platform E-IDE driver Revision: 6.31
+ide: Assuming 33MHz system bus speed for PIO modes; override with idebus=xx
+PIIX4: IDE controller on PCI bus 00 dev 39
+PIIX4: chipset revision 1
+PIIX4: not 100% native mode: will probe irqs later
+    ide0: BM-DMA at 0xf000-0xf007, BIOS settings: hda:pio, hdb:pio
+    ide1: BM-DMA at 0xf008-0xf00f, BIOS settings: hdc:pio, hdd:pio
+PDC20262: IDE controller on PCI bus 00 dev 70
+PCI: Found IRQ 11 for device 00:0e.0
+PDC20262: chipset revision 1
+PDC20262: not 100% native mode: will probe irqs later
+PDC20262: (U)DMA Burst Bit ENABLED Primary PCI Mode Secondary PCI Mode.
+    ide2: BM-DMA at 0x7800-0x7807, BIOS settings: hde:DMA, hdf:DMA
+    ide3: BM-DMA at 0x7808-0x780f, BIOS settings: hdg:pio, hdh:pio
+hdc: CD-ROM 40X/AKU, ATAPI CD/DVD-ROM drive
+hde: WDC WD600BB-32CCB0, ATA DISK drive
+hdf: MAXTOR 6L060J3, ATA DISK drive
+ide1 at 0x170-0x177,0x376 on irq 15
+ide2 at 0x6800-0x6807,0x6c02 on irq 11
+hde: 117231408 sectors (60022 MB) w/2048KiB Cache, CHS=116301/16/63, UDMA(66)
+hdf: 117266688 sectors (60041 MB) w/1819KiB Cache, CHS=116336/16/63, UDMA(66)
+hdc: ATAPI 40X CD-ROM drive, 128kB Cache
+Uniform CD-ROM driver Revision: 3.12
+Partition check:
+ hde: hde1 hde2 hde3
+ hdf: hdf1 hdf2
+PCI: Found IRQ 10 for device 00:11.0
+3c59x: Donald Becker and others. www.scyld.com/network/vortex.html
+00:11.0: 3Com PCI 3c905C Tornado at 0x7c00. Vers LK1.1.16
+md: raid1 personality registered as nr 3
+md: md driver 0.90.0 MAX_MD_DEVS=256, MD_SB_DISKS=27
+md: Autodetecting RAID arrays.
+ [events: 00000024]
+ [events: 00000024]
+md: autorun ...
+md: considering hdf2 ...
+md:  adding hdf2 ...
+md:  adding hde3 ...
+md: created md0
+md: bind<hde3,1>
+md: bind<hdf2,2>
+md: running: <hdf2><hde3>
+md: hdf2's event counter: 00000024
+md: hde3's event counter: 00000024
+md: md0: raid array is not clean -- starting background reconstruction
+md: RAID level 1 does not need chunksize! Continuing anyway.
+md0: max total readahead window set to 124k
+md0: 1 data-disks, max readahead per data-disk: 124k
+raid1: device hdf2 operational as mirror 1
+raid1: device hde3 operational as mirror 0
+raid1: raid set md0 not clean; reconstructing mirrors
+raid1: raid set md0 active with 2 out of 2 mirrors
+md: updating md0 RAID superblock on device
+md: hdf2 [events: 00000025]<6>(write) hdf2's sb offset: 58320768
+md: syncing RAID array md0
+md: minimum _guaranteed_ reconstruction speed: 100 KB/sec/disc.
+md: using maximum available idle IO bandwith (but not more than 100000
+KB/sec) f
+or reconstruction.
+md: using 124k window, over a total of 58302144 blocks.
+md: hde3 [events: 00000025]<6>(write) hde3's sb offset: 58302144
+md: ... autorun DONE.
+NET4: Linux TCP/IP 1.0 for NET4.0
+IP Protocols: ICMP, UDP, TCP
+IP: routing cache hash table of 1024 buckets, 8Kbytes
+TCP: Hash tables configured (established 8192 bind 8192)
+NET4: Unix domain sockets 1.0/SMP for Linux NET4.0.
+EXT3-fs: INFO: recovery required on readonly filesystem.
+EXT3-fs: write access will be enabled during recovery.
+(recovery.c, 252): journal_recover: JBD: recovery, exit status 0, recovered
+tran
+sactions 28622 to 28731
+(recovery.c, 255): journal_recover: JBD: Replayed 4342 and revoked 0/0 blocks
+kjournald starting.  Commit interval 5 seconds
+EXT3-fs: recovery complete.
+EXT3-fs: mounted filesystem with ordered data mode.
+VFS: Mounted root (ext3 filesystem) readonly.
+Freeing unused kernel memory: 204k freed
+Real Time Clock Driver v1.10e
+Adding Swap: 312440k swap-space (priority -1)
+Adding Swap: 262072k swap-space (priority -2)
+EXT3 FS 2.4-0.9.17, 10 Jan 2002 on md(9,0), internal journal
+inserting floppy driver for 2.4.18
+Floppy drive(s): fd0 is 1.44M
+FDC 0 is a post-1991 82077
+isapnp: Scanning for PnP cards...
+isapnp: No Plug & Play device found
+Serial driver version 5.05c (2001-07-08) with MANY_PORTS SHARE_IRQ SERIAL_PCI
+IS
+APNP enabled
+ttyS00 at 0x03f8 (irq = 4) is a 16550A
+ttyS01 at 0x02f8 (irq = 3) is a 16550A
+parport0: PC-style at 0x378 (0x778) [PCSPP(,...)]
+parport0: irq 7 detected
+md: md0: sync done.
+VFS: Disk change detected on device fd(2,0)
 
 
-[2.] Full description of the problem/report:
+ksymoops 2.4.1 on i586 2.4.18.  Options used
+     -V (default)
+     -k /proc/ksyms (default)
+     -l /proc/modules (default)
+     -o /lib/modules/2.4.18/ (default)
+     -m /boot/System.map-2.4.18 (default)
 
-During a Kernel- Update from 2.2.16 to 2.2.19 with SuSE Linux 7.0 we ran
-into the following problem. We use an Informix DB with raw devices.
-The Database IDS.2000, running on a Linux 2.2.19 machine crashes during
-a DB- backup with onbar -b -w or during a DB- Log- Backup with onbar -b
--l on a tape.
+Warning: You did not tell me where to find symbol information.  I will
+assume that the log matches the kernel and modules that are running
+right now and I'll use the default options above for symbol resolution.
+If the current kernel and/or modules do not match the log, you can get
+more accurate output by telling me the kernel version and where to find
+map, modules, ksyms etc.  ksymoops -h explains the options.
 
-	The last message in the online.log and bar_act.log:
-2002-03-01 11:40:41   Checkpoint Completed:  duration was 0 seconds.
-2002-03-01 11:40:41   Checkpoint loguniq 2347, logpos 0x150018
-2002-03-01 11:40:43   Level 0 Archive started on rootdbs, xsvblobdbs,
-			physdbs, logdbs, xsvdbs
-
-2002-03-01 11:40:43   Fatal error in ADM VP at mt.c:11462
-2002-03-01 11:40:43   Unexpected virtual processor termination, pid=439,
-			exit = 0xb
-2002-03-01 11:40:44   PANIC: Attempting to bring system down
-2002-03-01 11:40:44   semctl: errno = 22
-2002-03-01 11:40:44   semctl: errno = 22
-Every time I started the DB again, when running onbar -b -l on tape, the
-IDS crashes.
-
-
-
-[3.] Keywords
-	
-IDS.2000 Informix oops rawio 	
-
-
-[4.] Kernel version
-
-Linux version 2.2.19 (root@srvixdb1) (gcc version 2.95.2 19991024
-(release)) #2 	Wed Feb 27 15:43:48 CET 2002
-
-
-[5.] Output of Oops.message(if applicable) with symbolic information
-resolved
-
-Mar  1 11:40:43 srvixdb1 kernel: Unable to handle kernel paging request
-at virtual address b000e400
-Mar  1 11:40:43 srvixdb1 kernel: current->tss.cr3 = 28e7c000, %cr3 =
-28e7c000
-Mar  1 11:40:43 srvixdb1 kernel: *pde = 00000000
-Mar  1 11:40:43 srvixdb1 kernel: Oops: 0002
-Mar  1 11:40:43 srvixdb1 kernel: CPU:    0
-Mar  1 11:40:43 srvixdb1 kernel: EIP: 0010:[kiobuf_copy_bounce+155/204]
-Mar  1 11:40:43 srvixdb1 kernel: EFLAGS: 00010206
-Mar  1 11:40:43 srvixdb1 kernel: eax: b000e000   ebx: 00000400   ecx:
-00000300   	edx: 00000c00
-Mar  1 11:40:43 srvixdb1 kernel: esi: cdbef400   edi: b000e400   ebp:
-0000f800   esp: 	e8e7be1c
-Mar  1 11:40:43 srvixdb1 kernel: ds: 0018   es: 0018   ss: 0018
-Mar  1 11:40:43 srvixdb1 kernel: Process oninit (pid: 439, process nr:
-54, 	stackpage=e8e7b000)
-Mar  1 11:40:43 srvixdb1 kernel: Stack: 00000000 00000001 c02eaa40
-c02c6e00 	e8e7be48 00000000 00000c00 f0463000
-Mar  1 11:40:43 srvixdb1 kernel:        00000000 c012a954 f0463000
-00000001 	0000f800 00000000 00000c00 f0463000
-Mar  1 11:40:43 srvixdb1 kernel:        0000f800 00000000 f0463000
-00003a03 	0003f967 c012ac55 00000000 00000001
-Mar  1 11:40:43 srvixdb1 kernel: Call Trace: [<f0463000>]
-[cleanup_bounce_buffers+60/92] [<f0463000>] [<f0463000>] [<f0463000>]
-[brw_kiovec+737/764] [<f04631ac>]
-Mar  1 11:40:43 srvixdb1 kernel: Code: f3 a5 f6 c2 02 74 02 66 a5 f6 c2
-01 74 01 a4 	89 f6 29 d5 31
+Warning (compare_maps): mismatch on symbol partition_name  , ksyms_base says
+c019cc70, System.map says c014c040.  Ignoring ksyms_base entry
+Unable to handle kernel NULL pointer dereference at virtual address 00000800
+*pde = 00000000
+Oops: 0002
+CPU:    0
+EIP:    0010:[<c012e9c4>]    Not tainted
 Using defaults from ksymoops -t elf32-i386 -a i386
-	
-Trace; f0463000 <[eepro100].data.end+13edd/1ef31>
-Code;  00000000 Before first symbol
+EFLAGS: 00010282
+eax: c6b49480   ebx: c6b49420    ecx: c6b49420    edx: 00000800
+esi: c6b49420   edi: c6b49420    ebp: c1023980    esp: c1261f00
+ds: 0018   es: 0018   ss: 0018
+Process kswapd (pid: 4, stackpage=c1261000)
+Stack: c0131019 c6b49420 c12e1c00 c1023980 000001d0 c012f669 00000000
+ c1023980 00000020 00001161 c0127105 c1023980 000001d0 c1205e30 c1260000
+ 000001bd 000001d0 c02139c8 c1205e30 c0c7b020 c1205ce0 00000002 00000020
+ 000001d0 Call Trace: [<c0131019>] [<c012f669>] [<c0127105>] [<c0127330>]
+ [<c01273a0>] [<c0127434>] [<c0127496>] [<c01275b1>] [<c0127510>]
+ [<c0105000>] [<c0105516>] [<c0127510>]
+Code: 89 02 c7 41 30 00 00 00 00 89 4c 24 04 e9 5a ff ff ff 8d 76
+
+>>EIP; c012e9c4 <__remove_from_queues+14/30>   <=====
+
+
+Trace; c0131019 <try_to_free_buffers+59/e0>
+Trace; c012f669 <try_to_release_page+29/50>
+Trace; c0127105 <shrink_cache+1f5/2f0>
+Trace; c0127330 <shrink_caches+50/90>
+Trace; c01273a0 <try_to_free_pages+30/50>
+Trace; c0127434 <kswapd_balance_pgdat+44/90>
+Trace; c0127496 <kswapd_balance+16/30>
+Trace; c01275b1 <kswapd+a1/c0>
+Trace; c0127510 <kswapd+0/c0>
+Trace; c0105000 <_stext+0/0>
+Trace; c0105516 <kernel_thread+26/30>
+Trace; c0127510 <kswapd+0/c0>
+Code;  c012e9c4 <__remove_from_queues+14/30>
 00000000 <_EIP>:
-Code;  00000000 Before first symbol
-     0:   f3 a5                     repz movsl %ds:(%esi),%es:(%edi)
-Code;  00000002 Before first symbol
-     2:   f6 c2 02                  test   $0x2,%dl
-Code;  00000005 Before first symbol
-     5:   74 02                     je     9 <_EIP+0x9> 00000009 Before
-first symbol
-Code;  00000007 Before first symbol
-     7:   66 a5                     movsw  %ds:(%esi),%es:(%edi)
-Code;  00000009 Before first symbol
-     9:   f6	c2 01                  test   $0x1,%dl
-Code;  0000000c Before first symbol
-     c:   74 01                     je     f <_EIP+0xf> 0000000f Before
-first symbol
-Code;  0000000e Before first symbol
-     e:   a4                        movsb  %ds:(%esi),%es:(%edi)
-Code;  0000000f Before first symbol
-     f:   89 f6                     mov    %esi,%esi
-Code;  00000011 Before first symbol
-    11:   29 d5                     sub    %edx,%ebp
-Code;  00000013 Before first symbol
-    13:   31 00                     xor    %eax,(%eax)
+Code;  c012e9c4 <__remove_from_queues+14/30>   <=====
+   0:   89 02                     mov    %eax,(%edx)   <=====
+Code;  c012e9c6 <__remove_from_queues+16/30>
+   2:   c7 41 30 00 00 00 00      movl   $0x0,0x30(%ecx)
+Code;  c012e9cd <__remove_from_queues+1d/30>
+   9:   89 4c 24 04               mov    %ecx,0x4(%esp,1)
+Code;  c012e9d1 <__remove_from_queues+21/30>
+   d:   e9 5a ff ff ff            jmp    ffffff6c <_EIP+0xffffff6c> c012e930
+<__remove_from_lru_list+0/80>
+Code;  c012e9d6 <__remove_from_queues+26/30>
+  12:   8d 76 00                  lea    0x0(%esi),%esi
+
+<1> Unable to handle kernel NULL pointer dereference at virtual address
+00000800
+c012e9c4
+*pde = 00000000
+Oops: 0002
+CPU:    0
+EIP:    0010:[<c012e9c4>]    Not tainted
+EFLAGS: 00010246
+eax: 00000000   ebx: c6b49480   ecx: c6b49480   edx: 00000000
+esi: c6b49480   edi: c6b49480   ebp: c10232c0   esp: c2c41e4c
+ds: 0018   es: 0018   ss: 0018
+Process rsync (pid: 776, stackpage=c2c41000)
+Stack: c0131019 c6b49480 c12e1c00 c10232c0 000001d2 c012f669 00000000
+ c10232c0 00000010 000011ae c0127105 c10232c0 000001d2 c2c41ec8 c2c40000
+ 000001c6 000001d2 c02139c8 c3c99440 c01524e5 c1205180 00000000 00000020
+ 000001d2 Call Trace: [<c0131019>] [<c012f669>] [<c0127105>] [<c01524e5>]
+ [<c0127330>] [<c01273a0>] [<c0127c17>] [<c0127e7a>] [<c012388b>]
+ [<c012d5c6>] [<c0106d03>] Code: 89 02 c7 41 30 00 00 00 00 89 4c 24 04 e9 5a
+ ff ff ff 8d 76
+
+>>EIP; c012e9c4 <__remove_from_queues+14/30>   <=====
 
 
-[6.] A small shell script or example program which triggers the
-problem(if possible)
-
-	None
-
-
-[7.] Environment
-
-[7.1.] Software(add the output of the ver_linux script here)
-
-/usr/src/linux-2.2.19.SuSE/scripts/ver_linux
-
-If some fields are empty or look unusual you may have an old version.
-Compare to the current minimal requirements in Documentation/Changes.
-
-Linux srvixdb1 2.2.19 #2 Wed Feb 27 15:43:48 CET 2002 i686 unknown
-
-	Gnu C                  2.95.2
-	Gnu make               3.79.1
-	binutils               2.9.5.0.24
-	util-linux             2.10m
-	modutils               2.3.11
-	e2fsprogs              1.18
-	Linux C Library        x   1 root     root      4070406 Jul 30  2000
-/lib/libc.so.6
-	Dynamic linker (ldd)   2.1.3
-	Procps                 2.0.6
-	Net-tools              1.56
-	Kbd                    0.99
-	Sh-utils               2.0
-	Modules Loaded         ipv6 eepro100 serial usbcore gdth
-
-[7.2.] Processor information:
-
-	cat /proc/cpuinfo
-
-	processor	: 0
-	vendor_id	: GenuineIntel
-	cpu family	: 6
-	model		: 8
-	model name	: Pentium III (Coppermine)
-	stepping	: 6
-	cpu MHz		: 930.930
-	cache size	: 256 KB
-	fdiv_bug	: no
-	hlt_bug		: no
-	sep_bug		: no
-	f00f_bug	: no
-	coma_bug	: no
-	fpu		: yes
-	fpu_exception	: yes
-	cpuid level	: 2
-	wp		: yes
-	flags		: fpu vme de pse tsc msr pae mce cx8 sep mtrr pge mca cmov pat 	pse36 mmx
-fxsr xmm
-	bogomips	: 1854.66
-	
-[7.3.] Module information
-
-	cat /proc/modules
-
-	ipv6                  100328  -1 (autoclean)
-	eepro100               17432   1 (autoclean)
-	serial                 42804   0 (autoclean)
-	usbcore                44008   0 (unused)
-	gdth                   78128   3
-	
-[7.4.] Loaded driver and hardware information
-
-	cat /proc/ioports
-
-	0000-001f : dma1
-	0020-003f : pic1
-	0040-005f : timer
-	0060-006f : keyboard
-	0070-007f : rtc
-	0080-008f : dma page reg
-	00a0-00bf : pic2
-	00c0-00df : dma2
-	00f0-00ff : fpu
-	01f0-01f7 : ide0
-	02f8-02ff : serial(auto)
-	03c0-03df : vga+
-	03f6-03f6 : ide0
-	03f8-03ff : serial(auto)
-	f0451000-f045101f : Intel Speedo3 Ethernet
-
-[7.5.] PCI information
-
-	lspci -vvv
-
-00:00.0 Host bridge: Acer Laboratories Inc. [ALi] M1621 (rev 04)
-	Control: I/O- Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- 	ParErr- 
-Stepping- SERR- FastB2B-
-	Status: Cap+ 66Mhz- UDF- FastB2B- ParErr- DEVSEL=slow >TAbort- 	<TAbort- 
-<MAbort+ >SERR- <PERR-
-	Latency: 0
-	Region 0: Memory at f8000000 (32-bit, prefetchable)
-	Capabilities: [b0] AGP version 1.0
-		Status: RQ=27 SBA+ 64bit- FW- Rate=x1,x2
-		Command: RQ=0 SBA- AGP- 64bit- FW- Rate=<none>
-	Capabilities: [a4] Power Management version 1
-		Flags: PMEClk- DSI- D1- D2- AuxCurrent=0mA PME	(D0-,D1-,D2-,D3hot-,D3cold-)
-		Status: D0 PME-Enable- DSel=0 DScale=0 PME-
-
-00:01.0 PCI bridge: Acer Laboratories Inc. [ALi] M5247 (rev 01) (prog-if
-00 [Normal decode])
-	Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- 	ParErr- 
-Stepping- SERR- FastB2B-
-	Status: Cap- 66Mhz- UDF- FastB2B- ParErr- DEVSEL=fast >TAbort- 	<TAbort- 
-<MAbort- >SERR- <PERR-
-	Latency: 0
-	Bus: primary=00, secondary=01, subordinate=01, sec-latency=0
-	I/O behind bridge: 0000e000-0000dfff
-	Memory behind bridge: f2000000-f3efffff
-	Prefetchable memory behind bridge: f5f00000-f7ffffff
-	BridgeCtl: Parity- SERR+ NoISA+ VGA+ MAbort- >Reset- FastB2B-
-
-00:06.0 Multimedia audio controller: Acer Laboratories Inc. [ALi]:
-Unknown device 	5451 (rev 01)
-	Subsystem: Asustek Computer, Inc.: Unknown device 8021
-	Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- 	ParErr- 
-Stepping- SERR- FastB2B-
-	Status: Cap+ 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbort- 
-<MAbort- >SERR+ <PERR+
-	Latency: 32 (500ns min, 6000ns max)
-	Interrupt: pin A routed to IRQ 9
-	Region 0: I/O ports at d800
-	Region 1: Memory at f1800000 (32-bit, non-prefetchable)
-	Capabilities: [dc] Power Management version 2
-		Flags: PMEClk- DSI+ D1+ D2+ AuxCurrent=0mA PME(D0-,D1-,D2	+,D3hot+,D3cold+)
-		Status: D0 PME-Enable- DSel=0 DScale=0 PME-
-
-00:07.0 ISA bridge: Acer Laboratories Inc. [ALi] M1533 PCI to ISA Bridge
-[Aladdin IV]
-	Subsystem: Acer Laboratories Inc. [ALi] ALI M1533 Aladdin IV ISA Bridge
-	Control: I/O+ Mem+ BusMaster+ SpecCycle+ MemWINV- VGASnoop- 	ParErr- 
-Stepping- SERR- FastB2B-
-	Status: Cap+ 66Mhz- UDF- FastB2B- ParErr- DEVSEL=medium >TAbort- <TAbort- 
-<MAbort- >SERR- <PERR-
-	Latency: 0
-	Capabilities: [a0] Power Management version 1
-		Flags: PMEClk- DSI- D1- D2- AuxCurrent=0mA PME	(D0-,D1-,D2-,D3hot-,D3cold-)
-		Status: D0 PME-Enable- DSel=0 DScale=0 PME-
-
-00:09.0 Ethernet controller: Intel Corporation 82557 [Ethernet Pro 100]
-(rev 01)
-	Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- 	ParErr- 
-Stepping- SERR- FastB2B-
-	Status: Cap- 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbort- 
-<MAbort- >SERR- <PERR-
-	Latency: 32 (2000ns min, 14000ns max)
-	Interrupt: pin A routed to IRQ 9
-	Region 0: Memory at f5000000 (32-bit, prefetchable)
-	Region 1: I/O ports at d400
-	Region 2: Memory at f1000000 (32-bit, non-prefetchable)
-
-00:0b.0 SCSI storage controller: ICP Vortex Computersysteme GmbH:
-Unknown device 013a
-	Subsystem: ICP Vortex Computersysteme GmbH: Unknown device 013a
-	Control: I/O- Mem+ BusMaster+ SpecCycle- MemWINV+ VGASnoop- 	ParErr- 
-Stepping- SERR- FastB2B-
-	Status: Cap+ 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbort- 
-<MAbort- >SERR- <PERR-
-	Latency: 32, cache line size 08
-	Interrupt: pin A routed to IRQ 10
-	Region 0: Memory at f4000000 (32-bit, prefetchable)
-	Capabilities: [80] Power Management version 2
-		Flags: PMEClk- DSI- D1- D2- AuxCurrent=0mA PME	(D0-,D1-,D2-,D3hot-,D3cold-)
-		Status: D0 PME-Enable- DSel=0 DScale=0 PME-
-
-00:10.0 IDE interface: Acer Laboratories Inc. [ALi] M5229 IDE (rev c3)
-(prog-if 8a [Master SecP PriP])
-	Control: I/O+ Mem- BusMaster+ SpecCycle- MemWINV- VGASnoop- 	ParErr- 
-Stepping- SERR- FastB2B-
-	Status: Cap+ 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbort- 
-<MAbort- >SERR- <PERR-
-	Latency: 32 (500ns min, 1000ns max)
-	Interrupt: pin A routed to IRQ 0
-	Region 4: I/O ports at d000
-	Capabilities: [60] Power Management version 2
-		Flags: PMEClk- DSI- D1- D2- AuxCurrent=0mA PME	(D0-,D1-,D2-,D3hot-,D3cold-)
-		Status: D0 PME-Enable- DSel=0 DScale=0 PME-
-
-00:11.0 Bridge: Acer Laboratories Inc. [ALi] M7101 PMU
-	Subsystem: Asustek Computer, Inc.: Unknown device 8021
-	Control: I/O- Mem- BusMaster- SpecCycle- MemWINV- VGASnoop- ParErr- 
-Stepping- SERR- FastB2B-
-	Status: Cap- 66Mhz- UDF- FastB2B- ParErr- DEVSEL=medium >TAbort- <TAbort- 
-<MAbort- >SERR- <PERR-
-
-00:14.0 USB Controller: Acer Laboratories Inc. [ALi] M5237 USB (rev 03)
-(prog-if 10 [OHCI])
-	Subsystem: Asustek Computer, Inc.: Unknown device 8021
-	Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV+ VGASnoop- 	ParErr- 
-Stepping- SERR- FastB2B-
-	Status: Cap+ 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbort- 
-<MAbort- >SERR- <PERR-
-	Latency: 32 (20000ns max), cache line size 08
-	Interrupt: pin A routed to IRQ 9
-	Region 0: Memory at f0800000 (32-bit, non-prefetchable)
-	Capabilities: [60] Power Management version 2
-		Flags: PMEClk- DSI- D1- D2- AuxCurrent=0mA PME	(D0-,D1-,D2-,D3hot-,D3cold-)
-		Status: D0 PME-Enable- DSel=0 DScale=0 PME-
-
-01:00.0 VGA compatible controller: nVidia Corporation Riva TNT2 (rev 20)
-(prog-if 00 [VGA])
-	Subsystem: Asustek Computer, Inc.: Unknown device 8021
-	Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- 	ParErr- 
-Stepping- SERR- FastB2B-
-	Status: Cap+ 66Mhz+ UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbort- 
-<MAbort- >SERR- <PERR-
-	Latency: 64 (1250ns min, 250ns max)
-	Interrupt: pin A routed to IRQ 11
-	Region 0: Memory at f2000000 (32-bit, non-prefetchable)
-	Region 1: Memory at f6000000 (32-bit, prefetchable)
-	Expansion ROM at f5ff0000 [disabled]
-	Capabilities: [60] Power Management version 1
-		Flags: PMEClk- DSI- D1- D2- AuxCurrent=0mA PME	(D0-,D1-,D2-,D3hot-,D3cold-)
-		Status: D0 PME-Enable- DSel=0 DScale=0 PME-
-	Capabilities: [44] AGP version 1.0
-		Status: RQ=31 SBA+ 64bit- FW- Rate=x1,x2
-		Command: RQ=0 SBA- AGP- 64bit- FW- Rate=<none>
-
-[7.6.] SCSI information
-
-	cat /proc/scsi/scsi
-
-Attached devices:
-Host: scsi0 Channel: 00 Id: 00 Lun: 00
-    Vendor: ICP      Model: Host Drive  #00  Rev:
-    Type:   Direct-Access                    ANSI SCSI revision: 02
-Host: scsi0 Channel: 00 Id: 01 Lun: 00
-    Vendor: ICP      Model: Host Drive  #01  Rev:
-    Type:   Direct-Access                    ANSI SCSI revision: 02
-Host: scsi0 Channel: 00 Id: 02 Lun: 00
-    Vendor: ICP      Model: Host Drive  #02  Rev:
-    Type:   Direct-Access                    ANSI SCSI revision: 02
-Host: scsi0 Channel: 00 Id: 04 Lun: 00
-    Vendor: ICP      Model: Host Drive  #04  Rev:
-    Type:   Direct-Access                    ANSI SCSI revision: 02
-Host: scsi0 Channel: 01 Id: 04 Lun: 00
-    Vendor: HP       Model: C5683A           Rev: C005
-    Type:   Sequential-Access                ANSI SCSI revision: 02
+Trace; c0131019 <try_to_free_buffers+59/e0>
+Trace; c012f669 <try_to_release_page+29/50>
+Trace; c0127105 <shrink_cache+1f5/2f0>
+Trace; c01524e5 <ext3_mark_iloc_dirty+35/50>
+Trace; c0127330 <shrink_caches+50/90>
+Trace; c01273a0 <try_to_free_pages+30/50>
+Trace; c0127c17 <balance_classzone+57/1b0>
+Trace; c0127e7a <__alloc_pages+10a/170>
+Trace; c012388b <generic_file_write+41b/700>
+Trace; c012d5c6 <sys_write+96/f0>
+Trace; c0106d03 <system_call+33/40>
+Code;  c012e9c4 <__remove_from_queues+14/30>
+00000000 <_EIP>:
+Code;  c012e9c4 <__remove_from_queues+14/30>   <=====
+   0:   89 02                     mov    %eax,(%edx)   <=====
+Code;  c012e9c6 <__remove_from_queues+16/30>
+   2:   c7 41 30 00 00 00 00      movl   $0x0,0x30(%ecx)
+Code;  c012e9cd <__remove_from_queues+1d/30>
+   9:   89 4c 24 04               mov    %ecx,0x4(%esp,1)
+Code;  c012e9d1 <__remove_from_queues+21/30>
+   d:   e9 5a ff ff ff            jmp    ffffff6c <_EIP+0xffffff6c> c012e930
+<__remove_from_lru_list+0/80>
+Code;  c012e9d6 <__remove_from_queues+26/30>
+  12:   8d 76 00                  lea    0x0(%esi),%esi
 
 
-Any help would be appreciated.
-
-Fredo
-
-
+2 warnings issued.  Results may not be reliable.

@@ -1,68 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267520AbSLLVWa>; Thu, 12 Dec 2002 16:22:30 -0500
+	id <S267529AbSLLVZg>; Thu, 12 Dec 2002 16:25:36 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267519AbSLLVVf>; Thu, 12 Dec 2002 16:21:35 -0500
-Received: from postfix4-2.free.fr ([213.228.0.176]:21399 "EHLO
-	postfix4-2.free.fr") by vger.kernel.org with ESMTP
-	id <S267518AbSLLVVS>; Thu, 12 Dec 2002 16:21:18 -0500
-Date: Thu, 12 Dec 2002 22:29:04 +0100
-From: Romain Lievin <roms@tilp.info>
-To: Roman Zippel <zippel@linux-m68k.org>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: kconfig (gkc) [PATCH]
-Message-ID: <20021212212904.GA8103@free.fr>
-References: <20021110132750.GB6256@free.fr> <Pine.LNX.4.44.0211101502460.2113-100000@serv> <20021128091059.GB388@free.fr> <Pine.LNX.4.44.0211281204030.2113-100000@serv> <20021128141223.GA601@free.fr> <Pine.LNX.4.44.0211282111110.2113-100000@serv>
+	id <S267530AbSLLVZg>; Thu, 12 Dec 2002 16:25:36 -0500
+Received: from pasmtp.tele.dk ([193.162.159.95]:12554 "EHLO pasmtp.tele.dk")
+	by vger.kernel.org with ESMTP id <S267529AbSLLVZf>;
+	Thu, 12 Dec 2002 16:25:35 -0500
+Date: Thu, 12 Dec 2002 22:32:58 +0100
+From: Sam Ravnborg <sam@ravnborg.org>
+To: Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>
+Cc: Sam Ravnborg <sam@ravnborg.org>, John Bradford <john@grabjohn.com>,
+       perex@suse.cz, linux-kernel@vger.kernel.org
+Subject: Re: 2.5.51 breaks ALSA AWE32
+Message-ID: <20021212213258.GB11836@mars.ravnborg.org>
+Mail-Followup-To: Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>,
+	Sam Ravnborg <sam@ravnborg.org>, John Bradford <john@grabjohn.com>,
+	perex@suse.cz, linux-kernel@vger.kernel.org
+References: <20021212205206.GA11836@mars.ravnborg.org> <Pine.LNX.4.44.0212121454290.17517-100000@chaos.physics.uiowa.edu>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0211282111110.2113-100000@serv>
-User-Agent: Mutt/1.3.28i
+In-Reply-To: <Pine.LNX.4.44.0212121454290.17517-100000@chaos.physics.uiowa.edu>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On tor, dec 12, 2002 at 02:55:28 -0600, Kai Germaschewski wrote:
+> Nope, kbuild does that for you ;)
 
-Sorry, for the long time, I was waiting for GTK+ team to fix a bug...
+I recall this - now. Anyway the following fragment teels the full story :-)
+cmd_link_multi-y = $(LD) $(LDFLAGS) $(EXTRA_LDFLAGS) -r -o $@ $(filter $(addprefix $(obj)/,$($(subst $(obj)/,,$(@:.o=-objs))) $($(subst $(obj)/,,$(@:.o=-y)))),$^)
 
-> > BTW, I have fixed the problems you reported to me in gkc (gconf). gkc is now
-> > working fine. 
-> 
-> I still saw some problems, e.g. try to play with SCSI_AIC7XXX.
+In clear text:
+For all prerequisite .o files (file.o) where there exist a -objs (file-objs)
+or a -y (file-y) variable use the value of that variable instead.
 
-Well, fixed... All stuffs seem to work fine now !
+> (And yes, lots of places still do it manually, but it's not necessary 
+> anymore).
 
-> A seperate target should do for now. I'm a bit concerned about the size. I 
-> tried to keep qconf small, so e.g. I didn't use the qt designer. gconf is 
-> now already larger than qconf. It might help to see it as complete patch 
-> and if not too many people complain, it would be far easier for me to send 
-> it on to Linus. :)
+I will take a look some day.
 
-You will find a patch against 2.5.51 on http://tilp.info/perso/gkc.html.
-
-> 
-> bye, Roman
-> 
-> 
-
-Next step: add the 2 other views and use icons (by sharing yours).
-
-Thanks, Romain.
--- 
-Romain Lievin, aka 'roms'  	<roms@tilp.info>
-The TiLP project is on 		<http://www.ti-lpg.org>
-"Linux, y'a moins bien mais c'est plus cher !"
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+	Sam

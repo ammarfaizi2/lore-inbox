@@ -1,78 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265108AbUFRLQy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265110AbUFRLV7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265108AbUFRLQy (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 18 Jun 2004 07:16:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265110AbUFRLQy
+	id S265110AbUFRLV7 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 18 Jun 2004 07:21:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265111AbUFRLV7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 18 Jun 2004 07:16:54 -0400
-Received: from smtp.dei.uc.pt ([193.137.203.228]:26087 "EHLO smtp.dei.uc.pt")
-	by vger.kernel.org with ESMTP id S265108AbUFRLQ1 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 18 Jun 2004 07:16:27 -0400
-Date: Fri, 18 Jun 2004 12:12:51 +0100 (WEST)
-From: "Marcos D. Marado Torres" <marado@student.dei.uc.pt>
-To: 4Front Technologies <dev@opensound.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Stop the linux kernel madness - SOLVED!
-In-Reply-To: <40D25477.1050006@opensound.com>
-Message-ID: <Pine.LNX.4.60.0406181208200.13171@student.dei.uc.pt>
-References: <40D25477.1050006@opensound.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
-X-UC-FCTUC-DEI-MailScanner-Information: Please contact helpdesk@dei.uc.pt for more information
-X-UC-FCTUC-DEI-MailScanner: Found to be clean
-X-MailScanner-From: marado@student.dei.uc.pt
+	Fri, 18 Jun 2004 07:21:59 -0400
+Received: from lakermmtao07.cox.net ([68.230.240.32]:32656 "EHLO
+	lakermmtao07.cox.net") by vger.kernel.org with ESMTP
+	id S265110AbUFRLVr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 18 Jun 2004 07:21:47 -0400
+In-Reply-To: <1087549710.1547.14.camel@newt>
+References: <MDEHLPKNGKAHNMBLJOLKEEFGMKAA.davids@webmaster.com> <5b18a542040616133415bf54d1@mail.gmail.com> <20040616224949.GB7932@hh.idb.hist.no> <1087549710.1547.14.camel@newt>
+Mime-Version: 1.0 (Apple Message framework v618)
+Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
+Message-Id: <AC6DE22A-C119-11D8-9A43-000393ACC76E@mac.com>
+Content-Transfer-Encoding: 7bit
+Cc: linux-kernel@vger.kernel.org, Christoph Hellwig <hch@lst.de>,
+       Erik Harrison <erikharrison@gmail.com>, davids@webmaster.com,
+       Helge Hafting <helgehaf@aitel.hist.no>, eric@cisu.net
+From: Kyle Moffett <mrmacman_g4@mac.com>
+Subject: Re: more files with licenses that aren't GPL-compatible
+Date: Fri, 18 Jun 2004 07:21:41 -0400
+To: Adrian Cox <adrian@humboldt.co.uk>
+X-Mailer: Apple Mail (2.618)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+On Jun 18, 2004, at 05:08, Adrian Cox wrote:
+> USB serial drivers could be implemented in userspace given a 2.6  
+> version
+> of Rogier Wolff's userspace serial patch:
+> http://www.uwsg.iu.edu/hypermail/linux/kernel/0303.1/att-1075/01- 
+> patch-2.4.20.trueport-12-mrt
 
-On Thu, 17 Jun 2004, 4Front Technologies wrote:
+I'd rather not. I use my USB serial device for a boot console, support  
+for which is currently
+in 2.6.  With userspace USB serial drivers I would need to wait for  
+userspace to come up,
+useless if I want to watch boot output.
 
-> Hi Folks,
->
-> Here's the solution we have found:
->
-> With the latest SuSE 2.6.5-7.75 kernel sources:
->
-> The problem is that /lib/modules/2.6.5-7.75/build points to
-> /usr/src/linux-2.6.5-7.75-obj which is some kind of wierd directory
-> that has:
->
-> .  ..  bigsmp  debug  default  out  smp
->
-> So simply removing this symlink and putting back a link to
-> /usr/src/linux-2.6.5-7.75 fixes our problems.
->
-> So the question is who is at fault here?. We used KBUILD to
-> build our modules and obviously the build link in /lib/modules/<kernel>/build
-> isn't pointing to the correct source tree.
+Cheers,
+Kyle Moffett
 
-IF the fault here is SUSE's, then submit THEM a bug report and stop whining in lkml.
-If you did your homework in the first place you would see that that's not a
-Linux Kernel problem and would not start this whole discussion.
-
-All you've managed with this was ening with any reputation 4Front Technologies
-could have between lkml readers.
-
-
-Mind Booster Noori
-
-- -- 
-/* ************************************************************************* */
-    Marcos Daniel Marado Torres		AKA 		     Mind Booster Noori
-    http://student.dei.uc.pt/~marado 	 - 	       marado@student.dei.uc.pt
-() Join the ASCII ribbon campaign against html email and Microsoft attachments. 
-/\ Software patents are endangering the computer industry all around the world.
-    Join the LPF: 	http://lpf.ai.mit.edu/ 	 http://petition.eurolinux.org/ 
-/* ************************************************************************* */
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
-Comment: Made with pgp4pine 1.76
-
-iD8DBQFA0s43mNlq8m+oD34RAgx8AKDKlRG8j8ik3LFsjKDKsY4TnVkDcgCfUCoV
-gajxf21QF9lJfYNW37d19Wg=
-=eZ8j
------END PGP SIGNATURE-----
 

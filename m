@@ -1,57 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269536AbUJFVtv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269530AbUJFVxe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269536AbUJFVtv (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 6 Oct 2004 17:49:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269506AbUJFVrV
+	id S269530AbUJFVxe (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 6 Oct 2004 17:53:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269524AbUJFVuf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 6 Oct 2004 17:47:21 -0400
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:27411 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S269500AbUJFVpr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 6 Oct 2004 17:45:47 -0400
-Date: Wed, 6 Oct 2004 22:45:38 +0100
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Greg KH <greg@kroah.com>, J?rn Engel <joern@wohnheim.fh-wedel.de>,
-       Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Console: fall back to /dev/null when no console is availlable
-Message-ID: <20041006224538.A17342@flint.arm.linux.org.uk>
-Mail-Followup-To: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-	Greg KH <greg@kroah.com>, J?rn Engel <joern@wohnheim.fh-wedel.de>,
-	Andrew Morton <akpm@osdl.org>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <20041005185214.GA3691@wohnheim.fh-wedel.de> <20041005212712.I6910@flint.arm.linux.org.uk> <20041005210659.GA5276@kroah.com> <20041005221333.L6910@flint.arm.linux.org.uk> <1097074822.29251.51.camel@localhost.localdomain> <20041006174108.GA26797@kroah.com> <1097090333.29706.4.camel@localhost.localdomain> <20041006205417.GA25437@kroah.com> <1097094582.29866.15.camel@localhost.localdomain>
+	Wed, 6 Oct 2004 17:50:35 -0400
+Received: from e34.co.us.ibm.com ([32.97.110.132]:36586 "EHLO
+	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S269530AbUJFVtT
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 6 Oct 2004 17:49:19 -0400
+Subject: 2.6.9-rc3-mm2 compile problems on ppc64
+From: Badari Pulavarty <pbadari@us.ibm.com>
+To: linux-kernel@vger.kernel.org
+Content-Type: text/plain
+Organization: 
+Message-Id: <1097098866.12861.219.camel@dyn318077bld.beaverton.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <1097094582.29866.15.camel@localhost.localdomain>; from alan@lxorguk.ukuu.org.uk on Wed, Oct 06, 2004 at 09:29:44PM +0100
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
+Date: 06 Oct 2004 14:41:06 -0700
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Oct 06, 2004 at 09:29:44PM +0100, Alan Cox wrote:
-> On Mer, 2004-10-06 at 21:54, Greg KH wrote:
-> > Ok, then anyone with some serious bash-foo care to send me a patch for
-> > the existing /sbin/hotplug file that causes it to handle this properly?
-> 
-> Something like
-> 
-> #!/bin/sh
-> (
-> Everything you had before
-> ) <>/dev/console 2>&1
+Hi,
 
-What about:
+I can't build 2.6.9-rc3-mm2 on ppc64. Any fixes ?
 
-#!/bin/sh
-exec </dev/null >/dev/console 2>&1 || exec </dev/null >/dev/null 2>&1
-... original stuff ...
+Thanks,
+Badari
+ 
 
-?
+ LD      arch/ppc64/kernel/built-in.o
+arch/ppc64/kernel/pSeries_pci.o(.text+0x9fc): In function
+`pcibios_fixup_bus':
+arch/ppc64/kernel/pSeries_pci.c:508: multiple definition of
+`.pcibios_fixup_bus'
+arch/ppc64/kernel/pci.o(.text+0x540):arch/ppc64/kernel/pci.c:815: first
+defined
+here
+ld: Warning: size of symbol `.pcibios_fixup_bus' changed from 456 in
+arch/ppc64/
+kernel/pci.o to 464 in arch/ppc64/kernel/pSeries_pci.o
+arch/ppc64/kernel/pSeries_pci.o(.opd+0x0): In function
+`pcibios_fixup_device_res
+ources':
+: multiple definition of `pcibios_fixup_device_resources'
+arch/ppc64/kernel/pci.o(.opd+0x90):arch/ppc64/kernel/pci.c:157: first
+defined he
+re
+arch/ppc64/kernel/pSeries_pci.o(*ABS*+0x27fc96b4): In function
+`__crc_pcibios_fi
+xup_device_resources':
+pSeries_pci.c: multiple definition of
+`__crc_pcibios_fixup_device_resources'
+arch/ppc64/kernel/pSeries_pci.o(*ABS*+0x212b253a): In function
+`__crc_pcibios_fi
+xup_bus':
+pSeries_pci.c: multiple definition of `__crc_pcibios_fixup_bus'
+arch/ppc64/kernel/pSeries_pci.o(.text+0x0): In function
+`.pcibios_fixup_device_r
+esources':
+: multiple definition of `.pcibios_fixup_device_resources'
+arch/ppc64/kernel/pci.o(.text+0x184):arch/ppc64/kernel/pci.c:781: first
+defined
+here
+arch/ppc64/kernel/pSeries_pci.o(.opd+0xf0): In function
+`pSeries_final_fixup':
+arch/ppc64/kernel/pSeries_pci.c:477: multiple definition of
+`pcibios_fixup_bus'
+arch/ppc64/kernel/pci.o(.opd+0x138):arch/ppc64/kernel/pci.c:743: first
+defined h
+ere
+make[1]: *** [arch/ppc64/kernel/built-in.o] Error 1
+make: *** [arch/ppc64/kernel] Error 2
+make: *** Waiting for unfinished jobs....
 
--- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 PCMCIA      - http://pcmcia.arm.linux.org.uk/
-                 2.6 Serial core
+

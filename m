@@ -1,41 +1,60 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314124AbSDLRlU>; Fri, 12 Apr 2002 13:41:20 -0400
+	id <S314126AbSDLRpC>; Fri, 12 Apr 2002 13:45:02 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314126AbSDLRlT>; Fri, 12 Apr 2002 13:41:19 -0400
-Received: from www.soccerchix.org ([64.23.60.113]:41227 "EHLO
-	gib.soccerchix.org") by vger.kernel.org with ESMTP
-	id <S314125AbSDLRlT>; Fri, 12 Apr 2002 13:41:19 -0400
-Date: Fri, 12 Apr 2002 13:06:18 -0400 (EDT)
-From: Blue Lang <blue@b-side.org>
-To: "Eric W. Biederman" <ebiederm@xmission.com>
-cc: Michael De Nil <linux@aerythmic.be>,
-        Linux Kernel Mailinglist <linux-kernel@vger.kernel.org>
-Subject: Re: i830M video chip (X driver deficient)
-In-Reply-To: <m18z7tl642.fsf@frodo.biederman.org>
-Message-ID: <Pine.LNX.4.30.0204121305430.17120-100000@gib.soccerchix.org>
+	id <S314128AbSDLRpB>; Fri, 12 Apr 2002 13:45:01 -0400
+Received: from firewall.oeone.com ([216.191.248.101]:37391 "HELO
+	mail.oeone.com") by vger.kernel.org with SMTP id <S314126AbSDLRpA>;
+	Fri, 12 Apr 2002 13:45:00 -0400
+Message-ID: <3CB71D21.9080005@oeone.com>
+Date: Fri, 12 Apr 2002 13:45:05 -0400
+From: Masoud Sharbiani <masouds@oeone.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.9) Gecko/20020310
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Vahid Fereydunkolahi <fereydunk@yahoo.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: kernel threads.
+In-Reply-To: <20020412170709.98207.qmail@web10002.mail.yahoo.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 12 Apr 2002, Eric W. Biederman wrote:
+Hi,
+Context switch happens when one of your running processes (or kernel 
+threads) is running and then makes a request (like reading from a device 
+and it has to wait for result). therefore scheduler selects another 
+runnable process/kthread to run.
+If you think you have a lot of context switches, you might want to 
+redesign your thread so it blocks less (for example, make several 
+requests for reading several blocks, all at the same time, and wait for 
+first to complete where there is higher probability for the rest of 
+blocks to be ready when you check for their readiness).
+regards,
+Masoud
+Vahid Fereydunkolahi wrote:
 
-> It isn't memory related at all.  The problem is that the X driver uses
-> the video BIOS to set the display modes, instead of setting the
-> display mode by itself as it should.  I don't know if there are enough
-> docs available from intel about this but that is the problem.
+>Folks,
+> I have a problem using kernel_thread. The problem is
+> when I use kernel threads I see a lot of context 
+>switch. 
+> I monitor the system activity using vmstat.
+>
+>Regards,
+>--vahid
+>
+>
+>__________________________________________________
+>Do You Yahoo!?
+>Yahoo! Tax Center - online filing with TurboTax
+>http://taxes.yahoo.com/
+>-
+>To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+>the body of a message to majordomo@vger.kernel.org
+>More majordomo info at  http://vger.kernel.org/majordomo-info.html
+>Please read the FAQ at  http://www.tux.org/lkml/
+>
 
-erm.. I thought that's what I said. Anyways, here is that link I was
-talking about:
 
-http://www.cse.unsw.edu.au/~chak/linux/c400.html
-
-Good luck,
-
--- 
-Blue Lang                                      http://www.b-side.org/~blue
-           editor, b-side.org                        http://www.b-side.org
-           bug generation unit, alanthia mud             alanthia.org 1536
-           integration engineer, veritas software   http://www.veritas.com
 

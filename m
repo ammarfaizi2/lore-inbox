@@ -1,56 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262008AbUCVObR (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 22 Mar 2004 09:31:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262010AbUCVObR
+	id S261999AbUCVO14 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 22 Mar 2004 09:27:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262005AbUCVO14
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 22 Mar 2004 09:31:17 -0500
-Received: from bay-bridge.veritas.com ([143.127.3.10]:56729 "EHLO
-	MTVMIME01.enterprise.veritas.com") by vger.kernel.org with ESMTP
-	id S262008AbUCVObP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 22 Mar 2004 09:31:15 -0500
-Date: Mon, 22 Mar 2004 14:31:15 +0000 (GMT)
-From: Hugh Dickins <hugh@veritas.com>
-X-X-Sender: hugh@localhost.localdomain
-To: Andrea Arcangeli <andrea@suse.de>
-cc: Rik van Riel <riel@redhat.com>, Christoph Hellwig <hch@infradead.org>,
-       <linux-kernel@vger.kernel.org>
-Subject: Re: 2.6.5-rc2-aa1
-In-Reply-To: <20040322141439.GY3649@dualathlon.random>
-Message-ID: <Pine.LNX.4.44.0403221421410.11500-100000@localhost.localdomain>
+	Mon, 22 Mar 2004 09:27:56 -0500
+Received: from mail2-116.ewetel.de ([212.6.122.116]:54488 "EHLO
+	mail2.ewetel.de") by vger.kernel.org with ESMTP id S261999AbUCVO1z
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 22 Mar 2004 09:27:55 -0500
+Date: Mon, 22 Mar 2004 15:27:31 +0100 (CET)
+From: Pascal Schmidt <der.eremit@email.de>
+To: Stefan Smietanowski <stesmi@stesmi.com>
+cc: Chris Friesen <cfriesen@nortelnetworks.com>, Chris Wedgwood <cw@f00f.org>,
+       Frank Cusack <fcusack@fcusack.com>, linux-kernel@vger.kernel.org
+Subject: Re: Does Linux sync(2) wait?
+In-Reply-To: <405ED755.2070301@stesmi.com>
+Message-ID: <Pine.LNX.4.58.0403221523590.218@neptune.local>
+References: <1C8xa-5lk-5@gated-at.bofh.it> <E1B54ub-00004H-OC@localhost>
+ <20040322005953.GA12237@dingdong.cryptoapps.com> <405E611D.10008@nortelnetworks.com>
+ <405ED755.2070301@stesmi.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-CheckCompat: OK
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 22 Mar 2004, Andrea Arcangeli wrote:
-> On Mon, Mar 22, 2004 at 09:07:54AM -0500, Rik van Riel wrote:
-> > 
-> > Most people seem to be talking about "pte based rmap" vs
-> > "object based rmap".  So far you're the only one who I've
-> > seen using "rmap" to mean just "pte based rmap" and not
-> > also "object based rmap".
-> 
-> then I'm the only one and I could have been biased because rmap.c is
-> including 99% of code for the pte based rmap, and my objrmap.c is including
-> 99% of code for the objrect based _reverse_mappings_, still objrmap.c is
-> a more appropriate name for that stuff IMO (especially if somebody else
-> is mistaken as I am using the word rmap to mean the current 2.6 code in
-> mm/rmap.c).
+On Mon, 22 Mar 2004, Stefan Smietanowski wrote:
 
-I agree with Rik and Christoph (I agreed with all of Christoph's points,
-but most can be left until later on): mm/rmap.c and include/linux/rmap.h
-(the latter a name change from include/linux/rmap-locking.h).
+> >> 20 minutes?!
+> > He did say it was a magneto-optical drive.
+> That's 400KiB/s you know - pretty slow.
 
-objrmap is the particular implementation found within that file in your
-tree, but Rik imagined right from the start that there would be various
-implementations:
+Yes. It's almost exclusively used once per week for backup purposes.
+Speed doesn't matter for that (about 400 MB of often changing data on
+/home), reliability counts.
 
- * This is kept modular because we may want to experiment
- * with object-based reverse mapping schemes.
+Data that doesn't really change (old kernel releases and such) is
+also on MO, but that's "write once, than forget about it", so once
+again speed doesn't matter that much.
 
-(Aaargh, now we can expect someone to propose
-CONFIG_PTE_CHAIN_RMAP, CONFIG_ANON_VMA_RMAP, CONFIG_ANONMM_RMAP etc)
-
-Hugh
-
+-- 
+Ciao,
+Pascal

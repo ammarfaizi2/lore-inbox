@@ -1,37 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269102AbUJQMPI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269103AbUJQMSh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269102AbUJQMPI (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 17 Oct 2004 08:15:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269103AbUJQMPH
+	id S269103AbUJQMSh (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 17 Oct 2004 08:18:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269105AbUJQMSf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 17 Oct 2004 08:15:07 -0400
-Received: from dsl-213-023-002-004.arcor-ip.net ([213.23.2.4]:33800 "EHLO
-	be3.lrz.7eggert.dyndns.org") by vger.kernel.org with ESMTP
-	id S269102AbUJQMPE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 17 Oct 2004 08:15:04 -0400
-From: Bodo Eggert <7eggert@gmx.de>
-Subject: Re: Building on case-insensitive systems
-To: linux-kernel mailing list <linux-kernel@vger.kernel.org>
-Reply-To: 7eggert@nurfuerspam.de
-Date: Sun, 17 Oct 2004 14:19:17 +0200
-References: <fa.e78dm07.jjs3q5@ifi.uio.no> <fa.e17vks0.10kojhi@ifi.uio.no>
-User-Agent: KNode/0.7.7
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7Bit
-Message-Id: <E1CJA0L-0001V0-00@be1.7eggert.dyndns.org>
+	Sun, 17 Oct 2004 08:18:35 -0400
+Received: from lug-owl.de ([195.71.106.12]:158 "EHLO lug-owl.de")
+	by vger.kernel.org with ESMTP id S269103AbUJQMSc (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 17 Oct 2004 08:18:32 -0400
+Date: Sun, 17 Oct 2004 14:18:31 +0200
+From: Jan-Benedict Glaw <jbglaw@lug-owl.de>
+To: Gene Heskett <gene.heskett@verizon.net>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: I/O card vs linux
+Message-ID: <20041017121831.GH5033@lug-owl.de>
+Mail-Followup-To: Gene Heskett <gene.heskett@verizon.net>,
+	linux-kernel <linux-kernel@vger.kernel.org>
+References: <200410160423.43597.gene.heskett@verizon.net>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="Fe0dstq7l4iXK2TV"
+Content-Disposition: inline
+In-Reply-To: <200410160423.43597.gene.heskett@verizon.net>
+X-Operating-System: Linux mail 2.6.8-rc4 
+X-gpg-fingerprint: 250D 3BCF 7127 0D8C A444  A961 1DBD 5E75 8399 E1BB
+X-gpg-key: wwwkeys.de.pgp.net
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Albert Cahalan wrote:
 
-> Actually, I'm betting that "required to build product"
-> is a magic phrase that overrides corporate IT's desire
-> to brutally enforce a Microsoft-only environment.
+--Fe0dstq7l4iXK2TV
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-AFAIR, you can select case-sensitive filesystem handling while installing
-SFU. It may (aka. will) break some programs, but who cares, it's windows.-)
--- 
-The tough part about being an officer is that the troops don't know what
-they want, but they know for certain what they DON'T want.
+On Sat, 2004-10-16 04:23:43 -0400, Gene Heskett <gene.heskett@verizon.net>
+wrote in message <200410160423.43597.gene.heskett@verizon.net>:
+> Greetings;
+>=20
+> This may be OT, but can anyone advise me on a pci card thats basicly=20
+> an 8255 with a 34 pin or greater port on the card or back panel to=20
+> bring out all 3 ports, and a suitable linux compatible driver for it?
 
+For input? Output? Both? In the output-only with low "bandwith" being
+okay, just think about attaching a number of serial-in-parallel-out
+shift registers to your parport. I use something like that for switching
+on and off computers...
+
+MfG, JBG
+
+--=20
+Jan-Benedict Glaw       jbglaw@lug-owl.de    . +49-172-7608481             =
+_ O _
+"Eine Freie Meinung in  einem Freien Kopf    | Gegen Zensur | Gegen Krieg  =
+_ _ O
+ fuer einen Freien Staat voll Freier B=FCrger" | im Internet! |   im Irak! =
+  O O O
+ret =3D do_actions((curr | FREE_SPEECH) & ~(NEW_COPYRIGHT_LAW | DRM | TCPA)=
+);
+
+--Fe0dstq7l4iXK2TV
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.5 (GNU/Linux)
+
+iD8DBQFBcmMXHb1edYOZ4bsRApVsAJ0ccdBHfyz8pnGymaCn8Uh/RLPgWgCeJpjl
+HLf6XpVNNeFx4D1Asto432k=
+=ilgT
+-----END PGP SIGNATURE-----
+
+--Fe0dstq7l4iXK2TV--

@@ -1,87 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S286904AbSAXK1u>; Thu, 24 Jan 2002 05:27:50 -0500
+	id <S286959AbSAXKaL>; Thu, 24 Jan 2002 05:30:11 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286934AbSAXK1k>; Thu, 24 Jan 2002 05:27:40 -0500
-Received: from gateway-2.hyperlink.com ([213.52.152.2]:6417 "EHLO
-	core-gateway-1.hyperlink.com") by vger.kernel.org with ESMTP
-	id <S286904AbSAXK1V>; Thu, 24 Jan 2002 05:27:21 -0500
-Subject: 2.5.3pre4 compile error - DAC960.c
-From: "Martin A. Brooks" <martin@jtrix.com>
-To: LKML <linux-kernel@vger.kernel.org>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature";
-	boundary="=-IdU1ALnVZkf3mqx37t4l"
-X-Mailer: Evolution/1.0.1 
-Date: 24 Jan 2002 10:33:19 +0000
-Message-Id: <1011868400.1236.1304.camel@unhygienix>
+	id <S286942AbSAXKaA>; Thu, 24 Jan 2002 05:30:00 -0500
+Received: from thebsh.namesys.com ([212.16.7.65]:44044 "HELO
+	thebsh.namesys.com") by vger.kernel.org with SMTP
+	id <S286959AbSAXK3q>; Thu, 24 Jan 2002 05:29:46 -0500
+Date: Thu, 24 Jan 2002 13:29:44 +0300
+From: Oleg Drokin <green@namesys.com>
+To: Berjoza Roman <b_rom_s@4enet.by>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: reiserfs+updatedb=oops
+Message-ID: <20020124132944.A20375@namesys.com>
+In-Reply-To: <20020123161944Z289790-13996+10616@vger.kernel.org>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20020123161944Z289790-13996+10616@vger.kernel.org>
+User-Agent: Mutt/1.3.22.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hello!
 
---=-IdU1ALnVZkf3mqx37t4l
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+On Wed, Jan 23, 2002 at 06:23:12PM +0200, Berjoza Roman wrote:
+> Jan 23 12:56:40 ns1 kernel: EIP:    0010:[d_lookup+92/244]    Not tainted
+> Jan 23 12:56:40 ns1 kernel: Process kdeinit (pid: 3279, stackpage=c2fbf000)
+> Jan 23 12:56:40 ns1 kernel: Call Trace: [cached_lookup+16/84] 
+> [link_path_walk+1184/1752] [getname+93/156] [path_walk+26/28] 
+> [__user_walk+53/80]
+Hm. But there is no reiserfs code in the calltrace.
+What I can say is that in d_lookup() this code falls:
+                tmp = tmp->next;
+because tmp is NULL. (which means the our list is broken, right?)
+I do not know how things went into this state, though.
 
-gcc -D__KERNEL__ -I/home/martin/kernel-a-day-club/linux/include -Wall
--Wstrict-prototypes -Wno-trigraphs -O2 -fomit-frame-pointer
--fno-strict-aliasing -fno-common -pipe -mpreferred-stack-boundary=3D2
--march=3Di686    -DEXPORT_SYMTAB -c DAC960.c
-In file included from DAC960.c:49:
-DAC960.h: In function `DAC960_AcquireControllerLock':
-DAC960.h:2511: warning: passing arg 1 of `spin_lock' from incompatible
-pointer type
-DAC960.h: In function `DAC960_ReleaseControllerLock':
-DAC960.h:2523: warning: passing arg 1 of `spin_unlock' from incompatible
-pointer type
-DAC960.h: In function `DAC960_AcquireControllerLockIH':
-DAC960.h:2560: warning: passing arg 1 of `spin_lock' from incompatible
-pointer type
-DAC960.h: In function `DAC960_ReleaseControllerLockIH':
-DAC960.h:2573: warning: passing arg 1 of `spin_unlock' from incompatible
-pointer type
-DAC960.c: In function `DAC960_WaitForCommand':
-DAC960.c:309: warning: passing arg 1 of `spin_unlock' from incompatible
-pointer type
-DAC960.c:311: warning: passing arg 1 of `spin_lock' from incompatible
-pointer type
-DAC960.c: In function `DAC960_RegisterBlockDevice':
-DAC960.c:1948: too few arguments to function `blk_init_queue'
-DAC960.c:1961: structure has no member named `MaxSectorsPerRequest'
-DAC960.c: In function `DAC960_RegisterDisk':
-DAC960.c:2076: incompatible type for argument 2 of `register_disk'
-DAC960.c:2088: incompatible type for argument 2 of `register_disk'
-DAC960.c: In function `DAC960_V1_QueueReadWriteCommand':
-DAC960.c:2745: warning: implicit declaration of function `bio_size'
-DAC960.c: In function `DAC960_ProcessCompletedBuffer':
-DAC960.c:2948: too few arguments to function
-DAC960.c: In function `DAC960_Open':
-DAC960.c:5302: invalid operands to binary &
-DAC960.c: In function `DAC960_UserIOCTL':
-DAC960.c:5539: warning: passing arg 1 of `spin_unlock' from incompatible
-pointer type
-DAC960.c:5543: warning: passing arg 1 of `spin_lock' from incompatible
-pointer type
-make[3]: *** [DAC960.o] Error 1
-
---=20
-Martin A. Brooks   Systems Administrator
-Jtrix Ltd          t: +44 7395 4990
-57-59 Neal Street  f: +44 7395 4991
-London, WC2H 9PP   e: martin@jtrix.com
-
---=-IdU1ALnVZkf3mqx37t4l
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.6 (GNU/Linux)
-Comment: For info see http://www.gnupg.org
-
-iEYEABECAAYFAjxP4u8ACgkQwgE0gTKdDobsEQCfcHQYnqIkrQaVpHWazj8MkvoV
-f10AniRgfMBohp0p+7v7vNP6Oio2SsmN
-=EQHx
------END PGP SIGNATURE-----
-
---=-IdU1ALnVZkf3mqx37t4l--
-
+Bye,
+    Oleg

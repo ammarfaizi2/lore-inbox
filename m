@@ -1,75 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265692AbUGJQSq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265789AbUGJQT4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265692AbUGJQSq (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 10 Jul 2004 12:18:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265789AbUGJQSq
+	id S265789AbUGJQT4 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 10 Jul 2004 12:19:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266025AbUGJQTz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 10 Jul 2004 12:18:46 -0400
-Received: from mail001.syd.optusnet.com.au ([211.29.132.142]:32898 "EHLO
-	mail001.syd.optusnet.com.au") by vger.kernel.org with ESMTP
-	id S265692AbUGJQSo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 10 Jul 2004 12:18:44 -0400
-Message-ID: <40F016D9.8070300@kolivas.org>
-Date: Sun, 11 Jul 2004 02:18:33 +1000
-From: Con Kolivas <kernel@kolivas.org>
-User-Agent: Mozilla Thunderbird 0.7.1 (X11/20040626)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Con Kolivas <kernel@kolivas.org>
-Cc: ck kernel mailing list <ck@vds.kolivas.org>, linux-kernel@vger.kernel.org
-Subject: Re: [announce] [patch] Voluntary Kernel Preemption Patch
-References: <20040709182638.GA11310@elte.hu> <20040709195105.GA4807@infradead.org> <20040710124814.GA27345@elte.hu> <40F0075C.2070607@kolivas.org>
-In-Reply-To: <40F0075C.2070607@kolivas.org>
-X-Enigmail-Version: 0.84.1.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: multipart/signed; micalg=pgp-sha1;
- protocol="application/pgp-signature";
- boundary="------------enig781F0FF94E94B8AA84B38746"
+	Sat, 10 Jul 2004 12:19:55 -0400
+Received: from 80-169-17-66.mesanetworks.net ([66.17.169.80]:4250 "EHLO
+	mail.bounceswoosh.org") by vger.kernel.org with ESMTP
+	id S265789AbUGJQTx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 10 Jul 2004 12:19:53 -0400
+Date: Sat, 10 Jul 2004 10:20:26 -0600
+From: "Eric D. Mudama" <edmudama@bounceswoosh.org>
+To: Ed Tomlinson <edt@aei.ca>
+Cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
+       Jens Axboe <axboe@suse.de>
+Subject: Re: 2.6.7-mm7 ide errors
+Message-ID: <20040710162026.GA12371@bounceswoosh.org>
+Mail-Followup-To: Ed Tomlinson <edt@aei.ca>, linux-kernel@vger.kernel.org,
+	Andrew Morton <akpm@osdl.org>, Jens Axboe <axboe@suse.de>
+References: <200407100848.15665.edt@aei.ca>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Disposition: inline
+In-Reply-To: <200407100848.15665.edt@aei.ca>
+User-Agent: Mutt/1.5.6+20040523i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
---------------enig781F0FF94E94B8AA84B38746
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+On Sat, Jul 10 at  8:48, Ed Tomlinson wrote:
+>Hi,
+>
+>The ide error introduced with the barrier patches are still happening here with mm7. 
+>
+>Jul 10 08:06:04 bert usb.agent[1705]:      usbhid: loaded successfully
+>Jul 10 08:06:04 bert input.agent[1738]:      joydev: loaded successfully
+>Jul 10 08:06:06 bert kernel: lp: driver loaded but no devices found
+>Jul 10 08:06:16 bert kernel: hda: drive_cmd: status=0x51 { DriveReady SeekComplete Error }
+>Jul 10 08:06:16 bert kernel: hda: drive_cmd: error=0x04 { DriveStatusError }
+>Jul 10 08:06:16 bert kernel: ide: failed opcode was: 0xe7
+>Jul 10 08:06:18 bert kernel: hda: drive_cmd: status=0x51 { DriveReady SeekComplete Error }
+>Jul 10 08:06:18 bert kernel: hda: drive_cmd: error=0x04 { DriveStatusError }
+>Jul 10 08:06:18 bert kernel: ide: failed opcode was: 0xe7
+>
+>Typically  I get one of the above every couple of minutes and have since the barrier changes
+>when into mm.
+>
+>What can I do to help get to the bottom of this problem?
 
-Con Kolivas wrote:
-> I've conducted some of the old fashioned Benno's latency test on this 
-> patch in various sysctl configurations. This was done on top of a 
-> different tree but everything else was kept static. I have to preface 
-> these results by saying I don't really get the 50ms size latencies 
-> normally but I'm usually unable to get better than 3ms so I wasn't sure 
-> what to expect.
-> 
-> Only the both preempt off showed any "outlying" results with one spike 
-> of ~20ms but the rest of the time being ~3ms. Enabling both forms of 
-> preempt seemed to help a little but nothing drastic, and never below 
-> 1ms. It was not universal that the latencies were better, but there was 
-> a trend towards better latency. I suspect that those who are getting 
-> huge latencies may see a bigger change with this patch than I did.
-> 
-> http://ck.kolivas.org/latency/
-> 
-> Con
+0xE7 is the 'FLUSH CACHE' command for use on drives <= 137GB.
+
+What model of drive do you have, and how big is it?
 
 
-Ooops forgot to mention this was running reiserFS 3.6 on software raid0 
-2x IDE with cfq elevator.
+-- 
+Eric D. Mudama
+edmudama@mail.bounceswoosh.org
 
-Con
-
---------------enig781F0FF94E94B8AA84B38746
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: OpenPGP digital signature
-Content-Disposition: attachment; filename="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
-
-iD8DBQFA8BbbZUg7+tp6mRURAiJFAJ91HSd22Q8acctC3+mMBSW9zyAEAACcDWNG
-wFSo3KbA2e/RpvmAUeiGWbk=
-=YwDv
------END PGP SIGNATURE-----
-
---------------enig781F0FF94E94B8AA84B38746--

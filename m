@@ -1,38 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131189AbRBUGjg>; Wed, 21 Feb 2001 01:39:36 -0500
+	id <S129098AbRBUHJm>; Wed, 21 Feb 2001 02:09:42 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131369AbRBUGj0>; Wed, 21 Feb 2001 01:39:26 -0500
-Received: from tomts7.bellnexxia.net ([209.226.175.40]:18075 "EHLO
-	tomts7-srv.bellnexxia.net") by vger.kernel.org with ESMTP
-	id <S131189AbRBUGjQ>; Wed, 21 Feb 2001 01:39:16 -0500
-From: Ed Tomlinson <tomlins@cam.org>
-Subject: Re: [rfc] Near-constant time directory index for Ext2
-To: linux-kernel@vger.kernel.org
-Date: Tue, 20 Feb 2001 21:35:15 -0500
-In-Reply-To: <E14VNAU-00014j-00@the-village.bc.nu>
-Organization: me
-User-Agent: KNode/0.4beta4
-MIME-Version: 1.0
+	id <S129127AbRBUHJc>; Wed, 21 Feb 2001 02:09:32 -0500
+Received: from kerberos.suse.cz ([195.47.106.10]:62727 "EHLO kerberos.suse.cz")
+	by vger.kernel.org with ESMTP id <S129098AbRBUHJY>;
+	Wed, 21 Feb 2001 02:09:24 -0500
+Date: Wed, 21 Feb 2001 08:09:19 +0100
+From: Vojtech Pavlik <vojtech@suse.cz>
+To: Shane Wegner <shane@cm.nu>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [patch] VIA 4.2x driver for 2.2 kernels
+Message-ID: <20010221080919.A469@suse.cz>
+In-Reply-To: <20010220134028.A5762@suse.cz> <20010220155927.A1543@cm.nu>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7Bit
-Message-Id: <20010221023515.6DF8E18C99@oscar.casa.dyndns.org>
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20010220155927.A1543@cm.nu>; from shane@cm.nu on Tue, Feb 20, 2001 at 03:59:27PM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox wrote:
+On Tue, Feb 20, 2001 at 03:59:27PM -0800, Shane Wegner wrote:
 
->> probably a bad idea to use it, because in theory at least the VFS layer
->> might decide to switch the hash function around. I'm more interested in
->> hearing whether it's a good hash, and maybe we could improve the VFS hash
->> enough that there's no reason to use anything else..
+> > You wanted my VIA driver for 2.2. Here is a patch that brings the very
+> > latest 4.2 driver to the 2.2 kernel. The patch is against the
+> > 2.2.19-pre13 kernel plus yours 1221 ide patch.
 > 
-> Reiserfs seems to have done a lot of work on this and be using tea, which is
-> also nice as tea is non trivial to abuse as a user to create pessimal file
-> searches intentionally
+> This drivers breaks with my HP 8110 CD-R drive.  It's
+> sitting on primary slave of a Via 686B controler.  When I
+> try to do a hdparm -d1 -u1 -k1 /dev/hdb, the kernel locks
+> up hard.  Not even an oops.  Reverting to the old driver
+> works fine.
 
-The default in reiserfs is now the R5 hash, but you are right that lots of efforts went 
-into finding this hash.  This includes testing various hashes on real directory 
-structures to see which one worked best.  R5 won.
+Don't do that. Use the kernel option to enable DMA instead.
 
-Ed Tomlinson
+Hmm, I'll have to look into this anyway - many users seem to do that and
+it isn't as harmless as it looks (it worked by pure luck with the
+previous version).
+
+-- 
+Vojtech Pavlik
+SuSE Labs

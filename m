@@ -1,57 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262361AbUDGEJI (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 Apr 2004 00:09:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264093AbUDGEJI
+	id S264092AbUDGE3y (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 Apr 2004 00:29:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264094AbUDGE3y
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 Apr 2004 00:09:08 -0400
-Received: from fmr01.intel.com ([192.55.52.18]:55275 "EHLO hermes.fm.intel.com")
-	by vger.kernel.org with ESMTP id S262361AbUDGEJE convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 Apr 2004 00:09:04 -0400
-content-class: urn:content-classes:message
+	Wed, 7 Apr 2004 00:29:54 -0400
+Received: from mail017.syd.optusnet.com.au ([211.29.132.168]:13976 "EHLO
+	mail017.syd.optusnet.com.au") by vger.kernel.org with ESMTP
+	id S264092AbUDGE3x (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 7 Apr 2004 00:29:53 -0400
+From: Peter Chubb <peter@chubb.wattle.id.au>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-X-MimeOLE: Produced By Microsoft Exchange V6.0.6487.1
-Subject: RE: 2.6.2-rc3: irq#19 - nobody cared - with an au88xx
-Date: Wed, 7 Apr 2004 00:08:59 -0400
-Message-ID: <BF1FE1855350A0479097B3A0D2A80EE002F7B775@hdsmsx402.hd.intel.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: 2.6.2-rc3: irq#19 - nobody cared - with an au88xx
-Thread-Index: AcQcAWQYi50pI7tNScSvlsuDExCEhwAPRnWQ
-From: "Brown, Len" <len.brown@intel.com>
-To: "Daniel Jacobowitz" <dan@debian.org>
-Cc: <linux-kernel@vger.kernel.org>
-X-OriginalArrivalTime: 07 Apr 2004 04:08:59.0528 (UTC) FILETIME=[0DAAD080:01C41C56]
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <16499.33689.920494.448577@wombat.chubb.wattle.id.au>
+Date: Wed, 7 Apr 2004 14:29:13 +1000
+To: Horst von Brand <vonbrand@inf.utfsm.cl>
+Cc: Sergiy Lozovsky <serge_lozovsky@yahoo.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: kernel stack challenge 
+In-Reply-To: <58907794@toto.iv>
+X-Mailer: VM 7.17 under 21.4 (patch 15) "Security Through Obscurity" XEmacs Lucid
+Comments: Hyperbole mail buttons accepted, v04.18.
+X-Face: GgFg(Z>fx((4\32hvXq<)|jndSniCH~~$D)Ka:P@e@JR1P%Vr}EwUdfwf-4j\rUs#JR{'h#
+ !]])6%Jh~b$VA|ALhnpPiHu[-x~@<"@Iv&|%R)Fq[[,(&Z'O)Q)xCqe1\M[F8#9l8~}#u$S$Rm`S9%
+ \'T@`:&8>Sb*c5d'=eDYI&GF`+t[LfDH="MP5rwOO]w>ALi7'=QJHz&y&C&TE_3j!
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->I'm assuming that it is not the fault of either of these drivers, since
->both of those are quite straightforward; they appear to be actually
->being triggered when nothing is going on.
+>>>>> "Horst" == Horst von Brand <vonbrand@inf.utfsm.cl> writes:
 
-If IRQ initialization is done incorrectly, it is possible
-For a driver to request_irq(X), while the hardware is actually
-on IRQ Y.
+>> The only one is that performance would suffer because of use of
+>> higher level language than C or Assembler.
 
-Then when that device becomes active, it would kill the other
-devices on Y because its handler is looking for interrupts on X.
+Horst> Because the performance and size of kernel code is _critical_,
+Horst> maybe?  Because much of the kernel code has been carefully
+Horst> tuned for maximum performance perhaps?
 
-If this happens with acpi enabled, but doesn't happen with acpi=off
-or pci=noacpi, then we need to compare the /proc/interrupts between
-the working and failintg configs to see if the IRQs have moved around
-when perhaps they should not have.  Dmesg from the ACPI case would
-also be needed.
+>> There is a reason people use languages like PERL, Java and so on.
 
->There was a set of APIC errors an hour before, but they're probably
->unrelated:
->Apr  6 11:31:31 nevyn kernel: APIC error on CPU1: 00(08)
->Apr  6 11:31:31 nevyn kernel: APIC error on CPU0: 00(02)
+Horst> And there are solid reasons for _not_ writing operating system
+Horst> kernels in them too...
 
-I believe this is due to transient hardware errors on your MB.
-Though not fatal, it isn't a good indicator.
+Hey, why not just port Xemacs to run on the bare metal.  That way you
+get a lisp interpreter `for free'.  :-)
+--
+Dr Peter Chubb  http://www.gelato.unsw.edu.au  peterc AT gelato.unsw.edu.au
+The technical we do immediately,  the political takes *forever*
 
--Len
+

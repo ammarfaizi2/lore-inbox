@@ -1,75 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261853AbVCOUD3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261858AbVCOUDa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261853AbVCOUD3 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Mar 2005 15:03:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261860AbVCOUAX
+	id S261858AbVCOUDa (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Mar 2005 15:03:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261857AbVCOT7m
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Mar 2005 15:00:23 -0500
-Received: from pop-a065d14.pas.sa.earthlink.net ([207.217.121.252]:34227 "EHLO
-	pop-a065d14.pas.sa.earthlink.net") by vger.kernel.org with ESMTP
-	id S261851AbVCOT4a (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Mar 2005 14:56:30 -0500
-Subject: [PATCH] Export dev_get_flags in net/core/dev.c to fix missing
-	symbols
-From: Alex Tribble <prat@rice.edu>
-To: linux-kernel@vger.kernel.org
-Content-Type: text/plain
-Organization: Rice University
-Message-Id: <1110916582.27963.1.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Tue, 15 Mar 2005 13:56:22 -0600
-Content-Transfer-Encoding: 7bit
+	Tue, 15 Mar 2005 14:59:42 -0500
+Received: from simmts8.bellnexxia.net ([206.47.199.166]:1524 "EHLO
+	simmts8-srv.bellnexxia.net") by vger.kernel.org with ESMTP
+	id S261853AbVCOT5W (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 15 Mar 2005 14:57:22 -0500
+Message-ID: <4350.10.10.10.24.1110916472.squirrel@linux1>
+In-Reply-To: <d120d5000503151134302d741e@mail.gmail.com>
+References: <20050312034222.12a264c4.akpm@osdl.org> 
+    <4236D428.4080403@aitel.hist.no> 
+    <d120d50005031506252c64b5d2@mail.gmail.com> 
+    <20050315110146.4b0c5431.akpm@osdl.org>
+    <d120d5000503151134302d741e@mail.gmail.com>
+Date: Tue, 15 Mar 2005 14:54:32 -0500 (EST)
+Subject: Re: 2.6.11-mm3 mouse oddity
+From: "Sean" <seanlkml@sympatico.ca>
+To: dtor_core@ameritech.net
+Cc: "Andrew Morton" <akpm@osdl.org>, helge.hafting@aitel.hist.no,
+       linux-kernel@vger.kernel.org, vojtech@suse.cz
+User-Agent: SquirrelMail/1.4.4-2
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-Priority: 3 (Normal)
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-You can import this changeset into BK by piping this whole message to:
-'| bk receive [path to repository]' or apply the patch as usual.
+On Tue, March 15, 2005 2:34 pm, Dmitry Torokhov said:
 
-===================================================================
+>> > Vojtech, is it possible to detect whether a keyboard has scroll
+>> > wheel(s) by its ID?
+>>
+>> What sort of keyboard has a scroll wheel??
+>
+> Some Microsoft ones IIRC.
+>
 
+Almost all Logitech keyboards have them now (all but 1 I think).
 
-ChangeSet@1.2186, 2005-03-15 13:46:12-06:00, prat@prat.homelinux.net
-  Export dev_get_flags to fix missing symbols in ipv6.ko
-
-
- dev.c |    1 +
- 1 files changed, 1 insertion(+)
-
-
-diff -Nru a/net/core/dev.c b/net/core/dev.c
---- a/net/core/dev.c	2005-03-15 13:54:23 -06:00
-+++ b/net/core/dev.c	2005-03-15 13:54:23 -06:00
-@@ -3325,6 +3325,7 @@
- EXPORT_SYMBOL(dev_remove_pack);
- EXPORT_SYMBOL(dev_set_allmulti);
- EXPORT_SYMBOL(dev_set_promiscuity);
-+EXPORT_SYMBOL(dev_get_flags);
- EXPORT_SYMBOL(dev_change_flags);
- EXPORT_SYMBOL(dev_set_mtu);
- EXPORT_SYMBOL(dev_set_mac_address);
-
-===================================================================
-
-
-This BitKeeper patch contains the following changesets:
-1.2186
-## Wrapped with gzip_uu ##
-
-
-M'XL( &\]-T(  \V46VO;,!3'GZ-/(>C+QHBLBZ\I&5F[L(YU)*0K;(P1%%N^
-M++%E)#F7X0\_Q27-TG64E3U,THMU_AR?_SD_= 9OM5"#7JVX 6?P2FIS]X%R
-M68I5435;5(E]:":E#3F-5LX^Y.Q%CA:UTXGZ%'G JJ;<Q#E<"Z4'/8+8_8W9
-MU6+0FXW?W5Z_F0$P',++G%>9N!$&#H? 2+7FJT2/N,E7LD)&\4J7PG 4R[*]
-ME[848VJW1P*&/;\E/G:#-B8)(=PE(L'4#7WWF*VNXRC 2.IDA:3*3A-YF!$/
-M!Q2SL"4LQ#YX"PFB)/0A]AS,'.)!P@:N/R"TC_T!QG#O>?1[=^ K OL87,!_
-M:^,2Q'"\K:4R,!'K>2;,/%WQ3-O?P+38PK+0NJ@RJ'?E0JXT+"I8U&L?+27X
-M8"OW@Q!,CVT&_;]< &".P>LG3%G[3BR5<&R)*/[56>39OM* N&W(O"!*PSAQ
-M_63!HC^U\9%<W8Q(1.UN/>I&;H?.J>YI?IY1(TB;!5>C1J-B4>Z3?/V><?6C
-M6'Y[M$I*""6>BZ/6C2*7=20]!(E&]OQ?(*52=<@X/$E4+*L4Q>=0FERH3:$%
-MW,D&6O$!-)OE@-HF%U47-FJWQ[&H["MB#O@AR]_=M":PKS;=L3Q-'PSN&42^
-M9XP&D(#QY^ED]FE^\^7CQ>3ZQ8FIE^?'=RC.1;S433E<<,:\Q,?@)^7<Y(WP
-#!   
- 
+Sean
 
 

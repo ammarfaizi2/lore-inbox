@@ -1,64 +1,71 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264138AbUDGSVN (ORCPT <rfc822;willy@w.ods.org>);
+	id S264172AbUDGSVN (ORCPT <rfc822;willy@w.ods.org>);
 	Wed, 7 Apr 2004 14:21:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264146AbUDGSSS
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264161AbUDGSSl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 Apr 2004 14:18:18 -0400
-Received: from bender.bawue.de ([193.7.176.20]:54964 "EHLO bender.bawue.de")
-	by vger.kernel.org with ESMTP id S264172AbUDGSOu (ORCPT
+	Wed, 7 Apr 2004 14:18:41 -0400
+Received: from fw.osdl.org ([65.172.181.6]:36284 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S264179AbUDGSRb (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 Apr 2004 14:14:50 -0400
-Date: Wed, 7 Apr 2004 20:14:41 +0200
-From: Joerg Sommrey <jo@sommrey.de>
-Message-Id: <200404071814.i37IEf2o005602@bear.sommrey.de>
-To: psavo@iki.fi, Linux kernel mailing list <linux-kernel@vger.kernel.org>
-Orig-To: Pasi Savolainen <psavo@iki.fi>
-Subject: Re: High CPU temp on Athlon MP w/ recent 2.6 kernels
-References: <1I4Ka-10u-5@gated-at.bofh.it> <1I5n5-1A2-41@gated-at.bofh.it> <1I5Gl-1OD-33@gated-at.bofh.it> <1I8kJ-3Z8-1@gated-at.bofh.it>
+	Wed, 7 Apr 2004 14:17:31 -0400
+Date: Wed, 7 Apr 2004 11:18:41 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Andy Isaacson <adi@hexapodia.org>
+Cc: bug-coreutils@gnu.org, linux-kernel@vger.kernel.org
+Subject: Re: dd PATCH: add conv=direct
+Message-Id: <20040407111841.78ae0021.akpm@osdl.org>
+In-Reply-To: <20040407173116.GB2814@hexapodia.org>
+References: <20040406220358.GE4828@hexapodia.org>
+	<20040406173326.0fbb9d7a.akpm@osdl.org>
+	<20040407173116.GB2814@hexapodia.org>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i586-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In linux.kernel you write:
+Andy Isaacson <adi@hexapodia.org> wrote:
+>
+> On Tue, Apr 06, 2004 at 05:33:26PM -0700, Andrew Morton wrote:
+> > Andy Isaacson <adi@hexapodia.org> wrote:
+> > >          dd(1) is convenient for this purpose, but is lacking a method
+> > > to force O_DIRECT.  The enclosed patch adds a "conv=direct" flag to
+> > > enable this usage.
+> > 
+> > This would be rather nice to have.  You'll need to ensure that the data
+> > is page-aligned in memory.
+> 
+> So, some confusion on my part about O_DIRECT:  I can't get O_DIRECT to
+> work on ext3, at all, on 2.4.25
 
->At least on A7M266-D lmsensors read thermal sensors very wrong. I
->haven't got time to contact devs with that, but I do know for sure that
->amd76x_pm really does make cooling calls, even in 2.6.5-rc3-mm3
->(There should be /sys/devices/pci0000\:00/0000\:00\:00.0/C2_cnt file,
->which tells how many times has amd76x_pm really made the disconnection call).
+ext3 doesn't support O_DIRECT in 2.4 kernels.  I did a patch once and I
+think it's in 2.4-aa kernels.
 
-lmsensors might be correct here as there is a sample config from Tyan
-for my board.  C2_cnt shows that amd76x_pm is indeed working. 
-Otherwise I had expected a much higher temperature.
+ext3 supports O_DIRECT in 2.6 kernels.  Quite a number of filesystems do.
 
->One issue is that from some kernel version amd76x_pm's idle() is called
->upto 3.5x times more often when there's some audio activity. So in
->effect number of calls to default_idle() jumps from 1100Hz to 3800Hz.
->(this is reproducible with 'rhytmbox' -application, but not with xmms.
->AFAIK my xmms uses OSS emulation and rhytmbox is native alsa.)
+> -- open(O_DIRECT) succeeds, but the write
+> returns EINVAL.
 
->Ahem. Could you actually try:
->echo 3 > /sys/devices/pci0000\:00/0000\:00\:00.0/lazy_idle
+Yup that's a bit silly.  In 2.6 we do the check at open() and fcntl() time.
+In 2.4 we don't fail until the actual I/O attempt.
 
-Did that.
+>  Same code works fine when writing to a block device.
+> If the problem is that ext3 can't support O_DIRECT, why does the open
+> succeed?
 
->This could help gaining 5-8°C. HZ changed from 100 to 1000 in 2.6, so
->amd76x_pm old default doesn't apply overly well here.
+We have been insufficiently assiduous in merging externally-supported
+patches into the mainline 2.4 tree.
 
-Bingo! Currently running 2.6.5-mm1 at 42.0/43.5°C!
+> > While you're there, please add an fsync-before-closing option.
+> 
+> Easy enough.  How does this look?  Note that C_TWOBUFS ensures the
+> output buffer is getpagesize()-aligned.
 
->There's some funniness going on with this tunable. It doesn't really
->affect how many times/second we call amd76x_pm.idle(), but rather how
->easily we go into sleep (no sleep if both CPU's aren't idle).
->With lazy_idle at 3 I get bad distortions with bttv card. with 3000 they
->disappear, but so does the thermal throttling :)
+Looks nice and simple.  You'll need an ext2 filesystem to test it under 2.4.
 
->(Sorry for lack of coherence right now)
+Be aware that it's rather a challenge to actually get the O_DIRECT #define
+in scope under some glibc versions.  I think you need to define _GNU_SOURCE
+or something like that.
 
-Wouldn't be a bad idea to document this :-)
-
-Thanks!
-
--jo
--- 
--rw-r--r--    1 jo       users          80 2004-04-07 19:37 /home/jo/.signature

@@ -1,48 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263619AbTE0TJS (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 May 2003 15:09:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263718AbTE0TJS
+	id S263718AbTE0TJg (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 May 2003 15:09:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263721AbTE0TJg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 May 2003 15:09:18 -0400
-Received: from holomorphy.com ([66.224.33.161]:21737 "EHLO holomorphy")
-	by vger.kernel.org with ESMTP id S263619AbTE0TJR (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 May 2003 15:09:17 -0400
-Date: Tue, 27 May 2003 12:20:44 -0700
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Marc-Christian Petersen <m.c.p@wolk-project.de>
-Cc: Marcelo Tosatti <marcelo@conectiva.com.br>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 2.4.21-rc4] Fix oom killer braindamage
-Message-ID: <20030527192044.GP8978@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Marc-Christian Petersen <m.c.p@wolk-project.de>,
-	Marcelo Tosatti <marcelo@conectiva.com.br>,
-	linux-kernel@vger.kernel.org
-References: <200305272104.05802.m.c.p@wolk-project.de>
+	Tue, 27 May 2003 15:09:36 -0400
+Received: from csl2.consultronics.on.ca ([204.138.93.2]:28804 "EHLO
+	csl2.consultronics.on.ca") by vger.kernel.org with ESMTP
+	id S263718AbTE0TJe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 27 May 2003 15:09:34 -0400
+Date: Tue, 27 May 2003 15:22:46 -0400
+From: Greg Louis <glouis@dynamicro.on.ca>
+To: LKML <linux-kernel@vger.kernel.org>
+Subject: patch-2.4.21-rc4-ac1.bz2 on kernel.org is really patch-2.4.21-rc2-ac3?
+Message-ID: <20030527192246.GA8570@athame.dynamicro.on.ca>
+Mail-Followup-To: LKML <linux-kernel@vger.kernel.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-In-Reply-To: <200305272104.05802.m.c.p@wolk-project.de>
-Organization: The Domain of Holomorphy
-User-Agent: Mutt/1.5.4i
+Organization: Dynamicro Consulting Limited
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, May 27, 2003 at 09:05:45PM +0200, Marc-Christian Petersen wrote:
-> Hi Marcelo,
-> attached patch fixes the oom killer braindamage where it tries to kill 
-> processes again and again and again w/o any ending or successfull killing of 
-> the selected processes in an OOM case.
-> The attached, very simple but effective, patch fixes it.
-> All the kudos go to Rik van Riel.
-> Patch tested and works, and also for a long time in my tree (and maybe also 
-> others?!)
-> This issue is out there for several years.
-> Please consider it for 2.4.21-rc5, thanks.
-> ciao, Marc
+After trying to apply a freshly downloaded "patch-2.4.21-rc4-ac1.bz2"
+from kernel.org and getting 53 rejects, I took a look inside and:
+--- linux.21rc2/arch/alpha/kernel/entry.S       2003-05-09
+18:05:01.000000000 +0100
++++ linux.21rc2-ac3/arch/alpha/kernel/entry.S   2003-04-22
+16:44:36.000000000 +0100
 
-Also in 2.5.x for some time.
+etc.
 
+The .gz patch is the same.
 
--- wli
+-- 
+| G r e g  L o u i s          | gpg public key: finger     |
+|   http://www.bgl.nu/~glouis |   glouis@consultronics.com |
+| http://wecanstopspam.org in signatures fights junk email |

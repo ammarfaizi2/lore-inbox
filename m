@@ -1,54 +1,69 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264451AbTEJRZe (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 10 May 2003 13:25:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264453AbTEJRZe
+	id S264449AbTEJRZI (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 10 May 2003 13:25:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264451AbTEJRZI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 10 May 2003 13:25:34 -0400
-Received: from amsfep15-int.chello.nl ([213.46.243.28]:18216 "EHLO
-	amsfep15-int.chello.nl") by vger.kernel.org with ESMTP
-	id S264451AbTEJRZc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 10 May 2003 13:25:32 -0400
-From: Jos Hulzink <josh@stack.nl>
-To: Jamie Lokier <jamie@shareable.org>, Andi Kleen <ak@muc.de>
-Subject: Re: [PATCH] Use correct x86 reboot vector
-Date: Sat, 10 May 2003 21:41:57 +0200
-User-Agent: KMail/1.5
-Cc: torvalds@transmeta.com, linux-kernel@vger.kernel.org
-References: <20030510025634.GA31713@averell> <20030510161529.GB29271@mail.jlokier.co.uk>
-In-Reply-To: <20030510161529.GB29271@mail.jlokier.co.uk>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Sat, 10 May 2003 13:25:08 -0400
+Received: from imap.gmx.net ([213.165.65.60]:57658 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S264449AbTEJRZH (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 10 May 2003 13:25:07 -0400
+Date: Sat, 10 May 2003 19:35:26 +0200
+From: Tuncer M "zayamut" Ayaz <tuncer.ayaz@gmx.de>
+To: Tuncer M "zayamut" Ayaz <tuncer.ayaz@gmx.de>
+Cc: jamie@shareable.org, linux-kernel@vger.kernel.org
+Subject: Re: 2.5.69 strange high tone on DELL Inspiron 8100
+In-Reply-To: <S264444AbTEJQk4/20030510164056Z+1652@vger.kernel.org>
+References: <1405.1052575075@www9.gmx.net>
+	<1052575167.16165.0.camel@dhcp22.swansea.linux.org.uk>
+	<S264332AbTEJO5e/20030510145734Z+7011@vger.kernel.org>
+	<S264373AbTEJPSN/20030510151813Z+1648@vger.kernel.org>
+	<20030510162527.GD29271@mail.jlokier.co.uk>
+	<S264444AbTEJQk4/20030510164056Z+1652@vger.kernel.org>
+X-Mailer: Sylpheed version 0.8.11 (GTK+ 1.2.10; i386-debian-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200305102141.57860.josh@stack.nl>
+Message-Id: <S264449AbTEJRZH/20030510172507Z+7050@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Saturday 10 May 2003 18:15, Jamie Lokier wrote:
-> I just did some Googling and found that there examples of DOS code
-> fragments using both vectors.  Also, the original IBM BIOS (as they
-> say) had a long jump at the vector, which is presumably one of the
-> many de facto ABIs which real mode programmers grew to depend on.
+On Sat, 10 May 2003 18:51:18 +0200
+Tuncer M "zayamut" Ayaz <tuncer.ayaz@gmx.de> wrote:
 
-The 16 byte code space is very small, and usually only contains that LONG jump 
-to an usable address space.
+> On Sat, 10 May 2003 17:25:27 +0100
+> Jamie Lokier <jamie@shareable.org> wrote:
+> 
+> > Tuncer M zayamut Ayaz wrote:
+> > > what I found out right now is that when there is
+> > > load (moving mailer windows around) the sound
+> > > is gone and reappears if there's no load aka
+> > > I stop moving mailer window (while typing this mail).
+> > 
+> > That's the opposite of my Toshiba in any of the lower power modes.
+> > 
+> > When there's CPU activity, it emits a quiet high-pitched noise. 
+> > When CPU activity stops, the noise stops.  This doesn't happen in
+> > the maximum power usage mode (brigh screen, fastest clock), and I
+> > don't know if there's a way to turn it off.
+> 
+> 1) with SpeedStep enabled in BIOS and also enabled with software
+> switching to full-speed mode turn down the volum a bit.
+> 
+> 2) disabled SpeedStep in BIOS. init-scripts enabled speed step
+> same behaviour as in 1)
+> 
+> funny side is that prior to booting 2.5 on the LILO prompt
+> I listened and would bet that the same noise but very very
+> quietly was still there.
 
-When the vector f000:fff0 is used, we can survive BIOSes that use relative 
-jumps with negative offsets or indirect short jumps instead.
-
-When the vector ffff:0000 is used, the code segment effectively contains only 
-16 bytes (or someone must abuse the 8086 wraparound), can't think of negative 
-offset short jumps there. As the code is read-only in this early stage, (BIOS 
-code is RW after the BIOS copied itself to RAM) self modifying code (which 
-uses absolute addressing) can be excluded too.
-
-Okay... now, as 386 and newer cpus need a far jump to unlock A20-A31, I think 
-it is safe to assume all BIOSes will do a far jump as soon as possible, which 
-means it doesn't matter which vector is used.
-
-For the sake of bad behaving BIOSes however, I'd vote for the f000:fff0 
-vector, unless someone can hand me a paper that says it is wrong.
-
-Jos
+rebooted with a reconfigured kernel to assure it's not cpufreq.
+same behaviour without cpufreq.
+btw, I'm not 100% sure anymore now running 2.4 whether I really
+heard the same noise just quiet. hard to differentiate and also
+doesn't matter from my view as it doesn't annoy like the
+2.5 noise effect.
+--> if it's the same noise, it would be ok, as you don't hear it
+normally sitting in front of the box, but running 2.5 is not
+nice with that high-pitched tone.

@@ -1,71 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261666AbTD2T54 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 29 Apr 2003 15:57:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261669AbTD2T54
+	id S261741AbTD2UCF (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 29 Apr 2003 16:02:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261753AbTD2UCF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 29 Apr 2003 15:57:56 -0400
-Received: from air-2.osdl.org ([65.172.181.6]:52687 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S261666AbTD2T5w convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 29 Apr 2003 15:57:52 -0400
-Date: Tue, 29 Apr 2003 13:07:42 -0700
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-To: linux@borntraeger.net
-Cc: acme@conectiva.com.br, linux-kernel@vger.kernel.org
-Subject: Re: [BUG 2.5.67 (and probably earlier)] /proc/dev/net doesnt show
- all net devices
-Message-Id: <20030429130742.2c38b5f3.rddunlap@osdl.org>
-In-Reply-To: <20030429092857.4ebffcc9.rddunlap@osdl.org>
-References: <200304291434.18272.linux@borntraeger.net>
-	<20030429092857.4ebffcc9.rddunlap@osdl.org>
-Organization: OSDL
-X-Mailer: Sylpheed version 0.8.11 (GTK+ 1.2.10; i586-pc-linux-gnu)
-X-Face: +5V?h'hZQPB9<D&+Y;ig/:L-F$8p'$7h4BBmK}zo}[{h,eqHI1X}]1UhhR{49GL33z6Oo!`
- !Ys@HV,^(Xp,BToM.;N_W%gT|&/I#H@Z:ISaK9NqH%&|AO|9i/nB@vD:Km&=R2_?O<_V^7?St>kW
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
+	Tue, 29 Apr 2003 16:02:05 -0400
+Received: from uswest-dsl-142-38.cortland.com ([209.162.142.38]:34573 "HELO
+	warez.scriptkiddie.org") by vger.kernel.org with SMTP
+	id S261741AbTD2UCE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 29 Apr 2003 16:02:04 -0400
+Date: Tue, 29 Apr 2003 13:14:22 -0700 (PDT)
+From: Lamont Granquist <lamont@scriptkiddie.org>
+X-X-Sender: lamont@uswest-dsl-142-38.cortland.com
+To: Alex Riesen <alexander.riesen@synopsys.COM>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: SIGRTMIN, F_SETOWN(-getpgrp()) and threads
+In-Reply-To: <20030429120814.GF890@riesen-pc.gr05.synopsys.com>
+Message-ID: <20030429131246.G90816-100000@uswest-dsl-142-38.cortland.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 29 Apr 2003 09:28:57 -0700 "Randy.Dunlap" <rddunlap@osdl.org> wrote:
 
-| On Tue, 29 Apr 2003 14:34:18 +0200 Christian Bornträger <linux@borntraeger.net> wrote:
-| 
-| | Summary: /proc/net/devices doesnt show all devices using cat. With dd all are 
-| | available.
-| | 
-| | I tested a kernels prior to 
-| | http://linus.bkbits.net:8080/linux-2.5/cset@1.797.156.3
-| | and it doesnt seem to have this problem.
-| 
-| 
-| I haven't tried to make that many net devices.
-| Acme, does this look helpful?
-| Christian, can you test this patch?
-| 
-| --
-| 
-| 
-| diff -Naur ./net/core/dev.c%SEQ ./net/core/dev.c
-| --- ./net/core/dev.c%SEQ	2003-04-28 15:07:01.000000000 -0700
-| +++ ./net/core/dev.c	2003-04-29 09:06:18.000000000 -0700
-| @@ -1789,7 +1789,7 @@
-|  	struct net_device *dev;
-|  	loff_t i;
-|  
-| -	for (i = 0, dev = dev_base; dev && i < pos; dev = dev->next);
-| +	for (i = 0, dev = dev_base; dev && i < pos; dev = dev->next, i++);
-|  
-|  	return i == pos ? dev : NULL;
-|  }
-| -
+On Tue, 29 Apr 2003, Alex Riesen wrote:
+> Lamont Granquist, Tue, Apr 29, 2003 01:34:21 +0200:
+> >
+> > I'm attempting to send SIGRTMIN to an entire pgrp composed of threads.
+> > I'm running into issues with the management thread getting this signal and
+> > dying because it is uncaught in that thread.  Is there any way to make the
+> > management thread ignore this signal?  (and i'm running linux 2.4.20-ish
+> > and glibc-2.2.4-19.3)
+> >
+>
+> ignore it before pthreads are initialized?
+>
+> int main(int argc, char* argv[])
+> {
+>     signal(SIGRTMIN, SIG_IGN);
+>     ...
 
+That doesn't work.  After the first pthread_create() if you raise() the
+signal again (even if you ignore it in the thread that you create) you'll
+still have the manager thread exit.
 
-Oh well, I don't think that works.
-
-How do I configure the dummy network driver to get loads of interfaces?
-
---
-~Randy

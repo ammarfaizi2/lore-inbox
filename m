@@ -1,35 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262153AbUABBd0 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 Jan 2004 20:33:26 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262139AbUABBd0
+	id S261885AbUABBnb (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 Jan 2004 20:43:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262139AbUABBnb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 Jan 2004 20:33:26 -0500
-Received: from pD9526784.dip.t-dialin.net ([217.82.103.132]:53632 "EHLO
-	fred.muc.de") by vger.kernel.org with ESMTP id S262153AbUABBdO
+	Thu, 1 Jan 2004 20:43:31 -0500
+Received: from imap.telefonica.net ([213.4.129.150]:187 "EHLO
+	telesmtp3.mail.isp") by vger.kernel.org with ESMTP id S261885AbUABBna
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 Jan 2004 20:33:14 -0500
-To: Paul Jackson <pj@sgi.com>
-Cc: linux-kernel@vger.kernel.org, akpm@osdl.org
-Subject: Re: [PATCH] disable gcc warnings of sign/unsigned comparison
-From: Andi Kleen <ak@muc.de>
-Date: Fri, 02 Jan 2004 02:33:10 +0100
-In-Reply-To: <19kgS-4HT-19@gated-at.bofh.it> (Paul Jackson's message of
- "Fri, 02 Jan 2004 00:20:14 +0100")
-Message-ID: <m3pte3i17t.fsf@averell.firstfloor.org>
-User-Agent: Gnus/5.090013 (Oort Gnus v0.13) Emacs/21.2 (i586-suse-linux)
-References: <19ahq-7Rg-11@gated-at.bofh.it> <19eEs-5lC-15@gated-at.bofh.it>
-	<19kgS-4HT-19@gated-at.bofh.it>
+	Thu, 1 Jan 2004 20:43:30 -0500
+From: Xan <DXpublica@telefonica.net>
+Reply-To: DXpublica@telefonica.net
+To: John Bradford <john@grabjohn.com>, Matthias Schniedermeyer <ms@citd.de>
+Subject: Re: i18n for kernel 2.7.x?
+Date: Fri, 2 Jan 2004 01:53:58 +0100
+User-Agent: KMail/1.5.4
+Cc: linux-kernel@vger.kernel.org
+References: <200312311332.15422.DXpublica@telefonica.net> <200312311625.25178.DXpublica@telefonica.net> <200312311604.hBVG4ruS000274@81-2-122-30.bradfords.org.uk>
+In-Reply-To: <200312311604.hBVG4ruS000274@81-2-122-30.bradfords.org.uk>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+  charset="iso-8859-15"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200401020153.59030.DXpublica@telefonica.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Paul Jackson <pj@sgi.com> writes:
+Dimecres 31 Desembre 2003 17:04, en/na John Bradford (<John Bradford 
+<john@grabjohn.com>>) va escriure:
 
-> Right now, compiling a 2.6.0-mm1 (what I had handy) with the 3.3 gcc on
+> > > > Just a thing: why not internationalization of kernel. That is, why
+> > > > not that the kernel could display error or debug messages in
+> > > > different languages (for example)?
+> > >
+> > > This is a FAQ.
+> > >
+> > > http://www.kernel.org/pub/linux/docs/lkml/#s9-16
+> > >
+> > > So it should be better to end this before it begins (again).
+> >
+> > It appears that you (kernel developers) have panic about it. Wow!. What a
+> > contundent message!. It appears as a tabu topic.
+>
+> It is not a tabu topic at all, but as with all FAQs, unless you have
+> solutions to the problems which have already been raised, there is
+> little point in discussing them again.  Read through the archives, and
+> you will find responses to almost all of the points you mentioned.
+>
+> John.
 
-That was a bug in gcc 3.3.0. It had the -Wsign-compare warning 
-enabled in -Wall by mistake. Update to gcc 3.3.1, which has this fixed.
+Well... if (all of) you think that.... 
+But, what happens with Documentation/ directory and README, COPYRIGHT, ... and 
+WEB PAGE of the kernel?
 
--Andi
+It's NOT so technically hard to do. Why not so?
+

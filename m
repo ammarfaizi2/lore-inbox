@@ -1,33 +1,30 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269021AbUIHD2R@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269022AbUIHDeN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269021AbUIHD2R (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Sep 2004 23:28:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269022AbUIHD2R
+	id S269022AbUIHDeN (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Sep 2004 23:34:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269026AbUIHDeN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Sep 2004 23:28:17 -0400
-Received: from pat.uio.no ([129.240.130.16]:14501 "EHLO pat.uio.no")
-	by vger.kernel.org with ESMTP id S269021AbUIHD2P convert rfc822-to-8bit
+	Tue, 7 Sep 2004 23:34:13 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:2725 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S269022AbUIHDeM
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Sep 2004 23:28:15 -0400
-Subject: Re: [CHECKER] possible deadlock in 2.6.8.1 lockd code
-From: Trond Myklebust <trond.myklebust@fys.uio.no>
+	Tue, 7 Sep 2004 23:34:12 -0400
+Date: Wed, 8 Sep 2004 04:34:10 +0100
+From: viro@parcelfarce.linux.theplanet.co.uk
 To: Dawson Engler <engler@coverity.dreamhost.com>
 Cc: linux-kernel@vger.kernel.org, developers@coverity.com
-In-Reply-To: <Pine.LNX.4.58.0409071956380.6778@coverity.dreamhost.com>
+Subject: Re: [CHECKER] possible deadlock in 2.6.8.1 lockd code
+Message-ID: <20040908033410.GU23987@parcelfarce.linux.theplanet.co.uk>
 References: <Pine.LNX.4.58.0409071956380.6778@coverity.dreamhost.com>
-Content-Type: text/plain; charset=iso-8859-1
-Message-Id: <1094614084.21293.69.camel@lade.trondhjem.org>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Tue, 07 Sep 2004 23:28:05 -0400
-Content-Transfer-Encoding: 8BIT
-X-MailScanner-Information: This message has been scanned for viruses/spam. Contact postmaster@uio.no if you have questions about this scanning
-X-UiO-MailScanner: No virus found
-X-UiO-Spam-info: not spam, SpamAssassin (score=0, required 12)
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.58.0409071956380.6778@coverity.dreamhost.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-På ty , 07/09/2004 klokka 22:57, skreiv Dawson Engler:
+On Tue, Sep 07, 2004 at 07:57:28PM -0700, Dawson Engler wrote:
 > Hi All,
 > 
 > below is a possible deadlock in the linux-2.6.8.1 lockd code found by a
@@ -35,8 +32,14 @@ På ty , 07/09/2004 klokka 22:57, skreiv Dawson Engler:
 > whether the output is too cryptic.  (Note, the locking dependencies go
 > across a bunch of function calls, so the paths may be infeasible.)
 
-Are you proposing to help us multi-thread lockd? 8-)
+It's a BS - down() and lock_kernel() do not form a mutual deadlock.
 
-Cheers,
-  Trond
-
+Consider minimal deadlocked state.  By definition, we can exclude tasks
+that didn't manage to get at least one lock (we would still have a deadlocked
+set without them and we have chosen a minimal set).  Consider the task
+that holds semaphore; since we have a deadlock, it would have to be spinning
+in lock_kernel().  That requires another task in our set to be holding BKL _and_
+having the timeslice, since BKL is dropped when task loses CPU.  But such
+task would not be blocked on anything - it can't be blocked on semaphore
+since it is runnable and it can't be blocked on BKL since it's already holding
+it.  In other words, it could not be a part of our deadlock.  QED.

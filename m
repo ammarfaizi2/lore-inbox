@@ -1,47 +1,59 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S275115AbRJJJJA>; Wed, 10 Oct 2001 05:09:00 -0400
+	id <S275117AbRJJJLA>; Wed, 10 Oct 2001 05:11:00 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S275120AbRJJJIu>; Wed, 10 Oct 2001 05:08:50 -0400
-Received: from 213.237.12.194.adsl.brh.worldonline.dk ([213.237.12.194]:58852
-	"HELO firewall.jaquet.dk") by vger.kernel.org with SMTP
-	id <S275115AbRJJJIm>; Wed, 10 Oct 2001 05:08:42 -0400
-Date: Wed, 10 Oct 2001 11:09:05 +0200
-From: Rasmus Andersen <rasmus@jaquet.dk>
-To: Adrian Bunk <bunk@fs.tum.de>
-Cc: Thomas Hood <jdthood@mail.com>, linux-kernel@vger.kernel.org,
-        acme@conectiva.com.br
-Subject: Re: Linux 2.4.10-ac10
-Message-ID: <20011010110905.A28673@jaquet.dk>
-In-Reply-To: <1002676545.5283.4.camel@thanatos> <Pine.NEB.4.40.0110101032320.28053-200000@mimas.fachschaften.tu-muenchen.de>
-Mime-Version: 1.0
+	id <S275120AbRJJJKu>; Wed, 10 Oct 2001 05:10:50 -0400
+Received: from hermine.idb.hist.no ([158.38.50.15]:20489 "HELO
+	hermine.idb.hist.no") by vger.kernel.org with SMTP
+	id <S275117AbRJJJKp>; Wed, 10 Oct 2001 05:10:45 -0400
+Message-ID: <3BC41086.6EB2056D@idb.hist.no>
+Date: Wed, 10 Oct 2001 11:10:30 +0200
+From: Helge Hafting <helgehaf@idb.hist.no>
+X-Mailer: Mozilla 4.76 [no] (X11; U; Linux 2.4.11-pre5 i686)
+X-Accept-Language: no, en
+MIME-Version: 1.0
+To: Nikita Danilov <Nikita@Namesys.COM>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: kernel size, kcore fun
+In-Reply-To: <163112682879.20011009161634@port.imtp.ilyichevsk.odessa.ua> <15298.64405.809099.635670@beta.reiserfs.com>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <Pine.NEB.4.40.0110101032320.28053-200000@mimas.fachschaften.tu-muenchen.de>; from bunk@fs.tum.de on Wed, Oct 10, 2001 at 10:47:40AM +0200
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Oct 10, 2001 at 10:47:40AM +0200, Adrian Bunk wrote:
-[...]
-> 
-> Yes, that was it. Sound works again for me after I've reversed the
-> attached patch to drivers/sound/ad1816.c.
+Nikita Danilov wrote:
 
-[...]
+> Haha, I got several pieces of your mail message while doing this.
+> (/proc/kcore is unique file, because grep of *any* string on it would
+> succeeded).
 
->  
-> -	if (check_region (io_base, 16)) {
-> -		printk ("ad1816: I/O port 0x%03x not free\n", io_base);
-> -		return 0;
-> +	if (request_region(io_base, 16, "AD1816 Sound")) {
-> +		printk(KERN_WARNING "ad1816: I/O port 0x%03x not free\n",
-> +				    io_base);
-> +		goto err;
->  	}
->  
+I tried 
+strings /proc/kcore | grep any_weird_string_tsst_testtesttest
+I expected it to hit a few times - the command line buffer,
+the parameter to grep - but I got 7 screenfulls.
 
-Would you mind trying with a '!' in front of the request_region call?
+Then I understood - this hits the xterm scrollback buffer
+too, which makes for some nice recursion.
+Doing the same with output to a file hits the cache and
+got some repetitions out of that.  And then there's
+internal buffers of strings and grep.
 
-Regards,
-  Rasmus
+This reminded me of the commodore 64 game "fort apocalypse",
+where your fly a helicopter around in caves.  I patched the
+machine code once so I could fly through walls.  The game simply
+loads memory into screen memory depending on coordinates.
+So I got an interesting look at how code and state variables
+look when interpreted as "terrain".   I could identify
+the variables holding x and y coordinates by looking at how
+they changed when I moved in the two directions. 
+
+Then I came upon a very weird area, where everything
+moved around in big jumps, changing in weird ways.  After a while,
+I figured out that I was looking at screen memory, having it
+reloaded into itself with a different mapping.  Crazy.
+
+Finally - being able to press the fire button and fire
+upon pieces of code and variables is the ultimate in
+madman debugging and single-click crashes. :-)
+
+Helge Hafting

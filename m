@@ -1,39 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288083AbSA3Ccf>; Tue, 29 Jan 2002 21:32:35 -0500
+	id <S288092AbSA3CgP>; Tue, 29 Jan 2002 21:36:15 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288102AbSA3CcZ>; Tue, 29 Jan 2002 21:32:25 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:17677 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S288092AbSA3CcT>; Tue, 29 Jan 2002 21:32:19 -0500
+	id <S288089AbSA3CgF>; Tue, 29 Jan 2002 21:36:05 -0500
+Received: from khms.westfalen.de ([62.153.201.243]:61573 "EHLO
+	khms.westfalen.de") by vger.kernel.org with ESMTP
+	id <S288092AbSA3Cfv>; Tue, 29 Jan 2002 21:35:51 -0500
+Date: 29 Jan 2002 21:51:00 +0200
+From: kaih@khms.westfalen.de (Kai Henningsen)
 To: linux-kernel@vger.kernel.org
-From: hpa@transmeta.com (H. Peter Anvin)
-Subject: master.kernel.org situation update
-Date: 29 Jan 2002 18:31:32 -0800
-Organization: Transmeta Corporation, Santa Clara CA
-Message-ID: <a37lu4$q5a$1@tazenda.transmeta.com>
-Reply-To: hpa@zytor.com (H. Peter Anvin)
+Message-ID: <8Ho-eVfXw-B@khms.westfalen.de>
+In-Reply-To: <Pine.LNX.4.33.0201291324560.3610-100000@localhost.localdomain>
+Subject: Re: A modest proposal -- We need a patch penguin
+X-Mailer: CrossPoint v3.12d.kh8 R/C435
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Disclaimer: Not speaking for Transmeta in any way, shape, or form.
+Content-Type: text/plain; charset=us-ascii
+Organization: Organisation? Me?! Are you kidding?
+In-Reply-To: <200201290446.g0T4kZU31923@snark.thyrsus.com> <Pine.LNX.4.33.0201291324560.3610-100000@localhost.localdomain>
+X-No-Junk-Mail: I do not want to get *any* junk mail.
+Comment: Unsolicited commercial mail will incur an US$100 handling fee per received mail.
+X-Fix-Your-Modem: +++ATS2=255&WO1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The situation on master.kernel.org is looking pretty grim.  We were
-trying to add disk capacity (the host uses a DAC960PRL RAID
-controller) and the end result seems to be that a Mylex utility called
-"ezsetup" has completely trashed the RAID configuration information.
-What makes matters worse is that an MIS screwup here means no backups
-have been running for a month or so.
+mingo@elte.hu (Ingo Molnar)  wrote on 29.01.02 in <Pine.LNX.4.33.0201291324560.3610-100000@localhost.localdomain>:
 
-Clearly, the archive section of the system is mirrored, and therefore
-recoverable, but there are lots of scripts and anything else that
-involves automation that may be lost if we cannot recover this data.
+> If a patch gets ignored 33 times in a row then perhaps the person doing
+> the patch should first think really hard about the following 4 issues:
+>
+>   - cleanliness
+>   - concept
+>   - timing
+>   - testing
 
-	-hpa
+IIRC, the number 33 referred to esr's Configure.help patch. Which of these  
+did he violate?
 
--- 
-<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
-"Unix gives you enough rope to shoot yourself in the foot."
-http://www.zytor.com/~hpa/puzzle.txt
+MfG Kai

@@ -1,26 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284765AbRLUQt7>; Fri, 21 Dec 2001 11:49:59 -0500
+	id <S284937AbRLUQxu>; Fri, 21 Dec 2001 11:53:50 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284778AbRLUQtt>; Fri, 21 Dec 2001 11:49:49 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:7955 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S284765AbRLUQtf>; Fri, 21 Dec 2001 11:49:35 -0500
-Subject: Re: Changing KB, MB, and GB to KiB, MiB, and GiB in Configure.help.
-To: mharrold@cas.org (Mike Harrold)
-Date: Fri, 21 Dec 2001 16:59:39 +0000 (GMT)
-Cc: nknight@pocketinet.com, linux-kernel@vger.kernel.org
-In-Reply-To: <200112201941.OAA24855@mah21awu.cas.org> from "Mike Harrold" at Dec 20, 2001 02:41:53 PM
-X-Mailer: ELM [version 2.5 PL6]
-MIME-Version: 1.0
+	id <S284934AbRLUQwv>; Fri, 21 Dec 2001 11:52:51 -0500
+Received: from ns.virtualhost.dk ([195.184.98.160]:1034 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id <S284778AbRLUQvp>;
+	Fri, 21 Dec 2001 11:51:45 -0500
+Date: Fri, 21 Dec 2001 17:50:45 +0100
+From: Jens Axboe <axboe@kernel.org>
+To: Dave Jones <davej@suse.de>
+Cc: Andrew Morton <akpm@zip.com.au>,
+        William Lee Irwin III <wli@holomorphy.com>,
+        Linux Kernel List <linux-kernel@vger.kernel.org>
+Subject: Re: Poor performance during disk writes
+Message-ID: <20011221175045.B2929@suse.de>
+In-Reply-To: <3C222BB5.B2CCC11B@zip.com.au> <Pine.LNX.4.33.0112201927440.2519-100000@Appserv.suse.de>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E16HT1H-0000o0-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.33.0112201927440.2519-100000@Appserv.suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Yeah, no shit? The first time I buy 512MB of RAM and get 512000 KB
-> (aka 512000000 bytes) I am gonna be *PISSED*
+On Thu, Dec 20 2001, Dave Jones wrote:
+> On Thu, 20 Dec 2001, Andrew Morton wrote:
+> 
+> > You need to run
+> > 	elvtune -b N /dev/hdXX
+> > where N=0 is "disable", N=1 is minimum read latency, N=6 is
+> > a reasonable setting.
+> 
+> I'm curious, why was max_bomb_segments dropped the last time
+> it was in the tree ? I recall it happening, but the reason
+> escapes me.
 
-Have a work with your hard disk manufacturer then
+Fooled me too the first time, read Andrew's patch though. It isn't
+related at all.
+
+-- 
+Jens Axboe
+

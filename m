@@ -1,48 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261384AbVCFLmU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261387AbVCFMNN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261384AbVCFLmU (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 6 Mar 2005 06:42:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261385AbVCFLmU
+	id S261387AbVCFMNN (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 6 Mar 2005 07:13:13 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261389AbVCFMNN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 6 Mar 2005 06:42:20 -0500
-Received: from mailhub1.nextra.sk ([195.168.1.111]:41485 "EHLO
-	mailhub1.nextra.sk") by vger.kernel.org with ESMTP id S261384AbVCFLmR
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 6 Mar 2005 06:42:17 -0500
-Message-ID: <422AECBF.7040507@rainbow-software.org>
-Date: Sun, 06 Mar 2005 12:42:55 +0100
-From: Ondrej Zary <linux@rainbow-software.org>
-User-Agent: Mozilla Thunderbird 1.0 (X11/20041206)
-X-Accept-Language: en-us, en
+	Sun, 6 Mar 2005 07:13:13 -0500
+Received: from news.suse.de ([195.135.220.2]:23460 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S261387AbVCFMNK (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 6 Mar 2005 07:13:10 -0500
+To: Tom Horsley <tomhorsley@adelphia.net>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: ptrace and setuid problem
+References: <422A639A.5090603@adelphia.net>
+From: Andreas Schwab <schwab@suse.de>
+X-Yow: Yow!  I'm imagining a surfer van filled with soy sauce!
+Date: Sun, 06 Mar 2005 13:13:09 +0100
+In-Reply-To: <422A639A.5090603@adelphia.net> (Tom Horsley's message of "Sat,
+ 05 Mar 2005 20:57:46 -0500")
+Message-ID: <jeu0npkm5m.fsf@sykes.suse.de>
+User-Agent: Gnus/5.110002 (No Gnus v0.2) Emacs/22.0.50 (gnu/linux)
 MIME-Version: 1.0
-To: domen@coderock.org
-CC: emoenke@gwdg.de, linux-kernel@vger.kernel.org, nacc@us.ibm.com
-Subject: Re: [patch 2/6] 12/34: cdrom/cdu31a: replace interruptible_sleep_on()
- with wait_event_interruptible()
-References: <20050306103155.4AC7D1F202@trashy.coderock.org>
-In-Reply-To: <20050306103155.4AC7D1F202@trashy.coderock.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-domen@coderock.org wrote:
-> Use wait_event_interruptible() instead of the deprecated
-> interruptible_sleep_on(). The patch is straight-forward as the macros should 
-> result in the same execution. Patch is compile-tested (still throws out warnings
-> regarding {save,restore}_flags()).
-> 
-> Signed-off-by: Nishanth Aravamudan <nacc@us.ibm.com>
-> Signed-off-by: Domen Puncer <domen@coderock.org>
+Tom Horsley <tomhorsley@adelphia.net> writes:
 
-I've posted a patch for the cdu31a driver some time ago that removes 
-almost all usage of interruptible_sleep_on() and also 
-{save,restore}_flags() - it uses semaphore instead.
-The only remaining code is in sony_sleep() function when using 
-IRQ-driven operation.
+> If I exec a setuid program under ptrace, I can read the image via
+> PEEKDATA requests.
 
-See http://lkml.org/lkml/2004/12/18/107
-The patch is big because I've messed with the formatting...
+Only CAP_SYS_PTRACE capable processes get suid/sgid semantics under
+ptrace, or can attach to a privileged processes.
+
+Andreas.
 
 -- 
-Ondrej Zary
+Andreas Schwab, SuSE Labs, schwab@suse.de
+SuSE Linux Products GmbH, Maxfeldstraße 5, 90409 Nürnberg, Germany
+Key fingerprint = 58CA 54C7 6D53 942B 1756  01D3 44D5 214B 8276 4ED5
+"And now for something completely different."

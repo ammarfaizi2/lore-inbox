@@ -1,65 +1,85 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267091AbUBMQB3 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 13 Feb 2004 11:01:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267094AbUBMQB3
+	id S267096AbUBMQT0 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 13 Feb 2004 11:19:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267097AbUBMQTZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 13 Feb 2004 11:01:29 -0500
-Received: from turing-police.cc.vt.edu ([128.173.14.107]:47084 "EHLO
-	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
-	id S267091AbUBMQB1 (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
-	Fri, 13 Feb 2004 11:01:27 -0500
-Message-Id: <200402131601.i1DG1Nsl020006@turing-police.cc.vt.edu>
-X-Mailer: exmh version 2.6.3 04/04/2003 with nmh-1.0.4+dev
-To: =?ISO-8859-15?Q?Sven_K=F6hler?= <skoehler@upb.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: why are capabilities disabled? 
-In-Reply-To: Your message of "Fri, 13 Feb 2004 16:29:28 +0100."
-             <c0iqrq$erh$1@sea.gmane.org> 
-From: Valdis.Kletnieks@vt.edu
-References: <c0iqrq$erh$1@sea.gmane.org>
+	Fri, 13 Feb 2004 11:19:25 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:25478 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S267096AbUBMQSh
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 13 Feb 2004 11:18:37 -0500
+Date: Fri, 13 Feb 2004 16:18:34 +0000
+From: viro@parcelfarce.linux.theplanet.co.uk
+To: Giuliano Pochini <pochini@shiny.it>
+Cc: Andries Brouwer <aebr@win.tue.nl>,
+       linux kernel <linux-kernel@vger.kernel.org>,
+       Michael Frank <mhf@linuxmail.org>
+Subject: Re: PATCH, RFC: 2.6 Documentation/Codingstyle
+Message-ID: <20040213161834.GC8858@parcelfarce.linux.theplanet.co.uk>
+References: <20040213124232.B2871@pclin040.win.tue.nl> <XFMail.20040213145513.pochini@shiny.it>
 Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_-965451060P";
-	 micalg=pgp-sha1; protocol="application/pgp-signature"
-Content-Transfer-Encoding: 7bit
-Date: Fri, 13 Feb 2004 11:01:23 -0500
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <XFMail.20040213145513.pochini@shiny.it>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---==_Exmh_-965451060P
-Content-Type: text/plain; charset=us-ascii
-
-On Fri, 13 Feb 2004 16:29:28 +0100, =?ISO-8859-15?Q?Sven_K=F6hler?= <skoehler@upb.de>  said:
-> Hi,
+On Fri, Feb 13, 2004 at 02:55:13PM +0100, Giuliano Pochini wrote:
+> I propose to change "hard limit" to "soft limit" to avoid things like this:
 > 
-> "getpcaps 1" shows, that the init-process is started without 
-> cap_setpcap, and i know that i can change that somehow.
-> So why are capabilities disabled? and how do i enable them?
-> 
-> If capabilities aren't still too unmature, wouldn't it be fine to have 
-> an option in "make menuconfig" to enable them?
+>                                 rc=idefloppy_begin_format(drive, inode,
+>                                                               file,
+>                                                               (int *)arg);
 
-There was a long thread back in October 2003 labeled:
+To avoid such things, we'd better
+	a) note that idefloppy_begin_format() ignores its second and third
+arguments and thus shouldn't have them at all (done in 2.6)
+	b) note that we are within
+			if (...) {
+				...
+				return -EBUSY;
+			} else {
+				...
+				our call
+				...
+			}
+and thus can trim one indent level. (done in 2.6)
+	c) note that we are within
+		{
+			idefloppy_floppy_t *floppy = drive->driver_data;
+			...
+			our call
+			...
+		}
+and compound operator is needed only to because of that declaration.  At
+the same time, we already have
+	idefloppy_floppy_t *floppy = drive->driver_data;
+in the beginning of function and neither drive nor drive->driver_data can
+change between those declarations.  IOW, declaration in the compound
+statement can be dropped and statement itself - opened.  (done in 2.6)
+	d) note that it's static, so "idefloppy_" prefix is plain and simple
+idiocy.
+	e) note that
+		rc = begin_format(drive, (int *)arg);
+fits on the line just fine and is far more readable than crap above, with or
+without linewrap.
 
-Subject: Re: posix capabilities inheritance
 
-http://marc.theaimsgroup.com/?l=linux-kernel&m=106673587410831&w=2
+Next example, please?
 
-that discusses the biggest issues.  Basically, we can get it right, or
-we can follow Posix.  Andy Lutomirski at Stanford seemed to know what needed
-doing, but I don't know if any actual changes were applied to the baseline
-source tree.
+While we are at it,
+                        if (drive->usage > 1) {
+                                /* Don't format if someone is using the disk */
+several lines above is broken by design -
+	fd = open("/dev/hdc", O_RDWR);
+	if (fork() == 0)
+		write(fd, big_buffer, sizeof(big_buffer);
+	else
+		ioctl(fd, IDEFLOPPY_IOCTL_FORMAT_START, &args);
+	exit(0);
+will cheerfully pass that check and start format while the drive is very much
+in use.  Driver (and hardware) will not be happy.
 
---==_Exmh_-965451060P
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.3 (GNU/Linux)
-Comment: Exmh version 2.5 07/13/2001
-
-iD8DBQFALPTScC3lWbTT17ARAnREAJ9nCr2weLAIvxbhBhO5E2D8mbbgngCfb5Ds
-3jITGQJYV+my3ioznXo6Bfw=
-=Sq9t
------END PGP SIGNATURE-----
-
---==_Exmh_-965451060P--
+ioctl(2) - Just Say No...

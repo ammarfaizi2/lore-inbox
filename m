@@ -1,43 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287145AbSBKEsR>; Sun, 10 Feb 2002 23:48:17 -0500
+	id <S287193AbSBKFIb>; Mon, 11 Feb 2002 00:08:31 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287193AbSBKEsI>; Sun, 10 Feb 2002 23:48:08 -0500
-Received: from nycsmtp1out.rdc-nyc.rr.com ([24.29.99.226]:65197 "EHLO
-	nycsmtp1out.rdc-nyc.rr.com") by vger.kernel.org with ESMTP
-	id <S287145AbSBKErz>; Sun, 10 Feb 2002 23:47:55 -0500
-Message-ID: <3C674CFA.2030107@nyc.rr.com>
-Date: Sun, 10 Feb 2002 23:47:54 -0500
-From: John Weber <weber@nyc.rr.com>
-Organization: WorldWideWeber
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.8) Gecko/20020205
-X-Accept-Language: en-us
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: 2.5.4 Compile Error
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	id <S287208AbSBKFIV>; Mon, 11 Feb 2002 00:08:21 -0500
+Received: from front2.mail.megapathdsl.net ([66.80.60.30]:59148 "EHLO
+	front2.mail.megapathdsl.net") by vger.kernel.org with ESMTP
+	id <S287193AbSBKFIH>; Mon, 11 Feb 2002 00:08:07 -0500
+Subject: 2.5.4-pre6 -- debug.c:190: In function `usb_stor_print_Scsi_Cmnd':
+	structure has no member named `address'
+From: Miles Lane <miles@megapathdsl.net>
+To: LKML <linux-kernel@vger.kernel.org>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+Organization: 
+X-Mailer: Evolution/1.1.0.99 (Preview Release)
+Date: 10 Feb 2002 21:05:07 -0800
+Message-Id: <1013403908.30864.41.camel@turbulence.megapathdsl.net>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Will try to specify the problem more precisely after I play around for a 
-bit, but here goes the error:
+CONFIG_USB=m
+CONFIG_USB_DEBUG=y
+CONFIG_USB_DEVICEFS=y
+CONFIG_USB_BANDWIDTH=y
+CONFIG_USB_LONG_TIMEOUT=y
+CONFIG_USB_EHCI_HCD=m
+CONFIG_USB_OHCI_HCD=m
+CONFIG_USB_UHCI_ALT=m
+CONFIG_USB_OHCI=m
+CONFIG_USB_STORAGE=m
+CONFIG_USB_STORAGE_DEBUG=y
 
-[root@boolean linux-2.5.4]# make bzImage
-gcc -D__KERNEL__ -I/usr/src/linux-2.5.4/include -Wall 
--Wstrict-prototypes -Wno-trigraphs -O2 -fomit-frame-pointer 
--fno-strict-aliasing -fno-common -pipe -mpreferred-stack-boundary=2 
--march=i686   -DKBUILD_BASENAME=main -c -o init/main.o init/main.c
-In file included from /usr/src/linux-2.5.4/include/asm/thread_info.h:13,
-                  from /usr/src/linux-2.5.4/include/linux/thread_info.h:10,
-                  from /usr/src/linux-2.5.4/include/linux/spinlock.h:7,
-                  from /usr/src/linux-2.5.4/include/linux/mmzone.h:8,
-                  from /usr/src/linux-2.5.4/include/linux/gfp.h:4,
-                  from /usr/src/linux-2.5.4/include/linux/slab.h:14,
-                  from /usr/src/linux-2.5.4/include/linux/proc_fs.h:5,
-                  from init/main.c:15:
-/usr/src/linux-2.5.4/include/asm/processor.h: In function `thread_saved_pc':
-/usr/src/linux-2.5.4/include/asm/processor.h:444: dereferencing pointer 
-to incomplete type
-make: *** [init/main.o] Error 1
+gcc -D__KERNEL__ -I/usr/src/linux/include -Wall -Wstrict-prototypes
+-Wno-trigraphs -O2 -fomit-frame-pointer -fno-strict-aliasing -fno-common
+-pipe -mpreferred-stack-boundary=2 -march=athlon  -DMODULE -I../../scsi/
+-DKBUILD_BASENAME=debug  -c -o debug.o debug.c
+debug.c: In function `usb_stor_print_Scsi_Cmnd':
+debug.c:190: structure has no member named `address'
+...
+make[3]: *** [debug.o] Error 1
+make[3]: Leaving directory `/usr/src/linux/drivers/usb/storage'
 

@@ -1,97 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261268AbVA0XFU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261281AbVA0XFV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261268AbVA0XFU (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 27 Jan 2005 18:05:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261281AbVA0XFB
+	id S261281AbVA0XFV (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 27 Jan 2005 18:05:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261274AbVA0XEF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 27 Jan 2005 18:05:01 -0500
-Received: from news.suse.de ([195.135.220.2]:23982 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S261268AbVA0XDV (ORCPT
+	Thu, 27 Jan 2005 18:04:05 -0500
+Received: from gprs213-80.eurotel.cz ([160.218.213.80]:64899 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S261262AbVA0XBr (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 27 Jan 2005 18:03:21 -0500
-Subject: Re: 2.6.11-rc2-mm1: kernel bad access while booting diskless client
-From: Andreas Gruenbacher <agruen@suse.de>
-To: Albert Herranz <albert_herranz@yahoo.es>
-Cc: Andrew Morton <akpm@osdl.org>,
-       "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-In-Reply-To: <1106866256.7616.50.camel@winden.suse.de>
-References: <20050127215619.56535.qmail@web52309.mail.yahoo.com>
-	 <20050127142333.0ba81907.akpm@osdl.org>
-	 <1106866256.7616.50.camel@winden.suse.de>
-Content-Type: multipart/mixed; boundary="=-VzZBfKrScoz6T9mSuTa4"
-Organization: SUSE Labs
-Message-Id: <1106866999.7616.57.camel@winden.suse.de>
+	Thu, 27 Jan 2005 18:01:47 -0500
+Date: Fri, 28 Jan 2005 00:01:31 +0100
+From: Pavel Machek <pavel@ucw.cz>
+To: Nigel Cunningham <ncunningham@linuxmail.org>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@zip.com.au>
+Subject: Re: Applications segfault on evo n620c with 2.6.10
+Message-ID: <20050127230131.GC1679@elf.ucw.cz>
+References: <20050127184334.GA1368@elf.ucw.cz> <1106866666.15825.21.camel@nigelcunningham>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Fri, 28 Jan 2005 00:03:20 +0100
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1106866666.15825.21.camel@nigelcunningham>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi!
 
---=-VzZBfKrScoz6T9mSuTa4
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
+> > Unfortunately I do not know how to reproduce it. I tried
+> > parallel-building kernels for few hours and that worked okay. Swsusp
+> > is not involved (but usb, bluetooth, acpi and sound may be).
+> 
+> I take it you're sure suspending is not involved because it happens
+> before you've ever suspended? If you hadn't said that, I'd say it sounds
+> very much like something suspend related.
 
-Hello again,
-
-this looks like a good candidate. Could you please try if it fixes the
-problem?
-
-Thanks,
+Yes, it happened even in cases when machine was not ever suspended. I
+guess I should also add that kernel is "tainted: pavel", (that means I
+have my own patches in; but I really believe that my changes are not
+responsible).
+								Pavel
 -- 
-Andreas Gruenbacher <agruen@suse.de>
-SUSE Labs, SUSE LINUX GMBH
-
---=-VzZBfKrScoz6T9mSuTa4
-Content-Disposition: attachment; filename=nfsacl-iop-NULL-fix.diff
-Content-Type: message/rfc822; name=nfsacl-iop-NULL-fix.diff
-
-From: Andreas Gruenbacher <agruen@suse.de>
-Subject: Must not initialize inode->i_op to NULL
-Date: Fri, 28 Jan 2005 00:01:46 +0100
-Message-Id: <1106866906.7616.55.camel@winden.suse.de>
-Mime-Version: 1.0
-Content-Transfer-Encoding: 7bit
-
-This pattern from 2.4 times doesn't work very well anymore :(
-
-Signed-off-by: Andreas Gruenbacher <agruen@suse.de>
-
-Index: linux-2.6.11-latest/fs/nfs/inode.c
-===================================================================
---- linux-2.6.11-latest.orig/fs/nfs/inode.c
-+++ linux-2.6.11-latest/fs/nfs/inode.c
-@@ -688,7 +688,7 @@ nfs_init_locked(struct inode *inode, voi
- #define NFS_LIMIT_READDIRPLUS (8*PAGE_SIZE)
- 
- #ifdef CONFIG_NFS_ACL
--static struct inode_operations nfs_special_inode_operations[] = {{
-+static struct inode_operations nfs_special_inode_operations = {
- 	.permission =	nfs_permission,
- 	.getattr =	nfs_getattr,
- 	.setattr =	nfs_setattr,
-@@ -696,9 +696,7 @@ static struct inode_operations nfs_speci
- 	.getxattr =	nfs_getxattr,
- 	.setxattr =	nfs_setxattr,
- 	.removexattr =	nfs_removexattr,
--}};
--#else
--#define nfs_special_inode_operations NULL
-+};
- #endif  /* CONFIG_NFS_ACL */
- 
- /*
-@@ -755,7 +753,9 @@ nfs_fhget(struct super_block *sb, struct
- 		} else if (S_ISLNK(inode->i_mode))
- 			inode->i_op = &nfs_symlink_inode_operations;
- 		else {
--			inode->i_op = nfs_special_inode_operations;
-+#ifdef CONFIG_NFS_ACL
-+			inode->i_op = &nfs_special_inode_operations;
-+#endif
- 			init_special_inode(inode, inode->i_mode, fattr->rdev);
- 		}
- 
-
---=-VzZBfKrScoz6T9mSuTa4--
-
+People were complaining that M$ turns users into beta-testers...
+...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!

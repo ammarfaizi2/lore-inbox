@@ -1,94 +1,59 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262056AbREPSr7>; Wed, 16 May 2001 14:47:59 -0400
+	id <S262050AbREPSs3>; Wed, 16 May 2001 14:48:29 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262054AbREPSru>; Wed, 16 May 2001 14:47:50 -0400
-Received: from unamed.infotel.bg ([212.39.68.18]:56702 "EHLO l.himel.bg")
-	by vger.kernel.org with ESMTP id <S262050AbREPSre>;
-	Wed, 16 May 2001 14:47:34 -0400
-Date: Wed, 16 May 2001 21:48:19 +0300 (EEST)
-From: Julian Anastasov <ja@ssi.bg>
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: locked 3c905B with 2.4.5pre2
-Message-ID: <Pine.LNX.4.10.10105162125480.2866-100000@l>
+	id <S262054AbREPSsU>; Wed, 16 May 2001 14:48:20 -0400
+Received: from leibniz.math.psu.edu ([146.186.130.2]:20100 "EHLO math.psu.edu")
+	by vger.kernel.org with ESMTP id <S262050AbREPSsG>;
+	Wed, 16 May 2001 14:48:06 -0400
+Date: Wed, 16 May 2001 14:48:03 -0400 (EDT)
+From: Alexander Viro <viro@math.psu.edu>
+To: Linus Torvalds <torvalds@transmeta.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] rootfs (part 1)
+In-Reply-To: <Pine.LNX.4.21.0105161010200.4738-100000@penguin.transmeta.com>
+Message-ID: <Pine.GSO.4.21.0105161434420.26191-100000@weyl.math.psu.edu>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-	Hello,
 
-	eth0 locked after 20-30 seconds stress test, different setups:
+On Wed, 16 May 2001, Linus Torvalds wrote:
 
-- SMP with 2 CPUs and 2 3c905B Cyclone 100baseTx cards
-- SMP with 1 CPU (maxcpus=1) and the same 2 cards
+> 
+> On Wed, 16 May 2001, Alexander Viro wrote:
+> >
+> > 	Linus, patch is the first chunk of rootfs stuff. I've tried to
+> > get it as small as possible - all it does is addition of absolute root
+> > on ramfs and necessary changes to mount_root/change_root/sys_pivot_root
+> > and follow_dotdot. Real root is mounted atop of the "absolute" one.
+> 
+> Looks ok, but it also feels like 2.5.x stuff to me. 
 
-	No eth lock problems with 2.2.19 UP
+Umm... It might be, but
+	* it makes fixing races in fs/super.c easier and we will need that
+in 2.4 (or, at least, backported to 2.4 at some point)
+	* it's backwards-compatible.
+	* it allows to kill tons of the ugliness in rd.c in obviously
+correct way, for values of obviously correct equal to "provably equivalent
+behaviour to the old code"
 
-	The scenario, a throughput test setup:
+I think that it's OK for 2.4, but then I'm obviously biased (mostly by
+the fact that I know how much it allows to clean up without breaking any
+compatibility, including binary compatibility in the kernel). Up to you,
+indeed.
+ 
+> Also, there's the question of whether to make ramfs just built-in, or make
+> _tmpfs_ built in - ramfs is certainly simpler, but tmpfs does the same
+> things and you need that one for shared mappings etc.
+> 
+> Comments?
 
-flood -> eth0 -> forwarding -> eth1 -> victim
-
-	The eth0 stops to respond, no oopses or problems with eth1.
-The system is running. Note that eth0 is used only to receive the
-flood. There is no much out traffic through eth0.
-
-	If the forwarding is disabled there are no problems, i.e. the
-traffic is received and dropped.
-
-	The funny messages:
-
-NETDEV WATCHDOG: eth0: transmit timed out
-eth0: transmit timed out, tx_status 00 status e681.
-  diagnostics: net 0cd8 media 8880 dma 0000003a.
-eth0: Interrupt posted but not delivered -- IRQ blocked by another device?
-  Flags; bus-master 1, dirty 123(11) current 123(11)
-  Transmit list 00000000 vs. dfe7f4c0.
-
-...
-
-	On boot:
-
-testing the IO APIC.......................
-
-IO APIC #2......
-.... register #00: 02000000
-.......    : physical APIC id: 02
-.... register #01: 00178011
-.......     : max redirection entries: 0017
-.......     : IO APIC version: 0011
- WARNING: unexpected IO-APIC, please mail
-	  to linux-smp@vger.kernel.org
-.... register #02: 00000000
-.......     : arbitration: 00
-
-
-There are no IO-APIC errors!
-
-
-/proc/pci:
-
-  Bus  0, device   0, function  0:
-    Host bridge: VIA Technologies, Inc. VT8633 [Apollo Pro266] (rev 1).
-
-  Bus  0, device   1, function  0:
-    PCI bridge: VIA Technologies, Inc. VT8633 [Apollo Pro266 AGP] (rev 0).
-
-  Bus  0, device   9, function  0:
-    Ethernet controller: 3Com Corporation 3c905B 100BaseTX [Cyclone] (rev 48).
-      IRQ 10.
-
-  Bus  0, device  10, function  0:
-    Ethernet controller: 3Com Corporation 3c905B 100BaseTX [Cyclone] (#2) (rev 4
-8).
-      IRQ 11.
-
-
-	More outputs on demand. Please, cc!
-
-Regards
-
---
-Julian Anastasov <ja@ssi.bg>
+Well, since all I actually use in the full variant of patch is sys_mknod(),
+sys_chdir() and sys_mkdir()... IMO tmpfs is an overkill here. Maybe we
+really need minimal rootfs in the kernel (no regular files) and let
+ramfs, tmpfs, whatever-device-fs use it as a library.
+								Al
 

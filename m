@@ -1,39 +1,34 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266332AbUFPWIT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264262AbUFPWOK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266332AbUFPWIT (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Jun 2004 18:08:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266333AbUFPWIS
+	id S264262AbUFPWOK (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Jun 2004 18:14:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266338AbUFPWOK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Jun 2004 18:08:18 -0400
-Received: from fmr12.intel.com ([134.134.136.15]:37768 "EHLO
-	orsfmr001.jf.intel.com") by vger.kernel.org with ESMTP
-	id S266332AbUFPWIJ convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Jun 2004 18:08:09 -0400
-X-MimeOLE: Produced By Microsoft Exchange V6.5.6944.0
-Content-class: urn:content-classes:message
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Subject: Hugetlb page bug fix for i386 in PAE mode
-Date: Wed, 16 Jun 2004 15:07:35 -0700
-Message-ID: <B05667366EE6204181EABE9C1B1C0EB5035BF9A2@scsmsx401.amr.corp.intel.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: Hugetlb page bug fix for i386 in PAE mode
-Thread-Index: AcRT7lQQp54uADhBQGmKZqx9t2L1Ng==
+	Wed, 16 Jun 2004 18:14:10 -0400
+Received: from fmr04.intel.com ([143.183.121.6]:20191 "EHLO
+	caduceus.sc.intel.com") by vger.kernel.org with ESMTP
+	id S264262AbUFPWNf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 16 Jun 2004 18:13:35 -0400
+Message-Id: <200406162212.i5GMChY25634@unix-os.sc.intel.com>
 From: "Chen, Kenneth W" <kenneth.w.chen@intel.com>
 To: <linux-kernel@vger.kernel.org>
-X-OriginalArrivalTime: 16 Jun 2004 22:07:36.0135 (UTC) FILETIME=[54AFDD70:01C453EE]
+Subject: Hugetlb page bug fix for i386 in PAE mode
+Date: Wed, 16 Jun 2004 15:13:33 -0700
+X-Mailer: Microsoft Office Outlook, Build 11.0.5510
+Thread-Index: AcRT7lQQp54uADhBQGmKZqx9t2L1NgAAIERQ
+In-Reply-To: <B05667366EE6204181EABE9C1B1C0EB58022A3@scsmsx401.amr.corp.intel.com>
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1409
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hit a bug check when unmap a hugetlb vma in PAE mode on i386 (and
-x86-64).
+Hate my email client, just about to throw my *&^%$ out of the windows.
+Resent with no line wrap, etc.
 
- Bad page state at free_hot_cold_page (in process 'a.out', page
-c165cc40)
+-----Original Message-----
+
+Hit a bug check when unmap a hugetlb vma in PAE mode on i386 (and x86-64).
+
+ Bad page state at free_hot_cold_page (in process 'a.out', page c165cc40)
  flags:0x20000000 mapping:f75e1d00 mapped:0 count:0
  Backtrace:
  Call Trace:
@@ -49,25 +44,18 @@ c165cc40)
   [<c014a85e>] sys_write+0x38/0x59
   [<c0103e1b>] syscall_call+0x7/0xb
 
-It turns out there is a bug in hugetlb_prefault(): with 3 level page
-table,
-huge_pte_alloc() might return a pmd that points to a PTE page.  It
-happens
+It turns out there is a bug in hugetlb_prefault(): with 3 level page table,
+huge_pte_alloc() might return a pmd that points to a PTE page.  It happens
 if the virtual address for hugetlb mmap is recycled from previously used
-normal page mmap.  free_pgtables() might not scrub the pmd entry on
-munmap
-and hugetlb_prefault skips on any pmd presence regardless what type it
-is.
+normal page mmap.  free_pgtables() might not scrub the pmd entry on munmap
+and hugetlb_prefault skips on any pmd presence regardless what type it is.
 Patch to fix the bug.
 
 Signed-off-by: Ken Chen <kenneth.w.chen@intel.com>
 
-diff -Nurp linux-2.6.7/arch/i386/mm/hugetlbpage.c
-linux-2.6.7.htlb/arch/i386/mm/hugetlbpage.c
---- linux-2.6.7/arch/i386/mm/hugetlbpage.c	2004-06-16
-18:32:30.000000000 -0700
-+++ linux-2.6.7.htlb/arch/i386/mm/hugetlbpage.c	2004-06-16
-18:34:32.000000000 -0700
+diff -Nurp linux-2.6.7/arch/i386/mm/hugetlbpage.c linux-2.6.7.htlb/arch/i386/mm/hugetlbpage.c
+--- linux-2.6.7/arch/i386/mm/hugetlbpage.c	2004-06-16 18:32:30.000000000 -0700
++++ linux-2.6.7.htlb/arch/i386/mm/hugetlbpage.c	2004-06-16 18:34:32.000000000 -0700
 @@ -244,8 +244,15 @@ int hugetlb_prefault(struct address_spac
  			ret = -ENOMEM;
  			goto out;
@@ -83,6 +71,8 @@ linux-2.6.7.htlb/arch/i386/mm/hugetlbpage.c
 +			dec_page_state(nr_page_table_pages);
 +			page_cache_release(page);
 +		}
- 
+
  		idx = ((addr - vma->vm_start) >> HPAGE_SHIFT)
  			+ (vma->vm_pgoff >> (HPAGE_SHIFT - PAGE_SHIFT));
+
+

@@ -1,66 +1,91 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264754AbRF3Ers>; Sat, 30 Jun 2001 00:47:48 -0400
+	id <S264840AbRF3FSY>; Sat, 30 Jun 2001 01:18:24 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264840AbRF3Erj>; Sat, 30 Jun 2001 00:47:39 -0400
-Received: from ndslppp243.ptld.uswest.net ([63.224.227.243]:57930 "HELO
-	knghtbrd.dyn.dhs.org") by vger.kernel.org with SMTP
-	id <S264754AbRF3ErW>; Sat, 30 Jun 2001 00:47:22 -0400
-Date: Fri, 29 Jun 2001 21:48:40 -0700
-From: Joseph Carter <knghtbrd@d2dc.net>
-To: Tim Jansen <tim@tjansen.de>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Mac USB keyboards (Was: USB Keyboard errors with 2.4.5-ac)
-Message-ID: <20010629214840.B14167@debian.org>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="NKoe5XOeduwbEQHU"
-Content-Disposition: inline
-In-Reply-To: <01063000110000.01057@cookie>
-User-Agent: Mutt/1.3.18i
-X-Operating-System: Linux galen 2.4.3-ac12
-X-No-Junk-Mail: Spam will solicit a hostile reaction, at the very least.
+	id <S264846AbRF3FSP>; Sat, 30 Jun 2001 01:18:15 -0400
+Received: from w234.z209220165.sjc-ca.dsl.cnc.net ([209.220.165.234]:60044
+	"EHLO tetsuo.farm9.com") by vger.kernel.org with ESMTP
+	id <S264840AbRF3FSA>; Sat, 30 Jun 2001 01:18:00 -0400
+Message-ID: <3B3D60FA.DA4FF634@aerizen.com>
+Date: Fri, 29 Jun 2001 22:17:46 -0700
+From: John Silva <jps@aerizen.com>
+Organization: None
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.5-8mdksmp i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Steve Kieu <haiquy@yahoo.com>
+CC: Sam Halliday <10226982@qub.ac.uk>, kernel <linux-kernel@vger.kernel.org>
+Subject: Re: supermount
+In-Reply-To: <20010626003002.74103.qmail@web10406.mail.yahoo.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Supermount has been integrated into the Mandrake 8 kernel (2.4);
+I have been unable to locate the standalone patch for this, however.
 
---NKoe5XOeduwbEQHU
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Steve Kieu wrote:
+> 
+>  --- Sam Halliday <10226982@qub.ac.uk> wrote: > This
+> email was delivered to you by The Free
+> > Internet,
+> > a Business Online Group company.
+> > http://www.thefreeinternet.net
+> I totally aggree, supermount is nice features and it
+> should be integrated into the main kernel stream (just
+> my HO)
+> 
+> >
+> ---------------------------------------------------------------
+> > hello,
+> >     i am fairly new to linux, i need it's fast
+> > number crunching powers
+> > for my research... and i have only recently begun to
+> > have a look at the
+> > kernel (i believe every workman should know his
+> > tools)..... but i have
+> > noticed that supermount is not a standard part of
+> > the project, is there
+> > any reason why this is? is it due to man power? i
+> > would have been less
+> > shocked by the absense of other features in the
+> >
+> 
+> > radio support, supermount seems to me to be
+> > essential in any operating
+> > system.....
+> >     i apologise if this is a very silly question or
+> > if i have posted
+> > this question in the wrong place, but please excuse
+> > me, im new to this
+> > whole world.
+> >
+> > and keep up the good work, i wish i knew more about
+> > the whole thing so i
+> > could contribute something.
+> >
+> > Sam, Ireland
+> >
+> > -
+> > To unsubscribe from this list: send the line
+> > "unsubscribe linux-kernel" in
+> > the body of a message to majordomo@vger.kernel.org
+> > More majordomo info at
+> > http://vger.kernel.org/majordomo-info.html
+> > Please read the FAQ at  http://www.tux.org/lkml/
+> 
+> =====
+> S.KIEU
+> 
+> _____________________________________________________________________________
+> http://messenger.yahoo.com.au - Yahoo! Messenger
+> - Voice chat, mail alerts, stock quotes and favourite news and lots more!
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 
-On Sat, Jun 30, 2001 at 12:11:00AM +0200, Tim Jansen wrote:
-> I use a USB keyboard (Macally iKey) and mouse (Logitech iFeel) without=20
-> problems.  I also get these messages, but I dont see any performance prob=
-lem.=20
-> It may help you to enable an option like "Legacy USB keyboard support" in=
-=20
-> your BIOS. This will emulate a PS/2 keyboard until USB is initialized.
-
-If you're using it on a wintel arch machine, have you managed to get the
-numeric keypad's =3D key or the power key to work?  Doesn't here and I've
-tried more than one model of keyboard on more than one machine, no luck
-even with showkey.  MacOS likes the keys just fine, naturally.
-
---=20
-Joseph Carter <knghtbrd@d2dc.net>                   Free software developer
-
-* TribFurry only gets spam mail from ucsd... I used to get email from
-            myself but I decided I didn't like myself and stopped talking
-	    to me
-
-
---NKoe5XOeduwbEQHU
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.6 (GNU/Linux)
-Comment: 1024D/DCF9DAB3  20F6 2261 F185 7A3E 79FC  44F9 8FF7 D7A3 DCF9 DAB3
-
-iEUEARECAAYFAjs9WigACgkQj/fXo9z52rNiMgCY3WVq6T59Md7UP2kJrDPDZcC1
-qQCfRPvTkCW61kauRNHsgmwJXjOaYFY=
-=uCyp
------END PGP SIGNATURE-----
-
---NKoe5XOeduwbEQHU--
+--
+John P. Silva                            jps@aerizen.com

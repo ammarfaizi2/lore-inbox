@@ -1,56 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267391AbUHXEO5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268282AbUHXEbQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267391AbUHXEO5 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 Aug 2004 00:14:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268180AbUHXEO4
+	id S268282AbUHXEbQ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 Aug 2004 00:31:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269028AbUHXEbQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 Aug 2004 00:14:56 -0400
-Received: from mailhub.fokus.fraunhofer.de ([193.174.154.14]:44482 "EHLO
-	mailhub.fokus.fraunhofer.de") by vger.kernel.org with ESMTP
-	id S267391AbUHXEOv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 Aug 2004 00:14:51 -0400
-From: Joerg Schilling <schilling@fokus.fraunhofer.de>
-Date: Tue, 24 Aug 2004 06:14:06 +0200
-To: linux-kernel@vger.kernel.org
-Subject: Re: DTrace-like analysis possible with future Linux kernels?
-Message-ID: <412AC08E.nailBG411JOFC@burner>
-User-Agent: nail 11.2 8/15/04
+	Tue, 24 Aug 2004 00:31:16 -0400
+Received: from x35.xmailserver.org ([69.30.125.51]:7314 "EHLO
+	x35.xmailserver.org") by vger.kernel.org with ESMTP id S268282AbUHXEa7
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 24 Aug 2004 00:30:59 -0400
+X-AuthUser: davidel@xmailserver.org
+Date: Mon, 23 Aug 2004 21:30:56 -0700 (PDT)
+From: Davide Libenzi <davidel@xmailserver.org>
+X-X-Sender: davide@bigblue.dev.mdolabs.com
+To: Brian Gerst <bgerst@quark.didntduck.org>
+cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Andy Kleen <ak@suse.de>, Andrew Morton <akpm@osdl.org>,
+       Linus Torvalds <torvalds@osdl.org>
+Subject: Re: [patch] lazy TSS's I/O bitmap copy ...
+In-Reply-To: <412A9F8A.5010400@quark.didntduck.org>
+Message-ID: <Pine.LNX.4.58.0408232130040.3245@bigblue.dev.mdolabs.com>
+References: <Pine.LNX.4.58.0408231311460.3221@bigblue.dev.mdolabs.com>
+ <412A9F8A.5010400@quark.didntduck.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Christoph Halder wrote:
+On Mon, 23 Aug 2004, Brian Gerst wrote:
 
->True, to europeans this sounds far too overenthusiastic - almost like a 
->commercial - and will most certainly lead to the impression, that the 
->article is not very serious.
->
->Europeans try to write serious articles VERY neutral - any personal 
->opinion(s) will only be a short statement at the very end of the article.
+> Use get/put_cpu() in the GPF handler to prevent preemption while 
+> handling the TSS.
 
-No, it is definitely not overestimated.
+Will do and repost. Thx!
 
-It is more likely to rather be the opposite and you will find this out if you
-try to use dtrace or attend a demo.
 
-Dou you know of any other system where you can say:
+- Davide
 
-	Print me a strack trace with symbols for all processes on this
-	computer (even stripped ones) that call gettimeofday() within the
-	next few seconds.
-
-Note that you do not need a special kernel, no reboot, no restart of 
-applications.
-
-There are a lot more possibilities including tracing kernel routines on a 
-production kernel but it would take too long to describe them....
-
-Jörg
-
--- 
- EMail:joerg@schily.isdn.cs.tu-berlin.de (home) Jörg Schilling D-13353 Berlin
-       js@cs.tu-berlin.de		(uni)  If you don't have iso-8859-1
-       schilling@fokus.fraunhofer.de	(work) chars I am J"org Schilling
- URL:  http://www.fokus.fraunhofer.de/usr/schilling ftp://ftp.berlios.de/pub/schily

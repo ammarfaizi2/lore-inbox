@@ -1,42 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S275094AbRIYQpy>; Tue, 25 Sep 2001 12:45:54 -0400
+	id <S275097AbRIYQro>; Tue, 25 Sep 2001 12:47:44 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S275092AbRIYQpo>; Tue, 25 Sep 2001 12:45:44 -0400
-Received: from mailout06.sul.t-online.com ([194.25.134.19]:19718 "EHLO
-	mailout06.sul.t-online.de") by vger.kernel.org with ESMTP
-	id <S275093AbRIYQp2>; Tue, 25 Sep 2001 12:45:28 -0400
-Message-ID: <3BB0B499.D39531A6@t-online.de>
-Date: Tue, 25 Sep 2001 18:45:13 +0200
-From: Gunther.Mayer@t-online.de (Gunther Mayer)
-X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.6-ac5 i686)
-X-Accept-Language: en
+	id <S275098AbRIYQrh>; Tue, 25 Sep 2001 12:47:37 -0400
+Received: from leibniz.math.psu.edu ([146.186.130.2]:64476 "EHLO math.psu.edu")
+	by vger.kernel.org with ESMTP id <S275097AbRIYQrY>;
+	Tue, 25 Sep 2001 12:47:24 -0400
+Date: Tue, 25 Sep 2001 12:47:46 -0400 (EDT)
+From: Alexander Viro <viro@math.psu.edu>
+To: Nerijus Baliunas <nerijus@users.sourceforge.net>
+cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: Re: all files are executable in vfat
+In-Reply-To: <20010925161621.5DB188FBA0@mail.delfi.lt>
+Message-ID: <Pine.GSO.4.21.0109251239250.24321-100000@weyl.math.psu.edu>
 MIME-Version: 1.0
-To: Jaroslav Kysela <perex@perex.cz>
-CC: Linus Torvalds <torvalds@transmeta.com>,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>, Dag Brattli <dagb@cs.uit.no>,
-        LKML <linux-kernel@vger.kernel.org>
-Subject: Re: IRDA support for NSC8739x LPC Super I/O chipsets
-In-Reply-To: <Pine.LNX.4.31.0109251311070.3643-200000@pnote.perex-int.cz>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jaroslav Kysela wrote:
+
+
+On Tue, 25 Sep 2001, Nerijus Baliunas wrote:
+
+> On Tue, 25 Sep 2001 12:09:30 -0400 (EDT) Alexander Viro <viro@math.psu.edu> wrote:
 > 
-> Hello,
+> AV> > All files are executable in vfat (kernel 2.4.10), although I have
+> AV> > /dev/hda1  /mnt/c   vfat   defaults,user,noexec,umask=0,quiet 0 0
+> AV> > in /etc/fstab. They were not in 2.4.7.
+> AV> 
+> AV> Really? Try to execute a binary from there.  cp /bin/ls /mnt/c && /mnt/c/ls
 > 
->         I've attached a patch for NSC8739x LPC Super I/O chipsets to
-> enable and configure the IRDA port. It works perfectly with my notebook
-> over a half of year but the FIR transfers has not been tested yet. It
-> would be nice to include this code to the official linux kernel tree.
-> Thank you.
+> bash: /mnt/c/ls: Permission denied. But:
+> $ ls -l ls
+> -rwxrwxrwx    1 nerijus  nerijus     45724 Rgs 25 18:12 ls
 
-This should probably go to user space, too
+So use the right option for that - umask=111 and there you go.
 
-Can't you set "IR" in your notebook BIOS? Then try "lspnp"
-and a serial port should disappear if favour of infrared.
+noexec doesn't (and shouldn't) do anything about mode.  Yes, VFAT (along
+with explicit mechanism for doing what you want to do) used to have a
+bug in noexec handling.  And that's a bug - plain and simple.  Try it
+on any other UNIX _or_ other filesystem on Linux.
 
--
-Gunther
+-o noexec means "execve() fails regardless of file permissions".  If you
+want "give all regular files rw-rw-rw-" - VFAT has option for that:
+umask.
+

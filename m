@@ -1,54 +1,81 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262459AbTEFIwb (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 May 2003 04:52:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262460AbTEFIwa
+	id S262463AbTEFI4q (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 May 2003 04:56:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262466AbTEFI4q
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 May 2003 04:52:30 -0400
-Received: from boden.synopsys.com ([204.176.20.19]:129 "HELO
-	boden.synopsys.com") by vger.kernel.org with SMTP id S262459AbTEFIw3
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 May 2003 04:52:29 -0400
-Date: Tue, 6 May 2003 11:04:50 +0200
-From: Alex Riesen <alexander.riesen@synopsys.COM>
-To: Hans-Georg Thien <1682-600@onlinehome.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [RFC][PATCH] "Disable Trackpad while typing" on Notebooks withh a  PS/2 Trackpad
-Message-ID: <20030506090450.GG890@riesen-pc.gr05.synopsys.com>
-Reply-To: alexander.riesen@synopsys.COM
-References: <3EB19625.6040904@onlinehome.de.suse.lists.linux.kernel> <3EB6EA2D.9050208@onlinehome.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3EB6EA2D.9050208@onlinehome.de>
-User-Agent: Mutt/1.4i
-Organization: Synopsys, Inc.
+	Tue, 6 May 2003 04:56:46 -0400
+Received: from [66.212.224.118] ([66.212.224.118]:46860 "HELO
+	hemi.commfireservices.com") by vger.kernel.org with SMTP
+	id S262463AbTEFI4p (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 6 May 2003 04:56:45 -0400
+Date: Tue, 6 May 2003 05:00:34 -0400 (EDT)
+From: Zwane Mwaikambo <zwane@linuxpower.ca>
+X-X-Sender: zwane@montezuma.mastecende.com
+To: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: [PATCH][2.5] fix OSS opl3sa2 compile
+Message-ID: <Pine.LNX.4.50.0305060458090.13957-100000@montezuma.mastecende.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hans-Georg Thien, Tue, May 06, 2003 00:48:13 +0200:
-> Hans-Georg Thien <1682-600@onlinehome.de> writes:
-> 
-> >The short story
-> >---------------
-> >Apple MacIntosh iBook Notebooks computers have a nice feature that
-> >prevents unintended trackpad input while typing on the keyboard. There
-> >are no mouse-moves or mouse-taps for a short period of time after each
-> >keystroke. I wanted to have this feature on my i386 notebook ...
-> 
-> I have eliminated the use of a timer. The patch has been simple before, 
-> and now it is even more simple :)
-> 
-> 
-> diff -urN -X /tmp/dontdiff 
-> /usr/src/linux-2.4.20/Documentation/Configure.help 
-> /usr/src/linux/Documentation/Configure.help
-> --- /usr/src/linux-2.4.20/Documentation/Configure.help	Fri Nov 29 
-> 00:53:08 2002
-> +++ /usr/src/linux/Documentation/Configure.help	Thu May  1 02:12:04 
-> 2003
+Index: linux-2.5.68-mm4/sound/oss/opl3sa2.c
+===================================================================
+RCS file: /build/cvsroot/linux-2.5.68/sound/oss/opl3sa2.c,v
+retrieving revision 1.1.1.1
+diff -u -p -B -r1.1.1.1 opl3sa2.c
+--- linux-2.5.68-mm4/sound/oss/opl3sa2.c	20 Apr 2003 05:02:02 -0000	1.1.1.1
++++ linux-2.5.68-mm4/sound/oss/opl3sa2.c	4 May 2003 12:19:20 -0000
+@@ -353,7 +353,8 @@ static void opl3sa2_mixer_reset(opl3sa2_
+ 	}
+ }
+ 
+-
++/* Currently only used for power management */
++#ifdef CONFIG_PM
+ static void opl3sa2_mixer_restore(opl3sa2_state_t* devc)
+ {
+ 	if (devc) {
+@@ -366,7 +367,7 @@ static void opl3sa2_mixer_restore(opl3sa
+ 		}
+ 	}
+ }
+-
++#endif
+ 
+ static inline void arg_to_vol_mono(unsigned int vol, int* value)
+ {
+@@ -961,7 +962,6 @@ static int opl3sa2_resume(struct pm_dev 
+ 	spin_unlock_irqrestore(&opl3sa2_lock,flags);
+ 	return 0;
+ }
+-#endif /* CONFIG_PM */
+ 
+ static int opl3sa2_pm_callback(struct pm_dev *pdev, pm_request_t rqst, void *data)
+ {
+@@ -976,6 +976,7 @@ static int opl3sa2_pm_callback(struct pm
+ 	}
+ 	return 0;
+ }
++#endif /* CONFIG_PM */
+ 
+ /*
+  * Install OPL3-SA2 based card(s).
+@@ -1127,10 +1128,11 @@ static void __exit cleanup_opl3sa2(void)
+ 	int card;
+ 
+ 	for(card = 0; card < opl3sa2_cards_num; card++) {
++#ifdef CONFIG_PM
+ 		if (opl3sa2_state[card].pmdev)
+ 			pm_unregister(opl3sa2_state[card].pmdev);
+-
+-	        if(opl3sa2_state[card].cfg_mpu.slots[1] != -1) {
++#endif
++	        if (opl3sa2_state[card].cfg_mpu.slots[1] != -1) {
+ 			unload_opl3sa2_mpu(&opl3sa2_state[card].cfg_mpu);
+  		}
+ 		unload_opl3sa2_mss(&opl3sa2_state[card].cfg_mss);
 
-Very needed thing, thanks a lot.
-But could you please be more careful with these line wraps?
-One have to apply your patch per hand.
-
+-- 
+function.linuxpower.ca

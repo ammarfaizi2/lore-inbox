@@ -1,80 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261729AbVB1TIN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261723AbVB1TGR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261729AbVB1TIN (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 28 Feb 2005 14:08:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261725AbVB1TG5
+	id S261723AbVB1TGR (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 28 Feb 2005 14:06:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261721AbVB1TD7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 28 Feb 2005 14:06:57 -0500
-Received: from ppp-217-133-42-200.cust-adsl.tiscali.it ([217.133.42.200]:38455
-	"EHLO opteron.random") by vger.kernel.org with ESMTP
-	id S261712AbVB1TEj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 28 Feb 2005 14:04:39 -0500
-Date: Mon, 28 Feb 2005 20:04:37 +0100
-From: Andrea Arcangeli <andrea@suse.de>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: two pipe bugfixes
-Message-ID: <20050228190437.GI8880@opteron.random>
-References: <20050228042544.GA8742@opteron.random> <Pine.LNX.4.58.0502272143500.25732@ppc970.osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.58.0502272143500.25732@ppc970.osdl.org>
-X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
-User-Agent: Mutt/1.5.6i
+	Mon, 28 Feb 2005 14:03:59 -0500
+Received: from www.rapidforum.com ([80.237.244.2]:44504 "HELO rapidforum.com")
+	by vger.kernel.org with SMTP id S261712AbVB1S46 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 28 Feb 2005 13:56:58 -0500
+Message-ID: <4223696C.8060407@rapidforum.com>
+Date: Mon, 28 Feb 2005 19:56:44 +0100
+From: Christian Schmid <webmaster@rapidforum.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.8a3) Gecko/20040817
+X-Accept-Language: de, en
+MIME-Version: 1.0
+To: Nick Piggin <nickpiggin@yahoo.com.au>
+CC: Rik van Riel <riel@redhat.com>, linux-kernel@vger.kernel.org
+Subject: Re: Slowdown on high-load machines with 3000 sockets
+References: <4221FB13.6090908@rapidforum.com> <Pine.LNX.4.61.0502271216050.19979@chimarrao.boston.redhat.com> <Pine.LNX.4.61.0502271606220.19979@chimarrao.boston.redhat.com> <422239A8.1090503@rapidforum.com> <Pine.LNX.4.61.0502271830380.19979@chimarrao.boston.redhat.com> <42225B34.7020104@rapidforum.com> <Pine.LNX.4.61.0502271905270.19979@chimarrao.boston.redhat.com> <42226607.6020803@rapidforum.com> <4222A887.80301@yahoo.com.au>
+In-Reply-To: <4222A887.80301@yahoo.com.au>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > IMHO the really wrong thing is that we always set POLLIN (even for
-> > output filedescriptors that will never allow any data to be read).
+This issue has been tracked down more. This bug does NOT appear if I disable preemtive kernel.
+Maybe this helps.
+
+Nick Piggin wrote:
+> Christian Schmid wrote:
 > 
-On Mon, Feb 28, 2005 at 08:25:07AM -0800, Linus Torvalds wrote:
-> However, that has always been true. Look at the old code: it would set
-> POLLIN for a non-empty pipe for both readers and writers (and do POLLOUT
-> for empty pipes both for readers and writers). In fact, your very own
-> original strace shows that - it shows "in [4]" even though fd 4 is a
-> write-only fd.
-
-Sure, that has always been true, I also wanted to say it wasn't a
-mistake of the new code, but just a mistake of the old code that has
-seen the light thanks to the recent optimizations.
-
-> The new code does nothing really different. POLLIN is still there for a
-> non-empty pipe, just like it was before. It's just that when you have
-> multiple buffers, POLLOUT can _also_ be true, since even if you have
-> _some_ data in the pipe, you can still do a write of a full PIPE_BUF.
+>> I already tried with 300 KB and even used a perl-hash as a 
+>> horrible-slow buffer for a readahead-replacement. It still slowed down 
+>> on the syswrite to the socket. Thats the strange thing.
+>>
 > 
-> So the difference is not at all the one you're talking about, and the 
-> "bug" you claim to fix was there before too.
+> Do you have to use manual readahead though? What is the performance
+> like if you just let the kernel do its own thing? The kernel's
+> readahead provides things like automatic scaling and thrashing
+> control, so if possible you should just stick to that.
 > 
-> The fact is that if this broke python-twisted, then it just happened to
-> work before by mistake. [..]
-
-Yes of course.
-
-> [..] And python-twisted is just plain bogus.
-
-What do you mean with this, could you elaborate? You mean it shouldn't
-check for in/out set at the same time? I've no idea why it got confused
-by out/in set at the same time, but I guess it could be some
-compatibility thing with some other os.
-
-Still my point is that such code should never trigger since pollin
-should never be set for an output-pipe-fd.
-
-> That said, I agree with the fact that it's probably not the right thing to
-> do, and never was. And if fixing it makes a difference to python-twisted,
-> then hey, that's a benefit, but not a reason for the patch.
-
-Sure, I had no idea myself if it was going to work with python-twisted,
-because I changed the behaviour compared to the 2.6.9 codebase, but I
-tested it and it worked fine as well as the "old 2.6.9" behaviour.
-
-I didn't write the patch to make python-twisted work but only to do
-something that would remotely resemble the sus specs and it happened to
-fix twisted as well in my testing.
-
-> I don't agree with your patch, though - I don't like your lack of
-> parenthesis ;)
-
-;)
+> Although you may want to experiment with the maximum readahead on your
+> working disks:
+> /sys/block/???/queue/read_ahead_kb
+> 
+> Also, can we get a testcase (ie. minimal compilable code) to reproduce
+> this problem?
+> 
+> Thanks,
+> Nick
+> 
+> 
+> 

@@ -1,53 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268721AbUHTUYK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266334AbUHTUWY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268721AbUHTUYK (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 Aug 2004 16:24:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268723AbUHTUYJ
+	id S266334AbUHTUWY (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 Aug 2004 16:22:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268706AbUHTUVI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 Aug 2004 16:24:09 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:4042 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S268721AbUHTUXi
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 Aug 2004 16:23:38 -0400
-Message-ID: <41265DBD.8020103@pobox.com>
-Date: Fri, 20 Aug 2004 16:23:25 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040803
-X-Accept-Language: en-us, en
+	Fri, 20 Aug 2004 16:21:08 -0400
+Received: from imap.gmx.net ([213.165.64.20]:1209 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S268725AbUHTURm (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 20 Aug 2004 16:17:42 -0400
+X-Authenticated: #14776911
+From: Stefan =?iso-8859-1?q?D=F6singer?= <stefandoesinger@gmx.at>
+Reply-To: stefandoesinger@gmx.at
+To: acpi-devel@lists.sourceforge.net
+Subject: Re: [ACPI] [PATCH][RFC] fix ACPI IRQ routing after S3 suspend
+Date: Fri, 20 Aug 2004 22:17:25 +0200
+User-Agent: KMail/1.6.2
+Cc: Nathan Bryant <nbryant@optonline.net>,
+       "Pallipadi, Venkatesh" <venkatesh.pallipadi@intel.com>,
+       "Brown, Len" <len.brown@intel.com>,
+       Linux Kernel list <linux-kernel@vger.kernel.org>,
+       "Li, Shaohua" <shaohua.li@intel.com>
+References: <88056F38E9E48644A0F562A38C64FB6002A934AC@scsmsx403.amr.corp.intel.com> <41265443.9050800@optonline.net>
+In-Reply-To: <41265443.9050800@optonline.net>
 MIME-Version: 1.0
-To: bero@arklinux.org
-CC: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.8.1 "modprobe tg3" oopses with gcc 3.4.1
-References: <200408201148.48206.bero@arklinux.org>
-In-Reply-To: <200408201148.48206.bero@arklinux.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Message-Id: <200408202217.26399.stefandoesinger@gmx.at>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-bero@arklinux.org wrote:
-> EIP is at add_pin_to_irq+0x0/0x60
-> eax: 00000014   ebx: 00000001   ecx: 00000080  edx: 00000020
-> esi: 00000014   edi: ccba0de0   ebp: 00000000  esp: ccba0db0
-> ds: 007b   es: 007b   ss: 0068
-> Process modprobe (pid: 7179, threadinfo=ccba0000 task=dad64030)
-> Stack: c01175a4 00000014 00000000 00000014 00200292 c1482640 00000001 c027df3d
->         00000000 00000000 0001a900 01000000 00000014 00000014 00000000 0000000
->         c01154a7 00000000 00000014 00000014 00000001 00000001 00100000 
-> 00000000
-> Call Trace:
-> [<c01175a4>] io_apic_set_pci_routing+0x1f4/0x220
-> [<c027df3d>] pci_read+0x3d/0x50
-> [<c01154a7>] mp_register_gsi+0x177/0x180
-> [<c01131f9>] acpi_register_gsi+0x89/0x90
-> [<c01fbf30>] acpi_pci_irq_enable+0x100/0x160
-> [<c01db988>] pci_enable_device_bars+0x28/0x40
-> [<c01db9bf>] pci_enable_device+0x1f/0x40
-> [<e0d18465>] tg3_init_one+0x25/0x770 [tg3]
 
+> Maybe it's time to look at the suspend/resume callbacks on the ipw2100
+> driver, anyway.
+I changed LNKD to irq 7. This hit the b44 ethernet and broke S3 resume. Looks 
+like it's not an ipw2100 problem.
 
-Something in the irq resource path...
-
-	Jeff
-
-
+Stefan

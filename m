@@ -1,60 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266344AbUIJF60@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268127AbUIJGBo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266344AbUIJF60 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Sep 2004 01:58:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268116AbUIJF60
+	id S268127AbUIJGBo (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Sep 2004 02:01:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268250AbUIJGBo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Sep 2004 01:58:26 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:26250 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S266344AbUIJF6N (ORCPT
+	Fri, 10 Sep 2004 02:01:44 -0400
+Received: from gate.crashing.org ([63.228.1.57]:14287 "EHLO gate.crashing.org")
+	by vger.kernel.org with ESMTP id S268127AbUIJGBm (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Sep 2004 01:58:13 -0400
-Date: Fri, 10 Sep 2004 07:57:42 +0200
-From: Arjan van de Ven <arjanv@redhat.com>
-To: Scott Wood <scott@timesys.com>, William Lee Irwin III <wli@holomorphy.com>,
-       Ingo Molnar <mingo@elte.hu>, Christoph Hellwig <hch@infradead.org>,
-       Andrew Morton <akpm@osdl.org>, Zwane Mwaikambo <zwane@linuxpower.ca>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [patch] generic-hardirqs-2.6.9-rc1-mm4.patch
-Message-ID: <20040910055742.GA2710@devserv.devel.redhat.com>
-References: <1094652572.2800.14.camel@laptop.fenrus.com> <20040908182509.GA6009@elte.hu> <20040908211415.GA20168@elte.hu> <20040909175748.A12336@infradead.org> <20040909172401.GA28376@elte.hu> <20040909175314.GD3106@holomorphy.com> <20040909175441.GA25686@devserv.devel.redhat.com> <20040909211038.E6434@flint.arm.linux.org.uk> <20040909205153.GA1014@yoda.timesys> <20040909220004.F6434@flint.arm.linux.org.uk>
+	Fri, 10 Sep 2004 02:01:42 -0400
+Subject: Re: [Linux-fbdev-devel] fbdev broken in current bk for PPC
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: adaplas@pol.net
+Cc: Linux Fbdev development list 
+	<linux-fbdev-devel@lists.sourceforge.net>,
+       Linux Kernel list <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>
+In-Reply-To: <200409101328.57431.adaplas@hotpop.com>
+References: <1094783022.2667.106.camel@gaston>
+	 <200409101328.57431.adaplas@hotpop.com>
+Content-Type: text/plain
+Message-Id: <1094796002.14398.118.camel@gaston>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="jI8keyz6grp/JLjh"
-Content-Disposition: inline
-In-Reply-To: <20040909220004.F6434@flint.arm.linux.org.uk>
-User-Agent: Mutt/1.4.1i
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Fri, 10 Sep 2004 16:00:02 +1000
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, 2004-09-10 at 15:28, Antonino A. Daplas wrote:
 
---jI8keyz6grp/JLjh
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-
-
-On Thu, Sep 09, 2004 at 10:00:04PM +0100, Russell King wrote:
-> you'll realise how inadequate the "generic" IRQ code is for ARM.
+> If fb_get_options returns an error, drivers will not proceed with their
+> initialization. The second method is more compatible with the
+> previous setup semantics.
 > 
-> Note that IRQ handling on ARM is a multi-level affair where we have
-> multiple levels of interrupt controllers which need to be traversed
-> in software.
+> I told Geert that if the changes did bite us, then I have no choice
+> but to add support for the second method.
+> 
+> So, if you think that the first method is not enough, then I will add the
+> second method. Let me know.
 
-I still propose the plan of action that is to consolidate first all
-architectures that CAN share the x86 one, and THEN look at making that more
-generic. The reason is simple; right now there are 20-ish copies; after the
-initial consolidation there will be 4 or 5. Far easier to work on.
+I submited a patch moving offb to the bottom of the Makefile to at
+least restore normal drivers. For ofonly, a bit more hackish, but
+what about failing register_framebuffer for anything but offb ?
 
---jI8keyz6grp/JLjh
-Content-Type: application/pgp-signature
-Content-Disposition: inline
+Ben.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
 
-iD8DBQFBQUJVxULwo51rQBIRAtf0AJ9fcDPIgW3QhdoA10kY9hfa55+UVACgkuDv
-/Jmy0BNLYlq4CGCQsw0jHE4=
-=LhwM
------END PGP SIGNATURE-----
-
---jI8keyz6grp/JLjh--

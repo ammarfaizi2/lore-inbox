@@ -1,19 +1,19 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293037AbSCAMxw>; Fri, 1 Mar 2002 07:53:52 -0500
+	id <S293068AbSCAMxW>; Fri, 1 Mar 2002 07:53:22 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293214AbSCAMxn>; Fri, 1 Mar 2002 07:53:43 -0500
-Received: from garrincha.netbank.com.br ([200.203.199.88]:52754 "HELO
-	netbank.com.br") by vger.kernel.org with SMTP id <S293037AbSCAMxd>;
-	Fri, 1 Mar 2002 07:53:33 -0500
-Date: Fri, 1 Mar 2002 09:52:02 -0300 (BRT)
+	id <S293037AbSCAMxM>; Fri, 1 Mar 2002 07:53:12 -0500
+Received: from garrincha.netbank.com.br ([200.203.199.88]:49682 "HELO
+	netbank.com.br") by vger.kernel.org with SMTP id <S293068AbSCAMwz>;
+	Fri, 1 Mar 2002 07:52:55 -0500
+Date: Fri, 1 Mar 2002 09:51:54 -0300 (BRT)
 From: Rik van Riel <riel@conectiva.com.br>
 X-X-Sender: riel@imladris.surriel.com
-To: Tim Schmielau <tim@physik3.uni-rostock.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [patch] enable uptime display > 497 days on 32 bit (1/2)
-In-Reply-To: <Pine.LNX.4.33.0203010339240.3946-100000@gans.physik3.uni-rostock.de>
-Message-ID: <Pine.LNX.4.33L.0203010931160.2801-100000@imladris.surriel.com>
+To: Mike Fedyk <mfedyk@matchmail.com>
+Cc: Bill Davidsen <davidsen@tmr.com>, <linux-kernel@vger.kernel.org>
+Subject: Re: 2.4.19pre1aa1
+In-Reply-To: <20020301034626.GG2711@matchmail.com>
+Message-ID: <Pine.LNX.4.33L.0203010935440.2801-100000@imladris.surriel.com>
 X-spambait: aardvark@kernelnewbies.org
 X-spammeplease: aardvark@nl.linux.org
 MIME-Version: 1.0
@@ -21,25 +21,20 @@ Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 1 Mar 2002, Tim Schmielau wrote:
+On Thu, 28 Feb 2002, Mike Fedyk wrote:
 
-> rediffed to 2.4.19-pre2 and three micro-optimizations:
->
->   move jiffies_hi etc. to same cacheline as jiffies
->     (suggested by George Anzinger)
->   avoid turning off interrupts (suggested by Andreas Dilger)
->   use unlikely() (suggested by Andreas Dilger)
->
-> As no other comments turned up, this will go to Marcelo RSN.
+> Look at it another way, by forcing Andrea to send it in as small
+> chunks with descriptions, we may finally get a documented -aa VM. ;)
+> So, lets watch and see that happen.
 
-Please merge with Linus first, otherwise you'll loose this
-feature once you'll upgrade to 2.6 ...
+That would be the preferred way.  There must be some good stuff
+hidden in -aa, but it won't turn into maintainable code just by
+merging stuff into the kernel.
 
-> (wondered why noone vetoed this as overkill...)
+It'll turn into maintainable code by having it merged in small,
+documented pieces.
 
-I guess sneaking it past Linus will be the real test ;)
-
-cheers,
+regards,
 
 Rik
 -- 

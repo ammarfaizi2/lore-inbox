@@ -1,66 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268993AbUJTW77@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269164AbUJTXKE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268993AbUJTW77 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 20 Oct 2004 18:59:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270474AbUJTWb1
+	id S269164AbUJTXKE (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 20 Oct 2004 19:10:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269152AbUJTXFv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 20 Oct 2004 18:31:27 -0400
-Received: from h-68-165-86-241.dllatx37.covad.net ([68.165.86.241]:63550 "EHLO
-	sol.microgate.com") by vger.kernel.org with ESMTP id S268993AbUJTW1m
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 20 Oct 2004 18:27:42 -0400
-Subject: Re: belkin usb serial converter (mct_u232), break not working
-From: Paul Fulghum <paulkf@microgate.com>
-To: Thomas Stewart <thomas@stewarts.org.uk>
-Cc: Linux Kernel list <linux-kernel@vger.kernel.org>
-In-Reply-To: <200410202308.02624.thomas@stewarts.org.uk>
-References: <200410201946.35514.thomas@stewarts.org.uk>
-	 <1098307331.2818.15.camel@deimos.microgate.com>
-	 <200410202308.02624.thomas@stewarts.org.uk>
+	Wed, 20 Oct 2004 19:05:51 -0400
+Received: from clock-tower.bc.nu ([81.2.110.250]:44251 "EHLO
+	localhost.localdomain") by vger.kernel.org with ESMTP
+	id S270527AbUJTXAm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 20 Oct 2004 19:00:42 -0400
+Subject: Re: Fwd: [Bug 3592] New: pppd "IPCP: timeout sending
+	Config-Requests"
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Paul Fulghum <paulkf@microgate.com>
+Cc: Russell King <rmk+lkml@arm.linux.org.uk>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       "Martin J. Bligh" <mbligh@aracnet.com>,
+       Linus Torvalds <torvalds@osdl.org>, Alan Cox <alan@redhat.com>
+In-Reply-To: <1098199942.2857.7.camel@deimos.microgate.com>
+References: <20041019131240.A20243@flint.arm.linux.org.uk>
+	 <1098195468.8467.7.camel@deimos.microgate.com>
+	 <1098199942.2857.7.camel@deimos.microgate.com>
 Content-Type: text/plain
-Message-Id: <1098311228.6006.3.camel@at2.pipehead.org>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7) 
-Date: Wed, 20 Oct 2004 17:27:08 -0500
 Content-Transfer-Encoding: 7bit
+Message-Id: <1098309449.12411.57.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
+Date: Wed, 20 Oct 2004 22:57:31 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2004-10-20 at 17:08, Thomas Stewart wrote:
+On Maw, 2004-10-19 at 16:32, Paul Fulghum wrote:
+> PPP line disciplines rely on the previous behavior
+> of calling ldisc->close on hangup as a method for
+> indicating hangup to the line discipline.
+> This is explicitly called out in the PPP ldisc comments.
 
-> take porttest.c:
-> #include <sys/fcntl.h>
-> #include <sys/ioctl.h>
-> main(int argc, char ** argv) {
->         int fd = open(argv[1], O_RDWR|O_NOCTTY);
->         ioctl(fd, TCSBRKP, 20);
->         close(fd);
-> }
-> 
-> $ time ./porttest /dev/ttyS0
-> real    0m2.001s
-> user    0m0.001s
-> sys     0m0.000s
-> 
-> A standard serial port with a 2 second break (20*100ms), takes as expected 
-> just over 2 seconds.
-> 
-> $ time ./porttest /dev/ttyUSB1
-> real    0m0.004s
-> user    0m0.000s
-> sys     0m0.001s
-> 
-> However with the USB converter instead, it takes 5 ms to complete. Much 
-> shorter than expected.
-> 
-> Is it a driver issue?
+I had no choice about that really with the current locking. It's on the
+list to do further work although I'd not realised some odder pppd
+configurations relied upon it until the bug report.
 
-Can you record and display the return code from the ioctl()?
+Once I've put out -ac1 to fix the other bugs I consider urgent (not tty)
+I'll see what I can do. Really it would nice if the ppp maintainer would
+look at this and also fix all the horrible things the code does wrongly
+if for example the first byte of a received buffer is an error marker -
+in general serial error processing is not robust in the ppp code it
+appears.
 
-Thanks
-
--- 
-Paul Fulghum
-paulkf@microgate.com
-
+Alan
 

@@ -1,208 +1,88 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267122AbSK2Sii>; Fri, 29 Nov 2002 13:38:38 -0500
+	id <S267125AbSK2Sml>; Fri, 29 Nov 2002 13:42:41 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267123AbSK2Sih>; Fri, 29 Nov 2002 13:38:37 -0500
-Received: from 12-237-16-92.client.attbi.com ([12.237.16.92]:10880 "EHLO
-	ledzep.dyndns.org") by vger.kernel.org with ESMTP
-	id <S267122AbSK2Sif>; Fri, 29 Nov 2002 13:38:35 -0500
-Date: Fri, 29 Nov 2002 12:46:08 -0600
-From: Jordan Breeding <jordan.breeding@attbi.com>
-To: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: [BUG] problem using aic7xxx based card in 2.5.x
-Message-ID: <20021129184608.GA9525@ledzep.dyndns.org>
-Reply-To: Jordan Breeding <jordan.breeding@attbi.com>
-Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="ZGiS0Q5IWpPtfppv"
-Content-Disposition: inline
-User-Agent: Mutt/1.4i
+	id <S267126AbSK2Sml>; Fri, 29 Nov 2002 13:42:41 -0500
+Received: from uranus.lan-ks.de ([194.45.71.1]:20754 "EHLO uranus.lan-ks.de")
+	by vger.kernel.org with ESMTP id <S267125AbSK2Smk> convert rfc822-to-8bit;
+	Fri, 29 Nov 2002 13:42:40 -0500
+X-MDaemon-Deliver-To: <linux-kernel@vger.kernel.org>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: [2.5.50] uninitialized timer 
+X-Face: ""xJff<P[R~C67]V?J|X^Dr`YigXK|;1wX<rt^>%{>hr-{:QXl"Xk2O@@(+F]e{"%EYQiW@mUuvEsL>=mx96j12qW[%m;|:B^n{J8k?Mz[K1_+H;$v,nYx^1o_=4M,L+]FIU~[[`-w~~xsy-BX,?tAF_.8u&0y*@aCv;a}Y'{w@#*@iwAl?oZpvvv
+X-Message-Flag: This space is intentionally left blank
+X-Noad: Please don't send me ad's by mail.  I'm bored by this type of mail.
+X-Note: sending SPAM is a violation of both german and US law and will
+	at least trigger a complaint at your provider's postmaster.
+X-GPG: 1024D/77D4FC9B 2000-08-12 Jochen Hein (28 Jun 1967, Kassel, Germany) 
+     Key fingerprint = F5C5 1C20 1DFC DEC3 3107  54A4 2332 ADFC 77D4 FC9B
+X-BND-Spook: RAF Taliban BND BKA Bombe Waffen Terror AES GPG
+X-No-Archive: yes
+From: Jochen Hein <jochen@jochen.org>
+Date: Fri, 29 Nov 2002 18:58:16 +0100
+Message-ID: <87n0nsqmvb.fsf@gswi1164.jochen.org>
+User-Agent: Gnus/5.090008 (Oort Gnus v0.08) Emacs/21.2
+ (i386-debian-linux-gnu)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---ZGiS0Q5IWpPtfppv
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Booting 2.2.50 gives:
 
-Hello,
+vesafb: framebuffer at 0xe0000000, mapped to 0xc680d000, size 1984k
+vesafb: mode is 1024x768x16, linelength=2048, pages=0
+vesafb: protected mode interface info at c000:8e10
+vesafb: scrolling: redraw
+vesafb: directcolor: size=0:5:6:5, shift=0:11:5:0
+Uninitialised timer!
+This is just a warning.  Your computer is OK
+function=0xc0249c20, data=0x0
+Call Trace: [<c011deb0>]  [<c0249c20>]  [<c011def7>]  [<c024a003>]
+[<c021855f>]  [<c0249409>]  [<c0105086>]  [<c0105058>]  [<c0106e6d>]
+Console: switching to colour frame buffer device 128x48
 
-  I am running a new Gigabyte GA-8IPXDR dual Xeon board under Linux.  I
-can get everything to work with stock 2.4.x, 2.4.x with acpi and 2.4.x
-with acpi and booted with pci=noacpi, all of this is using 2.4.20-rc3
-with the latest acpi patch from sourceforge and the new aic7xxx driver.
-If I try and boot either 2.5.49, 2.5.49-bk or 2.5.49-mm1 the kernel gets
-as far as loading the scsi driver and then it starts acting very weird.
-I starts issuing the debug messages and card state dumps that are
-normally only printed when interrupts aren't setup correctly.  This is
-very odd considering 2.5.49 should be using the same acpi code as
-2.4.20-rc3 with the patch in place.  Also I can't boot 2.5.49 under any
-circumstance including acpi=off and/or pci=noacpi.  The board uses the
-Intel E7500 chipset and has onboard U160 (AIC-7899).  I am attached
-gzipped copies of a working dmesg from 2.4.20-ac3, /proc/interrupts and
-/proc/cpuinfo. 
-I don't have a serial console to grab the failing boot messages from
-2.5.x but they are the same messages everyone else gets from the aic7xxx
-driver when things are going according to plan interrupt wise.  Thanks
-for any help.
+Passed through ksymoops I get:
 
-Jordan
+ksymoops 2.4.6 on i686 2.5.50.  Options used
+     -V (default)
+     -k /proc/ksyms (default)
+     -l /proc/modules (default)
+     -o /lib/modules/2.5.50/ (default)
+     -m /boot/System.map-2.5.50 (default)
 
---ZGiS0Q5IWpPtfppv
-Content-Type: application/x-gzip
-Content-Disposition: attachment; filename="dmesg.gz"
-Content-Transfer-Encoding: base64
+Warning: You did not tell me where to find symbol information.  I will
+assume that the log matches the kernel and modules that are running
+right now and I'll use the default options above for symbol resolution.
+If the current kernel and/or modules do not match the log, you can get
+more accurate output by telling me the kernel version and where to find
+map, modules, ksyms etc.  ksymoops -h explains the options.
 
-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
-o/qrMP4Hj/3M2AFtAAA=
+Error (regular_file): read_ksyms stat /proc/ksyms failed
+No modules in ksyms, skipping objects
+No ksyms, skipping lsmod
+Call Trace: [<c011deb0>]  [<c0249c20>]  [<c011def7>]  [<c024a003>]  [<c021855f>]  [<c0249409>]  [<c0105086>]  [<c0105058>]  [<c0106e6d>] 
+Warning (Oops_read): Code line not seen, dumping what data is available
 
---ZGiS0Q5IWpPtfppv
-Content-Type: application/x-gzip
-Content-Disposition: attachment; filename="cpuinfo.gz"
-Content-Transfer-Encoding: base64
 
-H4sICJxC5T0AA2NwdWluZm8A7VHLTsMwEDzXX7HH9hIl6YtyBKEWoQJCIHGrXGeTWPJLsRPS
-fj3rFFHEF/TQg62dndmx1uMaK9B724xuIWUdmsI2O1kQWqNppcFHE1Ax4VoouZbqQEw2Z9oW
-qEZU56cSDNdIcFCP3ybw+fDyPH7fTuD+9QPyZJauN0fmAzonTUXC2WC53RwHk+kqT1YL6nFR
-I3h5jF7zLIenO1YWstvt2zhkLKtVGMAJlWlanjlhNT+j0rVRdUAfyx32Al2Q1vz06HlZgMKO
-9ohrfLlfteKVj4DGoNMIBYLzCMEL0L4BxxG0QBD9DXAnBXh0oENDTBUZDkLbjmQhjk0XIFSp
-Wl9DETxw4SRo3UPZk5UnWzo5XVAHCJrtbWW1dD5+0XKZJWnOmPuTUXbN6LIyupkl2b+M8mtG
-F5/R9JrRRWb0Ddrw09WQBgAA
+Trace; c011deb0 <check_timer_failed+40/4c>
+Trace; c0249c20 <cursor_timer_handler+0/28>
+Trace; c011def7 <add_timer+3b/120>
+Trace; c024a003 <fbcon_startup+43/4c>
+Trace; c021855f <take_over_console+17/18c>
+Trace; c0249409 <register_framebuffer+181/1cc>
+Trace; c0105086 <init+2e/178>
+Trace; c0105058 <init+0/178>
+Trace; c0106e6d <kernel_thread_helper+5/c>
 
---ZGiS0Q5IWpPtfppv
-Content-Type: application/x-gzip
-Content-Disposition: attachment; filename="interrupts.gz"
-Content-Transfer-Encoding: base64
+2 warnings and 1 error issued.  Results may not be reliable.
 
-H4sICKlC5T0AA2ludGVycnVwdHMApZPdasIwGIbPcxXfBVhI0pjUnknxoDCnuA12WtOgRcXR
-1hHv3mys+Tp/sNYcPYG8D2/+APxI5h8UkSFyxPAPCQCNf4nTUFCFFnob01kwnqdJYPKVAaiL
-nSmdh8W4TPbwbMxxuc/K3Kl43Cl/gZ/vgfMB6KzSWW6cKWqZ2L34lVJlrZ1l9GifRrI132YL
-kOmvggCTjSaStFOZM82hWgaHtf5RPdtIV0JaO2gphVdyzvq0M/WaElD+7mSkRJ+zKrSy1jpT
-iHtUvU69MY0kmlinp3nD9DpN/Wfh0fA+kpdZggmpEIXHISakS0wWi/bdkmn69m9+Ar9RIePp
-AwAA
+Hope that helps.
 
---ZGiS0Q5IWpPtfppv--
+Jochen
+
+-- 
+Wenn Du nicht weiﬂt was Du tust, tu's mit Eleganz.
+

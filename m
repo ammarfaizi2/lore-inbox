@@ -1,65 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266768AbUIOQSy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266753AbUIOQSy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266768AbUIOQSy (ORCPT <rfc822;willy@w.ods.org>);
+	id S266753AbUIOQSy (ORCPT <rfc822;willy@w.ods.org>);
 	Wed, 15 Sep 2004 12:18:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266793AbUIOQRp
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266775AbUIOQSH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Sep 2004 12:17:45 -0400
-Received: from mail.kroah.org ([69.55.234.183]:4772 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S266775AbUIOQQ4 (ORCPT
+	Wed, 15 Sep 2004 12:18:07 -0400
+Received: from mail.kroah.org ([69.55.234.183]:2980 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S266753AbUIOQQv (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Sep 2004 12:16:56 -0400
-Date: Wed, 15 Sep 2004 09:15:41 -0700
+	Wed, 15 Sep 2004 12:16:51 -0400
+Date: Wed, 15 Sep 2004 09:12:29 -0700
 From: Greg KH <greg@kroah.com>
-To: Andrea Arcangeli <andrea@novell.com>
-Cc: "Marco d'Itri" <md@Linux.IT>, "Giacomo A. Catenazzi" <cate@pixelized.ch>,
-       linux-kernel@vger.kernel.org
+To: "Giacomo A. Catenazzi" <cate@debian.org>
+Cc: Tonnerre <tonnerre@thundrix.ch>, Ian Campbell <icampbell@arcom.com>,
+       "Marco d'Itri" <md@Linux.IT>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
 Subject: Re: udev is too slow creating devices
-Message-ID: <20040915161541.GD21971@kroah.com>
-References: <41473972.8010104@debian.org> <41474926.8050808@nortelnetworks.com> <20040914195221.GA21691@kroah.com> <414757FD.5050209@pixelized.ch> <20040914213506.GA22637@kroah.com> <20040914214552.GA13879@wonderland.linux.it> <20040914215122.GA22782@kroah.com> <20040914224731.GF3365@dualathlon.random> <20040914230409.GA23474@kroah.com> <20040914232011.GG3365@dualathlon.random>
+Message-ID: <20040915161227.GC21971@kroah.com>
+References: <414757FD.5050209@pixelized.ch> <20040914213506.GA22637@kroah.com> <20040914214552.GA13879@wonderland.linux.it> <20040914215122.GA22782@kroah.com> <20040914224731.GF3365@dualathlon.random> <20040914230409.GA23474@kroah.com> <414849CE.8080708@debian.org> <1095258966.18800.34.camel@icampbell-debian> <20040915152019.GD24818@thundrix.ch> <4148637F.9060706@debian.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20040914232011.GG3365@dualathlon.random>
+In-Reply-To: <4148637F.9060706@debian.org>
 User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Sep 15, 2004 at 01:20:11AM +0200, Andrea Arcangeli wrote:
-> On Tue, Sep 14, 2004 at 04:04:09PM -0700, Greg KH wrote:
-> > On Wed, Sep 15, 2004 at 12:47:31AM +0200, Andrea Arcangeli wrote:
-> > > On Tue, Sep 14, 2004 at 02:51:22PM -0700, Greg KH wrote:
-> > > > True, so sit and spin and sleep until you see the device node.  That's
-> > > > how a number of distros have fixed the fsck startup issue.
-> > > 
-> > > that's more a band-aid than a fix (I can imagine a userspace hang if the
-> > > device isn't created for whatever reason), if there's no way to do
-> > > better than this if you've to run fsck (or if it's not the best to run
-> > > the fsck inside the dev.d scripts), then probably this needs better
-> > > fixing. is such a big problem to execute a sys_wait4 to wait the udev
-> > > userspace to return before returning from the insmod syscall?
-> > 
-> > But how do you know what to wait for?
+On Wed, Sep 15, 2004 at 05:45:03PM +0200, Giacomo A. Catenazzi wrote:
 > 
-> the kernel sure can know about it, by passing a waitqueue into the
-> registration routine and calling wake_up once the discovery is over.
+> 
+> Tonnerre wrote:
+> >
+> >On Wed, Sep 15, 2004 at 03:36:06PM +0100, Ian Campbell wrote:
+> >
+> >>I wonder if it would be feasible for modprobe (or some other utility) to
+> >>have a new option: --wait-for=/dev/something which would wait for the
+> >>device node to appear. Perhaps by:
+> >>	- some mechanism based on HAL, DBUS, whatever
+> >>	- dnotify on /dev/?
+> >>	- falling back to spinning and waiting.
+> >
+> >
+> >This would  end up  as hideous misfeature  as you can't  guarantee the
+> >device to show up *at* *all*.
+> >
+> >The reason udev is there is that we can dynamically respond to created
+> >device nodes and  devices that show up. They  might have changed since
+> >the last boot. Maybe they don't show up at all.
+> >
+> >Thus you should trigger your actions from /etc/dev.d.
+> 
+> It is right.
+> But an option --wait would be sufficient.
+> This option will require modprobe to wait (with a timeout of
+> x seconds) that hotplug event finish (so if device is created or
+> not is no more a problem).
+> Ideally this should be done modifing only hotplug and IMHO
+> should be enabled by default.
 
-But the low level driver (like a USB driver for example), has no way of
-knowing when the "device discovery" process is over.  Actually the USB
-core never knows this either, as devices come and go all the time.
+Um, I don't think this is posible to do at all.  But hey, go ahead and
+implement it to prove me wrong :)
 
-That's why we had to move to the "probe" and "release" way of writing
-drivers.  The bus cores notify the driver when they find something, as
-the driver never knows when a device is found.
-
-So the kernel can not know what or when to wait for something it doesn't
-know is going to ever happen in the future.
-
-Does that make more sense now?
-
-Remember, this isn't your old "static device tree" unix-like kernel that
-people grew up with, anymore. :)
-
-thanks,
+good luck,
 
 greg k-h

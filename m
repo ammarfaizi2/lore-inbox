@@ -1,49 +1,35 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261519AbSIZVaK>; Thu, 26 Sep 2002 17:30:10 -0400
+	id <S261565AbSIZVoN>; Thu, 26 Sep 2002 17:44:13 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261522AbSIZVaK>; Thu, 26 Sep 2002 17:30:10 -0400
-Received: from host.greatconnect.com ([209.239.40.135]:33036 "EHLO
-	host.greatconnect.com") by vger.kernel.org with ESMTP
-	id <S261519AbSIZVaJ>; Thu, 26 Sep 2002 17:30:09 -0400
-Message-ID: <3D937ED7.8070105@rackable.com>
-Date: Thu, 26 Sep 2002 14:40:39 -0700
-From: Samuel Flory <sflory@rackable.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20020826
+	id <S261566AbSIZVoN>; Thu, 26 Sep 2002 17:44:13 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:14350 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S261565AbSIZVoM>;
+	Thu, 26 Sep 2002 17:44:12 -0400
+Message-ID: <3D9380C8.4030807@pobox.com>
+Date: Thu, 26 Sep 2002 17:48:56 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+Organization: MandrakeSoft
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1) Gecko/20020826
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: "Justin T. Gibbs" <gibbs@scsiguy.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: aic7xxx support for aic7902?
-References: <A5974D8E5F98D511BB910002A50A66470580D20D@hdsmsx103.hd.intel.com > <1338716224.1032976056@aslan.btc.adaptec.com>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+CC: Arjan van de Ven <arjanv@redhat.com>,
+       "GEFanuc, VMIC)" <Daniel.Heater@gefanuc.com>,
+       "'Linux Kernel Mailing List'" <linux-kernel@vger.kernel.org>
+Subject: Re: Distributing drivers independent of the kernel source tree
+References: <A9713061F01AD411B0F700D0B746CA6802FC14D6@vacho6misge.cho.ge.com> 	<1033074519.2698.5.camel@localhost.localdomain> <1033076462.1269.196.camel@irongate.swansea.linux.org.uk>
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Justin T. Gibbs wrote:
-
->>Justin,
->>
->>I've seen a special U320 driver aic79xx v1.10, but I suppose that the new
->>U320 controllers will be folded into a new version of your aic7xxx driver
->>(?).
->>    
->>
->
->Nope.  The U320 chips will never be supported in the aic7xxx driver due
->to their very different architecture.  aic79xx v1.1.0 (or 1.1.1 which
->includes the port to the 2.5.X kernels) is what you want.
->
+Alan Cox wrote:
+> One additional item that may be useful, for Red Hat at least there is a
+> little kit to build additional driver disks.
 
 
-  Where can I find the v1.1.0 patch?
+...available at:  http://people.redhat.com/dledford/
 
--- 
-There is no such thing as obsolete hardware.
-Merely hardware that other people don't want.
-(The Second Rule of Hardware Acquisition)
-Sam Flory  <sflory@rackable.com>
-
-
+it's pretty neat...
 

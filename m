@@ -1,74 +1,73 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268018AbRG2O37>; Sun, 29 Jul 2001 10:29:59 -0400
+	id <S268034AbRG2Ott>; Sun, 29 Jul 2001 10:49:49 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268023AbRG2O3k>; Sun, 29 Jul 2001 10:29:40 -0400
-Received: from Expansa.sns.it ([192.167.206.189]:61457 "EHLO Expansa.sns.it")
-	by vger.kernel.org with ESMTP id <S268018AbRG2O3c>;
-	Sun, 29 Jul 2001 10:29:32 -0400
-Date: Sun, 29 Jul 2001 16:28:56 +0200 (CEST)
-From: Luigi Genoni <kernel@Expansa.sns.it>
-To: Chris Wedgwood <cw@f00f.org>
-cc: Matthew Gardiner <kiwiunixman@yahoo.co.nz>,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        "Philip R. Auld" <pauld@egenera.com>,
-        kernel <linux-kernel@vger.kernel.org>
-Subject: Re: ReiserFS / 2.4.6 / Data Corruption
-In-Reply-To: <20010729231023.C3917@weta.f00f.org>
-Message-ID: <Pine.LNX.4.33.0107291606440.7045-100000@Expansa.sns.it>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S268033AbRG2Otj>; Sun, 29 Jul 2001 10:49:39 -0400
+Received: from new-smtp1.ihug.com.au ([203.109.250.27]:5133 "EHLO
+	new-smtp1.ihug.com.au") by vger.kernel.org with ESMTP
+	id <S268017AbRG2Otb>; Sun, 29 Jul 2001 10:49:31 -0400
+Date: Mon, 30 Jul 2001 00:49:16 +1000
+From: Steve Kowalik <stevenk@debian.org>
+To: Wichert Akkerman <wichert@wiggy.net>
+Cc: Jean Charles Delepine <delepine@u-picardie.fr>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org,
+        Debian-Devel List <debian-devel@lists.debian.org>,
+        Herbert Xu <herbert@debian.org>,
+        Manoj Srivastava <srivasta@debian.org>
+Subject: Re: make rpm
+Message-ID: <20010730004916.A2359@broken.wedontsleep.org>
+Mail-Followup-To: Wichert Akkerman <wichert@wiggy.net>,
+	Jean Charles Delepine <delepine@u-picardie.fr>,
+	Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org,
+	Debian-Devel List <debian-devel@lists.debian.org>,
+	Herbert Xu <herbert@debian.org>,
+	Manoj Srivastava <srivasta@debian.org>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="xHFwDpU9dbj6ez1V"
+Content-Disposition: inline
+In-Reply-To: <20010729141959.B19103@wiggy.net>
+User-Agent: Mutt/1.3.18i
+X-Operating-System: Linux broken 2.4.7 i686
+X-Subliminal-Message: Debian Rocks!
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
 
+--xHFwDpU9dbj6ez1V
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-On Sun, 29 Jul 2001, Chris Wedgwood wrote:
+On Sun, Jul 29, 2001 at 02:19:59PM +0200, Wichert Akkerman uttered:
+> Previously Jean Charles Delepine wrote:
+> > Maybe Herbert Xu, the actual developper of the Debian kernel package or=
+=20
+> > Manoj Srivastava, for the Debian Linux kernel package build scripts can
+> > do that.
+>=20
+> We've had that option for years, just call "make-kpkg kernel_image".
+> It would be trivial to add a rule to the Makefile in the kernel tree
+> that calls that if you do "make deb".
+>=20
+make-kpkg --revision=3D${KERNELRELEASE} kernel_image",surely?
 
-> On Sun, Jul 29, 2001 at 10:15:03PM +1200, Matthew Gardiner wrote:
->
->     tsk tsk tsk. A bit disappointing that Vertias has taken that approach.
->     However, even still, reiserFS is pretty awsome. Extremely fast and space
->     efficient, esp on a 60gig drive ;)
->
-> Why "tsk tsk tsk" ?  If reiserfs suits you, use it --- you need never
-> go near VXFS.
-It depends, for example if you have to manage a farm (let's say 800
-systems) with many Unixes
-around, where solaris is the 70% of your installed basis, then
-veritas (mainly the VM) could be a solution to keep an uniform
-environment. That is a good thing if your sysadmin staff is composed also
-by people without a real high skill.
->
-> Personally, even though I use reiserfs, I am of the opinion that XFS,
-> and VXFS and both superior, especially when you include volume
-> management.
-a journaling filesystem and a volume manager are two complementary
-and usefull things, but anyway are  different things.
-While i do agree that Linux LVM is still not complitelly usable in a
-production environment, (but anyway ELVM from IBM is somehow immmature),
-and some details of its design are not completely, how can I say...,
-suitable for future HW developments, I found reiserFS tecnology to be
-really interesting. On a technological point of view reiserFS is much
-more advanced in front of any other journaled FS around.
+--=20
+                                                    Steve
+Synthetic Transforming Entity Viable for Exploration and Nocturnal Killing
 
-I still have to see vxfs with Linux, but i saw it under solaris and HP-UX
-(i think I used all journaled aroung, jfs, xfs, reiserFS, ext3, vxfs, gfs,
-on all unixes i could), seeing it to too much slow on high end scsi HW,
-and XFS on my origin 2000 (8 processor) sometimes takes one CPU just to
-manage journaling under heavy I/O. Under Linux xfs is maybe better that
-under Irix (!!!???), but its tecnology was thinked for other kind of HW,
-and an experienced sysadmin can "feel" this.
-> Time will show whether or not these very well designed
-> file-systems are suitable under Linux though, as reiserfs has a
-> considerable head start.
-Yes, time will show. reiserFS can have a wonderfull future, better than
-ext3 if it will be mature before ext3, worse if after. But for Linux
-jfs and xfs are interesting right now, just untill native journaled will
-be ready, then i would bet everyone will stay with reiserFS or ext3, not
-considering any other solution.
+--xHFwDpU9dbj6ez1V
+Content-Type: application/pgp-signature
+Content-Disposition: inline
 
-Luigi
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.6 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
 
+iD8DBQE7ZCJswJ0/XSswJFIRAqrLAJ4lKVHWkx/QzARnk9ErHoY+2PLE8QCgrhgr
+bVz/rJUT2m3b8pa1EmfPsXo=
+=eVbo
+-----END PGP SIGNATURE-----
 
+--xHFwDpU9dbj6ez1V--

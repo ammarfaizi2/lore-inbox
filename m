@@ -1,34 +1,63 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S133056AbRDLHEj>; Thu, 12 Apr 2001 03:04:39 -0400
+	id <S133057AbRDLHG7>; Thu, 12 Apr 2001 03:06:59 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S133057AbRDLHEd>; Thu, 12 Apr 2001 03:04:33 -0400
-Received: from rrzd1.rz.uni-regensburg.de ([132.199.1.6]:61710 "EHLO
-	rrzd1.rz.uni-regensburg.de") by vger.kernel.org with ESMTP
-	id <S133056AbRDLHD2>; Thu, 12 Apr 2001 03:03:28 -0400
-From: "Ulrich Windl" <Ulrich.Windl@rz.uni-regensburg.de>
-Organization: Universitaet Regensburg, Klinikum
-To: linux-kernel@vger.kernel.org
-Date: Thu, 12 Apr 2001 09:03:05 +0200
+	id <S133058AbRDLHGz>; Thu, 12 Apr 2001 03:06:55 -0400
+Received: from panic.ohr.gatech.edu ([130.207.47.194]:61345 "HELO
+	havoc.gtf.org") by vger.kernel.org with SMTP id <S133057AbRDLHG2>;
+	Thu, 12 Apr 2001 03:06:28 -0400
+Message-ID: <3AD553EF.9C585755@mandrakesoft.com>
+Date: Thu, 12 Apr 2001 03:06:23 -0400
+From: Jeff Garzik <jgarzik@mandrakesoft.com>
+Organization: MandrakeSoft
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.4-pre2 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-type: text/plain; charset=US-ASCII
-Content-transfer-encoding: 7BIT
-Subject: 2.2.19: config help text about "TCO timer"
-Message-ID: <3AD56F4C.17863.3AC6DD@localhost>
-X-mailer: Pegasus Mail for Win32 (v3.12c)
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: PATCH 2.4.4-pre2: fix build...
+Content-Type: multipart/mixed;
+ boundary="------------79BD2878E97D91C34A68538A"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+This is a multi-part message in MIME format.
+--------------79BD2878E97D91C34A68538A
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 
-I know I'm late, but Configure.help in 2.2.19 says:
+Some uniprocessor configurations require the following patch in order to
+build 2.4.4-pre2 at all...
+-- 
+Jeff Garzik       | Sam: "Mind if I drive?"
+Building 1024     | Max: "Not if you don't mind me clawing at the dash
+MandrakeSoft      |       and shrieking like a cheerleader."
+--------------79BD2878E97D91C34A68538A
+Content-Type: text/plain; charset=us-ascii;
+ name="rwsem-fix.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="rwsem-fix.patch"
 
-..."The TCO (Total Cost of Ownership) timer is a watchdog"...
+Index: include/asm-i386/rwsem.h
+===================================================================
+RCS file: /cvsroot/gkernel/linux_2_4/include/asm-i386/rwsem.h,v
+retrieving revision 1.1.1.1
+diff -u -r1.1.1.1 rwsem.h
+--- include/asm-i386/rwsem.h	2001/04/12 03:17:29	1.1.1.1
++++ include/asm-i386/rwsem.h	2001/04/12 06:49:36
+@@ -15,10 +15,10 @@
+ 
+ #ifdef __KERNEL__
+ 
++#include <linux/wait.h>
++#include <linux/spinlock.h>
+ #include <asm/system.h>
+ #include <asm/atomic.h>
+-#include <asm/spinlock.h>
+-#include <linux/wait.h>
+ 
+ #if RWSEM_DEBUG
+ #define rwsemdebug(FMT,...) do { if (sem->debug) printk(FMT,__VA_ARGS__); } while(0)
 
-I know TCO meaning that, but I can't believe it for a mainboard 
-component. Should the user then throw the PC away, or what? Or is it 
-more safe to reboot frequently. What has this to do with costs?
-
-Confused,
-Ulrich
+--------------79BD2878E97D91C34A68538A--
 

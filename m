@@ -1,73 +1,117 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263121AbUK0CTl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263117AbUK0C1O@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263121AbUK0CTl (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 26 Nov 2004 21:19:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263118AbUK0CKS
+	id S263117AbUK0C1O (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 26 Nov 2004 21:27:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263116AbUK0CKA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 26 Nov 2004 21:10:18 -0500
+	Fri, 26 Nov 2004 21:10:00 -0500
 Received: from zeus.kernel.org ([204.152.189.113]:10692 "EHLO zeus.kernel.org")
-	by vger.kernel.org with ESMTP id S262824AbUKZTha (ORCPT
+	by vger.kernel.org with ESMTP id S262846AbUKZThb (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 26 Nov 2004 14:37:30 -0500
-Date: Thu, 25 Nov 2004 17:58:29 +0100
-From: Ingo Molnar <mingo@elte.hu>
-To: Esben Nielsen <simlo@phys.au.dk>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Priority Inheritance Test (Real-Time Preemption)
-Message-ID: <20041125165829.GA24121@elte.hu>
-References: <20041124101854.GA686@elte.hu> <Pine.OSF.4.05.10411251159520.12827-101000@da410.ifa.au.dk>
+	Fri, 26 Nov 2004 14:37:31 -0500
+Date: Thu, 25 Nov 2004 10:33:00 -0200
+From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+To: ChenLi Tien <cltien@cmedia.com.tw>
+Cc: ChenLi Tien <cltien@cmedia.com.tw>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] cmpci.c fixes for joystick initialization in 2.4.27
+Message-ID: <20041125123300.GH16189@logos.cnet>
+References: <Pine.LNX.4.44.0410311137110.1383-100000@shampoo>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.OSF.4.05.10411251159520.12827-101000@da410.ifa.au.dk>
-User-Agent: Mutt/1.4.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+In-Reply-To: <Pine.LNX.4.44.0410311137110.1383-100000@shampoo>
+User-Agent: Mutt/1.5.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-* Esben Nielsen <simlo@phys.au.dk> wrote:
 
-> I finally got time to run the test on 2.6.10-rc2-mm2-V0.7.30-10.
-> Conclusion: The bound on the locking time seems not to be bounded by
-> depth*1ms as predicted: The more blocking tasks there is the higher
-> the bound is.  There _is_ some kind of bound in that I don't see wild
-> locking times. The distributions stops nicely at N *1ms N in is higher
-> than depth.
+ChenLi, 
 
-i've fixed a couple of minor, priority-related bugs in kernels post
--30-10, the latest being -31-7 - there's some chance that one of them
-might fix this final anomaly.
+Have you received this patch?
 
-> which is depth 3 and 20 blocking tasks. There is a clean upper bound
-> of 7ms (7.1 to be exact) but where does the 7 come from??? A formula
-> like N=2*depth+1 might fit the results.
+Can you confirm 0x201 is the standard address for the port?
 
-there's one thing i noticed, now that the blocker device is in the
-kernel, you have to be really careful to compile the userspace loop()
-code via the same gcc flags as the kernel did. Minor differences in
-compiler options can skew the timing calibration.
-
-but any such bug should at most cause a linear deviation via a constant
-factor multiplication, while the data shows a systematic nonlinear
-transformation.
-
-> If we understand what is going on this might end up being "good
-> enough" in the sense it is deterministic. The end result doesn't have
-> to be the best case formula. But the maximum locking time have to
-> independent of the number of lower priority tasks banging on the
-> protected region as that is something uncontrolable. We have to be
-> able to predict a bound based solely on the depth before we can say it
-> is "good enough".
-
-yeah, i agree that this has to be further investigated. What type of box
-did you test it on - UP or SMP? (SMP scheduling of RT tasks only got
-fully correct in the very latest -31-7 kernel.)
-
-	Ingo
+On Sun, Oct 31, 2004 at 12:01:53PM +0100, Michele Debandi wrote:
+> Hello,
+> 
+> I hope you are the current mantainer of cmpci module on 2.4 series kernel.
+> 
+> I have an integrated CM8738 sound chip on my Asus P4B533 motherboard.
+> The lspci -v output is:
+> 
+> 02:03.0 Multimedia audio controller: C-Media Electronics Inc CM8738 (rev 10)
+>         Subsystem: Asustek Computer, Inc.: Unknown device 80e2
+>         Flags: bus master, stepping, medium devsel, latency 32, IRQ 21
+>         I/O ports at b800 [size=256]
+>         Capabilities: [c0] Power Management version 2
+> 
+> With the cmpci.c driver the joystick will not work. MSDOS initialization
+> sets the joystick port at the address 0x201, and windows driver uses also
+> this port. The cmpci driver initializes instead the port 0x200, and
+> on my chipset at that address thre is nothing. So I modified the driver
+> modules to use the port 0x201 but mantaining the 8-port allocation of the
+> original driver.
+> This is tested and seems to work on a stantard PC/XT style 2-axis/2-button
+> joystick.
+> 
+> Below there is the diff file.
+> 
+> Greetings
+> 
+> Mike
+> 
+> --- drivers/sound/cmpci.c.ORIG	Tue Oct 26 20:55:08 2004
+> +++ drivers/sound/cmpci.c	Tue Oct 26 21:01:23 2004
+> @@ -3354,7 +3354,7 @@
+>  #endif
+>  	s->iosynth = fmio;
+>  	s->iomidi = mpuio;
+> -	s->gameport.io = 0x200;
+> +	s->gameport.io = 0x201; /*use standard DOS io port */
+>  	s->status = 0;
+>  	/* range check */
+>  	if (speakers < 2)
+> @@ -3443,7 +3443,8 @@
+>  #endif
+>  	/* enable joystick */
+>  	if (joystick) {
+> -		if (s->gameport.io && !request_region(s->gameport.io, CM_EXTENT_GAME, "cmpci GAME")) {
+> +	        /* need to use port 0x201, but the extent starts at 0x200??? */
+> +		if (s->gameport.io && !request_region((s->gameport.io) - 1, CM_EXTENT_GAME, "cmpci GAME")) {
+>  			printk(KERN_ERR "cmpci: gameport io ports in use\n");
+>  			s->gameport.io = 0;
+>  	       	} else
+> @@ -3549,8 +3550,13 @@
+>  		s->max_channels = 2;
+>  	}
+>  	/* register gameport */
+> -	if (joystick)
+> +	if (joystick) {
+>  		gameport_register_port(&s->gameport);
+> +		/* better write some more info */
+> +		printk(KERN_INFO "gameport%d: CMPCI at %#x", s->gameport.number, s->gameport.io);
+> +	        printk(" size %d", CM_EXTENT_GAME);
+> +		printk(" speed %d kHz\n", s->gameport.speed);
+> +	}
+>  	/* store it in the driver field */
+>  	pci_set_drvdata(pcidev, s);
+>  	/* put it into driver list */
+> @@ -3576,7 +3582,7 @@
+>  	free_irq(s->irq, s);
+>  err_irq:
+>  	if (s->gameport.io)
+> -		release_region(s->gameport.io, CM_EXTENT_GAME);
+> +		release_region((s->gameport.io)-1, CM_EXTENT_GAME);
+>  #ifdef CONFIG_SOUND_CMPCI_FM
+>  	if (s->iosynth) release_region(s->iosynth, CM_EXTENT_SYNTH);
+>  #endif
+> @@ -3612,7 +3618,7 @@
+> 
+>  	if (s->gameport.io) {
+>  		gameport_unregister_port(&s->gameport);
+> -		release_region(s->gameport.io, CM_EXTENT_GAME);
+> +		release_region((s->gameport.io)-1, CM_EXTENT_GAME);
+>  	}
+>  	release_region(s->iobase, CM_EXTENT_CODEC);
+>  #ifdef CONFIG_SOUND_CMPCI_MIDI

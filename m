@@ -1,51 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261519AbVASBFN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261518AbVASBTw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261519AbVASBFN (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 18 Jan 2005 20:05:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261518AbVASBFN
+	id S261518AbVASBTw (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 18 Jan 2005 20:19:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261529AbVASBTw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 18 Jan 2005 20:05:13 -0500
-Received: from ylpvm43-ext.prodigy.net ([207.115.57.74]:10421 "EHLO
-	ylpvm43.prodigy.net") by vger.kernel.org with ESMTP id S261519AbVASBFE
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 18 Jan 2005 20:05:04 -0500
-Date: Tue, 18 Jan 2005 17:04:37 -0800
-From: Tony Lindgren <tony@atomide.com>
-To: Lee Revell <rlrevell@joe-job.com>
-Cc: Pavel Machek <pavel@ucw.cz>, George Anzinger <george@mvista.com>,
-       john stultz <johnstul@us.ibm.com>, Andrea Arcangeli <andrea@suse.de>,
-       Zwane Mwaikambo <zwane@arm.linux.org.uk>,
-       Con Kolivas <kernel@kolivas.org>,
-       Martin Schwidefsky <schwidefsky@de.ibm.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] dynamic tick patch
-Message-ID: <20050119010437.GC4860@atomide.com>
-References: <20050119000556.GB14749@atomide.com> <1106094130.30792.12.camel@krustophenia.net>
+	Tue, 18 Jan 2005 20:19:52 -0500
+Received: from 209-166-240-202.cust.walrus.com ([209.166.240.202]:44504 "EHLO
+	ti41.telemetry-investments.com") by vger.kernel.org with ESMTP
+	id S261518AbVASBTu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 18 Jan 2005 20:19:50 -0500
+Date: Tue, 18 Jan 2005 20:19:50 -0500
+From: "Bill Rugolsky Jr." <brugolsky@telemetry-investments.com>
+To: Chris Wright <chrisw@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [RFC][PATCH] consolidate arch specific resource.h headers
+Message-ID: <20050119011950.GA15685@ti64.telemetry-investments.com>
+Mail-Followup-To: "Bill Rugolsky Jr." <brugolsky@telemetry-investments.com>,
+	Chris Wright <chrisw@osdl.org>, linux-kernel@vger.kernel.org
+References: <20050118161056.H469@build.pdx.osdl.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1106094130.30792.12.camel@krustophenia.net>
-User-Agent: Mutt/1.5.6i
+In-Reply-To: <20050118161056.H469@build.pdx.osdl.net>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Lee Revell <rlrevell@joe-job.com> [050118 16:22]:
-> On Tue, 2005-01-18 at 16:05 -0800, Tony Lindgren wrote:
-> > Currently supported timers are TSC and ACPI PM timer. Other
-> > timers should be easy to add. Both TSC and ACPI PM timer
-> > rely on the PIT timer for interrupts, so the maximum skip
-> > inbetween ticks is only few seconds at most.
-> > 
-> 
-> An interesting hack if your sound cards interval timer is supported and
-> can interrupt at high enough resolution (currently ymfpci, emu10k1 and
-> some ISA cards) would be to use it as the system timer.  Who knows, it
-> might even be useful for games, music and AV stuff that clocks off the
-> sound card anyway.  It would probably be easy, ALSA has a very clean
-> timer API.
+On Tue, Jan 18, 2005 at 04:10:56PM -0800, Chris Wright wrote:
+> +#define INIT_RLIMITS					\
+> +{							\
+> +	{ RLIM_INFINITY, RLIM_INFINITY },		\
+> +	{ RLIM_INFINITY, RLIM_INFINITY },		\
+> +	{ RLIM_INFINITY, RLIM_INFINITY },		\
+> +	{      _STK_LIM, _STK_LIM_MAX  },		\
+> +	{             0, RLIM_INFINITY },		\
+> +	{ RLIM_INFINITY, RLIM_INFINITY },		\
+> +	{             0,             0 },		\
+> +	{      INR_OPEN,     INR_OPEN  },		\
+> +	{   MLOCK_LIMIT,   MLOCK_LIMIT },		\
+> +	{ RLIM_INFINITY, RLIM_INFINITY },		\
+> +	{ RLIM_INFINITY, RLIM_INFINITY },		\
+> +	{ MAX_SIGPENDING, MAX_SIGPENDING },		\
+> +	{ MQ_BYTES_MAX, MQ_BYTES_MAX },			\
+> +}
 
-Hmmm, that never occured to me, but sounds interesting. I wonder if
-the patch already removes some latencies, as the sound card interrupt
-triggers the timer interrupt as well?
+While you are rooting around in there, perhaps this block
+should be converted to C99 initializer syntax, to avoid
+problems if arch-specific changes are later introduced?
 
-Tony
+Regards,
+
+	Bill Rugolsky

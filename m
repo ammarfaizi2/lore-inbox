@@ -1,79 +1,66 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312560AbSFFXSJ>; Thu, 6 Jun 2002 19:18:09 -0400
+	id <S312973AbSFFXU6>; Thu, 6 Jun 2002 19:20:58 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312619AbSFFXSJ>; Thu, 6 Jun 2002 19:18:09 -0400
-Received: from e1.ny.us.ibm.com ([32.97.182.101]:61939 "EHLO e1.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id <S312560AbSFFXSI>;
-	Thu, 6 Jun 2002 19:18:08 -0400
-Date: Thu, 06 Jun 2002 16:18:01 -0700
-From: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>
-To: Andrea Arcangeli <andrea@suse.de>
-cc: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Panic from 2.4.19-pre9-aa2
-Message-ID: <99570000.1023405481@flay>
-In-Reply-To: <20020606212028.GA1004@dualathlon.random>
-X-Mailer: Mulberry/2.1.2 (Linux/x86)
-MIME-Version: 1.0
+	id <S312962AbSFFXU5>; Thu, 6 Jun 2002 19:20:57 -0400
+Received: from e21.nc.us.ibm.com ([32.97.136.227]:6791 "EHLO e21.nc.us.ibm.com")
+	by vger.kernel.org with ESMTP id <S312973AbSFFXUz>;
+	Thu, 6 Jun 2002 19:20:55 -0400
+Date: Thu, 6 Jun 2002 16:20:28 -0700
+From: Mike Kravetz <kravetz@us.ibm.com>
+To: Robert Love <rml@tech9.net>, Ingo Molnar <mingo@elte.hu>,
+        linux-kernel@vger.kernel.org
+Subject: Scheduler Bug (set_cpus_allowed)
+Message-ID: <20020606162028.E3193@w-mikek2.des.beaverton.ibm.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> not really sure what could be the problem, it would be interesting to
-> see if you can reproduce it. 
+At my suggestion the following optimization/fast path
+was added to set_cpus_allowed:
 
-Yup, do 2 or 3 kernel compiles and it crashes again. Here's a slightly
-different oops:
+        /*
+         * If the task is not on a runqueue, then it is sufficient
+         * to simply update the task's cpu field.
+         */
+        if (!p->array) {
+                p->thread_info->cpu = __ffs(p->cpus_allowed);
+                task_rq_unlock(rq, &flags);
+                goto out;
+        }
 
-Unable to handle kernel NULL pointer dereference at virtual address 00000282
-c0117feb
-*pde = 00000000
-Oops: 0000
-CPU:    6
-EIP:    0010:[<c0117feb>]    Not tainted
-Using defaults from ksymoops -t elf32-i386 -a i386
-EFLAGS: 00010046
-eax: c6369f6c   ebx: 00000282   ecx: c029a488   edx: c4ff5b24
-esi: c4ff5b20   edi: 00000282   ebp: c6227f70   esp: c6227f54
-ds: 0018   es: 0018   ss: 0018
-Process cpp (pid: 16679, stackpage=c6227000)
-Stack: 00001000 c4ff5b20 c5773180 00000001 c4ff5b24 00000282 00000001 000526a9 
-       c0148311 00000000 ffffffea c5eab160 000536a9 c6526000 c6226000 c57731ec 
-       00001000 00001000 c013ead7 c5eab160 4011000c 000536a9 c5eab180 c6226000 
-Call Trace: [<c0148311>] [<c013ead7>] [<c0108a7b>] 
-Code: 8b 3b 0f 18 07 3b 5d f4 75 d0 c6 06 01 ff 75 f8 9d 8d 74 26 
+Unfortunately, the assumption made here is not true.
 
->>EIP; c0117fea <__wake_up+5a/7c>   <=====
-Trace; c0148310 <pipe_write+1bc/294>
-Trace; c013ead6 <sys_write+8e/100>
-Trace; c0108a7a <system_call+2e/34>
-Code;  c0117fea <__wake_up+5a/7c>
-00000000 <_EIP>:
-Code;  c0117fea <__wake_up+5a/7c>   <=====
-   0:   8b 3b                     mov    (%ebx),%edi   <=====
-Code;  c0117fec <__wake_up+5c/7c>
-   2:   0f 18 07                  prefetchnta (%edi)
-Code;  c0117fee <__wake_up+5e/7c>
-   5:   3b 5d f4                  cmp    0xfffffff4(%ebp),%ebx
-Code;  c0117ff2 <__wake_up+62/7c>
-   8:   75 d0                     jne    ffffffda <_EIP+0xffffffda> c0117fc4 <__
-wake_up+34/7c>
-Code;  c0117ff4 <__wake_up+64/7c>
-   a:   c6 06 01                  movb   $0x1,(%esi)
-Code;  c0117ff6 <__wake_up+66/7c>
-   d:   ff 75 f8                  pushl  0xfffffff8(%ebp)
-Code;  c0117ffa <__wake_up+6a/7c>
-  10:   9d                        popf   
-Code;  c0117ffa <__wake_up+6a/7c>
-  11:   8d 74 26 00               lea    0x0(%esi,1),%esi
+Consider the case where a task is to give up the CPU
+and schedule() is called.  In such a case the current
+task is removed from the runqueue (via deactivate_task).
+Now, further assume that there are no runnable tasks
+on the runqueue and we end up calling load_balance().
+In load_balance, we potentially drop the runqueue lock
+to obtain multiple runqueue locks in the proper order.
+Now, when we drop the runqueue lock we will still
+be running in the context of task p.  However, p does
+not reside on a runqueue.  It is now possible for
+set_cpus_allowed() to be called for p.  We can get the
+runqueue lock and take the fast path to simply update
+the task's cpu field.  If this happens, bad (very bad)
+things will happen!
 
-> Also if for example you enabled numa-q you
-> may want to try to disable it and see if w/o discontigmem the problem
-> goes away, if we could isolate it to a config option, it would help a lot.
+My first thought was to simply add a check to the
+above code to ensure that p was not currently running
+(p != rq->curr).  However, even with this change I
+'think' the same problem exists later on in schedule()
+where we drop the runqueue lock before doing a context
+switch.  At this point, p is not on the runqueue and
+p != rq->curr, yet we are still runnning in the context
+of p until we actually do the context switch.  To tell
+the truth, I'm not exactly sure what 'rq->frozen' lock
+is for.  Also, the routine 'schedule_tail' does not
+appear to be used anywhere.
 
-OK, will see if I can do that - I'm out for a few days, so it may be next
-Tuesday before I can do this
-
-M.
+Comments?/Thoughts?/Suggestions?
+-- 
+Mike

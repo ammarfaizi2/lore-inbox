@@ -1,143 +1,89 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317025AbSHOQXe>; Thu, 15 Aug 2002 12:23:34 -0400
+	id <S317182AbSHOQeU>; Thu, 15 Aug 2002 12:34:20 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317068AbSHOQXe>; Thu, 15 Aug 2002 12:23:34 -0400
-Received: from 12-231-243-94.client.attbi.com ([12.231.243.94]:33286 "HELO
-	kroah.com") by vger.kernel.org with SMTP id <S317025AbSHOQXd>;
-	Thu, 15 Aug 2002 12:23:33 -0400
-Date: Thu, 15 Aug 2002 09:23:08 -0700
-From: Greg KH <greg@kroah.com>
-To: Adam Belay <ambx1@netscape.net>
-Cc: Patrick Mochel <mochel@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: driverfs: [PATCH] remove bus and improve driver management (2.5.30)
-Message-ID: <20020815162308.GC32542@kroah.com>
-References: <3D5AD6BF.8060609@netscape.net> <20020815050419.GB30226@kroah.com> <3D5B885E.5000407@netscape.net>
+	id <S317191AbSHOQeU>; Thu, 15 Aug 2002 12:34:20 -0400
+Received: from e2.ny.us.ibm.com ([32.97.182.102]:24319 "EHLO e2.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id <S317182AbSHOQeT>;
+	Thu, 15 Aug 2002 12:34:19 -0400
+Date: Thu, 15 Aug 2002 09:36:45 -0700
+From: Greg KH <gregkh@us.ibm.com>
+To: Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>
+Cc: "Grover, Andrew" <andrew.grover@intel.com>,
+       "'colpatch@us.ibm.com'" <colpatch@us.ibm.com>,
+       Linus Torvalds <torvalds@transmeta.com>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       "Martin J. Bligh" <Martin.Bligh@us.ibm.com>,
+       linux-kernel@vger.kernel.org, Michael Hohnbaum <hohnbaum@us.ibm.com>,
+       jgarzik@mandrakesoft.com,
+       "Diefenbaugh, Paul S" <paul.s.diefenbaugh@intel.com>
+Subject: Re: [patch] PCI Cleanup
+Message-ID: <20020815163645.GC35918@us.ibm.com>
+References: <EDC461A30AC4D511ADE10002A5072CAD0236DD92@orsmsx119.jf.intel.com> <Pine.LNX.4.44.0208151014210.849-100000@chaos.physics.uiowa.edu>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <3D5B885E.5000407@netscape.net>
-User-Agent: Mutt/1.4i
-X-Operating-System: Linux 2.2.21 (i586)
-Reply-By: Thu, 18 Jul 2002 14:20:44 -0700
+In-Reply-To: <Pine.LNX.4.44.0208151014210.849-100000@chaos.physics.uiowa.edu>
+User-Agent: Mutt/1.3.25i
+X-Operating-System: Linux 2.5.31 (i686)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Aug 15, 2002 at 10:54:22AM +0000, Adam Belay wrote:
+On Thu, Aug 15, 2002 at 10:58:17AM -0500, Kai Germaschewski wrote:
+> On Wed, 14 Aug 2002, Grover, Andrew wrote:
 > 
-> my old driver tree:
-> /driverfs/bus
-> /driverfs/bus/pci
-> /driverfs/bus/pci/drivers/agpgart
-> /driverfs/bus/pci/drivers/cardbus
-> /driverfs/bus/pci/drivers/parport_pc
-> /driverfs/bus/usb
+> > ACPI needs access to PCI config space, and it doesn't have a struct pci_dev
+> > to pass to access functions. It doesn't look like your patch exposes an
+> > interface that 1) doesn't require a pci_dev and 2) abstracts the PCI config
+> > access method, does it?
 > 
-> my new tree now:
-> /driverfs/driver/
-> /driverfs/driver/pci
-> /driverfs/driver/pci/agpgart
-> /driverfs/driver/pci/cardbus
-> /driverfs/driver/pci/parport_pc
+> I think drivers/hotplug/pci_hotplug_util.c implements something like you 
+> need, pci_read_config_byte_nodev().
 > 
-> a possibility for my tree when drivers that need it convert to my 
-> changes  and the driver model in general:
-> /driverfs/driver/
-> /driverfs/driver/pci
-> /driverfs/driver/pci/agpgart
-> /driverfs/driver/pci/cardbus
-> /driverfs/driver/pci/parport_pc
-> /driverfs/driver/pci/parport_pc/lp
-> /driverfs/driver/pci/usb
-> /driverfs/driver/pci/usb/hid
+> Of course that's currently only available for PCI hotplug, and for all I 
+> can see the concept is somewhat messed up, but maybe that's an opportunity 
+> to clean things up?
+
+I would love to clean those functions up.
+
+> Currently, pci_read_config_byte_nodev() will construct a fake struct 
+> pci_dev, and then use the normal pci_read_config_byte(). I think it 
+> makes more sense to actually do things the other way around.
 > 
-> * I am not saying that usb has to be done this way but if you notice in 
-> the first diagram (the old implementation) usb does not have any driver 
-> representation with pci or if it does it is not displayed.  The lp 
-> driver is significant because it is imposible to cleanly implement 3 
-> levels of drivers in the current Driver Model.
+> For reading/writing config space, we need to know (dev, fn), and need the 
+> access method (struct pci_ops), which is a property of the bridge plus 
+> possibly some private data (the arch's sysdata). So the member
+> 
+> 	struct pci_ops *ops;
+> 
+> of struct pci_dev is actually not necessary, it will always be
+> pdev->ops == pdev->bus->ops AFAICS.
+> 
+> So we could instead have
+> 
+> 	pci_bus_read_config_byte(struct pci_bus *bus, u8 dev, u8 fn, ...)
+> 
+> and for common use
+> 
+> 	static inline pci_read_config_byte(struct pci_dev, *pdev, ...)
+> 	{
+> 		return pci_bus_read_config_byte(pdev->bus,
+> 						PCI_SLOT(pdev->devfn),
+> 						PCI_FUNC(pdev->devfn));
+> 	}
+> 
+> The PCI hotplug controllers / ACPI could then use the pci_bus_* variants, 
+> when they don't have a struct pci_dev available. They would need at least 
+> the root bridge's struct pci_bus, though.
 
-Ah that makes more sense now, thanks.
+Thats a good idea.  The hotplug controllers do have acess to the pci_bus
+structure.  Andy, does ACPI have access to this when you are needing to
+do these kinds of calls?
 
-But the problem is that the USB hid driver does NOT have a relationship
-with a pci driver.  The USB drivers don't care about what kind of host
-controller driver they talk to, _and_ that relationship isn't present.
-There are quite a few USB host drivers that do not sit on the PCI bus,
-but talk directly over a "system" bus to the controller (embedded
-devices mostly.)
+If there are no complaints, I think I'll go implement this, and move the
+functions into the main pci code so that other parts of the kernel (like
+ACPI) can use them.
 
-But a PCI bus could also be present, with a USB controller, and the hid
-driver would be able to handle devices on it too.  So how would you show
-this "dual" relationship then?
-
-In short, I don't see the value in showing relationships between
-different driver types.  But I see the value in relationships between
-devices, as is shown in the root/ tree.
-
->     As you can now see in my new diagrams the problem I am trying to 
-> solve is not how devices are represented but rather how drivers are 
-> represented.  Sorry I wasn't clear.  I have completely removed bus and 
-> replaced it with a driver interface.  This is better because a bus does 
-> not deserve special implementations as it is a driver too.  My more 
-> scaleable interface can handle both buses and drivers.
-
-A bus is different than a driver, as drivers bind to the bus type.  In a
-way, you can say a bus is nothing more than a "class", and class support
-_is_ coming soon.  I think class support is what you are really looking
-for, as it will be able to show you the relationship between devices
-much better.
-
-> >>   `This patch also provides user level driver management support 
-> >>through the advanced features of the new interface.  It creates a file 
-> >>entry named "driver" for each device.
-> >>To attach a driver simply echo the name of the driver you want to 
-> >>attach.  For example:
-> >>#cd ./root/pci0/00:00.0
-> >>#echo "agpgart" > driver
-> >>
-> >
-> >Hm, how does this bind the driver to the device?  What if the driver
-> >doesn't want to bind to this device?  And how does userspace know what
-> >pci device to bind to what driver?  Does it use the information in the
-> >modules.*map file?  If so, that comes directly from the drivers
-> >themselves, which are the ones knowing what devices they _should_ be
-> >bound to, so why not let the driver themselves do the work (well
-> >actually the very small function at
-> >drivers/pci/pci-driver.c:pci_match_device() does the work).
-> >
-> This feature is well designed, if a driver doesn't want to bind to the 
-> device the request will fail.  Check the code yourself.  This is simply 
-> a userspace override for the Driver Model.  This is useful because it 
-> provides the user with more control over driver management.  If two 
-> drivers can support the same device and the driver model selects one the 
-> user doesn't want to use the user can change it.  This could even happen 
-> now with ALSA and Open Sound.  Since it calls both probe and match it is 
-> also a great debugging tool.  I'm currently working on a user level 
-> utility that will take full advantage of this and other driver 
-> management features.
-
-Again, I don't see the advantage here.  Since you say the kernel driver
-knows best, and that the kernel driver gets a say in if it really binds
-to the device or not, why not just let the kernel driver do all the work
-then?  I don't see how an extra step from the user will help any.
-'insmod' works quite well for picking which driver you want loaded for
-the devices (ALSA vs. OSS.)  Yes, it doesn't handle mixing lots of the
-same device with different drivers, but I don't think that is a very
-common thing (otherwise people would have complained about it by now.)
-
-> >>To remove a driver simply echo remove to the driver file while a driver 
-> >>is loaded.  For example:
-> >>#echo "remove" > driver
-> >>
-> >
-> >Again, why?  And does this force the ->remove() function to be called?
-> >
-> Yes this does call ->remove() among other things.  In fact it calls 
-> do_driver_detach.
-> Why is above.
-
-Again, 'rmmod' does the same thing :)
-
-thanks,
+Thanks for the idea!
 
 greg k-h

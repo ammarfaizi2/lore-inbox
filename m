@@ -1,50 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268355AbUJUQYx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268803AbUJUQ21@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268355AbUJUQYx (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 21 Oct 2004 12:24:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262085AbUJUQYp
+	id S268803AbUJUQ21 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 21 Oct 2004 12:28:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268802AbUJUQ2U
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 21 Oct 2004 12:24:45 -0400
-Received: from math.ut.ee ([193.40.5.125]:48591 "EHLO math.ut.ee")
-	by vger.kernel.org with ESMTP id S268839AbUJUQTe (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 21 Oct 2004 12:19:34 -0400
-Date: Thu, 21 Oct 2004 19:19:31 +0300 (EEST)
-From: Meelis Roos <mroos@linux.ee>
-To: Jens Axboe <axboe@suse.de>
-cc: Linux Kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: readcd hangs in blk_execute_rq
-In-Reply-To: <20041021161100.GA14154@suse.de>
-Message-ID: <Pine.GSO.4.44.0410211915460.12730-100000@math.ut.ee>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Thu, 21 Oct 2004 12:28:20 -0400
+Received: from relay00.uchicago.edu ([128.135.12.75]:15755 "EHLO
+	relay00.uchicago.edu") by vger.kernel.org with ESMTP
+	id S268803AbUJUQZw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 21 Oct 2004 12:25:52 -0400
+Date: Thu, 21 Oct 2004 11:25:50 -0500
+From: Ryan Reich <ryanr@uchicago.edu>
+To: Hans Reiser <reiser@namesys.com>, linux-kernel@vger.kernel.org
+Subject: Re: OOPS on 2.6.9 while compiling, very reproducible
+Message-ID: <20041021162550.GA2602@ryanr>
+References: <20041021054844.GA3335@ryanr> <4177D68A.2070100@namesys.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <4177D68A.2070100@namesys.com>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > > > ide-cd: cmd 0x28 timed out
-> > > > hdc: DMA interrupt recovery
-> > > > hdc: lost interrupt
-> > > > hdc: status timeout: status=0xd0 { Busy }
-> > > > hdc: status timeout: error=0x00
-> > > > hdc: DMA disabled
-> > > > hdc: drive not ready for command
-> > > > hdc: ATAPI reset complete
+Sorry, resending this to the _entire_ list, not just Hans.
 
-> > It worked in earlier 2.4 kernels (2.4.18?) with DMA - I don't remember
-> > if it had some reliability problems. Since then, it's no dma. We have 3
-> > such computers here (Intel D816EEA2 mainboard, this specific Sony CDrom)
-> > and they all behave the same.
->
-> 2.4.x never used dma for this operation. Does 2.6.9 work if you turn off
-> dma first?
+<snip OOPS>
 
-I have not tried this operation before. Reading data disks with DMA
-worked and that's what I have used. I did read the same disk with
-readdisk subcommand on readcd currently, it was successful until the end
-of disk (6xx MB - maybe the end of the disk).
+On Thu, Oct 21, 2004 at 08:32:26AM -0700, Hans Reiser wrote:
 
-Will try it with turning DMA off first.
+> Are you using a compiler version that is accepted for use by the kernel? 
+> Which version?
+
+Was using 3.4.1, but I recompiled:
+
+[ryanr: ~]$ cat /proc/version
+Linux version 2.6.9 (ryanr@ryanr) (gcc version 2.95.3 20010315 (release)) #1
+Thu Oct 21 11:15:06 CDT 2004
+
+Same OOPS.
 
 -- 
-Meelis Roos (mroos@linux.ee)
-
+Ryan Reich
+ryanr@uchicago.edu

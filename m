@@ -1,90 +1,142 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261240AbTJSJwN (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 19 Oct 2003 05:52:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261267AbTJSJwN
+	id S261267AbTJSJxE (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 19 Oct 2003 05:53:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261309AbTJSJxE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 19 Oct 2003 05:52:13 -0400
-Received: from ulysses.news.tiscali.de ([195.185.185.36]:57350 "EHLO
-	ulysses.news.tiscali.de") by vger.kernel.org with ESMTP
-	id S261240AbTJSJwL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 19 Oct 2003 05:52:11 -0400
+	Sun, 19 Oct 2003 05:53:04 -0400
+Received: from dbl.q-ag.de ([80.146.160.66]:43222 "EHLO dbl.q-ag.de")
+	by vger.kernel.org with ESMTP id S261267AbTJSJw6 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 19 Oct 2003 05:52:58 -0400
+Message-ID: <3F925EF7.2070500@colorfullife.com>
+Date: Sun, 19 Oct 2003 11:52:55 +0200
+From: Manfred Spraul <manfred@colorfullife.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030701
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
 To: linux-kernel@vger.kernel.org
-Path: 127.0.0.1!nobody
-From: Peter Matthias <espi@epost.de>
-Newsgroups: linux.kernel
-Subject: Re: ACM USB modem on Kernel 2.6.0-test
-Date: Sun, 19 Oct 2003 11:34:38 +0200
-Organization: Tiscali Germany
-Message-ID: <erltmb.re.ln@127.0.0.1>
-References: <FJVJ.4PN.5@gated-at.bofh.it> <I1Yg.6oy.13@gated-at.bofh.it> <I1Yg.6oy.11@gated-at.bofh.it>
-NNTP-Posting-Host: p62.246.121.24.tisdip.tiscali.de
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7Bit
-X-Trace: ulysses.news.tiscali.de 1066556956 75288 62.246.121.24 (19 Oct 2003 09:49:16 GMT)
-X-Complaints-To: abuse@tiscali.de
-NNTP-Posting-Date: Sun, 19 Oct 2003 09:49:16 +0000 (UTC)
-User-Agent: KNode/0.7.2
+Subject: [PATCH, CFT] remove cli from 3c527
+Content-Type: multipart/mixed;
+ boundary="------------020002070802070804040606"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Peter Matthias schrieb:
+This is a multi-part message in MIME format.
+--------------020002070802070804040606
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 
-> David Brownell schrieb:
-> 
->> David Brownell wrote:
->>> 
->>> Hmm ... maybe usbcore would be better off with a less
->>> naive algorithm for choosing defaults.  Like, preferring
->>> configurations without proprietary device protocols.
->>> That'd solve every cdc-acm case, and likely others.
->> 
->> In fact, here's a patch with that very change.  Does
->> it make current 2.6.0-test kernels work "out of the box"
->> again with your USB modems?
-> 
-> Yes, it works with ELSA Microlink USB. Thanks.
+Hi,
 
-Hmm. Too early. I get either a "acm: probe of 3-3:2.1 failed with error -5"
-but it works or a 
-Unable to handle kernel NULL pointer dereference at virtual address 00000008
- printing eip:
- c023d9c3
- *pde = 00000000
- Oops: 0000 [#1]
- CPU:    0
- EIP:    0060:[usb_driver_claim_interface+67/112]    Tainted: P
- EFLAGS: 00010202
- EIP is at usb_driver_claim_interface+0x43/0x70
- eax: c02ffe72   ebx: dddcf200   ecx: 00000004   edx: dddfa2ec
- esi: dddfa120   edi: 00000000   ebp: dddce3c0   esp: c15b1dd8
- ds: 007b   es: 007b   ss: 0068
- Process khubd (pid: 5, threadinfo=c15b0000 task=ddf8e040)
- Stack: c030a460 c02ff409 c02ffe72 00001388 dddcf200 c025141c c033a8e0
-dddfa2ec
-        dddce3c0 dddce3d8 00000007 00000094 dddcf200 00000000 00000020
-dddfa120
-        c1796ac0 c1796ad4 dddddc00 c033a968 c033a900 c033a8e0 dddfa240
-c023d713
- Call Trace:
-  [acm_probe+1228/1408] acm_probe+0x4cc/0x580
-  [usb_probe_interface+115/160] usb_probe_interface+0x73/0xa0
-  [bus_match+63/112] bus_match+0x3f/0x70
-  [device_attach+65/160] device_attach+0x41/0xa0
-  [bus_add_device+91/160] bus_add_device+0x5b/0xa0
-  [device_add+167/272] device_add+0xa7/0x110
-  [usb_set_configuration+456/576] usb_set_configuration+0x1c8/0x240
-  [usb_new_device+690/992] usb_new_device+0x2b2/0x3e0
-  [hub_port_connect_change+461/816] hub_port_connect_change+0x1cd/0x330
-  [hub_events+773/848] hub_events+0x305/0x350
-  [hub_thread+53/224] hub_thread+0x35/0xe0
-  [default_wake_function+0/48] default_wake_function+0x0/0x30
-  [hub_thread+0/224] hub_thread+0x0/0xe0
-  [kernel_thread_helper+5/12] kernel_thread_helper+0x5/0xc
+attached is a cleanup for the 3c527 driver: cli is gone, the driver must 
+be converted to use a spinlock. I wrote it some time ago, but didn't 
+send to Linus due to lack of hardware to test.
 
- Code: 8b 41 04 89 54 24 10 89 44 24 0c e8 1d b6 ed ff b8 f0 ff ff
+Anyone around who has the hardware and could make a quick test run? 
+Preferable without CONFIG_SMP and with CONFIG_DEBUG_SPINLOCK.
 
-Peter
+--
+    Manfred
 
+
+--------------020002070802070804040606
+Content-Type: text/plain;
+ name="patch-3c527"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="patch-3c527"
+
+--- 2.6/drivers/net/3c527.c	2003-06-17 06:20:03.000000000 +0200
++++ build-2.6/drivers/net/3c527.c	2003-08-31 19:26:37.000000000 +0200
+@@ -100,6 +100,7 @@
+ #include <linux/string.h>
+ #include <linux/wait.h>
+ #include <linux/ethtool.h>
++#include <linux/spinlock.h>
+ 
+ #include <asm/uaccess.h>
+ #include <asm/system.h>
+@@ -179,6 +180,7 @@
+ 	u16 tx_ring_head;       /* index to tx en-queue end */
+ 
+ 	u16 rx_ring_tail;       /* index to rx de-queue end */ 
++	spinlock_t lock;
+ };
+ 
+ /* The station (ethernet) address prefix, used for a sanity check. */
+@@ -579,6 +581,27 @@
+ 	return 0;
+ }
+ 
++/**
++ *	wait_exec_pending - sleep until exec_pending reaches a certain value
++ *	@lp: m32_local structure describing the target card
++ *	@value: value to wait for
++ *
++ *	The caller must acquire lp->lock before calling this function, it
++ *	temporarily drops the lock when it sleeps.
++ */
++
++static void wait_exec_pending(struct mc32_local *lp, int value)
++{
++	while (lp->exec_pending != value) {
++	        DEFINE_WAIT(wait);
++
++	        prepare_to_wait(&lp->event, &wait, TASK_UNINTERRUPTIBLE);
++		spin_unlock_irq(&lp->lock);
++	        schedule();
++	        finish_wait(&lp->event, &wait);
++		spin_lock_irq(&lp->lock);
++	}
++}
+ 
+ /**
+  *	mc32_command	-	send a command and sleep until completion
+@@ -619,14 +642,11 @@
+ 	int ret = 0;
+ 	
+ 	/*
+-	 *	Wait for a command
++	 *	Wait until there are no more pending commands
+ 	 */
+ 	 
+-	save_flags(flags);
+-	cli();
+-	 
+-	while(lp->exec_pending)
+-		sleep_on(&lp->event);
++	spin_lock_irqsave(&lp->lock, flags);
++	wait_exec_pending(lp, 0);
+ 		
+ 	/*
+ 	 *	Issue mine
+@@ -634,7 +654,7 @@
+ 
+ 	lp->exec_pending=1;
+ 	
+-	restore_flags(flags);
++	spin_unlock_irqrestore(&lp->lock, flags);
+ 	
+ 	lp->exec_box->mbox=0;
+ 	lp->exec_box->mbox=cmd;
+@@ -645,13 +665,10 @@
+ 	while(!(inb(ioaddr+HOST_STATUS)&HOST_STATUS_CRR));
+ 	outb(1<<6, ioaddr+HOST_CMD);	
+ 
+-	save_flags(flags);
+-	cli();
+-
+-	while(lp->exec_pending!=2)
+-		sleep_on(&lp->event);
++	spin_lock_irqsave(&lp->lock, flags);
++	wait_exec_pending(lp, 2);
+ 	lp->exec_pending=0;
+-	restore_flags(flags);
++	spin_unlock_irqrestore(&lp->lock, flags);
+ 	
+ 	if(lp->exec_box->mbox&(1<<13))
+ 		ret = -1;
+
+--------------020002070802070804040606--
 

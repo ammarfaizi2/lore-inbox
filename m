@@ -1,63 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132494AbRAPTQZ>; Tue, 16 Jan 2001 14:16:25 -0500
+	id <S132357AbRAPTV0>; Tue, 16 Jan 2001 14:21:26 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132444AbRAPTQP>; Tue, 16 Jan 2001 14:16:15 -0500
-Received: from roc-24-95-203-215.rochester.rr.com ([24.95.203.215]:12817 "EHLO
-	d185fcbd7.rochester.rr.com") by vger.kernel.org with ESMTP
-	id <S132357AbRAPTQC>; Tue, 16 Jan 2001 14:16:02 -0500
-Date: Tue, 16 Jan 2001 14:18:43 -0500
-From: Chris Mason <mason@suse.com>
-To: Jakob Borg <jakob@borg.pp.se>, Linus Torvalds <torvalds@transmeta.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: kernel BUG with 2.4.1-pre7 reiserfs
-Message-ID: <215700000.979672723@tiny>
-In-Reply-To: <20010116195837.A707@borg.pp.se>
-X-Mailer: Mulberry/2.0.6b1 (Linux/x86)
+	id <S132444AbRAPTVR>; Tue, 16 Jan 2001 14:21:17 -0500
+Received: from lca0042.lss.emc.com ([168.159.120.42]:18839 "EHLO
+	lca0042.lss.emc.com") by vger.kernel.org with ESMTP
+	id <S132357AbRAPTVC>; Tue, 16 Jan 2001 14:21:02 -0500
+To: linux-kernel@vger.kernel.org
+Subject: Re: problem mounting root under 2.4.0
+In-Reply-To: <hp4ryzk42u.fsf@lca2240.lss.emc.com>
+From: Chris Jones <clj@emc.com>
+Date: 16 Jan 2001 14:20:22 -0500
+In-Reply-To: Chris Jones's message of "16 Jan 2001 08:40:41 -0500"
+Message-ID: <hpae8r2tjd.fsf@lca2240.lss.emc.com>
+User-Agent: Gnus/5.0807 (Gnus v5.8.7) XEmacs/21.1 (Channel Islands)
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Chris Jones <clj@emc.com> writes:
 
+[...]
 
-On Tuesday, January 16, 2001 07:58:37 PM +0100 Jakob Borg
-<jakob@borg.pp.se> wrote:
+  I suspect the problem is related to loading the aic7xxx.o module, but the
+  relevant messages have scrolled off the top of the screen.  I tried setting the
+  VGA mode to extended to give me 50 lines of output, but even though "lilo -q
+  -v" shows "VGA mode: EXTENDED", I still have a 25 line screen.
 
-> On Tue, Jan 16, 2001 at 10:36:43AM -0800, Linus Torvalds wrote:
->> > I seem to remember more possibly useful information scrolling by my
->> > screen, but it seems to not have made it to the logs, and I will shut
->> > down and fsck the filesystem now...
->> 
->> It really needs the stack-trace to debug this sanely (along with
->> translations of what the hex numbers are - see the bugreporting
->> documentation in the kernel source tree). 
-> 
-> Got that in the other mail subjected "More information ... ". In the
-> meantime it seems the filesystem is unhurt because of this, but reiserfsck
-> says
-> 
-> uread_super_block: bad block is found at a new superblock location
-> uread_super_block: bad block is found at an old superblock location
-> 
-> which seems bogus. This is reiserfsck from the same suite that mkreiserfs
-> came from ("reiserfsprogs 3.x") so they should be talking about the same
-> sort of filesystem.
-> 
+Well, I noticed I hadn't configured CONFIG_VIDEO_SELECT, which is why I wasn't
+able to put my monitor into extended mode.  It now works, and I further noticed
+I hadn't enabled RAM disk support, so my initial RAM disk wasn't being loaded.
+So, 2.4.0 now boots (still with problems, probably caused by the modutils
+changes, but at least I can debug now).
 
-The BUG you hit should not corrupt anything, that debugging code is
-actually there to prevent silent corruption due to lack of locking.
+Thanks to the many people who emailed me with suggestions.
 
-It is likely you are using an fsck version that can't read the 3.6.x
-format.  They are still packaging the beta fsck tool for the new format,
-I'm not sure the exact download URL yet.
-
-When you mount the FS it tells you which version it is, please include that
-info as well.
-
--chris
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

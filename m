@@ -1,58 +1,72 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S310511AbSCCF7h>; Sun, 3 Mar 2002 00:59:37 -0500
+	id <S293482AbSCCGr4>; Sun, 3 Mar 2002 01:47:56 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S310509AbSCCF71>; Sun, 3 Mar 2002 00:59:27 -0500
-Received: from dsl-64-34-35-93.telocity.com ([64.34.35.93]:11538 "EHLO
-	roo.rogueind.com") by vger.kernel.org with ESMTP id <S293443AbSCCF7S>;
-	Sun, 3 Mar 2002 00:59:18 -0500
-Date: Sun, 3 Mar 2002 00:56:43 -0500 (EST)
-From: Tom Diehl <tdiehl@rogueind.com>
-To: Thomas Molina <tmolina@cox.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Invalid @home email addresses
-In-Reply-To: <Pine.LNX.4.44.0203022258360.21225-100000@localhost.localdomain>
-Message-ID: <Pine.LNX.4.44.0203030052250.12119-100000@tigger.rogueind.com>
+	id <S293521AbSCCGrr>; Sun, 3 Mar 2002 01:47:47 -0500
+Received: from nycsmtp2out.rdc-nyc.rr.com ([24.29.99.227]:40920 "EHLO
+	nycsmtp2out.rdc-nyc.rr.com") by vger.kernel.org with ESMTP
+	id <S293482AbSCCGrh>; Sun, 3 Mar 2002 01:47:37 -0500
+Message-ID: <3C81C6C7.8030902@linuxhq.com>
+Date: Sun, 03 Mar 2002 01:46:31 -0500
+From: John Weber <john.weber@linuxhq.com>
+Organization: Linux Headquarters
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.8) Gecko/20020206
+X-Accept-Language: en-us
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+CC: Stelian Pop <stelian.pop@fr.alcove.com>
+Subject: Re: Linux 2.5.6-pre2 and ALSA Sound
+In-Reply-To: <fa.cgp5alv.114qq93@ifi.uio.no> <fa.hjuh5ov.l223o4@ifi.uio.no>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2 Mar 2002, Thomas Molina wrote:
-
-> On 1 March 02 cox@home switched their services from infrastructure hosted 
-> on hardware by Excite to "native" hardware.  All @home.com addresses are 
-> now invalid.  Grepping through the source for these invalid addresses 
-> produced the following:
+Stelian Pop wrote:
+> On Fri, Mar 01, 2002 at 02:47:39AM -0500, John Weber wrote:
 > 
-> drivers/net/de4x5.c 	mmporter@home.com
-> drivers/scsi/megaraid.c 	johnsom@home.com
-> drivers/scsi/ppa.h	johncavan@home.com 
-> drivers/scsi/imm.h	johncavan@home.com 
-> drivers/sound/aci.c	pellicci@home.com
-> drivers/media/video/bttv-cards.c	daniel.herrington@home.com
 > 
-> Most addresses for home.com users simply switched to cox.net addresses.  
+>>Anyone else having trouble with ALSA YMFPCI?  Everything compiles, but I 
+>>can't hear a thing (even with OSS compatibility enabled).
+>>
+> 
+> It does work for me at least, on a VAIO C1VE, kernel 2.5.6-pre2.
+> 
+> lspci:
+> 	00:09.0 Multimedia audio controller: Yamaha Corporation YMF-754 [DS-1E Audio Controller]
+> 
+> .config:
+> 	CONFIG_SND=m
+> 	CONFIG_SND_SEQUENCER=m
+> 	CONFIG_SND_OSSEMUL=y
+> 	CONFIG_SND_MIXER_OSS=m
+> 	CONFIG_SND_PCM_OSS=m
+> 	CONFIG_SND_SEQUENCER_OSS=m
+> 
+> Stelian.
+> 
 
-/s/cox.net/your_local_cable_provider.whatever.
+It does not work for me.  It appears to be working (the apps look like 
+they are playing an MP3, but no sound).
 
-> However, email to the above users at cox.net bounced in four out of five 
-> cases.  I am posting here in hopes that theses users are still on the 
-> mailing list and will respond.  If no response is received I would like to 
-> submit a patch adding comments to the source code indicating the addresses 
-> are no longer valid and no new email addresses are known.  
+.config
+CONFIG_SND=y
+CONFIG_SND_OSSEMUL=y
+CONFIG_SND_MIXER_OSS=y
+CONFIG_SND_PCM_OSS=y
+CONFIG_SND_YMFPCI=y
 
-Cox cable switched to cox.net. Comcast switched to comcast.net and so forth.
-Unless you know that persons local cable provider there is no way to know 
-their new address without input from them or someone that knows them.
+lspci:
+Multimedia audio controller: Yamaha Corporation YMF-744B [DS-1S Audio 
+Controller] (rev 02)
 
-Excite was responsible for ALL of the @home addresses for the various
-MSO's that had contracts with them.
+(And I know that the default mixer settings are mute... blah,blah).
 
-HTH,
+Any suggestions?
+
 
 -- 
-......Tom		CLUELESSNESS: There Are No Stupid Questions, But
-tdiehl@rogueind.com	There Are LOTS of Inquisitive Idiots. :-)
-
+(o- j o h n   e   w e b e r
+//\  http://www.linuxhq.com/people/weber/
+v_/_ john.weber@linuxhq.com
 

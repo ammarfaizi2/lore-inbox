@@ -1,127 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262038AbUKBWRy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261297AbUKBWRU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262038AbUKBWRy (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 2 Nov 2004 17:17:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262039AbUKBWRm
+	id S261297AbUKBWRU (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 2 Nov 2004 17:17:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262017AbUKBWOi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 2 Nov 2004 17:17:42 -0500
-Received: from gateway.penguincomputing.com ([64.243.132.186]:34446 "EHLO
-	inside.penguincomputing.com") by vger.kernel.org with ESMTP
-	id S262265AbUKBWQ0 convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 2 Nov 2004 17:16:26 -0500
-X-Mda: Mail::Internet Mail::Sendmail Sendmail +mmhack 1.1 on Linux
-Cc: Greg KH <greg@kroah.com>
-User-Agent: Mutt/1.4.1i
-Subject: Re: adm1026 driver port for kernel 2.6.X - [REVISED DRIVER]
-In-Reply-To: <20041102203122.7e7a8366.khali@linux-fr.org>
-Content-Disposition: inline
-Date: Tue, 2 Nov 2004 14:17:45 -0800
-Message-Id: <20041102221745.GB18020@penguincomputing.com>
-References: <20041025210057.GB19053@penguincomputing.com>
- <GNXY8AG6.1098776962.4770080.khali@gcu.info>
- <20041029191229.GB803@penguincomputing.com>
- <20041102164642.GA16378@penguincomputing.com>
- <20041102203122.7e7a8366.khali@linux-fr.org>
+	Tue, 2 Nov 2004 17:14:38 -0500
+Received: from smtp.Lynuxworks.com ([207.21.185.24]:19216 "EHLO
+	smtp.lynuxworks.com") by vger.kernel.org with ESMTP id S261925AbUKBWJC
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 2 Nov 2004 17:09:02 -0500
+Date: Tue, 2 Nov 2004 14:08:35 -0800
+To: Ingo Molnar <mingo@elte.hu>
+Cc: Bill Huey <bhuey@lnxw.com>, Michal Schmidt <xschmi00@stud.feec.vutbr.cz>,
+       linux-kernel@vger.kernel.org, Lee Revell <rlrevell@joe-job.com>,
+       Rui Nuno Capela <rncbc@rncbc.org>, Mark_H_Johnson@Raytheon.com,
+       "K.R. Foley" <kr@cybsft.com>, Adam Heath <doogie@debian.org>,
+       Florian Schmidt <mista.tapas@gmx.net>,
+       Thomas Gleixner <tglx@linutronix.de>,
+       Fernando Pablo Lopez-Lezcano <nando@ccrma.Stanford.EDU>,
+       Karsten Wiese <annabellesgarden@yahoo.de>
+Subject: Re: [patch] Real-Time Preemption, -RT-2.6.9-mm1-V0.5 (networking problems)
+Message-ID: <20041102220835.GA21683@nietzsche.lynx.com>
+References: <20041027001542.GA29295@elte.hu> <417F7D7D.5090205@stud.feec.vutbr.cz> <20041027134822.GA7980@elte.hu> <417FD9F2.8060002@stud.feec.vutbr.cz> <20041028115719.GA9563@elte.hu> <20041030000234.GA20986@nietzsche.lynx.com> <20041102085650.GA3973@nietzsche.lynx.com> <20041102093758.GA28014@elte.hu> <20041102110810.GA11393@nietzsche.lynx.com> <20041102114522.GA7874@elte.hu>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-To: LM Sensors <sensors@stimpy.netroedge.com>,
-       LKML <linux-kernel@vger.kernel.org>
-Content-Transfer-Encoding: 8BIT
-From: Justin Thiessen <jthiessen@penguincomputing.com>
+Content-Type: multipart/mixed; boundary="3V7upXqbjpZ4EhLz"
+Content-Disposition: inline
+In-Reply-To: <20041102114522.GA7874@elte.hu>
+User-Agent: Mutt/1.5.6+20040907i
+From: Bill Huey (hui) <bhuey@lnxw.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Nov 02, 2004 at 08:31:22PM +0100, Jean Delvare wrote:
-> Hi justin,
 
-<snip>
+--3V7upXqbjpZ4EhLz
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-> On a side note, MBM lists the ADM1026 as being used on only two
-> motherboard models, one being yours. Considering this and the fact that
-> nobody ever requested us to port the adm1026 driver to Linux 2.6, I
-> would conclude that the motherboard you use is possibly the only one
-> worth supporting. Do not bother with anything that you don't personally
-> need. We can still add it later on request.
-
-Ok.
-
-> Hysteresis temperatures have to be absolute temperatures as per
-> interface standard.
-
-Ok.
-
-> > temp[1-3]_auto_point2_temp        {temp[1-3]_auto_point1_temp + 20000}
-> 
-> I'm a bit surprised not to see temp[1-3]_auto_point[1-2]_pwm. Trip
-> points are supposed to be (temp, pwm) pairs. Doesn't pwm1_auto_pwm_min
-> above correspond to one or more of these?
-
-Yes.  On its way.  I think it got lost somewhere in my reading of the 
-discussion over auto-fan interface proposals.
-
-> > Failsafe critical temperatures at which the fans go to maximum speed
-> > are controled via:
+On Tue, Nov 02, 2004 at 12:45:22PM +0100, Ingo Molnar wrote:
+> * Bill Huey <bhuey@lnxw.com> wrote:
+> > getting closer...
 > > 
-> > temp_crit_enable       {0-1}  (off, on)
-> > temp[1-3]_crit         {-128000 - 127000}
+> > http:590 BUG: lock held at task exit time!
+> >  [c03f9e84] {r:0,a:-1,kernel_sem.lock}
+> >  .. held by:              http/  590 [dc0508a0, 121]
+> >  ... acquired at:  __schedule+0x3ac/0x850
 > 
-> Granted it's not part of the standard yet, but you would have three
-> files temp[1-3]_crit_enable if we stick to our chip-indenpendent
-> interface logic. Either make 1 read-write and [2-3] read-only, or make
-> all read-write and each one changes the three values.
+> hm. Something called do_exit() with the BKL held which is a no-no. Do
+> you have a stacktrace, is this sys_exit() or some other code calling
+> do_exit()?
 
-Any reason not to simply provide 3 sysfs files pointing at the same variable/
-register bit?  Maintaining separate variables for a single, uncomplicated 
-value seems rather overkill.
+Attached:
 
-> > These values override any values set for the pwm-mediated automatic
-> > fan control.
-> 
-> Doesn't this mean that you could integrate these in the auto-pwm
-> interface as point3?
+bill
 
-No.  It is important for this to remain seperate from the auto-pwm interface.
-It can be set to operate when PWM control is set to "manual", providing a
-useful fail-safe mechanism, or when PWM control is set to "off"  (Although 
-it should not be needed in the latter case, as in theory the fans are running 
-at full speed when PWM control is disabled.)
 
-Moreover, integrating it into the *auto_pointN_temp heirarchy would be
-ugly, as there is really only one set of values (temp[1-3]_auto_point1_temp)
-that can be independently changed by the end-user.  
-temp[1-3]_auto_point1_temp_hyst and temp[1-3]_auto_point2_temp are fixed in 
-hardware at positions relative to temp[1-3]_auto_point1_temp.  The function
-of temp[1-3]_crit essentially overlaps that of temp[13]_auto_point2_temp
-when both automatic PWM fan control and critical temperature monitoring
-are enabled.  Both provide temperatures at which fan speeds are ramped up
-to maximum.  This means integrating the temp[1-3]_crit function into the
-*_auto_point?_temp heirarchy would result in 2 distinct sets of files that
-determine when fan speeds are supposed to go to max.
+--3V7upXqbjpZ4EhLz
+Content-Type: application/x-troff
+Content-Disposition: attachment; filename=t
+Content-Transfer-Encoding: quoted-printable
 
-A better way to think of it is that the temp[1-3]_crit files provide a 
-method for the end-user to set absolute "holy-cow-my-system-is-glowing"
-temperatures at which fans MUST ramp up to full speed.  It's a fail-safe
-that will kick in to try and save the system's bacon in an emergency.  As
-it operates with or without the PWM automatic fan control, it can be employed
-whether or not the end-user wants to muck about with such.
-
-I would agree that it is a bit confusing that there are essentially 2 
-temperature-motivated mechanisms for forcing fan speeds to full (automatic
-PWM fan control, and critical temperature monitoring), but I think that the
-utility of providing a critical temperature fail-safe is worth the 
-minor amount of confusion.
-
-> > Thanks to all for the feedback.
-> 
-> You're welcome. Sorry to ask questions about the proposed interface
-> again, I just want things to be as clean and logical as possible.
-
-No problem.  Sorry that it's taking so much revision to get the kinks worked
-out.  This will undoubtedly become less trouble as I get more familiar with
-i2c/lm_sensors/kernel issues.
-
-Justin Thiessen
----------------
-jthiessen@penguincomputing.com
-
+http:601 BUG: lock held at task exit time!=0A [c03f9e84] {r:0,a:-1,kernel_s=
+em.lock}=0A.. held by:              http/  601 [dbe76920, 124]=0A... acquir=
+ed at:  __schedule+0x3ac/0x850=0Ahttp/601: BUG in __up_write at lib/rwsem-g=
+eneric.c:1058=0A [<c0107503>] dump_stack+0x23/0x30 (20)=0A [<c020fb1e>] __u=
+p_write+0x17e/0x4a0 (76)=0A [<c0210848>] up+0x78/0xd0 (36)=0A [<c0393296>] =
+__schedule+0x786/0x850 (108)=0A [<c0124546>] do_exit+0x266/0x4d0 (40)=0A [<=
+c01248f0>] do_group_exit+0x40/0xe0 (40)=0A [<c012e9d8>] get_signal_to_deliv=
+er+0x268/0x3f0 (44)=0A [<c0106438>] do_signal+0x88/0x130 (200)=0A [<c010652=
+7>] do_notify_resume+0x47/0x4c (12)=0A [<c01066a6>] work_notifysig+0x13/0x1=
+5 (-8124)=0A---------------------------=0A| preempt count: 00000004 ]=0A| 4=
+-level deep critical section nesting:=0A-----------------------------------=
+-----=0A.. [<c0392b5f>] .... __schedule+0x4f/0x850=0A.....[<c0124546>] ..  =
+ ( <=3D do_exit+0x266/0x4d0)=0A.. [<c02107f3>] .... up+0x23/0xd0=0A.....[<c=
+0393296>] ..   ( <=3D __schedule+0x786/0x850)=0A.. [<c0395032>] .... _spin_=
+lock+0x22/0x80=0A.....[<c020fdc1>] ..   ( <=3D __up_write+0x421/0x4a0)=0A..=
+ [<c013a7bd>] .... print_traces+0x1d/0x60=0A.....[<c0107503>] ..   ( <=3D d=
+ump_stack+0x23/0x30)=0A=0A
+--3V7upXqbjpZ4EhLz--

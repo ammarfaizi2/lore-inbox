@@ -1,66 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261382AbVCaMOq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261386AbVCaMWQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261382AbVCaMOq (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 31 Mar 2005 07:14:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261386AbVCaMOq
+	id S261386AbVCaMWQ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 31 Mar 2005 07:22:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261390AbVCaMWQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 31 Mar 2005 07:14:46 -0500
-Received: from ms-smtp-03.nyroc.rr.com ([24.24.2.57]:58603 "EHLO
+	Thu, 31 Mar 2005 07:22:16 -0500
+Received: from ms-smtp-03.nyroc.rr.com ([24.24.2.57]:61180 "EHLO
 	ms-smtp-03.nyroc.rr.com") by vger.kernel.org with ESMTP
-	id S261382AbVCaMOm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 31 Mar 2005 07:14:42 -0500
+	id S261386AbVCaMWL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 31 Mar 2005 07:22:11 -0500
 Subject: Re: [patch] Real-Time Preemption, -RT-2.6.12-rc1-V0.7.41-07
 From: Steven Rostedt <rostedt@goodmis.org>
-To: Esben Nielsen <simlo@phys.au.dk>
-Cc: Ingo Molnar <mingo@elte.hu>, LKML <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.OSF.4.05.10503311301210.11827-100000@da410.phys.au.dk>
-References: <Pine.OSF.4.05.10503311301210.11827-100000@da410.phys.au.dk>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: Esben Nielsen <simlo@phys.au.dk>, LKML <linux-kernel@vger.kernel.org>
+In-Reply-To: <20050331110330.GA24842@elte.hu>
+References: <Pine.OSF.4.05.10503302042450.2022-100000@da410.phys.au.dk>
+	 <1112212608.3691.147.camel@localhost.localdomain>
+	 <1112218750.3691.165.camel@localhost.localdomain>
+	 <20050331110330.GA24842@elte.hu>
 Content-Type: text/plain
 Organization: Kihon Technologies
-Date: Thu, 31 Mar 2005 07:14:30 -0500
-Message-Id: <1112271270.3691.209.camel@localhost.localdomain>
+Date: Thu, 31 Mar 2005 07:22:02 -0500
+Message-Id: <1112271722.3691.218.camel@localhost.localdomain>
 Mime-Version: 1.0
 X-Mailer: Evolution 2.0.4 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2005-03-31 at 13:03 +0100, Esben Nielsen wrote:
-> On Thu, 31 Mar 2005, Ingo Molnar wrote:
+On Thu, 2005-03-31 at 13:03 +0200, Ingo Molnar wrote:
+> * Steven Rostedt <rostedt@goodmis.org> wrote:
 > 
+> > Well, here it finally is. There's still things I don't like about it. 
+> > But it seems to work, and that's the important part.
 > > 
-> > * Steven Rostedt <rostedt@goodmis.org> wrote:
-> > 
-> > > Well, here it finally is. There's still things I don't like about it. 
-> > > But it seems to work, and that's the important part.
-> > > 
-> > > I had to reluctantly add two items to the task_struct.  I was hoping 
-> > > to avoid that. But because of race conditions it seemed to be the only 
-> > > way.
-> > 
-> > well it's not a big problem, and we avoided having to add flags to the 
-> > rt_lock structure, which is the important issue.
-> > 
-> I was going to say the opposit. I know that there are many more rt_locks
-> locks around and the fields thus will take more memory when put there but
-> I believe it is more logical to have the fields there.
+> > I had to reluctantly add two items to the task_struct.  I was hoping 
+> > to avoid that. But because of race conditions it seemed to be the only 
+> > way.
+> 
+> well it's not a big problem, and we avoided having to add flags to the 
+> rt_lock structure, which is the important issue.
+> 
+> your patch looks good, i've added it to my tree and have uploaded the 
+> -26-00 patch. It boots fine on my testbox, except for some new messages:
+> 
+>  knodemgrd_0/902: BUG in __down_complete at kernel/rt.c:1568
+>   [<c0103956>] dump_stack+0x23/0x25 (20)
+>   [<c0130dcd>] down_trylock+0x1fb/0x200 (48)
+>   [<c0364ee2>] nodemgr_host_thread+0xd0/0x17b (48)
+>   [<c0100d4d>] kernel_thread_helper+0x5/0xb (136249364)
+>  ---------------------------
+>  | preempt count: 00000001 ]
+>  | 1-level deep critical section nesting:
+>  ----------------------------------------
+>  .. [<c0133a75>] .... print_traces+0x1b/0x52
+>  .....[<c0103956>] ..   ( <= dump_stack+0x23/0x25)
+> 
+> this goes away if i revert your patch. It seems the reason is that 
+> trylock hasnt been updated to use the pending-owner logic?
 
-It seems logical to be there, but in practicality, it's not. 
+Hmm, The pending owner logic in __down_trylock uses the grab_lock
+function. It doesn't need the capture_lock since it never sleeps. I'm
+downloading your 42-00-experimental now and installing it to see if I
+can get the same message. Did you try the patch against 41-11? Maybe the
+patch didn't go in so smoothly.
 
-The problem is that the flags represent a state of the task with respect
-to a single lock.  When the task loses ownership of a lock, the state of
-the task changes. But the the lock has a different state at that moment
-(it has a new onwner).  Now when it releases the lock, it might give the
-lock to another task, and that becomes the pending owner. Now the state
-of the lock is the same as in the beginning. But the first task needs to
-see this change.
+Anyway, I'll take a look at it now and let you know what I find.
 
-You can still pull this off by testing the state of the lock and compare
-it to the current owner, but I too like the fact that you don't increase
-the size of the kernel statically.  There are a lot more locks in the
-kernel than tasks on most systems. And those systems that will have more
-tasks than locks, need a lot of memory anyway.  So we only punish the
-big systems (that expect to be punished) and keep the little guys safe.
+Thanks,
 
 -- Steve
 

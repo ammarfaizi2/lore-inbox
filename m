@@ -1,48 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266477AbUJAUcB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266491AbUJAUc2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266477AbUJAUcB (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 1 Oct 2004 16:32:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266511AbUJAUbX
+	id S266491AbUJAUc2 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 1 Oct 2004 16:32:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266488AbUJAUcW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 1 Oct 2004 16:31:23 -0400
-Received: from rosesmtp01.adp.com ([170.146.91.25]:57096 "EHLO
-	rosesmtp01.adp.com") by vger.kernel.org with ESMTP id S266477AbUJAU1m
+	Fri, 1 Oct 2004 16:32:22 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:50887 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S266491AbUJAUaS
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 1 Oct 2004 16:27:42 -0400
-X-Server-Uuid: C1AF40A8-8026-4479-A29E-3A5B974B0AC3
-Message-ID: <2D1DF9BA9166D61188F30002B3A6E15318E4D803@ROSEEXCHMA>
-From: Daniel_Weigert@adp.com
-Reply-to: dlw@taco.com
-To: linux-kernel@vger.kernel.org
-Subject: Compaq RA4X00 raid array
-Date: Fri, 1 Oct 2004 16:27:17 -0400
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2657.72)
-X-WSS-ID: 6D43623F1L812599517-01-01
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 01 Oct 2004 20:31:15.0721 (UTC) FILETIME=[997DEF90:01C4A7F5]
+	Fri, 1 Oct 2004 16:30:18 -0400
+Date: Fri, 1 Oct 2004 16:04:30 -0300
+From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-mm@kvack.org, piggin@cyberone.com.au, arjanv@redhat.com,
+       linux-kernel@vger.kernel.org, haveblue@us.ibm.com
+Subject: Re: [RFC] memory defragmentation to satisfy high order allocations
+Message-ID: <20041001190430.GA4372@logos.cnet>
+References: <20041001182221.GA3191@logos.cnet> <20041001131147.3780722b.akpm@osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20041001131147.3780722b.akpm@osdl.org>
+User-Agent: Mutt/1.5.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Apparently, the only way to attach the Compaq RA4000, or RA4100 array to a
-linux box is through their
-"66Mhz 64bit Fibre Channel card".  I have several of these boxes, and would
-love to make use of them with a modern Fibre Channel card family such as the
-Emulex LightPulse.  There is an alpha quality LightPulse 
-driver hosted on SourceForge for the 2.6  kernel that I'm quite happy with.
-:-)  I can even see the 
-controller of the RA4000 with it.  I can't, however, see LUN's that array
-has.  The array shows up as a type 12 SCSI device.  There is another driver,
-for the above mentioned "66Mhz 64bit Fibre Channel card" that works quite
-well for >>ONLY<< that card, and if I use the Compaq card and driver, the
-LUN magically becomes visible as a SCSI device.  In my round about fashion,
-I'm wondering if it is possible to get the bits of the diver for the Compaq
-card broken out into a separate driver, which would make it possible to 
-talk to the RAID controller with my Emulex card.  I'd rather have everything
-on one SAN.
+On Fri, Oct 01, 2004 at 01:11:47PM -0700, Andrew Morton wrote:
+> Marcelo Tosatti <marcelo.tosatti@cyclades.com> wrote:
+> >
+> > The following patch implements a "coalesce_memory()" function 
+> > which takes "zone" and "order" as a parameter. 
+> > 
+> > It tries to move enough physically nearby pages to form a free area
+> > of "order" size.
+> > 
+> > It does that by checking whether the page can be moved, allocating a new page, 
+> > unmapping the pte's to it, copying data to new page, remapping the ptes, 
+> > and reinserting the page on the radix/LRU.
+> 
+> Presumably this duplicates some of the memory hot-remove patches.
 
-Dan Weigert
-dlw@taco.com
+As far as I have researched, the memory moving/remapping code 
+on the hot remove patches dont work correctly. Please correct me.
 
+And what I've seen (from the Fujitsu guys) was quite ugly IMHO.
 
+> Apparently Dave Hansen has working and sane-looking hot remove code
+> which is in a close-to-submittable state.
+
+Dave?

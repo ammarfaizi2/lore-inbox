@@ -1,318 +1,115 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264450AbTFZFPb (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 Jun 2003 01:15:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265414AbTFZFPb
+	id S265417AbTFZFfK (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 Jun 2003 01:35:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265419AbTFZFfK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 Jun 2003 01:15:31 -0400
-Received: from holomorphy.com ([66.224.33.161]:55942 "EHLO holomorphy")
-	by vger.kernel.org with ESMTP id S264450AbTFZFPF (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 Jun 2003 01:15:05 -0400
-Date: Wed, 25 Jun 2003 22:29:11 -0700
-From: William Lee Irwin III <wli@holomorphy.com>
-To: linux-kernel@vger.kernel.org
-Subject: Re: 2.5.73-wli-1
-Message-ID: <20030626052911.GS26348@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	linux-kernel@vger.kernel.org
-References: <20030625010513.GX20413@holomorphy.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030625010513.GX20413@holomorphy.com>
-Organization: The Domain of Holomorphy
-User-Agent: Mutt/1.5.4i
+	Thu, 26 Jun 2003 01:35:10 -0400
+Received: from static-ctb-210-9-247-235.webone.com.au ([210.9.247.235]:777
+	"EHLO chimp.local.net") by vger.kernel.org with ESMTP
+	id S265417AbTFZFfB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 26 Jun 2003 01:35:01 -0400
+Message-ID: <3EFA8920.8050509@cyberone.com.au>
+Date: Thu, 26 Jun 2003 15:48:16 +1000
+From: Nick Piggin <piggin@cyberone.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3.1) Gecko/20030527 Debian/1.3.1-2
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Chris Mason <mason@suse.com>
+CC: Andrea Arcangeli <andrea@suse.de>,
+       Marc-Christian Petersen <m.c.p@wolk-project.de>,
+       Jens Axboe <axboe@suse.de>, Marcelo Tosatti <marcelo@conectiva.com.br>,
+       Georg Nikodym <georgn@somanetworks.com>,
+       lkml <linux-kernel@vger.kernel.org>,
+       Matthias Mueller <matthias.mueller@rz.uni-karlsruhe.de>
+Subject: Re: [PATCH] io stalls
+References: <1055296630.23697.195.camel@tiny.suse.com>	 <20030611021030.GQ26270@dualathlon.random>	 <1055353360.23697.235.camel@tiny.suse.com>	 <20030611181217.GX26270@dualathlon.random>	 <1055356032.24111.240.camel@tiny.suse.com>	 <20030611183503.GY26270@dualathlon.random> <3EE7D1AA.30701@cyberone.com.au>	 <20030612012951.GG1500@dualathlon.random>	 <1055384547.24111.322.camel@tiny.suse.com> <3EE7E876.80808@cyberone.com.au>	 <20030612024608.GE1415@dualathlon.random> <1056567822.10097.133.camel@tiny.suse.com>
+In-Reply-To: <1056567822.10097.133.camel@tiny.suse.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jun 24, 2003 at 06:05:13PM -0700, William Lee Irwin III wrote:
-> + RCU anon->lock
-[...]
-> 	first (actually mostly unrelated to RCU except for one). It
-> 	should be fine in and of itself now, of course.
-
-And the obligatory brown paper bag patch(es):
 
 
-diff -prauN wli-2.5.73-29/arch/i386/mm/fault.c wli-2.5.73-30/arch/i386/mm/fault.c
---- wli-2.5.73-29/arch/i386/mm/fault.c	2003-06-23 10:31:02.000000000 -0700
-+++ wli-2.5.73-30/arch/i386/mm/fault.c	2003-06-25 02:08:10.000000000 -0700
-@@ -247,6 +247,7 @@ no_context:
- 	printk(" printing eip:\n");
- 	printk("%08lx\n", regs->eip);
- 	asm("movl %%cr3,%0":"=r" (page));
-+#ifndef CONFIG_HIGHPMD /* Oh boy. Error reporting is going to blow major goats. */
- 	page = ((unsigned long *) __va(page))[address >> 22];
- 	printk(KERN_ALERT "*pde = %08lx\n", page);
- 	/*
-@@ -262,7 +263,14 @@ no_context:
- 		page = ((unsigned long *) __va(page))[address >> PAGE_SHIFT];
- 		printk(KERN_ALERT "*pte = %08lx\n", page);
- 	}
--#endif
-+#endif /* !CONFIG_HIGHPTE */
-+#else	/* CONFIG_HIGHPMD */
-+	printk(KERN_ALERT "%%cr3 = 0x%lx\n", page);
-+	/* Mask off flag bits. It should end up 32B-aligned. */
-+	page &= ~(PTRS_PER_PGD*sizeof(pgd_t) - 1);
-+	printk(KERN_ALERT "*pdpte = 0x%Lx\n",
-+			pgd_val(((pgd_t *)__va(page))[address >> PGDIR_SHIFT]));
-+#endif /* CONFIG_HIGHPMD */
- 	die("Oops", regs, error_code);
- 	bust_spinlocks(0);
- 	do_exit(SIGKILL);
-diff -prauN wli-2.5.73-29/include/linux/rmap.h wli-2.5.73-30/include/linux/rmap.h
---- wli-2.5.73-29/include/linux/rmap.h	2003-06-23 10:58:03.000000000 -0700
-+++ wli-2.5.73-30/include/linux/rmap.h	2003-06-24 21:07:36.000000000 -0700
-@@ -12,11 +12,13 @@
- #include <linux/gfp.h>
- #include <linux/cache.h>
- #include <linux/pagemap.h>
-+#include <linux/rcupdate.h>
- 
- struct anon {
- 	atomic_t count;
- 	spinlock_t lock;
- 	struct list_head list;
-+	struct rcu_head rcu;
- };
- 
- #ifdef CONFIG_MMU
-diff -prauN wli-2.5.73-29/mm/fremap.c wli-2.5.73-30/mm/fremap.c
---- wli-2.5.73-29/mm/fremap.c	2003-06-23 14:55:26.000000000 -0700
-+++ wli-2.5.73-30/mm/fremap.c	2003-06-24 22:20:03.000000000 -0700
-@@ -17,6 +17,9 @@
- #include <asm/cacheflush.h>
- #include <asm/tlbflush.h>
- 
-+/*
-+ * This is never done to an anonymous page so page->mapping is never altered.
-+ */
- static inline int zap_pte(struct mm_struct *mm, struct vm_area_struct *vma,
- 			unsigned long addr, pte_t *ptep)
- {
-diff -prauN wli-2.5.73-29/mm/memory.c wli-2.5.73-30/mm/memory.c
---- wli-2.5.73-29/mm/memory.c	2003-06-23 14:58:02.000000000 -0700
-+++ wli-2.5.73-30/mm/memory.c	2003-06-25 01:59:06.000000000 -0700
-@@ -1005,8 +1005,13 @@ static int do_wp_page(struct mm_struct *
- 
- 	if (!TestSetPageLocked(old_page)) {
- 		int reuse = can_share_swap_page(old_page);
--		unlock_page(old_page);
--		if (reuse) {
-+		/*
-+		 * page_turn_rmap() could alter ->__mapping, so we can only
-+		 * unlock_page(old_page) afterward.
-+		 */
-+		if (!reuse)
-+			unlock_page(old_page);
-+		else {
- 			flush_cache_page(vma, address);
- 			establish_pte(vma, address, page_table,
- 				pte_mkyoung(pte_mkdirty(pte_mkwrite(pte))));
-@@ -1015,6 +1020,7 @@ static int do_wp_page(struct mm_struct *
- 			pte_unmap(page_table);
- 			pmd_unmap(pmd);
- 			ret = VM_FAULT_MINOR;
-+			unlock_page(old_page);
- 			goto out;
- 		}
- 	}
-@@ -1042,8 +1048,11 @@ static int do_wp_page(struct mm_struct *
- 		if (PageReserved(old_page))
- 			++mm->rss;
- 		else
-+			/* should be file-backed, ->__mapping not modified */
- 			page_remove_rmap(old_page);
- 		break_cow(vma, new_page, address, page_table);
-+
-+		/* we have a unique reference, so PG_locked need not be held */
- 		page_add_rmap(new_page, vma, address, 1);
- 		lru_cache_add_active(new_page);
- 
-@@ -1073,6 +1082,8 @@ static void vmtruncate_list(struct list_
- 	struct list_head *curr;
- 
- 	list_for_each_rcu(curr, head) {
-+		struct mmu_gather *tlb;
-+
- 		vma = list_entry(curr, struct vm_area_struct, shared);
- 
- 		if (vma->vm_flags & VM_DEAD)
-@@ -1083,10 +1094,8 @@ static void vmtruncate_list(struct list_
- 		len = end - start;
- 
- 		/* mapping wholly truncated? */
--		if (vma->vm_pgoff >= pgoff) {
--			zap_page_range(vma, start, len);
--			continue;
--		}
-+		if (vma->vm_pgoff >= pgoff)
-+			goto nuke_it_all;
- 
- 		/* mapping wholly unaffected? */
- 		len = len >> PAGE_SHIFT;
-@@ -1097,7 +1106,13 @@ static void vmtruncate_list(struct list_
- 		/* Ok, partially affected.. */
- 		start += diff << PAGE_SHIFT;
- 		len = (len - diff) << PAGE_SHIFT;
--		zap_page_range(vma, start, len);
-+		end = start + len;
-+nuke_it_all:
-+		spin_lock(&vma->vm_mm->page_table_lock);
-+		tlb = tlb_gather_mmu(vma->vm_mm, 0);
-+		unmap_page_range(tlb, vma, start, end);
-+		tlb_finish_mmu(tlb, start, end);
-+		spin_unlock(&vma->vm_mm->page_table_lock);
- 	}
- }
- 
-@@ -1250,11 +1265,11 @@ static int do_swap_page(struct mm_struct
- 	pte = mk_pte(page, vma->vm_page_prot);
- 	if (write_access && can_share_swap_page(page))
- 		pte = pte_mkdirty(pte_mkwrite(pte));
--	unlock_page(page);
- 
- 	flush_icache_page(vma, page);
- 	vm_set_pte(vma, page_table, pte, address);
- 	page_add_rmap(page, vma, address, 1);
-+	unlock_page(page);
- 
- 	/* No need to invalidate - it was non-present before */
- 	update_mmu_cache(vma, address, pte);
-@@ -1312,13 +1327,14 @@ do_anonymous_page(struct mm_struct *mm, 
- 		}
- 		mm->rss++;
- 		entry = pte_mkwrite(pte_mkdirty(mk_pte(page, vma->vm_page_prot)));
--		lru_cache_add_active(page);
--		mark_page_accessed(page);
- 	}
- 
- 	vm_set_pte(vma, page_table, entry, addr);
--	if (write_access)
-+	if (write_access) {
- 		page_add_rmap(page, vma, addr, 1);
-+		lru_cache_add_active(page);
-+		mark_page_accessed(page);
-+	}
- 	pmd_unmap(pmd);
- 	pte_unmap(page_table);
- 
-@@ -1375,9 +1391,9 @@ do_no_page(struct mm_struct *mm, struct 
- 		struct page * page = alloc_page(GFP_HIGHUSER);
- 		if (!page)
- 			goto oom;
-+		/* start with refcount 1 */
- 		copy_user_highpage(page, new_page, address);
- 		page_cache_release(new_page);
--		lru_cache_add_active(page);
- 		anon = 1;
- 		new_page = page;
- 	}
-@@ -1407,14 +1423,28 @@ do_no_page(struct mm_struct *mm, struct 
- 		if (write_access)
- 			entry = pte_mkwrite(pte_mkdirty(entry));
- 		vm_set_pte(vma, page_table, entry, address);
-+
-+		/*
-+		 * PG_locked not held for the anon case, but we have a
-+		 * unique reference. ->__mapping is untouched when file-backed
-+		 */
- 		if (!PageReserved(new_page))
- 			page_add_rmap(new_page, vma, address, anon);
-+
-+		/* kswapd can find us now, but we're already prepped */
-+		if (anon)
-+			lru_cache_add_active(new_page);
- 		pte_unmap(page_table);
- 		pmd_unmap(pmd);
- 	} else {
- 		/* One of our sibling threads was faster, back out. */
- 		pte_unmap(page_table);
- 		pmd_unmap(pmd);
-+		/*
-+		 * In the anon case, we never hit the LRU, so we free instantly,
-+		 * where in mainline the LRU retains a reference. In the file-
-+		 * backed case, we merely release a reference acquired earlier.
-+		 */
- 		page_cache_release(new_page);
- 		spin_unlock(&mm->page_table_lock);
- 		ret = VM_FAULT_MINOR;
-diff -prauN wli-2.5.73-29/mm/rmap.c wli-2.5.73-30/mm/rmap.c
---- wli-2.5.73-29/mm/rmap.c	2003-06-23 23:32:52.000000000 -0700
-+++ wli-2.5.73-30/mm/rmap.c	2003-06-25 01:32:57.000000000 -0700
-@@ -56,6 +56,7 @@ static void anon_ctor(void *arg, kmem_ca
- 	atomic_set(&anon->count, 2);
- 	anon->lock = SPIN_LOCK_UNLOCKED;
- 	INIT_LIST_HEAD(&anon->list);
-+	INIT_RCU_HEAD(&anon->rcu);
- }
- 
- static void rmap_chain_ctor(void *arg, kmem_cache_t *cache, unsigned long flags)
-@@ -92,8 +93,8 @@ int exec_rmap(struct mm_struct *mm)
- 	if (!anon)
- 		return -ENOMEM;
- 
--	spin_lock(&anon->lock);
- 	mm->anon = anon;
-+	spin_lock(&anon->lock);
- 	list_add_rcu(&mm->anon_list, &anon->list);
- 	spin_unlock(&anon->lock);
- 	return 0;
-@@ -109,23 +110,27 @@ void dup_rmap(struct mm_struct *new, str
- 	spin_unlock(&anon->lock);
- }
- 
-+static void free_anon(void *__anon)
-+{
-+	struct anon *anon = (struct anon *)__anon;
-+	INIT_LIST_HEAD(&anon->list);
-+	atomic_set(&anon->count, 2);
-+	kmem_cache_free(anon_cache, anon);
-+}
-+
- void exit_rmap(struct mm_struct *mm)
- {
- 	struct anon *anon = mm->anon;
- 
--	spin_lock(&anon->lock);
- 	mm->anon = NULL;
--	wmb();
-+	spin_lock(&anon->lock);
- 	list_del_rcu(&mm->anon_list);
- 	spin_unlock(&anon->lock);
- 
- 	if (!atomic_dec_and_test(&anon->count))
- 		return;
- 
--	/* RCU may not have quiesced things just yet */
--	INIT_LIST_HEAD(&anon->list);
--	atomic_set(&anon->count, 2);
--	kmem_cache_free(anon_cache, anon);
-+	call_rcu(&anon->rcu, free_anon, anon);
- }
- 
- /**
-@@ -342,6 +347,10 @@ static inline int page_referenced_obj(st
- 	struct vm_area_struct *vma;
- 	int referenced = 0;
- 
-+	/* bail if it's a Morton page */
-+	if (!mapping)
-+		return 0;
-+
- 	rcu_read_lock();	/* mapping->i_shared_lock */
- 	list_for_each_entry_rcu(vma, &mapping->i_mmap, shared) {
- 		if (vma->vm_flags & VM_DEAD)
-@@ -569,6 +578,10 @@ static inline int try_to_unmap_obj(struc
- 
- 	mapping = page_mapping(page);
- 
-+	/* bail if it's a Morton page */
-+	if (!mapping)
-+		return SWAP_FAIL;
-+
- 	rcu_read_lock();		/* mapping->i_shared_lock */
- 
- 	list_for_each_entry_rcu(vma, &mapping->i_mmap, shared) {
+Chris Mason wrote:
+
+>Hello all,
+>
+>[ short version, the patch attached should fix io latencies in 2.4.21. 
+>Please review and/or give it a try ]
+> 
+>My last set of patches was directed at reducing the latencies in
+>__get_request_wait, which really helped reduce stalls when you had lots
+>of io to one device and balance_dirty() was causing pauses while you
+>tried to do io to other devices.
+>
+>But, a streaming write could still starve reads to the same device,
+>mostly because the read would have to send down any huge merged writes
+>that were before it in the queue.
+>
+>Andrea's kernel has a fix for this too, he limits the total number of
+>sectors that can be in the request queue at any given time.  But, his
+>patches change blk_finished_io, both in the arguments it takes and the
+>side effects of calling it.  I don't think we can merge his current form
+>without breaking external drivers.
+>
+>So, I added a can_throttle flag to the queue struct, drivers can enable
+>it if they are going to call the new blk_started_sectors and
+>blk_finished_sectors funcs any time they call blk_{started,finished}_io,
+>and these do all the -aa style sector throttling.
+>
+>There were a few other small changes to Andrea's patch, he wasn't
+>setting q->full when get_request decided there were too many sectors in
+>flight.  This resulted in large latencies in __get_request_wait.  He was
+>also unconditionally clearing q->full in blkdev_release_request, my code
+>only clears q->full when all the waiters are gone.
+>
+>I changed generic_unplug_device to zero the elevator_sequence field of
+>the last request on the queue.  This means there won't be any merges
+>with requests pending once an unplug is done, and helps limit the number
+>of sectors that need to be sent down during the run_task_queue(&tq_disk)
+>in wait_on_buffer.
+>
+>I lowered the -aa default limit on sectors in flight from 4MB to 2MB. 
+>We probably want an elvtune for it, large arrays with writeback cache
+>should be able to tolerate larger values.
+>
+>There's still a little work left to do, this patch enables sector
+>throttling for scsi and IDE.  cciss, DAC960 and cpqarray need
+>modification too (99% done already in -aa).  No sense in doing that
+>until after the bulk of the patch is reviewed though.
+>
+>As before, most of the code here is from Andrea and Nick, I've just
+>wrapped a lot of duct tape around it and done some tweaking.  The
+>primary pieces are:
+>
+>fix-pausing (andrea, corner cases where wakeups are missed)
+>elevator-low-latency (andrea, limit sectors in flight)
+>queue_full (Nick, fairness in __get_request_wait)
+>
+
+I am hoping to go a slightly different way in 2.5 pending
+inclusion of process io contexts. If you had time to look
+over my changes there (in current mm tree) it would be
+appreciated, but they don't help your problem for 2.4.
+
+I found that my queue full fairness for 2.4 didn't address
+the batching issue well. It does, guarantee lowest possible
+maximum latency for singular requests, but due to lowered
+throughput this can cause worse "high level" latency.
+
+I couldn't find a really good, comprehensive method of
+allowing processes to batch without resorting to very
+complex wakeup methods unless process io contexts are used.
+The other possibility would be to keep a list of "batching"
+processes which should achieve the same as io contexts.
+
+An easier approach would be to just allow the last woken
+process to submit a batch of requests. This wouldn't have
+as good guaranteed fairness, but not to say that it would
+have starvation issues. I'll help you implement it if you
+are interested.
+
+
+

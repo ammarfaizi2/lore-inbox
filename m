@@ -1,59 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314553AbSFXSAg>; Mon, 24 Jun 2002 14:00:36 -0400
+	id <S314602AbSFXSJX>; Mon, 24 Jun 2002 14:09:23 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314584AbSFXSAf>; Mon, 24 Jun 2002 14:00:35 -0400
-Received: from web30.achilles.net ([209.151.1.2]:58282 "EHLO
-	web30.achilles.net") by vger.kernel.org with ESMTP
-	id <S314553AbSFXSAe> convert rfc822-to-8bit; Mon, 24 Jun 2002 14:00:34 -0400
-Message-ID: <3D1271C7.40305@evision-ventures.com>
-Date: Fri, 21 Jun 2002 02:22:31 +0200
-From: Martin Dalecki <dalecki@evision-ventures.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; pl-PL; rv:1.0.0) Gecko/20020611
-X-Accept-Language: pl, en-us
-MIME-Version: 1.0
-To: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
-CC: Jens Axboe <axboe@suse.de>, Paul Bristow <paul@paulbristow.net>,
-       Gadi Oxman <gadio@netvision.net.il>, linux-kernel@vger.kernel.org
-Subject: Re: [redone PATCH 2.5.22] simple ide-tape/floppy.c cleanup
-References: <Pine.SOL.4.30.0206202302400.14933-200000@mion.elka.pw.edu.pl>
-Content-Type: text/plain; charset=ISO-8859-2; format=flowed
-Content-Transfer-Encoding: 8BIT
+	id <S314634AbSFXSJW>; Mon, 24 Jun 2002 14:09:22 -0400
+Received: from host194.steeleye.com ([216.33.1.194]:49414 "EHLO
+	pogo.mtv1.steeleye.com") by vger.kernel.org with ESMTP
+	id <S314602AbSFXSJU>; Mon, 24 Jun 2002 14:09:20 -0400
+Message-Id: <200206241809.g5OI9Ds02886@localhost.localdomain>
+X-Mailer: exmh version 2.4 06/23/2000 with nmh-1.0.4
+To: "Grover, Andrew" <andrew.grover@intel.com>
+cc: "'David Brownell'" <david-b@pacbell.net>,
+       "'Nick Bellinger'" <nickb@attheoffice.org>,
+       linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org,
+       Patrick Mochel <mochel@osdl.org>
+Subject: Re: driverfs is not for everything! (was: [PATCH] /proc/scsi/map ) 
+In-Reply-To: Message from "Grover, Andrew" <andrew.grover@intel.com> 
+   of "Mon, 24 Jun 2002 10:35:53 PDT." <59885C5E3098D511AD690002A5072D3C02AB7F53@orsmsx111.jf.intel.com> 
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Mon, 24 Jun 2002 14:09:13 -0400
+From: James Bottomley <James.Bottomley@steeleye.com>
+X-AntiVirus: scanned for viruses by AMaViS 0.2.1 (http://amavis.org/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-U¿ytkownik Bartlomiej Zolnierkiewicz napisa³:
-> redone without controversial bits...
-> 
-> generic ATAPI hit #1 against 2.5.22:
-> 
-> 	- move generic ATAPI structs from ide/ide-floppy.c
-> 	  and ide/ide-tape.c to include/atapi.h
-> 	  (this has a nice side effect of making ide-tape
-> 	   a bit more endianness aware)
-> 
-> 	- remove IDEFLOPPY_MIN/MAX() macros, use generic ones
-> 
-> 	- add #ifndef __LINUX_ATAPI_H_ blabla to atapi.h
-> 	  to prevent including it more than once
-> 
-> 
-> should apply cleanly to 2.5.23
+andrew.grover@intel.com said:
+> If a device can be accessed by multiple machines concurrently, it
+> should not be in driverfs. 
 
+On that argument, we'll eliminate almost all Fibre Channel devices!
 
-Hi Bartek. Nice to see that you picked up on the idea
-of code duplication reduction. I think the solution to
-the packet comand declarations problesm will be to
-move them over from cdrom.h to linux/scsi.h and just letting
-scsi/scsi.h include linux/scsi.h. This should even make
-distros still linking to kernle headers from /usr/include
-happy and will achieve the goal of unification.
+I think the qualification for appearing in driverfs is actually possessing a 
+driver.  Therefore, we accept FC and iSCSI.  Things which appear as 
+FileSystems are debatable, but not anything which has a real device driver.
 
-And I agree with Jens that for pragmatic reasons we should
-just keep the prefix from cdrom.h - it's there and doesn't hurt
-but we need one, so why not stick with it? The plain macros
-from scsi.h are too ambigous anyway.
+> We need a device tree to do PM. If driverfs's PM capabilities are hurt
+> because it doesn't stay true to that, then the featureitis has gone
+> too far. 
 
+Perhaps it's more a question of whether power management belongs as an every 
+unit item in driverfs.  As you say, we get problems where the device is shared 
+between multiple computers.
 
+James
 
 

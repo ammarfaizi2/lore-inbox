@@ -1,20 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261215AbVAWE35@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261214AbVAWE35@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261215AbVAWE35 (ORCPT <rfc822;willy@w.ods.org>);
+	id S261214AbVAWE35 (ORCPT <rfc822;willy@w.ods.org>);
 	Sat, 22 Jan 2005 23:29:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261211AbVAWE1N
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261219AbVAWE1h
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 22 Jan 2005 23:27:13 -0500
-Received: from soundwarez.org ([217.160.171.123]:17547 "EHLO soundwarez.org")
-	by vger.kernel.org with ESMTP id S261210AbVAWEY5 (ORCPT
+	Sat, 22 Jan 2005 23:27:37 -0500
+Received: from soundwarez.org ([217.160.171.123]:24715 "EHLO soundwarez.org")
+	by vger.kernel.org with ESMTP id S261209AbVAWE0c (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 22 Jan 2005 23:24:57 -0500
-Date: Sun, 23 Jan 2005 05:24:56 +0100
+	Sat, 22 Jan 2005 23:26:32 -0500
+Date: Sun, 23 Jan 2005 05:26:27 +0100
 From: Kay Sievers <kay.sievers@vrfy.org>
 To: linux-kernel@vger.kernel.org
 Cc: Greg KH <greg@kroah.com>
-Subject: [PATCH 4/7] usb: class driver pass dev_t to the class core
-Message-ID: <20050123042456.GE9209@vrfy.org>
+Subject: [PATCH 6/7] videodev: pass dev_t to the class core
+Message-ID: <20050123042627.GB9256@vrfy.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -24,37 +24,37 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 Signed-off-by: Kay Sievers <kay.sievers@vrfy.org>
 
-===== drivers/usb/core/file.c 1.17 vs edited =====
---- 1.17/drivers/usb/core/file.c	2005-01-15 01:01:44 +01:00
-+++ edited/drivers/usb/core/file.c	2005-01-22 15:15:05 +01:00
-@@ -107,13 +107,6 @@ void usb_major_cleanup(void)
- 	unregister_chrdev(USB_MAJOR, "usb");
+===== drivers/media/video/videodev.c 1.35 vs edited =====
+--- 1.35/drivers/media/video/videodev.c	2004-08-23 10:14:55 +02:00
++++ edited/drivers/media/video/videodev.c	2005-01-22 15:22:49 +01:00
+@@ -46,15 +46,7 @@ static ssize_t show_name(struct class_de
+ 	return sprintf(buf,"%.*s\n",(int)sizeof(vfd->name),vfd->name);
  }
  
--static ssize_t show_dev(struct class_device *class_dev, char *buf)
+-static ssize_t show_dev(struct class_device *cd, char *buf)
 -{
--	int minor = (int)(long)class_get_devdata(class_dev);
--	return print_dev_t(buf, MKDEV(USB_MAJOR, minor));
+-	struct video_device *vfd = container_of(cd, struct video_device, class_dev);
+-	dev_t dev = MKDEV(VIDEO_MAJOR, vfd->minor);
+-	return print_dev_t(buf,dev);
 -}
--static CLASS_DEVICE_ATTR(dev, S_IRUGO, show_dev, NULL);
 -
- /**
-  * usb_register_dev - register a USB device, and ask for a minor number
-  * @intf: pointer to the usb_interface that is being registered
-@@ -184,6 +177,7 @@ int usb_register_dev(struct usb_interfac
- 	class_dev = kmalloc(sizeof(*class_dev), GFP_KERNEL);
- 	if (class_dev) {
- 		memset(class_dev, 0x00, sizeof(struct class_device));
-+		class_dev->devt = MKDEV(USB_MAJOR, minor);
- 		class_dev->class = &usb_class;
- 		class_dev->dev = &intf->dev;
+ static CLASS_DEVICE_ATTR(name, S_IRUGO, show_name, NULL);
+-static CLASS_DEVICE_ATTR(dev,  S_IRUGO, show_dev, NULL);
  
-@@ -195,7 +189,6 @@ int usb_register_dev(struct usb_interfac
- 		snprintf(class_dev->class_id, BUS_ID_SIZE, "%s", temp);
- 		class_set_devdata(class_dev, (void *)(long)intf->minor);
- 		class_device_register(class_dev);
--		class_device_create_file(class_dev, &class_device_attr_dev);
- 		intf->class_dev = class_dev;
- 	}
- exit:
+ struct video_device *video_device_alloc(void)
+ {
+@@ -347,12 +339,11 @@ int video_register_device(struct video_d
+ 	if (vfd->dev)
+ 		vfd->class_dev.dev = vfd->dev;
+ 	vfd->class_dev.class       = &video_class;
++	vfd->class_dev.devt       = MKDEV(VIDEO_MAJOR, vfd->minor);
+ 	strlcpy(vfd->class_dev.class_id, vfd->devfs_name + 4, BUS_ID_SIZE);
+ 	class_device_register(&vfd->class_dev);
+ 	class_device_create_file(&vfd->class_dev,
+ 				 &class_device_attr_name);
+-	class_device_create_file(&vfd->class_dev,
+-				 &class_device_attr_dev);
+ 
+ #if 1 /* needed until all drivers are fixed */
+ 	if (!vfd->release)
 

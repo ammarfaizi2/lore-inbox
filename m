@@ -1,63 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S270071AbUJHRbZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S270067AbUJHRgJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270071AbUJHRbZ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 8 Oct 2004 13:31:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270072AbUJHRbZ
+	id S270067AbUJHRgJ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 8 Oct 2004 13:36:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270072AbUJHRgJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 8 Oct 2004 13:31:25 -0400
-Received: from chaos.analogic.com ([204.178.40.224]:3456 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP id S270071AbUJHR3v
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 8 Oct 2004 13:29:51 -0400
-Date: Fri, 8 Oct 2004 13:29:40 -0400 (EDT)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-Reply-To: root@chaos.analogic.com
-To: Greg KH <greg@kroah.com>
-cc: Stephen Hemminger <shemminger@osdl.org>, linus@osdl.org, akpm@osdl.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] protect against buggy drivers
-In-Reply-To: <20041008171414.GA28001@kroah.com>
-Message-ID: <Pine.LNX.4.61.0410081322110.4031@chaos.analogic.com>
-References: <1097254421.16787.27.camel@localhost.localdomain>
- <20041008171414.GA28001@kroah.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+	Fri, 8 Oct 2004 13:36:09 -0400
+Received: from viper.oldcity.dca.net ([216.158.38.4]:12725 "HELO
+	viper.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S270067AbUJHRgH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 8 Oct 2004 13:36:07 -0400
+Subject: Re: [patch] voluntary-preempt-2.6.9-rc3-mm3-T3
+From: Lee Revell <rlrevell@joe-job.com>
+To: Peter Williams <pwil3058@bigpond.net.au>
+Cc: Ingo Molnar <mingo@elte.hu>, Rui Nuno Capela <rncbc@rncbc.org>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       "K.R. Foley" <kr@cybsft.com>, Florian Schmidt <mista.tapas@gmx.net>,
+       mark_h_johnson@raytheon.com,
+       Fernando Pablo Lopez-Lezcano <nando@ccrma.stanford.edu>
+In-Reply-To: <41664364.20604@bigpond.net.au>
+References: <20040923211206.GA2366@elte.hu> <20040924074416.GA17924@elte.hu>
+	 <20040928000516.GA3096@elte.hu> <20041003210926.GA1267@elte.hu>
+	 <20041004215315.GA17707@elte.hu> <20041005134707.GA32033@elte.hu>
+	 <20041007105230.GA17411@elte.hu>
+	 <56697.195.245.190.93.1097157219.squirrel@195.245.190.93>
+	 <32798.192.168.1.5.1097191570.squirrel@192.168.1.5>
+	 <1097213813.1442.2.camel@krustophenia.net> <20041008070654.GA30926@elte.hu>
+	 <41664364.20604@bigpond.net.au>
+Content-Type: text/plain
+Message-Id: <1097256432.1442.6.camel@krustophenia.net>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Fri, 08 Oct 2004 13:27:13 -0400
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 8 Oct 2004, Greg KH wrote:
+On Fri, 2004-10-08 at 03:36, Peter Williams wrote:
+> Ingo Molnar wrote:
+> > * Lee Revell <rlrevell@joe-job.com> wrote:
+> > 
+> > 
+> >>On Thu, 2004-10-07 at 19:26, Rui Nuno Capela wrote:
+> >>
+> >>>Ingo Molnar wrote:
+> >>>
+> >>>>>i've released the -T3 VP patch:
+> >>>>>  http://redhat.com/~mingo/voluntary-preempt/voluntary-preempt-2.6.9-rc3-mm3-T3
+> >>>>>
+> >>>>
+> >>>OK. Just to let you know, both of my personal machines are now running on
+> >>>bleeding-edge 2.6.9-rc3-mm3-T3, and very happily may I assure :)
+> >>
+> >>This actually feels a _lot_ snappier than mm2, which seemed prone to
+> >>weird stalls.  I don't have any numbers to back this up yet.
+> > 
+> > 
+> > yeah, -mm is back to the development branch of the stock scheduler. 
+> > (i.e. the scheduler changes destined for 2.6.10.)
+> 
+> It's also got a fix for the cache hot timing bug which was causing havoc 
+> with the load balancer.
 
-> On Fri, Oct 08, 2004 at 09:53:41AM -0700, Stephen Hemminger wrote:
->> +	    strlen(name) >= KOBJ_NAME_LEN ||
->
-> There's no need for this check, if we fix the other usage of
-> cdev->kobj.name in this file to use the proper kobject_name() and
-> kobject_set_name() functions.
->
-> thanks,
->
-> greg k-h
+Wouldn't this only be an issue on SMP?  I am on a UP system.
 
-Well the module name is passed in register/unregister_chrdev(). It
-was not documented as the allowed length of the name so it was
-possible to install a device and then only "partially" uninstall
-the device so a subsequent open of the device-file would crash
-the kernel.  A device name of :
-
- 	"Octrangle Contrabulator"  23 characters
-
-... in a test program was sufficiently-long to kill the kernel.
-I recommend truncating any name to an acceptable length. This
-would show up in /proc/iomem, etc., prompting the developer
-to shorten the name.
-
-Also, the new length of 20 characters is probably too short.
-There was no such limitation on 2.4.x, where many modules
-are being ported from.
-
-
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.6.8 on an i686 machine (5537.79 BogoMips).
-             Note 96.31% of all statistics are fiction.
+Lee
 

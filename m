@@ -1,35 +1,35 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272360AbTHIN6X (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 9 Aug 2003 09:58:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272359AbTHIN6X
+	id S272357AbTHINsJ (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 9 Aug 2003 09:48:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272358AbTHINsJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 9 Aug 2003 09:58:23 -0400
-Received: from cmu-24-35-14-252.mivlmd.cablespeed.com ([24.35.14.252]:10625
-	"EHLO localhost.localdomain") by vger.kernel.org with ESMTP
-	id S272396AbTHINyG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 9 Aug 2003 09:54:06 -0400
-Date: Sat, 9 Aug 2003 09:53:26 -0500 (CDT)
-From: Thomas Molina <tmolina@cablespeed.com>
-X-X-Sender: tmolina@localhost.localdomain
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-cc: Zwane Mwaikambo <zwane@arm.linux.org.uk>
-Subject: [Bug 973] Re: Linux 2.6.0-test3:  Presario laptop panic
-In-Reply-To: <Pine.LNX.4.44.0308082228470.1852-100000@home.osdl.org>
-Message-ID: <Pine.LNX.4.44.0308090945150.2587-100000@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Sat, 9 Aug 2003 09:48:09 -0400
+Received: from 153.Red-213-4-13.pooles.rima-tde.net ([213.4.13.153]:58117 "EHLO
+	small.felipe-alfaro.com") by vger.kernel.org with ESMTP
+	id S272357AbTHINsH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 9 Aug 2003 09:48:07 -0400
+Subject: Re: 2.6.0-test3 cannot mount root fs
+From: Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>
+To: Norbert Preining <preining@logic.at>
+Cc: gaxt <gaxt@rogers.com>, LKML <linux-kernel@vger.kernel.org>
+In-Reply-To: <20030809104024.GA12316@gamma.logic.tuwien.ac.at>
+References: <3F34D0EA.8040006@rogers.com>
+	 <20030809104024.GA12316@gamma.logic.tuwien.ac.at>
+Content-Type: text/plain
+Message-Id: <1060436885.467.0.camel@teapot.felipe-alfaro.com>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.4 
+Date: Sat, 09 Aug 2003 15:48:05 +0200
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Please see Bugzilla for the gory details.  Synopsis is that my Preario 
-laptop panics on boot:
+On Sat, 2003-08-09 at 12:40, Norbert Preining wrote:
+> On Sam, 09 Aug 2003, gaxt wrote:
+> > Try changing in your bootloader root=/dev/hdb1 to root=341
 
-Unable to handle kernel pagin request at virtual address c035800
+Justa stupid guess, but the format has been changed. Instead, try
 
-EIP 0060:[<c014CE95>]
-EIP is at store_stackinfo+0x85/0xc0
-
-This behaviour continues since 2.5.74-bk1.  
-
+root=03:41
 

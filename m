@@ -1,43 +1,30 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265363AbTLHJ45 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 8 Dec 2003 04:56:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265365AbTLHJ45
+	id S265359AbTLHKCr (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 8 Dec 2003 05:02:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265362AbTLHKCr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 Dec 2003 04:56:57 -0500
-Received: from holomorphy.com ([199.26.172.102]:52698 "EHLO holomorphy.com")
-	by vger.kernel.org with ESMTP id S265363AbTLHJ44 (ORCPT
+	Mon, 8 Dec 2003 05:02:47 -0500
+Received: from math.ut.ee ([193.40.5.125]:17084 "EHLO math.ut.ee")
+	by vger.kernel.org with ESMTP id S265359AbTLHKCq (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 Dec 2003 04:56:56 -0500
-Date: Mon, 8 Dec 2003 01:56:54 -0800
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Misha Nasledov <misha@nasledov.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.0-test11 Oops
-Message-ID: <20031208095654.GS19856@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Misha Nasledov <misha@nasledov.com>, linux-kernel@vger.kernel.org
-References: <20031208032127.GA14638@nasledov.com> <20031208094138.GE8039@holomorphy.com> <20031208095349.GA1232@nasledov.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20031208095349.GA1232@nasledov.com>
-Organization: The Domain of Holomorphy
-User-Agent: Mutt/1.5.4i
+	Mon, 8 Dec 2003 05:02:46 -0500
+Date: Mon, 8 Dec 2003 12:02:44 +0200 (EET)
+From: Meelis Roos <mroos@linux.ee>
+To: linux-kernel@vger.kernel.org
+Subject: 2.4.23+BK: PPC compile error
+Message-ID: <Pine.GSO.4.44.0312081201500.13502-100000@math.ut.ee>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Dec 08, 2003 at 01:41:38AM -0800, William Lee Irwin III wrote:
->> What did it say the cause for it was? BUG()? Fault?
+gcc -D__ASSEMBLY__ -D__KERNEL__ -I/home/mroos/compile/linux-2.4/include -I/home/mroos/compile/linux-2.4/arch/ppc   -c -o cpu_setup_6xx.o cpu_setup_6xx.S
+cpu_setup_6xx.S: Assembler messages:
+cpu_setup_6xx.S:164: Error: Unrecognized opcode: `andi'
 
-On Mon, Dec 08, 2003 at 01:53:49AM -0800, Misha Nasledov wrote:
-> I don't know; I copied everything off the screen once it stopped scrolling by
-> so fast. A few other stack traces popped up but were scrolled up too quickly.
-> I couldn't scroll up or anything..
+32-bit PPC, Debian unstable (up to date). Compiling for PReP.
 
-Scheduling while atomic warnings look different and there aren't many
-obvious places to oops or BUG in the scheduler (or at least AFAICT there
-haven't been stability issues there for some time).
+-- 
+Meelis Roos (mroos@linux.ee)
 
-
--- wli

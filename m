@@ -1,86 +1,74 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317829AbSIOFQh>; Sun, 15 Sep 2002 01:16:37 -0400
+	id <S317845AbSIOF0U>; Sun, 15 Sep 2002 01:26:20 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317833AbSIOFQh>; Sun, 15 Sep 2002 01:16:37 -0400
-Received: from packet.digeo.com ([12.110.80.53]:17796 "EHLO packet.digeo.com")
-	by vger.kernel.org with ESMTP id <S317829AbSIOFQg>;
-	Sun, 15 Sep 2002 01:16:36 -0400
-Message-ID: <3D841C8A.682E6A5C@digeo.com>
-Date: Sat, 14 Sep 2002 22:37:14 -0700
-From: Andrew Morton <akpm@digeo.com>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-rc5 i686)
-X-Accept-Language: en
+	id <S317855AbSIOF0U>; Sun, 15 Sep 2002 01:26:20 -0400
+Received: from mta01bw.bigpond.com ([139.134.6.78]:65218 "EHLO
+	mta01bw.bigpond.com") by vger.kernel.org with ESMTP
+	id <S317845AbSIOF0M>; Sun, 15 Sep 2002 01:26:12 -0400
+From: Brad Hards <bhards@bigpond.net.au>
+To: Brian Craft <bcboy@thecraftstudio.com>, linux-kernel@vger.kernel.org
+Subject: Re: delay before open() works
+Date: Sun, 15 Sep 2002 15:25:01 +1000
+User-Agent: KMail/1.4.5
+References: <20020914094225.A1267@porky.localdomain>
+In-Reply-To: <20020914094225.A1267@porky.localdomain>
 MIME-Version: 1.0
-To: Daniel Phillips <phillips@arcor.de>
-CC: lkml <linux-kernel@vger.kernel.org>,
-       "linux-mm@kvack.org" <linux-mm@kvack.org>
-Subject: Re: 2.5.34-mm2
-References: <3D803434.F2A58357@digeo.com> <E17qQMq-0001JV-00@starship> <3D8408A9.7B34483D@digeo.com> <E17qQwq-0001qT-00@starship>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 15 Sep 2002 05:21:24.0845 (UTC) FILETIME=[BC3811D0:01C25C77]
+Content-Type: Text/Plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Description: clearsigned data
+Content-Disposition: inline
+Message-Id: <200209151525.01920.bhards@bigpond.net.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Daniel Phillips wrote:
-> 
-> On Sunday 15 September 2002 06:12, Andrew Morton wrote:
-> > Daniel Phillips wrote:
-> > >  I heard you
-> > > mention, on the one hand, huge speedups on some load (dbench I think)
-> > > but your in-patch comments mention slowdown by 1.7X on kernel
-> > > compile.
-> >
-> > You misread.  Relative times for running `make -j6 bzImage' with mem=512m:
-> >
-> > Unloaded system:                                   1.0
-> > 2.5.34-mm4, while running 4 x `dbench 100'           1.7
-> > Any other kernel while running 4 x `dbench 100'      basically infinity
-> 
-> Oh good :-)
-> 
-> We can make the rescanning go away in time, with more lru lists,
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-We don't actually need more lists, I expect.  Dirty and under writeback
-pages just don't go on a list at all - cut them off the LRU and
-bring them back at IO completion.  We can't do anything useful with
-a list of dirty/writeback pages anyway, so why have the list?
+On Sun, 15 Sep 2002 02:42, Brian Craft wrote:
+<snip>
+> This is pretty gross, since I have to determine the "15" by playing with
+> it, and I'm sure it will fail some of the time unless I make it reeeeeally
+> long. I suspected this was some hardware issue -- USB latencies on device
+> discovery, or boot time for the scanner -- but a friend who isn't
+> attempting to power-up his devices says he sees the same behavior when just
+> scripting "modprobe". So it appears there's some fairly long delay in the
+> kernel itself.
+>
+> Anyone know off-hand what causes this delay, or if there's some way to get
+> the open() to block?
+There is a fundamental problem with the way hotplugging works in this case.
 
-It kind of depends whether we want to put swapcache on that list.  I
-may just give swapper_inode a superblock and let pdflush write swap.
+The underlying hardware (in this case USB) detects a status change. It calls 
+call_usermode_helper(), and hands off the task to keventd. Then things wait. 
+Eventually keventd gets around to calling /sbin/hotplug, which loads modules, 
+runs scripts, writes config files, exec code - whatever. The problem is that 
+if module initialisation isn't complete, then clearly its interfaces may not 
+be established (or in some badly-coded cases, may contain races where the 
+interface is registered but isn't valid). 
 
-The interrupt-time page motion is of course essential if we are to
-avoid long scans of that list.
+After discussions with Oliver Neukem at Linux Kongress, the idea of a second 
+hotplug event emerges. This is signalled by the driver that actually 
+registers the interface after the interface is properly established (so in 
+your example, USB core does one call_usermode_helper(), which probably does 
+something like "modprobe scanner"; and the scanner driver does a second 
+call_usermode_helper(), which loads xsane).
 
-That, and replacing the blk_congestion_wait() throttling with a per-classzone
-wait_for_some_pages_to_come_clean() throttling pretty much eliminates the
-remaining pointless scan activity from the VM, and fixes a current false OOM
-scenario in -mm4.
+BTW: I'm not sure who actually came up with the idea - it was in the hotplug 
+BoF, but I missed this part of it.
 
-> but that sure looks like the low hanging fruit.
+Solves this race. Unfortunately requires some janitorial work. Patch away...
 
-It's low alright.  AFAIK Linux has always had this problem of
-seizing up when there's a lot of dirty data around.
+Brad
 
-Let me quantify infinity:
+- -- 
+http://conf.linux.org.au. 22-25Jan2003. Perth, Australia. Birds in Black.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.6 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
 
+iD8DBQE9hBmtW6pHgIdAuOMRAsblAKCKoiHGDnKnCU3kORyTJKEy8sjPKwCfSwDj
+QGrrS/elmJ/YbBwmpksI+WU=
+=yclZ
+-----END PGP SIGNATURE-----
 
-With mem=512m, on the quad:
-
-`make -j6 bzImage' takes two minutes and two seconds.
-
-On 2.5.34, a concurrent 4 x `dbench 100' slows that same kernel
-build down to 35 minutes and 16 seconds.
-
-On 2.5.34-mm4, while running 4 x `dbench 100' that kernel build
-takes three minutes and 45 seconds.
-
-
-
-That's with seven disks: four for the dbenches, one for the kernel
-build, one for swap and one for the executables.  Things would be
-worse with less disks because of seek contention.  But that's
-to be expected.  The intent of this work is to eliminate this
-crosstalk between different activities.  And to avoid blocking things
-which aren't touching disk at all.

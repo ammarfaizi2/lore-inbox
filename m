@@ -1,52 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262730AbSJ0Wwa>; Sun, 27 Oct 2002 17:52:30 -0500
+	id <S262721AbSJ0Wuq>; Sun, 27 Oct 2002 17:50:46 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262722AbSJ0Ww3>; Sun, 27 Oct 2002 17:52:29 -0500
-Received: from c16410.randw1.nsw.optusnet.com.au ([210.49.25.29]:16115 "EHLO
-	mail.chubb.wattle.id.au") by vger.kernel.org with ESMTP
-	id <S262730AbSJ0Wvt>; Sun, 27 Oct 2002 17:51:49 -0500
-From: Peter Chubb <peter@chubb.wattle.id.au>
+	id <S262730AbSJ0Wuq>; Sun, 27 Oct 2002 17:50:46 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:61195 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S262721AbSJ0WsW>; Sun, 27 Oct 2002 17:48:22 -0500
+To: linux-kernel@vger.kernel.org
+From: "H. Peter Anvin" <hpa@zytor.com>
+Subject: Re: New nanosecond stat patch for 2.5.44
+Date: 27 Oct 2002 14:54:16 -0800
+Organization: Transmeta Corporation, Santa Clara CA
+Message-ID: <aphqqo$261$1@cesium.transmeta.com>
+References: <20021027121318.GA2249@averell> <20021027214913.GA17533@clusterfs.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <15804.28536.3553.712306@wombat.chubb.wattle.id.au>
-Date: Mon, 28 Oct 2002 09:58:00 +1100
-To: Jeff Garzik <jgarzik@pobox.com>
-Cc: Patrick Mochel <mochel@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: Switching from IOCTLs to a RAMFS
-In-Reply-To: <717068543@toto.iv>
-X-Mailer: VM 7.04 under 21.4 (patch 8) "Honest Recruiter" XEmacs Lucid
-X-Face: GgFg(Z>fx((4\32hvXq<)|jndSniCH~~$D)Ka:P@e@JR1P%Vr}EwUdfwf-4j\rUs#JR{'h#
- !]])6%Jh~b$VA|ALhnpPiHu[-x~@<"@Iv&|%R)Fq[[,(&Z'O)Q)xCqe1\M[F8#9l8~}#u$S$Rm`S9%
- \'T@`:&8>Sb*c5d'=eDYI&GF`+t[LfDH="MP5rwOO]w>ALi7'=QJHz&y&C&TE_3j!
-Comments: Hyperbole mail buttons accepted, v04.18.
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Disclaimer: Not speaking for Transmeta in any way, shape, or form.
+Copyright: Copyright 2002 H. Peter Anvin - All Rights Reserved
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> "Jeff" == Jeff Garzik <jgarzik@pobox.com> writes:
+Followup to:  <20021027214913.GA17533@clusterfs.com>
+By author:    Andreas Dilger <adilger@clusterfs.com>
+In newsgroup: linux.dev.kernel
+> 
+> 3) The fields you are usurping in struct stat are actually there for the
+>    Y2038 problem (when time_t wraps).  At least that's what Ted said when
+>    we were looking into nsec times for ext2/3.  Granted, we may all be
+>    using 64-bit systems by 2038...  I've always thought 64 bits is much
+>    to large for time_t, so we could always use 20 or 30 bits for sub-second
+>    times, and the remaining bits for extending time_t at the high end,
+>    and mask those off for now, but that is a separate issue...
+> 
+
+64-bit time_t is nice because you don't *ever* need to worry about
+overflow; it's capable of handling times on a galactic lifespan
+scale.  It's overkill, of course, but it's the *right* kind of
+overkill.
+
+We probably need to revamp struct stat anyway, to support a larger
+dev_t, and possibly a larger ino_t (we should account for 64-bit ino_t
+at least if we have to redesign the structure.)  At that point I would
+really like to advocate for int64_t ts_sec and uint32_t ts_nsec and
+quite possibly a int32_t ts_taidelta to deal with leap seconds... I'd
+personally like struct timespec to look like the above everywhere.
+
+	-hpa
 
 
-Jeff> Like I touched on in IRC, there is room for both sysfs and per-driver 
-Jeff> filesystems.
-
-Jeff> I think just about everyone agrees that ioctls are a bad idea and a huge 
-Jeff> maintenance annoyance.  
-
-I note that the P1003.26 ballot has just been announced...
-
-  Title: P1003.26:  Information Technology -- Portable Operating  
-  System Interface (POSIX) -- Part 26:  Device Control  
-  Application Program Interface (API) [C Language] 
- 
-  Scope: This work will define an application program interface to  
-  device drivers.  The interface will be modeled on the  
-  traditional ioctl() function, but will have enhancements  
-  designed to address issues such as "type safety" and  
-  reentrancy. 
- 
-
-It may be worth looking at what the draft standard says before
-committing to yet another interface specification.
-
-Peter C
+-- 
+<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
+"Unix gives you enough rope to shoot yourself in the foot."
+http://www.zytor.com/~hpa/puzzle.txt	<amsp@zytor.com>

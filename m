@@ -1,67 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272597AbTG3BIm (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 29 Jul 2003 21:08:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272428AbTG3BH6
+	id S272495AbTG3BFR (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 29 Jul 2003 21:05:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272547AbTG3BFR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 29 Jul 2003 21:07:58 -0400
-Received: from [218.86.51.11] ([218.86.51.11]:41745 "HELO freemail.soim.com")
-	by vger.kernel.org with SMTP id S272601AbTG3BGQ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 29 Jul 2003 21:06:16 -0400
-From: "Laura" <Boostings@freemail.soim.com>
-To: <linux-kernel@vger.kernel.org>
-Subject: Grow Your Customers
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Date: Wed, 30 Jul 2003 09:06:57 +0800
-Reply-To: "Laura" <Order@marketingboosting.com>
-Content-Transfer-Encoding: 7BIT
-Message-Id: <S272601AbTG3BGQ/20030730010743Z+91@vger.kernel.org>
+	Tue, 29 Jul 2003 21:05:17 -0400
+Received: from 64-60-248-67.cust.telepacific.net ([64.60.248.67]:57366 "EHLO
+	mx.rackable.com") by vger.kernel.org with ESMTP id S272495AbTG3BFN
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 29 Jul 2003 21:05:13 -0400
+Message-ID: <3F27186A.2070409@rackable.com>
+Date: Tue, 29 Jul 2003 17:59:22 -0700
+From: Samuel Flory <sflory@rackable.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030529
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Voicu Liviu <pacman@mscc.huji.ac.il>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: cant open a console in X
+References: <3F26D9B3.2050006@mscc.huji.ac.il>
+In-Reply-To: <3F26D9B3.2050006@mscc.huji.ac.il>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 30 Jul 2003 01:04:58.0291 (UTC) FILETIME=[987AC030:01C35636]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Voicu Liviu wrote:
 
-E-mail Marketing is one of the most effective and inexpensive ways to
-promote your products and services.
+> Hi, I just compiled kernel 2.6-beta2 and I can not open a console in 
+> while running XFree.
+> Any idea?
+> Regards
+>
 
-We offer a complete E-mail Marketing solution with quality service and
-the lowest prices. The result is that you will enjoy more success.
+  Did you compile pty support?
 
-1. Targeted E-mail Addresses 
-
-We can supply targeted e-mail addresses according to your requirements,
-which are compiled only on your order, such as region / country / field / 
-occupation / Domain Name etc. We will customize your customer e-mail
-addresses.
-
-* We have millions of e-mail addresses in a wide variety of categories.
-
-2. Targeted Mailing  
-
-If you are worried about any complications or consequences with sending 
-out targeted e-mails, or want to avoid the work of sending out targeted 
-e-mails. We will do it for you! We can send your e-mail message to your 
-targeted customers.
-
-* We can Bullet-Proof your Web Site.
-
-We also offer a wide variety of e-mail marketing software. For more
-details, you can refer to our web site: http://www.aid-biz.com
-
-Our services will help you get more business opportunities.
+-- 
+Once you have their hardware. Never give it back.
+(The First Rule of Hardware Acquisition)
+Sam Flory  <sflory@rackable.com>
 
 
-Regards!
-
-Ms Laura
-www.aid-biz.com
-Customer Support
-
-E-mail Marketing, at Great Fees.
-
-************************************************************************
-Receiving this email because you registered to receive special 
-offers from one of our partners. If you would prefer not to receive
-future e-mail, Click here: Booster@ywzc.net?subject=REMOVE
-************************************************************************

@@ -1,72 +1,116 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264922AbUAIWUg (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 Jan 2004 17:20:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264929AbUAIWUf
+	id S264423AbUAIWdf (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 Jan 2004 17:33:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264450AbUAIWdf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 Jan 2004 17:20:35 -0500
-Received: from smtp.sys.beep.pl ([195.245.198.13]:63748 "EHLO maja.beep.pl")
-	by vger.kernel.org with ESMTP id S264922AbUAIWUa convert rfc822-to-8bit
+	Fri, 9 Jan 2004 17:33:35 -0500
+Received: from mail.augustmail.com ([216.87.129.202]:58758 "EHLO
+	mail.augustmail.com") by vger.kernel.org with ESMTP id S264423AbUAIWdc
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 Jan 2004 17:20:30 -0500
-From: Arkadiusz Miskiewicz <arekm@pld-linux.org>
-Organization: SelfOrganizing
+	Fri, 9 Jan 2004 17:33:32 -0500
+From: "Michael C. Ferguson" <mcf@augustmail.com>
 To: linux-kernel@vger.kernel.org
-Subject: Re: 2.4.24 SMP lockups
-Date: Fri, 9 Jan 2004 23:20:19 +0100
+Subject: Buffer error in fs/buffer.c
+Date: Fri, 9 Jan 2004 16:33:31 -0600
 User-Agent: KMail/1.5.94
-References: <20040109210450.GA31404@netnation.com>
-In-Reply-To: <20040109210450.GA31404@netnation.com>
 MIME-Version: 1.0
 Content-Disposition: inline
 Content-Type: text/plain;
-  charset="iso-8859-2"
-Content-Transfer-Encoding: 8BIT
-Message-Id: <200401092320.19500.arekm@pld-linux.org>
-X-Authenticated-Id: arekm 
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200401091633.31202.mcf@augustmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 09 of January 2004 22:04, Simon Kirby wrote:
-> 'lo all,
->
-> We've had about 6 cases of this now, across 4 separate boxes. 
-I had several such cases with 2.4.23 on two separate boxes. First is dual PIII 
-1GHz Intel SRMK2 platform - 
-http://www.intel.com/support/motherboards/server/srmk2/ with 1,5GB RAM, 
-reiserfs as filesystem, scsi disks and Adaptec AIC-7899P U160/m controller.
 
-Second was UP PIII 500MHz machine on some Intel BX mainboard, 256MB RAM, ext3 
-as filesystem, software raid 5 on scsi disks using aic7xxx (Adaptec AIC-7892B 
-U160/m).
+Hi all,
 
-First one was locking up few times per day (pretty big load), second one maybe 
-once per day/two (lower load).
+	I got a strange error in my logs this afternoon. I was upgrading to 2.6.1 as 
+usual: mount /boot, copied the bzImage over (from reiserfs to ext3), called 
+'sync'... and sync froze. The system is still usable (I'm writing this e-mail 
+now on it), but sync has yet to recover. The system has otherwise been very 
+stable, both in 2.6.0 and in XP. I'll attach the call trace and my lspci to 
+the bottom; also, preemption is on. Let me know if there is anything else I 
+can provide. I'm not subscribed to linux-kernel, so please cc: me to any 
+replies.
 
-Both machines are working _fine_ with 2.4.21 kernel (one was also using 2.4.22 
-for some time and no problems occured).
 
-kernels on both machines were exactly the same (just copied) but using 
-different modules - kernel was compiled using 2.95.4 (3+some parts from 2.95 
-branch of gcc cvs)
+---- Call trace ----
 
-> These boxes are all dual CPU, and the failure case shows up suddenly with
-> no warning.  Sysreq-P works, but only reports from one CPU no matter how
-> many times I try.  In normal operation, every machine distributes all
-> IRQs across both CPUs, and Sysreq-P reports from both CPUs.
-Similar here - but sometimes even sysrq wasn't working (on second machine).
+EXT3 FS on sdb1, internal journal
+EXT3-fs: mounted filesystem with ordered data mode.
+buffer layer error at fs/buffer.c:1818
+Call Trace:
+ [<c0152ede>] __block_write_full_page+0x22a/0x3e6
+ [<c0154647>] block_write_full_page+0xd8/0x101
+ [<c015711d>] blkdev_get_block+0x0/0x5a
+ [<c015727d>] blkdev_writepage+0x1f/0x23
+ [<c015711d>] blkdev_get_block+0x0/0x5a
+ [<c017044a>] mpage_writepages+0x217/0x2f1
+ [<c015725e>] blkdev_writepage+0x0/0x23
+ [<c015840d>] generic_writepages+0x1f/0x23
+ [<c013a55e>] do_writepages+0x1e/0x38
+ [<c0134e7e>] __filemap_fdatawrite+0xe3/0xec
+ [<c0134e9e>] filemap_fdatawrite+0x17/0x1b
+ [<c0151436>] sync_blockdev+0x26/0x4c
+ [<c016f2e0>] sync_inodes+0x86/0x90
+ [<c0151593>] do_sync+0x44/0x64
+ [<c01515c2>] sys_sync+0xf/0x15
+ [<c010915b>] syscall_call+0x7/0xb
 
-> Even on boxes with nmi_watchdog=1, nothing is reported from the NMI
-> watchdog.
-Exactly same here.
-append=" console=tty0 console=ttyS0,9600n81 panic=60 nmi_watchdog=1"
+buffer layer error at fs/buffer.c:2664
+Call Trace:
+ [<c0154814>] submit_bh+0x126/0x176
+ [<c0152eb6>] __block_write_full_page+0x202/0x3e6
+ [<c0154647>] block_write_full_page+0xd8/0x101
+ [<c015711d>] blkdev_get_block+0x0/0x5a
+ [<c015727d>] blkdev_writepage+0x1f/0x23
+ [<c015711d>] blkdev_get_block+0x0/0x5a
+ [<c017044a>] mpage_writepages+0x217/0x2f1
+ [<c015725e>] blkdev_writepage+0x0/0x23
+ [<c015840d>] generic_writepages+0x1f/0x23
+ [<c013a55e>] do_writepages+0x1e/0x38
+ [<c0134e7e>] __filemap_fdatawrite+0xe3/0xec
+ [<c0134e9e>] filemap_fdatawrite+0x17/0x1b
+ [<c0151436>] sync_blockdev+0x26/0x4c
+ [<c016f2e0>] sync_inodes+0x86/0x90
+ [<c0151593>] do_sync+0x44/0x64
+ [<c01515c2>] sys_sync+0xf/0x15
+ [<c010915b>] syscall_call+0x7/0xb
 
-I was thinking that maybe that's due to some problem in aic7xxx driver and 
-updated it on one machine to latest available version (these in kernel are 
-very old) but that didn't help.
+---- End Call trace ----
 
-> Simon-
+---- lcpi ----
+00:00.0 Host bridge: Intel Corp. 82875P Memory Controller Hub (rev 02)
+00:01.0 PCI bridge: Intel Corp. 82875P Processor to AGP Controller (rev 02)
+00:03.0 PCI bridge: Intel Corp. 82875P Processor to PCI to CSA Bridge (rev 02)
+00:1d.0 USB Controller: Intel Corp. 82801EB USB (rev 02)
+00:1d.1 USB Controller: Intel Corp. 82801EB USB (rev 02)
+00:1d.2 USB Controller: Intel Corp. 82801EB USB (rev 02)
+00:1d.3 USB Controller: Intel Corp. 82801EB USB (rev 02)
+00:1d.7 USB Controller: Intel Corp. 82801EB USB2 (rev 02)
+00:1e.0 PCI bridge: Intel Corp. 82801BA/CA/DB/EB PCI Bridge (rev c2)
+00:1f.0 ISA bridge: Intel Corp. 82801EB LPC Interface Controller (rev 02)
+00:1f.1 IDE interface: Intel Corp. 82801EB Ultra ATA Storage Controller (rev 
+02)
+00:1f.3 SMBus: Intel Corp. 82801EB SMBus Controller (rev 02)
+00:1f.5 Multimedia audio controller: Intel Corp. 82801EB AC'97 Audio 
+Controller (rev 02)
+01:00.0 VGA compatible controller: nVidia Corporation NV25 [GeForce4 Ti 4600] 
+(rev a2)
+02:01.0 Ethernet controller: Intel Corp.: Unknown device 1019
+03:03.0 FireWire (IEEE 1394): VIA Technologies, Inc. IEEE 1394 Host Controller 
+(rev 80)
+03:0a.0 SCSI storage controller: Adaptec AHA-2940U2/U2W
+03:0d.0 Multimedia audio controller: Creative Labs SB Live! EMU10k1 (rev 04)
+03:0d.1 Input device controller: Creative Labs SB Live! MIDI/Game Port (rev 
+01)
+---- lspci ----
 
--- 
-Arkadiusz Mi¶kiewicz    CS at FoE, Wroclaw University of Technology
-arekm.pld-linux.org AM2-6BONE, 1024/3DB19BBD, arekm(at)ircnet, PLD/Linux
+
+Best regards,
+
+
+
+Michael C. Ferguson

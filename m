@@ -1,91 +1,88 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263745AbUESApr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263750AbUESAvN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263745AbUESApr (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 18 May 2004 20:45:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263750AbUESApr
+	id S263750AbUESAvN (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 18 May 2004 20:51:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263752AbUESAvN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 18 May 2004 20:45:47 -0400
-Received: from ausmtp01.au.ibm.com ([202.81.18.186]:8410 "EHLO
-	ausmtp01.au.ibm.com") by vger.kernel.org with ESMTP id S263745AbUESApo
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 18 May 2004 20:45:44 -0400
-Subject: Re: ia64 cpu hotplug patch
-From: Rusty Russell <rusty@rustcorp.com.au>
-To: Ashok Raj <ashok.raj@intel.com>
-Cc: Anton Blanchard <anton@samba.org>, Andrew Morton <akpm@osdl.org>,
-       lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20040518165803.A32483@unix-os.sc.intel.com>
-References: <1084923956.23158.11.camel@bach>
-	 <20040518165803.A32483@unix-os.sc.intel.com>
-Content-Type: text/plain
-Message-Id: <1084927489.23154.26.camel@bach>
+	Tue, 18 May 2004 20:51:13 -0400
+Received: from ppp-217-133-42-200.cust-adsl.tiscali.it ([217.133.42.200]:11746
+	"EHLO dualathlon.random") by vger.kernel.org with ESMTP
+	id S263750AbUESAvI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 18 May 2004 20:51:08 -0400
+Date: Wed, 19 May 2004 02:51:06 +0200
+From: Andrea Arcangeli <andrea@suse.de>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: invalidate_inode_pages2
+Message-ID: <20040519005106.GP3044@dualathlon.random>
+References: <20040519001520.GO3044@dualathlon.random> <20040518172718.773d32c1.akpm@osdl.org>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Wed, 19 May 2004 10:44:50 +1000
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040518172718.773d32c1.akpm@osdl.org>
+User-Agent: Mutt/1.4.1i
+X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
+X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2004-05-19 at 09:58, Ashok Raj wrote:
-> proc_misc.c was changed, since top() uses this to read and
-> display stats. With cpuhotplug cpu_possible() represents
-> the entire set of NR_CPUS, all these stats with 0 values and
-> top gets all dorky about it.
+On Tue, May 18, 2004 at 05:27:18PM -0700, Andrew Morton wrote:
+> Andrea Arcangeli <andrea@suse.de> wrote:
+> >
+> > Something broke in invalidate_inode_pages2 between 2.4 and 2.6, this
+> > causes malfunctions with mapped pages in 2.6.
 > 
-> Maybe the right thing would be to fix the utility instead ?
+> What is the malfunction?
+
+>From Olaf Kirch
+
+ -      single application on NFS client opens file and maps it.
+        No-one else has this file open. File contains "zappa\n",
+        and the test app stats it once a second and reports size and
+        contents.
+        len=6, data=7a 61 70 70 61 0a
+ -      on the NFS server, I do "echo frobnorz > file"
+ -      after a while, the test app on the client reports
+        len=10, data=7a 61 70 70 61 0a
+ -      I ctrl-C the app and restart it. We agree that this amounts to
+        a munmap+mmap of the file, right?
+        The test app now reports
+        len=10, data=7a 61 70 70 61 0a 00 00 00 00
+
+my fix is untested at this time (but I expect it to fix the above
+problem).
+
+> > I guess the below untested one liner should be enough to fix it. The
+> > only single point of invalidate_inode_pages2, is to invalidate _mapped_
+> > pages too. Otherwise we could as well use invalidate_inode_pages.
+> > Clearly the dirty bit doesn't mean invalidate, invalidate primarly means
+> > clearing the uptodate bitflag.
+> > 
+> > --- sles/mm/truncate.c.~1~	2004-05-18 19:24:40.000000000 +0200
+> > +++ sles/mm/truncate.c	2004-05-19 02:09:28.311781864 +0200
+> > @@ -260,9 +260,10 @@ void invalidate_inode_pages2(struct addr
+> >  			if (page->mapping == mapping) {	/* truncate race? */
+> >  				wait_on_page_writeback(page);
+> >  				next = page->index + 1;
+> > -				if (page_mapped(page))
+> > +				if (page_mapped(page)) {
+> > +					ClearPageUptodate(page);
+> >  					clear_page_dirty(page);
+> > -				else
+> > +				} else
+> >  					invalidate_complete_page(mapping, page);
+> >  			}
+> >  			unlock_page(page);
 > 
-> Other issue i noticied was that when we have a 4 cpu system, and you 
-> remove an intermediate cpu say cpu2, top utility is dorky again. And prints
-> "invalid data" in the middle of the output.
-> 
-> Without the fix to proc_misc, if NR_CPUS is set to 128, top lists all
-> 128 cpu stats even if only 4 are present and online, since 
-> for_each_cpu reprensents all of it....
+> It's currently the case that pages which are mapped into process pagetables
+> are always up to date, which sounds like a good invariant to have.  This
 
-OK, well if you're correlating /proc/cpuinfo (online cpus) and
-/proc/stat (possible cpus), then I can understand top getting upset.
+I already intentionally broke that invariant in 2.4 just to make exactly
+this thing work safely, this is needed for correct O_DIRECT semantics
+too.
 
-Perhaps we should only show online cpus in /proc/stat, but the totals
-displayed must still include all CPUs I think.
+All it matters is that the pages are re-read after munmap+mmap.
 
-How's this version:
+> changes that rule.  I dunno if it'll break anything though.
 
-Name: Fix overzealous use of online cpu iterators
-Status: Trivial
-
-The IA64 hotplug CPU merge seems to have included some core changes: in
-particular the recalc_bh_state() needs to sum for all (including
-offline) cpus, since we don't empty the counters on CPU down.  The
-totals printed by /proc/stat (the first loop) should include offline
-cpus, too (apparently printing out the per-cpu lines for offline cpus
-confuses top).
-
-diff -Nru a/fs/buffer.c b/fs/buffer.c
---- b/fs/buffer.c	Fri May 14 19:00:11 2004
-+++ a/fs/buffer.c	Thu Apr 22 16:20:51 2004
-@@ -3019,7 +2966,7 @@
- 	if (__get_cpu_var(bh_accounting).ratelimit++ < 4096)
- 		return;
- 	__get_cpu_var(bh_accounting).ratelimit = 0;
--	for_each_online_cpu(i)
-+	for_each_cpu(i)
- 		tot += per_cpu(bh_accounting, i).nr;
- 	buffer_heads_over_limit = (tot > max_buffer_heads);
- }
-diff -Nru a/fs/proc/proc_misc.c b/fs/proc/proc_misc.c
---- b/fs/proc/proc_misc.c	Fri May 14 23:11:58 2004
-+++ a/fs/proc/proc_misc.c	Tue Mar 23 02:05:27 2004
-@@ -368,7 +368,7 @@
- 	if (wall_to_monotonic.tv_nsec)
- 		--jif;
- 
--	for_each_online_cpu(i) {
-+	for_each_cpu(i) {
- 		int j;
- 
- 		user += kstat_cpu(i).cpustat.user;
-
-
--- 
-Anyone who quotes me in their signature is an idiot -- Rusty Russell
-
+It didn't break anything in 2.4 AFIK.

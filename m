@@ -1,35 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264669AbRGEOaR>; Thu, 5 Jul 2001 10:30:17 -0400
+	id <S264812AbRGEOd5>; Thu, 5 Jul 2001 10:33:57 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264812AbRGEOaH>; Thu, 5 Jul 2001 10:30:07 -0400
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:39432 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S264669AbRGEOaA>; Thu, 5 Jul 2001 10:30:00 -0400
-Subject: Re: PROBLEM: [2.4.6] kernel BUG at softirq.c:206!
-To: andrea@suse.de (Andrea Arcangeli)
-Date: Thu, 5 Jul 2001 15:30:17 +0100 (BST)
-Cc: mahowi@gmx.net (Manfred H. Winter), linux-kernel@vger.kernel.org
-In-Reply-To: <20010705162035.Q17051@athlon.random> from "Andrea Arcangeli" at Jul 05, 2001 04:20:35 PM
-X-Mailer: ELM [version 2.5 PL3]
+	id <S265189AbRGEOdr>; Thu, 5 Jul 2001 10:33:47 -0400
+Received: from smtp010.mail.yahoo.com ([216.136.173.30]:17158 "HELO
+	smtp010.mail.yahoo.com") by vger.kernel.org with SMTP
+	id <S264812AbRGEOdg>; Thu, 5 Jul 2001 10:33:36 -0400
+X-Apparently-From: <swansma@yahoo.com>
+Message-ID: <3B4476F8.7F09FC28@yahoo.com>
+Date: Thu, 05 Jul 2001 10:17:28 -0400
+From: Mark Swanson <swansma@yahoo.com>
+X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.4.4-ac11 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
+To: Jari Ruusu <jari.ruusu@pp.inet.fi>
+CC: linux-kernel@vger.kernel.org, Stefan Traby <stefan@hello-penguin.com>
+Subject: Re: loop device corruption in 2.4.6
+In-Reply-To: <01070417140200.03178@test.home2.mark> <3B443F11.307A5F61@pp.inet.fi>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-Id: <E15IA93-0002fz-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > kernel BUG at softirq.c:206!
+Jari Ruusu wrote:
 > 
-> do you have any problem with those patches applied?
-
-I don't
+> Mark Swanson wrote:
+> > I get repeatable errors with 2.4.6 patched with the international encryption
+> > patch patch-int-2.4.3.1.bz2 when building loop device filesystems on top of
+> > Reiserfs.
 > 
-> 	ftp://ftp.us.kernel.org/pub/linux/kernel/people/andrea/kernels/v2.4/2.4.6pre5aa1/00_ksoftirqd-7
-> 	ftp://ftp.us.kernel.org/pub/linux/kernel/people/andrea/kernels/v2.4/2.4.6pre5aa1/00_softirq-fixes-4
+> International crypto patch assumes that block size never changes. Everyone
+> and their brother knows that it isn't true. And when block size does get
+> changed, international crypto patch gets the IV completely wrong, and
+> corrupts your data. To see block size changes in file systems alone, use
 
-But I can certainly try them latet today
+Jari,
 
-Alan
+This has been most enlightening.
+I must say that I hope other people take a look at your README
+and learn how to be as thorough as you.
+
+Cheers.
+
+_________________________________________________________
+Do You Yahoo!?
+Get your free @yahoo.com address at http://mail.yahoo.com
 

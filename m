@@ -1,51 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S310414AbSCLFTM>; Tue, 12 Mar 2002 00:19:12 -0500
+	id <S310424AbSCLFVX>; Tue, 12 Mar 2002 00:21:23 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S310415AbSCLFTC>; Tue, 12 Mar 2002 00:19:02 -0500
-Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:50439
-	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
-	id <S310414AbSCLFSw>; Tue, 12 Mar 2002 00:18:52 -0500
-Date: Mon, 11 Mar 2002 21:17:36 -0800 (PST)
-From: Andre Hedrick <andre@linuxdiskcert.org>
-To: Rik van Riel <riel@conectiva.com.br>
-cc: Davide Libenzi <davidel@xmailserver.org>,
-        Martin Dalecki <dalecki@evision-ventures.com>,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        Linus Torvalds <torvalds@transmeta.com>,
-        Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] 2.5.6 IDE 19
-In-Reply-To: <Pine.LNX.4.44L.0203111819130.2181-100000@imladris.surriel.com>
-Message-ID: <Pine.LNX.4.10.10203112116460.13480-100000@master.linux-ide.org>
+	id <S310428AbSCLFVM>; Tue, 12 Mar 2002 00:21:12 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:26377 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S310424AbSCLFVF>; Tue, 12 Mar 2002 00:21:05 -0500
+Date: Mon, 11 Mar 2002 21:20:19 -0800 (PST)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Jeff Garzik <jgarzik@mandrakesoft.com>
+cc: LKML <linux-kernel@vger.kernel.org>
+Subject: Re: [patch] My AMD IDE driver, v2.7
+In-Reply-To: <3C8D8C9C.3060208@mandrakesoft.com>
+Message-ID: <Pine.LNX.4.33.0203112108140.1547-100000@home.transmeta.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-Please drop me off the thread I am not the Maintainer for 2.5
 
-Regards,
+On Tue, 12 Mar 2002, Jeff Garzik wrote:
+>
+> Dumb question, why create a separate request?
 
-Andre Hedrick
-Linux Disk Certification Project                Linux ATA Development
+Because you need to anyway. Things like shutdown/suspend need to sync the
+caches, and that's a command that needs to go down the pipe to the disk.
 
-On Mon, 11 Mar 2002, Rik van Riel wrote:
+> Why not just have some way to wait for request X (and flag it for
+> no-merge/barrier treatment, etc.)?  bios have end_io callbacks...
 
-> On Mon, 11 Mar 2002, Davide Libenzi wrote:
-> 
-> > When you guys finished beating each other would you mind trying to solve
-> > the IDE timer issue that still hit my 2.5.6 ( not pre3 Linus sorry, i
-> > swear i didn't drink :) ). Please ...
-> 
-> Personally I've given up on using 2.5 on my machines.
-> 
-> regards,
-> 
-> Rik
-> -- 
-> <insert bitkeeper endorsement here>
-> 
-> http://www.surriel.com/		http://distro.conectiva.com/
-> 
+The bio's are just fragment descriptors, they don't really stand on their
+own. A bio needs a request in order to move down to the driver.
+
+The request is the place where you find the actual command - the bio just
+contains the fragment data of the command.
+
+Of course, the "just" is a big simplification. Since a block command can
+be a chain of hundreds of blocks which each actually have a lifetime of
+their own, unlike the network later, the fragments are a lot more
+complicated than a "skb_frag_t".
+
+So bio's are complex entities in themselves, and they have a life of their
+own. It's just that you cannot send a raw bio to a device - the device
+wouldn't know what to do with it.
+
+		Linus
 

@@ -1,57 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266796AbTBYEoj>; Mon, 24 Feb 2003 23:44:39 -0500
+	id <S266755AbTBYEnx>; Mon, 24 Feb 2003 23:43:53 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267043AbTBYEoj>; Mon, 24 Feb 2003 23:44:39 -0500
-Received: from pacific.moreton.com.au ([203.143.238.4]:24327 "EHLO
-	dorfl.internal.moreton.com.au") by vger.kernel.org with ESMTP
-	id <S266796AbTBYEoh>; Mon, 24 Feb 2003 23:44:37 -0500
-Message-ID: <3E5AF6BF.2090301@snapgear.com>
-Date: Tue, 25 Feb 2003 14:53:19 +1000
-From: Greg Ungerer <gerg@snapgear.com>
-Organization: SnapGear
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2) Gecko/20021126
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: [PATCH]: linux-2.5.63-uc0 (MMU-less fix ups)
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S266796AbTBYEnx>; Mon, 24 Feb 2003 23:43:53 -0500
+Received: from bitmover.com ([192.132.92.2]:53897 "EHLO mail.bitmover.com")
+	by vger.kernel.org with ESMTP id <S266755AbTBYEnw>;
+	Mon, 24 Feb 2003 23:43:52 -0500
+Date: Mon, 24 Feb 2003 20:54:04 -0800
+From: Larry McVoy <lm@bitmover.com>
+To: William Lee Irwin III <wli@holomorphy.com>,
+       "Martin J. Bligh" <mbligh@aracnet.com>, Larry McVoy <lm@bitmover.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: Minutes from Feb 21 LSE Call
+Message-ID: <20030225045404.GA26831@work.bitmover.com>
+Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
+	William Lee Irwin III <wli@holomorphy.com>,
+	"Martin J. Bligh" <mbligh@aracnet.com>,
+	Larry McVoy <lm@bitmover.com>, linux-kernel@vger.kernel.org
+References: <20030222231552.GA31268@work.bitmover.com> <3610000.1045957443@[10.10.2.4]> <20030224045616.GB4215@work.bitmover.com> <48940000.1046063797@[10.10.2.4]> <20030224065826.GA5665@work.bitmover.com> <20030224075142.GA10396@holomorphy.com> <20030224154725.GB5665@work.bitmover.com> <20030224233638.GS10411@holomorphy.com> <20030225002309.GA12146@work.bitmover.com> <20030225044236.GB10396@holomorphy.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030225044236.GB10396@holomorphy.com>
+User-Agent: Mutt/1.4i
+X-MailScanner: Found to be clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi All,
+> Userspace owns the cache; using
+> cache for the kernel is "cache pollution", which should be minimized.
+> Going too far out on the space end of time/space tradeoff curves is
+> every bit as bad for SMP as UP, and really horrible for NUMA.
 
-An update of the uClinux (MMU-less) fixups against 2.5.63.
-With Linus' recent merge of m68knommu there is only a small
-set of patches remaining. A few small 2.5.62 -> 2.5.63 fixes
-and a cleanup of the vector and timer config/setup for
-ColdFire CPUs.
+Cool, I agree 100% with this.
 
-http://www.uclinux.org/pub/uClinux/uClinux-2.5.x/linux-2.5.63-uc0.patch.gz
+> > So "measuring" doesn't mean "it's not slower on XYZ microbenchmark".
+> > It means "under the following work loads the cache misses went down or
+> > stayed the same for before and after tests".
+> 
+> This kind of measurement is actually relatively unusual. I'm definitely
+> interested in it, as there appear to be some deficits wrt. locality of
+> reference that show up as big profile spikes on NUMA boxen. With care
+> exercised good solutions should also trim down cache misses on UP also.
+> Cache and TLB miss profile driven development sounds very attractive.
 
+Again, I'm with you all the way on this.  If the scale up guys can adopt
+this as a mantra, I'm a lot less concerned that anything bad will happen.
 
-Also updated:
+Tim at OSDL and I have been talking about trying to work out some benchmarks
+to test for this.  I came up with the idea of adding a "-s XXX" which means
+"touch XXX bytes between each iteration" to each LMbench test.  One problem
+is the lack of page coloring will make the numbers bounce around too much.
+We talked that over with Linus and he suggested using the big TLB hack to
+get around that.  Assuming we can deal with the page coloring, do you think
+that there is any merit in taking microbenchmarks, adding an artificial
+working set, and running those?
 
-. Motorola 68328 framebuffer driver
-http://www.uclinux.org/pub/uClinux/uClinux-2.5.x/linux-2.5.63-uc0-68328fb.patch.gz
+> Let me put it this way: IBM sells tiny boxen too, from 4x, to UP, to
+> whatever. And people are simultaneously actively trying to scale
+> downward to embedded bacteria or whatever. 
 
-. Hitachi H8300 achitecture support
-http://www.uclinux.org/pub/uClinux/uClinux-2.5.x/linux-2.5.63-uc0-h8300.patch.gz
-
-Regards
-Greg
-
-
-
-------------------------------------------------------------------------
-Greg Ungerer  --  Chief Software Wizard        EMAIL:  gerg@snapgear.com
-Snapgear Pty Ltd                               PHONE:    +61 7 3279 1822
-825 Stanley St,                                  FAX:    +61 7 3279 1820
-Woolloongabba, QLD, 4102, Australia              WEB:   www.SnapGear.com
-
-
-
-
-
-
+That's really great, I know it's a lot less sexy but it's important.
+I'd love to see as much attention on making Linux work on tiny embedded
+platforms as there is on making it work on big iron.  Small is cool too.
+-- 
+---
+Larry McVoy            	 lm at bitmover.com           http://www.bitmover.com/lm 

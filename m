@@ -1,40 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269847AbTGKI16 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 11 Jul 2003 04:27:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269857AbTGKI15
+	id S269821AbTGKIah (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 11 Jul 2003 04:30:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269828AbTGKIah
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 11 Jul 2003 04:27:57 -0400
-Received: from carisma.slowglass.com ([195.224.96.167]:8714 "EHLO
+	Fri, 11 Jul 2003 04:30:37 -0400
+Received: from phoenix.infradead.org ([195.224.96.167]:11018 "EHLO
 	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id S269847AbTGKI1y (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 11 Jul 2003 04:27:54 -0400
-Date: Fri, 11 Jul 2003 09:42:28 +0100
+	id S269821AbTGKIac (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 11 Jul 2003 04:30:32 -0400
+Date: Fri, 11 Jul 2003 09:45:11 +0100
 From: Christoph Hellwig <hch@infradead.org>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Andi Kleen <ak@suse.de>, linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.5.75
-Message-ID: <20030711094228.B21196@infradead.org>
+To: Anders Gustafsson <andersg@0x63.nu>
+Cc: torvalds@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] add xbox subarchitecture
+Message-ID: <20030711094511.C21196@infradead.org>
 Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Linus Torvalds <torvalds@osdl.org>, Andi Kleen <ak@suse.de>,
+	Anders Gustafsson <andersg@0x63.nu>, torvalds@osdl.org,
 	linux-kernel@vger.kernel.org
-References: <p73isqaos29.fsf@oldwotan.suse.de> <Pine.LNX.4.44.0307101709360.5091-100000@home.osdl.org>
+References: <20030710172802.GB27744@h55p111.delphi.afb.lu.se> <20030710190918.A12653@infradead.org> <20030711082937.GA2838@h55p111.delphi.afb.lu.se>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <Pine.LNX.4.44.0307101709360.5091-100000@home.osdl.org>; from torvalds@osdl.org on Thu, Jul 10, 2003 at 05:12:43PM -0700
+In-Reply-To: <20030711082937.GA2838@h55p111.delphi.afb.lu.se>; from andersg@0x63.nu on Fri, Jul 11, 2003 at 10:29:37AM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jul 10, 2003 at 05:12:43PM -0700, Linus Torvalds wrote:
-> Do we have distributions that intend to make releases using those? I
-> suspect not, but hey, don't get me wrong: I'd love to see them working
-> out-of-the-box.
+On Fri, Jul 11, 2003 at 10:29:37AM +0200, Anders Gustafsson wrote:
+> I don't really know how to make clear it's not a gcc problem. But if it was,
+> why doesn't it crash on pc and 1.0 xboxen? And why does it crash on kernels
+> compiled with 2.95, with or without optimization? I really wish I had the
+> explaination to this problem.
 
-RH AS and SLES support s390 and ppc64.  OTOH their trees are
-patched to death so who cares :)
+Oh well, stupid crappy hardware...
 
-ppc32 is pretty important as lots of kernel developers love mac
-hardware.  (Writing this from an ibook..)
+> (btw, everyone at LinuxTag should come to the xbox-linux booth and say hi :)
+
+Been there, done that.  (but you've been sitting in the corner busily hackin')
 

@@ -1,42 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267288AbTBEM6B>; Wed, 5 Feb 2003 07:58:01 -0500
+	id <S267311AbTBENBK>; Wed, 5 Feb 2003 08:01:10 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267310AbTBEM6B>; Wed, 5 Feb 2003 07:58:01 -0500
-Received: from e1.ny.us.ibm.com ([32.97.182.101]:5780 "EHLO e1.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id <S267288AbTBEM6B>;
-	Wed, 5 Feb 2003 07:58:01 -0500
-Date: Wed, 5 Feb 2003 18:40:07 +0530
-From: Dipankar Sarma <dipankar@in.ibm.com>
-To: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
-Cc: Andreas Schwab <schwab@suse.de>, linux-kernel@vger.kernel.org,
-       lse-tech@lists.sourceforge.net
-Subject: Re: [Lse-tech] Re: gcc 2.95 vs 3.21 performance
-Message-ID: <20030205131007.GA1639@in.ibm.com>
-Reply-To: dipankar@in.ibm.com
-References: <200302042011.h14KBuG6002791@darkstar.example.net> <200302050717.h157HTs16569@Port.imtp.ilyichevsk.odessa.ua> <jevfzzj9ov.fsf@sykes.suse.de> <200302051143.h15BhGs18013@Port.imtp.ilyichevsk.odessa.ua>
+	id <S267310AbTBENBK>; Wed, 5 Feb 2003 08:01:10 -0500
+Received: from noodles.codemonkey.org.uk ([213.152.47.19]:61861 "EHLO
+	noodles.internal") by vger.kernel.org with ESMTP id <S267311AbTBENBJ>;
+	Wed, 5 Feb 2003 08:01:09 -0500
+Date: Wed, 5 Feb 2003 13:07:07 +0000
+From: Dave Jones <davej@codemonkey.org.uk>
+To: b_adlakha@softhome.net
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: HYPERTHREADING on older P4???
+Message-ID: <20030205130707.GA616@codemonkey.org.uk>
+Mail-Followup-To: Dave Jones <davej@codemonkey.org.uk>,
+	b_adlakha@softhome.net, linux-kernel@vger.kernel.org
+References: <courier.3E410B73.000041C3@softhome.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200302051143.h15BhGs18013@Port.imtp.ilyichevsk.odessa.ua>
+In-Reply-To: <courier.3E410B73.000041C3@softhome.net>
 User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Feb 05, 2003 at 01:41:34PM +0200, Denis Vlasenko wrote:
-> My argument was against overusing optimization techniques.
-> You cannot speed up kernel by aligning *everything* to 32 bytes,
-> or by unrolling all loops, or by aggressive inlining.
-> That's too easy to work. You get kernel which is bigger
-> *and* slower.
+On Wed, Feb 05, 2003 at 06:02:43AM -0700, b_adlakha@softhome.net wrote:
+ > hi,
+ > /proc/cpuinfo reports "ht" in the supported options...I have a p4 2 ghz 
+ > stepping 4, and when I boot with an SMP kernel, it shows another thing :
+ > siblings 1 
+ > 
+ > I think HT is there in all p4s, so can it be enabled in older P4s? Like 
+ > mine? What does "siblings = 1" mean? 
+ 
+It means there is one 'thread'. Ergo, you do not have the possibility
+of running this as you would a true HT P4.  There are a limited number
+of Northwood P4's out there which do support HT and have >1 sibling,
+but asides from those, you'll need a Xeon to take advantage of it.
 
-I am not getting into this debate, just wanted to point out that
-effect of compiler optimization on UNIX kernels have been studied
-before. One paper I recall is  -
+There are countless rumours of being able to enable extra siblings
+by poking MSRs, but not one person has to my knowledge achieved this.
+Some folks have also allegedly found that snipping pins or wiring extra
+bits to them have enabled the 'extra sibling'. Whether this is true or
+not, and whether it is 100% equivalent to a real HT part is again,
+questionable.
 
-http://www.usenix.org/publications/library/proceedings/sf94/full_papers/partridge.ps
+	Dave
 
-They used prfile-guided optimization, so that is whole another angle altogether.
-
-Thanks
-Dipankar
+-- 
+| Dave Jones.        http://www.codemonkey.org.uk
+| SuSE Labs

@@ -1,65 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264130AbTEORWm (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 May 2003 13:22:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264132AbTEORWm
+	id S264125AbTEORd4 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 May 2003 13:33:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264133AbTEORd4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 May 2003 13:22:42 -0400
-Received: from air-2.osdl.org ([65.172.181.6]:52654 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S264130AbTEORWj (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 15 May 2003 13:22:39 -0400
-Date: Thu, 15 May 2003 10:35:55 -0700 (PDT)
-From: Patrick Mochel <mochel@osdl.org>
-X-X-Sender: mochel@cherise
-To: Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>
-cc: Zwane Mwaikambo <zwane@linuxpower.ca>, Andrew Morton <akpm@digeo.com>,
-       LKML <linux-kernel@vger.kernel.org>
-Subject: Re: 2.5.69-mm5: reverting i8259-shutdown.patch
-In-Reply-To: <1053000155.605.1.camel@teapot.felipe-alfaro.com>
-Message-ID: <Pine.LNX.4.44.0305151034560.9816-100000@cherise>
+	Thu, 15 May 2003 13:33:56 -0400
+Received: from cpe-24-221-190-179.ca.sprintbbd.net ([24.221.190.179]:53690
+	"EHLO myware.akkadia.org") by vger.kernel.org with ESMTP
+	id S264125AbTEORdy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 15 May 2003 13:33:54 -0400
+Message-ID: <3EC3D247.20609@redhat.com>
+Date: Thu, 15 May 2003 10:45:43 -0700
+From: Ulrich Drepper <drepper@redhat.com>
+Organization: Red Hat, Inc.
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4b) Gecko/20030513
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Ingo Oeser <ingo.oeser@informatik.tu-chemnitz.de>
+CC: Christopher Hoover <ch@murgatroid.com>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] 2.5.68 FUTEX support should be optional
+References: <20030513213157.A1063@heavens.murgatroid.com> <20030514071446.A2647@infradead.org> <20030514005213.A3325@heavens.murgatroid.com> <3EC296CE.9050704@redhat.com> <20030515184738.C626@nightmaster.csn.tu-chemnitz.de>
+In-Reply-To: <20030515184738.C626@nightmaster.csn.tu-chemnitz.de>
+X-Enigmail-Version: 0.75.0.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-> OK, I've changed "#undef DEBUG" to "#define DEBUG" in
-> drivers/base/power.c, but during shutdown, I can see no extra debug
-> messages. What am I doing wrong?
+Ingo Oeser wrote:
 
-Nothing. No one has shutdown methods in their drivers. This patch should 
-give you a little more info. For me, it says the i8259 is getting shutdown 
-very early in the process, which surely can't be good..
+> Is this also the case, if I don't want threading at all on my
+> system? Does glibc still have a seperate static library for this,
 
+This has nothing to do with static linking or not.
 
-	-pat
+glibc, when compiled with nptl, will always include uses of futexes.
+But since there is no contention and the fast path is entirely handled
+at userlevel, the actual kernel functionality is not required.
 
-===== drivers/base/power.c 1.18 vs edited =====
---- 1.18/drivers/base/power.c	Mon Jan  6 09:56:05 2003
-+++ edited/drivers/base/power.c	Thu May 15 10:30:25 2003
-@@ -8,7 +8,7 @@
-  *
-  */
- 
--#undef DEBUG
-+#define DEBUG
- 
- #include <linux/device.h>
- #include <linux/module.h>
-@@ -88,10 +88,12 @@
- 	down_write(&devices_subsys.rwsem);
- 	list_for_each(entry,&devices_subsys.kset.list) {
- 		struct device * dev = to_dev(entry);
-+		pr_debug("shutting down %s: ",dev->name);
- 		if (dev->driver && dev->driver->shutdown) {
--			pr_debug("shutting down %s\n",dev->name);
-+			pr_debug("Ok\n");
- 			dev->driver->shutdown(dev);
--		}
-+		} else
-+			pr_debug("Ignored.\n");
- 	}
- 	up_write(&devices_subsys.rwsem);
- }
+- -- 
+- --------------.                        ,-.            444 Castro Street
+Ulrich Drepper \    ,-----------------'   \ Mountain View, CA 94041 USA
+Red Hat         `--' drepper at redhat.com `---------------------------
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
+
+iD8DBQE+w9JH2ijCOnn/RHQRApR/AKCHcHAUsXfz834/ZH0z3iQneNMh4gCfUMzA
+RB4+2XbfsJZXpkWQUx5NXPY=
+=XGtI
+-----END PGP SIGNATURE-----
 

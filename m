@@ -1,48 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272559AbTHKM7t (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 11 Aug 2003 08:59:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272542AbTHKM6q
+	id S272521AbTHKNKk (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 11 Aug 2003 09:10:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272536AbTHKNKk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Aug 2003 08:58:46 -0400
-Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:31634 "EHLO
-	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id S272559AbTHKM6f (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Aug 2003 08:58:35 -0400
-Date: Fri, 8 Aug 2003 15:49:47 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: Aaron Lehmann <aaronl@vitelus.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Synaptics driver considered harmful
-Message-ID: <20030808134947.GD6914@openzaurus.ucw.cz>
-References: <20030806195931.GE2712@vitelus.com>
+	Mon, 11 Aug 2003 09:10:40 -0400
+Received: from smtp3.libero.it ([193.70.192.127]:7342 "EHLO smtp3.libero.it")
+	by vger.kernel.org with ESMTP id S272521AbTHKNKj (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 11 Aug 2003 09:10:39 -0400
+Subject: Re: [PATCH] lirc for 2.5/2.6 kernels - 20030802
+From: Flameeyes <daps_mls@libero.it>
+To: Pavel Machek <pavel@suse.cz>
+Cc: Christoph Bartelmus <columbus@hit.handshake.de>,
+       LIRC list <lirc-list@lists.sourceforge.net>,
+       LKML <linux-kernel@vger.kernel.org>, vojtech@suse.cz
+In-Reply-To: <20030811124744.GB1733@elf.ucw.cz>
+References: <1059820741.3116.24.camel@laurelin>
+	 <20030807214311.GC211@elf.ucw.cz>
+	 <1060334463.5037.13.camel@defiant.flameeyes>
+	 <20030808231733.GF389@elf.ucw.cz>
+	 <8rZ2nqa1z9B@hit-columbus.hit.handshake.de>
+	 <20030811124744.GB1733@elf.ucw.cz>
+Content-Type: text/plain
+Message-Id: <1060607466.5035.8.camel@defiant.flameeyes>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030806195931.GE2712@vitelus.com>
-User-Agent: Mutt/1.3.27i
+X-Mailer: Ximian Evolution 1.4.3 
+Date: 11 Aug 2003 15:11:07 +0200
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+On Mon, 2003-08-11 at 14:47, Pavel Machek wrote:
+> I converted lirc_gpio into input/ layer (and killed support for
+> hardware I do not have; sorry but it was essential to keep code
+> small). Ported driver looks like this; I believe it looks better than
+> old code. Patch is here.
+You can here see the problem... not all tv cards use the same remote,
+the switch doesn't work with my remote for example, so we have 2
+possibilities:
 
-> Why isn't there a config option for this driver? I just tried to
-> upgrade to CVS HEAD (bkcvs) from a 2.4 kernel and everything went
-> smoothly except my mouse didn't work until I appended
-> psmouse_noext=1. This should not be necessary IMHO. It seems that even
-> desktop users are forced to compile in this driver, and according at
-> least to my experience, it can seriously break things. I don't see
-> what the benefits of the synaptics driver are, and it sounds like
-> this driver has been causing problems since it was released. The
-> driver may well stabilize in the future, but right now it should not
-> be a standard part of the PS/2 mouse driver.
+a) hardcode all the possible remotes adding these as new one come up,
+this is a big work in the kernel source, and also we lost compatibility
+with remotes that use the same frequency of the ones with the tv card,
+and that now can be used.
 
-Your fix is right, but vojtech seems to be on holidays. You may want to push through
-akpm/linus.
+b) create an userspace utility that read the input layer for codes an
+then translates them in user-definable commands. This is what lircd do
+now...
 
-Also make it depend on EXPERIMENTAL.
-
+IMHO, the solution used now is the more flexible of the two.
 -- 
-				Pavel
-Written on sharp zaurus, because my Velo1 broke. If you have Velo you don't need...
+Flameeyes <dgp85@users.sf.net>
 

@@ -1,63 +1,79 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
-thread-index: AcQVpEvMpcDkJNvFSympM+d++tdkJw==
 Envelope-to: paul@sumlocktest.fsnet.co.uk
-Delivery-date: Sun, 04 Jan 2004 01:53:10 +0000
-Message-ID: <017601c415a4$4bcf1960$d100000a@sbs2003.local>
+Delivery-date: Mon, 05 Jan 2004 21:22:07 +0000
+Message-ID: <03b501c415a4$d9637410$d100000a@sbs2003.local>
 X-Mailer: Microsoft CDO for Exchange 2000
-From: "Rusty Russell" <rusty@rustcorp.com.au>
 Content-Class: urn:content-classes:message
 Importance: normal
 Priority: normal
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="US-ASCII"
+Content-Transfer-Encoding: 7bit
 X-MimeOLE: Produced By Microsoft MimeOLE V6.00.3790.0
+Subject: FW: [PATCH] MSI broke voyager build
+Date: Mon, 29 Mar 2004 16:45:23 +0100
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: FW: [PATCH] MSI broke voyager build
+thread-index: AcPT0YrFACJS2TTAQVyBxtAPsjbkDg==
+From: "Nguyen, Tom L" <tom.l.nguyen@intel.com>
 To: <Administrator@osdl.org>
-Cc: "Linus Torvalds" <torvalds@osdl.org>, "Andrew Morton" <akpm@osdl.org>,
-        <mingo@redhat.com>,
-        "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH 1/2] kthread_create 
-In-Reply-To: Your message of "Fri, 02 Jan 2004 19:43:37 -0800."             <Pine.LNX.4.44.0401021919240.825-100000@bigblue.dev.mdolabs.com> 
-Date: Mon, 29 Mar 2004 16:41:26 +0100
+Cc: <akpm@osdl.org>, "Nguyen, Tom L" <tom.l.nguyen@intel.com>
+X-OriginalArrivalTime: 05 Jan 2004 21:19:04.0964 (UTC) FILETIME=[8C292C40:01C3D3D1]
 Sender: <linux-kernel-owner@vger.kernel.org>
 X-Mailing-List: linux-kernel@vger.kernel.org
-X-OriginalArrivalTime: 29 Mar 2004 15:41:26.0921 (UTC) FILETIME=[4C201F90:01C415A4]
 
-In message <Pine.LNX.4.44.0401021919240.825-100000@bigblue.dev.mdolabs.com> you write:
-> On Sat, 3 Jan 2004, Rusty Russell wrote:
+Wednesday, December 31, 2003 2:59 PM, James Bottomley wrote:
+> The author made the arch/i386 compile depend on NR_VECTORS being
+> defined.
 > 
-> > In message <Pine.LNX.4.44.0401020856150.2278-100000@bigblue.dev.mdolabs.com
-> you write:
-> > > Rusty, you still have to use global static data when there is no need.
-> > 
-> > And you're still putting obscure crap in the task struct when there's
-> > no need.  Honestly, I'd be ashamed to post such a patch.
+> This symbol, however, was put only into mach-default/irq_vectors.h
 > 
-> Ashamed !? Take a look at your original patch and then define shame. You 
-> had a communication mechanism that whilst being a private 1<->1 
-> communication among two tasks, relied on a single global message 
-> strucure, lock and mutex.
+> The attached patch adds it to voyager; visws and pc9800 however, are
+> still broken.
+> 
+> The code that breaks is this (in arch/i386/kernel/i8259.c):
+> 
+>  	 * us. (some of these will be overridden and become
+>  	 * 'special' SMP interrupts)
+>  	 */
+> -	for (i = 0; i < NR_IRQS; i++) {
+> +	for (i = 0; i < (NR_VECTORS - FIRST_EXTERNAL_VECTOR); i++) {
+>  		int vector = FIRST_EXTERNAL_VECTOR + i;
+> +		if (i >= NR_IRQS)
+> +			break;
+>  		if (vector != SYSCALL_VECTOR)
+>  			set_intr_gate(vector, interrupt[i]);
+> 
+> as far as I can see, with NR_VECTORS set at 256, FIRST_EXTERNAL_VECTOR
+> at 32 and NR_IRQS set at 224 the two forms of the loop are identical.
+> The only case it would make a difference would be for NR_IRQ >
+> NR_VECTORS + FIRST_EXTERNAL_VECTOR which doesn't seem to make any
+> sense.  Perhaps just backing this change out of i8259.c would be
+> better?  NR_VECTORS seems to have no other defined use in the MSI code.
 
-Still do.  It's *simple*, and I refuse to be ashamed of that.
+>> It would make a significant difference when CONFIG_PCI_USE_VECTOR is 
+>> set to "Y" by users to enable MSI support. The setting of 
+>> CONFIG_PCI_USE_VECTOR to "Y" sets NR_IRQS at 239 (FIRST_SYSTEM_VECTOR)
+>> instead of 224.
 
-My words were harsh, but I completely disagree with you.  I believe
-you are wrong.  I would never have coded it the way you did.  I read
-your code and I still think you are wrong, and find your code both
-bloated and ugly.
 
-It's not about space, it's about taste.  And placing random stuff in
-an unrelated structure because you can't think of a better way to do
-it is TASTELESS.  If it were the only way, it might be forgivable, but
-it's not, and I far prefer a little localized messiness to global
-messiness.
+> ===== include/asm-i386/mach-voyager/irq_vectors.h 1.4 vs edited =====
+> --- 1.4/include/asm-i386/mach-voyager/irq_vectors.h	Wed Oct 22 11:34:51
+> 2003
+> +++ edited/include/asm-i386/mach-voyager/irq_vectors.h	Wed Dec 31
+> 16:30:15 2003
+> @@ -55,6 +55,7 @@
+>  #define VIC_CPU_BOOT_CPI		VIC_CPI_LEVEL0
+>  #define VIC_CPU_BOOT_ERRATA_CPI		(VIC_CPI_LEVEL0 + 8)
+> 
+> +#define NR_VECTORS 256
+>  #define NR_IRQS 224
+>  #define NR_IRQ_VECTORS NR_IRQS
+> 
 
-Now, on something we do agree: I dislike the global structure myself.
-By all means try changing the code to use a pipe between child and
-parent for the initfn result.  But I've told you that I will not
-submit any solution which adds to a generic structure for a specific
-problem.
+>> Thanks for providing a fix. The fix looks fine to me.
 
-I'm very, very sorry this has gotten a little heated: I generally
-enjoy our discussions.  But I don't think I should have to say "no"
-four times.
-
-Rusty.
---
-  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.
+Thanks,
+Long

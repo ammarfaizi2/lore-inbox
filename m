@@ -1,55 +1,127 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261908AbULVIjv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261898AbULVIkq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261908AbULVIjv (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 22 Dec 2004 03:39:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261907AbULVIjv
+	id S261898AbULVIkq (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 22 Dec 2004 03:40:46 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261907AbULVIkp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 22 Dec 2004 03:39:51 -0500
-Received: from gate.crashing.org ([63.228.1.57]:62138 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S261889AbULVIjo (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 22 Dec 2004 03:39:44 -0500
-Subject: Re: [PATCH] add legacy resources to sysfs
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Greg KH <greg@kroah.com>
-Cc: Jesse Barnes <jbarnes@engr.sgi.com>,
-       Linux Kernel list <linux-kernel@vger.kernel.org>,
-       linux-ia64@vger.kernel.org, willy@debian.org,
-       Bjorn Helgaas <bjorn.helgaas@hp.com>
-In-Reply-To: <20041221214623.GB10362@kroah.com>
-References: <200412211247.44883.jbarnes@engr.sgi.com>
-	 <20041221214623.GB10362@kroah.com>
-Content-Type: text/plain
-Date: Wed, 22 Dec 2004 09:38:59 +0100
-Message-Id: <1103704739.28670.57.camel@gaston>
+	Wed, 22 Dec 2004 03:40:45 -0500
+Received: from webmail1.spymac.net ([195.225.149.201]:31660 "EHLO
+	webmail1.spymac.net") by vger.kernel.org with ESMTP id S261898AbULVIkX
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 22 Dec 2004 03:40:23 -0500
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Disposition: inline
+Content-Transfer-Encoding: binary
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.2 
-Content-Transfer-Encoding: 7bit
+From: surya <surya_prabhakar@spymac.com>
+To: Norbert van Nobelen <norbert-kernel@edusupport.nl>
+Subject: Re: DVD-RW writes but doesn't read
+Reply-To: surya_prabhakar@spymac.com
+X-Mailer: AtMail 4.02
+X-Origin: 82.3.32.74
+Cc: Con Kolivas <kernel@kolivas.org>, linux-kernel@vger.kernel.org
+X-Uidl: 110370481982764011
+Date: Wed, 22 Dec 2004 01:40:19 -0700
+Message-Id: <20041222084022.4CD2B4C079@webmail1.spymac.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2004-12-21 at 13:46 -0800, Greg KH wrote:
-> On Tue, Dec 21, 2004 at 12:47:44PM -0800, Jesse Barnes wrote:
-> > Here's a rediff against Greg's current tree.  It adds legacy_io and legacy_mem 
-> > files to each PCI bus directory in sysfs for use by applications that want to 
-> > do old school ISA style programming from userspace.
-> > 
-> > I'm not sure I've got the sysfs file creation correct, Greg?  Am I passing the 
-> > wrong thing around?  The compile warnings in pci-sysfs.c for the new routines 
-> > seem to indicate that...  Basically I need to get to a pci_bus structure from 
-> > the read/write/mmap routines, and that should be accessible from the kobject 
-> > somewhere, right?
-> 
-> You are passing the wrong things around :)
-> 
-> A struct pci_bus is a struct class_device, not a struct device.  I think
-> you need to rethink your goal of putting the files into the pci device
-> directory, or just put the files into the proper /sys/class/pci_bus/*
-> directory as your code assumes is happening.
+Even I had the same problem - It wasnt reading the written dvd-r/rw .But then
+Once I tried closing the session after a burn(not closing disk) .
+Then it started to show up the files .This is on 2.6.9 . But now the dvd drive
+stopped reading cd's anymore ;-(
 
-It makes no sense in /sys/class/pci_bus/* since we need the files to be
-in a bus _instance_ 
+-surya
 
-Ben.
+
+Norbert van Nobelen wrote:
+
+>Did you try one of the disks you have written with it in another dvdplayer 
+>yet?
+>
+>If the written dvds really work, then it is clearly a miracle (-:. The first 
+>thing the drive does, is a read action to see if it has an empty disc or 
+>something like multisession. If the drive reading is so terrible, that action 
+>should fail most of the time too.
+>
+>
+>On Wednesday 22 December 2004 00:33, you wrote:
+>
+>>Hi Jens et al
+>>
+>>I have a laptop DVD-RW that is working fine when burning but has endless
+>>streams of errors with any kernel I try when trying to read anything
+>>(cd/dvd audio/video/data).
+>>
+>>hdc: command error: status=0x51 { DriveReady SeekComplete Error }
+>>hdc: command error: error=0x50
+>>ide: failed opcode was 100
+>>end_request: I/O error, dev hdc, sector 571832
+>>Buffer I/O error on device hdc, logical block 71479
+>>
+>>If I'm persistent I can read the data off the drive but I'll probably
+>>kill the drive in the process. It doesn't matter what iosched I use but I
+>>use cfq by default. I've tried disabling dma and so on without success. Any
+>>ideas?
+>>
+>>Con
+>>
+>>
+>>Here is some relevant data
+>>
+>>lspci -vvv
+>>
+>>00:1f.1 IDE interface: Intel Corp. 82801DBM (ICH4) Ultra ATA
+>>Storage Controller (rev 03) (prog-if 8a [Master SecP PriP])
+>>        Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr-
+>>Stepping- SERR- FastB2B-
+>>        Status: Cap- 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort-
+>><TAbort- <MAbort- >SERR- <PERR-
+>>        Latency: 0
+>>        Interrupt: pin A routed to IRQ 10
+>>        Region 0: I/O ports at <unassigned>
+>>        Region 1: I/O ports at <unassigned>
+>>        Region 2: I/O ports at <unassigned>
+>>        Region 3: I/O ports at <unassigned>
+>>        Region 4: I/O ports at 1100 [size=16]
+>>        Region 5: Memory at 3e000000 (32-bit, non-prefetchable) [size=1K]
+>>
+>>
+>>hdparm -i /dev/hdc
+>>
+>>/dev/hdc:
+>>
+>> Model=MATSHITADVD-RAM UJ-820S, FwRev=1.00, SerialNo=
+>> Config={ Fixed Removeable DTR<=5Mbs DTR>10Mbs nonMagnetic }
+>> RawCHS=0/0/0, TrkSize=0, SectSize=0, ECCbytes=0
+>> BuffType=unknown, BuffSize=0kB, MaxMultSect=0
+>> (maybe): CurCHS=0/0/0, CurSects=0, LBA=yes, LBAsects=0
+>> IORDY=on/off, tPIO={min:240,w/IORDY:120}, tDMA={min:120,rec:120}
+>> PIO modes:  pio0 pio1 pio2 pio3 pio4
+>> DMA modes:  sdma0 sdma1 sdma2 mdma0 mdma1 mdma2
+>> UDMA modes: udma0 udma1 *udma2
+>> AdvancedPM=no
+>> Drive conforms to: device does not report version:
+>>
+>> * signifies the current active mode
+>>
+>>
+>>-
+>>To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+>>the body of a message to majordomo@vger.kernel.org
+>>More majordomo info at  http://vger.kernel.org/majordomo-info.html
+>>Please read the FAQ at  http://www.tux.org/lkml/
+>
+>-
+>To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+>the body of a message to majordomo@vger.kernel.org
+>More majordomo info at  http://vger.kernel.org/majordomo-info.html
+>Please read the FAQ at  http://www.tux.org/lkml/
+>
+>
+>
+
+
+
 
 

@@ -1,104 +1,125 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261202AbULWKwt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261204AbULWLAv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261202AbULWKwt (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 23 Dec 2004 05:52:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261203AbULWKwo
+	id S261204AbULWLAv (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 23 Dec 2004 06:00:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261205AbULWLAv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 23 Dec 2004 05:52:44 -0500
-Received: from krusty.dt.e-technik.Uni-Dortmund.DE ([129.217.163.1]:65163 "EHLO
-	mail.dt.e-technik.uni-dortmund.de") by vger.kernel.org with ESMTP
-	id S261202AbULWKw1 convert rfc822-to-8bit (ORCPT
+	Thu, 23 Dec 2004 06:00:51 -0500
+Received: from [212.234.37.131] ([212.234.37.131]:32914 "EHLO temp.intrnic.com")
+	by vger.kernel.org with ESMTP id S261204AbULWLAf (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 23 Dec 2004 05:52:27 -0500
+	Thu, 23 Dec 2004 06:00:35 -0500
+Message-ID: <41CAA68E.30603@free.fr>
+Date: Thu, 23 Dec 2004 12:05:50 +0100
+From: Guillaume <g4ndalf@free.fr>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20041007 Debian/1.7.3-5
+X-Accept-Language: fr, en
 MIME-Version: 1.0
-To: torvalds@osdl.org
-Subject: BK-kernel-tools/shortlog update
-Cc: linux-kernel@vger.kernel.org, matthias.andree@gmx.de, samel@mail.cz
-From: Matthias Andree <matthias.andree@gmx.de>
-Content-ID: <Thu,_23_Dec_2004_10_52_22_+0000_0@merlin.emma.line.org>
-Content-type: text/plain; charset=iso-8859-1
-Content-Description: An object packed by metasend
-Content-Transfer-Encoding: 8BIT
-Message-Id: <20041223105223.2226378B19@merlin.emma.line.org>
-Date: Thu, 23 Dec 2004 11:52:23 +0100 (CET)
+To: linux-kernel@vger.kernel.org
+Subject: oops reiserfs / kernel
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello Linus,
+The server has started to refuse all connections after several days of 
+functioning correctly. After a reboot it worked well during 5 hours 
+until it crashed in exactly the same manner and after analyzing the logs 
+I came accross the following message.
 
-you can either use "bk receive" to patch with this mail,
-or you can
-Pull from: bk://krusty.dt.e-technik.uni-dortmund.de/BK-kernel-tools
-or in cases of dire need, you can apply the patch below.
+(This machine is a biprocessor AMD MP 2800+, motherboard tyan S2469 but 
+it has ECC RAM Registered (3Go) and SCSI hard drives)
 
-BK: Parent repository is http://bktools.bkbits.net/bktools
+At the moment the crash occured there was a heavy load on the postfix 
+mail queue
 
-Patch description:
-ChangeSet@1.254, 2004-12-23 09:09:25+01:00, samel@mail.cz
-  shortlog: added 2 new addresses
+Dec 22 18:26:33 lanai kernel: Unable to handle kernel NULL pointer 
+dereference at virtual address 00000014
+Dec 22 18:26:33 lanai kernel:  printing eip:
+Dec 22 18:26:33 lanai kernel: c01c34fd
+Dec 22 18:26:33 lanai kernel: *pde = 00000000
+Dec 22 18:26:33 lanai kernel: Oops: 0000 [#1]
+Dec 22 18:26:33 lanai kernel: PREEMPT SMP
+Dec 22 18:26:33 lanai kernel: Modules linked in: 8250 serial_core unix
+Dec 22 18:26:33 lanai kernel: CPU:    1
+Dec 22 18:26:33 lanai kernel: EIP: 
+0060:[create_virtual_node+1533/2000]    Not tainted
+Dec 22 18:26:33 lanai kernel: EFLAGS: 00010212   (2.6.8.1)
+Dec 22 18:26:33 lanai kernel: EIP is at create_virtual_node+0x5fd/0x7d0
+Dec 22 18:26:33 lanai kernel: eax: 0000f6ba   ebx: c931504c   ecx: 
+d6f95b0c   edx: 00000000
+Dec 22 18:26:33 lanai kernel: esi: c9315000   edi: d6f95b0c   ebp: 
+00000000   esp: d6f95990
+Dec 22 18:26:33 lanai kernel: ds: 007b   es: 007b   ss: 0068
+Dec 22 18:26:33 lanai kernel: Process cleanup (pid: 1020, 
+threadinfo=d6f94000 task=f33e2370)
+Dec 22 18:26:33 lanai kernel: Stack: c9315000 c931504c 00000000 0000f6ba 
+d6f95a50 c01b4d6c 000000a8 e3eb5b3c
+Dec 22 18:26:33 lanai kernel:        00000007 f02fb018 00000000 d6f95b0c 
+0001068a f02fb018 c01c54ea d6f95b0c
+Dec 22 18:26:33 lanai kernel:        00000000 00000000 00000000 00000003 
+00000012 00000000 00000000 00000000
+Dec 22 18:26:33 lanai kernel: Call Trace:
+Dec 22 18:26:33 lanai kernel:  [do_balance+252/400] do_balance+0xfc/0x190
+Dec 22 18:26:33 lanai kernel:  [ip_check_balance+714/3200] 
+ip_check_balance+0x2ca/0xc80
+Dec 22 18:26:33 lanai kernel:  [reiserfs_cut_from_item+867/1840] 
+reiserfs_cut_from_item+0x363/0x730
+Dec 22 18:26:33 lanai kernel:  [fix_nodes+506/1424] fix_nodes+0x1fa/0x590
+Dec 22 18:26:33 lanai kernel:  [reiserfs_insert_item+437/848] 
+reiserfs_insert_item+0x1b5/0x350
+Dec 22 18:26:33 lanai kernel: 
+[reiserfs_allocate_blocks_for_region+3853/5936] 
+reiserfs_allocate_blocks_for_region+0xf0d/0x
+1730
+Dec 22 18:26:33 lanai kernel: 
+[reiserfs_prepare_file_region_for_write+1552/2816] 
+reiserfs_prepare_file_region_for_write+0x
+610/0xb00
+Dec 22 18:26:33 lanai kernel:  [reiserfs_file_write+1622/2384] 
+reiserfs_file_write+0x656/0x950
+Dec 22 18:26:33 lanai kernel:  [sock_aio_read+245/272] 
+sock_aio_read+0xf5/0x110
+Dec 22 18:26:33 lanai kernel:  [do_sync_read+132/176] do_sync_read+0x84/0xb0
+Dec 22 18:26:33 lanai kernel:  [do_sigaction+528/976] 
+do_sigaction+0x210/0x3d0
+Dec 22 18:26:33 lanai kernel:  [copy_from_user+66/128] 
+copy_from_user+0x42/0x80
+Dec 22 18:26:33 lanai kernel:  [reiserfs_file_write+0/2384] 
+reiserfs_file_write+0x0/0x950
+Dec 22 18:26:33 lanai kernel:  [vfs_write+184/304] vfs_write+0xb8/0x130
+Dec 22 18:26:33 lanai kernel:  [sys_socketcall+311/608] 
+sys_socketcall+0x137/0x260
+Dec 22 18:26:33 lanai kernel:  [sys_write+81/128] sys_write+0x51/0x80
+Dec 22 18:26:33 lanai kernel:  [syscall_call+7/11] syscall_call+0x7/0xb
+Dec 22 18:26:33 lanai kernel: Code: ff 52 14 e9 af fc ff ff 83 f9 fe b8 
+01 00 00 00 74 ca 83 f9
 
-ChangeSet@1.253, 2004-12-20 07:13:44+01:00, samel@mail.cz
-  shortlog: added 2 new addresses
+lanai:~# lsmod
+Module                  Size  Used by
+8250                   23200  2
+serial_core            23936  1 8250
+unix                   26900  184
+lanai:~# lspci
+0000:00:00.0 Host bridge: Advanced Micro Devices [AMD] AMD-760 MP 
+[IGD4-2P] System Controller (rev 20)
+0000:00:01.0 PCI bridge: Advanced Micro Devices [AMD] AMD-760 MP 
+[IGD4-2P] AGP Bridge
+0000:00:07.0 ISA bridge: Advanced Micro Devices [AMD] AMD-768 [Opus] ISA 
+(rev 05)
+0000:00:07.1 IDE interface: Advanced Micro Devices [AMD] AMD-768 [Opus] 
+IDE (rev 04)
+0000:00:07.3 Bridge: Advanced Micro Devices [AMD] AMD-768 [Opus] ACPI 
+(rev 03)
+0000:00:0a.0 SCSI storage controller: Adaptec AIC-7902 U320 (rev 10)
+0000:00:0a.1 SCSI storage controller: Adaptec AIC-7902 U320 (rev 10)
+0000:00:0b.0 Ethernet controller: Intel Corp. 82545EM Gigabit Ethernet 
+Controller (Copper) (rev 01)
+0000:00:10.0 PCI bridge: Advanced Micro Devices [AMD] AMD-768 [Opus] PCI 
+(rev 05)
+0000:02:07.0 VGA compatible controller: ATI Technologies Inc Rage XL 
+(rev 27)
+0000:02:08.0 Ethernet controller: Intel Corp. 82557/8/9 [Ethernet Pro 
+100] (rev 10)
 
-Matthias
-
-------------------------------------------------------------------------
-
-##### DIFFSTAT #####
- shortlog |    4 ++++
- 1 files changed, 4 insertions(+)
-
-##### GNUPATCH #####
---- 1.224/shortlog	2004-12-16 07:22:04 +01:00
-+++ 1.226/shortlog	2004-12-23 09:09:10 +01:00
-@@ -734,6 +734,7 @@
- 'drow:nevyn.them.org' => 'Daniel Jacobowitz',
- 'drzeus-list:cx.rmk.(none)' => 'Pierre Ossman',
- 'drzeus-list:drzeus.cx' => 'Pierre Ossman',
-+'drzeus:cx.rmk.(none)' => 'Pierre Ossman',
- 'ds-fraser:comcast.net' => 'Douglas Fraser',
- 'dsaxena:com.rmk' => 'Deepak Saxena',
- 'dsaxena:com.rmk.(none)' => 'Deepak Saxena',
-@@ -1878,6 +1879,7 @@
- 'paul:kungfoocoder.org' => 'Paul Wagland', # lbdb
- 'paul:serice.net' => 'Paul Serice',
- 'paul:wagland.net' => 'Paul Wagland', # lbdb
-+'pauld:egenera.com' => 'Philip R. Auld',
- 'paulkf:microgate.com' => 'Paul Fulghum',
- 'paulm:routefree.com' => 'Paul Mielke',
- 'paulmck:us.ibm.com' => 'Paul E. McKenney',
-@@ -2062,6 +2064,7 @@
- 'riel:redhat.com' => 'Rik van Riel',
- 'riel:surriel.com' => 'Rik van Riel',
- 'rjweryk:uwo.ca' => 'Rob Weryk',
-+'rkagan:mail.ru' => 'Roman Kagan',
- 'rl:hellgate.ch' => 'Roger Luethi',
- 'rlievin:free.fr' => 'Romain Liévin',
- 'rlrevell:joe-job.com' => 'Lee Revell',
-@@ -2107,6 +2110,7 @@
- 'rostedt:goodmis.org' => 'Steven Rostedt',
- 'rover:tob.ru' => 'Sergei Golod',
- 'rpjday:mindspring.com' => 'Robert P. J. Day',
-+'rpurdie:net.rmk.(none)' => 'Richard Purdie',
- 'rread:clusterfs.com' => 'Robert Read',
- 'rsa:us.ibm.com' => 'Ryan S. Arnold',
- 'rscott:attbi.com' => 'Rob Scott',
-
-
-
-##### BKPATCH #####
-
-## Wrapped with gzip_b64 ##
-H4sIAGajykECA9WVa2vbMBSGP0e/QtAP2ejiHMlXCVJ6G1vpoCGjP0CxTmMTX4LktFnxj58v
-S0uyG90y6GxhdDlHvHofHXxEry7loCrNvcq0PV1hsVinhVMZVdgcK+XEZV5fJKpY4Gesag7A
-m5dxFwJf1FwEvl8jR9+PPabmYRRizMkRvbVo5CBXVZWkyjqq0Aaxmf9Y2koOFvnG0e1wVpbN
-cHyvzHieVkvEFZrx+fVoiabAbFSVZWZJEzdVVZzQezRWDpjjPs1UX1YoB7P3H24/nc0ImUzo
-k1Q6mZADH8uqHLPTXKWZEz/uZnuMswACzpmoA59HjFxS5nDfpeCNGR9zoBBK5krPOwYmAejO
-ZvSY0RGQc3pgxRckpjYpTZWVC0mV1qgppwU+tH2D1qIl17QXPH32joxe+BACCsjJs/ykzHFP
-+1ZHL91nEYReyKLaZaHw6zsU6i4OQShAreZ615+d5Mbr5hswl7MaBAhBfkOmj/a8HTLelkyD
-SMimcf9Vkgmj/4uMCxEIBjXzPZ91JbmN2KnIv5ZBfimjL0bwamBC8B459/eLkbMfI+f/DPnP
-QHfX+IaOzMOmbaNNA317pD9gfsWiCCgjw5VaZ1riAgs0neohnZzQ4TRJs3RFZw49a9aH78gV
-ZyDaBLNaG52iLLByTL503hRlgW/7rFkaJ8poOu1CmizykiLtGQT7ZcfgtTDob+wBIYRu0Fqq
-zSOurYw33xk6TdEYpDfW5qroKDTaOwpLtVCF7Mww62/ul00QvW4XWuu3v8A4wXhp1/lEz8GF
-eO6Sr6cayRrTBwAA
 

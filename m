@@ -1,87 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261602AbSJBCFh>; Tue, 1 Oct 2002 22:05:37 -0400
+	id <S262931AbSJBCOO>; Tue, 1 Oct 2002 22:14:14 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261604AbSJBCFh>; Tue, 1 Oct 2002 22:05:37 -0400
-Received: from postoffice2.mail.cornell.edu ([132.236.56.10]:36520 "EHLO
-	postoffice2.mail.cornell.edu") by vger.kernel.org with ESMTP
-	id <S261602AbSJBCFg>; Tue, 1 Oct 2002 22:05:36 -0400
-Content-Type: text/plain;
-  charset="us-ascii"
-From: Ivan Gyurdiev <ivg2@cornell.edu>
-Reply-To: ivg2@cornell.edu
-Organization: ( )
-To: LKML <linux-kernel@vger.kernel.org>
-Subject: Nvidia framebuffer in 2.5 
-Date: Tue, 1 Oct 2002 22:11:59 -0400
-User-Agent: KMail/1.4.3
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Message-Id: <200210012211.59573.ivg2@cornell.edu>
+	id <S262932AbSJBCOO>; Tue, 1 Oct 2002 22:14:14 -0400
+Received: from 12-231-242-11.client.attbi.com ([12.231.242.11]:45832 "HELO
+	kroah.com") by vger.kernel.org with SMTP id <S262931AbSJBCON>;
+	Tue, 1 Oct 2002 22:14:13 -0400
+Date: Tue, 1 Oct 2002 19:17:13 -0700
+From: Greg KH <greg@kroah.com>
+To: Krishnakumar B <kitty@cse.wustl.edu>,
+       Johannes Erdfelt <johannes@erdfelt.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Multiple OOPS with Linux-2.5.40
+Message-ID: <20021002021713.GC11453@kroah.com>
+References: <15770.19197.730535.272727@samba.doc.wustl.edu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <15770.19197.730535.272727@samba.doc.wustl.edu>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This stopped working many kernels ago, and I thought perhaps it's being 
-converted to a different API... but it hasn't been fixed yet..is it a bug?
+On Tue, Oct 01, 2002 at 08:25:17PM -0500, Krishnakumar B wrote:
+> hcd-pci.c: uhci-hcd @ 00:1f.2, Intel Corp. 82801AA USB
+> hcd-pci.c: irq 19, io base 0000ff80
+> hcd.c: new USB bus registered, assigned bus number 1
+> hub.c: USB hub found at 0
+> hub.c: 2 ports detected
+> Debug: sleeping function called from illegal context at /u/scratch/downloads/kernel/linux-2.5.40/include/asm/semaphore.h:119
+> df675f70 e2886692 e28926c0 00000077 df675fa8 df808760 df664f88 df66e0d0 
+>        df674000 dfb36100 00000286 df674000 df674000 df675fc0 df674000 e28869f5 
+>        dfa1b860 dfb36100 df674000 df81df34 00000000 dfa1b860 c0118260 00000000 
+> Call Trace:
+>  [<e2886692>]usb_hub_events+0x82/0x3b0 [usbcore]
+>  [<e28926c0>].rodata.str1.32+0xd20/0x28e2 [usbcore]
+>  [<e28869f5>]usb_hub_thread+0x35/0x100 [usbcore]
+>  [<c0118260>]default_wake_function+0x0/0x40
+>  [<e28869c0>]usb_hub_thread+0x0/0x100 [usbcore]
+>  [<c0105665>]kernel_thread_helper+0x5/0x10
 
-This is 2.5.40.
-=========================================
-make[3]: Entering directory `/usr/src/linux-2.5.40/drivers/video/riva'
-  gcc -Wp,-MD,./.fbdev.o.d -D__KERNEL__ -I/usr/src/linux-2.5.40/include -Wall 
--Wstrict-prototypes -Wno-trigraphs -O2 -fomit-frame-pointer 
--fno-strict-aliasing -fno-common -pipe -mpreferred-stack-boundary=2 
--march=athlon  -I/usr/src/linux-2.5.40/arch/i386/mach-generic -nostdinc 
--iwithprefix include    -DKBUILD_BASENAME=fbdev   -c -o fbdev.o fbdev.c
-drivers/video/riva/fbdev.c: In function `riva_set_dispsw':
-drivers/video/riva/fbdev.c:665: structure has no member named `type'
-drivers/video/riva/fbdev.c:666: structure has no member named `type_aux'
-drivers/video/riva/fbdev.c:667: structure has no member named `ypanstep'
-drivers/video/riva/fbdev.c:668: structure has no member named `ywrapstep'
-drivers/video/riva/fbdev.c:657: warning: unused variable `accel'
-drivers/video/riva/fbdev.c: In function `rivafb_setcolreg':
-drivers/video/riva/fbdev.c:1202: warning: unused variable `chip'
-drivers/video/riva/fbdev.c: In function `rivafb_get_fix':
-drivers/video/riva/fbdev.c:1294: structure has no member named `type'
-drivers/video/riva/fbdev.c:1295: structure has no member named `type_aux'
-drivers/video/riva/fbdev.c:1296: structure has no member named `visual'
-drivers/video/riva/fbdev.c:1302: structure has no member named `line_length'
-drivers/video/riva/fbdev.c: In function `rivafb_pan_display':
-drivers/video/riva/fbdev.c:1611: structure has no member named `line_length'
-drivers/video/riva/fbdev.c: At top level:
-drivers/video/riva/fbdev.c:1748: unknown field `fb_get_fix' specified in 
-initializer
-drivers/video/riva/fbdev.c:1748: warning: initialization from incompatible 
-pointer type
-drivers/video/riva/fbdev.c:1749: unknown field `fb_get_var' specified in 
-initializer
-drivers/video/riva/fbdev.c:1749: warning: initialization from incompatible 
-pointer type
-drivers/video/riva/fbdev.c:732: warning: `riva_wclut' defined but not used
-  gcc -Wp,-MD,./.riva_hw.o.d -D__KERNEL__ -I/usr/src/linux-2.5.40/include 
--Wall -Wstrict-prototypes -Wno-trigraphs -O2 -fomit-frame-pointer 
--fno-strict-aliasing -fno-common -pipe -mpreferred-stack-boundary=2 
--march=athlon  -I/usr/src/linux-2.5.40/arch/i386/mach-generic -nostdinc 
--iwithprefix include    -DKBUILD_BASENAME=riva_hw   -c -o riva_hw.o riva_hw.c
-  gcc -Wp,-MD,./.accel.o.d -D__KERNEL__ -I/usr/src/linux-2.5.40/include -Wall 
--Wstrict-prototypes -Wno-trigraphs -O2 -fomit-frame-pointer 
--fno-strict-aliasing -fno-common -pipe -mpreferred-stack-boundary=2 
--march=athlon  -I/usr/src/linux-2.5.40/arch/i386/mach-generic -nostdinc 
--iwithprefix include    -DKBUILD_BASENAME=accel   -c -o accel.o accel.c
-drivers/video/riva/accel.c: In function `fbcon_reverse_order':
-drivers/video/riva/accel.c:111: warning: operation on `a' may be undefined
-drivers/video/riva/accel.c: At top level:
-drivers/video/riva/accel.c:56: warning: `fbcon_riva_bmove' defined but not 
-used
-drivers/video/riva/accel.c:74: warning: `riva_clear_margins' defined but not 
-used
-drivers/video/riva/accel.c:119: warning: `fbcon_riva_writechr' defined but not 
-used
-  ld -m elf_i386  -r -o rivafb.o fbdev.o riva_hw.o accel.o
-ld: cannot open fbdev.o: No such file or directory
-make[3]: *** [rivafb.o] Error 1
-make[3]: Leaving directory `/usr/src/linux-2.5.40/drivers/video/riva'
-make[2]: *** [riva] Error 2
-make[2]: Leaving directory `/usr/src/linux-2.5.40/drivers/video'
-make[1]: *** [video] Error 2
-make[1]: Leaving directory `/usr/src/linux-2.5.40/drivers'
-make: *** [drivers] Error 2
+I think this is due to the following lines of code in
+drivers/usb/core/hub.c:
+		spin_lock_irqsave(&hub_event_lock, flags);
+
+		....
+
+		down(&hub->khubd_sem); /* never blocks, we were on list */
+		spin_unlock_irqrestore(&hub_event_lock, flags);
+
+Johannes, any reason for the down() when we have a spinlock held?
+
+thanks,
+
+greg k-h

@@ -1,73 +1,64 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313190AbSERPyB>; Sat, 18 May 2002 11:54:01 -0400
+	id <S313202AbSERPyo>; Sat, 18 May 2002 11:54:44 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313202AbSERPyA>; Sat, 18 May 2002 11:54:00 -0400
-Received: from mnh-1-15.mv.com ([207.22.10.47]:42248 "EHLO ccure.karaya.com")
-	by vger.kernel.org with ESMTP id <S313190AbSERPx7>;
-	Sat, 18 May 2002 11:53:59 -0400
-Message-Id: <200205181656.LAA02860@ccure.karaya.com>
-X-Mailer: exmh version 2.0.2
-To: linux-kernel@vger.kernel.org, user-mode-linux-user@lists.sourceforge.net
-Subject: user-mode port 0.57-2.4.18-26
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Sat, 18 May 2002 11:56:56 -0500
-From: Jeff Dike <jdike@karaya.com>
+	id <S313217AbSERPym>; Sat, 18 May 2002 11:54:42 -0400
+Received: from Morgoth.esiway.net ([193.194.16.157]:35592 "EHLO
+	Morgoth.esiway.net") by vger.kernel.org with ESMTP
+	id <S313202AbSERPyg>; Sat, 18 May 2002 11:54:36 -0400
+Date: Sat, 18 May 2002 17:54:32 +0200 (CEST)
+From: Marco Colombo <marco@esi.it>
+To: Alan Cox <alan@redhat.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.2.21-rc4
+In-Reply-To: <200205152039.g4FKdcn08311@devserv.devel.redhat.com>
+Message-ID: <Pine.LNX.4.44.0205181747360.29194-200000@Megathlon.ESI>
+MIME-Version: 1.0
+Content-Type: MULTIPART/MIXED; BOUNDARY="168436746-1314561903-1021737272=:29194"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is the third release of the 2.4.18 UML.
+  This message is in MIME format.  The first part should be readable text,
+  while the remaining parts are likely unreadable without MIME-aware tools.
+  Send mail to mime@docserver.cac.washington.edu for more info.
 
-There were a number of ptrace and debugging fixes including:
-	userspace (i.e. gdb running inside UML) watchpoints now work.  Kernel
-	watchpoints don't yet, but they will soon.
+--168436746-1314561903-1021737272=:29194
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 
-	Fixed a bug which caused gdb inside UML to sometimes miss breakpoints.
+On Wed, 15 May 2002, Alan Cox wrote:
 
-	Fixed a security hole which allowed a user to execute system calls
-	on the host by putting a breakpoint on the system call instruction.
+> Unless something bad turns up this will be the final 2.2.21. 
 
-	ddd now works as the UML debugger.  This isn't documented on the
-	UML site yet - see 
+Hi, Alan.
 
-	Shelling out of the UML debugger now works. 
+Any chance the attached patch gets included?
+I regard the issue as a bug (user programs that work on most archs fail
+on sparc64).
 
-UML can now run nested.  See http://user-mode-linux.sf.net/nesting.html for
-the details.  There are two new config options which allow you to control
-where in memory UML loads and how much address space it consumes.  
-CONFIG_NEST_LEVEL controls the top of UML's address space, and 
-CONFIG_KERNEL_HALF_GIGS controls how much address space below that it
-uses.  Setting CONFIG_KERNEL_HALF_GIGS greater than one allows UML to have
-more than .5G of physical memory.  KSTK_EIP and KSTK_ESP are now implemented, 
-so the IP and SP fields of /proc/pid/stat now have real values.
+[ davem already did the same for the 2.[45] trees, AFAIK ]
 
-iomem works again.
+.TM.
 
-The UML block driver now supports partitioned devices.
+--168436746-1314561903-1021737272=:29194
+Content-Type: TEXT/PLAIN; charset=US-ASCII; name="random-ioctl-22.patch"
+Content-Transfer-Encoding: BASE64
+Content-ID: <Pine.LNX.4.44.0205181754320.29194@Megathlon.ESI>
+Content-Description: 
+Content-Disposition: attachment; filename="random-ioctl-22.patch"
 
-There were various SMP fixes.
-
-I fixed a bunch of console bugs, including a hang when a device was detached
-from the host, an input flow control bug which limited the size of pastes,
-a hang when an 8-bit character was typed, and various other small bugs.
-
-It is no longer possible to cd into a binary in a hostfs filesystem.
-
-If CONFIG_PTPROXY is disabled, UML will exit when it panics. 
-
-UML can now set up network interfaces at boot time, allowing DHCP, bootp, 
-rarp, and nfsboot to work.
-
-In userspace changes, there were a number of bug fixes in uml_net, uml_switch
-now acts as a bridge, remembering associations of MACs with ports, and there
-is an expect script, umlgdb, which automates the reloading of module symbols
-when the module is reloaded into gdb.
-
-The project's home page is http://user-mode-linux.sourceforge.net
-
-Downloads are available at 
-	http://user-mode-linux.sourceforge.net/dl-sf.html
-
-				Jeff
-
+LS0tIGxpbnV4LjIxcDMvYXJjaC9zcGFyYzY0L2tlcm5lbC9pb2N0bDMyLmMJ
+RnJpIE5vdiAgMiAxNzozOTowNiAyMDAxDQorKysgbGludXguMjFwMy10bS9h
+cmNoL3NwYXJjNjQva2VybmVsL2lvY3RsMzIuYwlUdWUgRmViIDI2IDEzOjI5
+OjM1IDIwMDINCkBAIC02Nyw2ICs2Nyw3IEBADQogI2luY2x1ZGUgPGFzbS93
+YXRjaGRvZy5oPg0KIA0KICNpbmNsdWRlIDxsaW51eC9zb3VuZGNhcmQuaD4N
+CisjaW5jbHVkZSA8bGludXgvcmFuZG9tLmg+DQogDQogLyogVXNlIHRoaXMg
+dG8gZ2V0IGF0IDMyLWJpdCB1c2VyIHBhc3NlZCBwb2ludGVycy4gDQogICAg
+U2VlIHN5c19zcGFyYzMyLmMgZm9yIGRlc2NyaXB0aW9uIGFib3V0IHRoZXNl
+LiAqLw0KQEAgLTI4MTEsNiArMjgxMiwxMyBAQA0KIAkvKiBjYXNlIEQ3U0lP
+Q1JEOiBTYW1lIHZhbHVlIGFzIEVOVkNUUkxfUkRfVk9MVEFHRV9TVEFUVVMg
+Ki8NCiAJY2FzZSBEN1NJT0NUTToNCiANCisJLyogQmlnIFIgKi8NCisJY2Fz
+ZSBSTkRHRVRFTlRDTlQ6DQorCWNhc2UgUk5EQUREVE9FTlRDTlQ6DQorCWNh
+c2UgUk5ER0VUUE9PTDoNCisJY2FzZSBSTkRBRERFTlRST1BZOg0KKwljYXNl
+IFJORFpBUEVOVENOVDoNCisJY2FzZSBSTkRDTEVBUlBPT0w6DQogDQogCS8q
+IExpdHRsZSBtICovDQogCWNhc2UgTVRJT0NUT1A6DQo=
+--168436746-1314561903-1021737272=:29194--

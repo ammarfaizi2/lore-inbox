@@ -1,52 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264186AbTE0VGz (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 May 2003 17:06:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264154AbTE0VGm
+	id S264184AbTE0VLg (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 May 2003 17:11:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264181AbTE0VLf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 May 2003 17:06:42 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:35228 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S264186AbTE0VGZ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 May 2003 17:06:25 -0400
-Date: Tue, 27 May 2003 23:19:40 +0200
-From: Jens Axboe <axboe@suse.de>
-To: Marc-Christian Petersen <m.c.p@wolk-project.de>
-Cc: Andrea Arcangeli <andrea@suse.de>,
-       Marcelo Tosatti <marcelo@conectiva.com.br>,
-       linux-kernel@vger.kernel.org,
-       Carl-Daniel Hailfinger <c-d.hailfinger.kernel.2003@gmx.net>,
-       manish <manish@storadinc.com>,
-       Christian Klose <christian.klose@freenet.de>,
-       William Lee Irwin III <wli@holomorphy.com>
-Subject: Re: 2.4.20: Proccess stuck in __lock_page ...
-Message-ID: <20030527211940.GC845@suse.de>
-References: <3ED2DE86.2070406@storadinc.com> <200305272253.06726.m.c.p@wolk-project.de> <20030527210019.GA845@suse.de> <200305272310.44657.m.c.p@wolk-project.de>
+	Tue, 27 May 2003 17:11:35 -0400
+Received: from ppp-217-133-42-200.cust-adsl.tiscali.it ([217.133.42.200]:51867
+	"EHLO dualathlon.random") by vger.kernel.org with ESMTP
+	id S264184AbTE0VLY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 27 May 2003 17:11:24 -0400
+Date: Tue, 27 May 2003 23:24:36 +0200
+From: Andrea Arcangeli <andrea@suse.de>
+To: Marcelo Tosatti <marcelo@conectiva.com.br>
+Cc: Alexander Viro <viro@math.psu.edu>, lkml <linux-kernel@vger.kernel.org>
+Subject: Re: 00_drop-broken-flock-account-1
+Message-ID: <20030527212436.GU3767@dualathlon.random>
+References: <Pine.LNX.4.55L.0305270313550.813@freak.distro.conectiva>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200305272310.44657.m.c.p@wolk-project.de>
+In-Reply-To: <Pine.LNX.4.55L.0305270313550.813@freak.distro.conectiva>
+User-Agent: Mutt/1.4i
+X-GPG-Key: 1024D/68B9CB43
+X-PGP-Key: 1024R/CB4660B9
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, May 27 2003, Marc-Christian Petersen wrote:
-> On Tuesday 27 May 2003 23:00, Jens Axboe wrote:
+On Tue, May 27, 2003 at 03:16:18AM -0300, Marcelo Tosatti wrote:
 > 
-> Hi Jens,
+> Hi,
 > 
-> > Are you serious? Please tell me you haven't spend two weeks on the
-> > project not realising this?
-> Well, 2 weeks means in hours not more than 5 or 6 just delayed over many days.
+> Is this patch suitable for mainline inclusion?
 > 
-> And it was further just to go deeper into the code, not a real attempt to 
-> backport it. NM.
+>         per-task flock accounting was broken across tasks sharing the same
+>         files. Removed temporarly. This should fix sendmail. If somebody
+>         wanted to bypass the rlimit he needed simply to use fcntl instead
+>         so it's not going to make much difference for 2.4. Fix from
+>         Matthew Wilcox.
 
-A bigger analysis of the problem before starting mindless (and useless)
-porting would have brought you a lot farther :)
+yes, and as I wrote above the rlimit was trivial anyways to bypass with fcntl.
 
-If you're just looking to port some io schedulers, the explanation I
-left you in the previous mail should be plenty to get you started.
-
--- 
-Jens Axboe
-
+Andrea

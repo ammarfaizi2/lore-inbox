@@ -1,62 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261449AbTI3Mnr (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 Sep 2003 08:43:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261448AbTI3Mnb
+	id S261433AbTI3Mqs (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 Sep 2003 08:46:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261460AbTI3Mqs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 Sep 2003 08:43:31 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:26859 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S261449AbTI3Mmk (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 Sep 2003 08:42:40 -0400
-Date: Tue, 30 Sep 2003 14:42:38 +0200
-From: Jens Axboe <axboe@suse.de>
-To: "David S. Miller" <davem@redhat.com>
-Cc: ast@domdv.de, schilling@fokus.fraunhofer.de, linux-kernel@vger.kernel.org
-Subject: Re: Kernel includefile bug not fixed after a year :-(
-Message-ID: <20030930124238.GS2908@suse.de>
-References: <200309301144.h8UBiUUF004315@burner.fokus.fraunhofer.de> <20030930115411.GL2908@suse.de> <3F797316.2010401@domdv.de> <20030930052337.444fdac4.davem@redhat.com> <20030930122832.GO2908@suse.de> <20030930053459.6cf2bd51.davem@redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030930053459.6cf2bd51.davem@redhat.com>
+	Tue, 30 Sep 2003 08:46:48 -0400
+Received: from pD9E0ADE4.dip.t-dialin.net ([217.224.173.228]:42707 "EHLO
+	linux.meister.lan") by vger.kernel.org with ESMTP id S261433AbTI3Mqp
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 30 Sep 2003 08:46:45 -0400
+X-Flags: 1000
+Date: Sun, 28 Sep 2003 08:28:14 -0700 (PDT)
+Message-Id: <200309281523.IAA00607@mail05.emailpls.com>
+From: Pay Day Now <appledaily@mail05.emailpls.com>
+To: rmeister@gmx.net
+X-INFO: Report abuse to mailing provider at abuse@postnote.com
+X-INFO: Report complaints and unsubscribe requests at abuse@postnote.com
+Subject: Hey, Get 500 Transferred to Your Account Tomorrow 
+MIME-Version: 1.0
+Content-Type: text/plain; charset="iso-8859-1"
+X-GMX-Antivirus: -1 (not scanned, may not use virus scanner)
+X-GMX-Antispam: 0 (Mail was not recognized as spam)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Sep 30 2003, David S. Miller wrote:
-> On Tue, 30 Sep 2003 14:28:32 +0200
-> Jens Axboe <axboe@suse.de> wrote:
-> 
-> > On Tue, Sep 30 2003, David S. Miller wrote:
-> > > On Tue, 30 Sep 2003 14:12:06 +0200
-> > > Andreas Steinmetz <ast@domdv.de> wrote:
-> > > 
-> > > Indeed, and equally someone tell me where all the IPSEC socket
-> > > interface defines are in glibc?  It doesn't matter which tree
-> > > you check it won't be there.
-> > 
-> > Did you notify them of the addition?
-> 
-> Nope, and I don't expect them to be checking all the time.
-> 
-> This is as much kernel people's problem as glibc people's.
-> We, as kernel people, need a system that the glibc people can
-> get this crap automatically.  The glibc folks can then just use
-> it and everything just works.
+****************************
+Get 500 by tomorrow. It's quick, easy and confidential. 
 
-Yep, the 'notify them' implies active effort from the kernel developers.
+http://mail05.emailpls.com/m/l?2q3-68nq-1-395s-28sx8
 
-> > Well then change that to 'if you include kernel headers from your user
-> > apps, be prepared to pick fix the breakage'.
-> 
-> There is a very small amount of effort necessary to fix this
-> particular problem, it won't be the end of the world if we fix the
-> kernel header in the actual kernel sources for them.
+****************************
+Use the money anyway you like: 
+* Pay off your bills 
+* Help you and your family through an emergency 
+* Repair your car 
+* Go shopping 
 
-I'm sure Joerg is quite capable of fixing the problem and making a
-patch. That is the least he can do if he wants the problem to be fixed,
-whining is well known to be a lot less effective than that.
+You decide! 
 
--- 
-Jens Axboe
+http://mail05.emailpls.com/m/l?2q3-68nq-2-395s-28sx8
+
+****************************
+
+
+Your cash advance is electronically deposited directly into your checking account within 24 hours. It's secure and safe. 
+
+A credit check is NOT required. 
+Home ownership is NOT required. 
+The ONLY collateral you need is a steady paycheck and an active checking account. 
+
+Get your advance today. Click this link now! 
+
+http://mail05.emailpls.com/m/l?2q3-68nq-3-395s-28sx8
+
+****************************
+
+
+
+
+To unsubscribe, go to:
+http://mail05.emailpls.com/remove?r.appledaily.0-230cc1a-36ad.gmx.net.-rmeister?r
+
+or, send a blank message to:
+mailto:r.appledaily.0-230cc1a-36ad.gmx.net.-rmeister@mail05.emailpls.com
+
+
 

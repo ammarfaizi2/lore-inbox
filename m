@@ -1,68 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131030AbQLEEgW>; Mon, 4 Dec 2000 23:36:22 -0500
+	id <S131134AbQLEEmn>; Mon, 4 Dec 2000 23:42:43 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131088AbQLEEgN>; Mon, 4 Dec 2000 23:36:13 -0500
-Received: from neon-gw.transmeta.com ([209.10.217.66]:54546 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S131030AbQLEEf5>; Mon, 4 Dec 2000 23:35:57 -0500
-Date: Mon, 4 Dec 2000 20:00:03 -0800 (PST)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Alexander Viro <viro@math.psu.edu>
-cc: Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        Alexander Viro <aviro@redhat.com>, Andrew Morton <andrewm@uow.edu.au>,
-        "Stephen C. Tweedie" <sct@redhat.com>, Alan Cox <alan@redhat.com>,
-        Christoph Rohland <cr@sap.com>, Rik van Riel <riel@conectiva.com.br>,
-        MOLNAR Ingo <mingo@chiara.elte.hu>
-Subject: Re: test12-pre5
-In-Reply-To: <Pine.GSO.4.21.0012042232220.7166-100000@weyl.math.psu.edu>
-Message-ID: <Pine.LNX.4.10.10012041955000.860-100000@penguin.transmeta.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S131127AbQLEEmd>; Mon, 4 Dec 2000 23:42:33 -0500
+Received: from wire.cadcamlab.org ([156.26.20.181]:15888 "EHLO
+	wire.cadcamlab.org") by vger.kernel.org with ESMTP
+	id <S131088AbQLEEmY>; Mon, 4 Dec 2000 23:42:24 -0500
+Date: Mon, 4 Dec 2000 22:10:35 -0600
+To: Pavel Machek <pavel@suse.cz>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Fasttrak100 questions...
+Message-ID: <20001204221035.A6567@cadcamlab.org>
+In-Reply-To: <8voa7g$d1r$1@forge.tanstaafl.de> <Pine.LNX.4.21.0011291152500.5109-100000@sol.compendium-tech.com> <20001129210830.J17523@forge.tanstaafl.de> <20001129165236.A9536@vger.timpanogas.org> <3A266EE7.4C734350@nortelnetworks.com> <20001201214415.E25464@wire.cadcamlab.org> <20001203235452.C165@bug.ucw.cz>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20001203235452.C165@bug.ucw.cz>; from pavel@suse.cz on Sun, Dec 03, 2000 at 11:54:52PM +0100
+From: Peter Samuelson <peter@cadcamlab.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
+[Pavel Machek]
+> Hmm, add special code for GPL into gzip ;-).
 
-On Mon, 4 Dec 2000, Alexander Viro wrote:
-> 
-> On Mon, 4 Dec 2000, Linus Torvalds wrote:
-> > 
-> > Ok, this contains one of the fixes for the dirty inode buffer list (the
-> > other fix is pending, simply because I still want to understand why it
-> > would be needed at all). Al?
-> 
-> See previous posting. BTW, -pre5 doesn't do the right thing in clear_inode().
-> 
-> Scenario: bh of indirect block is busy (whatever reason, flush_dirty_buffers(),
-> anything that can bump ->b_count for a while). ext2_truncate() frees the
-> thing and does bforget(). bh is left on the inode's list. Woops...
+Someone on debian-devel thought of this, but went one further: change
+the gzip header magic so that only a "GPL-enabled" gzip can decompress
+it.
 
-So? Why wouldn't clear_inode() get rid of it?
+I wonder how the zlib maintainers (zlib is not GPL) would feel about
+having to add support for *that*. (:
 
-> The minimal fix would be to make clear_inode() empty the list. IMO it's
-> worse than preventing the freed stuff from being on that list...
+> PS: That's crazy. Including it by reference should be enough. I do
+> not want waste 17K on every file.
 
-This _is_ what clear_inode() does in pre5 (and in pre4, for that matter):
+It's not crazy, it's RMS. (: I guess he is worried about some .deb file
+falling into the wrong hands and being used on a system where nobody
+has heard of the GPL and there is no copy available ... then the target
+user won't know his or her rights and responsibilities.
 
-	void clear_inode(struct inode *inode)
-	{  
-	        if (!list_empty(&inode->i_dirty_buffers))
-	                invalidate_inode_buffers(inode);
+Yeah, I think it's pretty far-fetched too.
 
-		...
-
-which I find perfectly readable. And should mean that no dirty buffers
-should be associated with the inode any more. ext2 calls clear_inode()
-from ext2_free_inode(), and as far as I can tell the only thing that can
-happen after that is that the inode is still scheduled for write-out
-(which explains how the bug you fixed would cause a dirty block to be
-attached to the inode _after_ we did a clear_inode() on it).
-
-Or are you thinking of something else?
-
-		Linus
-
+Peter
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

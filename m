@@ -1,81 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314548AbSHRMb6>; Sun, 18 Aug 2002 08:31:58 -0400
+	id <S314602AbSHRMjB>; Sun, 18 Aug 2002 08:39:01 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314602AbSHRMb6>; Sun, 18 Aug 2002 08:31:58 -0400
-Received: from ivimey.org ([194.106.52.201]:26940 "EHLO gatemaster.ivimey.org")
-	by vger.kernel.org with ESMTP id <S314548AbSHRMb5>;
-	Sun, 18 Aug 2002 08:31:57 -0400
-Date: Sun, 18 Aug 2002 13:33:31 +0100 (BST)
-From: Ruth Ivimey-Cook <Ruth.Ivimey-Cook@ivimey.org>
-X-X-Sender: ruthc@sharra.ivimey.org
-To: Larry McVoy <lm@bitmover.com>
-cc: Matti Aarnio <matti.aarnio@zmailer.org>, Dax Kelson <dax@gurulabs.com>,
-       "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: Re: Does Solaris really scale this well?
-In-Reply-To: <20020817175517.A31128@work.bitmover.com>
-Message-ID: <Pine.LNX.4.44.0208181228330.13351-100000@sharra.ivimey.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S314634AbSHRMjB>; Sun, 18 Aug 2002 08:39:01 -0400
+Received: from capsi.xs4all.nl ([213.84.61.91]:22025 "HELO capsi.com")
+	by vger.kernel.org with SMTP id <S314602AbSHRMjA>;
+	Sun, 18 Aug 2002 08:39:00 -0400
+Date: Sun, 18 Aug 2002 14:43:00 +0200
+From: Alexander Kellett <lypanov@kde.org>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: "Adam J. Richter" <adam@yggdrasil.com>, B.Zolnierkiewicz@elka.pw.edu.pl,
+       linux-kernel@vger.kernel.org
+Subject: Re: IDE?
+Message-ID: <20020818124300.GC20618@ezri.capsi>
+Mail-Followup-To: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+	"Adam J. Richter" <adam@yggdrasil.com>,
+	B.Zolnierkiewicz@elka.pw.edu.pl, linux-kernel@vger.kernel.org
+References: <200208171302.GAA07962@adam.yggdrasil.com> <20020817132201.GA3556@ezri.capsi> <1029613869.4809.26.camel@irongate.swansea.linux.org.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1029613869.4809.26.camel@irongate.swansea.linux.org.uk>
+User-Agent: Mutt/1.4i
+X-Disclaimer: My opinions do not necessarily represent those of KDE
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 17 Aug 2002, Larry McVoy wrote:
+On Sat, Aug 17, 2002 at 08:51:09PM +0100, Alan Cox wrote:
+> On Sat, 2002-08-17 at 14:22, Alexander Kellett wrote:
+> > So, pleeease Bartlomiej/Alan/Jens, whoever. Someone step up
+> > to get most/some of Marcin' cleanup patches into 2.5 again.
+> 
+> Not interested. Its easier to go back to functionally correct code and
+> do the job nicely than to fix the 2.5.3x code. Right now I'm working on
+> Andre's current code in 2.4.20pre2-ac* starting off with only provably
+> identical transforms between AndreCode and C and documenting it.
 
->On Sun, Aug 18, 2002 at 12:03:24AM +0100, Ruth Ivimey-Cook wrote:
->> >> "When you take a 99-way UltraSPARC III machine and add a 100th processor, 
->> >> you get 94 percent linear scalability. You can't get 94 percent linear 
->> >> scalability on your first Intel chip. It's very, very hard to do, and they 
->> >> have not done it."
->> 
->> I've seen scientific reports of scalability that good in non-shared memory
->> computers (mostly in transputer arrays) where (with a scalable algorithm)
->> unless you got >90% you were doing something wrong.  However, if you insist on
->> sharing main memory, I still don't believe you can get anywhere near that...
->> IMO 30% is doing very well once past the first few CPUs.
->
->Please reconsider your opinion.  Both Sun and SGI scale past 100 CPUs on
->reasonable workloads in shared memory.  Where "reasonable" != easy to do.
+Better point, I realized my mistake right after reading Al's 
+"tranformation" post and grasping the sense in it. Much better approach.  
 
-Larry,
-
-I wasn't disputing that Sun could have say 100 cpus in a box, but that the
-100th shared-memory CPU didias much work as the first. That said, I _am_ out
-of date on the performance of the Sun machines; what kind of measured
-performance effeciency do you get with them?
-
-A google search turned up:
-    http://www.icg.tu-graz.ac.at/goller/publication/pers/node6.html (1997)
-in which the author says:
-
-  Utilizing more than half of all processors is commonly agreed to be an
-acceptable efficiency for parallel applications. In all three diagrams, the
-efficiency never drops below this 50%-level in the area of interest
-
--- well, I would disagree about the implied "any parallel app", but it does
-seem to be true of many SMP systems...
-
-In the following paper, the authors benchmarked IBM, Cray and SGI
-supercomputers: http://citeseer.nj.nec.com/kang99benchmarking.html (1999)
-
-If you look at pages numbered 53 & 54, you will see graphs of time vs num
-processors that are a very long way from linear, indeed in one case time
-increased as cum cpus increased.
-
-It is also instructive to note that in many cases, the peak processor power is 
-obtained by multiplying individual peak power by the number of processors, 
-with no notice taken of the costs of synchronisation, memory access or 
-communication. Consequently, many new owners of supercomputers are very 
-disappointed with their new 'baby' when they find it's not nearly as powerful 
-as they had been told.
-
-Regards,
-
-Ruth
-
--- 
-Ruth Ivimey-Cook
-Software engineer and technical writer.
-
-
-
+Alex

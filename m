@@ -1,81 +1,99 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262675AbUJ1ACy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262665AbUJ1ARY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262675AbUJ1ACy (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 27 Oct 2004 20:02:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262538AbUJ0SpL
+	id S262665AbUJ1ARY (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 27 Oct 2004 20:17:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262688AbUJ1ANS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 27 Oct 2004 14:45:11 -0400
-Received: from sj-iport-2-in.cisco.com ([171.71.176.71]:31137 "EHLO
-	sj-iport-2.cisco.com") by vger.kernel.org with ESMTP
-	id S262641AbUJ0Shj convert rfc822-to-8bit (ORCPT
+	Wed, 27 Oct 2004 20:13:18 -0400
+Received: from cantor.suse.de ([195.135.220.2]:55511 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S262691AbUJ1AKl (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 27 Oct 2004 14:37:39 -0400
-Reply-To: <hzhong@cisco.com>
-From: "Hua Zhong" <hzhong@cisco.com>
-To: "'Alan Cox'" <alan@lxorguk.ukuu.org.uk>
-Cc: "'John Richard Moser'" <nigelenki@comcast.net>,
-       =?gb2312?B?J0VzcGVuIEZqZWxsduZyIE9sc2VuJw==?= <espenfjo@gmail.com>,
-       "'Linux Kernel Mailing List'" <linux-kernel@vger.kernel.org>
-Subject: RE: My thoughts on the "new development model"
-Date: Wed, 27 Oct 2004 11:37:34 -0700
-Organization: Cisco Systems
-Message-ID: <007101c4bc54$065ba2c0$103147ab@amer.cisco.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="gb2312"
-Content-Transfer-Encoding: 8BIT
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook, Build 10.0.6626
-Importance: Normal
-In-Reply-To: <1098890996.4302.14.camel@localhost.localdomain>
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4939.300
+	Wed, 27 Oct 2004 20:10:41 -0400
+Date: Thu, 28 Oct 2004 02:10:01 +0200
+From: Andi Kleen <ak@suse.de>
+To: Venkatesh Pallipadi <venkatesh.pallipadi@intel.com>
+Cc: akpm@osdl.org, ak@suse.de, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Add p4-clockmod driver in x86-64
+Message-ID: <20041028001001.GF23595@wotan.suse.de>
+References: <20041026142826.A24417@unix-os.sc.intel.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20041026142826.A24417@unix-os.sc.intel.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> On Maw, 2004-10-26 at 17:58, Hua Zhong wrote:
-> > The fact is, these days nobody wants to be a stable-release 
-> >maintainer anymore. It's boring.
+On Tue, Oct 26, 2004 at 02:28:26PM -0700, Venkatesh Pallipadi wrote:
 > 
-> That depends what kind of an engineer you are. Just as there 
-> are people who love standards body work and compliance 
-> testing/debugging there are people who care about stable trees.
+> Add links for p4-clockmod driver in x86-64 cpufreq. 
 
-Absolutely agreed. There are folks around me who can do one thing much
-better than the other.
+I added it with a clarified description and made it dependent on 
+CONFIG_EMBEDDED to prevent mistakes (perhaps that should be done on i386 too?) 
 
-When I said "nobody", I really meant "top kernel developers". I have not
-seen anyone step up and say "I'll volunteer to maintain a 2.6 stable
-release" hence the comment.
+Thanks.
 
-This is actually not a problem caused by the new development model per se.
-The same thing might have happened with 2.4. You know what I'm talking
-about. Most talented people just like new challenges instead of maintaining
-old code.
+-Andi
 
-However, there are some things that make this situation worse by the new
-model.
-1. No official stable releases and thus no official maintainers. 2.6 is no
-longer a stable release. 2.6.x might be. And Linus doesn't seem to plan to
-endorse anyone for this job. Previously, Linus could appoint someone and
-even if he is not really well-known, people would eventually accept him, but
-now it's not the case anymore. More importantly, if there is no official
-stable releases, whom do other people send bug fixes to? From both user and
-developer perspective, this is very hard to work out.
 
-2. The new version scheme. Now a stable release has to be 2.6.x. So instead
-of being a 2.6 maintainer, you might be called a 2.6.x maintainer. One extra
-number, less importance and recognicion, and less motivation for volunteers
-to show up (especially for relatively new people). Just common psychology.
-:)
+Here's the patch for your reference:
 
-These are just my observations. As far as I can see only two things will
-help:
-1. Appoint an official 2.6 maintainer. Be it someone Linus appoints, or
-someone like Alan Cox who volunteers. :-)
-2. This maintainer will not be stuck at only one 2.6.x version. Instead, he
-maintains 2.6.x for a while until it is stable enough, and then move up to
-2.6.y (y>x), and start the stabilization again.
 
-Hua
 
+Add links for p4-clockmod driver in x86-64 cpufreq. 
+
+AK: Made it dependent on EMBEDDED because the driver is only
+useful in some special situations and should be normally not used.
+
+Signed-off-by: "Venkatesh Pallipadi" <venkatesh.pallipadi@intel.com>
+Signed-off-by: Andi Kleen <ak@suse.de> 
+ 
+Index: linux/arch/x86_64/kernel/cpufreq/Makefile
+===================================================================
+--- linux.orig/arch/x86_64/kernel/cpufreq/Makefile	2004-10-19 01:55:08.%N +0200
++++ linux/arch/x86_64/kernel/cpufreq/Makefile	2004-10-28 02:02:00.%N +0200
+@@ -7,7 +7,11 @@
+ obj-$(CONFIG_X86_POWERNOW_K8) += powernow-k8.o
+ obj-$(CONFIG_X86_SPEEDSTEP_CENTRINO) += speedstep-centrino.o
+ obj-$(CONFIG_X86_ACPI_CPUFREQ) += acpi.o
++obj-$(CONFIG_X86_P4_CLOCKMOD) += p4-clockmod.o
++obj-$(CONFIG_X86_SPEEDSTEP_LIB) += speedstep-lib.o
+ 
+ powernow-k8-objs := ${SRCDIR}/powernow-k8.o
+ speedstep-centrino-objs := ${SRCDIR}/speedstep-centrino.o
+ acpi-objs := ${SRCDIR}/acpi.o
++p4-clockmod-objs := ${SRCDIR}/p4-clockmod.o
++speedstep-lib-objs := ${SRCDIR}/speedstep-lib.o
+Index: linux/arch/x86_64/kernel/cpufreq/Kconfig
+===================================================================
+--- linux.orig/arch/x86_64/kernel/cpufreq/Kconfig	2004-10-25 04:47:15.%N +0200
++++ linux/arch/x86_64/kernel/cpufreq/Kconfig	2004-10-28 02:09:04.%N +0200
+@@ -88,5 +88,29 @@
+ 
+ 	  If in doubt, say N.
+ 
++config X86_P4_CLOCKMOD
++	tristate "Intel Pentium 4 clock modulation"
++	depends on CPU_FREQ_TABLE && EMBEDDED
++	help
++	  This adds the clock modulation driver for Intel Pentium 4 / XEON
++	  processors.  When enabled it will lower CPU temperature by skipping 
++	  clocks. 
++	  
++	  This driver should be only used in exceptional
++	  circumstances when very low power is needed because it causes severe 
++	  slowdowns and noticeable latencies.  Normally Speedstep should be used 
++	  instead.
++
++	  For details, take a look at <file:Documentation/cpu-freq/>.
++
++	  Unless you are absolutely sure say N.
++
++
++config X86_SPEEDSTEP_LIB
++        tristate
++        depends on (X86_P4_CLOCKMOD)
++        default (X86_P4_CLOCKMOD)
++
++
+ endmenu
+ 

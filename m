@@ -1,91 +1,127 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272828AbTHEPBv (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Aug 2003 11:01:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272832AbTHEPBu
+	id S272817AbTHEOz2 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Aug 2003 10:55:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272840AbTHEOz1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Aug 2003 11:01:50 -0400
-Received: from fw.osdl.org ([65.172.181.6]:18335 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S272828AbTHEPBr (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Aug 2003 11:01:47 -0400
-Date: Tue, 5 Aug 2003 07:57:58 -0700
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-To: gene.heskett@verizon.net
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.4 vs 2.6 versions of include/linux/ioport.h
-Message-Id: <20030805075758.31f51879.rddunlap@osdl.org>
-In-Reply-To: <200308051041.08078.gene.heskett@verizon.net>
-References: <200308051041.08078.gene.heskett@verizon.net>
-Organization: OSDL
-X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
-X-Face: +5V?h'hZQPB9<D&+Y;ig/:L-F$8p'$7h4BBmK}zo}[{h,eqHI1X}]1UhhR{49GL33z6Oo!`
- !Ys@HV,^(Xp,BToM.;N_W%gT|&/I#H@Z:ISaK9NqH%&|AO|9i/nB@vD:Km&=R2_?O<_V^7?St>kW
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Tue, 5 Aug 2003 10:55:27 -0400
+Received: from chaos.analogic.com ([204.178.40.224]:27265 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP id S272817AbTHEOzP
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 5 Aug 2003 10:55:15 -0400
+Date: Tue, 5 Aug 2003 10:57:11 -0400 (EDT)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+X-X-Sender: root@chaos
+Reply-To: root@chaos.analogic.com
+To: Stephan von Krawczynski <skraw@ithnet.com>
+cc: helgehaf@aitel.hist.no, linux-kernel@vger.kernel.org
+Subject: Re: FS: hardlinks on directories
+In-Reply-To: <20030805160435.7b151b0e.skraw@ithnet.com>
+Message-ID: <Pine.LNX.4.53.0308051042310.6347@chaos>
+References: <20030804141548.5060b9db.skraw@ithnet.com> <03080409334500.03650@tabby>
+ <20030804170506.11426617.skraw@ithnet.com> <03080416092800.04444@tabby>
+ <20030805003210.2c7f75f6.skraw@ithnet.com> <3F2FA862.2070401@aitel.hist.no>
+ <20030805150351.5b81adfe.skraw@ithnet.com> <Pine.LNX.4.53.0308050916140.5994@chaos>
+ <20030805160435.7b151b0e.skraw@ithnet.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 5 Aug 2003 10:41:08 -0400 Gene Heskett <gene.heskett@verizon.net> wrote:
+On Tue, 5 Aug 2003, Stephan von Krawczynski wrote:
 
-| Greetings;
-| 
-| In the 2.4 includes, find this in ioport.h
-| ----
-| /* Compatibility cruft */
-| #define check_region(start,n)   __check_region(&ioport_resource, 
-| (start), (n))
-| [snip]
-| extern int __check_region(struct resource *, unsigned long, unsigned 
-| long);
-| ----
-| But in the 2.6 version, find this:
-| ----
-| /* Compatibility cruft */
-| [snip]
-| extern int __check_region(struct resource *, unsigned long, unsigned 
-| long);
-| [snip]
-| static inline int __deprecated check_region(unsigned long s, unsigned 
-| long n)
-| {
-|         return __check_region(&ioport_resource, s, n);
-| }
-| ----
-| First, the define itself is missing in the 2.6 version.
-| 
-| Many drivers seem to use this call, and in that which I'm trying to 
-| build, the nforce and advansys modules use it.  And while the modules 
-| seem to build, they do not run properly.
-| 
-| I cannot run 2.6.x for extended tests because of the advansys breakage 
-| this causes.  I also haven't even tried to run X because of the 
-| nforce error reported when its built, the same error as attacks the 
-| advansys code.
-| 
-| Can I ask why this change was made, and is there a suitable 
-| replacement call available that these drivers could use instead of 
-| check_region(), as shown here in a snip from advansys.c?
-| ----
-| if (check_region(iop, ASC_IOADR_GAP) != 0) {
-| ...
-| if (check_region(iop_base, ASC_IOADR_GAP) != 0) {
-| ...
-| 
-| Hopeing for some hints here.
+> On Tue, 5 Aug 2003 09:36:37 -0400 (EDT)
+> "Richard B. Johnson" <root@chaos.analogic.com> wrote:
+>
+> > A hard-link is, by definition, indistinguishable from the original
+> > entry. In fact, with fast machines and the course granularity of
+> > file-system times, even the creation time may be exactly the
+> > same.
+>
+> Hello Richard,
+>
+> I really don't mind if you call the thing I am looking for a hardlink or a
+> chicken. And I am really not sticking to creating them by ln or mount or just
+> about anything else. I am, too, not bound to making them permanent on the
+> media. All I really want to do is to _export_ them via nfs.
+> And guys, looking at mount -bind makes me think someone else (before poor me)
+> needed just about the same thing.
+> So, instead of constantly feeding my bad conscience, can some kind soul explain
+> the possibilities to make "mount -bind/rbind" work over a network fs of some
+> flavor, please?
+>
+> Regards,
+> Stephan
+>
+> PS: if you ever want to find out what *nix people are carrying guns, just enter
+> the room and cry out loud "directory hardlinks to the left!"
+> ;-)
+>
 
-check_region() was racy.  Use request_region() instead.
+But symlinks work over NFS. You just have to make sure they are
+relative to whatever the remote mount-point is:
 
-   if (!request_region(iop, ASC_IOADR_GAP, "advansys")) {
-   ...
+Script started on Tue Aug  5 10:38:55 2003
+# mount boneserver:/tmp /mnt
+# df
+Filesystem           1k-blocks      Used Available Use% Mounted on
+/dev/sdb1             16603376   6560676   9199292  42% /
+/dev/sdc1              6356624   1217040   4816680  20% /alt
+/dev/sdc3              2253284   1796788    342036  84% /home/users
+/dev/sda1              1048272    280960    767312  27% /dos/drive_C
+/dev/sda5              1046224    181280    864944  17% /dos/drive_D
+boneserver:/tmp        3881192   2385676   1294706  65% /mnt
+# cd /mnt
+# ls
+# mkdir foo
+# ls
+foo
+# ln -s foo bar
+# ls
+bar  foo
+# cd bar
+# pwd
+/mnt/bar
+# mkdir xxx
+# ln -s xxx ../zzz
+# cd ..
+# ls
+bar  foo  zzz
+# file zzz
+zzz: broken symbolic link to xxx
+# rm zzz
+# cd bar
+# ls
+xxx
+# file xxx
+xxx: directory
+# pwd
+/mnt/bar
+# ln -s /mnt/bar/xxx ../zzz
+# cd ..
+# ls
+bar  foo  zzz
+# file zzz
+zzz: symbolic link to /mnt/bar/xxx
+# ls zzz
+# home
+# umount /mnt
+# exit
+exit
+Script done on Tue Aug  5 10:41:41 2003
 
-   if (!request_region(iop_base, ASC_IOADR, "advansys")) {
-   ...
 
-Of course, if successful, this assigns the region to the driver,
-while check_region() didn't do this, so release_region() should be
-used as needed to return the resources.
+As you an clearly see, the symlink to the directories worked
+fine. You don't need a hard-link at all. I deliberately created
+a broken link, deleted it, then made another that works.
+Everything I did locally could have been done remotely on
+the server who's /tmp directory I mounted R/W. All you
+need to do to make such working links is to use the
+same mount-point name on each of you clients. That way,
+a sim-link will work the same for everybody.
 
---
-~Randy
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.4.20 on an i686 machine (797.90 BogoMips).
+            Note 96.31% of all statistics are fiction.
+

@@ -1,34 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129112AbRCPNHM>; Fri, 16 Mar 2001 08:07:12 -0500
+	id <S129321AbRCPNIl>; Fri, 16 Mar 2001 08:08:41 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129321AbRCPNHB>; Fri, 16 Mar 2001 08:07:01 -0500
-Received: from smtp1.cern.ch ([137.138.128.38]:19205 "EHLO smtp1.cern.ch")
-	by vger.kernel.org with ESMTP id <S129112AbRCPNGv>;
-	Fri, 16 Mar 2001 08:06:51 -0500
-Date: Fri, 16 Mar 2001 14:05:58 +0100
-From: Jamie Lokier <lk@tantalophile.demon.co.uk>
-To: Alexander Viro <viro@math.psu.edu>
-Cc: Dawson Engler <engler@csl.Stanford.EDU>, linux-kernel@vger.kernel.org
-Subject: Re: [CHECKER] 9 potential copy_*_user bugs in 2.4.1
-Message-ID: <20010316140558.A1805@pcep-jamie.cern.ch>
-In-Reply-To: <200103160224.SAA03920@csl.Stanford.EDU> <Pine.GSO.4.21.0103152146550.10709-100000@weyl.math.psu.edu>
-Mime-Version: 1.0
+	id <S129464AbRCPNIV>; Fri, 16 Mar 2001 08:08:21 -0500
+Received: from panic.ohr.gatech.edu ([130.207.47.194]:28871 "HELO
+	havoc.gtf.org") by vger.kernel.org with SMTP id <S129321AbRCPNIK>;
+	Fri, 16 Mar 2001 08:08:10 -0500
+Message-ID: <3AB20FF0.33ADDFDD@mandrakesoft.com>
+Date: Fri, 16 Mar 2001 08:06:56 -0500
+From: Jeff Garzik <jgarzik@mandrakesoft.com>
+Organization: MandrakeSoft
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.3-pre4 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Brian May <bam@snoopy.apana.org.au>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Kernel 2.4.2and 8139too
+In-Reply-To: <Pine.LNX.4.21.0103151527420.2382-100000@ve1drg.com> <84u24ufv9h.fsf@snoopy.apana.org.au>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <Pine.GSO.4.21.0103152146550.10709-100000@weyl.math.psu.edu>; from viro@math.psu.edu on Thu, Mar 15, 2001 at 10:11:46PM -0500
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alexander Viro wrote:
-> 	* verify_area() cleans the value, but you'll be better off
-> considering these as dangerous - it only checks that range is OK and if
-> pointer arithmetics moves you out of that range or you access piece longer
-> than range in question...
+Brian May wrote:
+> However, I have just put a 8139 based card into my Linux 2.4.2
+> system. At one stage, these lines were logged:
+> 
+> Mar 15 09:42:56 snoopy kernel: eth0: Abnormal interrupt, status 00000020.
+> Mar 15 09:43:04 snoopy kernel: eth0: Abnormal interrupt, status 00002020.
+> Mar 15 10:06:52 snoopy kernel: eth0: Abnormal interrupt, status 00000020.
+> Mar 15 10:06:58 snoopy kernel: eth0: Abnormal interrupt, status 00002020.
+> 
+> The card seems to be reliable apart from these messages. It could be
+> that I was playing around with the network cable or something at the
+> time... However, any messages "Abnormal interrupt" make me slightly
+> nervous.
 
-Note that verify_area's argument cannot be safely dereferenced if a
-parallel thread is able to change the user-space mapping.  This is
-usually possible.
+They are logged at the kernel debug level, but nobody seems to notice
+this fact.  Oh well.  The messages are for debugging only and
+informational.  They occur whenever an Rx or Tx error occurs.
 
--- Jamie
+The latest version of 8139too hides this message behind RTL8139_DEBUG.
+
+	Jeff
+
+
+-- 
+Jeff Garzik       | May you have warm words on a cold evening,
+Building 1024     | a full mooon on a dark night,
+MandrakeSoft      | and a smooth road all the way to your door.

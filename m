@@ -1,98 +1,76 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262871AbTCFBIZ>; Wed, 5 Mar 2003 20:08:25 -0500
+	id <S267679AbTCFBGj>; Wed, 5 Mar 2003 20:06:39 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267688AbTCFBIZ>; Wed, 5 Mar 2003 20:08:25 -0500
-Received: from vladimir.pegasys.ws ([64.220.160.58]:17171 "HELO
-	vladimir.pegasys.ws") by vger.kernel.org with SMTP
-	id <S262871AbTCFBIX>; Wed, 5 Mar 2003 20:08:23 -0500
-Date: Wed, 5 Mar 2003 17:18:50 -0800
-From: jw schultz <jw@pegasys.ws>
-To: Linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: About /etc/mtab and /proc/mounts
-Message-ID: <20030306011850.GA16552@pegasys.ws>
-Mail-Followup-To: jw schultz <jw@pegasys.ws>,
-	Linux-kernel <linux-kernel@vger.kernel.org>
-References: <buon0kirym1.fsf@mcspd15.ucom.lsi.nec.co.jp> <3E5DCB89.9086582F@daimi.au.dk> <buo65r6ru6h.fsf@mcspd15.ucom.lsi.nec.co.jp> <20030227092121.GG15254@pegasys.ws> <20030302130430.GI45@DervishD> <3E621235.2C0CD785@daimi.au.dk> <20030303010409.GA3206@pegasys.ws> <3E634916.6AE643EB@daimi.au.dk> <20030304020203.GD7329@pegasys.ws> <3E65F454.825890F4@daimi.au.dk>
+	id <S267686AbTCFBGj>; Wed, 5 Mar 2003 20:06:39 -0500
+Received: from pine.compass.com.ph ([202.70.96.37]:63809 "HELO
+	pine.compass.com.ph") by vger.kernel.org with SMTP
+	id <S267679AbTCFBGi>; Wed, 5 Mar 2003 20:06:38 -0500
+Subject: Re: [Linux-fbdev-devel] Re: FBdev updates.
+From: Antonino Daplas <adaplas@pol.net>
+To: James Simmons <jsimmons@infradead.org>
+Cc: Petr Vandrovec <vandrove@vc.cvut.cz>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Linux Fbdev development list 
+	<linux-fbdev-devel@lists.sourceforge.net>
+In-Reply-To: <Pine.LNX.4.44.0303052023110.27760-100000@phoenix.infradead.org>
+References: <Pine.LNX.4.44.0303052023110.27760-100000@phoenix.infradead.org>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Message-Id: <1046913418.1206.189.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3E65F454.825890F4@daimi.au.dk>
-User-Agent: Mutt/1.3.27i
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
+Date: 06 Mar 2003 09:18:29 +0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Mar 05, 2003 at 01:57:57PM +0100, Kasper Dupont wrote:
-> jw schultz wrote:
-> > Writing to /proc/mtab like we do /etc/mtab means allowing
-> > full file read,write,truncate,seek functionality on a
-> > multi-page tlob just to emulate current behavior and support
-> > a second data source with a disconnect from the kernel.
+On Thu, 2003-03-06 at 04:23, James Simmons wrote:
 > 
-> I certainly don't want that. I'd much rather see something
-> slightly similar to files in /proc/sys/. I only want the
-> write system call to work, and I don't want the write call
-> to make use of any file offset. (Maybe it would require a
-> buffer for cases where a write does not end with a newline,
-> but that is just a minor detail.) Every full line written
-> to /proc/mtab would then be parsed (as simple as finding
-> the spaces and verify that there are exactly five). The
-> relevant fields in the mountpoint listed in field two will
-> then be updated.
-
-And umount?  Anything that umounts or remountes a filesystem
-has to modify /etc/mtab to remove or alter the relevant
-line.
-
-I traced a umount and it did the write-to-temp+rename 
-routine.  I wouldn't expect that to work to well in proc.
-And you should have seen the ugly fstat64,_llseek,write
-loop it used.
-
-To put this in kernel means changing how it is updated.
-Once we do that we might as well go all the way.
-
-> > What i would lean towards, assuming that data couldn't list
-> > all options not supported by mountflags would be to add a
-> > char *userdata or useropts argument.  That would be attached
-> > to struct vfsmount.  Userdata would be what /proc/mtab or
-> > whatever reported, either as the option list or the whole
-> > line.
+> > >   And one (or two...) generic questions: why is not pseudo_palette
+> > > u32* pseudo_palette, or even directly u32 pseudo_palette[17] ?
 > > 
-> > To detect the old interface users a NULL userdata or (as
-> > alternatives) a missing MS_USERDATA flag or calling the old
-> > mount syscall would cause a warning that identifies the
-> > offending process.  For the short term either construct a
-> > fake userdata or mtab could fallback to what /proc/mounts
-> > does when it hits NULL.  Long term might be to fail mount(2)
-> > on such an error.
+> > Yes, all drivers should treat the pseudo_palette as u32* anyway, so why
+> > not change pseudo-palette from void* to u32*?
 > 
-> That is another possible solution. And as I think a litle
-> more about it, that is probably a better than the solution I
-> suggested.
+> See other email.
 > 
-> There are a few details of the API that needs to be defined
-> before it can be implemented. So I hope people will say how
-> they like it. As I see it there are a few different
-> possibilities:
+> > > And why we do not fill this pseudo_palette with
+> > > i * 0x01010101U for 8bpp pseudocolor and i * 0x11111111U for 4bpp
+> > > pseudocolor? This allowed me to remove couple of switches and tests
+> > > from acceleration fastpaths (and from cfb_imageblit and cfb_fillrect,
+> > > but I did not changed these two in my benchmarks below).
+> > 
+> > I also agree for a different reason.  Cards with unconventional formats
+> > (such as monochrome at 8 bpp - 0 for black , 0xff for white) will not
+> > work with the current code.
 > 
-> 1) Make a new mount system call. Finally get rid of the old
->    magic value in the flag register and add the extra argument
->    which is then required. Make the old mount system call
->    obsolete, but keep it for some versions. The old mount
->    system call should then just behave as if the user data
->    was the empty string.
+> Isn't that the job of setcolreg?
 > 
-> 2) Add a new flag for the old mount system call, which
->    indicates that there is one more argument containing the
->    user data.
+setcolreg does that for directcolor and truecolor modes, because they're
+the only ones that uses the pseudo_palette.  See all driver codes, the
+pseudo_palette is never initialized if in pseudo_color.
 
-#2 with warnings i like better than keeping a deprecated mount
-syscall until 2038.
+The purpose of the pseudo_palette is to enable to write pixels to the
+framebuffer without knowing the color format at all.  So, if you have
+monochrome, then black is 0 and white is 1.  But for monochrome 8bpp,
+black is 0 and white is 0xff. 
 
--- 
-________________________________________________________________
-	J.W. Schultz            Pegasystems Technologies
-	email address:		jw@pegasys.ws
+fbcon will send 0's and 1's, thus 0 and 1 will be written to the
+framebuffer.  If the drawing functions referred to the pseudo_palette,
+whatever the visual format, then 0 and 0xff will be written, as it
+should be.
 
-		Remember Cernan and Schmitt
+Tony
+> 
+> 
+> -------------------------------------------------------
+> This SF.net email is sponsored by: Etnus, makers of TotalView, The debugger 
+> for complex code. Debugging C/C++ programs can leave you feeling lost and 
+> disoriented. TotalView can help you find your way. Available on major UNIX 
+> and Linux platforms. Try it free. www.etnus.com
+> _______________________________________________
+> Linux-fbdev-devel mailing list
+> Linux-fbdev-devel@lists.sourceforge.net
+> https://lists.sourceforge.net/lists/listinfo/linux-fbdev-devel
+
+

@@ -1,64 +1,105 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269107AbUJERjs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269065AbUJERlM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269107AbUJERjs (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Oct 2004 13:39:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269117AbUJERjs
+	id S269065AbUJERlM (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Oct 2004 13:41:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269057AbUJERlM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Oct 2004 13:39:48 -0400
-Received: from fmr03.intel.com ([143.183.121.5]:55500 "EHLO
-	hermes.sc.intel.com") by vger.kernel.org with ESMTP id S269107AbUJERj2
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Oct 2004 13:39:28 -0400
-Message-Id: <200410051739.i95HdD627957@unix-os.sc.intel.com>
-From: "Chen, Kenneth W" <kenneth.w.chen@intel.com>
-To: "'Peter Williams'" <pwil3058@bigpond.net.au>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: RE: bug in sched.c:task_hot()
-Date: Tue, 5 Oct 2004 10:39:20 -0700
-X-Mailer: Microsoft Office Outlook, Build 11.0.5510
-Thread-Index: AcSqrZyi94gn7TS8ShaZM1HYdYzYQQAU3o0w
-In-Reply-To: <41624E42.8030105@bigpond.net.au>
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1409
+	Tue, 5 Oct 2004 13:41:12 -0400
+Received: from rwcrmhc12.comcast.net ([216.148.227.85]:11261 "EHLO
+	rwcrmhc12.comcast.net") by vger.kernel.org with ESMTP
+	id S269081AbUJERk7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 5 Oct 2004 13:40:59 -0400
+Message-ID: <4162DCAA.50902@namesys.com>
+Date: Tue, 05 Oct 2004 10:40:58 -0700
+From: Hans Reiser <reiser@namesys.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040803
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Jeffrey Mahoney <jeffm@novell.com>
+CC: Alex Zarochentsev <zam@namesys.com>, Andrew Morton <akpm@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH 0/4] I/O Error Handling for ReiserFS v3
+References: <20041005150819.GA30046@locomotive.unixthugs.org> <4162C156.3030108@namesys.com> <20041005172233.GE28617@backtop.namesys.com>
+In-Reply-To: <20041005172233.GE28617@backtop.namesys.com>
+X-Enigmail-Version: 0.85.0.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Chen, Kenneth W wrote:
-> Current implementation of task_hot() has a performance bug in it
-> that it will cause integer underflow.
+Alex Zarochentsev wrote:
+
+>On Tue, Oct 05, 2004 at 08:44:22AM -0700, Hans Reiser wrote:
+>  
 >
-> Variable "now" (typically passed in as rq->timestamp_last_tick)
-> and p->timestamp are all defined as unsigned long long.  However,
-> If former is smaller than the latter, integer under flow occurs
-> which make the result of subtraction a huge positive number. Then
-> it is compared to sd->cache_hot_time and it will wrongly identify
-> a cache hot task as cache cold.
+>>These have received design approval from zam (and thus me), but zam, did 
+>>they receive stress testing by Elena under your guidance?
+>>    
+>>
 >
-> This bug causes large amount of incorrect process migration across
-> cpus (at stunning 10,000 per second) and we lost cache affinity very
-> quickly and almost took double digit performance regression on a db
-> transaction processing workload.  Patch to fix the bug.  Diff'ed against
-> 2.6.9-rc3.
+>No. We have a long queue of test tasks.  There are fsck.reiser4 testing,
+>reiser4/dmapper crashes and the benchmarks in the queue. 
+>  
 >
+Well, we cannot let our process be a barrier to good patches getting in, 
+so let me ask, Jeff, did you test each of these conditions you 
+improved?  How?  Did anyone else test them?
 
-Peter Williams wrote on Tuesday, October 05, 2004 12:33 AM
-> The interesting question is: How does now get to be less than timestamp?
->   This probably means that timestamp_last_tick is not a good way of
-> getting a value for "now".  By the way, neither is sched_clock() when
-> measuring small time differences as it is not monotonic (something that
-> I had to allow for in my scheduling code).  I applied no such safeguards
-> to the timing used by the load balancing code as I assumed that it
-> already worked.
-
-The reason now gets smaller than timestamp was because of random thing
-that activate_task() do to p->timestamp.  Here are the sequence of events:
-
-On timer tick, scheduler_tick() updates rq->timestamp_last_tick,
-1 us later, process A wakes up, entering into run queue. activate_task()
-updates p->timestamp.  At this time p->timestamp is larger than rq->
-timestamp_last_tick.  Then another cpu goes into idle, tries load balancing,
-It wrongly finds process A not cache hot (because of integer underflow),
-moved it.  Then application runs on a cache cold CPU and suffer performance.
-
-- Ken
-
+>  
+>
+>>Hans
+>>
+>>Jeffrey Mahoney wrote:
+>>
+>>    
+>>
+>>>Hey all -
+>>>
+>>>One of the most common complaints I've heard about ReiserFS is how graceless
+>>>it is in handling critical I/O errors.
+>>>
+>>>ext[23] can handle I/O errors anywhere, with the results being up to the
+>>>system admin to determine: continue, go read only, or panic.
+>>>
+>>>ReiserFS doesn't offer the admin any such choice, instead panicking on any
+>>>I/O error in the journal.
+>>>
+>>>The available options are read only or panic, since ReiserFS does not
+>>>currently support operations without the journal.
+>>>
+>>>In the four messages that follow, you'll find: *
+>>>reiserfs-cleanup-buffer-heads.diff - Cleans up handling of buffer head
+>>>bitfields - uses the kernel supplied FNS_BUFFER macros instead.  *
+>>>reiserfs-cleanup-sb-journal.diff - Cleans up accessing of the journal
+>>>structure, prefering to create a temporary variable in functions that access
+>>>the journal structure non-trivially. Should make 0 difference at compile
+>>>time.  * reiserfs-io-error-handling.diff - Allows ReiserFS to gracefully
+>>>handle I/O errors in critical code paths. The admin has the option to go
+>>>read-only or panic.  Since ReiserFS has no option to ignore the use of the
+>>>journal, the "continue" method is not enabled.  * reiserfs-write-lock.diff -
+>>>Fixes two missing reiserfs_write_unlock() calls on error paths that are
+>>>unrelated to reiserfs-io-error-handling.diff
+>>>
+>>>These patches have seen a lot of testing in the SuSE Linux Enterprise Server
+>>>9 kernel, and are considered ready for mainline.
+>>>
+>>>They've received approval[1] from the ReiserFS maintainers also.
+>>>
+>>>Andrew - Apologies for the previous format; Please apply.
+>>>
+>>>Thanks.
+>>>
+>>>-Jeff
+>>>
+>>>[1] http://marc.theaimsgroup.com/?l=reiserfs&m=109587254714180
+>>>
+>>>-- Jeff Mahoney SuSE Labs
+>>>
+>>>
+>>>      
+>>>
+>
+>  
+>
 

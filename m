@@ -1,87 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269958AbTHJP5E (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 10 Aug 2003 11:57:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269978AbTHJP5D
+	id S269978AbTHJQHL (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 10 Aug 2003 12:07:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269987AbTHJQHL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 10 Aug 2003 11:57:03 -0400
-Received: from tomts25-srv.bellnexxia.net ([209.226.175.188]:46231 "EHLO
-	tomts25-srv.bellnexxia.net") by vger.kernel.org with ESMTP
-	id S269958AbTHJP5A (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 10 Aug 2003 11:57:00 -0400
-Subject: 2.6.0-test3-mm1 interactivity feedback and script
-From: Shane Shrybman <shrybman@sympatico.ca>
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1060531015.7233.12.camel@mars.goatskin.org>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.4 
-Date: 10 Aug 2003 11:56:56 -0400
+	Sun, 10 Aug 2003 12:07:11 -0400
+Received: from smtp4.wanadoo.fr ([193.252.22.26]:33819 "EHLO
+	mwinf0501.wanadoo.fr") by vger.kernel.org with ESMTP
+	id S269978AbTHJQHJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 10 Aug 2003 12:07:09 -0400
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Date: Sun, 10 Aug 2003 18:08:49 +0200
+From: Pascal Brisset <pascal.brisset-ml@wanadoo.fr>
+To: James Morris <jmorris@intercode.com.au>
+Cc: Fruhwirth Clemens <clemens-dated-1061346967.29a4@endorphin.org>,
+       <linux-kernel@vger.kernel.org>, <mbligh@aracnet.com>,
+       <kernel@gozer.org>, <axboe@suse.de>
+Subject: Re: [PATCH] loop: fixing cryptoloop troubles.
+In-Reply-To: <Mutt.LNX.4.44.0308110114270.7218-100000@excalibur.intercode.com.au>
+References: <20030810140912.6F7224007E9@mwinf0301.wanadoo.fr>
+	<Mutt.LNX.4.44.0308110114270.7218-100000@excalibur.intercode.com.au>
+Message-Id: <20030810160706.5D083400211@mwinf0501.wanadoo.fr>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+James Morris writes:
+ > See RFC 2410, section 2 :-)
 
-I took WLI's suggestion and put together a little script that attempts
-to gather some pertinent stats, (profile, vmstat, top), regarding
-interactivity of the system.
+This says NULL is the identity function, which is not the same as:
 
-I did a quick run that consists of refreshing a fat web page in mozilla
-while playing a movie with mplayer. The movie still stutters slightly
-during this test.
+    static void null_encrypt(void *ctx, u8 *dst, const u8 *src)
+    { }
 
-The results of the ten second run are here:
+In practice this code never gets called because cbc_process() has
+a special case for iv==NULL.  But I'd rather see a semantically
+correct reference implementation.  Or just leave .cia_encrypt=NULL.
 
-http://zeke.yi.org/linux/2.6.0-test3-mm1-prof/
+Am I missing something here ?
 
-And the script used was this:
-
-#!/bin/sh
-
-# Linux interactivity profiler script
-# requires profile=2 (or 1?) as a kernel boot param
-# Script takes optional number of iterations
-# param., default is 10 iterations
-
-# reset the profiler
-readprofile -r
-
-KERN=$(uname -r)
-OUT_DIR=/root/profs
-
-[ -w ${OUT_DIR} ] || OUT_DIR=$(pwd)
-
-if [ -z $1 ]; then
-        ITS=10
-else
-        ITS=$1
-fi
-
-# Collect vmstat output
-vmstat 1 ${ITS}|cat -n > ${OUT_DIR}/${KERN}-vmstat &
-
-# Collect top output
-top b d1 n${ITS} > ${OUT_DIR}/${KERN}-top &
-
-n=1
-# Collect profile
-while [ ${n} -le ${ITS} ]; do
-
-        readprofile -n -m /boot/System.map-${KERN} \
-        | sort -nr -k 3,3 > ${OUT_DIR}/${KERN}-prof.${n}
-
-        n=$(( ${n} + 1 ))
-
-        sleep 1
-done
-
-And is available here:
-
-http://zeke.yi.org/linux/prof3
-
-Regards,
-
-Shane
+-- Pascal
 

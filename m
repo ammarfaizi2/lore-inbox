@@ -1,70 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262666AbUKMMbW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262669AbUKMNBL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262666AbUKMMbW (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 13 Nov 2004 07:31:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262679AbUKMMbW
+	id S262669AbUKMNBL (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 13 Nov 2004 08:01:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262679AbUKMNBL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 13 Nov 2004 07:31:22 -0500
-Received: from main.gmane.org ([80.91.229.2]:56519 "EHLO main.gmane.org")
-	by vger.kernel.org with ESMTP id S262666AbUKMMbM (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 13 Nov 2004 07:31:12 -0500
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: ptb@lab.it.uc3m.es (Peter T. Breuer)
-Subject: Re: kernel analyser to detect sleep under spinlock
-Date: Sat, 13 Nov 2004 12:09:29 +0100
-Message-ID: <9k6h62-a1v.ln1@news.it.uc3m.es>
-References: <200411122345.iACNjqt09561@inv.it.uc3m.es>
-X-Complaints-To: usenet@sea.gmane.org
-Cc: linux-kernel@vger.kernel.org, ptb@lab.it.uc3m.es
-X-Gmane-NNTP-Posting-Host: triangulo.it.uc3m.es
-User-Agent: tin/1.7.4-20031226 ("Taransay") (UNIX) (Linux/2.2.15 (i686))
+	Sat, 13 Nov 2004 08:01:11 -0500
+Received: from honk1.physik.uni-konstanz.de ([134.34.140.224]:9909 "EHLO
+	honk1.physik.uni-konstanz.de") by vger.kernel.org with ESMTP
+	id S262669AbUKMNBI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 13 Nov 2004 08:01:08 -0500
+Date: Sat, 13 Nov 2004 13:57:53 +0100
+From: Guido Guenther <agx@sigxcpu.org>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: adaplas@pol.net,
+       Linux Fbdev development list 
+	<linux-fbdev-devel@lists.sourceforge.net>,
+       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+       Linux Kernel list <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>
+Subject: Re: [Linux-fbdev-devel] Re: [PATCH] fbdev: Fix IO access in rivafb
+Message-ID: <20041113125753.GA4763@bogon.ms20.nix>
+References: <200411080521.iA85LbG6025914@hera.kernel.org> <200411090402.22696.adaplas@hotpop.com> <Pine.LNX.4.58.0411081211270.2301@ppc970.osdl.org> <200411090608.02759.adaplas@hotpop.com> <Pine.LNX.4.58.0411081422560.2301@ppc970.osdl.org> <20041112125125.GA3613@bogon.ms20.nix> <Pine.LNX.4.58.0411120755570.2301@ppc970.osdl.org> <20041112191852.GA4536@bogon.ms20.nix> <Pine.LNX.4.58.0411121130550.2301@ppc970.osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.58.0411121130550.2301@ppc970.osdl.org>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Peter T. Breuer <ptb@inv.it.uc3m.es> wrote:
-> I'll undertake a survey of the current kernel.
+On Fri, Nov 12, 2004 at 11:32:07AM -0800, Linus Torvalds wrote:
+> 
+> 
+> On Fri, 12 Nov 2004, Guido Guenther wrote:
+> >
+> > O.k., it was the __raw_{write,read}b which broke things, not the
+> > "alignment". This one works:
+> 
+> All right, that's as expected. However, it does seem to point out that the 
+> riva driver depends on _different_ memory ordering guarantees for the 
+> 8-bit accesses as opposed to the other ones. Whee. Can you say "UGGLEE"?
 
-Just for kicks, I started with the DAC960.c driver (alphabet ..), and
-it registered 6 alarms!
+Aglie. This scared me too, so I had another look. It seems P{V,C}IO
+areas are only accessed using VGA_{RD,WR}8 macros. NV_{RW,WR}08 are
+never actually used directly. So this patch makes at least usage
+consistent. VGA_{RD,WR}8 to access "I/O areas" in an ordered way. NV_*
+for the rest. Please apply.
+Cheers,
+ -- Guido
 
-   Linux Driver for Mylex DAC960/AcceleRAID/eXtremeRAID PCI RAID Controllers
+--- linux-2.6.10-rc1-mm5/drivers/video/riva/riva_hw.orig.2	2004-11-13 12:24:48.000000000 +0100
++++ linux-2.6.10-rc1-mm5/drivers/video/riva/riva_hw.h	2004-11-13 12:24:56.000000000 +0100
+@@ -75,15 +75,15 @@
+  */
+ #include <asm/io.h>
+ 
+-#define NV_WR08(p,i,d)  (writeb((d), (void __iomem *)(p) + (i)))
+-#define NV_RD08(p,i)    (readb((void __iomem *)(p) + (i)))
++#define NV_WR08(p,i,d)  (__raw_writeb((d), (void __iomem *)(p) + (i)))
++#define NV_RD08(p,i)    (__raw_readb((void __iomem *)(p) + (i)))
+ #define NV_WR16(p,i,d)  (__raw_writew((d), (void __iomem *)(p) + (i)))
+ #define NV_RD16(p,i)    (__raw_readw((void __iomem *)(p) + (i)))
+ #define NV_WR32(p,i,d)  (__raw_writel((d), (void __iomem *)(p) + (i)))
+ #define NV_RD32(p,i)    (__raw_readl((void __iomem *)(p) + (i)))
+ 
+-#define VGA_WR08(p,i,d) NV_WR08(p,i,d)
+-#define VGA_RD08(p,i)   NV_RD08(p,i)
++#define VGA_WR08(p,i,d) (writeb((d), (void __iomem *)(p) + (i)))
++#define VGA_RD08(p,i)   (readb((void __iomem *)(p) + (i)))
+ 
+ /*
+  * Define different architectures.
 
-     Copyright 1998-2001 by Leonard N. Zubkoff <lnz@dandelion.com>
-
-*  function                     line    calls (locks)
-* - /usr/local/src/linux-2.6.3/drivers/block/DAC960.c
-!! DAC960_BA_InterruptHandler   5219 DAC960_V2_ProcessCompletedCommand (1)
-!! DAC960_LP_InterruptHandler   5262 DAC960_V2_ProcessCompletedCommand (1)
-!! DAC960_V1_ExecuteUserCommand 5869    DAC960_WaitForCommand (1)
-!! DAC960_V2_ExecuteUserCommand 6132    DAC960_WaitForCommand (1)
-!! DAC960_gam_ioctl             6663    DAC960_WaitForCommand (1)
-!! DAC960_gam_ioctl             6688    DAC960_WaitForCommand (1)
-
-The ProcessCompletedCommand thing really is called under spinlock, but
-it appears to be detected as sleepy because it calls kmalloc (and
-kfree), however it calls kmalloc with GFP_ATOMIC, so it's not sleepy
-and that's a false alarm. Ho hum ... I'll have to detect that.
-
-The WaitForCommand is also definitely called under spinlock ... and is
-thought to be sleepy because it calls schedule! Well, it calls
-__wait_event(Controller->CommandWaitQueue, Controller->FreeCommands);
-Is that going to schedule?  I suppose logically it should.
-
-Anyway, that looks a legitimate complaint:
-
-  spin_lock_irqsave(&Controller->queue_lock, flags);
-  while ((Command = DAC960_AllocateCommand(Controller)) == NULL)
-    DAC960_WaitForCommand(Controller);
-  spin_unlock_irqrestore(&Controller->queue_lock, flags);
-
-Looks like it waits under spinlock to me!
-
-I'll go write the generic inference engine required to make this a bit
-more accurate still.
-
-
-
-Peter
-
+Signed-Off-By: Guido Guenther <agx@sigxcpu.org>

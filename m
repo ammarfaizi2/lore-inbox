@@ -1,43 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267253AbTBUJAc>; Fri, 21 Feb 2003 04:00:32 -0500
+	id <S267256AbTBUJGd>; Fri, 21 Feb 2003 04:06:33 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267256AbTBUJAc>; Fri, 21 Feb 2003 04:00:32 -0500
-Received: from mail2.sonytel.be ([195.0.45.172]:1445 "EHLO mail.sonytel.be")
-	by vger.kernel.org with ESMTP id <S267253AbTBUJAc>;
-	Fri, 21 Feb 2003 04:00:32 -0500
-Date: Fri, 21 Feb 2003 10:09:45 +0100 (MET)
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-To: Antonino Daplas <adaplas@pol.net>
-cc: James Simmons <jsimmons@infradead.org>,
-       Petr Vandrovec <vandrove@vc.cvut.cz>,
-       Dave Jones <davej@codemonkey.org.uk>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Linux Fbdev development list 
-	<linux-fbdev-devel@lists.sourceforge.net>
-Subject: Re: [Linux-fbdev-devel] Re: FBdev updates.
-In-Reply-To: <1045778401.1201.17.camel@localhost.localdomain>
-Message-ID: <Pine.GSO.4.21.0302211007080.9232-100000@vervain.sonytel.be>
+	id <S267260AbTBUJGd>; Fri, 21 Feb 2003 04:06:33 -0500
+Received: from node181b.a2000.nl ([62.108.24.27]:50081 "EHLO ddx.a2000.nu")
+	by vger.kernel.org with ESMTP id <S267256AbTBUJGc>;
+	Fri, 21 Feb 2003 04:06:32 -0500
+Date: Fri, 21 Feb 2003 10:16:45 +0100 (CET)
+From: stephan@a2000.nu
+X-X-Sender: kernel@ddx.a2000.nu
+To: linux-kernel@vger.kernel.org
+Subject: uptime reset on 2.4.11/12 (and maybe newer versions?) at +/- 500
+ days ?
+Message-ID: <Pine.LNX.4.53.0302211004520.30745@ddx.a2000.nu>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 21 Feb 2003, Antonino Daplas wrote:
-> Note: I cannot test with 12x22 fonts in 2.4 because some/most drivers do
-> not support it.
+yesterday, 2 machines went back to uptime 0 without a reboot
+(think they booted arround the same time)
 
-Which specific drivers are you talking about? All drivers for popular cards
-support fontwidth 12 (Matrox, ATI, nVidia, 3Dfx, Permedia, VESA, ...).
+kernel 2.4.11 and kernel 2.4.12
+(redhat 6.2 + updates)
 
-Gr{oetje,eeting}s,
+is this a known problem that is fixed in later kernels ?
 
-						Geert
+don't know the exact uptime anymore,
+but i have an BitchX (irc client) running since arround the bootup
 
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+which shows :
 
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-							    -- Linus Torvalds
+| Client Uptime: 497d 18h 30m 20s
+
+so maybe the uptime jumps back to zero at 497 days ?
+
+current uptime on one machine shows :
+
+ 10:09am  up 18:24,  8 users,  load average: 0.61, 0.35, 0.23
+
+(this machine runs 2.4.11)
+
+the other machine (with 2.4.12) :
+
+ 10:11am  up 15:13,  2 users,  load average: 4.97, 4.84, 4.76
+(load on this machine is also incorrect since yesterday (and top)
 

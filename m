@@ -1,44 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132056AbRDNM3M>; Sat, 14 Apr 2001 08:29:12 -0400
+	id <S132053AbRDNMaE>; Sat, 14 Apr 2001 08:30:04 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132054AbRDNM3D>; Sat, 14 Apr 2001 08:29:03 -0400
-Received: from yoda.planetinternet.be ([195.95.30.146]:39184 "EHLO
-	yoda.planetinternet.be") by vger.kernel.org with ESMTP
-	id <S132053AbRDNM2r>; Sat, 14 Apr 2001 08:28:47 -0400
-Date: Sat, 14 Apr 2001 14:28:39 +0200
-From: Kurt Roeckx <Q@ping.be>
-To: Andreas Peter <ujq7@rz.uni-karlsruhe.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: SW-RAID0 Performance problems
-Message-ID: <20010414142839.A12760@ping.be>
-In-Reply-To: <Pine.LNX.4.10.10104131048550.1669-100000@coffee.psychology.mcmaster.ca> <01041318282003.00665@debian> <20010414000433.F4557@greenhydrant.com> <01041411380600.00516@debian>
-Mime-Version: 1.0
+	id <S132054AbRDNM3z>; Sat, 14 Apr 2001 08:29:55 -0400
+Received: from panic.ohr.gatech.edu ([130.207.47.194]:7874 "HELO havoc.gtf.org")
+	by vger.kernel.org with SMTP id <S132053AbRDNM3n>;
+	Sat, 14 Apr 2001 08:29:43 -0400
+Message-ID: <3AD842B3.A4C82698@mandrakesoft.com>
+Date: Sat, 14 Apr 2001 08:29:39 -0400
+From: Jeff Garzik <jgarzik@mandrakesoft.com>
+Organization: MandrakeSoft
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.4-pre3 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: RealTek 8139 driver updated, tested requested
 Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 1.0pre2i
-In-Reply-To: <01041411380600.00516@debian>
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Apr 14, 2001 at 11:38:06AM +0200, Andreas Peter wrote:
-> Am Samstag, 14. April 2001 09:04 schrieb David Rees:
-> 
-> > OK, so it's not the RAID setup.  There's two things that can cause this.
-> > One is that DMA is turned off  (what does hdparm /dev/hda and hdparm
-> > /dev/hdc show?), the second was that the drives are on the same channel
-> > (which obviously isn't the case here).  Can you verify that the drives are
-> > in DMA mode?
-> 
-> hdparm /dev/hda 
-> 
-> /dev/hda:
->  multcount    = 16 (on)
->  I/O support  =  0 (default 16-bit)
->  unmaskirq    =  0 (off)
->  using_dma    =  1 (on)
+A new version of the ethernet driver for RTL-8139-based 10/100 boards
+has been posted at
 
-Does turning unmaskirq on help?
+	http://sourceforge.net/projects/gkernel/
+
+This update includes a couple major bugfixes, and I am interested in
+getting the widest testing possible for it.
+
+Please report bugs to the bug tracking system on the web page above. 
+Please include in your bug report 'lspci -vvv', 'dmesg', and any other
+relevant information you can think of.
+
+Thanks,
+
+	Jeff
 
 
-Kurt
-
+-- 
+Jeff Garzik       | Sam: "Mind if I drive?"
+Building 1024     | Max: "Not if you don't mind me clawing at the dash
+MandrakeSoft      |       and shrieking like a cheerleader."

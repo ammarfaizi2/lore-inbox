@@ -1,61 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266049AbUBQGL6 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 Feb 2004 01:11:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266037AbUBQGL5
+	id S266091AbUBQGO7 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 Feb 2004 01:14:59 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266037AbUBQGO6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 Feb 2004 01:11:57 -0500
-Received: from fmr03.intel.com ([143.183.121.5]:48296 "EHLO
-	hermes.sc.intel.com") by vger.kernel.org with ESMTP id S266051AbUBQGKK
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 Feb 2004 01:10:10 -0500
-Subject: Re: 2.6.2: ACPI -VS- PPPoE / aDSL
-From: Len Brown <len.brown@intel.com>
-To: leonard <leonard@internetdown.org>
-Cc: linux-kernel@vger.kernel.org, root@dune2.info
-In-Reply-To: <BF1FE1855350A0479097B3A0D2A80EE0023E8B87@hdsmsx402.hd.intel.com>
-References: <BF1FE1855350A0479097B3A0D2A80EE0023E8B87@hdsmsx402.hd.intel.com>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1076998200.2510.19.camel@dhcppc4>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.3 
-Date: 17 Feb 2004 01:10:00 -0500
-Content-Transfer-Encoding: 7bit
+	Tue, 17 Feb 2004 01:14:58 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:487 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S266094AbUBQGOH (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 17 Feb 2004 01:14:07 -0500
+Date: Tue, 17 Feb 2004 01:13:59 -0500 (EST)
+From: James Morris <jmorris@redhat.com>
+X-X-Sender: jmorris@thoron.boston.redhat.com
+To: Valdis.Kletnieks@vt.edu
+cc: Chris Wright <chrisw@osdl.org>, <linux-kernel@vger.kernel.org>
+Subject: Re: [RFC][PATCH} 2.6 and grsecurity 
+In-Reply-To: <200402170237.i1H2bb3r008280@turing-police.cc.vt.edu>
+Message-ID: <Xine.LNX.4.44.0402170110400.19316-100000@thoron.boston.redhat.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2004-02-09 at 20:35, leonard wrote:
-> Hello everyone,
-> 
-> With Linux kernel last 'stable' version 2.6.2,
-> i had to compile withOUT ACPI to get my PPPoE/aDSL working :/
-> 
-> ACPI works great by itself, but does not let my pppoe driver
-> (the roaring penguin) do its job properly.
-> Note I did not try with the new kernel-space pppoe driver.
-> 
-> It was the same way between ACPI and DHCP in kernel 2.6.0-TEST9
-> 
-> Just letting you know, I'm sure far from being alone with this
-> issue, but didn't find any messages talking about it in the archives.
-> 
-> Take care ACPI developpers ;)
-> Guillaume
-> 
-> P.S. Please CC any unlikely answer to `root AT_ dune2 D0T_ info`
-> that way I'm sure not to skip it :)
+On Mon, 16 Feb 2004 Valdis.Kletnieks@vt.edu wrote:
 
-Leonard,
-please try booting with pci=noacpi -- if that causes the box to work,
-then you have an ACPI interrupt configuration problem.  If it doesn't,
-try booting with "acpi=off" to confirm that it functions properly with
-ACPI completely out of the picture.
+> On Mon, 16 Feb 2004 18:15:46 PST, Chris Wright said:
+> > * Valdis.Kletnieks@vt.edu (Valdis.Kletnieks@vt.edu) wrote:
+> > > Here's the patch, versioned against 2.6.3-rc3-mm1. Comments?
+> > 
+> > Aside of the dubious security value...the typical no #ifdefs apply here.
+> 
+> Agreed - the only one that seems at all a *big* win is randomizing PID's
+> (and even there it probably should default a higher value for pid_max to
+> increase the search space).  But as long as I was looking at it anyhow.. :)
 
-also, the acpi developers are actually at
-acpi-devel@lists.sourceforge.net.
+How is this a big win?  Looks like cargo cult security to me.
 
-thanks,
--Len
+
+> > > + * 3. All advertising materials mentioning features or use of this softwar
+> e
+> > > + *    must display the following acknowledgement:
+> > > + *    This product includes software developed by Niels Provos.
+> > 
+> > Advertsing clause...this is not GPL compatible.
+> 
+
+> Or they OK because they're only doing a separately distributed patch?
+
+No.
+
+
+- james
+-- 
+James Morris
+<jmorris@redhat.com>
 
 

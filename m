@@ -1,89 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269687AbUH0AOy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269842AbUH0ANe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269687AbUH0AOy (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 Aug 2004 20:14:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269843AbUH0AOj
+	id S269842AbUH0ANe (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 Aug 2004 20:13:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269829AbUH0AIp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 Aug 2004 20:14:39 -0400
-Received: from fep01fe.ttnet.net.tr ([212.156.4.130]:16091 "EHLO
-	fep01.ttnet.net.tr") by vger.kernel.org with ESMTP id S269687AbUH0AJt
+	Thu, 26 Aug 2004 20:08:45 -0400
+Received: from e32.co.us.ibm.com ([32.97.110.130]:36343 "EHLO
+	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S269823AbUH0AIF
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 Aug 2004 20:09:49 -0400
-Message-ID: <412E7B8F.5050502@ttnet.net.tr>
-Date: Fri, 27 Aug 2004 03:08:47 +0300
-From: "O.Sezer" <sezeroz@ttnet.net.tr>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4.2) Gecko/20040308
-X-Accept-Language: tr, en-us, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-CC: marcelo.tosatti@cyclades.com, willy@w.ods.org
-Subject: [PATCH 2.4] fix typo in mm.h introduced 2.4.28-pre2
-References: <412E4F43.9030801@ttnet.net.tr> <20040826221229.GB564@alpha.home.local> <412E69DC.5050907@ttnet.net.tr>
-In-Reply-To: <412E69DC.5050907@ttnet.net.tr>
-Content-Type: multipart/mixed;
-	boundary="------------080903080202030001040601"
-X-ESAFE-STATUS: Mail clean
-X-ESAFE-DETAILS: Clean
+	Thu, 26 Aug 2004 20:08:05 -0400
+Date: Thu, 26 Aug 2004 11:06:38 -0500
+To: Paul Mackerras <paulus@samba.org>
+Cc: anton@samba.org, linuxppc64-dev@lists.linuxppc.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] 2.6 PPC64:  Another log buffer length patch.
+Message-ID: <20040826160638.GS14002@austin.ibm.com>
+References: <20040825200138.GN14002@austin.ibm.com> <16685.18011.723499.446490@cargo.ozlabs.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <16685.18011.723499.446490@cargo.ozlabs.ibm.com>
+User-Agent: Mutt/1.5.6+20040523i
+From: Linas Vepstas <linas@austin.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------080903080202030001040601
-Content-Type: text/plain;
-	charset=us-ascii;
-	format=flowed
-Content-Transfer-Encoding: 7bit
-
-> All the evidence points
-> to the s390 changes in -pre2, specificly cset-1.1514 by schwidefsky
-> which touches include/linux/mm.h this way:
+On Thu, Aug 26, 2004 at 12:09:31PM +1000, Paul Mackerras was heard to remark:
 > 
-> --- 1.44/include/linux/mm.h    2004-08-26 15:51:04 -07:00
-> +++ 1.45/include/linux/mm.h    2004-08-26 15:51:04 -07:00
-> @@ -308,11 +308,9 @@
-> /* Make it prettier to test the above... */
-> #define UnlockPage(page)    unlock_page(page)
-> #define Page_Uptodate(page)    test_bit(PG_uptodate, &(page)->flags)
-> -#define SetPageUptodate(page) \
-> -    do {                                \
-> -        arch_set_page_uptodate(page);                \
-> -        set_bit(PG_uptodate, &(page)->flags);            \
-> -    } while (0)
-> +#ifndef SetPageUptodate
-> +#define SetPageUptodate(page)    set_bit(PG_uptodate, &(page)->flags);
-> +#endif
-> #define ClearPageUptodate(page)    clear_bit(PG_uptodate, &(page)->flags)
-> #define PageDirty(page)        test_bit(PG_dirty, &(page)->flags)
-> #define SetPageDirty(page)    set_bit(PG_dirty, &(page)->flags)
+> Linas,
 > 
-> Marcelo, you maybe interested in this.
+> > ===== arch/ppc64/kernel/ras.c 1.15 vs edited =====
+> > --- 1.15/arch/ppc64/kernel/ras.c	Mon Aug  2 03:00:41 2004
+> > +++ edited/arch/ppc64/kernel/ras.c	Wed Aug 25 14:46:33 2004
+> > @@ -108,6 +108,7 @@
+> >
+> >  	ras_get_sensor_state_token = rtas_token("get-sensor-state");
+> >  	ras_check_exception_token = rtas_token("check-exception");
+> > +	rtas_get_error_log_max();
 > 
-> Cheers,
-> Ozkan Sezer
-> 
+> Why do we do this call, given that we don't use the result?  Is there
+> something time-critical about some future call, such that we want to
+> have fetched the value at this point?  If there is, it needs a comment
+> here, if not, let's remove this call.
 
-And I beleive this was a typo? Marcelo, please review and apply.
+Clearly, I'm being too clever, and too conservative, belt-n-suspenders.  
+I was actually expecting that there might be objections, cause the usage
+isn't 'typical' :)
 
-Ozkan Sezer
+The call sets a global var.  I figured that it would be best to just go 
+ahead and initialize it early, rather than hoping it all works at our
+moment of 'dire need'.   Removing this call shouldn't affect operation,
+except during some bizarro failure situation which can only be imagined
+after some creative thinking.
+
+--linas
 
 
---------------080903080202030001040601
-Content-Type: text/plain;
-	name="mm.h.diff"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
-	filename="mm.h.diff"
-
---- 28p2/include/linux/mm.h.BAK	2004-08-27 02:39:21.000000000 +0300
-+++ 28p2/include/linux/mm.h	2004-08-27 02:56:10.000000000 +0300
-@@ -309,7 +309,7 @@
- #define UnlockPage(page)	unlock_page(page)
- #define Page_Uptodate(page)	test_bit(PG_uptodate, &(page)->flags)
- #ifndef SetPageUptodate
--#define SetPageUptodate(page)	set_bit(PG_uptodate, &(page)->flags);
-+#define SetPageUptodate(page)	set_bit(PG_uptodate, &(page)->flags)
- #endif
- #define ClearPageUptodate(page)	clear_bit(PG_uptodate, &(page)->flags)
- #define PageDirty(page)		test_bit(PG_dirty, &(page)->flags)
-
---------------080903080202030001040601--

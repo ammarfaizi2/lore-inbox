@@ -1,204 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319751AbSIMTNd>; Fri, 13 Sep 2002 15:13:33 -0400
+	id <S319758AbSIMTaC>; Fri, 13 Sep 2002 15:30:02 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319754AbSIMTNd>; Fri, 13 Sep 2002 15:13:33 -0400
-Received: from dexter.citi.umich.edu ([141.211.133.33]:1920 "EHLO
-	dexter.citi.umich.edu") by vger.kernel.org with ESMTP
-	id <S319751AbSIMTNa>; Fri, 13 Sep 2002 15:13:30 -0400
-Date: Fri, 13 Sep 2002 15:18:13 -0400 (EDT)
-From: Chuck Lever <cel@citi.umich.edu>
-To: Linus Torvalds <torvalds@transmeta.com>
-cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Linux NFS List <nfs@lists.sourceforge.net>
-Subject: [PATCH] (2/2) clean up RPC over TCP transport socket connect
-Message-ID: <Pine.LNX.4.44.0209131516010.1460-100000@dexter.citi.umich.edu>
+	id <S319760AbSIMTaC>; Fri, 13 Sep 2002 15:30:02 -0400
+Received: from packet.digeo.com ([12.110.80.53]:64484 "EHLO packet.digeo.com")
+	by vger.kernel.org with ESMTP id <S319758AbSIMTaB>;
+	Fri, 13 Sep 2002 15:30:01 -0400
+Message-ID: <3D823DCC.3E303941@digeo.com>
+Date: Fri, 13 Sep 2002 12:34:36 -0700
+From: Andrew Morton <akpm@digeo.com>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-pre4 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Jens Axboe <axboe@suse.de>
+CC: Suparna Bhattacharya <suparna@in.ibm.com>,
+       Benjamin LaHaise <bcrl@redhat.com>,
+       Shailabh Nagar <nagar@watson.ibm.com>, Linux Aio <linux-aio@kvack.org>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] 2.5 port of aio-20020619 for raw devices
+References: <3D80DB14.2040809@watson.ibm.com> <20020912143540.J18217@redhat.com> <20020913184652.C2758@in.ibm.com> <20020913134404.GG935@suse.de>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 13 Sep 2002 19:34:40.0983 (UTC) FILETIME=[9AAB4670:01C25B5C]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-hi Linus-
+Jens Axboe wrote:
+> 
+> ...
+> alloc_bio non-blocking can be done by caller himself, submit_bio
+> non-blocking can be assured with BIO_RW_AHEAD.
 
-this patch renames *reconn* to *conn* since the same code now handles both
-initial TCP connect, and TCP reconnection, and corrects some comments.
-against 2.5.34, requires earlier patch (1/1).
+I haven't really found that to be usable - by the time you've
+called submit_bio() it's just waaaay too late to back out and
+undo everything.  Mark pages dirty again, unlock them, clear the
+writeback bits, tell the caller that we really didn't write these
+many pages, tell the caller that things aren't working out, stop
+sending us pages, etc.
 
-diff -drN -U2 01-connect1/include/linux/sunrpc/xprt.h 02-connect2/include/linux/sunrpc/xprt.h
---- 01-connect1/include/linux/sunrpc/xprt.h	Fri Sep 13 14:56:29 2002
-+++ 02-connect2/include/linux/sunrpc/xprt.h	Fri Sep 13 14:56:39 2002
-@@ -191,5 +191,5 @@
- int			xprt_adjust_timeout(struct rpc_timeout *);
- void			xprt_release(struct rpc_task *);
--void			xprt_reconnect(struct rpc_task *);
-+void			xprt_connect(struct rpc_task *);
- int			xprt_clear_backlog(struct rpc_xprt *);
- void			xprt_sock_setbufsize(struct rpc_xprt *);
-diff -drN -U2 01-connect1/net/sunrpc/clnt.c 02-connect2/net/sunrpc/clnt.c
---- 01-connect1/net/sunrpc/clnt.c	Tue Sep 10 15:27:11 2002
-+++ 02-connect2/net/sunrpc/clnt.c	Tue Sep 10 15:29:07 2002
-@@ -8,5 +8,5 @@
-  *  -	RPC header generation and argument serialization.
-  *  -	Credential refresh.
-- *  -	TCP reconnect handling (when finished).
-+ *  -	TCP connect handling.
-  *  -	Retry of operation when it is suspected the operation failed because
-  *	of uid squashing on the server, or when the credentials were stale
-@@ -56,7 +56,7 @@
- static void	call_refreshresult(struct rpc_task *task);
- static void	call_timeout(struct rpc_task *task);
--static void	call_reconnect(struct rpc_task *task);
--static void	child_reconnect(struct rpc_task *);
--static void	child_reconnect_status(struct rpc_task *);
-+static void	call_connect(struct rpc_task *task);
-+static void	child_connect(struct rpc_task *task);
-+static void	child_connect_status(struct rpc_task *task);
- static u32 *	call_header(struct rpc_task *task);
- static u32 *	call_verify(struct rpc_task *task);
-@@ -562,8 +562,8 @@
- 			xprt, (xprt_connected(xprt) ? "is" : "is not"));
- 
--	task->tk_action = (xprt_connected(xprt)) ? call_transmit : call_reconnect;
-+	task->tk_action = (xprt_connected(xprt)) ? call_transmit : call_connect;
- 
- 	if (!clnt->cl_port) {
--		task->tk_action = call_reconnect;
-+		task->tk_action = call_connect;
- 		task->tk_timeout = RPC_CONNECT_TIMEOUT;
- 		rpc_getport(task, clnt);
-@@ -572,13 +572,13 @@
- 
- /*
-- * 4a.	Reconnect to the RPC server (TCP case)
-+ * 4a.	Connect to the RPC server (TCP case)
-  */
- static void
--call_reconnect(struct rpc_task *task)
-+call_connect(struct rpc_task *task)
- {
- 	struct rpc_clnt *clnt = task->tk_client;
- 	struct rpc_task *child;
- 
--	dprintk("RPC: %4d call_reconnect status %d\n",
-+	dprintk("RPC: %4d call_connect status %d\n",
- 				task->tk_pid, task->tk_status);
- 
-@@ -587,24 +587,27 @@
- 		return;
- 
--	/* Run as a child to ensure it runs as an rpciod task */
-+	/* Run as a child to ensure it runs as an rpciod task.  Rpciod
-+	 * guarantees we have the correct capabilities for socket bind
-+	 * to succeed. */
- 	child = rpc_new_child(clnt, task);
- 	if (child) {
--		child->tk_action = child_reconnect;
-+		child->tk_action = child_connect;
- 		rpc_run_child(task, child, NULL);
- 	}
- }
- 
--static void child_reconnect(struct rpc_task *task)
-+static void
-+child_connect(struct rpc_task *task)
- {
--	task->tk_client->cl_stats->netreconn++;
- 	task->tk_status = 0;
--	task->tk_action = child_reconnect_status;
--	xprt_reconnect(task);
-+	task->tk_action = child_connect_status;
-+	xprt_connect(task);
- }
- 
--static void child_reconnect_status(struct rpc_task *task)
-+static void
-+child_connect_status(struct rpc_task *task)
- {
- 	if (task->tk_status == -EAGAIN)
--		task->tk_action = child_reconnect;
-+		task->tk_action = child_connect;
- 	else
- 		task->tk_action = NULL;
-diff -drN -U2 01-connect1/net/sunrpc/xprt.c 02-connect2/net/sunrpc/xprt.c
---- 01-connect1/net/sunrpc/xprt.c	Tue Sep 10 15:27:11 2002
-+++ 02-connect2/net/sunrpc/xprt.c	Tue Sep 10 15:29:07 2002
-@@ -87,5 +87,5 @@
- static inline void	do_xprt_reserve(struct rpc_task *);
- static void	xprt_disconnect(struct rpc_xprt *);
--static void	xprt_reconn_status(struct rpc_task *task);
-+static void	xprt_conn_status(struct rpc_task *task);
- static struct rpc_xprt * xprt_setup(int proto, struct sockaddr_in *ap,
- 						struct rpc_timeout *to);
-@@ -137,5 +137,5 @@
-  * Serialize write access to sockets, in order to prevent different
-  * requests from interfering with each other.
-- * Also prevents TCP socket reconnections from colliding with writes.
-+ * Also prevents TCP socket connects from colliding with writes.
-  */
- static int
-@@ -410,10 +410,10 @@
- 
- /*
-- * Reconnect a broken TCP connection.
-+ * Attempt to connect a TCP socket.
-  *
-- * Note: This cannot collide with the TCP reads, as both run from rpciod
-+ * NB: This never collides with TCP reads, as both run from rpciod
-  */
- void
--xprt_reconnect(struct rpc_task *task)
-+xprt_connect(struct rpc_task *task)
- {
- 	struct rpc_xprt	*xprt = task->tk_xprt;
-@@ -422,5 +422,5 @@
- 	int		status;
- 
--	dprintk("RPC: %4d xprt_reconnect xprt %p %s connected\n", task->tk_pid,
-+	dprintk("RPC: %4d xprt_connect xprt %p %s connected\n", task->tk_pid,
- 			xprt, (xprt_connected(xprt) ? "is" : "is not"));
- 
-@@ -472,5 +472,5 @@
- 			if ((1 << inet->state) & ~(TCPF_SYN_SENT|TCPF_SYN_RECV))
- 				task->tk_timeout = RPC_REESTABLISH_TIMEOUT;
--			rpc_sleep_on(&xprt->pending, task, xprt_reconn_status,
-+			rpc_sleep_on(&xprt->pending, task, xprt_conn_status,
- 									NULL);
- 			release_sock(inet);
-@@ -524,9 +524,8 @@
- 
- /*
-- * Reconnect timeout. We just mark the transport as not being in the
-- * process of reconnecting, and leave the rest to the upper layers.
-+ * We arrive here when awoken from waiting on connection establishment.
-  */
- static void
--xprt_reconn_status(struct rpc_task *task)
-+xprt_conn_status(struct rpc_task *task)
- {
- 	struct rpc_xprt	*xprt = task->tk_xprt;
-@@ -534,9 +533,9 @@
- 	switch (task->tk_status) {
- 	case 0:
--		dprintk("RPC: %4d xprt_reconn_status: connection established\n",
-+		dprintk("RPC: %4d xprt_conn_status: connection established\n",
- 				task->tk_pid);
- 		goto out;
- 	case -ETIMEDOUT:
--		dprintk("RPC: %4d xprt_reconn_status: timed out\n",
-+		dprintk("RPC: %4d xprt_conn_status: timed out\n",
- 				task->tk_pid);
- 		/* prevent TCP from continuing to retry SYNs */
-@@ -1488,5 +1487,6 @@
- 
- /*
-- * Create a client socket given the protocol and peer address.
-+ * Datastream sockets are created here, but xprt_connect will create
-+ * and connect stream sockets.
-  */
- static struct socket *
+It's made harder by the fact that submit_bio() always returns "1".  So
+you need to work out what happened in the bi_end_io() handler and
+pass all that back again.  And somehow work out whether it was a failed
+WRITEA and not an IO error...
 
--- 
+That's why I added the ability to ask "is this mapping's queue congested".
+It is much simpler to use and test from the perspective of the upper layers.
 
-corporate:	<cel at netapp dot com>
-personal:	<chucklever at bigfoot dot com>
+It has the disadvantage that we may have some data which is mergeable,
+and would in fact nonblockingly fit into a "congested" queue.  Don't
+know if that makes a lot of difference in practice.
 
+But there are some more things we can do to improve IO scheduling from the
+top layer.  The most prominent of these is to write back the blockdev
+mapping's dirty pages in pgoff_t order (ie: LBA order) rather than in
+chronological mapping->dirty_pages order.  That's happening, slowly, but
+involves significant surgery on radix_tree_brains.

@@ -1,76 +1,60 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282814AbRLOQ7N>; Sat, 15 Dec 2001 11:59:13 -0500
+	id <S282815AbRLORJp>; Sat, 15 Dec 2001 12:09:45 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282815AbRLOQ7E>; Sat, 15 Dec 2001 11:59:04 -0500
-Received: from waste.org ([209.173.204.2]:31435 "EHLO waste.org")
-	by vger.kernel.org with ESMTP id <S282814AbRLOQ7B>;
-	Sat, 15 Dec 2001 11:59:01 -0500
-Date: Sat, 15 Dec 2001 10:58:44 -0600 (CST)
-From: Oliver Xymoron <oxymoron@waste.org>
-To: Rusty Russell <rusty@rustcorp.com.au>
-cc: linux-kernel@vger.kernel.org, <kaos@ocs.com.au>
-Subject: Re: [PATCH] 2.5.1-pre10 #ifdef CONFIG_KMOD Cleanup Part II. 
-In-Reply-To: <E16F3av-0003TC-00@wagner.rustcorp.com.au>
-Message-ID: <Pine.LNX.4.40.0112151029450.1324-100000@waste.org>
+	id <S282821AbRLORJh>; Sat, 15 Dec 2001 12:09:37 -0500
+Received: from thebsh.namesys.com ([212.16.0.238]:19727 "HELO
+	thebsh.namesys.com") by vger.kernel.org with SMTP
+	id <S282815AbRLORJZ>; Sat, 15 Dec 2001 12:09:25 -0500
+Message-ID: <3C1B8371.7050008@namesys.com>
+Date: Sat, 15 Dec 2001 20:08:01 +0300
+From: Hans Reiser <reiser@namesys.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.6) Gecko/20011120
+X-Accept-Language: en-us
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Dave Jones <davej@suse.de>
+CC: Linux Kernel <linux-kernel@vger.kernel.org>, reiserfs-dev@namesys.com,
+        Nikita Danilov <god@namesys.com>, green@thebsh.namesys.com
+Subject: Re: [reiserfs-dev] fsx for Linux showing up reiserfs problem?
+In-Reply-To: <20011215154029.A3954@suse.de>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 15 Dec 2001, Rusty Russell wrote:
+Dave Jones wrote:
 
-> In message <Pine.LNX.4.40.0112141019100.11489-100000@waste.org> you write:
-> > On Thu, 13 Dec 2001, Rusty Russell wrote:
-> >
-> > > 2) Adds request_module_start()/request_module_end() macros, eg.
-> > >
-> > > 	struct protocol protoptr;
-> > >
-> > > 	request_module_start("proto-%u", protonum) {
-> > > 		/* search for protocol, set protoptr. */
-> > >
-> > > 	} request_module_end(protoptr != NULL);
-> > >
-> > >    This loops once if !CONFIG_KMOD or protoptr != NULL after first
-> > >    iteration, otherwise calls request_module and loops a second time.
-> >
-> > Clever, but very un-C-like. Perhaps something like this:
-> >
-> > do {
-> >   /* search for protocol, set protoptr. */
-> > } while (protoptr != NULL || request_module("proto-%u",protonum)==0);
-> >
-> > ..with request_module returning -EBUSY if the module is already loaded.
+>Hi folks,
+> After reading the article at http://www.kerneltrap.com/article.php?sid=415&mode=thread&order=0
+>on the FreeBSD guys finding a bunch of NFS bugs with a stress tool,
+>I took a look at fsx and played with it a little under Linux..
 >
-> This can spin forever 8(.
-
-Well there is a thinko or two above, but provided we have a variant of
-request_module that only returns zero when it actually loads a module,
-this should only loop once or twice:
-
- do {
-   /* search for protocol, set protoptr. */
- } while (protoptr == NULL && request_module("proto-%u",protonum)==0);
-
-> > > 3) Adds a request_module_unless() macro, eg:
-> > >
-> > > 	protoptr = request_module_unless(protoptrs[proto],
-> > > 					 "proto-%u", protonum);
-> >
-> > Also weird.
+>The changes to make it work are trivial, and are at
+>http://www.codemonkey.org.uk/cruft/fsx-linux.c
+>(non-existant include & expected mmap() behaviour differences)
 >
-> Ack.  However, I was looking for positive suggestions 8)
+>I've done a few tests on local filesystems, and so far Ext2 & Ext3
+>seem to be holding up..
+>
+>Reiserfs however dies very early into the test..
+>
+>  truncating to largest ever: 0x3f15f
+>  READ BAD DATA: offset = 0x1d3d4, size = 0x962f
+>  OFFSET  GOOD    BAD     RANGE
+>  0x1d3d4 0x177d  0x0000  0x  563
+>  operation# (mod 256) for the bad data unknown, check HOLE and EXTEND ops
+>
+>Options used were ./fsx -c1234 /mnt/test/testfile
+>(Although it seems to crash with any -c option)
+>
+>Looks like an interesting tool, and probably something that should
+>be added to testsuites like Cerberus.
+>
+>regards,
+>Dave.
+>
+Thanks Dave, Elena and Nikita and Green, take a look at this.
 
-I think the deeper problem is that request_module is expensive. If, say,
-it had a fast path on the order of an inline hash lookup on a cookie
-corresponding to the module identifier, we could just unconditionally
-request_module(cookie).
+Hans
 
-Cookie here might be also something like a dentry, which can be positive
-or negative, and has some of the reference counting and locking semantics
-we need for modules anyway.
-
--- 
- "Love the dolphins," she advised him. "Write by W.A.S.T.E.."
 

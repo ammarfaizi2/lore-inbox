@@ -1,54 +1,80 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264259AbTLJXDt (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 10 Dec 2003 18:03:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264260AbTLJXDt
+	id S264246AbTLJXNQ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 10 Dec 2003 18:13:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264252AbTLJXNQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 Dec 2003 18:03:49 -0500
-Received: from gizmo06ps.bigpond.com ([144.140.71.16]:7049 "HELO
-	gizmo06ps.bigpond.com") by vger.kernel.org with SMTP
-	id S264259AbTLJXDr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 Dec 2003 18:03:47 -0500
-Message-ID: <3FD7A64F.4A6ABCF7@eyal.emu.id.au>
-Date: Thu, 11 Dec 2003 10:03:43 +1100
-From: Eyal Lebedinsky <eyal@eyal.emu.id.au>
-Organization: Eyal at Home
-X-Mailer: Mozilla 4.8 [en] (X11; U; Linux 2.4.23 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.4.24-pre1: failure in scsi/pcmcia
-References: <Pine.LNX.4.44.0312101417080.1546-100000@logos.cnet>
+	Wed, 10 Dec 2003 18:13:16 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:17286 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S264246AbTLJXNK
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 10 Dec 2003 18:13:10 -0500
+Date: Wed, 10 Dec 2003 23:13:09 +0000
+From: viro@parcelfarce.linux.theplanet.co.uk
+To: Kendall Bennett <KendallB@scitechsoft.com>
+Cc: Linus Torvalds <torvalds@osdl.org>,
+       "'Andre Hedrick'" <andre@linux-ide.org>,
+       "'Arjan van de Ven'" <arjanv@redhat.com>, Valdis.Kletnieks@vt.edu,
+       linux-kernel@vger.kernel.org
+Subject: Re: Linux GPL and binary module exception clause?
+Message-ID: <20031210231309.GH4176@parcelfarce.linux.theplanet.co.uk>
+References: <3FD7081D.31093.61FCFA36@localhost> <3FD72F7E.4493.6296CE66@localhost>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <3FD72F7E.4493.6296CE66@localhost>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Marcelo Tosatti wrote:
+On Wed, Dec 10, 2003 at 02:36:46PM -0800, Kendall Bennett wrote:
+ 
+> > In 2.7 we need to get the export list back to sanity.  Right now it's a
+> > such a junkpile that speaking about even a relative stability for it... 
+> > Not funny. 
 > 
-> Hi,
-> 
-> Here goes 2.4.24-pre1...
+> You miss my point. I was talking about a single kernel version. For a 
+> single kernel version, the ABI is both *published* and *stable*. Sure it 
+> may not be what you consider a *clean* or *good* ABI, but it *IS* an ABI. 
 
-I was getting this in 2.4.23-aa, but now I have it here.
+The hell it is.  Change CONFIG_SMP or any number of other options and your
+binary compatibility is toast.
 
-ld -m elf_i386 -r -o qlogic_cs.o qlogic_stub.o qlogicfas.o
-qlogicfas.o: In function `init_module':
-qlogicfas.o(.text+0xe40): multiple definition of `init_module'
-qlogic_stub.o(.text+0x770): first defined here
-ld: Warning: size of symbol `init_module' changed from 77 to 58 in
-qlogicfas.o
-qlogicfas.o: In function `cleanup_module':
-qlogicfas.o(.text+0xe80): multiple definition of `cleanup_module'
-qlogic_stub.o(.text+0x7c0): first defined here
-ld: Warning: size of symbol `cleanup_module' changed from 40 to 16 in
-qlogicfas.
-o
-make[3]: *** [qlogic_cs.o] Error 1
-make[3]: Leaving directory
-`/data2/usr/local/src/linux-2.4-pre/drivers/scsi/pcmc
-ia'
+> Given that it is a stable and published ABI for a single kernel version, 
+> then what makes a kernel module different from a user program? The fact 
 
---
-Eyal Lebedinsky (eyal@eyal.emu.id.au) <http://samba.org/eyal/>
+The utter lack of isolation in the former.  And that's a very practical
+consideration - amount of efforts needed to tell whether any given bug is
+in kernel or in an application is *way* less than for module vs. kernel.
+Ditto for potential impact of changes on one side of "interface" upon the
+other side.
+
+Realistically there's no way to keep the module "API" fixed without a major
+negative impact on kernel development, security and stability.  If somebody
+has business model based on the expectation that this "API" will not be
+changed whenever we find that useful - too bad, you can't possibly claim
+that you had not been warned.
+
+Again, lack of warranties regarding the module "API" is
+	* deliberate
+	* well-documented
+	* older than binary-only modules
+	* based on the very sound technical reasons
+
+Live with it.  It's not going to change.
+
+Of course some parts of the "API" are relatively stable; if nothing else,
+we have in-tree drivers to consider whenever we make a change and well-behaving
+3rd-party module won't take more efforts to update than a typical in-tree
+driver.  But that's it - author of such module basically makes an educated
+guess regarding the likeliness of change that would leave him in a bad
+situation.  Generally, the deeper in kernel guts you play, the easier it
+is to get burned.  And current set of exports goes very deep in said guts -
+much deeper than it should have.
+
+Anybody who does out-of-tree kernel work must understand the reality.
+Modules are different from userland code in the ways that deeply affect
+product cycle.  Pretending that there is no fundamental difference and
+complaining about that difference signifies only one thing - lack of
+basic research on part of complainers.  Don't pretend that you don't know
+what you are getting into.

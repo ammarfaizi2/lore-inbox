@@ -1,56 +1,34 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316900AbSFKHrl>; Tue, 11 Jun 2002 03:47:41 -0400
+	id <S316903AbSFKHtm>; Tue, 11 Jun 2002 03:49:42 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316899AbSFKHrU>; Tue, 11 Jun 2002 03:47:20 -0400
-Received: from [195.157.147.30] ([195.157.147.30]:58893 "HELO
-	pookie.dev.sportingbet.com") by vger.kernel.org with SMTP
-	id <S316898AbSFKHqZ>; Tue, 11 Jun 2002 03:46:25 -0400
-Date: Tue, 11 Jun 2002 08:47:27 +0100
-From: Sean Hunter <sean@uncarved.com>
-To: DervishD <raul@pleyades.net>
-Cc: Linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: bandwidth 'depredation'
-Message-ID: <20020611084727.A5997@dev.sportingbet.com>
-Mail-Followup-To: Sean Hunter <sean@uncarved.com>,
-	DervishD <raul@pleyades.net>,
-	Linux-kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <3D05AA6E.mailKB1BHA1W@viadomus.com>
+	id <S316899AbSFKHrn>; Tue, 11 Jun 2002 03:47:43 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:64706 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S316898AbSFKHr0>;
+	Tue, 11 Jun 2002 03:47:26 -0400
+Date: Tue, 11 Jun 2002 00:43:05 -0700 (PDT)
+Message-Id: <20020611.004305.96601553.davem@redhat.com>
+To: oliver@neukum.name
+Cc: roland@topspin.com, wjhun@ayrnetworks.com, paulus@samba.org,
+        linux-kernel@vger.kernel.org
+Subject: Re: PCI DMA to small buffers on cache-incoherent arch
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <20020611.003625.05877183.davem@redhat.com>
+X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-User-Agent: Mutt/1.2.5i
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Build a kernel with traffic classifaction and CBQ, and use "tc".
+   From: "David S. Miller" <davem@redhat.com>
+   Date: Tue, 11 Jun 2002 00:36:25 -0700 (PDT)
 
-See the howtos.
+   The DMA_ALIGN attribute doesn't work, on some systems the PCI
+   cacheline size is determined at boot time not compile time.
 
-Sean
+Another note, it could be per-PCI controller what this cacheline size
+is.  We'll need to pass in a pdev to the alignment interfaces to
+do this correctly.
 
-On Tue, Jun 11, 2002 at 09:44:46AM +0200, DervishD wrote:
->     Hello all :))
->     
->     I've noticed that, when using certain programs like 'wget', the
-> bandwidth seems to be 'depredated' by them. When I download a file
-> with lukemftp or with links, the bandwidth is then distributed
-> between all IP clients, but when using wget or some ftp clients, it
-> is not distributed. BTW, I'm using an ADSL line (128 up / 256 down).
-> 
->     IMHO, the IP layer (well, in this case the TCP layer) should
-> distribute the bandwidth (although I don't know how to do this), and
-> the kernel seems to be not doing it.
-> 
->     I don't know if this is the intended behaviour or even if this is
-> a kernel fault or not, but I think that is not good ;)
-> 
->     Thanks :)
->     Raúl
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
+So none of this can be done at compile time folks.

@@ -1,53 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269325AbTGOR6y (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Jul 2003 13:58:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269223AbTGOR5d
+	id S268938AbTGORja (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Jul 2003 13:39:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269185AbTGORie
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Jul 2003 13:57:33 -0400
-Received: from genius.impure.org.uk ([195.82.120.210]:23710 "EHLO
+	Tue, 15 Jul 2003 13:38:34 -0400
+Received: from genius.impure.org.uk ([195.82.120.210]:40861 "EHLO
 	deviant.impure.org.uk") by vger.kernel.org with ESMTP
-	id S269190AbTGOR4X (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Jul 2003 13:56:23 -0400
-Date: Tue, 15 Jul 2003 19:11:01 +0100
+	id S268938AbTGORdq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 15 Jul 2003 13:33:46 -0400
+Date: Tue, 15 Jul 2003 18:48:24 +0100
 From: Dave Jones <davej@codemonkey.org.uk>
-To: Dominik Brodowski <linux@brodo.de>
-Cc: Matt Reppert <repp0017@tc.umn.edu>, linux-kernel@vger.kernel.org
-Subject: Re: Linux v2.6.0-test1
-Message-ID: <20030715181100.GF15505@suse.de>
+To: ian.soboroff@nist.gov
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.0-test1 - cpu_freg sysfs nodes?
+Message-ID: <20030715174824.GA15505@suse.de>
 Mail-Followup-To: Dave Jones <davej@codemonkey.org.uk>,
-	Dominik Brodowski <linux@brodo.de>,
-	Matt Reppert <repp0017@tc.umn.edu>, linux-kernel@vger.kernel.org
-References: <Pine.LNX.4.44.0307132055080.2096-100000@home.osdl.org> <20030715001132.3b0fd7a5.repp0017@tc.umn.edu> <20030715105657.GA13879@suse.de> <20030715173844.GB1950@brodo.de>
+	ian.soboroff@nist.gov, linux-kernel@vger.kernel.org
+References: <m34r1n3e93.fsf@euphrates.ncsl.nist.gov> <20030715164251.GA2623@inferi.kami.home> <m3d6gb1wp8.fsf@euphrates.ncsl.nist.gov>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20030715173844.GB1950@brodo.de>
+In-Reply-To: <m3d6gb1wp8.fsf@euphrates.ncsl.nist.gov>
 User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jul 15, 2003 at 07:38:44PM +0200, Dominik Brodowski wrote:
+On Tue, Jul 15, 2003 at 02:17:23PM -0400, ian.soboroff@nist.gov wrote:
+ > > find /sys -iname 'cpu*'
+ > >
+ > > /sys/firmware/acpi/namespace/ACPI/CPU0
+ > > /sys/devices/system/cpu
+ > > /sys/devices/system/cpu/cpu0
+ > > /sys/devices/system/cpu/cpu0/cpufreq
+ > > /sys/devices/system/cpu/cpu0/cpufreq/cpuinfo_max_freq
+ > > /sys/devices/system/cpu/cpu0/cpufreq/cpuinfo_min_freq
+ > 
+ > If this is the right place to look, the Documentation/cpu-freq needs
+ > some updating.
 
- > No, please don't do this. There is no function at all in the cpufreq core 
- > which may be called with CPUFREQ_ALL_CPUS as arguments. Well, there had 
- > been, many months ago. But it really shall not be defined or used anywhere 
- > outside the 2.4. proc-intf any more.
+Already updated in the cpufreq tree. Going to be pushed in the
+next day or so.
 
-ick, you're right of course.
+ > But this still isn't it...
+ > 
+ > # find /sys -iname 'cpu*'
+ > /sys/devices/system/cpu
+ > /sys/devices/system/cpu/cpu0
 
- > Now, wrt the ppc-cpufreq driver: benh's 2.5. tree includes a much more
- > updated version than plain 2.6.0-test1 -- Ben, can you push that to Linus,
- > please? Also, please change the line 
- >  	freqs.cpu = CPUFREQ_ALL_CPUS;
- > in do_set_cpu_speed() to 
- > 	freqs.cpu = 0;
- > which is the way it should be done now.
-
-Ok, CPUFREQ_ALL_CPUS is no more in my pending tree.
-Documentation/cpu-freq/core.txt is also out of date and could use
-an update, but I'm not sure if its just that define thats out of date.
-Care to give it a read through? 
+Hmm, for some reason the registration failed.
+Are there any cpufreq messages at all in the boot logs ?
 
 		Dave
-

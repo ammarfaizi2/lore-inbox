@@ -1,121 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316916AbSFQSX5>; Mon, 17 Jun 2002 14:23:57 -0400
+	id <S316919AbSFQSir>; Mon, 17 Jun 2002 14:38:47 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316919AbSFQSX4>; Mon, 17 Jun 2002 14:23:56 -0400
-Received: from faraday.ee.utt.ro ([193.226.10.1]:23564 "EHLO faraday.ee.utt.ro")
-	by vger.kernel.org with ESMTP id <S316916AbSFQSXz>;
-	Mon, 17 Jun 2002 14:23:55 -0400
-Date: Mon, 17 Jun 2002 21:23:45 +0300 (EEST)
-From: Sebastian Szonyi <sony@faraday.ee.utt.ro>
-To: kk maddowx <kk_maddox2000@yahoo.com>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: 2.4.18 kernel panics before and after boot
-In-Reply-To: <20020617165244.44049.qmail@web21001.mail.yahoo.com>
-Message-ID: <Pine.LNX.4.33.0206172106160.5396-100000@faraday.ee.utt.ro>
+	id <S316933AbSFQSir>; Mon, 17 Jun 2002 14:38:47 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:4105 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S316919AbSFQSiq>;
+	Mon, 17 Jun 2002 14:38:46 -0400
+Message-ID: <3D0E2DAB.B3D0EA@zip.com.au>
+Date: Mon, 17 Jun 2002 11:42:51 -0700
+From: Andrew Morton <akpm@zip.com.au>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-pre9 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Andreas Dilger <adilger@clusterfs.com>
+CC: Linus Torvalds <torvalds@transmeta.com>,
+       lkml <linux-kernel@vger.kernel.org>, Hugh Dickins <hugh@veritas.com>
+Subject: Re: [patch 10/19] direct-to-BIO I/O for swapcache pages
+References: <3D0D873A.405ED0BB@zip.com.au> <20020617161718.GD22427@clusterfs.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-On Mon, 17 Jun 2002, kk maddowx wrote:
-
-> Date: Mon, 17 Jun 2002 09:52:44 -0700 (PDT)
-> From: kk maddowx <kk_maddox2000@yahoo.com>
-> To: Kristian Peters <kristian.peters@korseby.net>
-> Cc: linux-kernel@vger.kernel.org
-> Subject: Re: 2.4.18 kernel panics before and after boot
->
-> Unfortunately I could not get memtest to work. I added
-> the lines:
->
-> label=memtest
-> image=/boot/memtest
->
-> to lilo.conf and ran lilo.
-
-try swapping the lines
-
-> I can see the selection for memtest but it wont accept
-> it as a bootable image. I did swap the memory out and
-> still recieve kernel panics with known working memory.
->
-> However if I boot from my old 2.2.20 kernel I will
-> never see a panic or experience a panic after boot
-> making me think the memory is ok. Here is the dmesg
-> from a successful 2.4 boot if that helps:
->
->
->
-> LILO
-> Loading 2.4..................
-> Linux version 2.4.18a (root@birdbrain) (gcc version
-> 2.96 20000731 (Red Hat Linux
->  7.0)) #1 Thu Jun 13 01:54:35 EDT 2002
-
-Linux 2.4.18a ?
-Never heard about it :-)
-
-gcc 2.96 ?
-use 2.95.3 or 2.95.4
-
-See $(kernel_root)/Documentation/Changes to find out what you need
-for compiling this kernel (where $(kernel_root) is where
-your kernel tree is located for example /usr/src/linux )
-
-
-
->
-> I have noticed that if the kernel does decide to panic
-> on boot it will happen after the "Freeing unused
-> memory" message is printed. Do you have any ideas what
-> might be casuing this? TIA
->
->
-
-An unsupported filesystem in your  kernel (i.e. your
-filesystem is xfs for example and you don't have xfs
-support in kernel)
-
-Could be many things.
-
-> --- Kristian Peters <kristian.peters@korseby.net>
-> wrote:
-> > Hello.
+Andreas Dilger wrote:
+> 
+> On Jun 16, 2002  23:52 -0700, Andrew Morton wrote:
+> > This patch changes the swap I/O handling.  The objectives are:
 > >
-> > I suspect bad ram. Could you verify with memtest86
-> > that your ram is ok ?
+> > At swapon time (for an S_ISBLK swapfile), we install a single swap extent
+> > which describes the entire device.
 > >
-> > *Kristian
-> >
-> > kk maddowx <kk_maddox2000@yahoo.com> wrote:
-> > > >>EIP; 00000400 Before first symbol   <=====
-> > > Trace; c0127b63 <shrink_cache+2b3/2f0>
-> > > Trace; c0127cd6 <shrink_caches+56/90>
-> > > Trace; c0127d40 <try_to_free_pages+30/50>
-> > > Trace; c0127dd4 <kswapd_balance_pgdat+44/90>
-> > > Trace; c0127e36 <kswapd_balance+16/30>
-> > > Trace; c0127f51 <kswapd+a1/c0>
-> > > Trace; c0127eb0 <kswapd+0/c0>
-> > > Trace; c010552b <kernel_thread+2b/40>
-> >
-> >   :... [snd.science] ...:
-> >  ::                             _o)
-> >  :: http://www.korseby.net      /\\
-> >  :: http://gsmp.sf.net         _\_V
-> >   :.........................:
->
->
-> __________________________________________________
-> Do You Yahoo!?
-> Yahoo! - Official partner of 2002 FIFA World Cup
-> http://fifaworldcup.yahoo.com
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
->
+> > +     inode = sis->swap_file->f_dentry->d_inode;
+> > +     if (S_ISBLK(inode->i_mode)) {
+> > +             ret = add_swap_extent(sis, 0, sis->max, 0);
+> > +             goto done;
+> > +     }
+> 
+> I believe it is possible to have blocks marked bad in the swap header,
+> even for a block device, so this will try to use those bad blocks.
 
+Well, this establishes the page index -> sector mapping for those
+blocks.  But the actual block allocator will not hand out the
+SWP_MAP_BAD blocks in the first place.

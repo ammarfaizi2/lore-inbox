@@ -1,54 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266212AbUGASKj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266210AbUGASOX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266212AbUGASKj (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 Jul 2004 14:10:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266216AbUGASKi
+	id S266210AbUGASOX (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 Jul 2004 14:14:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266216AbUGASOX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 Jul 2004 14:10:38 -0400
-Received: from sccrmhc12.comcast.net ([204.127.202.56]:32499 "EHLO
-	sccrmhc12.comcast.net") by vger.kernel.org with ESMTP
-	id S266212AbUGASKH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 Jul 2004 14:10:07 -0400
-Date: Thu, 1 Jul 2004 11:10:02 -0700
-From: John Sage <jsage@finchhaven.com>
-To: linux-kernel@vger.kernel.org
-Cc: netdev@oss.sgi.com
-Subject: Parentage of BPF code in Linux
-Message-ID: <20040701181002.GG6445@sparky.finchhaven.net>
+	Thu, 1 Jul 2004 14:14:23 -0400
+Received: from holomorphy.com ([207.189.100.168]:50360 "EHLO holomorphy.com")
+	by vger.kernel.org with ESMTP id S266210AbUGASOV (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 1 Jul 2004 14:14:21 -0400
+Date: Thu, 1 Jul 2004 11:14:01 -0700
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Matt Mackall <mpm@selenic.com>
+Cc: Paul Davis <paul@linuxaudiosystems.com>, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.X, NPTL, SCHED_FIFO and JACK
+Message-ID: <20040701181401.GB21066@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	Matt Mackall <mpm@selenic.com>,
+	Paul Davis <paul@linuxaudiosystems.com>,
+	linux-kernel@vger.kernel.org
+References: <200406301341.i5UDfkKX010518@localhost.localdomain> <20040701180356.GI5414@waste.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <20040701180356.GI5414@waste.org>
+User-Agent: Mutt/1.5.5.1+cvs20040105i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[Non-subscriber: please cc on replies]
+On Wed, Jun 30, 2004 at 09:41:46AM -0400, Paul Davis wrote:
+>> Because of the recognition by kernel developers that 2.6 does not
+>> perform as well as 2.4+lowlat (the Andrew Morton patches) when it
+>> comes to scheduling latency, most audio developers and users have
+>> remained with 2.4. Recently however, several brave souls have
+>> attempted to test 2.6. The results have been mixed.
 
-WRT to the SCO/IBM/Linux imbroglio, there was an interesting assertion
-made on the Yahoo! Finance message board for SCOX, and I wondered if
-anyone could shed some light.
+On Thu, Jul 01, 2004 at 01:03:56PM -0500, Matt Mackall wrote:
+> I'm afraid these "brave souls" have shown up to the baby shower after
+> the child's been accepted to college. Developers getting around to
+> testing 2.6 after multiple vendors are shipping it should not be
+> characterized as courageous.
 
-The assertion is this:
-
-"...among other things, the Berkeley Packet Filter code, which was
-written by an independent developer for the Missouri School District,
-licensed under the BSD license terms that never was part of SysV at
-any time..."
-
-When I made reference to man 4 bpf not mentioning anything/anyone
-other than Carnegie-Mellon, Stanford, and LBL, I was corrected and
-told that the OP was refering to the BPF code within Linux, even
-though that was done without mentioning Linux specifically :-/
-
-Is this a true assertion: that "..the BPF code [in Linux] was
-written..for the Missouri School District [sic]"?
+I appear to have nuked the thread you're replying to in disgust over
+this precise issue.
 
 
-TIA..
-
-
-- John
--- 
-10 print "Home"
-20 print "Sweet"
-30 goto 10
+-- wli

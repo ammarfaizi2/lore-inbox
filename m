@@ -1,40 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S136818AbRECOjH>; Thu, 3 May 2001 10:39:07 -0400
+	id <S136820AbRECOlR>; Thu, 3 May 2001 10:41:17 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136820AbRECOi5>; Thu, 3 May 2001 10:38:57 -0400
-Received: from c4.h061013036.is.net.tw ([61.13.36.4]:7699 "EHLO
-	exchsmtp.via.com.tw") by vger.kernel.org with ESMTP
-	id <S136818AbRECOin>; Thu, 3 May 2001 10:38:43 -0400
-Message-ID: <611C3E2A972ED41196EF0050DA92E0760265D594@EXCHANGE2>
-From: Yiping Chen <YipingChen@via.com.tw>
-To: "'linux_news'" <linux-kernel@vger.kernel.org>
-Subject: Compile module error in SUSE Linux
-Date: Thu, 3 May 2001 22:38:46 +0800 
+	id <S136821AbRECOlI>; Thu, 3 May 2001 10:41:08 -0400
+Received: from 205-CORU-X5.libre.retevision.es ([62.83.56.205]:13736 "HELO
+	trasno.mitica") by vger.kernel.org with SMTP id <S136820AbRECOky>;
+	Thu, 3 May 2001 10:40:54 -0400
+To: Horst von Brand <vonbrand@inf.utfsm.cl>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, stoffel@casc.com (John Stoffel),
+        esr@thyrsus.com, cate@dplanet.ch, linux-kernel@vger.kernel.org (CML2),
+        kbuild-devel@lists.sourceforge.net
+Subject: Re: Requirement of make oldconfig [was: Re: [kbuild-devel] Re: CML2 1.3.1, aka ...]
+In-Reply-To: <200105031324.f43DOeaA030953@pincoya.inf.utfsm.cl>
+X-Url: http://www.lfcia.org/~quintela
+From: Juan Quintela <quintela@mandrakesoft.com>
+In-Reply-To: <200105031324.f43DOeaA030953@pincoya.inf.utfsm.cl>
+Date: 03 May 2001 16:40:30 +0200
+Message-ID: <m266fi7axt.fsf@trasno.mitica>
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) Emacs/20.7
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2650.21)
-Content-Type: text/plain;
-	charset="big5"
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dear all:
-I am writing linux driver now, when I install driver modules in other Linux
-Distributions(Like RedHat, OpenLinux..) ,
- the installation will be successful.
-But when I install driver in SUSE Linux, it always appear the following
-message:
-driver.o: kernel-module version mismatch
-	driver.o was compiled for kernel version 2.2.16
-	while this kernel is version 2.2.16-SMP.
+>>>>> "horst" == Horst von Brand <vonbrand@inf.utfsm.cl> writes:
 
-If I modify the definition of  UTS_RELEASE (from "#define UTS_RELEASE
-"2.2.16"" to "#define UTS_RELEASE "2.2.16-SMP"")
-in /usr/src/linux/include/linux/version.h file .
-And recompile the kernel module, then the installation is successful.
-But why? What should I do now? Please help me!!
-Thanks!!
+Hi
 
+horst> Hell, I had to rebuild my .config files from scratch a few times already
+horst> because of wild changes in the hardware on which the resulting kernels
+horst> would have to run, its not _that_ big a deal to have to perhaps have to do
+horst> it once each time a new stable kernel series starts or so.
 
--Yiping Chen
+Not a option.  You can have to had _several_ configurations around
+(here at MandrakeSoft we have normal/smp/enterprise) and we have
+basically everything that can be compiled as modules compiled as
+modules.  Add to that that we build the alpha (normal&smp) from the
+same package.  We want to add more architectures to the rpm.  Are you
+really serious that _answering_ all the options for several kernels is
+an option?  I don't think so.  And the actual olconfig target works
+well for me (tm).  I don't see the point to rewrote the configuration
+language and made it _less_ powerfull for no good reason.
 
+Later, Juan.
+
+-- 
+In theory, practice and theory are the same, but in practice they 
+are different -- Larry McVoy

@@ -1,49 +1,76 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290461AbSAYC6C>; Thu, 24 Jan 2002 21:58:02 -0500
+	id <S290521AbSAYDUa>; Thu, 24 Jan 2002 22:20:30 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290519AbSAYC5w>; Thu, 24 Jan 2002 21:57:52 -0500
-Received: from sombre.2ka.mipt.ru ([194.85.82.77]:1920 "EHLO
-	sombre.2ka.mipt.ru") by vger.kernel.org with ESMTP
-	id <S290461AbSAYC5b>; Thu, 24 Jan 2002 21:57:31 -0500
-Date: Fri, 25 Jan 2002 05:57:15 +0300
-From: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
-To: davej@suse.de
+	id <S290523AbSAYDUS>; Thu, 24 Jan 2002 22:20:18 -0500
+Received: from pintail.mail.pas.earthlink.net ([207.217.120.122]:19107 "EHLO
+	pintail.mail.pas.earthlink.net") by vger.kernel.org with ESMTP
+	id <S290521AbSAYDUF>; Thu, 24 Jan 2002 22:20:05 -0500
+Date: Thu, 24 Jan 2002 22:23:57 -0500
+To: Rik van Riel <riel@conectiva.com.br>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.5.3-pre3 -- aironet4500_core.c:2839:  In function `awc_init': incompatible types in return
-Message-Id: <20020125055715.12f372e9.johnpol@2ka.mipt.ru>
-In-Reply-To: <20020123210246.5e5cfb3f.johnpol@2ka.mipt.ru>
-In-Reply-To: <1011771248.24309.60.camel@stomata.megapathdsl.net>
-	<20020123104550.16b160b0.johnpol@2ka.mipt.ru>
-	<20020123140044.E31032@suse.de>
-	<20020123210246.5e5cfb3f.johnpol@2ka.mipt.ru>
-Reply-To: johnpol@2ka.mipt.ru
-Organization: MIPT
-X-Mailer: Sylpheed version 0.7.0 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Subject: Re: 2.4.18pre4aa1
+Message-ID: <20020124222357.C901@earthlink.net>
+In-Reply-To: <20020124191927.A809@earthlink.net> <Pine.LNX.4.33L.0201242226360.32617-100000@imladris.surriel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <Pine.LNX.4.33L.0201242226360.32617-100000@imladris.surriel.com>; from riel@conectiva.com.br on Thu, Jan 24, 2002 at 10:29:53PM -0200
+From: rwhron@earthlink.net
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 23 Jan 2002 21:02:46 +0300
-Evgeniy Polyakov <johnpol@2ka.mipt.ru> wrote:
+>   [snip results:  -aa twice as fast as -rmap for dbench,
+>                   -rmap twice as fast as -aa for tiobench]
 
-> >  > -       return NODEV;
-> >  > +       return -1;
-> 
-> >  This should probably be return -ENODEV
-> 
-> It sould be negative integer.
-> kdev_val(NODEV) == 0, so it will indicate successive finish, that is not
-> right.
+Look closely at all the numbers:
 
-Ooops, sorry, this <censored> was written probably on drugs...
-You absolutely right, and i didn't see 'E' letter in your mail.
-Take my appologize.
+dbench 64 128 192 on ext completed in 4500 seconds on 2.4.18pre4aa1
+dbench 64 128 192 on ext completed in 12471 seconds on 2.4.17rmap12a
 
-> > -- 
-> > | Dave Jones.        http://www.codemonkey.org.uk
-> > | SuSE Labs
+2.4.18pre4aa1 completed the three dbenches 277% faster.
 
-	Evgeniy Polyakov ( s0mbre ).
+For tiobench:
+
+Tiobench is interesting because it has the CPU% column.  I mentioned 
+sequential reads because it's a bench where 2.4.17rmap12a was faster.  
+Someone else might say 2.4.18pre4aa1 was 271% faster at random reads.  
+Let's analyze CPU efficiency where threads = 1:
+
+               Num     Seq Read     Rand Read      Seq Write   Rand Write
+               Thr    Rate (CPU%)  Rate (CPU%)    Rate (CPU%)  Rate (CPU%)
+               ---  -------------  -----------  -------------  -----------
+2.4.17rmap12a    1   22.85  32.2%   1.15  2.2%   13.10  83.5%   0.71  1.6%
+2.4.18pre4aa1    1   11.23  21.3%   3.12  4.8%   11.92  66.1%   0.66  1.3%
+
+
+Sequential Read CPU Efficiency
+2.4.18pre4aa1   11.23 / .213 = 52.723
+2.4.17rmap12a   22.85 / .322 = 70.962
+2.4.17rmap12a was 35% more CPU efficent.
+
+Random Read CPU Efficiency
+2.4.18pre4aa1   3.12 / .048 = 65.000
+2.4.17rmap12a   1.15 / .022 = 52.272
+2.4.18pre4aa1 was 24% more CPU efficient.
+
+Sequential Write CPU Efficiency
+2.4.18pre4aa1   11.92 / .661 = 18.033
+2.4.17rmap12a   13.10 / .835 = 15.688
+2.4.18pre4aa1 was 15% more CPU efficient.
+
+Random Write CPU Efficiency
+2.4.18pre4aa1   .066 / .013 = 50.767
+2.4.17rmap12a   .071 / .016 = 44.375
+2.4.18pre4aa1 was 14% more CPU efficient.
+
+> It would be interesting to see the dbench dots from both
+> -aa and -rmap ;)
+
+All the dots are at:
+http://home.earthlink.net/~rwhron/kernel/dots/
+
+-- 
+Randy Hron
+

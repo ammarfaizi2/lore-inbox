@@ -1,30 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263253AbTDLMEx (for <rfc822;willy@w.ods.org>); Sat, 12 Apr 2003 08:04:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263258AbTDLMEx (for <rfc822;linux-kernel-outgoing>);
-	Sat, 12 Apr 2003 08:04:53 -0400
-Received: from lists.asu.edu ([129.219.13.98]:53656 "EHLO lists.asu.edu")
-	by vger.kernel.org with ESMTP id S263253AbTDLMEw (for <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 12 Apr 2003 08:04:52 -0400
-Date: Sat, 12 Apr 2003 05:16:37 -0700 (MST)
-From: Shesha@asu.edu
-Subject: readprofile: Length of procedure
-In-reply-to: <1049842780.2499.83.camel@andyp.pdx.osdl.net>
-To: linux-kernel@vger.kernel.org, kernelnewbies@nl.linux.org
-Message-id: <Pine.GSO.4.21.0304120512570.19783-100000@general3.asu.edu>
-MIME-version: 1.0
-Content-type: TEXT/PLAIN; charset=US-ASCII
+	id S263258AbTDLMHd (for <rfc822;willy@w.ods.org>); Sat, 12 Apr 2003 08:07:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263259AbTDLMHd (for <rfc822;linux-kernel-outgoing>);
+	Sat, 12 Apr 2003 08:07:33 -0400
+Received: from natsmtp00.webmailer.de ([192.67.198.74]:42164 "EHLO
+	post.webmailer.de") by vger.kernel.org with ESMTP id S263258AbTDLMHc (for <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 12 Apr 2003 08:07:32 -0400
+From: Arnd Bergmann <arnd@bergmann-dalldorf.de>
+To: linux-kernel@vger.kernel.org, Steven Dake <sdake@mvista.com>
+Subject: Re: [ANNOUNCE] udev 0.1 release
+Date: Sat, 12 Apr 2003 14:18:37 +0200
+User-Agent: KMail/1.5.1
+Cc: Greg KH <greg@kroah.com>, linux-hotplug-devel@lists.sourceforge.net
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200304121418.37473.arnd@bergmann-dalldorf.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello Linux ppl,
+Steven Dake wrote:
 
-In the readprofile man page load=(# of clk ticks) / (length of the procedure)
+> I have not tried it, but dnotify should be generic and not fs specific.  
+> If it doesn't work, it could be fixed to match other filesystem types...
 
-What does "length of procedure" means. Does that mean the # of ASM lines of
-the procedure code? 
+It currently does not work for files that are modified by sysfs itself,
+because the generic dnotify mechanism only works for file system operations
+initiated by the user.
 
--Shesha
+I have verified that adding calls to dnotify_parent() to sysfs_create and
+sysfs_hash_and_remove makes it work. I'm not sure about the locking rules
+there, so I'm not sending a patch but it should be trivial to do for
+someone more familiar with the sysfs code.
 
-
-
+	Arnd <><

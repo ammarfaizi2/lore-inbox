@@ -1,79 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278102AbRJWRXC>; Tue, 23 Oct 2001 13:23:02 -0400
+	id <S278113AbRJWRaN>; Tue, 23 Oct 2001 13:30:13 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278112AbRJWRWx>; Tue, 23 Oct 2001 13:22:53 -0400
-Received: from penguin.e-mind.com ([195.223.140.120]:25412 "EHLO
-	penguin.e-mind.com") by vger.kernel.org with ESMTP
-	id <S278105AbRJWRWf>; Tue, 23 Oct 2001 13:22:35 -0400
-Date: Tue, 23 Oct 2001 19:23:07 +0200
-From: Andrea Arcangeli <andrea@suse.de>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: linux-kernel@vger.kernel.org, Linus Torvalds <torvalds@transmeta.com>,
-        Robert Macaulay <robert_macaulay@dell.com>
-Subject: Re: x86 smp_call_function recent breakage
-Message-ID: <20011023192307.Q26029@athlon.random>
-In-Reply-To: <20011023182954.O26029@athlon.random> <E15w4kB-0006Vf-00@the-village.bc.nu>
+	id <S278112AbRJWRaD>; Tue, 23 Oct 2001 13:30:03 -0400
+Received: from mail.cps.matrix.com.br ([200.196.9.5]:22280 "EHLO
+	smtp.cps.matrix.com.br") by vger.kernel.org with ESMTP
+	id <S278107AbRJWR3w>; Tue, 23 Oct 2001 13:29:52 -0400
+Date: Tue, 23 Oct 2001 15:30:15 -0200
+To: linux-kernel@vger.kernel.org
+Subject: Re: SiS630S FrameBuffer & LCD
+Message-ID: <20011023153015.F4709@khazad-dum>
+In-Reply-To: <5.1.0.14.0.20011023161901.00a65870@mail.amc.localnet>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.3.12i
-In-Reply-To: <E15w4kB-0006Vf-00@the-village.bc.nu>; from alan@lxorguk.ukuu.org.uk on Tue, Oct 23, 2001 at 05:49:35PM +0100
-X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
-X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <5.1.0.14.0.20011023161901.00a65870@mail.amc.localnet>; from sgy@amc.com.au on Tue, Oct 23, 2001 at 04:54:59PM +1000
+X-GPG-Fingerprint-1: 1024D/128D36EE 50AC 661A 7963 0BBA 8155  43D5 6EF7 F36B 128D 36EE
+X-GPG-Fingerprint-2: 1024D/1CDB0FE3 5422 5C61 F6B7 06FB 7E04  3738 EE25 DE3F 1CDB 0FE3
+From: hmh@debian.org (Henrique de Moraes Holschuh)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Oct 23, 2001 at 05:49:35PM +0100, Alan Cox wrote:
-> > This isn't the right fix:
-> 
-> The cache thing you may be right on. The core fix is not about caching
-> its about fixing races on IPI replay. We have to handle an IPI reoccuring
-> potentially with a small time delay due to a retransmit of a message
-> lost by one party on the bus. Furthermore it seems other messages can
-> pass the message that then gets retransmitted.
-> 
-> > Robert, this explains the missed IPI during drain_cpu_caches, it isn't
-> > ram fault or IPI missed by the hardware, so I suggest to just backout
-> > the second diff above and try again. Will be fixed also in next -aa of
-> > course.
-> 
-> I'm not sure I follow why it explains a missed IPI. Please explain in
-> more detail.
+On Tue, 23 Oct 2001, Stuart Young wrote:
+> Like my previous SiS post, I'm once again using the Clevo lp200t (SiS630S 
+> chipset), and trying to enable the SiS FrameBuffer device. Once again, this 
+> happens on 2.4.9, 2.4.10, and 2.4.12.
 
-The bug is very simple and it have nothing to do with hardware details,
-it is a plain software bug:
+Well, that piece of ***** chipset will ONLY work if you talk to it through
+the VESA BIOS in a laptop I have here.  This is fine for XFree86 (we used
+the VESA driver), but I don't know if this would work for the kernel VESA
+framebuffer driver.
 
--	if (wait) {
--		mb();
--		atomic_inc(&call_data->finished);
--	}
-+	if (wait)
-+		set_bit(smp_processor_id(), &call_data->finished);
+The SiS drivers will basicaly screw your hardware up. You *must* talk to it
+through the BIOS, or it will not manage to get the video/LCD timings right or
+even hung the PCI bus. Smells like the chipset needs extra data that the
+current drivers do not know how to set.
 
-since 2.4.10pre12 (and in all previous -ac also) you still use the above
-"call_data" for notifying "finished", but you also allowed "call_data"
-to be changed under the IPI handler by another incoming IPI (the
-scalability optimization), so the first IPI handler will notify the
-completion of the second IPI (instead of the first one) generating the
-"missed IPI" generating kernel instability (deadlock for Roboert in
-drain_cpu_caches that waits all cpus to "finish").
+> In either case, the machine continues to run happily, and I can either ssh 
 
-So you wonder about reply IPI or whatever, and you add further hackery
-plus you left the NR_CPUS array that now is useless since there's
-nothing to scale and we hold the spinlock for the whole duration of the
-IPI cycle, while the only fix in your ac5<->ac6 diff is that you now
-spin_unlock after touching ->finished like the old code correctly did,
-so you notify completion of the right IPI and not of the wrong one, so
-it won't deadlock anymore.
+Lucky you. Our laptop got a PCI buffer hung out of the deal.
 
-I don't think it's necessary to read ->func and friends before checking
-->started, also there's no need of testing ->started. we have the
-guarantee that only 1 IPI cycle can run at once because of the spinlock
-held for the whole duration of the IPI cycle, so if we are running in
-smp_call_function_interrupt we know all ->func,->started == 0 fields are
-just coherent and freely usable in memory, we only need to care to mb()
-between reading them and increasing ->started like the old code
-correctly did.  So I think the old code was just perfect.
+> It seems plausible that the documentation that SiS has provided is now 
+> out--of-date, and/or the drivers are assuming the wrong things in cases of 
+> the unknown. The problem is easily reproducible, and the SiS630S chipset 
+> (which seems to be the one affected, but may not necessarily be the only 
+> one) is becoming more widespread in laptop/all-in-one PC's.
 
-Andrea
+Indeed. We need fully updated docs from SiS on how to deal with their newest
+"contribution" to the onboard-video family.
+
+-- 
+  "One disk to rule them all, One disk to find them. One disk to bring
+  them all and in the darkness grind them. In the Land of Redmond
+  where the shadows lie." -- The Silicon Valley Tarot
+  Henrique Holschuh

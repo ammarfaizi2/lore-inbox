@@ -1,288 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261824AbUCBVU3 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 2 Mar 2004 16:20:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261781AbUCBVU3
+	id S261807AbUCBVZh (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 2 Mar 2004 16:25:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261822AbUCBVZh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 2 Mar 2004 16:20:29 -0500
-Received: from gateway-1237.mvista.com ([12.44.186.158]:16123 "EHLO
-	av.mvista.com") by vger.kernel.org with ESMTP id S261824AbUCBVT7
+	Tue, 2 Mar 2004 16:25:37 -0500
+Received: from chaos.analogic.com ([204.178.40.224]:27264 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP id S261807AbUCBVZf
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 2 Mar 2004 16:19:59 -0500
-Message-ID: <4044FA72.1030005@mvista.com>
-Date: Tue, 02 Mar 2004 13:19:46 -0800
-From: George Anzinger <george@mvista.com>
-Organization: MontaVista Software
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20030225
-X-Accept-Language: en-us, en
+	Tue, 2 Mar 2004 16:25:35 -0500
+Date: Tue, 2 Mar 2004 16:26:26 -0500 (EST)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+X-X-Sender: root@chaos
+Reply-To: root@chaos.analogic.com
+To: Roland Dreier <roland@topspin.com>
+cc: Linux kernel <linux-kernel@vger.kernel.org>
+Subject: Re: poll() in 2.6 and beyond
+In-Reply-To: <52vflnq807.fsf@topspin.com>
+Message-ID: <Pine.LNX.4.53.0403021624300.2296@chaos>
+References: <Pine.LNX.4.53.0403021318580.796@chaos> <527jy3qalg.fsf@topspin.com>
+ <Pine.LNX.4.53.0403021510270.1856@chaos> <52vflnq807.fsf@topspin.com>
 MIME-Version: 1.0
-To: "Amit S. Kale" <amitkale@emsyssoft.com>
-CC: Tom Rini <trini@kernel.crashing.org>,
-       kernel list <linux-kernel@vger.kernel.org>,
-       Pavel Machek <pavel@suse.cz>, kgdb-bugreport@lists.sourceforge.net
-Subject: Re: [Kgdb-bugreport] [PATCH][2/3] Update CVS KGDB's have kgdb_{schedule,process}_breakpoint
-References: <20040225213626.GF1052@smtp.west.cox.net> <200402261300.34911.amitkale@emsyssoft.com> <403E7F0C.6000009@mvista.com> <200403011402.29642.amitkale@emsyssoft.com>
-In-Reply-To: <200403011402.29642.amitkale@emsyssoft.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Amit S. Kale wrote:
-> On Friday 27 Feb 2004 4:49 am, George Anzinger wrote:
-> 
->>Amit S. Kale wrote:
->>
->>>On Thursday 26 Feb 2004 3:13 am, Tom Rini wrote:
->>>
->>>>The following adds, and then makes use of kgdb_process_breakpoint /
->>>>kgdb_schedule_breakpoint.  Using it i kgdb_8250.c isn't strictly needed,
->>>>but it isn't wrong either.
->>>
->>>That makes 8250 response it a _bit_ slower. A user will notice when kgdb
->>>doesn't respond within a millisecond of pressing Ctrl+C :-)
->>
->>Hm...  I have been wondering if it might not be a good idea to put some
->>comments to the user at or around the breakpoint.  Possibly we might want
->>to tell the user about where the info files are or some such.  This would
->>then come up on his screen when the source code at the breakpoint is
->>displayed.
-> 
-> 
-> Err, well, I don't seem to understand this.
-> 
-> Do you mean we print a (gdb) console message that indicates something about a 
-> breakpoint? If we do that, there has to be a way to turn it off. I have a 
-> (rather bad) habit of stepping through kernel code :-)
+On Tue, 2 Mar 2004, Roland Dreier wrote:
 
-No that is not what I mean.  I don't want to try to send messages to the gdb 
-console (it is not supported by gdb at this time).  Rather, the hard coded 
-breakpoint instruction that we use to get to the the stub when the user enters a 
-^C is in a particular bit of source code.  Most gdb front ends display this bit 
-of source centered on the breakpoint instruction.  What I am asking about is 
-puting something useful here from the user point of view.  For example we might 
-have this:
+>     Richard> I'm talking about the driver! When a open fd called
+>     Richard> poll() or select(), in user-mode code, the driver's
+>     Richard> poll() was called, and the driver's poll() would call
+>     Richard> poll_wait().  Poll_wait() used to NOT return until the
+>     Richard> driver executed wake_up_interruptible() on that
+>     Richard> wait-queue. When poll_wait() returned, the driver would
+>     Richard> return to the caller with the new poll- status.
+>
+> I don't think so.  Even in kernel 2.4, poll_wait() just calls
+> __pollwait().  I don't see anything in __pollwait() that sleeps.
+> Think about it.  How would the kernel handle userspace calling poll()
+> with more than one file descriptor if each individual driver slept?
+>
 
-/*
-  * This is the KGDB control C break point.  For additional info on KGDB options
-  * and suggested macros see .../Documentation/kgdb/* in your kernel tree.
-  * KGDB version XX.YY
-  */
-	BREAKPOINT;
+Well what to you think they do? Spin?
 
---------------------------------------
+> I'll repeat my earlier suggestion.  Read the description of "poll and
+> select" in LDD:
+>      <http://www.xml.com/ldd/chapter/book/ch05.html#t3>
+>
+> If you refuse to understand the documented interface, I don't think
+> anyone can help you.
 
-Lets face it, this bit of source is most likly of very little interest to most 
-users.  I.e. it is a free page on which we can post what ever we want.
+I am quite familiar with the operation of poll(), thank you.
 
-> 
-> What are info files?
-> 
-> -Amit
-> 
-> 
->>comments...
->>
->>-g
->>
->>
->>>OK to checkin.
->>>-Amit
->>>
->>>
->>>># This is a BitKeeper generated patch for the following project:
->>>># Project Name: Linux kernel tree
->>>># This patch format is intended for GNU patch command version 2.5 or
->>>>higher. # This patch includes the following deltas:
->>>>#	           ChangeSet	1.1663  -> 1.1664
->>>>#	arch/i386/kernel/irq.c	1.48    -> 1.49
->>>>#	drivers/net/kgdb_eth.c	1.2     -> 1.3
->>>>#	arch/x86_64/kernel/irq.c	1.21    -> 1.22
->>>>#	drivers/serial/kgdb_8250.c	1.3     -> 1.4
->>>>#	       kernel/kgdb.c	1.3     -> 1.4
->>>>#	arch/ppc/kernel/irq.c	1.36    -> 1.37
->>>>#	include/linux/kgdb.h	1.3     -> 1.4
->>>>#
->>>># The following is the BitKeeper ChangeSet Log
->>>># --------------------------------------------
->>>># 04/02/25	trini@kernel.crashing.org	1.1664
->>>># process_breakpoint/schedule_breakpoint.
->>>># --------------------------------------------
->>>>#
->>>>diff -Nru a/arch/i386/kernel/irq.c b/arch/i386/kernel/irq.c
->>>>--- a/arch/i386/kernel/irq.c	Wed Feb 25 14:21:32 2004
->>>>+++ b/arch/i386/kernel/irq.c	Wed Feb 25 14:21:32 2004
->>>>@@ -34,6 +34,7 @@
->>>>#include <linux/proc_fs.h>
->>>>#include <linux/seq_file.h>
->>>>#include <linux/kallsyms.h>
->>>>+#include <linux/kgdb.h>
->>>>
->>>>#include <asm/atomic.h>
->>>>#include <asm/io.h>
->>>>@@ -507,6 +508,8 @@
->>>>	spin_unlock(&desc->lock);
->>>>
->>>>	irq_exit();
->>>>+
->>>>+	kgdb_process_breakpoint();
->>>>
->>>>	return 1;
->>>>}
->>>>diff -Nru a/arch/ppc/kernel/irq.c b/arch/ppc/kernel/irq.c
->>>>--- a/arch/ppc/kernel/irq.c	Wed Feb 25 14:21:32 2004
->>>>+++ b/arch/ppc/kernel/irq.c	Wed Feb 25 14:21:32 2004
->>>>@@ -46,6 +46,7 @@
->>>>#include <linux/random.h>
->>>>#include <linux/seq_file.h>
->>>>#include <linux/cpumask.h>
->>>>+#include <linux/kgdb.h>
->>>>
->>>>#include <asm/uaccess.h>
->>>>#include <asm/bitops.h>
->>>>@@ -536,7 +537,9 @@
->>>>	if (irq != -2 && first)
->>>>		/* That's not SMP safe ... but who cares ? */
->>>>		ppc_spurious_interrupts++;
->>>>-        irq_exit();
->>>>+	irq_exit();
->>>>+
->>>>+	kgdb_process_breakpoint();
->>>>}
->>>>
->>>>unsigned long probe_irq_on (void)
->>>>diff -Nru a/arch/x86_64/kernel/irq.c b/arch/x86_64/kernel/irq.c
->>>>--- a/arch/x86_64/kernel/irq.c	Wed Feb 25 14:21:32 2004
->>>>+++ b/arch/x86_64/kernel/irq.c	Wed Feb 25 14:21:32 2004
->>>>@@ -405,6 +405,8 @@
->>>>	spin_unlock(&desc->lock);
->>>>
->>>>	irq_exit();
->>>>+
->>>>+	kgdb_process_breakpoint();
->>>>	return 1;
->>>>}
->>>>
->>>>diff -Nru a/drivers/net/kgdb_eth.c b/drivers/net/kgdb_eth.c
->>>>--- a/drivers/net/kgdb_eth.c	Wed Feb 25 14:21:32 2004
->>>>+++ b/drivers/net/kgdb_eth.c	Wed Feb 25 14:21:32 2004
->>>>@@ -60,7 +60,6 @@
->>>>static atomic_t in_count;
->>>>int kgdboe = 0;			/* Default to tty mode */
->>>>
->>>>-extern void breakpoint(void);
->>>>static void rx_hook(struct netpoll *np, int port, char *msg, int len);
->>>>
->>>>static struct netpoll np = {
->>>>@@ -106,14 +105,12 @@
->>>>
->>>>	np->remote_port = port;
->>>>
->>>>-	/* Is this gdb trying to attach? */
->>>>-	if (!netpoll_trap() && len == 8 && !strncmp(msg, "$Hc-1#09", 8))
->>>>-		breakpoint();
->>>>+	/* Is this gdb trying to attach (!kgdb_connected) or break in
->>>>+	 * (msg[0] == 3) ? */
->>>>+	if (!netpoll_trap() && (!kgdb_connected || msg[0] == 3))
->>>>+		 kgdb_schedule_breakpoint();
->>>>
->>>>	for (i = 0; i < len; i++) {
->>>>-		if (msg[i] == 3)
->>>>-			breakpoint();
->>>>-
->>>>		if (atomic_read(&in_count) >= IN_BUF_SIZE) {
->>>>			/* buffer overflow, clear it */
->>>>			in_head = in_tail = 0;
->>>>diff -Nru a/drivers/serial/kgdb_8250.c b/drivers/serial/kgdb_8250.c
->>>>--- a/drivers/serial/kgdb_8250.c	Wed Feb 25 14:21:32 2004
->>>>+++ b/drivers/serial/kgdb_8250.c	Wed Feb 25 14:21:32 2004
->>>>@@ -248,7 +248,7 @@
->>>>
->>>>	/* If we get an interrupt, then KGDB is trying to connect. */
->>>>	if (!kgdb_connected) {
->>>>-		breakpoint();
->>>>+		kgdb_schedule_breakpoint();
->>>>		return IRQ_HANDLED;
->>>>	}
->>>>
->>>>diff -Nru a/include/linux/kgdb.h b/include/linux/kgdb.h
->>>>--- a/include/linux/kgdb.h	Wed Feb 25 14:21:32 2004
->>>>+++ b/include/linux/kgdb.h	Wed Feb 25 14:21:32 2004
->>>>@@ -11,8 +11,22 @@
->>>>#include <asm/atomic.h>
->>>>#include <linux/debugger.h>
->>>>
->>>>+/*
->>>>+ * This file should not include ANY others.  This makes it usable
->>>>+ * most anywhere without the fear of include order or inclusion.
->>>>+ * TODO: Make it so!
->>>>+ *
->>>>+ * This file may be included all the time.  It is only active if
->>>>+ * CONFIG_KGDB is defined, otherwise it stubs out all the macros
->>>>+ * and entry points.
->>>>+ */
->>>>+
->>>>+#if defined(CONFIG_KGDB) && !defined(__ASSEMBLY__)
->>>>/* To enter the debugger explicitly. */
->>>>-void breakpoint(void);
->>>>+extern void breakpoint(void);
->>>>+extern void kgdb_schedule_breakpoint(void);
->>>>+extern void kgdb_process_breakpoint(void);
->>>>+extern volatile int kgdb_connected;
->>>>
->>>>#ifndef KGDB_MAX_NO_CPUS
->>>>#if CONFIG_NR_CPUS > 8
->>>>@@ -112,4 +126,7 @@
->>>>char *kgdb_hex2mem(char *buf, char *mem, int count);
->>>>int kgdb_get_mem(char *addr, unsigned char *buf, int count);
->>>>
->>>>+#else
->>>>+#define kgdb_process_breakpoint()      do {} while(0)
->>>>+#endif /* KGDB && !__ASSEMBLY__ */
->>>>#endif				/* _KGDB_H_ */
->>>>diff -Nru a/kernel/kgdb.c b/kernel/kgdb.c
->>>>--- a/kernel/kgdb.c	Wed Feb 25 14:21:32 2004
->>>>+++ b/kernel/kgdb.c	Wed Feb 25 14:21:32 2004
->>>>@@ -1169,6 +1169,29 @@
->>>>	printk("Connected.\n");
->>>>}
->>>>
->>>>+/*
->>>>+ * Sometimes we need to schedule a breakpoint because we can't break
->>>>+ * right where we are.
->>>>+ */
->>>>+static int kgdb_need_breakpoint[NR_CPUS];
->>>>+
->>>>+void kgdb_schedule_breakpoint(void)
->>>>+{
->>>>+	kgdb_need_breakpoint[smp_processor_id()] = 1;
->>>>+}
->>>>+
->>>>+void kgdb_process_breakpoint(void)
->>>>+{
->>>>+	/*
->>>>+	 * Handle a breakpoint queued from inside network driver code
->>>>+	  * to avoid reentrancy issues
->>>>+	 */
->>>>+	if (kgdb_need_breakpoint[smp_processor_id()]) {
->>>>+		 kgdb_need_breakpoint[smp_processor_id()] = 0;
->>>>+		 breakpoint();
->>>>+	}
->>>>+}
->>>>+
->>>>#ifdef CONFIG_KGDB_CONSOLE
->>>>char kgdbconbuf[BUFMAX];
->>>
->>>-
->>>To unsubscribe from this list: send the line "unsubscribe linux-kernel"
->>>in the body of a message to majordomo@vger.kernel.org
->>>More majordomo info at  http://vger.kernel.org/majordomo-info.html
->>>Please read the FAQ at  http://www.tux.org/lkml/
-> 
-> 
 
--- 
-George Anzinger   george@mvista.com
-High-res-timers:  http://sourceforge.net/projects/high-res-timers/
-Preemption patch: http://www.kernel.org/pub/linux/kernel/people/rml
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.4.24 on an i686 machine (797.90 BogoMips).
+            Note 96.31% of all statistics are fiction.
+
 

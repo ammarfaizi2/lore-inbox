@@ -1,71 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261290AbVARNIE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261270AbVARNMk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261290AbVARNIE (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 18 Jan 2005 08:08:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261291AbVARNHx
+	id S261270AbVARNMk (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 18 Jan 2005 08:12:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261291AbVARNMk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 18 Jan 2005 08:07:53 -0500
-Received: from mail.ocs.com.au ([202.147.117.210]:52678 "EHLO mail.ocs.com.au")
-	by vger.kernel.org with ESMTP id S261290AbVARNHk (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 18 Jan 2005 08:07:40 -0500
-X-Mailer: exmh version 2.6.3_20040314 03/14/2004 with nmh-1.0.4
-From: Keith Owens <kaos@ocs.com.au>
-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Cc: Sam Ravnborg <sam@ravnborg.org>,
-       Linux Kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: [patch 0/3] kallsyms: Add gate page and all symbols support 
-In-reply-to: Your message of "Tue, 18 Jan 2005 18:52:55 +1100."
-             <1106034775.4499.86.camel@gaston> 
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Wed, 19 Jan 2005 00:07:31 +1100
-Message-ID: <15379.1106053651@ocs3.ocs.com.au>
+	Tue, 18 Jan 2005 08:12:40 -0500
+Received: from hermine.aitel.hist.no ([158.38.50.15]:20496 "HELO
+	hermine.aitel.hist.no") by vger.kernel.org with SMTP
+	id S261270AbVARNMh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 18 Jan 2005 08:12:37 -0500
+Message-ID: <41ED0D3A.1070902@hist.no>
+Date: Tue, 18 Jan 2005 14:20:58 +0100
+From: Helge Hafting <helge.hafting@hist.no>
+User-Agent: Mozilla Thunderbird 0.9 (X11/20041124)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Andrew Morton <akpm@osdl.org>
+CC: rddunlap@osdl.org, viro@parcelfarce.linux.theplanet.co.uk, dsd@gentoo.org,
+       jhf@rivenstone.net, linux-kernel@vger.kernel.org, neilb@cse.unsw.edu.au,
+       opengeometry@yahoo.ca
+Subject: Re: [PATCH] Wait and retry mounting root device (revised)
+References: <20050114002352.5a038710.akpm@osdl.org>	<20050116005930.GA2273@zion.rivenstone.net>	<41EC7A60.9090707@gentoo.org>	<20050118003413.GA26051@parcelfarce.linux.theplanet.co.uk>	<41EC5207.3030003@osdl.org>	<41ECC8AF.9020404@hist.no> <20050118004935.7bd4a099.akpm@osdl.org>
+In-Reply-To: <20050118004935.7bd4a099.akpm@osdl.org>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 18 Jan 2005 18:52:55 +1100, 
-Benjamin Herrenschmidt <benh@kernel.crashing.org> wrote:
->On Tue, 2004-12-28 at 22:17 +0100, Sam Ravnborg wrote:
+Andrew Morton wrote:
+
+>Helge Hafting <helge.hafting@hist.no> wrote:
+>  
 >
->> > 2 Add in_gate_area_no_task() for use from places where no task is valid.
+>>The USB block driver should know that 10s (or whatever) hasn't yet 
+>> passed, and simply
+>> block any attempt to access block devices (or scan for them) knowing 
+>> that it will
+>> not work yet, but any device will be there after the pause. A root mount 
+>> on USB will
+>> then succeed at the _first_ try everytime, so no need for retries.
+>>    
+>>
 >
->Can you back that out ? Or at least explain why you need to add this
->"no_task" thing and not just use "current" where no task is available ?
+>Maybe a simple delay somewhere in the boot sequence would suffice?  Boot
+>with `mount_delay=10'.
+>
+>  
+>
+Certainly the simplest solution, and it also solves a related
+but rare problem: People booting linux from ROM long before
+the disks have time to spin up.
 
-kallsyms is used to look up a symbol for any task, e.g. to do a
-backtrace with symbol lookup of all running tasks, not just the current
-one.  None of the kallsym interfaces allow you to specify which task
-you are making the query against, and the change to do so is too messy
-and intrusive for far too little return.  The no_task variant asks "is
-this a possible gate address for any task?", at the small risk of
-getting false positives in kallsyms lookup.
+There seems to be a disadvantage in that one must specify
+this pause manually, but the admin have to select the root fs
+somewhere anyway (lilo.conf) and may specify the delay at
+the same time.
 
-> - Since you unconditionally #define in_gate_area() to use
->in_gate_area_no_task(), what is the point of having in_gate_area() at
->all ? Which rather means, what is the point of adding that "_no_task"
->version and not just change in_gate_area to not take a task ?
+>But it sure would be nice to simply get this stuff right somehow.  If the
+>USB block driver knows that discovery is still in progress it should wait
+>until it has completed.  (I suggested that before, but wasn't 100% convinced
+>by the answer).
+>  
+>
+Sure, if the USB core can know, then it should use the knowledge.
+Or utilize a simple timeout if all it knows is that "common
+storage devices appear on the bus up to 10s after powerup/reset".
 
-x86-64 needs both variants.  in_gate_area() is sometimes called in a
-context where you know the required task (mm/memory.c), sometimes when
-any task is implied (kernel/kallsyms.c).  x86-64 makes it more
-complicated by using different gate pages depending on whether the
-specified task is in 32 bit emulation mode or not.
-
-> - I dislike the fact that you now define the prototype of the function
->in the __HAVE_ARCH_GATE_AREA case. I want my arch .h to be the one doing
->so, since i want to inline it
-
-Maybe.  I dislike copying definitions to multiple asm headers.  If you
-think that the win of inlining the ppc64 version of these functions
-outweighs the header duplication then send a patch.  Don't forget to
-duplicate the definition in include/asm-x86_64 as well.
-
->(to nothing in the ppc64 case since the
->vDSO I'm implementing doesn't need any special treatement of the gate
->area, it's a normal VMA added to the mm's at exec time).
-
-Added to specific task's mm or to all tasks?  If the gate VMA varies
-according to the task then you have to support the kallsyms "is this a
-possible gate address for any task?" question, like x86-64.
-
+Helge Hafting

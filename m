@@ -1,72 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264118AbTKJVfm (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 10 Nov 2003 16:35:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264120AbTKJVfm
+	id S264120AbTKJVg2 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 10 Nov 2003 16:36:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264121AbTKJVg1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 10 Nov 2003 16:35:42 -0500
-Received: from viriato2.servicios.retecal.es ([212.89.0.45]:27812 "EHLO
-	viriato2.servicios.retecal.es") by vger.kernel.org with ESMTP
-	id S264118AbTKJVfl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 10 Nov 2003 16:35:41 -0500
-Subject: [2.6.0-test9-mm2] Badness in as_put_request at
-	drivers/block/as-iosched.c:1783
-From: =?ISO-8859-1?Q?Ram=F3n?= Rey Vicente <ramon.rey@hispalinux.es>
-To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Cc: Andrew Morton <akpm@osdl.org>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-4NadmQbYGTjZvrz/10/2"
-Organization: Hispalinux - http://www.hispalinux.es
-Message-Id: <1068500134.2060.3.camel@debian>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Mon, 10 Nov 2003 22:35:35 +0100
+	Mon, 10 Nov 2003 16:36:27 -0500
+Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:10756 "EHLO
+	gatekeeper.tmr.com") by vger.kernel.org with ESMTP id S264120AbTKJVg0
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 10 Nov 2003 16:36:26 -0500
+To: linux-kernel@vger.kernel.org
+Path: gatekeeper.tmr.com!davidsen
+From: davidsen@tmr.com (bill davidsen)
+Newsgroups: mail.linux-kernel
+Subject: Re: 2.9test9-mm1 and DAO ATAPI cd-burning corrupt
+Date: 10 Nov 2003 21:25:53 GMT
+Organization: TMR Associates, Schenectady NY
+Message-ID: <boovp1$6uc$1@gatekeeper.tmr.com>
+References: <3FA69CDF.5070908@gmx.de> <20031105101207.GI1477@suse.de> <3FA8CEF1.1050200@gmx.de> <20031105102238.GJ1477@suse.de>
+X-Trace: gatekeeper.tmr.com 1068499553 7116 192.168.12.62 (10 Nov 2003 21:25:53 GMT)
+X-Complaints-To: abuse@tmr.com
+Originator: davidsen@gatekeeper.tmr.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+In article <20031105102238.GJ1477@suse.de>, Jens Axboe  <axboe@suse.de> wrote:
 
---=-4NadmQbYGTjZvrz/10/2
-Content-Type: text/plain; charset=ISO-8859-15
-Content-Transfer-Encoding: quoted-printable
+| It isn't a problem of the recorder program. But some drives wont read
+| the very end of a disc unless there are some pad blocks at the end.
+| Thus, you should always use the cdrecord pad option.
 
-Hi.
+I think the previous answer, some devices will read without pad and some
+won't, is probably a good place to stop. It turns out that some device
+not only don't need the pad, but will read it if you are in the raw read
+mode, and thus "read more than you wrote" of data. For iso9660 images
+being mounted the pad option should be used, and I believe that it does
+in fact default to on in recent versions of cdrecord.
 
-Trying to scan de ide-scsi devices of my system, I get this
-
-arq->state 4
-Badness in as_put_request at drivers/block/as-iosched.c:1783
-Call Trace:
- [<c01dc908>] as_put_request+0x48/0xa0
- [<c01d47d3>] elv_put_request+0x13/0x20
- [<c01d69f2>] __blk_put_request+0x52/0xa0
- [<c01d6a61>] blk_put_request+0x21/0x40
- [<c01d9d0e>] sg_io+0x2ee/0x440
- [<c01da5c0>] scsi_cmd_ioctl+0x3c0/0x480
- [<c0124b49>] update_process_times+0x29/0x40
- [<c011949c>] schedule+0x31c/0x620
- [<d093bb65>] cdrom_ioctl+0x25/0xd60 [cdrom]
- [<c012eb33>] do_clock_nanosleep+0x1b3/0x300
- [<c0119800>] default_wake_function+0x0/0x20
- [<c01d86fa>] blkdev_ioctl+0x7a/0x383
- [<c01584be>] block_ioctl+0x1e/0x40
- [<c016158f>] sys_ioctl+0xef/0x260
- [<c0257c57>] syscall_call+0x7/0xb
---=20
-Ram=F3n Rey Vicente       <ramon dot rey at hispalinux dot es>
-        jabber ID       <rreylinux at jabber dot org>
-GPG public key ID 	0xBEBD71D5 -> http://pgp.escomposlinux.org/
-
---=-4NadmQbYGTjZvrz/10/2
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: Esta parte del mensaje =?ISO-8859-1?Q?est=E1?= firmada
-	digitalmente
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.3 (GNU/Linux)
-
-iD8DBQA/sASlRGk68b69cdURApBmAJsFUZaInvux59xmnBbff22pZpWxfgCfZQCS
-XPI/4/BxVQB+VZpgInFDIco=
-=X3I/
------END PGP SIGNATURE-----
-
---=-4NadmQbYGTjZvrz/10/2--
-
+In any case I would add "with iso9660 images" to your fine advice, and
+suggest that getting the iso filesystem size (from isoinfo) and reading
+exactly that much is still probably desirable. There are too many TAO
+vs. DAO and -pad or not magic solutions, unfortunately, and too much
+dubious firmware for anything else to work every time.
+-- 
+bill davidsen <davidsen@tmr.com>
+  CTO, TMR Associates, Inc
+Doing interesting things with little computers since 1979.

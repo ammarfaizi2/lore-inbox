@@ -1,57 +1,35 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262040AbSL2WdX>; Sun, 29 Dec 2002 17:33:23 -0500
+	id <S262038AbSL2Wcd>; Sun, 29 Dec 2002 17:32:33 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261996AbSL2WdW>; Sun, 29 Dec 2002 17:33:22 -0500
-Received: from [81.2.122.30] ([81.2.122.30]:9476 "EHLO darkstar.example.net")
-	by vger.kernel.org with ESMTP id <S262040AbSL2Wcf>;
-	Sun, 29 Dec 2002 17:32:35 -0500
-From: John Bradford <john@grabjohn.com>
-Message-Id: <200212292240.gBTMeRYb000408@darkstar.example.net>
-Subject: Re: [PATCH] more deprectation bits
-To: akpm@digeo.com (Andrew Morton)
-Date: Sun, 29 Dec 2002 22:40:27 +0000 (GMT)
-Cc: hch@lst.de, torvalds@transmeta.com, linux-kernel@vger.kernel.org
-In-Reply-To: <3E0F7684.6D07D4FB@digeo.com> from "Andrew Morton" at Dec 29, 2002 02:26:12 PM
-X-Mailer: ELM [version 2.5 PL6]
-MIME-Version: 1.0
+	id <S262040AbSL2Wcd>; Sun, 29 Dec 2002 17:32:33 -0500
+Received: from verein.lst.de ([212.34.181.86]:49675 "EHLO verein.lst.de")
+	by vger.kernel.org with ESMTP id <S262038AbSL2Wcc>;
+	Sun, 29 Dec 2002 17:32:32 -0500
+Date: Sun, 29 Dec 2002 23:40:51 +0100
+From: Christoph Hellwig <hch@lst.de>
+To: James Bottomley <James.Bottomley@steeleye.com>
+Cc: hch@lst.de, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] remove CONFIG_X86_NUMA
+Message-ID: <20021229234051.A12535@lst.de>
+Mail-Followup-To: Christoph Hellwig <hch@lst.de>,
+	James Bottomley <James.Bottomley@steeleye.com>,
+	linux-kernel@vger.kernel.org
+References: <200212292239.gBTMdPJ12407@localhost.localdomain>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <200212292239.gBTMdPJ12407@localhost.localdomain>; from James.Bottomley@steeleye.com on Sun, Dec 29, 2002 at 04:39:25PM -0600
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > > > Even if it's safe in that particular case, most code in the kernel runs
-> > > > without BKL.  This patch just makes the deprication of sleep_on
-> > > > explicit.
-> > >
-> > > This would be more appropriate:
-> > 
-> > I don't think so.  As you said before sleep_on is perfectly fine for
-> > the small part of code still covered by BKL, so we should not impose
-> > any runtime overhead (i.e. warnings) but rather remind at compile time.
+On Sun, Dec 29, 2002 at 04:39:25PM -0600, James Bottomley wrote:
+> > It's only used to hide two entries in arch/i386/Kconfig.
+> 
+> The patch looks good.  If it's OK to get rid of X86_NUMA, could you also move 
+> X86_NUMAQ under the subarch menu?
 
-Especially as the fact that EXT-3 makes use of it doesn't affect
-anybody writing user land apps.  There isn't much point in warning
-about things that are only relevant to readers of this list anyway.
+I already wondered about that, but AFAIK a kernel with X86_NUMAQ set
+still boots on a PeeCee, so it's really an option, not a choice.
 
-> > That's what's so nice with the gcc extension (and you won't see it
-> > anyway as long as you stay at egcs 1.1 :))
-
-How long are we staying at 2.95.3 as the recommended compiler?  A lot
-of people have been using 3.x with the 2.5 tree successfully for a
-while.  What will be the recommended compiler for 2.6?
-
-> Others will.  It will result in developers being distracted into "fixing"
-> non-bugs.  It will introduce risk and it will delay the release of the
-> 2.6 kernel.
-
-featurefreeze()
-{
-
-> Please concentrate on things which *matter*.  Focus on getting this piece
-> of software into a deliverable state and do not be distracted into futzing
-> about with stuff which clearly was not addressed at the appropriate time.
-
-}
-
-John.

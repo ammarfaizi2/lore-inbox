@@ -1,63 +1,59 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262367AbTD3TgA (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 30 Apr 2003 15:36:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262371AbTD3Tf7
+	id S262355AbTD3Tkx (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 30 Apr 2003 15:40:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262357AbTD3Tkx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 30 Apr 2003 15:35:59 -0400
-Received: from muss.CIS.mcmaster.ca ([130.113.64.9]:23473 "EHLO
-	cgpsrv1.cis.mcmaster.ca") by vger.kernel.org with ESMTP
-	id S262367AbTD3Tf6 convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 30 Apr 2003 15:35:58 -0400
-From: Gabriel Devenyi <devenyga@mcmaster.ca>
-To: khc@pm.waw.pl
-Subject: [PATCH] Linux 2.5.68 - Fix module_put after return statement
-Date: Thu, 1 May 2003 15:48:15 -0400
-User-Agent: KMail/1.5.1
-Cc: linux-kernel@vger.kernel.org
-MIME-Version: 1.0
-Content-Type: Text/Plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Content-Description: clearsigned data
-Content-Disposition: inline
-Message-Id: <200305011548.16524.devenyga@mcmaster.ca>
+	Wed, 30 Apr 2003 15:40:53 -0400
+Received: from turing-police.cc.vt.edu ([128.173.14.107]:42883 "EHLO
+	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
+	id S262355AbTD3Tkw (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
+	Wed, 30 Apr 2003 15:40:52 -0400
+Message-Id: <200304301953.h3UJrD5J008354@turing-police.cc.vt.edu>
+X-Mailer: exmh version 2.6.3 04/04/2003 with nmh-1.0.4+dev
+To: Timothy Miller <miller@techsource.com>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Why DRM exists [was Re: Flame Linus to a crisp!] 
+In-Reply-To: Your message of "Wed, 30 Apr 2003 15:41:12 EDT."
+             <3EB026D8.2070508@techsource.com> 
+From: Valdis.Kletnieks@vt.edu
+References: <170EBA504C3AD511A3FE00508BB89A9202032941@exnanycmbx4.ipc.com> <20030430152041.GA22038@work.bitmover.com> <3EB013A1.9030301@techsource.com> <200304301920.h3UJKE5J007310@turing-police.cc.vt.edu>
+            <3EB026D8.2070508@techsource.com>
+Mime-Version: 1.0
+Content-Type: multipart/signed; boundary="==_Exmh_861819194P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
+Content-Transfer-Encoding: 7bit
+Date: Wed, 30 Apr 2003 15:53:13 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+--==_Exmh_861819194P
+Content-Type: text/plain; charset=us-ascii
 
-This patch applies to 2.5.68. Its listed on kbugs.org. The function module_put is never called because it is after return.
+On Wed, 30 Apr 2003 15:41:12 EDT, Timothy Miller said:
 
-Please CC me with any discussion.
-- -- 
-Building the Future,
-Gabriel Devenyi
-devenyga@mcmaster.ca
+> I am vaguely familiar with that.  It uses vi-like editing commands? 
 
-- ---FILE---
+set -o vi   or set -o emacs  - your choice.
 
-- --- linux-2.5.68/drivers/net/wan/c101.c	2003-04-19 22:50:34.000000000 -0400
-+++ linux-2.5.68-changed/drivers/net/wan/c101.c	2003-05-01 15:04:23.000000000 -0400
-@@ -161,8 +161,8 @@
- 
- 	int result = hdlc_open(hdlc);
- 	if (result) {
-- -		return result;
- 		module_put(THIS_MODULE);
-+		return result;
- 	}
- 
- 	writeb(1, port->win0base + C101_DTR);
+> Sounds great.  Why isn't THAT the default shell?  Why are these 
 
-- ---ENDFILE---
+At least on AIX, it *IS*.  Solaris and Tru64 the sysadmin can make it
+the default shell easily enough.
+
+You can't blame the vendors for this one.
+
+
+--==_Exmh_861819194P
+Content-Type: application/pgp-signature
+
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.2.1 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
 
-iD8DBQE+sXn/7I5UBdiZaF4RAitxAJ9UHBL/iO7nuElsJkIBTqivnGoGDQCfQYbj
-6ZrVhEXv1ir82/V/KKHjEQI=
-=xOsM
+iD8DBQE+sCmpcC3lWbTT17ARAjS1AKDRIK0JoKkx0ajGD1l6JOLHjiNP7wCg0jGd
++vFzig44T8+2PFz8ntCKySw=
+=/T9+
 -----END PGP SIGNATURE-----
 
+--==_Exmh_861819194P--

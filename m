@@ -1,48 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267656AbUIKIwR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267961AbUIKJLt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267656AbUIKIwR (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 11 Sep 2004 04:52:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267961AbUIKIwR
+	id S267961AbUIKJLt (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 11 Sep 2004 05:11:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267989AbUIKJLt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 11 Sep 2004 04:52:17 -0400
-Received: from alephnull.demon.nl ([212.238.201.82]:61335 "EHLO
-	xi.wantstofly.org") by vger.kernel.org with ESMTP id S267656AbUIKIwQ
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 11 Sep 2004 04:52:16 -0400
-Date: Sat, 11 Sep 2004 10:52:15 +0200
-From: Lennert Buytenhek <buytenh@wantstofly.org>
-To: David Woodhouse <dwmw2@infradead.org>, Larry McVoy <lm@bitmover.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: netwinder or ARM build platform
-Message-ID: <20040911085215.GD13173@xi.wantstofly.org>
-References: <200409091759.i89HxHI2023135@work.bitmover.com> <1094772143.9144.42.camel@imladris.demon.co.uk>
-Mime-Version: 1.0
+	Sat, 11 Sep 2004 05:11:49 -0400
+Received: from 7ka-campus-gw.mipt.ru ([194.85.83.97]:10442 "EHLO
+	7ka-campus-gw.mipt.ru") by vger.kernel.org with ESMTP
+	id S267961AbUIKJLF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 11 Sep 2004 05:11:05 -0400
+Date: Sat, 11 Sep 2004 13:15:20 +0400
+From: Kirill Korotaev <dev@sw.ru>
+Reply-To: Kirill Korotaev <dev@swsoft.mipt.ru>
+Organization: SW Soft
+X-Priority: 3 (Normal)
+Message-ID: <784312683.20040911131520@swsoft.mipt.ru>
+To: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
+CC: Andrew Morton <akpm@osdl.org>, William Lee Irwin III <wli@holomorphy.com>,
+       torvalds@osdl.org, <linux-kernel@vger.kernel.org>
+Subject: Re[2]: [PATCH] adding per sb inode list to make invalidate_inodes() faster
+In-Reply-To: <200409102314.24906.vda@port.imtp.ilyichevsk.odessa.ua>
+References: <4140791F.8050207@sw.ru> <20040909120818.7f127d14.akpm@osdl.org>
+ <41416BCA.3020005@sw.ru> <200409102314.24906.vda@port.imtp.ilyichevsk.odessa.ua>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1094772143.9144.42.camel@imladris.demon.co.uk>
-User-Agent: Mutt/1.4.1i
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Sep 10, 2004 at 12:22:23AM +0100, David Woodhouse wrote:
+Hello Denis,
 
-> > BK found another bad hard drive today, on our netwinder.  The disk is dieing
-> > badly unfortunately and I don't have installation media for this beast.
-> > I suspect I can go find it but does anyone know of a faster build platform
-> > for arm?  Russell uses bk on arms (no kidding, that's amazing) and so we
-> > continue to support it but that netwinder is just amazingly slow.  If there
-> > is a faster platform we want one.
-> 
-> TBH I'd suggest cross-building and testing in qemu-arm. Assuming
-> qemu-arm is actually working now.
+Saturday, September 11, 2004, 12:14:24 AM, you wrote:
 
-Not quite.  It works okay for simple binaries now, but still craps out
-on running bigger apps such as gcc.
+>> >> The only motive I'm aware of is for latency in the presence of things
+>> >> such as autofs. It's also worth noting that in the presence of things
+>> >> such as removable media umount is also much more common. I personally
+>> >> find this sufficiently compelling. Kirill may have additional
+>> >> ammunition.
+>> >
+>> > Well.  That's why I'm keeping the patch alive-but-unmerged.  Waiting to
+>> > see who wants it.
+>> >
+>> > There are people who have large machines which are automounting hundreds
+>> > of different NFS servers.  I'd certainly expect such a machine to
+>> > experience ongoing umount glitches.  But no reports have yet been sighted
+>> > by this little black duck.
+>>
+>> I think It's not always evident where the problem is. For many people
+>> waiting 2 seconds is ok and they pay no much attention to this small
+>> little hangs.
+>>
+>> 1. I saw the bug in bugzilla from NFS people you pointed to me last time
+>> yourself where the same problem was detected.
 
-I'm using the gumstix (www.gumstix.com) myself for little endian ARM
-builds, but they only have 64M RAM and no ethernet or IDE.  For big
-endian, I use the Linksys NSLU2, which has only 32M RAM but ethernet
-and dual USB (which lets you hook up a disk each.)
+DV> What bug? Are you talking about umount being not so fast or something else?
+yup. umount requires traversing of ALL inodes in the system (even
+inodes from other super blocks). So umount and quota off can last very
+very LONG time.
 
+Have you faced this bug before?
 
---L
+-- 
+Best regards,
+ Kirill                            mailto:dev@sw.ru
+

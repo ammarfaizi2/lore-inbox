@@ -1,64 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262003AbVCASIK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262005AbVCASIb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262003AbVCASIK (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Mar 2005 13:08:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262005AbVCASIK
+	id S262005AbVCASIb (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Mar 2005 13:08:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262007AbVCASIa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Mar 2005 13:08:10 -0500
-Received: from fire.osdl.org ([65.172.181.4]:13465 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S262003AbVCASHr (ORCPT
+	Tue, 1 Mar 2005 13:08:30 -0500
+Received: from omx2-ext.sgi.com ([192.48.171.19]:59555 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S262005AbVCASI0 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Mar 2005 13:07:47 -0500
-Date: Tue, 1 Mar 2005 10:08:48 -0800 (PST)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Andi Kleen <ak@muc.de>
-cc: Hidetoshi Seto <seto.hidetoshi@jp.fujitsu.com>,
-       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-       Linas Vepstas <linas@austin.ibm.com>,
-       "Luck, Tony" <tony.luck@intel.com>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH/RFC] I/O-check interface for driver's error handling
-In-Reply-To: <m1hdjvi8r3.fsf@muc.de>
-Message-ID: <Pine.LNX.4.58.0503011001320.25732@ppc970.osdl.org>
-References: <422428EC.3090905@jp.fujitsu.com> <m1hdjvi8r3.fsf@muc.de>
+	Tue, 1 Mar 2005 13:08:26 -0500
+Message-ID: <4224AF3D.3010803@sgi.com>
+Date: Tue, 01 Mar 2005 10:06:53 -0800
+From: Jay Lan <jlan@sgi.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20030225
+X-Accept-Language: zh-tw, en-us, en, zh-cn, zh-hk
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Guillaume Thouvenin <guillaume.thouvenin@bull.net>
+CC: Andrew Morton <akpm@osdl.org>, lkml <linux-kernel@vger.kernel.org>,
+       Tim Schmielau <tim@physik3.uni-rostock.de>,
+       Kaigai Kohei <kaigai@ak.jp.nec.com>, jbarnes@sgi.com
+Subject: Re: [PATCH 2.6.11-rc4-mm1] end-of-proces handling for acct-csa
+References: <421EA8FF.1050906@sgi.com>	 <20050224204646.704680e9.akpm@osdl.org>	 <1109314660.1738.206.camel@frecb000711.frec.bull.fr>	 <42236979.5030702@sgi.com> <1109662409.8594.50.camel@frecb000711.frec.bull.fr>
+In-Reply-To: <1109662409.8594.50.camel@frecb000711.frec.bull.fr>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Sorry I was not clear on my point.
+
+I was trying to point out that, an exit hook for BSD and CSA is
+essential to save accounting data before the data is gone. That
+can not be done with a netlink.
+
+So, my patch was to keep acct_process as a wrapper, which
+would then call do_exit_csa() for CSA and call do_acct_process
+for BSD.
+
+Thanks,
+  - jay
 
 
-On Tue, 1 Mar 2005, Andi Kleen wrote:
+Guillaume Thouvenin wrote:
+> On Mon, 2005-02-28 at 10:56 -0800, Jay Lan wrote:
 > 
-> But what would the default handling be? It would be nice if there
-> was a simple way for a driver to say "just shut me down on an error"
-> without adding iochk_* to each function. Ideally this would be just
-> a standard callback that knows how to clean up the driver.
+>>The exit hook is essential for CSA to save off data before the data
+>>is gone, A netlink type of thing does not help. BSD is in the same
+>>situation. You can not replace the acct_process() call with a netlink.
+>>If ELSA is to use the enhanced accounting data, it needs the CSA
+>>eop handling at exit as well.
+> 
+> 
+> Why replace the acct_process()? The problem here is to add a new hook in
+> the do_fork() and you can use the BSD accounting hook acct_process()
+> which is already in the exit() routine. We don't need to replace it with
+> a netlink because today there are no user space applications that need
+> it. 
+> 
+> Best regards,
+> Guillaume 
 
-There can't be any.
-
-The thing is, IO errors just will be very architecture-dependent. Some 
-might have exceptions happening, without the exception handler really 
-having much of an idea of who caused it, unless that driver had prepared 
-it some way, and gotten the proper locks.
-
-A non-converted driver just doesn't _do_ any of that. It doesn't guarantee 
-that it's the only one accessing that bus, since it doesn't do the 
-"iocheck_clear()/iocheck_read()" things that imply all the locking etc.
-
-So the default handling for iochecks pretty much _has_ to be "report them 
-to the user", and then letting the user decide what to do if the hardware 
-is going bad.
-
-Shutting down the hardware by default might be a horribly bad thing to do
-even _if_ you could pinpoint the driver that caused the problem in the
-first place (and that's a big if, and probably depends on the details of
-what the actual hw architecture support ends up being). So don't even try. 
-The sysadmin may have different preferences than some driver default.
-
-In fact, I'd argue that even a driver that _uses_ the interface should not
-necessarily shut itself down on error. Obviously, it should always log the
-error, but outside of that it might be good if the operator can decide and
-set a flag whether it should try to re-try (which may not always be
-possible, of course), shut down, or just continue.
-
-		Linus

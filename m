@@ -1,72 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263984AbUFXHjZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261439AbUFXIhO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263984AbUFXHjZ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Jun 2004 03:39:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263995AbUFXHjZ
+	id S261439AbUFXIhO (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Jun 2004 04:37:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263802AbUFXIhO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Jun 2004 03:39:25 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:15598 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S263984AbUFXHjX (ORCPT
+	Thu, 24 Jun 2004 04:37:14 -0400
+Received: from main.gmane.org ([80.91.224.249]:37608 "EHLO main.gmane.org")
+	by vger.kernel.org with ESMTP id S261439AbUFXIhL (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Jun 2004 03:39:23 -0400
-Date: Thu, 24 Jun 2004 09:38:59 +0200
-From: Arjan van de Ven <arjanv@redhat.com>
-To: hirofumi@mail.parknet.co.jp, linux-kernel@vger.kernel.org
-Subject: Allow root to choose vfat policy to UTF8
-Message-ID: <20040624073858.GA17435@devserv.devel.redhat.com>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="SLDf9lqlvOQaIe6s"
-Content-Disposition: inline
-User-Agent: Mutt/1.4.1i
+	Thu, 24 Jun 2004 04:37:11 -0400
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: "Mario 'BitKoenig' Holbe" <Mario.Holbe@RZ.TU-Ilmenau.DE>
+Subject: Re: linux 2.4.25, Promise 20269, DMA/IRQ problems ?
+Date: Thu, 24 Jun 2004 10:37:06 +0200
+Organization: Technische Universitaet Ilmenau, Germany
+Message-ID: <cbe3ri$kf2$1@sea.gmane.org>
+References: <87brjaxrto.fsf@deirdre.ambre.meuh.eu.org>
+X-Complaints-To: usenet@sea.gmane.org
+X-Gmane-NNTP-Posting-Host: pd9e23dc3.dip.t-dialin.net
+User-Agent: slrn/0.9.8.0 (Linux)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Yann Droneaud <yann@droneaud.com> wrote:
+> SMART and smartmontools were enabled until 21 june, I disabled them
+> since there are some warning about SMART and Promise card:
+> http://cvs.sourceforge.net/viewcvs.py/smartmontools/sm5/WARNINGS?sortby=date&view=markup
+> but it doesn't solve the problem.
+>
+> The problems seems to occurs now with regularity each morning during
+> the cron.daily work (Debian GNU/Linux woody), so it's probably a drive problem,
 
---SLDf9lqlvOQaIe6s
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Well, this looks exactly like my 'signalling/power' issue.
+Have a look at my last mail to the 'Strange DMA-errors and
+system hang with Promise 20268' thread on the lkm which is
+also mentioned on the page you already found.
 
-Hi,
+The role smartmontools plays in this game is the same that
+your cronjobs do: they put load on the devices - parallel
+load on all of them and thus power consumption increases
+and if the power supply works on it's upper border, on-the-
+wire signal quality probably decreases.
 
-Right now the kernel detects the sysadmin trying to set the iocharset of
-vfat to UTF8 and prevents this with an error. While I can see that this is
-not recommended, enforcing this is policy that probably doesn't belong in
-the kernel. The patch below makes this situation a warning and a
-recommendation instead of a strong blockage.
+I pointed this out in a thread 'Logs - ideas what this is
+reporting' on the smartmontools-support list too.
 
-https://bugzilla.redhat.com/bugzilla/show_bug.cgi?id=126641
+Try to exchange power supply, IDE cables and perhaps clean
+PCI slots :)
+This could be a bit tricky without physical control to the
+machine, but you surely will have someone who has :)
+Of course, this is just a try - however, I'd bet it helps
+in your case.
 
-is an example of a sysadmin disliking this policy enforcement.
 
-Greetings,
-    Arjan van de Ven
 
---- linux-2.6.7/fs/fat/inode.c~	2004-06-24 11:20:43.941750760 +0200
-+++ linux-2.6.7/fs/fat/inode.c	2004-06-24 11:20:43.943750521 +0200
-@@ -499,9 +499,8 @@
- 	}
- 	/* UTF8 doesn't provide FAT semantics */
- 	if (!strcmp(opts->iocharset, "utf8")) {
--		printk(KERN_ERR "FAT: utf8 is not a valid IO charset"
--		       " for FAT filesystems\n");
--		return -EINVAL;
-+		printk(KERN_ERR "FAT: utf8 is not a recommended IO charset"
-+		       " for FAT filesystems, filesystem will be case sensitive!\n");
- 	}
- 
- 	if (opts->unicode_xlate)
+regards,
+   Mario
+-- 
+I heard, if you play a NT-CD backwards, you get satanic messages...
+That's nothing. If you play it forwards, it installs NT.
 
---SLDf9lqlvOQaIe6s
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
-
-iD8DBQFA2oUSxULwo51rQBIRAnKNAJ4kv+j4bMnaspV7fUuiF25bAvzvdACfT8qX
-Eb8Vb+HVeTi4GLa8QPItAKc=
-=twdE
------END PGP SIGNATURE-----
-
---SLDf9lqlvOQaIe6s--

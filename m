@@ -1,52 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261174AbVARCaO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261214AbVARCmC@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261174AbVARCaO (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 17 Jan 2005 21:30:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261214AbVARCaO
+	id S261214AbVARCmC (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 17 Jan 2005 21:42:02 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261217AbVARCmC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 17 Jan 2005 21:30:14 -0500
-Received: from mail.parknet.co.jp ([210.171.160.6]:18960 "EHLO
-	mail.parknet.co.jp") by vger.kernel.org with ESMTP id S261174AbVARCaJ
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 17 Jan 2005 21:30:09 -0500
-To: =?iso-8859-1?q?Rog=E9rio_Brito?= <rbrito@ime.usp.br>
-Cc: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 4/13] FAT: Return better error codes from
- vfat_valid_longname()
-References: <87pt04oszi.fsf@devron.myhome.or.jp>
-	<87llasosxu.fsf@devron.myhome.or.jp>
-	<87hdlgoswe.fsf_-_@devron.myhome.or.jp>
-	<87d5w4osuv.fsf_-_@devron.myhome.or.jp>
-	<20050118020324.GC11257@ime.usp.br>
-From: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
-Date: Tue, 18 Jan 2005 11:29:50 +0900
-In-Reply-To: <20050118020324.GC11257@ime.usp.br> (
- =?iso-8859-1?q?Rog=E9rio_Brito's_message_of?= "Tue, 18 Jan 2005 00:03:25
- -0200")
-Message-ID: <878y6rlba9.fsf@devron.myhome.or.jp>
-User-Agent: Gnus/5.11 (Gnus v5.11) Emacs/21.3.50 (gnu/linux)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+	Mon, 17 Jan 2005 21:42:02 -0500
+Received: from fmr18.intel.com ([134.134.136.17]:36531 "EHLO
+	orsfmr003.jf.intel.com") by vger.kernel.org with ESMTP
+	id S261214AbVARCmA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 17 Jan 2005 21:42:00 -0500
+Subject: Re: [PATCH] fixup debug warnings during ACPI S3  resume from ram
+From: Li Shaohua <shaohua.li@intel.com>
+To: Christian Borntraeger <linux-kernel@borntraeger.net>
+Cc: lkml <linux-kernel@vger.kernel.org>, Len Brown <len.brown@intel.com>
+In-Reply-To: <200501150124.16589.linux-kernel@borntraeger.net>
+References: <200501150124.16589.linux-kernel@borntraeger.net>
+Content-Type: text/plain
+Message-Id: <1106016061.23148.9.camel@sli10-desk.sh.intel.com>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
+Date: Tue, 18 Jan 2005 10:41:01 +0800
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Rogério Brito <rbrito@ime.usp.br> writes:
+On Sat, 2005-01-15 at 08:24, Christian Borntraeger wrote:
+> During the wakeup from suspend-to-ram I get several warnings (see below).
+> This patch fixes the warnings for me, but I am not an expert in ACPI. Please 
+> read the patch and consider to apply it. 
+Thanks looking at this issue. We (intel ACPI team) have many discussions
+about this issue. Actually this problem isn't so easy. The warning is
+when doing resume PCI link device with interrupt disabled. A more
+important issue is suspend/resume is doing with all processes frozen,
+which will cause many issues such as semaphore, memory mapping, kmalloc.
+The real solution is on going. I'll let you know when it's ready.
 
-> On Jan 18 2005, OGAWA Hirofumi wrote:
->>  static int vfat_valid_longname(const unsigned char *name, unsigned int len)
->>  {
->> -	if (len && name[len-1] == ' ')
->> -		return 0;
->> +	if (name[len - 1] == ' ')
->> +		return -EINVAL;
->
-> Sorry for the stupid question, but is len guaranteed to be always greater
-> than zero?
+Thanks,
+Shaohua
 
-Yes. That "len" was already checked in vfat_add_entry().
-
-Thanks.
--- 
-OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>

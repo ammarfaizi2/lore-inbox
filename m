@@ -1,68 +1,91 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262956AbUBZTgU (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 Feb 2004 14:36:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262955AbUBZTgT
+	id S262963AbUBZTbw (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 Feb 2004 14:31:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262965AbUBZTad
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 Feb 2004 14:36:19 -0500
-Received: from websrv.werbeagentur-aufwind.de ([213.239.197.241]:22695 "EHLO
-	mail.werbeagentur-aufwind.de") by vger.kernel.org with ESMTP
-	id S262956AbUBZTf7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 Feb 2004 14:35:59 -0500
-Subject: Re: [PATCH/proposal] dm-crypt: add digest-based iv generation mode
-From: Christophe Saout <christophe@saout.de>
-To: Matt Mackall <mpm@selenic.com>
-Cc: Jean-Luc Cooke <jlcooke@certainkey.com>, linux-kernel@vger.kernel.org,
-       James Morris <jmorris@intercode.com.au>
-In-Reply-To: <20040225214308.GD3883@waste.org>
-References: <20040219170228.GA10483@leto.cs.pocnet.net>
-	 <20040219111835.192d2741.akpm@osdl.org>
-	 <20040220171427.GD9266@certainkey.com>
-	 <20040221021724.GA8841@leto.cs.pocnet.net>
-	 <20040224191142.GT3883@waste.org>
-	 <1077651839.11170.4.camel@leto.cs.pocnet.net>
-	 <20040224203825.GV3883@waste.org>  <20040225214308.GD3883@waste.org>
-Content-Type: text/plain
-Message-Id: <1077824146.14794.8.camel@leto.cs.pocnet.net>
+	Thu, 26 Feb 2004 14:30:33 -0500
+Received: from smtp-104-thursday.noc.nerim.net ([62.4.17.104]:6410 "EHLO
+	mallaury.noc.nerim.net") by vger.kernel.org with ESMTP
+	id S262943AbUBZT2M (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 26 Feb 2004 14:28:12 -0500
+Date: Thu, 26 Feb 2004 20:28:14 +0100
+From: Jean Delvare <khali@linux-fr.org>
+To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+Cc: LKML <linux-kernel@vger.kernel.org>
+Subject: [PATCH 2.4] Identify Radeon Ya and Yd in radeonfb
+Message-Id: <20040226202814.5655f16e.khali@linux-fr.org>
+X-Mailer: Sylpheed version 0.9.9 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Thu, 26 Feb 2004 20:35:46 +0100
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Am Mi, den 25.02.2004 schrieb Matt Mackall um 22:43:
+Hi Marcelo,
 
-> Ok, here's my proposed API extension (currently untested). Christophe,
-> care to give it a spin?
->
-> diff -puN crypto/api.c~crypto-copy crypto/api.c
-> --- tiny/crypto/api.c~crypto-copy	2004-02-25 15:12:43.000000000 -0600
-> +++ tiny-mpm/crypto/api.c	2004-02-25 15:37:39.000000000 -0600
-> @@ -161,6 +161,27 @@ void crypto_free_tfm(struct crypto_tfm *
->  	kfree(tfm);
->  }
->  
-> +int crypto_copy_tfm(char *dst, const struct crypto_tfm *src, unsigned size)
-> +{
-> +	int s = crypto_tfm_size(src);
-> +
-> +	if (size < s)
-> +		return 0;
+Here is a patch that adds support for the Radeon 9200 (Ya) and 9200 SE
+(Yd) to the radeonfb driver. Since it already supports the Radeon 9200
+Pro which is basically (if not exactly) the same chipset, this is just a
+matter of making the driver recognize two new IDs as something it
+supports. No new code here.
 
-Why the extra check?
+I take no credit for this patch, since it is almost identical to this
+one by Sven Luther:
+http://marc.theaimsgroup.com/?l=linux-ppc&m=107427038129062
 
-> +void crypto_cleanup_copy_tfm(char *user_tfm)
-> +{
-> +	crypto_exit_ops((struct crypto_tfm *)user_tfm);
+And is similar to these two other ones that are now in Linux 2.6, by
+Bernardo Innocenti and Andreas Steinmetz, respectively:
+http://marc.theaimsgroup.com/?l=linux-kernel&m=107345065025365
+http://lkml.org/lkml/2004/2/6/64
 
-This looks dangerous. The algorithm might free a buffer. This is only
-safe if we introduce per-algorithm copy methods that also duplicate
-external buffers.
-
-I'd like to avoid a kmalloc in crypto_copy_tfm. This function also does
-the same as crypto_free_tfm except for the final kfree(tfm). So
-crypto_free_tfm could call this function. And it could have a better
-name.
+The patch is against 2.4.26-pre1.
+Please apply,
+thanks.
 
 
+--- linux-2.4.26-pre1/include/linux/pci_ids.h	2004-02-26 13:50:00.000000000 +0100
++++ linux-2.4.26-pre1-k1/include/linux/pci_ids.h	2004-02-26 13:54:04.000000000 +0100
+@@ -287,6 +287,8 @@
+ #define PCI_DEVICE_ID_ATI_RADEON_Ig	0x4967
+ /* Radeon RV280 (9200) */
+ #define PCI_DEVICE_ID_ATI_RADEON_Y_	0x5960
++#define PCI_DEVICE_ID_ATI_RADEON_Ya	0x5961
++#define PCI_DEVICE_ID_ATI_RADEON_Yd	0x5964
+ /* Radeon R300 (9700) */
+ #define PCI_DEVICE_ID_ATI_RADEON_ND	0x4e44
+ #define PCI_DEVICE_ID_ATI_RADEON_NE	0x4e45
+--- linux-2.4.26-pre1/drivers/video/radeonfb.c	2003-08-25 13:44:42.000000000 +0200
++++ linux-2.4.26-pre1-k1/drivers/video/radeonfb.c	2004-02-26 14:04:20.000000000 +0100
+@@ -202,6 +202,8 @@
+ 	RADEON_If,
+ 	RADEON_Ig,
+ 	RADEON_Y_,
++	RADEON_Ya,
++	RADEON_Yd,
+ 	RADEON_Ld,
+ 	RADEON_Le,
+ 	RADEON_Lf,
+@@ -261,6 +263,8 @@
+ 	{ "9000 If", RADEON_RV250 },
+ 	{ "9000 Ig", RADEON_RV250 },
+ 	{ "9200 Y", RADEON_RV280 },
++	{ "9200 Ya", RADEON_RV280 },
++	{ "9200 Yd", RADEON_RV280 },
+ 	{ "M9 Ld", RADEON_M9 },
+ 	{ "M9 Le", RADEON_M9 },
+ 	{ "M9 Lf", RADEON_M9 },
+@@ -326,6 +330,8 @@
+ 	{ PCI_VENDOR_ID_ATI, PCI_DEVICE_ID_ATI_RADEON_NH, PCI_ANY_ID, PCI_ANY_ID, 0, 0, RADEON_NH},
+ 	{ PCI_VENDOR_ID_ATI, PCI_DEVICE_ID_ATI_RADEON_NI, PCI_ANY_ID, PCI_ANY_ID, 0, 0, RADEON_NI},
+ 	{ PCI_VENDOR_ID_ATI, PCI_DEVICE_ID_ATI_RADEON_Y_, PCI_ANY_ID, PCI_ANY_ID, 0, 0, RADEON_Y_},
++	{ PCI_VENDOR_ID_ATI, PCI_DEVICE_ID_ATI_RADEON_Ya, PCI_ANY_ID, PCI_ANY_ID, 0, 0, RADEON_Ya},
++	{ PCI_VENDOR_ID_ATI, PCI_DEVICE_ID_ATI_RADEON_Yd, PCI_ANY_ID, PCI_ANY_ID, 0, 0, RADEON_Yd},
+ 	{ PCI_VENDOR_ID_ATI, PCI_DEVICE_ID_ATI_RADEON_AD, PCI_ANY_ID, PCI_ANY_ID, 0, 0, RADEON_AD},
+ 	{ PCI_VENDOR_ID_ATI, PCI_DEVICE_ID_ATI_RADEON_AP, PCI_ANY_ID, PCI_ANY_ID, 0, 0, RADEON_AP},
+ 	{ PCI_VENDOR_ID_ATI, PCI_DEVICE_ID_ATI_RADEON_AR, PCI_ANY_ID, PCI_ANY_ID, 0, 0, RADEON_AR},
+
+
+-- 
+Jean Delvare
+http://www.ensicaen.ismra.fr/~delvare/

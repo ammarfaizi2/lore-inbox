@@ -1,67 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267616AbUBTAo1 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 19 Feb 2004 19:44:27 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267628AbUBTAn6
+	id S267631AbUBTAsH (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 19 Feb 2004 19:48:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267609AbUBTAqZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 19 Feb 2004 19:43:58 -0500
-Received: from fw.osdl.org ([65.172.181.6]:61418 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S267616AbUBTAdG (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 19 Feb 2004 19:33:06 -0500
-Date: Thu, 19 Feb 2004 16:37:49 -0800 (PST)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Andrew Tridgell <tridge@samba.org>
-cc: Al Viro <viro@parcelfarce.linux.theplanet.co.uk>,
-       Jamie Lokier <jamie@shareable.org>, "H. Peter Anvin" <hpa@zytor.com>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Eureka! (was Re: UTF-8 and case-insensitivity)
-In-Reply-To: <16437.20949.701574.932001@samba.org>
-Message-ID: <Pine.LNX.4.58.0402191625060.2244@ppc970.osdl.org>
-References: <Pine.LNX.4.58.0402181422180.2686@home.osdl.org>
- <Pine.LNX.4.58.0402181427230.2686@home.osdl.org> <16435.60448.70856.791580@samba.org>
- <Pine.LNX.4.58.0402181457470.18038@home.osdl.org> <16435.61622.732939.135127@samba.org>
- <Pine.LNX.4.58.0402181511420.18038@home.osdl.org> <20040219081027.GB4113@mail.shareable.org>
- <Pine.LNX.4.58.0402190759550.1222@ppc970.osdl.org> <20040219163838.GC2308@mail.shareable.org>
- <Pine.LNX.4.58.0402190853500.1222@ppc970.osdl.org> <20040219182948.GA3414@mail.shareable.org>
- <Pine.LNX.4.58.0402191124080.1270@ppc970.osdl.org> <16437.18605.71269.750607@samba.org>
- <Pine.LNX.4.58.0402191549500.2244@ppc970.osdl.org> <16437.20949.701574.932001@samba.org>
+	Thu, 19 Feb 2004 19:46:25 -0500
+Received: from pacific.moreton.com.au ([203.143.235.130]:30225 "EHLO
+	dorfl.internal.moreton.com.au") by vger.kernel.org with ESMTP
+	id S267598AbUBTAkq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 19 Feb 2004 19:40:46 -0500
+Message-ID: <403557C0.9060603@snapgear.com>
+Date: Fri, 20 Feb 2004 10:41:36 +1000
+From: Greg Ungerer <gerg@snapgear.com>
+Organization: SnapGear
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5) Gecko/20031007
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: David Weinehall <tao@acc.umu.se>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH]: linux-2.6.3-uc0 (MMU-less fixups)
+References: <40342BD5.9080105@snapgear.com> <20040219103900.GH17140@khan.acc.umu.se> <4034B2E5.1090505@snapgear.com> <20040219131317.GI17140@khan.acc.umu.se> <40355080.8090008@snapgear.com> <20040220001524.GL17140@khan.acc.umu.se>
+In-Reply-To: <20040220001524.GL17140@khan.acc.umu.se>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi David,
 
-
-On Fri, 20 Feb 2004 tridge@samba.org wrote:
+David Weinehall wrote:
+>>>How's the status of the 2.0-port of uClinux, btw?  Is it unintrusive
+>>>enough to be considered for a 2.0-merge?
+>>
+>>Hmm, probably not. It is no where near as clean as the 2.6
+>>merge. It could be cleaned up, but no one seems to interrested
+>>in doing the work.
 > 
-> yes, I've acknowledged that. I know you aren't going to give me the
-> ideal solution, I'm just exploring how far this is from the ideal and
-> trying to get a feel for how much it actually gains us compared to
-> what we do now. 
+> 
+> Well, if there are users and interest, I could do at least some of the
+> work.  Since I've already done some work with 2.0 uClinux, and since I'm
+> the 2.0 maintainer, I do have some experience ;-)
 
-I suspect the only way to know that is to code something up.
+There are still users. I was planning on merging in your 2.0.40
+code sometime soon, to bring the uClinux 2.0 sources up to date
+at the very least. But if you feel like doing it, that would be
+good too :-)
 
-The kernel side (with the full "readdir()" loop and a TENTATIVE flag etc)  
-is not likely to be that many lines of code, but it's definitely something
-where the person who writes those lines needs to really understand the
-kernel code to get anywhere at all. And it's in an "interesting" area of
-the kernel, so you have to be really careful. And you'd need somebody who
-is used to samba too, in order to do the path component walk side in user
-space work right with the new interface. So..
+Regards
+Greg
 
-I an try to see if I can write something - I'd not do the actual
-comparison function, but I have the rough framework in my mind. I won't
-get to it for another day or two, at _least_, though.
 
-With that set up, getting numbers and doing a kernel profile to see where
-the time goes is probably not hard - again, if you have a samba setup with
-benchmarks already set up. I just don't know anybody who knows both pieces
-of the puzzle..
 
-(This, btw, was the big problem with pthreads too. The 2.6.x threading
-improvements were things that had been discussed for years, but it took
-until Ingo, Uli and Roland actually sat down and looked at both the user
-side and the kernel side before anything really happened).
 
-		Linus
+------------------------------------------------------------------------
+Greg Ungerer  --  Chief Software Dude       EMAIL:     gerg@snapgear.com
+SnapGear -- a CyberGuard Company            PHONE:       +61 7 3435 2888
+825 Stanley St,                             FAX:         +61 7 3891 3630
+Woolloongabba, QLD, 4102, Australia         WEB: http://www.SnapGear.com
+

@@ -1,40 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129868AbRAZQfw>; Fri, 26 Jan 2001 11:35:52 -0500
+	id <S130127AbRAZQiM>; Fri, 26 Jan 2001 11:38:12 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130127AbRAZQfm>; Fri, 26 Jan 2001 11:35:42 -0500
-Received: from palrel3.hp.com ([156.153.255.226]:59910 "HELO palrel3.hp.com")
-	by vger.kernel.org with SMTP id <S129868AbRAZQfW>;
-	Fri, 26 Jan 2001 11:35:22 -0500
-From: Scott Rhine <rhine@rsn.hp.com>
-Message-Id: <200101261635.KAA23305@hueco-e.rsn.hp.com>
-Subject: plug-in schedulers for linux 2_4_0
-To: linux-kernel@vger.kernel.org, linux-announce@sws1.ctd.ornl.gov
-Date: Fri, 26 Jan 2001 10:35:13 CST
-Cc: romero@hueco-e.rsn.hp.com, mcarl@hueco-e.rsn.hp.com
-X-Mailer: Elm [revision: 111.1]
+	id <S131246AbRAZQiC>; Fri, 26 Jan 2001 11:38:02 -0500
+Received: from gate.in-addr.de ([212.8.193.158]:23820 "HELO mx.in-addr.de")
+	by vger.kernel.org with SMTP id <S130127AbRAZQhp>;
+	Fri, 26 Jan 2001 11:37:45 -0500
+Date: Fri, 26 Jan 2001 17:37:44 +0100
+From: Lars Marowsky-Bree <lmb@suse.de>
+To: "Randal, Phil" <prandal@herefordshire.gov.uk>
+Cc: "Linux-Kernel (E-mail)" <linux-kernel@vger.kernel.org>
+Subject: Re: RE: hotmail not dealing with ECN
+Message-ID: <20010126173744.A5164@marowsky-bree.de>
+In-Reply-To: <AFE36742FF57D411862500508BDE8DD055F6@mail.herefordshire.gov.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+User-Agent: Mutt/1.2.3i
+In-Reply-To: <AFE36742FF57D411862500508BDE8DD055F6@mail.herefordshire.gov.uk>; from "Randal, Phil" on 2001-01-26T16:04:03
+X-Ctuhulu: HASTUR
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In the last month, there have been a few more minor changes to Loadable
-Schedulers for Linux.  Both a new patch to the base kernels and deltas to
-previous downloads are provided.  If you download new utilities be sure to
-download the new kernel, or libpset calls may not behave properly!
+On 2001-01-26T16:04:03,
+   "Randal, Phil" <prandal@herefordshire.gov.uk> said:
 
-Changes included:
- * support for the official release of Linux 2_4_0
- + a misleading print line in the sched_rr benchmark has been removed.
- + the psetps utility further bullet-proofed against buffer overflow.
- + our pset idtype_t has been replaced universally with the portable
-   type from the standardized include file <sys/wait.h>. In all utilities and
-   the kernel, PS_PID has been replaced with P_PID.
+> We may be right, "they" may be wrong, but in the real world
+> arrogance rarely wins anyone friends.
 
-One note for those using processor sets with animation.  Make certain that
-the X server or other display daemons are in the same pset as the application
-attempting to use the display.  Otherwise, performance may suffer.
+So you also turn of PMTU and just set the MTU to 200 bytes because broken
+firewalls may drop ICMP ?
 
-Watch for our demonstration at the HP booth at Linux World and our
-presentation at Interworks!
+Sincerely,
+    Lars Marowsky-Brée <lmb@suse.de>
+
+-- 
+Perfection is our goal, excellence will be tolerated. -- J. Yahl
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

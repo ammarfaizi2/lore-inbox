@@ -1,43 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129759AbRAWSft>; Tue, 23 Jan 2001 13:35:49 -0500
+	id <S131216AbRAWSjB>; Tue, 23 Jan 2001 13:39:01 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129763AbRAWSfa>; Tue, 23 Jan 2001 13:35:30 -0500
-Received: from postfix.conectiva.com.br ([200.250.58.155]:35857 "HELO
-	postfix.conectiva.com.br") by vger.kernel.org with SMTP
-	id <S129759AbRAWSf0>; Tue, 23 Jan 2001 13:35:26 -0500
-Message-ID: <3A6DCEEC.66B15F3F@conectiva.com.br>
-Date: Tue, 23 Jan 2001 16:35:24 -0200
-From: Andrew Clausen <clausen@conectiva.com.br>
-Organization: Conectiva
-X-Mailer: Mozilla 4.76 [pt_BR] (X11; U; Linux 2.2.17-14cl i586)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Bryan Henderson <hbryan@us.ibm.com>
-Cc: linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
-        bug-parted@gnu.org
-Subject: Re: Partition IDs in the New World TM
-In-Reply-To: <OF5F9BE7DB.C1ADFB0E-ON872569DD.006485CC@LocalDomain>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S131238AbRAWSiv>; Tue, 23 Jan 2001 13:38:51 -0500
+Received: from jump-isi.interactivesi.com ([207.8.4.2]:22001 "HELO
+	dinero.interactivesi.com") by vger.kernel.org with SMTP
+	id <S131216AbRAWSin>; Tue, 23 Jan 2001 13:38:43 -0500
+Date: Tue, 23 Jan 2001 12:38:42 -0600
+From: Timur Tabi <ttabi@interactivesi.com>
+Cc: linux-mm@kvack.org, linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.GSO.4.10.10101231903380.14027-100000@zeus.fh-brandenburg.de>
+In-Reply-To: <3A6D5D28.C132D416@sangate.com>
+Subject: Re: ioremap_nocache problem?
+X-Mailer: The Polarbar Mailer; version=1.19a; build=73
+Message-Id: <20010123183847Z131216-18594+636@vger.kernel.org>
+To: unlisted-recipients:; (no To-header on input)@pop.zip.com.au
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Bryan Henderson wrote:
-> Allow me to reword to what you probably meant:  Have a partition
-> ID that means "generic partition - check signatures within for
-> details."  (And then get people who develop file systems for use
-> with Linux, at least, to have a policy of always using that).
+** Reply to message from Roman Zippel <zippel@fh-brandenburg.de> on Tue, 23 Jan
+2001 19:12:36 +0100 (MET)
 
-OK.
 
-> Incidentally, I just realized that the common name "partition ID"
-> for this value is quite a misnomer.  As far as I know, it has
-> never identified the partition, but rather described its contents.
+> ioremap creates a new mapping that shouldn't interfere with MTRR, whereas
+> you can map a MTRR mapped area into userspace. But I'm not sure if it's
+> correct that no flag is set for boot_cpu_data.x86 <= 3...
 
-Yes, "partition type ID" is better.
+I was under the impression that the "don't cache" bit that ioremap_nocache sets
+overrides any MTRR.
 
-Andrew Clausen
+
+-- 
+Timur Tabi - ttabi@interactivesi.com
+Interactive Silicon - http://www.interactivesi.com
+
+When replying to a mailing-list message, please direct the reply to the mailing list only.  Don't send another copy to me.
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

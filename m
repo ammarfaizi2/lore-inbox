@@ -1,77 +1,72 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265127AbTFEUuU (ORCPT <rfc822;willy@w.ods.org>);
+	id S264864AbTFEUuU (ORCPT <rfc822;willy@w.ods.org>);
 	Thu, 5 Jun 2003 16:50:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264864AbTFEUti
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263727AbTFEUt2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Jun 2003 16:49:38 -0400
-Received: from e33.co.us.ibm.com ([32.97.110.131]:47285 "EHLO
-	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S265134AbTFEUrt convert rfc822-to-8bit
+	Thu, 5 Jun 2003 16:49:28 -0400
+Received: from e32.co.us.ibm.com ([32.97.110.130]:23221 "EHLO
+	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S265127AbTFEUqv convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Jun 2003 16:47:49 -0400
+	Thu, 5 Jun 2003 16:46:51 -0400
 Content-Type: text/plain; charset=US-ASCII
-Message-Id: <10548468771981@kroah.com>
-Subject: Re: [PATCH] More PCI fixes for 2.5.70
-In-Reply-To: <10548468771986@kroah.com>
+Message-Id: <10548465592180@kroah.com>
+Subject: Re: [PATCH] i2c driver changes for 2.5.70
+In-Reply-To: <10548465592488@kroah.com>
 From: Greg KH <greg@kroah.com>
 X-Mailer: gregkh_patchbomb
-Date: Thu, 5 Jun 2003 14:01:17 -0700
+Date: Thu, 5 Jun 2003 13:55:59 -0700
 Content-Transfer-Encoding: 7BIT
-To: linux-kernel@vger.kernel.org
+To: linux-kernel@vger.kernel.org, sensors@stimpy.netroedge.com
 Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ChangeSet 1.1318, 2003/06/05 12:04:44-07:00, greg@kroah.com
+ChangeSet 1.1259.3.4, 2003/06/05 13:14:37-07:00, greg@kroah.com
 
-[PATCH] PCI: remove EXPORT_SYMBOL(pci_devices)
-
-Now the only users of this directly should be the pci core and arch specific
-pci core code.
+[PATCH] I2C: sync i2c-id.h with cvs version.
 
 
- drivers/pci/probe.c |    1 -
- include/linux/pci.h |   11 +++++++----
- 2 files changed, 7 insertions(+), 5 deletions(-)
+ include/linux/i2c-id.h |    7 +++++++
+ 1 files changed, 7 insertions(+)
 
 
-diff -Nru a/drivers/pci/probe.c b/drivers/pci/probe.c
---- a/drivers/pci/probe.c	Thu Jun  5 13:52:38 2003
-+++ b/drivers/pci/probe.c	Thu Jun  5 13:52:38 2003
-@@ -689,7 +689,6 @@
- }
- EXPORT_SYMBOL(pci_scan_bus_parented);
+diff -Nru a/include/linux/i2c-id.h b/include/linux/i2c-id.h
+--- a/include/linux/i2c-id.h	Thu Jun  5 13:50:01 2003
++++ b/include/linux/i2c-id.h	Thu Jun  5 13:50:01 2003
+@@ -98,6 +98,7 @@
+ #define I2C_DRIVERID_ZR36120	50     /* Zoran 36120 video encoder	*/
+ #define I2C_DRIVERID_24LC32A	51	/* Microchip 24LC32A 32k EEPROM	*/
+ #define I2C_DRIVERID_STM41T00	52	/* real time clock		*/
++#define I2C_DRIVERID_UDA1342	53	/* UDA1342 audio codec		*/
  
--EXPORT_SYMBOL(pci_devices);
- EXPORT_SYMBOL(pci_root_buses);
  
- #ifdef CONFIG_HOTPLUG
-diff -Nru a/include/linux/pci.h b/include/linux/pci.h
---- a/include/linux/pci.h	Thu Jun  5 13:52:38 2003
-+++ b/include/linux/pci.h	Thu Jun  5 13:52:38 2003
-@@ -468,10 +468,6 @@
  
- #define pci_bus_b(n) list_entry(n, struct pci_bus, node)
+@@ -178,6 +179,7 @@
+ #define I2C_ALGO_MPC8XX 0x110000	/* MPC8xx PowerPC I2C algorithm */
+ #define I2C_ALGO_OCP    0x120000	/* IBM or otherwise On-chip I2C algorithm */
+ #define I2C_ALGO_BITHS	0x130000	/* enhanced bit style adapters	*/
++#define I2C_ALGO_OCP_IOP3XX  0x140000	/* XSCALE IOP3XX On-chip I2C alg */
  
--extern struct list_head pci_root_buses;	/* list of all known PCI buses */
--extern struct list_head pci_devices;	/* list of all devices */
--extern struct bus_type pci_bus_type;
--
- /*
-  * Error values that may be returned by PCI functions.
-  */
-@@ -521,6 +517,13 @@
+ #define I2C_ALGO_EXP	0x800000	/* experimental			*/
  
- /* these external functions are only available when PCI support is enabled */
- #ifdef CONFIG_PCI
-+
-+extern struct bus_type pci_bus_type;
-+
-+/* Do NOT directly access these two variables, unless you are arch specific pci
-+ * code, or pci core code. */
-+extern struct list_head pci_root_buses;	/* list of all known PCI buses */
-+extern struct list_head pci_devices;	/* list of all devices */
+@@ -213,6 +215,9 @@
+ #define I2C_HW_B_FRODO  0x13    /* 2d3D, Inc. SA-1110 Development Board */
+ #define I2C_HW_B_OMAHA  0x14    /* Omaha I2C interface (ARM)		*/
+ #define I2C_HW_B_GUIDE  0x15    /* Guide bit-basher			*/
++#define I2C_HW_B_IXP2000 0x16	/* GPIO on IXP2000 systems              */
++#define I2C_HW_B_IXP425 0x17	/* GPIO on IXP425 systems		*/
++#define I2C_HW_B_S3VIA	0x18	/* S3Via ProSavage adapter		*/
  
- #define pci_for_each_bus(bus) \
- 	for(bus = pci_bus_b(pci_root_buses.next); bus != pci_bus_b(&pci_root_buses); bus = pci_bus_b(bus->node.next))
+ /* --- PCF 8584 based algorithms					*/
+ #define I2C_HW_P_LP	0x00	/* Parallel port interface		*/
+@@ -234,6 +239,8 @@
+ /* --- PowerPC on-chip adapters						*/
+ #define I2C_HW_OCP 0x00	/* IBM on-chip I2C adapter 	*/
+ 
++/* --- XSCALE on-chip adapters                          */
++#define I2C_HW_IOP321 0x00
+ 
+ /* --- SMBus only adapters						*/
+ #define I2C_HW_SMBUS_PIIX4	0x00
 

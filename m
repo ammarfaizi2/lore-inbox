@@ -1,46 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261378AbTCJGQ6>; Mon, 10 Mar 2003 01:16:58 -0500
+	id <S261258AbTCJGP3>; Mon, 10 Mar 2003 01:15:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261349AbTCJGQ6>; Mon, 10 Mar 2003 01:16:58 -0500
-Received: from franka.aracnet.com ([216.99.193.44]:26272 "EHLO
-	franka.aracnet.com") by vger.kernel.org with ESMTP
-	id <S261378AbTCJGQz>; Mon, 10 Mar 2003 01:16:55 -0500
-Date: Sun, 09 Mar 2003 22:27:31 -0800
-From: "Martin J. Bligh" <mbligh@aracnet.com>
-To: "Adam J. Richter" <adam@yggdrasil.com>, gone@us.ibm.com
-cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.5.64bk5: X86_PC + HIGHMEM boot failure
-Message-ID: <73890000.1047277650@[10.10.2.4]>
-In-Reply-To: <200303092305.PAA02985@adam.yggdrasil.com>
-References: <200303092305.PAA02985@adam.yggdrasil.com>
-X-Mailer: Mulberry/2.2.1 (Linux/x86)
+	id <S261345AbTCJGP3>; Mon, 10 Mar 2003 01:15:29 -0500
+Received: from krynn.axis.se ([193.13.178.10]:45287 "EHLO krynn.axis.se")
+	by vger.kernel.org with ESMTP id <S261258AbTCJGP2>;
+	Mon, 10 Mar 2003 01:15:28 -0500
+Message-ID: <3C6BEE8B5E1BAC42905A93F13004E8AB017DE885@mailse01.axis.se>
+From: Mikael Starvik <mikael.starvik@axis.com>
+To: "'Alan Cox'" <alan@lxorguk.ukuu.org.uk>,
+       "'Mikael Starvik'" <mikael.starvik@axis.com>
+Cc: Johan Adolfsson <johan.adolfsson@axis.com>,
+       "'Marcelo Tosatti'" <marcelo@conectiva.com.br>,
+       "'Linus Torvalds'" <torvalds@transmeta.com>,
+       "'Linux Kernel Mailing List'" <linux-kernel@vger.kernel.org>
+Subject: RE: [PATCH] Avoid PC(?) specific cascade dma reservation inkernel
+	/dma.c
+Date: Mon, 10 Mar 2003 07:25:55 +0100
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> 	Under linux-2.5.64bk5, CONFIG_X86_PC sets CONFIG_NUMA,
-> which sets CONFIG_DISCONTIGMEM.  This causes the version of
-> set_max_mapnr_init in arch/i386/mm/discontig.c to be compiled
-> in (instead of the one from arch/i386/mm/init.c):
->
-> Err, I meant 2.5.64bk4. 
+For CRIS the DMA channel numbers supplied refers to internal DMA
+channels between the CPU and other units in the chip. The numbers
+never refers to external units such as PCI devices or ISA devices.
+If anybody would connect ISA or PCI the devices would all share
+the same internal DMA. This may not be the intended usage of 
+kernel/dma.c and we could provide our own code to do the same
+thing.
 
-Hmmm ... well I don't see bk4 on ftp.kernel.org, but the same
-changes are in my tree ...  I've just checked it, and it doesn't 
-do that for me. It should *allow* you to turn on CONFIG_NUMA 
-(and that might be broken for PCs still) but it shouldn't be on 
-by default ... could you check that you can still disable it?
-Works for me ...
+If kernel/dma.c should be as generic as it looks then the 
+reservation of DMA 4 as "cascade" should probably be done by
+some other module (or by arch specific code).
 
-M.
+/Mikael
+
+-----Original Message-----
+From: Alan Cox [mailto:alan@lxorguk.ukuu.org.uk]
+Sent: Sunday, March 09, 2003 9:33 PM
+To: Mikael Starvik
+Cc: Johan Adolfsson; 'Marcelo Tosatti'; 'Linus Torvalds'; 'Linux Kernel
+Mailing List'
+Subject: RE: [PATCH] Avoid PC(?) specific cascade dma reservation
+inkernel/dma.c
 
 
-config NUMA
-        bool "Numa Memory Allocation Support"
-        depends on (HIGHMEM64G && (X86_NUMAQ || (X86_SUMMIT && ACPI && !ACPI_HT_
-ONLY))) || X86_PC
+On Sun, 2003-03-09 at 13:49, Mikael Starvik wrote:
+> >I don't know of any PC cards that can support ISA DMA channel 4 so I
+> >guess simply because of that it hasn't happened. Do you actually
+> >know of any DMA 4 capable ISA devices or is it used for onboard
+> >ISA devices ?
+> 
+> In this case it is used in a non ISA capable system where DMA channel
+> numbers doesn't relate to ISA numbers in any way. 
 
+So what happens if someone plugs a PCI/ISA bridge into an axis system.
+Surely you should be reporting no ISA DMA and having a set of similar
+axis specific DMA handlers - or does it really look so close to ISA think ?

@@ -1,49 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319673AbSH3WSd>; Fri, 30 Aug 2002 18:18:33 -0400
+	id <S317947AbSH3WNP>; Fri, 30 Aug 2002 18:13:15 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319676AbSH3WSd>; Fri, 30 Aug 2002 18:18:33 -0400
-Received: from dexter.citi.umich.edu ([141.211.133.33]:3200 "EHLO
-	dexter.citi.umich.edu") by vger.kernel.org with ESMTP
-	id <S319673AbSH3WSM>; Fri, 30 Aug 2002 18:18:12 -0400
-Date: Fri, 30 Aug 2002 18:22:31 -0400 (EDT)
-From: Chuck Lever <cel@citi.umich.edu>
-To: Marcelo Tosatti <marcelo@conectiva.com.br>
-cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Linux NFS List <nfs@lists.sourceforge.net>
-Subject: [PATCH] prevent oops in xprt_lock_write, against 2.4.20
-Message-ID: <Pine.LNX.4.44.0208301817150.1653-100000@dexter.citi.umich.edu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S317648AbSH3WMc>; Fri, 30 Aug 2002 18:12:32 -0400
+Received: from 12-231-243-94.client.attbi.com ([12.231.243.94]:4 "HELO
+	kroah.com") by vger.kernel.org with SMTP id <S317694AbSH3WJh>;
+	Fri, 30 Aug 2002 18:09:37 -0400
+Date: Fri, 30 Aug 2002 15:13:00 -0700
+From: Greg KH <greg@kroah.com>
+To: linux-kernel@vger.kernel.org
+Subject: Re: [BK PATCH] PCI ops cleanups for 2.5.32-bk
+Message-ID: <20020830221300.GL10783@kroah.com>
+References: <20020830220846.GB10783@kroah.com> <20020830220912.GC10783@kroah.com> <20020830220931.GD10783@kroah.com> <20020830221017.GE10783@kroah.com> <20020830221044.GF10783@kroah.com> <20020830221107.GG10783@kroah.com> <20020830221127.GH10783@kroah.com> <20020830221157.GI10783@kroah.com> <20020830221220.GJ10783@kroah.com> <20020830221239.GK10783@kroah.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20020830221239.GK10783@kroah.com>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-hi marcelo-
-
-when several RPC requests want to reconnect a TCP transport socket at
-once, xprt_lock_write serializes the tasks to prevent multiple socket
-connects.  however, TCP connects are always done by a RPC child task that
-has no request slot.  xprt_lock_write can oops if there is no request slot
-allocated to the invoking RPC task.  reviewed and accepted by Trond.
-
-i had thought the 2.5.32 patch wouldn't apply to 2.4.20, but Trond pointed
-out to me that his xprt_lock_write patches snuck into 2.4.20-pre5, which i
-hadn't noticed.
-
-
---- 2.4.20-pre5/net/sunrpc/xprt.c.orig	Fri Aug 30 15:49:28 2002
-+++ 2.4.20-pre5/net/sunrpc/xprt.c	Fri Aug 30 18:16:17 2002
-@@ -147,5 +147,5 @@
- 		task->tk_timeout = 0;
- 		task->tk_status = -EAGAIN;
--		if (task->tk_rqstp->rq_nresend)
-+		if (task->tk_rqstp && task->tk_rqstp->rq_nresend)
- 			rpc_sleep_on(&xprt->resend, task, NULL, NULL);
- 		else
-
--- 
-
-corporate:	<cel at netapp dot com>
-personal:	<chucklever at bigfoot dot com>
-
-
+# This is a BitKeeper generated patch for the following project:
+# Project Name: Linux kernel tree
+# This patch format is intended for GNU patch command version 2.5 or higher.
+# This patch includes the following deltas:
+#	           ChangeSet	1.552   -> 1.553  
+#	  drivers/pci/pool.c	1.6     -> 1.7    
+#
+# The following is the BitKeeper ChangeSet Log
+# --------------------------------------------
+# 02/08/30	greg@kroah.com	1.553
+# PCI: compile time fix for the pci pool patch.
+# --------------------------------------------
+#
+diff -Nru a/drivers/pci/pool.c b/drivers/pci/pool.c
+--- a/drivers/pci/pool.c	Fri Aug 30 15:00:09 2002
++++ b/drivers/pci/pool.c	Fri Aug 30 15:00:09 2002
+@@ -80,7 +80,7 @@
+ 
+ 	return count - size;
+ }
+-static DEVICE_ATTR (pools, "pools", S_IRUGO, show_pools, NULL);
++static DEVICE_ATTR (pools, S_IRUGO, show_pools, NULL);
+ 
+ /**
+  * pci_pool_create - Creates a pool of pci consistent memory blocks, for dma.

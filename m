@@ -1,68 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269173AbUJKTAZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269176AbUJKTHz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269173AbUJKTAZ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 11 Oct 2004 15:00:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269175AbUJKTAZ
+	id S269176AbUJKTHz (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 11 Oct 2004 15:07:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269184AbUJKTHy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Oct 2004 15:00:25 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:16307 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S269173AbUJKTAX (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Oct 2004 15:00:23 -0400
-From: Jeff Moyer <jmoyer@redhat.com>
+	Mon, 11 Oct 2004 15:07:54 -0400
+Received: from netrider.rowland.org ([192.131.102.5]:2579 "HELO
+	netrider.rowland.org") by vger.kernel.org with SMTP id S269176AbUJKTHw
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 11 Oct 2004 15:07:52 -0400
+Date: Mon, 11 Oct 2004 15:07:51 -0400 (EDT)
+From: Alan Stern <stern@rowland.harvard.edu>
+X-X-Sender: stern@netrider.rowland.org
+To: James Bottomley <James.Bottomley@SteelEye.com>
+cc: Jens Axboe <axboe@suse.de>, Nick Piggin <nickpiggin@yahoo.com.au>,
+       Pedro Larroy <piotr@larroy.com>,
+       Linux Kernel <linux-kernel@vger.kernel.org>,
+       SCSI Mailing List <linux-scsi@vger.kernel.org>,
+       <linux-usb-devel@lists.sourceforge.net>
+Subject: Re: [linux-usb-devel] Re: [BUG] 2.6.9-rc2 scsi and elevator oops
+ when I/O error
+In-Reply-To: <1097503418.2031.14.camel@mulgrave>
+Message-ID: <Pine.LNX.4.44L0.0410111506250.21084-100000@netrider.rowland.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <16746.55283.192591.718383@segfault.boston.redhat.com>
-Date: Mon, 11 Oct 2004 14:58:59 -0400
-To: "Stephen C. Tweedie" <sct@redhat.com>
-Cc: Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       Ingo Molnar <mingo@redhat.com>
-Subject: Re: [patch rfc] towards supporting O_NONBLOCK on regular files
-In-Reply-To: <1097519553.2128.115.camel@sisko.scot.redhat.com>
-References: <16733.50382.569265.183099@segfault.boston.redhat.com>
-	<20041005112752.GA21094@logos.cnet>
-	<16739.61314.102521.128577@segfault.boston.redhat.com>
-	<20041006120158.GA8024@logos.cnet>
-	<1097119895.4339.12.camel@orbit.scot.redhat.com>
-	<20041007101213.GC10234@logos.cnet>
-	<1097519553.2128.115.camel@sisko.scot.redhat.com>
-X-Mailer: VM 7.14 under 21.4 (patch 13) "Rational FORTRAN" XEmacs Lucid
-Reply-To: jmoyer@redhat.com
-X-PGP-KeyID: 1F78E1B4
-X-PGP-CertKey: F6FE 280D 8293 F72C 65FD  5A58 1FF8 A7CA 1F78 E1B4
-X-PCLoadLetter: What the f**k does that mean?
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-==> Regarding Re: [patch rfc] towards supporting O_NONBLOCK on regular files; "Stephen C. Tweedie" <sct@redhat.com> adds:
+On 11 Oct 2004, James Bottomley wrote:
 
-sct> Hi, On Thu, 2004-10-07 at 11:12, Marcelo Tosatti wrote:
+> On Mon, 2004-10-11 at 04:50, Jens Axboe wrote:
+> > It's not, it clearly looks like SCSI trying to kill off the queue
+> > with pending commands.
+> 
+> That's what it looks like to me too ... there should be a fix for this
+> in the scsi-misc-2.6 tree.
 
->> Oh yes, theres also the indirect blocks which we might need to read from
->> disk.
+There also was a fix for usb-storage just submitted for the gregkh-2.6 
+tree:
 
-sct> Right.
+http://marc.theaimsgroup.com/?l=linux-usb-devel&m=109744234829347&w=2
 
->> Now the question is, how strict should the O_NONBLOCK implementation be
->> in reference to "not blocking" ?
+It should help prevent the condition that triggers this situation.
 
-sct> Well, I suspect that depends on the application.  But if you've got an
-sct> app that really wants to make sure its hot path is as fast as possible
-sct> (eg. a high-throughput server multiplexing disk IO and networking
-sct> through a single event loop), then ideally the app would want to punt
-sct> any blocking disk IO to another thread.
+Alan Stern
 
-sct> So it's a matter of significant extra programing for a small extra
-sct> reduction in app blocking potential.
-
-sct> I think it's worth getting this right in the long term, though.
-sct> Getting readahead of indirect blocks right has other benefits too ---
-sct> eg. we may be able to fix the situation where we end up trying to read
-sct> indirect blocks before we've even submitted the IO for the previous
-sct> data blocks, breaking the IO pipeline ordering.
-
-So for the short term, are you an advocate of the patch posted?
-
--Jeff

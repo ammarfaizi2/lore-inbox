@@ -1,87 +1,80 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S310475AbSCSIjN>; Tue, 19 Mar 2002 03:39:13 -0500
+	id <S310504AbSCSI7L>; Tue, 19 Mar 2002 03:59:11 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S310479AbSCSIjE>; Tue, 19 Mar 2002 03:39:04 -0500
-Received: from mx2.castel.nl ([195.85.130.77]:18183 "EHLO mx2.castel.nl")
-	by vger.kernel.org with ESMTP id <S310475AbSCSIiv>;
-	Tue, 19 Mar 2002 03:38:51 -0500
-Message-Id: <200203182150.g2ILo2t22937@mx2.castel.nl>
-From: Rene Herman <rene.herman@mail.com>
-Subject: Re: 7.52 second kernel compile
-To: linux-kernel@vger.kernel.org
-Date: Mon, 18 Mar 2002 22:50:55 +0100
-In-Reply-To: <Pine.LNX.4.33.0203181146070.4783-100000@home.transmeta.com> <Pine.LNX.4.33.0203181213130.12950-100000@home.transmeta.com>
+	id <S310508AbSCSI7B>; Tue, 19 Mar 2002 03:59:01 -0500
+Received: from garrincha.netbank.com.br ([200.203.199.88]:40711 "HELO
+	netbank.com.br") by vger.kernel.org with SMTP id <S310504AbSCSI6u>;
+	Tue, 19 Mar 2002 03:58:50 -0500
+Date: Tue, 19 Mar 2002 05:58:29 -0300 (BRT)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: riel@imladris.surriel.com
+To: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>
+Cc: Andrea Arcangeli <andrea@suse.de>,
+        linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Scalability problem (kmap_lock) with -aa kernels
+In-Reply-To: <47390000.1016511942@flay>
+Message-ID: <Pine.LNX.4.44L.0203190556110.2181-100000@imladris.surriel.com>
+X-spambait: aardvark@kernelnewbies.org
+X-spammeplease: aardvark@nl.linux.org
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7Bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus Torvalds wrote:
+On Mon, 18 Mar 2002, Martin J. Bligh wrote:
 
-> So on a PII core, you'll see something like
-> 
-> 87.50: 36
-> 12.39: 40
-> 
-> ie 87.5% (exactly 7/8) of the TLB misses take 36 cycles, while 12.4%
-> (ie 1/8) takes 40 cycles (and I assuem that the extra 4 cycles is due
-> to actually loading the thing from the data cache).
-> 
-> Yeah, my program might be buggy, so take the numbers with a pinch of
-> salt. But it's interesting to see how on an athlon the numbers are
-> 
->  3.17: 59
-> 34.94: 62
->  4.71: 85
-> 54.83: 88
-> 
-> ie roughly 60% take 85-90 cycles, and 40% take ~60 cycles. I don't
-> know where that pattern would come from..
+> OK, I finally got the -aa kernel series running in conjunction with the
+> NUMA-Q discontigmem stuff. For some reason which I haven't debugged
+> yet 2.4.19-pre3-aa2 won't boot on the NUMA-Q even without the discontigmem
+> stuff in ... so I went back to 2.4.19-pre1-aa1, which I knew worked from
+> last time around (thanks again for that patch).
+>
+> So just comparing aa+discontigmem to standard 2.4.18+discontigmem, I see
+> kernel compile times are about 35s vs 26.5s ....
 
-You scared me, so I ran the program on my AMD duron. Result are 
-completely repeatable (4 runs):
+That's probably Andrea's pte-highmem code, which uses the
+global kmap pool instead of doing cpu-local atomic kmaps.
 
-   4.17: 20
-  92.89: 21
-   1.17: 26
+He's been told about this becoming a scalability problem
+but didn't believe it since I didn't have any numbers for
+him.  Maybe he believes it now since you've measured it ;)
 
-   4.17: 20
-  93.00: 21
-   1.18: 26
 
-   4.17: 20
-  92.86: 21
-   1.18: 26
+> standard:
+>
+>  23991 total                                      0.0257
+>   7679 default_idle                             147.6731
+>   3044 _text_lock_dcache                          8.7221
+>   2340 _text_lock_swap                           43.3333
+>   1160 do_anonymous_page                          3.4940
+> ...
+>    109 kmap_high                                  0.3028
+>     46 _text_lock_highmem                  0.4071
+>
+> andrea:
+>  38549 total                                      0.0405
+>  13102 _text_lock_highmem                       108.2810
+>   8627 default_idle                             165.9038
+>   2578 kunmap_high                               14.3222
+>   2556 kmap_high                                  6.0857
+>   1242 do_anonymous_page                          3.2684
+>   1052 _text_lock_swap                           22.8696
 
-   4.16: 20
-  92.78: 21
-   1.16: 26
+> Andrea - is this your new highmem pte stuff doing this?
+> Or is that not even in your tree as yet? Would be a shame if that's
+> the problem as I really want to get the highmem pte stuff - allows
+> me to put processes pagetables on their own nodes ....
 
-Ie, rather violently different from the numbers you quoted for the 
-Athlon...
+You really want the pte-highmem by Arjan and Ingo, which uses
+kmap_atomic (which is CPU-local and doesn't suffer the same
+scalability problem as the global kmap pool).
 
-$ cat /proc/cpuinfo
-processor       : 0
-vendor_id       : AuthenticAMD
-cpu family      : 6
-model           : 3
-model name      : AMD Duron(tm) Processor 
-stepping        : 1
-cpu MHz         : 757.472
-cache size      : 64 KB
-fdiv_bug        : no
-hlt_bug         : no
-f00f_bug        : no
-coma_bug        : no
-fpu             : yes
-fpu_exception   : yes
-cpuid level     : 1
-wp              : yes
-flags           : fpu vme de pse tsc msr pae mce cx8 sep mtrr pge mca cmov pat 
-pse36 mmx fxsr syscall mmxext 3dnowext 3dnow
-bogomips        : 1510.60
+regards,
 
-Rene.
+Rik
+-- 
+<insert bitkeeper endorsement here>
+
+http://www.surriel.com/		http://distro.conectiva.com/
 

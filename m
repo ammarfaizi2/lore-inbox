@@ -1,42 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316928AbSHBVJg>; Fri, 2 Aug 2002 17:09:36 -0400
+	id <S317230AbSHBVVQ>; Fri, 2 Aug 2002 17:21:16 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316933AbSHBVJg>; Fri, 2 Aug 2002 17:09:36 -0400
-Received: from e1.ny.us.ibm.com ([32.97.182.101]:18099 "EHLO e1.ny.us.ibm.com.")
-	by vger.kernel.org with ESMTP id <S316928AbSHBVJg>;
-	Fri, 2 Aug 2002 17:09:36 -0400
-Date: Fri, 02 Aug 2002 16:12:53 -0500
-From: Dave McCracken <dmccr@us.ibm.com>
-To: Linus Torvalds <torvalds@transmeta.com>
-cc: Linux Kernel <linux-kernel@vger.kernel.org>, Bill Abt <babt@us.ibm.com>
-Subject: Re: [PATCH 2.5.30] Allow tasks to share credentials
-Message-ID: <111710000.1028322773@baldur.austin.ibm.com>
-In-Reply-To: <Pine.LNX.4.44.0208021016580.914-100000@home.transmeta.com>
-References: <Pine.LNX.4.44.0208021016580.914-100000@home.transmeta.com>
-X-Mailer: Mulberry/2.2.1 (Linux/x86)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S317251AbSHBVVQ>; Fri, 2 Aug 2002 17:21:16 -0400
+Received: from factorix.sdv.fr ([212.95.66.10]:65413 "EHLO factorix.sdv.fr")
+	by vger.kernel.org with ESMTP id <S317230AbSHBVVQ>;
+	Fri, 2 Aug 2002 17:21:16 -0400
+Date: Sat, 3 Aug 2002 01:29:44 +0200
+To: linux-kernel@vger.kernel.org
+Subject: Little bug in the 2.5.9 release
+Message-ID: <20020802232944.GA11386@piaf.local>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="IS0zKkzwUGydFO0o"
 Content-Disposition: inline
+User-Agent: Mutt/1.4i
+From: Olivier Beau <piaf@evc.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---On Friday, August 02, 2002 10:22:54 AM -0700 Linus Torvalds
-<torvalds@transmeta.com> wrote:
+--IS0zKkzwUGydFO0o
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-> But I _know_, for example, that this is just a horrid security hole the
-> way it is now - the execve() path doesn't create a unique "cred"
-> structure, so if you execve() a suid binary from a CLONE_CRED thread, the
-> other threads get the suid'ness and can do whatever they want.
+There is a duplicate definition in init/main.c at the lines 275 and 279.
 
-You are entirely correct.  It was an oversight on my part.  execve() should
-always unshare the cred structure.  I'll work up a fixed version.
+Hopping it may help,=20
 
-Dave McCracken
+Olivier.
+--=20
 
-======================================================================
-Dave McCracken          IBM Linux Base Kernel Team      1-512-838-3059
-dmccr@us.ibm.com                                        T/L   678-3059
++-----------------------------------+
+| Olivier Beau, piaf <piaf@evc.net> |
++-----------------------------------+
 
+
+--IS0zKkzwUGydFO0o
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.7 (GNU/Linux)
+
+iD8DBQE9SxXktoV0jY7C9HMRAuj3AKDIyfUE1z7Zr6mlauhF9y58KmmVBwCgij5P
+0yKzBi5IFDQEtVZxVdS63JE=
+=0SvA
+-----END PGP SIGNATURE-----
+
+--IS0zKkzwUGydFO0o--

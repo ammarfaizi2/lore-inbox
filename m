@@ -1,40 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S310789AbSCVK5d>; Fri, 22 Mar 2002 05:57:33 -0500
+	id <S311147AbSCVLAn>; Fri, 22 Mar 2002 06:00:43 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S310940AbSCVK5Y>; Fri, 22 Mar 2002 05:57:24 -0500
-Received: from [195.63.194.11] ([195.63.194.11]:37383 "EHLO
-	mail.stock-world.de") by vger.kernel.org with ESMTP
-	id <S310789AbSCVK5N>; Fri, 22 Mar 2002 05:57:13 -0500
-Message-ID: <3C9B0D9F.5030102@evision-ventures.com>
-Date: Fri, 22 Mar 2002 11:55:27 +0100
-From: Martin Dalecki <dalecki@evision-ventures.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.9) Gecko/20020311
-X-Accept-Language: en-us, pl
-MIME-Version: 1.0
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-CC: John Langford <jcl@cs.cmu.edu>, linux-kernel@vger.kernel.org
-Subject: Re: BUG: 2.4.18 & ALI15X3 DMA hang on boot
-In-Reply-To: <E16oAs1-0006SJ-00@the-village.bc.nu>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	id <S311171AbSCVLAe>; Fri, 22 Mar 2002 06:00:34 -0500
+Received: from ns.ithnet.com ([217.64.64.10]:30220 "HELO heather.ithnet.com")
+	by vger.kernel.org with SMTP id <S311147AbSCVLAS>;
+	Fri, 22 Mar 2002 06:00:18 -0500
+Date: Fri, 22 Mar 2002 12:00:10 +0100
+From: Stephan von Krawczynski <skraw@ithnet.com>
+To: trond.myklebust@fys.uio.no
+Cc: green@namesys.com, sneakums@zork.net, linux-kernel@vger.kernel.org
+Subject: Re: BUG REPORT: kernel nfs between 2.4.19-pre2 (server) and 2.2.21-pre3 (client)
+Message-Id: <20020322120010.16a53cc9.skraw@ithnet.com>
+In-Reply-To: <15514.30892.392730.325607@charged.uio.no>
+Organization: ith Kommunikationstechnik GmbH
+X-Mailer: Sylpheed version 0.7.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox wrote:
->>There seems to be some fundamental incompatibility between the kernel
->>and the IDE chipset.  On several kernels in the 2.4 series including
->>2.4.18, I observe a hang in the bootsequence at:
->>
->>ALI15X3: IDE controller on PCI bus 00 dev 78
->>PCI: No IRQ known for interrupt pin A of device 00:0f.0. Please try using pci=biosirq.
->>ALI15X3: chipset revision 195
->>ALI15X3: not 100% native mode: will probe irqs later
->><hang>
-> 
-> 
-> And does pci=bios help ?
+On Fri, 22 Mar 2002 01:19:56 +0100
+Trond Myklebust <trond.myklebust@fys.uio.no> wrote:
 
-There is a but in this driver, where it is refferencing hwif->index instead
-of hwif->channel. It may cause a hossed setup.
+> >>>>> " " == Stephan von Krawczynski <skraw@ithnet.com> writes:
+> 
+>      > Trond: can you please tell me in short, what the common case
+>      > (or your guess) is why I see this stale file handles on the
+>      > client side. I am going to try and find out myself what the
+>      > problem with reiserfs is here, it gets a bit on my nerves
+>      > now. Do you suspect the fs to drop some inodes under the
+>      > nfs-server?
+> 
+> Hold on thar: are you using nfs-server (a.k.a. unfsd) or are you using
+> knfsd?
+
+This is a knfsd setup. 
+
+> The client will only return ESTALE if the server has first told it to
+> do so. For knfsd, this is only supposed to occur if the file has
+> actually been deleted on the server (knfsd is supposed to be able to
+> retrieve ReiserFS file that have fallen out of cache).
+
+The files are obviously not deleted from the server. Can you give me a short
+hint in where to look after this specific case (source location). I will try to
+do some debugging around the place to see what is going on.
+
+Thank you for your help
+
+Stephan
 

@@ -1,45 +1,81 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269810AbTGOWNQ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Jul 2003 18:13:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269814AbTGOWNL
+	id S269812AbTGOWND (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Jul 2003 18:13:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269814AbTGOWNB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Jul 2003 18:13:11 -0400
-Received: from aneto.able.es ([212.97.163.22]:20959 "EHLO aneto.able.es")
-	by vger.kernel.org with ESMTP id S269810AbTGOWMM (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Jul 2003 18:12:12 -0400
-Date: Wed, 16 Jul 2003 00:27:01 +0200
-From: "J.A. Magallon" <jamagallon@able.es>
-To: Lista Linux-Kernel <linux-kernel@vger.kernel.org>
-Subject: gcc-3.3.1-hammer breaks mm/memory.c
-Message-ID: <20030715222701.GC3823@werewolf.able.es>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Disposition: inline
-Content-Transfer-Encoding: 7BIT
-X-Mailer: Balsa 2.0.12
+	Tue, 15 Jul 2003 18:13:01 -0400
+Received: from h24-76-142-122.wp.shawcable.net ([24.76.142.122]:32780 "HELO
+	signalmarketing.com") by vger.kernel.org with SMTP id S269812AbTGOWM3
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 15 Jul 2003 18:12:29 -0400
+Date: Tue, 15 Jul 2003 17:27:19 -0500 (CDT)
+From: derek@signalmarketing.com
+X-X-Sender: manmower@uberdeity.signalmarketing.com
+To: Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>
+cc: LKML <linux-kernel@vger.kernel.org>
+Subject: Re: IDE performance problems on 2.6.0-pre1
+In-Reply-To: <1058306624.584.5.camel@teapot.felipe-alfaro.com>
+Message-ID: <Pine.LNX.4.56.0307151705190.2911@uberdeity.signalmarketing.com>
+References: <Pine.LNX.4.56.0307151617430.2932@uberdeity.signalmarketing.com>
+ <1058306624.584.5.camel@teapot.felipe-alfaro.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all...
 
-After some binary search and a 'couple' kernel builds, I narrowed the
-problem to mm/memory.c. With that file built at -O1:
 
-CFLAGS_memory.o = -O1
+On Tue, 16 Jul 2003, Felipe Alfaro Solana wrote:
 
-The kernel boots, starts /sbin/init and looks like working normally
-(2.4.22-pre5).
+> On Tue, 2003-07-15 at 23:49, derek@signalmarketing.com wrote:
+> > Hello,
+> > 
+> > My ide performance seems to have dropped noticably from 2.4.x to 
+> > 2.6.0-pre1...
+> 
+> What does "hdparm /dev/hde" tell us?
 
-Anybody can see what is miscompiled with an assembler listing ?
-Any #pragma to switch optmizations on the half of a file or for
-a function ?
+hdparm /dev/hde  from 2.6.0-pre1
 
-TIA
+/dev/hde:
+ multcount    = 16 (on)
+ IO_support   =  1 (32-bit)
+ unmaskirq    =  1 (on)
+ using_dma    =  1 (on)
+ keepsettings =  0 (off)
+ readonly     =  0 (off)
+ readahead    = 256 (on)
+ geometry     = 50765/16/63, sectors = 117231408, start = 0
 
--- 
-J.A. Magallon <jamagallon@able.es>      \                 Software is like sex:
-werewolf.able.es                         \           It's better when it's free
-Mandrake Linux release 9.2 (Cooker) for i586
-Linux 2.4.22-pre5 (gcc 3.3.1 (Mandrake Linux 9.2 3.3.1-0.2mdk))
+---
+
+hdparm /dev/hde from 2.4
+
+/dev/hde:
+ multcount    = 16 (on)
+ IO_support   =  1 (32-bit)
+ unmaskirq    =  1 (on)
+ using_dma    =  1 (on)
+ keepsettings =  0 (off)
+ readonly     =  0 (off)
+ readahead    =  8 (on)
+ geometry     = 116301/16/63, sectors = 117231408, start = 0
+
+
+I hadn't noticed the change in readahead previously, so I tried setting it 
+to 8 in 2.6.0-pre1 with hdparm -a 8 /dev/hde
+
+hdparm -t /dev/hde
+
+/dev/hde:
+ Timing buffered disk reads:   32 MB in  3.01 seconds =  10.64 MB/sec
+
+hdparm -a 512 on the other hand...
+
+ Timing buffered disk reads:  140 MB in  3.03 seconds =  46.18 MB/sec
+
+and I get my previous numbers back.
+
+I guess the meaning of the parameter has changed dramatically?  (what was 
+once sectors is now bytes?)

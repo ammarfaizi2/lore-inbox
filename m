@@ -1,90 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264851AbUGBSNL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264860AbUGBSOR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264851AbUGBSNL (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 2 Jul 2004 14:13:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264858AbUGBSNL
+	id S264860AbUGBSOR (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 2 Jul 2004 14:14:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264857AbUGBSOR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 2 Jul 2004 14:13:11 -0400
-Received: from mlf.linux.rulez.org ([192.188.244.13]:5646 "EHLO
-	mlf.linux.rulez.org") by vger.kernel.org with ESMTP id S264851AbUGBSNB
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 2 Jul 2004 14:13:01 -0400
-Date: Fri, 2 Jul 2004 20:12:59 +0200 (MEST)
-From: Szakacsits Szabolcs <szaka@sienet.hu>
-To: Andries Brouwer <Andries.Brouwer@cwi.nl>
-Cc: "Patrick J. LoPresti" <patl@users.sourceforge.net>, bug-parted@gnu.org,
-       "K.G." <k_guillaume@libertysurf.fr>,
-       Steffen Winterfeldt <snwint@suse.de>, Thomas Fehr <fehr@suse.de>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [RFC] Restoring HDIO_GETGEO semantics (was: Re: workaround for
- BIOS / CHS stuff)
-In-Reply-To: <20040702170410.GC25914@apps.cwi.nl>
-Message-ID: <Pine.LNX.4.21.0407021936550.30622-100000@mlf.linux.rulez.org>
+	Fri, 2 Jul 2004 14:14:17 -0400
+Received: from unknown-raq-customer.dca1.superb.net ([207.228.240.52]:21267
+	"EHLO allied.allied-universal.com") by vger.kernel.org with ESMTP
+	id S264858AbUGBSOA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 2 Jul 2004 14:14:00 -0400
+To: linux-kernel@vger.kernel.org
+From: Paul King <paul@allied-universal.com>
+Subject: [PATCH] 2.6.7 Telephony support devfs
+Reply-To: paul@allied-universal.com
+Date: Fri, 2 Jul 2004 19:06:12 +0100
+X-Originating-Host: cache5-lutn.server.ntli.net [62.252.64.16]; Fri, 2 Jul 2004 17:43:09 GMT
+X-Mailer: Mailreader.com v2.3.29 (2001-07-20)
+X-Browser: Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.1; .NET CLR 1.1.4322), JavaScript: On
+Message-ID: <jUsT.aNoTheR.mEsSaGe.iD.108879018915930@mail.allied-universal.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Add devfs support to telephony devices. Only tested with a single 
+telephony device. Devices name phone/<minor>. Patch against 2.6.7.
 
-On Fri, 2 Jul 2004, Andries Brouwer wrote:
-> On Fri, Jul 02, 2004 at 06:17:53PM +0200, Szakacsits Szabolcs wrote:
-> 
-> > Does anybody find the new HDIO_GETGEO semantic useful? Did it help
-> > _anything_? 
-> 
-> Yes. I do.
-> 
-> There was a steady stream of people reporting on geometry problems.
-> All these problems were caused by kernel guessing stuff.
 
-True, I'm well aware that old kernels guessed wrong geometries sometimes,
-resulting totally trashed partitions. However far not as much as
-currently. Perhaps the steady stream started also when the HDIO_GETGEO
-semantic was changed and more people started to use 2.5 and 2.6 kernels.
 
-Two choices to "fix" this guess game:
+--- phonedev.c  2004-06-16 05:19:37.000000000 +0000
++++ /usr/src/linux/drivers/telephony/phonedev.c 2004-07-02 19:09:
+46.951837584 +0000
+@@ -28,7 +28,7 @@
 
-    1) return error ("I don't know") but providing compatibility
-       functionality for things that the kernel knows (e.g. where the
-       partition starts). 
+ #include <linux/kmod.h>
+ #include <linux/sem.h>
+-
++#include <linux/devfs_fs_kernel.h>
 
-    2) use EDD, it does a much better job -- maybe this suggestions
-       doesn't make much sense overall, so only 1) left if you don't 
-       want to keep guessing.
+ #define PHONE_NUM_DEVICES      256
 
-Instead the HDIO_GETGEO change was a non-sense semantic one, AFAIS. It
-doesn't fix anything apparently, only broke _even_ more by not even
-guessing just providing some values.
+@@ -105,6 +105,7 @@
+                if (phone_device[i] == NULL) {
+                        phone_device[i] = p;
+                        p->minor = i;
++                       devfs_mk_cdev(MKDEV(PHONE_MAJOR,i),S_IFCHR|S_IRUSR|S_IWUSR,
+"phone/%d",i);
+                        up(&phone_lock);
+                        return 0;
+                }
+@@ -122,6 +123,7 @@
+        down(&phone_lock);
+        if (phone_device[pfd->minor] != pfd)
+                panic("phone: bad unregister");
++       devfs_remove("phone/%d",pfd->minor);
+        phone_device[pfd->minor] = NULL;
+        up(&phone_lock);
+ }
 
-Please correct me if I'm wrong.
 
-> If the kernel no longer volunteers a guess, then we no longer have
-> the situation that the guess can be wrong.
 
-The problem is, the kernel still _guesses_ (even potential hard coded
-values are guesses). And now it's even more broken than before. 
 
-This is why I asked _what_ it fixed, not from maintaince but from
-functionality point of view.
 
-In short, 2.4 was slightly broken, 2.6 is badly broken. Less maintaince
-isn't a good argument because deleting the code would have been a much
-better solution: it wouldn't break so many things and even if it did,
-developers would have notice (function return error that must be always
-handled).
- 
-> The new world is getting much simpler. 
 
-Unfortunately it seems it's more messed up. You didn't write any specific
-why the current situation would be better. What does HDIO_GETGEO returns
-at present? Hard coded values? Random values? Then why not error instead?
-
-> The only case I see where absolutely something is needed is the
-> case of partitioning an empty disk.
-
-Recovery, cloning, ... just unpack a major distro source and grep for
-HDIO_GETGEO and you'll see how many things use it for all kind of
-purposes.
-
-	Szaka
 

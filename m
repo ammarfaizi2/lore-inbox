@@ -1,65 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261861AbULJWeN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261865AbULJWi3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261861AbULJWeN (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Dec 2004 17:34:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261863AbULJWcU
+	id S261865AbULJWi3 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Dec 2004 17:38:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261849AbULJWi2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Dec 2004 17:32:20 -0500
-Received: from chello083144090118.chello.pl ([83.144.90.118]:3076 "EHLO
-	plus.ds14.agh.edu.pl") by vger.kernel.org with ESMTP
-	id S261861AbULJWaI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Dec 2004 17:30:08 -0500
-From: =?utf-8?q?Pawe=C5=82_Sikora?= <pluto@pld-linux.org>
+	Fri, 10 Dec 2004 17:38:28 -0500
+Received: from host62-24-231-113.dsl.vispa.com ([62.24.231.113]:702 "EHLO
+	cenedra.walrond.org") by vger.kernel.org with ESMTP id S261865AbULJWhp
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 10 Dec 2004 17:37:45 -0500
+From: Andrew Walrond <andrew@walrond.org>
 To: linux-kernel@vger.kernel.org
-Subject: 2.6.10rc3+cset == oops (fs).
-Date: Fri, 10 Dec 2004 23:30:01 +0100
-User-Agent: KMail/1.7.1
-Cc: Andrew Morton <akpm@osdl.org>
+Subject: Re: Mach Speed motherboard w/onboard video
+Date: Fri, 10 Dec 2004 22:37:29 +0000
+User-Agent: KMail/1.7
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, gene.heskett@verizon.net
+References: <200412081140.33199.gene.heskett@verizon.net> <200412082032.22619.gene.heskett@verizon.net> <1102711303.3271.64.camel@localhost.localdomain>
+In-Reply-To: <1102711303.3271.64.camel@localhost.localdomain>
 MIME-Version: 1.0
 Content-Type: text/plain;
-  charset="utf-8"
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Message-Id: <200412102330.02459.pluto@pld-linux.org>
+Message-Id: <200412102237.29753.andrew@walrond.org>
+X-Spam-Score: 0.0 (/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Friday 10 Dec 2004 20:41, Alan Cox wrote:
+>
+> An external video card will give you materially better performance
+> anyway and if you are doing real time stuff help in a few other ways.
+>
 
-I've just tried to boot the 2.6.10rc3+cset20041210_0507.
+Is this one of those 'shared memory' video chipsets then? And is it like the 
+old days on the Amiga where some of the system ram is dual ported so that 
+video/cpu don't contend the bus for memory access, or are you implying that 
+they do contend, and that imposes a performance hit?
 
-[handcopy of the ooops]
+Or none of the above? :)
 
-dereferencing null pointer
-eip at: radix_tree_tag_clear
-
-trace:
-(...)
-test_clear_page_dirty
-truncate_complete_page
-truncate_inode_pages_range
-truncate_inode_pages
-generic_delete_inode
-sys_unlink
-initrd_load
-prepare_namespace
-(...)
-
-
-/dev/hda1 on / type ext3 (rw)
-/dev/hda2 on /usr type ext3 (rw)
-/dev/hda5 on /tmp type ext3 (rw)
-/dev/hda6 on /var type ext3 (rw)
-/dev/hda7 on /home type ext3 (rw)
-/dev/hda8 on /home/users/pluto/multimedia type ext3 (rw)
-/dev/hdd1 on /home/users/pluto/rpm type ext3 (rw)
-none on /proc type proc (rw,gid=17)
-none on /dev/pts type devpts (rw,gid=5,mode=620)
-none on /dev/shm type tmpfs (rw)
-sysfs on /sys type sysfs (rw)
-selinuxfs on /selinux type selinuxfs (rw)
-
--- 
-/* Copyright (C) 2003, SCO, Inc. This is valuable Intellectual Property. */
-
-                           #define say(x) lie(x)
+Andrew Walrond

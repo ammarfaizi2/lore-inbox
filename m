@@ -1,69 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S319456AbSILGfu>; Thu, 12 Sep 2002 02:35:50 -0400
+	id <S319453AbSILGd7>; Thu, 12 Sep 2002 02:33:59 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S319457AbSILGfu>; Thu, 12 Sep 2002 02:35:50 -0400
-Received: from e35.co.us.ibm.com ([32.97.110.133]:40398 "EHLO
-	e35.co.us.ibm.com") by vger.kernel.org with ESMTP
-	id <S319456AbSILGft>; Thu, 12 Sep 2002 02:35:49 -0400
-Message-Id: <200209120640.g8C6eTD00198@eng4.beaverton.ibm.com>
-To: Andrew Morton <akpm@digeo.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: [RFC][PATCH] sard changes for 2.5.34 
-In-reply-to: Your message of "Wed, 11 Sep 2002 19:42:26 PDT."
-             <3D7FFF12.24B0FDAA@digeo.com> 
-Date: Wed, 11 Sep 2002 23:40:28 -0700
-From: Rick Lindsley <ricklind@us.ibm.com>
+	id <S319454AbSILGd7>; Thu, 12 Sep 2002 02:33:59 -0400
+Received: from dp.samba.org ([66.70.73.150]:36782 "EHLO lists.samba.org")
+	by vger.kernel.org with ESMTP id <S319453AbSILGd6>;
+	Thu, 12 Sep 2002 02:33:58 -0400
+From: Rusty Russell <rusty@rustcorp.com.au>
+To: Daniel Phillips <phillips@arcor.de>
+Subject: Re: [RFC] Raceless module interface 
+Cc: Alexander Viro <viro@math.psu.edu>,
+       Jamie Lokier <lk@tantalophile.demon.co.uk>,
+       Oliver Neukum <oliver@neukum.name>,
+       Roman Zippel <zippel@linux-m68k.org>, kaos@ocs.com.au,
+       linux-kernel@vger.kernel.org
+In-reply-to: Your message of "Thu, 12 Sep 2002 06:11:55 +0200."
+             <E17pLKe-0007ds-00@starship> 
+Date: Thu, 12 Sep 2002 15:35:50 +1000
+Message-Id: <20020912063848.E10EF2C0B6@lists.samba.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-    kstat should be a lighter-weight per-cpu thing.  But the current
-    disk accounting in there would make it 12 kilobytes per CPU.
+In message <E17pLKe-0007ds-00@starship> you write:
+> As I recall, you are the one who proposed eliminating the ability
+> to unload modules entirely, because you were not able to solve the
+> unload races.
 
-    My vote: remove the disk accounting from kernel_stat and use this.
+Huh?  I was able to solve the module races, in multiple ways.  I even
+had an implementation, using two stage init and two stage remove.  But
+it's not *simple*, and pushing additional constraints on kernel driver
+authors may be worse than not being able to remove modules.
 
-I have a patch from another contributor that takes disk stats out of
-kstat and puts them into their own global structure.  I'll give that
-some attention.
+>  It's a good thing that people with more sense shouted you down.
 
-    > What follows works, but needs refinements.  Comments welcome.
+There was (understandably) some resistance to removing a "working"
+feature, but noone produced a new workable alternative.
 
-    What are those refinements?
+The *point* of my presentation was to make people think of
+alternatives, especially, if we can't (or don't want to) solve all the
+unload races, is it OK to say "well, you can't unload those kind of
+modules"?
 
-A couple I mentioned in my message: double collection of stats, and an
-ugly hd_struct added to gendisk.  In addition, we should remove the
-restriction on which and how many disks are reported on.
+If I had come up with a clear winner, I might have saved myself the
+pain of standing up in front of 70 of my peers and admitting that I
+wasn't smart enough, ferchissakes.
 
-Lastly, a bit of a philosophical question.  /proc/stat and (with this
-patch) /proc/diskstats provide some of the same information. Should
+But it doesn't help if you don't listen, then sprout the "one true
+solution" which turns out to be a wordy combination two previously
+discussed schemes, with the disadvantages of both.
 
-    a) all of it appear in /proc/stat?
-
-    b) all of it appear in /proc/diskstats?
-
-    c) keep the current (limited) info in /proc/stat (for backward
-       compatibility) and introduce the expanded info in
-       /proc/diskstats?
-
-My preference is b, but I'm open to other opinions.
-
-    What userspace tools are available for interpreting this
-    information?
-
-None that I'm aware of, although /proc/diskstats is formatted in a
-program-friendly way.  Sample output (warning: wide):
-
-          major minor  #blocks  name      rio   rmerge    rsect     ruse      wio   wmerge    wsect     wuse  running      use     aveq
-
-f7d1e414    8     0          0 sda       1657     1403    46534    17391     3633     3974    61480   179110        0    34876   196501
-f7c18000    8     1    2562367 sda1      1609        0    41522        0     5285        0    42280        0        0        0        0
-f7c1810c    8     2          1 sda2         0        0        0        0        0        0        0        0        0        0        0
-f7c18324    8     4      56196 sda4        96        0      768        0        0        0        0        0        0        0        0
-f7c18430    8     5    1052226 sda5        16        0      128        0        0        0        0        0        0        0        0
-f7c1853c    8     6    1052226 sda6       379        0     2802        0     2380        0    19032        0        0        0        0
-f7c18648    8     7   13044748 sda7       946        0     1202        0       18        0      168        0        0        0        0
-
-Just realized as I printed this that the first field is leftover
-debugging, and should be removed!
-
-Rick
+Rusty.
+--
+  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.

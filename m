@@ -1,101 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262248AbVBBTJB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262495AbVBBTJs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262248AbVBBTJB (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Feb 2005 14:09:01 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262548AbVBBTEz
+	id S262495AbVBBTJs (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Feb 2005 14:09:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262413AbVBBTJo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Feb 2005 14:04:55 -0500
-Received: from mustang.oldcity.dca.net ([216.158.38.3]:17310 "HELO
-	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S262568AbVBBS7f (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Feb 2005 13:59:35 -0500
-Subject: Re: [patch, 2.6.11-rc2] sched: RLIMIT_RT_CPU_RATIO feature
-From: Lee Revell <rlrevell@joe-job.com>
-To: "Jack O'Quin" <joq@io.com>
-Cc: Ingo Molnar <mingo@elte.hu>, Nick Piggin <nickpiggin@yahoo.com.au>,
-       Paul Davis <paul@linuxaudiosystems.com>,
-       Con Kolivas <kernel@kolivas.org>, linux <linux-kernel@vger.kernel.org>,
-       CK Kernel <ck@vds.kolivas.org>, utz <utz@s2y4n2c.de>,
-       Andrew Morton <akpm@osdl.org>, alexn@dsv.su.se,
-       Rui Nuno Capela <rncbc@rncbc.org>, Chris Wright <chrisw@osdl.org>,
-       Arjan van de Ven <arjanv@redhat.com>
-In-Reply-To: <873bwfo8br.fsf@sulphur.joq.us>
-References: <20050124085902.GA8059@elte.hu> <20050124125814.GA31471@elte.hu>
-	 <20050125135613.GA18650@elte.hu> <87sm4opxto.fsf@sulphur.joq.us>
-	 <20050126070404.GA27280@elte.hu> <87fz0neshg.fsf@sulphur.joq.us>
-	 <1106782165.5158.15.camel@npiggin-nld.site> <874qh3bo1u.fsf@sulphur.joq.us>
-	 <1106796360.5158.39.camel@npiggin-nld.site> <87pszr1mi1.fsf@sulphur.joq.us>
-	 <20050127113530.GA30422@elte.hu>  <873bwfo8br.fsf@sulphur.joq.us>
-Content-Type: text/plain
-Date: Wed, 02 Feb 2005 13:59:30 -0500
-Message-Id: <1107370770.3104.136.camel@krustophenia.net>
+	Wed, 2 Feb 2005 14:09:44 -0500
+Received: from linux.us.dell.com ([143.166.224.162]:39123 "EHLO
+	lists.us.dell.com") by vger.kernel.org with ESMTP id S262415AbVBBTIA
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 2 Feb 2005 14:08:00 -0500
+Date: Wed, 2 Feb 2005 13:06:26 -0600
+From: Matt Domsch <Matt_Domsch@dell.com>
+To: Vasily Averin <vvs@sw.ru>
+Cc: Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
+       Andrey Melnikov <temnota+kernel@kmv.ru>, linux-kernel@vger.kernel.org,
+       Atul Mukker <Atul.Mukker@lsil.com>,
+       Sreenivas Bagalkote <Sreenivas.Bagalkote@lsil.com>
+Subject: Re: [PATCH] Prevent NMI oopser
+Message-ID: <20050202190626.GB18763@lists.us.dell.com>
+References: <41F5FC96.2010103@sw.ru> <20050131231752.GA17126@logos.cnet> <42011EFA.10109@sw.ru>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.3 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <42011EFA.10109@sw.ru>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2005-02-01 at 23:10 -0600, Jack O'Quin wrote:
-> > So in the Linux core code we have zero tolerance on crap. We are
-> > doing this for the long-term fun of it.
+On Wed, Feb 02, 2005 at 09:42:02PM +0300, Vasily Averin wrote:
+> Marcelo Tosatti wrote:
+> >On Tue, Jan 25, 2005 at 11:00:22AM +0300, Vasily Averin wrote:
+> >>You should unlock io_request_lock before msleep, like in latest versions
+> >>of megaraid2 drivers.
+> >
+> >Andrey, 
+> >
+> >Can you please update your patch to unlock io_request_lock before sleeping
+> >and locking after coming back? 
+> >
+> >What the driver is doing is indeed wrong.
 > 
-> So, we should never do anything boring, even though people actually
-> need it?  
+> Marcelo,
 > 
-> The fact that a large group of frustrated Linux audio developers could
-> find no better outlet than to develop this solution is a rather strong
-> indictment of the kernel requirements-gathering process.
+> This is megaraid2 driver update (2.10.8.2 version, latest 2.4-compatible
+> version that I've seen), taken from latest RHEL3 kernel update. I
+> believe it should prevent NMI in abort/reset handler.
 > 
-> > and if nobody ends up writing the 'proper' solution then there probably
-> > wasnt enough demand to begin with ... We'll rather live on with one less
-> > feature for another year than with a crappy feature that is twice as
-> > hard to get rid of!
-> 
-> Is nobody responsible for figuring out what users need?  I didn't
-> realize kernel development had become so disconnected.
-> 
+> Thank you,
+> 	Vasily Averin, SWSoft Linux Kernel Team
 
-Interesting point.  The kernel development process has been written
-about at length, but you don't hear much about the requirements
-gathering process.
+Thanks Vasily, I was just looking at this again yesterday.
 
-It seems like aside from the internal forces of kernel developers
-wanting to improve the system, the big distros, do a lot of the
-requirements gathering.  Makes sense, as the distros are in a very good
-position to know what users want, and can commit developer resources to
-get it done.  For example there has been a big push from the distros to
-make Linux competitive with MS on the desktop, and it shows in the
-direction of Linux development.  These days you can throw in a cd of a
-modern distro and the installer will get you to a working desktop easier
-than Windows (well, almost, your sound might not work ;-).
+You'll also find that because the driver doesn't define its inline
+functions prior to their use, newest compilers refuse to compile this
+version of the driver.  Earlier compilers just ignore it and don't
+inline anything.
 
-Really, if the Linux audio community wants to get its requirements
-heard, then all the AGNULA and Planet CCRMA users should start to demand
-that Fedora and Debian be usable OOTB for low latency audio.  If you
-want to run JACK in realtime mode on RH or Debian you have to be root
-for crying out loud.  There's no reason Linux audio users should have to
-patch the kernel or install a bunch of specialized packages any more
-than people who want to use it as a web server.  File bug reports,
-complain on your distro's user mailing lists, whatever.
+As a hack, one could #define inline /*nothing*/ in megaraid2.h to
+avoid this, but it would be nice if the functions could all get
+reordered such that inlining works properly, and the need for function
+declarations in megaraid2.h would disappear completely.
 
-I do appreciate the progress that has been made, and that the Linux
-kernel developers really stepped up to address the latency issues.  But,
-most of the push has come from outside the kernel development community,
-from individual Linux audio users and developers.  If we had waited for
-the big distros to demand that low latency audio work OOTB, we would be
-exactly where we were in 2001 (or this time last year) still using 2.4
-+ll+preempt and struggling to get that old kernel to work on our new
-hardware.
+Thanks,
+Matt
 
-IMHO the requirements gathering process usually works well.  When
-someone with a redhat.com (for example) address posts a patch there's an
-implicit assumption that it addresses the needs of their gadzillions of
-users.  Still, RH hires professional kernel developers, people who
-produce known good code will always have an easier time getting patches
-merged.  If Linus & co. don't know you from Adam and you show up with a
-patch that claims to solve a big problem, then I would expect them to be
-a bit skeptical.  Especially if the problem is either low priority or
-not well understood by the major distros.
 
-Lee
-
+-- 
+Matt Domsch
+Software Architect
+Dell Linux Solutions linux.dell.com & www.dell.com/linux
+Linux on Dell mailing lists @ http://lists.us.dell.com

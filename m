@@ -1,66 +1,102 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265310AbUBPCit (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 15 Feb 2004 21:38:49 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265311AbUBPCit
+	id S265311AbUBPCy1 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 15 Feb 2004 21:54:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265315AbUBPCy1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 15 Feb 2004 21:38:49 -0500
-Received: from gate.crashing.org ([63.228.1.57]:33183 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S265310AbUBPCis (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 15 Feb 2004 21:38:48 -0500
-Subject: Re: Linux 2.6.3-rc3
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: jdow <jdow@earthlink.net>
-Cc: Linux Kernel list <linux-kernel@vger.kernel.org>
-In-Reply-To: <124101c3f435$9a66d3a0$1225a8c0@kittycat>
-References: <Pine.LNX.4.58.0402141931050.14025@home.osdl.org>
-	 <200402152357.25751.earny@net4u.de> <1076886481.6960.121.camel@gaston>
-	 <200402160033.43438.earny@net4u.de> <1076889243.11392.130.camel@gaston>
-	 <124101c3f435$9a66d3a0$1225a8c0@kittycat>
+	Sun, 15 Feb 2004 21:54:27 -0500
+Received: from websrv.werbeagentur-aufwind.de ([213.239.197.241]:46245 "EHLO
+	mail.werbeagentur-aufwind.de") by vger.kernel.org with ESMTP
+	id S265311AbUBPCyY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 15 Feb 2004 21:54:24 -0500
+Subject: Re: dm-crypt using kthread (was: Oopsing cryptoapi (or loop
+	device?) on 2.6.*)
+From: Christophe Saout <christophe@saout.de>
+To: Andrew Morton <akpm@osdl.org>
+Cc: hch@infradead.org, thornber@redhat.com, mikenc@us.ibm.com,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <20040215180736.4743f4ee.akpm@osdl.org>
+References: <402A4B52.1080800@centrum.cz>
+	 <1076866470.20140.13.camel@leto.cs.pocnet.net>
+	 <20040215180226.A8426@infradead.org>
+	 <1076870572.20140.16.camel@leto.cs.pocnet.net>
+	 <20040215185331.A8719@infradead.org>
+	 <1076873760.21477.8.camel@leto.cs.pocnet.net>
+	 <20040215194633.A8948@infradead.org>
+	 <20040216014433.GA5430@leto.cs.pocnet.net>
+	 <20040215180736.4743f4ee.akpm@osdl.org>
 Content-Type: text/plain
-Message-Id: <1076899019.6958.168.camel@gaston>
+Message-Id: <1076900039.5601.36.camel@leto.cs.pocnet.net>
 Mime-Version: 1.0
 X-Mailer: Ximian Evolution 1.4.5 
-Date: Mon, 16 Feb 2004 13:37:00 +1100
+Date: Mon, 16 Feb 2004 03:53:59 +0100
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2004-02-16 at 13:35, jdow wrote:
+Hi,
 
-> > - do_div(vclk, 1000);
-> > - xtal = (xtal * denom) / num;
-> > + vclk *= denom;
-> > + do_div(vclk, 1000 * num);
-> > + xtal = vclk;
-> >
-> >   if ((xtal > 26900) && (xtal < 27100))
-> >   xtal = 2700;
->            ^^^^
+[shoot me, I forgot the Cc's the first time]
+
+> > +	/*
+> > +	 * Tell VM to act less aggressively and fail earlier.
+> > +	 * This is not necessary but increases throughput.
+> > +	 * FIXME: Is this really intelligent?
+> > +	 */
+> > +	current->flags &= ~PF_MEMALLOC;
 > 
-> Is that right or a typo for 27100?
+> This is a bit peculiar.  Is it still the case that it increases throughput?
 
-No, it's right. Weird but right :)
+Were there changes to the VM?
 
-Look at the whole thing
+> How come?
 
-	if ((xtal > 26900) && (xtal < 27100))
-		xtal = 2700;
-	else if ((xtal > 14200) && (xtal < 14400))
-		xtal = 1432;
-	else if ((xtal > 29400) && (xtal < 29600))
-		xtal = 2950;
-	else {
-		printk(KERN_WARNING "xtal calculation failed: %ld\n", xtal);
-		return -1;
-	}
+I'm not exactly sure either. But this is what I suspected:
 
-Ohhh, and I know it's ugly, it comes straight from XFree through.
+The VM wants to write out some pages. dm-crypt wants to allocate buffers
+and starts digging into the reservers because PF_MEMALLOC is set which
+causes some sort of low-memory condition.
 
-Don't bother too much with that code, I'm not even sure it works
-properly at this point, I need to test it by intentionally disabling
-the BIOS detection to check it actually picks the right values.
+If PF_MEMALLOC is dropped here the VM can just drop some cache pages in
+order to allocate buffers.
 
-Ben.
+If there wasn't a lot of free (unused) memory the machine often started
+writing out data when I tried to write a lot of data using dd. The
+seeking killed performance, just for the first seconds though.
+
+It's not really important, I can drop that.
+
+> Should restore PF_MEMALLOC here.
+
+Right...
+
+> > +		set_task_state(current, TASK_INTERRUPTIBLE);
+> > +		while (!(bio = kcryptd_get_bios())) {
+> > +			schedule();
+> > +			if (signal_pending(current))
+> > +				return 0;
+> > +		}
+> 
+> This will turn into a busy-loop, because schedule() sets current->state to
+> TASK_RUNNING.  You need to move the set_task_state(current,
+> TASK_INTERRUPTIBLE); inside the loop.
+
+Right again. I changed that several times. It shouldn't happen that
+schedule returns but there's not data available, but ok. I changed the
+while to an if and call kcryptd_get_bios after schedule().
+
+> Why is this code mucking with signals?
+
+For thread termination, that's what kthread does. The other kthread
+users are doing this too. I changed the for(;;) back to a while
+(!signal_pending(current)) since I killed the inner while loop.
+
+> Perhaps a call to blk_congestion_wait() would be appropriate here.
+
+Huh? Why that? This is the path for reads.
+
+> sprintf("%02x")?
+
+Ok. :)
+
 

@@ -1,27 +1,27 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264439AbUDSNc5 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 19 Apr 2004 09:32:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264430AbUDSN3F
+	id S264430AbUDSNdA (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 19 Apr 2004 09:33:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264431AbUDSN3Z
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 19 Apr 2004 09:29:05 -0400
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:19726 "EHLO
+	Mon, 19 Apr 2004 09:29:25 -0400
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:20750 "EHLO
 	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S264418AbUDSNW0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 19 Apr 2004 09:22:26 -0400
+	id S264414AbUDSNWh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 19 Apr 2004 09:22:37 -0400
 From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: Linux Kernel List <linux-kernel@vger.kernel.org>, anton@au.ibm.com,
-       linuxppc64-dev@lists.linuxppc.org
-Subject: Re: [PATCH] Clean up asm/pgalloc.h include (ppc64)
+To: Linux Kernel List <linux-kernel@vger.kernel.org>, schwidefsky@de.ibm.com,
+       linux-390@vm.marist.edu
+Subject: Re: [PATCH] Clean up asm/pgalloc.h include (s390)
 In-Reply-To: <20040418232314.A2045@flint.arm.linux.org.uk>; from rmk+lkml@arm.linux.org.uk on Sun, Apr 18, 2004 at 11:23:14PM +0100
 References: <20040418231720.C12222@flint.arm.linux.org.uk> <20040418232314.A2045@flint.arm.linux.org.uk>
-Message-Id: <E1BFYj8-00056D-3p@dyn-67.arm.linux.org.uk>
-Date: Mon, 19 Apr 2004 14:22:22 +0100
+Message-Id: <E1BFYjG-00056G-ET@dyn-67.arm.linux.org.uk>
+Date: Mon, 19 Apr 2004 14:22:30 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 This patch cleans up needless includes of asm/pgalloc.h from the
-arch/ppc64/ subtree.  This has not been compile tested, so
+arch/s390/ subtree.  This has not been compile tested, so
 needs the architecture maintainers (or willing volunteers) to
 test.
 
@@ -40,36 +40,69 @@ you need to include some other header file rather than pgalloc.h.
 Normally this is either asm/pgtable.h (unlikely), asm/cacheflush.h
 or asm/tlbflush.h.
 
-===== arch/ppc64/mm/hugetlbpage.c 1.23 vs edited =====
---- 1.23/arch/ppc64/mm/hugetlbpage.c	Sat Apr 17 19:19:31 2004
-+++ edited/arch/ppc64/mm/hugetlbpage.c	Mon Apr 19 13:41:03 2004
-@@ -18,7 +18,6 @@
- #include <linux/err.h>
- #include <linux/sysctl.h>
- #include <asm/mman.h>
--#include <asm/pgalloc.h>
- #include <asm/tlb.h>
- #include <asm/tlbflush.h>
- #include <asm/mmu_context.h>
-===== arch/ppc64/mm/imalloc.c 1.4 vs edited =====
---- 1.4/arch/ppc64/mm/imalloc.c	Fri Feb 27 05:25:17 2004
-+++ edited/arch/ppc64/mm/imalloc.c	Mon Apr 19 13:41:03 2004
-@@ -11,7 +11,6 @@
- #include <linux/vmalloc.h>
+===== arch/s390/kernel/compat_exec.c 1.4 vs edited =====
+--- 1.4/arch/s390/kernel/compat_exec.c	Mon Apr 12 18:54:53 2004
++++ edited/arch/s390/kernel/compat_exec.c	Mon Apr 19 13:41:44 2004
+@@ -26,7 +26,6 @@
+ #include <linux/security.h>
  
  #include <asm/uaccess.h>
 -#include <asm/pgalloc.h>
- #include <asm/pgtable.h>
- #include <asm/semaphore.h>
+ #include <asm/mmu_context.h>
  
-===== arch/ppc64/mm/init.c 1.67 vs edited =====
---- 1.67/arch/ppc64/mm/init.c	Mon Apr 12 18:54:08 2004
-+++ edited/arch/ppc64/mm/init.c	Mon Apr 19 13:41:03 2004
-@@ -37,7 +37,6 @@
- #include <linux/bootmem.h>
- #include <linux/highmem.h>
+ #ifdef CONFIG_KMOD
+===== arch/s390/kernel/ptrace.c 1.22 vs edited =====
+--- 1.22/arch/s390/kernel/ptrace.c	Thu Apr 15 02:37:53 2004
++++ edited/arch/s390/kernel/ptrace.c	Mon Apr 19 13:41:44 2004
+@@ -35,7 +35,6 @@
+ #include <asm/segment.h>
+ #include <asm/page.h>
+ #include <asm/pgtable.h>
+-#include <asm/pgalloc.h>
+ #include <asm/system.h>
+ #include <asm/uaccess.h>
+ 
+===== arch/s390/kernel/s390_ksyms.c 1.22 vs edited =====
+--- 1.22/arch/s390/kernel/s390_ksyms.c	Sat Mar 27 11:40:46 2004
++++ edited/arch/s390/kernel/s390_ksyms.c	Mon Apr 19 13:41:44 2004
+@@ -14,7 +14,6 @@
+ #include <asm/checksum.h>
+ #include <asm/cpcmd.h>
+ #include <asm/delay.h>
+-#include <asm/pgalloc.h>
+ #include <asm/setup.h>
+ #ifdef CONFIG_IP_MULTICAST
+ #include <net/arp.h>
+===== arch/s390/kernel/smp.c 1.33 vs edited =====
+--- 1.33/arch/s390/kernel/smp.c	Tue Mar  2 03:01:23 2004
++++ edited/arch/s390/kernel/smp.c	Mon Apr 19 13:41:44 2004
+@@ -33,7 +33,6 @@
+ #include <linux/interrupt.h>
+ 
+ #include <asm/sigp.h>
+-#include <asm/pgalloc.h>
+ #include <asm/irq.h>
+ #include <asm/s390_ext.h>
+ #include <asm/cpcmd.h>
+===== arch/s390/mm/cmm.c 1.2 vs edited =====
+--- 1.2/arch/s390/mm/cmm.c	Tue Mar  2 03:01:23 2004
++++ edited/arch/s390/mm/cmm.c	Mon Apr 19 13:41:44 2004
+@@ -17,7 +17,6 @@
+ #include <linux/sysctl.h>
+ #include <linux/ctype.h>
  
 -#include <asm/pgalloc.h>
- #include <asm/page.h>
- #include <asm/abs_addr.h>
- #include <asm/prom.h>
+ #include <asm/uaccess.h>
+ 
+ #include "../../../drivers/s390/net/smsgiucv.h"
+===== arch/s390/mm/ioremap.c 1.8 vs edited =====
+--- 1.8/arch/s390/mm/ioremap.c	Thu Oct  2 08:11:59 2003
++++ edited/arch/s390/mm/ioremap.c	Mon Apr 19 13:41:44 2004
+@@ -16,7 +16,6 @@
+ #include <linux/vmalloc.h>
+ #include <linux/mm.h>
+ #include <asm/io.h>
+-#include <asm/pgalloc.h>
+ #include <asm/cacheflush.h>
+ #include <asm/tlbflush.h>
+ 

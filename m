@@ -1,98 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267456AbTANGUV>; Tue, 14 Jan 2003 01:20:21 -0500
+	id <S267467AbTANG2R>; Tue, 14 Jan 2003 01:28:17 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267458AbTANGUV>; Tue, 14 Jan 2003 01:20:21 -0500
-Received: from [212.209.10.215] ([212.209.10.215]:36813 "EHLO miranda.axis.se")
-	by vger.kernel.org with ESMTP id <S267456AbTANGUU>;
-	Tue, 14 Jan 2003 01:20:20 -0500
-Message-ID: <3C6BEE8B5E1BAC42905A93F13004E8AB017DE61A@mailse01.axis.se>
-From: Mikael Starvik <mikael.starvik@axis.com>
-To: "'Kai Germaschewski'" <kai@tp1.ruhr-uni-bochum.de>,
-       "'Sam Ravnborg'" <sam@ravnborg.org>
-Cc: "'Ingo Oeser'" <ingo.oeser@informatik.tu-chemnitz.de>,
-       "'ebiederm@xmission.com'" <ebiederm@xmission.com>,
-       "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
-Subject: RE: [RFC] Consolidate vmlinux.lds.S files
-Date: Tue, 14 Jan 2003 07:27:55 +0100
+	id <S267468AbTANG2R>; Tue, 14 Jan 2003 01:28:17 -0500
+Received: from gw.lowendale.com.au ([203.26.242.120]:20496 "EHLO
+	marina.lowendale.com.au") by vger.kernel.org with ESMTP
+	id <S267467AbTANG2Q>; Tue, 14 Jan 2003 01:28:16 -0500
+Date: Tue, 14 Jan 2003 17:34:49 +1100 (EST)
+From: Neale Banks <neale@lowendale.com.au>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: linux-kernel@vger.kernel.org, Jean Tourrilhes <jt@hpl.hp.com>,
+       Rusty trivial patch monkey Russell 
+	<trivial@rustcorp.com.au>
+Subject: [TRIVIAL 2.2] CONFIG_NET_RADIO and Wireless Extensions
+Message-ID: <Pine.LNX.4.05.10301141720390.27512-100000@marina.lowendale.com.au>
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I see no problem in wasting 12 more bytes on CRIS. We have an
-ALIGN(8192) later in the file so the extra 12 bytes kind of 
-disappears in the noise.
+Hi Alan,
 
-So, you don't have to make any special hacks for us. But
-maybe it is still a good idea to keep it controllable
-per arch? I don't know, it's up to you.
+Configure.help in 2.2 appearss, er, "misleading" re the implications of
+CONFIG_NET_RADIO as selecting CONFIG_NET_RADIO (at least) includes the
+/proc/net/wireless stuff in net/core/dev.c. Appended patch lifts
+apparently more correct text from 2.4.
 
-/Mikael (CRIS maintainer)
+Lastly, both 2.2 and 2.4 refer to ftp://shadow.cabi.net/pub/Linux - AFAICS
+shadow.cabi.net no longer exists.  I presume this should be
+updated/dropped too?
 
+Regards,
+Neale.
 
------Original Message-----
-From: linux-kernel-owner@vger.kernel.org
-[mailto:linux-kernel-owner@vger.kernel.org]On Behalf Of Kai
-Germaschewski
-Sent: Tuesday, January 14, 2003 12:06 AM
-To: Sam Ravnborg
-Cc: Ingo Oeser; ebiederm@xmission.com; linux-kernel@vger.kernel.org
-Subject: Re: [RFC] Consolidate vmlinux.lds.S files
+--- linux-2.2.24-rc1-ntb1/Documentation/Configure.help	Fri Jan  3 08:43:03 2003
++++ linux-2.2.24-rc1-ntb1a/Documentation/Configure.help	Tue Jan 14 17:04:20 2003
+@@ -5715,14 +5715,24 @@
+   modules". If unsure, say N.
+ 
+ Wireless LAN (non-hamradio)
+ CONFIG_NET_RADIO
+   Support for wireless LANs and everything having to do with radio,
+-  but not with amateur radio. Note that the answer to this question
+-  won't directly affect the kernel: saying N will just cause this
+-  configure script to skip all the questions about radio
+-  interfaces. 
++  but not with amateur radio or FM broadcasting.
++
++  Saying Y here also enables the Wireless Extensions (creates
++  /proc/net/wireless and enables ifconfig access). The Wireless
++  Extension is a generic API allowing a driver to expose to the user
++  space configuration and statistics specific to common Wireless LANs.
++  The beauty of it is that a single set of tool can support all the
++  variations of Wireless LANs, regardless of their type (as long as
++  the driver supports Wireless Extension). Another advantage is that
++  these parameters may be changed on the fly without restarting the
++  driver (or Linux). If you wish to use Wireless Extensions with
++  wireless PCMCIA (PC-) cards, you need to say Y here; you can fetch
++  the tools from
++  <http://www.hpl.hp.com/personal/Jean_Tourrilhes/Linux/Tools.html>.
+ 
+   Some user-level drivers for scarab devices which don't require
+   special kernel support are available via FTP (user: anonymous) from
+   ftp://shadow.cabi.net/pub/Linux.
+ 
 
-
-On Mon, 13 Jan 2003, Sam Ravnborg wrote:
-
-> > I would suggest an approach like the following, of course showing only a 
-> > first simple step.
-> 
-> But you do not deal with different alingment of the sections.
-> I have not yet fully understood all the requirements, but wanted to
-> keep the original ALIGN settings.
-> In the patch you posted some architectures use ALIGN(4) {cris},
-> other nothing, but most of them ALIGN(16).
-> Is it OK to force them all to ALIGN(16) then?
-
-Well, forcing them to a larger alignment surely won't break anything, 
-except for wasting 12 bytes on cris. But in general, you're right, not of 
-all of this is trivial to share due to these small differences. In the 
-cases where it's necessary, we could do something like
-
-(for CRIS)
-#define EXTABLE_ALIGN 4
-
-(in generic code)
-#ifndef EXTABLE_ALIGN
-#define EXTABLE_ALIGN 16
-#endif
-
-Of course, one could also do EXTABLE(4) and EXTABLE(16), respectively, but 
-I think it's less obvious to the occasional reader that these magic 
-numbers are about alignment.
-
-> > A series of steps like this should allow for a serious 
-> > reduction in size of arch/*/vmlinux.lds.S already, while being obviously 
-> > correct and allowing archs to do their own special thing if necessary (in 
-> > particular, IA64 seems to differ from all the other archs).
-> 
-> My main objective was that adding new stuff, like __gpl_ksyms could
-> be done in one place only.
-> Or .gnu.linkonce.vermagic, or whatever will be used for that.
-
-Yes, and that's why I think that separating out and sharing these bits is 
-a very good idea. Actually, separating out the ksymtab etc code should be 
-really easy, as opposed to other stuff where there's more substantial 
-differences between the archs.
-
-It'll be a rather long and tedious process to do this work, but I think 
-it's worth it.
-
---Kai
-
-
--
-To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
-Please read the FAQ at  http://www.tux.org/lkml/

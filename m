@@ -1,46 +1,72 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291110AbSAaPj5>; Thu, 31 Jan 2002 10:39:57 -0500
+	id <S291114AbSAaPo5>; Thu, 31 Jan 2002 10:44:57 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291111AbSAaPjr>; Thu, 31 Jan 2002 10:39:47 -0500
-Received: from gw.sp.op.dlr.de ([129.247.188.16]:52112 "EHLO n13.sp.op.dlr.de")
-	by vger.kernel.org with ESMTP id <S291110AbSAaPjm>;
-	Thu, 31 Jan 2002 10:39:42 -0500
-Message-ID: <3C596533.488F1470@dlr.de>
-Date: Thu, 31 Jan 2002 16:39:31 +0100
-From: Martin Wirth <Martin.Wirth@dlr.de>
-X-Mailer: Mozilla 4.77 [en] (X11; U; SunOS 5.8 sun4u)
-X-Accept-Language: en
+	id <S291113AbSAaPor>; Thu, 31 Jan 2002 10:44:47 -0500
+Received: from ns0.cobite.com ([208.222.80.10]:26377 "EHLO ns0.cobite.com")
+	by vger.kernel.org with ESMTP id <S291117AbSAaPol>;
+	Thu, 31 Jan 2002 10:44:41 -0500
+Date: Thu, 31 Jan 2002 10:44:33 -0500 (EST)
+From: David Mansfield <lkml@dm.cobite.com>
+X-X-Sender: <david@admin>
+To: Roy Sigurd Karlsbakk <roy@karlsbakk.net>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: Errors in the VM - detailed
+In-Reply-To: <Pine.LNX.4.30.0201311604470.14025-100000@mustard.heime.net>
+Message-ID: <Pine.LNX.4.33.0201311017290.15100-100000@admin>
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] 2.5: push BKL out of llseek
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 30 Jan 2002, Martin Wirth wrote:
->
->void combi_mutex_lock(struct combilock *x)
-.....
->       } else <---
->              x->owner=current;  
->       spin_unlock(&x->wait.lock);
+On Thu, 31 Jan 2002, Roy Sigurd Karlsbakk wrote:
 
-Uugh, the else is wrong of course. The owner has to be set in any
-case.(Just deleted some debugging code and reformatted a bit to quick
-:))
+> hi all
+> 
+> The last month or so, I've been trying to make a particular configuration work
+> with Linux-2.4.17 and other 2.4.x kernels. Two major bugs have been blocking
+> my way into the light. Below follows a detailed description on both bugs. One
+> of them seems to be solved in the latests -rmap patches. The other is still
+> unsolved.
+> 
+> CONFIGURATION INTRO
+> 
 
-A further note: Although the combilock shares some advantages with a
-spin-lock (no unnecessary scheduling for short time locking) it may
-behave like a semaphore on entry also if you call combi_spin_lock.
-For example
+My config:
 
-       spin_lock(&slock);
-       combi_spin_lock(&clock);
+Athlon 1400mhz, 512mb ram, single HD seagate ST360020A 60GB ATA100.  I am 
+running the 2.4.17rc2aa2 kernel, which many on the list (and I will 
+second) have stated to be a very excellent kernel.  I noticed you haven't 
+tried the aa kernels.  You should.
 
-is a BUG because combi_spin_lock may sleep while holding slock!
+I'm *not* running sw raid however, and this may be the significant factor, 
+have you tested your drives singly (without the raid?).
 
-Would be nice if there were some comments.
 
-Martin Wirth
+I created 100 100mb files (I don't have enough free space to do anything 
+else) using dd if=/dev/zero of=file???.  I did this sequentially.  Then I 
+wrote a  second script to use dd if=file??? of=/dev/null & and started 100 
+reader in parallel.  There were no stalls in the read from beginning to 
+end, my system maintained about 6-8Mb/s xfer rate throughout the test.  
+That's about what I would expect for 100 simultaneous readers.
+
+
+In your tests, are you sure that you are synchronising the starting of 
+your reader processes?  Maybe you are seeing the first readers getting 
+started first (and you have less seeks ruining your I/O bandwidth) and 
+then as they get going, the additional seeks ruin everything.  I honestly 
+think this is unlikely, since your I/O level does drop to a disgustingly 
+low level.
+
+Hope this helps.
+
+
+David
+
+
+-- 
+/==============================\
+| David Mansfield              |
+| david@cobite.com             |
+\==============================/
+

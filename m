@@ -1,74 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261326AbTLDCfu (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 3 Dec 2003 21:35:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261567AbTLDCfu
+	id S263008AbTLDCat (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 3 Dec 2003 21:30:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263014AbTLDCat
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 Dec 2003 21:35:50 -0500
-Received: from fed1mtao01.cox.net ([68.6.19.244]:17872 "EHLO
-	fed1mtao01.cox.net") by vger.kernel.org with ESMTP id S261326AbTLDCfs
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 Dec 2003 21:35:48 -0500
-Date: Wed, 3 Dec 2003 19:45:47 -0700
-From: Jesse Allen <the3dfxdude@hotmail.com>
-To: "b@netzentry.com" <b@netzentry.com>
+	Wed, 3 Dec 2003 21:30:49 -0500
+Received: from mail.kroah.org ([65.200.24.183]:33963 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S263008AbTLDCar (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 3 Dec 2003 21:30:47 -0500
+Date: Wed, 3 Dec 2003 18:29:12 -0800
+From: Greg KH <greg@kroah.com>
+To: Fredrik Tolf <fredrik@dolda2000.com>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: NForce2 pseudoscience stability testing (2.6.0-test11)
-Message-ID: <20031204024547.GA175@tesore.local>
-References: <3FCE90CD.6060501@netzentry.com>
+Subject: Re: Why is hotplug a kernel helper?
+Message-ID: <20031204022911.GA23761@kroah.com>
+References: <16334.31260.278243.22272@pc7.dolda2000.com> <20031204011357.GA22506@kroah.com> <16334.38227.433336.514399@pc7.dolda2000.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <3FCE90CD.6060501@netzentry.com>
+In-Reply-To: <16334.38227.433336.514399@pc7.dolda2000.com>
 User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Dec 03, 2003 at 05:41:33PM -0800, b@netzentry.com wrote:
-> >Subject: Re: NForce2 pseudoscience stability testing (2.6.0-test11)
-> >>Josh McKinney wrote:
-> >> To me the strangest thing is that when I first got this
-> >>board a month or
-> >> so ago it would hang with APIC or LAPIC enabled.
-
-I have just bought an nForce2 board - a Shuttle AN35N Ultra.  I just got it and set it up just yesterday and found the same thing with linux kernel 2.6.0-test11.  It is simple to trigger it too.  I just do a large recursive grep:  "grep -R any ~/linux-source/*"  deadlocks almost immediately.  Starting a kernel compile, the same occurs (which is how I discovered it in the first place).
-
-
-> >>  Now it works
-> >>fine
-> >> without disabling APIC.  All I did was update the BIOS and
-> >>use it for a
-> >> while with APIC disabled...
-> >
-> >Does the new BIOS use different defaults for memory timing,
-> >bus speed, etc?
-> >Did you change any of the default settings in the BIOS?
-> >
-...
-> -- In general: I dont think it should be so easy to blame
-> the BIOS. If one isnt overclocking and using the SPD on the
-> memory and using conservative settings, what difference
-> should that make? And if the board is stable with another
-> OS I take this "BIOS blaming" and basically throw it out. BIOS
-> is a deprecated arcane ridiculous thing and should never be
-> trusted.
-
-I don't think it could be the BIOS either, as this occurs on boards from different manufacturers.  But like you say, the BIOS is old stuff, and linux pretty much handles on its own after it gets running.
-
-
+On Thu, Dec 04, 2003 at 03:00:51AM +0100, Fredrik Tolf wrote:
+> Greg KH writes:
+>  > On Thu, Dec 04, 2003 at 01:04:44AM +0100, Fredrik Tolf wrote:
+>  > > If you don't mind me asking, I would like to know why the kernel calls
+>  > > a usermode helper for hotplug events? Wouldn't a chrdev be a better
+>  > > solution (especially considering that programs like magicdev could
+>  > > listen in to it as well)? 
+>  > 
+>  > Please see the archives for why this is, it's been argued many times.
 > 
-> * The boards are stable under certain conditions. The final
-> test for this (Proposed by Allen Martin
-> [AMartin at nvidia ! com] is to get a stable well supported
-> PCI-IDE add in card and ignore the "AMD/NVIDIA" IDE onboard.
-...
-> 
-> Thanks everyone for your continued interest in this, I'll
-> try and test the no-onboard-PATA + UP LAPIC and IOAPIC and
-> add-in-card-PATA with no onboard PATA + + UP LAPIC and IOAPIC
-> when I get a spare moment which is rare.
+> I am sincerely sorry for being a bother, but I have spent several
+> hours searching far and wide for information on it, both in the
+> archives and generally on the web, without any luck in finding
+> anything. If it's not too much to ask, would you be as kind as to
+> provide a pointer?
 
-I suppose I could try right now.  I don't have a pci ide with me right now, but I do have pci scsi cards.  But doesn't running with the generic ide driver basically prove the same thing?  APIC & Generic IDE: works, PIC & nForce IDE: works, APIC & nForce IDE: deadlocks.  It's not like we are expecting faulty nforce ide hardware, or are we?
+Here was the latest thread where this was brought up:
+	http://marc.theaimsgroup.com/?t=105544548100008
 
+I would suggest reading this post from Linus for a quick summary:
+	http://marc.theaimsgroup.com/?l=linux-kernel&m=105552804303171
 
-Jesse
+> Btw., Is there any preferred method of announcing hotplug events to
+> user interfaces?
+
+Yes there is a standard.  Have you read the docs at
+http://linux-hotplug.sf.net/ ?  Also my 2001 OLS paper details the
+format the messages should be in, but it's a bit out of date as to the
+new values that the 2.6 kernel sends.
+
+What do you want to use the hotplug interface for that it currently does
+not do?
+
+Hope this helps,
+
+greg k-h

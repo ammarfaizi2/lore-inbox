@@ -1,91 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317698AbSGVQ17>; Mon, 22 Jul 2002 12:27:59 -0400
+	id <S317685AbSGVQ0V>; Mon, 22 Jul 2002 12:26:21 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317704AbSGVQ16>; Mon, 22 Jul 2002 12:27:58 -0400
-Received: from cibs9.sns.it ([192.167.206.29]:11524 "EHLO cibs9.sns.it")
-	by vger.kernel.org with ESMTP id <S317698AbSGVQ15>;
-	Mon, 22 Jul 2002 12:27:57 -0400
-Date: Mon, 22 Jul 2002 18:30:52 +0200 (CEST)
-From: venom@sns.it
-To: Karol Olechowski <karol_olechowski@acn.waw.pl>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Athlon XP 1800+ segemntation fault
-In-Reply-To: <1027352789.1655.41.camel@alpha>
-Message-ID: <Pine.LNX.4.43.0207221829530.29205-100000@cibs9.sns.it>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S317698AbSGVQ0V>; Mon, 22 Jul 2002 12:26:21 -0400
+Received: from B55e6.pppool.de ([213.7.85.230]:6924 "EHLO
+	nicole.de.interearth.com") by vger.kernel.org with ESMTP
+	id <S317685AbSGVQ0T>; Mon, 22 Jul 2002 12:26:19 -0400
+Subject: Re: [PATCH] 2.5.27 sysctl
+From: Daniel Egger <degger@fhm.edu>
+To: martin@dalecki.de
+Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <3D3BE17F.3040905@evision.ag>
+References: <Pine.LNX.4.44.0207201218390.1230-100000@home.transmeta.com> 
+	<3D3BE17F.3040905@evision.ag>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature";
+	boundary="=-+ay7bewcEc06lRTXtQtS"
+X-Mailer: Ximian Evolution 1.0.7 
+Date: 22 Jul 2002 17:57:09 +0200
+Message-Id: <1027353430.5955.5.camel@sonja.de.interearth.com>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-As almost 97% of people on this list will write you, run memtest for a
-night and check your memory.
 
-On 22 Jul 2002, Karol Olechowski wrote:
+--=-+ay7bewcEc06lRTXtQtS
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-> Date: 22 Jul 2002 17:46:29 +0200
-> From: Karol Olechowski <karol_olechowski@acn.waw.pl>
-> To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-> Cc: linux-kernel@vger.kernel.org
-> Subject: Re: Athlon XP 1800+ segemntation fault
->
-> On Mon, 2002-07-22 at 14:44, Alan Cox wrote:
-> > On Mon, 2002-07-22 at 14:32, Karol Olechowskii wrote:
-> > > Hello
-> > >
-> > > Few days ago I've bought new processor Athlon XP 1800+ to my computer
-> > > (MSI K7D Master with 256 MB PC2100 DDR).Before that I've got Athlon ThunderBird
-> > > 900 processor and everything had been working well till I change to the new one.
-> > > Now for every few minutes I've got segmetation fault or immediate system reboot.
-> > > Could anyone tell me what's goin' on?
-> >
-> > > nvidia: loading NVIDIA NVdriver Kernel Module  1.0-2960  Tue May 14 07:41:42 PDT 2002
-> > > devfs_register(nvidiactl): could not append to parent, err: -17
-> > > devfs_register(nvidia0): could not append to parent, err: -17
-> >
-> > Please duplicate the problem without ever loading the NVidia nvdriver
-> > from a clean boot. If you can't do that then talk to Nvidia, if you can
-> > then post new crash data here
-> >
->
-> Hi Alan
->
-> I've do exactly what You wrote me.(remove NVidia driver) but it isn't
-> change anything.In the moment of writing this letter a try to compile
-> kernel and I can't even do this.System hangs or logout console session
-> or write something like this
->
-> gcc: Internal compiler error:
-> program cc1 got fatal signal 11
-> make[3] : ***[igmp.o] Error 1
->
-> under X
->
-> Application "gkrellm" (process bal bal) has crashed
-> due to a fatal error
-> (Segmenataion fault)
->
->
-> It's something strange with my computer cause not only Linux hangs.On
-> the other disk I've got Win XP and it also hangs ( blue screen,memory
-> dump and things like that...).Almost every component is a brand
-> new(mother board, processor, memory, video card, power supply)
->
-> I've look at the logs and everything looks good.Please send me any tip,
-> what I can do with this stuff
->
-> best regards
->
-> Karol Olechowski
->
->
->
->
->
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
->
+Am Mon, 2002-07-22 um 12.42 schrieb Marcin Dalecki:
+
+> diff -urN linux-2.5.27/include/linux/sysctl.h linux/include/linux/sysctl.=
+h
+> --- linux-2.5.27/include/linux/sysctl.h	2002-07-20 21:11:05.000000000 +02=
+00
+> +++ linux/include/linux/sysctl.h	2002-07-21 19:30:43.000000000 +0200
+> @@ -126,7 +126,7 @@
+>  	KERN_S390_USER_DEBUG_LOGGING=3D51,  /* int: dumps of user faults */
+>  	KERN_CORE_USES_PID=3D52,		/* int: use core or core.%pid */
+>  	KERN_TAINTED=3D53,	/* int: various kernel tainted flags */
+> -	KERN_CADPID=3D54,		/* int: PID of the process to notify on CAD */
+> +	KERN_CADPID=3D54		/* int: PID of the process to notify on CAD */
+>  };
+
+Please don't do such changes, there's a reason for the trailing comma:
+Making it easier to extend structures and enums.
+
+--=20
+Servus,
+       Daniel
+
+--=-+ay7bewcEc06lRTXtQtS
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: Dies ist ein digital signierter Nachrichtenteil
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.7 (GNU/Linux)
+
+iD8DBQA9PCtVchlzsq9KoIYRAilGAJ9k5VILkVYMvvBHYo5tlB/4Yw5S9gCgtZyF
+UDAQYltPwqZVsHODWU05GYs=
+=NXfL
+-----END PGP SIGNATURE-----
+
+--=-+ay7bewcEc06lRTXtQtS--
 

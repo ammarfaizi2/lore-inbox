@@ -1,82 +1,33 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S275694AbRJAW4K>; Mon, 1 Oct 2001 18:56:10 -0400
+	id <S275687AbRJAW7k>; Mon, 1 Oct 2001 18:59:40 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S275695AbRJAW4A>; Mon, 1 Oct 2001 18:56:00 -0400
-Received: from smtprelay.abs.adelphia.net ([64.8.20.11]:26347 "EHLO
-	smtprelay2.abs.adelphia.net") by vger.kernel.org with ESMTP
-	id <S275694AbRJAWzz>; Mon, 1 Oct 2001 18:55:55 -0400
-Message-ID: <3BB8F490.4638A81E@adelphia.net>
-Date: Mon, 01 Oct 2001 18:56:16 -0400
-From: "Rinaldi J. Montessi" <rinaldij@adelphia.net>
-Organization: http://www.Federalist.com/
-X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.10 i686)
-X-Accept-Language: <<=?iso-8859-1?Q?=A5?=>>
-MIME-Version: 1.0
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: APIC revisited
+	id <S275698AbRJAW7a>; Mon, 1 Oct 2001 18:59:30 -0400
+Received: from host154.207-175-42.redhat.com ([207.175.42.154]:52298 "EHLO
+	lacrosse.corp.redhat.com") by vger.kernel.org with ESMTP
+	id <S275687AbRJAW7P>; Mon, 1 Oct 2001 18:59:15 -0400
+Date: Mon, 1 Oct 2001 18:59:43 -0400
+From: Benjamin LaHaise <bcrl@redhat.com>
+To: "Rinaldi J. Montessi" <rinaldij@adelphia.net>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: APIC revisited
+Message-ID: <20011001185943.C13232@redhat.com>
+In-Reply-To: <3BB8F490.4638A81E@adelphia.net>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <3BB8F490.4638A81E@adelphia.net>; from rinaldij@adelphia.net on Mon, Oct 01, 2001 at 06:56:16PM -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I realize that this is a FAQ item, but the information contained therein
-is a bit sparse.  I have an Abitbp6 motherboard with dual celerons 533's
-not overclocked.  The bus is 66mhz.
+On Mon, Oct 01, 2001 at 06:56:16PM -0400, Rinaldi J. Montessi wrote:
+> I realize that this is a FAQ item, but the information contained therein
+> is a bit sparse.  I have an Abitbp6 motherboard with dual celerons 533's
+> not overclocked.  The bus is 66mhz.
 
-My boot params are (from dmesg)
+This is a BP6 FAQ.  Try increasing the voltage to your CPUs by .1V, or 
+by taking the BP6 and introducing it to a hammer.  Either should be an 
+improvement.
 
-Kernel command line: BOOT_IMAGE=linux2410 ro root=2203
-BOOT_FILE=/boot/vmlinuz-2.4.10 hdc=ide-scsi noapic
-
-The BIOS is set for MPS 1.1
-
-These are both recommended in the FAQ (as is trashing the Abit mobo, but
-that is not feasible at the present time).
-
-I am of the impression that with the noapic parameter all calls are to
-be handled via CPU0, yet I am getting several errors on CPU1 as well. 
-
-uptime
-4:28pm  up 4 days, 17:50,  4 users,  load average: 0.00, 0.00, 0.00
-
-/proc/interrupts
-
-           CPU0       CPU1       
-  0:   40989069          0          XT-PIC  timer
-  1:      64603          0          XT-PIC  keyboard
-  2:          0          0          XT-PIC  cascade
-  3:     663114          0          XT-PIC  eth1
-  7:     230556          0          XT-PIC  soundblaster
-  8:          1          0          XT-PIC  rtc
-  9:       2735          0          XT-PIC  eth0
- 10:     720950          0          XT-PIC  ide2, ide3
- 12:    2096913          0          XT-PIC  PS/2 Mouse
- 14:     705487          0          XT-PIC  ide0
- 15:          5          0          XT-PIC  ide1
-NMI:          0          0 
-LOC:   40988011   40988007 
-ERR:         97
-MIS:          0
-
-The errors are fairly divided between CPU0 and CPU1 54/43 per dmesg,
-although this seems to indicate otherwise.
-
-The last series of errors is fairly representative:
-
-APIC error on CPU0: 02(04)
-APIC error on CPU1: 04(08)
-APIC error on CPU1: 08(08)
-APIC error on CPU0: 04(04)
-APIC error on CPU0: 04(02)
-APIC error on CPU0: 02(02)
-
-Can I assume there is no kernel solution to this problem; and is there a
-way for me to quantify potential/probable file corruption?
-
-Thanks,
-
-Rinaldi
--- 
-By all means marry. If you get a good wife you will become happy, 
-and if you get a bad one you will become a philosopher. --Socrates
+		-ben (ex-BP6 user)

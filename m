@@ -1,48 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261231AbVCXXMp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261232AbVCXXOp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261231AbVCXXMp (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Mar 2005 18:12:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261232AbVCXXMp
+	id S261232AbVCXXOp (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Mar 2005 18:14:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261234AbVCXXOp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Mar 2005 18:12:45 -0500
-Received: from fire.osdl.org ([65.172.181.4]:42903 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S261231AbVCXXMk (ORCPT
+	Thu, 24 Mar 2005 18:14:45 -0500
+Received: from grendel.digitalservice.pl ([217.67.200.140]:25475 "HELO
+	mail.digitalservice.pl") by vger.kernel.org with SMTP
+	id S261232AbVCXXOc convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Mar 2005 18:12:40 -0500
-Date: Thu, 24 Mar 2005 15:12:20 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: cliff white <cliffw@osdl.org>
-Cc: airlied@linux.ie, davej@redhat.com, linux-kernel@vger.kernel.org,
-       dri-devel@lists.sourceforge.net
-Subject: Re: drm bugs hopefully fixed but there might still be one..
-Message-Id: <20050324151220.5e5f3d5f.akpm@osdl.org>
-In-Reply-To: <20050324150450.01fbf17f@es175>
-References: <Pine.LNX.4.58.0503241015190.7647@skynet>
-	<20050324135851.388d1b4e@es175>
-	<20050324142131.2646c4fd.akpm@osdl.org>
-	<20050324150450.01fbf17f@es175>
-X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Thu, 24 Mar 2005 18:14:32 -0500
+From: "Rafael J. Wysocki" <rjw@sisk.pl>
+To: Len Brown <len.brown@intel.com>
+Subject: Re: 2.6.12-rc1-mm1: resume regression [update] (was: Re: 2.6.12-rc1-mm1: Kernel BUG at pci:389)
+Date: Fri, 25 Mar 2005 00:14:38 +0100
+User-Agent: KMail/1.7.1
+Cc: Pavel Machek <pavel@ucw.cz>, Andrew Morton <akpm@osdl.org>,
+       Greg KH <greg@kroah.com>, LKML <linux-kernel@vger.kernel.org>,
+       Shaohua Li <shaohua.li@intel.com>
+References: <20050322013535.GA1421@elf.ucw.cz> <200503240049.25695.rjw@sisk.pl> <1111626180.17317.921.camel@d845pe>
+In-Reply-To: <1111626180.17317.921.camel@d845pe>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-2"
+Content-Transfer-Encoding: 8BIT
+Content-Disposition: inline
+Message-Id: <200503250014.38550.rjw@sisk.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-cliff white <cliffw@osdl.org> wrote:
+Hi,
+
+On Thursday, 24 of March 2005 02:03, Len Brown wrote:
+> On Wed, 2005-03-23 at 18:49, Rafael J. Wysocki wrote:
+]-- snip --[ 
+> I'd believe that ohci_hcd and ehci_hcd are fragile since glancing
+> at their lengthy .resume routines it isn't immediately obvious
+> that they do this.  But yenta_dev_resume has a pci_enable_device(),
+> so that failure may be less straightforward.
 >
-> -extern struct agp_bridge_data *(*agp_find_bridge)(struct pci_dev *);
-> -
+> cheers,
+> -Len
+>
+> ps. if point me to a full dmesg -s64000 from 2.6.12-rc1 acpi-enabled 
+> boot, that would help -- for it will show if we're even using pci
+> interrupt links (and programming them) for these devices on this box.
 
-Oh crap, so the compiler decided that agp_find_bridge() was a function and
-decided to jump to it, rather than reading from it and doing an indirect
-jump.  Yup, that'll crash it.  Sorry about that.
+The dmesg output is at:
+http://www.sisk.pl/kernel/050325/2.6.11-rc1-dmesg.log
 
-This is another reason why doing the old-style
+Greets,
+Rafael
+ 
 
-	(*agp_find_bridge)(...);
-
-is better than doing the new-style
-
-	agp_find_bridge(...);
-
-The former case won't even compile, and is more readable.
+-- 
+- Would you tell me, please, which way I ought to go from here?
+- That depends a good deal on where you want to get to.
+		-- Lewis Carroll "Alice's Adventures in Wonderland"

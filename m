@@ -1,221 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269865AbUJMVh7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269863AbUJMVtS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269865AbUJMVh7 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 13 Oct 2004 17:37:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269863AbUJMVh7
+	id S269863AbUJMVtS (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 13 Oct 2004 17:49:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269866AbUJMVtS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 13 Oct 2004 17:37:59 -0400
-Received: from palrel11.hp.com ([156.153.255.246]:61649 "EHLO palrel11.hp.com")
-	by vger.kernel.org with ESMTP id S269858AbUJMVgv (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 13 Oct 2004 17:36:51 -0400
-Date: Wed, 13 Oct 2004 16:36:26 -0500
-From: mikem <mikem@beardog.cca.cpqcorp.net>
-To: Jeff Garzik <jgarzik@pobox.com>
-Cc: akpm@osdl.org, axboe@suse.de, linux-kernel@vger.kernel.org,
-       linux-scsi@vger.kernel.org
-Subject: Re: cciss update [1/2] updates our SCSI support to not use deprecated headers
-Message-ID: <20041013213626.GA10273@beardog.cca.cpqcorp.net>
-References: <20041013211302.GA9866@beardog.cca.cpqcorp.net> <20041013212105.GA4438@havoc.gtf.org>
+	Wed, 13 Oct 2004 17:49:18 -0400
+Received: from rwcrmhc12.comcast.net ([216.148.227.85]:52711 "EHLO
+	rwcrmhc12.comcast.net") by vger.kernel.org with ESMTP
+	id S269863AbUJMVtQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 13 Oct 2004 17:49:16 -0400
+Subject: Re: 4level page tables for Linux II
+From: Albert Cahalan <albert@users.sf.net>
+To: Andi Kleen <ak@suse.de>
+Cc: linux-kernel mailing list <linux-kernel@vger.kernel.org>
+In-Reply-To: <20041013092221.471f7232.ak@suse.de>
+References: <1097638599.2673.9668.camel@cube>
+	 <20041013092221.471f7232.ak@suse.de>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1097703775.2673.10779.camel@cube>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20041013212105.GA4438@havoc.gtf.org>
-User-Agent: Mutt/1.5.6i
+X-Mailer: Ximian Evolution 1.2.4 
+Date: 13 Oct 2004 17:42:55 -0400
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Oct 13, 2004 at 05:21:05PM -0400, Jeff Garzik wrote:
-> On Wed, Oct 13, 2004 at 04:13:02PM -0500, mike.miller@hjp.com wrote:
-> > @@ -552,11 +547,12 @@ cciss_scsi_setup(int cntl_num)
-> >  static void
-> >  complete_scsi_command( CommandList_struct *cp, int timeout, __u32 tag)
-> >  {
-> > -	Scsi_Cmnd *cmd;
-> > +	struct scsi_cmnd *cmd;
-> >  	ctlr_info_t *ctlr;
-> >  	u64bit addr64;
-> >  	ErrorInfo_struct *ei;
-> >  
-> > +	cmd = kmalloc(sizeof(struct scsi_cmnd), GFP_KERNEL);
-> >  	ei = cp->err_info;
-> >  
+On Wed, 2004-10-13 at 03:22, Andi Kleen wrote:
+> On 12 Oct 2004 23:36:40 -0400
+> Albert Cahalan <albert@users.sf.net> wrote:
 > 
-> This can get called from the interrupt handler, so GFP_KERNEL won't
-> work.  GFP_ATOMIC works, but you need to check kmalloc() return for
-> NULL.
+> > Hmmm...
+> > 
+> > pml4, pgd, pmd, pte  (kernel names)
+> > PML4E, PDPE, PDE, PTE   (AMD hardware names)
 > 
-> 	Jeff
+> No actually a PML4E is a PML4 _E_ntry in the AMD/Intel docs.
+> PML4 is the official name for the fourth level page.
 > 
-Hopefully this addresses this concern. Thanks, Jeff.
+> > It's kind of a mess, isn't it? It was bad enough
+> > with the "pmd" (page middle directory, ugh) being
+> > some random invention and everything being generally
+> > in conflict with real hardware naming. Now you've
+> > come up with a fourth name.
+> > 
+> > Notice that you've resorted to using a number.
+> 
+> I just followed AMD.
+> 
+> > Why not do that for the others too? It would
+> > bring some order to this ever-growing collection
+> > of arbitrary names. Like this:
+> 
+> I don't think it makes sense to break code unnecessarily.
+> 
+> And when you cannot remember the few names for the level you 
+> better shouldn't touch VM at all.
 
-mikem
--------------------------------------------------------------------------------
+One of the reasons that Linux is so hackable is that
+crummy names get changed. Here too, the old names are bad.
 
-diff -burNp lx269-rc4.orig/drivers/block/cciss_scsi.c lx269-rc4-p001/drivers/block/cciss_scsi.c
---- lx269-rc4.orig/drivers/block/cciss_scsi.c	2004-08-14 00:36:32.000000000 -0500
-+++ lx269-rc4-p001/drivers/block/cciss_scsi.c	2004-10-13 16:32:48.840091288 -0500
-@@ -28,7 +28,9 @@
-    through the array controller.  Note in particular, neither 
-    physical nor logical disks are presented through the scsi layer. */
- 
--#include "../scsi/scsi.h" 
-+#include <scsi/scsi.h> 
-+#include <scsi/scsi_cmnd.h>
-+#include <scsi/scsi_device.h>
- #include <scsi/scsi_host.h> 
- #include <asm/atomic.h>
- #include <linux/timer.h>
-@@ -61,15 +63,8 @@ int cciss_scsi_proc_info(
- 		int length, 	   /* length of data in buffer */
- 		int func);	   /* 0 == read, 1 == write */
- 
--int cciss_scsi_queue_command (Scsi_Cmnd *cmd, void (* done)(Scsi_Cmnd *));
--#if 0
--int cciss_scsi_abort(Scsi_Cmnd *cmd);
--#if defined SCSI_RESET_SYNCHRONOUS && defined SCSI_RESET_ASYNCHRONOUS
--int cciss_scsi_reset(Scsi_Cmnd *cmd, unsigned int reset_flags);
--#else
--int cciss_scsi_reset(Scsi_Cmnd *cmd);
--#endif
--#endif
-+int cciss_scsi_queue_command (struct scsi_cmnd *cmd, 
-+		void (* done)(struct scsi_cmnd *));
- 
- static struct cciss_scsi_hba_t ccissscsi[MAX_CTLR] = {
- 	{ .name = "cciss0", .ndevices = 0 },
-@@ -82,7 +77,7 @@ static struct cciss_scsi_hba_t ccissscsi
- 	{ .name = "cciss7", .ndevices = 0 },
- };
- 
--static Scsi_Host_Template cciss_driver_template = {
-+static struct scsi_host_template cciss_driver_template = {
- 	.module			= THIS_MODULE,
- 	.name			= "cciss",
- 	.proc_name		= "cciss",
-@@ -552,11 +547,15 @@ cciss_scsi_setup(int cntl_num)
- static void
- complete_scsi_command( CommandList_struct *cp, int timeout, __u32 tag)
- {
--	Scsi_Cmnd *cmd;
-+	struct scsi_cmnd *cmd;
- 	ctlr_info_t *ctlr;
- 	u64bit addr64;
- 	ErrorInfo_struct *ei;
- 
-+	if(cmd = kmalloc(sizeof(struct scsi_cmnd), GFP_ATOMIC) == NULL) {
-+		printk(KERN_WARNING "out of memory\n");
-+		return -ENOMEM;
-+	}
- 	ei = cp->err_info;
- 
- 	/* First, see if it was a message rather than a command */
-@@ -565,7 +564,7 @@ complete_scsi_command( CommandList_struc
- 		return;
- 	}
- 
--	cmd = (Scsi_Cmnd *) cp->scsi_cmd;	
-+	cmd = (struct scsi_cmnd *) cp->scsi_cmd;	
- 	ctlr = hba[cp->ctlr];
- 
- 	/* undo the DMA mappings */
-@@ -573,14 +572,14 @@ complete_scsi_command( CommandList_struc
- 	if (cmd->use_sg) {
- 		pci_unmap_sg(ctlr->pdev,
- 			cmd->buffer, cmd->use_sg,
--				scsi_to_pci_dma_dir(cmd->sc_data_direction)); 
-+				cmd->sc_data_direction); 
- 	}
- 	else if (cmd->request_bufflen) {
- 		addr64.val32.lower = cp->SG[0].Addr.lower;
-                 addr64.val32.upper = cp->SG[0].Addr.upper;
-                 pci_unmap_single(ctlr->pdev, (dma_addr_t) addr64.val,
-                 	cmd->request_bufflen, 
--				scsi_to_pci_dma_dir(cmd->sc_data_direction));
-+				cmd->sc_data_direction);
- 	}
- 
- 	cmd->result = (DID_OK << 16); 		/* host byte */
-@@ -783,9 +782,8 @@ cciss_scsi_do_simple_cmd(ctlr_info_t *c,
- 	cp->Request.Type.Direction = direction;
- 
- 	/* Fill in the SG list and do dma mapping */
--	cciss_map_one(c->pdev, cp, 
--			(unsigned char *) buf, bufsize,
--			scsi_to_pci_dma_dir(SCSI_DATA_READ)); 
-+	cciss_map_one(c->pdev, cp, (unsigned char *) buf,
-+			bufsize, DMA_FROM_DEVICE); 
- 
- 	cp->waiting = &wait;
- 
-@@ -799,9 +797,7 @@ cciss_scsi_do_simple_cmd(ctlr_info_t *c,
- 	wait_for_completion(&wait);
- 
- 	/* undo the dma mapping */
--	cciss_unmap_one(c->pdev, cp, bufsize,
--				scsi_to_pci_dma_dir(SCSI_DATA_READ)); 
--
-+	cciss_unmap_one(c->pdev, cp, bufsize, DMA_FROM_DEVICE);
- 	return(0);
- }
- 
-@@ -1180,14 +1176,14 @@ cciss_scsi_info(struct Scsi_Host *sa)
- }
- 
- 
--/* cciss_scatter_gather takes a Scsi_Cmnd, (cmd), and does the pci 
-+/* cciss_scatter_gather takes a struct scsi_cmnd, (cmd), and does the pci 
-    dma mapping  and fills in the scatter gather entries of the 
-    cciss command, cp. */
- 
- static void
- cciss_scatter_gather(struct pci_dev *pdev, 
- 		CommandList_struct *cp,	
--		Scsi_Cmnd *cmd)
-+		struct scsi_cmnd *cmd)
- {
- 	unsigned int use_sg, nsegs=0, len;
- 	struct scatterlist *scatter = (struct scatterlist *) cmd->buffer;
-@@ -1200,7 +1196,7 @@ cciss_scatter_gather(struct pci_dev *pde
- 			addr64 = (__u64) pci_map_single(pdev, 
- 				cmd->request_buffer, 
- 				cmd->request_bufflen, 
--				scsi_to_pci_dma_dir(cmd->sc_data_direction)); 
-+				cmd->sc_data_direction); 
- 	
- 			cp->SG[0].Addr.lower = 
- 			  (__u32) (addr64 & (__u64) 0x00000000FFFFFFFF);
-@@ -1213,7 +1209,7 @@ cciss_scatter_gather(struct pci_dev *pde
- 	else if (cmd->use_sg <= MAXSGENTRIES) {	/* not too many addrs? */
- 
- 		use_sg = pci_map_sg(pdev, cmd->buffer, cmd->use_sg, 
--			scsi_to_pci_dma_dir(cmd->sc_data_direction));
-+			cmd->sc_data_direction);
- 
- 		for (nsegs=0; nsegs < use_sg; nsegs++) {
- 			addr64 = (__u64) sg_dma_address(&scatter[nsegs]);
-@@ -1234,7 +1230,7 @@ cciss_scatter_gather(struct pci_dev *pde
- 
- 
- int 
--cciss_scsi_queue_command (Scsi_Cmnd *cmd, void (* done)(Scsi_Cmnd *))
-+cciss_scsi_queue_command (struct scsi_cmnd *cmd, void (* done)(struct scsi_cmnd *))
- {
- 	ctlr_info_t **c;
- 	int ctlr, rc;
-@@ -1302,11 +1298,10 @@ cciss_scsi_queue_command (Scsi_Cmnd *cmd
- 	cp->Request.Type.Attribute = ATTR_SIMPLE;
- 	switch(cmd->sc_data_direction)
- 	{
--	  case SCSI_DATA_WRITE: cp->Request.Type.Direction = XFER_WRITE; break;
--	  case SCSI_DATA_READ: cp->Request.Type.Direction = XFER_READ; break;
--	  case SCSI_DATA_NONE: cp->Request.Type.Direction = XFER_NONE; break;
--
--	  case SCSI_DATA_UNKNOWN:
-+	  case DMA_TO_DEVICE: cp->Request.Type.Direction = XFER_WRITE; break;
-+	  case DMA_FROM_DEVICE: cp->Request.Type.Direction = XFER_READ; break;
-+	  case DMA_NONE: cp->Request.Type.Direction = XFER_NONE; break;
-+	  case DMA_BIDIRECTIONAL:
- 		// This can happen if a buggy application does a scsi passthru
- 		// and sets both inlen and outlen to non-zero. ( see
- 		// ../scsi/scsi_ioctl.c:scsi_ioctl_send_command() )
+An old example: we use copy_from_user now, not copy_fromfs.
+Don't you agree that this is an improvement? It broke code
+unnecessarily, but Linus did it anyway. Linux would be a
+lot less readable if it had screwy names everywhere.
+
+Perhaps you shouldn't touch kernel code if you can't
+remember that copy_fromfs is unrelated to fs code.
+Still, why make things difficult? The less effort you
+waste remembering stupid names, the more you can spare
+for writing great code.
+
+

@@ -1,71 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263253AbVCKKJA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262629AbVCKKPr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263253AbVCKKJA (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 11 Mar 2005 05:09:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263244AbVCKKJA
+	id S262629AbVCKKPr (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 11 Mar 2005 05:15:47 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262659AbVCKKPr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 11 Mar 2005 05:09:00 -0500
-Received: from fire.osdl.org ([65.172.181.4]:22987 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S263253AbVCKKIe (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 11 Mar 2005 05:08:34 -0500
-Date: Fri, 11 Mar 2005 02:07:17 -0800
-From: Andrew Morton <akpm@osdl.org>
+	Fri, 11 Mar 2005 05:15:47 -0500
+Received: from cpe-24-94-57-164.stny.res.rr.com ([24.94.57.164]:21926 "EHLO
+	localhost.localdomain") by vger.kernel.org with ESMTP
+	id S262629AbVCKKPk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 11 Mar 2005 05:15:40 -0500
+Date: Fri, 11 Mar 2005 05:15:39 -0500 (EST)
+From: Steven Rostedt <rostedt@goodmis.org>
+X-X-Sender: rostedt@localhost.localdomain
+Reply-To: rostedt@goodmis.org
 To: Ingo Molnar <mingo@elte.hu>
-Cc: arjan@infradead.org, pbadari@us.ibm.com, dhowells@redhat.com,
-       torvalds@osdl.org, suparna@in.ibm.com, linux-aio@kvack.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] rwsem: Make rwsems use interrupt disabling spinlocks
-Message-Id: <20050311020717.46794d94.akpm@osdl.org>
-In-Reply-To: <20050311094024.GC19954@elte.hu>
-References: <20050309032832.159e58a4.akpm@osdl.org>
-	<20050308170107.231a145c.akpm@osdl.org>
-	<1110327267.24286.139.camel@dyn318077bld.beaverton.ibm.com>
-	<18744.1110364438@redhat.com>
-	<20050309110404.GA4088@in.ibm.com>
-	<1110366469.6280.84.camel@laptopd505.fenrus.org>
-	<4175.1110370343@redhat.com>
-	<1110395783.24286.207.camel@dyn318077bld.beaverton.ibm.com>
-	<20050309114234.6598f486.akpm@osdl.org>
-	<1110399036.6280.151.camel@laptopd505.fenrus.org>
-	<20050311094024.GC19954@elte.hu>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+cc: Lee Revell <rlrevell@joe-job.com>, linux-kernel@vger.kernel.org
+Subject: Re: [patch] Real-Time Preemption, -RT-2.6.11-rc3-V0.7.38-01
+In-Reply-To: <20050311095747.GA21820@elte.hu>
+Message-ID: <Pine.LNX.4.58.0503110508360.19798@localhost.localdomain>
+References: <20050204100347.GA13186@elte.hu> <1108789704.8411.9.camel@krustophenia.net>
+ <Pine.LNX.4.58.0503100323370.14016@localhost.localdomain>
+ <Pine.LNX.4.58.0503100447150.14016@localhost.localdomain> <20050311095747.GA21820@elte.hu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ingo Molnar <mingo@elte.hu> wrote:
+
+On Fri, 11 Mar 2005, Ingo Molnar wrote:
+
 >
-> 
-> * Arjan van de Ven <arjan@infradead.org> wrote:
-> 
-> > > Ingo, we already have a touch_nmi_watchdog() in the sysrq code.  It might be
-> > > worth adding a touch_softlockup_watchdog() wherever we have a
-> > > touch_nmi_watchdog().
-> > 
-> > ....or add touch_softlockup_watchdog to touch_nmi_watchdog() instead
-> > and rename it tickle_watchdog() overtime.
-> 
-> you mean like:
-> 
-> +extern void touch_softlockup_watchdog(void);
-> 
-> in:
-> 
->  http://kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.11/2.6.11-mm2/broken-out/detect-soft-lockups.patch
-> 
-> ?
-> 
+> * Steven Rostedt <rostedt@goodmis.org> wrote:
+>
+> > > The short term fix is probably to put back the preempt_disables, the long
+> > > term is to get rid of these stupid bit_spin_lock busy loops.
+> >
+> > Doing a quick search on the kernel, it looks like only kjournald uses
+> > the bit_spin_locks. I'll start converting them to spinlocks. The use
+> > seems to be more of a hack, since it is using bits in the state field
+> > for locking, and these bits aren't used for anything else.
+>
+> yeah. bit-spinlocks are really a hack.
+>
+> 	Ingo
+>
 
-Nope.
+And this really sucks too!  I've been looking into a fix for this and have
+yet to get something stable.  As you probably already know, you can't just
+put back the preempt_disable since your spinlocks now schedule. So I've
+been looking into finding a way to get rid of these.
 
-This particular lockup happened because a huge stream of stuff was sent to
-the serial console.
+I've tried making two global spinlocks, one for the state bit and one for
+the journal head bit use.  But this deadlocks with j_state_lock. The
+journal head lock seems to be ok to be global, but the state lock needs to
+have one for every buffer head.  I'm now hacking away to do this without
+touching the actual buffer head. But I'm not sure what some of the
+side effects this is having.  I'll keep you posted when I get something
+working.  I'm now having a crash course in how kjournal and friends work.
 
-We already have a touch_nmi_watchdog() in that code.
-
-We should arrange for touch_softlockup_watchdog() to be called whenever
-touch_nmi_watchdog() is called.
+-- Steve
 

@@ -1,62 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269286AbTGJO1H (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Jul 2003 10:27:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269287AbTGJO1H
+	id S269316AbTGJO5m (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Jul 2003 10:57:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269313AbTGJO5m
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Jul 2003 10:27:07 -0400
-Received: from ns1.cypress.com ([157.95.67.4]:64424 "EHLO ns1.cypress.com")
-	by vger.kernel.org with ESMTP id S269286AbTGJO1D (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Jul 2003 10:27:03 -0400
-Message-ID: <3F0D7B0F.8090506@cypress.com>
-Date: Thu, 10 Jul 2003 09:41:19 -0500
-From: Thomas Dodd <ted@cypress.com>
-Reply-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-User-Agent: Mozilla/5.0 (X11; U; SunOS sun4u; en-US; rv:1.4) Gecko/20030701
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-CC: Miles Bader <miles@gnu.org>, Andre Hedrick <andre@linux-ide.org>
-Subject: Re: Dell vs. GPL
-References: <Pine.LNX.4.10.10306292353190.5840-100000@master.linux-ide.org>	<buollvj7vai.fsf@mcspd15.ucom.lsi.nec.co.jp>	<3F0CA535.8030708@cypress.com> <buo4r1vdrl3.fsf@mcspd15.ucom.lsi.nec.co.jp>
-In-Reply-To: <buo4r1vdrl3.fsf@mcspd15.ucom.lsi.nec.co.jp>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Thu, 10 Jul 2003 10:57:42 -0400
+Received: from carisma.slowglass.com ([195.224.96.167]:48145 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id S269312AbTGJO5k (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 10 Jul 2003 10:57:40 -0400
+Date: Thu, 10 Jul 2003 16:12:17 +0100
+From: Christoph Hellwig <hch@infradead.org>
+To: Marcelo Tosatti <marcelo@conectiva.com.br>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Christoph Hellwig <hch@infradead.org>,
+       Jeff Garzik <jgarzik@pobox.com>, LKML <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@digeo.com>
+Subject: Re: RFC:  what's in a stable series?
+Message-ID: <20030710161217.B22512@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Marcelo Tosatti <marcelo@conectiva.com.br>,
+	Alan Cox <alan@lxorguk.ukuu.org.uk>,
+	Jeff Garzik <jgarzik@pobox.com>,
+	LKML <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@digeo.com>
+References: <3F0CBC08.1060201@pobox.com> <Pine.LNX.4.55L.0307100040271.6629@freak.distro.conectiva> <20030710085338.C28672@infradead.org> <1057835998.8028.6.camel@dhcp22.swansea.linux.org.uk> <Pine.LNX.4.55L.0307100910550.7857@freak.distro.conectiva>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <Pine.LNX.4.55L.0307100910550.7857@freak.distro.conectiva>; from marcelo@conectiva.com.br on Thu, Jul 10, 2003 at 09:13:03AM -0300
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-Miles Bader wrote:
-> Thomas Dodd <ted@cypress.com> writes:
->>Either license would still reguire registration for enforcement. But the 
->>_new_ license, like OSL, would "will have teeth to defend", and stand up 
->>in court since the GPL didn't.
+On Thu, Jul 10, 2003 at 09:13:03AM -0300, Marcelo Tosatti wrote:
+> > Because you hacked v1 support out of Jan Kara's stuff the quota bits are
+> > pretty useless to most people because they have v1 format files.
 > 
+> So Christoph's quota patch does not support vendors "v1" files?
 > 
-> Why?  If the court loss was due to a lack of registration, the content
-> of the license has no relevance -- _any_ license would lose in that
-> situation.
+> I must be misunderstanding someone.
 
-Where did you get that the "loss was due to a lack of registration" ?
-
- From Andre's 6/29 message:
- > I am in the process of getting the formal registered copyright.
- >
- > I will take GPL to court and will not settle out of court.
- > GPL will live or die in this case, I do not give a damn which way it
- > falls.
- >
- > GPL wins great.
- > GPL loses, maybe better so it can be replaced with OSL and then
- > it gets serious because we will have teeth to defend the ideas
- > of open source.
-
-Andre is formaly registering the copyright, so that the lawyers will 
-take the case. Without it, in the US at least, the case will never be 
-heard. Andre has stated this case will be heard, so the GPL will be 
-tested in court. The loss would not be related to registration.
-
-	-Thomas
+Alan obviously didn't even look at the code.  Of course the old
+quota format is supported as described in the mail I sent you
+the patch with.
 

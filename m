@@ -1,59 +1,63 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269740AbRHIJAQ>; Thu, 9 Aug 2001 05:00:16 -0400
+	id <S269739AbRHII4q>; Thu, 9 Aug 2001 04:56:46 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269744AbRHIJAG>; Thu, 9 Aug 2001 05:00:06 -0400
-Received: from host217-33-139-17.ietf.ignite.net ([217.33.139.17]:59015 "HELO
-	bee5.dirksteinberg.de") by vger.kernel.org with SMTP
-	id <S269740AbRHII7v> convert rfc822-to-8bit; Thu, 9 Aug 2001 04:59:51 -0400
-Message-ID: <3B724F1E.F354795E@dirksteinberg.de>
-Date: Thu, 09 Aug 2001 09:51:42 +0100
-From: "Dirk W. Steinberg" <dws@dirksteinberg.de>
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.6-mosix106 i686)
-X-Accept-Language: en
+	id <S269740AbRHII4g>; Thu, 9 Aug 2001 04:56:36 -0400
+Received: from www.grips.com ([62.144.214.31]:27153 "EHLO grips_nts2.grips.com")
+	by vger.kernel.org with ESMTP id <S269739AbRHII4Z>;
+	Thu, 9 Aug 2001 04:56:25 -0400
+Message-ID: <3B72510C.2020503@grips.com>
+Date: Thu, 09 Aug 2001 10:59:56 +0200
+From: gjury <gjury@grips.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.3) Gecko/20010803
+X-Accept-Language: de-at, en
 MIME-Version: 1.0
-To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: Swapping for diskless nodes
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8BIT
+To: Mark Hahn <hahn@physics.mcmaster.ca>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Athlon/MSI mobo combo broken?
+In-Reply-To: <Pine.LNX.4.10.10108082057430.10284-100000@coffee.psychology.mcmaster.ca>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+I did not say chipset at all.
+You seem to miss the fact, that >= 40 % of the SDRAM modules are not 
+even close to the spec.
+The german magazin ct can sing a song about it. http://www.heise.de/ct
+Software has nothing to do with this.
+The windows installation on my PC suffert from the same effects.
+It was just harder to spot there below ... .
+Every memory tester i tried was showing no problems at all.
+It may be triggered more likely or not, but bad SDRAM cannot be fixed in 
+software.
+Thats my own only plausible theory.
 
-what is the best/recommended way to do remote swapping via the network
-for diskless workstations or compute nodes in clusters in Linux 2.4? 
-Last time i checked was linux 2.2, and there were some races related 
-to network swapping back then. Has this been fixed for 2.4?
+regards
+gerold
 
-What about the following options: Do they work at all? What are the advantages/
-disadvantages? What are the performance implications? Race conditions?
+Mark Hahn wrote:
 
-1. Swapping via NFS? There was a patch for this for 2.2? Is there such a
-   patch for 2.4 as well? Should one use UDP or TCP? NFSv2? NFSv3?
+>>If you have PC100 SDRAM try to replace it with PC133.
+>>
+>
+>ugh, this is the same (mistaken) approach as turning off CONFIG_MK7:
+>cripple performance enough that your system works.  turning off 
+>CONFIG_MK7 disables Arjan's nice code in mmx.c which delivers 
+>2-4x the copy/zero-page bandwidth...
+>
+>there *are* stable via/athlon systems, and that indicates that the 
+>problem is not inherent to the chipset.  I have a gigabyte ga-7zx,
+>duron/600, pc133 system that has always been rock-solid.  and I 
+>recently built an Asus a7v-133, tbird/1199, pc133 system that is
+>also entirely stable.  both run cas2 pc133, CONFIG_MK7 kernels, etc.
+>both have fairly generous power supplies.
+>
+>so far, the only plausible theory is that some individual factor(s)
+>(MB, bios settings, power quality, dram quality, etc) causes 
+>the instability that some people report.
+>
+>regards, mark hahn.
+>
 
-2. Using some sort of network block device (nbd, new nbd, gnbd, drbd, 
-   possibly others?). Which one to use? I suspect that for performance
-   a kernel mode implementation is needed for both client and server.
 
-3. iSCSI. There are several implementations, and I don't know if any of 
-   these is ready for production use. Both initiator and target 
-   implementation would be needed because I don't have any native iSCSI
-   targets available.
-
-4. Swapping to GFS? Is that possible? Even if GFS is based on gnbd, not FC?
-
-5. Anything else? Maybe some implementation of network memory in the context
-   of a cluster computing environment (MOSIX, etc.).
-
-Thanks for any answers.
-
-Cheers,
-	Dirk
-
-------------------------------------------
-Ingenieurbüro Dipl.-Ing. Dirk W. Steinberg
-Ringstr. 2, D-53567 Buchholz, Germany
-Phone: +49-2683-9793-20, fax: -29
-Mobile/GSM: +49-170-818-9793
-Email: dws@dirksteinberg.de

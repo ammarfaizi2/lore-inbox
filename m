@@ -1,62 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265636AbSLWCCB>; Sun, 22 Dec 2002 21:02:01 -0500
+	id <S266292AbSLWCcW>; Sun, 22 Dec 2002 21:32:22 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265787AbSLWCCB>; Sun, 22 Dec 2002 21:02:01 -0500
-Received: from dp.samba.org ([66.70.73.150]:64164 "EHLO lists.samba.org")
-	by vger.kernel.org with ESMTP id <S265636AbSLWCCA>;
-	Sun, 22 Dec 2002 21:02:00 -0500
-From: Rusty Russell <rusty@rustcorp.com.au>
-To: Burton Windle <bwindle@fint.org>
-Cc: torvalds@transmeta.com, linux-kernel@vger.kernel.org
-Subject: Re: [2.5.51+] kernel not honoring init= bootparm? (fwd) 
-In-reply-to: Your message of "Fri, 20 Dec 2002 15:41:52 CDT."
-             <Pine.LNX.4.43.0212201540160.3821-100000@morpheus> 
-Date: Mon, 23 Dec 2002 13:08:57 +1100
-Message-Id: <20021223021009.8E1482C0A7@lists.samba.org>
+	id <S266297AbSLWCcW>; Sun, 22 Dec 2002 21:32:22 -0500
+Received: from orion.netbank.com.br ([200.203.199.90]:50193 "EHLO
+	orion.netbank.com.br") by vger.kernel.org with ESMTP
+	id <S266292AbSLWCcV>; Sun, 22 Dec 2002 21:32:21 -0500
+Date: Mon, 23 Dec 2002 00:40:17 -0200
+From: Arnaldo Carvalho de Melo <acme@conectiva.com.br>
+To: Anders Gustafsson <andersg@0x63.nu>
+Cc: "David S. Miller" <davem@redhat.com>, linux-kernel@vger.kernel.org,
+       joe user <joe_user35@hotmail.com>
+Subject: Re: [PATCH] /proc/net/tcp + ipv6 hang
+Message-ID: <20021223024017.GO4942@conectiva.com.br>
+Mail-Followup-To: Arnaldo Carvalho de Melo <acme@conectiva.com.br>,
+	Anders Gustafsson <andersg@0x63.nu>,
+	"David S. Miller" <davem@redhat.com>, linux-kernel@vger.kernel.org,
+	joe user <joe_user35@hotmail.com>
+References: <20021223015723.GA17439@gagarin>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20021223015723.GA17439@gagarin>
+User-Agent: Mutt/1.4i
+X-Url: http://advogato.org/person/acme
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In message <Pine.LNX.4.43.0212201540160.3821-100000@morpheus> you write:
-> I think this might be due to the changes you made.
+Em Mon, Dec 23, 2002 at 02:57:23AM +0100, Anders Gustafsson escreveu:
+> this patch fixes an infinite loop when reading /proc/net/tcp and having
+> daemons listening on ipv6.
 
-Indeed it was.  Looks like overzealous patch cropping on my part.
+Perfect! Thanks for the fix, looking at it now it seems soooo obvious, /me
+slaps himself in the face 8)
 
-This works for me.  Linus, please apply.
+David, pleasey apply, I think there is still at least one bug with this code,
+will be testing this as soon as possible.
 
-Rusty.
---
-  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.
+Anders, if you're feeling brave, from the top of my head, think about what
+happens if somebody only reads the first, say, 10 bytes of /proc/net/tcp, will
+we unlocking a not held lock at tcp_seq_stop, no? :-)
 
-Name: init= boot command line fix
-Author: Rusty Russell
-Status: Tested on 2.5.52
+Another fix for this one will be apreciated 8)
 
-D: Restores the accidentally dropped code to handle init=.
-
-diff -urNp --exclude TAGS -X /home/rusty/current-dontdiff --minimal linux-2.5.52/init/main.c working-2.5.52-noexit/init/main.c
---- linux-2.5.52/init/main.c	Tue Dec 17 08:11:00 2002
-+++ working-2.5.52-noexit/init/main.c	Mon Dec 23 12:49:41 2002
-@@ -259,6 +259,22 @@ static int __init unknown_bootoption(cha
- 	return 0;
- }
- 
-+static int __init init_setup(char *str)
-+{
-+	unsigned int i;
-+
-+	execute_command = str;
-+	/* In case LILO is going to boot us with default command line,
-+	 * it prepends "auto" before the whole cmdline which makes
-+	 * the shell think it should execute a script with such name.
-+	 * So we ignore all arguments entered _before_ init=... [MJ]
-+	 */
-+	for (i = 1; i < MAX_INIT_ARGS; i++)
-+		argv_init[i] = NULL;
-+	return 1;
-+}
-+__setup("init=", init_setup);
-+
- extern void setup_arch(char **);
- extern void cpu_idle(void);
- 
+- Arnaldo

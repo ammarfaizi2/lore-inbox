@@ -1,33 +1,35 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265063AbSK3Vjb>; Sat, 30 Nov 2002 16:39:31 -0500
+	id <S262913AbSK3VhT>; Sat, 30 Nov 2002 16:37:19 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265333AbSK3Vjb>; Sat, 30 Nov 2002 16:39:31 -0500
-Received: from kweetal.tue.nl ([131.155.2.7]:6207 "EHLO kweetal.tue.nl")
-	by vger.kernel.org with ESMTP id <S265063AbSK3Vjb>;
-	Sat, 30 Nov 2002 16:39:31 -0500
-Date: Sat, 30 Nov 2002 22:46:54 +0100
-From: Andries Brouwer <aebr@win.tue.nl>
-To: "ruckc" <ruckc@mail.tnaccess.com>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: Re: 2.5.50 keyboard won't work
-Message-ID: <20021130214654.GB6492@win.tue.nl>
-References: <200211301431.AA40632710@mail.tnaccess.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200211301431.AA40632710@mail.tnaccess.com>
-User-Agent: Mutt/1.3.25i
+	id <S264644AbSK3VhT>; Sat, 30 Nov 2002 16:37:19 -0500
+Received: from smtp-01.inode.at ([62.99.194.3]:59266 "EHLO smtp.inode.at")
+	by vger.kernel.org with ESMTP id <S262913AbSK3VhT> convert rfc822-to-8bit;
+	Sat, 30 Nov 2002 16:37:19 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Patrick Petermair <black666@inode.at>
+Reply-To: black666@inode.at
+To: linux-kernel@vger.kernel.org
+Subject: Re: Problem with via82cxxx and vt8235
+Date: Sat, 30 Nov 2002 22:45:49 +0100
+User-Agent: KMail/1.4.3
+References: <200211300129.32580.black666@inode.at> <200211302227.23253.black666@inode.at> <6uisye3flk.fsf@zork.zork.net>
+In-Reply-To: <6uisye3flk.fsf@zork.zork.net>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <200211302245.49989.black666@inode.at>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Nov 30, 2002 at 02:31:56PM -0600, ruckc wrote:
+Sean Neakums:
 
-> In 2.5.50 i am completly unable to get my keyboard to work.
-> I have selected the input device->keyboard support
+> Are you running Debian unstable, and did you recently dist-upgrade?
+> The changes to coreutils that display CPU information in place of
+> "unknown unknown" were reverted in coreutils 4.5.3-1.
 
-Check that you have enabled everything needed for the keyboard,
-there is a whole list of options and they are all needed
-(and the top ones explicitly say so).
+Yup, Debian unstable...and yup, did a upgrade last night.
 
-[Input devices, Serial I/O, KBD controller, Keyboards, AT keyboard (or so)]
+Thanks.
+Patrick
+
+

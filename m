@@ -1,47 +1,62 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278125AbRJ1Kie>; Sun, 28 Oct 2001 05:38:34 -0500
+	id <S278128AbRJ1KdN>; Sun, 28 Oct 2001 05:33:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278133AbRJ1KiX>; Sun, 28 Oct 2001 05:38:23 -0500
-Received: from cmailg4.svr.pol.co.uk ([195.92.195.174]:41549 "EHLO
-	cmailg4.svr.pol.co.uk") by vger.kernel.org with ESMTP
-	id <S278125AbRJ1KiM>; Sun, 28 Oct 2001 05:38:12 -0500
-Posted-Date: Sun, 28 Oct 2001 10:37:46 GMT
-Date: Sun, 28 Oct 2001 10:37:45 +0000 (GMT)
-From: Riley Williams <rhw@MemAlpha.cx>
-Reply-To: Riley Williams <rhw@MemAlpha.cx>
-To: Keith Owens <kaos@ocs.com.au>
-cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        Linus Torvalds <torvalds@transmeta.com>,
-        Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] 2.4.13 default config 
-In-Reply-To: <21646.1004231366@ocs3.intra.ocs.com.au>
-Message-ID: <Pine.LNX.4.21.0110281035440.28398-100000@Consulate.UFP.CX>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S278125AbRJ1KdE>; Sun, 28 Oct 2001 05:33:04 -0500
+Received: from smtp.mailbox.co.uk ([195.82.125.32]:60598 "EHLO
+	smtp.mailbox.net.uk") by vger.kernel.org with ESMTP
+	id <S278128AbRJ1Kco>; Sun, 28 Oct 2001 05:32:44 -0500
+Date: Sun, 28 Oct 2001 10:33:18 +0000
+From: Russell King <rmk@arm.linux.org.uk>
+To: Linux Kernel List <linux-kernel@vger.kernel.org>
+Subject: Patch: mark CSZ packet scheduling algorithm experimental
+Message-ID: <20011028103318.A21147@flint.arm.linux.org.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Keith.
+Hi,
 
->> The enclosed patch (against the raw 2.4.13 tree) adds a `make
->> defconfig` option that configures Linux with the default options
->> obtained by simply pressing ENTER to every prompt that comes up.
+The Configure.help entry for the CSZ packet scheduling algorithm describes
+this code as:
 
->> Please apply.
+  Note: this scheduler is currently broken.
 
-> Please don't. You cannot blindly reply 'y' to all new options, it
-> will hang on numbers and strings, the answer has to be context
-> sensitive.
+Unfortunately, there isn't a description of _what_ is broken, and not
+having any experience of packet schedulers... 8)
 
-Who's replying 'y' to all options? My patch answered by just pressing
-ENTER to all options, as you'd've seen if you'd bothered to read it.
+So, if this is no longer true, the comment should be removed from the
+help entry.  If it is still true, the following patch might be
+appropriate:
 
-> There is already a patch for make allyes, allno, allmod and random
-> (but valid) configs in kbuild 2.5. That patch is context sensitive
-> and can easily be extended with defconfig.
+--- orig/Documentation/Configure.help	Sat Oct 27 22:00:22 2001
++++ linux/Documentation/Configure.help	Sun Oct 28 10:24:28 2001
+@@ -9066,7 +9066,7 @@
+   whenever you want).  If you want to compile it as a module, say M
+   here and read <file:Documentation/modules.txt>.
+ 
+-CSZ packet scheduler
++CSZ packet scheduler (experimental)
+ CONFIG_NET_SCH_CSZ
+   Say Y here if you want to use the Clark-Shenker-Zhang (CSZ) packet
+   scheduling algorithm for some of your network devices.  At the
+--- orig/net/sched/Config.in	Sat Jan 22 19:46:44 2000
++++ linux/net/sched/Config.in	Sun Oct 28 10:24:57 2001
+@@ -4,7 +4,7 @@
+ define_bool CONFIG_NETLINK y
+ define_bool CONFIG_RTNETLINK y	
+ tristate '  CBQ packet scheduler' CONFIG_NET_SCH_CBQ
+-tristate '  CSZ packet scheduler' CONFIG_NET_SCH_CSZ
++dep_tristate '  CSZ packet scheduler (experimental)' CONFIG_NET_SCH_CSZ $CONFIG_EXPERIMENTAL
+ #tristate '  H-PFQ packet scheduler' CONFIG_NET_SCH_HPFQ
+ #tristate '  H-FSC packet scheduler' CONFIG_NET_SCH_HFCS
+ if [ "$CONFIG_ATM" = "y" ]; then
 
-What does this have to do with my patch?
 
-Best wishes from Riley.
+--
+Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
+             http://www.arm.linux.org.uk/personal/aboutme.html
 

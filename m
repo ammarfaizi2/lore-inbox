@@ -1,58 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265343AbSIWKHn>; Mon, 23 Sep 2002 06:07:43 -0400
+	id <S265346AbSIWKLn>; Mon, 23 Sep 2002 06:11:43 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265346AbSIWKHn>; Mon, 23 Sep 2002 06:07:43 -0400
-Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:49415 "EHLO
-	gatekeeper.tmr.com") by vger.kernel.org with ESMTP
-	id <S265343AbSIWKHm>; Mon, 23 Sep 2002 06:07:42 -0400
-Date: Mon, 23 Sep 2002 06:05:18 -0400 (EDT)
-From: Bill Davidsen <davidsen@tmr.com>
-To: Larry McVoy <lm@bitmover.com>
-cc: Peter Waechtler <pwaechtler@mac.com>, linux-kernel@vger.kernel.org,
-       ingo Molnar <mingo@redhat.com>
-Subject: Re: [ANNOUNCE] Native POSIX Thread Library 0.1
-In-Reply-To: <20020922143257.A8397@work.bitmover.com>
-Message-ID: <Pine.LNX.3.96.1020923055128.11375A-100000@gatekeeper.tmr.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S265349AbSIWKLn>; Mon, 23 Sep 2002 06:11:43 -0400
+Received: from jack.stev.org ([217.79.103.51]:52134 "EHLO jack.stev.org")
+	by vger.kernel.org with ESMTP id <S265346AbSIWKLm>;
+	Mon, 23 Sep 2002 06:11:42 -0400
+Message-ID: <017801c262eb$010a3d00$0cfea8c0@ezdsp.com>
+From: "James Stevenson" <james@stev.org>
+To: "Kernel" <linux-kernel@vger.kernel.org>
+Subject: via82cxxxx.c ?
+Date: Mon, 23 Sep 2002 11:21:38 +0100
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 5.50.4807.1700
+X-MIMEOLE: Produced By Microsoft MimeOLE V5.50.4910.0300
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 22 Sep 2002, Larry McVoy wrote:
+Hi
 
-> On Sun, Sep 22, 2002 at 08:55:39PM +0200, Peter Waechtler wrote:
-> > AIX and Irix deploy M:N - I guess for a good reason: it's more
-> > flexible and combine both approaches with easy runtime tuning if
-> > the app happens to run on SMP (the uncommon case).
-> 
-> No, AIX and IRIX do it that way because their processes are so bloated
-> that it would be unthinkable to do a 1:1 model.
+i have the following on motherboard card.
 
-And BSD? And Solaris?
- 
-> Instead of taking the traditional "we've screwed up the normal system 
-> primitives so we'll event new lightweight ones" try this:
-> 
-> We depend on the system primitives to not be broken or slow.
-> 
-> If that's a true statement, and in Linux it tends to be far more true
-> than other operating systems, then there is no reason to have M:N.
+ Multimedia audio controller: VIA Technologies, Inc. VT8233 AC97 Audio
+Controller (rev 48).
 
-No matter how fast you do context switch in and out of kernel and a sched
-to see what runs next, it can't be done as fast as it can be avoided.
-Being N:M doesn't mean all implementations must be faster, just that doing
-it all in user mode CAN be faster.
+there appears ot be a driver for it. But i am havign a few problems with it
+when the driver loads it says it picks the card up no problem
+and stays loaded and has the ioports, irq in /proc/*
 
-Benchmarks are nice, I await results from a loaded production threaded
-DNS/mail/web/news/database server. Well, I guess production and 2.5 don't
-really go together, do they, but maybe some experimental site which could
-use 2.5 long enough to get numbers. If you could get a threaded database
-to run, that would be a good test of shared resources rather than a bunch
-of independent activities doing i/o. 
+but when trying to open /dev/audio or /dev/dsp or /dev/mixer
+all i get back is a -ENODEV
 
--- 
-bill davidsen <davidsen@tmr.com>
-  CTO, TMR Associates, Inc
-Doing interesting things with little computers since 1979.
+does anyone know where i could get the docs on the card and have
+ago at fixing the driver ? is there a maintiner / active people
+working on the driver ?
+
+i currently also have the via drivers working on it but they
+tend to work / not work and work a bit of the time and of course
+these taint my kernel :(
+
+thanks
+    James
+
 

@@ -1,117 +1,76 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262397AbTKRNXX (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 18 Nov 2003 08:23:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262564AbTKRNXX
+	id S262610AbTKRN1U (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 18 Nov 2003 08:27:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262652AbTKRN1U
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 18 Nov 2003 08:23:23 -0500
-Received: from chaos.analogic.com ([204.178.40.224]:7299 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP id S262397AbTKRNXT
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 18 Nov 2003 08:23:19 -0500
-Date: Tue, 18 Nov 2003 08:24:45 -0500 (EST)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-X-X-Sender: root@chaos
-Reply-To: root@chaos.analogic.com
-To: "Ihar 'Philips' Filipau" <filia@softhome.net>
-cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [Q] jiffies overflow & timers.
-In-Reply-To: <3FB9EC19.80107@softhome.net>
-Message-ID: <Pine.LNX.4.53.0311180802090.30076@chaos>
-References: <3FB91527.50007@softhome.net> <Pine.LNX.4.53.0311171347540.24608@chaos>
- <3FB9373D.6010300@softhome.net> <Pine.LNX.4.53.0311171624100.27657@chaos>
- <3FB9EC19.80107@softhome.net>
+	Tue, 18 Nov 2003 08:27:20 -0500
+Received: from dsl092-053-140.phl1.dsl.speakeasy.net ([66.92.53.140]:23746
+	"EHLO grelber.thyrsus.com") by vger.kernel.org with ESMTP
+	id S262610AbTKRN1P (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 18 Nov 2003 08:27:15 -0500
+From: Rob Landley <rob@landley.net>
+Reply-To: rob@landley.net
+To: shoxx@web.de, linux-kernel@vger.kernel.org
+Subject: Re: problem with suspend to disk on linux2.6-t9
+Date: Tue, 18 Nov 2003 07:18:00 -0600
+User-Agent: KMail/1.5
+References: <200311172327.24418.shoxx@web.de>
+In-Reply-To: <200311172327.24418.shoxx@web.de>
+Cc: mochel@osdl.org
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200311180718.00059.rob@landley.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 18 Nov 2003, Ihar 'Philips' Filipau wrote:
-
-> Richard B. Johnson wrote:
-> >>Richard B. Johnson wrote:
-> >>
-> >>>Use jiffies as other modules use it:
-> >>>
-> >>>        tim = jiffies + TIMEOUT_IN_HZ;
-> >>>        while(time_before(jiffies, tim))
-> >>>        {
-> >>>            if(what_im_waiting_for())
-> >>>                break;
-> >>>            current->policy |= SCHED_YIELD;
-> >>>            schedule();
-> >>>        }
-> >>>//
-> >>>// Note that somebody could have taken the CPU for many seconds
-> >>>// causing a 'timeout', therefore, you need to add one more check
-> >>>// after loop-termination:
-> >>>//
-> >>>            if(what_im_waiting_for())
-> >>>                good();
-> >>>            else
-> >>>                timed_out();
-> >>>
-> >>>Overflow is handled up to one complete wrap of jiffies + TIMEOUT. It's
-> >>>only the second wrap that will fail and if you are waiting several
-> >>>months for something to happen in your code, the code is broken.
-> >>>
+On Monday 17 November 2003 16:27, dodger wrote:
+> hi
+> i am using linux2.6-t9 and i am trying to use suspend to disk
+> when doing a
+> < echo -n "disk" > /sys/power/state >
 >
+> it is suspending real fine.
+> but it is not resuming at all.
+> i tried to boot up normally and with resume=/dev/hdb5 ( swap partition )
+> but nothing happens...
 >
->    time_before(a,b) == (((long)a - (long)b) < 0)
+> it just boots up normally...
+> i have set /dev/hdb5 as DEFAULT RESUME PARTITION during kernel config...
 >
->    Can you explain me this games with signs there?
->    Or this code expected to work reliably for timeouts < (ULONG_MAX/2)?
->    time_before/time_after - do implicit conversion to signed types,
-> while jiffies/friends are all unsigned. If one day gcc will be fixed -
-> and it will truncate data here as I expect it to do - this will not work
-> at all. Or this is a feature of 2-complement archs?
->    (ldd2 again is silent on this topic - and I'm totally confused...)
->
+> any ideas?
+> thanks
 
-There are no games here. The macro does explicit conversion (for the
-comparison only) so that the comparison operation will work correctly.
-It will work correctly if your time-outs are less than about 1.5 months
-(ULONG_MAX/2)-1. If you have time-outs exceeding that, you should rethink
-your line of work.
+Did you specify a default resume partition (CONFIG_PM_DISK_PARTITION) in your 
+.config?  (Or provide it with the kernel parameter pmdisk=/dev/blah)...
 
-It has nothing to do with 2s-compliment and everything to do with
-signed integer comparison. In 32-bit land, 0xffffffff is -1. When
-I add a number, say 10 to that, causing overflow, the number is
-0x00000009. When comparing, -1 is still less than +9 so the fact
-that some wrap occurred is not of consequence.
+On suspend, it saves to the first mounted swap file.  On resume, it hasn't 
+looked at /etc/fstab yet to see where the swap files are by the time it gets 
+to resuming, and nobody's bothered to code up any heuristic for what to do 
+with no default partition, so you have to point it at a partition or it won't 
+attempt to resume.
 
-If gcc fails to work this way, then gcc is broken. It is unlikely
-that somebody will break gcc to make this not work since it would
-make arithmetic of signed integers wrong.
-        -1 +         -1 =         -2
-0xffffffff + 0xffffffff = 0xfffffffe   -> a large wrap occurred
-here!
+Personally, I think that 99% of the time you can just iterate through the 
+partitions of whatever drive your root device lives on and find the first one 
+that's got a valid suspend signature on it, and resume from that.  (And if 
+you don't find one, don't resume.)  The few cases where this isn't 
+appropriate can configure another default or supply a kernel command line 
+paramenter, but having to bake your swap partition location into the kernel 
+config is a bit klunky at best...
 
->
-> >
-> > schedule() is the kernel procedure that gives the CPU to somebody
-> > while your code is waiting for something to happen. You cannot
-> > call that in an interrupt or when a lock is held.
-> >
->
->    It is state machine, it is event driven - there is nothing that can
-> yield CPU to someone else, because in first place it does not take CPU ;-)))
->    Right now it is run from tasklet - so ksoftirqd context.
->
+Of course with lilo, there's a user space alternative, you know.  Your suspend 
+script could call lilo -R with a command line that points to the partition 
+you're about to suspend to.  But there are a number of problems with that 
+(ideally you want to do it right AFTER suspending...)  And I dunno if grub's 
+got an equivalent...
 
-If you are looping in a tasklet, waiting for something to happen, you
-are "locked up" until the event which may never happen. If for some
-"bad hardware that they won't fix" reason, you must loop, then you
-need to create a kernel thread. If the hardware is good and you
-decided to write a driver this way, then you need to re-think
-what you are doing.
+One thing that might be nice is if there was a way to trigger a resume from 
+the initramfs.  "Blow away the current process list and load this binary 
+image of what userspace should look like."  That way figuring out where the 
+sucker lives is a problem you could punt on. :)
 
-[SNIPPED rest...]
-
-
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.4.22 on an i686 machine (797.90 BogoMips).
-            Note 96.31% of all statistics are fiction.
-
+Rob
 

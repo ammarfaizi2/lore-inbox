@@ -1,52 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267517AbUHPKpE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267534AbUHPKom@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267517AbUHPKpE (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 16 Aug 2004 06:45:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267522AbUHPKpD
+	id S267534AbUHPKom (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 16 Aug 2004 06:44:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267523AbUHPKol
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 16 Aug 2004 06:45:03 -0400
-Received: from mail.dif.dk ([193.138.115.101]:35479 "EHLO mail.dif.dk")
-	by vger.kernel.org with ESMTP id S267517AbUHPKog (ORCPT
+	Mon, 16 Aug 2004 06:44:41 -0400
+Received: from mx1.elte.hu ([157.181.1.137]:12198 "EHLO mx1.elte.hu")
+	by vger.kernel.org with ESMTP id S267531AbUHPKoQ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 16 Aug 2004 06:44:36 -0400
-Date: Mon, 16 Aug 2004 12:48:34 +0200 (CEST)
-From: Jesper Juhl <juhl-lkml@dif.dk>
-To: Glyph Lefkowitz <glyph@divmod.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: inconsistency in thread/signal interaction in 2.6.5 and previous
- vs. 2.6.6 and later (possibly a bug?)
-In-Reply-To: <1092650465.3394.13.camel@localhost>
-Message-ID: <Pine.LNX.4.61.0408161247040.2666@dragon.hygekrogen.localhost>
-References: <1092650465.3394.13.camel@localhost>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Mon, 16 Aug 2004 06:44:16 -0400
+Date: Mon, 16 Aug 2004 12:45:19 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Lee Revell <rlrevell@joe-job.com>
+Cc: Florian Schmidt <mista.tapas@gmx.net>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>
+Subject: Re: [patch] voluntary-preempt-2.6.8.1-P1
+Message-ID: <20040816104519.GA21628@elte.hu>
+References: <1092624221.867.118.camel@krustophenia.net> <20040816032806.GA11750@elte.hu> <20040816033623.GA12157@elte.hu> <1092627691.867.150.camel@krustophenia.net> <20040816034618.GA13063@elte.hu> <1092628493.810.3.camel@krustophenia.net> <20040816040515.GA13665@elte.hu> <1092630122.810.25.camel@krustophenia.net> <20040816043302.GA14979@elte.hu> <1092634931.793.3.camel@krustophenia.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1092634931.793.3.camel@krustophenia.net>
+User-Agent: Mutt/1.4.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 16 Aug 2004, Glyph Lefkowitz wrote:
 
-> Hello Kernel People,
-> 
-> Firstly, here is a brief example of some code that behaves very
-> differently on 2.6.5 and 2.6.6:
-> 
-> http://www.twistedmatrix.com/users/glyph/signal-bug.c
-> 
-> I have verified that it says "Completed" on kernel 2.6.5, 2.6.3 and
-> 2.6.1, and says "Died" on 2.6.6, 2.6.7 and 2.6.8.1, so I am pretty sure
-> the difference is between 2.5.6 and 2.6.6.
-> 
-FYI : 
+* Lee Revell <rlrevell@joe-job.com> wrote:
 
-juhl@dragon:~$ gcc signal-bug.c -Wall -lutil -lpthread -o signal-bug; ./signal-bug
-Completed.
-juhl@dragon:~$ cat /proc/version
-Linux version 2.6.8.1 (juhl@dragon) (gcc version 3.4.1) #1 Sun Aug 15 22:01:56 CEST 2004
+> With this, and the extract_entropy hack, the biggest common latency I
+> am now seeing (the copy_page_one is bigger but rarer) is the XFree86
+> unmap_vmas issue.  This one actually occurs so often that I can't tell
+> what #2 is.
 
-glibc is 2.3.2
+found the unmap_vmas() latency: pages get queued up for TLB flush (and
+subsequent freeing) and the lock-break in unmap_vmas() didnt account for
+this. When there's a preemption request and we do the lock-break it's
+already too late: we first have to free possibly thousands of pages,
+resulting in the latency. The solution is to make the lock-break (and
+hence, the queue-flush) periodically, regardless of preemption requests. 
+Will release -P2 soon.
 
-
---
-Jesper Juhl <juhl-lkml@dif.dk>
-
-
+	Ingo

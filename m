@@ -1,42 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262212AbTCRIse>; Tue, 18 Mar 2003 03:48:34 -0500
+	id <S262244AbTCRIzo>; Tue, 18 Mar 2003 03:55:44 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262228AbTCRIse>; Tue, 18 Mar 2003 03:48:34 -0500
-Received: from d12lmsgate.de.ibm.com ([194.196.100.234]:27823 "EHLO
-	d12lmsgate.de.ibm.com") by vger.kernel.org with ESMTP
-	id <S262212AbTCRIsd>; Tue, 18 Mar 2003 03:48:33 -0500
-From: "BOEBLINGEN LINUX390" <LINUX390@de.ibm.com>
-Importance: Normal
-Sensitivity: 
-Subject: Re: [s390x] Patch for execve with a mode switch
-To: Pete Zaitcev <zaitcev@redhat.com>
-Cc: linux-kernel@vger.kernel.org
-X-Mailer: Lotus Notes Release 5.0.8  June 18, 2001
-Message-ID: <OFA75E38A6.F16CA542-ONC1256CED.00308E93@de.ibm.com>
-Date: Tue, 18 Mar 2003 09:57:47 +0100
-X-MIMETrack: Serialize by Router on D12ML016/12/M/IBM(Release 5.0.9a |January 7, 2002) at
- 18/03/2003 09:59:09
+	id <S262258AbTCRIzo>; Tue, 18 Mar 2003 03:55:44 -0500
+Received: from gans.physik3.uni-rostock.de ([139.30.44.2]:4242 "EHLO
+	gans.physik3.uni-rostock.de") by vger.kernel.org with ESMTP
+	id <S262244AbTCRIzn>; Tue, 18 Mar 2003 03:55:43 -0500
+Date: Tue, 18 Mar 2003 10:05:56 +0100 (CET)
+From: Tim Schmielau <tim@physik3.uni-rostock.de>
+To: Andrew Morton <akpm@digeo.com>, Vitezslav Samel <samel@mail.cz>
+cc: Matthew Wilcox <willy@debian.org>, Eric Piel <Eric.Piel@Bull.Net>,
+       <davidm@hpl.hp.com>, <linux-ia64@linuxia64.org>,
+       lkml <linux-kernel@vger.kernel.org>
+Subject: [PATCH] fix nanosleep() granularity bumps
+In-Reply-To: <Pine.LNX.4.33.0303172033150.25119-100000@gans.physik3.uni-rostock.de>
+Message-ID: <Pine.LNX.4.33.0303180954330.27487-100000@gans.physik3.uni-rostock.de>
 MIME-Version: 1.0
-Content-type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, 17 Mar 2003, Tim Schmielau wrote:
 
-Hi Pete,
->I still think you are making a mistake defininig your own
->arch_get_unmapped_area(), because: 1. sparc64 does it correctly
->with the common code, so it can be done; 2. architecture
->specific duplicates of common code may bitrot. But have it
->your way, I won't resubmit, for the sake of staying aligned
->with upstream.
+> I've re-checked that the problem does not occur with the original "initial
+> jiffies" patch for 2.4.
 
-I am not too happy with the arch_get_unmapped_area myself. I not
-happpy with the TIF_ABI_PENDING bit either, there has to be a
-way to do this in a simply and straighforward way.
-I'll keep thinking about it.
+Stupid me - 2.4 with the patch has the same problem, it just takes 10x as
+long to show up, a range that was not covered by the testcase.
 
-blue skies,
-  Martin.
 
+The actual problem is that I didn't fully understand the, well,
+'elaborated' way of counting jiffies in the timer cascade:
+
+When starting out with timer_jiffies=0, the timer cascade is
+(unneccessarily) triggered on the first timer interrupt, incrementing all
+the higher indices.
+When starting with any other initial jiffies value, we miss that and end
+up with all higher indices being off by one.
+
+Fix is as follows:
+
+--- linux-2.5.65/kernel/timer.c	Wed Mar  5 04:29:33 2003
++++ linux-2.5.65-jfix/kernel/timer.c	Tue Mar 18 09:40:13 2003
+@@ -1183,10 +1183,14 @@
+
+ 	base->timer_jiffies = INITIAL_JIFFIES;
+ 	base->tv1.index = INITIAL_JIFFIES & TVR_MASK;
+-	base->tv2.index = (INITIAL_JIFFIES >> TVR_BITS) & TVN_MASK;
+-	base->tv3.index = (INITIAL_JIFFIES >> (TVR_BITS+TVN_BITS)) & TVN_MASK;
+-	base->tv4.index = (INITIAL_JIFFIES >> (TVR_BITS+2*TVN_BITS)) & TVN_MASK;
+-	base->tv5.index = (INITIAL_JIFFIES >> (TVR_BITS+3*TVN_BITS)) & TVN_MASK;
++	base->tv2.index = ((INITIAL_JIFFIES >> TVR_BITS)
++	                   + (INITIAL_JIFFIES!=0)) & TVN_MASK;
++	base->tv3.index = ((INITIAL_JIFFIES >> (TVR_BITS+TVN_BITS))
++	                   + (INITIAL_JIFFIES!=0)) & TVN_MASK;
++	base->tv4.index = ((INITIAL_JIFFIES >> (TVR_BITS+2*TVN_BITS))
++	                   + (INITIAL_JIFFIES!=0)) & TVN_MASK;
++	base->tv5.index = ((INITIAL_JIFFIES >> (TVR_BITS+3*TVN_BITS))
++	                   + (INITIAL_JIFFIES!=0)) & TVN_MASK;
+ }
+
+ static int __devinit timer_cpu_notify(struct notifier_block *self,
+
+
+Sorry for all the trouble,
+Tim
 

@@ -1,58 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S286676AbRL1Bwo>; Thu, 27 Dec 2001 20:52:44 -0500
+	id <S286679AbRL1ByD>; Thu, 27 Dec 2001 20:54:03 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286655AbRL1Bwc>; Thu, 27 Dec 2001 20:52:32 -0500
-Received: from dsl254-112-233.nyc1.dsl.speakeasy.net ([216.254.112.233]:1744
+	id <S286678AbRL1Bxv>; Thu, 27 Dec 2001 20:53:51 -0500
+Received: from dsl254-112-233.nyc1.dsl.speakeasy.net ([216.254.112.233]:2256
 	"EHLO snark.thyrsus.com") by vger.kernel.org with ESMTP
-	id <S286649AbRL1BwY>; Thu, 27 Dec 2001 20:52:24 -0500
-Date: Thu, 27 Dec 2001 20:36:45 -0500
+	id <S286655AbRL1Bw7>; Thu, 27 Dec 2001 20:52:59 -0500
+Date: Thu, 27 Dec 2001 20:37:37 -0500
 From: "Eric S. Raymond" <esr@thyrsus.com>
-To: Tom Rini <trini@kernel.crashing.org>
-Cc: Dave Jones <davej@suse.de>, Linus Torvalds <torvalds@transmeta.com>,
-        Marcelo Tosatti <marcelo@conectiva.com.br>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        kbuild-devel@lists.sourceforge.net
-Subject: Re: [kbuild-devel] Re: State of the new config & build system
-Message-ID: <20011227203645.A28510@thyrsus.com>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Linux Kernel List <linux-kernel@vger.kernel.org>
+Subject: Re: ISA core vs. ISA card support
+Message-ID: <20011227203737.B28510@thyrsus.com>
 Reply-To: esr@thyrsus.com
 Mail-Followup-To: "Eric S. Raymond" <esr@thyrsus.com>,
-	Tom Rini <trini@kernel.crashing.org>, Dave Jones <davej@suse.de>,
-	Linus Torvalds <torvalds@transmeta.com>,
-	Marcelo Tosatti <marcelo@conectiva.com.br>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-	kbuild-devel@lists.sourceforge.net
-In-Reply-To: <20011227195738.A26889@thyrsus.com> <Pine.LNX.4.33.0112280219090.18346-100000@Appserv.suse.de> <20011228013654.GK712@cpe-24-221-152-185.az.sprintbbd.net>
+	Alan Cox <alan@lxorguk.ukuu.org.uk>,
+	Linux Kernel List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20011227200238.B26889@thyrsus.com> <E16Jlq0-0007bm-00@the-village.bc.nu>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 User-Agent: Mutt/1.2.5i
-In-Reply-To: <20011228013654.GK712@cpe-24-221-152-185.az.sprintbbd.net>; from trini@kernel.crashing.org on Thu, Dec 27, 2001 at 06:36:54PM -0700
+In-Reply-To: <E16Jlq0-0007bm-00@the-village.bc.nu>; from alan@lxorguk.ukuu.org.uk on Fri, Dec 28, 2001 at 01:29:32AM +0000
 Organization: Eric Conspiracy Secret Labs
 X-Eric-Conspiracy: There is no conspiracy
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Tom Rini <trini@kernel.crashing.org>:
-> I think Keith wanted a very small time window tho (~24 hrs, barring big
-> supprises).  But if we're going to be worried about the build time,
-> kbuild-2.5 and cml2 aren't co-dependant, yes?  I know kbuild-2.5 works
-> w/o cml2, and last I tried (ages ago admitedly) cml2 didn't need
-> kbuild-2.5. 
+Alan Cox <alan@lxorguk.ukuu.org.uk>:
+> > Thanks, that's helpful.  I'll introduce an ISA_SLOTS private symbol, then.
+> > Later perhaps we can actually make this distinction in C code;  sounds
+> > like it would be a good idea.
+> 
+> There is no value to it in the kernel. ISA bus and magic that looks like
+> ISA bus but is welded to the motherboard look the same anyway
 
-That's right.  CML2 and kbuild-2.5 do not require each other
-
-> So we could, in theory dump cml1 quickly but leave the old
-> Makefiles for a bit longer.  Or if Keith thinks he can start on the
-> speed problems soon, just plod along for a few releases. :)
-
-As Keith has pointed out, old kbuild achieves its speed by being broken.
-That's an argument for "plod along", IMHO.
+OK, noted.
 -- 
 		<a href="http://www.tuxedo.org/~esr/">Eric S. Raymond</a>
 
-(Those) who are trying to read the Second Amendment out of the Constitution by
-claiming it's not an individual right (are) courting disaster by encouraging
-others to use the same means to eliminate portions of the Constitution they
-don't like.
-	-- Alan Dershowitz, Harvard Law School
+A human being should be able to change a diaper, plan an invasion,
+butcher a hog, conn a ship, design a building, write a sonnet, balance
+accounts, build a wall, set a bone, comfort the dying, take orders, give
+orders, cooperate, act alone, solve equations, analyze a new problem,
+pitch manure, program a computer, cook a tasty meal, fight efficiently,
+die gallantly. Specialization is for insects.
+	-- Robert A. Heinlein, "Time Enough for Love"

@@ -1,28 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280801AbRKBTWg>; Fri, 2 Nov 2001 14:22:36 -0500
+	id <S280804AbRKBTWH>; Fri, 2 Nov 2001 14:22:07 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280803AbRKBTW1>; Fri, 2 Nov 2001 14:22:27 -0500
-Received: from mauve.demon.co.uk ([158.152.209.66]:53638 "EHLO
-	mauve.demon.co.uk") by vger.kernel.org with ESMTP
-	id <S280801AbRKBTWO>; Fri, 2 Nov 2001 14:22:14 -0500
-From: Ian Stirling <root@mauve.demon.co.uk>
-Message-Id: <200111021921.TAA00792@mauve.demon.co.uk>
-Subject: Diagnosing dead mice.
-To: linux-kernel@vger.kernel.org
-Date: Fri, 2 Nov 2001 19:21:18 +0000 (GMT)
-X-Mailer: ELM [version 2.5 PL2]
+	id <S280803AbRKBTVr>; Fri, 2 Nov 2001 14:21:47 -0500
+Received: from ns.suse.de ([213.95.15.193]:46862 "HELO Cantor.suse.de")
+	by vger.kernel.org with SMTP id <S280801AbRKBTVc>;
+	Fri, 2 Nov 2001 14:21:32 -0500
+Date: Fri, 2 Nov 2001 20:21:31 +0100 (CET)
+From: Dave Jones <davej@suse.de>
+To: Roy Sigurd Karlsbakk <roy@karlsbakk.net>
+Cc: <linux-kernel@vger.kernel.org>
+Subject: Re: SMART IDE drives
+In-Reply-To: <Pine.LNX.4.30.0111022001190.6396-100000@mustard.heime.net>
+Message-ID: <Pine.LNX.4.30.0111022020470.5527-100000@Appserv.suse.de>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I've recently bought a new PS/2 scrolmouse, for the princely sum of $2.
+On Fri, 2 Nov 2001, Roy Sigurd Karlsbakk wrote:
 
-It doesn't work when plugged into my laptop, and occasionally 
-generates "unknown scancode" and random keys when used.
+> I've seen the /proc/ide/ide./hd./smart_(thresholds|values) files in 2.4,
+> and I just wonder... Are there any available software to check these? Does
+> the kernel do it, or is that some future project.
 
-It's a "Browser Mouse" FCC ID: IOWCM-B700
+There are a few SMART related tools.
+ http://www.linux-ide.org/smart.html
+ http://www.powertweak.org
 
-Is there any logging tool I can use to debug PS2 problems?
+regards
+
+Dave.
+
+-- 
+| Dave Jones.        http://www.codemonkey.org.uk
+| SuSE Labs
+

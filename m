@@ -1,48 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S311942AbSCOFjk>; Fri, 15 Mar 2002 00:39:40 -0500
+	id <S311937AbSCOFoc>; Fri, 15 Mar 2002 00:44:32 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S311941AbSCOFja>; Fri, 15 Mar 2002 00:39:30 -0500
-Received: from web12303.mail.yahoo.com ([216.136.173.101]:60251 "HELO
-	web12303.mail.yahoo.com") by vger.kernel.org with SMTP
-	id <S311937AbSCOFjR>; Fri, 15 Mar 2002 00:39:17 -0500
-Message-ID: <20020315053916.531.qmail@web12303.mail.yahoo.com>
-Date: Thu, 14 Mar 2002 21:39:16 -0800 (PST)
-From: Miao Qingjun <qjmiao@yahoo.com>
-Subject: Intel IXP1200 and Linux
-To: linux-kernel@vger.kernel.org
-MIME-Version: 1.0
+	id <S311940AbSCOFoW>; Fri, 15 Mar 2002 00:44:22 -0500
+Received: from angband.namesys.com ([212.16.7.85]:33156 "HELO
+	angband.namesys.com") by vger.kernel.org with SMTP
+	id <S311937AbSCOFoO>; Fri, 15 Mar 2002 00:44:14 -0500
+Date: Fri, 15 Mar 2002 08:44:08 +0300
+From: Oleg Drokin <green@namesys.com>
+To: Alex Walker <alex@x3ja.co.uk>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Oops in 2.5.6 and 2.5.7-pre1 - reiserfs?
+Message-ID: <20020315084408.A5622@namesys.com>
+In-Reply-To: <20020314162009.F9664@x3ja.co.uk> <20020314192916.A1929@namesys.com> <20020314170123.G9664@x3ja.co.uk> <20020314200337.A2186@namesys.com> <20020314174027.H9664@x3ja.co.uk>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20020314174027.H9664@x3ja.co.uk>
+User-Agent: Mutt/1.3.22.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi, everybody,
+Hello!
 
-I have problems to run linux from IXA SDK 2.01 onto
-an old IXP1200 evaluation board (not IXM1200 board).
-I made some config changes, but it does not boot.
-The following is my modifications
+On Thu, Mar 14, 2002 at 05:40:27PM +0000, Alex Walker wrote:
+> EXT3-fs: Unrecognized mount option conv
+> EXT2-fs: Unrecognized mount option conv
+> found reiserfs format "3.5" with standard journal
+> [Usual boot messages]
 
-.config:
-   CONFIG_SPECTACLE_ISLAND --> CONFIG_EVAL_BOARD
-arch/arm/boot/compressed/Makefile:
-   ZTEXTADDR <- 0xc0808000
-arch/arm/boot/compressed/head.S:
-0xc4004000->0xc0804000 for page table address
+Hm.
+How about typing this at LILO prompt:
+LILO: <your_image> rw rootfstype=reiserfs rootflags=conv
 
-drivers/char/serial_ixp1200.c:
-38400->9600 for DEFAULT_BAUD
+This one should work.
 
-Can anyone figure out which changes I also need to
-make?
-
-
-Thank you
-
-
-
-
-__________________________________________________
-Do You Yahoo!?
-Yahoo! Sports - live college hoops coverage
-http://sports.yahoo.com/
+Bye,
+    Oleg

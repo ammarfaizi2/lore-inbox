@@ -1,219 +1,281 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263834AbTJ1DnR (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 27 Oct 2003 22:43:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263837AbTJ1DnR
+	id S263843AbTJ1D4h (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 27 Oct 2003 22:56:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263846AbTJ1D4h
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 27 Oct 2003 22:43:17 -0500
-Received: from smtp1.clear.net.nz ([203.97.33.27]:33244 "EHLO
-	smtp1.clear.net.nz") by vger.kernel.org with ESMTP id S263834AbTJ1DnM
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 27 Oct 2003 22:43:12 -0500
-Date: Tue, 28 Oct 2003 16:31:20 +1300
-From: Nigel Cunningham <ncunningham@clear.net.nz>
-Subject: Re: 2.6.0-test8/test9 io scheduler needs tuning?
-In-reply-to: <1067305071.1693.14.camel@laptop-linux>
-To: Nick Piggin <piggin@cyberone.com.au>
-Cc: cliff white <cliffw@osdl.org>, Michael Frank <mhf@linuxmail.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Message-id: <1067311879.1512.7.camel@laptop-linux>
-Organization: 
-MIME-version: 1.0
-X-Mailer: Ximian Evolution 1.2.2
-Content-type: text/plain
-Content-transfer-encoding: 7bit
-References: <200310261201.14719.mhf@linuxmail.org>
- <20031027145531.2eb01017.cliffw@osdl.org> <3F9DAF2C.8010308@cyberone.com.au>
- <1067305071.1693.14.camel@laptop-linux>
+	Mon, 27 Oct 2003 22:56:37 -0500
+Received: from dhcp160178171.columbus.rr.com ([24.160.178.171]:17673 "EHLO
+	nineveh.rivenstone.net") by vger.kernel.org with ESMTP
+	id S263843AbTJ1D42 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 27 Oct 2003 22:56:28 -0500
+Date: Mon, 27 Oct 2003 22:56:25 -0500
+To: Linus Torvalds <torvalds@osdl.org>, linux-kernel@vger.kernel.org,
+       vojtech@suse.cz
+Subject: Re: [PATCH] PS/2 mouse rate setting
+Message-ID: <20031028035625.GB20145@rivenstone.net>
+Mail-Followup-To: Linus Torvalds <torvalds@osdl.org>,
+	linux-kernel@vger.kernel.org, vojtech@suse.cz
+References: <20031027140217.GA1065@averell> <Pine.LNX.4.44.0310270830060.1699-100000@home.osdl.org> <20031028035244.GA20145@rivenstone.net>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="qjNfmADvan18RZcF"
+Content-Disposition: inline
+In-Reply-To: <20031028035244.GA20145@rivenstone.net>
+User-Agent: Mutt/1.5.4i
+From: <jhf@rivenstone.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-As you rightly guessed, I was forgetting there are now 1000 jiffies per
-second.
 
-With your patch applied, I can achieve something close to 2.4
-performance, but only if I set the limit on the number of pages to
-submit at one time quite high. If I set it to 3000, I can get 20107 4K
-pages written in 5267 jiffies (14MB/s) and can read them back at resume
-time (so cache is not a factor) in 4620 jiffies (16MB/s). In 2.4, I
-normally set the limit on async commits to 100, and achieve the same
-performance. 100 here makes it very jerky and much slower.
+--qjNfmADvan18RZcF
+Content-Type: multipart/mixed; boundary="yEPQxsgoJgBvi8ip"
+Content-Disposition: inline
 
-Could there be some timeout value on BIOs that I might be able to
-tweak/disable during suspend?
 
-Regards,
+--yEPQxsgoJgBvi8ip
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Nigel
+On Mon, Oct 27, 2003 at 10:52:44PM -0500, I wrote:
+> On Mon, Oct 27, 2003 at 08:32:15AM -0800, Linus Torvalds wrote:
+> >=20
+> > On Mon, 27 Oct 2003, Andi Kleen wrote:
+> > >=20
+> > > Overall as KVM user I must say I'm not very happy with the 2.6 mouse
+> > > driver. 2.4 pretty much worked out of the box, but 2.6 needs
+> > > lots of strange options (psmouse_noext, psmouse_rate=3D80)=20
+> > > because it does things very differently out of the box.
+> >=20
+> > I agree. The keyboard driver has also deteriorated, I think.=20
+> >=20
+> > I'd suggest we _not_ set the rate by default at all (and let the default
+> > thing just happen). And only set the rate if the user _asks_ for it with
+> > your setup thing. Mind sending me that kind of patch?
+> >=20
+>=20
+>     I need this patch to use the scroll wheel on my Logitech mouse
+> with my Belkin KVM switch in 2.6. This patch was in -mm for a while
+> before some changes there broke the diff, and I got some mail from
+> people who said it was helpful.  I didn't hear about any problems.
+>=20
+>     Linus, will you please consider applying it?
 
-On Tue, 2003-10-28 at 14:37, Nigel Cunningham wrote:
-> I'll try it with my software suspend patch. Under 2.4, I get around 45
-> pages per jiffy written when suspending. Under 2.6, I'm currently
-> getting 2-4, so any improvement should be obvious!
-> 
-> Regards,
-> 
-> Nigel
-> 
-> On Tue, 2003-10-28 at 12:50, Nick Piggin wrote:
-> > cliff white wrote:
-> > 
-> > >On Tue, 28 Oct 2003 05:52:45 +0800
-> > >Michael Frank <mhf@linuxmail.org> wrote:
-> > >
-> > >
-> > >>To my surprise 2.6 - which used to do better then 2.4 - does no longer 
-> > >>handle these test that well.
-> > >>
-> > >>Generally, IDE IO throughput is _very_ uneven and IO _stops_ at times with the
-> > >>system cpu load very high (and the disk LED off).
-> > >>
-> > >>IMHO the CPU scheduling is OK but the IO scheduling acts up here.
-> > >>
-> > >>The test system is a 2.4GHz P4 with 512M RAM and a 55MB/s udma IDE harddisk.
-> > >>
-> > >>The tests load the system to loadavg > 30. IO should be about 20MB/s on avg.
-> > >>
-> > >>Enclosed are vmstat -1 logs for 2.6-test9-Vanilla, followed by 2.6-test8-Vanilla 
-> > >>(-mm1 behaves similar), 2.4.22-Vanilla and 2.4.21+swsusp all compiled wo preempt.
-> > >>
-> > >>IO on 2.6 stops now for seconds at a time. -test8 is worse than -test9
-> > >>
-> > >
-> > >We see the same delta at OSDL. Try repeating your tests with 'elevator=deadline' 
-> > >to confirm.
-> > >For example, on the 8-cpu platform:
-> > >STP id Kernel Name         MaxJPM      Change  Options
-> > >281669 linux-2.6.0-test8   7014.42      0.0    
-> > >281671 linux-2.6.0-test8   8294.94     +18.26%  elevator=deadline
-> > >
-> > >The -mm kernels don't show this big delta. We also do not see this delta on
-> > >smaller machines
-> > >
-> > 
-> > I'm working with Randy to fix this. Attached is what I have so far. See how
-> > you go with it.
-> > 
-> > 
-> > ______________________________________________________________________
-> > 
-> >  linux-2.6-npiggin/drivers/block/as-iosched.c |   30 ++++++---------------------
-> >  1 files changed, 7 insertions(+), 23 deletions(-)
-> > 
-> > diff -puN drivers/block/as-iosched.c~as-fix drivers/block/as-iosched.c
-> > --- linux-2.6/drivers/block/as-iosched.c~as-fix	2003-10-27 14:53:47.000000000 +1100
-> > +++ linux-2.6-npiggin/drivers/block/as-iosched.c	2003-10-27 14:54:04.000000000 +1100
-> > @@ -99,7 +99,6 @@ struct as_data {
-> >  	sector_t last_sector[2];	/* last REQ_SYNC & REQ_ASYNC sectors */
-> >  	struct list_head *dispatch;	/* driver dispatch queue */
-> >  	struct list_head *hash;		/* request hash */
-> > -	unsigned long new_success; /* anticipation success on new proc */
-> >  	unsigned long current_batch_expires;
-> >  	unsigned long last_check_fifo[2];
-> >  	int changed_batch;		/* 1: waiting for old batch to end */
-> > @@ -585,18 +584,11 @@ static void as_antic_stop(struct as_data
-> >  	int status = ad->antic_status;
-> >  
-> >  	if (status == ANTIC_WAIT_REQ || status == ANTIC_WAIT_NEXT) {
-> > -		struct as_io_context *aic;
-> > -
-> >  		if (status == ANTIC_WAIT_NEXT)
-> >  			del_timer(&ad->antic_timer);
-> >  		ad->antic_status = ANTIC_FINISHED;
-> >  		/* see as_work_handler */
-> >  		kblockd_schedule_work(&ad->antic_work);
-> > -
-> > -		aic = ad->io_context->aic;
-> > -		if (aic->seek_samples == 0)
-> > -			/* new process */
-> > -			ad->new_success = (ad->new_success * 3) / 4 + 256;
-> >  	}
-> >  }
-> >  
-> > @@ -612,14 +604,8 @@ static void as_antic_timeout(unsigned lo
-> >  	spin_lock_irqsave(q->queue_lock, flags);
-> >  	if (ad->antic_status == ANTIC_WAIT_REQ
-> >  			|| ad->antic_status == ANTIC_WAIT_NEXT) {
-> > -		struct as_io_context *aic;
-> >  		ad->antic_status = ANTIC_FINISHED;
-> >  		kblockd_schedule_work(&ad->antic_work);
-> > -
-> > -		aic = ad->io_context->aic;
-> > -		if (aic->seek_samples == 0)
-> > -			/* new process */
-> > -			ad->new_success = (ad->new_success * 3) / 4;
-> >  	}
-> >  	spin_unlock_irqrestore(q->queue_lock, flags);
-> >  }
-> > @@ -708,11 +694,10 @@ static int as_can_break_anticipation(str
-> >  		return 1;
-> >  	}
-> >  
-> > -	if (ad->new_success < 256 &&
-> > -			(aic->seek_samples == 0 || aic->ttime_samples == 0)) {
-> > +	if (aic->seek_samples == 0 || aic->ttime_samples == 0) {
-> >  		/*
-> > -		 * Process has just started IO and we have a bad history of
-> > -		 * success anticipating on new processes!
-> > +		 * Process has just started IO. Don't anticipate.
-> > +		 * TODO! Must fix this up.
-> >  		 */
-> >  		return 1;
-> >  	}
-> > @@ -1292,7 +1277,7 @@ fifo_expired:
-> >  
-> >  		ad->changed_batch = 0;
-> >  
-> > -		arq->request->flags |= REQ_SOFTBARRIER;
-> > +//		arq->request->flags |= REQ_SOFTBARRIER;
-> >  	}
-> >  
-> >  	/*
-> > @@ -1391,6 +1376,7 @@ static void as_add_request(struct as_dat
-> >  
-> >  	} else {
-> >  		as_add_aliased_request(ad, arq, alias);
-> > +
-> >  		/*
-> >  		 * have we been anticipating this request?
-> >  		 * or does it come from the same process as the one we are
-> > @@ -1427,8 +1413,6 @@ static void as_requeue_request(request_q
-> >  
-> >  	/* Stop anticipating - let this request get through */
-> >  	as_antic_stop(ad);
-> > -
-> > -	return;
-> >  }
-> >  
-> >  static void
-> > @@ -1437,10 +1421,12 @@ as_insert_request(request_queue_t *q, st
-> >  	struct as_data *ad = q->elevator.elevator_data;
-> >  	struct as_rq *arq = RQ_DATA(rq);
-> >  
-> > +#if 0
-> >  	/* barriers must flush the reorder queue */
-> >  	if (unlikely(rq->flags & (REQ_SOFTBARRIER | REQ_HARDBARRIER)
-> >  			&& where == ELEVATOR_INSERT_SORT))
-> >  		where = ELEVATOR_INSERT_BACK;
-> > +#endif
-> >  
-> >  	switch (where) {
-> >  		case ELEVATOR_INSERT_BACK:
-> > @@ -1823,8 +1809,6 @@ static int as_init(request_queue_t *q, e
-> >  	if (ad->write_batch_count < 2)
-> >  		ad->write_batch_count = 2;
-> >  
-> > -	ad->new_success = 512;
-> > -
-> >  	return 0;
-> >  }
-> >  
-> > 
-> > _
--- 
-Nigel Cunningham
-495 St Georges Road South, Hastings 4201, New Zealand
+    D'oh, forgot the patch.  This is the same patch that was in -mm,
+rediffed against -test9 and tested to compile.  I've been running this
+same patch on vanilla and -mm kernels for months now.
 
-Evolution (n): A hypothetical process whereby infinitely improbable events occur 
-with alarming frequency, order arises from chaos, and no one is given credit.
+--=20
+Joseph Fannin
+jhf@rivenstone.net
 
+Rothchild's Rule -- "For every phenomenon, however complex, someone will
+eventually come up with a simple and elegant theory. This theory will
+be wrong."
+
+--yEPQxsgoJgBvi8ip
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: attachment; filename="psmouse_imps2.diff"
+Content-Transfer-Encoding: quoted-printable
+
+diff -aur linux-2.6.0-test9_orig/Documentation/kernel-parameters.txt linux-=
+2.6.0-test9/Documentation/kernel-parameters.txt
+--- linux-2.6.0-test9_orig/Documentation/kernel-parameters.txt	2003-10-27 1=
+5:50:46.000000000 -0500
++++ linux-2.6.0-test9/Documentation/kernel-parameters.txt	2003-10-27 15:53:=
+58.000000000 -0500
+@@ -790,6 +790,8 @@
+ 			before loading.
+ 			See Documentation/ramdisk.txt.
+=20
++	psmouse_imps2	[HW,MOUSE] Probe only for Intellimouse PS2 mouse protocol e=
+xtensions
++
+ 	psmouse_noext	[HW,MOUSE] Disable probing for PS2 mouse protocol extensions
+=20
+ 	psmouse_resetafter=3D
+diff -aur linux-2.6.0-test9_orig/drivers/input/mouse/psmouse-base.c linux-2=
+=2E6.0-test9/drivers/input/mouse/psmouse-base.c
+--- linux-2.6.0-test9_orig/drivers/input/mouse/psmouse-base.c	2003-10-27 15=
+:50:33.000000000 -0500
++++ linux-2.6.0-test9/drivers/input/mouse/psmouse-base.c	2003-10-27 15:53:5=
+8.000000000 -0500
+@@ -24,6 +24,8 @@
+=20
+ MODULE_AUTHOR("Vojtech Pavlik <vojtech@suse.cz>");
+ MODULE_DESCRIPTION("PS/2 mouse driver");
++MODULE_PARM(psmouse_imps2, "1i");
++MODULE_PARM_DESC(psmouse_imps2, "Limit protocol extensions to the Intellim=
+ouse protocol.");
+ MODULE_PARM(psmouse_noext, "1i");
+ MODULE_PARM_DESC(psmouse_noext, "Disable any protocol extensions. Useful f=
+or KVM switches.");
+ MODULE_PARM(psmouse_resolution, "i");
+@@ -38,6 +40,7 @@
+=20
+ #define PSMOUSE_LOGITECH_SMARTSCROLL	1
+=20
++static int psmouse_imps2;
+ static int psmouse_noext;
+ int psmouse_resolution;
+ unsigned int psmouse_rate =3D 60;
+@@ -275,66 +278,68 @@
+ 	if (psmouse_noext)
+ 		return PSMOUSE_PS2;
+=20
+-/*
+- * Try Synaptics TouchPad magic ID
+- */
+-
+-       param[0] =3D 0;
+-       psmouse_command(psmouse, param, PSMOUSE_CMD_SETRES);
+-       psmouse_command(psmouse, param, PSMOUSE_CMD_SETRES);
+-       psmouse_command(psmouse, param, PSMOUSE_CMD_SETRES);
+-       psmouse_command(psmouse, param, PSMOUSE_CMD_SETRES);
+-       psmouse_command(psmouse, param, PSMOUSE_CMD_GETINFO);
++	if (!psmouse_imps2) {
+=20
+-       if (param[1] =3D=3D 0x47) {
+-		psmouse->vendor =3D "Synaptics";
+-		psmouse->name =3D "TouchPad";
+-		if (!synaptics_init(psmouse))
+-			return PSMOUSE_SYNAPTICS;
+-		else
+-			return PSMOUSE_PS2;
+-       }
++		/*
++		 * Try Synaptics TouchPad magic ID
++		 */
+=20
+-/*
+- * Try Genius NetMouse magic init.
+- */
++		param[0] =3D 0;
++		psmouse_command(psmouse, param, PSMOUSE_CMD_SETRES);
++		psmouse_command(psmouse, param, PSMOUSE_CMD_SETRES);
++		psmouse_command(psmouse, param, PSMOUSE_CMD_SETRES);
++		psmouse_command(psmouse, param, PSMOUSE_CMD_SETRES);
++		psmouse_command(psmouse, param, PSMOUSE_CMD_GETINFO);
++
++		if (param[1] =3D=3D 0x47) {
++			psmouse->vendor =3D "Synaptics";
++			psmouse->name =3D "TouchPad";
++			if (!synaptics_init(psmouse))
++				return PSMOUSE_SYNAPTICS;
++			else
++				return PSMOUSE_PS2;
++		}
+=20
+-	param[0] =3D 3;
+-	psmouse_command(psmouse, param, PSMOUSE_CMD_SETRES);
+-	psmouse_command(psmouse,  NULL, PSMOUSE_CMD_SETSCALE11);
+-	psmouse_command(psmouse,  NULL, PSMOUSE_CMD_SETSCALE11);
+-	psmouse_command(psmouse,  NULL, PSMOUSE_CMD_SETSCALE11);
+-	psmouse_command(psmouse, param, PSMOUSE_CMD_GETINFO);
++		/*
++		 * Try Genius NetMouse magic init.
++		 */
+=20
+-	if (param[0] =3D=3D 0x00 && param[1] =3D=3D 0x33 && param[2] =3D=3D 0x55)=
+ {
++		param[0] =3D 3;
++		psmouse_command(psmouse, param, PSMOUSE_CMD_SETRES);
++		psmouse_command(psmouse,  NULL, PSMOUSE_CMD_SETSCALE11);
++		psmouse_command(psmouse,  NULL, PSMOUSE_CMD_SETSCALE11);
++		psmouse_command(psmouse,  NULL, PSMOUSE_CMD_SETSCALE11);
++		psmouse_command(psmouse, param, PSMOUSE_CMD_GETINFO);
+=20
+-		set_bit(BTN_EXTRA, psmouse->dev.keybit);
+-		set_bit(BTN_SIDE, psmouse->dev.keybit);
+-		set_bit(REL_WHEEL, psmouse->dev.relbit);
++		if (param[0] =3D=3D 0x00 && param[1] =3D=3D 0x33 && param[2] =3D=3D 0x55=
+) {
+=20
+-		psmouse->vendor =3D "Genius";
+-		psmouse->name =3D "Wheel Mouse";
+-		return PSMOUSE_GENPS;
+-	}
++			set_bit(BTN_EXTRA, psmouse->dev.keybit);
++			set_bit(BTN_SIDE, psmouse->dev.keybit);
++			set_bit(REL_WHEEL, psmouse->dev.relbit);
+=20
+-/*
+- * Try Logitech magic ID.
+- */
++			psmouse->vendor =3D "Genius";
++			psmouse->name =3D "Wheel Mouse";
++			return PSMOUSE_GENPS;
++		}
+=20
+-	param[0] =3D 0;
+-	psmouse_command(psmouse, param, PSMOUSE_CMD_SETRES);
+-	psmouse_command(psmouse,  NULL, PSMOUSE_CMD_SETSCALE11);
+-	psmouse_command(psmouse,  NULL, PSMOUSE_CMD_SETSCALE11);
+-	psmouse_command(psmouse,  NULL, PSMOUSE_CMD_SETSCALE11);
+-	param[1] =3D 0;
+-	psmouse_command(psmouse, param, PSMOUSE_CMD_GETINFO);
++		/*
++		 * Try Logitech magic ID.
++		 */
+=20
+-	if (param[1]) {
+-		int type =3D ps2pp_detect_model(psmouse, param);
+-		if (type)
+-			return type;
++		param[0] =3D 0;
++		psmouse_command(psmouse, param, PSMOUSE_CMD_SETRES);
++		psmouse_command(psmouse,  NULL, PSMOUSE_CMD_SETSCALE11);
++		psmouse_command(psmouse,  NULL, PSMOUSE_CMD_SETSCALE11);
++		psmouse_command(psmouse,  NULL, PSMOUSE_CMD_SETSCALE11);
++		param[1] =3D 0;
++		psmouse_command(psmouse, param, PSMOUSE_CMD_GETINFO);
++
++		if (param[1]) {
++			int type =3D ps2pp_detect_model(psmouse, param);
++			if (type)
++				return type;
++		}
+ 	}
+-
+ /*
+  * Try IntelliMouse magic init.
+  */
+@@ -627,6 +632,12 @@
+ };
+=20
+ #ifndef MODULE
++static int __init psmouse_imps2_setup(char *str)
++{
++	psmouse_imps2 =3D 1;
++	return 1;
++}
++
+ static int __init psmouse_noext_setup(char *str)
+ {
+ 	psmouse_noext =3D 1;
+@@ -651,6 +662,7 @@
+ 	return 1;
+ }
+=20
++__setup("psmouse_imps2", psmouse_imps2_setup);
+ __setup("psmouse_noext", psmouse_noext_setup);
+ __setup("psmouse_resolution=3D", psmouse_resolution_setup);
+ __setup("psmouse_smartscroll=3D", psmouse_smartscroll_setup);
+
+--yEPQxsgoJgBvi8ip--
+
+--qjNfmADvan18RZcF
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.3 (GNU/Linux)
+
+iD8DBQE/nejpWv4KsgKfSVgRAtFMAJ95JHaF+PzbgnQRSztGziyftyZW0wCeNYm9
+zsW5UmjicPCNqarfQPpcxsI=
+=MNL4
+-----END PGP SIGNATURE-----
+
+--qjNfmADvan18RZcF--

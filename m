@@ -1,41 +1,69 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263201AbTDVPN0 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Apr 2003 11:13:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263202AbTDVPNZ
+	id S263207AbTDVPOd (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Apr 2003 11:14:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263209AbTDVPOd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Apr 2003 11:13:25 -0400
-Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:20446
-	"EHLO lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
-	id S263201AbTDVPNZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Apr 2003 11:13:25 -0400
-Subject: Re: Linux 2.4.20 + SiS + Adaptec AHA-7850
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: war <war@lucidpixels.com>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.55.0304212236380.12135@p300>
-References: <Pine.LNX.4.55.0304212236380.12135@p300>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Organization: 
-Message-Id: <1051021577.14880.23.camel@dhcp22.swansea.linux.org.uk>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
-Date: 22 Apr 2003 15:27:30 +0100
+	Tue, 22 Apr 2003 11:14:33 -0400
+Received: from nat-pool-rdu.redhat.com ([66.187.233.200]:21961 "EHLO
+	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
+	id S263207AbTDVPO3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 22 Apr 2003 11:14:29 -0400
+Date: Tue, 22 Apr 2003 11:26:21 -0400 (EDT)
+From: Ingo Molnar <mingo@redhat.com>
+X-X-Sender: mingo@devserv.devel.redhat.com
+To: William Lee Irwin III <wli@holomorphy.com>
+cc: Andrew Morton <akpm@digeo.com>, Andrea Arcangeli <andrea@suse.de>,
+       <mbligh@aracnet.com>, <mingo@elte.hu>, <hugh@veritas.com>,
+       <dmccr@us.ibm.com>, Linus Torvalds <torvalds@transmeta.com>,
+       <linux-kernel@vger.kernel.org>, <linux-mm@kvack.org>
+Subject: Re: objrmap and vmtruncate
+In-Reply-To: <20030422145644.GG8978@holomorphy.com>
+Message-ID: <Pine.LNX.4.44.0304221110560.10400-100000@devserv.devel.redhat.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Maw, 2003-04-22 at 03:38, war wrote:
-> Does not work...
-> Boots up, probes each ID, fails, takes 15-20 sec per timeout for each ID,
-> then actually does boot after (15-20sec)*7ID for that board.
+
+On Tue, 22 Apr 2003, William Lee Irwin III wrote:
+
+> > just create a sparse enough memory layout (one page mapped every 2MB) and
+> > pagetable overhead will dominate. Is it a problem in practice? I doubt it,
+> > and you get what you asked for, and you can always offset it with RAM.
 > 
-> I used same exact (SCSI-CONFIG) for VIA board, worked fine, guess there
-> are problems with IRQs or something?
+> Actually it wasn't from sparse memory, it was from massive sharing.
+> Basically 10000 processes whose virtualspace was dominated by shmem
+> shared across all of them.
+> 
+> On some reflection I suspect a variety of techniques are needed here.
 
-If you are using SiS SMP boards or have built for local apic support it
-will fail with most SiS boards. Linux and SiS APIC don't get on with one
-another (we trigger a chip quirk). Boot with "noapic" option if so.
+there are two main techniques to reduce per-context pagetable-alike
+overhead: 1) the use of pagetable sharing via CLONE_VM 2) the use of
+bigger MMU units with a much smaller pagetable hw cost [hugetlbs].
 
-2.5.x does handle this
+all of this is true, and still remains valid. None of this changes the
+fact that objrmap, as proposed, introduces a quadratic component to a
+central piece of code. If then we should simply abort any mmap() attempt
+that increases the sharing factor above a certain level, or something like
+that.
+
+using nonlinear mappings adds the overhead of pte chains, which roughly
+doubles the pagetable overhead. (or companion pagetables, which triple the
+pagetable overhead) Purely RAM-wise the break-even point is at around 8
+pages, 8 pte chain entries make up for 64 bytes of vma overhead.
+
+the biggest problem i can see is that we (well, the kernel) has to make a
+judgement of RAM footprint vs. algorithmic overhead, which is apples to
+oranges. Nonlinear vmas [or just linear vmas with pte chains installed],
+while being only O(N), double/triple the pagetable overhead. objrmap
+linear vmas, while having only the pagetable overhead, are O(N^2). [well,
+it's O(N*M)]
+
+RAM-footprint wise the boundary is clear: above 8 pages of granularity,
+vmas with objrmap cost less RAM than nonlinear mappings.
+
+CPU-time-wise the nonlinear mappings with pte chains always beat objrmap.
+
+	Ingo
 

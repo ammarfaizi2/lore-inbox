@@ -1,50 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261411AbVAMThU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261413AbVAMThV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261411AbVAMThU (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 13 Jan 2005 14:37:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261413AbVAMTfm
+	id S261413AbVAMThV (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 13 Jan 2005 14:37:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261208AbVAMTfv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 13 Jan 2005 14:35:42 -0500
-Received: from clock-tower.bc.nu ([81.2.110.250]:35300 "EHLO
-	localhost.localdomain") by vger.kernel.org with ESMTP
-	id S261208AbVAMQlt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 13 Jan 2005 11:41:49 -0500
-Subject: Re: [PATCH 1/1] pci: Block config access during BIST (resend)
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Andi Kleen <ak@muc.de>
-Cc: brking@us.ibm.com, paulus@samba.org, benh@kernel.crashing.org,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20050111173332.GA17077@muc.de>
-References: <200501101449.j0AEnWYF020850@d03av01.boulder.ibm.com>
-	 <m14qhpxo2j.fsf@muc.de> <41E2AC74.9090904@us.ibm.com>
-	 <20050110162950.GB14039@muc.de> <41E3086D.90506@us.ibm.com>
-	 <1105454259.15794.7.camel@localhost.localdomain>
-	 <20050111173332.GA17077@muc.de>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Message-Id: <1105626399.4664.7.camel@localhost.localdomain>
+	Thu, 13 Jan 2005 14:35:51 -0500
+Received: from cc15144-a.groni1.gr.home.nl ([217.120.147.78]:51113 "HELO
+	boetes.org") by vger.kernel.org with SMTP id S261328AbVAMTbt (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 13 Jan 2005 14:31:49 -0500
+Date: Thu, 13 Jan 2005 20:31:43 +0059
+From: Han Boetes <han@mijncomputer.nl>
+To: linux-kernel@vger.kernel.org
+Subject: Re: propolice support for linux
+Message-ID: <20050113193205.GE14127@boetes.org>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+References: <20050113134620.GA14127@boetes.org> <20050113140446.GA22381@infradead.org> <20050113163733.GB14127@boetes.org> <1105635755.6031.37.camel@laptopd505.fenrus.org>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Thu, 13 Jan 2005 15:35:59 +0000
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1105635755.6031.37.camel@laptopd505.fenrus.org>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Maw, 2005-01-11 at 17:33, Andi Kleen wrote:
-> > User space does not expect to get dumped with -EBUSY randomly on PCI
-> 
-> I think it's a reasonable thing to do.  If you prefer you could fake a
-> 0xffffffff read, that would look like busy or non existing hardware.
-> But the errno would seem to be cleaner to me.
+Arjan van de Ven wrote:
+> you haven't commented on the "why is this useful for the kernel"
+> question I asked,
 
-Either will break X.
+You didn't ask this question, and I did comment.
 
-> > static int pci_user_wait_access(struct pci_dev *pdev) {
-> > 	wait_event(&pci_ucfg_wait, dev->block_ucfg_access == 0);
-> > }
-> 
-> I don't like this very much. What happens when the device 
-> doesn't get out of BIST for some reason? 
 
-Then you need to switch to wait_event_timeout(). Its not terribly hard
-8)
+> can you point out a single kernel buffer overflow ??
 
+Let's ask Edsger Dijkstra :-)
+
+  ``Program testing can be used to show the presence of bugs, but
+    never to show their absence! -- Edsger Dijkstra, [1972]''
+
+I get your point though, but since it can't do any harm let us
+paranoid freaks have a proper patch at the least.
+
+
+> (I know userspace has them; I'm asking you specifically about
+> kernel space since you provide a patch useful for kernel space
+> only)
+
+
+Well I suggest it here as well:
+  http://forums.mozillazine.org/viewtopic.php?t=199891
+
+But got zero replies. Could you be so kind to point out to these
+people it's a good idea?
+
+
+
+# Han

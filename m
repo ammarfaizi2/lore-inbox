@@ -1,50 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278343AbRJMSSg>; Sat, 13 Oct 2001 14:18:36 -0400
+	id <S278351AbRJMSY1>; Sat, 13 Oct 2001 14:24:27 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278347AbRJMSS2>; Sat, 13 Oct 2001 14:18:28 -0400
-Received: from garrincha.netbank.com.br ([200.203.199.88]:778 "HELO
-	netbank.com.br") by vger.kernel.org with SMTP id <S278343AbRJMSSR>;
-	Sat, 13 Oct 2001 14:18:17 -0400
-Date: Sat, 13 Oct 2001 15:18:29 -0300 (BRST)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: <riel@imladris.rielhome.conectiva>
-To: Linus Torvalds <torvalds@transmeta.com>
-Cc: Jamie Lokier <lk@tantalophile.demon.co.uk>,
-        "Eric W. Biederman" <ebiederm@xmission.com>,
-        <linux-kernel@vger.kernel.org>
-Subject: Re: Security question: "Text file busy" overwriting executables but
- not shared libraries?
-In-Reply-To: <Pine.LNX.4.33.0110130956350.8707-100000@penguin.transmeta.com>
-Message-ID: <Pine.LNX.4.33L.0110131517160.2847-100000@imladris.rielhome.conectiva>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
+	id <S278348AbRJMSYQ>; Sat, 13 Oct 2001 14:24:16 -0400
+Received: from colorfullife.com ([216.156.138.34]:6158 "EHLO colorfullife.com")
+	by vger.kernel.org with ESMTP id <S278345AbRJMSYG>;
+	Sat, 13 Oct 2001 14:24:06 -0400
+Message-ID: <3BC886ED.86525D2C@colorfullife.com>
+Date: Sat, 13 Oct 2001 20:24:45 +0200
+From: Manfred Spraul <manfred@colorfullife.com>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.12 i686)
+X-Accept-Language: en, de
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Linus Torvalds <torvalds@transmeta.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Pentium IV cacheline size.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 13 Oct 2001, Linus Torvalds wrote:
+ 
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 
-> Trust me, MAP_COPY really _is_ stupid, and the Hurd is a piece of crap.
+Linus wrote:
+> On Sat, 13 Oct 2001, Dave Jones wrote:
+> >
+> > Currently, we're using a L1_CACHE_SHIFT value of 7
+> > for Pentium 4, which equates to 128 byte cache lines.
+> 
+> Well, the fact is, that from a SMP standpoint, the 128 bytes is the
+> correct one: the L2 is 128 bytes wide.
 
-Isn't it a Mach thing ?
+The 128 bytes are split into 2 sectors - I'm not sure if 128 or 64 bytes
+is appropriate.
 
-> People who think MAP_COPY is a good idea are people who cannot think about
-> the implications of it, and cannot think about the alternatives.
+<<<<<
+The L2 cache is a 256K-byte cache that holds both instructions
+that miss the Trace Cache and data that miss the L1 data cache.
+The L2 cache is organized as an 8-way set-associative cache with
+128 bytes per cache line. These 128-byte cache lines consist of
+two 64-byte sectors. A miss in the L2 cache typically initiates
+two 64-byte access requests to the system bus to fill both halves
+of the cache line.
+<<<<<
+http://developer.intel.com/technology/itj/q12001/articles/art_2.htm
 
-I guess thinking about the implications will come when
-the Hurd people seriously start porting their beast to
-other microkernels, say L4 ;)
-
-This should be a spectacle worth watching (from a safe
-distance).
-
-cheers,
-
-Rik
--- 
-DMCA, SSSCA, W3C?  Who cares?  http://thefreeworld.net/  (volunteers needed)
-
-http://www.surriel.com/		http://distro.conectiva.com/
-
+--
+	Manfred

@@ -1,49 +1,86 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261839AbVANBNw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261838AbVANBNM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261839AbVANBNw (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 13 Jan 2005 20:13:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261837AbVANBNh
+	id S261838AbVANBNM (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 13 Jan 2005 20:13:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261837AbVANBKa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 13 Jan 2005 20:13:37 -0500
-Received: from e31.co.us.ibm.com ([32.97.110.129]:30117 "EHLO
-	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S261839AbVANBM7
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 13 Jan 2005 20:12:59 -0500
-Date: Thu, 13 Jan 2005 16:59:48 -0800
-From: Greg KH <greg@kroah.com>
-To: "Sergey S. Kostyliov" <rathamahata@ehouse.ru>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: module's parameters could not be set via sysfs in 2.6.11-rc1?
-Message-ID: <20050114005948.GD4140@kroah.com>
-References: <200501132234.30762.rathamahata@ehouse.ru>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200501132234.30762.rathamahata@ehouse.ru>
-User-Agent: Mutt/1.5.6i
+	Thu, 13 Jan 2005 20:10:30 -0500
+Received: from omx1-ext.sgi.com ([192.48.179.11]:48530 "EHLO
+	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
+	id S261752AbVANBJY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 13 Jan 2005 20:09:24 -0500
+Date: Thu, 13 Jan 2005 17:09:04 -0800 (PST)
+From: Christoph Lameter <clameter@sgi.com>
+X-X-Sender: clameter@schroedinger.engr.sgi.com
+To: Andi Kleen <ak@muc.de>
+cc: Nick Piggin <nickpiggin@yahoo.com.au>, Andrew Morton <akpm@osdl.org>,
+       torvalds@osdl.org, hugh@veritas.com, linux-mm@kvack.org,
+       linux-ia64@vger.kernel.org, linux-kernel@vger.kernel.org,
+       benh@kernel.crashing.org
+Subject: Re: page table lock patch V15 [0/7]: overview
+In-Reply-To: <20050113180205.GA17600@muc.de>
+Message-ID: <Pine.LNX.4.58.0501131701150.21743@schroedinger.engr.sgi.com>
+References: <Pine.LNX.4.58.0501120833060.10380@schroedinger.engr.sgi.com>
+ <20050112104326.69b99298.akpm@osdl.org> <41E5AFE6.6000509@yahoo.com.au>
+ <20050112153033.6e2e4c6e.akpm@osdl.org> <41E5B7AD.40304@yahoo.com.au>
+ <Pine.LNX.4.58.0501121552170.12669@schroedinger.engr.sgi.com>
+ <41E5BC60.3090309@yahoo.com.au> <Pine.LNX.4.58.0501121611590.12872@schroedinger.engr.sgi.com>
+ <20050113031807.GA97340@muc.de> <Pine.LNX.4.58.0501130907050.18742@schroedinger.engr.sgi.com>
+ <20050113180205.GA17600@muc.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jan 13, 2005 at 10:34:30PM +0300, Sergey S. Kostyliov wrote:
-> Hello,
-> 
-> It looks like module parameters are not setable via sysfs in 2.6.11-rc1
-> 
-> E.g.
-> arise parameters # echo -en Y > /sys/module/usbcore/parameters/old_scheme_first
-> -bash: /sys/module/usbcore/parameters/old_scheme_first: Permission denied
-> arise parameters # id
-> uid=0(root) gid=0(root) groups=0(root),1(bin),2(daemon),3(sys),4(adm),6(disk),10(wheel),11(floppy),20(dialout),26(tape),27(video)
-> arise parameters # 
-> arise parameters # ls -la /sys/module/usbcore/parameters/old_scheme_first
-> -rw-r--r--  1 root root 0 Jan 13 22:22 /sys/module/usbcore/parameters/old_scheme_first
-> arise parameters # 
-> 
-> This is sad because it seems that my usb flash stick (transcebd jetflash)
-> doesn't like new USB device initialization scheme introduced in 2.6.10.
+On Thu, 13 Jan 2005, Andi Kleen wrote:
 
-I'm seeing the same problem here.  I'll dig into it later tonight.
+> On Thu, Jan 13, 2005 at 09:11:29AM -0800, Christoph Lameter wrote:
+> > On Wed, 13 Jan 2005, Andi Kleen wrote:
+> >
+> > > Alternatively you can use a lazy load, checking for changes.
+> > > (untested)
+> > >
+> > > pte_t read_pte(volatile pte_t *pte)
+> > > {
+> > > 	pte_t n;
+> > > 	do {
+> > > 		n.pte_low = pte->pte_low;
+> > > 		rmb();
+> > > 		n.pte_high = pte->pte_high;
+> > > 		rmb();
+> > > 	} while (n.pte_low != pte->pte_low);
+> > > 	return pte;
 
-thanks,
+I think this is not necessary. Most IA32 processors do 64
+bit operations in an atomic way in the same way as IA64. We can cut out
+all the stuff we put in to simulate 64 bit atomicity for i386 PAE mode if
+we just use convince the compiler to use 64 bit fetches and stores. 486
+cpus and earlier are the only ones unable to do 64 bit atomic ops but
+those wont be able to use PAE mode anyhow.
 
-greg k-h
+Page 231 of Volume 3 of the Intel IA32 manual states regarding atomicity
+of operations:
+
+7.1.1. Guaranteed Atomic Operations
+
+The Pentium 4, Intel Xeon, P6 family, Pentium, and Intel486 processors
+guarantee that the following basic memory operations will always be
+carried out atomically:
+
+o reading or writing a byte
+o reading or writing a word aligned on a 16-bit boundary
+o reading or writing a doubleword aligned on a 32-bit boundary
+
+The Pentium 4, Intel Xeon, and P6 family, and Pentium processors guarantee
+that the following additional memory operations will always be carried out
+atomically:
+
+o reading or writing a quadword aligned on a 64-bit boundary
+o 16-bit accesses to uncached memory locations that fit within a 32-bit data bus
+o The P6 family processors guarantee that the following additional memory
+operation will always be carried out atomically:
+o unaligned 16-, 32-, and 64-bit accesses to cached memory that fit
+within a 32-byte cache
+
+.... off to look for 64bit store and load instructions in the intel
+manuals. I feel much better about keeping the existing approach.

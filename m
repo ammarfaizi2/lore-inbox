@@ -1,43 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262023AbTCHNzY>; Sat, 8 Mar 2003 08:55:24 -0500
+	id <S262019AbTCHNzI>; Sat, 8 Mar 2003 08:55:08 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262024AbTCHNzY>; Sat, 8 Mar 2003 08:55:24 -0500
-Received: from outpost.ds9a.nl ([213.244.168.210]:23703 "EHLO outpost.ds9a.nl")
-	by vger.kernel.org with ESMTP id <S262023AbTCHNzW>;
-	Sat, 8 Mar 2003 08:55:22 -0500
-Date: Sat, 8 Mar 2003 15:05:58 +0100
-From: bert hubert <ahu@ds9a.nl>
-To: Ludootje <ludootje@linux.be>
-Cc: LKML <linux-kernel@vger.kernel.org>
-Subject: Re: what's an OOPS
-Message-ID: <20030308140558.GA22327@outpost.ds9a.nl>
-Mail-Followup-To: bert hubert <ahu@ds9a.nl>,
-	Ludootje <ludootje@linux.be>, LKML <linux-kernel@vger.kernel.org>
-References: <1047131229.658.236.camel@libranet>
+	id <S262023AbTCHNzI>; Sat, 8 Mar 2003 08:55:08 -0500
+Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:52658
+	"EHLO irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S262019AbTCHNzH>; Sat, 8 Mar 2003 08:55:07 -0500
+Subject: Re: [PATCH] register_blkdev
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Greg KH <greg@kroah.com>
+Cc: Andrew Morton <akpm@digeo.com>, hch@infradead.org, Andries.Brouwer@cwi.nl,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Linus Torvalds <torvalds@transmeta.com>
+In-Reply-To: <20030308005018.GE23071@kroah.com>
+References: <UTC200303071932.h27JW1o11962.aeb@smtp.cwi.nl>
+	 <20030307193644.A14196@infradead.org>
+	 <20030307123029.2bc91426.akpm@digeo.com> <20030307221217.GB21315@kroah.com>
+	 <20030307143319.2413d1df.akpm@digeo.com> <20030307234541.GG21315@kroah.com>
+	 <1047086062.24215.14.camel@irongate.swansea.linux.org.uk>
+	 <20030308005018.GE23071@kroah.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Organization: 
+Message-Id: <1047136302.25932.28.camel@irongate.swansea.linux.org.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1047131229.658.236.camel@libranet>
-User-Agent: Mutt/1.3.28i
+X-Mailer: Ximian Evolution 1.2.1 (1.2.1-4) 
+Date: 08 Mar 2003 15:11:42 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Mar 08, 2003 at 02:47:10PM +0100, Ludootje wrote:
-> Hi,
+On Sat, 2003-03-08 at 00:50, Greg KH wrote:
+> > So we need a maxminors flag in the register for 2.6 I guess ?
 > 
-> I've been reading LKML for a few weeks now to understand Linux
-> development better, and there's one thing I just can't understand:
-> what's an OOPS? What does it stand for, what is it?
+> Do you mean to only increase the number of majors, and not minors then?
 
-An oops is a lot like a segmentation fault for a userspace program. It
-indicates the kernel tried to access memory that doesn't exist, for example.
+How about an interface that looks like
 
-Regards,
+	register_chr_device(blah. blah, MY_MAX_MINOR);
 
-bert
+and we can delete all the if < 0 || >= MAX return logic from the drivers
+as we go. Right now each driver checks and several in the past had off 
+by one errors.
 
--- 
-http://www.PowerDNS.com      Open source, database driven DNS Software 
-http://lartc.org           Linux Advanced Routing & Traffic Control HOWTO
-http://netherlabs.nl                         Consulting
+

@@ -1,57 +1,64 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S311900AbSDBQDU>; Tue, 2 Apr 2002 11:03:20 -0500
+	id <S312817AbSDBPzt>; Tue, 2 Apr 2002 10:55:49 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312824AbSDBQDA>; Tue, 2 Apr 2002 11:03:00 -0500
-Received: from Expansa.sns.it ([192.167.206.189]:55558 "EHLO Expansa.sns.it")
-	by vger.kernel.org with ESMTP id <S311900AbSDBQC4>;
-	Tue, 2 Apr 2002 11:02:56 -0500
-Date: Tue, 2 Apr 2002 18:02:54 +0200 (CEST)
-From: Luigi Genoni <kernel@Expansa.sns.it>
-To: Ken Brownfield <ken@irridia.com>
+	id <S312750AbSDBPzk>; Tue, 2 Apr 2002 10:55:40 -0500
+Received: from chaos.analogic.com ([204.178.40.224]:46720 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP
+	id <S312817AbSDBPze>; Tue, 2 Apr 2002 10:55:34 -0500
+Date: Tue, 2 Apr 2002 10:54:30 -0500 (EST)
+From: "Richard B. Johnson" <root@chaos.analogic.com>
+Reply-To: root@chaos.analogic.com
+To: Michael Zhu <mylinuxk@yahoo.ca>
 cc: linux-kernel@vger.kernel.org
-Subject: Re: Status of quotas on ext3 and reiser?
-In-Reply-To: <20020401211410.A9161@asooo.flowerfire.com>
-Message-ID: <Pine.LNX.4.44.0204021801490.17853-100000@Expansa.sns.it>
+Subject: Re: Get major number in Makefile
+In-Reply-To: <20020402154200.30415.qmail@web14912.mail.yahoo.com>
+Message-ID: <Pine.LNX.3.95.1020402105021.5638A-100000@chaos.analogic.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, 2 Apr 2002, Michael Zhu wrote:
 
-I am using quota with reiserFS and quota tool 3.04 from slackware-current,
-and no problems at all (kernel 2.4.18)
+> Hi, smart gurus, I have a question while writing a
+> Makefile file to install my device driver. In my
+> device driver I dynamically allocate the major number
+> of my device. In my Makefile I want to build a device
+> node for my device under the /dev directory.
+> 
+>    mknod /dev/mydevice c $major 0;
+> 
+> So I need to know the major number of my deivce in the
+> Makefile. I've read the Linux 'Device Driver'. There
+> is some information about this. I use the following
+> command to get the major number in my Makefile.
+> 
+> major=`awk "\\$2==\"$mymodule\" {printf \\$1}"
+> /proc/devices`
+> 
+> But when I use the 'make install' command to install
+> my driver, the following error returned.
+> 
+> major=`awk "\\==\"$ymodule\" {printf \\}"
+> /proc/devices`
+> awk: 0: unexpected character '\'
+> awk: line 1: syntax error at or near ==
+> make: *** [install] Error 2
+> 
+> What is wrong with my command? Can anyone tell me how
+> to get the major number in Makefile.
+> 
+> Thank you very much.
 
+`make` will interpret '$', you need $$ in the Makefile.
+Also, you may not want to 'acquire' major numbers this way. Your
+module may work only on the machine that built it.
 
-On Mon, 1 Apr 2002, Ken Brownfield wrote:
+Cheers,
+Dick Johnson
 
-> I'm about to install a 2TB disk array, and I'd very strongly prefer to
-> use ext3 or possibly reiser to gain journaling.  Fscking 250GB is
-> already lethal.
->
-> But I also need quotas.  I've noticed that quotas do not appear to be
-> supported by ext3, but I haven't tried reiser yet.  And I'm not sure
-> if I simply need new quota userspace tools -- the ones I found were 1994
-> vintage.  I'm on RH6.2 BTW for this case, and the builtin tools don't
-> appear to grok ext3.
->
-> What is the current viability of quotas on ext3/reiser in a
-> conservative, production environment?  Is it waiting for the 32-bit UID
-> mods in 2.4.x, or has quota support been pushed off onto 2.5?  Am I
-> going to have to make the hard choice of journaling vs quotas? :-/
->
-> I couldn't find a definitive answer in the archives; sorry if this is a
-> FAQ.  I'd bug poor Andrew Morton directly :), but I'm also interested in
-> the status or reiser vs quotas.
->
-> Thanks,
-> --
-> Ken.
-> ken@irridia.com
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
->
+Penguin : Linux version 2.4.18 on an i686 machine (797.90 BogoMips).
+
+                 Windows-2000/Professional isn't.
 

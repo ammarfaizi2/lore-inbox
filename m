@@ -1,73 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268890AbUINEWM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268328AbUINEXJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268890AbUINEWM (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Sep 2004 00:22:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268328AbUINEWM
+	id S268328AbUINEXJ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Sep 2004 00:23:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268899AbUINEXJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Sep 2004 00:22:12 -0400
-Received: from rproxy.gmail.com ([64.233.170.203]:4418 "EHLO mproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S268890AbUINEVN (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Sep 2004 00:21:13 -0400
-Message-ID: <7798951e040913212154d3b3f9@mail.gmail.com>
-Date: Mon, 13 Sep 2004 23:21:05 -0500
-From: hotdog day <hotdogday@gmail.com>
-Reply-To: hotdog day <hotdogday@gmail.com>
-To: Nick Piggin <nickpiggin@yahoo.com.au>
-Subject: Re: 2.6.9-rc2 and Hyperthreading. (SMT)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <41465244.9010603@yahoo.com.au>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Tue, 14 Sep 2004 00:23:09 -0400
+Received: from a26.t1.student.liu.se ([130.236.221.26]:38053 "EHLO
+	mail.drzeus.cx") by vger.kernel.org with ESMTP id S268328AbUINEW6
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 14 Sep 2004 00:22:58 -0400
+Message-ID: <41467216.6070508@drzeus.cx>
+Date: Tue, 14 Sep 2004 06:22:46 +0200
+From: Pierre Ossman <drzeus-list@drzeus.cx>
+User-Agent: Mozilla Thunderbird 0.7.1 (X11/20040704)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Pavel Machek <pavel@suse.cz>
+CC: seife@suse.de, LKML <linux-kernel@vger.kernel.org>
+Subject: Re: HP/Compaq (Winbond) SD/MMC reader supported
+References: <41383D02.5060709@drzeus.cx> <20040913223827.GA28524@elf.ucw.cz>
+In-Reply-To: <20040913223827.GA28524@elf.ucw.cz>
+X-Enigmail-Version: 0.84.2.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-References: <7798951e04091317273b1bed29@mail.gmail.com>
-	 <41465244.9010603@yahoo.com.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Turning off CONFIG_SCHED_SMT has apparently fixed the issue. 
+Pavel Machek wrote:
 
-Three Q's:
-
-1) Am I taking some kind of performance hit by doing this?
-
-2) Is this something we can look forward to seeing fixed?
-
-3) Do you need any info from me to help you?
-
-Thanks,
-
-Troy McFerron
-
-
-On Tue, 14 Sep 2004 12:07:00 +1000, Nick Piggin <nickpiggin@yahoo.com.au> wrote:
-> 
-> 
-> hotdog day wrote:
-> > I have been testing the 2.6.9-rc1, and 2.6.9-rc2 kernel patches over
-> > the past couple days and have been having some issues with
-> > hyperthreading (SMT) turned on.
-> >
-> > This problem first exhibited itself when I was testing
-> > 2.6.9-rc2-mm2-love2. I noticed the following quirks that ONLY show
-> > themselves with hyperthreading enabled on my 3.0C Pentium 4.
-> >
-> > Random HARD LOCKS. No messages from the kernel. Just a good swift hard lock.
-> >
-> > Hard locks when mounting two cdrom drives in quick succession.
-> >
-> > Turning off hyperthreading solves these issues.  Going back to 2.6.8.1
-> > solves these issues.
-> >
-> > I then tried 2.6.9-rc1 with no mm or love patches. I had the exact same issues.
-> >
-> > Today I downloaded the prepatch to 2.6.9-rc2 and applied it to clean
-> > 2.6.8 source. The issues are still there.
-> >
-> > I hope someone is paying attention to the way scheduler tweaks and
-> > changes are affecting SMT enabled kernels. I don't think anyone wants
-> > to disable features of their hardware in order to run an optimized
-> > scheduler.
-> 
-> Try turning off CONFIG_SCHED_SMT and see how you go. Thanks.
 >
+>
+>Hmm, it does something here on my nx5000... It causes 2 "bad parity
+>from KBD" errors and then freezes boot. But the chip is detected and I
+>see 
+>
+>mmc0: W83L51xD id f00 at 0x248 irq 1 dma 0
+>
+>message. (How do I guess right values for irq? I thought that
+>interference with keyboard means it uses irq 1, but it is probably not
+>the case, and default values did not work, too).
+>
+>I'll try turning off ALSA because it actually freezes machine only
+>after alsa is loaded.
+>  
+>
+You seem to be running an old version of the driver. The ports for the 
+driver are also often populated by SuperIO chip. The detection routine 
+was a bit optimistic in the earlier versions so it started resetting the 
+wrong hardware.
+
+As of writing the latest version is 0.7 and a patch can be downloaded at:
+
+http://projects.drzeus.cx/wbsd/download.php?get=files/wbsd-0.7.patch
+
+Rgds
+Pierre

@@ -1,43 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261411AbTIOW4p (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 15 Sep 2003 18:56:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261648AbTIOW4p
+	id S261217AbTIOWxN (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 15 Sep 2003 18:53:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261239AbTIOWxN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 Sep 2003 18:56:45 -0400
-Received: from nelson.SEDSystems.ca ([192.107.131.136]:6379 "EHLO
-	nelson.sedsystems.ca") by vger.kernel.org with ESMTP
-	id S261411AbTIOW4o (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 Sep 2003 18:56:44 -0400
-Message-ID: <3F66441F.3010206@sedsystems.ca>
-Date: Mon, 15 Sep 2003 16:58:39 -0600
-From: Kendrick Hamilton <hamilton@sedsystems.ca>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5b) Gecko/20030727 Thunderbird/0.1
-X-Accept-Language: en-us, en
+	Mon, 15 Sep 2003 18:53:13 -0400
+Received: from mail.mygisol.com ([207.44.144.6]:25768 "HELO mail.mygisol.com")
+	by vger.kernel.org with SMTP id S261217AbTIOWxM (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 15 Sep 2003 18:53:12 -0400
+From: "Jack Stewart" <jack@webtech.co.nz>
+To: <linux-kernel@vger.kernel.org>
+Subject: Source for Promise PDC20376 Linux Drivers
+Date: Tue, 16 Sep 2003 10:54:23 +1200
+Message-ID: <625CF2D7C3D60245B050C921AB0B0A963200B4@nzrcsxch01.nzrc.net>
 MIME-Version: 1.0
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: PCI probe, please CC hamilton@sedsystems.ca
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain;
+	charset="us-ascii"
 Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook, Build 10.0.4024
+Importance: Normal
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1106
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
-    we are using the Linux 2.2.16 kernel (some of the code we purchased 
-does not work with 2.4.x kernels and we would have to do a lot of 
-regression testing to upgrade) on an IBM e-server. We wrote a module for 
-a modulator card we are using. The code uses pci_find_device to find the 
-modulator cards. The problem we are having is that it finds the cards in 
-different orders. One time hss0 is the card in slot 4 and hss1 is the 
-card in slot5. The next time we power up the computer, hss0 is the card 
-in slot5 and hss1 is the card in slot 4.
-    The IBM e-server has about 5 PCI bridges.
-    Do you have any suggestion as to how I might be able to ensure the 
-cards are always detected in the same order? Our system requires that 
-they always be in the same order.
-    I can email you the source code for our module, it is GPLed.
-  
-    Please CC comments to hamilton@sedsystems.ca
-TIA,
-Kendrick Hamilton
+
+I just noticed today that Promise appear to have posted source for their
+FastTrak TX4000 Linux Drivers along with new binaries for Redhat and
+Suse.  I know there have been some efforts to get a driver for the
+PDC20376 into the kernel.  Here's hoping this source will help?
+
+http://www.promise.com/support/download/download2_eng.asp?productId=104&
+category=All&os=100
+
+Please CC me on your replies as I am not a subscriber.
+
+Jack.
 

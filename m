@@ -1,135 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261921AbVCAObe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261925AbVCAOdf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261921AbVCAObe (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Mar 2005 09:31:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261922AbVCAObe
+	id S261925AbVCAOdf (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Mar 2005 09:33:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261926AbVCAOdf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Mar 2005 09:31:34 -0500
-Received: from wproxy.gmail.com ([64.233.184.197]:34934 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261921AbVCAObK (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Mar 2005 09:31:10 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
-        b=f3FmFdYPhTtGU3JxcWfGt1SIQ9z7+xoeOz3UDYnpRk5TNfvOj983WIDHd19jGoTNtVkC8LELnHOewfdwZaSPY0Ac6SFQhbjTWN42qOOfIMwz8PCC/t6IGUW+p6NFL7+SOnd3QqvugPaGykCIWPz6UWDw3SqawF5QxluqFS1lZuA=
-Message-ID: <58cb370e050301063069799c75@mail.gmail.com>
-Date: Tue, 1 Mar 2005 15:30:32 +0100
-From: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
-Reply-To: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
-To: Tejun Heo <htejun@gmail.com>
-Subject: Re: [PATCH 2.6.11-rc3 01/11] ide: task_end_request() fix
-Cc: lkml <linux-kernel@vger.kernel.org>, linux-ide <linux-ide@vger.kernel.org>,
-       Jeff Garzik <jgarzik@pobox.com>
-In-Reply-To: <20050227064922.GA27728@htj.dyndns.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Tue, 1 Mar 2005 09:33:35 -0500
+Received: from hermine.aitel.hist.no ([158.38.50.15]:37391 "HELO
+	hermine.aitel.hist.no") by vger.kernel.org with SMTP
+	id S261925AbVCAOdQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 1 Mar 2005 09:33:16 -0500
+Message-ID: <42247DD6.1060906@aitel.hist.no>
+Date: Tue, 01 Mar 2005 15:36:06 +0100
+From: Helge Hafting <helge.hafting@aitel.hist.no>
+User-Agent: Debian Thunderbird 1.0 (X11/20050116)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Mws <mws@twisted-brains.org>
+CC: Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: 2.6.11-rc5
+References: <Pine.LNX.4.58.0502232014190.18997@ppc970.osdl.org> <200502251430.16860.mws@twisted-brains.org> <1109379043.14993.93.camel@gaston> <200503011236.58222.mws@twisted-brains.org>
+In-Reply-To: <200503011236.58222.mws@twisted-brains.org>
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
-References: <20050210083808.48E9DD1A@htj.dyndns.org>
-	 <20050210083809.63BF53E6@htj.dyndns.org>
-	 <58cb370e05022407587e86f8ad@mail.gmail.com>
-	 <20050227064922.GA27728@htj.dyndns.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 27 Feb 2005 15:49:22 +0900, Tejun Heo <htejun@gmail.com> wrote:
-> On Thu, Feb 24, 2005 at 04:58:03PM +0100, Bartlomiej Zolnierkiewicz wrote:
-> > On Thu, 10 Feb 2005 17:38:14 +0900 (KST), Tejun Heo <htejun@gmail.com> wrote:
-> > >
-> > > 01_ide_task_end_request_fix.patch
-> > >
-> > >         task_end_request() modified to always call ide_end_drive_cmd()
-> > >         for taskfile requests.  Previously, ide_end_drive_cmd() was
-> > >         called only when task->tf_out_flags.all was set.  Also,
-> > >         ide_dma_intr() is modified to use task_end_request().
-> > >
-> > >         * fixes taskfile ioctl oops bug which was caused by referencing
-> > >           NULL rq->rq_disk of taskfile requests.
-> >
-> > I fixed it in slightly different way in ide-dev-2.6 - by calling
-> > ide_end_request() instead of ->end_request().
-> 
->  Taskfile DMA path is still broken.  Also calling ide_end_request()
-> will work there, but IMHO it's just cleaner to finish special commands
-> inside ide_end_drive_cmd().  Currently,
+Mws wrote:
 
-I agree but please note that your patch makes *all* taskfile registers to
-be exposed through HDIO_DRIVE_TASKFILE regardless of ->rf_in_flags
-(and obviously later you can't revert this change).
+>hi benjamin
+>
+>now i had some spare time to do some investigation
+>
+>booting the 2.6.11-rc5 with radeonfb.default_dynclk=0 or with -1
+>brings up a framebuffer console. everything is fine.
+>starting xorg-x11 with Ati binary only drivers just brings up a black screen
+>without a mouse cursor and freezes the hole machine. even network ect. 
+>is no more reachable from outside the machine. worst thing out of that
+>a tail on the log files (on another machine) does immediately stop - also no 
+>output is written to syslog :/
+>
+>next scenario - test 2.6.11-rc5 with radeonfb.default_dynclock=0 and -1
+>starting xorg-x11 with Xorg Radeon driver. 
+>a grey screen comes up - mouse cursor is visible and also able to move for
+>5 - 8 seconds after screen display - then freezes the whole machine again.
+>  
+>
+Did you try without dri? (Comment out dri in the X config file)
+I use a radeon 7000 VE at work, where X will hang after a few
+seconds if dri is enabled in X.  Disable dri, and it is
+rock solid. xfree or x.org makes no difference here.
 
->  * Successful flagged taskfile                  -> ide_end_drive_cmd()
->  * All other successful non-DMA special cmds    -> ide_end_request()
->  * Successful DMA taskfile                      -> segfault
+Helge Hafting
 
-Have you tested it?  Why would it segfault?
-
->  * All failed special cmds                      -> ide_end_drive_cmd()
-> 
->  It just shouldn't be like this.  :-(
-
-Yep.
-
-> >
-> > >         * enables TASKFILE ioctls to get valid register outputs on
-> > >           successful completion.
-> >
-> > This change makes *all* taskfile registers to be read on completion
-> > of *any* command.  Currently this is done only for flagged taskfiles
-> > and commands using no-data protocol.
-> >
-> > With all your changes it will be also done for:
-> > * HDIO_DRIVE_[TASKFILE,CMD] ioctls
-> > * /proc/ide/hd?/{identify,smart_thresholds,smart_values}
-> > but reading back all registers is not always needed.
-> 
->  None is on a hot path or even near to one, but maybe I don't have
-> enough experience with old hardware.  Are there some old hardware
-> which make the additional reads stand out?
-
-I dunno, better be safe then sorry, after all we are working
-on the *stable* kernel tree.
-
-Converting HDIO_DRIVE_CMD and in-kernel users to
-soon-to-be-implemented ;-) sane discrete interface shouldn't
-require much effort.
-
-> > It is already bad enough (and we can't fix it cause it is exported
-> > to user-space through HDIO_DRIVE_TASKFILE), we shouldn't
-> > make it worse.
-> 
->  Yeah, the whole IDE ioctl interface seems disturbingly messy. :-(
-> 
->  * Register output is available only if
->         1. The command fails.
->         2. The command is a flagged taskfile.
-
-3. the command uses no-data protocol
-
->  * taskfile->device_head is used regardless of outflags setting.
->  * In flagged taskfile, taskfile->device_head can turn on the device
->    bit, so we can issue commands to hdb with permissions to hda.
->  * In TASK and TASKFILE, LBA commands can be issued to drives in CHS
->    mode but the reverse isn't true.  However, in TASKFILE, if the
->    command isn't flagged, the lower nibble of device register is
->    zeroed depending on addressing setting.
->  * taskfile->data endianess is reversed on big endian machines.
->  * ide_reg_valid_t endianess issue.
->  * And, none of above is documented.
-> 
->  So, I don't know.  Do you think we should keep all of the above
-> behaviors?  Please let me know; then, I'll update ioctl/hdio.txt so
-
-Now read again the list above and think about amount of time required
-to *safely* fix all the issues mentioned vs introducing sane interface.
-Please also note that once we expose something to user-space
-applications may depend on the broken behavior so we can't fix all
-issues anyway.
-
-If somebody implements SG_IO ioctl and SCSI command pass-through
-from libata for IDE driver (and add possibility for discrete taskfiles), we can
-just deprecate HDIO_DRIVE_TASKFILE, forget about it and some time later
-remove this FPOS.
-
-> that people can at least know these gotchas.
-
-Please do so, thanks.

@@ -1,74 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261179AbULEPea@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261189AbULEPeK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261179AbULEPea (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 5 Dec 2004 10:34:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261199AbULEPea
+	id S261189AbULEPeK (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 5 Dec 2004 10:34:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261179AbULEPeK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 5 Dec 2004 10:34:30 -0500
-Received: from dbl.q-ag.de ([213.172.117.3]:14738 "EHLO dbl.q-ag.de")
-	by vger.kernel.org with ESMTP id S261179AbULEPeV (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 5 Dec 2004 10:34:21 -0500
-Date: Sun, 5 Dec 2004 16:33:42 +0100 (CET)
-From: Manfred Spraul <manfred@colorfullife.com>
-X-X-Sender: manfred@dbl.q-ag.de
-To: akpm@osdl.org
-cc: linux-kernel@vger.kernel.org, Pekka Enberg <penberg@cs.helsinki.fi>
-Subject: Re: [PATCH] Document kfree and vfree NULL usage (resend)
-In-Reply-To: <1102103282.17778.9.camel@localhost>
-Message-ID: <Pine.LNX.4.44.0412051628280.13644-100000@dbl.q-ag.de>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Sun, 5 Dec 2004 10:34:10 -0500
+Received: from mail-relay-4.tiscali.it ([213.205.33.44]:59035 "EHLO
+	mail-relay-4.tiscali.it") by vger.kernel.org with ESMTP
+	id S261199AbULEPeH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 5 Dec 2004 10:34:07 -0500
+Date: Sun, 5 Dec 2004 16:34:04 +0100
+From: Andrea Arcangeli <andrea@suse.de>
+To: Thomas Gleixner <tglx@linutronix.de>
+Cc: Voluspa <lista4@comhem.se>, LKML <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] oom killer (Core)
+Message-ID: <20041205153404.GC30536@dualathlon.random>
+References: <200412041242.iB4CgsN07246@d1o408.telia.com> <20041204164353.GE32635@dualathlon.random> <1102185205.13353.309.camel@tglx.tec.linutronix.de> <1102194124.13353.331.camel@tglx.tec.linutronix.de> <20041205002736.GE13244@dualathlon.random> <1102258507.13353.366.camel@tglx.tec.linutronix.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1102258507.13353.366.camel@tglx.tec.linutronix.de>
+X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
+X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Andrew,
+On Sun, Dec 05, 2004 at 03:55:07PM +0100, Thomas Gleixner wrote:
+> Yes, the modification are not interfering with your patch. They just add
+> the accounting of child processes to the selection.
 
-I think it's worth to explicitely mention that kfree(NULL) is valid - too
-many users have/had their own (unnecessary) if(ptr) checks.
+Could you post your modifications on top of my patch so we can combine
+them easily?
 
-Pekka wrote:
->
-> This patch adds comments for kfree() and vfree() stating that both
-> accept NULL pointers.
->
-> Signed-off-by: Pekka Enberg <penberg@cs.helsinki.fi>
->
-Signed-Off-By: Manfred Spraul <manfred@colorfullife.com>
+> That makes sense, but it does not catch processes forking a lot of
+> childs, because the allocation rate is not accounted to the parent.
 
----
-
- slab.c    |    2 ++
- vmalloc.c |    3 ++-
- 2 files changed, 4 insertions(+), 1 deletion(-)
-
-Index: 2.6.10-rc2/mm/slab.c
-===================================================================
---- 2.6.10-rc2.orig/mm/slab.c	2004-11-27 14:33:14.000000000 +0200
-+++ 2.6.10-rc2/mm/slab.c	2004-11-27 16:12:54.573387384 +0200
-@@ -2535,6 +2535,8 @@
-  * kfree - free previously allocated memory
-  * @objp: pointer returned by kmalloc.
-  *
-+ * If @objp is NULL, no operation is performed.
-+ *
-  * Don't free memory not originally allocated by kmalloc()
-  * or you will run into trouble.
-  */
-Index: 2.6.10-rc2/mm/vmalloc.c
-===================================================================
---- 2.6.10-rc2.orig/mm/vmalloc.c	2004-11-27 16:13:48.026261312 +0200
-+++ 2.6.10-rc2/mm/vmalloc.c	2004-11-27 16:14:04.875699808 +0200
-@@ -389,7 +389,8 @@
-  *	@addr:		memory base address
-  *
-  *	Free the virtually contiguous memory area starting at @addr, as
-- *	obtained from vmalloc(), vmalloc_32() or __vmalloc().
-+ *	obtained from vmalloc(), vmalloc_32() or __vmalloc(). If @addr is
-+ *	NULL, no operation is performed.
-  *
-  *	May not be called in interrupt context.
-  */
-
-
-
+Not sure, the child could easily inherit the allocation rate of the parent.
+So if the fork bomb spreads the last leaf in the process tree would
+easily get accounted for every kernel stack/fds/etc.. and userspace
+allocation done from its previous parents too.

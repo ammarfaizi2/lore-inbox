@@ -1,47 +1,61 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271014AbRHOETH>; Wed, 15 Aug 2001 00:19:07 -0400
+	id <S271021AbRHOEwL>; Wed, 15 Aug 2001 00:52:11 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271015AbRHOES4>; Wed, 15 Aug 2001 00:18:56 -0400
-Received: from garrincha.netbank.com.br ([200.203.199.88]:7438 "HELO
-	netbank.com.br") by vger.kernel.org with SMTP id <S271014AbRHOESm>;
-	Wed, 15 Aug 2001 00:18:42 -0400
-Date: Wed, 15 Aug 2001 01:18:35 -0300 (BRST)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: <riel@imladris.rielhome.conectiva>
-To: <ebuddington@wesleyan.edu>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: Re: VM (runaway kswapd) improvement 32Mb/120Mb 2.4.7-ac10 -> 2.4.8-ac4
-In-Reply-To: <20010814122955.Q607@sparrow.bur.adelphia.net>
-Message-ID: <Pine.LNX.4.33L.0108150117430.5646-100000@imladris.rielhome.conectiva>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
+	id <S271018AbRHOEwA>; Wed, 15 Aug 2001 00:52:00 -0400
+Received: from gold.MUSKOKA.COM ([216.123.107.5]:38152 "EHLO gold.muskoka.com")
+	by vger.kernel.org with ESMTP id <S271021AbRHOEvo>;
+	Wed, 15 Aug 2001 00:51:44 -0400
+Message-ID: <3B79FB42.66D55B63@yahoo.com>
+Date: Wed, 15 Aug 2001 00:32:02 -0400
+From: Paul Gortmaker <p_gortmaker@yahoo.com>
+X-Mailer: Mozilla 3.04 (X11; I; Linux 2.2.19 i586)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Riley Williams <rhw@MemAlpha.CX>
+CC: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: How does "alias ethX drivername" in modules.conf work?
+In-Reply-To: <Pine.LNX.4.33.0108102221050.20472-100000@infradead.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 14 Aug 2001, Eric Buddington wrote:
+Riley Williams wrote:
 
-> FWIW, my Omnibook 4100 (PII) with 32Mb RAM and 120Mb swap had some
-> trouble with frequent bursts of 98% system time and high kswapd CPU
-> usage under 2.4.7-ac10 while compiling the kernel and running festival
-> (memory-intensive speech synthesizer).
->
-> Currently, with 2.4.8-ac4, everything is just swell. Thanks to whoever
-> did the tweaking.
+> 
+>  > You have six drivers loaded, when you only need three (i.e.
+>  > io=0x340,0x320,0x2c0 for ne options etc. etc). So you end up
+>  > wasting some memory, and a worse icache behaviour as well.
+> 
+> Are you sure of this? My understanding (both from reading the code and
+> from what others I respect have said) is that it is impossible to load
+> any given module more than once, so the above will result in one copy
+> each of the ne, ne2k-pci and tulip drivers being loaded.
 
-That's interesting because Alan's changelog doesn't
-list VM changes between 2.4.7-ac10 and 2.4.8-ac4,
-except for an shmfs fix and an oom killer fix ;)
+Here is an example of what I was talking about:
 
-regards,
+# insmod wd -o wd0 io=0x280 irq=10
+# insmod wd -o wd1 io=0x680 irq=3
+# insmod wd -o wd2 io=0xa80 irq=4
+# insmod wd -o wd3 io=0xe80 irq=9
+# cat /proc/modules
+wd3                2            0
+wd2                2            0
+wd1                2            0
+wd0                2            0
+8390               2    [wd3 wd2 wd1 wd0]      0
+# rmmod wd3 wd2 wd1 wd0
+#
+# insmod wd io=0x280,0x680,0xa80,0xe80 irq=10,3,4,9
+# cat /proc/modules
+wd                 2		0
+8390               2	[wd]	0
+#
 
-Rik
---
-IA64: a worthy successor to i860.
+The 1st way (4 copies of the driver present) will work, but is not
+as efficient as the 2nd way (one copy present).
 
-http://www.surriel.com/		http://distro.conectiva.com/
+[Don't look too hard at the I/O addresses or you will realize there was 
+only one card in this particular machine anyway...]
 
-Send all your spam to aardvark@nl.linux.org (spam digging piggy)
+Paul.
+
 

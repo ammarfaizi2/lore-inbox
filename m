@@ -1,59 +1,108 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132821AbRDUS1b>; Sat, 21 Apr 2001 14:27:31 -0400
+	id <S132813AbRDUShx>; Sat, 21 Apr 2001 14:37:53 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132811AbRDUS1V>; Sat, 21 Apr 2001 14:27:21 -0400
-Received: from s7n18.hfx.eastlink.ca ([24.222.7.18]:63956 "EHLO fop.ns.ca")
-	by vger.kernel.org with ESMTP id <S132809AbRDUS1F>;
-	Sat, 21 Apr 2001 14:27:05 -0400
-Date: Sat, 21 Apr 2001 15:27:00 -0300 (ADT)
-From: Steve Bromwich <kernel@fop.ns.ca>
-To: Ville Holma <ville.holma@pp.htv.fi>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: a way to restore my hd ?
-In-Reply-To: <000701c0ca7b$051934a0$6786f3d5@pp.htv.fi>
-Message-ID: <Pine.LNX.4.10.10104211518260.10031-100000@chizz.foppity.org>
+	id <S132822AbRDUSho>; Sat, 21 Apr 2001 14:37:44 -0400
+Received: from huizehofstee.xs4all.nl ([194.109.241.183]:42759 "EHLO
+	server.hofstee") by vger.kernel.org with ESMTP id <S132813AbRDUShj>;
+	Sat, 21 Apr 2001 14:37:39 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Victor Julien <v.p.p.julien@let.rug.nl>
+Organization: Huize Hofstee
+To: linux-kernel@vger.kernel.org
+Subject: 2.4.3+ sound distortion
+Date: Sat, 21 Apr 2001 18:04:47 +0200
+X-Mailer: KMail [version 1.2]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Message-Id: <01042118044700.01268@victor>
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 21 Apr 2001, Ville Holma wrote:
+Hi,
 
-> Anyway now that I try to boot up the system I get a kernel panic like this:
-> 
-> EXT2-fs: #blocks per group too big: 2147516416
-> fatfs: bodus cluster size
-> kernel panic: VFS: Unable to mount root fs on 03:47
-> 
-> So I set up another linux box and tried to run e2fsck on the partition
-> resulting in this
-> 
-> debian:~# e2fsck /dev/hdb7
-> e2fsck 1.18, 11-Nov-1999 for EXT2 FS 0.5b, 95/08/09
-> Corruption found in superblock.  (frags_per_group = 2147516416).
-> 
-> The superblock could not be read or does not describe a correct ext2
-> filesystem.  If the device is valid and it really contains an ext2
-> filesystem (and not swap or ufs or something else), then the superblock
-> is corrupt, and you might try running e2fsck with an alternate superblock:
->     e2fsck -b -2147450879 <device>
+I've never posted here before, so if i do anything wrong, just let me know.
 
-This doesn't look like a reasonable number for an inode, you might want to
-try 8193 or 16385. Before doing that I'd recommend taking an image,
-something like dd if=/dev/hdb7 of=/tmp/backup and then using the loop
-device to work on that. If the partition's bigger than 2 gig you will
-probably need to compress it first with something like dd if=/dev/hdb7 |
-gzip > /tmp/backup.gz (note that if it's compressed the loop device won't
-work and you'll have to work on the bare hardware). If using an alternate
-superblock doesn't work a last ditch fix may be mke2fs -S /tmp/backup (or
-mke2fs -S /dev/hdb7 if the dd result was too big). This will rewrite the
-superblocks, you will then need to run e2fsck to clean up. This did the
-trick for me on a drive that got a whole bunch of bad sectors that I had
-to get data off.
+I have a problem with kernels higher than 2.4.2, the sound distorts when 
+playing a song with xmms while the seti@home client runs. 2.4.2 did not have 
+this problem. I tried 2.4.3, 2.4.4-pre5 and 2.4.3-ac11. They al showed the 
+same problem.
 
-If even that doesn't work and you're really desperate for the data and
-it's in text format, you can probably extract it from the backup image.
+This is my hardware:
+AMD Duron 600@800 (6x133)
+MSI K7T Turbo-R
+320MB PC133
+ASUS v6800 Geforce 1 DDR
+Creative PCI128
 
-Cheers, Steve
+victor@victor:~$ gcc -v
+Reading specs from /usr/lib/gcc-lib/i386-linux/2.95.3/specs
+gcc version 2.95.3 20010219 (prerelease)
 
+victor@victor:~$ cat /proc/cpuinfo 
+processor       : 0
+vendor_id       : AuthenticAMD
+cpu family      : 6
+model           : 3
+model name      : AMD Duron(tm) Processor
+stepping        : 0
+cpu MHz         : 796.830
+cache size      : 64 KB
+fdiv_bug        : no
+hlt_bug         : no
+f00f_bug        : no
+coma_bug        : no
+fpu             : yes
+fpu_exception   : yes
+cpuid level     : 1
+wp              : yes
+flags           : fpu vme de pse tsc msr pae mce cx8 sep mtrr pge mca cmov 
+pat pse36 mmx fxsr syscall mmxext 3dnowext 3dnow
+bogomips        : 1589.24
+
+victor@victor:~$ cat /proc/pci     
+PCI devices found:
+  Bus  0, device   0, function  0:
+    Host bridge: VIA Technologies, Inc. VT8363/8365 [KT133/KM133] (rev 3).
+      Prefetchable 32 bit memory at 0xc0000000 [0xcfffffff].
+  Bus  0, device   1, function  0:
+    PCI bridge: VIA Technologies, Inc. VT8363/8365 [KT133/KM133 AGP] (rev 0).
+      Master Capable.  No bursts.  Min Gnt=12.
+  Bus  0, device   7, function  0:
+    ISA bridge: VIA Technologies, Inc. VT82C686 [Apollo Super South] (rev 64).
+  Bus  0, device   7, function  1:
+    IDE interface: VIA Technologies, Inc. Bus Master IDE (rev 6).
+      Master Capable.  Latency=32.  
+      I/O at 0xc000 [0xc00f].
+  Bus  0, device   7, function  4:
+    Host bridge: VIA Technologies, Inc. VT82C686 [Apollo Super ACPI] (rev 64).
+  Bus  0, device  10, function  0:
+    Ethernet controller: Winbond Electronics Corp W89C940 (rev 11).
+      IRQ 10.
+      I/O at 0xcc00 [0xcc1f].
+  Bus  0, device  13, function  0:
+    Multimedia audio controller: Ensoniq ES1371 [AudioPCI-97] (rev 6).
+      IRQ 11.
+      Master Capable.  Latency=32.  Min Gnt=12.Max Lat=128.
+      I/O at 0xd000 [0xd03f].
+  Bus  0, device  15, function  0:
+    RAID bus controller: Promise Technology, Inc. 20265 (rev 2).
+      IRQ 11.
+      Master Capable.  Latency=32.  
+      I/O at 0xd400 [0xd407].
+      I/O at 0xd800 [0xd803].
+      I/O at 0xdc00 [0xdc07].
+      I/O at 0xe000 [0xe003].
+      I/O at 0xe400 [0xe43f].
+      Non-prefetchable 32 bit memory at 0xdb000000 [0xdb01ffff].
+  Bus  1, device   0, function  0:
+    VGA compatible controller: nVidia Corporation GeForce 256 DDR (rev 16).
+      IRQ 9.
+      Master Capable.  Latency=248.  Min Gnt=5.Max Lat=1.
+      Non-prefetchable 32 bit memory at 0xd8000000 [0xd8ffffff].
+      Prefetchable 32 bit memory at 0xd0000000 [0xd7ffffff].
+
+If i need to suply more information please let me know. If you respond please 
+put my emailadres in the CC, i am not a member of this mailing-list.
+
+Victor Julien

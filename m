@@ -1,40 +1,34 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263453AbTKKIwh (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 11 Nov 2003 03:52:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263460AbTKKIwh
+	id S264275AbTKKIzh (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 11 Nov 2003 03:55:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264276AbTKKIzg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 11 Nov 2003 03:52:37 -0500
-Received: from vega.digitel2002.hu ([213.163.0.181]:20967 "HELO lgb.hu")
-	by vger.kernel.org with SMTP id S263453AbTKKIwg (ORCPT
+	Tue, 11 Nov 2003 03:55:36 -0500
+Received: from mail.enyo.de ([212.9.189.167]:44557 "EHLO mail.enyo.de")
+	by vger.kernel.org with ESMTP id S264275AbTKKIzd (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 11 Nov 2003 03:52:36 -0500
-Date: Tue, 11 Nov 2003 09:52:29 +0100
-From: =?iso-8859-2?B?R+Fib3IgTOlu4XJ0?= <lgb@lgb.hu>
-To: linux-kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: OT: why no file copy() libc/syscall ??
-Message-ID: <20031111085229.GB22283@vega.digitel2002.hu>
-Reply-To: lgb@lgb.hu
-References: <1068512710.722.161.camel@cube> <20031110205011.R10197@schatzie.adilger.int>
+	Tue, 11 Nov 2003 03:55:33 -0500
+Date: Tue, 11 Nov 2003 09:55:30 +0100
+To: bill davidsen <davidsen@tmr.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.4 and cryptoloop
+Message-ID: <20031111085530.GB11435@deneb.enyo.de>
+References: <bop628$7km$1@gatekeeper.tmr.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-2
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20031110205011.R10197@schatzie.adilger.int>
-X-Operating-System: vega Linux 2.6.0-test9 i686
+In-Reply-To: <bop628$7km$1@gatekeeper.tmr.com>
 User-Agent: Mutt/1.5.4i
+From: Florian Weimer <fw@deneb.enyo.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Nov 10, 2003 at 08:50:12PM -0700, Andreas Dilger wrote:
-> On Nov 10, 2003  20:05 -0500, Albert Cahalan wrote:
-> > > It is too simple to implement in user mode.
-> > 
-> > That works for a plain byte-stream on a
-> > local UNIX-style filesystem. (though it
-> > likely isn't the fastest)
+bill davidsen wrote:
 
-It would be something similar than sendfile() ?
+> I see that recent 2.4 has crypto. Is there a version of the tools which
+> will do cryptoloop using the kernel as released? I tried the old 2.4
+> version I had, and the latest version which works with 2.6, neither
+> worked to do an losetup.
 
-
-- Gábor (larta'H)
+losetup from util-linux 2.12 should work.

@@ -1,59 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266228AbTAFHHZ>; Mon, 6 Jan 2003 02:07:25 -0500
+	id <S266250AbTAFHTi>; Mon, 6 Jan 2003 02:19:38 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266243AbTAFHHZ>; Mon, 6 Jan 2003 02:07:25 -0500
-Received: from sj-msg-core-4.cisco.com ([171.71.163.54]:59626 "EHLO
-	sj-msg-core-4.cisco.com") by vger.kernel.org with ESMTP
-	id <S266228AbTAFHHY>; Mon, 6 Jan 2003 02:07:24 -0500
-Message-Id: <5.1.0.14.2.20030106175946.02957a30@mira-sjcm-3.cisco.com>
-X-Mailer: QUALCOMM Windows Eudora Version 5.1
-Date: Mon, 06 Jan 2003 18:14:18 +1100
-To: Andre Hedrick <andre@pyxtechnologies.com>
-From: Lincoln Dale <ltd@cisco.com>
-Subject: Re: Linux iSCSI Initiator, OpenSource (fwd) (Re: Gauntlet Set
-  NOW!)
-Cc: Oliver Xymoron <oxymoron@waste.org>, Andrew Morton <akpm@digeo.com>,
-       Rik van Riel <riel@conectiva.com.br>, linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.10.10301051924140.421-100000@master.linux-ide.o
- rg>
-References: <20030106030622.GC28100@waste.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; format=flowed
+	id <S266257AbTAFHTi>; Mon, 6 Jan 2003 02:19:38 -0500
+Received: from ns.rf0.com ([198.78.66.18]:25103 "EHLO freebsd.rf0.com")
+	by vger.kernel.org with ESMTP id <S266250AbTAFHTh>;
+	Mon, 6 Jan 2003 02:19:37 -0500
+Date: Mon, 6 Jan 2003 07:27:12 +0000 (GMT)
+From: Rus Foster <rghf@fsck.me.uk>
+X-X-Sender: rghf@freebsd.rf0.com
+To: Dmitri <dmitri@users.sourceforge.net>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Maybe OT: Unregistering a USB device
+In-Reply-To: <1041818057.5269.96.camel@usb.networkfab.com>
+Message-ID: <20030106072607.L27804-100000@freebsd.rf0.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andre,
+On 5 Jan 2003, Dmitri wrote:
 
-At 07:38 PM 5/01/2003 -0800, Andre Hedrick wrote:
->If you know anything about iSCSI RFC draft and how storage truly works.
->Cisco gets it wrong, they do not believe in supporting the full RFC.
+> On Sun, 2003-01-05 at 15:09, Rus Foster wrote:
+>
+> Someone else asked this question earlier:
+>
+> http://marc.theaimsgroup.com/?l=linux-usb-users&m=104127472526623&w=2
+>
+> Dmitri
 
-i can tell you that you're mistaken in your belief.
+Ah right the problem is that
+a) I still want one of the usb-mass storage devices to still be accessible
+at the same time.
+b) My kernel is monolithic
 
-[..]
->Next try to support any filesystem regardless of platform.
->Specifically anything Microsoft does to thwart Linux, I have already
->covered.
+Rgds
 
-you seem to miss the basic fact that iSCSI is a block-layer 
-transport.  file system != block layer.
-supporting any filesystem with iSCSI is trivial - its just the same as 
-supporting any filesystem on any other block device.
-
-[..]
->In two week I will have NetBSD certified, and 4 weeks later should have
->Solaris certifed.
-
-we certainly don't care about any "certifications" you have for NetBSD or 
-solaris.
-
-if you wish to discuss the various merits of parts of the iSCSI protocol, 
-there are forums for that kind of thing.
-linux-kernel is not one of them.
-
-
-cheers,
-
-lincoln.
+Rus
+--
+http://www.fsck.me.uk - My blog
+http://www.65535.net - $120 for a lifetime UNIX shell account
 

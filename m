@@ -1,43 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S270848AbRHSWqd>; Sun, 19 Aug 2001 18:46:33 -0400
+	id <S270855AbRHSWrY>; Sun, 19 Aug 2001 18:47:24 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S270855AbRHSWqX>; Sun, 19 Aug 2001 18:46:23 -0400
-Received: from mail.webmaster.com ([216.152.64.131]:36033 "EHLO
-	shell.webmaster.com") by vger.kernel.org with ESMTP
-	id <S270848AbRHSWqQ>; Sun, 19 Aug 2001 18:46:16 -0400
-From: "David Schwartz" <davids@webmaster.com>
-To: "Alex Bligh - linux-kernel" <linux-kernel@alex.org.uk>
-Cc: "Oliver Xymoron" <oxymoron@waste.org>, <linux-kernel@vger.kernel.org>
-Subject: RE: Entropy from net devices - keyboard & IDE just as 'bad' [was Re: [PATCH] let Net Devices feed Entropy, updated (1/2)]
-Date: Sun, 19 Aug 2001 15:46:29 -0700
-Message-ID: <NOEJJDACGOHCKNCOGFOMGEOEDEAA.davids@webmaster.com>
+	id <S270856AbRHSWrP>; Sun, 19 Aug 2001 18:47:15 -0400
+Received: from vasquez.zip.com.au ([203.12.97.41]:2311 "EHLO
+	vasquez.zip.com.au") by vger.kernel.org with ESMTP
+	id <S270855AbRHSWqy>; Sun, 19 Aug 2001 18:46:54 -0400
+Message-ID: <3B8041E4.8D02A20B@zip.com.au>
+Date: Sun, 19 Aug 2001 15:47:00 -0700
+From: Andrew Morton <akpm@zip.com.au>
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.8-ac7 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
+To: ptb@it.uc3m.es
+CC: linux kernel <linux-kernel@vger.kernel.org>
+Subject: Re: scheduling with io_lock held in 2.4.6
+In-Reply-To: "from (env: ptb) at Aug 19, 2001 06:38:18 pm" <200108191858.UAA01216@nbd.it.uc3m.es>
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2911.0)
-In-Reply-To: <483044230.998264308@[169.254.45.213]>
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2479.0006
-Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+"Peter T. Breuer" wrote:
+> 
+> I am now fairly certain that the schedule occured while
+> blkdev_release_request was in a completely innocuous line
+> 
 
-> > To what level of accuracy do you think you can measure when
-> > interrupts
-> > occur?
+No - from your earlier trace it looks like what happened
+was that you dereferenced a bad address in blkdev_release_request():
 
-> Better than the necessary 1 jiffie on non-i386 platforms and some
-> i386 platforms.
+Unable to handle kernel paging request at virtual address 00002004
 
-	On those platforms, you simply can't have good entropy and still have user
-accounts on the box with the default hardware. Sorry, the hardware just
-doesn't permit it. You would have to set up some secure way to draw entropy
-off an external pool, there's just nothing else you can do. (I believe there
-are non-x87 platforms that have good timers, just not all of them.)
+But when the kernel processes this error the last thing it
+tries to do is to kill off the offending process by calling
+do_exit().  But do_exit() calls schedule().
 
-	DS
+So if you take an oops in interrupt context you'll basically
+always see the "scheduling in interrupt" thing.  So don't
+worry about it.
 
+You need to find out why you're dereferencing a bad pointer
+in blkdev_release_request().
+
+-

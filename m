@@ -1,44 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262745AbTJNVHm (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Oct 2003 17:07:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262770AbTJNVHm
+	id S262013AbTJNVDR (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Oct 2003 17:03:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262120AbTJNVDR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Oct 2003 17:07:42 -0400
-Received: from smtp5.hy.skanova.net ([195.67.199.134]:19936 "EHLO
-	smtp5.hy.skanova.net") by vger.kernel.org with ESMTP
-	id S262745AbTJNVHl convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Oct 2003 17:07:41 -0400
-From: Roger Larsson <roger.larsson@skelleftea.mail.telia.com>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Unbloating the kernel, was: :mem=16MB laptop testing
-Date: Tue, 14 Oct 2003 23:11:36 +0200
-User-Agent: KMail/1.5.9
-References: <Pine.LNX.4.44.0310141813320.1776-100000@gaia.cela.pl>
-In-Reply-To: <Pine.LNX.4.44.0310141813320.1776-100000@gaia.cela.pl>
-MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Tue, 14 Oct 2003 17:03:17 -0400
+Received: from fw.osdl.org ([65.172.181.6]:64438 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S262013AbTJNVDQ convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 14 Oct 2003 17:03:16 -0400
+Date: Tue, 14 Oct 2003 14:02:16 -0700
+From: "Randy.Dunlap" <rddunlap@osdl.org>
+To: Karel =?ISO-8859-1?Q?Kulhav=FD?= <clock@twibright.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Vortex full-duplex doesn't work?
+Message-Id: <20031014140216.21cf33a3.rddunlap@osdl.org>
+In-Reply-To: <20031014223109.A7167@beton.cybernet.src>
+References: <20031014223109.A7167@beton.cybernet.src>
+Organization: OSDL
+X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
+X-Face: +5V?h'hZQPB9<D&+Y;ig/:L-F$8p'$7h4BBmK}zo}[{h,eqHI1X}]1UhhR{49GL33z6Oo!`
+ !Ys@HV,^(Xp,BToM.;N_W%gT|&/I#H@Z:ISaK9NqH%&|AO|9i/nB@vD:Km&=R2_?O<_V^7?St>kW
+Mime-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 8BIT
-Message-Id: <200310142311.36472.roger.larsson@skelleftea.mail.telia.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 14 October 2003 18.27, Maciej Zenczykowski wrote:
-> Of course part of the problem is that by designing the kernel for high mem
-> situations we're using more memory hogging algorithms.  It's a simple
-> matter of features vs mem footprint.
+On Tue, 14 Oct 2003 22:31:09 +0200 Karel Kulhavý <clock@twibright.com> wrote:
 
-Algorithms using lots of memory should be avoided even for newer computers.
-Cache misses HURTS.
+| Hello
+| 
+| I have collected from tidbits of information that
+| ether=0,0,0x201,0,eth0 should set my 3c900 card to full duplex AUI.
+| 
+| I have tried this, then ifconfig eth0 up and then
+| vortex-diag -vv and it still reports MAC Settings: half-duplex
+| 
+| When I rewrite all occurences of full_duplex in 3c59x.c for hard-coded
+| "1", then I get MAC Settings: full-duplex
+| 
+| How do I set up this driver to force full-duplex AUI for 3c900 network
+| card without using modules and without patching 3c59x.c?
 
-That is why -Os can be a better compilation option than -O2 !
+BTW, what kernel version ???
 
-/RogerL
+As I indicated in another reply to you, <quote>
+Please try this, although I'm not yet convinced that the 3c59x
+driver calls all of the right hooks for this to work.
+but good luck, and please report back on it. </quote>
 
--- 
-Roger Larsson
-Skellefteå
-Sweden
+It looks to me like (but I haven't traced it completely)
+3c59x doesn't call netdev_boot_setup_check() [even indirectly],
+and that is needed to set the irq/base/mem_start/mem_end
+parameters for use during the probe() function.
+(I'm looking at 2.4.22 source code for this.)
+(3c59x uses mem_start for driver options flags.)
+
+Can anyone confirm this?  If so, we could fix it, but I'd
+like to have some confirmation of what I'm thinking on this
+since I can't test it (no vortex/boomerang adapter).
+
+--
+~Randy

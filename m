@@ -1,53 +1,41 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312895AbSDYDoa>; Wed, 24 Apr 2002 23:44:30 -0400
+	id <S312896AbSDYDzl>; Wed, 24 Apr 2002 23:55:41 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312896AbSDYDo3>; Wed, 24 Apr 2002 23:44:29 -0400
-Received: from server0011.freedom2surf.net ([194.106.56.14]:34100 "EHLO
-	server0011.freedom2surf.net") by vger.kernel.org with ESMTP
-	id <S312895AbSDYDo2>; Wed, 24 Apr 2002 23:44:28 -0400
-Date: Thu, 25 Apr 2002 04:51:20 +0100
-From: Ian Molton <spyro@armlinux.org>
-To: Rik van Riel <riel@conectiva.com.br>
-Cc: pavel@suse.cz, phillips@bonn-fries.net, lm@bitmover.com,
-        linux-kernel@vger.kernel.org
+	id <S312899AbSDYDzk>; Wed, 24 Apr 2002 23:55:40 -0400
+Received: from pcp809261pcs.nrockv01.md.comcast.net ([68.49.81.201]:8065 "EHLO
+	zalem.puupuu.org") by vger.kernel.org with ESMTP id <S312896AbSDYDzj>;
+	Wed, 24 Apr 2002 23:55:39 -0400
+Date: Wed, 24 Apr 2002 23:55:39 -0400
+From: Olivier Galibert <galibert@pobox.com>
+To: linux-kernel@vger.kernel.org
 Subject: Re: BK, deltas, snapshots and fate of -pre...
-Message-Id: <20020425045120.6b63334e.spyro@armlinux.org>
-In-Reply-To: <Pine.LNX.4.44L.0204231743370.7447-100000@duckman.distro.conectiva>
-Reply-To: spyro@armlinux.org
-Organization: The dragon roost
-X-Mailer: Sylpheed version 0.7.5cvs1 (GTK+ 1.2.10; )
+Message-ID: <20020424235538.A1606@zalem.puupuu.org>
+Mail-Followup-To: Olivier Galibert <galibert@pobox.com>,
+	linux-kernel@vger.kernel.org
+In-Reply-To: <20020421231620.F155@toy.ucw.cz> <Pine.LNX.4.44L.0204231743370.7447-100000@duckman.distro.conectiva> <20020425045120.6b63334e.spyro@armlinux.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Rik van Riel Awoke this dragon, who will now respond:
-
+On Thu, Apr 25, 2002 at 04:51:20AM +0100, Ian Molton wrote:
+>[usual I-want-to-download-only-what-I-use rant]
+> Here is my answer for the record:
 > 
->  "Why should I waste my disk space with SCSI drivers?"
->  "Why should I waste my disk space with MIPS support?"
->  "Why should I waste my disk space with bluetooth drivers?"
+> I shouldnt. its a pointless waste of bandwidth.
 > 
->  In each of these cases you'll get the same answer that I gave
->  to your question.
+> Now, whats YOUR answer?
 
-Actually, I dont get that.
+Developpers need complete sources.  No questions about that.  If they
+don't have the complete sources, they'll fuck things up.  So the
+developpers have zero use for partial downloadings.
 
-Why SHOULD I download ten different architectures when I only want two (ARM
-and X86).?
-Why SHOULD I download SCSI when I dont use anything but IDE? (cost reasons)
-Why SHOULD I download bluetooth stuff when I will probably wont own a
-bluetooth device in the near future?
+Some users may like to be able to download only the core code and
+drivers/filesystems/architectures they use.  Ignoring the obvious
+version drift problems that will happen, proposing such a service
+requires work and a large amount of bandwidth.  Do you volunteer?
 
-Why dont you try to provide a satisfactory answer to those questions
-instead of avoiding them and turning them around?
-
-Here is my answer for the record:
-
-I shouldnt. its a pointless waste of bandwidth.
-
-Now, whats YOUR answer?
-
-Especially in light of the 2.5 kernel becomming ever more modular.
+  OG.

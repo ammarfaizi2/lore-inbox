@@ -1,22 +1,26 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263178AbUKTUki@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263176AbUKTUvp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263178AbUKTUki (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 20 Nov 2004 15:40:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263176AbUKTUkg
+	id S263176AbUKTUvp (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 20 Nov 2004 15:51:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263177AbUKTUvp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 20 Nov 2004 15:40:36 -0500
-Received: from mail.gmx.net ([213.165.64.20]:10393 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S263178AbUKTUju (ORCPT
+	Sat, 20 Nov 2004 15:51:45 -0500
+Received: from relay00.pair.com ([209.68.1.20]:14352 "HELO relay.pair.com")
+	by vger.kernel.org with SMTP id S263176AbUKTUvn (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 20 Nov 2004 15:39:50 -0500
-X-Authenticated: #4399952
-Date: Sat, 20 Nov 2004 21:40:35 +0100
-From: Florian Schmidt <mista.tapas@gmx.net>
-To: Florian Schmidt <mista.tapas@gmx.net>
-Cc: Lee Revell <rlrevell@joe-job.com>, Ingo Molnar <mingo@elte.hu>,
-       linux-kernel@vger.kernel.org, Rui Nuno Capela <rncbc@rncbc.org>,
-       Mark_H_Johnson@Raytheon.com, "K.R. Foley" <kr@cybsft.com>,
-       Bill Huey <bhuey@lnxw.com>, Adam Heath <doogie@debian.org>,
+	Sat, 20 Nov 2004 15:51:43 -0500
+X-pair-Authenticated: 24.241.238.70
+Message-ID: <419FAE5D.3030105@cybsft.com>
+Date: Sat, 20 Nov 2004 14:51:41 -0600
+From: "K.R. Foley" <kr@cybsft.com>
+User-Agent: Mozilla Thunderbird 0.9 (X11/20041103)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: "K.R. Foley" <kr@cybsft.com>
+CC: Ingo Molnar <mingo@elte.hu>, linux-kernel@vger.kernel.org,
+       Lee Revell <rlrevell@joe-job.com>, Rui Nuno Capela <rncbc@rncbc.org>,
+       Mark_H_Johnson@Raytheon.com, Bill Huey <bhuey@lnxw.com>,
+       Adam Heath <doogie@debian.org>, Florian Schmidt <mista.tapas@gmx.net>,
        Thomas Gleixner <tglx@linutronix.de>,
        Michal Schmidt <xschmi00@stud.feec.vutbr.cz>,
        Fernando Pablo Lopez-Lezcano <nando@ccrma.Stanford.EDU>,
@@ -24,61 +28,35 @@ Cc: Lee Revell <rlrevell@joe-job.com>, Ingo Molnar <mingo@elte.hu>,
        Gunther Persoons <gunther_persoons@spymac.com>, emann@mrv.com,
        Shane Shrybman <shrybman@aei.ca>, Amit Shah <amit.shah@codito.com>
 Subject: Re: [patch] Real-Time Preemption, -RT-2.6.10-rc2-mm2-V0.7.29-0
-Message-ID: <20041120214035.2deceaeb@mango.fruits.de>
-In-Reply-To: <20041120201155.6dc43c39@mango.fruits.de>
-References: <20041111215122.GA5885@elte.hu>
-	<20041116125402.GA9258@elte.hu>
-	<20041116130946.GA11053@elte.hu>
-	<20041116134027.GA13360@elte.hu>
-	<20041117124234.GA25956@elte.hu>
-	<20041118123521.GA29091@elte.hu>
-	<20041118164612.GA17040@elte.hu>
-	<1100920963.1424.1.camel@krustophenia.net>
-	<20041120125536.GC8091@elte.hu>
-	<1100971141.6879.18.camel@krustophenia.net>
-	<20041120191403.GA16262@elte.hu>
-	<1100975745.6879.35.camel@krustophenia.net>
-	<20041120201155.6dc43c39@mango.fruits.de>
-X-Mailer: Sylpheed-Claws 0.9.12b (GTK+ 1.2.10; i386-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+References: <20041108091619.GA9897@elte.hu> <20041108165718.GA7741@elte.hu> <20041109160544.GA28242@elte.hu> <20041111144414.GA8881@elte.hu> <20041111215122.GA5885@elte.hu> <20041116125402.GA9258@elte.hu> <20041116130946.GA11053@elte.hu> <20041116134027.GA13360@elte.hu> <20041117124234.GA25956@elte.hu> <20041118123521.GA29091@elte.hu> <20041118164612.GA17040@elte.hu> <419FA7AD.3090004@cybsft.com>
+In-Reply-To: <419FA7AD.3090004@cybsft.com>
+X-Enigmail-Version: 0.86.0.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 20 Nov 2004 20:11:55 +0100
-Florian Schmidt <mista.tapas@gmx.net> wrote:
-
-> 29-4 with PREEMPT works very good (jackd at 64 frames: 0 xruns (running for
-> 1h now), soundcard irq unthreaded). Opposed to 29-1 PREEMPT_REALTIME which
-> showed some very weird jackd behaviour (xruns from 10usec to 50msec [!!!]).
-> rtc_wakeup was showing no large jitter for that kernel though, nor did the
-> different traces show anything that might have caused the jackd xruns. And
-> yes, i configured the irq handlers sanely :)
+K.R. Foley wrote:
+> Ingo Molnar wrote:
 > 
-> Will build 29-4 PREEMPT_REALTIME now and see how this one behaves.
+>> i have released the -V0.7.29-0 Real-Time Preemption patch, which can be
+>> downloaded from the usual place:
+>>
+> 
+> I have some latency test results from -V0.7.29-4 generated using the rtc 
+> histograms and realfeel. The test runs were just over an hour under 
+> heavy load from stress-kernel. One is from a slower 450 UP system and 
+> one is from a 933 SMP system. I will be doing more testing but these are 
+> a start.
+> 
+> http://www.cybsft.com/testresults/histograms/up450test1.hist.png
+> 
+> http://www.cybsft.com/testresults/histograms/up450test1.hist.png
 
-Pretty much as bad as 29-1. Sadly i have no idea on how to find out what is
-causing jackd to act so weird under a PREEMPT_REALTIME kernel. It seems
-there is some correlation to activity on X. Hiding and showing windows has a
-certain chance of triggering a large xrun.
+OK. I feel stupid. The above URL should be:
+http://www.cybsft.com/testresults/histograms/smp933test1.hist.png
 
-Hmm, the max jitter rtc_wakeup shows at 1024hz is around 150us. Which seems
-a tiny bit large, too, as the rtc histogram shows a max wakeup latency of
-16us..
+kr
 
-It seems it's not the threaded irq handlers as jackd peformed quite well
-under 29-4 PREEMPT with the soundcrd irq handler threaded and at high prio
-(which i forgot to mention in my previous mail).
 
-So i don't really know how to go about this. I suppose i just run PREEMPT
-kernels instead of PREEMPT_REALTIME. Maybe it's the overhead which is
-killing jackd performance with PREEMPT_REALTIME, but i don't believe so
-(50ms? nah!).
-
-flo
-
-P.S.: There's so many variables in this PREEMPT/PREEMPT_REALTIME, handlers
-threaded/unthreaded. IRQ handler thread priorities. It would probably be
-cool if we could create some testing procedure which produces results which
-are comparable. Ideally this procedure would be automated. Any takers?

@@ -1,35 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293472AbSCASPj>; Fri, 1 Mar 2002 13:15:39 -0500
+	id <S293467AbSCASPb>; Fri, 1 Mar 2002 13:15:31 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293469AbSCASPf>; Fri, 1 Mar 2002 13:15:35 -0500
-Received: from ns.suse.de ([213.95.15.193]:62478 "HELO Cantor.suse.de")
-	by vger.kernel.org with SMTP id <S293491AbSCASOo>;
-	Fri, 1 Mar 2002 13:14:44 -0500
-To: Dave McCracken <dmccr@us.ibm.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 2.4.19-pre2] Make max_threads be based on normal zone size
-In-Reply-To: <71650000.1015004327@baldur.suse.lists.linux.kernel>
-From: Andi Kleen <ak@suse.de>
-Date: 01 Mar 2002 19:14:41 +0100
-In-Reply-To: Dave McCracken's message of "1 Mar 2002 18:42:55 +0100"
-Message-ID: <p73vgcgjgtq.fsf@oldwotan.suse.de>
-X-Mailer: Gnus v5.7/Emacs 20.6
+	id <S293469AbSCASOw>; Fri, 1 Mar 2002 13:14:52 -0500
+Received: from mail.myrio.com ([63.109.146.2]:31219 "HELO mail.myrio.com")
+	by vger.kernel.org with SMTP id <S293467AbSCASOH> convert rfc822-to-8bit;
+	Fri, 1 Mar 2002 13:14:07 -0500
+X-MimeOLE: Produced By Microsoft Exchange V6.0.5762.3
+content-class: urn:content-classes:message
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Subject: RE: Multiple kernels OOPS at boot on Fujitsu pt510 ( AMD DX100 CPU ) - ksymoops output attached
+Date: Fri, 1 Mar 2002 10:12:27 -0800
+Message-ID: <A015F722AB845E4B8458CBABDFFE63420FE3BC@mail0.myrio.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: Multiple kernels OOPS at boot on Fujitsu pt510 ( AMD DX100 CPU ) - ksymoops output attached
+Thread-Index: AcHBSbgCMYi4oMUHTjCwzXBrJw3NUgAASBog
+From: "Torrey Hoffman" <Torrey.Hoffman@myrio.com>
+To: <root@chaos.analogic.com>, "Zwane Mwaikambo" <zwane@linux.realnet.co.sz>
+Cc: "Matthew Allum" <mallum@xblox.net>, <linux-kernel@vger.kernel.org>
+X-OriginalArrivalTime: 01 Mar 2002 18:13:22.0275 (UTC) FILETIME=[C5C48330:01C1C14C]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dave McCracken <dmccr@us.ibm.com> writes:
+Richard B. Johnson [mailto:root@chaos.analogic.com] wrote:
 
-> The max_threads config parameter (used to determine how many tasks to
-> allow) is currently calculated based on the total amount of physical memory
-> in the machine.  This is wrong, since the real limiting factor is the
-> amount of memory in the normal zone.
-> 
-> This patch fixes the initialization of max_threads by allowing an
-> architecture to specify how much memory is in the normal zone, and using
-> that value to initialize max_threads.
+[... snipped: using 2.4.1 because... ]
 
-There are lots of other functions with the same problem (like all the 
-hash table sizing and others). Perhaps these should be fixed too? 
+> Later versions, including the current 2.4.18 fail, to mount an initrd.
 
--Andi
+I have successfully used ext2-formatted initrd's with a variety of recent 
+kernels between 2.4.16 and 2.4.18.  The only problem I've ever had is that 
+when _building_ an initrd, kernels between 2.4.10 and 2.4.18-pre-something
+had a bug in the ramdisk driver.  This has been fixed in later kernels, 
+and there is also a workaround for it.
+
+> Once somebody makes a kernel they has both a working loop device and
+> a working initial RAM Disk, I will use that kernel. In the meantime,
+
+My workstation is running a 2.4.18-pre? which successfully mounts CDROM
+ISO images on loopback and successfully creates and boots initrd's.
+
+Are you sure this is not something specific to your setup or config?
+
+Torrey Hoffman

@@ -1,35 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S276477AbRKFMsE>; Tue, 6 Nov 2001 07:48:04 -0500
+	id <S279157AbRKFMz0>; Tue, 6 Nov 2001 07:55:26 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277782AbRKFMry>; Tue, 6 Nov 2001 07:47:54 -0500
-Received: from [195.66.192.167] ([195.66.192.167]:50706 "EHLO
-	Port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with ESMTP
-	id <S276477AbRKFMrq>; Tue, 6 Nov 2001 07:47:46 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: vda <vda@port.imtp.ilyichevsk.odessa.ua>
-To: Keith Owens <kaos@ocs.com.au>, kbuild-devel@lists.sourceforge.net
-Subject: Re: Announce: Kernel Build for 2.5, Release 1.5 is available
-Date: Tue, 6 Nov 2001 14:46:09 +0000
-X-Mailer: KMail [version 1.2]
+	id <S279156AbRKFMzR>; Tue, 6 Nov 2001 07:55:17 -0500
+Received: from ns.caldera.de ([212.34.180.1]:34462 "EHLO ns.caldera.de")
+	by vger.kernel.org with ESMTP id <S277782AbRKFMzC>;
+	Tue, 6 Nov 2001 07:55:02 -0500
+Date: Tue, 6 Nov 2001 13:54:06 +0100
+From: Marcus Meissner <Marcus.Meissner@caldera.de>
+To: deanna_bonds@adaptec.com, Alan Cox <alan@lxorguk.ukuu.org.uk>
 Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20208.1005048011@ocs3.intra.ocs.com.au>
-In-Reply-To: <20208.1005048011@ocs3.intra.ocs.com.au>
-MIME-Version: 1.0
-Message-Id: <01110614460902.00798@nemo>
-Content-Transfer-Encoding: 7BIT
+Subject: PATCH: dpt_i2o PCI devicetable
+Message-ID: <20011106135406.A2352@caldera.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 06 November 2001 12:00, Keith Owens wrote:
-> Release 1.5 of kernel build for kernel 2.5 (kbuild 2.5) has been
-> released.  http://sourceforge.net/projects/kbuild/, Package kbuild-2.5,
-> download release 1.5.
->
-> http://marc.theaimsgroup.com/?l=linux-kernel&m=99725412902968&w=2
-> contains information about the base release.
+Hi Deanna, Alan,
 
-I don't use kbuild yet but really like the idea.
-What prevents its adoption as a standard kernel build tool?
---
-vda
+This adds PCI device table to dpt_i2o.c which allows automatic module loading
+for automatic module installers.
+
+Unfortunately I don't have such a card, or I would have changed the code to
+use the table.
+
+Ciao, Marcus
+
+Index: drivers/scsi/dpt_i2o.c
+===================================================================
+RCS file: /build/mm/work/repository/linux-mm/drivers/scsi/dpt_i2o.c,v
+retrieving revision 1.11
+diff -u -r1.11 dpt_i2o.c
+--- drivers/scsi/dpt_i2o.c	2001/10/25 16:49:35	1.11
++++ drivers/scsi/dpt_i2o.c	2001/11/06 11:22:02
+@@ -165,6 +165,13 @@
+  *============================================================================
+  */
+ 
++static struct pci_device_id dptids[] = {
++	{ PCI_DPT_VENDOR_ID, PCI_DPT_DEVICE_ID, PCI_ANY_ID, PCI_ANY_ID,},
++	{ PCI_DPT_VENDOR_ID, PCI_DPT_RAPTOR_DEVICE_ID, PCI_ANY_ID, PCI_ANY_ID,},
++	{ 0, }
++};
++MODULE_DEVICE_TABLE(pci,dptids);
++
+ static int adpt_detect(Scsi_Host_Template* sht)
+ {
+ 	struct pci_dev *pDev = NULL;

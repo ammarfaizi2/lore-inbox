@@ -1,56 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267870AbUHKBtZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267871AbUHKBzX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267870AbUHKBtZ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 10 Aug 2004 21:49:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267871AbUHKBtY
+	id S267871AbUHKBzX (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 10 Aug 2004 21:55:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267872AbUHKBzX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 10 Aug 2004 21:49:24 -0400
-Received: from [82.198.127.222] ([82.198.127.222]:34568 "HELO
-	frenzel-online.de") by vger.kernel.org with SMTP id S267870AbUHKBtS
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 10 Aug 2004 21:49:18 -0400
-Message-ID: <bfc701c47f45$04cfe3fe$de2487f5@frenzel-online.de>
-From: "Terrence Felton" <terrence_feltonpp@batamindo.co.id>
-To: linux-kernel@vger.kernel.org
-Subject: Attract the opposite sex, the ultimate guide for getting women.
-Date: Wed, 11 Aug 2004 03:49:16 +0200
+	Tue, 10 Aug 2004 21:55:23 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:9197 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S267871AbUHKBzV (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 10 Aug 2004 21:55:21 -0400
+Date: Tue, 10 Aug 2004 21:55:05 -0400 (EDT)
+From: James Morris <jmorris@redhat.com>
+X-X-Sender: jmorris@dhcp83-76.boston.redhat.com
+To: Chris Wright <chrisw@osdl.org>
+cc: Kurt Garloff <garloff@suse.de>,
+       Linux kernel list <linux-kernel@vger.kernel.org>,
+       Stephen Smalley <sds@epoch.ncsc.mil>
+Subject: Re: [PATCH] [LSM] Rework LSM hooks
+In-Reply-To: <20040810134319.S1924@build.pdx.osdl.net>
+Message-ID: <Xine.LNX.4.44.0408102154530.10585-100000@dhcp83-76.boston.redhat.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Here's a special offer for you...
+On Tue, 10 Aug 2004, Chris Wright wrote:
 
-WANT TO GET A WOMAN?
+> I'll push this up, unless there's an objection.
 
-The first and only pickup, dating and seduction
-guide. Written for men ... by women.
-
-- Increase your sexual attraction.
-- Give yourself that extra edge!
-- Improve your sex appeal 1000%
-- Gain more self confidence.
-- Command respect at work!
-- Get more dates!
-- If not satisfied, you get your money back!
-
-This is the only e-book of its kind available.
-You get 2 free adult videos with every order.
-
-Check out this great guide here: http://www.enhancemefast7.com
+Looks fine to me.
 
 
+- James
+-- 
+James Morris
+<jmorris@redhat.com>
 
-
-
----- system information ----
-face regulatory Discussion work been sender's list Internationalization
-
-allows similar-looking means Sender requests include: W3C there 
-exposed inappropriate defined provider) deterministic writing validate
-resulting 
-provide International aspects navigational additional Locale] expectations
-requires 
-invite Semantics: method Unlike Usage those include interoperability 
 

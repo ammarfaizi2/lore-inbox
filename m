@@ -1,45 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262109AbUELWce@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262129AbUELWdX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262109AbUELWce (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 12 May 2004 18:32:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262176AbUELWce
+	id S262129AbUELWdX (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 12 May 2004 18:33:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262176AbUELWdX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 12 May 2004 18:32:34 -0400
-Received: from fw.osdl.org ([65.172.181.6]:33945 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S262109AbUELWcZ (ORCPT
+	Wed, 12 May 2004 18:33:23 -0400
+Received: from palrel12.hp.com ([156.153.255.237]:21992 "EHLO palrel12.hp.com")
+	by vger.kernel.org with ESMTP id S262129AbUELWdQ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 12 May 2004 18:32:25 -0400
-Date: Wed, 12 May 2004 15:32:12 -0700 (PDT)
-From: Linus Torvalds <torvalds@osdl.org>
-To: dri-devel@lists.sourceforge.net
-cc: Greg KH <greg@kroah.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: From Eric Anholt:
-In-Reply-To: <Pine.LNX.4.58.0405120018360.3826@skynet>
-Message-ID: <Pine.LNX.4.58.0405121529540.3636@evo.osdl.org>
-References: <200405112211.i4BMBQDZ006167@hera.kernel.org> <20040511222245.GA25644@kroah.com>
- <Pine.LNX.4.58.0405120018360.3826@skynet>
+	Wed, 12 May 2004 18:33:16 -0400
+From: David Mosberger <davidm@napali.hpl.hp.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <16546.42537.765495.231960@napali.hpl.hp.com>
+Date: Wed, 12 May 2004 15:33:13 -0700
+To: Andrew Morton <akpm@osdl.org>
+Cc: davidm@hpl.hp.com, rddunlap@osdl.org, ebiederm@xmission.com,
+       drepper@redhat.com, fastboot@lists.osdl.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [Fastboot] Re: [announce] kexec for linux 2.6.6
+In-Reply-To: <20040512152815.76280eac.akpm@osdl.org>
+References: <20040511212625.28ac33ef.rddunlap@osdl.org>
+	<40A1AF53.3010407@redhat.com>
+	<m13c66qicb.fsf@ebiederm.dsl.xmission.com>
+	<40A243C8.401@redhat.com>
+	<m1brktod3f.fsf@ebiederm.dsl.xmission.com>
+	<40A2517C.4040903@redhat.com>
+	<m17jvhoa6g.fsf@ebiederm.dsl.xmission.com>
+	<20040512143233.0ee0405a.rddunlap@osdl.org>
+	<16546.41076.572371.307153@napali.hpl.hp.com>
+	<20040512152815.76280eac.akpm@osdl.org>
+X-Mailer: VM 7.18 under Emacs 21.3.1
+Reply-To: davidm@hpl.hp.com
+X-URL: http://www.hpl.hp.com/personal/David_Mosberger/
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+>>>>> On Wed, 12 May 2004 15:28:15 -0700, Andrew Morton <akpm@osdl.org> said:
 
+  >> ia64 does have VDSO (and has had it for some time).
 
-On Wed, 12 May 2004, Dave Airlie wrote:
-> 
-> I just looked at drm.h and nearly all the ioctls use int, this file is
-> included in user-space applications also at the moment, I'm worried
-> changing all ints to __u32 will break some of these, anyone on DRI list
-> care to comment?
+  >> I quite like Uli's idea.
 
-Right now, all architectures have "int" being 32-bit, so nothing should 
-break. Apart from sign issues, of course.
+  Andrew> Is anyone doing VDSO development for x86?  I don't recall
+  Andrew> seeing anything.
 
-If there are pointers and "long", then those should just not exist. Never
-expose kernel pointers to user mode (and you really never should pass user
-pointers back), and "long" should really just be "__u32" instead (since 
-that is what it is on a 32-bit platform - and if it works there, then it 
-should work on a 64-bit platform too).
+It's already there?
 
-		Linus
+	--david
+
+$ tail -17 arch/i386/kernel/vsyscall.lds
+/*
+ * This controls what symbols we export from the DSO.
+ */
+VERSION
+{
+  LINUX_2.5 {
+    global:
+        __kernel_vsyscall;
+        __kernel_sigreturn;
+        __kernel_rt_sigreturn;
+
+    local: *;
+  };
+}
+
+/* The ELF entry point can be used to set the AT_SYSINFO value.  */
+ENTRY(__kernel_vsyscall);

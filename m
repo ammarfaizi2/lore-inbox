@@ -1,60 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264178AbTF0LMZ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 27 Jun 2003 07:12:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264181AbTF0LMZ
+	id S264186AbTF0LTo (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 27 Jun 2003 07:19:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264188AbTF0LTo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 27 Jun 2003 07:12:25 -0400
-Received: from [213.171.53.133] ([213.171.53.133]:42764 "EHLO gulipin.miee.ru")
-	by vger.kernel.org with ESMTP id S264178AbTF0LMY (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 27 Jun 2003 07:12:24 -0400
-Date: Fri, 27 Jun 2003 14:28:29 +0400
-From: Samium Gromoff <deepfire@ibe.miee.ru>
-To: Jens Axboe <axboe@suse.de>
-Cc: linux-kernel@vger.kernel.org, sct@redhat.com, akpm@digeo.com
-Subject: Re: [BIO] request->flags ambiguity
-Message-Id: <20030627142829.5aea7015.deepfire@ibe.miee.ru>
-In-Reply-To: <20030627104822.GE821@suse.de>
-References: <20030627134756.4118617e.deepfire@ibe.miee.ru>
-	<20030627104822.GE821@suse.de>
-X-Mailer: Sylpheed version 0.9.0 (GTK+ 1.2.10; i386-debian-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Fri, 27 Jun 2003 07:19:44 -0400
+Received: from hermine.idb.hist.no ([158.38.50.15]:57105 "HELO
+	hermine.idb.hist.no") by vger.kernel.org with SMTP id S264186AbTF0LTm
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 27 Jun 2003 07:19:42 -0400
+Message-ID: <3EFC2D08.6000905@aitel.hist.no>
+Date: Fri, 27 Jun 2003 13:39:52 +0200
+From: Helge Hafting <helgehaf@aitel.hist.no>
+Organization: AITeL, HiST
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.0) Gecko/20020623 Debian/1.0.0-0.woody.1
+X-Accept-Language: no, en
+MIME-Version: 1.0
+To: Mike Galbraith <efault@gmx.de>
+CC: Bill Davidsen <davidsen@tmr.com>, linux-kernel@vger.kernel.org
+Subject: Re: O(1) scheduler & interactivity improvements
+References: <3EFAC408.4020106@aitel.hist.no> <5.2.0.9.2.20030627071904.00c890e0@pop.gmx.net> <5.2.0.9.2.20030627110106.00cf6068@pop.gmx.net>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 27 Jun 2003 12:48:22 +0200
-Jens Axboe <axboe@suse.de> wrote:
--- snip --
-> > 	Is it ok to have a possibility of a request with conflicting
-> > 	meanings attached to it?  For example REQ_CMD | REQ_PM_SHUTDOWN
-> > 	| REQ_SPECIAL.
+Mike Galbraith wrote:
+> At 10:18 AM 6/27/2003 +0200, Helge Hafting wrote:
 > 
-> No of course not.
--- snip --
-> > 	Shouldn`t it make more sense to separate request-type-indicator
-> > 	flags into a separate unambiguous type field, which would take
-> > 	one of the following values: - read/write request - sense query
-> > 	- power control - special request
-> > 
-> > 	And not a currently possible combination of all of them, which
-> > 	seem to be the current situation.
-> 
-> There has been talk of that before, search the archives.
+[...]
 
-	Umm, i`ve tried and failed, couldn`t you share some vague pointers about the topic
- or something?
+ > (simple?  decode stack, find out where he was sleeping,
+Complicated indeed, but why do that?
+A process sleeping on a pipe will wake up in the kernel's
+pipe reading code, won't it?  No need for guessing where
+it was sleeping.  Code for transferring interactivity
+bonus could go right there.
 
-	I`m sorry, but my curiosity prevailed over hesitation to bother you :-)
 > 
-> -- 
-> Jens Axboe
-> 
-> 
---
-regards, Samium Gromoff
+> What I think kills the priority redistribution idea is _massive_ 
+> complexity.  I don't see anything simple.  You would have to build the 
+> logical connections between tasks, which currently doesn't exist.  
 
+I must admit I don't know the details of the scheduler.  Still, Linus
+tried a form of redistribution (the backboost thing).  It helped in some 
+cases.
+It seems to me that it got revoked because it did the wrong
+thing at times, leading to starvation issus that didn't exist before.
+It didn't go because it was overly complex or slow?
 
--- 
+Helge Hafting
+
+> Wakeups and task switches are extremely light weight operations, and no 
+> decision you make at wakeup time has a ghost of a chance of not hurting 
+> like hell.  Just using the monotonic_clock() in the wakeup/schedule 
+> paths is fairly painful.  There is just no way you can run around 
+> looking for and processing "who shot JR" information in those paths (no 
+> way _I_ can imagine anyway) without absolutely destroying performance.
+> 
+

@@ -1,90 +1,42 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316339AbSFJV0y>; Mon, 10 Jun 2002 17:26:54 -0400
+	id <S316309AbSFJV2K>; Mon, 10 Jun 2002 17:28:10 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316309AbSFJV0x>; Mon, 10 Jun 2002 17:26:53 -0400
-Received: from twilight.ucw.cz ([195.39.74.230]:12742 "EHLO twilight.ucw.cz")
-	by vger.kernel.org with ESMTP id <S316339AbSFJV0v>;
-	Mon, 10 Jun 2002 17:26:51 -0400
-Date: Mon, 10 Jun 2002 23:26:37 +0200
-From: Vojtech Pavlik <vojtech@suse.cz>
-To: Brad Hards <bhards@bigpond.net.au>
-Cc: Chris Faherty <rallymonkey@bellsouth.net>, linux-kernel@vger.kernel.org
-Subject: Re: Logitech Mouseman Dual Optical defaults to 400cpi
-Message-ID: <20020610232637.A4589@ucw.cz>
-In-Reply-To: <20020608165243Z317422-22020+923@vger.kernel.org> <200206091807.11524.bhards@bigpond.net.au> <20020609151922Z317623-22020+1197@vger.kernel.org> <200206101057.20259.bhards@bigpond.net.au>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
+	id <S316342AbSFJV2J>; Mon, 10 Jun 2002 17:28:09 -0400
+Received: from p50887BDF.dip.t-dialin.net ([80.136.123.223]:1688 "EHLO
+	hawkeye.luckynet.adm") by vger.kernel.org with ESMTP
+	id <S316309AbSFJV2H>; Mon, 10 Jun 2002 17:28:07 -0400
+Date: Mon, 10 Jun 2002 15:28:02 -0600 (MDT)
+From: Thunder from the hill <thunder@ngforever.de>
+X-X-Sender: thunder@hawkeye.luckynet.adm
+To: Dan Aloni <da-x@gmx.net>
+cc: Lightweight patch manager <patch@luckynet.dynu.com>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        Linus Torvalds <torvalds@transmeta.com>
+Subject: Re: [PATCH] 2.5.21 - list.h cleanup
+In-Reply-To: <20020610152824.GC9581@callisto.yi.org>
+Message-ID: <Pine.LNX.4.44.0206101527090.6159-100000@hawkeye.luckynet.adm>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jun 10, 2002 at 10:57:20AM +1000, Brad Hards wrote:
-> On Mon, 10 Jun 2002 01:19, Chris Faherty wrote:
-> > On Sunday 09 June 2002 04:07 am, Brad Hards wrote:
-> > > Was that using Snoopy?
-> >
-> > I believe that's what it was called.  The program was sniffusb 0.13.  I had
-> > problems get later versions to work.  Then I found a nice treatise on
-> > interpreting the log:
-> >
-> > http://www.toth.demon.co.uk/usb/reverse-0.2.txt
-> I'll have to check it out. There are a number of resources (including a nice 
-> Perl script that gets rid of much of the verbosity).
-> Later versions may be W2K, rather than for 98: 
-> http://sourceforge.net/projects/usbsnoop/
-> 
-> > > Any objections to me taking this to 2.4 and 2.5?
-> >
-> > Feel free.  I wonder if MS Intellimouse 3.0 has the same resolution
-> > problem. AFAIK they use the same sensor.
-> Probably not, because only low end manufacturers use reference designs 
-> directly. I have an intellimouse around here somewhere. Don't know anything 
-> about it, because it wouldn't have occurred to me to read the manual or 
-> install the windows drivers. Might have to check it out.
+Hi,
 
-Intellimouse 1.0 uses Agilent HDNS-2000, 2.0 uses ADNS-2001, and 3.0
-uses a chip made by SGS Thompson, under a secret contract with Microsoft
-that has only 400 dpi, but up to one meter per second maximal tracking
-speed.
+On Mon, 10 Jun 2002, Dan Aloni wrote:
+>  + replace __inline__ with inline.
+>  + use list_t intead of struct list_head (no bytes we harmed, bla.. bla..)
+>  + add the new list_move and list_move_tail mutators as inline functions.
 
-> > > This could have been handled by a blacklist table quirk. Any reason why
-> > > you chose to do it this way?
-> >
-> > How does the blacklist work?  Originally I wanted to put the setting in
-> > mousedev but I wasn't sure how to access the usb_device from there.
-> Basically we declare a quirk (in drivers/usb/hid.h)
-> #define HID_QUIRK_LOGITECH_HIRES
-> 
-> and then associate the manufacturer and product IDs for the device with the 
-> quirk in hid-core.c (in hid_blacklist[])
-> { USB_VENDOR_ID_LOGITECH, USB_DEVICE_ID_LOGITECH_DOPTICAL, 
-> HID_QUIRK_LOGITECH_HIRES },
-> 
-> And then use (hid->quirk & HID_QUIRK_LOGITECH_HIRES) as the test instead of 
-> ((hid->dev->descriptor.idVendor == USB_VENDOR_ID_LOGITECH) &&
-> (hid->dev->descriptor.idProduct == USB_DEVICE_ID_LOGITECH_DOPTICAL)) in the 
-> routine you actually want to vary.
-> 
-> The advantage is really apparent when Logitech brings out another device with 
-> different product ID (eg a different colour plastic) that has the same 
-> firmware and needs the same change. Much easier to add to the (now badly 
-> misnamed) blacklist than to add more and more conditions to the if().
-> 
-> I'll try for a patch later, that might make this a bit clearer.
-> 
-> Brad
-> 
-> 
-> -- 
-> http://conf.linux.org.au. 22-25Jan2003. Perth, Australia. Birds in Black.
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+Deja vu feeling...
 
+It's already in the Linus tree, why do you resend it?!
+
+Regards,
+Thunder
 -- 
-Vojtech Pavlik
-SuSE Labs
+German attitude becoming        |	Thunder from the hill at ngforever
+rightaway popular:		|
+       "Get outa my way,  	|	free inhabitant not directly
+    for I got a mobile phone!"	|	belonging anywhere
+

@@ -1,89 +1,71 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285965AbRLHVO0>; Sat, 8 Dec 2001 16:14:26 -0500
+	id <S285972AbRLHVdm>; Sat, 8 Dec 2001 16:33:42 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S285964AbRLHVOR>; Sat, 8 Dec 2001 16:14:17 -0500
-Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:7694 "EHLO
-	master.linux-ide.org") by vger.kernel.org with ESMTP
-	id <S285965AbRLHVOA>; Sat, 8 Dec 2001 16:14:00 -0500
-Date: Sat, 8 Dec 2001 13:09:35 -0800 (PST)
-From: Andre Hedrick <andre@linux-ide.org>
-To: Gerald Britton <gbritton@mit.edu>
-cc: Ishan Oshadi Jayawardena <ioshadi@sltnet.lk>,
-        lkml <linux-kernel@vger.kernel.org>
-Subject: Re: IDE-DMA woes
-In-Reply-To: <20011207113110.A3673@light-brigade.mit.edu>
-Message-ID: <Pine.LNX.4.10.10112081306490.15878-100000@master.linux-ide.org>
+	id <S285974AbRLHVdd>; Sat, 8 Dec 2001 16:33:33 -0500
+Received: from tomts5.bellnexxia.net ([209.226.175.25]:51194 "EHLO
+	tomts5-srv.bellnexxia.net") by vger.kernel.org with ESMTP
+	id <S285972AbRLHVdV>; Sat, 8 Dec 2001 16:33:21 -0500
+Message-ID: <3C11358D.28400117@sympatico.ca>
+Date: Fri, 07 Dec 2001 16:33:01 -0500
+From: Chris Friesen <chris_friesen@sympatico.ca>
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.16 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
+To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: software raid issues -- possible kernel I/O problem?
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+I've just installed some new ata100 hard drives and matching controller
+card in a machine running 2.4.16, and have been experimenting with
+software raid.  I've run into some interesting issues with regards to
+transfer speeds.
 
-Gerald,
+I've got md0 as a raid0, and md1 as a raid1.  hda is an older ata33
+drive connected as master to the motherboard, while hde and hdg are the
+new ata100 drives each connected as master on one of the two channels on
+the adapter (but the adapter only has one IRQ, so I don't know how that
+will affect things...).
 
-Like I told you in the other forum.  I have the solutions just my work is
-being refused.  Don't know if I have absolutely pissed off the
-king-penguin or what but there is no reason to submit when I know it is
-not going to be accepted -- regardless that it is in exact compliance to
-the ANSI/NCITS rules that I am now one of the co-authors.
+Using hdparm, I get the following results:
 
-Regards,
+md0: 98.46/42.67
+md1: 98.46/29.22
+hda: 98.46/9.1
+hde: 97.71/31.37
+hdg: 96.24/30.92
 
-Andre Hedrick
-CEO/President, LAD Storage Consulting Group
-Linux ATA Development
-Linux Disk Certification Project
+I also tried some simultaneous runs, with results as follows:
+hde and hdg:  50.20/23.27  and  53.56/21.77
+hde and hda:  50.59/29.09  and  55.90/9.17
 
-On Fri, 7 Dec 2001, Gerald Britton wrote:
 
-> On Fri, Dec 07, 2001 at 05:30:14PM -0600, Ishan Oshadi Jayawardena wrote:
-> > Greetings.
-> > 	I run Linux on an IBM PC300GL with Intel's
-> > 82371AB PIIX4 chipset. With DMA enabled (by doing a
-> > hdparm -d1 /dev/hda) on the hdd, I
-> > _sometimes_ get the following message from the kernel
-> > after resuming from APM standby mode:
-> 
-> I have very similar behavior on an IBM Thinkpad T23.  It's got this IDE
-> controller:
-> 
-> 00:1f.1 IDE interface: Intel Corporation: Unknown device 248a (rev 01)
->         Subsystem: IBM: Unknown device 0220
-> 
-> And, I also only sometimes get roughly:
-> 
-> ide_dmaproc: chipset supported ide_dma_lostirq func only: 13
-> hda: lost interrupt
-> ide_dmaproc: chipset supported ide_dma_timeout func only: 14
-> 
-> > ide_dmaproc: chipset supported ide_dma_timeout func only: 14
-> > hda: status error: status=0x59 { DriveReady SeekComplete DataRequest
-> > Error }
-> > hda: status error: error=0x84 { DriveStatusError BadCRC }
-> > hda: drive not ready for command
-> > 
-> > then the drive stalls for a few seconds, and the driver
-> > disables DMA. This behaviour doesn't seem to depend on the
-> > kernel version (current: 2.4.14; error seen with 2.2 series also.)
-> > The weird thing is that this is not reliably reproducable; most of
-> > the time the system goes to apm standby (not suspend) and resumes fine.
-> 
-> Unfortunately, when mine hits this condition, it seems to never recover
-> from it.  It also seems to only happen sometimes and I've been unable to
-> reliably reproduce the problem.  I told Andre about the problem and he
-> suggested doing a "hdparm -d0 -X08 /dev/hda" prior to suspend and that
-> seems to work around the problem.  I "hdparm -d1 -X69 /dev/hda" on resume
-> to get it back to speedy udma5 mode.  I think the problem is the BIOS doing
-> things to the IDE chipset during the suspend, and the driver not properly
-> correcting the changes on resume.
-> 
-> 				-- Gerald
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
+So, my observations are as follows:
 
+1) It seems as though I can't get aggregate burst speeds up above about
+100MB/s no matter what I do, even when it's on separate interfaces with
+separate IRQs.  Is this running into the limitation of the PCI bus?  I'm
+also somewhat confused as to how my old ata33 drive managed to score
+nearly 100MB/s burst speed, as well as how some people are claiming
+scores of 160MB/s on a ata100 drive (and why I'm not getting that on
+mine).
+
+2) Similarly, actual read speads appear limited to an agregate of about
+45MB/s in both the raid-0 and simultaneous runs. Why am I not getting
+twice the throughput of the single drive case?  Could this be due to the
+ata100 controller only using a single IRQ?
+
+3) It doesn't appear as though raid-1 reads are being parallelized. 
+This surprised me, as I thought that raid-1 was supposed to come close
+to raid-0 in terms of read performance.  Anyone have any ideas about why
+this isn't happening?
+
+I'd appreciate any comments you have, or if this isn't the right place
+to talk about this, then a redirection to the appropriate forum.
+
+Thanks,
+
+Chris

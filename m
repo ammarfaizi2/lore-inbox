@@ -1,53 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S276492AbRI2NKx>; Sat, 29 Sep 2001 09:10:53 -0400
+	id <S276498AbRI2Nlj>; Sat, 29 Sep 2001 09:41:39 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S276493AbRI2NKo>; Sat, 29 Sep 2001 09:10:44 -0400
-Received: from wisdn-0.gus.net ([208.146.196.17]:42512 "EHLO
-	cerberus.stardot-tech.com") by vger.kernel.org with ESMTP
-	id <S276492AbRI2NKa>; Sat, 29 Sep 2001 09:10:30 -0400
-Date: Sat, 29 Sep 2001 06:10:52 -0700 (PDT)
-From: Jim Treadway <jim@stardot-tech.com>
-To: <linux-kernel@vger.kernel.org>
-Subject: Re: Makefile gcc -o /dev/null: the dissapearing of /dev/null
-In-Reply-To: <20010929114304.A21440@lug-owl.de>
-Message-ID: <Pine.LNX.4.33.0109290535390.25966-100000@cerberus.stardot-tech.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S276499AbRI2Nl3>; Sat, 29 Sep 2001 09:41:29 -0400
+Received: from mk-smarthost-2.mail.uk.worldonline.com ([212.74.112.72]:36112
+	"EHLO mk-smarthost-2.mail.uk.worldonline.com") by vger.kernel.org
+	with ESMTP id <S276498AbRI2NlZ>; Sat, 29 Sep 2001 09:41:25 -0400
+Subject: Re: kernel changes
+From: Andrew Ebling <kernelhacker@lineone.net>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: pavel@md5.ca, linux-kernel@vger.kernel.org
+In-Reply-To: <E15n5lw-0008VS-00@the-village.bc.nu>
+In-Reply-To: <E15n5lw-0008VS-00@the-village.bc.nu>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/0.14.99+cvs.2001.09.27.21.30 (Preview Release)
+Date: 29 Sep 2001 14:43:12 +0100
+Message-Id: <1001770994.404.35.camel@kernighan>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 29 Sep 2001, Jan-Benedict Glaw wrote:
+On Fri, 2001-09-28 at 23:06, Alan Cox wrote:
+> > been radically changed for "better". Now I don't trust 2.4 line
+> > kernel to work *at all*, so cautiously keep all old kernels in the /boot,
+> > when upgrading.
+> > It seems I am not only one and wonder if something will be done about that.
+> 
+> You certainly aren't the only one. 2.4.10 both really alarms me and doesn't
+> survive over night on my test box.
 
-> On Sat, 2001-09-29 09:55:35 +0200, proton <proton@energymech.net>
-> wrote in message <3BB57E77.4CDFF5D0@energymech.net>:
->
-> > Ofcourse, you cant unlink /dev/null unless you are root.
->
-> That's right and fine so far.
->
-> > In any case, the `gcc -o /dev/null' test cases probably
-> > need to go away.
->
-> No. Why? Well, the Linux kernel compiles just fine while
-> being an ordianary user. You don't have to be root to
-> compile it. As it's just bad to do usual *work* as root,
-> you're the bug.
+It would be better to be premature starting 2.5.x than to risk damaging
+the reputation of Linux by pretending an unproven kernel is stable.
 
-So then you can no longer 'make modules && make modules_install', or you
-have to cp or chown /usr/src/linux on a fresh install to compile your
-kernel?   Doesn't sound pleasant to me.
+Lets start 2.5.x and let Alan sort 2.4.x out.
 
-I think the "trick" is to redirect stdout and stderr to /dev/null as well,
-so that /dev/null doesn't get removed from the file system since it is
-held open by the shell.
+Andrew
 
-Something like:
 
-	gcc -o /dev/null -xc /dev/null /dev/null 2>&1
 
-Perhaps someone just forgot the I/O redirection in one of the tests?
-
-However, I just compiled (but did not install) 2.4.10, as root, and my
-/dev/null still exists...
 

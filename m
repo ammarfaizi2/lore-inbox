@@ -1,41 +1,29 @@
 Return-Path: <owner-linux-kernel-outgoing@vger.rutgers.edu>
-Received: (majordomo@vger.rutgers.edu) by vger.rutgers.edu via listexpand id <S160146AbQG2AhI>; Fri, 28 Jul 2000 20:37:08 -0400
-Received: by vger.rutgers.edu id <S157629AbQG2Aey>; Fri, 28 Jul 2000 20:34:54 -0400
-Received: from smtp.networkusa.net ([216.15.144.12]:14456 "EHLO smtp.networkusa.net") by vger.rutgers.edu with ESMTP id <S157371AbQG2Ach>; Fri, 28 Jul 2000 20:32:37 -0400
-Date: Fri, 28 Jul 2000 19:51:45 -0500
-From: Mike Castle <dalgoda@ix.netcom.com>
-To: linux-kernel@vger.rutgers.edu
+Received: (majordomo@vger.rutgers.edu) by vger.rutgers.edu via listexpand id <S157569AbQG2AyD>; Fri, 28 Jul 2000 20:54:03 -0400
+Received: by vger.rutgers.edu id <S157565AbQG2AxK>; Fri, 28 Jul 2000 20:53:10 -0400
+Received: from lancaster.nexor.co.uk ([193.63.53.1]:57597 "EHLO lancaster.nexor.co.uk") by vger.rutgers.edu with ESMTP id <S157685AbQG2Aur>; Fri, 28 Jul 2000 20:50:47 -0400
+To: Russell King <rmk@arm.linux.org.uk>
+Cc: linux-kernel@vger.rutgers.edu, lk@tantalophile.demon.co.uk (Jamie Lokier), drepper@redhat.com (Ulrich Drepper), torvalds@transmeta.com (Linus Torvalds), alan@lxorguk.ukuu.org.uk (Alan Cox)
 Subject: Re: RLIM_INFINITY inconsistency between archs
-Message-ID: <20000728195145.A23126@thune.mrc-home.org>
-Reply-To: Mike Castle <dalgoda@ix.netcom.com>
-Mail-Followup-To: Mike Castle <dalgoda@ix.netcom.com>, linux-kernel@vger.rutgers.edu
-References: <200007272122.RAA04791@tsx-prime.MIT.EDU> <m2hf9bnm95.fsf@euler.axel.nom> <20000728162225.A4317@saw.sw.com.sg>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.5i
-In-Reply-To: <20000728162225.A4317@saw.sw.com.sg>; from saw@saw.sw.com.sg on Fri, Jul 28, 2000 at 04:22:25PM +0800
+In-Reply-To: Your message of "Fri, 28 Jul 2000 14:15:22 BST." <200007281315.OAA30398@flint.arm.linux.org.uk>
+Date: Sat, 29 Jul 2000 02:09:30 +0100
+From: David Howells <David.Howells@nexor.co.uk>
+Message-Id: <20000729005258Z157685-16386+2027@vger.rutgers.edu>
 Sender: owner-linux-kernel@vger.rutgers.edu
 
-On Fri, Jul 28, 2000 at 04:22:25PM +0800, Andrey Savochkin wrote:
-> I've been using exactly this layout for years.
-> Moreover, sometimes I keep a lot of kernels of the same version with some
-> differences in the code, so I give the directories self-speaking names (not
-> just $(uname -r)) and never have chances to use wrong modules or System.map.
+Russell King writes:
+> David Howells writes:
+> > Why not /usr/modules or /usr/kernel for the stuff required to compile modules
+> > (in other words stuff that the kernel doesn't actually use), for example:
+> 
+> All these discussions about moving stuff to /usr are forgetting one
+> fundamental point in the FHS - /usr is NOT guaranteed to be mounted
+> at boot.  In fact, /usr may very well be shared between machines.
 
-I've been thinking about this for a while now.  I'd love to be able to
-build and distribute from a single point a variety of kernels/modules and
-have things installed into various locations.  Ie, I'd like to enhance the
-KERNELRELEASE stuff to also include something like LOCALINFO.
+You missed my point - put _compile_ time stuff under /usr/whatever and
+_runtime_ stuff under /lib/modules or /kernel
 
-I can't use EXTRAVERSION because it's often in use (ie, pre17).
-
-mrc
--- 
-       Mike Castle       Life is like a clock:  You can work constantly
-  dalgoda@ix.netcom.com  and be right all the time, or not work at all
-www.netcom.com/~dalgoda/ and be right at least twice a day.  -- mrc
-    We are all of us living in the shadow of Manhattan.  -- Watchmen
+David Howells
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

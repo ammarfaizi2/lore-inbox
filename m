@@ -1,81 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272563AbTHSR7r (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 19 Aug 2003 13:59:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272453AbTHSR7o
+	id S272619AbTHSSB1 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 19 Aug 2003 14:01:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272612AbTHSSAP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 19 Aug 2003 13:59:44 -0400
-Received: from mailhost.tue.nl ([131.155.2.7]:3076 "EHLO mailhost.tue.nl")
-	by vger.kernel.org with ESMTP id S272563AbTHSRsR (ORCPT
+	Tue, 19 Aug 2003 14:00:15 -0400
+Received: from foo209.internut.com ([209.181.68.209]:15781 "EHLO bartman")
+	by vger.kernel.org with ESMTP id S272432AbTHSR4Y (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 19 Aug 2003 13:48:17 -0400
-Date: Tue, 19 Aug 2003 19:48:14 +0200
-From: Andries Brouwer <aebr@win.tue.nl>
-To: "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>
-Cc: Andries Brouwer <aebr@win.tue.nl>, Vojtech Pavlik <vojtech@suse.cz>,
-       Jamie Lokier <jamie@shareable.org>, Neil Brown <neilb@cse.unsw.edu.au>,
-       linux-kernel@vger.kernel.org
-Subject: Re: Input issues - key down with no key up
-Message-ID: <20030819194814.A2179@pclin040.win.tue.nl>
-References: <20030818122933.A970@pclin040.win.tue.nl> <Pine.GSO.3.96.1030819143241.29184C-100000@delta.ds2.pg.gda.pl>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <Pine.GSO.3.96.1030819143241.29184C-100000@delta.ds2.pg.gda.pl>; from macro@ds2.pg.gda.pl on Tue, Aug 19, 2003 at 03:04:58PM +0200
+	Tue, 19 Aug 2003 13:56:24 -0400
+From: "Chuck Luciano" <chuck@mrluciano.com>
+To: "Linux-Kernel" <linux-kernel@vger.kernel.org>
+Subject: redhat 2.4.20 kernel 3.5G patch, bug report on my previous 2.4.18 kernel 3.5G patch
+Date: Tue, 19 Aug 2003 11:55:00 -0600
+Message-ID: <NFBBKNADOLMJPCENHEALCENAGLAA.chuck@mrluciano.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2910.0)
+Importance: Normal
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4133.2400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Aug 19, 2003 at 03:04:58PM +0200, Maciej W. Rozycki wrote:
+Again, I've been kinda lazy about adding the configuration stuff, but, this patch applied to kernel-2.4.20-18.7.src.rpm will give
+you a kernel where PAGE_OFFSET can be set with 2 MB granularity instead of 1GB.
 
-> > >  Well, mode #3 with no translation in the i8042 looks quite sanely. 
-> > 
-> > In theory perhaps. In practice it isnt sane at all.
-> 
->  Yep, the design is clean.  And we can handle it for good devices, for its
-> additional functionality (e.g. autorepeat of <Pause> ;-) ) and to have a
-> clean reference design of code.  I see no reason to "punish" good devices
-> for the faults of bad ones.
+BTW, there is a defect in the 2.4.18 version of this patch in the function get_pgd_slow which doesn't handle the partial PGD
+properly. In 2.4.20 the fix for this problem is in the function pgd_alloc. I will probably not have time to back port this fix to
+2.4.18.
 
-Your reasoning is backwards.
-For the user the only thing that matters is that the keyboard works.
-Which codes certain chips send to each other is completely irrelevant.
+Anyway, for your fun and amusement, the 2.4.20 patch is working and ready for use. I haven't tried seeing just how far I can push
+PAGE_OFFSET yet, but I'd like to see how close I can get to 0xf0000000 and maybe beyond.
 
-Everybody uses translated Set 2. It works.
-Anything else gives obscure problems.
+Links:
 
-If we exchange ugly code that fails for one in a million users
-for nice code that fails for one in tenthousand users,
-that is no progress.
+http://www.mrluciano.com/chuck/linux-2.4.18-unaligned.patch
+http://www.mrluciano.com/chuck/linux-2.4.20-unaligned.patch
+Chuck Luciano
 
-> > (That is, the majority of the keyboards sold today do not do as one
-> > would wish. Since Microsoft does not require anything for Set 3,
-> > behaviour in Set 3 is essentially random, especially for these
-> > additional keys and buttons. A single keypress may give several
-> > scancodes, or none at all. Many laptops do not have any support
-> 
->  Well, we need not take care of non-standard keys -- as such they need to
-> be handled on a case-by-case basis (with customized key maps).
-
-If the keyboard is in Set 3, then these keys may not give any scancode at all.
-In order for the non-standard keys to work we need Set 2.
-
-My laptop has function buttons that bring me to a setup menu where
-I can set various timeouts related to power saving. These built-in
-menus react to translated scancode Set 2 only. There is no way to get
-out if one first chooses Set 3.
-
-Etc. Set 3 is a pain. Nobody wants it, except the people who have read
-the spec only and say - look, neat, a single code for a single keystroke.
-Reality is very different.
-
->  If standard keys are broken, then we can still revert to mode #2 with all
-> its limits as we do now.  At least we can disable the translation in the
-> i8042 to get full and unambiguous scan codes.
-
-Also disabling translation causes all kinds of obscure troubles.
-It is extremely unwise to go for obscure modes that were supported by
-most keyboards ten years ago, and may or may not have any support today.
-
-Andries
+chuck@mrluciano.com
 

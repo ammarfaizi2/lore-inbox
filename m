@@ -1,49 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263996AbTEWJsH (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 23 May 2003 05:48:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263997AbTEWJsH
+	id S263998AbTEWJvh (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 23 May 2003 05:51:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264002AbTEWJvg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 23 May 2003 05:48:07 -0400
-Received: from pao-ex01.pao.digeo.com ([12.47.58.20]:60443 "EHLO
-	pao-ex01.pao.digeo.com") by vger.kernel.org with ESMTP
-	id S263996AbTEWJsG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 23 May 2003 05:48:06 -0400
-Date: Fri, 23 May 2003 03:04:09 -0700
-From: Andrew Morton <akpm@digeo.com>
-To: "David S. Miller" <davem@redhat.com>
-Cc: rmk@arm.linux.org.uk, LW@KARO-electronics.de, linux-kernel@vger.kernel.org,
-       torvalds@transmeta.com
+	Fri, 23 May 2003 05:51:36 -0400
+Received: from [62.112.80.35] ([62.112.80.35]:44160 "EHLO ipc1.karo")
+	by vger.kernel.org with ESMTP id S263998AbTEWJvf (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 23 May 2003 05:51:35 -0400
+Message-ID: <16077.61981.684846.221686@ipc1.karo>
+Date: Fri, 23 May 2003 12:04:13 +0200
+From: "Lothar Wassmann" <LW@KARO-electronics.de>
+To: Andrew Morton <akpm@digeo.com>
+Cc: rmk@arm.linux.org.uk, linux-kernel@vger.kernel.org
 Subject: Re: [patch] cache flush bug in mm/filemap.c (all kernels >=
  2.5.30(at least))
-Message-Id: <20030523030409.664c9b3a.akpm@digeo.com>
-In-Reply-To: <20030523.024922.118612798.davem@redhat.com>
-References: <20030522151156.C12171@flint.arm.linux.org.uk>
-	<1053676924.30675.2.camel@rth.ninka.net>
-	<20030523021204.4e3a4954.akpm@digeo.com>
-	<20030523.024922.118612798.davem@redhat.com>
-X-Mailer: Sylpheed version 0.9.0pre1 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 23 May 2003 10:01:12.0289 (UTC) FILETIME=[3D963D10:01C32112]
+In-Reply-To: <20030523022454.61a180dd.akpm@digeo.com>
+References: <16076.50160.67366.435042@ipc1.karo>
+	<20030522151156.C12171@flint.arm.linux.org.uk>
+	<16077.55787.797668.329213@ipc1.karo>
+	<20030523022454.61a180dd.akpm@digeo.com>
+X-Mailer: VM 7.07 under Emacs 20.7.2
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"David S. Miller" <davem@redhat.com> wrote:
->
->    From: Andrew Morton <akpm@digeo.com>
->    Date: Fri, 23 May 2003 02:12:04 -0700
->    
->    install_page() is prefaulting pages into pagetables, so perhaps it should
->    have an update_mmu_cache()?
+Andrew Morton writes:
+> "Lothar Wassmann" <LW@KARO-electronics.de> wrote:
+> >
+> > And maybe because *every* other call to flush_page_to_ram() has been
+> >  replaced by one of the new interface macros except that one in
+> >  filemap_nopage() in 'mm/filemap.c'.
+> > 
 > 
-> I agree.  Someone should take a close look at the do_file_page()
-> code paths to make sure that's still kosher after such a change.
+> flush_page_to_ram() has been deleted from the kernel.
+> 
+Yes, I know. But did you even read, what I have written?
 
-What would one be looking for?  I don't know what the sideeffects of
-update_mmu_cache() might be.
+The macro has still been there in 2.5.30, but was already defined as a
+NOP. In every source file where it had been used (except filemap.c), it
+was already accompanied by a call to one of 'flush_dcache_page',
+'flush_icache_page', 'copy_user_page' or 'clear_user_page' which
+obviously took over the function that flush_page_to_ram previously
+had. Somewhere around 2.5.46 the obsolete macro was removed and the
+piece of code in filemap.c is the only location where it has not been
+replaced by one of the new macros. This looks very suspicious to me. 
 
-It looks to be the same as do_no_page() though: the update_mmu_cache() is
-the last substantive thing which happens in the fault or the syscall.
+Unfortunately in the i386 Architecture (which I presume is the most
+widely spread Linux arch) this macro has always been a NOP, so that
+noone could notice it missing somewhere.
 
+> filemap_nopage() is a pagecache function and shouldn't be fiddling with
+> cache and/or TLB operations.  Unless it touches the page by hand, which it
+> does not.
+> 
+Ok, but then some function which is called from filemap_nopage()
+should have done the job beforehand.
+
+> Please, test a current kernel.
+>
+Is 2.5.68 current enough? The problem was even better reproducible
+with this kernel than with the old one. So I made all my tests with
+2.5.68.
+
+
+Lothar

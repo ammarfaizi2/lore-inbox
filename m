@@ -1,49 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263287AbVCEANJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263390AbVCEAAL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263287AbVCEANJ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Mar 2005 19:13:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263398AbVCEAJg
+	id S263390AbVCEAAL (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Mar 2005 19:00:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263308AbVCDX4F
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Mar 2005 19:09:36 -0500
-Received: from rev.193.226.232.215.euroweb.hu ([193.226.232.215]:7354 "EHLO
-	dorka.pomaz.szeredi.hu") by vger.kernel.org with ESMTP
-	id S263318AbVCDXQu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Mar 2005 18:16:50 -0500
-To: akpm@osdl.org
-CC: linux-kernel@vger.kernel.org
-Subject: [PATCH] FUSE: inode leak fix
-Message-Id: <E1D7M29-0005ar-00@dorka.pomaz.szeredi.hu>
-From: Miklos Szeredi <miklos@szeredi.hu>
-Date: Sat, 05 Mar 2005 00:16:37 +0100
+	Fri, 4 Mar 2005 18:56:05 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:15577 "EHLO
+	parcelfarce.linux.theplanet.co.uk") by vger.kernel.org with ESMTP
+	id S263390AbVCDXBR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 4 Mar 2005 18:01:17 -0500
+Message-ID: <4228E8A4.6080003@pobox.com>
+Date: Fri, 04 Mar 2005 18:00:52 -0500
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040922
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Greg KH <greg@kroah.com>
+CC: linux-kernel@vger.kernel.org, linux-pci@atrey.karlin.mff.cuni.cz,
+       davej@redhat.com
+Subject: Re: [PATCH] convert pci_dev->slot_name usage to pci_name()
+References: <11099696352086@kroah.com> <4228CC6D.8040606@pobox.com> <20050304210714.GA426@kroah.com>
+In-Reply-To: <20050304210714.GA426@kroah.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Andrew!
+Greg KH wrote:
+> On Fri, Mar 04, 2005 at 04:00:29PM -0500, Jeff Garzik wrote:
+> 
+>>Greg KH wrote:
+>>
+>>>ChangeSet 1.1998.11.6, 2005/02/07 14:36:14-08:00, davej@redhat.com
+>>>
+>>>[PATCH] convert pci_dev->slot_name usage to pci_name()
+>>>
+>>>Prepare for removal of pci_dev->slot_name
+>>
+>>Can you split this up and send me the drivers/net/* portion?
+> 
+> 
+> Here ya go.
+> 
+> thanks,
+> 
+> greg k-h
 
-This patch fixes an inode leak in fuse_get_dentry().  With libfuse
-this practically never triggers, but a DoS exploit could be written.
+Thanks, applied.
 
-Please Apply.
+	Jeff
 
-Thanks,
-Miklos
 
-Signed-off-by: Miklos Szeredi <miklos@szeredi.hu>
 
-diff -rup linux-2.6.11-mm1/fs/fuse/inode.c linux-fuse/fs/fuse/inode.c
---- linux-2.6.11-mm1/fs/fuse/inode.c	2005-03-04 23:26:59.000000000 +0100
-+++ linux-fuse/fs/fuse/inode.c	2005-03-04 23:32:36.000000000 +0100
-@@ -446,8 +446,12 @@ static struct dentry *fuse_get_dentry(st
- 		return ERR_PTR(-ESTALE);
- 
- 	inode = ilookup5(sb, nodeid, fuse_inode_eq, &nodeid);
--	if (!inode || inode->i_generation != generation)
-+	if (!inode)
- 		return ERR_PTR(-ESTALE);
-+	if (inode->i_generation != generation) {
-+		iput(inode);
-+		return ERR_PTR(-ESTALE);
-+	}
- 
- 	entry = d_alloc_anon(inode);
- 	if (!entry) {

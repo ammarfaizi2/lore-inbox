@@ -1,424 +1,404 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264631AbSIWAff>; Sun, 22 Sep 2002 20:35:35 -0400
+	id <S264638AbSIWAh0>; Sun, 22 Sep 2002 20:37:26 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264638AbSIWAff>; Sun, 22 Sep 2002 20:35:35 -0400
-Received: from roc-24-93-20-125.rochester.rr.com ([24.93.20.125]:27631 "EHLO
-	www.kroptech.com") by vger.kernel.org with ESMTP id <S264631AbSIWAfb>;
-	Sun, 22 Sep 2002 20:35:31 -0400
-Date: Sun, 22 Sep 2002 20:40:36 -0400
-From: Adam Kropelin <akropel1@rochester.rr.com>
-To: Andrew Morton <akpm@digeo.com>
-Cc: lkml <linux-kernel@vger.kernel.org>
-Subject: Re: 2.5.38-mm1
-Message-ID: <20020923004036.GA13921@www.kroptech.com>
-References: <3D8D5F2A.BC057FC4@digeo.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <3D8D5F2A.BC057FC4@digeo.com>
-User-Agent: Mutt/1.3.28i
+	id <S264640AbSIWAh0>; Sun, 22 Sep 2002 20:37:26 -0400
+Received: from cmailg2.svr.pol.co.uk ([195.92.195.172]:41233 "EHLO
+	cmailg2.svr.pol.co.uk") by vger.kernel.org with ESMTP
+	id <S264638AbSIWAhU>; Sun, 22 Sep 2002 20:37:20 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Martin Knott <martin@knotthome.net>
+To: linux-kernel@vger.kernel.org
+Subject: kernel BUG at vmalloc.c:236!  version 2.4.19
+Date: Mon, 23 Sep 2002 01:44:42 +0100
+X-Mailer: KMail [version 1.3.1]
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <E17tHIy-0005Rd-00.2002-09-23-01-42-28@cmailg2.svr.pol.co.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Trying to boot 2.5.38-mm1 on SMP ppro gives an endless stream of oopses. (Well,
-to be honest I only let it scroll for about 30 seconds before declaring it
-"endless" and hitting the reset button.) Same .config on 2.5.38 stock boots
-fine. 
+I Cannot use video1394 module to send DV to my camcorder.
 
---Adam
+I am attempting to do DV-ediiting under Linux. Capture, Edit work OK but 
+trying to get it back to my camera persistently fails. I get the following 
+message from both Kino 0.51 and MainConcept's madvout programs:
 
+VIDEO1394_TALK_CHANNEL: Bad address
 
-ksymoops 2.4.6 on i686 2.5.37.  Options used
-     -v /usr/src/linux-2.5.38-mm1/vmlinux (specified)
-     -K (specified)
-     -L (specified)
-     -O (specified)
-     -m /boot/System.map-2.5.38-mm1 (specified)
+The following appears in dmesg:
 
-c0325f88 c0118c5a c02b9060 0000007e c0316880 c0118ef7 00000001 00000050 
-       00000019 c02f1bc6 0008e000 c0336cc5 c0316880 c02d9585 00000005 00000500 
-       c03d6044 c0336144 c0324000 00098700 c0105000 c03267d8 c038ada0 c02b9755 
-Call Trace: [<c0118c5a>] [<c0118ef7>] [<c0105000>] 
-c0325fa8 c0118c5a c02b9060 0000007e c0314700 c0118ef7 00000000 c0324000 
-       00098700 c0105000 0008e000 c033404f c0314700 c03267d8 c038ada0 c02b9755 
-       c038aea0 c0325ff4 c02b94c0 c038ada0 00000000 c01001b1 
-Call Trace: [<c0118c5a>] [<c0118ef7>] [<c0105000>] 
-c0325f6c c0130c96 c02c0f82 00000562 00000246 fffff6a3 c0118cd0 000008f2 
-       c02c0f6f 00000000 00000000 00002000 c01301f5 c030b8c0 000001d0 c032f3f5 
-       c02beca0 00026c08 c030b784 00000000 00000000 c030b848 c0330126 c02c0f6f 
-Call Trace: [<c0130c96>] [<c0118cd0>] [<c01301f5>] [<c0105000>] 
-c0325f08 c0133e93 c02c1007 00000146 00000246 fffff52d 000001d0 00000ad2 
-       00000000 000001d0 c030b8c0 00000000 c01340ea 00000000 000001d0 c01308f3 
-       00000001 000001d0 00000018 c0107f9e c0326000 c02d9585 c030b8c0 c030b8c8 
-Call Trace: [<c0133e93>] [<c01340ea>] [<c01308f3>] [<c0107f9e>] [<c0130d9e>] 
-   [<c0118cd0>] [<c01301f5>] [<c0105000>] 
-c0325f98 c013041f c02b9060 0000007e c0325fb0 c02beca0 00000000 c030b784 
-       00000000 00000000 c030b848 c0330126 c02c0f6f 00000020 00000020 00002000 
-       00000000 00000000 c0324000 00098700 c0105000 0008e000 c032682c c038ada0 
-Call Trace: [<c013041f>] [<c0105000>] 
-c0325f6c c0130c96 c02c0f82 00000562 00000018 c0107f9e c0326000 c02d9585 
-       c02c0f61 00000000 00000000 00006000 c01301f5 c030b8c0 000001d0 c0325fb0 
-       ffffffff 00000000 c030b784 00000000 00000000 c030b848 c0330162 c02c0f61 
-Call Trace: [<c0130c96>] [<c0107f9e>] [<c01301f5>] [<c0105000>] 
-c0325f98 c013041f c02b9060 0000007e c0325fb0 ffffffff 00000000 c030b784 
-       00000000 00000000 c030b848 c0330162 c02c0f61 00000020 00000020 00006000 
-       00000000 00000000 c0324000 00098700 c0105000 0008e000 c032682c c038ada0 
-Call Trace: [<c013041f>] [<c0105000>] 
-c0325f6c c0130c96 c02c0f82 00000562 00000018 c0107f9e c0326000 c02d9585 
-       c02c0f59 00000008 00000004 00002000 c01301f5 c030b8c0 000001d0 c0325fb0 
-       ffffffff 00000000 c030b790 00000008 00000004 c030b848 c0330126 c02c0f59 
-Call Trace: [<c0130c96>] [<c0107f9e>] [<c01301f5>] [<c0105000>] 
-c0325f98 c013041f c02b9060 0000007e c0325fb0 ffffffff 00000020 c030b790 
-       00000008 00000004 c030b848 c0330126 c02c0f59 00000040 00000020 00002000 
-       00000000 00000000 c0324000 00098700 c0105000 0008e000 c032682c c038ada0 
-Call Trace: [<c013041f>] [<c0105000>] 
-c0325f6c c0130c96 c02c0f82 00000562 00000018 c0107f9e c0326000 c02d9585 
-       c02c0f4b 00000008 00000004 00006000 c01301f5 c030b8c0 000001d0 c0325fb0 
-       ffffffff 00000020 c030b790 00000008 00000004 c030b848 c0330162 c02c0f4b 
-Call Trace: [<c0130c96>] [<c0107f9e>] [<c01301f5>] [<c0105000>] 
-c0325f98 c013041f c02b9060 0000007e c0325fb0 ffffffff 00000020 c030b790 
-       00000008 00000004 c030b848 c0330162 c02c0f4b 00000040 00000020 00006000 
-       00000000 00000000 c0324000 00098700 c0105000 0008e000 c032682c c038ada0 
-Call Trace: [<c013041f>] [<c0105000>] 
-c0325f6c c0130c96 c02c0f82 00000562 00000018 c0107f9e c0326000 c02d9585 
-       c02c0f43 00000010 00000008 00002000 c01301f5 c030b8c0 000001d0 c0325fb0 
-       ffffffff 00000020 c030b79c 00000010 00000008 c030b848 c0330126 c02c0f43 
-Call Trace: [<c0130c96>] [<c0107f9e>] [<c01301f5>] [<c0105000>] 
-c0325f98 c013041f c02b9060 0000007e c0325fb0 ffffffff 00000040 c030b79c 
-       00000010 00000008 c030b848 c0330126 c02c0f43 00000060 00000020 00002000 
-       00000000 00000000 c0324000 00098700 c0105000 0008e000 c032682c c038ada0 
-Call Trace: [<c013041f>] [<c0105000>] 
-c0325f6c c0130c96 c02c0f82 00000562 00000018 c0107f9e c0326000 c02d9585 
-       c02c0f35 00000010 00000008 00006000 c01301f5 c030b8c0 000001d0 c0325fb0 
-       ffffffff 00000040 c030b79c 00000010 00000008 c030b848 c0330162 c02c0f35 
-Call Trace: [<c0130c96>] [<c0107f9e>] [<c01301f5>] [<c0105000>] 
-c0325f98 c013041f c02b9060 0000007e c0325fb0 ffffffff 00000040 c030b79c 
-       00000010 00000008 c030b848 c0330162 c02c0f35 00000060 00000020 00006000 
-       00000000 00000000 c0324000 00098700 c0105000 0008e000 c032682c c038ada0 
-Call Trace: [<c013041f>] [<c0105000>] 
-c0325f6c c0130c96 c02c0f82 00000562 00000018 c0107f9e c0326000 c02d9585 
-       c02c0f2c 00000018 0000000c 00002000 c01301f5 c030b8c0 000001d0 c0325fb0 
-       ffffffff 00000040 c030b7a8 00000018 0000000c c030b848 c0330126 c02c0f2c 
-Call Trace: [<c0130c96>] [<c0107f9e>] [<c01301f5>] [<c0105000>] 
-c0325f98 c013041f c02b9060 0000007e c0325fb0 ffffffff 00000060 c030b7a8 
-       00000018 0000000c c030b848 c0330126 c02c0f2c 00000080 00000020 00002000 
-       00000000 00000000 c0324000 00098700 c0105000 0008e000 c032682c c038ada0 
-Call Trace: [<c013041f>] [<c0105000>] 
-c0325f6c c0130c96 c02c0f82 00000562 00000018 c0107f9e c0326000 c02d9585 
-       c02c0f1d 00000018 0000000c 00006000 c01301f5 c030b8c0 000001d0 c0325fb0 
-       ffffffff 00000060 c030b7a8 00000018 0000000c c030b848 c0330162 c02c0f1d 
-Call Trace: [<c0130c96>] [<c0107f9e>] [<c01301f5>] [<c0105000>] 
-c0325f98 c013041f c02b9060 0000007e c0325fb0 ffffffff 00000060 c030b7a8 
-       00000018 0000000c c030b848 c0330162 c02c0f1d 00000080 00000020 00006000 
-       00000000 00000000 c0324000 00098700 c0105000 0008e000 c032682c c038ada0 
-Call Trace: [<c013041f>] [<c0105000>] 
-c0325f6c c0130c96 c02c0f82 00000562 00000018 c0107f9e c0326000 c02d9585 
-       c02c0f14 00000020 00000010 00002000 c01301f5 c030b8c0 000001d0 c0325fb0 
-       ffffffff 00000060 c030b7b4 00000020 00000010 c030b848 c0330126 c02c0f14 
-Call Trace: [<c0130c96>] [<c0107f9e>] [<c01301f5>] [<c0105000>] 
-c0325f98 c013041f c02b9060 0000007e c0325fb0 ffffffff 00000080 c030b7b4 
-       00000020 00000010 c030b848 c0330126 c02c0f14 000000c0 00000020 00002000 
-       00000000 00000000 c0324000 00098700 c0105000 0008e000 c032682c c038ada0 
-Call Trace: [<c013041f>] [<c0105000>] 
-c0325f6c c0130c96 c02c0f82 00000562 00000018 c0107f9e c0326000 c02d9585 
-       c02c0f05 00000020 00000010 00006000 c01301f5 c030b8c0 000001d0 c0325fb0 
-       ffffffff 00000080 c030b7b4 00000020 00000010 c030b848 c0330162 c02c0f05 
-Call Trace: [<c0130c96>] [<c0107f9e>] [<c01301f5>] [<c0105000>] 
-c0325f98 c013041f c02b9060 0000007e c0325fb0 ffffffff 00000080 c030b7b4 
-       00000020 00000010 c030b848 c0330162 c02c0f05 000000c0 00000020 00006000 
-       00000000 00000000 c0324000 00098700 c0105000 0008e000 c032682c c038ada0 
-Call Trace: [<c013041f>] [<c0105000>] 
-c0325f6c c0130c96 c02c0f82 00000562 00000018 c0107f9e c0326000 c02d9585 
-       c02c0efc 00000028 00000014 00002000 c01301f5 c030b8c0 000001d0 c0325fb0 
-       ffffffff 00000080 c030b7c0 00000028 00000014 c030b848 c0330126 c02c0efc 
-Call Trace: [<c0130c96>] [<c0107f9e>] [<c01301f5>] [<c0105000>] 
-c0325f98 c013041f c02b9060 0000007e c0325fb0 ffffffff 000000a0 c030b7c0 
-       00000028 00000014 c030b848 c0330126 c02c0efc 00000100 00000020 00002000 
-       00000000 00000000 c0324000 00098700 c0105000 0008e000 c032682c c038ada0 
-Call Trace: [<c013041f>] [<c0105000>] 
-c0325f6c c0130c96 c02c0f82 00000562 00000018 c0107f9e c0326000 c02d9585 
-       c02c0eed 00000028 00000014 00006000 c01301f5 c030b8c0 000001d0 c0325fb0 
-       ffffffff 000000a0 c030b7c0 00000028 00000014 c030b848 c0330162 c02c0eed 
-Call Trace: [<c0130c96>] [<c0107f9e>] [<c01301f5>] [<c0105000>] 
-c0325f98 c013041f c02b9060 0000007e c0325fb0 ffffffff 000000a0 c030b7c0 
-       00000028 00000014 c030b848 c0330162 c02c0eed 00000100 00000020 00006000 
-       00000000 00000000 c0324000 00098700 c0105000 0008e000 c032682c c038ada0 
-Call Trace: [<c013041f>] [<c0105000>] 
-c0325f6c c0130c96 c02c0f82 00000562 00000018 c0107f9e c0326000 c02d9585 
-       c02c0ee4 00000030 00000018 00002000 c01301f5 c030b8c0 000001d0 c0325fb0 
-       ffffffff 000000a0 c030b7cc 00000030 00000018 c030b848 c0330126 c02c0ee4 
-Call Trace: [<c0130c96>] [<c0107f9e>] [<c01301f5>] [<c0105000>] 
-c0325f98 c013041f c02b9060 0000007e c0325fb0 ffffffff 00000000 c030b7cc 
-       00000030 00000018 c030b848 c0330126 c02c0ee4 00000200 00000020 00002000 
-       00000000 00000000 c0324000 00098700 c0105000 0008e000 c032682c c038ada0 
-Call Trace: [<c013041f>] [<c0105000>] 
-c0325f6c c0130c96 c02c0f82 00000562 00000018 c0107f9e c0326000 c02d9585 
-       c02c0ed5 00000030 00000018 00006000 c01301f5 c030b8c0 000001d0 c0325fb0 
-       ffffffff 00000000 c030b7cc 00000030 00000018 c030b848 c0330162 c02c0ed5 
-Call Trace: [<c0130c96>] [<c0107f9e>] [<c01301f5>] [<c0105000>] 
-c0325f98 c013041f c02b9060 0000007e c0325fb0 ffffffff 00000000 c030b7cc 
-       00000030 00000018 c030b848 c0330162 c02c0ed5 00000200 00000020 00006000 
-       00000000 00000000 c0324000 00098700 c0105000 0008e000 c032682c c038ada0 
-Call Trace: [<c013041f>] [<c0105000>] 
-c0325f6c c0130c96 c02c0f82 00000562 00000018 c0107f9e c0326000 c02d9585 
-       c02c0ecb 00000038 0000001c 00002000 c01301f5 c030b8c0 000001d0 c0325fb0 
-       ffffffff 00000000 c030b7d8 00000038 0000001c c030b848 c0330126 c02c0ecb 
-Call Trace: [<c0130c96>] [<c0107f9e>] [<c01301f5>] [<c0105000>] 
-c0325f98 c013041f c02b9060 0000007e c0325fb0 ffffffff 00000000 c030b7d8 
-       00000038 0000001c c030b848 c0330126 c02c0ecb 00000400 00000020 00002000 
-       00000000 00000000 c0324000 00098700 c0105000 0008e000 c032682c c038ada0 
-Call Trace: [<c013041f>] [<c0105000>] 
-c0325f6c c0130c96 c02c0f82 00000562 00000018 c0107f9e c0326000 c02d9585 
-       c02c0ebb 00000038 0000001c 00006000 c01301f5 c030b8c0 000001d0 c0325fb0 
-       ffffffff 00000000 c030b7d8 00000038 0000001c c030b848 c0330162 c02c0ebb 
-Call Trace: [<c0130c96>] [<c0107f9e>] [<c01301f5>] [<c0105000>] 
-c0325f98 c013041f c02b9060 0000007e c0325fb0 ffffffff 00000000 c030b7d8 
-       00000038 0000001c c030b848 c0330162 c02c0ebb 00000400 00000020 00006000 
-       00000000 00000000 c0324000 00098700 c0105000 0008e000 c032682c c038ada0 
-Call Trace: [<c013041f>] [<c0105000>] 
-c0325f6c c0130c96 c02c0f82 00000562 00000018 c0107f9e c0326000 c02d9585 
-       c02c0eb1 00000040 00000020 00002000 c01301f5 c030b8c0 000001d0 c0325fb0 
-       ffffffff 00000000 c030b7e4 00000040 00000020 c030b848 c0330126 c02c0eb1 
-Call Trace: [<c0130c96>] [<c0107f9e>] [<c01301f5>] [<c0105000>] 
-c0325f98 c013041f c02b9060 0000007e c0325fb0 ffffffff 00000000 c030b7e4 
-       00000040 00000020 c030b848 c0330126 c02c0eb1 00000800 00000020 00002000 
-       00000000 00000000 c0324000 00098700 c0105000 0008e000 c032682c c038ada0 
-Call Trace: [<c013041f>] [<c0105000>] 
-c0325f6c c0130c96 c02c0f82 00000562 00000018 c0107f9e c0326000 c02d9585 
-       c02c0ea1 00000040 00000020 00006000 c01301f5 c030b8c0 000001d0 c0325fb0 
-       ffffffff 00000000 c030b7e4 00000040 00000020 c030b848 c0330162 c02c0ea1 
-Call Trace: [<c0130c96>] [<c0107f9e>] [<c01301f5>] [<c0105000>] 
-c0325f08 c0133e93 c02c1007 00000146 00000246 ffffc0bb 000001d0 00003f44 
-       00000000 000001d0 c030b8c0 00000020 c01340ea 00000000 000001d0 c01308f3 
-       00000001 000001d0 00000018 c0107f9e c0326000 c02d9585 c030b8c0 c030b8c8 
-Call Trace: [<c0133e93>] [<c01340ea>] [<c01308f3>] [<c0107f9e>] [<c0130d9e>] 
-   [<c0107f9e>] [<c01301f5>] [<c0105000>] 
-c0325f98 c013041f c02b9060 0000007e c0325fb0 ffffffff 00000000 c030b7e4 
-       00000040 00000020 c030b848 c0330162 c02c0ea1 00000800 00000020 00006000 
-       00000000 00000000 c0324000 00098700 c0105000 0008e000 c032682c c038ada0 
-Call Trace: [<c013041f>] [<c0105000>] 
-c0325f6c c0130c96 c02c0f82 00000562 00000018 c0107f9e c0326000 c02d9585 
-       c02c0e97 00000048 00000024 00002000 c01301f5 c030b8c0 000001d0 c0325fb0 
-       ffffffff 00000000 c030b7f0 00000048 00000024 c030b848 c0330126 c02c0e97 
-Call Trace: [<c0130c96>] [<c0107f9e>] [<c01301f5>] [<c0105000>] 
-c0325f98 c013041f c02b9060 0000007e c0325fb0 ffffffff 00000000 c030b7f0 
-       00000048 00000024 c030b848 c0330126 c02c0e97 00001000 00000020 00002000 
-       00000000 00000000 c0324000 00098700 c0105000 0008e000 c032682c c038ada0 
-Call Trace: [<c013041f>] [<c0105000>] 
-c0325f6c c0130c96 c02c0f82 00000562 00000018 c0107f9e c0326000 c02d9585 
-       c02c0e87 00000048 00000024 00006000 c01301f5 c030b8c0 000001d0 c0325fb0 
-       ffffffff 00000000 c030b7f0 00000048 00000024 c030b848 c0330162 c02c0e87 
-Call Trace: [<c0130c96>] [<c0107f9e>] [<c01301f5>] [<c0105000>] 
-c0325f98 c013041f c02b9060 0000007e c0325fb0 ffffffff 00000000 c030b7f0 
-       00000048 00000024 c030b848 c0330162 c02c0e87 00001000 00000020 00006000 
-       00000000 00000000 c0324000 00098700 c0105000 0008e000 c032682c c038ada0 
-Call Trace: [<c013041f>] [<c0105000>] 
-c0325f6c c0130c96 c02c0f82 00000562 00000018 c0107f9e c0326000 c02d9585 
-       c02c0e7d 00000050 00000028 00002000 c01301f5 c030b8c0 000001d0 c0325fb0 
-       ffffffff 00000000 c030b7fc 00000050 00000028 c030b848 c0330126 c02c0e7d 
-Call Trace: [<c0130c96>] [<c0107f9e>] [<c01301f5>] [<c0105000>] 
-c0325f98 c013041f c02b9060 0000007e c0325fb0 ffffffff 00000000 c030b7fc 
-       00000050 00000028 c030b848 c0330126 c02c0e7d 00002000 00000020 00002000 
-       00000000 00000000 c0324000 00098700 c0105000 0008e000 c032682c c038ada0 
-Call Trace: [<c013041f>] [<c0105000>] 
-c0325f6c c0130c96 c02c0f82 00000562 00000018 c0107f9e c0326000 c02d9585 
-       c02c0e6d 00000050 00000028 00006000 c01301f5 c030b8c0 000001d0 c0325fb0 
-       ffffffff 00000000 c030b7fc 00000050 00000028 c030b848 c0330162 c02c0e6d 
-Call Trace: [<c0130c96>] [<c0107f9e>] [<c01301f5>] [<c0105000>] 
-c0325f98 c013041f c02b9060 0000007e c0325fb0 ffffffff 00000000 c030b7fc 
-       00000050 00000028 c030b848 c0330162 c02c0e6d 00002000 00000020 00006000 
-       00000000 00000000 c0324000 00098700 c0105000 0008e000 c032682c c038ada0 
-Call Trace: [<c013041f>] [<c0105000>] 
-c0325f6c c0130c96 c02c0f82 00000562 00000018 c0107f9e c0326000 c02d9585 
-       c02c0e62 00000058 0000002c 00002000 c01301f5 c030b8c0 000001d0 c0325fb0 
-       ffffffff 00000000 c030b808 00000058 0000002c c030b848 c0330126 c02c0e62 
-Call Trace: [<c0130c96>] [<c0107f9e>] [<c01301f5>] [<c0105000>] 
-c0325f98 c013041f c02b9060 0000007e c0325fb0 ffffffff 00000000 c030b808 
-       00000058 0000002c c030b848 c0330126 c02c0e62 00004000 00000020 00002000 
-       00000000 00000000 c0324000 00098700 c0105000 0008e000 c032682c c038ada0 
-Call Trace: [<c013041f>] [<c0105000>] 
-c0325f6c c0130c96 c02c0f82 00000562 00000018 c0107f9e c0326000 c02d9585 
-       c02c0e51 00000058 0000002c 00006000 c01301f5 c030b8c0 000001d0 c0325fb0 
-       ffffffff 00000000 c030b808 00000058 0000002c c030b848 c0330162 c02c0e51 
-Call Trace: [<c0130c96>] [<c0107f9e>] [<c01301f5>] [<c0105000>] 
-c0325f98 c013041f c02b9060 0000007e c0325fb0 ffffffff 00000000 c030b808 
-       00000058 0000002c c030b848 c0330162 c02c0e51 00004000 00000020 00006000 
-       00000000 00000000 c0324000 00098700 c0105000 0008e000 c032682c c038ada0 
-Call Trace: [<c013041f>] [<c0105000>] 
-c0325f6c c0130c96 c02c0f82 00000562 00000018 c0107f9e c0326000 c02d9585 
-       c02c0e46 00000060 00000030à
-Warning (Oops_read): Code line not seen, dumping what data is available
+kernel BUG at vmalloc.c:236!
+invalid operand: 0000
+CPU:    0
+EIP:    1010:[<c012a997>]    Not tainted
+EFLAGS: 00210246
+eax: 00000000   ebx: 00000000   ecx: 00000000   edx: d20ddbfc
+esi: 00000200   edi: d20ddc1c   ebp: c6a0fe5c   esp: c6a0fe2c
+ds: 1018   es: 1018   ss: 1018
+Process madvout (pid: 2750, stackpage=c6a0f000)
+Stack: 00000000 00000200 d20ddc1c c02c8d5f 00000000 00000000 00000010 fffffffe
+       00000000 00000041 000031b5 d1df7f7c c6a0fe7c e21f8085 00000000 000001f2
+       00000163 d20ddb80 00000200 d20ddc1c c6a0fea0 e21f82f8 00000000 bffdb808
+Call Trace:    [<e21f8085>] [<e21f82f8>] [<c0117318>] [<e21f949b>] 
+[<c013a8d1>]
+  [<c013b21c>] [<c013a829>] [<c013bacb>] [<c01316af>] [<c01315bf>] 
+[<c013e679>]
+  [<c01099fb>]
+
+Code: 0f 0b ec 00 20 1b 24 c0 e9 65 01 00 00 6a 02 53 e8 94 fe ff
+ mask: 8000000000000000 usage: 8000000000000000
+
+System Information follows. Sure hope you can give me some pointers  - non 
+NULLthat is ;)
+
+Thanks
+Martin Knott
+
+/proc/version
+------------------
+Linux version 2.4.19-win4lin-200209181 (root@clapham) (gcc version 2.95.3 
+20010315 (SuSE)) #1 Wed Sep 18 23:22:57 BST 2002
+
+/proc/cpuinfo
+------------------
+processor       : 0
+vendor_id       : AuthenticAMD
+cpu family      : 6
+model           : 4
+model name      : AMD Athlon(tm) Processor
+stepping        : 4
+cpu MHz         : 1400.088
+cache size      : 256 KB
+fdiv_bug        : no
+hlt_bug         : no
+f00f_bug        : no
+coma_bug        : no
+fpu             : yes
+fpu_exception   : yes
+cpuid level     : 1
+wp              : yes
+flags           : fpu vme de pse tsc msr pae mce cx8 sep mtrr pge mca cmov 
+pat pse36 mmx fxsr syscall mmxext 3dnowext 3dnow
+bogomips        : 2791.83
+
+/proc/modules
+--------------------
+video1394              13040   1
+ohci1394               16304   0 [video1394]
+lt_serial              19744   2 (autoclean)
+lt_modem              314464   0 (autoclean) [lt_serial]
+raw1394                 6800   0
+ieee1394               29520   0 [video1394 ohci1394 raw1394]
+soundcore               3408   0 (autoclean)
+Mvnetd                  8676   1 (unused)
+Mvnet                  51968   0 [Mvnetd]
+Mvnetint                 216   0 (unused)
+Mvw                     4172   0 (unused)
+Mvmouse                  704   0 (unused)
+Mvkbd                    824   0 (unused)
+Mvgic                   3160   0 (unused)
+Mvdsp                    904   0 (unused)
+Mserial                 5724   0 (unused)
+Mmpip                   6796   0 (unused)
+Mmerge                128636   0 [Mvnetd Mvnet Mvw Mvmouse Mvkbd Mvgic Mvdsp 
+Mserial Mmpip]
+mki-adapter            20720   0 [Mvnetd Mvnet Mvnetint Mvw Mvmouse Mvkbd 
+Mvgic
+Mvdsp Mserial Mmpip Mmerge]
+mga                   101120   1
+agpgart                31744   3 (autoclean)
+usb-storage            77584   0 (autoclean) (unused)
 
 
-Trace; c0118c5a <acquire_console_sem+2a/50>
-Trace; c0118ef7 <register_console+117/190>
-Trace; c0105000 <_stext+0/0>
-Trace; c0118c5a <acquire_console_sem+2a/50>
-Trace; c0118ef7 <register_console+117/190>
-Trace; c0105000 <_stext+0/0>
-Trace; c0130c96 <kmem_cache_alloc+26/150>
-Trace; c0118cd0 <release_console_sem+50/b0>
-Trace; c01301f5 <kmem_cache_create+75/3a0>
-Trace; c0105000 <_stext+0/0>
-Trace; c0133e93 <__alloc_pages+23/250>
-Trace; c01340ea <__get_free_pages+2a/70>
-Trace; c01308f3 <kmem_cache_grow+b3/260>
-Trace; c0107f9e <show_stack+6e/80>
-Trace; c0130d9e <kmem_cache_alloc+12e/150>
-Trace; c0118cd0 <release_console_sem+50/b0>
-Trace; c01301f5 <kmem_cache_create+75/3a0>
-Trace; c0105000 <_stext+0/0>
-Trace; c013041f <kmem_cache_create+29f/3a0>
-Trace; c0105000 <_stext+0/0>
-Trace; c0130c96 <kmem_cache_alloc+26/150>
-Trace; c0107f9e <show_stack+6e/80>
-Trace; c01301f5 <kmem_cache_create+75/3a0>
-Trace; c0105000 <_stext+0/0>
-Trace; c013041f <kmem_cache_create+29f/3a0>
-Trace; c0105000 <_stext+0/0>
-Trace; c0130c96 <kmem_cache_alloc+26/150>
-Trace; c0107f9e <show_stack+6e/80>
-Trace; c01301f5 <kmem_cache_create+75/3a0>
-Trace; c0105000 <_stext+0/0>
-Trace; c013041f <kmem_cache_create+29f/3a0>
-Trace; c0105000 <_stext+0/0>
-Trace; c0130c96 <kmem_cache_alloc+26/150>
-Trace; c0107f9e <show_stack+6e/80>
-Trace; c01301f5 <kmem_cache_create+75/3a0>
-Trace; c0105000 <_stext+0/0>
-Trace; c013041f <kmem_cache_create+29f/3a0>
-Trace; c0105000 <_stext+0/0>
-Trace; c0130c96 <kmem_cache_alloc+26/150>
-Trace; c0107f9e <show_stack+6e/80>
-Trace; c01301f5 <kmem_cache_create+75/3a0>
-Trace; c0105000 <_stext+0/0>
-Trace; c013041f <kmem_cache_create+29f/3a0>
-Trace; c0105000 <_stext+0/0>
-Trace; c0130c96 <kmem_cache_alloc+26/150>
-Trace; c0107f9e <show_stack+6e/80>
-Trace; c01301f5 <kmem_cache_create+75/3a0>
-Trace; c0105000 <_stext+0/0>
-Trace; c013041f <kmem_cache_create+29f/3a0>
-Trace; c0105000 <_stext+0/0>
-Trace; c0130c96 <kmem_cache_alloc+26/150>
-Trace; c0107f9e <show_stack+6e/80>
-Trace; c01301f5 <kmem_cache_create+75/3a0>
-Trace; c0105000 <_stext+0/0>
-Trace; c013041f <kmem_cache_create+29f/3a0>
-Trace; c0105000 <_stext+0/0>
-Trace; c0130c96 <kmem_cache_alloc+26/150>
-Trace; c0107f9e <show_stack+6e/80>
-Trace; c01301f5 <kmem_cache_create+75/3a0>
-Trace; c0105000 <_stext+0/0>
-Trace; c013041f <kmem_cache_create+29f/3a0>
-Trace; c0105000 <_stext+0/0>
-Trace; c0130c96 <kmem_cache_alloc+26/150>
-Trace; c0107f9e <show_stack+6e/80>
-Trace; c01301f5 <kmem_cache_create+75/3a0>
-Trace; c0105000 <_stext+0/0>
-Trace; c013041f <kmem_cache_create+29f/3a0>
-Trace; c0105000 <_stext+0/0>
-Trace; c0130c96 <kmem_cache_alloc+26/150>
-Trace; c0107f9e <show_stack+6e/80>
-Trace; c01301f5 <kmem_cache_create+75/3a0>
-Trace; c0105000 <_stext+0/0>
-Trace; c013041f <kmem_cache_create+29f/3a0>
-Trace; c0105000 <_stext+0/0>
-Trace; c0130c96 <kmem_cache_alloc+26/150>
-Trace; c0107f9e <show_stack+6e/80>
-Trace; c01301f5 <kmem_cache_create+75/3a0>
-Trace; c0105000 <_stext+0/0>
-Trace; c013041f <kmem_cache_create+29f/3a0>
-Trace; c0105000 <_stext+0/0>
-Trace; c0130c96 <kmem_cache_alloc+26/150>
-Trace; c0107f9e <show_stack+6e/80>
-Trace; c01301f5 <kmem_cache_create+75/3a0>
-Trace; c0105000 <_stext+0/0>
-Trace; c013041f <kmem_cache_create+29f/3a0>
-Trace; c0105000 <_stext+0/0>
-Trace; c0130c96 <kmem_cache_alloc+26/150>
-Trace; c0107f9e <show_stack+6e/80>
-Trace; c01301f5 <kmem_cache_create+75/3a0>
-Trace; c0105000 <_stext+0/0>
-Trace; c013041f <kmem_cache_create+29f/3a0>
-Trace; c0105000 <_stext+0/0>
-Trace; c0130c96 <kmem_cache_alloc+26/150>
-Trace; c0107f9e <show_stack+6e/80>
-Trace; c01301f5 <kmem_cache_create+75/3a0>
-Trace; c0105000 <_stext+0/0>
-Trace; c013041f <kmem_cache_create+29f/3a0>
-Trace; c0105000 <_stext+0/0>
-Trace; c0130c96 <kmem_cache_alloc+26/150>
-Trace; c0107f9e <show_stack+6e/80>
-Trace; c01301f5 <kmem_cache_create+75/3a0>
-Trace; c0105000 <_stext+0/0>
-Trace; c013041f <kmem_cache_create+29f/3a0>
-Trace; c0105000 <_stext+0/0>
-Trace; c0130c96 <kmem_cache_alloc+26/150>
-Trace; c0107f9e <show_stack+6e/80>
-Trace; c01301f5 <kmem_cache_create+75/3a0>
-Trace; c0105000 <_stext+0/0>
-Trace; c013041f <kmem_cache_create+29f/3a0>
-Trace; c0105000 <_stext+0/0>
-Trace; c0130c96 <kmem_cache_alloc+26/150>
-Trace; c0107f9e <show_stack+6e/80>
-Trace; c01301f5 <kmem_cache_create+75/3a0>
-Trace; c0105000 <_stext+0/0>
-Trace; c013041f <kmem_cache_create+29f/3a0>
-Trace; c0105000 <_stext+0/0>
-Trace; c0130c96 <kmem_cache_alloc+26/150>
-Trace; c0107f9e <show_stack+6e/80>
-Trace; c01301f5 <kmem_cache_create+75/3a0>
-Trace; c0105000 <_stext+0/0>
-Trace; c0133e93 <__alloc_pages+23/250>
-Trace; c01340ea <__get_free_pages+2a/70>
-Trace; c01308f3 <kmem_cache_grow+b3/260>
-Trace; c0107f9e <show_stack+6e/80>
-Trace; c0130d9e <kmem_cache_alloc+12e/150>
-Trace; c0107f9e <show_stack+6e/80>
-Trace; c01301f5 <kmem_cache_create+75/3a0>
-Trace; c0105000 <_stext+0/0>
-Trace; c013041f <kmem_cache_create+29f/3a0>
-Trace; c0105000 <_stext+0/0>
-Trace; c0130c96 <kmem_cache_alloc+26/150>
-Trace; c0107f9e <show_stack+6e/80>
-Trace; c01301f5 <kmem_cache_create+75/3a0>
-Trace; c0105000 <_stext+0/0>
-Trace; c013041f <kmem_cache_create+29f/3a0>
-Trace; c0105000 <_stext+0/0>
-Trace; c0130c96 <kmem_cache_alloc+26/150>
-Trace; c0107f9e <show_stack+6e/80>
-Trace; c01301f5 <kmem_cache_create+75/3a0>
-Trace; c0105000 <_stext+0/0>
-Trace; c013041f <kmem_cache_create+29f/3a0>
-Trace; c0105000 <_stext+0/0>
-Trace; c0130c96 <kmem_cache_alloc+26/150>
-Trace; c0107f9e <show_stack+6e/80>
-Trace; c01301f5 <kmem_cache_create+75/3a0>
-Trace; c0105000 <_stext+0/0>
-Trace; c013041f <kmem_cache_create+29f/3a0>
-Trace; c0105000 <_stext+0/0>
-Trace; c0130c96 <kmem_cache_alloc+26/150>
-Trace; c0107f9e <show_stack+6e/80>
-Trace; c01301f5 <kmem_cache_create+75/3a0>
-Trace; c0105000 <_stext+0/0>
-Trace; c013041f <kmem_cache_create+29f/3a0>
-Trace; c0105000 <_stext+0/0>
-Trace; c0130c96 <kmem_cache_alloc+26/150>
-Trace; c0107f9e <show_stack+6e/80>
-Trace; c01301f5 <kmem_cache_create+75/3a0>
-Trace; c0105000 <_stext+0/0>
-Trace; c013041f <kmem_cache_create+29f/3a0>
-Trace; c0105000 <_stext+0/0>
-Trace; c0130c96 <kmem_cache_alloc+26/150>
-Trace; c0107f9e <show_stack+6e/80>
-Trace; c01301f5 <kmem_cache_create+75/3a0>
-Trace; c0105000 <_stext+0/0>
-Trace; c013041f <kmem_cache_create+29f/3a0>
-Trace; c0105000 <_stext+0/0>
+/proc/ioports
+------------------
+0000-001f : dma1
+0020-003f : pic1
+0040-005f : timer
+0060-006f : keyboard
+0080-008f : dma page reg
+00a0-00bf : pic2
+00c0-00df : dma2
+00f0-00ff : fpu
+0170-0177 : ide1
+01f0-01f7 : ide0
+02f8-02ff : serial(auto)
+0376-0376 : ide1
+0378-037a : parport0
+03c0-03df : vga+
+03f6-03f6 : ide0
+03f8-03ff : serial(auto)
+0cf8-0cff : PCI conf1
+9000-9fff : PCI Bus #01
+c400-c41f : VIA Technologies, Inc. UHCI USB
+  c400-c41f : usb-uhci
+c800-c81f : VIA Technologies, Inc. UHCI USB (#2)
+  c800-c81f : usb-uhci
+cc00-ccff : Realtek Semiconductor Co., Ltd. RTL-8139/8139C
+  cc00-ccff : 8139too
+d000-d01f : Creative Labs SB Audigy
+d400-d4ff : Lucent Microelectronics LT WinModem
+  d400-d4ff : ltserial
+d800-d807 : Lucent Microelectronics LT WinModem
+dc00-dc07 : Creative Labs SB Audigy MIDI/Game port
+ff00-ff0f : VIA Technologies, Inc. Bus Master IDE
+  ff00-ff07 : ide0
+  ff08-ff0f : ide1
+
+/proc/iomem
+------------------
+00000000-0009fbff : System RAM
+0009fc00-0009ffff : reserved
+000a0000-000bffff : Video RAM area
+000c0000-000c7fff : Video ROM
+000f0000-000fffff : System ROM
+00100000-1ffeffff : System RAM
+  00100000-0023b9c8 : Kernel code
+  0023b9c9-002af67f : Kernel data
+1fff0000-1fff7fff : ACPI Tables
+1fff8000-1fffffff : ACPI Non-volatile Storage
+dac00000-decfffff : PCI Bus #01
+  dc000000-ddffffff : Matrox Graphics, Inc. MGA G400 AGP
+dee00000-dfefffff : PCI Bus #01
+  df000000-df7fffff : Matrox Graphics, Inc. MGA G400 AGP
+  dfefc000-dfefffff : Matrox Graphics, Inc. MGA G400 AGP
+dfff8000-dfffbfff : Creative Labs SB Audigy FireWire Port
+dffff000-dffff7ff : Creative Labs SB Audigy FireWire Port
+  dffff000-dffff7ff : ohci1394
+dffffe00-dffffeff : Realtek Semiconductor Co., Ltd. RTL-8139/8139C
+  dffffe00-dffffeff : 8139too
+dfffff00-dfffffff : Lucent Microelectronics LT WinModem
+e0000000-e0ffffff : VIA Technologies, Inc. VT8367 [KT266]
+fec00000-fec00fff : reserved
+fee00000-fee00fff : reserved
+fff80000-ffffffff : reserved
+
+lspci -vvv
+-------------
+00:00.0 Host bridge: VIA Technologies, Inc. VT8367 [KT266]
+        Control: I/O- Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- 
+Stepping- SERR- FastB2B-
+        Status: Cap+ 66Mhz+ UDF- FastB2B- ParErr- DEVSEL=medium >TAbort- 
+<TAbort- <MAbort+ >SERR- <PERR-
+        Latency: 8
+        Region 0: Memory at e0000000 (32-bit, prefetchable) [size=16M]
+        Capabilities: [a0] AGP version 2.0
+                Status: RQ=31 SBA+ 64bit- FW- Rate=x1,x2
+                Command: RQ=0 SBA+ AGP+ 64bit- FW- Rate=x1
+        Capabilities: [c0] Power Management version 2
+                Flags: PMEClk- DSI- D1- D2- AuxCurrent=0mA 
+PME(D0-,D1-,D2-,D3hot-,D3cold-)
+                Status: D0 PME-Enable- DSel=0 DScale=0 PME-
+
+00:01.0 PCI bridge: VIA Technologies, Inc. VT8367 [KT266 AGP] (prog-if 00 
+[Normal decode])
+        Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- 
+Stepping- SERR- FastB2B-
+        Status: Cap+ 66Mhz+ UDF- FastB2B- ParErr- DEVSEL=medium >TAbort- 
+<TAbort- <MAbort+ >SERR- <PERR-
+        Latency: 0
+        Bus: primary=00, secondary=01, subordinate=01, sec-latency=0
+        I/O behind bridge: 00009000-00009fff
+        Memory behind bridge: dee00000-dfefffff
+        Prefetchable memory behind bridge: dac00000-decfffff
+        BridgeCtl: Parity- SERR- NoISA+ VGA+ MAbort- >Reset- FastB2B-
+        Capabilities: [80] Power Management version 2
+                Flags: PMEClk- DSI- D1+ D2- AuxCurrent=0mA 
+PME(D0-,D1-,D2-,D3hot-,D3cold-)
+                Status: D0 PME-Enable- DSel=0 DScale=0 PME-
+
+00:0a.0 Communication controller: Lucent Microelectronics LT WinModem (rev 02)
+        Subsystem: Digitan Systems Inc: Unknown device 9300
+        Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- 
+Stepping- SERR+ FastB2B-
+        Status: Cap+ 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- 
+<TAbort- <MAbort- >SERR- <PERR-
+        Latency: 32 (63000ns min, 3500ns max)
+        Interrupt: pin A routed to IRQ 10
+        Region 0: Memory at dfffff00 (32-bit, non-prefetchable) [size=256]
+        Region 1: I/O ports at d800 [size=8]
+        Region 2: I/O ports at d400 [size=256]
+        Capabilities: [f8] Power Management version 2
+                Flags: PMEClk- DSI+ D1- D2+ AuxCurrent=0mA 
+PME(D0-,D1-,D2+,D3hot+,D3cold-)
+                Status: D0 PME-Enable- DSel=0 DScale=0 PME-
+
+00:0b.0 Multimedia audio controller: Creative Labs: Unknown device 0004 (rev 
+03)        Subsystem: Creative Labs: Unknown device 0051
+        Control: I/O+ Mem- BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- 
+Stepping- SERR+ FastB2B-
+        Status: Cap+ 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- 
+<TAbort- <MAbort- >SERR- <PERR-
+        Latency: 32 (500ns min, 5000ns max)
+        Interrupt: pin A routed to IRQ 12
+        Region 0: I/O ports at d000 [size=32]
+        Capabilities: [dc] Power Management version 2
+                Flags: PMEClk- DSI+ D1+ D2+ AuxCurrent=0mA 
+PME(D0-,D1-,D2-,D3hot-,D3cold-)
+                Status: D0 PME-Enable- DSel=0 DScale=0 PME-
+
+00:0b.1 Input device controller: Creative Labs: Unknown device 7003 (rev 03)
+        Subsystem: Creative Labs: Unknown device 0040
+        Control: I/O+ Mem- BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- 
+Stepping- SERR+ FastB2B-
+        Status: Cap+ 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- 
+<TAbort- <MAbort- >SERR- <PERR-
+        Latency: 32
+        Region 0: I/O ports at dc00 [size=8]
+        Capabilities: [dc] Power Management version 2
+                Flags: PMEClk- DSI+ D1+ D2+ AuxCurrent=0mA 
+PME(D0-,D1-,D2-,D3hot-,D3cold-)
+                Status: D0 PME-Enable- DSel=0 DScale=0 PME-
+
+00:0b.2 FireWire (IEEE 1394): Creative Labs: Unknown device 4001 (prog-if 10 
+[OHCI])
+        Subsystem: Creative Labs: Unknown device 0010
+        Control: I/O- Mem+ BusMaster+ SpecCycle- MemWINV+ VGASnoop- ParErr- 
+Stepping- SERR+ FastB2B-
+        Status: Cap+ 66Mhz- UDF- FastB2B- ParErr- DEVSEL=medium >TAbort- 
+<TAbort- <MAbort- >SERR- <PERR-
+        Latency: 32 (500ns min, 1000ns max), cache line size 08
+        Interrupt: pin B routed to IRQ 11
+        Region 0: Memory at dffff000 (32-bit, non-prefetchable) [size=2K]
+        Region 1: Memory at dfff8000 (32-bit, non-prefetchable) [size=16K]
+        Capabilities: [44] Power Management version 2
+                Flags: PMEClk- DSI- D1+ D2+ AuxCurrent=0mA 
+PME(D0+,D1+,D2+,D3hot+,D3cold-)
+                Status: D0 PME-Enable- DSel=0 DScale=0 PME+
+
+00:0d.0 Ethernet controller: Realtek Semiconductor Co., Ltd. RTL-8139 (rev 10)
+        Subsystem: Realtek Semiconductor Co., Ltd. RT8139
+        Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- 
+Stepping- SERR+ FastB2B-
+        Status: Cap+ 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- 
+<TAbort- <MAbort- >SERR- <PERR-
+        Latency: 32 (8000ns min, 16000ns max)
+        Interrupt: pin A routed to IRQ 5
+        Region 0: I/O ports at cc00 [size=256]
+        Region 1: Memory at dffffe00 (32-bit, non-prefetchable) [size=256]
+        Capabilities: [50] Power Management version 2
+                Flags: PMEClk- DSI- D1+ D2+ AuxCurrent=375mA 
+PME(D0-,D1+,D2+,D3hot+,D3cold+)
+                Status: D0 PME-Enable- DSel=0 DScale=0 PME-
+
+00:11.0 ISA bridge: VIA Technologies, Inc.: Unknown device 3147
+        Subsystem: VIA Technologies, Inc.: Unknown device 3074
+        Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- 
+Stepping+ SERR- FastB2B-
+        Status: Cap+ 66Mhz- UDF- FastB2B- ParErr- DEVSEL=medium >TAbort- 
+<TAbort- <MAbort- >SERR- <PERR-
+        Latency: 0
+        Capabilities: [c0] Power Management version 2
+                Flags: PMEClk- DSI- D1- D2- AuxCurrent=0mA 
+PME(D0-,D1-,D2-,D3hot-,D3cold-)
+                Status: D0 PME-Enable- DSel=0 DScale=0 PME-
+
+00:11.1 IDE interface: VIA Technologies, Inc. Bus Master IDE (rev 06) 
+(prog-if 8a [Master SecP PriP])
+        Subsystem: VIA Technologies, Inc. Bus Master IDE
+        Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- 
+Stepping- SERR- FastB2B-
+        Status: Cap+ 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- 
+<TAbort- <MAbort- >SERR- <PERR-
+        Latency: 32
+        Interrupt: pin A routed to IRQ 14
+        Region 4: I/O ports at ff00 [size=16]
+        Capabilities: [c0] Power Management version 2
+                Flags: PMEClk- DSI- D1- D2- AuxCurrent=0mA 
+PME(D0-,D1-,D2-,D3hot-,D3cold-)
+                Status: D0 PME-Enable- DSel=0 DScale=0 PME-
+
+00:11.2 USB Controller: VIA Technologies, Inc. UHCI USB (rev 23) (prog-if 00 
+[UHCI])
+        Subsystem: Unknown device 0925:1234
+        Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV+ VGASnoop- ParErr- 
+Stepping- SERR+ FastB2B-
+        Status: Cap+ 66Mhz- UDF- FastB2B- ParErr- DEVSEL=medium >TAbort- 
+<TAbort- <MAbort- >SERR- <PERR-
+        Latency: 32, cache line size 08
+        Interrupt: pin D routed to IRQ 12
+        Region 4: I/O ports at c400 [size=32]
+        Capabilities: [80] Power Management version 2
+                Flags: PMEClk- DSI- D1- D2- AuxCurrent=0mA 
+PME(D0-,D1-,D2-,D3hot-,D3cold-)
+                Status: D0 PME-Enable- DSel=0 DScale=0 PME-
+
+00:11.3 USB Controller: VIA Technologies, Inc. UHCI USB (rev 23) (prog-if 00 
+[UHCI])
+        Subsystem: Unknown device 0925:1234
+        Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV+ VGASnoop- ParErr- 
+Stepping- SERR+ FastB2B-
+        Status: Cap+ 66Mhz- UDF- FastB2B- ParErr- DEVSEL=medium >TAbort- 
+<TAbort- <MAbort- >SERR- <PERR-
+        Latency: 32, cache line size 08
+        Interrupt: pin D routed to IRQ 12
+        Region 4: I/O ports at c800 [size=32]
+        Capabilities: [80] Power Management version 2
+                Flags: PMEClk- DSI- D1- D2- AuxCurrent=0mA 
+PME(D0-,D1-,D2-,D3hot-,D3cold-)
+                Status: D0 PME-Enable- DSel=0 DScale=0 PME-
+
+01:00.0 VGA compatible controller: Matrox Graphics, Inc. MGA G400 AGP (rev 
+82) (prog-if 00 [VGA])
+        Subsystem: Matrox Graphics, Inc.: Unknown device 0543
+        Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- 
+Stepping- SERR- FastB2B-
+        Status: Cap+ 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- 
+<TAbort- <MAbort- >SERR- <PERR-
+        Latency: 64 (4000ns min, 8000ns max), cache line size 08
+        Interrupt: pin A routed to IRQ 11
+        Region 0: Memory at dc000000 (32-bit, prefetchable) [size=32M]
+        Region 1: Memory at dfefc000 (32-bit, non-prefetchable) [size=16K]
+        Region 2: Memory at df000000 (32-bit, non-prefetchable) [size=8M]
+        Expansion ROM at dfec0000 [disabled] [size=128K]
+        Capabilities: [dc] Power Management version 2
+                Flags: PMEClk- DSI+ D1- D2- AuxCurrent=0mA 
+PME(D0-,D1-,D2-,D3hot-,D3cold-)
+                Status: D0 PME-Enable- DSel=0 DScale=0 PME-
+        Capabilities: [f0] AGP version 2.0
+                Status: RQ=31 SBA+ 64bit- FW- Rate=x1,x2
+                Command: RQ=31 SBA+ AGP+ 64bit- FW- Rate=x1
 
 
-1 warning issued.  Results may not be reliable.
+/proc/scsi/scsi
+--------------------
+Attached devices:
+Host: scsi0 Channel: 00 Id: 00 Lun: 00
+  Vendor: GENERIC  Model: CRD-BP1500P      Rev: 6z34
+  Type:   CD-ROM                           ANSI SCSI revision: 02
 
+/proc/interrupts
+---------------------
+           CPU0
+  0:     363653          XT-PIC  timer
+  1:       8075          XT-PIC  keyboard
+  2:          0          XT-PIC  cascade
+  5:        159          XT-PIC  eth0
+ 10:    1693970          XT-PIC  ltserial
+ 11:        394          XT-PIC  ohci1394
+ 12:      71160          XT-PIC  usb-uhci, usb-uhci
+ 14:     673380          XT-PIC  ide0
+ 15:      20691          XT-PIC  ide1
+NMI:          0
+ERR:          0
+
+/proc/meminfo
+--------------------
+        total:    used:    free:  shared: buffers:  cached:
+Mem:  528637952 455442432 73195520        0  7544832 327790592
+Swap: 139788288        0 139788288
+MemTotal:       516248 kB
+MemFree:         71480 kB
+MemShared:           0 kB
+Buffers:          7368 kB
+Cached:         320108 kB
+SwapCached:          0 kB
+Active:          49368 kB
+Inactive:       353460 kB
+HighTotal:           0 kB
+HighFree:            0 kB
+LowTotal:       516248 kB
+LowFree:         71480 kB
+SwapTotal:      136512 kB
+SwapFree:       136512 kB

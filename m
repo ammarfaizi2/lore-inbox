@@ -1,52 +1,58 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129199AbQKQU4f>; Fri, 17 Nov 2000 15:56:35 -0500
+	id <S129265AbQKQU6E>; Fri, 17 Nov 2000 15:58:04 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129265AbQKQU4Y>; Fri, 17 Nov 2000 15:56:24 -0500
-Received: from einhorn.colt.in-berlin.de ([213.61.118.8]:50701 "EHLO
-	einhorn.in-berlin.de") by vger.kernel.org with ESMTP
-	id <S129199AbQKQU4L>; Fri, 17 Nov 2000 15:56:11 -0500
-To: linux-kernel@vger.kernel.org
-Path: kraxel
-From: kraxel@bytesex.org (Gerd Knorr)
-Newsgroups: lists.linux.kernel
-Subject: Re: BTTV detection broken in 2.4.0-test11-pre5
-Date: 17 Nov 2000 20:08:55 GMT
-Organization: Strusel 007
-Message-ID: <slrn91b42n.fs.kraxel@bogomips.masq.in-berlin.de>
-In-Reply-To: <20001117013157.A21329@almesberger.net>
-NNTP-Posting-Host: bogomips.masq.in-berlin.de
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
-X-Trace: goldbach.masq.in-berlin.de 974491735 3772 192.168.69.77 (17 Nov 2000 20:08:55 GMT)
-X-Complaints-To: news@goldbach.in-berlin.de
-NNTP-Posting-Date: 17 Nov 2000 20:08:55 GMT
-User-Agent: slrn/0.9.6.3 (Linux)
+	id <S129806AbQKQU5y>; Fri, 17 Nov 2000 15:57:54 -0500
+Received: from leibniz.math.psu.edu ([146.186.130.2]:45486 "EHLO math.psu.edu")
+	by vger.kernel.org with ESMTP id <S129265AbQKQU5j>;
+	Fri, 17 Nov 2000 15:57:39 -0500
+Date: Fri, 17 Nov 2000 15:27:31 -0500 (EST)
+From: Alexander Viro <viro@math.psu.edu>
+To: Guest section DW <dwguest@win.tue.nl>
+cc: Jean-Marc Saffroy <saffroy@ri.silicomp.fr>, torvalds@transmeta.com,
+        linux-kernel@vger.kernel.org, Eric Paire <paire@ri.silicomp.fr>
+Subject: Re: [BUG] Inconsistent behaviour of rmdir
+In-Reply-To: <20001117185638.A8452@win.tue.nl>
+Message-ID: <Pine.GSO.4.21.0011171514210.18150-100000@weyl.math.psu.edu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Werner Almesberger wrote:
-> The BTTV driver 0.7.48 doesn't detect my old Hauppauge card anymore.
 
-Yes.  I've taken out the detection heuristics for bt848 cards.  The code
-is very old, from the days where only 2-3 different bt848 cards where
-available.  It simply did'nt work correctly and often used to misdetect
-random bt848 cards as either MIRO or Hauppauge (which where the first
-available cards).
 
-> The problem seems to be that my card sets PCI_SUBSYSTEM_ID and
-> PCI_SUBSYSTEM_VENDOR_ID to zero (lspci output below).
+On Fri, 17 Nov 2000, Guest section DW wrote:
 
-Only bt878 chips have a subsystem ID.  The bt848 has not.  That's why
-there is simply no _reliable_ way to detect bt848 based cards.
+> I see that an entire discussion has taken place. Let me just remark this,
+> quoting the Austin draft:
+> 
+> If the path argument refers to a path whose final component is either
+> dot or dot-dot, rmdir( ) shall fail.
+> 
+> EINVAL	The path argument contains a last component that is dot.
+[snip]
 
-  Gerd
+> So, it seems that -EINVAL would be a better return value in case LAST_DOT.
 
--- 
-Wirtschaftsinformatiker == Leute, die zwar die aktuellen Aktienkurse
-jedes Softwareherstellers kennen, aber keines der Produkte auch nur
-ansatzweise bedienen können.		-- Benedict Mangelsdorff
+No problems with that... Linus, could you apply the following (cut-and-paste
+alert)?
+--- fs/namei.c     Fri Nov 17 18:43:20 2000
++++ fs/namei.c.new Fri Nov 17 18:48:00 2000
+@@ -1381,8 +1381,11 @@
+                case LAST_DOTDOT:
+                        error = -ENOTEMPTY;
+                        goto exit1;
+-               case LAST_ROOT: case LAST_DOT:
++               case LAST_ROOT:
+                        error = -EBUSY;
++                       goto exit1;
++               case LAST_DOT:
++                       error = -EINVAL;
+                        goto exit1;
+        }
+        down(&nd.dentry->d_inode->i_sem);
+
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

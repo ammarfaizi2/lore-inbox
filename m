@@ -1,45 +1,79 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315471AbSFEPtN>; Wed, 5 Jun 2002 11:49:13 -0400
+	id <S315480AbSFEPuX>; Wed, 5 Jun 2002 11:50:23 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315479AbSFEPtM>; Wed, 5 Jun 2002 11:49:12 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:37599 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id <S315471AbSFEPtL>;
-	Wed, 5 Jun 2002 11:49:11 -0400
-Date: Wed, 5 Jun 2002 17:48:53 +0200
-From: Jens Axboe <axboe@suse.de>
-To: Martin Dalecki <dalecki@evision-ventures.com>
-Cc: Linus Torvalds <torvalds@transmeta.com>,
-        Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] 2.5.20 IDE 85
-Message-ID: <20020605154853.GF16600@suse.de>
-In-Reply-To: <Pine.LNX.4.33.0206021853030.1383-100000@penguin.transmeta.com> <3CFE0C16.1020203@evision-ventures.com> <20020605141717.GB16257@suse.de> <3CFE1974.9080509@evision-ventures.com>
-Mime-Version: 1.0
+	id <S315481AbSFEPuX>; Wed, 5 Jun 2002 11:50:23 -0400
+Received: from nat-pool-rdu.redhat.com ([66.187.233.200]:1929 "HELO
+	fresnel.labs.redhat.com") by vger.kernel.org with SMTP
+	id <S315480AbSFEPuV>; Wed, 5 Jun 2002 11:50:21 -0400
+To: Padraig Brady <padraig@antefacto.com>
+Cc: andersen@codepoet.org,
+        Matthias Andree <matthias.andree@stud.uni-dortmund.de>,
+        Linux-Kernel mailing list <linux-kernel@vger.kernel.org>,
+        sopwith@redhat.com
+Subject: Re: Need help tracing regular write activity in 5 s interval
+In-Reply-To: <20020602135501.GA2548@merlin.emma.line.org>
+	<3CFCA2B0.4060501@antefacto.com> <20020604120434.GA1386@codepoet.org>
+	<3CFE1B78.9010406@antefacto.com>
+From: Owen Taylor <otaylor@redhat.com>
+User-Agent: Gnus/5.0807 (Gnus v5.8.7) Emacs/21.1
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Message-Id: <20020605155017.251EC2423B5@fresnel.labs.redhat.com>
+Date: Wed,  5 Jun 2002 11:50:17 -0400 (EDT)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jun 05 2002, Martin Dalecki wrote:
-> Jens Axboe wrote:
-> >On Wed, Jun 05 2002, Martin Dalecki wrote:
-> >
-> >AFAICS, you just introduced some nasty list races in the interrupt
-> >handlers. You must hold the queue locks when calling
-> >blkdev_dequeue_request() and end_that_request_last(), for instance.
-> >
+
+Padraig Brady <padraig@antefacto.com> writes:
+
+> I'm sure it will :-)
 > 
-> No. Please be more accurate. Becouse:
+> However this it just masking the "problem"
+
+Well, the question is, "what is the problem"? 
+
+Your problem is that a debug message is being output by the kernel and
+filling your logs. If the debug message doesn't do anybody any good
+(and it doesn't) then removing the debug message is a fine way of
+solving the problem.
+
+I looked at _why_ the debug message was being generated in this
+particular case a long time ago, and it seemed to essentially be a bug
+in the IDE code, but other than generating the debug message,
+basically a harmless one, and there was no interest in fixing it among
+the kernel people I talked to at the time.
+
+(I don't remember details any more; it was several years ago.)
+
+> , and I don't
+> think it's "buggy CDROM drives" as I've tried 3 different
+> machines with the following drives:
 > 
-> 1. If anything I have made existing races only "obvious".
+> SAMSUNG DVD-ROM SD-612
+> TOSHIBA DVD-ROM SD-C2402
+> CREATIVE CD5233E
+> 
+> and they all show the same problem. I.E. logs filling with
+> "VFS: Disk change detected on device ide1(22,0)".
 
-If anything, you've made a race you introduced earlier more obvious.
+*This* problem is certainly not a buggy CD-ROM. There are other
+(rarer) problems with logs filling with magicdev that do have to do
+with buggy CD-ROM drives; so that is perhaps what you heard about.
 
-> 2. It is called in the context of do_ide_request or ide_raw_taskfile
->    where we already have the lock.
+(Most common one is that some Yamaha CD-RW's apparently report media
+in the drive when they don't have any media in the drive.  magicdev
+tries to mount it, and that failure generates an error message.)
 
-?? Both tcq and ata_special_intr look like interrupt handlers to me.
+[...] 
 
--- 
-Jens Axboe
+> Also related, why does the LED flash on every ATA command?
+> Is this controlled by the drive or ide controller?
+> Are you telling me that windows would flash the LED every so often
+> to automount CDs?
 
+Are you sure that the LED flashing isn't the debug messages being
+written to your hard drive?
+
+Regards,
+                                        Owen

@@ -1,46 +1,74 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277382AbRJVA5Q>; Sun, 21 Oct 2001 20:57:16 -0400
+	id <S277393AbRJVBFG>; Sun, 21 Oct 2001 21:05:06 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277385AbRJVA5G>; Sun, 21 Oct 2001 20:57:06 -0400
-Received: from noodles.codemonkey.org.uk ([62.49.180.5]:33220 "EHLO
-	noodles.codemonkey.org.uk") by vger.kernel.org with ESMTP
-	id <S277382AbRJVA44>; Sun, 21 Oct 2001 20:56:56 -0400
-Date: Mon, 22 Oct 2001 01:58:41 +0100
-From: Dave Jones <davej@suse.de>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: [patch] mangled include in ac5
-Message-ID: <20011022015841.A13543@suse.de>
-Mail-Followup-To: Dave Jones <davej@suse.de>,
-	Alan Cox <alan@lxorguk.ukuu.org.uk>,
-	Linux Kernel <linux-kernel@vger.kernel.org>
+	id <S277395AbRJVBE4>; Sun, 21 Oct 2001 21:04:56 -0400
+Received: from mail.courier-mta.com ([66.92.103.29]:2967 "EHLO
+	mail.courier-mta.com") by vger.kernel.org with ESMTP
+	id <S277393AbRJVBEu>; Sun, 21 Oct 2001 21:04:50 -0400
+Date: Sun, 21 Oct 2001 21:05:22 -0400 (EDT)
+From: Sam Varshavchik <mrsam@courier-mta.com>
+X-X-Sender: <geo@ny.email-scan.com>
+Reply-To: linux-kernel@vger.kernel.org
+To: PinkFreud <pf-kernel@mirkwood.net>
+cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: Re: SMP lockup with 2.4.12 on VIA chipset (still does it)
+In-Reply-To: <fa.md0b7rv.1c5ob3p@ifi.uio.no>
+Message-ID: <Pine.LNX.4.33.0110212100120.32144-200000@ny.email-scan.com>
+X-No-Archive: Yes
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.22.1i
+Content-Type: multipart/mixed; boundary="=_ny.email-scan.com-32514-1003712723-0001-2"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mindnumbingly boring compile fix...
+This is a MIME-formatted message.  If you see this text it means that your
+E-mail software does not support MIME-formatted messages.
 
-regards,
+--=_ny.email-scan.com-32514-1003712723-0001-2
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 
-Dave.
+On Sat, 20 Oct 2001, PinkFreud wrote:
 
-diff -urN --exclude-from=/home/davej/.exclude linux/net/ipv4/ipconfig.c linux-dj/net/ipv4/ipconfig.c
---- linux/net/ipv4/ipconfig.c	Mon Oct 22 00:27:20 2001
-+++ linux-dj/net/ipv4/ipconfig.c	Mon Oct 22 00:22:03 2001
-@@ -53,7 +53,7 @@
- 
- #include <asm/uaccess.h>
- #include <asm/checksum.h>
--#inclued <asm/processor.h>
-+#include <asm/processor.h>
- 
- /* Define this to allow debugging output */
- #undef IPCONFIG_DEBUG
+> Please note that this lockup does *NOT* happen with 2.2.19 with SMP, nor
+> does it happen with 2.4.x WITHOUT SMP.  Therefore, I would think
+> whatever's causing this has to do with something that changed in SMP
+> between 2.2.x and 2.4.x.  Please feel free to yell at me if I should post
+> this elsewhere.
+
+Try the following patch, and see if it works.  It fixes one potential 
+source of SMP hard lockups for 2.4.7+.  I'm not sure if its fixed yet in 
+2.4.12.  
 
 -- 
-| Dave Jones.                    http://www.codemonkey.org.uk
-| SuSE Labs .
+Sam
+
+--=_ny.email-scan.com-32514-1003712723-0001-2
+Content-Type: text/plain; charset=us-ascii; name="linux-2.4.7-ioapicdebugfix.patch"
+Content-Transfer-Encoding: base64
+Content-ID: <Pine.LNX.4.33.0110212105220.32144@ny.email-scan.com>
+Content-Description: 
+Content-Disposition: attachment; filename="linux-2.4.7-ioapicdebugfix.patch"
+
+KioqIGxpbnV4L2FyY2gvaTM4Ni9rZXJuZWwvaW9fYXBpYy5jLm9yaWcJVHVl
+IE9jdCAgOSAyMToxMToxMCAyMDAxDQotLS0gbGludXgvYXJjaC9pMzg2L2tl
+cm5lbC9pb19hcGljLmMJVHVlIE9jdCAgOSAyMToxMzowMyAyMDAxDQoqKioq
+KioqKioqKioqKioNCioqKiAxMjQ4LDEyNjEgKioqKg0KICAJYWNrX0FQSUNf
+aXJxKCk7DQogIA0KICAJaWYgKCEodiAmICgxIDw8IChpICYgMHgxZikpKSkg
+ew0KICAjaWZkZWYgQVBJQ19NSVNNQVRDSF9ERUJVRw0KICAJCWF0b21pY19p
+bmMoJmlycV9taXNfY291bnQpOw0KICAjZW5kaWYNCiAgCQlzcGluX2xvY2so
+JmlvYXBpY19sb2NrKTsNCiAgCQlfX21hc2tfYW5kX2VkZ2VfSU9fQVBJQ19p
+cnEoaXJxKTsNCiAgI2lmZGVmIEFQSUNfTE9DS1VQX0RFQlVHDQohIAkJZm9y
+ICg7Oykgew0KISAJCQlzdHJ1Y3QgaXJxX3Bpbl9saXN0ICplbnRyeSA9IGly
+cV8yX3BpbiArIGlycTsNCiAgCQkJdW5zaWduZWQgaW50IHJlZzsNCiAgDQog
+IAkJCWlmIChlbnRyeS0+cGluID09IC0xKQ0KLS0tIDEyNDgsMTI2NCAtLS0t
+DQogIAlhY2tfQVBJQ19pcnEoKTsNCiAgDQogIAlpZiAoISh2ICYgKDEgPDwg
+KGkgJiAweDFmKSkpKSB7DQorICNpZmRlZiBBUElDX0xPQ0tVUF9ERUJVRw0K
+KyAJCXN0cnVjdCBpcnFfcGluX2xpc3QgKmVudHJ5Ow0KKyAjZW5kaWYNCisg
+DQogICNpZmRlZiBBUElDX01JU01BVENIX0RFQlVHDQogIAkJYXRvbWljX2lu
+YygmaXJxX21pc19jb3VudCk7DQogICNlbmRpZg0KICAJCXNwaW5fbG9jaygm
+aW9hcGljX2xvY2spOw0KICAJCV9fbWFza19hbmRfZWRnZV9JT19BUElDX2ly
+cShpcnEpOw0KICAjaWZkZWYgQVBJQ19MT0NLVVBfREVCVUcNCiEgCQlmb3Ig
+KGVudHJ5ID0gaXJxXzJfcGluICsgaXJxOzspIHsNCiAgCQkJdW5zaWduZWQg
+aW50IHJlZzsNCiAgDQogIAkJCWlmIChlbnRyeS0+cGluID09IC0xKQ0K
+--=_ny.email-scan.com-32514-1003712723-0001-2--

@@ -1,74 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263271AbUFBQPp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263483AbUFBQRb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263271AbUFBQPp (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Jun 2004 12:15:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263419AbUFBQPp
+	id S263483AbUFBQRb (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Jun 2004 12:17:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263419AbUFBQRa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Jun 2004 12:15:45 -0400
-Received: from moraine.clusterfs.com ([66.246.132.190]:3309 "EHLO
-	moraine.clusterfs.com") by vger.kernel.org with ESMTP
-	id S263271AbUFBQPn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Jun 2004 12:15:43 -0400
-Date: Wed, 2 Jun 2004 10:15:41 -0600
-From: Andreas Dilger <adilger@clusterfs.com>
-To: Alasdair G Kergon <agk@redhat.com>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] 2/5: Device-mapper: kcopyd
-Message-ID: <20040602161541.GB15785@schnapps.adilger.int>
-Mail-Followup-To: Alasdair G Kergon <agk@redhat.com>,
-	Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-References: <20040602154129.GO6302@agk.surrey.redhat.com>
+	Wed, 2 Jun 2004 12:17:30 -0400
+Received: from websrv.werbeagentur-aufwind.de ([213.239.197.241]:27265 "EHLO
+	websrv.werbeagentur-aufwind.de") by vger.kernel.org with ESMTP
+	id S263483AbUFBQRX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 2 Jun 2004 12:17:23 -0400
+Subject: Re: [PATCH] 5/5: Device-mapper: dm-zero
+From: Christophe Saout <christophe@saout.de>
+To: Jens Axboe <axboe@suse.de>
+Cc: Alasdair G Kergon <agk@redhat.com>, Andrew Morton <akpm@osdl.org>,
+       LKML <linux-kernel@vger.kernel.org>
+In-Reply-To: <20040602160905.GX28915@suse.de>
+References: <20040602154605.GR6302@agk.surrey.redhat.com>
+	 <1086192141.4659.1.camel@leto.cs.pocnet.net>
+	 <20040602160905.GX28915@suse.de>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-YDiCCCNJyOXbUJYg0+Qx"
+Date: Wed, 02 Jun 2004 18:17:06 +0200
+Message-Id: <1086193026.4659.3.camel@leto.cs.pocnet.net>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="kXdP64Ggrk/fb43R"
-Content-Disposition: inline
-In-Reply-To: <20040602154129.GO6302@agk.surrey.redhat.com>
-User-Agent: Mutt/1.4.1i
-X-GPG-Key: 1024D/0D35BED6
-X-GPG-Fingerprint: 7A37 5D79 BF1B CECA D44F  8A29 A488 39F5 0D35 BED6
+X-Mailer: Evolution 1.5.8 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---kXdP64Ggrk/fb43R
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+--=-YDiCCCNJyOXbUJYg0+Qx
+Content-Type: text/plain
 Content-Transfer-Encoding: quoted-printable
 
-On Jun 02, 2004  16:41 +0100, Alasdair G Kergon wrote:
-> kcopyd
+Am Mi, den 02.06.2004 um 18:09 Uhr +0200 schrieb Jens Axboe:
+> On Wed, Jun 02 2004, Christophe Saout wrote:
+> > Am Mi, den 02.06.2004 um 16:46 Uhr +0100 schrieb Alasdair G Kergon:
+> >=20
+> > > +	bio_for_each_segment(bv, bio, i) {
+> > > +		char *data =3D bvec_kmap_irq(bv, &flags);
+> > > +		memset(data, 0, bv->bv_len);
+> >=20
+> > I just noticed, there's a
+> >=20
+> > 		flush_dcache_page(bv->bv_page);
+> >=20
+> > missing here.
+> >=20
+> > > +		bvec_kunmap_irq(bv, &flags);
 >=20
-> --- diff/drivers/md/kcopyd.c	1969-12-31 18:00:00.000000000 -0600
-> +++ source/drivers/md/kcopyd.c	2004-06-01 19:51:31.000000000 -0500
-> @@ -0,0 +1,667 @@
-> +/*
-> + * Copyright (C) 2002 Sistina Software (UK) Limited.
-> + *
-> + * This file is released under the GPL.
-> + */
+> and even worse, passing bad argument to bvec_kunmap_irq().
 
-It might be nice to have a brief comment here explaining what this is
-and how it is supposed to be used.
+Oops. Right.
 
-Cheers, Andreas
+> extern inline void bvec_kunmap_irq(char *buffer, unsigned long *flags)
+> {
+> 	unsigned long ptr =3D (unsigned long) buffer & PAGE_MASK;
+>
+> 	kunmap_atomic((void *) ptr, KM_BIO_SRC_IRQ);
+> 	local_irq_restore(*flags);
+> }
 
-PS - It isn't really nice to exclude yourself from the reply-to list.
---
-Andreas Dilger
-http://sourceforge.net/projects/ext2resize/
-http://www-mddsp.enel.ucalgary.ca/People/adilger/
+What does this & PAGE_MASK do? This looks wrong too.
 
 
---kXdP64Ggrk/fb43R
-Content-Type: application/pgp-signature
-Content-Disposition: inline
+--=-YDiCCCNJyOXbUJYg0+Qx
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: Dies ist ein digital signierter Nachrichtenteil
 
 -----BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.3 (GNU/Linux)
+Version: GnuPG v1.2.4 (GNU/Linux)
 
-iD8DBQFAvf0tpIg59Q01vtYRAmVOAJ4xRy+fM9c/pWUBONIJwieSD+Q80wCdEeIA
-4sw9WmhBkCbGKNp25knA9QU=
-=Q+3K
+iD8DBQBAvf2CZCYBcts5dM0RAq1lAJ9BjZ5cDhmxxXQpsOcoP9GQYjnABQCfetg4
+EApsvz+KUf4dIa+rPe280KA=
+=XsSJ
 -----END PGP SIGNATURE-----
 
---kXdP64Ggrk/fb43R--
+--=-YDiCCCNJyOXbUJYg0+Qx--
+

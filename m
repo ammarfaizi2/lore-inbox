@@ -1,50 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265361AbUFSKAf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265366AbUFSKCr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265361AbUFSKAf (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 19 Jun 2004 06:00:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265366AbUFSKAf
+	id S265366AbUFSKCr (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 19 Jun 2004 06:02:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265395AbUFSKCr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 19 Jun 2004 06:00:35 -0400
-Received: from holomorphy.com ([207.189.100.168]:62860 "EHLO holomorphy.com")
-	by vger.kernel.org with ESMTP id S265361AbUFSKAe (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 19 Jun 2004 06:00:34 -0400
-Date: Sat, 19 Jun 2004 02:59:10 -0700
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Keith Owens <kaos@sgi.com>, linux-kernel@vger.kernel.org
-Subject: Re: [patch 2.6.7] bug_smp_call_function
-Message-ID: <20040619095910.GQ1863@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Andrew Morton <akpm@osdl.org>, Keith Owens <kaos@sgi.com>,
-	linux-kernel@vger.kernel.org
-References: <5328.1087637808@kao2.melbourne.sgi.com> <20040619024416.065f4026.akpm@osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Sat, 19 Jun 2004 06:02:47 -0400
+Received: from babyruth.hotpop.com ([38.113.3.61]:24510 "EHLO
+	babyruth.hotpop.com") by vger.kernel.org with ESMTP id S265366AbUFSKCo
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 19 Jun 2004 06:02:44 -0400
+From: "Antonino A. Daplas" <adaplas@hotpop.com>
+Reply-To: adaplas@pol.net
+To: Geert Uytterhoeven <geert@linux-m68k.org>
+Subject: Re: [Linux-fbdev-devel] 2.6.7 fbcon: set_con2fb on current console = crash
+Date: Sat, 19 Jun 2004 18:03:10 +0800
+User-Agent: KMail/1.5.4
+Cc: Jakub Bogusz <qboosh@pld-linux.org>,
+       Linux Kernel Development <linux-kernel@vger.kernel.org>,
+       Linux Frame Buffer Device Development 
+	<linux-fbdev-devel@lists.sourceforge.net>,
+       pld-kernel@pld-linux.org
+References: <20040618215047.GA4723@satan.blackhosts> <200406191413.44439.adaplas@hotpop.com> <Pine.GSO.4.58.0406191127250.23356@waterleaf.sonytel.be>
+In-Reply-To: <Pine.GSO.4.58.0406191127250.23356@waterleaf.sonytel.be>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20040619024416.065f4026.akpm@osdl.org>
-User-Agent: Mutt/1.5.5.1+cvs20040105i
+Message-Id: <200406191803.10736.adaplas@hotpop.com>
+X-HotPOP: -----------------------------------------------
+                   Sent By HotPOP.com FREE Email
+             Get your FREE POP email at www.HotPOP.com
+          -----------------------------------------------
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Keith Owens <kaos@sgi.com> wrote:
->>  sg.c has been fixed to no longer call vfree() with interrupts disabled.
->>  Change smp_call_function() from WARN_ON to BUG_ON when interrupts are
->>  disabled.  It was only set to WARN_ON because of sg.c.
+On Saturday 19 June 2004 17:28, Geert Uytterhoeven wrote:
+> On Sat, 19 Jun 2004, Antonino A. Daplas wrote:
+> > Thanks.  Actually there's still a critical flaw in the set_con2fbmap
+> > code. For one, con2fb_map is never initialized.  It's just fortunate that
+> > this array happens to be  filled with zeroes so con2fb_map[n] will always
+> > return zero and registered_fb[0] happens to contain a valid info.  So it
+> > works, by accident.
+>
+> According to the C standard, global variables are initialized to zero,
+> unless specified otherwise.
+>
 
-On Sat, Jun 19, 2004 at 02:44:16AM -0700, Andrew Morton wrote:
-> I prefer the WARN_ON.  It is exceedingly unlikely that the bug will cause
-> lockups or memory/data corruption or anything else, so why nuke the user's
-> box when we can trivially continue?
-> We'll be sent the bug report either way.
+I know, but what I meant was con2fb_map[] is never initialized by fbcon.  So 
+if the first valid fbdev is in registered_fb[1], then con2fbmap must be 
+initialized to 1's by fbcon.  It doesn't.  Note, fbdev-2.4 does the 
+initialization correctly.
 
-Calls to smp_call_function() with interrupts off or spinlocks held
-typically causes deadlocks on SMP systems. ISTR debugging such an
-issue in the scheduler a while back, i.e. mmdrop() under rq->lock
-doing vfree() of an LDT. Basically smp_call_function() will spin
-waiting for the other cpus to answer the interrupt on multiple cpus.
-It also doesn't need to be the same function doing smp_call_function();
-generally TLB flushing deadlocks against anything doing this.
+So 2 critical flaws in the code:
+
+1. con2fb_map[] is always zero-set
+2. fbcon assumes that registered_fb[0] is always valid
+
+Both flaws will manifest by doing this:
+
+modprobe fbdev1 - in registered_fb[0]
+modprobe fbdev2 - in registered_fb[1]
+rmmod fbdev1      - registered_fb[0] becomes invalid
+modprobe fbcon  
+	 - con2fb_map[] with zeroes instead of 1's and fbcon_startup looks for 
+fb_info in registered_fb[0] instead of registered_fb[1]
+
+Tony
 
 
--- wli

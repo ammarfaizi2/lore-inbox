@@ -1,51 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265261AbTLFV5U (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 6 Dec 2003 16:57:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265262AbTLFV5U
+	id S265256AbTLFVxJ (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 6 Dec 2003 16:53:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265257AbTLFVxJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 6 Dec 2003 16:57:20 -0500
-Received: from fw.osdl.org ([65.172.181.6]:55694 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S265261AbTLFV5T (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 6 Dec 2003 16:57:19 -0500
-Date: Sat, 6 Dec 2003 13:57:03 -0800 (PST)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Wakko Warner <wakko@animx.eu.org>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: cdrecord hangs my computer
-In-Reply-To: <20031206084032.A3438@animx.eu.org>
-Message-ID: <Pine.LNX.4.58.0312061044450.2092@home.osdl.org>
-References: <Law9-F31u8ohMschTC00001183f@hotmail.com>
- <Pine.LNX.4.58.0312060011130.2092@home.osdl.org> <3FD1994C.10607@stinkfoot.org>
- <20031206084032.A3438@animx.eu.org>
+	Sat, 6 Dec 2003 16:53:09 -0500
+Received: from smtp802.mail.ukl.yahoo.com ([217.12.12.139]:53852 "HELO
+	smtp802.mail.ukl.yahoo.com") by vger.kernel.org with SMTP
+	id S265256AbTLFVxG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 6 Dec 2003 16:53:06 -0500
+From: Dmitry Torokhov <dtor_core@ameritech.net>
+To: Markku Savela <msa@burp.tkv.asdf.org>, zwane@arm.linux.org.uk
+Subject: Re: 2.6.0-test11, TSC cannot be used as a timesource.
+Date: Sat, 6 Dec 2003 16:52:59 -0500
+User-Agent: KMail/1.5.4
+Cc: linux-kernel@vger.kernel.org
+References: <200312061603.hB6G3CrG012634@burp.tkv.asdf.org> <Pine.LNX.4.58.0312061253010.10548@montezuma.fsmlabs.com> <200312062056.hB6Kuh0D001004@burp.tkv.asdf.org>
+In-Reply-To: <200312062056.hB6Kuh0D001004@burp.tkv.asdf.org>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200312061652.59880.dtor_core@ameritech.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-On Sat, 6 Dec 2003, Wakko Warner wrote:
+On Saturday 06 December 2003 03:56 pm, Markku Savela wrote:
+> > From: Zwane Mwaikambo <zwane@arm.linux.org.uk>
+> >
+> > On Sat, 6 Dec 2003, Markku Savela wrote:
+> > > I've seen some references to above problem, but no clear answer.
+> > > The 'ntpd' is complaining a lot...
+> > >
+> > > I have ASUS P4S800. Here is some extracts from dmesg (I can provide
+> > > more complete dump, if anyone wants something specific.)
+> >
+> > Does this only happen when running X11?
 >
-> At the moment, I don't have a burner on a 2.6.0 machine, however, why is
-> ide-scsi depreciated?
+> Hmm.. possibly. When I boot single user, it does not appear to happen.
+>
 
-Several reasons.
+Do you have an ACPI battery stat or thermal monitor apps running (I see
+that you have ACPI active). Does it help it you increase the polling 
+interval? Too many systems spend too much time in SCI handler...
 
-One is just plain confusion - anybody who uses cdrecord has either been
-confused by the silly SCSI numbering (while "dev=/dev/hdc" is not
-confusing at all, and uses the same device you use for mounting the thing
-etc).
-
-Another is that several things did _not_ work well with ide-scsi. Some
-people ended up having to boot with ide-scsi enabled to burn CD's, but
-then if they wanted to watch DVD's (on the same drive), they needed to
-boot without it.
-
->		 On every PC I have that has an ide cd drive, I use
-> ide-scsi.  I like the fact that scd0 is the cdrom drive.
-
-And you liked the fact that you were supposed to write "dev=0,0,0" or
-something strange like that? What a piece of crap it was.
-
-		Linus
+Dmitry
+ 

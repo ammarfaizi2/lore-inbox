@@ -1,53 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262181AbTJ3F23 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 30 Oct 2003 00:28:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262186AbTJ3F23
+	id S262130AbTJ3FnU (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 30 Oct 2003 00:43:20 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262186AbTJ3FnU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 30 Oct 2003 00:28:29 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:60848 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S262181AbTJ3F22
+	Thu, 30 Oct 2003 00:43:20 -0500
+Received: from linux.us.dell.com ([143.166.224.162]:8625 "EHLO
+	lists.us.dell.com") by vger.kernel.org with ESMTP id S262130AbTJ3FnT
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 30 Oct 2003 00:28:28 -0500
-Message-ID: <3FA0A16D.6080607@pobox.com>
-Date: Thu, 30 Oct 2003 00:28:13 -0500
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030703
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: trelane@digitasaru.net
-CC: Bernd Eckenfels <ecki@calista.eckenfels.6bone.ka-ip.net>,
-       linux-kernel@vger.kernel.org
-Subject: Re: Things that Longhorn seems to be doing right
-References: <20031030013418.GD3094@digitasaru.net> <E1AF2xQ-0005xM-00@calista.eckenfels.6bone.ka-ip.net> <20031030031631.GB15309@digitasaru.net>
-In-Reply-To: <20031030031631.GB15309@digitasaru.net>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Thu, 30 Oct 2003 00:43:19 -0500
+Date: Wed, 29 Oct 2003 23:42:54 -0600
+From: Matt Domsch <Matt_Domsch@dell.com>
+To: Patrick Mochel <mochel@osdl.org>
+Cc: Martin Schwidefsky <schwidefsky@de.ibm.com>, linux-kernel@vger.kernel.org
+Subject: Re: Ref-count problem in kset_find_obj?
+Message-ID: <20031029234254.A13162@lists.us.dell.com>
+References: <20031029123820.GA1141@mschwid3.boeblingen.de.ibm.com> <Pine.LNX.4.44.0310291623420.1023-100000@cherise>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <Pine.LNX.4.44.0310291623420.1023-100000@cherise>; from mochel@osdl.org on Wed, Oct 29, 2003 at 04:24:58PM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Joseph Pingenot wrote:
->>From Bernd Eckenfels on Thursday, 30 October, 2003:
+On Wed, Oct 29, 2003 at 04:24:58PM -0800, Patrick Mochel wrote:
 > 
->>In article <20031030013418.GD3094@digitasaru.net> you wrote:
->>
->>>I don't see any reason why we *shouldn't* look at the problem and try to
->>> do it.  What reasons do you see for not persuing the problem to its
->>> inevitible implementation?
->>
->>Just do it. :)
->>Greetings
->>Bernd
+> > The reference count of the kobject to be returned is not
+> > increased before the semaphore is released. A kobject_del/unlink
+> > could remove the object before the called of kset_find_obj is
+> > able to increase the reference count. This makes kset_find_obj
+> > more or less unusable, doesn't it?
 > 
-> 
-> Hee hee.  The Other Shoe Drops.  This ought to be written down as
->   Some-and-Such's Law: All Open Source Debates Will Continue Until Someone
->   Tells Someone Else to Shut Up and Code It.  ;)
+> Yes, you're right. The function is pretty much unused, and I don't have a 
+> problem removing it, provided we can fix up the one user 
+> (arch/i386/kernel/edd.c). Unless of course, you're planning on using it..
 
+At the moment, edd.c doesn't actually use it.  It wants to -
+find_bus() is a useful concept, but I haven't proven that the scsi_bus
+list only has scsi_devices on it, so that code isn't compiled in at
+present.  If the scsi_bus list is clean now, then yes, I'll want to
+turn it back on (after 2.6.0 is out) and will need find_bus() to be
+possible.
 
-What, it's not yet time to invoke Godwin's Law?  ;)
+Thanks,
+Matt
 
-	Jeff
-
-
-
+-- 
+Matt Domsch
+Sr. Software Engineer, Lead Engineer
+Dell Linux Solutions www.dell.com/linux
+Linux on Dell mailing lists @ http://lists.us.dell.com

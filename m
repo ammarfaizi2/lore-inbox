@@ -1,69 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263475AbTL2Pvj (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 29 Dec 2003 10:51:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263491AbTL2Pvj
+	id S263592AbTL2Pyx (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 29 Dec 2003 10:54:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263593AbTL2Pyx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 29 Dec 2003 10:51:39 -0500
-Received: from smtp1.libero.it ([193.70.192.51]:61069 "EHLO smtp1.libero.it")
-	by vger.kernel.org with ESMTP id S263475AbTL2Pvh (ORCPT
+	Mon, 29 Dec 2003 10:54:53 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:155 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S263592AbTL2Pyu (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 29 Dec 2003 10:51:37 -0500
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <16368.19971.604371.882502@gargle.gargle.HOWL>
-Date: Mon, 29 Dec 2003 16:53:39 +0100
-To: Duncan Sands <baldrick@free.fr>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: speedtouch for 2.6.0
-In-Reply-To: <200312291334.01173.baldrick@free.fr>
-References: <16366.61517.501828.389749@gargle.gargle.HOWL>
-	<200312291334.01173.baldrick@free.fr>
-X-Mailer: VM 7.03 under Emacs 21.2.1
-From: "Guldo K" <guldo@tiscali.it>
-Reply-to: "Guldo K" <guldo@tiscali.it>
+	Mon, 29 Dec 2003 10:54:50 -0500
+Date: Mon, 29 Dec 2003 16:54:41 +0100
+From: Arjan van de Ven <arjanv@redhat.com>
+To: Frank van Maarseveen <frankvm@xs4all.nl>, Rob Love <rml@ximian.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: 2.4.23 can run with HZ==0!
+Message-ID: <20031229155441.GA31095@devserv.devel.redhat.com>
+References: <20031228230522.GA1876@janus> <1072691126.5223.5.camel@laptop.fenrus.com> <20031229125240.GA4055@janus> <1072711585.4294.8.camel@fur> <20031229155433.GA4475@janus>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="bp/iNruPH9dso1Pn"
+Content-Disposition: inline
+In-Reply-To: <20031229155433.GA4475@janus>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- > It works the same as the module in 2.4.22 and later.
- > This module was originally only available outside the
- > kernel tree (it can be found for example in the
- > speedbundle on http://linux-usb.sf.net/SpeedTouch).
- > Now that it is in the kernel tree it is pointless to
- > compile it in the speedbundle (and it doesn't work
- > right now for 2.6 kernels).  Just turn it on in your
- > kernel .config and recompile your kernel.
 
-Thanks for your anwser.
-I loaded all modules:
-Module                  Size  Used by
-uhci_hcd               30928  0 
-speedtch               14096  0 
-crc32                   4320  1 speedtch
-tdfx                   37096  0 
-pcspkr                  3300  0 
-tdfxfb                 12456  0 
-cfbimgblt               3136  1 tdfxfb
+--bp/iNruPH9dso1Pn
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-then configured all necessary files.
-All fine. Nice green lights.
+On Mon, Dec 29, 2003 at 04:54:33PM +0100, Frank van Maarseveen wrote:
+> I missed a two or three cases. Hoever, no sign of the tenfold size increase
+> or any fixes inside SCSI ioctls or firewall rules (netfilter code I presume).
 
-But when I ran pppd, I got:
-pppd: /usr/lib/pppd/plugins/pppoatm.so:
- cannot open shared object file: No such file or directory
-pppd: Couldn't load plugin /usr/lib/pppd/plugins/pppoatm.so
+Robert's patchkit is quite incomplete too.
 
-I looked for it and noticed it was in /usr/lib/pppd/2.4.20/,
-so I linked it; but then I got:
-pppd: libatm.so.1: cannot open shared object file: No such file or directory
-pppd: Couldn't load plugin /usr/lib/pppd/plugins/pppoatm.so
+> Arjan, are you sure?
 
-Looks like I missed some piece of installation...
+Yes.
 
-Could you help me?
 
-Grazie,
+--bp/iNruPH9dso1Pn
+Content-Type: application/pgp-signature
+Content-Disposition: inline
 
-*Guldo*
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
 
+iD8DBQE/8E5BxULwo51rQBIRAnXlAKCPmAvo3ykWjG6wKyg+Ohe2OYgwdACeJ4ZE
+nN8bd5LaPKGSc0S5QV9MeRo=
+=Me4j
+-----END PGP SIGNATURE-----
+
+--bp/iNruPH9dso1Pn--

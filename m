@@ -1,72 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262327AbTLEIPg (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 5 Dec 2003 03:15:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263205AbTLEIPf
+	id S263434AbTLEIQ2 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 5 Dec 2003 03:16:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263376AbTLEIQ2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 5 Dec 2003 03:15:35 -0500
-Received: from [211.167.76.68] ([211.167.76.68]:58501 "HELO soulinfo.com")
-	by vger.kernel.org with SMTP id S262327AbTLEIPe (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 5 Dec 2003 03:15:34 -0500
-Date: Fri, 5 Dec 2003 16:14:51 +0800
-From: Hugang <hugang@soulinfo.com>
-To: William Lee Irwin III <wli@holomorphy.com>, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.0-test11-wli-1
-Message-Id: <20031205161451.790ae1ea.hugang@soulinfo.com>
-In-Reply-To: <20031204200120.GL19856@holomorphy.com>
-References: <20031204200120.GL19856@holomorphy.com>
-Organization: Beijing Soul
-X-Mailer: Sylpheed version 0.9.6claws57 (GTK+ 1.2.10; powerpc-unknown-linux-gnu)
+	Fri, 5 Dec 2003 03:16:28 -0500
+Received: from postfix4-1.free.fr ([213.228.0.62]:50838 "EHLO
+	postfix4-1.free.fr") by vger.kernel.org with ESMTP id S263298AbTLEIQZ
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 5 Dec 2003 03:16:25 -0500
+Date: Fri, 5 Dec 2003 09:16:23 +0100
+From: cheuche+lkml@free.fr
+To: linux-kernel@vger.kernel.org
+Subject: Re: NForce2 pseudoscience stability testing (2.6.0-test11) - IRQ flood related ?
+Message-ID: <20031205081623.GA4043@localnet>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+References: <3FCF25F2.6060008@netzentry.com> <1070551149.4063.8.camel@athlonxp.bradney.info> <20031204163243.GA10471@forming> <frodoid.frodo.87vfow33zm.fsf@usenet.frodoid.org> <20031204175548.GB10471@forming> <20031204200208.GA4167@localnet>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20031204200208.GA4167@localnet>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 4 Dec 2003 12:01:20 -0800
-William Lee Irwin III <wli@holomorphy.com> wrote:
+I've just seen something strange about IRQ7, during one test, the
+interrupt counter on IRQ7 was in sync with the timer counter, and the
+difference was about 21400. I rebooted to see what happens at 21.4
+seconds after boot and it is more or less the time some modules get
+loaded by auto-detecting hardware. But unfortunately I now cannot
+reproduced it, I only get bursts of IRQ7 as initially reported.
 
-> Successfully tested on a Thinkpad T21. Any feedback regarding
-> performance would be very helpful. Desktop users should notice top(1)
-> is faster, kernel hackers that kernel compiles are faster, and highmem
-> users should see much less per-process lowmem overhead.
+I also noted in dmesg of 2.6.0-test that part about timer interrupt :
 
-I got this in ppc.
-fs/built-in.o: In function `proc_task_readdir':
-fs/built-in.o(.text+0x2ff44): undefined reference to `__cmpdi2'
-fs/built-in.o(.text+0x2ff44): relocation truncated to fit: R_PPC_REL24 __cmpdi2
-fs/built-in.o(.text+0x2ff6c): undefined reference to `__cmpdi2'
-fs/built-in.o(.text+0x2ff6c): relocation truncated to fit: R_PPC_REL24 __cmpdi2
-make: *** [.tmp_vmlinux1] Error 1
+..TIMER: vector=0x31 pin1=2 pin2=-1
+..MP-BIOS bug: 8254 timer not connected to IO-APIC
+...trying to set up timer (IRQ0) through the 8259A ...  failed.
+...trying to set up timer as Virtual Wire IRQ... failed.
+...trying to set up timer as ExtINT IRQ... works.
 
-apply the patch should fix it.
+This is interesting because 2.4.22 and 2.4.23-pre9 shows :
 
-Index: fs/proc/base.c
-===================================================================
---- fs/proc/base.c	(revision 3)
-+++ fs/proc/base.c	(working copy)
-@@ -1673,12 +1673,13 @@
- 	struct inode *inode = dentry->d_inode;
- 	int retval = -ENOENT;
- 	ino_t ino;
-+	unsigned long pos = filp->f_pos;  /* avoiding "long long" filp->f_pos */
- 
- 	if (!pid_alive(proc_task(inode)))
- 		goto out;
- 	retval = 0;
- 
--	switch (filp->f_pos) {
-+	switch (pos) {
- 	case 0:
- 		ino = inode->i_ino;
- 		if (filldir(dirent, ".", 1, filp->f_pos, ino, DT_DIR) < 0)
+..TIMER: vector=0x31 pin1=2 pin2=0
+..MP-BIOS bug: 8254 timer not connected to IO-APIC
+...trying to set up timer (IRQ0) through the 8259A ...
+..... (found pin 0) ...works.
 
+and then the timer is not in XT-PIC mode but IO-APIC-edge mode, and I
+also noticed there is no flood of IRQ7 with these 2.4 kernels. Is it 
+Related or not with the IRQ flood or the lockups I don't know.
 
--- 
-Hu Gang / Steve
-Email         : hugang@soulinfo.com, steve@soulinfo.com
-GPG FinePrint : 4099 3F1D AE01 1817 68F7  D499 A6C2 C418 86C8 610E
-GPG Public Key: http://soulinfo.com/~hugang/HuGang.asc
-MSN#          : huganglinux@hotmail.com [9:00AM - 5:30PM +8:00]
-RLU#          : 204016 [1999] (Register Linux User)
+By the way 2.4.23 shows the same thing as 2.6.0-test, timer in XT-PIC
+mode and some IRQ7, but way less than 2.6.0-test.
+
+Mathieu

@@ -1,66 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268532AbTANCrd>; Mon, 13 Jan 2003 21:47:33 -0500
+	id <S268538AbTANCrc>; Mon, 13 Jan 2003 21:47:32 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268535AbTANCqj>; Mon, 13 Jan 2003 21:46:39 -0500
-Received: from dp.samba.org ([66.70.73.150]:43916 "EHLO lists.samba.org")
-	by vger.kernel.org with ESMTP id <S268534AbTANCqB>;
+	id <S268534AbTANCql>; Mon, 13 Jan 2003 21:46:41 -0500
+Received: from dp.samba.org ([66.70.73.150]:45196 "EHLO lists.samba.org")
+	by vger.kernel.org with ESMTP id <S268536AbTANCqB>;
 	Mon, 13 Jan 2003 21:46:01 -0500
-From: Rusty Trivial Russell <rusty@rustcorp.com.au>
-To: torvalds@transmeta.com
-Cc: linux-kernel@vger.kernel.org
-Subject: [TRIVIAL] [2.5 patch] MODULE_FORCE_UNLOAD must depend on MODULE_UNLOAD (fwd)
-Date: Tue, 14 Jan 2003 13:25:21 +1100
-Message-Id: <20030114025453.561EF2C43E@lists.samba.org>
+From: Rusty Russell <rusty@rustcorp.com.au>
+To: "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>
+Cc: davidm@hpl.hp.com, Mike Stephens <mike.stephens@intel.com>,
+       linux-kernel@vger.kernel.org, ralf@gnu.org
+Subject: Re: Userspace Test Framework for module loader porting 
+In-reply-to: Your message of "Mon, 13 Jan 2003 14:20:45 BST."
+             <Pine.GSO.3.96.1030113114240.25230B-100000@delta.ds2.pg.gda.pl> 
+Date: Tue, 14 Jan 2003 11:01:15 +1100
+Message-Id: <20030114025453.5ECBB2C440@lists.samba.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From:  Adrian Bunk <bunk@fs.tum.de>
+In message <Pine.GSO.3.96.1030113114240.25230B-100000@delta.ds2.pg.gda.pl> you 
+write:
+> On Mon, 13 Jan 2003, Rusty Russell wrote:
+> 
+> > > I'm also a bit worried about changing module loaders so often.  Yeah,
+> > > once you switch to a kernel-loader, presumably users won't be
+> > > affected, but (kernel-module) developers will be.
+> 
+> Hmm, what's the gain from using shared objects as opposed to relocatables
+> and why is there any for non-PIC objects at all?
 
-  Hi Linus,
-  
-  the patch in the mail forwarded below is still needed in 2.5.56.
-  Rusty already stated that the patch is correct.
-  
-  Please apply
-  Adrian
-  
-  
-  ----- Forwarded message from Adrian Bunk <bunk@fs.tum.de> -----
-  
-  Date:	Wed, 8 Jan 2003 00:07:42 +0100
-  From: Adrian Bunk <bunk@fs.tum.de>
-  To: "Robert P. J. Day" <rpjday@mindspring.com>,
-      rusty@rustcorp.com.au,
-      Linus Torvalds <torvalds@transmeta.com>
-  Cc: Linux kernel mailing list <linux-kernel@vger.kernel.org>
-  Subject: [2.5 patch] MODULE_FORCE_UNLOAD must depend on MODULE_UNLOAD
-  
-  On Wed, Jan 01, 2003 at 02:55:01PM -0500, Robert P. J. Day wrote:
-  
-  >...
-  > Loadable module support
-  >     
-  >     Does "Module unloading" mean whether or not I can run "rmmod"?
-  >   And if I deselect this, why can I still select "Forced module
-  >   unloading"?  Either I can unload or I can't, no?
-  >...
-  
-  Thanks for spotting this, after reading kernel/module.c it seems obvious 
-  to me that you are right. The following simple patch fixes it:
-  
+[ Other maintainers dropped from CC, they're probably not that interested ].
 
---- trivial-2.5.57/init/Kconfig.orig	2003-01-14 12:11:56.000000000 +1100
-+++ trivial-2.5.57/init/Kconfig	2003-01-14 12:11:56.000000000 +1100
-@@ -156,7 +156,7 @@
- 
- config MODULE_FORCE_UNLOAD
- 	bool "Forced module unloading"
--	depends on MODULES && EXPERIMENTAL
-+	depends on MODULE_UNLOAD && EXPERIMENTAL
- 	help
- 	  This option allows you to force a module to unload, even if the
- 	  kernel believes it is unsafe: the kernel will remove the module
--- 
-  Don't blame me: the Monkey is driving
-  File: Adrian Bunk <bunk@fs.tum.de>: [2.5 patch] MODULE_FORCE_UNLOAD must depend on MODULE_UNLOAD (fwd)
+Basically it comes down to ET_DYNs being designed to be easy to load.
+For most archs, new sections don't have to be allocated (eg. plt,
+GOT).  Sections don't have to be sorted, or layed out.  As you point
+out, relocations are bundled nicely together, etc.
+
+On some architectures, making the linker do more of the work makes a
+significant difference (eg. in ia64 it generates the stub code to jump
+out of modules).  The module being layed out continuously, however,
+means we need a "vmalloc_truncate" to free init sections (except for
+archs which use their own alloc functions anyway).
+
+Like most things, it's a tradeoff.  19 archs makes it even more complex.
+Rusty.
+--
+  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.

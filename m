@@ -1,42 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261508AbREQTJT>; Thu, 17 May 2001 15:09:19 -0400
+	id <S261505AbREQTFj>; Thu, 17 May 2001 15:05:39 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261511AbREQTJJ>; Thu, 17 May 2001 15:09:09 -0400
-Received: from vp175062.reshsg.uci.edu ([128.195.175.62]:17671 "EHLO
-	moisil.dev.hydraweb.com") by vger.kernel.org with ESMTP
-	id <S261508AbREQTIv>; Thu, 17 May 2001 15:08:51 -0400
-Date: Thu, 17 May 2001 12:08:45 -0700
-Message-Id: <200105171908.f4HJ8jD17107@moisil.dev.hydraweb.com>
-From: Ion Badulescu <ionut@moisil.cs.columbia.edu>
-To: James Fidell <james@cloud9.co.uk>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: eepro100 rev 12 problems
-In-Reply-To: <20010517165904.C24712@gluttony.corp.cloud9.co.uk>
-User-Agent: tin/1.5.8-20010221 ("Blue Water") (UNIX) (Linux/2.2.19 (i586))
+	id <S261508AbREQTF3>; Thu, 17 May 2001 15:05:29 -0400
+Received: from panic.ohr.gatech.edu ([130.207.47.194]:23021 "HELO
+	havoc.gtf.org") by vger.kernel.org with SMTP id <S261505AbREQTFR>;
+	Thu, 17 May 2001 15:05:17 -0400
+Message-ID: <3B0420EA.DD8D4015@mandrakesoft.com>
+Date: Thu, 17 May 2001 15:05:14 -0400
+From: Jeff Garzik <jgarzik@mandrakesoft.com>
+Organization: MandrakeSoft
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.5-pre3 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: "J . A . Magallon" <jamagallon@able.es>
+Cc: Ingo Oeser <ingo.oeser@informatik.tu-chemnitz.de>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.4.4-ac10
+In-Reply-To: <E150QuA-0005ah-00@the-village.bc.nu> <20010517204616.K754@nightmaster.csn.tu-chemnitz.de> <20010517210023.A1052@werewolf.able.es>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 17 May 2001 16:59:04 +0100, James Fidell <james@cloud9.co.uk> wrote:
-> I have two eepro100 interfaces in a machine, one rev 8, which works just
-> fine, and another rev 12, which appears as a device when the kernel boots
-> and can be configured with an IP address etc., but I can't get any data
-> in or out of it.  All the other hardware looks like it's working fine and
-> all my rev 8 cards work, so I'm led to ask, are there any known problems
-> with eepro100 rev 12 cards under 2.2.18?
+"J . A . Magallon" wrote:
+> --- linux-2.4.4-ac10/include/linux/raid/md_k.h.orig     Thu May 17 19:35:41
+> 2001
+> +++ linux-2.4.4-ac10/include/linux/raid/md_k.h  Thu May 17 19:36:15 2001
+> @@ -38,6 +38,8 @@
+>                 case RAID5:             return 5;
+>         }
+>         panic("pers_to_level()");
+> +
+> +       return 0;
+>  }
 
-Is this a real card, or is it built-in on the motherboard?
+panic should be marked attribute(noreturn), so gcc is being silly here
+by warning at all.
 
-I don't think eepro100 has got much testing with rev > 9, though it should
-have worked. All eepro100 chips are supposed to be backwards compatible with
-the 82557, but maybe our driver initializes some registers in a way that
-upsets newer chips. Not having docs for the newer chips doesn't help, either...
+I do this too, because IMHO its inline and won't make things bigger just
+shut up the warning.  But Alan will yell at you for fixing gcc bugs in
+the kernel source :)
 
-Intel's own e100 driver probably works, their code does things differently if
-rev >= 12 (what they call the D102 revision). Give it a spin, I guess.
-
-Ion
+Also, add a comment "fixes gcc warning" next to the code, so people know
+why it's there.
 
 -- 
-  It is better to keep your mouth shut and be thought a fool,
-            than to open it and remove all doubt.
+Jeff Garzik      | Game called on account of naked chick
+Building 1024    |
+MandrakeSoft     |

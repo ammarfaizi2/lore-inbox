@@ -1,59 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288850AbSAUWrQ>; Mon, 21 Jan 2002 17:47:16 -0500
+	id <S288827AbSAUWzG>; Mon, 21 Jan 2002 17:55:06 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288842AbSAUWrE>; Mon, 21 Jan 2002 17:47:04 -0500
-Received: from zcars0m9.nortelnetworks.com ([47.129.242.157]:17808 "EHLO
-	zcars0m9.ca.nortel.com") by vger.kernel.org with ESMTP
-	id <S288827AbSAUWqn>; Mon, 21 Jan 2002 17:46:43 -0500
-Message-ID: <3C4C9BD1.61ABC1FE@nortelnetworks.com>
-Date: Mon, 21 Jan 2002 17:53:05 -0500
-X-Sybari-Space: 00000000 00000000 00000000
-From: Chris Friesen <cfriesen@nortelnetworks.com>
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.16 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Horst von Brand <brand@jupiter.cs.uni-dortmund.de>
-Cc: Robert Love <rml@tech9.net>, linux-kernel@vger.kernel.org
-Subject: Re: [2.4.17/18pre] VM and swap - it's really unusable
-In-Reply-To: <200201212218.g0LMI8BQ002150@tigger.cs.uni-dortmund.de>
+	id <S288842AbSAUWy4>; Mon, 21 Jan 2002 17:54:56 -0500
+Received: from nat-pool-meridian.redhat.com ([12.107.208.200]:33437 "EHLO
+	devserv.devel.redhat.com") by vger.kernel.org with ESMTP
+	id <S288827AbSAUWyj>; Mon, 21 Jan 2002 17:54:39 -0500
+Date: Mon, 21 Jan 2002 17:54:36 -0500
+From: Pete Zaitcev <zaitcev@redhat.com>
+To: Rainer Krienke <krienke@uni-koblenz.de>
+Cc: Pete Zaitcev <zaitcev@redhat.com>, linux-kernel@vger.kernel.org,
+        nfs@lists.sourceforge.net
+Subject: Re: 2.4.17:Increase number of anonymous filesystems beyond 256?
+Message-ID: <20020121175436.B11889@devserv.devel.redhat.com>
+In-Reply-To: <mailman.1011275640.16596.linux-kernel2news@redhat.com> <200201171855.g0HIt1314492@devserv.devel.redhat.com> <200201181212.g0ICCGq14563@bliss.uni-koblenz.de>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <200201181212.g0ICCGq14563@bliss.uni-koblenz.de>; from krienke@uni-koblenz.de on Fri, Jan 18, 2002 at 01:12:16PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Horst von Brand wrote:
-> 
-> Robert Love <rml@tech9.net> said:
-> 
-> [...]
-> 
-> > It doesn't have to run mostly in the kernel.  It just has to be in the
-> > kernel when the I/O-bound tasks awakes.  Further, there are plenty of
-> > what we consider CPU-bound tasks that are interactive and/or
-> > graphics-oriented and this adds much to their time in the kernel.
-> 
-> Look, I don't know about you, but system (kernel) tieme around here is
-> rarely very high as a %. Perhaps 5% could be called "typical". And it is
-> during those 5% (i.e., something like 5% of the time) any of this stuff
-> will make a difference at all. This will be _hard_ to "feel" (if it is
-> possible to feel at all).
+On Fri, Jan 18, 2002 at 01:12:16PM +0100, Rainer Krienke wrote:
+> On Thursday, 17. January 2002 19:55, Pete Zaitcev wrote:
+> >
+> > I am surprised anyone is interested. If you need more than 800
+> > mounts I think your system planning may be screwed.
 
-As a thought experiment...
+> ease administration we chose the approach to mount each user directory 
+> direcly (via automount configured by NIS) on a NFS client where the user 
+> wants to access his data. The most 
+> important effect of this is, that each users directory is always reachable 
+> under the path /home/<user>.
 
-1) top usually averages over 5 seconds
-2) 5% of 5 seconds is 0.25 seconds
+This is not an unusual setup, but normally servers and
+workstations do not need to mount enormous number of volumes.
+So, I did the same because it's very useful, but I prohibited
+~/.forward. Instead, requests for vacation messages were
+submitted centrally and processed with the help of /etc/aliases
+and automation scripts. This way mailing loops were under control,
+and, as a side effect, sending something to a mailing list
+did not require the mailserver to mount a gazillion of home
+directories in order to fetch ~/.forward for each recipient.
 
+> So I think it would be really good to have at least the option to have more 
+> than 256 NFS mounts even if one has to use unsecure ports for this purpose. 
 
-What I'm getting at is that it is possible that there are cases where we could
-be taking significant amounts of time to respond to something, without the
-overall average being too high.
+Sure... The thing is, the 1279 mounts that I did is not
+even close to being adequate to combat .forward or something
+like separate mounted mail spools for large ISPs. You
+really need 10,000 of mounts, at which point the whole idea of
+anonymous device numbers falls apart.
 
-If we have even a single 0.1 second delay, that's going to be noticeable to the
-user without seriously bumping up system percentages.
-
--- 
-Chris Friesen                    | MailStop: 043/33/F10  
-Nortel Networks                  | work: (613) 765-0557
-3500 Carling Avenue              | fax:  (613) 765-2986
-Nepean, ON K2H 8E9 Canada        | email: cfriesen@nortelnetworks.com
+-- Pete

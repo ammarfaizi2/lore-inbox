@@ -1,63 +1,99 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262109AbTKTS1J (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 20 Nov 2003 13:27:09 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262352AbTKTS1J
+	id S262788AbTKTSa2 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 20 Nov 2003 13:30:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262790AbTKTSa1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 20 Nov 2003 13:27:09 -0500
-Received: from sow.visionpro.com ([63.91.95.5]:18440 "EHLO sow.visionpro.com")
-	by vger.kernel.org with ESMTP id S262109AbTKTS1H (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 20 Nov 2003 13:27:07 -0500
-Message-ID: <F8E34394F337C74EA249580DEE7C240C111C28@chicken.machinevisionproducts.com>
-From: Brian McGrew <brian@visionpro.com>
-To: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
-Subject: Upgrading Kernel kills X ...
-Date: Thu, 20 Nov 2003 10:25:20 -0800
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain;
-	charset="iso-8859-1"
+	Thu, 20 Nov 2003 13:30:27 -0500
+Received: from dsl254-027-160.sea1.dsl.speakeasy.net ([216.254.27.160]:25328
+	"EHLO mail.tranzoa.net") by vger.kernel.org with ESMTP
+	id S262788AbTKTSaZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 20 Nov 2003 13:30:25 -0500
+Date: Thu, 20 Nov 2003 10:30:22 -0800
+From: Scott Robinson <scott@tranzoa.com>
+To: linux-kernel@vger.kernel.org
+Subject: 2.6.0-test4 sidewinder joystick
+Message-ID: <20031120183022.GA7602@tara.mvdomain>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="Dxnq1zWXvFF0Q93v"
+Content-Disposition: inline
+X-Disclaimer: The contents of this e-mail, unless otherwise stated, are the property of David Ryland Scott Robinson. Copyright (C) 2003, All Rights Reserved.
+X-Operating-System: Linux tara 2.6.0-test4
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Good morning,
 
-I have here a very weird situation which I'm hoping that someone can help me
-resolve.  I'm running RedHat 9.0 on a Dell Poweredge 1600 server.  Now the
-stock install of RedHat 9.0 gives me the 2.4.20-8(smp) kernels accordingly.
-Now if I run RedHat's up2date and pull a new kernel from there, I'm fine.  
+--Dxnq1zWXvFF0Q93v
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Where I run into problems, is two fold and this is where it gets confusing.
-I have tried manually upgrading my kernel in a couple different ways.  The
-first is that our company develops software for Linux (RedHat 7.3) and
-therefor, we have a custom kernel package that we install as an RPM.  Works
-great on RedHat 7.3 with this Dell PE1600.  The second method is installing
-kernel source and building it myself (2.4-20 as well as 2.6.0-test9).  If I
-build and install a kernel myself or add our typical rpm kernel, my X server
-is toast.  Someone told me to double check that I have framebuffer support
-turned on, so I did and that did not resolve the problem.
+This is a repeat bug report - originally to the input subsystem mailing list
+and the module maintainer. I received no response and no indication there
+was reception. I have updated the results for -test9. (the bug has existed
+through the entire -test series) This bug does not exist in the 2.4 series.
 
-This box has an ATI Rage XL onboard video card, which typically uses the ATI
-Mach64 driver.  Life is good with RedHat 7.3.  I can put our custom kernel
-on the box or build and install new kernels all day long with no problems.
-It's just that under RedHat 9.0, a non-RedHat kernel upgrade kills my
-Xserver.  When it tries to start X, I get a signal 11.  Also, if I connect
-to the machine from another host, set my display and try and run X with gdb
-attached, even though there is no debug compiled in, I can see that
-apperantly, X is dying in a function that looks like it's trying to probe
-the PCI bus.
+I am using the 2.6.0-test9 kernel. I have loaded the
+joydev/emu10k1-gp/sidewinder modules. The sidewinder driver, however,
+appears to not work properly.
 
-Any help would be great here.  If I have to call someone and pay for
-support, just tell me who to call.  I need to get this fixed, hopefully by
-the end of the day.
+I have a Sidewinder Gamepad connected. I have also tested with my old Gravis
+Gamepad. (analog)
 
-Thanks, best regards,
+[joydev, emu10k1-gp, sidewinder results w/ sidewinder connected]
 
+Nov 20 10:22:38 tara kernel: gameport: pci0000:01:07.1 speed 828 kHz
+Nov 20 10:23:29 tara kernel: drivers/input/joystick/sidewinder.c: Init 0: O=
+pened pci0000:01:07.1/gameport0, io 0xd400, speed 828
+Nov 20 10:23:29 tara kernel: sidewinder.c: Read 0 triplets. []
+Nov 20 10:23:29 tara kernel: drivers/input/joystick/sidewinder.c: Init 1: M=
+ode 1. Length 0.
+Nov 20 10:23:29 tara kernel: sidewinder.c: Read 0 triplets. []
+Nov 20 10:23:29 tara kernel: drivers/input/joystick/sidewinder.c: Init 1b: =
+Length 0.
 
--brian
+joydev/devfs does not create /dev/js0 symlink.
 
-Brian D. McGrew {brian@visionpro.com || brian@doubledimension.com }
---
-> My job is so secret ... I don't know what I do!
+[joydev, emu10k1-gp, analog results w/ sidewinder connected]
 
+Nov 20 10:24:31 tara kernel: gameport: pci0000:01:07.1 speed 828 kHz
+Nov 20 10:24:33 tara kernel: input: Analog 4-axis 4-button joystick at pci0=
+000:01:07.1/gameport0 [TSC timer, 1446 MHz clock, 1239 ns res]
+
+joydev/devfs creates /dev/js0 symlink. jstest /dev/js0 is unresponsive.
+
+[joydev, emu10k1-gp, analog results w/ gravis connected]
+
+Nov 20 10:26:04 tara kernel: gameport: pci0000:01:07.1 speed 828 kHz
+Nov 20 10:26:06 tara kernel: input: Analog 2-axis 4-button joystick at pci0=
+000:01:07.1/gameport0 [TSC timer, 1446 MHz clock, 1250 ns res]
+
+joydev/devfs creates /dev/js0 symlink. jstest /dev/js0 is responsive.
+
+I am not subscribed to the linux-kernel mailing list. (Kernel Traffic is
+enough, thanks! :-D)
+
+Thank you, in advance, for any help you can provide.
+
+Scott.
+
+--=20
+http://quadhome.com/            - Personal webpage
+http://tranzoa.net/             - Corporate webpage
+
+--Dxnq1zWXvFF0Q93v
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.3 (GNU/Linux)
+
+iEYEARECAAYFAj+9CD4ACgkQfOrjFoFaMKI45ACePIWa6qphchtaeuSBeIsih5Qz
+4JQAnR+knIVG9JR5al2Bn/yzm1jmXhx7
+=VC2N
+-----END PGP SIGNATURE-----
+
+--Dxnq1zWXvFF0Q93v--

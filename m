@@ -1,43 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262419AbSI2IPQ>; Sun, 29 Sep 2002 04:15:16 -0400
+	id <S262413AbSI2ILu>; Sun, 29 Sep 2002 04:11:50 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262420AbSI2IPQ>; Sun, 29 Sep 2002 04:15:16 -0400
-Received: from mx1.elte.hu ([157.181.1.137]:27553 "HELO mx1.elte.hu")
-	by vger.kernel.org with SMTP id <S262419AbSI2IPP>;
-	Sun, 29 Sep 2002 04:15:15 -0400
-Date: Sun, 29 Sep 2002 10:25:16 +0200 (CEST)
-From: Ingo Molnar <mingo@elte.hu>
-Reply-To: Ingo Molnar <mingo@elte.hu>
-To: Axel <Axel.Zeuner@gmx.de>
-Cc: NPT library mailing list <phil-list@redhat.com>,
-       <linux-kernel@vger.kernel.org>
-Subject: Re: 2.5.39: Signal delivery to thread groups: Bug or feature
-In-Reply-To: <200209281638.g8SGcQi23877@mx1.redhat.com>
-Message-ID: <Pine.LNX.4.44.0209291023500.12464-100000@localhost.localdomain>
+	id <S262415AbSI2ILu>; Sun, 29 Sep 2002 04:11:50 -0400
+Received: from h24-77-26-115.gv.shawcable.net ([24.77.26.115]:9344 "EHLO
+	completely") by vger.kernel.org with ESMTP id <S262413AbSI2ILt>;
+	Sun, 29 Sep 2002 04:11:49 -0400
+From: Ryan Cumming <ryan@completely.kicks-ass.org>
+To: chrisl@gnuchina.org, "Theodore Ts'o" <tytso@mit.edu>,
+       Andreas Dilger <adilger@clusterfs.com>, linux-kernel@vger.kernel.org,
+       ext2-devel@lists.sourceforge.net
+Subject: Re: [PATCH] fix htree dir corrupt after fsck -fD
+Date: Sun, 29 Sep 2002 01:16:57 -0700
+User-Agent: KMail/1.4.7-cool
+References: <E17uINs-0003bG-00@think.thunk.org> <20020928141330.GA653@think.thunk.org> <20020929070315.GA6876@vmware.com>
+In-Reply-To: <20020929070315.GA6876@vmware.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: Text/Plain;
+  charset="big5"
+Content-Transfer-Encoding: 8bit
+Content-Description: clearsigned data
+Content-Disposition: inline
+Message-Id: <200209290117.02331.ryan@completely.kicks-ass.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-On Sat, 28 Sep 2002, Axel wrote:
+On September 29, 2002 00:03, chrisl@gnuchina.org wrote:
+> I already do the initial test and it fix the problem in kernel and
+> e2fsck.
 
-> I played a little bit with the new clone flags and wrote a small test
-> program using two threads: The first (initial) thread blocks all
-> signals. The second thread is created with all signals blocked and
-> inherits the signal mask of the initial thread. It unblocks SIGINT and
-> calls sys_rt_sigtimedwait with the remaining signal mask. Therefore it
-> waits for all signals with exception of SIGINT. In the kernel this
-> yields to an empty signal mask for this thread during the sigwait. No
-> signal handler is installed by the process. Now an external SIGINT is
-> delivered to the whole process: The signal delivery code decides to send
-> this signal directly to the initial thread because no user handler is
-> installed and the signal mask for this thread blocks the signal. The
-> second thread never receives the SIGINT.
+Still broken here. The short directory inodes are cleared up, but I'm still 
+getting various errors from fsck
 
-could you send me the testcase? Thanks,
+Case 1:
+"Problem in HTREE directory inode 2 (/): bad block 3223649"
 
-	Ingo
+Case 2:
+"Inode 2, i_blocks is 3718, should be 2280
+Directory inode 2 has an unallocated block #377
+Directory inode 2 has an unallocated block #378
+Directory inode 2 has an unallocated block #379"
+etc
 
+This is a completely fresh loopback EXT3 filesystem, untouched by fsck -D, and 
+normally unmounted.
 
+- -Ryan
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.0 (GNU/Linux)
+
+iD8DBQE9lrb9LGMzRzbJfbQRAhpSAKCbkbyiwM8PnpAbN2FvU6tRHM1urwCdEzFK
+WSwjN6jC+0QI0NnJzKc0rX8=
+=HHtV
+-----END PGP SIGNATURE-----

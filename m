@@ -1,47 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293734AbSB1UyG>; Thu, 28 Feb 2002 15:54:06 -0500
+	id <S293726AbSB1Unm>; Thu, 28 Feb 2002 15:43:42 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293732AbSB1UwO>; Thu, 28 Feb 2002 15:52:14 -0500
-Received: from ns.suse.de ([213.95.15.193]:39696 "HELO Cantor.suse.de")
-	by vger.kernel.org with SMTP id <S293739AbSB1UrN>;
-	Thu, 28 Feb 2002 15:47:13 -0500
-Date: Thu, 28 Feb 2002 21:47:12 +0100
+	id <S293730AbSB1UmL>; Thu, 28 Feb 2002 15:42:11 -0500
+Received: from ns.suse.de ([213.95.15.193]:6416 "HELO Cantor.suse.de")
+	by vger.kernel.org with SMTP id <S293720AbSB1Ukt>;
+	Thu, 28 Feb 2002 15:40:49 -0500
+Date: Thu, 28 Feb 2002 21:40:45 +0100
 From: Dave Jones <davej@suse.de>
-To: Nathan Walp <faceprint@faceprint.com>
-Cc: Benjamin Pharr <ben@benpharr.com>, linux-kernel@vger.kernel.org,
-        manfred@colorfullife.com
-Subject: Re: Linux 2.5.5-dj1 - Bug Reports
-Message-ID: <20020228214711.G32662@suse.de>
+To: James Simmons <jsimmons@transvirtual.com>
+Cc: Linux Fbdev development list 
+	<linux-fbdev-devel@lists.sourceforge.net>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] tdfx ported to new fbdev api
+Message-ID: <20020228214045.E32662@suse.de>
 Mail-Followup-To: Dave Jones <davej@suse.de>,
-	Nathan Walp <faceprint@faceprint.com>,
-	Benjamin Pharr <ben@benpharr.com>, linux-kernel@vger.kernel.org,
-	manfred@colorfullife.com
-In-Reply-To: <20020221233700.GA512@hst000004380um.kincannon.olemiss.edu> <20020222022149.N5583@suse.de> <20020222063721.GA8879@faceprint.com> <20020228165951.GA4014@faceprint.com>
+	James Simmons <jsimmons@transvirtual.com>,
+	Linux Fbdev development list <linux-fbdev-devel@lists.sourceforge.net>,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.10.10202280820170.9321-100000@www.transvirtual.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 User-Agent: Mutt/1.2.5i
-In-Reply-To: <20020228165951.GA4014@faceprint.com>; from faceprint@faceprint.com on Thu, Feb 28, 2002 at 11:59:54AM -0500
+In-Reply-To: <Pine.LNX.4.10.10202280820170.9321-100000@www.transvirtual.com>; from jsimmons@transvirtual.com on Thu, Feb 28, 2002 at 08:22:30AM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- > > Ditto here on my natsemi.  It hasn't really spit out the error since
- > > boot, about 12 hours ago.  Card has been mainly idle, only used to
- > > connect via crossover cable to my laptop, which hasn't been used much in
- > > that time.
+On Thu, Feb 28, 2002 at 08:22:30AM -0800, James Simmons wrote:
  > 
- > dj2 is showing the same behavior, but I found out that the messages
- > continue to be printed 100 times/second until I ping-flooded the machine
- > on the other end of that card.  The minimal DHCP traffic prior to the
- > ping flood was not enough to make it stop.
- > 
- > Hope this helps narrow down the problem some.
+ > As you can see I have ported the 3dfx fbdev driver to the new api. It has
+ > been tested on my home system and it works. I like others to try it out.
+ > The patch is against 2.5.5-dj2
+ > http://www.transvirtual.com/~jsimmons/tdfx.diff
 
- Yup, Manfred is aware of the problem, but hasn't had chance to
- look into it yet..  It'll be present at least until you see
- an entry in the changelog 8)
-
+ Is this one different to the one I saw last time?
+ 
 -- 
 | Dave Jones.        http://www.codemonkey.org.uk
 | SuSE Labs

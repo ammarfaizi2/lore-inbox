@@ -1,130 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263574AbUEPMI5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263585AbUEPMMy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263574AbUEPMI5 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 16 May 2004 08:08:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263576AbUEPMI4
+	id S263585AbUEPMMy (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 16 May 2004 08:12:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263576AbUEPMMy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 16 May 2004 08:08:56 -0400
-Received: from cicero0.cybercity.dk ([212.242.40.52]:15369 "EHLO
-	cicero0.cybercity.dk") by vger.kernel.org with ESMTP
-	id S263574AbUEPMIw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 16 May 2004 08:08:52 -0400
-Subject: Kernel OOPS
-From: tmp <skrald@amossen.dk>
-To: linux-kernel@vger.kernel.org
-Content-Type: multipart/mixed; boundary="=-Ex6q8zuP6xRDKoDMrcHn"
-Message-Id: <1084709330.743.8.camel@debian>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Sun, 16 May 2004 14:08:50 +0200
+	Sun, 16 May 2004 08:12:54 -0400
+Received: from smtp-out5.xs4all.nl ([194.109.24.6]:51982 "EHLO
+	smtp-out5.xs4all.nl") by vger.kernel.org with ESMTP id S263585AbUEPMMv
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 16 May 2004 08:12:51 -0400
+In-Reply-To: <20040516034847.GA5774@taniwha.stupidest.org>
+References: <20040512020700.6f6aa61f.akpm@osdl.org> <20040512181903.GG13421@kroah.com> <40A26FFA.4030701@pobox.com> <20040512193349.GA14936@elte.hu> <Pine.LNX.4.58.0405121247011.11950@bigblue.dev.mdolabs.com> <20040512200305.GA16078@elte.hu> <Pine.LNX.4.58.0405121400360.11950@bigblue.dev.mdolabs.com> <20040512213913.GA16658@fieldses.org> <jevfj1nwe1.fsf@sykes.suse.de> <20040516034847.GA5774@taniwha.stupidest.org>
+Mime-Version: 1.0 (Apple Message framework v613)
+Content-Type: multipart/signed; protocol="application/pgp-signature"; micalg=pgp-sha1; boundary="Apple-Mail-65--971975887"
+Message-Id: <F812066A-A731-11D8-BD91-000A95CD704C@wagland.net>
+Content-Transfer-Encoding: 7bit
+Cc: Andrew Morton <akpm@osdl.org>, Davide Libenzi <davidel@xmailserver.org>,
+       Netdev <netdev@oss.sgi.com>, Jeff Garzik <jgarzik@pobox.com>,
+       "J. Bruce Fields" <bfields@fieldses.org>,
+       Andreas Schwab <schwab@suse.de>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Ingo Molnar <mingo@elte.hu>, Greg KH <greg@kroah.com>
+From: Paul Wagland <paul@wagland.net>
+Subject: Re: MSEC_TO_JIFFIES is messed up...
+Date: Sun, 16 May 2004 14:10:06 +0200
+To: Chris Wedgwood <cw@f00f.org>
+X-Pgp-Agent: GPGMail 1.0.1 (v33, 10.3)
+X-Mailer: Apple Mail (2.613)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---=-Ex6q8zuP6xRDKoDMrcHn
-Content-Type: text/plain
+--Apple-Mail-65--971975887
 Content-Transfer-Encoding: 7bit
-
-I get the attached oops message in syslog on my 2.6.6 kernel. I have
-also attached the ksymoops output.
-
-When the oops has occured, I cannot open any shell (including a login
-shell).
+Content-Type: text/plain; charset=US-ASCII; format=flowed
 
 
---=-Ex6q8zuP6xRDKoDMrcHn
-Content-Disposition: attachment; filename=oops1.txt
-Content-Type: text/plain; name=oops1.txt; charset=ISO-8859-15
-Content-Transfer-Encoding: 7bit
+On May 16, 2004, at 5:48, Chris Wedgwood wrote:
 
-May 16 13:29:34 debian kernel: Unable to handle kernel paging request at virtual address 1841b518
-May 16 13:29:34 debian kernel:  printing eip:
-May 16 13:29:34 debian kernel: c016c02e
-May 16 13:29:34 debian kernel: *pde = 00000000
-May 16 13:29:34 debian kernel: Oops: 0000 [#1]
-May 16 13:29:34 debian kernel: CPU:    0
-May 16 13:29:34 debian kernel: EIP:    0060:[proc_get_inode+110/272]    Not tainted
-May 16 13:29:34 debian kernel: EFLAGS: 00010202   (2.6.6) 
-May 16 13:29:34 debian kernel: EIP is at proc_get_inode+0x6e/0x110
-May 16 13:29:34 debian kernel: eax: 00000000   ebx: df107850   ecx: 0114df68   edx: 36013bf9
-May 16 13:29:34 debian kernel: esi: dffec810   edi: dffdee00   ebp: 00000007   esp: d5037e30
-May 16 13:29:34 debian kernel: ds: 007b   es: 007b   ss: 0068
-May 16 13:29:35 debian kernel: Process emacs (pid: 743, threadinfo=d5036000 task=d3ec8030)
-May 16 13:29:35 debian kernel: Stack: df107850 f0000000 df7f19c0 e0820ead dffec810 c5bef353 dffec863 c016e8e3 
-May 16 13:29:35 debian kernel:        dffdee00 f0000000 dffec810 ffffffea 00000000 dffdddd0 d5037f70 c5bef2d0 
-May 16 13:29:35 debian kernel:        c5bef2d0 c016c1d1 dffdddd0 c5bef2d0 d5037f70 fffffff4 dffdde38 dffdddd0 
-May 16 13:29:35 debian kernel: Call Trace:
-May 16 13:29:35 debian kernel:  [pg0+541367981/1069707264] unix_stream_sendmsg+0x24d/0x3a0 [unix]
-May 16 13:29:35 debian kernel:  [proc_lookup+179/192] proc_lookup+0xb3/0xc0
-May 16 13:29:35 debian kernel:  [proc_root_lookup+49/128] proc_root_lookup+0x31/0x80
-May 16 13:29:35 debian kernel:  [real_lookup+203/240] real_lookup+0xcb/0xf0
-May 16 13:29:35 debian kernel:  [do_lookup+150/176] do_lookup+0x96/0xb0
-May 16 13:29:35 debian kernel:  [link_path_walk+1052/2048] link_path_walk+0x41c/0x800
-May 16 13:29:35 debian kernel:  [path_lookup+105/272] path_lookup+0x69/0x110
-May 16 13:29:35 debian kernel:  [open_namei+131/1024] open_namei+0x83/0x400
-May 16 13:29:35 debian kernel:  [__pollwait+0/208] __pollwait+0x0/0xd0
-May 16 13:29:35 debian kernel:  [filp_open+62/112] filp_open+0x3e/0x70
-May 16 13:29:35 debian kernel:  [sys_open+91/144] sys_open+0x5b/0x90
-May 16 13:29:35 debian kernel:  [syscall_call+7/11] syscall_call+0x7/0xb
-May 16 13:29:35 debian kernel: 
-May 16 13:29:35 debian kernel: Code: 8b 46 18 c7 43 38 00 00 00 00 89 43 34 0f b7 46 0e 66 85 c0 
+> On Wed, May 12, 2004 at 11:55:18PM +0200, Andreas Schwab wrote:
+>
+>> Signed integer overflow is undefined in C, so the compiler is
+>> allowed to assume it does not happen.
+>
+> Really?
+>
+> Just because something is undefined assuming it never happens is a bit
+> of a leap of faith IMO.
 
---=-Ex6q8zuP6xRDKoDMrcHn
-Content-Disposition: attachment; filename=ksymoops.txt
-Content-Type: text/plain; name=ksymoops.txt; charset=ISO-8859-15
-Content-Transfer-Encoding: 7bit
+More precisely, if something has undefined semantics then the compiler 
+is allowed to do whatever it likes. Normally the compiler will try to 
+do "what's right", but if they have an optimisation opportunity then 
+they will normally take it.
 
-ksymoops 2.4.9 on i686 2.6.6.  Options used
-     -V (default)
-     -k /proc/ksyms (default)
-     -l /proc/modules (default)
-     -o /lib/modules/2.6.6/ (default)
-     -m /boot/System.map-2.6.6 (specified)
+In other words by assuming it "doesn't happen" they get to perform an 
+optimisation that they could not do otherwise, and they get to perform 
+"correctly" in an undefined way when the overflow would happen.
 
-Error (regular_file): read_ksyms stat /proc/ksyms failed
-No modules in ksyms, skipping objects
-No ksyms, skipping lsmod
-May 16 13:29:34 debian kernel: Unable to handle kernel paging request at virtual address 1841b518
-May 16 13:29:34 debian kernel: c016c02e
-May 16 13:29:34 debian kernel: *pde = 00000000
-May 16 13:29:34 debian kernel: Oops: 0000 [#1]
-May 16 13:29:34 debian kernel: CPU:    0
-May 16 13:29:34 debian kernel: EIP:    0060:[proc_get_inode+110/272]    Not tainted
-May 16 13:29:34 debian kernel: EFLAGS: 00010202   (2.6.6) 
-May 16 13:29:34 debian kernel: eax: 00000000   ebx: df107850   ecx: 0114df68   edx: 36013bf9
-May 16 13:29:34 debian kernel: esi: dffec810   edi: dffdee00   ebp: 00000007   esp: d5037e30
-May 16 13:29:34 debian kernel: ds: 007b   es: 007b   ss: 0068
-May 16 13:29:35 debian kernel: Stack: df107850 f0000000 df7f19c0 e0820ead dffec810 c5bef353 dffec863 c016e8e3 
-May 16 13:29:35 debian kernel:        dffdee00 f0000000 dffec810 ffffffea 00000000 dffdddd0 d5037f70 c5bef2d0 
-May 16 13:29:35 debian kernel:        c5bef2d0 c016c1d1 dffdddd0 c5bef2d0 d5037f70 fffffff4 dffdde38 dffdddd0 
-May 16 13:29:35 debian kernel: Call Trace:
-Warning (Oops_read): Code line not seen, dumping what data is available
+Cheers,
+Paul
 
+--Apple-Mail-65--971975887
+content-type: application/pgp-signature; x-mac-type=70674453;
+	name=PGP.sig
+content-description: This is a digitally signed message part
+content-disposition: inline; filename=PGP.sig
+content-transfer-encoding: 7bit
 
->>ebx; df107850 <pg0+1ed30850/3fc27000>
->>esi; dffec810 <pg0+1fc15810/3fc27000>
->>edi; dffdee00 <pg0+1fc07e00/3fc27000>
->>esp; d5037e30 <pg0+14c60e30/3fc27000>
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (Darwin)
 
-May 16 13:29:35 debian kernel: Code: 8b 46 18 c7 43 38 00 00 00 00 89 43 34 0f b7 46 0e 66 85 c0 
-Using defaults from ksymoops -t elf32-i386 -a i386
+iD8DBQFAp1oftch0EvEFvxURAjQHAKCtnHclFM/KKANPRZzRRzFTe6xp3ACgompl
+RJos9ShkK+bWPqs/guUZhAY=
+=fkYG
+-----END PGP SIGNATURE-----
 
-
-Code;  00000000 Before first symbol
-00000000 <_EIP>:
-Code;  00000000 Before first symbol
-   0:   8b 46 18                  mov    0x18(%esi),%eax
-Code;  00000003 Before first symbol
-   3:   c7 43 38 00 00 00 00      movl   $0x0,0x38(%ebx)
-Code;  0000000a Before first symbol
-   a:   89 43 34                  mov    %eax,0x34(%ebx)
-Code;  0000000d Before first symbol
-   d:   0f b7 46 0e               movzwl 0xe(%esi),%eax
-Code;  00000011 Before first symbol
-  11:   66 85 c0                  test   %ax,%ax
-
-
-1 warning and 1 error issued.  Results may not be reliable.
-
---=-Ex6q8zuP6xRDKoDMrcHn--
+--Apple-Mail-65--971975887--
 

@@ -1,45 +1,77 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267168AbSKUXct>; Thu, 21 Nov 2002 18:32:49 -0500
+	id <S267205AbSKUXlH>; Thu, 21 Nov 2002 18:41:07 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267184AbSKUXct>; Thu, 21 Nov 2002 18:32:49 -0500
-Received: from roc-24-93-20-125.rochester.rr.com ([24.93.20.125]:18423 "EHLO
-	www.kroptech.com") by vger.kernel.org with ESMTP id <S267168AbSKUXcs>;
-	Thu, 21 Nov 2002 18:32:48 -0500
-Date: Thu, 21 Nov 2002 18:39:50 -0500
-From: Adam Kropelin <akropel1@rochester.rr.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Neil Cafferkey <caffer@cs.ucc.ie>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Setting MAC address in ewrk3 driver
-Message-ID: <20021121233950.GB4654@www.kroptech.com>
-References: <20021121195417.A18859@cuc.ucc.ie> <1037914095.9122.0.camel@irongate.swansea.linux.org.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1037914095.9122.0.camel@irongate.swansea.linux.org.uk>
-User-Agent: Mutt/1.3.28i
+	id <S267201AbSKUXlH>; Thu, 21 Nov 2002 18:41:07 -0500
+Received: from mail.science.uva.nl ([146.50.4.51]:47798 "EHLO
+	mail.science.uva.nl") by vger.kernel.org with ESMTP
+	id <S267205AbSKUXlD>; Thu, 21 Nov 2002 18:41:03 -0500
+Message-Id: <200211212347.gALNlVK13868@mail.science.uva.nl>
+X-Organisation: Faculty of Science, University of Amsterdam, The Netherlands
+X-URL: http://www.science.uva.nl/
+Content-Type: text/plain; charset=US-ASCII
+From: Rudmer van Dijk <rudmer@legolas.dynup.net>
+Reply-To: rudmer@legolas.dynup.net
+To: Keith Owens <kaos@ocs.com.au>, linux-kernel@vger.kernel.org
+Subject: Re: Compiling x86 with and without frame pointer
+Date: Fri, 22 Nov 2002 00:47:31 +0100
+X-Mailer: KMail [version 1.3.2]
+Cc: David Zaffiro <davzaffiro@netscape.net>
+References: <19005.1037854033@kao2.melbourne.sgi.com> <224900000.1037900678@flay>
+In-Reply-To: <224900000.1037900678@flay>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+X-Spam-Rating: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Nov 21, 2002 at 09:28:15PM +0000, Alan Cox wrote:
-> On Thu, 2002-11-21 at 19:54, Neil Cafferkey wrote:
-> > Hi,
-> > 
-> > I think I may have found a bug in the ewrk3 network driver. When I try to
-> > change the MAC address of a Digital DE205 NIC using "ifconfig eth0 hw
-> > ether XX:XX:XX:XX:XX:XX", it appears to work ("ifconfig eth0" reports the
-> > new address), but in fact it isn't sending or receiving packets any more.
-> > I'm using kernel version 2.4.10.
+On Thursday 21 November 2002 18:44, Martin J. Bligh wrote:
+> > The conventional wisdom is that compiling x86 without frame pointer
+> > results in smaller code.  It turns out to be the opposite, compiling
+> > with frame pointers results in a smaller kernel.  gcc version 3.2
+> > 20020822 (Red Hat Linux Rawhide 3.2-4).
 > 
-> The default handler assumes the card mac address is set by the "up"
-> method. That driver is old enough it may not do so.
+> I looked at 2.5.47 (with a splattering of performance patches) using 
+> gcc 2.95.4 (Debian Woody), on a 16-way NUMA-Q, and did some kernel
+> compile testing. The times to do the tests were almost identical
+> (within error noise), but the kernel was indeed smaller
+> 
+>    text    data     bss     dec     hex filename
+> 1873293  396231  459388 2728912  29a3d0 2.5.47-mjb1/vmlinux
+> 1427355  396875  455356 2279586  22c8a2 2.5.47-mjb1-frameptr/vmlinux
+> 
+> Wow ... that's quite some difference ;-)
 
-Alan, could you clarify for me? I'm the last guy to diddle with ewrk3 so
-I'll track this down if there is indeed something to track down. ewrk3
-has a private ioctl for setting the mac address. By the "up" method do
-you mean the etherdev open method? Should there be a standard ioctl
-implemented for setting the mac address?
+I also tried it, but it is not that big a difference:
 
---Adam
+   text    data     bss     dec     hex filename  flags
+1991125  306324  270484 2567933  272efd vmlinux    -fomit-frame-pointer
+1981477  306324  270484 2558285  27094d vmlinux    
+1990965  306324  270484 2567773  272e5d vmlinux    -momit-leaf-frame-pointer
 
+this was with gcc 2.95.3 and binutils 2.12 on my lfs system
+
+        Rudmer
+> 
+> > I use -momit-leaf-frame-pointer for optimization in some own 
+> > projects, instead of the "-fomit-frame-pointer". For me, this 
+> > results in better codesize/speed compared to both "-fomit-frame-pointer" 
+> > or no option at all. Actually gcc-2.95 seems to support this feature 
+> > as well, but it never made it into the 2.95 docs...
+> 
+> I tried this, but it seemed to be the same as -fomit-frame-pointer
+> (on 2.95 at least).
+> 
+> Given that omitting the -fomit-frame-pointer makes a smaller kernel,
+> that's easier to debug, I'd say this is a good thing to do unless someone
+> can get *negative* benchmark results. 
+> 
+> M.
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
+> 

@@ -1,78 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262425AbTJFSVb (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Oct 2003 14:21:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263184AbTJFSVb
+	id S262439AbTJFSii (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Oct 2003 14:38:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262677AbTJFSii
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Oct 2003 14:21:31 -0400
-Received: from moutng.kundenserver.de ([212.227.126.189]:27585 "EHLO
-	moutng.kundenserver.de") by vger.kernel.org with ESMTP
-	id S262425AbTJFSVZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Oct 2003 14:21:25 -0400
-Message-ID: <3F81B2A3.4040001@onlinehome.de>
-Date: Mon, 06 Oct 2003 20:21:23 +0200
-From: Hans-Georg Thien <1682-600@onlinehome.de>
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:1.5a) Gecko/20030718
+	Mon, 6 Oct 2003 14:38:38 -0400
+Received: from wsip-68-14-236-254.ph.ph.cox.net ([68.14.236.254]:56042 "EHLO
+	office.lsg.internal") by vger.kernel.org with ESMTP id S262439AbTJFSig
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 6 Oct 2003 14:38:36 -0400
+Message-ID: <3F81B6A1.4030406@backtobasicsmgmt.com>
+Date: Mon, 06 Oct 2003 11:38:25 -0700
+From: "Kevin P. Fleming" <kpfleming@backtobasicsmgmt.com>
+Organization: Back to Basics Network Management
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.4) Gecko/20030624
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: root@chaos.analogic.com
-CC: Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: getting timestamp of last interrupt?
-References: <fa.fj0euih.s2sbop@ifi.uio.no> <fa.fvjdidn.13ni70f@ifi.uio.no> <3F7E46AB.3030709@onlinehome.de> <Pine.LNX.4.53.0310060843500.8593@chaos>
-In-Reply-To: <Pine.LNX.4.53.0310060843500.8593@chaos>
-X-Enigmail-Version: 0.76.7.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
+To: Greg KH <greg@kroah.com>
+CC: Christian Borntraeger <CBORNTRA@de.ibm.com>,
+       Al Viro <viro@parcelfarce.linux.theplanet.co.uk>,
+       Patrick Mochel <mochel@osdl.org>, LKML <linux-kernel@vger.kernel.org>,
+       Dipankar Sarma <dipankar@in.ibm.com>
+Subject: Re: [RFC 0/6] Backing Store for sysfs
+References: <OF6873DDE8.877C0EE8-ONC1256DB7.005F0935-C1256DB7.0060DEDC@de.ibm.com> <20031006174128.GA4460@kroah.com> <3F81ADC8.3090403@backtobasicsmgmt.com> <20031006181134.GA4657@kroah.com> <3F81B339.6040201@backtobasicsmgmt.com> <20031006183056.GA4714@kroah.com>
+In-Reply-To: <20031006183056.GA4714@kroah.com>
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Richard B. Johnson wrote:
-> On Sat, 4 Oct 2003, Hans-Georg Thien wrote:
+Greg KH wrote:
+
+> They might, depending on the patch implementation.  And no, the issue
+> isn't different, as we have to show the memory usage after all kobjects
+> are accessed in sysfs from userspace, not just before, like some of the
+> measurements are, in order to try to compare apples to apples.
 > 
-> 
->>> [...]
->>>>I am looking for a possibility to read out the last timestamp when an
->>>>interrupt has occured.
->>>>
->>>>e.g.: the user presses a key on the keyboard. Where can I read out the
->>>>timestamp of this event?
->>>
->>>
->>>You can get A SIGIO signal for every keyboard, (or other input) event.
->>>What you do with it is entirely up to you. Linux/Unix doesn't have
->>>"callbacks", instead it has signals. It also has select() and poll(),
->>>all useful for handling such events. If you want a time-stamp, you
->>>call gettimeofday() in your signal handler.
->>>
->>
->>Thanks a lot Richard,
->>
->>... but ... can I use signals in kernel mode?
-> 
-> 
-> Well you talked about the user pressing a key and getting
-> a time-stamp as a result. If you need time-stamps
-> inside the kernel, i.e, a module, then you can call
-> the kernel's do_gettimeofday() function.
-> 
-Hello Richard, - It seems, that I should be more precise about what I 
-exactly mean...
 
+My point in saying that they are different was that your original 
+message implied each hotplug event would be walking most (or all) of 
+the sysfs tree _each time_, thus effectively touching all the dentries 
+and inodes in the cache. In actuality during system startup it will 
+appear that this is the case as all the hotplug events occur, but once 
+that flurry is over the caches can release the unused entries. Later 
+hotplug events would only bring in the entries relevant to the 
+specific kobject that the event relates to, so would cause minimal 
+cache pressure.
 
-I'm writing a kernel mode device driver (mouse).
-
-In that device driver I need the timestamp of the last event for another 
-kernel mode device (keyboard).
-
-I do not care if that timestamp is in jiffies or in gettimeofday() 
-format or whatever format does exist in the world. I am absolutely sure 
-I can convert it somehow to fit my needs.
-
-But since it is a kernel mode driver it can not -AFAIK- use the signal() 
-syscall.
-
--Hans
-
-
+Now that I understand how you're expecting hotplug/udev to interact 
+I'll bow out of this thread... I can't even begin to understand the 
+complexities of the patch that's been posted :-)
 

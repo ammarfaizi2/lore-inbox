@@ -1,36 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129525AbQLBLlP>; Sat, 2 Dec 2000 06:41:15 -0500
+	id <S129933AbQLBLv0>; Sat, 2 Dec 2000 06:51:26 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129933AbQLBLlF>; Sat, 2 Dec 2000 06:41:05 -0500
-Received: from sphinx.mythic-beasts.com ([195.82.107.246]:3342 "EHLO
-	sphinx.mythic-beasts.com") by vger.kernel.org with ESMTP
-	id <S129525AbQLBLky>; Sat, 2 Dec 2000 06:40:54 -0500
-Date: Sat, 2 Dec 2000 11:09:51 +0000 (GMT)
-From: Matthew Kirkwood <matthew@hairy.beasts.org>
-To: folkert@vanheusden.com
-cc: "Theodore Y Ts'o" <tytso@mit.edu>, linux-kernel@vger.kernel.org,
-        vpnd@sunsite.auc.dk
-Subject: Re: /dev/random probs in 2.4test(12-pre3)
-In-Reply-To: <E141u3g-0006vY-00@post.mail.nl.demon.net>
-Message-ID: <Pine.LNX.4.10.10012021108350.31306-100000@sphinx.mythic-beasts.com>
+	id <S130272AbQLBLvQ>; Sat, 2 Dec 2000 06:51:16 -0500
+Received: from mandrakesoft.mandrakesoft.com ([216.71.84.35]:3366 "EHLO
+	mandrakesoft.mandrakesoft.com") by vger.kernel.org with ESMTP
+	id <S130216AbQLBLvF>; Sat, 2 Dec 2000 06:51:05 -0500
+Date: Sat, 2 Dec 2000 05:20:29 -0600 (CST)
+From: Jeff Garzik <jgarzik@mandrakesoft.mandrakesoft.com>
+To: Andries Brouwer <aeb@veritas.com>
+cc: Santiago Garcia Mantinan <manty@i.am>, linux-kernel@vger.kernel.org
+Subject: Re: why volatile on vgacon.c?
+In-Reply-To: <20001129185140.A12589@veritas.com>
+Message-ID: <Pine.LNX.3.96.1001202051946.27887H-100000@mandrakesoft.mandrakesoft.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 1 Dec 2000 folkert@vanheusden.com wrote:
+On Wed, 29 Nov 2000, Andries Brouwer wrote:
+> On Wed, Nov 29, 2000 at 05:24:15PM +0100, Santiago Garcia Mantinan wrote:
+> > That was on 2.2 series, but since I moved it to 2.4 series I don't have that
+> > cga card found anymore. I have looked on the kernel code and followed it to
+> > the __init function in vgacon.c, more concretely this piece of code...
 
-> > open("/dev/random", O_RDONLY)           = 3
-> > read(3, "q\321Nu\204\251^\234i\254\350\370\363\"\305\366R\2708V"..., 72) = 29
-> > close(3)                                = 0
+> >         scr_writew(0xAA55, p);
+> >         scr_writew(0x55AA, p + 1);
+> >         if (scr_readw(p) != 0xAA55 || scr_readw(p + 1) != 0x55AA) {
 
-> I've seen that happen with kernel version 2.2.16!
+> > Well, the thing is that this code and the code in this function is almost
+> > the same in 2.4 as in 2.2, however reading returns the written values on 2.2
+> > and different ones (0xffff) on 2.4
 
-Indeed, you are correct.  Is vpnd broken then, for assuming
-that it can gather the required randomness in one read?
+> Probably without the volatile the compiler optimizes the entire
+> if statement away because it very well knows that it just wrote
+> these values there.  With the volatile it has to check, and finds
+> that there is nothing there.
 
-Matthew.
+hmmm.  That's why barriers exist, right?
+
+	Jeff
+
+
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

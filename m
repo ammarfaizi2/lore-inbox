@@ -1,44 +1,60 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265886AbRF2MtL>; Fri, 29 Jun 2001 08:49:11 -0400
+	id <S265899AbRF2NBl>; Fri, 29 Jun 2001 09:01:41 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265881AbRF2MtB>; Fri, 29 Jun 2001 08:49:01 -0400
-Received: from tomcat.admin.navo.hpc.mil ([204.222.179.33]:6483 "EHLO
-	tomcat.admin.navo.hpc.mil") by vger.kernel.org with ESMTP
-	id <S265875AbRF2Msv>; Fri, 29 Jun 2001 08:48:51 -0400
-Date: Fri, 29 Jun 2001 07:48:47 -0500 (CDT)
-From: Jesse Pollard <pollard@tomcat.admin.navo.hpc.mil>
-Message-Id: <200106291248.HAA02327@tomcat.admin.navo.hpc.mil>
-To: blessonpaul@usa.net, linux-kernel@vger.kernel.org
-Subject: Re: [Re: gcc: internal compiler error: program cc1 got fatal signal 11]
-X-Mailer: [XMailTool v3.1.2b]
+	id <S265977AbRF2NBW>; Fri, 29 Jun 2001 09:01:22 -0400
+Received: from mail.muc.eurocyber.net ([195.143.108.5]:29409 "EHLO
+	mail.muc.eurocyber.net") by vger.kernel.org with ESMTP
+	id <S265899AbRF2NBO>; Fri, 29 Jun 2001 09:01:14 -0400
+Message-ID: <3B3C7C13.E7A11B84@TeraPort.de>
+Date: Fri, 29 Jun 2001 15:01:07 +0200
+From: Martin Knoblauch <Martin.Knoblauch@TeraPort.de>
+Organization: TeraPort GmbH
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.5-ac21 i686)
+X-Accept-Language: en, de
+MIME-Version: 1.0
+To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+CC: sbest@us.ibm.com
+Subject: Re: Announcing Journaled File System (JFS) release 1.0.0 available
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> 
-> 
-> "This is almost always the result of flakiness in your hardware - either
-> RAM (most likely), or motherboard (less likely).  "
->                          
->                               I cannot understand this. There are many other
-> stuffs that I compiled with gcc without any problem. Again compilation is only
-> a application. It  only parse and gernerates object files. How can RAM or
-> motherboard makes different
+Hi,
 
-It's most likely flackey memory.
+ first of all congratulations for finishing the initial first release.
+Some questions, just out of curiosity:
 
-Remember- a single bit that dropps can cause the signal 11. It doesn't have
-to happen consistently either. I had the same problem until I slowed down
-memory access (that seemd to cover the borderline chip).
 
-The compiler uses different amounts of memory depending on the source file,
-number of symbols defined (via include headers). When the multiple passes
-occur simultaneously, there is higher memory pressure, and more of the
-free space used. One of the pages may flake out. Compiling the kernel
-puts more pressure on memory than compiling most applications.
+>* Fast recovery after a system crash or power outage 
+>
+>* Journaling for file system integrity 
+>
+>* Journaling of meta-data only 
+>
 
--------------------------------------------------------------------------
-Jesse I Pollard, II
-Email: pollard@navo.hpc.mil
+ does this mean JSF/Linux always journals only the meta-data, or is that
+an option?
+Does it perform full data-journaling under AIX?
 
-Any opinions expressed are solely my own.
+>* Extent-based allocation 
+>
+>* Excellent overall performance 
+>
+>* 64 bit file system 
+>
+>* Built to scale. In memory and on-disk data structures are designed to 
+>  scale beyond practical limit 
+
+ Is this scaling only for size, or also for performance (many disks on
+many controllers) like XFS (at least on SGI iron)?
+
+Thanks
+Martin
+-- 
+------------------------------------------------------------------
+Martin Knoblauch         |    email:  Martin.Knoblauch@TeraPort.de
+TeraPort GmbH            |    Phone:  +49-89-510857-309
+C+ITS                    |    Fax:    +49-89-510857-111
+http://www.teraport.de   |    Mobile: +49-170-4904759

@@ -1,52 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261408AbUJXJtg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261407AbUJXJys@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261408AbUJXJtg (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 24 Oct 2004 05:49:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261416AbUJXJsi
+	id S261407AbUJXJys (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 24 Oct 2004 05:54:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261410AbUJXJyr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 24 Oct 2004 05:48:38 -0400
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:19474 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S261408AbUJXJqz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 24 Oct 2004 05:46:55 -0400
-Date: Sun, 24 Oct 2004 11:46:24 +0200
-From: Adrian Bunk <bunk@stusta.de>
-To: linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org,
-       James.Bottomley@SteelEye.com
-Subject: Re: [2.6 patch] SCSI aic7xxx: kill kernel 2.2 #ifdef's
-Message-ID: <20041024094624.GB4216@stusta.de>
-References: <20041023185609.GC3790@stro.at>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20041023185609.GC3790@stro.at>
-User-Agent: Mutt/1.5.6+20040907i
+	Sun, 24 Oct 2004 05:54:47 -0400
+Received: from merkurneu.hrz.uni-giessen.de ([134.176.2.3]:17144 "EHLO
+	merkurneu.hrz.uni-giessen.de") by vger.kernel.org with ESMTP
+	id S261407AbUJXJyo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 24 Oct 2004 05:54:44 -0400
+Date: Sun, 24 Oct 2004 11:53:45 +0200 (CEST)
+From: Sergei Haller <Sergei.Haller@math.uni-giessen.de>
+X-X-Sender: gc1007@fb07-2go.math.uni-giessen.de
+To: Andi Kleen <ak@muc.de>
+Cc: Andrew Walrond <andrew@walrond.org>, linux-kernel@vger.kernel.org,
+       "Rafael J. Wysocki" <rjw@sisk.pl>
+Subject: Re: lost memory on a 4GB amd64
+In-Reply-To: <20041023164902.GB52982@muc.de>
+Message-Id: <Pine.LNX.4.58.0410241133400.17491@fb07-2go.math.uni-giessen.de>
+References: <Pine.LNX.4.58.0409161445110.1290@magvis2.maths.usyd.edu.au>
+ <200409241315.42740.andrew@walrond.org> <Pine.LNX.4.58.0410221053390.17491@fb07-2go.math.uni-giessen.de>
+ <200410221026.22531.andrew@walrond.org> <20041022182446.GA77384@muc.de>
+ <Pine.LNX.4.58.0410231220400.17491@fb07-2go.math.uni-giessen.de>
+ <20041023164902.GB52982@muc.de>
+Organization: University of Giessen * Germany
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-HRZ-JLUG-MailScanner-Information: Passed JLUG virus check
+X-HRZ-JLUG-MailScanner: Found to be clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Oct 23, 2004 at 08:56:09PM +0200, maximilian attems wrote:
-> 
-> previous was wrong also removed 2.4 compatibility sorry.
-> resent
-> 
-> 
-> the kjt patchset has an similar patch, that got sent to James:
-> the bits below were a leftover of a janitor patch removing
-> aic7xxx and aic79xx old ifdefs.
->...
+On Sat, 23 Oct 2004, Andi Kleen (AK) wrote:
 
-Thanks for this information.
+AK> >   dmesg-2.6.9-smp-noNUMA (working one)
+AK> 
+AK> I bet that if you fill all memory on the non NUMA setup
+AK> it will crash too.
+AK> 
+AK> e.g. run something like this
+AK> 
+AK> #include <stdlib.h>
+AK> #include <string.h>
+AK> #include <unistd.h>
+AK> #include <stdio.h>
+AK> 
+AK> #define MEMSIZE 
+AK> main()
+AK> { 
+AK> 	unsigned long len = (sysconf(_SC_AVPHYS_PAGES) - 10)* getpagesize();
+AK> 	char *mem = malloc(len);
+AK> 	for (;;)  {
+AK> 		memset(mem, 0xff, len); 
+AK> 		printf(".");
+AK> 	}
+AK> } 
 
-This patch seems pretty similar to my patch with the exception that it 
-doesn't remove ahc_power_state_change.
+what's the difference to the program I posted (here a link to an archive:
+  http://marc.theaimsgroup.com/?l=linux-kernel&m=109567610824746&w=4
 
-cu
-Adrian
+other than yours is filling the memory with 0xFF and mine with 0x00 and 
+mine does it only once and yours continuously? 
 
+BTW: I added an fflush(stdout) after the printf and after two lines of
+dots on a 150 cols terminal I just stopped the Program. This is with
+2.6.9-smp-noNUMA.
+
+on a 2.6.9-smp-NUMA, running my program crashes the kernel immediately.
+
+
+c ya
+        Sergei
 -- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
-
+--------------------------------------------------------------------  -?)
+         eMail:       Sergei.Haller@math.uni-giessen.de               /\\
+-------------------------------------------------------------------- _\_V
+Be careful of reading health books, you might die of a misprint.
+                -- Mark Twain

@@ -1,49 +1,89 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131579AbRA0IBh>; Sat, 27 Jan 2001 03:01:37 -0500
+	id <S131622AbRA0IBs>; Sat, 27 Jan 2001 03:01:48 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131665AbRA0IB1>; Sat, 27 Jan 2001 03:01:27 -0500
-Received: from Huntington-Beach.blue-labs.org ([208.179.0.198]:51495 "EHLO
-	Huntington-Beach.Blue-Labs.org") by vger.kernel.org with ESMTP
-	id <S131579AbRA0IBT>; Sat, 27 Jan 2001 03:01:19 -0500
-Message-ID: <3A72804A.E6052E1B@linux.com>
-Date: Sat, 27 Jan 2001 08:01:14 +0000
-From: David Ford <david@linux.com>
-Organization: Blue Labs Software
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.0-ac12 i686)
+	id <S131665AbRA0IBi>; Sat, 27 Jan 2001 03:01:38 -0500
+Received: from horus.its.uow.edu.au ([130.130.68.25]:56988 "EHLO
+	horus.its.uow.edu.au") by vger.kernel.org with ESMTP
+	id <S131622AbRA0IB0>; Sat, 27 Jan 2001 03:01:26 -0500
+Message-ID: <3A72820A.1488BDC@uow.edu.au>
+Date: Sat, 27 Jan 2001 19:08:42 +1100
+From: Andrew Morton <andrewm@uow.edu.au>
+X-Mailer: Mozilla 4.7 [en] (X11; I; Linux 2.4.0-test8 i586)
 X-Accept-Language: en
 MIME-Version: 1.0
-To: LKML <linux-kernel@vger.kernel.org>
-Subject: [PATCH/REQ] Increase kmsg buffer from 16K to 32K, kernel/printk.c
+To: Shawn Starr <Shawn.Starr@Home.net>
+CC: Chris Mason <mason@suse.com>, Gregory Maxwell <greg@linuxpower.cx>,
+        linux-kernel@vger.kernel.org
+Subject: Re: Kernel 2.4.x and 2.4.1-preX - Higher latency then 2.2.xkernels?
+In-Reply-To: <186870000.980100593@tiny> <3A6B6FDE.93AF69CC@Home.net>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Does Linus or anyone object to raising the ksmg buffer from 16K to 32K?
-4/5 systems I have now overflow the buffer during boot before init is
-even launched.
+Shawn,
 
---- linux/kernel/printk.c~    Fri Jan 26 18:50:28 2001
-+++ linux/kernel/printk.c     Fri Jan 26 23:59:31 2001
-@@ -22,7 +22,7 @@
+I've pretty much completed the low-latency patch against reiserfs.
+It seems to be a little more latency-prone than ext2, but under normal
+workloads it's not significant.  The worst-case is 100 milliseconds,
+but that's when you're doing insane things to it.
 
- #include <asm/uaccess.h>
+You may care to apply http://www.uow.edu.au/~andrewm/linux/2.4.1-pre10-low-latency.patch
+against 2.4.1-pre10 and see if it "feels" different.  I'd be surprised
+if it does, but the result would be interresting.
 
--#define LOG_BUF_LEN    (16384)
-+#define LOG_BUF_LEN    (32768)
- #define LOG_BUF_MASK   (LOG_BUF_LEN-1)
+Note that the low-latency capability must be enabled under the
+"Processor type and features" menu, and if you also enable the
+low-latency sysctl option, you'll need to
 
- static char buf[1024];
+	echo 1 > /proc/sys/kernel/lowlatency
 
--d
-
---
-  There is a natural aristocracy among men. The grounds of this are virtue and talents. Thomas Jefferson
-  The good thing about standards is that there are so many to choose from. Andrew S. Tanenbaum
+to make it happen.  Creature feep :)
 
 
-
+Shawn Starr wrote:
+> 
+> Sure, but Im not sure what to test ;)
+> If you've got any special patches for 2.4 lemme know and I'll apply them I've
+> got all night heh
+> 
+> Shawn.
+> 
+> Chris Mason wrote:
+> 
+> > On Saturday, January 20, 2001 02:59:24 PM -0500 Gregory Maxwell
+> > <greg@linuxpower.cx> wrote:
+> >
+> > > On Sat, Jan 20, 2001 at 02:50:16PM -0500, Shawn Starr wrote:
+> > >> It just seems that since using 2.4 ive noticed my poor Pentium 200Mhz
+> > >> slow down whether being in X or otherwise. It just seems that the system
+> > >> is sluggish.
+> > >>
+> > >> I am using the new ReiserFS filesystem and I do know its still in heavy
+> > >> development perhaps my latency is due to this (?)
+> > >
+> > > Reiserfs uses much more complex data structures then ext2 (trees..). I
+> > > don't think that latency has ever been a design criteria and all of the
+> > > benchmarks they use are pretty much pure throughput tests.
+> > >
+> > > So it wouldn't be really surprising if reiserfs had very bad latency. You
+> > > should apply the timepegs patch and profile your kernel latency to see
+> > > where it's coming from.
+> >
+> > I'm actually very interested in fixing any latency problems.  If you do
+> > these tests, please send the results along.
+> >
+> > -chris
+> > -
+> > To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> > the body of a message to majordomo@vger.kernel.org
+> > Please read the FAQ at http://www.tux.org/lkml/
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> Please read the FAQ at http://www.tux.org/lkml/
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

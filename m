@@ -1,146 +1,157 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312446AbSCTLwA>; Wed, 20 Mar 2002 06:52:00 -0500
+	id <S311579AbSCTGA2>; Wed, 20 Mar 2002 01:00:28 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312449AbSCTLvu>; Wed, 20 Mar 2002 06:51:50 -0500
-Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:45316
-	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
-	id <S312446AbSCTLvf>; Wed, 20 Mar 2002 06:51:35 -0500
-Date: Wed, 20 Mar 2002 03:51:20 -0800 (PST)
-From: Andre Hedrick <andre@linux-ide.org>
-To: Martin Dalecki <dalecki@evision-ventures.com>
-cc: Dan Hopper <ku4nf@austin.rr.com>, linux-kernel@vger.kernel.org
-Subject: Re: Promise 20265 IDE chip gets detected in wrong order 2.4.x
-In-Reply-To: <3C987200.4020505@evision-ventures.com>
-Message-ID: <Pine.LNX.4.10.10203200333500.525-100000@master.linux-ide.org>
+	id <S311580AbSCTGAT>; Wed, 20 Mar 2002 01:00:19 -0500
+Received: from vasquez.zip.com.au ([203.12.97.41]:16389 "EHLO
+	vasquez.zip.com.au") by vger.kernel.org with ESMTP
+	id <S311579AbSCTGAH>; Wed, 20 Mar 2002 01:00:07 -0500
+Message-ID: <3C982505.F340B421@zip.com.au>
+Date: Tue, 19 Mar 2002 21:58:29 -0800
+From: Andrew Morton <akpm@zip.com.au>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-pre2 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
+To: Marcelo Tosatti <marcelo@conectiva.com.br>
+CC: lkml <linux-kernel@vger.kernel.org>
+Subject: [patch] x86 BUG handling
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 20 Mar 2002, Martin Dalecki wrote:
+This has been in 2.5 for a few weeks, no problems reported.
 
-> Andre Hedrick wrote:
-> > Hi Martin,
-> > 
-> > You kind of missed a few points and issues, so I would like to offer you
-> > some help.
-> 
-> I don't think so. It is the order on the devices on the PCI bus
-> which matters for the detection order, since linux is just going
-> over the devices in the same order they are reported by the BIOS supplied
-> PCI tables, which are most propably manipulated by the on board BIOS-es
-> of the Fake-RAID controllers.
+We embed the file-and-line info inline after the invalid opcode
+in the program text.  This means that when we hit the invalid
+opcode handler, the stacked machine register info is correct.
+Fixes the problem where the printk() wrecks the non-call-preserved
+registers.
 
-Unlikely, look at the classic ABIT case in the original BP6.  It has an
-exclusive way of preventing the real HBA's from ever being used if it is
-assumed to be a valid INT19 (virtual HBA).  This is present on the TYAN
-251x series.  All of the OEM NB/SB manufacturers specify the ordering of
-their devices.  It is the random board manufacturers who spoof the OS and
-force the need to play hunt and peck for granting access to the primary
-hwgroup pair.  Again, if Linux could support EDDS 2.0 or high much of
-these issues would go away.
+CONFIG_DEBUG_BUGVERBOSE goes away.  Fixes the problem where kernel
+developers don't know where their BUGs are.
 
-> > This is easily address by applying the exclusive rule of the seeking the
-> > SouthBridge device.  Once this is found, one generally assumes this to be
-> > the PCI_BASE_CLASS_BRIDGE + PCI_CLASS_BRIDGE_ISA or 601h.  It will
-> > (should future unknown) have  a function number of 0 "zero".  Once the
-> > location of the SB has been determined one seeks for function 1 "one".
-> > Once SB + func 1 is found, tests for device class PCI_BASE_CLASS_STORAGE +
-> > PCI_CLASS_STORAGE_IDE or 101h.
-> 
-> Yes this would actually make sense. However nowadays
-> I would rather love to encourage everybody to just use partition
-> labels for mount point discrimination instead of plain device
-> names:
+On my fairly lean kernel build, kernel size is reduced by 90 kbytes
+relative to a CONFIG_DEBUG_BUGVERBOSE=y build, due to all the do_BUG()
+calls which aren't there any more.
 
-In theory maybe, in practice it fails (at the current time).
-Real world has shown the act of updating to a kernel which is not approved
-by the OEM distro general breaks on labels.  Now apply this to the upgrade
-path between distro release which you preserve partition in the process.
-Labels fail totally in that case, since they are not set or updated.
 
-> Look for example:
-> 
-> LABEL=/                 /                       ext3    defaults        1 1
-> LABEL=/boot             /boot                   ext3    defaults        1 2
-> 
-> Becouse there are some other occasions where the kernel will have
-> to iterate over PCI devices (suspend/resume comes to mind) and where
-> a different iteration order on behalf of the IDE subsystem may/could
-> introduce subtile missinteractions.
-> 
-> Dan using disk labels would be the most convenient solutions to
-> your problem anyway ;-).
-> 
-> However if I think about it again - I'm not at all sure whatever
-> the root device can be recognized by a label? If not - the grock
-> partitions code has to be extendid accordingly!
+--- 2.4.19-pre3/include/asm-i386/page.h~BUG	Tue Mar 19 21:11:43 2002
++++ 2.4.19-pre3-akpm/include/asm-i386/page.h	Tue Mar 19 21:11:43 2002
+@@ -91,16 +91,18 @@ typedef struct { unsigned long pgprot; }
+ /*
+  * Tell the user there is some problem. Beep too, so we can
+  * see^H^H^Hhear bugs in early bootup as well!
++ * The offending file and line are encoded after the "officially
++ * undefined" opcode for parsing in the trap handler.
+  */
+ 
+-#ifdef CONFIG_DEBUG_BUGVERBOSE
+-extern void do_BUG(const char *file, int line);
+-#define BUG() do {					\
+-	do_BUG(__FILE__, __LINE__);			\
+-	__asm__ __volatile__("ud2");			\
+-} while (0)
++#if 1	/* Set to zero for a slightly smaller kernel */
++#define BUG()				\
++ __asm__ __volatile__(	"ud2\n"		\
++			"\t.word %c0\n"	\
++			"\t.long %c1\n"	\
++			 : : "i" (__LINE__), "i" (__FILE__))
+ #else
+-#define BUG() __asm__ __volatile__(".byte 0x0f,0x0b")
++#define BUG() __asm__ __volatile__("ud2\n")
+ #endif
+ 
+ #define PAGE_BUG(page) do { \
+--- 2.4.19-pre3/arch/i386/kernel/traps.c~BUG	Tue Mar 19 21:11:43 2002
++++ 2.4.19-pre3-akpm/arch/i386/kernel/traps.c	Tue Mar 19 21:11:43 2002
+@@ -237,6 +237,41 @@ bad:
+ 	printk("\n");
+ }	
+ 
++static void handle_BUG(struct pt_regs *regs)
++{
++	unsigned short ud2;
++	unsigned short line;
++	char *file;
++	char c;
++	unsigned long eip;
++
++	if (regs->xcs & 3)
++		goto no_bug;		/* Not in kernel */
++
++	eip = regs->eip;
++
++	if (eip < PAGE_OFFSET)
++		goto no_bug;
++	if (__get_user(ud2, (unsigned short *)eip))
++		goto no_bug;
++	if (ud2 != 0x0b0f)
++		goto no_bug;
++	if (__get_user(line, (unsigned short *)(eip + 2)))
++		goto bug;
++	if (__get_user(file, (char **)(eip + 4)) ||
++		(unsigned long)file < PAGE_OFFSET || __get_user(c, file))
++		file = "<bad filename>";
++
++	printk("kernel BUG at %s:%d!\n", file, line);
++
++no_bug:
++	return;
++
++	/* Here we know it was a BUG but file-n-line is unavailable */
++bug:
++	printk("Kernel BUG\n");
++}
++
+ spinlock_t die_lock = SPIN_LOCK_UNLOCKED;
+ 
+ void die(const char * str, struct pt_regs * regs, long err)
+@@ -244,6 +279,7 @@ void die(const char * str, struct pt_reg
+ 	console_verbose();
+ 	spin_lock_irq(&die_lock);
+ 	bust_spinlocks(1);
++	handle_BUG(regs);
+ 	printk("%s: %04lx\n", str, err & 0xffff);
+ 	show_registers(regs);
+ 	bust_spinlocks(0);
+--- 2.4.19-pre3/arch/i386/kernel/i386_ksyms.c~BUG	Tue Mar 19 21:11:43 2002
++++ 2.4.19-pre3-akpm/arch/i386/kernel/i386_ksyms.c	Tue Mar 19 21:11:43 2002
+@@ -169,9 +169,5 @@ EXPORT_SYMBOL_NOVERS(memset);
+ EXPORT_SYMBOL(atomic_dec_and_lock);
+ #endif
+ 
+-#ifdef CONFIG_DEBUG_BUGVERBOSE
+-EXPORT_SYMBOL(do_BUG);
+-#endif
+-
+ extern int is_sony_vaio_laptop;
+ EXPORT_SYMBOL(is_sony_vaio_laptop);
+--- 2.4.19-pre3/arch/i386/config.in~BUG	Tue Mar 19 21:11:43 2002
++++ 2.4.19-pre3-akpm/arch/i386/config.in	Tue Mar 19 21:11:43 2002
+@@ -424,7 +424,6 @@ if [ "$CONFIG_DEBUG_KERNEL" != "n" ]; th
+    bool '  Memory mapped I/O debugging' CONFIG_DEBUG_IOVIRT
+    bool '  Magic SysRq key' CONFIG_MAGIC_SYSRQ
+    bool '  Spinlock debugging' CONFIG_DEBUG_SPINLOCK
+-   bool '  Verbose BUG() reporting (adds 70K)' CONFIG_DEBUG_BUGVERBOSE
+ fi
+ 
+ endmenu
+--- 2.4.19-pre3/arch/i386/mm/fault.c~BUG	Tue Mar 19 21:11:43 2002
++++ 2.4.19-pre3-akpm/arch/i386/mm/fault.c	Tue Mar 19 21:11:43 2002
+@@ -125,12 +125,6 @@ void bust_spinlocks(int yes)
+ 	}
+ }
+ 
+-void do_BUG(const char *file, int line)
+-{
+-	bust_spinlocks(1);
+-	printk("kernel BUG at %s:%d!\n", file, line);
+-}
+-
+ asmlinkage void do_invalid_op(struct pt_regs *, unsigned long);
+ extern unsigned long idt;
+ 
 
-Yes please to ponder this again and hit it w/ LILO and see the fun.
-However, GRUB may survive better, not sure about so I will ponder GRUB.
-
-Cheers,
-
-Andre Hedrick
-LAD Storage Consulting Group
-
-> > Unless otherwise specifed this shall always be the INT13 device; however,
-> > one does not exclude SCSI/RAID or any other device class having rights to
-> > INT13 hooks.  Since linux does not support these type of BIOS services the
-> > fore mentioned is the preferred ruleset.
-> > 
-> > This would have been applied to 2.5 but you are now free to do so
-> > yourself.  As for all other booting devices under INT19 calls to load
-> > option roms, which in the past have been considered valid, permit
-> > ATA-HBA's to gain access to the priviledge hwgroup pair ide0/ide1.
-> > 
-> > This is all a design of detection ordering to override the nasty tricks
-> > played by chipset venders attempting to do have their secondary host or
-> > hba to be the preferred hardware to use.
-> > 
-> > The history of this problem is a result of HBA's coming to market before
-> > system chipset.  Also people who have very good and useful systems who
-> > want to boost their storage performance tend to drift to the HBA world.
-> > Others who load the system up with every toy in the market place run out
-> > of interrupts early (past w/ ISA physical slots), they find it useful and
-> > practical to disable the legacy host to gain back an additional interrupt
-> > but not loose the total storage device count before the addition of the
-> > HBA.
-> > 
-> > Cheers,
-> > 
-> > Andre Hedrick
-> > LAD Storage Consulting Group
-> > 
-> > On Wed, 20 Mar 2002, Martin Dalecki wrote:
-> > 
-> > 
-> >>Dan Hopper wrote:
-> >>
-> >>>Andre Hedrick <andre@linux-ide.org> remarked:
-> >>>
-> >>>
-> >>>>append="ide=reverse"
-> >>>
-> >>>
-> >>>You're right, this works, too, and is a lot easier to remember than
-> >>>the override I used before.  
-> >>>
-> >>>
-> >>>
-> >>>>Various Mainboard manufacturers do things to place the FAKE-RAID in front
-> >>>>of the the legacy south bridge.  This is classic Windows spoofing.
-> >>>>
-> >>>>
-> >>>>
-> >>>>>PDC20265: IDE controller on PCI bus 00 dev 68
-> >>>>>VP_IDE: IDE controller on PCI bus 00 dev 89
-> >>>>
-> >>>So, the I/O port assignments don't in fact properly determine the
-> >>>assignment order?  I'm gathering from what you're saying that the
-> >>>current behavior is related to PCI bus location?
-> >>
-> >>Precisely: The PCI bus detection order matters.
-> 
-
+-

@@ -1,39 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263287AbSJFDev>; Sat, 5 Oct 2002 23:34:51 -0400
+	id <S263285AbSJFDd0>; Sat, 5 Oct 2002 23:33:26 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263294AbSJFDeu>; Sat, 5 Oct 2002 23:34:50 -0400
-Received: from RAVEL.CODA.CS.CMU.EDU ([128.2.222.215]:1684 "EHLO
-	ravel.coda.cs.cmu.edu") by vger.kernel.org with ESMTP
-	id <S263287AbSJFDeu>; Sat, 5 Oct 2002 23:34:50 -0400
-Date: Sat, 5 Oct 2002 23:40:27 -0400
-To: linux-kernel@vger.kernel.org
-Subject: Re: New BK License Problem?
-Message-ID: <20021006034027.GB21253@ravel.coda.cs.cmu.edu>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-References: <20021005175437.GK585@phunnypharm.org> <20021005112552.A9032@work.bitmover.com> <20021005184153.GJ17492@marowsky-bree.de> <20021005190638.GN585@phunnypharm.org> <3D9F3C5C.1050708@redhat.com> <20021005124321.D11375@work.bitmover.com> <3D9F49D9.304@redhat.com> <20021005162852.I11375@work.bitmover.com> <1033861827.4441.31.camel@irongate.swansea.linux.org.uk> <20021005165316.E12580@work.bitmover.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20021005165316.E12580@work.bitmover.com>
-User-Agent: Mutt/1.4i
-From: Jan Harkes <jaharkes@cs.cmu.edu>
+	id <S263287AbSJFDd0>; Sat, 5 Oct 2002 23:33:26 -0400
+Received: from dhcp101-dsl-usw4.w-link.net ([208.161.125.101]:158 "EHLO
+	grok.yi.org") by vger.kernel.org with ESMTP id <S263285AbSJFDdZ>;
+	Sat, 5 Oct 2002 23:33:25 -0400
+Message-ID: <3D9FB053.4040001@candelatech.com>
+Date: Sat, 05 Oct 2002 20:38:59 -0700
+From: Ben Greear <greearb@candelatech.com>
+Organization: Candela Technologies
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2a) Gecko/20020910
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-kernel <linux-kernel@vger.kernel.org>,
+       "'netdev@oss.sgi.com'" <netdev@oss.sgi.com>
+Subject: Update on e1000 troubles (over-heating!)
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Oct 05, 2002 at 04:53:16PM -0700, Larry McVoy wrote:
-> Anyway, we have the BK data, if you have data that says the rate of change
-> has gone down since he started using BK, let's see it.  If all you are 
-> saying is that he isn't publishing ftp-able snapshots every hour, that's
-> a problem that HPA or whoever could easily fix with a shell script.
+I believe I have figured out why the e1000 crashed my machine
+after .5 - 1 hours:  The NIC was over-heating.  I measured one of
+the NICs after the machine crashed with an external (cheap) temp
+probe.  It registered right at 50 degrees C, and this was about 15-30
+seconds after it crashed.
 
-The BK stats don't prove whether the patch drop rate has improved at
-all, only what got merged.
+The dual e1000 NIC I have seems to run much cooler, and has been
+running at 430Mbps bi-directional on both ports for about 6 hours now
+with no obvious problems.
 
-And even if Linus is dropping fewer patches, that could very well be a
-bad thing. I've had a couple of times that I looked at a dropped patch
-while pulling it up to a new kernel release and thought 'ok, what was I
-smoking'.
+So, I'm going to try to purchase some heat sinks and glue them onto
+the e1000 server nics, to see if that fixes the problem.
 
-Jan
+Hope this proves useful to anyone experiencing similar strange
+crashes!
+
+Thanks,
+Ben
+
+-- 
+Ben Greear <greearb@candelatech.com>       <Ben_Greear AT excite.com>
+President of Candela Technologies Inc      http://www.candelatech.com
+ScryMUD:  http://scry.wanfear.com     http://scry.wanfear.com/~greear
+
 

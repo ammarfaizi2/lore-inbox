@@ -1,41 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263303AbUJ3CUG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261717AbUJ3CjZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263303AbUJ3CUG (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 29 Oct 2004 22:20:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262054AbUJ3CQZ
+	id S261717AbUJ3CjZ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 29 Oct 2004 22:39:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262054AbUJ3CjZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Oct 2004 22:16:25 -0400
-Received: from cantor.suse.de ([195.135.220.2]:12507 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id S263698AbUJ3COz (ORCPT
+	Fri, 29 Oct 2004 22:39:25 -0400
+Received: from hulk.vianw.pt ([195.22.31.43]:3483 "EHLO hulk.vianw.pt")
+	by vger.kernel.org with ESMTP id S261717AbUJ3CjX (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Oct 2004 22:14:55 -0400
-To: Roland Fehrenbacher <rf@q-leap.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Kernel oops on x86_64 2.4.27 with 8GB RAM and sata_sil
-References: <16770.9441.410275.546384@gargle.gargle.HOWL.suse.lists.linux.kernel>
-From: Andi Kleen <ak@suse.de>
-Date: 30 Oct 2004 04:14:42 +0200
-In-Reply-To: <16770.9441.410275.546384@gargle.gargle.HOWL.suse.lists.linux.kernel>
-Message-ID: <p73oeilymst.fsf@verdi.suse.de>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
+	Fri, 29 Oct 2004 22:39:23 -0400
+Message-ID: <4182FED2.8010000@esoterica.pt>
+Date: Sat, 30 Oct 2004 03:39:14 +0100
+From: Paulo da Silva <psdasilva@esoterica.pt>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20041005
+X-Accept-Language: pt, pt-br
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+CC: linux-kernel@vger.kernel.org
+Subject: Re: K 2.6.9 - NFS: lstat causes "permission errors"
+References: <418294CD.8000507@esoterica.pt>
+In-Reply-To: <418294CD.8000507@esoterica.pt>
+X-Enigmail-Version: 0.86.0.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+To: unlisted-recipients:; (no To-header on input)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Roland Fehrenbacher <rf@q-leap.de> writes:
+Paulo da Silva wrote:
 
-> Hi,
-> 
-> I have appended the output of ksymoops obtained from an Oops on an
-> Opteron Server that has 8GB RAM. The Oops occurs when disc access to a
-> SATA disk is attempted. The disk sits on a SIL3114 controller. There
-> is no oops and perfect behaviour if I specify mem=4032M as a kernel
-> parameter. Anybody got an idea what is going on?
+> I am getting several "permission errors" when using
+> "lstat". So far I only found this on Directories.
+> I changed a program to retry the "lstat" whenever
+> a "permission error" occurs and it works successfully.
+>
+I'm also getting "Stale NFS file handle" error when "lstat" and
+"read"  a file. This seems to happen only on a VFAT filesystem
+but I am not sure.
 
-Enable CONFIG_GART_IOMMU
 
-The kernel warned you about this BTW at boot, but you chose to ignore
-the warning.
-
--Andi 

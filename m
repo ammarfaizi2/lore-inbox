@@ -1,47 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261775AbUKIXbx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261779AbUKIXeo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261775AbUKIXbx (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 9 Nov 2004 18:31:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261773AbUKIXbw
+	id S261779AbUKIXeo (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 9 Nov 2004 18:34:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261782AbUKIXeg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 9 Nov 2004 18:31:52 -0500
-Received: from mail.kroah.org ([69.55.234.183]:49077 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S261775AbUKIXar (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 9 Nov 2004 18:30:47 -0500
-Date: Tue, 9 Nov 2004 15:30:16 -0800
-From: Greg KH <greg@kroah.com>
-To: torvalds@osdl.org, Andrew Morton <akpm@osdl.org>,
-       venkatesh.pallipadi@intel.com
-Cc: Kay Sievers <kay.sievers@vrfy.org>, linux-kernel@vger.kernel.org,
-       dtor_core@ameritech.net
-Subject: [PATCH] timer: fix up problem where two sysdev_class devices had the same name.
-Message-ID: <20041109233016.GA8025@kroah.com>
-References: <20041109193043.GA8767@vrfy.org> <20041109225245.GB7618@kroah.com> <d120d50004110915196517dd37@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <d120d50004110915196517dd37@mail.gmail.com>
-User-Agent: Mutt/1.5.6i
+	Tue, 9 Nov 2004 18:34:36 -0500
+Received: from gw02.applegatebroadband.net ([207.55.227.2]:55545 "EHLO
+	data.mvista.com") by vger.kernel.org with ESMTP id S261768AbUKIX3y
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 9 Nov 2004 18:29:54 -0500
+Message-ID: <419152D8.9030303@mvista.com>
+Date: Tue, 09 Nov 2004 15:29:28 -0800
+From: George Anzinger <george@mvista.com>
+Reply-To: george@mvista.com
+Organization: MontaVista Software
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4.2) Gecko/20040308
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Andrew Morton <akpm@osdl.org>
+CC: dhowells@redhat.com, torvalds@osdl.org, davidm@snapgear.com,
+       linux-kernel@vger.kernel.org, uclinux-dev@uclinux.org
+Subject: Re: [PATCH] Additional kgdb hooks
+References: <200411081432.iA8EWf0c023426@warthog.cambridge.redhat.com> <20041108144433.079f0f7c.akpm@osdl.org>
+In-Reply-To: <20041108144433.079f0f7c.akpm@osdl.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Thanks to Kay Sievers for reporting this.  
+Andrew Morton wrote:
+> dhowells@redhat.com wrote:
+> 
+>>The attached patch adds a couple of extra hooks by which kgdb or an equivalent
+>>gdbstub can catch bad_page() and panic() invocations.
+> 
+> 
+> Tom is valiantly flogging his way through a generic KGDB implementation.  I
+> think it would be better to push ahead with that and to not put into
+> generic code hooks which are specific to one arch's kgdb implementation.
+> 
+IMNSHO the trap should be in dump_stack().  That way it catches a bunch of 
+things all at once.
 
-Was caused by a change from Venkatesh Pallipadi as seen at:
-  http://linux.bkbits.net:8080/linux-2.5/cset@41810e4aGZ0E5bn_hMb4JgIY5u90zA
+Also, panic has a notify option that kgdb should use just like everybody else.
 
-Signed-off-by: Greg Kroah-Hartman <greg@kroah.com>
+-- 
+George Anzinger   george@mvista.com
+High-res-timers:  http://sourceforge.net/projects/high-res-timers/
 
-diff -Nru a/arch/i386/kernel/timers/timer_pit.c b/arch/i386/kernel/timers/timer_pit.c
---- a/arch/i386/kernel/timers/timer_pit.c	2004-11-09 15:25:54 -08:00
-+++ b/arch/i386/kernel/timers/timer_pit.c	2004-11-09 15:25:54 -08:00
-@@ -181,7 +181,7 @@
- }
- 
- static struct sysdev_class timer_sysclass = {
--	set_kset_name("timer"),
-+	set_kset_name("timer_pit"),
- 	.resume	= timer_resume,
- };
- 

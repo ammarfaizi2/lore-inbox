@@ -1,76 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262074AbVCUWfk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262073AbVCUWfl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262074AbVCUWfk (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 21 Mar 2005 17:35:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262073AbVCUWdf
+	id S262073AbVCUWfl (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 21 Mar 2005 17:35:41 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262066AbVCUWdO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 21 Mar 2005 17:33:35 -0500
-Received: from fire.osdl.org ([65.172.181.4]:11717 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S262097AbVCUW20 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 21 Mar 2005 17:28:26 -0500
-Date: Mon, 21 Mar 2005 14:28:23 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Marko Rebrina <mrebrina@gmail.com>
-Cc: linux-kernel@vger.kernel.org, Karsten Keil <kkeil@suse.de>
-Subject: Re: Problem with w6692 & kernel >=2.6.10
-Message-Id: <20050321142823.672f0749.akpm@osdl.org>
-In-Reply-To: <dd02451d050303132662482b66@mail.gmail.com>
-References: <dd02451d050303132662482b66@mail.gmail.com>
-X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Mon, 21 Mar 2005 17:33:14 -0500
+Received: from prgy-npn1.prodigy.com ([207.115.54.37]:56511 "EHLO
+	oddball.prodigy.com") by vger.kernel.org with ESMTP id S262105AbVCUW2n
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 21 Mar 2005 17:28:43 -0500
+Message-ID: <423F4BF2.8050603@tmr.com>
+Date: Mon, 21 Mar 2005 17:34:26 -0500
+From: Bill Davidsen <davidsen@tmr.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040913
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: gene.heskett@verizon.net
+CC: Linux and Kernel Video <video4linux-list@redhat.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: 2.6.12-rc1 report
+References: <200503191503.26128.gene.heskett@verizon.net>
+In-Reply-To: <200503191503.26128.gene.heskett@verizon.net>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Marko Rebrina <mrebrina@gmail.com> wrote:
->
-> I have problem with w6692 (mISDN-2005-02-25) & kernel >=2.6.10 (with
-> 2.6.9 is OK!) 
+Gene Heskett wrote:
+> Greetings;
+> 
+> Usually I come looking for a bone when I post here, but today its with 
+> verbal flowers in hand.
+> 
+> I just built 2.6.12-rc1 and I'm pleased to report that the ieee1394 
+> problems that required the bk-ieee1394.patch previously are 
+> apparently alleviated.  Kino worked as expected, including the audio 
+> from the cameras microphones.
+> 
+> tvtime, with my pcHDTV-3000 card, had a miss-cue due to the wrong 
+> modprobe statement in my rc.local, so I cleaned out those modules 
+> that it had loaded, and reloaded them with the 'modprobe cx88_dvb' 
+> statement, which brought that up with working video but raw noise for 
+> audio at about +40db!  Going into its menu's for tv standards I chose 
+> to 'restart with new values' without changing anything which restored 
+> the audio to normal.  Thats happened before, and Jack tells me there 
+> will be another coding session this weekend so there will no doubt be 
+> more patches for that.  This FWIW, was without actually installing 
+> either version of his drivers, so this is nice progress.
+> 
+> My scanner works normally. As does the spca5xx stuffs that I did 
+> install again after the boot.
 
-There haven't been any changes in the w6692 driver for ages, so I'd be
-suspecting PCI changes or something like that.  Are you able to test
-2.6.12-rc1?
+What distro are you using with this? Before I report problems I want to 
+eliminate distro errors of the type you describe.
 
-
-> # lspci
-> 0000:01:07.0 Network controller: Winbond Electronics Corp W6692 (rev 01)
-> 
-> # modprobe w6692pci  protocol=2
-> FATAL: Error inserting w6692pci
-> (/lib/modules/2.6.11/kernel/drivers/isdn/hardware/mISDN/w6692pci.ko):
-> No such device
-> 
-> log:
-> 
-> CAPI Subsystem Rev 1.1.2.8
-> capi20: Rev 1.1.2.7: started up with major 68 (middleware+capifs)
-> Modular ISDN Stack core $Revision: 1.23 $
-> mISDNd: kernel daemon started
-> ISDN L1 driver version 1.11
-> ISDN L2 driver version 1.19
-> mISDN: DSS1 Rev. 1.26
-> Capi 2.0 driver file version 1.14
-> ISAC module $Revision: 1.16 $
-> 
-> Winbond W6692 PCI driver Rev. 1.12
-> ACPI: PCI interrupt 0000:01:07.0[A] -> GSI 19 (level, high) -> IRQ 19
-> mISDN_w6692: found adapter Winbond W6692 at 0000:01:07.0
-> W6692: Winbond W6692 version (0): W6692 V00
-> kcapi: Controller 1: mISDN1 attached
-> mISDNd: test event done
-> w6692: IRQ 19 count 4
-> kcapi: card 1 "mISDN1" ready.
-> w6692 1 cards installed
-> try_ok(13) try_wait(0) try_mult(0) try_inirq(0)
-> irq_ok(4) irq_fail(0)
-> release_l1 id 1
-> release_udss1 refcnt 1 l3(f39faa40) inst(f39faab8)
-> kcapi: card 1 down.
-> kcapi: Controller 1: mISDN1 unregistered
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+-- 
+    -bill davidsen (davidsen@tmr.com)
+"The secret to procrastination is to put things off until the
+  last possible moment - but no longer"  -me

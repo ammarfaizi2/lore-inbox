@@ -1,41 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271760AbRH0Phk>; Mon, 27 Aug 2001 11:37:40 -0400
+	id <S271757AbRH0PlV>; Mon, 27 Aug 2001 11:41:21 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271758AbRH0Pha>; Mon, 27 Aug 2001 11:37:30 -0400
-Received: from sweetums.bluetronic.net ([24.162.254.3]:43494 "EHLO
-	sweetums.bluetronic.net") by vger.kernel.org with ESMTP
-	id <S271761AbRH0PhO>; Mon, 27 Aug 2001 11:37:14 -0400
-Date: Mon, 27 Aug 2001 11:37:13 -0400 (EDT)
-From: Ricky Beam <jfbeam@bluetopia.net>
-X-X-Sender: <jfbeam@sweetums.bluetronic.net>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: Casanova Robert <robert.casanova@grifols.com>,
-        <linux-kernel@vger.kernel.org>
-Subject: Re: "Machine Exception Check.... " with the last kernel?
-In-Reply-To: <E15bJse-0003gG-00@the-village.bc.nu>
-Message-ID: <Pine.GSO.4.33.0108271133260.23852-100000@sweetums.bluetronic.net>
+	id <S271762AbRH0PlL>; Mon, 27 Aug 2001 11:41:11 -0400
+Received: from [212.93.134.61] ([212.93.134.61]:13842 "EHLO zebra.sibnet.ro")
+	by vger.kernel.org with ESMTP id <S271757AbRH0PlB>;
+	Mon, 27 Aug 2001 11:41:01 -0400
+Date: Mon, 27 Aug 2001 18:51:49 -0400 (EDT)
+From: <sacx@zebra.sibnet.ro>
+To: <linux-kernel@vger.kernel.org>
+Subject: module
+Message-ID: <Pine.LNX.4.33L2.0108271826510.32587-100000@zebra.sibnet.ro>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 27 Aug 2001, Alan Cox wrote:
->> someone know how to resolver the
->> "Machine Exception Check.... " with the last kernel?
->
->Machine Check Exception is a trap the processor takes when it finds itself
->internally inconsistent. Check the cooling, voltages and clock speeds are
+Hi,
 
-Umm, that still doesn't address the question.  What good is it if there's
-nothing to decode the damned numbers? (and it's not documented at all.)
+	I'm trying to comunicate some parameters from kernel to a module.
+	I define a new function somwhere in kernel and after rebuilding
+the version of my function is something like :
 
->right. Its your CPU telling you it noticed things didnt seem happy.
+c027b7f0 function_R__ver_function (# cat /proc/ksyms | grep function)
+(somewhere in *.ver files I can see the correct version)
+And if I want to insert my module in kernel I get an error :
+func.o: unresolved symbol function (because of the wrong function version)
 
-... Or a compaq laptop signalling APM events.  2.4.9 locks up within
-nanoseconds of beginning to activate MCE on my Compaq LTE5400 (P150.)
-I have to turn it off to get the machine to boot ("nomce")
+Something is wrong, but I don't know what ...
 
---Ricky
+You can help me ?
+
+Best Regards
+Adrian Stanila
+
+P.S. I'm a newbie in kernel hacking and I don't want to disturb you but
+if you can help me ... please answer to my email :)))
 
 

@@ -1,24 +1,22 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285462AbRLSUQx>; Wed, 19 Dec 2001 15:16:53 -0500
+	id <S285451AbRLSUPK>; Wed, 19 Dec 2001 15:15:10 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S285456AbRLSUPV>; Wed, 19 Dec 2001 15:15:21 -0500
-Received: from smtp1.vol.cz ([195.250.128.73]:9481 "EHLO smtp1.vol.cz")
-	by vger.kernel.org with ESMTP id <S285454AbRLSUPM>;
-	Wed, 19 Dec 2001 15:15:12 -0500
-Date: Mon, 10 Dec 2001 12:03:30 +0100
+	id <S285453AbRLSUPC>; Wed, 19 Dec 2001 15:15:02 -0500
+Received: from smtp1.vol.cz ([195.250.128.73]:49672 "EHLO smtp1.vol.cz")
+	by vger.kernel.org with ESMTP id <S285451AbRLSUOo>;
+	Wed, 19 Dec 2001 15:14:44 -0500
+Date: Thu, 13 Dec 2001 22:42:25 +0100
 From: Pavel Machek <pavel@suse.cz>
-To: Cory Bell <cory.bell@usa.net>
-Cc: John Clemens <john@deater.net>,
-        Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>,
-        linux-kernel@vger.kernel.org
-Subject: Re: IRQ Routing Problem on ALi Chipset Laptop (HP Pavilion N5425)
-Message-ID: <20011210120329.A120@elf.ucw.cz>
-In-Reply-To: <Pine.LNX.4.33.0112060938340.32381-100000@pianoman.cluster.toy> <1007685691.6675.1.camel@localhost.localdomain> <20011207213313.A176@elf.ucw.cz> <1007876254.17062.0.camel@localhost.localdomain>
+To: Robert Love <rml@tech9.net>
+Cc: Ton Hospel <linux-kernel@ton.iguana.be>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Make highly niced processes run only when idle
+Message-ID: <20011213224225.B129@elf.ucw.cz>
+In-Reply-To: <75F30A52-ECF4-11D5-80FE-00039355CFA6@suespammers.org> <1007939114.878.1.camel@phantasy> <9v3nvj$a99$1@post.home.lunix> <1008035682.4287.3.camel@phantasy>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1007876254.17062.0.camel@localhost.localdomain>
+In-Reply-To: <1008035682.4287.3.camel@phantasy>
 User-Agent: Mutt/1.3.23i
 X-Warning: Reading this can be dangerous to your mental health.
 Sender: linux-kernel-owner@vger.kernel.org
@@ -26,51 +24,23 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 Hi!
 
-> > Hey, this gross hack fixed USB on HP OmniBook xe3. Good! (Perhaps you
-> > know what interrupt is right for maestro3, also on omnibook? ;-).
+> > Please don't. Whenever you think you priority inheritance, it's a sign your 
+> > system has got too complicated. The simplest solution is to simply have no
+> > priorities when a task is in-kernel (or at least non that can completely
+> > exclude a task).
 > 
-> On my Pavilion (and the other 5400's as far as I can tell), maestro's on
-> irq 5. Wanna send me a "dump_pirq" and a "lspci -vvvxxx"? Could you try
-> the patch below (inspired by/stolen from Kai Germaschewski)? Also, the
-> newest acpi patch will print out the acpi irq routing table - might have
-> your info. You can tell if the patch below had any effect because it
-> will say it ASSIGNED IRQ XX instead of FOUND.
+> I agree, I said it was overkill.
+> 
+> My solution is going to be to schedule the task as a SCHED_OTHER task
+> when in the kernel, and as SCHED_IDLE task otherwise.
 
-lspci attached to another mail.
+Yep, and you can do it without making syscalls any slower, and patch
+was already on l-k.
 
-This patch makes ohci work for me, but maestro is still broken.
+Use ptrace-hooks for branching into your priority-promoting code, and
+you'll have 0 impact on fast path.
 
 								Pavel
-> The "honor the irq mask" approach (works on my machine):
-> --- /home/cbell/linux-2.4/arch/i386/kernel/pci-irq.c	Fri Dec  7 01:51:41 2001
-> +++ /home/cbell/linux-2.4-test/arch/i386/kernel/pci-irq.c	Sat Dec  8 21:04:37 2001
-> @@ -581,6 +581,7 @@
->  	 * reported by the device if possible.
->  	 */
->  	newirq = dev->irq;
-> +	if (!((1 << newirq) & mask)) newirq = 0;
->  	if (!newirq && assign) {
->  		for (i = 0; i < 16; i++) {
->  			if (!(mask & (1 << i)))
-> @@ -599,7 +600,7 @@
->  		irq = pirq & 0xf;
->  		DBG(" -> hardcoded IRQ %d\n", irq);
->  		msg = "Hardcoded";
-> -	} else if (r->get && (irq = r->get(pirq_router_dev, dev, pirq))) {
-> +	} else if (r->get && (irq = r->get(pirq_router_dev, dev, pirq) && ((1 << irq) & mask))) {
->  		DBG(" -> got IRQ %d\n", irq);
->  		msg = "Found";
->  	} else if (newirq && r->set && (dev->class >> 8) != PCI_CLASS_DISPLAY_VGA) {
-> @@ -633,7 +634,7 @@
->  			continue;
->  		if (info->irq[pin].link == pirq) {
->  			/* We refuse to override the dev->irq information. Give a warning! */
-> -		    	if (dev2->irq && dev2->irq != irq) {
-> +		    	if (dev2->irq && dev2->irq != irq && ((1 << dev2->irq) & mask)) {
->  		    		printk(KERN_INFO "IRQ routing conflict for %s, have irq %d, want irq %d\n",
->  				       dev2->slot_name, dev2->irq, irq);
->  		    		continue;
-
 -- 
 "I do not steal MS software. It is not worth it."
                                 -- Pavel Kankovsky

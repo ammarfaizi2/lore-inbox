@@ -1,59 +1,67 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293632AbSCZKsQ>; Tue, 26 Mar 2002 05:48:16 -0500
+	id <S310501AbSCZKr4>; Tue, 26 Mar 2002 05:47:56 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S310515AbSCZKsH>; Tue, 26 Mar 2002 05:48:07 -0500
-Received: from otto.colonization.com ([128.171.80.37]:40452 "EHLO
-	otto.cfht.hawaii.edu") by vger.kernel.org with ESMTP
-	id <S293632AbSCZKsD>; Tue, 26 Mar 2002 05:48:03 -0500
-Date: Tue, 26 Mar 2002 00:48:00 -1000
-From: Sidik Isani <lksi@cfht.hawaii.edu>
-Message-Id: <200203261048.AAA12444@otto.cfht.hawaii.edu>
-To: linux-kernel@vger.kernel.org
-Subject: PROBLEM: Timer interrupt stopped (2.2.20, 2.4.x)
+	id <S293632AbSCZKrt>; Tue, 26 Mar 2002 05:47:49 -0500
+Received: from mailout04.sul.t-online.com ([194.25.134.18]:48336 "EHLO
+	mailout04.sul.t-online.com") by vger.kernel.org with ESMTP
+	id <S310501AbSCZKrd> convert rfc822-to-8bit; Tue, 26 Mar 2002 05:47:33 -0500
+Message-Id: <200203261017.g2QAHJEI024182@codeman.linux-systeme.org>
+Content-Type: text/plain;
+  charset="iso-8859-1"
+From: Marc-Christian Petersen <mcp@linux-systeme.de>
+Reply-To: mcp@linux-systeme.de
+Organization: Linux-Systeme GmbH
+To: Samuel Maftoul <maftoul@esrf.fr>
+Subject: Re: [ANNOUNCE] Kernel 2.4.18-WOLK3.1
+Date: Tue, 26 Mar 2002 11:16:50 +0100
+X-Mailer: KMail [version 1.3.2]
+In-Reply-To: <200203251821.g2PIL7oA005522@codeman.linux-systeme.org> <20020326102557.B25079@pcmaftoul.esrf.fr>
+Cc: lkml <linux-kernel@vger.kernel.org>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello -
+On Tuesday 26 March 2002 10:25, you wrote:
 
-  We've been seeing intermittent (~weekly) lock-ups with our PCs which
-  never happened with the 2.2.16 kernel.  Today the console on one
-  of them froze shortly after booting up to the text login (no X).
-  But this particular time, it still accepts ssh connections, so
-  is there anything I should check while it is in this state?
-  /proc/interrupts shows one very interesting thing:
+Hi Samuel,
 
-           CPU0
-  0:      63444    IO-APIC-edge  timer       <-- Not incrementing anymore!
-  1:          2    IO-APIC-edge  keyboard
-  2:          0          XT-PIC  cascade
-  8:          0    IO-APIC-edge  rtc
- 12:        245    IO-APIC-edge  PS/2 Mouse
- 13:          1          XT-PIC  fpu
- 14:        858    IO-APIC-edge  ide0
- 15:          7    IO-APIC-edge  ide1
- 19:     110413   IO-APIC-level  usb-uhci, eth0
-NMI:          0
-ERR:          0
+> First of all, I'm happy to see such a Patchset, Thanks.
+:-) Thanks that you are using it :)
 
-  Mouse and keyboard interrupts are also not incrementing, but the disk
-  and network interrupts are.  The kernel seems happy (no errors logged.)
+> you're version name is WOLK in uppercase.
+> I would like to ask if there is a naming convention for kernel trees:
+> make-kpkg, which is the kernel source/image packager of the debian,
+> doesn't support release names in uppercases:
+> ---------------------------------------------------------------------
+> Lion:/usr/src/linux# make-kpkg
+> debian/rules:966: *** Error. The version number 2.4.18-WOLK3.1 is not
+> all lowercase. Since the version ends up in the package name of the
+> kernel image package, this is a Debian policy violation, and the
+> packaging system shall refuse to package the image. . Stop.
+> ---------------------------------------------------------------------
+> Could you rename your EXTRAVERSION with wolk ? or is it a Debian
+> limitation ?
+Yes, i know of that limitation of make-kpkg, but i have forgotton to rename 
+it for WOLK 3.1. You can do so easily for yourself my editing the patched 
+kernel/full wolk kernel File Makefile and look for EXTRAVERSION = -WOLK3.1 
+and rename it to -wolk3.1. Its in the 4th line of that File, or, if you 
+haven't patched the vanilla at all or want to change it permanently for the 
+patchset, edit 99_VERSION, look for +EXTRAVERSION = -WOLK3.1 and rename it 
+too.
 
-Linux version 2.2.20-smp #1 SMP Sun Mar 24 18:35:47 HST 2002
-Built with:  gcc 2.7.2.3, binutils 2.11.90.0.8
-Patches:     Vanilla tree plus DEVFS and RAID 0.90
-Machine:     Dell Precision 210 Workstation
-Motherboard: Dell, 440BX based (supports dual processors)
-Processor:   Single P-III 500 MHz
-PCI Cards:   Only an NVidia graphics card (but X was never started yet.)
-Memory:      1GB ECC
-Disks:       2x13GB Maxtor IDE's on hda,hdb
+You want to support Debian Kernel Package of WOLK? I appreciate it :)
 
-  The same thing happened before with a 2.4 kernel a few months ago.
-  At that time the machine had 512MB of RAM.  If anything useful can
-  be done to track down the problem while the machine is like this,
-  please let me know and I'll try before rebooting tomorrow.
+-- 
+Kind regards
+	Marc-Christian Petersen
 
-Thanks,
+Linux-Systeme GmbH
+Tenderweg 11 45141 Essen
+Tel.: +49 201 - 85 85 130 / Mobil: +49 173 - 541 68 09
+http://www.linux-systeme.de - http://sourceforge.net/projects/wolk
 
-- Sidik
+PGP/GnuPG Key: 1024D/408B2D54947750EC
+Fingerprint: 8602 69E0 A9C2 A509 8661  2B0B 408B 2D54 9477 50EC
+Key available at wwwkeys.pgp.net.   Encrypted e-mail preferred.

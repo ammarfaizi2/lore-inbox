@@ -1,49 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263021AbVAFUPh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263029AbVAFUSM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263021AbVAFUPh (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 6 Jan 2005 15:15:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263024AbVAFUPh
+	id S263029AbVAFUSM (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 6 Jan 2005 15:18:12 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263030AbVAFUQa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 6 Jan 2005 15:15:37 -0500
-Received: from rproxy.gmail.com ([64.233.170.200]:41964 "EHLO rproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S263021AbVAFUFu (ORCPT
+	Thu, 6 Jan 2005 15:16:30 -0500
+Received: from zeus.kernel.org ([204.152.189.113]:22721 "EHLO zeus.kernel.org")
+	by vger.kernel.org with ESMTP id S263011AbVAFUKm (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 6 Jan 2005 15:05:50 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
-        b=O5wDU685yrLYwzPh3/WG7HpQyb/BrbUPdqicxi9SQaC2dTFe/K5mE7KduZ9zr8FI6JioM1a4ffcYnGk0k+Q/7Tz3EecijE/YrvzuLWUm2Tn/oY+rCSchjovxxr8ANUTaJmB0BscGrKq53Qu6RR7qHsZNHwSIYq2Wfqet/sd0/ko=
-Message-ID: <9e4733910501061205354c9508@mail.gmail.com>
-Date: Thu, 6 Jan 2005 15:05:49 -0500
-From: Jon Smirl <jonsmirl@gmail.com>
-Reply-To: Jon Smirl <jonsmirl@gmail.com>
-To: Andi Kleen <ak@muc.de>
-Subject: Re: chasing the four level page table
-Cc: linux-kernel@vger.kernel.org, DRI Devel <dri-devel@lists.sourceforge.net>
-In-Reply-To: <20050106193826.GC47320@muc.de>
+	Thu, 6 Jan 2005 15:10:42 -0500
+Subject: Re: [PATCH] fs: Restore files_lock and set_fs_root exports
+From: Arjan van de Ven <arjan@infradead.org>
+To: paulmck@us.ibm.com
+Cc: akpm@osdl.org, linux-kernel@vger.kernel.org, jtk@us.ibm.com,
+       wtaber@us.ibm.com, pbadari@us.ibm.com, markv@us.ibm.com,
+       viro@parcelfarce.linux.theplanet.co.uk, greghk@us.ibm.com
+In-Reply-To: <20050106190538.GB1618@us.ibm.com>
+References: <20050106190538.GB1618@us.ibm.com>
+Content-Type: text/plain
+Date: Thu, 06 Jan 2005 20:20:58 +0100
+Message-Id: <1105039259.4468.9.camel@laptopd505.fenrus.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Evolution 2.0.2 (2.0.2-3) 
 Content-Transfer-Encoding: 7bit
-References: <9e47339105010609175dabc381@mail.gmail.com> <m1vfaav340.fsf@muc.de>
-	 <9e47339105010610362fd7fffe@mail.gmail.com>
-	 <20050106193826.GC47320@muc.de>
+X-Spam-Score: 4.1 (++++)
+X-Spam-Report: SpamAssassin version 2.63 on canuck.infradead.org summary:
+	Content analysis details:   (4.1 points, 5.0 required)
+	pts rule name              description
+	---- ---------------------- --------------------------------------------------
+	0.3 RCVD_NUMERIC_HELO      Received: contains a numeric HELO
+	1.1 RCVD_IN_DSBL           RBL: Received via a relay in list.dsbl.org
+	[<http://dsbl.org/listing?80.57.133.107>]
+	2.5 RCVD_IN_DYNABLOCK      RBL: Sent directly from dynamic IP address
+	[80.57.133.107 listed in dnsbl.sorbs.net]
+	0.1 RCVD_IN_SORBS          RBL: SORBS: sender is listed in SORBS
+	[80.57.133.107 listed in dnsbl.sorbs.net]
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by canuck.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 6 Jan 2005 20:38:27 +0100, Andi Kleen <ak@muc.de> wrote:
-> You can't use get_user_pages in this case because the AGP aperture
-> can be above mem_map.  If none of the callers take page_table_lock
-> already you would need to add that too. I guess from the context the lock
-> is not taken, but better double check.
+On Thu, 2005-01-06 at 11:05 -0800, Paul E. McKenney wrote:
+> Hello, Andrew,
 > 
-> Perhaps we should add a get_user_phys() or somesuch for this.
+> Some export-removal work causes breakage for an out-of-tree filesystem.
+> Could you please apply the attached patch to restore the exports for
+> files_lock and set_fs_root?
 
-No where in DRM is page_table_lock being taken.  Also, no other device
-driver takes page_table_lock either, so that probably implies that DRM
-shouldn't start doing it to. Best solution would probably be add an mm
-function for get_user_phys() that takes the lock internally. If you
-add the function I'll convert DRM to use it.
 
--- 
-Jon Smirl
-jonsmirl@gmail.com
+> diff -urpN -X ../dontdiff linux-2.5/fs/namespace.c linux-2.5-MVFS/fs/namespace.c
+> --- linux-2.5/fs/namespace.c	Wed Jan  5 13:54:22 2005
+> +++ linux-2.5-MVFS/fs/namespace.c	Wed Jan  5 17:12:08 2005
+
+isn;t clearcase (mvfs) a binary only kernel module, and isn't it so that
+we don't export specifically for such (potentially license violating)
+modules ?
+

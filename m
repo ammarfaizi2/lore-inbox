@@ -1,52 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261441AbVBWJru@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261442AbVBWJyP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261441AbVBWJru (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Feb 2005 04:47:50 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261442AbVBWJru
+	id S261442AbVBWJyP (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Feb 2005 04:54:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261436AbVBWJyP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Feb 2005 04:47:50 -0500
-Received: from farside.demon.co.uk ([62.49.25.247]:60655 "EHLO
-	mail.farside.org.uk") by vger.kernel.org with ESMTP id S261441AbVBWJrp
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Feb 2005 04:47:45 -0500
-From: Malcolm Rowe <malcolm-linux@farside.org.uk>
-To: Greg KH <gregkh@suse.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Symlink /sys/class/block to /sys/block (fwd)
-Date: Wed, 23 Feb 2005 09:47:44 +0000
-Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"; format=flowed
-Content-Transfer-Encoding: 7bit
-Message-ID: <courier.421C5140.00003F05@mail.farside.org.uk>
+	Wed, 23 Feb 2005 04:54:15 -0500
+Received: from gockel.physik3.uni-rostock.de ([139.30.44.16]:3020 "EHLO
+	gockel.physik3.uni-rostock.de") by vger.kernel.org with ESMTP
+	id S261446AbVBWJwx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 23 Feb 2005 04:52:53 -0500
+Date: Wed, 23 Feb 2005 10:50:31 +0100 (CET)
+From: Tim Schmielau <tim@physik3.uni-rostock.de>
+To: Andrew Morton <akpm@osdl.org>
+cc: Kaigai Kohei <kaigai@ak.jp.nec.com>, jlan@sgi.com,
+       lse-tech@lists.sourceforge.net, linux-kernel@vger.kernel.org,
+       guillaume.thouvenin@bull.net, erikj@subway.americas.sgi.com,
+       limin@dbear.engr.sgi.com, jbarnes@sgi.com
+Subject: Re: [Lse-tech] Re: A common layer for Accounting packages
+In-Reply-To: <20050222232002.4d934465.akpm@osdl.org>
+Message-ID: <Pine.LNX.4.53.0502231041450.19035@gockel.physik3.uni-rostock.de>
+References: <42168D9E.1010900@sgi.com> <20050218171610.757ba9c9.akpm@osdl.org>
+ <421993A2.4020308@ak.jp.nec.com> <421B955A.9060000@sgi.com>
+ <421C2B99.2040600@ak.jp.nec.com> <20050222232002.4d934465.akpm@osdl.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Greg KH writes: 
+On Tue, 22 Feb 2005, Andrew Morton wrote:
 
->> Following the discussion in [1], the attached patch creates /sys/class/block
->> as a symlink to /sys/block. The patch applies to 2.6.11-rc4-bk7.   
->> 
->> Please cc: me on any replies - I'm not subscribed to the mailing list. 
-> Hm, your patch is linewrapped, and can't be applied :(
-
-Bah, and I did send it to myself first, but I guess my mailer un-flowed it 
-for me :-(.  I'll try to find a better mailer. 
-
-> But more importantly:
->> static void disk_release(struct kobject * kobj)
+> We really want to avoid doing such stuff in-kernel if at all possible, of
+> course.
 > 
-> Did you try to remove a disk (like a usb device) and see what happens
-> here?  Hint, this isn't the proper place to remove the symlink...
+> Is it not possible to implement the fork/exec/exit notifications to
+> userspace so that a daemon can track the process relationships and perform
+> aggregation based upon individual tasks' accounting?  That's what one of
+> the accounting systems is proposing doing, I believe.
+> 
+> (In fact, why do we even need the notifications?  /bin/ps can work this
+> stuff out).
 
-Er, yeah. Oops. 
 
-*Is* there a sensible place to remove the symlink from, though?  Nobody 
-seems to call subsystem_unregister(&block_subsys), which is the place I'd 
-expect to add a call to, and I can't see anything that's otherwise 
-obvious... 
+I had started a proof of concept implementation that could reconstruct the 
+whole process tree from userspace just from the BSD accounting currently 
+in the kernel (+ the conceptual bug-fix that I misnamed "[RFC] "biological 
+parent" pid"). This could do the whole job ID thing from userspace.
+Unfortunately, I haven't had time to work on it recently.
 
-Regards,
-Malcolm 
+Also, doing per-job accounting might actually be more lightweight than 
+per-process accounting, so I'm not at all opposed to unifying CSA and BSD 
+accounting into one mechanism that just writes different file formats.
 
-[resent using the right address for linux-kernel. Sorry for the duplicate, 
-Greg]
+A complete framework seems like overkill to me, too.
+
+Tim

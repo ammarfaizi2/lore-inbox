@@ -1,65 +1,71 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262812AbTCBUpF>; Sun, 2 Mar 2003 15:45:05 -0500
+	id <S264748AbTCBU5o>; Sun, 2 Mar 2003 15:57:44 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262871AbTCBUpF>; Sun, 2 Mar 2003 15:45:05 -0500
-Received: from mailout03.sul.t-online.com ([194.25.134.81]:51424 "EHLO
-	mailout03.sul.t-online.com") by vger.kernel.org with ESMTP
-	id <S262812AbTCBUpE> convert rfc822-to-8bit; Sun, 2 Mar 2003 15:45:04 -0500
-Message-ID: <3E626FB7.3030909@folkwang-hochschule.de>
-Date: Sun, 02 Mar 2003 21:55:19 +0100
-From: Joern Nettingsmeier <nettings@folkwang-hochschule.de>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.3b) Gecko/20030210
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-CC: nettings@folkwang-hochschule.de
-Subject: 2.5.60-63 panic: unable to mount root
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 8BIT
+	id <S264790AbTCBU5n>; Sun, 2 Mar 2003 15:57:43 -0500
+Received: from natsmtp00.webmailer.de ([192.67.198.74]:47020 "EHLO
+	post.webmailer.de") by vger.kernel.org with ESMTP
+	id <S264748AbTCBU5m>; Sun, 2 Mar 2003 15:57:42 -0500
+Date: Sun, 2 Mar 2003 22:06:22 +0100
+From: Dominik Brodowski <linux@brodo.de>
+To: linux-kernel@vger.kernel.org, John Weber <weber@sixbit.org>
+Subject: Re: [UPDATED PATCH] pcmcia: add bus_type pcmcia_bus_type, struct pcmcia_driver
+Message-ID: <20030302210622.GA20572@brodo.de>
+References: <20030301213328.GA4480@brodo.de> <3E625D76.8050503@sixbit.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3E625D76.8050503@sixbit.org>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-hello everyone !
+On Sun, Mar 02, 2003 at 02:37:26PM -0500, John Weber wrote:
+> Dominik Brodowski wrote:
+> >This patch adds a new bus_type pcmcia_bus_type, and registers all pcmcia
+> >drivers with this bus within the old register_pccard_driver()
+> >function. 
+> >
+> >Alternatively, a new registration function "pcmcia_register_driver()"
+> >(and its counterpart,  "pcmcia_unregister_driver()") can be used --
+> >the pcnet_cs.c driver is converted as an example.
+> >
+> >This updated version fixes the compilation breakage seen with gcc-2.95.3
+> >because of incompatible C99 initializers (sorry, Russell). 
+> 
+> I've applied this patch, and have run the kernel for a few days without 
+> problems.
 
-the kernel barfs and tells me to supply a root= kernel param.
-i tried root=/dev/sda2, but no luck.
+Thanks!
 
-hw is all-scsi p2b-ds w/ dual p3/600.
-boot is ext2, root (/dev/sda2) is reiserfs.
-i'm using the new aic7xxx driver, the old driver one hangs at the same 
-time, but continues to spit out a ton of error msgs i haven't bothered 
-to capture, since i'm told it's deprecated.
+> Do you have an example driver ported to this new api?  I can help 
+> convert drivers.
+ 
+That's great. However, this depends on Linus merging my patch. And it may
+well be (and I even suggest this) that he takes Russell King's pcmcia/cardbus 
+patches first.
 
-the aic7xxx as well as ext2 and reiserfs are compiled into the kernel.
-i'm not using devfs.
+The actual changes (in this step of getting rid of cardmgr) are quite few,
+the larger ones will follow later:
 
-the system boots fine with 2.4.20.
+there's a register_pccard_driver() call and a register_pccard_driver
+somewhere in the pcmcia drivers. forget the first parameter (&dev_info most
+of the time), the second one becomes the .attach call, the third one the
+.detach call in a 
 
-google spit out these somewhat related threads, but they petered out 
-without a solution.
-www.uwsg.iu.edu/hypermail/linux/ kernel/0211.0/1564.html
-www.cs.helsinki.fi/linux/linux-kernel/ 2002-47/0080.html
+static struct pcmcia_driver dummy_driver = {
+	.drv = {
+		.name	= "dummy_cs",
+	},
+	.attach		= dummy_attach,
+	.detach		= dummy_detach,
+	.owner		= THIS_MODULE,
+};
 
-i'd welcome clues, and i'd be happy to run further tests if you tell me 
-which :)
+Then replace the {un,}register_pccard_driver() with
+pcmcia_{un,}register_driver(&dummy_driver), respectively.
 
-please cc: me on replies, i'm not subscribed, and the archives take ages 
-to pick up new postings....
+A sample conversion for the drivers/net/pcmcia/pcnet_cs.c driver can be
+found within the patch you replied to, btw.
 
-best,
-
-jörn
-
-
--- 
-If you're happy and you know it, bomb Iraq.
-
-Jörn Nettingsmeier
-Kurfürstenstr 49, 45138 Essen, Germany
-http://spunk.dnsalias.org (my server)
-http://www.linuxdj.com/audio/lad/ (Linux Audio Developers)
-
-
-
-
+	Dominik

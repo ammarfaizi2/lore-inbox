@@ -1,71 +1,124 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267585AbUJBWuM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267588AbUJBW5r@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267585AbUJBWuM (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 2 Oct 2004 18:50:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267582AbUJBWuM
+	id S267588AbUJBW5r (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 2 Oct 2004 18:57:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267582AbUJBW5r
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 2 Oct 2004 18:50:12 -0400
-Received: from bay16-f38.bay16.hotmail.com ([65.54.186.88]:25747 "EHLO
-	hotmail.com") by vger.kernel.org with ESMTP id S267585AbUJBWuE
+	Sat, 2 Oct 2004 18:57:47 -0400
+Received: from h151_115.u.wavenet.pl ([217.79.151.115]:47514 "EHLO
+	alpha.polcom.net") by vger.kernel.org with ESMTP id S267588AbUJBW5m
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 2 Oct 2004 18:50:04 -0400
-X-Originating-IP: [64.81.213.196]
-X-Originating-Email: [dinoklein@hotmail.com]
-From: "Dino Klein" <dinoklein@hotmail.com>
+	Sat, 2 Oct 2004 18:57:42 -0400
+Date: Sun, 3 Oct 2004 00:57:34 +0200 (CEST)
+From: Grzegorz Kulewski <kangur@polcom.net>
 To: linux-kernel@vger.kernel.org
-Subject: PROBLEM: 2.6.9-rc3 Bug in NTFS  code
-Date: Sat, 02 Oct 2004 18:49:26 -0400
-Mime-Version: 1.0
-Content-Type: text/plain; format=flowed
-Message-ID: <BAY16-F38bigPasSmz600007d7b@hotmail.com>
-X-OriginalArrivalTime: 02 Oct 2004 22:50:03.0158 (UTC) FILETIME=[2771BB60:01C4A8D2]
+Subject: [ACPI?] what we can learn from running kernel with debugging enabled
+Message-ID: <Pine.LNX.4.60.0410030048240.23034@alpha.polcom.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-below is what I had in the logs when attempting to umount a readonly NTFS.
+Hi,
 
-------------[ cut here ]------------
-kernel BUG at fs/ntfs/inode.c:354!
-invalid operand: 0000 [#1]
-SMP
-Modules linked in: ntfs ohci1394 ieee1394 via_agp snd_emu10k1 snd_rawmidi 
-snd_pcm snd_timer snd_seq_device snd_ac97_codec snd_page_alloc snd_util_mem 
-snd_hwdep snd soundcore hpt366 ipv6 parport_pc lp parport autofs4 sunrpc 
-3c59x ipt_REJECT ipt_state ip_conntrack iptable_filter ip_tables floppy sg 
-scsi_mod microcode tsdev joydev usbhid dm_mod uhci_hcd ohci_hcd ehci_hcd 
-usbcore button battery asus_acpi ac ext3 jbd
-CPU:    0
-EIP:    0060:[<f8c7f456>]    Not tainted VLI
-EFLAGS: 00010286   (2.6.9-rc3)
-EIP is at ntfs_destroy_extent_inode+0x26/0x30 [ntfs]
-eax: c1ef89c0   ebx: f6cdfc40   ecx: 00000000   edx: f5a3c9b0
-esi: 00000002   edi: f73b5e00   ebp: f73b5e50   esp: f5affef8
-ds: 007b   es: 007b   ss: 0068
-Process umount (pid: 3161, threadinfo=f5afe000 task=f72d4bf0)
-Stack: f8c81cbf f6cdfcec f73b5e00 c0174734 f6cdfcec c017561c f6cdfcec 
-f594aee0
-       c01756b3 f594af60 f8c84912 f73b5e00 f5afe000 00000000 c0161d46 
-ffffffff
-       f8c8cd20 f73b5e00 f7f94200 f8c8cda0 f5afe000 c01627e7 f73b5e40 
-f73b5e00
-Call Trace:
-[<f8c81cbf>] ntfs_clear_big_inode+0x6f/0x80 [ntfs]
-[<c0174734>] clear_inode+0xf4/0x130
-[<c017561c>] generic_forget_inode+0xec/0x110
-[<c01756b3>] iput+0x53/0x70
-[<f8c84912>] ntfs_put_super+0xf2/0x2c0 [ntfs]
-[<c0161d46>] generic_shutdown_super+0x176/0x190
-[<c01627e7>] kill_block_super+0x17/0x40
-[<c0161afe>] deactivate_super+0x6e/0x90
-[<c0177a0b>] sys_umount+0x3b/0x90
-[<c01500ec>] do_munmap+0x12c/0x170
-[<c0177a75>] sys_oldumount+0x15/0x20
-[<c010606d>] sysenter_past_esp+0x52/0x71
-Code: 26 00 00 00 00 89 c2 8b 40 58 85 c0 75 1d f0 ff 4a 1c 0f 94 c0 84 c0 
-75 08 0f 0b 64 01 1d 6c c8 f8 a1 3c d4 c8 f8 e9 aa 7b 4c c7 <0f> 0b 62 01 1d 
-6c c8 f8 eb d9 c7 42 1c 01 00 00 00 8d 4a 3c c7
+I was going to debug some problem with reiser4 and I compiled kernel with 
+all debuging enabled.
 
-_________________________________________________________________
-Check out Election 2004 for up-to-date election news, plus voter tools and 
-more! http://special.msn.com/msn/election2004.armx
+This is what I got:
+Oct  3 00:26:03 kangur Capability LSM initialized
+Oct  3 00:26:03 kangur CSLIP: code copyright 1989 Regents of the 
+University of California
+Oct  3 00:26:03 kangur PPP generic driver version 2.4.2
+Oct  3 00:26:03 kangur PPP Deflate Compression module registered
+Oct  3 00:26:03 kangur NET: Registered protocol family 8
+Oct  3 00:26:03 kangur NET: Registered protocol family 20
+Oct  3 00:26:03 kangur input: PS/2 Generic Mouse on isa0060/serio1
+Oct  3 00:26:03 kangur Unable to handle kernel paging request at virtual 
+address b06685a0
+Oct  3 00:26:03 kangur printing eip:
+Oct  3 00:26:03 kangur b03ffc7b
+Oct  3 00:26:03 kangur *pde = 006bf027
+Oct  3 00:26:03 kangur *pte = 00668000
+Oct  3 00:26:03 kangur Oops: 0002 [#1]
+Oct  3 00:26:03 kangur PREEMPT DEBUG_PAGEALLOC
+Oct  3 00:26:03 kangur Modules linked in: ac psmouse pppoatm atm 
+ppp_deflate zlib_deflate zlib_inflate ppp_generic slhc capability 
+commoncap unix
+Oct  3 00:26:03 kangur CPU:    0
+Oct  3 00:26:03 kangur EIP:    0060:[<b03ffc7b>]    Not tainted
+Oct  3 00:26:03 kangur EFLAGS: 00010246   (2.6.8.1-cko8)
+Oct  3 00:26:03 kangur EIP is at acpi_bus_register_driver+0xd5/0x16e
+Oct  3 00:26:03 kangur eax: b06685a0   ebx: f0902140   ecx: 000001f2 
+edx: ffffffed
+Oct  3 00:26:03 kangur esi: ed2ad000   edi: f0902280   ebp: ed2adf84 
+esp: ed2adf80
+Oct  3 00:26:03 kangur ds: 007b   es: 007b   ss: 0068
+Oct  3 00:26:03 kangur Process modprobe (pid: 888, threadinfo=ed2ad000 
+task=ed2ac9e0)
+Oct  3 00:26:03 kangur Stack: b059b500 ed2adf8c f08c2032 ed2adfbc b01445e0 
+ed142f54 ed6ded30 ee371d90
+Oct  3 00:26:03 kangur ed2dcd50 ed2dcd70 00000000 ed2adfbc 3aacc008 
+0805b178 41562cbb ed2ad000
+Oct  3 00:26:03 kangur b01058bd 3aacc008 0002f371 0805b178 0805b178 
+41562cbb 0805b178 00000080
+Oct  3 00:26:03 kangur Call Trace:
+Oct  3 00:26:03 kangur [<b010670a>] show_stack+0x7a/0x90
+Oct  3 00:26:03 kangur [<b010688d>] show_registers+0x14d/0x1a0
+Oct  3 00:26:03 kangur [<b0106a79>] die+0xf9/0x250
+Oct  3 00:26:03 kangur [<b011b7e3>] do_page_fault+0x1d3/0x55b
+Oct  3 00:26:03 kangur [<b0106399>] error_code+0x2d/0x38
+Oct  3 00:26:03 kangur [<f08c2032>] init_module+0x32/0x51 [ac]
+Oct  3 00:26:03 kangur [<b01445e0>] sys_init_module+0x1c0/0x390
+Oct  3 00:26:03 kangur [<b01058bd>] sysenter_past_esp+0x52/0x71
+Oct  3 00:26:03 kangur Code: 89 18 81 3d c8 e4 5a b0 3c 4b 24 1d 74 1c 68 
+c8 e4 5a b0 68
+Oct  3 00:26:03 kangur <6>note: modprobe[888] exited with preempt_count 1
+Oct  3 00:26:03 kangur Debug: sleeping function called from invalid 
+context at include/linux/rwsem.h:43
+Oct  3 00:26:03 kangur in_atomic():1, irqs_disabled():0
+Oct  3 00:26:03 kangur [<b0106737>] dump_stack+0x17/0x20
+Oct  3 00:26:03 kangur [<b011fa84>] __might_sleep+0xb4/0xe0
+Oct  3 00:26:03 kangur [<b01273ef>] do_exit+0xaf/0x9a0
+Oct  3 00:26:03 kangur [<b0106bc7>] die+0x247/0x250
+Oct  3 00:26:03 kangur [<b011b7e3>] do_page_fault+0x1d3/0x55b
+Oct  3 00:26:03 kangur [<b0106399>] error_code+0x2d/0x38
+Oct  3 00:26:03 kangur [<f08c2032>] init_module+0x32/0x51 [ac]
+Oct  3 00:26:03 kangur [<b01445e0>] sys_init_module+0x1c0/0x390
+Oct  3 00:26:03 kangur [<b01058bd>] sysenter_past_esp+0x52/0x71
+Oct  3 00:26:03 kangur bad: scheduling while atomic!
+Oct  3 00:26:03 kangur [<b0106737>] dump_stack+0x17/0x20
+Oct  3 00:26:03 kangur [<b04f31f4>] schedule+0x634/0x640
+Oct  3 00:26:03 kangur [<b015b218>] unmap_vmas+0x2a8/0x320
+Oct  3 00:26:03 kangur [<b0160c88>] exit_mmap+0xc8/0x270
+Oct  3 00:26:03 kangur [<b012093d>] mmput+0xad/0x110
+Oct  3 00:26:03 kangur [<b0127514>] do_exit+0x1d4/0x9a0
+Oct  3 00:26:03 kangur [<b0106bc7>] die+0x247/0x250
+Oct  3 00:26:03 kangur [<b011b7e3>] do_page_fault+0x1d3/0x55b
+Oct  3 00:26:03 kangur [<b0106399>] error_code+0x2d/0x38
+Oct  3 00:26:03 kangur [<f08c2032>] init_module+0x32/0x51 [ac]
+Oct  3 00:26:03 kangur [<b01445e0>] sys_init_module+0x1c0/0x390
+Oct  3 00:26:03 kangur [<b01058bd>] sysenter_past_esp+0x52/0x71
+Oct  3 00:26:03 kangur drivers/acpi/scan.c:445: 
+spin_lock(drivers/acpi/scan.c:b05ae4c8) already locked by 
+drivers/acpi/scan.c/445
+Oct  3 00:26:03 kangur ACPI: Power Button (FF) [PWRF]
+Oct  3 00:26:03 kangur ACPI: Sleep Button (CM) [SLPB]
+Oct  3 00:26:03 kangur ACPI: Processor [CPU0] (supports C1, 2 throttling 
+states)
+Oct  3 00:26:03 kangur input: PC Speaker
+Oct  3 00:26:03 kangur inserting floppy driver for 2.6.8.1-cko8
+Oct  3 00:26:03 kangur Floppy drive(s): fd0 is 1.44M
+Oct  3 00:26:03 kangur FDC 0 is a post-1991 82077
+Oct  3 00:26:03 kangur loop: loaded (max 8 devices)
+
+
+I am currently using 2.6.8.1-cko8 and can reproduce this problem every 
+time. This message is not displayed when debuging is disabled.
+
+Could somebody look at it?
+
+
+Thanks,
+
+Grzegorz Kulewski
 

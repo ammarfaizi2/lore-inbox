@@ -1,57 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263217AbRFAPnG>; Fri, 1 Jun 2001 11:43:06 -0400
+	id <S263595AbRFAPp4>; Fri, 1 Jun 2001 11:45:56 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263218AbRFAPm4>; Fri, 1 Jun 2001 11:42:56 -0400
-Received: from ns.caldera.de ([212.34.180.1]:25236 "EHLO ns.caldera.de")
-	by vger.kernel.org with ESMTP id <S263217AbRFAPmj>;
-	Fri, 1 Jun 2001 11:42:39 -0400
-Date: Fri, 1 Jun 2001 17:42:32 +0200
-From: Marcus Meissner <Marcus.Meissner@caldera.de>
-To: linux-kernel@vger.kernel.org, Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: PATCH: ns558 bugfix / CSC ids
-Message-ID: <20010601174232.A6493@caldera.de>
+	id <S263591AbRFAPpg>; Fri, 1 Jun 2001 11:45:36 -0400
+Received: from geos.coastside.net ([207.213.212.4]:52974 "EHLO
+	geos.coastside.net") by vger.kernel.org with ESMTP
+	id <S263218AbRFAPp3>; Fri, 1 Jun 2001 11:45:29 -0400
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
+Message-Id: <p05100308b73d672c7f2b@[207.213.214.37]>
+In-Reply-To: <20010601145900.C12402@khan.acc.umu.se>
+In-Reply-To: <Pine.GSO.4.21.0105311555250.17748-100000@weyl.math.psu.edu>
+ <3B178E0E.A4530D47@egenera.com> <20010601145900.C12402@khan.acc.umu.se>
+Date: Fri, 1 Jun 2001 08:45:17 -0700
+To: linux-kernel@vger.kernel.org
+From: Jonathan Lundell <jlundell@pobox.com>
+Subject: Re: Configure.help is complete
+Content-Type: text/plain; charset="us-ascii" ; format="flowed"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+At 2:59 PM +0200 2001-06-01, David Weinehall wrote:
+>  > Not to open a what may be can of worms but ...
+>>
+>>  What's wrong with procfs?
+>
+>Imho, a procfs should be for process-information, nothing else.
+>The procfs in its current form, while useful, is something horrible
+>that should be taken out on the backyard and shot using slugs.
+>
+>Ehrmmm. No, but seriously, the non-process stuff should be separate
+>from the procfs. Maybe call it kernfs or whatever.
+>
+>>  It allows a general interface to the kernel that does not require new
+>>  syscalls/ioctls and can be accessed from user space without specifically
+>>  compiled programs. You can use shell scripts, java, command line etc.
+>
+>Yes, and it's also totally non standardised.
 
-I have added two CSC function ids to the ISAPNP joystick probing.
-CSC cards use a lot of varying ids for the functions, but in my
-set of data, 0010 and 0110 are always 'CTL'Game Controllers.
-
-One bugfix: port->size must be set, or the release_region on rmmod ns558
-fails badly.
-
-Tested on IBM Netfinity 3500.
-
-Ciao, Marcus
-
-Index: drivers/char/joystick/ns558.c
-===================================================================
-RCS file: /build/mm/work/repository/linux-mm/drivers/char/joystick/ns558.c,v
-retrieving revision 1.16
-diff -u -r1.16 ns558.c
---- drivers/char/joystick/ns558.c	2001/06/01 11:33:11	1.16
-+++ drivers/char/joystick/ns558.c	2001/06/01 15:31:09
-@@ -178,6 +178,8 @@
- 	{ ISAPNP_ANY_ID, ISAPNP_ANY_ID, ISAPNP_VENDOR('C','T','L'), ISAPNP_DEVICE(0x7001), 0 },
- 	{ ISAPNP_ANY_ID, ISAPNP_ANY_ID, ISAPNP_VENDOR('C','T','L'), ISAPNP_DEVICE(0x7002), 0 },
- 	{ ISAPNP_ANY_ID, ISAPNP_ANY_ID, ISAPNP_VENDOR('C','S','C'), ISAPNP_DEVICE(0x0b35), 0 },
-+	{ ISAPNP_ANY_ID, ISAPNP_ANY_ID, ISAPNP_VENDOR('C','S','C'), ISAPNP_DEVICE(0x0010), 0 },
-+	{ ISAPNP_ANY_ID, ISAPNP_ANY_ID, ISAPNP_VENDOR('C','S','C'), ISAPNP_DEVICE(0x0110), 0 },
- 	{ ISAPNP_ANY_ID, ISAPNP_ANY_ID, ISAPNP_VENDOR('P','N','P'), ISAPNP_DEVICE(0xb02f), 0 },
- 	{ 0, },
- };
-@@ -217,6 +219,7 @@
- 	port->next = next;
- 	port->type = NS558_PNP;
- 	port->gameport.io = ioport;
-+	port->size = iolen;
- 	port->dev = dev;
- 
- 	gameport_register_port(&port->gameport);
+It clearly fills a need, though, and has the distinct side benefit of 
+cutting down on the proliferation of ioctls. Sure, it's non-standard 
+and a mess. But it's semi-documented, easy to use, and v. general. 
+What's the preferred alternative, to state the first question another 
+way? For any single small project/driver, creating a new fs simply 
+isn't going to happen.
+-- 
+/Jonathan Lundell.

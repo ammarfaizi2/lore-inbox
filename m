@@ -1,63 +1,69 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129183AbRAEIqE>; Fri, 5 Jan 2001 03:46:04 -0500
+	id <S129523AbRAEI64>; Fri, 5 Jan 2001 03:58:56 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129523AbRAEIpx>; Fri, 5 Jan 2001 03:45:53 -0500
-Received: from cirrostratus.netaccess.co.nz ([202.37.101.18]:30482 "EHLO
-	cirrostratus.netaccess.co.nz") by vger.kernel.org with ESMTP
-	id <S129183AbRAEIpo>; Fri, 5 Jan 2001 03:45:44 -0500
-Message-Id: <200101050845.VAA23907@cirrostratus.netaccess.co.nz>
-Date: Fri, 05 Jan 2001 21:40:24 NZDT
-From: Alastair Foster <alastair@netaccess.co.nz>
-To: linux-kernel@vger.kernel.org
-Subject: Adding devices to dc2xx.c
-Reply-To: alasta@bigfoot.com
-X-Mailer: Spruce 0.7.1 for X11 w/smtpio 0.7.9
+	id <S130375AbRAEI6r>; Fri, 5 Jan 2001 03:58:47 -0500
+Received: from mail.inconnect.com ([209.140.64.7]:2241 "HELO
+	mail.inconnect.com") by vger.kernel.org with SMTP
+	id <S129523AbRAEI6f>; Fri, 5 Jan 2001 03:58:35 -0500
+Date: Fri, 5 Jan 2001 01:58:33 -0700 (MST)
+From: Dax Kelson <dax@gurulabs.com>
+To: Andreas Bombe <andreas.bombe@munich.netsurf.de>
+cc: <linux-kernel@vger.kernel.org>
+Subject: IEEE1394 2.4.0 (final) compile problems
+In-Reply-To: <20010102213916.B2103@storm.local>
+Message-ID: <Pine.SOL.4.30.0101050155330.20242-100000@ultra1.inconnect.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-Hello, and thank you to those who responded to my query about adding my
-Agfa ePhoto to the USB mass storage device database. I had no success
-with this (the machine locked hard on connecting the device), so I have
-decided to try it with the dc2xx driver.
+# IEEE 1394 (FireWire) support
+#
+CONFIG_IEEE1394=y
+# CONFIG_IEEE1394_PCILYNX is not set
+CONFIG_IEEE1394_OHCI1394=y
+CONFIG_IEEE1394_VIDEO1394=y
+CONFIG_IEEE1394_RAWIO=y
+# CONFIG_IEEE1394_VERBOSEDEBUG is not set
 
-I have added it to /usr/src/linux/drivers/usb/dc2xx.c as follows:
-..
-    { idVendor: 0x040a, idProduct: 0x0112 },		// Kodak DC-290
-    { idVendor: 0xf003, idProduct: 0x6002 },		// HP PhotoSmart C500
-    { idVendor: 0x06bd, idProduct: 0x0403 },	// Agfa ePhoto CL18
-..
-
-However, after I recompile and reboot with the new boot image, I receive
-the following:
-..
-Jan  5 19:37:33 localhost kernel: usb.c: registered new driver dc2xx 
-..
-Jan  5 19:37:33 localhost kernel: hub.c: USB new device connect on bus1/2,
-assigned device number 2 
-Jan  5 19:37:33 localhost kernel: usb.c: USB device 2 (vend/prod
-0x6bd/0x403) is not claimed by any active driver. 
-..
-
-Why is dc2xx not being associated with the camera? I note that the vendor
-and product names of the camera omit the leading '0', but I have tried
-adding
-them to the driver file as both '0x06bd' and '0x6bd' and neither works. I'm
-using 2.4.0-prerelease, in case that helps.
-
-So, does this sound like a bug with the above driver, or is there something
-that I've missed?
-
-
--- 
-Alastair Foster
-Note new email address => alasta@bigfoot.com
-http://users.netaccess.co.nz/ala/
-021 250 6482
+gcc -D__KERNEL__ -I/usr/src/linux/include -Wall -Wstrict-prototypes -O2
+-fomit-frame-pointer -fno-strict-aliasing -pipe
+-mpreferred-stack-boundary=2 -march=i686    -DEXPORT_SYMTAB -c
+ieee1394_syms.c
+ld -m elf_i386 -r -o ieee1394.o ieee1394_core.o ieee1394_transactions.o
+hosts.o highlevel.o csr.o guid.o ieee1394_syms.o
+gcc -D__KERNEL__ -I/usr/src/linux/include -Wall -Wstrict-prototypes -O2
+-fomit-frame-pointer -fno-strict-aliasing -pipe
+-mpreferred-stack-boundary=2 -march=i686    -c -o ohci1394.o ohci1394.c
+ohci1394.c:152: warning: `ohci1394_pci_tbl' defined but not used
+gcc -D__KERNEL__ -I/usr/src/linux/include -Wall -Wstrict-prototypes -O2
+-fomit-f
+rame-pointer -fno-strict-aliasing -pipe -mpreferred-stack-boundary=2
+-march=i686
+    -c -o video1394.o video1394.c
+video1394.c:1229: warning: `video1394_fops' defined but not used
+video1394.c:1239: warning: `video1394_init' defined but not used
+video1394.c:1277: warning: `remove_card' defined but not used
+gcc -D__KERNEL__ -I/usr/src/linux/include -Wall -Wstrict-prototypes -O2
+-fomit-f
+rame-pointer -fno-strict-aliasing -pipe -mpreferred-stack-boundary=2
+-march=i686
+    -c -o raw1394.o raw1394.c
+rm -f ieee1394drv.o
+ld -m elf_i386  -r -o ieee1394drv.o ieee1394.o ohci1394.o video1394.o
+raw1394.o
+video1394.o(.data+0x0): multiple definition of `ohci_csr_rom'
+ohci1394.o(.data+0x0): first defined here
+make[3]: *** [ieee1394drv.o] Error 1
+make[3]: Leaving directory `/usr/src/linux/drivers/ieee1394'
+make[2]: *** [first_rule] Error 2
+make[2]: Leaving directory `/usr/src/linux/drivers/ieee1394'
+make[1]: *** [_subdir_ieee1394] Error 2
+make[1]: Leaving directory `/usr/src/linux/drivers'
+make: *** [_dir_drivers] Error 2
+[root@thud linux]#
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

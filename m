@@ -1,95 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262303AbTJGMX0 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Oct 2003 08:23:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262304AbTJGMXZ
+	id S262301AbTJGMSm (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Oct 2003 08:18:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262303AbTJGMSm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Oct 2003 08:23:25 -0400
-Received: from wotug.org ([194.106.52.201]:44860 "EHLO ivimey.org")
-	by vger.kernel.org with ESMTP id S262303AbTJGMXX (ORCPT
+	Tue, 7 Oct 2003 08:18:42 -0400
+Received: from gprs145-17.eurotel.cz ([160.218.145.17]:6528 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S262301AbTJGMSl (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Oct 2003 08:23:23 -0400
-Date: Tue, 7 Oct 2003 13:23:18 +0100 (BST)
-From: Ruth Ivimey-Cook <Ruth.Ivimey-Cook@ivimey.org>
-X-X-Sender: ruthc@gatemaster.ivimey.org
-To: Valdis.Kletnieks@vt.edu
-cc: "Daniel B." <dsb@smart.net>, <linux-kernel@vger.kernel.org>
-Subject: Re: IDE DMA errors, massive disk corruption: Why? Fixed Yet? Whynot
- re-do failed op? 
-In-Reply-To: <200310070603.h97631Yl011804@turing-police.cc.vt.edu>
-Message-ID: <Pine.LNX.4.44.0310071250450.3492-100000@gatemaster.ivimey.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-Spam-Score: 0.0 (/)
+	Tue, 7 Oct 2003 08:18:41 -0400
+Date: Tue, 7 Oct 2003 14:18:25 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: "Giacomo A. Catenazzi" <cate@pixelized.ch>
+Cc: David Lang <david.lang@digitalinsight.com>,
+       Krishna Akella <akellak@onid.orst.edu>, Paul Jakma <paul@clubi.ie>,
+       kartikey bhatt <kartik_me@hotmail.com>, linux-kernel@vger.kernel.org
+Subject: Re: Can't X be elemenated?
+Message-ID: <20031007121825.GA323@elf.ucw.cz>
+References: <Pine.LNX.4.44.0309301209590.19804-100000@shell> <Pine.LNX.4.58.0309301316510.12484@dlang.diginsite.com> <20031007040449.GM205@openzaurus.ucw.cz> <3F82780C.8080408@pixelized.ch>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3F82780C.8080408@pixelized.ch>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 7 Oct 2003, Valdis.Kletnieks@vt.edu wrote:
->On Tue, 07 Oct 2003 01:24:19 EDT, "Daniel B." said:
->> So if some command/batch/etc. wasn't acknowledged, why can't the 
->> kernel retry the command/batch/etc.?
->The problem is that the disk ack'ed the command when the block went into the
->write cache.  You *DONT* in general get back another ack when the block
->actually hits the platters.
+Hi!
 
-But surely what Daniel is complaining about is that the disk never did ack the 
-bus transfer.
+> >>different toolkits exist becouse people are solving different problems.
+> >>which set of people do you propose telling that their desires don't
+> >>matter?
+> >
+> >
+> >Well, qt and gtk solve pretty much same problem,
+> >their existence seems like historical accident to me.
+> 
+> Hmm. World (also in linux kernel) is not so efficient!
+> There are more tools for same task/problem. Maybe in the long run only one 
+> tools per problem will survive, but the diversity is good, also at cost of 
+> the duplicate work.
 
-Consider this as a correct sequence of operations (hope I get it right:-) :
+It is not where you have competing interfaces.
 
+> Do you want only one distribution for user, one for small companies, one 
+> for schools,...? Do you want only one web server implementation? Only one 
+> filesystem per task (only one journaling FS)?
+> Are they all "historical accident"?
 
-1.   Kernel uses IDE controller to initiate ATA disk write request:
-     a. Kernel sets up DMA parameters (start, length, timeout)
-     b. kernel initiates transfer of 1 sector to disk
-     c. (in parallel with b) drive accepts transfer request and waits for data
-
-2.   IDE controller DMA used to transfer data to disk unit:
-     a. hardware DMA sends 256 16-bit words of data to disk
-     b. (in parallel) drive accepts (acks) each word of data as it comes 
-        over and writes it into internal buffer (be it a write cache or
-        just a staging area).
-
-3.   Transfer complete actions: when the required number of words are acked:
-     a. IDE DMA controller fires end-of-transfer IRQ
-     b. (in parallel) if write cache enabled, disk makes sector available to
-        be written to disk (e.g. by linking the buffer into the write cache) 
-        or, if write cache is disabled, initiates transfer to platter.
-
-4.   Kernel sees end of transfer IRQ and initiates software ACK of transfer, 
-     e.g. to remove DMA buffer from 'block dirty' list.
-
-5.   If caching enabled, some time later the data in the drive is written to 
-     the platter.
-
-
-Now, the case I believe Daniel is complaining about is that things go well
-through step 1 and perhaps some part of step 2. But, because the drive doesn't
-accept the data or some other error, step 3 doesn't happen. Consequently, the
-IDE DMA timeout happens, the kernel cries foul and things go wrong. So the
-failure actually looks like this:
-
-
-1.   Kernel uses IDE controller to initiate ATA disk write request:
-     a. Kernel sets up DMA parameters (start, length, timeout)
-     b. kernel initiates transfer of 1 sector to disk
-     c. (in parallel with b) drive accepts transfer request and waits for data
-
-2.   IDE controller DMA used to transfer data to disk unit:
-     a. hardware DMA tries to send 256 16-bit words of data to disk
-     b. (in parallel) drive accepts none or, perhaps, some data from bus into 
-        internal buffer, but not all of it.
-
-3.   After waiting, IDE controller fires DMA timeout IRQ.
-
-4.   Kernel sees IRQ and emits warning message. Tries to reset bus and ....
-
-
-
-Have I got this scenario right?
-
-Ruth
-
+Well, I'm pretty glad there's only one glibc, and only one http
+protocol, and only one X protocol. And it would be way better if there
+was just one toolkit commonly used on Linux.
+								Pavel
 -- 
-Ruth Ivimey-Cook
-Software engineer and technical writer.
-
+When do you have a heart between your knees?
+[Johanka's followup: and *two* hearts?]

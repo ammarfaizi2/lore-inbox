@@ -1,97 +1,98 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264693AbUGFXNn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264697AbUGFXPP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264693AbUGFXNn (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 Jul 2004 19:13:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264697AbUGFXNn
+	id S264697AbUGFXPP (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 Jul 2004 19:15:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264702AbUGFXPO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 Jul 2004 19:13:43 -0400
-Received: from fw.osdl.org ([65.172.181.6]:43184 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S264693AbUGFXNh (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 Jul 2004 19:13:37 -0400
-Date: Tue, 6 Jul 2004 16:16:41 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: jim.houston@comcast.net
-Cc: kevcorry@us.ibm.com, linux-kernel@vger.kernel.org, dm-devel@redhat.com,
-       torvalds@osdl.org, agk@redhat.com
-Subject: Re: [PATCH] 1/1: Device-Mapper: Remove 1024 devices limitation
-Message-Id: <20040706161641.01c1bbce.akpm@osdl.org>
-In-Reply-To: <1089154845.985.164.camel@new.localdomain>
-References: <200407011035.13283.kevcorry@us.ibm.com>
-	<200407021233.09610.kevcorry@us.ibm.com>
-	<20040702124218.0ad27a85.akpm@osdl.org>
-	<200407061323.27066.kevcorry@us.ibm.com>
-	<20040706142335.14efcfa4.akpm@osdl.org>
-	<1089151650.985.129.camel@new.localdomain>
-	<20040706152817.38ce1151.akpm@osdl.org>
-	<1089154845.985.164.camel@new.localdomain>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i586-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Tue, 6 Jul 2004 19:15:14 -0400
+Received: from stat16.steeleye.com ([209.192.50.48]:25784 "EHLO
+	hancock.sc.steeleye.com") by vger.kernel.org with ESMTP
+	id S264697AbUGFXOz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 6 Jul 2004 19:14:55 -0400
+Subject: [BK PATCH] on-chip coherent memory API for DMA
+From: James Bottomley <James.Bottomley@SteelEye.com>
+To: Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-9) 
+Date: 06 Jul 2004 18:14:35 -0500
+Message-Id: <1089155678.2854.796.camel@mulgrave>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jim Houston <jim.houston@comcast.net> wrote:
->
-> With out the test above an id beyond the allocated space will alias
-> to one that exists.  Perhaps the highest id currently allocated is 
-> 100, there will be two layers in the radix tree and the while loop
-> above will only look at the 10 least significant bits.  If you call
-> idr_find with 1025 it will return the pointer associated with id 1.
+This is a rollup of the previous patch I sent to the list for the
+on-chip API.  It's available at
 
-OK.
+bk://linux-voyager.bkbits.net/dma-declare-coherent-memory-2.6
 
-> The patch I sent was against linux-2.6.7, so I missed the change to
-> MAX_ID_SHIFT.
+I split the patches I sent up into the five separate areas that they
+affect:
 
-How about this?
+ChangeSet@1.1783, 2004-06-30 21:44:24-05:00, jejb@mulgrave.(none)
+  Convert NCR_Q720 to use dma_declare_coherent_memory
+  
+  This board makes an ideal example for using the API
+  since it consists of 4 SCSI I/O processors and a 
+  0.5-2MB block of memory on a single MCA card.
+  
+  Signed-off-by: James Bottomley <James.Bottomley@SteelEye.com>
 
-diff -puN lib/idr.c~idr-stale-comment lib/idr.c
---- 25/lib/idr.c~idr-stale-comment	Tue Jul  6 16:12:45 2004
-+++ 25-akpm/lib/idr.c	Tue Jul  6 16:15:41 2004
-@@ -27,22 +27,6 @@
-  * so you don't need to be too concerned about locking and conflicts
-  * with the slab allocator.
- 
-- * What you need to do is, since we don't keep the counter as part of
-- * id / ptr pair, to keep a copy of it in the pointed to structure
-- * (or else where) so that when you ask for a ptr you can varify that
-- * the returned ptr is correct by comparing the id it contains with the one
-- * you asked for.  In other words, we only did half the reuse protection.
-- * Since the code depends on your code doing this check, we ignore high
-- * order bits in the id, not just the count, but bits that would, if used,
-- * index outside of the allocated ids.  In other words, if the largest id
-- * currently allocated is 32 a look up will only look at the low 5 bits of
-- * the id.  Since you will want to keep this id in the structure anyway
-- * (if for no other reason than to be able to eliminate the id when the
-- * structure is found in some other way) this seems reasonable.  If you
-- * really think otherwise, the code to check these bits here, it is just
-- * disabled with a #if 0.
--
--
-  * So here are the complete details:
- 
-  *  include <linux/idr.h>
-@@ -371,15 +355,11 @@ void *idr_find(struct idr *idp, int id)
- 	struct idr_layer *p;
- 
- 	n = idp->layers * IDR_BITS;
-+	if (id >= (1 << n))
-+		return NULL;
-+
- 	p = idp->top;
--#if 0
--	/*
--	 * This tests to see if bits outside the current tree are
--	 * present.  If so, tain't one of ours!
--	 */
--	if ( unlikely( (id & ~(~0 << MAX_ID_SHIFT)) >> (n + IDR_BITS)))
--	     return NULL;
--#endif
-+
- 	/* Mask off upper bits we don't use for the search. */
- 	id &= MAX_ID_MASK;
- 
-_
+ChangeSet@1.1782, 2004-06-30 21:38:34-05:00, jejb@mulgrave.(none)
+  Add x86 implementation of dma_declare_coherent_memory
+  
+  This actually implements the API (all except for
+  DMA_MEMORY_INCLUDES_CHILDREN).
+  
+  Signed-off-by: James Bottomley <James.Bottomley@SteelEye.com>
+
+ChangeSet@1.1781, 2004-06-30 21:11:14-05:00, jejb@mulgrave.(none)
+  Add vmalloc alignment constraints
+  
+  vmalloc is used by ioremap() to get regions for
+  remapping I/O space.  To feed these regions back
+  into a __get_free_pages() type memory allocator,
+  they are expected to have more alignment than 
+  get_vm_area() proves.  So add additional alignment
+  constraints for VM_IOREMAP.
+  
+  Signed-off-by: James Bottomley <James.Bottomley@SteelEye.com>
+
+ChangeSet@1.1780, 2004-06-30 21:08:15-05:00, jejb@mulgrave.(none)
+  Add memory region bitmap implementations
+  
+  These APIs deal with bitmaps representing contiguous
+  memory regions.  The idea is to set, free and find
+  a contiguous area.
+  
+  For ease of implementation (as well as to conform
+  to the standard requirements), the bitmaps always
+  return n aligned n length regions.  The implementation
+  is also limited to BITS_PER_LONG contiguous regions.
+  
+  Signed-off-by: James Bottomley <James.Bottomley@SteelEye.com>
+
+ChangeSet@1.1779, 2004-06-30 21:02:11-05:00, jejb@mulgrave.(none)
+  Add dma_declare_coherent_memory() API
+  
+  This adds the description and a null prototype.
+  
+  Signed-off-by: James Bottomley <James.Bottomley@SteelEye.com>
+
+And the diffstat is:
+
+ Documentation/DMA-API.txt      |   79 +++++++++++++++++++++++++++++
+ arch/i386/kernel/pci-dma.c     |  111 ++++++++++++++++++++++++++++++++++++++++-
+ drivers/scsi/NCR_Q720.c        |   21 ++++++-
+ include/asm-i386/dma-mapping.h |   12 ++++
+ include/linux/bitmap.h         |    3 +
+ include/linux/device.h         |    3 +
+ include/linux/dma-mapping.h    |   26 +++++++++
+ lib/bitmap.c                   |   76 ++++++++++++++++++++++++++++
+ mm/vmalloc.c                   |   20 ++++++-
+ 9 files changed, 344 insertions(+), 7 deletions(-)
+
+James
+
 

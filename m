@@ -1,53 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262520AbVCVFlg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262396AbVCVFgv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262520AbVCVFlg (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Mar 2005 00:41:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262345AbVCVFhm
+	id S262396AbVCVFgv (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Mar 2005 00:36:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262516AbVCVFc6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Mar 2005 00:37:42 -0500
-Received: from rproxy.gmail.com ([64.233.170.196]:31961 "EHLO rproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S262518AbVCVFc4 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Mar 2005 00:32:56 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:mime-version:content-type:content-transfer-encoding;
-        b=n2HTpBBmIk2eJQre6ddsTp7BdSKOfjri1ol/EMfE4lvIXp+lUEgbct7jRGdw6wwqKfBqq4K4I12pHJhLuQ+nQ7WaF/k6RInI1Va+oHNQU+M9ZR5N4eUSy7MNOMGKfh4Ug7wIG87qETD0bmNNisr1ZofnPz+i3zx47Jec39VpecQ=
-Message-ID: <cb57165a050321213210961749@mail.gmail.com>
-Date: Mon, 21 Mar 2005 21:32:50 -0800
-From: All Linux <allinux@gmail.com>
-Reply-To: All Linux <allinux@gmail.com>
+	Tue, 22 Mar 2005 00:32:58 -0500
+Received: from bay101-f34.bay101.hotmail.com ([64.4.56.44]:11088 "EHLO
+	hotmail.com") by vger.kernel.org with ESMTP id S262505AbVCVFcf
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 22 Mar 2005 00:32:35 -0500
+Message-ID: <BAY101-F34D96549B67F217C938150FE4E0@phx.gbl>
+X-Originating-IP: [64.4.56.206]
+X-Originating-Email: [jay_roplekar@hotmail.com]
+In-Reply-To: <20050321222701.GI17865@csclub.uwaterloo.ca>
+From: "Jayant Roplekar" <jay_roplekar@hotmail.com>
 To: linux-kernel@vger.kernel.org
-Subject: [PATCH] 2.6.12-rc1, ./drivers/base/platform.c
+Subject: Re: [SATA] sata-via : bug?
+Date: Tue, 22 Mar 2005 05:32:30 +0000
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; format=flowed
+X-OriginalArrivalTime: 22 Mar 2005 05:32:30.0797 (UTC) FILETIME=[8AC887D0:01C52EA0]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The latest prepatch, 2.6.12-rc1, introduced the following change.
 
---- a/drivers/base/platform.c   2005-03-17 17:35:04 -08:00
-+++ b/drivers/base/platform.c   2005-03-17 17:35:04 -08:00
-@@ -131,7 +131,7 @@
-         pdev->dev.bus = &platform_bus_type;
- 
-         if (pdev->id != -1)
--                snprintf(pdev->dev.bus_id, BUS_ID_SIZE, "%s%u",
-pdev->name, pdev->id);
-+                snprintf(pdev->dev.bus_id, BUS_ID_SIZE, "%s.%u",
-pdev->name, pdev->id);
-         else
-                 strlcpy(pdev->dev.bus_id, pdev->name, BUS_ID_SIZE);
 
-It causes problem, as most platform files, for example,
-arch/ppc/platforms/katana.c, still use the old name without ".". I do
-not understand why bus_id "mpsc.0" is better than "mpsc0".
-Please explain what is the benefit of introducing such a change,
-before I can submit a patch for all those platform files to work with
-this change.
-Please CC me, as I am currently not in the list.
+>Any modes in the bios for the SATA ports?  Maybe it is in a mode not
+>supported by linux.  I know the ICH5 only wanted to work for me in
+>native (enhanced?) mode, not compatible (emulating PATA) mode.  Maybe
+>via does something similar.  I am puzzles by the UDMA/133 message which
+>makes no sense for SATA which should be 150 or 300 not 133.
 
-Thanks,
+>Len Sorensen
 
-Lee
+Len,
+
+Thanks for the suggestion but I do not have any option of turning any modes 
+on in the BIOS.
+At this point I am thinking/hoping that  this is quirk introduced by mobo 
+that is triggering this behavior in the driver that can be fixed by somebody 
+easily. Although I do not have the skill set to device a solution.
+
+Jay
+
+

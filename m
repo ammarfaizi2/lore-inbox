@@ -1,49 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262292AbRERLJ0>; Fri, 18 May 2001 07:09:26 -0400
+	id <S262293AbRERL3D>; Fri, 18 May 2001 07:29:03 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262293AbRERLJP>; Fri, 18 May 2001 07:09:15 -0400
-Received: from jalon.able.es ([212.97.163.2]:46744 "EHLO jalon.able.es")
-	by vger.kernel.org with ESMTP id <S262292AbRERLJI>;
-	Fri, 18 May 2001 07:09:08 -0400
-Date: Fri, 18 May 2001 13:08:59 +0200
-From: "J . A . Magallon" <jamagallon@able.es>
-To: Manfred Spraul <manfred@colorfullife.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] new version of singlecopy pipe
-Message-ID: <20010518130859.A1049@werewolf.able.es>
-In-Reply-To: <3AFC36BA.B71FC470@colorfullife.com> <20010512020742.A1054@werewolf.able.es> <15100.33537.982370.753962@pizda.ninka.net> <20010512095057.A2539@werewolf.able.es> <15100.62190.251880.613889@pizda.ninka.net> <3B043BBF.6F8E7B7C@colorfullife.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-In-Reply-To: <3B043BBF.6F8E7B7C@colorfullife.com>; from manfred@colorfullife.com on Thu, May 17, 2001 at 22:59:43 +0200
-X-Mailer: Balsa 1.1.4
+	id <S262295AbRERL2y>; Fri, 18 May 2001 07:28:54 -0400
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:47883 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S262294AbRERL2j>; Fri, 18 May 2001 07:28:39 -0400
+Subject: Re: [patch] 2.4.0, 2.2.18: A critical problem with tty_io.c
+To: alborchers@steinerpoint.com
+Date: Fri, 18 May 2001 12:25:45 +0100 (BST)
+Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), linux-kernel@vger.kernel.org,
+        macro@ds2.pg.gda.pl, tytso@mit.edu, pberger@brimson.com (Peter Berger)
+In-Reply-To: <3B04E694.34FA158F@steinerpoint.com> from "Al Borchers" at May 18, 2001 04:08:36 AM
+X-Mailer: ELM [version 2.5 PL3]
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E150iOA-0006z3-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> Where is an example of the "other locking fix styles" that you and Ted want
+> to apply to the serial drivers?
+> I would be interested to try to figure this out and fix it--can you give
+> me more of an idea of what the problem is?
 
-On 05.17 Manfred Spraul wrote:
-> "David S. Miller" wrote:
-> > 
-> > J . A . Magallon writes:
-> >  > > What platform?
-> > 
-> >  > Any more info ?
-> > 
-> > No, I thought it might be some cache flushing issue
-> > on a non-x86 machine.
-> > 
-> I found the problem: 
-> I sent out the old patch :-(
-> 
-> Attached is the correct version of patch-copy_user_user.
-> 
+Add an 'owner' field to the objects we are using. Then we can lock the tty
+and the ldisc from the tyy_io code rather than in serial.c and friends. This
+removes the unload during open/close races we currently have in serial.c
 
-Yes, this time it worked fine (against ac11)...
+Take a look at videodev.c for a fairly clear example.
 
--- 
-J.A. Magallon                           #  Let the source be with you...        
-mailto:jamagallon@able.es
-Linux Mandrake release 8.1 (Cooker) for i586
-Linux werewolf 2.4.4-ac11 #2 SMP Fri May 18 12:27:06 CEST 2001 i686
+Alan
+
 

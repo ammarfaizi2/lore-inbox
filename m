@@ -1,178 +1,112 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264536AbTGBVoZ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Jul 2003 17:44:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264539AbTGBVoZ
+	id S264643AbTGBVtN (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Jul 2003 17:49:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264647AbTGBVtN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Jul 2003 17:44:25 -0400
-Received: from e6.ny.us.ibm.com ([32.97.182.106]:65451 "EHLO e6.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S264536AbTGBVoW (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Jul 2003 17:44:22 -0400
-Date: Wed, 2 Jul 2003 14:58:47 -0700
-From: Greg KH <greg@kroah.com>
-To: linux-kernel@vger.kernel.org
-Subject: [RFC] add module reference counts to sysfs attribute files
-Message-ID: <20030702215847.GA9973@kroah.com>
+	Wed, 2 Jul 2003 17:49:13 -0400
+Received: from ppp-217-133-42-200.cust-adsl.tiscali.it ([217.133.42.200]:29581
+	"EHLO dualathlon.random") by vger.kernel.org with ESMTP
+	id S264643AbTGBVtG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 2 Jul 2003 17:49:06 -0400
+Date: Thu, 3 Jul 2003 00:02:46 +0200
+From: Andrea Arcangeli <andrea@suse.de>
+To: William Lee Irwin III <wli@holomorphy.com>,
+       "Martin J. Bligh" <mbligh@aracnet.com>, Mel Gorman <mel@csn.ul.ie>,
+       Linux Memory Management List <linux-mm@kvack.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: What to expect with the 2.6 VM
+Message-ID: <20030702220246.GS23578@dualathlon.random>
+References: <Pine.LNX.4.53.0307010238210.22576@skynet> <20030701022516.GL3040@dualathlon.random> <Pine.LNX.4.53.0307021641560.11264@skynet> <20030702171159.GG23578@dualathlon.random> <461030000.1057165809@flay> <20030702174700.GJ23578@dualathlon.random> <20030702214032.GH20413@holomorphy.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <20030702214032.GH20413@holomorphy.com>
+User-Agent: Mutt/1.4i
+X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
+X-PGP-Key: 1024R/CB4660B9 CC A0 71 81 F4 A0 63 AC  C0 4B 81 1D 8C 15 C8 E5
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all,
+On Wed, Jul 02, 2003 at 02:40:32PM -0700, William Lee Irwin III wrote:
+> On Wed, Jul 02, 2003 at 07:47:00PM +0200, Andrea Arcangeli wrote:
+> > actually other more invasive ways could be to move rmap into highmem.
+> > Also the page clustering could also hide part of the mem overhead by
+> > assuming the pagetables to be contiguos, but page clustering isn't part
+> > of mainline yet either.
+> 
+> BSD-style page clustering preserves virtual contiguity of a software
+> page, but the new things don't; for ABI preservation, virtually
+> discontiguous, partial, and misaligned mappings of pages are handled.
+> 
+> The desired behavior can in principle be partially recovered by
+> scanning within a software page size -sized "blast radius" for each
+> chain element and only chaining enough elements to find the relevant
+> ptes that way.
+> 
+> As for remap_file_pages(), either people are misunderstanding or
+> ignoring me. There is a lovely three-step method to handling it:
+> 
+> (a) fix the truncate() bug; it is just a literal bug. There are at
+> 	least 3 different ways to fix it:
+> 	(i) tag vmas touched by remap_file_pages() for exhaustive search
+> 	(ii) do a cleanup pass after the current vmtruncate() doing
+> 		try_to_unmap() on any still-mapped pages
+> 	(iii) drop the current vmtruncate() entirely and do try_to_unmap()
+> 		on each truncated page
+> 	(ii) and (iii) do the locks in the wrong order, so some still-
+> 	mapped but truncated page could be out there; this could be
+> 	handed by Yet Another Cleanup Pass that does (i) or by tolerating
+> 	the new state elsewhere in the VM. There's plenty of ways to
+> 	code this and a couple choices of semantics (i.e make it
+> 	failable or reliable).
+> 
+> (b) implement the bits omitting pte_chains for mlock()'d mappings
+> 	This is obvious. Yank them off the LRU, set a bitflag, and
+> 	reuse page->lru for a counter.
+> 
+> (c) redo the logic around page_convert_anon() and incrementally build
+> 	pte_chains for remap_file_pages().
+> 	The anobjrmap code did exactly this, but it was chaining
+> 	distinct user virtual addresses instead.
+> 	(i) you always have the pte_chain in hand anyway; the core
+> 		is always prepped to handle allocating them now
+> 	(ii) instead of just bailing for file-backed pages in
+> 		page_add_rmap(), pass it enough information to know
+> 		whether the address matches what it should from the
+> 		vma, and start chaining if it doesn't
+> 	(iii) but you say ->mapcount sharing space with the chain is a
+> 		problem? no, it's not; again, take a cue from anobjrmap:
+> 		if a file-backed page needs a pte_chain, shoehorn
+> 		->mapcount into the first pte_chain block dangling off it
+> 
+> After all 3 are done, remap_file_pages() integrates smoothly into the VM,
+> requires no magical privileges, nothing magical or brutally invasive
+> that would scare people just before 2.6.0 is required, and the big
+> apps can get their magical lowmem savings by just mlock()'ing _anything_
+> they do massive sharing with, regardless of remap_file_pages().
+> 
+> Does anyone get it _now_?
 
-Here's a patch against 2.5.74 that adds module reference counting to
-sysfs attribute files.  We already protect kobject from going away when
-attribute files are open, but we also need to protect the code that the
-kobject is referencing from going away too.  This patch fixes that hole,
-and as a nice side benefit allows drivers to put attributes in kobjects
-that they don't necessarily own (but you still have to be careful about
-how you do this, grab the reference first, add the files.  then on exit,
-delete the files and then decrement the count.)
+the problem with the above is that it is an order of magnitude more
+complicated than just providing the feature remap_file_pages is been
+written for. Removing the pte_chains via mlock is trivial, but then go
+ahead and rebuild it synchronously in O(N) scanning the whole 1T of
+virtual address space when I munlock.
 
-This patch works for me on testing of files in pci devices and
-/sys/class/usb_host/ as well as other places in sysfs.  Nice part of
-this patch is that nothing is needed to be changed for drivers that
-already use the *_ATTR() macros to create files.  If you do not use
-them, then you have to set the .owner field on your own.
+In turn I still prefer the simplest possible approch. I see no strong
+reason why we should complicate the kernel like that to make
+remap_file_pages generic.
 
-If no one has any objections to it I'll send it on to Linus in a bit.
+IMHO remap_file_pages wouldn't exist today in the kernel if 32bit archs
+would be limited to 4G of ram. It's primarly a 32bit hack and as such we
+should try to get away with it with the minimal damage to the rest of
+the kernel (in a way that emulator can use too though, via a sysctl or
+similar).
 
-thanks,
+Now releasing the pte_chain during mlock would be a generic feature
+orthogonal with the above I know, but I doubt you really care about it
+for all other usages (also given the nearly unfixable complexity it
+would introduce in munlock).
 
-greg k-h
-
-p.s. You will also need a jiffies cleanup patch which I've included at
-the end of this patch if you want to build this.  I've told the author
-of that file what needs to be fixed so that shouldn't be necessary for
-long.
-
-
-
-# SYSFS: add module referencing to sysfs attribute files.
-
-diff -Nru a/fs/sysfs/file.c b/fs/sysfs/file.c
---- a/fs/sysfs/file.c	Wed Jul  2 14:35:26 2003
-+++ b/fs/sysfs/file.c	Wed Jul  2 14:35:26 2003
-@@ -247,6 +247,12 @@
- 	if (!kobj || !attr)
- 		goto Einval;
- 
-+	/* Grab the module reference for this attribute if we have one */
-+	if (!try_module_get(attr->owner)) {
-+		error = -ENODEV;
-+		goto Done;
-+	}
-+
- 	/* if the kobject has no ktype, then we assume that it is a subsystem
- 	 * itself, and use ops for it.
- 	 */
-@@ -300,6 +306,7 @@
- 	goto Done;
-  Eaccess:
- 	error = -EACCES;
-+	module_put(attr->owner);
-  Done:
- 	if (error && kobj)
- 		kobject_put(kobj);
-@@ -314,10 +321,12 @@
- static int sysfs_release(struct inode * inode, struct file * filp)
- {
- 	struct kobject * kobj = filp->f_dentry->d_parent->d_fsdata;
-+	struct attribute * attr = filp->f_dentry->d_fsdata;
- 	struct sysfs_buffer * buffer = filp->private_data;
- 
- 	if (kobj) 
- 		kobject_put(kobj);
-+	module_put(attr->owner);
- 
- 	if (buffer) {
- 		if (buffer->page)
-diff -Nru a/include/linux/device.h b/include/linux/device.h
---- a/include/linux/device.h	Wed Jul  2 14:35:26 2003
-+++ b/include/linux/device.h	Wed Jul  2 14:35:26 2003
-@@ -18,6 +18,7 @@
- #include <linux/spinlock.h>
- #include <linux/types.h>
- #include <linux/ioport.h>
-+#include <linux/module.h>
- #include <asm/semaphore.h>
- #include <asm/atomic.h>
- 
-@@ -95,7 +96,7 @@
- 
- #define BUS_ATTR(_name,_mode,_show,_store)	\
- struct bus_attribute bus_attr_##_name = { 		\
--	.attr = {.name = __stringify(_name), .mode = _mode },	\
-+	.attr = {.name = __stringify(_name), .mode = _mode, .owner = THIS_MODULE },	\
- 	.show	= _show,				\
- 	.store	= _store,				\
- };
-@@ -136,7 +137,7 @@
- 
- #define DRIVER_ATTR(_name,_mode,_show,_store)	\
- struct driver_attribute driver_attr_##_name = { 		\
--	.attr = {.name = __stringify(_name), .mode = _mode },	\
-+	.attr = {.name = __stringify(_name), .mode = _mode, .owner = THIS_MODULE },	\
- 	.show	= _show,				\
- 	.store	= _store,				\
- };
-@@ -176,7 +177,7 @@
- 
- #define CLASS_ATTR(_name,_mode,_show,_store)			\
- struct class_attribute class_attr_##_name = { 			\
--	.attr = {.name = __stringify(_name), .mode = _mode },	\
-+	.attr = {.name = __stringify(_name), .mode = _mode, .owner = THIS_MODULE },	\
- 	.show	= _show,					\
- 	.store	= _store,					\
- };
-@@ -226,7 +227,7 @@
- 
- #define CLASS_DEVICE_ATTR(_name,_mode,_show,_store)		\
- struct class_device_attribute class_device_attr_##_name = { 	\
--	.attr = {.name = __stringify(_name), .mode = _mode },	\
-+	.attr = {.name = __stringify(_name), .mode = _mode, .owner = THIS_MODULE },	\
- 	.show	= _show,					\
- 	.store	= _store,					\
- };
-@@ -324,7 +325,7 @@
- 
- #define DEVICE_ATTR(_name,_mode,_show,_store) \
- struct device_attribute dev_attr_##_name = { 		\
--	.attr = {.name = __stringify(_name), .mode = _mode },	\
-+	.attr = {.name = __stringify(_name), .mode = _mode, .owner = THIS_MODULE },	\
- 	.show	= _show,				\
- 	.store	= _store,				\
- };
-diff -Nru a/include/linux/sysfs.h b/include/linux/sysfs.h
---- a/include/linux/sysfs.h	Wed Jul  2 14:35:26 2003
-+++ b/include/linux/sysfs.h	Wed Jul  2 14:35:26 2003
-@@ -10,9 +10,11 @@
- #define _SYSFS_H_
- 
- struct kobject;
-+struct module;
- 
- struct attribute {
- 	char			* name;
-+	struct module 		* owner;
- 	mode_t			mode;
- };
- 
-
-
-# fix jiffies compiler warning.
-
-diff -Nru a/arch/i386/kernel/timers/timer_tsc.c b/arch/i386/kernel/timers/timer_tsc.c
---- a/arch/i386/kernel/timers/timer_tsc.c	Wed Jul  2 14:52:20 2003
-+++ b/arch/i386/kernel/timers/timer_tsc.c	Wed Jul  2 14:52:20 2003
-@@ -21,7 +21,6 @@
- int tsc_disable __initdata = 0;
- 
- extern spinlock_t i8253_lock;
--extern unsigned long jiffies;
- 
- static int use_tsc;
- /* Number of usecs that the last interrupt was delayed */
+Andrea

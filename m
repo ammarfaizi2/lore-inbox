@@ -1,48 +1,68 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289776AbSBSULd>; Tue, 19 Feb 2002 15:11:33 -0500
+	id <S289783AbSBSUNP>; Tue, 19 Feb 2002 15:13:15 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289377AbSBSUL1>; Tue, 19 Feb 2002 15:11:27 -0500
-Received: from mailout5-1.nyroc.rr.com ([24.92.226.169]:45443 "EHLO
-	mailout5.nyroc.rr.com") by vger.kernel.org with ESMTP
-	id <S289776AbSBSULO>; Tue, 19 Feb 2002 15:11:14 -0500
-Message-ID: <0a5301c1b981$a921f820$1a01a8c0@allyourbase>
-From: "Dan Maas" <dmaas@dcine.com>
-To: "Jesse Barnes" <jbarnes@sgi.com>, "David Mosberger" <davidm@hpl.hp.com>
-Cc: <linux-kernel@vger.kernel.org>,
-        "Benjamin Herrenschmidt" <benh@kernel.crashing.org>,
-        "Ben Collins" <bcollins@debian.org>
-In-Reply-To: <092401c1b8e7$1d190660$1a01a8c0@allyourbase> <15474.34580.625864.963930@napali.hpl.hp.com> <20020219103506.A1511175@sgi.com>
-Subject: Re: readl/writel and memory barriers
-Date: Tue, 19 Feb 2002 15:11:45 -0500
+	id <S289790AbSBSUNC>; Tue, 19 Feb 2002 15:13:02 -0500
+Received: from harv10.fnal.gov ([131.225.232.6]:23300 "EHLO harv10.fnal.gov")
+	by vger.kernel.org with ESMTP id <S289783AbSBSULl>;
+	Tue, 19 Feb 2002 15:11:41 -0500
+Message-ID: <3C725D1C.3060001@huhepl.harvard.edu>
+Date: Tue, 19 Feb 2002 08:11:40 -0600
+From: Joao Guimaraes da Costa <guima@huhepl.harvard.edu>
+Organization: Harvard University
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.8) Gecko/20020204
+X-Accept-Language: en-us
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
+To: linux-kernel@vger.kernel.org
+Subject: e2fsck compatibility problem with 2.4.17?
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 5.50.4807.1700
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4807.1700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jesse Barnes wrote:
-> To avoid the overhead of having I/O flushed on every
-> memory barrier and readX/writeX operation, we've introduced
-> mmiob() on ia64, which explicity orders I/O space accesses.
-> Some ports have chosen to take the performance hit in every
-> readX/writeX, memory barrier, and spinlock however
-> (e.g. PPC64, MIPS).
 
-I have a hunch that many drivers will break if you change the semantics of
-readX/writeX from in-order to out-of-order - lots of drivers are only
-developed & tested on x86, which completely hides the issue...
+Hi,
 
-If you consider the performance cost of in-order readX/writeX to be
-significant, then I would suggest adding another group of readX/writeX APIs
-that explicitly allow out-of-order PCI access. (__raw_readX/__raw_writeX
-seem to offer this already on some platforms...)
+I am having a problem that might be due to an incompatibility between
+e2fsck and kernel 2.4.17.
 
-Regards,
-Dan
+My machine has a redhat kernel 2.4.3-12 and a kernel 2.4.17 I have 
+recently built from source.
+
+While doing a routine filesystem check at boot time (running kernel 
+2.4.17), e2fsck found a problem with one of the partitions (I am using 
+e2fsck 1.25 from the redhat rawhide rpm  e2fsprogs-1.25-2.i386.rpm).
+
+I decided not to fix the problem and checked it with a different kernel
+and version 1.19 of e2fsck. In both cases, the partition was clean.
+
+So, I get:
+
+kernel     e2fsck    result
+2.4.17      1.25     problem
+2.4.3-12    1.25      OK
+2.4.3-12    1.19      OK
+
+Are there any know incompatibilities between kernel 2.4.17 and e2fsck
+1.25? Right now, I am not sure if the filesystem is damaged or not!
+
+The error I get is the following:
+1) e2fsck gets stuck after only checking 2.5% of the partition. It stays
+   there for about 5 minutes doing clik-clak noises until starting giving
+errors
+2) First error is:
+Block 32783 - 32791 (attempt to read block from filesystem resulted in
+short read) while doing inode scan.
+3) Then in Pass 2:
+resources in /src/linux-2.4.3/drivers/acpi (1894) has deleted/unused
+inode 16435.
+And it keeps giving many similar messages....
+
+If it is useful I can try to get the full output. This has been 100% 
+reproducible in my system.
+
+Thank you,
+	-Joao
+.
+
 

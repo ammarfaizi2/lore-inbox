@@ -1,39 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263681AbTEYTCb (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 25 May 2003 15:02:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263686AbTEYTCb
+	id S263693AbTEYTeM (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 25 May 2003 15:34:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263700AbTEYTeM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 25 May 2003 15:02:31 -0400
-Received: from smtp02.web.de ([217.72.192.151]:30747 "EHLO smtp.web.de")
-	by vger.kernel.org with ESMTP id S263681AbTEYTCa (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 25 May 2003 15:02:30 -0400
-Date: Sun, 25 May 2003 21:31:03 +0200
-From: =?ISO-8859-1?Q?Ren=E9?= Scharfe <l.s.r@web.de>
-To: Valdis.Kletnieks@vt.edu
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Resend [PATCH] Make KOBJ_NAME_LEN match BUS_ID_SIZE
-Message-Id: <20030525213103.7740f6fe.l.s.r@web.de>
-In-Reply-To: <200305251901.h4PJ1LoH022514@turing-police.cc.vt.edu>
-References: <20030525112150.3994df9b.l.s.r@web.de>
-	<3ED0FC58.D1F04381@gmx.de>
-	<20030525210509.09429aaa.l.s.r@web.de>
-	<200305251901.h4PJ1LoH022514@turing-police.cc.vt.edu>
-X-Mailer: Sylpheed version 0.9.0 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 8bit
+	Sun, 25 May 2003 15:34:12 -0400
+Received: from pc2-alde1-3-cust225.glfd.cable.ntl.com ([213.107.78.225]:16723
+	"EHLO mayday.local") by vger.kernel.org with ESMTP id S263693AbTEYTeL
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 25 May 2003 15:34:11 -0400
+Date: Sun, 25 May 2003 20:47:17 +0100 (BST)
+To: Ryan Anderson <ryan@michonline.com>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: [OT] I love Linux!
+In-Reply-To: <20030525090353.GE585@michonline.com>
+X-URL: <http://www.cix.co.uk/~mayday>
+X-Dev86-Version: 0.16.11
+Reply-By: 01 jan 2001 00:00:00
+X-Message-Flag: Linux: The choice of a GNU generation.
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+From: Robert de Bath <robert$@mayday.cix.co.uk>
+Message-ID: <a4a60a0843bb213f@mayday.cix.co.uk>
+X-Mailer: Pine for Linux
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 25 May 2003 15:01:20 -0400 Valdis.Kletnieks@vt.edu wrote:
-> On Sun, 25 May 2003 21:05:09 +0200, =?ISO-8859-1?Q?Ren=E9?= Scharfe said:
-> > +	if (bufsize > 0)
-> > +		return ret;
-> 
-> Umm... Rene?  Either you or I need more caffeine, this looks b0rked to me?
 
-Mmpf. Thanks for noting. I'll be back in a minute with a fresh cup of tea..
+On Sun, 25 May 2003, Ryan Anderson wrote:
 
-René
+> On Sat, May 24, 2003 at 09:52:00AM +0100, Robert de Bath wrote:
+> > > *** ext3 journal has been deleted - filesystem is now ext2 only ***
+>
+> Did you ever put the journal back on?
+
+No actually I haven't, (by choice) the FS is now read-only too as it's
+"only" /boot.
+
+> [...]
+>
+> > Wow! I love Linux!
+>
+> I do too - but after watching that happen, I'd be checking my backups.
+> :)  That's a lot of luck to burn through in one day.
+
+Actually I didn't believe it at first, so I recovered the files from
+backup before I risked a reboot; but when they compared the same as the
+backup I tried it anyway. I've also checked all the other filesystems
+and done a fresh (verified!) L0 backup. :)
+
+Anyway I might have balanced out a bit on the luck front; I had one of
+those 'Oh shit' moments with a 'doze system a couple of days ago.
+I thought I was wiping the start of a virtual (vmware) disk ...
+
+-- 
+Rob.                          (Robert de Bath <robert$ @ debath.co.uk>)
+                                       <http://www.cix.co.uk/~mayday>
+Google Homepage:   http://www.google.com/search?btnI&q=Robert+de+Bath
+

@@ -1,54 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271870AbRH1S25>; Tue, 28 Aug 2001 14:28:57 -0400
+	id <S271871AbRH1SbH>; Tue, 28 Aug 2001 14:31:07 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271871AbRH1S2r>; Tue, 28 Aug 2001 14:28:47 -0400
-Received: from nbd.it.uc3m.es ([163.117.139.192]:34319 "EHLO nbd.it.uc3m.es")
-	by vger.kernel.org with ESMTP id <S271870AbRH1S2c>;
-	Tue, 28 Aug 2001 14:28:32 -0400
-From: "Peter T. Breuer" <ptb@it.uc3m.es>
-Message-Id: <200108281828.UAA02042@nbd.it.uc3m.es>
-Subject: Re: does the request function block
-X-ELM-OSV: (Our standard violations) hdr-charset=US-ASCII
-In-Reply-To: <200108281813.f7SIDjY03688@mail.swissonline.ch> "from Christian
- Widmer at Aug 28, 2001 08:13:45 pm"
-To: cwidmer@iiic.ethz.ch
-Date: Tue, 28 Aug 2001 20:28:30 +0200 (CEST)
-CC: linux kernel <linux-kernel@vger.kernel.org>
-X-Anonymously-To: 
-Reply-To: ptb@it.uc3m.es
-X-Mailer: ELM [version 2.4ME+ PL89 (25)]
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Type: text/plain; charset=US-ASCII
+	id <S271876AbRH1Sa5>; Tue, 28 Aug 2001 14:30:57 -0400
+Received: from cs.columbia.edu ([128.59.16.20]:44206 "EHLO cs.columbia.edu")
+	by vger.kernel.org with ESMTP id <S271871AbRH1Saj>;
+	Tue, 28 Aug 2001 14:30:39 -0400
+Date: Tue, 28 Aug 2001 14:30:56 -0400
+Message-Id: <200108281830.f7SIUu928840@buggy.badula.org>
+From: Ion Badulescu <ionut@cs.columbia.edu>
+To: jt@hpl.hp.com
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Kernel Multicast
+In-Reply-To: <20010828111321.A8147@bougret.hpl.hp.com>
+User-Agent: tin/1.5.8-20010221 ("Blue Water") (UNIX) (Linux/2.4.8-ac9 (i586))
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Christian Widmer wrote:"
-> does the request function of a bock device driver to be attomic or may it 
-> block? in the linux device driver 2 it says that it must be attomic and 
-> may not block. that makes sense to me since it also sais that the bottom-
+On Tue, 28 Aug 2001 11:13:21 -0700, Jean Tourrilhes <jt@bougret.hpl.hp.com> wrote:
 
-It may not block - it's executed by the kernel in order to empty the
-queue of requests for the device, and the kernel executes it with the
-io lock held. So that's that. It can return without emptying the
-queue, but that's another story. It must return immediately.
+>        And finally, I tried :
+> ------------------------------------------
+> bind(sock, ONE_INTERFACE, MY_PORT);
+> ------------------------------------------
+>        First instance : Tx ok, doesn't Rx anything at all. I can
+> understand why, the Rx packet don't have a dest IP address matching
+> ONE_INTERFACE.
 
-> half of the driver will call the request function too. but this is not realy
-> nessesery when i remove all request before releasing the io_request_lock.
+This is the correct approach, I think. Have you tried adding the two
+setsockopt() calls after the bind, or at the very least the
+IP_ADD_MEMBERSHIP one, to see if you can Rx? Otherwise quite obviously
+your physical interface will not have the multicast MAC address added to
+its filters and no packets will reach the IP stack.
 
-?? This seems to me to be orthogonal to to your question.
+'ip maddr ls' is a useful tool for inspecting what your NIC is letting
+through.
 
-> on the other side block devices like nbd or brbd do send date using a socket
-> in there request function.
+Ion
 
-No they don't. NBD moves the requests to an internal queue when the
-request function is run. The function does not block. The internal
-queue is later emptied by another means, in another context.
-
-> who is right and why?
-
-Well, since the hypothesis on which the question is based is mistaken,
-it's hard to say!
-
-Peter
+-- 
+  It is better to keep your mouth shut and be thought a fool,
+            than to open it and remove all doubt.

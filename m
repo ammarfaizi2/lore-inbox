@@ -1,82 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269606AbUHZU2n@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269501AbUHZUJY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269606AbUHZU2n (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 Aug 2004 16:28:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269580AbUHZUZG
+	id S269501AbUHZUJY (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 Aug 2004 16:09:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269549AbUHZUG0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 Aug 2004 16:25:06 -0400
-Received: from websrv2.werbeagentur-aufwind.de ([213.239.197.240]:9382 "EHLO
-	websrv2.werbeagentur-aufwind.de") by vger.kernel.org with ESMTP
-	id S269581AbUHZURh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 Aug 2004 16:17:37 -0400
-Subject: Re: silent semantic changes with reiser4
-From: Christophe Saout <christophe@saout.de>
-To: Rik van Riel <riel@redhat.com>
-Cc: Linus Torvalds <torvalds@osdl.org>, Diego Calleja <diegocg@teleline.es>,
-       jamie@shareable.org, vda@port.imtp.ilyichevsk.odessa.ua,
-       christer@weinigel.se, spam@tnonline.net, akpm@osdl.org,
-       wichert@wiggy.net, jra@samba.org, reiser@namesys.com, hch@lst.de,
-       linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
-       flx@namesys.com, reiserfs-list@namesys.com
-In-Reply-To: <Pine.LNX.4.44.0408261607070.27909-100000@chimarrao.boston.redhat.com>
-References: <Pine.LNX.4.44.0408261607070.27909-100000@chimarrao.boston.redhat.com>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-GQ2TPbJ9f0jGs0xoFQ+H"
-Date: Thu, 26 Aug 2004 22:17:21 +0200
-Message-Id: <1093551441.13881.30.camel@leto.cs.pocnet.net>
+	Thu, 26 Aug 2004 16:06:26 -0400
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:14308 "HELO
+	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
+	id S269546AbUHZUAp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 26 Aug 2004 16:00:45 -0400
+Date: Thu, 26 Aug 2004 21:59:43 +0200
+From: Adrian Bunk <bunk@fs.tum.de>
+To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+Cc: linux-kernel@vger.kernel.org, irda-users@lists.sourceforge.net,
+       Dag Brattli <dagb@cs.uit.no>
+Subject: [2.4 patch][3/6] ircomm_param.c: fix __FUNCTION__ paste error
+Message-ID: <20040826195943.GE12772@fs.tum.de>
+References: <20040826195133.GB12772@fs.tum.de>
 Mime-Version: 1.0
-X-Mailer: Evolution 1.5.92.1 
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040826195133.GB12772@fs.tum.de>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+I got the following compile error when trying to build 2.4.28-pre2 using
+gcc 3.4:
 
---=-GQ2TPbJ9f0jGs0xoFQ+H
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+<--  snip  -->
 
-Am Donnerstag, den 26.08.2004, 16:10 -0400 schrieb Rik van Riel:
+...
+gcc-3.4 -D__KERNEL__ 
+-I/home/bunk/linux/kernel-2.4/linux-2.4.28-pre2-full/include -Wall 
+-Wstrict-prototypes -Wno-trigraphs -O2 -fno-strict-aliasing -fno-common 
+-fomit-frame-pointer -pipe -mpreferred-stack-boundary=2 -march=athlon 
+-fno-unit-at-a-time   -nostdinc -iwithprefix include 
+-DKBUILD_BASENAME=ircomm_param  -c -o ircomm_param.o ircomm_param.c
+ircomm_param.c: In function `ircomm_param_service_type':
+ircomm_param.c:201: error: parse error before "__FUNCTION__"
+make[4]: *** [ircomm_param.o] Error 1
+make[4]: Leaving directory `/home/bunk/linux/kernel-2.4/linux-2.4.28-pre2-full/net/irda/ircomm'
 
-> > So "/tmp/bash" is _not_ two different things. It is _one_ entity, that
-> > contains both a standard data stream (the "file" part) _and_ pointers t=
-o
-> > other named streams (the "directory" part).
->=20
-> Thinking about it some more, how would file managers and
-> file chosers handle this situation ?
+<--  snip  -->
 
-I would say they don't. That's where metadata and pseudo-files sit. It's
-up to the applications to do something useful with the data.
-
-> Do we really want to have a file paradigm that's different
-> from the other OSes out there ?
-
-Some other OSes have similar things.
-
-> What happens when users want to transfer data from Linux
-> to another system ?
-
-No one should store really important data inside file/ that makes the
-file completely useless. I just love these postscript fonts on the Mac.
-The actual main file stream is 0 bytes in size. The actual font is
-inside the resource fork. When I want to convert it the Mac user needs
-to pack it into a compound file using a special tool and then I can
-decode it using another tool to access the PFB file. Crap.
-
-It's useful for metadata like keywords, ACLs and these things. If you
-can pack it using an aware backup program, fine. If you don't, you still
-have the data.
+ 
+The patch below fixes this issue by removing the superfluous 
+__FUNCTION__ (similar to how it is in 2.6).
 
 
---=-GQ2TPbJ9f0jGs0xoFQ+H
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: Dies ist ein digital signierter Nachrichtenteil
+Signed-off-by: Adrian Bunk <bunk@fs.tum.de>
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.5 (GNU/Linux)
-
-iD8DBQBBLkVRZCYBcts5dM0RAjfcAKCWyJiqFIH0Pm+zoO0CechCJPdxIwCglX6Z
-rA3ohyR1G4JNtMhQkYlUZd0=
-=OoSJ
------END PGP SIGNATURE-----
-
---=-GQ2TPbJ9f0jGs0xoFQ+H--
-
+--- linux-2.4.28-pre2-full/net/irda/ircomm/ircomm_param.c.old	2004-08-26 19:28:00.000000000 +0200
++++ linux-2.4.28-pre2-full/net/irda/ircomm/ircomm_param.c	2004-08-26 19:29:46.000000000 +0200
+@@ -198,7 +198,7 @@
+ 		IRDA_DEBUG(2, "%s(), No common service type to use!\n", __FUNCTION__);
+ 		return -1;
+ 	}
+-	IRDA_DEBUG(0, __FUNCTION__ "%s(), services in common=%02x\n", __FUNCTION__,
++	IRDA_DEBUG(0, "%s(), services in common=%02x\n", __FUNCTION__ ,
+ 		   service_type);
+ 
+ 	/*

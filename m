@@ -1,56 +1,80 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id <S132068AbQKZQg6>; Sun, 26 Nov 2000 11:36:58 -0500
+        id <S132349AbQKZQhi>; Sun, 26 Nov 2000 11:37:38 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-        id <S132144AbQKZQgs>; Sun, 26 Nov 2000 11:36:48 -0500
-Received: from filesrv1.baby-dragons.com ([199.33.245.55]:26384 "EHLO
-        filesrv1.baby-dragons.com") by vger.kernel.org with ESMTP
-        id <S132068AbQKZQgo>; Sun, 26 Nov 2000 11:36:44 -0500
-Date: Sun, 26 Nov 2000 08:06:39 -0800 (PST)
-From: "Mr. James W. Laferriere" <babydr@baby-dragons.com>
-To: Paul Jakma <paulj@itg.ie>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: problem with hp C1537A tape drives
-In-Reply-To: <Pine.LNX.4.30.0011261547010.892-100000@rossi.itg.ie>
-Message-ID: <Pine.LNX.4.30.0011260754010.1949-100000@filesrv1.baby-dragons.com>
+        id <S132348AbQKZQh3>; Sun, 26 Nov 2000 11:37:29 -0500
+Received: from sneaker.sch.bme.hu ([152.66.226.5]:20745 "EHLO
+        sneaker.sch.bme.hu") by vger.kernel.org with ESMTP
+        id <S132144AbQKZQhM>; Sun, 26 Nov 2000 11:37:12 -0500
+Date: Sun, 26 Nov 2000 17:06:59 +0100 (CET)
+From: "Mr. Big" <mrbig@sneaker.sch.bme.hu>
+Reply-To: "Mr. Big" <mrbig@sneaker.sch.bme.hu>
+To: Andrew Morton <andrewm@uow.edu.au>
+cc: linux-kernel@vger.kernel.org, Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: PROBLEM: crashing kernels
+In-Reply-To: <3A20501E.32EEB3C8@uow.edu.au>
+Message-ID: <Pine.LNX.3.96.1001126164611.8011A-100000@sneaker.sch.bme.hu>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-	Hello Paul ,  Is the tape drive the only drive on that controller ?
+Previous day I followed the hint of Alan, and made a 2.2.14 kernel, with
+the DAC960 driver taken from the 2.2.17, for these changes I've copied
+the:
+drivers/block/DAC960.c
+drivers/block/DAC960.h
+drivers/pci/oldrpoc.c
+include/linux/pci.h
+from the 2.2.17 sourcetree into the 2.2.14. Ok, it compiled.
+We also borrowed another mainboard, cpu's and ram for test. We changed
+them all, but the borrowed ram was just 512Mb, so we had to do a hard cut
+back on the services, for could fit into it. I think I didn't mention yet,
+we're using an intel L440GX+ mainboard. For the CPU's see my original
+mail. The new CPU's were the same speed (550Mhz) but Katmai's insted of
+the Coppermine's.
+We removed the Eepros also, just left a 3Com, and a dlink card. This one
+isn't the best, but with it's own driver in another computer it's working
+with the 2.2.14 kernel since months ago without any troubles.
 
- -	If it is the only drive then , I have just one suggestion
-	-verify- all cables are seated correctly & -verify- that there
-	is proper termination on the bus .
+The kernel booted up. Just the 3Com driver throwed some errors, and warned
+that the cheksum isn't good, so I decided to take the driver from the
+2.2.17 also, for this I copied the
+drivers/net/3c59x.c
 
- -	If it is Not the only drive then ,
-	Try grabbing an pci scsi card of known goodness & place the tape
-	drive on that all by itself (just as a test) , making sure of
-	proper termination .
-	If that works then reveiw the configurations of the other
-	drives/tapes/... that are on the bus causing problems .
-		Hth ,  JimL
+For the boot I also followed Andrew's hint, and booted with the noapic
+option.
+This one is much newer, and this way the 2.2.14 worked well the whole
+night.
 
-On Sun, 26 Nov 2000, Paul Jakma wrote:
-> Ooops.. yes.. that info might have been useful. :)
-> The box is a Compaq PL3000. Chipset is the onboard Sym 53c876, driven
-> by the ncr53c8xx driver. Drive is external.
-> Kernel is RH6.2 default 2.2.14-5.0smp.
+In the afternoon we decided to put back the original mainboard+ram+cpu.
+We booted the kernel described above.
+I just noticed then, that all the interrupts went to the CPU1, while the
+CPU0 didn't get any. Is this because of the noapic option?
 
-> On Sun, 26 Nov 2000, Mr. James W. Laferriere wrote:
-> > 	Hello Paul ,  Could you add a little more info like which scsi
-> > 	chipset you are using & what the driver version is & what kernel
-> > 	version you are running also (One more )& how you have the drive
-> > 	chained to the scsi-bus .  Someplace there is a pointer on howto
-> > 	reset the scsi-bus from the /proc system , BUT the method is
-> > 	highly not recommended .  Hth ,  JimL
-       +----------------------------------------------------------------+
-       | James   W.   Laferriere | System  Techniques | Give me VMS     |
-       | Network        Engineer | 25416      22nd So |  Give me Linux  |
-       | babydr@baby-dragons.com | DesMoines WA 98198 |   only  on  AXP |
-       +----------------------------------------------------------------+
+The worst is, that after two hours same black crash again. (no ping, no
+console, no keyboard leds)
+
+I believe we face a kind of hardware problem, or some hardware specific
+software problem. Any idea wich of the hardware components could be bad,
+or wich are badly supported by some drivers?
+
+> This is caused by the APIC(s) forgetting how to deliver interrupts
+> for a particular IRQ.  Normally, reloading the driver doesn't help.
+> But in your case it did.  This is odd.
+
+How could an APIC 'forget' how to deliver the interrupts? Could this mean
+a problem with the mainboard, or with the CPU?
+
+Thanks for Your help.
+
++--------------------------------------------+
+| Nagy Attila                                |
+|   mailto:mrbig@sneaker.sch.bme.hu          |
++--------------------------------------------+
+
+
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

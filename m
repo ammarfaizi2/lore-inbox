@@ -1,50 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263542AbTE0NgH (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 May 2003 09:36:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263566AbTE0NgH
+	id S263573AbTE0Nlm (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 May 2003 09:41:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263579AbTE0Nlm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 May 2003 09:36:07 -0400
-Received: from mail.ithnet.com ([217.64.64.8]:8198 "HELO heather.ithnet.com")
-	by vger.kernel.org with SMTP id S263542AbTE0NgG (ORCPT
+	Tue, 27 May 2003 09:41:42 -0400
+Received: from hydra.colinet.de ([194.231.113.36]:8207 "EHLO hydra.colinet.de")
+	by vger.kernel.org with ESMTP id S263573AbTE0Nll (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 May 2003 09:36:06 -0400
-Date: Tue, 27 May 2003 15:49:10 +0200
-From: Stephan von Krawczynski <skraw@ithnet.com>
-To: Werner.Beck@Lidl.de
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Oops in Kernel 2.4.21-rc1
-Message-Id: <20030527154910.451e83d8.skraw@ithnet.com>
-In-Reply-To: <OF4CB12D76.81223041-ONC1256D33.0040CFEC-C1256D33.004202DC@eu.lidl.net>
-References: <OF4CB12D76.81223041-ONC1256D33.0040CFEC-C1256D33.004202DC@eu.lidl.net>
-Organization: ith Kommunikationstechnik GmbH
-X-Mailer: Sylpheed version 0.9.0 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Tue, 27 May 2003 09:41:41 -0400
+Subject: 2.5.70 dies on alpha-SMP
+To: linux-kernel@vger.kernel.org
+Cc: kirk@colinet.de
+Message-Id: <kirk-1030527151258.A0117853@hydra.colinet.de>
+X-Mailer: TkMail 4.0beta9
+From: "T. Weyergraf" <kirk@colinet.de>
+Date: Tue, 27 May 2003 15:12:58 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 27 May 2003 14:01:00 +0200
-Werner.Beck@Lidl.de wrote:
+Hi all,
 
-> Hello,
-> I encountered a Kernel oops on two different PCs, both a configured
-> identical. The system uses an ISDN connection to an Internet ISP and then
-> establishes a VPN tunnel based on PPTP.
-> As far as I can see in /var/log/messages the problem occurred on both
-> system at the same time at 00:15, but not at the same day and not every
-> day. No special program is running at that time. Basically it is a SuSE 7.3
-> distribution, I made a Kernel upgrade.
-> Hardware is a Fujitsu Siemens N300 PC with an IDE (7200 Rpm), Intel 845GI
-> Motherboard, an ISDN PBX connected via USB to dial-up, the connection
-> wasn't established when the system oopsed.
-> Attached are some information.
-> (See attached file: info.txt)(See attached file: oops.log)
+the stock 2.5.70 dies early upon boot on my alpha UP2000
+( dual EV67, DP264 vector ). It happens, after the kernel
+tries to start the second CPU. The error happens regardless
+of the compilers i tried ( gcc 3.2.3 and 2.95.4 ).
 
-Exchange the USB/ISDN part with a pci card and re-try with kernel -rc4. 
+Unfortunately, I do not have a log handy. If that is crucial,
+I can rewire my serial console and capture one.
 
-Tell us if that works.
+Any Ideas ?
 
-Regards,
-Stephan
+
+-- 
+Thomas Weyergraf                                                kirk@colinet.de
+My Favorite IA64 Opcode-guess ( see arch/ia64/lib/memset.S )
+"br.ret.spnt.few" - got back from getting beer, did not spend a lot.
+
+

@@ -1,110 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129026AbRBHXWR>; Thu, 8 Feb 2001 18:22:17 -0500
+	id <S129042AbRBHXc2>; Thu, 8 Feb 2001 18:32:28 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129068AbRBHXWI>; Thu, 8 Feb 2001 18:22:08 -0500
-Received: from mailgate1.zdv.Uni-Mainz.DE ([134.93.8.56]:41922 "EHLO
-	mailgate1.zdv.Uni-Mainz.DE") by vger.kernel.org with ESMTP
-	id <S129026AbRBHXWF>; Thu, 8 Feb 2001 18:22:05 -0500
-Date: Fri, 9 Feb 2001 00:21:59 +0100
-From: Dominik Kubla <dominik.kubla@uni-mainz.de>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.4.1-ac7
-Message-ID: <20010209002159.A31500@uni-mainz.de>
-Mail-Followup-To: Dominik Kubla <dominik.kubla@uni-mainz.de>,
-	Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
-In-Reply-To: <E14QwU4-0004QE-00@the-village.bc.nu>
-Mime-Version: 1.0
+	id <S129101AbRBHXcR>; Thu, 8 Feb 2001 18:32:17 -0500
+Received: from janus.cypress.com ([157.95.1.1]:37829 "EHLO janus.cypress.com")
+	by vger.kernel.org with ESMTP id <S129042AbRBHXcE>;
+	Thu, 8 Feb 2001 18:32:04 -0500
+Message-ID: <3A832C6C.F17B11B5@cypress.com>
+Date: Thu, 08 Feb 2001 17:31:56 -0600
+From: Thomas Dodd <ted@cypress.com>
+Organization: Cypress Semiconductor Southeast Design Center
+X-Mailer: Mozilla 4.76 [en] (X11; U; SunOS 5.8 sun4u)
+X-Accept-Language: en-US, en-GB, en, de-DE, de-AT, de-CH, de, zh-TW, zh-CN, zh
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: Re: spelling of disc (disk) in /devfs
+In-Reply-To: <6lah7t4f685qo3igk679ocdo2obfhd9lvg@4ax.com> <20010201034217.A550@foozle.turbogeek.org> <20010201042813.C27725@cadcamlab.org>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.12i
-In-Reply-To: <E14QwU4-0004QE-00@the-village.bc.nu>; from alan@lxorguk.ukuu.org.uk on Thu, Feb 08, 2001 at 07:11:57PM +0000
-X-No-Archive: yes
-Restrict: no-external-archive
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Alan,
+Peter Samuelson wrote:
+> 
+> [Jeremy M. Dolan]
+> > Disk is spelled 'disk' except for Compact Disc and Digital Versatile
+> > Disc. If it wasn't 3:30 in the morning, a patch would be attached.
+> 
+> It wouldn't do any good.  Many months ago, Ted Ts'o pleaded with
+> Richard Gooch (devfs author, from Australia) to switch to the American
+> spelling of the word, for consistency with the rest of the kernel, and
+> nothing came of it.  At this point you may as well consider
+> '/dev/discs' an "interface set in stone".  (Come on, do *you* want to
+> explain to thousands of people why their /etc/fstab suddenly broke?)
 
-somebody screwed up in either the IDE or the PCI code: the IDE driver
-doesn't compile when CONFIG_PCI is _disabled_.
+Better still, follow the lead from other Solaris and HP-UX.
 
-  Dominik
+/dev/dsk/* block access for hard drives
+/dev/rdsk/* char access for hard drives
+/dev/diskette block access for floppy drives
+/dev/rdiskette char access for floppy drives
+/dev/rscsi/* char access for raw scsi (replace /dev/sg* )
 
-Error message:
+Since linux currently doesn't have char access to drives,
+rdsk/rdiskette would be ignored untill it is implemented
+and needed.
 
-...
-make[3]: Entering directory `/export/source/i486/linux/drivers/ide'
-gcc -D__KERNEL__ -I/export/source/i486/linux/include -Wall -Wstrict-prototypes -O2 -fomit-frame-pointer -fno-strict-aliasing -pipe -mpreferred-stack-boundary=2
--march=i486    -DEXPORT_SYMTAB -c ide.c
-gcc -D__KERNEL__ -I/export/source/i486/linux/include -Wall -Wstrict-prototypes -O2 -fomit-frame-pointer -fno-strict-aliasing -pipe -mpreferred-stack-boundary=2
--march=i486    -DEXPORT_SYMTAB -c ide-features.c
-gcc -D__KERNEL__ -I/export/source/i486/linux/include -Wall -Wstrict-prototypes -O2 -fomit-frame-pointer -fno-strict-aliasing -pipe -mpreferred-stack-boundary=2
--march=i486    -c -o ide-proc.o ide-proc.c
-ld -m elf_i386 -r -o ide-mod.o ide.o ide-features.o  ide-proc.o
-ide-features.o: In function `pci_match_device':
-ide-features.o(.text+0x0): multiple definition of `pci_match_device'
-ide.o(.text+0x0): first defined here
-ide-proc.o: In function `pci_match_device':
-ide-proc.o(.text+0x0): multiple definition of `pci_match_device'
-ide.o(.text+0x0): first defined here
-make[3]: *** [ide-mod.o] Error 1
-make[3]: Leaving directory `/export/source/i486/linux/drivers/ide'
-make[2]: *** [first_rule] Error 2
-make[2]: Leaving directory `/export/source/i486/linux/drivers/ide'
-make[1]: *** [_subdir_ide] Error 2
-make[1]: Leaving directory `/export/source/i486/linux/drivers'
-make: *** [_dir_drivers] Error 2
+My $0.02
 
-Output of ver_linux:
-
--- Versions installed: (if some fields are empty or look
--- unusual then possibly you have very old versions)
-Linux gateway 2.4.0-ac9 #1 Tue Jan 16 23:45:51 CET 2001 i486 unknown
-Kernel modules         2.4.1
-Gnu C                  2.95.3
-Gnu Make               3.79.1
-Binutils               2.10.1.0.2
-Linux C Library        2.2.1
-Dynamic linker         ldd (GNU libc) 2.2.1
-Procps                 2.0.7
-Mount                  2.10q
-Net-tools              2.05
-Console-tools          0.2.3
-Sh-utils               2.0.11
-Modules Loaded         ipt_MASQUERADE iptable_nat ip_conntrack ip_tables sb sb_lib uart401 sound soundcore ne 8390 hisax isdn slhc
-
-Relevant .config options:
-
-CONFIG_EXPERIMENTAL=y
-...
-# CONFIG_PCI is not set
-# CONFIG_EISA is not set
-# CONFIG_MCA is not set
-# CONFIG_HOTPLUG is not set
-# CONFIG_PCMCIA is not set
-...
-#
-# ATA/IDE/MFM/RLL support
-#
-CONFIG_IDE=y
-
-#
-# IDE, ATA and ATAPI Block devices
-#
-CONFIG_BLK_DEV_IDE=y
-
-#
-# Please see Documentation/ide.txt for help/info on IDE drives
-#
-# CONFIG_BLK_DEV_HD_IDE is not set
-# CONFIG_BLK_DEV_HD is not set
-CONFIG_BLK_DEV_IDEDISK=y
-..
-CONFIG_BLK_DEV_IDECD=y
-...
-
+	-Thomas
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

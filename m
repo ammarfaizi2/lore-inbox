@@ -1,57 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263226AbUFBPM7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263163AbUFBPRq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263226AbUFBPM7 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Jun 2004 11:12:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263191AbUFBPM7
+	id S263163AbUFBPRq (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Jun 2004 11:17:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263159AbUFBPRq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Jun 2004 11:12:59 -0400
-Received: from fw.osdl.org ([65.172.181.6]:428 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S263184AbUFBPMl (ORCPT
+	Wed, 2 Jun 2004 11:17:46 -0400
+Received: from mail.kroah.org ([65.200.24.183]:21655 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S263167AbUFBPRV (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Jun 2004 11:12:41 -0400
-Date: Wed, 2 Jun 2004 08:12:00 -0700 (PDT)
-From: Linus Torvalds <torvalds@osdl.org>
-To: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
-cc: Horst von Brand <vonbrand@inf.utfsm.cl>, Pavel Machek <pavel@suse.cz>,
-       Andrew Morton <akpm@osdl.org>, Arjan van de Ven <arjanv@redhat.com>,
-       Ingo Molnar <mingo@elte.hu>, Andrea Arcangeli <andrea@suse.de>,
-       Rik van Riel <riel@redhat.com>, linux-kernel@vger.kernel.org
-Subject: Re: [RFC PATCH] explicitly mark recursion count
-In-Reply-To: <20040602150440.GA26474@wohnheim.fh-wedel.de>
-Message-ID: <Pine.LNX.4.58.0406020807270.3403@ppc970.osdl.org>
-References: <200406011929.i51JTjGO006174@eeyore.valparaiso.cl>
- <Pine.LNX.4.58.0406011255070.14095@ppc970.osdl.org>
- <20040602131623.GA23017@wohnheim.fh-wedel.de> <Pine.LNX.4.58.0406020712180.3403@ppc970.osdl.org>
- <20040602142748.GA25939@wohnheim.fh-wedel.de> <Pine.LNX.4.58.0406020743260.3403@ppc970.osdl.org>
- <20040602150440.GA26474@wohnheim.fh-wedel.de>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=iso-8859-1
-Content-Transfer-Encoding: 8BIT
+	Wed, 2 Jun 2004 11:17:21 -0400
+Date: Wed, 2 Jun 2004 08:16:17 -0700
+From: Greg KH <greg@kroah.com>
+To: Eric BEGOT <eric_begot@yahoo.fr>
+Cc: Manu Abraham <manu@kromtek.com>, linux-kernel@vger.kernel.org
+Subject: Re: Minor numbers under 2.6
+Message-ID: <20040602151617.GA25862@kroah.com>
+References: <200406021519.32128.manu@kromtek.com> <20040602144931.GA25424@kroah.com> <40BDEDF6.1030405@yahoo.fr>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <40BDEDF6.1030405@yahoo.fr>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-On Wed, 2 Jun 2004, Jörn Engel wrote:
+On Wed, Jun 02, 2004 at 05:10:46PM +0200, Eric BEGOT wrote:
+> Greg KH wrote:
 > 
-> Can I read this as:
-> Linus himself will use strong words to enforce all recursions in the
-> kernel to be either removed or properly documented.
+> >The same way:
+> >	# mknod foo c 100 10000
+> >	# ls -l foo 
+> >	crw-r--r--  1 root root 100, 10000 Jun  2 07:48 foo
+> >
+> >
+> > 
+> >
+> Under 2.6.7-rc2-mm1 :
+> root@Starbuck:/home/tyler>mknod /dev/test c 100 1000
+> root@Starbuck:/home/tyler>ll /dev/test
+> crw-r--r-- 1 root root 103, 232 Jun 2 17:07 /dev/test
+> 
+> and under 2.4.26 that's the same.
 
-If we have a good detector that is reliable and easy to run, why not?
+Like I stated in my message, which you cut off:
+	Just make sure you have a up to date glibc.
 
-It will take some time, but I think the problem so far has been that the
-recursion can be hard to see. Some "core" cases are well-known (memory
-allocations during memory allocation, and filename lookup), and they 
-should be trivial to annotate. Knock wood. Others might be worse.
+I'm guessing that you do not have the most recent version of glibc on
+your machine.
 
-> In that case, you have 273 recursions to deal with.  They are all in
-> the data I attached a few posts back.  Recursions would basically be
-> in the same league as huge stack hogs, sounds good.
-
-Yes. And with huge stack hogs, we've not exactly "fixed them all in a 
-weekend", have we? But having a few people run the checking tools and 
-nagging every once in a while ends up eventually fixing things. At least 
-the most common ones.
-
-		Linus
+greg k-h

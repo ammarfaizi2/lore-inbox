@@ -1,73 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262605AbUH0LDK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262837AbUH0LFZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262605AbUH0LDK (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 27 Aug 2004 07:03:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262837AbUH0LDK
+	id S262837AbUH0LFZ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 27 Aug 2004 07:05:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262932AbUH0LFZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 27 Aug 2004 07:03:10 -0400
-Received: from ip189.73.1311O-CUD12K-02.ish.de ([62.143.73.189]:54400 "EHLO
-	sheridan") by vger.kernel.org with ESMTP id S262605AbUH0LDF (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 27 Aug 2004 07:03:05 -0400
-From: Marcus Metzler <mocm@mocm.de>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Fri, 27 Aug 2004 07:05:25 -0400
+Received: from ppsw-5.csi.cam.ac.uk ([131.111.8.135]:31136 "EHLO
+	ppsw-5.csi.cam.ac.uk") by vger.kernel.org with ESMTP
+	id S262837AbUH0LFO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 27 Aug 2004 07:05:14 -0400
+Subject: Re: data loss in 2.6.9-rc1-mm1
+From: Anton Altaparmakov <aia21@cam.ac.uk>
+To: Gergely Tamas <dice@mfa.kfki.hu>
+Cc: lkml <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>
+In-Reply-To: <20040827105543.GA10563@mfa.kfki.hu>
+References: <20040827105543.GA10563@mfa.kfki.hu>
+Content-Type: text/plain
+Organization: University of Cambridge Computing Service, UK
+Message-Id: <1093604706.5994.54.camel@imp.csi.cam.ac.uk>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Fri, 27 Aug 2004 12:05:06 +0100
 Content-Transfer-Encoding: 7bit
-Message-ID: <16687.5352.573457.804217@mocm.de>
-Date: Fri, 27 Aug 2004 13:03:04 +0200
-To: Koos Vriezen <koos.vriezen@xs4all.nl>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Termination of the Philips Webcam Driver (pwc)
-In-Reply-To: <20040827101433.GA99275@xs4all.nl>
-References: <20040827101433.GA99275@xs4all.nl>
-X-Mailer: VM 7.17 under 21.4 (patch 15) "Security Through Obscurity" XEmacs Lucid
-Reply-To: mocm@mocm.de
-X-Face: X!$Vwl\?,AW_[zm^ej\MLxN>q;R?C_sRZ*XE4V;BGT28Ewyd\:TS')W'G#Dgay8ci$*{lEd
- 02(Nk0OndG\752U>lozmb_R1poDm6mgHm_4.}bdS0hh.`xGUI.X2x_50T9.?_v~.,QI*$2:Q=HV@>F
- IP6%l~E:T|w,X[eC;|YD(A9X'sS"r$l]g<4CjAm4|f7o0>6zGwUPLinP0.d=E+_%?4>0A9'esEZ=9h
- $#b[g*/q/g'GVj-hDc,+V_]1.H^N,1Bju,>5FZn"B
+X-Cam-ScannerInfo: http://www.cam.ac.uk/cs/email/scanner/
+X-Cam-AntiVirus: No virus found
+X-Cam-SpamDetails: Not scanned
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> "Koos" == Koos Vriezen <koos.vriezen@xs4all.nl> writes:
+On Fri, 2004-08-27 at 11:55, Gergely Tamas wrote:
 
-    Koos> On Fri, 27 Aug 2004, Linus Torvalds wrote:
-    >> On Fri, 27 Aug 2004, Christoph Hellwig wrote:
-    >> >
-    >> > It's not up to him to decide. He can step down from his
-    >> maintainership, > but he can't force the driver to be removed.
-    >> Yes and no. From a legal standpoint you're right. However, we
-    >> should also be polite. If he's the sole author, and he asks for
-    >> it, I think it's reasonable to honor his wishes.
+> I've hit the following data loss problem under 2.6.9-rc1-mm1.
+> 
+> If I copy data from a file to another the target will be smaller then
+> the source file.
+[snip]
+> $ uname -r
+> 2.6.9-rc1-mm1
+> 
+> $ dd if=/dev/zero of=testfile bs=$((1024*1024)) count=10
+> 10+0 records in
+> 10+0 records out
+> 10485760 bytes transferred in 0.028418 seconds (368981986 bytes/sec)
+> 
+> $ du -sb testfile
+> 10485760        testfile
+> 
+> $ cat testfile > testfile.1
+> 
+> $ du -sb testfile.1
+> 10481664        testfile.1
 
-    Koos> Doubtfully of course. I maintain a small OSS applicatione
-    Koos> and although it sucks, it wouldn't be there where it is now
-    Koos> w/o input from others.  Some are better at writing code,
-    Koos> others making patches and others complaing why XYZ doesn't
-    Koos> work. But all do contribute. Imho it would be very unpolite
-    Koos> to them to just say, thanks for everything but this app is
-    Koos> dead and btw. I removed all references to it.  Please play
-    Koos> be the rules, GPL is GPL period (and don't make this a weak
-    Koos> spot for OSS by being soft).
+The difference is exactly 4096 bytes, i.e. 1 whole page.  Seems like an
+off-by-one error somewhere in the file access or page cache code.
 
-    >> Of course if some new maintainer shows up and decides to infer
-    >> how the device worked by looking at the original open-source
-    >> code, that's also clearly fine.  I don't want people to play
-    >> lawyer. Honoring peoples rights to the code they write is more
-    >> important than just the law.
+It would be interesting to know whether the read is truncated or whether
+the write is truncated.  So could you tell us what is returned by:
 
-    Koos> I'm sure this will resolve one day (in the meantime, I've
-    Koos> put what I had on my hd on
-    Koos> http://www.xs4all.nl/~jjvrieze/pwc.html, please alert if the
-    Koos> md5sum are incorrect for those having this somewhere too).
+cat testfile | wc -c
 
-Under what license were the binary modules distributed ?
+Also your .config would probably be helpful.
 
-Marcus
+Best regards,
 
+	Anton
 -- 
-/--------------------------------------------------------------------\
-| Dr. Marcus O.C. Metzler        |                                   |
-| mocm@metzlerbros.de            | http://www.metzlerbros.de/        |
-\--------------------------------------------------------------------/
- |>>>             Quis custodiet ipsos custodies                 <<<|
+Anton Altaparmakov <aia21 at cam.ac.uk> (replace at with @)
+Unix Support, Computing Service, University of Cambridge, CB2 3QH, UK
+Linux NTFS maintainer / IRC: #ntfs on irc.freenode.net
+WWW: http://linux-ntfs.sf.net/, http://www-stu.christs.cam.ac.uk/~aia21/
+

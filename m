@@ -1,38 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265576AbRF1HTQ>; Thu, 28 Jun 2001 03:19:16 -0400
+	id <S265575AbRF1HNg>; Thu, 28 Jun 2001 03:13:36 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265577AbRF1HTG>; Thu, 28 Jun 2001 03:19:06 -0400
-Received: from t2.redhat.com ([199.183.24.243]:18159 "EHLO
-	passion.cambridge.redhat.com") by vger.kernel.org with ESMTP
-	id <S265576AbRF1HS7>; Thu, 28 Jun 2001 03:18:59 -0400
-X-Mailer: exmh version 2.3 01/15/2001 with nmh-1.0.4
-From: David Woodhouse <dwmw2@infradead.org>
-X-Accept-Language: en_GB
-In-Reply-To: <3B3A4967.CD5A83BA@mandrakesoft.com> 
-In-Reply-To: <3B3A4967.CD5A83BA@mandrakesoft.com>  <Pine.LNX.4.33.0106271348420.24832-100000@penguin.transmeta.com> 
-To: Jeff Garzik <jgarzik@mandrakesoft.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: PATCH 2.4.6.5: fix mtd config 
-Mime-Version: 1.0
+	id <S265576AbRF1HN1>; Thu, 28 Jun 2001 03:13:27 -0400
+Received: from mailout05.sul.t-online.com ([194.25.134.82]:49419 "EHLO
+	mailout05.sul.t-online.de") by vger.kernel.org with ESMTP
+	id <S265575AbRF1HNK>; Thu, 28 Jun 2001 03:13:10 -0400
+Date: 28 Jun 2001 08:54:00 +0200
+From: kaih@khms.westfalen.de (Kai Henningsen)
+To: linux-kernel@vger.kernel.org
+Message-ID: <83hAoTWHw-B@khms.westfalen.de>
+In-Reply-To: <9hd7pl$86f$1@cesium.transmeta.com>
+Subject: Re: [PATCH] User chroot
+X-Mailer: CrossPoint v3.12d.kh7 R/C435
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Date: Thu, 28 Jun 2001 08:18:47 +0100
-Message-ID: <13913.993712727@redhat.com>
+Organization: Organisation? Me?! Are you kidding?
+In-Reply-To: <9hd7pl$86f$1@cesium.transmeta.com>
+X-No-Junk-Mail: I do not want to get *any* junk mail.
+Comment: Unsolicited commercial mail will incur an US$100 handling fee per received mail.
+X-Fix-Your-Modem: +++ATS2=255&WO1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+hpa@zytor.com (H. Peter Anvin)  wrote on 27.06.01 in <9hd7pl$86f$1@cesium.transmeta.com>:
 
-jgarzik@mandrakesoft.com said:
-> Seeing David Woodhouse's name reminds me that this patch, submitted by
-> both David and myself, didn't make it into pre5...  It moves
-> mtd-related config items inside CONFIG_MTD. 
+> By author:    kaih@khms.westfalen.de (Kai Henningsen)
 
-Jeff, thankyou for finding this and making me aware of it. It's now in the 
-2.4.6 branch of my tree and I'll resend it, along with one or two other 
-minor fixes, shortly. I'll now need to wait to see whether this partial 
-patch appears in -pre6, I suppose.
+> > jc@lysator.liu.se (Jorgen Cederlof)  wrote on 27.06.01 in
+> > <20010627014534.B2654@ondska>:
+> >
+> > > If we only allow user chroots for processes that have never been
+> > > chrooted before, and if the suid/sgid bits won't have any effect under
+> > > the new root, it should be perfectly safe to allow any user to chroot.
+> >
+> > Hmm. Dos this work with initrd and root pivoting?
+> >
+>
+> At the moment, yes.  Once Viro gets his root-changes in, this breaks,
+> since ALL processes will be chrooted.
 
---
-dwmw2
+About what I expected. So you'd really want this flag to be resettable by  
+root, if you go that way at all. Beginning to look a little too compley, I  
+think.
+
+The last time, ISTR we discussed some other, similar-but-different  
+syscalls that made for more secure jails. I don't quite remember the  
+details, though.
 
 
+MfG Kai

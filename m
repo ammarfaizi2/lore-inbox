@@ -1,51 +1,78 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280387AbRKNJyO>; Wed, 14 Nov 2001 04:54:14 -0500
+	id <S280402AbRKNKIQ>; Wed, 14 Nov 2001 05:08:16 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280395AbRKNJxz>; Wed, 14 Nov 2001 04:53:55 -0500
-Received: from [195.63.194.11] ([195.63.194.11]:42505 "EHLO
-	mail.stock-world.de") by vger.kernel.org with ESMTP
-	id <S280394AbRKNJxq>; Wed, 14 Nov 2001 04:53:46 -0500
-Message-ID: <3BF23D01.F7E879E8@evision-ventures.com>
-Date: Wed, 14 Nov 2001 10:44:33 +0100
-From: Martin Dalecki <dalecki@evision-ventures.com>
-Reply-To: dalecki@evision.ag
-X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.4.7-10 i686)
-X-Accept-Language: en, de
+	id <S280415AbRKNKIH>; Wed, 14 Nov 2001 05:08:07 -0500
+Received: from hanoi.cronyx.ru ([144.206.181.53]:32019 "EHLO hanoi.cronyx.ru")
+	by vger.kernel.org with ESMTP id <S280402AbRKNKHy>;
+	Wed, 14 Nov 2001 05:07:54 -0500
+Message-ID: <3BF24147.9030508@cronyx.ru>
+Date: Wed, 14 Nov 2001 13:02:47 +0300
+From: Roman Kurakin <rik@cronyx.ru>
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:0.9.2) Gecko/20010726 Netscape6/6.1
+X-Accept-Language: en-us
 MIME-Version: 1.0
-To: ptb@it.uc3m.es
-CC: linux kernel <linux-kernel@vger.kernel.org>
-Subject: Re: blocks or KB? (was: .. current meaning of blk_size array)
-In-Reply-To: <200111131851.fADIpTN20263@oboe.it.uc3m.es>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+To: linux-kernel@vger.kernel.org
+Subject: Serial.c Bug
+Content-Type: multipart/mixed;
+ boundary="------------060403040604090801080900"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Peter T. Breuer" wrote:
-> 
-> Let me put it more plainly.  Martin Daleki + rumour assures me that the
-> blk_size array nowadays measure in blocks not KB, yet to me it seems that
+This is a multi-part message in MIME format.
+--------------060403040604090801080900
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 
-sectors = 512 per default
-blocks = 1024 per default.
+  Hi,
 
+    I have found a bug. It is in support of serial cards which uses 
+memory for I/O
+insted of ports. I made a patch for serial.c and fix one place, but 
+probably the
+problem like this one could be somewhere else.
 
-Never said anything else.
+    If you try to use setserial with such cards you will get "Address in 
+use" (-EADDRINUSE)
 
-Look at the initialization point for the arrays. They all use constants
-which you can look up in the kernel headers.
-
-./linux/fs.h:#define BLOCK_SIZE_BITS 10
-./linux/fs.h:#define BLOCK_SIZE (1<<BLOCK_SIZE_BITS)
-
-Which means 1024 bytes for blk_size as default value.
-
-> it doesn't.  Look at this code from ll_rw_blk.c in 2.4.13:
+Best regards,
+                        Kurakin Roman
 
 
--- 
-- phone: +49 214 8656 283
-- job:   eVision-Ventures AG, LEV .de (MY OPINIONS ARE MY OWN!)
-- langs: de_DE.ISO8859-1, en_US, pl_PL.ISO8859-2, last ressort:
-ru_RU.KOI8-R
+--------------060403040604090801080900
+Content-Type: text/plain;
+ name="serial.pch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="serial.pch"
+
+--- serial.c.orig	Tue Nov 13 20:50:16 2001
++++ serial.c	Tue Nov 13 20:52:28 2001
+@@ -2077,6 +2077,7 @@
+ 	unsigned int		i,change_irq,change_port;
+ 	int 			retval = 0;
+ 	unsigned long		new_port;
++	unsigned long           new_mem;
+ 
+ 	if (copy_from_user(&new_serial,new_info,sizeof(new_serial)))
+ 		return -EFAULT;
+@@ -2087,6 +2088,8 @@
+ 	if (HIGH_BITS_OFFSET)
+ 		new_port += (unsigned long) new_serial.port_high << HIGH_BITS_OFFSET;
+ 
++	new_mem = new_serial.iomem_base;
++
+ 	change_irq = new_serial.irq != state->irq;
+ 	change_port = (new_port != ((int) state->port)) ||
+ 		(new_serial.hub6 != state->hub6);
+@@ -2127,6 +2130,7 @@
+ 		for (i = 0 ; i < NR_PORTS; i++)
+ 			if ((state != &rs_table[i]) &&
+ 			    (rs_table[i].port == new_port) &&
++			    (rs_table[i].iomem_base == new_mem) &&
+ 			    rs_table[i].type)
+ 				return -EADDRINUSE;
+ 	}
+
+--------------060403040604090801080900--
+

@@ -1,62 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261300AbUGVTdq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266921AbUGVTfP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261300AbUGVTdq (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 22 Jul 2004 15:33:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265249AbUGVTdq
+	id S266921AbUGVTfP (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 22 Jul 2004 15:35:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265249AbUGVTfP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 22 Jul 2004 15:33:46 -0400
-Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:45013 "HELO
-	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
-	id S261300AbUGVTdo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 22 Jul 2004 15:33:44 -0400
-Date: Thu, 22 Jul 2004 21:33:37 +0200
-From: Adrian Bunk <bunk@fs.tum.de>
-To: Andrew Morton <akpm@osdl.org>
-Cc: corbet@lwn.net, linux-kernel@vger.kernel.org
-Subject: Re: New dev model (was [PATCH] delete devfs)
-Message-ID: <20040722193337.GE19329@fs.tum.de>
-References: <40FEEEBC.7080104@quark.didntduck.org> <20040721231123.13423.qmail@lwn.net> <20040721235228.GZ14733@fs.tum.de> <20040722025539.5d35c4cb.akpm@osdl.org>
+	Thu, 22 Jul 2004 15:35:15 -0400
+Received: from mtvcafw.sgi.com ([192.48.171.6]:7496 "EHLO omx3.sgi.com")
+	by vger.kernel.org with ESMTP id S261378AbUGVTe6 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 22 Jul 2004 15:34:58 -0400
+Date: Thu, 22 Jul 2004 12:34:37 -0700
+From: Paul Jackson <pj@sgi.com>
+To: Dimitri Sivanich <sivanich@sgi.com>
+Cc: linux-ia64@vger.kernel.org, linux-kernel@vger.kernel.org, mingo@elte.hu
+Subject: Re: [RFC] Patch for isolated scheduler domains
+Message-Id: <20040722123437.1f0398db.pj@sgi.com>
+In-Reply-To: <20040722164126.GB13189@sgi.com>
+References: <20040722164126.GB13189@sgi.com>
+Organization: SGI
+X-Mailer: Sylpheed version 0.8.10claws (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040722025539.5d35c4cb.akpm@osdl.org>
-User-Agent: Mutt/1.5.6i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Andrew,
+You should double check my logic, but I think a couple of the cpumask
+calculations can be tightened up, as follows.
 
-my personal opinon is that this new development model isn't a good 
-idea from the point of view of users:
+Dimitri Sivanich <sivanich@sgi.com> wrote:
+> 
+> +	cpumask_t cpu_nonisolated;
+> +
+> +	cpus_and(cpu_nonisolated, cpu_possible_map, isol_cpumask);
+> +	cpus_complement(cpu_nonisolated, cpu_nonisolated);
+> +	cpus_and(cpu_nonisolated, cpu_nonisolated, cpu_possible_map);
 
-There's much worth in having a very stable kernel. Many people use for 
-different reasons self-compiled ftp.kernel.org kernels. In 2.4, it took 
-until at about 2.4.18 or 2.4.22 [1] until it was reasonable stable. 
-Today, most code in the 2.4 kernel has had several years of testing and 
-it's therefore quite stable even in unusual configurations. Besides 
-this, an upgrade like from 2.4.25 to 2.4.26 is pretty low-risk since  
-there shouldn't be any changes that might break existing setups.
+	cpumask_t cpu_nonisolated;
+	cpus_andnot(cpu_nonisolated, cpu_possible_map, isol_cpumas);
 
-If your work together with Linus is so effective, why can't you both do 
-all the changes in a new 2.7 tree that includes also all incompatible 
-and potential dangerous changes as well as the removal of obsolete code 
-like devfs or OSS. I don't see the negative effect if a 2.7 branch was 
-created today and together with a feature freeze for 2.7 three months  
-from now this might result in a 2.8.0 before christmas [2] that contains 
-all the new features/removals/changes while 2.6 will evolve further into 
-a rock-solid stable kernel.
 
-cu
-Adrian
 
-[1] there are different opinions on the exact version number, but it was
-    definitely not 2.4.10
-[2] perhaps a bit optimistic, but it shouldn't be years from now
+> +		cpumask_t tmp = node_to_cpumask(i);
+> +		cpumask_t nodemask;
+> +		...
+> +		cpus_and(nodemask, tmp, cpu_nonisolated);
+
+		cpumask_t nodemask;
+		...
+		cpus_and(nodemask, node_to_cpumask(i), cpu_nonisolated);
 
 -- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
-
+                          I won't rest till it's the best ...
+                          Programmer, Linux Scalability
+                          Paul Jackson <pj@sgi.com> 1.650.933.1373

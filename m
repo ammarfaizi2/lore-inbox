@@ -1,54 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262215AbTDAJZZ>; Tue, 1 Apr 2003 04:25:25 -0500
+	id <S262209AbTDAJXG>; Tue, 1 Apr 2003 04:23:06 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262219AbTDAJZZ>; Tue, 1 Apr 2003 04:25:25 -0500
-Received: from vhe-530008.sshn.net ([195.169.222.38]:55168 "EHLO
-	elektron.atoom.net") by vger.kernel.org with ESMTP
-	id <S262215AbTDAJZY>; Tue, 1 Apr 2003 04:25:24 -0500
-Date: Tue, 1 Apr 2003 11:36:46 +0200
-From: Miek Gieben <miekg@atoom.net>
+	id <S262213AbTDAJXG>; Tue, 1 Apr 2003 04:23:06 -0500
+Received: from d06lmsgate-4.uk.ibm.com ([195.212.29.4]:25768 "EHLO
+	d06lmsgate-4.uk.ibm.com") by vger.kernel.org with ESMTP
+	id <S262209AbTDAJXF>; Tue, 1 Apr 2003 04:23:05 -0500
+Message-Id: <200304010934.h319Y5TR270722@d06relay02.portsmouth.uk.ibm.com>
+Content-Type: text/plain; charset=US-ASCII
+From: Peter Oberparleiter <oberpapr@softhome.net>
 To: linux-kernel@vger.kernel.org
-Subject: 2.4.21-pre6 and usb-uhci
-Message-ID: <20030401093646.GA11420@atoom.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Vim/Mutt/Linux
-X-Home: www.miek.nl
+Subject: Partition check order in fs/partition/check.c?
+Date: Tue, 1 Apr 2003 11:33:03 +0200
+X-Mailer: KMail [version 1.3.1]
+Cc: Russell King <rmk@arm.linux.org.uk>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+Hi,
 
-[ i'm not subscribed, so please cc me on any follow ups]
+I've got a few questions regarding partition checks in fs/partition/*.c of 
+both Linux 2.4 and 2.5:
 
-with kernel 2.4.21-pre6 my usb mouse stopped working (actually all usb stuff
-stopped working). It's a logitech optical mouse which worked perfectly under
--pre5. I'm using the usb-uhci module.  I get no failures are anything of that
-kind. dmesg just says:
+I ran into a situation in which an MSDOS partition table was incorrectly 
+interpreted as an ACORN POWERTEC partition table, resulting in no valid 
+partition being found. When I looked at fs/partition/acorn.c I noticed that 
+the powertec partition check is kept fairly generic (adding bytes 1..511 of 
+the MBR plus an offset and comparing the result with byte 512). In addition 
+to this, the acorn-specific set of partition checks comes first in the list 
+in fs/partition/check.c so that statistically, every one in 256 MSDOS 
+partition tables (they got a fixed pattern at bytes 511 and 512) would be 
+incorrectly identified as POWERTEC.
 
-hid-core.c: v1.8.1 Andreas Gal, Vojtech Pavlik <vojtech@suse.cz>
-hid-core.c: USB HID support drivers
-and
-mice: PS/2 mouse device common for all mice
+Now for the actual questions: what is the reason for the order of partition 
+checks as it is? Couldn't the acorn tests be moved further down in the list 
+to solve this particular problem? Also, is there a way to make the acorn test 
+more specific?
 
-On my laptop (same mouse, same usb controllor) I also get these problems. It looks
-to me if usb-uhci is not loaded or something, on -pre5 I get
-this from my logs:
+A workaround for this problem would of course be to deselect the 
+CONFIG_ACORN_PARTITION_POWERTEC option, but that wouldn't work in cases both 
+acorn and msdos partition tables are used.
 
-usb-uhci.c: $Revision: 1.275 $ time 10:38:36 Apr  1 2003
-usb-uhci.c: High bandwidth mode enabled
-PCI: Found IRQ 9 for device 00:07.2
-PCI: Sharing IRQ 9 with 00:08.0
-usb-uhci.c: USB UHCI at I/O 0xfca0, IRQ 9
-usb-uhci.c: Detected 2 ports
-
-on -pre6 there are no such lines. Do I have to something differently in
-pre6? Btw, the usb-uhci drivers is compiled into the kernel.
-
-grtz  Miek
+Thanks in advance for any kind of insight into this matter.
 
 
---
-:wq!
+Regards,
+  Peter Oberparleiter

@@ -1,55 +1,132 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266366AbUIMIPn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265487AbUIMIYf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266366AbUIMIPn (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Sep 2004 04:15:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266376AbUIMIPn
+	id S265487AbUIMIYf (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Sep 2004 04:24:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266376AbUIMIYf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Sep 2004 04:15:43 -0400
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:38926 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S266366AbUIMIPi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Sep 2004 04:15:38 -0400
-Date: Mon, 13 Sep 2004 09:15:34 +0100
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: Dan Kegel <dank@kegel.com>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Fix allnoconfig on arm with small tweak to kconfig?
-Message-ID: <20040913091534.B27423@flint.arm.linux.org.uk>
-Mail-Followup-To: Dan Kegel <dank@kegel.com>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <414551FD.4020701@kegel.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <414551FD.4020701@kegel.com>; from dank@kegel.com on Mon, Sep 13, 2004 at 12:53:33AM -0700
+	Mon, 13 Sep 2004 04:24:35 -0400
+Received: from ecbull20.frec.bull.fr ([129.183.4.3]:15600 "EHLO
+	ecbull20.frec.bull.fr") by vger.kernel.org with ESMTP
+	id S265487AbUIMIY3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 13 Sep 2004 04:24:29 -0400
+Date: Mon, 13 Sep 2004 10:24:09 +0200 (CEST)
+From: "Simon.Derr" <derrs@openx3.frec.bull.fr>
+To: Paul Jackson <pj@sgi.com>
+cc: Simon Derr <simon.derr@bull.net>, akpm@osdl.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] cpusets: alternative fix for possible race in
+ cpuset_tasks_read()
+In-Reply-To: <20040911010120.572595e3.pj@sgi.com>
+Message-ID: <Pine.LNX.4.61.0409131012010.18437@openx3.frec.bull.fr>
+References: <Pine.LNX.4.58.0409101632100.2891@daphne.frec.bull.fr>
+ <20040911010120.572595e3.pj@sgi.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Sep 13, 2004 at 12:53:33AM -0700, Dan Kegel wrote:
-> 'make allnoconfig' generates a broken .config on arm because
-> none of the boolean CPU types get selected.
-> ARCH_RPC *does* get selected ok, and I can make CPU_SA110 the
-> default if ARCH_RPC, but that doesn't help, since allnoconfig
-> sets all booleans that are exposed to the user to false, so
-> CPU_SA110 remains false.
 
-allnoconfig is broken.  It doesn't generate a legal configuration on
-this platform.
 
-There are cases where you have the choice of selecting several options
-and you may select one or more.  Zero options selected is not valid.
-Unfortunately, Kconfig does not provide a way to express this.
+On Sat, 11 Sep 2004, Paul Jackson wrote:
 
-> I tried it (see patch below), but couldn't get it to work in first
-> few tries.  Can someone who understands kconfig have a look?
+> Here's an alternative fix for the race condition on read that Simon
+> reports.
+>
+> Andrew,
+>
+>  Don't apply this one yet, until Simon Derr gets a chance to
+>  compare with his alternative patch, and render his analysis.
+>
+> Move the code that sets up the character buffer of text to read out
+> when reading a "tasks" file from the read routine to the open routine.
+>
+> Multiple cloned threads could be doing the first read on a shared
+> file descriptor open on a "tasks" file, resulting in confused
+> or leaked kernel memory as multiple threads initialized the same
+> file private_data at the same time.  Rather than add locks to the
+> initialization code, move it into the open(), where it belongs anyway.
 
-I don't think hacking around allnoconfig works - it means that we
-have to decide on a default for every configuration.  ARCH_RPC is
-only one such small case.  There's loads more.
+Indeed, this code belongs to open(). It was in read() for foolish reasons.
 
--- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 PCMCIA      - http://pcmcia.arm.linux.org.uk/
-                 2.6 Serial core
+Your patch looks good, but I polished it a bit, so we do the buffer 
+allocation in open() only when the file is opened for reading.
+
+Signed-off-by: Paul Jackson
+Signed-off-by: Simon Derr <simon.derr@bull.net>
+
+Index: mm4/kernel/cpuset.c
+===================================================================
+--- mm4.orig/kernel/cpuset.c	2004-09-07 11:36:18.000000000 +0200
++++ mm4/kernel/cpuset.c	2004-09-13 09:43:02.282327670 +0200
+@@ -1052,13 +1052,16 @@ static int pid_array_to_buf(char *buf, i
+  	return cnt;
+  }
+
+-static inline struct ctr_struct *cpuset_tasks_mkctr(struct file *file)
++static int cpuset_tasks_open(struct inode *unused, struct file *file)
+  {
+  	struct cpuset *cs = __d_cs(file->f_dentry->d_parent);
+  	struct ctr_struct *ctr;
+  	pid_t *pidarray;
+  	int npids;
+  	char c;
++ 
++	if (!(file->f_mode & FMODE_READ))
++		return 0;
+
+  	ctr = kmalloc(sizeof(*ctr), GFP_KERNEL);
+  	if (!ctr)
+@@ -1087,14 +1090,14 @@ static inline struct ctr_struct *cpuset_
+
+  	kfree(pidarray);
+  	file->private_data = (void *)ctr;
+-	return ctr;
++	return 0;
+
+  err2:
+  	kfree(pidarray);
+  err1:
+  	kfree(ctr);
+  err0:
+-	return NULL;
++	return -ENOMEM;
+  }
+
+  static ssize_t cpuset_tasks_read(struct file *file, char __user *buf,
+@@ -1102,13 +1105,6 @@ static ssize_t cpuset_tasks_read(struct
+  {
+  	struct ctr_struct *ctr = (struct ctr_struct *)file->private_data;
+
+-	/* allocate buffer and fill it on first call to read() */
+-	if (!ctr) {
+-		ctr = cpuset_tasks_mkctr(file);
+-		if (!ctr)
+-			return -ENOMEM;
+-	}
+-
+  	if (*ppos + nbytes > ctr->bufsz)
+  		nbytes = ctr->bufsz - *ppos;
+  	if (copy_to_user(buf, ctr->buf + *ppos, nbytes))
+@@ -1121,12 +1117,8 @@ static int cpuset_tasks_release(struct i
+  {
+  	struct ctr_struct *ctr;
+
+-	/* we have nothing to do if no read-access is needed */
+-	if (!(file->f_mode & FMODE_READ))
+-		return 0;
+-
+-	ctr = (struct ctr_struct *)file->private_data;
+-	if (ctr) {
++	if (file->f_mode & FMODE_READ) {
++		ctr = (struct ctr_struct *)file->private_data;
+  		kfree(ctr->buf);
+  		kfree(ctr);
+  	}
+@@ -1139,6 +1131,7 @@ static int cpuset_tasks_release(struct i
+
+  static struct cftype cft_tasks = {
+  	.name = "tasks",
++	.open = cpuset_tasks_open,
+  	.read = cpuset_tasks_read,
+  	.release = cpuset_tasks_release,
+  	.private = FILE_TASKLIST,

@@ -1,69 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262567AbVBXXRL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262539AbVBXXRt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262567AbVBXXRL (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Feb 2005 18:17:11 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262566AbVBXXRL
+	id S262539AbVBXXRt (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Feb 2005 18:17:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262535AbVBXXRt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Feb 2005 18:17:11 -0500
-Received: from quark.didntduck.org ([69.55.226.66]:20443 "EHLO
-	quark.didntduck.org") by vger.kernel.org with ESMTP id S262562AbVBXXQh
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Feb 2005 18:16:37 -0500
-Message-ID: <421E6056.7010901@didntduck.org>
-Date: Thu, 24 Feb 2005 18:16:38 -0500
-From: Brian Gerst <bgerst@didntduck.org>
-User-Agent: Mozilla Thunderbird  (X11/20041216)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-CC: lkml <linux-kernel@vger.kernel.org>
-Subject: [PATCH] vsprintf.c cleanups
-Content-Type: multipart/mixed;
- boundary="------------070704060709090703080702"
+	Thu, 24 Feb 2005 18:17:49 -0500
+Received: from mail.kroah.org ([69.55.234.183]:60038 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S262539AbVBXXRg (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 24 Feb 2005 18:17:36 -0500
+Date: Thu, 24 Feb 2005 15:17:21 -0800
+From: Greg KH <greg@kroah.com>
+To: Laurent Riffard <laurent.riffard@free.fr>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       Helge Hafting <helge.hafting@aitel.hist.no>
+Subject: Re: 2.6.11-rc4-mm1 : IDE crazy numbers, hdb renumbered to hdq ?
+Message-ID: <20050224231721.GA26697@kroah.com>
+References: <20050223014233.6710fd73.akpm@osdl.org> <421C7FC2.1090402@aitel.hist.no> <20050223121207.412c7eeb.akpm@osdl.org> <421D0582.9090100@free.fr> <20050223234720.GA7270@kroah.com> <421E099F.1030104@free.fr> <20050224171856.GB9439@kroah.com> <421E3C30.8080703@free.fr>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <421E3C30.8080703@free.fr>
+User-Agent: Mutt/1.5.8i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------070704060709090703080702
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+On Thu, Feb 24, 2005 at 09:42:24PM +0100, Laurent Riffard wrote:
+> I do need device-mapper, since I put /usr and /var on LVM filesystems. I
+> use ptkcdvd to copy data to CD-RW. I can remove this one.
+> 
+> Anyway, this patch from Andrew fixed the problem :
+> http://lkml.org/lkml/2005/2/23/214.
 
-- Make sprintf call vsnprintf directly
-- use INT_MAX for sprintf and vsprintf
+Yeah, it's not in my code!  :)
 
-Signed-off-by: Brian Gerst <bgerst@didntduck.org>
+> So I won't try to remove pktcdvd and device-mapper driver (except if you
+> _really_ want me to do so).
 
-  vsprintf.c |    4 ++--
-  1 files changed, 2 insertions(+), 2 deletions(-)
+Nope, as long as the above patch works for you, I'm happy.
 
+thanks,
 
---------------070704060709090703080702
-Content-Type: text/plain;
- name="vsprintf.diff"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="vsprintf.diff"
-
-diff -urN linux-2.6.11-rc5/lib/vsprintf.c linux/lib/vsprintf.c
---- linux-2.6.11-rc5/lib/vsprintf.c	2004-08-24 08:43:15.000000000 -0400
-+++ linux/lib/vsprintf.c	2005-02-24 17:59:28.000000000 -0500
-@@ -580,7 +580,7 @@
-  */
- int vsprintf(char *buf, const char *fmt, va_list args)
- {
--	return vsnprintf(buf, (~0U)>>1, fmt, args);
-+	return vsnprintf(buf, INT_MAX, fmt, args);
- }
- 
- EXPORT_SYMBOL(vsprintf);
-@@ -601,7 +601,7 @@
- 	int i;
- 
- 	va_start(args, fmt);
--	i=vsprintf(buf,fmt,args);
-+	i=vsnprintf(buf, INT_MAX, fmt, args);
- 	va_end(args);
- 	return i;
- }
-
---------------070704060709090703080702--
+greg k-h

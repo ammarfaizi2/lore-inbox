@@ -1,45 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261421AbULTFPS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261425AbULTGOt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261421AbULTFPS (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Dec 2004 00:15:18 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261422AbULTFPR
+	id S261425AbULTGOt (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Dec 2004 01:14:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261426AbULTGOt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Dec 2004 00:15:17 -0500
-Received: from fw.osdl.org ([65.172.181.6]:10915 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S261421AbULTFPO (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Dec 2004 00:15:14 -0500
-Message-ID: <41C65EA0.7020805@osdl.org>
-Date: Sun, 19 Dec 2004 21:09:52 -0800
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-User-Agent: Mozilla Thunderbird 0.9 (X11/20041103)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Pete Zaitcev <zaitcev@redhat.com>
-CC: Adrian Bunk <bunk@stusta.de>, Greg KH <greg@kroah.com>,
-       mdharm-usb@one-eyed-alien.net, linux-usb-devel@lists.sourceforge.net,
-       linux-kernel@vger.kernel.org
-Subject: Re: RFC: [2.6 patch] let BLK_DEV_UB depend on EMBEDDED
-References: <20041220001644.GI21288@stusta.de>	<20041220003146.GB11358@kroah.com>	<20041220013542.GK21288@stusta.de> <20041219205104.5054a156@lembas.zaitcev.lan>
-In-Reply-To: <20041219205104.5054a156@lembas.zaitcev.lan>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Mon, 20 Dec 2004 01:14:49 -0500
+Received: from umhlanga.stratnet.net ([12.162.17.40]:3509 "EHLO
+	umhlanga.STRATNET.NET") by vger.kernel.org with ESMTP
+	id S261425AbULTGOr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 20 Dec 2004 01:14:47 -0500
+Cc: openib-general@openib.org, akpm@osdl.org, torvalds@osdl.org
+In-Reply-To: 
+X-Mailer: Roland's Patchbomber
+Date: Sun, 19 Dec 2004 22:14:43 -0800
+Message-Id: <200412192214.KlDxQ7icOmxHYIf0@topspin.com>
+Mime-Version: 1.0
+To: linux-kernel@vger.kernel.org
+From: Roland Dreier <roland@topspin.com>
+X-SA-Exim-Connect-IP: 127.0.0.1
+X-SA-Exim-Mail-From: roland@topspin.com
+Subject: [PATCH][v4][0/24] Second InfiniBand merge candidate patch set
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-SA-Exim-Version: 4.1 (built Tue, 17 Aug 2004 11:06:07 +0200)
+X-SA-Exim-Scanned: Yes (on eddore)
+X-OriginalArrivalTime: 20 Dec 2004 06:14:46.0520 (UTC) FILETIME=[34302780:01C4E65B]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Pete Zaitcev wrote:
-> On Mon, 20 Dec 2004 02:35:42 +0100, Adrian Bunk <bunk@stusta.de> wrote:
-> 
-> 
->>What about a dependency of BLK_DEV_UB on USB_STORAGE=n ?
-> 
-> 
-> I have them both as 'm' in my configuration, works like a charm.
+The following series of patches is the latest version of the OpenIB
+InfiniBand drivers.  We believe that this version is suitable for
+merging when 2.6.11 opens (or into -mm immediately), although of
+course we are willing to go through as many more iterations as
+required to fix any remaining issues.
 
-ub can work like that, but it makes it darned difficult to
-use usb-storage like that.  ub wants to bind to the devices,
-not usb-storage, and if ub is unloaded, usb-storage doesn't
-bind to them.  at least that's been my experience with it.
+The previous posting last week did not generate many comments.  We
+have fixed all the minor glitches identified, and updated the
+copyright/license comments in the source files so that no external
+files or URLs other than the main COPYING file are referenced (the
+license remains unchanged as dual GPL/BSD).
 
--- 
-~Randy
+In addition a fair bit of testing has been done and several bugs have
+been fixed over the past week.  The IP-over-InfiniBand driver now
+appears to work well on a broad range of hardware.
+
+Merging these patches should be low-risk: the only non-documentation
+changes outside of the new drivers/infiniband tree are a small set of
+networking patches to handle devices of type AF_INFINIBAND where
+appropriate.  These patches have been posted to netdev@oss.sgi.com
+multiple times.
+
+Linus/Andrew - is there any further that you want to see done, or do
+these patches look acceptable to you?
+
+Thanks,
+  Roland Dreier
+  OpenIB Alliance
+  www.openib.org
+

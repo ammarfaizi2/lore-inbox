@@ -1,78 +1,153 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264836AbUEPWS4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264839AbUEPWVf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264836AbUEPWS4 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 16 May 2004 18:18:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264843AbUEPWS4
+	id S264839AbUEPWVf (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 16 May 2004 18:21:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264838AbUEPWVf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 16 May 2004 18:18:56 -0400
-Received: from 113.Red-213-98-93.pooles.rima-tde.net ([213.98.93.113]:52468
-	"HELO sify1105.com") by vger.kernel.org with SMTP id S264836AbUEPWSv
+	Sun, 16 May 2004 18:21:35 -0400
+Received: from dh132.citi.umich.edu ([141.211.133.132]:52370 "EHLO
+	lade.trondhjem.org") by vger.kernel.org with ESMTP id S264849AbUEPWUz convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 16 May 2004 18:18:51 -0400
-From: Samuel Williams <sam_williams@sify.com>
-Reply-To: sam_williams@sify.com
-Subject: REPLY WITH HONESTY
-Date: Mon, 17 May 2004 00:18:50 +0200
-MIME-Version: 1.0
-Content-Type: multipart/mixed; boundary="c2dd37ae-00a3-457f-956f-7dbbc69bfc06"
-Message-Id: <S264836AbUEPWSv/20040516221851Z+2274@vger.kernel.org>
-To: unlisted-recipients:; (no To-header on input)
+	Sun, 16 May 2004 18:20:55 -0400
+Subject: Re: NFS & long symlinks = stack overflow
+From: Trond Myklebust <trond.myklebust@fys.uio.no>
+To: Alexander Viro <viro@parcelfarce.linux.theplanet.co.uk>
+Cc: Linus Torvalds <torvalds@osdl.org>, Pascal Schmidt <der.eremit@email.de>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20040516045538.GR17014@parcelfarce.linux.theplanet.co.uk>
+References: <1W7yE-3lZ-13@gated-at.bofh.it> <1W7S5-3Am-13@gated-at.bofh.it>
+	 <E1BP0BI-0000lo-09@localhost>
+	 <20040515145306.GQ17014@parcelfarce.linux.theplanet.co.uk>
+	 <1084642637.3490.29.camel@lade.trondhjem.org>
+	 <Pine.LNX.4.58.0405152136380.25502@ppc970.osdl.org>
+	 <20040516045538.GR17014@parcelfarce.linux.theplanet.co.uk>
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8BIT
+Message-Id: <1084746048.21654.5.camel@lade.trondhjem.org>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Sun, 16 May 2004 18:20:48 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+På su , 16/05/2004 klokka 00:55, skreiv
+viro@parcelfarce.linux.theplanet.co.uk:
+> v2 has a hard limit in protocol (<= 1Kb).  However, we shouldn't assume that
+> server is sane...
 
-This is a multi-part message in MIME format
---c2dd37ae-00a3-457f-956f-7dbbc69bfc06
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: quoted-printable
+True... The other thing is that we need to return ENAMETOOLONG rather
+than EIO.
+Finally, the NFS readlink() methods all take a buffer length argument.
+Use that instead of assuming PAGE_SIZE...
 
-Dear Friend. 
+OK... How about the following?
+
+Cheers,
+  Trond
+
+ nfs2xdr.c |   11 +++++++----
+ nfs3xdr.c |   11 +++++++----
+ nfs4xdr.c |   11 ++++++-----
+ 3 files changed, 20 insertions(+), 13 deletions(-)
+
+diff -u --recursive --new-file --show-c-function linux-2.6.6-01-reconnect/fs/nfs/nfs2xdr.c linux-2.6.6-02-symlink_overflow/fs/nfs/nfs2xdr.c
+--- linux-2.6.6-01-reconnect/fs/nfs/nfs2xdr.c	2004-05-16 17:07:24.000000000 -0400
++++ linux-2.6.6-02-symlink_overflow/fs/nfs/nfs2xdr.c	2004-05-16 17:36:46.000000000 -0400
+@@ -511,8 +511,8 @@ static int
+ nfs_xdr_readlinkargs(struct rpc_rqst *req, u32 *p, struct nfs_readlinkargs *args)
+ {
+ 	struct rpc_auth *auth = req->rq_task->tk_auth;
++	unsigned int count = args->count - 5;
+ 	unsigned int replen;
+-	u32 count = args->count - 4;
  
-As you read this, I don't want you to feel sorry for me, because, I believe =
-everyone will die someday. My name is Mr. Samuel Williams, a merchant in =
-Dubai, in the U.A.E.I have been diagnosed with Esophageal Cancer which was =
-discovered very late, due to my laxity in carrying for my health. It has =
-defiled all forms of medicine, and right now I have only about a few months =
-to live, according to medical experts.
-
-I have not particularly lived my life so well, as I never really cared for =
-anyone not even myself but my business. Though I am very rich, I was never =
-generous, I was always hostile to people and only focus on my business as =
-that was the only thing I cared for. But now I regret all this as I now know =
-that there is more to life than just wanting to have or make all the money in =
-the world. I believe when God gives me a second chance to come to this world =
-I would live my life a different way from how I have lived it.
-
-Now that God ! has called me, I have willed and given most of my properties =
-and assets to my immediate and extended family members and as well as a few =
-close friends. I want God to be merciful to me and accept my soul and so, I =
-have decided to give arms to charity organizations and give succour and =
-confort to the less priviledged in our societies, as I want this to be one of =
-the last good deeds I do on earth.
-
-So far, I have distributed money to some charity organizations in the U.A.E, =
-Algeria and Malaysia. Now that my health has deteriorated so badly, I cannot =
-do this my self anymore. I once asked members of my family to close one of my =
-accounts and distribute the money which I have there to charity organization =
-and to the less priviledged in Bulgaria and Pakistan, they refused and kept =
-the money to themselves. Hence, I do not trust them anymore, as they seem not =
-to be contended with what I have left for them.
-
-The last of my money which no one knows of is the huge cash deposit of  =
-$24Million U.S.Dollars (twenty four million U.S.Dollars that I have with a =
-Storage Company in Europe for safe keeping. I will want you to help me =
-collect this deposit and disburse it to some charity organizations and to the =
-less priviledged.
-
-Please send me a mail to indicate if you will assist me in this disbursement.=
-
-
-I have set aside 20% for you for your time and patience. You can e-mail me =
-at:swilly2004@netscape.net   
-
-While I await to hear from you, may God be with you and your entire family.
-
-Remain blessed.
-Mr. Samuel Williams  
---c2dd37ae-00a3-457f-956f-7dbbc69bfc06--
+ 	p = xdr_encode_fhandle(p, args->fh);
+ 	req->rq_slen = xdr_adjust_iovec(req->rq_svec, p);
+@@ -547,12 +547,15 @@ nfs_xdr_readlinkres(struct rpc_rqst *req
+ 	strlen = (u32*)kmap_atomic(rcvbuf->pages[0], KM_USER0);
+ 	/* Convert length of symlink */
+ 	len = ntohl(*strlen);
+-	if (len > rcvbuf->page_len)
+-		len = rcvbuf->page_len;
++	if (len > rcvbuf->page_len) {
++		dprintk(KERN_WARNING "nfs: server returned giant symlink!\n");
++		kunmap_atomic(strlen, KM_USER0);
++		return -ENAMETOOLONG;
++	}
+ 	*strlen = len;
+ 	/* NULL terminate the string we got */
+ 	string = (char *)(strlen + 1);
+-	string[len] = 0;
++	string[len] = '\0';
+ 	kunmap_atomic(strlen, KM_USER0);
+ 	return 0;
+ }
+diff -u --recursive --new-file --show-c-function linux-2.6.6-01-reconnect/fs/nfs/nfs3xdr.c linux-2.6.6-02-symlink_overflow/fs/nfs/nfs3xdr.c
+--- linux-2.6.6-01-reconnect/fs/nfs/nfs3xdr.c	2004-05-16 17:08:10.000000000 -0400
++++ linux-2.6.6-02-symlink_overflow/fs/nfs/nfs3xdr.c	2004-05-16 17:36:39.000000000 -0400
+@@ -702,8 +702,8 @@ static int
+ nfs3_xdr_readlinkargs(struct rpc_rqst *req, u32 *p, struct nfs3_readlinkargs *args)
+ {
+ 	struct rpc_auth *auth = req->rq_task->tk_auth;
++	unsigned int count = args->count - 5;
+ 	unsigned int replen;
+-	u32 count = args->count - 4;
+ 
+ 	p = xdr_encode_fhandle(p, args->fh);
+ 	req->rq_slen = xdr_adjust_iovec(req->rq_svec, p);
+@@ -742,12 +742,15 @@ nfs3_xdr_readlinkres(struct rpc_rqst *re
+ 	strlen = (u32*)kmap_atomic(rcvbuf->pages[0], KM_USER0);
+ 	/* Convert length of symlink */
+ 	len = ntohl(*strlen);
+-	if (len > rcvbuf->page_len)
+-		len = rcvbuf->page_len;
++	if (len > rcvbuf->page_len) {
++		dprintk(KERN_WARNING "nfs: server returned giant symlink!\n");
++		kunmap_atomic(strlen, KM_USER0);
++		return -ENAMETOOLONG;
++	}
+ 	*strlen = len;
+ 	/* NULL terminate the string we got */
+ 	string = (char *)(strlen + 1);
+-	string[len] = 0;
++	string[len] = '\0';
+ 	kunmap_atomic(strlen, KM_USER0);
+ 	return 0;
+ }
+diff -u --recursive --new-file --show-c-function linux-2.6.6-01-reconnect/fs/nfs/nfs4xdr.c linux-2.6.6-02-symlink_overflow/fs/nfs/nfs4xdr.c
+--- linux-2.6.6-01-reconnect/fs/nfs/nfs4xdr.c	2004-05-16 17:08:07.000000000 -0400
++++ linux-2.6.6-02-symlink_overflow/fs/nfs/nfs4xdr.c	2004-05-16 17:36:29.000000000 -0400
+@@ -947,7 +947,8 @@ static int encode_readdir(struct xdr_str
+ static int encode_readlink(struct xdr_stream *xdr, const struct nfs4_readlink *readlink, struct rpc_rqst *req)
+ {
+ 	struct rpc_auth *auth = req->rq_task->tk_auth;
+-	int replen;
++	unsigned int count = readlink->count - 5;
++	unsigned int replen;
+ 	uint32_t *p;
+ 
+ 	RESERVE_SPACE(4);
+@@ -958,7 +959,7 @@ static int encode_readlink(struct xdr_st
+ 	 *      + OP_READLINK + status  = 7
+ 	 */
+ 	replen = (RPC_REPHDRSIZE + auth->au_rslack + 7) << 2;
+-	xdr_inline_pages(&req->rq_rcv_buf, replen, readlink->pages, 0, readlink->count);
++	xdr_inline_pages(&req->rq_rcv_buf, replen, readlink->pages, 0, count);
+ 	
+ 	return 0;
+ }
+@@ -2921,10 +2922,10 @@ static int decode_readlink(struct xdr_st
+ 	 */
+ 	strlen = (uint32_t *) kmap_atomic(rcvbuf->pages[0], KM_USER0);
+ 	len = ntohl(*strlen);
+-	if (len > PAGE_CACHE_SIZE - 5) {
+-		printk(KERN_WARNING "nfs: server returned giant symlink!\n");
++	if (len > rcvbuf->page_len) {
++		dprintk(KERN_WARNING "nfs: server returned giant symlink!\n");
+ 		kunmap_atomic(strlen, KM_USER0);
+-		return -EIO;
++		return -ENAMETOOLONG;
+ 	}
+ 	*strlen = len;
+ 
 

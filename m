@@ -1,46 +1,75 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270692AbTHJV3a (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 10 Aug 2003 17:29:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270701AbTHJV3a
+	id S270622AbTHJVah (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 10 Aug 2003 17:30:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270703AbTHJVah
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 10 Aug 2003 17:29:30 -0400
-Received: from fw.osdl.org ([65.172.181.6]:13966 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S270692AbTHJV33 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 10 Aug 2003 17:29:29 -0400
-Date: Sun, 10 Aug 2003 14:29:28 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: ranty@debian.org
-Cc: linux-kernel@vger.kernel.org, willy@debian.org
-Subject: Re: [PATCH] [2.6.0-test3] request_firmware related problems.
-Message-Id: <20030810142928.4b734e8d.akpm@osdl.org>
-In-Reply-To: <20030810210646.GA6746@ranty.pantax.net>
-References: <20030810210646.GA6746@ranty.pantax.net>
-X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Sun, 10 Aug 2003 17:30:37 -0400
+Received: from smtp6.wanadoo.fr ([193.252.22.28]:58610 "EHLO
+	mwinf0302.wanadoo.fr") by vger.kernel.org with ESMTP
+	id S270622AbTHJVa1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 10 Aug 2003 17:30:27 -0400
+Message-ID: <3F36BA33.3070605@wanadoo.fr>
+Date: Sun, 10 Aug 2003 23:33:39 +0200
+From: =?ISO-8859-1?Q?R=E9mi_Colinet?= <remi.colinet@wanadoo.fr>
+User-Agent: Mozilla/5.0 (X11; U; Linux i586; en-US; rv:1.0.1) Gecko/20020830
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: 2.6.0-test3(-mm1) : Alcatel USB speedtouch modem unusable
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Manuel Estrada Sainz <ranty@debian.org> wrote:
->
->  Please apply the following patches.
+Hi,
 
-Please, send just one patch per email, each one having its own changelog
-info.  There's just no way anyone's patch import tools can handle a single
-changelog and multiple attachments.  It is painful.
+I'm using the Alcatel USB ADSL speedtouch modem with the user space 
+driver. It was running fine with 2.6.0-test2 (and older kernel).
 
->   - request_firmware_own-workqueue.diff:
->  	-  In it's current form request_firmware_async() sleeps way too
->  	   long on the system's shared workqueue, which makes it
->  	   unresponsive until the firmware load finishes, gets canceled
->  	   or times out.
+[root@tigre01 root]# Using interface ppp0
+Connect: ppp0 <--> /dev/pts/4
+Remote message: CHAP authentication success, unit 405
+local  IP address 193.253.203.209
+remote IP address 193.253.203.1
+primary   DNS address 193.252.19.3
+secondary DNS address 193.252.19.4
 
-Does this mean that we have another gaggle of kernel threads for all the
-time the system is up?
+Now,  something seems to be broken with 2.6.0-test3 (and 2.6.0-test3-mm1)
 
-It might be better to create a custom kernel thread on-demand, or kill off
-the workqueue when its job has completed.
+[root@tigre01 root]# Using interface ppp0
+Connect: ppp0 <--> /dev/pts/2
+Modem hangup
+Connection terminated.
+Using interface ppp0
+Connect: ppp0 <--> /dev/pts/2
+Child process /usr/local/bin/pppoa2 -vpi 8 -vci 35 -d 
+/proc/bus/usb/001/002 (pid 1080) terminated with signal 2
+Child process /usr/local/bin/pppoa2 -vpi 8 -vci 35 -d 
+/proc/bus/usb/001/002 (pid 1084) terminated with signal 2
+Modem hangup
+Connection terminated.
+Using interface ppp0
+Connect: ppp0 <--> /dev/pts/2
+Modem hangup
+Connection terminated.
+Using interface ppp0
+Connect: ppp0 <--> /dev/pts/2
+Child process /usr/local/bin/pppoa2 -vpi 8 -vci 35 -d 
+/proc/bus/usb/001/002 (pid 1088) terminated with signal 2
+Modem hangup
+Connection terminated.
+Using interface ppp0
+Connect: ppp0 <--> /dev/pts/2
+Child process /usr/local/bin/pppoa2 -vpi 8 -vci 35 -d 
+/proc/bus/usb/001/002 (pid 1092) terminated with signal 2
+Modem hangup
+Connection terminated.
+Using interface ppp0
+Connect: ppp0 <--> /dev/pts/2
+
+I didn't change anything to my configuration and to my .config file.
+Any idea?   
+
+Remi
 

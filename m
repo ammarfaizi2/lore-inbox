@@ -1,34 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131869AbRAOXiU>; Mon, 15 Jan 2001 18:38:20 -0500
+	id <S129831AbRAOXpW>; Mon, 15 Jan 2001 18:45:22 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131265AbRAOXiK>; Mon, 15 Jan 2001 18:38:10 -0500
-Received: from perninha.conectiva.com.br ([200.250.58.156]:36625 "EHLO
-	perninha.conectiva.com.br") by vger.kernel.org with ESMTP
-	id <S131869AbRAOXhw>; Mon, 15 Jan 2001 18:37:52 -0500
-Date: Mon, 15 Jan 2001 19:47:29 -0200 (BRST)
-From: Marcelo Tosatti <marcelo@conectiva.com.br>
-To: Rainer Mager <rmager@vgkk.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Oops with 4GB memory setting in 2.4.0 stable
-In-Reply-To: <NEBBJBCAFMMNIHGDLFKGCENGCMAA.rmager@vgkk.com>
-Message-ID: <Pine.LNX.4.21.0101151946400.834-100000@freak.distro.conectiva>
+	id <S130510AbRAOXpM>; Mon, 15 Jan 2001 18:45:12 -0500
+Received: from duck.doc.ic.ac.uk ([146.169.1.46]:29196 "EHLO duck.doc.ic.ac.uk")
+	by vger.kernel.org with ESMTP id <S129831AbRAOXpG>;
+	Mon, 15 Jan 2001 18:45:06 -0500
+To: David Balazic <david.balazic@uni-mb.si>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: MTRR type AMD Duron/intel ?
+In-Reply-To: <3A6350EA.884AC527@uni-mb.si>
+From: David Wragg <dpw@doc.ic.ac.uk>
+Date: 15 Jan 2001 23:45:03 +0000
+Message-ID: <y7rhf30bcsg.fsf@sytry.doc.ic.ac.uk>
+User-Agent: Gnus/5.0807 (Gnus v5.8.7) XEmacs/21.1 (Bryce Canyon)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+David Balazic <david.balazic@uni-mb.si> writes:
+> A recent 2.4.0 ( not the final , but close  ) kernel prints this :
+> 
+> mtrr: detected mtrr type: intel
+> 
+> I have an AMD K7 Duron 700 CPU
+> 
+> Is this correct ?
+
+Yes.  The K7 supports MTRRs exactly according to the Intel specs, as
+opposed to the MTRR-like but somewhat different features that some
+other x86 CPUs implement.  So while it may appear odd, it is correct.
 
 
-On Tue, 16 Jan 2001, Rainer Mager wrote:
-
-> 	Attached is my oops.txt and the result sent through ksymoops. The results
-> don't look particularly useful to me so perhaps I'm doing something wrong.
-> PLEASE tell me if I should parse this differently. Likewise, if there is
-> anything else I can do to help debug this, please tell me.
-
-It seems you forgot to attach oops.txt. 
-
+David Wragg
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

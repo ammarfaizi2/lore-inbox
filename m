@@ -1,56 +1,81 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263913AbTLJUGZ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 10 Dec 2003 15:06:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263914AbTLJUGZ
+	id S263922AbTLJUVo (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 10 Dec 2003 15:21:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263927AbTLJUVo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 10 Dec 2003 15:06:25 -0500
-Received: from dyn-213-36-224-2.ppp.tiscali.fr ([213.36.224.2]:9476 "EHLO
-	nsbm.kicks-ass.org") by vger.kernel.org with ESMTP id S263913AbTLJUGX convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 10 Dec 2003 15:06:23 -0500
-Date: Wed, 10 Dec 2003 21:06:14 +0100
-From: Witukind <witukind@nsbm.kicks-ass.org>
-To: Xavier Bestel <xavier.bestel@free.fr>
-Cc: mru@kth.se, linux-kernel@vger.kernel.org
-Subject: Re: udev sysfs docs Re: State of devfs in 2.6?
-Message-Id: <20031210210614.625ccfcc.witukind@nsbm.kicks-ass.org>
-In-Reply-To: <1071039765.1790.94.camel@nomade>
-References: <1070963757.869.86.camel@nomade>
-	<Pine.LNX.4.44.0312091358210.21314-100000@gaia.cela.pl>
-	<20031209183001.GA9496@kroah.com>
-	<yw1xvfop257d.fsf@kth.se>
-	<1071039765.1790.94.camel@nomade>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i586-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
+	Wed, 10 Dec 2003 15:21:44 -0500
+Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:43019
+	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
+	id S263922AbTLJUVm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 10 Dec 2003 15:21:42 -0500
+Date: Wed, 10 Dec 2003 12:15:45 -0800 (PST)
+From: Andre Hedrick <andre@linux-ide.org>
+To: Linus Torvalds <torvalds@osdl.org>
+cc: Maciej Zenczykowski <maze@cela.pl>, David Schwartz <davids@webmaster.com>,
+       Jason Kingsland <Jason_Kingsland@hotmail.com>,
+       linux-kernel@vger.kernel.org
+Subject: RE: Linux GPL and binary module exception clause?
+In-Reply-To: <Pine.LNX.4.58.0312101115360.29676@home.osdl.org>
+Message-ID: <Pine.LNX.4.10.10312101211380.3805-100000@master.linux-ide.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 10 Dec 2003 08:02:46 +0100
-Xavier Bestel <xavier.bestel@free.fr> wrote:
 
-> Le mar 09/12/2003 à 19:53, Måns Rullgård a écrit :
-> > >> - for example my floppy is always present in the system, but I
-> > >access> it like once a month or so
-> > >
-> > > Then, when you want to access it, a simple 'modprobe floppy' would
-> > > work for you, right?
-> > 
-> > Only if you are root.
+Linus:
+
+Okay, can you add to the approved license list "GPL/proprietary" and
+"proprietary/GPL" ?
+
+This would allow a legal shim for the hardcare folks to choke down, and
+provide the comfort level for others.
+
+Then the trick is when does the license flip modes?
+Compile time?
+Execution time?
+
+This starts to become more fuzzy than I care to look at right now.
+
+Cheers,
+
+Andre Hedrick
+LAD Storage Consulting Group
+
+On Wed, 10 Dec 2003, Linus Torvalds wrote:
+
 > 
-> Come on ... the stock kernel from your distribution will do the
-> modprobe for you when you access the floppy, I'm sure you're skilled
-> enough to configure your own kernel to do the same.
-> And if you don't want to recompile, just chmod +s modprobe - on your
-> small machine which needs to save 60k, I bet you're the only user. Or
-> use sudo.
 > 
-> 	Xav
+> On Wed, 10 Dec 2003, Andre Hedrick wrote:
+> >
+> > So given RMS and company state OSL and GPL are not compatable, how does
+> > the two exist in the current kernel?  Earlier, iirc, there were comments
+> > about dual license conflicts.
+> 
+> They don't "co-exist".
+> 
+> Some parts of the kernel are dual-licensed, which basically means that the
+> author says "you can use this code under _either_ the GPL or the OSL".
+> 
+> When used in the kernel, the GPL is the one that matters. But being
+> dual-licensed means that the same thing may be used somewhere else under
+> another license (so you could use that particular instance of code under
+> the OSL in some _other_ project where the OSL would be ok).
+> 
+> This is pretty common. We have several drivers that are dual-GPL/BSD, and
+> there are some parts that are dual GPL/proprietary (which is just another
+> way of saying that the author is licensing it somewhere else under a
+> proprietary model - common for hardware manufacturers that write their
+> own driver and _also_ use it somewhere else: when in Linux, they license
+> it under the GPL, when somewhere else, they have some other license).
+> 
+> This isn't Linux-specific - you'll find the same thing in other projects.
+> Most well-known perhaps perl - which is dual Artistic/GPL (I think.
+> That's from memory).
+> 
+> And ghostscript was (is?) dual-licensed too (proprietary/GPL).
+> 
+> 		Linus
+> 
 
-I was expecting this kind of reply. Like "if you have an older hardware you
-can fuck off".
-
--- 
-Jabber: heimdal@jabber.org

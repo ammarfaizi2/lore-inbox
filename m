@@ -1,57 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262324AbSKYCBR>; Sun, 24 Nov 2002 21:01:17 -0500
+	id <S262326AbSKYCQj>; Sun, 24 Nov 2002 21:16:39 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262326AbSKYCBR>; Sun, 24 Nov 2002 21:01:17 -0500
-Received: from almesberger.net ([63.105.73.239]:44550 "EHLO
-	host.almesberger.net") by vger.kernel.org with ESMTP
-	id <S262324AbSKYCBQ>; Sun, 24 Nov 2002 21:01:16 -0500
-Date: Sun, 24 Nov 2002 23:07:58 -0300
-From: Werner Almesberger <wa@almesberger.net>
-To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: linux-kernel@vger.kernel.org, Doug Ledford <dledford@redhat.com>,
-       Alexander Viro <viro@math.psu.edu>
-Subject: Re: Module Refcount & Stuff mini-FAQ
-Message-ID: <20021124230758.A1549@almesberger.net>
-References: <20021118233047.P1407@almesberger.net> <20021125003005.15F762C095@lists.samba.org>
+	id <S262363AbSKYCQi>; Sun, 24 Nov 2002 21:16:38 -0500
+Received: from svr-ganmtc-appserv-mgmt.ncf.coxexpress.com ([24.136.46.5]:38416
+	"EHLO svr-ganmtc-appserv-mgmt.ncf.coxexpress.com") by vger.kernel.org
+	with ESMTP id <S262326AbSKYCQi>; Sun, 24 Nov 2002 21:16:38 -0500
+Subject: Re: Which embedded linux is better for being a router? eCos?
+	uclinux?
+From: Robert Love <rml@tech9.net>
+To: paul_wu@wnexus.com.tw
+Cc: Tommy Reynolds <reynolds@redhat.com>, linux-kernel@vger.kernel.org
+In-Reply-To: <48256C7C.0005853D.00@TWHSZDS1.WISTRON.COM.TW>
+References: <48256C7C.0005853D.00@TWHSZDS1.WISTRON.COM.TW>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1038191030.776.67.camel@phantasy>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20021125003005.15F762C095@lists.samba.org>; from rusty@rustcorp.com.au on Mon, Nov 25, 2002 at 09:50:46AM +1100
+X-Mailer: Ximian Evolution 1.2.0 
+Date: 24 Nov 2002 21:23:50 -0500
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Rusty Russell wrote:
-> Q: But the modules' init routine calls my register() routine which
->    wants to call back into one of the function pointers immediately,
->    and so try_module_get() fails! (because the module is not finished
->    initializing yet)
-> A: You're being called from the module, so someone already has a
->    reference (unless there's a bug), so you don't need a
->    try_module_get().
+On Sun, 2002-11-24 at 20:01, paul_wu@wnexus.com.tw wrote:
 
-Hmm, I wouldn't call this the answer. How about:
- - Q: why does it fail ?
- - A: because you're initializing
- - solution: but since you're calling from a module, and the call
-   goes back to the same module, you don't have to worry
+> CPU will be MIPS. Does uclinux support multi-processes? Or there
+> is 3rd choice for such embedded Linux?
 
-This raises the question: why is this a special case ? The
-registration function shouldn't have to know all these details.
-(That's the whole point of try_module_get, isn't it ?)
+You do not need any special version of Linux.  Your chip has an MMU and
+all the other normal bits.  Just compile up a stock kernel and
+user-land.
 
-Wouldn't it be possible to simply allow try_module_get also
-while the module is initializing ?
+If you want an already-done distribution, there are a few out there -
+google around.  Commercial offerings are available from MontaVista, Red
+Hat, etc, too.
 
-> Well, if we continue to start modules unisolated, I need to rewrite
-> the FAQ anyway...
+	Robert Love
 
-Does "unisolated" mean that try_module_get would work ? If yes,
-you've already solved the problem ;-)
-
-- Werner
-
--- 
-  _________________________________________________________________________
- / Werner Almesberger, Buenos Aires, Argentina         wa@almesberger.net /
-/_http://www.almesberger.net/____________________________________________/

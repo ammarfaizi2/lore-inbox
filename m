@@ -1,48 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S133039AbRDLBoe>; Wed, 11 Apr 2001 21:44:34 -0400
+	id <S133048AbRDLBto>; Wed, 11 Apr 2001 21:49:44 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S133040AbRDLBoZ>; Wed, 11 Apr 2001 21:44:25 -0400
-Received: from mercury.mv.net ([199.125.85.40]:45573 "EHLO mercury.mv.net")
-	by vger.kernel.org with ESMTP id <S133039AbRDLBoP>;
-	Wed, 11 Apr 2001 21:44:15 -0400
-Message-ID: <002701c0c2f1$fc672960$0201a8c0@home>
-From: "jeff millar" <jeff@wa1hco.mv.com>
-To: <esr@thyrsus.com>
-Cc: <linux-kernel@vger.kernel.org>, <kbuild-devel@lists.sourceforge.net>,
-        "Eric S. Raymond" <esr@snark.thyrsus.com>
-In-Reply-To: <20010411191940.A9081@thyrsus.com> <E14nU6n-0007po-00@the-village.bc.nu> <20010411204523.C9081@thyrsus.com>
-Subject: Re: CML2 1.0.0 doesn't remember configuration changes
-Date: Wed, 11 Apr 2001 21:43:08 -0400
+	id <S133044AbRDLBte>; Wed, 11 Apr 2001 21:49:34 -0400
+Received: from garrincha.netbank.com.br ([200.203.199.88]:3088 "HELO
+	netbank.com.br") by vger.kernel.org with SMTP id <S133040AbRDLBtY>;
+	Wed, 11 Apr 2001 21:49:24 -0400
+Date: Wed, 11 Apr 2001 22:48:54 -0300 (BRST)
+From: Rik van Riel <riel@conectiva.com.br>
+To: Jon Eisenstein <jeisen@mindspring.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Problem: Random paging request errors
+In-Reply-To: <Pine.LNX.4.21.0104112020050.529-100000@dominia.dyn.dhs.org>
+Message-ID: <Pine.LNX.4.21.0104112246320.25737-100000@imladris.rielhome.conectiva>
+X-spambait: aardvark@kernelnewbies.org
+X-spammeplease: aardvark@nl.linux.org
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 5.00.2615.200
-X-MimeOLE: Produced By Microsoft MimeOLE V5.00.2615.200
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I'm confused.  Downloaded cml2-1.0.0 installed ran it....appear to work but
-it doesn't remember my changes.  Just now, I updated to 1.0.3 and it
-reported cleaning up existing files.  Ran "make config" and it popped up
-menu under X.  Then I changed the "config policy options" to "expert,
-wizard, tuning" and exited with "save and exit".
+On Wed, 11 Apr 2001, Jon Eisenstein wrote:
 
-Then re-opened with make config and nothing changed...expert, wizard and
-tuning not set.  Maybe the program _knows_ I'm not a wizard but it should at
-least let me _tune_.  (joke)
+> (2) Every so often, I get a non-fatal error on my screen about a
+> kernel paging request error.
 
-By the way "make editconfig" shows the changes made under "make config" and
-allows me to make more changes..
+If it's usually the same address, we're probably dealing with
+a kernel bug. If you always get different addresses, chances
+are your RAM is broken (you can test this with memtest86).
 
-The READ.ME says that "make config" will run configtrans to generate
-.config.  But that doesn't explain why "make config"  doesn't remember
-changes made to config.out.
+Decoding the oops is always useful, especially if you can find
+a pattern after you've decoded a few. And if you don't manage
+to find any pattern in them, you know the suspicion lies with
+the hardware ...
 
-ideas?
+regards,
 
-jeff
+Rik
+--
+Virtual memory is like a game you can't win;
+However, without VM there's truly nothing to lose...
+
+		http://www.surriel.com/
+http://www.conectiva.com/	http://distro.conectiva.com.br/
 

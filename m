@@ -1,68 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263228AbTLUO45 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 21 Dec 2003 09:56:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263221AbTLUO45
+	id S263260AbTLUPAK (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 21 Dec 2003 10:00:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263281AbTLUPAK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 21 Dec 2003 09:56:57 -0500
-Received: from node-d-1fcf.a2000.nl ([62.195.31.207]:642 "EHLO
-	laptop.fenrus.com") by vger.kernel.org with ESMTP id S262859AbTLUO4z
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 21 Dec 2003 09:56:55 -0500
-Subject: Re: [OT] use of patented algorithms in the kernel ok or not?
-From: Arjan van de Ven <arjanv@redhat.com>
-Reply-To: arjanv@redhat.com
-To: James Morris <jmorris@redhat.com>
-Cc: Jamie Lokier <jamie@shareable.org>,
-       Albert Cahalan <albert@users.sourceforge.net>,
-       linux-kernel mailing list <linux-kernel@vger.kernel.org>,
-       Linus Torvalds <torvalds@osdl.org>
-In-Reply-To: <Xine.LNX.4.44.0312210833030.3044-100000@thoron.boston.redhat.com>
-References: <Xine.LNX.4.44.0312210833030.3044-100000@thoron.boston.redhat.com>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-XJIKwb3CTw9NpBQYgbav"
-Organization: Red Hat, Inc.
-Message-Id: <1072018574.5225.5.camel@laptop.fenrus.com>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7) 
-Date: Sun, 21 Dec 2003 15:56:14 +0100
+	Sun, 21 Dec 2003 10:00:10 -0500
+Received: from dbl.q-ag.de ([80.146.160.66]:30946 "EHLO dbl.q-ag.de")
+	by vger.kernel.org with ESMTP id S263260AbTLUPAG (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 21 Dec 2003 10:00:06 -0500
+Message-ID: <3FE5B56E.30507@colorfullife.com>
+Date: Sun, 21 Dec 2003 15:59:58 +0100
+From: Manfred Spraul <manfred@colorfullife.com>
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:1.4) Gecko/20030624
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Jamie Lokier <jamie@shareable.org>
+CC: lse-tech@lists.sourceforge.net, linux-kernel@vger.kernel.org
+Subject: Re: [RFC,PATCH] use rcu for fasync_lock
+References: <3FE492EF.2090202@colorfullife.com> <20031221113640.GF3438@mail.shareable.org> <3FE594D0.8000807@colorfullife.com> <20031221141456.GI3438@mail.shareable.org>
+In-Reply-To: <20031221141456.GI3438@mail.shareable.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Jamie Lokier wrote:
 
---=-XJIKwb3CTw9NpBQYgbav
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+>I don't think you need to change pollwait or ->poll, because the band
+>information for the signal is available, as you say, by calling ->poll
+>after the wakeup.
+>
+I'm not convinced:
+The wakeup happens at irq time. The band info is necessary for 
+send_sigio(). Calling f_poll at irq time is not an option - it will 
+definitively cause breakage. schedule_work() for every call is IMHO not 
+an option. And even that is not reliable: fasync users might expect 
+seperate POLL_OUT and POLL_IN signals.
 
 
-> > I expect this was said in jest, but it would be delightful to see this
-> > done for real.  To the best of my knowlege it's uncharted territory,
-> > so perhaps what you suggest _would_ be upheld in a court of law as
-> > permissible?
-> >=20
->=20
-> This approach would turn Linux into proprietary software.
+--
+    Manfred
 
-how so?
-How is adding speed improvements to the code that may not be allowed in
-ONE country make linux proprietary? We can't just rip out each and every
-feature that ANY goverment or country in the world declares illegal/not
-allowed to be used. CONFIG_USA and the like only provide a hint/helper
-for those who want to use it in geographies where certain restrictions
-are imposed by law on what software is allowed to do (without paying
-third parties that is).  Now of course it's a problem if the kernel
-wouldn't function at all with CONFIG_USA is set (although perfectly ok
-within the gpl afaics), but for additional performance improvements ?
 
---=-XJIKwb3CTw9NpBQYgbav
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.3 (GNU/Linux)
-
-iD8DBQA/5bSOxULwo51rQBIRAng2AJ46qfy153E6HBlhB2oggdtwCupctwCePxOX
-9OCg4n9PFiXbJDv0rcEn38Q=
-=mosH
------END PGP SIGNATURE-----
-
---=-XJIKwb3CTw9NpBQYgbav--

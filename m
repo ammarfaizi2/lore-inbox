@@ -1,75 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264897AbUD2RB1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264894AbUD2RJ1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264897AbUD2RB1 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Apr 2004 13:01:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264901AbUD2RB1
+	id S264894AbUD2RJ1 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Apr 2004 13:09:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264893AbUD2RJ1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Apr 2004 13:01:27 -0400
-Received: from fw.osdl.org ([65.172.181.6]:31144 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S264894AbUD2Q6j (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Apr 2004 12:58:39 -0400
-Date: Thu, 29 Apr 2004 09:51:43 -0700
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-To: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
-Cc: trini@kernel.crashing.org, linux-kernel@vger.kernel.org, akpm@osdl.org,
-       jgarzik@pobox.com, mpm@selenic.com, zwane@linuxpower.ca
-Subject: Re: [PATCH] Kconfig.debug family
-Message-Id: <20040429095143.6de85098.rddunlap@osdl.org>
-In-Reply-To: <200404291842.23968.bzolnier@elka.pw.edu.pl>
-References: <20040421205140.445ae864.rddunlap@osdl.org>
-	<20040426164252.GA19246@smtp.west.cox.net>
-	<20040429083820.6457fa84.rddunlap@osdl.org>
-	<200404291842.23968.bzolnier@elka.pw.edu.pl>
-Organization: OSDL
-X-Mailer: Sylpheed version 0.9.10 (GTK+ 1.2.10; i686-pc-linux-gnu)
-X-Face: +5V?h'hZQPB9<D&+Y;ig/:L-F$8p'$7h4BBmK}zo}[{h,eqHI1X}]1UhhR{49GL33z6Oo!`
- !Ys@HV,^(Xp,BToM.;N_W%gT|&/I#H@Z:ISaK9NqH%&|AO|9i/nB@vD:Km&=R2_?O<_V^7?St>kW
+	Thu, 29 Apr 2004 13:09:27 -0400
+Received: from moraine.clusterfs.com ([66.246.132.190]:50920 "EHLO
+	moraine.clusterfs.com") by vger.kernel.org with ESMTP
+	id S264894AbUD2RJZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 29 Apr 2004 13:09:25 -0400
+Date: Thu, 29 Apr 2004 11:09:22 -0600
+From: Andreas Dilger <adilger@clusterfs.com>
+To: David =?iso-8859-1?Q?Mart=EDnez?= Moreno <ender@debian.org>
+Cc: sct@redhat.com, akpm@digeo.com, linux-kernel@vger.kernel.org,
+       ext3-users@redhat.com
+Subject: Re: Ext3 problems (aborting journal).
+Message-ID: <20040429170922.GN1521@schnapps.adilger.int>
+Mail-Followup-To: David =?iso-8859-1?Q?Mart=EDnez?= Moreno <ender@debian.org>,
+	sct@redhat.com, akpm@digeo.com, linux-kernel@vger.kernel.org,
+	ext3-users@redhat.com
+References: <200404291415.46949.ender@debian.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <200404291415.46949.ender@debian.org>
+User-Agent: Mutt/1.4.1i
+X-GPG-Key: 1024D/0D35BED6
+X-GPG-Fingerprint: 7A37 5D79 BF1B CECA D44F  8A29 A488 39F5 0D35 BED6
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 29 Apr 2004 18:42:23 +0200 Bartlomiej Zolnierkiewicz wrote:
+On Apr 29, 2004  14:15 +0200, David Martínez Moreno wrote:
+> Hello all. I'm writing to all the people in charge of ext3 fs
+> 
+> Apr 29 12:21:21 arsinoe kernel: EXT3-fs error (device sda7): ext3_free_blocks: Freeing blocks not in datazone - block = 1071716394, count = 1
 
-| On Thursday 29 of April 2004 17:38, Randy.Dunlap wrote:
-| > On Mon, 26 Apr 2004 09:42:52 -0700 Tom Rini wrote:
-| > | On Wed, Apr 21, 2004 at 08:51:40PM -0700, Randy.Dunlap wrote:
-| > | > Localizes kernel debug options in lib/Kconfig.debug.
-| > | > Puts arch-specific debug options in $ARCH/Kconfig.debug.
-| > |
-| > | [snip]
-| > |
-| > | >  arch/ppc/Kconfig             |  124 -------------------------
-| > | >  arch/ppc/Kconfig.debug       |   71 ++++++++++++++
-| > |
-| > | OCP shouldn't be moved into Kconfig.debug, it's just in an odd location
-| > | right now.
-| >
-| > Thanks.  I moved it to under Processor options, before Platform
-| > options.  Is that OK?
-| >
-| > Updated patch is here:
-| >   http://developer.osdl.org/rddunlap/patches/kdebug1file_266rc2_v2.patch
-| > (applies to 2.6.6-rc3 with a few offsets)
-| >
-| > Waiting for 2.6.6-final...
-| 
-| I guess it is not a final patch?
+You need to run "e2fsck -f /dev/sda7" on the unmounted filesystem.  There
+is some sort of corruption there.
 
-Well, it hasn't been accepted.
+> Apr 23 20:35:41 arsinoe kernel: EXT3-fs error (device sda7): ext3_free_blocks: Freeing blocks not in datazone - block = 1075532092, count = 1
 
-| Only on x86 it does a proper thing:
-| 
-| arch/<arch>/Kconfig -> arch/<arch>/Kconfig.debug -> lib/Kconfig.debug
+This earlier error should have forced a full fsck - did that run?
 
-That's because I goofed up... it's the wrong patch.
+> Apr 23 20:38:47 arsinoe kernel: i91u: Reset SCSI Bus ...
+> Apr 23 20:38:47 arsinoe kernel: ERROR: SCSI host `INI9100U' has no error handling
+> Apr 23 20:38:47 arsinoe kernel: ERROR: This is not a safe way to run your SCSI host
+> Apr 23 20:38:47 arsinoe kernel: ERROR: The error handling must be added to this driver
 
-I was trying something that someone suggested (You!) and it didn't
-work out in a desirable way as far as how it's presented in
-{x,menu}config, so I need to fix that (i386 part) and then you
-can complain some more.  :)
+This seems a bit ominous, not sure how bad it really is.
 
+> 	I forced to fsck all the ext3 drives (/dev/sda{1,6,7}) and installed 2.6.6-rc2.
+> It fsck'ed one of the partitions, then wanted to reboot, then fsck'ed the three
+
+Hmm, so it did run.  It seems you are getting corruption on the disk for
+some reason.
+
+> 	A tune2fs from the affected partition:
+> 
+> arsinoe:/usr/src/dev# tune2fs -l /dev/sda7
+> tune2fs 1.35-WIP (07-Dec-2003)
+> Filesystem volume name:   <none>
+> Last mounted on:          <not available>
+> Filesystem UUID:          6b9d38e7-7487-444b-b8e4-68404673964f
+> Filesystem magic number:  0xEF53
+> Filesystem revision #:    1 (dynamic)
+> Filesystem features:      has_journal filetype needs_recovery sparse_super
+> Default mount options:    (none)
+> Filesystem state:         clean with errors
+
+Was this after the e2fsck was run?  It shouldn't be marked "with errors".
+
+Cheers, Andreas
 --
-~Randy
+Andreas Dilger
+http://sourceforge.net/projects/ext2resize/
+http://www-mddsp.enel.ucalgary.ca/People/adilger/
+

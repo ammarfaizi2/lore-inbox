@@ -1,51 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268448AbUHNLTt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268424AbUHNLTk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268448AbUHNLTt (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 14 Aug 2004 07:19:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268436AbUHNLTt
+	id S268424AbUHNLTk (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 14 Aug 2004 07:19:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268436AbUHNLTk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 14 Aug 2004 07:19:49 -0400
-Received: from mail3.ithnet.com ([217.64.64.7]:17610 "HELO ithnet.com")
-	by vger.kernel.org with SMTP id S268454AbUHNLTl (ORCPT
+	Sat, 14 Aug 2004 07:19:40 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:58022 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S268426AbUHNLTZ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 14 Aug 2004 07:19:41 -0400
-X-Sender-Authentication: net64
-Date: Sat, 14 Aug 2004 13:19:38 +0200
-From: Stephan von Krawczynski <skraw@ithnet.com>
-To: Jeff Garzik <jgarzik@pobox.com>
-Cc: torvalds@osdl.org, linux-kernel@vger.kernel.org, willy@w.ods.org
-Subject: Re: Linux v2.6.8
-Message-Id: <20040814131938.46c1129c.skraw@ithnet.com>
-In-Reply-To: <411DE9B6.80806@pobox.com>
+	Sat, 14 Aug 2004 07:19:25 -0400
+Subject: Re: Linux v2.6.8 - Oops on NFSv3
+From: Arjan van de Ven <arjanv@redhat.com>
+Reply-To: arjanv@redhat.com
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Christoph Hellwig <hch@infradead.org>, Willy Tarreau <willy@w.ods.org>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>, Matthew Wilcox <willy@debian.org>
+In-Reply-To: <Pine.LNX.4.58.0408140404050.1839@ppc970.osdl.org>
 References: <Pine.LNX.4.58.0408132303090.5277@ppc970.osdl.org>
-	<411DE9B6.80806@pobox.com>
-Organization: ith Kommunikationstechnik GmbH
-X-Mailer: Sylpheed version 0.9.12 (GTK+ 1.2.10; i686-pc-linux-gnu)
+	 <20040814101039.GA27163@alpha.home.local>
+	 <Pine.LNX.4.58.0408140336170.1839@ppc970.osdl.org>
+	 <Pine.LNX.4.58.0408140344110.1839@ppc970.osdl.org>
+	 <20040814115548.A19527@infradead.org>
+	 <Pine.LNX.4.58.0408140404050.1839@ppc970.osdl.org>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-UPLOKOT4yGfemaCDMqKQ"
+Organization: Red Hat UK
+Message-Id: <1092482311.9028.4.camel@laptop.fenrus.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
+Date: Sat, 14 Aug 2004 13:18:32 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 14 Aug 2004 06:30:14 -0400
-Jeff Garzik <jgarzik@pobox.com> wrote:
 
-> Linus Torvalds wrote:
-> > Matthew Wilcox:
-> >   o Remove fcntl f_op
-> 
-> Any chance of a 2.6.9 with working NFS?
-> 
-> See attached patch, which came from this thread:
-> http://marc.theaimsgroup.com/?l=linux-kernel&m=109244804202259&w=2
-> http://marc.theaimsgroup.com/?t=109244611400001&r=1&w=2
+--=-UPLOKOT4yGfemaCDMqKQ
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-Hi Jeff,
+On Sat, 2004-08-14 at 13:05, Linus Torvalds wrote:
+> On Sat, 14 Aug 2004, Christoph Hellwig wrote:
+> >=20
+> > Cane we make this 2.6.9 to avoid breaking all kinds of scripts expectin=
+g
+> > three-digit kernel versions?
+>=20
+> Well, we've been discussing the 2.6.x.y format for a while, so I see this=
+=20
+> as an opportunity to actually do it... Will it break automated scripts?=20
+> Maybe. But on the other hand, we'll never even find out unless we try it=20
+> some time.
 
-I just fell into the same hole. On my box (x86) only write-access to nfs
-produces the known problem.
-I can confirm that your patch solves it.
-I very much vote for 2.6.9 NFS-bugfix. This is a real show-stopper.
- 
-Regards,
-Stephan
+well... I'll volunteer to keep a 2.6.X-postY series.. this fix could be
+part of that.
+
+For me the -post series should be
+* Only patches that are in later head kernels (maybe lightly touched to
+resolve patch conflicts)
+* Only patches that fix something critical/important
+  (where critical is of course a gray area but I'm sure a decent balance
+will be found)
+
+
+
+--=-UPLOKOT4yGfemaCDMqKQ
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+
+iD8DBQBBHfUHxULwo51rQBIRAuyLAJ4uaMK3R53XAklObvoBslGJLfN2/ACgh22R
+/jV1axxsBOVQI+jl7J2NXF8=
+=dO4+
+-----END PGP SIGNATURE-----
+
+--=-UPLOKOT4yGfemaCDMqKQ--
+

@@ -1,32 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263286AbREWWIp>; Wed, 23 May 2001 18:08:45 -0400
+	id <S263288AbREWWKF>; Wed, 23 May 2001 18:10:05 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263287AbREWWIf>; Wed, 23 May 2001 18:08:35 -0400
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:17165 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S263286AbREWWI3>; Wed, 23 May 2001 18:08:29 -0400
-Subject: Re: [PATCH] big-sector support with FAT
-To: hirofumi@mail.parknet.co.jp (OGAWA Hirofumi)
-Date: Wed, 23 May 2001 23:05:11 +0100 (BST)
-Cc: torvalds@transmeta.com (Linus Torvalds),
-        alan@lxorguk.ukuu.org.uk (Alan Cox), linux-kernel@vger.kernel.org
-In-Reply-To: <87lmnn97i4.fsf@devron.myhome.or.jp> from "OGAWA Hirofumi" at May 24, 2001 04:42:59 AM
-X-Mailer: ELM [version 2.5 PL3]
-MIME-Version: 1.0
+	id <S263289AbREWWJz>; Wed, 23 May 2001 18:09:55 -0400
+Received: from penguin.e-mind.com ([195.223.140.120]:7448 "EHLO
+	penguin.e-mind.com") by vger.kernel.org with ESMTP
+	id <S263288AbREWWJq>; Wed, 23 May 2001 18:09:46 -0400
+Date: Thu, 24 May 2001 00:09:33 +0200
+From: Andrea Arcangeli <andrea@suse.de>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: "Stephen C. Tweedie" <sct@redhat.com>, linux-kernel@vger.kernel.org
+Subject: Re: DVD blockdevice buffers
+Message-ID: <20010524000933.A764@athlon.random>
+In-Reply-To: <20010523205748.L8080@redhat.com> <Pine.LNX.4.31.0105231258420.6642-100000@penguin.transmeta.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E152gkh-00048O-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.31.0105231258420.6642-100000@penguin.transmeta.com>; from torvalds@transmeta.com on Wed, May 23, 2001 at 01:01:56PM -0700
+X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
+X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I fixed it to dynamically change block size with logical_sector_size
-> of FAT. The device of bigger sector-size than 512 can be handled by
-> this change.
+On Wed, May 23, 2001 at 01:01:56PM -0700, Linus Torvalds wrote:
+> [..] I assume that Andrea basically
+> made the block-size be the same as the page size. That's how I would have
 
-I am so glad someone did that.
+exactly (softblocksize is 4k fixed, regardless of the page cache size to
+avoid confusing device drivers).
 
-> Please apply.
+> done it (and then waited for people to find real life cases where we want
+> to allow sector writes).
 
-Gladly
+Correct, the partial write logic is kind of disabled on x86 because the
+artificial softblocksize of the blkdev pagecache matches the
+pagecachesize but it should just work on the other archs.
+
+Now I can try to make the bh more granular for partial writes in a
+dynamic manner (so we don't pay the overhead of the 512byte bh in the
+common case) but I think this would need its own additional logic and I
+prefer to think about it after I solved the coherency issues between
+pinned buffer cache and filesystem, so after the showstoppers are solved
+and the patch is just usable in real life (possibly with the overhead of
+read-modify-write for some workload doing small random write I/O).
+An easy short term fix for removing the read-modify-write would be to use the
+hardblocksize of the underlying device as the softblocksize but again
+that would cause us to pay for the 512byte bhs which I don't like to... ;)
+
+Andrea

@@ -1,35 +1,91 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264111AbTCXF2H>; Mon, 24 Mar 2003 00:28:07 -0500
+	id <S264115AbTCXFim>; Mon, 24 Mar 2003 00:38:42 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264113AbTCXF2H>; Mon, 24 Mar 2003 00:28:07 -0500
-Received: from c17870.thoms1.vic.optusnet.com.au ([210.49.248.224]:10460 "EHLO
-	mail.kolivas.org") by vger.kernel.org with ESMTP id <S264111AbTCXF2G>;
-	Mon, 24 Mar 2003 00:28:06 -0500
-From: Con Kolivas <kernel@kolivas.org>
-To: linux kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: [BENCHMARK] 2.5.65-mm3,4 with contest
-Date: Mon, 24 Mar 2003 16:39:11 +1100
-User-Agent: KMail/1.5
+	id <S264116AbTCXFim>; Mon, 24 Mar 2003 00:38:42 -0500
+Received: from [196.12.44.6] ([196.12.44.6]:10473 "EHLO students.iiit.net")
+	by vger.kernel.org with ESMTP id <S264115AbTCXFil>;
+	Mon, 24 Mar 2003 00:38:41 -0500
+Date: Mon, 24 Mar 2003 11:21:42 +0530 (IST)
+From: Prasad <prasad_s@students.iiit.net>
+To: shesha bhushan <bhushan_vadulas@hotmail.com>
+cc: lkml <linux-kernel@vger.kernel.org>
+Subject: Re: GETHOSTBYNAME()
+In-Reply-To: <F64RsqSoQHK3gSkQsfl0000279b@hotmail.com>
+Message-ID: <Pine.LNX.4.44.0303241111250.26195-100000@students.iiit.net>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200303241639.11728.kernel@kolivas.org>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-Anticipatory scheduler tested...
-no significant difference from 2.5.65-mm2
+Hi,
 
-CFQ scheduler shows some fluctuations in results. At first I thought it was a 
-mem leak because they were getting longer, but then they decreased again. 
-Results are not consistent enough to give meaningful benchmark results at the 
-moment.  Still trying to track down what happened.
+Just have a look at the code at the bottom... that should make it clear.  
+This again is what i implemented for my project and its working fine.
 
-The only thing I can say with certainty is read load is faster than the AS 
-(108 seconds v 122), and mem load is a little faster (98 v 102).
+> Thanks for the help. But if I am opening a socket in a lodable kernel module 
+> and need to send a message to a perticular IP say 158.168.1.1, then how to 
+> populate the structure sock_data.sin_addrs
 
-Con
+
+	// We dont have a inet_addr in user space.
+	unsigned int inet_addr(char *str)
+	{
+	  int a,b,c,d;
+	  char arr[4];
+	  sscanf(str,"%d.%d.%d.%d",&a,&b,&c,&d);
+	  arr[0] = a; arr[1] = b; arr[2] = c; arr[3] = d;
+	  return *(unsigned int*)arr;
+	}
+
+	// Get the host...
+	int gethost(struct sockaddr_in *addr)
+	{
+	  unsigned long ad;
+	  addr->sin_family = AF_INET;
+	  addr->sin_port = htons(sysctl_dos_tcpport );
+	  ad = inet_addr("172.16.7.12");
+	  if( ad == INADDR_NONE ){
+	    printk("dos_select_host: Host not found");
+	    return -EHOSTUNREACH;
+	  }
+	  addr->sin_addr.s_addr = ad;
+	  return 0;
+	}
+
+
+	// Connect to the remote host...
+	struct socket* connect(struct sockaddr_in* sock_addr)
+	{
+	  int retval;
+	  struct socket *sock;
+	
+	  retval = sock_create(AF_INET,SOCK_STREAM,0,&sock);
+	
+	  if (retval < 0) {
+	    printk("(connect) could not create a socket\n");
+	    return NULL;
+	  }
+
+	  retval = sock->ops->connect(sock,
+			(struct sockaddr *)sock_addr,
+			sizeof(struct sockaddr_in),0);
+	
+	  if (retval < 0) {
+	    printk("(connect) error on connect: %d\n",retval);
+	    sock_release(sock);
+	    return NULL;
+	  }
+	
+	  return sock;
+	}
+
+Hope this serves your purpose...
+
+Prasad.
+
+-- 
+Failure is not an option
+
+

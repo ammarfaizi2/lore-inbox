@@ -1,112 +1,271 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316609AbSFZOmJ>; Wed, 26 Jun 2002 10:42:09 -0400
+	id <S316610AbSFZOqk>; Wed, 26 Jun 2002 10:46:40 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316610AbSFZOmI>; Wed, 26 Jun 2002 10:42:08 -0400
-Received: from pcp748332pcs.manass01.va.comcast.net ([68.49.120.123]:44672
-	"EHLO pcp748332pcs.manass01.va.comcast.net") by vger.kernel.org
-	with ESMTP id <S316609AbSFZOmH>; Wed, 26 Jun 2002 10:42:07 -0400
-Date: Wed, 26 Jun 2002 10:42:01 -0400
-To: Kernel List <linux-kernel@vger.kernel.org>
-Subject: 2.5.19 scsi error and question
-Message-ID: <20020626144201.GA3397@bittwiddlers.com>
+	id <S316611AbSFZOqj>; Wed, 26 Jun 2002 10:46:39 -0400
+Received: from cpe-24-221-152-185.az.sprintbbd.net ([24.221.152.185]:27551
+	"EHLO opus.bloom.county") by vger.kernel.org with ESMTP
+	id <S316610AbSFZOqh>; Wed, 26 Jun 2002 10:46:37 -0400
+Date: Wed, 26 Jun 2002 07:46:09 -0700
+From: Tom Rini <trini@kernel.crashing.org>
+To: Brad Hards <bhards@bigpond.net.au>
+Cc: lkml <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH/RFC 2.4.19-rc1] Fix dependancies on keybdev.o
+Message-ID: <20020626144609.GR3489@opus.bloom.county>
+References: <20020625160644.GP3489@opus.bloom.county> <200206261236.24247.bhards@bigpond.net.au>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+In-Reply-To: <200206261236.24247.bhards@bigpond.net.au>
 User-Agent: Mutt/1.4i
-From: Matthew Harrell <lists-sender-14a37a@bittwiddlers.com>
-X-Delivery-Agent: TMDA/0.56
-Reply-To: Matthew Harrell 
-	  <mharrell-dated-1025534521.3d2cfd@bittwiddlers.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, Jun 26, 2002 at 12:36:24PM +1000, Brad Hards wrote:
+> On Wed, 26 Jun 2002 02:06, Tom Rini wrote:
+> > Right now drivers/input/keybdev.o depends on drivers/char/keyboard.o for
+> > handle_scancode, keyboard_tasklet and kbd_ledfunc.  However, compiling
+> > drivers/char/keyboard.o isn't quite straight forward, as we have:
+> > ifndef CONFIG_SUN_KEYBOARD
+> >   obj-$(CONFIG_VT) += keyboard.o $(KEYMAP) $(KEYBD)
+> > else
+> >   obj-$(CONFIG_PCI) += keyboard.o $(KEYMAP)
+> > endif
+> > in drivers/char/Makefile
+> >
+> > To attempt to work around this, I've come up with the following patch
+> > for drivers/input/Config.in.  Comments?
+> Here is a bit of arch/i386/config.in:
+> <extract>
+> # input before char - char/joystick depends on it. As does USB.
+> #
+> source drivers/input/Config.in
+> source drivers/char/Config.in
+> </extract>
 
-I received the following error on my server this morning when it tried to
-mount my jaz drive and copy some files to it.  The annoying thing is that
-this crashed the machine.  I haven't yet tried a later kernel just due to
-compilation problems.  Anyway, can someone tell me what this error means
-and whether it denotes a problem with the scsi card, scsi device, or the 
-media in the device?  The card is an Adaptec AHA-2940U2W
+Boy, it would be nice if that was mentioned somewhere else. :)  alpha,
+mips, and mips64 get that wrong..
 
-  found reiserfs format "3.5" with standard journal
-  Reiserfs journal params: device 08:14, size 8192, journal first block 18, max trans len 1024, max batch 900, max commit age 30, max trans age 30
-  reiserfs: checking transaction log (sd(8,20)) for (sd(8,20))
-  reiserfs: replayed 2 transactions in 1 seconds
-  Using tea hash to sort names
-  reiserfs: using 3.5.x disk format
-  Packet log: CLPL=BLOCK IN=eth1 OUT= MAC=01:00:5e:00:00:01:00:20:40:05:f3:31:08:00 SRC=192.168.100.1 DST=224.0.0.1 LEN=28 TOS=0x00 PREC=0xC0 TTL=1 ID=0 PROTO=2 
-  scsi0:0:0:0: Attempting to queue an ABORT message
-  scsi0: Dumping Card State in Command phase, at SEQADDR 0x16d
-  ACCUM = 0x80, SINDEX = 0xa0, DINDEX = 0xe4, ARG_2 = 0x1
-  HCNT = 0x0
-  SCSISEQ = 0x12, SBLKCTL = 0x6
-   DFCNTRL = 0x4, DFSTATUS = 0x89
-  LASTPHASE = 0x80, SCSISIGI = 0x84, SXFRCTL0 = 0x88
-  SSTAT0 = 0x5, SSTAT1 = 0x2
-  STACK == 0x17b, 0x165, 0x0, 0x35
-  SCB count = 12
-  Kernel NEXTQSCB = 4
-  Card NEXTQSCB = 2
-  QINFIFO entries: 2 10 11 6 3 0 1 7 
-  Waiting Queue entries: 
-  Disconnected Queue entries: 
-  QOUTFIFO entries: 
-  Sequencer Free SCB List: 4 3 7 8 6 5 2 1 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 
-  Pending list: 7, 1, 0, 3, 6, 11, 10, 2, 5
-  Kernel Free SCB list: 9 8 
-  Untagged Q(4): 5 
-  DevQ(0:0:0): 0 waiting
-  DevQ(0:4:0): 1 waiting
-  DevQ(0:5:0): 0 waiting
-  DevQ(0:6:0): 0 waiting
-  scsi0:0:0:0: Cmd aborted from QINFIFO
-  aic7xxx_abort returns 0x2002
-  scsi0:0:0:0: Attempting to queue an ABORT message
-  scsi0:0:0:0: Command not found
-  aic7xxx_abort returns 0x2002
-  scsi0:0:0:0: Attempting to queue an ABORT message
-  scsi0:0:0:0: Command not found
-  aic7xxx_abort returns 0x2002
-  scsi0:0:0:0: Attempting to queue an ABORT message
-  scsi0:0:0:0: Command not found
-  aic7xxx_abort returns 0x2002
-  scsi0:0:0:0: Attempting to queue an ABORT message
-  scsi0:0:0:0: Command not found
-  aic7xxx_abort returns 0x2002
-  scsi0:0:0:0: Attempting to queue an ABORT message
-  scsi0:0:0:0: Command not found
-  aic7xxx_abort returns 0x2002
-  scsi0:0:0:0: Attempting to queue an ABORT message
-  scsi0:0:0:0: Command not found
-  aic7xxx_abort returns 0x2002
-  scsi0:0:0:0: Attempting to queue an ABORT message
-  scsi0:0:0:0: Command not found
-  aic7xxx_abort returns 0x2002
-  scsi0:0:4:0: Attempting to queue an ABORT message
-  scsi0:0:4:0: Command not found
-  aic7xxx_abort returns 0x2002
-  scsi0:0:4:0: Attempting to queue an ABORT message
-  scsi0:0:4:0: Command not found
-  aic7xxx_abort returns 0x2002
-  scsi0: ERROR on channel 0, id 4, lun 0, CDB: Write (10) 00 00 18 7c d0 00 00 08 00 
-  Info fld=0x187cd1, Current sd08:10: sense key Medium Error
-  Additional sense indicates Unrecovered read error
-  end_request: I/O error, dev 08:10, sector 1604816
-  (scsi0:A:4:0): data overrun detected in Data-out phase.  Tag == 0x4.
-  (scsi0:A:4:0): Have seen Data Phase.  Length = 512.  NumSGs = 1.
-  sg[0] - Addr 0x01641e00 : Length 512
-  (scsi0:A:4:0): data overrun detected in Data-out phase.  Tag == 0x6.
-  (scsi0:A:4:0): Have seen Data Phase.  Length = 512.  NumSGs = 1.
-  sg[0] - Addr 0x01641e00 : Length 512
-  (scsi0:A:4:0): data overrun detected in Data-out phase.  Tag == 0x5.
-  (scsi0:A:4:0): Have seen Data Phase.  Length = 512.  NumSGs = 1.
-  sg[0] - Addr 0x01641e00 : Length 512
-  (scsi0:A:4:0): data overrun detected in Data-out phase.  Tag == 0x3.
-  (scsi0:A:4:0): Have seen Data Phase.  Length = 512.  NumSGs = 1.
-  sg[0] - Addr 0x01641e00 : Length 512
-  (scsi0:A:4:0): data overrun detected in Data-out phase.  Tag == 0x6.
-  (scsi0:A:4:0): Have seen Data Phase.  Length = 512.  NumSGs = 1.
-  sg[0] - Addr 0x01641e00 : Length 512
-  SCSI disk error : host 0 channel 0 id 4 lun 0 return code = 70000
-  end_request: I/O error, dev 08:10, sector 1604817
+> So it will still crap out, because CONFIG_VT and CONFIG_SUN_KEYBOARD won't be 
+> set early enough.
+
+Well CONFIG_SUN_KEYBOARD is define_bool'ed at the begining on
+sparc/sparc64 (and PCI is asked before input, so that is OK).  But
+CONFIG_VT makes things less fun..
+
+> Three possible options, none of them especially good:
+> 1. Do various munging of config and make setup and try to cover this.
+
+Probably harder than it's worth.
+
+> 2. Move keyboard handling code to input subsystem
+
+I think that will work out the best.  How's the attached look?  It moves
+drivers/input/Config.in inside of drivers/char/Config.in and then fixes
+arches which had both.  (Lightly tested from xconfig[1] for all arches
+which got changed).
+
+
+> 3. Do wholesale backport of input subsystem from 2.5
+
+Not really an option (and 2.5 has this problem anyhow) since it's so
+invasive, once it's done.
+
+-- 
+Tom Rini (TR1265)
+http://gate.crashing.org/~trini/
+
+[1] xconfig because it tends to be the easiest to break.
+
+===== arch/alpha/config.in 1.15 vs edited =====
+--- 1.15/arch/alpha/config.in	Sat May 25 19:37:06 2002
++++ edited/arch/alpha/config.in	Wed Jun 26 07:30:11 2002
+@@ -397,7 +397,6 @@
+ endmenu
+ 
+ source drivers/usb/Config.in
+-source drivers/input/Config.in
+ 
+ source net/bluetooth/Config.in
+ 
+===== arch/arm/config.in 1.14 vs edited =====
+--- 1.14/arch/arm/config.in	Fri Apr  5 12:12:20 2002
++++ edited/arch/arm/config.in	Wed Jun 26 07:30:24 2002
+@@ -554,11 +554,6 @@
+ fi
+ endmenu
+ 
+-#
+-# input before char - char/joystick depends on it. As does USB.
+-#
+-source drivers/input/Config.in
+-
+ source drivers/char/Config.in
+ if [ "$CONFIG_ARCH_ACORN" = "y" -a \
+      "$CONFIG_BUSMOUSE" = "y" ]; then
+===== arch/cris/config.in 1.10 vs edited =====
+--- 1.10/arch/cris/config.in	Tue Feb  5 07:10:18 2002
++++ edited/arch/cris/config.in	Wed Jun 26 07:30:29 2002
+@@ -222,10 +222,6 @@
+ fi
+ endmenu
+ 
+-#
+-# input before char - char/joystick depends on it. As does USB.
+-#
+-source drivers/input/Config.in
+ source drivers/char/Config.in
+ 
+ #source drivers/misc/Config.in
+===== arch/i386/config.in 1.28 vs edited =====
+--- 1.28/arch/i386/config.in	Tue Apr 16 04:30:28 2002
++++ edited/arch/i386/config.in	Wed Jun 26 07:30:32 2002
+@@ -375,10 +375,6 @@
+ fi
+ endmenu
+ 
+-#
+-# input before char - char/joystick depends on it. As does USB.
+-#
+-source drivers/input/Config.in
+ source drivers/char/Config.in
+ 
+ #source drivers/misc/Config.in
+===== arch/ia64/config.in 1.9 vs edited =====
+--- 1.9/arch/ia64/config.in	Sat Mar  9 13:41:04 2002
++++ edited/arch/ia64/config.in	Wed Jun 26 07:30:36 2002
+@@ -203,10 +203,6 @@
+ 
+ fi # !HP_SIM
+ 
+-#
+-# input before char - char/joystick depends on it. As does USB.
+-#
+-source drivers/input/Config.in
+ source drivers/char/Config.in
+ 
+ #source drivers/misc/Config.in
+===== arch/m68k/config.in 1.8 vs edited =====
+--- 1.8/arch/m68k/config.in	Fri Mar  1 05:29:44 2002
++++ edited/arch/m68k/config.in	Wed Jun 26 07:42:36 2002
+@@ -171,10 +171,6 @@
+    source net/Config.in
+ fi
+ 
+-if [ "$CONFIG_MAC" = "y" ]; then
+-   source drivers/input/Config.in
+-fi
+-
+ mainmenu_option next_comment
+ comment 'ATA/IDE/MFM/RLL support'
+ 
+@@ -396,6 +392,10 @@
+    if [ "$CONFIG_VT" = "y" ]; then
+       bool 'Support for console on virtual terminal' CONFIG_VT_CONSOLE
+    fi
++fi
++
++if [ "$CONFIG_MAC" = "y" ]; then
++   source drivers/input/Config.in
+ fi
+ 
+ if [ "$CONFIG_ATARI" = "y" ]; then
+===== arch/mips/config.in 1.6 vs edited =====
+--- 1.6/arch/mips/config.in	Thu Feb 28 06:57:19 2002
++++ edited/arch/mips/config.in	Wed Jun 26 07:30:46 2002
+@@ -628,7 +628,6 @@
+ fi
+ 
+ source drivers/usb/Config.in
+-source drivers/input/Config.in
+ 
+ mainmenu_option next_comment
+ comment 'Kernel hacking'
+===== arch/mips64/config.in 1.6 vs edited =====
+--- 1.6/arch/mips64/config.in	Thu Feb 28 06:57:19 2002
++++ edited/arch/mips64/config.in	Wed Jun 26 07:30:50 2002
+@@ -325,7 +325,6 @@
+ fi
+ 
+ source drivers/usb/Config.in
+-source drivers/input/Config.in
+ 
+ mainmenu_option next_comment
+ comment 'Kernel hacking'
+===== arch/ppc/config.in 1.17 vs edited =====
+--- 1.17/arch/ppc/config.in	Fri Apr  5 03:38:55 2002
++++ edited/arch/ppc/config.in	Wed Jun 26 07:31:14 2002
+@@ -321,8 +321,6 @@
+ fi
+ endmenu
+ 
+-source drivers/input/Config.in
+-
+ mainmenu_option next_comment
+ comment 'Macintosh device drivers'
+ 
+===== arch/ppc64/config.in 1.2 vs edited =====
+--- 1.2/arch/ppc64/config.in	Fri Mar 29 03:18:26 2002
++++ edited/arch/ppc64/config.in	Wed Jun 26 07:31:19 2002
+@@ -170,8 +170,6 @@
+ source drivers/video/Config.in
+ endmenu
+ 
+-source drivers/input/Config.in
+-
+ if [ "$CONFIG_PPC_ISERIES" = "y" ]; then
+ mainmenu_option next_comment
+ comment 'iSeries device drivers'
+===== arch/sh/config.in 1.6 vs edited =====
+--- 1.6/arch/sh/config.in	Tue Feb  5 07:10:15 2002
++++ edited/arch/sh/config.in	Wed Jun 26 07:43:22 2002
+@@ -275,11 +275,6 @@
+ fi
+ endmenu
+ 
+-#
+-# input before char - char/joystick depends on it. As does USB.
+-#
+-source drivers/input/Config.in
+-
+ # if [ "$CONFIG_SH_DREAMCAST" = "y" ]; then
+ #    source drivers/maple/Config.in
+ # fi
+@@ -312,6 +307,8 @@
+      "$CONFIG_SH_SOLUTION_ENGINE" = "y" ]; then
+    bool 'Heartbeat LED' CONFIG_HEARTBEAT
+ fi
++
++source drivers/input/Config.in
+ 
+ if [ "$CONFIG_SH_DREAMCAST" = "y" -a "$CONFIG_MAPLE" != "n" ]; then
+    mainmenu_option next_comment
+===== drivers/char/Config.in 1.28 vs edited =====
+--- 1.28/drivers/char/Config.in	Fri May  3 01:49:04 2002
++++ edited/drivers/char/Config.in	Wed Jun 26 07:28:09 2002
+@@ -137,6 +137,8 @@
+ 
+ source drivers/i2c/Config.in
+ 
++source drivers/input/Config.in
++
+ mainmenu_option next_comment
+ comment 'Mice'
+ tristate 'Bus Mouse Support' CONFIG_BUSMOUSE
+===== drivers/input/Config.in 1.2 vs edited =====
+--- 1.2/drivers/input/Config.in	Tue Feb  5 00:45:17 2002
++++ edited/drivers/input/Config.in	Tue Jun 25 08:58:41 2002
+@@ -6,7 +6,12 @@
+ comment 'Input core support'
+ 
+ tristate 'Input core support' CONFIG_INPUT
+-dep_tristate '  Keyboard support' CONFIG_INPUT_KEYBDEV $CONFIG_INPUT
++if [ "$CONFIG_SUN_KEYBOARD" = "y" -a "$CONFIG_PCI" = "y"]; then
++   define_bool CONFIG_SUN_CAN_INPUT_KEYBDEV y
++fi
++if [ "$CONFIG_VT" = "y" -o "$CONFIG_SUN_CAN_INPUT_KEYBDEV" = "y" ]; then
++   dep_tristate '  Keyboard support' CONFIG_INPUT_KEYBDEV $CONFIG_INPUT
++fi
+ dep_tristate '  Mouse support' CONFIG_INPUT_MOUSEDEV $CONFIG_INPUT
+ if [ "$CONFIG_INPUT_MOUSEDEV" != "n" ]; then
+    int '   Horizontal screen resolution' CONFIG_INPUT_MOUSEDEV_SCREEN_X 1024

@@ -1,625 +1,640 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264468AbTH1Xqo (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 28 Aug 2003 19:46:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264493AbTH1Xqn
+	id S264470AbTH1XtG (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 28 Aug 2003 19:49:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264533AbTH1Xs6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 28 Aug 2003 19:46:43 -0400
-Received: from fmr09.intel.com ([192.52.57.35]:6124 "EHLO hermes.hd.intel.com")
-	by vger.kernel.org with ESMTP id S264468AbTH1XpG (ORCPT
+	Thu, 28 Aug 2003 19:48:58 -0400
+Received: from fmr09.intel.com ([192.52.57.35]:52460 "EHLO hermes.hd.intel.com")
+	by vger.kernel.org with ESMTP id S264485AbTH1Xpp (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 28 Aug 2003 19:45:06 -0400
+	Thu, 28 Aug 2003 19:45:45 -0400
 content-class: urn:content-classes:message
 MIME-Version: 1.0
 Content-Type: multipart/mixed;
-	boundary="----_=_NextPart_001_01C36DBE.61E6F576"
+	boundary="----_=_NextPart_001_01C36DBE.7869AEF4"
 X-MimeOLE: Produced By Microsoft Exchange V6.0.6375.0
-Subject: [PATCH][2.6-test4][5/6]Support for HPET based timer
-Date: Thu, 28 Aug 2003 16:44:55 -0700
-Message-ID: <C8C38546F90ABF408A5961FC01FDBF1902C7D216@fmsmsx405.fm.intel.com>
+Subject: [PATCH][2.6-test4][6/6]Support for HPET based timer
+Date: Thu, 28 Aug 2003 16:45:32 -0700
+Message-ID: <C8C38546F90ABF408A5961FC01FDBF1902C7D217@fmsmsx405.fm.intel.com>
 X-MS-Has-Attach: yes
 X-MS-TNEF-Correlator: 
-Thread-Topic: [PATCH][2.6-test4][5/6]Support for HPET based timer
-Thread-Index: AcNtvmHMeC9zwY38SIu1AuxbZ6iPMQ==
+Thread-Topic: [PATCH][2.6-test4][6/6]Support for HPET based timer
+Thread-Index: AcNtvnhQtUa0cV8lQr6dpyNUj5eu6Q==
 From: "Pallipadi, Venkatesh" <venkatesh.pallipadi@intel.com>
 To: <torvalds@osdl.org>, <akpm@osdl.org>
 Cc: <linux-kernel@vger.kernel.org>, "Nakajima, Jun" <jun.nakajima@intel.com>
-X-OriginalArrivalTime: 28 Aug 2003 23:44:55.0407 (UTC) FILETIME=[62214FF0:01C36DBE]
+X-OriginalArrivalTime: 28 Aug 2003 23:45:34.0016 (UTC) FILETIME=[79249400:01C36DBE]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 This is a multi-part message in MIME format.
 
-------_=_NextPart_001_01C36DBE.61E6F576
+------_=_NextPart_001_01C36DBE.7869AEF4
 Content-Type: text/plain;
 	charset="iso-8859-1"
 Content-Transfer-Encoding: quoted-printable
 
-5/6 - hpet5.patch - All changes required to support timer services
-                    (gettimeofday) with HPET.
+6/6 - hpet6.patch - This can be a standalone patch. With this patch
+                    we basically try to emulate RTC interrupt
+                    functions in software using HPET counter 1.
 
 
 
 
-diff -purN linux-2.6.0-test4/arch/i386/kernel/timers/timer.c =
-linux-2.6.0-test4-hpet/arch/i386/kernel/timers/timer.c
---- linux-2.6.0-test4/arch/i386/kernel/timers/timer.c	2003-08-22 =
-17:01:02.000000000 -0700
-+++ linux-2.6.0-test4-hpet/arch/i386/kernel/timers/timer.c	2003-08-28 =
-12:18:15.000000000 -0700
-@@ -3,11 +3,22 @@
- #include <linux/string.h>
- #include <asm/timer.h>
+diff -purN linux-2.6.0-test4/arch/i386/kernel/time_hpet.c =
+linux-2.6.0-test4-hpet/arch/i386/kernel/time_hpet.c
+--- linux-2.6.0-test4/arch/i386/kernel/time_hpet.c	2003-08-28 =
+12:20:34.000000000 -0700
++++ linux-2.6.0-test4-hpet/arch/i386/kernel/time_hpet.c	2003-08-27 =
+18:45:09.000000000 -0700
+@@ -168,4 +168,225 @@ static int __init hpet_setup(char* str)
 =20
-+#ifdef CONFIG_HPET_TIMER
-+/*=20
-+ * HPET memory read is slower than tsc reads, but is more dependable as =
-it=20
-+ * always runs at constant frequency and reduces complexity due to
-+ * cpufreq. So, we prefer HPET timer to tsc based one. Also, we cannot =
-use
-+ * timer_pit when HPET is active. So, we default to timer_tsc.
+ __setup("hpet=3D", hpet_setup);
+=20
++#ifdef CONFIG_HPET_EMULATE_RTC
++/* HPET in LegacyReplacement Mode eats up RTC interrupt line. When, =
+HPET=20
++ * is enabled, we support RTC interrupt functionality in software.=20
++ * RTC has 3 kinds of interrupts:
++ * 1) Update Interrupt - generate an interrupt, every sec, when RTC =
+clock
++ *    is updated
++ * 2) Alarm Interrupt - generate an interrupt at a specific time of day
++ * 3) Periodic Interrupt - generate periodic interrupt, with =
+frequencies
++ *    2Hz-8192Hz (2Hz-64Hz for non-root user) (all freqs in powers of =
+2)
++ * (1) and (2) above are implemented using polling at a frequency of=20
++ * 64 Hz. The exact frequency is a tradeoff between accuracy and =
+interrupt
++ * overhead. (DEFAULT_RTC_INT_FREQ)
++ * For (3), we use interrupts at 64Hz or user specified periodic=20
++ * frequency, whichever is higher.
 + */
-+#endif
- /* list of timers, ordered by preference, NULL terminated */
- static struct timer_opts* timers[] =3D {
- #ifdef CONFIG_X86_CYCLONE_TIMER
- 	&timer_cyclone,
- #endif
-+#ifdef CONFIG_HPET_TIMER
-+	&timer_hpet,
-+#endif
- 	&timer_tsc,
- 	&timer_pit,
- 	NULL,
-diff -purN linux-2.6.0-test4/arch/i386/kernel/timers/timer_hpet.c =
-linux-2.6.0-test4-hpet/arch/i386/kernel/timers/timer_hpet.c
---- linux-2.6.0-test4/arch/i386/kernel/timers/timer_hpet.c	1969-12-31 =
-16:00:00.000000000 -0800
-+++ linux-2.6.0-test4-hpet/arch/i386/kernel/timers/timer_hpet.c	=
-2003-08-28 12:18:15.000000000 -0700
-@@ -0,0 +1,243 @@
++#include <linux/mc146818rtc.h>
++#include <linux/rtc.h>
++
++extern irqreturn_t rtc_interrupt(int irq, void *dev_id, struct pt_regs =
+*regs);
++extern void get_rtc_time(struct rtc_time *rtc_tm);
++
++#define DEFAULT_RTC_INT_FREQ 	64
++#define RTC_NUM_INTS 		1
++
++static unsigned long UIE_on;
++static unsigned long prev_update_sec;
++
++static unsigned long AIE_on;
++static struct rtc_time alarm_time;
++
++static unsigned long PIE_on;
++static unsigned long PIE_freq =3D DEFAULT_RTC_INT_FREQ;
++static unsigned long PIE_count;
++
++static unsigned long hpet_rtc_int_freq; /* RTC interrupt frequency */
++
 +/*
-+ * This code largely moved from arch/i386/kernel/time.c.
-+ * See comments there for proper credits.
++ * Timer 1 for RTC, we do not use periodic interrupt feature,=20
++ * even if HPET supports periodic interrupts on Timer 1.
++ * The reason being, to set up a periodic interrupt in HPET, we need to =
+
++ * stop the main counter. And if we do that everytime someone =
+diables/enables
++ * RTC, we will have adverse effect on main kernel timer running on =
+Timer 0.
++ * So, for the time being, simulate the periodic interrupt in software.
++ *=20
++ * hpet_rtc_timer_init() is called for the first time and during =
+subsequent=20
++ * interuppts reinit happens through hpet_rtc_timer_reinit().
 + */
-+
-+#include <linux/spinlock.h>
-+#include <linux/init.h>
-+#include <linux/timex.h>
-+#include <linux/errno.h>
-+#include <linux/string.h>
-+
-+#include <asm/timer.h>
-+#include <asm/io.h>
-+#include <asm/processor.h>
-+
-+#include "io_ports.h"
-+#include "mach_timer.h"
-+#include <asm/hpet.h>
-+
-+extern volatile unsigned long jiffies;
-+
-+static unsigned long hpet_usec_quotient;	/* convert hpet clks to usec =
-*/
-+static unsigned long tsc_hpet_quotient;		/* convert tsc to hpet clks */
-+static unsigned long hpet_last; 	/* hpet counter value at last tick*/
-+static unsigned long last_tsc_low;	/* lsb 32 bits of Time Stamp Counter =
-*/
-+static unsigned long last_tsc_high; 	/* msb 32 bits of Time Stamp =
-Counter */
-+static unsigned long long monotonic_base;
-+static rwlock_t monotonic_lock =3D RW_LOCK_UNLOCKED;
-+
-+/* convert from cycles(64bits) =3D> nanoseconds (64bits)
-+ *  basic equation:
-+ *		ns =3D cycles / (freq / ns_per_sec)
-+ *		ns =3D cycles * (ns_per_sec / freq)
-+ *		ns =3D cycles * (10^9 / (cpu_mhz * 10^6))
-+ *		ns =3D cycles * (10^3 / cpu_mhz)
-+ *
-+ *	Then we use scaling math (suggested by george@mvista.com) to get:
-+ *		ns =3D cycles * (10^3 * SC / cpu_mhz) / SC
-+ *		ns =3D cycles * cyc2ns_scale / SC
-+ *
-+ *	And since SC is a constant power of two, we can convert the div
-+ *  into a shift.  =20
-+ *			-johnstul@us.ibm.com "math is hard, lets go shopping!"
-+ */
-+static unsigned long cyc2ns_scale;=20
-+#define CYC2NS_SCALE_FACTOR 10 /* 2^10, carefully chosen */
-+
-+static inline void set_cyc2ns_scale(unsigned long cpu_mhz)
++int hpet_rtc_timer_init(void)
 +{
-+	cyc2ns_scale =3D (1000 << CYC2NS_SCALE_FACTOR)/cpu_mhz;
-+}
-+
-+static inline unsigned long long cycles_2_ns(unsigned long long cyc)
-+{
-+	return (cyc * cyc2ns_scale) >> CYC2NS_SCALE_FACTOR;
-+}
-+
-+static unsigned long long monotonic_clock_hpet(void)
-+{
-+	unsigned long long last_offset, this_offset, base;
-+=09
-+	/* atomically read monotonic base & last_offset */
-+	read_lock_irq(&monotonic_lock);
-+	last_offset =3D ((unsigned long long)last_tsc_high<<32)|last_tsc_low;
-+	base =3D monotonic_base;
-+	read_unlock_irq(&monotonic_lock);
-+
-+	/* Read the Time Stamp Counter */
-+	rdtscll(this_offset);
-+
-+	/* return the value in ns */
-+	return base + cycles_2_ns(this_offset - last_offset);
-+}
-+
-+static unsigned long get_offset_hpet(void)
-+{
-+	register unsigned long eax, edx;
-+
-+	eax =3D hpet_readl(HPET_COUNTER);
-+	eax -=3D hpet_last;	/* hpet delta */
-+
-+	/*
-+         * Time offset =3D (hpet delta) * ( usecs per HPET clock )
-+	 *             =3D (hpet delta) * ( usecs per tick / HPET clocks per =
-tick)
-+	 *             =3D (hpet delta) * ( hpet_usec_quotient ) / (2^32)
-+	 *
-+	 * Where,
-+	 * hpet_usec_quotient =3D (2^32 * usecs per tick)/HPET clocks per tick
-+	 *=20
-+	 * Using a mull instead of a divl saves some cycles in critical path.
-+         */
-+	ASM_MUL64_REG(eax, edx, hpet_usec_quotient, eax);
-+
-+	/* our adjusted time offset in microseconds */
-+	return edx;
-+}
-+
-+static void mark_offset_hpet(void)
-+{
-+	unsigned long long this_offset, last_offset;
-+	unsigned long offset;
-+
-+	write_lock(&monotonic_lock);
-+	last_offset =3D ((unsigned long long)last_tsc_high<<32)|last_tsc_low;
-+	rdtsc(last_tsc_low, last_tsc_high);
-+
-+	offset =3D hpet_readl(HPET_T0_CMP) - hpet_tick;
-+	if (unlikely(((offset - hpet_last) > hpet_tick) && (hpet_last !=3D =
-0))) {
-+		int lost_ticks =3D (offset - hpet_last) / hpet_tick;
-+		jiffies +=3D lost_ticks;
-+	}
-+	hpet_last =3D offset;
-+
-+	/* update the monotonic base value */
-+	this_offset =3D ((unsigned long long)last_tsc_high<<32)|last_tsc_low;
-+	monotonic_base +=3D cycles_2_ns(this_offset - last_offset);
-+	write_unlock(&monotonic_lock);
-+}
-+
-+void delay_hpet(unsigned long loops)
-+{
-+	unsigned long hpet_start, hpet_end;
-+	unsigned long eax;
-+
-+	/* loops is the number of cpu cycles. Convert it to hpet clocks */
-+	ASM_MUL64_REG(eax, loops, tsc_hpet_quotient, loops);
-+
-+	hpet_start =3D hpet_readl(HPET_COUNTER);
-+	do {
-+		rep_nop();
-+		hpet_end =3D hpet_readl(HPET_COUNTER);
-+	} while ((hpet_end - hpet_start) < (loops));
-+}
-+
-+/* ------ Calibrate the TSC -------=20
-+ * Return 2^32 * (1 / (TSC clocks per usec)) for getting the CPU freq.
-+ * Set 2^32 * (1 / (tsc per HPET clk)) for delay_hpet().
-+ * calibrate_tsc() calibrates the processor TSC by comparing
-+ * it to the HPET timer of known frequency.
-+ * Too much 64-bit arithmetic here to do this cleanly in C
-+ */
-+#define CALIBRATE_CNT_HPET 	(5 * hpet_tick)
-+#define CALIBRATE_TIME_HPET 	(5 * KERNEL_TICK_USEC)
-+
-+static unsigned long __init calibrate_tsc(void)
-+{
-+	unsigned long tsc_startlow, tsc_starthigh;
-+	unsigned long tsc_endlow, tsc_endhigh;
-+	unsigned long hpet_start, hpet_end;
-+	unsigned long result, remain;
-+
-+	hpet_start =3D hpet_readl(HPET_COUNTER);
-+	rdtsc(tsc_startlow, tsc_starthigh);
-+	do {
-+		hpet_end =3D hpet_readl(HPET_COUNTER);
-+	} while ((hpet_end - hpet_start) < CALIBRATE_CNT_HPET);
-+	rdtsc(tsc_endlow, tsc_endhigh);
-+
-+	/* 64-bit subtract - gcc just messes up with long longs */
-+	__asm__("subl %2,%0\n\t"
-+		"sbbl %3,%1"
-+		:"=3Da" (tsc_endlow), "=3Dd" (tsc_endhigh)
-+		:"g" (tsc_startlow), "g" (tsc_starthigh),
-+		 "0" (tsc_endlow), "1" (tsc_endhigh));
-+
-+	/* Error: ECPUTOOFAST */
-+	if (tsc_endhigh)
-+		goto bad_calibration;
-+
-+	/* Error: ECPUTOOSLOW */
-+	if (tsc_endlow <=3D CALIBRATE_TIME_HPET)
-+		goto bad_calibration;
-+
-+	ASM_DIV64_REG(result, remain, tsc_endlow, 0, CALIBRATE_TIME_HPET);
-+	if (remain > (tsc_endlow >> 1))
-+		result++; /* rounding the result */
-+
-+	ASM_DIV64_REG(tsc_hpet_quotient, remain, tsc_endlow, 0,=20
-+			CALIBRATE_CNT_HPET);
-+	if (remain > (tsc_endlow >> 1))
-+		tsc_hpet_quotient++; /* rounding the result */
-+
-+	return result;
-+bad_calibration:
-+	/*
-+	 * the CPU was so fast/slow that the quotient wouldn't fit in
-+	 * 32 bits..
-+	 */
-+	return 0;
-+}
-+
-+static int __init init_hpet(char* override)
-+{
-+
-+	/* check clock override */
-+	if (override[0] && strncmp(override,"hpet",4))
-+		return -ENODEV;
++	unsigned int cfg, cnt;
++	unsigned long flags;
 +
 +	if (!is_hpet_enabled())
-+		return -ENODEV;
++		return 0;
++	/*
++	 * Set the counter 1 and enable the interrupts.
++	 */
++	if (PIE_on && (PIE_freq > DEFAULT_RTC_INT_FREQ))
++		hpet_rtc_int_freq =3D PIE_freq;
++	else
++		hpet_rtc_int_freq =3D DEFAULT_RTC_INT_FREQ;
 +
-+	printk("Using HPET for gettimeofday\n");
-+	if (cpu_has_tsc) {
-+		unsigned long tsc_quotient =3D calibrate_tsc();
-+		if (tsc_quotient) {
-+			/* report CPU clock rate in Hz.
-+			 * The formula is (10^6 * 2^32) / (2^32 * 1 / (clocks/us)) =3D
-+			 * clock/second. Our precision is about 100 ppm.
-+			 */
-+			{	unsigned long eax=3D0, edx=3D1000;
-+				ASM_DIV64_REG(cpu_khz, edx, tsc_quotient,=20
-+						eax, edx);
-+				printk("Detected %lu.%03lu MHz processor.\n", cpu_khz / 1000, =
-cpu_khz % 1000);
-+			}
-+			set_cyc2ns_scale(cpu_khz/1000);
-+		}
-+	}
-+	{
-+		/*
-+		 * Math to calculate hpet to usec multiplier=20
-+		 * Look for the comments at get_offset_hpet()
-+		 */
-+		unsigned long result, remain;
-+		ASM_DIV64_REG(result, remain, hpet_tick, 0, KERNEL_TICK_USEC);
-+		if (remain > (hpet_tick >> 1))
-+			result++; /* rounding the result */
++	local_irq_save(flags);
++	cnt =3D hpet_readl(HPET_COUNTER);
++	cnt +=3D ((hpet_tick*HZ)/hpet_rtc_int_freq);
++	hpet_writel(cnt, HPET_T1_CMP);
++	local_irq_restore(flags);
 +
-+		hpet_usec_quotient =3D result;
-+	}
-+	return 0;
++	cfg =3D hpet_readl(HPET_T1_CFG);
++	cfg |=3D HPET_TN_ENABLE | HPET_TN_SETVAL | HPET_TN_32BIT;
++	hpet_writel(cfg, HPET_T1_CFG);
++
++	return 1;
 +}
 +
-+/************************************************************/
++static void hpet_rtc_timer_reinit(void)
++{
++	unsigned int cfg, cnt;
 +
-+/* tsc timer_opts struct */
-+struct timer_opts timer_hpet =3D {
-+	.init =3D			init_hpet,
-+	.mark_offset =3D		mark_offset_hpet,=20
-+	.get_offset =3D		get_offset_hpet,
-+	.monotonic_clock =3D	monotonic_clock_hpet,
-+	.delay =3D 		delay_hpet,
-+};
++	if (!(PIE_on | AIE_on | UIE_on))
++		return;
 +
-diff -purN linux-2.6.0-test4/arch/i386/kernel/timers/timer_tsc.c =
-linux-2.6.0-test4-hpet/arch/i386/kernel/timers/timer_tsc.c
---- linux-2.6.0-test4/arch/i386/kernel/timers/timer_tsc.c	2003-08-22 =
-16:57:48.000000000 -0700
-+++ linux-2.6.0-test4-hpet/arch/i386/kernel/timers/timer_tsc.c	=
-2003-08-28 12:18:15.000000000 -0700
-@@ -19,9 +19,18 @@
- #include "io_ports.h"
- #include "mach_timer.h"
++	if (PIE_on && (PIE_freq > DEFAULT_RTC_INT_FREQ))
++		hpet_rtc_int_freq =3D PIE_freq;
++	else
++		hpet_rtc_int_freq =3D DEFAULT_RTC_INT_FREQ;
++
++	/* It is more accurate to use the comparator value than current =
+count.*/
++	cnt =3D hpet_readl(HPET_T1_CMP);
++	cnt +=3D hpet_tick*HZ/hpet_rtc_int_freq;
++	hpet_writel(cnt, HPET_T1_CMP);
++
++	cfg =3D hpet_readl(HPET_T1_CFG);
++	cfg |=3D HPET_TN_ENABLE | HPET_TN_SETVAL | HPET_TN_32BIT;
++	hpet_writel(cfg, HPET_T1_CFG);
++
++	return;
++}
++
++/*=20
++ * The functions below are called from rtc driver.=20
++ * Return 0 if HPET is not being used.
++ * Otherwise do the necessary changes and return 1.
++ */
++int hpet_mask_rtc_irq_bit(unsigned long bit_mask)
++{
++	if (!is_hpet_enabled())
++		return 0;
++
++	if (bit_mask & RTC_UIE)
++		UIE_on =3D 0;
++	if (bit_mask & RTC_PIE)
++		PIE_on =3D 0;
++	if (bit_mask & RTC_AIE)
++		AIE_on =3D 0;
++
++	return 1;
++}
++
++int hpet_set_rtc_irq_bit(unsigned long bit_mask)
++{
++	int timer_init_reqd =3D 0;
++
++	if (!is_hpet_enabled())
++		return 0;
++
++	if (!(PIE_on | AIE_on | UIE_on))
++		timer_init_reqd =3D 1;
++
++	if (bit_mask & RTC_UIE) {
++		UIE_on =3D 1;
++	}
++	if (bit_mask & RTC_PIE) {
++		PIE_on =3D 1;
++		PIE_count =3D 0;
++	}
++	if (bit_mask & RTC_AIE) {
++		AIE_on =3D 1;
++	}
++
++	if (timer_init_reqd)
++		hpet_rtc_timer_init();
++
++	return 1;
++}
++
++int hpet_set_alarm_time(unsigned char hrs, unsigned char min, unsigned =
+char sec)
++{
++	if (!is_hpet_enabled())
++		return 0;
++
++	alarm_time.tm_hour =3D hrs;
++	alarm_time.tm_min =3D min;
++	alarm_time.tm_sec =3D sec;
++
++	return 1;
++}
++
++int hpet_set_periodic_freq(unsigned long freq)
++{
++	if (!is_hpet_enabled())
++		return 0;
++
++	PIE_freq =3D freq;
++	PIE_count =3D 0;
++
++	return 1;
++}
++
++int hpet_rtc_dropped_irq(void)
++{
++	if (!is_hpet_enabled())
++		return 0;
++
++	return 1;
++}
++
++irqreturn_t hpet_rtc_interrupt(int irq, void *dev_id, struct pt_regs =
+*regs)
++{
++	struct rtc_time curr_time;
++	unsigned long rtc_int_flag =3D 0;
++	int call_rtc_interrupt =3D 0;
++
++	hpet_rtc_timer_reinit();
++
++	if (UIE_on | AIE_on) {
++		get_rtc_time(&curr_time);
++	}
++	if (UIE_on) {
++		if (curr_time.tm_sec !=3D prev_update_sec) {
++			/* Set update int info, call real rtc int routine */
++			call_rtc_interrupt =3D 1;
++			rtc_int_flag =3D RTC_UF;
++			prev_update_sec =3D curr_time.tm_sec;
++		}
++	}
++	if (PIE_on) {
++		PIE_count++;
++		if (PIE_count >=3D hpet_rtc_int_freq/PIE_freq) {
++			/* Set periodic int info, call real rtc int routine */
++			call_rtc_interrupt =3D 1;
++			rtc_int_flag |=3D RTC_PF;
++			PIE_count =3D 0;
++		}
++	}
++	if (AIE_on) {
++		if ((curr_time.tm_sec =3D=3D alarm_time.tm_sec) &&
++		    (curr_time.tm_min =3D=3D alarm_time.tm_min) &&
++		    (curr_time.tm_hour =3D=3D alarm_time.tm_hour)) {
++			/* Set alarm int info, call real rtc int routine */
++			call_rtc_interrupt =3D 1;
++			rtc_int_flag |=3D RTC_AF;
++		}
++	}
++	if (call_rtc_interrupt) {
++		rtc_int_flag |=3D (RTC_IRQF | (RTC_NUM_INTS << 8));
++		rtc_interrupt(rtc_int_flag, dev_id, regs);
++	}
++	return IRQ_HANDLED;
++}
++#endif
 =20
+diff -purN linux-2.6.0-test4/drivers/char/rtc.c =
+linux-2.6.0-test4-hpet/drivers/char/rtc.c
+--- linux-2.6.0-test4/drivers/char/rtc.c	2003-08-28 12:22:36.000000000 =
+-0700
++++ linux-2.6.0-test4-hpet/drivers/char/rtc.c	2003-08-27 =
+13:21:18.000000000 -0700
+@@ -44,10 +44,12 @@
+  *      1.11    Takashi Iwai: Kernel access functions
+  *			      rtc_register/rtc_unregister/rtc_control
+  *      1.11a   Daniele Bellucci: Audit create_proc_read_entry in =
+rtc_init
++ *	1.12	Venkatesh Pallipadi: Hooks for emulating rtc on HPET base-timer
++ *		CONFIG_HPET_EMULATE_RTC
+  *
+  */
+=20
+-#define RTC_VERSION		"1.11a"
++#define RTC_VERSION		"1.12"
+=20
+ #define RTC_IO_EXTENT	0x8
+=20
+@@ -80,6 +82,10 @@
+ #include <asm/uaccess.h>
+ #include <asm/system.h>
+=20
++#if defined(__i386__)
 +#include <asm/hpet.h>
-+
-+#ifdef CONFIG_HPET_TIMER
-+static unsigned long hpet_usec_quotient;
-+static unsigned long hpet_last;
-+struct timer_opts timer_tsc;
 +#endif
 +
- int tsc_disable __initdata =3D 0;
+ #ifdef __sparc__
+ #include <linux/pci.h>
+ #include <asm/ebus.h>
+@@ -120,7 +126,7 @@ static int rtc_ioctl(struct inode *inode
+ static unsigned int rtc_poll(struct file *file, poll_table *wait);
+ #endif
 =20
- extern spinlock_t i8253_lock;
-+extern volatile unsigned long jiffies;
+-static void get_rtc_time (struct rtc_time *rtc_tm);
++void get_rtc_time (struct rtc_time *rtc_tm);
+ static void get_rtc_alm_time (struct rtc_time *alm_tm);
+ #if RTC_IRQ
+ static void rtc_dropped_irq(unsigned long data);
+@@ -182,7 +188,7 @@ static const unsigned char days_in_mo[]=20
+  *	(See ./arch/XXXX/kernel/time.c for the set_rtc_mmss() function.)
+  */
 =20
- static int use_tsc;
- /* Number of usecs that the last interrupt was delayed */
-@@ -232,7 +241,7 @@ static void delay_tsc(unsigned long loop
-=20
- #define CALIBRATE_TIME	(5 * 1000020/HZ)
-=20
--unsigned long __init calibrate_tsc(void)
-+static unsigned long __init calibrate_tsc(void)
+-static irqreturn_t rtc_interrupt(int irq, void *dev_id, struct pt_regs =
+*regs)
++irqreturn_t rtc_interrupt(int irq, void *dev_id, struct pt_regs *regs)
  {
- 	mach_prepare_counter();
+ 	/*
+ 	 *	Can be an alarm interrupt, update complete interrupt,
+@@ -194,7 +200,19 @@ static irqreturn_t rtc_interrupt(int irq
+ 	spin_lock (&rtc_lock);
+ 	rtc_irq_data +=3D 0x100;
+ 	rtc_irq_data &=3D ~0xff;
+-	rtc_irq_data |=3D (CMOS_READ(RTC_INTR_FLAGS) & 0xF0);
++#ifdef CONFIG_HPET_EMULATE_RTC
++	if (is_hpet_enabled()) {
++		/*
++		 * In this case it is HPET RTC interrupt handler
++		 * calling us, with the interrupt information
++		 * passed as arg1, instead of irq.
++		 */
++		rtc_irq_data |=3D (unsigned long)irq & 0xF0;
++	} else
++#endif
++	{
++		rtc_irq_data |=3D (CMOS_READ(RTC_INTR_FLAGS) & 0xF0);
++	}
 =20
-@@ -282,6 +291,107 @@ bad_ctc:
- 	return 0;
+ 	if (rtc_status & RTC_TIMER_ON)
+ 		mod_timer(&rtc_irq_timer, jiffies + HZ/rtc_freq + 2*HZ/100);
+@@ -429,6 +447,14 @@ static int rtc_do_ioctl(unsigned int cmd
+ 		sec =3D alm_tm.tm_sec;
+=20
+ 		spin_lock_irq(&rtc_lock);
++#ifdef CONFIG_HPET_EMULATE_RTC
++		if (hpet_set_alarm_time(hrs, min, sec)) {
++			/*
++			 * Fallthru and set alarm time in CMOS too,=20
++			 * so that we will get proper value in RTC_ALM_READ
++			 */
++		}
++#endif
+ 		if (!(CMOS_READ(RTC_CONTROL) & RTC_DM_BINARY) ||
+ 		    RTC_ALWAYS_BCD)
+ 		{
+@@ -582,6 +608,12 @@ static int rtc_do_ioctl(unsigned int cmd
+ 			return -EINVAL;
+=20
+ 		spin_lock_irq(&rtc_lock);
++#ifdef CONFIG_HPET_EMULATE_RTC
++		if (hpet_set_periodic_freq(arg)) {
++			spin_unlock_irq(&rtc_lock);
++			return 0;
++		}
++#endif
+ 		rtc_freq =3D arg;
+=20
+ 		val =3D CMOS_READ(RTC_FREQ_SELECT) & 0xf0;
+@@ -667,6 +699,9 @@ static int rtc_release(struct inode *ino
+ 	 */
+=20
+ 	spin_lock_irq(&rtc_lock);
++#ifdef CONFIG_HPET_EMULATE_RTC
++	hpet_mask_rtc_irq_bit(RTC_PIE | RTC_AIE | RTC_UIE);
++#endif
+ 	tmp =3D CMOS_READ(RTC_CONTROL);
+ 	tmp &=3D  ~RTC_PIE;
+ 	tmp &=3D  ~RTC_AIE;
+@@ -756,6 +791,9 @@ int rtc_unregister(rtc_task_t *task)
+ 	unsigned char tmp;
+=20
+ 	spin_lock_irq(&rtc_lock);
++#ifdef CONFIG_HPET_EMULATE_RTC
++	hpet_mask_rtc_irq_bit(RTC_PIE | RTC_AIE | RTC_UIE);
++#endif
+ 	spin_lock(&rtc_task_lock);
+ 	if (rtc_callback !=3D task) {
+ 		spin_unlock(&rtc_task_lock);
+@@ -822,6 +860,10 @@ static struct miscdevice rtc_dev=3D
+ 	&rtc_fops
+ };
+=20
++#if RTC_IRQ
++static irqreturn_t (*rtc_int_handler_ptr)(int irq, void *dev_id, struct =
+pt_regs *regs);
++#endif
++
+ static int __init rtc_init(void)
+ {
+ #if defined(__alpha__) || defined(__mips__)
+@@ -889,12 +931,25 @@ no_irq:
+ 	}
+=20
+ #if RTC_IRQ
+-	if (request_irq(RTC_IRQ, rtc_interrupt, SA_INTERRUPT, "rtc", NULL)) {
++#ifdef CONFIG_HPET_EMULATE_RTC
++	if (is_hpet_enabled()) {
++		rtc_int_handler_ptr =3D hpet_rtc_interrupt;
++	} else
++#endif
++	{
++		rtc_int_handler_ptr =3D rtc_interrupt;
++	}
++
++	if(request_irq(RTC_IRQ, rtc_int_handler_ptr, SA_INTERRUPT, "rtc", =
+NULL)) {
+ 		/* Yeah right, seeing as irq 8 doesn't even hit the bus. */
+ 		printk(KERN_ERR "rtc: IRQ %d is not free.\n", RTC_IRQ);
+ 		release_region(RTC_PORT(0), RTC_IO_EXTENT);
+ 		return -EIO;
+ 	}
++#ifdef CONFIG_HPET_EMULATE_RTC
++	hpet_rtc_timer_init();
++#endif
++
+ #endif
+=20
+ #endif /* __sparc__ vs. others */
+@@ -967,8 +1022,11 @@ no_irq:
+ 	spin_lock_irq(&rtc_lock);
+ 	/* Initialize periodic freq. to CMOS reset default, which is 1024Hz */
+ 	CMOS_WRITE(((CMOS_READ(RTC_FREQ_SELECT) & 0xF0) | 0x06), =
+RTC_FREQ_SELECT);
+-	spin_unlock_irq(&rtc_lock);
+ 	rtc_freq =3D 1024;
++#ifdef CONFIG_HPET_EMULATE_RTC
++	hpet_set_periodic_freq(rtc_freq);
++#endif
++	spin_unlock_irq(&rtc_lock);
+ no_irq2:
+ #endif
+=20
+@@ -1019,6 +1077,13 @@ static void rtc_dropped_irq(unsigned lon
+=20
+ 	spin_lock_irq (&rtc_lock);
+=20
++#ifdef CONFIG_HPET_EMULATE_RTC
++	if (hpet_rtc_dropped_irq()) {
++		spin_unlock_irq(&rtc_lock);
++		return;
++	}
++#endif
++
+ 	/* Just in case someone disabled the timer from behind our back... */
+ 	if (rtc_status & RTC_TIMER_ON)
+ 		mod_timer(&rtc_irq_timer, jiffies + HZ/rtc_freq + 2*HZ/100);
+@@ -1148,7 +1213,7 @@ static inline unsigned char rtc_is_updat
+ 	return uip;
  }
 =20
-+#ifdef CONFIG_HPET_TIMER
-+static void mark_offset_tsc_hpet(void)
-+{
-+	unsigned long long this_offset, last_offset;
-+ 	unsigned long offset, temp, hpet_current;
-+
-+	write_lock(&monotonic_lock);
-+	last_offset =3D ((unsigned long long)last_tsc_high<<32)|last_tsc_low;
-+	/*
-+	 * It is important that these two operations happen almost at
-+	 * the same time. We do the RDTSC stuff first, since it's
-+	 * faster. To avoid any inconsistencies, we need interrupts
-+	 * disabled locally.
-+	 */
-+	/*
-+	 * Interrupts are just disabled locally since the timer irq
-+	 * has the SA_INTERRUPT flag set. -arca
-+	 */
-+	/* read Pentium cycle counter */
-+
-+	hpet_current =3D hpet_readl(HPET_COUNTER);
-+	rdtsc(last_tsc_low, last_tsc_high);
-+
-+	/* lost tick compensation */
-+	offset =3D hpet_readl(HPET_T0_CMP) - hpet_tick;
-+	if (unlikely(((offset - hpet_last) > hpet_tick) && (hpet_last !=3D =
-0))) {
-+		int lost_ticks =3D (offset - hpet_last) / hpet_tick;
-+		jiffies +=3D lost_ticks;
-+	}
-+	hpet_last =3D hpet_current;
-+
-+	/* update the monotonic base value */
-+	this_offset =3D ((unsigned long long)last_tsc_high<<32)|last_tsc_low;
-+	monotonic_base +=3D cycles_2_ns(this_offset - last_offset);
-+	write_unlock(&monotonic_lock);
-+
-+	/* calculate delay_at_last_interrupt */
-+	/*
-+	 * Time offset =3D (hpet delta) * ( usecs per HPET clock )
-+	 *             =3D (hpet delta) * ( usecs per tick / HPET clocks per =
-tick)
-+	 *             =3D (hpet delta) * ( hpet_usec_quotient ) / (2^32)
-+	 * Where,
-+	 * hpet_usec_quotient =3D (2^32 * usecs per tick)/HPET clocks per tick
-+	 */
-+	delay_at_last_interrupt =3D hpet_current - offset;
-+	ASM_MUL64_REG(temp, delay_at_last_interrupt,=20
-+			hpet_usec_quotient, delay_at_last_interrupt);
-+}
-+
-+/* ------ Calibrate the TSC based on HPET timer -------=20
-+ * Return 2^32 * (1 / (TSC clocks per usec)) for =
-do_fast_gettimeoffset().
-+ * calibrate_tsc() calibrates the processor TSC by comparing
-+ * it to the HPET timer of known frequency.
-+ * Too much 64-bit arithmetic here to do this cleanly in C
-+ */
-+
-+#define CALIBRATE_CNT_HPET 	(5 * hpet_tick)
-+#define CALIBRATE_TIME_HPET 	(5 * KERNEL_TICK_USEC)
-+
-+unsigned long __init calibrate_tsc_hpet(void)
-+{
-+	unsigned long tsc_startlow, tsc_starthigh;
-+	unsigned long tsc_endlow, tsc_endhigh;
-+	unsigned long hpet_start, hpet_end;
-+	unsigned long result, remain;
-+
-+	hpet_start =3D hpet_readl(HPET_COUNTER);
-+	rdtsc(tsc_startlow, tsc_starthigh);
-+	do {
-+		hpet_end =3D hpet_readl(HPET_COUNTER);
-+	} while ((hpet_end - hpet_start) < CALIBRATE_CNT_HPET);
-+	rdtsc(tsc_endlow, tsc_endhigh);
-+
-+	/* 64-bit subtract - gcc just messes up with long longs */
-+	__asm__("subl %2,%0\n\t"
-+		"sbbl %3,%1"
-+		:"=3Da" (tsc_endlow), "=3Dd" (tsc_endhigh)
-+		:"g" (tsc_startlow), "g" (tsc_starthigh),
-+		 "0" (tsc_endlow), "1" (tsc_endhigh));
-+
-+	/* Error: ECPUTOOFAST */
-+	if (tsc_endhigh)
-+		goto bad_calibration;
-+
-+	/* Error: ECPUTOOSLOW */
-+	if (tsc_endlow <=3D CALIBRATE_TIME_HPET)
-+		goto bad_calibration;
-+
-+	ASM_DIV64_REG(result, remain, tsc_endlow, 0, CALIBRATE_TIME_HPET);
-+	if (remain > (tsc_endlow >> 1))
-+		result++; /* rounding the result */
-+
-+	return result;
-+bad_calibration:
-+	/*
-+	 * the CPU was so fast/slow that the quotient wouldn't fit in
-+	 * 32 bits..
-+	 */
-+	return 0;
-+}
-+#endif
-=20
- #ifdef CONFIG_CPU_FREQ
- static unsigned int  ref_freq =3D 0;
-@@ -333,8 +443,16 @@ static int __init init_tsc(char* overrid
+-static void get_rtc_time(struct rtc_time *rtc_tm)
++void get_rtc_time(struct rtc_time *rtc_tm)
  {
+ 	unsigned long uip_watchdog =3D jiffies;
+ 	unsigned char ctrl;
+@@ -1254,6 +1319,12 @@ static void mask_rtc_irq_bit(unsigned ch
+ 	unsigned char val;
 =20
- 	/* check clock override */
--	if (override[0] && strncmp(override,"tsc",3))
-+	if (override[0] && strncmp(override,"tsc",3)) {
-+#ifdef CONFIG_HPET_TIMER
-+		if (is_hpet_enabled()) {
-+			printk(KERN_ERR "Warning: clock=3D override failed. Defaulting to =
-tsc\n");
-+		} else
-+#endif
-+		{
- 			return -ENODEV;
-+		}
+ 	spin_lock_irq(&rtc_lock);
++#ifdef CONFIG_HPET_EMULATE_RTC
++	if (hpet_mask_rtc_irq_bit(bit)) {
++		spin_unlock_irq(&rtc_lock);
++		return;
 +	}
-=20
- 	/*
- 	 * If we have APM enabled or the CPU clock speed is variable
-@@ -368,7 +486,29 @@ static int __init init_tsc(char* overrid
- 	count2 =3D LATCH; /* initialize counter for mark_offset_tsc() */
-=20
- 	if (cpu_has_tsc) {
--		unsigned long tsc_quotient =3D calibrate_tsc();
-+		unsigned long tsc_quotient;
-+#ifdef CONFIG_HPET_TIMER
-+		if (is_hpet_enabled()){
-+			unsigned long result, remain;
-+			printk("Using TSC for gettimeofday\n");
-+			tsc_quotient =3D calibrate_tsc_hpet();
-+			timer_tsc.mark_offset =3D &mark_offset_tsc_hpet;
-+			/*
-+			 * Math to calculate hpet to usec multiplier=20
-+			 * Look for the comments at get_offset_tsc_hpet()
-+			 */
-+			ASM_DIV64_REG(result, remain, hpet_tick,=20
-+					0, KERNEL_TICK_USEC);
-+			if (remain > (hpet_tick >> 1))
-+				result++; /* rounding the result */
-+
-+			hpet_usec_quotient =3D result;
-+		} else
 +#endif
-+		{
-+			tsc_quotient =3D calibrate_tsc();
-+		}
-+
- 		if (tsc_quotient) {
- 			fast_gettimeoffset_quotient =3D tsc_quotient;
- 			use_tsc =3D 1;
-diff -purN linux-2.6.0-test4/include/asm-i386/timer.h =
-linux-2.6.0-test4-hpet/include/asm-i386/timer.h
---- linux-2.6.0-test4/include/asm-i386/timer.h	2003-08-22 =
-16:53:38.000000000 -0700
-+++ linux-2.6.0-test4-hpet/include/asm-i386/timer.h	2003-08-28 =
-12:18:15.000000000 -0700
-@@ -38,4 +38,8 @@ extern struct timer_opts timer_tsc;
- extern struct timer_opts timer_cyclone;
- #endif
+ 	val =3D CMOS_READ(RTC_CONTROL);
+ 	val &=3D  ~bit;
+ 	CMOS_WRITE(val, RTC_CONTROL);
+@@ -1268,6 +1339,12 @@ static void set_rtc_irq_bit(unsigned cha
+ 	unsigned char val;
 =20
-+#ifdef CONFIG_HPET_TIMER
-+extern struct timer_opts timer_hpet;
+ 	spin_lock_irq(&rtc_lock);
++#ifdef CONFIG_HPET_EMULATE_RTC
++	if (hpet_set_rtc_irq_bit(bit)) {
++		spin_unlock_irq(&rtc_lock);
++		return;
++	}
 +#endif
-+
- #endif
+ 	val =3D CMOS_READ(RTC_CONTROL);
+ 	val |=3D bit;
+ 	CMOS_WRITE(val, RTC_CONTROL);
+diff -purN linux-2.6.0-test4/include/asm-i386/hpet.h =
+linux-2.6.0-test4-hpet/include/asm-i386/hpet.h
+--- linux-2.6.0-test4/include/asm-i386/hpet.h	2003-08-28 =
+12:21:19.000000000 -0700
++++ linux-2.6.0-test4-hpet/include/asm-i386/hpet.h	2003-08-27 =
+15:24:54.000000000 -0700
+@@ -102,5 +102,15 @@ extern int is_hpet_capable(void);
+ extern int hpet_readl(unsigned long a);
+ extern void hpet_writel(unsigned long d, unsigned long a);
+=20
++#ifdef CONFIG_RTC
++#define CONFIG_HPET_EMULATE_RTC 	1
++extern int hpet_mask_rtc_irq_bit(unsigned long bit_mask);
++extern int hpet_set_rtc_irq_bit(unsigned long bit_mask);
++extern int hpet_set_alarm_time(unsigned char hrs, unsigned char min, =
+unsigned char sec);
++extern int hpet_set_periodic_freq(unsigned long freq);
++extern int hpet_rtc_dropped_irq(void);
++extern int hpet_rtc_timer_init(void);
++extern irqreturn_t hpet_rtc_interrupt(int irq, void *dev_id, struct =
+pt_regs *regs);
++#endif /* CONFIG_RTC */
+ #endif /* CONFIG_HPET_TIMER */
+ #endif /* _I386_HPET_H */
+diff -purN linux-2.6.0-test4/include/asm-i386/mc146818rtc.h =
+linux-2.6.0-test4-hpet/include/asm-i386/mc146818rtc.h
+--- linux-2.6.0-test4/include/asm-i386/mc146818rtc.h	2003-08-28 =
+12:22:14.000000000 -0700
++++ linux-2.6.0-test4-hpet/include/asm-i386/mc146818rtc.h	2003-08-28 =
+12:02:28.000000000 -0700
+@@ -24,10 +24,6 @@ outb_p((addr),RTC_PORT(0)); \
+ outb_p((val),RTC_PORT(1)); \
+ })
+=20
+-#ifdef CONFIG_HPET_TIMER
+-#define RTC_IRQ 0
+-#else
+ #define RTC_IRQ 8
+-#endif
+=20
+ #endif /* _ASM_MC146818RTC_H */
 
 
 
-------_=_NextPart_001_01C36DBE.61E6F576
+------_=_NextPart_001_01C36DBE.7869AEF4
 Content-Type: application/x-zip-compressed;
-	name="hpet05.ZIP"
+	name="hpet06.ZIP"
 Content-Transfer-Encoding: base64
-Content-Description: hpet05.ZIP
+Content-Description: hpet06.ZIP
 Content-Disposition: attachment;
-	filename="hpet05.ZIP"
+	filename="hpet06.ZIP"
 
-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
-AAAAAQABADoAAACQDwAAAAA=
+UEsDBBQAAAAIADaCHC/KX0cE/Q8AAOw0AAAMAAAAaHBldDA2LnBhdGNozVt7c9tGDv9b/hTbdC5H
+WS9SVmTZrjtRHLn21a/Kcvq43nBocmXxTJEKl7STJulnPwC7pPiSbDdpr57GkrlYYIEFfsBiWced
+TllrEYdnzHP9+F2r2+639VbERdTrWKE967hbg37nloc+9zqRO+fmbMGjtl0mb+HA2jkbrVbriWJq
+XV3faumDVnfAjO5uV9/d6rX15Ie19G1d32g0Gn9kOUve28wY7PZe7Oo7Jd4vX7KW0R80e6yBH93u
+CwaPRGRFrs1cP2Km6fpuxJClKXgULzR7ZoWbQBLWN9gGjMunz5Bi/1kzQ1nfA4LG1+7U4VN2cH52
+ePydeXQxmpij06uT4WRkjicHG43OJsOHIIyd8BvLfj/mC8+y+ZyD9NPA4YxbkWDxggE5LomHYbyI
+0CK8zX6ccb8pGWw02CZzBeO+de1xp8nuORPxYhGEUWHqNPbtyA18y3Oj9yhYBNPo3gqBHzFB6pkl
+2Ba7dX1HsGC6nCx2icSos6uFY0WcHadsW+yG+zzEh5a/nNFk/I6H75ngNqwJ1kv8bS+wb4kV/Lio
+H3Jz6Em3zoaeFc4f5s0s+I+JBbfdKWwY7j6u1rHeE6OtOrvgoRs4MFbJa5GMZlZ770YzNg3525j7
+tstFssju0W+tgbEDH0zD7/0efJsGIfMDvxUGQcRiwcM60yzPo/kCTbsI7nlIJuzWiZMGprN8B3jA
+53VwBwqFnLnzhUdbzh1g4/o3MNHz8JM0TJbzHhkRm36PHf3WZpMZ+Mc7y44yJGBNi0Wh5fAAov+a
+R/ccjG7ZdhyCe5HwVF3iBYsIZ9xy2kx7PTocXp1M0DXN47OJeTge/SDXfQiaalt1citQNOMRuEQy
+BlCgCZL9AFVS+xKLdInoB649Q7/A1c7cmxkP20jTwYDxbS8Gv/+Ggr4zt41ef2AMwshuz74tjyfP
+Nxr8HSwJvCN8G0L8hb4ZMRg005VqGNAw2mR3geuwTYffmS4ECsRyDBZcRGbIbwTbxN8QvAk/Ir6B
+qEZm6GKampD8DTPw2xznwPog3CE2WZUpWa3fW1LgyNnVKY5eslrNwNkKemJfuDc+WNALwAeujkdm
+4O+tGF2EoIeMHwAee28lm2GBTVENC4OOvq7mcbF2KTiKu8z2K9VfN80OYj9aLZdgVe0midhjnc0i
+rqUhgH6E0EpuNwGFQmZQrMIE8mAngLCliK3AADYFyI1D3pRuC24KTjWVKKsQVVRMgyj3E2FtKRmi
+M+SWgOfXHIK5yaIAcDBCNLeqBANgoBRaos9Bd6AnTiIKFiwCdnMLaMhWEDFsiLE8VQpFMwhEwlra
+TRHMeQBe5riYD0RH5gWRIDzJuHcBq2YWgpADE8EafDrl4BOwYpIk0yoBa8jC2PcRklI1danmZdAk
+4+L6SLRSVrjz2EOYxYFqbdPMQ4zoV7rTJJTSr1ZHmLABWMEkiaSpG4pIykNIc+IQ1ybia0FeEKmE
+iNJgz2B3Qi5TubVYcF8AjzCIb2ZFeZJKqydwhJhRtSREBUDGDxuNWuqpSGtPQXObXLmWd+GpZ90I
+8vAa7Jn2lSuoUjFVwtbqwK5Wk9DFdJyPDlxDA4PLoMpq38GXUWM5jwaWPtimGR0lQ0Yre/5cfqXQ
+/LYyNKXwUpRBICcTcUHcE3wV3YqAB3JI9ZZnAvCaAlxNIzsgVtbATDBRMoP842lUHh2cX51NRuOU
+orHPNI2IABZuN49+qXdK8omYnt6HbsQ9DSbKusicGObB6QURLBcSQg0ZhJm1oKzpTcVqcPrhd3Ix
+QPBxX3E9M0dnw1cnI/YxfXA5mrwZnmQebHVfHU9KK0MHKbAGErXvBvz1KYOClHyqXfQRHpi4WuII
+H1UOgC8yp2R9bkn/93AbwPfjCAN/Djul6hcEk4BgW8bDfGHBQ0CEO8uL8SFUh0AXYvxTtLQpFqod
+LeMZys+yXlZ2ssf42N/EjxIv6ihQxUyUlP0C8NkL7qnuTDA1DOZYBzAndO8wscgsoaAoTX6wF5g1
+Cd5xExwJ2+ewF+G9K1QWwtRlcyEsKPrhsOTfcEF4lXh4CVnnlriVhobIvAbPzuMmPCES5euPw05F
+mMxlz6naAqcnQun8sEsEsxWEF4rw4iHCoSIcZgkrwjlVViRO9ShdfZnhZM4Bd3rrLEU8yRAPQUBZ
+irHWiuxDzo5IXPu02paS/CJHXkvLvsS+KxgMUwbDojw1obD6PChl64hHbM6yCl7uDZ752SwUTZZ/
+NHf94iOowJ/qqEuJ7WhuzoI4RPwIsVYojIE8GILf5SGQC0NJ/b9exaQWI1QreCBl0ycqkCn7E5ws
+7u26JeEmOWEAZZmDYZFNbI9eQol55hCYBfI/cBKUKykeljDLJGelQqGX5gwoLlLowIQEYJtfx9I4
+K6rQvdTFr/LhqwIidyx9nq6J0syn3Ew1AR+kZInffLVfPEQqaszBl3ReoV4PWc2fQrmPquDRxqOs
+gc+hmI7wUEv5tlar1FWGfa1gH4KUQzlUWAaMFhdLdJ8y6l1k1UvdrtHYS9RduuK3+zlfIJ/tJM5b
+UDl7XvniSn+UWl8orUtAmFNwWNy/8gbu77MSGtShfsMZ2LvKzyAUKc6Ah6tnSEwqTsGn9YLZiOLP
+tNnwsGSgMgu1qOJ8jYrM8Q+HEEZarvvyzTdsUKeoqeUYaVkWTZbgRNIhoiUo6AG+5tHw7PXJ6LUE
+oa+577jTDbbhrOvCy4pLdDB5UC9rZe+9TLmi414mLPbZu7tb/af02ddx3GbG1m7X2DUGld31Xq9p
+6KyBH1328uUGk91UBnWgYeDnxLq1xMxlx/eWu8u+lw0HqPahglyWrDitJj2TEb7CDrgCNglXY8Z+
+7k878KMw8PKiLPh8bfkuhyPzK+55sW2DuGHsuADM4KAAOIswsKlkh0wThdQZl9vvUp+0Bmy6tTfc
+vwViMWMX4HbuwnKAzVEQ3ArqTHBqebgyC2CnhArna0vwFiE7Maqtug2AFeO/DjhNK9slfDMaXx6f
+n9Vqz0iVZ/keYm60+wyvJbLDx+fm6KfJ6GxS098NYBB3ZaA3+6wx6OLe4KYsm6qWmHdiaX5sqxZG
+xHuw8pwG6GqDSTmOZpp4DWOa9WyDFmeg/8i+rQyHBrKkKxHTFHB6s00zK0T2dBe2WyGcX8e0Jrq0
+6erNbdYwun34yF/Z0J4FduQlfVrXx2uUTfrYYMX2YjIFG+7JjKkLXrKJv5vUiDcjarVsgotGeK2T
+hnYre0zPJmO2rkn8JGpWJcLy5qsm0hBNxP1RiJfnEhYKrnz5AsnXgulkZfAQtPJgkLMyBJiICnWv
+Y70XECrmPPj3fxiFq3bJOWvLO7qf4Cd7Rwcol/TxkgPRfC6EVk9Dvl1PIyHZ2y/S18+Xhp/BB1IM
+ww4dq4GuBxa2ePFuKk2AyX2Sqp2wV+HxKNOra0oT7/TQxACnTWMn68kPrRIEiwUYHC/SmPYcafAr
+brzMYXDAxK3Evob+ztD10sDzffa7/m463dto5QcwVR6cnl+a49HwtaY6M2Pz8GT43SUUCcDuUEc/
+fuhuk7JzuXqXyZmam9jdPPbBD6i/i9dK1PEh0Mw392eW73iInzQHU75sQqgLu1wXlGqPcG6hH6kJ
+C0sIcFVLMCu8MZpAAUBmOXS3Gb5tS6pOmv+zlshFRx2GlAUo/zPZ20rArfahksVjjAm1BMQNmQzn
+oxvEQp2AJ8eno7F5fgZeV6vNA0eeEuSmoyD6s8n+C4WGywVrsKNfKBPSoazButjOAg9QUd3r7iD6
+93rbTaNXAZ5OoPAz31acOyhdVuUSZNKSnNFI4o2EKVmHfNhRSO2qIzgduumYjSXtstikD7yWBEeI
+ZmFMHSaRFqAEhZC/0fAsCgK8ypEThLooSW4/brDWByzkSQ/R9WWdeXJKO6bmdVTRmSB/TXVV8jsL
+Ck7G5yd1tW2vT81Xx2fD8c919vEjzsFiRDL/cfjzpfnq4DXt6AfalhcAtrAtfX0gS6UnbUtShbZG
+x2dvhidffEvyLQOIoXQvSEbsV0tZLiw91ywtmHroPgalWjJsAvydNyv2hM3L0cnoYCIjZqpLT+73
+t8lkOzvNnQqLhVDsAaiU6wAC7Q4J/BwTVXcvVc8LzhiqeaW+YdtsL6N/NF+UNE0caE+NA0Sz3xXD
+0rMhPkMzbL/ooxm2dwxphkT/ZV1MkBLhSiO2GVGDkdXyCRxY7/2fLZJKllJpvWlOS4ARof/agpz3
+1T4jTSgRZ92wPJtK3i6F16Cvy6I3cRblHHNX2JDwXZvLYON3+8CWOE2DBRxAPiWv86Q1VaMiVWub
+KlmbKmGZiyisP6myWFqksZH1aPUqkuSf3v+g9vlC3PIWMwsqccCczNO5uxBYnpMpBjsIMY2dLaMp
+33jyA9ysXdCYslBWy5a0PF6qiohcQo0083VJk10OMbWNxuOri0mTPYPRZ012dnVyIrHiQedZVy1U
+WJXtV3T2HkjKJQ7lyarjtlbjLJOH9GbUG/mZWzMWujezCDMZXaBALYLFxIA5ARf+PyP5osHMlXe9
+eNYhjMKmGIi81b4fjc9MkEISdrHfwP7hJHcygKO8/asPgtVaKWZqCgHpuBz4MhDPxxNNrzfzZ8OE
+PEki53vkCw9v2qo2e+a4lxyW1Dd8cSM9+7E7UDPACySB2qJ37gCoD+DQoUPAGkbeO1djE6P7QpDu
+Wp77W+Z9A8wwbbw1pFog5FgkgEpW7EXqPSS0IUjDV5jI4ATJP46PJyNN0x7IRFC7AZjp7/S+smiW
+AgvrdemRZVMgruDREFtOyQmnrO3XC5dW7e5mdogOJLpB5aGhb0N9uJVBygfPjuX0UTiYPEK9tOoo
+CkqQ4IF6I73/zNQaDekd/4oFvXRCB43l6zGCkCZ9eyWUt6HXfOZCSYmNT8w27baKxr+gPjeM3kA2
+N4ytQncD3/osHLxJhpBNc/QoGcKxi9n807oWxcqeQ0WDYjUtIVy+gQCyzXsrsmdOgP19pfVeqeKw
+o9BTGndf9MjntoydfPFLK1l9QWzPSlyhgPz8Oib1wpJo+PcZnsgq69ts1YfjVOGBoL08GMGQxJgl
+vTRefyCNt1VlvJUXzmCtP9l4RdF/he3guP0oy61tyqu2Y8cS8xa9Xi67mKva4yvIV7TnV1AXe/TG
+rlF+X31Nj/5BttvMeLHb7e2+KL9iL3G/23xBabdpUE2YvE6LpauqymxrgWApS0+wcYZEYja975JH
+AytDuHybSb3EUug8NlnF3KLHkZMlDe4VXsjwbdri6h77nsleeeoj39pYMfMLvFKwgvODN/kV84qJ
+VW1mJV2mqCuSfbkL9rRiwcpwucmUb0sD8o0nzLeFcfMYLyBo+AiHnhbgubfMHx1iuVmPDffcpPLN
+nPGk/wPmSdx1EFB9S9eVt3RdzMLwdxBH1+ZC0yzHCevNzKmhvsd+3UiHAVYzo4Ya/VSn66tylqBd
+y19s4SFGh0d0YGPFkQGOVBwehpen5umB1BNpab//B1BLAQIUCxQAAAAIADaCHC/KX0cE/Q8AAOw0
+AAAMAAAAAAAAAAEAIAAAAAAAAABocGV0MDYucGF0Y2hQSwUGAAAAAAEAAQA6AAAAJxAAAAAA
 
-------_=_NextPart_001_01C36DBE.61E6F576--
+------_=_NextPart_001_01C36DBE.7869AEF4--

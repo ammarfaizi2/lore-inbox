@@ -1,64 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266186AbUBCXPq (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 Feb 2004 18:15:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266187AbUBCXPq
+	id S266204AbUBCXZb (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 3 Feb 2004 18:25:31 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266198AbUBCXZa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 Feb 2004 18:15:46 -0500
-Received: from mail.kroah.org ([65.200.24.183]:57528 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S266186AbUBCXPn (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 3 Feb 2004 18:15:43 -0500
-Date: Tue, 3 Feb 2004 15:13:41 -0800
-From: Greg KH <greg@kroah.com>
-To: Martin Schlemmer <azarah@nosferatu.za.org>
-Cc: linux-hotplug-devel@lists.sourceforge.net,
-       Linux Kernel Mailing Lists <linux-kernel@vger.kernel.org>
-Subject: Re: [ANNOUNCE] udev 016 release
-Message-ID: <20040203231341.GA22058@kroah.com>
-References: <20040203201359.GB19476@kroah.com> <1075843712.7473.60.camel@nosferatu.lan> <1075849413.11322.6.camel@nosferatu.lan>
+	Tue, 3 Feb 2004 18:25:30 -0500
+Received: from lists.us.dell.com ([143.166.224.162]:1425 "EHLO
+	lists.us.dell.com") by vger.kernel.org with ESMTP id S265964AbUBCXZ2
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 3 Feb 2004 18:25:28 -0500
+Date: Tue, 3 Feb 2004 17:25:08 -0600
+From: Matt Domsch <Matt_Domsch@dell.com>
+To: Clay Haapala <chaapala@cisco.com>
+Cc: Matt Mackall <mpm@selenic.com>, James Morris <jmorris@redhat.com>,
+       linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org,
+       "David S. Miller" <davem@redhat.com>
+Subject: Re: [PATCH 2.6.1 -- take two] Add CRC32C chksums to crypto and lib routines
+Message-ID: <20040203172508.B26222@lists.us.dell.com>
+References: <yquj4qu8je1m.fsf@chaapala-lnx2.cisco.com> <Xine.LNX.4.44.0402031213120.939-100000@thoron.boston.redhat.com> <20040203175006.GA19751@chaapala-lnx2.cisco.com> <20040203185111.GA31138@waste.org> <yqujad40j7rn.fsf@chaapala-lnx2.cisco.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1075849413.11322.6.camel@nosferatu.lan>
-User-Agent: Mutt/1.4.1i
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <yqujad40j7rn.fsf@chaapala-lnx2.cisco.com>; from chaapala@cisco.com on Tue, Feb 03, 2004 at 01:13:48PM -0600
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Feb 04, 2004 at 01:03:33AM +0200, Martin Schlemmer wrote:
-> On Tue, 2004-02-03 at 23:28, Martin Schlemmer wrote:
-> > On Tue, 2004-02-03 at 22:13, Greg KH wrote:
+> >> +MODULE_LICENSE("GPL and additional rights");
 > > 
-> > Except if I miss something major, udevsend and udevd still do not
-> > work:
+> > "additional rights?"
 > > 
-> 
-> Skip that, it does work if SEQNUM is set :P
-> 
-> Anyhow, is it _really_ needed for SEQNUM to be set?  What about
-> the attached patch?
+> Take it up with Matt_Domsch@dell.com -- it's his code that I
+> cribbed, so that's the license line I used.
 
-Yes it is necessary, as that is what the kernel spits out.  It's also
-the whole reason we need udevd :)
+The crc32 code came from linux@horizon.com with the following
+copyright abandonment disclaimer, which is still in lib/crc32.c:
 
-If you don't want to give a SEQNUM, just call udev directly.
+/*
+ * This code is in the public domain; copyright abandoned.
+ * Liability for non-performance of this code is limited to the amount
+ * you paid for it.  Since it is distributed for free, your refund will
+ * be very very small.  If it breaks, you get to keep both pieces.
+ */
 
-> Then, order I have not really checked yet, but there are two things
-> that bother me:
-> 
-> 1) latency is even higher than before (btw Greg, is there going to be
-> more sysfs/whatever fixes to get udev even faster, or is this the
-> limit?)
+Thus GPL plus additional rights is appropriate.
 
-Care to measure the latency somehow?  The first event is a bit slow, but
-everything after that is as fast as I ever remember it being.
+Thanks,
+Matt
 
-> 2) events gets missing.  If you for example use udevsend in the
-> initscript that populate /dev (/udev), the amount of nodes/links
-> created is off with about 10-50 (once about 250) entries.
-
-Hm, that's not good.  I'll go test that and see what's happening.
-
-thanks,
-
-greg k-h
+-- 
+Matt Domsch
+Sr. Software Engineer, Lead Engineer
+Dell Linux Solutions linux.dell.com & www.dell.com/linux
+Linux on Dell mailing lists @ http://lists.us.dell.com

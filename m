@@ -1,49 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261287AbULTJVe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261327AbULTJYX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261287AbULTJVe (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Dec 2004 04:21:34 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261327AbULTJVe
+	id S261327AbULTJYX (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Dec 2004 04:24:23 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261451AbULTJYW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Dec 2004 04:21:34 -0500
-Received: from smtp206.mail.sc5.yahoo.com ([216.136.129.96]:44409 "HELO
-	smtp206.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S261287AbULTJV3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Dec 2004 04:21:29 -0500
-Message-ID: <41C69993.5000704@yahoo.com.au>
-Date: Mon, 20 Dec 2004 20:21:23 +1100
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20041007 Debian/1.7.3-5
-X-Accept-Language: en
+	Mon, 20 Dec 2004 04:24:22 -0500
+Received: from fmr05.intel.com ([134.134.136.6]:10645 "EHLO
+	hermes.jf.intel.com") by vger.kernel.org with ESMTP id S261327AbULTJYF convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 20 Dec 2004 04:24:05 -0500
+X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
+Content-class: urn:content-classes:message
 MIME-Version: 1.0
-To: Zhenyu Wu <y030729@njupt.edu.cn>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: About kernel panic!
-References: <303535658.02371@njupt.edu.cn>
-In-Reply-To: <303535658.02371@njupt.edu.cn>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Subject: RE: 2.6.10-rc3: kswapd eats CPU on start of memory-eating task
+Date: Mon, 20 Dec 2004 17:22:34 +0800
+Message-ID: <894E37DECA393E4D9374E0ACBBE7427013CA31@pdsmsx402.ccr.corp.intel.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: 2.6.10-rc3: kswapd eats CPU on start of memory-eating task
+Thread-Index: AcTmcOTy3Z9Q1Y9oRrukhsx3K0/D/gAAw0iQ
+From: "Zou, Nanhai" <nanhai.zou@intel.com>
+To: "Nick Piggin" <nickpiggin@yahoo.com.au>, "Andrew Morton" <akpm@osdl.org>
+Cc: <lista4@comhem.se>, <linux-kernel@vger.kernel.org>, <mr@ramendik.ru>,
+       <kernel@kolivas.org>, <riel@redhat.com>
+X-OriginalArrivalTime: 20 Dec 2004 09:22:35.0234 (UTC) FILETIME=[70DD7420:01C4E675]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Zhenyu Wu wrote:
-> Hello, Everyone,
+> However, based on this and other scattered reports, I'd say it seems
+> quite likely that token based thrashing control is the culprit. Based
+> on the cost/benefit, I wonder if we should disable TBTC by default for
+> 2.6.10, rather than trying to fix it, and try again for 2.6.11?
 > 
-> I think i have met lots of troubles when i am programming in the kernel, so, i
-> want to get
-> some help.
+> Rik? Andrew?
 > 
-> One of my troubles is that, sometimes, the program can work well, but sometimes,
-> there are
-> kernel panics. So, does someone else meet such questions, what is the major
-> reasons? From the
-> indication of the log messages, i can find the messages on allocting the memory, i
-> remember, 
-> i use the kmalloc to do it, but is there something wrong? 
+> Also, it would be nice to have a sysctl to *completely* disable TBTC,
+> that would make testing easier.
 > 
+> Nick
 
-Yes, there is something wrong with your kernel code. The oops will
-tell you what went wrong.
+I have run some stress tests against 2.6.9, 
+2.6.9 + ignore-swap-token-when-in-trouble.patch
+and 2.6.10-rc3-mm1 on an Itanium2 with 4G memory.
 
-Reading Documentation/oops-tracing.txt is a good start.
+With 2.6.9
+OOM killer will be invoked within a few hours of stress test running.
 
-Nick
+With 2.6.9 + vmscan-ignore-swap-token-when-in-trouble.patch
+OOM killer will be invoked around 30 hours.
+
+While 2.6.10-rc3-mm1 seems to be much more stable.
+At least for the test I was running, it bypassed 48 hours test.
+
+Zou Nan hai

@@ -1,40 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261664AbSK0Hxo>; Wed, 27 Nov 2002 02:53:44 -0500
+	id <S261646AbSK0Hwi>; Wed, 27 Nov 2002 02:52:38 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261669AbSK0Hxo>; Wed, 27 Nov 2002 02:53:44 -0500
-Received: from deimos.hpl.hp.com ([192.6.19.190]:60900 "EHLO deimos.hpl.hp.com")
-	by vger.kernel.org with ESMTP id <S261664AbSK0Hxk>;
-	Wed, 27 Nov 2002 02:53:40 -0500
-From: David Mosberger <davidm@napali.hpl.hp.com>
+	id <S261660AbSK0Hwi>; Wed, 27 Nov 2002 02:52:38 -0500
+Received: from mta03ps.bigpond.com ([144.135.25.135]:43241 "EHLO
+	mta03ps.bigpond.com") by vger.kernel.org with ESMTP
+	id <S261646AbSK0Hwg> convert rfc822-to-8bit; Wed, 27 Nov 2002 02:52:36 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Srihari Vijayaraghavan <harisri@bigpond.com>
+To: Neil Brown <neilb@cse.unsw.edu.au>
+Subject: Re: 2.5.49: kernel BUG at drivers/block/ll_rw_blk.c:1950!
+Date: Wed, 27 Nov 2002 19:12:05 +1100
+User-Agent: KMail/1.4.3
+Cc: Jens Axboe <axboe@suse.de>, linux-kernel@vger.kernel.org,
+       Andrew Morton <akpm@digeo.com>, Arjan van de Ven <arjanv@redhat.com>
+References: <200211262203.20088.harisri@bigpond.com> <3DE3D1D1.BE5B30ED@digeo.com> <15843.54741.609413.371274@notabene.cse.unsw.edu.au>
+In-Reply-To: <15843.54741.609413.371274@notabene.cse.unsw.edu.au>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <15844.31669.896101.983575@napali.hpl.hp.com>
-Date: Wed, 27 Nov 2002 00:00:53 -0800
-To: Stephen Rothwell <sfr@canb.auug.org.au>
-Cc: Linus <torvalds@transmeta.com>, LKML <linux-kernel@vger.kernel.org>,
-       anton@samba.org, "David S. Miller" <davem@redhat.com>, ak@muc.de,
-       davidm@hpl.hp.com, schwidefsky@de.ibm.com, ralf@gnu.org,
-       willy@debian.org
-Subject: Re: [PATCH] Start of compat32.h (again)
-In-Reply-To: <20021127184228.2f2e87fd.sfr@canb.auug.org.au>
-References: <20021127184228.2f2e87fd.sfr@canb.auug.org.au>
-X-Mailer: VM 7.07 under Emacs 21.2.1
-Reply-To: davidm@hpl.hp.com
-X-URL: http://www.hpl.hp.com/personal/David_Mosberger/
+Content-Transfer-Encoding: 7BIT
+Message-Id: <200211271912.05131.harisri@bigpond.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> On Wed, 27 Nov 2002 18:42:28 +1100, Stephen Rothwell <sfr@canb.auug.org.au> said:
+Hello Neil,
 
-  Stephen> I make the follwing assumptions: returning s32 from a 32
-  Stephen> bit compatibility system call is the same as returning long
-  Stephen> or int.
+On Wednesday 27 November 2002 07:13, Neil Brown wrote:
+> Srihari, could you possibly try with the following patch please to see
+> if it gives more useful information.
 
-That is not a safe assumption.  The ia64 ABI requires that a 32-bit
-result is returned in the least-significant 32 bits only---the upper
-32 bits may contain garbage.  It should be safe to declare the syscall
-return type always as "long", no?
+No worries. That did the trick.
 
-	--david
+The following message appears just before the first oops:
+Nov 27 18:56:32 localhost kernel: bio_add_page: want to add 4096 at 17658 but 
+only allowed 3072 - prepare to oops...
+
+second oops:
+Nov 27 18:56:36 localhost kernel:  <3>bio_add_page: want to add 4096 at 426874 
+but only allowed 3072 - prepare to oops...
+
+And the third:
+Nov 27 18:56:39 localhost kernel:  <3>bio_add_page: want to add 4096 at 427002 
+but only allowed 3072 - prepare to oops...
+
+Hope that helps. I can give the oops report(s) if you need (but they are once 
+again the same "kernel BUG at drivers/block/ll_rw_blk.c:1950!").
+
+Thanks.
+-- 
+Hari
+harisri@bigpond.com
+

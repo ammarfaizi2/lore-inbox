@@ -1,66 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269557AbTGOTKc (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Jul 2003 15:10:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269559AbTGOTKb
+	id S269619AbTGOTPR (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Jul 2003 15:15:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269621AbTGOTPR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Jul 2003 15:10:31 -0400
-Received: from smtp2.clear.net.nz ([203.97.37.27]:56196 "EHLO
-	smtp2.clear.net.nz") by vger.kernel.org with ESMTP id S269557AbTGOTKZ
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Jul 2003 15:10:25 -0400
-Date: Wed, 16 Jul 2003 07:08:17 +1200
-From: Nigel Cunningham <ncunningham@clear.net.nz>
-Subject: ANNOUNCE: Software Suspend for 2.4 kernel v1.0
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Message-id: <1058296097.1701.13.camel@laptop-linux>
-Organization: 
-MIME-version: 1.0
-X-Mailer: Ximian Evolution 1.2.2
-Content-type: text/plain
-Content-transfer-encoding: 7bit
+	Tue, 15 Jul 2003 15:15:17 -0400
+Received: from [213.39.233.138] ([213.39.233.138]:17619 "EHLO
+	wohnheim.fh-wedel.de") by vger.kernel.org with ESMTP
+	id S269619AbTGOTPN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 15 Jul 2003 15:15:13 -0400
+Date: Tue, 15 Jul 2003 21:28:53 +0200
+From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
+To: Dave Jones <davej@codemonkey.org.uk>,
+       James Simmons <jsimmons@infradead.org>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>, dank@reflexsecurity.com,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: 2.6.0-test1-ac1 Matrox Compile Error
+Message-ID: <20030715192853.GE8240@wohnheim.fh-wedel.de>
+References: <1058290204.3857.51.camel@dhcp22.swansea.linux.org.uk> <Pine.LNX.4.44.0307151833310.7746-100000@phoenix.infradead.org> <20030715175758.GC15505@suse.de> <20030715184909.GD8240@wohnheim.fh-wedel.de> <20030715191328.GB20424@suse.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20030715191328.GB20424@suse.de>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This seems to have been swallowed somewhere in the mailservers
-yesterday, so I'm reposting....
+On Tue, 15 July 2003 20:13:28 +0100, Dave Jones wrote:
+> 
+> Sorry, any vendor contemplating shipping 2.6test in a device at this stage
+> is a lunatic.  I don't care about lunatics.  As we saw recently there
+> are a lot of wireless routers and the like out there all stuck on some
+> magical 2.4.5 kernel. That sucks, but it's at least better than putting
+> beta quality code in something people pay money for.
 
----------
+Well, the good old embedded process is this:
 
-I'm delighted to announce the release of version 1.0 of Software Suspend
-for the Linux 2.4 kernel.
+Take what's availlable (2.4.5 then).
+Adapt to the hardware.
+Test for a while.
+Ship it.
+Don't touch it anymore.
 
-Software Suspend is most easily described as the Linux equivalent of
-Windows' hibernate functionality. It saves the contents of memory to
-disk and powers down. When the computer is started up again, it reloads
-the contents and the user can continue from where they left off. No
-documents need to be reloaded or applications reopened and the process
-is much faster than a normal shutdown and start up.
+So what is lunatic about doing the same with 2.6test?  It may make the
+test a little more expensive, but the adaptation will be cheaper, so
+you are just about even.  And the result is no less frightening than a
+2.4.2 kernel with various backports from 2.4.younameit, and even more
+quick hacks.
 
-Software Suspend's features include:
-- Cancel a suspend cycle (during suspending) by pressing escape
-- Put an arbitrary limit on the size of the image saved
-- Full debugging support (compile time option)
-- Optional image compression
-- Asynchronous I/O
+The only thing we agree on is that it would be loony to port known
+working hardware to a newer kernel.
 
-Software Suspend doesn't yet include support for all hardware, and since
-the 2.4 kernel lacks the driver model being developed for 2.5, other
-hardware may require special handling. The Software Suspend website
-(swsusp.sf.net) and mailing list (accessible via the web site) provide
-support for dealing with these issues.
-
-Thanks go to Florent Chabaud, Pavel Machek and Gabor Kuti, along with
-many others who have tested and contributed to the development of
-Software Suspend to this point.
-
-======
+Jörn
 
 -- 
-Nigel Cunningham
-495 St Georges Road South, Hastings 4201, New Zealand
-
-You see, at just the right time, when we were still powerless,
-Christ died for the ungodly.
-	-- Romans 5:6, NIV.
-
+Courage is not the absence of fear, but rather the judgement that
+something else is more important than fear.
+-- Ambrose Redmoon

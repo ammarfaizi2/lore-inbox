@@ -1,58 +1,94 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261436AbVAHUTx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261378AbVAHUWP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261436AbVAHUTx (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 8 Jan 2005 15:19:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261378AbVAHUTx
+	id S261378AbVAHUWP (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 8 Jan 2005 15:22:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261490AbVAHUWO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 8 Jan 2005 15:19:53 -0500
-Received: from mail.fh-wedel.de ([213.39.232.198]:1202 "EHLO
-	moskovskaya.fh-wedel.de") by vger.kernel.org with ESMTP
-	id S261436AbVAHUTv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 8 Jan 2005 15:19:51 -0500
-Date: Sat, 8 Jan 2005 21:18:59 +0100
-From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
-To: Adrian Bunk <bunk@stusta.de>
-Cc: Andrew Morton <akpm@osdl.org>, dwmw2@infradead.org,
-       linux-kernel@vger.kernel.org, linux-mtd@lists.infradead.org,
-       Simon Evans <spse@secret.org.uk>, joern@wh.fh-wedel.de
-Subject: Re: [patch] 2.6.10-mm2: fix MTD_BLOCK2MTD dependency
-Message-ID: <20050108201859.GB11728@wohnheim.fh-wedel.de>
-References: <20050106002240.00ac4611.akpm@osdl.org> <20050106150346.GC3096@stusta.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20050106150346.GC3096@stusta.de>
-User-Agent: Mutt/1.3.28i
+	Sat, 8 Jan 2005 15:22:14 -0500
+Received: from bay-bridge.veritas.com ([143.127.3.10]:57281 "EHLO
+	MTVMIME01.enterprise.veritas.com") by vger.kernel.org with ESMTP
+	id S261378AbVAHUVs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 8 Jan 2005 15:21:48 -0500
+Date: Sat, 8 Jan 2005 20:20:39 +0000 (GMT)
+From: Hugh Dickins <hugh@veritas.com>
+X-X-Sender: hugh@localhost.localdomain
+To: Andrew Morton <akpm@osdl.org>
+cc: Mauricio Lin <mauriciolin@gmail.com>, William Irwin <wli@holomorphy.com>,
+       <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] A new entry for /proc
+In-Reply-To: <20050106202339.4f9ba479.akpm@osdl.org>
+Message-ID: <Pine.LNX.4.44.0501081917020.4949-100000@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 6 January 2005 16:03:46 +0100, Adrian Bunk wrote:
+On Thu, 6 Jan 2005, Andrew Morton wrote:
+> Mauricio Lin <mauriciolin@gmail.com> wrote:
+> >
+> > Here is a new entry developed for /proc that prints for each process
+> > memory area (VMA) the size of rss. The maps from original kernel is
+> > able to present the virtual size for each vma, but not the physical
+> > size (rss). This entry can provide an additional information for tools
+> > that analyze the memory consumption. You can know the physical memory
+> > size of each library used by a process and also the executable file.
+> > 
+> > Take a look the output:
+> > # cat /proc/877/smaps
+> > 08048000-08132000 r-xp  /usr/bin/xmms
+> > Size:     936 kB
+> > Rss:     788 kB
 > 
-> The patch below fixes an obviously wrong dependency coming from Linus' 
-> tree.
+> This is potentially quite useful.  I'd be interested in what others think of
+> the idea and implementation.
 
-Acked.
+Regarding the idea.
 
-Thanks!
+Well, it goes back to just what wli freed 2.6 from, and what we scorned
+clameter for: a costly examination of every pte-slot of every vma of the
+process.  That doesn't matter _too_ much so long as there's no standard
+tool liable to do it every second or so, nor doing it to every single
+process, and it doesn't need spinlock or preemption disabled too long.
 
-> Signed-off-by: Adrian Bunk <bunk@stusta.de>
-> 
-> --- linux-2.6.10-mm2-full/drivers/mtd/devices/Kconfig.old	2005-01-06 16:00:49.000000000 +0100
-> +++ linux-2.6.10-mm2-full/drivers/mtd/devices/Kconfig	2005-01-06 16:00:59.000000000 +0100
-> @@ -127,7 +127,7 @@
->  
->  config MTD_BLOCK2MTD
->  	tristate "MTD using block device (rewrite)"
-> -	depends on MTD || EXPERIMENTAL
-> +	depends on MTD && EXPERIMENTAL
->  	help
->  	  This driver is basically the same at MTD_BLKMTD above, but
->  	  experienced some interface changes plus serious speedups.  In
+But personally I'd be happier for it to remain an out-of-tree patch,
+just to discourage people from writing and running such tools,
+and to discourage them from adding other such costly analyses.
 
-Jörn
+Potentially quite useful, perhaps.  But I don't have a use for it
+myself, and if I do have, I'll be content to search out (or recreate)
+the patch.  Let's hear from those who actually have a use for it now -
+the more useful it is, of course, the stronger the argument for inclusion.
 
--- 
-Fancy algorithms are buggier than simple ones, and they're much harder
-to implement. Use simple algorithms as well as simple data structures.
--- Rob Pike
+I am a bit sceptical how useful such a lot of little numbers would
+really be - usually it's an overall picture we're interested in.
+
+Regarding the implementation.
+
+Unnecessarily inefficient: a pte_offset_map and unmap for each pte.
+Better go back to the 2.4.28 or 2.5.36 fs/proc/array.c design for
+statm_pgd_range + statm_pmd_range + statm_pte_range - but now you
+need a pud level too.
+
+Seems to have no locking: needs to down_read mmap_sem to guard vmas.
+Does it need page_table_lock?  I think not (and proc_pid_statm didn't).
+
+If there were a use for it, that use might want to distinguish between
+the "shared rss" of pagecache pages from a file, and the "anon rss" of
+private pages copied from file or originally zero - would need to get
+the struct page and check PageAnon.  And might want to count swap
+entries too.  Hard to say without real uses in mind.
+
+Andrew mentioned "unsigned long page": similarly, we usually say
+"struct vm_area_struct *vma" rather than "*map" (well, some places
+say "*mpnt", but that's not a precedent to follow).
+
+Regarding the display.
+
+It's a mixture of two different styles, the /proc/<pid>/maps
+many-hex-fields one-vma-per-line style and the /proc/meminfo 
+one-decimal-kB-per-line style.  I think it would be better following
+the /proc/<pid>/maps style, but replacing the major,minor,ino fields
+by size and rss (anon_rss? swap?) fields (decimal kB? I suppose so).
+
+Hugh
+

@@ -1,60 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263318AbRFACgr>; Thu, 31 May 2001 22:36:47 -0400
+	id <S263327AbRFAChR>; Thu, 31 May 2001 22:37:17 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263320AbRFACgi>; Thu, 31 May 2001 22:36:38 -0400
-Received: from patan.Sun.COM ([192.18.98.43]:30930 "EHLO patan.sun.com")
-	by vger.kernel.org with ESMTP id <S263318AbRFACgZ>;
-	Thu, 31 May 2001 22:36:25 -0400
-Message-ID: <3B17000D.D6E54DA0@sun.com>
-Date: Thu, 31 May 2001 19:38:05 -0700
-From: Tim Hockin <thockin@sun.com>
-Organization: Sun Microsystems, Inc.
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.1 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: alan@redhat.com, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: [PATCH] almost forgot this one
-Content-Type: multipart/mixed;
- boundary="------------4C19F67B85BA3C51FE18F0B4"
+	id <S263324AbRFAChH>; Thu, 31 May 2001 22:37:07 -0400
+Received: from smtp013.mail.yahoo.com ([216.136.173.57]:36365 "HELO
+	smtp013.mail.yahoo.com") by vger.kernel.org with SMTP
+	id <S263321AbRFACg5>; Thu, 31 May 2001 22:36:57 -0400
+X-Apparently-From: <yunqu?liu@yahoo.com>
+Date: Thu, 31 May 2001 22:41:4 -0500
+From: Yunqu Liu <yunqu_liu@yahoo.com>
+Reply-To: yunqu_liu@yahoo.com
+To: "linux-net@vger.kernel.org" <linux-net@vger.kernel.org>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: Linux Ethernet
+Organization: Mr.liu & Mrs.liu
+X-mailer: FoxMail 3.0 beta 2 [eg]
+Mime-Version: 1.0
+Content-Type: text/plain; charset="GB2312"
+Content-Transfer-Encoding: 7bit
+Message-Id: <20010601023702Z263321-933+2910@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------4C19F67B85BA3C51FE18F0B4
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Hi, Team
 
-Add a rwproc entry to the ide structure, for recalling what happened last
-time!
+I am useing a dynamic address to access the cable modem. But I cann't establishe the eth0 interface. It looks I didn't receive a address. The ethernet card is connected to a cable modem.
 
-Please let me knwo if there are any problems with this patch (some of the
-patches I sent earlier depend on this).
+The second question is I recompiled the kernal which included Crystal sound card. And it passed when system boot. But I cann't get any voice service.
 
-Tim
--- 
-Tim Hockin
-Systems Software Engineer
-Sun Microsystems, Cobalt Server Appliances
-thockin@sun.com
---------------4C19F67B85BA3C51FE18F0B4
-Content-Type: text/plain; charset=us-ascii;
- name="ide-rwproc.diff"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="ide-rwproc.diff"
+Would anybody kindly help me?
 
-diff -ruN dist-2.4.5/include/linux/ide.h ../cobalt-2.4.5/include/linux/ide.h
---- dist-2.4.5/include/linux/ide.h	Thu May 31 18:22:46 2001
-+++ ../cobalt-2.4.5/include/linux/ide.h	Thu May 31 14:33:16 2001
-@@ -284,6 +284,7 @@
- 	unsigned long service_time;	/* service time of last request */
- 	unsigned long timeout;		/* max time to wait for irq */
- 	special_t	special;	/* special action flags */
-+	void	 *rwproc_cache;		/* last rwproc update */
- 	byte     keep_settings;		/* restore settings after drive reset */
- 	byte     using_dma;		/* disk is using dma for read/write */
- 	byte     waiting_for_dma;	/* dma currently in progress */
 
---------------4C19F67B85BA3C51FE18F0B4--
+
+Sincerely Yours,
+Yunqu Liu
+yunqu_liu@yahoo.com
+
+
+_________________________________________________________
+Do You Yahoo!?
+Get your free @yahoo.com address at http://mail.yahoo.com
 

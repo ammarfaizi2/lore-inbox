@@ -1,55 +1,72 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268300AbTAMU3Z>; Mon, 13 Jan 2003 15:29:25 -0500
+	id <S268333AbTAMUex>; Mon, 13 Jan 2003 15:34:53 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268301AbTAMU3Z>; Mon, 13 Jan 2003 15:29:25 -0500
-Received: from 216-239-45-4.google.com ([216.239.45.4]:38586 "EHLO
-	216-239-45-4.google.com") by vger.kernel.org with ESMTP
-	id <S268300AbTAMU3Y>; Mon, 13 Jan 2003 15:29:24 -0500
-Message-ID: <3E232369.2030401@google.com>
-Date: Mon, 13 Jan 2003 12:36:57 -0800
-From: Ross Biro <rossb@google.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20020826
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-CC: Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-       Alan Cox <alan@redhat.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Linux 2.4.21-pre3-ac4
-References: <200301121807.h0CI7Qp04542@devserv.devel.redhat.com>	 <1042399796.525.215.camel@zion.wanadoo.fr>	 <1042403235.16288.14.camel@irongate.swansea.linux.org.uk>	 <1042401074.525.219.camel@zion.wanadoo.fr>  <3E230A4D.6020706@google.com>	 <1042484609.30837.31.camel@zion.wanadoo.fr> <3E23114E.8070400@google.com>	 <3E231444.6060209@google.com> <1042491950.20038.0.camel@irongate.swansea.linux.org.uk>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	id <S268334AbTAMUex>; Mon, 13 Jan 2003 15:34:53 -0500
+Received: from h80ad2749.async.vt.edu ([128.173.39.73]:55168 "EHLO
+	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
+	id <S268332AbTAMUeu>; Mon, 13 Jan 2003 15:34:50 -0500
+Message-Id: <200301132043.h0DKhSRX007387@turing-police.cc.vt.edu>
+X-Mailer: exmh version 2.5 07/13/2001 with nmh-1.0.4+dev
+To: root@chaos.analogic.com
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Make `obsolete params' work correctly if MODULE_SYMBOL_PRE 
+In-Reply-To: Your message of "Mon, 13 Jan 2003 15:28:45 EST."
+             <Pine.LNX.3.95.1030113152122.30378A-100000@chaos.analogic.com> 
+From: Valdis.Kletnieks@vt.edu
+References: <Pine.LNX.3.95.1030113152122.30378A-100000@chaos.analogic.com>
+Mime-Version: 1.0
+Content-Type: multipart/signed; boundary="==_Exmh_940296840P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
 Content-Transfer-Encoding: 7bit
+Date: Mon, 13 Jan 2003 15:43:28 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox wrote:
+--==_Exmh_940296840P
+Content-Type: text/plain; charset=us-ascii
 
->On Mon, 2003-01-13 at 19:32, Ross Biro wrote:
->  
->
->>One thing we could do to solve this entire problem is wait for the 
->>interrupt to finish before sending the command to the drive in the first 
->>place.  Basically in ide_do_request we just have to change
->>    
->>
->
->
->  
->
->>    if (!masked_irq) {
->>         disable_irq_sync(hwif->irq);
->>    }
->>    
->>
->
->You cannot disable an IRQ synchronously holding a spin lock taken by an
->IRQ handler
->  
->
+On Mon, 13 Jan 2003 15:28:45 EST, "Richard B. Johnson" said:
 
-You are correct, you have to drop the spinlock first.  And it doesn't 
-really help anyway.
+> void foo(int len)
+> {
+>    char use[0x100];
+>    char bar[len];
+> }
+> 
+> In the case of 'use', the compiler subtracts (0x100 * sizeof(char))
+> from the current stack value and uses that as the location for 'use'.
+> In the case of 'bar' the compiler subtracts (len * sizeof(char))
+> from the current stack value and uses that as the location for 'bar'.
 
-    Ross
+One or the other of these is missing a -0x100 for the location...
 
+void foo (int len1, unsigned int len2)
+{
+  char bar[0x100];
+  char baz[len1];
+  char quux[len2];
+  char moby[8];
+}
+
+And moby[6] is *where*? ;)  Bonus points for getting this right if
+compiled with -fvomit-stack-pointer. <evil grin> ;)
+-- 
+				Valdis Kletnieks
+				Computer Systems Senior Engineer
+				Virginia Tech
+
+
+--==_Exmh_940296840P
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
+
+iD8DBQE+IyTwcC3lWbTT17ARAgVkAJ4j+0gy8PNzlYM8wf4W5a9QBauXawCeLGmD
+ogwFuvto53ER2FIn2USpYBg=
+=uYKB
+-----END PGP SIGNATURE-----
+
+--==_Exmh_940296840P--

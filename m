@@ -1,94 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262687AbVAKCGc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262613AbVAKCJi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262687AbVAKCGc (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 10 Jan 2005 21:06:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262613AbVAKCFK
+	id S262613AbVAKCJi (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 10 Jan 2005 21:09:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262595AbVAKCGu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 10 Jan 2005 21:05:10 -0500
-Received: from wproxy.gmail.com ([64.233.184.203]:44195 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S262737AbVAKCDt (ORCPT
+	Mon, 10 Jan 2005 21:06:50 -0500
+Received: from holomorphy.com ([207.189.100.168]:28302 "EHLO holomorphy.com")
+	by vger.kernel.org with ESMTP id S262608AbVAKCGC (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 10 Jan 2005 21:03:49 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
-        b=J3doqQziTBWJuFXnpBLTkqkmGp9BRNYKJLLqs2jkK3oIASBW3pHklZJtOZ2m15JsizuFftKkK1hMOpQSAzy8YpqLLwqQaBldeqQENG5CsC2BNjDYxmPv9Dt1SSqg8EEMKMQxVcGkGroMF/grh601Hu4YTXXQV3kIDCdeoB+20hM=
-Message-ID: <4d6522b90501101803523eea79@mail.gmail.com>
-Date: Tue, 11 Jan 2005 04:03:48 +0200
-From: Edjard Souza Mota <edjard@gmail.com>
-Reply-To: Edjard Souza Mota <edjard@gmail.com>
-To: tglx@linutronix.de
-Subject: Re: User space out of memory approach
-Cc: Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
-       Mauricio Lin <mauriciolin@gmail.com>,
-       LKML <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>,
-       Andrea Arcangeli <andrea@suse.de>
-In-Reply-To: <1105403747.17853.48.camel@tglx.tec.linutronix.de>
+	Mon, 10 Jan 2005 21:06:02 -0500
+Date: Mon, 10 Jan 2005 18:05:50 -0800
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: "Randy.Dunlap" <rddunlap@osdl.org>, Dave <dave.jiang@gmail.com>,
+       linux-kernel@vger.kernel.org, smaurer@teja.com, linux@arm.linux.org.uk,
+       dsaxena@plexity.net, drew.moseley@intel.com
+Subject: Re: clean way to support >32bit addr on 32bit CPU
+Message-ID: <20050111020550.GE2696@holomorphy.com>
+References: <8746466a050110153479954fd2@mail.gmail.com> <Pine.LNX.4.58.0501101607240.2373@ppc970.osdl.org> <41E31D95.50205@osdl.org> <Pine.LNX.4.58.0501101722200.2373@ppc970.osdl.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-References: <3f250c71050110134337c08ef0@mail.gmail.com>
-	 <20050110192012.GA18531@logos.cnet>
-	 <4d6522b9050110144017d0c075@mail.gmail.com>
-	 <20050110200514.GA18796@logos.cnet>
-	 <1105403747.17853.48.camel@tglx.tec.linutronix.de>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.58.0501101722200.2373@ppc970.osdl.org>
+Organization: The Domain of Holomorphy
+User-Agent: Mutt/1.5.6+20040722i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Some points on Thomas comments,
+On Mon, Jan 10, 2005 at 05:30:25PM -0800, Linus Torvalds wrote:
+> I don't think ioaddr_t needs to match resources. None of the IO accessor
+> functions take "u64"s anyway - and aren't likely to do so in the future
+> either - so "unsigned long" should be good enough.
+> Having u64 for resource handling is mainly an issue for RAM and
+> memory-mapped IO (right now the 32-bit limit means that we throw away
+> information about stuff above the 4GB mark from the e820 interfaces on
+> x86, for example - that _happens_ to work because we never see anything 
+> but RAM there anyway, but it means that /proc/iomem doesn't show all of 
+> the system RAM, and it does mean that our resource management doesn't 
+> actually handle 64-bit addresses correctly. 
+> See drivers/pci/probe.c for the result:
+> 	"PCI: Unable to handle 64-bit address for device xxxx"
+> (and I do not actually think this has _ever_ happened in real life, which 
+> makes me suspect that Windows doesn't handle them either - but it 
+> inevitably will happen some day).
 
-> 
-> I have no objections against the userspace provided candidate list
-> option, but as long as the main sources of trouble
-> 
->         - invocation
->         - reentrancy
->         - timed, counted, blah ugly protection
->         - selection problem
-> 
-> are not fixed properly, we don't need to discuss the inclusion of a
-> userspace provided candidate list.
+I have a vague recollection of seeing a report of an ia32 device and/or
+machine with this property from John Fusco but am having a tough time
+searching the archives properly for it. I do recall it being around the
+time the remap_pfn_range() work was started, and I also claimed it as
+one of the motivators of it in one of my posts. I'm unaware of whether
+there are more general resources in John Fusco's situation.
 
-Any solution that doesn't  offer a proper approach to the above issues
-should not be discussed anyway. By allowing the ranking goes up to the
-user space is not meant only for user testing ranking, but to keep the
-OOM Killer kernel code simpler and clean. As a matter of fact, even
-protected.
-
-Consider the invocation for example. It comes in two phases with this proposal:
-1) ranking for the most likely culprits only starts when memory consumption
-    gets close to the red zone (for example 98% or something like that).
-2) killing just gets the first candidate from the list and kills it.
-No need to calculate
-    at kernel level.
-
-The selection problem is very dependent on the ranking algorithm. For PCs it
-may not be a trouble, but for emdedded devices? yes it is. The ranking at the
-kernel level uses only int type of integer. If you get the log file
-for the ranking
-in any embedded device you will notice that many processes end up with
-the same ranking point. Thus, there will never be the best choice in this way.
-
-By moving just the ranking to the user space fix this problem 'cause you may
-use float to order PIDs with different indexes. The good side effect is that we 
-allow better ways of choosing the culprit by means of diffrent calculations to 
-meet different patterns of memory consumtion.
+My follow-ups began with:
+Message-ID: <20040924021735.GL9106@holomorphy.com>
+References: <41535AAE.6090700@yahoo.com>
 
 
-> Postpone this until the main problem is fixed. There is a proper
-> confirmed fix for this available. It was posted more than once.
-> 
-> Merging a fix which helps only 0,001 % of the users to hide the mess
-> instead of fixing the real problem is a real interesting engineering
-> aproach.
-> 
-> I don't deny, that after the source of trouble is fixed it is worth to
-> think about the merging of this addon to allow interested users to
-> define the culprits instead of relying on an always imperfect selection
-> algorithm.
 
-br
-
-Edjard
--- 
-"In a world without fences ... who needs Gates?"
+-- wli

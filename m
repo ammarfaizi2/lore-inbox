@@ -1,44 +1,73 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268583AbRGYQgo>; Wed, 25 Jul 2001 12:36:44 -0400
+	id <S268581AbRGYQcY>; Wed, 25 Jul 2001 12:32:24 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268584AbRGYQge>; Wed, 25 Jul 2001 12:36:34 -0400
-Received: from [209.250.53.219] ([209.250.53.219]:52996 "EHLO
-	hapablap.dyn.dhs.org") by vger.kernel.org with ESMTP
-	id <S268583AbRGYQgZ>; Wed, 25 Jul 2001 12:36:25 -0400
-Date: Wed, 25 Jul 2001 11:34:45 -0500
-From: Steven Walter <srwalter@yahoo.com>
-To: Uwe Bonnes <bon@elektron.ikp.physik.tu-darmstadt.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Why no modules for IDE chipset support?
-Message-ID: <20010725113445.B25434@hapablap.dyn.dhs.org>
-In-Reply-To: <15198.37357.879359.519563@hertz.ikp.physik.tu-darmstadt.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <15198.37357.879359.519563@hertz.ikp.physik.tu-darmstadt.de>; from bon@elektron.ikp.physik.tu-darmstadt.de on Wed, Jul 25, 2001 at 11:31:25AM +0200
-X-Uptime: 11:01am  up 11:03,  0 users,  load average: 1.00, 1.01, 1.06
+	id <S268583AbRGYQcO>; Wed, 25 Jul 2001 12:32:14 -0400
+Received: from mail.clemson.edu ([130.127.28.87]:25251 "EHLO CLEMSON.EDU")
+	by vger.kernel.org with ESMTP id <S268581AbRGYQcF>;
+	Wed, 25 Jul 2001 12:32:05 -0400
+Message-ID: <000701c11527$1d4c44d0$3cac7f82@crb50>
+From: "Hai Xu" <xhai@CLEMSON.EDU>
+To: <linux-kernel@vger.kernel.org>
+Subject: Question about mm.h and mmzone.h
+Date: Wed, 25 Jul 2001 12:30:27 -0400
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2479.0006
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2479.0006
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
-On Wed, Jul 25, 2001 at 11:31:25AM +0200, Uwe Bonnes wrote:
-> Hallo,
-> 
-> why are the IDE chipset support driver not modularized? Is there anything
-> fundamental that inhibits using these drivers as a modules?
+Dear all,
 
-They are availible as modules.  See "ATA/IDE/MFM/RLL support," which is
-a tristate.  If you select that as a module, then all the chipsets you
-select for support later will be compiled into one large module.
+What I am using is RH7.1+Linux Kernel 2.4.4.
 
-This is probably a bad idea, though, because if you compile IDE support
-as a module, you will not be able to mount your root partition if it is
-on an IDE disk.
+When I compile my code under the 2.4.4 Linux Kernel, I will meet error as
+follows:
 
-I hope this clears things up for you.
--- 
--Steven
-In a time of universal deceit, telling the truth is a revolutionary act.
-			-- George Orwell
+In file included from /usr/src/linux/include/linux/slab.h:14,
+                 from /usr/src/linux/include/linux/malloc.h:4,
+                 from ../../../include/builtins++.h:42,
+                 from example.cpp:12:
+/usr/src/linux/include/linux/mm.h:461: conflicting types for `struct zone_t'
+/usr/src/linux/include/linux/mmzone.h:61: previous declaration as `typedef
+struct zone_struct zone_t'
+In file included from /usr/rtlinux-3.1/include/rtl_sync.h:47,
+                 from /usr/rtlinux-3.1/include/rtl_spinlock.h:13,
+                 from /usr/rtlinux-3.1/include/rtl_time.h:46,
+                 from example.cpp:20:
+/usr/rtlinux-3.1/include/rtl_tracer.h:79: confused by earlier errors,
+bailing out
+make: *** [_example.o] Error 1
+
+Any idea about it?
+
+I have another question about the stucture -- page in the mm.h. What is
+function of void *virtual in this struct? I can not understand this
+definition.
+
+typedef struct page {
+ struct list_head list;
+ struct address_space *mapping;
+ unsigned long index;
+ struct page *next_hash;
+ atomic_t count;
+ unsigned long flags; /* atomic flags, some possibly updated asynchronously
+*/
+ struct list_head lru;
+ unsigned long age;
+ wait_queue_head_t wait;
+ struct page **pprev_hash;
+ struct buffer_head * buffers;
+ void *virtual; /* non-NULL if kmapped */
+ struct zone_struct *zone;
+} mem_map_t;
+
+thanks in advance
+Hai Xu
+

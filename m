@@ -1,42 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262222AbVAOG3Z@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262223AbVAOGlP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262222AbVAOG3Z (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 15 Jan 2005 01:29:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262223AbVAOG3Z
+	id S262223AbVAOGlP (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 15 Jan 2005 01:41:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262227AbVAOGlP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 15 Jan 2005 01:29:25 -0500
-Received: from fw.osdl.org ([65.172.181.6]:12179 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S262222AbVAOG3X (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 15 Jan 2005 01:29:23 -0500
-Date: Fri, 14 Jan 2005 22:28:41 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Andi Kleen <ak@suse.de>
-Cc: rusty@rustcorp.com.au, manpreet@fabric7.com, linux-kernel@vger.kernel.org,
-       discuss@x86-64.org
-Subject: Re: [PATCH] i386/x86-64: Fix timer SMP bootup race
-Message-Id: <20050114222841.5edf7812.akpm@osdl.org>
-In-Reply-To: <20050115040951.GC13525@wotan.suse.de>
-References: <20050115040951.GC13525@wotan.suse.de>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+	Sat, 15 Jan 2005 01:41:15 -0500
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:28677 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S262223AbVAOGjh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 15 Jan 2005 01:39:37 -0500
+Date: Sat, 15 Jan 2005 07:39:34 +0100
+From: Adrian Bunk <bunk@stusta.de>
+To: rmk@arm.linux.org.uk
+Cc: linux-arm-kernel@lists.arm.linux.org.uk, linux-kernel@vger.kernel.org
+Subject: [2.6 patch] arm: NR_CPUS: use range
+Message-ID: <20050115063934.GI4274@stusta.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andi Kleen <ak@suse.de> wrote:
->
-> This fixes a long standing race in 2.6 i386/x86-64 SMP boot.
->  The per CPU timers would only get initialized after an secondary
->  CPU was running. But during initialization the secondary CPU would
->  already enable interrupts to compute the jiffies. When a per 
->  CPU timer fired in this window it would run into a BUG in timer.c
->  because the timer heap for that CPU wasn't fully initialized.
+The patch below uses range for NR_CPUS on arm (the same is already 
+done on all other architectures).
 
-Why don't we just not call calibrate_delay() on the secondaries?  It
-doesn't seem to do anything.  That way we can leave local interrupts
-disabled.
 
-If for some reason we still want the bogomips printk, call
-calibrate_delay() from the CPU_UP_PREPARE handler?
+Signed-off-by: Adrian Bunk <bunk@stusta.de>
+
+--- linux-2.6.11-rc1-mm1-full/arch/arm/Kconfig.old	2005-01-15 07:34:47.000000000 +0100
++++ linux-2.6.11-rc1-mm1-full/arch/arm/Kconfig	2005-01-15 07:38:24.000000000 +0100
+@@ -286,6 +286,7 @@
+ 
+ config NR_CPUS
+ 	int "Maximum number of CPUs (2-32)"
++	range 2 32
+ 	depends on SMP
+ 	default "4"
+ 

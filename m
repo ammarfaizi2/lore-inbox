@@ -1,84 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131393AbQLFCiS>; Tue, 5 Dec 2000 21:38:18 -0500
+	id <S129908AbQLFDKE>; Tue, 5 Dec 2000 22:10:04 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131394AbQLFCiI>; Tue, 5 Dec 2000 21:38:08 -0500
-Received: from app79.hitnet.RWTH-Aachen.DE ([137.226.181.79]:6916 "EHLO
-	anduin.gondor.com") by vger.kernel.org with ESMTP
-	id <S131393AbQLFCiA>; Tue, 5 Dec 2000 21:38:00 -0500
-Date: Wed, 6 Dec 2000 03:07:23 +0100
-From: Jan Niehusmann <jan@gondor.com>
-To: linux-kernel@vger.kernel.org, adilger@turbolinux.com
-Subject: fs corruption with invalidate_buffers()
-Message-ID: <20001206030723.A1136@gondor.com>
-Mime-Version: 1.0
+	id <S129909AbQLFDJy>; Tue, 5 Dec 2000 22:09:54 -0500
+Received: from neon-gw.transmeta.com ([209.10.217.66]:37134 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S129908AbQLFDJt>; Tue, 5 Dec 2000 22:09:49 -0500
+Message-ID: <3A2DA6BE.B233AEF6@transmeta.com>
+Date: Tue, 05 Dec 2000 18:38:54 -0800
+From: "H. Peter Anvin" <hpa@transmeta.com>
+Organization: Transmeta Corporation
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.0-test11 i686)
+X-Accept-Language: en, sv, no, da, es, fr, ja
+MIME-Version: 1.0
+To: Linus Torvalds <torvalds@transmeta.com>
+CC: Kai Germaschewski <kai@thphy.uni-duesseldorf.de>,
+        Alan Cox <alan@redhat.com>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: That horrible hack from hell called A20
+In-Reply-To: <Pine.LNX.4.10.10012051738310.967-100000@penguin.transmeta.com>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Some days ago I saw filesystem corruptions while testing the ext2fs online
-resize patches by Andreas Dilger. First I thought that the online resizing
-caused the problems, but further investigations didn't support this.
+Linus Torvalds wrote:
+> 
+> On Tue, 5 Dec 2000, Linus Torvalds wrote:
+> >
+> > Right now this is my interim patch (to clean test11). The thing to note is
+> > that I decreased the keyboard controller timeout by a factor of about 167,
+> > while making the "delay" a bit longer.
+> 
+> Oh, btw, I forgot to ask people to give this a whirl. I assume it fixes
+> the APM problems for Kai.
+> 
+> It definitely won't fix the silly Olivetti M4 issue (we still touch bit #2
+> in 0x92). We'll need to fix that by testing A20 before bothering with the
+> 0x92 stuff. Alan, that should get fixed in 2.2.x too - clearly those
+> Olivetti machines can be considered buggy, but even so..
+> 
+> Who else had trouble with the keyboard controller?
+> 
 
-The latest observation shows that the problem is probably neither ext2 nor
-lvm related: 
+Some IBM Aptiva box...
 
-While resizing the filesystem, invalidate_buffers() is called from the
-lvm code. (lvm.c, line 2251, in lvm_do_lv_extend_reduce()) 
-If I remove this call, the corruption goes away. But this is probably not
-the correct fix, as it can cause problems when reducing the lv size.
+	-hpa
 
-
-For reference, some details of the corruption:
-	- I reproduced it with kernels between 2.4.0-test9 
-	  and 2.4.0-test12-pre5
-	- It is easily reproducible immediately after rebooting, but goes
-	  away after some uptime (perhaps simply related to the amount of
-  	  unused memory)
-	- example script follows (attention: absolute device names 
-	  like /dev/vg1/test3 hardcoded!)
-
----------------------------------------------------
-#!/bin/bash
-
-umount /dev/vg1/test3
-lvremove -f /dev/vg1/test3
-lvcreate -n test3 -L 100M vg1
-mke2fs -b 1024 /dev/vg1/test3
-ext2prepare -v /dev/vg1/test3 50G
-mount /dev/vg1/test3 /mnt/test3
-
-( sleep 20; echo resize1; e2fsadm -L+90M /dev/vg1/test3; echo resize1 done ;
- sleep 10; echo resize2; e2fsadm -L+90M /dev/vg1/test3; echo resize2 done ) &
-echo copy1
-cp -a /mnt/test/linux /mnt/test3/linux
-echo copy1 done
-echo copy2
-cp -a /mnt/test3/linux /mnt/test3/linux2
-echo copy2 done
----------------------------------------------------
-
-/mnt/test/linux contains (surprise) a linux source, but I don't think 
-the contents are too important :-). The sleep values are tuned in a way that
-leads to the following sequence:
-
-copy1, resize1, resize1 done, copy1 done,
-copy2, resize2, resize2 done, copy2 done
-
-After that, the first copy is corrupted in memory only (and is ok after
-rebooting), and the second copy is corrupted in memory and on disk. The 
-corrupted files contain parts of other files or binary stuff that may come
-from directory entries.
-
-I guess that invalidate_buffers somehow marks the buffers that contain
-the first copy as free, but the second cp still uses them to copy the
-files again. I don't understand the source well enough to find out
-how it happens.
-
-Jan
-
+-- 
+<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
+"Unix gives you enough rope to shoot yourself in the foot."
+http://www.zytor.com/~hpa/puzzle.txt
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

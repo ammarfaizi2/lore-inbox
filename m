@@ -1,37 +1,29 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135571AbRD3QjB>; Mon, 30 Apr 2001 12:39:01 -0400
+	id <S135576AbRD3Qlv>; Mon, 30 Apr 2001 12:41:51 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135576AbRD3Qiv>; Mon, 30 Apr 2001 12:38:51 -0400
-Received: from panic.ohr.gatech.edu ([130.207.47.194]:7650 "HELO havoc.gtf.org")
-	by vger.kernel.org with SMTP id <S135571AbRD3Qip>;
-	Mon, 30 Apr 2001 12:38:45 -0400
-Message-ID: <3AED950C.962360AF@mandrakesoft.com>
-Date: Mon, 30 Apr 2001 12:38:36 -0400
-From: Jeff Garzik <jgarzik@mandrakesoft.com>
-Organization: MandrakeSoft
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.4 i686)
-X-Accept-Language: en
+	id <S135852AbRD3Qlm>; Mon, 30 Apr 2001 12:41:42 -0400
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:1545 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S135576AbRD3Qlc>; Mon, 30 Apr 2001 12:41:32 -0400
+Subject: Re: panic when booting 2.4.4
+To: jan@gondor.com (Jan Niehusmann)
+Date: Mon, 30 Apr 2001 17:43:07 +0100 (BST)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20010429212545.A2208@gondor.com> from "Jan Niehusmann" at Apr 29, 2001 09:25:45 PM
+X-Mailer: ELM [version 2.5 PL1]
 MIME-Version: 1.0
-To: root@chaos.analogic.com
-Cc: Greg Hosler <hosler@lugs.org.sg>, linux-kernel@vger.kernel.org
-Subject: Re: AC'97 (VT82C686A) & IRQ reassignment (I/O APIC)
-In-Reply-To: <Pine.LNX.3.95.1010430113545.13070A-100000@chaos.analogic.com>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-Id: <E14uGlR-0008H9-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Richard B. Johnson" wrote:
-> Observe that the PCI DWORD (long) register at DWORD offset 15 consists
-> of 4 byte-wide registers (from the PCI specification), Max_lat, Min_Gnt,
-> Interrupt pin, and interrupt line.  Nothing has to fit into 4 bits, you
-> have 8 bits. I haven't looked at the Linux code, but if it provides only 4
-> bits for the IRQ, it's broken.
+> This is on an asus-a7v133 (VIA chipset), Duron 800, HD is hda, CDRW is hdc,
+> no other ide devices attached (ie no devices on the onboard promise
+> controller)
 
-Non-IO-APIC Via audio hardware only decodes the lower 4 bits of the IRQ.
-
--- 
-Jeff Garzik      | Game called on account of naked chick
-Building 1024    |
-MandrakeSoft     |
+Yep. Known problem. I sent Linus the fix for that for 2.4.4 but it got missed
+somewhere. I'll resend it once Im back in order. For now grab the fix from
+2.4-ac

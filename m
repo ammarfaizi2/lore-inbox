@@ -1,56 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266242AbUFYUWs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266263AbUFYUj1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266242AbUFYUWs (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 25 Jun 2004 16:22:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266263AbUFYUWs
+	id S266263AbUFYUj1 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 25 Jun 2004 16:39:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266281AbUFYUj1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 25 Jun 2004 16:22:48 -0400
-Received: from mail.dynextechnologies.com ([65.120.73.98]:34342 "EHLO
-	mail.dynextechnologies.com") by vger.kernel.org with ESMTP
-	id S266242AbUFYUWr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 25 Jun 2004 16:22:47 -0400
-Message-ID: <40DC8981.7090703@dynextechnologies.com>
-Date: Fri, 25 Jun 2004 16:22:25 -0400
-From: "Fao, Sean" <Sean.Fao@dynextechnologies.com>
-User-Agent: Mozilla Thunderbird 0.7 (Windows/20040616)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Amit Gud <gud@eth.net>
-CC: Alan <alan@clueserver.org>, Pavel Machek <pavel@ucw.cz>,
-       Horst von Brand <vonbrand@inf.utfsm.cl>, linux-kernel@vger.kernel.org
-Subject: Re: Elastic Quota File System (EQFS)
-References: <004e01c45abd$35f8c0b0$b18309ca@home>	 <200406251444.i5PEiYpq008174@eeyore.valparaiso.cl>	 <20040625162537.GA6201@elf.ucw.cz> <1088181893.6558.12.camel@zontar.fnordora.org> <40DC625F.3010403@eth.net>
-In-Reply-To: <40DC625F.3010403@eth.net>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 25 Jun 2004 20:22:46.0706 (UTC) FILETIME=[2D9CE920:01C45AF2]
+	Fri, 25 Jun 2004 16:39:27 -0400
+Received: from kweetal.tue.nl ([131.155.3.6]:20491 "EHLO kweetal.tue.nl")
+	by vger.kernel.org with ESMTP id S266263AbUFYUj0 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 25 Jun 2004 16:39:26 -0400
+Date: Fri, 25 Jun 2004 22:39:14 +0200
+From: Andries Brouwer <aebr@win.tue.nl>
+To: "Makhlis, Lev" <Lev_Makhlis@bmc.com>
+Cc: "'Andries Brouwer'" <aebr@win.tue.nl>,
+       "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] [SYSVIPC] Change shm_tot from int to size_t
+Message-ID: <20040625203914.GA5504@pclin040.win.tue.nl>
+References: <F12B6443B4A38748AFA644D1F8EF3532147332@bos-ex-01.adprod.bmc.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <F12B6443B4A38748AFA644D1F8EF3532147332@bos-ex-01.adprod.bmc.com>
+User-Agent: Mutt/1.4.1i
+X-Spam-DCC: : 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Amit Gud wrote:
+On Fri, Jun 25, 2004 at 12:42:26PM -0500, Makhlis, Lev wrote:
 
-> It cannot be denied that there _are_ applications for such a system 
-> that we already discussed and theres a class of users who will find 
-> the system useful.
+> > Thirdly, shm_tot is transmitted to userspace (via the SHM_INFO ioctl)
+> > as an unsigned long. If it is necessary to make it larger, then we
+> > must do something with this ioctl. For example, return -1 there
+> > in case the actual value does not fit in an unsigned long.
+> 
+> The SHM_INFO shmctl is actually how I found it in the first place.
+> But we have the same situation with many other values.  For example,
+> shm_ctlmax, shm_ctlall and shm_segsz can all potentially be 64-bit wide
+> in the kernel and are exported into potentially 32-bit userspace values.
+> We don't return -1 for any of those if they don't fit.  Is there a
+> special reason to do it in this case?
 
-
-I personally see no use whatsoever.  Why not just allocate 100% of the 
-file system to everybody and ignore quota's, entirely?  Each user will 
-use whatever he/she requires and when space starts to run out, users 
-will manually clean up what they don't need.
-
-I am totally against the automatic deletion of files and believe that 
-all users will _eventually_ walk in on a Monday morning to find out that 
-the OS took it upon itself to delete a file that was flagged as elastic, 
-that shouldn't have been.  I also tend to believe that the exact 
-time/date that the file was removed could conceivably occur six months 
-prior to that Monday morning, without the users knowledge.  Now the 
-burden will again be placed on to system administrators.  This time, to 
-locate and recover the lost file(s) by sorting through months of 
-archives.  Personally, I prefer setting quota's on an individual bases, 
-to finding a needle in a haystack
-
-In my mind, you either have a quota or you don't; there's no in between.
-
-Sean
-
+There is a good reason to do it always.
+If one truncates, then the result is always unreliable.
+If one replaces a too large value by -1, then any other value is reliable.

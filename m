@@ -1,53 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135851AbRDYMax>; Wed, 25 Apr 2001 08:30:53 -0400
+	id <S135856AbRDYMjm>; Wed, 25 Apr 2001 08:39:42 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135852AbRDYMal>; Wed, 25 Apr 2001 08:30:41 -0400
-Received: from mdslppp196.mpls.uswest.net ([63.225.152.196]:62779 "EHLO
-	localhost.localdomain") by vger.kernel.org with ESMTP
-	id <S135851AbRDYMai>; Wed, 25 Apr 2001 08:30:38 -0400
-Date: Wed, 25 Apr 2001 07:23:05 -0500 (CDT)
-From: Nitebirdz <nitebirdz@qwest.net>
-X-X-Sender: <nitebirdz@localhost.localdomain>
-To: <nick@snowman.net>
-cc: Erik Mouw <J.A.K.Mouw@ITS.TUDelft.NL>, Bram Smout <bram@ba.be>,
-        <linux-kernel@vger.kernel.org>
-Subject: Re: SGI Visual Workstation Support
-In-Reply-To: <Pine.LNX.4.21.0104231046010.9607-100000@ns>
-Message-ID: <Pine.LNX.4.33.0104250722120.12588-100000@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S135855AbRDYMjd>; Wed, 25 Apr 2001 08:39:33 -0400
+Received: from [195.6.125.97] ([195.6.125.97]:6413 "EHLO looping.sycomore.fr")
+	by vger.kernel.org with ESMTP id <S135854AbRDYMjU>;
+	Wed, 25 Apr 2001 08:39:20 -0400
+Date: Wed, 25 Apr 2001 14:36:36 +0200
+From: =?ISO-8859-1?Q?s=E9bastien?= person <sebastien.person@sycomore.fr>
+To: liste noyau linux <linux-kernel@vger.kernel.org>
+Subject: Fw: where can I find the IP address ?
+Message-Id: <20010425143636.038539aa.sebastien.person@sycomore.fr>
+X-Mailer: Sylpheed version 0.4.64 (GTK+ 1.2.6; i586-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 23 Apr 2001 nick@snowman.net wrote:
-
-> Date: Mon, 23 Apr 2001 10:46:15 -0400 (EDT)
-> From: nick@snowman.net
-> To: Erik Mouw <J.A.K.Mouw@ITS.TUDelft.NL>
-> Cc: Bram Smout <bram@ba.be>, linux-kernel@vger.kernel.org
-> Subject: Re: SGI Visual Workstation Support
->
-> Is documantation available for the VW?
-> 	Nick
->
 
 
-Nick,
+Début du message transféré :
+
+Date: Tue, 24 Apr 2001 16:43:18 +0200
+From: sébastien person <sebastien.person@sycomore.fr>
+To: liste noyau linux <linux-kernel@vger.kernel.org>
+Subject: where can I find the IP address ?
 
 
-I found one more document that may be helpful to you:
+I'm dealing with a driver wich need the IP address for specifics using.
 
-http://oss.sgi.com/www.linux.sgi.com/intel/visws/
+I've read in the linux device driver (o'reilly) that I can use the field
+pa_addr in the struct device. but it doesn't exist on my computer.
 
+so I don't understand why ? Is anybody could tell me where finding the
+IP address in the kernel ?
 
+thanks a lot.
 
--- 
-------------------------------------------------------
-Nitebirdz
-------------------------------------------------------
-http://www.linuxnovice.org
-News, tips, articles, links...
+nb : 	my kernel version is 2.2.14, as it is my first driver I am starting
+	on the current kernel I've got but I'll also need informations
+	for kernel 2.4.X
 
-*** http://www.mozilla.org ***
-
+sebastien person
+-
+To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Please read the FAQ at  http://www.tux.org/lkml/

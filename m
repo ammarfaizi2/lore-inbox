@@ -1,137 +1,68 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262800AbSJaTjk>; Thu, 31 Oct 2002 14:39:40 -0500
+	id <S265361AbSJaTXD>; Thu, 31 Oct 2002 14:23:03 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262872AbSJaTjk>; Thu, 31 Oct 2002 14:39:40 -0500
-Received: from hq.alert.sk ([147.175.66.131]:6820 "EHLO hq.alert.sk")
-	by vger.kernel.org with ESMTP id <S262800AbSJaTjV>;
-	Thu, 31 Oct 2002 14:39:21 -0500
-Date: Thu, 31 Oct 2002 20:45:47 +0100
-From: Robert Varga <nite@hq.alert.sk>
-To: linux-kernel@vger.kernel.org
-Subject: 2.5.45 build failed with ACPI turned on
-Message-ID: <20021031194547.GA3555@hq.alert.sk>
-Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="opJtzjQTFsWo+cga"
-Content-Disposition: inline
-User-Agent: Mutt/1.4i
+	id <S265364AbSJaTXD>; Thu, 31 Oct 2002 14:23:03 -0500
+Received: from petasus.ch.intel.com ([143.182.124.5]:1106 "EHLO
+	petasus.ch.intel.com") by vger.kernel.org with ESMTP
+	id <S265361AbSJaTXA>; Thu, 31 Oct 2002 14:23:00 -0500
+Message-ID: <72B3FD82E303D611BD0100508BB29735046DFF69@orsmsx102.jf.intel.com>
+From: "Lee, Jung-Ik" <jung-ik.lee@intel.com>
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: RFC: bare pci configuration access functions ?
+Date: Thu, 31 Oct 2002 11:29:19 -0800
+MIME-Version: 1.0
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Need:
+====
+	Some kernel drivers/components such as hotplug pci/io-node drivers,
+ACPI driver, some console drivers, etc **need bare pci configuration space
+access** before either pci driver is initialized or struct pci_dev is
+constructed.
 
---opJtzjQTFsWo+cga
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+ACPI needs this for ACPI/PCI population, hotplug pci driver for populating
+hot-added pci hierarchy. As more drivers are cross ported over to wider
+architectures, this would become wider need. Help me if others need this
+too.
 
-Hi
 
-Build fails with:
+Current pci configuration access functions:
+==========================================
+	Current pci configuration access functions is based on "struct
+pci_ops" from "struct pci_bus".
+ pci_{read|write}_config_{byte|word|dword}(pci_dev, where, val);
+ pci_bus_{read|write}_config_{byte|word|dword}(pci_bus, devfn, where, val);
 
-drivers/acpi/sleep.c: In function `acpi_system_suspend':
-drivers/acpi/sleep.c:209: warning: implicit declaration of function `do_suspend_lowlevel'
-drivers/acpi/sleep.c: In function `acpi_sleep_init':
-drivers/acpi/sleep.c:707: `sysrq_acpi_poweroff_op' undeclared (first use in this function)
-drivers/acpi/sleep.c:707: (Each undeclared identifier is reported only once
-drivers/acpi/sleep.c:707: for each function it appears in.)
+Issue:
+=====
+	Current functions need pci_ops and pci_bus struct, which are not
+constructed yet for the above cases.
 
-The structure declaration is protected by
+Current solutions:
+=================
+(1) i386 and ia64 kernel provides global bare pci config access functions
+like:
+ pci_config_{read|write}(seg, bus, dev, func, where, size, val);
+	Acpi driver uses these.
 
-#if defined(CONFIG_MAGIC_SYSRQ) && defined(CONFIG_PM)
+(2) Alternative is to allocate temporary pci_dev/pci_bus structs and copy
+parent's or root's, and modify the struct.
+	Hotplug pci driver uses this.
 
-on line 640.
 
-Config file attached.
+Question:
+========
+Will it be desirable to have bare global pci config access functions as seen
+in i386/ia64 pci codes ? It's clean and needs just what it takes - seg, bus,
+dev, func, where, value, and size.
+Or, do we keep original functions with temporary structs ? It takes extra
+care for temporary structs, but it's with pci context.
 
--- 
-Kind regards,
-Robert Varga
-------------------------------------------------------------------------------
-n@hq.sk                                          http://hq.sk/~nite/gpgkey.txt
-
---opJtzjQTFsWo+cga
-Content-Type: application/octet-stream
-Content-Disposition: attachment; filename="config.gz"
-Content-Transfer-Encoding: base64
-
-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
-
---opJtzjQTFsWo+cga--
+Request for comments.
+thanks,
+J.I.

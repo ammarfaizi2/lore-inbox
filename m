@@ -1,39 +1,69 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261183AbTINP5Z (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 14 Sep 2003 11:57:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261186AbTINP5Z
+	id S261188AbTINQMG (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 14 Sep 2003 12:12:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261189AbTINQMG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 14 Sep 2003 11:57:25 -0400
-Received: from mail.jlokier.co.uk ([81.29.64.88]:18323 "EHLO
-	mail.jlokier.co.uk") by vger.kernel.org with ESMTP id S261183AbTINP5Y
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 14 Sep 2003 11:57:24 -0400
-Date: Sun, 14 Sep 2003 16:56:54 +0100
-From: Jamie Lokier <jamie@shareable.org>
-To: Andi Kleen <ak@muc.de>
-Cc: linux-kernel@vger.kernel.org, jh@suse.cz
-Subject: Re: stack alignment in the kernel was Re: nasm over gas?
-Message-ID: <20030914155654.GD16525@mail.jlokier.co.uk>
-References: <rZQN.83u.21@gated-at.bofh.it> <uw6d.3hD.35@gated-at.bofh.it> <uxED.5Rz.9@gated-at.bofh.it> <uYbM.26o.3@gated-at.bofh.it> <uZUr.4QR.25@gated-at.bofh.it> <v4qU.3h1.27@gated-at.bofh.it> <vog2.7k4.23@gated-at.bofh.it> <m31xuk8cnu.fsf_-_@averell.firstfloor.org> <20030914135431.GB16525@mail.jlokier.co.uk> <20030914141346.GA1194@averell>
+	Sun, 14 Sep 2003 12:12:06 -0400
+Received: from kweetal.tue.nl ([131.155.3.6]:26895 "EHLO kweetal.tue.nl")
+	by vger.kernel.org with ESMTP id S261188AbTINQMD (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 14 Sep 2003 12:12:03 -0400
+Date: Sun, 14 Sep 2003 18:12:01 +0200
+From: Andries Brouwer <aebr@win.tue.nl>
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: James Bottomley <James.Bottomley@steeleye.com>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: 2.7 block ramblings (was Re: DMA for ide-scsi?)
+Message-ID: <20030914181201.E3371@pclin040.win.tue.nl>
+References: <1063484193.1781.48.camel@mulgrave> <20030913212723.GA21426@gtf.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20030914141346.GA1194@averell>
-User-Agent: Mutt/1.4.1i
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20030913212723.GA21426@gtf.org>; from jgarzik@pobox.com on Sat, Sep 13, 2003 at 05:27:23PM -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andi Kleen wrote:
-> Hmm. The i386 Makefile sets that already. Where exactly did you see
-> bogus stack adjustments in kernel code?
+On Sat, Sep 13, 2003 at 05:27:23PM -0400, Jeff Garzik wrote:
 
-I didn't.  I saw them in a test program for __builtin_expect() in the
-"oops_in_progress is unlikely()" thread.
+> IMO, we need to move users from a [probe-]order-based device and bus
+> enumeration to some system based on unique ids.  I'm of the opinion
+> that _both_ block devices and filesystems need some sort of GUID.
+> Luckily, a lot of blkdevs/fs's are already there.
+> 
+> If you look at current usage out there, order isn't _terribly_ important
+> given today's tools (such as LABEL=).  More important IMO is figuring
+> out which spindle is your boot disk, and which is your root disk.
+> Red Hat handles root disks by doing LABEL= from initrd.  But discovering
+> the boot disk is still largely an unsolved problem AFAIK...
 
-I'm used to seeing redundant "mov" instructions and such from GCC, so
-when I saw the stack adjustments with -O2 go away with -Os I thought
-they were more of the same - not realising that -Os turns off the stack
-alignment.  My error.
+Such things are infinitely difficult.
+Moreover, great care is needed - one has to define precisely what it
+is this GUID is supposed to be an ID of.
 
--- Jamie
+(Is it the ZIP drive? Or is it the ZIP disk?
+The 2.4 USB code is broken because it remembers a GUID and thinks that
+identical GUID implies identical disk.)
+
+I have a handful of CF/SM cardreaders.
+Some of them have no form of ID. Others have an ID.
+
+Then one can insert a CF or SM card into the reader.
+Some of these cards have an ID. Some have not.
+
+On the card one usually finds a FAT filesystem.
+There may be a label. Or there may not be.
+
+This describes a 3-level situation.
+I have also 4-level situations, where the reader is filled with
+one of four auxiliary adapters (each with an own ID) and the
+adapter then get a CF/SM/SD/... card.
+
+So, yes, we love IDs. And we can always provide them ourselves
+as label or UUID or so in the filesystem.
+
+But finding an unformatted unlabeled disk is difficult.
+
+Andries
+

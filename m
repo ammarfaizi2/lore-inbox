@@ -1,47 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261290AbUKFAsa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261276AbUKFAsZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261290AbUKFAsa (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 5 Nov 2004 19:48:30 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261296AbUKFAsa
+	id S261276AbUKFAsZ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 5 Nov 2004 19:48:25 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261290AbUKFAsY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 5 Nov 2004 19:48:30 -0500
-Received: from mail.kroah.org ([69.55.234.183]:31897 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S261280AbUKFAsX (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 5 Nov 2004 19:48:23 -0500
-Date: Fri, 5 Nov 2004 16:47:57 -0800
-From: Greg KH <greg@kroah.com>
-To: Robert Love <rml@novell.com>
-Cc: John McCutchan <ttb@tentacle.dhs.org>, linux-kernel@vger.kernel.org
-Subject: Re: [patch] inotify: add FIONREAD support
-Message-ID: <20041106004755.GA23981@kroah.com>
-References: <1099696444.6034.266.camel@localhost>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1099696444.6034.266.camel@localhost>
-User-Agent: Mutt/1.5.6i
+	Fri, 5 Nov 2004 19:48:24 -0500
+Received: from h151_115.u.wavenet.pl ([217.79.151.115]:18592 "EHLO
+	alpha.polcom.net") by vger.kernel.org with ESMTP id S261276AbUKFAsU
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 5 Nov 2004 19:48:20 -0500
+Date: Sat, 6 Nov 2004 01:48:09 +0100 (CET)
+From: Grzegorz Kulewski <kangur@polcom.net>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] change Kconfig entry for RAMFS
+In-Reply-To: <Pine.LNX.4.60.0411060027560.3255@alpha.polcom.net>
+Message-ID: <Pine.LNX.4.60.0411060142570.3255@alpha.polcom.net>
+References: <Pine.LNX.4.58.0411031706350.1229@gradall.private.brainfood.com>
+ <20041103233029.GA16982@taniwha.stupidest.org>
+ <Pine.LNX.4.58.0411041050040.1229@gradall.private.brainfood.com>
+ <Pine.LNX.4.58.0411041133210.2187@ppc970.osdl.org>
+ <Pine.LNX.4.58.0411041546160.1229@gradall.private.brainfood.com>
+ <Pine.LNX.4.58.0411041353360.2187@ppc970.osdl.org>
+ <Pine.LNX.4.58.0411041734100.1229@gradall.private.brainfood.com>
+ <Pine.LNX.4.58.0411041544220.2187@ppc970.osdl.org> <20041105014146.GA7397@pclin040.win.tue.nl>
+ <Pine.LNX.4.58.0411050739190.2187@ppc970.osdl.org> <20041105195045.GA16766@taniwha.stupidest.org>
+ <Pine.LNX.4.58.0411051203470.2223@ppc970.osdl.org>
+ <Pine.LNX.4.60.0411052242090.3255@alpha.polcom.net>
+ <Pine.LNX.4.58.0411051406200.2223@ppc970.osdl.org>
+ <Pine.LNX.4.60.0411052319160.3255@alpha.polcom.net>
+ <Pine.LNX.4.58.0411051506590.2223@ppc970.osdl.org>
+ <Pine.LNX.4.60.0411060027560.3255@alpha.polcom.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Nov 05, 2004 at 06:14:04PM -0500, Robert Love wrote:
-> John,
-> 
-> There are a handful of "standard" file ioctl's (FIBMAP, FIONREAD,
-> FIGETBSZ, etc.).  We don't have to implement any of them, but FIONREAD
-> is actually pretty useful: It tells you how many bytes are available on
-> the fd.
+Oh, I am stupid. As DaMouse pointed out I diffed against wrong kernel 
+(-cko2 instead vanilla). Sorry. Here is updated patch:
 
-Nice idea.
+Signed-off-by: Grzegorz Kulewski <kangur@polcom.net>
 
-> +	case FIONREAD:
-> +		bytes = dev->event_count * sizeof (struct inotify_event);
-> +		return put_user(bytes, (int *) p);
+--- linux-2.6.9/fs/Kconfig	 2004-11-06 01:11:58.900541536 +0100
++++ linux-2.6.9-gk/fs/Kconfig	 2004-11-06 01:13:04.432579152 +0100
+@@ -937,9 +937,6 @@
+           you need a file system which lives in RAM with limit checking use
+           tmpfs.
 
-But sparse will spit out warnings with code like this :(
+-         To compile this as a module, choose M here: the module will be called
+-         ramfs.
+-
+  endmenu
 
-Actually, the whole inotify patch probably isn't sparse clean...
+  menu "Miscellaneous filesystems"
+-
 
-thanks,
+I hope it is good now. And I hope my mailer doesn't destroy the patch?
 
-greg k-h
+
+Thanks,
+
+Grzegorz Kulewski
+

@@ -1,128 +1,64 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130012AbRAJIWS>; Wed, 10 Jan 2001 03:22:18 -0500
+	id <S130130AbRAJIWT>; Wed, 10 Jan 2001 03:22:19 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130130AbRAJIWJ>; Wed, 10 Jan 2001 03:22:09 -0500
-Received: from isis.its.uow.edu.au ([130.130.68.21]:39044 "EHLO
-	isis.its.uow.edu.au") by vger.kernel.org with ESMTP
-	id <S130012AbRAJIV4>; Wed, 10 Jan 2001 03:21:56 -0500
-Message-ID: <3A5C1CF2.170E0A04@uow.edu.au>
-Date: Wed, 10 Jan 2001 19:27:30 +1100
-From: Andrew Morton <andrewm@uow.edu.au>
-X-Mailer: Mozilla 4.7 [en] (X11; I; Linux 2.4.0 i586)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: "Brian O'Keefe" <okeefe@spinnakernet.com>
-CC: Trond Myklebust <trond.myklebust@fys.uio.no>,
-        Neil Brown <neilb@cse.unsw.edu.au>,
-        lkml <linux-kernel@vger.kernel.org>
-Subject: Re: NFS client deadlock on SMP machines
-In-Reply-To: <3A5B42BF.EC16F7EE@spinnakernet.com>
+	id <S130497AbRAJIWJ>; Wed, 10 Jan 2001 03:22:09 -0500
+Received: from [216.161.55.93] ([216.161.55.93]:57075 "EHLO blue.int.wirex.com")
+	by vger.kernel.org with ESMTP id <S130130AbRAJIWC>;
+	Wed, 10 Jan 2001 03:22:02 -0500
+Date: Wed, 10 Jan 2001 00:24:30 -0800
+From: Greg KH <greg@wirex.com>
+To: Benson Chow <blc@q.dyndns.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: USB Keyboards for x86/uhci in 2.4- kernels?
+Message-ID: <20010110002430.A26680@wirex.com>
+Mail-Followup-To: Greg KH <greg@wirex.com>, Benson Chow <blc@q.dyndns.org>,
+	linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.31.0101091640470.21522-100000@q.dyndns.org>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <Pine.LNX.4.31.0101091640470.21522-100000@q.dyndns.org>; from blc@q.dyndns.org on Tue, Jan 09, 2001 at 11:55:14PM -0700
+X-Operating-System: Linux 2.4.0 (i686)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Brian O'Keefe wrote:
+On Tue, Jan 09, 2001 at 11:55:14PM -0700, Benson Chow wrote:
+> Anyone tried using these beasts on a x86?
 > 
-> I'm not sure yet if this is a true bug, but it sure seems like one...
+> Anyway, what's happening:   In BIOS my USB keyboard works really poorly -
+> it almost seems scancodes get dropped left and right.  Ok, so I don't mind
+> too much, i'm sure BIOS has a very limited driver.  After booting
+> Microsoft's offerring, it would work fine after it installs its driver.
+> I also tried this same keyboard on a HPUX Visualize C3600 workstation and
+> it also works nicely.
 > 
-> I've got a 2-processor machine that I'm using as an NFS client. I've
-> written some code that is doing a boatload of NFS reads from this
-> client, locking whole files as read-only as I do each read. I've got
-> multiple processes running the same code. Pretty regularly, I can get
-> this client machine to lock up. I've scoured the web looking for hints
-> about what might be wrong, and I'm using a kgdb to debug this from a
-> remote machine.
+> However linux would never fix  this "scancode drop" syndrome even after
+> loading the hid or usbkbd driver.  Both my Via uhci USB motherboard and
+> PIIX3 USB motherboard exhibit this usb keyboard strangeness
+> with the hid or usbkbd driver is installed.  I think the PIIX3
+> motherboard's bios doesnt handle USB properly so it doesn't even work in
+> BIOS setup.  Any idea what's going on?  Is there some other driver or
+> utility I need to install/run to get it working?  Maybe just my bad bios?
 
-Kernel 2.4.0.
+Try turning off the BIOS support for keyboards.  Kinda sounds like Linux
+isn't taking over the USB controller properly.  Does the keyboard work
+without _any_ usb modules loaded?  If so, then that's probably the
+problem.
 
-Brian,
+> BTW: my USB Mouse, and USB Printer seem to work nicely in 2.4.0-release.
 
-linux-smp@vger is rather dead.  You certainly won't get the
-attention of the NFS developers there.
+But then again, if these are working at the same time as your keyboard,
+it looks like Linux took over the controller nicely.
 
->From your excellent description it seems that the kernel
-is calling schedule() with nfs_flushd_lock held.  The same
-CPU comes back into the NFS code on behalf of a different task,
-hits the lock and it's lights out.
+Sorry, I guess this wasn't much help.
 
-This is pretty hard to track down.  One approach is
-to put
+greg k-h
 
-	show_stack(p->thread.esp);
-
-right at the end of kernel/sched.c:show_task().  When the deadlock
-happens, type ALT-SYSRQ-T, pray like hell that the debug output
-makes it to disk.  Reboot, feed the logs into ksymoops, see which
-task is sleeping within the NFS code.
-
-The alternative is to read the code :)
-
-There appear to be two places where the NFS client code can
-deadlock:
-
-nfs_reqlist_init()
-{
-  spin_lock(&nfs_flushd_lock);
-  rpc_new_task->
-    rpc_allocate->
-      ->kmalloc(GFP_RPC)   (__GFP_WAIT is true)
-
-
-inode_remove_flushd()
-{
-  spin_lock(&nfs_flushd_lock);
-  iput(inode)->
-    nfs_delete_inode->
-      delete_inode->
-        wait_on_inode
-    truncate_inode_pages->
-      truncate_list_pages->
-        wait_on_page
-
-The latter is most likely the problem.  Here's a patch - please
-test.  The inode_remove_flush() change is correct.  Not so
-sure about the nfs_reqlist_init() change.
-
-
---- linux-2.4.0/fs/nfs/flushd.c	Sat Jun 24 15:39:46 2000
-+++ linux-akpm/fs/nfs/flushd.c	Wed Jan 10 19:25:44 2001
-@@ -55,7 +55,7 @@
- /*
-  * Spinlock
-  */
--spinlock_t nfs_flushd_lock = SPIN_LOCK_UNLOCKED;
-+static spinlock_t nfs_flushd_lock = SPIN_LOCK_UNLOCKED;
- 
- /*
-  * Local function declarations.
-@@ -71,6 +71,7 @@
- 	int			status = 0;
- 
- 	dprintk("NFS: writecache_init\n");
-+	task = rpc_new_task(server->client, NULL, RPC_TASK_ASYNC);
- 	spin_lock(&nfs_flushd_lock);
- 	cache = server->rw_requests;
- 
-@@ -79,7 +80,6 @@
- 
- 	/* Create the RPC task */
- 	status = -ENOMEM;
--	task = rpc_new_task(server->client, NULL, RPC_TASK_ASYNC);
- 	if (!task)
- 		goto out_unlock;
- 
-@@ -195,7 +195,9 @@
- 	if (*q) {
- 		*q = inode->u.nfs_i.hash_next;
- 		NFS_FLAGS(inode) &= ~NFS_INO_FLUSH;
-+		spin_unlock(&nfs_flushd_lock);
- 		iput(inode);
-+		return;
- 	}
-  out:
- 	spin_unlock(&nfs_flushd_lock);
+-- 
+greg@(kroah|wirex).com
+http://immunix.org/~greg
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

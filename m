@@ -1,29 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265253AbUEZF1g@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265254AbUEZFlN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265253AbUEZF1g (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 26 May 2004 01:27:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265254AbUEZF1g
+	id S265254AbUEZFlN (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 26 May 2004 01:41:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265255AbUEZFlN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 26 May 2004 01:27:36 -0400
-Received: from gizmo10ps.bigpond.com ([144.140.71.20]:17130 "HELO
-	gizmo10ps.bigpond.com") by vger.kernel.org with SMTP
-	id S265253AbUEZF1f (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 26 May 2004 01:27:35 -0400
-Subject: Re: [Fwd: Re: drivers DB and id/ info registration]
-From: Zenaan Harkness <zen@freedbms.net>
+	Wed, 26 May 2004 01:41:13 -0400
+Received: from mail013.syd.optusnet.com.au ([211.29.132.67]:13235 "EHLO
+	mail013.syd.optusnet.com.au") by vger.kernel.org with ESMTP
+	id S265254AbUEZFlL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 26 May 2004 01:41:11 -0400
+From: "Cef (LKML)" <cef-lkml@optusnet.com.au>
 To: linux-kernel@vger.kernel.org
-In-Reply-To: <1085548092.2909.60.camel@zen8100a.freedbms.net>
+Subject: Re: [Fwd: Re: drivers DB and id/ info registration]
+Date: Wed, 26 May 2004 15:42:19 +1000
+User-Agent: KMail/1.6.2
+Cc: Zenaan Harkness <zen@freedbms.net>,
+       "debian-devel@lists.debian.org" <debian-devel@lists.debian.org>
 References: <1085548092.2909.60.camel@zen8100a.freedbms.net>
-Content-Type: text/plain
+In-Reply-To: <1085548092.2909.60.camel@zen8100a.freedbms.net>
+MIME-Version: 1.0
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-Message-Id: <1085549172.2915.62.camel@zen8100a.freedbms.net>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Wed, 26 May 2004 15:26:13 +1000
+Message-Id: <200405261542.20049.cef-lkml@optusnet.com.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Please CC me.
+On Wed, 26 May 2004 15:08, Zenaan Harkness wrote:
+> I think we need to somehow make it easy for manufacturers to submit
+> information about their hardware - something centralized, kernel- and
+> distro- neutral, that can be widely advertised to manufacturers.
 
-thanks
-zen
+Somewhere that gathers all these sites together in one place (at least) is a 
+good idea.
+
+> Firewire
+> ==============================
+> Can't readily find anything with google.
+
+There is a Hardware Compatibility list on http://linux1394.org that allows you 
+to add devices ( http://linux1394.org/hcl.php ).
+
+-- 
+ Stuart Young (aka Cef)
+ cef-lkml@optusnet.com.au is for LKML and related email only

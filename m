@@ -1,40 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id <S129971AbQKXJVh>; Fri, 24 Nov 2000 04:21:37 -0500
+        id <S132519AbQKXJW2>; Fri, 24 Nov 2000 04:22:28 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-        id <S132285AbQKXJV2>; Fri, 24 Nov 2000 04:21:28 -0500
-Received: from cs.columbia.edu ([128.59.16.20]:24824 "EHLO cs.columbia.edu")
-        by vger.kernel.org with ESMTP id <S129971AbQKXJVK>;
-        Fri, 24 Nov 2000 04:21:10 -0500
-Date: Fri, 24 Nov 2000 00:51:05 -0800 (PST)
-From: Ion Badulescu <ionut@cs.columbia.edu>
-To: "Mohammad A. Haque" <mhaque@haque.net>
-cc: Guest section DW <dwguest@win.tue.nl>, linux-kernel@vger.kernel.org
-Subject: Re: ext2 filesystem corruptions back from dead? 2.4.0-test11
-In-Reply-To: <3A1DFDED.1C37EA7C@haque.net>
-Message-ID: <Pine.LNX.4.21.0011240047520.16450-100000@age.cs.columbia.edu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+        id <S132517AbQKXJWS>; Fri, 24 Nov 2000 04:22:18 -0500
+Received: from mehl.gfz-potsdam.de ([139.17.1.100]:57048 "EHLO
+        mehl.gfz-potsdam.de") by vger.kernel.org with ESMTP
+        id <S132285AbQKXJWG>; Fri, 24 Nov 2000 04:22:06 -0500
+Date: Fri, 24 Nov 2000 09:52:00 +0100
+From: Steffen Grunewald <steffen@gfz-potsdam.de>
+To: linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org
+Subject: Re: 2.2.16: How to freeze the kernel
+Message-ID: <20001124095200.H4339@dss19>
+Mail-Followup-To: linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org
+In-Reply-To: <3A1E309C.26058.40EA98@localhost>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+X-Mailer: Mutt 1.0pre3i
+In-Reply-To: <3A1E309C.26058.40EA98@localhost>
+X-Disclaimer: I'm still testing mutt ...
+X-Operating-System: SunOS
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 24 Nov 2000, Mohammad A. Haque wrote:
+On Fri 2000-11-24 (09:10), Ulrich Windl wrote:
+> Hello,
+> 
+> At that point I pressed "RESET", and interestingly the builtin BIOS of 
+> the Adaptec 2740 (EISA) hung while trying to detect the device.
+> 
+> Only after powering down both, the CD writer and the machine (a HP 
+> Netserver LD Pro), the BIOS detected the device again. So I guess 
+> something badly hung...
 
-> Yep. Unless of course they are SCSI with an identity crisis =P
+For bad sector management I use an old EISA 486 also equipped with
+a 2740 card, this one show the same behaviour when I run scsifmt
+under DOS and get an old drive with incorrect termination or a bad
+controller. Have to switch everything off, even the RESET switch
+won't help. I'd blame the BIOS only.
 
-Ok. Are there any IDE-related errors in your logs prior to getting the f/s
-corruption? They could be relevant no matter how much time passed between
-them and the first signs of corruption.
+BTW, the built in SCSI utilities are buggy - one cannot rescan the bus...
 
-Are your drives running with UDMA transfers enabled?
+Are there still upgrades (EISA is meant to be upgradeable) floating
+around?
 
-Thanks,
-Ion
-
+Steffen
 -- 
-  It is better to keep your mouth shut and be thought a fool,
-            than to open it and remove all doubt.
-
+Steffen Grunewald ** GeoForschungsZentrum  Potsdam ** Projektbereich 2.2
+Telegrafenberg E3 ** D-14473  Potsdam ** Germany / Duitsland / Allemagne
+office: steffen(at)gfz-potsdam.de  **  home: steffen.grunewald(at)gmx.de
+  Hi! I'm a .signature virus. Copy me to your sig and help me spread!
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,34 +1,43 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315463AbSEHATe>; Tue, 7 May 2002 20:19:34 -0400
+	id <S315464AbSEHAZQ>; Tue, 7 May 2002 20:25:16 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315467AbSEHATc>; Tue, 7 May 2002 20:19:32 -0400
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:26889 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S315463AbSEHATb>; Tue, 7 May 2002 20:19:31 -0400
-Subject: Re: kbuild 2.5 is ready for inclusion in the 2.5 kernel
-To: kaos@ocs.com.au (Keith Owens)
-Date: Wed, 8 May 2002 01:37:38 +0100 (BST)
-Cc: ionut@cs.columbia.edu (Ion Badulescu), linux-kernel@vger.kernel.org
-In-Reply-To: <2658.1020816607@ocs3.intra.ocs.com.au> from "Keith Owens" at May 08, 2002 10:10:07 AM
-X-Mailer: ELM [version 2.5 PL6]
-MIME-Version: 1.0
+	id <S315467AbSEHAZP>; Tue, 7 May 2002 20:25:15 -0400
+Received: from mailhost.tue.nl ([131.155.2.5]:51639 "EHLO mailhost.tue.nl")
+	by vger.kernel.org with ESMTP id <S315464AbSEHAZP>;
+	Tue, 7 May 2002 20:25:15 -0400
+Date: Wed, 8 May 2002 02:25:13 +0200
+From: Guest section DW <dwguest@win.tue.nl>
+To: Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] 2.5.14 IDE 56
+Message-ID: <20020508002513.GA26150@win.tue.nl>
+In-Reply-To: <5.1.0.14.2.20020507153451.02381ec0@pop.cus.cam.ac.uk> <Pine.LNX.4.44.0205070827050.1343-100000@home.transmeta.com> <20020507162010.GA13032@ravel.coda.cs.cmu.edu> <3CD7F212.5090608@evision-ventures.com> <20020507213603.GA18535@ravel.coda.cs.cmu.edu>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E175FSc-0000WQ-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Disposition: inline
+User-Agent: Mutt/1.3.25i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> >- I think looking for kgcc before gcc is a bad idea. If you really
-> >want something like that, make it look for kgcc-2.5 instead.
+On Tue, May 07, 2002 at 05:36:03PM -0400, Jan Harkes wrote:
+> On Tue, May 07, 2002 at 05:26:10PM +0200, Martin Dalecki wrote:
+> > Uz.ytkownik Jan Harkes napisa?:
+> > >I'm still hoping a patch will show up that will allow me to regain
+> > >access to my compactflash cards and IBM microdrive disks. The code
+> > >currently doesn't rescan for new drives when a card has been inserted,
+> > >although it still seems to have all the necessary logic.
+> > 
+> > Yes I'm fully aware of this, but the whole initialization
+> > is currently much in flux and I will return to this issue back
+> > if I think that things are in shape there. OK?
 > 
-> That came from one of the -ac trees.  No matter which order I use,
-> somebody will want a different order and complain.  At least kbuild 2.5
-> tells you what it is using, instead of silently defaulting to an
-> unexpected value.
+> I thought so, you already indicated so around the time that it broke.
+> There is still a 2.4 kernel when I really need to get to the data.
 
-For 2.2 - for 2.4 using kgcc generally gets you egcs-1.1.2 which tends
-to be a bad idea, and for 2.5 its a no go. I'd drop the kgcc search.
+I usually do
 
-Alan
+	blockdev --rereadpt /dev/sde
+
+or so. That still works for me with 2.5.13.
+
+Andries

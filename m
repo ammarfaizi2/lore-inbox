@@ -1,52 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313571AbSGDUBp>; Thu, 4 Jul 2002 16:01:45 -0400
+	id <S313698AbSGDUTc>; Thu, 4 Jul 2002 16:19:32 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313628AbSGDUBo>; Thu, 4 Jul 2002 16:01:44 -0400
-Received: from 12-231-243-94.client.attbi.com ([12.231.243.94]:24583 "HELO
-	kroah.com") by vger.kernel.org with SMTP id <S313571AbSGDUBn>;
-	Thu, 4 Jul 2002 16:01:43 -0400
-Date: Thu, 4 Jul 2002 13:02:37 -0700
-From: Greg KH <greg@kroah.com>
-To: Arnaldo Carvalho de Melo <acme@conectiva.com.br>,
-       Manfred Spraul <manfred@colorfullife.com>,
-       linux-usb-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: Re: usb storage cleanup
-Message-ID: <20020704200237.GB32526@kroah.com>
-References: <3D236950.5020307@colorfullife.com> <20020703144329.D8033@one-eyed-alien.net> <3D237870.7010600@colorfullife.com> <20020703170521.E8033@one-eyed-alien.net> <3D248208.4060500@colorfullife.com> <20020704125012.C17360@one-eyed-alien.net> <20020704195432.GD7534@conectiva.com.br>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20020704195432.GD7534@conectiva.com.br>
-User-Agent: Mutt/1.4i
-X-Operating-System: Linux 2.2.21 (i586)
-Reply-By: Thu, 06 Jun 2002 18:51:09 -0700
+	id <S313743AbSGDUTb>; Thu, 4 Jul 2002 16:19:31 -0400
+Received: from mta6.snfc21.pbi.net ([206.13.28.240]:50579 "EHLO
+	mta6.snfc21.pbi.net") by vger.kernel.org with ESMTP
+	id <S313698AbSGDUSh>; Thu, 4 Jul 2002 16:18:37 -0400
+Date: Thu, 04 Jul 2002 13:23:54 -0700
+From: David Brownell <david-b@pacbell.net>
+Subject: Re: [linux-usb-devel] Re: usb storage cleanup
+To: Matthew Dharm <mdharm-kernel@one-eyed-alien.net>
+Cc: Manfred Spraul <manfred@colorfullife.com>,
+       linux-usb-devel@lists.sourceforge.net, greg@kroah.com,
+       linux-kernel@vger.kernel.org
+Message-id: <3D24AEDA.9090100@pacbell.net>
+MIME-version: 1.0
+Content-type: text/plain; charset=us-ascii; format=flowed
+Content-transfer-encoding: 7BIT
+X-Accept-Language: en-us, en, fr
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.9) Gecko/20020513
+References: <3D236950.5020307@colorfullife.com>
+ <20020703144329.D8033@one-eyed-alien.net> <3D237870.7010600@colorfullife.com>
+ <20020703170521.E8033@one-eyed-alien.net> <3D248208.4060500@colorfullife.com>
+ <20020704125012.C17360@one-eyed-alien.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jul 04, 2002 at 04:54:32PM -0300, Arnaldo Carvalho de Melo wrote:
-> Em Thu, Jul 04, 2002 at 12:50:12PM -0700, Matthew Dharm escreveu:
-> > > > Because relying on a pointer has caused problems in the past, especially
-> > > > when there are concerns that the pointer might be invalid.
+>>Test case: user pulls out the usb cable while a transfer is in progress. 
+>>urb submitted to the device, reply not yet received.
+>>Result: storage_disconnect() would hang for 20 seconds until 
+>>command_abort() is called.
 > 
-> > > Could you explain a bit more? How could the pointer become invalid?
->  
-> > There was a large discussion of this in relation to another driver on
-> > linux-usb-devel... basically, the pointer is just an address to a structure
-> > owned by an HCD... it's entirely possible for the structure to go away on
-> > us unexpectedly.  We _should_ get the notification via the _disconnect()
-> > call, but real-world experience showed us that this wasn't always
-> > happening.
 > 
-> Humm, I believed that USB was using refcounting
+> No, not quite.   The HCD accelerates the URBs to completion if the device
+> is removed with an URB pending on it.  It therefore shouldn't hang for the
+> timeout -- if you're seeing this behavior, then the HCD is broken.
 
-Parts of it is, parts aren't :(
+Actually all of the interesting work is triggered by khubd,
+and then the device driver.
 
-Soon, due to the struct device and struct driver conversion everything
-should be properly reference counted.  But I'm not really aware of the
-problem that Matt is referring to.  Matt, what structure is
-disappearing?
+Khubd calls usb_disconnect() for the device.  That disconnects
+each driver (which is supposed to wait until all urbs it's
+submitted have completed, and not submit any more URBS).
 
-thanks,
+Only at the very end of this does the HCD hear anything about
+devices going away.  If there's any URB still submitted at that
+point it's not a bug in the HCD at all ... but in a device
+driver that didn't implement disconnect() correctly.
 
-greg k-h
+- Dave
+
+
+
+

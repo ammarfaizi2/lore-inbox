@@ -1,66 +1,99 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313311AbSDESrD>; Fri, 5 Apr 2002 13:47:03 -0500
+	id <S313497AbSDETNN>; Fri, 5 Apr 2002 14:13:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313452AbSDESqy>; Fri, 5 Apr 2002 13:46:54 -0500
-Received: from mail.webmaster.com ([216.152.64.131]:18652 "EHLO
-	shell.webmaster.com") by vger.kernel.org with ESMTP
-	id <S313311AbSDESqm>; Fri, 5 Apr 2002 13:46:42 -0500
-From: "David Schwartz" <davids@webmaster.com>
-To: "Alan Cox" <alan@lxorguk.ukuu.org.uk>
-Cc: "Tigran Aivazian" <tigran@aivazian.fsnet.co.uk>,
-        <linux-kernel@vger.kernel.org>
-Subject: RE: [PATCH 2.5.5] do export vmalloc_to_page to modules...
-Date: Fri, 5 Apr 2002 10:46:39 -0800
-Message-ID: <NOEJJDACGOHCKNCOGFOMIEFBEAAA.davids@webmaster.com>
+	id <S313496AbSDETND>; Fri, 5 Apr 2002 14:13:03 -0500
+Received: from e34.co.us.ibm.com ([32.97.110.132]:50131 "EHLO
+	e34.co.us.ibm.com") by vger.kernel.org with ESMTP
+	id <S313492AbSDETMy>; Fri, 5 Apr 2002 14:12:54 -0500
+Message-ID: <3CADF6E0.6060402@us.ibm.com>
+Date: Fri, 05 Apr 2002 11:11:28 -0800
+From: Dave Hansen <haveblue@us.ibm.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.9+) Gecko/20020405
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2911.0)
-X-MIMEOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
-In-Reply-To: <E16tT8S-0008Ej-00@the-village.bc.nu>
-Importance: Normal
+To: andreas.bombe@munich.netsurf.de
+CC: linux1394-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
+Subject: [PATCH] remove BKL from ieee1394_core release function
+Content-Type: multipart/mixed;
+ boundary="------------030200010406050403090705"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+This is a multi-part message in MIME format.
+--------------030200010406050403090705
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 
-> > Do you really want to argue that someone can add a digital
-> > rights management
-> > system into a GPL'd product, distribute it, and nobody else can
-> > modify that
-> > digital rights management system?
+I produced a similar patch for 2.5 which I discussed on the ieee1394 
+mailing list a few weeks ago.  We decided that this was a safe and 
+BKL-free approach.  Here is a patch to do the same thing for 2.4.19-pre6.
 
-> Thats not what I said.
+Please forward on to Marcello.
 
-	It is precisely the principle you are defending.
+-- 
+Dave Hansen
+haveblue@us.ibm.com
 
-> The GPL protects your right to do certain things to a work. A
-> digital rights
-> mechanism that does not prevent anything the GPL permits doesn't
-> clash with
-> the GPL. In other words it can enforce the GPL, it cannot enforce anything
-> further.
+--------------030200010406050403090705
+Content-Type: text/plain;
+ name="ieee1394_core-bkl_remove-2.4.19-pre6.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="ieee1394_core-bkl_remove-2.4.19-pre6.patch"
 
-	The GPL permits you to modify and use GPL'd code however you wish provided
-you don't distribute it. The GPL permits you to modify, use, and distribute
-GPL'd code however you like provided you make the source available.
+--- linux-2.4.19-pre6-clean/drivers/ieee1394/ieee1394_core.c	Fri Apr  5 09:37:37 2002
++++ linux/drivers/ieee1394/ieee1394_core.c	Fri Apr  5 10:51:46 2002
+@@ -906,17 +906,16 @@
+ 
+ 	/* printk("ieee1394_dispatch_open(%d)", blocknum); */
+ 
+-	/* lock the whole kernel here, to prevent a driver from
+-	   being unloaded between the file_ops lookup and the open */
+-
+-	lock_kernel();
+-
+ 	read_lock(&ieee1394_chardevs_lock);
+-	file_ops = ieee1394_chardevs[blocknum].file_ops;
+ 	module = ieee1394_chardevs[blocknum].module;
++	/* bump the reference count of the driver that
++	   will receive the open() */
++	INCREF(module);
++	file_ops = ieee1394_chardevs[blocknum].file_ops;
+ 	read_unlock(&ieee1394_chardevs_lock);
+ 
+ 	if(file_ops == NULL) {
++		DECREF(module);
+ 		goto out_fail;
+ 	}
+ 
+@@ -924,10 +923,6 @@
+ 	   own file_operations */
+ 	file->f_op = file_ops;
+ 
+-	/* bump the reference count of the driver that
+-	   will receive the open() */
+-	INCREF(module);
+-	
+ 	/* at this point BOTH ieee1394 and the task-specific driver have
+ 	   an extra reference */
+ 
+@@ -956,7 +951,6 @@
+ 		   and will be dropped by the VFS when the file is
+ 		   released. */
+ 		
+-		unlock_kernel();
+ 		return 0;
+ 	}
+ 	       
+@@ -966,7 +960,6 @@
+ 	   function returns. */
+ 	
+ 	file->f_op = &ieee1394_chardev_ops;
+-	unlock_kernel();
+ 	return retval;
+ 
+ #undef INCREF
 
-> > =09You're out of your mind on this one. The GPL gives you the right=
-> >  to modify
-
-> No you just aren't thinking about the larger picture
-
-	You are not thinking in principles. A GPL'd package with a digital rights
-management scheme you are prohibited from modifying is an abomination to the
-principles the GPL was supposed to stand for. This is not free as in
-freedom.
-
-	If the free software people will sacrifice freedom in exchange for coerced
-openness, then someone else will have to stand for freedom.
-
-	DS
-
+--------------030200010406050403090705--
 

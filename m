@@ -1,70 +1,77 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266700AbUAWVc5 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 23 Jan 2004 16:32:57 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266702AbUAWVc5
+	id S266695AbUAWVhQ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 23 Jan 2004 16:37:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266696AbUAWVhQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 23 Jan 2004 16:32:57 -0500
-Received: from delerium.codemonkey.org.uk ([81.187.208.145]:28588 "EHLO
-	delerium.codemonkey.org.uk") by vger.kernel.org with ESMTP
-	id S266700AbUAWVc4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 23 Jan 2004 16:32:56 -0500
-Date: Fri, 23 Jan 2004 21:31:35 +0000
-From: Dave Jones <davej@redhat.com>
-To: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       torvalds@osdl.org
-Subject: Re: DMI updates from 2.4
-Message-ID: <20040123213135.GA26776@redhat.com>
-Mail-Followup-To: Dave Jones <davej@redhat.com>,
-	Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-	torvalds@osdl.org
-References: <E1Ajuub-0000x4-00@hardwired> <20040122233734.3ffe096b.akpm@osdl.org> <20040123074856.GH9327@redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040123074856.GH9327@redhat.com>
-User-Agent: Mutt/1.4.1i
+	Fri, 23 Jan 2004 16:37:16 -0500
+Received: from mail1.nmu.edu ([198.110.192.44]:1541 "EHLO mail1.nmu.edu")
+	by vger.kernel.org with ESMTP id S266695AbUAWVhL (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 23 Jan 2004 16:37:11 -0500
+Message-ID: <40119EC6.9010803@nmu.edu>
+Date: Fri, 23 Jan 2004 17:23:02 -0500
+From: Randy Appleton <rappleto@nmu.edu>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030703
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Nick Piggin <piggin@cyberone.com.au>
+CC: Bill Davidsen <davidsen@tmr.com>, linux-kernel@vger.kernel.org
+Subject: Re: Unneeded Code Found??
+References: <3FFF3931.4030202@nmu.edu> <4006B998.5040403@tmr.com> <400B2BCF.7090003@nmu.edu> <400B7100.7090600@cyberone.com.au>
+In-Reply-To: <400B7100.7090600@cyberone.com.au>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jan 23, 2004 at 07:48:57AM +0000, Dave Jones wrote:
- > On Thu, Jan 22, 2004 at 11:37:34PM -0800, Andrew Morton wrote:
- >  > davej@redhat.com wrote:
- >  > >
- >  > > +static __init int apm_is_horked_d850md(struct dmi_blacklist *d)
- >  > 
- >  > this new function is unreferenced.
- > 
- > ok, I'll chase that one down later.
+Nick Piggin wrote:
 
-fix0red..
+>>> Randy Appleton wrote:
+>>>
+>>>> I think I have found some useless code in the Linux kernel
+>>>> in the block request functions.
+>>>>                                                                                         
+>>>>
+>>>> I have modified the __make_request function in ll_rw_blk.c.
+>>>> Now every request for a block off the hard drive is logged.
+>>>>                                                                                         
+>>>>
+>>>> The function __make_request has code to attempt to merge the current
+>>>> block request with some contigious existing request for better
+>>>> performance. This merge function keeps a one-entry cache pointing 
+>>>> to the
+>>>> last block request made.  An attempt is made to merge the current
+>>>> request with the last request, and if that is not possible then
+>>>> a search of the whole queue is done, looking at merger possibililites.
+>>>>                                                                                         
+>>>>
+>>>> Looking at the data from my logs, I notice that over 50% of all 
+>>>> requests
+>>>> can be merged.  However, a merge only ever happens between the
+>>>> current request and the previous one.  It never happens between the
+>>>> current request and any other request that might be in the queue (for
+>>>> more than 50,000 requests examined).
+>>>>                                                                                         
+>>>>
+>>>> This is true for several test runs, including "daily usage" and doing
+>>>> two kernel compiles at the same time.  I have only tested on a
+>>>> single-CPU machine.
+>>>>
+>> Does anyone know that this code is actualy useful?  Has anyone ever 
+>> seen it actually do a merge of consecutive
+>> data accesses for requests that were not issued themselves 
+>> consequtively?
+>>
+> Yes it gets used.
+>
+> I think its a lot more common with direct io and when you have lots of
+> processes.
 
-Made to match that in 2.4
+I'm not arguing, but how do you know this?  I'm trying to convince 
+myself that the code is used, and at least on my system
+a few days of general use, followed by heavy parallel compiles, doesn't 
+use the code even once.
 
-		Dave
+I have not tested direct I/O.  Otherwise it looks unused.
 
-# This is a BitKeeper generated patch for the following project:
-# Project Name: Linux kernel tree
-# This patch format is intended for GNU patch command version 2.5 or higher.
-# This patch includes the following deltas:
-#	           ChangeSet	1.1153  -> 1.1154 
-#	arch/i386/kernel/dmi_scan.c	1.48    -> 1.49   
-#
-# The following is the BitKeeper ChangeSet Log
-# --------------------------------------------
-# 04/01/23	davej@redhat.com	1.1154
-# wire up dmi string
-# --------------------------------------------
-#
-diff -Nru a/arch/i386/kernel/dmi_scan.c b/arch/i386/kernel/dmi_scan.c
---- a/arch/i386/kernel/dmi_scan.c	Fri Jan 23 21:30:50 2004
-+++ b/arch/i386/kernel/dmi_scan.c	Fri Jan 23 21:30:50 2004
-@@ -660,7 +660,7 @@
- 			MATCH(DMI_BIOS_VERSION, "Version1.01"),
- 			NO_MATCH, NO_MATCH,
- 			} },
--	{ apm_is_horked, "Intel D850MD", { /* APM crashes */
-+	{ apm_is_horked_d850md, "Intel D850MD", { /* APM crashes */
- 			MATCH(DMI_BIOS_VENDOR, "Intel Corp."),
- 			MATCH(DMI_BIOS_VERSION, "MV85010A.86A.0016.P07.0201251536"),
- 			NO_MATCH, NO_MATCH,

@@ -1,62 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265395AbUITBpU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265331AbUITCQZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265395AbUITBpU (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 19 Sep 2004 21:45:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265331AbUITBpU
+	id S265331AbUITCQZ (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 19 Sep 2004 22:16:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265487AbUITCQZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 19 Sep 2004 21:45:20 -0400
-Received: from pauli.thundrix.ch ([213.239.201.101]:21723 "EHLO
-	pauli.thundrix.ch") by vger.kernel.org with ESMTP id S265395AbUITBpO
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 19 Sep 2004 21:45:14 -0400
-Date: Mon, 20 Sep 2004 03:42:31 +0200
-From: Tonnerre <tonnerre@thundrix.ch>
-To: Max Valdez <maxvalde@fis.unam.mx>
-Cc: Geert Uytterhoeven <geert@linux-m68k.org>,
-       Linux Kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: [OT] pmac: don't =?iso-8859-1?Q?add_?=
-	=?iso-8859-1?B?IrBDIg==?= suffix in sys for adt746x driver
-Message-ID: <20040920014231.GA1924@thundrix.ch>
-References: <1095401127.5105.73.camel@gaston> <Pine.GSO.4.58.0409171249500.19914@waterleaf.sonytel.be> <200409181809.46323.maxvalde@fis.unam.mx>
+	Sun, 19 Sep 2004 22:16:25 -0400
+Received: from main.gmane.org ([80.91.229.2]:1261 "EHLO main.gmane.org")
+	by vger.kernel.org with ESMTP id S265331AbUITCQY (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 19 Sep 2004 22:16:24 -0400
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: "Alexander E. Patrakov" <patrakov@ums.usu.ru>
+Subject: Re: udev is too slow creating devices
+Date: Mon, 20 Sep 2004 08:16:40 +0600
+Message-ID: <cilehj$9g4$1@sea.gmane.org>
+References: <20040914213506.GA22637@kroah.com> <20040914214552.GA13879@wonderland.linux.it> <20040914215122.GA22782@kroah.com> <20040914224731.GF3365@dualathlon.random> <20040914230409.GA23474@kroah.com> <414849CE.8080708@debian.org> <1095258966.18800.34.camel@icampbell-debian> <20040915152019.GD24818@thundrix.ch> <4148637F.9060706@debian.org> <20040915185116.24fca912.Ballarin.Marc@gmx.de> <20040915180056.GA23257@kroah.com> <pan.2004.09.19.18.53.14.171322@dungeon.inka.de>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="Q68bSM7Ycu6FN28Q"
-Content-Disposition: inline
-In-Reply-To: <200409181809.46323.maxvalde@fis.unam.mx>
-X-GPG-KeyID: 0x8BE1C38D
-X-GPG-Fingerprint: 1AB0 9AD6 D0C8 B9D5 C5C9  9C2A FF86 CBEE 8BE1 C38D
-X-GPG-KeyURL: http://users.thundrix.ch/~tonnerre/tonnerre.asc
-User-Agent: Mutt/1.5.6+20040803i
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Complaints-To: usenet@sea.gmane.org
+X-Gmane-NNTP-Posting-Host: dsa.physics.usu.ru
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040121
+X-Accept-Language: en-us, en
+In-Reply-To: <pan.2004.09.19.18.53.14.171322@dungeon.inka.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Andreas Jellinghaus wrote:
+> Also I wonder how dm works: will dmsetup create the /dev inode
+> itself, or use udev to do that? would I need the sleep/loop 
+> in a script creating device mappings to wait for the inode?
 
---Q68bSM7Ycu6FN28Q
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+You can safely tell udev to ignore dm devices, if you use LVM or EVMS. 
+It almost always creates them under the wrong directory and with wrong 
+name anyway. Correcting this means just duplicating LVM/EVMS 
+configuration in udev rules. Better leave this task of dm node creation 
+to dmsetup and related tools.
 
-Salut,
+-- 
+Alexander E. Patrakov
 
-On Sat, Sep 18, 2004 at 06:09:46PM -0500, Max Valdez wrote:
-> > Universal temperature, in K? And you'll never ever see negative numbers ;-)
-> It's called Absolute Temperature, (Kelvins for thos who dont know) :-)
-
-Or degree of Brownian Movement.  Absolute temperature is not really an
-unique identifier.
-
-				Tonnerre
-
---Q68bSM7Ycu6FN28Q
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.9.2 (GNU/Linux)
-
-iD8DBQFBTjWH/4bL7ovhw40RAl0pAKCf5GWYJYHCPPvEfsrUE8fPJ+nHLQCfb1jc
-Ni/WcBaEXU8kWkMewTPugw0=
-=tj0c
------END PGP SIGNATURE-----
-
---Q68bSM7Ycu6FN28Q--

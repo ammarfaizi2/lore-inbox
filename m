@@ -1,100 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S270797AbRHSVXo>; Sun, 19 Aug 2001 17:23:44 -0400
+	id <S270800AbRHSVZE>; Sun, 19 Aug 2001 17:25:04 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S270708AbRHSVXY>; Sun, 19 Aug 2001 17:23:24 -0400
-Received: from hall.mail.mindspring.net ([207.69.200.60]:8508 "EHLO
-	hall.mail.mindspring.net") by vger.kernel.org with ESMTP
-	id <S270676AbRHSVXS>; Sun, 19 Aug 2001 17:23:18 -0400
-Message-ID: <3B802776.5F4F39D9@mindspring.com>
-Date: Sun, 19 Aug 2001 13:54:14 -0700
-From: Joe <joeja@mindspring.com>
-Reply-To: joeja@mindspring.com
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.8-ac1 i686)
-X-Accept-Language: en
+	id <S270799AbRHSVYy>; Sun, 19 Aug 2001 17:24:54 -0400
+Received: from [209.202.108.240] ([209.202.108.240]:43791 "EHLO
+	terbidium.openservices.net") by vger.kernel.org with ESMTP
+	id <S270798AbRHSVYr>; Sun, 19 Aug 2001 17:24:47 -0400
+Date: Sun, 19 Aug 2001 17:24:48 -0400 (EDT)
+From: Ignacio Vazquez-Abrams <ignacio@openservices.net>
+To: Otto Wyss <otto.wyss@bluewin.ch>
+cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: Re: Why don't have bits the same rights as humans! (flushing to disk
+ waiting  time)
+In-Reply-To: <3B802B68.ADA545DB@bluewin.ch>
+Message-ID: <Pine.LNX.4.33.0108191723420.4118-100000@terbidium.openservices.net>
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: 2.4.9 compiler warnings & errors NTFS
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-scanner: scanned by Inflex 1.0.7 - (http://pldaniels.com/inflex/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Okay I tried kernel the patch to 2.4.9 (I applied 2.4.8 patch on top of
-a 2.4.7 kernel then 2.4.9 patch).
+On Sun, 19 Aug 2001, Otto Wyss wrote:
 
-The NTFS module wont build in 2.4.9.  It seems that there is a missing
-include file in fs/ntfs/unistr.c .  After I added
+> I recently wrote some small files to the floppy disk and noticed almost nothing
+> happened immediately but after a certain time the floppy actually started
+> writing. So this action took more than 30 seconds instead just a few. This
+> remembered me of the elevator problem in the kernel. To transfer this example
+> into real live: A person who wants to take the elevator has to wait 8 hours
+> before the elevator even starts. While probably everyone agrees this is
+> ridiculous in real live astonishingly nobody complains about it in case of a disk.
 
-#include <linux/fs.h>
+I've found that unmounting the floppy disk flushes it immediately. What
+happens in your case if you unmount it?
 
-to the file it seems to have fixed the problem. (patch at bottom of
-mail)
-
-Joe
-
-The following is the error before I added the include:
-
-make[3]: Circular passthrough.h <- hwaccess.h dependency dropped.
-namei.c: In function `msdos_lookup':
-namei.c:237: warning: implicit declaration of function `fat_brelse'
-namei.c: In function `msdos_add_entry':
-namei.c:266: warning: implicit declaration of function
-`fat_mark_buffer_dirty'
-unistr.c: In function `ntfs_collate_names':
-unistr.c:99: warning: implicit declaration of function `min'
-unistr.c:99: parse error before `unsigned'
-unistr.c:99: parse error before `)'
-unistr.c:97: warning: `c1' might be used uninitialized in this function
-unistr.c: At top level:
-unistr.c:118: parse error before `if'
-unistr.c:123: warning: type defaults to `int' in declaration of `c1'
-unistr.c:123: `name1' undeclared here (not in a function)
-unistr.c:123: warning: data definition has no type or storage class
-unistr.c:124: parse error before `if'
-make[2]: *** [unistr.o] Error 1
-make[1]: *** [_modsubdir_ntfs] Error 2
-make: *** [_mod_fs] Error 2
-cp: cannot stat `ntfs.o': No such file or directory
-
-
-This is the error after I added the include. (It compiled too)
-
-sym53c8xx.c: In function `ncr_soft_reset':
-sym53c8xx.c:6994: warning: `istat' might be used uninitialized in this
-function
-make[3]: Circular passthrough.h <- hwaccess.h dependency dropped.
-namei.c: In function `msdos_lookup':
-namei.c:237: warning: implicit declaration of function `fat_brelse'
-namei.c: In function `msdos_add_entry':
-namei.c:266: warning: implicit declaration of function
-`fat_mark_buffer_dirty'
-dir.c: In function `umsdos_readdir_x':
-dir.c:142: warning: passing arg 3 of `fat_readdir' from incompatible
-pointer type
-dir.c: In function `UMSDOS_readdir':
-dir.c:315: warning: passing arg 5 of `umsdos_readdir_x' from
-incompatible pointer type
-ioctl.c: In function `UMSDOS_ioctl_dir':
-ioctl.c:146: warning: passing arg 3 of `fat_readdir' from incompatible
-pointer type
-rdir.c: In function `UMSDOS_rreaddir':
-rdir.c:70: warning: passing arg 3 of `fat_readdir' from incompatible
-pointer type
-
-################## patch
-
---- fs/ntfs/unistr.c Sun Aug 19 12:31:03 2001
-+++ linux-test/fs/ntfs/unistr.c Sun Aug 19 13:32:46 2001
-@@ -24,6 +24,8 @@
- #include <linux/string.h>
- #include <asm/byteorder.h>
-
-+#include <linux/fs.h>
-+
- #include "unistr.h"
- #include "macros.h"
-
-
+-- 
+Ignacio Vazquez-Abrams  <ignacio@openservices.net>
 
 

@@ -1,42 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262202AbTGFMii (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 6 Jul 2003 08:38:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262254AbTGFMii
+	id S262127AbTGFM7X (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 6 Jul 2003 08:59:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262254AbTGFM7W
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 6 Jul 2003 08:38:38 -0400
-Received: from lns-th2-4f-81-56-217-5.adsl.proxad.net ([81.56.217.5]:61057
-	"EHLO www.certral.com") by vger.kernel.org with ESMTP
-	id S262202AbTGFMih (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 6 Jul 2003 08:38:37 -0400
-Date: Sun, 6 Jul 2003 14:54:18 +0200
-From: FD Cami <francois.cami@free.fr>
-To: Marcelo Tosatti <marcelo@freak.distro.conectiva>
-Cc: linux-kernel@vger.kernel.org
-Subject: [linux-kernel][BUG since 2.4.21] PCM sound volume not working
-Message-Id: <20030706145418.03834818.francois.cami@free.fr>
-X-Mailer: Sylpheed version 0.9.0 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Sun, 6 Jul 2003 08:59:22 -0400
+Received: from web40002.mail.yahoo.com ([66.218.78.20]:58395 "HELO
+	web40002.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S262127AbTGFM7W (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 6 Jul 2003 08:59:22 -0400
+Message-ID: <20030706131354.26756.qmail@web40002.mail.yahoo.com>
+Date: Sun, 6 Jul 2003 06:13:54 -0700 (PDT)
+From: Brad Chapman <jabiru_croc@yahoo.com>
+Subject: Confusion regarding the 2.4 prepatches and snapshots
+To: linux-kernel@vger.kernel.org
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi!
 
-Hello,
+I just noticed that hpa now has a link to a set of 2.4 BitKeeper
+snapshots, just below the link to the 2.4 prepatches. I would just like
+to know why snapshots _and_ prepatches are both being provided ATST,
+and what both sets of kernel patches contain respective to each other.
 
-I'm currently running 2.4.22pre3 and noticed adjusting
-the sound volume using XMMS didn't work anymore (but using
-gnome-1.4's sound-applet works, it controls the Master volume).
+TIA,
 
-Booting back into 2.4.21, I realized it didn't work either...
-Booting back into 2.4.21rc7 solved the problem.
+Brad Chapman
 
-XMMS is set to use OSS (not ESD), and volume controls PCM, not
-Master.
-
-I'm currently not subscribed to linux-kernel@vger.kernel.org due to
-a mail server problem, please CC me.
-
-FD Cami
- 
+__________________________________
+Do you Yahoo!?
+SBC Yahoo! DSL - Now only $29.95 per month!
+http://sbc.yahoo.com

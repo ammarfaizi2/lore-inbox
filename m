@@ -1,85 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264095AbUKZUyO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264104AbUKZU5O@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264095AbUKZUyO (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 26 Nov 2004 15:54:14 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264069AbUKZUrO
+	id S264104AbUKZU5O (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 26 Nov 2004 15:57:14 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264090AbUKZU4K
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 26 Nov 2004 15:47:14 -0500
-Received: from H190.C26.B96.tor.eicat.ca ([66.96.26.190]:50401 "EHLO
-	moraine.clusterfs.com") by vger.kernel.org with ESMTP
-	id S264016AbUKZUYe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 26 Nov 2004 15:24:34 -0500
-Date: Fri, 26 Nov 2004 13:24:31 -0700
-From: Andreas Dilger <adilger@clusterfs.com>
-To: Jeff Garzik <jgarzik@pobox.com>
-Cc: Jesper Juhl <juhl-lkml@dif.dk>, linux-kernel@vger.kernel.org,
-       akpm@osdl.org
-Subject: Re: Any reason why we don't initialize all members of struct Xgt_desc_struct in doublefault.c ?
-Message-ID: <20041126202431.GL23661@schnapps.adilger.int>
-Mail-Followup-To: Jeff Garzik <jgarzik@pobox.com>,
-	Jesper Juhl <juhl-lkml@dif.dk>, linux-kernel@vger.kernel.org,
-	akpm@osdl.org
-References: <Pine.LNX.4.61.0411250011160.3447@dragon.hygekrogen.localhost> <41A7483F.9010302@pobox.com>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="+svXpSx+RSEd8UhP"
-Content-Disposition: inline
-In-Reply-To: <41A7483F.9010302@pobox.com>
-User-Agent: Mutt/1.4.1i
-X-GPG-Key: 1024D/0D35BED6
-X-GPG-Fingerprint: 7A37 5D79 BF1B CECA D44F  8A29 A488 39F5 0D35 BED6
+	Fri, 26 Nov 2004 15:56:10 -0500
+Received: from imap.gmx.net ([213.165.64.20]:29612 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S264107AbUKZUwE (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 26 Nov 2004 15:52:04 -0500
+Date: Thu, 25 Nov 2004 13:45:24 +0100 (MET)
+From: "Michael Kerrisk" <mtk-lkml@gmx.net>
+To: Rik van Riel <riel@redhat.com>
+Cc: hugh@veritas.com, chrisw@osdl.org, manfred@colorfullife.com,
+       torvalds@osdl.org, akpm@osdl.org, michael.kerrisk@gmx.net,
+       linux-kernel@vger.kernel.org
+MIME-Version: 1.0
+References: <Pine.LNX.4.61.0411250639530.10497@chimarrao.boston.redhat.com>
+Subject: Re: Further shmctl() SHM_LOCK strangeness
+X-Priority: 3 (Normal)
+X-Authenticated: #23581172
+Message-ID: <13535.1101386724@www65.gmx.net>
+X-Mailer: WWW-Mail 1.6 (Global Message Exchange)
+X-Flags: 0001
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Rik,
 
---+svXpSx+RSEd8UhP
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+> On Thu, 25 Nov 2004, Michael Kerrisk wrote:
+> 
+> > As noted by Hugh, the problem also applies for
+> > SHM_UNLOCK: anyone can unlock any System V shared
+> > memory segment.  If our reason for locking memory
+> > was security (no swapping), then this does allow
+> > for exploits.
+> 
+> Good point.  I guess that for SHM_UNLOCK operations
+> we need to check for either:
+> 
+> 1) current->user is the same user who SHM_LOCKed the
+>     segment in question
 
-On Nov 26, 2004  10:14 -0500, Jeff Garzik wrote:
-> Jesper Juhl wrote:
-> >Yes, this is nitpicking, but I just can't leave small corners like this=
-=20
-> >unpolished ;)
-> >
-> >in arch/i386/kernel/doublefault.c you will find this (line 20) :
-> >
-> >struct Xgt_desc_struct gdt_desc =3D {0, 0};
-> >
-> >but, struct Xgt_desc_struct has 3 members,=20
-> >
-> >struct Xgt_desc_struct {
-> >        unsigned short size;
-> >        unsigned long address __attribute__((packed));
-> >        unsigned short pad;
-> >} __attribute__ ((packed));
-> >
-> >so why only initialize two of them explicitly?
->=20
-> 'pad' is a dummy variable... nobody cares about its value.
+I don't think this is sufficient -- there must
+be protection against arbitrary SHM_LOCKs.
 
-Also, for struct initializations if you don't specify a field explicitly
-it will be initialized to zero anyways, so even "gdt_desc =3D { }" is enough
-in this case to initialize all of the fields to zero.
+> or
+> 
+> 2) the process has the correct capabilities set
 
-Cheers, Andreas
---
-Andreas Dilger
-http://sourceforge.net/projects/ext2resize/
-http://members.shaw.ca/adilger/             http://members.shaw.ca/golinux/
+How about the following:
 
+For *both* SHM_LOCK and SHM_UNLOCK, the process should either 
+be the owner or the creator of the object or have the 
+CAP_IPC_LOCK capability.
 
---+svXpSx+RSEd8UhP
-Content-Type: application/pgp-signature
-Content-Disposition: inline
+Note the following:
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.3 (GNU/Linux)
+1. SHM_LOCK should be covered so that a process with a high
+   RLIMIT_MEMLOCK is allowed to lock arbitrary segments 
+   that it  doesn't own.
 
-iD8DBQFBp5D/pIg59Q01vtYRAlrwAJ9IyF/biou63BZLDPRDkiMa9HiSAgCgw6Fq
-7vASAWRdQ+C+4xZKIBxgthk=
-=FTZ8
------END PGP SIGNATURE-----
+2. A framework like the above is consistent with the 
+   semantics of the existing shmctl() IPC_SET and IPC_RMID
+   operations (see the shmctl(2) man page).
 
---+svXpSx+RSEd8UhP--
+Cheers,
+
+Michael
+
+-- 
+Geschenkt: 3 Monate GMX ProMail + 3 Top-Spielfilme auf DVD
+++ Jetzt kostenlos testen http://www.gmx.net/de/go/mail ++

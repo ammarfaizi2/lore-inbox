@@ -1,57 +1,86 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262236AbVBKOpj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262250AbVBKOwd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262236AbVBKOpj (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 11 Feb 2005 09:45:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262250AbVBKOpj
+	id S262250AbVBKOwd (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 11 Feb 2005 09:52:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262253AbVBKOwc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 11 Feb 2005 09:45:39 -0500
-Received: from mx1.redhat.com ([66.187.233.31]:7043 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S262236AbVBKOpZ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 11 Feb 2005 09:45:25 -0500
-From: David Howells <dhowells@redhat.com>
-To: torvalds@osdl.org, akpm@osdl.org
-cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] FRV: Fix sigaltstack handling for RT signals
-X-Mailer: MH-E 7.82; nmh 1.0.4; GNU Emacs 21.3.50.1
-Date: Fri, 11 Feb 2005 14:45:19 +0000
-Message-ID: <10374.1108133119@redhat.com>
+	Fri, 11 Feb 2005 09:52:32 -0500
+Received: from RT-soft-2.Moscow.itn.ru ([80.240.96.70]:55731 "HELO
+	mail.dev.rtsoft.ru") by vger.kernel.org with SMTP id S262250AbVBKOw1
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 11 Feb 2005 09:52:27 -0500
+Message-ID: <420CC8E3.8060007@ru.mvista.com>
+Date: Fri, 11 Feb 2005 18:01:55 +0300
+From: Andrei Konovalov <akonovalov@ru.mvista.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20030225
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: akpm@osdl.org
+CC: linux-kernel@vger.kernel.org, linuxppc-embedded@ozlabs.org
+Subject: [PATCH][PPC32] Fix typos in cpm_uart_cpm2.c
+Content-Type: multipart/mixed;
+ boundary="------------060505010008020009000003"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+This is a multi-part message in MIME format.
+--------------060505010008020009000003
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 
-The attached patch fixes sigaltstack handling for RT signal return. It was
-reading a userspace struct into kernel space and then passing the kernel copy
-to a generic signalling routine which then assumed it had been passed a
-userspace pointer...
+This patch applies to the kernel 2.6.11-rc3 and removes
+excess '~' before the bit masks.
 
-Signed-Off-By: David Howells <dhowells@redhat.com>
-Signed-Off-By: Alexander Viro <aviro@redhat.com>
----
-warthog>diffstat frv-sigaltstk-2611rc3.diff 
- signal.c |   11 +----------
- 1 files changed, 1 insertion(+), 10 deletions(-)
+Signed-off-by: Andrei Konovalov <akonovalov@ru.mvista.com>
 
-diff -uNrp /warthog/kernels/linux-2.6.11-rc3/arch/frv/kernel/signal.c linux-2.6.11-rc3-frv/arch/frv/kernel/signal.c
---- /warthog/kernels/linux-2.6.11-rc3/arch/frv/kernel/signal.c	2005-02-04 11:49:30.000000000 +0000
-+++ linux-2.6.11-rc3-frv/arch/frv/kernel/signal.c	2005-02-11 12:46:40.369651032 +0000
-@@ -242,18 +242,9 @@ asmlinkage int sys_rt_sigreturn(void)
- 	if (restore_sigcontext(&frame->uc.uc_mcontext, &gr8))
- 		goto badframe;
+
+
+--------------060505010008020009000003
+Content-Type: text/plain;
+ name="cpm2uart.diff"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="cpm2uart.diff"
+
+diff -uprN a/drivers/serial/cpm_uart/cpm_uart_cpm2.c b/drivers/serial/cpm_uart/cpm_uart_cpm2.c
+--- a/drivers/serial/cpm_uart/cpm_uart_cpm2.c	2005-02-11 17:20:45.000000000 +0300
++++ b/drivers/serial/cpm_uart/cpm_uart_cpm2.c	2005-02-11 17:26:45.000000000 +0300
+@@ -127,7 +127,7 @@ void scc1_lineif(struct uart_cpm_port *p
+ 	io->iop_pdird |= 0x00000002;	/* Tx */
  
--	if (__copy_from_user(&st, &frame->uc.uc_stack, sizeof(st)))
-+	if (do_sigaltstack(&frame->uc.uc_stack, NULL, __frame->sp) == -EFAULT)
- 		goto badframe;
+ 	/* Wire BRG1 to SCC1 */
+-	cpm2_immr->im_cpmux.cmx_scr &= ~0x00ffffff;
++	cpm2_immr->im_cpmux.cmx_scr &= 0x00ffffff;
+ 	cpm2_immr->im_cpmux.cmx_scr |= 0x00000000;
+ 	pinfo->brg = 1;
+ }
+@@ -140,7 +140,7 @@ void scc2_lineif(struct uart_cpm_port *p
+ 	io->iop_psorb |= 0x00880000;
+ 	io->iop_pdirb &= ~0x00030000;
+ 	io->iop_psorb &= ~0x00030000;
+-	cpm2_immr->im_cpmux.cmx_scr &= ~0xff00ffff;
++	cpm2_immr->im_cpmux.cmx_scr &= 0xff00ffff;
+ 	cpm2_immr->im_cpmux.cmx_scr |= 0x00090000;
+ 	pinfo->brg = 2;
+ }
+@@ -153,7 +153,7 @@ void scc3_lineif(struct uart_cpm_port *p
+ 	io->iop_psorb |= 0x00880000;
+ 	io->iop_pdirb &= ~0x00030000;
+ 	io->iop_psorb &= ~0x00030000;
+-	cpm2_immr->im_cpmux.cmx_scr &= ~0xffff00ff;
++	cpm2_immr->im_cpmux.cmx_scr &= 0xffff00ff;
+ 	cpm2_immr->im_cpmux.cmx_scr |= 0x00001200;
+ 	pinfo->brg = 3;
+ }
+@@ -167,7 +167,7 @@ void scc4_lineif(struct uart_cpm_port *p
+ 	io->iop_pdird &= ~0x00000200;	/* Rx */
+ 	io->iop_pdird |= 0x00000400;	/* Tx */
  
--	/* It is more difficult to avoid calling this function than to
--	 * call it and ignore errors.  */
--	/*
--	 * THIS CANNOT WORK! "&st" is a kernel address, and "do_sigaltstack()"
--	 * takes a user address (and verifies that it is a user address). End
--	 * result: it does exactly _nothing_.
--	 */
--	do_sigaltstack(&st, NULL, __frame->sp);
--
- 	return gr8;
- 
- badframe:
+-	cpm2_immr->im_cpmux.cmx_scr &= ~0xffffff00;
++	cpm2_immr->im_cpmux.cmx_scr &= 0xffffff00;
+ 	cpm2_immr->im_cpmux.cmx_scr |= 0x0000001b;
+ 	pinfo->brg = 4;
+ }
+
+--------------060505010008020009000003--
+

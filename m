@@ -1,66 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267879AbRG0JbW>; Fri, 27 Jul 2001 05:31:22 -0400
+	id <S267892AbRG0Jfu>; Fri, 27 Jul 2001 05:35:50 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267892AbRG0JbK>; Fri, 27 Jul 2001 05:31:10 -0400
-Received: from cx570538-a.elcjn1.sdca.home.com ([24.5.14.144]:10113 "EHLO
-	localhost.localdomain") by vger.kernel.org with ESMTP
-	id <S267879AbRG0Jau>; Fri, 27 Jul 2001 05:30:50 -0400
-Message-ID: <3B61337C.D48F203A@randomlogic.com>
-Date: Fri, 27 Jul 2001 02:25:16 -0700
-From: "Paul G. Allen" <pgallen@randomlogic.com>
-Organization: Akamai Technologies, Inc.
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.2-2 i686)
-X-Accept-Language: en
+	id <S267899AbRG0Jfk>; Fri, 27 Jul 2001 05:35:40 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:14470 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S267898AbRG0Jf3>;
+	Fri, 27 Jul 2001 05:35:29 -0400
+From: "David S. Miller" <davem@redhat.com>
 MIME-Version: 1.0
-To: Thomas Foerster <puckwork@madz.net>,
-        "kplug-list@kernel-panic.org" <kplug-list@kernel-panic.org>,
-        "kplug-lpsg@kernel-panic.org" <kplug-lpsg@kernel-panic.org>,
-        "Linux kernel developer's mailing list" 
-	<linux-kernel@vger.kernel.org>
-Subject: Re: Linx Kernel Source tree and metrics
-In-Reply-To: <200107270917.f6R9HUt19989@antimatter.net>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-ID: <15201.13760.734675.989919@pizda.ninka.net>
+Date: Fri, 27 Jul 2001 02:34:56 -0700 (PDT)
+To: kuznet@ms2.inr.ac.ru
+Cc: andrea@suse.de (Andrea Arcangeli), linux-kernel@vger.kernel.org
+Subject: Re: 2.4.7 softirq incorrectness.
+In-Reply-To: <200107261746.VAA31697@ms2.inr.ac.ru>
+In-Reply-To: <20010726002357.D32148@athlon.random>
+	<200107261746.VAA31697@ms2.inr.ac.ru>
+X-Mailer: VM 6.75 under 21.1 (patch 13) "Crater Lake" XEmacs Lucid
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
-Thomas Foerster wrote:
-> 
-> Hi,
-> 
-> > For those interested, I have run the kernel (2.4.2-2) through a program
-> > and generated extensive HTML reports including call trees, function and
-> > data declarations, source code, and metrics. I plan to upgrade this to
-> > the latest kernel and keep it up to date (as much as possible :), but I
-> > am a) working with a kernel that I know currently runs on my dual
-> > Athlon, and b) wanted to test this out and run it by the two lists
-> > first.
-> 
-> > The URL is:
-> 
-> > http://24.5.14.144:3000/linux-kernel
-> 
-> [...]
-> 
-> It's forwarded to "127.0.0.1:3000", so no one can connect?! ;-)
-> 
 
-That figures. I'm about ready, to give this router back to my company -
-I've had nothing but trouble since I got it. Things worked better when I
-just used a Linux firewall/router to do all my routing and forwarding.
-Arrgg!!
+kuznet@ms2.inr.ac.ru writes:
+ > So, is plain raising softirq and leaving it raised before return
+ > to normal context not a bug? If so, then no problems.
 
-I'll see if I can make it listen to me and forward to the correct
-internal IP and port. (that's the right port, but the wrong IP by far!
-#8^)
+Do you mean "user context" when you say normal?  Or just arbitrary
+non-interrupt context.  In fact, to me, no specific execution context
+stands out with description of "normal".  All of them are normal
+:-))))
 
+ > > after netif_rx.
+ > 
+ > But why not to do just local_bh_disable(); netif_rx(); local_bh_enable()?
+ > Is this not right?
 
-PGA
+As Jeff mentioned, this is the cure we agreed to in earlier softirq
+postings.
 
--- 
-Paul G. Allen
-UNIX Admin II/Network Security
-Akamai Technologies, Inc.
-www.akamai.com
+The reason I pushed to have netif_FOO use __cpu_raise_softirq() was
+that I felt sick to my stomache when I saw a new whole function call
+added to that spot.  It is one of the most imporant paths in packet
+processing, and it runs regardless of protocol you use (well, except
+perhaps AF_UNIX :-)))
+
+Let us just fix the odd places that aren't calling things in the
+correct environment.
+
+Later,
+David S. Miller
+davem@redhat.com

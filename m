@@ -1,76 +1,78 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264293AbRFGDHg>; Wed, 6 Jun 2001 23:07:36 -0400
+	id <S264298AbRFGDcZ>; Wed, 6 Jun 2001 23:32:25 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264295AbRFGDH0>; Wed, 6 Jun 2001 23:07:26 -0400
-Received: from snowbird.megapath.net ([216.200.176.7]:39697 "EHLO
-	megapathdsl.net") by vger.kernel.org with ESMTP id <S264293AbRFGDHU>;
-	Wed, 6 Jun 2001 23:07:20 -0400
-Subject: Re: Break 2.4 VM in five easy steps
-From: Miles Lane <miles@megapathdsl.net>
-To: Mike "A." Harris <mharris@opensourceadvocate.org>
-Cc: Derek Glidden <dglidden@illusionary.com>,
-        Bill Pringlemeir <bpringle@sympatico.ca>, linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.33.0106062032390.26171-100000@asdf.capslock.lan>
-In-Reply-To: <Pine.LNX.4.33.0106062032390.26171-100000@asdf.capslock.lan>
-Content-Type: text/plain; charset=ISO-8859-1
+	id <S264300AbRFGDcP>; Wed, 6 Jun 2001 23:32:15 -0400
+Received: from pop.gmx.net ([194.221.183.20]:44322 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id <S264298AbRFGDcD>;
+	Wed, 6 Jun 2001 23:32:03 -0400
+Message-ID: <3B1EF86E.9EDE50A7@gmx.de>
+Date: Thu, 07 Jun 2001 05:43:42 +0200
+From: Edgar Toernig <froese@gmx.de>
+MIME-Version: 1.0
+To: Alexander Viro <viro@math.psu.edu>
+CC: Andries.Brouwer@cwi.nl, linux-kernel@vger.kernel.org
+Subject: Re: symlink_prefix
+In-Reply-To: <Pine.GSO.4.21.0106062112340.10233-100000@weyl.math.psu.edu>
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/0.10 (Preview Release)
-Date: 06 Jun 2001 20:13:32 -0700
-Message-Id: <991883613.15447.0.camel@agate>
-Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 06 Jun 2001 20:34:49 -0400, Mike A. Harris wrote:
-> On Wed, 6 Jun 2001, Derek Glidden wrote:
+Alexander Viro wrote:
 > 
-> >>  Derek> overwhelmed.  On the system I'm using to write this, with
-> >>  Derek> 512MB of RAM and 512MB of swap, I run two copies of this
-> >>
-> >> Please see the following message on the kernel mailing list,
-> >>
-> >> 3086:Linus 2.4.0 notes are quite clear that you need at least twice RAM of swap
-> >> Message-Id: <E155bG5-0008AX-00@the-village.bc.nu>
-> >
-> >Yes, I'm aware of this.
-> >
-> >However, I still believe that my original problem report is a BUG.  No
-> >matter how much swap I have, or don't have, and how much is or isn't
-> >being used, running "swapoff" and forcing the VM subsystem to reclaim
-> >unused swap should NOT cause my machine to feign death for several
-> >minutes.
-> >
-> >I can easily take 256MB out of this machine, and then I *will* have
-> >twice as much swap as RAM and I can still cause the exact same
-> >behaviour.
-> >
-> >It's a bug, and no number of times saying "You need twice as much swap
-> >as RAM" will change that fact.
+> On Thu, 7 Jun 2001, Edgar Toernig wrote:
 > 
-> Precicely.  Saying 8x RAM doesn't change it either.  Sometime
-> next week I'm going to purposefully put a new 60Gb disk in on a
-> separate controller as pure swap on top of 256Mb of RAM.  My
-> guess is after bootup, and login, I'll have 48Gb of stuff in
-> swap "just in case".
+> > Alexander Viro wrote:
+> > >         ...
+> > >         dir = open("/usr/local", O_DIRECTORY);
+> > >         /* error handling */
+> > >         new_mount(dir, MNT_SET, fs_fd); /* closes dir and fs_fd */
+> >
+> > Do you really want to start using fds instead of strings for tree
+> > modifying commands (link, unlink, symlink, rename, mount and umount)?
+> > Even if it were possible in the new_mount case it wouldn't have the
+> > atomic lookup+act nature of the old mount.  And then, _I_ would
+> > prefer a uniform interface for tree management commands - strings.
+> 
+> You have exactly the same atomicity warranties. That is to say, none.
+> Mountpoint can be renamed between the lookup and mounting.
 
-Mike and others, I am getting tired of your comments.  Sheesh.  
-The various developers who actually work on the VM have already
-acknowledged the issues and are exploring fixes, including at 
-least one patch that already exists.  It seems clear that the 
-uproar from the people who are having trouble with the new VM's 
-handling of swap space have been heard and folks are going to 
-fix these problems.  It may not happen today or tomorrow, but 
-soon.  What the heck else do you want?
+Ok.  I thought, mounting is an atomic operation (though normally not
+required).  Hmm... but looking at your last batch of VFS patches sent
+to lkml you consider mount a more used call in the future ;-)  Maybe
+it would be better to have some more strict rules for mount if ie each
+login performs a dozen of them...
 
-Making enflammatory remarks about the current situation does 
-nothing to help get the problems fixed, it just wastes our time 
-and bandwidth.
+> Moreover, even after mount(2) you can rename() parent of mountpoint. On
+> all Unices I've seen (well, aside of v7 which didn't have rename(2)).
+> So if you rely on anything of that kind - you are screwed. Portably
+> screwed, at that.
 
-So please, if you have new facts that you want to offer that
-will help us characterize and understand these VM issues better
-or discover new problems, feel free to share them.  But if you
-just want to rant, I, for one, would rather you didn't.
+I thought more about a rename of ie "/usr/local" between the open and
+the new_mount call.  I guess, an unlink("/usr/local") after the open
+will let the new_mount fail.  Btw, what happens in this case of two
+concurrent mounts?
 
-	Miles
+	fd1=open("/foo")
+	fd2=open("/foo")
+	new_mount(fd1...)
+	new_mount(fd2...)	// or vice versa, first fd2 then fd1
 
+>[...] but even if your argument makes sense, it only makes sense for
+> "dir" argument. "device" is nothing but a filesystem-specific option.
+
+Sure.  I only meant the "dir" argument.
+
+Maybe I've just an uneasy feeling about such a change because it exposes
+and depends on internal implementation details of the kernel (the dcache).
+On other systems it's normally not possible to associate a unique name
+with a file descriptor.  Newer Linux versions may support this for
+directories due to the dcache (not sure if this is really always the case).
+And this calling convention for new_mount would be the first one that
+makes this visible in userspace.  And it would depend on this feature.
+This may limit future changes of the kernel VFS implementation (maybe
+someone really adds some kind of hardlinked directories or something
+else that makes it impossible to get a unique name for a dir fd).
+
+Ciao, ET.

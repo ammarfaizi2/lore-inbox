@@ -1,64 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261732AbVB1Uos@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261731AbVB1Uqp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261732AbVB1Uos (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 28 Feb 2005 15:44:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261731AbVB1Uos
+	id S261731AbVB1Uqp (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 28 Feb 2005 15:46:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261733AbVB1Uqo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 28 Feb 2005 15:44:48 -0500
-Received: from ms-smtp-04.nyroc.rr.com ([24.24.2.58]:44965 "EHLO
-	ms-smtp-04.nyroc.rr.com") by vger.kernel.org with ESMTP
-	id S261732AbVB1Uob (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 28 Feb 2005 15:44:31 -0500
-Subject: Re: Scheduler question in __wake_up_common() - Real Time Apps
-From: Steven Rostedt <rostedt@goodmis.org>
-To: "Chad N. Tindel" <chad@tindel.net>
-Cc: LKML <linux-kernel@vger.kernel.org>
-In-Reply-To: <20050228183036.GA22914@calma.pair.com>
-References: <20050228183036.GA22914@calma.pair.com>
-Content-Type: text/plain
-Organization: Kihon Technologies
-Date: Mon, 28 Feb 2005 15:44:24 -0500
-Message-Id: <1109623464.1452.98.camel@localhost.localdomain>
+	Mon, 28 Feb 2005 15:46:44 -0500
+Received: from h80ad25cd.async.vt.edu ([128.173.37.205]:8455 "EHLO
+	h80ad25cd.async.vt.edu") by vger.kernel.org with ESMTP
+	id S261731AbVB1Uqi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 28 Feb 2005 15:46:38 -0500
+Message-Id: <200502282046.j1SKkGV7009849@turing-police.cc.vt.edu>
+X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.1-RC3
+To: Dominik Brodowski <linux@dominikbrodowski.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.11-rc4-mm1 - pcmcia weirdness/breakage 
+In-Reply-To: Your message of "Mon, 28 Feb 2005 21:22:26 +0100."
+             <20050228202226.GA16284@isilmar.linta.de> 
+From: Valdis.Kletnieks@vt.edu
+References: <200502281948.j1SJmKdV006528@turing-police.cc.vt.edu>
+            <20050228202226.GA16284@isilmar.linta.de>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.3 
+Content-Type: multipart/signed; boundary="==_Exmh_1109623576_3594P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
 Content-Transfer-Encoding: 7bit
+Date: Mon, 28 Feb 2005 15:46:16 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2005-02-28 at 13:30 -0500, Chad N. Tindel wrote:
-> I have a question about the implementation in __wake_up_common() that I'm
-> hoping someone might know the background on.  This function wakes up
-> a specified number of tasks for a wait_queue.  I'm wondering why it doesn't
-> wake up the tasks in priority order, so that for things following wake-one 
-> semantics high priority tasks get woken up before lower priority tasks.
+--==_Exmh_1109623576_3594P
+Content-Type: text/plain; charset=us-ascii
+
+On Mon, 28 Feb 2005 21:22:26 +0100, Dominik Brodowski said:
+> On Mon, Feb 28, 2005 at 02:48:20PM -0500, Valdis.Kletnieks@vt.edu wrote:
+
+> > A full -rc4-mm1 fails, *as does* a -rc4-mm1 with all the following patches -R'ed:
+...
+> > broken-out/pcmcia-bridge-resource-management-fix.patch
+....
+> > So the breakage is in *some other* -rc4-mm1 patch.  Any hints to speed up
+> > the binary search?
 > 
-> The only thing I can think of off the top of my head is that it simplifies the 
-> O(1) implementation, but I'm wondering if maybe there is something else.
-> 
+> Most likely it's
+> pcmcia-bridge-resource-management-fix.patch
 
-I believe that it is just simpler the way it is. Otherwise you would
-have to sort it each time you add a task to the wait queue, which will
-probably just slow everything down with little gain. The higher priority
-task will be scheduled before the others that are woken. So I don't see
-a problem.  As the processes are woken up, the process waking up the
-others is protected by spinlocks and interrupts being off. So you don't
-have to worry about preemption and one taking over before a higher
-priority process gets scheduled.  Maybe on on SMP, this might cause a
-few extra schedules, but I still don't believe that you gain anything
-with a sorted wake up.
+I'd believe you, except that patch has already been -R'ed and I'm still seeing
+the problem.  That's why I'm mystified - I backed out all the obvious culprits
+already, and the problem's still there...
 
-As for the exclusive wait. That is merely implementing a FIFO. But extra
-work must be done to make sure that you wake up others.  I can see your
-point that a FIFO ignores priorities, but these are seldom used, except
-that it is also used in the implementation of down.  But if you are
-worried about that, then just use Ingo Molnar's RT patch where the down
-implementation not only handles priorities, but also priority inversion.
+--==_Exmh_1109623576_3594P
+Content-Type: application/pgp-signature
 
--- Steve
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.0 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
 
+iD8DBQFCI4MYcC3lWbTT17ARAgZVAKD62O7QLTaReNbfbmy5pfG6nRXbagCgkgCr
+bdPt4H2o78G1GeBMJtZQus8=
+=07R+
+-----END PGP SIGNATURE-----
 
-> Thanks,
-> 
-> Chad
-> -
-
+--==_Exmh_1109623576_3594P--

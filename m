@@ -1,49 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131640AbRA1Abx>; Sat, 27 Jan 2001 19:31:53 -0500
+	id <S133036AbRA1Agx>; Sat, 27 Jan 2001 19:36:53 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S133036AbRA1Abe>; Sat, 27 Jan 2001 19:31:34 -0500
-Received: from perninha.conectiva.com.br ([200.250.58.156]:46096 "EHLO
-	perninha.conectiva.com.br") by vger.kernel.org with ESMTP
-	id <S131640AbRA1Ab1>; Sat, 27 Jan 2001 19:31:27 -0500
-Date: Sat, 27 Jan 2001 20:41:55 -0200 (BRST)
-From: Marcelo Tosatti <marcelo@conectiva.com.br>
-To: David Ford <david@linux.com>
-cc: LKML <linux-kernel@vger.kernel.org>
-Subject: Re: VM breakdown, 2.4.0 family
-In-Reply-To: <3A727AF9.22B09950@linux.com>
-Message-ID: <Pine.LNX.4.21.0101272039340.12703-100000@freak.distro.conectiva>
+	id <S135978AbRA1Agn>; Sat, 27 Jan 2001 19:36:43 -0500
+Received: from femail3.rdc1.on.home.com ([24.2.9.90]:7057 "EHLO
+	femail3.rdc1.on.home.com") by vger.kernel.org with ESMTP
+	id <S133036AbRA1Agf>; Sat, 27 Jan 2001 19:36:35 -0500
+Message-ID: <3A736979.C12CCC04@Home.net>
+Date: Sat, 27 Jan 2001 19:36:09 -0500
+From: Shawn Starr <Shawn.Starr@Home.net>
+Organization: Visualnet
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.1-pre10 i586)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Linus Torvalds <torvalds@transmeta.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: ps hang in 241-pre10
+In-Reply-To: <3A724FD2.3DEB44C@reptechnic.com.au> <3A7295F6.621BBEC4@Home.com> <3A731E65.8BE87D73@pobox.com> <3A7359BB.7BBEE42A@linux.com> <94voof$17j$1@penguin.transmeta.com>
+Content-Type: text/plain; charset=iso-8859-15
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+This system is the following:
 
-On Sat, 27 Jan 2001, David Ford wrote:
+AcerOPEN AP53/AX Motherboard, Intel Pentium 200Mhz w/o MMX (1996-1997)
+Chipsets: 430HX, PIIX3 (EIDE)
 
-> Since the testN series and up through ac12, I experience total loss of
-> control when memory is nearly exhausted.
-> 
-> I start with 256M and eat it up with programs until there is only about
-> 7 megs left, no swap.  From that point all user processes stall and the
-> disk begins to grind nonstop.  It will continue to grind for about 25-30
-> minutes until it goes completely silent.  No processes get killed, no VM
-> messages are emitted.
-> 
-> The only recourse is the magic key.  If I reboot before the disk goes
-> silent I can cleanly kill X with sysrq-E and restart.
-> 
-> If I wait until it goes silent, all is lost.  I have to sysrq-SUB.
-> 
-> Note, I do not have ANY swap enabled for these tests.
-> 
+64MB RAM EDO 60ns (Kingston brand)
 
 
-Could you try this patch and tell the result?
+Linus Torvalds wrote:
 
-http://bazar.conectiva.com.br/~marcelo/patches/v2.4/2.4.1pre10/bg_page_aging.patch
-
-Thanks
+> In article <3A7359BB.7BBEE42A@linux.com>, David Ford  <david@linux.com>
+> wrote:
+> >
+> >We've narrowed it down to "we're all running xmms" when it happend.
+>
+> Does anybody have a clue about what is different with xmms?
+>
+> Does it use KNI if it can, for example? We used to have a problem with
+> KNI+Athlons, for example.
+>
+> It might also be that it's threading-related, and that XMMS is one of
+> the few things that uses threads. Things like that. I'm not an XMMS
+> user, can somebody who knows XMMS comment on things that it does that
+> are unusual?
+>
+>                 Linus
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> Please read the FAQ at http://www.tux.org/lkml/
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

@@ -1,81 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264714AbUEEQXm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264726AbUEEQ2k@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264714AbUEEQXm (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 5 May 2004 12:23:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264718AbUEEQXl
+	id S264726AbUEEQ2k (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 5 May 2004 12:28:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264722AbUEEQ2f
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 5 May 2004 12:23:41 -0400
-Received: from mk-smarthost-1.mail.uk.tiscali.com ([212.74.114.37]:54286 "EHLO
-	mk-smarthost-1.mail.uk.tiscali.com") by vger.kernel.org with ESMTP
-	id S264714AbUEEQXj convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 5 May 2004 12:23:39 -0400
-Date: Wed, 5 May 2004 17:23:17 +0100
-Message-ID: <4076DBCE00056704@mk-cpfrontend-3.mail.uk.tiscali.com>
-From: shadak_foundation12@tiscali.co.uk
-Subject: May God bless you
+	Wed, 5 May 2004 12:28:35 -0400
+Received: from pat.qlogic.com ([198.70.193.2]:54571 "EHLO avexch01.qlogic.com")
+	by vger.kernel.org with ESMTP id S264725AbUEEQ2W convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 5 May 2004 12:28:22 -0400
+X-MimeOLE: Produced By Microsoft Exchange V6.0.6487.1
+content-class: urn:content-classes:message
 MIME-Version: 1.0
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: 8BIT
-To: unlisted-recipients:; (no To-header on input)
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Subject: RE: qla2300 at only 1 GBit on kernel 2.6.5
+Date: Wed, 5 May 2004 09:27:10 -0700
+Message-ID: <B179AE41C1147041AA1121F44614F0B0DD0114@AVEXCH02.qlogic.org>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: qla2300 at only 1 GBit on kernel 2.6.5
+Thread-Index: AcQyveBZeSokbcWYS22NZCyONlmCoQ==
+From: "Andrew Vasquez" <andrew.vasquez@qlogic.com>
+To: "Jan-Frode Myklebust" <janfrode@parallab.uib.no>,
+       <linux-kernel@vger.kernel.org>, <linux-scsi@vger.kernel.org>
+Cc: "Moore, Eric Dean" <Emoore@lsil.com>
+X-OriginalArrivalTime: 05 May 2004 16:26:27.0906 (UTC) FILETIME=[B7527A20:01C432BD]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-Goodday Friend,
+On , linux-scsi-owner@vger.kernel.org wrote:
 
-I'm SHADAK SHARI,an Indian citizen,
+> This seems to be working fine with the RedHat 2.4.21-9.0.1.ELsmp
+> kernel,
+>
 
-And the sole owner of (Osvaldo Foundation!!)but made fame in
-Iraq.I've been into helping the ophans for the past 10 years.I
-became a great man when i had a licence to be an
-international crude oil maketer 6 years Ago.
+How are you verifying that the 2.4 driver is coming-up in 2Gig rather
+than 1gig?  Do you have an analyzer running between the HBA and
+storage device?  Or, as you mentioned later in the email when testing
+the 8.x driver, did you force 2gig at the RAID box and reload the
+2.4 driver?
 
-I've help so many orphange homes,needy homes and the
-less priviledge accross the African continents,with
-the wealth God gave to me.The last comflicts that
-happened in Iraq made me to loose all i've worked
-for.I lost entire all i've worked for.Now i can't hear
-again ,and my left leg has been amputated.
+> but when I try running on the vanilla 2.6.5 kernel, it only
+> operates in 1 GB mode.
+>
 
+Yes, the 8.x series driver started to display the connection speed
+during a loop_up event.
 
-The doctor said i've a little more time to stay in
-this planet.My good friend,i want you to do me a
-favour.i will want you to assist me with the distribution of funds to ophans
-that you know in your country!!
+	qla2300 0000:01:05.0: LOOP UP detected (1 Gbps).
 
-I kept some amount af money with a security
-company in Europe and Asia Amounting to about $2.6M
-and $2.2M respectively. I
+> The HBA is connected to a Infortrend
+> SATA/RAID box.
+>
 
-i want you to take the place of my next of Kin.I'm doing
-this base on the short time i've on Earth.I'm an old
-man.Please this should be confidencial between you and
-me.
+Which model?  Actually, looking ahead, I can see you are running an
 
-If this transaction is sucessful,which i believe
-it i will want you to take 20% /10% will be for all the expenses
-and 70% should be distributed amongst the orphange
-homes in Africa/And your country .My lawyer is already aware of this.Pls
-get back to me Urgently.as i am sending you this mail via my foundations
-email
+	Vendor: IFT       Model: A16F-G1A2         Rev: 334A
 
-i will want you to email me back via the foundations email(shadak_foundation1@tiscali.it)
+Of the three FC-SATA RAID boxes that are advertised, only the
+A16F-J1210-G1 model mentions support for 'full-duplex 2Gb FC-AL'.
 
+> If I try forcing the connection to 2 GBit from the
+> Infortrend, I get an error saying 'Cable unplugged' when loading the
+> qla2300 module on 2.6.5. 
+> 
 
+Hmm, could you go into the BIOS utility (ctrl-q during boot) and check
+the 'Data Rate' settings for the HBA?  What is the value set to --
+auto/1gb/2gb?  If it is set to auto, could you set it to 2gb and retry
+the test.
 
-May God bless you
-
-Regards
-
-Mr shadak sheri
-
-
-
-__________________________________________________
-Broadband from an unbeatable £15.99!
-
-http://www.tiscali.co.uk/products/broadband/home.html?code=SM-NL-11AM
-
-
-
+Regards,
+Andrew Vasquez
+QLogic Corporation

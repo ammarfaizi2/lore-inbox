@@ -1,123 +1,75 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262086AbTHTRUL (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 20 Aug 2003 13:20:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262085AbTHTRUL
+	id S262069AbTHTRaq (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 20 Aug 2003 13:30:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262081AbTHTRaq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 20 Aug 2003 13:20:11 -0400
-Received: from chaos.analogic.com ([204.178.40.224]:50048 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP id S262093AbTHTRRm
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 20 Aug 2003 13:17:42 -0400
-Date: Wed, 20 Aug 2003 13:19:41 -0400 (EDT)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-X-X-Sender: root@chaos
-Reply-To: root@chaos.analogic.com
-To: linuxmodule@altern.org
-cc: Linux kernel <linux-kernel@vger.kernel.org>
-Subject: Re: 2.6.0-test3 module compilation
-In-Reply-To: <S261663AbTHTQkp/20030820164045Z+1122@vger.kernel.org>
-Message-ID: <Pine.LNX.4.53.0308201315030.11317@chaos>
-References: <S261663AbTHTQkp/20030820164045Z+1122@vger.kernel.org>
+	Wed, 20 Aug 2003 13:30:46 -0400
+Received: from mail32.megamailservers.com ([216.251.36.32]:11527 "EHLO
+	mail32.megamailservers.com") by vger.kernel.org with ESMTP
+	id S262069AbTHTRao (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 20 Aug 2003 13:30:44 -0400
+X-Authenticated-User: jiri.gaisler.com
+Message-ID: <3F43B061.3010805@gaisler.com>
+Date: Wed, 20 Aug 2003 19:31:13 +0200
+From: Jiri Gaisler <jiri@gaisler.com>
+Reply-To: jiri@gaisler.com
+Organization: Gaisler Research
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030624 Netscape/7.1
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Pete Zaitcev <zaitcev@redhat.com>
+CC: linux-kernel@vger.kernel.org, netdev@oss.sgi.com
+Subject: Re: Clean kernel patch for LEON/SPARC
+References: <3F43551A.1060901@gaisler.com> <20030820123311.A6511@devserv.devel.redhat.com>
+In-Reply-To: <20030820123311.A6511@devserv.devel.redhat.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 20 Aug 2003 linuxmodule@altern.org wrote:
+Pete Zaitcev wrote:
 
-> I am trying to compile a module on 2.6.0-test3 kernel. The makefile i
-> am using is a pretty normal one :
->
-> CFLAGS = -D__KERNEL__ -DMODULE -I/usr/src/linux-2.6.0-test3/include -O
-> dummy.o: dummy.c
->
-> The module i am trying to compile is taken from the kernel itself
-> (dummy network device driver). The
-> compilation works flawlessly but when i try to insert the module i get
-> : invalid module format.
-> What am i doing wrong because i have modutils and module-init and both
-> work, since the same module (dummy)
-> compiled with the kernel itself can be inserted and removed
-> without the previous error message.
-> Is there something i should know about the compilation process ?
-> The kernel-compiled module (dummy.ko) has
-> about 10 Kbytes and dummy.ko compiled by me has only 2 Kbytes :(
->
-> Thank you in advance
-> Snowdog
+ > The serial has to go to Russell King, but I can look, too.
+ > Best of all is to cc to linux-kernel.
+ >
+ > About Ethernet, it probably ought to go to netdev@oss.sgi.com.
+ > I am not quite sure.
+ >
 
-I can't tell how CFLAGS is being used (with the colon???).
-Anyway, the correct way to build the module (for 2.4.20) is:
-
-Script started on Wed Aug 20 13:09:15 2003
-# gcc -c -o dummy.o -DMODULE -D__KERNEL__ -O2 \
-  -I/usr/src/linux-2.4.20/include dummy.c
-You have new mail in /var/spool/mail/root
-
-# insmod dummy.o
-# lsmod
-Module                  Size  Used by
-dummy                   1052   0  (unused)
-vximsg                  3784   0  (autoclean)
-vxidrvr                 1548   0  (autoclean)
-st                     29592   0  (autoclean) (unused)
-nfs                    47848   0  (autoclean)
-lockd                  37244   0  (autoclean) [nfs]
-sunrpc                 63228   0  (autoclean) [nfs lockd]
-ipchains               41400   7
-3c59x                  28224   1  (autoclean)
-nls_cp437               4376   4  (autoclean)
-isofs                  17232   0  (unused)
-loop                    8632   0
-sr_mod                 11964   0  (unused)
-cdrom                  27936   0  [sr_mod]
-BusLogic               35768   7
-sd_mod                 10184  14
-scsi_mod               54572   4  [st sr_mod BusLogic sd_mod]
-# ifconfig dummy0 1.2.3.4
-# ifconfig
-dummy0    Link encap:Ethernet  HWaddr 00:00:00:00:00:00
-          inet addr:1.2.3.4  Bcast:1.255.255.255  Mask:255.0.0.0
-          UP BROADCAST RUNNING NOARP  MTU:1500  Metric:1
-          RX packets:0 errors:0 dropped:0 overruns:0 frame:0
-          TX packets:0 errors:0 dropped:0 overruns:0 carrier:0
-          collisions:0 txqueuelen:0
-
-eth0      Link encap:Ethernet  HWaddr 00:50:DA:19:7A:7D
-          inet addr:10.100.2.224  Bcast:10.255.255.255  Mask:255.0.0.0
-          UP BROADCAST RUNNING MULTICAST  MTU:1500  Metric:1
-          RX packets:3959973 errors:0 dropped:0 overruns:0 frame:0
-          TX packets:442389 errors:0 dropped:0 overruns:0 carrier:0
-          collisions:22249 txqueuelen:100
-          Interrupt:10 Base address:0xb800
-
-eth0:1    Link encap:Ethernet  HWaddr 00:50:DA:19:7A:7D
-          inet addr:10.106.100.167  Bcast:10.255.255.255  Mask:255.0.0.0
-          UP BROADCAST RUNNING MULTICAST  MTU:1500  Metric:1
-          Interrupt:10 Base address:0xb800
-
-lo        Link encap:Local Loopback
-          inet addr:127.0.0.1  Mask:255.0.0.0
-          UP LOOPBACK RUNNING  MTU:16436  Metric:1
-          RX packets:7722 errors:0 dropped:0 overruns:0 frame:0
-          TX packets:7722 errors:0 dropped:0 overruns:0 carrier:0
-          collisions:0 txqueuelen:0
-
-You have new mail in /var/spool/mail/root
-# rmmod dummy
-# exit
-exit
-
-Script done on Wed Aug 20 13:11:53 2003
+I have made three patches that makes up the leon/sparc port
+for linux-2.5.75:
 
 
-...and it works.
+* linux-2.5.75_kernel_only.diff  - leon support in kernel
+
+* linux-2.5.75_open_eth.diff     - opencores ethernet driver
+
+* linux-2.5.75_leon_uart.diff    - leon uart driver
 
 
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.4.20 on an i686 machine (797.90 BogoMips).
-            Note 96.31% of all statistics are fiction.
+The total size is about 150 Kbyte, so to avoid a large email
+the patches can be downloaded from:
 
+http://www.gaisler.com/patches.html
+
+
+I don't have Russell King's email address, maybe you could
+forward this mail to him?
+
+> Did you guys figure out the cause of the severe problem
+> with cache corruption?
+
+Yes, this was a virtual address aliasing problem. Leon2 has
+virtual caches but the MMU has no aliasing detection, so we
+are forced to flush the cache on each task switch. Our next
+processor (leon3) will have to switch to either physical caches
+or have some form of aliasing detection ...
+
+Regards, Jiri.
+-- 
+-------------------------------------------------------------------------
+Gaisler Research, Stora Nygatan 13, 41108 Goteborg, Sweden, +46-31802405
+fax: +46-31802407 email: info@gaisler.com, home page: www.gaisler.com
+-------------------------------------------------------------------------
 

@@ -1,54 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263297AbUCTJ64 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 20 Mar 2004 04:58:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263296AbUCTJ6z
+	id S263293AbUCTJ6c (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 20 Mar 2004 04:58:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263294AbUCTJ6c
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 20 Mar 2004 04:58:55 -0500
-Received: from mail.shareable.org ([81.29.64.88]:6543 "EHLO mail.shareable.org")
-	by vger.kernel.org with ESMTP id S263294AbUCTJ6s (ORCPT
+	Sat, 20 Mar 2004 04:58:32 -0500
+Received: from ns.virtualhost.dk ([195.184.98.160]:14305 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S263293AbUCTJ62 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 20 Mar 2004 04:58:48 -0500
-Date: Sat, 20 Mar 2004 09:58:36 +0000
-From: Jamie Lokier <jamie@shareable.org>
-To: Jeff Garzik <jgarzik@pobox.com>
-Cc: Andi Kleen <ak@muc.de>, linux-raid@vger.kernel.org,
-       justin_gibbs@adaptec.com, Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: "Enhanced" MD code avaible for review
-Message-ID: <20040320095836.GA10398@mail.shareable.org>
-References: <1AOTW-4Vx-7@gated-at.bofh.it> <1AOTW-4Vx-5@gated-at.bofh.it> <m3wu5jey76.fsf@averell.firstfloor.org> <405902A2.8060801@pobox.com>
+	Sat, 20 Mar 2004 04:58:28 -0500
+Date: Sat, 20 Mar 2004 10:58:20 +0100
+From: Jens Axboe <axboe@suse.de>
+To: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
+Cc: Jeff Garzik <jgarzik@pobox.com>,
+       Linux Kernel <linux-kernel@vger.kernel.org>,
+       Chris Mason <mason@suse.com>
+Subject: Re: [PATCH] barrier patch set
+Message-ID: <20040320095820.GC2711@suse.de>
+References: <20040319153554.GC2933@suse.de> <200403200140.59543.bzolnier@elka.pw.edu.pl> <405B936C.50200@pobox.com> <200403200224.14055.bzolnier@elka.pw.edu.pl>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <405902A2.8060801@pobox.com>
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <200403200224.14055.bzolnier@elka.pw.edu.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jeff Garzik wrote:
-> I'll probably have to illustrate with code, but basically, read/write 
-> can be completely ignorant of 32/64-bit architecture, endianness, it can 
-> even be network-transparent.  ioctls just can't do that.
+On Sat, Mar 20 2004, Bartlomiej Zolnierkiewicz wrote:
+> > >>All drives that support flush-cache list the relevant bits in
+> > >>identify-device, even on pre-ATA-6 devices.  Whether the feature was
+> > >>optional or mandantory, we can check the feature bits.
+> > >
+> > > Hm. so this is undocumented in the spec?
+> >
+> > ?  When it was optional, there was a feature bit to test.  When it
+> > became mandantory, the feature bit to test stayed in there.  The feature
+> > bit is zero, otherwise.  Makes it possible to use "just test the bit"
+> > and have things Just Work(tm).  :)
+> 
+> I wish it was so simple.  Here is an example to make it clear:
+> 
+> model: WDC WD800JB-00CRA1 firmware: 17.07W77
+> word 0x83 is 4b01, word 0x86 is 0x0801
+> 
+> and drive of course supports CACHE FLUSH command.
 
-Apart from the network transparency, yes they can.
+I agree with Bart, it's usually never that clear. Quit harping the
+stupid LG issue, they did something brain dead in the firmware and I
+almost have to say that they got what they deserved for doing something
+as _stupid_ as that.
 
-Ioctl is no different from read/write/read-modify-write except
-the additional command argument.
+Jeff, it's wonderful to think that you can always rely on checking spec
+bits, but in reality it never really 'just works out' for any given set
+of hardware.
 
-You can write architecture-specific ioctls which take and return
-structs -- and you can do the same with read/write.  This is what
-Andi is thinking of as dangerous: the read/write case is then much
-harder to emulate.
+-- 
+Jens Axboe
 
-Or, you can write architecture-independent read/write, which use fixed
-formats, which you seem to have in mind.  That works fine with ioctls too.
-
-It isn't commonly done, because people prefer the convenience of a
-struct.  But it does work.  It's slightly easier in the driver to
-implement commands this way using an ioctl, because you don't have to
-check the read/write length.  It's about the same to use from
-userspace: both read/write and ioctl methods using an
-architecture-independent data format require the program to lay out
-the command bytes and then issue one system call.
-
--- Jamie

@@ -1,27 +1,27 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264427AbUDSN2f (ORCPT <rfc822;willy@w.ods.org>);
+	id S264416AbUDSN2f (ORCPT <rfc822;willy@w.ods.org>);
 	Mon, 19 Apr 2004 09:28:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264401AbUDSN2B
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264427AbUDSN2W
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 19 Apr 2004 09:28:01 -0400
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:15118 "EHLO
+	Mon, 19 Apr 2004 09:28:22 -0400
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:16910 "EHLO
 	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S264415AbUDSNVw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 19 Apr 2004 09:21:52 -0400
+	id S264416AbUDSNWC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 19 Apr 2004 09:22:02 -0400
 From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: Linux Kernel List <linux-kernel@vger.kernel.org>, ralf@gnu.org,
-       linux-mips@linux-mips.org
-Subject: Re: [PATCH] Clean up asm/pgalloc.h include (mips)
+To: Linux Kernel List <linux-kernel@vger.kernel.org>, matthew@wil.cx,
+       parisc-linux@parisc-linux.org
+Subject: Re: [PATCH] Clean up asm/pgalloc.h include (parisc)
 In-Reply-To: <20040418232314.A2045@flint.arm.linux.org.uk>; from rmk+lkml@arm.linux.org.uk on Sun, Apr 18, 2004 at 11:23:14PM +0100
 References: <20040418231720.C12222@flint.arm.linux.org.uk> <20040418232314.A2045@flint.arm.linux.org.uk>
-Message-Id: <E1BFYiZ-000564-Vs@dyn-67.arm.linux.org.uk>
-Date: Mon, 19 Apr 2004 14:21:47 +0100
+Message-Id: <E1BFYik-000567-AF@dyn-67.arm.linux.org.uk>
+Date: Mon, 19 Apr 2004 14:21:58 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 This patch cleans up needless includes of asm/pgalloc.h from the
-arch/mips/ subtree.  This has not been compile tested, so
+arch/parisc/ subtree.  This has not been compile tested, so
 needs the architecture maintainers (or willing volunteers) to
 test.
 
@@ -40,124 +40,92 @@ you need to include some other header file rather than pgalloc.h.
 Normally this is either asm/pgtable.h (unlikely), asm/cacheflush.h
 or asm/tlbflush.h.
 
-===== arch/mips/baget/baget.c 1.2 vs edited =====
---- 1.2/arch/mips/baget/baget.c	Tue Apr 15 04:10:11 2003
-+++ edited/arch/mips/baget/baget.c	Mon Apr 19 13:38:40 2004
-@@ -12,7 +12,6 @@
- #include <asm/bootinfo.h>
- #include <asm/mipsregs.h>
- #include <asm/pgtable.h>
+===== arch/parisc/hpux/sys_hpux.c 1.10 vs edited =====
+--- 1.10/arch/parisc/hpux/sys_hpux.c	Wed Feb 25 10:31:12 2004
++++ edited/arch/parisc/hpux/sys_hpux.c	Mon Apr 19 13:39:57 2004
+@@ -32,7 +32,6 @@
+ #include <linux/vfs.h>
+ 
+ #include <asm/errno.h>
 -#include <asm/pgalloc.h>
- 
- #include <asm/baget/baget.h>
- 
-===== arch/mips/kernel/irixelf.c 1.9 vs edited =====
---- 1.9/arch/mips/kernel/irixelf.c	Mon Apr 12 18:54:53 2004
-+++ edited/arch/mips/kernel/irixelf.c	Mon Apr 19 13:38:40 2004
-@@ -31,7 +31,6 @@
- #include <linux/smp_lock.h>
- 
  #include <asm/uaccess.h>
--#include <asm/pgalloc.h>
- #include <asm/mipsregs.h>
- #include <asm/prctl.h>
  
-===== arch/mips/kernel/signal32.c 1.15 vs edited =====
---- 1.15/arch/mips/kernel/signal32.c	Sat Apr 17 19:19:30 2004
-+++ edited/arch/mips/kernel/signal32.c	Mon Apr 19 13:38:40 2004
-@@ -21,7 +21,6 @@
- 
- #include <asm/asm.h>
- #include <asm/bitops.h>
--#include <asm/pgalloc.h>
- #include <asm/sim.h>
- #include <asm/uaccess.h>
- #include <asm/ucontext.h>
-===== arch/mips/kernel/signal_n32.c 1.2 vs edited =====
---- 1.2/arch/mips/kernel/signal_n32.c	Thu Feb 19 20:53:00 2004
-+++ edited/arch/mips/kernel/signal_n32.c	Mon Apr 19 13:38:40 2004
-@@ -29,7 +29,6 @@
- 
- #include <asm/asm.h>
- #include <asm/bitops.h>
--#include <asm/pgalloc.h>
- #include <asm/sim.h>
- #include <asm/uaccess.h>
- #include <asm/ucontext.h>
-===== arch/mips/kernel/sysirix.c 1.23 vs edited =====
---- 1.23/arch/mips/kernel/sysirix.c	Wed Mar 31 14:31:23 2004
-+++ edited/arch/mips/kernel/sysirix.c	Mon Apr 19 13:38:40 2004
-@@ -33,7 +33,6 @@
- 
- #include <asm/ptrace.h>
+ unsigned long hpux_brk(unsigned long addr)
+===== arch/parisc/kernel/cache.c 1.9 vs edited =====
+--- 1.9/arch/parisc/kernel/cache.c	Sun Apr 18 17:13:09 2004
++++ edited/arch/parisc/kernel/cache.c	Mon Apr 19 13:39:57 2004
+@@ -24,7 +24,6 @@
+ #include <asm/tlbflush.h>
+ #include <asm/system.h>
  #include <asm/page.h>
 -#include <asm/pgalloc.h>
+ #include <asm/processor.h>
+ 
+ int split_tlb;
+===== arch/parisc/kernel/init_task.c 1.7 vs edited =====
+--- 1.7/arch/parisc/kernel/init_task.c	Wed Feb  4 05:41:56 2004
++++ edited/arch/parisc/kernel/init_task.c	Mon Apr 19 13:39:57 2004
+@@ -30,7 +30,6 @@
+ 
  #include <asm/uaccess.h>
- #include <asm/inventory.h>
- 
-===== arch/mips/mm/fault.c 1.9 vs edited =====
---- 1.9/arch/mips/mm/fault.c	Thu Feb 19 20:53:00 2004
-+++ edited/arch/mips/mm/fault.c	Mon Apr 19 13:38:40 2004
-@@ -22,7 +22,6 @@
- 
- #include <asm/branch.h>
- #include <asm/hardirq.h>
+ #include <asm/pgtable.h>
 -#include <asm/pgalloc.h>
- #include <asm/mmu_context.h>
- #include <asm/system.h>
- #include <asm/uaccess.h>
-===== arch/mips/mm/init.c 1.1 vs edited =====
---- 1.1/arch/mips/mm/init.c	Sat Feb 21 01:33:01 2004
-+++ edited/arch/mips/mm/init.c	Mon Apr 19 13:38:40 2004
+ 
+ static struct fs_struct init_fs = INIT_FS;
+ static struct files_struct init_files = INIT_FILES;
+===== arch/parisc/kernel/pci-dma.c 1.9 vs edited =====
+--- 1.9/arch/parisc/kernel/pci-dma.c	Sun Mar 14 19:17:06 2004
++++ edited/arch/parisc/kernel/pci-dma.c	Mon Apr 19 13:39:57 2004
 @@ -29,7 +29,6 @@
- #include <asm/cachectl.h>
- #include <asm/cpu.h>
- #include <asm/dma.h>
+ #include <asm/dma.h>    /* for DMA_CHUNK_SIZE */
+ #include <asm/io.h>
+ #include <asm/page.h>	/* get_order */
 -#include <asm/pgalloc.h>
- #include <asm/mmu_context.h>
- #include <asm/sections.h>
- #include <asm/tlb.h>
-===== arch/mips/mm/ioremap.c 1.5 vs edited =====
---- 1.5/arch/mips/mm/ioremap.c	Thu Oct  2 08:11:59 2003
-+++ edited/arch/mips/mm/ioremap.c	Mon Apr 19 13:38:40 2004
-@@ -13,7 +13,6 @@
- #include <linux/vmalloc.h>
+ #include <asm/uaccess.h>
+ 
+ static struct proc_dir_entry * proc_gsc_root = NULL;
+===== arch/parisc/kernel/signal.c 1.13 vs edited =====
+--- 1.13/arch/parisc/kernel/signal.c	Thu Dec 18 05:48:39 2003
++++ edited/arch/parisc/kernel/signal.c	Mon Apr 19 13:39:57 2004
+@@ -30,7 +30,6 @@
+ #include <asm/ucontext.h>
+ #include <asm/rt_sigframe.h>
+ #include <asm/uaccess.h>
+-#include <asm/pgalloc.h>
  #include <asm/cacheflush.h>
+ 
+ #ifdef CONFIG_COMPAT
+===== arch/parisc/kernel/smp.c 1.10 vs edited =====
+--- 1.10/arch/parisc/kernel/smp.c	Sun Mar 14 01:57:41 2004
++++ edited/arch/parisc/kernel/smp.c	Mon Apr 19 13:39:55 2004
+@@ -39,7 +39,7 @@
+ #include <asm/bitops.h>
+ #include <asm/current.h>
+ #include <asm/delay.h>
+-#include <asm/pgalloc.h>	/* for flush_tlb_all() proto/macro */
++#include <asm/tlbflush.h>	/* for flush_tlb_all() proto/macro */
+ 
+ #include <asm/io.h>
+ #include <asm/irq.h>		/* for CPU_IRQ_REGION and friends */
+===== arch/parisc/mm/ioremap.c 1.2 vs edited =====
+--- 1.2/arch/parisc/mm/ioremap.c	Thu Oct  2 08:11:59 2003
++++ edited/arch/parisc/mm/ioremap.c	Mon Apr 19 13:39:57 2004
+@@ -12,7 +12,6 @@
+ #include <linux/vmalloc.h>
+ #include <linux/errno.h>
  #include <asm/io.h>
 -#include <asm/pgalloc.h>
- #include <asm/tlbflush.h>
  
- static inline void remap_area_pte(pte_t * pte, unsigned long address,
-===== arch/mips/mm/pgtable-64.c 1.2 vs edited =====
---- 1.2/arch/mips/mm/pgtable-64.c	Thu Feb 19 20:53:00 2004
-+++ edited/arch/mips/mm/pgtable-64.c	Mon Apr 19 13:38:40 2004
-@@ -9,7 +9,6 @@
- #include <linux/init.h>
- #include <linux/mm.h>
- #include <asm/pgtable.h>
+ static inline void remap_area_pte(pte_t * pte, unsigned long address, unsigned long size,
+ 	unsigned long phys_addr, unsigned long flags)
+===== arch/parisc/mm/kmap.c 1.4 vs edited =====
+--- 1.4/arch/parisc/mm/kmap.c	Wed Feb  4 05:42:01 2004
++++ edited/arch/parisc/mm/kmap.c	Mon Apr 19 13:39:57 2004
+@@ -34,7 +34,6 @@
+ #include <linux/vmalloc.h>
+ 
+ #include <asm/uaccess.h>
 -#include <asm/pgalloc.h>
  
- void pgd_init(unsigned long page)
- {
-===== arch/mips/sgi-ip27/ip27-init.c 1.10 vs edited =====
---- 1.10/arch/mips/sgi-ip27/ip27-init.c	Thu Feb 19 20:53:02 2004
-+++ edited/arch/mips/sgi-ip27/ip27-init.c	Mon Apr 19 13:38:40 2004
-@@ -14,7 +14,6 @@
- #include <linux/mm.h>
- #include <linux/cpumask.h>
- #include <asm/cpu.h>
--#include <asm/pgalloc.h>
- #include <asm/pgtable.h>
- #include <asm/sn/types.h>
- #include <asm/sn/sn0/addrs.h>
-===== arch/mips/sgi-ip27/ip27-memory.c 1.8 vs edited =====
---- 1.8/arch/mips/sgi-ip27/ip27-memory.c	Thu Feb 19 20:53:02 2004
-+++ edited/arch/mips/sgi-ip27/ip27-memory.c	Mon Apr 19 13:38:40 2004
-@@ -20,7 +20,6 @@
- #include <asm/bootinfo.h>
- #include <asm/addrspace.h>
- #include <asm/pgtable.h>
--#include <asm/pgalloc.h>
- #include <asm/sn/types.h>
- #include <asm/sn/addrs.h>
- #include <asm/sn/hub.h>
+ #include <asm/io.h>
+ #include <asm/page.h>		/* get_order */

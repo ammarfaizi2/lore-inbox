@@ -1,35 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293253AbSBWXHf>; Sat, 23 Feb 2002 18:07:35 -0500
+	id <S293255AbSBWXIf>; Sat, 23 Feb 2002 18:08:35 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293254AbSBWXHZ>; Sat, 23 Feb 2002 18:07:25 -0500
-Received: from adsl-63-194-239-202.dsl.lsan03.pacbell.net ([63.194.239.202]:7668
-	"EHLO mmp-linux.matchmail.com") by vger.kernel.org with ESMTP
-	id <S293253AbSBWXHU>; Sat, 23 Feb 2002 18:07:20 -0500
-Date: Sat, 23 Feb 2002 15:07:55 -0800
-From: Mike Fedyk <mfedyk@matchmail.com>
-To: Andrew Morton <akpm@zip.com.au>
-Cc: Stephen Lord <lord@sgi.com>, Andi Kleen <ak@suse.de>,
-        linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] only irq-safe atomic ops
-Message-ID: <20020223230755.GO20060@matchmail.com>
-Mail-Followup-To: Andrew Morton <akpm@zip.com.au>,
-	Stephen Lord <lord@sgi.com>, Andi Kleen <ak@suse.de>,
-	linux-kernel@vger.kernel.org
-In-Reply-To: <3C773C02.93C7753E@zip.com.au.suse.lists.linux.kernel> <1014449389.1003.149.camel@phantasy.suse.lists.linux.kernel> <3C774AC8.5E0848A2@zip.com.au.suse.lists.linux.kernel> <3C77F503.1060005@sgi.com.suse.lists.linux.kernel> <p73y9hjq5mw.fsf@oldwotan.suse.de> <3C78045C.668AB945@zip.com.au> <3C780702.9060109@sgi.com> <3C780CDA.FEAF9CB4@zip.com.au> <3C781362.7070103@sgi.com> <3C781909.F69D8791@zip.com.au>
-Mime-Version: 1.0
+	id <S293254AbSBWXI0>; Sat, 23 Feb 2002 18:08:26 -0500
+Received: from smtp3.cern.ch ([137.138.131.164]:26845 "EHLO smtp3.cern.ch")
+	by vger.kernel.org with ESMTP id <S293255AbSBWXIJ>;
+	Sat, 23 Feb 2002 18:08:09 -0500
+To: Pete Zaitcev <zaitcev@redhat.com>
+Cc: Keith Owens <kaos@ocs.com.au>, linux-kernel@vger.kernel.org
+Subject: Re: [RFC] [PATCH] C exceptions in kernel
+In-Reply-To: <200202231011.g1NABaU10984@devserv.devel.redhat.com> <25097.1014467212@ocs3.intra.ocs.com.au> <20020223075002.A23666@devserv.devel.redhat.com>
+From: Jes Sorensen <jes@sunsite.dk>
+Date: 24 Feb 2002 00:07:13 +0100
+In-Reply-To: Pete Zaitcev's message of "Sat, 23 Feb 2002 07:50:02 -0500"
+Message-ID: <d3n0xzre5a.fsf@lxplus049.cern.ch>
+User-Agent: Gnus/5.070096 (Pterodactyl Gnus v0.96) Emacs/20.4
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3C781909.F69D8791@zip.com.au>
-User-Agent: Mutt/1.3.27i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Feb 23, 2002 at 02:34:49PM -0800, Andrew Morton wrote:
-> Unfortunately I seem to have found a bug in existing ext2, a bug
-> in existing block_write_full_page, a probable bug in the aic7xxx
-> driver, and an oops in the aic7xxx driver.  So progress has slowed
-> down a bit :(
+Pete Zaitcev <zaitcev@redhat.com> writes:
 
-Are these bugs in 2.4 also?
+> Personally, I have no problem handling current practices.
+> But I may see the point of the guy with the try/catch patch.
+> Do not make me to defend him though. I am trying to learn
+> is those exceptions are actually helpful. BTW, we all know
+> where they come from (all of Cutler's NT is written that way),
+> but let it not cloud our judgement.
 
+The problem here is that when using exceptions, you stop thinking
+about what is going on underneath at the low level which is really not
+what one wants in the kernel.
+
+After all, C is just and advanced assembly interface, which is exactly
+why it's such a great language ;-)
+
+Jes

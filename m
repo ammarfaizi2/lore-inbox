@@ -1,66 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264273AbTEaKyx (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 31 May 2003 06:54:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264275AbTEaKyx
+	id S264275AbTEaK73 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 31 May 2003 06:59:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264276AbTEaK73
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 31 May 2003 06:54:53 -0400
-Received: from wohnheim.fh-wedel.de ([195.37.86.122]:34785 "EHLO
-	wohnheim.fh-wedel.de") by vger.kernel.org with ESMTP
-	id S264273AbTEaKyw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 31 May 2003 06:54:52 -0400
-Date: Sat, 31 May 2003 13:07:43 +0200
-From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
-To: James Morris <jmorris@intercode.com.au>
-Cc: "David S. Miller" <davem@redhat.com>, dwmw2@infradead.org,
-       matsunaga_kazuhisa@yahoo.co.jp, linux-mtd@lists.infradead.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH RFC] 1/2 central workspace for zlib
-Message-ID: <20030531110743.GA24300@wohnheim.fh-wedel.de>
-References: <20030530.232004.115919834.davem@redhat.com> <Mutt.LNX.4.44.0305312025270.6696-100000@excalibur.intercode.com.au>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+	Sat, 31 May 2003 06:59:29 -0400
+Received: from imsantv29.netvigator.com ([210.87.253.76]:55266 "EHLO
+	imsantv29.netvigator.com") by vger.kernel.org with ESMTP
+	id S264275AbTEaK72 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 31 May 2003 06:59:28 -0400
+From: Michael Frank <mflt1@micrologica.com.hk>
+To: Daniel Goller <dgoller@satx.rr.com>, Mike Fedyk <mfedyk@matchmail.com>
+Subject: Re: Linux 2.4.21-rc6
+Date: Sat, 31 May 2003 19:12:29 +0800
+User-Agent: KMail/1.5.2
+Cc: linux-kernel@vger.kernel.org
+References: <1054321731.13265.8.camel@schlaefer> <20030530205223.GB25810@matchmail.com> <1054364771.17718.1.camel@schlaefer>
+In-Reply-To: <1054364771.17718.1.camel@schlaefer>
+X-OS: GNU/Linux 2.4.21-pre5
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <Mutt.LNX.4.44.0305312025270.6696-100000@excalibur.intercode.com.au>
-User-Agent: Mutt/1.3.28i
+Message-Id: <200305311912.29558.mflt1@micrologica.com.hk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 31 May 2003 20:51:04 +1000, James Morris wrote:
-> On Fri, 30 May 2003, David S. Miller wrote:
-> 
-> > My understanding is that these are just scratchpads.  The contents
-> > while a decompress/compress operation is not occuring does not
-> > matter.
-> 
-> It depends on how the zlib library is used.  The filesystems and crypto
-> code use it so that each operation is distinct, although it is possible to
-> maintain compression history between operations: PPP does this via a
-> sliding compression window, and there are other potential users such as
-> ROHC.
-> 
-> One way of addressing this would to allow the user to supply their own 
-> workspace if compression history needs to be maintained.
+On Saturday 31 May 2003 15:06, Daniel Goller wrote:
+> On Fri, 2003-05-30 at 15:52, Mike Fedyk wrote:
+> > On Fri, May 30, 2003 at 02:08:51PM -0500, Daniel Goller 
+wrote:
+> > > i tried 2.4.21-rc6 as i was told it might fix the
+> > > mouse stalling on heavy disk IO problem and i would
+> > > like to report that it DOES fix them for the most
+> > > part, even certain compiles/benchmarks/stress tests
+> > > that could stall my pc for seconds now affect the
+> > > mouse for mere fractions of one second, situations
+> > > that used to cause short stalls are now a thing of
+> > > the past
+> > >
+> > > 2.4.21-rc6 is the best kernel i have tried to date
+> > > and i have tried many on my quest to get a smooth
+> > > mouse
+> >
+> > There are reports that 2.4.18 also "fixed" the problems
+> > with the mouse.  Can you verify?
+>
 
-Agreed.  How much memory is needed for the history?  Most of the
-workspace or substancially less?
+Yes, it performs similar to -rc6 but not nearly as good as 
+2.5.70.
 
-> > So if we have 2 such scratchpads per cpu, one for normal and one for
-> > BH context, his idea truly can work and be useful to everyone.
-> > It would also be lockless on SMP.
-> 
-> And perhaps implement with a lazy allocation scheme so that these
-> scratchpads are only allocated if needed (i.e. a caller does not provide
-> its own workspace).
+On 2.5.70 the mouse is really smooth all the time, scrollong 
+of large pages in opera is fairly smooth most the time also 
+with large disk io loads such as the script i posted 
+earlier.
 
-Disagreed.  Two scratchpads per cpu won't hurt in the mean case much
-and lazy allocation wouldn't improve the worst case either.  Keep them
-static and simple.
+Regards
+Michael
 
-Jörn
-
--- 
-With a PC, I always felt limited by the software available. On Unix, 
-I am limited only by my knowledge.
--- Peter J. Schoenster

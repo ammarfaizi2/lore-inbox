@@ -1,45 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265630AbUBBOil (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 2 Feb 2004 09:38:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265636AbUBBOil
+	id S265636AbUBBOkw (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 2 Feb 2004 09:40:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265646AbUBBOkw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 2 Feb 2004 09:38:41 -0500
-Received: from lists.us.dell.com ([143.166.224.162]:30677 "EHLO
-	lists.us.dell.com") by vger.kernel.org with ESMTP id S265630AbUBBOij
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 2 Feb 2004 09:38:39 -0500
-Date: Mon, 2 Feb 2004 08:38:36 -0600
-From: Matt Domsch <Matt_Domsch@dell.com>
-To: "Brown, Len" <len.brown@intel.com>
-Cc: trelane@digitasaru.net, bluefoxicy@linux.net, linux-kernel@vger.kernel.org
-Subject: Re: ACPI -- Workaround for broken DSDT
-Message-ID: <20040202083836.A20843@lists.us.dell.com>
-References: <BF1FE1855350A0479097B3A0D2A80EE0CC8A85@hdsmsx402.hd.intel.com>
+	Mon, 2 Feb 2004 09:40:52 -0500
+Received: from smtp.globe.cz ([81.95.99.120]:18153 "EHLO smtp.globe.cz")
+	by vger.kernel.org with ESMTP id S265636AbUBBOku (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 2 Feb 2004 09:40:50 -0500
+Subject: Re: real-time filesystem monitoring
+From: Jan Kokoska <kokoska.jan@globe.cz>
+To: linux-kernel@vger.kernel.org, maketo@sdf.lonestar.org
+In-Reply-To: <Pine.NEB.4.58.0402021412150.12346@mx.freeshell.org>
+References: <Pine.NEB.4.58.0402021412150.12346@mx.freeshell.org>
+Content-Type: text/plain
+Organization: Globe, a.s.
+Message-Id: <1075732847.1674.142.camel@marigold>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <BF1FE1855350A0479097B3A0D2A80EE0CC8A85@hdsmsx402.hd.intel.com>; from len.brown@intel.com on Sun, Feb 01, 2004 at 11:33:44PM -0500
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Mon, 02 Feb 2004 15:40:47 +0100
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Feb 01, 2004 at 11:33:44PM -0500, Brown, Len wrote:
-> For non-vendor supplied solutions, you might also follow the DSDT link
-> here: http://acpi.sourceforge.net/  
+On Mon, 2004-02-02 at 15:19, Ognen Duzlevski wrote:
+> Hi,
+> 
+> I am working on a GPL-ed tool to monitor a filesystem in real time and
+> -
 
-Len, this is a really good idea making this available.  May I suggest
-you also have people provide patches between the original and their
-modified versions, so it's easy for everyone to see what was changed?
+Hello,
 
-Thanks,
-Matt (who's not looking forward to pulling 20 systems from the
-hardware library and flashing BIOSses to pull the original DSDT to
-compare with what users suggest need to be fixed for each one before
-he can file bug reports with the BIOS writers...)
+You can have a look how this has been done elsewhere:
 
--- 
-Matt Domsch
-Sr. Software Engineer, Lead Engineer
-Dell Linux Solutions linux.dell.com & www.dell.com/linux
-Linux on Dell mailing lists @ http://lists.us.dell.com
+http://www.bangstate.com/changedfiles/
+
+I have tested this here and it works nicely, but you should expect a
+higher system load using the userspace daemon for handling file-access
+notification actions.
+
+--
+ 
+Jan Kokoska
+
+

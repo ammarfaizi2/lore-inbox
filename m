@@ -1,109 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262161AbVBAWyj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262149AbVBAW4v@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262161AbVBAWyj (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 1 Feb 2005 17:54:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262152AbVBAWvi
+	id S262149AbVBAW4v (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 1 Feb 2005 17:56:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262152AbVBAW4u
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 1 Feb 2005 17:51:38 -0500
-Received: from e31.co.us.ibm.com ([32.97.110.129]:13462 "EHLO
-	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S262149AbVBAWsO
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 1 Feb 2005 17:48:14 -0500
-Subject: Re: [RFC][PATCH] new timeofday core subsystem (v. A2)
-From: john stultz <johnstul@us.ibm.com>
-To: Tim Bird <tim.bird@am.sony.com>
-Cc: lkml <linux-kernel@vger.kernel.org>
-In-Reply-To: <41FFFD4F.9050900@am.sony.com>
-References: <1106607089.30884.10.camel@cog.beaverton.ibm.com>
-	 <41FFFD4F.9050900@am.sony.com>
-Content-Type: text/plain
-Date: Tue, 01 Feb 2005 14:48:09 -0800
-Message-Id: <1107298089.2040.184.camel@cog.beaverton.ibm.com>
+	Tue, 1 Feb 2005 17:56:50 -0500
+Received: from mail.kroah.org ([69.55.234.183]:16083 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S262149AbVBAW4k (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 1 Feb 2005 17:56:40 -0500
+Date: Tue, 1 Feb 2005 14:56:25 -0800
+From: Greg KH <greg@kroah.com>
+To: Kay Sievers <kay.sievers@vrfy.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 0/7] driver core: export MAJOR/MINOR to the hotplug env
+Message-ID: <20050201225625.GA14962@kroah.com>
+References: <20050123041911.GA9209@vrfy.org>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.2 (2.0.2-3) 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050123041911.GA9209@vrfy.org>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2005-02-01 at 14:06 -0800, Tim Bird wrote:
-> Minor spelling fix, and a question.
+On Sun, Jan 23, 2005 at 05:19:11AM +0100, Kay Sievers wrote:
+> This patch sequence moves the creation of the sysfs "dev" file of the class
+> devices into the driver core. The struct class_device contains a dev_t
+> value now. If set, the driver core will create the "dev" file containing
+> the major/minor numbers automatically.
 > 
-> john stultz wrote:
-> > linux-2.6.11-rc2_timeofday-core_A2.patch
-> > ========================================
-> > diff -Nru a/drivers/Makefile b/drivers/Makefile
-> > --- a/drivers/Makefile	2005-01-24 13:30:06 -08:00
-> > +++ b/drivers/Makefile	2005-01-24 13:30:06 -08:00
-> ...
+> The MAJOR/MINOR values are also exported to the hotplug environment. This
+> makes it easy for userspace, especially udev to know if it should wait for
+> a "dev" file to create a device node or if it can just ignore the event.
+> We currently carry a compiled in blacklist around for that reason.
 > 
-> > + * all systems. It has the same course resolution as
-> should be "coarse"
+> It would also be possible to run some "tiny udev" while sysfs is not
+> available - just by reading the hotplug call or the netlink-uevent.
 
-Good catch, I'm a terrible speller.
+This is great, thanks for doing this.  I've applied all of these patches
+to my trees, and they'll show up in the next -mm release.
 
-> Do you replace get_cmos_time() - it doesn't look like it.
+Hm, that class_simple interface is looking like the way we should move
+toward, as it's "simple" to use, instead of the more complex class code.
+I'll have to look at migrating more code to use it over time, or move
+that interface back into the class code itself...
 
-Nope, its still used on i386 and x86-64, however I had to create an arch
-independent abstraction for set/read_persistent_clock(). 
+thanks,
 
-> You use it in your patch here...
-> 
-> > diff -Nru a/arch/i386/kernel/time.c b/arch/i386/kernel/time.c
-> > --- a/arch/i386/kernel/time.c	2005-01-24 13:33:59 -08:00
-> > +++ b/arch/i386/kernel/time.c	2005-01-24 13:33:59 -08:00
-> ...
-> 
-> > +/* arch specific timeofday hooks */
-> > +nsec_t read_persistent_clock(void)
-> > +{
-> > +	return (nsec_t)get_cmos_time() * NSEC_PER_SEC;
-> > +}
-> > +
-> 
-> I didn't scan for all uses of read_persistent_clock, but
-> in my experience get_cmos_time() has a latency of up to
-> 1 second on x86 because it synchronizes with the rollover
-> of the RTC seconds.
-
-I believe you're right. Although we don't call read_persistent_clock()
-very frequently, nor do we call it in ways we don't already call
-get_cmos_time(). So I'm not sure exactly what the concern is.
-
-> This comment in timeofday.c:timeofday_suspend_hook
-> worries me:
-> 
-> > +	/* First off, save suspend start time
-> > +	 * then quickly read the time source.
-> > +	 * These two calls hopefully occur quickly
-> > +	 * because the difference will accumulate as
-> > +	 * time drift on resume.
-> > +	 */
-> > +	suspend_start = read_persistent_clock();
-> 
-> Do you know if the sync problem is an issue here?
-
-I don't believe so. The full context of the code is this:
-
-	/* First off, save suspend start time
-	 * then quickly read the time source.
-	 * These two calls hopefully occur quickly
-	 * because the difference will accumulate as
-	 * time drift on resume.
-	 */
-	suspend_start = read_persistent_clock();
-	now = read_timesource(timesource);
-
-
-Since we call read_persistent_clock(), it should return right as the
-second changes, thus we will be marking the new second as closely as
-possible with the timesource value. If the order was reversed, I think
-it would be a concern. 
-
-I've only lightly tested the suspend code, but on my system I didn't see
-very much drift appear. Regardless, it should be better then what the
-current suspend/resume code does, which doesn't keep any sub-second
-resolution across suspend.
-
-thanks so much for the code review!
--john
-
+greg k-h

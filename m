@@ -1,47 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265301AbUHNUfA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265288AbUHNUln@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265301AbUHNUfA (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 14 Aug 2004 16:35:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265348AbUHNUfA
+	id S265288AbUHNUln (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 14 Aug 2004 16:41:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265348AbUHNUln
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 14 Aug 2004 16:35:00 -0400
-Received: from the-village.bc.nu ([81.2.110.252]:39131 "EHLO
-	localhost.localdomain") by vger.kernel.org with ESMTP
-	id S265301AbUHNUe6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 14 Aug 2004 16:34:58 -0400
-Subject: Re: PATCH: Add support for IT8212 IDE controllers
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Elmar Hinz <elmar.hinz@vcd-berlin.de>
-Cc: Alan Cox <alan@redhat.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <4110ECBF.9070000@vcd-berlin.de>
-References: <2obsK-5Ni-13@gated-at.bofh.it> <4110ECBF.9070000@vcd-berlin.de>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Message-Id: <1092511953.27379.2.camel@localhost.localdomain>
+	Sat, 14 Aug 2004 16:41:43 -0400
+Received: from fw.osdl.org ([65.172.181.6]:20945 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S265288AbUHNUll (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 14 Aug 2004 16:41:41 -0400
+Date: Sat, 14 Aug 2004 13:41:37 -0700
+From: Chris Wright <chrisw@osdl.org>
+To: viro@parcelfarce.linux.theplanet.co.uk
+Cc: Chris Wright <chrisw@osdl.org>, James Morris <jmorris@redhat.com>,
+       Andrew Morton <akpm@osdl.org>, Stephen Smalley <sds@epoch.ncsc.mil>,
+       neilb@cse.unsw.edu.au, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH][LIBFS] Move transaction file ops into libfs + cleanup (update)
+Message-ID: <20040814134137.Y1924@build.pdx.osdl.net>
+References: <Xine.LNX.4.44.0408131157350.23262-100000@dhcp83-76.boston.redhat.com> <Xine.LNX.4.44.0408141231300.27007-100000@dhcp83-76.boston.redhat.com> <20040814125501.U1973@build.pdx.osdl.net> <20040814202343.GA12308@parcelfarce.linux.theplanet.co.uk>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Sat, 14 Aug 2004 20:32:33 +0100
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20040814202343.GA12308@parcelfarce.linux.theplanet.co.uk>; from viro@parcelfarce.linux.theplanet.co.uk on Sat, Aug 14, 2004 at 09:23:43PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mer, 2004-08-04 at 15:03, Elmar Hinz wrote:
-> When I set in the bios RAID 1 there comes an message similar
-> INVALID GEOMETRY: 0 PHYSICAL HEADS?
-> and booting stops.
+* viro@parcelfarce.linux.theplanet.co.uk (viro@parcelfarce.linux.theplanet.co.uk) wrote:
+> On Sat, Aug 14, 2004 at 12:55:01PM -0700, Chris Wright wrote:
+> > Looks nice. I didn't realize you were working on this consolidation too.
+> > I cooked up a similar patch.  In this case the user loads its inode
+> > specific write_ops on open, then just uses the generic helpers.  I also
+> > fully serialized all write/read transactions per inode.  It's lightly
+> > tested.  If there's anything you like in there, feel free to use it.
+> 
+> This is *wrong*.
 
-Should be fixed now. I'm running a bios raid1 and it seems to be 
-doing the right thing. Turns out we had a locking bug on that error
-path and the identify block from the raid volumes was wrong
+Thanks for peeking at it.
 
-I've added some quirk code to fix up the fields in the identify 
-data to indicate LBA28/48 is supported, report that the UDMA data
-provided is valid (so we turn DMA on and get cable CRCs).
+> First of all, it ties you to ->i_ino values.  Which is OK on a specific
+> fs, but not in a generic helper functions.
 
-I've also added code to the it8212 driver to filter the 48bit flush
-cache command (seems to kill my card), only queue 128K per I/O (LBA48
-full sized I/O's also seem to kill my card) and to skip the 0x27 (native
-size) query the firmware doesn't seem to know.
+Good point.
 
-Alan
+> What's more, there is no point in any extra structures here - you are
+> getting a file-specific method anyway, so you make it ->write() (which
+> is where behaviour differs) instead of ->open().  Which kills the
+> need of callbacks.
+> 
+> As a general rule, it's better to provide several helpers and let the
+> users of interface call them rather than trying to fit everything into
+> callbacks, flags, etc.
 
+Yes, I took too simplistic a view on moving the common code over to
+generic.
+
+> Consider for instance a driver that wants one such request/reply file.
+> With your scheme it will have to declare two functions - foo_write_op()
+> and foo_open(), the latter being a boilerplate _and_ declare (for fsck
+> knows what reason) a single-element array so that foo_open() could pass
+> array - file->f_dentry->d_inode->i_ino, only to compensate for use of
+> ->i_ino in your helper.
+> 
+> Lots of glue for no good reason _and_ a new function type to deal with.
+> As opposed to one function (foo_write()) that is a normal instance of
+> ->write() and is actually smaller than your foo_write_op() + foo_open().
+> No arrays, no magic, no boilerplate code...
+
+Agreed.  Thanks for the feedback.
+-chris

@@ -1,21 +1,19 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263796AbUAXCSc (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 23 Jan 2004 21:18:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266670AbUAXCSc
+	id S266850AbUAXCW4 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 23 Jan 2004 21:22:56 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266853AbUAXCW4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 23 Jan 2004 21:18:32 -0500
-Received: from palrel13.hp.com ([156.153.255.238]:11462 "EHLO palrel13.hp.com")
-	by vger.kernel.org with ESMTP id S263796AbUAXCS3 (ORCPT
+	Fri, 23 Jan 2004 21:22:56 -0500
+Received: from palrel13.hp.com ([156.153.255.238]:13255 "EHLO palrel13.hp.com")
+	by vger.kernel.org with ESMTP id S266850AbUAXCUz (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 23 Jan 2004 21:18:29 -0500
-Date: Fri, 23 Jan 2004 18:18:28 -0800
+	Fri, 23 Jan 2004 21:20:55 -0500
+Date: Fri, 23 Jan 2004 18:20:54 -0800
 To: "David S. Miller" <davem@redhat.com>,
-       Linux kernel mailing list <linux-kernel@vger.kernel.org>,
-       irda-users@lists.sourceforge.net
-Cc: Jeff Garzik <jgarzik@pobox.com>, Martin Diehl <lists@mdiehl.de>
-Subject: New IrDA drivers for 2.6.X
-Message-ID: <20040124021828.GA22410@bougret.hpl.hp.com>
+       Linux kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: [PATCH 2.6 IrDA] 4/11: tekram-sir: dongle api change
+Message-ID: <20040124022054.GE22410@bougret.hpl.hp.com>
 Reply-To: jt@hpl.hp.com
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
@@ -28,84 +26,180 @@ From: Jean Tourrilhes <jt@bougret.hpl.hp.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-	Hi Dave,
-
-	Martin Diehl has finished converting all the old style dongle
-driver to the new API. This was the last major feature parity issue
-with 2.4.X, with this work, 2.6.X should support all the IrDA serial
-dongles that 2.4.X supports. Martin also did a few other cleanups and
-fixed tekram-sir so that it works with real hardware.
-	All patches depend on the first patch, and the last patch
-depend on the previous patches. I tested this on 2.6.2-rc1 with an
-actisys dongle, neither Martin or I have hardware to test the other
-dongle drivers.
-	Thanks for pushing that to "you know who" ;-)
-
-	Jean
-
---------------------------------------------------------
-
-ir262_dongles-1_sir-dev.diff :
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-		<Needed by all subsequent patches>
-		<Patch from Martin Diehl>
-* change dongle api such that raw r/w and modem line helpers are directly
-  called, not virtual callbacks.
-
-ir262_dongles-2_actisys-sir.diff :
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-		<Patch from Martin Diehl>
-* convert to de-virtualized sirdev helpers
-* improve error path during speed change
-
-ir262_dongles-3_esi-sir.diff :
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-		<Patch from Martin Diehl>
-* convert to de-virtualized sirdev helpers
-* add probably missing dongle power-up operation
-
 ir262_dongles-4_tekram-sir-2.diff :
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 		<Patch from Martin Diehl>
 * increase default write-delay to 150msec
 * convert to de-virtualized sirdev helpers
 
-ir262_dongles-5_litelink-sir-2.diff :
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-		<Patch from Eugene Crosser>
-* converted for new api from old driver
-		<Patch from Martin Diehl>
-* convert to de-virtualized sirdev helpers
-* set dongle to 9600 in case of invalid speed instead leaving it in
-  unknown configuration
 
-ir262_dongles-6_act200l-sir.diff :
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-		<Patch from Martin Diehl>
-* converted for new api from old driver
-
-ir262_dongles-7_girbil-sir.diff :
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-		<Patch from Martin Diehl>
-* converted for new api from old driver
-
-ir262_dongles-8_ma600-sir.diff :
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-		<Patch from Martin Diehl>
-* converted for new api from old driver
-
-ir262_dongles-9_mcp2120-sir.diff :
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-		<Patch from Martin Diehl>
-* converted for new api from old driver
-
-ir262_dongles-10_belkin-sir.diff :
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-		<Patch from Martin Diehl>
-* converted for new api from old driver
-
-ir262_dongles-11_makefile-2.diff :
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-		<apply after all other patches>
-		<Patch from Martin Diehl>
-* include build information for new dongle drivers (5->10)
+diff -u -p linux/drivers/net/irda.d6/tekram-sir.c  linux/drivers/net/irda/tekram-sir.c
+--- linux/drivers/net/irda.d6/tekram-sir.c	Wed Dec 17 18:58:30 2003
++++ linux/drivers/net/irda/tekram-sir.c	Thu Jan 22 16:43:26 2004
+@@ -34,7 +34,7 @@
+ 
+ MODULE_PARM(tekram_delay, "i");
+ MODULE_PARM_DESC(tekram_delay, "tekram dongle write complete delay");
+-static int tekram_delay = 50;		/* default is 50 ms */
++static int tekram_delay = 150;		/* default is 150 ms */
+ 
+ static int tekram_open(struct sir_dev *);
+ static int tekram_close(struct sir_dev *);
+@@ -61,8 +61,10 @@ static struct dongle_driver tekram = {
+ 
+ int __init tekram_sir_init(void)
+ {
+-	if (tekram_delay < 1  ||  tekram_delay>500)
++	if (tekram_delay < 1  ||  tekram_delay > 500)
+ 		tekram_delay = 200;
++	IRDA_DEBUG(1, "%s - using %d ms delay\n",
++		tekram.driver_name, tekram_delay);
+ 	return irda_register_dongle(&tekram);
+ }
+ 
+@@ -77,7 +79,8 @@ static int tekram_open(struct sir_dev *d
+ 
+ 	IRDA_DEBUG(2, "%s()\n", __FUNCTION__);
+ 
+-	dev->set_dtr_rts(dev, TRUE, TRUE);
++	sirdev_set_dtr_rts(dev, TRUE, TRUE);
++
+ 	qos->baud_rate.bits &= IR_9600|IR_19200|IR_38400|IR_57600|IR_115200;
+ 	qos->min_turn_time.bits = 0x01; /* Needs at least 10 ms */	
+ 	irda_qos_bits_to_value(qos);
+@@ -92,7 +95,7 @@ static int tekram_close(struct sir_dev *
+ 	IRDA_DEBUG(2, "%s()\n", __FUNCTION__);
+ 
+ 	/* Power off dongle */
+-	dev->set_dtr_rts(dev, FALSE, FALSE);
++	sirdev_set_dtr_rts(dev, FALSE, FALSE);
+ 
+ 	return 0;
+ }
+@@ -122,19 +125,20 @@ static int tekram_close(struct sir_dev *
+ 
+ static int tekram_change_speed(struct sir_dev *dev, unsigned speed)
+ {
++	unsigned state = dev->fsm.substate;
+ 	unsigned delay = 0;
+-	unsigned next_state = dev->fsm.substate;
+ 	u8 byte;
++	static int ret = 0;
+ 	
+ 	IRDA_DEBUG(2, "%s()\n", __FUNCTION__);
+ 
+-	switch(dev->fsm.substate) {
+-
++	switch(state) {
+ 	case SIRDEV_STATE_DONGLE_SPEED:
+ 
+ 		switch (speed) {
+ 		default:
+ 			speed = 9600;
++			ret = -EINVAL;
+ 			/* fall thru */
+ 		case 9600:
+ 			byte = TEKRAM_PW|TEKRAM_9600;
+@@ -154,36 +158,34 @@ static int tekram_change_speed(struct si
+ 		}
+ 
+ 		/* Set DTR, Clear RTS */
+-		dev->set_dtr_rts(dev, TRUE, FALSE);
++		sirdev_set_dtr_rts(dev, TRUE, FALSE);
+ 	
+ 		/* Wait at least 7us */
+ 		udelay(14);
+ 
+ 		/* Write control byte */
+-		dev->write(dev, &byte, 1);
++		sirdev_raw_write(dev, &byte, 1);
+ 		
+ 		dev->speed = speed;
+ 
+-		next_state = TEKRAM_STATE_WAIT_SPEED;
+-		delay = tekram_delay;		/* default: 50 ms */
++		state = TEKRAM_STATE_WAIT_SPEED;
++		delay = tekram_delay;
+ 		break;
+ 
+ 	case TEKRAM_STATE_WAIT_SPEED:
+ 		/* Set DTR, Set RTS */
+-		dev->set_dtr_rts(dev, TRUE, TRUE);
+-
++		sirdev_set_dtr_rts(dev, TRUE, TRUE);
+ 		udelay(50);
+-
+-		return 0;
++		break;
+ 
+ 	default:
+-		ERROR("%s - undefined state\n", __FUNCTION__);
+-		return -EINVAL;
++		ERROR("%s - undefined state %d\n", __FUNCTION__, state);
++		ret = -EINVAL;
++		break;
+ 	}
+ 
+-	dev->fsm.substate = next_state;
+-
+-	return delay;
++	dev->fsm.substate = state;
++	return (delay > 0) ? delay : ret;
+ }
+ 
+ /*
+@@ -200,43 +202,26 @@ static int tekram_change_speed(struct si
+  *         operation
+  */
+ 
+-
+-#define TEKRAM_STATE_WAIT_RESET	(SIRDEV_STATE_DONGLE_RESET + 1)
+-
+ static int tekram_reset(struct sir_dev *dev)
+ {
+-	unsigned delay = 0;
+-	unsigned next_state = dev->fsm.substate;
+-
+ 	IRDA_DEBUG(2, "%s()\n", __FUNCTION__);
+ 
+-	switch(dev->fsm.substate) {
+-
+-	case SIRDEV_STATE_DONGLE_RESET:
+-		/* Clear DTR, Set RTS */
+-		dev->set_dtr_rts(dev, FALSE, TRUE); 
++	/* Clear DTR, Set RTS */
++	sirdev_set_dtr_rts(dev, FALSE, TRUE); 
+ 
+-		next_state = TEKRAM_STATE_WAIT_RESET;
+-		delay = 1;		/* Should sleep 1 ms */
+-		break;
++	/* Should sleep 1 ms */
++	set_current_state(TASK_UNINTERRUPTIBLE);
++	schedule_timeout(MSECS_TO_JIFFIES(1));
+ 
+-	case TEKRAM_STATE_WAIT_RESET:
+-		/* Set DTR, Set RTS */
+-		dev->set_dtr_rts(dev, TRUE, TRUE);
++	/* Set DTR, Set RTS */
++	sirdev_set_dtr_rts(dev, TRUE, TRUE);
+ 	
+-		/* Wait at least 50 us */
+-		udelay(75);
++	/* Wait at least 50 us */
++	udelay(75);
+ 
+-		return 0;
++	dev->speed = 9600;
+ 
+-	default:
+-		ERROR("%s - undefined state\n", __FUNCTION__);
+-		return -EINVAL;
+-	}
+-
+-	dev->fsm.substate = next_state;
+-
+-	return delay;
++	return 0;
+ }
+ 
+ MODULE_AUTHOR("Dag Brattli <dagb@cs.uit.no>");

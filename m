@@ -1,68 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267283AbUJGFj2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267285AbUJGFjk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267283AbUJGFj2 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 7 Oct 2004 01:39:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267285AbUJGFj2
+	id S267285AbUJGFjk (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 7 Oct 2004 01:39:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267287AbUJGFjk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 7 Oct 2004 01:39:28 -0400
-Received: from stutter.bur.st ([202.61.227.61]:24580 "EHLO stutter.bur.st")
-	by vger.kernel.org with ESMTP id S267283AbUJGFjZ (ORCPT
+	Thu, 7 Oct 2004 01:39:40 -0400
+Received: from omx3-ext.sgi.com ([192.48.171.20]:3761 "EHLO omx3.sgi.com")
+	by vger.kernel.org with ESMTP id S267285AbUJGFjh (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 7 Oct 2004 01:39:25 -0400
-Date: Thu, 7 Oct 2004 13:39:23 +0800
-From: Trent Lloyd <lathiat@bur.st>
-To: Chuck Ebbert <76306.1226@compuserve.com>, linux-kernel@vger.kernel.org
-Subject: Re: Why no linux-2.6.8.2? (was Re: new dev model)
-Message-ID: <20041007053923.GA4721@sweep.bur.st>
-References: <200410070134_MC3-1-8BA9-A215@compuserve.com>
+	Thu, 7 Oct 2004 01:39:37 -0400
+Date: Wed, 6 Oct 2004 22:35:52 -0700
+From: Paul Jackson <pj@sgi.com>
+To: "Marc E. Fiuczynski" <mef@CS.Princeton.EDU>
+Cc: colpatch@us.ibm.com, mbligh@aracnet.com, akpm@osdl.org,
+       ckrm-tech@lists.sourceforge.net, lse-tech@lists.sourceforge.net,
+       nickpiggin@yahoo.com.au, linux-kernel@vger.kernel.org,
+       simon.derr@bull.net, frankeh@watson.ibm.com
+Subject: Re: [ckrm-tech] [RFC PATCH] scheduler: Dynamic sched_domains
+Message-Id: <20041006223552.43d47135.pj@sgi.com>
+In-Reply-To: <NIBBJLJFDHPDIBEEKKLPIEMNCHAA.mef@cs.princeton.edu>
+References: <1097110266.4907.187.camel@arrakis>
+	<NIBBJLJFDHPDIBEEKKLPIEMNCHAA.mef@cs.princeton.edu>
+Organization: SGI
+X-Mailer: Sylpheed version 0.9.12 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200410070134_MC3-1-8BA9-A215@compuserve.com>
-X-Random-Number: 1.82855051198056e+39
-User-Agent: Mutt/1.5.6+20040722i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Chuck,
+Marc wrote:
+> > ... thus making supporting interesting NUMA machines
+> > and SMT machines easier.
+> 
+> Would you be so kind and elaborate on the SMT part.
 
-We don't usually make a 4th point in our versions, the next version
-after 2.6.8 would usually be 2.6.9, which will come out in due course.
-
-2.6.8.1 was released because there was a 1-line error in 2.6.8 that
-completely stopped NFS from working.
-
-The patches mentioned below will probably go into 2.6.9 or something, if
-they have been approved for it etc.
-
-Hope that clears it up.
-
-Cheers,
-Trent
-Bur.st
-
-> Why has linux 2.6.8 been abandoned at version 2.6.8.1?
-> 
-> There exist fixes that could go into 2.6.8.2:
-> 
->         process start time doesn't match system time
->         FDDI frame doesn't allow 802.3 hwtype
->         NFS server using XFS filesystem on SMP machine oopses
-> 
-> I'm sure there are more...
-> 
-> So why is 2.6.8.1 a "dead branch?"
-> 
-> 
-> --Chuck Ebbert
-> 
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+Sure - easy - I mistyped "SMP".  Even on a system as simple as
+a dual processor, tightly coupled HPC applications, using one
+thread per processor, run much better if indeed they are placed
+one thread to a processor, allowing for genuine parallelism.
 
 -- 
-Trent Lloyd <lathiat@bur.st>
-Bur.st Networking Inc.
+                          I won't rest till it's the best ...
+                          Programmer, Linux Scalability
+                          Paul Jackson <pj@sgi.com> 1.650.933.1373

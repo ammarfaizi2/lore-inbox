@@ -1,61 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262391AbUDOT2P (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 Apr 2004 15:28:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262353AbUDOT2P
+	id S262316AbUDOT2n (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 Apr 2004 15:28:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262101AbUDOT2n
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 Apr 2004 15:28:15 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:2963 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S263117AbUDOT2J (ORCPT
+	Thu, 15 Apr 2004 15:28:43 -0400
+Received: from fmr01.intel.com ([192.55.52.18]:29571 "EHLO hermes.fm.intel.com")
+	by vger.kernel.org with ESMTP id S262316AbUDOT2e (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 15 Apr 2004 15:28:09 -0400
-Date: Thu, 15 Apr 2004 15:27:35 -0400
-From: Jakub Jelinek <jakub@redhat.com>
-To: Chris Wright <chrisw@osdl.org>
-Cc: Manfred Spraul <manfred@colorfullife.com>, Andrew Morton <akpm@osdl.org>,
-       Ulrich Drepper <drepper@redhat.com>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] mq_open() honor leading slash
-Message-ID: <20040415192735.GO31589@devserv.devel.redhat.com>
-Reply-To: Jakub Jelinek <jakub@redhat.com>
-References: <20040415113951.G21045@build.pdx.osdl.net>
+	Thu, 15 Apr 2004 15:28:34 -0400
+Subject: Re: IO-APIC on nforce2 [PATCH]
+From: Len Brown <len.brown@intel.com>
+To: "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>
+Cc: Ross Dickson <ross@datscreative.com.au>, christian.kroener@tu-harburg.de,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.55.0404141220500.17639@jurand.ds.pg.gda.pl>
+References: <200404131117.31306.ross@datscreative.com.au>
+	 <200404131703.09572.ross@datscreative.com.au>
+	 <1081893978.2251.653.camel@dhcppc4>
+	 <200404141502.14023.ross@datscreative.com.au>
+	 <Pine.LNX.4.55.0404141220500.17639@jurand.ds.pg.gda.pl>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1082057295.24424.149.camel@dhcppc4>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040415113951.G21045@build.pdx.osdl.net>
-User-Agent: Mutt/1.4.1i
+X-Mailer: Ximian Evolution 1.2.3 
+Date: 15 Apr 2004 15:28:15 -0400
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Apr 15, 2004 at 11:39:51AM -0700, Chris Wright wrote:
-> SUSv3 requires the following on mq_open() with name containing leading
-> slash:
-> 
-> 	If name begins with the slash character, then processes
-> 	calling mq_open() with the same value of name shall refer to
-> 	the same message queue object, as long as that name has not
-> 	been removed. If name does not begin with the slash character,
-> 	the effect is implementation-defined.  The interpretation of
-> 	slash characters other than the leading slash character in name
-> 	is implementation-defined.
-> 
-> The use of lookup_one_len() to force all lookups relative to the
-> mqueue_mnt root guarantees absolute rather than relative lookup without
-> leading slash, and generates an error on a name that contains any slashes
-> at all.  This is inconsitent with the part of the spec that requires
-> leading slash to be effectively an absolute path (unless you consider
-> -EACCES being "the same message queue object" ;-)
-> 
-> Patch below simply eats all leading slashes before passing name to
-> lookup_one_len() in mq_open() and mq_unlink().
+On Wed, 2004-04-14 at 06:37, Maciej W. Rozycki wrote:
+> On Wed, 14 Apr 2004, Ross Dickson wrote:
 
-glibc already strips the leading slash in userland.
-If you want to do it in the kernel instead, it shouldn't IMHO be silent if it
-doesn't see a leading slash or sees more than one. I.e.
-	error = -EINVAL;
-	if (name[0] != '/')
-		goto out_err;
-...
-	dentry = lookup_one_len(name + 1, mqueue_mnt->mnt_root, strlen(name + 1));
+> > The clock skew is an interesting one, I think the clock uses tsc if available
+> > to interpolate between timer ints and if so should it not also be used to 
+> > validate the timer ints in case of noise? Apparently the clock speeds up not
+> > slows down in those cases?
+> 
+>  With real hardware perhaps it can be debugged.  The interaction between
+> the 8254, the 8259As and the APICs seems interesting in the chipset.
 
-	Jakub
+> Perhaps the override to INTIN2 is to tell the timer is really unavailable
+> directly?
+
+That would be way too subtle for a BIOS writer;-)
+
+> I can't see a way to have an ACPI override that specifies an
+> ISA interrupt is not connected to the I/O APIC (unlike with the MPS).
+
+I agree.  And I think the existence of this /proc/interrupts
+entry on an ACPI-enabled system should probably go away.
+
+           CPU0       CPU1
+  2:          0          0          XT-PIC  cascade
+
+ACPI also doesn't support sharing more than 1 pin on an IRQ.
+So if you see a construct like this below, it is also a bug:
+
+IRQ to pin mappings:
+IRQ23 -> 0:23-> 0:7
+
+cheers,
+-Len
+
+

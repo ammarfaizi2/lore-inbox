@@ -1,84 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262750AbSJWG7x>; Wed, 23 Oct 2002 02:59:53 -0400
+	id <S262887AbSJWHE3>; Wed, 23 Oct 2002 03:04:29 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262888AbSJWG7x>; Wed, 23 Oct 2002 02:59:53 -0400
-Received: from mx2.elte.hu ([157.181.151.9]:4014 "HELO mx2.elte.hu")
-	by vger.kernel.org with SMTP id <S262750AbSJWG7w>;
-	Wed, 23 Oct 2002 02:59:52 -0400
-Date: Wed, 23 Oct 2002 09:19:23 +0200 (CEST)
-From: Ingo Molnar <mingo@elte.hu>
-Reply-To: Ingo Molnar <mingo@elte.hu>
-To: Andrea Arcangeli <andrea@suse.de>
-Cc: Christoph Hellwig <hch@infradead.org>, Andrew Morton <akpm@zip.com.au>,
-       <linux-kernel@vger.kernel.org>, <linux-mm@kvack.org>
-Subject: Re: [patch] generic nonlinear mappings, 2.5.44-mm2-D0
-In-Reply-To: <20021023020534.GJ11242@dualathlon.random>
-Message-ID: <Pine.LNX.4.44.0210230851170.2360-100000@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S262888AbSJWHE3>; Wed, 23 Oct 2002 03:04:29 -0400
+Received: from fencepost.gnu.org ([199.232.76.164]:29609 "EHLO
+	fencepost.gnu.org") by vger.kernel.org with ESMTP
+	id <S262887AbSJWHE2>; Wed, 23 Oct 2002 03:04:28 -0400
+From: Richard Stallman <rms@gnu.org>
+To: nico@cam.org
+CC: linux-kernel@vger.kernel.org
+In-reply-to: <Pine.LNX.4.44.0210211331250.5873-100000@xanadu.home> (message
+	from Nicolas Pitre on Mon, 21 Oct 2002 13:56:05 -0400 (EDT))
+Subject: Re: Bitkeeper outrage, old and new
+Reply-to: rms@gnu.org
+References: <Pine.LNX.4.44.0210211331250.5873-100000@xanadu.home>
+Message-Id: <E184Ff4-0007WQ-00@fencepost.gnu.org>
+Date: Wed, 23 Oct 2002 03:10:38 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+People who disagree with my views about free software often say that
+it is ineffective for me to talk about them.  The ways they say this
+are as boundless as human imagination, but the message is the same:
+"No one agrees with you, no one cares, you are wasting your time, your
+efforts are totally ineffective."
 
-On Wed, 23 Oct 2002, Andrea Arcangeli wrote:
+However, other evidence shows that some people are paying attention
+even if others are not.  Talking about principles encourages people to
+think about them, and that has an influence.  In the long run, it has
+been very effective--merely writing code would have achieved little.
 
-> > protection bits. It has been clearly established in the past few years
-> > empirically that the vma tree approach itself sucks performance-wise for
-> > applications that have many different mappings.
-> 
-> if you're talking about get_unmapped_area showing up heavy on the
-> profiling then you're on the wrong track with this, [...]
+I conclude that the reason people insist so strongly that no one is
+listening is precisely because that isn't so.  The aim of these
+messages is to cause discouragement.  After recognizing this, one can
+easily avoid believing them.
 
-algorithmic overhead is just one aspect of the 'thousands of vmas'
-problem, the real killer issue for some applications is RAM overhead,
-because a single vma takes up roughly 3 cachelines _per process_, which
-means 1 MB unswappable lowmem overhead per 10 thousand vmas. I know about
-valid applications (and i'm not counting electric fence here) with
-hundreds of thousands of vmas per process.
+      Until it happens please assume that those who
+    chose to use the tool they want are exercising their freedom
 
-Even a O(log(N)) algorithm means ~15 tree walking steps in a perfectly
-balanced tree (which ours arent), which means 0.5 KB of cache touched per
-lookup with 32 byte cacheline size, and 2KB of cache touched per lookup,
-with 128 byte cacheline size - which is far from cheap. While it's _much_
-better than a O(N) algorithm in this case, the approach i'm working on
-solves the more fundamental problem, instead of working it around.
-
-> (while I know several cases where the lack of O(log(N)) in
-> get_unmapped_area is a showstopper, [...]
-
-Exactly which applications do you have in mind, most of the ones i can
-think of are helped by the file-pte/swap-pte work.
-
-do you still claim this to be the case once i've extended file-ptes (and
-anon-swap pte's) with protection bits? That will enable the following
-important things: mprotect() does not break up vmas(), neighboring
-anonymous areas can _always_ be merged.
-
-> [...] the GUI as well suffers badly with the hundred of librarians but
-> the guis are otherwise idle so it doesn't matter much for them if the
-> cpu is wasted but they will get a bit lower latency).
-
-the GUI cases should be helped quite significantly by the simple approach
-i added. The NPTL testcase that triggered the get_unmapped_area()  
-regression is fixed by the mmap-speedup patch as well, get_unmapped_area()  
-completely vanished from the kernel profile. But sure, its simplicity
-makes it still an O(N) algorithm conceptually, but the typical statistical
-behavior should be much better.
-
-but the thing i'm working on is a much better than O(log(N)) improvement,
-because i'm trying to fix the real and fundamental problem: the
-artificially high number of vmas. That is not possible in every case
-though (eg. the KDE libraries case we do have roughly 100 vmas from
-different libraries), so your O(log(N)) patch will definitely be worth a
-review.
-
-in any case, if you have followed the mmap-speedup discussion then you
-must know all the arguments already. Sure, O(log(N)) would be nice in
-theory (and i raised that possibility in the discussion), but i'd like to
-see your patch first, because yet another vma tree is quite some
-complexity and it further increases the size of the vma, which is not
-quite a no-cost approach.
-
-	Ingo
-
+They are exercising a legal right to do something foolish and
+harmful.  Freedom does not mean nobody can criticize you.

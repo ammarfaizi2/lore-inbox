@@ -1,71 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130768AbRBFAUb>; Mon, 5 Feb 2001 19:20:31 -0500
+	id <S136110AbRBFAYM>; Mon, 5 Feb 2001 19:24:12 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S136110AbRBFAUV>; Mon, 5 Feb 2001 19:20:21 -0500
-Received: from colorfullife.com ([216.156.138.34]:16647 "EHLO colorfullife.com")
-	by vger.kernel.org with ESMTP id <S130768AbRBFAUK>;
-	Mon, 5 Feb 2001 19:20:10 -0500
-Message-ID: <3A7F430D.B1B3E34@colorfullife.com>
-Date: Tue, 06 Feb 2001 01:19:25 +0100
-From: Manfred Spraul <manfred@colorfullife.com>
-X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.4.1 i686)
-X-Accept-Language: en, de
-MIME-Version: 1.0
-To: "Stephen C. Tweedie" <sct@redhat.com>
-CC: Ingo Molnar <mingo@elte.hu>, Steve Lord <lord@sgi.com>,
-        linux-kernel@vger.kernel.org, kiobuf-io-devel@lists.sourceforge.net,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        Linus Torvalds <torvalds@transmeta.com>
-Subject: Re: [Kiobuf-io-devel] RFC: Kernel mechanism: Compound event wait /notify 
- + callback chains
-In-Reply-To: <20010205121921.C1167@redhat.com> <Pine.LNX.4.30.0102052213470.10520-100000@elte.hu> <20010205225804.Z1167@redhat.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S136105AbRBFAYB>; Mon, 5 Feb 2001 19:24:01 -0500
+Received: from gateway.sequent.com ([192.148.1.10]:15996 "EHLO
+	gateway.sequent.com") by vger.kernel.org with ESMTP
+	id <S136063AbRBFAXv>; Mon, 5 Feb 2001 19:23:51 -0500
+Message-Id: <200102060022.QAA13622@eng4.sequent.com>
+To: linux-kernel@vger.kernel.org
+Subject: locking question
+Date: Mon, 05 Feb 2001 16:22:34 -0800
+From: Rick Lindsley <nevdull@sequent.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Stephen C. Tweedie" wrote:
-> 
-> The original multi-page buffers came from the map_user_kiobuf
-> interface: they represented a user data buffer.  I'm not wedded to
-> that format --- we can happily replace it with a fine-grained sg list
->
-Could you change that interface?
+As part of better understanding some of the issues in SMP,
+I've been working at documenting all the global kernel locks in use,
+including what's left of the BKL, and have run into a use of the BKL
+that seems pretty consistent and also pretty obscure.
 
-<<< from Linus mail:
+The code base I'm inspecting is 2.4.0-test8. (Yes I know that's out of
+date, but I had to take a snapshot *somewhere*!)
 
-        struct buffer {
-                struct page *page;
-                u16 offset, length;
-        };
+For those drivers which define a struct file_operations->release
+function, I'm seeing that that function often calls lock_kernel()
+at the beginning and unlock_kernel() at the end. (A simple example
+can be found in arch/m68k/mvme16x/rtc.c.)  Various functions perform
+various feats, but I can't for the life of me figure out what it is
+guarding. In the example above, if it is guarding rtc_status, why
+in the rtc_open function (directly above it) are there no locks held?
+It often seems the case that things modified in the release() function
+are left unguarded elsewhere. And in most cases, it seems that the BKL
+is probably unnecessary (a local lock would accomplish the same.)
 
->>>>>>
+I'm slowly coming to the conclusion that either
+    
+    a) there is a global assumption (or need) in place that I can't get
+       my hands around, or
 
-/* returns the number of used buffers, or <0 on error */
-int map_user_buffer(struct buffer *ba, int max_bcount,
-			void* addr, int len);
-void unmap_buffer(struct buffer *ba, int bcount);
+    b) people have copied drivers as templates for so long that the only
+       reason they grab the lock there is because the person before them
+       did, or
+    
+    c) some other driver-specific reason.
 
-That's enough for the zero copy pipe code ;-)
+Can somebody tell me what we're guarding against here? Why is it safe
+to use the "guarded" data elsewhere (apparently) without the lock?
 
-Real hw drivers probably need a replacement for pci_map_single()
-(pci_map_and_align_and_bounce_buffer_array())
-
-The kiobuf structure could contain these 'struct buffer' instead of the
-current 'struct page' pointers.
-
-> 
-> In other words, even if we expand the kiobuf into a sg vector list,
-> when it comes to merging requests in ll_rw_blk.c we still need to
-> track the callbacks on each independent source kiobufs.
->
-Probably.
-
-
---
-	Manfred
-
+Rick
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

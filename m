@@ -1,54 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264146AbRFLDJT>; Mon, 11 Jun 2001 23:09:19 -0400
+	id <S264157AbRFLDTa>; Mon, 11 Jun 2001 23:19:30 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264157AbRFLDJJ>; Mon, 11 Jun 2001 23:09:09 -0400
-Received: from perninha.conectiva.com.br ([200.250.58.156]:46345 "HELO
-	perninha.conectiva.com.br") by vger.kernel.org with SMTP
-	id <S264146AbRFLDJG>; Mon, 11 Jun 2001 23:09:06 -0400
-Date: Mon, 11 Jun 2001 22:33:38 -0300 (BRT)
-From: Marcelo Tosatti <marcelo@conectiva.com.br>
-To: Didier CONTIS <didier@ece.gatech.edu>
-Cc: lkml <linux-kernel@vger.kernel.org>, Rik van Riel <riel@conectiva.com.br>
-Subject: Re: Pb of __alloc_pages
-In-Reply-To: <GGEBJOIKMBAKLHABNEAPCEJCCDAA.didier@ece.gatech.edu>
-Message-ID: <Pine.LNX.4.21.0106112227550.6617-100000@freak.distro.conectiva>
+	id <S264167AbRFLDTT>; Mon, 11 Jun 2001 23:19:19 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:40087 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S264157AbRFLDTG>;
+	Mon, 11 Jun 2001 23:19:06 -0400
+From: "David S. Miller" <davem@redhat.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <15141.35347.625434.930154@pizda.ninka.net>
+Date: Mon, 11 Jun 2001 20:18:43 -0700 (PDT)
+To: DJBARROW@de.ibm.com
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: bug in /net/core/dev.c
+In-Reply-To: <C1256A68.0065E17F.00@d12mta09.de.ibm.com>
+In-Reply-To: <C1256A68.0065E17F.00@d12mta09.de.ibm.com>
+X-Mailer: VM 6.75 under 21.1 (patch 13) "Crater Lake" XEmacs Lucid
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
+DJBARROW@de.ibm.com writes:
+ > The dev->refcnt will go up to 2 ( it should be 1) unregister_netdevice will
+ > usually  loop forever
+ > waiting for the refcnt to drop to 1 when an attempt to unregister is done.
 
-On Mon, 11 Jun 2001, Didier CONTIS wrote:
+When will devices built statically into the kernel ever be
+unregister'd?
 
-> -----BEGIN PGP SIGNED MESSAGE-----
-> Hash: SHA1
-> 
-> I am building a Beowulf cluster using Dell PowerEdge 1400SC
-> (2x800Mhz, 1GB of ram, 9GB Ultra160) and using kernel 2.4.5
-> 
-> I several of my nodes I am getting the following errors:
-> 
-> Jun 10 00:19:32 grendel16 kernel: __alloc_pages: 0-order allocation
-> failed.
-> Jun 10 00:19:32 grendel16 last message repeated 12 times
-> Jun 10 00:19:36 grendel16 kernel: ed.
-> Jun 10 00:19:36 grendel16 kernel: __alloc_pages: 0-order allocation
-> failed.
-> Jun 10 00:19:55 grendel16 last message repeated 363 times
-> Jun 10 00:23:32 grendel16 kernel: VFS: file-max limit 8192 reached
-> 
-> Below is the output of cat /proc/slabinfo
-> 
-> I was wondering if someone could help me debug this one.
-> 
-> Thanks in advance for any help,
-
-Could you please try 2.4.6pre1 or higher? 
-
-Since you seem to have an IO intensive workload (right?), pre1 should
-throttle those IO allocations and avoid the extreme memory shortage. 
-
-Thanks 
-
+Later,
+David S. Miller
+davem@redhat.com

@@ -1,40 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266643AbTBTSLy>; Thu, 20 Feb 2003 13:11:54 -0500
+	id <S266755AbTBTST1>; Thu, 20 Feb 2003 13:19:27 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266640AbTBTSLy>; Thu, 20 Feb 2003 13:11:54 -0500
-Received: from louise.pinerecords.com ([213.168.176.16]:39554 "EHLO
-	louise.pinerecords.com") by vger.kernel.org with ESMTP
-	id <S266637AbTBTSLs>; Thu, 20 Feb 2003 13:11:48 -0500
-Date: Thu, 20 Feb 2003 19:20:53 +0100
-From: Tomas Szepe <szepe@pinerecords.com>
-To: Rik van Riel <riel@imladris.surriel.com>
-Cc: James Buchanan <jamesbuch@iprimus.com.au>, linux-kernel@vger.kernel.org
+	id <S266761AbTBTST1>; Thu, 20 Feb 2003 13:19:27 -0500
+Received: from dialup-192.130.220.203.acc01-faul-arm.comindico.com.au ([203.220.130.192]:46465
+	"EHLO localhost.localdomain") by vger.kernel.org with ESMTP
+	id <S266755AbTBTST0> convert rfc822-to-8bit; Thu, 20 Feb 2003 13:19:26 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: James Buchanan <jamesbuch@iprimus.com.au>
+Reply-To: jamesbuch@iprimus.com.au
+To: Jeff Garzik <jgarzik@pobox.com>
 Subject: Re: Linux kernel rant
-Message-ID: <20030220182053.GV1426@louise.pinerecords.com>
-References: <200302211551.28222.jamesbuch@iprimus.com.au> <200302211701.23632.jamesbuch@iprimus.com.au> <Pine.LNX.4.50L.0302201509020.2329-100000@imladris.surriel.com> <200302211717.23993.jamesbuch@iprimus.com.au> <Pine.LNX.4.50L.0302201519210.2329-100000@imladris.surriel.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.50L.0302201519210.2329-100000@imladris.surriel.com>
-User-Agent: Mutt/1.4i
+Date: Fri, 21 Feb 2003 17:29:06 +1100
+User-Agent: KMail/1.4.3
+Cc: Rik van Riel <riel@imladris.surriel.com>,
+       Tomas Szepe <szepe@pinerecords.com>, linux-kernel@vger.kernel.org
+References: <200302211551.28222.jamesbuch@iprimus.com.au> <200302211717.23993.jamesbuch@iprimus.com.au> <20030220182222.GM9800@gtf.org>
+In-Reply-To: <20030220182222.GM9800@gtf.org>
+X-Memberships: Professional Member, ACM (jamesb.au@acm.org)
+X-Hypothetical: Humans are incapable of original thought. Everything is the result of observation, experimentation, or building on/modifying what already exists.
+X-Location: Australia, NSW
+X-Religion: Athiest, Secular
+X-Operating-System: RedHat Linux/GNU
+X-Message: The Truth Is Out There
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <200302211729.06665.jamesbuch@iprimus.com.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> [riel@imladris.surriel.com]
-> 
-> On Fri, 21 Feb 2003, James Buchanan wrote:
-> 
-> > > Not everybody wants to run old hardware though.  Some people
-> > > actually have a need for performance and new hardware.
-> >
-> > I'm running new hardware as well, and it's possible to buy devices
-> > that don't need drivers that are written under an NDA or supplied
-> > binary only.  I do the extra checking, but hey, that's me.
-> 
-> No IDE disks or modern SCSI controllers in your machine ?
+On Fri, 21 Feb 2003 05:22 am, Jeff Garzik wrote:
+> Here is a challenge, then:
+>
+> When you install your OS of choice, please post a list of drivers
+> you are using, so we can point out the NDA'd portions.
 
-Damn you're fast, Rik, I was just about to ask this.
+There are really that many NDAs out there in free software land?  Tell 
+me how many IDE drivers are written under an NDA.
 
--- 
-Tomas Szepe <szepe@pinerecords.com>
+> P.S. I notice no responses to my messages.  I guess you have a
+> problem with facts, and truth...
+
+No, where did you get this from?  I'm sure I posted a response to you, 
+but I am having trouble keeping up with everything that's coming into 
+my inbox.  Maybe I missed it.

@@ -1,66 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318211AbSHZSvc>; Mon, 26 Aug 2002 14:51:32 -0400
+	id <S318223AbSHZSy3>; Mon, 26 Aug 2002 14:54:29 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318216AbSHZSvc>; Mon, 26 Aug 2002 14:51:32 -0400
-Received: from mailgate5.cinetic.de ([217.72.192.165]:31153 "EHLO
-	mailgate5.cinetic.de") by vger.kernel.org with ESMTP
-	id <S318211AbSHZSva>; Mon, 26 Aug 2002 14:51:30 -0400
-Date: Mon, 26 Aug 2002 20:55:32 +0200
-Message-Id: <200208261855.g7QItWX08701@mailgate5.cinetic.de>
+	id <S318224AbSHZSy3>; Mon, 26 Aug 2002 14:54:29 -0400
+Received: from stargazer.compendium-tech.com ([64.156.208.76]:8196 "EHLO
+	stargazer.compendium.us") by vger.kernel.org with ESMTP
+	id <S318223AbSHZSy2>; Mon, 26 Aug 2002 14:54:28 -0400
+Date: Mon, 26 Aug 2002 11:55:29 -0700 (PDT)
+From: Kelsey Hudson <khudson@compendium.us>
+X-X-Sender: khudson@betelgeuse.compendium-tech.com
+To: Bernd Eckenfels <ecki@lina.inka.de>
+cc: Thunder from the hill <thunder@lightweight.ods.org>,
+       <linux-kernel@vger.kernel.org>
+Subject: Re: 2.4 and full ipv6 - will it happen?
+In-Reply-To: <20020821220313.GA25141@lina.inka.de>
+Message-ID: <Pine.LNX.4.44.0208261149170.6621-100000@betelgeuse.compendium-tech.com>
 MIME-Version: 1.0
-Organization: http://freemail.web.de/
-From: <joerg.beyer@email.de>
-To: joerg.beyer@email.de, "ZwaneMwaikambo" <zwane@linuxpower.ca>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Re: Re: <no subject>
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Zwane Mwaikambo <zwane@linuxpower.ca> schrieb am 25.08.02 14:10:12:
-> On Sun, 25 Aug 2002 joerg.beyer@email.de wrote:
+On Thu, 22 Aug 2002, Bernd Eckenfels wrote:
+
+> On Wed, Aug 21, 2002 at 03:44:41PM -0600, Thunder from the hill wrote:
+> > I'm getting through with bind9 pretty well, actually.
 > 
-> > you are right, I had no dma enabled. Now I recomiled the kernel with this
-> > dma-related options:
-> > 
-> > CONFIG_BLK_DEV_IDEDMA_PCI=y
-> > # CONFIG_BLK_DEV_IDEDMA_FORCED is not set
-> > CONFIG_IDEDMA_PCI_AUTO=y
-> > # CONFIG_IDEDMA_ONLYDISK is not set
-> > CONFIG_BLK_DEV_IDEDMA=y
-> > # CONFIG_IDEDMA_PCI_WIP is not set
-> > # CONFIG_BLK_DEV_IDEDMA_TIMEOUT is not set
-> > # CONFIG_IDEDMA_NEW_DRIVE_LISTINGS is not set
-> > CONFIG_BLK_DEV_ADMA=y
-> > # CONFIG_HPT34X_AUTODMA is not set
-> > CONFIG_IDEDMA_AUTO=y
-> > # CONFIG_IDEDMA_IVB is not set
-> > # CONFIG_DMA_NONPCI is not set
-> > 
-> > 
-> > and I still get many many errors on the nic. Do I need something more in .config?
-> 
-> That should fix your slowdown during untarring/disk access, as for your 
-> NIC problem looks like you might be having a receive FIFO overflow, so 
-> perhaps the card stops processing incoming packets? I have no clue, 
-> Jeff?
->
-ok, now I am a step further: I have a testcase, where I used a 10MB file with random
-content. I scp'd this file from another machine to the laptop:
+> ip6.int? nibbles? reverse byte? ip6.arpa? A6? AAAA? 
 
-joerg@laptop> scp otter_machine:/tmp/10mb_file /tmp/
+It looks like nibble format and quad-A records are the de-facto standard. 
+I'd expect them to become a finalized standard here shortly. BIND supports 
+all these, however...
 
-with the 8139too NIC module this takes 8 minutes, 32 second and has
-about 97500 error on the NIC, all are RC oerruns.
-
-When I do the same with Donald Beckers rtl8139 module then the transfer
-takes 10 seconds and has about 1865 errors - not perfect but much better.
-
-I dont want to generalize, but for my case the rtl8139 module seems
-to fit much better.
-
-Thanks for your help
-Joerg
+ Kelsey Hudson                                       khudson@compendium.us
+ Software Engineer/UNIX Systems Administrator
+ Compendium Technologies, Inc                               (619) 725-0771
+---------------------------------------------------------------------------
 

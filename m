@@ -1,43 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264433AbTLBXOf (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 2 Dec 2003 18:14:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264437AbTLBXOe
+	id S264444AbTLBXlD (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 2 Dec 2003 18:41:03 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264446AbTLBXlD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 2 Dec 2003 18:14:34 -0500
-Received: from 213-0-194-170.dialup.nuria.telefonica-data.net ([213.0.194.170]:1672
-	"EHLO dardhal.mired.net") by vger.kernel.org with ESMTP
-	id S264433AbTLBXOB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 2 Dec 2003 18:14:01 -0500
-Date: Wed, 3 Dec 2003 00:13:59 +0100
-From: Jose Luis Domingo Lopez <linux-kernel@24x7linux.com>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.4 future
-Message-ID: <20031202231359.GA7056@localhost>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-References: <Pine.LNX.4.44.0312011212090.13692-100000@logos.cnet> <200312011226.04750.nbensa@gmx.net> <20031202115436.GA10288@physik.tu-cottbus.de> <20031202120315.GK13388@conectiva.com.br> <Pine.LNX.4.58.0312021402360.17892@moje.vabo.cz> <20031202131512.GU13388@conectiva.com.br> <Pine.LNX.4.58.0312021433360.8417@moje.vabo.cz> <20031202135423.GB13388@conectiva.com.br> <Pine.LNX.4.58.0312021508470.21855@moje.vabo.cz>
+	Tue, 2 Dec 2003 18:41:03 -0500
+Received: from mtaw4.prodigy.net ([64.164.98.52]:36252 "EHLO mtaw4.prodigy.net")
+	by vger.kernel.org with ESMTP id S264444AbTLBXlA (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 2 Dec 2003 18:41:00 -0500
+Date: Tue, 2 Dec 2003 15:40:51 -0800
+From: Mike Fedyk <mfedyk@matchmail.com>
+To: bill davidsen <davidsen@tmr.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: libata in 2.4.24?
+Message-ID: <20031202234051.GE4154@mis-mike-wstn.matchmail.com>
+Mail-Followup-To: bill davidsen <davidsen@tmr.com>,
+	linux-kernel@vger.kernel.org
+References: <3FCB8312.3050703@rackable.com> <877k1f9e1g.fsf@stark.dyndns.tv> <bqj41c$drr$1@gatekeeper.tmr.com> <20031202230216.GB4154@mis-mike-wstn.matchmail.com> <bqj6k0$e2p$1@gatekeeper.tmr.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.58.0312021508470.21855@moje.vabo.cz>
+In-Reply-To: <bqj6k0$e2p$1@gatekeeper.tmr.com>
 User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday, 02 December 2003, at 15:21:54 -0500,
-Tomas Konir wrote:
-
-> 2.6 is still unstable now. I'm using -test10 on my workstation, but it 
-> takes minimally an half year to use it on server. I can't use ext3 on 
-> server, because of missing features such as ACL, dump (with acl's), 
-> built in qouta and for last much different speed on SMP machine.
+On Tue, Dec 02, 2003 at 11:18:24PM +0000, Bill Davidsen wrote:
+> In article <20031202230216.GB4154@mis-mike-wstn.matchmail.com>,
+> Mike Fedyk  <mfedyk@matchmail.com> wrote:
+> | On Tue, Dec 02, 2003 at 10:34:20PM +0000, Bill Davidsen wrote:
+> | > after each O_SYNC write, so that's probably not practical. Clearly the
+> | > best solution is a full SCSI implementation over PATA/SATA, but that
+> | > would eliminate some of the justification for SCSI devices at premium
+> | > prices.
+> | 
+> | In many ways, that is exactly what SATA is. :)
 > 
-If you can live with filesystem-level backups tar-like, maybe you should
-have a look at "star", a tar implementation that is said to be capable
-of archiving (and hopefully restoring :-) ACL.
+> Until multiple devices be string are available SATA will have logistical
+> problems scaling. The small cable is an advantage running a few drives
+> in a box, but a server with 40 drives or so would go from a cable bundle
+> out the back, about 5cm by 1 cm, to a real bunch of those little round
+> cables running everywhere. Certainly doable, but I think I'd name the
+> server "Medusa" if I built it.
+> 
 
-Greetings.
+Isn't this what SSCSI (Serial SCSI) will be doing also -- one drive one cable?
 
--- 
-Jose Luis Domingo Lopez
-Linux Registered User #189436     Debian Linux Sid (Linux 2.6.0-test10-mm1)
+I'd imagine that you'd have one connection to the enclosure, and the entire
+enclosure will look like a single drive.  I've heard of SCSI enclosures like
+this (even ones that hold ide drives, but talk scsi to the host).
+
+> I believe SATA-2 will address this, if I may believe what's projected
+> for an unwritten standard.
+
+There will probably be many ways to get around any issues that may come up
+with SATA until SATA-2 comes out.

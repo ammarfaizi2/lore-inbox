@@ -1,70 +1,69 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261437AbTEHML1 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 8 May 2003 08:11:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261433AbTEHML0
+	id S261355AbTEHMO4 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 8 May 2003 08:14:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261375AbTEHMO4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 8 May 2003 08:11:26 -0400
-Received: from mion.elka.pw.edu.pl ([194.29.160.35]:56053 "EHLO
-	mion.elka.pw.edu.pl") by vger.kernel.org with ESMTP id S261437AbTEHMLZ
+	Thu, 8 May 2003 08:14:56 -0400
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:37192 "EHLO
+	frodo.biederman.org") by vger.kernel.org with ESMTP id S261355AbTEHMON
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 8 May 2003 08:11:25 -0400
-Date: Thu, 8 May 2003 14:23:05 +0200 (MET DST)
-From: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
-To: Alexander Atanasov <alex@ssi.bg>
-cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       David Ford <david+powerix@blue-labs.org>,
-       <linux-kernel@vger.kernel.org>
-Subject: Re: 2.5.69, IDE problems
-In-Reply-To: <Pine.LNX.4.21.0305081147280.20708-100000@mars.zaxl.net>
-Message-ID: <Pine.SOL.4.30.0305081421010.12362-100000@mion.elka.pw.edu.pl>
+	Thu, 8 May 2003 08:14:13 -0400
+To: Steffen Persvold <sp@scali.com>
+Cc: petter wahlman <petter@bluezone.no>, linux-kernel@vger.kernel.org
+Cc: Ulrich Drepper <drepper@redhat.com>
+Subject: Re: The disappearing sys_call_table export.
+References: <Pine.LNX.4.44.0305071807250.3573-100000@sp-laptop.isdn.scali.no>
+From: ebiederm@xmission.com (Eric W. Biederman)
+Date: 08 May 2003 06:23:25 -0600
+In-Reply-To: <Pine.LNX.4.44.0305071807250.3573-100000@sp-laptop.isdn.scali.no>
+Message-ID: <m1el398w5e.fsf@frodo.biederman.org>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.1
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Steffen Persvold <sp@scali.com> writes:
 
-Hi Alex!
+> On 7 May 2003, petter wahlman wrote:
+> 
+> >  
+> > It seems like nobody belives that there are any technically valid
+> > reasons for hooking system calls, but how should e.g anti virus
+> > on-access scanners intercept syscalls?
+> > Preloading libraries, ptracing init, patching g/libc, etc. are
+> > obviously not the way to go.
+> > 
+> 
+> Well, for a system wide system call hook, a kernel mechanism is necessary 
+> (and useful too IMHO). However for our usage (MPI) it is enough to know 
+> when the current process calls either sbrk(-n) or munmap glibc functions, 
+> thus it is sufficient to implement some kind of callback functionality for 
+> certain glibc functions, sort of like the malloc/free hooks but on a more 
+> general basis since some applications doesn't use malloc/free but 
+> implement their own alloc/free algorithms using the syscalls (one example 
+> is f90 apps).
+> 
+> Ideas anyone ?
 
-On Thu, 8 May 2003, Alexander Atanasov wrote:
+I think the complete list of functions to be hooked needs to be at least:
+mmap(MAP_FIXED), munmap, sbrk(-n), shmat, shdt.  The mapping cases
+are needed because a mmap(MAP_FIXED) can implicitly unmap an area under
+them, before the new address is used.
 
-> 	Hello,
->
-> On Thu, 8 May 2003, David Ford wrote:
->
-> > hda: dma_timer_expiry: dma status == 0x24
-> > drivers/ide/ide-io.c:108: spin_lock(drivers/ide/ide.c:c04fb648) already
-> > locked by drivers/ide/ide-io.c/948
-> > drivers/ide/ide-io.c:990: spin_unlock(drivers/ide/ide.c:c04fb648) not locked
-> > hda: lost interrupt
-> > hda: dma_intr: bad DMA status (dma_stat=30)
-> > hda: dma_intr: status=0x50 { DriveReady SeekComplete }
-> >
-> > hda: dma_timer_expiry: dma status == 0x24
-> > drivers/ide/ide-io.c:108: spin_lock(drivers/ide/ide.c:c04fb648) already
-> > locked by drivers/ide/ide-io.c/948
-> > drivers/ide/ide-io.c:990: spin_unlock(drivers/ide/ide.c:c04fb648) not locked
-> > hda: lost interrupt
-> > hda: dma_intr: bad DMA status (dma_stat=30)
-> > hda: dma_intr: status=0x50 { DriveReady SeekComplete }
->
-> 	known problem, patch sent to alan some time ago(may be i should
-> resync/resend?) for this dma_timer_expiry have several problems:
+This is not a kernel issue as this is purely a user space problem,
+the kernel provides all of the necessary functionality.
 
-Please resync with 2.5, put some nice comment and resend :-).
+I suspect what is needed is something like:
+int on_unmap(void (*func)(void *start, size_t length, void *), void *arg);
 
---
-Bartlomiej
+With the function called before the unmap actually occurs, that way
+the multi thread case is safe.  It needs to be built so that multiple libraries
+can cooperate cleanly.
 
-> calls DRIVER(drive)->error - the one above, it's called with lock from
-> ide_timer_expiry
-> calls ide_dma_end - the reason for called while not waiting messages,
-> it's called again in ide_timer_expiry
->
-> there is one more locking problem known to me - HDIO_DRIVE_RESET,
-> but can not find out how to fix it properly.
->
-> --
-> have fun,
-> alex
+Ulrich what do you think.  Is the above function reasonable?
+Something like it is needed to manage caches of pinned memory for high
+performance kernel bypass libraries.
 
+Eric

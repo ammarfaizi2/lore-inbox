@@ -1,34 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263071AbVCXHS4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263065AbVCXH2R@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263071AbVCXHS4 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Mar 2005 02:18:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262422AbVCXHSz
+	id S263065AbVCXH2R (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Mar 2005 02:28:17 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263075AbVCXH2Q
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Mar 2005 02:18:55 -0500
-Received: from linux01.gwdg.de ([134.76.13.21]:32955 "EHLO linux01.gwdg.de")
-	by vger.kernel.org with ESMTP id S263072AbVCXHSo (ORCPT
+	Thu, 24 Mar 2005 02:28:16 -0500
+Received: from mail.kroah.org ([69.55.234.183]:52354 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S263065AbVCXH2G (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Mar 2005 02:18:44 -0500
-Date: Thu, 24 Mar 2005 08:18:35 +0100 (MET)
-From: Jan Engelhardt <jengelh@linux01.gwdg.de>
-To: David McCullough <davidm@snapgear.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: API for true Random Number Generators to add entropy (2.6.11)
-In-Reply-To: <20050324044621.GC3124@beast>
-Message-ID: <Pine.LNX.4.61.0503240815120.24256@yvahk01.tjqt.qr>
-References: <20050315133644.GA25903@beast> <20050324042708.GA2806@beast>
- <20050324043300.GA2621@havoc.gtf.org> <20050324044621.GC3124@beast>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Thu, 24 Mar 2005 02:28:06 -0500
+Date: Wed, 23 Mar 2005 23:24:13 -0800
+From: Greg KH <greg@kroah.com>
+To: Valdis.Kletnieks@vt.edu
+Cc: Frank Sorenson <frank@tuxrocks.com>,
+       Dmitry Torokhov <dtor_core@ameritech.net>,
+       LKML <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH 0/5] I8K driver facelift
+Message-ID: <20050324072413.GK10604@kroah.com>
+References: <200502240110.16521.dtor_core@ameritech.net> <4233B65A.4030302@tuxrocks.com> <4238A76A.3040408@tuxrocks.com> <200503170816.j2H8GOEV004208@turing-police.cc.vt.edu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200503170816.j2H8GOEV004208@turing-police.cc.vt.edu>
+User-Agent: Mutt/1.5.8i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, Mar 17, 2005 at 03:16:24AM -0500, Valdis.Kletnieks@vt.edu wrote:
+> On Wed, 16 Mar 2005 14:38:50 MST, Frank Sorenson said:
+> > Okay, I replaced the sysfs_ops with ops of my own, and now all the show
+> > and store functions also accept the name of the attribute as a parameter.
+> > This lets the functions know what attribute is being accessed, and allows
+> > us to create attributes that share show and store functions, so things
+> > don't need to be defined at compile time (I feel slightly evil!).
+> > 
+> > This patch puts the correct number of temp sensors and fans into sysfs,
+> > and only exposes power_status if enabled by the power_status module
+> > parameter.
+> 
+> Works for me:
+> 
+> [/sys/bus/platform/drivers/i8k/i8k]2 ls -l
+> total 0
+> lrwxrwxrwx  1 root root    0 Mar 17 03:02 bus -> ../../../bus/platform
+> -r--r--r--  1 root root 4096 Mar 17 03:02 cpu_temp
+> -rw-r--r--  1 root root 4096 Mar 17 03:01 detach_state
+> lrwxrwxrwx  1 root root    0 Mar 17 03:02 driver -> ../../../bus/platform/drivers/i8k
+> -r--r--r--  1 root root 4096 Mar 17 03:02 fan1_speed
+> -rw-r--r--  1 root root 4096 Mar 17 03:02 fan1_state
+> -r--r--r--  1 root root 4096 Mar 17 03:02 fan2_speed
+> -rw-r--r--  1 root root 4096 Mar 17 03:02 fan2_state
+> drwxr-xr-x  2 root root    0 Mar 17 03:02 power
+> -r--r--r--  1 root root 4096 Mar 17 03:02 power_status
+> -r--r--r--  1 root root 4096 Mar 17 03:02 temp1
+> -r--r--r--  1 root root 4096 Mar 17 03:02 temp2
+> 
+> The valyes of the fan* settings, and cpu_temp match what's reported in /proc/i8k.
 
->Would you suggest making /dev/random point to /dev/hw_random then ?
+Please match the same units and filename as the other i2c sensors.  See
+the documentation in the Documentation/i2c/ directory for what that
+standard is, so userspace programs will "just work" with your devices.
 
-No. I for example do not have a hardware RNG, so `modprobe hw_random` fails 
-with No Such Device. Making it a symlink would make it a dangling one.
+thanks,
 
-
-Jan Engelhardt
--- 
+greg k-h

@@ -1,41 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S274964AbTHMN3z (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 13 Aug 2003 09:29:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S274978AbTHMN3z
+	id S274873AbTHMNeY (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 13 Aug 2003 09:34:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S273288AbTHMNeY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 13 Aug 2003 09:29:55 -0400
-Received: from mailhost.tue.nl ([131.155.2.7]:25610 "EHLO mailhost.tue.nl")
-	by vger.kernel.org with ESMTP id S274964AbTHMN3x (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 13 Aug 2003 09:29:53 -0400
-Date: Wed, 13 Aug 2003 15:27:33 +0200
-From: Andries Brouwer <aebr@win.tue.nl>
-To: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Jan Niehusmann <jan@gondor.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: IDE bug - was: Re: uncorrectable ext2 errors
-Message-ID: <20030813132733.GA6565@win.tue.nl>
-References: <20030806150335.GA5430@gondor.com> <1060702567.21160.30.camel@dhcp22.swansea.linux.org.uk> <20030813005057.A1863@pclin040.win.tue.nl> <200308130221.26305.bzolnier@elka.pw.edu.pl>
+	Wed, 13 Aug 2003 09:34:24 -0400
+Received: from 153.Red-213-4-13.pooles.rima-tde.net ([213.4.13.153]:18948 "EHLO
+	small.felipe-alfaro.com") by vger.kernel.org with ESMTP
+	id S273027AbTHMNeV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 13 Aug 2003 09:34:21 -0400
+Subject: Re: OPL3SA2: spin_is_locked on uninitialized spinlock
+From: Felipe Alfaro Solana <felipe_alfaro@linuxmail.org>
+To: Andrew Morton <akpm@osdl.org>
+Cc: LKML <linux-kernel@vger.kernel.org>, zwane@commfireservices.com,
+       linux-sound@vger.kernel.org
+In-Reply-To: <20030813050448.221aaa49.akpm@osdl.org>
+References: <1060774796.3518.4.camel@teapot.felipe-alfaro.com>
+	 <20030813050448.221aaa49.akpm@osdl.org>
+Content-Type: text/plain
+Message-Id: <1060781658.987.0.camel@teapot.felipe-alfaro.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200308130221.26305.bzolnier@elka.pw.edu.pl>
-User-Agent: Mutt/1.3.25i
+X-Mailer: Ximian Evolution 1.4.4 
+Date: Wed, 13 Aug 2003 15:34:18 +0200
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Aug 13, 2003 at 02:21:26AM +0200, Bartlomiej Zolnierkiewicz wrote:
-
-> > That is something different. The patches I gave (I gave patches didnt I?)
-> > limit the total capacity for large disks if the controller doesnt speak
-> > lba48.
+On Wed, 2003-08-13 at 14:04, Andrew Morton wrote:
+> Felipe Alfaro Solana <felipe_alfaro@linuxmail.org> wrote:
+> >
+> > I've found a lot of errors like this when loading the OPL3SA2 sound
+> >  driver on my old Intel AL440LX computer, running 2.6.0-test3-mm1:
+> > 
+> >  sound/isa/opl3sa2.c:204: spin_is_locked on uninitialized spinlock
+> >  d6200034.
 > 
-> No, you didn't.  You gave some whining and patch sketch. :-)
+> Does this help?
+> 
+> diff -puN sound/isa/opl3sa2.c~opl3sa2-lock-init-fix sound/isa/opl3sa2.c
+> --- 25/sound/isa/opl3sa2.c~opl3sa2-lock-init-fix	2003-08-13 05:03:32.000000000 -0700
+> +++ 25-akpm/sound/isa/opl3sa2.c	2003-08-13 05:04:06.000000000 -0700
+> @@ -752,6 +752,7 @@ static int __devinit snd_opl3sa2_probe(i
+>  		err = -ENOMEM;
+>  		goto __error;
+>  	}
+> +	spin_lock_init(&chip->reg_lock);
+>  	chip->irq = -1;
+>  	if ((err = snd_device_new(card, SNDRV_DEV_LOWLEVEL, chip, &ops)) < 0)
+>  		goto __error;
+> 
+> _
+> 
 
-Ah, yes, it was that one. Yes, my patch turned into a mess of rejects
-after your layout changes of earlier patches from that series.
-But that does not matter in the least. You are intelligent,
-careful and precise, will not have any problem reconstructing
-the correct patch from my detailed description.
+Yes, it does...
+Thanks!
 

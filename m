@@ -1,48 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317326AbSGXOgN>; Wed, 24 Jul 2002 10:36:13 -0400
+	id <S317341AbSGXOlY>; Wed, 24 Jul 2002 10:41:24 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317329AbSGXOgN>; Wed, 24 Jul 2002 10:36:13 -0400
-Received: from [196.26.86.1] ([196.26.86.1]:42973 "HELO
-	infosat-gw.realnet.co.sz") by vger.kernel.org with SMTP
-	id <S317326AbSGXOgM>; Wed, 24 Jul 2002 10:36:12 -0400
-Date: Wed, 24 Jul 2002 16:57:08 +0200 (SAST)
-From: Zwane Mwaikambo <zwane@linuxpower.ca>
-X-X-Sender: zwane@linux-box.realnet.co.sz
-To: Ian Soboroff <ian.soboroff@nist.gov>
-Cc: Muli Ben-Yehuda <mulix@actcom.co.il>, lkml <linux-kernel@vger.kernel.org>
-Subject: Re: Boot problem, 2.4.19-rc3-ac1
-In-Reply-To: <9cfk7nl5jcm.fsf@rogue.ncsl.nist.gov>
-Message-ID: <Pine.LNX.4.44.0207241655011.17209-100000@linux-box.realnet.co.sz>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S317342AbSGXOlY>; Wed, 24 Jul 2002 10:41:24 -0400
+Received: from ns.virtualhost.dk ([195.184.98.160]:24463 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id <S317341AbSGXOlW>;
+	Wed, 24 Jul 2002 10:41:22 -0400
+Date: Wed, 24 Jul 2002 16:44:03 +0200
+From: Jens Axboe <axboe@suse.de>
+To: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
+Cc: martin@dalecki.de, Adam Kropelin <akropel1@rochester.rr.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: cpqarray broken since 2.5.19
+Message-ID: <20020724144403.GR15201@suse.de>
+References: <20020724141954.GF5159@suse.de> <Pine.SOL.4.30.0207241632350.15605-100000@mion.elka.pw.edu.pl>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.SOL.4.30.0207241632350.15605-100000@mion.elka.pw.edu.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 24 Jul 2002, Ian Soboroff wrote:
+On Wed, Jul 24 2002, Bartlomiej Zolnierkiewicz wrote:
+> 
+> On Wed, 24 Jul 2002, Jens Axboe wrote:
+> 
+> > On Wed, Jul 24 2002, Marcin Dalecki wrote:
+> > >
+> > > >
+> > > >Jens, the same is in cciss.c.
+> > > >Please remove locking from blk_stop_queue() (as you suggested) or intrduce
+> > > >unlocking in request_functions.
+> > > >
+> > > Bartek I think the removal is just for reassertion that the
+> > > locking is the problem. You can't remove it easly from
+> > > blk_stop_queue() unless you make it mandatory that blk_stop_queue
+> > > has to be run with the lock already held. Or in other words
+> > > basically -> Don't use blk_stop_queue() outside of ->request_fn.
+> >
+> > Of couse Bart is advocating just making sure that every caller of
+> > blk_stop_queue() _has_ the queue_lock before calling it, not removing
+> > the locking there.
+> >
+> > --
+> > Jens Axboe
+> 
+> And I'm also advocating for __blk_start_queue() ideal for usage in
+> ata_end_request(). And moving spin_lock scope to cover test_and_set_bit()
+> in blk_start_queue() (for coherency and avoiding spurious calls to
+> q->request_fn() ).
 
->  static int trident_suspend(struct pci_dev *dev, u32 unused)
->  {
-> -       struct trident_card *card = (struct trident_card *) dev;
-> +       struct trident_card *card = pci_get_drvdata(dev);
->  
->         if(card->pci_id == PCI_DEVICE_ID_ALI_5451) {
->                 ali_save_regs(card);
-> @@ -3466,7 +3466,7 @@
->  
->  static int trident_resume(struct pci_dev *dev)
->  {
-> -       struct trident_card *card = (struct trident_card *) dev;
-> +       struct trident_card *card = pci_get_drvdata(dev);
->  
->         if(card->pci_id == PCI_DEVICE_ID_ALI_5451) {
->                 ali_restore_regs(card);
+Feel free to send me the patch to compliment the __blk_stop_queue() part
+(which is in axboe@master:/home/axboe/BK/linux-2.5-block, btw).
 
-Thats definitely correct, has this patch been sent to lkml before?
+> However IDE_BUSY -> QUEUE_STOPPED_FLAG is braindamaged idea.
 
-Cheers,
-	Zwane
+I agree.
 
 -- 
-function.linuxpower.ca
+Jens Axboe
 

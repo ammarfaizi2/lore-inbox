@@ -1,183 +1,126 @@
 Return-Path: <owner-linux-kernel-outgoing@vger.rutgers.edu>
-Received: by vger.rutgers.edu via listexpand id <S155532AbPF2XKS>; Tue, 29 Jun 1999 19:10:18 -0400
-Received: by vger.rutgers.edu id <S155489AbPF2XDl>; Tue, 29 Jun 1999 19:03:41 -0400
-Received: from 00-60-67-24-29-83.bconnected.net ([209.53.17.55]:1395 "EHLO lambdamoo.to") by vger.rutgers.edu with ESMTP id <S155455AbPF2XAU>; Tue, 29 Jun 1999 19:00:20 -0400
-Date: Tue, 29 Jun 1999 15:58:15 -0700 (PDT)
-From: Jonathan Walther <krooger@debian.org>
+Received: by vger.rutgers.edu via listexpand id <S156310AbPGBAYF>; Thu, 1 Jul 1999 20:24:05 -0400
+Received: by vger.rutgers.edu id <S155625AbPGBASx>; Thu, 1 Jul 1999 20:18:53 -0400
+Received: from devserv.devel.redhat.com ([207.175.42.156]:21095 "EHLO devserv.devel.redhat.com") by vger.rutgers.edu with ESMTP id <S156090AbPGBAH3>; Thu, 1 Jul 1999 20:07:29 -0400
+From: Alan Cox <alan@redhat.com>
+Message-Id: <199907020007.UAA03365@devserv.devel.redhat.com>
+Subject: Linux 2.2.10ac6
 To: linux-kernel@vger.rutgers.edu
-cc: torvalds@transmeta.com
-Subject: FWD: *BSD Samba enhancements kick Linux/NT ass
-Message-ID: <Pine.LNX.3.96.990629155611.5163A-100000@lambdamoo.to>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Date: Thu, 1 Jul 1999 20:07:28 -0400 (EDT)
+Content-Type: text
 Sender: owner-linux-kernel@vger.rutgers.edu
 
----------- Forwarded message ----------
-Date: Tue, 29 Jun 1999 22:07:15 +0000 (GMT)
-From: Terry Lambert <tlambert@primenet.com>
-To: "Jordan K. Hubbard" <jkh@zippy.cdrom.com>
-Cc: seth@freebie.dp.ny.frb.org, tlambert@primenet.com, krooger@debian.org,
-    jesus.monroy@usa.net, advocacy@FreeBSD.ORG
-Subject: Re: [Linux vs. NT, take 2.]
 
-> > Is there any validity to the discussion on -hackers that real-world
-> > application performance doesn't corroborate the poor benchmark results
-> > (as far as FreeBSD is concerned)?  I'm less concerned that benchmarks
-> 
-> Plenty.  Netbench is notorious for not actually testing the load
-> balancing abilities or performance degradation curve as the number of
-> users increases, both important factors in "real life" testing.
-> Unfortunately, real-life testing is not easily quantified and so we
-> have netbench instead.  Until somebody writes something better, that
-> will be the benchmark to jury-rig your responses for in order to come
-> out ahead on benchmark tests. :-)
-
-The difference between the standalone test that Julian was using
-and the netbench test is not insignificant.
-
-However, even the Netbench test is somewhat representative, in that
-it uses actual code stripped out of Lotus Notes, Word Perfect, and
-other real applications to create the client load.
-
-The thing that is unrealistic about netbench is that it performs
-its operations back to back, so instead of "create a file", "edit
-a long time", "save the edits", it becomes "create a file", "save
-the edits".
-
-If anything, this is a bias *in favor* of large data caches, and
-would be pro-FreeBSD.
+	ftp://ftp.*.kernel.org/pub/linux/kernel/alan/...
 
 
-There are a number of obvious fixes one could make to SAMBA to
-ensure that the SAMBA numbers were much better; I ran into this
-same benchmark (and the much tougher LANPERF benchmark, which
-_does_ similate the "edit a long time" delay) when working on the
-NetWare for UNIX server product.  There are also a number of
-obvious changes to FreeBSD that would speed up the benchmark, as
-well.  Here are some of them:
+2.2.10ac6
+o	Handle corrupt EFS superblocks		(Andrzej M. Krzysztofowicz)
+o	Cyclades driver update			(Ivan Passos)
+o	Z85230 driver fixes			(Daniel Marmier)
+o	Merge 2.2.11pre1
+o	Bounding set sysctl			(Matthew Kirkwood)
+o	Fix lvm + !proc compile case		(Marcelo Tosatti)
+o	Fix radiotrack2 compiled in case	(Jeremy Boulton)
+o	Fix socket/glibc clash			(David Woodhouse)
+o	SPARC resync				(Dave Miller)
+o	Hash bucket fixes for TCP etc		(Dave Miller)
+o	Enable SLAB poisoning so we can try 
+	and get more clues on the disk problem
+	a few folks see				(me)
+o	Merge a slightly cleaned up Buz driver	(Rainer Johanni, Dave Perks)
+	| I 'cleaned' this a bit so mail me bugs first not them
 
-1)	SAMBA should cache the first 9k of any executable file;
-	the clients loader behaviour for executable files is
-	repetitive and non-sequential during the first 9k.  Caching
-	the first 9k will have the following effects:
-
-	A)	The data will be there for the repetitive
-		non-sequential requests when the requests
-		are made
-
-	B)	The requests, since they will result in
-		cache hits, will not, by their non-sequential
-		nature, defeat sequential access detection
-		based read-ahead.
-
-2)	FreeBSD should export an API that does SMB globbing in
-	the kernel.  This will mean that only data matching the
-	pattern need be pushed over the user/kernel boundary,
-	which will reduce the amount of data pushed by a directory
-	iteration by one half (directory iteration is done
-	seperately for files and directories by the clients).
-	SAMBA must be modified to utilize this interface.
-
-3)	SMB clients, by the nature of the NETBIOS calls that
-	a client must initiate to get data, are in fact a
-	combination of other calls and a "stat" in almost all
-	cases.  There are several things you can do about this:
-
-	A)	When FreeBSD is doing a directory iteration, it
-		should pre-fault the inode of each file returned
-		during the iteration (perhaps using the API in #2,
-		above), in the expectation that the stat
-		information will be requested as well.
-
-	B)	The API in #2, above, should probably return the
-		stat information, as well as merely the file name.
-
-	C)	It is reasonable to want to modify or provide
-		aternative versions of the open, close, and other
-		calls that return stat information, as well.
-
-4)	SMB clients will do case insensitive lookups for files
-	that they want to execute or open.  The SAMBA code must
-	implement case insensitivity in user space code.  In
-	the case of a "miss" (e.g. a case mismatch on the stored
-	vs. the requested file name), the SAMBA code must iterate
-	the directory (very expensive) in order to select the
-	matching file name.  This implies that there would be a
-	significant benefit from performing the case insensitive
-	lookup in the kernel.  This is _not_ a variant of #2,
-	above, since it means alternate interfaces for state, open,
-	unlink, rename, and other file-name taking calls.
-
-These changes alone would result in a significant performance
-increase for SAMBA clients.
-
-More advanced changes would be useful as well.  For example, if
-you examine the locality model for SMB using programs, you conclude
-that the following would also be useful:
-
-5)	A method for triggering read-ahead behaviour from user
-	space to usefully trade on the fact that the nature of
-	the client/server communication is request/response.  The
-	read-into-cache could be occurring while the client is
-	receiving and acting on the data sent it, prior to the
-	next request.  The trigger would be pulled after the send
-	to the client, prior to the engine sleeps waiting for
-	more client requests.  As a suggestion, a read of zero
-	bytes would make a useful read-ahead trigger.
-
-6)	Add to the kernel based globbing a negative hit cache
-	based on pattern indices instead of actual strings,
-	per the standard negative hit directory entry lookup
-	cache.
-
-7)	Add to the case insensitve searches a hit lookaside
-	cache.  This could be as simple as placing the looked
-	up name, as well as the matching name, into the directory
-	entry lookup cache.
-
-8)	WINDOWS clients are well known to search many locations
-	for a file, frequently for many different files in a
-	single program instance.  By implementing predictive
-	lookaside cacheing, it should be possible to satisfy
-	the first failing request with the sixth (succesful)
-	request predicted for the file, based on past searches
-	of a similar nature.  This is functually similar to an
-	inversion of the FreeBSD use of /usr/compat/.
-
-9)	Clearly, a lot of time is wasted in translating SMB
-	locks in and out.  This is both because SMB locks are
-	non-coelesced, by definition, resulting in a redundant
-	UNIX "shadow" being maintained for interoperability,
-	and because locks at negative and/or "outrageous" file
-	offsets are often used by programs, such as Excel and
-	Word, to implement internal semaphores.
+2.2.10ac5
+o	Problems with new epic100 - backed out
+o	Further small MIPS merges		(Ralf Baechle)
+o	Fix sysctl for sysrq			(Willy Tarreau)
+o	Wait longer on bootup for keyboard	(priikone)
+o	FAT16/FAT28 update 			(Al Viro)
+o	Removable media disk change bug fix	(Giuliano Pochini)
+o	Allow Masq to handle extended irc CTCP	(Scottie Shore)
+o	Fix shared IRQ handling in serial.c	(David Hinds)
+o	Fix "doubly enqueued task"		(Trond Myklebust)
+o	Sysctl doc update			(Peter Breitenloher)
+o	DEPCA oversize packet fix		(Alexey Kuznetsov)
 
 
-This list is hardly exhaustive, but you should get the idea... a
-few simple changes (except the globbing and case insensitivity
-changes, since FreeBSD's lookup API is incapable of forwarding
-POSIX namespace escapes more than one path component deep because
-of the way its currentl [mis]written and the locking, due to the
-architectural deficiencies in the locking code not permitting
-non-coelescing locks via a parameter change), probably capable
-of being encapsulated in a single kernel module, would result
-in a significant performance improvement, with no other changes.
-
-Now if you wanted to go "whole hog", you would probably turn around
-SMB reads and writes seperately from all other SMB operations, and
-load a kernel module that knew about SMB reads and writes in order
-to do the dirty work... this would resolve the fact that readfile()
-is useless for SMB (and any other protocol that depends on data
-object size and/or a canonical wire format different from the
-cannonical storage format, e.g. POP3, IMAP4, SMTP, ACAP, LDAP, etc.).
+2.2.10ac4 
+o	Merge with all the MIPS tree		(Ralf Baechle and co)
+o	Trix sound driver takes "joystick=1"	(me)
+o	Updated EPIC100 driver			(Don Becker)
+o	Updated NE2K PCI driver			(Don Becker)
+o	Updated RTL8139 driver			(Don Becker)
+o	Updated Tulip driver			(Don Becker)
+o	Updated VIA Rhine driver		(Don Becker)
 
 
-					Terry Lambert
-					terry@lambert.org
----
-Any opinions in this posting are my own and not those of my present
-or previous employers.
+2.2.10ac3
+o	SCSI cmd_len fix			(?? off linux-kernel)
+o	IN2000 SCSI fixes for newer binutils	(Alan Modra)
+o	SMP scsi fixes				(Marcelo Tosatti/me)
+o	Tulip fix				(Keith Owens)
+o	Never oom init				(Andrea Arcangeli)
+o	Fix eepro100 ring alignment		(Jes Sorensen)
+o	Make sysrq runtime configurable		(me)
+o	Quota race fix updates			(Jan Kara)
+o	ARP crash fix				(Alexey Kuznetsov)
+o	Drop the problematic sangoma stuff	(me)
+o	Fix an NFS rpc out of memory handler	(James Yarbrough)
+o	Fix cadet data corruption bug		(Fredrick Gleason)
+o	Large nbd size fix			(??)
+o	Shaper device stats			(Jordi Murgo)
 
+2.2.10ac2
+o	LVM support				(Heinz Mauelshagen)
+o	Fix scsi and bttv symbol problems	(me)
+o	SCSI sleep handling bug fix		(Chris Loveland)
+o	Qlogic update				(Chris Loveland)
+o	Now assume all ZIP IDE floppy firmware is
+	funny. Testing seems to imply it is	(me)
+o	Fix alpha compile bug			(Daniel Frasnelli)
+
+2.2.10ac1
+o	BTTV support for ultrasparc		(DaveM)
+o	Tridge is smbfs maintainers		(Andy Tridgell)
+o	Fix Coda includes			(Arvind Sankar)
+o	Fix mknod over knfsd			(Pavel Krauz)
+
+
+What is different between 2.2.10 and 2.2.10ac (main items)
+
+o	System 5 file system supports V7 disk format
+o	2Gig support or some alphas
+o	Choose 1 or 2Gig support for X86
+o	APM update
+o	Large file arrays
+o	Sparc 64 bttv TV card support
+o	Mappable DMA memory driver for the G200 3D project
+o	WDT watchdog configure options (command line yet to do)
+o	IBM PCI token ring driver
+o	ARLAN driver
+o	Sealevel systems 4021 driver
+o	SEEQ 8005 driver can be a module
+o	SCSI-2 names known by the scsi loggers
+o	Better handling of out of memory during scsi load/unload
+o	SCSI error handler doesn't stop initrd unloads
+o	Experimental sb mode enablers for ESS Maestro-1
+o	Misc small sound fixes
+o	ESS sound fixes (WIP)
+o	VGA16 console support
+o	Quota race fixes
+o	Faster NFS client layer
+o	Updated knfsd
+o	Updated Sangoma drivers (seem to have bugs)
+o	gethere trick for better network code generation
+o	drop kernel lock on some performance critical user access paths
+o	Multipath routing
+o	Updated ksymoops package
+
+
+	Alan Cox, Building #3		Red Hat Software
+	 		<alan@redhat.com>
+	  Spamfiltered by ORBS - http://www.orbs.org
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

@@ -1,71 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288967AbSANTPY>; Mon, 14 Jan 2002 14:15:24 -0500
+	id <S288979AbSANTRx>; Mon, 14 Jan 2002 14:17:53 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288801AbSANTOD>; Mon, 14 Jan 2002 14:14:03 -0500
-Received: from chmls05.mediaone.net ([24.147.1.143]:32999 "EHLO
-	chmls05.mediaone.net") by vger.kernel.org with ESMTP
-	id <S288959AbSANTMk>; Mon, 14 Jan 2002 14:12:40 -0500
-Date: Mon, 14 Jan 2002 13:58:02 -0500
-To: "Eric S. Raymond" <esr@thyrsus.com>,
-        Linux Kernel List <linux-kernel@vger.kernel.org>
-Subject: Re: ISA hardware discovery -- the elegant solution
-Message-ID: <20020114135802.A4762@pimlott.ne.mediaone.net>
-Mail-Followup-To: "Eric S. Raymond" <esr@thyrsus.com>,
-	Linux Kernel List <linux-kernel@vger.kernel.org>
-In-Reply-To: <F50839283B51D211BC300008C7A4D63F0C10759D@eukgunt002.uk.eu.ericsson.se> <20020114111141.A14332@thyrsus.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20020114111141.A14332@thyrsus.com>
-User-Agent: Mutt/1.3.23i
-From: Andrew Pimlott <andrew@pimlott.ne.mediaone.net>
+	id <S288959AbSANTQh>; Mon, 14 Jan 2002 14:16:37 -0500
+Received: from vsdc01.corp.publichost.com ([64.7.196.123]:52749 "EHLO
+	vsdc01.corp.publichost.com") by vger.kernel.org with ESMTP
+	id <S288969AbSANTQI>; Mon, 14 Jan 2002 14:16:08 -0500
+Message-ID: <3C432E72.3020608@vitalstream.com>
+Date: Mon, 14 Jan 2002 11:16:02 -0800
+From: Rick Stevens <rstevens@vitalstream.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.5) Gecko/20011012
+X-Accept-Language: en-us
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: Re: [2.4.17/18pre] VM and swap - it's really unusable
+In-Reply-To: <E16PZbb-0003i6-00@the-village.bc.nu> <87k7ukyjme.fsf@fadata.bg> <20020114030925.A1363@viejo.fsmlabs.com> <E16QC5P-0000nO-00@starship.berlin>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jan 14, 2002 at 11:11:41AM -0500, Eric S. Raymond wrote:
-> Michael Lazarou (ETL) <Michael.Lazarou@etl.ericsson.se>:
-> > Doesn't this mean that you would need a fully functional kernel
-> > before you get to run the autoconfigurator?
+Daniel Phillips wrote:
+
+> On January 14, 2002 10:09 am, yodaiken@fsmlabs.com wrote:
 > 
-> Yes, but this was always true.
+>>UNIX generally tries to ensure liveness. So you know that
+>>	cat lkarchive | grep feel | wc
+>>will complete and not just that, it will run pretty reasonably because
+>>for UNIX _every_ process is important and gets cpu and IO time.
+>>When you start trying to add special low latency tasks, you endanger
+>>liveness.  And preempt is especially corrosive because one of the 
+>>mechanisms UNIX uses to assure liveness is to make sure that once a 
+>>process starts it can do a significant chunk of work.
+>>
+> 
+> You're claiming that preemption by nature is not Unix-like?
 
-I think the point people are getting at is:  If you're re-detecting
-things that have already been detected, doesn't it seem you're going
-about the problem the wrong way?
 
-Most distributors need to solve essentially the same problem you're
-solving (detect hardware and install drivers), but without compiling
-a kernel (if only to spare the user the wait).  To the extent that
-they are successful (and they will presumably put considerable
-effort into it), your compile-time probes are superfluous--you're
-better off piggy-backing on the distribution's hardware detection.
-Eg, derive your .config from the modules the distribution has
-decided to load, or--even simpler--just compile a kernel with the
-same .config as the distributor's kernel, and let the boot-time
-scripts take care of the rest.  The drawback is that this differs
-across distributions--but see below.
+Unix started out life as a _time-sharing_ OS.  It never claimed to
+be preemptive or real time.  For those, you waited a while, then
+got to run MACH.
+----------------------------------------------------------------------
+- Rick Stevens, SSE, VitalStream, Inc.      rstevens@vitalstream.com -
+- 949-743-2010 (Voice)                    http://www.vitalstream.com -
+-                                                                    -
+-        Change is inevitable, except from a vending machine.        -
+----------------------------------------------------------------------
 
-Even if you can usually do a better job, you have two major
-handicaps:  One, you may have to repeat questions that the
-distribution already asked, annoying the user.  Two, if you ever
-screw up something the distribution had working, the user will curse
-you.
-
-Which leads me to conclude that your compile-time autodetection,
-while cool, is a dead-end as far as helping Cousin Billie (though I
-do support the ultimate goal of letting him compile a kernel).
-There are some scenarios where you win, but not enough IMO.
-
-To correct this, retarget the project to solve the distributors'
-problem.  Ie, add a back-end that specifies modules and module
-options, instead of a kernel .config.  Assuming you do a good enough
-job, and meet the distributor's other requirements (eg, running in
-an install environment), then they will use your system for their
-install-time hardware detection.  You can store the results in a
-standard (across distributions!) format, which administrators will
-love (and which can be used by various to-be-written utilities).
-Finally, you can later use the same database for compiling a
-"stripped-down" custom kernel.
-
-Andrew

@@ -1,53 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265627AbTFSGLq (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 19 Jun 2003 02:11:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265661AbTFSGLq
+	id S265661AbTFSGN5 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 19 Jun 2003 02:13:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265670AbTFSGN4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 19 Jun 2003 02:11:46 -0400
-Received: from rwcrmhc12.comcast.net ([216.148.227.85]:50374 "EHLO
-	rwcrmhc12.attbi.com") by vger.kernel.org with ESMTP id S265627AbTFSGLg
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 19 Jun 2003 02:11:36 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Eric Altendorf <EricAltendorf@orst.edu>
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       "Nathaniel W. Filardo" <nwf@andrew.cmu.edu>,
-       swsusp-devel-request@lists.sourceforge.net
-Subject: Re: RTC causes hard lockups in 2.5.70-mm8
-Date: Tue, 17 Jun 2003 12:34:00 -0700
-User-Agent: KMail/1.4.3
-References: <Pine.LNX.4.55L-032.0306122205210.4915@unix48.andrew.cmu.edu> <1055492730.5162.0.camel@dhcp22.swansea.linux.org.uk>
-In-Reply-To: <1055492730.5162.0.camel@dhcp22.swansea.linux.org.uk>
+	Thu, 19 Jun 2003 02:13:56 -0400
+Received: from Mail1.kontent.de ([81.88.34.36]:40877 "EHLO Mail1.KONTENT.De")
+	by vger.kernel.org with ESMTP id S265661AbTFSGNx (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 19 Jun 2003 02:13:53 -0400
+From: Oliver Neukum <oliver@neukum.org>
+To: "Kevin P. Fleming" <kpfleming@cox.net>, Greg KH <greg@kroah.com>
+Subject: Re: [PATCH] udev enhancements to use kernel event queue
+Date: Thu, 19 Jun 2003 08:27:08 +0200
+User-Agent: KMail/1.5.1
+Cc: Robert Love <rml@tech9.net>, Patrick Mochel <mochel@osdl.org>,
+       Andrew Morton <akpm@digeo.com>, sdake@mvista.com,
+       linux-kernel@vger.kernel.org
+References: <3EE8D038.7090600@mvista.com> <20030618225913.GB2413@kroah.com> <3EF10002.7020308@cox.net>
+In-Reply-To: <3EF10002.7020308@cox.net>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <200306171232.27887.EricAltendorf@orst.edu>
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200306190827.08352.oliver@neukum.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 13 June 2003 01:25, Alan Cox wrote:
-> On Gwe, 2003-06-13 at 03:12, Nathaniel W. Filardo wrote:
-> > -----BEGIN PGP SIGNED MESSAGE-----
-> > Hash: SHA1
+Am Donnerstag, 19. Juni 2003 02:12 schrieb Kevin P. Fleming:
+> Greg KH wrote:
+> >>If this kmalloc fails, you'll have a hole in the numbers and
+> >>user space will be very confused. You need to report dropped
+> >>events if you do this.
 > >
-> > If I set CONFIG_RTC=m and rebuild, when the kernel autoloads
-> > rtc.ko the system immediately locks hard, not responding even to
-> > magic SysRq series. Backing out either of the rtc-* patches from
-> > -mm8 does not seem to fix the problem.
+> > Yes, we should add the sequence number last.
 >
-> It seems to be ALI + ACPI related but I dont yet understand what is
-> going on
->
+> While this is not a bad idea, I don't think you want to make a promise
+> to userspace that there will never be gaps in the sequence numbers. When
+> this sequence number was proposed, in my mind it seemed perfect because
+> then userspace could _order_ multiple events for the same device to
+> ensure they got processed in the correct order. I don't know that any
+> hotplug userspace implementation is going to be large and complex enough
+> to warrant "holding" events until lower-numbered events have been
+> delivered. That just seems like a very difficult task with little
+> potential gain, but I could very well be mistaken :-)
 
-I'm running a Toshiba Libretto L2 (Crusoe, ACPI, ALI).  I don't have 
-any troubles with 2.5.63 (which happens to be my current stable 
-kernel).  However, I've been playing with 2.4.21 with just the swsusp 
-patches (not -ac) and with most builds I've tried there, invoking 
-hwclock always hangs the machine (which I assume is rtc related).
+You cannot order events unless you hold such events. One event always
+arrives first. If it's the lower numbered, the point is moot. If it's the
+higher numbered, you'll need to hold it or there's no ordering.
 
-Let me know if I can provide any more information...
+For the paranoid even that is not enough. A hotplug script may die in user
+space due to OOM oe EIO.
 
-Eric
-
+	Regards
+		Oliver
 

@@ -1,157 +1,59 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272176AbRIENv4>; Wed, 5 Sep 2001 09:51:56 -0400
+	id <S272135AbRIENtG>; Wed, 5 Sep 2001 09:49:06 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272178AbRIENvg>; Wed, 5 Sep 2001 09:51:36 -0400
-Received: from ns1.icnet.ro ([193.231.168.1]:58386 "EHLO NS1.ICnet.ro")
-	by vger.kernel.org with ESMTP id <S272176AbRIENvd>;
-	Wed, 5 Sep 2001 09:51:33 -0400
-Date: Wed, 5 Sep 2001 16:48:12 +0300 (EEST)
-From: Cristian Serbanoiu <cs@ICnet.ro>
-To: linux-kernel@vger.kernel.org
-Subject: SMP problem
-Message-ID: <Pine.LNX.4.21.0109051647210.17642-100000@NS1.ICnet.ro>
+	id <S272175AbRIENsz>; Wed, 5 Sep 2001 09:48:55 -0400
+Received: from [145.254.154.249] ([145.254.154.249]:3823 "HELO schottelius.org")
+	by vger.kernel.org with SMTP id <S272135AbRIENsp>;
+	Wed, 5 Sep 2001 09:48:45 -0400
+Message-ID: <3B962D05.F24DED64@pcsystems.de>
+Date: Wed, 05 Sep 2001 15:47:49 +0200
+From: Nico Schottelius <nicos@pcsystems.de>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.7 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Martin Mares <mj@ucw.cz>
+CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH]: problem: pc_keyb.h
+In-Reply-To: <3B8FE42B.23804609@pcsystems.de> <20010831213050.A3217@albireo.ucw.cz> <3B929F72.28BAF955@pcsystems.de> <20010905104008.I751@ucw.cz>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+okay, convinced.
+It wasn't possible to use gpm with 2.0 kernels
+anymore, if pc_keyb.h was included.
+So i copied the relevant parts to our header file
 
-Hello !
+This will appear in gpm-1.19.5.
 
- I'm having serious problems running kernel 2.4.X SMP on a dual processor
-machine.
+Nico
 
- The processors are both PII at 300Mhz but different types(Deschutes and
-Klamath) and different steppings respectively 2 and 4.
+Martin Mares wrote:
 
- The machine reboots immediately after IRQ redirection table is
-displayed.
-
- With `noapic' kernel parameter(which i read should solve some problems)
-i got the same behaviour.
-
-
- This seems to be a problem only with 2.4 kernel since that machine
-is succesfuly running on a 2.2.18 SMP kernel .
-
-Here you have output of `lspci -vv && cat /proc/cpuinfo' on that machine:
-
-
-
-00:00.0 Host bridge: Intel Corporation 440LX/EX - 82443LX/EX Host bridge (rev 03)
-	Control: I/O- Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR+ FastB2B-
-	Status: Cap+ 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort+ >SERR- <PERR-
-	Latency: 64
-	Region 0: Memory at e0000000 (32-bit, prefetchable)
-	Capabilities: [a0] AGP version 1.0
-		Status: RQ=31 SBA+ 64bit- FW- Rate=x1,x2
-		Command: RQ=0 SBA- AGP- 64bit- FW- Rate=<none>
-
-00:01.0 PCI bridge: Intel Corporation 440LX/EX - 82443LX/EX AGP bridge (rev 03) (prog-if 00 [Normal decode])
-	Control: I/O+ Mem+ BusMaster+ SpecCycle+ MemWINV- VGASnoop- ParErr- Stepping- SERR+ FastB2B-
-	Status: Cap- 66Mhz+ UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
-	Latency: 64
-	Bus: primary=00, secondary=01, subordinate=01, sec-latency=64
-	I/O behind bridge: 0000c000-0000cfff
-	Memory behind bridge: e7e00000-efefffff
-	Prefetchable memory behind bridge: dfc00000-dfcfffff
-	BridgeCtl: Parity+ SERR+ NoISA- VGA+ MAbort- >Reset- FastB2B-
-
-00:07.0 ISA bridge: Intel Corporation 82371AB PIIX4 ISA (rev 01)
-	Control: I/O+ Mem+ BusMaster+ SpecCycle+ MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
-	Status: Cap- 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
-	Latency: 0
-
-00:07.1 IDE interface: Intel Corporation 82371AB PIIX4 IDE (rev 01) (prog-if 80 [Master])
-	Control: I/O+ Mem- BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
-	Status: Cap- 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
-	Latency: 64
-	Region 4: I/O ports at ffa0
-
-00:07.2 USB Controller: Intel Corporation 82371AB PIIX4 USB (rev 01) (prog-if 00 [UHCI])
-	Control: I/O+ Mem- BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
-	Status: Cap- 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
-	Latency: 64
-	Interrupt: pin D routed to IRQ 9
-	Region 4: I/O ports at de00
-
-00:07.3 Bridge: Intel Corporation 82371AB PIIX4 ACPI (rev 01)
-	Control: I/O+ Mem+ BusMaster- SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
-	Status: Cap- 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
-
-00:12.0 Ethernet controller: Realtek Semiconductor Co., Ltd. RTL-8139 (rev 10)
-	Subsystem: Realtek Semiconductor Co., Ltd. RT8139
-	Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR+ FastB2B-
-	Status: Cap- 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
-	Latency: 64 (8000ns min, 16000ns max)
-	Interrupt: pin A routed to IRQ 17
-	Region 0: I/O ports at dc00
-	Region 1: Memory at efffff00 (32-bit, non-prefetchable)
-
-00:14.0 Ethernet controller: Realtek Semiconductor Co., Ltd. RTL-8029(AS)
-	Subsystem: Realtek Semiconductor Co., Ltd. RT8029(AS)
-	Control: I/O+ Mem+ BusMaster- SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
-	Status: Cap- 66Mhz- UDF- FastB2B- ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
-	Interrupt: pin A routed to IRQ 19
-	Region 0: I/O ports at da00
-
-01:00.0 VGA compatible controller: S3 Inc. Trio 64 3D (rev 01) (prog-if 00 [VGA])
-	Subsystem: S3 Inc. 86C365 Trio3D AGP
-	Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop+ ParErr- Stepping- SERR- FastB2B-
-	Status: Cap+ 66Mhz- UDF- FastB2B- ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
-	Latency: 64 (1000ns min, 63750ns max)
-	Region 0: Memory at e8000000 (32-bit, non-prefetchable)
-	Expansion ROM at efef0000 [disabled]
-	Capabilities: [44] Power Management version 1
-		Flags: PMEClk- DSI+ D1+ D2- AuxCurrent=0mA PME(D0-,D1-,D2-,D3hot-,D3cold-)
-		Status: D0 PME-Enable- DSel=0 DScale=0 PME-
-
-processor	: 0
-vendor_id	: GenuineIntel
-cpu family	: 6
-model		: 5
-model name	: Pentium II (Deschutes)
-stepping	: 2
-cpu MHz		: 300.685
-cache size	: 512 KB
-fdiv_bug	: no
-hlt_bug		: no
-sep_bug		: no
-f00f_bug	: no
-coma_bug	: no
-fpu		: yes
-fpu_exception	: yes
-cpuid level	: 2
-wp		: yes
-flags		: fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 mmx fxsr
-bogomips	: 599.65
-
-processor	: 1
-vendor_id	: GenuineIntel
-cpu family	: 6
-model		: 3
-model name	: Pentium II (Klamath)
-stepping	: 4
-cpu MHz		: 300.685
-cache size	: 512 KB
-fdiv_bug	: no
-hlt_bug		: no
-sep_bug		: no
-f00f_bug	: no
-coma_bug	: no
-fpu		: yes
-fpu_exception	: yes
-cpuid level	: 2
-wp		: yes
-flags		: fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov mmx
-bogomips	: 601.29
+> Hello!
+>
+> > Martin, can't you add the line I sent in the last mail ?
+> > This would make it possible to include
+> > pc_keyb.h into many programs directly.
+>
+> Please don't do that, user space programs depending on a particular version
+> of kernel headers have already created a horrible mess, so outside the cases
+> where you need to share a definition of some kernel<->userspace interface,
+> kernel headers really shouldn't be used outside the kernel.
+>
+>                                 Have a nice fortnight
+> --
+> Martin `MJ' Mares   <mj@ucw.cz>   http://atrey.karlin.mff.cuni.cz/~mj/
+> Faculty of Math and Physics, Charles University, Prague, Czech Rep., Earth
+> Don't take life too seriously
+> -- you'll never get out of it alive.
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 
 
-
-Thank you !
-
-
-
-Cristian Serbanoiu
 

@@ -1,99 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S279329AbRJWJQa>; Tue, 23 Oct 2001 05:16:30 -0400
+	id <S279333AbRJWJpX>; Tue, 23 Oct 2001 05:45:23 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S279330AbRJWJQU>; Tue, 23 Oct 2001 05:16:20 -0400
-Received: from four.malevolentminds.com ([216.177.76.238]:14090 "EHLO
-	four.malevolentminds.com") by vger.kernel.org with ESMTP
-	id <S279329AbRJWJQM>; Tue, 23 Oct 2001 05:16:12 -0400
-Date: Tue, 23 Oct 2001 09:16:49 +0000 (GMT)
-From: Khyron <khyron@khyron.com>
-X-X-Sender: <khyron@four.malevolentminds.com>
-To: <linux-kernel@vger.kernel.org>
-Subject: AIC-7xxx and 2.4.8 (or which release *should* I use)?
-Message-ID: <Pine.BSF.4.33.0110230610580.31719-100000@four.malevolentminds.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S279334AbRJWJpN>; Tue, 23 Oct 2001 05:45:13 -0400
+Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:5643 "EHLO
+	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
+	id <S279333AbRJWJo7>; Tue, 23 Oct 2001 05:44:59 -0400
+Date: Tue, 23 Oct 2001 11:44:07 +0200
+From: Pavel Machek <pavel@suse.cz>
+To: Patrick Mochel <mochel@osdl.org>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+        Jeff Garzik <jgarzik@mandrakesoft.com>, linux-kernel@vger.kernel.org
+Subject: Re: [RFC] New Driver Model for 2.5
+Message-ID: <20011023114407.B2639@atrey.karlin.mff.cuni.cz>
+In-Reply-To: <E15vpU0-00045L-00@the-village.bc.nu> <Pine.LNX.4.33.0110221726140.25103-100000@osdlab.pdx.osdl.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.33.0110221726140.25103-100000@osdlab.pdx.osdl.net>
+User-Agent: Mutt/1.3.20i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I am attempting to build a 2.4.8 kernel for use on a VA Linux
-2230 system. The system, running the stock VA kernel, reports
-itself as containing an "<Adaptec AIC-7896/7 Ultra2 SCSI host
-adapter>".
+Hi!
 
-I have been patching 2.4.8 with Justin Gibbs' patches from
-http://people.freebsd.org/~gibbs/linux/, specifically the
-6.2.4 patch for 2.4.8.
+> > > 	/* Now tell them to stop I/O and save their state */
+> > > 	device_suspend(3, SUSPEND_SAVE_STATE);
+> >
+> > I'd very much like this one to be two pass, with the second pass occuring
+> > after interrupts are disabled. There are some horrible cases to try and
+> > handle otherwise (like devices that like to jam the irq line high).
+> 
+> I forgot to mention to disable interrupts after the SUSPEND_NOTIFY call.
+> The idea is to allocate all memory in the first pass, disable interrupts,
+> then save state. Would that work? Or, should some of the state saving take
+> place with interrupts enabled?
 
-Now, I have yet to encounter a situation where using this
-kernel (with everything compiled in - I'm kickstarting the
-VA box with this kernel) _fails_ to generate the following
-errors (in no particular order):
-
-aic7xxx_abort returns 0x2002
-aic7xxx_dev_reset returns 0x2002
-scsi: device set offline - not ready or command retry failed
-after bus reset host 1 channel 0 id 0 lun 0
-
->From looking thru the messages file on a second 2230 (they
-were a pair), I see this:
-
-(scsi0) <Adaptec AIC-7896/7 Ultra2 SCSI host adapter> found at PCI 0/12/0
-(scsi0) Wide Channel A, SCSI ID=7, 32/255 SCBs
-(scsi0) Downloading sequencer code... 395 instructions downloaded
-(scsi1) <Adaptec AIC-7896/7 Ultra2 SCSI host adapter> found at PCI 0/12/1
-(scsi1) Wide Channel B, SCSI ID=7, 32/255 SCBs
-(scsi1) Downloading sequencer code... 395 instructions downloaded
-scsi0 : Adaptec AHA274x/284x/294x (EISA/VLB/PCI-Fast SCSI) 5.1.27/3.2.4
-       <Adaptec AIC-7896/7 Ultra2 SCSI host adapter>
-scsi1 : Adaptec AHA274x/284x/294x (EISA/VLB/PCI-Fast SCSI) 5.1.27/3.2.4
-       <Adaptec AIC-7896/7 Ultra2 SCSI host adapter>
-scsi : 2 hosts.
-
-Which leads me to believe that there are 2 busses served by
-this adapter. Correct, incorrect or otherwise?
-
-There are 4 Seagate ST318404LW disks on the bus. The Adaptec
-BIOS reads as a 7896 version 2.20S1B1.
-
-I compiled a 2.4.8 kernel w/o the 6.2.4 driver and now I get
-these errors:
-
-aic7xxx_abort returns 8194
-aic7xxx_dev_reset returns 8194
-scsi: device set offline - not ready or command retry failed
-after bus reset host 0 channel 0 id 0 lun 0
-
-Apparently, its probing the bus incessantly since the target ID
-keeps incrementing thru 15 then starts at 0 again. This behavior
-has happened with both the 2.4.8+6.2.4 and stock 2.4.8 before
-oopsing out. I can collect the oops data but I haven't as yet.
-
-I have tried adjusting the TCQ per device to 128 and 64 (on
-2.4.8+6.2.4) and to 128 and 8 on the stock 2.4.8 build.
-
-So my ultimate question is is this kernel rev (2.4.8), with or
-w/o the 6.2.4 driver, appropriate? Should I be looking at 2.4.12
-or even an -ac release? What steps should I be taking in this
-regard? Is there any other useful information I should provide
-for this to make sense? What do these errors indicate?
-
-Any and all advice accepted. This is killing me!
-
-I receive the LKML digests from Dell but not individual submissions.
-Direct replied are fine.
-
-TIA!
-
-
-"Everyone's got a story to tell, and everyone's got some pain.
- And so do you. Do you think you are invisble?
- And everyone's got a story to sell, and everyone is strange.
- And so are you. Did you think you were invincible?"
- 	- "Invisible", Majik Alex
-
-
-
-
-
+That looks ugly, because you'd need to add DONT_SUSPEND_NOTIFY, called
+when SUSPEND_NOTIFY fails.
+								Pavel
+-- 
+Casualities in World Trade Center: 6453 dead inside the building,
+cryptography in U.S.A. and free speech in Czech Republic.

@@ -1,64 +1,59 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268992AbRG3QRm>; Mon, 30 Jul 2001 12:17:42 -0400
+	id <S269002AbRG3QVm>; Mon, 30 Jul 2001 12:21:42 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268994AbRG3QRd>; Mon, 30 Jul 2001 12:17:33 -0400
-Received: from mailhost.lineo.fr ([194.250.46.226]:24849 "EHLO
+	id <S268996AbRG3QVc>; Mon, 30 Jul 2001 12:21:32 -0400
+Received: from mailhost.lineo.fr ([194.250.46.226]:26897 "EHLO
 	mailhost.lineo.fr") by vger.kernel.org with ESMTP
-	id <S268992AbRG3QRY>; Mon, 30 Jul 2001 12:17:24 -0400
-Date: Mon, 30 Jul 2001 18:17:31 +0200
+	id <S268994AbRG3QVT>; Mon, 30 Jul 2001 12:21:19 -0400
+Date: Mon, 30 Jul 2001 18:21:24 +0200
 From: christophe =?iso-8859-1?Q?barb=E9?= <christophe.barbe@lineo.fr>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Test mail
-Message-ID: <20010730181731.A20366@pc8.lineo.fr>
-In-Reply-To: <Pine.LNX.4.33L.0107300101490.11893-100000@imladris.rielhome.conectiva> <Pine.LNX.4.33.0107300826510.14171-100000@infradead.org>
+To: Stuart MacDonald <stuartm@connecttech.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: serial console and kernel 2.4
+Message-ID: <20010730182124.C20366@pc8.lineo.fr>
+In-Reply-To: <200107301520.f6UFKtT06867@localhost.localdomain> <20010730173702.C19605@pc8.lineo.fr> <035001c1190f$c6b46700$294b82ce@connecttech.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 8bit
-In-Reply-To: <Pine.LNX.4.33.0107300826510.14171-100000@infradead.org>; from rhw@MemAlpha.CX on lun, jui 30, 2001 at 09:28:53 +0200
+In-Reply-To: <035001c1190f$c6b46700$294b82ce@connecttech.com>; from stuartm@connecttech.com on lun, jui 30, 2001 at 17:53:28 +0200
 X-Mailer: Balsa 1.1.7-cvs20010726
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
-Would it not be simple and effective to filter out mail produced by
-Outlook?
-It sounds to me the equivalent of RBL & co.
-RBL filter out mail from open relay used to spam us.
-NoOutlook filter out mail from poor software/OS used to propagate viruses.
-
-I guess that 100% of incomming viruses in lkml come from a Outlook mailer.
-And for the last two ones I'm sure.
+I fully agree with you that the patch is not correct and I'm sure that Reto
+agree too.
+I'm looking in the code to find the reason but it sounds not easy (termio
+stuff ever scare me).
+Do you remember a related thread ? with a correct solution ?
 
 Christophe
 
-Le lun, 30 jui 2001 09:28:53, Riley Williams a écrit :
-> Hi Rik.
+
+Le lun, 30 jui 2001 17:53:28, Stuart MacDonald a écrit :
+> From: "christophe barbé" <christophe.barbe@lineo.fr>
+> > "it works for me" is better that no answer for me. So Thank you for
+> your
+> > answer.
+> > Reto give me a solution : because of a flag all incomming char are
+> ignored.
+> > So now I need to find why this flag is ok for you and not for me.
 > 
-> On Mon, 30 Jul 2001, Rik van Riel wrote:
+> The patch breaks the correct operation of the serial driver.
+> CREAD is the flag that enables/disables the rx side of the serial
+> port. The kernel or whatever service is trying to use the console
+> doesn't set CREAD, so rxed (incoming) characters are ignored.
 > 
->  > On Mon, 30 Jul 2001, Anton Altaparmakov wrote:
+> You need to find out why the CREAD handling isn't done properly.
+> This has come up a number of times on lkml recently; you should
+> be able to find an appropriate answer or pointer in the right
+> direction by checking the archives.
 > 
->  >> At 23:20 29/07/2001, Mailing Server wrote:
+> Patching the driver breaks the driver instead of fixing the problem.
 > 
->  >>>Hi, just verifying email, enjoy the attached file.
+> ..Stu
 > 
->  >> Would it be possible to have lkml setup to filter out this kind of
->  >> crap?!?
-> 
->  > IIRC lkml already has pretty strict filters.
->  >
->  > However, you cannot have your filters prepared for
->  > any random thing. Eventually something will get
->  > through.
->  >
->  > It seems that this month's something just got through.
-> 
-> Surely it should be simple to check that each piece of mail has a from
-> address in it, and either kill any that doesn't, or at least plug in
-> the envelope from address in its place?
-> 
-> Best wishes from Riley.
 > 
 > -
 > To unsubscribe from this list: send the line "unsubscribe linux-kernel"

@@ -1,56 +1,63 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S273163AbRIWCzM>; Sat, 22 Sep 2001 22:55:12 -0400
+	id <S273131AbRIWCyM>; Sat, 22 Sep 2001 22:54:12 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S273210AbRIWCzD>; Sat, 22 Sep 2001 22:55:03 -0400
-Received: from johnson.mail.mindspring.net ([207.69.200.177]:22058 "EHLO
-	johnson.mail.mindspring.net") by vger.kernel.org with ESMTP
-	id <S273132AbRIWCyx> convert rfc822-to-8bit; Sat, 22 Sep 2001 22:54:53 -0400
-Subject: Re: [PATCH] Preemption Latency Measurement Tool
-From: Robert Love <rml@tech9.net>
-To: Dieter =?ISO-8859-1?Q?N=FCtzel?= <Dieter.Nuetzel@hamburg.de>
-Cc: safemode <safemode@speakeasy.net>, george anzinger <george@mvista.com>,
-        Oliver Xymoron <oxymoron@waste.org>, Andrea Arcangeli <andrea@suse.de>,
-        Roger Larsson <roger.larsson@norran.net>,
-        linux-kernel <linux-kernel@vger.kernel.org>,
-        ReiserFS List <reiserfs-list@namesys.com>
-In-Reply-To: <200109222347.f8MNlMG25157@zero.tech9.net>
-In-Reply-To: <Pine.LNX.4.30.0109201659210.5622-100000@waste.org>
-	<20010922211919Z272247-760+15646@vger.kernel.org>  
-	<200109222347.f8MNlMG25157@zero.tech9.net>
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
-X-Evolution-Format: text/plain
-X-Mailer: Evolution/0.13.99+cvs.2001.09.21.20.26 (Preview Release)
-Date: 22 Sep 2001 22:54:49 -0400
-Message-Id: <1001213691.873.15.camel@phantasy>
-Mime-Version: 1.0
+	id <S273132AbRIWCyC>; Sat, 22 Sep 2001 22:54:02 -0400
+Received: from ip122-15.asiaonline.net ([202.85.122.15]:30089 "EHLO
+	uranus.planet.rcn.com.hk") by vger.kernel.org with ESMTP
+	id <S273131AbRIWCxo>; Sat, 22 Sep 2001 22:53:44 -0400
+Date: Sun, 23 Sep 2001 10:49:48 +0800 (HKT)
+From: David Chow <davidtl@rcn.com.hk>
+X-X-Sender: <davidtl@uranus.planet.rcn.com.hk>
+To: Alexander Viro <viro@math.psu.edu>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: vfs_symlink return NULL inode
+In-Reply-To: <Pine.GSO.4.21.0109220845230.11204-100000@weyl.math.psu.edu>
+Message-ID: <Pine.LNX.4.33.0109231046370.25177-100000@uranus.planet.rcn.com.hk>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2001-09-22 at 19:46, Dieter Nützel wrote:
-> Nope.
-> If you would have read (all) posts about this and related threads you should 
-> have noticed that I am and others running SCSI systems...
-> 
+On Sat, 22 Sep 2001, Alexander Viro wrote:
+
+>
+>
+> On Sat, 22 Sep 2001, David Chow wrote:
+>
+> > Dear all,
 > >
-> > even i dont get any skips when i run the player at nice -n -20. 
-> 
-> During dbench 16/32 and higher? Are you sure?
+> > I have one question from using vfs_symlink, is it usual after I called
+> > vfs_symlink that will return a dentry with dentry->d_inode == NULL???
+>
+> vfs_symlink() returns an integer, not dentry.
+>
+> > The link was sucessfully created but I receive a null inode pointer.
+> > When creating a symlink it should also create an inode. But according to
+> > the documentation about VFS from Richard, the symlink call of
+> > inode_operations, should self call d_instantiate() this also means it
+> > should automatically create an inode pointer. This shouldn't be done by
+> > the caller???? Any hints? the vfs_create works fine and return with a
+> > proper inode number, why vfs_symlink doesn't? Thanks.
+>
+> No, it doesn't.  vfs_create() returns 0 in case of success and small negative
+> number in case of error.  Neither has any relation to inode numbers.
+>
+> dentry you've passed to it is modified - it gets non-NULL ->d_inode _if_
+> operation succeeded.  Which is not guaranteed - depends on kind of filesystem,
+> length of symlink body, permissions, etc.
+>
+> So unless you tell what you are passing to vfs_symlink(), what does it
+> return, etc. - there's nothing anyone could do.  We might be smart, by
+> I'm not aware of anybody here being telepathic.
+>
+I shouldn't say return, it is the dentry that I pass to vfs_symlink() and
+vfs_create(). The dentry passed to vfs_create did pass back a proper
+dentry->d_inode. For the vfs_symlink() it didn't?? Even the link was
+sucessfully created on the filesystem. The dentry->d_inode is NULL. That's
+the story... thanks.
 
-I can't speak for safemode, but doing something like:
+regards,
 
-[22:43:47]rml@phantasy:~$ mpg321 /home/mp3/Get_Up_Kids-Woodson.mp3 &
-[22:52:03]rml@phantasy:~$ dbench 16
-
-I don't get any blips (nothing over 0.5s, anyhow, I would wager).
-
-This is a P3-733, i815 board, 384MB PC133, AHA-2940U2W, U2W IBM 9GB system.
-
-Linux 2.4.9-ac14 + preempt + and more
-
--- 
-Robert M. Love
-rml at ufl.edu
-rml at tech9.net
+David Chow
 

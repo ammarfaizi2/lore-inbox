@@ -1,104 +1,60 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129176AbRBIUmf>; Fri, 9 Feb 2001 15:42:35 -0500
+	id <S129106AbRBIUqF>; Fri, 9 Feb 2001 15:46:05 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129259AbRBIUm0>; Fri, 9 Feb 2001 15:42:26 -0500
-Received: from cust-795-150.customer.jump.net ([207.8.95.150]:55052 "EHLO
-	dev.audiogalaxy.com") by vger.kernel.org with ESMTP
-	id <S129176AbRBIUmQ>; Fri, 9 Feb 2001 15:42:16 -0500
-Date: Fri, 9 Feb 2001 14:42:11 -0600 (CST)
-From: Michael Merhej <michael@audiogalaxy.com>
-To: <linux-kernel@vger.kernel.org>
-Subject: 2.4.1ac3 vs 2.4.1ac8
-Message-ID: <Pine.LNX.4.30.0102091411180.10189-100000@dev.audiogalaxy.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S129259AbRBIUp4>; Fri, 9 Feb 2001 15:45:56 -0500
+Received: from t1-11.realtime.net ([205.238.131.11]:51412 "EHLO
+	bella.auschron.com") by vger.kernel.org with ESMTP
+	id <S129106AbRBIUps>; Fri, 9 Feb 2001 15:45:48 -0500
+Date: Fri, 9 Feb 2001 14:45:34 -0600
+From: Lindsey Simon <lsimon@auschron.com>
+To: linux-kernel@vger.kernel.org
+Subject: booting the 2.4.1 linux kernel... tada,nada
+Message-ID: <20010209144534.B379@bella.auschron.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2i
+X-OS: Linux bella 2.2.17
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Basic Machine configuration:
+[1.] Once I get the loading the kernel message from Lilo I hard crash without any error
+messages.
+[2.] I had no trouble making the bzImage and have installed it made it and installed it
+three different times from scratch, once using debian's make-kpkg tool, but still I get
+the same outcome - a hard crash with no error messages. I get the Loading
+Linux.2.4.1........... ok,now booting the kernel and then BANG, I go dead with no error
+message of any kind.
+[3.] kernel
+[4.] Linux version 2.2.17 (root@bella) (gcc version 2.95.2 20000220 (Debian GNU/Linux
+)) #1 SMP Thu Nov 9 13:54:02 CST 2000
+ 
+[7.] Debian Potato, some testing packages..
+[7.1.]
+bella:/usr/src/linux_2.4.1# sh scripts/ver_linux 
+-- Versions installed: (if some fields are empty or look
+-- unusual then possibly you have very old versions)
+Linux bella 2.2.17 #1 SMP Thu Nov 9 13:54:02 CST 2000 i586 unknown
+Kernel modules         2.4.1
+Gnu C                  2.95.2
+Gnu Make               3.79.1
+Binutils               2.9.5.0.37
+Linux C Library        2.2.1
+Dynamic linker         ldd: version 1.9.11
+Procps                 2.0.6
+Mount                  2.10f
+Net-tools              2.05
+Kbd                    0.96
+Sh-utils               2.0
+Modules Loaded         sb uart401 sound soundcore 3c59x
 
-SMP Supermicro board
-2 gigabytes of ECC Registered ram
-Adaptec AIC-7892
-eepro100 onboard nic
+I upgraded all the packages mentioned in the Changes file and have run out of ideas for
+what to try next.. I upgraded lilo thinking that might fix things, but that changed
+nothing. Thanks for any help.
 
-The machine has been running as a database server with no MySQL crashes
-for several months and has run fine with kernels 2.2.18 and 2.4.1ac3.
-
-We have seen a HUGE improvement in the processing power and file
-access from kernel 2.4.1ac3 to 2.4.1ac8, but MySQL crashes every few hours
-with the following error on 2.4.1ac8:
-
-mysqld version: 3.23.32
-
-mysqld got signal 11;
-The manual section 'Debugging a MySQL server' tells you how to use a
-stack trace and/or the core file to produce a readable backtrace that may
-help in finding out why mysqld died
-Attemping backtrace. You can use the following information to find out
-where mysqld died.  If you see no messages after this, something went
-terribly wrong
-Bogus stack limit or frame pointer, aborting backtrace
-
-
-With 2.4.1.ac8 syslog has been spitting out the following errors:
-
-Feb  8 23:12:38 db1 kernel: __alloc_pages: 0-order allocation failed.
-Feb  8 23:34:54 db1 kernel: __alloc_pages: 2-order allocation failed.
-Feb  8 23:34:54 db1 kernel: IP: queue_glue: no memory for gluing queue
-ef1c1de0
-Feb  8 23:34:55 db1 kernel: __alloc_pages: 2-order allocation failed.
-
-Feb  8 23:34:55 db1 kernel: IP: queue_glue: no memory for gluing queue
-ef1c1ee0
-Feb  8 23:34:56 db1 kernel: __alloc_pages: 2-order allocation failed.
-Feb  8 23:34:56 db1 kernel: IP: queue_glue: no memory for gluing queue
-ef1c1160
-Feb  8 23:34:59 db1 kernel: __alloc_pages: 2-order allocation failed.
-Feb  8 23:34:59 db1 kernel: IP: queue_glue: no memory for gluing queue
-ef1c11a0
-Feb  8 23:35:05 db1 kernel: nfs: server toastem not responding, still
-trying
-Feb  8 23:35:05 db1 kernel: __alloc_pages: 2-order allocation failed.
-Feb  8 23:35:05 db1 kernel: IP: queue_glue: no memory for gluing queue
-c322e520
-Feb  8 23:35:06 db1 kernel: __alloc_pages: 2-order allocation failed.
-Feb  8 23:35:06 db1 kernel: IP: queue_glue: no memory for gluing queue
-ef1c11a0
-Feb  8 23:36:04 db1 kernel: __alloc_pages: 2-order allocation failed.
-Feb  8 23:36:04 db1 kernel: IP: queue_glue: no memory for gluing queue
-c322ea60
-Feb  8 23:36:05 db1 kernel: __alloc_pages: 2-order allocation failed.
-Feb  8 23:36:05 db1 kernel: IP: queue_glue: no memory for gluing queue
-c322ea60
-Feb  8 23:36:06 db1 kernel: __alloc_pages: 2-order allocation failed.
-Feb  8 23:36:06 db1 kernel: IP: queue_glue: no memory for gluing queue
-c322ea60
-
-Feb  9 00:00:13 db1 kernel: __alloc_pages: 1-order allocation failed.
-Feb  9 00:00:21 db1 last message repeated 269 times
-
-Feb  9 00:15:13 db1 kernel: __alloc_pages: 1-order allocation failed.
-Feb  9 00:15:19 db1 last message repeated 114 times
-
-etc
-
-
-
-We would love to stay with kernel 2.4.1ac8 because of the huge speed
-increase.
-
-Queries / Sec on this machine are from about 300 - 1700
-
-If you need more information please email me.
-
-
-
-Thanks
-
-
-
+--lindsey
+ 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

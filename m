@@ -1,69 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317359AbSHZNNt>; Mon, 26 Aug 2002 09:13:49 -0400
+	id <S317063AbSHZNMs>; Mon, 26 Aug 2002 09:12:48 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317387AbSHZNNt>; Mon, 26 Aug 2002 09:13:49 -0400
-Received: from 212.68.254.82.brutele.be ([212.68.254.82]:21255 "EHLO debian")
-	by vger.kernel.org with ESMTP id <S317359AbSHZNNs>;
-	Mon, 26 Aug 2002 09:13:48 -0400
-Date: Mon, 26 Aug 2002 15:18:02 +0200
-From: Stephane Wirtel <stephane.wirtel@belgacom.net>
-To: Lucio Maciel <abslucio@terra.com.br>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: 2.4.20-pre4-ac2 - where are the drivers 3COM ?
-Message-ID: <20020826131802.GA14266@debian>
-Mail-Followup-To: Lucio Maciel <abslucio@terra.com.br>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <20020826122920.GA14018@debian> <1030367592.28478.10.camel@walker>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-15
-Content-Disposition: inline
-In-Reply-To: <1030367592.28478.10.camel@walker>
-User-Agent: Mutt/1.3.28i
-X-Operating-System: GNU/Linux
-X-LUG: Linux Users Group Mons ( Linux-Mons )
-X-URL: http://www.linux-mons.be
+	id <S317473AbSHZNMs>; Mon, 26 Aug 2002 09:12:48 -0400
+Received: from mailgate5.cinetic.de ([217.72.192.165]:22488 "EHLO
+	mailgate5.cinetic.de") by vger.kernel.org with ESMTP
+	id <S317063AbSHZNMq>; Mon, 26 Aug 2002 09:12:46 -0400
+Date: Mon, 26 Aug 2002 15:16:50 +0200
+Message-Id: <200208261316.g7QDGoX12068@mailgate5.cinetic.de>
+MIME-Version: 1.0
+Organization: http://freemail.web.de/
+From: <joerg.beyer@email.de>
+To: joerg.beyer@email.de, "ZwaneMwaikambo" <zwane@linuxpower.ca>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Re: Re: <no subject>
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-On Mon, Aug 26, 2002 at 10:13:11AM -0300, Lucio Maciel wrote:
-> Hi..
+Zwane Mwaikambo <zwane@linuxpower.ca> schrieb am 25.08.02 14:10:12:
+> On Sun, 25 Aug 2002 joerg.beyer@email.de wrote:
 > 
-> Try to enable ISA support...
-> 
-thanks :-)
-
-stephane wirtel
-
-> 
-> On Mon, 2002-08-26 at 09:29, Stephane Wirtel wrote:
-> > in the menu "Ethernet (10 or 100Mbit)", i founded only one driver for 3COM
-> > cards, where are the others ? deleted ?
+> > you are right, I had no dma enabled. Now I recomiled the kernel with this
+> > dma-related options:
+> > 
+> > CONFIG_BLK_DEV_IDEDMA_PCI=y
+> > # CONFIG_BLK_DEV_IDEDMA_FORCED is not set
+> > CONFIG_IDEDMA_PCI_AUTO=y
+> > # CONFIG_IDEDMA_ONLYDISK is not set
+> > CONFIG_BLK_DEV_IDEDMA=y
+> > # CONFIG_IDEDMA_PCI_WIP is not set
+> > # CONFIG_BLK_DEV_IDEDMA_TIMEOUT is not set
+> > # CONFIG_IDEDMA_NEW_DRIVE_LISTINGS is not set
+> > CONFIG_BLK_DEV_ADMA=y
+> > # CONFIG_HPT34X_AUTODMA is not set
+> > CONFIG_IDEDMA_AUTO=y
+> > # CONFIG_IDEDMA_IVB is not set
+> > # CONFIG_DMA_NONPCI is not set
 > > 
 > > 
-> > best regards
-> > 
-> > 		stephane wirtel
-> > -- 
-> > Stephane Wirtel <stephane.wirtel@belgacom.net>
-> > Web : www.linux-mons.be	 "Linux Is Not UniX !!!"
-> > -
-> > To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> > the body of a message to majordomo@vger.kernel.org
-> > More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> > Please read the FAQ at  http://www.tux.org/lkml/
-> > 
+> > and I still get many many errors on the nic. Do I need something more in .config?
 > 
-> regards
-> -- 
-> ::: Lucio F. Maciel
-> ::: abslucio@terra.com.br
-> ::: icq 93065464
-> ::: Absoluta.net
-> 
+> That should fix your slowdown during untarring/disk access, as for your 
+> NIC problem looks like you might be having a receive FIFO overflow, so 
+> perhaps the card stops processing incoming packets? I have no clue, 
+> Jeff?
 
--- 
-Stephane Wirtel <stephane.wirtel@belgacom.net>
-Web : www.linux-mons.be	 "Linux Is Not UniX !!!"
+I set max_interrupt_work to higher values, 
+e.g. 500 (instead of the default value 20) and the message in /var/log/messages
+does not appear - no wonder. But I still get large numbes of RX errors and
+RX overruns (these numbers are equal most of the time). So receiving
+is to slow and brings RX overruns.
+
+Is there anything I can do about it? 
+
+It's a Athlon 1200 and that should be
+fast enough to receive data on a single connection.
+
+    still confused, but now on a higher level
+    Joerg
+

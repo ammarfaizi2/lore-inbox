@@ -1,51 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267640AbUHELWL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267650AbUHEL0K@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267640AbUHELWL (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Aug 2004 07:22:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267646AbUHELWL
+	id S267650AbUHEL0K (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Aug 2004 07:26:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267646AbUHEL0J
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Aug 2004 07:22:11 -0400
-Received: from zork.zork.net ([64.81.246.102]:12522 "EHLO zork.zork.net")
-	by vger.kernel.org with ESMTP id S267640AbUHELUD (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Aug 2004 07:20:03 -0400
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.8-rc3-mm1
-References: <20040805031918.08790a82.akpm@osdl.org>
-From: Sean Neakums <sneakums@zork.net>
-Mail-Followup-To: Andrew Morton <akpm@osdl.org>,
- linux-kernel@vger.kernel.org
-Date: Thu, 05 Aug 2004 12:20:02 +0100
-In-Reply-To: <20040805031918.08790a82.akpm@osdl.org> (Andrew Morton's
- message
-	of "Thu, 5 Aug 2004 03:19:18 -0700")
-Message-ID: <6u4qnhzva5.fsf@zork.zork.net>
-User-Agent: Gnus/5.110003 (No Gnus v0.3) Emacs/21.3 (gnu/linux)
-MIME-Version: 1.0
+	Thu, 5 Aug 2004 07:26:09 -0400
+Received: from electric-eye.fr.zoreil.com ([213.41.134.224]:34770 "EHLO
+	fr.zoreil.com") by vger.kernel.org with ESMTP id S267649AbUHELYL
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 5 Aug 2004 07:24:11 -0400
+Date: Thu, 5 Aug 2004 13:22:33 +0200
+From: Francois Romieu <romieu@fr.zoreil.com>
+To: Hector Martin <hector@marcansoft.com>
+Cc: Pasi Sjoholm <ptsjohol@cc.jyu.fi>,
+       Robert Olsson <Robert.Olsson@data.slu.se>,
+       Linux-Kernel <linux-kernel@vger.kernel.org>, akpm@osdl.org,
+       netdev@oss.sgi.com, brad@brad-x.com, shemminger@osdl.org
+Subject: Re: ksoftirqd uses 99% CPU triggered by network traffic (maybe RLT-8139 related)
+Message-ID: <20040805132233.A7430@electric-eye.fr.zoreil.com>
+References: <Pine.LNX.4.44.0408041915510.14609-100000@silmu.st.jyu.fi> <41120882.40302@marcansoft.com> <41121237.4050305@marcansoft.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-X-SA-Exim-Connect-IP: <locally generated>
-X-SA-Exim-Mail-From: sneakums@zork.net
-X-SA-Exim-Scanned: No (on zork.zork.net); SAEximRunCond expanded to false
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <41121237.4050305@marcansoft.com>; from hector@marcansoft.com on Thu, Aug 05, 2004 at 12:55:51PM +0200
+X-Organisation: Land of Sunshine Inc.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Built successfully with SMP=y, but with SMP=n I got the following:
+Hector Martin <hector@marcansoft.com> :
+[...]
+> using a stabler TCP/IP stack. This one works OK. No problem so far... 
+> anyway, even though it stopped and I had to restart the PS2 some times, 
+> the PC has been receiving packets with no reboot whatsoever. I think 
+> it's fixed :)
 
-  CC      kernel/sched.o
-kernel/sched.c: In function `show_schedstat':
-kernel/sched.c:372: error: structure has no member named `sd'
-kernel/sched.c:372: error: dereferencing pointer to incomplete type
-kernel/sched.c:375: error: dereferencing pointer to incomplete type
-kernel/sched.c:380: error: dereferencing pointer to incomplete type
-kernel/sched.c:381: error: dereferencing pointer to incomplete type
-kernel/sched.c:382: error: dereferencing pointer to incomplete type
-kernel/sched.c:383: error: dereferencing pointer to incomplete type
-kernel/sched.c:384: error: dereferencing pointer to incomplete type
-kernel/sched.c:387: error: dereferencing pointer to incomplete type
-kernel/sched.c:387: error: dereferencing pointer to incomplete type
-kernel/sched.c:388: error: dereferencing pointer to incomplete type
-kernel/sched.c:388: error: dereferencing pointer to incomplete type
-make[1]: *** [kernel/sched.o] Error 1
-make: *** [kernel] Error 2
+Ok, I'll send the final version of the patches for inclusion in -netdev
+and/or -mm this evening. It will provide a broader testing.
 
+--
+Ueimor

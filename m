@@ -1,46 +1,29 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S270896AbRHNWGD>; Tue, 14 Aug 2001 18:06:03 -0400
+	id <S270891AbRHNWLd>; Tue, 14 Aug 2001 18:11:33 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S270895AbRHNWFx>; Tue, 14 Aug 2001 18:05:53 -0400
-Received: from itvu-63-210-168-13.intervu.net ([63.210.168.13]:4491 "EHLO
-	pga.intervu.net") by vger.kernel.org with ESMTP id <S270885AbRHNWFo>;
-	Tue, 14 Aug 2001 18:05:44 -0400
-Message-ID: <3B79A272.48CD19B0@randomlogic.com>
-Date: Tue, 14 Aug 2001 15:13:06 -0700
-From: "Paul G. Allen" <pgallen@randomlogic.com>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.2-2 i686)
-X-Accept-Language: en
+	id <S270892AbRHNWLY>; Tue, 14 Aug 2001 18:11:24 -0400
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:2310 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S270891AbRHNWLU>; Tue, 14 Aug 2001 18:11:20 -0400
+Subject: Re: S2464 (K7 Thunder) hangs -- some lessons learned
+To: esr@thyrsus.com
+Date: Tue, 14 Aug 2001 23:13:53 +0100 (BST)
+Cc: alan@lxorguk.ukuu.org.uk (Alan Cox),
+        linux-kernel@vger.kernel.org (Linux Kernel List)
+In-Reply-To: <20010814172733.B4772@thyrsus.com> from "Eric S. Raymond" at Aug 14, 2001 05:27:33 PM
+X-Mailer: ELM [version 2.5 PL5]
 MIME-Version: 1.0
-CC: linux-kernel@vger.kernel.org
-Subject: Re: [OT] DMCA loop hole
-In-Reply-To: <Pine.BSO.4.33.0108140204380.22991-100000@aaieee.daisy-chan.org>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-To: unlisted-recipients:; (no To-header on input)@localhost.localdomain
+Message-Id: <E15WmRd-00026D-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Joshua b. Jore" wrote:
-> 
-> I'd beg to differ with you on that. The way I've heard it is that writing
-> viruses is not legal in the US. Some of you aren't here so you have your
-> own laws but then you aren't bound by the DMCA. I recall that was the
-> impetus for this thread in the first place.
-> 
-> I'll just have to beg off and say that I've understood it that
-> 'educational' are as illegal as say, something you meant to release into
-> the wide world.
-> 
+> So what are the implications of running in no-IOAPIC mode?  Performance loss?
 
-Show me the written US law that says it is illegal for me to write a computer virus.
+Slight performance hit. For the moment Im interested to know if it helps, 
+as a guess
 
-PGA
-
--- 
-Paul G. Allen
-UNIX Admin II/Programmer
-Akamai Technologies, Inc.
-www.akamai.com
-Work: (858)909-3630
-Cell: (858)395-5043
+Alan

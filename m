@@ -1,44 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261482AbULIOx3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261509AbULIOxH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261482AbULIOx3 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Dec 2004 09:53:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261519AbULIOx2
+	id S261509AbULIOxH (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Dec 2004 09:53:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261488AbULIOwh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Dec 2004 09:53:28 -0500
-Received: from yacht.ocn.ne.jp ([222.146.40.168]:45549 "EHLO
-	smtp.yacht.ocn.ne.jp") by vger.kernel.org with ESMTP
-	id S261482AbULIOxP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Dec 2004 09:53:15 -0500
-From: Akinobu Mita <amgta@yacht.ocn.ne.jp>
-To: Greg Banks <gnb@sgi.com>, John Levon <levon@movementarian.org>
-Subject: Re: [mm patch] oprofile: backtrace operation does not initialized
-Date: Thu, 9 Dec 2004 23:53:53 +0900
-User-Agent: KMail/1.5.4
-Cc: Greg Banks <gnb@sgi.com>, Philippe Elie <phil.el@wanadoo.fr>,
-       linux-kernel@vger.kernel.org
-References: <200412081830.51607.amgta@yacht.ocn.ne.jp> <20041209015024.GG4239@sgi.com> <200412092322.27096.amgta@yacht.ocn.ne.jp>
-In-Reply-To: <200412092322.27096.amgta@yacht.ocn.ne.jp>
+	Thu, 9 Dec 2004 09:52:37 -0500
+Received: from bos-gate4.raytheon.com ([199.46.198.233]:50091 "EHLO
+	bos-gate4.raytheon.com") by vger.kernel.org with ESMTP
+	id S261482AbULIOwS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 9 Dec 2004 09:52:18 -0500
+Subject: Re: [patch] Real-Time Preemption, -RT-2.6.10-rc2-mm3-V0.7.32-6
+To: Ingo Molnar <mingo@elte.hu>
+Cc: Amit Shah <amit.shah@codito.com>,
+       Karsten Wiese <annabellesgarden@yahoo.de>, Bill Huey <bhuey@lnxw.com>,
+       Adam Heath <doogie@debian.org>, emann@mrv.com,
+       Gunther Persoons <gunther_persoons@spymac.com>,
+       "K.R. Foley" <kr@cybsft.com>, linux-kernel@vger.kernel.org,
+       Florian Schmidt <mista.tapas@gmx.net>,
+       Fernando Pablo Lopez-Lezcano <nando@ccrma.Stanford.EDU>,
+       Lee Revell <rlrevell@joe-job.com>, Rui Nuno Capela <rncbc@rncbc.org>,
+       Shane Shrybman <shrybman@aei.ca>, Esben Nielsen <simlo@phys.au.dk>,
+       Thomas Gleixner <tglx@linutronix.de>,
+       Michal Schmidt <xschmi00@stud.feec.vutbr.cz>
+X-Mailer: Lotus Notes Release 5.0.8  June 18, 2001
+Message-ID: <OFDB636A6F.24158127-ON86256F65.00504E6B@raytheon.com>
+From: Mark_H_Johnson@raytheon.com
+Date: Thu, 9 Dec 2004 08:46:14 -0600
+X-MIMETrack: Serialize by Router on RTSHOU-DS01/RTS/Raytheon/US(Release 6.5.2|June 01, 2004) at
+ 12/09/2004 08:46:24 AM
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200412092353.53634.amgta@yacht.ocn.ne.jp>
+Content-type: text/plain; charset=US-ASCII
+X-SPAM: 0.00
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 09 December 2004 23:22, Akinobu Mita wrote:
+>interactive tasks do get thrown back, but they wont ever preempt RT
+>tasks. RT tasks themselves can starve any lower-prio process
+>indefinitely.
+Definitely the behavior I want to see.
 
-> Since the timer interrupt is the only way of getting sampling for oprofile
-> on such environments. if no module parameters specified (i.e. timer == 0),
-> then oprofile_timer_init() is never called. and I have got this error:
+> Interactive tasks can starve other tasks up to a certain
+>limit, which is defined via STARVATION_LIMIT, at which point we empty
+>the active array and perform an array switch. (also see
+>EXPIRED_STARVING())
+Could this somehow be the cause of the relatively poor performance
+I am seeing with the following combination on a 2 CPU system:
+ a one RT task with nominal 80% CPU usage / output to audio
+ b one non RT, nice task at 100% CPU usage (cpu_burn)
+ c one non RT, not nice task doing lots of I/O
+ d a hundred non RT tasks, relatively idle
+The elapsed time of (c) goes from under 40 seconds to over
+300 seconds (basically does little to no work while the RT task is
+active).
 
-My first patch is not so bad, I think.
+I should have only 1 CPU's worth of work as RT and based on what
+the comments in sched.c indicate the nice job should get preempted
+by the not nice job on a regular basis (but somehow that doesn't
+seem to happen).
 
-Or, It may be better to revert the return type of oprofile_arch_init()
-from "void" to "int"  to get the result of initialization.
-Though I don't know when/why its interface was changed. and some
-architectures (ppc, sh64, m32r) remain to have old interfaces in -mm.
-
-
+--Mark H Johnson
+  <mailto:Mark_H_Johnson@raytheon.com>
 

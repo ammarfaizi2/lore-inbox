@@ -1,48 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287704AbSAABWI>; Mon, 31 Dec 2001 20:22:08 -0500
+	id <S287705AbSAABWh>; Mon, 31 Dec 2001 20:22:37 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287705AbSAABV5>; Mon, 31 Dec 2001 20:21:57 -0500
-Received: from wire.cadcamlab.org ([156.26.20.181]:47110 "EHLO
-	wire.cadcamlab.org") by vger.kernel.org with ESMTP
-	id <S287704AbSAABVu>; Mon, 31 Dec 2001 20:21:50 -0500
-Date: Mon, 31 Dec 2001 19:21:19 -0600
-To: Arnaldo Carvalho de Melo <acme@conectiva.com.br>,
-        Horst von Brand <vonbrand@sleipnir.valparaiso.cl>,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org,
-        kbuild-devel@lists.sourceforge.net
-Subject: Re: State of the new config & build system
-Message-ID: <20020101012119.GA1303@cadcamlab.org>
-In-Reply-To: <E16K1fn-0001Ky-00@the-village.bc.nu> <200112312251.fBVMpNws032221@sleipnir.valparaiso.cl> <20011231205552.A17089@conectiva.com.br>
+	id <S287706AbSAABWV>; Mon, 31 Dec 2001 20:22:21 -0500
+Received: from mailgate.bodgit-n-scarper.com ([62.49.233.146]:45074 "HELO
+	mould.bodgit-n-scarper.com") by vger.kernel.org with SMTP
+	id <S287705AbSAABWO>; Mon, 31 Dec 2001 20:22:14 -0500
+Date: Tue, 1 Jan 2002 01:21:07 +0000
+From: Matt <matt@bodgit-n-scarper.com>
+To: linux-kernel@vger.kernel.org
+Subject: Re: A happy new year
+Message-ID: <20020101012107.A613@butterlicious.bodgit-n-scarper.com>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+In-Reply-To: <20020101232033.GA565@www.ekinos.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20011231205552.A17089@conectiva.com.br>
-User-Agent: Mutt/1.3.24i
-From: Peter Samuelson <peter@cadcamlab.org>
+In-Reply-To: <20020101232033.GA565@www.ekinos.com>
+User-Agent: Mutt/1.3.23i
+X-Operating-System: Linux 2.4.13 on i686 (butterlicious)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, Jan 02, 2002 at 12:20:33AM +0100, sebastien geffroy wrote:
+>
+> A happy new year to all kernel hackers and thanks for your great job !
+> I hope this year will be THE year of free software.
 
-    [Alan Cox]
-> > > 	find $TOPDIR -name "*.cf" -exec cat {} \; > Configure.help 
+If you're gonna post a message like that, at least get your date set
+properly... :-)
 
-  [Horst von Brand]
-> >      cat `find $TOPDIR -name "*.cf"` > Configure.help #;-)
-
-[Arnaldo Carvalho de Melo]
-> whatever is faster, do you have trustable benchmark numbers? ;)
-
-Fewer forks vs. increased parallelism ... depends on the nature of your
-bottlenecks, I guess, and cold vs. hot cache.  Or you could have it
-both ways:
-
-	find $TOPDIR -name \*.cf | xargs -n10 cat > Configure.help
-
-...where 10 is tuned by benchmarking. (:
-
-> Yes, its a joke, have a nice 2002 all!
-
-Yeah, same from me..
-
-Peter
+Matt
+-- 
+"Phased plasma rifle in a forty-watt range?"
+"Hey, just what you see, pal"

@@ -1,57 +1,85 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269216AbUICB2g@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269220AbUICBcG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269216AbUICB2g (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Sep 2004 21:28:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269530AbUICB2f
+	id S269220AbUICBcG (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Sep 2004 21:32:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269522AbUICBaM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Sep 2004 21:28:35 -0400
-Received: from [195.23.16.24] ([195.23.16.24]:56291 "EHLO
-	bipbip.comserver-pie.com") by vger.kernel.org with ESMTP
-	id S269216AbUICB1J convert rfc822-to-8bit (ORCPT
+	Thu, 2 Sep 2004 21:30:12 -0400
+Received: from 69-18-3-179.lisco.net ([69.18.3.179]:20663 "EHLO slaphack.com")
+	by vger.kernel.org with ESMTP id S269490AbUICB2e (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Sep 2004 21:27:09 -0400
-Message-ID: <1094175114.4137c98a2b4ae@webmail.grupopie.com>
-Date: Fri,  3 Sep 2004 02:31:54 +0100
-From: "" <pmarques@grupopie.com>
-To: Sam Ravnborg <sam@ravnborg.org>
-Cc: Rusty Russell <rusty@rustcorp.com.au>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>, Matt Mackall <mpm@selenic.com>
-Subject: Re: [PATCH] kallsyms: speed up /proc/kallsyms
-References: <4134DEF4.8090001@grupopie.com> <1094016277.17828.53.camel@bach> <4135AFBE.1000707@grupopie.com> <20040901192755.GC7219@mars.ravnborg.org> <41362694.9070101@grupopie.com> <20040901195132.GA15432@mars.ravnborg.org> <41370C7E.4020304@grupopie.com> <20040902221733.GA8868@mars.ravnborg.org>
-In-Reply-To: <20040902221733.GA8868@mars.ravnborg.org>
+	Thu, 2 Sep 2004 21:28:34 -0400
+Message-ID: <4137C8B4.2030009@slaphack.com>
+Date: Thu, 02 Sep 2004 20:28:20 -0500
+From: David Masover <ninja@slaphack.com>
+User-Agent: Mozilla Thunderbird 0.7.3 (X11/20040813)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-User-Agent: Internet Messaging Program (IMP) 3.2.2
-X-Originating-IP: 82.154.89.223
-Content-Transfer-Encoding: 7BIT
-X-AntiVirus: checked by Vexira MailArmor (version: 2.0.1.16; VAE: 6.27.0.6; VDF: 6.27.0.44; host: bipbip)
+To: Spam <spam@tnonline.net>
+CC: viro@parcelfarce.linux.theplanet.co.uk,
+       Frank van Maarseveen <frankvm@xs4all.nl>,
+       Dave Kleikamp <shaggy@austin.ibm.com>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>, Linus Torvalds <torvalds@osdl.org>,
+       Jamie Lokier <jamie@shareable.org>,
+       Horst von Brand <vonbrand@inf.utfsm.cl>, Adrian Bunk <bunk@fs.tum.de>,
+       Hans Reiser <reiser@namesys.com>, Christoph Hellwig <hch@lst.de>,
+       fsdevel <linux-fsdevel@vger.kernel.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Alexander Lyamin aka FLX <flx@namesys.com>,
+       ReiserFS List <reiserfs-list@namesys.com>
+Subject: Re: The argument for fs assistance in handling archives
+References: <20040826150202.GE5733@mail.shareable.org> <200408282314.i7SNErYv003270@localhost.localdomain> <20040901200806.GC31934@mail.shareable.org> <Pine.LNX.4.58.0409011311150.2295@ppc970.osdl.org> <1094118362.4847.23.camel@localhost.localdomain> <20040902203854.GA4801@janus> <1094160994.31499.19.camel@shaggy.austin.ibm.com> <20040902214806.GA5272@janus> <20040902220027.GD23987@parcelfarce.linux.theplanet.co.uk> <4137B5F5.8000402@slaphack.com> <1862674154.20040903024407@tnonline.net>
+In-Reply-To: <1862674154.20040903024407@tnonline.net>
+X-Enigmail-Version: 0.85.0.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Quoting Sam Ravnborg <sam@ravnborg.org>:
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-> On Thu, Sep 02, 2004 at 01:05:18PM +0100, Paulo Marques wrote:
->  
-> > All 3 patches will be against 2.6.9-rc1-mm2. I'm just saying
-> > this to make sure I understood correctly what I'm supposed to
-> > do.
-> 
-> Preferable on top of Linus - latest.
+Spam wrote:
+[...]
+| Indeed, that's not the only interface that's been discussed.
+| "file/..metas/is_isofs" might be consulted.
+|
+|
+|>  What you are talking about isn't the kernel or such, but plugins that
 
-I was preparing to do just that, but bumped into a simple problem.
+Plugins are kernel-space.  As Linus points out, dealing with mime-types
+in the kernel is uncool.
 
-If I patch against Linus tree, then the 3 patches suggested by
-Rusty Russell make no sense, because the Linus tree still has stem
-compression. So there is no inconsistency bug and there are no
-comments to add, there is only a single patch to go from stem
-compression to the new compression scheme.
+|>  could extend the filesystem. Plugins could store information about
+|>  contents, encodings, formatting, filesystems, etc, as meta-info. If
+|>  you have a plugin that would allow you to traverse files as disk
+|>  images then it could read those meta-data. But before those plugins
+|>  exist then there is no such standard for info stored as meta-data and
+|>  the kernel wouldn't know anything about this to begin with.
 
-It does not sound so bad to have just one patch that appears at 
-2.6.9-rc2 that says "change kallsyms compression scheme", so I 
-have no problem producing this patch.
+So implement a plugin which knows how to talk to a userland program
+which knows about metadata.  The plugin controls access to file-type.
 
-I'm now holding on to avoid start sending patches against
-different trees and make a total mess :(
+Maybe there ought to be a general-purpose userland plugin interface?  So
+that the only things left in the kernel are things that have to be there
+for speed and/or sanity reasons?  (Things like cryptocompress and
+standard file/directory plugins.)
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
 
-
+iQIVAwUBQTfIs3gHNmZLgCUhAQJCqA//cPGI/TPfgtwovk5a8HdcY9TbjJELGtIb
+CHcNa2LKGUB8uVvoL9M0Pe9ei4iVK2QOL1QjUAbIE0Dx7t18KR/5qEIfCHTSw0sJ
+8u/r3aaJhFjFwMcVLQOZWJYuTeodgMwkV96GgViGoHoiqDiV7BzZgjd43qwiH8rW
+FUTKlPn2VmijyTTbf5VfX4hvmsU/He+5W0t08/xe3vpCa+ihNFLJQAwGioo/wzFq
+aHl9jBT1esFLxONd7OxQpgVl/2uHx+rSAY6F5RyBqL/Tpm1ZKlrMdAzmdDWcAJA9
+KnOLN8ltcPmjP0eCzgCO/iq8yczcwcagfmbD+WcYOmQbTXMTjxktrZqRuLrUHU+7
+tl8JISKch5epHfOnQ/RTMEgotlcQ0SCoE7K5lIUuyheMYRWoVDJSvy3okET6ZxQL
+NP3PVHguQbu1Bo2X8LNsrnU0KFT7XrejpXzKalPWVbQxayEEWUwLXBdNIpgBoYwX
+FZXQKEpS4MmB/8kEC9xuQ077PfAclcjcHSj4B7phbSVMioFy4/HojOLOLA8gjHyr
+7p+wimfDpsuioDLlccwc1b+fLB2eJM5G+zfzh//uy7LdfFxuI+074FJYxebRI2eL
+N/rpjT+S0S7L0/k71Rwp/5y4YgDgdQqU0wyGaBLRjP0qD7k2S41g+yrua6qArhzP
+baR9dCu1zAQ=
+=Nrye
+-----END PGP SIGNATURE-----

@@ -1,50 +1,40 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314469AbSESQWP>; Sun, 19 May 2002 12:22:15 -0400
+	id <S314475AbSESQXd>; Sun, 19 May 2002 12:23:33 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314475AbSESQWO>; Sun, 19 May 2002 12:22:14 -0400
-Received: from schwerin.p4.net ([195.98.200.5]:24434 "EHLO schwerin.p4.net")
-	by vger.kernel.org with ESMTP id <S314469AbSESQWO>;
-	Sun, 19 May 2002 12:22:14 -0400
-Message-ID: <3CE7D1B4.9050706@p4all.de>
-Date: Sun, 19 May 2002 18:24:20 +0200
-From: Michael Dunsky <michael.dunsky@p4all.de>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0rc2) Gecko/20020510
-X-Accept-Language: de, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org, Roy Sigurd Karlsbakk <roy@karlsbakk.net>
+	id <S314514AbSESQXc>; Sun, 19 May 2002 12:23:32 -0400
+Received: from [62.70.58.70] ([62.70.58.70]:8064 "EHLO mail.pronto.tv")
+	by vger.kernel.org with ESMTP id <S314475AbSESQXb> convert rfc822-to-8bit;
+	Sun, 19 May 2002 12:23:31 -0400
+Message-Id: <200205191623.g4JGNNW06406@mail.pronto.tv>
+Content-Type: text/plain; charset=US-ASCII
+From: Roy Sigurd Karlsbakk <roy@karlsbakk.net>
+Organization: Pronto TV AS
+To: Dave Jones <davej@suse.de>
 Subject: Re: nVidia NIC/IDE/something support?
-In-Reply-To: <200205191514.g4JFEsV13608@mail.pronto.tv>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Date: Sun, 19 May 2002 18:23:23 +0200
+X-Mailer: KMail [version 1.3.1]
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <200205191514.g4JFEsV13608@mail.pronto.tv> <20020519175838.I15417@suse.de>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+On Sunday 19 May 2002 17:58, Dave Jones wrote:
+> On Sun, May 19, 2002 at 05:14:54PM +0200, Roy Sigurd Karlsbakk wrote:
+>  > I just bought this Asus board, A7N266-VM, with nVidia IDE, LAN and god
+>  > knows chipset. Linux doesn't understand it, and I really want it... Any
+>  > plans of supporting this? See below for /proc/pci output.
+>
+> It's an nForce chipset. To the best of my knowledge, there are no
+> public specs for this beast, so your only hope is probably to bug
+> nVidia.
 
-One thing I've found for nForce chipset: official patches from nVidia 
-(network driver is under nVidia's licence, all the rest is under GPL).
-Hope that helps:
+it looks like the LAN part is an RTL8201L, but I get some EEPROM read error...
 
-http://www.nvidia.com/view.asp?IO=linux_nforce_1.0-0236
+-- 
+Roy Sigurd Karlsbakk
 
-ciao
-
-Michael
-
-
-Roy Sigurd Karlsbakk wrote:
- > hi
- >
- > I just bought this Asus board, A7N266-VM, with nVidia IDE, LAN and god
- > knows chipset. Linux doesn't understand it, and I really want it...
- > Any plans of supporting this? See below for /proc/pci output.
- >
- > thanks
- >
- > roy
- >
- > please cc: to me, as I'm nolonger on the list
- >
-
-
+Computers are like air conditioners.
+They stop working when you open Windows.

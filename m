@@ -1,87 +1,66 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270278AbTGZVU3 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 26 Jul 2003 17:20:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269969AbTGZVU3
+	id S269999AbTGZVVL (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 26 Jul 2003 17:21:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269969AbTGZVVL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 26 Jul 2003 17:20:29 -0400
-Received: from unity.unh.edu ([132.177.137.40]:44427 "EHLO unity.unh.edu")
-	by vger.kernel.org with ESMTP id S270275AbTGZVU0 (ORCPT
+	Sat, 26 Jul 2003 17:21:11 -0400
+Received: from smtp-out1.iol.cz ([194.228.2.86]:58857 "EHLO smtp-out1.iol.cz")
+	by vger.kernel.org with ESMTP id S269999AbTGZVUi (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 26 Jul 2003 17:20:26 -0400
-Date: Sat, 26 Jul 2003 17:35:31 -0400
-From: Samuel Thibault <Samuel.Thibault@ens-lyon.fr>
-To: Paul Mackerras <paulus@samba.org>, linux-ppp@vger.kernel.org,
-       linux-kernel@vger.kernel.org, torvalds@osdl.org
-Subject: [PATCH] [2.6] adding xon/xoff support to ppp
-Message-ID: <20030726213531.GA1148@bouh.unh.edu>
-Reply-To: Samuel Thibault <samuel.thibault@fnac.net>
-Mail-Followup-To: Paul Mackerras <paulus@samba.org>,
-	linux-ppp@vger.kernel.org, linux-kernel@vger.kernel.org,
-	torvalds@osdl.org
-References: <20030712011716.GB4694@bouh.unh.edu> <16143.25800.785348.314274@cargo.ozlabs.ibm.com> <20030712024216.GA399@bouh.unh.edu>
+	Sat, 26 Jul 2003 17:20:38 -0400
+Date: Sat, 26 Jul 2003 23:35:37 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: Patrick Mochel <mochel@osdl.org>
+Cc: Linus Torvalds <torvalds@osdl.org>,
+       kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: swsusp updates
+Message-ID: <20030726213537.GJ266@elf.ucw.cz>
+References: <20030726211310.GG266@elf.ucw.cz> <Pine.LNX.4.44.0307261422080.23977-100000@cherise>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20030712024216.GA399@bouh.unh.edu>
-User-Agent: Mutt/1.4i-nntp
-X-MailScanner-Information: http://pubpages.unh.edu/notes/mailfiltering.html
-X-MailScanner: Found to be clean
-X-MailScanner-SpamCheck: not spam, SpamAssassin (score=-8.4, required 5,
-	BAYES_10, IN_REP_TO, PATCH_UNIFIED_DIFF, REFERENCES,
-	USER_AGENT_MUTT)
+In-Reply-To: <Pine.LNX.4.44.0307261422080.23977-100000@cherise>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.3i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Hi!
 
-It seems to have been dropped again, so I resend it.
+> > Okay, I killed few trivial hunks, will submit them through trivial
+> > patch monkey. Are you happy now, patrick?
+> 
+> Why do you insist on abusing the trivial patch monkey? Why can't you send 
+> them directly to the maintainers? For instance, you add/remove printk()s 
+> and comments that other people may or may not want in there. 
 
-Linux' ppp has not been implementing xon/xoff since 2.0 at least (a
-thread on linux-ppp clearly stated that some years ago: just type
-"pppd xonxoff": without the patch you can't stop the flow), here is a
-patch to correct this on 2.6.0-test1 kernel. It has been well tested and
-updated over the 2.2, 2.4 and 2.6 kernels.
+If killing an noisy printk is not an trivial patch, I do not know what
+else is. If you want me to keep some printks, tell me, and we can talk
+about that.
 
-Regards,
-Samuel thibault
+> But no, this doesn't make me happy because you insist on munging multiple 
+> patches together that have little to do with each other, besides the fact 
+> they touch the same file. Like I said in private email, it really helps to 
+> track down a problem if each patch and subsequent changeset is as small 
+> and localized as possible. 
 
+> And, that's a real problem with swsusp. It's a huge mess right now. I'd 
+> like to see it work well and reliably for 2.6, and have the source code be 
+> in a state where people can look at it without running away screaming. 
+> Convoluted updates are not going to help the situation. 
 
+Yes, and just now you are contributing for swsusp to stay in the messy
+state. Thanx a lot.
 
-Add xon/xoff support to the ppp line discipline for async ports.
+If you want to become swsusp maintainer, say so, and you'll be fed
+nice and split patches *once*. That's okay to do. But I'm not able/do
+not have enough time to produce split patch each time Linus decides to
+drop the mail into the bitbucket.
 
---- linux-2.6.0-test1-orig/drivers/char/tty_io.c	2003-07-26 17:25:28.000000000 -0400
-+++ linux-2.6.0-test1-perso/drivers/char/tty_io.c	2003-07-14 01:11:25.000000000 -0400
-@@ -611,6 +611,8 @@
- 		(tty->driver->stop)(tty);
- }
- 
-+EXPORT_SYMBOL(stop_tty);
-+
- void start_tty(struct tty_struct *tty)
- {
- 	if (!tty->stopped || tty->flow_stopped)
-@@ -629,6 +631,8 @@
- 	wake_up_interruptible(&tty->write_wait);
- }
- 
-+EXPORT_SYMBOL(start_tty);
-+
- static ssize_t tty_read(struct file * file, char * buf, size_t count, 
- 			loff_t *ppos)
- {
---- linux-2.6.0-test1-orig/drivers/net/ppp_async.c	2003-07-26 17:23:56.000000000 -0400
-+++ linux-2.6.0-test1-perso/drivers/net/ppp_async.c	2003-07-14 01:12:45.000000000 -0400
-@@ -891,6 +891,11 @@
- 			process_input_packet(ap);
- 		} else if (c == PPP_ESCAPE) {
- 			ap->state |= SC_ESCAPE;
-+		} else if (I_IXON(ap->tty)) {
-+			if (c == STOP_CHAR(ap->tty))
-+				stop_tty(ap->tty);
-+			else if (c == START_CHAR(ap->tty))
-+				start_tty(ap->tty);
- 		}
- 		/* otherwise it's a char in the recv ACCM */
- 		++n;
-
+I really don't like "Linus dropped patch -> resubmit 2 patches merged"
+resulting in you screaming "SPLIT IT UP!" on the lists.
+								Pavel
+-- 
+When do you have a heart between your knees?
+[Johanka's followup: and *two* hearts?]

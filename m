@@ -1,57 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268119AbUI2AsU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268122AbUI2Auo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268119AbUI2AsU (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 28 Sep 2004 20:48:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268121AbUI2Aqz
+	id S268122AbUI2Auo (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 28 Sep 2004 20:50:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268120AbUI2Asi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 28 Sep 2004 20:46:55 -0400
-Received: from clock-tower.bc.nu ([81.2.110.250]:4233 "EHLO
+	Tue, 28 Sep 2004 20:48:38 -0400
+Received: from clock-tower.bc.nu ([81.2.110.250]:5257 "EHLO
 	localhost.localdomain") by vger.kernel.org with ESMTP
-	id S268119AbUI2Aqf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 28 Sep 2004 20:46:35 -0400
-Subject: Re: IDE Hotswap
+	id S268122AbUI2ArE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 28 Sep 2004 20:47:04 -0400
+Subject: Core scsi layer crashes in 2.6.8.1
 From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Bartlomiej Zolnierkiewicz <bzolnier@elka.pw.edu.pl>
-Cc: Suresh Grandhi <Sureshg@ami.com>,
-       "'linux-ide@vger.kernel.org'" <linux-ide@vger.kernel.org>,
-       "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
-In-Reply-To: <200409282338.10456.bzolnier@elka.pw.edu.pl>
-References: <8CCBDD5583C50E4196F012E79439B45C069657DB@atl-ms1.megatrends.com>
-	 <200409282338.10456.bzolnier@elka.pw.edu.pl>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       linux-scsi@vger.kernel.org
 Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-Message-Id: <1096407955.14083.45.camel@localhost.localdomain>
+Message-Id: <1096401785.13936.5.camel@localhost.localdomain>
 Mime-Version: 1.0
 X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Tue, 28 Sep 2004 22:45:57 +0100
+Date: Tue, 28 Sep 2004 21:03:07 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Maw, 2004-09-28 at 22:38, Bartlomiej Zolnierkiewicz wrote:
-> No and such workaround won't work anyway because
-> re-register operation is nothing else but unregister+register.
+I've been doing some stress testing for Fedora Core 3 and lets say the
+SCSI layer came apart under stress. 
 
-If you grab the 2.6.8.1-ac patch you can do IDE controller hotplugging
-and a few other things but not yet drive hotplugging. 2.4 can do drive
-hotplug although you need a small -ac patch if you see wrong disk
-geometry data.
+First problem was a device with 256 byte sector sizes. When it probes I
+get a chain of errors. If I then try and mount it then it hangs the
+mount forever. If you remove the USB scsi device to try and unjam it you
+get errors logged about Invalid State 256 in USB reset and it doesn't
+recover.
 
-For new controllers (ie SATA ones) use Jeff Garzik's serial ATA layer as
-that is a lot cleaner and the SCSI layer already has a good basic
-understanding of hotplug management.
+Second problem is with the scsi handling logic for errors. If you rmmod
+a scsi driver while it is error handling you get a chain of errors
+starting with
 
-> Any help/support is appreciated.
+	Illegal transition Cancel->Offline
+	Badness is scsi_device_set_state
+	path:
+	scsi_device_set_state
+	scsi_unjam_host
+	scsi_error_handler
 
-Except for the dynamic stuff I consider the problem solved. Its up to
-you when and what you merge and I understand why you want to get stuff
-like sysfs there. 
+This is followed by a series of further errors including kobject errors
+and oopses. Then the machine dies.
 
-For drive level hotplug its actually a lot easier and I guess that is
-the case most users care about. The changes done for 2.6 clean up stuff
-like suspend mean the nasties in 2.4 for sequencing have gone away. No
-refcounting needed since the block and fs layer are doing it all for
-you. TTY layer, revoke(), and some other current critical bonfires first
-before I can help with that however.
+The set up is fairly simple. Its a a disk and two scsi cd multichangers
+configured so that I can also badly terminate them. In that situation
+identify works but other commands tend to fail which allows good error
+stressing.
 
-Alan
 

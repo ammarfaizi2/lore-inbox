@@ -1,75 +1,68 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272677AbRHaMOY>; Fri, 31 Aug 2001 08:14:24 -0400
+	id <S272674AbRHaMSp>; Fri, 31 Aug 2001 08:18:45 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272676AbRHaMOO>; Fri, 31 Aug 2001 08:14:14 -0400
-Received: from nbd.it.uc3m.es ([163.117.139.192]:52752 "EHLO nbd.it.uc3m.es")
-	by vger.kernel.org with ESMTP id <S272674AbRHaMOC>;
-	Fri, 31 Aug 2001 08:14:02 -0400
-From: "Peter T. Breuer" <ptb@it.uc3m.es>
-Message-Id: <200108311213.OAA01600@nbd.it.uc3m.es>
-Subject: Re: [IDEA+RFC] Possible solution for min()/max() war
-X-ELM-OSV: (Our standard violations) hdr-charset=US-ASCII
-In-Reply-To: <Pine.LNX.4.33.0108311342570.24131-100000@serv> "from Roman Zippel
- at Aug 31, 2001 02:01:22 pm"
-To: Roman Zippel <zippel@linux-m68k.org>
-Date: Fri, 31 Aug 2001 14:13:33 +0200 (CEST)
-CC: "Peter T. Breuer" <ptb@it.uc3m.es>,
-        "Patrick J. LoPresti" <patl@cag.lcs.mit.edu>,
-        linux-kernel@vger.kernel.org
-X-Anonymously-To: 
-Reply-To: ptb@it.uc3m.es
-X-Mailer: ELM [version 2.4ME+ PL89 (25)]
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Type: text/plain; charset=US-ASCII
+	id <S272676AbRHaMSe>; Fri, 31 Aug 2001 08:18:34 -0400
+Received: from www.heureka.co.at ([195.64.11.111]:19720 "EHLO
+	www.heureka.co.at") by vger.kernel.org with ESMTP
+	id <S272674AbRHaMSS>; Fri, 31 Aug 2001 08:18:18 -0400
+Date: Fri, 31 Aug 2001 14:18:04 +0200
+From: David Schmitt <david@heureka.co.at>
+To: linux-kernel@vger.kernel.org
+Subject: Re: ISSUE: DFE530-TX REV-A3-1 times out on transmit
+Message-ID: <20010831141803.A15177@www.heureka.co.at>
+In-Reply-To: <20010829144834.A32319@www.heureka.co.at> <Pine.LNX.4.30.0108292012440.1604-100000@cola.teststation.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.30.0108292012440.1604-100000@cola.teststation.com>
+User-Agent: Mutt/1.3.20i
+Organization: Heureka - Der EDV-Dienstleister
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"A month of sundays ago Roman Zippel wrote:"
-> On Fri, 31 Aug 2001, Peter T. Breuer wrote:
+On Wed, Aug 29, 2001 at 08:45:34PM +0200, Urban Widmark wrote:
+> On Wed, 29 Aug 2001, David Schmitt wrote:
+> > under 'normal loads' (ie one tcp d/l at max, few other traffic) the
+> > situation didn' get better, it hangs as often as with the original
+> > via-rhine, at least it feels so. No hard figures here. But even
+> > writing this mail (via ssh) here parallel to a download over the lan
+> > (from the same server) triggers resets.
 > 
-> >    if (sizeof(_x) != sizeof(_y)) \
-> >      MIN_BUG(); \
+> That is still pretty awful ... but it doesn't stop working?
+> (you say hangs, but then resets)
+
+sorry, sloppy language. hang == reset (in this case)
+
+> > under heavy loads (ie with multiple flood pings) it resets often but I
+> > couldn't push it over the edge anymore. I have it running now for
+> > several minutes under multiple pingfloods and it always recovered
+> > (from quite a amount of resets).
 > 
-> What bug are you trying to fix here?
+> Ok, that means the "D-Link magic" does improve reset.
 
-Wake up!
+Yes. Until your patch 2.4.9 resetted three or four times sucessfully
+and then the resets stopped working. With your patch it resets as
+often but doesn't fail resetting anymore.
 
-> > int main() {
-> >   unsigned i = 1;
-> >   signed j = -2;
-> >   return MIN(i,j);
-> > }
-> 
-> Try -Wsign-compare.
+> It may be interesting to find out which parts that help. I simply added
+> things that looked good ... Lacking information on what the bit-flipping
+> is supposed to do, one way to try and do that is to remove code and see
+> how much can be removed without breaking anything.
+> (Sounds like a childrens game, except for programmers ...)
 
-Wake up harder!
+Hehe, bruteforcing it :-))
 
-Try reading the last 10 days kernel messages. The last 48 hours are
-particularly rewarding.
+> I'll still try generating collisions and see what happens. If I can't
+> reproduce this perhaps you would test a different patch to see which
+> change that made a difference?
 
-To be honest, nobody has precisely formulated the problem. I'll attempt
-a quick summary of the most salient:
+Sure, the machine is fast enough to handle another kernel recompile or
+two :^))
 
-  C silently transforms signed int to unsigned int in cross-signed
-  comparisons. This results in 1U < -2, and gives rise to all kinds
-  of error paths from min/max codes (in particular, but they're not
-  all) of the form
 
-     min(unsigned_positive_constant, signed_ok_or_error_value)
 
-  whose authors were expecting to get the error value out when the
-  error value went in!
-
-There are apparently more problems too, but nobody has explained them
-to me in a manner that I can comprehend. I suspect that nobody knows
-the full range of possible faults. I put in the size comparison
-that you remarked upon so that people could tell me about it. Tell me
-about it.
-
-Linus wants possible mistakes flagged. He specifically does not want
--Wsign-compare because it apparently gives false positives.
-  
-
-Peter
+Regards, David
+-- 
+Signaturen sind wie Frauen. Man findet selten eine Vernuenftige
+	-- gesehen in at.linux

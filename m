@@ -1,43 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262574AbUFJTi0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262606AbUFJTnk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262574AbUFJTi0 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Jun 2004 15:38:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262606AbUFJTi0
+	id S262606AbUFJTnk (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Jun 2004 15:43:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262756AbUFJTnj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Jun 2004 15:38:26 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:9887 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id S262574AbUFJTiZ
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Jun 2004 15:38:25 -0400
-Date: Thu, 10 Jun 2004 20:38:24 +0100
-From: viro@parcelfarce.linux.theplanet.co.uk
-To: Greg KH <greg@kroah.com>
-Cc: sensors@stimpy.netroedge.com,
-       "Robert T. Johnson" <rtjohnso@eecs.berkeley.edu>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Finding user/kernel pointer bugs [no html]
-Message-ID: <20040610193824.GL12308@parcelfarce.linux.theplanet.co.uk>
-References: <1086838266.32059.320.camel@dooby.cs.berkeley.edu> <20040610044903.GE12308@parcelfarce.linux.theplanet.co.uk> <20040610165821.GB32577@kroah.com> <20040610191004.GA1661@kroah.com> <20040610191359.GJ12308@parcelfarce.linux.theplanet.co.uk> <20040610193207.GA1904@kroah.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040610193207.GA1904@kroah.com>
-User-Agent: Mutt/1.4.1i
+	Thu, 10 Jun 2004 15:43:39 -0400
+Received: from mail.dynextechnologies.com ([65.120.73.98]:53953 "EHLO
+	mail.dynextechnologies.com") by vger.kernel.org with ESMTP
+	id S262606AbUFJTnj convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 10 Jun 2004 15:43:39 -0400
+X-MimeOLE: Produced By Microsoft Exchange V6.0.6487.1
+Content-Class: urn:content-classes:message
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Subject: RE: Insults in the kernel-sources
+Date: Thu, 10 Jun 2004 15:43:38 -0400
+Message-ID: <8D4D7D09D4DA5F41BF3905582CF84ACB5D722D@tbanausc3a.dynextechnologies.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: Insults in the kernel-sources
+thread-index: AcRPHLgAxWY+hsqPTz6Q2fgTG+uC3wABnYNQ
+From: "Sean Fao" <Sean.Fao@capitalgenomix.com>
+To: "Tobias Hirning" <Tobias.Hirning@gmx.de>, <linux-kernel@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jun 10, 2004 at 12:32:08PM -0700, Greg KH wrote:
-> Hm, so we should ignore the sparse warning about the original then?
+> Hi people,
+> have you ever tried a 
+> grep "insult" -i -r ./*
+> in the sourcetree of the kernel?
+> (insult must be replaced by an insult)
+> Haven't?
+> So do and think about, because the you can find to much of insults in 
+> the sources.
+> Tobias
 
-IMO that warning is bogus in case of <op>= and if getting rid of a warning
-obfuscates the code...
-
-> > > -		data_ptrs = (u8 **) kmalloc(rdwr_arg.nmsgs * sizeof(u8 *),
-> > > -					    GFP_KERNEL);
-> > > +		data_ptrs = kmalloc(rdwr_arg.nmsgs * sizeof(u8 __user *), GFP_KERNEL);
-> > 
-> > While we are at it, what's the type of ->nmsgs?
-> 
-> include/linux/i2c-dev.h states it is __u32.  Any problems with that?
-
-Nevermind - it's checked several lines above...
+http://www.vidarholen.net/contents/wordcount/

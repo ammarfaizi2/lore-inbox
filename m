@@ -1,50 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262639AbVBBQig@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262287AbVBBQih@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262639AbVBBQig (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 2 Feb 2005 11:38:36 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262287AbVBBQe4
+	id S262287AbVBBQih (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 2 Feb 2005 11:38:37 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262586AbVBBQfQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 2 Feb 2005 11:34:56 -0500
-Received: from fed1rmmtao08.cox.net ([68.230.241.31]:35206 "EHLO
-	fed1rmmtao08.cox.net") by vger.kernel.org with ESMTP
-	id S262586AbVBBQeZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 2 Feb 2005 11:34:25 -0500
-Date: Wed, 2 Feb 2005 09:34:21 -0700
-From: Tom Rini <trini@kernel.crashing.org>
-To: David Woodhouse <dwmw2@infradead.org>
-Cc: Andrew Morton <akpm@osdl.org>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH 2.6.11-rc2] Move <linux/prio_tree.h> down in <linux/fs.h>
-Message-ID: <20050202163421.GC15359@smtp.west.cox.net>
-References: <20050201160642.GA15359@smtp.west.cox.net> <1107361283.12383.0.camel@localhost.localdomain>
+	Wed, 2 Feb 2005 11:35:16 -0500
+Received: from rproxy.gmail.com ([64.233.170.200]:10335 "EHLO rproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S262508AbVBBQZj (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 2 Feb 2005 11:25:39 -0500
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
+        b=uC4TkaNWmHlN3Qj6qFVrTzowgV6zpUhnXpVaOxTk4nIStB+OktFV5v2ixutmbsTUCh5Xps/SDT6NyyZKDnqe8JEHS2XpG4H999H9pC/SZnHyNEpV4gaZoP1SUGRkY+jakE1PGOPDh96paygVNKfnn3wlFbdgQ5vW3Kquwq8qOl4=
+Message-ID: <9e4733910502020825434a477@mail.gmail.com>
+Date: Wed, 2 Feb 2005 11:25:29 -0500
+From: Jon Smirl <jonsmirl@gmail.com>
+Reply-To: Jon Smirl <jonsmirl@gmail.com>
+To: Linux kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Accelerated frame buffer functions
+In-Reply-To: <20050202154139.GA3267@s>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1107361283.12383.0.camel@localhost.localdomain>
-User-Agent: Mutt/1.5.6+20040907i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+References: <20050202133108.GA2410@s>
+	 <Pine.LNX.4.61.0502020900080.16140@chaos.analogic.com>
+	 <20050202142155.GA2764@s> <1107357093.6191.53.camel@gonzales>
+	 <20050202154139.GA3267@s>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Feb 02, 2005 at 04:21:23PM +0000, David Woodhouse wrote:
-> On Tue, 2005-02-01 at 09:06 -0700, Tom Rini wrote:
-> > <linux/prio_tree.h> is unsafe for inclusion by userland apps, but it
-> > is in the userland-exposed portion of <linux/fs.h>.  It's only needed
-> > in the __KERNEL__ protected portion of the file, so move the #include
-> > down to there.
-> 
-> You accidentally posted this patch to the kernel list, not to the
-> maintainers of the libc-kernelheaders package. And you might as well
-> just remove the offending #include rather than moving it to a section of
-> the file which is never used.
+On Wed, 2 Feb 2005 16:41:39 +0100, Haakon Riiser
+<haakon.riiser@fys.uio.no> wrote:
+> Thanks for the tip, I hadn't heard about it.  I will take a look,
+> but only to see if it can show me the user space API of /dev/fb.
+> I don't need a general library that supports a bunch of different
+> graphics cards.  I'm writing my own frame buffer driver for the
+> GX2 CPU, and I just want to know how to call the various functions
+> registered in struct fb_ops, so that I can test my code.  I mean,
+> all those functions registered in fb_ops must be accessible
+> somehow; if they weren't, what purpose would they serve?
 
-Ignoring your hint for a moment, since __KERNEL__ is still scattered all
-over the place, and I haven't see anything (changeset-wise) adding "You
-must use libc-kernelheaders now" in Documentation/feature-removal-schedule.txt
-this is still an actual problem.  Thanks.
-
-Feel free to correct me by getting something added to
-Documentation/feature-removal-schedule.txt :)
+You should look at writing a DRM driver. DRM implements the kernel
+interface to get 3D hardware running. It is a fully accelerated driver
+interface. They are located in drivers/char/drm
 
 -- 
-Tom Rini
-http://gate.crashing.org/~trini/
+Jon Smirl
+jonsmirl@gmail.com

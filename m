@@ -1,42 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261886AbTDKWYs (for <rfc822;willy@w.ods.org>); Fri, 11 Apr 2003 18:24:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261891AbTDKWYs (for <rfc822;linux-kernel-outgoing>);
-	Fri, 11 Apr 2003 18:24:48 -0400
-Received: from fmr02.intel.com ([192.55.52.25]:33228 "EHLO
-	caduceus.fm.intel.com") by vger.kernel.org with ESMTP
-	id S261886AbTDKWYr convert rfc822-to-8bit 
-	(for <rfc822;linux-kernel@vger.kernel.org>); Fri, 11 Apr 2003 18:24:47 -0400
-Message-ID: <A46BBDB345A7D5118EC90002A5072C780BEBAAB2@orsmsx116.jf.intel.com>
-From: "Perez-Gonzalez, Inaky" <inaky.perez-gonzalez@intel.com>
-To: "'oliver@neukum.name'" <oliver@neukum.name>, "'Greg KH'" <greg@kroah.com>
-Cc: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>,
-       "'linux-hotplug-devel@lists.sourceforge.net'" 
-	<linux-hotplug-devel@lists.sourceforge.net>,
-       "'message-bus-list@redhat.com'" <message-bus-list@redhat.com>,
-       "'Daniel Stekloff'" <dsteklof@us.ibm.com>
-Subject: RE: [ANNOUNCE] udev 0.1 release
-Date: Fri, 11 Apr 2003 15:36:15 -0700
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 8BIT
+	id S261851AbTDKW12 (for <rfc822;willy@w.ods.org>); Fri, 11 Apr 2003 18:27:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261866AbTDKW12 (for <rfc822;linux-kernel-outgoing>);
+	Fri, 11 Apr 2003 18:27:28 -0400
+Received: from gate.in-addr.de ([212.8.193.158]:29136 "EHLO mx.in-addr.de")
+	by vger.kernel.org with ESMTP id S261851AbTDKW11 (for <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 11 Apr 2003 18:27:27 -0400
+Date: Sat, 12 Apr 2003 00:38:56 +0200
+From: Lars Marowsky-Bree <lmb@suse.de>
+To: Steven Dake <sdake@mvista.com>, Greg KH <greg@kroah.com>
+Cc: "Kevin P. Fleming" <kpfleming@cox.net>,
+       linux-hotplug-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org,
+       message-bus-list@redhat.com
+Subject: Re: [ANNOUNCE] udev 0.1 release
+Message-ID: <20030411223856.GI21726@marowsky-bree.de>
+References: <20030411172011.GA1821@kroah.com> <200304111746.h3BHk9hd001736@81-2-122-30.bradfords.org.uk> <20030411182313.GG25862@wind.cocodriloo.com> <3E970A00.2050204@cox.net> <3E9725C5.3090503@mvista.com> <20030411204329.GT1821@kroah.com> <3E9741FD.4080007@mvista.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <3E9741FD.4080007@mvista.com>
+User-Agent: Mutt/1.4i
+X-Ctuhulu: HASTUR
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> From: Oliver Neukum [mailto:oliver@neukum.org]
->
-> > Ok, if you are worried about these kinds of things, then use the
-> > in-kernel devfs.  I'm not going to dispute that userspace faults can
-> > happen.
-> 
-> Yes, in my oppinion putting such things into user space is stupid.
-> Your considerable talents would be better used to help Adam getting
-> his simplified devfs ready.
+On 2003-04-11T15:30:21,
+   Steven Dake <sdake@mvista.com> said:
 
-Fixating naming policy in the kernel goes along the lines too; 
-unless kdevfs gets the ability to be policy-configurable, it is no use.
+> There is no "spec" that states this is a requirement, however, telecom 
+> customers require the elapsed time from the time they request the disk 
+> to be used, to the disk being usable by the operating system to be 20 msec.
 
-Iñaky Pérez-González -- Not speaking for Intel -- all opinions are my own
-(and my fault)
+Heh. Yes, I've read that spec, and some of it involves some good crack smoking
+;-) The current Linux scheduler will make that rather hard for you, you'll
+need hard realtime for such guarantees.
+
+> Its even more helpful for their applications if the call that hotswap 
+> inserts blocks until the device is actually ready to use and available 
+> in the filesystem.  Another requirement of any system that attempts to 
+> replace devfs would be this capability (vs constantly checking for the 
+> device in the filesystem).
+
+Uh. Can you please clarify?
+
+You want open(/dev/not_there_yet) to block until /dev/not_there_yet is
+inserted? But if it is not inserted, the device file does not exist yet, so
+the open() will simply return a ENOENT.
+
+The application (or a library, providing this capability you want) could
+interact with the hotplug subsystem to be notified when this device is
+inserted.
+
+
+Sincerely,
+    Lars Marowsky-Brée <lmb@suse.de>
+
+-- 
+SuSE Labs - Research & Development, SuSE Linux AG
+  
+"If anything can go wrong, it will." "Chance favors the prepared (mind)."
+  -- Capt. Edward A. Murphy            -- Louis Pasteur

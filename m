@@ -1,47 +1,40 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264500AbSIQTZ2>; Tue, 17 Sep 2002 15:25:28 -0400
+	id <S264528AbSIQTdD>; Tue, 17 Sep 2002 15:33:03 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264509AbSIQTZ2>; Tue, 17 Sep 2002 15:25:28 -0400
-Received: from 62-190-218-75.pdu.pipex.net ([62.190.218.75]:57354 "EHLO
-	darkstar.example.net") by vger.kernel.org with ESMTP
-	id <S264500AbSIQTZ1>; Tue, 17 Sep 2002 15:25:27 -0400
-From: jbradford@dial.pipex.com
-Message-Id: <200209171930.g8HJU8XO004127@darkstar.example.net>
-Subject: Re: Hi is this critical??
-To: rmk@arm.linux.org.uk (Russell King)
-Date: Tue, 17 Sep 2002 20:30:08 +0100 (BST)
-Cc: andre@linux-ide.org, alan@lxorguk.ukuu.org.uk,
-       nuitari@balthasar.nuitari.net, venom@sns.it,
-       linux-kernel@vger.kernel.org, xavier.bestel@free.fr, mark@veltzer.org
-In-Reply-To: <20020917185440.C29890@flint.arm.linux.org.uk> from "Russell King" at Sep 17, 2002 06:54:40 PM
-X-Mailer: ELM [version 2.5 PL6]
-MIME-Version: 1.0
+	id <S264546AbSIQTdD>; Tue, 17 Sep 2002 15:33:03 -0400
+Received: from to-velocet.redhat.com ([216.138.202.10]:6137 "EHLO
+	touchme.toronto.redhat.com") by vger.kernel.org with ESMTP
+	id <S264528AbSIQTdC>; Tue, 17 Sep 2002 15:33:02 -0400
+Date: Tue, 17 Sep 2002 15:38:02 -0400
+From: Benjamin LaHaise <bcrl@redhat.com>
+To: "Chen, Kenneth W" <kenneth.w.chen@intel.com>
+Cc: linux-aio@kvack.org, Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: libaio 0.3.92 test release
+Message-ID: <20020917153802.K23555@redhat.com>
+References: <794826DE8867D411BAB8009027AE9EB913D03F15@fmsmsx38.fm.intel.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <794826DE8867D411BAB8009027AE9EB913D03F15@fmsmsx38.fm.intel.com>; from kenneth.w.chen@intel.com on Tue, Sep 17, 2002 at 12:31:00PM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> On Tue, Sep 17, 2002 at 10:34:10AM -0700, Andre Hedrick wrote:
-> > Quietly it is the SHIPPER's Test.
-> > 
-> > There should be an appilcation you run when you get the device.
-> > If you fail to run it when you get first powerup the device, you are at
-> > fault.  To many devices have been smoked in shipping.
+On Tue, Sep 17, 2002 at 12:31:00PM -0700, Chen, Kenneth W wrote:
+> several questions regarding to aio-20020916 release:
 > 
-> Umm, that's crap.  If the program is an x86 binary, I don't have
-> the facilities to run it here.
+> In fs/aio.c, it doesn't appear that the API as well as the implementation
+> are sync'ed up with what's in 2.5.x.  And this leads to the following
+> discrepancy compare to what's in 2.5:
 
-No, it's not an x86 binary, it's in the firmware of the drive:
+Yeah, I missed a couple and have to add test cases for them to the 
+test suite (those test programs were separate from libaio, and will 
+soon no longer be).  That'll be fixed in today's test release.
 
-Execute Extended Self Test
+> Is there another release (hopefully soon) to sync up fs/aio.c with 2.5? or
+> is it going to be never?
 
-smartctl -x /dev/hda?
+Of course!  Why wouldn't there be?
 
-so if you can send a S.M.A.R.T. command, you can run the test.
-
-> Its their problem.  Its a crap system.  Period.
-
-No, I don't think that you can expect drive manufacturers to replace a disc that you haven't taken care of, especially if it has been used as a football, (isn't that against FIFA regulations, though?  Especially in the world cup example given earlier in this thread.  I thought the specs of the football were quite strict).
-
-John.
+		-ben

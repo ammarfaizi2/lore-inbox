@@ -1,30 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S311147AbSDCL2H>; Wed, 3 Apr 2002 06:28:07 -0500
+	id <S311206AbSDCLc1>; Wed, 3 Apr 2002 06:32:27 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S311206AbSDCL16>; Wed, 3 Apr 2002 06:27:58 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:56081 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S311147AbSDCL1k>; Wed, 3 Apr 2002 06:27:40 -0500
-Subject: Re: Ext2 vs. ext3 recovery after crash
-To: davidsen@tmr.com (Bill Davidsen)
-Date: Wed, 3 Apr 2002 12:41:38 +0100 (BST)
-Cc: linux-kernel@vger.kernel.org (Linux-Kernel Mailing List)
-In-Reply-To: <Pine.LNX.3.96.1020402225256.9671A-100000@gatekeeper.tmr.com> from "Bill Davidsen" at Apr 02, 2002 11:02:58 PM
-X-Mailer: ELM [version 2.5 PL6]
+	id <S311211AbSDCLcS>; Wed, 3 Apr 2002 06:32:18 -0500
+Received: from relay2.uni-heidelberg.de ([129.206.210.211]:23778 "EHLO
+	relay2.uni-heidelberg.de") by vger.kernel.org with ESMTP
+	id <S311206AbSDCLcI>; Wed, 3 Apr 2002 06:32:08 -0500
+Message-Id: <200204031132.g33BW5M28288@fubini.pci.uni-heidelberg.de>
+Content-Type: text/plain; charset=US-ASCII
+From: Bernd Schubert <bernd-schubert@web.de>
+To: Mark Cooke <mpc@star.sr.bham.ac.uk>
+Subject: Re: time jumps
+Date: Wed, 3 Apr 2002 13:32:05 +0200
+X-Mailer: KMail [version 1.3.2]
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.44.0203271729290.15451-100000@pc24.sr.bham.ac.uk>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E16sj90-0003aq-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> style multi-pass 12 minute recovery. I don't see why the ext3 isn't always
-> used, I know it's going to crash, I always do a sync and wait ten seconds
-> for journal writes, etc, to take place.
+Hi,
 
-tune2fs - the file system has a pair of values that force a check every
-n mounts and every n days. You can modify these.
+after changing from 'CONFIG_X86_TSC=n' to 'CONFIG_X86_TSC=y' the problem 
+still exists, so I'm going to try some other suggestions.
 
-Alan
+But nevertheless, thanks for your help,
+
+Bernd
+
+On Wednesday 27 March 2002 18:33, Mark Cooke wrote:
+> There is a hardware bug on some via 686a systems where the RTC appears
+> automagically change it's programmed value.
+>
+> A patch was originally made against 2.4.2, and some version of this
+> appears to be applied to current kernels (I don't have a vanilla
+> 2.4.17 to check against).  Look in arch/i386/kernel/time.c for mention
+> of 686a.
+>
+> It appears to only be used if the kernel's not compiled with
+> CONFIG_X86_TSC though, so if you have that defined you may not see the
+> problem at all...
+>
+> Mark

@@ -1,58 +1,63 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131633AbRAERxU>; Fri, 5 Jan 2001 12:53:20 -0500
+	id <S132657AbRAERxa>; Fri, 5 Jan 2001 12:53:30 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131389AbRAERxL>; Fri, 5 Jan 2001 12:53:11 -0500
-Received: from roc-24-95-203-215.rochester.rr.com ([24.95.203.215]:60431 "EHLO
-	d185fcbd7.rochester.rr.com") by vger.kernel.org with ESMTP
-	id <S129859AbRAERwd>; Fri, 5 Jan 2001 12:52:33 -0500
-Date: Fri, 05 Jan 2001 12:52:25 -0500
-From: Chris Mason <mason@suse.com>
-To: Marcelo Tosatti <marcelo@conectiva.com.br>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: [RFC] changes to buffer.c (was Test12 ll_rw_block error)
-Message-ID: <778660000.978717145@tiny>
-In-Reply-To: <Pine.LNX.4.21.0101051318190.2745-100000@freak.distro.conectiva>
-X-Mailer: Mulberry/2.0.6b1 (Linux/x86)
+	id <S131389AbRAERxU>; Fri, 5 Jan 2001 12:53:20 -0500
+Received: from ns.mmc.ro ([194.102.200.1]:31755 "EHLO ns.mmc.ro")
+	by vger.kernel.org with ESMTP id <S129859AbRAERxO>;
+	Fri, 5 Jan 2001 12:53:14 -0500
+Message-ID: <3A560A6C.D83ABC15@yahoo.com>
+Date: Fri, 05 Jan 2001 19:54:52 +0200
+From: Catalin <catalin@mmc.ro>
+Reply-To: ady982@yahoo.com
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.0 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: Re: 2.4 Kernel Lockup
+In-Reply-To: <JKEGJJAJPOLNIFPAEDHLAEJNCCAA.laramieleavitt@onetel.net.uk>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+I also have a problem: During booting my screen goes black but after I
+login and start X (with a black screen) X works perfectly but if I get out
+from X again (in console mode) again I can't see anything (sometimes I can
+see a blue or a green screen).
+I think is has something to do with the frame buffer options from the
+kernel (my previos kernel 2.2.17 worked perfectly with similar
+configurations).
+I KNOW this is NOT a kernel bug and only a misconfiguration and it is my
+fault for this error and I am really sorry if this is not a proper list
+for such a question (I just joined this list) but if someone can help me
+please do.
+I have my kernel configuration list but I can't send it on this list
+because is too big (it has 19 kb) but if someone wants to help me I can
+send it to his private e-mail address.
+Thank you,
+Adrian
 
+PS: I have an "vga=791" option in my kernel so my console should be in
+1024x768 resolution.
+PS(2): I tried using the "voodoo 3" option from the frame buffer menu (I
+have a voodoo 3 3000) but then instead of having a black screen I have a
+black screen with blue dots that move around (they look like mangnified
+distorsioned chars).
 
-On Friday, January 05, 2001 01:43:07 PM -0200 Marcelo Tosatti
-<marcelo@conectiva.com.br> wrote:
-
+Laramie Leavitt wrote:
 > 
-> On Fri, 5 Jan 2001, Chris Mason wrote:
+> I seem to be getting a rather odd kernel lockup on 2.4.
+> I am using XFree 3.3.6 ( I believe ).
 > 
->> 
->> Here's the latest version of the patch, against 2.4.0.  The
->> biggest open issues are what to do with bdflush, since
->> page_launder could do everything bdflush does.  
+> Whenever I start X, my session starts up like normal,
+> but soon locks HARD.  Is this a known issue?  I
+> suspected the fb stuff, and so I removed it and the
+> problem remains.
 > 
-> I think we want to remove flush_dirty_buffers() from bdflush. 
+> Any ideas?  I can repeat it every single time.
 > 
-
-I think you're right.  Now that bdflush calls page_launder with GFP_KERNEL,
-the flush_dirty_buffers call isn't needed there.  I think the current
-bdflush (with or without the flush_dirty_buffers call) will be more
-aggressive at freeing buffer cache pages from the inactive_dirty list, and
-it will be interesting to see how it performs.  I think it will be better,
-but the blocksize < pagesize case might screw us up.
-
-> While we are trying to be smart and do write clustering at the ->writepage
-> operation, flush_dirty_buffers() is "dumb" and will interfere with the
-> write clustering. 
-> 
-Only for the buffer cache pages.  For actual file data, flush_dirty_buffers
-is calling the writepage func, and we should still be able to cluster it.
-
--chris
-
+> Laramie
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,46 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278325AbRJZK4a>; Fri, 26 Oct 2001 06:56:30 -0400
+	id <S278313AbRJZKza>; Fri, 26 Oct 2001 06:55:30 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278374AbRJZK4O>; Fri, 26 Oct 2001 06:56:14 -0400
-Received: from stingr.net ([212.193.33.37]:19205 "HELO stingray.sgu.ru")
-	by vger.kernel.org with SMTP id <S278325AbRJZK4F>;
-	Fri, 26 Oct 2001 06:56:05 -0400
-Date: Fri, 26 Oct 2001 14:56:21 +0400
-From: Paul P Komkoff Jr <i@stingr.net>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Other computers HIGHLY degrading network performance (DoS?)
-Message-ID: <20011026145621.J41175@stingr.net>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-In-Reply-To: <20011026084328.A14814@bee.lk> <1004064922.21997.7.camel@Eleusis> <20011026090505.A15880@bee.lk> <20011026101313.A18310@bee.lk>
+	id <S278325AbRJZKzU>; Fri, 26 Oct 2001 06:55:20 -0400
+Received: from AMontpellier-201-1-4-3.abo.wanadoo.fr ([217.128.205.3]:15889
+	"EHLO awak") by vger.kernel.org with ESMTP id <S278313AbRJZKzG> convert rfc822-to-8bit;
+	Fri, 26 Oct 2001 06:55:06 -0400
+Subject: Re: [livid-gatos] [RFC] alternative kernel multimedia API
+From: Xavier Bestel <xavier.bestel@free.fr>
+To: volodya@mindspring.com
+Cc: Nate Dannenberg <natedac@kscable.com>, livid-gatos@linuxvideo.org,
+        video4linux-list@redhat.com,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.20.0110251911520.9634-100000@node2.localnet.net>
+In-Reply-To: <Pine.LNX.4.20.0110251911520.9634-100000@node2.localnet.net>
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 8BIT
+X-Mailer: Evolution/0.16.99+cvs.2001.10.22.19.14 (Preview Release)
+Date: 26 Oct 2001 12:35:30 +0200
+Message-Id: <1004092530.10130.145.camel@nomade>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20011026101313.A18310@bee.lk>; from anuradha@gnu.org on Fri, Oct 26, 2001 at 10:13:13AM +0600
-User-Agent: Agent Orange
-X-Mailer: mIRC32 v5.91 K.Mardam-Bey
-X-RealName: Stingray Greatest Jr
-Organization: Stingray Software
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: RIPEMD160
+le ven 26-10-2001 à 01:14, volodya@mindspring.com a écrit :
 
-Replying to Anuradha Ratnaweera:
-> Just found out that this is _not_ a problem of the "download accelerator", but
-> something to do with queuing algorithm of the router.  Even a normal wget
-> process or a big mail has a big impart on the network.  Hopefully an iptables
-> firewall would solve the problem.
+> >  05,HUE=7\n
+> >  07,some unrelated command
+> > +05\n				# The HUE command was successful
+> > :07,reply to unrelated command
+> > :05,HUE=6\n			# Driver reported the HUE parameter as
 
-Router hardware // software ??
+I would prefer a proc-like interface to devices, e.g.:
 
-- -- 
-Paul P 'Stingray' Komkoff 'Greatest' Jr // (icq)23200764 // (irc)Spacebar
-  PPKJ1-RIPE // (smtp)i@stingr.net // (http)stingr.net // (pgp)0xA4B4ECA4
------BEGIN PGP SIGNATURE-----
+/dev/video0/hue
+/dev/video0/saturation
+...
 
-iEYEAREDAAYFAjvZQVQACgkQyMW8naS07KTxqwCcD5lpDgNhuqBEP4b+fseQm2SW
-qgwAoL3te/ab255BmfUCrQqmD+Uair56
-=+ydi
------END PGP SIGNATURE-----
+more unix-like, no parsing involved.
+
+	Xav
+

@@ -1,103 +1,97 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261875AbUGLTxw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261932AbUGLTzT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261875AbUGLTxw (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 12 Jul 2004 15:53:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261932AbUGLTxw
+	id S261932AbUGLTzT (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 12 Jul 2004 15:55:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262079AbUGLTzS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 12 Jul 2004 15:53:52 -0400
-Received: from out2.smtp.messagingengine.com ([66.111.4.26]:18085 "EHLO
-	out2.smtp.messagingengine.com") by vger.kernel.org with ESMTP
-	id S261875AbUGLTxt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 12 Jul 2004 15:53:49 -0400
-X-Sasl-enc: /lvJw3QURuTR3DhAAQfOZA 1089662033
-Message-ID: <009e01c46849$f2e85430$9aafc742@ROBMHP>
-From: "Rob Mueller" <robm@fastmail.fm>
-To: "Chris Mason" <mason@suse.com>
-Cc: <linux-kernel@vger.kernel.org>
-References: <00f601c46539$0bdf47a0$e6afc742@ROBMHP> <1089377936.3956.148.camel@watt.suse.com>
-Subject: Re: Processes stuck in unkillable D state (now seen in 2.6.7-mm6)
-Date: Mon, 12 Jul 2004 12:53:44 -0700
+	Mon, 12 Jul 2004 15:55:18 -0400
+Received: from mail.convergence.de ([212.84.236.4]:16539 "EHLO
+	mail.convergence.de") by vger.kernel.org with ESMTP id S261932AbUGLTy4
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 12 Jul 2004 15:54:56 -0400
+Message-ID: <40F2EC8C.7080101@convergence.de>
+Date: Mon, 12 Jul 2004 21:54:52 +0200
+From: Michael Hunold <hunold@convergence.de>
+User-Agent: Mozilla Thunderbird 0.7 (X11/20040615)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-	format=flowed;
-	charset="iso-8859-1";
-	reply-type=original
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2900.2149
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2149
+To: Linus Torvalds <torvalds@osdl.org>
+CC: Arthur Othieno <a.othieno@bluewin.ch>, Andrew Morton <akpm@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       a.othieno@bluewin.ch
+Subject: [PATCH][2.6] fix return codes after i2c_add_driver() in tea6415c
+ and tea6420
+References: <20040622154839.GI1473@mars>
+In-Reply-To: <20040622154839.GI1473@mars>
+Content-Type: multipart/mixed;
+ boundary="------------030206030800090904080902"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+This is a multi-part message in MIME format.
+--------------030206030800090904080902
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 
-> Things will be much easier for you if you configure a serial or network
-> console.
+Hello Linus, Andrew,
 
-> It's just crud on the stack, you're really waiting in io_schedule() for
-> a page to get unlocked.  Why isn't the page unlocking?  Hard to say for
-> sure without seeing the whole sysrq-t.  If the network/serial console
-> doesn't work out, I can help you configure lkcd as well.
+in two of my i2c helper drivers the return value of i2c_add_driver() is 
+ignored. Thanks to Arthur Othieno for finding these bugs.
 
-Well, I tried compiling in the network console, but it seems to be way too 
-buggy. Basically the machine would crash (hard lockup) within about 12-24 
-hours after booting, nothing on the network console itself or in any log 
-file. Not much help there.
+The patch is trivial. Please apply.
 
-Anyway, after rebooting back into a non-netconsole enabled kernel, we did 
-get another stuck process. This time there was only 1, and I was able to 
-shutdown all the other processes, so that there were only about 50 procs 
-running when I did the sysreq-t command, so I should have been able to 
-capture all the output this time??? I've put the dumps here:
+CU
+Michael.
 
-http://robm.fastmail.fm/kernel/t2/
+--------------030206030800090904080902
+Content-Type: text/plain;
+ name="misc-i2c-module-fixes.diff"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="misc-i2c-module-fixes.diff"
 
-Here's the relevant stuck proc.
+- [V4L] - i2c_add_driver() may actually fail, but both tea6420 and tea6415c driver return 0 regardless
 
-imapd         D E17BE6E0     0  3761      1               10291 (NOTLB)
-e11c3bc8 00000086 00000020 e17be6e0 c1372d20 00000246 00000220 f7e12380
-       00000020 c0136667 c42c6da0 00000001 00000d74 bbfe8a6a 0000040d 
-c42c6da0
-       f7f91140 e17be6e0 e17be890 f78cd9cc 00000003 f78cd9cc f78cd9cc 
-c025d2cc
-Call Trace:
- [<c0136667>] kmem_cache_alloc+0x57/0x70
- [<c025d2cc>] generic_unplug_device+0x2c/0x40
- [<c037a148>] io_schedule+0x28/0x40
- [<c012e03c>] __lock_page+0xbc/0xe0
- [<c012dd70>] page_wake_function+0x0/0x50
- [<c012dd70>] page_wake_function+0x0/0x50
- [<c012f061>] filemap_nopage+0x231/0x360
- [<c013dc18>] do_no_page+0xb8/0x3a0
- [<c013ba7b>] pte_alloc_map+0xdb/0xf0
- [<c013e0ae>] handle_mm_fault+0xbe/0x1a0
- [<c025d292>] __generic_unplug_device+0x32/0x40
- [<c0112af2>] do_page_fault+0x172/0x5ec
- [<c014cab0>] bh_wake_function+0x0/0x40
- [<c014cab0>] bh_wake_function+0x0/0x40
- [<c018ec9f>] reiserfs_prepare_file_region_for_write+0x94f/0x9b0
- [<c0112980>] do_page_fault+0x0/0x5ec
- [<c0104b19>] error_code+0x2d/0x38
- [<c018dc0f>] reiserfs_copy_from_user_to_file_region+0x8f/0x100
- [<c018f2b1>] reiserfs_file_write+0x5b1/0x750
- [<c0186675>] reiserfs_link+0xb5/0x190
- [<c0186719>] reiserfs_link+0x159/0x190
- [<c016134c>] dput+0x1c/0x1b0
- [<c016134c>] dput+0x1c/0x1b0
- [<c01581a0>] path_release+0x10/0x40
- [<c015a9bc>] sys_link+0xcc/0xe0
- [<c014bb9a>] vfs_write+0xaa/0xe0
- [<c014b610>] default_llseek+0x0/0x110
- [<c014bc4f>] sys_write+0x2f/0x50
- [<c010406b>] syscall_call+0x7/0xb
+Signed-off-by: Arthur Othieno <a.othieno@bluewin.ch>
+Signed-off-by: Michael Hunold <hunold@linuxtv.org>
 
-Is that in lock_page again?
+--- a/drivers/media/video/tea6420.c	2003-12-18 03:58:49.000000000 +0100
++++ b/drivers/media/video/tea6420.c	2004-06-04 18:14:36.000000000 +0200
+@@ -197,13 +197,12 @@ static struct i2c_driver driver = {
+         .command	= tea6420_command,
+ };
+ 
+-static int tea6420_init_module(void)
++static int __init tea6420_init_module(void)
+ {
+-	i2c_add_driver(&driver);
+-	return 0;
++	return i2c_add_driver(&driver);
+ }
+ 
+-static void tea6420_cleanup_module(void)
++static void __exit tea6420_cleanup_module(void)
+ {
+         i2c_del_driver(&driver);
+ }
+--- a/drivers/media/video/tea6415c.c	2003-12-18 03:59:16.000000000 +0100
++++ b/drivers/media/video/tea6415c.c	2004-03-31 20:24:35.000000000 +0200
+@@ -217,13 +217,12 @@ static struct i2c_driver driver = {
+         .command	= tea6415c_command,
+ };
+ 
+-static int tea6415c_init_module(void)
++static int __init tea6415c_init_module(void)
+ {
+-	i2c_add_driver(&driver);
+-	return 0;
++	return i2c_add_driver(&driver);
+ }
+ 
+-static void tea6415c_cleanup_module(void)
++static void __exit tea6415c_cleanup_module(void)
+ {
+         i2c_del_driver(&driver);
+ }
 
-Hopefully there's some helpful information there. If the dump there isn't 
-complete, can you give me an idea why it might not be? I've set the kernel 
-buffer to 17 (128k), and the proc list was definitely small enough to fit in 
-the buffer. When I did "dmesg -s 1000000 > foo", the first part of the file 
-was still the original boot sequence. Any other suggestions on what to do?
-
-Rob
-
+--------------030206030800090904080902--

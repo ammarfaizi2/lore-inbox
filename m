@@ -1,49 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262813AbTE0Sh5 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 May 2003 14:37:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262830AbTE0Sh5
+	id S262830AbTE0Sr6 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 May 2003 14:47:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263129AbTE0Sr5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 May 2003 14:37:57 -0400
-Received: from holomorphy.com ([66.224.33.161]:5609 "EHLO holomorphy")
-	by vger.kernel.org with ESMTP id S262813AbTE0Shz (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 May 2003 14:37:55 -0400
-Date: Tue, 27 May 2003 11:50:47 -0700
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Dave Jones <davej@codemonkey.org.uk>, Roman Zippel <zippel@linux-m68k.org>,
-       John Stoffel <stoffel@lucent.com>,
-       DevilKin-LKML <devilkin-lkml@blindguardian.org>,
-       linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.5.70 compile error
-Message-ID: <20030527185047.GO8978@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Dave Jones <davej@codemonkey.org.uk>,
-	Roman Zippel <zippel@linux-m68k.org>,
-	John Stoffel <stoffel@lucent.com>,
-	DevilKin-LKML <devilkin-lkml@blindguardian.org>,
-	linux-kernel@vger.kernel.org
-References: <Pine.LNX.4.44.0305261903330.2164-100000@home.transmeta.com> <200305271048.36495.devilkin-lkml@blindguardian.org> <20030527130515.GH8978@holomorphy.com> <200305271729.49047.devilkin-lkml@blindguardian.org> <20030527153619.GJ8978@holomorphy.com> <16083.35048.737099.575241@gargle.gargle.HOWL> <Pine.LNX.4.44.0305272010550.12110-100000@serv> <20030527184016.GA5847@suse.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030527184016.GA5847@suse.de>
-Organization: The Domain of Holomorphy
-User-Agent: Mutt/1.5.4i
+	Tue, 27 May 2003 14:47:57 -0400
+Received: from adsl-67-122-203-155.dsl.pltn13.pacbell.net ([67.122.203.155]:15294
+	"EHLO ext.storadinc.com") by vger.kernel.org with ESMTP
+	id S262830AbTE0Sr4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 27 May 2003 14:47:56 -0400
+Message-ID: <3ED3B5CA.7050001@storadinc.com>
+Date: Tue, 27 May 2003 12:00:26 -0700
+From: manish <manish@storadinc.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.9) Gecko/20020408
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Marc-Christian Petersen <m.c.p@wolk-project.de>
+CC: Marcelo Tosatti <marcelo@conectiva.com.br>,
+       Andrea Arcangeli <andrea@suse.de>, linux-kernel@vger.kernel.org,
+       Carl-Daniel Hailfinger <c-d.hailfinger.kernel.2003@gmx.net>,
+       Christian Klose <christian.klose@freenet.de>,
+       William Lee Irwin III <wli@holomorphy.com>
+Subject: Re: 2.4.20: Proccess stuck in __lock_page ...
+References: <3ED2DE86.2070406@storadinc.com> <20030527182547.GG3767@dualathlon.random> <Pine.LNX.4.55L.0305271530580.2100@freak.distro.conectiva> <200305272039.18330.m.c.p@wolk-project.de>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, May 27, 2003 at 08:19:39PM +0200, Roman Zippel wrote:
->> This has other advantages too, one can see now which options were newly 
->> added and the individual help texts are accessible.
+Marc-Christian Petersen wrote:
 
-On Tue, May 27, 2003 at 07:40:16PM +0100, Dave Jones wrote:
-> Given that 99% of users will be choosing option 1, it might be a
-> good thing to have the remaining options only shown if a
-> CONFIG_X86_SUBARCHS=y and have things default to option 1 if =n.
+>On Tuesday 27 May 2003 20:33, Marcelo Tosatti wrote:
+>
+>Hi Marcelo,
+>
+>>It seems your "fix-pausing" patch is fixing a potential wakeup
+>>miss, right? (I looked quickly throught it). Could you explain me the
+>>problem its trying to fix and how?
+>>
+>Please have also a look here:
+>
+>http://hypermail.idiosynkrasia.net/linux-kernel/archived/2002/week45/0305.html
+>
+>ciao, Marc
+>
+Hello !
 
-I'll see about this once I get to looking at making CONFIG_X86_NUMAQ
-harder to accidentally trip over (unless someone else does it first).
+I applied the fix-pausing-2 patch to the 2.4.20 kernel. This time on, 
+the stack trace:
+
+sys_write
+generic_file_write
+ext2_get_group_desc
+bread
+__wait_on_buffer
+schedule
 
 
--- wli
+
+

@@ -1,57 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265198AbUG0Mx0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265315AbUG0Mz6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265198AbUG0Mx0 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 Jul 2004 08:53:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265199AbUG0Mx0
+	id S265315AbUG0Mz6 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 Jul 2004 08:55:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265199AbUG0Mz6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 Jul 2004 08:53:26 -0400
-Received: from omx1-ext.sgi.com ([192.48.179.11]:13293 "EHLO
-	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
-	id S265198AbUG0MxY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 Jul 2004 08:53:24 -0400
-Date: Tue, 27 Jul 2004 07:53:04 -0500
-From: Robin Holt <holt@sgi.com>
-To: Keith Owens <kaos@ocs.com.au>
-Cc: Marcin Owsiany <marcin@owsiany.pl>, linux-kernel@vger.kernel.org
-Subject: Re: "swap_free: Unused swap offset entry 00000100" but no crash?
-Message-ID: <20040727125304.GA1411@lnx-holt.americas.sgi.com>
-References: <20040727002154.GA21628@melina.ds14.agh.edu.pl> <3808.1090931402@ocs3.ocs.com.au>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3808.1090931402@ocs3.ocs.com.au>
-User-Agent: Mutt/1.4.1i
+	Tue, 27 Jul 2004 08:55:58 -0400
+Received: from witte.sonytel.be ([80.88.33.193]:9679 "EHLO witte.sonytel.be")
+	by vger.kernel.org with ESMTP id S265776AbUG0Mzv (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 27 Jul 2004 08:55:51 -0400
+Date: Tue, 27 Jul 2004 14:55:39 +0200 (MEST)
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+To: "Randy.Dunlap" <rddunlap@osdl.org>
+cc: lkml <linux-kernel@vger.kernel.org>, akpm <akpm@osdl.org>
+Subject: Re: [PATCH] Kconfig.debug: combine Kconfig debug options
+In-Reply-To: <20040723231158.068d4685.rddunlap@osdl.org>
+Message-ID: <Pine.GSO.4.58.0407271451130.19529@waterleaf.sonytel.be>
+References: <20040723231158.068d4685.rddunlap@osdl.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jul 27, 2004 at 10:30:02PM +1000, Keith Owens wrote:
-> On Tue, 27 Jul 2004 02:21:54 +0200, 
-> Marcin Owsiany <marcin@owsiany.pl> wrote:
-> >    kernel: swap_free: Unused swap offset entry 00000100
-> >Also, I would be grateful if someone could explain what is that number in the
-> >message supposed to be? An address?
-> 
-> It is a swap partition number, but I doubt that you have 256 swap
-> partitions in your system.  Single bit set in a word that is meant to
-> be 0, most likely to be caused by a hardware single bit error.  Run
-> memtest, burn86 or other memory verification checks.
-> 
+On Fri, 23 Jul 2004, Randy.Dunlap wrote:
+> . localizes the following symbols in lib/Kconfig.debug:
+>     DEBUG_KERNEL, MAGIC_SYSRQ, DEBUG_SLAB, DEBUG_SPINLOCK,
+>     DEBUG_SPINLOCK_SLEEP, DEBUG_HIGHMEM, DEBUG_BUGVERBOSE,
+>     DEBUG_INFO
 
-I remember a race condition I thought was possible, but couldn't exactly
-pin down the exact sequence.  Give me a chance to dig through some of
-my notes and see what I come across.
+Which architecture does _not_ use DEBUG_KERNEL or DEBUG_SLAB? The list is quite
+long... Aren't these generic?
 
-I think I could understand this if there two messages with each invocation,
-but not with one.
+Perhaps DEBUG_SPINLOCK can depend on just SMP only? Or do people want to debug
+spinlock code on machines that don't have SMP?
 
-Marcin, you have a process with a Page Table Entry which indicates it is
-pointing to a page which has been swapped out to block 0 of swap device
-256.  This is probably caused by a problem in the kernel.  You can certainly
-run memtest et al.  If you don't find anything, I would assume the problem
-is in the kernel.
+Perhaps DEBUG_HIGHMEM can depend on just HIGHMEM only?
 
-Most of the code in the area you would be affected by has changed
-drastically in the 2.6 kernel.
+(didn't check the whole list) Perhaps the first instance of DEBUG_INFO
+can depend on !SUPERH64 && !USERMODE only?
 
-Good Luck,
-Robin Holt
+Gr{oetje,eeting}s,
+
+						Geert
+
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+							    -- Linus Torvalds

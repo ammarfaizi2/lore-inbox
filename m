@@ -1,33 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262181AbTLDOVH (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 4 Dec 2003 09:21:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262186AbTLDOVH
+	id S261868AbTLDOhf (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 4 Dec 2003 09:37:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261953AbTLDOhf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Dec 2003 09:21:07 -0500
-Received: from math.ut.ee ([193.40.5.125]:920 "EHLO math.ut.ee")
-	by vger.kernel.org with ESMTP id S262181AbTLDOVA (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Dec 2003 09:21:00 -0500
-Date: Thu, 4 Dec 2003 16:20:57 +0200 (EET)
-From: Meelis Roos <mroos@linux.ee>
-To: linux-kernel@vger.kernel.org
-Subject: 2.4.23 compile error in edd
-Message-ID: <Pine.GSO.4.44.0312041620210.25354-100000@math.ut.ee>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Thu, 4 Dec 2003 09:37:35 -0500
+Received: from viriato1.servicios.retecal.es ([212.89.0.44]:65020 "EHLO
+	viriato1.servicios.retecal.es") by vger.kernel.org with ESMTP
+	id S261868AbTLDOhe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 4 Dec 2003 09:37:34 -0500
+Date: Thu, 4 Dec 2003 15:37:32 +0100
+From: Guillermo Menguez Alvarez <gmenguez@usuarios.retecal.es>
+To: Con Kolivas <kernel@kolivas.org>,
+       Tim Schmielau <tim@physik3.uni-rostock.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.4.23-ck1
+Message-Id: <20031204153732.555c5a49.gmenguez@usuarios.retecal.es>
+In-Reply-To: <200312050108.15839.kernel@kolivas.org>
+References: <200312040228.44980.kernel@kolivas.org>
+	<Pine.LNX.4.53.0312041421300.9854@gockel.physik3.uni-rostock.de>
+	<200312041436.57450.tvrtko@croadria.com>
+	<200312050108.15839.kernel@kolivas.org>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-gcc -D__KERNEL__ -I/home/mroos/compile/linux-2.4/include -Wall -Wstrict-prototypes -Wno-trigraphs -O2 -fno-strict-aliasing -fno-common -fomit-frame-pointer -pipe -mpreferred-stack-boundary=2 -march=i686   -nostdinc -iwithprefix include -DKBUILD_BASENAME=setup  -DEXPORT_SYMTAB -c setup.c
-setup.c: In function `copy_edd':
-setup.c:734: error: `DISKSIG_BUFFER' undeclared (first use in this function)
-setup.c:734: error: (Each undeclared identifier is reported only once
-setup.c:734: error: for each function it appears in.)
-make[1]: *** [setup.o] Error 1
+> Probably just a whitespace problem. Try this one. Please tell me if it
+> works; I just made this based on what Tim sent (thanks muchly by the
+> way Tim!)
 
-DISKSIG_BUFFER is nowhere to be seen.
+Patched correctly, seems to work fine:
+
+cpu  1247 0 891 14492
+cpu0 1247 0 891 14491
+
+Thank you both :)
 
 -- 
-Meelis Roos (mroos@linux.ee)
+Usuario Linux #212057 - Maquinas Linux #98894, #130864 y #168988
+Proyecto LONIX: http://lonix.sourceforge.net
+Lagrimas en la Lluvia: http://www.lagrimasenlalluvia.com
 

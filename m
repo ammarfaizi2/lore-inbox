@@ -1,38 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S276914AbRKAAnO>; Wed, 31 Oct 2001 19:43:14 -0500
+	id <S276982AbRKAArE>; Wed, 31 Oct 2001 19:47:04 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S276982AbRKAAnG>; Wed, 31 Oct 2001 19:43:06 -0500
-Received: from rj.SGI.COM ([204.94.215.100]:31957 "EHLO rj.sgi.com")
-	by vger.kernel.org with ESMTP id <S276973AbRKAAm4>;
-	Wed, 31 Oct 2001 19:42:56 -0500
-X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
-From: Keith Owens <kaos@ocs.com.au>
-To: linux-kernel@vger.kernel.org
-Subject: kbuild 2.5 preventing mixture of compilers
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Thu, 01 Nov 2001 11:43:22 +1100
-Message-ID: <26322.1004575402@kao2.melbourne.sgi.com>
+	id <S277097AbRKAAqy>; Wed, 31 Oct 2001 19:46:54 -0500
+Received: from 216-21-153-1.ip.van.radiant.net ([216.21.153.1]:10249 "HELO
+	innerfire.net") by vger.kernel.org with SMTP id <S276982AbRKAAqo>;
+	Wed, 31 Oct 2001 19:46:44 -0500
+Date: Wed, 31 Oct 2001 16:49:44 -0800 (PST)
+From: Gerhard Mack <gmack@innerfire.net>
+To: J Sloan <jjs@pobox.com>
+cc: Ville Herva <vherva@niksula.hut.fi>,
+        linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Nasty suprise with uptime
+In-Reply-To: <3BE07D05.3B71B67D@pobox.com>
+Message-ID: <Pine.LNX.4.10.10110311642060.7849-100000@innerfire.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-FYI, kbuild 2.5 will check that all the kernel and modules were
-compiled with the same version of gcc, in particular they must all have
-the same value of
+On Wed, 31 Oct 2001, J Sloan wrote:
 
-  $(CC) -v 2>&1 | sed -ne '1s:.*/\([^/]*/[^/]*\)/[^/]\+$:\1:p'
+> Vile Hernia wrote:
+> 
+> > BTW, on win95 the HZ is 1024, which caused it to _always_ crash if it ever
+> > reached 48.5 days of uptime. I've seen NT4 SMP to to crash at same point as
+> > well (though it doesn't do it always).
+> 
+> It's funny that windoze went for years
+> without anybody ever realizing about
+> the 49 day crash - heck, one crash
+> every 49 days is lost in the noise on
+> a windoze pee cee - no wonder they
+> never noticed.
+> 
+> OTOH, when our Linux uptimes went back
+> to zero at 497 days, I noticed immediately,
+> and screamed bloody murder until I found
+> it was just a timer wraparound.
+> 
+Seems to be a cultural diffrence between windows and linux users.
 
-e.g. i386-redhat-linux/2.96
+Probably something for ESR or whoever to do a paper on ;)
 
-Minor version data such as build date is assumed to be irrelevant.
-Anybody who makes significant changes to compiler output without
-changing the version number gets what they deserve.
+        Gerhard
 
-Modules built with a different compiler from the kernel will not load
-unless they are forced with insmod -f.
 
-Is this going to cause problems for anybody?  I see no justification
-for mixing kernel objects built by different compilers and I know of
-problems that have been caused by doing so.
+--
+Gerhard Mack
+
+gmack@innerfire.net
+
+<>< As a computer I find your faith in technology amusing.
 

@@ -1,64 +1,68 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S310540AbSCGU7Z>; Thu, 7 Mar 2002 15:59:25 -0500
+	id <S310535AbSCGVEC>; Thu, 7 Mar 2002 16:04:02 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S310539AbSCGU7N>; Thu, 7 Mar 2002 15:59:13 -0500
-Received: from imo-m06.mx.aol.com ([64.12.136.161]:25078 "EHLO
-	imo-m06.mx.aol.com") by vger.kernel.org with ESMTP
-	id <S310537AbSCGU7C>; Thu, 7 Mar 2002 15:59:02 -0500
-Date: Thu, 07 Mar 2002 15:58:43 -0500
-From: pelletierma@netscape.net
-To: linux-kernel@vger.kernel.org
-Subject: Re: ACL support
-Message-ID: <3EA14851.578E6D9E.5016AB90@netscape.net>
-X-Mailer: Atlas Mailer 1.0
-Content-Type: text/plain; charset=iso-8859-1
+	id <S310544AbSCGVDx>; Thu, 7 Mar 2002 16:03:53 -0500
+Received: from smtp2.vol.cz ([195.250.128.42]:53521 "EHLO smtp2.vol.cz")
+	by vger.kernel.org with ESMTP id <S310535AbSCGVDj>;
+	Thu, 7 Mar 2002 16:03:39 -0500
+Date: Thu, 7 Mar 2002 22:00:15 +0100
+From: Pavel Machek <pavel@suse.cz>
+To: fchabaud@free.fr
+Cc: kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: swsusp is at it... again and again
+Message-ID: <20020307210013.GB451@elf.ucw.cz>
+In-Reply-To: <20020306233509.GA576@elf.ucw.cz> <200203071402.g27E2rr12847@colombe.home.perso>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200203071402.g27E2rr12847@colombe.home.perso>
+User-Agent: Mutt/1.3.27i
+X-Warning: Reading this can be dangerous to your mental health.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello.
+Hi!
 
-In response to a number of email I have received, I wanted to make
-something clear:  I'm not out to compete with the bestbit implementation of 
-ACLs over extended file attributes.  :-)
+> >> > After about 20 resume cycles (compiled kernel with swsusp making
+> >> > machine suspend/resume) I got that nasty FS corruption, again.
+> >> > 
+> >> > So... 
+> >> > 
+> >> > 1) Maybe your ext3 patches are not at fault.
+> >> 
+> >> I suspect all this come from suspension failure and immediate resume. I
+> >> have reenabled your panic ! I believe that if a task isn't stopped and
+> >> suspension is aborted (calling thaw_process and so on) something is
+> >> altered. Maybe resuming assumes implicitely a state that is not
+> >> completely reached when a task cannot be stopped.
+> > 
+> > I don't think that's it. But I have another suspect:
+> > 
+> > mark_swapfiles in do_magic_resume_2. Oh, and you should also kill it
+> > from do_magic_suspend_*. Its writing on filesystem during resume, and
+> > it does not seem too safe.
+> 
+> Sh... That's a mail I sent you and that was lost: all the oops I have
+> observed occur with calltrace
+> c0123398 t do_magic_resume_2
+> c0123694 t do_magic
+> c012389c t do_software_suspend
+> c011a8bc T __run_task_queue
+> with EIP
+> c0122754 t mark_swapfiles
+> 
+> Do you mean we should simply not call mark_swapfiles any more ?
 
-What I am offering is an alternative implementation of ACL support at the
-VFS level, that remains independent of filesystem support for ACLs.  In
-fact, my patch provides filesystem support for ramfs only at this time
-(which was ideal for testing).
+I gave it second thought...
 
-The extenteded attribute system as implemented is very good (and in fact
-I am using it for a project of mine), and provide an excellent
-infrastructure for implementing ext2 and ext3 support for ACL...  only
-I beleive that providing an uniform interface and evaluation of ACLs that
-remains independent of the filesystem is the Right Thing(tm).
+We *must* write to swapfiles during suspend. Doing it during resume
+should be very similar to writing during suspend....
 
-Placing ACLs at the VFS level also allows subdivision of the traditional
-rwx semantics.  In fact, people emailed me after testing my patch have
-suggested additional subdivisions of access right that would be useful
-for some other non persistent filesystems (proc and devfs) such as
-giving a bit for ioctl()s.  And since my ACL system is based on VFS
-inodes, it can be extended to sockets as well, which would make useful
-connection and listen permissions, for instance.
-I have not touched implementation of ACL for ext2 and ext3 yet /exactly/
-because the bestbits extended attributes existed, and I felt the people
-working on that code would be in an excellent position to interface with
-my ACL support seamlessly.
-
-Both codebases can be viewed as orthogonal, not competing.  That's the
-way I chose to look at it, and I hope others can feel the same as well.
-
-Happy coding.  :-)
-
--- Marc A. Pelletier
-
+If you simply comment it out, it will refuse to suspend second
+time. If you comment out even "SWAP-FILE" check, it should work... I'd
+be very interested if it helps, but it would also confuse me a lot.
+									Pavel
 -- 
-
-
-
-
-__________________________________________________________________
-Your favorite stores, helpful shopping tools and great gift ideas. Experience the convenience of buying online with Shop@Netscape! http://shopnow.netscape.com/
-
-Get your own FREE, personal Netscape Mail account today at http://webmail.netscape.com/
-
+(about SSSCA) "I don't say this lightly.  However, I really think that the U.S.
+no longer is classifiable as a democracy, but rather as a plutocracy." --hpa

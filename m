@@ -1,72 +1,76 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290937AbSAaFXH>; Thu, 31 Jan 2002 00:23:07 -0500
+	id <S290939AbSAaF3S>; Thu, 31 Jan 2002 00:29:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290938AbSAaFW5>; Thu, 31 Jan 2002 00:22:57 -0500
-Received: from adsl-63-194-232-126.dsl.lsan03.pacbell.net ([63.194.232.126]:28676
-	"HELO alpha.dyndns.org") by vger.kernel.org with SMTP
-	id <S290937AbSAaFWm>; Thu, 31 Jan 2002 00:22:42 -0500
-Message-ID: <3C58D69B.6000205@alpha.dyndns.org>
-Date: Wed, 30 Jan 2002 21:31:07 -0800
-From: Mark McClelland <mark@alpha.dyndns.org>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.7) Gecko/20011226
-X-Accept-Language: en-us
-MIME-Version: 1.0
-To: Greg KH <greg@kroah.com>
-CC: Dave Jones <davej@suse.de>, Linux Kernel <linux-kernel@vger.kernel.org>,
-        linux-usb-devel@lists.sourceforge.net
-Subject: Re: ov511 verbose startup.
-In-Reply-To: <20020131023457.D31313@suse.de> <20020131035936.GD31006@kroah.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S290940AbSAaF3J>; Thu, 31 Jan 2002 00:29:09 -0500
+Received: from dracula.gtri.gatech.edu ([130.207.193.70]:27910 "EHLO
+	shaft.shaftnet.org") by vger.kernel.org with ESMTP
+	id <S290939AbSAaF3D>; Thu, 31 Jan 2002 00:29:03 -0500
+Date: Thu, 31 Jan 2002 00:28:55 -0500
+From: Stuffed Crust <pizza@shaftnet.org>
+To: linux-kernel@vger.kernel.org
+Subject: BUG:  broken I830MP AGP support in 2.4.17 and 2.4.18pre7
+Message-ID: <20020131002855.A10415@shaftnet.org>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-md5;
+	protocol="application/pgp-signature"; boundary="gBBFr7Ir9EOA20Yy"
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Greg KH wrote:
 
->On Thu, Jan 31, 2002 at 02:34:57AM +0100, Dave Jones wrote:
->
->>The changes to ov511 in 2.5.3 seem to generate excessive
->>amounts of blurb on boot up for me..
->>
->>ov511.c: USB OV511+ camera found
->>ov511.c: model: Creative Labs WebCam 3
->>ov511.c: Sensor is an OV7620
->>ov511.c: Device registered on minor 0
->>usbdevfs: USBDEVFS_CONTROL failed dev 2 rqt 128 rq 6 len 137 ret -75
->>usb_control/bulk_msg: timeout
->>usbdevfs: USBDEVFS_CONTROL failed dev 2 rqt 128 rq 6 len 18 ret -110
->>usb_control/bulk_msg: timeout
->>usbdevfs: USBDEVFS_CONTROL failed dev 2 rqt 128 rq 6 len 18 ret -110
->>...
->>repeat last two lines another dozen or so times...
->>
->
->What userspace program are you using that is talking to the usb device
->through usbfs?  Or is this usbutils trying to determine what driver to
->load?
->
-I have been getting reports of -75 (babble?) and -110 errors with both 
-control and iso transfers. The problematic kernels seem to be 2.4.17+, 
-with uhci HCD. IIRC, nearly all of the reports mentioned a Via chipset. 
-There are sporadic reports of corrupted iso packets (blocks of zeros 
-inserted randomly) with uhci under 2.4.17 as well.
+--gBBFr7Ir9EOA20Yy
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-This is the first case of a usbfs-related ov511 error that I have seen. 
-Very strange.
+I'm blessed with a new Dell Inspiron 4100, which is in turn blessed with
+the i830MP AGP chipset.  It's identical to the i830M except it doesn't
+have the on-chip graphics controller.
 
-Greg (if you know): usbfs is not allowed to access claimed interfaces, 
-correct? (ie. ones that are implicitly claimed because of a successful 
-return from probe()). Are interfaces treated as claimed while probe() is 
-active, so that user-space "probes" cannot interfere with driver probes()?
+When trying to load up the agpgart module under 2.4.17, I get:
 
-I use usb-uhci, uhci, and usb-ohci regularly with ov511, and I have 
-never seen any of these problems. There are clearly a number of factors 
-involved here.
+>Linux agpgart interface v0.99 (c) Jeff Hartmann
+>agpgart: Maximum main memory to use for agp memory: 262M
+>agpgart: Detected an Intel 830M, but could not find the secondary device.
 
--- 
-Mark McClelland
-mmcclell@bigfoot.com
+Fine, I see that 2.4.18pre supposedly has fixes for the I830MP.  So I
+compile it, slap it in place.. and get:  (with 2.4.17pre7)
 
+>Linux agpgart interface v0.99 (c) Jeff Hartmann
+>agpgart: Maximum main memory to use for agp memory: 262M
+>agpgart: unsupported bridge
+>agpgart: no supported devices found.
 
+lspci yields:
+>00:00.0 Host bridge: Intel Corporation: Unknown device 3575 (rev 02)
+>        Flags: bus master, fast devsel, latency 0
+>        Memory at d0000000 (32-bit, prefetchable) [size=3D256M]
+>        Capabilities: [40] #09 [0105]
+>        Capabilities: [a0] AGP version 2.0
 
+So it appears not all is well with the I830MP patch.
+(Yes, I have tried the 'agp_unsupported' option in both cases)
+
+ - Pizza
+--=20
+Solomon Peachy                                    pizzaATfucktheusers.org
+I ain't broke, but I'm badly bent.                           ICQ# 1318344
+Patience comes to those who wait.
+    ...It's not "Beanbag Love", it's a "Transanimate Relationship"...
+
+--gBBFr7Ir9EOA20Yy
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.6 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
+
+iD8DBQE8WNYXysXuytMhc5ERAl5nAJ4hQc0/smcwHSbEREngASzWqXtfWQCdGne+
+/JcZ7G45+fcbRBuSUbEdkHw=
+=3DuJ
+-----END PGP SIGNATURE-----
+
+--gBBFr7Ir9EOA20Yy--

@@ -1,197 +1,95 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129351AbQKNDVs>; Mon, 13 Nov 2000 22:21:48 -0500
+	id <S129388AbQKNDnV>; Mon, 13 Nov 2000 22:43:21 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129388AbQKNDVi>; Mon, 13 Nov 2000 22:21:38 -0500
-Received: from 513.holly-springs.nc.us ([216.27.31.173]:35076 "EHLO
-	513.holly-springs.nc.us") by vger.kernel.org with ESMTP
-	id <S129351AbQKNDVY>; Mon, 13 Nov 2000 22:21:24 -0500
-Message-ID: <3A10B64A.257D8345@holly-springs.nc.us>
-Date: Mon, 13 Nov 2000 22:49:30 -0500
-From: Michael Rothwell <rothwell@holly-springs.nc.us>
-X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.2.16-22 i586)
-X-Accept-Language: en
+	id <S129869AbQKNDnL>; Mon, 13 Nov 2000 22:43:11 -0500
+Received: from linuxcare.com.au ([203.29.91.49]:19472 "EHLO
+	front.linuxcare.com.au") by vger.kernel.org with ESMTP
+	id <S129388AbQKNDnJ>; Mon, 13 Nov 2000 22:43:09 -0500
+Message-Id: <200011140313.eAE3D3s28869@wattle.linuxcare.com.au>
+To: torvalds@transmeta.com
+cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] make SMP power off work when APM is a module
 MIME-Version: 1.0
-To: Corisen <csyap@starnet.gov.sg>
-CC: David Relson <relson@osagesoftware.com>, linux-kernel@vger.kernel.org
-Subject: Re: anyone compiled 2.2.17 on RH7 successfully?
-In-Reply-To: <200011140118.eAE1IuV17166@moisil.dev.hydraweb.com> <4.3.2.7.2.20001113205514.00af7d20@mail.osagesoftware.com> <008801c04de0$9c08a840$050010ac@starnet.gov.sg>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="us-ascii"
+Content-ID: <28866.974171583.1@linuxcare.com.au>
+Date: Tue, 14 Nov 2000 14:13:03 +1100
+From: Stephen Rothwell <sfr@linuxcare.com.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-GCCLOC=`which gcc`
-rm `echo $GCCLOC`
-ln -s `which kgcc` `echo $GCCLOC`
+Hi Linus,
 
-... repeat for g++
+This patch corrects the return codes from apm's init routine
+and in particular should allow SMP power off to work when APM
+is compiled as a module.
 
+Cheers,
+Stephen
+-- 
+Stephen Rothwell, Open Source Researcher, Linuxcare, Inc.
++61-2-62628990 tel, +61-2-62628991 fax 
+sfr@linuxcare.com, http://www.linuxcare.com/ 
+Linuxcare. Support for the revolution.
 
--M
-
-
-Corisen wrote:
-> 
-> thanks for the info. i've kgcc installed during RH7 installation. i've
-> checked the version to be 2.91.66. i've used the following 2 methods with
-> kgcc but it won't even allow me to compile:
-> 1. make CC=kgcc zImage
-> 2. change the CC=gcc to CC=kgcc in Makefile
-> 
-> the "make CC=kgcc zImage" process reports the following error messages:
-> 
-> In file included from init/main.c:15:
-> /usr/i386-glibc21-linux/include/linux/proc_fs.h:283: parse error before
-> `mode_t'
-> /usr/i386-glibc21-linux/include/linux/proc_fs.h:283: warning: no semicolon
-> at end of struct or union
-> /usr/i386-glibc21-linux/include/linux/proc_fs.h:284: warning: data
-> definition has no type or storage class
-> /usr/i386-glibc21-linux/include/linux/proc_fs.h:285: parse error before
-> `uid'
-> /usr/i386-glibc21-linux/include/linux/proc_fs.h:285: warning: data
-> definition has no type or storage class
-> /usr/i386-glibc21-linux/include/linux/proc_fs.h:286: parse error before
-> `gid'
-> /usr/i386-glibc21-linux/include/linux/proc_fs.h:286: warning: data
-> definition has no type or storage class
-> /usr/i386-glibc21-linux/include/linux/proc_fs.h:289: parse error before
-> `off_t'
-> /usr/i386-glibc21-linux/include/linux/proc_fs.h:290: warning: `struct inode'
-> declared inside parameter list
-> /usr/i386-glibc21-linux/include/linux/proc_fs.h:290: warning: its scope is
-> only this definition or declaration,
-> /usr/i386-glibc21-linux/include/linux/proc_fs.h:290: warning: which is
-> probably not what you want.
-> /usr/i386-glibc21-linux/include/linux/proc_fs.h:293: parse error before
-> `off_t'
-> /usr/i386-glibc21-linux/include/linux/proc_fs.h:296: warning: `struct file'
-> declared inside parameter list
-> /usr/i386-glibc21-linux/include/linux/proc_fs.h:300: parse error before `}'
-> /usr/i386-glibc21-linux/include/linux/proc_fs.h:302: parse error before
-> `off_t'
-> /usr/i386-glibc21-linux/include/linux/proc_fs.h:305: warning: `struct file'
-> declared inside parameter list
-> /usr/i386-glibc21-linux/include/linux/proc_fs.h:308: parse error before
-> `off_t'
-> /usr/i386-glibc21-linux/include/linux/proc_fs.h: In function
-> `proc_scsi_register':
-> /usr/i386-glibc21-linux/include/linux/proc_fs.h:344: dereferencing pointer
-> to incomplete type
-> /usr/i386-glibc21-linux/include/linux/proc_fs.h:345: dereferencing pointer
-> to incomplete type
-> /usr/i386-glibc21-linux/include/linux/proc_fs.h: In function
-> `proc_scsi_unregister':
-> /usr/i386-glibc21-linux/include/linux/proc_fs.h:359: dereferencing pointer
-> to incomplete type
-> /usr/i386-glibc21-linux/include/linux/proc_fs.h:362: `NULL' undeclared
-> (first use in this function)
-> /usr/i386-glibc21-linux/include/linux/proc_fs.h:362: (Each undeclared
-> identifier is reported only once
-> /usr/i386-glibc21-linux/include/linux/proc_fs.h:362: for each function it
-> appears in.)
-> /usr/i386-glibc21-linux/include/linux/proc_fs.h:363: dereferencing pointer
-> to incomplete type
-> /usr/i386-glibc21-linux/include/linux/proc_fs.h:365: dereferencing pointer
-> to incomplete type
-> /usr/i386-glibc21-linux/include/linux/proc_fs.h:368: sizeof applied to an
-> incomplete type
-> .....many more lines
-> .....many more lines
-> 
-> ----- Original Message -----
-> From: David Relson <relson@osagesoftware.com>
-> To: Corisen <csyap@starnet.gov.sg>
-> Cc: <linux-kernel@vger.kernel.org>
-> Sent: Tuesday, November 14, 2000 9:58 AM
-> Subject: Re: anyone compiled 2.2.17 on RH7 successfully?
-> 
-> > Corisen,
-> >
-> > RedHat 7.0's version of gcc, known as gcc 2.96, is incompatible with the
-> > kernel's code.  Preprocessor changes cause the problem you encountered.
-> It
-> > also has some defects in how it optimizes code that would cause the kernel
-> > to run incorrectly.
-> >
-> > The 7.0 distribution includes an older version of gcc, known as kgcc (for
-> > kernel gcc), that compiles code correctly and can be used for kernel
-> > compilation.  Install the rpm and go for it!
-> >
-> > David
-> >
-> > At 08:44 PM 11/13/00, Corisen wrote:
-> > >has anyone running RedHat7(with kernel 2.2.16, gcc 2.96, kgcc 2.91.66)
-> > >complied 2.2.17 kernel successfully?
-> > >
-> > >i've downloaded the source and gunzip/untar to /root/linux-2.2.17
-> > >
-> > >1. make menuconfig (ok)
-> > >2. make dep (ok)
-> > >3. make zImage
-> > >===> lots of warning message
-> > >===> error: checksum.S:231 badly punctuated parameter list in #define
-> > >===> error: checksum.S:237 badly punctuated parameter list in #define
-> > >
-> > >4. make CC=kgcc zImage
-> > >===> snapshot of errors reported:
-> > >In file included from init/main.c:15:
-> > >/usr/i386-glibc21-linux/include/linux/proc_fs.h:283: parse error before
-> > >`mode_t'
-> > >/usr/i386-glibc21-linux/include/linux/proc_fs.h:283: warning: no
-> semicolon
-> > >at end of struct or union
-> > >/usr/i386-glibc21-linux/include/linux/proc_fs.h:284: warning: data
-> > >definition has no type or storage class
-> > >/usr/i386-glibc21-linux/include/linux/proc_fs.h:285: parse error before
-> > >`uid'
-> > >/usr/i386-glibc21-linux/include/linux/proc_fs.h:285: warning: data
-> > >definition has no type or storage class
-> > >/usr/i386-glibc21-linux/include/linux/proc_fs.h:286: parse error before
-> > >`gid'
-> > >/usr/i386-glibc21-linux/include/linux/proc_fs.h:286: warning: data
-> > >definition has no type or storage class
-> > >....many more errors
-> > >....many more errors
-> > >....
-> > >
-> > >5. changed CC= kgcc in Makefile and execute "make zImage"
-> > >===> same error as 3 (strange, seems like the the compilation is still by
-> > >gcc and not kgcc despite the change)
-> > >
-> > >i was able to compile 2.4.0-test10 kernel image with "make CC=kgcc
-> bzImage"
-> > >
-> > >pls kindly advise on the possible solutions.
-> > >
-> > >thanks.
-> > >
-> > >
-> > >
-> > >
-> > >
-> > >-
-> > >To unsubscribe from this list: send the line "unsubscribe linux-kernel"
-> in
-> > >the body of a message to majordomo@vger.kernel.org
-> > >Please read the FAQ at http://www.tux.org/lkml/
-> >
-> > --------------------------------------------------------
-> > David Relson                   Osage Software Systems, Inc.
-> > relson@osagesoftware.com       514 W. Keech Ave.
-> > www.osagesoftware.com          Ann Arbor, MI 48103
-> > voice: 734.821.8800            fax: 734.821.8800
-> >
-> > -
-> > To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> > the body of a message to majordomo@vger.kernel.org
-> > Please read the FAQ at http://www.tux.org/lkml/
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> Please read the FAQ at http://www.tux.org/lkml/
+diff -ruN 2.4.0-test11pre4/arch/i386/kernel/apm.c 2.4.0-test11pre4-APM.1/arch/i386/kernel/apm.c
+--- 2.4.0-test11pre4/arch/i386/kernel/apm.c	Mon Nov 13 17:46:42 2000
++++ 2.4.0-test11pre4-APM.1/arch/i386/kernel/apm.c	Tue Nov 14 00:30:28 2000
+@@ -1571,8 +1571,6 @@
+ 	&apm_bios_fops
+ };
+ 
+-#define APM_INIT_ERROR_RETURN	return -1
+-
+ /*
+  * Just start the APM thread. We do NOT want to do APM BIOS
+  * calls from anything but the APM thread, if for no other reason
+@@ -1587,7 +1585,7 @@
+ {
+ 	if (apm_bios_info.version == 0) {
+ 		printk(KERN_INFO "apm: BIOS not found.\n");
+-		APM_INIT_ERROR_RETURN;
++		return -ENODEV;
+ 	}
+ 	printk(KERN_INFO
+ 		"apm: BIOS version %d.%d Flags 0x%02x (Driver version %s)\n",
+@@ -1597,7 +1595,7 @@
+ 		driver_version);
+ 	if ((apm_bios_info.flags & APM_32_BIT_SUPPORT) == 0) {
+ 		printk(KERN_INFO "apm: no 32 bit BIOS support\n");
+-		APM_INIT_ERROR_RETURN;
++		return -ENODEV;
+ 	}
+ 
+ 	/*
+@@ -1626,15 +1624,15 @@
+ 
+ 	if (apm_disabled) {
+ 		printk(KERN_NOTICE "apm: disabled on user request.\n");
+-		APM_INIT_ERROR_RETURN;
++		return -ENODEV;
+ 	}
+ 	if ((smp_num_cpus > 1) && !power_off) {
+ 		printk(KERN_NOTICE "apm: disabled - APM is not SMP safe.\n");
+-		APM_INIT_ERROR_RETURN;
++		return -ENODEV;
+ 	}
+ 	if (PM_IS_ACTIVE()) {
+ 		printk(KERN_NOTICE "apm: overridden by ACPI.\n");
+-		APM_INIT_ERROR_RETURN;
++		return -ENODEV;
+ 	}
+ 	pm_active = 1;
+ 
+@@ -1683,7 +1681,7 @@
+ 	if (smp_num_cpus > 1) {
+ 		printk(KERN_NOTICE
+ 		   "apm: disabled - APM is not SMP safe (power off active).\n");
+-		APM_INIT_ERROR_RETURN;
++		return 0;
+ 	}
+ 
+ 	misc_register(&apm_device);
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

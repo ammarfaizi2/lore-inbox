@@ -1,52 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281668AbRKUNvW>; Wed, 21 Nov 2001 08:51:22 -0500
+	id <S281562AbRKUNvM>; Wed, 21 Nov 2001 08:51:12 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281381AbRKUNvN>; Wed, 21 Nov 2001 08:51:13 -0500
-Received: from lilac.csi.cam.ac.uk ([131.111.8.44]:7897 "EHLO
-	lilac.csi.cam.ac.uk") by vger.kernel.org with ESMTP
-	id <S281050AbRKUNvG>; Wed, 21 Nov 2001 08:51:06 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: James A Sutherland <jas88@cam.ac.uk>
-To: hps@intermeta.de, "Henning P. Schmiedehausen" <mailgate@hometree.net>,
-        linux-kernel@vger.kernel.org
-Subject: Re: A return to PCI ordering problems...
-Date: Wed, 21 Nov 2001 13:51:12 +0000
-X-Mailer: KMail [version 1.3.1]
-In-Reply-To: <20011120190316.H19738@vnl.com> <E166TCM-0004VH-00@lilac.csi.cam.ac.uk> <9tg371$ja3$1@forge.intermeta.de>
-In-Reply-To: <9tg371$ja3$1@forge.intermeta.de>
+	id <S281381AbRKUNvC>; Wed, 21 Nov 2001 08:51:02 -0500
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:58732 "EHLO
+	frodo.biederman.org") by vger.kernel.org with ESMTP
+	id <S281050AbRKUNuz>; Wed, 21 Nov 2001 08:50:55 -0500
+To: Rik van Riel <riel@conectiva.com.br>
+Cc: "David S. Miller" <davem@redhat.com>, <linux-mm@kvack.org>,
+        <linux-kernel@vger.kernel.org>
+Subject: Re: 2.4.14 + Bug in swap_out.
+In-Reply-To: <Pine.LNX.4.33L.0111211016270.4079-100000@imladris.surriel.com>
+From: ebiederm@xmission.com (Eric W. Biederman)
+Date: 21 Nov 2001 06:31:51 -0700
+In-Reply-To: <Pine.LNX.4.33L.0111211016270.4079-100000@imladris.surriel.com>
+Message-ID: <m1hero1c8o.fsf@frodo.biederman.org>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.1
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <E166XmJ-0004HV-00@lilac.csi.cam.ac.uk>
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 21 November 2001 11:29 am, Henning P. Schmiedehausen wrote:
-> James A Sutherland <jas88@cam.ac.uk> writes:
-> >On Tuesday 20 November 2001 9:27 pm, David Woodhouse wrote:
-> >> amon@vnl.com said:
-> >> > In any case, here is the problem:
-> >> > 	NIC on motherboard, Realtek
-> >> > 	NIC on PCI card, Realtek
-> >> > 	Monolithic (no-module) kernel
-> >> > 	Motherboard must be set to eth0
-> >>
-> >> Why must the motherboard be set to eth0? Why not just configure it as it
-> >> gets detected?
+Rik van Riel <riel@conectiva.com.br> writes:
+
+> On 20 Nov 2001, Eric W. Biederman wrote:
+> > "David S. Miller" <davem@redhat.com> writes:
 > >
-> >He has some software licensing thing which checks the MAC address of eth0.
+> > > I do not agree with your analysis.
 > >
-> >Of course, what he could do is change the MAC address of eth0 to whatever
-> > the licensing software wants... :-)
->
-> One could imagine a module to read the MAC address from the eeprom and
-> not from the Interface.. Makes this scenario not impossible but much
-> harder.
+> > Neither do I now but not for your reasons :)
+> >
+> > I looked again we are o.k. but just barely.  mmput explicitly checks
+> > to see if it is freeing the swap_mm, and fixes if we are.  It is a
+> > nasty interplay with the swap_mm global, but the code is correct.
+> 
+> To be honest I don't see the reason for this subtle
+> playing with swap_mm in mmput(), since the refcounting
+> should mean we're safe.
 
-Apart from depending on the specific NIC in use, probably easy to circumvent. 
-Especially with EEPROMs. But discussing this probably violates the UK's CDPA 
-(our answer to DMCA, but snuck onto the books in '88) prohibition on 
-communicating information about circumvention...
+We only hold a ref count for the duration of swap_out_mm.
+Not for the duration of the value in swap_mm.
 
-
-James.
+Eric

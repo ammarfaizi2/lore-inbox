@@ -1,48 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288655AbSAQNCm>; Thu, 17 Jan 2002 08:02:42 -0500
+	id <S288657AbSAQND0>; Thu, 17 Jan 2002 08:03:26 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288657AbSAQNCb>; Thu, 17 Jan 2002 08:02:31 -0500
-Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:55308 "EHLO
-	gatekeeper.tmr.com") by vger.kernel.org with ESMTP
-	id <S288655AbSAQNCO>; Thu, 17 Jan 2002 08:02:14 -0500
-Date: Thu, 17 Jan 2002 08:01:50 -0500
-Message-Id: <200201171301.IAA01133@gatekeeper.tmr.com>
-To: rml@tech9.net
-Subject: Re: [PATCH] I3 sched tweaks...
-Newsgroups: mail.linux-kernel
-In-Reply-To: <1011216429.1083.95.camel@phantasy>
-In-Reply-To: <1011215946.314.14.camel@gs256.sp.cs.cmu.edu>
-Organization: TMR Associates, Schenectady NY
-Cc: linux-kernel@vger.kernel.org
-From: davidsen@tmr.com (bill davidsen)
+	id <S288660AbSAQNDM>; Thu, 17 Jan 2002 08:03:12 -0500
+Received: from zeus.kernel.org ([204.152.189.113]:22694 "EHLO zeus.kernel.org")
+	by vger.kernel.org with ESMTP id <S288657AbSAQNDD>;
+	Thu, 17 Jan 2002 08:03:03 -0500
+Date: Thu, 17 Jan 2002 04:42:30 -0800 (PST)
+From: Andre Hedrick <andre@linuxdiskcert.org>
+To: Jeremy Freeman <jfreeman@sporg.com>
+cc: linux-kernel@vger.kernel.org
+Subject: XP PCI Contamination, GURR (Re: Care?)
+In-Reply-To: <000501c1877f$87248b40$10105318@jeremy.bc.ca>
+Message-ID: <Pine.LNX.4.10.10201170438020.30663-100000@master.linux-ide.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <1011216429.1083.95.camel@phantasy> you write:
-| On Wed, 2002-01-16 at 16:19, Justin Carlson wrote:
-| 
-| > Don't forget that, in non-x86 land, current tends to be just kept in a 
-| > register.  No computations required.  Certainly passing it around on,
-| > e.g. mips is a clear loss.
-| 
-| current is stored in a register (esp) in x86, too.  This is why I
-| cautioned that looking up current was cheap -- I think every sane arch
-| stores current in some fast access way.  That's why it is a macro -- it
-| is assembly code to quickly snag the address.
-| 
-| So is passing current still worth it?
 
-  It sounds as if it may be one of those "it depends" things, but if
-current is not calculated the exact same way in all places... people
-talk about coloring (or colouring in Canada) and several other things I
-forget, it's sort of nice to be sure it's calculated just once, and that
-if the calculation becomes more expensive in the future that the
-tradeoff between passing and calculating won't change.
+It appears the folks up in redmond have succeeded in having the BIOS
+people default disable PCI resources.  Since XP will reject, or assume a
+device is in use should the BAR's be allocated, the various archs may need
+to have a broader setup table or a more generic ruleset.
 
-  I guess passing is safer for the future and of a known cost.
+Any thoughts on how best to address good hardare, which the BIOS does not
+setup per redmond-rules.
 
--- 
-bill davidsen <davidsen@tmr.com>
-  CTO, TMR Associates, Inc
-Doing interesting things with little computers since 1979.
+
+On Mon, 17 Dec 2001, Jeremy Freeman wrote:
+
+> Not sure if you care about this or not.. Probably seen it from someone else
+> already.. Dual Athlon 1800+ MPs on a Tyain Thunder K7 BIOS 2.09.
+> 
+> 2.4.16 kernel.
+> 
+> <snip>
+> AMD7411: IDE controller on PCI bus 00 dev 39
+> PCI: Device 00:07.1 not available because of resource collisions
+> AMD7411: chipset revision 1
+> AMD7411: not 100% native mode: will probe irqs later
+> AMD7411: IO baseregs (BIOS) are reported as MEM, report to
+> <andre@linux-ide.org>.
+> AMD7411: simplex device:  DMA disabled
+> ide1: AMD7411 Bus-Master DMA disabled (BIOS)
+> hda: ATAPI 52X CDROM, ATAPI CD/DVD-ROM drive
+> ide0 at 0x1f0-0x1f7,0x3f6 on irq 14
+> hda: ATAPI 48X CD-ROM drive, 128kB Cache
+> <snip>
+> 
+
+Andre Hedrick
+Linux Disk Certification Project                Linux ATA Development
+

@@ -1,33 +1,27 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265404AbUADLgz (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 4 Jan 2004 06:36:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265406AbUADLgz
+	id S265385AbUADLgJ (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 4 Jan 2004 06:36:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265400AbUADLgJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 4 Jan 2004 06:36:55 -0500
-Received: from merkur.hrz.tu-freiberg.de ([139.20.64.28]:13066 "EHLO
-	merkur.hrz.tu-freiberg.de") by vger.kernel.org with ESMTP
-	id S265404AbUADLgy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 4 Jan 2004 06:36:54 -0500
-From: Daniel Gerstner <daniel@gerstner-web.de>
+	Sun, 4 Jan 2004 06:36:09 -0500
+Received: from mta05-svc.ntlworld.com ([62.253.162.45]:65469 "EHLO
+	mta05-svc.ntlworld.com") by vger.kernel.org with ESMTP
+	id S265385AbUADLgI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 4 Jan 2004 06:36:08 -0500
+Date: Sun, 4 Jan 2004 11:36:30 +0000
+From: DaMouse Networks <damouse@ntlworld.com>
 To: linux-kernel@vger.kernel.org
-Subject: [2.6]:bttv: bt848-tv-cards don't work
-Date: Sun, 4 Jan 2004 12:36:52 +0100
-User-Agent: KMail/1.5.93
-MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-1"
+Subject: Re: 2.6.1-rc1-mjb1
+Message-Id: <20040104113630.78a94dcd@EozVul.WORKGROUP>
+Organization: DaMouse Networks
+X-Mailer: Sylpheed version 0.9.8claws (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Message-Id: <200401041236.52957.daniel@gerstner-web.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+I'm just wondering how the HT schedular merge is coming? I'm interesting in getting a better/new one for some testing so I wondered how it was coming along with it being ported to 2.6.1-rc1.
 
-my bt848 only play sound when "Capture" in xawtv is "overlay". Only 
-"grabdisplay" it works both.
-The problem is on 2.6.0 and 2.6.1-rc1
-Also other people have the same problem.
-
-Thx for help, Daniel.
+-DaMouse

@@ -1,54 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135989AbREGEGH>; Mon, 7 May 2001 00:06:07 -0400
+	id <S129084AbREGEYw>; Mon, 7 May 2001 00:24:52 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135990AbREGEF6>; Mon, 7 May 2001 00:05:58 -0400
-Received: from mail11.jump.net ([206.196.91.11]:61180 "EHLO mail11.jump.net")
-	by vger.kernel.org with ESMTP id <S135989AbREGEFt>;
-	Mon, 7 May 2001 00:05:49 -0400
-Message-ID: <3AF61F87.536AC034@sgi.com>
-Date: Sun, 06 May 2001 23:07:35 -0500
-From: Eric Sandeen <sandeen@sgi.com>
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.2-SGI_XFS_1.0smp i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-CC: afu@fugmann.dhs.org
-Subject: Re: CANBus driver.
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S135508AbREGEYm>; Mon, 7 May 2001 00:24:42 -0400
+Received: from mx9.port.ru ([194.67.23.46]:37876 "EHLO mx9.port.ru")
+	by vger.kernel.org with ESMTP id <S129084AbREGEY3>;
+	Mon, 7 May 2001 00:24:29 -0400
+From: "Samium Gromoff" <_deepfire@mail.ru>
+To: "Chris Mason" <mason@suse.com>
+Cc: linux-kernel@vger.kernel.org, reiser@idiom.com, monstr@namesys.com
+Subject: Re[2]: Q: HowTo Nullify journal on badblks?
+Mime-Version: 1.0
+X-Mailer: mPOP Web-Mail 2.19
+X-Originating-IP: [195.34.27.33]
+In-Reply-To: <242950000.988312820@tiny>
+Reply-To: "Samium Gromoff" <_deepfire@mail.ru>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Message-Id: <E14wcZQ-000CR4-00@f12.port.ru>
+Date: Mon, 07 May 2001 08:24:28 +0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Anders - 
+         Hello busy peoples, again me...
+      Today got my 45gb drive slightly badblocked:
+   about 70 MB in beginning... thus problem arose:
+   bitmaps are heavily corrupted, and debugreiserfs  
+   with -p crashes while trying to dump journal
+   (he`s not alone in such behaviour: evryone doing
+    that fails with Segfault). I need to dump
+   all metadata to refresh bitmaps etc, but i can`t.
+   
+   3.x.0j-pre2/linux-2.4.4
 
-There is a bunch of code for Linux CANbus/DeviceNet drivers for SST
-cards (sstech.on.ca) here:
+   what do i have to do?
 
-http://home.att.net/~marksu/dn5136man.html
-
-"This is a Linux driver and library of useful functions and utility
-applications for the SST 5136-DN family of CAN bus/DeviceNet interface
-boards."
-
-SST makes these cards in various formats, pcmcia, PC104, isa...
-
-Also found something here, not familiar with it though:
-
-http://www.synergetic.com/linux/
-
-Good luck,
-
--Eric
-
-Anders Peter Fugmann wrote:
-
-> Some of my fellow students and I, have started a project in which we 
-> have to implement a linux driver for a CANbus ISA card ( AROS: A-858D 
-> PCCAN -x ver. 1.12). 
-> 
-> Does there exist any work on a CANBus driver for linux already? 
-
--- 
-Eric Sandeen      XFS for Linux     http://oss.sgi.com/projects/xfs
-sandeen@sgi.com   SGI, Inc.
+   i can provide a strace of segfaulted --fix-fixable
+            thanks in advance        

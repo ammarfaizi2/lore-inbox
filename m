@@ -1,43 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268698AbRGZVrh>; Thu, 26 Jul 2001 17:47:37 -0400
+	id <S268699AbRGZWGi>; Thu, 26 Jul 2001 18:06:38 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268699AbRGZVr1>; Thu, 26 Jul 2001 17:47:27 -0400
-Received: from h24-78-175-24.vn.shawcable.net ([24.78.175.24]:9864 "EHLO
-	oof.localnet") by vger.kernel.org with ESMTP id <S268698AbRGZVrO>;
-	Thu, 26 Jul 2001 17:47:14 -0400
-Date: Thu, 26 Jul 2001 14:47:19 -0700
-From: Simon Kirby <sim@netnation.com>
-To: linux-kernel@vger.kernel.org
-Subject: read() details
-Message-ID: <20010726144719.A2098@netnation.com>
-Mime-Version: 1.0
+	id <S268700AbRGZWGT>; Thu, 26 Jul 2001 18:06:19 -0400
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:20754 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S268699AbRGZWGJ>; Thu, 26 Jul 2001 18:06:09 -0400
+Subject: Re: [CHECKER] repetitive/contradictory comparison bugs for 2.4.7
+To: linux-kernel@alex.org.uk
+Date: Thu, 26 Jul 2001 23:06:02 +0100 (BST)
+Cc: engler@csl.Stanford.EDU (Dawson Engler),
+        alan@lxorguk.ukuu.org.uk (Alan Cox), nave@stanford.edu (Evan Parker),
+        linux-kernel@vger.kernel.org, mc@CS.Stanford.EDU
+In-Reply-To: <602725597.996180886@[169.254.62.211]> from "Alex Bligh - linux-kernel" at Jul 26, 2001 08:54:48 PM
+X-Mailer: ELM [version 2.5 PL5]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.18i
+Content-Transfer-Encoding: 7bit
+Message-Id: <E15PtGc-0004ad-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
-Just some things I've always wondered about...
+> How will this be guaranteed to help handle a race, when gcc is
+> likely either to have tmp_buf in a register (not declared
+> volatile), or perhaps even optimize out the second reference.
 
-Is it safe to assume that when a single read() call of x bytes a file
-(the file being locked against other processes appending to it) returns
-less than x bytes, the next read() will always return 0?  If so, is it
-portable to make such an assumption?
+The function call is a synchronization point, and the function it calls
+might change the value. I put the barriers into my tree to make this clear
+although I cant see some future super gcc globally optimising that one
+anyway
 
-...Or is it always better to make sure read() returns 0 before assuming
-EOF, perhaps because the kernel may want to promote contiguous-page
-read()s or for some other reason?
-
-On a related note, would there be a win in altering the first read() size
-(at the beginning of a read loop) to allow the kernel to serve the
-subsequent read requests from contiguous pages?  (This is assuming that
-an lseek() happened first which would misalign the further read()s with
-page boundaries.)
-
-Simon-
-
-[  Stormix Technologies Inc.  ][  NetNation Communications Inc. ]
-[       sim@stormix.com       ][       sim@netnation.com        ]
-[ Opinions expressed are not necessarily those of my employers. ]
+Alan

@@ -1,73 +1,71 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264067AbTDWO6Z (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 23 Apr 2003 10:58:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264071AbTDWO6Z
+	id S264071AbTDWO7u (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 23 Apr 2003 10:59:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264073AbTDWO7u
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 23 Apr 2003 10:58:25 -0400
-Received: from chaos.analogic.com ([204.178.40.224]:8584 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP id S264067AbTDWO54
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 23 Apr 2003 10:57:56 -0400
-Date: Wed, 23 Apr 2003 11:11:58 -0400 (EDT)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-X-X-Sender: root@chaos
-Reply-To: root@chaos.analogic.com
-To: "Randy.Dunlap" <rddunlap@osdl.org>
-cc: icedank@gmx.net, linux-kernel@vger.kernel.org
-Subject: Re: Stored data missed in setup.S
-In-Reply-To: <20030423075158.510e25d2.rddunlap@osdl.org>
-Message-ID: <Pine.LNX.4.53.0304231107530.23670@chaos>
-References: <200304231617.23243.icedank@gmx.net> <Pine.LNX.4.53.0304230925150.23037@chaos>
- <200304231639.57148.icedank@gmx.net> <Pine.LNX.4.53.0304231028270.23276@chaos>
- <20030423075158.510e25d2.rddunlap@osdl.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Wed, 23 Apr 2003 10:59:50 -0400
+Received: from mux2.uit.no ([129.242.5.252]:34570 "EHLO mux2.uit.no")
+	by vger.kernel.org with ESMTP id S264071AbTDWO6i (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 23 Apr 2003 10:58:38 -0400
+Date: Wed, 23 Apr 2003 17:10:43 +0200
+Message-Id: <200304231510.h3NFAh430564@lgserv3.stud.cs.uit.no>
+From: Tobias Brox <tobias@stud.cs.uit.no>
+To: linux-kernel@vger.kernel.org
+Subject: PROBLEM: nfsroot.c + ipconfig.c (2.4.20)
+Reply-To: tobias@stud.cs.uit.no
+Organization: University of  =?ISO-8859-1?Q?=20Troms=F8?=
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 23 Apr 2003, Randy.Dunlap wrote:
+I tried to create a GRUB boot floppy that would download the kernel
+from a server, mount the root partition over nfs and then mount other
+nfs partitions later.
 
-> On Wed, 23 Apr 2003 10:36:55 -0400 (EDT) "Richard B. Johnson" <root@chaos.analogic.com> wrote:
->
-> | On Wed, 23 Apr 2003, Andrew Kirilenko wrote:
-> |
-> | [SNIPPED...]
-> |
-> | > OK. And now code looks like:
-> | > -->
-> | > start_of_setup: # line 160
-> | > 	# bla bla bla - some checking code
-> | >         movb    $1, %al
-> | >         movb    %al, (0x100)
-> | > ....
-> | > ....
-> | > 	cmpb    $1, (0x100)
-> | > 	je bail820 # and it DON'T jump here
-> | > <--
-> | >
-> |
-> | > I'm sure, I'm doing something wrong. But what???
-> |
-> | The only possibiity is that the code you just showed is not
-> | being executed. Absolute location 0x100 is not being overwritten
-> | by some timer-tick (normally) so whatever you write there should
-> | remain. You just put a byte of 1 in that location and then
-> | you compared against a byte of 1. If the CPU was broken, you
-> | wouldn't have even loaded your code.
->
-> Could possibly be that DS (seg register) is altered between
-> the store and the comparison...
+The very first problem: couldn't find the right options in the kernel
+configuration (using "menuconfig").  The documentation in
+Documentation/nfsroot.txt is obsoleted, I would suggest this text to
+be added to the first section:
 
-I can only assume that the code presented is the only code that
-was executed. You are correct that DS may have never even been
-set. The data segment may be in some non-writable space, which
-is hard to find now-days with most evenything being shadowed
-and left writable. Many modern chip-sets can't turn off write,
-maybe it was too expensive from a performance standpoint.
+=== 
+ On newer kernel releases, you will find "IP kernel level autoconfiguration"
+ under the section "Networking Options"/"TCP/IP Networking".  You will have 
+ to select this first, or the option "Root File System on NFS"
+ will not appear under "File Systems"/"Network File Systems"/
+ "NFS File System Support"/
+===
 
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.4.20 on an i686 machine (797.90 BogoMips).
-Why is the government concerned about the lunatic fringe? Think about it.
+Second problem: neither net/ipv4/ipconfig.c nor fs/nfs/nfsroot.c seemed to
+care at all about the kernel parameters (though "root=/dev/nfs" seems
+to be honored).  They should have been called from the
+checksetup(char*) function in init/main.c.  According to debug output,
+the checksetup function is run for each parameter at the command line,
+but the corresponding setup functions in nfsroot and ipconfig is not
+called.
 
+The ipconfig logics is only started through the checksetup logics.
+This is really weird, at this point of the execution, network drivers
+haven't been loaded yet.
+
+I hardcoded some values into the nfsroot.c, and forced ipconfig to be
+started from nfsroot.c.  Problems didn't stop there.
+
+At nfsroot.c, function root_nfs_get_handle the "status"
+value is returned if it is below zero.  But what should the function
+return if the status value is ok? I had to remove the if-test before
+the mounting would work.
+
+This is 2.4.20 with the gentoo-patches, compiled with gcc 3.2
+
+After all my hacking and whacking, I finally got a kernel that managed
+to find the IP address through DHCP, mount root through NFS using a
+hard-coded server address and a hard coded path trailed with the last
+digits of the IP address - but it did not want to mount other
+NFS-partitions - the mount command would just freeze over.
+
+(I'd appreciate CCs on any follow-ups)
+
+-- 
+Check our new Mobster game at http://hstudd.cs.uit.no/mobster/
+(web game, updates every 4th hour, no payment, no commercials)

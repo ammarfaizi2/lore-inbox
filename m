@@ -1,78 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262722AbVCJQff@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262737AbVCJQln@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262722AbVCJQff (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 10 Mar 2005 11:35:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262677AbVCJQbi
+	id S262737AbVCJQln (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 10 Mar 2005 11:41:43 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262733AbVCJQlm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 10 Mar 2005 11:31:38 -0500
-Received: from rwcrmhc13.comcast.net ([204.127.198.39]:34047 "EHLO
-	rwcrmhc13.comcast.net") by vger.kernel.org with ESMTP
-	id S262711AbVCJQ2X (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 10 Mar 2005 11:28:23 -0500
-Message-ID: <423075B7.5080004@comcast.net>
-Date: Thu, 10 Mar 2005 11:28:39 -0500
-From: John Richard Moser <nigelenki@comcast.net>
-User-Agent: Mozilla Thunderbird 1.0 (X11/20050111)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: binary drivers and development
-X-Enigmail-Version: 0.90.0.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+	Thu, 10 Mar 2005 11:41:42 -0500
+Received: from h116083.upc-h.chello.nl ([62.194.116.83]:53516 "EHLO lab.d20.nl")
+	by vger.kernel.org with ESMTP id S262711AbVCJQhK (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 10 Mar 2005 11:37:10 -0500
+Subject: Re: [patch 1/1] /proc/$$/ipaddr and per-task networking bits
+From: Joost Remijn <remijnj@d20.nl>
+To: Arjan van de Ven <arjan@infradead.org>
+Cc: Lorenzo =?ISO-8859-1?Q?Hern=E1ndez_?=
+	 =?ISO-8859-1?Q?Garc=EDa-Hierro?= <lorenzo@gnu.org>,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <1110470935.6291.105.camel@laptopd505.fenrus.org>
+References: <1110464202.9190.7.camel@localhost.localdomain>
+	 <1110464782.6291.95.camel@laptopd505.fenrus.org>
+	 <1110468517.9190.24.camel@localhost.localdomain>
+	 <1110469087.6291.103.camel@laptopd505.fenrus.org>
+	 <1110470430.9190.33.camel@localhost.localdomain>
+	 <1110470935.6291.105.camel@laptopd505.fenrus.org>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-UK6++jguJM8rVhfgse/Q"
+Date: Thu, 10 Mar 2005 17:36:46 +0100
+Message-Id: <1110472606.5589.20.camel@frost>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.2 (2.0.2-3) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
 
-I've been looking at the UDI project[1] and thinking about binary
-drivers and the like, and wondering what most peoples' take on these are
-and what impact that UDI support would have on the kernel's development.
+--=-UK6++jguJM8rVhfgse/Q
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
 
-I know the immediate first reactions are probably "Portable drivers are
-slow" and "We don't support closed source crap."  I think benchmarks are
-needed, and closed drivers can always be replaced by rewritten open
-ones.  Really critical drivers that need the extra few microseconds can
-always be low-level instead of abstracted.
+On Thu, 2005-03-10 at 17:08 +0100, Arjan van de Ven wrote:
+> On Thu, 2005-03-10 at 17:00 +0100, Lorenzo Hern=C3=A1ndez Garc=C3=ADa-Hie=
+rro
+> wrote: it tries to fill the
+> > ipaddr member of the task_struct structure with the IP address
+> > associated to the user running @current task/process,if available.
+>=20
+> but... a use doesn't hane an IP. a host does.
 
-The major considerations I come across mainly involve development focus
-and kernel tree size.  UDI drivers would be separated from the kernel,
-so their development would be focused; a driver fix would not warrent a
-2.6, 2.4, and 2.2 patch, plus backports in 100 distributions (which
-don't concern the LKML).  They'd also be in their own tarball, so the
-kernel tree size would be a lot smaller if most drivers were UDI, though
-by how much I'm not sure.
+I'm not sure i understand but i've just tried to read the code and it
+looks like the IP address is the address of the other end of a socket.
 
-I'm aware that drivers would have to be loaded to the kernel like this,
-being separated.  Aside from having the kernel build eat drivers from
-some /lib/modules/udi/ directory, grub has a "module" command that can
-load multiple modules.  If the kernel used that to load drivers (does it
-now?), an initrd wouldn't be needed; a very straightforward bootloader
-configuration would come in its place.
+This address is set when a process does accept(). So this user IP we are
+talking about would be the remote users host IP (or gateway in case of
+NAT).=20
 
-There is a 2.4 UDI reference model out with SCSI and NIC driver support.
- Perhaps some experimentation with these would be interesting, since the
-disk and the network are performance focuses.  I don't think the UDI
-reference model is ready quite yet for mainline, but it's ready for some
-cross-examination by unbiased kernel developers.
+I don't think i fully understand the code but it looks like it only
+holds the remote IP address of the last accept()-ed connection.=20
 
-[1] http://projectudi.sourceforge.net/
+Joost Remijn
 
-- --
-All content of all messages exchanged herein are left in the
-Public Domain, unless otherwise explicitly stated.
+--=-UK6++jguJM8rVhfgse/Q
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
 
-    Creative brains are a valuable, limited resource. They shouldn't be
-    wasted on re-inventing the wheel when there are so many fascinating
-    new problems waiting out there.
-                                                 -- Eric Steven Raymond
 -----BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.5 (GNU/Linux)
-Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
+Version: GnuPG v1.2.6 (GNU/Linux)
 
-iD8DBQFCMHW2hDd4aOud5P8RAnhSAJ9+8VdgR6EX0JwjUpysXsTMRl1ewwCeOWJR
-g6mNs6NuEltgNS6qtVat5Mo=
-=DrWO
+iD8DBQBCMHeeTXl8Eth9Jm8RAqEcAKCIuCoO1kqa0+PHMnMWCpprjp4phQCdG64Z
+ZqKvJoeRwbPYknQzP4JkiJM=
+=1Xbm
 -----END PGP SIGNATURE-----
+
+--=-UK6++jguJM8rVhfgse/Q--
+

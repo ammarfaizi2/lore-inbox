@@ -1,44 +1,75 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265177AbTBEXre>; Wed, 5 Feb 2003 18:47:34 -0500
+	id <S265196AbTBEXtY>; Wed, 5 Feb 2003 18:49:24 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265196AbTBEXre>; Wed, 5 Feb 2003 18:47:34 -0500
-Received: from bitmover.com ([192.132.92.2]:11706 "EHLO mail.bitmover.com")
-	by vger.kernel.org with ESMTP id <S265177AbTBEXrd>;
-	Wed, 5 Feb 2003 18:47:33 -0500
-Date: Wed, 5 Feb 2003 15:57:06 -0800
-From: Larry McVoy <lm@bitmover.com>
-To: Christoph Hellwig <hch@infradead.org>,
-       Matt Reppert <arashi@yomerashi.yi.org>, Andrew Morton <akpm@digeo.com>,
-       andrea@suse.de, lm@bitmover.com, linux-kernel@vger.kernel.org,
-       torvalds@transmeta.com
-Subject: Re: 2.5 changeset 1.952.4.2 corrupt in fs/jfs/inode.c
-Message-ID: <20030205235706.GB21064@work.bitmover.com>
-Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
-	Christoph Hellwig <hch@infradead.org>,
-	Matt Reppert <arashi@yomerashi.yi.org>,
-	Andrew Morton <akpm@digeo.com>, andrea@suse.de, lm@bitmover.com,
-	linux-kernel@vger.kernel.org, torvalds@transmeta.com
-References: <20030205174021.GE19678@dualathlon.random> <20030205102308.68899bc3.akpm@digeo.com> <20030205184535.GG19678@dualathlon.random> <20030205114353.6591f4c8.akpm@digeo.com> <20030205141104.6ae9e439.arashi@yomerashi.yi.org> <20030205233115.GB14131@work.bitmover.com> <20030205233705.A31812@infradead.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030205233705.A31812@infradead.org>
-User-Agent: Mutt/1.4i
-X-MailScanner: Found to be clean
+	id <S265197AbTBEXtY>; Wed, 5 Feb 2003 18:49:24 -0500
+Received: from smtp4.us.dell.com ([143.166.148.135]:54225 "EHLO
+	smtp4.us.dell.com") by vger.kernel.org with ESMTP
+	id <S265196AbTBEXtW>; Wed, 5 Feb 2003 18:49:22 -0500
+Date: Wed, 5 Feb 2003 17:58:57 -0600 (CST)
+From: Matt Domsch <Matt_Domsch@Dell.com>
+X-X-Sender: mdomsch@humbolt.us.dell.com
+Reply-To: Matt Domsch <Matt_Domsch@Dell.com>
+To: torvalds@transmeta.com
+cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] EDD fixups for 2.5.x
+Message-ID: <20BF5713E14D5B48AA289F72BD372D6803072879-100000@AUSXMPC122.aus.amer.dell.com>
+X-GPG-Fingerprint: 17A4 17D0 81F5 4B5F DB1C  AEF8 21AB EEF7 92F0 FC09
+X-GPG-Key: http://domsch.com/mdomsch_pub.asc
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Feb 05, 2003 at 11:37:05PM +0000, Christoph Hellwig wrote:
-> On Wed, Feb 05, 2003 at 03:31:15PM -0800, Larry McVoy wrote:
-> > We can go buy another machine for glibc2.3, I just need to know what redhat
-> > release uses that.  If there isn't one, what distro uses that?
-> 
-> redhat 8.0 uses a prerelease of glibc2.3, the current redhat beta uses
-> glibc 2.3.1+CVS, dito for debian unstable.
+Linus, please do a
 
-And is everyone happy with 8.0's glibc, if we offer that up until 8.1 comes
-out?  If so, we'll buy a machine and add it to the build cluster this week.
+	bk pull http://mdomsch.bkbits.net/linux-2.5-edd
+
+This will update the following files:
+
+ arch/i386/kernel/edd.c   |  298 ++++++++++++++++++++++++-----------------------
+ arch/i386/kernel/setup.c |    2 
+ include/asm-i386/edd.h   |    2 
+ 3 files changed, 155 insertions, 147 deletions
+
+through these ChangeSets:
+
+<Matt_Domsch@dell.com> (03/01/21 1.952.1.5)
+   EDD: don't over-allocate EDD data block
+   
+   Found by Kevin Lawton.
+
+<Matt_Domsch@dell.com> (03/01/21 1.952.1.4)
+   EDD: until SCSI layer sysfs is fixed, don't use it for raw_data either.
+
+<Matt_Domsch@dell.com> (03/01/16 1.952.1.2)
+   EDD: Until scsi layer is fixed, don't make symlink to scsi disk
+
+<Matt_Domsch@dell.com> (03/01/07 1.879.29.1)
+   EDD: fix raw_data file and edd_has_edd30(), misc cleanups
+   
+   * Update copyright date
+   * s/driverfs/sysfs in comments
+   * bump version
+   * bug fix: raw_data file was always printing device 0's info.
+   * bug fix: edd_has_edd30 was always returning device 0's info.
+   * always print the report info at the end of raw_data
+   * edd_dev_is_type() should return boolean
+   * edd_match_scsidev() should return boolean
+   * remove duplicate calls to pci_find_slot, use edd_get_pci_dev().
+   * attribute tests should return boolean
+   * add edd_release()
+   * work if !CONFIG_SCSI=[ym]
+   * use new find_bus() and bus_for_each_dev() to match SCSI devices
+
+
+Thanks,
+Matt
+
 -- 
----
-Larry McVoy            	 lm at bitmover.com           http://www.bitmover.com/lm 
+Matt Domsch
+Sr. Software Engineer, Lead Engineer, Architect
+Dell Linux Solutions www.dell.com/linux
+Linux on Dell mailing lists @ http://lists.us.dell.com
+
+

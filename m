@@ -1,59 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262430AbTFOROX (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 15 Jun 2003 13:14:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262431AbTFOROW
+	id S262382AbTFORTK (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 15 Jun 2003 13:19:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262445AbTFORTJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 15 Jun 2003 13:14:22 -0400
-Received: from wohnheim.fh-wedel.de ([195.37.86.122]:939 "EHLO
-	wohnheim.fh-wedel.de") by vger.kernel.org with ESMTP
-	id S262430AbTFORNz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 15 Jun 2003 13:13:55 -0400
-Date: Sun, 15 Jun 2003 19:27:47 +0200
-From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
+	Sun, 15 Jun 2003 13:19:09 -0400
+Received: from colin2.muc.de ([193.149.48.15]:64015 "HELO colin2.muc.de")
+	by vger.kernel.org with SMTP id S262382AbTFORTH (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 15 Jun 2003 13:19:07 -0400
+Date: 15 Jun 2003 19:32:56 +0200
+Message-ID: <20030615193256.29257@colin.muc.de>
+Date: Sun, 15 Jun 2003 19:32:56 +0200
+From: Andi Kleen <ak@colin.muc.de>
 To: Linus Torvalds <torvalds@transmeta.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] make cramfs look less hostile
-Message-ID: <20030615172747.GG1063@wohnheim.fh-wedel.de>
-References: <20030615160524.GD1063@wohnheim.fh-wedel.de>
+Cc: Andi Kleen <ak@muc.de>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Fix undefined/miscompiled construct in kernel parameters
+References: <m3of0zdzuz.fsf@averell.firstfloor.org> <Pine.LNX.4.44.0306151021440.8088-100000@home.transmeta.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20030615160524.GD1063@wohnheim.fh-wedel.de>
-User-Agent: Mutt/1.3.28i
+Content-Type: text/plain; charset=us-ascii
+X-Mailer: Mutt 0.88e
+In-Reply-To: <Pine.LNX.4.44.0306151021440.8088-100000@home.transmeta.com>; from Linus Torvalds on Sun, Jun 15, 2003 at 10:24:13AM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 15 June 2003 18:05:24 +0200, Jörn Engel wrote:
-> To:	quinlan@transmeta.com
+> They are not arbitrary symbols. They are symbols in the same data 
+> structure, set up by the linker script. Gcc doesn't know that, but the 
+> fact that gcc doesn't know doesn't mean that gcc should be lazy and 
+> doesn't really excuse buggy code.
+> 
+> The gcc developers you talked to are picking their legalistic noses, and 
+> it's sad that this isn't exactly the first time it has happened.
 
-And got a bounce.  Another free office over there, Linus?
+I tend to agree, feel free to flame them. But it doesn't help me right now 
+when I want to get a booting kernel. Could you merge that change or if you 
+prefer I can rewrite it to anonymous asm (but it will be probably more ugly). 
+I just need some workaround.
 
-Anyway, unless someone has a better patch, just remove him from
-MAINTAINERS.
+Thanks.
 
-The sourceforge page is still informative, so I kept that in.
+-Andi
 
-Jörn
-
--- 
-I can say that I spend most of my time fixing bugs even if I have lots
-of new features to implement in mind, but I give bugs more priority.
--- Andrea Arcangeli, 2000
-
---- linux-2.5.71/MAINTAINERS~cramfs_maintain	2003-06-15 16:04:45.000000000 +0200
-+++ linux-2.5.71/MAINTAINERS	2003-06-15 19:23:29.000000000 +0200
-@@ -426,10 +426,8 @@
- S:	Maintained
- 
- CRAMFS FILESYSTEM
--P:	Daniel Quinlan
--M:	quinlan@transmeta.com
--W:	http://sourceforge.net/projects/cramfs/
--S:	Maintained
-+W:     http://sourceforge.net/projects/cramfs/
-+S:     Orphan
- 
- CREDITS FILE
- P:	John A. Martin

@@ -1,81 +1,135 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293122AbSCFDxM>; Tue, 5 Mar 2002 22:53:12 -0500
+	id <S293182AbSCFD5w>; Tue, 5 Mar 2002 22:57:52 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293167AbSCFDxC>; Tue, 5 Mar 2002 22:53:02 -0500
-Received: from [216.250.138.66] ([216.250.138.66]:31443 "HELO guts.pl.net")
-	by vger.kernel.org with SMTP id <S293122AbSCFDwo>;
-	Tue, 5 Mar 2002 22:52:44 -0500
-Message-ID: <3C85A354.85A8EAF3@utah-nac.org>
-Date: Tue, 05 Mar 2002 22:04:20 -0700
-From: "Jeff V. Merkey" <jmerkey@utah-nac.org>
-Organization: Utah Native American Church
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.18 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: michael bernstein <bernstein.46@osu.edu>
-CC: "Jeff V. Merkey" <jmerkey@vger.timpanogas.org>,
-        Karl <ktatgenhorst@earthlink.net>,
-        The Open Source Club at The Ohio State University 
-	<opensource-admin@cis.ohio-state.edu>,
-        linux-kernel@vger.kernel.org, opensource@cis.ohio-state.edu
-Subject: Re: [opensource] Re: Petition Against Official Endorsement of BitKeeper 
- by Linux Maintainers
-In-Reply-To: <E8BE46FE-30B3-11D6-B682-003065C60BC2@osu.edu>
+	id <S293181AbSCFD5o>; Tue, 5 Mar 2002 22:57:44 -0500
+Received: from rj.sgi.com ([204.94.215.100]:12206 "EHLO rj.sgi.com")
+	by vger.kernel.org with ESMTP id <S293175AbSCFD5k>;
+	Tue, 5 Mar 2002 22:57:40 -0500
+X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
+From: Keith Owens <kaos@ocs.com.au>
+To: Thomas Hood <jdthood@mail.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: init_idle reaped before final call 
+In-Reply-To: Your message of "05 Mar 2002 17:06:43 CDT."
+             <1015366005.1157.776.camel@thanatos> 
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Date: Wed, 06 Mar 2002 14:57:12 +1100
+Message-ID: <13805.1015387032@kao2.melbourne.sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Please do not take off line postings to your private list and report to this
-list.
-
-Thanks
-
-Jeff
-
-michael bernstein wrote:
-
-> Do you have any clue as to what you can and cannot goto court for?  I
-> have no idea where you or from or what kind of education you have, but
-> in the "free" world, you can't take someone to court for picketing or
-> protesting or petitioning.  It is built into the American system.  We
-> are bullies?  I'd rather be a bully then someone who slanders others
-> with references to those who chose to commit genocide.  If you are
-> American and you don't realize how free speech works, then I strongly
-> urge you to find out.  <FLAME>Then maybe you can speak about things in a
-> more educated way, rather than coming off like a retarded
-> gorilla.</FLAME>
+On 05 Mar 2002 17:06:43 -0500, 
+Thomas Hood <jdthood@mail.com> wrote:
+>I think you're right.  To prevent the mistake from
+>happening again, I'd suggest you add a comment to your
+>patch for init_idle(), explaining that it can't be __init 
+>because it is called by cpu_idle, which is called
+>by rest_init(), which ...
 >
-> cheers and much hope in your quest to find free speech,
->
-> Michael Bernstein
-> bernstein.46@osu.edu
->
-> On Tuesday, March 5, 2002, at 10:47 PM, Jeff V. Merkey wrote:
-> >
-> > Yeah, I saw that part Karl, but the bottom line in their position
-> > was to limit our choices and choose for us their oppresive views.  It's
-> > also tortorious to post such a petition as a mean to attack a for
-> > profit endeavor, whether the profit is kudos or consideration.  Try
-> > pulling this on Novell or Microsoft, and watch how fast you go to court.
-> >
-> > These people are bullies.
-> >
-> > :-)
-> >
-> > Jeff
-> >
-> >>
-> > _______________________________________________
-> > Opensource mailing list
-> > Opensource@mail.cis.ohio-state.edu
-> > http://mail.cis.ohio-state.edu/mailman/listinfo/opensource
-> >
->
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+>I wonder if an automated __init consistency checker 
+>would be helpful.
+
+Looks like it will, I found a lot of dubious code by running
+reference_init.pl (below).
+
+Unfortunately I had to exclude references from read only data to .init
+sections, almost all of these are false positives, they are created by
+gcc.  The downside of excluding rodata is that there really are some
+user references from rodata to init code, e.g. drivers/video/vgacon.c
+
+const struct consw vga_con = {
+        con_startup:            vgacon_startup,
+
+where vgacon_startup is __init.  If you want to wade through the false
+positives, take out the check for rodata.
+
+
+#!/usr/bin/perl -w
+#
+# reference_init.pl (C) Keith Owens 2002 <kaos@ocs.com.au>
+#
+# List references to vmlinux init sections from non-init sections.
+
+use strict;
+die($0 . " takes no arguments\n") if($#ARGV >= 0);
+
+my %object;
+my $object;
+my $line;
+my $ignore;
+
+$| = 1;
+
+printf("Finding objects, ");
+open(OBJDUMP_LIST, "find . -name '*.o' | xargs objdump -h |") || die "getting objdump list failed";
+while (defined($line = <OBJDUMP_LIST>)) {
+	chomp($line);
+	if ($line =~ /:\s+file format/) {
+		($object = $line) =~ s/:.*//;
+		$object{$object}->{'module'} = 0;
+		$object{$object}->{'size'} = 0;
+		$object{$object}->{'off'} = 0;
+	}
+	if ($line =~ /^\s*\d+\s+\.modinfo\s+/) {
+		$object{$object}->{'module'} = 1;
+	}
+	if ($line =~ /^\s*\d+\s+\.comment\s+/) {
+		($object{$object}->{'size'}, $object{$object}->{'off'}) = (split(' ', $line))[2,5]; 
+	}
+}
+close(OBJDUMP_LIST);
+printf("%d objects, ", scalar keys(%object));
+$ignore = 0;
+foreach $object (keys(%object)) {
+	if ($object{$object}->{'module'}) {
+		++$ignore;
+		delete($object{$object});
+	}
+}
+printf("ignoring %d module(s)\n", $ignore);
+
+# Ignore conglomerate objects, they have been built from multiple objects and we
+# only care about the individual objects.  If an object has more than one GCC:
+# string in the comment section then it is conglomerate.  This does not filter
+# out conglomerates that consist of exactly one object, can't be helped.
+
+printf("Finding conglomerates, ");
+$ignore = 0;
+foreach $object (keys(%object)) {
+	if (exists($object{$object}->{'off'})) {
+		my ($off, $size, $comment, $l);
+		$off = hex($object{$object}->{'off'});
+		$size = hex($object{$object}->{'size'});
+		open(OBJECT, "<$object") || die "cannot read $object";
+		seek(OBJECT, $off, 0) || die "seek to $off in $object failed";
+		$l = read(OBJECT, $comment, $size);
+		die "read $size bytes from $object .comment failed" if ($l != $size);
+		close(OBJECT);
+		if ($comment =~ /GCC\:.*GCC\:/m) {
+			++$ignore;
+			delete($object{$object});
+		}
+	}
+}
+printf("ignoring %d conglomerate(s)\n", $ignore);
+
+printf("Scanning objects\n");
+foreach $object (sort(keys(%object))) {
+	my $from;
+	open(OBJDUMP, "objdump -r $object|") || die "cannot objdump -r $object";
+	while (defined($line = <OBJDUMP>)) {
+		chomp($line);
+		if ($line =~ /RELOCATION RECORDS FOR /) {
+			($from = $line) =~ s/.*\[([^]]*).*/$1/;
+		}
+		if ($line =~ /\.init$/ &&
+		    ($from !~ /\.init$/ && $from !~ /\.stab$/ && $from !~ /\.rodata$/ && $from !~ /\.text\.lock$/)) {
+			printf("Error: %s %s refers to %s\n", $object, $from, $line);
+		}
+	}
+	close(OBJDUMP);
+}
+printf("Done\n");
 

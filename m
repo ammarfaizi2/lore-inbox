@@ -1,61 +1,89 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262368AbTHUBHr (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 20 Aug 2003 21:07:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262370AbTHUBHr
+	id S262371AbTHUBIp (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 20 Aug 2003 21:08:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262372AbTHUBIp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 20 Aug 2003 21:07:47 -0400
-Received: from adsl-67-114-19-186.dsl.pltn13.pacbell.net ([67.114.19.186]:62605
-	"HELO adsl-63-202-77-221.dsl.snfc21.pacbell.net") by vger.kernel.org
-	with SMTP id S262368AbTHUBHq (ORCPT
+	Wed, 20 Aug 2003 21:08:45 -0400
+Received: from voyager.st-peter.stw.uni-erlangen.de ([131.188.24.132]:40621
+	"EHLO voyager.st-peter.stw.uni-erlangen.de") by vger.kernel.org
+	with ESMTP id S262371AbTHUBIl (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 20 Aug 2003 21:07:46 -0400
-Message-ID: <3F441B60.9040404@tupshin.com>
-Date: Wed, 20 Aug 2003 18:07:44 -0700
-From: Tupshin Harper <tupshin@tupshin.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5a) Gecko/20030618
-X-Accept-Language: en-us, en
+	Wed, 20 Aug 2003 21:08:41 -0400
+X-Mailbox-Line: From galia@st-peter.stw.uni-erlangen.de  Thu Aug 21 03:08:38 2003
+Message-ID: <1061428118.3f441b964576c@secure.st-peter.stw.uni-erlangen.de>
+Date: Thu, 21 Aug 2003 03:08:38 +0200
+From: Svetoslav Slavtchev <galia@st-peter.stw.uni-erlangen.de>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Fwd: Re: 2.6 test3-bk7 & -mm3 : HPT374 - cable missdetection, lock-ups
 MIME-Version: 1.0
-To: Andries Brouwer <aebr@win.tue.nl>
-CC: Trond Myklebust <trond.myklebust@fys.uio.no>,
-       Ulrich Drepper <drepper@redhat.com>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: NFS regression in 2.6 -- gnome problem
-References: <3F4268C1.9040608@redhat.com> <shszni499e9.fsf@charged.uio.no> <20030820192409.A2868@pclin040.win.tue.nl> <16195.49464.935754.526386@charged.uio.no> <20030820215246.B3065@pclin040.win.tue.nl> <3F441213.4060906@tupshin.com> <20030821023836.B3204@pclin040.win.tue.nl>
-In-Reply-To: <20030821023836.B3204@pclin040.win.tue.nl>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+User-Agent: Internet Messaging Program (IMP) 3.2.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andries Brouwer wrote:
+----- Forwarded message from Svetoslav Slavtchev <galia@st-peter.stw.
+uni-erlangen.de> -----
+    Date: Thu, 21 Aug 2003 02:55:13 +0200 (CEST)
+    From: Svetoslav Slavtchev <galia@st-peter.stw.uni-erlangen.de>
+Reply-To: Svetoslav Slavtchev <galia@st-peter.stw.uni-erlangen.de>
+ Subject: Re: 2.6 test3-bk7 & -mm3 : HPT374 - cable missdetection, lock-ups
+      To: Duncan Laurie <duncan@sun.com>
 
->On Wed, Aug 20, 2003 at 05:28:03PM -0700, Tupshin Harper wrote:
->
->  
->
->>This patch makes the previously posted test work for me, but I'm 
->>experiencing a differenct NFS regression between 2.4 and 2.6. Whatever 
->>locking method that gnome2 is using when running home directories over 
->>nfs is failing when the client is running 2.6.
->>Gnome reports that it failed to lock it's test file, and aborts.
->>It says that the error was "no locks available".
->>    
->>
->
->"Gnome" is not precise enough for me.
->If you have an explicit test program that works on 2.4 and fails
->on 2.6 and is not more than a single page in length, I wouldnt mind
->looking at it.
->
->  
->
-Fair enough. I don't have such an explicit test at the moment, but I 
-will talk to the gnome guys and see if I can come up with one. I was 
-reporting what the gnome2 session-manager complains about, but 
-comparable errors come from something as simple as gnome-terminal 
-(simplest program I've seen that has the problem). FWIW, this is gnome 
-2.2.2. I'll get back to you when I know more.
+Quoting Duncan Laurie <duncan@sun.com>:
 
--Tupshin
+> > first test run of 2.6 on Epox 8k9a3+ VIA KT400 VT8235,
+> > HPT374 and 4 IBM Deskstar GXP120 80Gb on each chanel as master
+> > Mandrake-cooker gcc-3.3.1
+> >
+> > the 3rd and the 4th chanel of the HPT374 are saying that the used 
+> > cable is 40 wires, so it forces the drives in UDMA33 which i think
+> > causes the lock-ups several seconds after booting in runlevel 1
+> 
+> Here is a patch (against 2.6.0-test3) for the cable detect problem
+> on the 3rd/4th channels of the hpt374.  This same patch made its
+> way into 2.4 via the -ac tree but hasn't been put in 2.6 yet.
+> 
+> It fixes some cable detect issues that stem from the fact that the
+> cable detect pins are also used as address/data lines, so they need
+> to first be configured as inputs to read valid cable detect state.
+> 
+> For everything from the 370 to function 0 of the 374:
+>   bit 0 of register 0x5b must be cleared in order to make the
+>   SCBLID/MA15 and PCBLID/MA16 pins as input.
+> 
+> For the 374 third/fourth channels (function 1):
+>   bit 15 of register 0x52 and bit 15 of register 0x56 must be
+>   set for TCBLID/MD6 and FCBLID/MD1 pins to be input.
+> 
+> I'm not sure it will actually help with your lockups, but at least
+> things will be detected right...
+> 
+> -duncan
+> 
+> 
+
+Thanks a lot that seems to fix also the lock ups :)
+
+acording to the config.help in 2.4 HPT do not support ATAPI devices
+and not a long ago there were reports for lock-ups on promise cards
+when the drive did suported only UDMA33, so i thought it might be related
+
+i'll check later one the behaviour on "cat /pro/ide/hpt366"
+(i broke my install anyway, so i'll have to reinstall, and can do some 
+experiments in the mean time )
+
+copied several Gb to LV leaving on soft-raid-5 on the 4 drives,
+no problems yet :-)
+
+best,
+
+svetljo 
+
+----- End forwarded message -----
+
+
+-- 
+
 

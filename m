@@ -1,59 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267313AbUIFVkn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267350AbUIFVrk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267313AbUIFVkn (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Sep 2004 17:40:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267350AbUIFVkn
+	id S267350AbUIFVrk (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Sep 2004 17:47:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267361AbUIFVrk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Sep 2004 17:40:43 -0400
-Received: from mail.dif.dk ([193.138.115.101]:24742 "EHLO mail.dif.dk")
-	by vger.kernel.org with ESMTP id S267313AbUIFVki (ORCPT
+	Mon, 6 Sep 2004 17:47:40 -0400
+Received: from rproxy.gmail.com ([64.233.170.199]:32299 "EHLO mproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S267350AbUIFVri (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Sep 2004 17:40:38 -0400
-Date: Mon, 6 Sep 2004 23:46:47 +0200 (CEST)
-From: Jesper Juhl <juhl-lkml@dif.dk>
-To: Jens Axboe <axboe@suse.de>
-Cc: LKML <linux-kernel@vger.kernel.org>
-Subject: [PATCH] remember to check return value from __copy_to_user() in
- cdrom_read_cdda_old() 
-Message-ID: <Pine.LNX.4.61.0409062335250.2705@dragon.hygekrogen.localhost>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Mon, 6 Sep 2004 17:47:38 -0400
+Message-ID: <9e473391040906144733e474a7@mail.gmail.com>
+Date: Mon, 6 Sep 2004 17:47:37 -0400
+From: Jon Smirl <jonsmirl@gmail.com>
+Reply-To: Jon Smirl <jonsmirl@gmail.com>
+To: Hamie <hamish@travellingkiwi.com>
+Subject: Re: New proposed DRM interface design
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Keith Whitwell <keith@tungstengraphics.com>,
+       Dave Jones <davej@redhat.com>, Christoph Hellwig <hch@infradead.org>,
+       Dave Airlie <airlied@linux.ie>, Jon Smirl <jonsmirl@yahoo.com>,
+       DRI Devel <dri-devel@lists.sourceforge.net>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       mharris@redhat.com
+In-Reply-To: <413CD8BD.7040802@travellingkiwi.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+References: <20040904102914.B13149@infradead.org>
+	 <9e47339104090508052850b649@mail.gmail.com>
+	 <1094398257.1251.25.camel@localhost.localdomain>
+	 <9e47339104090514122ca3240a@mail.gmail.com>
+	 <1094417612.1936.5.camel@localhost.localdomain>
+	 <9e4733910409051511148d74f0@mail.gmail.com>
+	 <1094425142.2125.2.camel@localhost.localdomain>
+	 <413CCF79.2080407@travellingkiwi.com>
+	 <1094501705.4531.1.camel@localhost.localdomain>
+	 <413CD8BD.7040802@travellingkiwi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Some examples of merging are turning two independent radeon
+personality modules into a single one. Another thing I need to do is
+to extract the printk support from the core fb module and put it
+somewhere I can get to it from DRM. We can't have two cores trying to
+attach to the same device and then doing takeover_console().
 
-Hi,
-
-Here's a patch to ensure that the return value from __copy_to_user() gets 
-checked in cdrom_read_cdda_old().
-I assume that returning -EFAULT if the copy fails to copy all bytes is an 
-appropriate action, but please correct me if I'm wrong.
-
-Signed-off-by: Jesper Juhl <juhl-lkml@dif.dk>
-
-diff -up linux-2.6.9-rc1-bk13-orig/drivers/cdrom/cdrom.c linux-2.6.9-rc1-bk13/drivers/cdrom/cdrom.c
---- linux-2.6.9-rc1-bk13-orig/drivers/cdrom/cdrom.c	2004-08-24 20:44:01.000000000 +0200
-+++ linux-2.6.9-rc1-bk13/drivers/cdrom/cdrom.c	2004-09-06 23:41:20.000000000 +0200
-@@ -1959,7 +1959,10 @@ static int cdrom_read_cdda_old(struct cd
- 		ret = cdrom_read_block(cdi, &cgc, lba, nr, 1, CD_FRAMESIZE_RAW);
- 		if (ret)
- 			break;
--		__copy_to_user(ubuf, cgc.buffer, CD_FRAMESIZE_RAW * nr);
-+		if (__copy_to_user(ubuf, cgc.buffer, CD_FRAMESIZE_RAW * nr)) {
-+			kfree(cgc.buffer);
-+			return -EFAULT;
-+		}
- 		ubuf += CD_FRAMESIZE_RAW * nr;
- 		nframes -= nr;
- 		lba += nr;
+Mode setting will be a lot of new code since Alan's proposed design
+doesn't match any of the existing solutions. I will try to reuse
+snippets where I can.
 
 
+On Mon, 06 Sep 2004 22:38:05 +0100, Hamie <hamish@travellingkiwi.com> wrote:
+> Alright... So you have drm at the lower level, and the fb sits ontop of
+> that... The fb just becomes a user of the DRM... No merge necessary
+> then, because all the actual hardware access, memory allocation etc
+> would live in drm? Is that right? And all the 2D code would also move
+> into the DRM? (IIRC the DRM just has 3D stuff in it yes? IMO It would
+> made sense to have all the acceleration & hardware access in the DRM
+> together rather than in a separate place... Correct?)
+> 
 
-I'm wondering if it would make sense to wrap this branch in unlikely() 
-since it should rarely fail...?
-I should also mention that I've only compile tested this so far.
-
-
---
-Jesper Juhl
-
+-- 
+Jon Smirl
+jonsmirl@gmail.com

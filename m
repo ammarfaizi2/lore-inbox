@@ -1,48 +1,58 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288987AbSBST5I>; Tue, 19 Feb 2002 14:57:08 -0500
+	id <S289581AbSBSUCs>; Tue, 19 Feb 2002 15:02:48 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289581AbSBST4x>; Tue, 19 Feb 2002 14:56:53 -0500
-Received: from h24-67-15-4.cg.shawcable.net ([24.67.15.4]:41459 "EHLO
-	lynx.adilger.int") by vger.kernel.org with ESMTP id <S288987AbSBST4l>;
-	Tue, 19 Feb 2002 14:56:41 -0500
-Date: Tue, 19 Feb 2002 12:56:22 -0700
+	id <S289752AbSBSUCi>; Tue, 19 Feb 2002 15:02:38 -0500
+Received: from h24-67-15-4.cg.shawcable.net ([24.67.15.4]:42739 "EHLO
+	lynx.adilger.int") by vger.kernel.org with ESMTP id <S289697AbSBSUCZ>;
+	Tue, 19 Feb 2002 15:02:25 -0500
+Date: Tue, 19 Feb 2002 13:01:27 -0700
 From: Andreas Dilger <adilger@turbolabs.com>
-To: Jakob Kemi <jakob.kemi@telia.com>
-Cc: Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] hex <-> int conve
-Message-ID: <20020219125622.B25713@lynx.adilger.int>
-Mail-Followup-To: Jakob Kemi <jakob.kemi@telia.com>,
-	Linus Torvalds <torvalds@transmeta.com>,
+To: Rogier Wolff <R.E.Wolff@BitWizard.nl>
+Cc: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>,
+        Roy Sigurd Karlsbakk <roy@karlsbakk.net>,
+        Jens Schmidt <j.schmidt@paradise.net.nz>, linux-kernel@vger.kernel.org
+Subject: Re: secure erasure of files?
+Message-ID: <20020219130127.C25713@lynx.adilger.int>
+Mail-Followup-To: Rogier Wolff <R.E.Wolff@BitWizard.nl>,
+	"Martin J. Bligh" <Martin.Bligh@us.ibm.com>,
+	Roy Sigurd Karlsbakk <roy@karlsbakk.net>,
+	Jens Schmidt <j.schmidt@paradise.net.nz>,
 	linux-kernel@vger.kernel.org
-In-Reply-To: <02021919474003.00447@jakob>
+In-Reply-To: <31030000.1014141568@flay> <200202191848.TAA08419@cave.bitwizard.nl>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 User-Agent: Mutt/1.2.5i
-In-Reply-To: <02021919474003.00447@jakob>; from jakob.kemi@telia.com on Tue, Feb 19, 2002 at 07:47:40PM +0100
+In-Reply-To: <200202191848.TAA08419@cave.bitwizard.nl>; from R.E.Wolff@BitWizard.nl on Tue, Feb 19, 2002 at 07:48:58PM +0100
 X-GPG-Key: 1024D/0D35BED6
 X-GPG-Fingerprint: 7A37 5D79 BF1B CECA D44F  8A29 A488 39F5 0D35 BED6
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Feb 19, 2002  19:47 +0100, Jakob Kemi wrote:
-> We needed the code when parsing non-null terminated UUID strings in the LDM
-> partition database (Dynamic Disks). And sscanf wouldn't work for us. Consider:
+On Feb 19, 2002  19:48 +0100, Rogier Wolff wrote:
+> Maybe the difference is in "what's the goal". For datarecovery we
+> don't really care about just a couple of bits here and there: We want
+> to piece together the whole thing. 
 > 
-> char a[3] = {'a','b'};
-> char b[3] = {'a','-'};
-> int x;
-> sscanf(a, "%x", &x);  // undefined, could crash since a isn't null-terminated
+> If you don't want a piece of your data getting into wrong hands
+> however, you'd better be safe than sorry.
+> 
+> So I (and the Ibas guy) are talking about practical recovery of a
+> useful amount of data, while even a couple of bits is in theory
+> dangerous if you really want it "gone".
 
-If it is a matter of UUID parsing, just add (or use existing) function
-uuid_parse() similar to that in libuuid.  Some UUID-related functions were
-added to the kernel for ia64 GPM partitions, so this would just make the
-UUID support in the kernel more complete.
+So, as others have said, if your data is so important that you are
+worried about people taking the platter and putting it under a
+scanning-tunneling microscope (or whatever is in vogue) to recover
+deleted data, then you should be one million times as worried about
+undeleted data on the same disk (i.e. what happens if they steal or
+copy the disk _before_ you delete this precious data).
 
-Note that unless LDM has some serious brain-damage, there should not be any
-need to have these special functions, as the user-space UUID-related code
-works just fine without them.
+The net result is that this data should never hit the disk unencrypted
+in the first place, at which point you don't need to worry about the
+deletion step.  You have encrypted swap and encrypted loopback filesystems,
+and you have proper procedure to ensure the keys are safe, and all is well.
 
 Cheers, Andreas
 --

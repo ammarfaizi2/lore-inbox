@@ -1,36 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262584AbSJHBeJ>; Mon, 7 Oct 2002 21:34:09 -0400
+	id <S262632AbSJHBjs>; Mon, 7 Oct 2002 21:39:48 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262589AbSJHBeJ>; Mon, 7 Oct 2002 21:34:09 -0400
-Received: from chaos.physics.uiowa.edu ([128.255.34.189]:63365 "EHLO
-	chaos.physics.uiowa.edu") by vger.kernel.org with ESMTP
-	id <S262584AbSJHBeI>; Mon, 7 Oct 2002 21:34:08 -0400
-Date: Mon, 7 Oct 2002 20:39:46 -0500 (CDT)
-From: Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>
-X-X-Sender: kai@chaos.physics.uiowa.edu
-To: John Levon <levon@movementarian.org>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: vpath broken in 2.5.41
-In-Reply-To: <20021007232852.GA35308@compsoc.man.ac.uk>
-Message-ID: <Pine.LNX.4.44.0210072037520.32256-100000@chaos.physics.uiowa.edu>
+	id <S262636AbSJHBjs>; Mon, 7 Oct 2002 21:39:48 -0400
+Received: from bigglesworth.mail.be.easynet.net ([212.100.160.67]:47245 "EHLO
+	bigglesworth.mail.be.easynet.net") by vger.kernel.org with ESMTP
+	id <S262632AbSJHBjr>; Mon, 7 Oct 2002 21:39:47 -0400
+Message-ID: <3DA23998.6020004@easynet.be>
+Date: Tue, 08 Oct 2002 03:49:12 +0200
+From: Luc Van Oostenryck <luc.vanoostenryck@easynet.be>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.0) Gecko/20020605
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Kernel mailing list <linux-kernel@vger.kernel.org>
+CC: Patrick Mochel <mochel@osdl.org>
+Subject: Re: [2.5.41] Oops on reboot in device_remove_file
+References: <Pine.LNX.4.44.0210071428260.16276-100000@cherise.pdx.osdl.net>
+Content-Type: text/plain; charset=US-ASCII; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 8 Oct 2002, John Levon wrote:
-
-> I see vpath seems to have become broken in 2.5.41 build.
+Patrick Mochel wrote:
+> On Mon, 7 Oct 2002, Burton Windle wrote:
 > 
-> How now can I build the oprofile.o target from two directories ?
+> 
+>>2.5.41, after "Rebooting..." is printed, I get this oops:
+> 
+> 
+> There is a series of patches that I posted a few hours ago which should 
+> solve this problem. I apologize; I forgot to state that they should fix 
+> this Oops. It was reported a couple of days ago, as well..
+> 
+> If you're using BK, you can pull from
+> 
+> bk://ldm.bkbits.net/linux-2.5-ide
+> 
+> Or search the archives starting here:
+> 
+> http://marc.theaimsgroup.com/?l=linux-kernel&m=103401951632484&w=2
+> 
+> 
+> If you're feeling adventurous, please apply them and let me know if they 
+> fix the problem for you.
+> 
+> Thanks,
+> 
+> 	-pat
+> 
 
-I see in the patch you mailed later that you got it figured out already, 
-using a relative path.
-And yeah, it's not particularly beautiful. But I do not see any nice and 
-easy way, either. What would help a lot, of course, would be to split this 
-into two modules, one generic one, one arch-specific one. Have you 
-considered doing that?
+Works for me, thanks.
 
---Kai
+Luc
+
+
 

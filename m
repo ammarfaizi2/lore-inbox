@@ -1,59 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261863AbUKCUWE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261864AbUKCUVp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261863AbUKCUWE (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 3 Nov 2004 15:22:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261865AbUKCUWD
+	id S261864AbUKCUVp (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 3 Nov 2004 15:21:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261785AbUKCUVe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 3 Nov 2004 15:22:03 -0500
-Received: from minimail.digi.com ([204.221.110.13]:46579 "EHLO
-	minimail.digi.com") by vger.kernel.org with ESMTP id S261863AbUKCUUk convert rfc822-to-8bit
+	Wed, 3 Nov 2004 15:21:34 -0500
+Received: from prgy-npn1.prodigy.com ([207.115.54.37]:23681 "EHLO
+	oddball.prodigy.com") by vger.kernel.org with ESMTP id S261864AbUKCUUv
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 3 Nov 2004 15:20:40 -0500
-X-MimeOLE: Produced By Microsoft Exchange V6.0.6249.0
-Content-class: urn:content-classes:message
+	Wed, 3 Nov 2004 15:20:51 -0500
+Message-ID: <41893E4E.3090602@tmr.com>
+Date: Wed, 03 Nov 2004 15:23:42 -0500
+From: Bill Davidsen <davidsen@tmr.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040913
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Subject: RE: patch for sysfs in the cyclades driver
-Date: Wed, 3 Nov 2004 14:20:39 -0600
-Message-ID: <71A17D6448EC0140B44BCEB8CD0DA36E04B9D81C@minimail.digi.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: patch for sysfs in the cyclades driver
-Thread-Index: AcTB4Db/dWj2VOolS6Ov2E4ZZlm1bgAALCag
-From: "Kilau, Scott" <Scott_Kilau@digi.com>
-To: "Greg KH" <greg@kroah.com>
-Cc: <germano.barreiro@cyclades.com>, <linux-kernel@vger.kernel.org>
+To: Sami Farin <7atbggg02@sneakemail.com>
+CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: USB CD/disk not working after 2.6.7
+References: <4189137A.2090408@tmr.com><4189137A.2090408@tmr.com> <20041103183425.GB13063@m.safari.iki.fi>
+In-Reply-To: <20041103183425.GB13063@m.safari.iki.fi>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > Maybe we can allow a "custom" name to be sent into the
-> > tty_register_device() call?  Like add another option parameter
-called
-> > "custom_name" that if non-NULL, is used instead of the derived name?
+Sami Farin wrote:
+> On Wed, Nov 03, 2004 at 12:20:58PM -0500, Bill Davidsen wrote:
+> 
+>>Since 2.6.7 no kernel has seen my USB CD burner or disk. I took the disk 
+>>off to simplify the picture, it still doesn't work.
+> 
+> ...
+> 
+>>Buffer I/O error on device uba, logical block 0
+>> unable to read partition table
+> 
+> 
+> remove this line from .config and rebuild kernel...
+> CONFIG_BLK_DEV_UB=y
+> 
+> ...and it will just work.
+> 
+Thank you for the prompt answer! I've started rebuilding the kernel.
 
-> Why?  What would you call it that would be any different from what we
-> use today?  I guess I don't understand why you don't like the kernel
-> names.
+Do you know if  the incompatibility between flash key support and 
+CD/disk a bug, design decision, or unavoidable characteristic of the 
+devices involved? I have some kind of a flash key coming for evaluation, 
+so I built with that on.
 
-> greg k-h
-
-Well, tty name compatibly reasons with a couple of our drivers.
-
-Most of our new Linux users for a couple of our older products are
-coming
-from a specific different OS who are adamant that we keep the tty names
-the way they were used to under that OS.
-
-Also, I can see some oddball products out there that might need
-only 1 tty out there.
-
-Instead of forcing "ttyoddball0" for the name, it would
-be nice to let the driver use "ttyoddball", or whatever it wanted.
-
-In fact, it would be similar to the existing entries for "console" and
-"ptmx"...
-
-Scott Kilau
-Digi International
+-- 
+    -bill davidsen (davidsen@tmr.com)
+"The secret to procrastination is to put things off until the
+  last possible moment - but no longer"  -me

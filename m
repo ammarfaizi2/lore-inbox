@@ -1,66 +1,36 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261790AbVBQNgE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261406AbVBQNqd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261790AbVBQNgE (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Feb 2005 08:36:04 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261874AbVBQNgE
+	id S261406AbVBQNqd (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Feb 2005 08:46:33 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262138AbVBQNqa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Feb 2005 08:36:04 -0500
-Received: from rwcrmhc11.comcast.net ([204.127.198.35]:35210 "EHLO
-	rwcrmhc11.comcast.net") by vger.kernel.org with ESMTP
-	id S261790AbVBQNf6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Feb 2005 08:35:58 -0500
-From: Parag Warudkar <kernel-stuff@comcast.net>
-To: Horst von Brand <vonbrand@inf.utfsm.cl>
-Subject: Re: -rc3 leaking NOT BIO [Was: Memory leak in 2.6.11-rc1?]
-Date: Thu, 17 Feb 2005 08:35:35 -0500
-User-Agent: KMail/1.7.92
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-References: <200502170348.j1H3mVpV008827@laptop11.inf.utfsm.cl>
-In-Reply-To: <200502170348.j1H3mVpV008827@laptop11.inf.utfsm.cl>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="utf-8"
-Content-Transfer-Encoding: 7bit
+	Thu, 17 Feb 2005 08:46:30 -0500
+Received: from imag.imag.fr ([129.88.30.1]:46473 "EHLO imag.imag.fr")
+	by vger.kernel.org with ESMTP id S261406AbVBQNq3 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 17 Feb 2005 08:46:29 -0500
+Date: Thu, 17 Feb 2005 14:46:23 +0100
+From: castet.matthieu@free.fr
+To: linux-kernel@vger.kernel.org
+Subject: Re: [OOPS] 2.6.10, ReiserFS errors, preempt
+Message-ID: <20050217134623.GA2236@linux.ensimag.fr>
+Reply-To: 20050217125028.GK21077@m.safari.iki.fi
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200502170835.35623.kernel-stuff@comcast.net>
+User-Agent: Mutt/1.5.6+20040722i
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.4 (imag.imag.fr [129.88.30.1]); Thu, 17 Feb 2005 14:46:23 +0100 (CET)
+X-IMAG-MailScanner: Found to be clean
+X-IMAG-MailScanner-Information: Please contact the ISP for more information
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 16 February 2005 10:48 pm, Horst von Brand wrote:
-> Does x86_64 use up a (freeable) register for the frame pointer or not?
-> I.e., does -fomit-frame-pointer have any effect on the generated code?
+Hi,
 
-{Took Linus out of the loop as he probably isn't interested}
+> I believe there's unresolved memory corruption bug in bttv...
+yes I think so, other have also similar problem :
+http://marc.theaimsgroup.com/?l=linux-kernel&m=110820804010204&w=2
+http://marc.theaimsgroup.com/?t=110531543900002&r=1&w=2
+http://www.ussg.iu.edu/hypermail/linux/kernel/0412.3/0881.html
 
-The generated code is different for both cases but for some reason gcc has 
-trouble with __builtin_return_address on x86-64.
-
-For e.g. specifying gcc -fo-f-p, a method produces following assembly.
-
-method_1:
-.LFB2:
-        subq    $8, %rsp
-.LCFI0:
-        movl    $__FUNCTION__.0, %esi
-        movl    $.LC0, %edi
-        movl    $0, %eax
-        call    printf
-        movl    $0, %eax
-        addq    $8, %rsp
-        ret
-
-And with -fno-o-f-p,  the same method yields 
-
-method_1:
-.LFB2:
-        pushq   %rbp
-.LCFI0:
-        movq    %rsp, %rbp
-.LCFI1:
-        movl    $__FUNCTION__.0, %esi
-        movl    $.LC0, %edi
-        movl    $0, %eax
-        call    printf
-        movl    $0, %eax
-        leave
-        ret
+Matthieu

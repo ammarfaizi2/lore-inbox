@@ -1,44 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278082AbRJVIDd>; Mon, 22 Oct 2001 04:03:33 -0400
+	id <S278084AbRJVIDn>; Mon, 22 Oct 2001 04:03:43 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278085AbRJVIDY>; Mon, 22 Oct 2001 04:03:24 -0400
-Received: from mailout03.sul.t-online.com ([194.25.134.81]:17855 "EHLO
-	mailout03.sul.t-online.de") by vger.kernel.org with ESMTP
-	id <S278080AbRJVIDL>; Mon, 22 Oct 2001 04:03:11 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Tim Jansen <tim@tjansen.de>
-To: Jakob =?iso-8859-1?q?=D8stergaard=20?= <jakob@unthought.net>
-Subject: Re: LPP (was: The new X-Kernel !)
-Date: Mon, 22 Oct 2001 02:57:53 +0200
-X-Mailer: KMail [version 1.3.1]
-In-Reply-To: <20011021220346.D19390@vega.digitel2002.hu> <15vQtM-22TOdsC@fmrl02.sul.t-online.com> <20011022022839.A8452@unthought.net>
-In-Reply-To: <20011022022839.A8452@unthought.net>
-Cc: linux-kernel@vger.kernel.org
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-ID: <15va3i-0cRXvcC@fmrl00.sul.t-online.com>
+	id <S278080AbRJVIDe>; Mon, 22 Oct 2001 04:03:34 -0400
+Received: from zero.tech9.net ([209.61.188.187]:15114 "EHLO zero.tech9.net")
+	by vger.kernel.org with ESMTP id <S278084AbRJVIDW>;
+	Mon, 22 Oct 2001 04:03:22 -0400
+Subject: Re: Linux 2.4.12-ac5
+From: Robert Love <rml@tech9.net>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: "Udo A. Steinberg" <reality@delusion.de>, Dave Jones <davej@suse.de>,
+        Linux Kernel <linux-kernel@vger.kernel.org>,
+        laughing@shared-source.org
+In-Reply-To: <E15va55-00017E-00@the-village.bc.nu>
+In-Reply-To: <E15va55-00017E-00@the-village.bc.nu>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/0.16.99+cvs.2001.10.18.15.19 (Preview Release)
+Date: 22 Oct 2001 04:03:47 -0400
+Message-Id: <1003737827.1712.39.camel@phantasy>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 22 October 2001 02:28, you wrote:
-> How would hiding that information make the system "easier to use" ?   
+On Mon, 2001-10-22 at 04:05, Alan Cox wrote:
+> > You aren't crazy, it doesn't build here either.  The problem is that
+> > fixmap.h only includes those defines if CONFIG_IO_APIC is defined. 
+> > Well, I don't have use IO_APIC (I am UP) but I do define
+> > CONFIG_X86_APIC.  So it does not compile.
+> 
+> Ahah that would make sense.
 
-Because the majority of people (and especially those who haven't been reached 
-by Linux yet) don't care for the messages. They are as interested in boot 
-messages as you may be in reading debug information from your DVD player or 
-car. 
+Looking over the code it just seems like some ifdefs need sprinkling...
+for the time being I just disabled CONFIG_X86_UP_APIC here.
 
-Assuming you have a car with a display for the embedded computer, and you 
-don't know anything about its software or hardware, you just want to drive. 
-Would you prefer to see lots of cryptic messages when you turn the key, or 
-just some simple picture with a progress bar showing you when the system is 
-ready?
-IMHO the bar is all you need. Everything else just distracts you from the 
-only important thing. 
+> > So, the problem is that acpitable.c assumes you have both CONFIG_IO_APIC
+> > and CONFIG_X86_APIC declared.  It shouldn't.  Even more important, why
+> > is my system compiling acpitable.c now?  I don't compile anything to do
+> > with ACPI.  What needs access to the ACPI tables via Mini-ACPI, now?
+> 
+> It is needed for a small number of certain newer SMP systems, and
+> potentially a lot more stuff in the near future.
 
-Showing unimportant information is like turning on debug messages that you 
-don't need.
+Can it be made a config setting? "Use ACPI to determine irq routing or
+whatever" ... it can even default to on.  One good thing to note is that
+it is all init/initdata, but its still a bloat of the kernel image.
 
-bye...
+	Robert Love
 

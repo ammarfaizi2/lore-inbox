@@ -1,45 +1,49 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131130AbRCGRks>; Wed, 7 Mar 2001 12:40:48 -0500
+	id <S131060AbRCGRlR>; Wed, 7 Mar 2001 12:41:17 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131127AbRCGRk2>; Wed, 7 Mar 2001 12:40:28 -0500
-Received: from mail.inf.tu-dresden.de ([141.76.2.1]:2374 "EHLO
-	mail.inf.tu-dresden.de") by vger.kernel.org with ESMTP
-	id <S131060AbRCGRkR>; Wed, 7 Mar 2001 12:40:17 -0500
-Date: Wed, 7 Mar 2001 18:40:00 +0100
-To: linux-kernel@vger.kernel.org
-Subject: static scheduling - SCHED_IDLE?
-Message-ID: <20010307184000.A26594@ugly.wh8.tu-dresden.de>
+	id <S131132AbRCGRlI>; Wed, 7 Mar 2001 12:41:08 -0500
+Received: from smtp8.xs4all.nl ([194.109.127.134]:48093 "EHLO smtp8.xs4all.nl")
+	by vger.kernel.org with ESMTP id <S131127AbRCGRkv>;
+	Wed, 7 Mar 2001 12:40:51 -0500
+From: thunder7@xs4all.nl
+Date: Wed, 7 Mar 2001 12:41:36 +0100
+To: alan@lxorguk.ukuu.org.uk
+Cc: linux-kernel@vger.kernel.org
+Subject: 2.4.2-ac13 es1370.o module and verbose bug reporting
+Message-ID: <20010307124136.A6651@middle.of.nowhere>
+Reply-To: thunder7@xs4all.nl
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 User-Agent: Mutt/1.3.15i
-From: Oswald Buddenhagen <ob6@inf.tu-dresden.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-hi there,
+make -C  arch/i386/lib modules_install
+make[1]: Entering directory `/usr/src/linux-2.4.2-ac13/arch/i386/lib'
+make[1]: Nothing to be done for `modules_install'.
+make[1]: Leaving directory `/usr/src/linux-2.4.2-ac13/arch/i386/lib'
+cd /lib/modules/2.4.2-ac13; \
+mkdir -p pcmcia; \
+find kernel -path '*/pcmcia/*' -name '*.o' | xargs -i -r ln -sf ../{} pcmcia
+if [ -r System.map ]; then /sbin/depmod -ae -F System.map  2.4.2-ac13; fi
+depmod: *** Unresolved symbols in /lib/modules/2.4.2-ac13/kernel/drivers/sound/es1370.o
+depmod:         do_BUG
 
-i found, that linux is missing a static low-priority scheduling class
-(or did i miss something? in this case feel free to stomp me into the
-ground :).  it would be ideal for typical number-crunchers running in
-the background like the different distributed.net-like clients.
-within this class, static priorities like those for SCHED_RR would be
-required, so one could have for example such a priorization:
 
-[-] idle-task/apmd (here never running)
-[idle/1] distributed.net client or other toy (when the machine is really idle)
-[idle/50] mp3 compressor (when no "real" work has to be done)
-[other/nice 10] not time-critical job
-[other/nice 0] the usual jobs, like a make process, etc.
-[other/nice -10] x-server, etc.
-[rr/50] some real-time app, like a computer-controlled toaster :)
+CONFIG_SOUND_ES1370=m
+CONFIG_DEBUG_BUGVERBOSE=y
 
-what do you recon?
+If I set
 
-best regards
+CONFIG_DEBUG_BUGVERBOSE=n
 
+it works as expected.
+
+Good luck,
+Jurriaan
 -- 
-Hi! I'm a .signature virus! Copy me into your ~/.signature, please!
---
-Nothing is fool-proof to a sufficiently talented fool.
+The documentation is in Japanese.  Good luck.
+	Rich 
+GNU/Linux 2.4.2-ac12 SMP/ReiserFS 2x1743 bogomips load av: 0.34 0.08 0.02

@@ -1,58 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262012AbUK3IQZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262018AbUK3IUa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262012AbUK3IQZ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 Nov 2004 03:16:25 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262014AbUK3IQZ
+	id S262018AbUK3IUa (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 Nov 2004 03:20:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262014AbUK3IUa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 Nov 2004 03:16:25 -0500
-Received: from mx2.elte.hu ([157.181.151.9]:8413 "EHLO mx2.elte.hu")
-	by vger.kernel.org with ESMTP id S262012AbUK3IQW (ORCPT
+	Tue, 30 Nov 2004 03:20:30 -0500
+Received: from linux01.gwdg.de ([134.76.13.21]:9179 "EHLO linux01.gwdg.de")
+	by vger.kernel.org with ESMTP id S262018AbUK3ITr (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 Nov 2004 03:16:22 -0500
-Date: Tue, 30 Nov 2004 09:15:48 +0100
-From: Ingo Molnar <mingo@elte.hu>
-To: Remi Colinet <remi.colinet@free.fr>
-Cc: Rui Nuno Capela <rncbc@rncbc.org>, linux-kernel@vger.kernel.org,
-       Lee Revell <rlrevell@joe-job.com>, mark_h_johnson@raytheon.com,
-       "K.R. Foley" <kr@cybsft.com>, Bill Huey <bhuey@lnxw.com>,
-       Adam Heath <doogie@debian.org>, Florian Schmidt <mista.tapas@gmx.net>,
-       Thomas Gleixner <tglx@linutronix.de>,
-       Michal Schmidt <xschmi00@stud.feec.vutbr.cz>,
-       Fernando Pablo Lopez-Lezcano <nando@ccrma.stanford.edu>,
-       Karsten Wiese <annabellesgarden@yahoo.de>,
-       Gunther Persoons <gunther_persoons@spymac.com>, emann@mrv.com,
-       Shane Shrybman <shrybman@aei.ca>, Amit Shah <amit.shah@codito.com>,
-       Esben Nielsen <simlo@phys.au.dk>
-Subject: Re: Real-Time Preemption, -RT-2.6.10-rc2-mm3-V0.7.31-7
-Message-ID: <20041130081548.GA8707@elte.hu>
-References: <36536.195.245.190.93.1101471176.squirrel@195.245.190.93> <20041129111634.GB10123@elte.hu> <41ACB846.40400@free.fr>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <41ACB846.40400@free.fr>
-User-Agent: Mutt/1.4.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+	Tue, 30 Nov 2004 03:19:47 -0500
+Date: Tue, 30 Nov 2004 09:19:35 +0100 (MET)
+From: Jan Engelhardt <jengelh@linux01.gwdg.de>
+To: Marc Leeman <marc.leeman@gmail.com>
+cc: akpm@osdl.org, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [patch] number of rd's in Kconfig
+In-Reply-To: <1f729c4804112502595b98ed08@mail.gmail.com>
+Message-ID: <Pine.LNX.4.53.0411300917010.18635@yvahk01.tjqt.qr>
+References: <1f729c4804112502595b98ed08@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=UTF-8
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+>In dedicated systems or small systems; the number of required ramdisks
+>is by default (16) too large. Like the size of the ramdisks; these
+>patches add that the number of rds can be configured in the kernel
+>configuration.
+>
+>These patches are against the 2.6.9
 
-* Remi Colinet <remi.colinet@free.fr> wrote:
+The last time I checked my kernel tree (it's a suse, but nevermind),
+I was able to freely choose the ramdisk size, i.e. there is an input field for
+a number.
+I have not seen some number field to specify the _number_ of disks, though!
 
-> Hi Ingo,
-> 
-> I'm getting this error with V0.7.31-13
 
-> CC kernel/latency.o
-> kernel/latency.c: In function `check_critical_timing':
-> kernel/latency.c:730: too few arguments to function `___trace'
-> kernel/latency.c:730: warning: too few arguments passed to inline 
-
-fixed this in -V0.7.31-14.
-
-	Ingo
+Jan Engelhardt
+-- 
+Gesellschaft für Wissenschaftliche Datenverarbeitung
+Am Fassberg, 37077 Göttingen, www.gwdg.de

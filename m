@@ -1,55 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312302AbSDCRzw>; Wed, 3 Apr 2002 12:55:52 -0500
+	id <S312294AbSDCRwD>; Wed, 3 Apr 2002 12:52:03 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312315AbSDCRzn>; Wed, 3 Apr 2002 12:55:43 -0500
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:49204 "EHLO
-	frodo.biederman.org") by vger.kernel.org with ESMTP
-	id <S312302AbSDCRzb>; Wed, 3 Apr 2002 12:55:31 -0500
-To: <linux-kernel@vger.kernel.org>
-Subject: [RFC][PATCH] kexec aka linux booting linux
-From: ebiederm@xmission.com (Eric W. Biederman)
-Date: 03 Apr 2002 10:49:05 -0700
-Message-ID: <m1bsd0smem.fsf@frodo.biederman.org>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.1
+	id <S312302AbSDCRvx>; Wed, 3 Apr 2002 12:51:53 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:14341 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S312294AbSDCRvf>; Wed, 3 Apr 2002 12:51:35 -0500
+Date: Wed, 3 Apr 2002 09:50:37 -0800 (PST)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Dave Hansen <haveblue@us.ibm.com>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: [RFC][PATCH] BKL reduction in do_exit
+In-Reply-To: <3CAB3807.5040508@us.ibm.com>
+Message-ID: <Pine.LNX.4.33.0204030945310.3571-100000@home.transmeta.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I am in the final stages of polishing up my kexec patches before submitting them
-for inclusion in the kernel.  I have come to one last design question.
-Currently I am reusing the sys_reboot with a different magic number.
-Is this appropriate or do I want to modify the code so it uses it's
-own syscall number?
 
-The user space prototype is:
-struct kexec_segment {
-       void *buf;
-       size_t bufsz;
-       void *mem;
-       size_t memsz;
-};
 
-int sys_kexec(void *start, int nr_segments, struct kexec_segment *segments);
+On Wed, 3 Apr 2002, Dave Hansen wrote:
+>
+> Nobody had anything to sayabout it, so here's a patch.  It moves the
+> disassociate_ctty(1) up, and releases the BKl after it gets done.  Is
+> this a sane thing to do, or do some of those exit_*() functions still
+> need the tty?
 
-For x86 the code places you in 32bit protected mode with paging
-disabled.  Giving trivial access to the first 4GB of memory.  All of
-the registers are initially zeroed except stack pointer which is
-pointed to a location which is good for a few bytes of storage.  The
-segment registers are all loaded with flat 32bit segments with a
-base address of 0.
+I'd prefer to have the BKL just moved into the functions that need it, and
+removed altogether from do_exit().
 
-For other architectures a similar interface is possible.
+That's especially true as I don't know if sem_exit() actually needs the
+BKL any more at all - so that if it doesn't, we can just remove it from
+there (at which point it is a local implementation issue, rather than a
+cross-module thing).
 
-After so many changes and so much time I need to clean up and retest
-my alpha port.  This is the next step.  That and cleaning up my user
-space tools that make use of this.
+The disassociate_tty thing falls under a similar heading - we're going to
+have to fix up the tty layer some day anyway, let's make the BKL detail a
+tty layer internal thing.
 
-ftp://download.lnxi.com/pub/src/linux-kernel-patches/kexec/
-ftp://download.lnxi.com/pub/src/linux-kernel-patches/kexec/linux-2.5.7.kexec.diff
-ftp://download.lnxi.com/pub/src/linux-kernel-patches/kexec/linux-2.5.7.kexec.long
-http://www.xmission.com/~ebiederm/files/kexec/linux-2.5.7.kexec.diff
-http://www.xmission.com/~ebiederm/files/kexec/linux-2.5.7.kexec.log
+		Linus
 
-Eric

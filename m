@@ -1,54 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262626AbUKXMPq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262555AbUKXMS0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262626AbUKXMPq (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 24 Nov 2004 07:15:46 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262627AbUKXMPq
+	id S262555AbUKXMS0 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 24 Nov 2004 07:18:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262625AbUKXMS0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 24 Nov 2004 07:15:46 -0500
-Received: from [194.90.79.130] ([194.90.79.130]:49672 "EHLO argo2k.argo.co.il")
-	by vger.kernel.org with ESMTP id S261355AbUKXMPj (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 24 Nov 2004 07:15:39 -0500
-Message-ID: <41A47B67.6070108@argo.co.il>
-Date: Wed, 24 Nov 2004 14:15:35 +0200
-From: Avi Kivity <avi@argo.co.il>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20041027
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-CC: Linus Torvalds <torvalds@osdl.org>, Miklos Szeredi <miklos@szeredi.hu>,
-       hbryan@us.ibm.com, akpm@osdl.org, linux-fsdevel@vger.kernel.org,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, pavel@ucw.cz
-Subject: Re: [PATCH] [Request for inclusion] Filesystem in Userspace
-References: <OF28252066.81A6726A-ON88256F50.005D917A-88256F50.005EA7D9@us.ibm.com>	 <E1CUq57-00043P-00@dorka.pomaz.szeredi.hu>	 <Pine.LNX.4.58.0411180959450.2222@ppc970.osdl.org> <1100798975.6018.26.camel@localhost.localdomain>
-In-Reply-To: <1100798975.6018.26.camel@localhost.localdomain>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 24 Nov 2004 12:15:37.0947 (UTC) FILETIME=[4EB43AB0:01C4D21F]
+	Wed, 24 Nov 2004 07:18:26 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:63673 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S262555AbUKXMSZ
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 24 Nov 2004 07:18:25 -0500
+Date: Wed, 24 Nov 2004 05:08:21 -0200
+From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+To: Nick Warne <nick@linicks.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.4.28 -> ch..ch...changes....
+Message-ID: <20041124070821.GA8718@logos.cnet>
+References: <200411232136.36313.nick@linicks.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200411232136.36313.nick@linicks.net>
+User-Agent: Mutt/1.5.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox wrote:
+On Tue, Nov 23, 2004 at 09:36:36PM +0000, Nick Warne wrote:
+> Hi Guys,
+> 
+> I updated three boxes today to 2.4.28 (from .27), one at work, and two here at 
+> home (Redhat 7.1+, Slackware 10)
+> 
+> I am intrigued terribly by the small footprint of memory usage now.  I have 
+> gone through the changes file, but can really see nothing (to me, a n00b) 
+> that would alter that?
+> 
+> Can anyone enlighten me?
 
->>I really do believe that user-space filesystems have problems. There's a 
->>reason we tend to do them in kernel space. 
->>
->>But limiting the outstanding writes some way may at least hide the thing.
->>    
->>
->
->Possibly dumb question. Is there a reason we can't have a prctl() that
->flips the PF_* flags for a user space daemon in the same way as we do
->for kernel threads that do I/O processing ?
->
->  
->
-http://lkml.org/lkml/2004/7/26/68
+What do you mean by "memory usage"? SLAB (/proc/slabinfo) buffers
+or pagecache ?
 
-discusses a userspace filesystem (implemented as a userspace nfs server 
-mounted on a loopback nfs mount), the problem, a solution (exactly your 
-suggestion), and a more generic solution.
+Whats your workload and what drivers are you using ?
 
--- 
-Do not meddle in the internals of kernels, for they are subtle and quick to panic.
-
+Nothing that I am aware of explains this.

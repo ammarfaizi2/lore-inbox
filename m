@@ -1,48 +1,77 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293556AbSCGWIS>; Thu, 7 Mar 2002 17:08:18 -0500
+	id <S293726AbSCGWLs>; Thu, 7 Mar 2002 17:11:48 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293714AbSCGWII>; Thu, 7 Mar 2002 17:08:08 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:45060 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S293556AbSCGWH5>;
-	Thu, 7 Mar 2002 17:07:57 -0500
-Message-ID: <3C87E4D2.D6B8B08C@mandrakesoft.com>
-Date: Thu, 07 Mar 2002 17:08:18 -0500
-From: Jeff Garzik <jgarzik@mandrakesoft.com>
-Organization: MandrakeSoft
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.18 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
+	id <S310306AbSCGWLj>; Thu, 7 Mar 2002 17:11:39 -0500
+Received: from garrincha.netbank.com.br ([200.203.199.88]:10500 "HELO
+	netbank.com.br") by vger.kernel.org with SMTP id <S310231AbSCGWL3>;
+	Thu, 7 Mar 2002 17:11:29 -0500
+Date: Thu, 7 Mar 2002 19:10:14 -0300 (BRT)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: riel@imladris.surriel.com
 To: Andrew Morton <akpm@zip.com.au>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Petition Against Official Endorsement of BitKeeper by Linux 
- Maintainers
-In-Reply-To: <20020305165233.A28212@fireball.zosima.org> <20020305163809.D1682@altus.drgw.net> <20020305165123.V12235@work.bitmover.com> <20020306095434.B6599@borg.org> <20020306085646.F15303@work.bitmover.com> <20020306221305.GA370@elf.ucw.cz>, <20020306221305.GA370@elf.ucw.cz>; <20020307101701.S1682@altus.drgw.net> <3C87C583.C8565E4B@zip.com.au>,
-			<3C87C583.C8565E4B@zip.com.au>; from akpm@zip.com.au on Thu, Mar 07, 2002 at 11:54:43AM -0800 <20020307135043.K9231@host110.fsmlabs.com> <3C87DFEF.DBA636CB@zip.com.au>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Cc: Daniel Phillips <phillips@bonn-fries.net>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>, <yodaiken@fsmlabs.com>,
+        Jeff Dike <jdike@karaya.com>, Benjamin LaHaise <bcrl@redhat.com>,
+        "H. Peter Anvin" <hpa@zytor.com>, <linux-kernel@vger.kernel.org>
+Subject: Re: [RFC] Arch option to touch newly allocated pages
+In-Reply-To: <3C87E35E.B841801D@zip.com.au>
+Message-ID: <Pine.LNX.4.44L.0203071908380.2181-100000@imladris.surriel.com>
+X-spambait: aardvark@kernelnewbies.org
+X-spammeplease: aardvark@nl.linux.org
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton wrote:
-> I've said about, uh, three times now that I'm not losing anything.
-> 
-> Problem?  Well partly I just can't be assed to use the thing because
-> I'm comfortable with my own scripts and all revision control systems
-> just get in your face and suck.  But also because I'm here to improve
-> the body of public software, and at the end of the day, any support
-> which I put into bitkeeper won't help there.  (using == supporting).
+On Thu, 7 Mar 2002, Andrew Morton wrote:
 
-FWIW, I've "gotten" your problem with BitKeeper for a while now...
+> > 5) the growing in (3) and shrinking in (4) mean that
+> >    the readahead size of all streaming IO in the system
+> >    gets automatically balanced against each other and
+> >    against other memory demand in the system
+>
+> Doesn't work.
+>
+> Ah, this is hard to describe.
+>
+> umm.
+>
+> a) Suppose that we're getting readahead thrashing.  readahead
+>    pages are getting dropped.  So we keep seeking to each
+>    file to get new data, so we do a ton of seeking.
+>
+> b) Suppose that we nicely detect thrashing and reduce the readahead
+>    window.  Well, we *still* need to seek to each file to read
+>    some blocks.
+>
+> See?  They're equivalent.  In case a) we're doing more (pointless)
+> I/O, but the cost of that is vanishingly small because it's just
+> one request.
+>
+> So what *is* a solution.  Well, there's only so much memory available.
+> In either case a) or case b) we're "fairly" distributing that memory
+> between all files.  And that's the problem.  *All* the files have too
+> small a readahead window.  Which points one at: we need to stop being
+> fair. We need to give some files a good readahead window and others
+> not.   The "soft pinning" which I propose with GFP_READAHEAD and
+> PG_readhead might have that effect, I think.
 
-..And I'm glad you're speaking out and holding the torch here.  We need
-dissenters to keep us BK users honest :)
+Actually, it could boil down to something more:
 
-[i.e. the same reason that, while I might not agree with RMS, I think
-the Linux community and free software in general need him to be around. 
-We need activists willing to hold the hard line.]
+use-once reduces the VM to FIFO order, which suffers from
+belady's anomaly so it doesn't matter much how much memory
+you throw at it
 
+drop-behind will suffer the same problem once the readahead
+memory is too large to keep in the system, but at least the
+already-used pages won't kick out readahead pages
+
+regards,
+
+Rik
 -- 
-Jeff Garzik      | Usenet Rule #2 (John Gilmore): "The Net interprets
-Building 1024    | censorship as damage and routes around it."
-MandrakeSoft     |
+<insert bitkeeper endorsement here>
+
+http://www.surriel.com/		http://distro.conectiva.com/
+

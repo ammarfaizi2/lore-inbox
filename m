@@ -1,50 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S275408AbTHNRT2 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 14 Aug 2003 13:19:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S275411AbTHNRT2
+	id S275414AbTHNRer (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 14 Aug 2003 13:34:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S275411AbTHNRen
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 14 Aug 2003 13:19:28 -0400
-Received: from fw.osdl.org ([65.172.181.6]:53635 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S275408AbTHNRTW (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 14 Aug 2003 13:19:22 -0400
-Date: Thu, 14 Aug 2003 10:19:14 -0700 (PDT)
-From: Linus Torvalds <torvalds@osdl.org>
+	Thu, 14 Aug 2003 13:34:43 -0400
+Received: from mail.jlokier.co.uk ([81.29.64.88]:54912 "EHLO
+	mail.jlokier.co.uk") by vger.kernel.org with ESMTP id S275412AbTHNRdg
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 14 Aug 2003 13:33:36 -0400
+Date: Thu, 14 Aug 2003 18:33:27 +0100
+From: Jamie Lokier <jamie@shareable.org>
 To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: John Levon <levon@movementarian.org>, Russell King <rmk@arm.linux.org.uk>,
+Cc: Mikael Pettersson <mikpe@csd.uu.se>, Ruben Puettmann <ruben@puettmann.net>,
        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Make modules work in Linus' tree on ARM
-In-Reply-To: <1060880781.5983.9.camel@dhcp23.swansea.linux.org.uk>
-Message-ID: <Pine.LNX.4.44.0308141014550.8148-100000@home.osdl.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Subject: Re: 2.4.22 APM problems with IBM Thinkpad's
+Message-ID: <20030814173327.GB10889@mail.jlokier.co.uk>
+References: <20030813123119.GA25111@puettmann.net> <16186.14686.455795.927909@gargle.gargle.HOWL> <1060783884.8008.64.camel@dhcp23.swansea.linux.org.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1060783884.8008.64.camel@dhcp23.swansea.linux.org.uk>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-On 14 Aug 2003, Alan Cox wrote:
+Alan Cox wrote:
+> On Mer, 2003-08-13 at 14:13, Mikael Pettersson wrote:
+> > With APIC support enabled (SMP or UP_APIC), APM must be constrained:
+> > DISPLAY_BLANK off
+> > CPU_IDLE off
+> > built-in driver, not module
 > 
-> And why can't you put the pointer size at the start of the buffer ?
+> This isnt sufficient because some of the SMM traps off the FN-key 
+> sequences also crash thinkpads if APIC is enabled. Basically *dont use
+> local apic* except on SMP.
 
-Historical aside: this was pretty much _exactly_ the bug that we used to
-have in the old style timer tick profiler: it was impossible to figure out 
-what the "profile shift" value was. So you got a series of "unsigned int" 
-counts, but you didn't know what the granularity was for the hit counting.
+Is it feasible to disable the APIC during BIOS calls,?
 
-That was fixed by just making read_profile() return the sample step size 
-as the first word. See
+If that's feasible, it could fix the APM problem though not the SMM
+trap problem on Thinkpads.
 
-	fs/proc/proc_misc.c: read_profile()
-
-and note the small 
-
-        while (p < sizeof(unsigned int) && count > 0) {
-                put_user(*((char *)(&sample_step)+p),buf);
-                buf++; p++; count--; read++;
-        }
-
-loop (and a few "+1" things for adjusting size comparisons).
-
-		Linus
-
+-- Jamie

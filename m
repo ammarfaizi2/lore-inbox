@@ -1,62 +1,66 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262092AbTIHIyg (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 8 Sep 2003 04:54:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262086AbTIHIyf
+	id S262086AbTIHI45 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 8 Sep 2003 04:56:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262113AbTIHI44
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 8 Sep 2003 04:54:35 -0400
-Received: from angband.namesys.com ([212.16.7.85]:3524 "EHLO
-	angband.namesys.com") by vger.kernel.org with ESMTP id S262112AbTIHIye
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 8 Sep 2003 04:54:34 -0400
-Date: Mon, 8 Sep 2003 12:54:33 +0400
-From: Oleg Drokin <green@namesys.com>
-To: Alexander Vodomerov <alex@sectorb.msk.ru>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: sync crashed with segfault on 2.6.0-test4 (reiserfs partition)
-Message-ID: <20030908085433.GB17718@namesys.com>
-References: <200309051424.48834.alex@sectorb.msk.ru>
+	Mon, 8 Sep 2003 04:56:56 -0400
+Received: from users.linvision.com ([62.58.92.114]:33974 "EHLO
+	abraracourcix.bitwizard.nl") by vger.kernel.org with ESMTP
+	id S262086AbTIHI4z (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 8 Sep 2003 04:56:55 -0400
+Date: Mon, 8 Sep 2003 10:56:41 +0200
+From: Rogier Wolff <R.E.Wolff@BitWizard.nl>
+To: Oleg Drokin <green@namesys.com>
+Cc: Rogier Wolff <R.E.Wolff@BitWizard.nl>, Hans Reiser <reiser@namesys.com>,
+       linux-kernel@vger.kernel.org, Nikita Danilov <god@namesys.com>
+Subject: Re: First impressions of reiserfs4
+Message-ID: <20030908105639.B26722@bitwizard.nl>
+References: <slrnbl12sv.i4g.erik@bender.home.hensema.net> <3F50D986.6080707@namesys.com> <20030831191419.A23940@bitwizard.nl> <20030908081206.GA17718@namesys.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200309051424.48834.alex@sectorb.msk.ru>
-User-Agent: Mutt/1.4i
+In-Reply-To: <20030908081206.GA17718@namesys.com>
+User-Agent: Mutt/1.3.22.1i
+Organization: BitWizard.nl
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello!
+On Mon, Sep 08, 2003 at 12:12:06PM +0400, Oleg Drokin wrote:
+> Hello!
+> 
+> On Sun, Aug 31, 2003 at 07:14:19PM +0200, Rogier Wolff wrote:
+> 
+> > Would it be possible to do something like: "pretend that there
+> > are always 100 million inodes free", and then report sensible
+> > numbers to "df -i"? 
+> 
+> This won't work. No sensible numbers would be there.
+> 
+> > There  is no installation program that will fail with: "Sorry, 
+> > you only have 100 million inodes free, this program will need
+> > 132 million after installation", and it allows me a quick way 
+> > of counting the number of actual files on the disk.... 
+> 
+> You cannot. statfs(2) only exports "Total number of inodes on disk" and
+> "number of free inodes on disk" values for fs. df substracts one from another one
+> to get "number of inodes in use".
 
-On Fri, Sep 05, 2003 at 02:24:48PM +0400, Alexander Vodomerov wrote:
-> Yesterday I've tried 2.6.0-test4 kernel. It works fine about 17 hours, but
-> suddenly sync command causes a segfault. I've made sync many times
-> Sep  4 16:43:36 lorien kernel: EIP:    0060:[mpage_writepages+301/688]  
-> Sep  4 16:43:36 lorien kernel:  [reiserfs_writepage+0/64] reiserfs_writepage+0x0/0x40
-> Sep  4 16:43:36 lorien kernel:  [do_writepages+54/64] do_writepages+0x36/0x40
-> Sep  4 16:43:36 lorien kernel:  [__sync_single_inode+169/496] __sync_single_inode+0xa9/0x1f0
-> Sep  4 16:43:36 lorien kernel:  [sync_sb_inodes+396/560] sync_sb_inodes+0x18c/0x230
-> Sep  4 16:43:36 lorien kernel:  [sync_inodes_sb+119/144] sync_inodes_sb+0x77/0x90
-> Sep  4 16:43:36 lorien kernel:  [sync_inodes+43/160] sync_inodes+0x2b/0xa0
-> Sep  4 16:43:36 lorien kernel:  [do_sync+35/112] do_sync+0x23/0x70
-> Sep  4 16:43:36 lorien kernel:  [sys_sync+15/32] sys_sync+0xf/0x20
-> Sep  4 16:43:36 lorien kernel:  [syscall_call+7/11] syscall_call+0x7/0xb
+So, you report "oids_in_use + 100M" as total and "100M" as free inodes 
+on disk. Voila!
 
-This is fixed in current bk tree/current -mm tree.
-The following patch should do the trick.
+We're using a Unix operating system which has a bunch of standard 
+interfaces. The fun about using those is that lots of stuff "just works"
+even if it wasn't designed to do exactly what you are doing right
+now. So even if "df" wasn't designed to work on NFS, it still works.
 
-Bye,
-    Oleg
+But now we're going to get a new "df" which grabs the sysfs info and
+uses that. But it won't work on reiserfs5, as the interface changes
+again. 
 
-diff -Nru a/fs/reiserfs/inode.c b/fs/reiserfs/inode.c
---- a/fs/reiserfs/inode.c	Mon Sep  8 12:54:12 2003
-+++ b/fs/reiserfs/inode.c	Mon Sep  8 12:54:12 2003
-@@ -2048,8 +2048,8 @@
-         last_offset = inode->i_size & (PAGE_CACHE_SIZE - 1) ;
- 	/* no file contents in this page */
- 	if (page->index >= end_index + 1 || !last_offset) {
--	    error = 0 ;
--	    goto done ;
-+    	    unlock_page(page);
-+	    return 0;
- 	}
- 	kaddr = kmap_atomic(page, KM_USER0);
- 	memset(kaddr + last_offset, 0, PAGE_CACHE_SIZE-last_offset) ;
+		Roger. 
+
+-- 
+** R.E.Wolff@BitWizard.nl ** http://www.BitWizard.nl/ ** +31-15-2600998 **
+*-- BitWizard writes Linux device drivers for any device you may have! --*
+**** "Linux is like a wigwam -  no windows, no gates, apache inside!" ****

@@ -1,76 +1,75 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262285AbTI1AGB (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 27 Sep 2003 20:06:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262286AbTI1AGB
+	id S262286AbTI1AoM (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 27 Sep 2003 20:44:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262290AbTI1AoM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 27 Sep 2003 20:06:01 -0400
-Received: from as1-2-5.han.s.bonet.se ([194.236.155.59]:58382 "EHLO
-	palpatine.hardeman.nu") by vger.kernel.org with ESMTP
-	id S262285AbTI1AF7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 27 Sep 2003 20:05:59 -0400
-Date: Sun, 28 Sep 2003 02:05:51 +0200
-From: David =?iso-8859-1?Q?H=E4rdeman?= <david@2gen.com>
-To: Jeff Garzik <jgarzik@pobox.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Broadcom BCM5901 NIC
-Message-ID: <20030928000550.GA24165@hardeman.nu>
-References: <20030927231904.GA22769@hardeman.nu> <3F761D02.3050708@pobox.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1; format=flowed
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <3F761D02.3050708@pobox.com>
-User-Agent: Mutt/1.3.28i
+	Sat, 27 Sep 2003 20:44:12 -0400
+Received: from tibor.swiftdsl.com.au ([202.154.92.226]:10379 "EHLO
+	tibor.swiftdsl.com.au") by vger.kernel.org with ESMTP
+	id S262286AbTI1AoK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 27 Sep 2003 20:44:10 -0400
+Date: Sun, 28 Sep 2003 10:40:47 +1000 (EST)
+From: Jason Lewis <jason@dickson.st>
+X-X-Sender: jason@car.swiftel.com.au
+To: Roger Luethi <rl@hellgate.ch>
+cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: Re: [BUG 2.6.90-test5] kernel shits itself with 48mb ram under
+ moderate load
+In-Reply-To: <20030927172639.GA19176@k3.hellgate.ch>
+Message-ID: <Pine.LNX.4.53.0309281038430.1076@car.swiftel.com.au>
+References: <Pine.LNX.4.53.0309280116450.336@car.swiftel.com.au>
+ <20030927172639.GA19176@k3.hellgate.ch>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Hi Roger,
 
-I tried unplugging/plugging the cable a few times along with ifup and 
-ifdown a few times in different variations. It didnt seem to do much, 
-one interesting thing that I noticed was that the Windows XP host that 
-this laptop was connected to with a crossover cable during the testing 
-reported the link as being down when the NIC was ifup'ed and vice versa.
+Thanks for your reply.
 
-After being bored with ifup/down and cable pulling I tried some 
-modprobe/rmmod as well. This proptly hosed the system, the "ifconfig 
-eth0 down" command is frozen, unkillable and consumes 100% CPU right 
-now. ifconfig on another console to check if the card "is still there" 
-also froze. Well, at least the network led woke up, its on constantly 
-right now :-)
+I realised my swap space was version 0, and 2.6 doesn't support it, so it
+wasn't enabling swap.
 
-Ideas?
+Problem solved.
 
-//David
+Thanks,
 
-PS
-With the tg3 driver the card is reported as a 33Mhz PCI card, with the 
-bcm5700 it's reported as a 66Mhz PCI card, could this make a 
-difference?
+Jason
 
-On Sat, Sep 27, 2003 at 07:28:02PM -0400, Jeff Garzik wrote:
->David Härdeman wrote:
->>Hi,
->>
->>my new laptop (IBM Thinkpad G40) has an integrated NIC made by broadcom. 
->>It's a BCM5901 card for which support was added in the tg3 driver a few 
->>weeks ago (both in 2.4 and 2.6-test). However, the device doesn't work, 
->>it insmods just fine and claims the hardware, but the machine never 
->>responds to ping messages and the led indicating network activity is 
->>never activated.
->>
->>Broadcom has released a driver of their own (bcm5700) which works with 
->>kernel 2.4.21. When I try that combination it works fine, however, the 
->>bcm5700 driver wont work at all on recent 2.4 or 2.6 kernels.
->>
->>Does anyone know what is wrong with the tg3 driver? Has anyone tried 
->>using it on a 5901 card with success?
+On Sat, 27 Sep 2003, Roger Luethi wrote:
+
+> On Sun, 28 Sep 2003 01:26:34 +1000, Jason Lewis wrote:
+> > I seem to be experiencing some problems with it. boot and load X ok, but
+> > as soon as I try and do anything interesting in X, like run xchat, or
+> > apt-get update, the system grings to a halt. the load goes through the
+> > roof, and the hdd starts grinding away madly.
+> >
+> > But I can run my system quite succesfully under 2.4
+> >
+> > [...]
+> >
+> > Script started on Sun 28 Sep 2003 00:56:41 EST
+> > procs -----------memory---------- ---swap-- -----io---- --system-- ----cpu----
+> >  r  b   swpd   free   buff  cache   si   so    bi    bo   in    cs us sy id wa
+> > [...]
+> >  1  8      0   3360    836   6024    0    0 16404    16 3666  2158  1 13  0 86
+> >  1 11      0   3504    828   5888    0    0 14956     4 6185  3344  0 11  0 89
+> >  3  9      0   3392    816   6016    0    0  6864     0 3903  2088  0 11  0 89
+> >  2 13      0   3464    820   5880    0    0 11148     0 3105  1960  0 12  0 87
+> >  0 12      0   3424    816   6008    0    0 19712     0 5519  3184  0 12  0 87
 >
+>           ^^^^
+> Looks like you don't have swap enabled. Are successful 2.4 runs with or
+> without swap?
 >
->Trying unplugging/plugging the cable, or ifdown+ifup cycle, and let me 
->know if that fixes things.
+> Roger
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 >
->	Jeff
 >
 >

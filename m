@@ -1,44 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262623AbTFKQH1 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 Jun 2003 12:07:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262633AbTFKQH1
+	id S262633AbTFKQKv (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 Jun 2003 12:10:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262645AbTFKQKv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 Jun 2003 12:07:27 -0400
-Received: from uni-paderborn.de ([131.234.22.30]:28548 "EHLO mail-gate")
-	by vger.kernel.org with ESMTP id S262623AbTFKQH0 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 Jun 2003 12:07:26 -0400
-Message-ID: <3EE756C9.F07564D4@upb.de>
-Date: Wed, 11 Jun 2003 18:20:25 +0200
-From: Kay Salzwedel <nkz@upb.de>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.20 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: buffer requests answered from cache
-Content-Type: text/plain; charset=us-ascii
+	Wed, 11 Jun 2003 12:10:51 -0400
+Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:12716
+	"EHLO lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
+	id S262633AbTFKQKu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 11 Jun 2003 12:10:50 -0400
+Subject: Re: [PATCH] nfs_unlink() race (was: nfs_refresh_inode: inode
+	number mismatch)
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: viro@parcelfarce.linux.theplanet.co.uk, Frank Cusack <fcusack@fcusack.com>,
+       Trond Myklebust <trond.myklebust@fys.uio.no>,
+       Marcelo Tosatti <marcelo@conectiva.com.br>,
+       lkml <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.44.0306110905420.1653-100000@home.transmeta.com>
+References: <Pine.LNX.4.44.0306110905420.1653-100000@home.transmeta.com>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+Organization: 
+Message-Id: <1055348515.2420.12.camel@dhcp22.swansea.linux.org.uk>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
+Date: 11 Jun 2003 17:21:56 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+On Mer, 2003-06-11 at 17:11, Linus Torvalds wrote:
+> On 11 Jun 2003, Alan Cox wrote:
+> > 
+> > No no - this happens on LOCAL disk. No NFS needed at all.
+> 
+> How do you make a local filesystem return ESTALE? A quick grep shows it in
+> fs/fat/inode.c, but it should only be in the "export" functions used to
+> export it for NFS.
+> 
+> Curious. What am I missing?
 
-can anybody point me to a place where the kernel (2.4) checks whenever a
-buffer head is already in the cache or not? I would like to know how
-many requests to a device are answered from cached buffers.
+fs/vfat - d_revalidate: vfat_revalidate
 
-Thanks very much.
-
-Regards KAy
--- 
---------------------------------------------------------------------
-Kay A Salzwedel
-
-Heinz Nixdorf Institute
-University of Paderborn
-Germany
-------------------------------------------
-E-Mail:  kay@hni.uni-paderborn.de
-Tel.:    +49-5251-60 64 58
---------------------------------------------------------------------

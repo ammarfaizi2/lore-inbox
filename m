@@ -1,59 +1,57 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313090AbSDYMJf>; Thu, 25 Apr 2002 08:09:35 -0400
+	id <S312294AbSDYMah>; Thu, 25 Apr 2002 08:30:37 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313093AbSDYMJe>; Thu, 25 Apr 2002 08:09:34 -0400
-Received: from [195.63.194.11] ([195.63.194.11]:22544 "EHLO
-	mail.stock-world.de") by vger.kernel.org with ESMTP
-	id <S313090AbSDYMJd>; Thu, 25 Apr 2002 08:09:33 -0400
-Message-ID: <3CC7E358.8050905@evision-ventures.com>
-Date: Thu, 25 Apr 2002 13:07:04 +0200
-From: Martin Dalecki <dalecki@evision-ventures.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; pl-PL; rv:1.0rc1) Gecko/20020419
-X-Accept-Language: en-us, pl
-MIME-Version: 1.0
-To: Jens Axboe <axboe@suse.de>
-CC: Miles Lane <miles@megapathdsl.net>, LKML <linux-kernel@vger.kernel.org>
-Subject: Re: 2.5.9 -- OOPS in IDE code (symbolic dump and boot log included)
-In-Reply-To: <1019549894.1450.41.camel@turbulence.megapathdsl.net> <3CC51494.8040309@evision-ventures.com> <1019583551.1392.5.camel@turbulence.megapathdsl.net> <1019584497.1393.8.camel@turbulence.megapathdsl.net> <3CC66794.5040203@evision-ventures.com> <20020424091151.GD812@suse.de>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	id <S312803AbSDYMag>; Thu, 25 Apr 2002 08:30:36 -0400
+Received: from server0011.freedom2surf.net ([194.106.56.14]:23049 "EHLO
+	server0011.freedom2surf.net") by vger.kernel.org with ESMTP
+	id <S312294AbSDYMag>; Thu, 25 Apr 2002 08:30:36 -0400
+Date: Thu, 25 Apr 2002 13:38:00 +0100
+From: Ian Molton <spyro@armlinux.org>
+To: Olivier Galibert <galibert@pobox.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: BK, deltas, snapshots and fate of -pre...
+Message-Id: <20020425133800.6a549ed7.spyro@armlinux.org>
+In-Reply-To: <20020424235538.A1606@zalem.puupuu.org>
+Reply-To: spyro@armlinux.org
+Organization: The dragon roost
+X-Mailer: Sylpheed version 0.7.5cvs1 (GTK+ 1.2.10; )
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Uz.ytkownik Jens Axboe napisa?:
-> On Wed, Apr 24 2002, Martin Dalecki wrote:
+Olivier Galibert Awoke this dragon, who will now respond:
 
->>OK I assume that the oops happens inside the ide-scsi module.
->>This will be fixed in one of the forthcomming patch sets.
+>  > I shouldnt. its a pointless waste of bandwidth.
+>  > 
+>  > Now, whats YOUR answer?
 > 
-> 
-> Are you sure this isn't just due to ->special being set, and
-> ide_end_request() assuming it's an ar? From ide-cd, that is.
+>  Developpers need complete sources.  No questions about that.  If they
+>  don't have the complete sources, they'll fuck things up.  So the
+>  developpers have zero use for partial downloadings.
 
+Sorry, that doesnt fly. If I dont work on SCSI, only on networking, I
+/dont/ need the SCSI code. Even if I had it, I wouldnt read it.
 
-Yes I know it's all the same. However unfortunately
-it's *not easy* to back out the ->special use from
-the drivers that do it. We have the following sutuation:
+I deleted all the arch directories except ARM and X86 on my machine to
+speed up grepping the kernel.
 
-1. Generic BIO code checking for ->special and deciding whatever
-it should trying to merge request or not.
+so, not having all the source can speed thigs up.
 
-2. Gneric ATA code setting ->special for ata_request passing.
+>  Some users may like to be able to download only the core code and
+>  drivers/filesystems/architectures they use.
 
-3. CD-ROM ATAPI code using ->special for passing packet commands
-and failed commands.
+This developer would too.
 
-4. ide-scsi using it for the same purspose as CD-ROM
+>  Ignoring the obvious
+>  version drift problems that will happen,
 
-5. ide-floppy not using it at all buf abusing the ->buffer member
-    for precisely the same purpose.
+Why would they happen?
 
-And unfortunately there is *no* easy solution for any of the
-above circumstances without breaking far too many things.
+> proposing such a service
+>  requires work and a large amount of bandwidth.  Do you volunteer?
 
-The conclusion simply is: unless the above issues are fixed
-the TCQ stuff has simply to be backed out again anbd live
-separately from the main code chain. :-(.
-
-
+Surely it requires LESS bandwidth than if people are sucking the WHOLE
+kernel ?

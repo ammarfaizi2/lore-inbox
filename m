@@ -1,64 +1,175 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264819AbUFPVGJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264827AbUFPVFT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264819AbUFPVGJ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Jun 2004 17:06:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264836AbUFPVFd
+	id S264827AbUFPVFT (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Jun 2004 17:05:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264836AbUFPVFT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Jun 2004 17:05:33 -0400
-Received: from chaos.analogic.com ([204.178.40.224]:4736 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP id S264791AbUFPVEC convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Jun 2004 17:04:02 -0400
-Date: Wed, 16 Jun 2004 17:03:46 -0400 (EDT)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-X-X-Sender: root@chaos
-Reply-To: root@chaos.analogic.com
-To: eliot@cincom.com
-cc: Linux kernel <linux-kernel@vger.kernel.org>, tgriggs@key.net
-Subject: Re: PROBLEM: 2.6 kernels on x86 do not preserve FPU flags across
- context switches
-In-Reply-To: <200406162032.NAA29397@central.parcplace.com>
-Message-ID: <Pine.LNX.4.53.0406161652120.541@chaos>
-References: <200406162032.NAA29397@central.parcplace.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-Content-Transfer-Encoding: 8BIT
+	Wed, 16 Jun 2004 17:05:19 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:44454 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S264827AbUFPVB3 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 16 Jun 2004 17:01:29 -0400
+Date: Wed, 16 Jun 2004 17:01:12 -0400
+From: Alan Cox <alan@redhat.com>
+To: linux-kernel@vger.kernel.org
+Subject: PATCH: make the 3c59x/3c90x driver somewhat more reliable
+Message-ID: <20040616210112.GA11858@devserv.devel.redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 16 Jun 2004 eliot@cincom.com wrote:
+The existing driver violates basic PCI rules in several places making it
+unusable for basic things like DHCP in Fedora Core. This patch removes
+all the situations I can find where it writes to the device while in D3
+state and breaks stuff
 
-> Hi,
->
-> 	I am the team lead and chief VM developer for a Smaltalk implementation based on a JIT execution engine.  Our customers have been seeing rare incorrect floating-point results in intensive fp applications on 2.6 kernels using various x86 compatible processors.  These problems do not occur on previous kernel versons.  We recently had occasion to reimplement our fp primitives to avoid severe performance problems on Xeon processors that were traced to Xeon's relatively slow implementation of fnclex and fstsw.  The older implementaton would produce a result and test for a valid (non NaN, non Inf) result by examining the FPU status flags via fstsw.  The newer implementation produces a result and tests its exponent for the NaN/Inf exponent.  The new implementation does not show the rare incorrect floating-point results in intensive fp applications on 2.6 kernels.  My conclusion is that context switches between the production of the result and the execution of the fstsw are the culprit, and that the context switch machinery fails to preserve the FPU status flags.
->
-> I don't know whether any action on your part is appropriate.  The use of the FPU status flags is presumably rare on linux (I believe that neither gcc nor glibc make use of them).  But "exotic" execution machinery such as runtimes for dynamic or functional languages (language implementations that may not use IEEE arithmetic and instead flag Infs and NaNs as an error) may fall foul of this issue.  Since previous versions of the kernel on x86 apparently do preserve the FPU status flags perhaps its simple to preserve the old behaviour.  At the very least let me suggest you document the limitation.
->
-> Sincerely,
-> ---
-> Eliot Miranda                 ,,,^..^,,,                mailto:eliot@cincom.com
-> VisualWorks Engineering, Cincom  Smalltalk: scene not herd  Tel +1 408 216 4581
-> 3350 Scott Blvd, Bldg 36 Suite B, Santa Clara, CA 95054 USA Fax +1 408 216 4500
->
 
-All versions of the kernels preserve FPU state, including its flags
-across context-switches. They use the FNSAVE/FRSTOR pair which saves
-and restores the entire FPU environment including its flags. This
-is very expensive, taking roughly 130 clocks for each operation.
+diff -u --new-file --recursive --exclude-from /usr/src/exclude linux-2.6.7/drivers/net/3c59x.c 2.6.7-ac/drivers/net/3c59x.c
+--- linux-2.6.7/drivers/net/3c59x.c	2004-06-16 21:11:36.032434312 +0100
++++ 2.6.7-ac/drivers/net/3c59x.c	2004-06-16 21:22:13.580512272 +0100
+@@ -884,7 +884,7 @@
+ static int vortex_probe1(struct device *gendev, long ioaddr, int irq,
+ 				   int chip_idx, int card_idx);
+ static void vortex_up(struct net_device *dev);
+-static void vortex_down(struct net_device *dev);
++static void vortex_down(struct net_device *dev, int final);
+ static int vortex_open(struct net_device *dev);
+ static void mdio_sync(long ioaddr, int bits);
+ static int mdio_read(struct net_device *dev, int phy_id, int location);
+@@ -948,7 +948,7 @@
+ 	if (dev && dev->priv) {
+ 		if (netif_running(dev)) {
+ 			netif_device_detach(dev);
+-			vortex_down(dev);
++			vortex_down(dev, 1);
+ 		}
+ 	}
+ 	return 0;
+@@ -2059,7 +2059,8 @@
+ 				printk(KERN_ERR "%s: PCI bus error, bus status %8.8x\n", dev->name, bus_status);
+ 
+ 			/* In this case, blow the card away */
+-			vortex_down(dev);
++			/* Must not enter D3 or we can't legally issue the reset! */
++			vortex_down(dev, 0);
+ 			issue_and_wait(dev, TotalReset | 0xff);
+ 			vortex_up(dev);		/* AKPM: bug.  vortex_up() assumes that the rx ring is full. It may not be. */
+ 		} else if (fifo_diag & 0x0400)
+@@ -2656,7 +2657,7 @@
+ }
+ 
+ static void
+-vortex_down(struct net_device *dev)
++vortex_down(struct net_device *dev, int final_down)
+ {
+ 	struct vortex_private *vp = netdev_priv(dev);
+ 	long ioaddr = dev->base_addr;
+@@ -2685,7 +2686,7 @@
+ 	if (vp->full_bus_master_tx)
+ 		outl(0, ioaddr + DownListPtr);
+ 
+-	if (VORTEX_PCI(vp) && vp->enable_wol) {
++	if (final_down && VORTEX_PCI(vp) && vp->enable_wol) {
+ 		pci_save_state(VORTEX_PCI(vp), vp->power_state);
+ 		acpi_set_WOL(dev);
+ 	}
+@@ -2699,7 +2700,7 @@
+ 	int i;
+ 
+ 	if (netif_device_present(dev))
+-		vortex_down(dev);
++		vortex_down(dev, 1);
+ 
+ 	if (vortex_debug > 1) {
+ 		printk(KERN_DEBUG"%s: vortex_close() status %4.4x, Tx status %2.2x.\n",
+@@ -2869,7 +2870,7 @@
+ 	.get_drvinfo =		vortex_get_drvinfo,
+ };
+ 
+-static int vortex_ioctl(struct net_device *dev, struct ifreq *rq, int cmd)
++static int vortex_do_ioctl(struct net_device *dev, struct ifreq *rq, int cmd)
+ {
+ 	struct vortex_private *vp = netdev_priv(dev);
+ 	long ioaddr = dev->base_addr;
+@@ -2904,6 +2905,30 @@
+ 	return retval;
+ }
+ 
++/*
++ *	Must power the device up to do MDIO operations
++ */
++static int vortex_ioctl(struct net_device *dev, struct ifreq *rq, int cmd)
++{
++	int err;
++	struct vortex_private *vp = netdev_priv(dev);
++	int state = 0;
++	
++	if(VORTEX_PCI(vp))
++		state = VORTEX_PCI(vp)->current_state;
++
++	/* The kernel core really should have pci_get_power_state() */
++
++	if(state != 0)
++		pci_set_power_state(VORTEX_PCI(vp), 0);	
++	err = vortex_do_ioctl(dev, rq, cmd);
++	if(state != 0)
++		pci_set_power_state(VORTEX_PCI(vp), state);	
++	
++	return err;
++}
++
++
+ /* Pre-Cyclone chips have no documented multicast filter, so the only
+    multicast setting is to receive all multicast frames.  At least
+    the chip has a very clean way to set the mode, unlike many others. */
+@@ -3059,14 +3084,14 @@
+ 	 * here
+ 	 */
+ 	unregister_netdev(dev);
+-	/* Should really use issue_and_wait() here */
+-	outw(TotalReset|0x14, dev->base_addr + EL3_CMD);
+ 
+ 	if (VORTEX_PCI(vp) && vp->enable_wol) {
+ 		pci_set_power_state(VORTEX_PCI(vp), 0);	/* Go active */
+ 		if (vp->pm_state_valid)
+ 			pci_restore_state(VORTEX_PCI(vp), vp->power_state);
+ 	}
++	/* Should really use issue_and_wait() here */
++	outw(TotalReset|0x14, dev->base_addr + EL3_CMD);
+ 
+ 	pci_free_consistent(pdev,
+ 						sizeof(struct boom_rx_desc) * RX_RING_SIZE
 
-What they don't do is save/restore FPU state during system calls
-because it is extremely wasteful of preformance. So, if there is
-any module loaded that (improperly) uses the FPU, the user's FPU
-state can get trashed.
 
-Also, I don't imagine you know what the [Enter] key does, do you?
-If you hit this occasionally, somebody might be able to read your
-text on a conventional terminal, rather than a Windows auto-warp
-contraption.
 
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.4.26 on an i686 machine (5570.56 BogoMips).
-            Note 96.31% of all statistics are fiction.
+ 
+        Developer's Certificate of Origin 1.0
+ 
+        By making a contribution to this project, I certify that:
+ 
+        (a) The contribution was created in whole or in part by me and I
+            have the right to submit it under the open source license
+            indicated in the file; or
+ 
+        (b) The contribution is based upon previous work that, to the best
+            of my knowledge, is covered under an appropriate open source
+            license and I have the right under that license to submit that
+            work with modifications, whether created in whole or in part
+            by me, under the same open source license (unless I am
+            by me, under the same open source license (unless I am
+            permitted to submit under a different license), as indicated
+            in the file; or
+ 
+        (c) The contribution was provided directly to me by some other
+            person who certified (a), (b) or (c) and I have not modified
+            it.
+ 
+ 
+        Signed-off-by: Alan Cox <alan@redhat.com>
+
+	"Me" in this case being Red Hat
 
 

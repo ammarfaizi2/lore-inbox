@@ -1,48 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267122AbTAFUE0>; Mon, 6 Jan 2003 15:04:26 -0500
+	id <S267029AbTAFUZ3>; Mon, 6 Jan 2003 15:25:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267120AbTAFUE0>; Mon, 6 Jan 2003 15:04:26 -0500
-Received: from bi01p1.co.us.ibm.com ([32.97.110.142]:29898 "EHLO w-patman.des")
-	by vger.kernel.org with ESMTP id <S267119AbTAFUEZ>;
-	Mon, 6 Jan 2003 15:04:25 -0500
-Date: Mon, 6 Jan 2003 12:52:43 -0800
-From: Patrick Mansfield <patmans@us.ibm.com>
-To: Andries.Brouwer@cwi.nl
-Cc: zwane@holomorphy.com, linux-kernel@vger.kernel.org,
-       linux-scsi@vger.kernel.org, linux-usb-devel@lists.sourceforge.net,
-       mdharm-kernel@one-eyed-alien.net
-Subject: Re: inquiry in scsi_scan.c
-Message-ID: <20030106125243.A9710@beaverton.ibm.com>
-References: <UTC200301052142.h05LgkH25404.aeb@smtp.cwi.nl>
+	id <S267115AbTAFUZ2>; Mon, 6 Jan 2003 15:25:28 -0500
+Received: from ppp-217-133-219-133.dialup.tiscali.it ([217.133.219.133]:55425
+	"EHLO home.ldb.ods.org") by vger.kernel.org with ESMTP
+	id <S267029AbTAFUZ2>; Mon, 6 Jan 2003 15:25:28 -0500
+Date: Mon, 6 Jan 2003 21:26:54 +0100
+From: Luca Barbieri <ldb@ldb.ods.org>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: Linux-Kernel ML <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] Set TIF_IRET in more places
+Message-ID: <20030106202654.GA8379@ldb>
+Mail-Followup-To: Linus Torvalds <torvalds@transmeta.com>,
+	Linux-Kernel ML <linux-kernel@vger.kernel.org>
+References: <20030106181737.GA6867@ldb> <Pine.LNX.4.44.0301061046180.13284-100000@penguin.transmeta.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="EVF5PPMfhYS0aIcm"
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <UTC200301052142.h05LgkH25404.aeb@smtp.cwi.nl>; from Andries.Brouwer@cwi.nl on Sun, Jan 05, 2003 at 10:42:46PM +0100
+In-Reply-To: <Pine.LNX.4.44.0301061046180.13284-100000@penguin.transmeta.com>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Jan 05, 2003 at 10:42:46PM +0100, Andries.Brouwer@cwi.nl wrote:
-> Zwane Mwaikambo writes:
-> 
-> > This looks related to something i also bumped into
-> >
-> > scsi scan: host 2 channel 0 id 0 lun 0 identifier too long
-> 
-> Sounds familiar. Please try the below (on 2.5.54).
-> 
-> Andries
-> 
 
-Instead of truncating the id, we need a new scsi_uid field allocated
-to whatever size required. And, a descriptive string put in the name,
-rather than the id, such as:
+--EVF5PPMfhYS0aIcm
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-    scsi disk
-    scsi processor
-    scsi tape 
+> vfork and clone do not work at all with sysenter due to user stack issues.
+I actually meant CLONE_VFORK, that if used without CLONE_VM can go
+through sysenter (if CLONE_VFORK is not used TIF_NEED_RESCHED is set
+so there is no problem).
 
-Even if the id is truncated, that information has to be available.
+I also think that vfork() could be used with AT_SYSINFO by switching
+stacks around the call (with care about recursive vfork and signals
+calling vfork inside the vfork stack).
 
--- Patrick Mansfield
+--EVF5PPMfhYS0aIcm
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
+
+iD8DBQE+GeaNdjkty3ft5+cRAlnJAJ9SIoebjKHtvCM4AFblf3PnvoxBIgCg09NL
++9Bf2S7F5S7S0Yp2tHVMGSM=
+=XZrW
+-----END PGP SIGNATURE-----
+
+--EVF5PPMfhYS0aIcm--

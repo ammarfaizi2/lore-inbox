@@ -1,66 +1,86 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265297AbUAFB2U (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 5 Jan 2004 20:28:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266061AbUAFB2U
+	id S263775AbUAFBiF (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 5 Jan 2004 20:38:05 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265265AbUAFBiE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 Jan 2004 20:28:20 -0500
-Received: from [193.138.115.2] ([193.138.115.2]:45586 "HELO
-	diftmgw.backbone.dif.dk") by vger.kernel.org with SMTP
-	id S265297AbUAFB2S (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 Jan 2004 20:28:18 -0500
-Date: Tue, 6 Jan 2004 02:25:36 +0100 (CET)
-From: Jesper Juhl <juhl-lkml@dif.dk>
-To: linux-kernel@vger.kernel.org
-cc: Bastiaan Spandaw <lkml@becobaf.com>, Tomas Szepe <szepe@pinerecords.com>,
-       Max Valdez <maxvalde@fis.unam.mx>
-Subject: Re: 2.6.1-rc1 affected?
-In-Reply-To: <1073351377.2690.1.camel@garaged.homeip.net>
-Message-ID: <Pine.LNX.4.56.0401060221170.7597@jju_lnx.backbone.dif.dk>
-References: <1073351377.2690.1.camel@garaged.homeip.net>
+	Mon, 5 Jan 2004 20:38:04 -0500
+Received: from mail-03.iinet.net.au ([203.59.3.35]:18375 "HELO
+	mail.iinet.net.au") by vger.kernel.org with SMTP id S263775AbUAFBhr
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 5 Jan 2004 20:37:47 -0500
+Message-ID: <3FFA1149.5030009@cyberone.com.au>
+Date: Tue, 06 Jan 2004 12:37:13 +1100
+From: Nick Piggin <piggin@cyberone.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030827 Debian/1.4-3
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Peter Osterlund <petero2@telia.com>
+CC: Con Kolivas <kernel@kolivas.org>,
+       Tim Connors <tconnors+linuxkernel1073186591@astro.swin.edu.au>,
+       linux-kernel@vger.kernel.org
+Subject: Re: xterm scrolling speed - scheduling weirdness in 2.6 ?!
+References: <Pine.LNX.4.44.0401031439060.24942-100000@coffee.psychology.mcmaster.ca>	<200401041242.47410.kernel@kolivas.org>	<slrn-0.9.7.4-25573-3125-200401041423-tc@hexane.ssi.swin.edu.au>	<200401041658.57796.kernel@kolivas.org> <m2ptdxq3vf.fsf@telia.com>
+In-Reply-To: <m2ptdxq3vf.fsf@telia.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-On Tue, 6 Jan 2004, Max Valdez wrote:
 
-> At least it hangs a redhat 7.2 kernel
+Peter Osterlund wrote:
+
+>Con Kolivas <kernel@kolivas.org> writes:
 >
-> I will test it further tomorrow, but it looks like a good proof to me
 >
-> Best regards
-> Max
-> On Mon, 2004-01-05 at 18:23, Bastiaan Spandaw wrote:
-> > On Mon, 2004-01-05 at 23:48, Tomas Szepe wrote:
-> > > On Jan-05 2004, Mon, 20:38 +0100
-> > > GCS <gcs@lsc.hu> wrote:
-> > >
-> > > > There _is_ an exploit:
-> http://isec.pl/vulnerabilities/isec-0013-mremap.txt
-> > > > "Since no special privileges are required to use the mremap(2)
-> system
-> > > ...
-> > >
-> > > I will not believe the claim until I've seen the code.
-> >
-> > Not sure if this works or not.
-> > According to a slashdot comment this is proof of concept code.
-> >
-> > http://linuxfromscratch.org/~devine/mremap_poc.c
-> >
-> > Regards,
-> >
-> > Bastiaan
-> >
+>>On Sun, 4 Jan 2004 14:32, Tim Connors wrote:
+>>
+>>>>Not quite. The scheduler retains high priority for X for longer so it's
+>>>>no new dynamic adjustment of any sort, just better cpu usage by X (which
+>>>>is why it's smoother now at nice 0 than previously).
+>>>>
+>>>>
+>>>>>If either the scheduler or xterm was a bit smarter or
+>>>>>used different thresholds, the problem would go away. It would also
+>>>>>explain why there are people who cannot reproduce it. Perhaps a
+>>>>>somewhat faster or slower system makes the problem go away. Honnestly,
+>>>>>it's the first time that I notice that my xterms are jump-scrolling, it
+>>>>>was so much fluid anyway.
+>>>>>
+>>>>Very thorough but not a scheduler problem as far as I'm concerned. Can
+>>>>you not disable smooth scrolling and force jump scrolling?
+>>>>
+>>>AFAIK the definition of jump scrolling is that if xterm is falling
+>>>behind, it jumps. Jump scrolling is enabled by default.
+>>>
+>>>What this slowness means is that xterm is getting CPU at just the
+>>>right moments that it isn't falling behind, so it doesn't jump - which
+>>>means X gets all the CPU to redraw, which means your ls/dmesg anything
+>>>else that reads from disk[1] doesn't get any CPU.
+>>>
+>>>Xterm is already functioning as designed - you can't force jump
+>>>scrolling to jump more - it is at the mercy of how it gets
+>>>scheduled. If there is nothing more in the pipe to draw, it has to
+>>>draw.
+>>>
+>>>These bloody interactive changes to make X more responsive are at the
+>>>expense of anything that does *real* work.
+>>>
+>>Harsh words considering it is the timing sensitive nature of xterm that relies 
+>>on X running out of steam in the old scheduler design to appear smooth.
+>>
+>
+>But the scheduler is also far from fair in this situation. If I run
+>
 
-On my box that program is a very effective 'instant reboot'.
+snip a good analysis...
 
-The instant I ran it from a xterm my screen went black, the music I was
-listening to from a CD stopped and the machine rebooted.
-The running kernel was 2.6.1-rc1-mm1
+... but fairness is not about a set of numbers the scheduler gives to
+each process, its about the amount of CPU time processes are given.
 
+In this case I don't know if I find it objectionable that X and xterm
+are considered interactive and perl considered a CPU hog. What is the
+actual problem?
 
-- Jesper Juhl
 

@@ -1,61 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262046AbUKVKlU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262041AbUKVKna@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262046AbUKVKlU (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 22 Nov 2004 05:41:20 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262026AbUKVKlJ
+	id S262041AbUKVKna (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 22 Nov 2004 05:43:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262036AbUKVKmq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 22 Nov 2004 05:41:09 -0500
-Received: from panda.sul.com.br ([200.219.150.4]:17424 "EHLO panda.sul.com.br")
-	by vger.kernel.org with ESMTP id S262036AbUKVKiM (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 22 Nov 2004 05:38:12 -0500
-Date: Mon, 22 Nov 2004 08:38:01 -0200
-From: Aristeu Sergio Rozanski Filho <aris@cathedrallabs.org>
-To: Micah Dowty <micah@navi.cx>
-Cc: aris@cefetpr.br, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Force feedback support for uinput
-Message-ID: <20041122103801.GC24080@cathedrallabs.org>
-References: <20041110163751.GA13361@navi.cx> <20041112120852.GA25736@cefetpr.br> <20041121085452.GA26087@navi.cx>
+	Mon, 22 Nov 2004 05:42:46 -0500
+Received: from hirsch.in-berlin.de ([192.109.42.6]:15000 "EHLO
+	hirsch.in-berlin.de") by vger.kernel.org with ESMTP id S262047AbUKVKkd
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 22 Nov 2004 05:40:33 -0500
+X-Envelope-From: kraxel@bytesex.org
+Date: Mon, 22 Nov 2004 11:25:02 +0100
+From: Gerd Knorr <kraxel@bytesex.org>
+To: Rusty Russell <rusty@rustcorp.com.au>
+Cc: Gerd Knorr <kraxel@suse.de>, Takashi Iwai <tiwai@suse.de>,
+       "Alexander E. Patrakov" <patrakov@ums.usu.ru>,
+       lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: modprobe + request_module() deadlock
+Message-ID: <20041122102502.GF29305@bytesex>
+References: <20041117222949.GA9006@linuxtv.org> <1100749702.5865.39.camel@localhost.localdomain> <20041118135522.GA16910@linuxtv.org> <s5h4qjnc6zs.wl@alsa2.suse.de> <cnjr8v$dcu$1@sea.gmane.org> <s5hpt2aayco.wl@alsa2.suse.de> <20041119115042.GA30334@bytesex> <1101026370.18919.32.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="FFpMipsYUdYbs4p3"
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20041121085452.GA26087@navi.cx>
-User-Agent: Mutt/1.5.6+20040722i
+In-Reply-To: <1101026370.18919.32.camel@localhost.localdomain>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> > > 	MODULE_DEPENDS_ON("somemodule");
+> > 
+> > On the other hand I don't depend on request_module() waiting for the
+> > modprobe being finished.  So maybe we can solve that with a
+> > request_module_async()?
+> 
+> The problem is fairly simple: we don't let you get at the symbols from a
+> module which hasn't finished initializing yet.  This means that a
+> request_module() inside a module's init() will fail if the requested
+> module depends on this one.  async() will race with init() finishing, so
+> won't really help.
 
---FFpMipsYUdYbs4p3
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Hmm, so module loading is not serialized by a lock?  I assumed that
+caused the deadlock in $subject which started this thread ...
 
-Hi,
-> Also done. Since uinput.txt didn't have any documentation at all,
-> I added a short section on basic usage. It should be expanded, but it's
-> better than nothing.
-that was the idea :)
+> The traditional way to do this has been to have saa7134-empress do its
+> own probe, and likewise saa7134-dvb.
 
-> +The uinput driver creates a character device, usually at /dev/uinput, that can
-the default is '/dev/input/uinput'
+They can't actually probe themself.  It's _one_ PCI device (driven by
+the saa7134 module) which can handle (among other v4l-related things)
+the DMA transfer of mpeg streams.  That can be used in different ways
+(or not at all) and the different use cases are handled by the
+sub-modules.
 
-Thanks for your work!
+So the way it is intended to work is that saa7134 has the pci table and
+gets autoloaded by hotplug, it will have a look at the hardware and then
+load either saa7134-empress or saa7134-dvb or none of them, so you'll
+get everything nicely autoloaded.
 
---
-Aristeu
+> Unfortunately, these days modules are not supposed to fail to load
+> simply because there are no devices, so wild module loading has a real
+> cost.
 
+Yes, thats exactly the problem.  And this is especially true for the
+saa7134-dvb module as this one has a bunch of dependencies to other
+modules of the dvb subsystem.  Thats why I try to avoid loading them
+if they are not needed.
 
---FFpMipsYUdYbs4p3
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
+> Otherwise I'd be tempted to make multiple aliases load *all* of them,
+> and solve the problem that way.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
+Well, that will actually work.  You can simply load both saa7134-empress
+and saa7134-dvb, the saa7134 core module will take care that they can
+only attach to devices they can actually handle.  Drawback is the memory
+footprint ...
 
-iD8DBQFBocGJRRJOudsVYbMRAk8pAKCK1gKxAoiISqG4Jozrxng1luPToQCgrIZG
-V9GJCkRLfEKAtAJj5orxBa0=
-=Qk9e
------END PGP SIGNATURE-----
+  Gerd
 
---FFpMipsYUdYbs4p3--
+-- 
+#define printk(args...) fprintf(stderr, ## args)

@@ -1,80 +1,127 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261156AbVCXWGx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261166AbVCXWMs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261156AbVCXWGx (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 24 Mar 2005 17:06:53 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261162AbVCXWGx
+	id S261166AbVCXWMs (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 24 Mar 2005 17:12:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261168AbVCXWMs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 24 Mar 2005 17:06:53 -0500
-Received: from wproxy.gmail.com ([64.233.184.196]:16164 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261156AbVCXWGt (ORCPT
+	Thu, 24 Mar 2005 17:12:48 -0500
+Received: from atlrel8.hp.com ([156.153.255.206]:43408 "EHLO atlrel8.hp.com")
+	by vger.kernel.org with ESMTP id S261166AbVCXWMm (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 24 Mar 2005 17:06:49 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:references;
-        b=J3GIFVHNYc/Zz3/vqw+OKl2q2Prjq4Antg5KYj86qcSd7tDQUFECZfPbTu9Yt7R6iMa3QWAUKnF/Pcij6Y/L1LQ8FyBQfge/DTqK0liFHiPbLcDfd8W3425kJM7Fd0ndU4R54tJSPnz5eto7EwgrM4dT1Cl4ssS/CVyO2UGFX0Y=
-Message-ID: <aec7e5c3050324140667759f0a@mail.gmail.com>
-Date: Thu, 24 Mar 2005 23:06:49 +0100
-From: Magnus Damm <magnus.damm@gmail.com>
-Reply-To: Magnus Damm <magnus.damm@gmail.com>
-To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-Subject: Re: Linux 2.4.30-rc1
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20050318215513.GA25936@logos.cnet>
+	Thu, 24 Mar 2005 17:12:42 -0500
+Subject: Re: [PATCH] Netmos parallel/serial/combo support
+From: Bjorn Helgaas <bjorn.helgaas@hp.com>
+To: Michael Tokarev <mjt@tls.msk.ru>
+Cc: lkml <linux-kernel@vger.kernel.org>, linux-parport@lists.infradead.org
+In-Reply-To: <424325A7.2010101@tls.msk.ru>
+References: <1111533253.22819.2.camel@eeyore>  <424325A7.2010101@tls.msk.ru>
+Content-Type: text/plain
+Date: Thu, 24 Mar 2005 15:12:29 -0700
+Message-Id: <1111702349.25455.15.camel@eeyore>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; 
-	boundary="----=_Part_100_24582150.1111702009279"
-References: <20050318215513.GA25936@logos.cnet>
+X-Mailer: Evolution 2.0.4 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-------=_Part_100_24582150.1111702009279
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+On Thu, 2005-03-24 at 23:40 +0300, Michael Tokarev wrote:
+> So, do you expect 9[78]35 cards to work? ;)
 
-Hello,
+Yes, I expect them all to work.  Thanks very much for testing yours!
 
-On Fri, 18 Mar 2005 18:55:13 -0300, Marcelo Tosatti
-<marcelo.tosatti@cyclades.com> wrote:
+> With this patch applied, my 9835 card now works when loading 8250_pci
+> module.  But things does not completely work still.
 > 
+> I've a 9835 card with two serial and no parallel ports:
 > 
-> Here goes the first release candidate for v2.4.30.
+> 0000:01:00.0 0700: 9710:9835 (rev 01) (prog-if 02)
+>          Subsystem: 1000:0002
+>          Control: I/O+ Mem+ BusMaster- SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR+ FastB2B-
+>          Status: Cap- 66MHz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
+>          Interrupt: pin A routed to IRQ 193
+>          Region 0: I/O ports at a400 [size=8]
+>          Region 1: I/O ports at a000 [size=8]
+>          Region 2: I/O ports at 9800 [size=8]
+>          Region 3: I/O ports at 9400 [size=8]
+>          Region 4: I/O ports at 9000 [size=8]
+>          Region 5: I/O ports at 8800 [size=16]
+> 
+> When I first load 8250_pci, it correctly detects one onboard
+> serial port (ttyS0) and two ports on the card (ttyS4 and ttyS5):
+> 
+> Serial: 8250/16550 driver $Revision: 1.90 $ 8 ports, IRQ sharing enabled
+> ttyS0 at I/O 0x3f8 (irq = 4) is a 16550A
+> ACPI: PCI interrupt 0000:01:00.0[A] -> GSI 18 (level, low) -> IRQ 193
+> ttyS4 at I/O 0xa400 (irq = 193) is a 16550A
+> ttyS5 at I/O 0xa000 (irq = 193) is a 16550A
+> 
+> When I load parport_pc after loading 8250_pci, it correctly detects
+> onboard parallel port and nothing more:
+> 
+> parport: PnPBIOS parport detected.
+> parport0: PC-style at 0x378, irq 7 [PCSPP]
 
-I'm a bit late, but here's a patch that fixes a module parameter
-description typo in eepro100. The problem was located in the 2.6
-source and a fix should be in 2.6-mm soon.
+Everything looks good so far.
 
-Thanks.
+> But after reloading parport_pc, it does not see the built-in
+> port anymore; more, after unloading 8250_pci and 8250,
+> parport_pc finds one parallel port -- on this netmos
+> card only (there's no parallel port on this card):
+> 
+> PCI parallel port detected: 9710:9835, I/O at 0x9800(0x9400)
+> parport0: PC-style at 0x9800 (0x9400) [PCSPP,TRISTATE]
 
-/ magnus
+Hmmm...  Do you have an init script or something that pokes
+9835 into /sys/bus/pci/drivers/parport_pc/new_id?  If not,
+I don't see how parport_pc could claim your 9835, since it's
+not compiled into parport_pc_pci_tbl.  It looks like you
+should be able to turn off the new_id functionality by
+disabling CONFIG_HOTPLUG.
 
-------=_Part_100_24582150.1111702009279
-Content-Type: text/x-patch; name="linux-2.4.30-rc1-autoparam_eepro100.patch"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: attachment; filename="linux-2.4.30-rc1-autoparam_eepro100.patch"
+> When parport_pc loaded, 8250[_pci] can't detect the two
+> serial ports it detected previously:
 
---- linux-2.4.30-rc1/drivers/net/eepro100.c=092003-08-25 13:44:42.000000000=
- +0200
-+++ linux-2.4.30-rc1-autoparam/drivers/net/eepro100.c=092005-03-24 22:13:46=
-.563710568 +0100
-@@ -153,8 +153,8 @@
- MODULE_PARM_DESC(congenb, "Enable congestion control (1)");
- MODULE_PARM_DESC(txfifo, "Tx FIFO threshold in 4 byte units, (0-15)");
- MODULE_PARM_DESC(rxfifo, "Rx FIFO threshold in 4 byte units, (0-15)");
--MODULE_PARM_DESC(txdmaccount, "Tx DMA burst length; 128 - disable (0-128)"=
-);
--MODULE_PARM_DESC(rxdmaccount, "Rx DMA burst length; 128 - disable (0-128)"=
-);
-+MODULE_PARM_DESC(txdmacount, "Tx DMA burst length; 128 - disable (0-128)")=
-;
-+MODULE_PARM_DESC(rxdmacount, "Rx DMA burst length; 128 - disable (0-128)")=
-;
- MODULE_PARM_DESC(rx_copybreak, "copy breakpoint for copy-only-tiny-frames"=
-);
- MODULE_PARM_DESC(max_interrupt_work, "maximum events handled per interrupt=
-");
- MODULE_PARM_DESC(multicast_filter_limit, "maximum number of filtered multi=
-cast addresses");
+That's because there's only one PCI device, and parport_pc
+already claimed it.
 
-------=_Part_100_24582150.1111702009279--
+Can you add some printks to figure out how parport_pc claims
+your board?  For example, the patch below might be a start:
+
+--- 2.6.12-rc1-mm1-netmos/drivers/parport/parport_pc.c.orig	2005-03-24 13:27:02.000000000 -0700
++++ 2.6.12-rc1-mm1-netmos/drivers/parport/parport_pc.c	2005-03-24 13:31:40.000000000 -0700
+@@ -2930,10 +2930,13 @@
+ 		return -ENODEV;
+ 	}
+ 
++	printk("parport_pc: dev %s i %d numports %d\n", pci_name(dev), i,
++		cards[i].numports);
+ 	for (n = 0; n < cards[i].numports; n++) {
+ 		int lo = cards[i].addr[n].lo;
+ 		int hi = cards[i].addr[n].hi;
+ 		unsigned long io_lo, io_hi;
++		printk("parport_pc:   port %d lo %d hi %d\n", n, lo, hi);
+ 		io_lo = pci_resource_start (dev, lo);
+ 		io_hi = 0;
+ 		if ((hi >= 0) && (hi <= 6))
+--- 2.6.12-rc1-mm1-netmos/drivers/parport/parport_serial.c.orig	2005-03-24 13:39:29.000000000 -0700
++++ 2.6.12-rc1-mm1-netmos/drivers/parport/parport_serial.c	2005-03-24 13:45:23.000000000 -0700
+@@ -358,6 +358,8 @@
+ 	    card->preinit_hook (dev, card, PARPORT_IRQ_NONE, PARPORT_DMA_NONE))
+ 		return -ENODEV;
+ 
++	printk("parport_serial: dev %s i %d numports %d\n", pci_name(dev), i,
++		card->numports);
+ 	for (n = 0; n < card->numports; n++) {
+ 		struct parport *port;
+ 		int lo = card->addr[n].lo;
+@@ -372,6 +374,7 @@
+ 			break;
+ 		}
+ 
++		printk("parport_serial:   port %d lo %d hi %d\n", n, lo, hi);
+ 		io_lo = pci_resource_start (dev, lo);
+ 		io_hi = 0;
+ 		if ((hi >= 0) && (hi <= 6))
+
+
+

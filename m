@@ -1,55 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268800AbUIADGY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268971AbUIADLo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268800AbUIADGY (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 31 Aug 2004 23:06:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268878AbUIADGY
+	id S268971AbUIADLo (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 31 Aug 2004 23:11:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268972AbUIADLo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 31 Aug 2004 23:06:24 -0400
-Received: from mta11.adelphia.net ([68.168.78.205]:4329 "EHLO
-	mta11.adelphia.net") by vger.kernel.org with ESMTP id S268800AbUIADGU
+	Tue, 31 Aug 2004 23:11:44 -0400
+Received: from 212-28-208-94.customer.telia.com ([212.28.208.94]:24593 "EHLO
+	www.dewire.com") by vger.kernel.org with ESMTP id S268971AbUIADLm
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 31 Aug 2004 23:06:20 -0400
-Message-ID: <41353C7F.8040509@nodivisions.com>
-Date: Tue, 31 Aug 2004 23:05:35 -0400
-From: Anthony DiSante <orders@nodivisions.com>
-Reply-To: orders@nodivisions.com
-User-Agent: Mozilla Thunderbird 0.7 (X11/20040615)
-X-Accept-Language: en-us, en
+	Tue, 31 Aug 2004 23:11:42 -0400
+From: Robin Rosenberg <robin.rosenberg.lists@dewire.com>
+To: Spam <spam@tnonline.net>
+Subject: Re: silent semantic changes in reiser4 (brief attempt to document the idea of what reiser4 wants to do with metafiles and why
+Date: Wed, 1 Sep 2004 05:11:31 +0200
+User-Agent: KMail/1.6.1
+Cc: Tonnerre <tonnerre@thundrix.ch>, V13 <v13@priest.com>,
+       Hans Reiser <reiser@namesys.com>, Andrew Morton <akpm@digeo.com>,
+       Linux Kernel <linux-kernel@vger.kernel.org>,
+       Linus Torvalds <torvalds@osdl.org>, <reiserfs-list@namesys.com>
+References: <41323AD8.7040103@namesys.com> <20040831190814.GA15493@thundrix.ch> <111617109.20040831213808@tnonline.net>
+In-Reply-To: <111617109.20040831213808@tnonline.net>
 MIME-Version: 1.0
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: devfsd stuck in D state
-References: <41353913.70102@nodivisions.com> <1094007399.3404.51.camel@krustophenia.net>
-In-Reply-To: <1094007399.3404.51.camel@krustophenia.net>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 8bit
+Message-Id: <200409010511.31597.robin.rosenberg.lists@dewire.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Lee Revell wrote:
-> On Tue, 2004-08-31 at 22:50, Anthony DiSante wrote:
-> 
->>Hello,
->>
->>I'm running devfs v1.22 on this Gentoo system:
->>
-> 
-> 
-> Are you sure hotplug is enabled?  Is there an OOPS?
+On Tuesday 31 August 2004 21.38, Spam wrote:
+> > Salut,
+> >
+> > On Tue, Aug 31, 2004 at 08:17:36PM +0200, Spam wrote:
+> >>   How  are  things  done on Windows platforms when there are files and
+> >>   directories  with the same name? In Unix that is imposible. How does
+> >>   it  work  for  environments  like  Cygwin  etc? What happen to tools
+> >>   that run in them?
+> >
+> > In  NTFS it's  illegal  IIRC.  At least  the  fs correction  utilities
+> > complain about a block being assigned to two files.
+>
+>   I  meant  a  file  and a directory with the same name, not two files
+>   with the same name :) subtle but important difference.
+>
+>   ie,  you can have a file named "foo" and a directory named "foo" and
+>   they won't collide.
 
-hotplug is enabled in the kernel (compiled-in, not modular) and here's what 
-I have:
+You can't have a file and a directory with the same name in W*.
 
-[2302][~]# cat /proc/sys/kernel/hotplug
-/sbin/hotplug
-[2302][~]# /sbin/hotplug
-Usage: /etc/hotplug.d/default/default.hotplug AgentName [AgentArguments]
-AgentName values on this system:  dasd firmware ieee1394 input net pci scsi 
-tape usb
-[2302][~]#
+Alternative data streams don't appear in a normal directory. You
+need special API:s and tools to see them. If you know the name of and ADS
+you can however access them with standard tools, including cygwin.
 
-And there's no oops in /var/log/messages or in dmesg.  Is there anywhere 
-else it'd show up?
+echo foo >a.txt
+echo bar >a.txt:b.txt
 
-Thanks,
-Anthony
-http://nodivisions.com/
+You can also have ADS's on directories. Not sure how Reiserfs4 does that.
+
+mkdir foo
+echo bar >foo:a.txt
+
+-- robin

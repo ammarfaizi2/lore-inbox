@@ -1,48 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267589AbUHEIXG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267595AbUHEI0K@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267589AbUHEIXG (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 5 Aug 2004 04:23:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267593AbUHEIXG
+	id S267595AbUHEI0K (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 5 Aug 2004 04:26:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267599AbUHEI0K
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 5 Aug 2004 04:23:06 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:17619 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S267589AbUHEIXD (ORCPT
+	Thu, 5 Aug 2004 04:26:10 -0400
+Received: from fw.osdl.org ([65.172.181.6]:63458 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S267595AbUHEI0I (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 5 Aug 2004 04:23:03 -0400
-Message-ID: <4111EE31.1090105@redhat.com>
-Date: Thu, 05 Aug 2004 01:22:09 -0700
-From: Ulrich Drepper <drepper@redhat.com>
-Organization: Red Hat, Inc.
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.8a3) Gecko/20040804
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-CC: inaky.perez-gonzalez@intel.com, linux-kernel@vger.kernel.org,
-       robustmutexes@lists.osdl.org, rusty@rustcorp.com.au, mingo@elte.hu,
-       jamie@shareable.org
-Subject: Re: [RFC/PATCH] FUSYN Realtime & robust mutexes for Linux, v2.3.1
-References: <F989B1573A3A644BAB3920FBECA4D25A6EC06D@orsmsx407>	<20040804232123.3906dab6.akpm@osdl.org>	<4111DC8C.7050504@redhat.com>	<20040805001737.78afb0d6.akpm@osdl.org>	<4111E3B5.1070608@redhat.com> <20040805004023.65463e88.akpm@osdl.org>
-In-Reply-To: <20040805004023.65463e88.akpm@osdl.org>
-X-Enigmail-Version: 0.85.0.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+	Thu, 5 Aug 2004 04:26:08 -0400
+Date: Thu, 5 Aug 2004 01:24:24 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Dave Hansen <haveblue@us.ibm.com>
+Cc: wli@holomorphy.com, linux-mm@kvack.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] break out zone free list initialization
+Message-Id: <20040805012424.7da14c83.akpm@osdl.org>
+In-Reply-To: <1091034585.2871.142.camel@nighthawk>
+References: <1091034585.2871.142.camel@nighthawk>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton wrote:
-> But doesn't the current futex code continue to work unchanged?
+Dave Hansen <haveblue@us.ibm.com> wrote:
+>
+> The following patch removes the individual free area initialization from
+>  free_area_init_core(), and puts it in a new function
+>  zone_init_free_lists().  It also creates pages_to_bitmap_size(), which
+>  is then used in zone_init_free_lists() as well as several times in my
+>  free area bitmap resizing patch.  
 
-If the patches don't touch the existing futex code there is no risk of
-breaking anything.  Futexes and these new objects have nothing to do
-with each other.
+This causes my very ordinary p4 testbox to crash very early in boot.  It's
+quite pretty, with nice colourful stripes of blinking text on the display.
 
-
-> I was referring to "scheduling-policy based unlock/wakeup", actually.
-
-We don't have anything like this for futexes.  It's not impossible to
-do, we just didn't do it because it was of not much interest to us at
-that time.
-
--- 
-➧ Ulrich Drepper ➧ Red Hat, Inc. ➧ 444 Castro St ➧ Mountain View, CA ❖

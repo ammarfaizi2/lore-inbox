@@ -1,38 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265736AbSL3TnV>; Mon, 30 Dec 2002 14:43:21 -0500
+	id <S265791AbSL3T4l>; Mon, 30 Dec 2002 14:56:41 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265777AbSL3TnV>; Mon, 30 Dec 2002 14:43:21 -0500
-Received: from router.go.cz ([62.24.94.222]:63361 "EHLO napalm.go.cz")
-	by vger.kernel.org with ESMTP id <S265736AbSL3TnU>;
-	Mon, 30 Dec 2002 14:43:20 -0500
-Date: Mon, 30 Dec 2002 20:52:06 +0100
-From: Jan Dvorak <jan.dvorak@kraxnet.cz>
-To: linux-kernel@vger.kernel.org
-Subject: PPP problems in 2.4.19-20, modem freezes
-Message-ID: <20021230205206.A2196@go.cz>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.11i
-Organization: (www.kraxnet.cz)
-X-URL: http://www.johnydog.cz/
-X-OS: Linux 2.4.20 i686
+	id <S265800AbSL3T4l>; Mon, 30 Dec 2002 14:56:41 -0500
+Received: from tomts21-srv.bellnexxia.net ([209.226.175.183]:61134 "EHLO
+	tomts21-srv.bellnexxia.net") by vger.kernel.org with ESMTP
+	id <S265791AbSL3T4l>; Mon, 30 Dec 2002 14:56:41 -0500
+Date: Mon, 30 Dec 2002 15:01:27 -0500 (EST)
+From: "Robert P. J. Day" <rpjday@mindspring.com>
+X-X-Sender: rpjday@dell
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: my observations about 2.4.21-pre2
+In-Reply-To: <1041279053.13684.41.camel@irongate.swansea.linux.org.uk>
+Message-ID: <Pine.LNX.4.44.0212301500370.28062-100000@dell>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+On 30 Dec 2002, Alan Cox wrote:
 
-I'm running leased line between two 28.8k external modems, with pppd 2.4.1.
-After upgrading kernel to 2.4.19, i've experienced modem freezes - when the
-connection dies and modem (the one switched to recieve) hangs up, sometimes it 'freezes', not reacting at any inputs from terminal program/pppd, emiting weird
-signal to the line (that tone you got when the line is aborted while
-handshaking, but this time it won't time out). Killing pppd or even
-rebooting the machine doesn't help, i must manually cycle the modem to start working again.
-With older kernels (2.4.16) it works fine. Any ideas ?
+> On Mon, 2002-12-30 at 18:18, Robert P. J. Day wrote:
+> > Why can't I deactivate all gigabit ethernet settings in one click,
+> >   like I can with 10/100 Mbit settings?  as the choices for 
+> >   gigabit ethernet grow, that list is going to get inconveniently
+> >   long.  a single top option to deselect all of them would be nice.
+> 
+> Follow the example for 10/100 and fix it then send a patch
 
-Please CC replies to me, as i'm not on the list.
+asking someone who's never created a kernel patch to send one in?
+boy, you *do* have a lot of faith in your fellow man.  ok,
+i'll give it a shot.
 
-Thanks, Jan
+rday
 

@@ -1,45 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130344AbQKNCDS>; Mon, 13 Nov 2000 21:03:18 -0500
+	id <S130294AbQKNCDj>; Mon, 13 Nov 2000 21:03:39 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130294AbQKNCDI>; Mon, 13 Nov 2000 21:03:08 -0500
-Received: from edtn006530.hs.telusplanet.net ([161.184.137.180]:63241 "EHLO
-	mail.harddata.com") by vger.kernel.org with ESMTP
-	id <S130495AbQKNCCz>; Mon, 13 Nov 2000 21:02:55 -0500
-Date: Mon, 13 Nov 2000 18:32:42 -0700
-From: Michal Jaegermann <michal@harddata.com>
-To: Jeff Garzik <jgarzik@mandrakesoft.com>
-Cc: tytso@mit.edu, linux-kernel@vger.kernel.org, p_gortmaker@yahoo.com,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>, viro@math.psu.edu
-Subject: Re: Linux 2.4 Status/TODO page (test11-pre3)
-Message-ID: <20001113183242.A29457@mail.harddata.com>
-In-Reply-To: <200011121939.eACJd9D01319@trampoline.thunk.org> <3A0F5B73.E613050B@mandrakesoft.com>
+	id <S130031AbQKNCDb>; Mon, 13 Nov 2000 21:03:31 -0500
+Received: from piglet.twiddle.net ([207.104.6.26]:31503 "EHLO
+	piglet.twiddle.net") by vger.kernel.org with ESMTP
+	id <S130294AbQKNCDW>; Mon, 13 Nov 2000 21:03:22 -0500
+Date: Mon, 13 Nov 2000 17:33:12 -0800
+From: Richard Henderson <rth@twiddle.net>
+To: "H. Peter Anvin" <hpa@zytor.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Where is it written?
+Message-ID: <20001113173312.A1820@twiddle.net>
+In-Reply-To: <8ui698$c2q$1@cesium.transmeta.com> <11198.973906134@ocs3.ocs-net> <8ui7le$c9a$1@cesium.transmeta.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 0.95.5us
-In-Reply-To: <3A0F5B73.E613050B@mandrakesoft.com>; from Jeff Garzik on Sun, Nov 12, 2000 at 10:09:39PM -0500
+X-Mailer: Mutt 1.0pre3us
+In-Reply-To: <8ui7le$c9a$1@cesium.transmeta.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Nov 12, 2000 at 10:09:39PM -0500, Jeff Garzik wrote:
-> tytso@mit.edu wrote:
-> > 4. Boot Time Failures
-> 
-> >      * Various Alpha's don't boot under 2.4.0-test9 (PCI-PCI bridges are
-> >        not configured correctly Michal Jaegermann; Richard Henderson may
-> >        have an idea what's failing.)
-> 
-> Move to patch-exists-but-not-merged.  rth has patches, co-developed with
-> Ivan Kokshaysky
+On Fri, Nov 10, 2000 at 05:33:34PM -0800, H. Peter Anvin wrote:
+> AFAIK, I think Linus tried this once, but ran into bugs in gcc.
+> We might very well try again in 2.5.
 
-Would be nice, wouldn't it.  Unfortunately this is not the case.
-rth has patches which help to boot his machine, and few others, but
-this still does not work in general.
+You'll definitely have to use a compiler later than gcc 2.95, since
+there were in fact major bugs in this area.  I'd be interested in
+hearing bug reports from someone trying with current cvs sources.
 
-Ivan works now pretty hard, with my involvment into this, trying to
-identify and fix the problem.
 
-  Michal
+r~
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

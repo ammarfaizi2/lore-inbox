@@ -1,63 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264335AbTKTV7R (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 20 Nov 2003 16:59:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264345AbTKTV7R
+	id S262878AbTKTVzk (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 20 Nov 2003 16:55:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262882AbTKTVzk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 20 Nov 2003 16:59:17 -0500
-Received: from sj-iport-3-in.cisco.com ([171.71.176.72]:5706 "EHLO
-	sj-iport-3.cisco.com") by vger.kernel.org with ESMTP
-	id S264335AbTKTV7K (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 20 Nov 2003 16:59:10 -0500
-Reply-To: <hzhong@cisco.com>
-From: "Hua Zhong" <hzhong@cisco.com>
-To: "'Timothy Miller'" <miller@techsource.com>,
-       "'Andreas Dilger'" <adilger@clusterfs.com>
-Cc: "'Justin Cormack'" <justin@street-vision.com>,
-       "'Jesse Pollard'" <jesse@cats-chateau.net>,
-       "'linux-kernel mailing list'" <linux-kernel@vger.kernel.org>
-Subject: RE: OT: why no file copy() libc/syscall ??
-Date: Thu, 20 Nov 2003 13:58:59 -0800
-Organization: Cisco Systems
-Message-ID: <00dd01c3afb1$8172ea50$d43147ab@amer.cisco.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook, Build 10.0.4024
-In-Reply-To: <3FBD328C.1070607@techsource.com>
-Importance: Normal
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4927.1200
+	Thu, 20 Nov 2003 16:55:40 -0500
+Received: from holomorphy.com ([199.26.172.102]:58544 "EHLO holomorphy")
+	by vger.kernel.org with ESMTP id S262878AbTKTVzj (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 20 Nov 2003 16:55:39 -0500
+Date: Thu, 20 Nov 2003 13:55:36 -0800
+From: William Lee Irwin III <wli@holomorphy.com>
+To: linux-kernel@vger.kernel.org, Voicu Liviu <pacman@mscc.huji.ac.il>,
+       kerin@recruit2recruit.net
+Subject: Re: 2.6.0-test9-mm4 (only) and vmware
+Message-ID: <20031120215536.GM22764@holomorphy.com>
+Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
+	linux-kernel@vger.kernel.org, Voicu Liviu <pacman@mscc.huji.ac.il>,
+	kerin@recruit2recruit.net
+References: <20031120025730.GD22764@holomorphy.com> <3FBC917E.7090506@mscc.huji.ac.il> <20031120101830.GH22764@holomorphy.com> <3FBC9604.1020007@mscc.huji.ac.il> <20031120103117.GI22764@holomorphy.com> <3FBC996F.2060902@mscc.huji.ac.il> <20031120104220.GJ22764@holomorphy.com> <3FBC9C94.4030603@mscc.huji.ac.il> <20031120172059.GA22495@64m.dyndns.org> <20031120213810.GA5094@localhost>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20031120213810.GA5094@localhost>
+Organization: The Domain of Holomorphy
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Andreas Dilger wrote:
-> > On Nov 20, 2003  15:44 -0500, Timothy Miller wrote:
-> > 
-> >>This could be a problem if COW causes you to run out of space when 
-> >>writing to the file.
-> > 
-> > 
-> > Not much different than running out of space copying a file.
-> 
-> It is, though.  If you run out of space copying a file, you 
-> know it when you're copying.  Applications don't usually expect to get
+On Thursday, 20 November 2003, at 12:20:59 -0500, Christopher Li wrote:
+>> Have your try Petr Vandrovec's patch?
+>> ftp://platan.vc.cvut.cz/pub/vmware
 
-> out-of-space errors while overwriting something in the middle of a
-file.
+On Thu, Nov 20, 2003 at 10:38:10PM +0100, Jose Luis Domingo Lopez wrote:
+> I just tried to "recompile" VMware Workstation 4.0.1 build 5289 applying:
+> ftp://platan.vc.cvut.cz/pub/vmware/vmware-any-any-update45.tar.gz
+> And the preblem persists. I get a BUG in the logs, very similar to the
+> one I reported yesterday (both with 2.6.0-test9-mm4):
 
-It could for journaling filesystem already.
+Okay, several questions:
+(a) is _this_ run with 2.6.0-test9-mm4?
+(b) which _exact_ fixes did you run with?
 
-It's not in any spec that writing to the middle of a file would not
-cause ENOSPC, is it?
 
-> In effect, your free space and your used space add up to greater than 
-> the capacity of the disk.  An application that checks for free space 
-> before doing something would be fooled into thinking there is 
-> more free space than there really is.  How can an application find out
-
-> in advance that a file that it's about to modify (without appending 
-> anything to the end) is going to need more disk space?
-
+-- wli

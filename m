@@ -1,44 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318455AbSGSEnu>; Fri, 19 Jul 2002 00:43:50 -0400
+	id <S318459AbSGSEma>; Fri, 19 Jul 2002 00:42:30 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318461AbSGSEnu>; Fri, 19 Jul 2002 00:43:50 -0400
-Received: from theirongiant.weebeastie.net ([203.62.148.50]:37576 "EHLO
-	theirongiant.weebeastie.net") by vger.kernel.org with ESMTP
-	id <S318455AbSGSEnt>; Fri, 19 Jul 2002 00:43:49 -0400
-Date: Fri, 19 Jul 2002 14:45:18 +1000
-From: CaT <cat@zip.com.au>
-To: Larry McVoy <lm@work.bitmover.com>, Rob Landley <landley@trommello.org>,
-       linux-kernel@vger.kernel.org
-Subject: Re: Alright, I give up.  What does the "i" in "inode" stand for?
-Message-ID: <20020719044518.GK5608@zip.com.au>
-References: <200207190432.g6J4WD2366706@pimout5-int.prodigy.net> <20020718213857.E23208@work.bitmover.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20020718213857.E23208@work.bitmover.com>
-User-Agent: Mutt/1.3.28i
-Organisation: Furball Inc.
+	id <S318462AbSGSEma>; Fri, 19 Jul 2002 00:42:30 -0400
+Received: from mail.adiglobal.com ([66.207.47.93]:63237 "EHLO
+	mail.adiglobal.com") by vger.kernel.org with ESMTP
+	id <S318459AbSGSEm3>; Fri, 19 Jul 2002 00:42:29 -0400
+From: "Guillaume Boissiere" <boissiere@adiglobal.com>
+To: Bill Davidsen <davidsen@tmr.com>
+Date: Fri, 19 Jul 2002 00:45:21 -0400
+MIME-Version: 1.0
+Subject: Re: [2.6] Most likely to be merged by Halloween... THE LIST
+CC: linux-kernel@vger.kernel.org
+Message-ID: <3D376121.6991.8C9E71@localhost>
+References: <3D361091.13618.16DC46FB@localhost>
+In-reply-to: <Pine.LNX.3.96.1020718123016.8220B-100000@gatekeeper.tmr.com>
+X-mailer: Pegasus Mail for Windows (v4.01)
+Content-type: text/plain; charset=US-ASCII
+Content-transfer-encoding: 7BIT
+Content-description: Mail message body
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jul 18, 2002 at 09:38:57PM -0700, Larry McVoy wrote:
-> On Thu, Jul 18, 2002 at 06:33:54PM -0400, Rob Landley wrote:
-> > I've been sitting on this question for years, hoping I'd come
-> > across the answer, and I STILL don't know what the "i" is short for.
-> > Somebody here has got to know this. :)
-> 
-> Incore node, I believe.  In the original Unix code there was dinode and
-> inode if I remember correctly, for disk node and incore node.
+> Before I start asking what about XXX, is there a list of what major stuff
+> is already considered to be in? I don't see some things on your list,
+> perhaps you regard them as done.
 
-That's a new one. I always thought it was 'information node' so in the
-above it'd be disk information node and just information node.
+The list you are looking for is all the items in the merged category in the
+status list: http://www.kernelnewbies.org/status/
 
-Makes sense to me in any case. :)
+Several of the items marked merged are still being worked on (IDE, etc.), 
+but for those, the bulk of the work should have been done already.
 
--- 
-GOVERNMENT ANNOUNCEMENT - The  government announced  today that  it is
-changing its mascot  to a condom because  it more clearly reflects the
-government's political stance.  A condom stands up to inflation, halts
-production, destroys  the next generation,  protects a bunch of pricks
-and finally, gives you a sense of security while you're being screwed!
+Cheers,
+
+-- Guillaume

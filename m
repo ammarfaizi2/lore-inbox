@@ -1,96 +1,77 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277722AbRJIFnG>; Tue, 9 Oct 2001 01:43:06 -0400
+	id <S277723AbRJIFpQ>; Tue, 9 Oct 2001 01:45:16 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277724AbRJIFmr>; Tue, 9 Oct 2001 01:42:47 -0400
-Received: from host217-34-86-34.in-addr.btopenworld.com ([217.34.86.34]:29700
-	"EHLO focuscomputers.net") by vger.kernel.org with ESMTP
-	id <S277722AbRJIFmh>; Tue, 9 Oct 2001 01:42:37 -0400
-Date: Tue, 09 Oct 2001 06:49:50 +0000
-From: mail@maketopmoney.com
-To: Caring@vger.kernel.org, Parents@vger.kernel.org
-Subject: Too good to refuse
-Message-Id: <20011009054245Z277722-760+22401@vger.kernel.org>
+	id <S277724AbRJIFpG>; Tue, 9 Oct 2001 01:45:06 -0400
+Received: from e31.co.us.ibm.com ([32.97.110.129]:41434 "EHLO
+	e31.bld.us.ibm.com") by vger.kernel.org with ESMTP
+	id <S277723AbRJIFox>; Tue, 9 Oct 2001 01:44:53 -0400
+Subject: Re: RFC: patch to allow lock-free traversal of lists with insertion
+To: "David S. Miller" <davem@redhat.com>
+Cc: linux-kernel@vger.kernel.org, lse-tech@lists.sourceforge.net
+X-Mailer: Lotus Notes Release 5.0.7  March 21, 2001
+Message-ID: <OF2F33BD66.440BE6A1-ON88256AE0.001DFF26@boulder.ibm.com>
+From: "Paul McKenney" <Paul.McKenney@us.ibm.com>
+Date: Mon, 8 Oct 2001 22:27:44 -0700
+X-MIMETrack: Serialize by Router on D03NM045/03/M/IBM(Release 5.0.8 |June 18, 2001) at
+ 10/08/2001 11:45:18 PM
+MIME-Version: 1.0
+Content-type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi There
 
+>    I am particularly interested in comments from people who understand
+>    the detailed operation of the SPARC membar instruction and the PARISC
+>    SYNC instruction.  My belief is that the membar("#SYNC") and SYNC
+>    instructions are sufficient,
+>
+> SYNC is sufficient but way too strict.  You don't explicitly say what
+> you need to happen.  If you need all previous stores to finish
+> before all subsequent memory operations then:
+>
+>          membar #StoreStore | #StoreLoad
+>
+> is sufficient.  If you need all previous memory operations to finish
+> before all subsequent stores then:
+>
+>          membar #StoreStore | #LoadStore
+>
+> is what you want.
 
-Do you have any kids going to college or university?
-====================================================
+I need to segregate the stores executed by the CPU doing the membar.
+All other CPUs must observe the preceding stores before the following
+stores.  Of course, this means that the loads on the observing CPUs
+must be ordered somehow.  I need data dependencies between the loads
+to be sufficient to order the loads.
 
+For example, if a CPU executes the following:
 
-How would you like to help their education?
+     a = new_value;
+     wmbdd();
+     p = &a;
 
-You know they need their own Laptop computer nowadays.
+then i need any other CPU executing:
 
-Yes I know, a couple of grand is a lot to come up with.
+     d = *p;
 
-But how about £200 ?
+to see either the value that "p" pointed to before the "p = &a" assignment,
+or "new_value", -never- the old value of "a".
 
-Don't you think they are worth a small investment to give 
-them a chance.?
+Does this do the trick?
 
-Here is your opportunity to MAKE THEIR DAY and give them 
-a fair start in life.
+           membar #StoreStore
 
-             -----------------
+>    Thoughts?
+>
+> I think if you need to perform IPIs and junk like that to make the
+> memory barrier happen correctly, just throw your code away and use a
+> spinlock instead.
 
-I recently bought a large quantity of ex-lease laptop
-computers from a major bank'
+The IPIs and related junk are I believe needed only on Alpha, which has
+no single memory-barrier instruction that can do wmbdd()'s job.  Given
+that Alpha seems to be on its way out, this did not seem to me to be
+too horrible.
 
-Because of the price, I can see them as being suitable 
-for students, looking for a budget computer. Being Compaq, 
-I am also happy to sell them because of the quality.
-
-Details are as below..
-----------------------------------------------
-Compaq Lite 5280 Laptop Computer          £149
-Pentium 120, 810mb HDD, 32mb ram
-loaded with Win95 and Office 97
-
-Optional extras.. 56k fax/modem     £25
-External CD ROM drive               £69
-Shoulder bag                        £12
-Carriage                            £12
-
-all prices exc VAT.
-
-Delivery to UK mainland, 3 working days.
-
-Warranty - 3 months.
------------------------------------------------
-
-Make someones life a little easier (not just mine!)
-
-Regards
-
-
-Steve Kirkby
-
-Full details on...
-http://www.wekum2u.com/compaq/compaq.html
-
-Or ring me on 02380 252955
-or write to me at
-wekum2u.com, 131 Park Road, Chandlers Ford, Hants SO53 1HT
-
-PS Limited quantity only, so if interested, contact me to secure your order.
-
-PPS Orders over £200 (ex VAT) will get a FREE Digital Camera, selling for 
-£79.95! - This week only(Offer ends midnight, Sun 14th Oct)
-
-
-***************************************************
-to remove from any possible other mailings, reply with
-the word REMOVE in the subject line.
-***************************************************
-
-
-
-
-
-
-
+                                   Thanx, Paul
 

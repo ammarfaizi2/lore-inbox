@@ -1,61 +1,64 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290593AbSBSWGs>; Tue, 19 Feb 2002 17:06:48 -0500
+	id <S290592AbSBSWGQ>; Tue, 19 Feb 2002 17:06:16 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290614AbSBSWGh>; Tue, 19 Feb 2002 17:06:37 -0500
-Received: from 217-126-141-228.uc.nombres.ttd.es ([217.126.141.228]:44303 "HELO
-	smtp.cespedes.org") by vger.kernel.org with SMTP id <S290593AbSBSWGX>;
-	Tue, 19 Feb 2002 17:06:23 -0500
-Date: Tue, 19 Feb 2002 23:05:23 +0100
-From: Juan Cespedes <cespedes@debian.org>
-To: linux-kernel@vger.kernel.org
-Subject: The ptrace() bug...
-Message-ID: <20020219220523.GA10202@gizmo.thehackers.org>
+	id <S290593AbSBSWF4>; Tue, 19 Feb 2002 17:05:56 -0500
+Received: from mail.ocs.com.au ([203.34.97.2]:45062 "HELO mail.ocs.com.au")
+	by vger.kernel.org with SMTP id <S290592AbSBSWFx>;
+	Tue, 19 Feb 2002 17:05:53 -0500
+X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
+From: Keith Owens <kaos@ocs.com.au>
+To: Jesse Barnes <jbarnes@sgi.com>
+Cc: David Mosberger <davidm@hpl.hp.com>, Dan Maas <dmaas@dcine.com>,
+        linux-kernel@vger.kernel.org,
+        Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+        Ben Collins <bcollins@debian.org>
+Subject: Re: readl/writel and memory barriers 
+In-Reply-To: Your message of "Tue, 19 Feb 2002 10:35:06 -0800."
+             <20020219103506.A1511175@sgi.com> 
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.27i
+Date: Wed, 20 Feb 2002 09:05:37 +1100
+Message-ID: <13997.1014156337@ocs3.intra.ocs.com.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Version 2.2.0 (at least) to 2.4.14-pre7 contain this line in
-mm/memory.c:copy_page_range:
+On Tue, 19 Feb 2002 10:35:06 -0800, 
+Jesse Barnes <jbarnes@sgi.com> wrote:
+>Making a variable volatile doesn't guarantee that the compiler won't
+>reorder references to it, AFAIK.  And on some platforms, even uncached
+>I/O references aren't necessarily ordered.
 
-    unsigned long cow = (vma->vm_flags & (VM_SHARED | VM_MAYWRITE)) == VM_MAYWRITE;
+Ignoring the issue of hardware that reorders I/O, volatile accesses
+must not be reordered by the compiler.  From a C9X draft (1999, anybody
+have the current C standard online?) :-
 
-Version 2.4.14-pre8 and later changed this line with:
+  5.1.2.3 [#2]
 
-    unsigned long cow = (vma->vm_flags & (VM_SHARED | VM_WRITE)) == VM_WRITE;
+  Accessing  a volatile object, modifying an object, modifying a file,
+  or calling a function that does any of those operations are all side
+  effects which are changes in the state of the execution environment.
+  Evaluation of an expression may produce side effects.  At certain
+  specified points in the execution sequence called sequence points,
+  all side effects of previous evaluations shall be complete and no
+  side effects of subsequent evaluations shall have taken place.
 
-This line decides if copy-on-write should be active in a vm_area just
-after a fork. The latter is more correct IMHO, with one exception:
-it breaks ptraced programs, because programs been ptraced can see their
-pages modified without having the VM_WRITE flag, and this causes that
-both the parent and the child may see their pages changed (copy-on-write
-doesn't work).
+  5.1.2.3 [#6]
 
-Reverting that one-line patch solves many problems for me and I think
-there are no other side-effects...
+  The least requirements on a conforming implementation are:
 
-Could it be included in 2.4?
+    -- At sequence points, volatile objects are stable in the sense
+       that previous accesses are complete and subsequent accesses have
+       not yet occurred.
 
-Thanks,
+The compiler may not reorder volatile accesses across sequence points.
 
-<====================================================================>
---- old/linux-2.4.17/mm/memory.c	Fri Dec 21 18:42:05 2001
-+++ linux-2.4.17/mm/memory.c	Sun Feb 17 20:38:20 2002
-@@ -177,7 +177,7 @@
-         pgd_t * src_pgd, * dst_pgd;
-         unsigned long address = vma->vm_start;
-         unsigned long end = vma->vm_end;
--        unsigned long cow = (vma->vm_flags & (VM_SHARED | VM_WRITE)) == VM_WRITE;
-+        unsigned long cow = (vma->vm_flags & (VM_SHARED | VM_MAYWRITE)) == VM_MAYWRITE;
- 
-         src_pgd = pgd_offset(src, address)-1;
-         dst_pgd = pgd_offset(dst, address)-1;
-<====================================================================>
+volatile int *a, *b;
+int c;
 
--- 
-    .+'''+.         .+'''+.         .+'''+.         .+'''+.         .+''
- Juan Cespedes     /       \       /       \    cespedes@TheHackers.org
-.+'         `+...+'         `+...+'         `+...+'         `+...+'
+c = *a + *b;	// no sequence point, access order to a, b is undefined
+
+c = *a;		// compiler must not convert to the above format, it
+c += *b;	// must access a then b
+
+

@@ -1,72 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316574AbSHSA2F>; Sun, 18 Aug 2002 20:28:05 -0400
+	id <S316569AbSHSAZV>; Sun, 18 Aug 2002 20:25:21 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316576AbSHSA2F>; Sun, 18 Aug 2002 20:28:05 -0400
-Received: from ip68-13-110-204.om.om.cox.net ([68.13.110.204]:27009 "EHLO
-	dad.molina") by vger.kernel.org with ESMTP id <S316574AbSHSA2D>;
-	Sun, 18 Aug 2002 20:28:03 -0400
-Date: Sun, 18 Aug 2002 19:25:44 -0500 (CDT)
-From: Thomas Molina <tmolina@cox.net>
-X-X-Sender: tmolina@dad.molina
-To: linux-kernel@vger.kernel.org
-Subject: 2.5 Problem Report status
-Message-ID: <Pine.LNX.4.44.0208181917280.2234-100000@dad.molina>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S316573AbSHSAZV>; Sun, 18 Aug 2002 20:25:21 -0400
+Received: from dp.samba.org ([66.70.73.150]:47749 "EHLO lists.samba.org")
+	by vger.kernel.org with ESMTP id <S316569AbSHSAZV>;
+	Sun, 18 Aug 2002 20:25:21 -0400
+From: Rusty Russell <rusty@rustcorp.com.au>
+To: Rupert Eibauer <Rupert@ces.ch>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [RFC] Fwd: Re: Fwd: Linux Kernel: down_timeout 
+In-reply-to: Your message of "Thu, 15 Aug 2002 11:57:17 +0200."
+             <200208151157327.SM00152@there> 
+Date: Sat, 17 Aug 2002 17:54:35 +1000
+Message-Id: <20020818192948.78EA62C12F@lists.samba.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Following is the latest status report.  There have been no significant 
-updates to the list in the past couple of days.  The status report, with 
-links to discussions can be found at:  
+In message <200208151157327.SM00152@there> you write:
+> I'm no kernel guru, but this looks really useful.  You
+> should probably send it to the linux-kernel list and to
+> Rusty Russel -- it would be a particularly useful extra
+> feature for his futexes.
 
-http://members.cox.net/tmolina/kernprobs/status.html
+Hi Rupert,
+	That's Russell (two l's) 8)
 
+> > Does anybody of you know why it hasnt been implemented in
+> > the kernel until now?
 
-   Notes:
-   The  state  of  the  IDE  subsystem in 2.5 is in too much of a flux for 
-tracking problems to be fruitful. I probably
-   won't add any new ones until feature freeze unless specifically 
-requested.
-   Floppy support is currently broken in 2.5. Higher priority items are 
-delaying work on a fix.
+I think because it can be faked up with SIGALRM.  And if that's too
+slow, you can use futexes which have this anyway.
 
-
-            2.5 Kernel Problem Reports as of 16 Aug
-   Problem Title                     Status       Discussion
-   RAID 0 BIO problem                open         2.5.30
-   schedule() with irqs disabled!    open         2.5.30
-   bonding driver failure in 2.5     closed       2.5.30
-   serial oops                       closed       2.5.30
-   NUMA-Q minimal workaround updates closed       2.5.30
-   PnP BIOS problem                  closed       2.5.30
-   New connections stall             closed       2.5.30
-   JFS oops                          closed       2.5.30
-   serial core on embedded PPC       closed       2.5.30
-   handle_scancode oops              closed       2.5.30
-   spinlock deadlock                 closed       2.5.30
-   smp cpu problem                   closed       2.5.30
-   LTP process_stress causes oops    open         2.5.30
-   elv_queue_empty oops              open         2.5.30
-   Page Writeback oops               open         2.5.30
-   slab BUG                          open         2.5.30
-   pmd_page problem                  open         2.5.30
-   vga console problem               open         2.5.30
-   P200MMX boot problem              open         2.5.30
-   io apic problem                   open         2.5.30
-   dcache oops                       open         2.5.30
-   vm86 oops                         open         2.5.30
-   modules don't work                open         12 Aug 2002
-   unmount oops                      open         12 Aug 2002
-   usb problem                       open         11 Aug 2002
-   modules don't work                open         13 Aug 2002
-   pte.chain BUG                     open         13 Aug 2002
-   scancode oops                     open         12 Aug 2002
-   cciss broken                      proposed fix 14 Aug 2002
-   qlogicisp oops                    open         14 Aug 2002
-   kmap_atomic oops                  open         15 Aug 2002
-
-
-
-
+Rusty.
+--
+  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.

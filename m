@@ -1,55 +1,45 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314842AbSEKWOu>; Sat, 11 May 2002 18:14:50 -0400
+	id <S315178AbSEKWTl>; Sat, 11 May 2002 18:19:41 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315202AbSEKWOt>; Sat, 11 May 2002 18:14:49 -0400
-Received: from ns.suse.de ([213.95.15.193]:58894 "HELO Cantor.suse.de")
-	by vger.kernel.org with SMTP id <S314842AbSEKWOs>;
-	Sat, 11 May 2002 18:14:48 -0400
-Date: Sun, 12 May 2002 00:14:47 +0200
-From: Dave Jones <davej@suse.de>
-To: James Bottomley <James.Bottomley@HansenPartnership.com>
-Cc: mochel@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] i386 arch subdivision into machine types for 2.5.15
-Message-ID: <20020512001447.D30904@suse.de>
-Mail-Followup-To: Dave Jones <davej@suse.de>,
-	James Bottomley <James.Bottomley@HansenPartnership.com>,
-	mochel@osdl.org, linux-kernel@vger.kernel.org
-In-Reply-To: <200205112206.g4BM6Dp13365@localhost.localdomain>
+	id <S315202AbSEKWTk>; Sat, 11 May 2002 18:19:40 -0400
+Received: from host194.steeleye.com ([216.33.1.194]:43783 "EHLO
+	pogo.mtv1.steeleye.com") by vger.kernel.org with ESMTP
+	id <S315178AbSEKWTj>; Sat, 11 May 2002 18:19:39 -0400
+Message-Id: <200205112219.g4BMJZp13459@localhost.localdomain>
+X-Mailer: exmh version 2.4 06/23/2000 with nmh-1.0.4
+To: linux-kernel@vger.kernel.org
+cc: James.Bottomley@HansenPartnership.com
+Subject: [PATCH: NEW ARCHITECTURE FOR 2.5.15] support for NCR voyager (3/4/5xxx
+ series)
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
+Date: Sat, 11 May 2002 18:19:35 -0400
+From: James Bottomley <James.Bottomley@HansenPartnership.com>
+X-AntiVirus: scanned for viruses by AMaViS 0.2.1 (http://amavis.org/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, May 11, 2002 at 06:06:13PM -0400, James Bottomley wrote:
- > This split is essentially the same as the one I did for 2.5.8 except that I've 
- > cleaned up setup_arch.h slightly (the other was, as I was told, "icky").  I 
- > didn't do any other alterations to setup.c because the projects list implies 
- > that Dave Jones and Patrick Mochel are going to be doing this, so I'll slide 
- > my changes in around this.
+This patch adds SMP (and UP) support for voyager which is an (up to 32 way) 
+SMP microchannel non-PC architecture.
 
-First batch of this work turned up in my tree in 2.5.14-dj2, seems to be
-behaving well, so that should be going to Linus soon. With that out of
-the way, (plus some other smaller split-up work like mtrr), the path
-should be paved for x86 subarch support.
+There's basically nothing different from the 2.5.10 one except for updates and 
+changes to the arch-split.
 
- > I've pulled visws.c out of i386/pci and put it in i386/visws.c, since it's 
- > really specific to visws and doing this also allows me to simplify the 
- > i386/pci/Makefile.
+The patch is in two parts:  The i386 sub-architecture split is separated from 
+the addition of the voyager components
 
-Sounds ok. visws is after all, an x86 subarch. Though we should probably
-get some input from the folks who are actually still maintaining this
-out-of-tree. I believe they have a project at sourceforge with newer
-visws code than whats in mainline.
+http://www.hansenpartnership.com/voyager/files/arch-split-2.5.15.diff (144k)
+http://www.hansenpartnership.com/voyager/files/voyager-2.5.15.diff (147k)
 
-Other than Patricks work, and yours, the only other bits that are poking
-arch/i386 anytime soon are probably ACPI and possibly some further
-splitting up by one of the IBM folks whose name I've currently forgotten.
+(The split diff is pretty huge because it's actually moving files about).  You 
+must apply the split diff before applying the voyager one.
 
-    Dave.
+These two patches are also available as separate bitkeeper trees:
 
--- 
-| Dave Jones.        http://www.codemonkey.org.uk
-| SuSE Labs
+http://linux-voyager.bkbits.net/voyager-2.5
+http://linux-voyager.bkbits.net/arch-split-2.5
+
+James Bottomley
+
+

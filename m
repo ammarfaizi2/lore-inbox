@@ -1,146 +1,118 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265914AbUBBVfh (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 2 Feb 2004 16:35:37 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265977AbUBBVfh
+	id S266008AbUBBVof (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 2 Feb 2004 16:44:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265986AbUBBVof
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 2 Feb 2004 16:35:37 -0500
-Received: from fw.osdl.org ([65.172.181.6]:52941 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S265914AbUBBVfQ (ORCPT
+	Mon, 2 Feb 2004 16:44:35 -0500
+Received: from fw.osdl.org ([65.172.181.6]:51921 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S266008AbUBBVoc (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 2 Feb 2004 16:35:16 -0500
-Date: Mon, 2 Feb 2004 13:29:25 -0800
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-To: Max Asbock <masbock@us.ibm.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Driver for IBM RSA service processor (1/2)
-Message-Id: <20040202132925.10164aac.rddunlap@osdl.org>
-In-Reply-To: <200402021129.53193.masbock@us.ibm.com>
-References: <200402021129.53193.masbock@us.ibm.com>
-Organization: OSDL
-X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
-X-Face: +5V?h'hZQPB9<D&+Y;ig/:L-F$8p'$7h4BBmK}zo}[{h,eqHI1X}]1UhhR{49GL33z6Oo!`
- !Ys@HV,^(Xp,BToM.;N_W%gT|&/I#H@Z:ISaK9NqH%&|AO|9i/nB@vD:Km&=R2_?O<_V^7?St>kW
+	Mon, 2 Feb 2004 16:44:32 -0500
+Subject: Re: ide taskfile and cdrom hang
+From: Mark Haverkamp <markh@osdl.org>
+To: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>, Cliff White <cliffw@osdl.org>
+In-Reply-To: <200402022235.47439.bzolnier@elka.pw.edu.pl>
+References: <1075502193.26342.61.camel@markh1.pdx.osdl.net>
+	 <200402022045.02346.bzolnier@elka.pw.edu.pl>
+	 <1075754718.8503.201.camel@markh1.pdx.osdl.net>
+	 <200402022235.47439.bzolnier@elka.pw.edu.pl>
+Content-Type: text/plain
+Message-Id: <1075758247.12117.1.camel@markh1.pdx.osdl.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Mon, 02 Feb 2004 13:44:07 -0800
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2 Feb 2004 11:29:53 -0800 Max Asbock <masbock@us.ibm.com> wrote:
+On Mon, 2004-02-02 at 13:35, Bartlomiej Zolnierkiewicz wrote:
+> On Monday 02 of February 2004 21:45, Mark Haverkamp wrote:
+> > On Mon, 2004-02-02 at 11:45, Bartlomiej Zolnierkiewicz wrote:
+> > > On Monday 02 of February 2004 19:46, Mark Haverkamp wrote:
+> > > > On Sun, 2004-02-01 at 12:48, Bartlomiej Zolnierkiewicz wrote:
+> >
+> > [ .... ]
+> >
+> > > > Thanks,
+> > > >
+> > > > hdparm -I /dev/hda didn't hang.  I got this on the console:
+> > > >
+> > > > hda: drive_cmd: status=0x51 { DriveReady SeekComplete Error }
+> > > > hda: drive_cmd: error=0x04Aborted Command
+> > >
+> > > That's okay.
+> > > hdparm first tries WIN_IDENTIFY which can fail on ATAPI devices.
+> > >
+> > > > I added the patch that you provided and I still get the hang when I cat
+> > > > /proc/ide/hda/identify.  I put a printk In the code to make sure that
+> > > > it was going through the added code, and it is.
+> > >
+> > > So it is something different.  Can you give this patch a go?
+> > > We will know more about what's going on.
+> > >
+> > > Thanks,
+> > > --bart
+> >
+> > OK, Here it is:
+> >
+> > hda: (WAIT_NOT_BUSY) status=0xd0
+> > hda: (CHECK_STATUS) status=0xd0
+> > hda: (BUSY) status=0xd0
+> > hda: lost interrupt
+> > hda: (BUSY) status=0x50
+> > hda: lost interrupt
+> > hda: (BUSY) status=0x50
+> > hda: lost interrupt
+> > hda: (BUSY) status=0x50
+> > hda: lost interrupt
+> > hda: (BUSY) status=0x50
+> 
+> Here we go with next (incremental) patch...
+> 
+>  linux-2.6.2-rc2-root/drivers/ide/ide-taskfile.c |   12 ++++++++----
+>  1 files changed, 8 insertions(+), 4 deletions(-)
+> 
+> diff -puN drivers/ide/ide-taskfile.c~ide_tf_identify_debug2 drivers/ide/ide-taskfile.c
+> --- linux-2.6.2-rc2/drivers/ide/ide-taskfile.c~ide_tf_identify_debug2	2004-02-02 22:24:31.802461904 +0100
+> +++ linux-2.6.2-rc2-root/drivers/ide/ide-taskfile.c	2004-02-02 22:33:54.987844712 +0100
+> @@ -786,14 +786,18 @@ EXPORT_SYMBOL(task_mulout_intr);
+>  static u8 wait_drive_not_busy(ide_drive_t *drive)
+>  {
+>  	ide_hwif_t *hwif = HWIF(drive);
+> -	int retries = 5;
+> +	int retries = 100;
+>  	u8 stat;
+> +
+>  	/*
+> -	 * (ks) Last sector was transfered, wait until drive is ready.
+> -	 * This can take up to 10 usec. We willl wait max 50 us.
+> +	 * Last sector was transfered, wait until drive is ready.
+> +	 * This can take up to 10 usec, but we will wait max 1 ms
+> +	 * (drive_cmd_intr() waits that long).
+>  	 */
+> -	while (((stat = hwif->INB(IDE_STATUS_REG)) & BUSY_STAT) && retries--)
+> +	while (((stat = hwif->INB(IDE_STATUS_REG)) & BUSY_STAT) && retries--) {
+> +		printk("%s: (UDELAY(10)) status=0x%02x\n", drive->name, stat);
+>  		udelay(10);
+> +	}
+>  	printk("%s: (WAIT_NOT_BUSY) status=0x%02x\n", drive->name, stat);
+>  	return stat;
+>  }
+> 
+> _
 
-| Here is a device driver for the IBM xSeries RSA service processor.
-| The ibmasm driver is mainly intended to be used in conjunction with a user space 
-| API and systems management applications that need to get in-band access to
-| the service processor, such as sending commands or waiting for events.
-| For the remote video feature the driver relays remote mouse and keyboard 
-| events to user space. 
-| By itself the driver also allows the OS to make use the UART on the service
-| processor board as a regular serial line.
-| 
-| The user interface to the driver is a custom file system. It does not use sysfs since
-| the operations on the files are somewhat beyond the one file / one value rule for sysfs.
-| Since it is not strictly a char driver I put it into the drivers/misc directory.
-| 
-| The patch is fairly big, therefore I split it up into the file system part and the
-| everything-else part.
-| 
-| Any feedback is greatly appreciated.
+No hang this time.  Saw this on the console:
 
-Hi,
-
-Need to be consistent with spacing in "if" -- don't add spaces
-on both sides of '(' and ')'.
-
-
-
-| +	if (buffer_size > IBMASM_CMD_MAX_BUFFER_SIZE)
-| +		return NULL;
-
-Several good, like above....
-
-
-| +static struct command *dequeue_command(struct service_processor *sp)
-| +{
-| +	struct command *cmd;
-| +	struct list_head *next;
-| +
-| +	if ( list_empty(&sp->command_queue) )
-| +		return NULL;
-
-Nope, no cookie for this one and others below...
-
-| +static inline void do_exec_command(struct service_processor *sp)
-| +{
-| +	if ( ibmasm_send_i2o_message(sp) ) {
-| +		sp->current_command->status = IBMASM_CMD_FAILED;
-| +		exec_next_command(sp);
-| +	}
-| +}
-
-
-| +	if ( !sp->current_command ) {
-| +		command_get(cmd);
-| +		sp->current_command = cmd;
-| +		spin_unlock_irqrestore(&sp->lock, flags);
-| +
-| +		do_exec_command(sp);
-
-
-| +	if ( sp->current_command ) {
-| +		command_get(sp->current_command);
-| +		spin_unlock_irqrestore(&sp->lock, flags);
-| +		do_exec_command(sp);
-| +	} else {
-| +		spin_unlock_irqrestore(&sp->lock, flags);
-| +	}
-
-
-
-| diff -urN linux-2.6.1/drivers/misc/ibmasm/dot_command.c linux-2.6.1-ibmasm/drivers/misc/ibmasm/dot_command.c
-| --- linux-2.6.1/drivers/misc/ibmasm/dot_command.c	1969-12-31 16:00:00.000000000 -0800
-| +++ linux-2.6.1-ibmasm/drivers/misc/ibmasm/dot_command.c	2004-01-22 11:10:20.000000000 -0800
-
-
-| diff -urN linux-2.6.1/drivers/misc/ibmasm/event.c linux-2.6.1-ibmasm/drivers/misc/ibmasm/event.c
-| --- linux-2.6.1/drivers/misc/ibmasm/event.c	1969-12-31 16:00:00.000000000 -0800
-| +++ linux-2.6.1-ibmasm/drivers/misc/ibmasm/event.c	2004-01-20 11:16:29.000000000 -0800
-
-| +/**
-| + * receive_event
-| + * Called by the interrupt handler when a dot command of type sp_event is
-| + * received.
-| + * Store the event in the circular event buffer, wake up any sleeping
-| + * event readers.
-| + * There is no reader marker in the buffer, therefore readers are
-| + * responsible for keeping up with the writer, or they will loose events.
-                                                               lose
+hda: (UDELAY(10)) status=0xd8
+hda: (WAIT_NOT_BUSY) status=0x50
+hda: (CHECK_STATUS) status=0x50
+hda: (UDELAY(10)) status=0xd8
+hda: (WAIT_NOT_BUSY) status=0x50
+hda: (CHECK_STATUS) status=0x50
 
 
-| +	/* advance indices in the buffer */
-| +	buffer->next_index = ++(buffer->next_index) % IBMASM_NUM_EVENTS;
-| +	buffer->next_serial_number++;
+-- 
+Mark Haverkamp <markh@osdl.org>
 
-Is
-+#define IBMASM_NUM_EVENTS	10
-not configurable?
-
-
-| +	if ( wait_event_interruptible(reader->wait, event_available(buffer, reader)) )
-| +		return -ERESTARTSYS;
-
-:(
-
-
-| +	if (!event_available(buffer, reader))
-| +		return 0;
-
-:)
-
-
-
-I'll try to look at more of it later today.
-
---
-~Randy
-kernel-janitors project:  http://janitor.kernelnewbies.org/

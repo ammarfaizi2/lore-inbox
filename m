@@ -1,46 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264960AbTLFIB6 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 6 Dec 2003 03:01:58 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264962AbTLFIB6
+	id S264966AbTLFIMs (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 6 Dec 2003 03:12:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264968AbTLFIMs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 6 Dec 2003 03:01:58 -0500
-Received: from law9-f31.law9.hotmail.com ([64.4.9.31]:3590 "EHLO hotmail.com")
-	by vger.kernel.org with ESMTP id S264960AbTLFIB5 (ORCPT
+	Sat, 6 Dec 2003 03:12:48 -0500
+Received: from fw.osdl.org ([65.172.181.6]:30156 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S264966AbTLFIMr (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 6 Dec 2003 03:01:57 -0500
-X-Originating-IP: [62.73.38.20]
-X-Originating-Email: [tero1001@hotmail.com]
-From: "Tero Knuutila" <tero1001@hotmail.com>
-To: linux-kernel@vger.kernel.org
-Cc: tero1001@hotmail.com
-Subject: cdrecord hangs my computer
-Date: Sat, 06 Dec 2003 10:01:56 +0200
-Mime-Version: 1.0
-Content-Type: text/plain; format=flowed
-Message-ID: <Law9-F31u8ohMschTC00001183f@hotmail.com>
-X-OriginalArrivalTime: 06 Dec 2003 08:01:57.0159 (UTC) FILETIME=[382CCB70:01C3BBCF]
+	Sat, 6 Dec 2003 03:12:47 -0500
+Date: Sat, 6 Dec 2003 00:12:45 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Tero Knuutila <tero1001@hotmail.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: cdrecord hangs my computer
+In-Reply-To: <Law9-F31u8ohMschTC00001183f@hotmail.com>
+Message-ID: <Pine.LNX.4.58.0312060011130.2092@home.osdl.org>
+References: <Law9-F31u8ohMschTC00001183f@hotmail.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
 
-I am running 2.6.0-test11 kernel on Gentoo (i686 AMD Duron). I have HP 7200 
-cd burner.
-My system hangs everytime I try to  burn my .wav files to cd with cdrecord. 
-Usually few tracks go succesfully but then everything stops. Even the mouse 
-won't move and powerbutton does not affect.
 
-And if I have understood correctly, Linux should never hang, so hopefully 
-some of You will help me.
+On Sat, 6 Dec 2003, Tero Knuutila wrote:
+>
+> My system hangs everytime I try to  burn my .wav files to cd with cdrecord.
+> Usually few tracks go succesfully but then everything stops. Even the mouse
+> won't move and powerbutton does not affect.
 
-I am glad if any responses are CC:t to me (tero1001@hotmail.com). I can't 
-subscribe to this list because traffic is so heavy.
+Is this with ide-scsi? If so, does the appended patch help?
 
-With best regards,
-       Tero
+If not, we really need a whole lot more information (hw config, messages
+etc).
 
-_________________________________________________________________
-STOP MORE SPAM with the new MSN 8 and get 2 months FREE* 
-http://join.msn.com/?page=features/junkmail
+		Linus
 
+---
+# This is a BitKeeper generated patch for the following project:
+# Project Name: Linux kernel tree
+# This patch format is intended for GNU patch command version 2.5 or higher.
+# This patch includes the following deltas:
+#	           ChangeSet	1.1499  -> 1.1500
+#	drivers/scsi/ide-scsi.c	1.33    -> 1.34
+#
+# The following is the BitKeeper ChangeSet Log
+# --------------------------------------------
+# 03/12/02	torvalds@home.osdl.org	1.1500
+# Fix ide-scsi.c uninitialized variable
+# --------------------------------------------
+#
+diff -Nru a/drivers/scsi/ide-scsi.c b/drivers/scsi/ide-scsi.c
+--- a/drivers/scsi/ide-scsi.c	Sat Dec  6 00:12:13 2003
++++ b/drivers/scsi/ide-scsi.c	Sat Dec  6 00:12:13 2003
+@@ -517,6 +517,7 @@
+ 	pc->current_position=pc->buffer;
+ 	bcount.all = IDE_MIN(pc->request_transfer, 63 * 1024);		/* Request to transfer the entire buffer at once */
+
++	feature.all = 0;
+ 	if (drive->using_dma && rq->bio) {
+ 		if (test_bit(PC_WRITING, &pc->flags))
+ 			feature.b.dma = !HWIF(drive)->ide_dma_write(drive);

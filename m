@@ -1,80 +1,68 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315754AbSFDSjg>; Tue, 4 Jun 2002 14:39:36 -0400
+	id <S316397AbSFDSkp>; Tue, 4 Jun 2002 14:40:45 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316289AbSFDSjf>; Tue, 4 Jun 2002 14:39:35 -0400
-Received: from medelec.uia.ac.be ([143.169.17.1]:24071 "EHLO medelec.uia.ac.be")
-	by vger.kernel.org with ESMTP id <S315754AbSFDSjb>;
-	Tue, 4 Jun 2002 14:39:31 -0400
-Date: Tue, 4 Jun 2002 20:39:24 +0200
-From: Wim Van Sebroeck <wim@iguana.be>
-To: Marcelo Tosatti <marcelo@conectiva.com.br>
-Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] linux-2.4.19-pre10 - i8xx series chipsets patches (patch 3)
-Message-ID: <20020604203924.A14653@medelec.uia.ac.be>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
+	id <S316456AbSFDSko>; Tue, 4 Jun 2002 14:40:44 -0400
+Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:11276 "EHLO
+	gatekeeper.tmr.com") by vger.kernel.org with ESMTP
+	id <S316397AbSFDSkk>; Tue, 4 Jun 2002 14:40:40 -0400
+Date: Tue, 4 Jun 2002 14:35:58 -0400 (EDT)
+From: Bill Davidsen <davidsen@tmr.com>
+To: "David S. Miller" <davem@redhat.com>
+cc: marcelo@conectiva.com.br, lmb@suse.de, linux-kernel@vger.kernel.org,
+        greg@kroah.com
+Subject: Re: Linux 2.4.19-pre9
+In-Reply-To: <20020529.182324.44462071.davem@redhat.com>
+Message-ID: <Pine.LNX.3.96.1020604142526.5024B-100000@gatekeeper.tmr.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Marcelo,
+On Wed, 29 May 2002, David S. Miller wrote:
 
-I redid my i8xx series patches for v2.4.19-pre10 . They include support for the 82801DB and 82801E 
-I/O Controller Hubs for various modules.
+>    From: Marcelo Tosatti <marcelo@conectiva.com.br>
+>    Date: Wed, 29 May 2002 21:34:23 -0300 (BRT)
+> 
+>    > > <davem@nuts.ninka.net> (02/05/06 1.383.11.22)
+>    > > 	soft-fp fix:
+> 
+>    David, Greg, and others, please, more readable changelogs :)
+>    
+> I don't understand what people want in that particular kind
+> of case.  I made software fp emulation fixes, four of them to
+> be precise.  And on the first line I describe in general what
+> I'm doing, which is soft-fp bug fixes :-)
 
-Patch 3 adds these ICH's to the pci_ids.h include file so that they can be used in other code/modules.
+  Sorry, no you didn't. What you didn't say was if this was a bug fix or
+speedup or ??? Not trying to devalue your comment, but non-fp system are
+usually embedded and do so little fp that any speedup would not matter,
+while result errors matter and actual crashes would be high priority. The
+line is long enough for specifying stuff like that, and gives a quick read
+on the relevance of a patch. If would be useful to narrow "fix" a bit, and
+I think that's what the O.P. was asking.
 
-Greetings,
-Wim.
+> sparc64 fixes:
+> 
+> which proceeds the actual details:
+> 
+> - Fix signal blah handling
+> - Don't bleh during ptrace
+> - Disable interrupts around foo
+> - Fix IP checksum calculations when bar
+> 
+> Now tell me what is more appropriate on the first line and
+> I'll consider it :-)
 
+I'll suggest that "signal handling, ptrace, int disable and IP cksum" 
+would fit and give a general feel for what was being addressed. That's the
+flavor of what would be more useful to me, and I wouldn't mind having the
+whole paragraph if that's what it takes, I read text faster than code;-) 
+Like having a NIC driver "multicast icmp packet loss" is more
+informational than "obscure corner case fix." 
 
-# This is a BitKeeper generated patch for the following project:
-# Project Name: Linux kernel tree
-# This patch format is intended for GNU patch command version 2.5 or higher.
-# This patch includes the following deltas:
-#	           ChangeSet	1.539   -> 1.540  
-#	include/linux/pci_ids.h	1.41    -> 1.42   
-#
-# The following is the BitKeeper ChangeSet Log
-# --------------------------------------------
-# 02/06/04	wim@iguana.be	1.540
-# [PATCH] 2.4.19-pre10 - i8xx series chipsets patches (patch 3)
-# 
-# Add defines to pci_ids.h for 82801E and 82801DB I/O Controller Hub PCI-IDS.
-# --------------------------------------------
-#
-diff -Nru a/include/linux/pci_ids.h b/include/linux/pci_ids.h
---- a/include/linux/pci_ids.h	Tue Jun  4 19:13:54 2002
-+++ b/include/linux/pci_ids.h	Tue Jun  4 19:13:55 2002
-@@ -1658,6 +1658,13 @@
- #define PCI_DEVICE_ID_INTEL_82801BA_9	0x244b
- #define PCI_DEVICE_ID_INTEL_82801BA_10	0x244c
- #define PCI_DEVICE_ID_INTEL_82801BA_11	0x244e
-+#define PCI_DEVICE_ID_INTEL_82801E_0	0x2450
-+#define PCI_DEVICE_ID_INTEL_82801E_2	0x2452
-+#define PCI_DEVICE_ID_INTEL_82801E_3	0x2453
-+#define PCI_DEVICE_ID_INTEL_82801E_9	0x2459
-+#define PCI_DEVICE_ID_INTEL_82801E_11	0x245b
-+#define PCI_DEVICE_ID_INTEL_82801E_13	0x245d
-+#define PCI_DEVICE_ID_INTEL_82801E_14	0x245e
- #define PCI_DEVICE_ID_INTEL_82801CA_0	0x2480
- #define PCI_DEVICE_ID_INTEL_82801CA_2	0x2482
- #define PCI_DEVICE_ID_INTEL_82801CA_3	0x2483
-@@ -1668,6 +1675,15 @@
- #define PCI_DEVICE_ID_INTEL_82801CA_10	0x248a
- #define PCI_DEVICE_ID_INTEL_82801CA_11	0x248b
- #define PCI_DEVICE_ID_INTEL_82801CA_12	0x248c
-+#define PCI_DEVICE_ID_INTEL_82801DB_0	0x24c0
-+#define PCI_DEVICE_ID_INTEL_82801DB_2	0x24c2
-+#define PCI_DEVICE_ID_INTEL_82801DB_3	0x24c3
-+#define PCI_DEVICE_ID_INTEL_82801DB_4	0x24c4
-+#define PCI_DEVICE_ID_INTEL_82801DB_5	0x24c5
-+#define PCI_DEVICE_ID_INTEL_82801DB_6	0x24c6
-+#define PCI_DEVICE_ID_INTEL_82801DB_7	0x24c7
-+#define PCI_DEVICE_ID_INTEL_82801DB_11	0x24cb
-+#define PCI_DEVICE_ID_INTEL_82801DB_13	0x24cd
- #define PCI_DEVICE_ID_INTEL_80310	0x530d
- #define PCI_DEVICE_ID_INTEL_82810_MC1	0x7120
- #define PCI_DEVICE_ID_INTEL_82810_IG1	0x7121
+-- 
+bill davidsen <davidsen@tmr.com>
+  CTO, TMR Associates, Inc
+Doing interesting things with little computers since 1979.
+

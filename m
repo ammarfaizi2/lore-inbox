@@ -1,56 +1,73 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262442AbSJ1Mri>; Mon, 28 Oct 2002 07:47:38 -0500
+	id <S262444AbSJ1Muf>; Mon, 28 Oct 2002 07:50:35 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262444AbSJ1Mri>; Mon, 28 Oct 2002 07:47:38 -0500
-Received: from 3-090.ctame701-1.telepar.net.br ([200.193.161.90]:15300 "EHLO
-	3-090.ctame701-1.telepar.net.br") by vger.kernel.org with ESMTP
-	id <S262442AbSJ1Mrh>; Mon, 28 Oct 2002 07:47:37 -0500
-Date: Mon, 28 Oct 2002 10:53:43 -0200 (BRST)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: riel@imladris.surriel.com
-To: Andrew Morton <akpm@digeo.com>
-cc: lkml <linux-kernel@vger.kernel.org>, <linux-mm@kvack.org>
-Subject: Re: 2.5.44-mm6
-In-Reply-To: <3DBCD3D3.8DDA3982@digeo.com>
-Message-ID: <Pine.LNX.4.44L.0210281051440.1697-100000@imladris.surriel.com>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S262447AbSJ1Muf>; Mon, 28 Oct 2002 07:50:35 -0500
+Received: from bjl1.asuk.net.64.29.81.in-addr.arpa ([81.29.64.88]:32677 "EHLO
+	bjl1.asuk.net") by vger.kernel.org with ESMTP id <S262444AbSJ1Mue>;
+	Mon, 28 Oct 2002 07:50:34 -0500
+Date: Mon, 28 Oct 2002 12:56:52 +0000
+From: Jamie Lokier <lk@tantalophile.demon.co.uk>
+To: Andi Kleen <ak@suse.de>
+Cc: eggert@twinsun.com, linux-kernel@vger.kernel.org
+Subject: Re: nanosecond file timestamp resolution in filesystems, GNU make, etc.
+Message-ID: <20021028125652.GA16329@bjl1.asuk.net>
+References: <20021027153651.GB26297@pimlott.net.suse.lists.linux.kernel> <200210280947.g9S9l9H01162@sic.twinsun.com.suse.lists.linux.kernel> <20021028102809.GA16062@bjl1.asuk.net.suse.lists.linux.kernel> <p73r8eastwo.fsf@oldwotan.suse.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <p73r8eastwo.fsf@oldwotan.suse.de>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 27 Oct 2002, Andrew Morton wrote:
+Andi Kleen wrote:
+> > Unfortunately that application code breaks when the filesystem may
+> > have timestamps with resolution better than 1 second, but worse than 1
+> > nanosecond. 
+> 
+> The current resolution is jiffies, which tends to be 1ms
+> 
+>  Then the application just can't do the right thing,
+> > unless it knows what rounding was applied by the kernel/filesystem, so
+> > it can change that rounding in a safe direction.
+> 
+> The rounding is always truncation. So the application can just assume
+> that.
 
-> . Spent some time tuning up 2.5's StupidSwapStorm throughput.  It's
->   on par with 2.4 for single-threaded things, but not for multiple
->   processes.
->
->   This is because 2.4's virtual scan allows individual processes to
->   hammer all the others into swap and to make lots of progress then
->   exit.  In the 2.5 VM all processes make equal progress and just
->   thrash each other to bits.
->
->   This is an innate useful side-effect of the virtual scan, although
->   it may have significant failure modes.  The 2.5 VM would need an
->   explicit load control algorithm if we care about such workloads.
+This is fine when you are comparing two files with the same timestamp
+resolution, but when the resolutions are different you need to know
+what they are.
 
-1) 2.4 does have the failure modes you talk about ;)
+Come to think of it, rounding up is no better than rounding down when
+comparing two files.  The application needs to round one of them up
+and one of them down, in order to make reliable tests of the form "is
+this file definitely newer than this other file".
 
-2) I have most of an explicit load control algorithm ready,
-   against an early 2.4 kernel, but porting it should be very
-   little work
+For those kinds of tests, the application needs to know a lower bound
+of the resolution.  Note that a jiffie is not suitable as the lower
+bound, because that part of the timestamp is dropped when the inode is
+dropped from memory.
 
-Just let me know if you're interested in my load control mechanism
-and I'll send it to you.  Note that I never got the load control
-_policy_ right yet ...
+The other kind of test is a comparison of one file against against its
+own modification time when something derived from the file was last
+cached.  (This is appropriate for server requests and JIT compiler
+launching, for example).
 
-regards,
+This time there is only one resolution.  Nevertheless, to make a
+reliable test of the form "have the contents of the file definitely
+not been modified since mtime T", neither form of rounding on the
+kernel side is sufficient: the application needs to know the
+resolution.
 
-Rik
--- 
-Bravely reimplemented by the knights who say "NIH".
-http://www.surriel.com/		http://distro.conectiva.com/
-Current spamtrap:  <a href=mailto:"october@surriel.com">october@surriel.com</a>
+I think that in all cases, for the application to make useful
+decisions it needs to know the resolution of the timestamps in any
+particular struct stat.  If those resolutions change when an inode is
+flushed from memory: that should change the resolution returned by
+struct stat.
+
+So I propose: add a field to struct stat indicating the resolution of
+the timestamps in it.  It can go on the end.
+
+-- Jamie
 

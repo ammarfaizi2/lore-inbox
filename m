@@ -1,43 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130172AbRAXIsR>; Wed, 24 Jan 2001 03:48:17 -0500
+	id <S130329AbRAXJCl>; Wed, 24 Jan 2001 04:02:41 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130329AbRAXIsI>; Wed, 24 Jan 2001 03:48:08 -0500
-Received: from oldftp.webmaster.com ([209.10.218.74]:55473 "EHLO
-	shell.webmaster.com") by vger.kernel.org with ESMTP
-	id <S130172AbRAXIrz>; Wed, 24 Jan 2001 03:47:55 -0500
-From: "David Schwartz" <davids@webmaster.com>
-To: "Chris Wedgwood" <cw@f00f.org>,
-        "Leslie Donaldson" <donaldlf@hermes.cs.rose-hulman.edu>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: RE: Question: Memory change request
-Date: Wed, 24 Jan 2001 00:47:53 -0800
-Message-ID: <NCBBLIEPOCNJOAEKBEAKIEPFNDAA.davids@webmaster.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2911.0)
-In-Reply-To: <20010124210500.B7029@metastasis.f00f.org>
-X-MIMEOLE: Produced By Microsoft MimeOLE V5.50.4133.2400
-Importance: Normal
+	id <S130464AbRAXJCc>; Wed, 24 Jan 2001 04:02:32 -0500
+Received: from penguin.e-mind.com ([195.223.140.120]:32358 "EHLO
+	penguin.e-mind.com") by vger.kernel.org with ESMTP
+	id <S130329AbRAXJC1>; Wed, 24 Jan 2001 04:02:27 -0500
+Date: Wed, 24 Jan 2001 10:02:40 +0100
+From: Andrea Arcangeli <andrea@suse.de>
+To: Richard Henderson <rth@twiddle.net>
+Cc: Russell King <rmk@arm.linux.org.uk>, Hubert Mantel <mantel@suse.de>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: Compatibility issue with 2.2.19pre7
+Message-ID: <20010124100240.A4526@athlon.random>
+In-Reply-To: <20010110163158.F19503@athlon.random> <200101102209.f0AM9N803486@flint.arm.linux.org.uk> <20010111005924.L29093@athlon.random> <20010123235115.A14786@twiddle.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20010123235115.A14786@twiddle.net>; from rth@twiddle.net on Tue, Jan 23, 2001 at 11:51:15PM -0800
+X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
+X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-> mprotect the page(s) you are interested in so you can't write to them
-> and catch SEGV -- when someone attempts to write you can pull apart
-> the stack frame mark the page(s) RO and continue.
+On Tue, Jan 23, 2001 at 11:51:15PM -0800, Richard Henderson wrote:
+> On Thu, Jan 11, 2001 at 12:59:24AM +0100, Andrea Arcangeli wrote:
+> > What I said is that I can write this C code:
+> > 
+> > 	int x[2], * p = (int *) (((char *) &x)+1);
+> > 	main()
+> > 	{
+> > 		*p = 0;
+> > 	}
+> > 
+> > This is legal C code.
 > 
-> if you are really stuck i think i have example code to do this
-> somewhere for ia32 (stack frame is arch. dependent)
+> Err, no.  This is not "legal" by any stretch of the imagination.
+> This code has undefined behaviour.
 
-	I bet ElectricFence would serve as example code.
+I know this code has undefined behaviour at _runtime_. But I thought
+you were obliged to allow it to compile. That was my only point.
 
-	DS
+> We aren't even obliged to allow this to compile.
 
+I'd love if you could forbid it to compile.
+
+Andrea
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

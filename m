@@ -1,56 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266859AbRGKWrO>; Wed, 11 Jul 2001 18:47:14 -0400
+	id <S266869AbRGKWxf>; Wed, 11 Jul 2001 18:53:35 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266862AbRGKWrE>; Wed, 11 Jul 2001 18:47:04 -0400
-Received: from mx01-a.netapp.com ([198.95.226.53]:41614 "EHLO
-	mx01-a.netapp.com") by vger.kernel.org with ESMTP
-	id <S266859AbRGKWqy>; Wed, 11 Jul 2001 18:46:54 -0400
-Date: Wed, 11 Jul 2001 15:46:03 -0700 (PDT)
-From: Kip Macy <kmacy@netapp.com>
-To: Paul Jakma <paul@clubi.ie>
-cc: Helge Hafting <helgehaf@idb.hist.no>, "C. Slater" <cslater@wcnet.org>,
-        linux-kernel@vger.kernel.org
-Subject: Re: Switching Kernels without Rebooting?
-In-Reply-To: <Pine.LNX.4.33.0107112310590.962-100000@fogarty.jakma.org>
-Message-ID: <Pine.GSO.4.10.10107111545130.14769-100000@clifton-fe.eng.netapp.com>
+	id <S266871AbRGKWxZ>; Wed, 11 Jul 2001 18:53:25 -0400
+Received: from inet-mail4.oracle.com ([148.87.2.204]:5106 "EHLO
+	inet-mail4.oracle.com") by vger.kernel.org with ESMTP
+	id <S266869AbRGKWxQ>; Wed, 11 Jul 2001 18:53:16 -0400
+Date: Wed, 11 Jul 2001 16:03:09 -0700 (PDT)
+From: Lance Larsh <llarsh@oracle.com>
+To: Brian Strand <bstrand@switchmanagement.com>
+cc: Andrea Arcangeli <andrea@suse.de>, linux-kernel@vger.kernel.org
+Subject: Re: 2x Oracle slowdown from 2.2.16 to 2.4.4
+In-Reply-To: <3B4C8263.6000407@switchmanagement.com>
+Message-ID: <Pine.LNX.4.21.0107111530170.2342-100000@llarsh-pc3.us.oracle.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In the future when Linux is more heavily used at the enterprise level
-there will likely be upgrade/revert modules to allow such a transition to
-take place.
+On Wed, 11 Jul 2001, Brian Strand wrote:
 
-			-Kip
+> Our Oracle configuration is on reiserfs on lvm on Mylex.
 
-On Wed, 11 Jul 2001, Paul Jakma wrote:
+I can pretty much tell you it's the reiser+lvm combination that is hurting
+you here.  At the 2.5 kernel summit a few months back, I reported that
+some of our servers experienced as much as 10-15x slowdown after we moved
+to 2.4.  As it turned out, the problem was that the new servers (with
+identical hardware to the old servers) were configured to use reiser+lvm,
+whereas the older servers were using ext2 without lvm.  When we rebuilt
+the new servers with ext2 alone, the problem disappeared.  (Note that we
+also tried reiserfs without lvm, which was 5-6x slower than ext2 without
+lvm.)
 
-> On Wed, 11 Jul 2001, Helge Hafting wrote:
-> 
-> > That seems completely out of question.  The structures a 2.4.7
-> > kernel understands might be insufficient to express the setup
-> > a future 2.6.9 kernel is using to do its stuff better.
-> 
-> however, it might be handy if say you needed to upgrade a stable
-> kernel due to a bug fix or security update.
-> 
-> no?
-> 
-> regards,
-> -- 
-> Paul Jakma	paul@clubi.ie	paul@jakma.org
-> PGP5 key: http://www.clubi.ie/jakma/publickey.txt
-> -------------------------------------------
-> Fortune:
-> I found Rome a city of bricks and left it a city of marble.
-> 		-- Augustus Caesar
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
+I ran lots of iozone tests which illustrated a huge difference in write
+throughput between reiser and ext2.  Chris Mason sent me a patch which
+improved the reiser case (removing an unnecessary commit), but it was
+still noticeably slower than ext2.  Therefore I would recommend that
+at this time reiser should not be used for Oracle database files.
+
+Thanks,
+Lance
 

@@ -1,38 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131138AbQLUXPF>; Thu, 21 Dec 2000 18:15:05 -0500
+	id <S131237AbQLUXaV>; Thu, 21 Dec 2000 18:30:21 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131199AbQLUXO4>; Thu, 21 Dec 2000 18:14:56 -0500
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:58895 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S131138AbQLUXOq>; Thu, 21 Dec 2000 18:14:46 -0500
-Subject: Re: Cleanup (PCI API and general) of drivers/net/rcpci.c (240t13p3)
-To: rasmus@jaquet.dk (Rasmus Andersen)
-Date: Thu, 21 Dec 2000 22:46:52 +0000 (GMT)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20001221233805.E611@jaquet.dk> from "Rasmus Andersen" at Dec 21, 2000 11:38:05 PM
-X-Mailer: ELM [version 2.5 PL1]
-MIME-Version: 1.0
+	id <S131199AbQLUXaB>; Thu, 21 Dec 2000 18:30:01 -0500
+Received: from [199.239.160.155] ([199.239.160.155]:46341 "EHLO
+	tenchi.datarithm.net") by vger.kernel.org with ESMTP
+	id <S129697AbQLUX3w>; Thu, 21 Dec 2000 18:29:52 -0500
+Date: Thu, 21 Dec 2000 15:08:45 -0800
+From: Robert Read <rread@datarithm.net>
+To: Rik van Riel <riel@conectiva.com.br>
+Cc: Sourav Sen <sourav@csa.iisc.ernet.in>, linux-kernel@vger.kernel.org
+Subject: Re: Wiring down Pages
+Message-ID: <20001221150845.I24558@tenchi.datarithm.net>
+Mail-Followup-To: Rik van Riel <riel@conectiva.com.br>,
+	Sourav Sen <sourav@csa.iisc.ernet.in>, linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.SOL.3.96.1001222011552.20552A-100000@kohinoor.csa.iisc.ernet.in> <Pine.LNX.4.21.0012211845070.1613-100000@duckman.distro.conectiva>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E149EUA-0003iN-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <Pine.LNX.4.21.0012211845070.1613-100000@duckman.distro.conectiva>; from riel@conectiva.com.br on Thu, Dec 21, 2000 at 06:46:33PM -0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Questions for the maintainers, should they read this (does anyone
-> know their email addresses?) (others should feel free to chip in):
+On Thu, Dec 21, 2000 at 06:46:33PM -0200, Rik van Riel wrote:
+> 
+> page_cache_drop(page); <= removes your extra count
 
-I've not heard from them for a long time
+I can't find that function, do you mean page_cache_free() and
+page_cache_release(), both are aliases for __free_page(). Maybe we
+need another alias. :)
 
-> o The driver currently allocates irqs during its initialization
->   instead of postponing it until it is opened for use. Is there
->   a reason for this?
+Should non-page cache related code use get_page() and __free_page()
+directly?  Or should the page_cache_* macros be used everywhere?
 
-Shouldnt be - its an I2O network interface with some extra bits for
-the cryptoconfig
-
-
+robert
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

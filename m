@@ -1,51 +1,56 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262944AbTCSIEz>; Wed, 19 Mar 2003 03:04:55 -0500
+	id <S262962AbTCSIJT>; Wed, 19 Mar 2003 03:09:19 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262945AbTCSIEz>; Wed, 19 Mar 2003 03:04:55 -0500
-Received: from node-d-1ea6.a2000.nl ([62.195.30.166]:19950 "EHLO
-	laptop.fenrus.com") by vger.kernel.org with ESMTP
-	id <S262944AbTCSIEy>; Wed, 19 Mar 2003 03:04:54 -0500
-Subject: Re: writting kernel modules on redhat 7.3 linux kernel 2.4.18-3
-From: Arjan van de Ven <arjanv@redhat.com>
-Reply-To: arjanv@redhat.com
-To: Hemanshu "Kanji Bhadra, Noida" <hemanshub@noida.hcltech.com>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <E04CF3F88ACBD5119EFE00508BBB2121082D8201@exch-01.noida.hcltech.com>
-References: <E04CF3F88ACBD5119EFE00508BBB2121082D8201@exch-01.noida.hcltech.com>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-KcKZz9THr6hLKNOPnje6"
-Organization: Red Hat, Inc.
-Message-Id: <1048061712.1493.2.camel@laptop.fenrus.com>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-4) 
-Date: 19 Mar 2003 09:15:12 +0100
+	id <S262961AbTCSIJT>; Wed, 19 Mar 2003 03:09:19 -0500
+Received: from landfill.ihatent.com ([217.13.24.22]:63106 "EHLO
+	mail.ihatent.com") by vger.kernel.org with ESMTP id <S262962AbTCSIJO>;
+	Wed, 19 Mar 2003 03:09:14 -0500
+To: Andrew Morton <akpm@digeo.com>
+Cc: rmk@arm.linux.org.uk, linux-kernel@vger.kernel.org, linux-mm@kvack.org
+Subject: Re: 2.5.65-mm1
+References: <20030318031104.13fb34cc.akpm@digeo.com>
+	<87adfs4sqk.fsf@lapper.ihatent.com>
+	<87bs08vfkg.fsf@lapper.ihatent.com>
+	<20030318160902.C21945@flint.arm.linux.org.uk>
+	<873clkw6ui.fsf@lapper.ihatent.com>
+	<20030318162601.78f11739.akpm@digeo.com>
+From: Alexander Hoogerhuis <alexh@ihatent.com>
+Date: 19 Mar 2003 09:20:11 +0100
+In-Reply-To: <20030318162601.78f11739.akpm@digeo.com>
+Message-ID: <87fzpjpy2s.fsf@lapper.ihatent.com>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Andrew Morton <akpm@digeo.com> writes:
 
---=-KcKZz9THr6hLKNOPnje6
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+> Alexander Hoogerhuis <alexh@ihatent.com> wrote:
+> >
+> > I'm not suspecting the PCI in particular for the PCIC-bits, only
+> > making X and the Radeon work again. But here you are:
+> 
+> Something bad has happened to the Radeon driver in recent kernels.  I've seen
+> various reports with various syptoms and some suspicion has been directed at
+> the AGP changes.
+> 
+> But as far as I know nobody has actually got down and done the binary search
+> to find out exactly when it started happening.
 
-On Wed, 2003-03-19 at 08:07, Hemanshu Kanji Bhadra, Noida wrote:
+The best I've narrowed it down to is whatever makes 2.5.64-mm1 be
+different from plain 2.5.64 and 2.5.64-mm2. In addition, I have one
+more gripe, and this one is present in 2.4 too, but seems kernel
+related:
 
-> gcc -O2 -D__KERNEL__ -DMODULE -I/usr/src/linux/include -c
-> helloworld_proc_module.c -o helloworld_proc_module.o
+When closing Gnome (Gnome 2.x, Gentoo), after the screen has been
+"faded" by the logout applet, on the first keystroke or movement of
+the mouse the machine will instantly cold start the machine.
 
-You are using the glibc headers to compile kernel modules, that's not
-going to work. You need more than that; you could check the makefile at
-http://people.redhat.com/arjanv/xircom_cb/Makefile for more info.
-
---=-KcKZz9THr6hLKNOPnje6
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
-
-iD8DBQA+eCcQxULwo51rQBIRAlK0AKCY6n1N2ZTGmkwCXWh9kbHt+o5fpgCdF5/3
-0nxR/EVEF/5+RpzPi2ui9Zk=
-=Ha57
------END PGP SIGNATURE-----
-
---=-KcKZz9THr6hLKNOPnje6--
+mvh,
+A
+-- 
+Alexander Hoogerhuis                               | alexh@ihatent.com
+CCNP - CCDP - MCNE - CCSE                          | +47 908 21 485
+"You have zero privacy anyway. Get over it."  --Scott McNealy

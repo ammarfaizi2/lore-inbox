@@ -1,42 +1,54 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317888AbSHUGVK>; Wed, 21 Aug 2002 02:21:10 -0400
+	id <S317892AbSHUGhG>; Wed, 21 Aug 2002 02:37:06 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317892AbSHUGVK>; Wed, 21 Aug 2002 02:21:10 -0400
-Received: from gremlin.ics.uci.edu ([128.195.1.70]:29089 "HELO
-	gremlin.ics.uci.edu") by vger.kernel.org with SMTP
-	id <S317888AbSHUGVJ>; Wed, 21 Aug 2002 02:21:09 -0400
-Date: Tue, 20 Aug 2002 23:25:11 -0700 (PDT)
-From: Mukesh Rajan <mrajan@ics.uci.edu>
-To: linux-kernel@vger.kernel.org
-Subject: detecting hard disk idleness
-Message-ID: <Pine.SOL.4.20.0208202316380.20323-100000@hobbit.ics.uci.edu>
+	id <S317893AbSHUGhG>; Wed, 21 Aug 2002 02:37:06 -0400
+Received: from mail2.sonytel.be ([195.0.45.172]:7349 "EHLO mail.sonytel.be")
+	by vger.kernel.org with ESMTP id <S317892AbSHUGhF>;
+	Wed, 21 Aug 2002 02:37:05 -0400
+Date: Wed, 21 Aug 2002 08:36:11 +0200 (MEST)
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+To: Jeff Garzik <jgarzik@mandrakesoft.com>
+cc: Andre Hedrick <andre@linux-ide.org>,
+       "Heater, Daniel (IndSys, GEFanuc, VMIC)" <Daniel.Heater@gefanuc.com>,
+       "'Padraig Brady'" <padraig.brady@corvil.com>,
+       "'Linux Kernel'" <linux-kernel@vger.kernel.org>,
+       "Warner, Bill (IndSys, GEFanuc, VMIC)" <Bill.Warner@gefanuc.com>
+Subject: Re: IDE-flash device and hard disk on same controller
+In-Reply-To: <3D62C2A3.4070701@mandrakesoft.com>
+Message-ID: <Pine.GSO.4.21.0208210832450.3034-100000@vervain.sonytel.be>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-hi,
+On Tue, 20 Aug 2002, Jeff Garzik wrote:
+> Jeff Garzik wrote:
+> > Attached is the ATA core...
+> 
+> Just to give a little bit more information about the previously attached 
+> code, it is merely a module that does two things:  (a) demonstrates 
+> proper [and sometimes faster-than-current-linus] ATA bus probing, and 
+> (b) demonstrates generic registration and initialization of ATA devices 
+> and channels.  All other tasks can be left to "personality" (a.k.a. 
+> class) drivers, such as 'disk', 'cdrom', 'floppy', ... types.
 
-i'm trying to implement an alogrithm that requires as input the idleness
-period of a hard disk (i.e. time between satisfying a request and arrival
-of new request).
+Looks nice (at first sight)!
 
-so far implementation polls "proc/stat" periodically to detect idleness
-over the poll period. this implementation is not accurate and also i have
-very small poll interval (milli secs). with some measurements, conclusion
-is that implementation is consuming quite some power. this millisecond
-polling overhead could be avoided if i can come up with an interrupt
-driven implementation. in DOS, i would have manipulated the interrupt
-table and inserted my code for 13h (disk interrupt right?). this would
-help me do some preprocessing before the actual call to the hard disk
-(13h).
+But one limitation is that it always assumes the IDE ports are located in I/O
+space :-(
+What about architectures where IDE ports are located in MMIO space? Or worse,
+have some ports in I/O space (e.g. PCI IDE card) and some in MMIO space (e.g.
+SOC or mainboard IDE host interface)?
 
-is this possible in any way in Linux? i.e. have the kernel inform a
-program when a hard disk interrupt occurs? either through interrupt
-manipulation or otherwise?
+Gr{oetje,eeting}s,
 
-- mukesh
+						Geert
 
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
 
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+							    -- Linus Torvalds
 

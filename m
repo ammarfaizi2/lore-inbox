@@ -1,86 +1,91 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265201AbUGZLSU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265211AbUGZLnb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265201AbUGZLSU (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 26 Jul 2004 07:18:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265211AbUGZLSU
+	id S265211AbUGZLnb (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 26 Jul 2004 07:43:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265212AbUGZLnb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 26 Jul 2004 07:18:20 -0400
-Received: from mail017.syd.optusnet.com.au ([211.29.132.168]:2234 "EHLO
-	mail017.syd.optusnet.com.au") by vger.kernel.org with ESMTP
-	id S265201AbUGZLSQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 26 Jul 2004 07:18:16 -0400
-Message-ID: <4104E863.6070102@kolivas.org>
-Date: Mon, 26 Jul 2004 21:17:55 +1000
-From: Con Kolivas <kernel@kolivas.org>
-User-Agent: Mozilla Thunderbird 0.7.1 (X11/20040626)
-X-Accept-Language: en-us, en
+	Mon, 26 Jul 2004 07:43:31 -0400
+Received: from smtp018.mail.yahoo.com ([216.136.174.115]:41119 "HELO
+	smtp018.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S265211AbUGZLn2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 26 Jul 2004 07:43:28 -0400
+Message-ID: <4104EE5C.406@yahoo.com.au>
+Date: Mon, 26 Jul 2004 21:43:24 +1000
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7) Gecko/20040707 Debian/1.7-5
+X-Accept-Language: en
 MIME-Version: 1.0
-To: Nick Piggin <nickpiggin@yahoo.com.au>
-Cc: "R. J. Wysocki" <rjwysocki@sisk.pl>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org
-Subject: Re: Autotune swappiness01
-References: <cone.1090801520.852584.20693.502@pc.kolivas.org> <200407261234.29565.rjwysocki@sisk.pl> <4104DD27.6050907@kolivas.org> <200407261254.01186.rjwysocki@sisk.pl> <4104E4ED.7030901@kolivas.org> <4104E750.60400@yahoo.com.au>
-In-Reply-To: <4104E750.60400@yahoo.com.au>
-X-Enigmail-Version: 0.84.1.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: multipart/signed; micalg=pgp-sha1;
- protocol="application/pgp-signature";
- boundary="------------enig25BBA947EDCA35E856BD4DE5"
+To: Jan-Frode Myklebust <janfrode@parallab.uib.no>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: OOM-killer going crazy.
+References: <20040725094605.GA18324@zombie.inka.de> <41045EBE.8080708@comcast.net> <20040726091004.GA32403@ii.uib.no> <4104E307.1070004@yahoo.com.au> <20040726111032.GA2067@ii.uib.no>
+In-Reply-To: <20040726111032.GA2067@ii.uib.no>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
---------------enig25BBA947EDCA35E856BD4DE5
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-
-Nick Piggin wrote:
-> Con Kolivas wrote:
+Jan-Frode Myklebust wrote:
+> On Mon, Jul 26, 2004 at 08:55:03PM +1000, Nick Piggin wrote:
 > 
->> R. J. Wysocki wrote:
->>
->>> On Monday 26 of July 2004 12:29, Con Kolivas wrote:
->>>
+>>Can you just check you CONFIG_SWAP is on and /proc/sys/vm/laptop_mode is 0,
+>>and that you have some swap enabled.
 > 
->>>> I think one knob is one knob too many already.
->>>
->>>
->>>
->>>
->>> Can you please tell me why do you think so?
->>
->>
->>
->> If you wanna discuss pedantics...
->>
->> In my ideal, nonsensical, impossible to obtain world we have an 
->> autoregulating operating system that doesn't need any knobs.
->>
 > 
-> Some thinks are fundamental tradeoffs that can't be autotuned.
+> # grep CONFIG_SWAP .config
+> CONFIG_SWAP=y
+> # cat /proc/sys/vm/laptop_mode
+> 0
+> # free
+>              total       used       free     shared    buffers     cached
+> Mem:       2074708    1223324     851384          0        296     258376
+> -/+ buffers/cache:     964652    1110056
+> Swap:      2040244          0    2040244
 > 
-> Latency vs throughput comes up in a lot of places, eg. timeslices.
+
+Good. Just making sure.
+
 > 
-> Maximum throughput via effective use of swap, versus swapping as
-> a last resort may be another.
+> 
+>>If the problem persists, can you send a copy each of 
+>>/proc/sys/fs/dentry-state,
+>>/proc/slabinfo and /proc/vmstat before and after you run dsmc until it goes
+>>OOM please?
+> 
+> 
+> I turned of a option (MEMORYEFFICIENTBACKUP) in 'dsmc', and then it uses a bit 
+> more memory, and crashes quicker.
+> 
 
-As I said... it was ideal, nonsensical, and impossible. Doesn't sound 
-like you're arguing with me.
+Thanks. Let's see.
 
-Con
+dentry-state before
+> 644923  572300  45      0       0       0
+after
+ > 570734  495922  45      0       0       0
 
---------------enig25BBA947EDCA35E856BD4DE5
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: OpenPGP digital signature
-Content-Disposition: attachment; filename="signature.asc"
+slabinfo before
+> # name            <active_objs> <num_objs> <objsize> <objperslab> <pagesperslab> : tunables <batchcount> <limit> <sharedfactor> : slabdata <active_slabs> <num_slabs> <sharedavail>
+> xfs_inode         927591 980848    368   11    1 : tunables   54   27    8 : slabdata  89168  89168      0
+> linvfs_icache     927591 980810    384   10    1 : tunables   54   27    8 : slabdata  98081  98081      0
+> dentry_cache      645063 703566    144   27    1 : tunables  120   60    8 : slabdata  26058  26058      0
+after
+ > xfs_inode         828633 980507    368   11    1 : tunables   54   27    8 : slabdata  89137  89137    216
+ > linvfs_icache     828629 980220    384   10    1 : tunables   54   27    8 : slabdata  98022  98022    216
+ > dentry_cache      571383 703458    144   27    1 : tunables  120   60    8 : slabdata  26054  26054    480
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
+So you're basically drowning in mostly reclaimable slab here. These three entries
+are consuming over 800MB of zone_normal alone.
 
-iD8DBQFBBOhmZUg7+tp6mRURArvpAJ93fi9xH2HwFnDpThs+WCen/l/egwCaAvw8
-us4t2Vk2z7LFf/qd5YlH2Ck=
-=Z5of
------END PGP SIGNATURE-----
+vmstat before
+> pginodesteal 36508
+> slabs_scanned 56099472
+> kswapd_inodesteal 317433
+after
+> pginodesteal 36536
+> slabs_scanned 56443602
+> kswapd_inodesteal 317433
 
---------------enig25BBA947EDCA35E856BD4DE5--
+The things are being slowly scanned and freed, but it is being pretty lethargic.
+
+Can you try echo 10000 > /proc/sys/vm/vfs_cache_pressure, and see how that goes?

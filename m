@@ -1,51 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268670AbUINDen@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269125AbUINDg0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268670AbUINDen (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Sep 2004 23:34:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269125AbUINDen
+	id S269125AbUINDg0 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Sep 2004 23:36:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269150AbUINDg0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Sep 2004 23:34:43 -0400
-Received: from arnor.apana.org.au ([203.14.152.115]:58639 "EHLO
-	arnor.apana.org.au") by vger.kernel.org with ESMTP id S268670AbUINDel
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Sep 2004 23:34:41 -0400
-From: Herbert Xu <herbert@gondor.apana.org.au>
-To: davem@davemloft.net (David S. Miller)
-Subject: Re: 2.6.9-rc1-mm5: TCP oopses
-Cc: jmorris@redhat.com, akpm@osdl.org, linux-kernel@vger.kernel.org,
-       netdev@oss.sgi.com
-Organization: Core
-In-Reply-To: <20040913190858.12544431.davem@davemloft.net>
-X-Newsgroups: apana.lists.os.linux.kernel,apana.lists.os.linux.netdev
-User-Agent: tin/1.7.4-20040225 ("Benbecula") (UNIX) (Linux/2.4.26-1-686-smp (i686))
-Message-Id: <E1C745E-00024r-00@gondolin.me.apana.org.au>
-Date: Tue, 14 Sep 2004 13:34:20 +1000
+	Mon, 13 Sep 2004 23:36:26 -0400
+Received: from usbb-lacimss3.unisys.com ([192.63.108.53]:28429 "EHLO
+	usbb-lacimss3.unisys.com") by vger.kernel.org with ESMTP
+	id S269125AbUINDgM convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 13 Sep 2004 23:36:12 -0400
+X-MimeOLE: Produced By Microsoft Exchange V6.0.6556.0
+content-class: urn:content-classes:message
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Subject: RE: [patch 1/2] Incorrect PCI interrupt assignment on ES7000 for platform GSI
+Date: Mon, 13 Sep 2004 22:36:02 -0500
+Message-ID: <452548B29F0CCE48B8ABB094307EBA1C04220261@USRV-EXCH2.na.uis.unisys.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: [patch 1/2] Incorrect PCI interrupt assignment on ES7000 for platform GSI
+Thread-Index: AcSaA7c6lowaLGrFQ2WJ06seMBhoowAA+yZw
+From: "Protasevich, Natalie" <Natalie.Protasevich@UNISYS.com>
+To: "Tonnerre" <tonnerre@thundrix.ch>
+Cc: <linux-kernel@vger.kernel.org>, <akpm@osdl.org>
+X-OriginalArrivalTime: 14 Sep 2004 03:36:03.0593 (UTC) FILETIME=[F6030F90:01C49A0B]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-David S. Miller <davem@davemloft.net> wrote:
+>> diff -puN arch/i386/kernel/acpi/boot.c~mypatch
+arch/i386/kernel/acpi/boot.c
+>> --- linux/arch/i386/kernel/acpi/boot.c~mypatch	2004-09-13
+14:08:21.192015024 -0600
+>> +++ linux-root/arch/i386/kernel/acpi/boot.c	2004-09-13
+14:10:51.457171248 -0600
+>> @@ -442,6 +442,7 @@ int acpi_gsi_to_irq(u32 gsi, unsigned in
+unsigned 
+>> int acpi_register_gsi(u32 gsi, int edge_level, int active_high_low)
+{
+>>  	unsigned int irq;
+>> +	unsigned int plat_gsi;
+>>  
+>>  #ifdef CONFIG_PCI
+>>  	/*
+>> @@ -463,10 +464,10 @@ unsigned int acpi_register_gsi(u32 gsi,
+>>  
+>>  #ifdef CONFIG_X86_IO_APIC
+>>  	if (acpi_irq_model == ACPI_IRQ_MODEL_IOAPIC) {
+>> -		mp_register_gsi(gsi, edge_level, active_high_low);
+>> +		plat_gsi = mp_register_gsi(gsi, edge_level,
+active_high_low);
+>>  	}
+>>  #endif
+>> -	acpi_gsi_to_irq(gsi, &irq);
+>> +	acpi_gsi_to_irq(plat_gsi, &irq);
+>>  	return irq;
+>>  }
+>>  EXPORT_SYMBOL(acpi_register_gsi);
 >
-> @@ -968,11 +972,17 @@
->                return -EAGAIN;
-> 
->        if (skb->len > cur_mss) {
-> +               int old_factor = TCP_SKB_CB(skb)->tso_factor;
-> +               int new_factor;
-> +
->                if (tcp_fragment(sk, skb, cur_mss))
->                        return -ENOMEM; /* We'll try again later. */
-> 
->                /* New SKB created, account for it. */
-> -               tcp_inc_pcount(&tp->packets_out, skb);
-> +               new_factor = TCP_SKB_CB(skb)->tso_factor;
-> +               tcp_dec_pcount_explicit(&tp->packets_out,
-> +                                       new_factor - old_factor);
+> Looking at that,  won't that cause problems if  we don't have IOAPIC?
+> Then you end up using an undefined value as GSI.
 
-That should be tcp_inc_pcount_explicit.
+Oops, you are right! thanks for catching this. 
+I guess it would be OK to do:
 
-Cheers,
--- 
-Visit Openswan at http://www.openswan.org/
-Email: Herbert Xu ~{PmV>HI~} <herbert@gondor.apana.org.au>
-Home Page: http://gondor.apana.org.au/~herbert/
-PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt
+int acpi_register_gsi(u32 gsi, int edge_level, int active_high_low)  {
+ 	unsigned int irq;
++	unsigned int plat_gsi = gsi;
+
+
+--Natalie

@@ -1,50 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132478AbQLQLPG>; Sun, 17 Dec 2000 06:15:06 -0500
+	id <S132456AbQLQLP5>; Sun, 17 Dec 2000 06:15:57 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132456AbQLQLO5>; Sun, 17 Dec 2000 06:14:57 -0500
-Received: from imladris.demon.co.uk ([193.237.130.41]:22788 "EHLO
-	imladris.demon.co.uk") by vger.kernel.org with ESMTP
-	id <S131880AbQLQLOr>; Sun, 17 Dec 2000 06:14:47 -0500
-Date: Sun, 17 Dec 2000 10:44:09 +0000 (GMT)
-From: David Woodhouse <dwmw2@infradead.org>
-To: Keith Owens <kaos@ocs.com.au>
-cc: Rasmus Andersen <rasmus@jaquet.dk>, <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] link time error in drivers/mtd (240t13p2) 
-In-Reply-To: <1875.977049144@ocs3.ocs-net>
-Message-ID: <Pine.LNX.4.30.0012171039400.14423-100000@imladris.demon.co.uk>
+	id <S132493AbQLQLPj>; Sun, 17 Dec 2000 06:15:39 -0500
+Received: from ws-han1.win-ip.dfn.de ([193.174.75.150]:64335 "EHLO
+	ws-han1.win-ip.dfn.de") by vger.kernel.org with ESMTP
+	id <S132456AbQLQLPf>; Sun, 17 Dec 2000 06:15:35 -0500
+Date: Sun, 17 Dec 2000 11:46:38 +0100
+Message-ID: <vines.sxdD+Ca7DuA@SZKOM.BFS.DE>
+X-Priority: 3 (Normal)
+To: <linux-kernel@vger.kernel.org>
+From: <WHarms@bfs.de> (Walter Harms)
+Reply-To: <WHarms@bfs.de>
+Subject: tasknames
+X-Incognito-SN: 3029
+X-Incognito-Version: 5.1.0.84
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 17 Dec 2000, Keith Owens wrote:
 
-> Messing about with conditional compilation because the link order is
-> incorrect is the wrong fix.  The mtd/Makefile must link the objects in
-> the correct order.
+hi list,
 
-The conditional compilation is far more obvious to people than subtle
-issues with link order. So I prefer to avoid the latter at all costs.
+lately i wrote a programm to find a PID(-list) for a given name. I found it confusing that the tasks are not having a propper form of name registration.
+The field int task_struct the field comm is restricted to 16 chars. Longer names can only be identified with the 'cmdline' entry from the procfs. But not every task set it e.g. kflushd and friends.
 
-I have to have some conditional compilation in my tree to allow it to
-compile under 2.0 uClinux. Admittedly that doesn't have to get into 2.4,
-but I obviously prefer the code in 2.4 to be as close to my working copy
-as possible.
+I would call to force all programm to fill the 'cmdline' entry.
+Does any programm use the comm entry ? ( i dont talk about ps, print is not a use in this sense). if not the 'cmdline' could replace the comm field. It would be more flexable.
+(and its already there in mm_struct)
 
-I'll poke at it and try to come up with a cleaner solution. It may be that
-I can shift all the conditional stuff off into the compatmac.h and leave
-the 'real' code path in a cleaner state than the current one.
 
-> 2.4.0-test13-pre2 almost does that, the only obvious problem is that
-> cfi_probe appears before cfi_cmdset.  Move cfi_probe to link after
-> cfi_cmdset, do you still get link order problems with the 2.4.0-test11
-> version of include/linux/mtd.h?
+walter
 
-I haven't had problems. But the possibility exists.
+ps: i am not a memeber of this list
 
--- 
-dwmw2
 
 
 -

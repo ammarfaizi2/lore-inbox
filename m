@@ -1,40 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316629AbSGLQTY>; Fri, 12 Jul 2002 12:19:24 -0400
+	id <S316623AbSGLQUT>; Fri, 12 Jul 2002 12:20:19 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316632AbSGLQTX>; Fri, 12 Jul 2002 12:19:23 -0400
-Received: from ns.suse.de ([213.95.15.193]:3598 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id <S316629AbSGLQSz>;
-	Fri, 12 Jul 2002 12:18:55 -0400
-Date: Fri, 12 Jul 2002 18:21:43 +0200
-From: Dave Jones <davej@suse.de>
+	id <S316632AbSGLQUS>; Fri, 12 Jul 2002 12:20:18 -0400
+Received: from jalon.able.es ([212.97.163.2]:24305 "EHLO jalon.able.es")
+	by vger.kernel.org with ESMTP id <S316623AbSGLQTr>;
+	Fri, 12 Jul 2002 12:19:47 -0400
+Date: Fri, 12 Jul 2002 18:22:29 +0200
+From: "J.A. Magallon" <jamagallon@able.es>
 To: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Cc: Kirk Reiser <kirk@braille.uwo.ca>, linux-kernel@vger.kernel.org
 Subject: Re: Advice saught on math functions
-Message-ID: <20020712182143.B16956@suse.de>
-Mail-Followup-To: Dave Jones <davej@suse.de>,
-	Alan Cox <alan@lxorguk.ukuu.org.uk>,
-	Kirk Reiser <kirk@braille.uwo.ca>, linux-kernel@vger.kernel.org
-References: <x7hej5djbj.fsf@speech.braille.uwo.ca> <E17T3KT-0003L4-00@the-village.bc.nu>
+Message-ID: <20020712162229.GC2348@werewolf.able.es>
+References: <E17T1a9-00037I-00@the-village.bc.nu>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <E17T3KT-0003L4-00@the-village.bc.nu>; from alan@lxorguk.ukuu.org.uk on Fri, Jul 12, 2002 at 05:31:37PM +0100
+Content-Transfer-Encoding: 7BIT
+In-Reply-To: <E17T1a9-00037I-00@the-village.bc.nu>; from alan@lxorguk.ukuu.org.uk on Fri, Jul 12, 2002 at 16:39:41 +0200
+X-Mailer: Balsa 1.3.6
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jul 12, 2002 at 05:31:37PM +0100, Alan Cox wrote:
 
- > Serial is going away if the vendors get their way, maybe within 12 months
+On 2002.07.12 Alan Cox wrote:
+>> Are these functions which are supplied by the FPU?  I've looked
+>> through the fpu emulation headers and exp() is the only one I can find
+>
+>You can't use FPU operations in the x86 kernel.
+>
 
-Indeed. The number of 'legacy free' boards available do seem to be
-on the increase. No serial, no PS2, Nada.
-If this keeps up I envisage things like netconsole being even more
-useful. 8-)
+Are you to worried about precission ? Can't you just do your sin() etc.
+in fixed point ? (and move all your fpdata to fixed point, of course)
 
-        Dave
+Or perhaps you could use some kind of DCT ?
 
 -- 
-| Dave Jones.        http://www.codemonkey.org.uk
-| SuSE Labs
+J.A. Magallon             \   Software is like sex: It's better when it's free
+mailto:jamagallon@able.es  \                    -- Linus Torvalds, FSF T-shirt
+Linux werewolf 2.4.19-rc1-jam3, Mandrake Linux 8.3 (Cooker) for i586
+gcc (GCC) 3.1.1 (Mandrake Linux 8.3 3.1.1-0.7mdk)

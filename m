@@ -1,52 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261776AbVDEPSg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261777AbVDEPXt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261776AbVDEPSg (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Apr 2005 11:18:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261777AbVDEPSg
+	id S261777AbVDEPXt (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Apr 2005 11:23:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261779AbVDEPXt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Apr 2005 11:18:36 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:54757 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S261776AbVDEPSd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Apr 2005 11:18:33 -0400
-Subject: Re: /proc on 2.4.21 & 2.6 kernels....
-From: Arjan van de Ven <arjan@infradead.org>
-To: Amanulla G <amanulla@india.hp.com>
-Cc: linux-kernel@vger.kernel.org, jdp@india.hp.com
-In-Reply-To: <200504051521.UAA00681@harvest.india.hp.com>
-References: <200504051521.UAA00681@harvest.india.hp.com>
-Content-Type: text/plain
-Date: Tue, 05 Apr 2005 17:18:28 +0200
-Message-Id: <1112714309.6275.68.camel@laptopd505.fenrus.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 (2.0.4-2) 
-Content-Transfer-Encoding: 7bit
-X-Spam-Score: 3.7 (+++)
-X-Spam-Report: SpamAssassin version 2.63 on pentafluge.infradead.org summary:
-	Content analysis details:   (3.7 points, 5.0 required)
-	pts rule name              description
-	---- ---------------------- --------------------------------------------------
-	1.1 RCVD_IN_DSBL           RBL: Received via a relay in list.dsbl.org
-	[<http://dsbl.org/listing?80.57.133.107>]
-	2.5 RCVD_IN_DYNABLOCK      RBL: Sent directly from dynamic IP address
-	[80.57.133.107 listed in dnsbl.sorbs.net]
-	0.1 RCVD_IN_SORBS          RBL: SORBS: sender is listed in SORBS
-	[80.57.133.107 listed in dnsbl.sorbs.net]
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+	Tue, 5 Apr 2005 11:23:49 -0400
+Received: from web25610.mail.ukl.yahoo.com ([217.12.10.169]:11185 "HELO
+	web25610.mail.ukl.yahoo.com") by vger.kernel.org with SMTP
+	id S261777AbVDEPXq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 5 Apr 2005 11:23:46 -0400
+Message-ID: <20050405152345.18321.qmail@web25610.mail.ukl.yahoo.com>
+Date: Tue, 5 Apr 2005 17:23:44 +0200 (CEST)
+From: Uwe Zybell <u_zybell@yahoo.de>
+Subject: Re: fs/partitions/msdos.c, scripts/packages/Makefile
+To: Andries Brouwer <aebr@win.tue.nl>
+Cc: lkml <linux-kernel@vger.kernel.org>
+In-Reply-To: 6667
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2005-04-05 at 20:41 +0530, Amanulla G wrote:
->  Hi, 
-> I would like to know the information on /proc under 2.4.21 based kernels.
->  
-> On 2.4.21 based kernels, /proc has got two types of entries.
-> /proc/pid & /proc/.tid
 
-2.4 kernels do not have /proc/.tid.
+--- Andries Brouwer <aebr@win.tue.nl> wrote:
+> On Fri, Apr 01, 2005 at 07:18:52PM +0200, Uwe Zybell wrote:
+> 
+> > There is a line in fs/partitions/msdos.c that lets extended
+> partitions 
+> > be max 1k (..."==1 ? 1 : 2"...). The comment explains it to protect
+> 
+> > sysadmins from themselves. But now I have found a legitimate use
+> > for extended partitions in their full length. Emulation.
+> > Please remove this, or make it a config option.
+> 
+> Config options are evil. Adding them is a bad form of bloat.
+Then remove.
+> 
+> Whatever you want to do, there are many ways to do it without
+> changing this part of the kernel code. After all, any partition
+> is just part of the entire disk.
+> 
+But I don't want to rewrite the disk access code of the emulator
+either,
+because I would have to duplicate that kernelcode into the application.
+Besides it would have the same alias access to the *mounted* root
+partition. Not that it would *intend* to go there, but a stray fseek
+could
+do some damage. Something that would be easier than a stray open:-).
+Open _does_ check access rights.
+> Note that there are aliasing problems - it is bad to access data
+> both via a file system and via raw disk or partition.
+> 
+If that partition isn't mounted there is no problem. The emulator does
+the mount. If the emulator isn't running and I want to change some
+Files,
+then I *can* mount without problems.
+There is another way. Make "partitions" a full
+(pseudo)(read-only?)filesystem. So that "mount -t partitions /dev/hda
+/dev/hd/a" and
+"mount -t ext2 /dev/hd/a/1 /usr" works. Note that the blockdevice for
+the partition is in logically in the full device. If this "partitions"
+filesystem permits the writing of inodes, it could be a standard
+interface for fdisk et al.
+ 
 
-Some vendor kernels might, if you ahve problems with such kernels you
-are much better of contacting the vendor of such a kernel instead.
 
-
+	
+		
+___________________________________________________________ 
+Gesendet von Yahoo! Mail - Jetzt mit 250MB Speicher kostenlos - Hier anmelden: http://mail.yahoo.de

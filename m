@@ -1,31 +1,33 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S133083AbRDWNzg>; Mon, 23 Apr 2001 09:55:36 -0400
+	id <S133120AbRDWOOu>; Mon, 23 Apr 2001 10:14:50 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S133101AbRDWNz1>; Mon, 23 Apr 2001 09:55:27 -0400
-Received: from office.mandrakesoft.com ([195.68.114.34]:30454 "HELO
-	giants.mandrakesoft.com") by vger.kernel.org with SMTP
-	id <S133083AbRDWNzR>; Mon, 23 Apr 2001 09:55:17 -0400
-To: Michael J Clark <clarkmic@pobox.upenn.edu>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: P4 problem with 2.4.3
-In-Reply-To: <200104231340.f3NDeJu29169@pobox.upenn.edu>
-From: Chmouel Boudjnah <chmouel@mandrakesoft.com>
-Date: 23 Apr 2001 15:53:48 +0100
-In-Reply-To: <200104231340.f3NDeJu29169@pobox.upenn.edu> (Michael J Clark's message of "Mon, 23 Apr 2001 09:40:19 -0400 (EDT)")
-Message-ID: <m3pue31xc3.fsf@giants.mandrakesoft.com>
-User-Agent: Gnus/5.090002 (Oort Gnus v0.02) Emacs/21.0.100
+	id <S135220AbRDWOOk>; Mon, 23 Apr 2001 10:14:40 -0400
+Received: from leibniz.math.psu.edu ([146.186.130.2]:12703 "EHLO math.psu.edu")
+	by vger.kernel.org with ESMTP id <S133120AbRDWOOX>;
+	Mon, 23 Apr 2001 10:14:23 -0400
+Date: Mon, 23 Apr 2001 10:14:19 -0400 (EDT)
+From: Alexander Viro <viro@math.psu.edu>
+To: "David L. Parsley" <parsley@linuxjedi.org>
+cc: Christoph Rohland <cr@sap.com>, linux-kernel@vger.kernel.org,
+        ingo.oeser@informatik.tu-chemnitz.de
+Subject: Re: hundreds of mount --bind mountpoints?
+In-Reply-To: <3AE4374D.F3A60F95@linuxjedi.org>
+Message-ID: <Pine.GSO.4.21.0104231010320.3617-100000@weyl.math.psu.edu>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Michael J Clark <clarkmic@pobox.upenn.edu> writes:
 
-> "wierd, boot kernel (CPU#0) not found in BIOS. "  There is also a message 
 
-do you have SMP or APIC enabled ?
+On Mon, 23 Apr 2001, David L. Parsley wrote:
 
--- 
-MandrakeSoft Inc                     http://www.chmouel.org
-                      --Chmouel
+> What I'm not sure of is which solution is actually 'better' - I'm
+> guessing that performance-wise, neither will make a noticable
+> difference, so I guess memory usage would be the deciding factor.  If I
+
+Bindings are faster on lookup. For obvious reasons - in case of symlinks
+you do name resolution every time you traverse the link; in case of
+bindings it is done when you create them.
+

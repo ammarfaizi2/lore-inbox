@@ -1,59 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266252AbUARIBr (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 18 Jan 2004 03:01:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266265AbUARIBq
+	id S266265AbUARILc (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 18 Jan 2004 03:11:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266270AbUARILb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 18 Jan 2004 03:01:46 -0500
-Received: from fmr06.intel.com ([134.134.136.7]:23505 "EHLO
-	caduceus.jf.intel.com") by vger.kernel.org with ESMTP
-	id S266252AbUARIBp convert rfc822-to-8bit (ORCPT
+	Sun, 18 Jan 2004 03:11:31 -0500
+Received: from smtp06.auna.com ([62.81.186.16]:61650 "EHLO smtp06.retemail.es")
+	by vger.kernel.org with ESMTP id S266265AbUARILa (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 18 Jan 2004 03:01:45 -0500
-content-class: urn:content-classes:message
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Subject: RE: [ACPI] More info on VP6 panics
-X-MimeOLE: Produced By Microsoft Exchange V6.0.6487.1
-Date: Sun, 18 Jan 2004 16:01:35 +0800
-Message-ID: <3ACA40606221794F80A5670F0AF15F8401720CF5@PDSMSX403.ccr.corp.intel.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: [ACPI] More info on VP6 panics
-Thread-Index: AcPcxoXczFtRUU69RbawLrDFZ5NqyAA0Lh4A
-From: "Yu, Luming" <luming.yu@intel.com>
-To: "Ian Pilcher" <i.pilcher@comcast.net>, <acpi-devel@lists.sourceforge.net>,
-       <linux-kernel@vger.kernel.org>
-X-OriginalArrivalTime: 18 Jan 2004 08:01:35.0685 (UTC) FILETIME=[4B235F50:01C3DD99]
+	Sun, 18 Jan 2004 03:11:30 -0500
+Date: Sun, 18 Jan 2004 09:11:28 +0100
+From: "J.A. Magallon" <jamagallon@able.es>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org, netdev@oss.sgi.com
+Subject: Re: 2.6.1-mm4
+Message-ID: <20040118081128.GA3153@werewolf.able.es>
+References: <20040115225948.6b994a48.akpm@osdl.org> <20040118001217.GE3125@werewolf.able.es> <20040117215535.0e4674b8.akpm@osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Disposition: inline
+Content-Transfer-Encoding: 7BIT
+In-Reply-To: <20040117215535.0e4674b8.akpm@osdl.org> (from akpm@osdl.org on Sun, Jan 18, 2004 at 06:55:35 +0100)
+X-Mailer: Balsa 2.0.15
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
->ve that the panic occurs anywhere in the ACPI 
-> code.  From
-> what I can tell, the transition to ACPI mode causes the idle thread on
-> the other processor to panic.
+On 01.18, Andrew Morton wrote:
+> "J.A. Magallon" <jamagallon@able.es> wrote:
+> >
+> > On 01.16, Andrew Morton wrote:
+> >  > 
+> >  > ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.1/2.6.1-mm4/
+> >  > 
+> >  > 
+> > 
+> >  Net driver problem:
+> > 
+> >  werewolf:/etc# modprobe --verbose 3c59x
+> >  insmod /lib/modules/2.6.1-jam4/kernel/drivers/net/3c59x.ko 
+> >  FATAL: Error inserting 3c59x (/lib/modules/2.6.1-jam4/kernel/drivers/net/3c59x.ko): Invalid argument
 > 
-> I believe that I have identified the line of code that triggers the
-> panic.  It is the actual transition to ACPI mode at
-> drivers/acpi/hardware/hwacpi.c, line 143.  If I insert an 
-> infinite loop
-> before the call to acpi_os_write_port, the boot process simply hangs.
-> If I move the loop below the call to acpi_os_write_port, I 
-> get the same
-> old panic message.
->
+> hmm, cute.
+> 
 
-That experiment can only tell that there is no panic displayed on you
-screen
-before the infinite loop.
+Yes.
+It worked. 
+I thought of this, but why this and not the other parameters ? Compiler bug ?
 
-I did remember this error, but I cannot find out other emails about this
-issue.
-Did you file it on bugzilla.kernel.org? It will help us a lot.
+Witches...
 
-Thanks,
-Luming
-
+-- 
+J.A. Magallon <jamagallon()able!es>     \                 Software is like sex:
+werewolf!able!es                         \           It's better when it's free
+Mandrake Linux release 10.0 (Cooker) for i586
+Linux 2.6.1-jam4 (gcc 3.3.2 (Mandrake Linux 10.0 3.3.2-4mdk))

@@ -1,67 +1,32 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292879AbSCFBW6>; Tue, 5 Mar 2002 20:22:58 -0500
+	id <S292936AbSCFB0I>; Tue, 5 Mar 2002 20:26:08 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292901AbSCFBWy>; Tue, 5 Mar 2002 20:22:54 -0500
-Received: from ns.suse.de ([213.95.15.193]:30219 "HELO Cantor.suse.de")
-	by vger.kernel.org with SMTP id <S292879AbSCFBWk>;
-	Tue, 5 Mar 2002 20:22:40 -0500
-Date: Wed, 6 Mar 2002 02:22:24 +0100
-From: Dave Jones <davej@suse.de>
-To: Alexander Viro <viro@math.psu.edu>
-Cc: Michael Bernstein <bernstein.46@osu.edu>,
-        Mike Fedyk <mfedyk@matchmail.com>, Colin Walters <walters@debian.org>,
-        "Jeff V. Merkey" <jmerkey@vger.timpanogas.org>,
-        linux-kernel@vger.kernel.org, opensource@cis.ohio-state.edu
-Subject: Re: [opensource] Re: Petition Against Official Endorsement of BitKeeper by Linux Maintainers
-Message-ID: <20020306022224.B6531@suse.de>
-Mail-Followup-To: Dave Jones <davej@suse.de>,
-	Alexander Viro <viro@math.psu.edu>,
-	Michael Bernstein <bernstein.46@osu.edu>,
-	Mike Fedyk <mfedyk@matchmail.com>,
-	Colin Walters <walters@debian.org>,
-	"Jeff V. Merkey" <jmerkey@vger.timpanogas.org>,
-	linux-kernel@vger.kernel.org, opensource@cis.ohio-state.edu
-In-Reply-To: <002f01c1c49e$874c3580$1900a8c0@sirius> <Pine.GSO.4.21.0203051946340.18755-100000@weyl.math.psu.edu>
-Mime-Version: 1.0
+	id <S292901AbSCFBZ6>; Tue, 5 Mar 2002 20:25:58 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:268 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S292966AbSCFBZr>; Tue, 5 Mar 2002 20:25:47 -0500
+Subject: Re: [PATCH] 2.5.6-pre2 IDE cleanup 16
+To: dalecki@evision-ventures.com (Martin Dalecki)
+Date: Wed, 6 Mar 2002 01:40:16 +0000 (GMT)
+Cc: aia21@cam.ac.uk (Anton Altaparmakov),
+        zwane@linux.realnet.co.sz (Zwane Mwaikambo),
+        linux-kernel@vger.kernel.org (Linux Kernel)
+In-Reply-To: <3C84BFA6.2000800@evision-ventures.com> from "Martin Dalecki" at Mar 05, 2002 01:52:54 PM
+X-Mailer: ELM [version 2.5 PL6]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <Pine.GSO.4.21.0203051946340.18755-100000@weyl.math.psu.edu>; from viro@math.psu.edu on Tue, Mar 05, 2002 at 08:05:05PM -0500
+Content-Transfer-Encoding: 7bit
+Message-Id: <E16iQPg-00058v-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Mar 05, 2002 at 08:05:05PM -0500, Alexander Viro wrote:
+> But is a short time ago that IDE problems appeared in 2.4.18...
 
- > BTW, bitkeeper doesn't solve the problems I have.  Ditto for CVS.  So I use
- > neither.  FWIW, BK is closer to what I need.  If it will ever get the things
- > I need right - I'll use it and damned if I'll hide that.
+2.4.18 base doesn't have this code so that smells like manure to me.
 
- Preach on brother Viro.  Faced with the mammoth task of somehow
- syncing a 6MB diff with Linus, I decided it was time to devote
- an afternoon (which then turned into an evening) to seeing if
- bk can make this easier.
+Irrespective of the implementation you need the functionality. If you want
+to say "hey this implementation sucks" - I agree in part. If you want to
+remove it then its time for the big flashing "BOGUS" sign 
 
- There's nothing in bk that makes my life any more difficult, and
- potential for it to make it a *lot* easier. And Larry seems
- open to suggestions, dispelling the "its closed commercial blah" myth.
-
- Splitting bits up could become even easier soon if Larry and I figure
- out a way to implement some of my perverse ideas for bending csets
- into something more flexable than what they currently are.
-
- Syncing from Linus to my tree isn't difficult, its the splitting bits
- up to push his way that takes time. bk is halfway towards almost
- automating this for me.  CVS and friends don't even get to the
- start line here.
-
- Hours of diff/grepdiff/filterdiff/vim, vs a few clicky clicky bits
- in bk citool.
-
- If you don't like the license, fine. Don't use it, but at least
- give everyone else the option of making up their own mind before
- you try to force _your_ opinion on others.
-
--- 
-| Dave Jones.        http://www.codemonkey.org.uk
-| SuSE Labs

@@ -1,79 +1,84 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314329AbSEFKCU>; Mon, 6 May 2002 06:02:20 -0400
+	id <S314338AbSEFKCz>; Mon, 6 May 2002 06:02:55 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314338AbSEFKCT>; Mon, 6 May 2002 06:02:19 -0400
-Received: from mole.bio.cam.ac.uk ([131.111.36.9]:12147 "EHLO
-	mole.bio.cam.ac.uk") by vger.kernel.org with ESMTP
-	id <S314329AbSEFKCS>; Mon, 6 May 2002 06:02:18 -0400
-Message-Id: <5.1.0.14.2.20020506105723.04138980@pop.cus.cam.ac.uk>
-X-Mailer: QUALCOMM Windows Eudora Version 5.1
-Date: Mon, 06 May 2002 11:02:42 +0100
-To: Jens Axboe <axboe@suse.de>
-From: Anton Altaparmakov <aia21@cantab.net>
-Subject: tcq problem details Re: vanilla 2.5.13 severe file system
-  corruption experienced follozing e2fsck ...
+	id <S314340AbSEFKCx>; Mon, 6 May 2002 06:02:53 -0400
+Received: from heavymos.kumin.ne.jp ([61.114.158.133]:16699 "HELO
+	emerald.kumin.ne.jp") by vger.kernel.org with SMTP
+	id <S314338AbSEFKCs>; Mon, 6 May 2002 06:02:48 -0400
+Message-Id: <200205061002.AA00094@prism.kumin.ne.jp>
+Date: Mon, 06 May 2002 19:02:36 +0900
+To: Osamu Tomita <tomita@cinet.co.jp>
 Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20020506085033.GD820@suse.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; format=flowed
+Subject: Re: 2.5.14  Kernel panic
+From: Seiichi Nakashima <nakasima@kumin.ne.jp>
+In-Reply-To: <3CD64412.A59C09A@cinet.co.jp>
+MIME-Version: 1.0
+X-Mailer: AL-Mail32 Version 1.12
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jens,
 
-I didn't get a panic in the limited testing I did just now on 2.5.14 for 
-ntfs however I do get soemthing odd. Even when the box is fully idle 
-proc/ide/blah/tcq shows this:
+>You will get more information by showing symbol.
+>Use ksymoops or do symbolize virtual address by hand (using ``System.map'').
+>``Call Trace'' may be useful.
 
-TCQ currently on:       yes
-Max queue depth:        32
-Max achieved depth:     14
-Max depth since last:   1
-Current depth:          0
-Active tags:            [ 1, 3, 4, 6, 9, 11, 12, 14, 17, 19, 20, 22, 25, 
-27, 28, 29, 30, 31, ]
-Queue:                  released [ 1390 ] - started [ 3986 ]
-pending request and queue count mismatch (counted: 18)
-DMA status:             not running
+I boot up linux-2.5.14 to use vga=771 parameter, Now I boot up linux-2.5.14
+to unuse vga parameter, then linux-2.5.14 boot up.
 
-Some times the number of active tags is higher, seems to vary...
+>> Call Trace: [<c01ab1a7>] [<c01a96c4>] [<c01a96df>] [<c01747d4>] [<c0177f57>]
+>>    [<c01a66f1>] [<c0105023>] [<c010553c>]
 
-/me ignorant: this looks wrong. Why are there active tags when no activity? 
-If a am right and this is a problem then perhaps tags are "leaking" some how?
+I extracted Call Trace address( nearly ) from /boot/System.map. Is it OK?
 
--- ide related msgs from boot --
-ATA/ATAPI driver v7.0.0
-ATA: system bus speed 33MHz
-ATA: interface: VIA Technologies, Inc. Bus Master IDE, on PCI slot 00:07.1
-ATA: chipset rev.: 6
-ATA: non-legacy mode: IRQ probe delayed
-VP_IDE: VIA vt82c686b (rev 40) IDE UDMA100 controller on pci00:07.1
-     ide0: BM-DMA at 0xd000-0xd007, BIOS settings: hda:DMA, hdb:pio
-     ide1: BM-DMA at 0xd008-0xd00f, BIOS settings: hdc:DMA, hdd:DMA
-hda: IC35L040AVER07-0, ATA DISK drive
-hdc: LITE-ON LTR-12102B, ATAPI CD/DVD-ROM drive
-hdd: Maxtor 90288D2, ATA DISK drive
-ide0 at 0x1f0-0x1f7,0x3f6 on irq 14
-ide1 at 0x170-0x177,0x376 on irq 15
-hda: tagged command queueing enabled, command queue depth 32
-hda: 80418240 sectors w/1916KiB Cache, CHS=79780/16/63, UDMA(100)
-hdd: 5627664 sectors w/256KiB Cache, CHS=5583/16/63, UDMA(33)
-hdc: ATAPI 40X CD-ROM CD-R/RW drive, 8192kB Cache, (U)DMA
-Uniform CD-ROM driver Revision: 3.12
-Partition check:
-  hda: [PTBL] [5005/255/63] hda1 hda2 < hda5 hda6 hda7 >
-  hdd: [PTBL] [697/128/63] hdd1 hdd2 < hdd5 hdd6 hdd7 hdd8 hdd9 hdd10 >
+c0104000 T empty_zero_page
+c0105000 T _stext
+c0105000 T stext
+c0105000 t rest_init
+c010501c t init
+c0105140 T prepare_namespace
+c0105220 T thread_saved_pc
+c0105230 T disable_hlt
+...
+c01745e0 t set_cursor
+c0174660 t set_origin
+c01746f4 T redraw_screen
+c017483c T vc_cons_allocated
+c017485c t visual_init
+c017493c T vc_allocate
+...
+c0177cbc t con_close
+c0177cf4 t vc_init
+c0177df8 t clear_buffer_attributes
+c0177e64 T take_over_console
+c0177ff4 T give_up_console
+c0178020 t set_vesa_blanking
+c017803c t vesa_powerdown
+...
+c01a6514 t fb_open
+c01a6598 t fb_release
+c01a65f0 T register_framebuffer
+c01a671c T unregister_framebuffer
+c01a67a0 T fb_alloc_cmap
+c01a68a4 T fb_copy_cmap
+c01a6ae4 T fb_get_cmap
+...
+c01a93c4 t fbcon_bmove_rec
+c01a9554 t fbcon_switch
+c01a971c t fbcon_blank
+c01a9938 t fbcon_free_font
+...
+c01ab05c T gen_get_cmap
+c01ab088 T fbgen_set_cmap
+c01ab11c T gen_set_cmap
+c01ab1b4 T fbgen_pan_display
+c01ab274 T fbgen_do_set_var
+...
 
-Best regards,
+=====
 
-         Anton
-
-
--- 
-   "I've not lost my mind. It's backed up on tape somewhere." - Unknown
--- 
-Anton Altaparmakov <aia21 at cantab.net> (replace at with @)
-Linux NTFS Maintainer / IRC: #ntfs on irc.openprojects.net
-WWW: http://linux-ntfs.sf.net/ & http://www-stu.christs.cam.ac.uk/~aia21/
-
+--------------------------------
+  Seiichi Nakashima
+  Email   nakasima@kumin.ne.jp
+--------------------------------

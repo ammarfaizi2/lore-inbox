@@ -1,33 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312881AbSCZAM0>; Mon, 25 Mar 2002 19:12:26 -0500
+	id <S312885AbSCZAOi>; Mon, 25 Mar 2002 19:14:38 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312885AbSCZAMR>; Mon, 25 Mar 2002 19:12:17 -0500
-Received: from moutvdom00.kundenserver.de ([195.20.224.149]:12384 "EHLO
-	moutvdom00.kundenserver.de") by vger.kernel.org with ESMTP
-	id <S312881AbSCZAMF>; Mon, 25 Mar 2002 19:12:05 -0500
-Message-ID: <3C9FBCCE.6010200@ngforever.de>
-Date: Mon, 25 Mar 2002 17:11:58 -0700
-From: Thunder from the hill <thunder@ngforever.de>
-Organization: The LuckyNet Administration
-User-Agent: Mozilla/5.0 (X11; U; Linux i586; en-US; rv:0.9.9) Gecko/20020313
-X-Accept-Language: en-us, en
+	id <S312886AbSCZAO2>; Mon, 25 Mar 2002 19:14:28 -0500
+Received: from vasquez.zip.com.au ([203.12.97.41]:18446 "EHLO
+	vasquez.zip.com.au") by vger.kernel.org with ESMTP
+	id <S312885AbSCZAOK>; Mon, 25 Mar 2002 19:14:10 -0500
+Message-ID: <3C9FBCDA.C898E977@zip.com.au>
+Date: Mon, 25 Mar 2002 16:12:10 -0800
+From: Andrew Morton <akpm@zip.com.au>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-pre4 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
-To: Wakko Warner <wakko@animx.eu.org>
-CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: IDE and hot-swap disk caddies
-In-Reply-To: <20020325152617.A18605@animx.eu.org> <Pine.LNX.4.10.10203251319100.1305-100000@master.linux-ide.org> <20020325173234.A18888@animx.eu.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+To: Marcelo Tosatti <marcelo@conectiva.com.br>
+CC: Rusty Russell <rusty@rustcorp.com.au>, linux-kernel@vger.kernel.org
+Subject: Re: [patch] smaller kernels
+In-Reply-To: <20020325165605.7d9c1d6e.rusty@rustcorp.com.au> <Pine.LNX.4.21.0203251921570.3378-100000@freak.distro.conectiva>
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Wakko Warner wrote:
-> IIRC, windows nt sees ide controllers as a scsi controller (in a sence)
-And ran into trouble with it, remember? Thus, they reinvented the 
-different interfaces, multi(n) and scsi(n).
-Thunder
--- 
-Thunder from the hill.
-Citizen of our universe.
+Marcelo Tosatti wrote:
+> 
+> I've just readded all asserts which you removed... if you really want to
+> remove any of those, please prove me that they are useless.
 
+I grepped a year's lkml traffic - nobody is hitting any
+of them...
+
+The quotaops.h checks were useless:
+
+	if (pointer == NULL)
+		BUG();
+	dereference(pointer);
+
+The others can become calls to out_of_line_bug() if
+you want.  That's dget(), unhash_process(),
+memclear_highpage_flush(), __skb_pull() and tcp_prequeue()
+
+-

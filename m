@@ -1,64 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261866AbVBPUuI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261889AbVBPUzW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261866AbVBPUuI (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Feb 2005 15:50:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261874AbVBPUuH
+	id S261889AbVBPUzW (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Feb 2005 15:55:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261911AbVBPUzV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Feb 2005 15:50:07 -0500
-Received: from relay1.tiscali.de ([62.26.116.129]:41103 "EHLO
-	webmail.tiscali.de") by vger.kernel.org with ESMTP id S261866AbVBPUuA
+	Wed, 16 Feb 2005 15:55:21 -0500
+Received: from electric-eye.fr.zoreil.com ([213.41.134.224]:13005 "EHLO
+	fr.zoreil.com") by vger.kernel.org with ESMTP id S261889AbVBPUzR
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Feb 2005 15:50:00 -0500
-Message-ID: <4213B1FC.4020706@tiscali.de>
-Date: Wed, 16 Feb 2005 21:50:04 +0100
-From: Matthias-Christian Ott <matthias.christian@tiscali.de>
-User-Agent: Mozilla Thunderbird 1.0 (X11/20050108)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Oliver Antwerpen <olli@giesskaennchen.de>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Bug in SLES8 kernel 2.4.x freezing HP DL740/760
-References: <4213AB2B.2050604@giesskaennchen.de>
-In-Reply-To: <4213AB2B.2050604@giesskaennchen.de>
-Content-Type: text/plain; charset=ISO-8859-15; format=flowed
-Content-Transfer-Encoding: 7bit
+	Wed, 16 Feb 2005 15:55:17 -0500
+Date: Wed, 16 Feb 2005 21:51:22 +0100
+From: Francois Romieu <romieu@fr.zoreil.com>
+To: a.hocquel@oreka.com
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: strange bug with realtek 8169 card
+Message-ID: <20050216205122.GB18105@electric-eye.fr.zoreil.com>
+References: <3yBMF-2kO-3@gated-at.bofh.it> <3yBMG-2kO-5@gated-at.bofh.it> <3yBMF-2kO-1@gated-at.bofh.it> <3yCfH-2Em-1@gated-at.bofh.it> <3yCfJ-2Em-7@gated-at.bofh.it> <3yCzf-2Rt-27@gated-at.bofh.it> <3yD2j-3mf-23@gated-at.bofh.it> <3yDbS-3tr-31@gated-at.bofh.it> <4213A5D5.8070802@oreka.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <4213A5D5.8070802@oreka.com>
+User-Agent: Mutt/1.4.1i
+X-Organisation: Land of Sunshine Inc.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Oliver Antwerpen wrote:
+Alexandre <a.hocquel_NOSPAM_@oreka.com> :
+[...]
+> thanks again, unfortunately PCs with those cards are at work, and from 
+> today that's holidays until march 7th... :D
 
-> Hi out there,
->
-> If there is anybody out there using SLES8 on HP ProLiant DL740/760:
-> BEWARE!
->
-> SuSE has patched UNICON into the kernel which will cause these servers 
-> to hang when booted with vga=normal. The system will run fine in 
-> fb-mode, but not in plain text.
->
-> I cannot see, where this UNICON-patch comes from, it seems that is has 
-> been developed by some turbolinux-coders.
->
-> HP and SuSE have not been able to either fix this problem or at least 
-> warn someone about this bug, so I will do it now.
-> The bug is known since Nov 13th 2004.
->
-> If there should be anybody who can help, please contact me.
->
-> I hope this information will help someone to not run into deep trouble.
->
-> Oliver Antwerpen
->
->
-> -
-> To unsubscribe from this list: send the line "unsubscribe 
-> linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
->
-Well if you don't need unicon, then remove the patch from the .spec file 
-and rebuild the kernel (from the source rpm). Or report it their bug 
-tracking system.
+Excellent. Your testing will not impact the normal production.
 
-Matthias-Christian Ott
+I have done a minor update to sync with Jeff's latest -netdev
+http://www.fr.zoreil.com/~romieu/misc/20050216-2.4.29-r8169.c-test.patch
+
+--
+Ueimor

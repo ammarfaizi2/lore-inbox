@@ -1,48 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272266AbRHXPmw>; Fri, 24 Aug 2001 11:42:52 -0400
+	id <S272150AbRHXPpm>; Fri, 24 Aug 2001 11:45:42 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272183AbRHXPmo>; Fri, 24 Aug 2001 11:42:44 -0400
-Received: from smtp3.cern.ch ([137.138.131.164]:17605 "EHLO smtp3.cern.ch")
-	by vger.kernel.org with ESMTP id <S272190AbRHXPmg>;
-	Fri, 24 Aug 2001 11:42:36 -0400
-To: Tom Rini <trini@kernel.crashing.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Will 2.6 require Python for any configuration ? (CML2)
-In-Reply-To: <E15a1rW-000MM9-00@f10.mail.ru> <20010823143443.F14302@cpe-24-221-152-185.az.sprintbbd.net> <d3ofp5wr46.fsf@lxplus035.cern.ch> <20010824083728.J14302@cpe-24-221-152-185.az.sprintbbd.net>
-From: Jes Sorensen <jes@sunsite.dk>
-Date: 24 Aug 2001 17:42:47 +0200
-In-Reply-To: Tom Rini's message of "Fri, 24 Aug 2001 08:37:28 -0700"
-Message-ID: <d31ym1wjk8.fsf@lxplus035.cern.ch>
-User-Agent: Gnus/5.070096 (Pterodactyl Gnus v0.96) Emacs/20.4
+	id <S272183AbRHXPpc>; Fri, 24 Aug 2001 11:45:32 -0400
+Received: from cx97923-a.phnx3.az.home.com ([24.9.112.194]:56242 "EHLO
+	grok.yi.org") by vger.kernel.org with ESMTP id <S272190AbRHXPpU>;
+	Fri, 24 Aug 2001 11:45:20 -0400
+Message-ID: <3B86769D.17A979D7@candelatech.com>
+Date: Fri, 24 Aug 2001 08:45:33 -0700
+From: Ben Greear <greearb@candelatech.com>
+Organization: Candela Technologies
+X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.9-pre4 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
+To: Andi Kleen <ak@suse.de>
+CC: Bernhard Busch <bbusch@biochem.mpg.de>, linux-kernel@vger.kernel.org
+Subject: Re: Poor Performance for ethernet bonding
+In-Reply-To: <3B865882.24D57941@biochem.mpg.de.suse.lists.linux.kernel> <oupg0ahmv2a.fsf@pigdrop.muc.suse.de> <3B867096.3A1D7DE@candelatech.com> <20010824172256.A2531@gruyere.muc.suse.de>
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> "Tom" == Tom Rini <trini@kernel.crashing.org> writes:
+Andi Kleen wrote:
+> 
+> On Fri, Aug 24, 2001 at 08:19:50AM -0700, Ben Greear wrote:
+> > Couldn't the bonding code be made to distribute pkts to one interface or
+> > another based on a hash of the sending IP port or something?  Seems like that
+> > would fix the reordering problem for IP packets....  It wouldn't help for
+> > a single stream, but I'm guessing the real world problem involves many streams,
+> > which on average should hash such that the load is balanced...
+> 
+> It could, but then it is already implemented in a better way in multipath
+> routing and I see no reason to duplicate the functionality.
+> 
 
-Tom> On Fri, Aug 24, 2001 at 02:59:37PM +0200, Jes Sorensen wrote:
->>  Again, please try and do real porting work before you make such
->> silly statements. Perl is 32/64 little/big-endian clean ... and
->> still it's the absolutely worst app to bring up (even X tends to be
->> easier).
+On the surface, multi-path routing sounds complicated to me, while
+layer-2 bonding seems relatively trivial to set up/administer.  Since we do
+support bonding, if it's a simple fix to make it better, we
+might as well do that, eh?
 
-Tom> perl is (or was last time I tried it) a PITA because it doesn't
-Tom> have a real config script.  In my experiance (and I do have a lot
-Tom> here) apps which use autoconf/et al suck less at porting, as long
-Tom> as you have autoconf/libtool/et al happy.  Then it usually comes
-Tom> down to poorly written code.
+I haven't used either, so this is just idle supposition on my part...
 
-The configure script has almost nothing to do with this! autoconf
-etc. is just little bits on the surface. So pardon if I question the
-relevance of your experience in this area.
+Ben
 
-The real problems with Perl is that it exercises almost all of your
-libc, uses floating point math, dlopen() and a lot of other
-funnies. Successfully running Perl's test suite is a very good
-indicator for the completeness of your libc. On the other hand gcc and
-the development toolchain are remarkably easy to accomodate on that
-front.
-
-Jes
+-- 
+Ben Greear <greearb@candelatech.com>          <Ben_Greear@excite.com>
+President of Candela Technologies Inc      http://www.candelatech.com
+ScryMUD:  http://scry.wanfear.com     http://scry.wanfear.com/~greear

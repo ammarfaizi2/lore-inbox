@@ -1,40 +1,49 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315411AbSE2OZj>; Wed, 29 May 2002 10:25:39 -0400
+	id <S315414AbSE2O0t>; Wed, 29 May 2002 10:26:49 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315414AbSE2OZi>; Wed, 29 May 2002 10:25:38 -0400
-Received: from ns.suse.de ([213.95.15.193]:6660 "EHLO Cantor.suse.de")
-	by vger.kernel.org with ESMTP id <S315411AbSE2OZh>;
-	Wed, 29 May 2002 10:25:37 -0400
-Date: Wed, 29 May 2002 16:25:36 +0200
-From: Dave Jones <davej@suse.de>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: "J.A. Magallon" <jamagallon@able.es>,
-        Lista Linux-Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Use of CONFIG_M686
-Message-ID: <20020529162536.N27463@suse.de>
-Mail-Followup-To: Dave Jones <davej@suse.de>,
-	Alan Cox <alan@lxorguk.ukuu.org.uk>,
-	"J.A. Magallon" <jamagallon@able.es>,
-	Lista Linux-Kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <20020527222253.GG1848@werewolf.able.es> <20020527222928.GI1848@werewolf.able.es> <1022544346.4123.14.camel@irongate.swansea.linux.org.uk>
+	id <S315416AbSE2O0s>; Wed, 29 May 2002 10:26:48 -0400
+Received: from sm14.texas.rr.com ([24.93.35.41]:38796 "EHLO sm14.texas.rr.com")
+	by vger.kernel.org with ESMTP id <S315414AbSE2O0q>;
+	Wed, 29 May 2002 10:26:46 -0400
+Subject: Re: [PATCH] 2.5.18 IDE 73
+From: Gerald Champagne <gerald@io.com>
+To: Martin Dalecki <dalecki@evision-ventures.com>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <3CF4D19F.9080402@evision-ventures.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.5 
+Date: 29 May 2002 09:26:42 -0500
+Message-Id: <1022682402.2951.33.camel@wiley>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, May 28, 2002 at 01:05:46AM +0100, Alan Cox wrote:
+> 
+> Dear Gerald please look closer. The hdparm -i is executing the
+> drive id command directly and does *not* rely on the internally
+> permanently dragged around id structure. So the change I did
+> is entierly fine. Just go ahead and check whatever hdparm -i /dev/hdx
+> reports the proper thing after changing some dma setting.
+> It does - I did check it :-).
 
- > You misunderstand the intent. A 386 or 486 kernel will run on a Pentium
- > and could therefore hit the error. A PPro kernel would die earlier
- > anyway. Of course its long been PPRO|Athlon|... and the ifdef wanted
- > updating. I'd ifdef it on CONFIG_X86_FOOF_BUG and put the FOOF thing
- > into arch/i386/Config.in nicely with the other stuff
+Ah, sorry about that.  I missed that in your patch.  The previous
+version of the ioctl just returned copied the values from the id
+structure.  Doing the id on the fly is much more accurate and will catch
+any other fields that happen to change over time.  
 
-Agreed. This is what's done in 2.5 btw.
+> BTW> The next thing to be gone is simple the fact that we drag
+> around the id information permanently, where infact only
+> some capabilitie fields are sucked out of it and the
+> device identification string is only needed for reporting
+> during boot-up.
 
--- 
-| Dave Jones.        http://www.codemonkey.org.uk
-| SuSE Labs
+That sounds good.  That would make it easier to see what values from the
+id are actually used.
+
+Thanks.
+
+Gerald
+
+

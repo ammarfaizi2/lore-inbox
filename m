@@ -1,62 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270820AbTHFSwS (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 6 Aug 2003 14:52:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270858AbTHFSwR
+	id S270858AbTHFTKx (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 6 Aug 2003 15:10:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270862AbTHFTKx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 6 Aug 2003 14:52:17 -0400
-Received: from smtp011.mail.yahoo.com ([216.136.173.31]:1285 "HELO
-	smtp011.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S270820AbTHFSwP convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 6 Aug 2003 14:52:15 -0400
-From: Michael Buesch <fsdeveloper@yahoo.de>
-To: linux kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: [2.6] system is very slow during disk access
-Date: Wed, 6 Aug 2003 20:51:55 +0200
-User-Agent: KMail/1.5.3
-Cc: linux-ide@vger.kernel.org
-MIME-Version: 1.0
-Content-Type: Text/Plain;
-  charset="us-ascii"
+	Wed, 6 Aug 2003 15:10:53 -0400
+Received: from smtp.terra.es ([213.4.129.129]:38177 "EHLO tsmtp7.mail.isp")
+	by vger.kernel.org with ESMTP id S270858AbTHFTKu convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 6 Aug 2003 15:10:50 -0400
+Date: Wed, 6 Aug 2003 21:11:01 +0200
+From: Diego Calleja =?ISO-8859-15?Q?Garc=EDa?= <diegocg@teleline.es>
+To: Juergen Schmidt <ju@heisec.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: security advisories for the kernel
+Message-Id: <20030806211101.72031376.diegocg@teleline.es>
+In-Reply-To: <Pine.LNX.4.44.0308060934480.3262-100000@loki.ct.heise.de>
+References: <Pine.LNX.4.44.0308060934480.3262-100000@loki.ct.heise.de>
+X-Mailer: Sylpheed version 0.9.3 (GTK+ 1.2.10; i386-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-15
 Content-Transfer-Encoding: 8BIT
-Content-Description: clearsigned data
-Content-Disposition: inline
-Message-Id: <200308062052.10752.fsdeveloper@yahoo.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+El Wed, 6 Aug 2003 18:31:31 +0200 (CEST) Juergen Schmidt <ju@heisec.de> escribió:
 
-Hi.
+> I know, that some of you think, it's the task of the distributors, to
+> issue security advisories. I disagree: You publish code on kernel.org that
+> people use. That code contains security related bugs. You fix them and
+> publish corrected code. People expect from you, to issue an advisory
+> about the security bugs you have fixed - and imho they are right...
 
-I have massive problems with linux-2.6.0-test2.
-When some process writes something to disk, it's very hard
-to go on working with the system.
+I agree that people must have something to upgrade to. They're said
+"update the kernel from your vendor" or "run 2.4.XX-pre which contains
+the security fixes"; but a lot of people don't use vendor kernels and
+they don't even know that -pre contains fixes. (where is the
+announcement if there's one?)
 
-Some test-szenario:
-$ dd if=/dev/zero of=./test.file
+Can't we have a 2.4.22 which has 2.4.21 + only
+the security fixes? Or a 2.4-current which contains current kernel +
+security fixes + very important fixes.
 
-While dd is running, xmms skips playing every now and then
-and the mouse is near to be unusable. The Mouse-cursor
-behaves some kind of very lazy and some times it jumps
-from one point on the display to another.
-When I stop disk-access, it works again quite fine.
+I can understand that you can't upgrade the kernel each time there's
+a security issue, but this time there're a lof of them, and people
+*don't* really know what they've to upgrade. They're just waiting
+for a release.
 
-Would be cool, if you could give me some point to start
-for tracking this down.
-
-Please CC me, as I'm not subscribed to linux-ide. Thanks.
-- -- 
-Regards Michael Buesch  [ http://www.8ung.at/tuxsoft ]
-Penguin on this machine:  Linux 2.6.0-test2 - i386
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
-
-iD8DBQE/MU5XoxoigfggmSgRAjksAJsEfEP7chsGZLTkwNHK00Qn83UCbwCghgc+
-8fXS+vHuygb4xhj0CwlQBV4=
-=Cr38
------END PGP SIGNATURE-----
-
+Diego Calleja

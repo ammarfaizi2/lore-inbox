@@ -1,45 +1,70 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263731AbTJORa7 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 15 Oct 2003 13:30:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263732AbTJORa7
+	id S263747AbTJORc1 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 15 Oct 2003 13:32:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263749AbTJORc0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 15 Oct 2003 13:30:59 -0400
-Received: from fw.osdl.org ([65.172.181.6]:50109 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S263731AbTJORa5 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 15 Oct 2003 13:30:57 -0400
-Date: Wed, 15 Oct 2003 10:34:31 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Martin Waitz <tali@admingilde.org>
-Cc: anton@samba.org, wli@holomorphy.com, linux-kernel@vger.kernel.org
-Subject: Re: mem=16MB laptop testing
-Message-Id: <20031015103431.3bf1dfea.akpm@osdl.org>
-In-Reply-To: <20031015133231.GK9850@admingilde.org>
-References: <20031014105514.GH765@holomorphy.com>
-	<20031014045614.22ea9c4b.akpm@osdl.org>
-	<20031014121753.GA610@krispykreme>
-	<20031014053154.469255e5.akpm@osdl.org>
-	<20031014124457.GB610@krispykreme>
-	<20031014164004.5f698467.akpm@osdl.org>
-	<20031015133231.GK9850@admingilde.org>
-X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
+	Wed, 15 Oct 2003 13:32:26 -0400
+Received: from Hell.WH8.tu-dresden.de ([141.30.225.3]:10941 "EHLO
+	Hell.WH8.TU-Dresden.De") by vger.kernel.org with ESMTP
+	id S263747AbTJORcY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 15 Oct 2003 13:32:24 -0400
+Date: Wed, 15 Oct 2003 19:32:02 +0200
+From: "Udo A. Steinberg" <us15@os.inf.tu-dresden.de>
+To: Javier Achirica <achirica@telefonica.net>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: airo regression with Linux 2.4.23-pre2
+Message-Id: <20031015193202.54b5bb36.us15@os.inf.tu-dresden.de>
+In-Reply-To: <Pine.LNX.4.55L.0308301220020.31588@freak.distro.conectiva>
+References: <Pine.LNX.4.55L.0308301220020.31588@freak.distro.conectiva>
+Organization: Fiasco Core Team
+X-GPG-Key: 1024D/233B9D29 (wwwkeys.pgp.net)
+X-GPG-Fingerprint: CE1F 5FDD 3C01 BE51 2106 292E 9E14 735D 233B 9D29
+X-Mailer: X-Mailer 5.0 Gold
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/signed; protocol="application/pgp-signature";
+ micalg="pgp-sha1";
+ boundary="Signature=_Wed__15_Oct_2003_19_32_02_+0200_hAPc+7RcK53D5/2Q"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Martin Waitz <tali@admingilde.org> wrote:
->
-> On Tue, Oct 14, 2003 at 04:40:04PM -0700, Andrew Morton wrote:
->  > + *	min_free_kbytes = lowmem_kbytes / sqrt(lowmem_kbytes)
-> 
->  you do have a strange sqrt here ;)
+--Signature=_Wed__15_Oct_2003_19_32_02_+0200_hAPc+7RcK53D5/2Q
+Content-Type: text/plain; charset=US-ASCII
+Content-Disposition: inline
+Content-Transfer-Encoding: 7bit
 
-You're the fifth person to tell me that.  Is this linux-kernel or linux-math?
 
-Turns out that the int_sqrt() I stole from oom-kill.c appears to get wrong
-numbers anyway.  I'll probably steal fb_sqrt(), which appears to get
-correct numbers and consolidate it all...
+Hi,
 
+My Cisco Aironet 350 Series PCMCIA network card does no longer work with the
+latest 2.4 and 2.6 kernels. For 2.4.23 I have been able to identify the point
+in time at which things broke. 2.4.23-pre1 still works and -pre2 does not.
+The card is unable to acquire an IP address via DHCP and also doesn't seem to
+receive any networking traffic at all with -pre2 and later.
+
+Looking at the 2.4 changelog it seems that the following patch introduced
+the problem.
+
+MT> Summary of changes from v2.4.23-pre1 to v2.4.23-pre2
+MT> ============================================
+MT> <javier:tudela.mad.ttd.net>:
+MT>   o [wireless airo] add support for MIC and latest firmwares
+
+Do you have any idea what is going wrong here? If you need more information
+to narrow down the problem, just ask.
+
+Regards,
+-Udo.
+
+--Signature=_Wed__15_Oct_2003_19_32_02_+0200_hAPc+7RcK53D5/2Q
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.3.1 (GNU/Linux)
+
+iD8DBQE/jYSWnhRzXSM7nSkRAlHzAJ4iRanMpdX1kqZT9PrVv/d/vIonZQCdFRe+
+645TdWSbtwTob7bf40KPOPM=
+=yoKC
+-----END PGP SIGNATURE-----
+
+--Signature=_Wed__15_Oct_2003_19_32_02_+0200_hAPc+7RcK53D5/2Q--

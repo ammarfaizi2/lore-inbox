@@ -1,34 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265885AbUATXYc (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 20 Jan 2004 18:24:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265887AbUATXYb
+	id S265918AbUATXgA (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 20 Jan 2004 18:36:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265912AbUATXfs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 20 Jan 2004 18:24:31 -0500
-Received: from pooh.lsc.hu ([195.56.172.131]:10142 "EHLO pooh.lsc.hu")
-	by vger.kernel.org with ESMTP id S265885AbUATXYa (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 20 Jan 2004 18:24:30 -0500
-Date: Wed, 21 Jan 2004 00:09:07 +0100
-From: GCS <gcs@lsc.hu>
-To: Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: 2.6.1-mm5
-Message-ID: <20040120230907.GA20425@lsc.hu>
-References: <Pine.LNX.4.58.0401201724190.9398@localhost.localdomain>
+	Tue, 20 Jan 2004 18:35:48 -0500
+Received: from phoenix.infradead.org ([213.86.99.234]:54283 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id S265918AbUATXfm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 20 Jan 2004 18:35:42 -0500
+Date: Tue, 20 Jan 2004 23:35:37 +0000
+From: Christoph Hellwig <hch@infradead.org>
+To: Adrian Bunk <bunk@fs.tum.de>
+Cc: Andrew Morton <akpm@osdl.org>, James.Bottomley@SteelEye.com,
+       linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org
+Subject: Re: [2.6 patch] show "Fusion MPT device support" menu only if BLK_DEV_SD
+Message-ID: <20040120233537.A23375@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Adrian Bunk <bunk@fs.tum.de>, Andrew Morton <akpm@osdl.org>,
+	James.Bottomley@SteelEye.com, linux-kernel@vger.kernel.org,
+	linux-scsi@vger.kernel.org
+References: <20040120232507.GC6441@fs.tum.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-2
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.58.0401201724190.9398@localhost.localdomain>
-X-Operating-System: GNU/Linux
-User-Agent: Mutt/1.5.4i
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20040120232507.GC6441@fs.tum.de>; from bunk@fs.tum.de on Wed, Jan 21, 2004 at 12:25:07AM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jan 20, 2004 at 05:56:42PM -0500, Thomas Molina <tmolina@cablespeed.com> wrote:
-> Finding module dependencies:  cat: 
-> /sys//devices/pci0000:00/0000:00:07.2/usb1/bNumConfigurations: No such 
-> file or directory
-> /etc/hotplug/usb.agent: line 144: [: too many arguments
- I think you use Debian, and it's a bug in their scripts, not in the
-kernel itself.
-/GCS
+On Wed, Jan 21, 2004 at 12:25:07AM +0100, Adrian Bunk wrote:
+> With BLK_DEV_SD=n, I see a "Fusion MPT device support" menu I can't 
+> enter.
+> 
+> The simple patch below removes the "Fusion MPT device support" menu if 
+> BLK_DEV_SD=n.
+
+I'd rather see an explanation from LSI why a scsi LLDD depens on a uper
+driver.  This can't be right.
+

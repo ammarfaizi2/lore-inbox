@@ -1,49 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262029AbUJZEa4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262002AbUJZE0h@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262029AbUJZEa4 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 26 Oct 2004 00:30:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261951AbUJZE0u
+	id S262002AbUJZE0h (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 26 Oct 2004 00:26:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261981AbUJZBiz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Oct 2004 00:26:50 -0400
-Received: from gate.crashing.org ([63.228.1.57]:42456 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S262108AbUJZEYy (ORCPT
+	Mon, 25 Oct 2004 21:38:55 -0400
+Received: from zeus.kernel.org ([204.152.189.113]:47576 "EHLO zeus.kernel.org")
+	by vger.kernel.org with ESMTP id S262092AbUJZBXw (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Oct 2004 00:24:54 -0400
-Subject: [PATCH] ppc64: PCI ignores empty phb regions
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+	Mon, 25 Oct 2004 21:23:52 -0400
+Date: Mon, 25 Oct 2004 18:33:35 -0400 (EDT)
+From: Rik van Riel <riel@redhat.com>
+X-X-Sender: riel@chimarrao.boston.redhat.com
 To: Andrew Morton <akpm@osdl.org>
-Cc: Linus Torvalds <torvalds@osdl.org>,
-       Linux Kernel list <linux-kernel@vger.kernel.org>
-Content-Type: text/plain
-Date: Tue, 26 Oct 2004 14:21:49 +1000
-Message-Id: <1098764509.5153.11.camel@gaston>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.2 
-Content-Transfer-Encoding: 7bit
+cc: javier@marcet.info, <linux-kernel@vger.kernel.org>, <kernel@kolivas.org>
+Subject: Re: Mem issues in 2.6.9 (ever since 2.6.9-rc3) and possible cause
+In-Reply-To: <Pine.LNX.4.44.0410251823230.21539-100000@chimarrao.boston.redhat.com>
+Message-ID: <Pine.LNX.4.44.0410251833210.21539-100000@chimarrao.boston.redhat.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi !
+On Mon, 25 Oct 2004, Rik van Riel wrote:
+> On Mon, 25 Oct 2004, Andrew Morton wrote:
+> > Rik van Riel <riel@redhat.com> wrote:
+> > >
+> > > -		if (referenced && page_mapping_inuse(page))
+> > > +		if (referenced && sc->priority && page_mapping_inuse(page))
+> > 
+> > Makes heaps of sense, but I'd like to exactly understand why people are
+> > getting oomings before doing something like this.  I think we're still
+> > waiting for a testcase?
+> 
+> I'm now running Yum on a (virtual) system with 96MB RAM and
+> 100MB swap.  This used to get an OOM kill very quickly, but
+> still seems to be running now, after 20 minutes.
 
-The ppc64 PCI code, when parsing the OF tree, may end up getting empty
-regions in addition to the "normal" ones for the PHB (some pSeries OF
-device-tree contains weird "ranges" properties). These are harmless but
-do trigger some annoying warnings during boot, so let's ignore them.
+It completed, without being OOM killed like before.
 
-Signed-off-by: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-
-Index: linux-work/arch/ppc64/kernel/pci.c
-===================================================================
---- linux-work.orig/arch/ppc64/kernel/pci.c	2004-10-25 21:58:12.000000000 +1000
-+++ linux-work/arch/ppc64/kernel/pci.c	2004-10-26 14:18:54.171775248 +1000
-@@ -654,6 +654,8 @@
- 			cpu_phys_addr = cpu_phys_addr << 32 | ranges[4];
- 
- 		size = (unsigned long)ranges[na+3] << 32 | ranges[na+4];
-+		if (size == 0)
-+			continue;
- 		switch ((ranges[0] >> 24) & 0x3) {
- 		case 1:		/* I/O space */
- 			hose->io_base_phys = cpu_phys_addr;
-
+-- 
+"Debugging is twice as hard as writing the code in the first place.
+Therefore, if you write the code as cleverly as possible, you are,
+by definition, not smart enough to debug it." - Brian W. Kernighan
 

@@ -1,72 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265026AbTFLW2o (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 12 Jun 2003 18:28:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265027AbTFLW2o
+	id S263270AbTFLWdp (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 12 Jun 2003 18:33:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265027AbTFLWdp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 12 Jun 2003 18:28:44 -0400
-Received: from perninha.conectiva.com.br ([200.250.58.156]:50629 "EHLO
-	perninha.conectiva.com.br") by vger.kernel.org with ESMTP
-	id S265026AbTFLW2m (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 12 Jun 2003 18:28:42 -0400
-Date: Thu, 12 Jun 2003 19:41:53 -0300
-From: Eduardo Pereira Habkost <ehabkost@conectiva.com.br>
-To: linux-kernel@vger.kernel.org
-Subject: Changes made by fdisk not being written to disk (2.5-bk)
-Message-ID: <20030612224153.GY4639@duckman.distro.conectiva>
+	Thu, 12 Jun 2003 18:33:45 -0400
+Received: from pao-ex01.pao.digeo.com ([12.47.58.20]:58109 "EHLO
+	pao-ex01.pao.digeo.com") by vger.kernel.org with ESMTP
+	id S263270AbTFLWdp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 12 Jun 2003 18:33:45 -0400
+Date: Thu, 12 Jun 2003 15:43:33 -0700
+From: Andrew Morton <akpm@digeo.com>
+To: Unai Garro Arrazola <Unai.Garro@ee.ed.ac.uk>
+Cc: linux-kernel@vger.kernel.org, linux-mm@vger.kernel.org
+Subject: Re: 2.5.70: Lilo needs patching?
+Message-Id: <20030612154333.608bca2c.akpm@digeo.com>
+In-Reply-To: <200306122329.47365.Unai.Garro@ee.ed.ac.uk>
+References: <200306122329.47365.Unai.Garro@ee.ed.ac.uk>
+X-Mailer: Sylpheed version 0.9.0pre1 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="MhP8cYafZlTESjGT"
-Content-Disposition: inline
-User-Agent: Mutt/1.5.4i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 12 Jun 2003 22:47:30.0498 (UTC) FILETIME=[9AFF2A20:01C33134]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Unai Garro Arrazola <Unai.Garro@ee.ed.ac.uk> wrote:
+>
+> Since version 2.5.69 (now with 2.5.70-mm6), I'm having trouble using lilo. 
+> Every time I try to change the lilo boot, the boot menu is either not 
+> changed, or it's corrupted. It looks like if Lilo doesn't manage to 
+> completely write the boot sector.
+> 
+> I've been looking around, but I haven't found any information about this. Has 
+> anything changed in the latest versions? Are there any patches that I need to 
+> apply to lilo to make it work now? 
+> 
 
---MhP8cYafZlTESjGT
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+It's a bug.  Seems that the ramdisk driver has somehow managed to
+compromise the livelock avoidance logic in the sync() system call.
 
+For now you can
 
-I have a SMP machine with a IDE hard disk running 2.5-bk20030611.
+a) stop using the ramdisk driver (don't mount it) or
 
-Today I changed the partition table of the disk, using fdisk, and
-noticed, after reboot, that the new partition table was not written to
-the disk. Before rebooting, 'fdisk -l /dev/hda' shows the new partition
-table, as if it were written.
+b) manually run `blockdev --flushbufs /dev/hdXX' against the boot
+   partition before rebooting.
 
-I've made a few more tests, and even if I sync() a dozen of times
-before rebooting (using /bin/sync and sysrq), the data is not written.
-Even when I've waited about 20 minutes after changing the partition table,
-before rebooting, the problem persisted.
-
-Although, after changing fdisk to call fsync() before closing the device,
-everything worked, the changes were written, and the new partition table
-were on the disk, after rebooting.
-
-I think that changing fdisk to use fsync() would be a Good Thing, but
-I guess that sync() should have the data be written, anyway.
-
-Am I missing something?
-
-If there is any additional information I could give, please let me know.
-
-Regards,
-
---=20
-Eduardo
-
---MhP8cYafZlTESjGT
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.2 (GNU/Linux)
-
-iD8DBQE+6QGxcaRJ66w1lWgRAujvAJ9m+jpLlfFHL1pto0WebBrDwBo6vgCgkM5b
-Ra94n3pn6mfRwTL5O/MPdBs=
-=FXcN
------END PGP SIGNATURE-----
-
---MhP8cYafZlTESjGT--

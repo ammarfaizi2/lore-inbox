@@ -1,67 +1,68 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135504AbRDZO5P>; Thu, 26 Apr 2001 10:57:15 -0400
+	id <S135508AbRDZO7z>; Thu, 26 Apr 2001 10:59:55 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S135508AbRDZO5F>; Thu, 26 Apr 2001 10:57:05 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:23308 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id <S135504AbRDZO4x>;
-	Thu, 26 Apr 2001 10:56:53 -0400
-Date: Thu, 26 Apr 2001 16:56:47 +0200
-From: Jens Axboe <axboe@suse.de>
-To: Malcolm Beattie <mbeattie@sable.ox.ac.uk>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Block device strategy and requests
-Message-ID: <20010426165647.D496@suse.de>
-In-Reply-To: <20010426153815.B2101@sable.ox.ac.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20010426153815.B2101@sable.ox.ac.uk>; from mbeattie@sable.ox.ac.uk on Thu, Apr 26, 2001 at 03:38:15PM +0100
+	id <S135509AbRDZO7p>; Thu, 26 Apr 2001 10:59:45 -0400
+Received: from c4.h061013036.is.net.tw ([61.13.36.4]:64010 "EHLO
+	exchsmtp.via.com.tw") by vger.kernel.org with ESMTP
+	id <S135508AbRDZO7h>; Thu, 26 Apr 2001 10:59:37 -0400
+Message-ID: <611C3E2A972ED41196EF0050DA92E0760265D56A@EXCHANGE2>
+From: Yiping Chen <YipingChen@via.com.tw>
+To: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>
+Subject: About rebuild 2.4.x kernel to support SMP.
+Date: Thu, 26 Apr 2001 22:59:44 +0800
+MIME-Version: 1.0
+X-Mailer: Internet Mail Service (5.5.2650.21)
+Content-Type: text/plain;
+	charset="big5"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Apr 26 2001, Malcolm Beattie wrote:
-> I'm designing a block device driver for a high performance disk
-> subsystem with unusual characteristics. To what extent is the
-> limited number of "struct request"s (128 by default) necessary for
-> back-pressure? With this I/O subsystem it would be possible for the
 
-Not at all
+I know it's not proper ask such question here. But I don't know where can I
+post this question.
+I download RedHat 7.1 last week, and install it in my dual-CPU enviroment.
+I try to rebuild kernel that support SMP in kernel 2.4.2 today , but it
+failed.
+The following is what I did.
+========================================
+1. Install Red Hat 7.1 in my dual-CPU environment
+2. type 'uname -a' , the following is the result:
+    Linux lab5-1 2.4.2-2smp #1 SMP Sun Apr 8 20:21:34 EDT 2001 i686 unknown
+3. cd /usr/src/linux-2.4 (becuase Red Hat link the 2.4.2 kernel source to
+linux-2.4)
+4. make mrproper
+5. make menuconfig (set SMP and RTC)
+6. make dep
+7. make clean
+8. make bzImage
+9. make modules
+10. make modules_install
+11. edit /etc/lilo.conf
+12. run lilo
+13. reboot, choose new kernel to boot the system, type 'uname -a'
+     Linux lab5-1 2.4.2-2 #1 SMP Wed Apr 25 18:56:05 CST 2001 i686 unknown
 
-> strategy function to rip the requests from the request list straight
-> away, arrange for the I/Os to be done to/from the buffer_heads (with
-> no additional state required) with no memory "leak". This would
-> effectively mean that the only limit on the number of I/Os queued
-> would be the number of buffer_heads allocated; not a fixed number of
-> "struct request"s in flight. Is this reasonable or does any memory or
-> resource balancing depend on the number of I/Os outstanding being
-> bounded?
+My question is why the result of 'uname -r' is not "2.4.2-2smp" , but
+"2.4.2-2"
+Whether I forgot to do something?
+It seems that when we compile the 2.4.2 kernel, it will not use -D__SMP__
+argument now.
+(because I didn't see it in /usr/src/linux-2.4/Makefile, and I didn't see it
+when I did 'make bzImage')
+If someone ever build 2.4.x kernel which support SMP, please teach me how to
+do it.
+Thanks!!
 
-The requests need not be bounded, as long as the buffer_heads are. I
-don't see how the above scheme differs from some of the drivers that are
-currently in the tree though?
+--------------------------------------------------
+Yiping Chen
+VIA Technologies, Inc.
+LAN Software
+533 Chung Cheng Road 8F
+Hsin Tien, Taipei
+Taiwan
+TEL : 886-2-22185452  EXT.7512
+FAX : 886-2-22187527
+E-mail : YipingChen@via.com.tw
 
-> Also, there is a lot of flexibility in how often interrupts are sent
-> to mark the buffer_heads up-to-date. (With the requests pulled
-> straight off the queue, the job of end_that_request_first() in doing
-> the linked list updates and bh->b_end_io() callbacks would be done by
-> the interrupt routine directly.) At one extreme, I could take an
-> interrupt for each 4K block issued and mark it up-to-date very
-> quickly making for very low-latency I/O but a very large interrupt
-> rate when I/O throughput is high. The alternative would be to arrange
-> for an interrupt every n buffer_heads (or based on some other
-> criterion) and only take an interrupt and mark buffers up-to-date on
-> each of those). Are there any rules of thumb on which is best or
-> doesn't it matter too much?
-
-An interrupt per request would give you anywhere between 4kB and XXXkB
-transfer per interrupt, depending on what you set your max_sectors to.
-Going bigger than that probably won't make a whole lot of sense, and you
-would have to do additional foot-work to make it happen. In theory. Only
-real-life testing can tell you for sure, and how big requests you get
-depends heavily on the workload so there will be no one true answer for
-this.
-
--- 
-Jens Axboe
 

@@ -1,43 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261871AbUK2W74@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261852AbUK2W4Q@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261871AbUK2W74 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 29 Nov 2004 17:59:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261866AbUK2W4q
+	id S261852AbUK2W4Q (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 29 Nov 2004 17:56:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261858AbUK2WyV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 29 Nov 2004 17:56:46 -0500
-Received: from gateway-1237.mvista.com ([12.44.186.158]:52729 "EHLO
-	av.mvista.com") by vger.kernel.org with ESMTP id S261871AbUK2Wzi
+	Mon, 29 Nov 2004 17:54:21 -0500
+Received: from prgy-npn1.prodigy.com ([207.115.54.37]:1966 "EHLO
+	oddball.prodigy.com") by vger.kernel.org with ESMTP id S261866AbUK2Wva
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 29 Nov 2004 17:55:38 -0500
-Message-ID: <41ABA8E5.4060504@mvista.com>
-Date: Mon, 29 Nov 2004 14:55:33 -0800
-From: George Anzinger <george@mvista.com>
-Reply-To: george@mvista.com
-Organization: MontaVista Software
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4.2) Gecko/20040308
+	Mon, 29 Nov 2004 17:51:30 -0500
+Message-ID: <41ABA6EE.6080502@tmr.com>
+Date: Mon, 29 Nov 2004 17:47:10 -0500
+From: Bill Davidsen <davidsen@tmr.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040913
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: lkml <linux-kernel@vger.kernel.org>
-Subject: A problem with xconfig
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+CC: Jesper Juhl <juhl-lkml@dif.dk>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Gadi Oxman <gadio@netvision.net.il>, Jens Axboe <axboe@suse.de>,
+       Andrew Morton <akpm@osdl.org>
+Subject: Re: [PATCH][2/2] ide-tape: small cleanups - handle   copy_to|from_user()
+ failures
+References: <Pine.LNX.4.61.0411281731050.3389@dragon.hygekrogen.localhost><Pine.LNX.4.61.0411281731050.3389@dragon.hygekrogen.localhost> <1101663266.16761.43.camel@localhost.localdomain>
+In-Reply-To: <1101663266.16761.43.camel@localhost.localdomain>
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In looking at the makefile history, it would appear that libkconfig.so has been 
-deleted from the build.  It seems, however, that qconf has not gotten the message:
+Alan Cox wrote:
+> On Sul, 2004-11-28 at 16:32, Jesper Juhl wrote:
+> 
+>> #endif /* IDETAPE_DEBUG_BUGS */
+>> 		count = min((unsigned int)(bh->b_size - atomic_read(&bh->b_count)), (unsigned int)n);
+>>-		copy_from_user(bh->b_data + atomic_read(&bh->b_count), buf, count);
+>>+		if (copy_from_user(bh->b_data + atomic_read(&bh->b_count), buf, count))
+>>+			return -EFAULT;
+>> 		n -= count;
+>> 		atomic_add(count, &bh->b_count);
+>> 		buf += count;
+> 
+> 
+> If you do this then you don't fix up tape->bh for further operations.
+> Have you tested these changes including the I/O errors ?
 
-  make O=/usr/src/ver/makena/obj/  xconfig ARCH=i386
-   HOSTCXX scripts/kconfig/qconf.o
-   HOSTLD  scripts/kconfig/qconf
-scripts/kconfig/qconf arch/i386/Kconfig
-./scripts/kconfig/libkconfig.so: cannot open shared object file: No such file or 
-directory
-make[2]: *** [xconfig] Error 1
-make[1]: *** [xconfig] Error 2
-make: *** [xconfig] Error 2
+But (a) do you have enough information to backout or fixup correctly? 
+And (b) won't this result in the whole i/o being treated as invalid?
 
 -- 
-George Anzinger   george@mvista.com
-High-res-timers:  http://sourceforge.net/projects/high-res-timers/
+    -bill davidsen (davidsen@tmr.com)
+"The secret to procrastination is to put things off until the
+  last possible moment - but no longer"  -me
 

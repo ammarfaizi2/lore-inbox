@@ -1,47 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262658AbRFUW7W>; Thu, 21 Jun 2001 18:59:22 -0400
+	id <S265281AbRFUXHW>; Thu, 21 Jun 2001 19:07:22 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265278AbRFUW7L>; Thu, 21 Jun 2001 18:59:11 -0400
-Received: from hera.cwi.nl ([192.16.191.8]:29349 "EHLO hera.cwi.nl")
-	by vger.kernel.org with ESMTP id <S262658AbRFUW7A>;
-	Thu, 21 Jun 2001 18:59:00 -0400
-Date: Fri, 22 Jun 2001 00:58:53 +0200 (MET DST)
-From: Andries.Brouwer@cwi.nl
-Message-Id: <UTC200106212258.AAA370096.aeb@vlet.cwi.nl>
-To: jari.ruusu@pp.inet.fi, torvalds@transmeta.com
-Subject: Re: loop device broken in 2.4.6-pre5
-Cc: axboe@suse.de, linux-kernel@vger.kernel.org
+	id <S265282AbRFUXHN>; Thu, 21 Jun 2001 19:07:13 -0400
+Received: from snark.tuxedo.org ([207.106.50.26]:30724 "EHLO snark.thyrsus.com")
+	by vger.kernel.org with ESMTP id <S265281AbRFUXG6>;
+	Thu, 21 Jun 2001 19:06:58 -0400
+Date: Thu, 21 Jun 2001 19:10:35 -0400
+From: "Eric S. Raymond" <esr@thyrsus.com>
+To: "Grover, Andrew" <andrew.grover@intel.com>
+Cc: CML2 <linux-kernel@vger.kernel.org>, kbuild-devel@lists.sourceforge.net
+Subject: Re: [kbuild-devel] Missing help entries in 2.4.6pre5
+Message-ID: <20010621191035.A8796@thyrsus.com>
+Reply-To: esr@thyrsus.com
+Mail-Followup-To: "Eric S. Raymond" <esr@thyrsus.com>,
+	"Grover, Andrew" <andrew.grover@intel.com>,
+	CML2 <linux-kernel@vger.kernel.org>,
+	kbuild-devel@lists.sourceforge.net
+In-Reply-To: <4148FEAAD879D311AC5700A0C969E89006CDDEE1@orsmsx35.jf.intel.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <4148FEAAD879D311AC5700A0C969E89006CDDEE1@orsmsx35.jf.intel.com>; from andrew.grover@intel.com on Thu, Jun 21, 2001 at 03:49:01PM -0700
+Organization: Eric Conspiracy Secret Labs
+X-Eric-Conspiracy: There is no conspiracy
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-    From: Jari Ruusu <jari.ruusu@pp.inet.fi>
+Grover, Andrew <andrew.grover@intel.com>:
+> They're all in pre5 patch, around line 900.
+> 
+> Regards -- Andy
 
-    File backed loop device on 4k block size ext2 filesystem:
+My error, thanks.  OK, the revised list of the missing is 
 
-    # dd if=/dev/zero of=file1 bs=1024 count=10
-    10+0 records in
-    10+0 records out
-    # losetup /dev/loop0 file1
-    # dd if=/dev/zero of=/dev/loop0 bs=1024 count=10 conv=notrunc
-    dd: /dev/loop0: No space left on device
-    9+0 records in
-    8+0 records out
-    # tune2fs -l /dev/hda1 2>&1| grep "Block size"
-    Block size:               4096
-    # uname -a
-    Linux debian 2.4.6-pre5 #1 Thu Jun 21 14:27:25 EEST 2001 i686 unknown
+CONFIG_MOMENCO_OCELOT
+CONFIG_MTD_CFI_VIRTUAL_ER
 
-    Stock 2.4.5 and 2.4.5-ac15 don't have this problem.
+I'll release a 2.11 Configure.help shortly.
+-- 
+		<a href="http://www.tuxedo.org/~esr/">Eric S. Raymond</a>
 
-I am not sure there is an error here.
-
-The default block size of a loop device is that of the underlying device.
-There was a kernel bug that was recently fixed, where the block size
-of a file backed loop device could be essentially random.
-So, earlier you happened to get blocksize 1024, and you had room for
-10 blocks of size 1024.
-Now you have blocksize 4096, and you have room for 2 blocks of size 4096.
-There are no fractional blocks at the end of a block device.
-
-Andries
+An armed society is a polite society.  Manners are good when one 
+may have to back up his acts with his life.
+        -- Robert A. Heinlein, "Beyond This Horizon", 1942

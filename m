@@ -1,57 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263869AbUCPKJj (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 16 Mar 2004 05:09:39 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263870AbUCPKJj
+	id S263875AbUCPKMD (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 16 Mar 2004 05:12:03 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263872AbUCPKLs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 Mar 2004 05:09:39 -0500
-Received: from gprs214-17.eurotel.cz ([160.218.214.17]:59267 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S263869AbUCPKJh (ORCPT
+	Tue, 16 Mar 2004 05:11:48 -0500
+Received: from gprs214-17.eurotel.cz ([160.218.214.17]:61059 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S263743AbUCPKLp (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 Mar 2004 05:09:37 -0500
-Date: Tue, 16 Mar 2004 11:09:25 +0100
+	Tue, 16 Mar 2004 05:11:45 -0500
+Date: Tue, 16 Mar 2004 11:11:34 +0100
 From: Pavel Machek <pavel@ucw.cz>
-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Cc: Nigel Cunningham <ncunningham@users.sourceforge.net>,
-       "Theodore Ts'o" <tytso@mit.edu>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Dealing with swsusp vs. pmdisk
-Message-ID: <20040316100925.GA2177@elf.ucw.cz>
-References: <20040312224645.GA326@elf.ucw.cz> <20040313004756.GB5115@thunk.org> <1079146273.1967.63.camel@gaston> <20040313123620.GA3352@openzaurus.ucw.cz> <1079223482.1960.113.camel@gaston> <20040314003717.GI549@elf.ucw.cz> <1079381114.5349.62.camel@calvin.wpcb.org.au> <1079395292.2302.191.camel@gaston> <1079393514.2043.10.camel@calvin.wpcb.org.au> <1079401255.1967.217.camel@gaston>
+To: Romano Giannetti <romano@dea.icai.upco.es>, linux-kernel@vger.kernel.org,
+       Andrew Morton <akpm@osdl.org>, Patrick Mochel <mochel@osdl.org>
+Subject: Re: Remove pmdisk from kernel
+Message-ID: <20040316101134.GB2177@elf.ucw.cz>
+References: <20040315195440.GA1312@elf.ucw.cz> <20040315125357.3330c8c4.akpm@osdl.org> <20040315205752.GG258@elf.ucw.cz> <20040316091648.GB6301@pern.dea.icai.upco.es>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-In-Reply-To: <1079401255.1967.217.camel@gaston>
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20040316091648.GB6301@pern.dea.icai.upco.es>
 X-Warning: Reading this can be dangerous to your mental health.
 User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
-
-> > > > - Freezer hooks (I can easily get suspend2 working with the old freezer
-> > > > until people are convinced it's not up to the task). This accounts for
-> > > > the vast majority of those file changes.
+On Út 16-03-04 10:16:48, Romano Giannetti wrote:
+> On Mon, Mar 15, 2004 at 09:57:52PM +0100, Pavel Machek wrote:
+> > Hi!
+> > > Pavel Machek <pavel@ucw.cz> wrote:
+> > > >
+> > > > This removes pmdisk from kernel.
 > > > 
-> > > It would be nice if you did that as a first step indeed. I'm personally
-> > > not convinced of the usefullness of having a freezer at all ;)
-> > 
-> > Without a freezer, how would you ensure that other processes don't mess
-> > up your memory state while you're saving/reloading the image?
 > 
-> Hrm, you are not protecting about "asynchronous" (interrupt based)
-> activity anyway... I'm not sure how the IO sceduler may kill us
-> and whatever doing things based on a timer that doesn't have a
-> device-driver underneath getting the PM callbacks.
-> 
-> As far as suspend-to-disk is concerned, I agree we need a state
-> snapshot, then we need to be able to play with drivers to save that
-> state without having userland get in the way, so yup, we need a
-> freezer. I think we don't need it for suspend-to-ram though.
+> Are you sure swsusp is equivalent? Last time I tried (2.6.1, I am in serious
+> time shortage in this period) swsusp did not work on my Vaio fx-701, while
+> PMDISK yes (ACPI enabled). I will try to test again in this weekend. 
 
-You are right, freezer should not be needed for s-to-ram. I wanted to
-keep it consistent with s-to-disk, and maybe make locking a bit easier
-for drivers.
+Yes, I'm pretty sure. There may be some bug in both of them, but they
+do the same thing. (And swsusp should have slightly lower ammount of
+bugs).
 								Pavel
 -- 
 When do you have a heart between your knees?

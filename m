@@ -1,45 +1,35 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264451AbTKMW1w (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 13 Nov 2003 17:27:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264454AbTKMW1w
+	id S264450AbTKMW1H (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 13 Nov 2003 17:27:07 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264451AbTKMW1H
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 13 Nov 2003 17:27:52 -0500
-Received: from adsl-63-194-239-202.dsl.lsan03.pacbell.net ([63.194.239.202]:39948
-	"EHLO mmp-linux.matchmail.com") by vger.kernel.org with ESMTP
-	id S264451AbTKMW1u (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 13 Nov 2003 17:27:50 -0500
-Date: Thu, 13 Nov 2003 14:27:51 -0800
-From: Mike Fedyk <mfedyk@matchmail.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Mary Edie Meredith <maryedie@osdl.org>, piggin@cyberone.com.au,
-       linux-kernel@vger.kernel.org, jenny@osdl.org
-Subject: Re: Nick's scheduler v18
-Message-ID: <20031113222751.GJ2014@mis-mike-wstn.matchmail.com>
-Mail-Followup-To: Andrew Morton <akpm@osdl.org>,
-	Mary Edie Meredith <maryedie@osdl.org>, piggin@cyberone.com.au,
-	linux-kernel@vger.kernel.org, jenny@osdl.org
-References: <3FAFC8C6.8010709@cyberone.com.au> <1068746827.1750.1358.camel@ibm-e.pdx.osdl.net> <20031113113906.65431b18.akpm@osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20031113113906.65431b18.akpm@osdl.org>
-User-Agent: Mutt/1.5.4i
+	Thu, 13 Nov 2003 17:27:07 -0500
+Received: from tolkor.sgi.com ([198.149.18.6]:35046 "EHLO tolkor.sgi.com")
+	by vger.kernel.org with ESMTP id S264450AbTKMW1F (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 13 Nov 2003 17:27:05 -0500
+Date: Thu, 13 Nov 2003 16:26:16 -0600
+From: Erik Jacobson <erikj@efs.americas.sgi.com>
+To: Jonathan Corbet <corbet@lwn.net>
+cc: viro@parcelfarce.linux.theplanet.co.uk, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] seq_file version of /proc/interrupts 
+In-Reply-To: <20031113213927.27114.qmail@lwn.net>
+Message-ID: <Pine.SGI.4.53.0311131624150.183845@efs.americas.sgi.com>
+References: <20031113213927.27114.qmail@lwn.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Nov 13, 2003 at 11:39:06AM -0800, Andrew Morton wrote:
-> What filesystem was being used?
-> 
-> If it was ext2 then perhaps you hit the recently-fixed block allocator
-> race.  That fix was merged after test9.  Please check the kernel logs for
-> any filesystem error messages.
-> 
-> Also, please retry the run, see if it is repeatable.
+> Here, anyway, is a better version of the patch.  It's less intrusive,
+> forgoes some "cleanups" I indulged in the first time, and makes it easier
+> to update other architectures.  I did x86-64, ia_64 and ppc64 just for the
+> heck of it, but I can't test them.
 
-Did that hit ext3 also?  ISTR, getting some "access beyond end of device"
-while running ext3.
+I tested your changes on a small ia64 Altix here.  It worked well.  I'll try
+it out on a 512p system when I can get a time slot on it.
 
-Interestingly enough, I didn't get this while using reiserfs3...
+Thanks for doing this.
 
-And me still running 2.6.0-test6-mm4 :-/
+Erik

@@ -1,39 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S310367AbSCBMsV>; Sat, 2 Mar 2002 07:48:21 -0500
+	id <S310369AbSCBNAu>; Sat, 2 Mar 2002 08:00:50 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S310369AbSCBMsK>; Sat, 2 Mar 2002 07:48:10 -0500
-Received: from cobae1.consultronics.on.ca ([205.210.130.26]:30875 "EHLO
-	cobae1.consultronics.on.ca") by vger.kernel.org with ESMTP
-	id <S310367AbSCBMrw>; Sat, 2 Mar 2002 07:47:52 -0500
-Date: Sat, 2 Mar 2002 07:47:51 -0500
-From: Greg Louis <glouis@dynamicro.on.ca>
-To: LKML <linux-kernel@vger.kernel.org>
-Subject: mini [PATCH] 2.4.19-pre2-ac1 one sched hunk missing
-Message-ID: <20020302124750.GA7351@athame.dynamicro.on.ca>
-Reply-To: Greg Louis <glouis@dynamicro.on.ca>
-Mail-Followup-To: LKML <linux-kernel@vger.kernel.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Organization: Dynamicro Consulting Limited
+	id <S310374AbSCBNAl>; Sat, 2 Mar 2002 08:00:41 -0500
+Received: from minus.inr.ac.ru ([193.233.7.97]:13326 "HELO ms2.inr.ac.ru")
+	by vger.kernel.org with SMTP id <S310369AbSCBNAa>;
+	Sat, 2 Mar 2002 08:00:30 -0500
+From: kuznet@ms2.inr.ac.ru
+Message-Id: <200203021259.PAA20250@ms2.inr.ac.ru>
+Subject: Re: OOPS: Multipath routing 2.4.17
+To: ja@ssi.bg (Julian Anastasov)
+Date: Sat, 2 Mar 2002 15:59:49 +0300 (MSK)
+Cc: kain@kain.org, linux-kernel@vger.kernel.org, ak@suse.de
+In-Reply-To: <Pine.LNX.4.44.0203012316120.1420-100000@u.domain.uli> from "Julian Anastasov" at Mar 2, 2 00:27:40 am
+X-Mailer: ELM [version 2.4 PL24]
+MIME-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---- linux-2.4.19pre2ac1/init/do_mounts.c.orig	Sat Mar  2 07:39:00 2002
-+++ linux-2.4.19pre2ac1/init/do_mounts.c	Sat Mar  2 07:39:00 2002
-@@ -527,8 +527,7 @@
- 		pid = kernel_thread(do_linuxrc, "/linuxrc", SIGCHLD);
- 		if (pid > 0) {
- 			while (pid != wait(&i)) {
--				current->policy |= SCHED_YIELD;
--				schedule();
-+				yield();
- 			}
- 		}
- 		if (MAJOR(real_root_dev) != RAMDISK_MAJOR
+Hello!
 
+> w = jiffies % fi->fib_power;
 
--- 
-| G r e g  L o u i s          | gpg public key:      |
-|   http://www.bgl.nu/~glouis |   finger greg@bgl.nu |
+	power = fi->fib_power;
+	barrier();
+	if (power) ...
+
+Such thing are made in this way.
+
+> 	write_lock(&fib_info_lock);
+
+DO NOT MAKE THIS! fib_info_lock must not be acquired in this context,
+it will lockup. Just add a new lock, which is protected wrt softirqs.
+
+Alexey

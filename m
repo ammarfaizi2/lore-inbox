@@ -1,81 +1,79 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268817AbRG3OkQ>; Mon, 30 Jul 2001 10:40:16 -0400
+	id <S268618AbRG3OjF>; Mon, 30 Jul 2001 10:39:05 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268800AbRG3OkG>; Mon, 30 Jul 2001 10:40:06 -0400
-Received: from pak208.pakuni.net ([207.91.34.208]:55292 "EHLO
-	smp.paktronix.com") by vger.kernel.org with ESMTP
-	id <S268817AbRG3Ojw>; Mon, 30 Jul 2001 10:39:52 -0400
-Date: Mon, 30 Jul 2001 09:46:30 -0500 (CDT)
-From: "Matthew G. Marsh" <mgm@paktronix.com>
-X-X-Sender: <mgm@netmonster.pakint.net>
-To: "William M. Shubert" <wms@igoweb.org>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: Leak in network memory?
-In-Reply-To: <3B64D418.3000608@igoweb.org>
-Message-ID: <Pine.LNX.4.31.0107300939420.14419-100000@netmonster.pakint.net>
+	id <S268800AbRG3Oiz>; Mon, 30 Jul 2001 10:38:55 -0400
+Received: from egghead.curl.com ([216.230.83.4]:7429 "HELO egghead.curl.com")
+	by vger.kernel.org with SMTP id <S268618AbRG3Oio>;
+	Mon, 30 Jul 2001 10:38:44 -0400
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: mason@suse.com (Chris Mason), cw@f00f.org (Chris Wedgwood),
+        linux-kernel@vger.kernel.org
+Subject: Re: ext3-2.4-0.9.4
+In-Reply-To: <E15RDVj-0003oi-00@the-village.bc.nu>
+From: "Patrick J. LoPresti" <patl@curl.com>
+Date: 30 Jul 2001 10:38:52 -0400
+In-Reply-To: <E15RDVj-0003oi-00@the-village.bc.nu>
+Message-ID: <s5g8zh6pjlv.fsf@egghead.curl.com>
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) Emacs/20.7
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
-On Sun, 29 Jul 2001, William M. Shubert wrote:
+Alan Cox <alan@lxorguk.ukuu.org.uk> writes:
 
-> Hi. I have an application that does a lot of nonblocking networking I/O
-> and is fairly sensitive to how much data can be held in the output
-> buffers of sockets. All sockets are set to have 64KB (the default) of
-> output buffering. This application had been running well with very long
-> uptimes for over a year in the 2.2 kernels.
+> > Chris Mason <mason@suse.com> writes:
+> > 
+> > > Correct, in the current 2.4.x code, its a quirk.  fsync(any object) ==
+> > > fsync(all pending metadata, including renames).
+> > 
+> > This does not help.  The MTAs are doing fsync() on the temporary file
+> > and then using the *subsequent* rename() as the committing operation.
+> 
+> Which is quaint, because as we've pointed out repeatedly to you rename
+> is not an atomic operation. Even on a simple BSD or ext2 style fs it can
+> be two directory block writes,  metadata block writes, a bitmap write
+> and a cylinder group write.
 
-Yes. Same here only using an application that receives data over the
-network.
+But not on a journalling filesystem.  I assume that a journal "commit"
+is atomic.  If it is not, then fsync() on the directory does not solve
+the problem either.
 
-> A couple months ago I upgraded my server to RH 7.1 (with the 2.4.2-2 red
-> hat kernel). At first it ran fine, but now after an uptime of 67 days
-> I'm starting to see strange problems. It seems as if only a very small
-> amount of memory can be held in the output buffer of each socket, even
-> though they are still set to 64KB! There isn't a tremendous amount of
-> network traffic going on (about 30-100 sockets open at a time, but
-> rather low total bandwidth). The fact that each write to a socket only
-> writes a few (<8) kbytes is really messing with my performance. I did
-> not see this problem until the past week. I tried to trace through the
-> kernel code to see why the kernel would be refusing to give me the
-> buffering that I ask for, and it looks like if the network code thinks
-> that it is using too much memory, then it will behave this way. I'm not
-> 100% sure of this, though...which is why I'm posting this message.
+Put another way, I am suggesting a mount-time or directory option to
+effectively cause rename() and link() to automatically be followed by
+an fsync() of the containing directory.  (Actually, from this
+perspective, maybe you could fix the MTA in user space with LD_PRELOAD
+hackery or somesuch.  Hm...)
 
-Worse here - the app keeps adding memory and the size of the memory is
-almost exactly equal to the amount of data transferred in (plus a few
-bytes of overhead). This memory is permanently cached and never released.
-We have an open case with RH ....
+> > It would be nice to have an option (on either the directory or the
+> > mountpoint) to cause all metadata updates to commit to the journal
+> > without causing all operations to be fully synchronous.  This would
+> 
+> You mean fsync() on the directory. 
 
-> Does anybody have any hints on how I can track down exactly why my
-> output buffers aren't working? I see lots of /proc info related to
-> network parameters, but there is little documentation on them. Is there
-> a known bug like this in the RH 2.4.2-2 kernel? Would a newer kernel
-> help me? (I know, I could just try upgrading and waiting another 60
-> days, but 24x7 reliability is very important to my users so I'd rather
-> not reboot unless I know that it will help). I searched the archives of
-> this mailing list, and found a few interesting references network memory
-> consumption in the changelog of the Alan Cox series, but nothing that
-> explicitly described a problem like this. Thanks to anybody who can help
-> me out here.
+In other words, "Get the MTA authors to change their code."  That is a
+nice little war, but it is fought at the expense of users who just
+want to use the code provided by their vendor and have it work.
 
-We were using the 2.4.5 kernel and were told to go back to the original
-kernel and it got worse. ?? When I find out more - looks like a memory
-leak in the glibc right now but... - I will let you know.
+The situation is this:
 
-> Bill Shubert (wms@igoweb.org) <mailto:wms@igoweb.org>
-> http://www.igoweb.org/~wms/ <http://igoweb.org/%7Ewms/>
+  The relevant standards (POSIX, SuS, etc.) provide no way to perform
+  reliable transactions on a file system.
 
---------------------------------------------------
-Matthew G. Marsh,  President
-Paktronix Systems LLC
-1506 North 59th Street
-Omaha  NE  68104
-Phone: (402) 932-7250 x101
-Email: mgm@paktronix.com
-WWW:  http://www.paktronix.com
---------------------------------------------------
+  BSD provides one solution, which is synchronous metatdata.  (I am
+  assuming modern BSDs already deal with the multiple-disk-block
+  problem to make these transactions properly atomic.  Is this
+  assumption false?)
 
+  Linux provides a different solution, which is fsync() on the
+  directory.
+
+  All MTAs, and other apps besides, currently use the BSD solution for
+  reliable transactions.
+
+Is it really so absurd to ask Linux to provide efficient support of
+the BSD semantics as an option?
+
+ - Pat

@@ -1,40 +1,33 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261390AbRFKQOz>; Mon, 11 Jun 2001 12:14:55 -0400
+	id <S261801AbRFKQ3G>; Mon, 11 Jun 2001 12:29:06 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261394AbRFKQOp>; Mon, 11 Jun 2001 12:14:45 -0400
-Received: from beasley.gator.com ([63.197.87.202]:35333 "EHLO
-	beasley.gator.com") by vger.kernel.org with ESMTP
-	id <S261390AbRFKQOn>; Mon, 11 Jun 2001 12:14:43 -0400
-From: "George Bonser" <george@gator.com>
-To: "Daniel Stone" <daniel@kabuki.sfarc.net>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: RE: [PATCH] 2.4.6-pre2 page_launder() improvements
-Date: Mon, 11 Jun 2001 09:18:07 -0700
-Message-ID: <CHEKKPICCNOGICGMDODJMEMFDEAA.george@gator.com>
+	id <S261979AbRFKQ25>; Mon, 11 Jun 2001 12:28:57 -0400
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:40722 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S261861AbRFKQ2p>; Mon, 11 Jun 2001 12:28:45 -0400
+Subject: Re: [CHECKER] 15 probable security holes in 2.4.5-ac8
+To: jreuter@suse.de (Joerg Reuter)
+Date: Mon, 11 Jun 2001 17:27:28 +0100 (BST)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20010611155145.A12203@suse.de> from "Joerg Reuter" at Jun 11, 2001 03:51:45 PM
+X-Mailer: ELM [version 2.5 PL3]
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2910.0)
-In-Reply-To: <20010611130314.B964@kabuki.openfridge.net>
-Importance: Normal
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4133.2400
+Message-Id: <E159UXI-0008QS-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I ran some more tests yesterday with a little more RAM than last 
-time and Rik's kernel performed much better than the vanilla kernel 
-in the face of memory pressure when it was very busy. I could get 
-both kernels into situations where they were unresponsive but these 
-periods of time were much shorter with Rik's than with vanilla 
-2.4.6-pre2.  A background kernel compile completed much faster  on
-Rik's version on a fairly busy web server with 128MB of RAM.
+> Granted. But I've no reports that anyone actually tried that,
+> especially as the (unmodified) driver is only useful for packet radio
+> purposes.
+> 
+> >Both fixed
+> 
+> How? ;-)
 
-I goofed and forwarded the vmstat logs to the linux-mm
-mailing list so there is a huge message there with my results :-/
-but I can forward them to anyone interested.
-
+NR_IRQS is defined by each port. I used that. Its the blunt instrument approach
+until you do it nicely 8)
 

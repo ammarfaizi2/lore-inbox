@@ -1,46 +1,88 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261540AbUBYTSl (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 25 Feb 2004 14:18:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261167AbUBYTR1
+	id S261481AbUBYTZQ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 25 Feb 2004 14:25:16 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261584AbUBYTZQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 25 Feb 2004 14:17:27 -0500
-Received: from ambr.mtholyoke.edu ([138.110.1.10]:56585 "EHLO
-	ambr.mtholyoke.edu") by vger.kernel.org with ESMTP id S261584AbUBYTQf
+	Wed, 25 Feb 2004 14:25:16 -0500
+Received: from as8-6-1.ens.s.bonet.se ([217.215.92.25]:28596 "EHLO
+	zoo.weinigel.se") by vger.kernel.org with ESMTP id S261481AbUBYTZD
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 25 Feb 2004 14:16:35 -0500
-Date: Wed, 25 Feb 2004 14:16:33 -0500 (EST)
-From: Ron Peterson <rpeterso@MtHolyoke.edu>
-To: linux-kernel@vger.kernel.org
-Subject: Re: network / performance problems
-In-Reply-To: <Pine.OSF.4.21.0402240922280.430603-100000@mhc.mtholyoke.edu>
-Message-ID: <Pine.OSF.4.21.0402251410240.493062-100000@mhc.mtholyoke.edu>
+	Wed, 25 Feb 2004 14:25:03 -0500
+To: Nikita Danilov <Nikita@Namesys.COM>
+Cc: root@chaos.analogic.com, Grigor Gatchev <grigor@zadnik.org>,
+       Rik van Riel <riel@redhat.com>, linux-kernel@vger.kernel.org
+Subject: Re: A Layered Kernel: Proposal
+References: <Pine.LNX.4.44.0402251647190.17570-100000@lugburz.zadnik.org>
+	<Pine.LNX.4.53.0402251023330.9271@chaos>
+	<16444.50903.351290.50106@laputa.namesys.com>
+From: Christer Weinigel <christer@weinigel.se>
+Organization: Weinigel Ingenjorsbyra AB
+Date: 25 Feb 2004 20:25:00 +0100
+In-Reply-To: <16444.50903.351290.50106@laputa.namesys.com>
+Message-ID: <m3ptc3otbn.fsf@zoo.weinigel.se>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Nikita Danilov <Nikita@Namesys.COM> writes:
 
-On Tue, 24 Feb 2004, Ron Peterson wrote:
-
-> I've also added some graphs of must monitoring mist (which is the machine
-> I actually care about the most right now).  Mist ping latencies are
-> predictably on the upswing again.  I'll likely be rebooting soon.
+> Richard B. Johnson writes:
 > 
-> http://depot.mtholyoke.edu:8080/tmp/must-mist/2002-02-24_8:40/
+> [...]
+> 
+>  > 
+>  > So don't claim that layering does anything useful except
+>  > to create jobs. It is a make-work technique that creates
+>  > jobs for inadequate or incompetent programmers.
+> 
+> Interesting that whole notion of layering and separation of concerns was
+> invented exactly during the design of "THE" OS kernel. By very competent
+> and adequate programmer.
+> 
+> http://www.cs.utexas.edu/users/EWD/ewd01xx/EWD196.PDF
 
-I've had to turn my attention to some other responsibilities, so I haven't
-done any kernel profiling yet.  However, I can report that I rebooted
-'mist' into 2.4.20 yesterday, and I have seen rock solid .15 ms response
-times for more than 24 hours.  Host 'must' is likewise now stable, running
-2.4.20 for two days now.  I have graphs, logs, etc. if anyone cares to see
-them.
+Just because there's an academic paper written about something doesn't
+mean that its right.  For once Richard is partially right, unneccesary
+layering can really ruin a system.  Grigor said that in 25 years he
+has seen few cases of pretty code performing badly, but look at the
+failure of SysV streams, it's a really pretty layering model, but in
+practice it turns out to be too slow for most anything useful.  
 
-mist is hyperthreaded dual xeon now back to built-in broadcom adapter (tg3
-module).  must is single cpu asus p4pe w/ 3com adapter.
+It's not too uncommon with drivers that breaks just because the actual
+hardware won't fit into the model that is exposed via a layer.  For
+example, look at the error recovery of the old Linux SCSI code: it's
+hard to do proper error recovery, and it is much slower than it needs
+to because first the low level driver tries to do error recovery and
+later on the higher layers try to do error recovery too.  Multiply a
+couple of retries in the SCSI middle layer with another couple of
+retries after a timeout a few seconds at the SCSI controller layer and
+you have a model where it takes a minute to do figure out that
+something is wrong, for something that ought to take just a few
+seconds.
 
-_________________________
-Ron Peterson
-Network & Systems Manager
-Mount Holyoke College
+Additionally, because of the strict layering it's not always possible
+to hand up a meaningful error status from the lower layers to the
+higher layers, it gets lost in the middle just because it didn't fit
+into the layers model of the world.  It can also mean that it's not
+possible to use the intelligent features of a smart SCSI controller
+that can do complex error recovery on its own since most layers end up
+exposing only the "least common denominator".
 
+In the linux kernel I think that one of the most important things I've
+learned from it: middle layers are usually wrong.  Instead of hiding a
+device driver behind a middle layer, expose the low level device
+driver, but give it a library of common functions to build upon.  That
+way the driver is in control all the time and can use all the neat
+features of the hardware if it wants to, but for all the common tasks
+that have to be done, hand them over to the library.
+
+  /Christer
+
+-- 
+"Just how much can I get away with and still go to heaven?"
+
+Freelance consultant specializing in device driver programming for Linux 
+Christer Weinigel <christer@weinigel.se>  http://www.weinigel.se

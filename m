@@ -1,56 +1,90 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264578AbTKNUaw (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 14 Nov 2003 15:30:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264580AbTKNUaw
+	id S261950AbTKNUmc (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 14 Nov 2003 15:42:32 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262410AbTKNUmb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 14 Nov 2003 15:30:52 -0500
-Received: from gaia.cela.pl ([213.134.162.11]:16140 "EHLO gaia.cela.pl")
-	by vger.kernel.org with ESMTP id S264578AbTKNUau (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 14 Nov 2003 15:30:50 -0500
-Date: Fri, 14 Nov 2003 21:30:28 +0100 (CET)
-From: Maciej Zenczykowski <maze@cela.pl>
-To: Gene Heskett <gene.heskett@verizon.net>
-cc: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>,
-       Patrick Beard <patrick@scotcomms.co.uk>, <linux-kernel@vger.kernel.org>
-Subject: Re: 2.6.0-test9 VFAT problem
-In-Reply-To: <200311141458.47052.gene.heskett@verizon.net>
-Message-ID: <Pine.LNX.4.44.0311142124460.14447-100000@gaia.cela.pl>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Fri, 14 Nov 2003 15:42:31 -0500
+Received: from coruscant.franken.de ([193.174.159.226]:58554 "EHLO
+	dagobah.gnumonks.org") by vger.kernel.org with ESMTP
+	id S261950AbTKNUm0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 14 Nov 2003 15:42:26 -0500
+Date: Fri, 14 Nov 2003 21:42:12 +0100
+From: Harald Welte <laforge@netfilter.org>
+To: linux-kernel@vger.kernel.org
+Subject: seq_file and exporting dynamically allocated data
+Message-ID: <20031114204212.GK6937@obroa-skai.de.gnumonks.org>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="bX/mw5riLlTkt+Gv"
+Content-Disposition: inline
+X-Operating-System: Linux obroa-skai.de.gnumonks.org 2.4.23-pre7-ben0
+X-Date: Today is Pungenday, the 26th day of The Aftermath in the YOLD 3169
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> No, but here it is, on both sda and sda1:
-> 
-> [root@coyote root]# dosfsck /dev/sda
-> dosfsck 2.8, 28 Feb 2001, FAT32, LFN
-> Logical sector size is zero.
 
-We've already determined that /dev/sda is the partition table and should 
-thus fail.
+--bX/mw5riLlTkt+Gv
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-> [root@coyote root]# dosfsck /dev/sda1
-> dosfsck 2.8, 28 Feb 2001, FAT32, LFN
-> /dev/sda1: 2 files, 2/3997 clusters
+Hi!
 
-Hmm so it passes.
-Could you try passing -v (for verbose) to the fsck...
-Also perhaps just do
-  cat /dev/sda1 > /tmp/file
-  dosfsck -v /tmp/file
-  mount -o loop /tmp/file /mnt/somewhere
-and see if that fails, if so the bug is pure vfat
-then try bzipping the /tmp/file and posting it somewhere and pass the link 
-and I'll take a look...
+After having hacked up a patch to convert /proc/net/ip_conntrack
+to seq_file (which was quite ah experience, I will comment on that in a
+different mail), I am facing a different issue.
 
-> That first one doesn't look kosher to me!
-> Q: Is FAT32 the same as VFAT?
+I haven't found a way to use seq_file for information that is not
+exported as a global variable.=20
 
-FAT32 is one possibility of VFAT - VFAT is any FAT(12,16,32) with long 
-filenames.
+Let's say I have some hash tables that are allocated during runtime of
+the system, on users demand.  I have no way of knowing how many there
+will be and how the user will want to call them.
 
-Cheers,
-MaZe.
+For every of those hashtables I want to create a file in /proc and
+export the data using seq_file().  Since the data objects are all the
+same, I'd like to use the same seq_operations.{start,next,show,stop}
+functions.  The whole struct seq_operations would be part of a larger
+structure that already exists for every hash table.
 
+However, how do I know which hashtable is to be read, when the
+seq_operations.start() function is called?  I would somehow need a
+pointer back to the hashtable from the file itself.  And please don't
+tell me to call d_path() and find the correct hash table by the
+filename.
+
+The problem is, that seq_file is already using the file.private_data
+member...
+
+Any ideas?
+
+Thanks for enlightening a networking hacker about the magic of the
+virtual filesystem ;)
+
+Please Cc' me in replies, that makes the job easier for my mail filters.
+
+--=20
+- Harald Welte <laforge@netfilter.org>             http://www.netfilter.org/
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D
+  "Fragmentation is like classful addressing -- an interesting early
+   architectural error that shows how much experimentation was going
+   on while IP was being designed."                    -- Paul Vixie
+
+--bX/mw5riLlTkt+Gv
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.3 (GNU/Linux)
+
+iD8DBQE/tT4kXaXGVTD0i/8RAmdvAKCRc3byY+vg0A0HZRXhV6iNzoFQpQCdEF7t
+0B7Ws32oJmOMQZFGitgB5ew=
+=m4I+
+-----END PGP SIGNATURE-----
+
+--bX/mw5riLlTkt+Gv--

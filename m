@@ -1,55 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261426AbVC3FQc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261538AbVC3FQ5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261426AbVC3FQc (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 30 Mar 2005 00:16:32 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261538AbVC3FQc
+	id S261538AbVC3FQ5 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 30 Mar 2005 00:16:57 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261549AbVC3FQ5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 30 Mar 2005 00:16:32 -0500
-Received: from [24.24.2.58] ([24.24.2.58]:30856 "EHLO ms-smtp-04.nyroc.rr.com")
-	by vger.kernel.org with ESMTP id S261426AbVC3FQa (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 30 Mar 2005 00:16:30 -0500
-Subject: Re: Mac mini sound woes
-From: Steven Rostedt <rostedt@goodmis.org>
-To: Marcin Dalecki <martin@dalecki.de>
-Cc: Takashi Iwai <tiwai@suse.de>, Lee Revell <rlrevell@joe-job.com>,
-       Linux Kernel list <linux-kernel@vger.kernel.org>,
-       Benjamin Herrenschmidt <benh@kernel.crashing.org>
-In-Reply-To: <0683ecb1e5fb577a703689d1962ad113@dalecki.de>
-References: <1111966920.5409.27.camel@gaston>
-	 <1112067369.19014.24.camel@mindpipe>
-	 <4a7a16914e8d838e501b78b5be801eca@dalecki.de>
-	 <1112084311.5353.6.camel@gaston>
-	 <e5141b458a44470b90bfb2ecfefd99cf@dalecki.de>
-	 <s5h7jjqkazy.wl@alsa2.suse.de>
-	 <0683ecb1e5fb577a703689d1962ad113@dalecki.de>
+	Wed, 30 Mar 2005 00:16:57 -0500
+Received: from mustang.oldcity.dca.net ([216.158.38.3]:38086 "HELO
+	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S261538AbVC3FQx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 30 Mar 2005 00:16:53 -0500
+Subject: Re: [patch] Real-Time Preemption, -RT-2.6.12-rc1-V0.7.41-10
+From: Lee Revell <rlrevell@joe-job.com>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: linux-kernel@vger.kernel.org, "Paul E. McKenney" <paulmck@us.ibm.com>
+In-Reply-To: <20050327085814.GA23082@elte.hu>
+References: <20050325145908.GA7146@elte.hu>
+	 <1111790009.23430.19.camel@mindpipe> <20050325223959.GA24800@elte.hu>
+	 <1111814065.24049.21.camel@mindpipe>  <20050327085814.GA23082@elte.hu>
 Content-Type: text/plain
-Organization: Kihon Technologies
-Date: Wed, 30 Mar 2005 00:15:19 -0500
-Message-Id: <1112159719.3691.77.camel@localhost.localdomain>
+Date: Wed, 30 Mar 2005 00:16:52 -0500
+Message-Id: <1112159812.5598.17.camel@mindpipe>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 
+X-Mailer: Evolution 2.2.1.1 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2005-03-30 at 03:45 +0200, Marcin Dalecki wrote:
-
-> > I think your misunderstanding is that you beliieve user-space can't do
-> > RT.  It's wrong.  See JACK (jackit.sf.net), for example.
+On Sun, 2005-03-27 at 10:58 +0200, Ingo Molnar wrote:
+> * Lee Revell <rlrevell@joe-job.com> wrote:
 > 
-> I know JACK in and out. It doesn't provide what you claim.
+> > Running for several days with PREEMPT_DESKTOP, on the Athlon XP the 
+> > worst latency I am seeing is ~150 usecs!  But on the C3 its about 4ms:
+> 
+> could you run a bit with tracing disabled (in the .config) on the C3?  
+> (but wakeup timing still enabled) It may very well be tracing overhead 
+> that makes those latencies that high.  Also, we'd thus have some hard 
+> data on how much overhead tracing is in such a situation, on that CPU.
+> 
 
-Are you implying that "He don't know JACK!"
+I have not left it to run overnight yet with the swappiness set to 100,
+which triggers the biggest latencies as my entire desktop is swapped
+out, but so far it looks like the problem was tracing overhead.  With
+timing enabled but tracing disabled the longest latency on the C3 so far
+is 270 usecs.
 
-Sorry, couldn't resist. Move along now, nothing to see here :-)  God
-it's late, I need to go to bed.
+An important giveaway is that with tracing enabled the same code path
+only triggers ~200 usec latencies on the K7 but ~2ms on the C3.  Since
+the longest latency with PREEMPT_DESKTOP is normally more a function of
+memory bandwidth than processor speed, and the machines differ much more
+in the latter, this agrees with the theory that the overhead is the
+problem.
 
-Is that an American phrase. If so, it might not be understood elsewhere.
-So just in case others don't understand this stupid joke. There's a
-phrase "You don't know Jack" which is equivalent to saying "you don't
-know what you're talking about".  Which makes this kind of a pun. 
-
--- Steve
-
+Lee
 

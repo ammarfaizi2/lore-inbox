@@ -1,55 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262656AbVCSTU7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262657AbVCST0y@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262656AbVCSTU7 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 19 Mar 2005 14:20:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262662AbVCSTU6
+	id S262657AbVCST0y (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 19 Mar 2005 14:26:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262664AbVCST0y
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 19 Mar 2005 14:20:58 -0500
-Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:187 "EHLO
-	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id S262656AbVCSTUh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 19 Mar 2005 14:20:37 -0500
-Date: Sat, 19 Mar 2005 14:26:12 +0100
-From: Pavel Machek <pavel@ucw.cz>
-To: erik.andren@gmail.com
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Suspend-to-disk woes
-Message-ID: <20050319132612.GA1504@openzaurus.ucw.cz>
-References: <423B01A3.8090501@gmail.com>
+	Sat, 19 Mar 2005 14:26:54 -0500
+Received: from mail-ex.suse.de ([195.135.220.2]:45983 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id S262657AbVCST0u (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 19 Mar 2005 14:26:50 -0500
+Date: Sat, 19 Mar 2005 20:26:45 +0100
+From: Andi Kleen <ak@suse.de>
+To: Matt Domsch <Matt_Domsch@dell.com>
+Cc: ak@suse.de, linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org
+Subject: Re: [PATCH 2.4.30-pre3] x86_64: pci_alloc_consistent() match 2.6 implementation
+Message-ID: <20050319192645.GA3937@wotan.suse.de>
+References: <20050318212344.GC26112@lists.us.dell.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <423B01A3.8090501@gmail.com>
-User-Agent: Mutt/1.3.27i
+In-Reply-To: <20050318212344.GC26112@lists.us.dell.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
-
-> Hello, I experienced a pretty nasty problem a couple of days back:
+On Fri, Mar 18, 2005 at 03:23:44PM -0600, Matt Domsch wrote:
+> For review and comment.
 > 
-> I ran 2.6.11-ck1 and built 2.6.11-ck2. The last thing I did before 
-> booting the new kernel was to suspend-to-disk the old kernel 
-> (something I usually do as I'm working on this laptop).
-> I ran the new kernel a couple of days and decided to boot the old 
-> kernel to do some performance tests. Imagine my dread as the old 
-> kernel instead of detecting that the system has booted another kernel 
-> just reloads the old suspend-to-disk image. The result is that after 
-> succesfully resuming, my harddrive goes bonkers and starts to work. 
-> After a couple of minutes the whole kernel hangs. I reboot and try to 
-> boot the -ck2 kernel again only to find that the system complains as 
-> it finds missing nodes. The reisertools try to rebuild the system 
-> unsucessully. The --rebuild-tree parameter worked but a lot of files 
-> were still missing. In the end I had to reinstall the whole system as 
-> it went so unstable.
+> On x86_64 systems with no IOMMU and with >4GB RAM (in fact, whenever
+> there are any pages mapped above 4GB), pci_alloc_consistent() falls
+> back to using ZONE_DMA for all allocations, even if the device's
+> dma_mask could have supported using memory from other zones.  Problems
+> can be seen when other ZONE_DMA users (SWIOTLB, scsi_malloc()) consume
+> all of ZONE_DMA, leaving none left for pci_alloc_consistent() use.
 > 
-> My question is: Why isn't there a check before resuming a 
-> suspend-to-disk image if the system has booted another kernel since 
-> the suspend to prevent this kind of hassle?
+> Patch below makes pci_alloc_consistent() for the nommu case (EM64T
+> processors) match the 2.6 implementation of dma_alloc_coherent(), with
+> the exception that this continues to use GFP_ATOMIC.
 
-Checking that would be hard, but you might want to provide patch to check
-last-mounted dates of filesystems and panic if they changed.
-				Pavel
--- 
-64 bytes from 195.113.31.123: icmp_seq=28 ttl=51 time=448769.1 ms         
+You fixed the wrong code. The pci-nommu code is only used
+when IOMMU is disabled in the Kconfig. But most kernels have
+it enabled. You would need to change it in pci-gart.c too.
+ 
+The reason it is like this that nommu was always intended as a hackish kludge
+that would be only used for debugging - little did we know that
+it would become standard later.
 
+-Andi

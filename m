@@ -1,52 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264658AbUGHNXv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264763AbUGHN0V@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264658AbUGHNXv (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 8 Jul 2004 09:23:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262905AbUGHNXv
+	id S264763AbUGHN0V (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 8 Jul 2004 09:26:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264881AbUGHN0U
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 8 Jul 2004 09:23:51 -0400
-Received: from 8.75.30.213.rev.vodafone.pt ([213.30.75.8]:781 "EHLO
-	odie.graycell.biz") by vger.kernel.org with ESMTP id S264658AbUGHNXp
+	Thu, 8 Jul 2004 09:26:20 -0400
+Received: from guardian.hermes.si ([193.77.5.150]:3603 "EHLO
+	guardian.hermes.si") by vger.kernel.org with ESMTP id S264763AbUGHN0J
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 8 Jul 2004 09:23:45 -0400
-Subject: Re: soft deadlock in blk_congestion_wait (2.6.7)
-From: Nuno Ferreira <nuno.ferreira@graycell.biz>
-To: Miklos Szeredi <miklos@szeredi.hu>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <E1BiVFa-0003uQ-00@dorka.pomaz.szeredi.hu>
-References: <E1BiVFa-0003uQ-00@dorka.pomaz.szeredi.hu>
+	Thu, 8 Jul 2004 09:26:09 -0400
+Message-ID: <600B91D5E4B8D211A58C00902724252C035F1F18@piramida.hermes.si>
+From: David Balazic <david.balazic@hermes.si>
+To: Dmitry Torokhov <dtor_core@ameritech.net>
+Cc: linux-kernel@vger.kernel.org, fedora-list@redhat.com
+Subject: Re: [PATCH 2.6] Mousedev - better button handling under load
+Date: Thu, 8 Jul 2004 15:25:41 +0200 
+MIME-Version: 1.0
+X-Mailer: Internet Mail Service (5.5.2657.72)
 Content-Type: text/plain
-Organization: Graycell
-Date: Thu, 08 Jul 2004 14:23:42 +0100
-Message-Id: <1089293022.2336.20.camel@taz.graycell.biz>
-Mime-Version: 1.0
-X-Mailer: Evolution 1.5.9.2 
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 08 Jul 2004 13:23:42.0900 (UTC) FILETIME=[CA1B5740:01C464EE]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Qui, 2004-07-08 at 11:31 +0200, Miklos Szeredi wrote:
-> While running LTP tests (more specifically the ftest* testcases) on
-> FUSE (http://sourceforge.net/projects/avf), I run into the following
-> problem: the process serving the FUSE filesystem requests does some
-> debugging write to an ext3 filesystem, and deadlocks in
-> blk_congestion_wait:
+	Hi,
 
- [...]
+	Currently mousedev combines all hardware motion data that arrivers
+since
+	last time userspace read data into one cooked PS/2 packet. The
+problem is
+	that under heavy or even moderate load, when userspace can't read
+data
+	quickly enough, we start loosing valuable data which manifests in:
 
-> I've seen a very similar report for CIFS here:
-> 
-> http://marc.theaimsgroup.com/?l=linux-kernel&m=108807439504273&w=2
-> 
+	- ignoring buton presses as by the time userspace gets to read the
+data
+	  button has already been released;
+	- click starts in wrong place - by the time userspace got aroungd
+and read
+	  the packet mouse moved half way across the screen.
 
-I reported that bug, and at least for CIFS it was fixed using the patch
-mentioned a few mails later on that thread, see
-http://marc.theaimsgroup.com/?l=linux-kernel&m=108846032716689&w=2
 
-I can no longer reproduce the problem, but it may be that the patch only
-made it harder to trigger.
+I am seeing the second simptom on Fedora Core 2 in X.
+( I click on a windows title, move the mouse and what happens is than a 
+selection rectangle is drawn on the desktop, starting a few inches away from
+the real click position )
+Is this the cause ?
 
--- 
-Nuno Ferreira
+Regards,
+David
+
+P.S.: Is there a bug about this in bugzilla.redhat.com ? ( or elsewhere ? )
+----------------------------------------------------------------------------
+-----------
+http://noepatents.org/           Innovation, not litigation !
+---
+David Balazic                      mailto:david.balazic@hermes.si
+HERMES Softlab                 http://www.hermes-softlab.com
+Zagrebska cesta 104            Phone: +386 2 450 8851 
+SI-2000 Maribor
+Slovenija
+----------------------------------------------------------------------------
+-----------
+"Be excellent to each other." -
+Bill S. Preston, Esq. & "Ted" Theodore Logan
+----------------------------------------------------------------------------
+-----------
+
+
+
+
+
+
+
 

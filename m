@@ -1,80 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264878AbSKVOrJ>; Fri, 22 Nov 2002 09:47:09 -0500
+	id <S264889AbSKVOxz>; Fri, 22 Nov 2002 09:53:55 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264888AbSKVOrJ>; Fri, 22 Nov 2002 09:47:09 -0500
-Received: from mail.parknet.co.jp ([210.134.213.6]:12297 "EHLO
-	mail.parknet.co.jp") by vger.kernel.org with ESMTP
-	id <S264878AbSKVOrI>; Fri, 22 Nov 2002 09:47:08 -0500
-To: Manuel Serrano <Manuel.Serrano@sophia.inria.fr>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Fw: Troubles with Sony PCG-C1MHP (crusoe based and ALIM 1533 drivers)
-References: <20021120094121.7b6c7d34.Manuel.Serrano@sophia.inria.fr>
-	<1037800851.3241.10.camel@irongate.swansea.linux.org.uk>
-	<20021122113904.0052e208.Manuel.Serrano@sophia.inria.fr>
-From: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
-Date: Fri, 22 Nov 2002 23:53:33 +0900
-In-Reply-To: <20021122113904.0052e208.Manuel.Serrano@sophia.inria.fr>
-Message-ID: <8765up1wr6.fsf@devron.myhome.or.jp>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
-MIME-Version: 1.0
+	id <S264915AbSKVOxz>; Fri, 22 Nov 2002 09:53:55 -0500
+Received: from host194.steeleye.com ([66.206.164.34]:13583 "EHLO
+	pogo.mtv1.steeleye.com") by vger.kernel.org with ESMTP
+	id <S264889AbSKVOxx>; Fri, 22 Nov 2002 09:53:53 -0500
+Message-Id: <200211221500.gAMF0lh02117@localhost.localdomain>
+X-Mailer: exmh version 2.4 06/23/2000 with nmh-1.0.4
+To: "Martin J. Bligh" <mbligh@aracnet.com>
+cc: Sam Ravnborg <sam@ravnborg.org>, john stultz <johnstul@us.ibm.com>,
+       "J.E.J. Bottomley" <James.Bottomley@HansenPartnership.com>,
+       lkml <linux-kernel@vger.kernel.org>
+Subject: Re: [RFC] [PATCH] subarch cleanup 
+In-Reply-To: Message from "Martin J. Bligh" <mbligh@aracnet.com> 
+   of "Thu, 21 Nov 2002 10:35:43 PST." <228760000.1037903743@flay> 
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Date: Fri, 22 Nov 2002 09:00:47 -0600
+From: "J.E.J. Bottomley" <James.Bottomley@HansenPartnership.com>
+X-AntiVirus: scanned for viruses by AMaViS 0.2.1 (http://amavis.org/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Manuel Serrano <Manuel.Serrano@sophia.inria.fr> writes:
+mbligh@aracnet.com said:
+> > Why do you need to move the .h files?
+> Because they're in a silly place now. They should be whereever all the
+> other include files are.
 
-> Stack: 000000ff 00000001 c029da4c c019ed05 000000ff 00000001 c1a13fa0 c029da4c
->        0000e000 00000286 c019f91c c029da4c c0275554 c0267fd8 00000000 00000001
->        00000001 00000001 00000001 00000001 00000001 00000001 00000001 00000001
-> Call Trace:   [<c019ed05>] [<c019f91c>] [<c0105021>] [<c01054a9>]
-> Code: 0b 40 10 ff d0 83 c4 04 56 9d 83 3d 84 dc 27 c0 00 75 0f 89
-> 
-> 
-> >>EIP; c0107cab <disable_irq+2f/54>   <=====
-> 
-> >>edi; c029da4c <ide_hwifs+46c/2c38>
+> > CFLAGS += -Iarch/i386/$(MACHINE_H) -Iarch/i386/mach-generic
+> > That should achieve the same effect?
 
-Looks like the same problem on my VAIO-U3. The following log is on
-2.5.47.
+> Header files go under include .... 
 
-ACPI: PCI Interrupt Link [LNK6] enabled at IRQ 9
-ACPI: PCI Interrupt Link [LNK7] enabled at IRQ 9
-ACPI: No IRQ known for interrupt pin A of device 00:10.0 - using IRQ 255
-PCI: Using ACPI for IRQ routing
+That's not necessarily true.  Externally useful header files go in include.  
+Header files only used internally to the subsystem go in local directories.
 
-[...]
+The reason I put them under arch/i386 is because I didn't want the guts of the 
+subarch splitup spilling into the kernel core.
 
-Uniform Multi-Platform E-IDE driver Revision: 7.00alpha2
-ide: Assuming 33MHz system bus speed for PIO modes; override with idebus=xx
-ALI15X3: IDE controller at PCI slot 00:10.0
-ACPI: No IRQ known for interrupt pin A of device 00:10.0 - using IRQ 255
-ALI15X3: chipset revision 196
-ALI15X3: not 100% native mode: will probe irqs later
-    ide0: BM-DMA at 0x1400-0x1407, BIOS settings: hda:DMA, hdb:pio
-ALI15X3: simplex device: DMA forced
-    ide1: BM-DMA at 0x1408-0x140f, BIOS settings: hdc:DMA, hdd:DMA
-hda: TOSHIBA MK2003GAH, ATA DISK drive
-ide0 at 0x1f0-0x1f7,0x3f6 on irq 14
-hda: host protected area => 1
-hda: 39062520 sectors (20000 MB), CHS=2431/255/63, UDMA(100)
- hda: hda1 hda2 hda3
-register interface 'mouse' with class 'input
+While the subarch is local to i386, I think the headers should stay there.  If 
+you want to make the subarch a global framework (and thus get agreement with 
+Russel and ARM to use it) then putting them under the global include 
+directories would probably make sense.
 
-It seems ACPI assigned 255 to IRQ, so disable_irq() did oops.
-The following is my stupid patch. I hope this info helps.
+James
 
---- linux-2.5.47/drivers/ide/ide-probe.c~ide-kludge	2002-11-14 02:41:40.000000000 +0900
-+++ linux-2.5.47-hirofumi/drivers/ide/ide-probe.c	2002-11-14 02:41:40.000000000 +0900
-@@ -654,6 +654,8 @@ void probe_hwif (ide_hwif_t *hwif)
- 	 * We must always disable IRQ, as probe_for_drive will assert IRQ, but
- 	 * we'll install our IRQ driver much later...
- 	 */
-+	if (hwif->irq == 255)
-+		hwif->irq = 0;
- 	irqd = hwif->irq;
- 	if (irqd)
- 		disable_irq(hwif->irq);
--- 
-OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
+

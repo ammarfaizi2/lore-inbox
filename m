@@ -1,38 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263082AbSIUVrT>; Sat, 21 Sep 2002 17:47:19 -0400
+	id <S275934AbSIUVs5>; Sat, 21 Sep 2002 17:48:57 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S275934AbSIUVrS>; Sat, 21 Sep 2002 17:47:18 -0400
-Received: from mail.cogenit.fr ([195.68.53.173]:1408 "EHLO cogenit.fr")
-	by vger.kernel.org with ESMTP id <S263082AbSIUVrS>;
-	Sat, 21 Sep 2002 17:47:18 -0400
-Date: Sat, 21 Sep 2002 23:52:19 +0200
-From: Francois Romieu <romieu@cogenit.fr>
-To: linux-kernel@vger.kernel.org
-Cc: hardeneddrivers-discuss@lists.sourceforge.net
-Subject: Re: my review of the Device Driver Hardening Design Spec
-Message-ID: <20020921235219.D15732@fafner.intra.cogenit.fr>
-References: <mailman.1032587460.6299.linux-kernel2news@redhat.com> <200209211251.g8LCpFt23725@devserv.devel.redhat.com> <20020921181611.GA28315@kroah.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20020921181611.GA28315@kroah.com>; from greg@kroah.com on Sat, Sep 21, 2002 at 11:16:12AM -0700
-X-Organisation: Marie's fan club - II
+	id <S275943AbSIUVs5>; Sat, 21 Sep 2002 17:48:57 -0400
+Received: from duck.doc.ic.ac.uk ([146.169.1.46]:53008 "EHLO duck.doc.ic.ac.uk")
+	by vger.kernel.org with ESMTP id <S275934AbSIUVs4>;
+	Sat, 21 Sep 2002 17:48:56 -0400
+Date: Sat, 21 Sep 2002 22:54:04 +0100 (BST)
+From: Guido Arenstedt <ga200@doc.ic.ac.uk>
+To: James Cleverdon <jamesclv@us.ibm.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Hyperthreading in -ac series
+In-Reply-To: <200209201547.59508.jamesclv@us.ibm.com>
+Message-ID: <Pine.LNX.4.42.0209212250550.2649-100000@moa.doc.ic.ac.uk>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[Cc list trimmed]
+On Fri, 20 Sep 2002, James Cleverdon wrote:
 
-Greg KH <greg@kroah.com> :
-[...]
-> Oh, there's lots of code:
-> 	A "hardened" binary kernel driver:
-> 		http://unc.dl.sourceforge.net/sourceforge/hardeneddrivers/sampledriver-0.1-1.i386.rpm
-> 	(um people, why a binary?  Where's the source for this?)
+>On Friday 20 September 2002 03:36 pm, Guido Arenstedt wrote:
+>> Hyperthreading does not seem to work in the -ac series
+>> it works fine with a stock 2.4.19 kernel
+>>
+>> during bootup i only get the message:
+>> WARNING: No sibling found for CPU 0.
+>> WARNING: No sibling found for CPU 1.
+>>
+>> or is this done on purpose?
+>
+>The latter.  Hyperthreading _is_ working in the kernel, but it is not finding
+>"sibling" CPUs to match the real ones.  (Or, as we prefer to call them,
+>DiVitos to match the Schwartzenegers.  ;^)
+>
+>Check your BIOS.  Some turn off hyperthreading by default.  (Notably, IBM's
+>x440....)
 
-In the cvs. See:
-http://cvs.sourceforge.net/cgi-bin/viewcvs.cgi/hardeneddrivers/sample_driver/src/
+no hyperthreading is on in the bios
+my problem is that hyperthreading does not work with an -ac kernel
+(i have check 2.4.19-ac4 and 2.4.20-pre5-ac4)
+whereas a stock kernel is working fine.
 
--- 
-Ueimor
+

@@ -1,54 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271733AbRICQB0>; Mon, 3 Sep 2001 12:01:26 -0400
+	id <S271742AbRICQCg>; Mon, 3 Sep 2001 12:02:36 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271742AbRICQBQ>; Mon, 3 Sep 2001 12:01:16 -0400
-Received: from smtp-server3.tampabay.rr.com ([65.32.1.41]:13744 "EHLO
-	smtp-server3.tampabay.rr.com") by vger.kernel.org with ESMTP
-	id <S271741AbRICQA5>; Mon, 3 Sep 2001 12:00:57 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Phillip Susi <psusi@cfl.rr.com>
-Reply-To: psusi@cfl.rr.com
-To: Doug McNaught <doug@wireboard.com>
-Subject: Re: [bug report] NFS and uninterruptable wait states
-Date: Mon, 3 Sep 2001 11:55:32 +0000
-X-Mailer: KMail [version 1.2]
-In-Reply-To: <01090310483100.26387@faldara> <m3zo8cp93a.fsf@belphigor.mcnaught.org>
-In-Reply-To: <m3zo8cp93a.fsf@belphigor.mcnaught.org>
-Cc: linux-kernel@vger.kernel.org
+	id <S271741AbRICQC0>; Mon, 3 Sep 2001 12:02:26 -0400
+Received: from ns.suse.de ([213.95.15.193]:6671 "HELO Cantor.suse.de")
+	by vger.kernel.org with SMTP id <S271742AbRICQCU> convert rfc822-to-8bit;
+	Mon, 3 Sep 2001 12:02:20 -0400
+To: Ben LaHaise <bcrl@redhat.com>
+Cc: <linux-kernel@vger.kernel.org>
+Subject: Re: [resend PATCH] reserve BLKGETSIZE64 ioctl
+In-Reply-To: <Pine.LNX.4.33.0109031119400.1610-100000@toomuch.toronto.redhat.com>
+X-Yow: I invented skydiving in 1989!
+From: Andreas Schwab <schwab@suse.de>
+Date: 03 Sep 2001 18:02:38 +0200
+In-Reply-To: <Pine.LNX.4.33.0109031119400.1610-100000@toomuch.toronto.redhat.com> (Ben LaHaise's message of "Mon, 3 Sep 2001 11:21:39 -0400 (EDT)")
+Message-ID: <jezo8cw9cx.fsf@sykes.suse.de>
+User-Agent: Gnus/5.090003 (Oort Gnus v0.03) Emacs/21.0.106
 MIME-Version: 1.0
-Message-Id: <01090311553201.26387@faldara>
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain; charset=iso-8859-15
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-That's all well and good that the process won't get an error back, but imho, 
-a process should *NEVER* be beyond the reach of a SIGKILL.  I mean, an 
-unkillable process prevents a clean shutdown, doesn't it?  ( can't kill the 
-process, can't unmount the filesystem ).  
+Ben LaHaise <bcrl@redhat.com> writes:
 
-On Monday 03 September 2001 03:50 pm, Doug McNaught wrote:
-> Phillip Susi <psusi@cfl.rr.com> writes:
-> > The other day I was trying to set up an NFS mount to my room mate's
-> > system, and ran into what I at least, call a bug.  When I tried to mount
-> > his NFS export, the mount command locked up, and would not die.  Not even
-> > a SIGKILL would do any good.  According to ps, the mount process was in
-> > the 'D' - uninterruptable wait state.  It also looked like the WCHAN was
-> > rpc_ something.  I think it was waiting for an rpc call to return in the
-> > D state, and it never did return.  The bug here is that it should NOT be
-> > waiting in the D state for something that could never happen.  For that
-> > matter, why should anything ever need to wait in an uninterruptable
-> > state?  Whenever you wait, you should expect the possibility of being
-> > interrupted, check for that when you wake up, and if you were, clean up
-> > and return so the signal can be processed.
->
-> NFS does this (wait in D state) by default in order to prevent naive
-> applications from getting timeout errors that they're not equipped to
-> handle--the idea being that, if an NFS server goes down, programs
-> using it will simply freeze and recover once it returns, rather than
-> getting a timeout error and possibly becoming confused.
->
-> If you don't like this behavior, mount with 'soft' and/or 'intr'
-> options--see the manpage.
->
-> -Doug
+|> Hello,
+|> 
+|> Is there any problem with the patch below for reserving a 64 bit get block
+|> device size ioctl?
+
+Yes.
+
+|> diff -urN v2.4.10-pre4/include/linux/fs.h work/include/linux/fs.h
+|> --- v2.4.10-pre4/include/linux/fs.h	Mon Sep  3 11:04:39 2001
+|> +++ work/include/linux/fs.h	Mon Sep  3 11:18:44 2001
+|> @@ -182,7 +182,8 @@
+|>  /* This was here just to show that the number is taken -
+|>     probably all these _IO(0x12,*) ioctls should be moved to blkpg.h. */
+|>  #endif
+|> -/* A jump here: 108-111 have been used for various private purposes. */
+|> +/* A jump here: 108,109,111 have been used for various private purposes. */
+|> +#define BLKBSZGET  _IOR(0x12,110,sizeof(u64))
+|>  #define BLKBSZGET  _IOR(0x12,112,sizeof(int))
+            ^^^^^^^^^
+
+Conflicting definitions.
+
+Andreas.
+
+-- 
+Andreas Schwab                                  "And now for something
+Andreas.Schwab@suse.de				completely different."
+SuSE Labs, SuSE GmbH, Schanzäckerstr. 10, D-90443 Nürnberg
+Key fingerprint = 58CA 54C7 6D53 942B 1756  01D3 44D5 214B 8276 4ED5

@@ -1,45 +1,38 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272162AbRHVXvn>; Wed, 22 Aug 2001 19:51:43 -0400
+	id <S272165AbRHWACF>; Wed, 22 Aug 2001 20:02:05 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272164AbRHVXvd>; Wed, 22 Aug 2001 19:51:33 -0400
-Received: from web13103.mail.yahoo.com ([216.136.174.148]:2831 "HELO
-	web13103.mail.yahoo.com") by vger.kernel.org with SMTP
-	id <S272162AbRHVXvT>; Wed, 22 Aug 2001 19:51:19 -0400
-Message-ID: <20010822235135.44493.qmail@web13103.mail.yahoo.com>
-Date: Wed, 22 Aug 2001 16:51:35 -0700 (PDT)
-From: Chris Rankin <rankincj@yahoo.com>
-Subject: Re: [PATCH,RFC] make ide-scsi more selective
-To: linux-kernel@vger.kernel.org
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S272166AbRHWABz>; Wed, 22 Aug 2001 20:01:55 -0400
+Received: from mail.scsiguy.com ([63.229.232.106]:30982 "EHLO
+	aslan.scsiguy.com") by vger.kernel.org with ESMTP
+	id <S272165AbRHWABj>; Wed, 22 Aug 2001 20:01:39 -0400
+Message-Id: <200108230001.f7N01eY19346@aslan.scsiguy.com>
+To: "David S. Miller" <davem@redhat.com>
+cc: groudier@free.fr, axboe@suse.de, skraw@ithnet.com, phillips@bonn-fries.net,
+        linux-kernel@vger.kernel.org
+Subject: Re: With Daniel Phillips Patch 
+In-Reply-To: Your message of "Wed, 22 Aug 2001 16:09:44 PDT."
+             <20010822.160944.08322757.davem@redhat.com> 
+Date: Wed, 22 Aug 2001 18:01:40 -0600
+From: "Justin T. Gibbs" <gibbs@scsiguy.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> The real problem is that the drivers are claiming
-> resources on load not
-> on open. Why shouldnt I be able to load ide-cd and
-> ide-scsi and open either
-> /dev/hda or /dev/sr0 but not both together ? 
+>Consider network drivers (most PCI ones) that keep track of:
+>
+>	struct sk_buff *skb;
+>	dma_addr_t mapping;
+>
+>pairs for each transmit packet.  With your suggested change,
+>their structures will increase 32-bits in size for each entry
+>when CONFIG_HIGHMEM on x86 or on a 64-bit platform.
 
-What about kernels that use devfs? To open the device,
-devfs would need to have already created the device
-node, and this must surely happen when the module
-loads. Can devfs create a node without claiming any
-resources?
+They already increase by 32bits on IA64.  A driver should use a
+fixed sized type for a fixed sized address that corresponds to its
+capabilities.  There is no guarantee of the size of dma_addr_t.
+It is opaque and should be able to represent all dma (or I would prefer
+bus) addresses in the system.  The examples I've seen where people
+assume it to be 32bits in size are, well, broken.
 
-For reference, I use devfs, and have a DVD-ROM (hdc)
-and a CD burner (hdd). The DVD uses ide-cd and the
-burner uses ide-scsi, and I have to preload ide-cd
-(with the "ignore=hdd" parameter) so that ide-scsi
-doesn't grab the DVD.
-
-Chris
-
-
-
-
-__________________________________________________
-Do You Yahoo!?
-Make international calls for as low as $.04/minute with Yahoo! Messenger
-http://phonecard.yahoo.com/
+--
+Justin

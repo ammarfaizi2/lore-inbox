@@ -1,47 +1,74 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262266AbSLPXJ1>; Mon, 16 Dec 2002 18:09:27 -0500
+	id <S262449AbSLPXNR>; Mon, 16 Dec 2002 18:13:17 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262296AbSLPXJ1>; Mon, 16 Dec 2002 18:09:27 -0500
-Received: from CPE-203-51-35-111.nsw.bigpond.net.au ([203.51.35.111]:36336
-	"EHLO e4.eyal.emu.id.au") by vger.kernel.org with ESMTP
-	id <S262266AbSLPXJY>; Mon, 16 Dec 2002 18:09:24 -0500
-Message-ID: <3DFE5EFC.FC7CF213@eyal.emu.id.au>
-Date: Tue, 17 Dec 2002 10:17:16 +1100
-From: Eyal Lebedinsky <eyal@eyal.emu.id.au>
-Organization: Eyal at Home
-X-Mailer: Mozilla 4.8 [en] (X11; U; Linux 2.4.20-ac1 i686)
-X-Accept-Language: en
+	id <S262450AbSLPXNR>; Mon, 16 Dec 2002 18:13:17 -0500
+Received: from smtp-server4.tampabay.rr.com ([65.32.1.43]:43488 "EHLO
+	smtp-server4.tampabay.rr.com") by vger.kernel.org with ESMTP
+	id <S262449AbSLPXNQ>; Mon, 16 Dec 2002 18:13:16 -0500
+From: "Scott Robert Ladd" <scott@coyotegulch.com>
+To: "J.A. Magallon" <jamagallon@able.es>
+Cc: "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>
+Subject: RE: HT Benchmarks (was: /proc/cpuinfo and hyperthreading)
+Date: Mon, 16 Dec 2002 18:21:08 -0500
+Message-ID: <FKEAJLBKJCGBDJJIPJLJAEOLDLAA.scott@coyotegulch.com>
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Re: rmap and nvidia?
-References: <3DFE522A.6010803@superonline.com>
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2911.0)
+In-Reply-To: <20021216223848.GA2994@werewolf.able.es>
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"O.Sezer" wrote:
-> 
-> Is this patch correct in any way?
-> (Ripped out of the 2.5 patch and modified some).
+J.A. Magallon wrote:
+> HT can give no benefit in UP case, nobody knows that the sibling exists
+> and the P4 does not paralelize itself. The gain you see is due to
+> computation-io overlap.
 
-The equivalent minimal patch for nv.c in 2.4 will then be:
+I see the light! Thank you.
 
---- modules/nvidia/NVIDIA_kernel/nv.c.orig      Tue Dec 10 07:27:15 2002
-+++ modules/nvidia/NVIDIA_kernel/nv.c   Tue Dec 17 10:07:37 2002
-@@ -2247,7 +2247,13 @@
-     pte_kunmap(pte__);
- #else
-     pte__ = NULL;
-+#ifdef pte_offset
-     pte = *pte_offset(pg_mid_dir, address);
-+#else	/* rmap-vm */
-+    pte__ = pte_offset_map(pg_mid_dir, address);
-+    pte = *pte__;
-+    pte_unmap(pte__);
-+#endif
- #endif
+> This my render code, implemented with posix threads, running on a dual
+> P4-Xeon@1.8GHz.
+
+> Number of threads	Elapsed time   User Time   System Time
+> 1                   53:216           53:220    00:000
+> 2                   29:272           58:180    00:320
+> 3                   27:162         1:21:450    00:540
+> 4                   25:094         1:41:080    01:250
+>
+> Elapsed is measured by the parent thread, that is not doing anything
+> but wait on a pthread_join. User and system times are the sum of
+> times for all the children threads, that do real work.
+>
+> The jump from 1->2 threads is fine, the one from 2->4 is ridiculous...
+> I have my cpus doubled but each one has half the pipelining for floating
+> point...see the user cpu time increased due to 'worst' processors and
+> cache pollution on each package.
+
+>From what I can see, HT provides a 0-15% increase in performance, depending
+heavily on the type of code being run. In other words, HT helps, but it is
+*no* substitute for true multiple processors. And it is ONLY of value when
+an SMP kernel is in use.
+
+What you're seeing meshes with my results: our perfromance gains from HT are
+about the same. HT didn't lose either of us anything, but it sure as heck
+didn't make the kind of difference the hype seems to imply.
+
+As for REAL SMP: I posted some more numbers on my web site (URL below),
+using the same gcc compile test on my dual-proc with PIII-600s. Using a
+single process, the compile took just under a 100 minutes, while with two
+processes, it finished in 58.5 minutes. Real SMP reduced the time by 40%
+(again, similar to your numbers).
+
+..Scott
 
 --
-Eyal Lebedinsky (eyal@eyal.emu.id.au) <http://samba.org/eyal/>
+Scott Robert Ladd
+Coyote Gulch Productions,  http://www.coyotegulch.com
+No ads -- just very free (and somewhat unusual) code.
+

@@ -1,271 +1,191 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129480AbRBOK5J>; Thu, 15 Feb 2001 05:57:09 -0500
+	id <S129617AbRBOLCT>; Thu, 15 Feb 2001 06:02:19 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129577AbRBOK47>; Thu, 15 Feb 2001 05:56:59 -0500
-Received: from idefix.linkvest.com ([194.209.53.99]:48145 "EHLO
-	idefix.linkvest.com") by vger.kernel.org with ESMTP
-	id <S129480AbRBOK4p>; Thu, 15 Feb 2001 05:56:45 -0500
-Message-ID: <B45465FD9C23D21193E90000F8D0F3DF683961@mailsrv.linkvest.ch>
-From: Jean-Eric Cuendet <Jean-Eric.Cuendet@linkvest.com>
-To: "'Neil Brown'" <neilb@cse.unsw.edu.au>
-Cc: "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>,
-        "'Andrew Morton'" <andrewm@uow.edu.au>
-Subject: RE: NFSD die with 2.4.1 (resend with ksymoops)
-Date: Thu, 15 Feb 2001 11:56:32 +0100
+	id <S129618AbRBOLCK>; Thu, 15 Feb 2001 06:02:10 -0500
+Received: from omecihuatl.rz.Uni-Osnabrueck.DE ([131.173.17.35]:64519 "EHLO
+	omecihuatl.rz.uni-osnabrueck.de") by vger.kernel.org with ESMTP
+	id <S129617AbRBOLB4>; Thu, 15 Feb 2001 06:01:56 -0500
+Date: Thu, 15 Feb 2001 11:58:44 +0100 (MET)
+From: ARND BERGMANN <std7652@et.FH-Osnabrueck.DE>
+To: Francois Romieu <romieu@cogenit.fr>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: IRQ (routing ?) problem [was Re: epic100 in current -ac kernels]
+In-Reply-To: <20010210114732.A6314@se1.cogenit.fr>
+Message-ID: <Pine.GSO.4.21.0102151137500.19331-200000@gamma10>
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2650.21)
-Content-Type: multipart/mixed;
-	boundary="----_=_NextPart_000_01C0973D.F6945601"
+Content-Type: MULTIPART/MIXED; BOUNDARY="-559023410-1804928587-982234724=:19331"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This message is in MIME format. Since your mail reader does not understand
-this format, some or all of this message may not be legible.
+  This message is in MIME format.  The first part should be readable text,
+  while the remaining parts are likely unreadable without MIME-aware tools.
+  Send mail to mime@docserver.cac.washington.edu for more info.
 
-------_=_NextPart_000_01C0973D.F6945601
-Content-Type: text/plain;
-	charset="iso-8859-1"
+---559023410-1804928587-982234724=:19331
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 
+Sorry for the delay, I could not get physical access to the machine
+for the last days.
 
-Here I am again! NFSD died at 11h23, ~12 hours after the last reboot, a
-record :-)
-I'll try to best answer your questions.
+I was able to do some more testing today and found this:
+- The problem is not the IRQ /sharing/, after getting rid of all the
+  other PCI cards, the problem was still there.
+- The only thing that seems to have any effect on the symptoms is the
+  presence of the USB driver, either usb-uhci or uhci. I am not using
+  USB at all. As described before, the system behaves is either of those
+  ways:
+   * epic100 driver without DMA mapping (e.g. 2.4.0-ac9): normal operation
+   * driver with DMA mapping+USB driver loaded: lots of interrupts -> slow
+   * driver with DMA mapping, USB driver not loaded: hang after ~2 seconds
+- I sometimes get 'spurious interrupt: IRQ7', even though no device is 
+  connected there. Probably not important.
 
-> This trace seems to make sense, except that nfssvc_encode_diropres
-> doesn't seem to make any subroutine calls at offset 100 as seems to be
-> implied. 
+On Sat, 10 Feb 2001, Francois Romieu wrote:
+
 > 
-> Could you run
-> 
->  echo disassemble nfssvc_encode_diropres | gdb -batch -x 
-> /dev/stdin vmlinux
+> The following informations may help:
+> - motherboard type
+Asus A7V, onboard USB hub and Promise ATA/100 chip
 
-It's in the attached file.
-In fact, the Oops was with a new compiled kernel with NFSD in modules... So
-the GDB stuff would not work...
-So attached is the output of GDB recompiled with NFSD in the kernel. Is it
-sufficient for you? It's not the one that was running but just recompiled.
-If not, I'll send you a new Oops + GDB output of a RUNNING kernel with NFSD
-in the kernel.
+> - bios revision
+Can't see right now, system was bought in October 2000
+I think it was 1.004, but I am not sure.
 
-> giving it the vmlinux that was running when this oops was 
-> produced? and
-> also tell me exactly what patches you have ontop of 2.4.1 and where to
-> find them.
+> - lspci -x 
+see attachment, this was when I ripped out sound, tv and scsi
 
-I have only ACL patched. You can find them at acl.bestbits.at.
-I have tried without them, with exactly the same behaviour.
+> - 2.4.2pre3 + whatever recent ac epic100 = ?
+Still no improvement until latest -ac (2.4.1-ac13)
 
-Thanks
--jec
+Arnd <><
 
 
-------_=_NextPart_000_01C0973D.F6945601
-Content-Type: text/plain;
-	name="out.gdb.nfsd.txt"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: attachment;
-	filename="out.gdb.nfsd.txt"
 
-Dump of assembler code for function nfssvc_encode_diropres:=0A=
-0xc0173710 <nfssvc_encode_diropres>:	sub    $0x8,%esp=0A=
-0xc0173713 <nfssvc_encode_diropres+3>:	push   %ebp=0A=
-0xc0173714 <nfssvc_encode_diropres+4>:	push   %edi=0A=
-0xc0173715 <nfssvc_encode_diropres+5>:	push   %esi=0A=
-0xc0173716 <nfssvc_encode_diropres+6>:	push   %ebx=0A=
-0xc0173717 <nfssvc_encode_diropres+7>:	mov    $0x8,%ecx=0A=
-0xc017371c <nfssvc_encode_diropres+12>:	mov    0x20(%esp,1),%ebx=0A=
-0xc0173720 <nfssvc_encode_diropres+16>:	mov    0x24(%esp,1),%eax=0A=
-0xc0173724 <nfssvc_encode_diropres+20>:	lea    0x4(%eax),%esi=0A=
-0xc0173727 <nfssvc_encode_diropres+23>:	mov    %ebx,%edi=0A=
-0xc0173729 <nfssvc_encode_diropres+25>:	repz movsl =
-%ds:(%esi),%es:(%edi)=0A=
-0xc017372b <nfssvc_encode_diropres+27>:	add    $0x20,%ebx=0A=
-0xc017372e <nfssvc_encode_diropres+30>:	mov    %ebx,%ebp=0A=
-0xc0173730 <nfssvc_encode_diropres+32>:	test   %ebp,%ebp=0A=
-0xc0173732 <nfssvc_encode_diropres+34>:	je     0xc01738bb =
-<nfssvc_encode_diropres+427>=0A=
-0xc0173738 <nfssvc_encode_diropres+40>:	mov    0x44(%eax),%eax=0A=
-0xc017373b <nfssvc_encode_diropres+43>:	mov    0x8(%eax),%eax=0A=
-0xc017373e <nfssvc_encode_diropres+46>:	mov    %eax,0x10(%esp,1)=0A=
-0xc0173742 <nfssvc_encode_diropres+50>:	mov    0x10(%esp,1),%ecx=0A=
-0xc0173746 <nfssvc_encode_diropres+54>:	movzwl 0x2a(%eax),%eax=0A=
-0xc017374a <nfssvc_encode_diropres+58>:	mov    %ax,0x16(%esp,1)=0A=
-0xc017374f <nfssvc_encode_diropres+63>:	mov    0x8c(%ecx),%eax=0A=
-0xc0173755 <nfssvc_encode_diropres+69>:	test   %eax,%eax=0A=
-0xc0173757 <nfssvc_encode_diropres+71>:	je     0xc017379f =
-<nfssvc_encode_diropres+143>=0A=
-0xc0173759 <nfssvc_encode_diropres+73>:	testb  $0x4,0x24(%eax)=0A=
-0xc017375d <nfssvc_encode_diropres+77>:	je     0xc017379f =
-<nfssvc_encode_diropres+143>=0A=
-0xc017375f <nfssvc_encode_diropres+79>:	mov    0x84(%ecx),%eax=0A=
-0xc0173765 <nfssvc_encode_diropres+85>:	test   %eax,%eax=0A=
-0xc0173767 <nfssvc_encode_diropres+87>:	je     0xc017379f =
-<nfssvc_encode_diropres+143>=0A=
-0xc0173769 <nfssvc_encode_diropres+89>:	push   $0x8000=0A=
-0xc017376e <nfssvc_encode_diropres+94>:	push   %ecx=0A=
-0xc017376f <nfssvc_encode_diropres+95>:	mov    0x48(%eax),%eax=0A=
-0xc0173772 <nfssvc_encode_diropres+98>:	call   *%eax=0A=
-0xc0173774 <nfssvc_encode_diropres+100>:	mov    %eax,%ebx=0A=
-0xc0173776 <nfssvc_encode_diropres+102>:	add    $0x8,%esp=0A=
-0xc0173779 <nfssvc_encode_diropres+105>:	cmp    $0xfffffc18,%ebx=0A=
-0xc017377f <nfssvc_encode_diropres+111>:	ja     0xc01737a6 =
-<nfssvc_encode_diropres+150>=0A=
-0xc0173781 <nfssvc_encode_diropres+113>:	test   %ebx,%ebx=0A=
-0xc0173783 <nfssvc_encode_diropres+115>:	je     0xc017379f =
-<nfssvc_encode_diropres+143>=0A=
-0xc0173785 <nfssvc_encode_diropres+117>:	lea    0x16(%esp,1),%eax=0A=
-0xc0173789 <nfssvc_encode_diropres+121>:	push   %eax=0A=
-0xc017378a <nfssvc_encode_diropres+122>:	push   %ebx=0A=
-0xc017378b <nfssvc_encode_diropres+123>:	call   0xc01498e4 =
-<posix_acl_masq_nfs_v2_mode>=0A=
-0xc0173790 <nfssvc_encode_diropres+128>:	mov    %eax,%esi=0A=
-0xc0173792 <nfssvc_encode_diropres+130>:	push   %ebx=0A=
-0xc0173793 <nfssvc_encode_diropres+131>:	call   0xc0149474 =
-<posix_acl_release>=0A=
-0xc0173798 <nfssvc_encode_diropres+136>:	add    $0xc,%esp=0A=
-0xc017379b <nfssvc_encode_diropres+139>:	test   %esi,%esi=0A=
-0xc017379d <nfssvc_encode_diropres+141>:	jne    0xc01737a6 =
-<nfssvc_encode_diropres+150>=0A=
-0xc017379f <nfssvc_encode_diropres+143>:	cmpl   $0x0,0x10(%esp,1)=0A=
-0xc01737a4 <nfssvc_encode_diropres+148>:	jne    0xc01737b0 =
-<nfssvc_encode_diropres+160>=0A=
-0xc01737a6 <nfssvc_encode_diropres+150>:	xor    %edx,%edx=0A=
-0xc01737a8 <nfssvc_encode_diropres+152>:	jmp    0xc01738bb =
-<nfssvc_encode_diropres+427>=0A=
-0xc01737ad <nfssvc_encode_diropres+157>:	lea    0x0(%esi),%esi=0A=
-0xc01737b0 <nfssvc_encode_diropres+160>:	mov    0x10(%esp,1),%edi=0A=
-0xc01737b4 <nfssvc_encode_diropres+164>:	movzwl 0x2a(%edi),%eax=0A=
-0xc01737b8 <nfssvc_encode_diropres+168>:	shr    $0xc,%ax=0A=
-0xc01737bc <nfssvc_encode_diropres+172>:	and    $0xffff,%eax=0A=
-0xc01737c1 <nfssvc_encode_diropres+177>:	lea    0x14(%ebp),%esi=0A=
-0xc01737c4 <nfssvc_encode_diropres+180>:	mov    =
-0xc02de3f8(,%eax,4),%eax=0A=
-0xc01737cb <nfssvc_encode_diropres+187>:	bswap  %eax=0A=
-0xc01737cd <nfssvc_encode_diropres+189>:	mov    %eax,0x0(%ebp)=0A=
-0xc01737d0 <nfssvc_encode_diropres+192>:	movzwl 0x16(%esp,1),%eax=0A=
-0xc01737d5 <nfssvc_encode_diropres+197>:	bswap  %eax=0A=
-0xc01737d7 <nfssvc_encode_diropres+199>:	mov    %eax,0x4(%ebp)=0A=
-0xc01737da <nfssvc_encode_diropres+202>:	movzwl 0x2c(%edi),%eax=0A=
-0xc01737de <nfssvc_encode_diropres+206>:	bswap  %eax=0A=
-0xc01737e0 <nfssvc_encode_diropres+208>:	mov    %eax,0x8(%ebp)=0A=
-0xc01737e3 <nfssvc_encode_diropres+211>:	mov    0x30(%edi),%ecx=0A=
-0xc01737e6 <nfssvc_encode_diropres+214>:	bswap  %ecx=0A=
-0xc01737e8 <nfssvc_encode_diropres+216>:	mov    %ecx,0xc(%ebp)=0A=
-0xc01737eb <nfssvc_encode_diropres+219>:	mov    0x34(%edi),%ecx=0A=
-0xc01737ee <nfssvc_encode_diropres+222>:	bswap  %ecx=0A=
-0xc01737f0 <nfssvc_encode_diropres+224>:	mov    %ecx,0x10(%ebp)=0A=
-0xc01737f3 <nfssvc_encode_diropres+227>:	movzwl 0x2a(%edi),%eax=0A=
-0xc01737f7 <nfssvc_encode_diropres+231>:	and    $0xfffff000,%eax=0A=
-0xc01737fc <nfssvc_encode_diropres+236>:	cmp    $0xa000,%ax=0A=
-0xc0173800 <nfssvc_encode_diropres+240>:	jne    0xc0173820 =
-<nfssvc_encode_diropres+272>=0A=
-0xc0173802 <nfssvc_encode_diropres+242>:	mov    0x40(%edi),%eax=0A=
-0xc0173805 <nfssvc_encode_diropres+245>:	test   %eax,%eax=0A=
-0xc0173807 <nfssvc_encode_diropres+247>:	jg     0xc0173814 =
-<nfssvc_encode_diropres+260>=0A=
-0xc0173809 <nfssvc_encode_diropres+249>:	jne    0xc0173820 =
-<nfssvc_encode_diropres+272>=0A=
-0xc017380b <nfssvc_encode_diropres+251>:	cmpl   $0x400,0x3c(%edi)=0A=
-0xc0173812 <nfssvc_encode_diropres+258>:	jbe    0xc0173820 =
-<nfssvc_encode_diropres+272>=0A=
-0xc0173814 <nfssvc_encode_diropres+260>:	lea    0x18(%ebp),%esi=0A=
-0xc0173817 <nfssvc_encode_diropres+263>:	movl   $0x40000,0x14(%ebp)=0A=
-0xc017381e <nfssvc_encode_diropres+270>:	jmp    0xc0173830 =
-<nfssvc_encode_diropres+288>=0A=
-0xc0173820 <nfssvc_encode_diropres+272>:	mov    %esi,%eax=0A=
-0xc0173822 <nfssvc_encode_diropres+274>:	mov    0x10(%esp,1),%edi=0A=
-0xc0173826 <nfssvc_encode_diropres+278>:	add    $0x4,%esi=0A=
-0xc0173829 <nfssvc_encode_diropres+281>:	mov    0x3c(%edi),%ecx=0A=
-0xc017382c <nfssvc_encode_diropres+284>:	bswap  %ecx=0A=
-0xc017382e <nfssvc_encode_diropres+286>:	mov    %ecx,(%eax)=0A=
-0xc0173830 <nfssvc_encode_diropres+288>:	mov    %esi,%eax=0A=
-0xc0173832 <nfssvc_encode_diropres+290>:	add    $0x4,%esi=0A=
-0xc0173835 <nfssvc_encode_diropres+293>:	mov    0x10(%esp,1),%edi=0A=
-0xc0173839 <nfssvc_encode_diropres+297>:	mov    %esi,%edx=0A=
-0xc017383b <nfssvc_encode_diropres+299>:	add    $0x4,%esi=0A=
-0xc017383e <nfssvc_encode_diropres+302>:	mov    0x50(%edi),%ecx=0A=
-0xc0173841 <nfssvc_encode_diropres+305>:	bswap  %ecx=0A=
-0xc0173843 <nfssvc_encode_diropres+307>:	mov    %ecx,(%eax)=0A=
-0xc0173845 <nfssvc_encode_diropres+309>:	movzwl 0x38(%edi),%eax=0A=
-0xc0173849 <nfssvc_encode_diropres+313>:	bswap  %eax=0A=
-0xc017384b <nfssvc_encode_diropres+315>:	mov    %eax,(%edx)=0A=
-0xc017384d <nfssvc_encode_diropres+317>:	mov    %esi,%eax=0A=
-0xc017384f <nfssvc_encode_diropres+319>:	add    $0x4,%esi=0A=
-0xc0173852 <nfssvc_encode_diropres+322>:	mov    0x54(%edi),%ecx=0A=
-0xc0173855 <nfssvc_encode_diropres+325>:	bswap  %ecx=0A=
-0xc0173857 <nfssvc_encode_diropres+327>:	mov    %ecx,(%eax)=0A=
-0xc0173859 <nfssvc_encode_diropres+329>:	mov    %esi,%edx=0A=
-0xc017385b <nfssvc_encode_diropres+331>:	add    $0x4,%esi=0A=
-0xc017385e <nfssvc_encode_diropres+334>:	movzwl 0x28(%edi),%eax=0A=
-0xc0173862 <nfssvc_encode_diropres+338>:	bswap  %eax=0A=
-0xc0173864 <nfssvc_encode_diropres+340>:	mov    %eax,(%edx)=0A=
-0xc0173866 <nfssvc_encode_diropres+342>:	mov    %esi,%eax=0A=
-0xc0173868 <nfssvc_encode_diropres+344>:	add    $0x4,%esi=0A=
-0xc017386b <nfssvc_encode_diropres+347>:	mov    0x20(%edi),%ecx=0A=
-0xc017386e <nfssvc_encode_diropres+350>:	bswap  %ecx=0A=
-0xc0173870 <nfssvc_encode_diropres+352>:	mov    %ecx,(%eax)=0A=
-0xc0173872 <nfssvc_encode_diropres+354>:	mov    %esi,%eax=0A=
-0xc0173874 <nfssvc_encode_diropres+356>:	add    $0x4,%esi=0A=
-0xc0173877 <nfssvc_encode_diropres+359>:	mov    0x44(%edi),%ecx=0A=
-0xc017387a <nfssvc_encode_diropres+362>:	bswap  %ecx=0A=
-0xc017387c <nfssvc_encode_diropres+364>:	mov    %ecx,(%eax)=0A=
-0xc017387e <nfssvc_encode_diropres+366>:	movl   $0x0,(%esi)=0A=
-0xc0173884 <nfssvc_encode_diropres+372>:	add    $0x4,%esi=0A=
-0xc0173887 <nfssvc_encode_diropres+375>:	mov    %esi,%ebx=0A=
-0xc0173889 <nfssvc_encode_diropres+377>:	add    $0x4,%esi=0A=
-0xc017388c <nfssvc_encode_diropres+380>:	push   %edi=0A=
-0xc017388d <nfssvc_encode_diropres+381>:	call   0xc0140a2c =
-<lease_get_mtime>=0A=
-0xc0173892 <nfssvc_encode_diropres+386>:	add    $0x4,%esp=0A=
-0xc0173895 <nfssvc_encode_diropres+389>:	bswap  %eax=0A=
-0xc0173897 <nfssvc_encode_diropres+391>:	mov    %eax,(%ebx)=0A=
-0xc0173899 <nfssvc_encode_diropres+393>:	movl   $0x0,(%esi)=0A=
-0xc017389f <nfssvc_encode_diropres+399>:	add    $0x4,%esi=0A=
-0xc01738a2 <nfssvc_encode_diropres+402>:	mov    %esi,%eax=0A=
-0xc01738a4 <nfssvc_encode_diropres+404>:	add    $0x4,%esi=0A=
-0xc01738a7 <nfssvc_encode_diropres+407>:	mov    0x4c(%edi),%ecx=0A=
-0xc01738aa <nfssvc_encode_diropres+410>:	bswap  %ecx=0A=
-0xc01738ac <nfssvc_encode_diropres+412>:	mov    %ecx,(%eax)=0A=
-0xc01738ae <nfssvc_encode_diropres+414>:	movl   $0x0,(%esi)=0A=
-0xc01738b4 <nfssvc_encode_diropres+420>:	lea    0x4(%esi),%edx=0A=
-0xc01738b7 <nfssvc_encode_diropres+423>:	test   %edx,%edx=0A=
-0xc01738b9 <nfssvc_encode_diropres+425>:	jne    0xc01738c0 =
-<nfssvc_encode_diropres+432>=0A=
-0xc01738bb <nfssvc_encode_diropres+427>:	xor    %eax,%eax=0A=
-0xc01738bd <nfssvc_encode_diropres+429>:	jmp    0xc017390e =
-<nfssvc_encode_diropres+510>=0A=
-0xc01738bf <nfssvc_encode_diropres+431>:	nop    =0A=
-0xc01738c0 <nfssvc_encode_diropres+432>:	mov    0x1c(%esp,1),%edi=0A=
-0xc01738c4 <nfssvc_encode_diropres+436>:	mov    %edx,%eax=0A=
-0xc01738c6 <nfssvc_encode_diropres+438>:	mov    0x13c(%edi),%ebx=0A=
-0xc01738cc <nfssvc_encode_diropres+444>:	sub    %ebx,%eax=0A=
-0xc01738ce <nfssvc_encode_diropres+446>:	sar    $0x2,%eax=0A=
-0xc01738d1 <nfssvc_encode_diropres+449>:	mov    %eax,0x148(%edi)=0A=
-0xc01738d7 <nfssvc_encode_diropres+455>:	testb  $0x1,0xc0367d21=0A=
-0xc01738de <nfssvc_encode_diropres+462>:	je     0xc01738f6 =
-<nfssvc_encode_diropres+486>=0A=
-0xc01738e0 <nfssvc_encode_diropres+464>:	mov    0x140(%edi),%eax=0A=
-0xc01738e6 <nfssvc_encode_diropres+470>:	push   %eax=0A=
-0xc01738e7 <nfssvc_encode_diropres+471>:	push   %ebx=0A=
-0xc01738e8 <nfssvc_encode_diropres+472>:	push   %edx=0A=
-0xc01738e9 <nfssvc_encode_diropres+473>:	push   $0xc02874a0=0A=
-0xc01738ee <nfssvc_encode_diropres+478>:	call   0xc011567c <printk>=0A=
-0xc01738f3 <nfssvc_encode_diropres+483>:	add    $0x10,%esp=0A=
-0xc01738f6 <nfssvc_encode_diropres+486>:	mov    0x1c(%esp,1),%ecx=0A=
-0xc01738fa <nfssvc_encode_diropres+490>:	mov    0x140(%ecx),%eax=0A=
-0xc0173900 <nfssvc_encode_diropres+496>:	cmp    %eax,0x148(%ecx)=0A=
-0xc0173906 <nfssvc_encode_diropres+502>:	setle  %al=0A=
-0xc0173909 <nfssvc_encode_diropres+505>:	and    $0xff,%eax=0A=
-0xc017390e <nfssvc_encode_diropres+510>:	pop    %ebx=0A=
-0xc017390f <nfssvc_encode_diropres+511>:	pop    %esi=0A=
-0xc0173910 <nfssvc_encode_diropres+512>:	pop    %edi=0A=
-0xc0173911 <nfssvc_encode_diropres+513>:	pop    %ebp=0A=
-0xc0173912 <nfssvc_encode_diropres+514>:	pop    %ecx=0A=
-0xc0173913 <nfssvc_encode_diropres+515>:	pop    %edx=0A=
-0xc0173914 <nfssvc_encode_diropres+516>:	ret    =0A=
-0xc0173915 <nfssvc_encode_diropres+517>:	lea    0x0(%esi),%esi=0A=
-End of assembler dump.=0A=
+---559023410-1804928587-982234724=:19331
+Content-Type: TEXT/PLAIN; charset=US-ASCII; name=lspci-vx
+Content-Transfer-Encoding: BASE64
+Content-ID: <Pine.GSO.4.21.0102151158440.19331@gamma10>
+Content-Description: 
+Content-Disposition: attachment; filename=lspci-vx
 
-------_=_NextPart_000_01C0973D.F6945601--
+MDA6MDAuMCBIb3N0IGJyaWRnZTogVklBIFRlY2hub2xvZ2llcywgSW5jLjog
+VW5rbm93biBkZXZpY2UgMDMwNSAocmV2IDAyKQ0KCVN1YnN5c3RlbTogQXN1
+c3RlayBDb21wdXRlciwgSW5jLjogVW5rbm93biBkZXZpY2UgODAzMw0KCUZs
+YWdzOiBidXMgbWFzdGVyLCBtZWRpdW0gZGV2c2VsLCBsYXRlbmN5IDANCglN
+ZW1vcnkgYXQgZTcwMDAwMDAgKDMyLWJpdCwgcHJlZmV0Y2hhYmxlKSBbc2l6
+ZT0xNk1dDQoJQ2FwYWJpbGl0aWVzOiBbYTBdIEFHUCB2ZXJzaW9uIDIuMA0K
+CUNhcGFiaWxpdGllczogW2MwXSBQb3dlciBNYW5hZ2VtZW50IHZlcnNpb24g
+Mg0KMDA6IDA2IDExIDA1IDAzIDA2IDAwIDEwIDIyIDAyIDAwIDAwIDA2IDAw
+IDAwIDAwIDAwDQoxMDogMDggMDAgMDAgZTcgMDAgMDAgMDAgMDAgMDAgMDAg
+MDAgMDAgMDAgMDAgMDAgMDANCjIwOiAwMCAwMCAwMCAwMCAwMCAwMCAwMCAw
+MCAwMCAwMCAwMCAwMCA0MyAxMCAzMyA4MA0KMzA6IDAwIDAwIDAwIDAwIGEw
+IDAwIDAwIDAwIDAwIDAwIDAwIDAwIDAwIDAwIDAwIDAwDQoNCjAwOjAxLjAg
+UENJIGJyaWRnZTogVklBIFRlY2hub2xvZ2llcywgSW5jLjogVW5rbm93biBk
+ZXZpY2UgODMwNSAocHJvZy1pZiAwMCBbTm9ybWFsIGRlY29kZV0pDQoJRmxh
+Z3M6IGJ1cyBtYXN0ZXIsIDY2TWh6LCBtZWRpdW0gZGV2c2VsLCBsYXRlbmN5
+IDANCglCdXM6IHByaW1hcnk9MDAsIHNlY29uZGFyeT0wMSwgc3Vib3JkaW5h
+dGU9MDEsIHNlYy1sYXRlbmN5PTANCglNZW1vcnkgYmVoaW5kIGJyaWRnZTog
+ZTI4MDAwMDAtZTNkZmZmZmYNCglQcmVmZXRjaGFibGUgbWVtb3J5IGJlaGlu
+ZCBicmlkZ2U6IGUzZjAwMDAwLWU2ZmZmZmZmDQoJQ2FwYWJpbGl0aWVzOiBb
+ODBdIFBvd2VyIE1hbmFnZW1lbnQgdmVyc2lvbiAyDQowMDogMDYgMTEgMDUg
+ODMgMDcgMDAgMzAgMjIgMDAgMDAgMDQgMDYgMDAgMDAgMDEgMDANCjEwOiAw
+MCAwMCAwMCAwMCAwMCAwMCAwMCAwMCAwMCAwMSAwMSAwMCBlMCBkMCAwMCAw
+MA0KMjA6IDgwIGUyIGQwIGUzIGYwIGUzIGYwIGU2IDAwIDAwIDAwIDAwIDAw
+IDAwIDAwIDAwDQozMDogMDAgMDAgMDAgMDAgODAgMDAgMDAgMDAgMDAgMDAg
+MDAgMDAgMDAgMDAgMDggMDANCg0KMDA6MDQuMCBJU0EgYnJpZGdlOiBWSUEg
+VGVjaG5vbG9naWVzLCBJbmMuIFZUODJDNjg2IFtBcG9sbG8gU3VwZXJdIChy
+ZXYgMjIpDQoJU3Vic3lzdGVtOiBBc3VzdGVrIENvbXB1dGVyLCBJbmMuOiBV
+bmtub3duIGRldmljZSA4MDMzDQoJRmxhZ3M6IGJ1cyBtYXN0ZXIsIHN0ZXBw
+aW5nLCBtZWRpdW0gZGV2c2VsLCBsYXRlbmN5IDANCjAwOiAwNiAxMSA4NiAw
+NiA4NyAwMCAxMCAwMiAyMiAwMCAwMSAwNiAwMCAwMCA4MCAwMA0KMTA6IDAw
+IDAwIDAwIDAwIDAwIDAwIDAwIDAwIDAwIDAwIDAwIDAwIDAwIDAwIDAwIDAw
+DQoyMDogMDAgMDAgMDAgMDAgMDAgMDAgMDAgMDAgMDAgMDAgMDAgMDAgNDMg
+MTAgMzMgODANCjMwOiAwMCAwMCAwMCAwMCAwMCAwMCAwMCAwMCAwMCAwMCAw
+MCAwMCAwMCAwMCAwMCAwMA0KDQowMDowNC4xIElERSBpbnRlcmZhY2U6IFZJ
+QSBUZWNobm9sb2dpZXMsIEluYy4gVlQ4MkM1ODYgSURFIFtBcG9sbG9dIChy
+ZXYgMTApIChwcm9nLWlmIDhhIFtNYXN0ZXIgU2VjUCBQcmlQXSkNCglGbGFn
+czogYnVzIG1hc3RlciwgbWVkaXVtIGRldnNlbCwgbGF0ZW5jeSAzMg0KCUkv
+TyBwb3J0cyBhdCBkODAwIFtzaXplPTE2XQ0KCUNhcGFiaWxpdGllczogW2Mw
+XSBQb3dlciBNYW5hZ2VtZW50IHZlcnNpb24gMg0KMDA6IDA2IDExIDcxIDA1
+IDA3IDAwIDkwIDAyIDEwIDhhIDAxIDAxIDAwIDIwIDAwIDAwDQoxMDogMDAg
+MDAgMDAgMDAgMDAgMDAgMDAgMDAgMDAgMDAgMDAgMDAgMDAgMDAgMDAgMDAN
+CjIwOiAwMSBkOCAwMCAwMCAwMCAwMCAwMCAwMCAwMCAwMCAwMCAwMCAwMCAw
+MCAwMCAwMA0KMzA6IDAwIDAwIDAwIDAwIGMwIDAwIDAwIDAwIDAwIDAwIDAw
+IDAwIGZmIDAwIDAwIDAwDQoNCjAwOjA0LjIgVVNCIENvbnRyb2xsZXI6IFZJ
+QSBUZWNobm9sb2dpZXMsIEluYy4gVlQ4MkM1ODZCIFVTQiAocmV2IDEwKSAo
+cHJvZy1pZiAwMCBbVUhDSV0pDQoJU3Vic3lzdGVtOiBVbmtub3duIGRldmlj
+ZSAwOTI1OjEyMzQNCglGbGFnczogYnVzIG1hc3RlciwgbWVkaXVtIGRldnNl
+bCwgbGF0ZW5jeSAzMiwgSVJRIDExDQoJSS9PIHBvcnRzIGF0IGQ0MDAgW3Np
+emU9MzJdDQoJQ2FwYWJpbGl0aWVzOiBbODBdIFBvd2VyIE1hbmFnZW1lbnQg
+dmVyc2lvbiAyDQowMDogMDYgMTEgMzggMzAgMTcgMDAgMTAgMDIgMTAgMDAg
+MDMgMGMgMDggMjAgMDAgMDANCjEwOiAwMCAwMCAwMCAwMCAwMCAwMCAwMCAw
+MCAwMCAwMCAwMCAwMCAwMCAwMCAwMCAwMA0KMjA6IDAxIGQ0IDAwIDAwIDAw
+IDAwIDAwIDAwIDAwIDAwIDAwIDAwIDI1IDA5IDM0IDEyDQozMDogMDAgMDAg
+MDAgMDAgODAgMDAgMDAgMDAgMDAgMDAgMDAgMDAgMGIgMDQgMDAgMDANCg0K
+MDA6MDQuMyBVU0IgQ29udHJvbGxlcjogVklBIFRlY2hub2xvZ2llcywgSW5j
+LiBWVDgyQzU4NkIgVVNCIChyZXYgMTApIChwcm9nLWlmIDAwIFtVSENJXSkN
+CglTdWJzeXN0ZW06IFVua25vd24gZGV2aWNlIDA5MjU6MTIzNA0KCUZsYWdz
+OiBidXMgbWFzdGVyLCBtZWRpdW0gZGV2c2VsLCBsYXRlbmN5IDMyLCBJUlEg
+MTENCglJL08gcG9ydHMgYXQgZDAwMCBbc2l6ZT0zMl0NCglDYXBhYmlsaXRp
+ZXM6IFs4MF0gUG93ZXIgTWFuYWdlbWVudCB2ZXJzaW9uIDINCjAwOiAwNiAx
+MSAzOCAzMCAxNyAwMCAxMCAwMiAxMCAwMCAwMyAwYyAwOCAyMCAwMCAwMA0K
+MTA6IDAwIDAwIDAwIDAwIDAwIDAwIDAwIDAwIDAwIDAwIDAwIDAwIDAwIDAw
+IDAwIDAwDQoyMDogMDEgZDAgMDAgMDAgMDAgMDAgMDAgMDAgMDAgMDAgMDAg
+MDAgMjUgMDkgMzQgMTINCjMwOiAwMCAwMCAwMCAwMCA4MCAwMCAwMCAwMCAw
+MCAwMCAwMCAwMCAwYiAwNCAwMCAwMA0KDQowMDowNC40IEhvc3QgYnJpZGdl
+OiBWSUEgVGVjaG5vbG9naWVzLCBJbmMuIFZUODJDNjg2IFtBcG9sbG8gU3Vw
+ZXIgQUNQSV0gKHJldiAzMCkNCglGbGFnczogbWVkaXVtIGRldnNlbCwgSVJR
+IDkNCglDYXBhYmlsaXRpZXM6IFs2OF0gUG93ZXIgTWFuYWdlbWVudCB2ZXJz
+aW9uIDINCjAwOiAwNiAxMSA1NyAzMCAwMCAwMCA5MCAwMiAzMCAwMCAwMCAw
+NiAwMCAwMCAwMCAwMA0KMTA6IDAwIDAwIDAwIDAwIDAwIDAwIDAwIDAwIDAw
+IDAwIDAwIDAwIDAwIDAwIDAwIDAwDQoyMDogMDAgMDAgMDAgMDAgMDAgMDAg
+MDAgMDAgMDAgMDAgMDAgMDAgMDAgMDAgMDAgMDANCjMwOiAwMCAwMCAwMCAw
+MCA2OCAwMCAwMCAwMCAwMCAwMCAwMCAwMCAwMCAwMCAwMCAwMA0KDQowMDow
+Yy4wIEV0aGVybmV0IGNvbnRyb2xsZXI6IFN0YW5kYXJkIE1pY3Jvc3lzdGVt
+cyBDb3JwIFtTTUNdIDgzQzE3MFFGIChyZXYgMDgpDQoJU3Vic3lzdGVtOiBT
+dGFuZGFyZCBNaWNyb3N5c3RlbXMgQ29ycCBbU01DXTogVW5rbm93biBkZXZp
+Y2UgYTAyMA0KCUZsYWdzOiBidXMgbWFzdGVyLCBmYXN0IGRldnNlbCwgbGF0
+ZW5jeSAzMiwgSVJRIDEwDQoJSS9PIHBvcnRzIGF0IGE0MDAgW3NpemU9MjU2
+XQ0KCU1lbW9yeSBhdCBlMjAwMDAwMCAoMzItYml0LCBub24tcHJlZmV0Y2hh
+YmxlKSBbc2l6ZT00S10NCglFeHBhbnNpb24gUk9NIGF0IDx1bmFzc2lnbmVk
+PiBbZGlzYWJsZWRdIFtzaXplPTY0S10NCglDYXBhYmlsaXRpZXM6IFtkY10g
+UG93ZXIgTWFuYWdlbWVudCB2ZXJzaW9uIDENCjAwOiBiOCAxMCAwNSAwMCAw
+NyAwMCA5MCAwMCAwOCAwMCAwMCAwMiAwMCAyMCAwMCAwMA0KMTA6IDAxIGE0
+IDAwIDAwIDAwIDAwIDAwIGUyIDAwIDAwIDAwIDAwIDAwIDAwIDAwIDAwDQoy
+MDogMDAgMDAgMDAgMDAgMDAgMDAgMDAgMDAgMDcgMDEgMDAgMDAgYjggMTAg
+MjAgYTANCjMwOiAwMCAwMCAwMCAwMCBkYyAwMCAwMCAwMCAwMCAwMCAwMCAw
+MCAwYSAwMSAwOCAxYw0KDQowMDoxMS4wIFVua25vd24gbWFzcyBzdG9yYWdl
+IGNvbnRyb2xsZXI6IFByb21pc2UgVGVjaG5vbG9neSwgSW5jLjogVW5rbm93
+biBkZXZpY2UgMGQzMCAocmV2IDAyKQ0KCVN1YnN5c3RlbTogUHJvbWlzZSBU
+ZWNobm9sb2d5LCBJbmMuOiBVbmtub3duIGRldmljZSA0ZDMzDQoJRmxhZ3M6
+IGJ1cyBtYXN0ZXIsIG1lZGl1bSBkZXZzZWwsIGxhdGVuY3kgMzIsIElSUSA1
+DQoJSS9PIHBvcnRzIGF0IGEwMDAgW3NpemU9OF0NCglJL08gcG9ydHMgYXQg
+OTgwMCBbc2l6ZT00XQ0KCUkvTyBwb3J0cyBhdCA5NDAwIFtzaXplPThdDQoJ
+SS9PIHBvcnRzIGF0IDkwMDAgW3NpemU9NF0NCglJL08gcG9ydHMgYXQgODgw
+MCBbc2l6ZT02NF0NCglNZW1vcnkgYXQgZTE4MDAwMDAgKDMyLWJpdCwgbm9u
+LXByZWZldGNoYWJsZSkgW3NpemU9MTI4S10NCglFeHBhbnNpb24gUk9NIGF0
+IDx1bmFzc2lnbmVkPiBbZGlzYWJsZWRdIFtzaXplPTY0S10NCglDYXBhYmls
+aXRpZXM6IFs1OF0gUG93ZXIgTWFuYWdlbWVudCB2ZXJzaW9uIDENCjAwOiA1
+YSAxMCAzMCAwZCAwNyAwMCAxMCAwMiAwMiAwMCA4MCAwMSAwMCAyMCAwMCAw
+MA0KMTA6IDAxIGEwIDAwIDAwIDAxIDk4IDAwIDAwIDAxIDk0IDAwIDAwIDAx
+IDkwIDAwIDAwDQoyMDogMDEgODggMDAgMDAgMDAgMDAgODAgZTEgMDAgMDAg
+MDAgMDAgNWEgMTAgMzMgNGQNCjMwOiAwMCAwMCAwMCAwMCA1OCAwMCAwMCAw
+MCAwMCAwMCAwMCAwMCAwNSAwMSAwMCAwMA0KDQowMTowMC4wIFZHQSBjb21w
+YXRpYmxlIGNvbnRyb2xsZXI6IE1hdHJveCBHcmFwaGljcywgSW5jLiBNR0Eg
+RzQwMCBBR1AgKHJldiAwNCkgKHByb2ctaWYgMDAgW1ZHQV0pDQoJU3Vic3lz
+dGVtOiBNYXRyb3ggR3JhcGhpY3MsIEluYy46IFVua25vd24gZGV2aWNlIDAz
+NzgNCglGbGFnczogYnVzIG1hc3RlciwgbWVkaXVtIGRldnNlbCwgbGF0ZW5j
+eSA2NCwgSVJRIDEwDQoJTWVtb3J5IGF0IGU0MDAwMDAwICgzMi1iaXQsIHBy
+ZWZldGNoYWJsZSkgW3NpemU9MzJNXQ0KCU1lbW9yeSBhdCBlMzAwMDAwMCAo
+MzItYml0LCBub24tcHJlZmV0Y2hhYmxlKSBbc2l6ZT0xNktdDQoJTWVtb3J5
+IGF0IGUyODAwMDAwICgzMi1iaXQsIG5vbi1wcmVmZXRjaGFibGUpIFtzaXpl
+PThNXQ0KCUV4cGFuc2lvbiBST00gYXQgZTNmZjAwMDAgW2Rpc2FibGVkXSBb
+c2l6ZT02NEtdDQoJQ2FwYWJpbGl0aWVzOiBbZGNdIFBvd2VyIE1hbmFnZW1l
+bnQgdmVyc2lvbiAyDQoJQ2FwYWJpbGl0aWVzOiBbZjBdIEFHUCB2ZXJzaW9u
+IDIuMA0KMDA6IDJiIDEwIDI1IDA1IDA3IDAwIDkwIDAyIDA0IDAwIDAwIDAz
+IDA4IDQwIDAwIDAwDQoxMDogMDggMDAgMDAgZTQgMDAgMDAgMDAgZTMgMDAg
+MDAgODAgZTIgMDAgMDAgMDAgMDANCjIwOiAwMCAwMCAwMCAwMCAwMCAwMCAw
+MCAwMCAwMCAwMCAwMCAwMCAyYiAxMCA3OCAwMw0KMzA6IDAwIDAwIGZmIGUz
+IGRjIDAwIDAwIDAwIDAwIDAwIDAwIDAwIDBhIDAxIDEwIDIwDQoNCg==
+---559023410-1804928587-982234724=:19331--

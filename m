@@ -1,61 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129387AbRAFAjL>; Fri, 5 Jan 2001 19:39:11 -0500
+	id <S129267AbRAFAkB>; Fri, 5 Jan 2001 19:40:01 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132074AbRAFAjC>; Fri, 5 Jan 2001 19:39:02 -0500
-Received: from smtp2.libero.it ([193.70.192.52]:58763 "EHLO smtp2.libero.it")
-	by vger.kernel.org with ESMTP id <S129561AbRAFAiq>;
-	Fri, 5 Jan 2001 19:38:46 -0500
-Date: Sat, 6 Jan 2001 03:39:36 +0100
-From: antirez <antirez@invece.org>
-To: antirez <antirez@invece.org>
-Cc: Greg KH <greg@wirex.com>, Heitzso <xxh1@cdc.gov>,
-        "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>,
-        "'Johannes Erdfelt'" <johannes@erdfelt.com>
-Subject: Re: USB broken in 2.4.0
-Message-ID: <20010106033936.A1748@prosa.it>
-Reply-To: antirez@invece.org
-In-Reply-To: <B7F9A3E3FDDDD11185510000F8BDBBF2049E7F99@mcdc-atl-5.cdc.gov> <20010105100040.A25217@wirex.com> <20010106000429.K7784@prosa.it>
-Mime-Version: 1.0
+	id <S129324AbRAFAjv>; Fri, 5 Jan 2001 19:39:51 -0500
+Received: from zeus.kernel.org ([209.10.41.242]:38345 "EHLO zeus.kernel.org")
+	by vger.kernel.org with ESMTP id <S129267AbRAFAjp>;
+	Fri, 5 Jan 2001 19:39:45 -0500
+To: linux-kernel@vger.kernel.org
+Cc: Lukas Dobrek <dobrek@itp.uni-hannover.de>
+Subject: Re: Problem with compiling 2.2.18 on AXP
+In-Reply-To: <20010106011533.A1344@alya.uni-hannover.de>
+From: David Huggins-Daines <dhd@eradicator.org>
+Organization: None worth mentioning
+Date: 05 Jan 2001 19:38:59 -0500
+Message-ID: <87pui1y0nw.fsf@monolith.cepstral.com>
+User-Agent: Gnus/5.0803 (Gnus v5.8.3) Emacs/20.7
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20010106000429.K7784@prosa.it>; from antirez@invece.org on Sat, Jan 06, 2001 at 12:04:29AM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Jan 06, 2001 at 12:04:29AM +0100, antirez wrote:
-> I'll do some test with the new 2.4 kernel to find if there is a problem
-> in s10sh itself. A good test can be to try if the equivalent driver
-> of gphoto works without problems using the 2.4 kernel (however it also
-> uses the libusb). The s10sh bug may be not necessarly related to the USB
-> subsystem.
+Lukas Dobrek <dobrek@itp.uni-hannover.de> writes:
 
-Ok, the problem is the same that I ecountered developing the file
-upload for the powershot USB driver performing a bulk write with
-a big data size, but this time it is present even reading.
+> Hello,
+> I've following problem with compiling kernel-2.2.18 on AXP machine:
+> 
+> make -C  arch/alpha/lib
+> make[1]: Entering directory `/home/users/builder/rpm/BUILD/linux/arch/alpha/lib'
+> /usr/bin/kgcc -D__KERNEL__ -I/home/users/builder/rpm/BUILD/linux/include -D__ASSEMBLY__  -c -o stxcpy.o stxcpy.S
+> stxcpy.S:22: alpha/regdef.h: No such file or directory
+> make[1]: *** [stxcpy.o] Error 1
+> 
+> Surprisingly this is true, this file exist only in asm-mips. 
 
-s10sh reads 0x1400 bytes at once downloading jpges from the
-digicam, but the ioctl() that performs the bulk read fails with 2.4
-using this size. If I resize it (for example to 0x300) it works without
-problems (with high performace penality, of course, 60% of slow-down).
-I don't know why. I checked at the time of the file upload the kernel
-code finding nothing.
+This file should have been installed with your glibc headers (though
+its absence in the kernel is probably a bug, either that or its use
+is).
 
-Anyway with the old releases of the USB subsystem libusb failed to
-initialize the camera some time, now it seems fixed.
-
-For the users: just edit usb.c and check the function USB_get_data(),
-substituting all the occurrence of 0x1400 to 0x300 as a work-around.
-
-Please CC: me since I'm not subscribed to the list.
-
-regards,
-antirez
+Complain to your distribution vendor.
 
 -- 
-Salvatore Sanfilippo              |                      <antirez@invece.org>
-http://www.kyuzz.org/antirez      |      PGP: finger antirez@tella.alicom.com
+David Huggins-Daines		-		dhd@eradicator.org
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,39 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268528AbTBOEWG>; Fri, 14 Feb 2003 23:22:06 -0500
+	id <S268529AbTBOEtk>; Fri, 14 Feb 2003 23:49:40 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268529AbTBOEWG>; Fri, 14 Feb 2003 23:22:06 -0500
-Received: from bjl1.jlokier.co.uk ([81.29.64.88]:15232 "EHLO
-	bjl1.jlokier.co.uk") by vger.kernel.org with ESMTP
-	id <S268528AbTBOEWF>; Fri, 14 Feb 2003 23:22:05 -0500
-Date: Sat, 15 Feb 2003 04:34:05 +0000
-From: Jamie Lokier <jamie@shareable.org>
-To: Davide Libenzi <davidel@xmailserver.org>
-Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Synchronous signal delivery..
-Message-ID: <20030215043405.GB5438@bjl1.jlokier.co.uk>
-References: <Pine.LNX.4.44.0302131120280.2076-100000@home.transmeta.com> <20030214024046.GA18214@bjl1.jlokier.co.uk> <Pine.LNX.4.50.0302141603220.988-100000@blue1.dev.mcafeelabs.com> <20030215010153.GE4333@bjl1.jlokier.co.uk> <Pine.LNX.4.50.0302141744070.988-100000@blue1.dev.mcafeelabs.com> <20030215020838.GH4333@bjl1.jlokier.co.uk> <Pine.LNX.4.50.0302142005550.988-100000@blue1.dev.mcafeelabs.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S268533AbTBOEtk>; Fri, 14 Feb 2003 23:49:40 -0500
+Received: from mailsrv.otenet.gr ([195.170.0.5]:2636 "EHLO mailsrv.otenet.gr")
+	by vger.kernel.org with ESMTP id <S268529AbTBOEtj>;
+	Fri, 14 Feb 2003 23:49:39 -0500
+From: Aggelos Economopoulos <aoiko@cc.ece.ntua.gr>
+Reply-To: aoiko@cc.ece.ntua.gr
+To: Jamie Lokier <jamie@shareable.org>, Larry McVoy <lm@bitmover.com>,
+       "'Linux Kernel Mailing List'" <linux-kernel@vger.kernel.org>
+Subject: Re: openbkweb-0.0
+Date: Sat, 15 Feb 2003 07:00:36 +0200
+User-Agent: KMail/1.5
+References: <1045273835.2961.0.camel@irongate.swansea.linux.org.uk> <20030215024102.GA23918@work.bitmover.com> <20030215031157.GA5250@bjl1.jlokier.co.uk>
+In-Reply-To: <20030215031157.GA5250@bjl1.jlokier.co.uk>
+MIME-Version: 1.0
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.50.0302142005550.988-100000@blue1.dev.mcafeelabs.com>
-User-Agent: Mutt/1.4i
+Message-Id: <200302150658.15080.aoiko@cc.ece.ntua.gr>
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Davide Libenzi wrote:
-> Many ( many ) times, when you're going to wait for events, you want to
-> specify a maximum wait time ( reletive time ) and not an absolute time.
-> This is how ppl think about "timeouts". Different beast is the absolute
-> timer, that you can easily achieve with POSIX timers ( TIMER_ABSTIME ) and
-> a sigfd() dropped inside an event retrieval interface.
+On Saturday 15 February 2003 05:11, Jamie Lokier wrote:
+[...]
+> [ Note that I won't agree to refrain from reverse engineering the
+>   network protocol, as the price of using BK for free.
+>
+>   Chances are I'll never bother, but it's not something I'd willingly
+>   agree to not do, because I prefer to be not allowed to use BK than to
+>   be effectively bound by an eternal NDA. ]
 
-Agreed, both interfaces are useful.  You see that epoll_wait is
-optimised for one in particular though.
+What makes you think the licence is something like an _eternal_ NDA?
 
-Curiously.  I'll probably continue to use a calculated relative
-timeout instead of using a POSIX timer, as the overhead of setting up
-and tearing down the latter is more system calls which we still like
-to avoid if it's not hard.
+Larry, I've used bitkeeper for a few months to pull linus's and rik's trees 
+and export them for my own use until about a month ago. I've also tried 
+using it in a single user repository for contest (the benchmark).
 
--- Jamie
+Last week, feeling tempted to dig into arch, I removed all the files from 
+the bitkeeper installation and I did a search-and-unlink of BitKeeper 
+directories, just in case.
+
+Do you intend to sue me if I ever submit a patch for cvs/subversion/whatever 
+(arch kind of sucks:-) or if I feel like starting my own scm project? (while 
+I think this would be ridiculous I'm not trying to bash you here, it's an 
+honest question regarding Jamie's comment above)
+
+Aggelos
+
+

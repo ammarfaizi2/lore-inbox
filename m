@@ -1,91 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271751AbTG2S4m (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 29 Jul 2003 14:56:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271920AbTG2S4m
+	id S272000AbTG2TDo (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 29 Jul 2003 15:03:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272003AbTG2TDo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 29 Jul 2003 14:56:42 -0400
-Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:3054 "HELO
-	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
-	id S271751AbTG2S4l (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 29 Jul 2003 14:56:41 -0400
-Date: Tue, 29 Jul 2003 20:56:31 +0200
-From: Adrian Bunk <bunk@fs.tum.de>
-To: Corey Minyard <minyard@mvista.com>,
-       Marcelo Tosatti <marcelo@conectiva.com.br>
-Cc: linux-kernel@vger.kernel.org, trivial@rustcorp.com.au
-Subject: [patch] fix IPMI build error #if CONFIG_ACPI_HT_ONLY
-Message-ID: <20030729185631.GP28767@fs.tum.de>
+	Tue, 29 Jul 2003 15:03:44 -0400
+Received: from pasmtp.tele.dk ([193.162.159.95]:22792 "EHLO pasmtp.tele.dk")
+	by vger.kernel.org with ESMTP id S272000AbTG2TDn (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 29 Jul 2003 15:03:43 -0400
+Date: Tue, 29 Jul 2003 21:03:40 +0200
+From: Sam Ravnborg <sam@ravnborg.org>
+To: Valdis.Kletnieks@vt.edu
+Cc: linux-kernel@vger.kernel.org,
+       Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>
+Subject: Re: 2.6.0-test2-mm1 and the mysterious dissapearing penguin..
+Message-ID: <20030729190340.GA5791@mars.ravnborg.org>
+Mail-Followup-To: Valdis.Kletnieks@vt.edu,
+	linux-kernel@vger.kernel.org,
+	Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>
+References: <200307281759.h6SHx75k004260@turing-police.cc.vt.edu>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+In-Reply-To: <200307281759.h6SHx75k004260@turing-police.cc.vt.edu>
 User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I got the following build error in 2.6.0-test2:
+On Mon, Jul 28, 2003 at 01:59:07PM -0400, Valdis.Kletnieks@vt.edu wrote:
+>   LD      arch/i386/kernel/built-in.o
+> ./scripts/pnmtologo -t mono -n logo_linux_mono -o drivers/video/logo/logo_linux_mono.c drivers/video/logo/logo_linux_mono.pbm
+>   CC      drivers/video/logo/logo_linux_mono.o
+> ./scripts/pnmtologo -t vga16 -n logo_linux_vga16 -o drivers/video/logo/logo_linux_vga16.c drivers/video/logo/logo_linux_vga16.ppm
+>   CC      drivers/video/logo/logo_linux_vga16.o
+> ./scripts/pnmtologo -t clut224 -n logo_linux_clut224 -o drivers/video/logo/logo_linux_clut224.c drivers/video/logo/logo_linux_clut224.ppm
+>   CC      drivers/video/logo/logo_linux_clut224.o
+>   LD      drivers/video/logo/built-in.o
+>   LD      drivers/video/built-in.o
+>   LD      drivers/built-in.o
+>   GEN     .version
+>   CHK     include/linux/compile.h
+> 
+> Looks like a dependency issue?  Why would they get build THIS time and apparently
+> not the first time around?
 
-<--  snip  -->
+When building the logo stuff there is some dependencies missing in the
+Makefile which causes what you see.
+Kai G. has a fix pending in his tree for this, so expect that
+bit to be sovled pretty soon.
 
-...
-  LD      .tmp_vmlinux1
-...
-drivers/built-in.o(.init.text+0xdff5): In function `init_ipmi_kcs':
-: undefined reference to `acpi_find_bmc'
-make: *** [.tmp_vmlinux1] Error 1
-$ grep ACPI .config
-# Power management options (ACPI, APM)
-# ACPI Support
-CONFIG_ACPI=y
-CONFIG_ACPI_HT_ONLY=y
-$ 
-
-<--  snip  -->
-
-acpi_find_bmc is only available #ifdef CONFIG_ACPI_INTERPRETER.
-
-The following patch fixes it (the same problem does exist in
-2.4.22-pre8, the patch applies with a few lines offset):
-
---- linux-2.6.0-test2-full/drivers/char/ipmi/ipmi_kcs_intf.c.tmp	2003-07-29 17:12:36.000000000 +0200
-+++ linux-2.6.0-test2-full/drivers/char/ipmi/ipmi_kcs_intf.c	2003-07-29 17:30:08.000000000 +0200
-@@ -1016,7 +1016,7 @@
- 	return rv;
- }
- 
--#ifdef CONFIG_ACPI
-+#ifdef CONFIG_ACPI_INTERPRETER
- 
- /* Retrieve the base physical address from ACPI tables.  Originally
-    from Hewlett-Packard simple bmc.c, a GPL KCS driver. */
-@@ -1072,7 +1072,7 @@
- 	int		rv = 0;
- 	int		pos = 0;
- 	int		i = 0;
--#ifdef CONFIG_ACPI
-+#ifdef CONFIG_ACPI_INTERPRETER
- 	unsigned long	physaddr = 0;
- #endif
- 
-@@ -1102,7 +1102,7 @@
- 	   (because they weren't already specified above). */
- 
- 	if (kcs_trydefaults) {
--#ifdef CONFIG_ACPI
-+#ifdef CONFIG_ACPI_INTERPRETER
- 		if ((physaddr = acpi_find_bmc())) {
- 			if (!check_mem_region(physaddr, 2)) {
- 				rv = init_one_kcs(0, 
-
-
-
-Please apply
-Adrian
-
--- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
-
+	Sam

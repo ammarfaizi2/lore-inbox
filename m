@@ -1,42 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262796AbTBERoy>; Wed, 5 Feb 2003 12:44:54 -0500
+	id <S261640AbTBERsV>; Wed, 5 Feb 2003 12:48:21 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262807AbTBERoy>; Wed, 5 Feb 2003 12:44:54 -0500
-Received: from carisma.slowglass.com ([195.224.96.167]:53771 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id <S262796AbTBERoy>; Wed, 5 Feb 2003 12:44:54 -0500
-Date: Wed, 5 Feb 2003 17:54:28 +0000
-From: Christoph Hellwig <hch@infradead.org>
+	id <S262289AbTBERsV>; Wed, 5 Feb 2003 12:48:21 -0500
+Received: from modemcable166.48-200-24.mtl.mc.videotron.ca ([24.200.48.166]:10731
+	"EHLO xanadu.home") by vger.kernel.org with ESMTP
+	id <S261640AbTBERsU>; Wed, 5 Feb 2003 12:48:20 -0500
+Date: Wed, 5 Feb 2003 12:57:49 -0500 (EST)
+From: Nicolas Pitre <nico@cam.org>
+X-X-Sender: nico@xanadu.home
 To: andrea.glorioso@binary-only.com
-Cc: linux-kernel@vger.kernel.org
+cc: lkml <linux-kernel@vger.kernel.org>
 Subject: Re: Monta Vista software license terms
-Message-ID: <20030205175428.A23701@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	andrea.glorioso@binary-only.com, linux-kernel@vger.kernel.org
-References: <Pine.LNX.3.96L.1030205115551.1886A-100000@ndeb.net> <20030205171613.GB14909@nevyn.them.org> <87adhafx0d.fsf@topo.binary-only.priv>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <87adhafx0d.fsf@topo.binary-only.priv>; from andrea.glorioso@binary-only.com on Wed, Feb 05, 2003 at 06:38:42PM +0100
+In-Reply-To: <87d6m6fx4c.fsf@topo.binary-only.priv>
+Message-ID: <Pine.LNX.4.44.0302051247280.8496-100000@xanadu.home>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Feb 05, 2003 at 06:38:42PM +0100, andrea.glorioso@binary-only.com wrote:
-> >>>>> "dj" == Daniel Jacobowitz <dan@debian.org> writes:
-> 
->     dj> I'm told that the preview kits do include kernel source,
->     dj> although I haven't checked for myself in a couple of months.
-> 
-> They  do, although   their    preview kit is   severely  brain-damaged
-> (registration  +  "encrypted"  ISO image   +  decodification of  shell
-> scripts if you don't use Red Hat, SuSE or Mandrake).
+On Wed, 5 Feb 2003 andrea.glorioso@binary-only.com wrote:
 
-So that you got the binaries now could you check where their written offer
-is and post it to lkml?  Afterwards anyone on this list could ask them
-for their source (and at least I want to).
+> >>>>> "rl" == Robert Love <rml@mvista.com> writes:
+> 
+>     rl> Further, all of the source is available anyhow in various open
+>     rl> source projects.
+> 
+> I failed to find any source for Montavista XIP implementation, which
+> they claim they have put on their "Consumer Electronics" release.
 
-Btw, what do people think of a regular list where anyone who got such
-an offer can post it so anyone else can get source aswell?
+Hey, it's one of my many duties to release this XIP code to the community.  
+In other words, Monta Vista do actually pay me to give that source away.
+
+It's just not up to the cleanliness level I expect of community source even
+if customers usually don't care, and I didn't have time to clean it up yet.  
+But if you really insist I can give you a raw patch.
+
+I find it quite saddening that a lot of people only care about making up shit 
+while the company in question is devoting a lot of money in salary to hire 
+kernel developers full time whose work has always been merged to community 
+trees so far.
+
+
+Nicolas
 

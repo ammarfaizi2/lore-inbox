@@ -1,54 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264911AbUFRBMK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264912AbUFRBUv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264911AbUFRBMK (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Jun 2004 21:12:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264912AbUFRBMJ
+	id S264912AbUFRBUv (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Jun 2004 21:20:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264913AbUFRBUv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Jun 2004 21:12:09 -0400
-Received: from sccrmhc12.comcast.net ([204.127.202.56]:65171 "EHLO
-	sccrmhc12.comcast.net") by vger.kernel.org with ESMTP
-	id S264911AbUFRBME (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Jun 2004 21:12:04 -0400
-Message-ID: <40D24163.5000006@opensound.com>
-Date: Thu, 17 Jun 2004 18:12:03 -0700
-From: 4Front Technologies <dev@opensound.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4.2) Gecko/20040308
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: thinkliberty <thinkliberty@gmail.com>
-CC: linux-kernel@vger.kernel.org
+	Thu, 17 Jun 2004 21:20:51 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:36523 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S264912AbUFRBUu
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 17 Jun 2004 21:20:50 -0400
+Date: Fri, 18 Jun 2004 02:20:49 +0100
+From: viro@parcelfarce.linux.theplanet.co.uk
+To: 4Front Technologies <dev@opensound.com>
+Cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>
 Subject: Re: Stop the Linux kernel madness
-References: <40D232AD.4020708@opensound.com> <77709e76040617180749cd1f09@mail.gmail.com>
-In-Reply-To: <77709e76040617180749cd1f09@mail.gmail.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Message-ID: <20040618012049.GU12308@parcelfarce.linux.theplanet.co.uk>
+References: <40D232AD.4020708@opensound.com> <20040618004450.GT12308@parcelfarce.linux.theplanet.co.uk> <40D23EBD.50600@opensound.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <40D23EBD.50600@opensound.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-thinkliberty wrote:
-> Can't you just supply SUSE users with a new kernel RPM or patch that
-> you package to work with your program or kernel module?
-> 
-> It's not the best situation, but what other choice do you have? Other
-> companies do it.
-> See:
-> http://www.netraverse.com/member/downloads/kernel_download.php
+On Thu, Jun 17, 2004 at 06:00:45PM -0700, 4Front Technologies wrote:
+ 
+> That's right Al, 4Front, ATI, Nvidia are all evil!. OK so now get on with 
+> life.
 
+How dare you?  What in damnation name had given you any reason to assume
+that demagogy has anything to do with that?
 
-Our software doesn't need any patches like Win4Lin. Our software works
-off the standard Linux kernel sources (if they were intact).
+It's not about "evil" (whatever, if anything, that word might mean).
+It's not about Nvidia.
+It's not about ATI.
 
-THe problem here is that SuSE has gone and changed all the kernel headers
-so that now software doesn't compile. It does work if you were using
-the stock kerne.org sources.
+It's about your (personal or institutional - I couldn't care less) lack
+of basic integrity.  It's about exercises in misdirection worth a politician.
+And it's about attempts to come and demand that which had been clearly
+denied to you by those who get to decide what you will be given.
 
+For the record, I have zero problems with whatever license you are using
+and my only problem with your business model is that you appear to assume
+that the mere fact of your existence gives you the right to demand something
+from people who owe you nothing.
 
-best regards
-
-Dev Mazumdar
----------------------------------------------------------------------
-4Front Technologies
-4035 Lafayette Place, Unit F, Culver City, CA 90232, USA
-Tel: 310 202 8530   Fax: 310 202 0496   URL: http://www.opensound.com
----------------------------------------------------------------------
-
+*PLONK*

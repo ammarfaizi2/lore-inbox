@@ -1,28 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265462AbRFVQcD>; Fri, 22 Jun 2001 12:32:03 -0400
+	id <S265463AbRFVQdm>; Fri, 22 Jun 2001 12:33:42 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265463AbRFVQbw>; Fri, 22 Jun 2001 12:31:52 -0400
-Received: from www.transvirtual.com ([206.14.214.140]:59402 "EHLO
-	www.transvirtual.com") by vger.kernel.org with ESMTP
-	id <S265462AbRFVQbm>; Fri, 22 Jun 2001 12:31:42 -0400
-Date: Fri, 22 Jun 2001 09:31:26 -0700 (PDT)
-From: James Simmons <jsimmons@transvirtual.com>
-To: Romain Dolbeau <dolbeaur@club-internet.fr>
-cc: linux kernel <linux-kernel@vger.kernel.org>,
-        linux fbdev <Linux-fbdev-devel@lists.sourceforge.net>
-Subject: Re: [PATCH] fbgen & multiple RGBA
-In-Reply-To: <3B335146.6000403@club-internet.fr>
-Message-ID: <Pine.LNX.4.10.10106220926460.9835-100000@transvirtual.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S265466AbRFVQdg>; Fri, 22 Jun 2001 12:33:36 -0400
+Received: from [203.143.19.4] ([203.143.19.4]:7177 "EHLO kitul.learn.ac.lk")
+	by vger.kernel.org with ESMTP id <S265463AbRFVQdV>;
+	Fri, 22 Jun 2001 12:33:21 -0400
+Date: Thu, 21 Jun 2001 18:06:56 +0600
+From: Anuradha Ratnaweera <anuradha@gnu.org>
+To: "SATHISH.J" <sathish.j@tatainfotech.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Reg:use of file_system_type structure
+Message-ID: <20010621180656.A513@bee.lk>
+In-Reply-To: <Pine.LNX.4.10.10106171342310.11021-100000@blrmail> <Pine.LNX.4.10.10106171348580.11158-100000@blrmail>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <Pine.LNX.4.10.10106171348580.11158-100000@blrmail>; from sathish.j@tatainfotech.com on Sun, Jun 17, 2001 at 01:51:39PM +0530
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sun, Jun 17, 2001 at 01:51:39PM +0530, SATHISH.J wrote:
+>
+> Every file system has file_system_type structure defined. Where else this
+> structure is referred. Does register_filesystem() refer this structure.  Does
+> sys_mount refer to this structure by any means?
 
-> the attached patch fix a problem with fbgen when changing the
-> RGBA components but not the depth ; fbgen would not change
-> the colormap in this case, where it should.
+For this and all your other questions, refer
 
-It would be much easier to use a memcmp.
+www.kernelnewbies.org
+
+-- 
+
+Penguin : Linux 2.4.6-pre3 on an i586
+
+When people say nothing, they don't necessarily mean nothing.
 

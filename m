@@ -1,38 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313689AbSDEXIC>; Fri, 5 Apr 2002 18:08:02 -0500
+	id <S313415AbSDESiw>; Fri, 5 Apr 2002 13:38:52 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S313690AbSDEXHw>; Fri, 5 Apr 2002 18:07:52 -0500
-Received: from to-velocet.redhat.com ([216.138.202.10]:64251 "EHLO
-	touchme.toronto.redhat.com") by vger.kernel.org with ESMTP
-	id <S313689AbSDEXHf>; Fri, 5 Apr 2002 18:07:35 -0500
-Date: Fri, 5 Apr 2002 18:07:35 -0500
-From: Benjamin LaHaise <bcrl@redhat.com>
-To: Itai Nahshon <nahshon@actcom.co.il>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        Richard Gooch <rgooch@ras.ucalgary.ca>,
-        Andrew Morton <akpm@zip.com.au>, joeja@mindspring.com,
-        linux-kernel@vger.kernel.org
-Subject: Re: faster boots?
-Message-ID: <20020405180735.E15540@redhat.com>
-In-Reply-To: <E16tTAF-0008F2-00@the-village.bc.nu> <200204052302.g35N2o516910@lmail.actcom.co.il>
-Mime-Version: 1.0
+	id <S313414AbSDESim>; Fri, 5 Apr 2002 13:38:42 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:56842 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S313413AbSDESi0>;
+	Fri, 5 Apr 2002 13:38:26 -0500
+Message-ID: <3CADEEF5.1A73C602@zip.com.au>
+Date: Fri, 05 Apr 2002 10:37:41 -0800
+From: Andrew Morton <akpm@zip.com.au>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-pre5 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Stephen Lord <lord@sgi.com>
+CC: Dave Jones <davej@suse.de>, svetljo <galia@st-peter.stw.uni-erlangen.de>,
+        linux-kernel@vger.kernel.org, linux-xfs@thebarn.com
+Subject: Re: REPOST : linux-2.5.5-xfs-dj1 - 2.5.7-dj2  (raid0_make_request bug)
+In-Reply-To: <3CAD8B9D.8070902@st-peter.stw.uni-erlangen.de> <20020405184103.F14828@suse.de> <3CADD6CA.8010600@sgi.com>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Apr 06, 2002 at 02:02:36AM +0300, Itai Nahshon wrote:
-> A required feature IMHO: there should _never_ be dirty blocks
-> for disks that are not spinning.
+Stephen Lord wrote:
+> 
+> Dave Jones wrote:
+> 
+> >On Fri, Apr 05, 2002 at 01:33:49PM +0200, svetljo wrote:
+> > > i'm having some interesting troubles
+> > > i have lvm over soft RAID-0 with LV's formated with XFS and JFS
+> > > i can work with the JFS LV's,
+> > >    but i can not with the XFS one's, i can not mount them ( no troubles
+> > > with XFS normal partitions)
+> > > so i'd like to ask is this problem with XFS or with raid or lvm
+> > > and is there a way to fix it
+> >
+> >IIRC, this was reported a while ago, and it was something to do with
+> >XFS creating too large requests that upset the raid code.
+> >
+> Or the raid code not handling the bio layer too well, depends on your point
+> of view ;-)
+> 
 
-Never make assertions like that: on my laptop, I want *lots* of 
-dirty blocks held in memory while the disk isn't spinning.  Keeping 
-RAM powered is much less costly than spinning the disk up.
+Stephen's point of view is correct.  RAID0 fails
+in the same manner with the large pagecache BIOs
+which I'm feeding it.  It fails in the same manner
+with O_DIRECT on ext2.
 
-		-ben
--- 
-"A man with a bass just walked in,
- and he's putting it down
- on the floor."
+Neil knows about it, and will get to it.  mkp has
+a 2.4 request splitter which he will turn into a
+2.5 BIO splitter.
+
+As you said - it's being worked on.
+
+-

@@ -1,87 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266572AbUJOIVu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267435AbUJOIh1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266572AbUJOIVu (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 15 Oct 2004 04:21:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266611AbUJOIVu
+	id S267435AbUJOIh1 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 15 Oct 2004 04:37:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267186AbUJOIh1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 15 Oct 2004 04:21:50 -0400
-Received: from smtp.Lynuxworks.com ([207.21.185.24]:13 "EHLO
-	smtp.lynuxworks.com") by vger.kernel.org with ESMTP id S266572AbUJOIV2
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 15 Oct 2004 04:21:28 -0400
-Date: Fri, 15 Oct 2004 01:21:04 -0700
-To: Ingo Molnar <mingo@elte.hu>
-Cc: Bill Huey <bhuey@lnxw.com>, linux-kernel@vger.kernel.org,
-       Lee Revell <rlrevell@joe-job.com>, Rui Nuno Capela <rncbc@rncbc.org>,
-       Mark_H_Johnson@Raytheon.com, "K.R. Foley" <kr@cybsft.com>,
-       Daniel Walker <dwalker@mvista.com>, Andrew Morton <akpm@osdl.org>,
-       Adam Heath <doogie@debian.org>,
-       Lorenzo Allegrucci <l_allegrucci@yahoo.it>
-Subject: Re: [patch] Real-Time Preemption, -VP-2.6.9-rc4-mm1-U2
-Message-ID: <20041015082104.GA31709@nietzsche.lynx.com>
-References: <20041011215909.GA20686@elte.hu> <20041012091501.GA18562@elte.hu> <20041012123318.GA2102@elte.hu> <20041012195424.GA3961@elte.hu> <20041013061518.GA1083@elte.hu> <20041014002433.GA19399@elte.hu> <20041014143131.GA20258@elte.hu> <20041014234202.GA26207@elte.hu> <20041015022341.GA22831@nietzsche.lynx.com> <20041015070839.GA8373@elte.hu>
+	Fri, 15 Oct 2004 04:37:27 -0400
+Received: from NEUROSIS.MIT.EDU ([18.95.3.133]:5760 "EHLO neurosis.jim.sh")
+	by vger.kernel.org with ESMTP id S266611AbUJOIhY (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 15 Oct 2004 04:37:24 -0400
+Date: Fri, 15 Oct 2004 04:37:22 -0400
+From: Jim Paris <jim@jtan.com>
+To: linux-kernel@vger.kernel.org
+Subject: PCI IRQ problems: "nobody cared!"
+Message-ID: <20041015083722.GA3315@jim.sh>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="BXVAT5kNtrzKuDFl"
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20041015070839.GA8373@elte.hu>
-User-Agent: Mutt/1.5.6+20040907i
-From: Bill Huey (hui) <bhuey@lnxw.com>
+User-Agent: Mutt/1.5.6+20040722i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+I'm having some strange PCI IRQ problems on my new laptop (Panasonic
+Toughbook CF-M34UTVZKM) under 2.6.8-1-686 (Debian).  I'm at a loss to
+figure out their source, other than the fact that Toughbooks seem to
+have a particularly crappy BIOS.
 
---BXVAT5kNtrzKuDFl
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+The errors are something like this (taken from default.txt, link below):
+irq 9: nobody cared!
+ [<c010841a>] __report_bad_irq+0x2a/0x90
+ [<c0108510>] note_interrupt+0x70/0xb0
+ [<c01087f0>] do_IRQ+0x120/0x130
+ [<c0106a20>] common_interrupt+0x18/0x20
+ [<c01200fe>] __do_softirq+0x2e/0x80
+ [<c01b3b60>] acpi_irq+0x0/0x16
+ [<c0120177>] do_softirq+0x27/0x30
+ [<c01087cb>] do_IRQ+0xfb/0x130
+ [<c0106a20>] common_interrupt+0x18/0x20
+ [<c02124a2>] pci_conf1_write+0x92/0xf0
+ [<c01b3e86>] acpi_os_write_pci_configuration+0x69/0x76
+...
 
-On Fri, Oct 15, 2004 at 09:08:39AM +0200, Ingo Molnar wrote:
-> as a workaround enable HIGHMEM and PREEMPT_TIMING+LATENCY_TRACE.
+It seems that once some particular piece of PCI hardware gets
+initialized, it causes a flood of unexpected interrupts.  The kernel
+then disables IRQ 9, which basically breaks most of my devices because
+that's the one they all share.
 
-Build problem:
+I captured the following boots for different command lines.  The ACPI
+and non-ACPI cases die at different points, but with the same result.
 
-bill
+root=/dev/hda1 ro console=ttyS0,115200n8
+   https://jim.sh/svn/jim/devl/toughbook/log/default.txt
 
+root=/dev/hda1 ro console=ttyS0,115200n8 acpi=off
+   https://jim.sh/svn/jim/devl/toughbook/log/acpioff.txt
 
---BXVAT5kNtrzKuDFl
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename=t
+root=/dev/hda1 ro console=ttyS0,115200n8 acpi=off pci=usepirqmask
+   https://jim.sh/svn/jim/devl/toughbook/log/usepirqmask.txt
 
-  CC      fs/reiser4/debug.o
-In file included from include/linux/spinlock.h:16,
-                 from include/linux/wait.h:25,
-                 from include/linux/fs.h:12,
-                 from fs/reiser4/kattr.h:12,
-                 from fs/reiser4/debug.c:31:
-include/asm/mutex.h:75:5: warning: "RWSEM_DEBUG" is not defined
-  CC      fs/reiser4/stats.o
-In file included from include/linux/spinlock.h:16,
-                 from include/linux/wait.h:25,
-                 from include/linux/fs.h:12,
-                 from fs/reiser4/kattr.h:12,
-                 from fs/reiser4/stats.c:46:
-include/asm/mutex.h:75:5: warning: "RWSEM_DEBUG" is not defined
-  CC      fs/reiser4/jnode.o
-In file included from include/linux/spinlock.h:16,
-                 from include/linux/wait.h:25,
-                 from include/linux/fs.h:12,
-                 from fs/reiser4/reiser4.h:13,
-                 from fs/reiser4/jnode.c:103:
-include/asm/mutex.h:75:5: warning: "RWSEM_DEBUG" is not defined
-  CC      fs/reiser4/znode.o
-In file included from include/linux/spinlock.h:16,
-                 from include/linux/wait.h:25,
-                 from include/linux/fs.h:12,
-                 from fs/reiser4/reiser4.h:13,
-                 from fs/reiser4/debug.h:9,
-                 from fs/reiser4/znode.c:142:
-include/asm/mutex.h:75:5: warning: "RWSEM_DEBUG" is not defined
-  CC      fs/reiser4/key.o
-In file included from include/linux/spinlock.h:16,
-                 from include/linux/wait.h:25,
-                 from include/linux/fs.h:12,
-                 from fs/reiser4/reiser4.h:13,
-                 from fs/reiser4/debug.h:9,
-     
+lspci, lspci -vxxxn, and /proc/interrupts:
+   https://jim.sh/svn/jim/devl/toughbook/log/lspci.txt
 
+Could someone who knows more than me about PCI IRQs take a quick look
+at those dumps and tell me if there's anything obvious that I'm
+missing, or some way to work around the problem?
 
---BXVAT5kNtrzKuDFl--
+-jim

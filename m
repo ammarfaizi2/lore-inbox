@@ -1,50 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261879AbTLUSj4 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 21 Dec 2003 13:39:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262714AbTLUSj4
+	id S263758AbTLUSno (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 21 Dec 2003 13:43:44 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263765AbTLUSno
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 21 Dec 2003 13:39:56 -0500
-Received: from mail.parknet.co.jp ([210.171.160.6]:38157 "EHLO
-	mail.parknet.co.jp") by vger.kernel.org with ESMTP id S261879AbTLUSjy
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 21 Dec 2003 13:39:54 -0500
-To: Manfred Spraul <manfred@colorfullife.com>
-Cc: lse-tech@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: Re: [RFC,PATCH] use rcu for fasync_lock
-References: <3FE492EF.2090202@colorfullife.com>
-From: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
-Date: Mon, 22 Dec 2003 03:38:41 +0900
-In-Reply-To: <3FE492EF.2090202@colorfullife.com>
-Message-ID: <8765ga6moe.fsf@devron.myhome.or.jp>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Sun, 21 Dec 2003 13:43:44 -0500
+Received: from linux-bt.org ([217.160.111.169]:36010 "EHLO mail.holtmann.net")
+	by vger.kernel.org with ESMTP id S263758AbTLUSnm (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 21 Dec 2003 13:43:42 -0500
+Subject: Bluetooth bus type for input subsystem
+From: Marcel Holtmann <marcel@holtmann.org>
+To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
+       Vojtech Pavlik <vojtech@suse.cz>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Content-Type: text/plain
+Message-Id: <1072032169.2684.86.camel@pegasus>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Sun, 21 Dec 2003 19:42:49 +0100
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Manfred Spraul <manfred@colorfullife.com> writes:
+Hi Marcelo,
 
->  void kill_fasync(struct fasync_struct **fp, int sig, int band)
->  {
-> -	read_lock(&fasync_lock);
-> +	rcu_read_lock();
->  	__kill_fasync(*fp, sig, band);
-> -	read_unlock(&fasync_lock);
-> +	rcu_read_unlock();
->  }
+the file include/linux/input.h contains a various number of bus id's
+where a input device can be on. But there is nothing for a Bluetooth
+mouse or keyboard. So I want to add
 
-Usually *fp is NULL, I think. So what about the following test?
+	#define BUS_BLUETOOTH 0x05
 
-void kill_fasync(struct fasync_struct **fp, int sig, int band)
-{
-	if (*fp) {
-		rcu_read_lock();
-		__kill_fasync(*fp, sig, band);
-		rcu_read_unlock();
-	}
-}
+Regards
 
-Or use inline function for testing *fp.
--- 
-OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
+Marcel
+
+
+Please do a
+
+        bk pull http://linux-mh.bkbits.net/input-2.4
+
+This will update the following files:
+
+ include/linux/input.h |    3 ++-
+ 1 files changed, 2 insertions(+), 1 deletion(-)
+
+through these ChangeSets:
+
+<marcel@holtmann.org> (03/12/21 1.1305)
+   [PATCH] Add Bluetooth to the bus types of the input subsystem
+   
+   This patch adds the Bluetooth bus type to the list of other bus types
+   of the input subsystem.
+
+
+

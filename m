@@ -1,41 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262909AbREWAHV>; Tue, 22 May 2001 20:07:21 -0400
+	id <S262908AbREWAGB>; Tue, 22 May 2001 20:06:01 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262912AbREWAHO>; Tue, 22 May 2001 20:07:14 -0400
-Received: from panic.ohr.gatech.edu ([130.207.47.194]:31395 "HELO
-	havoc.gtf.org") by vger.kernel.org with SMTP id <S262909AbREWAG5>;
-	Tue, 22 May 2001 20:06:57 -0400
-Message-ID: <3B0AFEFE.1198871C@mandrakesoft.com>
-Date: Tue, 22 May 2001 20:06:22 -0400
-From: Jeff Garzik <jgarzik@mandrakesoft.com>
-Organization: MandrakeSoft
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.5-pre5 i686)
-X-Accept-Language: en
+	id <S262913AbREWAFv>; Tue, 22 May 2001 20:05:51 -0400
+Received: from adelphi.physics.adelaide.edu.au ([129.127.36.1]:16138 "EHLO
+	adelphi.physics.adelaide.edu.au") by vger.kernel.org with ESMTP
+	id <S262908AbREWAFj>; Tue, 22 May 2001 20:05:39 -0400
+From: Jonathan Woithe <jwoithe@physics.adelaide.edu.au>
+Message-Id: <200105230005.JAA32568@mercury.physics.adelaide.edu.au>
+Subject: [PATCH] CREDITS file update (address change)
+To: linux-kernel@vger.kernel.org
+Date: Wed, 23 May 2001 09:35:23 +0930 (CST)
+Cc: alan@lxorguk.ukuu.org.uk, torvalds@transmeta.com,
+        jwoithe@physics.adelaide.edu.au
+In-Reply-To: <200105100020.JAA22688@mercury.physics.adelaide.edu.au> from "Jonathan Woithe" at May 10, 2001 09:50:57 AM
+X-Mailer: ELM [version 2.5 PL2]
 MIME-Version: 1.0
-To: Alexander Viro <viro@math.psu.edu>
-Cc: Linus Torvalds <torvalds@transmeta.com>, Andries.Brouwer@cwi.nl,
-        linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] struct char_device
-In-Reply-To: <Pine.GSO.4.21.0105221909001.17373-100000@weyl.math.psu.edu>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alexander Viro wrote:
-> Do we really want a separate queue for each partition? I'd rather have
-> disk_struct created when driver sees the disk and list of partitions
-> (possibly represented by struct block_device) anchored in disk_struct
-> and populated by grok_partitions().
+Hi all
 
-Alan recently straightened me out with "EVMS/LVM is partitions done
-right"
+Find enclosed a tiny patch to the CREDITS file - I have moved house.  It's
+against the 2.2.19 CREDITS file, but is also relevant for the 2.4.x series.
 
-so... why not implement partitions as simply doing block remaps to the
-lower level device?  That's what EVMS/LVM/md are doing already.
+jonathan
+
+--- CREDITS-2.2.19	Thu May 10 09:43:35 2001
++++ CREDITS	Thu May 10 09:44:15 2001
+@@ -2398,8 +2398,8 @@
+ E: jwoithe@physics.adelaide.edu.au
+ W: http://www.physics.adelaide.edu.au/~jwoithe
+ D: ALS-007 sound card extensions to Sound Blaster driver
+-S: 4/36 Trevelyan St
+-S: Wayville SA 5034
++S: 20 Jordan St
++S: Valley View, SA 5093
+ S: Australia
+ 
+ N: Clifford Wolf
 
 -- 
-Jeff Garzik      | "Are you the police?"
-Building 1024    | "No, ma'am.  We're musicians."
-MandrakeSoft     |
+* Jonathan Woithe    jwoithe@physics.adelaide.edu.au                        *
+*                    http://www.physics.adelaide.edu.au/~jwoithe            *
+***-----------------------------------------------------------------------***
+** "Time is an illusion; lunchtime doubly so"                              **
+*  "...you wouldn't recognize a subtle plan if it painted itself purple     *
+*   and danced naked on a harpsicord singing 'subtle plans are here again'" *

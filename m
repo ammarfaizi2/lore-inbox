@@ -1,125 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262374AbTCIC4U>; Sat, 8 Mar 2003 21:56:20 -0500
+	id <S262382AbTCIDIi>; Sat, 8 Mar 2003 22:08:38 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262377AbTCIC4U>; Sat, 8 Mar 2003 21:56:20 -0500
-Received: from ip68-13-105-80.om.om.cox.net ([68.13.105.80]:31360 "EHLO
-	localhost.localdomain") by vger.kernel.org with ESMTP
-	id <S262374AbTCIC4S>; Sat, 8 Mar 2003 21:56:18 -0500
-Date: Sat, 8 Mar 2003 21:06:59 -0600 (CST)
-From: Thomas Molina <tmolina@cox.net>
-X-X-Sender: tmolina@localhost.localdomain
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: [PATCH] Documentation/00-INDEX update
-Message-ID: <Pine.LNX.4.44.0303082104450.1027-200000@localhost.localdomain>
+	id <S262383AbTCIDIi>; Sat, 8 Mar 2003 22:08:38 -0500
+Received: from smtpzilla2.xs4all.nl ([194.109.127.138]:19461 "EHLO
+	smtpzilla2.xs4all.nl") by vger.kernel.org with ESMTP
+	id <S262382AbTCIDIh>; Sat, 8 Mar 2003 22:08:37 -0500
+Date: Sun, 9 Mar 2003 04:19:05 +0100 (CET)
+From: Roman Zippel <zippel@linux-m68k.org>
+X-X-Sender: roman@serv
+To: Zack Brown <zbrown@tumblerings.org>
+cc: Larry McVoy <lm@work.bitmover.com>,
+       Linus Torvalds <torvalds@transmeta.com>, <linux-kernel@vger.kernel.org>
+Subject: Re: BitBucket: GPL-ed KitBeeper clone
+In-Reply-To: <20030309024522.GA25121@renegade>
+Message-ID: <Pine.LNX.4.44.0303090401160.32518-100000@serv>
+References: <200303020011.QAA13450@adam.yggdrasil.com>
+ <20030307123237.GG18420@atrey.karlin.mff.cuni.cz> <20030307165413.GA78966@dspnet.fr.eu.org>
+ <20030307190848.GB21023@atrey.karlin.mff.cuni.cz> <b4b98v$14m$1@penguin.transmeta.com>
+ <20030308225252.GA23972@renegade> <20030309000514.GB1807@work.bitmover.com>
+ <20030309024522.GA25121@renegade>
 MIME-Version: 1.0
-Content-Type: MULTIPART/MIXED; BOUNDARY="8323328-2086494244-1047179219=:1027"
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  This message is in MIME format.  The first part should be readable text,
-  while the remaining parts are likely unreadable without MIME-aware tools.
-  Send mail to mime@docserver.cac.washington.edu for more info.
+Hi,
 
---8323328-2086494244-1047179219=:1027
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+On Sat, 8 Mar 2003, Zack Brown wrote:
 
-In the spirit of spelling fixes, I offer the attached patch for 
-Documentation/00-INDEX
+>   * Distributed rename handling. Centralized systems like Subversion don't
+>   have as many problems with this because you can only create one file in
+>   one directory entry because there is only one directory entry available.
+>   In distributed rename handling, there can be an infinite number of different
+>   files which all want to be src/foo.c. There are also many rename corner-cases.
 
---8323328-2086494244-1047179219=:1027
-Content-Type: TEXT/plain; name="index-patch.txt"
-Content-Transfer-Encoding: BASE64
-Content-ID: <Pine.LNX.4.44.0303082106590.1027@localhost.localdomain>
-Content-Description: 
-Content-Disposition: attachment; filename="index-patch.txt"
+This actually a very bk specific problem, because the real problem under 
+bk there can be only one src/SCCS/s.foo.c. A separate repository doesn't 
+have this problem, because it has control over the naming in the 
+repository and the original naming is restored with an explicit checkout.
+In this context it will be really interesting to see how Larry wants to 
+implement "lines of development" (aka branches which don't suck) and 
+also maintain SCCS compatibility.
 
-LS0tIDAwLUlOREVYLm9yaWcJMjAwMy0wMy0wOCAyMDoxNzoxMy4wMDAwMDAw
-MDAgLTA2MDANCisrKyAwMC1JTkRFWAkyMDAzLTAzLTA4IDIxOjAzOjQ0LjAw
-MDAwMDAwMCAtMDYwMA0KQEAgLTIwLDEyICsyMCwxNiBAQA0KIAktIGxpc3Qg
-b2YgY2hhbmdlcyB0aGF0IGJyZWFrIG9sZGVyIHNvZnR3YXJlIHBhY2thZ2Vz
-Lg0KIENvZGluZ1N0eWxlDQogCS0gaG93IHRoZSBib3NzIGxpa2VzIHRoZSBD
-IGNvZGUgaW4gdGhlIGtlcm5lbCB0byBsb29rLg0KK0RNQS1BUEkudHh0DQor
-CS0gVGhpcyBkb2N1bWVudCBkZXNjcmliZXMgdGhlIERNQSBBUEkuDQogRE1B
-LW1hcHBpbmcudHh0DQogCS0gaW5mbyBmb3IgUENJIGRyaXZlcnMgdXNpbmcg
-RE1BIHBvcnRhYmx5IGFjcm9zcyBhbGwgcGxhdGZvcm1zLg0KIERvY0Jvb2sv
-DQogCS0gZGlyZWN0b3J5IHdpdGggRG9jQm9vayB0ZW1wbGF0ZXMgZXRjLiBm
-b3Iga2VybmVsIGRvY3VtZW50YXRpb24uDQogSU8tbWFwcGluZy50eHQNCiAJ
-LSBob3cgdG8gYWNjZXNzIEkvTyBtYXBwZWQgbWVtb3J5IGZyb20gd2l0aGlu
-IGRldmljZSBkcml2ZXJzLg0KK0lQTUkudHh0DQorCS0gaG93IHRvIHVzZSB0
-aGUgSVBNSSBkcml2ZXIgZm9yIExpbnV4Lg0KIElSUS1hZmZpbml0eS50eHQN
-CiAJLSBob3cgdG8gc2VsZWN0IHdoaWNoIENQVShzKSBoYW5kbGUgd2hpY2gg
-aW50ZXJydXB0IGV2ZW50cyBvbiBTTVAuDQogUkVBRE1FLkRBQzk2MA0KQEAg
-LTUyLDYgKzU2LDggQEANCiAJLSBpbmZvLCBtYWpvci9taW5vciAjJ3MgZm9y
-IENvbXBhcSdzIFNNQVJUIEFycmF5IENvbnRyb2xsZXJzLg0KIGNkcm9tLw0K
-IAktIGRpcmVjdG9yeSB3aXRoIGluZm9ybWF0aW9uIG9uIHRoZSBDRC1ST00g
-ZHJpdmVycyB0aGF0IExpbnV4IGhhcy4NCitjbGktc3RpLXJlbW92YWwudHh0
-DQorCS0gaW5mbyBvbiBjb252ZXJ0aW5nIGNvZGUgdG8gbmV3IHN5bmNocm9u
-aXphdGlvbiBtZXRob2RzLg0KIGNvbXB1dG9uZS50eHQNCiAJLSBpbmZvIG9u
-IENvbXB1dG9uZSBJbnRlbGxpcG9ydCBJSS9QbHVzIE11bHRpcG9ydCBTZXJp
-YWwgRHJpdmVyDQogY3BxYXJyYXkudHh0DQpAQCAtNjAsNiArNjYsOCBAQA0K
-IAktIGluZm8gb24gQ1BVIGZyZXF1ZW5jeSBhbmQgdm9sdGFnZSBzY2FsaW5n
-DQogY3Jpcy8NCiAJLSBkaXJlY3Rvcnkgd2l0aCBpbmZvIGFib3V0IExpbnV4
-IG9uIENSSVMgYXJjaGl0ZWN0dXJlLg0KK2NyeXB0by8NCisJLSBpbmZvIG9u
-IGNyeXB0byBBUElzLg0KIGRldmljZXMudHh0DQogCS0gcGxhaW4gQVNDSUkg
-bGlzdGluZyBvZiBhbGwgdGhlIG5vZGVzIGluIC9kZXYvIHdpdGggbWFqb3Ig
-bWlub3IgIydzDQogZGlnaWJvYXJkLnR4dA0KQEAgLTY4LDcgKzc2LDcgQEAN
-CiAJLSBpbmZvIG9uIERpZ2kgSW50bC4ge1BDLFBDSSxFSVNBfVh4IGFuZCBY
-ZW0gc2VyaWVzIGNhcmRzLg0KIGRub3RpZnkudHh0DQogCS0gaW5mbyBhYm91
-dCBkaXJlY3Rvcnkgbm90aWZpY2F0aW9uIGluIExpbnV4Lg0KLWRyaXZlci1t
-b2RlbC50eHQNCitkcml2ZXItbW9kZWwvDQogCS0gaW5mbyBhYm91dCBMaW51
-eCBkcml2ZXIgbW9kZWwuDQogZXhjZXB0aW9uLnR4dA0KIAktIGhvdyBMaW51
-eCB2Mi4yIGhhbmRsZXMgZXhjZXB0aW9ucyB3aXRob3V0IHZlcmlmeV9hcmVh
-IGV0Yy4NCkBAIC0xMTYsNiArMTI0LDggQEANCiAJLSBzdW1tYXJ5IGxpc3Rp
-bmcgb2YgY29tbWFuZCBsaW5lIC8gYm9vdCBwcm9tcHQgYXJncyBmb3IgdGhl
-IGtlcm5lbC4NCiBrbW9kLnR4dA0KIAktIGluZm8gb24gdGhlIGtlcm5lbCBt
-b2R1bGUgbG9hZGVyL3VubG9hZGVyIChrZXJuZWxkIHJlcGxhY2VtZW50KS4N
-Citrb2JqZWN0LnR4dA0KKwktIGJhc2ljIG9iamVjdCBtYW5hZ2VtZW50IGlu
-ZnJhc3RydWN0dXJlIGRlc2NyaXB0aW9uLg0KIGxkbS50eHQNCiAJLSBhIGJy
-aWVmIGRlc2NyaXB0aW9uIG9mIExETSAoV2luZG93cyBEeW5hbWljIERpc2tz
-KS4NCiBsb2Nrcy50eHQNCkBAIC0xNzIsNiArMTgyLDggQEANCiAJLSBpbmZv
-IGFuZCBzYW1wbGUgY29kZSBmb3IgdXNpbmcgd2l0aCB0aGUgUEMgV2F0Y2hk
-b2cgcmVzZXQgY2FyZC4NCiBwbS50eHQNCiAJLSBpbmZvIG9uIExpbnV4IHBv
-d2VyIG1hbmFnZW1lbnQgc3VwcG9ydC4NCitwbnAudHh0DQorCS0gTGludXgg
-UGx1ZyBhbmQgUGxheSBEb2N1bWVudGF0aW9uLg0KIHBvd2VyLw0KIAktIGRp
-cmVjdG9yeSB3aXRoIGluZm8gb24gTGludXggUENJIHBvd2VyIG1hbmFnZW1l
-bnQuDQogcG93ZXJwYy8NCkBAIC0xODIsMTggKzE5NCwyNiBAQA0KIAktIHNo
-b3J0IGd1aWRlIG9uIGhvdyB0byBzZXQgdXAgYW5kIHVzZSB0aGUgUkFNIGRp
-c2suDQogcmlzY29tOC50eHQNCiAJLSBub3RlcyBvbiB1c2luZyB0aGUgUklT
-Q29tLzggbXVsdGktcG9ydCBzZXJpYWwgZHJpdmVyLg0KK3JwYy1jYWNoZS50
-eHQNCisJLSBpbnRyb2R1Y3Rpb24gdG8gdGhlIGNhY2hpbmcgbWVjaGFuaXNt
-cyBpbiB0aGUgc3VucnBjIGxheWVyLg0KIHJ0Yy50eHQNCiAJLSBub3RlcyBv
-biBob3cgdG8gdXNlIHRoZSBSZWFsIFRpbWUgQ2xvY2sgKGFrYSBDTU9TIGNs
-b2NrKSBkcml2ZXIuDQogczM5MC8NCiAJLSBkaXJlY3Rvcnkgd2l0aCBpbmZv
-IG9uIHVzaW5nIExpbnV4IG9uIHRoZSBJQk0gUzM5MC4NCi1zaC8NCi0JLSBk
-aXJlY3Rvcnkgd2l0aCBpbmZvIG9uIHBvcnRpbmcgTGludXggdG8gYSBuZXcg
-YXJjaGl0ZWN0dXJlLg0KK3NjaGVkLWNvZGluZy50eHQNCisJLSBzY2hlZHVs
-ZXItcmVsYXRlZCBtZXRob2RzIGluIHRoZSBPKDEpIHNjaGVkdWxlci4NCitz
-Y2hlZC1kZXNpZ24udHh0DQorCS0gZ29hbHMsIGRlc2lnbiwgYW5kIGltcGxl
-bWVudGF0aW9uIG9mIHRoZSBPKDEpIHNjaGVkdWxlci4NCiBzY3NpLw0KIAkt
-IGRpcmVjdG9yeSB3aXRoIGluZm8gb24gTGludXggc2NzaSBzdXBwb3J0Lg0K
-K3NlcmlhbC8NCisJLSBsb3cgbGV2ZWwgc2VyaWFsIEFQSS4NCiBzZXJpYWwt
-Y29uc29sZS50eHQNCiAJLSBob3cgdG8gc2V0IHVwIExpbnV4IHdpdGggYSBz
-ZXJpYWwgbGluZSBjb25zb2xlIGFzIHRoZSBkZWZhdWx0Lg0KIHNnaS12aXN3
-cy50eHQNCiAJLSBzaG9ydCBibHVyYiBvbiB0aGUgU0dJIFZpc3VhbCBXb3Jr
-c3RhdGlvbnMuDQorc2gvDQorICAgICAgICAtIGRpcmVjdG9yeSB3aXRoIGlu
-Zm8gb24gcG9ydGluZyBMaW51eCB0byBhIG5ldyBhcmNoaXRlY3R1cmUuDQog
-c21hcnQtY29uZmlnLnR4dA0KIAktIGRlc2NyaXB0aW9uIG9mIHRoZSBTbWFy
-dCBDb25maWcgbWFrZWZpbGUgZmVhdHVyZS4NCiBzbXAudGV4DQpAQCAtMjIy
-LDYgKzI0MiwxMCBAQA0KIAktIGluZm8gb24gdGhlIG1hZ2ljIFN5c1JxIGtl
-eQ0KIHRlbGVwaG9ueS8NCiAJLSBkaXJlY3Rvcnkgd2l0aCBpbmZvIG9uIHRl
-bGVwaG9ueSAoZS5nLiB2b2ljZSBvdmVyIElQKSBzdXBwb3J0Lg0KK3RpcGFy
-LnR4dA0KKwktIGRlc2NyaXB0aW9uIG9mIHBhcnBvcnQgbGluayBjYWJsZSBk
-cml2ZXIgZm9yIFRJIGNhbGN1bGF0b3JzLg0KK3VtbC8NCisJLSB1c2VyIG1v
-ZGUgbGludXggSE9XVE8uIA0KIHVuaWNvZGUudHh0DQogCS0gaW5mbyBvbiB0
-aGUgVW5pY29kZSBjaGFyYWN0ZXIvZm9udCBtYXBwaW5nIHVzZWQgaW4gTGlu
-dXguDQogdXNiLw0KQEAgLTIzMCw2ICsyNTQsMTAgQEANCiAJLSBkaXJlY3Rv
-cnkgd2l0aCBpbmZvIHJlZ2FyZGluZyB2aWRlby9UVi9yYWRpbyBjYXJkcyBh
-bmQgbGludXguDQogdm0vDQogCS0gZGlyZWN0b3J5IHdpdGggaW5mbyBvbiB0
-aGUgTGludXggdm0gY29kZS4NCit2b3lhZ2VyLnR4dA0KKwktIHJ1bm5pbmcg
-TGludXggb24gdGhlIFZveWFnZXIgYXJjaGl0ZWN0dXJlLg0KK3dhdGNoZG9n
-LWFwaS50eHQNCisJLSBMaW51eCBXYXRjaGRvZyBkcml2ZXIgQVBJLg0KIHdh
-dGNoZG9nLnR4dA0KIAktIGhvdyB0byBhdXRvLXJlYm9vdCBMaW51eCBpZiBp
-dCBoYXMgImZhbGxlbiBhbmQgY2FuJ3QgZ2V0IHVwIi4gOy0pDQogeDg2XzY0
-Lw0K
---8323328-2086494244-1047179219=:1027--
+bye, Roman
+

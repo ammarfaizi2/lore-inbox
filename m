@@ -1,61 +1,214 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262354AbTIUHzz (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 21 Sep 2003 03:55:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262355AbTIUHzy
+	id S262344AbTIUHxr (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 21 Sep 2003 03:53:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262345AbTIUHxr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 21 Sep 2003 03:55:54 -0400
-Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:39950
+	Sun, 21 Sep 2003 03:53:47 -0400
+Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:38926
 	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
-	id S262354AbTIUHzw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 21 Sep 2003 03:55:52 -0400
-Date: Sun, 21 Sep 2003 00:36:43 -0700 (PDT)
+	id S262344AbTIUHxn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 21 Sep 2003 03:53:43 -0400
+Date: Sun, 21 Sep 2003 00:34:42 -0700 (PDT)
 From: Andre Hedrick <andre@linux-ide.org>
-To: casino_e@terra.es
-cc: B.Zolnierkiewicz@elka.pw.edu.pl, alan@lxorguk.ukuu.org.uk,
-       linux-kernel@vger.kernel.org
-Subject: Re: Changes in siimage driver?
-In-Reply-To: <1cbb951cc475.1cc4751cbb95@teleline.es>
-Message-ID: <Pine.LNX.4.10.10309210035440.9002-100000@master.linux-ide.org>
+To: Allen Martin <AMartin@nvidia.com>
+cc: "LKML (linux-kernel@vger.kernel.org)" <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] 2.4.23-pre4 support for new nForce IDE controllers
+In-Reply-To: <8F12FC8F99F4404BA86AC90CD0BFB04F039F7133@mail-sc-6.nvidia.com>
+Message-ID: <Pine.LNX.4.10.10309210033230.9002-100000@master.linux-ide.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-Did that already, yet the linux does not like odd break point in the SG
-list and thus there are some ugliess to solve.
+Allen,
+
+Thanks for bringing this forward, the community welcomes vendors open to
+the process of public support.
+
+Cheers,
 
 Andre Hedrick
 LAD Storage Consulting Group
 
-On Thu, 18 Sep 2003, CASINO_E wrote:
+On Wed, 17 Sep 2003, Allen Martin wrote:
 
-> On Wednesday 17 of September 2003 14:09, Bartlomiej Zolnierkiewicz wrote:
-> > controllers. I believe freebsd's workaround is correct and we can
-> adopt > it.
-> > For more details please see the other thread regarding siimage.
+> This adds support for some new and upcoming NVIDIA nForce IDE controllers to
+> the combined AMD / NVIDIA IDE driver.  I've also added support for udma6
+> (Ultra 133) as a separate patch that depends on this patch.
 > 
-> According to what I've seen in the release notes of the closed-source
-> siimage driver (I posted what I found), the right fix could be in
-> netbsd's code, but in sys/dev/ata/wd.c :
 > 
->          * Some Seagate S-ATA drives have a PHY which can get confused
->          * with the way data is packetized by some S-ATA controllers.
->          *
->          * The work-around is to split in two any write transfer whose
->          * sector count % 15 == 1 (assuming 512 byte sectors).
+> diff -ru -X dontdiff linux-2.4.23-pre4/drivers/ide/pci/amd74xx.c
+> linux-2.4.23-pre4-nvide/drivers/ide/pci/amd74xx.c
+> --- linux-2.4.23-pre4/drivers/ide/pci/amd74xx.c	2003-06-13
+> 07:51:33.000000000 -0700
+> +++ linux-2.4.23-pre4-nvide/drivers/ide/pci/amd74xx.c	2003-09-17
+> 19:58:46.000000000 -0700
+> @@ -60,7 +60,13 @@
+>  	{ PCI_DEVICE_ID_AMD_OPUS_7441, 0x00, 0x40, AMD_UDMA_100 },
+> /* AMD-768 Opus */
+>  	{ PCI_DEVICE_ID_AMD_8111_IDE,  0x00, 0x40, AMD_UDMA_100 },
+> /* AMD-8111 */
+>          { PCI_DEVICE_ID_NVIDIA_NFORCE_IDE, 0x00, 0x50, AMD_UDMA_100 },
+> /* nVidia nForce */
+> -        { PCI_DEVICE_ID_NVIDIA_NFORCE2_IDE, 0x00, 0x50, AMD_UDMA_100 },
+> /* nVidia nForce */
+> +        { PCI_DEVICE_ID_NVIDIA_NFORCE2_IDE, 0x00, 0x50, AMD_UDMA_100 },
+> /* nVidia nForce2 */
+> +        { PCI_DEVICE_ID_NVIDIA_NFORCE2S_IDE, 0x00, 0x50, AMD_UDMA_100 },
+> /* nVidia nForce2s */
+> +        { PCI_DEVICE_ID_NVIDIA_NFORCE2S_SATA, 0x00, 0x50, AMD_UDMA_100 },
+> /* nVidia nForce2s SATA */
+> +        { PCI_DEVICE_ID_NVIDIA_NFORCE3_IDE, 0x00, 0x50, AMD_UDMA_100 },
+> /* NVIDIA nForce3 */
+> +        { PCI_DEVICE_ID_NVIDIA_NFORCE3S_IDE, 0x00, 0x50, AMD_UDMA_100 },
+> /* NVIDIA nForce3s */
+> +        { PCI_DEVICE_ID_NVIDIA_NFORCE3S_SATA, 0x00, 0x50, AMD_UDMA_100 },
+> /* NVIDIA nForce3s SATA */
+> +        { PCI_DEVICE_ID_NVIDIA_NFORCE3S_SATA2, 0x00, 0x50, AMD_UDMA_100 },
+> /* NVIDIA nForce3s SATA2 */
 >  
-> I'm not smart enough to try and write a patch, but maybe the siimage
-> maintainer could have a look to that file...
-> 
-> Eduardo.
-> 
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+>  	{ 0 }
+>  };
+> @@ -454,6 +460,12 @@
+>  	{ PCI_VENDOR_ID_AMD, PCI_DEVICE_ID_AMD_8111_IDE, 	PCI_ANY_ID,
+> PCI_ANY_ID, 0, 0, 4},
+>  	{ PCI_VENDOR_ID_NVIDIA, PCI_DEVICE_ID_NVIDIA_NFORCE_IDE, PCI_ANY_ID,
+> PCI_ANY_ID, 0, 0, 5},
+>  	{ PCI_VENDOR_ID_NVIDIA, PCI_DEVICE_ID_NVIDIA_NFORCE2_IDE,
+> PCI_ANY_ID, PCI_ANY_ID, 0, 0, 6},
+> +	{ PCI_VENDOR_ID_NVIDIA, PCI_DEVICE_ID_NVIDIA_NFORCE2S_IDE,
+> PCI_ANY_ID, PCI_ANY_ID, 0, 0, 7},
+> +	{ PCI_VENDOR_ID_NVIDIA, PCI_DEVICE_ID_NVIDIA_NFORCE2S_SATA,
+> PCI_ANY_ID, PCI_ANY_ID, 0, 0, 8},
+> +	{ PCI_VENDOR_ID_NVIDIA, PCI_DEVICE_ID_NVIDIA_NFORCE3_IDE,
+> PCI_ANY_ID, PCI_ANY_ID, 0, 0, 9},
+> +	{ PCI_VENDOR_ID_NVIDIA, PCI_DEVICE_ID_NVIDIA_NFORCE3S_IDE,
+> PCI_ANY_ID, PCI_ANY_ID, 0, 0, 10},
+> +	{ PCI_VENDOR_ID_NVIDIA, PCI_DEVICE_ID_NVIDIA_NFORCE3S_SATA,
+> PCI_ANY_ID, PCI_ANY_ID, 0, 0, 11},
+> +	{ PCI_VENDOR_ID_NVIDIA, PCI_DEVICE_ID_NVIDIA_NFORCE3S_SATA2,
+> PCI_ANY_ID, PCI_ANY_ID, 0, 0, 12},
+>  	{ 0, },
+>  };
+>  
+> diff -ru -X dontdiff linux-2.4.23-pre4/drivers/ide/pci/amd74xx.h
+> linux-2.4.23-pre4-nvide/drivers/ide/pci/amd74xx.h
+> --- linux-2.4.23-pre4/drivers/ide/pci/amd74xx.h	2003-09-17
+> 18:59:27.000000000 -0700
+> +++ linux-2.4.23-pre4-nvide/drivers/ide/pci/amd74xx.h	2003-09-17
+> 19:59:15.000000000 -0700
+> @@ -124,6 +124,90 @@
+>  		.bootable	= ON_BOARD,
+>  		.extra		= 0,
+>  	},
+> +	{	/* 7 */
+> +		.vendor		= PCI_VENDOR_ID_NVIDIA,
+> +		.device		= PCI_DEVICE_ID_NVIDIA_NFORCE2S_IDE,
+> +		.name		= "NFORCE2",
+> +		.init_chipset	= init_chipset_amd74xx,
+> +		.init_iops	= NULL,
+> +		.init_hwif	= init_hwif_amd74xx,
+> +		.init_dma	= init_dma_amd74xx,
+> +		.channels	= 2,
+> +		.autodma	= AUTODMA,
+> +		.enablebits	= {{0x50,0x02,0x02}, {0x50,0x01,0x01}},
+> +		.bootable	= ON_BOARD,
+> +		.extra		= 0,
+> +	},
+> +	{	/* 8 */
+> +		.vendor		= PCI_VENDOR_ID_NVIDIA,
+> +		.device		= PCI_DEVICE_ID_NVIDIA_NFORCE2S_SATA,
+> +		.name		= "NFORCE2",
+> +		.init_chipset	= init_chipset_amd74xx,
+> +		.init_iops	= NULL,
+> +		.init_hwif	= init_hwif_amd74xx,
+> +		.init_dma	= init_dma_amd74xx,
+> +		.channels	= 2,
+> +		.autodma	= AUTODMA,
+> +		.enablebits	= {{0x50,0x02,0x02}, {0x50,0x01,0x01}},
+> +		.bootable	= ON_BOARD,
+> +		.extra		= 0,
+> +	},
+> +	{	/* 9 */
+> +		.vendor		= PCI_VENDOR_ID_NVIDIA,
+> +		.device		= PCI_DEVICE_ID_NVIDIA_NFORCE3_IDE,
+> +		.name		= "NFORCE3",
+> +		.init_chipset	= init_chipset_amd74xx,
+> +		.init_iops	= NULL,
+> +		.init_hwif	= init_hwif_amd74xx,
+> +		.init_dma	= init_dma_amd74xx,
+> +		.channels	= 2,
+> +		.autodma	= AUTODMA,
+> +		.enablebits	= {{0x50,0x02,0x02}, {0x50,0x01,0x01}},
+> +		.bootable	= ON_BOARD,
+> +		.extra		= 0,
+> +	},
+> +	{	/* 10 */
+> +		.vendor		= PCI_VENDOR_ID_NVIDIA,
+> +		.device		= PCI_DEVICE_ID_NVIDIA_NFORCE3S_IDE,
+> +		.name		= "NFORCE3",
+> +		.init_chipset	= init_chipset_amd74xx,
+> +		.init_iops	= NULL,
+> +		.init_hwif	= init_hwif_amd74xx,
+> +		.init_dma	= init_dma_amd74xx,
+> +		.channels	= 2,
+> +		.autodma	= AUTODMA,
+> +		.enablebits	= {{0x50,0x02,0x02}, {0x50,0x01,0x01}},
+> +		.bootable	= ON_BOARD,
+> +		.extra		= 0,
+> +	},
+> +	{	/* 11 */
+> +		.vendor		= PCI_VENDOR_ID_NVIDIA,
+> +		.device		= PCI_DEVICE_ID_NVIDIA_NFORCE3S_SATA,
+> +		.name		= "NFORCE3",
+> +		.init_chipset	= init_chipset_amd74xx,
+> +		.init_iops	= NULL,
+> +		.init_hwif	= init_hwif_amd74xx,
+> +		.init_dma	= init_dma_amd74xx,
+> +		.channels	= 2,
+> +		.autodma	= AUTODMA,
+> +		.enablebits	= {{0x50,0x02,0x02}, {0x50,0x01,0x01}},
+> +		.bootable	= ON_BOARD,
+> +		.extra		= 0,
+> +	},
+> +	{	/* 12 */
+> +		.vendor		= PCI_VENDOR_ID_NVIDIA,
+> +		.device		= PCI_DEVICE_ID_NVIDIA_NFORCE3S_SATA2,
+> +		.name		= "NFORCE3",
+> +		.init_chipset	= init_chipset_amd74xx,
+> +		.init_iops	= NULL,
+> +		.init_hwif	= init_hwif_amd74xx,
+> +		.init_dma	= init_dma_amd74xx,
+> +		.channels	= 2,
+> +		.autodma	= AUTODMA,
+> +		.enablebits	= {{0x50,0x02,0x02}, {0x50,0x01,0x01}},
+> +		.bootable	= ON_BOARD,
+> +		.extra		= 0,
+> +	},
+>  	{
+>  		.vendor		= 0,
+>  		.device		= 0,
+> diff -ru -X dontdiff linux-2.4.23-pre4/include/linux/pci_ids.h
+> linux-2.4.23-pre4-nvide/include/linux/pci_ids.h
+> --- linux-2.4.23-pre4/include/linux/pci_ids.h	2003-09-17
+> 18:56:36.000000000 -0700
+> +++ linux-2.4.23-pre4-nvide/include/linux/pci_ids.h	2003-09-17
+> 19:58:46.000000000 -0700
+> @@ -966,7 +966,13 @@
+>  #define PCI_DEVICE_ID_NVIDIA_VTNT2		0x002C
+>  #define PCI_DEVICE_ID_NVIDIA_UVTNT2		0x002D
+>  #define PCI_DEVICE_ID_NVIDIA_NFORCE2_IDE	0x0065
+> +#define PCI_DEVICE_ID_NVIDIA_NFORCE2S_IDE	0x0085
+> +#define PCI_DEVICE_ID_NVIDIA_NFORCE2S_SATA	0x008e
+>  #define PCI_DEVICE_ID_NVIDIA_ITNT2		0x00A0
+> +#define PCI_DEVICE_ID_NVIDIA_NFORCE3_IDE	0x00d5
+> +#define PCI_DEVICE_ID_NVIDIA_NFORCE3S_SATA	0x00e3
+> +#define PCI_DEVICE_ID_NVIDIA_NFORCE3S_IDE	0x00e5
+> +#define PCI_DEVICE_ID_NVIDIA_NFORCE3S_SATA2	0x00ee
+>  #define PCI_DEVICE_ID_NVIDIA_GEFORCE_SDR	0x0100
+>  #define PCI_DEVICE_ID_NVIDIA_GEFORCE_DDR	0x0101
+>  #define PCI_DEVICE_ID_NVIDIA_QUADRO		0x0103
 > 
 

@@ -1,41 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289844AbSBKRBl>; Mon, 11 Feb 2002 12:01:41 -0500
+	id <S289849AbSBKRCb>; Mon, 11 Feb 2002 12:02:31 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S289849AbSBKRBb>; Mon, 11 Feb 2002 12:01:31 -0500
-Received: from swazi.realnet.co.sz ([196.28.7.2]:16596 "HELO
-	netfinity.realnet.co.sz") by vger.kernel.org with SMTP
-	id <S289844AbSBKRBS>; Mon, 11 Feb 2002 12:01:18 -0500
-Date: Mon, 11 Feb 2002 18:53:05 +0200 (SAST)
-From: Zwane Mwaikambo <zwane@linux.realnet.co.sz>
-X-X-Sender: zwane@netfinity.realnet.co.sz
-To: Kristian <kristian.peters@korseby.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: APIC error on CPU0
-In-Reply-To: <20020211172749.2bdadec7.kristian.peters@korseby.net>
-Message-ID: <Pine.LNX.4.44.0202111849540.17361-100000@netfinity.realnet.co.sz>
+	id <S289850AbSBKRCW>; Mon, 11 Feb 2002 12:02:22 -0500
+Received: from www.casdn.neu.edu ([155.33.251.101]:19983 "EHLO
+	www.casdn.neu.edu") by vger.kernel.org with ESMTP
+	id <S289849AbSBKRCK>; Mon, 11 Feb 2002 12:02:10 -0500
+From: "Andrew Scott" <A.J.Scott@casdn.neu.edu>
+Organization: Northeastern University
+To: Rik van Riel <riel@conectiva.com.br>, <linux-kernel@vger.kernel.org>
+Date: Mon, 11 Feb 2002 12:01:20 -0500
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Subject: Re: windows is more secure than linux!!
+Reply-to: A.J.Scott@casdn.neu.edu
+Message-ID: <3C67B28E.5199.18B551@localhost>
+In-Reply-To: <B0C77D98347F826499A03C1FE22DE33B@william.fitzgerald2.beer.com>
+In-Reply-To: <Pine.LNX.4.33L.0202051621590.12225-100000@duckman.distro.conectiva>
+X-mailer: Pegasus Mail for Windows (v4.01)
+Content-type: text/plain; charset=US-ASCII
+Content-transfer-encoding: 7BIT
+Content-description: Mail message body
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 11 Feb 2002, Kristian wrote:
+On 5 Feb 2002 at 16:41, Rik van Riel wrote:
 
-> Hello.
+> On Wed, 6 Feb 2002, william fitzgerald wrote:
 > 
-> Since I converted one box to Debian 3.0 I'm getting strange errors related to APM.
-> When I push the power button (or do "apm -s") the box suspends normally. But it comes back almost immediately with this error:
+> > some of you might find this interesting others
+> > disheartening
 > 
-> APIC error on CPU0: 00(40)
+> Still others, like me, find it very encouraging
+> that Microsoft can't stop talking about Linux.
+> They must be enthusiastic about it, or something.
 > 
-> I grepped the kernel source and found that "40" means reserved APIC error. What does that mean exactly ? BTW: I enabled "local APIC on uniprocessors" but this behaviour also appears without enabling that option.
+> > www.shortnews.com/shownews.cfm?id=16886&u_id=623
 > 
-> Strangely this error won't appear with Redhat 7.2 and earlier versions. (I've never had any problems.)
+> Now add the security holes in ISS, Outlook, Exchange,
+> Access and all available pieces of Windows software
+> into the picture so Linux and Windows are measured on
+> an equal ground.
+> 
+> Lies, damn lies & statistics.
 
-Mikael Pettersson submitted a patch which fixed that for me, its 
-definately in 2.4 mainline. Which kernel is in Debian 3.0?
+Or as my dad used to say, "Figures don't lie, but liers can figure".
 
-Regards,
-	Zwane Mwaikambo
 
+                      _
+                     / \   / ascott@casdn.neu.edu
+                    / \ \ /
+                   /   \_/
 

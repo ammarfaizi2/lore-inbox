@@ -1,36 +1,32 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S135369AbRADVBP>; Thu, 4 Jan 2001 16:01:15 -0500
+	id <S129436AbRADVDz>; Thu, 4 Jan 2001 16:03:55 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129436AbRADVA4>; Thu, 4 Jan 2001 16:00:56 -0500
-Received: from [209.24.233.229] ([209.24.233.229]:62986 "HELO
-	penguincomputing.com") by vger.kernel.org with SMTP
-	id <S135315AbRADVAg>; Thu, 4 Jan 2001 16:00:36 -0500
-Date: Thu, 4 Jan 2001 13:00:27 -0800 (PST)
-From: "Brett G. Person" <bperson@penguincomputing.com>
-To: Helge Hafting <helgehaf@idb.hist.no>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Journaling: Surviving or allowing unclean shutdown?
-In-Reply-To: <3A544925.B9BF4241@idb.hist.no>
-Message-ID: <Pine.LNX.4.10.10101041258110.1745-100000@mailserver.penguincomputing.com>
+	id <S129901AbRADVDp>; Thu, 4 Jan 2001 16:03:45 -0500
+Received: from mout1.freenet.de ([194.97.50.132]:35764 "EHLO mout1.freenet.de")
+	by vger.kernel.org with ESMTP id <S129939AbRADVDh>;
+	Thu, 4 Jan 2001 16:03:37 -0500
+From: mkloppstech@freenet.de
+Message-Id: <200101042103.WAA01175@john.epistle>
+Subject: patch does not apply
+To: linux-kernel@vger.kernel.org
+Date: Thu, 4 Jan 2001 22:03:28 +0100 (CET)
+X-Mailer: ELM [version 2.4ME+ PL60 (25)]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Well. How does tivo handle this situation?  Certainly, there are instances
-when your power will fail in your home and your Tivo will be without
-juice. When it powers back on what does it do to check the fs?  Does it
-need to check the fs?
+There are two patches for the prerelease:
+pub/linux/kernel/testing/prerelease-diff and
+pub/linux/kernel/v2.4/patch-2.4.0-prerelease.tar.bz2.
 
+The first does not fit to any of my kernels. Besides,
+the newer testing kernels are not
+accessible any more on www.kernel.org
 
-Brett G. Person
-415-358-2656
-bperson@penguincomputing.com
-
-Penguin Computing - The World's Most Reliable Linux Systems
-
-
+Mirko Kloppstech
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

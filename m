@@ -1,118 +1,96 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267923AbTBLXIL>; Wed, 12 Feb 2003 18:08:11 -0500
+	id <S267929AbTBLXPX>; Wed, 12 Feb 2003 18:15:23 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267924AbTBLXIL>; Wed, 12 Feb 2003 18:08:11 -0500
-Received: from air-2.osdl.org ([65.172.181.6]:54415 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id <S267923AbTBLXII>;
-	Wed, 12 Feb 2003 18:08:08 -0500
-Date: Wed, 12 Feb 2003 15:15:05 -0800
-From: "Randy.Dunlap" <rddunlap@osdl.org>
-To: high-res-timers-discourse@lists.sourceforge.net
-Cc: cgl_discussion@osdl.org, linux-kernel@vger.kernel.org, dkegel@ixiacom.com
-Subject: review high-res-timers patches
-Message-Id: <20030212151505.70ac117f.rddunlap@osdl.org>
-In-Reply-To: <3E4AAB24.7060306@ixiacom.com>
-References: <87lm0lqy4l.fsf@esdg-pc08.esdgkonsult.com>
-	<3E4A7D97.47FB78DE@attbi.com>
-	<3E4AAB24.7060306@ixiacom.com>
-Organization: OSDL
-X-Mailer: Sylpheed version 0.8.6 (GTK+ 1.2.10; i586-pc-linux-gnu)
-Mime-Version: 1.0
+	id <S267930AbTBLXPX>; Wed, 12 Feb 2003 18:15:23 -0500
+Received: from hellcat.admin.navo.hpc.mil ([204.222.179.34]:31632 "EHLO
+	hellcat.admin.navo.hpc.mil") by vger.kernel.org with ESMTP
+	id <S267929AbTBLXPT> convert rfc822-to-8bit; Wed, 12 Feb 2003 18:15:19 -0500
 Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+From: Jesse Pollard <pollard@admin.navo.hpc.mil>
+To: "'Christoph Hellwig'" <hch@infradead.org>,
+       Crispin Cowan <crispin@wirex.com>
+Subject: Re: What went wrong with LSM, was: Re: [BK PATCH] LSM changes for 2.5.59
+Date: Wed, 12 Feb 2003 17:24:54 -0600
+User-Agent: KMail/1.4.1
+Cc: magniett <Frederic.Magniette@lri.fr>, torvalds@transmeta.com,
+       "Stephen D. Smalley" <sds@epoch.ncsc.mil>, greg@kroah.com,
+       linux-security-module@wirex.com, linux-kernel@vger.kernel.org,
+       "Makan Pourzandi (LMC)" <Makan.Pourzandi@ericsson.ca>
+References: <7B2A7784F4B7F0409947481F3F3FEF8305CC954F@eammlex037.lmc.ericsson.se> <3E4AC92A.4020705@wirex.com> <20030212230550.A19831@infradead.org>
+In-Reply-To: <20030212230550.A19831@infradead.org>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <200302121724.54694.pollard@admin.navo.hpc.mil>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-| By the way, is there any comparison of the two patches
-| available?  One of the things stopping Linus may be
-| that we haven't come to a consensus as to which of
-| the patches is "right".
+On Wednesday 12 February 2003 05:05 pm, 'Christoph Hellwig' wrote:
+> On Wed, Feb 12, 2003 at 02:22:34PM -0800, Crispin Cowan wrote:
+> > WRT "taking away LSM patches": HCH wants to remove hooks that "no one
+> > uses" and also complains about LSM being a big ugly undesigned hack
+> > lacking abstraction.
+> >
+> > LSM does have an abstract design: it mediates
+> > access to major internal kernel objects (processes, inodes, etc.) by
+> > user-space processes, throwing access requests out to the LSM module.
+>
+> We seem to use the term design differently.  And maybe my english
+> wording wasn't perfect (I'm no native speaker..).  My objection is that
+> LSM by itself does not enforce the tightest bit of security policy
+> design.  Your "design" is putting in hooks before object accesses
+> without making them tied to enforcing some security policy.
+>
+> Now I hear people scream "but we want $BIGNUM totally different security
+> policies", but that;'s not what I want to take away.  Look at the Linux
+> VFS, it enforces quite a lot of stuff, and still we have tons of entirely
+> different filesystems.  Of course that could also have worked by putting
+> a function vector directly below the syscall level, similar to say the SVR3
+> filesystem switch.  But that means a) we duplicate tons of code because
+> filesystems are filesystem and there's stuff they will have to duplicate
+> anyway.  and b) there's stuff we just can't handle that way properly.
+> (see the cross-directory rename issue still present in most non-linux
+> unices).
+>
+> Now getting a LSM-replacement in place that is as well-designed,
+> feature-rich and still rather slick as the Linux VFS won't happen
+> over night.  But if you see how we got that code is that we had
+> example filesystems that showed would should go into common code.
 
-Here's the current status of CGL review of them.
---
-~Randy
+Actually - one of the requirements was to be able to REMOVE all hooks to
+create a system with NO added overhead. The VFS does add overhead, but the 
+flexibility dictated that it be accepted.
 
-=====================================================================
+> That's one of the reason why I think merging LSM-like hooks without
+> examples (three or four general purpose policies best) doesn't make
+> much sense.  We need to see what we can abstract out and how.
+>
+> And here we see _the_ problem with the LSM process.  LSM wasn't
+> developed as part of the broad kernel community (lkml) but on
+> a rather small, almost private list.  People added hooks not because
+> they generally make sense but because their module needed it.
+> When reading this thread some people (e.g. David [*]) still seem that
+> changes should be done for LSM's sake - but that's entirely wrong.
+> The point of getting LSM or something similar in is for the sake
+> of the _linux_ _kernel_ getting usefull features, not for enabling
+> some small community writing out of tree modules.
 
-Geoff Gustafson, Julie Fleischer, and I have spent some time on
-high-res-timers review and testing.  The initial goals were:
+That wasn't true either - as I recall, the group that started working on LSM
+was strongly suggested to take it off the list until "show me the code" could
+be done.
 
-(a) requirements justification for CGL;
-(b) code review and feedback; and
-(c) conformance, functional, and performance/stress testing.
+> > If
+> > you remove some of these hooks because they don't have a *present*
+> > module using them, then you break the abstraction.
+>
+> An abstraction that isn't used is worthless.
 
+Ummmm. Not all of the SCSI options are used either. Does that make the SCSI 
+layer worthless?
 
-(a) Requirements
+-- 
+-------------------------------------------------------------------------
+Jesse I Pollard, II
+Email: pollard@navo.hpc.mil
 
-"Requirement: 6.4.1 Concurrent Timers Scaling Behavior and Report 
- Description: OSDL CGL shall determine support for applications that 
- require scaling of total count of system timers into the 1000s."
-
-[This is not _that_ report.]
-
-(b) Code review and feedback
-
-I reviewed Jim Houston's "alternate" timers patch and sent comments
-on it to to high-res-timers-discourse@lists.sf.net and
-linux-kernel@vger.kernel.org.
-
-Review of George Anzinger's high-res-timers patch is currently postponed
-indefinitely.
-
-A few notable differences in the patches, mostly from a usability
-viewpoint instead of an implementation viewpoint:
-
-. Jim's patch is not a CONFIG option but George's patch is.
-. Jim's patch works with TSC or PIT a timer source whereas George's
-  patch uses TSC, PIT, or the ACPI timer (CONFIG-selectable).
-
-
-(c) Code testing
-
-Julie maintains a POSIX test suite at <http://posixtest.sourceforge.net/>.
-There is also some verification/conformance code in the high-res-timers
-support patch at <http://sourceforge.net/projects/high-res-timers/>.
-
-There are still some POSIX conformance issues with the original HRT
-patches, although some of these may be fixed in the most recent versions
-of the patches.  The alternate patchset passes all POSIX conformance
-tests.
-See <http://posixtest.sourceforge.net/testpass.html> for test results.
-
-I created a timerstress program to test 1000s of active timers.
-I ran it on Linux 2.5.59 with George's HRT patch, with profile=4
-(in-kernel profiling) on a dual P4 1.7 GHz PC with 1 GB of RAM.
-
-All stress tests were run for 60 seconds, with random initial timeout
-and interval per timer (initial timeout == interval).
-Currently all timers are relative in time, not absolute.
-The timerstress test uses one POSIX real-time signal and no other
-threads/processes, so this isn't a timer + threads test, just a
-timers/signals test.
-
-As you can see in the following table, the high-res-timers code is not
-taking unusual amounts of processor time, although the system call
-overhead from the timer stress test program is high.
-
-
-Timers	Expirations/60 seconds	Avg/second	Syscall 'load' (profile)
-==============================================================================
-1000		2505		41.75			5.20
-2000		4852		80.87			5.18
-3000		7175		119.58			5.68
-4000		9588		159.8			8.66
-5000		12026		200.43			9.68
-6000		14284		238.07			8.89
-7000		16669		277.82			12.59
-8000		19134		318.9			9.84
-9000		21597		359.95			14.41
-10000		24288		404.8			11.55
-12000		28812		480.2			11.41
-14000		33606		560.1			28.16
-16000		38680		644.67			18.11
-
-
-Stress testing of Jim's alternate HRT patch is currently on hold.
-
-###
+Any opinions expressed are solely my own.

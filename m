@@ -1,39 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267481AbTBUOot>; Fri, 21 Feb 2003 09:44:49 -0500
+	id <S267463AbTBUOtq>; Fri, 21 Feb 2003 09:49:46 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267482AbTBUOot>; Fri, 21 Feb 2003 09:44:49 -0500
-Received: from hal-4.inet.it ([213.92.5.23]:27384 "EHLO hal-4.inet.it")
-	by vger.kernel.org with ESMTP id <S267481AbTBUOos>;
-	Fri, 21 Feb 2003 09:44:48 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: javaman <javaman@katamail.com>
-To: linux-kernel@vger.kernel.org
-Subject: [PATCH 2.5.x, 2.4.x ...] very small
-Date: Fri, 21 Feb 2003 15:25:17 +0100
-X-Mailer: KMail [version 1.3.2]
-Cc: torvalds@transmeta.com
+	id <S267466AbTBUOtq>; Fri, 21 Feb 2003 09:49:46 -0500
+Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:14856 "EHLO
+	gatekeeper.tmr.com") by vger.kernel.org with ESMTP
+	id <S267463AbTBUOto>; Fri, 21 Feb 2003 09:49:44 -0500
+Date: Fri, 21 Feb 2003 09:56:21 -0500 (EST)
+From: Bill Davidsen <davidsen@tmr.com>
+To: Jeff Garzik <jgarzik@pobox.com>
+cc: lkml <linux-kernel@vger.kernel.org>, netdev@oss.sgi.com
+Subject: Re: netdevices.txt update
+In-Reply-To: <3E53093F.5050502@pobox.com>
+Message-ID: <Pine.LNX.3.96.1030221095221.21493A-100000@gatekeeper.tmr.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <20030221144448Z267481-29901+571@vger.kernel.org>
+Content-Type: MULTIPART/MIXED; BOUNDARY=------------040403030109020202050704
+Content-ID: <Pine.LNX.3.96.1030221095221.21493B@gatekeeper.tmr.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-A very small patch (my first patch :-) for Documentation/spinlocks.txt:
-it replace "IFF" with "IF" ;-)
+  This message is in MIME format.  The first part should be readable text,
+  while the remaining parts are likely unreadable without MIME-aware tools.
+  Send mail to mime@docserver.cac.washington.edu for more info.
 
-bye,
-Paolo
+--------------040403030109020202050704
+Content-Type: TEXT/PLAIN; CHARSET=us-ascii; FORMAT=flowed
+Content-ID: <Pine.LNX.3.96.1030221095221.21493C@gatekeeper.tmr.com>
 
---- Documentation/spinlocks.txt.orig	Fri Feb 21 15:02:01 2003
-+++ Documentation/spinlocks.txt	Fri Feb 21 15:02:44 2003
-@@ -136,7 +136,7 @@
- 
- If you have a case where you have to protect a data structure across
- several CPU's and you want to use spinlocks you can potentially use
--cheaper versions of the spinlocks. IFF you know that the spinlocks are
-+cheaper versions of the spinlocks. IF you know that the spinlocks are
- never used in interrupt handlers, you can use the non-irq versions:
- 
- 	spin_lock(&lock);
+On Tue, 18 Feb 2003, Jeff Garzik wrote:
 
+> Just made a minor update to Documentation/networking/netdevices.txt, and 
+> thought I would take the opportunity to pass it around once again.
+> 
+> Even though this doc has existed for quite a while now, I still come 
+> across code that loves to violate these locking rules in various ways.
+> 
+> Comments and additions welcome
+
+I wish other kernel interfaces were as well documented, or documented at
+all other than the source code using them. Thank you so much!
+
+-- 
+bill davidsen <davidsen@tmr.com>
+  CTO, TMR Associates, Inc
+Doing interesting things with little computers since 1979.
+
+--------------040403030109020202050704--

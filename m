@@ -1,41 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315372AbSGVAhO>; Sun, 21 Jul 2002 20:37:14 -0400
+	id <S316822AbSGVLRl>; Mon, 22 Jul 2002 07:17:41 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315388AbSGVAhO>; Sun, 21 Jul 2002 20:37:14 -0400
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:52236 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S315372AbSGVAhN>; Sun, 21 Jul 2002 20:37:13 -0400
-Date: Mon, 22 Jul 2002 01:40:18 +0100
-From: Russell King <rmk@arm.linux.org.uk>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: Linus Torvalds <torvalds@transmeta.com>, Christoph Hellwig <hch@lst.de>,
-       linux-kernel@vger.kernel.org, Robert Love <rml@tech9.net>
-Subject: Re: [patch] "big IRQ lock" removal, 2.5.27-A9
-Message-ID: <20020722014018.A31813@flint.arm.linux.org.uk>
-References: <Pine.LNX.4.44.0207211619480.9993-100000@home.transmeta.com> <Pine.LNX.4.44.0207220224170.4909-100000@localhost.localdomain>
+	id <S316821AbSGVLQR>; Mon, 22 Jul 2002 07:16:17 -0400
+Received: from ns.suse.de ([213.95.15.193]:27404 "EHLO Cantor.suse.de")
+	by vger.kernel.org with ESMTP id <S316820AbSGVLQI>;
+	Mon, 22 Jul 2002 07:16:08 -0400
+Date: Mon, 22 Jul 2002 13:19:15 +0200
+From: Dave Jones <davej@suse.de>
+To: martin@dalecki.de
+Cc: Christoph Hellwig <hch@lst.de>, Linus Torvalds <torvalds@transmeta.com>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] 2.5.27 sysctl
+Message-ID: <20020722131915.K27749@suse.de>
+Mail-Followup-To: Dave Jones <davej@suse.de>, martin@dalecki.de,
+	Christoph Hellwig <hch@lst.de>,
+	Linus Torvalds <torvalds@transmeta.com>,
+	Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <Pine.LNX.4.44.0207201218390.1230-100000@home.transmeta.com> <3D3BE17F.3040905@evision.ag> <20020722125347.B16685@lst.de> <3D3BE4C7.2060203@evision.ag>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <Pine.LNX.4.44.0207220224170.4909-100000@localhost.localdomain>; from mingo@elte.hu on Mon, Jul 22, 2002 at 02:31:16AM +0200
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <3D3BE4C7.2060203@evision.ag>; from dalecki@evision.ag on Mon, Jul 22, 2002 at 12:56:07PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jul 22, 2002 at 02:31:16AM +0200, Ingo Molnar wrote:
-> +drivers that want to disable local interrupts (interrupts on the
-> +current CPU), can use the following four macros:
-> +
-> +  __cli(), __sti(), __save_flags(flags), __restore_flags(flags)
+On Mon, Jul 22, 2002 at 12:56:07PM +0200, Marcin Dalecki wrote:
 
-Last mail before zzz (hopefully) - what about
-local_irq_{enable,disable,save,restore} ?
+ > > Please don't remove the trailing commas in the enums.  they make adding
+ > > to them much easier and are allowed by gcc (and maybe C99, I'm not
+ > > sure).
+ > It's an GNU-ism. If you have any problem with "adding vales", just
+ > invent some dummy end-value. I have a problem with using -pedantic.
 
-With the exception of local_irq_save() which is actually
-local_irq_save_disable(), I find these to be more "descriptive" of
-their function.
+If you feel like doing 'warnings patrol', then there are a bunch of
+more important regular warnings[1] that need fixing up without having to look
+through the pedantic output. Last I checked the pedantic stuff flagged
+a lot of bits that the fix ended up uglier than the warning
+(which 99.9% of people won't ever see anyway)
+
+        Dave
+
+[1] Although more important would be stabilising IDE, but thats a sidenote.
 
 -- 
-Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
-             http://www.arm.linux.org.uk/personal/aboutme.html
-
+| Dave Jones.        http://www.codemonkey.org.uk
+| SuSE Labs

@@ -1,36 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S133093AbRDRMCL>; Wed, 18 Apr 2001 08:02:11 -0400
+	id <S133095AbRDRMIc>; Wed, 18 Apr 2001 08:08:32 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S133094AbRDRMCB>; Wed, 18 Apr 2001 08:02:01 -0400
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:27909 "EHLO
+	id <S133096AbRDRMIV>; Wed, 18 Apr 2001 08:08:21 -0400
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:32005 "EHLO
 	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S133093AbRDRMBq>; Wed, 18 Apr 2001 08:01:46 -0400
-Subject: Re: performance degradation on -ac tree
-To: jjs@mirai.cx (J Sloan)
-Date: Wed, 18 Apr 2001 13:03:24 +0100 (BST)
-Cc: linux-kernel@vger.kernel.org (linux-kernel)
-In-Reply-To: <3ADD140E.A4E2974D@mirai.cx> from "J Sloan" at Apr 17, 2001 09:12:00 PM
+	id <S133095AbRDRMIM>; Wed, 18 Apr 2001 08:08:12 -0400
+Subject: Re: Let init know user wants to shutdown
+To: chief@bandits.org (John Fremlin)
+Date: Wed, 18 Apr 2001 12:55:26 +0100 (BST)
+Cc: alan@lxorguk.ukuu.org.uk (Alan Cox),
+        andrew.grover@intel.com (Grover Andrew),
+        linux-power@phobos.fachschaften.tu-muenchen.de ("Acpi-PM (E-mail)"),
+        pavel@suse.cz ('Pavel Machek'),
+        Simon.Richter@phobos.fachschaften.tu-muenchen.de (Simon Richter),
+        aferber@techfak.uni-bielefeld.de (Andreas Ferber),
+        linux-kernel@vger.kernel.org
+In-Reply-To: <m2k84jkm1j.fsf@boreas.yi.org.> from "John Fremlin" at Apr 18, 2001 02:56:56 AM
 X-Mailer: ELM [version 2.5 PL1]
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-Id: <E14pqgA-0004Yt-00@the-village.bc.nu>
+Message-Id: <E14pqYS-0004Y3-00@the-village.bc.nu>
 From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I have noticed that with e.g. the 2.4.0-test kernels, and e.g.
-> 2.4.2, netperf to localhost gets between 350-400 MB/s.
-> With recent -ac kernels, e.g. 2.4.3-ac5, netperf to localhost
-> gets more like 250 MB/sec.
+> I'm wondering if that veto business is really needed. Why not reject
+> *all* APM rejectable events, and then let the userspace event handler
+> send the system to sleep or turn it off? Anybody au fait with the APM
+> spec?
 
-Thats one to ask Dave Miller.
-
-> The same activity with recent -ac kernels feels like running
-> through molasses, very sluggish, and it is I who am repeatedly
-> outmaneuvered and embarrassed. It's quite awful.
-
-The 2.4.3ac VM is far from ideal at the moment. Its a lot smoother for server
-use and it doesnt spend so much time randomly killing wrong things but it does
-stall too much
+Because apmd is optional

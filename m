@@ -1,38 +1,32 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266890AbRGHOAP>; Sun, 8 Jul 2001 10:00:15 -0400
+	id <S266902AbRGHOVV>; Sun, 8 Jul 2001 10:21:21 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266893AbRGHOAG>; Sun, 8 Jul 2001 10:00:06 -0400
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:38929 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S266890AbRGHN75>; Sun, 8 Jul 2001 09:59:57 -0400
-Subject: Re: Machine check exception? (2.4.6+SMP+VIA)
-To: cw@f00f.org (Chris Wedgwood)
-Date: Sun, 8 Jul 2001 15:00:22 +0100 (BST)
-Cc: alan@lxorguk.ukuu.org.uk (Alan Cox), vhou@khmer.cc (Vibol Hou),
-        linux-kernel@vger.kernel.org (Linux-Kernel)
-In-Reply-To: <20010708192805.C26213@weta.f00f.org> from "Chris Wedgwood" at Jul 08, 2001 07:28:05 PM
-X-Mailer: ELM [version 2.5 PL3]
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E15JF6k-0000AI-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+	id <S266897AbRGHOVL>; Sun, 8 Jul 2001 10:21:11 -0400
+Received: from outmail1.pacificnet.net ([207.171.0.246]:37173 "EHLO
+	outmail1.pacificnet.net") by vger.kernel.org with ESMTP
+	id <S266894AbRGHOVA>; Sun, 8 Jul 2001 10:21:00 -0400
+Message-ID: <008001c107b9$3011c660$66b93604@molybdenum>
+From: "Jahn Veach - Veachian64" <V64@Galaxy42.com>
+To: "Keith Owens" <kaos@ocs.com.au>
+Cc: <linux-kernel@vger.kernel.org>
+In-Reply-To: <22800.994580620@ocs3.ocs-net>
+Subject: Re: Unresolved symbols in 2.4.6 
+Date: Sun, 8 Jul 2001 09:20:46 -0500
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 5.50.4522.1200
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4522.1200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Is there any reason why, with proper MCE checking for both K7 and PIII
-> we can't automatically off-line processors when they start doing bad
-> things?
+On Sun, 8 Jul 2001 03:23:17 -0600,
+"Keith Owens" <kaos@ocs.com.au> wrote:
+>What does 'grep printk /proc/ksyms' report on the 2.4.6 kernel?  Also
+>'nm vmlinux | grep printk' against the vmlinux for your 2.4.6 kernel?
 
-Architectural limitations. Its entirely possible that the cache of the dying
-processor contains exclusive copies of arbitary data.
+My 2.4.6 kernel can't boot because it panics when it goes to mount the root
+filesystem. An nm on the kernel returns 'File format not recognized'. It
+also returns this error when done on my 2.2.17 kernel, which runs just fine.
 
-> Also, I'm pretty sure I was seeing overheating problems or something
-> on a K7 at one point, but never saw MCE; I take it this code only
-> exists fully in -ac kernels? I looked in Linus' tree and couldn't see
-> anything.
-
-Only -ac has K7 MCE enabled right now - also MCE is not guaranteed to catch
-problems.
 

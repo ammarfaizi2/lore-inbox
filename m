@@ -1,41 +1,35 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261246AbVCMBFP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261309AbVCMBUi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261246AbVCMBFP (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 12 Mar 2005 20:05:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261283AbVCMBFP
+	id S261309AbVCMBUi (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 12 Mar 2005 20:20:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261364AbVCMBUi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 12 Mar 2005 20:05:15 -0500
-Received: from wproxy.gmail.com ([64.233.184.203]:47596 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261246AbVCMBFM (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 12 Mar 2005 20:05:12 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:mime-version:content-type:content-transfer-encoding;
-        b=rCfe2lKQohDHBMZzxf+ToSslUmkGb/4DkbGnf6KDwED6cXu7Vf8w9DDpW3383WGFoFqRpwko1CaUyLhhdlBIzxexagObNl31dGz/AnBWwELmMhQJBZMYzghE9aK/t809n09F54O1uDIH6HkuaPqsQFgBl8q6haEenBOC2W6MXGM=
-Message-ID: <17d798805031217055a3e9cc6@mail.gmail.com>
-Date: Sat, 12 Mar 2005 20:05:11 -0500
-From: firefly blue <fireflyblue@gmail.com>
-Reply-To: firefly blue <fireflyblue@gmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: Linux 2.6 : physical memory address and pid
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Sat, 12 Mar 2005 20:20:38 -0500
+Received: from mail-in-09.arcor-online.net ([151.189.21.49]:46233 "EHLO
+	mail-in-09.arcor-online.net") by vger.kernel.org with ESMTP
+	id S261309AbVCMBUc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 12 Mar 2005 20:20:32 -0500
+From: Bodo Eggert <7eggert@gmx.de>
+Subject: Re: [PATCH][RFC] Apply umask to /proc/<pid>
+To: Rene Scharfe <rene.scharfe@lsrfire.ath.cx>, linux-kernel@vger.kernel.org
+Reply-To: 7eggert@gmx.de
+Date: Sun, 13 Mar 2005 02:23:32 +0100
+References: <fa.ft6scin.15lkbgv@ifi.uio.no>
+User-Agent: KNode/0.7.7
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7Bit
+Message-Id: <E1DAHpO-0001a8-Mx@be1.7eggert.dyndns.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Rene Scharfe <rene.scharfe@lsrfire.ath.cx> wrote:
 
-With the 2.6 Linux kernel, I want to find, from the physical page
-frame, the virtual address of the page loaded in the frame and the
-process id of the process owning it.
+> patch below makes procfs apply the umask of the processes to their
+> respective /proc/<pid> directories and the files below them.  That
+> allows users to gain a bit of privacy by setting a restrictive umask in
+> their profiles.
 
-I know that 2.6 kernel implements rmap where the page points to a pte
-chain. But how to I get to the pid and virtual address from pte entry?
+A [ur]limit-like value is fine, but allowing others to read the files you
+put into a public directory should not imply giving up your privacy.
 
-I have tried to become a member of this list. But don't have a confirmation yet.
-So, please cc the replies to me.
-
-thanks,
-Allison

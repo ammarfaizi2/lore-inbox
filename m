@@ -1,55 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261336AbRE2RCw>; Tue, 29 May 2001 13:02:52 -0400
+	id <S261213AbRE2Ran>; Tue, 29 May 2001 13:30:43 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261547AbRE2RBg>; Tue, 29 May 2001 13:01:36 -0400
-Received: from zeus.kernel.org ([209.10.41.242]:47020 "EHLO zeus.kernel.org")
-	by vger.kernel.org with ESMTP id <S261509AbRE2Q7S>;
-	Tue, 29 May 2001 12:59:18 -0400
-From: mdaljeet@in.ibm.com
-X-Lotus-FromDomain: IBMIN@IBMAU
-To: linux-kernel@vger.kernel.org
-cc: kraxel@bytesex.org
-Message-ID: <CA256A5B.00548719.00@d73mta01.au.ibm.com>
-Date: Tue, 29 May 2001 19:34:18 +0530
-Subject: query regarding 'map_user_kiobuf'
-Mime-Version: 1.0
-Content-type: text/plain; charset=us-ascii
-Content-Disposition: inline
+	id <S261217AbRE2Rad>; Tue, 29 May 2001 13:30:33 -0400
+Received: from leibniz.math.psu.edu ([146.186.130.2]:20901 "EHLO math.psu.edu")
+	by vger.kernel.org with ESMTP id <S261213AbRE2RaT>;
+	Tue, 29 May 2001 13:30:19 -0400
+Date: Tue, 29 May 2001 13:30:11 -0400 (EDT)
+From: Alexander Viro <viro@math.psu.edu>
+To: Gergely Tamas <dice@mfa.kfki.hu>
+cc: linux-kernel@vger.kernel.org, Trond Myklebust <trond.myklebust@fys.uio.no>
+Subject: Re: OOPS with 2.4.5 [kernel BUG at inode.c:486]
+In-Reply-To: <Pine.LNX.4.32.0105291858050.4085-100000@falka.mfa.kfki.hu>
+Message-ID: <Pine.GSO.4.21.0105291327120.10843-100000@weyl.math.psu.edu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I am using linux kernel version 2.4.2 on Intel PC.
 
-I have been trying my luck for over a week regarding usage of
-'map_user_kiobuf' for doing a DMA into a memory area that belongs to user
-space.
 
-Actually my requirement is that I want to do DMA into a user space memory
-area. What I have done through suggestions is that allocate memory in user
-space. I pass user space buffer address to a kernel module.
-Inside the kernel module, I use 'map_user_kiobuf' passing user space buffer
-address to it.
+On Tue, 29 May 2001, Gergely Tamas wrote:
+ 
+> Warning (compare_maps): mismatch on symbol partition_name  , ksyms_base says c01c4020, System.map says c0154160.  Ignoring ksyms_base entry
+> kernel BUG at inode.c:486!
 
-After using the 'map_user_kiobuf', I observed the followiing:
+[snip]
 
-1. 'kiobuf->maplist[0]->virtual' contains a different virtual address than
-the user space buffer address
-2. But these two addresses are mapped as when i write something using the
-address 'kiobuf->maplist[0]->virtual' inside the kernel, I see the same
-data in the user space buffer in my application.
-3. I use the 'virt_to_phys' operation to the virtual address
-'kiobuf->maplist[0]->virtual' to get the physical address.
-4. I use this physical address for DMA operations.
+_Lovely_. NFS, apparently on revalidate path, doesn't care to hold on
+the unhashed inode until its pages are gone.
 
-Now, using this information I do a DMA from card to system memory. What I
-have noticed is that DMA happens somewhere else in the system memory. I am
-not able to execute most of the commands (ls, chmod, cat, clear etc) after
-my user program exits.
-
-Am I doing the steps 3 and 4 above right?
-
-Regards,
-Daljeet.
-
+Trond?
 

@@ -1,38 +1,86 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268243AbTAMTcU>; Mon, 13 Jan 2003 14:32:20 -0500
+	id <S267847AbTAMTb7>; Mon, 13 Jan 2003 14:31:59 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268269AbTAMTcU>; Mon, 13 Jan 2003 14:32:20 -0500
-Received: from 12-231-249-244.client.attbi.com ([12.231.249.244]:8710 "HELO
-	kroah.com") by vger.kernel.org with SMTP id <S268243AbTAMTcS>;
-	Mon, 13 Jan 2003 14:32:18 -0500
-Date: Mon, 13 Jan 2003 11:41:09 -0800
-From: Greg KH <greg@kroah.com>
-To: Nico Schottelius <schottelius@wdt.de>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [2.5.56] (partial known) bugs/compile errors
-Message-ID: <20030113194109.GD8394@kroah.com>
-References: <20030113090200.GA1096@schottelius.org> <20030113190105.GA8394@kroah.com> <20030113193401.GA330@schottelius.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030113193401.GA330@schottelius.org>
-User-Agent: Mutt/1.4i
+	id <S268243AbTAMTb7>; Mon, 13 Jan 2003 14:31:59 -0500
+Received: from eamail1-out.unisys.com ([192.61.61.99]:13733 "EHLO
+	eamail1-out.unisys.com") by vger.kernel.org with ESMTP
+	id <S267847AbTAMTb6>; Mon, 13 Jan 2003 14:31:58 -0500
+Message-ID: <3FAD1088D4556046AEC48D80B47B478C022BD8E7@usslc-exch-4.slc.unisys.com>
+From: "Protasevich, Natalie" <Natalie.Protasevich@UNISYS.com>
+To: "'Nakajima, Jun'" <jun.nakajima@intel.com>,
+       "Protasevich, Natalie" <Natalie.Protasevich@UNISYS.com>,
+       "Martin J. Bligh" <mbligh@aracnet.com>,
+       "Pallipadi, Venkatesh" <venkatesh.pallipadi@intel.com>
+Cc: William Lee Irwin III <wli@holomorphy.com>,
+       Christoph Hellwig <hch@infradead.org>,
+       James Cleverdon <jamesclv@us.ibm.com>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: RE: APIC version
+Date: Mon, 13 Jan 2003 13:39:43 -0600
+MIME-Version: 1.0
+X-Mailer: Internet Mail Service (5.5.2656.59)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jan 13, 2003 at 08:34:01PM +0100, Nico Schottelius wrote:
-> Greg KH [Mon, Jan 13, 2003 at 11:01:06AM -0800]:
-> > On Mon, Jan 13, 2003 at 10:02:00AM +0100, Nico Schottelius wrote:
-> > > WARNING: /lib/modules/2.5.56/kernel/security/root_plug.ko needs unknown symbol usb_bus_list_lock
-> > > WARNING: /lib/modules/2.5.56/kernel/security/root_plug.ko needs unknown symbol usb_bus_list
-> > 
-> > Do you have CONFIG_USB selected in your .config?
+Sould it be hard_smp_processor_id()?
+
+-----Original Message-----
+From: Nakajima, Jun [mailto:jun.nakajima@intel.com]
+Sent: Monday, January 13, 2003 12:00 PM
+To: Protasevich, Natalie; Martin J. Bligh; Pallipadi, Venkatesh
+Cc: William Lee Irwin III; Christoph Hellwig; James Cleverdon; Linux
+Kernel
+Subject: RE: APIC version
+
+
+The entries in acpi_version[] are indexed by the APIC id, not
+smp_processor_id(). So you can overwrite acpi_version[] for a different
+processor.
+
+Jun
+
+
+> -----Original Message-----
+> From: Protasevich, Natalie [mailto:Natalie.Protasevich@UNISYS.com]
+> Sent: Monday, January 13, 2003 10:44 AM
+> To: 'Martin J. Bligh'; Pallipadi, Venkatesh
+> Cc: 'William Lee Irwin III'; Nakajima, Jun; 'Christoph Hellwig'; 'James
+> Cleverdon'; 'Linux Kernel'; Protasevich, Natalie
+> Subject: APIC version
 > 
-> yes, but all usb things are modularized
-
-And what is your CONFIG_SECURITY_* options?
-
-thanks,
-
-greg k-h
+> I have a little patch here for the APIC version.
+> Without it, I get version 0x10 instead of 0x14 for Fosters/Gallatins
+> (booting with ACPI):
+> 
+> --- mpparse.c.org	2003-01-13 11:32:18.000000000 -0700
+> +++ mpparse.c	2003-01-13 11:33:26.000000000 -0700
+> @@ -773,6 +773,8 @@
+>  	if (boot_cpu_physical_apicid == -1U)
+>  		boot_cpu_physical_apicid = GET_APIC_ID(apic_read(APIC_ID));
+> 
+> +	apic_version[smp_processor_id()] =
+> GET_APIC_VERSION(apic_read(APIC_LVR));
+> +
+>  	Dprintk("Boot CPU = %d\n", boot_cpu_physical_apicid);
+>  }
+> 
+> @@ -795,7 +797,7 @@
+> 
+>  	processor.mpc_type = MP_PROCESSOR;
+>  	processor.mpc_apicid = id;
+> -	processor.mpc_apicver = 0x10; /* TBD: lapic version */
+> +	processor.mpc_apicver = apic_version[smp_processor_id()];
+>  	processor.mpc_cpuflag = (enabled ? CPU_ENABLED : 0);
+>  	processor.mpc_cpuflag |= (boot_cpu ? CPU_BOOTPROCESSOR : 0);
+>  	processor.mpc_cpufeature = (boot_cpu_data.x86 << 8) |
+> 
+> 
+> It seems to work OK for me, although you may find some implications...
+> Anyway -
+> 
+> Thanks,
+> 
+> --Natalie

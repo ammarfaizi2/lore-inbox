@@ -1,36 +1,28 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314227AbSDRDCV>; Wed, 17 Apr 2002 23:02:21 -0400
+	id <S314230AbSDRDwx>; Wed, 17 Apr 2002 23:52:53 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314228AbSDRDCU>; Wed, 17 Apr 2002 23:02:20 -0400
-Received: from tone.orchestra.cse.unsw.EDU.AU ([129.94.242.28]:20147 "HELO
-	tone.orchestra.cse.unsw.EDU.AU") by vger.kernel.org with SMTP
-	id <S314227AbSDRDCU>; Wed, 17 Apr 2002 23:02:20 -0400
-From: Neil Brown <neilb@cse.unsw.edu.au>
-To: Mike Fedyk <mfedyk@matchmail.com>
-Date: Thu, 18 Apr 2002 13:05:54 +1000 (EST)
+	id <S314231AbSDRDww>; Wed, 17 Apr 2002 23:52:52 -0400
+Received: from www.nex.net.au ([203.24.143.24]:43535 "EHLO www.nex.net.au")
+	by vger.kernel.org with ESMTP id <S314230AbSDRDwv>;
+	Wed, 17 Apr 2002 23:52:51 -0400
+Message-ID: <3CBE4301.13B36A81@nex.net.au>
+Date: Thu, 18 Apr 2002 13:52:33 +1000
+From: Gary Duncan <gduncan@nex.net.au>
+X-Mailer: Mozilla 4.79 [en] (Win98; U)
+X-Accept-Language: en
 MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+CC: gduncan@netspace.net.au, "Duncan,Gary" <gduncan@nex.net.au>
+Subject: kernel 2.5.8 bug; "make xconfig" fails quickly
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-ID: <15550.14354.519691.538121@notabene.cse.unsw.edu.au>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: RAID superblock confusion
-In-Reply-To: message from Mike Fedyk on Wednesday April 17
-X-Mailer: VM 6.72 under Emacs 20.7.2
-X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
-	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
-	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday April 17, mfedyk@matchmail.com wrote:
-> Why's that?  Don't they compliment each other, or is mdadm a replacement?
 
-You should read the man page....
 
-> 
-> ehh, what's one more message on lkml anyway? ;)
+... due to the en-var at line 52 in /usr/src/linux/drivers/ide/Config.in
+($CONFIG_BLK_DEV_IDE_TCQ_DEFAULT) not being quoted.
 
-Probably adds up to a person hour or so.
-
-NeilBrown
+- Gary (sigh ...)

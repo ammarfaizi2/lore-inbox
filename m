@@ -1,74 +1,69 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129884AbRBOTU0>; Thu, 15 Feb 2001 14:20:26 -0500
+	id <S129926AbRBOTUQ>; Thu, 15 Feb 2001 14:20:16 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129901AbRBOTUQ>; Thu, 15 Feb 2001 14:20:16 -0500
-Received: from deliverator.sgi.com ([204.94.214.10]:15898 "EHLO
-	deliverator.sgi.com") by vger.kernel.org with ESMTP
-	id <S129884AbRBOTT6>; Thu, 15 Feb 2001 14:19:58 -0500
-From: Kanoj Sarcar <kanoj@google.engr.sgi.com>
-Message-Id: <200102151919.LAA74131@google.engr.sgi.com>
+	id <S129901AbRBOTUG>; Thu, 15 Feb 2001 14:20:06 -0500
+Received: from smtp1.cern.ch ([137.138.128.38]:42500 "EHLO smtp1.cern.ch")
+	by vger.kernel.org with ESMTP id <S129259AbRBOTTz>;
+	Thu, 15 Feb 2001 14:19:55 -0500
+Date: Thu, 15 Feb 2001 20:19:45 +0100
+From: Jamie Lokier <lk@tantalophile.demon.co.uk>
+To: Kanoj Sarcar <kanoj@google.engr.sgi.com>
+Cc: Manfred Spraul <manfred@colorfullife.com>, Ben LaHaise <bcrl@redhat.com>,
+        linux-mm@kvack.org, mingo@redhat.com, alan@redhat.com,
+        linux-kernel@vger.kernel.org
 Subject: Re: x86 ptep_get_and_clear question
-To: bcrl@redhat.com (Ben LaHaise)
-Date: Thu, 15 Feb 2001 11:19:52 -0800 (PST)
-Cc: lk@tantalophile.demon.co.uk (Jamie Lokier), linux-mm@kvack.org,
-        mingo@redhat.com, alan@redhat.com, linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.30.0102151402460.15843-100000@today.toronto.redhat.com> from "Ben LaHaise" at Feb 15, 2001 02:06:30 PM
-X-Mailer: ELM [version 2.5 PL2]
-MIME-Version: 1.0
+Message-ID: <20010215201945.A2505@pcep-jamie.cern.ch>
+In-Reply-To: <3A8C254F.17334682@colorfullife.com> <200102151905.LAA62688@google.engr.sgi.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <200102151905.LAA62688@google.engr.sgi.com>; from kanoj@google.engr.sgi.com on Thu, Feb 15, 2001 at 11:05:00AM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Kanoj Sarcar wrote:
+> > Is the sequence
+> > << lock;
+> > read pte
+> > pte |= dirty
+> > write pte
+> > >> end lock;
+> > or
+> > << lock;
+> > read pte
+> > if (!present(pte))
+> > 	do_page_fault();
+> > pte |= dirty
+> > write pte.
+> > >> end lock;
 > 
-> On Thu, 15 Feb 2001, Kanoj Sarcar wrote:
-> 
-> > No. All architectures do not have this problem. For example, if the
-> > Linux "dirty" (not the pte dirty) bit is managed by software, a fault
-> > will actually be taken when processor 2 tries to do the write. The fault
-> > is solely to make sure that the Linux "dirty" bit can be tracked. As long
-> > as the fault handler grabs the right locks before updating the Linux "dirty"
-> > bit, things should be okay. This is the case with mips, for example.
-> >
-> > The problem with x86 is that we depend on automatic x86 dirty bit
-> > update to manage the Linux "dirty" bit (they are the same!). So appropriate
-> > locks are not grabbed.
-> 
-> Will you please go off and prove that this "problem" exists on some x86
-> processor before continuing this rant?  None of the PII, PIII, Athlon,
+> No, it is a little more complicated. You also have to include in the
+> tlb state into this algorithm. Since that is what we are talking about.
+> Specifically, what does the processor do when it has a tlb entry allowing
+> RW, the processor has only done reads using the translation, and the 
+> in-memory pte is clear?
 
-And will you please stop behaving like this is not an issue? 
+Yes (no to the no): Manfred's pseudo-code is exactly the question you're
+asking.  Because when the TLB entry is non-dirty and you do a write, we
+_know_ the processor will do a locked memory cycle to update the dirty
+bit.  A locked memory cycle implies read-modify-write, not "write TLB
+entry + dirty" (which would be a plain write) or anything like that.
 
-> K6-2 or 486s I checked exhibited the worrisome behaviour you're
+Given you know it's a locked cycle, the only sensible design from Intel
+is going to be one of Manfred's scenarios.
 
-And I maintain that this kind of race condition can not be tickled
-deterministically. There might be some piece of logic (or absence of it),
-that can show that your finding of a thousand runs is not relevant.
+An interesting thought experiment though is this:
 
-> speculating about, plus it is logically consistent with the statements the
-> manual does make about updating ptes; otherwise how could an smp os
+<< lock;
+read pte
+pte |= dirty
+write pte
+>> end lock;
+if (!present(pte))
+	do_page_fault();
 
-Don't say this anymore, specially if you can not point me to the specs.
+It would have a mighty odd effect wouldn't it?
 
-> perform a reliable shootdown by doing an atomic bit clear on the present
-> bit of a pte?
-
-OS clears present bit, processors can keep using their TLBs and access 
-the page, no problems at all. That is why after clearing the present bit, 
-the processor must flush all tlbs before it can assume no one is using
-the page. Hardware updated access bit could also be a problem, but an
-error there does not destroy data, it just leads the os to choosing the
-wrong page to evict during memory pressure.
-
-Kanoj
-
-> 
-> 		-ben
-> 
-> --
-> To unsubscribe, send a message with 'unsubscribe linux-mm' in
-> the body to majordomo@kvack.org.  For more info on Linux MM,
-> see: http://www.linux.eu.org/Linux-MM/
-> 
-
+-- Jamie

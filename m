@@ -1,28 +1,46 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293591AbSCFOMF>; Wed, 6 Mar 2002 09:12:05 -0500
+	id <S293596AbSCFOPg>; Wed, 6 Mar 2002 09:15:36 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293589AbSCFOLz>; Wed, 6 Mar 2002 09:11:55 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:34832 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S293583AbSCFOLl>; Wed, 6 Mar 2002 09:11:41 -0500
-Subject: Re: bitkeeper / IDE cleanup
-To: dalecki@evision-ventures.com (Martin Dalecki)
-Date: Wed, 6 Mar 2002 14:26:42 +0000 (GMT)
-Cc: Andries.Brouwer@cwi.nl, linux-kernel@vger.kernel.org
-In-Reply-To: <3C86110E.7020703@evision-ventures.com> from "Martin Dalecki" at Mar 06, 2002 01:52:30 PM
-X-Mailer: ELM [version 2.5 PL6]
+	id <S293595AbSCFOPZ>; Wed, 6 Mar 2002 09:15:25 -0500
+Received: from mail009.syd.optusnet.com.au ([203.2.75.170]:57832 "EHLO
+	mail009.syd.optusnet.com.au") by vger.kernel.org with ESMTP
+	id <S293583AbSCFOPP>; Wed, 6 Mar 2002 09:15:15 -0500
+Message-ID: <007501c1c519$fe289010$0901010a@C5043436>
+From: "Ronnie Sahlberg" <sahlberg@optushome.com.au>
+To: <linux-kernel@vger.kernel.org>
+Subject: [PATCH] 2.5.6-pre2 IDE cleanup 16
+Date: Thu, 7 Mar 2002 00:46:52 +1100
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-Message-Id: <E16icNO-0006zD-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 5.00.3018.1300
+X-MimeOLE: Produced By Microsoft MimeOLE V5.00.3018.1300
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> HDIO_DRIVE_TASKFILE, which even by concept doesn't provide a true
-> backdoor for "vendor specific" mess, due to the misguided attempts
-> for command format parsing found there.
+>MD> 2. It convinced me that the current task-file interface in linux
+>MD> is inadequate. So Alan please bear with me if your CF format
+>MD> microdrive will have to not wakeup properly for some time...
+>MD> The current mess will just have to go before something more
+>MD> adequate can go in.
+>
+>Why not keep the existing taskfile implementation in until you complete the
+>elegant implementation?
 
-They are not misguided - they are done to enable users to filter SSSCA
-disk hooks and other extremely unpleasant things like CPRM
+seriously, ide has always been a joke for anyone serious in storage capacity
+or robustness. so what.
+
+if you were serious in using ide drives you would have been using external
+patches for quite a while anyway. nothings changed.
+Well, nothing, except that now, that there will be a much higher percentage
+of users that relies on external patches for ide to be useful
+or work at all
+
+time for someone actually has a clue on how modern ide drives works to have
+a say for a change...?
+
+

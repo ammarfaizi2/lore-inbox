@@ -1,62 +1,36 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263909AbTEFPtf (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 May 2003 11:49:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263911AbTEFPtf
+	id S263859AbTEFP6l (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 May 2003 11:58:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263861AbTEFP6l
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 May 2003 11:49:35 -0400
-Received: from smtp018.mail.yahoo.com ([216.136.174.115]:28435 "HELO
-	smtp018.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S263909AbTEFPtc convert rfc822-to-8bit (ORCPT
+	Tue, 6 May 2003 11:58:41 -0400
+Received: from [12.47.58.20] ([12.47.58.20]:5174 "EHLO pao-ex01.pao.digeo.com")
+	by vger.kernel.org with ESMTP id S263859AbTEFP6k (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 May 2003 11:49:32 -0400
-From: Michael Buesch <fsdeveloper@yahoo.de>
-To: "Lever, Charles" <Charles.Lever@netapp.com>
-Subject: Re: [NFS] processes stuck in D state
-Date: Tue, 6 May 2003 17:56:24 +0200
-User-Agent: KMail/1.5.1
-References: <482A3FA0050D21419C269D13989C611312747A@lavender-fe.eng.netapp.com>
-In-Reply-To: <482A3FA0050D21419C269D13989C611312747A@lavender-fe.eng.netapp.com>
-Cc: <nfs@lists.sourceforge.net>,
-       linux kernel mailing list <linux-kernel@vger.kernel.org>,
-       "Zeev Fisher" <Zeev.Fisher@il.marvell.com>
-MIME-Version: 1.0
-Content-Type: Text/Plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 8BIT
-Content-Description: clearsigned data
-Content-Disposition: inline
-Message-Id: <200305061756.36568.fsdeveloper@yahoo.de>
+	Tue, 6 May 2003 11:58:40 -0400
+Date: Tue, 6 May 2003 09:12:56 -0700
+From: Andrew Morton <akpm@digeo.com>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: shrybman@sympatico.ca, linux-kernel@vger.kernel.org
+Subject: Re: 2.5.68-mmX: Drowning in irq 7: nobody cared!
+Message-Id: <20030506091256.4f17131a.akpm@digeo.com>
+In-Reply-To: <1052233619.1202.13.camel@dhcp22.swansea.linux.org.uk>
+References: <1052141029.2527.27.camel@mars.goatskin.org>
+	<20030505143006.29c0301a.akpm@digeo.com>
+	<1052213733.28797.1.camel@dhcp22.swansea.linux.org.uk>
+	<20030506081716.60de29d1.akpm@digeo.com>
+	<1052233619.1202.13.camel@dhcp22.swansea.linux.org.uk>
+X-Mailer: Sylpheed version 0.8.11 (GTK+ 1.2.10; i586-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 06 May 2003 16:11:05.0740 (UTC) FILETIME=[18E45CC0:01C313EA]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+Alan Cox <alan@lxorguk.ukuu.org.uk> wrote:
+>
+> It seems the heuristic is more complicated
 
-On Tuesday 06 May 2003 17:47, Lever, Charles wrote:
-> does the problem persist after you reconnect the network cable?
-> what happens when the server becomes available again?
-
-no. If server is available again, the process wakes up from D.
-
-But like man mount says:
-[snip] The process cannot be interrupted or killed unless you also specify intr. [/snip]
-The process should be killable while the cable is pulled.
-But that's not the case, although intr is in fstab.
-
-> are you mounting with UDP or TCP?
-
-uh. How to find it out? :)
-
-- -- 
-Regards Michael Büsch
-http://www.8ung.at/tuxsoft
- 17:53:19 up  1:44,  5 users,  load average: 1.04, 1.05, 1.06
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
-
-iD8DBQE+t9s0oxoigfggmSgRAkDPAKCFMeEGvS3KUhwn0bNQngKRK6h2fwCdEcv/
-U2ttfZ6Mm8Sazuksfn4UUrY=
-=M5Kh
------END PGP SIGNATURE-----
-
+Any suggestions?

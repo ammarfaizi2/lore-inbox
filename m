@@ -1,47 +1,322 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262104AbTKLPLV (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 12 Nov 2003 10:11:21 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262360AbTKLPKI
+	id S263801AbTKLPWm (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 12 Nov 2003 10:22:42 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263809AbTKLPWm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 12 Nov 2003 10:10:08 -0500
-Received: from oobleck.astro.cornell.edu ([132.236.6.230]:27607 "EHLO
-	oobleck.astro.cornell.edu") by vger.kernel.org with ESMTP
-	id S262202AbTKLPJ0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 12 Nov 2003 10:09:26 -0500
-Date: Wed, 12 Nov 2003 10:09:17 -0500
-Message-Id: <200311121509.hACF9HG20967@oobleck.astro.cornell.edu>
-From: Joe Harrington <jh@oobleck.astro.cornell.edu>
-To: solt@dns.toxicfilms.tv
-CC: linux-kernel@vger.kernel.org
-In-reply-to: <Pine.LNX.4.51.0311121016130.30003@dns.toxicfilms.tv> (message
-	from Maciej Soltysiak on Wed, 12 Nov 2003 10:19:49 +0100 (CET))
-Subject: Re: Via KT600 support?
-CC: jh@oobleck.astro.cornell.edu
-Reply-To: jh@oobleck.astro.cornell.edu
-References: <200311111921.hABJLur16428@oobleck.astro.cornell.edu> <Pine.LNX.4.51.0311121016130.30003@dns.toxicfilms.tv>
+	Wed, 12 Nov 2003 10:22:42 -0500
+Received: from tolkor.SGI.COM ([198.149.18.6]:45225 "EHLO tolkor.sgi.com")
+	by vger.kernel.org with ESMTP id S263801AbTKLPWI (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 12 Nov 2003 10:22:08 -0500
+Date: Wed, 12 Nov 2003 09:22:06 -0600
+From: Erik Jacobson <erikj@efs.americas.sgi.com>
+To: linux-kernel@vger.kernel.org
+Subject: available memory imbalance on large NUMA systems
+Message-ID: <Pine.SGI.4.53.0311120916130.160127@efs.americas.sgi.com>
+MIME-Version: 1.0
+Content-Type: MULTIPART/MIXED; BOUNDARY="-2136806250-1090960282-1068650526=:160127"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > During install of Fedora Core 1, Fedora Core test3, Red Hat 9, and
-> > Debian 3.0r1, the install fails at a random point, generally during
-> > the non-interactive package loading phase.  The most recent kernel
-> > with the problem is kernel-2.4.22-1.2115.nptl in the Fedora Core 1
-> > release.  The problem is 100% reproducible.
+  This message is in MIME format.  The first part should be readable text,
+  while the remaining parts are likely unreadable without MIME-aware tools.
+  Send mail to mime@docserver.cac.washington.edu for more info.
 
-> Hmm, I have installed Mandrake 9.1 on some Gigabyte KT600 motherboard
-> with no problems. It had 2.4.21 kernel.
+---2136806250-1090960282-1068650526=:160127
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 
-> Maybe you should check if there's a BIOS update for that MB?
+Summary:
+--------
+We wish to implement node round-robin memory allocation for certain large
+kernel hash tables allocated during kernel startup on NUMA systems.
+We are interested in getting a community-accepted solution in to the
+2.6 kernel.
 
-Yes, thanks, I did that before I posted.  The problem exists with both
-the original BIOS (1004) and the latest (1005).
+Background:
+-----------
+NUMA systems are made of multiple nodes connected together by a fast
+interconnect to make one large system.  Each node has it's own set of
+processors and memory.  There is a notion of memory that is close to a
+node (perhaps memory on the node itself) and memory further away (perhaps
+located on a different node separated by a router).
 
-Is anyone aware of similar problems with other manufacturers' KT600
-boards that were fixed in recent BIOS updates?  Perhaps Asus has a
-BIOS bug they haven't fixed yet.
+When the kernel starts up, certain hash tables are allocated.  The routines
+that allocate these hashes don't know about NUMA systems.  They see a large
+amount of memory on the system and allocate a chunk of it sometimes based on
+the size of overall memory available on the system.
 
-By the way, I also underclocked both the CPU and the memory as far
-down as they would go, just to check, and the problem persisted.
+The end result is that the first node in the system is hit harder in terms
+of memory usage than other nodes.  On a very large system (32 or more nodes
+with 4g of memory per node for example), the first node in the system can have
+less than half of its total memory available.
 
---jh--
+This imbalance is not desirable for folks wishing to run large computational
+jobs that depend on memory being available on all nodes.  For example,
+certain large MPI programs may be negatively impacted if they expect to be
+able to get equal amounts of memory from all nodes.
+
+Example Fix:
+------------
+To fix this problem, we propose implementing a round-robin memory allocation
+scheme.  We have included an example implementation as a patch to 2.4.21
+(attached).  In it, we create a new function in vmalloc.h named
+alloc_big_struct.  It is based on vmalloc (so the resulting memory does go
+through the page table).  This is function can be used to allocate certain
+kernel hashes such as the page table or the dentry table in place of
+__get_free_pages().
+
+Now, I understand that this patch would not be accepted by the community how
+it stands right now.  So think of the patch as an example to illustrate my
+point rather than a polished proposal.  In fact, this patch may not cleanly
+apply to kernel.org 2.4 as-is.  The example makes heavy use of vmalloc for
+NUMA systems and I understand (from yesterday :) that this isn't necessarily
+desirable.  I think the example patch does still illustrate what we're trying
+to do.
+
+I guess I'm hoping to be pointed in a direction that will have a fair chance
+of being accepted in to the 2.6 kernel if proposed.  Depending on what
+direction this takes, I or someone else will attempt to implement something.
+
+Here is a detailed list of changes and what they do for the 2.4 example.
+
+mm.h: Add a new action modifier, GFP_ROUND_ROBIN.  This modifier is used by
+  alloc_area_pte in vmalloc.c.  If the bit is set, round-robin allocation
+  is used.  Add a function called alloc_pages_round_robin and a macro
+  alloc_page_round_robin that calls it.  These are meant to mirror alloc_page
+  and alloc_pages.
+
+vmalloc.h: Add function named alloc_big_struct.  This function takes the
+  place of __get_free_pages when we wish to do round-robin allocation.
+  It takes an order number as input but converts it to a number of bytes
+  as is needed by __vmalloc.  When it calls __vmalloc, it ORs GFP_ROUND_ROBIN
+  to the gfpmask so alloc_area_pte knows to do round-robin allocation of
+  memory.  If the system isn't NUMA, a macro named alloc_big_struct simply
+  calls __get_free_pages.
+
+vmalloc.c: alloc_area_pte is adjusted to look for GFP_ROUND_ROBIN.  If its
+  set, alloc_page_round_robin is called.  Otherwise, alloc_page is called
+  like before.
+
+numa.c: page_cache_alloc is modified (inside an ifdef CONFIG_NUMA) to
+  use the new alloc_page_round_robin support instead of alloc_pages_node.
+  This avoids code duplication.
+
+tcp.c, buffer.c, inode.c, dcache.c:
+  When allocating large hash tables, __get_free_pages call replaced with
+  alloc_big_struct to spread the memory use across nodes.
+
+
+Testing
+-------
+On Altix systems of various sizes, we ran aim7 and compared results.  We
+found almost no difference in performance between the round-robin-enabled
+kernels and kernels without this fix implemented.
+
+
+Big Hash Tables
+---------------
+As a side point, some of the hash tables allocated during startup get very
+large on large-memory systems (systems with a terrabyte of memory for example).
+Someone may wish to consider implementing a cap on the size of some of these
+tables.  My example doesn't address this issue - it just spreads the load.
+In fact, I don't have an idea as to what reasonable caps would be on these
+tables, if any.
+
+
+The example patch is attached.
+
+--
+Erik Jacobson - Linux System Software - Silicon Graphics - Eagan, Minnesota
+---2136806250-1090960282-1068650526=:160127
+Content-Type: TEXT/PLAIN; charset=US-ASCII; name="roundrobin.patch"
+Content-Transfer-Encoding: BASE64
+Content-ID: <Pine.SGI.4.53.0311120922060.160127@efs.americas.sgi.com>
+Content-Description: 
+Content-Disposition: attachment; filename="roundrobin.patch"
+
+ZGlmZiAtTmF1ciAtWHNraXBmaWxlcyBsaW51eC5vcmlnL2xpbnV4L2ZzL2J1
+ZmZlci5jIGxpbnV4L2xpbnV4L2ZzL2J1ZmZlci5jDQotLS0gbGludXgub3Jp
+Zy9saW51eC9mcy9idWZmZXIuYwlXZWQgQXVnIDIwIDEyOjAyOjI5IDIwMDMN
+CisrKyBsaW51eC9saW51eC9mcy9idWZmZXIuYwlUdWUgTm92ICA0IDE3OjUz
+OjQ1IDIwMDMNCkBAIC0yODQyLDggKzI4NDIsMTAgQEANCiAJCXdoaWxlKCh0
+bXAgPj49IDFVTCkgIT0gMFVMKQ0KIAkJCWJoX2hhc2hfc2hpZnQrKzsNCiAN
+CisJCS8qIGFsbG9jX2JpZ19zdHJ1Y3QgYWxsb2NhdGVzIG1lbW9yeSBhY3Jv
+c3Mgbm9kZXMgdmlhIHZtYWxsb2MgYW5kDQorCQkgKiByZXBsYWNlcyB0aGUg
+X19nZXRfZnJlZV9wYWdlcyBjYWxsIHRoYXQgd2FzIGhlcmUgYmVmb3JlICov
+DQogCQloYXNoX3RhYmxlID0gKHN0cnVjdCBidWZmZXJfaGVhZCAqKikNCi0J
+CSAgICBfX2dldF9mcmVlX3BhZ2VzKEdGUF9BVE9NSUMsIG9yZGVyKTsNCisJ
+CQlhbGxvY19iaWdfc3RydWN0KEdGUF9BVE9NSUMsIG9yZGVyKTsNCiAJfSB3
+aGlsZSAoaGFzaF90YWJsZSA9PSBOVUxMICYmIC0tb3JkZXIgPiAwKTsNCiAJ
+cHJpbnRrKCJCdWZmZXItY2FjaGUgaGFzaCB0YWJsZSBlbnRyaWVzOiAlZCAo
+b3JkZXI6ICVkLCAlbGQgYnl0ZXMpXG4iLA0KIAkgICAgICAgbnJfaGFzaCwg
+b3JkZXIsIChQQUdFX1NJWkUgPDwgb3JkZXIpKTsNCmRpZmYgLU5hdXIgLVhz
+a2lwZmlsZXMgbGludXgub3JpZy9saW51eC9mcy9kY2FjaGUuYyBsaW51eC9s
+aW51eC9mcy9kY2FjaGUuYw0KLS0tIGxpbnV4Lm9yaWcvbGludXgvZnMvZGNh
+Y2hlLmMJVGh1IEp1bCAzMSAwNzoyNDoyNyAyMDAzDQorKysgbGludXgvbGlu
+dXgvZnMvZGNhY2hlLmMJVHVlIE5vdiAgNCAxNzo1Mzo0NSAyMDAzDQpAQCAt
+MjEsNiArMjEsNyBAQA0KICNpbmNsdWRlIDxsaW51eC9zbGFiLmg+DQogI2lu
+Y2x1ZGUgPGxpbnV4L2luaXQuaD4NCiAjaW5jbHVkZSA8bGludXgvc21wX2xv
+Y2suaD4NCisjaW5jbHVkZSA8bGludXgvdm1hbGxvYy5oPg0KICNpbmNsdWRl
+IDxsaW51eC9jYWNoZS5oPg0KICNpbmNsdWRlIDxsaW51eC9tb2R1bGUuaD4N
+CiANCkBAIC0xMjI1LDggKzEyMjYsMTAgQEANCiAJCXdoaWxlICgodG1wID4+
+PSAxVUwpICE9IDBVTCkNCiAJCQlkX2hhc2hfc2hpZnQrKzsNCiANCisJCS8q
+IGFsbG9jX2JpZ19zdHJ1Y3QgYWxsb2NhdGVzIG1lbW9yeSBhY3Jvc3Mgbm9k
+ZXMgdmlhIHZtYWxsb2MgYW5kDQorCQkgKiByZXBsYWNlcyB0aGUgX19nZXRf
+ZnJlZV9wYWdlcyBjYWxsIHRoYXQgd2FzIGhlcmUgYmVmb3JlICovDQogCQlk
+ZW50cnlfaGFzaHRhYmxlID0gKHN0cnVjdCBsaXN0X2hlYWQgKikNCi0JCQlf
+X2dldF9mcmVlX3BhZ2VzKEdGUF9BVE9NSUMsIG9yZGVyKTsNCisJCQlhbGxv
+Y19iaWdfc3RydWN0KEdGUF9BVE9NSUMsIG9yZGVyKTsNCiAJfSB3aGlsZSAo
+ZGVudHJ5X2hhc2h0YWJsZSA9PSBOVUxMICYmIC0tb3JkZXIgPj0gMCk7DQog
+DQogCXByaW50ayhLRVJOX0lORk8gIkRlbnRyeSBjYWNoZSBoYXNoIHRhYmxl
+IGVudHJpZXM6ICVkIChvcmRlcjogJWxkLCAlbGQgYnl0ZXMpXG4iLA0KZGlm
+ZiAtTmF1ciAtWHNraXBmaWxlcyBsaW51eC5vcmlnL2xpbnV4L2ZzL2lub2Rl
+LmMgbGludXgvbGludXgvZnMvaW5vZGUuYw0KLS0tIGxpbnV4Lm9yaWcvbGlu
+dXgvZnMvaW5vZGUuYwlUdWUgT2N0IDIxIDEyOjE0OjU3IDIwMDMNCisrKyBs
+aW51eC9saW51eC9mcy9pbm9kZS5jCVR1ZSBOb3YgIDQgMTc6NTM6NDUgMjAw
+Mw0KQEAgLTE1LDYgKzE1LDcgQEANCiAjaW5jbHVkZSA8bGludXgvY2FjaGUu
+aD4NCiAjaW5jbHVkZSA8bGludXgvc3dhcC5oPg0KICNpbmNsdWRlIDxsaW51
+eC9zd2FwY3RsLmg+DQorI2luY2x1ZGUgPGxpbnV4L3ZtYWxsb2MuaD4NCiAj
+aW5jbHVkZSA8bGludXgvcHJlZmV0Y2guaD4NCiAjaW5jbHVkZSA8bGludXgv
+bG9ja3MuaD4NCiANCkBAIC0xMTQ3LDggKzExNDgsMTAgQEANCiAJCXdoaWxl
+ICgodG1wID4+PSAxVUwpICE9IDBVTCkNCiAJCQlpX2hhc2hfc2hpZnQrKzsN
+CiANCisJCS8qIGFsbG9jX2JpZ19zdHJ1Y3QgYWxsb2NhdGVzIG1lbW9yeSBh
+Y3Jvc3Mgbm9kZXMgdmlhIHZtYWxsb2MgYW5kDQorCQkgKiByZXBsYWNlcyB0
+aGUgX19nZXRfZnJlZV9wYWdlcyBjYWxsIHRoYXQgd2FzIGhlcmUgYmVmb3Jl
+ICovDQogCQlpbm9kZV9oYXNodGFibGUgPSAoc3RydWN0IGxpc3RfaGVhZCAq
+KQ0KLQkJCV9fZ2V0X2ZyZWVfcGFnZXMoR0ZQX0FUT01JQywgb3JkZXIpOw0K
+KwkJCWFsbG9jX2JpZ19zdHJ1Y3QoR0ZQX0FUT01JQywgb3JkZXIpOw0KIAl9
+IHdoaWxlIChpbm9kZV9oYXNodGFibGUgPT0gTlVMTCAmJiAtLW9yZGVyID49
+IDApOw0KIA0KIAlwcmludGsoS0VSTl9JTkZPICJJbm9kZSBjYWNoZSBoYXNo
+IHRhYmxlIGVudHJpZXM6ICVkIChvcmRlcjogJWxkLCAlbGQgYnl0ZXMpXG4i
+LA0KZGlmZiAtTmF1ciAtWHNraXBmaWxlcyBsaW51eC5vcmlnL2xpbnV4L2lu
+Y2x1ZGUvbGludXgvbW0uaCBsaW51eC9saW51eC9pbmNsdWRlL2xpbnV4L21t
+LmgNCi0tLSBsaW51eC5vcmlnL2xpbnV4L2luY2x1ZGUvbGludXgvbW0uaAlU
+dWUgT2N0IDE0IDEyOjA0OjAyIDIwMDMNCisrKyBsaW51eC9saW51eC9pbmNs
+dWRlL2xpbnV4L21tLmgJVHVlIE5vdiAgNCAxNzo1Mzo0NSAyMDAzDQpAQCAt
+NDk4LDYgKzQ5OCwxOSBAQA0KIA0KICNkZWZpbmUgYWxsb2NfcGFnZShnZnBf
+bWFzaykgYWxsb2NfcGFnZXMoZ2ZwX21hc2ssIDApDQogDQorc3RhdGljIGlu
+bGluZSBzdHJ1Y3QgcGFnZSAqIGFsbG9jX3BhZ2VzX3JvdW5kX3JvYmluKHVu
+c2lnbmVkIGludCBnZnBfbWFzaywgdW5zaWduZWQgaW50IG9yZGVyKQ0KK3sN
+CisJLyogcm90YXRlIG1lbW9yeSBhbGxvY2F0aW9uIGFtb25nIG5vZGVzLg0K
+KwkgKiBKdXN0IG5lZWRzIHRvIGJlIGFwcHJveGltYXRlLCBzbyBubyBhdG9t
+aWMgb3AgcmVxdWlyZWQuDQorCSAqLw0KKw0KKwlsb2NhbF9jcHVfZGF0YS0+
+cGFnZV9jYWNoZV9ub2RldmFsKys7DQorCXJldHVybiBhbGxvY19wYWdlc19u
+b2RlKGxvY2FsX2NwdV9kYXRhLT5wYWdlX2NhY2hlX25vZGV2YWwgJSBudW1u
+b2RlcyAsIGdmcF9tYXNrLCAwKTsNCisNCit9DQorDQorI2RlZmluZSBhbGxv
+Y19wYWdlX3JvdW5kX3JvYmluKGdmcF9tYXNrKSBhbGxvY19wYWdlc19yb3Vu
+ZF9yb2JpbihnZnBfbWFzaywgMCkNCisNCiBleHRlcm4gdW5zaWduZWQgbG9u
+ZyBGQVNUQ0FMTChfX2dldF9mcmVlX3BhZ2VzKHVuc2lnbmVkIGludCBnZnBf
+bWFzaywgdW5zaWduZWQgaW50IG9yZGVyKSk7DQogZXh0ZXJuIHVuc2lnbmVk
+IGxvbmcgRkFTVENBTEwoZ2V0X3plcm9lZF9wYWdlKHVuc2lnbmVkIGludCBn
+ZnBfbWFzaykpOw0KIA0KQEAgLTY4MSw2ICs2OTQsOCBAQA0KICNkZWZpbmUg
+X19HRlBfSElHSElPCTB4ODAJLyogQ2FuIHN0YXJ0IGhpZ2ggbWVtIHBoeXNp
+Y2FsIElPPyAqLw0KICNkZWZpbmUgX19HRlBfRlMJMHgxMDAJLyogQ2FuIGNh
+bGwgZG93biB0byBsb3ctbGV2ZWwgRlM/ICovDQogDQorI2RlZmluZSBHRlBf
+Uk9VTkRfUk9CSU4gIDB4MjAwIC8qIFVzZSByb3VuZC1yb2JpbiBub2RlIG1l
+bW9yeSBhbGxvY2F0aW9uICovDQorDQogI2RlZmluZSBHRlBfTk9ISUdISU8J
+KF9fR0ZQX0hJR0ggfCBfX0dGUF9XQUlUIHwgX19HRlBfSU8pDQogI2RlZmlu
+ZSBHRlBfTk9JTwkoX19HRlBfSElHSCB8IF9fR0ZQX1dBSVQpDQogI2RlZmlu
+ZSBHRlBfTk9GUwkoX19HRlBfSElHSCB8IF9fR0ZQX1dBSVQgfCBfX0dGUF9J
+TyB8IF9fR0ZQX0hJR0hJTykNCmRpZmYgLU5hdXIgLVhza2lwZmlsZXMgbGlu
+dXgub3JpZy9saW51eC9pbmNsdWRlL2xpbnV4L3ZtYWxsb2MuaCBsaW51eC9s
+aW51eC9pbmNsdWRlL2xpbnV4L3ZtYWxsb2MuaA0KLS0tIGxpbnV4Lm9yaWcv
+bGludXgvaW5jbHVkZS9saW51eC92bWFsbG9jLmgJRnJpIEp1biAyNyAxNjox
+MTo1MSAyMDAzDQorKysgbGludXgvbGludXgvaW5jbHVkZS9saW51eC92bWFs
+bG9jLmgJVHVlIE5vdiAgNCAxNzo1Mzo0NSAyMDAzDQpAQCAtNjQsNSArNjQs
+MjYgQEANCiBleHRlcm4gcndsb2NrX3Qgdm1saXN0X2xvY2s7DQogDQogZXh0
+ZXJuIHN0cnVjdCB2bV9zdHJ1Y3QgKiB2bWxpc3Q7DQorDQorLyogVGhpcyBm
+dW5jdGlvbiBjYW4gYmUgdXNlZCB0byBhbGxvY2F0ZSBtZW1vcnkgdXNpbmcg
+cm91bmQtcm9iaW4gbm9kZQ0KKyAqIGFsbG9jYXRpb24uICBJdCBlbXVsYXRl
+cyBob3cgX19nZXRfcGFnZXMgd291bGQgYmUgY2FsbGVkIGJ1dCBhY3R1YWxs
+eQ0KKyAqIHVzZXMgdm1hbGxvYy4gIEEgYml0IGlzIHNldCBpbiB0aGUgZ2Zw
+X21hc2sgdGhhdCBpbnN0cnVjdHMgdGhlIG1lbW9yeQ0KKyAqIHRvIGJlIGFs
+bG9jYXRlZCBpbiByb3VuZC1yb2JpbiBmYXNoaW9uIHNvIGFzIG5vdCB0byBi
+dXJkZW4gYW55IG9uZQ0KKyAqIG5vZGUuICBJZiBDT05GSUdfTlVNQSBpc24n
+dCBzZXQsIF9fZ2V0X2ZyZWVfcGFnZXMgaXMgc2ltcGx5IHVzZWQuDQorICog
+VGhpcyB3YXMgZGVzaWduZWQgZm9yIGxhcmdlIG1lbW9yeSBoYXNoIHRhYmxl
+cyBhbmQgY2FjaGVzIHN1Y2ggYXMgdGhlDQorICogYnVmZmVyIGFuZCBwYWdl
+IGNhY2hlLCBzb21lIHRjcCBoYXNoIHRhYmxlcywgZXRjLg0KKyAqLw0KKyNp
+ZmRlZiBDT05GSUdfTlVNQQ0KK3N0YXRpYyBpbmxpbmUgdW5zaWduZWQgbG9u
+ZyBhbGxvY19iaWdfc3RydWN0KHVuc2lnbmVkIGludCBnZnBfbWFzaywgdW5z
+aWduZWQgaW50IG9yZGVyKSB7DQorCWlmIChvcmRlciA+IE1BWF9PUkRFUikg
+DQorCQlyZXR1cm4gMDsNCisJZWxzZQ0KKwkJLyogUEFHRV9TSVpFIDw8IG9y
+ZGVyIGdpdmVzIHVzIGJ5dGVzIGZvciB2bWFsbG9jICovDQorCQlyZXR1cm4g
+KHVuc2lnbmVkIGxvbmcpIF9fdm1hbGxvYyhQQUdFX1NJWkUgPDwgb3JkZXIs
+IGdmcF9tYXNrIHwgR0ZQX1JPVU5EX1JPQklOLCBQQUdFX0tFUk5FTCk7DQor
+fQ0KKyNlbHNlDQorI2RlZmluZSBhbGxvY19iaWdfc3RydWN0KG0sIG8pICBf
+X2dldF9mcmVlX3BhZ2VzKG0uIG8pDQorI2VuZGlmIC8qIENPTkZJR19OVU1B
+ICovDQorDQogI2VuZGlmDQogDQpkaWZmIC1OYXVyIC1Yc2tpcGZpbGVzIGxp
+bnV4Lm9yaWcvbGludXgvbW0vZmlsZW1hcC5jIGxpbnV4L2xpbnV4L21tL2Zp
+bGVtYXAuYw0KLS0tIGxpbnV4Lm9yaWcvbGludXgvbW0vZmlsZW1hcC5jCVRo
+dSBPY3QgMzAgMTE6MzQ6MzIgMjAwMw0KKysrIGxpbnV4L2xpbnV4L21tL2Zp
+bGVtYXAuYwlUdWUgTm92ICA0IDE3OjUzOjQ1IDIwMDMNCkBAIC0yNSw2ICsy
+NSw3IEBADQogI2luY2x1ZGUgPGxpbnV4L2lvYnVmLmg+DQogDQogI2luY2x1
+ZGUgPGFzbS9wZ2FsbG9jLmg+DQorI2luY2x1ZGUgPGxpbnV4L3ZtYWxsb2Mu
+aD4NCiAjaW5jbHVkZSA8YXNtL3VhY2Nlc3MuaD4NCiAjaW5jbHVkZSA8YXNt
+L21tYW4uaD4NCiANCkBAIC0zMzI4LDggKzMzMjksMTAgQEANCiAJCXdoaWxl
+KCh0bXAgPj49IDFVTCkgIT0gMFVMKQ0KIAkJCXBhZ2VfaGFzaF9iaXRzKys7
+DQogDQorCQkvKiBhbGxvY19iaWdfc3RydWN0IGFsbG9jYXRlcyBtZW1vcnkg
+YWNyb3NzIG5vZGVzIHZpYSB2bWFsbG9jIGFuZA0KKwkJICogcmVwbGFjZXMg
+dGhlIF9fZ2V0X2ZyZWVfcGFnZXMgY2FsbCB0aGF0IHdhcyBoZXJlIGJlZm9y
+ZSAqLw0KIAkJcGFnZV9oYXNoX3RhYmxlID0gKHN0cnVjdCBwYWdlX2NhY2hl
+X2J1Y2tldCAqKQ0KLQkJCV9fZ2V0X2ZyZWVfcGFnZXMoR0ZQX0FUT01JQywg
+b3JkZXIpOw0KKwkJCWFsbG9jX2JpZ19zdHJ1Y3QoR0ZQX0FUT01JQywgb3Jk
+ZXIpOw0KIAl9IHdoaWxlKHBhZ2VfaGFzaF90YWJsZSA9PSBOVUxMICYmIC0t
+b3JkZXIgPiAwKTsNCiANCiAJcHJpbnRrKCJQYWdlLWNhY2hlIGhhc2ggdGFi
+bGUgZW50cmllczogJWQgKG9yZGVyOiAlbGQsICVsZCBieXRlcylcbiIsDQpk
+aWZmIC1OYXVyIC1Yc2tpcGZpbGVzIGxpbnV4Lm9yaWcvbGludXgvbW0vbnVt
+YS5jIGxpbnV4L2xpbnV4L21tL251bWEuYw0KLS0tIGxpbnV4Lm9yaWcvbGlu
+dXgvbW0vbnVtYS5jCU1vbiBBcHIgMjggMjA6MTg6NDIgMjAwMw0KKysrIGxp
+bnV4L2xpbnV4L21tL251bWEuYwlUdWUgTm92ICA0IDE3OjUzOjQ1IDIwMDMN
+CkBAIC00NywxMSArNDcsOSBAQA0KIHN0cnVjdCBwYWdlICogcGFnZV9jYWNo
+ZV9hbGxvYyhzdHJ1Y3QgYWRkcmVzc19zcGFjZSAqeCkNCiB7DQogCS8qIA0K
+LQkgKiByb3RhdGUgdGhlIGJ1ZmZlciBjYWNoZSBwYWdlIGFsbG9jYXRpb25z
+IGFtb25nIG5vZGVzDQotCSAqIGp1c3QgbmVlZHMgdG8gYmUgYXBwcm94aW1h
+dGUsIHNvIG5vIGF0b21pYyBvcCByZXF1aXJlZA0KKwkgKiBVc2Ugcm91bmQt
+cm9iaW4gYWxsb2NhdGlvbiBtZWNoYW5pc20NCiAJICovDQotCWxvY2FsX2Nw
+dV9kYXRhLT5wYWdlX2NhY2hlX25vZGV2YWwrKzsNCi0JcmV0dXJuIGFsbG9j
+X3BhZ2VzX25vZGUobG9jYWxfY3B1X2RhdGEtPnBhZ2VfY2FjaGVfbm9kZXZh
+bCAlIG51bW5vZGVzICwgeC0+Z2ZwX21hc2ssIDApOw0KKwlyZXR1cm4gYWxs
+b2NfcGFnZV9yb3VuZF9yb2Jpbih4LT5nZnBfbWFzayk7DQogfQ0KICNlbmRp
+Zg0KIA0KZGlmZiAtTmF1ciAtWHNraXBmaWxlcyBsaW51eC5vcmlnL2xpbnV4
+L21tL3ZtYWxsb2MuYyBsaW51eC9saW51eC9tbS92bWFsbG9jLmMNCi0tLSBs
+aW51eC5vcmlnL2xpbnV4L21tL3ZtYWxsb2MuYwlUaHUgSnVsIDMxIDA3OjI0
+OjI3IDIwMDMNCisrKyBsaW51eC9saW51eC9tbS92bWFsbG9jLmMJVHVlIE5v
+diAgNCAxNzo1Mzo0NSAyMDAzDQpAQCAtMTA3LDcgKzEwNywxMCBAQA0KIA0K
+IAkJaWYgKCFwYWdlcykgew0KIAkJCXNwaW5fdW5sb2NrKCZpbml0X21tLnBh
+Z2VfdGFibGVfbG9jayk7DQotCQkJcGFnZSA9IGFsbG9jX3BhZ2UoZ2ZwX21h
+c2spOw0KKwkJCWlmIChnZnBfbWFzayAmIEdGUF9ST1VORF9ST0JJTikNCisJ
+CQkJcGFnZSA9IGFsbG9jX3BhZ2Vfcm91bmRfcm9iaW4oZ2ZwX21hc2spOw0K
+KwkJCWVsc2UNCisJCQkJcGFnZSA9IGFsbG9jX3BhZ2UoZ2ZwX21hc2spOw0K
+IAkJCXNwaW5fbG9jaygmaW5pdF9tbS5wYWdlX3RhYmxlX2xvY2spOw0KIAkJ
+fSBlbHNlIHsNCiAJCQlwYWdlID0gKCoqcGFnZXMpOw0KZGlmZiAtTmF1ciAt
+WHNraXBmaWxlcyBsaW51eC5vcmlnL2xpbnV4L25ldC9pcHY0L3RjcC5jIGxp
+bnV4L2xpbnV4L25ldC9pcHY0L3RjcC5jDQotLS0gbGludXgub3JpZy9saW51
+eC9uZXQvaXB2NC90Y3AuYwlUaHUgSnVsIDMxIDA3OjI0OjI3IDIwMDMNCisr
+KyBsaW51eC9saW51eC9uZXQvaXB2NC90Y3AuYwlUdWUgTm92ICA0IDE3OjUz
+OjQ1IDIwMDMNCkBAIC0yNTEsNiArMjUxLDcgQEANCiAjaW5jbHVkZSA8bGlu
+dXgvcG9sbC5oPg0KICNpbmNsdWRlIDxsaW51eC9pbml0Lmg+DQogI2luY2x1
+ZGUgPGxpbnV4L3NtcF9sb2NrLmg+DQorI2luY2x1ZGUgPGxpbnV4L3ZtYWxs
+b2MuaD4NCiAjaW5jbHVkZSA8bGludXgvZnMuaD4NCiAjaW5jbHVkZSA8bGlu
+dXgvcmFuZG9tLmg+DQogDQpAQCAtMjU4MSw4ICsyNTgyLDEwIEBADQogCQl0
+Y3BfZWhhc2hfc2l6ZSA+Pj0gMTsNCiAJCXdoaWxlICh0Y3BfZWhhc2hfc2l6
+ZSAmICh0Y3BfZWhhc2hfc2l6ZS0xKSkNCiAJCQl0Y3BfZWhhc2hfc2l6ZS0t
+Ow0KKwkJLyogYWxsb2NfYmlnX3N0cnVjdCBhbGxvY2F0ZXMgbWVtb3J5IGFj
+cm9zcyBub2RlcyB2aWEgdm1hbGxvYyBhbmQNCisJCSAqIHJlcGxhY2VzIHRo
+ZSBfX2dldF9mcmVlX3BhZ2VzIGNhbGwgdGhhdCB3YXMgaGVyZSBiZWZvcmUg
+Ki8NCiAJCXRjcF9laGFzaCA9IChzdHJ1Y3QgdGNwX2VoYXNoX2J1Y2tldCAq
+KQ0KLQkJCV9fZ2V0X2ZyZWVfcGFnZXMoR0ZQX0FUT01JQywgb3JkZXIpOw0K
+KwkJCWFsbG9jX2JpZ19zdHJ1Y3QoR0ZQX0FUT01JQywgb3JkZXIpOw0KIAl9
+IHdoaWxlICh0Y3BfZWhhc2ggPT0gTlVMTCAmJiAtLW9yZGVyID4gMCk7DQog
+DQogCWlmICghdGNwX2VoYXNoKQ0KQEAgLTI1OTgsNyArMjYwMSw4IEBADQog
+CQlpZiAoKHRjcF9iaGFzaF9zaXplID4gKDY0ICogMTAyNCkpICYmIG9yZGVy
+ID4gMCkNCiAJCQljb250aW51ZTsNCiAJCXRjcF9iaGFzaCA9IChzdHJ1Y3Qg
+dGNwX2JpbmRfaGFzaGJ1Y2tldCAqKQ0KLQkJCV9fZ2V0X2ZyZWVfcGFnZXMo
+R0ZQX0FUT01JQywgb3JkZXIpOw0KKwkJCWFsbG9jX2JpZ19zdHJ1Y3QoR0ZQ
+X0FUT01JQywgb3JkZXIpOw0KKwkJCS8qIF9fZ2V0X2ZyZWVfcGFnZXMoR0ZQ
+X0FUT01JQywgb3JkZXIpOyAqLw0KIAl9IHdoaWxlICh0Y3BfYmhhc2ggPT0g
+TlVMTCAmJiAtLW9yZGVyID49IDApOw0KIA0KIAlpZiAoIXRjcF9iaGFzaCkN
+Cg==
+
+---2136806250-1090960282-1068650526=:160127--

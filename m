@@ -1,46 +1,27 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261807AbRE3Sgq>; Wed, 30 May 2001 14:36:46 -0400
+	id <S261812AbRE3Sig>; Wed, 30 May 2001 14:38:36 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261812AbRE3Sgi>; Wed, 30 May 2001 14:36:38 -0400
-Received: from garrincha.netbank.com.br ([200.203.199.88]:38929 "HELO
-	netbank.com.br") by vger.kernel.org with SMTP id <S261807AbRE3Sg1>;
-	Wed, 30 May 2001 14:36:27 -0400
-Date: Wed, 30 May 2001 15:36:04 -0300 (BRST)
-From: Rik van Riel <riel@conectiva.com.br>
-To: Jens Axboe <axboe@kernel.org>
-Cc: Mark Hemment <markhe@veritas.com>,
-        Linux Kernel <linux-kernel@vger.kernel.org>, andrea@e-mind.com
-Subject: Re: [patch] 4GB I/O, cut three
-In-Reply-To: <20010530115538.B15089@suse.de>
-Message-ID: <Pine.LNX.4.21.0105301534220.12540-100000@imladris.rielhome.conectiva>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
+	id <S261819AbRE3Si0>; Wed, 30 May 2001 14:38:26 -0400
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:55558 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S261812AbRE3SiW>; Wed, 30 May 2001 14:38:22 -0400
+Subject: Re: [PATCH] 245-ac4
+To: carlos@techlinux.com.br (Carlos E Gorges)
+Date: Wed, 30 May 2001 19:35:15 +0100 (BST)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <01053015181600.08588@shark.techlinux> from "Carlos E Gorges" at May 30, 2001 03:18:16 PM
+X-Mailer: ELM [version 2.5 PL3]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E155AoN-0006Nb-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 30 May 2001, Jens Axboe wrote:
+> This patch remove some NULL parameters tests in kfree-like functions an=
+> d add this directly in function.
 
-> You are right, this is definitely something that needs checking. I
-> really want this to work though. Rik, Andrea? Will the balancing
-> handle the extra zone?
-
-In as far as it handles balancing the current zones,
-it'll also work with one more. In places where it's
-currently broken it will probably also break with one
-extra zone, though the fact that the DMA32 zone takes
-the pressure off the NORMAL zone might actually help.
-
-regards,
-
-Rik
---
-Virtual memory is like a game you can't win;
-However, without VM there's truly nothing to lose...
-
-http://www.surriel.com/		http://distro.conectiva.com/
-
-Send all your spam to aardvark@nl.linux.org (spam digging piggy)
-
+Please dont do this, it just makes it harder to follow the tests and the code
+logic

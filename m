@@ -1,60 +1,99 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264122AbTE0Ulo (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 27 May 2003 16:41:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264164AbTE0Uln
+	id S264157AbTE0UmG (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 27 May 2003 16:42:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264169AbTE0UmD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 27 May 2003 16:41:43 -0400
-Received: from lindsey.linux-systeme.com ([80.190.48.67]:53254 "EHLO
-	mx00.linux-systeme.com") by vger.kernel.org with ESMTP
-	id S264122AbTE0UlD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 27 May 2003 16:41:03 -0400
-From: Marc-Christian Petersen <m.c.p@wolk-project.de>
-Organization: Working Overloaded Linux Kernel
-To: Andrea Arcangeli <andrea@suse.de>
-Subject: Re: 2.4.20: Proccess stuck in __lock_page ...
-Date: Tue, 27 May 2003 22:53:06 +0200
-User-Agent: KMail/1.5.2
-Cc: Marcelo Tosatti <marcelo@conectiva.com.br>, linux-kernel@vger.kernel.org,
-       Carl-Daniel Hailfinger <c-d.hailfinger.kernel.2003@gmx.net>,
-       manish <manish@storadinc.com>,
-       Christian Klose <christian.klose@freenet.de>,
-       William Lee Irwin III <wli@holomorphy.com>
-References: <3ED2DE86.2070406@storadinc.com> <200305272224.22567.m.c.p@wolk-project.de> <20030527204519.GQ3767@dualathlon.random>
-In-Reply-To: <20030527204519.GQ3767@dualathlon.random>
+	Tue, 27 May 2003 16:42:03 -0400
+Received: from sycorax.lbl.gov ([128.3.5.196]:1942 "EHLO sycorax.lbl.gov")
+	by vger.kernel.org with ESMTP id S264157AbTE0Ukv (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 27 May 2003 16:40:51 -0400
+To: Marcelo Tosatti <marcelo@conectiva.com.br>
+Cc: lkml <linux-kernel@vger.kernel.org>
+Subject: Re: Linux 2.4.21-rc5
+References: <Pine.LNX.4.55L.0305271640320.9487@freak.distro.conectiva>
+From: Alex Romosan <romosan@sycorax.lbl.gov>
+Date: Tue, 27 May 2003 13:53:48 -0700
+In-Reply-To: <Pine.LNX.4.55L.0305271640320.9487@freak.distro.conectiva> (message
+ from Marcelo Tosatti on Tue, 27 May 2003 16:41:16 -0300 (BRT))
+Message-ID: <8765nw2js3.fsf@sycorax.lbl.gov>
+User-Agent: Gnus/5.1002 (Gnus v5.10.2) Emacs/21.3 (gnu/linux)
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200305272253.06726.m.c.p@wolk-project.de>
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 27 May 2003 22:45, Andrea Arcangeli wrote:
+Marcelo Tosatti <marcelo@conectiva.com.br> writes:
 
-Hi Andrea,
+> Mainly due to a IDE DMA problem which would happen on boxes with lots of
+> RAM, here is -rc5.
+>
+> As I always ask, please test.
 
-> > I try to backport BIO and then AS for quite over 2 weeks now, but it
-> > seems, at least for me, that it's an impossible mission ;(
-> bio breaks all drivers, not a good idea to backport ;)
-HAHAHAH. Another wasted 2 weeks in my life ;-)
+i get the following error:
 
-But why does it brake all drivers? Could you please elaborate a bit?
+make[5]: Entering directory `/usr/src/linux/drivers/ide/pci'
+gcc -D__KERNEL__ -I/usr/src/linux/include -Wall -Wstrict-prototypes -Wno-trigraphs -O2 -fno-strict-aliasing -fno-common -pipe -mpreferred-stack-boundary=2 -march=athlon  -I../ -nostdinc -iwithprefix include -DKBUILD_BASENAME=via82cxxx  -c -o via82cxxx.o via82cxxx.c
+via82cxxx.c:77: error: `PCI_DEVICE_ID_VIA_8237' undeclared here (not in a function)
+via82cxxx.c:77: error: initializer element is not constant
+via82cxxx.c:77: error: (near initialization for `via_isa_bridges[0].id')
+via82cxxx.c:77: error: initializer element is not constant
+via82cxxx.c:77: error: (near initialization for `via_isa_bridges[0]')
+via82cxxx.c:78: error: initializer element is not constant
+via82cxxx.c:78: error: (near initialization for `via_isa_bridges[1]')
+via82cxxx.c:79: error: initializer element is not constant
+via82cxxx.c:79: error: (near initialization for `via_isa_bridges[2]')
+via82cxxx.c:80: error: initializer element is not constant
+via82cxxx.c:80: error: (near initialization for `via_isa_bridges[3]')
+via82cxxx.c:81: error: initializer element is not constant
+via82cxxx.c:81: error: (near initialization for `via_isa_bridges[4]')
+via82cxxx.c:82: error: initializer element is not constant
+via82cxxx.c:82: error: (near initialization for `via_isa_bridges[5]')
+via82cxxx.c:83: error: initializer element is not constant
+via82cxxx.c:83: error: (near initialization for `via_isa_bridges[6]')
+via82cxxx.c:84: error: initializer element is not constant
+via82cxxx.c:84: error: (near initialization for `via_isa_bridges[7]')
+via82cxxx.c:85: error: initializer element is not constant
+via82cxxx.c:85: error: (near initialization for `via_isa_bridges[8]')
+via82cxxx.c:86: error: initializer element is not constant
+via82cxxx.c:86: error: (near initialization for `via_isa_bridges[9]')
+via82cxxx.c:87: error: initializer element is not constant
+via82cxxx.c:87: error: (near initialization for `via_isa_bridges[10]')
+via82cxxx.c:88: error: initializer element is not constant
+via82cxxx.c:88: error: (near initialization for `via_isa_bridges[11]')
+via82cxxx.c:89: error: initializer element is not constant
+via82cxxx.c:89: error: (near initialization for `via_isa_bridges[12]')
+via82cxxx.c:90: error: initializer element is not constant
+via82cxxx.c:90: error: (near initialization for `via_isa_bridges[13]')
+via82cxxx.c:91: error: initializer element is not constant
+via82cxxx.c:91: error: (near initialization for `via_isa_bridges[14]')
+via82cxxx.c:92: error: initializer element is not constant
+via82cxxx.c:92: error: (near initialization for `via_isa_bridges[15]')
+via82cxxx.c:93: error: initializer element is not constant
+via82cxxx.c:93: error: (near initialization for `via_isa_bridges[16]')
+via82cxxx.c:94: error: initializer element is not constant
+via82cxxx.c:94: error: (near initialization for `via_isa_bridges[17]')
+via82cxxx.c:95: error: initializer element is not constant
+via82cxxx.c:95: error: (near initialization for `via_isa_bridges[18]')
+make[5]: *** [via82cxxx.o] Error 1
+make[5]: Leaving directory `/usr/src/linux/drivers/ide/pci'
+make[4]: *** [first_rule] Error 2
+make[4]: Leaving directory `/usr/src/linux/drivers/ide/pci'
+make[3]: *** [_subdir_pci] Error 2
+make[3]: Leaving directory `/usr/src/linux/drivers/ide'
+make[2]: *** [_subdir_ide] Error 2
+make[2]: Leaving directory `/usr/src/linux/drivers'
+make[1]: *** [_dir_drivers] Error 2
+make[1]: Leaving directory `/usr/src/linux'
+make: *** [stamp-build] Error 2
 
-> note that the anticipatory scheduler generates very bad results with the
-> winmark. it certainly has merits but it has large downsides too.
-hmm, I am not aware of it, or even I _was_ not aware of it till now.
+this compiled in -rc4.
 
-> I would be also curious if you could compare anticipatory with CFQ. The
-> CFQ was designed to provide the highest possible degree of fariness.
-I'll can bench it, sure. I used CFQ before I switched to AS because I was 
-curious about AS and as I didn't see a real difference in latency but AS gave 
-me more throughput, I use AS from now on.
+--alex--
 
-> I read it on l-k yesterday a few days ago, search emails from Linus with
-> Jens somewhere in CC and you should find it.
-Already found it :) thank you.
-
-ciao, Marc
-
+-- 
+| I believe the moment is at hand when, by a paranoiac and active |
+|  advance of the mind, it will be possible (simultaneously with  |
+|  automatism and other passive states) to systematize confusion  |
+|  and thus to help to discredit completely the world of reality. |

@@ -1,40 +1,33 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S274705AbRJFAID>; Fri, 5 Oct 2001 20:08:03 -0400
+	id <S274752AbRJFARe>; Fri, 5 Oct 2001 20:17:34 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S274708AbRJFAHx>; Fri, 5 Oct 2001 20:07:53 -0400
-Received: from smtp-ham-1.netsurf.de ([194.195.64.97]:38582 "EHLO
-	smtp-ham-1.netsurf.de") by vger.kernel.org with ESMTP
-	id <S274705AbRJFAHg>; Fri, 5 Oct 2001 20:07:36 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Oliver Neukum <Oliver.Neukum@lrz.uni-muenchen.de>
-To: Tim Waugh <twaugh@redhat.com>, linux-kernel@vger.kernel.org
-Subject: Re: User-level USB device drivers, and permissions
-Date: Sat, 6 Oct 2001 02:08:34 +0200
-X-Mailer: KMail [version 1.3]
-In-Reply-To: <20011005125116.K7197@redhat.com>
-In-Reply-To: <20011005125116.K7197@redhat.com>
+	id <S274756AbRJFARY>; Fri, 5 Oct 2001 20:17:24 -0400
+Received: from nycsmtp3fa.rdc-nyc.rr.com ([24.29.99.79]:56334 "EHLO si.rr.com")
+	by vger.kernel.org with ESMTP id <S274752AbRJFARJ>;
+	Fri, 5 Oct 2001 20:17:09 -0400
+Message-ID: <3BBE4DE6.2050305@si.rr.com>
+Date: Fri, 05 Oct 2001 20:18:46 -0400
+From: Frank Davis <fdavis@si.rr.com>
+Reply-To: fdavis@si.rr.com
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:0.9.2) Gecko/20010726 Netscape6/6.1
+X-Accept-Language: en-us
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <20011006000747Z274705-760+21348@vger.kernel.org>
+To: linux-kernel@vger.kernel.org
+CC: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: 2.4.10-ac6: PPP over ATM config option
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> An idea in my head is to have a pam module that, for console users,
-> mounts -tusbdevfs none /somewhere/usb-bus/$LOGNAME with user ownership
-> on login and dismounts it on logout, but I don't know if that is
-> feasible.
+Hello,
+     During 'make config', I tried to add the new PPP over ATM option. 
+Either typing y or m for that option produced a :
+scripts/Configure : P  command not found
 
-This is way too coarse. This control needs to be there on a device level at 
-least.
+I enabled the new JFFS stats option and it worked without a problem.
 
-> Does anyone know if this problem has already been solved, or else can
-> they think of a solution?
+Regards,
+Frank
 
-The current conventional wisdom is to use chmod in the hotplug scripts and 
-logout scripts.
-This has been discussed in connection with a SANE backend for Microtek 3600 
-scanners.
-
-	Regards
-		Oliver

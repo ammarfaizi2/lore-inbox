@@ -1,55 +1,117 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261316AbVDBWvH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261310AbVDBWux@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261316AbVDBWvH (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 2 Apr 2005 17:51:07 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261319AbVDBWvG
+	id S261310AbVDBWux (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 2 Apr 2005 17:50:53 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261319AbVDBWuw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 2 Apr 2005 17:51:06 -0500
-Received: from mtl.rackplans.net ([65.39.167.249]:11744 "HELO innerfire.net")
-	by vger.kernel.org with SMTP id S261316AbVDBWt4 (ORCPT
+	Sat, 2 Apr 2005 17:50:52 -0500
+Received: from mail.dif.dk ([193.138.115.101]:46754 "EHLO saerimmer.dif.dk")
+	by vger.kernel.org with ESMTP id S261310AbVDBWtf (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 2 Apr 2005 17:49:56 -0500
-Date: Sat, 2 Apr 2005 17:24:53 -0500 (EST)
-From: Gerhard Mack <gmack@innerfire.net>
-To: linux-kernel@vger.kernel.org
-Subject: 2.6.11.6: Mach64 driver spams the console
-Message-ID: <Pine.LNX.4.58.0504021723330.15788@innerfire.net>
+	Sat, 2 Apr 2005 17:49:35 -0500
+Date: Sun, 3 Apr 2005 00:51:52 +0200 (CEST)
+From: Jesper Juhl <juhl-lkml@dif.dk>
+To: Steve French <smfrench@austin.rr.com>
+Cc: Steven French <sfrench@us.ibm.com>, linux-kernel@vger.kernel.org
+Subject: [PATCH][1/7] cifs: dir.c cleanup - function defs
+Message-ID: <Pine.LNX.4.62.0504030050410.2525@dragon.hyggekrogen.localhost>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Can someone please explain why I get this every time I switch in and out
-of X?  And better yet how do I turn this off?
+Whitespace cleanups of function definitions in fs/cifs/dir.c
 
-debug atyfb: Mach64 non-shadow register values:
-debug atyfb: 0x2000:  004F0063 000C0052 01DF020C 000201EA
-debug atyfb: 0x2010:  016F0000 14000000 00000020 0B002200
-debug atyfb: 0x2020:  005B04BC 0068048E 00000000 00382848
-debug atyfb: 0x2030:  00000000 00200213 00000000 0000C001
-debug atyfb: 0x2040:  00000000 00000000 00000000 0450098B
-debug atyfb: 0x2050:  04C506DB 00000000 00000000 00000000
-debug atyfb: 0x2060:  00000000 AAAAAA0F 0007FE00 00300088
-debug atyfb: 0x2070:  00300000 00000000 00003700 48833800
-debug atyfb: 0x2080:  04900400 00000000 0F0B000C 00020002
-debug atyfb: 0x2090:  00803003 00000000 0A000100 00000000
-debug atyfb: 0x20A0:  7B23A050 00000107 00006001 E5000CF1
-debug atyfb: 0x20B0:  00165A27 00010000 00010000 00000000
-debug atyfb: 0x20C0:  00FF0010 86010182 00000000 00000000
-debug atyfb: 0x20D0:  00000100 007F0179 00000000 00003F02
-debug atyfb: 0x20E0:  65004752 00410096 00000000 00000000
-debug atyfb: 0x20F0:  00000000 0000F6FE FB8004F8 00000000
-
-debug atyfb: Mach64 PLL register values:
-debug atyfb: 0x00:  ADD51FE4 8103FFDA F500DA0A 801B0000
-debug atyfb: 0x10:  00CF4000 10ADAC10 400024FD 00000002
-debug atyfb: 0x20:  06AC0610 1424FD00 00195500 00000000
-debug atyfb: 0x30:  00000000 00000000 00000000 00000000
+Signed-off-by: Jesper Juhl <juhl-lkml@dif.dk>
 
 
---
-Gerhard Mack
-
-gmack@innerfire.net
-
-<>< As a computer I find your faith in technology amusing.
+--- linux-2.6.12-rc1-mm4-orig/fs/cifs/dir.c	2005-03-02 08:38:12.000000000 +0100
++++ linux-2.6.12-rc1-mm4/fs/cifs/dir.c	2005-04-02 23:28:28.000000000 +0200
+@@ -31,8 +31,7 @@
+ #include "cifs_debug.h"
+ #include "cifs_fs_sb.h"
+ 
+-void
+-renew_parental_timestamps(struct dentry *direntry)
++void renew_parental_timestamps(struct dentry *direntry)
+ {
+ 	/* BB check if there is a way to get the kernel to do this or if we really need this */
+ 	do {
+@@ -42,8 +41,7 @@ renew_parental_timestamps(struct dentry 
+ }
+ 
+ /* Note: caller must free return buffer */
+-char *
+-build_path_from_dentry(struct dentry *direntry)
++char *build_path_from_dentry(struct dentry *direntry)
+ {
+ 	struct dentry *temp;
+ 	int namelen = 0;
+@@ -102,8 +100,7 @@ cifs_bp_rename_retry:
+ }
+ 
+ /* Note: caller must free return buffer */
+-char *
+-build_wildcard_path_from_dentry(struct dentry *direntry)
++char *build_wildcard_path_from_dentry(struct dentry *direntry)
+ {
+ 	struct dentry *temp;
+ 	int namelen = 0;
+@@ -165,10 +162,8 @@ cifs_bwp_rename_retry:
+ }
+ 
+ /* Inode operations in similar order to how they appear in the Linux file fs.h */
+-
+-int
+-cifs_create(struct inode *inode, struct dentry *direntry, int mode,
+-		struct nameidata *nd)
++int cifs_create(struct inode *inode, struct dentry *direntry, int mode,
++	struct nameidata *nd)
+ {
+ 	int rc = -ENOENT;
+ 	int xid;
+@@ -332,7 +327,8 @@ cifs_create(struct inode *inode, struct 
+ 	return rc;
+ }
+ 
+-int cifs_mknod(struct inode *inode, struct dentry *direntry, int mode, dev_t device_number) 
++int cifs_mknod(struct inode *inode, struct dentry *direntry, int mode,
++	dev_t device_number) 
+ {
+ 	int rc = -EPERM;
+ 	int xid;
+@@ -382,9 +378,8 @@ int cifs_mknod(struct inode *inode, stru
+ 	return rc;
+ }
+ 
+-
+-struct dentry *
+-cifs_lookup(struct inode *parent_dir_inode, struct dentry *direntry, struct nameidata *nd)
++struct dentry *cifs_lookup(struct inode *parent_dir_inode,
++	struct dentry *direntry, struct nameidata *nd)
+ {
+ 	int xid;
+ 	int rc = 0; /* to get around spurious gcc warning, set to zero here */
+@@ -453,9 +448,9 @@ cifs_lookup(struct inode *parent_dir_ino
+ 	return ERR_PTR(rc);
+ }
+ 
+-int
+-cifs_dir_open(struct inode *inode, struct file *file)
+-{				/* NB: currently unused since searches are opened in readdir */
++int cifs_dir_open(struct inode *inode, struct file *file)
++{
++/* NB: currently unused since searches are opened in readdir */
+ 	int rc = 0;
+ 	int xid;
+ 	struct cifs_sb_info *cifs_sb;
+@@ -484,8 +479,7 @@ cifs_dir_open(struct inode *inode, struc
+ 	return rc;
+ }
+ 
+-static int
+-cifs_d_revalidate(struct dentry *direntry, struct nameidata *nd)
++static int cifs_d_revalidate(struct dentry *direntry, struct nameidata *nd)
+ {
+ 	int isValid = 1;
+ 

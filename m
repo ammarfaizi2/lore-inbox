@@ -1,112 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318941AbSHEXuK>; Mon, 5 Aug 2002 19:50:10 -0400
+	id <S318901AbSHEXP7>; Mon, 5 Aug 2002 19:15:59 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318942AbSHEXuJ>; Mon, 5 Aug 2002 19:50:09 -0400
-Received: from e1.ny.us.ibm.com ([32.97.182.101]:35305 "EHLO e1.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id <S318941AbSHEXt5>;
-	Mon, 5 Aug 2002 19:49:57 -0400
-Date: Mon, 05 Aug 2002 16:51:34 -0700
-From: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>
-To: Linus Torvalds <torvalds@transmeta.com>
-cc: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: [PATCH] NUMA-Q disable irqbalance
-Message-ID: <349030000.1028591494@flay>
-X-Mailer: Mulberry/2.1.2 (Linux/x86)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	id <S318914AbSHEXP7>; Mon, 5 Aug 2002 19:15:59 -0400
+Received: from anchor-post-35.mail.demon.net ([194.217.242.85]:31716 "EHLO
+	anchor-post-35.mail.demon.net") by vger.kernel.org with ESMTP
+	id <S318901AbSHEXP6>; Mon, 5 Aug 2002 19:15:58 -0400
+Subject: Re: Patch: linux-2.5.30/fs/partitions/ldm.c BUG_ON(cond1 || cond2)
+	separation
+From: Richard Russon <ldm@flatcap.org>
+To: "Adam J. Richter" <adam@yggdrasil.com>
+Cc: lkml <linux-kernel@vger.kernel.org>
+In-Reply-To: <20020805140634.A2999@baldur.yggdrasil.com>
+References: <20020805140634.A2999@baldur.yggdrasil.com>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+X-Mailer: Ximian Evolution 1.0.8.99 
+Date: 06 Aug 2002 00:19:33 +0100
+Message-Id: <1028589573.28848.10.camel@whiskey.something.uk.com>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch is from Matt Dobson. It disables irq_balance for the NUMA-Q
-and makes it a config option for everyone else. This is needed for NUMA-Q
-to work, since the irq_balance code assumes a logical flat apic addressing
-mode that's not true in all cases. We created a config option since 
-irq_balance makes performance significantly worse for some workloads.
+Hi Adam,
 
-Please apply,
+> 	linux-2.5.30/fs/partitions/ldm.c had 23 statements 
+> of the form BUG_ON(condition1 || condition2).  This patch changes
+> them to:
+> 
+> 		BUG_ON(condition1);
+> 		BUG_ON(condition2);
 
-Martin.
+Hmm...  The only reason I put the BUG_ONs in, is paranoia.  I cannot
+imagine how they could be tripped, since all the pointers will have
+already been checked.  If you wish to standardise the way BUG_ON is
+used, then OK, change them.
 
-diff -Nur linux-2.5.25-vanilla/arch/i386/Config.help linux-2.5.25-patched/arch/i386/Config.help
---- linux-2.5.25-vanilla/arch/i386/Config.help	Fri Jul  5 16:42:04 2002
-+++ linux-2.5.25-patched/arch/i386/Config.help	Thu Jul 11 17:27:01 2002
-@@ -41,6 +41,12 @@
-   486, 586, Pentiums, and various instruction-set-compatible chips by
-   AMD, Cyrix, and others.
- 
-+CONFIG_IRQ_BALANCE
-+  This option is used to turn IRQ Balancing on machines with multiple
-+  APIC's (ie: SMP, NUMA, etc) on or off.  This behavior has been seen 
-+  under some conditions to reduce performance, and on some platorms causes
-+  interesting hangs, particularly those with more than 8 CPUs.
-+
- CONFIG_MULTIQUAD
-   This option is used for getting Linux to run on a (IBM/Sequent) NUMA 
-   multiquad box. This changes the way that processors are bootstrapped,
-diff -Nur linux-2.5.25-vanilla/arch/i386/config.in linux-2.5.25-patched/arch/i386/config.in
---- linux-2.5.25-vanilla/arch/i386/config.in	Fri Jul  5 16:42:20 2002
-+++ linux-2.5.25-patched/arch/i386/config.in	Thu Jul 11 17:16:52 2002
-@@ -164,8 +164,19 @@
-    if [ "$CONFIG_X86_UP_IOAPIC" = "y" ]; then
-       define_bool CONFIG_X86_IO_APIC y
-    fi
-+   define_bool CONFIG_IRQBALANCE n
- else
-    bool 'Multiquad NUMA system' CONFIG_MULTIQUAD
-+   if [ "$CONFIG_MULTIQUAD" = "y" ]; then
-+      define_bool CONFIG_IRQBALANCE_DISABLE y
-+   else
-+      bool 'Turn Off IRQ Balancing' CONFIG_IRQBALANCE_DISABLE
-+   fi
-+   if [ "$CONFIG_IRQBALANCE_DISABLE" = "y" ]; then
-+      define_bool CONFIG_IRQBALANCE n
-+   else
-+      define_bool CONFIG_IRQBALANCE y
-+   fi
- fi
- 
- bool 'Machine Check Exception' CONFIG_X86_MCE
-diff -Nur linux-2.5.25-vanilla/arch/i386/kernel/io_apic.c linux-2.5.25-patched/arch/i386/kernel/io_apic.c
---- linux-2.5.25-vanilla/arch/i386/kernel/io_apic.c	Fri Jul  5 16:42:20 2002
-+++ linux-2.5.25-patched/arch/i386/kernel/io_apic.c	Thu Jul 11 16:12:28 2002
-@@ -199,7 +199,7 @@
- 	spin_unlock_irqrestore(&ioapic_lock, flags);
- }
- 
--#if CONFIG_SMP
-+#if CONFIG_IRQBALANCE
- 
- typedef struct {
- 	unsigned int cpu;
-@@ -211,15 +211,12 @@
- 
- extern unsigned long irq_affinity [NR_IRQS];
- 
--#endif
--
- #define IDLE_ENOUGH(cpu,now) \
- 		(idle_cpu(cpu) && ((now) - irq_stat[(cpu)].idle_timestamp > 1))
- 
- #define IRQ_ALLOWED(cpu,allowed_mask) \
- 		((1 << cpu) & (allowed_mask))
- 
--#if CONFIG_SMP
- static unsigned long move(int curr_cpu, unsigned long allowed_mask, unsigned long now, int direction)
- {
- 	int search_idle = 1;
-@@ -264,9 +261,9 @@
- 		set_ioapic_affinity(irq, 1 << entry->cpu);
- 	}
- }
--#else /* !SMP */
-+#else /* !CONFIG_IRQBALANCE */
- static inline void balance_irq(int irq) { }
--#endif
-+#endif /* CONFIG_IRQBALANCE */
- 
- /*
-  * support for broken MP BIOSs, enables hand-redirection of PIRQ0-7 to
+> Could you please let me know if you want to handle submitting it
+
+Please can you submit the patch to Linus.
+
+Cheers,
+  FlatCap (Rich)
+  ldm@flatcap.org
+
+
 

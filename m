@@ -1,49 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316601AbSGYWhR>; Thu, 25 Jul 2002 18:37:17 -0400
+	id <S316623AbSGYWil>; Thu, 25 Jul 2002 18:38:41 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316615AbSGYWhR>; Thu, 25 Jul 2002 18:37:17 -0400
-Received: from garrincha.netbank.com.br ([200.203.199.88]:14 "HELO
-	garrincha.netbank.com.br") by vger.kernel.org with SMTP
-	id <S316601AbSGYWhQ>; Thu, 25 Jul 2002 18:37:16 -0400
-Date: Thu, 25 Jul 2002 19:39:58 -0300 (BRT)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: riel@imladris.surriel.com
-To: Cort Dougan <cort@fsmlabs.com>
-cc: Andrea Arcangeli <andrea@suse.de>, Christoph Hellwig <hch@infradead.org>,
-       <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] cheap lookup of symbol names on oops()
-In-Reply-To: <20020725142716.N2276@host110.fsmlabs.com>
-Message-ID: <Pine.LNX.4.44L.0207251934490.3086-100000@imladris.surriel.com>
-X-spambait: aardvark@kernelnewbies.org
-X-spammeplease: aardvark@nl.linux.org
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S316629AbSGYWil>; Thu, 25 Jul 2002 18:38:41 -0400
+Received: from mail.ocs.com.au ([203.34.97.2]:39950 "HELO mail.ocs.com.au")
+	by vger.kernel.org with SMTP id <S316623AbSGYWii>;
+	Thu, 25 Jul 2002 18:38:38 -0400
+X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
+From: Keith Owens <kaos@ocs.com.au>
+To: linux-kernel@vger.kernel.org
+Subject: Announce: ksymoops 2.4.6 is available (reissue)
+Date: Fri, 26 Jul 2002 08:41:42 +1000
+Message-ID: <2770.1027636902@ocs3.intra.ocs.com.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 25 Jul 2002, Cort Dougan wrote:
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-> I've found it valuable to have the EIP resolved.  Even though the symbol
-> name may not be perfect (only resolves exported names) it is valuable to
-> see that the function crashed 0x1fe bytes after a given symbol name.
+Content-Type: text/plain; charset=us-ascii
 
-It's an absolute must-have feature.  Too many users send in
-undecoded or wrongly decoded oopses and we end up spending
-too much time trying to teach users how to decode oopses.
+Reissued to add note about binutils problems.
 
-Add to that the fact that symbols from modules aren't always
-looked up allright.
+ftp://ftp.<country>.kernel.org/pub/linux/utils/kernel/ksymoops/v2.4
 
-Having the kernel print out the function symbol and offset
-into the function would save us a lot of time and trouble
-in tracking down problems.
+ksymoops-2.4.6.tar.gz		Source tarball, includes RPM spec file
+ksymoops-2.4.6-1.src.rpm	As above, in SRPM format
+ksymoops-2.4.6-1.i386.rpm	Compiled with 2.96 20000731, glibc 2.2.2
+patch-ksymoops-2.4.6.gz		Patch from ksymoops 2.4.5 to 2.4.6.
 
-regards,
+Changelog extract
 
-Rik
--- 
-Bravely reimplemented by the knights who say "NIH".
+	* m68k call trace does not have trailing ' '.  Reported by
+	  Richard Zidlicky.
+	* MIPS has a hole in the register dump, skip $26 and $27 (k0, k1).
+	  Maciej W. Rozycki.
+	* Only print decoded registers if they resolve to kernel symbols.
 
-http://www.surriel.com/		http://distro.conectiva.com/
+Some people have reported problems building ksymoops, with unresolved
+references in libbfd (htab_create, htab_find_slot_with_hash).  Try
+http://www.cs.helsinki.fi/linux/linux-kernel/2002-13/0196.html first,
+if that does not work, contact the binutils maintainers.  This is not a
+ksymoops problem, ksymoops only uses libbfd.  Any unresolved references
+from libbfd are a binutils problem.
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.6 (GNU/Linux)
+Comment: Exmh version 2.1.1 10/15/1999
+
+iD8DBQE9QH6li4UHNye0ZOoRAkZUAJ0QKS7WBytWlttPqoE0ZdMy9RvN9wCgk4+J
+XfAo0yeBJDKa4Q0iDL4ZKn4=
+=bUSD
+-----END PGP SIGNATURE-----
 

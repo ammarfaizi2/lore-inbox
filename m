@@ -1,50 +1,84 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261761AbVBKIjD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262000AbVBKImI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261761AbVBKIjD (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 11 Feb 2005 03:39:03 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261475AbVBKIjD
+	id S262000AbVBKImI (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 11 Feb 2005 03:42:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262003AbVBKImH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 11 Feb 2005 03:39:03 -0500
-Received: from mx1.elte.hu ([157.181.1.137]:55172 "EHLO mx1.elte.hu")
-	by vger.kernel.org with ESMTP id S262223AbVBKIiI (ORCPT
+	Fri, 11 Feb 2005 03:42:07 -0500
+Received: from waste.org ([216.27.176.166]:60127 "EHLO waste.org")
+	by vger.kernel.org with ESMTP id S262000AbVBKIlZ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 11 Feb 2005 03:38:08 -0500
-Date: Fri, 11 Feb 2005 09:34:08 +0100
-From: Ingo Molnar <mingo@elte.hu>
-To: George Anzinger <george@mvista.com>
-Cc: William Weston <weston@lysdexia.org>, linux-kernel@vger.kernel.org
-Subject: Re: [patch] Real-Time Preemption, -RT-2.6.11-rc3-V0.7.38-01
-Message-ID: <20050211083408.GB3349@elte.hu>
-References: <20050204100347.GA13186@elte.hu> <Pine.LNX.4.58.0502081135340.21618@echo.lysdexia.org> <20050209115121.GA13608@elte.hu> <Pine.LNX.4.58.0502091233360.4599@echo.lysdexia.org> <20050210075234.GC9436@elte.hu> <420BC23F.6030308@mvista.com> <20050210204031.GA17260@elte.hu> <420BCC9C.8080807@mvista.com>
+	Fri, 11 Feb 2005 03:41:25 -0500
+Date: Fri, 11 Feb 2005 00:41:07 -0800
+From: Matt Mackall <mpm@selenic.com>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: Chris Wright <chrisw@osdl.org>, "Jack O'Quin" <jack.oquin@gmail.com>,
+       Andrew Morton <akpm@osdl.org>, Christoph Hellwig <hch@infradead.org>,
+       linux-kernel@vger.kernel.org, Paul Davis <paul@linuxaudiosystems.com>,
+       Con Kolivas <kernel@kolivas.org>, rlrevell@joe-job.com
+Subject: Re: 2.6.11-rc3-mm2
+Message-ID: <20050211084107.GG15058@waste.org>
+References: <a075431a050210125145d51e8c@mail.gmail.com> <20050211000425.GC2474@waste.org> <20050210164727.M24171@build.pdx.osdl.net> <20050211020956.GC15058@waste.org> <20050211081422.GB2287@elte.hu>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <420BCC9C.8080807@mvista.com>
-User-Agent: Mutt/1.4.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+In-Reply-To: <20050211081422.GB2287@elte.hu>
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-* George Anzinger <george@mvista.com> wrote:
-
-> Possibly from:
-> define __raw_spin_is_locked(x)	(*(volatile signed char *)(&(x)->lock) <= 0)
-> #define __raw_spin_unlock_wait(x) \
-> 	do { barrier(); } while(__spin_is_locked(x))
-> in asm/spinlock.h
+On Fri, Feb 11, 2005 at 09:14:22AM +0100, Ingo Molnar wrote:
 > 
-> should that be __raw_spin_is_locked(x) instead?
+> > I think it's important to recognize that we're trying to address an
+> > issue that has a much wider potential audience than pro audio users,
+> > and not very far off - what is high end audio performance today will
+> > be expected desktop performance next year.
+> 
+> i disagree that desktop performance tomorrow will necessarily have to
+> utilize SCHED_FIFO. Today's desktop audio applications perform quite
+> good at SCHED_NORMAL priorities [with the 2.6.11 kernel that has more
+> interactivity/latency fixes such as PREEMPT_BKL].
 
-yeah. Is this in the ARM patch? I havent applied the ARM patch yet,
-waiting to see Thomas Gleixner's generic-hardirq based one. (which is
-more compelling from an architectural and long-term maintainance POV -
-but also more work to address all of RMK's concerns.)
+Desktop performance tomorrow will want realtime audio AND video. 
+Think simultaneous record and playback of multiple high-definition
+video streams. There's a demand for this; my company already sells it.
+ 
+> the pro applications will always want to have a 100% guarantee (it
+> really sucks to generate a nasty audio click during a live performance)
+> and want to utilize as much CPU time for audio as needed. They are also
+> clearly the most complex creators of audio so they go far above the
+> normal (and reasonable) CPU-use/latency expectations and tradeoffs of
+> the stock scheduler.
 
-	Ingo
+The pro will want to do his work on a stock desktop system. More
+importantly, the hobbyist will want to do exactly what the pro is
+doing on the same system. 
+
+> > So I think it's critical that we find solution that's appropriate for
+> > _every single box_, because realistically vendors are going to ship
+> > with this "wholly self-contained" feature turned on by default next
+> > year, at which point the "containment" will be nil and whatever warts
+> > it has will be with us forever.
+> 
+> an "RT priorities rlimit" is still not adequate as a desktop solution,
+> because it still allows the box to be locked up. Also, if it turns out
+> to be a mistake then it's already codified into the ABI, while RT-LSM is
+> much less 'persistent' and could be replaced much easier. RT-LSM is also
+> more flexible and more practical. (an rlimit needs changes across a
+> number of userspace components, delaying its adoptation.)
+
+I'm very suspicious about being able to rip out RT-LSM once it's
+introduced. See devfs. And I think the adoption barrier thing is a red
+herring as well: the current users are by and large compiling their
+own RT-tuned kernels.
+
+> > The rlimit stuff is not perfect, but it's a much better fit for the
+> > UNIX model generally, which is a fairly big win. [...]
+> 
+> a 'locked up box' is as far away from the UNIX model as it gets.
+
+Rlimits are already the favored tool for dealing with the classic UNIX DoS:
+the fork bomb. Turn off process limits, tada, locked up box.
+
+-- 
+Mathematics is the supreme nostalgia of our time.

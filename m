@@ -1,38 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S273860AbSISXf7>; Thu, 19 Sep 2002 19:35:59 -0400
+	id <S273863AbSISXhX>; Thu, 19 Sep 2002 19:37:23 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S273863AbSISXf7>; Thu, 19 Sep 2002 19:35:59 -0400
-Received: from mx1.elte.hu ([157.181.1.137]:12502 "HELO mx1.elte.hu")
-	by vger.kernel.org with SMTP id <S273860AbSISXf6>;
-	Thu, 19 Sep 2002 19:35:58 -0400
-Date: Fri, 20 Sep 2002 01:46:46 +0200 (CEST)
-From: Ingo Molnar <mingo@elte.hu>
-Reply-To: Ingo Molnar <mingo@elte.hu>
-To: Dave Jones <davej@suse.de>
-Cc: Christoph Hellwig <hch@infradead.org>,
-       Linus Torvalds <torvalds@transmeta.com>,
-       William Lee Irwin III <wli@holomorphy.com>,
-       <linux-kernel@vger.kernel.org>
-Subject: Re: [patch] generic-pidhash-2.5.36-J2, BK-curr
-In-Reply-To: <20020920013246.A12393@suse.de>
-Message-ID: <Pine.LNX.4.44.0209200146250.20078-100000@localhost.localdomain>
+	id <S273908AbSISXhX>; Thu, 19 Sep 2002 19:37:23 -0400
+Received: from e1.ny.us.ibm.com ([32.97.182.101]:54427 "EHLO e1.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id <S273863AbSISXhW>;
+	Thu, 19 Sep 2002 19:37:22 -0400
+Date: Thu, 19 Sep 2002 16:45:41 -0700
+From: Hanna Linder <hannal@us.ibm.com>
+To: Andrew Morton <akpm@digeo.com>
+cc: William Lee Irwin III <wli@holomorphy.com>, linux-kernel@vger.kernel.org,
+       viro@math.psu.edu, Hanna Linder <hannal@us.ibm.com>
+Subject: Re: 2.5.36-mm1 dbench 512 profiles
+Message-ID: <71640000.1032479141@w-hlinder>
+In-Reply-To: <3D8A5FE6.4C5DE189@digeo.com>
+References: <20020919223007.GP28202@holomorphy.com> <68630000.1032477517@w-hlinder> <3D8A5FE6.4C5DE189@digeo.com>
+X-Mailer: Mulberry/2.1.0 (Linux/x86)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-On Fri, 20 Sep 2002, Dave Jones wrote:
+--On Thursday, September 19, 2002 16:38:14 -0700 Andrew Morton <akpm@digeo.com> wrote:
 
->  > >  - add list_for_each_noprefetch() to list.h, for all those list users who 
->  > >    know that in the majority of cases the list is going to be short.
->  > That name is really ugly, as the lack ofthe prefetch is an implementation
->  > detail.  What about list_for_each_short or __list_for_each?
+> Hanna Linder wrote:
+>> 
+>> ...
+>>         So akpm's removal of lock section directives breaks down the
+>> functions holding locks that previously were reported under the
+>> .text.lock.filename?
 > 
-> Wasn't this the reason we have list_for_each_safe() ?
+> Yup.  It makes the profiler report the spinlock cost at the
+> actual callsite.  Patch below.
 
-no, list_for_each_safe() is a loop that is entry-removal safe.
+	Thanks. We've needed that for quite some time.
+> 
+>> Looks like fastwalk might not behave so well
+>> on this 32 cpu numa system...
+> 
+> I've rather lost the plot.  Have any of the dcache speedup
+> patches been merged into 2.5?
 
-	Ingo
+	Yes, starting with 2.5.11. Al Viro made some changes to
+it and it went in. Havent heard anything about it since...
+
+Hanna
 

@@ -1,57 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265234AbUHMKHK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265237AbUHMKOP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265234AbUHMKHK (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 13 Aug 2004 06:07:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269049AbUHMKHC
+	id S265237AbUHMKOP (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 13 Aug 2004 06:14:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265245AbUHMKOO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 13 Aug 2004 06:07:02 -0400
-Received: from holomorphy.com ([207.189.100.168]:15506 "EHLO holomorphy.com")
-	by vger.kernel.org with ESMTP id S265234AbUHMKFy (ORCPT
+	Fri, 13 Aug 2004 06:14:14 -0400
+Received: from fep18.inet.fi ([194.251.242.243]:57547 "EHLO fep18.inet.fi")
+	by vger.kernel.org with ESMTP id S265237AbUHMKON (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 13 Aug 2004 06:05:54 -0400
-Date: Fri, 13 Aug 2004 03:05:40 -0700
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Zwane Mwaikambo <zwane@linuxpower.ca>, Keith Owens <kaos@ocs.com.au>,
-       Linus Torvalds <torvalds@osdl.org>, Pavel Machek <pavel@ucw.cz>,
-       Linux Kernel <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>, Matt Mackall <mpm@selenic.com>
-Subject: Re: [PATCH][2.6] Completely out of line spinlocks / i386
-Message-ID: <20040813100540.GC11200@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	Zwane Mwaikambo <zwane@linuxpower.ca>,
-	Keith Owens <kaos@ocs.com.au>, Linus Torvalds <torvalds@osdl.org>,
-	Pavel Machek <pavel@ucw.cz>,
-	Linux Kernel <linux-kernel@vger.kernel.org>,
-	Andrew Morton <akpm@osdl.org>, Matt Mackall <mpm@selenic.com>
-References: <Pine.LNX.4.58.0408111511380.1839@ppc970.osdl.org> <23701.1092268910@ocs3.ocs.com.au> <20040812010115.GY11200@holomorphy.com> <Pine.LNX.4.58.0408112133470.2544@montezuma.fsmlabs.com> <20040812020424.GB11200@holomorphy.com> <20040812072058.GH11200@holomorphy.com> <20040813080116.GY11200@holomorphy.com> <20040813091640.GZ11200@holomorphy.com> <20040813093002.GA11200@holomorphy.com> <20040813094614.GB11200@holomorphy.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Fri, 13 Aug 2004 06:14:13 -0400
+From: Jan Knutar <jk-lkml@sci.fi>
+To: Bill Davidsen <davidsen@tmr.com>
+Subject: Re: BitTorrent and iptables (was: Can not read UDF CD)
+Date: Fri, 13 Aug 2004 13:14:01 +0300
+User-Agent: KMail/1.6.2
+Cc: linux-kernel@vger.kernel.org
+References: <B1ECE240295BB146BAF3A94E00F2DBFF090213@piramida.hermes.si> <cfgjk6$gbi$1@gatekeeper.tmr.com>
+In-Reply-To: <cfgjk6$gbi$1@gatekeeper.tmr.com>
+MIME-Version: 1.0
 Content-Disposition: inline
-In-Reply-To: <20040813094614.GB11200@holomorphy.com>
-User-Agent: Mutt/1.5.6+20040722i
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200408131314.02352.jk-lkml@sci.fi>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Aug 13, 2004 at 01:01:16AM -0700, William Lee Irwin III wrote:
->>>>               text    data     bss     dec     hex filename
->>>> mainline: 19973522        6607761 1878448 28459731        1b242d3 vmlinux
->>>> cool:     19839487        6585707 1878448 28303642        1afe11a vmlinux
->>>> C-func:   19923848        6582771 1878384 28385003        1b11eeb vmlinux
+On Thursday 12 August 2004 23:33, Bill Davidsen wrote:
 
-On Fri, Aug 13, 2004 at 02:16:40AM -0700, William Lee Irwin III wrote:
->>> Reinlining spin_unlock() yields:
->>> unlock:    19895498        6582746 1878384 28356628        1b0b014 vmlinux
+> I used torrent to pull something the other day, and while I could pull, 
+> no one could connect to get data from me. I have my iptables set to 
+> ESTABLISHED,RELATED so iptables may not know about torrent.
 
-On Fri, Aug 13, 2004 at 02:30:02AM -0700, William Lee Irwin III wrote:
->> Reinlining spin_unlock_irq() also yields:
->> unlock-irq: 19889858        6582721 1878384 28350963        1b099f3 vmlinux
+You probably need to explicitly ACCEPT incoming to the port that Bittorrent
+uses. A tracker module to sniff traffic to known outbound tracker ports, to
+detect which port Bittorrent is using, and allow that inbound, seems a little
+bit excessive to me, not to mention that people set up trackers on the most
+varying range of seemingly random ports :-)
 
-On Fri, Aug 13, 2004 at 02:46:14AM -0700, William Lee Irwin III wrote:
-> Reinlining read_unlock() also yields:
-> read-unlock: 19883858        6582674 1878384 28344916        1b08254 vmlinux
-
-Reinlining spin_unlock_irqrestore() also yields:
-irqrestore:    19855759        6582442 1878384 28316585        1b013a9 vmlinux
-
-
--- wli
+Either way, common sane principles of TCP/IP apply with Bittorrent too,
+if both parties are firewalled, you wont transfer any data between eachother.
+If one party (out of two) is unfirewalled, data can be transfered both ways
+between them, the firewalled party will established connection to the unfirewalled
+to get communication going.

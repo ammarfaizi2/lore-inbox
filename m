@@ -1,86 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265315AbUEZGJl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265255AbUEZGPJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265315AbUEZGJl (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 26 May 2004 02:09:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265312AbUEZGJl
+	id S265255AbUEZGPJ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 26 May 2004 02:15:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265312AbUEZGPJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 26 May 2004 02:09:41 -0400
-Received: from null.rsn.bth.se ([194.47.142.3]:64207 "EHLO null.rsn.bth.se")
-	by vger.kernel.org with ESMTP id S265311AbUEZGJg (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 26 May 2004 02:09:36 -0400
-Subject: Re: [PATCH 3/4] Consolidate sys32 select
-From: Martin Josefsson <gandalf@wlug.westbo.se>
-To: Arnd Bergmann <arnd@arndb.de>
-Cc: =?iso-8859-1?Q? David_S=2E_Miller ?= <davem@redhat.com>,
-       linux-kernel@vger.kernel.org, ultralinux@vger.kernel.org
-In-Reply-To: <26879984$108552555440b3ce3274ba74.46765993@config21.schlund.de>
-References: <26879984$108552555440b3ce3274ba74.46765993@config21.schlund.de>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-O5w4U+wR40VlljcC40Fp"
-Message-Id: <1085551771.969.109.camel@tux.rsn.bth.se>
+	Wed, 26 May 2004 02:15:09 -0400
+Received: from e33.co.us.ibm.com ([32.97.110.131]:13783 "EHLO
+	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S265255AbUEZGPD
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 26 May 2004 02:15:03 -0400
+Date: Wed, 26 May 2004 11:46:13 +0530
+From: Srivatsa Vaddagiri <vatsa@in.ibm.com>
+To: torvalds@osdl.org
+Cc: Ashok Raj <ashok.raj@intel.com>, nickpiggin@yahoo.com.au,
+       Ingo Molnar <mingo@elte.hu>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org
+Subject: [CPU Hotplug PATCH] Restore Idle task's priority during CPU_DEAD notification
+Message-ID: <20040526061613.GA18314@in.ibm.com>
+Reply-To: vatsa@in.ibm.com
+References: <A28EFEDC5416054BA1026D892753E9AF059A50EC@orsmsx404.amr.corp.intel.com> <1085537205.2639.61.camel@bach>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Wed, 26 May 2004 08:09:31 +0200
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1085537205.2639.61.camel@bach>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Linus,
+	Patch below (against 2.6.7-rc1) fixes a CPU Hotplug problem wherein
+idle task's "->prio" value is not restored to MAX_PRIO during CPU_DEAD 
+handling. Without this patch, once a CPU is offlined and then later onlined, it 
+becomes "more or less" useless (does not run any task other than its idle task!)
+Please apply.
 
---=-O5w4U+wR40VlljcC40Fp
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
 
-On Wed, 2004-05-26 at 01:10, Arnd Bergmann wrote:
-> Martin Josefsson <gandalf@wlug.westbo.se> schrieb am 26.05.2004,
-> 00:29:13:
->=20
-> > You mean in compat_sys_select() ?
-> > compat_ptr() takes an u32 as argument, needs casting, ugly.
-> > But you want it done that way?
->=20
-> When using compat_ptr properly, you don't need any casts,
-> see the patch below (the patch is probably messed up by my=20
-> broken mailer, but you get the picture).
+---
 
-Yes,  my brain didn't go the extra distance, davem responded before I
-could get to bed and I just had to respond :)
+ linux-2.6.7-rc1-vatsa/kernel/sched.c |    1 +
+ 1 files changed, 1 insertion(+)
 
-Your patch will fix the problem, I don't even need to test it.
-Thanks, looking forward to see a fix in mainline :)
+diff -puN kernel/sched.c~restore_idle_prio kernel/sched.c
+--- linux-2.6.7-rc1/kernel/sched.c~restore_idle_prio	2004-05-25 17:04:19.000000000 +0530
++++ linux-2.6.7-rc1-vatsa/kernel/sched.c	2004-05-25 17:04:34.000000000 +0530
+@@ -3569,6 +3569,7 @@ static int migration_call(struct notifie
+ 		rq = task_rq_lock(rq->idle, &flags);
+ 		deactivate_task(rq->idle, rq);
+ 		__setscheduler(rq->idle, SCHED_NORMAL, MAX_PRIO);
++		rq->idle->prio = MAX_PRIO;
+ 		task_rq_unlock(rq, &flags);
+  		BUG_ON(rq->nr_running != 0);
+ 
 
-> =3D=3D=3D=3D=3D fs/compat.c 1.24 vs edited =3D=3D=3D=3D=3D
-> --- 1.24/fs/compat.c	Sat May 22 06:31:47 2004
-> +++ edited/fs/compat.c	Wed May 26 00:57:49 2004
-> @@ -1300,13 +1300,15 @@
-> =20
->  asmlinkage long
->  compat_sys_select(int n, compat_ulong_t __user *inp, compat_ulong_t
-> __user *outp,
-> -		compat_ulong_t __user *exp, struct compat_timeval __user *tvp)
-> +		compat_ulong_t __user *exp, compat_uptr_t utv)
->  {
->  	fd_set_bits fds;
-> +	struct compat_timeval __user *tvp;
->  	char *bits;
->  	long timeout;
->  	int ret, size, max_fdset;
-> =20
-> +	tvp =3D compat_ptr(utv);
->  	timeout =3D MAX_SCHEDULE_TIMEOUT;
->  	if (tvp) {
->  		time_t sec, usec;
---=20
-/Martin
+_
+On Wed, May 26, 2004 at 12:06:46PM +1000, Rusty Russell wrote:
+> On Wed, 2004-05-26 at 02:35, Raj, Ashok wrote:
+> > Thanks Vatsa...
+> > 
+> > It seems to work right now....
+> 
+> It seems obviously correct and harmless to me.  As it also fixes a
+> problem, I'd say this should go to Linus & Andrew ASAP.
+> 
+> Thanks!
+> Rusty.
+> -- 
+> Anyone who quotes me in their signature is an idiot -- Rusty Russell
+> 
 
---=-O5w4U+wR40VlljcC40Fp
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
+-- 
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
 
-iD8DBQBAtDSbWm2vlfa207ERAgUBAKCQJe65Ix2fWrvj8HB/adXLkPuYMACfUSwG
-T0nbXipob+aBCzSEe5plwzI=
-=0RgW
------END PGP SIGNATURE-----
-
---=-O5w4U+wR40VlljcC40Fp--
+Thanks and Regards,
+Srivatsa Vaddagiri,
+Linux Technology Center,
+IBM Software Labs,
+Bangalore, INDIA - 560017

@@ -1,47 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262352AbRERPnx>; Fri, 18 May 2001 11:43:53 -0400
+	id <S262366AbRERPun>; Fri, 18 May 2001 11:50:43 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262350AbRERPno>; Fri, 18 May 2001 11:43:44 -0400
-Received: from snark.tuxedo.org ([207.106.50.26]:56072 "EHLO snark.thyrsus.com")
-	by vger.kernel.org with ESMTP id <S262352AbRERPnf>;
-	Fri, 18 May 2001 11:43:35 -0400
-Date: Fri, 18 May 2001 11:42:29 -0400
+	id <S262365AbRERPue>; Fri, 18 May 2001 11:50:34 -0400
+Received: from snark.tuxedo.org ([207.106.50.26]:57352 "EHLO snark.thyrsus.com")
+	by vger.kernel.org with ESMTP id <S262360AbRERPuZ>;
+	Fri, 18 May 2001 11:50:25 -0400
+Date: Fri, 18 May 2001 11:49:22 -0400
 From: "Eric S. Raymond" <esr@thyrsus.com>
-To: Jes Sorensen <jes@sunsite.dk>
-Cc: linux-kernel@vger.kernel.org, kbuild-devel@lists.sourceforge.net
+To: Arjan van de Ven <arjanv@redhat.com>
+Cc: linux-kernel@vger.kernel.org
 Subject: Re: CML2 design philosophy heads-up
-Message-ID: <20010518114229.B14309@thyrsus.com>
+Message-ID: <20010518114922.C14309@thyrsus.com>
 Reply-To: esr@thyrsus.com
 Mail-Followup-To: "Eric S. Raymond" <esr@thyrsus.com>,
-	Jes Sorensen <jes@sunsite.dk>, linux-kernel@vger.kernel.org,
-	kbuild-devel@lists.sourceforge.net
-In-Reply-To: <20010505192731.A2374@thyrsus.com> <d33da9tjjw.fsf@lxplus015.cern.ch> <20010513112543.A16121@thyrsus.com> <d3d79awdz3.fsf@lxplus015.cern.ch> <20010515173316.A8308@thyrsus.com> <d3wv7eptuz.fsf@lxplus015.cern.ch>
+	Arjan van de Ven <arjanv@redhat.com>, linux-kernel@vger.kernel.org
+In-Reply-To: <20010518034307.A10784@thyrsus.com> <E150fV9-0006q1-00@the-village.bc.nu> <20010518105353.A13684@thyrsus.com> <3B053B9B.23286E6C@redhat.com> <20010518112625.A14309@thyrsus.com> <20010518113726.A29617@devserv.devel.redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 User-Agent: Mutt/1.2.5i
-In-Reply-To: <d3wv7eptuz.fsf@lxplus015.cern.ch>; from jes@sunsite.dk on Fri, May 18, 2001 at 05:19:48PM +0200
+In-Reply-To: <20010518113726.A29617@devserv.devel.redhat.com>; from arjanv@redhat.com on Fri, May 18, 2001 at 11:37:26AM -0400
 Organization: Eric Conspiracy Secret Labs
 X-Eric-Conspiracy: There is no conspiracy
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jes Sorensen <jes@sunsite.dk>:
-> Oh I don't, on the other hand I see you consistently ignoring the
-> needs and requirements of the users.
+Arjan van de Ven <arjanv@redhat.com>:
+> Don't get me wrong. I'm NOT opposed to having a config tool everyone and
+> their aunt can use. I'm opposed to that tool taking away the options expert
+> users have to do what they know is right for them.
 
-<sarcasm>Oh, sure.  The CML2 NEWS file is ample proof of that.</sarcasm>
-
-OK, Jes, you've just demonstrated that you're blind to facts and can't 
-be reasoned with.  I'll continue listening to everybody else as I've
-been doing, but I'll specifically ignore *you* until you lose the 
-obstreperous attitude.
+I'll take that as a vote for (b), to handle even perverse configurations 
+even if it means adding a lot of complexity to the ruleset.
 -- 
 		<a href="http://www.tuxedo.org/~esr/">Eric S. Raymond</a>
 
-The whole of the Bill [of Rights] is a declaration of the right of the
-people at large or considered as individuals...  It establishes some
-rights of the individual as unalienable and which consequently, no
-majority has a right to deprive them of.
-         -- Albert Gallatin, Oct 7 1789
+...the Federal Judiciary...an irresponsible body, working like gravity
+by night and by day, gaining a little today and a little tomorrow, and
+advancing its noiseless step like a thief over the field of
+jurisdiction until all shall be usurped from the States; and the
+government of all be consolidated into one.

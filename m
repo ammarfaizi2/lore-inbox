@@ -1,274 +1,111 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261224AbVARDnl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261222AbVARD42@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261224AbVARDnl (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 17 Jan 2005 22:43:41 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261222AbVARDnl
+	id S261222AbVARD42 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 17 Jan 2005 22:56:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261225AbVARD42
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 17 Jan 2005 22:43:41 -0500
-Received: from rproxy.gmail.com ([64.233.170.196]:18231 "EHLO rproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261224AbVARDnR (ORCPT
+	Mon, 17 Jan 2005 22:56:28 -0500
+Received: from opersys.com ([64.40.108.71]:8459 "EHLO www.opersys.com")
+	by vger.kernel.org with ESMTP id S261222AbVARD4T (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 17 Jan 2005 22:43:17 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:mime-version:content-type;
-        b=nLmM3uglptvxRnNmMZkjWZ1rxOzoLb1QNzUsFPdkgHMuFze44dkGNNE8eH1jAN9Z00vP6KYSN4swVTSnujhI7wrax24FbvkKBPkg/B8LZqxq2grC/5dcVKN/mwXwTJM2Ut9AHkxNOlAaJSBIccxTs6cA3PDDXpBVsdqceayR67w=
-Message-ID: <9e47339105011719436a9e5038@mail.gmail.com>
-Date: Mon, 17 Jan 2005 22:43:16 -0500
-From: Jon Smirl <jonsmirl@gmail.com>
-Reply-To: Jon Smirl <jonsmirl@gmail.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>, Egbert Eich <eich@suse.de>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Jesse Barnes <jbarnes@engr.sgi.com>
-Subject: Patch to control VGA bus routing and active VGA device.
-Mime-Version: 1.0
-Content-Type: multipart/mixed; 
-	boundary="----=_Part_252_26133641.1106019796414"
+	Mon, 17 Jan 2005 22:56:19 -0500
+Message-ID: <41EC8AA2.1030000@opersys.com>
+Date: Mon, 17 Jan 2005 23:03:46 -0500
+From: Karim Yaghmour <karim@opersys.com>
+Reply-To: karim@opersys.com
+Organization: Opersys inc.
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040805 Netscape/7.2
+X-Accept-Language: en-us, en, fr, fr-be, fr-ca, fr-fr
+MIME-Version: 1.0
+To: Roman Zippel <zippel@linux-m68k.org>
+CC: Nikita Danilov <nikita@clusterfs.com>, linux-kernel@vger.kernel.org,
+       Tom Zanussi <zanussi@us.ibm.com>
+Subject: Re: 2.6.11-rc1-mm1
+References: <20050114002352.5a038710.akpm@osdl.org> <m1zmzcpfca.fsf@muc.de> <m17jmg2tm8.fsf@clusterfs.com> <20050114103836.GA71397@muc.de> <41E7A7A6.3060502@opersys.com> <Pine.LNX.4.61.0501141626310.6118@scrub.home> <41E8358A.4030908@opersys.com> <Pine.LNX.4.61.0501150101010.30794@scrub.home> <41E899AC.3070705@opersys.com> <Pine.LNX.4.61.0501160245180.30794@scrub.home> <41EA0307.6020807@opersys.com> <Pine.LNX.4.61.0501161648310.30794@scrub.home> <41EADA11.70403@opersys.com> <Pine.LNX.4.61.0501171403490.30794@scrub.home> <41EC2DCA.50904@opersys.com> <Pine.LNX.4.61.0501172323310.30794@scrub.home>
+In-Reply-To: <Pine.LNX.4.61.0501172323310.30794@scrub.home>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-------=_Part_252_26133641.1106019796414
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
 
-Attached is a patch to control VGA bus routing and the active VGA
-device. It works by adding sysfs attributes to bridge and VGA devices.
-The bridge attribute is read only and indicates if the bridge is
-routing VGA. The attribute on the device has four values:
+Hello Roman,
 
-/* echo these values to the sysfs vga attribute on a VGA device */
-enum eEnable {
-	VGA_DISABLE_THIS = 0,	/* If this VGA is enabled, disable it. */
-	VGA_ENABLE_THIS = 1,	/* Disable all VGAs then enable this VGA, mark
-as active VGA */
-	/* Used while resetting a board, board being reset may not be the active VGA */
-	VGA_DISABLE_ALL = 2,	/* Remember active VGA then disable all VGAa and
-devices */
-	VGA_ENABLE_ACTIVE = 3,	/* Make sure all VGAs are disabled, then
-reenable active VGA */
-};
+Roman Zippel wrote:
+> Why is so important that it's at the start of the buffer? What's wrong 
+> with a special event _near_ the start of a buffer?
+[snip]
+> What gives you the idea, that you can't do this with what I proposed?
+> You can still seek freely within the data at buffer boundaries and you 
+> only have to search a little into the buffer to find the delimiter. Events 
+> are not completely at random, so that the little reordering can be done at 
+> runtime. Sorry, but I don't get what kind of unsolvable problems you see 
+> here.
 
-States 2 and 3 are using during a reset cycle. You need to disable the
-active VGA, run the reset on the new card, turn it off and then
-restore the active one.
+Actually I just checked the code and this is a non-issue. The callback
+can only be called when the condition is met, which itself happens only
+on buffer switch, which itself only happens when we try to reserve
+something bigger than what is left in the buffer. IOW, there is no need
+for reserving anything. Here's what the code does:
+	if (!finalizing) {
+		bytes_written = rchan->callbacks->buffer_start ...
+		cur_write_pos(rchan) += bytes_written;
+	}
 
-I cannot get this code to work. I have a machine with three buses, the
-main one, a PCI one and an AGP one. If I turn off routing from one
-bridge and turn it on on the other, I cannot get the VGA card to
-respond to the IO requests. There must be something more to routing
-VGA than what is in this code. The patch is pretty simple so it
-shouldn't be too hard to find the problem. I know my machine can route
-VGA since vbios.vm86 does it when reseting my secondary cards.
+With that said, I hope we've agreed that we'll have a callback for
+letting relayfs clients know that they need to write the begining of
+the buffer event. There won't be any associated reserve. Conversly,
+I hope it is not too much to ask to have an end-of-buffer callback.
 
-Can any of you PCI/VGA experts tell me what is wrong? Patch is against
-current Linus BK.
+> Wrong question. What compromises can be made on both sides to create a 
+> common simple framework? Your unwillingness to compromise a little on the 
+> ltt requirements really amazes me.
 
-This code, plus the ROM code already in the kernel, plus a tiny piece
-to generate a hotplug event, is enough to let me write a user space
-app for secondary card reset.
+Roman, of all people I've been more than happy to change my stuff following
+your recommendations. Do I have to list how far down relayfs has been
+stripped down? I mean, we got rid of the lockless scheme (which was
+one of ltt's explicit requirements), we got rid of the read/write capabilities
+for user-space, etc. And we are now only left with the bare-bones API:
+rchan* relay_open(channel_path, bufsize, nbufs, flags, *callbacks);
+int    relay_close(*rchan);
+int    relay_reset(*rchan);
+int    relay_write(*rchan, *data_ptr, count, **wrote-pos);
 
+char*  relay_reserve(*rchan, len, *ts, *td, *err, *interrupting);
+void   relay_commit(*rchan, *from, len, reserve_code, interrupting);
+void   relay_buffers_consumed(*rchan, u32);
+
+#define relay_write_direct(DEST, SRC, SIZE) \
+#define relay_lock_channel(RCHAN, FLAGS) \
+#define relay_unlock_channel(RCHAN, FLAGS) \
+
+This is a far-cry from what we had before, have a look at the
+relayfs.txt file in 2.6.11-rc1-mm1's Documentation/filesystems if
+you want to compare. Please at least acknowledge as much.
+
+I'm more than willing to compromise, but at least give me something
+substantive to feed on. I've explained why I believe there needs to be
+two modes for relayfs. If you don't think they are appropriate, then
+please explain why. Either my experience blinds me or it rightly
+compels me to continue defending it.
+
+You ask what compromises can be found from both sides to obtain a
+single implementation. I have looked at this, and given how
+stripped down it has become, anything less from relayfs will make
+it useless for LTT. IOW, I would have to reimplement a buffering
+scheme within LTT outside of relayfs.
+
+Can't you see that not all buffering schemes are adapted to all
+applications and that it's preferable to have a single API
+transparently providing separate mechanisms instead of a single
+mechanism that doesn't satisfy any of its users?
+
+If I can't convince you of the concept, can I at least convince
+you to withhold your final judgement until you actually see the
+code for the managed vs. ad-hoc schemes?
+
+Karim
 -- 
-Jon Smirl
-jonsmirl@gmail.com
-
-------=_Part_252_26133641.1106019796414
-Content-Type: application/octet-stream; name="patch"
-Content-Transfer-Encoding: base64
-Content-Disposition: attachment; filename="patch"
-
-ZGlmZiAtTnJ1IGEvYXJjaC9pMzg2L3BjaS9maXh1cC5jIGIvYXJjaC9pMzg2L3BjaS9maXh1cC5j
-Ci0tLSBhL2FyY2gvaTM4Ni9wY2kvZml4dXAuYwkyMDA1LTAxLTE3IDIyOjQwOjUxIC0wNTowMAor
-KysgYi9hcmNoL2kzODYvcGNpL2ZpeHVwLmMJMjAwNS0wMS0xNyAyMjo0MDo1MSAtMDU6MDAKQEAg
-LTM3NSw2ICszNzUsNiBAQAogCQl9CiAJCWJ1cyA9IGJ1cy0+cGFyZW50OwogCX0KLQlwZGV2LT5y
-ZXNvdXJjZVtQQ0lfUk9NX1JFU09VUkNFXS5mbGFncyB8PSBJT1JFU09VUkNFX1JPTV9TSEFET1c7
-CisJcGRldi0+cmVzb3VyY2VbUENJX1JPTV9SRVNPVVJDRV0uZmxhZ3MgfD0gSU9SRVNPVVJDRV9S
-T01fU0hBRE9XIHwgSU9SRVNPVVJDRV9WR0FfQUNUSVZFOwogfQogREVDTEFSRV9QQ0lfRklYVVBf
-SEVBREVSKFBDSV9BTllfSUQsIFBDSV9BTllfSUQsIHBjaV9maXh1cF92aWRlbyk7CmRpZmYgLU5y
-dSBhL2RyaXZlcnMvcGNpL0tjb25maWcgYi9kcml2ZXJzL3BjaS9LY29uZmlnCi0tLSBhL2RyaXZl
-cnMvcGNpL0tjb25maWcJMjAwNS0wMS0xNyAyMjo0MDo1MSAtMDU6MDAKKysrIGIvZHJpdmVycy9w
-Y2kvS2NvbmZpZwkyMDA1LTAxLTE3IDIyOjQwOjUxIC0wNTowMApAQCAtNDcsMyArNDcsMTMgQEAK
-IAogCSAgV2hlbiBpbiBkb3VidCwgc2F5IFkuCiAKK2NvbmZpZyBWR0FfQ09OVFJPTAorCWJvb2wg
-IlZHQSBDb250cm9sIgorCWRlcGVuZHMgb24gUENJCisJLS0taGVscC0tLQorCSAgUHJvdmlkZXMg
-c3lzZnMgYXR0cmlidXRlcyBmb3IgZW5zdXJpbmcgdGhhdCBvbmx5IGEgc2luZ2xlIFZHQQorCSAg
-ZGV2aWNlIGNhbiBiZSBlbmFibGVkIHBlciBQQ0kgZG9tYWluLiBJZiBhIFZHQSBkZXZpY2UgaXMg
-cmVtb3ZlZAorCSAgdmlhIGhvdHBsdWcsIGRpc3BsYXkgaXMgcm91dGVkIHRvIGFub3RoZXIgVkdB
-IGRldmljZSBpZiBhdmFpbGFibGUuCisKKwkgIElmIHlvdSBoYXZlIG1vcmUgdGhhbiBvbmUgVkdB
-IGRldmljZSwgc2F5IFkuCisKZGlmZiAtTnJ1IGEvZHJpdmVycy9wY2kvTWFrZWZpbGUgYi9kcml2
-ZXJzL3BjaS9NYWtlZmlsZQotLS0gYS9kcml2ZXJzL3BjaS9NYWtlZmlsZQkyMDA1LTAxLTE3IDIy
-OjQwOjUxIC0wNTowMAorKysgYi9kcml2ZXJzL3BjaS9NYWtlZmlsZQkyMDA1LTAxLTE3IDIyOjQw
-OjUxIC0wNTowMApAQCAtMjgsNiArMjgsNyBAQAogb2JqLSQoQ09ORklHX01JUFMpICs9IHNldHVw
-LWJ1cy5vIHNldHVwLWlycS5vCiBvYmotJChDT05GSUdfWDg2X1ZJU1dTKSArPSBzZXR1cC1pcnEu
-bwogb2JqLSQoQ09ORklHX1BDSV9NU0kpICs9IG1zaS5vCitvYmotJChDT05GSUdfVkdBX0NPTlRS
-T0wpICs9IHZnYS5vCiAKICMKICMgQUNQSSBSZWxhdGVkIFBDSSBGVyBGdW5jdGlvbnMKZGlmZiAt
-TnJ1IGEvZHJpdmVycy9wY2kvYnVzLmMgYi9kcml2ZXJzL3BjaS9idXMuYwotLS0gYS9kcml2ZXJz
-L3BjaS9idXMuYwkyMDA1LTAxLTE3IDIyOjQwOjUxIC0wNTowMAorKysgYi9kcml2ZXJzL3BjaS9i
-dXMuYwkyMDA1LTAxLTE3IDIyOjQwOjUxIC0wNTowMApAQCAtODUsNiArODUsOSBAQAogCiAJcGNp
-X3Byb2NfYXR0YWNoX2RldmljZShkZXYpOwogCXBjaV9jcmVhdGVfc3lzZnNfZGV2X2ZpbGVzKGRl
-dik7CisjaWYgQ09ORklHX1ZHQV9DT05UUk9MCisJcGNpX3ZnYV9hZGRfZGV2aWNlKGRldik7Cisj
-ZW5kaWYKIH0KIAogLyoqCmRpZmYgLU5ydSBhL2RyaXZlcnMvcGNpL3BjaS5oIGIvZHJpdmVycy9w
-Y2kvcGNpLmgKLS0tIGEvZHJpdmVycy9wY2kvcGNpLmgJMjAwNS0wMS0xNyAyMjo0MDo1MSAtMDU6
-MDAKKysrIGIvZHJpdmVycy9wY2kvcGNpLmgJMjAwNS0wMS0xNyAyMjo0MDo1MSAtMDU6MDAKQEAg
-LTExLDYgKzExLDggQEAKIAkJCQkgIHZvaWQgKCphbGlnbmYpKHZvaWQgKiwgc3RydWN0IHJlc291
-cmNlICosCiAJCQkJCSAgCSB1bnNpZ25lZCBsb25nLCB1bnNpZ25lZCBsb25nKSwKIAkJCQkgIHZv
-aWQgKmFsaWduZl9kYXRhKTsKK2V4dGVybiBpbnQgcGNpX3ZnYV9hZGRfZGV2aWNlKHN0cnVjdCBw
-Y2lfZGV2ICpwZGV2KTsKK2V4dGVybiBpbnQgcGNpX3ZnYV9yZW1vdmVfZGV2aWNlKHN0cnVjdCBw
-Y2lfZGV2ICpwZGV2KTsKIC8qIFBDSSAvcHJvYyBmdW5jdGlvbnMgKi8KICNpZmRlZiBDT05GSUdf
-UFJPQ19GUwogZXh0ZXJuIGludCBwY2lfcHJvY19hdHRhY2hfZGV2aWNlKHN0cnVjdCBwY2lfZGV2
-ICpkZXYpOwpkaWZmIC1OcnUgYS9kcml2ZXJzL3BjaS9yZW1vdmUuYyBiL2RyaXZlcnMvcGNpL3Jl
-bW92ZS5jCi0tLSBhL2RyaXZlcnMvcGNpL3JlbW92ZS5jCTIwMDUtMDEtMTcgMjI6NDA6NTEgLTA1
-OjAwCisrKyBiL2RyaXZlcnMvcGNpL3JlbW92ZS5jCTIwMDUtMDEtMTcgMjI6NDA6NTEgLTA1OjAw
-CkBAIC0yNiw2ICsyNiw5IEBACiAKIHN0YXRpYyB2b2lkIHBjaV9kZXN0cm95X2RldihzdHJ1Y3Qg
-cGNpX2RldiAqZGV2KQogeworI2lmIENPTkZJR19WR0FfQ09OVFJPTAorCXBjaV92Z2FfcmVtb3Zl
-X2RldmljZShkZXYpOworI2VuZGlmCiAJcGNpX3Byb2NfZGV0YWNoX2RldmljZShkZXYpOwogCXBj
-aV9yZW1vdmVfc3lzZnNfZGV2X2ZpbGVzKGRldik7CiAJZGV2aWNlX3VucmVnaXN0ZXIoJmRldi0+
-ZGV2KTsKZGlmZiAtTnJ1IGEvZHJpdmVycy9wY2kvc2V0dXAtYnVzLmMgYi9kcml2ZXJzL3BjaS9z
-ZXR1cC1idXMuYwotLS0gYS9kcml2ZXJzL3BjaS9zZXR1cC1idXMuYwkyMDA1LTAxLTE3IDIyOjQw
-OjUxIC0wNTowMAorKysgYi9kcml2ZXJzL3BjaS9zZXR1cC1idXMuYwkyMDA1LTAxLTE3IDIyOjQw
-OjUxIC0wNTowMApAQCAtNjQsNyArNjQsOSBAQAogCiAJCWlmIChjbGFzcyA9PSBQQ0lfQ0xBU1Nf
-RElTUExBWV9WR0EgfHwKIAkJICAgIGNsYXNzID09IFBDSV9DTEFTU19OT1RfREVGSU5FRF9WR0Ep
-Ci0JCQlidXMtPmJyaWRnZV9jdGwgfD0gUENJX0JSSURHRV9DVExfVkdBOworCQkJLyogb25seSBy
-b3V0ZSB0byB0aGUgYWN0aXZlIFZHQSwgaWdub3JlIGluYWN0aXZlIG9uZXMgKi8KKwkJCWlmICAo
-ZGV2LT5yZXNvdXJjZVtQQ0lfUk9NX1JFU09VUkNFXS5mbGFncyAmIElPUkVTT1VSQ0VfVkdBX0FD
-VElWRSkKKwkJCQlidXMtPmJyaWRnZV9jdGwgfD0gUENJX0JSSURHRV9DVExfVkdBOwogCiAJCXBk
-ZXZfc29ydF9yZXNvdXJjZXMoZGV2LCAmaGVhZCk7CiAJfQpkaWZmIC1OcnUgYS9kcml2ZXJzL3Bj
-aS92Z2EuYyBiL2RyaXZlcnMvcGNpL3ZnYS5jCi0tLSAvZGV2L251bGwJV2VkIERlYyAzMSAxNjow
-MDowMCAxOTY5MDAKKysrIGIvZHJpdmVycy9wY2kvdmdhLmMJMjAwNS0wMS0xNyAyMjo0MDo1MSAt
-MDU6MDAKQEAgLTAsMCArMSwyNTAgQEAKKy8qCisgKiBsaW51eC9kcml2ZXJzL3BjaS92Z2EuYwor
-ICoKKyAqIChDKSBDb3B5cmlnaHQgMjAwNCBKb24gU21pcmwgPGpvbnNtaXJsQGdtYWlsLmNvbT4K
-KyAqCisgKiBWR0EgY29udHJvbCBsb2dpYyBmb3IgZW5zdXJpbmcgb25seSBhIHNpbmdsZSBlbmFi
-bGVkIFZHQSBkZXZpY2UKKyAqLworCisjaW5jbHVkZSA8bGludXgvaW5pdC5oPgorI2luY2x1ZGUg
-PGxpbnV4L2ZzLmg+CisjaW5jbHVkZSA8bGludXgvY2Rldi5oPgorI2luY2x1ZGUgPGxpbnV4L3Bj
-aS5oPgorI2luY2x1ZGUgPGxpbnV4L21ham9yLmg+CisKK3N0YXRpYyBpbnQgdmdhX2luaXRpYWxp
-emVkID0gMDsKK3N0YXRpYyBzdHJ1Y3QgcGNpX2RldiAqdmdhX2FjdGl2ZSA9IE5VTEw7CisKK3N0
-YXRpYyB2b2lkIGJyaWRnZV95ZXMoc3RydWN0IHBjaV9kZXYgKnBkZXYpCit7CisJc3RydWN0IHBj
-aV9kZXYgKmJyaWRnZTsKKwlzdHJ1Y3QgcGNpX2J1cyAqYnVzOworCQorCS8qIE1ha2Ugc3VyZSB0
-aGUgYnJpZGdlcyByb3V0ZSB0byB1cyAqLworCWJ1cyA9IHBkZXYtPmJ1czsKKwl3aGlsZSAoYnVz
-KSB7CisJCWJyaWRnZSA9IGJ1cy0+c2VsZjsKKwkJaWYgKGJyaWRnZSkgeworCQkJcHJpbnRrKEtF
-Uk5fREVCVUcgImJyaWRnZV95ZXMgJXAgJXNcbiIsIGJ1cywgcGNpX25hbWUoYnJpZGdlKSk7CisJ
-CQlidXMtPmJyaWRnZV9jdGwgfD0gUENJX0JSSURHRV9DVExfVkdBOworCQkJcGNpX3dyaXRlX2Nv
-bmZpZ193b3JkKGJyaWRnZSwgUENJX0JSSURHRV9DT05UUk9MLCBidXMtPmJyaWRnZV9jdGwpOwor
-CQl9CisJCWJ1cyA9IGJ1cy0+cGFyZW50OworCX0KK30KKworc3RhdGljIHZvaWQgYnJpZGdlX25v
-KHN0cnVjdCBwY2lfZGV2ICpwZGV2KQoreworCXN0cnVjdCBwY2lfZGV2ICpicmlkZ2U7CisJc3Ry
-dWN0IHBjaV9idXMgKmJ1czsKKwkKKwkvKiBNYWtlIHN1cmUgdGhlIGJyaWRnZXMgZG9uJ3Qgcm91
-dGUgdG8gdXMgKi8KKwlidXMgPSBwZGV2LT5idXM7CisJd2hpbGUgKGJ1cykgeworCQlicmlkZ2Ug
-PSBidXMtPnNlbGY7CisJCWlmIChicmlkZ2UpIHsKKwkJCXByaW50ayhLRVJOX0RFQlVHICJicmlk
-Z2Vfbm8gJXAgJXNcbiIsIGJ1cywgcGNpX25hbWUoYnJpZGdlKSk7CisJCQlidXMtPmJyaWRnZV9j
-dGwgJj0gflBDSV9CUklER0VfQ1RMX1ZHQTsKKwkJCXBjaV93cml0ZV9jb25maWdfd29yZChicmlk
-Z2UsIFBDSV9CUklER0VfQ09OVFJPTCwgYnVzLT5icmlkZ2VfY3RsKTsKKwkJfQorCQlidXMgPSBi
-dXMtPnBhcmVudDsKKwl9Cit9CisKK3N0YXRpYyB2b2lkIHZnYV9lbmFibGUoc3RydWN0IHBjaV9k
-ZXYgKnBkZXYsIHVuc2lnbmVkIGludCBlbmFibGUpCit7CisJcHJpbnRrKEtFUk5fREVCVUcgInZn
-YV9lbmFibGU6IGVuYWJsZSAlZCBwZGV2ICVwICVzXG4iLCBlbmFibGUsIHBkZXYsIHBjaV9uYW1l
-KHBkZXYpKTsKKwkKKwlicmlkZ2VfeWVzKHBkZXYpOworCQorCWlmIChlbmFibGUpIHsKKwkJLyog
-dGhpcyBhc3N1bWVzIGFsbCBvdGhlciBwb3RlbnRpYWwgVkdBIGRldmljZXMgYXJlIGRpc2FibGVk
-ICovCisJCW91dGIoMHgwMSB8IGluYigweDNDMyksICAweDNDMyk7ICAvKiAwIC0gZW5hYmxlICov
-CisJCW91dGIoMHgwOCB8IGluYigweDQ2ZTgpLCAweDQ2ZTgpOworCQlvdXRiKDB4MDEgfCBpbmIo
-MHgxMDIpLCAgMHgxMDIpOworCQlwZGV2LT5yZXNvdXJjZVtQQ0lfUk9NX1JFU09VUkNFXS5mbGFn
-cyB8PSBJT1JFU09VUkNFX1ZHQV9BQ1RJVkU7CisJCXZnYV9hY3RpdmUgPSBwZGV2OworCQlyZXR1
-cm47CisJfQorCisJb3V0Yih+MHgwMSAmIGluYigweDNDMyksICAweDNDMyk7CisJb3V0Yih+MHgw
-OCAmIGluYigweDQ2ZTgpLCAweDQ2ZTgpOworCW91dGIofjB4MDEgJiBpbmIoMHgxMDIpLCAgMHgx
-MDIpOworCXBkZXYtPnJlc291cmNlW1BDSV9ST01fUkVTT1VSQ0VdLmZsYWdzICY9IH5JT1JFU09V
-UkNFX1ZHQV9BQ1RJVkU7CisJaWYgKHBkZXYgPT0gdmdhX2FjdGl2ZSkKKwkJdmdhX2FjdGl2ZSA9
-IE5VTEw7CisJYnJpZGdlX25vKHBkZXYpOworfQorCisvKiBlY2hvIHRoZXNlIHZhbHVlcyB0byB0
-aGUgc3lzZnMgdmdhIGF0dHJpYnV0ZSBvbiBhIFZHQSBkZXZpY2UgKi8KK2VudW0gZUVuYWJsZSB7
-CisJVkdBX0RJU0FCTEVfVEhJUyA9IDAsCS8qIElmIHRoaXMgVkdBIGlzIGVuYWJsZWQsIGRpc2Fi
-bGUgaXQuICovCisJVkdBX0VOQUJMRV9USElTID0gMSwJLyogRGlzYWJsZSBhbGwgVkdBcyB0aGVu
-IGVuYWJsZSB0aGlzIFZHQSwgbWFyayBhcyBhY3RpdmUgVkdBICovCisJLyogVXNlZCB3aGlsZSBy
-ZXNldHRpbmcgYSBib2FyZCwgYm9hcmQgYmVpbmcgcmVzZXQgbWF5IG5vdCBiZSB0aGUgYWN0aXZl
-IFZHQSAqLworCVZHQV9ESVNBQkxFX0FMTCA9IDIsCS8qIFJlbWVtYmVyIGFjdGl2ZSBWR0EgdGhl
-biBkaXNhYmxlIGFsbCBWR0FhIGFuZCBkZXZpY2VzICovCisJVkdBX0VOQUJMRV9BQ1RJVkUgPSAz
-LAkvKiBNYWtlIHN1cmUgYWxsIFZHQXMgYXJlIGRpc2FibGVkLCB0aGVuIHJlZW5hYmxlIGFjdGl2
-ZSBWR0EgKi8KK307CisKK3N0YXRpYyB2b2lkIHNldF9zdGF0ZShzdHJ1Y3QgcGNpX2RldiAqcGRl
-diwgZW51bSBlRW5hYmxlIGVuYWJsZSkKK3sKKwlzdHJ1Y3QgcGNpX2RldiAqcGNpZGV2ID0gTlVM
-TDsKKwl1bnNpZ25lZCBpbnQgY2xhc3M7CisKKwlwcmludGsoS0VSTl9ERUJVRyAic2V0X3N0YXRl
-OiBlbmFibGUgaXMgJWQgcGRldiAlcCAlc1xuIiwgZW5hYmxlLCBwZGV2LCBwY2lfbmFtZShwZGV2
-KSk7CisJCisJaWYgKGVuYWJsZSA9PSBWR0FfRElTQUJMRV9USElTKQorCQlpZiAodmdhX2FjdGl2
-ZSAhPSBwZGV2KQorCQkJcmV0dXJuOworCQkKKwl2Z2FfZW5hYmxlKHZnYV9hY3RpdmUsIDApOwor
-CisJLyogbG9vcCBvdmVyIGFsbCBkZXZpY2VzIGFuZCBtYWtlIHN1cmUgbm8gbXVsdGlwbGUgcm91
-dGluZ3MgKi8KKwl3aGlsZSAoKHBjaWRldiA9IHBjaV9nZXRfc3Vic3lzKFBDSV9BTllfSUQsIFBD
-SV9BTllfSUQsIFBDSV9BTllfSUQsIFBDSV9BTllfSUQsIHBjaWRldikpICE9IE5VTEwpIHsKKwkJ
-Y2xhc3MgPSBwY2lkZXYtPmNsYXNzID4+IDg7CisKKwkJaWYgKGNsYXNzID09IFBDSV9DTEFTU19E
-SVNQTEFZX1ZHQSkKKwkJCWJyaWRnZV9ubyhwY2lkZXYpOworCX0KKworCS8qIGxvb3Agb3ZlciBh
-bGwgZGV2aWNlcyBhbmQgbWFrZSBzdXJlIGV2ZXJ5b25lIGlzIGRpc2FibGVkICovCisJd2hpbGUg
-KChwY2lkZXYgPSBwY2lfZ2V0X3N1YnN5cyhQQ0lfQU5ZX0lELCBQQ0lfQU5ZX0lELCBQQ0lfQU5Z
-X0lELCBQQ0lfQU5ZX0lELCBwY2lkZXYpKSAhPSBOVUxMKSB7CisJCWNsYXNzID0gcGNpZGV2LT5j
-bGFzcyA+PiA4OworCisJCWlmIChjbGFzcyA9PSBQQ0lfQ0xBU1NfRElTUExBWV9WR0EpCisJCQl2
-Z2FfZW5hYmxlKHBjaWRldiwgMCk7CisJfQorCisJc3dpdGNoIChlbmFibGUpIHsKKwkJY2FzZSBW
-R0FfRElTQUJMRV9USElTOgorCQljYXNlIFZHQV9ESVNBQkxFX0FMTDoKKwkJCWJyZWFrOworCisJ
-CS8qIE1hcmsgdXMgYWN0aXZlIGlmIHJlcXVlc3RlZCAqLworCQljYXNlIFZHQV9FTkFCTEVfVEhJ
-UzoKKwkJCXZnYV9lbmFibGUocGRldiwgMSk7CisJCQlicmVhazsKKwkKKwkJLyogUmVzdG9yZSBh
-Y3RpdmUgZGV2aWNlIGlmIHJlcXVlc3RlZCAqLworCQljYXNlIFZHQV9FTkFCTEVfQUNUSVZFOgor
-CQkJdmdhX2VuYWJsZSh2Z2FfYWN0aXZlLCAxKTsKKwkJCWJyZWFrOworCX0KK30KKworLyogc3lz
-ZnMgc3RvcmUgZm9yIFZHQSBkZXZpY2UgKi8KK3N0YXRpYyBzc2l6ZV90IHZnYV9kZXZpY2Vfc3Rv
-cmUoc3RydWN0IGRldmljZSAqZGV2LCBjb25zdCBjaGFyICpidWYsIHNpemVfdCBjb3VudCkKK3sK
-KwljaGFyICpsYXN0OworCXN0cnVjdCBwY2lfZGV2ICpwZGV2ID0gdG9fcGNpX2RldihkZXYpOwor
-CWVudW0gZUVuYWJsZSBlbmFibGU7CisKKwkvKiBzeXNmcyBzdHJpbmdzIGFyZSB0ZXJtaW5hdGVk
-IGJ5IFxuICovCisJZW5hYmxlID0gc2ltcGxlX3N0cnRvdWwoYnVmLCAmbGFzdCwgMCk7CisJaWYg
-KGxhc3QgPT0gYnVmKQorCQlyZXR1cm4gLUVJTlZBTDsKKworCWlmICgoZW5hYmxlIDwgVkdBX0RJ
-U0FCTEVfVEhJUykgfHwgKGVuYWJsZSA+IFZHQV9FTkFCTEVfQUNUSVZFKSkKKwkJcmV0dXJuIC1F
-SU5WQUw7CisKKwlzZXRfc3RhdGUocGRldiwgZW5hYmxlKTsKKworCXJldHVybiBjb3VudDsKK30K
-KworLyogc3lzZnMgc2hvdyBmb3IgVkdBIGRldmljZSAqLworc3RhdGljIHNzaXplX3QgdmdhX2Rl
-dmljZV9zaG93KHN0cnVjdCBkZXZpY2UgKmRldiwgY2hhciAqYnVmKQoreworCXN0cnVjdCBwY2lf
-ZGV2ICpwZGV2ID0gdG9fcGNpX2RldihkZXYpOworCXJldHVybiBzcHJpbnRmKGJ1ZiwgIiVkXG4i
-LCAocGRldi0+cmVzb3VyY2VbUENJX1JPTV9SRVNPVVJDRV0uZmxhZ3MgJiBJT1JFU09VUkNFX1ZH
-QV9BQ1RJVkUpICE9IDApOworfQorCitzdGF0aWMgc3RydWN0IGRldmljZV9hdHRyaWJ1dGUgdmdh
-X2RldmljZV9hdHRyID0gX19BVFRSKHZnYSwgU19JUlVHT3xTX0lXVVNSLCB2Z2FfZGV2aWNlX3No
-b3csIHZnYV9kZXZpY2Vfc3RvcmUpOworCisvKiBzeXNmcyBzaG93IGZvciBWR0Egcm91dGluZyBi
-cmlkZ2UgKi8KK3N0YXRpYyBzc2l6ZV90IHZnYV9icmlkZ2Vfc2hvdyhzdHJ1Y3QgZGV2aWNlICpk
-ZXYsIGNoYXIgKmJ1ZikKK3sKKwlzdHJ1Y3QgcGNpX2RldiAqcGRldiA9IHRvX3BjaV9kZXYoZGV2
-KTsKKwl1MTYgbDsKKworCS8qIGRvbid0IHRydXN0IHRoZSBzaGFkb3cgUENJX0JSSURHRV9DVExf
-VkdBIGluIHBkZXYgKi8KKwkvKiB1c2VyIHNwYWNlIG1heSBjaGFuZ2UgaGFyZHdhcmUgd2l0aG91
-dCB0ZWxsaW5nIHRoZSBrZXJuZWwgKi8KKwlwY2lfcmVhZF9jb25maWdfd29yZChwZGV2LCBQQ0lf
-QlJJREdFX0NPTlRST0wsICZsKTsKKwlyZXR1cm4gc3ByaW50ZihidWYsICIlZFxuIiwgKGwgJiBQ
-Q0lfQlJJREdFX0NUTF9WR0EpICE9IDApOworfQorCitzdGF0aWMgc3RydWN0IGRldmljZV9hdHRy
-aWJ1dGUgdmdhX2JyaWRnZV9hdHRyID0gX19BVFRSKHZnYSwgU19JUlVHTywgdmdhX2JyaWRnZV9z
-aG93LCBOVUxMKTsKKworLyogSWYgdGhlIGRldmljZSBpcyBhIFZHQSBvciBhIGJyaWRnZSwgYWRk
-IGEgVkdBIHN5c2ZzIGF0dHJpYnV0ZSAqLworaW50IHBjaV92Z2FfYWRkX2RldmljZShzdHJ1Y3Qg
-cGNpX2RldiAqcGRldikKK3sKKwlpbnQgY2xhc3MgPSBwZGV2LT5jbGFzcyA+PiA4OworCisJaWYg
-KCF2Z2FfaW5pdGlhbGl6ZWQpCisJCXJldHVybiAtRUFDQ0VTOworCisJaWYgKGNsYXNzID09IFBD
-SV9DTEFTU19ESVNQTEFZX1ZHQSkgeworCQlkZXZpY2VfY3JlYXRlX2ZpbGUoJnBkZXYtPmRldiwg
-JnZnYV9kZXZpY2VfYXR0cik7CisKKwkJLyogcmVjb3JkIHRoZSBhY3RpdmUgYm9vdCBkZXZpY2Ug
-d2hlbiBsb2NhdGVkICovCisJCWlmIChwZGV2LT5yZXNvdXJjZVtQQ0lfUk9NX1JFU09VUkNFXS5m
-bGFncyAmIElPUkVTT1VSQ0VfVkdBX0FDVElWRSkKKwkJCXZnYV9hY3RpdmUgPSBwZGV2OworCQly
-ZXR1cm4gMDsKKwl9CisKKwlpZiAoKGNsYXNzID09IFBDSV9DTEFTU19CUklER0VfUENJKSB8fCAo
-Y2xhc3MgPT0gUENJX0NMQVNTX0JSSURHRV9DQVJEQlVTKSkgeworCQlkZXZpY2VfY3JlYXRlX2Zp
-bGUoJnBkZXYtPmRldiwgJnZnYV9icmlkZ2VfYXR0cik7CisJfQorCXJldHVybiAwOworfQorCisv
-KiBJZiB0aGUgZGV2aWNlIGlzIGEgVkdBIG9yIGEgYnJpZGdlLCByZW1vdmUgdGhlIFZHQSBzeXNm
-cyBhdHRyaWJ1dGUgKi8KK2ludCBwY2lfdmdhX3JlbW92ZV9kZXZpY2Uoc3RydWN0IHBjaV9kZXYg
-KnBkZXYpCit7CisJc3RydWN0IHBjaV9kZXYgKnBjaWRldiA9IE5VTEw7CisJaW50IGNsYXNzID0g
-cGRldi0+Y2xhc3MgPj4gODsKKworCWlmICghdmdhX2luaXRpYWxpemVkKQorCQlyZXR1cm4gLUVB
-Q0NFUzsKKworCWlmIChjbGFzcyA9PSBQQ0lfQ0xBU1NfRElTUExBWV9WR0EpIHsKKwkJZGV2aWNl
-X3JlbW92ZV9maWxlKCZwZGV2LT5kZXYsICZ2Z2FfZGV2aWNlX2F0dHIpOworCisJCS8qIHJlY29y
-ZCB0aGUgYWN0aXZlIGJvb3QgZGV2aWNlIHdoZW4gbG9jYXRlZCAqLworCQlpZiAodmdhX2FjdGl2
-ZSA9PSBwZGV2KSB7CisJCQl3aGlsZSAoKHBjaWRldiA9IHBjaV9nZXRfc3Vic3lzKFBDSV9BTllf
-SUQsIFBDSV9BTllfSUQsIFBDSV9BTllfSUQsIFBDSV9BTllfSUQsIHBjaWRldikpICE9IE5VTEwp
-IHsKKwkJCQljbGFzcyA9IHBjaWRldi0+Y2xhc3MgPj4gODsKKwkJCQlpZiAoY2xhc3MgIT0gUENJ
-X0NMQVNTX0RJU1BMQVlfVkdBKQorCQkJCQljb250aW51ZTsKKwkJCQlpZiAocGNpZGV2ID09IHBk
-ZXYpCisJCQkJCWNvbnRpbnVlOworCQkJCXNldF9zdGF0ZShwY2lkZXYsIFZHQV9FTkFCTEVfVEhJ
-Uyk7CisJCQkJYnJlYWs7CisJCQl9CisJCQlpZiAocGNpZGV2ID09IE5VTEwpCisJCQkJc2V0X3N0
-YXRlKE5VTEwsIFZHQV9ESVNBQkxFX0FMTCk7CisJCQkKKwkJfQorCQlyZXR1cm4gMDsKKwl9CisK
-KwlpZiAoKGNsYXNzID09IFBDSV9DTEFTU19CUklER0VfUENJKSB8fCAoY2xhc3MgPT0gUENJX0NM
-QVNTX0JSSURHRV9DQVJEQlVTKSkKKwkJZGV2aWNlX3JlbW92ZV9maWxlKCZwZGV2LT5kZXYsICZ2
-Z2FfYnJpZGdlX2F0dHIpOworCisJcmV0dXJuIDA7Cit9CisKKy8qIEluaXRpYWxpemUgYnkgc2Nh
-bm5pbmcgYWxsIGRldmljZXMgKi8KK3N0YXRpYyBpbnQgX19pbml0IHZnYV9pbml0KHZvaWQpCit7
-CisJc3RydWN0IHBjaV9kZXYgKnBkZXYgPSBOVUxMOworCisJdmdhX2luaXRpYWxpemVkID0gMTsK
-KworCXdoaWxlICgocGRldiA9IHBjaV9nZXRfc3Vic3lzKFBDSV9BTllfSUQsIFBDSV9BTllfSUQs
-IFBDSV9BTllfSUQsIFBDSV9BTllfSUQsIHBkZXYpKSAhPSBOVUxMKQorCQlwY2lfdmdhX2FkZF9k
-ZXZpY2UocGRldik7CisJCQorCXJldHVybiAwOworfQorCitfX2luaXRjYWxsKHZnYV9pbml0KTsK
-KwpkaWZmIC1OcnUgYS9pbmNsdWRlL2xpbnV4L2lvcG9ydC5oIGIvaW5jbHVkZS9saW51eC9pb3Bv
-cnQuaAotLS0gYS9pbmNsdWRlL2xpbnV4L2lvcG9ydC5oCTIwMDUtMDEtMTcgMjI6NDA6NTEgLTA1
-OjAwCisrKyBiL2luY2x1ZGUvbGludXgvaW9wb3J0LmgJMjAwNS0wMS0xNyAyMjo0MDo1MSAtMDU6
-MDAKQEAgLTQxLDcgKzQxLDYgQEAKICNkZWZpbmUgSU9SRVNPVVJDRV9DQUNIRUFCTEUJMHgwMDAw
-NDAwMAogI2RlZmluZSBJT1JFU09VUkNFX1JBTkdFTEVOR1RICTB4MDAwMDgwMDAKICNkZWZpbmUg
-SU9SRVNPVVJDRV9TSEFET1dBQkxFCTB4MDAwMTAwMDAKLSNkZWZpbmUgSU9SRVNPVVJDRV9CVVNf
-SEFTX1ZHQQkweDAwMDgwMDAwCiAKICNkZWZpbmUgSU9SRVNPVVJDRV9ESVNBQkxFRAkweDEwMDAw
-MDAwCiAjZGVmaW5lIElPUkVTT1VSQ0VfVU5TRVQJMHgyMDAwMDAwMApAQCAtODYsNiArODUsNyBA
-QAogI2RlZmluZSBJT1JFU09VUkNFX1JPTV9FTkFCTEUJCSgxPDwwKQkvKiBST00gaXMgZW5hYmxl
-ZCwgc2FtZSBhcyBQQ0lfUk9NX0FERFJFU1NfRU5BQkxFICovCiAjZGVmaW5lIElPUkVTT1VSQ0Vf
-Uk9NX1NIQURPVwkJKDE8PDEpCS8qIFJPTSBpcyBjb3B5IGF0IEMwMDA6MCAqLwogI2RlZmluZSBJ
-T1JFU09VUkNFX1JPTV9DT1BZCQkoMTw8MikJLyogUk9NIGlzIGFsbG9jJ2QgY29weSwgcmVzb3Vy
-Y2UgZmllbGQgb3ZlcmxhaWQgKi8KKyNkZWZpbmUgSU9SRVNPVVJDRV9WR0FfQUNUSVZFCQkoMTw8
-MykJLyogVkdBIGRldmljZSBpcyBhY3RpdmUgKi8KIAogLyogUEMvSVNBL3doYXRldmVyIC0gdGhl
-IG5vcm1hbCBQQyBhZGRyZXNzIHNwYWNlczogSU8gYW5kIG1lbW9yeSAqLwogZXh0ZXJuIHN0cnVj
-dCByZXNvdXJjZSBpb3BvcnRfcmVzb3VyY2U7Cg==
-------=_Part_252_26133641.1106019796414--
+Author, Speaker, Developer, Consultant
+Pushing Embedded and Real-Time Linux Systems Beyond the Limits
+http://www.opersys.com || karim@opersys.com || 1-866-677-4546

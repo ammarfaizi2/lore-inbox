@@ -1,58 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262974AbVCDShG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262973AbVCDSls@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262974AbVCDShG (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Mar 2005 13:37:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262971AbVCDSfH
+	id S262973AbVCDSls (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Mar 2005 13:41:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262990AbVCDSlr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Mar 2005 13:35:07 -0500
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:54178 "EHLO
-	parcelfarce.linux.theplanet.co.uk") by vger.kernel.org with ESMTP
-	id S262972AbVCDScq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Mar 2005 13:32:46 -0500
-Message-ID: <4228A9B9.4060308@pobox.com>
-Date: Fri, 04 Mar 2005 13:32:25 -0500
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040922
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Linus Torvalds <torvalds@osdl.org>
-CC: Andrew Morton <akpm@osdl.org>, Jens Axboe <axboe@suse.de>,
-       tglx@linutronix.de, linux-kernel@vger.kernel.org
+	Fri, 4 Mar 2005 13:41:47 -0500
+Received: from dialin-161-58.tor.primus.ca ([216.254.161.58]:50069 "EHLO
+	node1.opengeometry.net") by vger.kernel.org with ESMTP
+	id S262973AbVCDSgG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 4 Mar 2005 13:36:06 -0500
+Date: Fri, 4 Mar 2005 13:35:51 -0500
+From: William Park <opengeometry@yahoo.ca>
+To: linux-kernel@vger.kernel.org
 Subject: Re: RFD: Kernel release numbering
-References: <Pine.LNX.4.58.0503030750420.25732@ppc970.osdl.org> <422751C1.7030607@pobox.com> <20050303181122.GB12103@kroah.com> <20050303151752.00527ae7.akpm@osdl.org> <20050303234523.GS8880@opteron.random> <20050303160330.5db86db7.akpm@osdl.org> <20050304025746.GD26085@tolot.miese-zwerge.org> <20050303213005.59a30ae6.akpm@osdl.org> <1109924470.4032.105.camel@tglx.tec.linutronix.de> <20050304005450.05a2bd0c.akpm@osdl.org> <20050304091612.GG14764@suse.de> <20050304012154.619948d7.akpm@osdl.org> <Pine.LNX.4.58.0503040956420.25732@ppc970.osdl.org>
+Message-ID: <20050304183551.GA4175@node1.opengeometry.net>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+References: <20050303151752.00527ae7.akpm@osdl.org> <20050303234523.GS8880@opteron.random> <20050303160330.5db86db7.akpm@osdl.org> <20050304025746.GD26085@tolot.miese-zwerge.org> <20050303213005.59a30ae6.akpm@osdl.org> <1109924470.4032.105.camel@tglx.tec.linutronix.de> <20050304005450.05a2bd0c.akpm@osdl.org> <20050304091612.GG14764@suse.de> <20050304012154.619948d7.akpm@osdl.org> <Pine.LNX.4.58.0503040956420.25732@ppc970.osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 In-Reply-To: <Pine.LNX.4.58.0503040956420.25732@ppc970.osdl.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+User-Agent: Mutt/1.4.2i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus Torvalds wrote:
-> I've long since decided that there's no point to making "-pre". What's the 
-> difference between a "-pre" and a daily -bk snapshot? Really?
+On Fri, Mar 04, 2005 at 09:57:38AM -0800, Linus Torvalds wrote:
+> I've long since decided that there's no point to making "-pre". What's
+> the difference between a "-pre" and a daily -bk snapshot? Really?
+> 
+> So when I do a release, it _is_ an -rc. The fact that people have
+> trouble understanding this is not _my_ fault.
 
-Several non-BK developers use the first -rc1 as a merge point.
-
-Others simply trust that _Linus_ has a lot more smarts than an automated 
-script, about deciding when a good testing point should occur.  Holy 
-Penguin Pee has value, they feel.
-
-
-> So when I do a release, it _is_ an -rc. The fact that people have trouble 
-> understanding this is not _my_ fault.
-
-If you want people to start testing, a good first step would be 
-understanding why this is so.
-
-Users have been trained that -rc means "serious bugfixes only".  You are 
-trying to re-train them.  That just won't work.
-
-When you do an -rc1 or -rc2, it is not serious bugfixes only. 
-_Especially_ rc1.  rc1 is in no way "bugfixes only."  Non-BK developers 
-just treat the first couple -rc's as a merge point, while the rest of us 
-BK developers have already gone into "send bugfixes only" mode.
-
-You are fighting an uphill battle against user perceptions and training.
-
-	Jeff
-
-
+My feeling is that there is too many numbers in the kernel version.  
+I think 3 numbers are good enough to get people to try out (knowingly or
+not).  So,
+    2.6.{11,12,13,...} -- for testing (a.k.a. -rc, -pre)
+    2.7 -- stable release
+    2.7.{1,2,3,...} -- for testing
+    2.8 -- another stable release
+    ...
+    2.125 -- when last IDE bug is fixed.
+    3.0 -- stable release
+    3.0.{1,2,3,...} -- for testing
+    ...

@@ -1,44 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265523AbSKRXWg>; Mon, 18 Nov 2002 18:22:36 -0500
+	id <S264677AbSKRXVR>; Mon, 18 Nov 2002 18:21:17 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265541AbSKRXWg>; Mon, 18 Nov 2002 18:22:36 -0500
-Received: from sccrmhc02.attbi.com ([204.127.202.62]:38084 "EHLO
-	sccrmhc02.attbi.com") by vger.kernel.org with ESMTP
-	id <S265523AbSKRXWe>; Mon, 18 Nov 2002 18:22:34 -0500
-Message-ID: <3DD97D4D.3010801@kegel.com>
-Date: Mon, 18 Nov 2002 15:52:45 -0800
-From: Dan Kegel <dank@kegel.com>
-User-Agent: Mozilla/4.0 (compatible; MSIE 5.5; Windows 98)
-X-Accept-Language: de-de, en
+	id <S265523AbSKRXVR>; Mon, 18 Nov 2002 18:21:17 -0500
+Received: from e5.ny.us.ibm.com ([32.97.182.105]:16885 "EHLO e5.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id <S265517AbSKRXVO>;
+	Mon, 18 Nov 2002 18:21:14 -0500
+Message-ID: <3DD97729.5040803@us.ibm.com>
+Date: Mon, 18 Nov 2002 15:26:33 -0800
+From: Dave Hansen <haveblue@us.ibm.com>
+User-Agent: Mozilla/5.0 (compatible; MSIE5.5; Windows 98;
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Davide Libenzi <davidel@xmailserver.org>
-CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [rfc] epoll interface change and glibc bits ...
-References: <Pine.LNX.4.44.0211181520140.979-100000@blue1.dev.mcafeelabs.com>
+To: Andrew Morton <akpm@digeo.com>
+CC: William Lee Irwin III <wli@holomorphy.com>,
+       "Martin J. Bligh" <mbligh@aracnet.com>, linux-kernel@vger.kernel.org,
+       mingo@elte.hu, rml@tech9.net, riel@surriel.com,
+       Davide Libenzi <davidel@xmailserver.org>
+Subject: Re: unusual scheduling performance
+References: <20021118081854.GJ23425@holomorphy.com> <705474709.1037608454@[10.10.2.3]> <20021118165316.GK23425@holomorphy.com> <3DD92914.1060301@us.ibm.com> <20021118201748.GL23425@holomorphy.com> <3DD96EE6.1080603@us.ibm.com> <3DD97336.40326A65@digeo.com>
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Davide Libenzi wrote:
-> On Mon, 18 Nov 2002, Dan Kegel wrote:
-> 
->>>The interface ( edge-triggered ) is quite different and we saw in the
->>>previous experience how this might lead to confusion for the user. Putting
->>>epoll bits inside poll.h will IMHO increase this.
+Andrew Morton wrote:
+> Dave Hansen wrote:
+>>kksymoops is broken, so:
+>>dmesg | tail -20 | sort | uniq | ksymoops -m /boot/System.map
 >>
->>The only difference is the edge-triggered nature, though, right?
+>>Trace; c01c5757 <rwsem_down_write_failed+27/170>
+>>Trace; c01220c6 <update_wall_time+16/50>
+>>Trace; c01223ee <do_timer+2e/c0>
+>>Trace; c0166bd3 <.text.lock.eventpoll+6/f3>
+>>Trace; c0146568 <__fput+18/c0>
+>>Trace; c010ae9a <handle_IRQ_event+2a/60>
+>>Trace; c0144a05 <filp_close+85/b0>
+>>Trace; c0144a8d <sys_close+5d/70>
+>>Trace; c0108fab <syscall_call+7/b>
+>>
 > 
-> Yes, but we have seen that it's enough :)
+> So it would appear that eventpoll_release() is the problem.
+> How odd.  You're not actually _using_ epoll there, are you?
 
-I'm not so sure.  If the epoll documentation were clear enough
-(which at the moment, frankly, it isn't), I think
-there's a good chance users would not be confused
-by the difference between level-triggered and edge-triggered
-events.
+Not unless grep uses epoll.
 
-I'd be happy to contribute better doc... has the man page
-for sys_epoll been written yet?
-- Dan
+-- 
+Dave Hansen
+haveblue@us.ibm.com
 

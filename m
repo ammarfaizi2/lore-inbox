@@ -1,52 +1,38 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S312426AbSERLjI>; Sat, 18 May 2002 07:39:08 -0400
+	id <S312480AbSERMVC>; Sat, 18 May 2002 08:21:02 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S312449AbSERLjI>; Sat, 18 May 2002 07:39:08 -0400
-Received: from netmail.netcologne.de ([194.8.194.109]:41775 "EHLO
-	netmail.netcologne.de") by vger.kernel.org with ESMTP
-	id <S312426AbSERLjH>; Sat, 18 May 2002 07:39:07 -0400
-Message-Id: <200205181138.AWF97768@netmail.netcologne.de>
-Content-Type: text/plain;
-  charset="iso-8859-15"
-From: =?iso-8859-15?q?J=F6rg=20Prante?= <joergprante@gmx.de>
-Reply-To: joergprante@gmx.de
-Organization: Linux jungle 2.4.19-pre8 #4 Don Mai 9 23:37:47 CEST 2002 i686 unknown
-To: Marc-Christian Petersen <mcp@linux-systeme.de>
-Subject: Re: [PATCH] fixing supermount for > 2.4.19pre4
-Date: Sat, 18 May 2002 13:37:52 +0200
-X-Mailer: KMail [version 1.3.1]
-In-Reply-To: <200205181226.03997.mcp@linux-systeme.de>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+	id <S312601AbSERMVB>; Sat, 18 May 2002 08:21:01 -0400
+Received: from dell-paw-3.cambridge.redhat.com ([195.224.55.237]:57334 "EHLO
+	passion.cambridge.redhat.com") by vger.kernel.org with ESMTP
+	id <S312480AbSERMVB>; Sat, 18 May 2002 08:21:01 -0400
+X-Mailer: exmh version 2.4 06/23/2000 with nmh-1.0.4
+From: David Woodhouse <dwmw2@infradead.org>
+X-Accept-Language: en_GB
+In-Reply-To: <Pine.LNX.4.21.0205171113550.1002-100000@puppy.afrinc.com> 
+To: dave@AFRInc.com
+Cc: John Ruttenberg <rutt@chezrutt.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        linux-kernel@vger.kernel.org
+Subject: Re: Dell Inspiron i8100 with 2 batteries 
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Sat, 18 May 2002 13:20:37 +0100
+Message-ID: <19261.1021724437@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-> your patch for supermount does not work. Now it's even not possible to list
-> the content via ls -lsa /mnt ... Mount hangs, no access is made, nothing.
+dave@AFRInc.com said:
+>  I've got the same laptop with one battery, but I'm using ACPI. None
+> of the current user-space utilities parse this stuff particularly well
+> (the filenames in /proc/acpi have changed), but the data all look
+> reasonable. 
 
-Is supermount compiled into kernel or as a module? What drive, what media did 
-you mount, what command did you issue? 
+Those data also come straight from the BIOS. The ACPI code on those laptops 
+is all just traps into the SMM BIOS. I'd guess it's running exactly the 
+same code inside.
 
-I tested it with supermount compiled into the kernel and
+--
+dwmw2
 
-# mount -t supermount -o dev=/dev/hdb none /mnt/cdrom
-# ls -l /mnt/cdrom
 
-and
-
-# cd /mnt/cdrom
-# ls -l
-
-# cd
-# umount /mnt/cdrom
-
-and it works fine for me, patched against 2.4.19-pre8-jp12, and /dev/hdb is 
-an ISO 9660 CDROM in my DVD drive. No "stale NFS handles", clean mount and 
-unmount, and with "debug" option I can see it works as a charme.
-
-ftpfs is fixed in the same way but I did not reboot yet. 
-
-Jörg

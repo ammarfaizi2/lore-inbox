@@ -1,49 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317034AbSFWPWY>; Sun, 23 Jun 2002 11:22:24 -0400
+	id <S317035AbSFWP2S>; Sun, 23 Jun 2002 11:28:18 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317035AbSFWPWX>; Sun, 23 Jun 2002 11:22:23 -0400
-Received: from mta6.srv.hcvlny.cv.net ([167.206.5.17]:57806 "EHLO
-	mta6.srv.hcvlny.cv.net") by vger.kernel.org with ESMTP
-	id <S317034AbSFWPWX>; Sun, 23 Jun 2002 11:22:23 -0400
-Date: Sun, 23 Jun 2002 11:27:41 -0400
-From: sean darcy <seandarcy@hotmail.com>
-Subject: Re: piggy broken in 2.5.24 build
-To: Sam Ravnborg <sam@ravnborg.org>,
-       linux kernel <linux-kernel@vger.kernel.org>
-Message-id: <3D15E8ED.6090104@hotmail.com>
-MIME-version: 1.0
-Content-type: text/plain; charset=us-ascii; format=flowed
-Content-transfer-encoding: 7BIT
-X-Accept-Language: en-us, en
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.0) Gecko/20020605
-References: <linux.kernel.20020623095429.A5667@mars.ravnborg.org>
+	id <S317036AbSFWP2R>; Sun, 23 Jun 2002 11:28:17 -0400
+Received: from [62.70.58.70] ([62.70.58.70]:56964 "EHLO mail.pronto.tv")
+	by vger.kernel.org with ESMTP id <S317035AbSFWP2Q>;
+	Sun, 23 Jun 2002 11:28:16 -0400
+X-Originating-IP: [62.179.172.225]
+From: "Roy Sigurd Karlsbakk" <roy@karlsbakk.net>
+To: linux-kernel@vger.kernel.org
+Subject: Large block device support?
+Date: Sun, 23 Jun 2002 15:28:23 +0000
+Message-ID: <20020623.Aej.06328500@mail.pronto.tv>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+X-Mailer: phpGroupWare (http://www.phpgroupware.org) v 0.9.13.018
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Sam Ravnborg wrote:
+hi all
 
-> 
-> With your .config everything is still fine. Seems you have a problem
-> on your machine. In another mail you said you had a rather large
-> disk. Try to do a "df -h" to see how much space is actually available
-> for the /tmp partition.
-> 
+I just installed a new server running linux (rh73) with 16 IBM 120GB drives
+with a 116MB partition per drive - these in RAID-5 + a spare. The result -
+1,63TB and then JFS on top on it. It works perfectly.
 
-> -
+But - soon, I need to setup a new box where I guess I'll be going for 160gig
+drives, due to higher needs, giving me a theoretical total of 2,24TB.
 
-  df -h
-Filesystem            Size  Used Avail Use% Mounted on
-/dev/hde5              38G  8.9G   27G  25% /
-/dev/hde2             121M  9.1M  106M   8% /boot
-/dev/hde7              68G  124M   64G   1% /opt/photo/hde7
-none                  219M     0  219M   0% /dev/shm
-/dev/hdg1            1019M  616M  403M  61% /win/cdrive
-/dev/hdg5             2.0G  1.8G  229M  89% /win/ddrive
+Will it soon be possible to create >2TB block devices on Linux, or is this a
+low-priority concern?
 
+thanks
 
-As you can see /tmp is on the / partition. Lots of room.
+roy
+--
+Roy Sigurd Karlsbakk, Datavaktmester
 
-jay
+Computers are like air conditioners.
+They stop working when you open Windows.
+
 
 

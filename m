@@ -1,38 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132735AbRDDCdU>; Tue, 3 Apr 2001 22:33:20 -0400
+	id <S132738AbRDDDTA>; Tue, 3 Apr 2001 23:19:00 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132736AbRDDCdL>; Tue, 3 Apr 2001 22:33:11 -0400
-Received: from 069up090.chartermi.net ([24.247.69.90]:8832 "EHLO
-	oof.netnation.com") by vger.kernel.org with ESMTP
-	id <S132735AbRDDCdE>; Tue, 3 Apr 2001 22:33:04 -0400
-Date: Tue, 3 Apr 2001 22:32:23 -0400
-From: Simon Kirby <sim@netnation.com>
-To: linux-kernel@vger.kernel.org
-Subject: 2.4.3 freeze under heavy writing + open rxvt
-Message-ID: <20010403223222.A669@netnation.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.15i
+	id <S132741AbRDDDSu>; Tue, 3 Apr 2001 23:18:50 -0400
+Received: from [64.3.14.3] ([64.3.14.3]:18585 "HELO daveb.net")
+	by vger.kernel.org with SMTP id <S132738AbRDDDSk>;
+	Tue, 3 Apr 2001 23:18:40 -0400
+Date: Tue, 3 Apr 2001 20:21:54 -0400 (EDT)
+From: Dave Bailey <dave@daveb.net>
+To: <linux-kernel@vger.kernel.org>
+Subject: Multicast tunneling in 2.4
+Message-ID: <Pine.LNX.4.33L2.0104032013230.7594-100000@sydney.daveb.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Three times now I've had 2.4.3 freeze on my dual CPU box while doing a
-"dd if=/dev/zero of=/dev/hdc bs=1024k" (a drive to be RMA'd :)).  I got
-bored and opened an rxvt, and as the machine was swapping in (I assume),
-everything froze.  The mouse still moved for about 5 seconds before the
-freeze, and the window was visible as it was attempting to start tcsh.
+I am trying to set up a tunnel from my linux machine to the MBone.
 
-I'm guessing that what's happening is something is waiting on a lock and
-blocking interrupts (?) for five seconds while it is swapping in, and the
-NMI lockup detector is kicking in and really breaking it.
+My kernel (2.4.2) supports multicasting and advanced routing:
 
-I have my serial console plugged in and minicom actually capturing now,
-so I'll see if I can get a trace of some sort.
+CONFIG_IP_MULTICAST=y
+CONFIG_IP_ADVANCED_ROUTER=y
+CONFIG_IP_MROUTE=y
 
-Simon-
+I have read http://www.linuxdoc.org/HOWTO/Multicast-HOWTO.html
+and  http://www.linuxdoc.org/HOWTO/Adv-Routing-HOWTO.html.
+Unfortunately, Section 7 of the Advanced Routing HOWTO
+(Multicast routing) says:
 
-[  Stormix Technologies Inc.  ][  NetNation Communications Inc. ]
-[       sim@stormix.com       ][       sim@netnation.com        ]
-[ Opinions expressed are not necessarily those of my employers. ]
+  "FIXME: Editor Vacancy! (somebody is working on it, though)"
+
+Suppose I know the IP address of a nearby multicast router and would
+like to set up a tunnel from my machine to that router (a tunnel to
+the MBone), so that I may receive multicast datagrams in spite of the
+fact that intervening routers are ignorant of multicast routing
+protocols.  Is this possible with the 2.4.2 kernel?  I cannot find
+documentation to this effect, but the existence of <linux/mroute.h>
+(which contains some structs previously defined in mrouted) makes me
+think that it is possible.
+
+--
+Dave Bailey
+dave@daveb.net
+
+
+

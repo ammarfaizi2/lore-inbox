@@ -1,53 +1,48 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288276AbSAUVNH>; Mon, 21 Jan 2002 16:13:07 -0500
+	id <S288342AbSAUVPJ>; Mon, 21 Jan 2002 16:15:09 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288342AbSAUVM5>; Mon, 21 Jan 2002 16:12:57 -0500
-Received: from dpt-info.u-strasbg.fr ([130.79.44.193]:36114 "EHLO
-	dpt-info.u-strasbg.fr") by vger.kernel.org with ESMTP
-	id <S288276AbSAUVMo>; Mon, 21 Jan 2002 16:12:44 -0500
-Date: Mon, 21 Jan 2002 22:12:21 +0100
-From: Sven <luther@dpt-info.u-strasbg.fr>
-To: James Simmons <jsimmons@transvirtual.com>
-Cc: Geert Uytterhoeven <geert@linux-m68k.org>,
-        Linux Fbdev development list 
-	<linux-fbdev-devel@lists.sourceforge.net>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [Linux-fbdev-devel] [PATCH] fbdev fbgen cleanup
-Message-ID: <20020121221221.A18731@dpt-info.u-strasbg.fr>
-In-Reply-To: <20020121092851.A11531@dpt-info.u-strasbg.fr> <Pine.LNX.4.10.10201210849030.20645-100000@www.transvirtual.com>
+	id <S288374AbSAUVPB>; Mon, 21 Jan 2002 16:15:01 -0500
+Received: from zero.tech9.net ([209.61.188.187]:63760 "EHLO zero.tech9.net")
+	by vger.kernel.org with ESMTP id <S288342AbSAUVOq>;
+	Mon, 21 Jan 2002 16:14:46 -0500
+Subject: Re: [2.4.17/18pre] VM and swap - it's really unusable
+From: Robert Love <rml@tech9.net>
+To: yodaiken@fsmlabs.com
+Cc: Daniel Phillips <phillips@bonn-fries.net>,
+        george anzinger <george@mvista.com>, Momchil Velikov <velco@fadata.bg>,
+        Arjan van de Ven <arjan@fenrus.demon.nl>,
+        Roman Zippel <zippel@linux-m68k.org>, linux-kernel@vger.kernel.org
+In-Reply-To: <20020121090602.A13715@hq.fsmlabs.com>
+In-Reply-To: <E16PZbb-0003i6-00@the-village.bc.nu>
+	<E16SgXE-0001i8-00@starship.berlin> <20020121084344.A13455@hq.fsmlabs.com>
+	<E16SgwP-0001iN-00@starship.berlin>  <20020121090602.A13715@hq.fsmlabs.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/1.0.1 
+Date: 21 Jan 2002 16:16:51 -0500
+Message-Id: <1011647882.8596.466.camel@phantasy>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Mailer: Mutt 1.0.1i
-In-Reply-To: <Pine.LNX.4.10.10201210849030.20645-100000@www.transvirtual.com>; from jsimmons@transvirtual.com on Mon, Jan 21, 2002 at 09:03:25AM -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jan 21, 2002 at 09:03:25AM -0800, James Simmons wrote:
-> 
-> As for the fbdev layer. Their was way to much code to cleanup and maintain
-> in sync. So ruby had hardly any fbdev ported over :-( Now I'm spending the
-> time to port every single fbdev driver over. Alot of work but it is
-> needed.
+On Mon, 2002-01-21 at 11:06, yodaiken@fsmlabs.com wrote:
 
-Ahem, ...
+> I have not seen a single well structured benchmark that shows a significant
+> difference. I've seen lots of benchmarks with odd mixes of different patches
+> showing something unknown. How about a simple clear dbench?
 
-If you would take a little bit of time to write some doc or ruby howto, maybe
-you would not need to port them all by yourself ...
+I and many others have been posting benchmarks for months.
 
-BTW, the matrox driver don't build on ruby + 2.5.1
+Here:
 
-> > BTW, romain, i have built pm3fb with 2.5.2, there were some modifications
-> > needed, the major of them was the testing for 2.2 or 2.4 kernels that needed
-> > changing, and the new info.node, which needed to be changed to
-> > info.node.values.
-> 
-> The correct fix is to do something like fb_info.node = NODEV;
+(average of 4 runs of `dbench 16')
+2.5.3-pre1:		25.7608 MB/s
+2.5.3-pre1-preempt:	32.341 MB/s
 
-And not info.node.value = -1 ?
+(old, average of 4 runs of `dbench 16')
+2.5.2-pre11:		24.5364 MB/s
+2.5.2-pre11-preempt:	27.5192 MB/s
 
-Ok, will do.
+	Robert Love
 
-Friendly,
-
-Sven Luther

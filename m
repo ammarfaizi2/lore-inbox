@@ -1,41 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261414AbVC0Sqz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261417AbVC0Sx3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261414AbVC0Sqz (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 27 Mar 2005 13:46:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261417AbVC0Sqz
+	id S261417AbVC0Sx3 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 27 Mar 2005 13:53:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261431AbVC0Sx3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 27 Mar 2005 13:46:55 -0500
-Received: from linux01.gwdg.de ([134.76.13.21]:7563 "EHLO linux01.gwdg.de")
-	by vger.kernel.org with ESMTP id S261414AbVC0Sqy (ORCPT
+	Sun, 27 Mar 2005 13:53:29 -0500
+Received: from mail.autoweb.net ([198.172.237.26]:11278 "EHLO mail.autoweb.net")
+	by vger.kernel.org with ESMTP id S261417AbVC0Sx1 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 27 Mar 2005 13:46:54 -0500
-Date: Sun, 27 Mar 2005 20:46:52 +0200 (MEST)
-From: Jan Engelhardt <jengelh@linux01.gwdg.de>
-cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Can't use SYSFS for "Proprietry" driver modules !!!.
-In-Reply-To: <20050327183522.GM4285@stusta.de>
-Message-ID: <Pine.LNX.4.61.0503272042050.22728@yvahk01.tjqt.qr>
-References: <1111886147.1495.3.camel@localhost> <490243b66dc7c3f592df7a7d0769dcb7@mac.com>
- <1111913399.6297.28.camel@laptopd505.fenrus.org> <16d78e9ea33380a1f1ad90c454fb6e1d@mac.com>
- <20050327180417.GD3815@gallifrey> <20050327183522.GM4285@stusta.de>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-To: unlisted-recipients:; (no To-header on input)
+	Sun, 27 Mar 2005 13:53:27 -0500
+Date: Sun, 27 Mar 2005 13:52:59 -0500
+From: Ryan Anderson <ryan@michonline.com>
+To: Chris Wright <chrisw@osdl.org>
+Cc: Moritz Muehlenhoff <jmm@inutil.org>, linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.6.11.6
+Message-ID: <20050327185259.GD5164@mythryan2.michonline.com>
+Mail-Followup-To: Chris Wright <chrisw@osdl.org>,
+	Moritz Muehlenhoff <jmm@inutil.org>, linux-kernel@vger.kernel.org
+References: <20050326033939.GV30522@shell0.pdx.osdl.net> <E1DF70M-0001ai-8z@localhost.localdomain> <20050326092753.GB30522@shell0.pdx.osdl.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050326092753.GB30522@shell0.pdx.osdl.net>
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> If you are making a very specialist piece of equipment; not
->>...
->
->
->If the user has the source of the driver, he can port the driver or hire 
->someone to port the driver (this "obscure piece of hardware" might also 
->be an expensive piece of hardware).
+On Sat, Mar 26, 2005 at 01:27:53AM -0800, Chris Wright wrote:
+> > Could you please add CAN IDs to the stable changelog for already assigned
+> > vulnerabilities?
+> 
+> That's what I did for .5 -> .6.  We can't retroactively update changeset
+> comments, and I'm not sure we have any other candidates in -stable.
+> We'll certainly continue to add them as we have them.
 
-I am happy that nvidia (to name one) provides at least the source to its 
-glue... here's a real world example: 
-http://groups-beta.google.com/group/linux.kernel/browse_frm/thread/52002e4f6d454e44/216311fff8f7c91b?rnum=1
+bk helptool comments
 
-could have been worse, but also could have been better, though.
+You can, actually.
 
 
+-- 
+
+Ryan Anderson
+  sometimes Pug Majere

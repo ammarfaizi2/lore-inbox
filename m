@@ -1,31 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S268447AbRGXUaA>; Tue, 24 Jul 2001 16:30:00 -0400
+	id <S268453AbRGXUck>; Tue, 24 Jul 2001 16:32:40 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S268449AbRGXU3u>; Tue, 24 Jul 2001 16:29:50 -0400
-Received: from maestro.symsys.com ([208.223.9.37]:12559 "EHLO
-	maestro.symsys.com") by vger.kernel.org with ESMTP
-	id <S268447AbRGXU3l>; Tue, 24 Jul 2001 16:29:41 -0400
-Date: Tue, 24 Jul 2001 15:29:43 -0500 (CDT)
-From: Greg Ingram <ingram@symsys.com>
-To: Jan Kasprzak <kas@informatics.muni.cz>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.4.7 cyclades-Y crash
-In-Reply-To: <20010724190103.J1033@informatics.muni.cz>
-Message-ID: <Pine.LNX.4.21.0107241527570.27330-100000@maestro.symsys.com>
+	id <S268452AbRGXUcb>; Tue, 24 Jul 2001 16:32:31 -0400
+Received: from perninha.conectiva.com.br ([200.250.58.156]:49937 "HELO
+	perninha.conectiva.com.br") by vger.kernel.org with SMTP
+	id <S268449AbRGXUcY>; Tue, 24 Jul 2001 16:32:24 -0400
+Date: Tue, 24 Jul 2001 17:32:26 -0300 (BRST)
+From: Rik van Riel <riel@conectiva.com.br>
+X-X-Sender: <riel@duckman.distro.conectiva>
+To: Patrick Dreker <patrick@dreker.de>
+Cc: Linus Torvalds <torvalds@transmeta.com>, <phillips@bonn-fries.net>,
+        <linux-kernel@vger.kernel.org>
+Subject: Re: [RFC] Optimization for use-once pages
+In-Reply-To: <E15P8jB-0000Au-00@wintermute>
+Message-ID: <Pine.LNX.4.33L.0107241731400.20326-100000@duckman.distro.conectiva>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
-On Tue, 24 Jul 2001, Jan Kasprzak wrote:
+On Tue, 24 Jul 2001, Patrick Dreker wrote:
 
-> 	Has anybody the cyclades.o driver working with 2.4?
+	[snip program with mmap()]
 
-I've got cyclades.o loaded as a module with kernel 2.4.0-test12.
+> I have tested this on my Athlon 600 with 128 Megs of RAM, and it
+> does not make any difference whether I use plain 2.4.7 or
+> 2.4.5-use-once.
 
-- Greg
+As expected. Only programs using generic_file_{read,write}()
+will be impacted at the moment.
+
+regards,
+
+Rik
+--
+Executive summary of a recent Microsoft press release:
+   "we are concerned about the GNU General Public License (GPL)"
 
 
+		http://www.surriel.com/
+http://www.conectiva.com/	http://distro.conectiva.com/
 

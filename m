@@ -1,41 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261469AbUK2S1s@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261479AbUK2Sak@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261469AbUK2S1s (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 29 Nov 2004 13:27:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261479AbUK2S1s
+	id S261479AbUK2Sak (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 29 Nov 2004 13:30:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261480AbUK2Sah
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 29 Nov 2004 13:27:48 -0500
-Received: from clock-tower.bc.nu ([81.2.110.250]:12443 "EHLO
-	localhost.localdomain") by vger.kernel.org with ESMTP
-	id S261469AbUK2S1j (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 29 Nov 2004 13:27:39 -0500
-Subject: Re: MTRR vesafb and wrong X performance
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Dave Jones <davej@redhat.com>
-Cc: Gerd Knorr <kraxel@bytesex.org>, Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20041129181718.GA16782@redhat.com>
-References: <1101338139.1780.9.camel@PC3.dom.pl>
-	 <20041124171805.0586a5a1.akpm@osdl.org>
-	 <1101419803.1764.23.camel@PC3.dom.pl> <87is7ogb93.fsf@bytesex.org>
-	 <20041129154006.GB3898@redhat.com> <20041129162242.GA25668@bytesex>
-	 <20041129165701.GA903@redhat.com> <20041129173419.GC26190@bytesex>
-	 <20041129181718.GA16782@redhat.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Message-Id: <1101749036.21211.11.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Mon, 29 Nov 2004 17:23:59 +0000
+	Mon, 29 Nov 2004 13:30:37 -0500
+Received: from ztxmail05.ztx.compaq.com ([161.114.1.209]:11 "EHLO
+	ztxmail05.ztx.compaq.com") by vger.kernel.org with ESMTP
+	id S261479AbUK2Sab convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 29 Nov 2004 13:30:31 -0500
+X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
+Content-class: urn:content-classes:message
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Subject: Licensing nit in glibc-kernheaders-2.4
+Date: Mon, 29 Nov 2004 13:30:30 -0500
+Message-ID: <C9AAAF1DB2411546B68C720B0D0630CB010A732D@ataexc01.americas.cpqcorp.net>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: Licensing nit in glibc-kernheaders-2.4
+Thread-Index: AcTWQYE/IC3GwUGUStyt9r6Pr6P94A==
+From: "Foster, Glen A" <glen.foster@hp.com>
+To: <linux-kernel@vger.kernel.org>
+Cc: <ncorbic@sangoma.com>
+X-OriginalArrivalTime: 29 Nov 2004 18:30:31.0038 (UTC) FILETIME=[81B249E0:01C4D641]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Llu, 2004-11-29 at 18:17, Dave Jones wrote:
-> Even that wasn't foolproof however, and there were a few quirks
-> to work around still.  You see all sorts of strange things there,
-> like onboard gfx with 16MB advertising 64MB prefetchable ranges.
+This is truly a nit, I just ran across it by accident.  I filed a bug
+against RH glibc-kernheaders and I was told to file the problem report
+upstream by sending email to linux-kernel@vger.kernel.org and cc: the
+developer -- so I added the one e-mail address in the file under
+question.
 
-Thats normal rather than a quirk. You've got big and little endian
-apertures. You may have dithering depth apertures, YUV convertor
-apertures and so on.
+In glibc-kernheaders-2.4, the file usr/include/linux/sdla_chdlc.h has a
+boiler-plate license template that *almost* matches the one in the GNU
+GPL, but there's a mis-spelling that some day should be corrected.  This
+*is* a nit but could stand to be fixed; I certainly think it could wait
+for an update.
 
+Lines 9-12 of usr/include/linux/sdla_chdlc.h are:
+
+<excerpt>
+	This program is free software; you can redistribute it and/or
+	modify it under the term of the GNU General Public License
+	as published by the Free Software Foundation; either version
+	2 of the License, or (at your option) any later version.
+</excerpt>
+
+This is almost exactly the boiler-plate needed for a correct licensing
+reference to the GNU GPL, but not quite.  Line ten should be changed
+to use the word "terms" instead of "term", as (a) there is more than
+one term to the GPL that must be adhered to, and (b) the GPL mentions
+specifically that the wording of said reference cannot be modified -
+and it has been modified.
+
+Thanks in advance for your consideration.  Best regards,
+
+Glen A. Foster
+Hewlett-Packard Company
+Linux and Open Source Lab

@@ -1,60 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267167AbUBSKLR (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 19 Feb 2004 05:11:17 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267175AbUBSKLQ
+	id S267165AbUBSKKe (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 19 Feb 2004 05:10:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267167AbUBSKKe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 19 Feb 2004 05:11:16 -0500
-Received: from mail1.webmessenger.it ([193.70.193.50]:43431 "EHLO
-	mail1c.webmessenger.it") by vger.kernel.org with ESMTP
-	id S267167AbUBSKLL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 19 Feb 2004 05:11:11 -0500
-Message-ID: <40348BBA.9000206@libero.it>
-Date: Thu, 19 Feb 2004 11:11:06 +0100
-From: Vito Impagliazzo <vimpagliazzo@libero.it>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040113
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: multiple printk problem
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Thu, 19 Feb 2004 05:10:34 -0500
+Received: from fw.osdl.org ([65.172.181.6]:37349 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S267165AbUBSKKZ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 19 Feb 2004 05:10:25 -0500
+Date: Thu, 19 Feb 2004 02:10:18 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: vatsa@in.ibm.com
+Cc: mingo@redhat.com, rusty@rustcorp.com.au, linux-kernel@vger.kernel.org
+Subject: Re: keventd_create_kthread
+Message-Id: <20040219021018.408d9c55.akpm@osdl.org>
+In-Reply-To: <20040219100549.GA27018@in.ibm.com>
+References: <20040218231322.35EE92C05F@lists.samba.org>
+	<Pine.LNX.4.58.0402190205040.16515@devserv.devel.redhat.com>
+	<20040219001011.6245f163.akpm@osdl.org>
+	<20040219100549.GA27018@in.ibm.com>
+X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi, I'm quite new to kernel module programming,
-I was wondering why multiple consecutive calls to printk will not be 
-correctly logged by the system logger (linux-2.4.25 with metalog without 
-buffering in my case).
+Srivatsa Vaddagiri <vatsa@in.ibm.com> wrote:
+>
+> On Thu, Feb 19, 2004 at 08:12:19AM +0000, Andrew Morton wrote:
+> > However, if that wake_up_process() comes too early we'll just flip the new
+> > thread out of TASK_INTERUPTIBLE into TASK_RUNNING and the schedule() in
+> > kthread() will fall straight through.  So perhaps we can simply remove the
+> > wait_task_inactive()?
+> 
+> If wake_up_process() comes too early (when the target task is still
+> in TASK_RUNNING state), then won't wake_up_process() be a no-op?
+> In which case, the target kthread will miss a wake-up event 
+> (kthread_start/kthread_stop)?
 
-Consider for example the following example, only the first message can 
-be found in logs:
+No, that's OK - the new kernel thread sets TASK_INTERRUPTIBLE before waking
+the invoking thread via complete():
 
-    #include <linux/version.h>
-    #include <linux/init.h>
-    #include <linux/module.h>
-    #include <linux/kernel.h>
+new thread:
 
+	/* OK, tell user we're spawned, wait for stop or wakeup */
+	__set_current_state(TASK_INTERRUPTIBLE);
+	complete(&create->started);
+	schedule();
 
-    MODULE_AUTHOR ("Vito Impagliazzo <vimpagliazzo@libero.it>");
-    MODULE_DESCRIPTION ("Hello World");
-    MODULE_LICENSE("Dual BSD/GPL");
+invoker:
 
-    static int hello_init(void)
-    {
-        printf(KERN_ALERT "1\n");
-        printf(KERN_ALERT "2\n");
-        printf(KERN_ALERT "3\n");
-        return 0;
-    }
+	wait_for_completion(&create->started);
+	create->result = find_task_by_pid(pid);
+	wait_task_inactive(create->result);
 
-    static void hello_exit(void)
-    {
-        printk(KERN_ALERT "Goodbye, cruel world\n");
-    }
+It's the window after the complete() and before the schedule() where
+wait_task_inactive() is spinning.
 
-module_init(hello_init);
-module_exit(hello_exit);
-
-Thanks,
-Vito Impagliazzo

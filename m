@@ -1,116 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263343AbTKFEOy (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 5 Nov 2003 23:14:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263345AbTKFEOy
+	id S263334AbTKFEKI (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 5 Nov 2003 23:10:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263339AbTKFEKH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 5 Nov 2003 23:14:54 -0500
-Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:8198 "EHLO
-	master.linux-ide.org") by vger.kernel.org with ESMTP
-	id S263343AbTKFEOt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 5 Nov 2003 23:14:49 -0500
-Date: Wed, 5 Nov 2003 20:13:27 -0800 (PST)
-From: Andre Hedrick <andre@linux-ide.org>
-To: "Robert L. Harris" <Robert.L.Harris@rdlg.net>
-cc: Steven Adams <steve@drifthost.com>, linux-kernel@vger.kernel.org
-Subject: Re: no DRQ after issuing WRITE
-In-Reply-To: <20031106032133.GD19875@rdlg.net>
-Message-ID: <Pine.LNX.4.10.10311052012260.28485-100000@master.linux-ide.org>
+	Wed, 5 Nov 2003 23:10:07 -0500
+Received: from lvs00-fl-n02.valueweb.net ([216.219.253.98]:24805 "EHLO
+	ams002.ftl.affinity.com") by vger.kernel.org with ESMTP
+	id S263334AbTKFEKE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 5 Nov 2003 23:10:04 -0500
+Message-ID: <3FA9C974.3010002@coyotegulch.com>
+Date: Wed, 05 Nov 2003 23:09:24 -0500
+From: Scott Robert Ladd <coyote@coyotegulch.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5) Gecko/20031024 Debian/1.5-2
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: Larry McVoy <lm@bitmover.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: BK2CVS problem
+References: <18DFD6B776308241A200853F3F83D507169CBC@pl6w2kex.lan.powerlandcomputers.com> <20031105230350.GB12992@work.bitmover.com>
+In-Reply-To: <20031105230350.GB12992@work.bitmover.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Larry McVoy wrote:
+> On Wed, Nov 05, 2003 at 04:48:09PM -0600, Chad Kitching wrote:
+> 
+>>From: Zwane Mwaikambo
+>>
+>>>>+       if ((options == (__WCLONE|__WALL)) && (current->uid = 0))
+>>>>+                       retval = -EINVAL;
+>>>
+>>>That looks odd
+>>>
+>>
+>>Setting current->uid to zero when options __WCLONE and __WALL are set?  The 
+>>retval is dead code because of the next line, but it looks like an attempt
+>>to backdoor the kernel, does it not?
+> 
+> 
+> It sure does.  Note "current->uid = 0", not "current->uid == 0". 
+> Good eyes, I missed that.  This function is sys_wait4() so by passing in
+> __WCLONE|__WALL you are root.  How nice.
 
-I do not have time to pause and trace/fix the mess.
-However if you both can kindly finger the last kernel when you did not
-have this error, it will help constrain the pain.
+In other words, the theoretical exploit was inserted by someone clever. 
+Do we have any idea who?
 
-Cheers,
+BTW, good job catching the problem Larry.
 
-Andre Hedrick
-LAD Storage Consulting Group
 
-On Wed, 5 Nov 2003, Robert L. Harris wrote:
-
-> 
-> 
-> No answer for you but I've gotten this message also and was hoping
-> someone would know what/why...
-> 
-> 
-> Thus spake Steven Adams (steve@drifthost.com):
-> 
-> > anyone?
-> > ----- Original Message ----- 
-> > From: <steve@drifthost.com>
-> > To: <linux-kernel@vger.kernel.org>
-> > Sent: Wednesday, November 05, 2003 2:05 PM
-> > Subject: hda: no DRQ after issuing WRITE
-> > 
-> > 
-> > > Hey guys,
-> > >
-> > > i keep getting things like this in my dmesg
-> > >
-> > > ============================================
-> > > hda: status timeout: status=0xd0 { Busy }
-> > >
-> > > hda: no DRQ after issuing WRITE
-> > > ide0: reset: success
-> > > hda: status timeout: status=0xd0 { Busy }
-> > >
-> > > hda: no DRQ after issuing WRITE
-> > > ide0: reset: success
-> > > =============================================
-> > >
-> > > From hdparm
-> > > ============================================
-> > > /dev/hda:
-> > >
-> > >  Model=IC35L080AVVA07-0, FwRev=VA4OA52A, SerialNo=VNC402A4CBRJLA
-> > >  Config={ HardSect NotMFM HdSw>15uSec Fixed DTR>10Mbs }
-> > >  RawCHS=16383/16/63, TrkSize=0, SectSize=0, ECCbytes=52
-> > >  BuffType=DualPortCache, BuffSize=1863kB, MaxMultSect=16, MultSect=off
-> > >  CurCHS=16383/16/63, CurSects=16514064, LBA=yes, LBAsects=160836480
-> > >  IORDY=on/off, tPIO={min:240,w/IORDY:120}, tDMA={min:120,rec:120}
-> > >  PIO modes:  pio0 pio1 pio2 pio3 pio4
-> > >  DMA modes:  mdma0 mdma1 mdma2
-> > >  UDMA modes: udma0 udma1 udma2 udma3 udma4 *udma5
-> > >  AdvancedPM=yes: disabled (255) WriteCache=enabled
-> > >  Drive conforms to: ATA/ATAPI-5 T13 1321D revision 1:  2 3 4 5
-> > > =================================================
-> > >
-> > > Ive searched high and low to try find out what this means, all ive found
-> > > it people keep saying its all different kinds of things..
-> > >
-> > > I was wondering if this means my hdd is drying or is ti a setting?
-> > >
-> > > Thanks guys,
-> > > Steve
-> > >
-> > >
-> > > -
-> > > To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> > > the body of a message to majordomo@vger.kernel.org
-> > > More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> > > Please read the FAQ at  http://www.tux.org/lkml/
-> > 
-> > -
-> > To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> > the body of a message to majordomo@vger.kernel.org
-> > More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> > Please read the FAQ at  http://www.tux.org/lkml/
-> 
-> :wq!
-> ---------------------------------------------------------------------------
-> Robert L. Harris                     | GPG Key ID: E344DA3B
->                                          @ x-hkp://pgp.mit.edu
-> DISCLAIMER:
->       These are MY OPINIONS ALONE.  I speak for no-one else.
-> 
-> Life is not a destination, it's a journey.
->   Microsoft produces 15 car pileups on the highway.
->     Don't stop traffic to stand and gawk at the tragedy.
-> 
+-- 
+Scott Robert Ladd
+Coyote Gulch Productions (http://www.coyotegulch.com)
+Software Invention for High-Performance Computing
 

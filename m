@@ -1,110 +1,120 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S274720AbRIYXgt>; Tue, 25 Sep 2001 19:36:49 -0400
+	id <S274727AbRIYXnU>; Tue, 25 Sep 2001 19:43:20 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S274732AbRIYXgb>; Tue, 25 Sep 2001 19:36:31 -0400
-Received: from barry.mail.mindspring.net ([207.69.200.25]:45340 "EHLO
-	barry.mail.mindspring.net") by vger.kernel.org with ESMTP
-	id <S274720AbRIYXgX>; Tue, 25 Sep 2001 19:36:23 -0400
-Subject: [PATCH][RFC] Allow net devices to contribute to /dev/random
-From: Robert Love <rml@tech9.net>
+	id <S274732AbRIYXnO>; Tue, 25 Sep 2001 19:43:14 -0400
+Received: from mailout02.sul.t-online.com ([194.25.134.17]:27140 "EHLO
+	mailout02.sul.t-online.de") by vger.kernel.org with ESMTP
+	id <S274727AbRIYXm7>; Tue, 25 Sep 2001 19:42:59 -0400
+Date: Wed, 26 Sep 2001 01:42:44 +0200
+From: Moritz Moeller-Herrmann <mmh@gmx.net>
 To: linux-kernel@vger.kernel.org
-Cc: linux-kernel@alex.org.uk
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/0.14.99+cvs.2001.09.24.08.08 (Preview Release)
-Date: 25 Sep 2001 19:36:41 -0400
-Message-Id: <1001461026.9352.156.camel@phantasy>
+Subject: oopses: i386 linux-2.4.10,  es1371 sound card, analog joystick
+Message-ID: <20010926014233.A1010@rosalind.local>
+Reply-To: Moritz Moeller-Herrmann <mmh@gmx.net>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.19i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Updated versions of my netdev-random patch are out.  The patchset is two
-piece: one containing the core code and two containing the updated
-drivers.
+Hello, I have a lot of problems with the latest kernel and my 1371 sound
+card. It used to work fine in all earlier kernels and 2.4.9ac7.
 
-2.4.9-ac15:
-http://tech9.net/rml/linux/patch-rml-2.4.9-ac15-netdev-random-1
-http://tech9.net/rml/linux/patch-rml-2.4.9-ac15-netdev-random-2
+Now I get the following reproducible oops if I load, unload and reload the
+analog.o module. When I reload analog with modprobe -v analog, modprobe
+segfaults and lsmod shows analog.o stuck in "Initializing"
 
-2.4.10:
-http://tech9.net/rml/linux/patch-rml-2.4.10-netdev-random-1
-http://tech9.net/rml/linux/patch-rml-2.4.10-netdev-random-2
+I have already made mrproper, deleteted the modules dir
+2.4.10 and rebuilt from scratch. I can not program C, so I am not subscribed
+to the list, please cc: me for any questions.
 
-ChangeLog and more information:
-http://tech9.net/rml/linux/
+Here is the output of dmesg|ksymoops on SuSE-7.2:
+*****************
+ksymoops 2.4.1 on i686 2.4.10.  Options used
+     -V (default)
+     -k /proc/ksyms (default)
+     -l /proc/modules (default)
+     -o /lib/modules/2.4.10/ (default)
+     -m /boot/System.map-2.4.10 (default)
 
-Quick summary:  This patch enables a new configure option that allows
-users to allow whether network devices can contribute to /dev/random. 
-Normally block devices and the keyboard contribute, although very few
-network devices do.  This patch makes a user-configurable policy out of
-the issue: either allow them all or disallow them all.  Some users, such
-as those on a headless or diskless system, have little or no entropy. 
-This patch will give them that entropy.  Summarizing the discussion on
-the issue, as long as SHA-1 is secure or your network traffic is secure,
-this is safe.  For those who don't want the option, leave the setting
-disabled and no NIC will contribute.
+Warning: You did not tell me where to find symbol information.  I will
+assume that the log matches the kernel and modules that are running
+right now and I'll use the default options above for symbol resolution.
+If the current kernel and/or modules do not match the log, you can get
+more accurate output by telling me the kernel version and where to find
+map, modules, ksyms etc.  ksymoops -h explains the options.
 
-How it works:  defines a new flag for each architecture,
-SA_SAMPLE_NET_RANDOM which defines to 0 or SA_SAMPLE_RANDOM depending on
-the value of the configure statement.
+Warning (compare_maps): mismatch on symbol usb_devfs_handle  , usbcore says d0a39460, /lib/modules/2.4.10/kernel/drivers/usb/usbcore.o says d0a39320.  Ignoring /lib/modules/2.4.10/kernel/drivers/usb/usbcore.o entry
+Warning (compare_maps): mismatch on symbol icmpv6_socket  , ipv6 says d0a2ff00, /lib/modules/2.4.10/kernel/net/ipv6/ipv6.o says d0a2dd20.  Ignoring /lib/modules/2.4.10/kernel/net/ipv6/ipv6.o entry
+Warning (compare_maps): mismatch on symbol icmpv6_statistics  , ipv6 says d0a2fe00, /lib/modules/2.4.10/kernel/net/ipv6/ipv6.o says d0a2dc20.  Ignoring /lib/modules/2.4.10/kernel/net/ipv6/ipv6.o entry
+Warning (compare_maps): mismatch on symbol inet6_dev_count  , ipv6 says d0a2f960, /lib/modules/2.4.10/kernel/net/ipv6/ipv6.o says d0a2d780.  Ignoring /lib/modules/2.4.10/kernel/net/ipv6/ipv6.o entry
+Warning (compare_maps): mismatch on symbol inet6_ifa_count  , ipv6 says d0a2f964, /lib/modules/2.4.10/kernel/net/ipv6/ipv6.o says d0a2d784.  Ignoring /lib/modules/2.4.10/kernel/net/ipv6/ipv6.o entry
+Warning (compare_maps): mismatch on symbol inet6_protos  , ipv6 says d0a2fd80, /lib/modules/2.4.10/kernel/net/ipv6/ipv6.o says d0a2dba0.  Ignoring /lib/modules/2.4.10/kernel/net/ipv6/ipv6.o entry
+Warning (compare_maps): mismatch on symbol inetsw6  , ipv6 says d0a2f900, /lib/modules/2.4.10/kernel/net/ipv6/ipv6.o says d0a2d720.  Ignoring /lib/modules/2.4.10/kernel/net/ipv6/ipv6.o entry
+Warning (compare_maps): mismatch on symbol ip6_ra_chain  , ipv6 says d0a2fc00, /lib/modules/2.4.10/kernel/net/ipv6/ipv6.o says d0a2da20.  Ignoring /lib/modules/2.4.10/kernel/net/ipv6/ipv6.o entry
+Warning (compare_maps): mismatch on symbol ipv6_statistics  , ipv6 says d0a2fb00, /lib/modules/2.4.10/kernel/net/ipv6/ipv6.o says d0a2d920.  Ignoring /lib/modules/2.4.10/kernel/net/ipv6/ipv6.o entry
+Warning (compare_maps): mismatch on symbol raw_v6_htable  , ipv6 says d0a2fd00, /lib/modules/2.4.10/kernel/net/ipv6/ipv6.o says d0a2db20.  Ignoring /lib/modules/2.4.10/kernel/net/ipv6/ipv6.o entry
+Warning (compare_maps): mismatch on symbol rt6_stats  , ipv6 says d0a2fac8, /lib/modules/2.4.10/kernel/net/ipv6/ipv6.o says d0a2d8e8.  Ignoring /lib/modules/2.4.10/kernel/net/ipv6/ipv6.o entry
+Warning (compare_maps): mismatch on symbol udp_stats_in6  , ipv6 says d0a2fc80, /lib/modules/2.4.10/kernel/net/ipv6/ipv6.o says d0a2daa0.  Ignoring /lib/modules/2.4.10/kernel/net/ipv6/ipv6.o entry
+Warning (compare_maps): mismatch on symbol proc_scsi  , scsi_mod says d09ec654, /lib/modules/2.4.10/kernel/drivers/scsi/scsi_mod.o says d09eaeac.  Ignoring /lib/modules/2.4.10/kernel/drivers/scsi/scsi_mod.o entry
+Warning (compare_maps): mismatch on symbol scsi_devicelist  , scsi_mod says d09ec680, /lib/modules/2.4.10/kernel/drivers/scsi/scsi_mod.o says d09eaed8.  Ignoring /lib/modules/2.4.10/kernel/drivers/scsi/scsi_mod.o entry
+Warning (compare_maps): mismatch on symbol scsi_hostlist  , scsi_mod says d09ec67c, /lib/modules/2.4.10/kernel/drivers/scsi/scsi_mod.o says d09eaed4.  Ignoring /lib/modules/2.4.10/kernel/drivers/scsi/scsi_mod.o entry
+Warning (compare_maps): mismatch on symbol scsi_hosts  , scsi_mod says d09ec684, /lib/modules/2.4.10/kernel/drivers/scsi/scsi_mod.o says d09eaedc.  Ignoring /lib/modules/2.4.10/kernel/drivers/scsi/scsi_mod.o entry
+Warning (compare_maps): mismatch on symbol scsi_logging_level  , scsi_mod says d09ec650, /lib/modules/2.4.10/kernel/drivers/scsi/scsi_mod.o says d09eaea8.  Ignoring /lib/modules/2.4.10/kernel/drivers/scsi/scsi_mod.o entry
+cpu: 0, clocks: 2004585, slice: 1002292
+ac97_codec: AC97 Audio codec, id: 0x8384:0x7609 (SigmaTel STAC9721/23)
+CPU:    0
+EIP:    0010:[<d09d4362>]
+Using defaults from ksymoops -t elf32-i386 -a i386
+EFLAGS: 00013297
+eax: ffff58f0   ebx: 000000ff   ecx: 00003246   edx: ffffffff
+esi: d09d4bd4   edi: c62b3000   ebp: cf445c40   esp: cb0fded8
+ds: 0018   es: 0018   ss: 0018
+Process modprobe (pid: 856, stackpage=cb0fd000)
+Stack: cf445c40 d09d4bd4 c62b388c 00001de0 00000002 d09d45c6 cf445c40 d09d4bd4 
+       c62b3000 cf445c40 d09d4bd4 00000002 00001de0 c62b3000 00001de0 d09d1291 
+       cf445c40 d09d4bd4 d09d3000 00000002 d09d47ef d09d4bd4 c011693d cb0fc000 
+Call Trace: [<d09d4bd4>] [<d09d45c6>] [<d09d4bd4>] [<d09d4bd4>] [<d09d1291>] 
+   [<d09d4bd4>] [<d09d47ef>] [<d09d4bd4>] [<c011693d>] [<d09d3060>] [<c0106c6b>] 
+Code: f7 bf 58 08 00 00 be 00 e0 ff ff 21 e6 89 c1 ba d3 4d 62 10 
 
-All architectures and all network devices are supported.  The lastest
-patch fixes a few typos and the like.
+>>EIP; d09d4362 <[analog]analog_init_port+c2/2e0>   <=====
+Trace; d09d4bd4 <[analog]analog_dev+0/f>
+Trace; d09d45c6 <[analog]analog_connect+46/e0>
+Trace; d09d4bd4 <[analog]analog_dev+0/f>
+Trace; d09d4bd4 <[analog]analog_dev+0/f>
+Trace; d09d1291 <[gameport]gameport_register_device+31/40>
+Trace; d09d4bd4 <[analog]analog_dev+0/f>
+Trace; d09d47ef <[analog]init_module+f/20>
+Trace; d09d4bd4 <[analog]analog_dev+0/f>
+Trace; c011693d <sys_init_module+50d/5b0>
+Trace; d09d3060 <[analog]analog_decode+0/280>
+Trace; c0106c6b <system_call+33/38>
+Code;  d09d4362 <[analog]analog_init_port+c2/2e0>
+00000000 <_EIP>:
+Code;  d09d4362 <[analog]analog_init_port+c2/2e0>   <=====
+   0:   f7 bf 58 08 00 00         idiv   0x858(%edi),%eax   <=====
+Code;  d09d4368 <[analog]analog_init_port+c8/2e0>
+   6:   be 00 e0 ff ff            mov    $0xffffe000,%esi
+Code;  d09d436d <[analog]analog_init_port+cd/2e0>
+   b:   21 e6                     and    %esp,%esi
+Code;  d09d436f <[analog]analog_init_port+cf/2e0>
+   d:   89 c1                     mov    %eax,%ecx
+Code;  d09d4371 <[analog]analog_init_port+d1/2e0>
+   f:   ba d3 4d 62 10            mov    $0x10624dd3,%edx
 
-[You can ignore further if you just wanted the newest patch]
 
-Now, why this I ask for comments.  An alternative approach to this is to
-not have a configure setting but instead have a /proc interface.  When
-disabled, interrupts will not contribute, and when enabled, they will.
+18 warnings issued.  Results may not be reliable.
+****************
 
-The code is something like this:
 
-define SA_SAMPLE_NET_RANDOM to be our new SA_SAMPLE_RANDOM for NICs
-(like with the normal patch).
-
-let random_netdev_contribute be 0 or 1 set from the /proc interface.
-
-in setup_irq and handle_IRQ_event() we change:
-
-if (status & SA_SAMPLE_RANDOM)
-
-to
-
-if ((status & SA_SAMPLE_RANDOM) ||
-	   ((status & SA_SAMPLE_NET_RANDOM) && random_netdev_contrib))
-
-That's about it.  Most of the code I have is for the proc interface.
-
-One problem, and one concern.
-
-The problem: setup_irq is called on device setup.  this means that
-in-kernel drivers and modules loaded before the /proc interface is set
-will have the wrong value registered in setup_irq.  I am not too sure
-what this entails
-
-Ie, if random_netdev_contrib=0 when we call setup_irq, we won't call
-rand_initialize_irq() but then if random_netdev_contrib is set to 1, we
-will all of a sudden start calling add_interrupt_randomness()!  You can
-see the reverse of this, too, where we will initialize it but not call
-add.
-
-Changing the proc entry on the fly and/or loading/unloading modules just
-adds to this mess.
-
-I just don't think this will work cleanly.
-
-Finally, my concern is that the if statement is not the cleanest.  We
-have to check for the normal SA_SAMPLE_RANDOM flag, and then we need to
-check for the other possibility of the NET version of the flag. If it
-exists, we need to see if random_netdev_contrib is set.  Not very
-clean.  A cleaner design, anyone?
-
-I am happy to just leave the patch as is, and right now I am thinking I
-will do just that.
+Why do I get these warnings? What is wrong with my system? Any answer
+appreciated. Hardware error unlikely because it works fine with earlier
+kernels.
 
 -- 
-Robert M. Love
-rml at ufl.edu
-rml at tech9.net
-
+Moritz Moeller-Herrmann mmh@gmx.net ICQ# 3585990
+wiss. Mitarbeiter, IMGB
+Linus Torvalds: "I'm a big fan of konqueror, and I use it for everything."

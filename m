@@ -1,48 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261351AbUJYEIe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261235AbUJYEWC@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261351AbUJYEIe (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 25 Oct 2004 00:08:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261360AbUJYEIe
+	id S261235AbUJYEWC (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 25 Oct 2004 00:22:02 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261360AbUJYEWC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 25 Oct 2004 00:08:34 -0400
-Received: from gate.crashing.org ([63.228.1.57]:58573 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S261351AbUJYEId (ORCPT
+	Mon, 25 Oct 2004 00:22:02 -0400
+Received: from ozlabs.org ([203.10.76.45]:132 "EHLO ozlabs.org")
+	by vger.kernel.org with ESMTP id S261235AbUJYEWA (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 25 Oct 2004 00:08:33 -0400
-Subject: Concerns about our pci_{save,restore}_state()
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Greg KH <greg@kroah.com>
-Cc: Linux Kernel list <linux-kernel@vger.kernel.org>,
-       Linux-pm mailing list <linux-pm@lists.osdl.org>
+	Mon, 25 Oct 2004 00:22:00 -0400
+Subject: Re: [RFC/PATCH] Per-device parameter support
+From: Rusty Russell <rusty@rustcorp.com.au>
+To: tj@home-tj.org
+Cc: mochel@osdl.org, lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20041023042024.GA3456@home-tj.org>
+References: <20041023042024.GA3456@home-tj.org>
 Content-Type: text/plain
-Date: Mon, 25 Oct 2004 14:06:22 +1000
-Message-Id: <1098677182.26697.21.camel@gaston>
+Date: Mon, 25 Oct 2004 14:21:57 +1000
+Message-Id: <1098678117.8098.7.camel@localhost.localdomain>
 Mime-Version: 1.0
 X-Mailer: Evolution 2.0.2 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Greg !
+On Sat, 2004-10-23 at 13:20 +0900, tj@home-tj.org wrote:
+>  Hello,
+> 
+>  I rewrote the document, debugged and splitted devparam patch.  I'm
+> attaching the document in this mail and posting 16 patches
+> (dp_01 - dp_16) which are against Linus's bk tree as of today.
 
-I was looking at our "generic" pci_save_state() and pci_restore_state()
-and I have various concerns with them, I was wondering what you though
-about them...
+Hi TJ,
 
- - We should always write the command register after all the BARs,
-typically that mean write it back _last_
- - We shouldn't write to the BIST register, it is defined as having
-side effects and writing to it any value may trigger a BIST on the
-card, with all the possible bad consequences that has
- - What about saving/restoring more registers ? I'm not sure wether it
-should be the responsibility of the driver to save and restore things
-above dword 15, but we should at least deal with the case of P2P bridges
-who have more "standard" registers
+	Love the idea: thanks for doing this work!  I'm reviewing the patches
+themselves now, but I'll mainly concentrate on your moduleparam changes
+which I'm not sure are necessary.
 
-In addition, we currently have no mecanism to save/restore the state of
-P2P bridges. Shouldn't we do that in pci_device_suspend() if there is no
-driver attached ?
-
-Ben.
-
+Cheers,
+Rusty.
+-- 
+A bad analogy is like a leaky screwdriver -- Richard Braakman
 

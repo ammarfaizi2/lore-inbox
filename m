@@ -1,45 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264511AbUAFPVr (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 Jan 2004 10:21:47 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264522AbUAFPVq
+	id S264500AbUAFPTK (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 Jan 2004 10:19:10 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264501AbUAFPTK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 Jan 2004 10:21:46 -0500
-Received: from websrv.werbeagentur-aufwind.de ([213.239.197.241]:22168 "EHLO
-	mail.werbeagentur-aufwind.de") by vger.kernel.org with ESMTP
-	id S264511AbUAFPVo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 Jan 2004 10:21:44 -0500
-Subject: Re: Possibly wrong BIO usage in ide_multwrite
-From: Christophe Saout <christophe@saout.de>
-To: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
-Cc: linux-ide@vger.kernel.org, linux-kernel@vger.kernel.org
-In-Reply-To: <200401061538.48904.bzolnier@elka.pw.edu.pl>
-References: <1072977507.4170.14.camel@leto.cs.pocnet.net>
-	 <200401060059.52833.bzolnier@elka.pw.edu.pl>
-	 <20040106113330.GA5827@leto.cs.pocnet.net>
-	 <200401061538.48904.bzolnier@elka.pw.edu.pl>
+	Tue, 6 Jan 2004 10:19:10 -0500
+Received: from mn.miryuna.net ([203.141.146.63]:37531 "EHLO
+	localhost.localdomain") by vger.kernel.org with ESMTP
+	id S264500AbUAFPTI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 6 Jan 2004 10:19:08 -0500
+Subject: BIOS BUG: CPU#4 improperly initialized, has 3 usecs TSC skew! FIXED
+From: David Alan Blomberg <dblomber@lpjam.com>
+To: kernel <linux-kernel@vger.kernel.org>
+Cc: dblomber@libertec.com
 Content-Type: text/plain
-Message-Id: <1073402495.6624.3.camel@leto.cs.pocnet.net>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 
-Date: Tue, 06 Jan 2004 16:21:36 +0100
 Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.8 (1.0.8-10) 
+Date: 07 Jan 2004 00:25:08 +0900
+Message-Id: <1073402708.24101.9.camel@localhost.localdomain>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Am Di, den 06.01.2004 schrieb Bartlomiej Zolnierkiewicz um 15:38:
+System is Red Hat Advance server 2.1 
+Kernel 2.4.9-e25
+Hardware if IBM X360 
+4 processors (Xeon 2.8 Hyperthreading enabled)
+Summit Kernel
 
-> > > > Remember? Can bio be NULL somewhere? Or what do you mean? It's our
-> > > > scratchpad and ide_multwrite never puts a NULL bio on it.
-> > >
-> > > After last sector of the whole transfer is processed ide_multwrite() will
-> > > set it to NULL.
-> >
-> > No, it doesn't.
-> 
-> Yep, you are right, bio is NULL, but rq->bio is not set...
+Question is the message appears to be a processor election problem (I
+had it on 2 or the 8 reported processors-gotta love hyperthreading) It
+is the only error I can locate and the system is acting up and hanging. 
+IBM hardware error log only shows that "an unrecoverable error occured"
+and system was rebooted.
 
-So, shall I resend the updated patch with the one line moved above the
-comment?
+Now for the question-is this serious? I have asked IBM for help but they
+have no help (great thanks).  I also have another system (same build
+showing only 1 like error at start up its not hanging like this one but
+its not performing well).  Before you ask this is IBMs new X360 with the
+faster BUS speed. 
+
+Thank You in advance
+
+David Blomberg   
 
 

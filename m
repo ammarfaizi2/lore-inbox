@@ -1,35 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261923AbSJNPpj>; Mon, 14 Oct 2002 11:45:39 -0400
+	id <S261934AbSJNPqY>; Mon, 14 Oct 2002 11:46:24 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261934AbSJNPpj>; Mon, 14 Oct 2002 11:45:39 -0400
-Received: from mx1.elte.hu ([157.181.1.137]:15535 "HELO mx1.elte.hu")
-	by vger.kernel.org with SMTP id <S261923AbSJNPpj>;
-	Mon, 14 Oct 2002 11:45:39 -0400
-Date: Mon, 14 Oct 2002 18:02:30 +0200 (CEST)
-From: Ingo Molnar <mingo@elte.hu>
-Reply-To: Ingo Molnar <mingo@elte.hu>
-To: William Lee Irwin III <wli@holomorphy.com>
-Cc: Linus Torvalds <torvalds@transmeta.com>, <linux-kernel@vger.kernel.org>,
-       <linux-mm@kvack.org>
-Subject: Re: [patch, feature] nonlinear mappings, prefaulting support,
- 2.5.42-F8
-In-Reply-To: <Pine.LNX.4.44.0210141739510.8792-100000@localhost.localdomain>
-Message-ID: <Pine.LNX.4.44.0210141800160.9302-100000@localhost.localdomain>
+	id <S261936AbSJNPqY>; Mon, 14 Oct 2002 11:46:24 -0400
+Received: from ausadmmsps305.aus.amer.dell.com ([143.166.224.100]:3852 "HELO
+	AUSADMMSPS305.aus.amer.dell.com") by vger.kernel.org with SMTP
+	id <S261934AbSJNPqW>; Mon, 14 Oct 2002 11:46:22 -0400
+X-Server-Uuid: bc938b4d-8e35-4c08-ac42-ea3e606f44ee
+Message-ID: <20BF5713E14D5B48AA289F72BD372D68C1E9A1@AUSXMPC122.aus.amer.dell.com>
+From: Matt_Domsch@Dell.com
+To: rob@osinvestor.com, davej@codemonkey.org.uk, wim@iguana.be,
+       rddunlap@osdl.org, rmk@arm.linux.org.uk, linux-kernel@vger.kernel.org
+Subject: RE: Watchdog drivers
+Date: Mon, 14 Oct 2002 10:51:59 -0500
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Mailer: Internet Mail Service (5.5.2650.21)
+X-WSS-ID: 11B437A22145710-01-01
+Content-Type: text/plain; 
+ charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> Also, I've got patches around from Matt Domsch that did the 
+> move, and changed
+> around the necessary drivers/char/ files.  I haven't been 
+> keeping them up-to- date, maybe Matt has.
 
-> if this is really an issue then we could force vma->vm_page_prot to
-> PROT_NONE within remap_file_pages(), so at least all subsequent faults
-> will be PROT_NONE and the user would have to explicitly re-mprotect()
-> the vma again to change this.
+I haven't been, but it doesn't look too painful to do it.  The Natsemi
+SCx200 merge is what's screwing up BK's automerge of it (I hadn't updated
+that tree since April...).
 
-i've added this to the -G1 patch at:
+The move work took me a few hours last time I did it, I can resurrect that
+now that there's interest.  Give me a few hours, today's kind of busy...
 
-        http://redhat.com/~mingo/remap-file-pages-patches/
+Thanks,
+Matt
 
-    Ingo
+--
+Matt Domsch
+Sr. Software Engineer, Lead Engineer, Architect
+Dell Linux Solutions www.dell.com/linux
+Linux on Dell mailing lists @ http://lists.us.dell.com
 

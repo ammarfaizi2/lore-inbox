@@ -1,54 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130149AbQLDOQj>; Mon, 4 Dec 2000 09:16:39 -0500
+	id <S129640AbQLDOUJ>; Mon, 4 Dec 2000 09:20:09 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130252AbQLDOQ3>; Mon, 4 Dec 2000 09:16:29 -0500
-Received: from ife.ee.ethz.ch ([129.132.29.2]:20371 "EHLO ife.ee.ethz.ch")
-	by vger.kernel.org with ESMTP id <S130149AbQLDOQT>;
-	Mon, 4 Dec 2000 09:16:19 -0500
-Message-ID: <3A2BA005.F85423F6@ife.ee.ethz.ch>
-Date: Mon, 04 Dec 2000 14:45:41 +0100
-From: Thomas Sailer <sailer@ife.ee.ethz.ch>
-Organization: IfE
-X-Mailer: Mozilla 4.76 [en] (X11; U; SunOS 5.7 sun4u)
-X-Accept-Language: de,fr,ru
+	id <S129638AbQLDOUA>; Mon, 4 Dec 2000 09:20:00 -0500
+Received: from leibniz.math.psu.edu ([146.186.130.2]:28558 "EHLO math.psu.edu")
+	by vger.kernel.org with ESMTP id <S129640AbQLDOTv>;
+	Mon, 4 Dec 2000 09:19:51 -0500
+Date: Mon, 4 Dec 2000 08:49:23 -0500 (EST)
+From: Alexander Viro <viro@math.psu.edu>
+To: Andrew Morton <andrewm@uow.edu.au>
+cc: Linus Torvalds <torvalds@transmeta.com>,
+        Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] inode dirty blocks
+In-Reply-To: <3A2B9B39.AA240475@uow.edu.au>
+Message-ID: <Pine.GSO.4.21.0012040843490.5153-100000@weyl.math.psu.edu>
 MIME-Version: 1.0
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-CC: Pavel Machek <pavel@suse.cz>, torvalds@transmeta.com,
-        linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] i810_audio 2.4.0-test11
-In-Reply-To: <E142tvc-0003je-00@the-village.bc.nu>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox wrote:
+	OK, guys, I think I've got it:
 
-> Definitely we should
+static int ext2_update_inode(struct inode * inode, int do_sync)
+{
+	...
+	mark_buffer_dirty_inode(bh, inode);
+	...
+}
 
-If you start killing format conversion then >99% of the
-existing applications won't work anymore with usbaudio.
-At that point you can dump the OSS interface just as well.
+Yes, that's right. bh of piece of inode table is put on inode's list.
+Fix: in ext2/inode.c 1211s/mark_buffer_dirty_inode/mark_buffer_dirty/
 
-And before killing format conversion you should kill
-the mmap stunt, because the format conversion complexity
-(~25 LOC) is by far dwarfed by the mmap emulation stuff.
+HTH,
+	Al
 
-The underlying question is:
-
-- do we want an usb audio driver that supports the OSS
-  interface and with which most existing applications work
-
-- or do we want a simple driver with its own non-OSS
-  interface.
-
-Anything in between is IMO silly. Killing the format
-conversion drops the advantage of running many existing
-applications but don't bring you much closer to the goal
-of simplicity.
-
-Tom
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

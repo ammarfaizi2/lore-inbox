@@ -1,48 +1,76 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284950AbRLKJnw>; Tue, 11 Dec 2001 04:43:52 -0500
+	id <S284945AbRLKKCq>; Tue, 11 Dec 2001 05:02:46 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284951AbRLKJnm>; Tue, 11 Dec 2001 04:43:42 -0500
-Received: from [195.66.192.167] ([195.66.192.167]:23569 "EHLO
-	Port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with ESMTP
-	id <S284950AbRLKJne>; Tue, 11 Dec 2001 04:43:34 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: vda <vda@port.imtp.ilyichevsk.odessa.ua>
-To: Bob Poortinga <bobp@savemail.com>, linux-kernel@vger.kernel.org
-Subject: Re: Upgrade to 2.4.16 produces "Kernel panic: No init found"
-Date: Tue, 11 Dec 2001 11:41:02 -0200
-X-Mailer: KMail [version 1.2]
-In-Reply-To: <3C150FD8.290BCBEC@savemail.com>
-In-Reply-To: <3C150FD8.290BCBEC@savemail.com>
-MIME-Version: 1.0
-Message-Id: <01121111410200.01012@manta>
-Content-Transfer-Encoding: 7BIT
+	id <S284948AbRLKKCg>; Tue, 11 Dec 2001 05:02:36 -0500
+Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:57101 "EHLO
+	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
+	id <S284945AbRLKKCV>; Tue, 11 Dec 2001 05:02:21 -0500
+Date: Tue, 11 Dec 2001 11:02:17 +0100
+From: Pavel Machek <pavel@suse.cz>
+To: Cory Bell <cory.bell@usa.net>
+Cc: kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: IRQ Routing Problem on ALi Chipset Laptop (HP Pavilion N5425)
+Message-ID: <20011211110217.E10682@atrey.karlin.mff.cuni.cz>
+In-Reply-To: <Pine.LNX.4.33.0112060938340.32381-100000@pianoman.cluster.toy> <1007685691.6675.1.camel@localhost.localdomain> <20011207213313.A176@elf.ucw.cz> <1007876254.17062.0.camel@localhost.localdomain> <20011210170147.A24663@atrey.karlin.mff.cuni.cz> <1008019490.17061.18.camel@localhost.localdomain>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1008019490.17061.18.camel@localhost.localdomain>
+User-Agent: Mutt/1.3.20i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 10 December 2001 17:41, Bob Poortinga wrote:
-> Hello kernel gurus,
->
-> I have searched the list archives and google'd myself silly, but I
-> can't seem to find a solution to my problem.
->
-> I am trying to update my 2.4.3 kernel (Mandrake 8.0 distro) to 2.4.16.
-> I did a 'make oldconfig' with my old .config file and added ext3 kernel
-> support in addition to ext2.  My root fs is ext2 (as are all my fs).
-> The new kernel boots but panics when it tries to mount the root fs.
-> Here is the error:
-> --------------------------------------------------------------------
-> Mounting /proc filesystem
-> Creating root device
-> Mounting root filesystem
-> pivotroot: pivot_root(/sysroot,/sysroot/initrd) failed: 2
-> Freeing unused kernel memory: 216k freed
-> Kernel panic: No init found.  Try passing init= option to kernel.
+Hi!
+ 
+> > He told me there's updated bios, somewhere. Did you try that?
+> 
+> Latest BIOS for my machine is 1.03 - didn't help.
+> 
+> > What exactly is wrong? You said PIR tables are broken, but with patch
+> > below, it seems to work. What's wrong?
+> 
+> Take a look at
+> http://www.microsoft.com/hwdev/archive/BUSBIOS/pciirq.asp
 
-Using initrd I guess?
-Please describe your boot process.
+That's ... really evil.
 
-Initrd support broke between 2.4.10 and 2.4.12, it does not like romfs and 
-minix initrds anymore. I have a testcase.
---
-vda
+> for some background. Under linux, on an ALi chipset, the "link" numbers
+> are used as an offset into the PCI config space of the ISA bridge, where
+> the IRQ for that "link" is stored. On my machine, the link numbers are
+> 0x01-0x03 (for everything but USB) and 0x59 (for USB). The value at the
+> offset for link 0x59 translates to IRQ 9. The PCI configuration space of
+> the USB controller indicates IRQ 9, as well. See pirq_ali_get() in
+
+So their BIOS wrongly set irq in config space of USB controller, right?
+
+> linux/arch/i386/kernel/pci-irq.c for details on how this works.
+> 
+> All the last patch does is match the IRQ being considered for the device
+> against the IRQ mask for that device in the PIR table. If it doesn't
+> match, the kernel assigns one that does match the mask.
+
+Ahha. May that mean that our magic w.r.t. touching pci config space on
+ALI chipsets is wrong?
+
+> To be clear: with the last patch, USB works, but not the maestro-3,
+> right?
+
+Yes.
+
+> The reason I keep asking you for the output of "lspci -vvvxxx" and
+> "dump_pirq" is so I can look at your PIR table and PCI config space and
+> try to determine if the same thing that happened to USB is happening to
+> your maestro. It's possible your maestro problem is completely
+> unrelated. If you're unwilling to provide that informataion for some
+> reason, just let me know and I'll quit asking.
+
+I thought I already mailed you lspci.... dump_pirq is not installed on
+my machine, I'll try to install it and mail you that info. [Hmm, it
+may be hard, because I'm now on modem link and behind nasty firewall;
+perhaps you could just mail me dump_pirq binary if it does not need
+special libraries?]
+								Pavel
+-- 
+Casualities in World Trade Center: 6453 dead inside the building,
+cryptography in U.S.A. and free speech in Czech Republic.

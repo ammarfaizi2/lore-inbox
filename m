@@ -1,41 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314266AbSDRIqh>; Thu, 18 Apr 2002 04:46:37 -0400
+	id <S314272AbSDRIx6>; Thu, 18 Apr 2002 04:53:58 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314272AbSDRIqg>; Thu, 18 Apr 2002 04:46:36 -0400
-Received: from ns1.alcove-solutions.com ([212.155.209.139]:39555 "EHLO
-	smtp-out.fr.alcove.com") by vger.kernel.org with ESMTP
-	id <S314266AbSDRIqf>; Thu, 18 Apr 2002 04:46:35 -0400
-Date: Thu, 18 Apr 2002 10:46:27 +0200
-From: Stelian Pop <stelian.pop@fr.alcove.com>
-To: Gerd Knorr <kraxel@bytesex.org>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [BKPATCH 2.4] meye driver: get parameters from the kernel command line
-Message-ID: <20020418084627.GC2034@come.alcove-fr>
-Reply-To: Stelian Pop <stelian.pop@fr.alcove.com>
-Mail-Followup-To: Stelian Pop <stelian.pop@fr.alcove.com>,
-	Gerd Knorr <kraxel@bytesex.org>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20020417155620.GF1519@come.alcove-fr> <20020417160500.GJ1519@come.alcove-fr> <20020418102935.C3531@bytesex.org>
-Mime-Version: 1.0
+	id <S314273AbSDRIx5>; Thu, 18 Apr 2002 04:53:57 -0400
+Received: from pat.uio.no ([129.240.130.16]:12737 "EHLO pat.uio.no")
+	by vger.kernel.org with ESMTP id <S314272AbSDRIx4>;
+	Thu, 18 Apr 2002 04:53:56 -0400
+To: Hirokazu Takahashi <taka@valinux.co.jp>
+Cc: jakob@unthought.net, davem@redhat.com, ak@suse.de,
+        linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] zerocopy NFS updated
+In-Reply-To: <20020414.212308.33849971.davem@redhat.com>
+	<20020416.100302.129343787.taka@valinux.co.jp>
+	<20020416034120.R18116@unthought.net>
+	<20020418.140155.85418444.taka@valinux.co.jp>
+From: Trond Myklebust <trond.myklebust@fys.uio.no>
+Date: 18 Apr 2002 10:53:31 +0200
+Message-ID: <shspu0x2xro.fsf@charged.uio.no>
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.1 (Cuyahoga Valley)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.25i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Apr 18, 2002 at 10:29:35AM +0200, Gerd Knorr wrote:
+>>>>> " " == Hirokazu Takahashi <taka@valinux.co.jp> writes:
 
-> > It would be also nice if Gerd would push (again ?) its changes
-> > (the video_generic_ioctl -> video_usercopy ones) to Marcelo...
-> 
-> I've mailed it last days, it is already in marcelos bk tree.
+     > Hi, I've been thinking about your comment, and I realized it
+     > was a good suggestion.  There are no problem with the zerocopy
+     > NFS, but If you want to use UDP sendfile for streaming or
+     > something like that, you wouldn't get good performance.
 
-Yep, I saw it this morning :-)
+Surely one can work around this in userland without inventing a load
+of ad-hoc schemes in the kernel socket layer?
 
-Thanks.
+If one doesn't want to create a pool of sockets in order to service
+the different threads, one can use generic methods such as
+sys_readahead() in order to ensure that the relevant data gets paged
+in prior to hogging the socket.
 
-Stelian.
--- 
-Stelian Pop <stelian.pop@fr.alcove.com>
-Alcove - http://www.alcove.com
+There is no difference between UDP and TCP sendfile() in this respect.
+
+Cheers,
+  Trond

@@ -1,72 +1,95 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318253AbSGQJjl>; Wed, 17 Jul 2002 05:39:41 -0400
+	id <S318256AbSGQJxX>; Wed, 17 Jul 2002 05:53:23 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318254AbSGQJjk>; Wed, 17 Jul 2002 05:39:40 -0400
-Received: from plum.csi.cam.ac.uk ([131.111.8.3]:48605 "EHLO
-	plum.csi.cam.ac.uk") by vger.kernel.org with ESMTP
-	id <S318253AbSGQJjj>; Wed, 17 Jul 2002 05:39:39 -0400
-Message-Id: <5.1.0.14.2.20020717103038.00a8c7a0@pop.cus.cam.ac.uk>
-X-Mailer: QUALCOMM Windows Eudora Version 5.1
-Date: Wed, 17 Jul 2002 10:45:41 +0100
-To: Andrew Morton <akpm@zip.com.au>
-From: Anton Altaparmakov <aia21@cantab.net>
-Subject: Re: [patch 13/13] lseek speedup
-Cc: Linus Torvalds <torvalds@transmeta.com>,
-       lkml <linux-kernel@vger.kernel.org>
-In-Reply-To: <3D35012B.EE9B1ABB@zip.com.au>
+	id <S318257AbSGQJxW>; Wed, 17 Jul 2002 05:53:22 -0400
+Received: from ns1.alcove-solutions.com ([212.155.209.139]:61088 "EHLO
+	smtp-out.fr.alcove.com") by vger.kernel.org with ESMTP
+	id <S318256AbSGQJxV>; Wed, 17 Jul 2002 05:53:21 -0400
+Date: Wed, 17 Jul 2002 11:56:18 +0200
+From: Stelian Pop <stelian.pop@fr.alcove.com>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Cc: Vojtech Pavlik <vojtech@suse.cz>
+Subject: Re: input subsystem config ?
+Message-ID: <20020717095618.GD14581@tahoe.alcove-fr>
+Reply-To: Stelian Pop <stelian.pop@fr.alcove.com>
+Mail-Followup-To: Stelian Pop <stelian.pop@fr.alcove.com>,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+	Vojtech Pavlik <vojtech@suse.cz>
+References: <20020716143415.GO7955@tahoe.alcove-fr>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; format=flowed
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20020716143415.GO7955@tahoe.alcove-fr>
+User-Agent: Mutt/1.3.25i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-At 06:31 17/07/02, Andrew Morton wrote:
->This is a fairly dopey patch to fix up the i_sem contention in lseek.
->Better ideas are welcome, but I'm offline until Monday so don't think
->I'm ignoring them...
+On Tue, Jul 16, 2002 at 04:34:15PM +0200, Stelian Pop wrote:
 
-I am afraid I don't have any better ideas but I don't think your patch is 
-safe. )-:
+> I have problems with the input subsystem in the latest BK tree,
+> on a Sony Vaio laptop (regular keyboard, integrated PS/2 trackball):
+                                                           ^^^^^^^^^
+pointing stick in fact
 
->We need to decide what we really want to lock in there.  If multiple
->threads are updating f_pos and/or i_size at the same time then they are
->going to see strange results whatever the kernel does.  I'd maintain
->that the only real obligation which the kernel has in this situation is
->to not oops, to not munch data and to not return competely outlandish
->results.
+> the keyboard works but the mouse is never initialized (nothing in 
+> the logs, AUX irq not reserved etc).
+> 
+> Before I submit a proper bug report, could someone confirm that
+> the input susbystem is supposed to be working now and what
+> config should I use (I tried several config options, all input
+> items 'Y', or some items compiled as modules etc).
 
-That can only be guaranteed by holding i_sem. Since the BKL was taken out 
-of ->readdir(), i_sem is now used for exclusion between ->readdir() and 
-->llseek() (well NTFS uses it anyway but many other fs which switched to 
-generic_file_llseek() do the same). This exclusion is necessary IMHO.
+Ok, here comes a more detalied bug report, based upon 2.5.26:
 
-->readdir() may well blow up or at the very least give "completely 
-outlandish results" if someone modifies f_pos while it is running. 
-Depending on when exactly it happens, ntfs_readdir() is going to be ok as 
-it mostly sets f_pos instead of incrementing it but still, a succeeding 
-->llseek(), may actually end up in a different position to the one 
-requested because of a concurrent ->readdir().
+Relevant boot messages:
+	ide0 at 0x1f0-0x1f7,0x3f6 on irq 14
+	 hda: 23579136 sectors w/512KiB Cache, CHS=23392/16/63, UDMA(33)
+	 hda: [PTBL] [1467/255/63] hda1 hda2 hda3 < hda5 hda6 >
+	mice: PS/2 mouse device common for all mice
+	input.c: calling /sbin/hotplug input [HOME=/ PATH=/sbin:/bin:/usr/sbin:/usr/bin ACTION=add PRODUCT=11/1/2/ab02 NAME=AT Set 2 keyboard]
+	input.c: hotplug returned -2
+	input: AT Set 2 keyboard on isa0060/serio0
+	serio: i8042 KBD port at 0x60,0x64 irq 1
+	serio: i8042 AUX port at 0x60,0x64 irq 12
+	NET4: Linux TCP/IP 1.0 for NET4.0
 
-I know doing the two things at the same time requires a completely crazy 
-multithreaded application, but then again many application developers fall 
-into that category. (-;
+However, irq 12 is not used after boot:
 
->And the only way we can return outlandish results is on 32-bit SMP if
->one CPU reads i_size or f_pos while another CPU is in the middle of
->modifying it.
+           CPU0       
+	     0:     443973          XT-PIC  timer
+	     1:         18          XT-PIC  i8042
+	     2:          0          XT-PIC  cascade
+	     3:       2470          XT-PIC  pcnet_cs
+	     8:          1          XT-PIC  rtc
+	     9:        122          XT-PIC  acpi, uhci-hcd, Ricoh Co Ltd RL5c475
+ 	    14:       9259          XT-PIC  ide0
+	   NMI:          0 
+	   ERR:          1
 
-I believe it can also happen if ->llseek() is allowed to run concurrently 
-with a ->readdir()...
+My .config:
 
-Best regards,
+	$ egrep "INPUT|MOUSE|KEYB|SERIO|8042" .config | grep -v ^#
+	CONFIG_INPUT=y
+	CONFIG_INPUT_KEYBDEV=y
+	CONFIG_INPUT_MOUSEDEV=y
+	CONFIG_INPUT_MOUSEDEV_PSAUX=y
+	CONFIG_INPUT_MOUSEDEV_SCREEN_X=1024
+	CONFIG_INPUT_MOUSEDEV_SCREEN_Y=480
+	CONFIG_SERIO=y
+	CONFIG_SERIO_I8042=y
+	CONFIG_I8042_REG_BASE=60
+	CONFIG_I8042_KBD_IRQ=1
+	CONFIG_I8042_AUX_IRQ=12
+	CONFIG_INPUT_KEYBOARD=y
+	CONFIG_KEYBOARD_ATKBD=y
+	CONFIG_INPUT_MOUSE=y
+	CONFIG_MOUSE_PS2=y
+	CONFIG_USB_HIDINPUT=y
 
-         Anton
+Should I enable some extra debug somewhere ?
 
-
+Stelian.
 -- 
-   "I've not lost my mind. It's backed up on tape somewhere." - Unknown
--- 
-Anton Altaparmakov <aia21 at cantab.net> (replace at with @)
-Linux NTFS Maintainer / IRC: #ntfs on irc.openprojects.net
-WWW: http://linux-ntfs.sf.net/ & http://www-stu.christs.cam.ac.uk/~aia21/
-
+Stelian Pop <stelian.pop@fr.alcove.com>
+Alcove - http://www.alcove.com

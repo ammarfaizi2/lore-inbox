@@ -1,40 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267671AbUGWMV3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267678AbUGWMfG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267671AbUGWMV3 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 23 Jul 2004 08:21:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267672AbUGWMV3
+	id S267678AbUGWMfG (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 23 Jul 2004 08:35:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267679AbUGWMfG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 23 Jul 2004 08:21:29 -0400
-Received: from vena.lwn.net ([206.168.112.25]:35816 "HELO lwn.net")
-	by vger.kernel.org with SMTP id S267671AbUGWMV2 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 23 Jul 2004 08:21:28 -0400
-Message-ID: <20040723122127.16468.qmail@lwn.net>
-To: =?iso-8859-1?q?szonyi=20calin?= <caszonyi@yahoo.com>
-Cc: Paul Jackson <pj@sgi.com>, Adrian Bunk <bunk@fs.tum.de>, akpm@osdl.org,
-       corbet@lwn.net, linux-kernel@vger.kernel.org
-Subject: Re: New dev model (was [PATCH] delete devfs) 
-From: corbet@lwn.net (Jonathan Corbet)
-In-reply-to: Your message of "Fri, 23 Jul 2004 10:16:37 +0200."
-             <20040723081637.93875.qmail@web52903.mail.yahoo.com> 
-Date: Fri, 23 Jul 2004 06:21:27 -0600
+	Fri, 23 Jul 2004 08:35:06 -0400
+Received: from webbox24.server-home.net ([195.137.212.20]:63968 "EHLO
+	webbox24.server-home.net") by vger.kernel.org with ESMTP
+	id S267678AbUGWMfA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 23 Jul 2004 08:35:00 -0400
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+From: Walter Hofmann <lkml-040723143345-5954@secretlab.mine.nu>
+Subject: Re: [PATCH] Delete cryptoloop
+In-Reply-To: <2kECW-3a0-7@gated-at.bofh.it>
+References: <2kvT4-5AY-1@gated-at.bofh.it> <2kC85-1AH-11@gated-at.bofh.it> <2kDxa-2sB-1@gated-at.bofh.it> <2kECW-3a0-7@gated-at.bofh.it>
+Date: Fri, 23 Jul 2004 14:34:58 +0200
+Message-Id: <E1BnzGM-0005zX-00@gimli.local>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> So now the world is divided in gods (i.e distributions) and we,
-> mere mortals who should pray to the gods to give us a stable
->  kernel ?
+You wrote on linux.kernel:
+> dpf-lkml@fountainbay.com wrote:
+>>
+>> Hopefully someone else will follow up, but I hope I'm somewhat convincing:
+>
+> Not really ;)
+>
+> Your points can be simplified to "I don't use cryptoloop, but someone else
+> might" and "we shouldn't do this in a stable kernel".
+>
+> Well, I want to hear from "someone else".  If removing cryptoloop will
+> irritate five people, well, sorry.  If it's 5,000 people, well maybe not.
 
-This seems to be where a lot of the misunderstanding is.  Did anybody
-notice just how divergent the distributors' 2.4 (and prior) kernels were
-from the mainline?  If you wanted a kernel with that level of features
-and stability, you had to get it from them - or apply hundreds of
-patches yourself.
+I use cryptoloop and I would be really annoyed if it disappeared in
+the stable kernel series. Besides, I read in another mail in this thread 
+that dm-crypt will not work with file-based storage (I'm using 
+cryptoloop on a file), and that it is new and potentially buggy.
 
-One of the goals of the process now is to get those distributor patches
-into the mainline quickly.  My expectation is that the mainline kernel
-will be far closer to what the distributors ship than it has been in a
-long time, and the mainline will be more stable for it.  Just the
-opposite of what a lot of people are saying.
+I'm really surprised that people here argue that dm-crypt doesn't get 
+enough testing so cryptoloop has to go to force people to test dm-crypt 
+with their valuable data. This is all upside-down. First dm-crypt has to 
+be stable, safe and feature-complete, then people can convert their data 
+to dm-crypt and only then can cryptoloop be deleted.
 
-jon
+Walter

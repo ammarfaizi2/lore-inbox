@@ -1,50 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131194AbRDBRoJ>; Mon, 2 Apr 2001 13:44:09 -0400
+	id <S131205AbRDBRp7>; Mon, 2 Apr 2001 13:45:59 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131205AbRDBRnu>; Mon, 2 Apr 2001 13:43:50 -0400
-Received: from chaos.analogic.com ([204.178.40.224]:1920 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP
-	id <S131194AbRDBRnc>; Mon, 2 Apr 2001 13:43:32 -0400
-Date: Mon, 2 Apr 2001 13:42:14 -0400 (EDT)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-Reply-To: root@chaos.analogic.com
-To: Doug Ledford <dledford@redhat.com>
-cc: John Jasen <jjasen1@umbc.edu>, linux-kernel@vger.kernel.org
-Subject: Re: Linux connectivity trashed.
-In-Reply-To: <3AC386A0.FE36901E@redhat.com>
-Message-ID: <Pine.LNX.3.95.1010402133646.714A-100000@chaos.analogic.com>
+	id <S131226AbRDBRpu>; Mon, 2 Apr 2001 13:45:50 -0400
+Received: from virtualro.ic.ro ([194.102.78.138]:10000 "EHLO virtualro.ic.ro")
+	by vger.kernel.org with ESMTP id <S131205AbRDBRpk>;
+	Mon, 2 Apr 2001 13:45:40 -0400
+Date: Mon, 2 Apr 2001 20:44:14 +0300 (EEST)
+From: Jani Monoses <jani@virtualro.ic.ro>
+To: Harald Dunkel <harri@synopsys.COM>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: VIA 82C686 Audio Codec: Clicks
+In-Reply-To: <3AC6DA1E.3332962D@Synopsys.COM>
+Message-ID: <Pine.LNX.4.10.10104022042170.24643-100000@virtualro.ic.ro>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 29 Mar 2001, Doug Ledford wrote:
 
-> John Jasen wrote:
-> > 
-> > On Thu, 29 Mar 2001, Richard B. Johnson wrote:
-> > 
+
+You could try the ALSA driver if you're certain it is not a hw problem.It
+works better here than the one in the kernel.
+
+On Sun, 1 Apr 2001, Harald Dunkel wrote:
+
+> Hi folks,
 > 
-> > In short, your security administrator needs to be dragged out, shot, and
-> > left hanging by the front door as a warning to his replacement.
-> > 
-> > Or, at least fired.
+> Has anybody an idea how to get rid of the annoying clicks of the
+> VIA 82C686 audio codec? Using xmms (just as an example) I get a 
+> click with each new track, when I move and release the track slider, 
+> etc.
 > 
-
-I have now gotten three linux machines back "on-the-air". The security
-people insist on doing "NAT", so these machine are now using a phony
-internal address, but we are up.
-
-	Another crisis created and resolved.
-
-Cheers,
-Dick Johnson
-
-Penguin : Linux version 2.4.1 on an i686 machine (799.53 BogoMips).
-
-"Memory is like gasoline. You use it up when you are running. Of
-course you get it all back when you reboot..."; Actual explanation
-obtained from the Micro$oft help desk.
-
+> Even this
+> 
+> 	echo -n "" >/dev/dsp
+> 
+> produces a click.
+> 
+> 
+> Regards
+> 
+> Harri
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
 

@@ -1,76 +1,62 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132898AbQLRBlR>; Sun, 17 Dec 2000 20:41:17 -0500
+	id <S131615AbQLRCPy>; Sun, 17 Dec 2000 21:15:54 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132910AbQLRBlI>; Sun, 17 Dec 2000 20:41:08 -0500
-Received: from storm.ca ([209.87.239.69]:14063 "EHLO mail.storm.ca")
-	by vger.kernel.org with ESMTP id <S132898AbQLRBk4>;
-	Sun, 17 Dec 2000 20:40:56 -0500
-Message-ID: <3A3D6399.C213729E@storm.ca>
-Date: Sun, 17 Dec 2000 20:08:41 -0500
-From: Sandy Harris <sandy@storm.ca>
-X-Mailer: Mozilla 4.76 [en] (Win98; U)
-X-Accept-Language: en,fr
+	id <S132018AbQLRCPo>; Sun, 17 Dec 2000 21:15:44 -0500
+Received: from gear.torque.net ([204.138.244.1]:56080 "EHLO gear.torque.net")
+	by vger.kernel.org with ESMTP id <S131615AbQLRCPg>;
+	Sun, 17 Dec 2000 21:15:36 -0500
+Message-ID: <3A3D6278.F3B126AB@torque.net>
+Date: Sun, 17 Dec 2000 20:03:52 -0500
+From: Douglas Gilbert <dougg@torque.net>
+X-Mailer: Mozilla 4.72 [en] (X11; U; Linux 2.4.0-test12 i586)
+X-Accept-Language: en
 MIME-Version: 1.0
-To: Karel Kulhavy <clock@atrey.karlin.mff.cuni.cz>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: random.c patch
-In-Reply-To: <20001217224452.A8635@atrey.karlin.mff.cuni.cz>
+To: "Mohammad A. Haque" <mhaque@haque.net>, linux-kernel@vger.kernel.org
+Subject: Re: aic7xxx
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Karel Kulhavy wrote:
+Mohammad A. Haque wrote:
+>
+> Weird. The modules just give me unresolved symbol errors instead of the
+> loop.
 > 
-> There are several places where the rotation yields garbage according to ANSI
-> C definition when called with 0 bit position argument.
-> 
-> diff -Pur linux_reference/drivers/char/random.c linux/drivers/char/random.c
-> --- linux_reference/drivers/char/random.c       Wed Jul 19 00:58:13 2000
-> +++ linux/drivers/char/random.c Sun Dec 17 22:42:59 2000
-> @@ -411,7 +411,7 @@
->  #if (!defined (__i386__))
->  extern inline __u32 rotate_left(int i, __u32 word)
->  {
-> -       return (word << i) | (word >> (32 - i));
-> +       return (word << i) | (word >> ((-i)&31));
-> 
-If the calling code guarantees 0 < i < 32, then the patch is unnecessary.
-In the kernel I have to hand (2.2.6), grepping gives:
+> Mathias Wiklander wrote:
+> > 
+> > Sorry I've forgot that. It is 2.4.0-test12
+> >
 
-	r->input_rotate = j & 31 ;
+There was a SCSI Makefile bug in test12 that caused
+those unresoved symbols. This patch from Bob Tracy
+fixes it.
 
-and then both calls to the function use r->input_rotate as the first argument,
-so the guarantee from higher level code seems to be 0 <= i < 32, in which case
-your patch seems needed.
+Doug Gilbert
 
-On the other hand, why not put the &= inside the function with something
-like:
+--- linux/drivers/scsi/Makefile Tue Dec 12 10:49:32 2000
++++ linux/drivers/scsi/Makefile.t12bt   Tue Dec 12 22:46:27 2000
+@@ -30,7 +30,7 @@
+ CFLAGS_gdth.o    = # -DDEBUG_GDTH=2 -D__SERIAL__ -D__COM2__ -DGDTH_STATISTICS
+ CFLAGS_seagate.o =   -DARBITRATE -DPARITY -DSEAGATE_USE_ASM
+ 
+-obj-$(CONFIG_SCSI)             += scsi_mod.o
++obj-$(CONFIG_SCSI)             += scsi_mod.o scsi_syms.o
+ 
+ obj-$(CONFIG_A4000T_SCSI)      += amiga7xx.o   53c7xx.o
+ obj-$(CONFIG_A4091_SCSI)       += amiga7xx.o   53c7xx.o
+@@ -122,8 +122,7 @@
+ scsi_mod-objs  := scsi.o hosts.o scsi_ioctl.o constants.o \
+                        scsicam.o scsi_proc.o scsi_error.o \
+                        scsi_obsolete.o scsi_queue.o scsi_lib.o \
+-                       scsi_merge.o scsi_dma.o scsi_scan.o \
+-                       scsi_syms.o
++                       scsi_merge.o scsi_dma.o scsi_scan.o
+ 
+ sr_mod-objs    := sr.o sr_ioctl.o sr_vendor.o
+ initio-objs    := ini9100u.o i91uscsi.o
 
- extern inline __u32 rotate_left(int i, __u32 word)
-{
-	switch( i &= 31 )	{ /* cheap version of i %= 32 */
-		case 0 :
-			return word ;
-		default :
-			return (word << i) | (word >> (32 - i)) ;
-	}
-
-or some faster alternative along the lines of:
-
-{
-	i &= 31 ;
-	return( i ? ((word << i) | (word >> (32 - i))) : word ) ;
-
-This works right for any i. Yours fails for i >= 32 unless you make it:
-
-       return (word << (i&31)) | (word >> ((-i)&31));
-
-Whichever way is fastest is fine, but I'd advocate doing the range
-manipulation inside the function in any case. Why trust the caller?
-If the code is maintained or modified, you're almost guaranteed to
-be called with bad argumantes in some version.
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

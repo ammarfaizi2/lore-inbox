@@ -1,59 +1,85 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263019AbTI2VYo (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 29 Sep 2003 17:24:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263024AbTI2VYo
+	id S262986AbTI2Vgv (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 29 Sep 2003 17:36:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262989AbTI2Vgu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 29 Sep 2003 17:24:44 -0400
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:30995 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id S263019AbTI2VYn convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 29 Sep 2003 17:24:43 -0400
-Message-ID: <3F78A2FF.6070203@zytor.com>
-Date: Mon, 29 Sep 2003 14:24:15 -0700
-From: "H. Peter Anvin" <hpa@zytor.com>
-Organization: Zytor Communications
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030630
-X-Accept-Language: en, sv
+	Mon, 29 Sep 2003 17:36:50 -0400
+Received: from artax.karlin.mff.cuni.cz ([195.113.31.125]:53647 "EHLO
+	artax.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
+	id S262986AbTI2VgH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 29 Sep 2003 17:36:07 -0400
+Date: Mon, 29 Sep 2003 23:36:06 +0200 (CEST)
+From: Mikulas Patocka <mikulas@artax.karlin.mff.cuni.cz>
+To: Daniel Jacobowitz <dan@debian.org>
+Cc: Arjan van de Ven <arjanv@redhat.com>, Linus Torvalds <torvalds@osdl.org>,
+       Brian Gerst <bgerst@didntduck.org>,
+       Linux-Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: -mregparm=3 (was  Re: [PATCH] i386 do_machine_check() is redundant.
+In-Reply-To: <20030929202604.GA23344@nevyn.them.org>
+Message-ID: <Pine.LNX.4.58.0309292309050.7824@artax.karlin.mff.cuni.cz>
+References: <Pine.LNX.4.44.0309281121470.15408-100000@home.osdl.org>
+ <1064775868.5045.4.camel@laptop.fenrus.com> <Pine.LNX.4.58.0309292214100.3276@artax.karlin.mff.cuni.cz>
+ <20030929202604.GA23344@nevyn.them.org>
 MIME-Version: 1.0
-To: Jeff Garzik <jgarzik@pobox.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] ULL fixes for qlogicfc
-References: <E1A41Rq-0000NJ-00@hardwired> <20030929172329.GD6526@gtf.org> <bla4fg$pbp$1@cesium.transmeta.com> <3F789FE8.6050504@pobox.com>
-In-Reply-To: <3F789FE8.6050504@pobox.com>
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
-X-MIME-Autoconverted: from 8bit to quoted-printable by deepthought.transmeta.com id h8TLOGi28935
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jeff Garzik wrote:
-> H. Peter Anvin wrote:
-> 
->> 0xffffffff is unsigned int and will be promoted to
-> 
-> 0xffffffff without a prefix is signed.
 
-No, it's not.
 
-ISO/IEC 9899:1999(E) §6.4.4.1, page 55f:
+On Mon, 29 Sep 2003, Daniel Jacobowitz wrote:
 
-5 The type of an integer constant is the first of the corresponding list
-in which its value can be represented.
+> On Mon, Sep 29, 2003 at 10:20:45PM +0200, Mikulas Patocka wrote:
+> > > > > Use machine_check_vector in the entry code instead.
+> > > >
+> > > > This is wrong. You just lost the "asmlinkage" thing, which means that it
+> > > > breaks when asmlinkage matters.
+> > > >
+> > > > And yes, asmlinkage _can_ matter, even on x86. It disasbles regparm, for
+> > > > one thing, so it makes a huge difference if the kernel is compiled with
+> > > > -mregparm=3 (which used to work, and which I'd love to do, but gcc has
+> > > > often been a tad fragile).
+> > >
+> > > gcc 3.2 and later are supposed to be ok (eg during 3.2 development a
+> > > long standing bug with regparm was fixed and now is believed to work)...
+> > > since our makefiles check gcc version already... this can be made gcc
+> > > version dependent as well for sure..
+> >
+> > They are still buggy. gcc 3.3.1 miscompiles itself with -mregparm=3
+> > (without -O or -O2 it works). (I am too lazy to spend several days trying
+> > to find exactly which function in gcc was miscompiled, maybe I do it one
+> > day). gcc 2.95.3 compiles gcc 3.3.1 with -mregparm=3 -O2 correctly.
+> > gcc 3.4 doesn't seem to be better.
+> >
+> > gcc 2.7.2.3 has totally broken -mregparm=3, even quite simple programs
+> > fail.
+>
+> You can't build GCC with -mregparm=3.  It changes the interface to
+> system functions.  So unless your libc happened to be built with
+> -mregparm=3, and extensively hacked to expect arguments in registers to
+> the assembly stubs, it can't work.
 
-Suffix		Decimal Constant	Octal or Hexadecimal
-					Constant
+Of course I linked it with libc compiled with regparm=3.
 
-none		int			int
-		long int 		unsigned int
-		long long int		long int
-					unsigned long int
-					long long int
-					unsigned long long int
+> It's interesting for kernel code, whole distributions, or things which
+> are careful to have a glue layer.
 
-... so 0x7fffffff is signed int, but 0xffffffff is unsigned int on an
-I32-model system (all Linux systems are I32-model.)
+BTW. libc headers surround all function parameters with __P, like
+extern int printf __P ((__const char* __format, ...));
 
-	-hpa
+so you can change in include/sys/cdefs.h
+#define __P(x) x
+into
+#define __P(x) x __attribute__((regparm(0)))
 
+and compile programs with -mregparm=3 -ffreestanding even on normal linux
+distribution. I didn't try it for larger program, for simple it works. (it
+works as long as program doesn't call libc function via pointer to
+function).
+
+(without -ffreestanding gcc sometimes emits calls to library functions on
+its own, and uses calling convention from command line, not convention
+from prototype).
+
+Mikulas

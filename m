@@ -1,40 +1,74 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272197AbRJGLMW>; Sun, 7 Oct 2001 07:12:22 -0400
+	id <S276309AbRJGLal>; Sun, 7 Oct 2001 07:30:41 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S276302AbRJGLMN>; Sun, 7 Oct 2001 07:12:13 -0400
-Received: from [193.252.19.44] ([193.252.19.44]:59271 "EHLO
-	mel-rti19.wanadoo.fr") by vger.kernel.org with ESMTP
-	id <S272197AbRJGLMC>; Sun, 7 Oct 2001 07:12:02 -0400
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Mikulas Patocka <mikulas@artax.karlin.mff.cuni.cz>
-Cc: <linux-kernel@vger.kernel.org>, <linux-xfs@oss.sgi.com>
-Subject: Re: %u-order allocation failed
-Date: Sun, 7 Oct 2001 13:12:02 +0200
-Message-Id: <20011007111202.17296@smtp.wanadoo.fr>
-In-Reply-To: <Pine.LNX.3.96.1011007003227.18004B-100000@artax.karlin.mff.cuni.cz>
-In-Reply-To: <Pine.LNX.3.96.1011007003227.18004B-100000@artax.karlin.mff.cuni.cz>
-X-Mailer: CTM PowerMail 3.0.8 <http://www.ctmdev.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	id <S276312AbRJGLab>; Sun, 7 Oct 2001 07:30:31 -0400
+Received: from c999639-a.carneg1.pa.home.com ([24.180.243.111]:2812 "EHLO
+	maul.jdc.home") by vger.kernel.org with ESMTP id <S276309AbRJGLaX>;
+	Sun, 7 Oct 2001 07:30:23 -0400
+Subject: Re: AIC7xxx panic
+From: Jim Crilly <noth@noth.is.eleet.ca>
+To: Rob Turk <r.turk@chello.nl>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <9ppc3l$cde$1@ncc1701.cistron.net>
+In-Reply-To: <1002451051.3718.20.camel@warblade> 
+	<9ppc3l$cde$1@ncc1701.cistron.net>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/0.14 (Preview Release)
+Date: 07 Oct 2001 07:28:57 -0400
+Message-Id: <1002454137.284.6.camel@warblade>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->
->You are right. Code that allocates more than page and expects it to be
->physicaly contignuous is broken by design. Even rewrite the driver or
->allocate memory on boot. It will be very hard to audit all drivers for it.
+Both disks on the controller are Seagate Cheetahs, the one being worked
+during the panic is a ST39204LW, the other disk is a ST318451LW.
 
-Well, the problem here is not code. Some piece of hardware just can't
-scatter gather, or in some case, they can, but the scatter/gather list
-itself has to be contiguous and can be larger than a page.
+I did have TCQ enabled and I left it at the default of 255, I'll try a
+lower value tomorrow, since it's so late.
 
-The fact that kmalloc returns physically contiguous memory is a feature
-and can't be modified that easily. If you intend to do so, then you need
-different GFP flags, for example a GFP_CONTIGUOUS flag, and then make
-sure that drivers allocating DMA memory use that new flag.
+Jim
 
-Ben.
-
+On Sun, 2001-10-07 at 06:48, Rob Turk wrote:
+> "Jim Crilly" <noth@noth.is.eleet.ca> wrote in message
+> news:cistron.1002451051.3718.20.camel@warblade...
+> > I got a reproducible panic while running dbench simulating 25+ clients,
+> > the new aic7xxx driver panics with "Too few segs for dma mapping.
+> > "Increase AHC_NSEG". The partition in question is FAT32 and on a
+> > different disk than /, I'm not using HIGHMEM. I am using XFS and the
+> > preempt patches, but I don't think they're related to the panic.
+> >
+> > The odd thing, is if I run dbench in the same manner on my / partition,
+> > which is on a different disk on the same controller, it goes fine. It
+> > seems, to my untrained eye anyway, to be a bad interaction between the
+> > vfat driver and the aic7xxx driver.
+> >
+> > I'm using the old aic7xxx driver right now and it's fine, has anyone
+> > else seen anything like this?
+> >
+> > Jim
+> 
+> Since this seems to fail on just one disk, it might have to do with one of the
+> disk characteristics, like command queue depth. Did you enable Tagged Command
+> Queueing, and if so, can you try playing around with the maximum depth?
+> 
+> Rob
+> 
+> 
+> 
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+-- 
+Help protect your rights on-line.
+Join the Electronic Frontiers Foundation today: http://www.eff.org/join
+-----------------------------------------------------------------------
+Security: Antonyms: See Microsoft
+-----------------------------------------------------------------------
+"We are coming after you. God may have mercy on you, but we won't,"
+declared Sen. John McCain, R-Arizona.
 

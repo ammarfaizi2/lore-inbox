@@ -1,53 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262229AbUJZLVT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262236AbUJZLXT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262229AbUJZLVT (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 26 Oct 2004 07:21:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262236AbUJZLTM
+	id S262236AbUJZLXT (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 26 Oct 2004 07:23:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262231AbUJZLXT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Oct 2004 07:19:12 -0400
-Received: from [195.23.16.24] ([195.23.16.24]:45733 "EHLO
-	bipbip.comserver-pie.com") by vger.kernel.org with ESMTP
-	id S262239AbUJZLRY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Oct 2004 07:17:24 -0400
-Message-ID: <417E3235.9060604@grupopie.com>
-Date: Tue, 26 Oct 2004 12:17:09 +0100
-From: Paulo Marques <pmarques@grupopie.com>
-Organization: Grupo PIE
-User-Agent: Mozilla Thunderbird 0.7.1 (X11/20040626)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Valdis.Kletnieks@vt.edu
-Cc: "Nico Augustijn." <kernel@janestarz.com>, hvr@gnu.org,
-       clemens@endorphin.org, linux-kernel@vger.kernel.org
-Subject: Re: Cryptoloop patch for builtin default passphrase
-References: <200410251354.31226.kernel@janestarz.com> <200410251719.i9PHJmOi009687@turing-police.cc.vt.edu> <417D38F7.1040204@grupopie.com> <200410251754.i9PHsVrI018284@turing-police.cc.vt.edu>            <417D44A7.2030904@grupopie.com> <200410251905.i9PJ5Rrj013717@turing-police.cc.vt.edu>
-In-Reply-To: <200410251905.i9PJ5Rrj013717@turing-police.cc.vt.edu>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-X-AntiVirus: checked by Vexira MailArmor (version: 2.0.1.16; VAE: 6.28.0.3; VDF: 6.28.0.38; host: bipbip)
+	Tue, 26 Oct 2004 07:23:19 -0400
+Received: from mx1.elte.hu ([157.181.1.137]:17053 "EHLO mx1.elte.hu")
+	by vger.kernel.org with ESMTP id S262236AbUJZLXJ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 26 Oct 2004 07:23:09 -0400
+Date: Tue, 26 Oct 2004 13:24:15 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Florian Schmidt <mista.tapas@gmx.net>
+Cc: Michael Geithe <warpy@gmx.de>,
+       Linux Kernel list <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>
+Subject: Re: 2.6.10-rc1-bk4 and kernel/futex.c:542
+Message-ID: <20041026112415.GA21015@elte.hu>
+References: <200410261135.51035.warpy@gmx.de> <20041026133126.1b44fb38@mango.fruits.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20041026133126.1b44fb38@mango.fruits.de>
+User-Agent: Mutt/1.4.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Valdis.Kletnieks@vt.edu wrote:
-> On Mon, 25 Oct 2004 19:23:35 BST, Paulo Marques said:
+
+* Florian Schmidt <mista.tapas@gmx.net> wrote:
+
+> On Tue, 26 Oct 2004 11:35:50 +0200
+> Michael Geithe <warpy@gmx.de> wrote:
 > 
+> > hi,
+> > here are some error messages after reboot in my logs.
+> > 
+> > Badness in futex_wait at kernel/futex.c:542
 > 
->>(why would you need confidential information to boot in the first place?)
+> Hey Ingo,
 > 
-> 
-> The problem is not that the info in the NVRAM is "confidential",
-> but that most of it is "configuration".
+> this futex.c:542 looks familiar to me (see the BUG logs for RP-V0.2). Dunno
+> if it's coincidence though. Just guessing they might be correlated.
 
-I can why we were disagreeing, then.
+yeah, it definitely looks like there is some futex race that the
+PREEMPT_REALTIME kernel triggers in no time. (this is because the
+locking in the PREEMPT_REALTIME kernel is equivalent to an SMP system
+with an infinite number of CPUs and will trigger the same races.)
 
-I was assuming that these bytes were otherwise unused, because this 
-didn't make any sense to me otherwise.
-
-If they are used for BIOS configuration, then I completely agree with 
-you. Sorry for the noise.
-
--- 
-Paulo Marques - www.grupopie.com
-
-All that is necessary for the triumph of evil is that good men do nothing.
-Edmund Burke (1729 - 1797)
+	Ingo

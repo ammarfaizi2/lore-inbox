@@ -1,61 +1,82 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130250AbQKRVPT>; Sat, 18 Nov 2000 16:15:19 -0500
+	id <S130663AbQKRVYe>; Sat, 18 Nov 2000 16:24:34 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131061AbQKRVPJ>; Sat, 18 Nov 2000 16:15:09 -0500
-Received: from smtp02.mrf.mail.rcn.net ([207.172.4.61]:62710 "EHLO
-	smtp02.mrf.mail.rcn.net") by vger.kernel.org with ESMTP
-	id <S130250AbQKRVOw>; Sat, 18 Nov 2000 16:14:52 -0500
-Message-ID: <3A16EA40.4876A8A2@haque.net>
-Date: Sat, 18 Nov 2000 15:44:48 -0500
-From: "Mohammad A. Haque" <mhaque@haque.net>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.0-test11 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Andre Hedrick <andre@linux-ide.org>
-CC: linux-kernel@vger.kernel.org, Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: ATA/IDE: dmaproc error 14 testers wanted!
-In-Reply-To: <Pine.LNX.4.10.10011181220390.17557-100000@master.linux-ide.org>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S130681AbQKRVYY>; Sat, 18 Nov 2000 16:24:24 -0500
+Received: from h201.s254.netsol.com ([216.168.254.201]:39625 "EHLO
+	tesla.admin.cto.netsol.com") by vger.kernel.org with ESMTP
+	id <S130663AbQKRVYP>; Sat, 18 Nov 2000 16:24:15 -0500
+Date: Sat, 18 Nov 2000 15:54:41 -0500
+From: Pete Toscano <pete@research.netsol.com>
+To: Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: 2.2.18pre21 and ipv6 problems/questions
+Message-ID: <20001118155441.T11099@tesla.admin.cto.netsol.com>
+Mail-Followup-To: Kernel Mailing List <linux-kernel@vger.kernel.org>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-md5;
+	protocol="application/pgp-signature"; boundary="V7BlxAaPrdhzdIM1"
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+X-Uptime: 3:37pm  up 12 days,  3:13,  8 users,  load average: 0.20, 0.14, 0.10
+X-Married: 370 days, 19 hours, 52 minutes, and 33 seconds
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This isnt the same as "ide_dmaproc: chipset supported ide_dma_timeout
-func only: 14" is it? This was on a PIIX4 w/ test11-pre5. I've since
-upgraded to test11-pre7 and the problem hasn't surfaced again.
 
-Andre Hedrick wrote:
-> 
-> If anyone is suffering from the dreaded "dmaproc error 14: unsupported"
-> error and want to test a code that could get you out of that deadlock
-> please speak up.
-> 
-> Basically this is an Intel 440BX PIIX4 issues, but the solution is global
-> and should work for all cases.
-> 
-> Regards,
-> 
-> Andre Hedrick
-> CTO Timpanogas Research Group
-> EVP Linux Development, TRG
-> Linux ATA Development
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> Please read the FAQ at http://www.tux.org/lkml/
+--V7BlxAaPrdhzdIM1
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
--- 
+hello,
 
-=====================================================================
-Mohammad A. Haque                              http://www.haque.net/ 
-                                               mhaque@haque.net
+i'm trying to set up an ipv6 machine.  i got a setup script from
+freenet6 complete with an ipv6 address and the ipv6 and ipv4 addresses
+of my tunnel endpoint.  i'm seeing some strange behavior, so i have a
+few questions.  most of these are probably ubd (user brain damage), but
+i'd like to have these verified if possibe =3D).
 
-  "Alcohol and calculus don't mix.             Project Lead
-   Don't drink and derive." --Unknown          http://wm.themes.org/
-                                               batmanppc@themes.org
-=====================================================================
+0. basically, how complete/correct is the ipv6 implementation on
+2.2.18pre21?  should i even bother or is it fairly stable and correct?
+
+1. how come i can ping6 ::1 just fine as long as the sit0 device is
+down, but as soon as it comes up, i can't?
+
+2. i understand that the sit devices are pseudo devices on top of (well,
+in my case) eth0.  afaict, sit0 represents my side of an ipv6-in-ipv4
+tunnel and sit1 is the other side of it.  ipv6 packets destined for
+removte ipv6 networks should be routed to the like-scoped ipv6 address
+of the sit1 device, right?
+
+3. aliased interfaces are in ipv4-only construct right?  i shouldn't be
+able to create an alias interface with only an ipv6 address, da?
+
+4. should i be able to delete an address i add to an interface?  when i
+"ifconfig add" an ipv6 address to an interface and then try to "ifconfig
+del" it, i get "SIOCDIFADDR: Invalid argument".  i've tried to del with
+and without the /prefixlen and neither has worked.
+
+thanks,
+pete
+
+--=20
+Pete Toscano    p:sigsegv@psinet.com     w:pete@research.netsol.com
+GPG fingerprint: D8F5 A087 9A4C 56BB 8F78  B29C 1FF0 1BA7 9008 2736
+
+--V7BlxAaPrdhzdIM1
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.4 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
+
+iD8DBQE6FuyRH/Abp5AIJzYRAkgRAJ9VK3KX9RMoORgLn4oLQj8OaNsc4gCgtOBM
+QMTBAfMpfz6urHw6AXTvfdI=
+=niWb
+-----END PGP SIGNATURE-----
+
+--V7BlxAaPrdhzdIM1--
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

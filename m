@@ -1,34 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261852AbVANBdG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261860AbVANBlg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261852AbVANBdG (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 13 Jan 2005 20:33:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261743AbVANBaL
+	id S261860AbVANBlg (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 13 Jan 2005 20:41:36 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261724AbVANBhc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 13 Jan 2005 20:30:11 -0500
-Received: from fw.osdl.org ([65.172.181.6]:63701 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S261720AbVANB1L (ORCPT
+	Thu, 13 Jan 2005 20:37:32 -0500
+Received: from omx2-ext.sgi.com ([192.48.171.19]:52673 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S261778AbVANBf2 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 13 Jan 2005 20:27:11 -0500
-Date: Thu, 13 Jan 2005 17:26:51 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Andrea Arcangeli <andrea@cpushare.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: lcall disappeared? kernel CVS destabilized?
-Message-Id: <20050113172651.70b4fcd5.akpm@osdl.org>
-In-Reply-To: <20050114010132.GJ5949@dualathlon.random>
-References: <20050114010132.GJ5949@dualathlon.random>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Thu, 13 Jan 2005 20:35:28 -0500
+From: Jesse Barnes <jbarnes@engr.sgi.com>
+To: Andrew Morton <akpm@osdl.org>
+Subject: Re: [PATCH 1/5] Convert resource to u64 from unsigned long
+Date: Thu, 13 Jan 2005 17:35:04 -0800
+User-Agent: KMail/1.7.1
+Cc: Dave <dave.jiang@gmail.com>, torvalds@osdl.org,
+       linux-kernel@vger.kernel.org, smaurer@teja.com, linux@arm.linux.org.uk,
+       dsaxena@plexity.net, drew.moseley@intel.com,
+       mporter@kernel.crashing.org
+References: <8746466a050113152636f49d18@mail.gmail.com> <20050113162309.2a125eb1.akpm@osdl.org>
+In-Reply-To: <20050113162309.2a125eb1.akpm@osdl.org>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200501131735.04592.jbarnes@engr.sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrea Arcangeli <andrea@cpushare.com> wrote:
->
-> I'm porting the seccomp patch to 2.6.10, do you have an idea where lcall
->  (i.e. call gates for binary compatibility with other OS) went? 
+On Thursday, January 13, 2005 4:23 pm, Andrew Morton wrote:
+> +#if BITS_PER_LONG == 64
+>  return (void __iomem *)pci_resource_start(pdev, PCI_ROM_RESOURCE);
+> +#else
+> + return (void __iomem *)(u32)pci_resource_start(pdev, PCI_ROM_RESOURCE);
+> +#endif
 
-Was removed on October 18.
+I just noticed that the PCI rom code also appears to be mixing other types, 
+e.g. it delcares start as loff_t and stuffs a pci_resource_start into it, 
+then uses it as the first argument to ioremap.
 
-http://linux.bkbits.net:8080/linux-2.5/diffs/arch/i386/kernel/entry.S@1.83?nav=index.html|src/|src/arch|src/arch/i386|src/arch/i386/kernel|hist/arch/i386/kernel/entry.S
+Jesse

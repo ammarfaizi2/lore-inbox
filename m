@@ -1,81 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264163AbUBKLOs (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 11 Feb 2004 06:14:48 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264132AbUBKLOs
+	id S264283AbUBKLe0 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 11 Feb 2004 06:34:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264278AbUBKLe0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 11 Feb 2004 06:14:48 -0500
-Received: from aun.it.uu.se ([130.238.12.36]:62144 "EHLO aun.it.uu.se")
-	by vger.kernel.org with ESMTP id S264113AbUBKLOo (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 11 Feb 2004 06:14:44 -0500
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Wed, 11 Feb 2004 06:34:26 -0500
+Received: from websrv.werbeagentur-aufwind.de ([213.239.197.241]:33444 "EHLO
+	mail.werbeagentur-aufwind.de") by vger.kernel.org with ESMTP
+	id S264283AbUBKLeY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 11 Feb 2004 06:34:24 -0500
+Subject: Re: ATARAID userspace configuration tool
+From: Christophe Saout <christophe@saout.de>
+To: "Kevin P. Fleming" <kpfleming@backtobasicsmgmt.com>
+Cc: linux-kernel@vger.kernel.org, linux-raid@vger.kernel.org
+In-Reply-To: <4029892C.2070009@backtobasicsmgmt.com>
+References: <Pine.LNX.4.40.0402101405190.25784-100000@jehova.dsm.dk>
+	 <1076425115.23946.18.camel@leto.cs.pocnet.net>
+	 <40292246.2030902@backtobasicsmgmt.com>
+	 <1076440714.27328.8.camel@leto.cs.pocnet.net>
+	 <20040211013551.GB2153@kroah.com>  <4029892C.2070009@backtobasicsmgmt.com>
+Content-Type: text/plain
+Message-Id: <1076499258.5253.1.camel@leto.cs.pocnet.net>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.5 
+Date: Wed, 11 Feb 2004 12:34:19 +0100
 Content-Transfer-Encoding: 7bit
-Message-ID: <16426.3711.606419.745835@alkaid.it.uu.se>
-Date: Wed, 11 Feb 2004 12:14:07 +0100
-From: Mikael Pettersson <mikpe@csd.uu.se>
-To: "Moore, Eric Dean" <Emoore@lsil.com>
-Cc: Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
-       Keith Owens <kaos@ocs.com.au>, linux-kernel@vger.kernel.org,
-       linux-scsi@vger.kernel.org
-Subject: RE: 2.4.25-rc1: Inconsistent ioctl symbol usage in drivers/messag
-	 e/fusion/mptctl.c
-In-Reply-To: <0E3FA95632D6D047BA649F95DAB60E5703D1A97A@exa-atlanta.se.lsil.com>
-References: <0E3FA95632D6D047BA649F95DAB60E5703D1A97A@exa-atlanta.se.lsil.com>
-X-Mailer: VM 7.17 under Emacs 20.7.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Moore, Eric Dean writes:
- > On Tuesday, February 10, 2004 9:25 AM, Mikael Pettersson  wrote:
- > > Moore, Eric Dean writes:
- > >  > If we pass NULL as the 2nd parameter for 
- > > register_ioctl32_conversion(),
- > >  > the mpt_ioctl() entry point is *not* called when running a 32 bit
- > >  > application in x86_64 mode.
- > > 
- > > Ok, but you still don't need sys_ioctl() since the one-liner
- > > 
- > >  > > filp->f_op->ioctl(filp->f_dentry->d_inode, filp, cmd, arg)
- > > 
- > > (or a hardcoded call to your ioctl() method) suffices.
- > > 
- > > sys_ioctl() mostly just checks for special case ioctls before
- > > doing the line above, but those special cases can't occur
- > > since the kernel has already matched your particular ioctl.
- > > 
- > > /Mikael
- > > 
- > 
- > 
- > Ok - I have modified the mpt fusion driver per your suggestions.
- > Please advise if this would work.
-...
- >  static int
- > +compat_mptctl_ioctl(unsigned int fd, unsigned int cmd,
- > +			unsigned long arg, struct file *filp)
- > +{
- > +	dctlprintk((KERN_INFO MYNAM "::compat_mptctl_ioctl() called\n"));
- > +
- > +	return mptctl_ioctl(filp->f_dentry->d_inode, filp, cmd, arg);
- > +}
- > +
- > +static int
- >  compat_mptfwxfer_ioctl(unsigned int fd, unsigned int cmd,
- >  			unsigned long arg, struct file *filp)
- >  {
- > @@ -2864,30 +2872,31 @@
- >  	}
- >  
- >  #ifdef MPT_CONFIG_COMPAT
- > -	err = register_ioctl32_conversion(MPTIOCINFO, sys_ioctl);
- > +	err = register_ioctl32_conversion(MPTIOCINFO, compat_mptctl_ioctl);
+Am Mi, den 11.02.2004 schrieb Kevin P. Fleming um 02:45:
 
-Looks fine to me.
+> The tricky part is for Thomas' ataraid-detect program to keep some 
+> information around when it has seen the first component of a RAID-0 but 
+> not the second (or vice-versa). It would be very inefficient to scan all 
+> known block devices every time a new one is added, although that 
+> brute-force method could be used just to get the program working at 
+> first. Once the whole idea has been tested and works properly (the 
+> ATARAID devices become available and function properly), the efficiency 
+> problem(s) could be addressed.
 
-I forgot to mention that sys_ioctl() also does lock_kernel(), but
-AMD64's sys32_ioctl() does not. So if you rely on having the BKL
-you'll need to add lock_kernel() to your wrapper above.
+Aren't the disks the ATARAID is made of usually on the same controller?
+Then you only have to scan that one.
 
-/Mikael
+

@@ -1,46 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S280978AbRKGU7V>; Wed, 7 Nov 2001 15:59:21 -0500
+	id <S280983AbRKGVMe>; Wed, 7 Nov 2001 16:12:34 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S280979AbRKGU7K>; Wed, 7 Nov 2001 15:59:10 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:30477 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S280978AbRKGU7A>; Wed, 7 Nov 2001 15:59:00 -0500
-To: linux-kernel@vger.kernel.org
-From: "H. Peter Anvin" <hpa@zytor.com>
-Subject: Re: Yet another design for /proc. Or actually /kernel.
-Date: 7 Nov 2001 12:58:24 -0800
-Organization: Transmeta Corporation, Santa Clara CA
-Message-ID: <9sc79g$413$1@cesium.transmeta.com>
-In-Reply-To: <slrn9uj1nf.5lj.spamtrap@dexter.hensema.xs4all.nl>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Disclaimer: Not speaking for Transmeta in any way, shape, or form.
-Copyright: Copyright 2001 H. Peter Anvin - All Rights Reserved
+	id <S280989AbRKGVM0>; Wed, 7 Nov 2001 16:12:26 -0500
+Received: from viper.haque.net ([66.88.179.82]:33169 "EHLO mail.haque.net")
+	by vger.kernel.org with ESMTP id <S280983AbRKGVMP>;
+	Wed, 7 Nov 2001 16:12:15 -0500
+Date: Wed, 7 Nov 2001 16:11:40 -0500
+Subject: Re: kernel 2.4.14 compiling fail for loop device
+Content-Type: text/plain; charset=US-ASCII; format=flowed
+Mime-Version: 1.0 (Apple Message framework v475)
+Cc: "Todd M. Roy" <troy@holstein.com>, rml@tech9.net, mfedyk@matchmail.com,
+        jimmy@mtc.dhs.org, linux-kernel@vger.kernel.org
+To: "Roeland Th. Jansen" <roel@grobbebol.xs4all.nl>
+From: "Mohammad A. Haque" <mhaque@haque.net>
+In-Reply-To: <20011107204946.B13943@grobbebol.xs4all.nl>
+Message-Id: <0994FB93-D3C4-11D5-A232-00306569F1C6@haque.net>
+Content-Transfer-Encoding: 7bit
+X-Mailer: Apple Mail (2.475)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Followup to:  <slrn9uj1nf.5lj.spamtrap@dexter.hensema.xs4all.nl>
-By author:    spamtrap@use.reply-to (Erik Hensema)
-In newsgroup: linux.dev.kernel
-> 
-> - Multiple values per file when needed
-> 	A file is a two dimensional array: it has lines and every line
-> 	can consist of multiple fields.
-> 	A good example of this is the current /proc/mounts.
-> 	This can be parsed very easily in all languages.
-> 	No need for single-value files, that's oversimplification.
-> 
 
-Actually, /proc/mounts is currently broken, and is an excellent
-example of why the above statement simply isn't true unless you apply
-another level of indirection: try mounting something on a directory
-the name of which contains whitespace in any form (remember, depending
-on your setup this may be doable by an unprivileged user...)
+On Wednesday, November 7, 2001, at 03:49 PM, Roeland Th. Jansen wrote:
 
-	-hpa
--- 
-<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
-"Unix gives you enough rope to shoot yourself in the foot."
-http://www.zytor.com/~hpa/puzzle.txt	<amsp@zytor.com>
+> when mounting an EFS cd on the loop it also froze. this is _without_
+> removing the lines. ...
+
+I'm a little confused. How did you even get a working kernel (or module) 
+without removing the lines?
+
+--
+
+=====================================================================
+Mohammad A. Haque                              http://www.haque.net/
+                                                mhaque@haque.net
+
+   "Alcohol and calculus don't mix.             Developer/Project Lead
+    Don't drink and derive." --Unknown          http://wm.themes.org/
+                                                batmanppc@themes.org
+=====================================================================
+

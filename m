@@ -1,41 +1,92 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318009AbSHLNmX>; Mon, 12 Aug 2002 09:42:23 -0400
+	id <S318015AbSHLNt3>; Mon, 12 Aug 2002 09:49:29 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318014AbSHLNmX>; Mon, 12 Aug 2002 09:42:23 -0400
-Received: from phoenix.mvhi.com ([195.224.96.167]:34821 "EHLO
-	phoenix.infradead.org") by vger.kernel.org with ESMTP
-	id <S318009AbSHLNmU>; Mon, 12 Aug 2002 09:42:20 -0400
-Date: Mon, 12 Aug 2002 14:46:05 +0100
-From: Christoph Hellwig <hch@infradead.org>
-To: Ravikiran G Thirumalai <kiran@in.ibm.com>
-Cc: Andrew Morton <akpm@zip.com.au>, linux-kernel@vger.kernel.org,
-       dipankar@in.ibm.com
-Subject: Re: [patch 1 of 2] Scalable statistics counters
-Message-ID: <20020812144605.A4595@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Ravikiran G Thirumalai <kiran@in.ibm.com>,
-	Andrew Morton <akpm@zip.com.au>, linux-kernel@vger.kernel.org,
-	dipankar@in.ibm.com
-References: <20020812183524.B1992@in.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20020812183524.B1992@in.ibm.com>; from kiran@in.ibm.com on Mon, Aug 12, 2002 at 06:35:24PM +0530
+	id <S318017AbSHLNt3>; Mon, 12 Aug 2002 09:49:29 -0400
+Received: from feline.chl.chalmers.se ([129.16.214.88]:61452 "EHLO
+	feline.chl.chalmers.se") by vger.kernel.org with ESMTP
+	id <S318015AbSHLNt2>; Mon, 12 Aug 2002 09:49:28 -0400
+Date: Mon, 12 Aug 2002 15:53:11 +0200 (CEST)
+From: Fredrik Ohrn <ohrn@chl.chalmers.se>
+To: davem@redhat.com
+cc: linux-kernel@vger.kernel.org
+Subject: sungem 0.97 driver doesn't work with "Sun GigabitEthernet/P 2.0"
+ card.
+Message-ID: <Pine.LNX.4.44.0208121524060.17083-100000@feline.chl.chalmers.se>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=ISO-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Aug 12, 2002 at 06:35:24PM +0530, Ravikiran G Thirumalai wrote:
-> Hi Andrew,
-> Here is the new statctr patch with some of the changes suggested by Christoph.
-> Do you think the foll patch is ready to get into the mainline kernel now? 
-> If so, will you forward this to Linus or shall I send the patch to him?
-> The following patch works on 2.5.31. I will be mailing out the 2.5.31
-> version of Dipankar's kmalloc_percpu dynamic memory allocator in a separate
-> mail (since statctrs depend on them ).
 
-But you ignored the most important suggestion.  Using proc_calc_metrics()
-in new code is a mistake.  It's a sign you want to use the seq_file
-interface.  And exporting it outside proc_misc.c is an even bigger mistake.
+Hello!
+
+I have salvaged a Sun GigabitEthernet/P 2.0 card from a retired Sun server 
+and am trying to put it to use.
+
+
+Inserting the driver gives the following in dmesg:
+
+sungem.c:v0.97 3/20/02 David S. Miller (davem@redhat.com)
+eth2: Sun GEM (PCI) 10/100/1000BaseT Ethernet 00:00:00:00:00:00
+gem: SW reset is ghetto.
+
+Notice the missing MAC address.
+
+
+Configuring the card gives the following:
+
+[root@olivia ~]# ifconfig eth2 129.xxx.xxx.17 netmask 255.255.255.128 broadcast 129.xxx.xxx.127
+[root@olivia ~]# ifconfig eth2
+eth2      Link encap:Ethernet  HWaddr 00:00:00:00:00:00  
+          inet addr:129.xxx.xxx.17  Bcast:129.xxx.xxx.127  Mask:255.255.255.128
+          UP BROADCAST RUNNING MULTICAST  MTU:1500  Metric:1
+          RX packets:0 errors:0 dropped:0 overruns:0 frame:4294967170
+          TX packets:0 errors:0 dropped:0 overruns:0 carrier:4294967254
+          collisions:4294967212 txqueuelen:100 
+          RX bytes:0 (0.0 b)  TX bytes:0 (0.0 b)
+          Interrupt:22 Base address:0x7000 
+
+Notice the bogus frame, carrier and collision error counts.
+
+
+When trying to communicate with the box using 129.xxx.xxx.17 it will 
+advertize the MAC address of eth0 on ARP queries. This means that to other 
+machines 129.xxx.xxx.17 seems to work just fine but in reality the 
+traffic passes over eth0, not the sungem card. Similar things seems to 
+happen when trying to do outward connections.
+
+
+Gritty system details:
+
+Plain 2.4.19 kernel.
+ASUS TR-DLS mobo with ServerWorks LE chipset.
+The card is 64-bit and sits in a 64-bit PCI slot.
+
+[root@olivia ~]# lspci -v -x -s 01:02
+01:02.0 Ethernet controller: Sun Microsystems Computer Corp. GEM (rev 01)
+        Flags: bus master, 66Mhz, slow devsel, latency 32, IRQ 22
+        Memory at f5800000 (32-bit, non-prefetchable) [size=2M]
+        Expansion ROM at 40000000 [size=1M]
+00: 8e 10 ad 2b 16 00 a0 04 01 00 00 02 08 20 00 00
+10: 00 00 80 f5 00 00 00 00 00 00 00 00 00 00 00 00
+20: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 01 00
+30: 01 00 00 40 00 00 00 00 00 00 00 00 09 01 40 40
+
+
+
+What can I do to help debug and fix this?
+
+
+Regards,
+Fredrik
+
+-- 
+   "It is easy to be blinded to the essential uselessness of computers by
+   the sense of accomplishment you get from getting them to work at all."
+                                                   - Douglas Adams
+
+Fredrik Öhrn                               Chalmers University of Technology
+ohrn@chl.chalmers.se                                                  Sweden
 

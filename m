@@ -1,195 +1,90 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284824AbRLDANC>; Mon, 3 Dec 2001 19:13:02 -0500
+	id <S282190AbRLDCYW>; Mon, 3 Dec 2001 21:24:22 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281865AbRLDAGD>; Mon, 3 Dec 2001 19:06:03 -0500
-Received: from hank-fep6-0.inet.fi ([194.251.242.201]:39361 "EHLO
-	fep06.tmt.tele.fi") by vger.kernel.org with ESMTP
-	id <S285249AbRLCWYD>; Mon, 3 Dec 2001 17:24:03 -0500
-Message-ID: <3C0BFB3F.9111CD2C@pp.inet.fi>
-Date: Tue, 04 Dec 2001 00:22:55 +0200
-From: Jari Ruusu <jari.ruusu@pp.inet.fi>
-X-Mailer: Mozilla 4.78 [en] (X11; U; Linux 2.2.20aa1 i686)
-X-Accept-Language: en
+	id <S284496AbRLDANB>; Mon, 3 Dec 2001 19:13:01 -0500
+Received: from mail3.aracnet.com ([216.99.193.38]:47630 "EHLO
+	mail3.aracnet.com") by vger.kernel.org with ESMTP
+	id <S284609AbRLCObZ>; Mon, 3 Dec 2001 09:31:25 -0500
+From: "M. Edward Borasky" <znmeb@aracnet.com>
+To: <linux-kernel@vger.kernel.org>
+Subject: RE: Linux/Pro [was Re: Coding style - a non-issue] 
+Date: Mon, 3 Dec 2001 06:31:38 -0800
+Message-ID: <HBEHIIBBKKNOBLMPKCBBEENCECAA.znmeb@aracnet.com>
 MIME-Version: 1.0
-To: marcelo@conectiva.com.br
-CC: Herbert Valerio Riedel <hvr@hvrlab.org>, Andrea Arcangeli <andrea@suse.de>,
-        axboe@suse.de, linux-kernel@vger.kernel.org
-Subject: Re: RFC(ry): breaking loop.c's IV calculation
-In-Reply-To: <3C0A51B0.9AD14E74@pp.inet.fi>
-			<Pine.LNX.4.33.0112021716001.2563-100000@janus.txd.hvrlab.org> 
-			<20011202234625.A3447@athlon.random> <1007388763.1674.37.camel@janus.txd.hvrlab.org>
-Content-Type: multipart/mixed;
- boundary="------------B7E7A619D6A837592C47DE5F"
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook IMO, Build 9.0.2416 (9.0.2911.0)
+In-Reply-To: <200112030322.fB33McjC024158@sleipnir.valparaiso.cl>
+Importance: Normal
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------B7E7A619D6A837592C47DE5F
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
 
-Herbert Valerio Riedel wrote:
-> well, I've put one patch together (it still needs (constructive)
-> auditing though! jari?) here it is (it's against 2.4.16's loop.[ch])
+> -----Original Message-----
+> From: Horst von Brand [mailto:vonbrand@sleipnir.valparaiso.cl]
+> Sent: Sunday, December 02, 2001 7:23 PM
+> To: M. Edward Borasky
+> Cc: linux-kernel@vger.kernel.org
+> Subject: Re: Linux/Pro [was Re: Coding style - a non-issue]
+>
+>
+> "M. Edward Borasky" <znmeb@aracnet.com> said:
+>
+> [...]
+>
+> > My point here is that just because a composer is *capable* of doing
+> > integration work and building or repairing tools (and I am)
+> does *not* mean
+> > he (or she :-) has either the time or the willingness to do so (and I
+> > don't).
+>
+> So band together with some others with your same problem, and pay somebody
+> to fix it. What you saved on propietary OS lease should make up for it.
+> Amply.
 
-I have attached my version of loop.c bug fixes. These are extracted from
-loop-AES and are well tested.
+What I spent on Windows 2000 is $300 US. This converted my $400
+top-of-the-line sound card from a useless space-taker on my desk to a
+functioning musical device. As for banding together with some others, well,
+they are even *more* frustrated than I am, because most of them are *purely*
+musicians and *can't* program. Nor do they have the money to spend on
+programmers. I'm on a number of musical mailing lists, and their
+overwhelming complaint is that they spend most of their time being system
+administrators rather than musicians/composers. And these are people using
+*commercial* tools -- some *quite* expensive -- on Windows and Macs.
 
-- IV computed in 512 byte units.
-- Make device backed loop work with swap by pre-allocating pages.
-- External encryption module locking bug fixed (from Ingo Rohloff).
-- Get rid of the loop_get_bs() crap.
-- grab_cache_page() return value handled properly, avoids Oops.
-- No more illegal messing with BH_Dirty flag.
-- No more illegal sleeping in generic_make_request().
-- Loops can be set-up properly when root partition is still mounted ro.
-- Default soft block size is set properly for file backed loops.
-- kmalloc() error case handled properly.
+> Oh wait, you are just a troll, right?
 
-Regards,
-Jari Ruusu <jari.ruusu@pp.inet.fi>
---------------B7E7A619D6A837592C47DE5F
-Content-Type: application/x-gzip;
- name="loop-fixes-2.4.17-pre2.diff.gz"
-Content-Transfer-Encoding: base64
-Content-Disposition: inline;
- filename="loop-fixes-2.4.17-pre2.diff.gz"
+Not really ... if you'd like I can be, though. Eventually, when I run out of
+other projects, I'll sit down and force ALSA to work with my sound card if
+someone hasn't done it already. Of course, now that I have the sound card
+running and Windows 2000, why would I need to? So much of Linux is
+plug-and-play right now, at least the Red Hat Linux that I'm using. I bought
+a sound card unsupported by Red Hat because I knew of two drivers for it --
+OSS/Linux and ALSA. I tried ALSA first and gave up on it after a week of
+agony on the ALSA mailing list. Then I bought OSS/Linux, which installed
+fine but didn't generate any sound. When I sent e-mail to the support desk,
+I got a very fast response -- RTFM. The FM in this case consists of a single
+page ASCII document which is less than helpful.
 
-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
+What I'm trying to establish here is that if ALSA is to become the
+main-stream Linux sound driver set, it's going to need to support -- *fully*
+support -- the top-of-the-line sound cards like my M-Audio Delta 66. It
+isn't enough to just support the Envy chip inside -- it has to support the
+whole card with interfaces to all the sound tools that come with KDE and
+Gnome! It has to install flawlessly, boot flawlessly and understand
+everything that is in the card. I haven't checked recently to see if the
+ALSA situation has changed any -- too busy making music on my Windows
+machine :-).
+--
+Take Your Trading to the Next Level!
+M. Edward Borasky, Meta-Trading Coach
 
---------------B7E7A619D6A837592C47DE5F--
-
+znmeb@borasky-research.net
+http://www.meta-trading-coach.com
+http://groups.yahoo.com/group/meta-trading-coach
 

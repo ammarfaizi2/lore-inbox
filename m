@@ -1,52 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265803AbUFOSEz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265809AbUFOSHS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265803AbUFOSEz (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Jun 2004 14:04:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265807AbUFOSEz
+	id S265809AbUFOSHS (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Jun 2004 14:07:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265810AbUFOSHR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Jun 2004 14:04:55 -0400
-Received: from cfcafw.SGI.COM ([198.149.23.1]:47013 "EHLO
-	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
-	id S265803AbUFOSEy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Jun 2004 14:04:54 -0400
-Date: Tue, 15 Jun 2004 13:05:25 -0500
-From: Dean Nelson <dcn@sgi.com>
-To: Arjan van de Ven <arjanv@redhat.com>
-Cc: linux-kernel@vger.kernel.org, rusty@rustcorp.com.au, dcn@sgi.com
-Subject: Re: calling kthread_create() from interrupt thread
-Message-ID: <20040615180525.GA17145@sgi.com>
-References: <40CF350B.mailxD2X1NPFBC@aqua.americas.sgi.com> <1087321777.2710.43.camel@laptop.fenrus.com>
+	Tue, 15 Jun 2004 14:07:17 -0400
+Received: from twilight.ucw.cz ([81.30.235.3]:26755 "EHLO midnight.ucw.cz")
+	by vger.kernel.org with ESMTP id S265809AbUFOSGy (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 15 Jun 2004 14:06:54 -0400
+Date: Tue, 15 Jun 2004 20:07:38 +0200
+From: Vojtech Pavlik <vojtech@suse.cz>
+To: Karel =?iso-8859-1?Q?Kulhav=FD?= <clock@twibright.com>
+Cc: Helge Hafting <helgehaf@aitel.hist.no>, linux-kernel@vger.kernel.org,
+       Lubomir Prech <Lubomir.Prech@mff.cuni.cz>
+Subject: Re: HID vs. Input Core
+Message-ID: <20040615180738.GA2200@ucw.cz>
+References: <20040615125800.B5811@beton.cybernet.src> <20040615134153.GA8625@hh.idb.hist.no> <20040615135605.B6090@beton.cybernet.src>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-In-Reply-To: <1087321777.2710.43.camel@laptop.fenrus.com>
-User-Agent: Mutt/1.5.6i
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20040615135605.B6090@beton.cybernet.src>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jun 15, 2004 at 07:49:37PM +0200, Arjan van de Ven wrote:
-> On Tue, 2004-06-15 at 19:42, Dean Nelson wrote:
-> > I'm working on a driver that needs to create threads that can sleep/block
-> > for an indefinite period of time.
+On Tue, Jun 15, 2004 at 01:56:05PM +0000, Karel Kulhavý wrote:
+> On Tue, Jun 15, 2004 at 03:41:53PM +0200, Helge Hafting wrote:
+> > On Tue, Jun 15, 2004 at 12:58:00PM +0000, Karel Kulhavý wrote:
+> > > Hello
+> > > 
+> > > I would like to know what's the difference between
+> > > Input Core (CONFIG_INPUT) and USB HID (CONFIG_USB_HID) in 2.4.25
+> > > 
+> > > They seem to enable the same thing - USB HID. However I don't
+> > > know which one should I enable or if I should enable both. I find
+> > > existence of two options with seemingly the same function confusing.
+> > > 
+> > They aren't the same:
 > > 
-> >     . Can kthread_create() be called from an interrupt handler?
+> > Enable CONFIG_INPUT if you want to use any input devices _at all_,
+> > i.e. if you plan on using some kind of keyboard, mouse, joystick, ...
+> > Enable CONFIG_USB_HID also, _if_ such a device might be connected
+> > via USB.  (Older devices are not USB, newer may be usb.)
 > 
-> no
+> Bugreport:
 > 
-> > 
-> >     . Is the cost of a kthread's creation/demise low enough so that one
-> >       can, as often as needed, create a kthread that performs a simple
-> >       function and exits?  Or is the cost too high for this?
+> CONFIG_INPUT Help says
+> "Say Y here if you want to enable any of the following options for USB
+> Human Interface Device (HID) support".
 > 
-> for that we have keventd in 2.4, work queues in 2.6
+> Helge Hafting from linux-kernel says that CONFIG_INPUT controls enabling input devices at
+> all. These two statements are in a direct contradiction. (See above).
+ 
+In 2.4 the only devices (well, except joysticks) using the input core
+are USB HID devices.
 
-As mentioned above, it is possible for this "simple" function to sleep/block
-for an indefinite period of time. I was under the impression that one
-couldn't block a work queue thread for an indefinite period of time. Am
-I mistaken?
-
-Thanks,
-Dean
-
-
-
+-- 
+Vojtech Pavlik
+SuSE Labs, SuSE CR

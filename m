@@ -1,55 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262030AbSJNQpf>; Mon, 14 Oct 2002 12:45:35 -0400
+	id <S261835AbSJNQxa>; Mon, 14 Oct 2002 12:53:30 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262031AbSJNQpe>; Mon, 14 Oct 2002 12:45:34 -0400
-Received: from zok.SGI.COM ([204.94.215.101]:10160 "EHLO zok.sgi.com")
-	by vger.kernel.org with ESMTP id <S262030AbSJNQpa>;
-	Mon, 14 Oct 2002 12:45:30 -0400
-Subject: Re: [patch] remove BKL from inode_setattr
-From: Steve Lord <lord@sgi.com>
-To: Andrew Morton <akpm@digeo.com>
-Cc: Hugh Dickins <hugh@veritas.com>, lkml <linux-kernel@vger.kernel.org>,
-       linux-fsdevel@vger.kernel.org
-In-Reply-To: <3DAAF3B2.24158D49@digeo.com>
-References: <3DAA6587.2A4C24B0@digeo.com>
-	<1034604439.25231.9.camel@jen.americas.sgi.com> 
-	<3DAAF3B2.24158D49@digeo.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.8 
-Date: 14 Oct 2002 11:49:00 -0500
-Message-Id: <1034614140.30453.6.camel@jen.americas.sgi.com>
+	id <S261972AbSJNQxa>; Mon, 14 Oct 2002 12:53:30 -0400
+Received: from [209.184.141.189] ([209.184.141.189]:16676 "HELO UberGeek")
+	by vger.kernel.org with SMTP id <S261835AbSJNQx3>;
+	Mon, 14 Oct 2002 12:53:29 -0400
+Subject: Re: [linux-lvm] Re: [PATCH] 2.5 version of device mapper submission
+From: Austin Gonyou <austin@coremetrics.com>
+To: linux-lvm@sistina.com
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Joe Thornber <joe@fib011235813.fsnet.co.uk>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <1034453946.15067.22.camel@irongate.swansea.linux.org.uk>
+References: <1034453946.15067.22.camel@irongate.swansea.linux.org.uk>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-hfRLq+Bgakv8+4aVK8Dq"
+Organization: Coremetrics, Inc.
+Message-Id: <1034614756.29775.5.camel@UberGeek.coremetrics.com>
 Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.1.2.99 (Preview Release)
+Date: 14 Oct 2002 11:59:17 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2002-10-14 at 11:41, Andrew Morton wrote:
-> > 
-> > XFS deliberately does not take the BKL - anywhere. Our setattr
-> > code is doing its own locking. You just added the BKL to a
-> > bunch of xfs operations which do not need it. Now, vmtruncate
-> > may need it, itself, but if vmtruncate does not, then the xfs
-> > callout from vmtruncate certainly does not.
-> > 
-> 
-> Sorry, but that is standard "bkl migration" methodology.  You had it
-> before, so you get it after.  It is not my role to change XFS locking.
 
-But you did .... my point was, XFS does not use the BKL at all, has
-never needed it and never will. The setattr call you added it to
-meant you added it to chown, chmod etc. When the BKL was migrated
-down below the vfs layer in all those places I deliberately did not
-add it to the XFS calls.
+--=-hfRLq+Bgakv8+4aVK8Dq
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-> 
-> Anyway, I don't think these patches are going anywhere.
+Just curious, but device-mapper and 2.5.42 do not seem to jive very
+well. Please advise.
+--=20
+Austin Gonyou <austin@coremetrics.com>
+Coremetrics, Inc.
 
-No problem,
+--=-hfRLq+Bgakv8+4aVK8Dq
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
 
-Steve
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.6 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
 
--- 
+iD8DBQA9qvfk94g6ZVmFMoIRAo/KAJ4qTCfrvHaJNWqOnQ3TBC0TfxfaQgCg5geo
+1N9z6YT3wrOY0QEJLtRi8Wk=
+=DvWa
+-----END PGP SIGNATURE-----
 
-Steve Lord                                      voice: +1-651-683-3511
-Principal Engineer, Filesystem Software         email: lord@sgi.com
+--=-hfRLq+Bgakv8+4aVK8Dq--

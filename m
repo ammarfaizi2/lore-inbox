@@ -1,21 +1,21 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266278AbSKZHmV>; Tue, 26 Nov 2002 02:42:21 -0500
+	id <S266286AbSKZHqy>; Tue, 26 Nov 2002 02:46:54 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266286AbSKZHmV>; Tue, 26 Nov 2002 02:42:21 -0500
-Received: from TYO202.gate.nec.co.jp ([210.143.35.52]:44445 "EHLO
+	id <S266292AbSKZHqy>; Tue, 26 Nov 2002 02:46:54 -0500
+Received: from TYO202.gate.nec.co.jp ([210.143.35.52]:63905 "EHLO
 	TYO202.gate.nec.co.jp") by vger.kernel.org with ESMTP
-	id <S266278AbSKZHmU>; Tue, 26 Nov 2002 02:42:20 -0500
-To: Greg Ungerer <gerg@snapgear.com>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: [PATCH]  v850 additions to include/linux/elf.h
+	id <S266286AbSKZHqw>; Tue, 26 Nov 2002 02:46:52 -0500
+To: Rusty Russell <rusty@rustcorp.com.au>
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH]  Symbol name prefixes (e.g., `_') with the new module loader
 Reply-To: Miles Bader <miles@gnu.org>
 System-Type: i686-pc-linux-gnu
 Blat: Foop
 From: Miles Bader <miles@lsi.nec.co.jp>
-Date: 26 Nov 2002 16:49:31 +0900
-In-Reply-To: <20021015181609.A31647@infradead.org>
-Message-ID: <buoel987otw.fsf_-_@mcspd15.ucom.lsi.nec.co.jp>
+Date: 26 Nov 2002 16:40:53 +0900
+In-Reply-To: <20021126013330.8DC822C31D@lists.samba.org>
+Message-ID: <buon0nw7p8a.fsf@mcspd15.ucom.lsi.nec.co.jp>
 MIME-Version: 1.0
 Content-Type: multipart/mixed; boundary="=-=-="
 Sender: linux-kernel-owner@vger.kernel.org
@@ -25,8 +25,14 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 Hi,
 
-This patch adds more stuff to include/linux/elf.h for the v850 (used by
-the new module loader).
+On the v850, the elf toolchain uses a `_' prefix for all user symbols
+(I'm not sure why, since most toolchains seem to have dropped this sort
+of thing).
+
+The attached patch adds the ability to deal with this, if the macro
+MODULE_SYMBOL_PREFIX is defined by <asm/module.h>.  This only affects
+places where symbol names come from the user, e.g., EXPORT_SYMBOL, or
+the explicit symbol-names used in kernel/module.c itself.
 
 
 Patch:
@@ -35,54 +41,95 @@ Patch:
 
 --=-=-=
 Content-Type: text/x-patch
-Content-Disposition: attachment; filename=v850-elfdefs-20021126.patch
-Content-Description: v850-elfdefs-20021126.patch
+Content-Disposition: attachment; filename=module-sympfx-20021126.patch
+Content-Description: module-sympfx-20021126.patch
 
-diff -ruN -X../cludes ../orig/linux-2.5.49-uc0/include/linux/elf.h include/linux/elf.h
---- ../orig/linux-2.5.49-uc0/include/linux/elf.h	2002-11-25 10:34:44.000000000 +0900
-+++ include/linux/elf.h	2002-11-26 11:10:41.000000000 +0900
-@@ -92,6 +92,9 @@
-  */
- #define EM_ALPHA	0x9026
+diff -ruN -X../cludes ../orig/linux-2.5.49-uc0/include/linux/module.h include/linux/module.h
+--- ../orig/linux-2.5.49-uc0/include/linux/module.h	2002-11-25 10:30:09.000000000 +0900
++++ include/linux/module.h	2002-11-25 18:55:11.000000000 +0900
+@@ -88,11 +88,18 @@
+ void *__symbol_get_gpl(const char *symbol);
+ #define symbol_get(x) ((typeof(&x))(__symbol_get(#x)))
  
-+/* Bogus old v850 magic number, used by old tools.  */
-+#define EM_CYGNUS_V850	0x9080
-+
- /*
-  * This is the old interim value for S/390 architecture
-  */
-@@ -450,6 +453,31 @@
- /* Keep this the last entry.  */
- #define R_390_NUM	27
++#ifdef MODULE_SYMBOL_PREFIX
+ /* For every exported symbol, place a struct in the __ksymtab section */
+ #define EXPORT_SYMBOL(sym)				\
+ 	const struct kernel_symbol __ksymtab_##sym	\
+ 	__attribute__((section("__ksymtab")))		\
++	= { (unsigned long)&sym, MODULE_SYMBOL_PREFIX #sym }
++#else
++#define EXPORT_SYMBOL(sym)				\
++	const struct kernel_symbol __ksymtab_##sym	\
++	__attribute__((section("__ksymtab")))		\
+ 	= { (unsigned long)&sym, #sym }
++#endif
  
-+
-+/* v850 relocations.  */
-+#define R_V850_NONE		0
-+#define R_V850_9_PCREL		1
-+#define R_V850_22_PCREL		2
-+#define R_V850_HI16_S		3
-+#define R_V850_HI16		4
-+#define R_V850_LO16		5
-+#define R_V850_32		6
-+#define R_V850_16		7
-+#define R_V850_8		8
-+#define R_V850_SDA_16_16_OFFSET	9	/* For ld.b, st.b, set1, clr1,
-+					   not1, tst1, movea, movhi */
-+#define R_V850_SDA_15_16_OFFSET	10	/* For ld.w, ld.h, ld.hu, st.w, st.h */
-+#define R_V850_ZDA_16_16_OFFSET	11	/* For ld.b, st.b, set1, clr1,
-+					   not1, tst1, movea, movhi */
-+#define R_V850_ZDA_15_16_OFFSET	12	/* For ld.w, ld.h, ld.hu, st.w, st.h */
-+#define R_V850_TDA_6_8_OFFSET	13	/* For sst.w, sld.w */
-+#define R_V850_TDA_7_8_OFFSET	14	/* For sst.h, sld.h */
-+#define R_V850_TDA_7_7_OFFSET	15	/* For sst.b, sld.b */
-+#define R_V850_TDA_16_16_OFFSET	16	/* For set1, clr1, not1, tst1,
-+					   movea, movhi */
-+#define R_V850_NUM		17
-+
-+
- /* Legal values for e_flags field of Elf64_Ehdr.  */
+ #define EXPORT_SYMBOL_NOVERS(sym) EXPORT_SYMBOL(sym)
+ #define EXPORT_SYMBOL_GPL(sym) EXPORT_SYMBOL(sym)
+diff -ruN -X../cludes ../orig/linux-2.5.49-uc0/kernel/module.c kernel/module.c
+--- ../orig/linux-2.5.49-uc0/kernel/module.c	2002-11-25 10:30:10.000000000 +0900
++++ kernel/module.c	2002-11-25 18:38:58.000000000 +0900
+@@ -37,6 +37,17 @@
+ #define DEBUGP(fmt , a...)
+ #endif
  
- #define EF_ALPHA_32BIT		1	/* All addresses are below 2GB */
++/* Define a handy short alias for MODULE_SYMBOL_PREFIX, defaulting
++   to "" if it isn't defined (it's also useful to avoid just
++   defining MODULE_SYMBOL_PREFIX here so that #ifdefs can still be
++   done against it).  */
++#ifdef MODULE_SYMBOL_PREFIX
++#define SYMPFX MODULE_SYMBOL_PREFIX
++#else
++#define SYMPFX ""
++#endif
++
++
+ /* List of modules, protected by module_mutex */
+ static DECLARE_MUTEX(module_mutex);
+ LIST_HEAD(modules); /* FIXME: Accessed w/o lock on oops by some archs */
+@@ -630,10 +641,10 @@
+ 	unsigned int i;
+ 
+ 	for (i = 1; i < sechdrs[symbolsec].sh_size/sizeof(*sym); i++) {
+-		if (strcmp("__initfn", strtab + sym[i].st_name) == 0)
++		if (strcmp(SYMPFX "__initfn", strtab + sym[i].st_name) == 0)
+ 			mod->init = (void *)sym[i].st_value;
+ #ifdef CONFIG_MODULE_UNLOAD
+-		if (strcmp("__exitfn", strtab + sym[i].st_name) == 0)
++		if (strcmp(SYMPFX "__exitfn", strtab + sym[i].st_name) == 0)
+ 			mod->exit = (void *)sym[i].st_value;
+ #endif
+ 	}
+@@ -770,7 +781,8 @@
+ 						       mod,
+ 						       &ksg);
+ 			/* We fake up "__this_module" */
+-			if (strcmp(strtab+sym[i].st_name, "__this_module")==0)
++			if (strcmp(strtab+sym[i].st_name,
++				   SYMPFX "__this_module")==0)
+ 				sym[i].st_value = (unsigned long)mod;
+ 		}
+ 	}
+@@ -869,7 +881,8 @@
+ 			/* This module's name */
+ 			DEBUGP("Module name in section %u\n", i);
+ 			modnameindex = i;
+-		} else if (strcmp(secstrings+sechdrs[i].sh_name, "__ksymtab")
++		} else if (strcmp(secstrings+sechdrs[i].sh_name,
++				  SYMPFX "__ksymtab")
+ 			   == 0) {
+ 			/* Exported symbols. */
+ 			DEBUGP("EXPORT table in section %u\n", i);
+@@ -884,7 +897,8 @@
+ 			/* Setup parameter info */
+ 			DEBUGP("Setup table found in section %u\n", i);
+ 			setupindex = i;
+-		} else if (strcmp(secstrings+sechdrs[i].sh_name, "__ex_table")
++		} else if (strcmp(secstrings+sechdrs[i].sh_name,
++				  SYMPFX "__ex_table")
+ 			   == 0) {
+ 			/* Exception table */
+ 			DEBUGP("Exception table found in section %u\n", i);
 
 --=-=-=
 
@@ -92,8 +139,6 @@ Thanks,
 
 -Miles
 -- 
-[|nurgle|]  ddt- demonic? so quake will have an evil kinda setting? one that 
-            will  make every christian in the world foamm at the mouth? 
-[iddt]      nurg, that's the goal 
+"1971 pickup truck; will trade for guns"
 
 --=-=-=--

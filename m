@@ -1,58 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S271754AbTHDOuI (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 4 Aug 2003 10:50:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271755AbTHDOuI
+	id S271688AbTHDOrk (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 4 Aug 2003 10:47:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S271754AbTHDOrk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 4 Aug 2003 10:50:08 -0400
-Received: from mail3.ithnet.com ([217.64.64.7]:48317 "HELO
-	heather-ng.ithnet.com") by vger.kernel.org with SMTP
-	id S271754AbTHDOuE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 4 Aug 2003 10:50:04 -0400
-X-Sender-Authentification: SMTPafterPOP by <info@euro-tv.de> from 217.64.64.14
-Date: Mon, 4 Aug 2003 16:50:02 +0200
-From: Stephan von Krawczynski <skraw@ithnet.com>
-To: Anton Altaparmakov <aia21@cam.ac.uk>
-Cc: aebr@win.tue.nl, linux-kernel@vger.kernel.org
-Subject: Re: FS: hardlinks on directories
-Message-Id: <20030804165002.791aae3d.skraw@ithnet.com>
-In-Reply-To: <Pine.SOL.4.56.0308041458500.22102@orange.csi.cam.ac.uk>
-References: <20030804141548.5060b9db.skraw@ithnet.com>
-	<20030804134415.GA4454@win.tue.nl>
-	<20030804155604.2cdb96e7.skraw@ithnet.com>
-	<Pine.SOL.4.56.0308041458500.22102@orange.csi.cam.ac.uk>
-Organization: ith Kommunikationstechnik GmbH
-X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
+	Mon, 4 Aug 2003 10:47:40 -0400
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:64270 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S271688AbTHDOrj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 4 Aug 2003 10:47:39 -0400
+Date: Mon, 4 Aug 2003 15:47:31 +0100
+From: Russell King <rmk@arm.linux.org.uk>
+To: Jani Monoses <jani@iv.ro>
+Cc: linux-kernel@vger.kernel.org, B.Zolnierkiewicz@elka.pw.edu.pl
+Subject: Re: ide-cs stack_dump
+Message-ID: <20030804154731.C25847@flint.arm.linux.org.uk>
+Mail-Followup-To: Jani Monoses <jani@iv.ro>, linux-kernel@vger.kernel.org,
+	B.Zolnierkiewicz@elka.pw.edu.pl
+References: <20030804174828.08dfc5f4.jani@iv.ro>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20030804174828.08dfc5f4.jani@iv.ro>; from jani@iv.ro on Mon, Aug 04, 2003 at 05:48:28PM +0300
+X-Message-Flag: Your copy of Microsoft Outlook is vulnerable to viruses. See www.mutt.org for more details.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 4 Aug 2003 15:04:28 +0100 (BST)
-Anton Altaparmakov <aia21@cam.ac.uk> wrote:
+On Mon, Aug 04, 2003 at 05:48:28PM +0300, Jani Monoses wrote:
+> Hi
+> as reported by someone earlier this year there's a long stack_dump
+> starting from kobject_register failed with -17 (EEXISTS) when ide-cs
+> detects a CF card.
+> The reason is as I see it that both rescan_partitions and register_disk
+> are called, both of which in turn call add_partition for all partitions
+> on the CF card. add_partition calls kobject_register. Also devfs_mk_bdev
+> is called twice but it only prints an error msg 'could not append...'. I
+> don't know if that is how things should be called or whether kobjects
+> for IDE are broken as Alan responded to that earlier post but apart from
+> this initial stack_dump the card works fine (not eject of course) So is
+> kobject_register to verbose or calling code should make sure it does not
+> attempt to register the same object multiple times?
 
-> For a start the kernel VFS dcache would break because you end up with
-> multiple entries for each inode, one entry for each parallel directory
-> tree.  Read-only you are just about able to get away with it (been there,
-> done that, don't recommend it!) but allow files to be deleted and it will
-> blow up in your face.
+You can't kobject_register the same object multiple times.
 
-I cannot comment, I have no inside knowledge of it.
+What you're describing above sounds to me like an IDE problem.  It might
+be worth discussing this with Bart. (cc'd)
 
-> You ask for examples of applications?  There are millions!  Anything that
-> walks the directory tree for a start, e.g. ls -R, find, locatedb, medusa,
-> du, any type of search and/or indexing engine, chown -R, cp -R, scp
-> -R, chmod -R, etc...
+-- 
+Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
+             http://www.arm.linux.org.uk/personal/aboutme.html
 
-There is a flaw in this argument. If I am told that mount --bind does just
-about what I want to have as a feature then these applictions must have the
-same problems already (if I mount braindead). So an implementation in fs cannot
-do any _additional_ damage to these applications, or not?
-
-My saying is not "I want to have hardlinks for creating a big mess of loops
-inside my filesystems". Your view simply drops the fact that there are more
-possibilities to create and use hardlinks without any loops...
-
-Regards,
-Stephan

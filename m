@@ -1,67 +1,79 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262735AbUCOTwY (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 15 Mar 2004 14:52:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262736AbUCOTwY
+	id S262716AbUCOTut (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 15 Mar 2004 14:50:49 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262735AbUCOTut
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 Mar 2004 14:52:24 -0500
-Received: from gateway-1237.mvista.com ([12.44.186.158]:18677 "EHLO
-	av.mvista.com") by vger.kernel.org with ESMTP id S262735AbUCOTwN
+	Mon, 15 Mar 2004 14:50:49 -0500
+Received: from mail.cyclades.com ([64.186.161.6]:55513 "EHLO
+	intra.cyclades.com") by vger.kernel.org with ESMTP id S262716AbUCOTuq
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 Mar 2004 14:52:13 -0500
-Message-ID: <40560962.9050804@mvista.com>
-Date: Mon, 15 Mar 2004 11:52:02 -0800
-From: George Anzinger <george@mvista.com>
-Organization: MontaVista Software
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20030225
-X-Accept-Language: en-us, en
+	Mon, 15 Mar 2004 14:50:46 -0500
+Date: Mon, 15 Mar 2004 16:47:48 -0300 (BRT)
+From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+X-X-Sender: marcelo@dmt.cyclades
+To: Andrea Arcangeli <andrea@suse.de>
+Cc: Ingo Molnar <mingo@elte.hu>, Linus Torvalds <torvalds@osdl.org>,
+       Andrew Morton <akpm@osdl.org>, <linux-kernel@vger.kernel.org>
+Subject: Re: [lockup] Re: objrmap-core-1 (rmap removal for file mappings to
+ avoid 4:4 in <=16G machines)
+In-Reply-To: <20040309154102.GG8193@dualathlon.random>
+Message-ID: <Pine.LNX.4.44.0403141935020.1370-100000@dmt.cyclades>
 MIME-Version: 1.0
-To: "Amit S. Kale" <amitkale@emsyssoft.com>
-CC: Tom Rini <trini@kernel.crashing.org>,
-       kernel list <linux-kernel@vger.kernel.org>,
-       Pavel Machek <pavel@suse.cz>, kgdb-bugreport@lists.sourceforge.net
-Subject: Re: [Kgdb-bugreport] [PATCH][2/3] Update CVS KGDB's have kgdb_{schedule,process}_breakpoint
-References: <20040225213626.GF1052@smtp.west.cox.net> <200403121014.08221.amitkale@emsyssoft.com> <40516EDA.5060006@mvista.com> <200403151650.34115.amitkale@emsyssoft.com>
-In-Reply-To: <200403151650.34115.amitkale@emsyssoft.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Cyclades-MailScanner-Information: Please contact the ISP for more information
+X-Cyclades-MailScanner: Found to be clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Amit S. Kale wrote:
-> On Friday 12 Mar 2004 1:33 pm, George Anzinger wrote:
-> 
->>Amit S. Kale wrote:
->>
->>>On Friday 12 Mar 2004 2:58 am, George Anzinger wrote:
->>>
->>>>Amit S. Kale wrote:
->>>>~
->>>>
->>>>
->>>>>>context any
->>>>>>
->>>>>>p fun()
->>>>>
->>>>>p fun() will push arguments on stack over the place where irq occured,
->>>>>which is exactly how it'll run.
->>>>
->>>>Is this capability in kgdb lite?  It was one of the last things I added
->>>>to -mm version.
->>>
->>>No! It's not present in kgdb heavy also. All you can do is set $pc,
->>>continue.
->>
->>Possibly I can help here.  I did it for the mm version.  It does require a
->>couple of asm bits and it sort of messes up the set/fetch memory, but it
->>does do the job.
-> 
-> 
-> I have seen that. It's too messy!
 
-You have a better solution?
--- 
-George Anzinger   george@mvista.com
-High-res-timers:  http://sourceforge.net/projects/high-res-timers/
-Preemption patch: http://www.kernel.org/pub/linux/kernel/people/rml
+
+On Tue, 9 Mar 2004, Andrea Arcangeli wrote:
+
+> this doesn't lockup for me (in 2.6 + objrmap), but the machine is not
+> responsive, while pushing 1G into swap. Here a trace in the middle of the
+> swapping while pressing C^c on your program doesn't respond for half a minute.
+> 
+> Mind to leave it running a bit longer before claiming a lockup?
+> 
+>  1 206 615472   4032     84 879332 11248 16808 16324 16808 2618 20311  0 43  0 57
+>  1 204 641740   1756     96 878476 2852 16980  4928 16980 5066 60228  0 35  1 64
+>  1 205 650936   2508    100 875604 2248 9928  3772  9928 1364 21052  0 34  2 64
+>  2 204 658212   2656    104 876904 3564 12052  4988 12052 2074 19647  0 32  1 67
+>  1 204 674260   1628    104 878528 3236 12924  5608 12928 2062 27114  0 47  0 53
+>  1 204 678248   1988     96 879004 3540 4664  4360  4664 1988 20728  0 31  0 69
+>  1 203 683748   4024     96 878132 2844 5036  3724  5036 1513 18173  0 38  0 61
+>  0 206 687312   1732    112 879056 3396 4260  4424  4272 1704 13222  0 32  0 68
+>  1 204 690164   1936    116 880364 2844 3400  3496  3404 1422 18214  0 35  0 64
+>  0 205 696572   4348    112 877676 2956 6620  3788  6620 1281 11544  0 37  1 62
+>  0 204 699244   4168    108 878272 3140 3528  3892  3528 1467 11464  0 28  0 72
+>  1 206 704296   1820    112 878604 2576 4980  3592  4980 1386 11710  0 26  0 74
+>  1 205 710452   1972    104 876760 2256 6684  3092  6684 1308 20947  0 34  1 66
+>  2 203 714512   1632    108 877564 2332 4876  3068  4876 1295  9792  0 20  0 80
+>  0 204 719804   3720    112 878128 2536 6352  3100  6368 1441 20714  0 39  0 61
+> 124 200 724708   1636    100 879548 3376 5308  3912  5308 1516 20732  0 38  0 62
+> procs -----------memory---------- ---swap-- -----io---- --system-- ----cpu----
+>  r  b   swpd   free   buff  cache   si   so    bi    bo   in    cs us sy id wa
+>  1 204 730908   4344    100 877528 2592 6356  3672  6356 1819 15894  0 35  0 65
+>  0 204 733556   3836    104 878256 2312 3132  3508  3132 1294 10905  0 33  0 67
+>  0 205 736380   3388    100 877376 3084 3364  3832  3364 1322 11550  0 30  0 70
+>  1 206 747016   2032    100 877760 2780 13144  4272 13144 1564 17486  0 37  0 63
+>  1 205 756664   2192     96 878004 1704 7704  2116  7704 1341 20056  0 32  0 67
+>  9 203 759084   3200     92 878516 2748 3168  3676  3168 1330 18252  0 45  0 54
+>  0 205 761752   3928     96 877208 2604 2984  3284  2984 1330 10395  0 35  0 65
+> 
+> most of the time is spent in "wa", though it's a 4-way, so it means at least
+> two cpus are spinning. I'm pushing the box hard into swap. 2.6 swap extremely
+> slow w/ or w/o objrmap, not much difference really w/o or w/o your exploit.
+
+Andrea, 
+
+I did some swapping tests with 2.6 and found out that it was really slow, 
+too. Very unresponsive under heavy swapping.
+
+-mm fixed things for me. Not sure parts of it do the trick, though.
+
+Can you be more specific on the "slow swap" comment you made ?
+
+Thank you! 
 

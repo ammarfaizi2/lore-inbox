@@ -1,60 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263075AbTDQFyB (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 17 Apr 2003 01:54:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263086AbTDQFxP
+	id S263086AbTDQFyD (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 17 Apr 2003 01:54:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263087AbTDQFxU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 17 Apr 2003 01:53:15 -0400
-Received: from granite.he.net ([216.218.226.66]:56848 "EHLO granite.he.net")
-	by vger.kernel.org with ESMTP id S263087AbTDQFvD convert rfc822-to-8bit
+	Thu, 17 Apr 2003 01:53:20 -0400
+Received: from granite.he.net ([216.218.226.66]:51984 "EHLO granite.he.net")
+	by vger.kernel.org with ESMTP id S263076AbTDQFu4 convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 17 Apr 2003 01:51:03 -0400
+	Thu, 17 Apr 2003 01:50:56 -0400
 Content-Type: text/plain; charset=US-ASCII
-Message-Id: <10505595054090@kroah.com>
+Message-Id: <10505595042845@kroah.com>
 Subject: Re: [PATCH] More USB fixes for 2.5.67
-In-Reply-To: <10505595051616@kroah.com>
+In-Reply-To: <1050559504205@kroah.com>
 From: Greg KH <greg@kroah.com>
 X-Mailer: gregkh_patchbomb
-Date: Wed, 16 Apr 2003 23:05:05 -0700
+Date: Wed, 16 Apr 2003 23:05:04 -0700
 Content-Transfer-Encoding: 7BIT
 To: linux-usb-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
 Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ChangeSet 1.1067, 2003/04/14 22:12:51-07:00, greg@kroah.com
+ChangeSet 1.1061, 2003/04/14 10:25:17-07:00, david-b@pacbell.net
 
-[PATCH] USB: keyspan: fixed up might_sleep() problems on device close.
+[PATCH] USB: DocBook/usb.tmpl patch
+
+remove duplicated word, fix an unclear implication.
 
 
-diff -Nru a/drivers/usb/serial/keyspan.c b/drivers/usb/serial/keyspan.c
---- a/drivers/usb/serial/keyspan.c	Wed Apr 16 10:48:23 2003
-+++ b/drivers/usb/serial/keyspan.c	Wed Apr 16 10:48:23 2003
-@@ -1534,7 +1534,7 @@
- 	this_urb->transfer_buffer_length = sizeof(msg);
+diff -Nru a/Documentation/DocBook/usb.tmpl b/Documentation/DocBook/usb.tmpl
+--- a/Documentation/DocBook/usb.tmpl	Wed Apr 16 10:49:01 2003
++++ b/Documentation/DocBook/usb.tmpl	Wed Apr 16 10:49:01 2003
+@@ -294,7 +294,7 @@
+ 	<title>The USB Filesystem (usbfs)</title>
  
- 	this_urb->dev = serial->dev;
--	if ((err = usb_submit_urb(this_urb, GFP_KERNEL)) != 0) {
-+	if ((err = usb_submit_urb(this_urb, GFP_ATOMIC)) != 0) {
- 		dbg("%s - usb_submit_urb(setup) failed (%d)", __FUNCTION__, err);
- 	}
- #if 0
-@@ -1659,7 +1659,7 @@
- 	this_urb->transfer_buffer_length = sizeof(msg);
+ 	<para>This chapter presents the Linux <emphasis>usbfs</emphasis>.
+-	You may prefer to avoid avoid writing new kernel code for your
++	You may prefer to avoid writing new kernel code for your
+ 	USB driver; that's the problem that usbfs set out to solve.
+ 	User mode device drivers are usually packaged as applications
+ 	or libraries, and may use usbfs through some programming library
+@@ -355,7 +355,9 @@
+ 	    configuration files.</emphasis>
+ 	    Stable identifiers are available, for user mode applications
+ 	    that want to use them.  HID and networking devices expose
+-	    these IDs.
++	    these stable IDs, so that for example you can be sure that
++	    you told the right UPS to power down its second server.
++	    "usbfs" doesn't (yet) expose those IDs.
+ 	    </para>
  
- 	this_urb->dev = serial->dev;
--	if ((err = usb_submit_urb(this_urb, GFP_KERNEL)) != 0) {
-+	if ((err = usb_submit_urb(this_urb, GFP_ATOMIC)) != 0) {
- 		dbg("%s - usb_submit_urb(setup) failed", __FUNCTION__);
- 	}
- #if 0
-@@ -1824,7 +1824,7 @@
- 	this_urb->transfer_buffer_length = sizeof(msg);
- 
- 	this_urb->dev = serial->dev;
--	if ((err = usb_submit_urb(this_urb, GFP_KERNEL)) != 0) {
-+	if ((err = usb_submit_urb(this_urb, GFP_ATOMIC)) != 0) {
- 		dbg("%s - usb_submit_urb(setup) failed (%d)", __FUNCTION__, err);
- 	}
- #if 0
+ 	</sect1>
 

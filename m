@@ -1,101 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265317AbUGMP10@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265354AbUGMPcR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265317AbUGMP10 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 Jul 2004 11:27:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265325AbUGMP10
+	id S265354AbUGMPcR (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 Jul 2004 11:32:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265356AbUGMPcR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 Jul 2004 11:27:26 -0400
-Received: from [64.62.162.73] ([64.62.162.73]:63934 "EHLO david.terra-bit.com")
-	by vger.kernel.org with ESMTP id S265317AbUGMP1X (ORCPT
+	Tue, 13 Jul 2004 11:32:17 -0400
+Received: from tristate.vision.ee ([194.204.30.144]:30632 "HELO mail.city.ee")
+	by vger.kernel.org with SMTP id S265354AbUGMPcP (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 Jul 2004 11:27:23 -0400
-Date: Tue, 13 Jul 2004 08:10:46 -0700
-To: blouise@suredid.com
-From: Brianlouise <blouise@suredid.com>
-Subject: MY CONVERNANT WITH GOD
-Message-ID: <86bd1a5db9e163f1f217269ef6bc795c@www.suredid.com>
-X-Priority: 1
-X-Mailer: PHPMailer [version 1.71]
+	Tue, 13 Jul 2004 11:32:15 -0400
+Message-ID: <40F40080.8010801@vision.ee>
+Date: Tue, 13 Jul 2004 18:32:16 +0300
+From: =?ISO-8859-1?Q?Lenar_L=F5hmus?= <lenar@vision.ee>
+Organization: Vision
+User-Agent: Mozilla Thunderbird 0.7.1 (X11/20040705)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Content-Type: text/plain; charset=US-ASCII
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - david.terra-bit.com
-X-AntiAbuse: Original Domain - vger.kernel.org
-X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
-X-AntiAbuse: Sender Address Domain - suredid.com
-X-Source: 
-X-Source-Args: 
-X-Source-Dir: 
+To: William Lee Irwin III <wli@holomorphy.com>, linux-kernel@vger.kernel.org
+Subject: Re: preempt-timing-2.6.8-rc1
+References: <20040713122805.GZ21066@holomorphy.com> <40F3F0A0.9080100@vision.ee> <20040713143947.GG21066@holomorphy.com>
+In-Reply-To: <20040713143947.GG21066@holomorphy.com>
+X-Enigmail-Version: 0.84.2.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dear friend,
+William Lee Irwin III wrote:
 
-As you read this, I don\'t want you to feel sorry for
-me, because I believe everyone will die someday. 
+>Wild guess is that you took an IRQ in dec_preempt_count() and that threw
+>your results off. Let me know if the patch below helps at all. My guess
+>is it'll cause more apparent problems than it solves.
+>
+Machine in question is XP2500+@1.84GHz (it was overlocked@2.25GHz during 
+last test, now running at
+official speed). Is this really slow for 1ms?
 
-My name is Brian Louise a merchant in Dubai,U.A.E. I
-have been diagnosed with Esophageal cancer and have
-been in the hospital for a very long time. It has
-defied all forms of medical treatment, and right now I
-have about few months to live, according to the
-medical experts. 
+Applied your patch. Booted.
 
-I have not particularly lived my life so well, as I
-never really cared for anyone (not even myself) but my
-business and wealth. Though I am very rich, I was
-never generous, I was always hostile to people and
-only focused on my business as that was the only thing
-I cared for. But now I regret all this as I now know
-that there is more to life than just wanting to have
-or make all the money in the world. 
+With preempt_thresh=1 I still got tons of those violations at schedule().
 
-I believe when God gives me a second chance to come to
-this world I would live my life a different way from
-how I have lived it till date. Now that God is calling
-me, I have willed and shared most of my properties and
-assets to my immediate and extended family members,
-including few close friends. 
+With preempt_thresh=2 I do not get those anymore. Apart from sys_ioctl() 
+violation, getting now these:
 
-I want God to be merciful to me and accept my soul, so
-I have decided to give alms to charity organizations,
-as I want this to be one of the last good deeds I do
-on earth before Gods call. So far, I have distributed
-money to some charity organizations in the U.A.E,
-Algeria and Malaysia. Now that my health has been
-deteriorated so badly, I cannot do this myself
-anymore. 
+16ms non-preemptible critical section violated 2 ms preempt threshold 
+starting at exit_notify+0x1d/0x7b0 and ending at schedule+0x291/0x480
+7ms non-preemptible critical section violated 2 ms preempt threshold 
+starting at kmap_atomic+0x13/0x70 and ending at kunmap_atomic+0x5/0x20
+6ms non-preemptible critical section violated 2 ms preempt threshold 
+starting at fget+0x28/0x70 and ending at fget+0x41/0x70
 
-I once asked members of my family to close one of my
-accounts and distribute the money which I have there
-to charity organization in Bulgaria and Pakistan, they
-refused and kept the money to themselves. Hence, I do
-not trust them anymore, as they seem not to be
-contended with what I have left for them. 
+No apparent side-effects noticed.
 
-The last of my money which no one knows of is the huge
-cash deposit of eighteen million dollars united states
-dollars ($18.000.000) that I have with a finance and
-trust Company in Europe. I would want you to help me
-collect this deposit and distribute it to charity
-organizations in your country .
+As before, when running mplayer I'm getting many sys_ioctl() things 
+coupled with messages:
+rtc: lost some interrupts at 1024Hz.
+It happens when madly seeking around in video.
 
-I would want you to keep 20% of the funds to yourself
-and dispatch the rest to charity organizations. Reply
-this mail as soon as possible even if you cannot
-handle this transaction on my behalf.
-
-God be with you, 
-
-Brian Louise.
-Direct email contact :brianls@fastermail.com or brianlouise@hushmail.com
-
-
--
-default
-
--
-SureDID! web mail --> 20 Mb storage ! http://suredid.com/mail
-
+Lenar
 

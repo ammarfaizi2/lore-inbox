@@ -1,47 +1,86 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267482AbUHPHtt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267477AbUHPH4j@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267482AbUHPHtt (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 16 Aug 2004 03:49:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267484AbUHPHtt
+	id S267477AbUHPH4j (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 16 Aug 2004 03:56:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267484AbUHPH4j
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 16 Aug 2004 03:49:49 -0400
-Received: from gprs214-198.eurotel.cz ([160.218.214.198]:42885 "EHLO
-	amd.ucw.cz") by vger.kernel.org with ESMTP id S267482AbUHPHtk (ORCPT
+	Mon, 16 Aug 2004 03:56:39 -0400
+Received: from e6.ny.us.ibm.com ([32.97.182.106]:46826 "EHLO e6.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S267477AbUHPH4Z (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 16 Aug 2004 03:49:40 -0400
-Date: Mon, 16 Aug 2004 09:49:24 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: Jakub Vana <gugux@centrum.cz>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: x86 - Realmode BIOS and Code calling module
-Message-ID: <20040816074924.GB25783@elf.ucw.cz>
-References: <20040812093653Z2097836-29040+39160@mail.centrum.cz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040812093653Z2097836-29040+39160@mail.centrum.cz>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.5.1+cvs20040105i
+	Mon, 16 Aug 2004 03:56:25 -0400
+Date: Mon, 16 Aug 2004 00:55:45 -0700 (PDT)
+From: Ram Pai <linuxram@us.ibm.com>
+X-X-Sender: ram@localhost.localdomain
+Reply-To: linuxram@us.ibm.com
+To: Andrew Morton <akpm@osdl.org>
+cc: Phillip Lougher <phillip@lougher.demon.co.uk>, <nickpiggin@yahoo.com.au>,
+       <linux-kernel@vger.kernel.org>,
+       <viro@parcelfarce.linux.theplanet.co.uk>
+Subject: [PATCH] Re: [PATCH] VFS readahead bug in 2.6.8-rc[1-3]
+In-Reply-To: <20040806124609.3d489a0d.akpm@osdl.org>
+Message-ID: <Pine.LNX.4.44.0408160052110.20970-200000@localhost.localdomain>
+Organization: IBM Linux Technology Center
+MIME-Version: 1.0
+Content-Type: MULTIPART/MIXED; BOUNDARY="8323328-567590288-1092642945=:20970"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+  This message is in MIME format.  The first part should be readable text,
+  while the remaining parts are likely unreadable without MIME-aware tools.
+  Send mail to mime@docserver.cac.washington.edu for more info.
 
-> I have written Linux Kernel module that allows you to call BIOS
-> interupts, Far services or your own code. It's working on x86
-> machines with PAE or not PAE enabled(up to 4GB or up to 64GB). It's
-> tested on 2.4.26 and 2.6.7 kernel on P4 machine. I think there is
-> not problem to work on others. Now, I'm preparing DOCs and Demos.
+--8323328-567590288-1092642945=:20970
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 
-How is it better from code Ole Rohne has?
+On Fri, 6 Aug 2004, Andrew Morton wrote:
 
-> I wrote the module especialy for changing the VESAFB videomode, but It is usable anywhere the BIOS is neaded.
+> Phillip Lougher <phillip@lougher.demon.co.uk> wrote:
+> >
+> > Nick Piggin wrote:
+> > 
+> > > No, I suggest you start to code assuming this interface does
+> > > what it does. I didn't say there is no bug here, but nobody
+> > > else's filesystem breaks.
+> > > 
+> > 
+> > To stop this silly argument from escalating, I will patch my code.
+> > 
 > 
-> I'm writing you to know this code exists and to ask you for help to add this code to official Kernel distribution.
+> Well I don't think it's silly.
+> 
+> We are deterministically asking the fs to read a page which lies outside
+> EOF, and we shouldn't.  If for no other reason than that the ever-popular
+> "read a million 4k files" workload will consume extra CPU and twice the
+> pagecache.
 
-Hmm, perhaps you should add at least pointer to the code there.
+Andrew,
 
-								Pavel
--- 
-People were complaining that M$ turns users into beta-testers...
-...jr ghea gurz vagb qrirybcref, naq gurl frrz gb yvxr vg gung jnl!
+	Enclosed a patch developed with Nick Piggin. It takes care of the
+	bug. 
+
+Thanks,
+RP
+
+--8323328-567590288-1092642945=:20970
+Content-Type: TEXT/PLAIN; charset=US-ASCII; name="filemap_index_overflow.patch"
+Content-Transfer-Encoding: BASE64
+Content-ID: <Pine.LNX.4.44.0408160055450.20970@localhost.localdomain>
+Content-Description: 
+Content-Disposition: attachment; filename="filemap_index_overflow.patch"
+
+LS0tIHJhbS9saW51eC0yLjYuOC4xL21tL2ZpbGVtYXAuYwkyMDA0LTA4LTE0
+IDAzOjU2OjI1LjAwMDAwMDAwMCAtMDcwMA0KKysrIGxpbnV4LTIuNi44LjEv
+bW0vZmlsZW1hcC5jCTIwMDQtMDgtMTYgMDc6NTY6MzEuOTEyMDM4NzIwIC0w
+NzAwDQpAQCAtNjY1LDE0ICs2NjUsMTggQEAgdm9pZCBkb19nZW5lcmljX21h
+cHBpbmdfcmVhZChzdHJ1Y3QgYWRkcg0KIAlvZmZzZXQgPSAqcHBvcyAmIH5Q
+QUdFX0NBQ0hFX01BU0s7DQogDQogCWlzaXplID0gaV9zaXplX3JlYWQoaW5v
+ZGUpOw0KLQllbmRfaW5kZXggPSBpc2l6ZSA+PiBQQUdFX0NBQ0hFX1NISUZU
+Ow0KLQlpZiAoaW5kZXggPiBlbmRfaW5kZXgpDQorCWlmICghaXNpemUpDQog
+CQlnb3RvIG91dDsNCisJCQ0KKwllbmRfaW5kZXggPSBpc2l6ZSA+PiBQQUdF
+X0NBQ0hFX1NISUZUOw0KIA0KIAlmb3IgKDs7KSB7DQogCQlzdHJ1Y3QgcGFn
+ZSAqcGFnZTsNCiAJCXVuc2lnbmVkIGxvbmcgbnIsIHJldDsNCiANCisJCWlm
+IChpbmRleCA+IGVuZF9pbmRleCkNCisJCQlnb3RvIG91dDsNCisNCiAJCWNv
+bmRfcmVzY2hlZCgpOw0KIAkJcGFnZV9jYWNoZV9yZWFkYWhlYWQobWFwcGlu
+ZywgJnJhLCBmaWxwLCBpbmRleCk7DQogDQo=
+--8323328-567590288-1092642945=:20970--

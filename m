@@ -1,48 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264906AbUEVIDY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264911AbUEVIMN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264906AbUEVIDY (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 22 May 2004 04:03:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264908AbUEVIDY
+	id S264911AbUEVIMN (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 22 May 2004 04:12:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264912AbUEVIMN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 22 May 2004 04:03:24 -0400
-Received: from zero.aec.at ([193.170.194.10]:4869 "EHLO zero.aec.at")
-	by vger.kernel.org with ESMTP id S264906AbUEVIDT (ORCPT
+	Sat, 22 May 2004 04:12:13 -0400
+Received: from fw.osdl.org ([65.172.181.6]:48097 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S264911AbUEVIMM (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 22 May 2004 04:03:19 -0400
-To: "Spinka, Kristofer" <kspinka@style.net>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Unserializing ioctl() system calls
-References: <1YuKj-2FZ-9@gated-at.bofh.it>
-From: Andi Kleen <ak@muc.de>
-Date: Sat, 22 May 2004 10:03:15 +0200
-In-Reply-To: <1YuKj-2FZ-9@gated-at.bofh.it> (Kristofer Spinka's message of
- "Sat, 22 May 2004 04:50:07 +0200")
-Message-ID: <m3n040q470.fsf@averell.firstfloor.org>
-User-Agent: Gnus/5.110003 (No Gnus v0.3) Emacs/21.2 (gnu/linux)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Sat, 22 May 2004 04:12:12 -0400
+Date: Sat, 22 May 2004 01:11:39 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Jens Axboe <axboe@suse.de>
+Cc: Chris Mason <mason@suse.com>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] ext3 barrier bits
+Message-Id: <20040522011139.01a7da10.akpm@osdl.org>
+In-Reply-To: <20040522073540.GO1952@suse.de>
+References: <20040521093207.GA1952@suse.de>
+	<20040521023807.0de63c7a.akpm@osdl.org>
+	<20040521100234.GK1952@suse.de>
+	<20040521235044.6160cccb.akpm@osdl.org>
+	<20040522073540.GO1952@suse.de>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Spinka, Kristofer" <kspinka@style.net> writes:
 
-> I noticed that even in the 2.6.6 code, callers to ioctl system call
-> (sys_ioctl in fs/ioctl.c) are serialized with {lock,unlock}_kernel().
->
-> I realize that many kernel modules, and POSIX for that matter, may not
-> be ready to make this more concurrent.
+May as well cc lkml on this.  It's to do with the disk write barrier
+implementation.
 
-POSIX doesn't care how the kernel implements locking.
 
-> I propose adding a flag to indicate that the underlying module would
-> like to support its own concurrency management, and thus we avoid
-> grabbing the BKL around the f_op->ioctl call.
+- How do I know that the barrier code is actually doing stuff?  It doesn't
+  seem to affect benchmarks much, if at all.
 
-Better would be probably a unlocked_ioctl() entry point in f_op. Should
-be pretty easy to implement.
+- Does reiserfs support `mount -o remount,barrier=flush'? and "=none"?
 
-There is also the additional issue that on 64bit systems with 32bit
-userland the ioctl emulation currently relies on the BKL.
+- How do I test the "oh, barriers aren't working" fallback code in ext3?
 
--Andi
+- Does the kernel tell you if your disk doesn't supoprt barriers?  ie:
+  how does the user know if it's working or not?
 

@@ -1,55 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261352AbTIFToR (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 6 Sep 2003 15:44:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261504AbTIFToQ
+	id S261795AbTIFTmq (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 6 Sep 2003 15:42:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261804AbTIFTmq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 6 Sep 2003 15:44:16 -0400
-Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:41721 "HELO
-	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
-	id S261352AbTIFToN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 6 Sep 2003 15:44:13 -0400
-Date: Sat, 6 Sep 2003 21:44:04 +0200
-From: Adrian Bunk <bunk@fs.tum.de>
-To: Andrew Morton <akpm@osdl.org>, "Randy.Dunlap" <rddunlap@osdl.org>,
-       Domen Puncer <domen@coderock.org>
-Cc: linux-kernel@vger.kernel.org, B.Zolnierkiewicz@elka.pw.edu.pl
-Subject: [-mm patch] fix IDE pdc4030.c compile
-Message-ID: <20030906194404.GG14436@fs.tum.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4.1i
+	Sat, 6 Sep 2003 15:42:46 -0400
+Received: from galaxy.lunarpages.com ([64.235.234.165]:11977 "EHLO
+	galaxy.lunarpages.com") by vger.kernel.org with ESMTP
+	id S261795AbTIFTmp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 6 Sep 2003 15:42:45 -0400
+Message-ID: <3F5A38B2.7050802@genebrew.com>
+Date: Sat, 06 Sep 2003 15:42:42 -0400
+From: Rahul Karnik <rahul@genebrew.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030706
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: John Yau <jyau_kernel_dev@hotmail.com>
+CC: "'Robert Love'" <rml@tech9.net>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Minor scheduler fix to get rid of skipping in xmms
+References: <000101c374a3$2d2f9450$f40a0a0a@Aria>
+In-Reply-To: <000101c374a3$2d2f9450$f40a0a0a@Aria>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
+X-AntiAbuse: Primary Hostname - galaxy.lunarpages.com
+X-AntiAbuse: Original Domain - vger.kernel.org
+X-AntiAbuse: Originator/Caller UID/GID - [0 0] / [47 12]
+X-AntiAbuse: Sender Address Domain - genebrew.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-init-exit-cleanups.patch in 2.6.0-test4-mm6 made ide_probe_for_pdc4030 
-in drivers/ide/legacy/pdc4030.c static although it's referenced from 
-drivers/ide/ide.c resulting in a link error.
+John Yau wrote:
+> How come Ingo's granular timeslice patch didn't get put into
+> 2.6.0-test4?
 
-The following patch fixes it:
+It is being tested in Andrew's mm kernels, along with Con's tweaks.
 
---- linux-2.6.0-test4-mm6/drivers/ide/legacy/pdc4030.c.old	2003-09-06 21:28:20.000000000 +0200
-+++ linux-2.6.0-test4-mm6/drivers/ide/legacy/pdc4030.c	2003-09-06 21:28:40.000000000 +0200
-@@ -297,7 +297,7 @@
- }
- 
- 
--static int __init ide_probe_for_pdc4030(void)
-+int __init ide_probe_for_pdc4030(void)
- {
- 	unsigned int	index;
- 	ide_hwif_t	*hwif;
-
-
-
-cu
-Adrian
-
+-Rahul
 -- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
+Rahul Karnik
+rahul@genebrew.com
+http://www.genebrew.com/
 

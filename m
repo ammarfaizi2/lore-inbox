@@ -1,100 +1,82 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129260AbQLRQYM>; Mon, 18 Dec 2000 11:24:12 -0500
+	id <S131497AbQLRQ2x>; Mon, 18 Dec 2000 11:28:53 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129325AbQLRQYB>; Mon, 18 Dec 2000 11:24:01 -0500
-Received: from marjorie.loran.com ([209.167.240.3]:52236 "HELO
-	marjorie.loran.com") by vger.kernel.org with SMTP
-	id <S129260AbQLRQXw>; Mon, 18 Dec 2000 11:23:52 -0500
-Message-ID: <024701c0690a$56f9ba10$890216ac@ottawa.loran.com>
-From: "Dana Lacoste" <dana.lacoste@peregrine.com>
-To: "Peter Samuelson" <peter@cadcamlab.org>
-Cc: <linux-kernel@vger.kernel.org>
-In-Reply-To: <NBBBJGOOMDFADJDGDCPHIENJCJAA.law@sgi.com> <91bnoc$vij$2@enterprise.cistron.net> <20001215155741.B4830@ping.be> <01cf01c066ab$036fc030$890216ac@ottawa.loran.com> <20001216164151.J3199@cadcamlab.org>
-Subject: Re: Linus's include file strategy redux
-Date: Mon, 18 Dec 2000 10:51:09 -0500
+	id <S129325AbQLRQ2q>; Mon, 18 Dec 2000 11:28:46 -0500
+Received: from h57s242a129n47.user.nortelnetworks.com ([47.129.242.57]:12436
+	"EHLO zcars04f.ca.nortel.com") by vger.kernel.org with ESMTP
+	id <S131497AbQLRQ2e>; Mon, 18 Dec 2000 11:28:34 -0500
+Message-ID: <3A3E336C.B29BBA89@nortelnetworks.com>
+Date: Mon, 18 Dec 2000 10:55:24 -0500
+From: "Christopher Friesen" <cfriesen@nortelnetworks.com>
+X-Mailer: Mozilla 4.7 [en] (X11; U; HP-UX B.10.20 9000/778)
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
+To: alan@lxorguk.ukuu.org.uk
+CC: linux-kernel@vger.kernel.org
+Subject: gettimeofday() non-monotonic on uniprocessor system with ntp turned 
+         off?
+In-Reply-To: <Pine.BSF.4.21.0012180711330.89819-100000@beppo.feral.com>
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 5.50.4133.2400
-X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4133.2400
+X-Orig: <cfriesen@americasm01.nt.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Peter Samuelson" <peter@cadcamlab.org> wrote :
-> [Dana Lacoste]
-> > 2 - programs that need to compile against the current kernel MUST
-> >     be able to do so in a quasi-predictable manner.
 
-> (2) is bogus.  NO program needs to compile against the current kernel
-> headers.  The only things that need to compile against the current
-> kernel headers are kernel modules and perhaps libc itself.  As I put it
-> a few days ago--
+I am having a little bit of a problem.  I'm on a single processor G4 system
+running 2.2.17 and I do not have ntp turned on.  However, successive calls to
+gettimeofday() occasionally return results that make it look as though time was
+running backwards.  
 
->   http://marc.theaimsgroup.com/?l=linux-kernel&m=97658613604208&w=2
+To test this, I wrote a small program that does a loop and calls gettimeofday(),
+comparing the result to the previous time around.  If the latest call is
+"earlier" than the previous one, it prints both out as well as the difference
+between the two.  Here is some of the results:
 
-> So for your external modules, let me suggest the lovely
-> /lib/modules/{version}/build/include/.  Recent-ish modutils required.
+time1             time2             delta
+977032354.149970  977032354.140019  0.009951
+977032507.119949  977032507.110004  0.009945
+977032806.429940  977032806.420004  0.009936
+977032822.349971  977032822.340008  0.009963
+977032989.739968  977032989.730015  0.009953
+977033057.579978  977033057.570006  0.009972
+977033065.269950  977033065.260023  0.009927
+977033155.499958  977033155.490030  0.009928
+977033205.799960  977033205.790029  0.009931
+977033279.919965  977033279.910024  0.009941
+977033367.589953  977033367.580008  0.009945
+977033454.509977  977033454.500030  0.009947
+977033457.359965  977033457.350003  0.009962
+977033500.619954  977033500.610011  0.009943
+977033509.679964  977033509.670020  0.009944
+977033659.439972  977033659.430003  0.009969
+977033842.399966  977033842.390019  0.009947
+977034023.419976  977034023.410023  0.009953
+977034026.019983  977034026.010011  0.009972
+977034085.899979  977034085.890032  0.009947
+977034176.219956  977034176.210013  0.009943
+977034691.289969  977034691.280026  0.009943
+977034845.569984  977034845.560024  0.009960
 
-ok, i'll rephrase my request :)
+It appears that the problem happens only when the first time reading is very
+close to the end of a jiffy period.  It almost seems like the microseconds value
+rolls over to the new jiffy, then the program reads the value before the seconds
+value catches up.  
 
-For sake of argument (i.e. this might not be true, but pretend it is :)
+Is this a known issue?  Has anyone fixed this already?  I'm kind of surprised
+that something like this is still around.
 
-- I write an external/third party kernel module
-- For various reasons, I must have this kernel module installed to boot
-  (i can't compile without my module running)
-- I need to upgrade kernels to a new version, one where there are
-  not-insignificant changes in the kernel headers.
-- I distribute this module online, and thousands of people use this module
-  with various platform and distribution combinations.
+Thanks,
 
-How can I know where the 'correct' Linux kernel headers are in such
-a way that is as transparent as possible to the user doing the compiling?
-
-Potential answers that have come up so far :
-1 - /lib/modules/* directories that involve `uname -r`
-    This won't work because i might not be compiling for the `uname -r` kernel
-2 - /lib/modules/<version>/build/include/ :
-    we could recommend that all kernel headers for all versions be put in
-    the directory with the modules as listed above.  someone doesn't like
-    the idea of symlinks (dangling symlinks ARE bad :) and someone else
-pointed
-    out that his root partition is only 30MB.  therefore this idea has flaws
-    too.
-3 - the script (Config.make, etc) approach : several people recommended one
-    kind or another of script that could be run prior to compilation that
-    could set all the relevant variables, including one that would point to
-    where the kernel headers are, and one that would have the 'correct'
-    compile flags, etc.
-4 - a link in the /usr/include directory tree that points to the kernel
-headers,
-    so that /usr/include/linux would have the glibc-compiled headers, and this
-    other directory would have the current kernel's headers : this doesn't
-    really support cross-compiling.
-
-#1 and #2 and #4 all seem to be limiting somehow.  I think the biggest problem
-so far has been that many developers don't recognize just how varied the linux
-development universe is!  For me personally, it's nothing to cross-compile for
-other hardware platforms, and any solution that doesn't take that possibility
-into account is just being silly :)
-
-Can we get a #3 going?  I think it could really help both the cross-compile
-people and those who just want to make sure their modules are compiling in
-the 'correct' environment.  It also allows for things like 'kgcc vs. gcc' to
-be 'properly' resolved by the distribution-creator as it should be, instead of
-linux-kernel or the 3rd party module mailing lists.
-
-So?  What do you think?
-
---
-Dana Lacoste
-Linux Developer
-Peregrine Systems
+Chris
 
 
+-- 
+Chris Friesen                    | MailStop: 043/33/F10  
+Nortel Networks                  | work: (613) 765-0557
+3500 Carling Avenue              | fax:  (613) 765-2986
+Nepean, ON K2H 8E9 Canada        | email: cfriesen@nortelnetworks.com
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

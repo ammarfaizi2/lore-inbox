@@ -1,62 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S270050AbUIDEwk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268345AbUIDE66@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270050AbUIDEwk (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 4 Sep 2004 00:52:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270051AbUIDEwk
+	id S268345AbUIDE66 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 4 Sep 2004 00:58:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269691AbUIDE66
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 4 Sep 2004 00:52:40 -0400
-Received: from holly.csn.ul.ie ([136.201.105.4]:58337 "EHLO holly.csn.ul.ie")
-	by vger.kernel.org with ESMTP id S270050AbUIDEwi (ORCPT
+	Sat, 4 Sep 2004 00:58:58 -0400
+Received: from holly.csn.ul.ie ([136.201.105.4]:43747 "EHLO holly.csn.ul.ie")
+	by vger.kernel.org with ESMTP id S268345AbUIDE6z (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 4 Sep 2004 00:52:38 -0400
-Date: Sat, 4 Sep 2004 05:52:37 +0100 (IST)
+	Sat, 4 Sep 2004 00:58:55 -0400
+Date: Sat, 4 Sep 2004 05:58:55 +0100 (IST)
 From: Dave Airlie <airlied@linux.ie>
 X-X-Sender: airlied@skynet
-To: Jon Smirl <jonsmirl@gmail.com>
-Cc: Alex Deucher <alexdeucher@gmail.com>, dri-devel@lists.sf.net,
-       linux-kernel@vger.kernel.org
+To: Jon Smirl <jonsmirl@yahoo.com>
+Cc: dri-devel@lists.sf.net, linux-kernel@vger.kernel.org
 Subject: Re: New proposed DRM interface design
-In-Reply-To: <9e4733910409032051717b28c0@mail.gmail.com>
-Message-ID: <Pine.LNX.4.58.0409040548490.25475@skynet>
-References: <Pine.LNX.4.58.0409040107190.18417@skynet> 
- <a728f9f904090317547ca21c15@mail.gmail.com>  <Pine.LNX.4.58.0409040158400.25475@skynet>
- <9e4733910409032051717b28c0@mail.gmail.com>
+In-Reply-To: <20040904012008.81382.qmail@web14927.mail.yahoo.com>
+Message-ID: <Pine.LNX.4.58.0409040552590.25475@skynet>
+References: <20040904012008.81382.qmail@web14927.mail.yahoo.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+>
+> If you're Nvidia you ship the library source (since it is GPL) and a
 
-I think we have to remember licensing at all stages of this, the DRM is
-X licensed, so I don't think we can just merge the fb code, I'm not sure
-what peoples views on this, the main reason I see for using X licensing
-is that we can share this stuff with FreeBSD and have an open source
-graphics interface standard that the chipset designers can use, against it
-is the fact that it allows for properitary drivers, - I personally don't
-think we'll ever win that war.. will the prop drivers be derived works of
-the DRM rather than the kernel anyone got a spare lawyer?
+is it GPL though.. we are X licensed at the moment and all my changes are
+under the original license...
+
+> binary driver. You compile the library on your kernel so that kernel
+> API IFDEF's get executed and then link to the binary driver. This model
+> won't work with IFDEF'd inline functions that are used in a binary
+> driver. They will have to be real functions in the library.
+
+there shouldn't be many ifdefs left, AGP and MTRR, if you re building a
+binary driver for x86 you can assume the platform has AGP and MTRR and the
+kernel should sort it all out, the remaining macros are mainly for
+building on Alpha and Sparc...
+
+ >
+> How big is the library that is going to get duplicated? Note that it
+> only gets duplicated for different cards not multiple instances of the
+> same card family.
+
+it'll be big but that's the same as we have now as I said, I believe the
+balance between having a common library with an extensive new binary
+interface, vs the un-common use case of using two different graphics card
+in one PC is worth having the library in eeach driver, the binary
+interface needs to be avoided at all costs, and I believe Keith's opinion
+is worth listening to on binary interfaces :-)
+
+> Are you going to hide the exported symbols so that we don't need the
+> DRM() macros?
+>
+
+Again that is a bit of a separate project, my thinking on all these
+projects is that I can feed them into the kernel is small obvious changes
+this change will probably just fall out at the end as obvious it isn't so
+for me yet...
+
+I'm willing to spend the time doing an initial implementation (as we all
+know, code talks, I'm not sure what talking does :-)
 
 Dave.
 
-On Fri, 3 Sep 2004, Jon Smirl wrote:
-
-> As we work towards the merged DRM/fbdev goal the fbdev libraries are
-> going to become part of DRM. The libraries will be used pretty much
-> unchanged as it is the driver code that needs to be adjusted. How does
-> this play with the new DRM model?
->
->
-> -------------------------------------------------------
-> This SF.Net email is sponsored by BEA Weblogic Workshop
-> FREE Java Enterprise J2EE developer tools!
-> Get your free copy of BEA WebLogic Workshop 8.1 today.
-> http://ads.osdn.com/?ad_id=5047&alloc_id=10808&op=click
-> --
-> _______________________________________________
-> Dri-devel mailing list
-> Dri-devel@lists.sourceforge.net
-> https://lists.sourceforge.net/lists/listinfo/dri-devel
->
 
 -- 
 David Airlie, Software Engineer

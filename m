@@ -1,79 +1,61 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318167AbSGWSrg>; Tue, 23 Jul 2002 14:47:36 -0400
+	id <S318168AbSGWS5n>; Tue, 23 Jul 2002 14:57:43 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318168AbSGWSrf>; Tue, 23 Jul 2002 14:47:35 -0400
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:17999 "EHLO
-	frodo.biederman.org") by vger.kernel.org with ESMTP
-	id <S318167AbSGWSrf>; Tue, 23 Jul 2002 14:47:35 -0400
-To: Larry McVoy <lm@bitmover.com>
-Cc: Roger Gammans <roger@computer-surgery.co.uk>, linux-kernel@vger.kernel.org
-Subject: Re: using bitkeeper to backport subsystems?
-References: <20020721233410.GA21907@lukas> <20020722071510.GG16559@boardwalk>
-	<20020722102930.A14802@lst.de> <20020722102705.GB21907@lukas>
-	<20020722152031.GB692@opus.bloom.county>
-	<20020722232941.A10083@computer-surgery.co.uk>
-	<20020722154443.E19057@work.bitmover.com>
-From: ebiederm@xmission.com (Eric W. Biederman)
-Date: 23 Jul 2002 12:38:54 -0600
-In-Reply-To: <20020722154443.E19057@work.bitmover.com>
-Message-ID: <m1y9c2mgqp.fsf@frodo.biederman.org>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.1
+	id <S318170AbSGWS5n>; Tue, 23 Jul 2002 14:57:43 -0400
+Received: from handhelds.org ([192.58.209.91]:22486 "HELO handhelds.org")
+	by vger.kernel.org with SMTP id <S318168AbSGWS5n>;
+	Tue, 23 Jul 2002 14:57:43 -0400
+From: George France <france@handhelds.org>
+To: "Martin Brulisauer" <martin@uceb.org>
+Subject: Re: kbuild 2.5.26 - arch/alpha
+Date: Tue, 23 Jul 2002 15:00:50 -0400
+X-Mailer: KMail [version 1.1.99]
+Content-Type: text/plain; charset=US-ASCII
+Cc: linux-kernel@vger.kernel.org, Jay Estabrook <Jay.Estabrook@hp.com>
+References: <3D3D6B3B.25754.1392D3FD@localhost> <3D3DA7F3.9275.1480075C@localhost>
+In-Reply-To: <3D3DA7F3.9275.1480075C@localhost>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Message-Id: <02072315005002.31958@shadowfax.middleearth>
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Larry McVoy <lm@bitmover.com> writes:
+On Tuesday 23 July 2002 13:01, Martin Brulisauer wrote:
+> On 23 Jul 2002, at 11:05, George France wrote:
+> > that version for a while until it is stable.  In the past few months most
+> > of the efforts have been spent on 2.4.9.  Currently there have been
+> > discussions in regard to:
+> >
+> > 1) porting all those patches for 2.4.9 forward to 2.4.[18-19] and 2.5.x.
+>
+> I am currently running 2.4.18 from SuSE without any (major)
+> problems. I found it here:
+> ftp://ftp.suse.com/pub/people/sf/axp/7.1/RPMS/kernel-source-
+> 2.4.18.SuSE-0.alpha.rpm.
+> Then I took arch/alpha/kernel/core_cia.c from version 2.4.12
+> (the current version does not run on XLT's booting with MILO;
+> the latest one is 2.4.12).
 
-> On Mon, Jul 22, 2002 at 11:29:41PM +0100, Roger Gammans wrote:
-> > On Mon, Jul 22, 2002 at 08:20:31AM -0700, Tom Rini wrote:
-> > > Possibly, once bitkeeper allowes ChangeSets to only depend on what they
-> > > actually need, not every previous ChangeSet in the repository.  IIRC,
-> > > this was one of the things Linus asked for, so hopefully it will happen.
-> > 
-> > While that would be great.
-> > 
-> > With all due respect to Larry and the bk team, I think you'll
-> > find determining 'needed changesets' in this case is a _hard_ problem.
-> 
-> Thanks, we agree completely.  It's actually an impossible problem
-> for a program since it requires semantic knowledge of the content
-> under revision control.  And even then the program can get it wrong
-> (think about a change which shortens the depth of the stack followed by
-> a change that won't work with the old stack depth, now you export that
-> to the other tree and it breaks yet it worked in the first tree).
+I have not tried Stefan's 2.4.18 kernel.  I am glad to hear that it works for 
+you.  I will give it a try.
 
-Perfection is impossible.  However there is a lot of independent code
-in the linux kernel.  It has to be that way or maintenance would quickly
-become impossible.  
+> > 2) taking a look at the latest 2.5.x in the next few weeks, as we are
+> > aware that 2.5.x does not compile on Alpha.
+>
+> Hopefully I can fix core_cia.c to run on XLT's (it's hard to find any
+> documentation on this toppic) and arch/alpha/kernel/setup.c for
+> machines booting with linload.exe/MILO because the hwrpb
+> struct is built by MILO and does not match the one booting from
+> SRM (eg. empty percpu struct resulting in a cpucount of zero
+> in /proc/cpuinfo).
 
-The last time this was suggested, the idea was to look how far back into
-the repository  (up to a given limit) a current changeset could apply, with all
-of it's current dependencies. 
+I am not very familiar with the XLT systems. Maybe Jay can help.  He has been 
+working on Alpha systems for a very long time.
 
-But beyond that I suspect it would be easier to declare lack of dependencies.
+Jay, do you have any suggestions???
 
-drivers/net and drivers/ide are completely separate subtrees.  At
-least not until you get ATA over ip.  And even then the dependencies
-is with the ip layer.  
+Best Regards,
 
-Maybe independence should be shown by putting each independent chunk
-into it's own repository.  And then building a working kernel tree 
-would just be a matter of checking out all of the parallel
-repositories, into the appropriate location.  Then the global tree
-can just remember which version of all of the subtrees it was
-tested with last.
 
-Given that a fully independent program is likely to break because of
-a buggy libc (which I have no business depending upon the exact
-version), I think the insistence on global dependencies is just plain
-silly, you can never find the entire set of dependencies.  
-
-So Larry please cope with the fact that perfect dependency modeling is
-impossible, and setup a method that works in the real world.  Or do
-you have a way to model that my code only works on a magic test
-machine, that magically catches a page fault, and does the right
-thing, while all other machines page fault reliably?
-
-Eric
+--George

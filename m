@@ -1,129 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262085AbUHNNhS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262138AbUHNNpw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262085AbUHNNhS (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 14 Aug 2004 09:37:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262114AbUHNNhS
+	id S262138AbUHNNpw (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 14 Aug 2004 09:45:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262279AbUHNNpw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 14 Aug 2004 09:37:18 -0400
-Received: from dragnfire.mtl.istop.com ([66.11.160.179]:29931 "EHLO
-	dsl.commfireservices.com") by vger.kernel.org with ESMTP
-	id S262085AbUHNNhN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 14 Aug 2004 09:37:13 -0400
-Date: Sat, 14 Aug 2004 09:41:10 -0400 (EDT)
-From: Zwane Mwaikambo <zwane@linuxpower.ca>
-To: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>, mulix@mulix.org,
-       gene.heskett@verizon.net
-Subject: Re: [RFC] HOWTO find oops location
-In-Reply-To: <20040814091106.GO17907@granada.merseine.nu>
-Message-ID: <Pine.LNX.4.58.0408140904290.18353@montezuma.fsmlabs.com>
-References: <200408141153.06625.vda@port.imtp.ilyichevsk.odessa.ua>
- <20040814091106.GO17907@granada.merseine.nu>
+	Sat, 14 Aug 2004 09:45:52 -0400
+Received: from [195.23.16.24] ([195.23.16.24]:54428 "EHLO
+	bipbip.comserver-pie.com") by vger.kernel.org with ESMTP
+	id S262138AbUHNNpt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 14 Aug 2004 09:45:49 -0400
+Message-ID: <411E1783.1030103@grupopie.com>
+Date: Sat, 14 Aug 2004 14:45:39 +0100
+From: Paulo Marques <pmarques@grupopie.com>
+Organization: Grupo PIE
+User-Agent: Mozilla Thunderbird 0.7.1 (X11/20040626)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Andi Kleen <ak@muc.de>
+Cc: Ingo Molnar <mingo@elte.hu>, linux-kernel@vger.kernel.org
+Subject: Re: [patch] Latency Tracer, voluntary-preempt-2.6.8-rc4-O6
+References: <2rfT9-5wi-17@gated-at.bofh.it> <2rF1c-6Iy-7@gated-at.bofh.it> <2sxEs-46P-1@gated-at.bofh.it> <2sCkH-7i5-15@gated-at.bofh.it> <2sHu9-2EW-31@gated-at.bofh.it> <m31xibtf4e.fsf@averell.firstfloor.org> <20040813121502.GA18860@elte.hu> <20040813121800.GA68967@muc.de> <20040813135109.GA20638@elte.hu> <411D9A2A.1000202@grupopie.com> <20040814124145.GA96097@muc.de>
+In-Reply-To: <20040814124145.GA96097@muc.de>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+X-AntiVirus: checked by Vexira MailArmor (version: 2.0.1.16; VAE: 6.27.0.4; VDF: 6.27.0.10; host: bipbip)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-There are a few very simple methods i use all the time;
+Andi Kleen wrote:
+>>The final algorithm pre-calculates markers on the compressed symbols so 
+>>that the search time is almost divided by the number of markers.
+> 
+> 
+> You could do that at compile time (in scripts/kallsyms.c) 
 
-compile with CONFIG_DEBUG_INFO (it's safe to select the option and
-recompile after the oops even) and then;
+You're right! I'll see if I can come up with a patch.
 
-Unable to handle kernel NULL pointer dereference at virtual address 0000000c
- printing eip:
-c046a188
-*pde = 00000000
-Oops: 0000 [#1]
-PREEMPT SMP DEBUG_PAGEALLOC
-Modules linked in:
-CPU:    0
-EIP:    0060:[<c046a188>]    Not tainted VLI
-EFLAGS: 00010246   (2.6.6-mm3)
-EIP is at serial_open+0x38/0x170
-[...]
+If this is done in scripts/kallsyms.c, there is less code needed in the 
+actual kernel, and there is no time penalty on the first lookup. This is 
+a true win-win scenario :)
 
-(gdb) list *serial_open+0x38
-0xc046a188 is in serial_open (drivers/usb/serial/usb-serial.c:465).
-460
-461             /* get the serial object associated with this tty pointer */
-462             serial = usb_serial_get_by_index(tty->index);
-463
-464             /* set up our port structure making the tty driver remember our port object, and us it */
-465             portNumber = tty->index - serial->minor;
-466             port = serial->port[portNumber];
-467             tty->driver_data = port;
-468
-469             port->tty = tty;
+Thanks a lot for your suggestion.
 
-And then for cases where you deadlock and the NMI watchdog triggers with
-%eip in a lock section;
+>>There are still a few issues with this approach. The biggest issue is 
+>>that this is clearly a speed/space trade-off, and maybe we don't want to 
+>>waste the space on a code path that is not supposed to be "hot". If this 
+>>is the case, I can make a smaller patch, that fixes just the name 
+>>"decompression" strcpy's.
+> 
+> 
+> I'm surprised that using 8 markers helps anything. There should 
+> be many many more 0 stems than that in a not so big kernel.
+> Did you actually measure the hit rate of the cache? I bet it is pretty low.
 
-NMI Watchdog detected LOCKUP on CPU0,
-eip c0119e5e, registers:
-Modules linked in:
-CPU:    0
-EIP:    0060:[<c0119e5e>]    Tainted:
-EFLAGS: 00000086   (2.6.7)
-EIP is at .text.lock.sched+0x89/0x12b
-[...]
+Well, I only left in the resulting source code the pieces that I 
+actually measured to be a significant improvment.
 
-(gdb) disassemble 0xc0119e5e
-Dump of assembler code for function Letext:
-[...]
-0xc0119e59 <Letext+132>:        repz nop
-0xc0119e5b <Letext+134>:        cmpb   $0x0,(%edi)
-0xc0119e5e <Letext+137>:        jle    0xc0119e59 <Letext+132>
-0xc0119e60 <Letext+139>:        jmp    0xc0118183 <scheduler_tick+487>
+The thing is, this is not exactly a cache.
 
-(gdb) list *scheduler_tick+487
-0xc0118183 is in scheduler_tick (include/asm/spinlock.h:124).
-119             if (unlikely(lock->magic != SPINLOCK_MAGIC)) {
-120                     printk("eip: %p\n", &&here);
-121                     BUG();
-122             }
-123     #endif
-124             __asm__ __volatile__(
-125                     spin_lock_string
-126                     :"=m" (lock->lock) : : "memory");
-127     }
+The problem that the markers address is that the decompression must be 
+done sequentially.
 
-But that's not much help since it's pointing to an inline function and not
-the real lock location, so just subtract a few bytes;
+If I have 20000 symbols and already figured out from the binary search 
+that I need symbol 11201 (for instance), I would have to go through 
+11201 symbols to get to the symbol I need.
 
-(gdb) list *scheduler_tick+450
-0xc011815e is in scheduler_tick (kernel/sched.c:2021).
-2016            cpustat->system += sys_ticks;
-2017
-2018            /* Task might have expired already, but not scheduled off yet */
-2019            if (p->array != rq->active) {
-2020                    set_tsk_need_resched(p);
-2021                    goto out;
-2022            }
-2023            spin_lock(&rq->lock);
+The algorithm I wrote keeps markers in the middle of the stream, so that 
+when I try to fetch symbol 11201, I already know where symbol 10000 is 
+because of the marker and only have to go through 1201 symbols.
 
-So we have our lock location. Then there are cases where there is a "Bad
-EIP" most common ones are when a bad function pointer is followed or if
-some of the kernel text or a module got unloaded/unmapped (e.g. via
-__init). You can normally determine which is which by noting that bad eip
-for unloaded text normally looks like a valid virtual address.
+With N markers you get N times the speed on the name search. (actually 
+this is not exactly right for high values of N, because you can only use 
+a marker that is a 0 stem, but for N<~32 this is a good approximation)
 
-Unable to handle kernel NULL pointer dereference at virtual address 00000000
-00000000
-*pde = 00000000
-Oops: 0000 [#1]
-CPU: 0
-EIP: 0060:[<00000000>] Not tainted
-Using defaults from ksymoops -t elf32-i386 -a i386
-EFLAGS: 00210246
-[...]
-Call Trace:
- [<c01dbbfb>] smb_readdir+0x4fb/0x6e0
- [<c0165560>] filldir64+0x0/0x130
- [<c016524a>] vfs_readdir+0x8a/0x90
- [<c0165560>] filldir64+0x0/0x130
- [<c01656fd>] sys_getdents64+0x6d/0xa6
- [<c0165560>] filldir64+0x0/0x130
- [<c010adff>] syscall_call+0x7/0xb
-Code: Bad EIP value.
-
->From there you're best off examining the call trace to find the culprit.
+-- 
+Paulo Marques - www.grupopie.com
+"In a world without walls and fences who needs windows and gates?"

@@ -1,66 +1,65 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267550AbRG2HGQ>; Sun, 29 Jul 2001 03:06:16 -0400
+	id <S267556AbRG2HMg>; Sun, 29 Jul 2001 03:12:36 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267552AbRG2HGF>; Sun, 29 Jul 2001 03:06:05 -0400
-Received: from [209.226.93.226] ([209.226.93.226]:8187 "EHLO
-	mobilix.ras.ucalgary.ca") by vger.kernel.org with ESMTP
-	id <S267550AbRG2HF4>; Sun, 29 Jul 2001 03:05:56 -0400
-Date: Sun, 29 Jul 2001 03:05:06 -0400
-Message-Id: <200107290705.f6T756j02316@mobilix.ras.ucalgary.ca>
-From: Richard Gooch <rgooch@ras.ucalgary.ca>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: jgarzik@mandrakesoft.com (Jeff Garzik),
-        kiwiunixman@yahoo.co.nz (Matthew Gardiner),
-        pauld@egenera.com (Philip R. Auld),
-        linux-kernel@vger.kernel.org (kernel)
-Subject: Re: binary modules (was Re: ReiserFS / 2.4.6 / Data Corruption)
-In-Reply-To: <E15QZSA-00083U-00@the-village.bc.nu>
-In-Reply-To: <no.id>
-	<E15QZSA-00083U-00@the-village.bc.nu>
+	id <S267563AbRG2HM0>; Sun, 29 Jul 2001 03:12:26 -0400
+Received: from fozzie.eye-net.com.au ([203.41.228.19]:13484 "HELO
+	fozzie.eye-net.com.au") by vger.kernel.org with SMTP
+	id <S267556AbRG2HMP>; Sun, 29 Jul 2001 03:12:15 -0400
+Date: Sun, 29 Jul 2001 17:12:09 +1000
+To: Massimo Dal Zotto <dz@cs.unitn.it>
+Cc: linux-kernel@vger.kernel.org, reiserfs-dev@namesys.com,
+        "Albert D. Cahalan" <acahalan@cs.uml.edu>
+Subject: Re: strange problem with reiserfs and /proc fs
+Message-ID: <20010729171209.D13366@eye-net.com.au>
+In-Reply-To: <200107282004.f6SK455d002773@dizzy.dz.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200107282004.f6SK455d002773@dizzy.dz.net>
+User-Agent: Mutt/1.3.18i
+From: csmall@eye-net.com.au (Craig Small)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 Original-Recipient: rfc822;linux-kernel-outgoing
 
-Alan Cox writes:
-> > The right answer for vendors who want to ship binary modules is to
-> > ship an Open Source interface layer which shields the vendor from
-> > kernel drift (since users will be able to build the interface layer if
-> > they need to, without waiting for the vendor).
-> 
-> As people have seen from vmware and from the ever growing piles of
-> nvidia crashes the truth about binary modules in general even with
-> glue is pain and suffering.
+On Sat, Jul 28, 2001 at 10:04:05PM +0200, Massimo Dal Zotto wrote:
+> I've found a strange problem with reiserfs. In some situations it interferes
+> with the /proc filesystem and makes all processes unreadable to top. After
+> a few seconds the situation returns normal. To verify the problem try the
+> following procedure:
+Have to be one of the strangest bugs I've seen.  Makes be a bit lucky
+that reiser will oops on my machine so I cannot use it...
+I have also passed this bug onto the procps author, who may be able to
+shed a bit more light on the problem.
 
-Sure. If you load a binary module (shim layer or not), you don't get
-community support. So vendors are digging their own shitpile by
-shipping binary-only drivers. I just don't see the need to shove them
-in the back while they do it.
+> 3)	type a few characters and save the file with C-x C-s. After the
+> 	file is saved top will show 0 processes. Sometimes it will show
+> 	only a few processes for an istant and then nothing. Sometimes
+> 	it will work fine. After a few seconds the missing processes
+> 	will show again. Modifying and saving the file again will show
+> 	the same behavior.
+When you say top prints nothing do you mean it only prints the header
+and no processes in the list?  Does this problem happen with any other
+program, say vi, or only in emacs?  Does ps have this bevhavour?
 
-Besides, if someone can make a lot of money shipping binary drivers,
-then they can afford the support costs, so it may well be a viable
-revenue model for them (at the very least, programmers need to eat
-too).
+> In the attachments you will find two traces of the running top, one behaving
+> normally and one exhibiting the problem, and my kernel config.
+The interesting difference is that the good program does
+stat64,open,read,close...
+But the bad program does is just stat64.
+I get 96 stat64s for both programs in that loop.
 
-> Veritas have some good Linux people though, and while I'm sad they
-> won't open source the core of veritas they do at least appear to
-> have the knowledgebase to do a good job
+So obviously top doesn't like whatever stat64 is telling it.
+Looking at the code (in readproc() in proc/readproc.c if anyone is
+interested) I cannot see much that should upset it.  We know stat is
+returning 0 so that is ok, about the only other thing is a alloc.
 
-Yeah, I'd rather see all source open. But that's an ideal world. In
-the meantime, many people want $$$. One of the great things about
-Linux is that it is open and allows different funding models. The
-success of Linux is due to the openness, not some cool technological
-feature.
-
-Open Source pushes the "innovation envelope". Eventually, the "core"
-(what's now the basic OS) which isn't worth selling grows outwards,
-consuming areas where it used to be profitable to sell software. So it
-forces companies to innovate or die, leading to a dynamic industry.
-That is good for both Society and Industry (as seen by the respective
-idealogical poles).
-
-				Regards,
-
-					Richard....
-Permanent: rgooch@atnf.csiro.au
-Current:   rgooch@ras.ucalgary.ca
+If you like, you can submit this as a bug report into the Debian Bug
+Tracking System, but I suspect there is a kernel problem here giving
+wierd stat returns for proc.
+  - Craig
+-- 
+Craig Small VK2XLZ  GnuPG:1C1B D893 1418 2AF4 45EE  95CB C76C E5AC 12CA DFA5
+Eye-Net Consulting http://www.eye-net.com.au/        <csmall@eye-net.com.au>
+MIEEE <csmall@ieee.org>                 Debian developer <csmall@debian.org>

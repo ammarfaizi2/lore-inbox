@@ -1,60 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266310AbTBPLMV>; Sun, 16 Feb 2003 06:12:21 -0500
+	id <S266356AbTBPLSd>; Sun, 16 Feb 2003 06:18:33 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266320AbTBPLMV>; Sun, 16 Feb 2003 06:12:21 -0500
-Received: from imladris.demon.co.uk ([193.237.130.41]:40324 "EHLO
-	imladris.demon.co.uk") by vger.kernel.org with ESMTP
-	id <S266310AbTBPLMU>; Sun, 16 Feb 2003 06:12:20 -0500
-From: David Woodhouse <dwmw2@infradead.org>
-To: John Bradford <john@grabjohn.com>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, lm@bitmover.com,
-       arashi@yomerashi.yi.org, linux-kernel@vger.kernel.org
-In-Reply-To: <200302161108.h1GB8t8m000317@darkstar.example.net>
-References: <200302161108.h1GB8t8m000317@darkstar.example.net>
-Organization: 
-Message-Id: <1045394526.2068.52.camel@imladris.demon.co.uk>
+	id <S266367AbTBPLSd>; Sun, 16 Feb 2003 06:18:33 -0500
+Received: from hermes.fachschaften.tu-muenchen.de ([129.187.202.12]:22998 "HELO
+	hermes.fachschaften.tu-muenchen.de") by vger.kernel.org with SMTP
+	id <S266356AbTBPLSb>; Sun, 16 Feb 2003 06:18:31 -0500
+Date: Sun, 16 Feb 2003 12:28:23 +0100
+From: Adrian Bunk <bunk@fs.tum.de>
+To: kkeil@suse.de, kai.germaschewski@gmx.de, isdn4linux@listserv.isdn4linux.de
+Cc: linux-kernel@vger.kernel.org
+Subject: [2.5 patch] isdn_net_lib.c must include isdn_concap.h
+Message-ID: <20030216112823.GB20159@fs.tum.de>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.1 (1.2.1-4) 
-Date: 16 Feb 2003 11:22:06 +0000
-Subject: Re: openbkweb-0.0
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2003-02-16 at 11:08, John Bradford wrote:
-> I just wanted to confirm that bk-commit-head is actually:
-> 
-> 1. Complete
+With CONFIG_ISDN_X25 enabled I got the following compile error in 
+isdn_net_lib.c in 2.5.61:
 
-It should be complete -- but bear in mind that you may receive the mails
-in a different order to the order in which they were sent, so just
-applying them from a mail filter isn't necessarily sensible.
+<--  snip  -->
 
-Also note that the dates on them are the date of the changeset itself,
-not the date of application to Linus' tree (or indeed the date of the
-cron job which creates the mail).
+...
+  gcc -Wp,-MD,drivers/isdn/i4l/.isdn_net_lib.o.d -D__KERNEL__ -Iinclude 
+-Wall -Wstrict-prototypes -Wno-trigraphs -O2 -fno-strict-aliasing 
+-fno-common -pipe -mpreferred-stack-boundary=2 -march=k6 
+-Iinclude/asm-i386/mach-default -nostdinc -iwithprefix include    
+-DKBUILD_BASENAME=isdn_net_lib -DKBUILD_MODNAME=isdn -c -o 
+drivers/isdn/i4l/isdn_net_lib.o drivers/isdn/i4l/isdn_net_lib.c
+...
+drivers/isdn/i4l/isdn_net_lib.c: In function `isdn_net_lib_init':
+drivers/isdn/i4l/isdn_net_lib.c:2330: `isdn_x25_ops' undeclared (first 
+use in this function)
+drivers/isdn/i4l/isdn_net_lib.c:2330: (Each undeclared identifier is 
+reported only once
+drivers/isdn/i4l/isdn_net_lib.c:2330: for each function it appears in.)
+make[3]: *** [drivers/isdn/i4l/isdn_net_lib.o] Error 1
 
-> 2. Realtime
+<--  snip  -->
 
-Almost -- it's run from an hourly cron job, which is more 'real time'
-than Linus actually pushing from his own box to master.kernel.org and
-quite enough of a demand on resources already.
+The following patch solved it for me:
 
-It's not done with triggers on Linus' tree because I suspect that would
-actually make Linus _wait_ while the mail is generated for every
-changeset he's pushing to master.kernel.org. I do it with a cron job
-which pulls from Linus' tree to another, and I don't do it with triggers
-in my own tree because I suspect that would keep Linus' tree locked
-while it generated the mails too. I do need to investigate possible
-improvements to the way it's generated, though.
+--- linux-2.5.61-full/drivers/isdn/i4l/isdn_net_lib.c.old	2003-02-16 12:22:56.000000000 +0100
++++ linux-2.5.61-full/drivers/isdn/i4l/isdn_net_lib.c	2003-02-16 12:24:39.000000000 +0100
+@@ -58,6 +58,7 @@
+ #include "isdn_net.h"
+ #include "isdn_ppp.h"
+ #include "isdn_ciscohdlck.h"
++#include "isdn_concap.h"
+ 
+ #define ISDN_NET_TX_TIMEOUT (20*HZ) 
+ 
 
-Suggestions welcome, preferably in 'diff -u' form. 
 
-	cvs -d :pserver:anoncvs@cvs.infradead.org:/home/cvs co bkexport
-	(password anoncvs)
+cu
+Adrian
 
--- 
-dwmw2
 

@@ -1,84 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S273102AbRIWCuw>; Sat, 22 Sep 2001 22:50:52 -0400
+	id <S273163AbRIWCzM>; Sat, 22 Sep 2001 22:55:12 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S273131AbRIWCum>; Sat, 22 Sep 2001 22:50:42 -0400
-Received: from granger.mail.mindspring.net ([207.69.200.148]:53288 "EHLO
-	granger.mail.mindspring.net") by vger.kernel.org with ESMTP
-	id <S273102AbRIWCud>; Sat, 22 Sep 2001 22:50:33 -0400
+	id <S273210AbRIWCzD>; Sat, 22 Sep 2001 22:55:03 -0400
+Received: from johnson.mail.mindspring.net ([207.69.200.177]:22058 "EHLO
+	johnson.mail.mindspring.net") by vger.kernel.org with ESMTP
+	id <S273132AbRIWCyx> convert rfc822-to-8bit; Sat, 22 Sep 2001 22:54:53 -0400
 Subject: Re: [PATCH] Preemption Latency Measurement Tool
 From: Robert Love <rml@tech9.net>
-To: safemode <safemode@speakeasy.net>
-Cc: Dieter =?ISO-8859-1?Q?N=FCtzel?= <Dieter.Nuetzel@hamburg.de>,
-        george anzinger <george@mvista.com>,
+To: Dieter =?ISO-8859-1?Q?N=FCtzel?= <Dieter.Nuetzel@hamburg.de>
+Cc: safemode <safemode@speakeasy.net>, george anzinger <george@mvista.com>,
         Oliver Xymoron <oxymoron@waste.org>, Andrea Arcangeli <andrea@suse.de>,
         Roger Larsson <roger.larsson@norran.net>,
         linux-kernel <linux-kernel@vger.kernel.org>,
         ReiserFS List <reiserfs-list@namesys.com>
-In-Reply-To: <200109222341.f8MNfnG25152@zero.tech9.net>
+In-Reply-To: <200109222347.f8MNlMG25157@zero.tech9.net>
 In-Reply-To: <Pine.LNX.4.30.0109201659210.5622-100000@waste.org>
-	<3BAB614E.8600D074@mvista.com>
-	<20010922211919Z272247-760+15646@vger.kernel.org> 
-	<200109222341.f8MNfnG25152@zero.tech9.net>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
+	<20010922211919Z272247-760+15646@vger.kernel.org>  
+	<200109222347.f8MNlMG25157@zero.tech9.net>
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 8BIT
 X-Evolution-Format: text/plain
 X-Mailer: Evolution/0.13.99+cvs.2001.09.21.20.26 (Preview Release)
-Date: 22 Sep 2001 22:50:56 -0400
-Message-Id: <1001213460.872.10.camel@phantasy>
+Date: 22 Sep 2001 22:54:49 -0400
+Message-Id: <1001213691.873.15.camel@phantasy>
 Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2001-09-22 at 19:40, safemode wrote:
-> ok. The preemption patch helps realtime applications in linux be a little 
-> more close to realtime.  I understand that.  But your mp3 player shouldn't 
-> need root permission or renicing or realtime priority flags to play mp3s.
+On Sat, 2001-09-22 at 19:46, Dieter Nützel wrote:
+> Nope.
+> If you would have read (all) posts about this and related threads you should 
+> have noticed that I am and others running SCSI systems...
+> 
+> >
+> > even i dont get any skips when i run the player at nice -n -20. 
+> 
+> During dbench 16/32 and higher? Are you sure?
 
-It doesn't, it needs them to play with a dbench 32 running in the
-background.  This isn't nessecarily acceptable, either, but it is a
-difference.
+I can't speak for safemode, but doing something like:
 
-Note one thing the preemption patch does is really make `realtime' apps
-accel.  Without it, regardless of the priority of the application, the
-app can be starved due to something in kernel mode.  Now it can't, and
-since said application is high priority, it will get the CPU when it
-wants it.
+[22:43:47]rml@phantasy:~$ mpg321 /home/mp3/Get_Up_Kids-Woodson.mp3 &
+[22:52:03]rml@phantasy:~$ dbench 16
 
-This is not to say the preemption patch is no good if you don't run
-stuff at realtime --  I don't (who uses nice, anyhow? :>), and I notice
-a difference.
+I don't get any blips (nothing over 0.5s, anyhow, I would wager).
 
-> To 
-> test how well the latency patches are working you should be running things 
-> all at the same priority.  The main issue people are having with skipping 
-> mp3s is not in the decoding of the mp3 or in the retrieving of the file, it's 
-> in the playing in the soundcard.  That's being affected by dbench flooding 
-> the system with irq requests.  I'm inclined to believe it's irq requests 
-> because the _only_ time i have problems with mp3s (and i dont change priority 
-> levels) is when A. i do a cdparanoia -Z -B "1-"    or dbench 32.   I bet if 
-> someone did these tests on scsi hardware with the latency patch, they'd find 
-> much better results than us users of ide devices.  
+This is a P3-733, i815 board, 384MB PC133, AHA-2940U2W, U2W IBM 9GB system.
 
-The skips are really big to be irq requests, although perhaps you are
-right in that the handling of the irq (we disable preemption during
-irq_off, of course, but also during bottom half execution) is the
-problem.
-
-However, I am more inclined to believe it is something else.  All these
-long held locks can indeed be the problem.
-
-I am on an all UW2 SCSI system, and I have no major blips playing during
-a `dbench 16' (never ran 32).  However, many other users (Dieter, I
-believe) are on a SCSI system too.
-
-> even i dont get any skips when i run the player at nice -n -20.   That 
-> doesn't tell you much about the preemption patch though.  And it doesn't tell 
-> you about performance when you dont give linux the chance to do what it does, 
->  multitask.  That's where the latency patch is directed at improving, i 
-> think.  
-
-Agreed.
+Linux 2.4.9-ac14 + preempt + and more
 
 -- 
 Robert M. Love

@@ -1,20 +1,21 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261784AbUKPT4W@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261787AbUKPT6w@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261784AbUKPT4W (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 16 Nov 2004 14:56:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261782AbUKPTyX
+	id S261787AbUKPT6w (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 16 Nov 2004 14:58:52 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261788AbUKPT5t
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 16 Nov 2004 14:54:23 -0500
-Received: from motgate8.mot.com ([129.188.136.8]:19074 "EHLO motgate8.mot.com")
-	by vger.kernel.org with ESMTP id S261784AbUKPTxU (ORCPT
+	Tue, 16 Nov 2004 14:57:49 -0500
+Received: from motgate8.mot.com ([129.188.136.8]:48518 "EHLO motgate8.mot.com")
+	by vger.kernel.org with ESMTP id S261787AbUKPTzf (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 16 Nov 2004 14:53:20 -0500
-Date: Tue, 16 Nov 2004 13:52:58 -0600 (CST)
+	Tue, 16 Nov 2004 14:55:35 -0500
+Date: Tue, 16 Nov 2004 13:55:27 -0600 (CST)
 From: Kumar Gala <galak@somerset.sps.mot.com>
 To: akpm@osdl.org
-cc: linux-kernel@vger.kernel.org, linuxppc-embedded@ozlabs.org
-Subject: [PATCH][PPC32] Freescale Book-E MMU cleanup
-Message-ID: <Pine.LNX.4.61.0411161351320.32505@blarg.somerset.sps.mot.com>
+cc: linux-kernel@vger.kernel.org, linuxppc-embedded@ozlabs.org,
+       mporter@kernel.crashing.org
+Subject: [PATCH][PPC32] Refactor common book-e exception code
+Message-ID: <Pine.LNX.4.61.0411161353000.32505@blarg.somerset.sps.mot.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
@@ -22,173 +23,156 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 Andrew,
 
-Updates the Freescale Book-E MMU usage to match the architecture spec.
-This is mainly growing the widths of fields in various registers to match
-the architecture spec instead of the implementation.
-        
-Signed-off-by: Becky Gill <becky.gill@freescale.com>
+Moves common handling of InstructionStorage, Alignment, Program, and 
+Decrementer exceptions handlers for Book-E processors (44x & e500) into 
+common code.
+
 Signed-off-by: Kumar Gala <kumar.gala@freescale.com>
 
 --
-diff -Nru a/arch/ppc/kernel/head_e500.S b/arch/ppc/kernel/head_e500.S
---- a/arch/ppc/kernel/head_e500.S	2004-11-16 13:43:22 -06:00
-+++ b/arch/ppc/kernel/head_e500.S	2004-11-16 13:43:22 -06:00
-@@ -119,7 +119,7 @@
- 	tlbsx	0,r6				/* Fall through, we had to match */
- match_TLB:
- 	mfspr	r7,SPRN_MAS0
--	rlwinm	r3,r7,16,28,31			/* Extract MAS0(Entry) */
-+	rlwinm	r3,r7,16,20,31			/* Extract MAS0(Entry) */
+
+diff -Nru a/arch/ppc/kernel/head_44x.S b/arch/ppc/kernel/head_44x.S
+--- a/arch/ppc/kernel/head_44x.S	2004-11-16 13:43:34 -06:00
++++ b/arch/ppc/kernel/head_44x.S	2004-11-16 13:43:34 -06:00
+@@ -414,30 +414,16 @@
+ 	b	data_access
  
- 	mfspr	r7,SPRN_MAS1			/* Insure IPROT set */
- 	oris	r7,r7,MAS1_IPROT@h
-@@ -131,7 +131,7 @@
- 	andi.	r9,r9,0xfff
- 	li	r6,0				/* Set Entry counter to 0 */
- 1:	lis	r7,0x1000			/* Set MAS0(TLBSEL) = 1 */
--	rlwimi	r7,r6,16,12,15			/* Setup MAS0 = TLBSEL | ESEL(r6) */
-+	rlwimi	r7,r6,16,4,15			/* Setup MAS0 = TLBSEL | ESEL(r6) */
- 	mtspr	SPRN_MAS0,r7
- 	tlbre
- 	mfspr	r7,SPRN_MAS1
-@@ -163,13 +163,13 @@
- 	andi.	r5, r3, 0x1	/* Find an entry not used and is non-zero */
- 	addi	r5, r5, 0x1
- 	lis	r7,0x1000	/* Set MAS0(TLBSEL) = 1 */
--	rlwimi	r7,r3,16,12,15	/* Setup MAS0 = TLBSEL | ESEL(r3) */
-+	rlwimi	r7,r3,16,4,15	/* Setup MAS0 = TLBSEL | ESEL(r3) */
- 	mtspr	SPRN_MAS0,r7
- 	tlbre
+ 	/* Instruction Storage Interrupt */
+-	START_EXCEPTION(InstructionStorage)
+-	NORMAL_EXCEPTION_PROLOG
+-	mr      r4,r12                  /* Pass SRR0 as arg2 */
+-	li      r5,0                    /* Pass zero as arg3 */
+-	EXC_XFER_EE_LITE(0x0400, handle_page_fault)
++	INSTRUCTION_STORAGE_EXCEPTION
  
- 	/* Just modify the entry ID and EPN for the temp mapping */
- 	lis	r7,0x1000	/* Set MAS0(TLBSEL) = 1 */
--	rlwimi	r7,r5,16,12,15	/* Setup MAS0 = TLBSEL | ESEL(r5) */
-+	rlwimi	r7,r5,16,4,15	/* Setup MAS0 = TLBSEL | ESEL(r5) */
- 	mtspr	SPRN_MAS0,r7
- 	xori	r6,r4,1		/* Setup TMP mapping in the other Address space */
- 	slwi	r6,r6,12
-@@ -201,7 +201,7 @@
+ 	/* External Input Interrupt */
+ 	EXCEPTION(0x0500, ExternalInput, do_IRQ, EXC_XFER_LITE)
  
- /* 5. Invalidate mapping we started in */
- 	lis	r7,0x1000	/* Set MAS0(TLBSEL) = 1 */
--	rlwimi	r7,r3,16,12,15	/* Setup MAS0 = TLBSEL | ESEL(r3) */
-+	rlwimi	r7,r3,16,4,15	/* Setup MAS0 = TLBSEL | ESEL(r3) */
- 	mtspr	SPRN_MAS0,r7
- 	tlbre
- 	li	r6,0
-@@ -242,7 +242,7 @@
+ 	/* Alignment Interrupt */
+-	START_EXCEPTION(Alignment)
+-	NORMAL_EXCEPTION_PROLOG
+-	mfspr   r4,SPRN_DEAR            /* Grab the DEAR and save it */
+-	stw     r4,_DEAR(r11)
+-	addi    r3,r1,STACK_FRAME_OVERHEAD
+-	EXC_XFER_EE(0x0600, AlignmentException)
++	ALIGNMENT_EXCEPTION
  
- /* 8. Clear out the temp mapping */
- 	lis	r7,0x1000	/* Set MAS0(TLBSEL) = 1 */
--	rlwimi	r7,r5,16,12,15	/* Setup MAS0 = TLBSEL | ESEL(r5) */
-+	rlwimi	r7,r5,16,4,15	/* Setup MAS0 = TLBSEL | ESEL(r5) */
- 	mtspr	SPRN_MAS0,r7
- 	tlbre
- 	mtspr	SPRN_MAS1,r8
-@@ -282,7 +282,7 @@
- 	mtspr	SPRN_IVPR,r4
+ 	/* Program Interrupt */
+-	START_EXCEPTION(Program)
+-	NORMAL_EXCEPTION_PROLOG
+-	mfspr	r4,SPRN_ESR		/* Grab the ESR and save it */
+-	stw	r4,_ESR(r11)
+-	addi	r3,r1,STACK_FRAME_OVERHEAD
+-	EXC_XFER_STD(0x700, ProgramCheckException)
++	PROGRAM_EXCEPTION
  
- 	/* Setup the defaults for TLB entries */
--	li	r2,MAS4_TSIZED(BOOKE_PAGESZ_4K)
-+	li	r2,(MAS4_TSIZED(BOOKE_PAGESZ_4K))@l
-    	mtspr	SPRN_MAS4, r2
+ 	/* Floating Point Unavailable Interrupt */
+ 	EXCEPTION(0x2010, FloatingPointUnavailable, UnknownException, EXC_XFER_EE)
+@@ -451,12 +437,7 @@
+ 	EXCEPTION(0x2020, AuxillaryProcessorUnavailable, UnknownException, EXC_XFER_EE)
  
- #if 0
-@@ -539,8 +539,7 @@
- 	ori	r11, r11, swapper_pg_dir@l
+ 	/* Decrementer Interrupt */
+-	START_EXCEPTION(Decrementer)
+-	NORMAL_EXCEPTION_PROLOG
+-	lis     r0,TSR_DIS@h            /* Setup the DEC interrupt mask */
+-	mtspr   SPRN_TSR,r0		/* Clear the DEC interrupt */
+-	addi    r3,r1,STACK_FRAME_OVERHEAD
+-	EXC_XFER_LITE(0x1000, timer_interrupt)
++	DECREMENTER_EXCEPTION
  
- 	mfspr	r12,SPRN_MAS1		/* Set TID to 0 */
--	li	r13,MAS1_TID@l
--	andc	r12,r12,r13
-+	rlwinm	r12,r12,0,16,1
- 	mtspr	SPRN_MAS1,r12
+ 	/* Fixed Internal Timer Interrupt */
+ 	/* TODO: Add FIT support */
+diff -Nru a/arch/ppc/kernel/head_booke.h b/arch/ppc/kernel/head_booke.h
+--- a/arch/ppc/kernel/head_booke.h	2004-11-16 13:43:34 -06:00
++++ b/arch/ppc/kernel/head_booke.h	2004-11-16 13:43:34 -06:00
+@@ -303,4 +303,37 @@
+ 	addi	r3,r1,STACK_FRAME_OVERHEAD;				      \
+ 	EXC_XFER_TEMPLATE(DebugException, 0x2002, (MSR_KERNEL & ~(MSR_ME|MSR_DE|MSR_CE)), NOCOPY, crit_transfer_to_handler, ret_from_crit_exc)
  
- 	b	4f
-@@ -604,8 +603,7 @@
- 	ori	r11, r11, swapper_pg_dir@l
- 
- 	mfspr	r12,SPRN_MAS1		/* Set TID to 0 */
--	li	r13,MAS1_TID@l
--	andc	r12,r12,r13
-+	rlwinm	r12,r12,0,16,1	
- 	mtspr	SPRN_MAS1,r12
- 
- 	b	4f
-diff -Nru a/arch/ppc/mm/fsl_booke_mmu.c b/arch/ppc/mm/fsl_booke_mmu.c
---- a/arch/ppc/mm/fsl_booke_mmu.c	2004-11-16 13:43:22 -06:00
-+++ b/arch/ppc/mm/fsl_booke_mmu.c	2004-11-16 13:43:22 -06:00
-@@ -124,8 +124,8 @@
- 		flags |= _PAGE_COHERENT;
- #endif
- 
--	TLBCAM[index].MAS0 = MAS0_TLBSEL | (index << 16);
--	TLBCAM[index].MAS1 = MAS1_VALID | MAS1_IPROT | MAS1_TSIZE(tsize) | ((pid << 16) & MAS1_TID);
-+	TLBCAM[index].MAS0 = MAS0_TLBSEL(1) | MAS0_ESEL(index);
-+	TLBCAM[index].MAS1 = MAS1_VALID | MAS1_IPROT | MAS1_TSIZE(tsize) | MAS1_TID(pid);
- 	TLBCAM[index].MAS2 = virt & PAGE_MASK;
- 
- 	TLBCAM[index].MAS2 |= (flags & _PAGE_WRITETHRU) ? MAS2_W : 0;
-@@ -156,7 +156,7 @@
- 
- void invalidate_tlbcam_entry(int index)
- {
--	TLBCAM[index].MAS0 = MAS0_TLBSEL | (index << 16);
-+	TLBCAM[index].MAS0 = MAS0_TLBSEL(1) | MAS0_ESEL(index);
- 	TLBCAM[index].MAS1 = ~MAS1_VALID;
- 
- 	loadcam_entry(index);
-diff -Nru a/include/asm-ppc/mmu.h b/include/asm-ppc/mmu.h
---- a/include/asm-ppc/mmu.h	2004-11-16 13:43:22 -06:00
-+++ b/include/asm-ppc/mmu.h	2004-11-16 13:43:22 -06:00
-@@ -401,18 +401,17 @@
-  * Freescale Book-E MMU support
-  */
- 
--#define MAS0_TLBSEL	0x10000000
--#define MAS0_ESEL	0x000F0000
--#define MAS0_NV		0x00000001
-+#define MAS0_TLBSEL(x)	((x << 28) & 0x30000000)
-+#define MAS0_ESEL(x)	((x << 16) & 0x0FFF0000)
-+#define MAS0_NV		0x00000FFF
- 
- #define MAS1_VALID 	0x80000000
- #define MAS1_IPROT	0x40000000
--#define MAS1_TID 	0x03FF0000
-+#define MAS1_TID(x)	((x << 16) & 0x3FFF0000)
- #define MAS1_TS		0x00001000
--#define MAS1_TSIZE(x)	(x << 8)
-+#define MAS1_TSIZE(x)	((x << 8) & 0x00000F00)
- 
- #define MAS2_EPN	0xFFFFF000
--#define MAS2_SHAREN	0x00000200
- #define MAS2_X0		0x00000040
- #define MAS2_X1		0x00000020
- #define MAS2_W		0x00000010
-@@ -433,10 +432,9 @@
- #define MAS3_UR		0x00000002
- #define MAS3_SR		0x00000001
- 
--#define MAS4_TLBSELD	0x10000000
--#define MAS4_TIDDSEL	0x00030000
--#define MAS4_DSHAREN	0x00001000
--#define MAS4_TSIZED(x)	(x << 8)
-+#define MAS4_TLBSELD(x) MAS0_TLBSEL(x)
-+#define MAS4_TIDDSEL	0x000F0000
-+#define MAS4_TSIZED(x)	MAS1_TSIZE(x)
- #define MAS4_X0D	0x00000040
- #define MAS4_X1D	0x00000020
- #define MAS4_WD		0x00000010
-@@ -445,8 +443,12 @@
- #define MAS4_GD		0x00000002
- #define MAS4_ED		0x00000001
- 
--#define MAS6_SPID	0x00FF0000
-+#define MAS6_SPID0	0x3FFF0000
-+#define MAS6_SPID1	0x00007FFE
- #define MAS6_SAS	0x00000001
-+#define MAS6_SPID	MAS6_SPID0
++#define INSTRUCTION_STORAGE_EXCEPTION					      \
++	START_EXCEPTION(InstructionStorage)				      \
++	NORMAL_EXCEPTION_PROLOG;					      \
++	mfspr	r5,SPRN_ESR;		/* Grab the ESR and save it */	      \
++	stw	r5,_ESR(r11);						      \
++	mr      r4,r12;                 /* Pass SRR0 as arg2 */		      \
++	li      r5,0;                   /* Pass zero as arg3 */		      \
++	EXC_XFER_EE_LITE(0x0400, handle_page_fault)
 +
-+#define MAS7_RPN	0xFFFFFFFF
++#define ALIGNMENT_EXCEPTION						      \
++	START_EXCEPTION(Alignment)					      \
++	NORMAL_EXCEPTION_PROLOG;					      \
++	mfspr   r4,SPRN_DEAR;           /* Grab the DEAR and save it */	      \
++	stw     r4,_DEAR(r11);						      \
++	addi    r3,r1,STACK_FRAME_OVERHEAD;				      \
++	EXC_XFER_EE(0x0600, AlignmentException)
++
++#define PROGRAM_EXCEPTION						      \
++	START_EXCEPTION(Program)					      \
++	NORMAL_EXCEPTION_PROLOG;					      \
++	mfspr	r4,SPRN_ESR;		/* Grab the ESR and save it */	      \
++	stw	r4,_ESR(r11);						      \
++	addi	r3,r1,STACK_FRAME_OVERHEAD;				      \
++	EXC_XFER_STD(0x0700, ProgramCheckException)
++
++#define DECREMENTER_EXCEPTION						      \
++	START_EXCEPTION(Decrementer)					      \
++	NORMAL_EXCEPTION_PROLOG;					      \
++	lis     r0,TSR_DIS@h;           /* Setup the DEC interrupt mask */    \
++	mtspr   SPRN_TSR,r0;		/* Clear the DEC interrupt */	      \
++	addi    r3,r1,STACK_FRAME_OVERHEAD;				      \
++	EXC_XFER_LITE(0x0900, timer_interrupt)
++
+ #endif /* __HEAD_BOOKE_H__ */
+diff -Nru a/arch/ppc/kernel/head_e500.S b/arch/ppc/kernel/head_e500.S
+--- a/arch/ppc/kernel/head_e500.S	2004-11-16 13:43:34 -06:00
++++ b/arch/ppc/kernel/head_e500.S	2004-11-16 13:43:34 -06:00
+@@ -464,32 +464,16 @@
+ 	b	data_access
  
- #endif /* _PPC_MMU_H_ */
- #endif /* __KERNEL__ */
+ 	/* Instruction Storage Interrupt */
+-	START_EXCEPTION(InstructionStorage)
+-	NORMAL_EXCEPTION_PROLOG
+-	mfspr	r5,SPRN_ESR		/* Grab the ESR and save it */
+-	stw	r5,_ESR(r11)
+-	mr      r4,r12                  /* Pass SRR0 as arg2 */
+-	li      r5,0                    /* Pass zero as arg3 */
+-	EXC_XFER_EE_LITE(0x0400, handle_page_fault)
++	INSTRUCTION_STORAGE_EXCEPTION
+ 
+ 	/* External Input Interrupt */
+ 	EXCEPTION(0x0500, ExternalInput, do_IRQ, EXC_XFER_LITE)
+ 
+ 	/* Alignment Interrupt */
+-	START_EXCEPTION(Alignment)
+-	NORMAL_EXCEPTION_PROLOG
+-	mfspr   r4,SPRN_DEAR            /* Grab the DEAR and save it */
+-	stw     r4,_DEAR(r11)
+-	addi    r3,r1,STACK_FRAME_OVERHEAD
+-	EXC_XFER_EE(0x0600, AlignmentException)
++	ALIGNMENT_EXCEPTION
+ 
+ 	/* Program Interrupt */
+-	START_EXCEPTION(Program)
+-	NORMAL_EXCEPTION_PROLOG
+-	mfspr	r4,SPRN_ESR		/* Grab the ESR and save it */
+-	stw	r4,_ESR(r11)
+-	addi	r3,r1,STACK_FRAME_OVERHEAD
+-	EXC_XFER_STD(0x0700, ProgramCheckException)
++	PROGRAM_EXCEPTION
+ 
+ 	/* Floating Point Unavailable Interrupt */
+ 	EXCEPTION(0x0800, FloatingPointUnavailable, UnknownException, EXC_XFER_EE)
+@@ -503,12 +487,7 @@
+ 	EXCEPTION(0x2900, AuxillaryProcessorUnavailable, UnknownException, EXC_XFER_EE)
+ 
+ 	/* Decrementer Interrupt */
+-	START_EXCEPTION(Decrementer)
+-	NORMAL_EXCEPTION_PROLOG
+-	lis     r0,TSR_DIS@h            /* Setup the DEC interrupt mask */
+-	mtspr   SPRN_TSR,r0		/* Clear the DEC interrupt */
+-	addi    r3,r1,STACK_FRAME_OVERHEAD
+-	EXC_XFER_LITE(0x0900, timer_interrupt)
++	DECREMENTER_EXCEPTION
+ 
+ 	/* Fixed Internal Timer Interrupt */
+ 	/* TODO: Add FIT support */

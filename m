@@ -1,72 +1,51 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264919AbTK3Pik (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 30 Nov 2003 10:38:40 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264921AbTK3Pik
+	id S264923AbTK3Pqy (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 30 Nov 2003 10:46:54 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264924AbTK3Pqy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 30 Nov 2003 10:38:40 -0500
-Received: from mta03-svc.ntlworld.com ([62.253.162.43]:64917 "EHLO
-	mta03-svc.ntlworld.com") by vger.kernel.org with ESMTP
-	id S264919AbTK3Pii (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 30 Nov 2003 10:38:38 -0500
-Message-ID: <3FCA0F08.6000609@gimp.org>
-Date: Sun, 30 Nov 2003 15:38:48 +0000
-From: "Adam D. Moss" <adam@gimp.org>
-Reply-To: aspirin@ntlworld.com
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6b) Gecko/20031120
-X-Accept-Language: en, en-us
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-CC: marcelo@hera.kernel.org
-Subject: [patch][2.4.x] update for Documentation/sysrq.txt
-Content-Type: multipart/mixed;
- boundary="------------040504070607000007030805"
+	Sun, 30 Nov 2003 10:46:54 -0500
+Received: from kweetal.tue.nl ([131.155.3.6]:18 "EHLO kweetal.tue.nl")
+	by vger.kernel.org with ESMTP id S264923AbTK3Pqx (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 30 Nov 2003 10:46:53 -0500
+Date: Sun, 30 Nov 2003 16:46:41 +0100
+From: Andries Brouwer <aebr@win.tue.nl>
+To: Szakacsits Szabolcs <szaka@sienet.hu>
+Cc: Andrew Clausen <clausen@gnu.org>, Apurva Mehta <apurva@gmx.net>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       bug-parted@gnu.org
+Subject: Re: Disk Geometries reported incorrectly on 2.6.0-testX
+Message-ID: <20031130154641.GB5763@win.tue.nl>
+References: <20031128045854.GA1353@home.woodlands> <20031128142452.GA4737@win.tue.nl> <20031129022221.GA516@gnu.org> <Pine.LNX.4.58.0311290550190.21441@ua178d119.elisa.omakaista.fi> <20031129123451.GA5372@win.tue.nl> <20031129222722.GA505@gnu.org> <20031130003428.GA5465@win.tue.nl> <Pine.LNX.4.58.0311301210540.2329@ua178d119.elisa.omakaista.fi> <20031130132649.GC5738@win.tue.nl> <Pine.LNX.4.58.0311301403130.2329@ua178d119.elisa.omakaista.fi>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.58.0311301403130.2329@ua178d119.elisa.omakaista.fi>
+User-Agent: Mutt/1.3.25i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------040504070607000007030805
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+On Sun, Nov 30, 2003 at 02:34:23PM +0200, Szakacsits Szabolcs wrote:
 
-This patch for 2.4.x updates the dead email address for 'Mydraal'
-and notes that he no longer wishes to field questions concerning
-SysRq or this document.
+> > if there is a partition table already and we are able to guess a geometry 
+> > from that, use that; otherwise [...]
+> 
+> OK, thanks, the problem is here. Maybe a warning could be added
 
---Adam
--- 
-Adam D. Moss   . ,,^^   adam@gimp.org   http://www.foxbox.org/   co:3
-Consume Less, Live More
+The docs and the programs are full of warnings already.
+Too many in fact. People worry and get nervous, needlessly.
+In a very small percentage of cases there really are problems,
+but again these warnings "there might be problems" are not very helpful.
 
---------------040504070607000007030805
-Content-Type: text/plain;
- name="sysrq-doc.diff"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="sysrq-doc.diff"
 
---- sysrq.txt	Fri Jun 13 15:51:29 2003
-+++ sysrq.txt.vulp	Sun Nov 30 14:26:04 2003
-@@ -171,9 +171,8 @@
- 
- *  I have more questions, who can I ask?
- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
--You may feel free to send email to myrdraal@deathsdoor.com, and I will
--respond as soon as possible.
-- -Myrdraal
-+[Note: Myrdraal is no longer able to answer questions about SysRq
-+or this document, so I've deleted his offer of help here. --ed.]
- 
- And I'll answer any questions about the registration system you got, also
- responding as soon as possible.
-@@ -181,7 +180,7 @@
- 
- *  Credits
- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
--Written by Mydraal <myrdraal@deathsdoor.com>
-+Written by Mydraal <vulpyne@vulpyne.net>
- Updated by Adam Sulmicki <adam@cfar.umd.edu>
- Updated by Jeremy M. Dolan <jmd@turbogeek.org> 2001/01/28 10:15:59
- Added to by Crutcher Dunnavant <crutcher+kernel@datastacks.com>
+ The number of cylinders for this disk is set to 70780.
+ There is nothing wrong with that, but this is larger than 1024,
+ and could in certain setups cause problems with:
+ 1) software that runs at boot time (e.g., old versions of LILO)
+ 2) booting and partitioning software from other OSs
+    (e.g., DOS FDISK, OS/2 FDISK)
 
---------------040504070607000007030805--
+
+Does this help anybody?
+

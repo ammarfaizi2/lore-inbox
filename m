@@ -1,59 +1,58 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S271616AbRHPS5V>; Thu, 16 Aug 2001 14:57:21 -0400
+	id <S271621AbRHPTLf>; Thu, 16 Aug 2001 15:11:35 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S271621AbRHPS5N>; Thu, 16 Aug 2001 14:57:13 -0400
-Received: from penguin.e-mind.com ([195.223.140.120]:30474 "EHLO
-	penguin.e-mind.com") by vger.kernel.org with ESMTP
-	id <S271616AbRHPS5E>; Thu, 16 Aug 2001 14:57:04 -0400
-Date: Thu, 16 Aug 2001 20:57:06 +0200
-From: Andrea Arcangeli <andrea@suse.de>
-To: Mark Hemment <markhe@veritas.com>
-Cc: Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Align VM locks
-Message-ID: <20010816205706.D8726@athlon.random>
-In-Reply-To: <20010816202606.B8726@athlon.random> <Pine.LNX.4.33.0108161933240.3340-100000@alloc.wat.veritas.com> <20010816205224.C8726@athlon.random>
+	id <S271620AbRHPTLZ>; Thu, 16 Aug 2001 15:11:25 -0400
+Received: from h24-64-71-161.cg.shawcable.net ([24.64.71.161]:3573 "EHLO
+	webber.adilger.int") by vger.kernel.org with ESMTP
+	id <S271621AbRHPTLO>; Thu, 16 Aug 2001 15:11:14 -0400
+From: Andreas Dilger <adilger@turbolabs.com>
+Date: Thu, 16 Aug 2001 13:11:12 -0600
+To: Steve Hill <steve@navaho.co.uk>
+Cc: "Richard B. Johnson" <root@chaos.analogic.com>,
+        linux-kernel@vger.kernel.org
+Subject: Re: /dev/random in 2.4.6
+Message-ID: <20010816131112.V31114@turbolinux.com>
+In-Reply-To: <200108151713.f7FHDg0n013420@webber.adilger.int> <Pine.LNX.4.21.0108160934340.2107-100000@sorbus.navaho>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20010816205224.C8726@athlon.random>; from andrea@suse.de on Thu, Aug 16, 2001 at 08:52:24PM +0200
-X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
-X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
+In-Reply-To: <Pine.LNX.4.21.0108160934340.2107-100000@sorbus.navaho>
+User-Agent: Mutt/1.3.20i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Aug 16, 2001 at 08:52:24PM +0200, Andrea Arcangeli wrote:
-> On Thu, Aug 16, 2001 at 07:44:04PM +0100, Mark Hemment wrote:
-> >   At least on the work load I'm interest in, SpecFS v2.0 over NFSv3,
-> > removing the KM_BOUNCE_WRITE results in a performance drop (confirmed
-> > today).
-> >
-> >   It is often the case that when it comes time to write a page out it has
-> > lost any mapping it had when it was made dirty via a write(), so there is
-> > no side benefit of using a straight kmap().
-> > 
-> >   By having KM_BOUNCE_WRITE we don't run through the "normal" mapping
-> > space on I/O.  Not having KM_BOUNCE_WRITE causing extra shootdowns, which
-> > _are_ expensive, as the code needs to busy-wait for all the other engines
-> > (while the kmap_lock held - and on a 4-way there is a good chance one of
-> > the processors is running with interrupts disabled).
-> >   KM_BOUNCE_WRITE may waste virtual address-space, but it saves on
-> > expensive shootdowns.
+On Thu, Aug 16, 2001 at 09:37:58AM +0100, Steve Hill wrote:
+> On Wed, 15 Aug 2001, Andreas Dilger wrote:
+> > Yes, it is possible to increase the size of the in-kernel entropy pool
+> > by changing the value in linux/drivers/char/random.c.  You will likely
+> > also need to fix up the user-space scripts that save and restore the
+> > entropy on shutdown/startup (check /proc/sys/kernel/random/poolsize,
+> > if available, to see how many bytes to read/write).
 > 
-> I would never save addresss-space for performance of course, it's just
-> that it is unused in my tree so it doesn't make sense to left it.
-> 
-> I believe the slowdown is more a sign that kmap is not fast enoguh, not
-> that you really need the BOUNCE_WRITE. I'd suggest to try to invlpg at
-> kmap time entry-per-entry and to skip the global tlb flush during the
-> wrap around as first thing and mark the kmap entries global (since it is
-> safe with the invlpg) and see if it changes something. If kmap hurts on
-> the I/O path it means it hurts on the pagecache read/writes etc... too,
-> so lefting KM_BOUNCE_WRITE looks more hiding the performance hit instead
-> of fixing it.
+> It didn't help - there just isn't enough entropy data being generated
+> between boot time and when I extract the random numbers.  This is
+> basically a system to install a linux distribution, so it's booted off the
+> network with a readonly root NFS, so there is no saved entropy data to
+> load, so I'm starting off with an empty entropy pool and having to rely on
+> the kernel to generate the data from scratch.  The random numbers are used
+> to initialise the ssh and VPN keys.
 
-btw, the invlpg thing is easy to do only in UP... (in smp we cannot send
-an IPI at every kmap of course). What happens if you only increase the
-kmap pool?
+Hmm, since it IS critical that the ssh and VPN keys of a new system be
+very good, you could do something like run "bonnie++" on one of the new
+partitions, until you get enough entropy from block I/O completions.
 
-Andrea
+Alternately, you could generate "weak" keys on the client using urandom
+just to get ssh working, and then send keys generated on the server (which
+presumably has more real entropy) to replace the weak keys.
+
+That said, there are still cases where network traffic _has_ to be enough
+for /dev/random, given that some firewalls (e.g. LRP) can run from only
+ramdisk, so have no other source of entropy than the network traffic.
+
+Cheers, Andreas
+-- 
+Andreas Dilger  \ "If a man ate a pound of pasta and a pound of antipasto,
+                 \  would they cancel out, leaving him still hungry?"
+http://www-mddsp.enel.ucalgary.ca/People/adilger/               -- Dogbert
+

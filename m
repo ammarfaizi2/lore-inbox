@@ -1,54 +1,69 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267637AbRGNM41>; Sat, 14 Jul 2001 08:56:27 -0400
+	id <S267641AbRGNNF6>; Sat, 14 Jul 2001 09:05:58 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267641AbRGNM4F>; Sat, 14 Jul 2001 08:56:05 -0400
-Received: from mail.libertysurf.net ([213.36.80.91]:4136 "EHLO
-	mail.libertysurf.net") by vger.kernel.org with ESMTP
-	id <S267637AbRGNMzt>; Sat, 14 Jul 2001 08:55:49 -0400
-Message-ID: <3B505EA2.6050902@paulbristow.net>
-Date: Sat, 14 Jul 2001 15:00:50 +0000
-From: Paul Bristow <paul@paulbristow.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.2) Gecko/20010628
-X-Accept-Language: en-us
-MIME-Version: 1.0
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-CC: Gunther Mayer <Gunther.Mayer@t-online.de>, torvalds@transmeta.com,
-        linux-kernel@vger.kernel.org
-Subject: Re: (patch-2.4.6) Fix oops with Iomega Clik! (ide-floppy)
-In-Reply-To: <E15LOK4-00018r-00@the-village.bc.nu>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S267643AbRGNNFi>; Sat, 14 Jul 2001 09:05:38 -0400
+Received: from draco.cus.cam.ac.uk ([131.111.8.18]:19110 "EHLO
+	draco.cus.cam.ac.uk") by vger.kernel.org with ESMTP
+	id <S267641AbRGNNFg>; Sat, 14 Jul 2001 09:05:36 -0400
+Message-Id: <5.1.0.14.2.20010714135842.00acd7a0@pop.cus.cam.ac.uk>
+X-Mailer: QUALCOMM Windows Eudora Version 5.1
+Date: Sat, 14 Jul 2001 14:05:54 +0100
+To: trond.myklebust@fys.uio.no
+From: Anton Altaparmakov <aia21@cam.ac.uk>
+Subject: Re: [PATCH/CFT] Fix NFS mmap problems w.r.t. page_launder() in
+  2.4.6...
+Cc: NFS maillist <nfs@lists.sourceforge.net>,
+        Linux Kernel <linux-fsdevel@vger.kernel.org>,
+        Linux Kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <15184.9082.90044.242609@charged.uio.no>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I'll be happy to sort this out, if it will actually go into the kernel. 
-  So far, every time I've posted something to linux-kernel, Alan, or 
-Linus it has disappeared into a black hole.  :-)
+At 11:48 14/07/2001, Trond Myklebust wrote:
+[snip]
+>+/*
+>+ * For the moment, the only task for the NFS clear_inode method is to
+>+ * release the mmap credential
+>+ */
+>+static void
+>+nfs_clear_inode(struct inode *inode)
+>+{
+>+       struct rpc_cred *cred = NFS_I(inode)->mm_cred;
+>+
+>+       if (cred) {
+>+               put_rpccred(cred);
+>+               NFS_I(inode)->mm_cred = 0;
+>+       }
+>+}
 
-Alan Cox wrote:
+I know it's nit-picking but wouldn't it be cleaner/faster to do:
 
->>Linus, please include if you like.
->>
->>This is the original patch from the MAINTAINER
->>but he seems defunct since three weeks.
->>
-> 
-> Argh so we now have two forked versions of ide-floppy to resolve.
-> 
-> Linus - can this one wait until the main merges are done ?
-> 
-> 
++static void
++nfs_clear_inode(struct inode *inode)
++{
++       struct rpc_cred **cred = &NFS_I(inode)->mm_cred;
++
++       if (*cred) {
++               put_rpccred(*cred);
++               *cred = 0;
++       }
++}
+
+Just a thought before waking up properly... Haven't looked at the generated 
+assembly or anything.
+
+Best regards,
+
+Anton
 
 
 -- 
-
-Paul
-
-Email: 
-paul@paulbristow.net
-Web: 
-http://paulbristow.net
-ICQ: 
-11965223
+   "Nothing succeeds like success." - Alexandre Dumas
+-- 
+Anton Altaparmakov <aia21 at cam.ac.uk> (replace at with @)
+Linux NTFS Maintainer / WWW: http://linux-ntfs.sf.net/
+ICQ: 8561279 / WWW: http://www-stu.christs.cam.ac.uk/~aia21/
 

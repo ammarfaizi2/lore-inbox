@@ -1,55 +1,75 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270788AbTGNUdL (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 14 Jul 2003 16:33:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270807AbTGNU1j
+	id S270794AbTGNUZB (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 14 Jul 2003 16:25:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270793AbTGNUYB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Jul 2003 16:27:39 -0400
-Received: from twilight.ucw.cz ([81.30.235.3]:7146 "EHLO twilight.ucw.cz")
-	by vger.kernel.org with ESMTP id S270833AbTGNU1S (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 14 Jul 2003 16:27:18 -0400
-Date: Mon, 14 Jul 2003 22:41:43 +0200
-From: Vojtech Pavlik <vojtech@suse.cz>
-To: Pavel Machek <pavel@suse.cz>
-Cc: Vojtech Pavlik <vojtech@suse.cz>,
-       Nigel Cunningham <ncunningham@clear.net.nz>,
-       Jamie Lokier <jamie@shareable.org>,
-       Dmitry Torokhov <dtor_core@ameritech.net>,
-       swsusp-devel <swsusp-devel@lists.sourceforge.net>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [Swsusp-devel] Re: Thoughts wanted on merging Software Suspend enhancements
-Message-ID: <20030714204143.GA25731@ucw.cz>
-References: <20030712140057.GC284@elf.ucw.cz> <200307121734.29941.dtor_core@ameritech.net> <20030712225143.GA1508@elf.ucw.cz> <20030713133517.GD19132@mail.jlokier.co.uk> <20030713193114.GD570@elf.ucw.cz> <1058130071.1829.2.camel@laptop-linux> <20030713210934.GK570@elf.ucw.cz> <1058147684.2400.9.camel@laptop-linux> <20030714201245.GC24964@ucw.cz> <20030714201804.GF902@elf.ucw.cz>
+	Mon, 14 Jul 2003 16:24:01 -0400
+Received: from 69-55-72-150.ppp.netsville.net ([69.55.72.150]:25810 "EHLO
+	tiny.suse.com") by vger.kernel.org with ESMTP id S270788AbTGNUVN
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 14 Jul 2003 16:21:13 -0400
+Subject: Re: RFC on io-stalls patch
+From: Chris Mason <mason@suse.com>
+To: Andrea Arcangeli <andrea@suse.de>
+Cc: Marcelo Tosatti <marcelo@conectiva.com.br>, Jens Axboe <axboe@suse.de>,
+       lkml <linux-kernel@vger.kernel.org>,
+       "Stephen C. Tweedie" <sct@redhat.com>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>, Jeff Garzik <jgarzik@pobox.com>,
+       Andrew Morton <akpm@digeo.com>, Alexander Viro <viro@math.psu.edu>
+In-Reply-To: <20030714202434.GS16313@dualathlon.random>
+References: <1057932804.13313.58.camel@tiny.suse.com>
+	 <20030712073710.GK843@suse.de> <1058034751.13318.95.camel@tiny.suse.com>
+	 <20030713090116.GU843@suse.de> <20030713191921.GI16313@dualathlon.random>
+	 <20030714054918.GD843@suse.de>
+	 <Pine.LNX.4.55L.0307140922130.17091@freak.distro.conectiva>
+	 <20030714131206.GJ833@suse.de> <20030714195138.GX833@suse.de>
+	 <Pine.LNX.4.55L.0307141708210.8994@freak.distro.conectiva>
+	 <20030714202434.GS16313@dualathlon.random>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1058214881.13313.291.camel@tiny.suse.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030714201804.GF902@elf.ucw.cz>
-User-Agent: Mutt/1.5.4i
+X-Mailer: Ximian Evolution 1.2.2 
+Date: 14 Jul 2003 16:34:41 -0400
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jul 14, 2003 at 10:18:04PM +0200, Pavel Machek wrote:
-> Hi!
-> 
-> > > Having listened to the arguments, I'll make pressing Escape to cancel
-> > > the suspend a feature which defaults to being disabled and can be
-> > > enabled via a proc entry in 2.4. I won't add code to poll for ACPI (or
-> > > APM) events :>
-> > 
-> > I'd suggest making it a mappable function in the keymap, like reboot is
-> > for example. Both for initiating and stopping the suspend. How about
-> > that?
-> 
-> Any user can load his own keymap, I believe... And I do not like
-> having special /proc options for esc key...
+On Mon, 2003-07-14 at 16:24, Andrea Arcangeli wrote:
 
-So what? He can press ctrl-alt-del or whatever if he has access to the
-keyboard anyway. Nevertheless I don't see any way to cause harm by
-cancelling a sw-suspend other than if a server was shutting down due to
-the UPS batteries being empty. And in that case the machine will be in a
-locked room anyway.
+> 
+> this isn't what we had in pre4, this is more equivalent to an hack in
+> pre4 where the requests aren't distributed anymore 50/50 but 10/90. Of
+> course an I/O queue filled mostly by parallel sync reads, will make the
+> writer go slower since it will very rarely find the queue not oversized
+> in presence of a flood of readers. So the writer won't be able to make
+> progress.
+> 
+> This is a "stop the writers and give unlimited requests to the reader"
+> hack, not a "reserve some request for the reader", of course then the
+> reader is faster. of course then, contest shows huge improvements for
+> the read loads.
 
--- 
-Vojtech Pavlik
-SuSE Labs, SuSE CR
+Which is why it's a good place to start.  If we didn't see huge
+improvements here, there's no use in experimenting with this tactic
+further.
+
+> 
+> But contest only benchmarks the reader, it has no clue how fast the
+> writer is AFIK. I would love to hear the bandwidth the writer is writing
+> into the xtar_load. Maybe it's shown in some of the Loads/LCPU or
+> something, but I don't know the semantics of those fields and I only
+> look at time and ratio which I understand. so if any contest expert can
+> enaborate if the xtar_load bandwidth is taken into consideration
+> somewhere I would love to hear.
+
+I had a much longer reply at first as well, but this is only day 1 of
+Jens' benchmark, and he had plans to test other workloads.  I'd like to
+give him the chance to do that work before we think about merging the
+patch.  It's a good starting point for the question "can we do better
+for reads?" (clearly the answer is yes).
+
+-chris
+
+

@@ -1,88 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262770AbVAFIHW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262769AbVAFIQv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262770AbVAFIHW (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 6 Jan 2005 03:07:22 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262769AbVAFIHW
+	id S262769AbVAFIQv (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 6 Jan 2005 03:16:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262771AbVAFIQv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 6 Jan 2005 03:07:22 -0500
-Received: from ns.virtualhost.dk ([195.184.98.160]:7625 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S262771AbVAFIHM (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 6 Jan 2005 03:07:12 -0500
-Date: Thu, 6 Jan 2005 09:06:49 +0100
-From: Jens Axboe <axboe@suse.de>
-To: Nick Piggin <nickpiggin@yahoo.com.au>
-Cc: Andrew Morton <akpm@osdl.org>, riel@redhat.com,
+	Thu, 6 Jan 2005 03:16:51 -0500
+Received: from smtp206.mail.sc5.yahoo.com ([216.136.129.96]:42874 "HELO
+	smtp206.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S262769AbVAFIQt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 6 Jan 2005 03:16:49 -0500
+Message-ID: <41DCF3EC.3090506@yahoo.com.au>
+Date: Thu, 06 Jan 2005 19:16:44 +1100
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20041007 Debian/1.7.3-5
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Jens Axboe <axboe@suse.de>
+CC: Andrew Morton <akpm@osdl.org>, riel@redhat.com,
        marcelo.tosatti@cyclades.com, andrea@suse.de,
        linux-kernel@vger.kernel.org
-Subject: Re: [PATCH][5/?] count writeback pages in nr_scanned
-Message-ID: <20050106080649.GE17821@suse.de>
-References: <20050105203217.GB17265@logos.cnet> <41DC7D86.8050609@yahoo.com.au> <Pine.LNX.4.61.0501052025450.11550@chimarrao.boston.redhat.com> <20050105173624.5c3189b9.akpm@osdl.org> <Pine.LNX.4.61.0501052240250.11550@chimarrao.boston.redhat.com> <41DCB577.9000205@yahoo.com.au> <20050105202611.65eb82cf.akpm@osdl.org> <41DCC014.80007@yahoo.com.au> <20050105204706.0781d672.akpm@osdl.org> <41DCC4C6.8000205@yahoo.com.au>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <41DCC4C6.8000205@yahoo.com.au>
+Subject: memory barrier in ll_rw_blk.c (was Re: [PATCH][5/?] count writeback
+ pages in nr_scanned)
+References: <20050105203217.GB17265@logos.cnet> <41DC7D86.8050609@yahoo.com.au> <Pine.LNX.4.61.0501052025450.11550@chimarrao.boston.redhat.com> <20050105173624.5c3189b9.akpm@osdl.org> <Pine.LNX.4.61.0501052240250.11550@chimarrao.boston.redhat.com> <41DCB577.9000205@yahoo.com.au> <20050105202611.65eb82cf.akpm@osdl.org> <41DCC014.80007@yahoo.com.au> <20050105204706.0781d672.akpm@osdl.org> <41DCC4C6.8000205@yahoo.com.au> <20050106080649.GE17821@suse.de>
+In-Reply-To: <20050106080649.GE17821@suse.de>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jan 06 2005, Nick Piggin wrote:
-> Andrew Morton wrote:
-> >Nick Piggin <nickpiggin@yahoo.com.au> wrote:
-> >
-> >>> If the queue is not congested, blk_congestion_wait() will still sleep.  
-> >>See
-> >>> freed_request().
-> >>> 
-> >>
-> >>Hmm... doesn't look like it to me:
-> >>
-> >>         if (rl->count[rw] < queue_congestion_off_threshold(q))
-> >>                 clear_queue_congested(q, rw);
-> >>
-> >>And clear_queue_congested does an unconditional wakeup (if there
-> >>is someone sleeping on the congestion queue).
-> >
-> >
-> >That's my point.  blk_congestion_wait() will always sleep, regardless of
-> >the queue's congestion state.
-> >
+Jens Axboe wrote:
+> On Thu, Jan 06 2005, Nick Piggin wrote:
+
+>>
+>>This memory barrier is not needed because the waitqueue will only get
+>>waiters on it in the following situations:
+>>
+>>rq->count has exceeded the threshold - however all manipulations of ->count
+>>are performed under the runqueue lock, and so we will correctly pick up any
+>>waiter.
+>>
+>>Memory allocation for the request fails. In this case, there is no additional
+>>help provided by the memory barrier. We are guaranteed to eventually wake
+>>up waiters because the request allocation mempool guarantees that if the mem
+>>allocation for a request fails, there must be some requests in flight. They
+>>will wake up waiters when they are retired.
 > 
-> Oh yes, but it will return as soon as a single request is finished.
-> Which is probably a couple of milliseconds, rather than the 100 we
-> had hoped for. So the allocators will wake up again and go around
-> the loop and still make no progress.
 > 
-> However, if you had a plain io_schedule_timeout there, at least you
-> would sleep for the full extend of the specified timeout.
+> Not sure I agree completely. Yes it will work, but only because it tests
+> <= q->nr_requests and I don't think that 'eventually' is good enough :-)
 > 
-> BTW. Jens, now that I look at freed_request, is the memory barrier
-> required? If so, what is it protecting?
+> The actual waitqueue manipulation doesn't happen under the queue lock,
+> so the memory barrier is needed to pickup the change on SMP. So I'd like
+> to keep the barrier.
 > 
 
+No that's right... but between the prepare_to_wait and the io_schedule,
+get_request takes the lock and checks nr_requests. I think we are safe?
+
+> I'd prefer to add smp_mb() to waitqueue_active() actually!
 > 
-> 
-> This memory barrier is not needed because the waitqueue will only get
-> waiters on it in the following situations:
-> 
-> rq->count has exceeded the threshold - however all manipulations of ->count
-> are performed under the runqueue lock, and so we will correctly pick up any
-> waiter.
-> 
-> Memory allocation for the request fails. In this case, there is no additional
-> help provided by the memory barrier. We are guaranteed to eventually wake
-> up waiters because the request allocation mempool guarantees that if the mem
-> allocation for a request fails, there must be some requests in flight. They
-> will wake up waiters when they are retired.
 
-Not sure I agree completely. Yes it will work, but only because it tests
-<= q->nr_requests and I don't think that 'eventually' is good enough :-)
+That may be a good idea (I haven't really taken much notice of how other
+code uses it).
 
-The actual waitqueue manipulation doesn't happen under the queue lock,
-so the memory barrier is needed to pickup the change on SMP. So I'd like
-to keep the barrier.
-
-I'd prefer to add smp_mb() to waitqueue_active() actually!
-
--- 
-Jens Axboe
-
+I'm not worried about any possible performance advantages of removing it,
+rather just having a memory barrier without comments can be perplexing.

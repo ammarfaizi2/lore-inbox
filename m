@@ -1,147 +1,78 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263062AbTDBVL6>; Wed, 2 Apr 2003 16:11:58 -0500
+	id <S263147AbTDBVLS>; Wed, 2 Apr 2003 16:11:18 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263145AbTDBVL6>; Wed, 2 Apr 2003 16:11:58 -0500
-Received: from web11307.mail.yahoo.com ([216.136.131.210]:4624 "HELO
-	web11307.mail.yahoo.com") by vger.kernel.org with SMTP
-	id <S263062AbTDBVLr>; Wed, 2 Apr 2003 16:11:47 -0500
-Message-ID: <20030402212311.69823.qmail@web11307.mail.yahoo.com>
-Date: Wed, 2 Apr 2003 13:23:11 -0800 (PST)
-From: Subbulu Koya <proteuskor@yahoo.com>
-Subject: linux 2.4.20:Intel e1000 4.4.19 and 5.0.43 (Intel Pro1000/MT) hard lock in e1000_reset_hw
+	id <S263145AbTDBVLS>; Wed, 2 Apr 2003 16:11:18 -0500
+Received: from main.gmane.org ([80.91.224.249]:55695 "EHLO main.gmane.org")
+	by vger.kernel.org with ESMTP id <S263155AbTDBVLR>;
+	Wed, 2 Apr 2003 16:11:17 -0500
+X-Injected-Via-Gmane: http://gmane.org/
 To: linux-kernel@vger.kernel.org
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+From: "Dennis Cook" <cook@sandgate.com>
+Subject: Re: Deactivating TCP checksumming
+Date: Wed, 2 Apr 2003 16:22:40 -0500
+Organization: Sandgate Technologies
+Message-ID: <b6fkaf$t7p$1@main.gmane.org>
+References: <F91mkXMUIhAumscmKC00000f517@hotmail.com> <20030401122824.GY29167@mea-ext.zmailer.org> <b6fda2$oec$1@main.gmane.org> <20030402203653.GA2503@gtf.org> <b6fi8m$j4g$1@main.gmane.org> <Pine.LNX.4.53.0304021555160.32710@chaos>
+X-Complaints-To: usenet@main.gmane.org
+X-MSMail-Priority: Normal
+X-Newsreader: Microsoft Outlook Express 6.00.2800.1106
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1106
+Cc: kernelnewbies@nl.linux.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-During MAC reset(e1000_hw.c:e1000_reset_hw) my system
-hard locks. I have tried the following configurations:
+Re: Windows support of checksum offloading (not kidding).
 
-Software:
+Following from Windows DDK
 
-            Linux 2.4.20 SMP
+===============================================
 
-            Intel e1000 versions 4.4.19 and 5.0.43
-with SMP and with and without ANS/diagnostics
+To achieve a significant performance boost, the Microsoft TCP/IP transport
+can offload one or more of the following tasks to a NIC that has the
+appropriate task-offload capabilities:
 
-Hardware:
+  a.. Checksum tasks
+  The TCP/IP transport can offload the calculation and/or validation of IP
+and/or TCP checksums. The initial release of Windows® 2000 does not support
+UDP checksum offloads; however, future service packs and update releases of
+Windows 2000 and later versions may support UDP checksum offloads.
 
-            Tyan S2723 Motherboatd w/ dual XEONs
 
-            *(onboard) Intel 82545EM rev1 (Pro1000/MT)
-on IRQ 48 (unshared)
+===============================================
 
-            (also on board) Intel 82557/8/9 (EEPro100)
-on IRQ 17 (unshared, unplugged)
+Win2K SP3 and WinXP both indicate to my driver that TCP and IP checksums are
+being offloaded
+on packets to be sent provided the driver advertises that the associated HW
+is capable of computing
+the checksums. I haven't established that the SW transport stack actually
+skips computing the checksums.
 
- 
-
-I have traced it to the following point in the 4.4.19
-code:
-
- 
-
-    e1000_hw.c : e1000_reset_hw(struct e1000_hw *hw)
-
-    ...
-
-      /* Issue a global reset to the MAC.  This will
-reset the chip's
-
-         * transmit, receive, DMA, and link units.  It
-will not effect
-
-         * the current PCI configuration.  The global
-reset bit is self-
-
-         * clearing, and should clear within a
-microsecond.
-
-         */
-
-        DEBUGOUT("Issuing a global reset to MAC\n");
-
-        ctrl = E1000_READ_REG(hw, CTRL);
-
- 
-
-        if(hw->mac_type > e1000_82543)
-
-            E1000_WRITE_REG_IO(hw, CTRL, (ctrl |
-E1000_CTRL_RST));
-
-        else
-
-            E1000_WRITE_REG(hw, CTRL, (ctrl |
-E1000_CTRL_RST));
-
- 
-
-    ...
-
-    In this case 'E1000_WRITE_REG_IO(hw, CTRL, (ctrl |
-E1000_CTRL_RST));' is
-
-    called. Then the systems continues to
-msec_delay(4), at which point the
-
-    system locks up entirely.
-
- 
-
-and in the 5.0.43 code:
-
-    e1000_main.c: e1000_reset(struct e1000_adapter
-*adapter)
-
-    …
-
-    E1000_WRITE_REG(&adapter->hw, PBA, pba);
-
- 
-
-    adapter->hw.fc = adapter->hw.original_fc;
-
-    e1000_reset_hw(&adapter->hw);
-
-   …
-
-   In this case ‘E1000_WRITE_REG(&adapter->hw, PBA,
-pba);’ is called. Then
-
-   the system calls e1000_reset_hw, my first trace
-message isn’t hit and so with
-
-   this driver version I seem to lockup just a bit
-earlier then with 4.4.19
-
- 
-
-In both cases e1000_reset() is being called by
-e1000_down(). In order to create this problem I bring
-the interface up and down once every 10seconds or so
-using ifconfig.
-
- 
-
-Is it possible this driver isn't working properly with
-the 82545EM rev 1?
-
-Is their any additional information I can provide?
-
- 
-
-Thank you in advance,
-
-/)dam.. .  . D o n ' t   S t o p
-
- 
+"Richard B. Johnson" <root@chaos.analogic.com> wrote in message
+news:Pine.LNX.4.53.0304021555160.32710@chaos...
+> On Wed, 2 Apr 2003, Dennis Cook wrote:
+>
+> > What I was looking for is a general capability to keep the SW transport
+> > stack from
+> > computing outgoing TCP/UDP/IP checksums so that the HW can be allowed to
+do
+> > it,
+> > similar to Windows checksum offload capability.
+> REALLY? Who are you kidding. Windows has no such capability.
+>
+> Check \WINDOWS\SYSTEM32\DRIVERS\ETC\* and see who they stole
+> the TCP/IP stack from!
+>
+> Further, when you perform normal user->TCP/IP operations, you
+> get checksumming for free as part of the copy operation. It's
+> only when you don't even copy data that you can get any advantage
+> of not checksumming. That's why sendfile disables it.
+>
+> Cheers,
+> Dick Johnson
+> Penguin : Linux version 2.4.20 on an i686 machine (797.90 BogoMips).
+> Why is the government concerned about the lunatic fringe? Think about it.
+>
 
 
 
-__________________________________________________
-Do you Yahoo!?
-Yahoo! Tax Center - File online, calculators, forms, and more
-http://tax.yahoo.com

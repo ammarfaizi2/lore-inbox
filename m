@@ -1,101 +1,134 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265373AbTFUVfs (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 21 Jun 2003 17:35:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265375AbTFUVfs
+	id S265361AbTFUVfL (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 21 Jun 2003 17:35:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265373AbTFUVfL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 21 Jun 2003 17:35:48 -0400
-Received: from main.gmane.org ([80.91.224.249]:5805 "EHLO main.gmane.org")
-	by vger.kernel.org with ESMTP id S265373AbTFUVfo (ORCPT
+	Sat, 21 Jun 2003 17:35:11 -0400
+Received: from dm4-159.slc.aros.net ([66.219.220.159]:12422 "EHLO cyprus")
+	by vger.kernel.org with ESMTP id S265361AbTFUVfA (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 21 Jun 2003 17:35:44 -0400
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: Jan Rychter <jan@rychter.com>
-Subject: Re: [OT] Troll Tech
-Date: Sat, 21 Jun 2003 14:49:48 -0700
-Message-ID: <m21xxnxfr7.fsf_-_@tnuctip.rychter.com>
-References: <063301c32c47$ddc792d0$3f00a8c0@witbe> <1056027789.3ef1b48d3ea2e@support.tuxbox.dk>
- <03061908145500.25179@tabby> <20030619141443.GR29247@fs.tum.de>
- <bcsolt$37m$2@news.cistron.nl> <20030619165916.GA14404@work.bitmover.com>
- <20030620001217.G6248@almesberger.net>
- <20030620120910.3f2cb001.skraw@ithnet.com>
- <20030620142436.GB14404@work.bitmover.com>
- <20030620162719.GA4368@hh.idb.hist.no> <bd12o3$5t5$2@tangens.hometree.net>
-Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="=-=-=";
-	micalg=pgp-sha1; protocol="application/pgp-signature"
-X-Complaints-To: usenet@main.gmane.org
-X-Spammers-Please: blackholeme@rychter.com
-User-Agent: Gnus/5.1003 (Gnus v5.10.3) XEmacs/21.4 (Portable Code, linux)
-Cancel-Lock: sha1:Fq+EAwI61JAgtj92qNKnqJw9dQ8=
+	Sat, 21 Jun 2003 17:35:00 -0400
+Message-ID: <3EF4D2C8.6060608@aros.net>
+Date: Sat, 21 Jun 2003 15:48:56 -0600
+From: Lou Langholtz <ldl@aros.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20030225
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org, Andrew Morton <akpm@digeo.com>,
+       Pavel Machek <pavel@ucw.cz>, Steven Whitehouse <steve@chygwyn.com>,
+       viro@parcelfarce.linux.theplanet.co.uk
+Subject: [PATCH] nbd driver for 2.5+: fix for module removal & new block device
+ layer
+Content-Type: multipart/mixed;
+ boundary="------------010005070109090808010302"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---=-=-=
-Content-Transfer-Encoding: quoted-printable
+This is a multi-part message in MIME format.
+--------------010005070109090808010302
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 
->>>>> "Henning" =3D=3D Henning P Schmiedehausen <hps@intermeta.de> writes:
- Henning> Helge Hafting <helgehaf@aitel.hist.no> writes:
-[...]
- >> I don't think open source is so parasitic.  Commercial software have
- >> a head start, open software is still catching up in many fields.
+This patch prevents memory corruption from "rmmod nbd" with the existing 
+2.5.72 (and earlier) nbd driver. It does this by updating the nbd driver 
+to the new block layer requirement that every disk has its own 
+request_queue structure. This is the first of a series of patchlets 
+designed to break down the essential changes I proposed in my last 
+"enormous" patch. Note that another patchlet will make the whole 
+allocation of per nbd_device memory be dynamic (rather than staticly 
+tied to MAX_NBD). Please try out this patch and let me know how nbd is 
+working for you before versus after. With any luck, some of these 
+smaller patch breakdowns can actually see there way into new kernel 
+releases. Thanks.
 
-[...]
+--------------010005070109090808010302
+Content-Type: text/plain;
+ name="nbd-patch1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="nbd-patch1"
 
- Henning> Look how long it took Linux to get a really decent driver for
- Henning> the eepro100 chips, which are commodities parts these
- Henning> days. And only after Intel finally decided that there is no
- Henning> more interesting IP in the docs and released them for free.
+diff -urN linux-2.5.72/drivers/block/nbd.c linux-2.5.72-patched/drivers/block/nbd.c
+--- linux-2.5.72/drivers/block/nbd.c	2003-06-16 22:19:44.000000000 -0600
++++ linux-2.5.72-patched/drivers/block/nbd.c	2003-06-21 15:30:17.860967573 -0600
+@@ -28,6 +28,7 @@
+  *   the transmit lock. <steve@chygwyn.com>
+  * 02-10-11 Allow hung xmit to be aborted via SIGKILL & various fixes.
+  *   <Paul.Clements@SteelEye.com> <James.Bottomley@SteelEye.com>
++ * 03-06-21 Fix memory corruption from module removal. <ldl@aros.net>
+  *
+  * possible FIXME: make set_sock / set_blksize / set_size / do_it one syscall
+  * why not: would need verify_area and friends, would share yet another 
+@@ -63,7 +64,18 @@
+ 
+ static struct nbd_device nbd_dev[MAX_NBD];
+ 
+-static spinlock_t nbd_lock = SPIN_LOCK_UNLOCKED;
++/*
++ * Have these per nbd_device as is now required by the new block layer.
++ * This also helps prevent I/O bottle necks between multiple nbd_devices
++ * resulting in better overall response times!
++ *
++ * ldl: Keep these out from nbd_device for now till the whole 2.5 blockdev
++ *   reworking shakes out. Who knows... maybe struct request_queue's
++ *   queue_lock field will someday actually be the spinlock instead of just
++ *   being a pointer to it!
++ */
++static struct request_queue nbd_queue[MAX_NBD];
++static spinlock_t nbd_lock[MAX_NBD];
+ 
+ #define DEBUG( s )
+ /* #define DEBUG( s ) printk( s ) 
+@@ -538,8 +550,6 @@
+  *  (Just smiley confuses emacs :-)
+  */
+ 
+-static struct request_queue nbd_queue;
+-
+ static int __init nbd_init(void)
+ {
+ 	int err = -ENOMEM;
+@@ -551,6 +561,11 @@
+ 	}
+ 
+ 	for (i = 0; i < MAX_NBD; i++) {
++		nbd_lock[i] = SPIN_LOCK_UNLOCKED;
++		blk_init_queue(&nbd_queue[i], do_nbd_request, &nbd_lock[i]);
++	}
++
++	for (i = 0; i < MAX_NBD; i++) {
+ 		struct gendisk *disk = alloc_disk(1);
+ 		if (!disk)
+ 			goto out;
+@@ -564,7 +579,6 @@
+ #ifdef MODULE
+ 	printk("nbd: registered device at major %d\n", NBD_MAJOR);
+ #endif
+-	blk_init_queue(&nbd_queue, do_nbd_request, &nbd_lock);
+ 	devfs_mk_dir("nbd");
+ 	for (i = 0; i < MAX_NBD; i++) {
+ 		struct gendisk *disk = nbd_dev[i].disk;
+@@ -582,7 +596,7 @@
+ 		disk->first_minor = i;
+ 		disk->fops = &nbd_fops;
+ 		disk->private_data = &nbd_dev[i];
+-		disk->queue = &nbd_queue;
++		disk->queue = &nbd_queue[i];
+ 		sprintf(disk->disk_name, "nbd%d", i);
+ 		sprintf(disk->devfs_name, "nbd/%d", i);
+ 		set_capacity(disk, 0x3ffffe);
+@@ -602,9 +616,9 @@
+ 	for (i = 0; i < MAX_NBD; i++) {
+ 		del_gendisk(nbd_dev[i].disk);
+ 		put_disk(nbd_dev[i].disk);
++		blk_cleanup_queue(&nbd_queue[i]);
+ 	}
+ 	devfs_remove("nbd");
+-	blk_cleanup_queue(&nbd_queue);
+ 	unregister_blkdev(NBD_MAJOR, "nbd");
+ }
+ 
 
- Henning> Check the level of support of _current_ graphics chips in
- Henning> Linux. You get a halfway decent ATI support, "bad, bad, bad
- Henning> closed source" but performance-wise very good nVidia support
- Henning> and Matrox is a bad joke (judging from my experience of trying
- Henning> to get a G550 with DVI running).
-
-That's a problem which is inherent in open-source software, because
-manufacturers do not release the specs. But it could be alleviated. I'm
-especially surprised that it doesn't change much even though companies
-like Intel start to "support" Linux.
-
-Look at Linux on laptops. I've just checked: it took more than a year
-and a half for Linux on my laptop to become stable and usable in most
-aspects. A year and a half! During this time, I've been going through
-endless upgrades of ACPI, kernel (for things like USB, and because ACPI
-required it), swsusp and wireless card drivers.
-
-Several days ago I've finally achieved a stable, reasonably-working
-solution. Which means that my wireless card doesn't crash too often, the
-system is able to suspend and resume and not die in the process, and
-thermal management works. I'm very happy now. I'm also very grateful to
-all the people who made this possible. But I also know that the cycle
-will start all over again very soon -- as soon as I get one of the new
-Centrino-based laptops. And I know that I won't be able to use 2.4 much
-longer -- very soon support for new hardware will be in 2.5/2.6
-only. See cpufreq for an example.
-
-The sad thing is that most distribution vendors care much more about
-putting the latest and greatest "graphic environments" than stabilizing
-the base system. Not surprising, given that sales of desktop Linux are
-driven by press reviews and press concentrates *exclusively* on "it has
-the GNOME 2.X and KDE 3.X with a gazillion new colorful animated
-click-them thingies".
-
-=2D-J.=20=20
-PS: I'm actually quite surprised that swsusp receives so little
-attention from the "core" kernel developers. It seems as if nobody uses
-laptops? Or do people just reboot so often?
-
---=-=-=
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.2 (GNU/Linux)
-
-iD8DBQA+9NL9Lth4/7/QhDoRAm1tAKDhgbD2kXfuuZe/VntMdiqdL8fugQCcCo7J
-40tiQ4/Trt/WDIBG5p9lpQU=
-=DloO
------END PGP SIGNATURE-----
---=-=-=--
+--------------010005070109090808010302--
 

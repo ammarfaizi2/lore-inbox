@@ -1,56 +1,110 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261973AbSI3JLR>; Mon, 30 Sep 2002 05:11:17 -0400
+	id <S261968AbSI3JKm>; Mon, 30 Sep 2002 05:10:42 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261976AbSI3JLQ>; Mon, 30 Sep 2002 05:11:16 -0400
-Received: from 167.imtp.Ilyichevsk.Odessa.UA ([195.66.192.167]:53253 "EHLO
-	Port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with ESMTP
-	id <S261973AbSI3JLP>; Mon, 30 Sep 2002 05:11:15 -0400
-Message-Id: <200209300911.g8U9BKp18642@Port.imtp.ilyichevsk.odessa.ua>
-Content-Type: text/plain;
-  charset="us-ascii"
-From: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
-Reply-To: vda@port.imtp.ilyichevsk.odessa.ua
-To: jw schultz <jw@pegasys.ws>,
-       linux-kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH-RFC] 4 of 4 - New problem logging macros, SCSI RAIDdevice driver
-Date: Mon, 30 Sep 2002 12:05:22 -0200
-X-Mailer: KMail [version 1.3.2]
-References: <Pine.LNX.4.44.0209262140380.1655-100000@home.transmeta.com> <Pine.LNX.4.44.0209280934540.13549-100000@localhost.localdomain> <20020928091634.GC32017@pegasys.ws>
-In-Reply-To: <20020928091634.GC32017@pegasys.ws>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+	id <S261971AbSI3JKl>; Mon, 30 Sep 2002 05:10:41 -0400
+Received: from cerebus.wirex.com ([65.102.14.138]:27380 "EHLO
+	figure1.int.wirex.com") by vger.kernel.org with ESMTP
+	id <S261968AbSI3JKk>; Mon, 30 Sep 2002 05:10:40 -0400
+Date: Mon, 30 Sep 2002 02:08:44 -0700
+From: Chris Wright <chris@wirex.com>
+To: Christoph Hellwig <hch@infradead.org>, Greg KH <greg@kroah.com>,
+       linux-kernel@vger.kernel.org, linux-security-module@wirex.com
+Subject: Re: [RFC] LSM changes for 2.5.38
+Message-ID: <20020930020844.H12641@figure1.int.wirex.com>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Greg KH <greg@kroah.com>, linux-kernel@vger.kernel.org,
+	linux-security-module@wirex.com
+References: <20020927003210.A2476@sgi.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20020927003210.A2476@sgi.com>; from hch@infradead.org on Fri, Sep 27, 2002 at 12:32:10AM -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 28 September 2002 07:16, jw schultz wrote:
-> Ingo, I agree with Linus.  My recollection of when we moved
-> to 2.0 was that the major number reflected the user<->kernel
-> ABI.  I have no problem with a version 2.42 if things stay
-> stable that long.   I hope they don't but that is another
-> issue.
->
-> Version 3.0 implies incompatibility with binaries from 2.x
-> The distributions can play around with version numbers
-> reflecting the GUI interface, libraries or installers but
-> the kernel major version should stay the same until binary
-> compatibility is broken.  When we move old syscalls (such as
-> 32 bit file ops) from deprecated to unsupported is when we
-> increment the major number.
->
-> It may be that 2.7 will see the cruft cut out and be the end
-> of 2.x but 2.5 isn't that.  So far 2.5 is performance
-> enhancement.  Terrific performance enhancement, thanks to you
-> and many others.  But it isn't adding major new features nor
-> is it removing old interfaces.  In many ways 2.6 looks like
-> a sign that the 2.x kernel is getting mature.  2.6 means
-> users can expect improvements but don't have to make big changes.
-> 2.6 is an upgrade, 3.0 would be a replacement.
+* Christoph Hellwig (hch@infradead.org) wrote:
+> 
+> >  	if (turn_on && !capable(CAP_SYS_RAWIO))
+> >  		return -EPERM;
+> > -
+> > + 
+> > + 	ret = security_ops->ioperm(from, num, turn_on);
+> > + 	if (ret) {
+> > + 		return ret;
+> > + 	}
+> > + 
+> 
+> Sorry, but this is bullshit (like most of the lsm changes).  Either you
+> leave the capable in and say it's enough or you add your random hook
+> and remove that one.
 
-Technically correct. Major version jump should be made when there is
-a binary incompatibility. It can be made without, but it is usually
-done for marketing reasons. I hope we'll never have marketing reasons
-for lk. :-) We can be actually _proud_ to have 2.$BIGNUM instead of
-3.0
---
-vda
+I agree, this is the way started, however it touches so much driver code
+(not to mention core code) that it seemed likely to be rejected.  I'm
+all for replacing capable() calls, but it's not a consistent interface
+and can't always be simply exchanged.  I see no reason not to remove the
+obvious ones right away.
+
+> Just adding more and more hooks without thinking
+> gets us exactly nowhere except to an unmaintainable codebase.
+
+Your point is well-taken.  Of course, we do not want to produce
+unmaintainable code.  The hook creation/placement has been thought about
+and discussed quite a bit.  
+
+> Also is there a _real_ need to pass in all the arguments?
+
+It was placed there as an obvious contol point over which ioports
+could be accessed.  We will definitely revisit this since it's not being
+used.
+
+> > + * @module_create:
+> > + *	Check the permission before allocating space for a module.
+> > + *	@name contains the module name.
+> > + *	@size contains the module size.
+> > + *	Return 0 if permission is granted.
+> > + * @module_initialize:
+> > + * 	Check permission before initializing a module.
+> > + * 	@mod contains a pointer to the module being initialized.
+> > + *	Return 0 if permission is granted.
+> 
+> Umm, you can't tell me you deny someone to initialize a module he has
+> just created?
+
+Coming from two separate system calls there is no guarantee the
+callers will be in the same execution domain.
+
+> > + * @sethostname:
+> > + *	Check permission before the hostname is set to @hostname.
+> > + *	@hostname contains the new hostname
+> > + *	Return 0 if permission is granted.
+> > + * @setdomainname:
+> > + *	Check permission before the domainname is set to @domainname.
+> > + *	@domainname contains the new domainname
+> > + *	Return 0 if permission is granted.
+> 
+> You don't think this should maybe be just one hook?
+
+sure, uts releated hooks could be collapsed.
+
+> You might be allowed to swapon but not swapoff?
+
+yes, again there is no assumption the execution domains would be the
+same.
+
+> > +static int cap_swapoff (struct swap_info_struct *swap)
+> > +{
+> > +	return 0;
+> > +}
+> 
+> Live would be a lot simple if an unimplemented op would behave
+> as returning zero..
+
+Yes, I agree.  We've had a few patches that did this, nothing
+committed to the LSM tree currently.
+
+thanks,
+-chris
+-- 
+Linux Security Modules     http://lsm.immunix.org     http://lsm.bkbits.net

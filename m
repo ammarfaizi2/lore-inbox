@@ -1,40 +1,29 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278151AbRJLV3e>; Fri, 12 Oct 2001 17:29:34 -0400
+	id <S278152AbRJLVbE>; Fri, 12 Oct 2001 17:31:04 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278152AbRJLV30>; Fri, 12 Oct 2001 17:29:26 -0400
-Received: from m3d.uib.es ([130.206.132.6]:43453 "EHLO m3d.uib.es")
-	by vger.kernel.org with ESMTP id <S278151AbRJLV3Q>;
-	Fri, 12 Oct 2001 17:29:16 -0400
-Date: Fri, 12 Oct 2001 23:29:46 +0200 (MET)
-From: Ricardo Galli <gallir@m3d.uib.es>
-To: <linux-kernel@vger.kernel.org>
-cc: <alan@lxorguk.ukuu.org.uk>
-Subject: 2.4.12-ac1 dies (seems reiserfs)
-Message-ID: <Pine.LNX.4.33.0110122323460.7693-100000@m3d.uib.es>
+	id <S278153AbRJLVay>; Fri, 12 Oct 2001 17:30:54 -0400
+Received: from c1052869-a.smateo1.sfba.home.com ([24.7.95.44]:31507 "HELO
+	mail.desbiens.org") by vger.kernel.org with SMTP id <S278152AbRJLVah>;
+	Fri, 12 Oct 2001 17:30:37 -0400
+Date: Fri, 12 Oct 2001 14:31:03 -0700 (PDT)
+From: Taral <taral@taral.net>
+To: linux-kernel@vger.kernel.org
+Subject: SOLVED: USB lockup on Thinkpad i1300
+Message-ID: <Pine.LNX.4.10.10110121429470.17342-100000@router.internal.desbiens.org>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This time linux has died when un-installing a debian package from a remote
-ssh terminal, so it might be related to ReiserFS.
+It appears that ACPI must be enabled for USB support to work on an IBM
+Thinkpad i1300. ACPI also fixes the rather strange problem where the BIOS
+will mis-read the CMOS data when rebooting.
 
-There is no logs, sysrq didn't work neither.
+I figure there's some bugfix code in the ACPI _INI stuff on these
+machines.
 
-Several files are corrupted:
+Hope this helps people!
 
-linux:/var/log# dpkg -i "kernel-source*"
-dpkg: error processing kernel-source* (--install):
- cannot access archive: No such file or directory
-Errors were encountered while processing:
- kernel-source*
-
-
-(i tried to remove kernel-source-2.4.7 when the machine hung).
-
---ricardo
-
-
-
+Taral
 

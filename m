@@ -1,80 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261750AbVAHBgC@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261776AbVAHBiI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261750AbVAHBgC (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 7 Jan 2005 20:36:02 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261773AbVAHBdz
+	id S261776AbVAHBiI (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 7 Jan 2005 20:38:08 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261761AbVAHBiI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 7 Jan 2005 20:33:55 -0500
-Received: from e31.co.us.ibm.com ([32.97.110.129]:45975 "EHLO
-	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S261750AbVAHBaM
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 7 Jan 2005 20:30:12 -0500
-From: James Cleverdon <jamesclv@us.ibm.com>
-Reply-To: jamesclv@us.ibm.com
-Organization: IBM LTC (xSeries Solutions)
-To: Andi Kleen <ak@muc.de>
-Subject: Re: 256 apic id for amd64
-Date: Fri, 7 Jan 2005 17:30:09 -0800
-User-Agent: KMail/1.7.1
-Cc: YhLu <YhLu@tyan.com>, Matt Domsch <Matt_Domsch@dell.com>,
-       linux-kernel@vger.kernel.org, discuss@x86-64.org,
-       suresh.b.siddha@intel.com
-References: <3174569B9743D511922F00A0C9431423072912FA@TYANWEB> <20050107122434.GA64665@muc.de>
-In-Reply-To: <20050107122434.GA64665@muc.de>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Fri, 7 Jan 2005 20:38:08 -0500
+Received: from fw.osdl.org ([65.172.181.6]:12756 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S261778AbVAHBg1 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 7 Jan 2005 20:36:27 -0500
+Date: Fri, 7 Jan 2005 17:36:07 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Sean Neakums <sneakums@zork.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: AGP Oops (was Re: 2.6.10-mm2)
+Message-Id: <20050107173607.1fc69878.akpm@osdl.org>
+In-Reply-To: <6umzvkhfl5.fsf@zork.zork.net>
+References: <20050106002240.00ac4611.akpm@osdl.org>
+	<6umzvkhfl5.fsf@zork.zork.net>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200501071730.09615.jamesclv@us.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andi has already dealt with some of the coding style issues elsewhere in 
-the thread.
-
-My comment:  This is playing with fire.  We've gone to considerable 
-trouble to make the boot_cpu_id independent of the physical APIC ID 
-(which is what hard_smp_processor_id() returns).  Different BIOSes and 
-different CPU revisions can cause the boot processor to shift.
-
-Examples:  We have a box where the boot CPU has an APIC ID of 3.  
-Another system starts with the BSP == 3, but the BIOS renumbers it to 
-zero after first reassigning the original 0 CPU.  So, the APIC IDs end 
-up 0, 1, 2, 4.  Yet another system assigns the IDs:  0, 1, 6, 7.
-
-We can expect even stranger numbering schemes in the future, given that 
-dual core hyperthreaded CPUs are in the pipeline.  Creating any 
-dependency between CPU number and APIC ID is a _bad_ idea.
-
-
-On Friday 07 January 2005 04:24 am, Andi Kleen wrote:
-> On Thu, Jan 06, 2005 at 06:53:11PM -0800, YhLu wrote:
-> > static unsigned int phys_pkg_id(int index_msb)
-> > {
-> >         return hard_smp_processor_id() >> index_msb;
-> > }
-> >
-> > In arch/x86_64/kernel/genapic_cluster.c
-> >
-> > Should be changed to
-> >
-> > static unsigned int phys_pkg_id(int index_msb)
-> > {
-> >         /* physical apicid, so we need to substract offset */
-> >         return (hard_smp_processor_id() - boot_cpu_id) >>
-> > index_msb; }
+Sean Neakums <sneakums@zork.net> wrote:
 >
-> Why?
->
-> If you want a patch merged you need to supply some more explanation
-> please.
->
-> Also cc Suresh & James for comment.
->
-> -Andi
+> Got the following upon starting X (Debian sid's 4.3.0.dfsg.1-10).
+> Was fine with 2.6.10-mm1.  Radeon card, VIA AGP.
+> 
 
--- 
-James Cleverdon
-IBM LTC (xSeries Linux Solutions)
-{jamesclv(Unix, preferred), cleverdj(Notes)} at us dot ibm dot comm
+Did you have this?
+
+--- 25/drivers/char/agp/generic.c~agpgart-add-bridge-assignment-missed-in-agp_allocate_memory	Thu Jan  6 15:50:18 2005
++++ 25-akpm/drivers/char/agp/generic.c	Thu Jan  6 15:50:18 2005
+@@ -211,6 +211,7 @@ struct agp_memory *agp_allocate_memory(s
+ 		new->memory[i] = virt_to_phys(addr);
+ 		new->page_count++;
+ 	}
++       new->bridge = bridge;
+ 
+ 	flush_agp_mappings();
+ 
+_
+

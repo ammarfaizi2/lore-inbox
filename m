@@ -1,29 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S270134AbRHRNAO>; Sat, 18 Aug 2001 09:00:14 -0400
+	id <S270159AbRHRN3b>; Sat, 18 Aug 2001 09:29:31 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S270154AbRHRNAF>; Sat, 18 Aug 2001 09:00:05 -0400
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:50949 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S270134AbRHRM7z>; Sat, 18 Aug 2001 08:59:55 -0400
+	id <S270155AbRHRN3V>; Sat, 18 Aug 2001 09:29:21 -0400
+Received: from chmls06.mediaone.net ([24.147.1.144]:26051 "EHLO
+	chmls06.mediaone.net") by vger.kernel.org with ESMTP
+	id <S270154AbRHRN3N> convert rfc822-to-8bit; Sat, 18 Aug 2001 09:29:13 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: Andy Stewart <andystewart@mediaone.net>
+Organization: Worcester Linux Users' Group
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Subject: Re: Kernel 2.4.9 locks up solidly with USB and SMP
-To: andystewart@mediaone.net (Andy Stewart)
-Date: Sat, 18 Aug 2001 13:12:59 +0100 (BST)
+Date: Sat, 18 Aug 2001 09:26:12 -0400
+X-Mailer: KMail [version 1.2]
 Cc: linux-kernel@vger.kernel.org, andystewart@mediaone.net
-In-Reply-To: <01081800562800.08460@tux> from "Andy Stewart" at Aug 18, 2001 12:56:27 AM
-X-Mailer: ELM [version 2.5 PL5]
+In-Reply-To: <E15Y4yJ-0000p0-00@the-village.bc.nu>
+In-Reply-To: <E15Y4yJ-0000p0-00@the-village.bc.nu>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E15Y4yJ-0000p0-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Message-Id: <01081809261200.01856@tux>
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> SMP without USB seems to work properly.  USB in uniprocessor mode is also 
-> working properly.
-> 
-> I have usbcore and usb-uhci loaded as modules.
+On Saturday 18 August 2001 08:12, Alan Cox wrote:
+> > SMP without USB seems to work properly.  USB in uniprocessor mode is
+> > also working properly.
+> >
+> > I have usbcore and usb-uhci loaded as modules.
+>
+> Use the uhci module instead and it ought to be better
 
-Use the uhci module instead and it ought to be better
+Using the uhci module has indeed solved the problem.
+
+Thank you!
+
+--
+Andy Stewart
+Founder
+Worcester Linux Users' Group
+Worcester, MA, USA
+http://www.wlug.org
 

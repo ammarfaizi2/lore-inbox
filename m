@@ -1,50 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129111AbRBFUHu>; Tue, 6 Feb 2001 15:07:50 -0500
+	id <S129116AbRBFUHi>; Tue, 6 Feb 2001 15:07:38 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129188AbRBFUHi>; Tue, 6 Feb 2001 15:07:38 -0500
-Received: from ns.virtualhost.dk ([195.184.98.160]:49681 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id <S129111AbRBFUH1>;
-	Tue, 6 Feb 2001 15:07:27 -0500
-Date: Tue, 6 Feb 2001 21:07:04 +0100
-From: Jens Axboe <axboe@suse.de>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: Ben LaHaise <bcrl@redhat.com>, Linus Torvalds <torvalds@transmeta.com>,
-        "Stephen C. Tweedie" <sct@redhat.com>,
-        Alan Cox <alan@lxorguk.ukuu.org.uk>,
-        Manfred Spraul <manfred@colorfullife.com>, Steve Lord <lord@sgi.com>,
-        Linux Kernel List <linux-kernel@vger.kernel.org>,
-        kiobuf-io-devel@lists.sourceforge.net, Ingo Molnar <mingo@redhat.com>
-Subject: Re: [Kiobuf-io-devel] RFC: Kernel mechanism: Compound event wait
-Message-ID: <20010206210704.E2975@suse.de>
-In-Reply-To: <Pine.LNX.4.30.0102061437250.15204-100000@today.toronto.redhat.com> <Pine.LNX.4.30.0102062052110.8926-100000@elte.hu>
-Mime-Version: 1.0
+	id <S129184AbRBFUHS>; Tue, 6 Feb 2001 15:07:18 -0500
+Received: from server1.neuronet.pitt.edu ([150.232.128.42]:40970 "EHLO
+	server1.neuronet.pitt.edu") by vger.kernel.org with ESMTP
+	id <S129116AbRBFUHN>; Tue, 6 Feb 2001 15:07:13 -0500
+Message-ID: <3A8058A5.5A1363EA@neuronet.pitt.edu>
+Date: Tue, 06 Feb 2001 15:03:49 -0500
+From: "Rafael E. Herrera" <raffo@neuronet.pitt.edu>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.2.16 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+CC: linux-kernel@vger.kernel.org
+Subject: Re: [OT] Re: Matrox G450 problems with 2.4.0 and xfree
+In-Reply-To: <Pine.LNX.4.33.0102061413230.6540-100000@asdf.capslock.lan>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.30.0102062052110.8926-100000@elte.hu>; from mingo@elte.hu on Tue, Feb 06, 2001 at 08:57:13PM +0100
+Content-Transfer-Encoding: 7bit
+To: unlisted-recipients:; (no To-header on input)@pop.zip.com.au
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Feb 06 2001, Ingo Molnar wrote:
-> > This small correction is the crux of the problem: if it blocks, it
-> > takes away from the ability of the process to continue doing useful
-> > work.  If it returns -EAGAIN, then that's okay, the io will be
-> > resubmitted later when other disk io has completed.  But, it should be
-> > possible to continue servicing network requests or user io while disk
-> > io is underway.
+"Mike A. Harris" wrote:
 > 
-> typical blocking point is waiting for page completion, not
-> __wait_request(). But, this is really not an issue, NR_REQUESTS can be
-> increased anytime. If NR_REQUESTS is large enough then think of it as the
-> 'absolute upper limit of doing IO', and think of the blocking as 'the
-> kernel pulling the brakes'.
+> If anyone has open source g450 patches against stock 4.0.2 that
+> get the thing to work at all, _please_ send me unified diffs, and
+> I will put them into my next build.  I've yet to have my g450 do
+> anything but turn off my monitor, although a handful of people
+> claim they get it working to various degrees...  I don't have
+> g450 specs either so..
 
-Not just __get_request_wait, but also the limit on max locked buffers
-in ll_rw_block. Serves the same purpose though, brake effect.
+In my machine I have SuSE 7.0, XF86 4.0.2, a G450, and Matrox's monster
+mga driver for XF86 4.0.1. Miraculously, it works in dual head mode. But
+as has been mentioned before the sources for the HAL library are not
+available.
 
 -- 
-Jens Axboe
-
+     Rafael
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

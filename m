@@ -1,45 +1,64 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293076AbSC0WdD>; Wed, 27 Mar 2002 17:33:03 -0500
+	id <S293131AbSC0Wew>; Wed, 27 Mar 2002 17:34:52 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293129AbSC0Wcw>; Wed, 27 Mar 2002 17:32:52 -0500
-Received: from cerebus.wirex.com ([65.102.14.138]:62970 "EHLO
-	figure1.int.wirex.com") by vger.kernel.org with ESMTP
-	id <S293076AbSC0Wch>; Wed, 27 Mar 2002 17:32:37 -0500
-Date: Wed, 27 Mar 2002 14:32:31 -0800
-From: Chris Wright <chris@wirex.com>
-To: Stephen Baker <stbaker@cisco.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Linux Kernel Patch; setpriority
-Message-ID: <20020327143231.A19240@figure1.int.wirex.com>
-Mail-Followup-To: Stephen Baker <stbaker@cisco.com>,
+	id <S293129AbSC0Wen>; Wed, 27 Mar 2002 17:34:43 -0500
+Received: from vladimir.pegasys.ws ([64.220.160.58]:19471 "HELO
+	vladimir.pegasys.ws") by vger.kernel.org with SMTP
+	id <S293159AbSC0Weg>; Wed, 27 Mar 2002 17:34:36 -0500
+Date: Wed, 27 Mar 2002 14:34:27 -0800
+From: jw schultz <jw@pegasys.ws>
+To: linux-kernel@vger.kernel.org
+Subject: Re: DE and hot-swap disk caddies
+Message-ID: <20020327143427.N6223@pegasys.ws>
+Mail-Followup-To: jw schultz <jw@pegasys.ws>,
 	linux-kernel@vger.kernel.org
-In-Reply-To: <3CA232A1.7040702@cisco.com>
+In-Reply-To: <200203252316.g2PNGD011116@numbat.Os2.Ami.Com.Au> <01c501c1d4874ce9180e0aa8c0@bridge> <20020326002128.L6223@pegasys.ws> <20020326190117.B324@toy.ucw.cz>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
+User-Agent: Mutt/1.3.12i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Stephen Baker (stbaker@cisco.com) wrote:
+On Tue, Mar 26, 2002 at 07:01:18PM +0000, Pavel Machek wrote:
+> Hi!
 > 
-> This patch will allow a process or thread to changes it's priority 
-> dynamically based on it's capabilities.  In our case we wanted to use 
-> threads with Linux.  To have true priorities we need root to use 
-> SCHED_FIFO or SCHED_RR; in many case root access is not allowed but we 
-> still wanted priorities.  So we started using setpriority to change a 
-> threads priority.  Now we used nice values from 19 to 0 which did not 
-> require root access.  In some cases a thread need to raise it's nice 
-> level and this would fail.  I also saw a note man renice(8) that said 
-> this bug exists.
+> > > > > Linux doesn't support IDE hot swap at the drive level. Its basically
+> > > > > waiting people to want it enough to either fund it or go write the code
+> > > > > 
+> > > > 
+> > > > What needs to be done? How extensive is the surgery needed?
+> > > 
+> > 
+> > IDE isn't really meant to allow hot swap but it can be done.
+> > 
+> > As Jeremy says, electrically it is difficult to do it with a
+> > master+slave on one cable because you really must power down
+> > the interface (cable) and that would mean downing both devices.
+> 
+> But that's not a problem most times, right? Downing device on same
+> channel for 10 second it takes to plug it in should not be a problem.
+> 								Pavel
 
-hmm, SUS v3 seems to disagree.
+Sure, just be sure you POWER down the device(s) and the
+interface.  IDE is no more designed to be hot-swap than the
+ISA buss.  It was originally a buss level emulation of a
+specific Western Digital controller for ST506 drives.  Talk
+to an EE familiar with the spec and implementations and make
+sure that your card can either power down or go buffered
+tristate.  Smoking can be hazardous to your computer's
+health.
 
-"Only a process with appropriate privileges can lower its nice value."
+Disclaimer: I am not an Electronics Engineer, nor an expert
+on IDE/ATA/ATAPI yadda, yadda, yadda.  I wrote because this
+thread, while useful for the future  was on a tangent that
+wasn't telling John Summerfield how he might actually do
+what he wants, today.
 
-and with this patch setpriority(2) is now inconsistent with nice(2)
-(albeit i don't know how much longer that interface will persist in arch
-independent portion of the kernel based on the comments surrounding it).
+-- 
+________________________________________________________________
+	J.W. Schultz            Pegasystems Technologies
+	email address:		jw@pegasys.ws
 
--chris
+		Remember Cernan and Schmitt

@@ -1,121 +1,120 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267323AbTA0WuS>; Mon, 27 Jan 2003 17:50:18 -0500
+	id <S264617AbTA0W7k>; Mon, 27 Jan 2003 17:59:40 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267327AbTA0WuS>; Mon, 27 Jan 2003 17:50:18 -0500
-Received: from air-2.osdl.org ([65.172.181.6]:11937 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id <S267323AbTA0WuQ>;
-	Mon, 27 Jan 2003 17:50:16 -0500
-Subject: Re: ext2 FS corruption with 2.5.59.
-From: Stephen Hemminger <shemminger@osdl.org>
-To: Andrew Morton <akpm@digeo.com>
-Cc: William Lee Irwin III <wli@holomorphy.com>, green@namesys.com,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, hch@lst.de,
-       jack@suse.cz, mason@suse.com
-In-Reply-To: <20030125211003.082cb92c.akpm@digeo.com>
-References: <20030123153832.A860@namesys.com>
-	 <20030124023213.63d93156.akpm@digeo.com> <20030124153929.A894@namesys.com>
-	 <20030124225320.5d387993.akpm@digeo.com>
-	 <20030125153607.A10590@namesys.com>
-	 <20030125190410.7c91e640.akpm@digeo.com>
-	 <20030126032815.GA780@holomorphy.com>
-	 <20030125194648.6c417699.akpm@digeo.com>
-	 <20030126041426.GB780@holomorphy.com>
-	 <20030125211003.082cb92c.akpm@digeo.com>
-Content-Type: text/plain
-Organization: Open Source Devlopment Lab
-Message-Id: <1043708361.10153.151.camel@dell_ss3.pdx.osdl.net>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.1 
-Date: 27 Jan 2003 14:59:21 -0800
-Content-Transfer-Encoding: 7bit
+	id <S264681AbTA0W7k>; Mon, 27 Jan 2003 17:59:40 -0500
+Received: from chaos.physics.uiowa.edu ([128.255.34.189]:207 "EHLO
+	chaos.physics.uiowa.edu") by vger.kernel.org with ESMTP
+	id <S264617AbTA0W7i>; Mon, 27 Jan 2003 17:59:38 -0500
+Date: Mon, 27 Jan 2003 17:08:50 -0600 (CST)
+From: Kai Germaschewski <kai@tp1.ruhr-uni-bochum.de>
+X-X-Sender: kai@chaos.physics.uiowa.edu
+To: Joel Becker <Joel.Becker@oracle.com>
+cc: Christian Zander <zander@minion.de>, Mark Fasheh <mark.fasheh@oracle.com>,
+       Thomas Schlichter <schlicht@uni-mannheim.de>,
+       "Randy.Dunlap" <rddunlap@osdl.org>, Sam Ravnborg <sam@ravnborg.org>,
+       LKML <linux-kernel@vger.kernel.org>,
+       Rusty Russell <rusty@rustcorp.com.au>
+Subject: Re: no version magic, tainting kernel.
+In-Reply-To: <20030127221523.GP20972@ca-server1.us.oracle.com>
+Message-ID: <Pine.LNX.4.44.0301271648360.18686-100000@chaos.physics.uiowa.edu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2003-01-25 at 21:10, Andrew Morton wrote:
-> William Lee Irwin III <wli@holomorphy.com> wrote:
-> >
-> > William Lee Irwin III <wli@holomorphy.com> wrote:
-> > >> Ticket locks need atomic fetch and increment. These don't look right.
-> > 
+On Mon, 27 Jan 2003, Joel Becker wrote:
 
-Atomic fetch/increment is not necessary since it is assumed that
-only a single writer is doing the increment at a time, either with a
-lock or a semaphore.  The fr_write_lock primitive incorporates the
-spinlock and the sequence number. 
+> On Mon, Jan 27, 2003 at 12:31:07PM -0600, Kai Germaschewski wrote:
+> > Well, if you're doing things in your module which break with the command 
+> > line options the rest of the kernel is using, I'd claim you're playing 
+> > tricks in your module which you shouldn't. The only place I'm aware of 
+> 
+> 	I'm not so sure about that.  Some gcc things tweak us, and the
+> some code has had to deal with it.  This isn't something that happens
+> often, but it still can.  In addition, CFLAGS_filename.o does not allow
+> removal of options, merely the addition if I am not mistaken.
 
-> > On Sat, Jan 25, 2003 at 07:46:48PM -0800, Andrew Morton wrote:
-> > > Well look at the reader side:
-> > > loff_t i_size_read(struct inode *inode)
-> > > {
-> > > 	unsigned seq;
-> > > 	loff_t ret;
-> > > 
-> > > 	do {
-> > > 		seq = fr_write_begin(&inode->i_frlock);
-> > > 		ret = inode->i_size;
-> > > 	} while (seq != fr_write_end(&inode->i_frlock);
-> > > 	return ret;
-> > > }
-> 
-> argh.  That should have been:
-> 
-> > > 		seq = fr_read_begin(&inode->i_frlock);
-> > > 		ret = inode->i_size;
-> > > 	} while (seq != fr_read_end(&inode->i_frlock);
-> > > 	return ret;
-> > > }
-> 
-> of course.
-> 
-> > This doesn't look particularly reassuring either. We have:
-> > 
-> > 	(1) increment ->pre_sequence
-> > 	(2) wmb()
-> > 	(3) get inode->i_size
-> > 	(4) wmb() 
-> > 	(5) increment ->post_sequence
-> > 	(6) wmb()
-> > 
-> > Supposing the overall scheme is sound, one of the wmb()'s is unnecessary;
+Well, I suppose arguing about that without a concrete example is kinda 
+pointless.
 
-Each wmb() has a purpose. (2) is to make sure the first increment
-happens before the update. (4) makes sure the update happens before the
-second increment.  
+> > Basically, yes. The build process needs to be able to write, e.g. to 
+> > compile its helper code in scripts/, so init/vermagic.o is just another
+> > file being written.
+> 
+> 	If my distribution has installed /usr/src/linux-x.y, I can't
+> compile against it.  Even though the 200MB of a kernel tree is already
+> taking up space on my system, I have to download *another* 30MB and
+> install it as *another* 200MB and build it to an eventual *another*
+> 260MB of kernel tree.  So, for every kernel I want to support, I have to
+> have 260MB of built tree.  And that's just for my userid.  Anyone else
+> on the box has to have their own n_kernels * 260MB of space waste.
 
-The last wmb is unnecessary. Also on many architectures, the wmb()
-disappears since writes are never reordered.
+You ignored the fact that I said you will be able to use separate
+src/objdir, which means you can have your source read-only.
 
-> Could be.
+> > fact, these checksums are generated as part of the compiled objects, so
+> > recording checksums needs all other compiled objects to be around. If you 
 > 
-> > I'd have to go through some kind of state transition fiasco to be sure
-> > this actually recovers from the races where two readers fetch the same
-> > value of ->pre_sequence or ->post_sequence and store the same
-> > incremented value to convince myself this is right.
-> 
-> readers do not modify the lock - they simply observe.
+> 	But, once the checksums are recorded, the compiled objects are
+> no longer needed, no?  It still remains that a kernel header package
+> with associated correct autoconf.h and checksums is at least an order of
+> magnitude smaller than a built kernel tree.
 
-correct
+Yes, all you really need is the checksums. Then again, you also want a way 
+to verify a way that the checksums match the ABI as determined by the 
+current .config. I mean, just using the previously recorded checksums 
+without verifying is kinda pointless, they'll just always match and not 
+fulfill their function.
 
-> The fr_write_begin/fr_write_end pair assumes that there is only a single
-> writer possible.  In the case of i_size, that exclusion is provided by i_sem.
->  i_size is always modified under i_sem.
+> > As I said, I am sure interested in working with people and distros to get 
+> > something which everybody can live with. I'm wondering how RedHat manages 
+> > to have one tree for different configurations, since in that case, at 
+> > least .config/autoconf.h, EXTRAVERSION and the module version files 
+> > (*.ver) need to differ, so that kinda seems not possible in one 
+> > (read-only) tree.
 > 
-> > I'll assume you've
-> > either done so yourself or are relying on someone else's verification.
+> 	Red Hat plays tricks.  They add a <rhconfig.h> to the top of
+> autoconf.h and have some extra defines so that chunks of autoconf.h look
+> like:
 > 
-> More the latter ;)
+> #ifdef UP_FLAG
+> ... some UP CONFIG_* options
+> #else
+> #ifdef SMP_FLAG
+> ... some SMP CONFIG_* options
 > 
-> > Restarting the read like this is highly unusual; if retrying the
-> > critical section is in fact the basis of this locking algorithm then
-> > it's not a true ticket lock.
+> and so on.
 > 
-> Retrying the read is the basis of the locking algorithm.
-> 
-> The frlock stuff needs more work for non-SMP bloat avoidance, but it's simple
-> and seems sensible.
+> 	This does indeed track modversions as well (I don't recall which
+> files do the switching).  This actually works pretty well, but it depends
+> on the fact that their kernel flavours (up, smp, large ram) are known
+> at the time they build this setup.  This isn't necessarily the proper
+> solution for the generic kernel.  
+> 	It still remains that in 2.4 you need the headers for the kernel
+> plus the proper bits created by config/modversions.  You don't need
+> anything else, and you don't need any writability after the initial
+> generation.  This takes significantly less space than an entire built
+> tree, and is usable from /usr/src as a readonly entity.  Requiring that
+> *each user* have the kernels they wish to build installed and fully
+> built is a step back, IMHO.
 
-An updated version is coming out to day.  It still needs to have sequence numbers
-and barriers even on non-SMP to deal with interrupts.
+Yup, I now looked into what Redhat does. It's an obvious sign that there
+is work to be done, in particular making the build system work in a way
+that vendors don't need to kludge around it would definitely be nice.
+
+I have to admit that I did not think about the needs of distro vendors
+when implementing the new module version code (the other small issues I
+think can be worked around easily enough), and it's definitely an area
+which needs serious thinking and improvement. However, I think I need to
+finish the current work first, i.e. make sure the module versions actually
+work and then the separate obj / src dir stuff.
+
+Afterwards I think it's a really good idea to come up with a way to
+sensibly handle external modules, and it'd be much appreciated when all of
+the affected people (i.e. distro and external module guys) would provide
+input for that.
+
+--Kai
 
 

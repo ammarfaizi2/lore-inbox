@@ -1,39 +1,60 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129387AbRAEIAx>; Fri, 5 Jan 2001 03:00:53 -0500
+	id <S129183AbRAEILI>; Fri, 5 Jan 2001 03:11:08 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129777AbRAEIAo>; Fri, 5 Jan 2001 03:00:44 -0500
-Received: from [24.65.192.120] ([24.65.192.120]:65526 "EHLO webber.adilger.net")
-	by vger.kernel.org with ESMTP id <S129387AbRAEIAd>;
-	Fri, 5 Jan 2001 03:00:33 -0500
+	id <S129387AbRAEIK7>; Fri, 5 Jan 2001 03:10:59 -0500
+Received: from [24.65.192.120] ([24.65.192.120]:2295 "EHLO webber.adilger.net")
+	by vger.kernel.org with ESMTP id <S129183AbRAEIKx>;
+	Fri, 5 Jan 2001 03:10:53 -0500
 From: Andreas Dilger <adilger@turbolinux.com>
-Message-Id: <200101050800.f0580He12396@webber.adilger.net>
+Message-Id: <200101050810.f058AbP12432@webber.adilger.net>
 Subject: Re: Journaling: Surviving or allowing unclean shutdown?
-In-Reply-To: <3A5515D0.7F21E668@innominate.de> "from Daniel Phillips at Jan 5,
- 2001 01:31:12 am"
-To: Daniel Phillips <phillips@innominate.de>
-Date: Fri, 5 Jan 2001 01:00:17 -0700 (MST)
-CC: "Stephen C. Tweedie" <sct@redhat.com>, linux-kernel@vger.kernel.org
+In-Reply-To: <20010105020137.A1396@stefan.sime.com> "from Stefan Traby at Jan
+ 5, 2001 02:01:37 am"
+To: Stefan Traby <stefan@hello-penguin.com>
+Date: Fri, 5 Jan 2001 01:10:37 -0700 (MST)
+CC: "Stephen C. Tweedie" <sct@redhat.com>,
+        Daniel Phillips <phillips@innominate.de>,
+        Rik van Riel <riel@conectiva.com.br>, linux-kernel@vger.kernel.org
 X-Mailer: ELM [version 2.4ME+ PL73 (25)]
 MIME-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Daniel writes:
-> Yes, and so long as your journal is not on another partition/disk things
-> will eventually be set right.  The combination of a partially updated
-> filesystem and its journal is in some sense a complete, consistent
-> filesystem.
+Stefan, you write:
+> [Re: read-only filesystem vs. read-only device]
+> Anyway, it is "especially" critical on the root filesystem because the
+> authors of filesystems can't support two ro states on boot.
 > 
-> I'm curious - how does ext3 handle the possibility of a crash during
-> journal recovery?
+> Reiserfs allowed  -oro,noreplay.
+> 
+> Please tell me how to specify "noreplay" for the initial "/" mount :)
 
-Unless Stephen says otherwise, my understanding is that a crash during
-journal recovery will just mean the journal is replayed again at the next
-recovery.  Because the ext3 journal is just a series of data blocks to
-be copied into the filesystem (rather than "actions" to be done), it
-doesn't matter how many times it is done.  The recovery flags are not
-reset until after the journal replay is completed.
+Actually, for ext3 Stephen added a kernel option "rootflags" so that you
+can pass mount options to the root filesystem.  This was previously needed
+to add a journal to an existing ext2 root filesystem.  I hope he keeps it
+around anyways, and submits it as a regular kernel patch, because it is
+useful for many other things.
+
+> But this has nothing to do with forcing a write on "ro" mounts, which
+> I interpret as design bug. (ro,noreplay is also a kind of design bug,
+> everything except a virtual replay under physical ro conditions looks
+> like a design bug to me because it breaks user expectations either
+> by writing on "ro" or by giving an invalid view by "noreplay")
+
+If the VM subsystem can tolerate keeping dirty pages around for a read-only
+device then virtual replay can be made to work, for no more memory than
+might be pinned by having a journal in the first place.  The only problem
+is that normal journal pages will eventually be freed, whereas virtual
+journal replay pages would not (until the filesystem is unmounted or mounted
+read-write).  This _may_ be OK in some cases, but I think most people with
+journalled filesystem have more journal space than RAM, so you will likely
+get into bad situations very quickly, all for a technical nit.
+
+Currently ext3 just refuses to load on a read-only device if the journal
+is dirty.  However, changes are upcoming to allow LVM snapshots on ext3
+filesystems, so there is little legitimate need for a dirty journal on
+a read-only device.
 
 Cheers, Andreas
 -- 

@@ -1,64 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265181AbUGGOvA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265195AbUGGOwx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265181AbUGGOvA (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 7 Jul 2004 10:51:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265198AbUGGOu7
+	id S265195AbUGGOwx (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 7 Jul 2004 10:52:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265196AbUGGOww
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 7 Jul 2004 10:50:59 -0400
-Received: from chaos.analogic.com ([204.178.40.224]:645 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP id S265181AbUGGOu5
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 7 Jul 2004 10:50:57 -0400
-Date: Wed, 7 Jul 2004 10:50:47 -0400 (EDT)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-X-X-Sender: root@chaos
-Reply-To: root@chaos.analogic.com
-To: Christoph Pleger <Christoph.Pleger@uni-dortmund.de>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Address space for user process
-In-Reply-To: <20040707163535.02323a8f.Christoph.Pleger@uni-dortmund.de>
-Message-ID: <Pine.LNX.4.53.0407071039260.18280@chaos>
-References: <20040707163535.02323a8f.Christoph.Pleger@uni-dortmund.de>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Wed, 7 Jul 2004 10:52:52 -0400
+Received: from verein.lst.de ([212.34.189.10]:6582 "EHLO mail.lst.de")
+	by vger.kernel.org with ESMTP id S265195AbUGGOwv (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 7 Jul 2004 10:52:51 -0400
+Date: Wed, 7 Jul 2004 16:52:46 +0200
+From: Christoph Hellwig <hch@lst.de>
+To: paulus@samba.org
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] kill CONFIG_KERNEL_ELF
+Message-ID: <20040707145246.GA13846@lst.de>
+Mail-Followup-To: Christoph Hellwig <hch>, paulus@samba.org,
+	linux-kernel@vger.kernel.org
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.28i
+X-Spam-Score: -4.901 () BAYES_00
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 7 Jul 2004, Christoph Pleger wrote:
-
-> Hello,
->
-> I read that - at least in Kernel 2.4 - the amount of memory that can be
-> addressed by a user process is limited to 3 GB, no matter how much
-> virtual memory is present. Is it possible to raise that limit?
->
-> Kind regards
->   Christoph
-
-Sure. Use two (or more) tasks. It is a per-process limit because
-in Unix the kernel shares the processes address space. See
-how your process is laid out by executing this:
-
-#include <stdio.h>
-extern char _start;
-extern char _end;
-char dat;
-const char x[]="x";
-int main()
-{
-    char foo;
-    printf("start = %p\n", &_start);
-    printf(" main = %p\n", main);
-    printf(" data = %p\n", &dat);
-    printf("const = %p\n", x);
-    printf("stack = %p\n", &foo);
-    printf("  end = %p\n", &_end);
-    return 0;
-}
-
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.4.26 on an i686 machine (5570.56 BogoMips).
-            Note 96.31% of all statistics are fiction.
+I remember we had that in the 2.0-aera, but these days no one checks it
+at all.
 
 
+--- 1.73/arch/ppc/Kconfig	2004-07-02 07:23:46 +02:00
++++ edited/arch/ppc/Kconfig	2004-07-04 00:21:37 +02:00
+@@ -799,10 +799,6 @@
+ config HIGHMEM
+ 	bool "High memory support"
+ 
+-config KERNEL_ELF
+-	bool
+-	default y
+-
+ source "fs/Kconfig.binfmt"
+ 
+ config PROC_DEVICETREE

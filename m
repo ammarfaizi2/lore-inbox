@@ -1,43 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266948AbSL3MtQ>; Mon, 30 Dec 2002 07:49:16 -0500
+	id <S266965AbSL3Mx3>; Mon, 30 Dec 2002 07:53:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266952AbSL3MtQ>; Mon, 30 Dec 2002 07:49:16 -0500
-Received: from home.wiggy.net ([213.84.101.140]:1754 "EHLO mx1.wiggy.net")
-	by vger.kernel.org with ESMTP id <S266948AbSL3MtP>;
-	Mon, 30 Dec 2002 07:49:15 -0500
-Date: Mon, 30 Dec 2002 13:57:38 +0100
-From: Wichert Akkerman <wichert@wiggy.net>
+	id <S266964AbSL3Mx3>; Mon, 30 Dec 2002 07:53:29 -0500
+Received: from pusa.informat.uv.es ([147.156.10.98]:25232 "EHLO
+	pusa.informat.uv.es") by vger.kernel.org with ESMTP
+	id <S266958AbSL3Mx2>; Mon, 30 Dec 2002 07:53:28 -0500
+Date: Mon, 30 Dec 2002 14:01:48 +0100
 To: linux-kernel@vger.kernel.org
-Subject: Re: Indention - why spaces?
-Message-ID: <20021230125738.GK10971@wiggy.net>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-References: <20021230122857.GG10971@wiggy.net> <200212301249.gBUCnXrV001099@darkstar.example.net>
+Subject: Re: How much we can trust packet timestamping
+Message-ID: <20021230130148.GB1591@pusa.informat.uv.es>
+References: <20021230112838.GA928@pusa.informat.uv.es> <1041253743.13097.3.camel@irongate.swansea.linux.org.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-In-Reply-To: <200212301249.gBUCnXrV001099@darkstar.example.net>
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <1041253743.13097.3.camel@irongate.swansea.linux.org.uk>
 User-Agent: Mutt/1.3.28i
+From: uaca@alumni.uv.es
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Previously John Bradford wrote:
-> In my opinion, indentation in any form is irritating.
+On Mon, Dec 30, 2002 at 01:09:03PM +0000, Alan Cox wrote:
+> On Mon, 2002-12-30 at 11:28, uaca@alumni.uv.es wrote:
+> > Hi all
+> > 
+> > IMHO The problem is quite complicated because
+> > 
+> > + common hardware is not designed for real time:
+> > 
+> > 	- sends multiple PDUs within one interrupt, and can be delayed
+> > 	- Host adapter bus & infraestructure is not designed to garantee latency
+> >   	etc...
+> 
+> The packet can be timestamped by the hardware receiving as well as by
+> the kernel netif_rx code. This is actually intentional and there is
+> hardware that supports doing IRQ raise time sampling which the driver
+> can then use to get very accurate data.
 
-So set your tabwidth/shiftwidth/whatever to 0 (or 1, at least vim
-does not seem to allow you to set a zero shiftwidth).
+Thanks Alan
 
-> I find a left hand margin that jumps around, and in deeply nested
-> loops effectively makes a 132 column terminal in to an 80 column
-> terminal, completely pointless.
+Anybody know about a Linux driver that supports doing IRQ raise time
+sampling? any doc/pointer/suggestion would be greatly appreciated
 
-Well, I disagree. But I agree that the amount of indenting used is
-a highly personal thing, and I find forcing a set limit by demanding
-people use spaces a bad practice. But I don't do any kernel work,
-so my opinion is probably of little value here.
+Thanks in advance
 
-Wichert.
+	Ulisses
+                Debian GNU/Linux: a dream come true
+-----------------------------------------------------------------------------
+"Computers are useless. They can only give answers."            Pablo Picasso
 
--- 
-Wichert Akkerman <wichert@wiggy.net>           http://www.wiggy.net/
-A random hacker
+--->	Visita http://www.valux.org/ para saber acerca de la	<---
+--->	Asociación Valenciana de Usuarios de Linux		<---
+ 

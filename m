@@ -1,56 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268754AbUHTVYT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268753AbUHTVYB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268754AbUHTVYT (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 Aug 2004 17:24:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268756AbUHTVYT
+	id S268753AbUHTVYB (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 Aug 2004 17:24:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268754AbUHTVYB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 Aug 2004 17:24:19 -0400
-Received: from mustang.oldcity.dca.net ([216.158.38.3]:7580 "HELO
-	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S268754AbUHTVYO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 Aug 2004 17:24:14 -0400
-Subject: Re: [RFC] enhanced version of net_random()
-From: Lee Revell <rlrevell@joe-job.com>
-To: Andreas Dilger <adilger@clusterfs.com>
-Cc: Jean-Luc Cooke <jlcooke@certainkey.com>,
-       Stephen Hemminger <shemminger@osdl.org>,
-       "David S. Miller" <davem@redhat.com>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>, "Theodore Ts'o" <tytso@mit.edu>,
-       netdev@oss.sgi.com, linux-kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <20040820185956.GV8967@schnapps.adilger.int>
-References: <20040812104835.3b179f5a@dell_ss3.pdx.osdl.net>
-	 <20040820175952.GI5806@certainkey.com>
-	 <20040820185956.GV8967@schnapps.adilger.int>
-Content-Type: text/plain
-Message-Id: <1093037055.10063.192.camel@krustophenia.net>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Fri, 20 Aug 2004 17:24:15 -0400
+	Fri, 20 Aug 2004 17:24:01 -0400
+Received: from a26.t1.student.liu.se ([130.236.221.26]:54996 "EHLO
+	mail.drzeus.cx") by vger.kernel.org with ESMTP id S268753AbUHTVX6
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 20 Aug 2004 17:23:58 -0400
+Message-ID: <41266C5D.7000908@drzeus.cx>
+Date: Fri, 20 Aug 2004 23:25:49 +0200
+From: Pierre Ossman <drzeus-list@drzeus.cx>
+User-Agent: Mozilla Thunderbird 0.7.1 (X11/20040704)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: "Randy.Dunlap" <rddunlap@osdl.org>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Timer allocates too many ports
+References: <4126600F.4050302@drzeus.cx> <20040820140503.67d23479.rddunlap@osdl.org>
+In-Reply-To: <20040820140503.67d23479.rddunlap@osdl.org>
+X-Enigmail-Version: 0.84.2.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2004-08-20 at 14:59, Andreas Dilger wrote:
-> On Aug 20, 2004  13:59 -0400, Jean-Luc Cooke wrote:
-> > Is there a reason why get_random_bytes() is unsuitable?
-> > 
-> > Keeping the number of PRNGs in the kernel to a minimum should a goal we can
-> > all share.
-> 
-> For some uses a decent PRNG is enough, and the overhead of get_random_bytes()
-> is much too high.
+Randy.Dunlap wrote:
 
-Agreed.  I have numbers to support the above.
+>On Fri, 20 Aug 2004 22:33:19 +0200 Pierre Ossman wrote:
+>
+>| Hi!
+>
+>Ho-
+>
+>| The timer in linux allocates the io ports 0x40 to 0x5F. This is causing 
+>| some problems for me since the hardware I'm writing a driver for has its 
+>| ports at 0x4E and 0x4F. In Windows the ports 0x40 to 0x43 are used for 
+>| the timer. Why does linux allocate so many more ports?
+>
+>Seems reasonable to me for Linux timer driver (resource) to allocate
+>0x40 - 0x43 and 0x50 - 0x53 (on intel x86; only 0x40 - 0x43 for AMD x86-64).
+>At least that's what is in some Intel specs.  That would be accurate
+>AFAIK and still leave 0x4e - 0x4f available.
+>  
+>
+Unfortunately the driver allocates 0x40-0x5f as can be seen in 
+/proc/ioports:
+0040-005f : timer
+I do not know which file contains this allocation so I haven't been able 
+to change it. Any ideas?
 
->   We've needed something like this for a long time (something
-> that gives decenly uniform numbers) and hacks to use useconds/cycles/etc do
-> not cut it.  I for one welcome a simple in-kernel interface to
-> e.g. get_urandom_bytes() (or net_random() as this is maybe inappropriately
-> called) that is only pseudo-random but fast and efficient.
+>What kind of device uses IO addresses 0x4e - 0x4f?
+>Is it a motherboard device?  Intel ICH specs think that 0x4e - 0x4f
+>are for LPC SIO and are forwarded to the LPC device.
+>
+>
+>  
+>
+The device is a SD/MMC card reader which is indeed an LPC device. The 
+ports in question are needed to identify the chip and determine which 
+resources it has. Actual usage is done on higher ports.
 
-One problem is that AIUI, we incur this overhead even if a hardware RNG
-is present.  This does not seem right.  Hardware RNGs are increasingly
-common, Linux supports hardware RNGs from AMD, Intel, and VIA.
-
-Lee 
+Rgds
+Pierre
 

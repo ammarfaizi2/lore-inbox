@@ -1,39 +1,30 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282340AbRKXBxR>; Fri, 23 Nov 2001 20:53:17 -0500
+	id <S282343AbRKXByh>; Fri, 23 Nov 2001 20:54:37 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282343AbRKXBxH>; Fri, 23 Nov 2001 20:53:07 -0500
-Received: from [208.129.208.52] ([208.129.208.52]:50694 "EHLO xmailserver.org")
-	by vger.kernel.org with ESMTP id <S282340AbRKXBwy>;
-	Fri, 23 Nov 2001 20:52:54 -0500
-Date: Fri, 23 Nov 2001 18:01:54 -0800 (PST)
-From: Davide Libenzi <davidel@xmailserver.org>
-X-X-Sender: davide@blue1.dev.mcafeelabs.com
-To: Ingo Molnar <mingo@elte.hu>
-cc: lkml <linux-kernel@vger.kernel.org>, <linux-smp@vger.kernel.org>
-Subject: Re: [patch] sched_[set|get]_affinity() syscall, 2.4.15-pre9
-In-Reply-To: <Pine.LNX.4.33.0111231220350.3988-200000@localhost.localdomain>
-Message-ID: <Pine.LNX.4.40.0111231751150.1026-100000@blue1.dev.mcafeelabs.com>
+	id <S282344AbRKXBy3>; Fri, 23 Nov 2001 20:54:29 -0500
+Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:46087 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S282343AbRKXByO>; Fri, 23 Nov 2001 20:54:14 -0500
+Date: Fri, 23 Nov 2001 17:48:47 -0800 (PST)
+From: Linus Torvalds <torvalds@transmeta.com>
+To: Andreas Dilger <adilger@turbolabs.com>
+cc: Alexander Viro <viro@math.psu.edu>, <linux-kernel@vger.kernel.org>,
+        Marcelo Tosatti <marcelo@conectiva.com.br>
+Subject: Re: [PATCH][CFT] Re: 2.4.15-pre9 breakage (inode.c)
+In-Reply-To: <20011123160536.D1308@lynx.no>
+Message-ID: <Pine.LNX.4.33.0111231747540.1520-100000@penguin.transmeta.com>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 23 Nov 2001, Ingo Molnar wrote:
 
-[...]
+On Fri, 23 Nov 2001, Andreas Dilger wrote:
+>
+> Hey, this gives Linus a good reason to make another 2.4.15 release,
 
-Isn't it better to expose "number" cpu masks instead of
-"logical" ones ?
-Right now you set the raw cpus_allowed field that is a "logical" cpu
-bitmask.
-By using "number" maps the user can use 0..N-1 w/out having to
-know internal cpu mapping.
+Think of it this way: this is a good dry-run for Marcelo ;)
 
-
-
-
-- Davide
-
-
+		Linus "hates maintenance" Torvalds
 

@@ -1,93 +1,84 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262347AbTIZPQ7 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 26 Sep 2003 11:16:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262348AbTIZPQ7
+	id S262352AbTIZPVf (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 26 Sep 2003 11:21:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262353AbTIZPVf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 26 Sep 2003 11:16:59 -0400
-Received: from mail.actcom.co.il ([192.114.47.13]:19115 "EHLO
-	smtp1.actcom.net.il") by vger.kernel.org with ESMTP id S262347AbTIZPQ4
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 26 Sep 2003 11:16:56 -0400
-Date: Fri, 26 Sep 2003 18:16:42 +0300
-From: Muli Ben-Yehuda <mulix@mulix.org>
-To: Maciej Zenczykowski <maze@cela.pl>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Syscall security
-Message-ID: <20030926151642.GL729@actcom.co.il>
-References: <Pine.LNX.4.44.0309261553180.6080-100000@gaia.cela.pl>
+	Fri, 26 Sep 2003 11:21:35 -0400
+Received: from smtp5.clb.oleane.net ([213.56.31.25]:8378 "EHLO
+	smtp5.clb.oleane.net") by vger.kernel.org with ESMTP
+	id S262352AbTIZPVc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 26 Sep 2003 11:21:32 -0400
+Subject: Re: Keyboard oddness.
+From: Nicolas Mailhot <Nicolas.Mailhot@laposte.net>
+To: Vojtech Pavlik <vojtech@suse.cz>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20030926150628.GA10521@ucw.cz>
+References: <1064569422.21735.11.camel@ulysse.olympe.o2t>
+	 <20030926102403.GA8864@ucw.cz>
+	 <1064572898.21735.17.camel@ulysse.olympe.o2t>
+	 <1064581715.23200.9.camel@ulysse.olympe.o2t> <20030926134116.GA9721@ucw.cz>
+	 <1064585567.23200.15.camel@ulysse.olympe.o2t>
+	 <20030926141750.GA10183@ucw.cz>
+	 <1064586116.23200.17.camel@ulysse.olympe.o2t>
+	 <20030926142607.GA10344@ucw.cz>
+	 <1064587824.23200.19.camel@ulysse.olympe.o2t>
+	 <20030926150628.GA10521@ucw.cz>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-9o8Nqp4EZD+lyramNQ+X"
+Organization: Adresse personelle
+Message-Id: <1064589686.23200.24.camel@ulysse.olympe.o2t>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="TnYVF1hk1c8rpHiF"
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44.0309261553180.6080-100000@gaia.cela.pl>
-User-Agent: Mutt/1.5.4i
+X-Mailer: Ximian Evolution 1.4.4 (1.4.4-7) 
+Date: Fri, 26 Sep 2003 17:21:26 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---TnYVF1hk1c8rpHiF
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+--=-9o8Nqp4EZD+lyramNQ+X
+Content-Type: text/plain; charset=iso-8859-15
 Content-Transfer-Encoding: quoted-printable
 
-On Fri, Sep 26, 2003 at 04:05:50PM +0200, Maciej Zenczykowski wrote:
+Le ven 26/09/2003 =E0 17:06, Vojtech Pavlik a =E9crit :
+> On Fri, Sep 26, 2003 at 04:50:25PM +0200, Nicolas Mailhot wrote:
+> > Le ven 26/09/2003 ? 16:26, Vojtech Pavlik a =E9crit :
+> > > On Fri, Sep 26, 2003 at 04:21:57PM +0200, Nicolas Mailhot wrote:
+> > > > Le ven 26/09/2003 ? 16:17, Vojtech Pavlik a =E9crit :
 
-> I'm wondering if there is any way to provide per process bitmasks of=20
-> available/illegal syscalls.  Obviously this should most likely be=20
-> inherited through exec/fork.
+> > > > > If that doesn't work, you have a more severe problem than a stuck=
+ key,
+> > > > > that wouldn't be solved by stopping the repeat.
+> > > >=20
+> > > > It stops the repeat all right.
+> > > > The problem is the keyboard is dead afterwards:(
+> > >=20
+> > > That's very interesting. Can you enable DEBUG in i8042.c and post a l=
+og?
+> >=20
+> > Will it be of any use for an USB keyboard ? (just asking)
+>=20
+> No. For an USB keyboard I'd suggest unplugging it, then re-plugging and
+> then it should work. Then look at what 'dmesg' says.
 
-syscalltrack can do it, per executable / user / syscall parameters /
-whatever, but it's per syscall. Writing a perl script or C program to
-iterate over the supplied syscall list and write the allow/deny rules
-is pretty simple. Also, syscalltrack is meant for debugging, not
-security, so if you want something that's 100% tight you'd better go
-with one of the Linux security modules based on the LSM framework.=20
+Ok. I think I've already tried this and the outcome was not satisfying,
+and I sort of remember dmesg was empty. I'll try this with usb debug
+enabled this evening or next monday. (I just hope something comes out of
+this - 2.6 is great till the keyboard goes mad).
 
-> For example specyfying that pid N should return -ENOSYS on all syscalls=
-=20
-> except read/write/exit.
-
-Yeah, syscalltrack can do that ;-)=20
-
-> The reason I'm asking is because I want to run totally untrusted=20
-> statically linked binary code (automatically compiled from user=20
-> submitted untrusted sources) which only needs read/write access to stdio=
-=20
-> which means it only requires syscalls read/write/exit + a few more for
-> memory alloc/free (like brk) + a few more generated before main is called=
-=20
-> (execve and uname I believe).
-
-Since it's a known binary, if you can handle the increased run time,
-strace is your best shot. syscalltrack and other kernel based
-solutions are best when you need something that is "system wide".=20
-
-> Basically my question is: has this been done before (if so where/when?),=
-=20
-> what would be considered 'the right' way to do this, would this be a=20
-> feature to include in the main kernel source?
-
-Previous discussion seemed to conclude that features like these are
-"not interesting enough to the majority of users". Maybe it's time to
-revise those discussions (c.f. the inclusion of SELinux, for
-example).=20
 --=20
-Muli Ben-Yehuda
-http://www.mulix.org
+Nicolas Mailhot
 
-
---TnYVF1hk1c8rpHiF
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
+--=-9o8Nqp4EZD+lyramNQ+X
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: Ceci est une partie de message
+	=?ISO-8859-1?Q?num=E9riquement?= =?ISO-8859-1?Q?_sign=E9e?=
 
 -----BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.3 (GNU/Linux)
+Version: GnuPG v1.2.2 (GNU/Linux)
 
-iD8DBQE/dFhaKRs727/VN8sRAjljAJ0XcbiKW66qJwjG0wEcrhtEeY0HFQCfWfwK
-jaHIo+p0AvyOBwldPZZpB7o=
-=mjp9
+iD8DBQA/dFlyI2bVKDsp8g0RAhldAJ9LAKo71b+VkdjxIAmNV9fk2Usk+gCfUObG
+yd+xkO/2qGO4w+nr6kkGJeY=
+=FpL/
 -----END PGP SIGNATURE-----
 
---TnYVF1hk1c8rpHiF--
+--=-9o8Nqp4EZD+lyramNQ+X--
+

@@ -1,62 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263094AbTI3BMP (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 29 Sep 2003 21:12:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263096AbTI3BMP
+	id S263039AbTI3BH5 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 29 Sep 2003 21:07:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263064AbTI3BH5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 29 Sep 2003 21:12:15 -0400
-Received: from dyn-ctb-210-9-243-176.webone.com.au ([210.9.243.176]:29188 "EHLO
-	chimp.local.net") by vger.kernel.org with ESMTP id S263094AbTI3BMN
+	Mon, 29 Sep 2003 21:07:57 -0400
+Received: from zeus.kernel.org ([204.152.189.113]:24286 "EHLO zeus.kernel.org")
+	by vger.kernel.org with ESMTP id S263039AbTI3BHz convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 29 Sep 2003 21:12:13 -0400
-Message-ID: <3F78D866.5070605@cyberone.com.au>
-Date: Tue, 30 Sep 2003 11:12:06 +1000
-From: Nick Piggin <piggin@cyberone.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030827 Debian/1.4-3
-X-Accept-Language: en
+	Mon, 29 Sep 2003 21:07:55 -0400
+Message-Id: <200309300106.h8U16oJ21058@zeus.kernel.org>
+From: "Mrs.Jumai Abdul Azad." <mrsjumaiabdul@sify.com>
+Reply-To: mrsjumaiazad@eudoramail.com
+To: linux-kernel@vger.kernel.org
+Date: Mon, 29 Sep 2003 18:06:52 -0700
+Subject: Be My Investor Trustee 
+X-Mailer: Microsoft Outlook Express 5.00.2919.6900 DM
 MIME-Version: 1.0
-To: bill davidsen <davidsen@tmr.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.6.0-test6
-References: <Pine.LNX.4.44.0309271822450.6141-100000@home.osdl.org> <200309281703.53067.kernel@kolivas.org> <200309280502.36177.rob@landley.net> <3F77BB2C.7030402@cyberone.com.au> <bl9ul0$348$1@gatekeeper.tmr.com>
-In-Reply-To: <bl9ul0$348$1@gatekeeper.tmr.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+From: Mrs. Jumai A. Azad
+
+Dear Sir,
+
+I wish to write you pleading with you to be my Investor trustee over
+$12.5million.My late Husband was a rich oil Contractor in South Africa, But
+before his death in July 29th 1999. He deposited the sum of ($12,500,000.00)
+USD in a safe keeping company in Europe through Debt Reconciliation Committee(DRC).
 
 
-bill davidsen wrote:
+The money which he made from oil contract and he left an instruction with the
+(DRC) to release the money to me his wife and his son Ali who at that time was
+studying, that an Investor should accompany us before the $12.5Million will be
+released to us for proper investment, and also for the welfare of the children
+which he left behind for me.
 
->In article <3F77BB2C.7030402@cyberone.com.au>,
->Nick Piggin  <piggin@cyberone.com.au> wrote:
->
->| AFAIK, Con's scheduler doesn't change the nice implementation at all.
->| Possibly some of his changes amplify its problems, or, more likely they
->| remove most other scheduler problems leaving this one noticable.
->| 
->| If X is running at -20, and xmms at +19, xmms is supposed to still get
->| 5% of the CPU. Should be enough to run fine. Unfortunately this is
->| achieved by giving X very large timeslices, so xmms's scheduling latency
->| becomes large. The interactivity bonuses don't help, either.
->
->Clearly the "some is good, more is better" approach doesn't provide
->stable balance between sound and cpu hogs. It isn't a question of "how
->much" cpu, just "when"which works or not.
->
->This is sort of like the deadline scheduler in that it trades of
->throughput for avoiding jackpot cases. I think that's desired behaviour
->in a CPU schedular too, at least if used by humans.
->
+I plead with you to accept to help me and act as my investor trustee to manage
+the $12.5Million for me. We can both arrange on how to invest this money into
+your company. We have agreed to give you 20% of the $12.5Million for your own
+assistance.
 
-I'm not sure what you mean. There is nothing good to say about Ingo's
-nice mechanism though (sorry Ingo, its otherwise a very nice
-scheduler!).
+All the relevant documents shall be forwarded to you upon your indications to
+assist me in this project.
 
-In my scheduler, nice -20 processes get small timeslices so scheduling
-latency stays low or even gets lower, while nice +19 ones get large
-timeslices for lower context switches and better cache efficiency. As
-you would like.
+May the Almighty God bless you, if you will of trust and faithful to assist me.
+
+Please contact me on the above e-mail address or my Son Ali on his e-mail
+address (aliazad@voila.fr) for more Informations.
+
+Looking forward to hearing from you.
+
+Sincerely Yours,
+
+Mrs.Jumai Abdul Azad.
 
 

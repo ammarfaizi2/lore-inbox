@@ -1,232 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130615AbQKSRPg>; Sun, 19 Nov 2000 12:15:36 -0500
+	id <S129256AbQKSRT5>; Sun, 19 Nov 2000 12:19:57 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129256AbQKSRP0>; Sun, 19 Nov 2000 12:15:26 -0500
-Received: from [213.8.185.141] ([213.8.185.141]:26116 "EHLO callisto.yi.org")
-	by vger.kernel.org with ESMTP id <S129716AbQKSRPT>;
-	Sun, 19 Nov 2000 12:15:19 -0500
-Date: Sun, 19 Nov 2000 18:41:29 +0200 (IST)
-From: Dan Aloni <karrde@callisto.yi.org>
-To: Taisuke Yamada <tai@imasy.or.jp>
-cc: andre@linux-ide.org, linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Large "clipped" IDE disk support for 2.4 when using old
- BIOS
-In-Reply-To: <200011181930.eAIJUYA01883@research.imasy.or.jp>
-Message-ID: <Pine.LNX.4.21.0011191816570.857-100000@callisto.yi.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S129716AbQKSRTs>; Sun, 19 Nov 2000 12:19:48 -0500
+Received: from virgo.cus.cam.ac.uk ([131.111.8.20]:36521 "EHLO
+	virgo.cus.cam.ac.uk") by vger.kernel.org with ESMTP
+	id <S129256AbQKSRTh>; Sun, 19 Nov 2000 12:19:37 -0500
+Message-Id: <5.0.2.1.2.20001119164807.00ae07b0@pop.cus.cam.ac.uk>
+X-Mailer: QUALCOMM Windows Eudora Version 5.0.2
+Date: Sun, 19 Nov 2000 16:50:17 +0000
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+From: Anton Altaparmakov <aia21@cam.ac.uk>
+Subject: Re: How to add a drive to DMA black list?
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <E13wjex-0000XQ-00@the-village.bc.nu>
+In-Reply-To: <5.0.2.1.2.20001117105359.00adbec0@pop.cus.cam.ac.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 19 Nov 2000, Taisuke Yamada wrote:
-
-> Earlier this month, I had sent in a patch to 2.2.18pre17 (with
-> IDE-patch from http://www.linux-ide.org/ applied) to add support
-> for IDE disk larger than 32GB, even if the disk required "clipping"
-> to reduce apparent disk size due to BIOS limitation.
+At 11:26 17/11/2000, Alan Cox wrote:
+> > drive problem, considering that another ide drive on the same controller
+> > works fine with DMA enabled (a QUANTUM TRB850A) while the Conner
+> > Peripherals 1275MB - CFS1275A fails with DMA enabled. They are in fact 
+> both
 >
-> [...] patch 
- 
-This patch is not good. It compiles, but when I boot the kernel, it
-decides to ignore the hdc=5606,255,63 parameter that I pass to the kernel,
-and limits the number of sectors to fill 8.4GB.
+>And the Conner drives work fine on a VIA MVP3 it seems. You need to try
+>the drive with multiple controllers to be sure its not a PIIX bug that only
+>trips on that drive (or indeed a bug in the combination)
 
-(from dmesg:)
+I have now tried the drive (which is actually a seagate drive but it 
+identifies itself as a conner) on my new Promise ATA-100 controller and the 
+drive works fine with DMA enabled. So you were quite right, it's the PIIX 
+driver/tuning which kills it.
 
-hdc: lba = 0, cap = 16514064
-hdc: 16514064 sectors (8455 MB) w/1916KiB Cache, CHS=5606/255/63, UDMA(33)
+Anton
 
-Notes:
- * Notice the contradiction between 16414064 sectors and 5606/255/63
-   geometry, something is definitly wrong there.
- * I *didn't* change the jumper settings to 'clipping' mode, only the
-   kernel was modified in this test. 
- * When I try to read (using dd) from somewhere above the 40GB offset in
-   the drive, no success. I guess if I tried to read pass 8.4GB it
-   wouldn't have yield success either.
- * In this test, the code in the patch doesn't printk() anything except
-   that 'hdc: lba = 0, cap = 16514064' line.
- * Normally, without the patch I get:
-
-     hdc: 90069840 sectors (46116 MB) w/1916KiB Cache, CHS=5606/255/63,  
-         UDMA(33)
-
-   And then there's no problem reading any offset on the drive.
-
- * I really need this sort of patch, tired of booting the computer from a
-   floppy...   
- * The patch didn't want to apply for some reason, so I had to apply the
-   patch manually (to test11-pre7).
-
-   Here is the version of patch that does apply: (please release an
-   updated patch)
-
---- linux/drivers/ide/ide-disk.c	Sun Nov 19 17:15:56 2000
-+++ linux/drivers/ide/ide-disk.c	Sun Nov 19 17:27:31 2000
-@@ -513,24 +513,149 @@
- 			current_capacity(drive));
- }
- 
-+
-+/*
-+ * Tests if the drive supports Host Protected Area feature.
-+ * Returns true if supported, false otherwise.
-+ */
-+static inline int idedisk_supports_host_protected_area(ide_drive_t *drive)
-+{
-+    int flag = (drive->id->command_set_1 & 0x0a) ? 1 : 0;
-+    printk("%s: host protected area => %d\n", drive->name, flag);
-+    return flag;
-+}
-+
-+/*
-+ * Queries for true maximum capacity of the drive.
-+ * Returns maximum LBA address (> 0) of the drive, 0 if failed.
-+ */
-+static unsigned long idedisk_read_native_max_address(ide_drive_t *drive)
-+{
-+    byte args[7];
-+    unsigned long addr = 0;
-+
-+    printk("%s: checking for max native LBA...\n", drive->name);
-+
-+    /* Create IDE/ATA command request structure
-+     *
-+     * NOTE: I'm not sure if I can safely use IDE_*_OFFSET macro
-+     *       here...For real ATA command structure, offset for IDE
-+     *       command is 7, but in IDE driver, it needs to be at 0th
-+     *       index (same goes for IDE status offset below). Hmm...
-+     */
-+    args[0]                  = 0xf8; /* READ_NATIVE_MAX - see ATA spec */
-+    args[IDE_FEATURE_OFFSET] = 0x00;
-+    args[IDE_NSECTOR_OFFSET] = 0x00;
-+    args[IDE_SECTOR_OFFSET]  = 0x00;
-+    args[IDE_LCYL_OFFSET]    = 0x00;
-+    args[IDE_HCYL_OFFSET]    = 0x00;
-+    args[IDE_SELECT_OFFSET]  = 0x40;
-+
-+    /* submit command request - if OK, read current max LBA value */
-+    if (ide_wait_cmd_task(drive, args) == 0) {
-+        if ((args[0] & 0x01) == 0) {
-+            addr = ((args[IDE_SELECT_OFFSET] & 0x0f) << 24)
-+                 | ((args[IDE_HCYL_OFFSET]         ) << 16)
-+                 | ((args[IDE_LCYL_OFFSET]         ) <<  8)
-+                 | ((args[IDE_SECTOR_OFFSET]       ));
-+        }
-+    }
-+
-+    printk("%s: max native LBA is %lu\n", drive->name, addr);
-+
-+    return addr;
-+}
-+
-+/*
-+ * Sets maximum virtual LBA address of the drive.
-+ * Returns new maximum virtual LBA address (> 0) or 0 on failure.
-+ */
-+static unsigned long idedisk_set_max_address(ide_drive_t  *drive,
-+                         unsigned long addr_req)
-+{
-+    byte args[7];
-+    unsigned long addr_set = 0;
-+
-+    printk("%s: (un)clipping max LBA...\n", drive->name);
-+
-+    /* Create IDE/ATA command request structure
-+     *
-+     * NOTE: I'm not sure if I can safely use IDE_*_OFFSET macro
-+     *       here...For real ATA command structure, offset for IDE
-+     *       command is 7, but in IDE driver, it needs to be at 0th
-+     *       index (same goes for IDE status offset below). Hmm...
-+     */
-+    args[0]                  = 0xf9; /* SET_MAX - see ATA spec */
-+	args[IDE_FEATURE_OFFSET] = 0x00;
-+    args[IDE_NSECTOR_OFFSET] = 0x00;
-+    args[IDE_SECTOR_OFFSET]  = ((addr_req      ) & 0xff);
-+    args[IDE_LCYL_OFFSET]    = ((addr_req >>  8) & 0xff);
-+    args[IDE_HCYL_OFFSET]    = ((addr_req >> 16) & 0xff);
-+    args[IDE_SELECT_OFFSET]  = ((addr_req >> 24) & 0x0f) | 0x40;
-+
-+    /* submit command request - if OK, read new max LBA value */
-+    if (ide_wait_cmd_task(drive, args) == 0) {
-+        if ((args[0] & 0x01) == 0) {
-+            addr_set = ((args[IDE_SELECT_OFFSET] & 0x0f) << 24)
-+                 | ((args[IDE_HCYL_OFFSET]         ) << 16)
-+                 | ((args[IDE_LCYL_OFFSET]         ) <<  8)
-+                 | ((args[IDE_SECTOR_OFFSET]       ));
-+        }
-+    }
-+
-+    printk("%s: max LBA (un)clipped to %lu\n", drive->name, addr_set);
-+
-+    return addr_set;
-+}
-+
- /*
-  * Compute drive->capacity, the full capacity of the drive
-  * Called with drive->id != NULL.
-+ *
-+ * To compute capacity, this uses either of
-+ *
-+ *    1. CHS value set by user       (whatever user sets will be trusted)
-+ *    2. LBA value from target drive (require new ATA feature)
-+ *    3. LBA value from system BIOS  (new one is OK, old one may break)
-+ *    4. CHS value from system BIOS  (traditional style)
-+ *
-+ * in above order (i.e., if value of higher priority is available,
-+ * rest of the values are ignored).
-  */
- static void init_idedisk_capacity (ide_drive_t  *drive)
- {
-+    unsigned long      hd_max;
-+    unsigned long      hd_cap = drive->cyl * drive->head * drive->sect;
-+    int                is_lba = 0;
-+
- 	struct hd_driveid *id = drive->id;
--	unsigned long capacity = drive->cyl * drive->head * drive->sect;
- 
--	drive->select.b.lba = 0;
-+    /* Unless geometry is given by user, use autodetected value */
-+    if (! drive->forced_geom) {
-+        /* If BIOS LBA geometry is available, use it */
-+        if ((id->capability & 2) && lba_capacity_is_ok(id)) {
-+            hd_cap = id->lba_capacity;
-+            is_lba = 1;
-+        }
- 
--	/* Determine capacity, and use LBA if the drive properly supports it */
--	if ((id->capability & 2) && lba_capacity_is_ok(id)) {
--		capacity = id->lba_capacity;
--		drive->cyl = capacity / (drive->head * drive->sect);
--		drive->select.b.lba = 1;
-+        /* If new ATA feature is supported, try using it */
-+        if (idedisk_supports_host_protected_area(drive)) {
-+            hd_max = idedisk_read_native_max_address(drive);
-+            hd_max = idedisk_set_max_address(drive, hd_max);
-+
-+            if (hd_max > 0) {
-+                hd_cap = hd_max;
-+                is_lba = 1;
-+            }
-+        }
- 	}
--	drive->capacity = capacity;
-+
-+    printk("%s: lba = %d, cap = %lu\n", drive->name, is_lba, hd_cap);
-+
-+    /* update parameters with fetched results */
-+    drive->select.b.lba = is_lba;
-+    drive->capacity     = hd_cap;
-+    drive->cyl          = hd_cap / (drive->head * drive->sect);
- }
- 
- static unsigned long idedisk_capacity (ide_drive_t  *drive)
- 
 
 -- 
-Dan Aloni 
-dax@karrde.org
+      "Education is what remains after one has forgotten everything he 
+learned in school." - Albert Einstein
+-- 
+Anton Altaparmakov  Voice: +44-(0)1223-333541(lab) / +44-(0)7712-632205(mobile)
+Christ's College    eMail: AntonA@bigfoot.com / aia21@cam.ac.uk
+Cambridge CB2 3BU    ICQ: 8561279
+United Kingdom       WWW: http://www-stu.christs.cam.ac.uk/~aia21/
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

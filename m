@@ -1,86 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261504AbUKSRk3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261507AbUKSRme@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261504AbUKSRk3 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 19 Nov 2004 12:40:29 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261508AbUKSRk3
+	id S261507AbUKSRme (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 19 Nov 2004 12:42:34 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261508AbUKSRme
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 19 Nov 2004 12:40:29 -0500
-Received: from imap.gmx.net ([213.165.64.20]:30626 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S261504AbUKSRkU (ORCPT
+	Fri, 19 Nov 2004 12:42:34 -0500
+Received: from fw.osdl.org ([65.172.181.6]:181 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S261507AbUKSRm1 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 19 Nov 2004 12:40:20 -0500
-X-Authenticated: #1892127
-In-Reply-To: <20041117195236.475d0922.akpm@osdl.org>
-References: <CA837452-38E4-11D9-8FA5-0003931E0B62@gmx.li> <20041117195236.475d0922.akpm@osdl.org>
-Mime-Version: 1.0 (Apple Message framework v619)
-Content-Type: text/plain; charset=US-ASCII; format=flowed
-Message-Id: <76E0E3D3-3A52-11D9-B5E1-0003931E0B62@gmx.li>
-Content-Transfer-Encoding: 7bit
-Cc: linux-kernel@vger.kernel.org
-From: Martin Schaffner <schaffner@gmx.li>
-Subject: Re: HFS+ Bug which causes coreutils "make test" to fail
-Date: Fri, 19 Nov 2004 18:43:04 +0100
-To: Andrew Morton <akpm@osdl.org>
-X-Mailer: Apple Mail (2.619)
+	Fri, 19 Nov 2004 12:42:27 -0500
+Date: Fri, 19 Nov 2004 09:42:03 -0800 (PST)
+From: Linus Torvalds <torvalds@osdl.org>
+To: David Howells <dhowells@redhat.com>
+cc: Matt Mackall <mpm@selenic.com>, akpm@osdl.org, davidm@snapgear.com,
+       linux-kernel@vger.kernel.org, uclinux-dev@uclinux.org
+Subject: Re: [PATCH 17/20] FRV: Better mmap support in uClinux 
+In-Reply-To: <13783.1100883978@redhat.com>
+Message-ID: <Pine.LNX.4.58.0411190936450.2222@ppc970.osdl.org>
+References: <20041119165616.GX2460@waste.org>  <20041119052936.GE8040@waste.org>
+ <20040401020550.GG3150@beast> <200411081434.iA8EYKn7023613@warthog.cambridge.redhat.com>
+ <13104.1100881603@redhat.com>  <13783.1100883978@redhat.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-On 18.11.2004, at 04:52, Andrew Morton wrote:
 
-> Martin Schaffner <schaffner@gmx.li> wrote:
->>
->> I'm installing my system using an HFS+ partition as root.
->> When I installed the GNU coreutils, I noticed that some test fail, 
->> even
->> though they succeed on other fs such as ext2.
->> I've tracked down one failure to the following:
->>
->> mkdir a; chmod 1777 a; touch a/b; su otheruser -c "rm -rf a"
->>
->> gives differing results. On ext2:
->>
->> rm: cannot remove 'a': Permission denied
->>
->> On HFS+:
->>
->> rm: reading directory 'a/b': Not a directory
->> rm: cannot remove directory 'a': Directory not empty
->>
->>
->> The other failure related to the fact that all pipe files are suffixed
->> by "|", and all links by "@" when doing "ls -1F" on HFS+
->>
->
-> What is the kernel version?
+On Fri, 19 Nov 2004, David Howells wrote:
+> 
+> > > Don't forget write() too. If someone does a write, that would have to be
+> > > written over the mapping too. Obviously this is not impossible.
+> > 
+> > I don't see such a requirement, but it'd be nice, yes.
+> 
+> I think it is a requirement. With normal Linux, if you do a write that crosses
+> a shared mmap it will change the mmapped data.
 
-Sorry for forgetting to write this; it was linux-2.6.8.1.
+Indeed. 
 
-Today, I retested with linux-2.6.10-rc2, and found  out that both 
-failures happen with this version, too.
+Some other UNIXes are broken in this regard, and there are cache coherency 
+issues on some platforms that people who depend on this behaviour may need 
+to be aware of, but in general Linux has always gone for coherenct mmap's.
 
-Here's part of the log from the second failure:
-make[3]: Entering directory `/native/coreutils-5.2.1/tests/ls'
-make  check-TESTS
-make[3]: Entering directory `/native/coreutils-5.2.1/tests/ls'
-PASS: inode
-PASS: dangle
-out2 exp2 differ: char 21, line 3
-3c3
-< fifo
----
- > fifo|
-5,7c5,7
-< slink-dangle
-< slink-dir
-< slink-reg
----
- > slink-dangle@
- > slink-dir@
- > slink-reg@
-FAIL: file-type
-PASS: recursive
-PASS: dired
-...
-1 of 12 tests failed
+POSIX doesn't require it, but quite frankly, non-coherent shared mmap just 
+isn't worth it. You might as well not support it at all at that point.
 
+[ I think at least HP-UX used to be broken in this regard, but HP-UX had
+  such atrocious mmap behaviour _anyway_ that I don't understand how
+  anybody could use it (you couldn't munmap partial mappings etc). I think
+  they finally fixed it a few years ago and updated their source base from
+  some totally ancient BSD to something a bit more modern. ]
+
+			Linus

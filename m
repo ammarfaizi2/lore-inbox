@@ -1,66 +1,39 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264453AbUADV24 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 4 Jan 2004 16:28:56 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264498AbUADV2z
+	id S264423AbUADVkj (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 4 Jan 2004 16:40:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264467AbUADVki
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 4 Jan 2004 16:28:55 -0500
-Received: from coruscant.franken.de ([193.174.159.226]:27286 "EHLO
-	coruscant.gnumonks.org") by vger.kernel.org with ESMTP
-	id S264453AbUADV2y (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 4 Jan 2004 16:28:54 -0500
-Date: Sun, 4 Jan 2004 21:32:55 +0100
-From: Harald Welte <laforge@netfilter.org>
-To: linux-kernel@vger.kernel.org
-Cc: Mike Fedyk <mfedyk@matchmail.com>
-Subject: Re: Does CONFIG_NET_FASTROUTE conflict with CONFIG_NETFILTER?
-Message-ID: <20040104203255.GC830@obroa-skai.de.gnumonks.org>
-References: <20040104111154.GN1882@matchmail.com>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="eRtJSFbw+EEWtPj3"
-Content-Disposition: inline
-In-Reply-To: <20040104111154.GN1882@matchmail.com>
-X-Operating-System: Linux obroa-skai.de.gnumonks.org 2.6.0-test11
-X-Date: Today is Prickle-Prickle, the 4th day of Chaos in the YOLD 3170
-User-Agent: Mutt/1.5.4i
+	Sun, 4 Jan 2004 16:40:38 -0500
+Received: from umhlanga.stratnet.net ([12.162.17.40]:55763 "EHLO
+	umhlanga.STRATNET.NET") by vger.kernel.org with ESMTP
+	id S264423AbUADVkg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 4 Jan 2004 16:40:36 -0500
+To: erik@hensema.net
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.0: something is leaking memory
+References: <slrnbvgohn.1pb.erik@dexter.hensema.net>
+	<Pine.LNX.4.58.0401041257290.2162@home.osdl.org>
+	<slrnbvh1hd.jl6.erik@dexter.hensema.net>
+X-Message-Flag: Warning: May contain useful information
+X-Priority: 1
+X-MSMail-Priority: High
+From: Roland Dreier <roland@topspin.com>
+Date: 04 Jan 2004 13:39:22 -0800
+In-Reply-To: <slrnbvh1hd.jl6.erik@dexter.hensema.net>
+Message-ID: <52wu87wfzp.fsf@topspin.com>
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.4 (Common Lisp)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+X-OriginalArrivalTime: 04 Jan 2004 21:39:23.0384 (UTC) FILETIME=[37FB8F80:01C3D30B]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Yup, looks like IPv6 is leaking memory (since your netstat shows
+nowhere near 19K sockets):
 
---eRtJSFbw+EEWtPj3
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+ > tcp6_sock          19729  19732   1024    4    1 : tunables   54   27    0 : slabdata   4933   4933      0
 
-On Sun, Jan 04, 2004 at 03:11:54AM -0800, Mike Fedyk wrote:
-> If they do, then the config system should not allow you to enable both at
-> the same time.
+Now to figure out why...
 
-They don't conflict.   It should compile quite fine, but you cannot use
-both of them at the same time.
-
---=20
-- Harald Welte <laforge@netfilter.org>             http://www.netfilter.org/
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D
-  "Fragmentation is like classful addressing -- an interesting early
-   architectural error that shows how much experimentation was going
-   on while IP was being designed."                    -- Paul Vixie
-
---eRtJSFbw+EEWtPj3
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.3 (GNU/Linux)
-
-iD8DBQE/+Hh3XaXGVTD0i/8RAgV3AKCLd2FjCp1WRVofA73VJMLItU3/UQCfZSVz
-Qxds+OvpOj/DfRpSCTm0SUY=
-=+EGL
------END PGP SIGNATURE-----
-
---eRtJSFbw+EEWtPj3--
+ - R.

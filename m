@@ -1,38 +1,29 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265446AbRGQKbE>; Tue, 17 Jul 2001 06:31:04 -0400
+	id <S264990AbRGQKaO>; Tue, 17 Jul 2001 06:30:14 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265439AbRGQKaz>; Tue, 17 Jul 2001 06:30:55 -0400
-Received: from rcum.uni-mb.si ([164.8.2.10]:56077 "EHLO rcum.uni-mb.si")
-	by vger.kernel.org with ESMTP id <S265148AbRGQKag>;
-	Tue, 17 Jul 2001 06:30:36 -0400
-Date: Tue, 17 Jul 2001 12:30:33 +0200
-From: David Balazic <david.balazic@uni-mb.si>
-Subject: 2.4.6-ac5 gives wrong cache info for Duron in /proc/cpuinfo
-To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Message-id: <3B5413C9.2CE16AC9@uni-mb.si>
-MIME-version: 1.0
-X-Mailer: Mozilla 4.77 [en] (Windows NT 5.0; U)
-Content-type: text/plain; charset=us-ascii
-Content-transfer-encoding: 7bit
-X-Accept-Language: en
+	id <S265148AbRGQKaE>; Tue, 17 Jul 2001 06:30:04 -0400
+Received: from mx1.nameplanet.com ([62.70.3.31]:17938 "HELO mx1.nameplanet.com")
+	by vger.kernel.org with SMTP id <S264990AbRGQK34>;
+	Tue, 17 Jul 2001 06:29:56 -0400
+Date: Tue, 17 Jul 2001 14:23:00 +0200 (CEST)
+From: Ketil Froyn <ketil@froyn.com>
+X-X-Sender: <ketil@ketil.np>
+To: <linux-kernel@vger.kernel.org>
+Subject: syncronous symlink()
+Message-ID: <Pine.LNX.4.33.0107171400050.1817-100000@ketil.np>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-kernel 2.4.6-ac5
-CPU AMD Duron 700
+Hi.
 
-/proc/cpuinfo gives :
-cache size: 64 KB
+How can I make be sure a symlink is on disk? In other words, I need to be
+sure that both the symbolic link and the 'newpath' are on disk, so that
+once the call has returned, I can pull out the plug of the computer and
+not lose any data. Is it enough to sync() the directory to which the new
+symlink was written?
 
-This is wrong :
- - the Duron has 192 kilobytes of cache ( 64 L1 I, 64 L1 D , 64 L2 unified )
- - what is KB ?
-   - "kilo" is abbreviated to 'k' , not 'K'
-   - "B" means "Bell" :-)
+Ketil
 
--- 
-David Balazic
---------------
-"Be excellent to each other." - Bill & Ted
-- - - - - - - - - - - - - - - - - - - - - -

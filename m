@@ -1,49 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261866AbSJNPh5>; Mon, 14 Oct 2002 11:37:57 -0400
+	id <S261870AbSJNPir>; Mon, 14 Oct 2002 11:38:47 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261870AbSJNPh4>; Mon, 14 Oct 2002 11:37:56 -0400
-Received: from ns1.baby-dragons.com ([199.33.245.254]:42701 "EHLO
-	filesrv1.baby-dragons.com") by vger.kernel.org with ESMTP
-	id <S261866AbSJNPhz>; Mon, 14 Oct 2002 11:37:55 -0400
-Date: Mon, 14 Oct 2002 11:43:37 -0400 (EDT)
-From: "Mr. James W. Laferriere" <babydr@baby-dragons.com>
-To: Andreas Steinmetz <ast@domdv.de>
-cc: Linux Kernel Maillist <linux-kernel@vger.kernel.org>
-Subject: Re: NFS root on 2.4.18-14
-In-Reply-To: <3DAADE5E.2070903@domdv.de>
-Message-ID: <Pine.LNX.4.44.0210141141330.20248-100000@filesrv1.baby-dragons.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S261872AbSJNPir>; Mon, 14 Oct 2002 11:38:47 -0400
+Received: from [66.70.28.20] ([66.70.28.20]:57610 "EHLO
+	maggie.piensasolutions.com") by vger.kernel.org with ESMTP
+	id <S261870AbSJNPiq>; Mon, 14 Oct 2002 11:38:46 -0400
+Date: Mon, 14 Oct 2002 17:40:54 +0200
+From: DervishD <raul@pleyades.net>
+To: Peter <cogwepeter@cogweb.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Known 'issues' about 2.4.19...
+Message-ID: <20021014154054.GH596@DervishD>
+References: <Pine.LNX.4.44.0209221038300.21911-100000@greenie.frogspace.net> <Pine.LNX.4.44.0210140805400.23844-100000@greenie.frogspace.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <Pine.LNX.4.44.0210140805400.23844-100000@greenie.frogspace.net>
+User-Agent: Mutt/1.4i
+Organization: Pleyades Net
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+    Hi Peter :)
 
-	Hello Andreas & All , I have to third that request that directly
-	bootable kernel floppies not go the way of staticly built kernels
-	and the dodo bird .  JimL
+> Hi Paul,
 
-On Mon, 14 Oct 2002, Andreas Steinmetz wrote:
-> Wakko Warner wrote:
-> > I hope it doesn't.  I use it quite frequently at work.  It's jsut so much
-> > easier to use than installing a bootloader onto a floppy, mounting, copying
-> > the kernel and so forth.
-> Me too.
-> Oh, originally I posted my patch to lkml on Tue, 23 Oct 2001 13:20:50.
-> --
-> Andreas Steinmetz
-> D.O.M. Datenverarbeitung GmbH
->
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
->
+    Raúl ;))
 
-       +------------------------------------------------------------------+
-       | James   W.   Laferriere | System    Techniques | Give me VMS     |
-       | Network        Engineer |     P.O. Box 854     |  Give me Linux  |
-       | babydr@baby-dragons.com | Coudersport PA 16915 |   only  on  AXP |
-       +------------------------------------------------------------------+
+> You might want to try 2.4.19-ac4, the latest -ac revision to the
+> stable kernel.
 
+    I was considering it instead of plain vanilla 2.4.19.
+
+> The system froze for a minute and then let up. Some mm issue.
+
+    Reproducible with plain 2.4.19?
+
+> The most recent -ac kernels are likely fine too, but there appear
+> to be some residual ide and ide-scsi issues (could be minor) and
+> Andre is off fishing.
+
+    Probably they will be solved in 2.4.20-acX when released :) Andre
+deserves a vacation time ;)))
+
+    Raúl

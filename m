@@ -1,53 +1,111 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261387AbVDEDuF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261442AbVDEDwP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261387AbVDEDuF (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 4 Apr 2005 23:50:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261441AbVDEDuF
+	id S261442AbVDEDwP (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 4 Apr 2005 23:52:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261441AbVDEDwP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 4 Apr 2005 23:50:05 -0400
-Received: from gnu-designs.com ([65.172.152.98]:27613 "EHLO
-	aphrodite.gnu-designs.com") by vger.kernel.org with ESMTP
-	id S261387AbVDEDuA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 4 Apr 2005 23:50:00 -0400
-Date: Mon, 4 Apr 2005 23:48:57 -0400 (EDT)
-From: "David A. Desrosiers" <desrod@gnu-designs.com>
-X-X-Sender: hacker@angst.gnu-designs.com
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Logitech MX1000 Horizontal Scrolling
-In-Reply-To: <87acodvrw5.fsf@quasar.esben-stien.name>
-Message-ID: <Pine.LNX.4.62.0504042347510.29842@angst.gnu-designs.com>
-References: <873bxfoq7g.fsf@quasar.esben-stien.name> <87zmylaenr.fsf@quasar.esben-stien.name>
- <20050204195410.GA5279@ucw.cz> <873bvyfsvs.fsf@quasar.esben-stien.name>
- <87zmxil0g8.fsf@quasar.esben-stien.name> <1110056942.16541.4.camel@localhost>
- <87sm37vfre.fsf@quasar.esben-stien.name> <87wtsjtii6.fsf@quasar.esben-stien.name>
- <20050308205210.GA3986@ucw.cz> <1112083646.12986.3.camel@localhost>
- <87psxcsq06.fsf@quasar.esben-stien.name> <87u0mn3l4e.fsf@blackdown.de>
- <87acodvrw5.fsf@quasar.esben-stien.name>
-X-Biography: http://www.gnu-designs.com/palm+linux/
-X-Advogato: http://www.advogato.org/person/hacker
-X-Sourcefubar: http://www.sourcefubar.net
-X-GPG-Fingerprint: 125A 3A28 0F57 72F7 AF7B  67DF 9114 0446 7075 AE4A
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-gnu-MailScanner: Found to be clean
-X-MailScanner-From: desrod@gnu-designs.com
-To: unlisted-recipients:; (no To-header on input)
+	Mon, 4 Apr 2005 23:52:15 -0400
+Received: from mustang.oldcity.dca.net ([216.158.38.3]:34730 "HELO
+	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S261477AbVDEDvi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 4 Apr 2005 23:51:38 -0400
+Subject: ext3 allocate-with-reservation latencies
+From: Lee Revell <rlrevell@joe-job.com>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>
+Content-Type: multipart/mixed; boundary="=-ZiIQxsOKAYDCL0VA/hWH"
+Date: Mon, 04 Apr 2005 23:51:34 -0400
+Message-Id: <1112673094.14322.10.camel@mindpipe>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.1.1 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-> This did it. I got it completely working now. Both the horizontal 
-> and the vertical cruise control is working with no problems. I'm 
-> scrolling and I can't find a single problem with the device.
+--=-ZiIQxsOKAYDCL0VA/hWH
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
 
-	Using these same instructions on Debian Unstable, with my 
-Thinkpad T42P (2373Q1U), this doesn't work at all. I only get 
-scrolling up/down and left/middle/right click, no horizontal 
-scrolling, and none of the other buttons seem to do much of anything. 
+I can trigger latencies up to ~1.1 ms with a CVS checkout.  It looks
+like inside ext3_try_to_allocate_with_rsv, we spend a long time in this
+loop:
 
-	I suspect the TP handles these events differently. 
+ext3_test_allocatable (bitmap_search_next_usable_block)
+find_next_zero_bit (bitmap_search_next_usable_block)
+find_next_zero_bit (bitmap_search_next_usable_block)
+
+ext3_test_allocatable (bitmap_search_next_usable_block)
+find_next_zero_bit (bitmap_search_next_usable_block)
+find_next_zero_bit (bitmap_search_next_usable_block)
+
+etc.
+
+Lee
+
+--=-ZiIQxsOKAYDCL0VA/hWH
+Content-Disposition: attachment; filename=ext3_reservation.bz2
+Content-Type: application/x-bzip; name=ext3_reservation.bz2
+Content-Transfer-Encoding: base64
+
+QlpoOTFBWSZTWQhDe3QAtQb/gHT+EABob//3SEpfBL9v//RgFN6+3xVSAAAAJu1vnxcWMzEgqRVF
+UKFAoPd4AAUFwAAABuElJp6m00k9TUT0RtJ6gYgAAaBppoADUqnv020UqUKAAAAAAAAAAGVJvNGV
+RUGgNAaAAAAAwmmhoJPVVVGEYCZMACZGRiYmBGRgmAEKlJpqZPU9EA9J6TQyAAAGjRtQaGgUqQmm
+hGgnqT0mNI0RtA0RkYajRoGmM/PK9aMMmIUREpOpoz4MQiCJtwFYrQ151nSUjVzbunLIVyQISQj7
+S5SSEJJE92B+Gr4XjhMvVlMqJJ4bv9Z/218f10rP7/TxEXYTbyY2M5lRpGgYkaRpGJGaxrGsmsax
+rJrFsaxrJrGsayaxrGsayaxbGsmsaxrJrGsayaxrGGJGkaRiFpGkaRiRpE1k1jWNZNY1jWTWNYRi
+RpGkaFiRpGJGkaHGsmsaxrFsVktisWwjEjSNC0jEjSNIxI0LSNIxI0pExIwnJxeDz+l2t398p+sm
+Pu5nz+/gcHioiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiI
+iIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiI
+iIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiI
+iIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiI
+iIiIiHNGLNq3Nw4c77d1QREyo5ZGIWkaRpcbzZDIOHGqRAOaQAU0SII6BUkxNM+vv6bYdu/zG0yY
+UJNWOPhn9X8sZbhYS3tvHNar4WKa9OgxBJCEZNT+a/dtSSSBHHMwXa6eztHDO/OrPuEdLiV1vAb2
+MhXv7HQBERNCVkyr07su3xYdxcC7wsUTFMkn980hAhEyfO+rEsCJN96T+mGWfm7uGPZjXjl/D89B
+EmmsdnAE9Pz/c9e+4Ph+dTuBAlLnljnMxhjATiu7t7qdkG7uqpsYw8wEpJLLbFPuwA3fQZlSSei4
+o29k2t2yZlVttqwDO9q7Nkqe970scCr9ri/DnF+k7JPrv3PM+n9Y5PuLLAsgGZm9O5mdePuXLCNs
+dabTccdBBSmJMJNNNJppMJpJIXiaFtJJMXdz0GkCEI4UYWkfju472iECve873vpqvo7iTu7u7s0R
+jGdgTNgWHdrZWta0IODhwRnnFavnm2eWWcArghCESd8Z2sM0REVsQJVpSjNERSlIhyDu1VVG29mk
+HMVVtwNuDdBO5mZmwQb73Fzvfi8n7ynve+dPe3O7mTTDJ10tuWQ6WTuZkzDve1z7TttAgNVrbtdQ
+UskkkqtqkBupulCg1QAEAJ0FXelchmqzb+00EXRIEJJBKSSQPdJSrat76rte7M0ITNhEDtGUEREC
+VaZMzREUiHohUyueZu7McDBO7lU7gUkmgncSS3bikIKV1QlzVsEDYJe7mZbUkhB54SVQZBPe8uco
+AB73oB9z1fXz6fyb9dby2fPXdCgFkncuZne93GL58XbLRAIabr2OuugFksgNuoKiyRSSyQABwHQA
+wbrVi746kGq6dMHNXkkkIL3d1KTMUmEHnjMu5uwNKCEHdzLsRSKTATd1WZcEfvLnDd73oeTnl61c
+5JAHQ95+aElftxfH8kz1F73rxcoAB73qDXON/Png8vK3y7+glxJc5YGW5O/RfTJYYWWSQHj7027v
+fhpfxJiyWxuvybbcQQ8AOutuhVJZAbrrdCyRSRSQsgAEeq+/D7+Lnaztl9V1HXt2QJqqpKCRSEHE
+qoVkgTcD6+XOW2Seb+vo+vcXDfgZ5SeXvVc5QADy9NSRBS6QdMmwSRgVwQHu7e5kmXLBN3zzzIMg
+j2MkMAgggjgt7qtKRSbXZS76zLK/W9Olslts6Hz58MeXsk79rNqoEBuiClAEFFZJIpLbZBDbqKVA
+OgJtvVXAskm7qu736XOdyGkc973Ecy7rMqXsEjBLxJXBJk3JpB3dqoKpu+9OLloA/e8b7wucDuZ6
+Ty96Ti4DfZtDtuDSDxwld7sEiZBSSVimxd6xNBOG75Xfe9743td7OnQLDLa4QOnSzZu9zJmZXM+s
+zOw8m2nfB4dBBSibbrtG3U6FAsQFkgDera3ALIm63933Aj9OCpfOZzJ27DtoJ3Ukk03u5NIPA1c9
+I7tvvXi52Hxva6V0XOb3MAqqr4ueG3uQRwWAuCBOMzMyC4LkxkHFd1j271zTzkm57Pe96++qucp8
++fS97fe+l9Z958ywyulnZ37gINt7vx5OnczOv2/Ftnr4B+QAEUkPACddbqdTddCgWAWSCskkkUkg
+NUNm7ur78X3LnN33vraVv6fFzd+O9q3XhBzEkleaKo5wC+AbtjE2HpA7vAGJPqKtrrXON72dOkcS
+U+3FPt9pkkknFwBtuNwHznH37QOhFEuD3d1Ryfh9s+z+/NuHvfcXK6XbOyTADve9707e5HD8Pns9
+48/PzfhBSg03XXW6tq27a3UUoDrTSW5mPdzEErrBbV12JPLS0YIJCQCCCqlz7DbbLV3q5zve5F3s
+kgucN3ehsbhxcB97OzZAXOHftFJNki5wfe9kkernO9uO1bJTi4A223VNr4ud78btVVv0Nv6733Zv
+107ZO4eAlDG3mZmTH3tPnvfO1W1QB+Dw626nXQQVSVSA03UFKoICoBAAOg1QQAm692pfS5ze54vG
+tdkG7qqYu0m9YZJd8tt22yDiqqc2QoucB9727HJbeLkG3tdo6c4t34FUtoNvelq2uJcXFxcV4A+q
+brqpYucjfZO23d6/h86HmStwhZOySd73MmZmb836Fnu+q94QHlJJABB4oA663W6nXW61XVt1VtqB
+JBA23pu6tk/lX7vz0KCAnHKj45Tw8Gz4uVP5rzDptMce/xasdvs6dPQjb2hUsGfN0/fk6uod/v1y
+c9kl1SDMCR7diABLagV4oJPHPL/v0mNH90EmAFevdjX7sOBq8+lpf1sYrJBJy2M+Fk5N8Ctvjtc2
+5wQSbbZvrw0gSfUgkze6bdd1XcZ0FfIgk4IJOfFa0Ffo4mOLYBXk4wJP/SBWaCTTsNXJvzoK1/TB
+lqgk5dmLCM6CThvxt7KJJ8v3uWndh5Pty0x8g+759NNkCsHdy+Dn38R02tpc+khXvYjGKCT3sj/7
+xaPM8yCTqfn5zlhHVouzw03LZpo4fsArjW1de+BXW6+qcUFdrIhQ5vRzxu3YAV+Odw4oJMMaYU9v
+jx7fXz6+nHJAr4LbuNK6Y6/L8QCt6wgk07PKwgkxei33lyawK5ywgk9OHd03CKyqFcNEEmm/Xigk
+3ZZrRe3mxjGMSEmDNpIK5dsRQxnm2xYdoCtcuVQrPFAQjs4a1s1RVDp6qWiutBACEbn7ElxdG+ie
+5Hkx3zLz45dk1dOugky5eRaclkbAKw75nZ678ltdO6KSeckk+Hws0Emu3CiSdma4z3aerRBWR32D
+nAV+3awQr1dsCtWbGlkgocYFab3VhsaGUCtc2mWhtejcgk1N9vykpGyxvGHGhTxOTn+HL7Jd8+I3
+ybx0nSk3+c61nWtK1edQtkszMyZTLcty5kyzLmXLJbMpluWlsyhbJZmV22WTKZaWyWZldtyhbMoW
+zKFsyhbMploSTAJZlMty3LS2ZTLS2ZQtmUy3LS2ZQtmULZlC2ZQtmXMuSS2SyZQtzLlttzK7blC2
+ZQtmUCSYGS5aWzKBJMAlksksmULZlMtLZlMtLZLJLJlC2SySyZTLS2ZQJJgEsymWlvQ7jdLMplpb
+JZMo9+00bYto2ttbW2trbWFW0AdpILaAOuyCr1bteuEjKC11tba2q62q6a6WBRgWC2g1tra21tba
+2tu0Ktowq2gFW0Gq62ttGtu0KtowdpILaDW3aDtIC2gDtJBbQB2kgtoNbawq2g1trB12QW0YO0kF
+tYFW0YVbQ1u0FtGDtJGUkY7ILaMHaSC2g1tra27Qq2jCqtru10q2g1trCraDW2sHXZBbRhVtBrbW
+1V2t7XaCrHrpYLaAVbQB2kgtoNV166WC2hrpQW0GttYVbQa21hVtAHaSC2sCraMKqw10sY7JJVGD
+W10KqjW6ttAddkkq2AFVYNbaBVWGugmuxt12kjKSC2gFW0Aq2g1trCraAVbQCraAO0kZSQW0GttY
+VbWBVtGDrsgtowdpILaDVdFW6FW0GttbW2sKtoBVtBrbWDpi+aLVO5Ln4n0uJJcXF+KvmPBd/xdC
+ST13ebbYNjDOISeGtwtAABdYZnnwccGJJxk/4u5IpwoSAQhvboA=
 
 
-David A. Desrosiers
-desrod@gnu-designs.com
-http://gnu-designs.com
+--=-ZiIQxsOKAYDCL0VA/hWH--
+

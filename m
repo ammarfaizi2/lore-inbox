@@ -1,47 +1,75 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266431AbTAOOLL>; Wed, 15 Jan 2003 09:11:11 -0500
+	id <S266425AbTAOOLC>; Wed, 15 Jan 2003 09:11:02 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266434AbTAOOLK>; Wed, 15 Jan 2003 09:11:10 -0500
-Received: from khms.westfalen.de ([62.153.201.243]:23218 "EHLO
+	id <S266431AbTAOOLC>; Wed, 15 Jan 2003 09:11:02 -0500
+Received: from khms.westfalen.de ([62.153.201.243]:22706 "EHLO
 	khms.westfalen.de") by vger.kernel.org with ESMTP
-	id <S266431AbTAOOLJ>; Wed, 15 Jan 2003 09:11:09 -0500
-Date: 14 Jan 2003 22:01:00 +0200
+	id <S266425AbTAOOLB>; Wed, 15 Jan 2003 09:11:01 -0500
+Date: 14 Jan 2003 22:46:00 +0200
 From: kaih@khms.westfalen.de (Kai Henningsen)
 To: linux-kernel@vger.kernel.org
-Message-ID: <8dqipk81w-B@khms.westfalen.de>
-In-Reply-To: <20030113144017$68de@gated-at.bofh.it>
-Subject: Re: any chance of 2.6.0-test*?
+Message-ID: <8dqiqC6mw-B@khms.westfalen.de>
+In-Reply-To: <20030113134017$1d68@gated-at.bofh.it>
+Subject: Re: why the new config process is a *big* step backwards
 X-Mailer: CrossPoint v3.12d.kh10 R/C435
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Organization: Organisation? Me?! Are you kidding?
-References: <20030112205008$7a5d@gated-at.bofh.it> <20030113112009$52fd@gated-at.bofh.it> <20030113144017$68de@gated-at.bofh.it>
+References: <20030113134017$1d68@gated-at.bofh.it>
 X-No-Junk-Mail: I do not want to get *any* junk mail.
 Comment: Unsolicited commercial mail will incur an US$100 handling fee per received mail.
 X-Fix-Your-Modem: +++ATS2=255&WO1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-terje.eggestad@scali.com (Terje Eggestad)  wrote on 13.01.03 in <20030113144017$68de@gated-at.bofh.it>:
+rpjday@mindspring.com (Robert P. J. Day)  wrote on 13.01.03 in <20030113134017$1d68@gated-at.bofh.it>:
 
-> On man, 2003-01-13 at 12:09, Eric W. Biederman wrote:
+>   (apologies to those who are thoroughly sick of this topic, but
+> i'm now firmly convinced that i don't much care for the new
+> config process, and i'm curious as to whether it's just me.
+> Answer: probably.)
 
-> http://www.cs.utexas.edu/users/EWD/ewd02xx/EWD215.PDF
-> to be exact. Reading it you can tell exactly how much of an
-> mathematician Dijkstra really was.  At these times It's best to keep in
-> mind a quote:
+Probably.
+
+>   IMHO, the new config process (and i'll restrict myself to talking
+> about the graphical "make xconfig" process here) not only doesn't
+
+Hmm. The old xconfig was so unusable I haven't used anything but  
+menuconfig for years ...
 >
-> "I used to understand the Theory of Relativity, but then the
-> mathematicians got hold of it."
->   -- Albert Einstein
+>   first, the hierarchical structure of the options in the left
+> window (i'm going to make up names and call these the "menu window",
+> "option window" and "help window") is non-intuitive, in that the
+> top-level selection will bring up a set of selectable options,
+> while submenus will *also* bring up options.
+>
+>   example:  Power management options.  if i select that menu
+> option explicitly, i get options including APM in the option
+> window.  but if i expand that option, i can select the submenu
+> "ACPI Support", for further options.  this is confusing --
+> it's analogous to a directory having files both directly inside
+> it *and* within a sub-structure.
+>
+>   this is inconsistent with other common things people are
+> familiar with -- in the pine mailer, for example, you can't
+> use a folder both for storing files *and* for having subfolders.
+> and think about bookmarks in a browser (a model i wish the new
+> config process had followed).
 
-Wasn't Dijkstra one of the guys behind Algol 68? Yes, the one where some  
-Geek test asks if you've read the revised report? ... and did you  
-understand it? (I did, even found a bug in the library chapter (a simple  
-case of exporting a pointer to local storage), but boy was that the  
-hardest-to-understand language definition I've ever seen! Did complete  
-symbol definition-and-usage checks purely in the (context-dependant  
-meta-)grammar.)
+Strange. Filesystems (which everyone should be familiar with) certainly do  
+this, and so does (for example) Pegasus Mail with IMAP folders ...
+
+I think Pine and bookmarks are faulty here. (Especially as in the current  
+Mozilla, you *can* have folders-as-bookmarks but you can't easily switch  
+from one behaviour to the other, plus Mozilla itself sometimes gets  
+confused. Also, Open File insists on files even though Mozilla can handle  
+local directories just fine ...)
+
+>   the current design is messy since it suggests that some
+> options belong strictly to the top level, while others belong
+> to more specialized sub levels.
+
+Well, that's certainly how it always was with menuconfig.
 
 MfG Kai

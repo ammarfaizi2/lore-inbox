@@ -1,45 +1,73 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265626AbTFXCKg (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 23 Jun 2003 22:10:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265627AbTFXCKg
+	id S265627AbTFXCSH (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 23 Jun 2003 22:18:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265628AbTFXCSH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 23 Jun 2003 22:10:36 -0400
-Received: from smtp1.knology.net ([24.214.63.226]:63367 "HELO
-	smtp1.knology.net") by vger.kernel.org with SMTP id S265626AbTFXCKg
+	Mon, 23 Jun 2003 22:18:07 -0400
+Received: from host-64-213-145-173.atlantasolutions.com ([64.213.145.173]:16028
+	"EHLO havoc.gtf.org") by vger.kernel.org with ESMTP id S265627AbTFXCSE
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 23 Jun 2003 22:10:36 -0400
-Subject: Re: 2.4.21 doesn't boot: /bin/insmod.old: file not found
-From: John Shillinglaw <linuxtech@knology.net>
-To: linux-kernel@vger.kernel.org
-In-Reply-To: <23770.1056415063@firewall.ocs.com.au>
-References: <23770.1056415063@firewall.ocs.com.au>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1056421483.3552.19.camel@Aragorn>
+	Mon, 23 Jun 2003 22:18:04 -0400
+Date: Mon, 23 Jun 2003 22:32:11 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+To: torvalds@transmeta.com, linux-kernel@vger.kernel.org, netdev@oss.sgi.com
+Subject: [BK PATCHES] net driver merges
+Message-ID: <20030624023211.GA2592@gtf.org>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
-Date: 23 Jun 2003 22:24:43 -0400
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Aha, Thanks, 
 
-Is there a howto page yet that tells all about how the old and new
-module utilities work? I'm sure it's right under my nose...
+Linus, please do a
 
-BTW, after vowing not to, I solved the problem by simply making ext3
-part of bzImage.
+	bk pull bk://kernel.bkbits.net/jgarzik/net-drivers-2.5
 
-Now I got back to 2.5.73...
+Others may download the patch from
 
-Thanks again,
-Ian
-On Mon, 2003-06-23 at 20:37, Keith Owens wrote:
+ftp://ftp.kernel.org/pub/linux/kernel/people/jgarzik/patchkits/2.5/2.5.73-bk1-netdrvr1.patch.bz2
 
-> initrd needs the static version of insmod.  Copy /sbin/insmod.static.old
-> to the ramdisk and rename it as /bin/insmod.old to suit the 2.5 modutils.
-> 
+This will update the following files:
 
+ drivers/net/sk98lin/skge.c   |  598 +++++++++++++++++++++----------------------
+ drivers/net/wan/sdla_chdlc.c |    4 
+ drivers/net/wan/sdla_fr.c    |    4 
+ drivers/net/wan/sdla_ppp.c   |    4 
+ drivers/net/wan/sdla_x25.c   |    4 
+ 5 files changed, 297 insertions(+), 317 deletions(-)
+
+through these ChangeSets:
+
+<romieu@fr.zoreil.com> (03/06/23 1.1413)
+   [netdrvr sk98lin] PCI API conversion, and some cleanups
+   
+   
+   - PCI API init style conversion for drivers/net/sk98lin/skge.c;
+   - new helpers: SkGeDev{Init/CleanUp};
+   - sk_devs_lock moved around as it's needed early.
+   
+   Compiles without error. Untested.
+
+<rusty@rustcorp.com.au> (03/06/23 1.1412)
+   [PATCH] [PATCH 2.5.72] Use mod_timer in drivers_net_wan_sdla_chdlc.c
+   
+   From:  Vinay K Nallamothu <vinay-rc@naturesoft.net>
+
+<rusty@rustcorp.com.au> (03/06/23 1.1411)
+   [PATCH] [PATCH 2.5.72] Use mod_timer in drivers_net_wan_sdla_x25.c
+   
+   From:  Vinay K Nallamothu <vinay-rc@naturesoft.net>
+
+<rusty@rustcorp.com.au> (03/06/23 1.1410)
+   [PATCH] [PATCH 2.5.72] Use mod_timer in drivers_net_wan_sdla_ppp.c
+   
+   From:  Vinay K Nallamothu <vinay-rc@naturesoft.net>
+
+<rusty@rustcorp.com.au> (03/06/23 1.1409)
+   [PATCH] {PATCH 2.5.72] Use mod_timer in drivers_net_wan_sdla_fr.c
+   
+   From:  Vinay K Nallamothu <vinay-rc@naturesoft.net>
 

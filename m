@@ -1,36 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265922AbUFIU2u@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265951AbUFIU3q@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265922AbUFIU2u (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Jun 2004 16:28:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265939AbUFIU2u
+	id S265951AbUFIU3q (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Jun 2004 16:29:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265945AbUFIU3q
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Jun 2004 16:28:50 -0400
-Received: from aun.it.uu.se ([130.238.12.36]:50611 "EHLO aun.it.uu.se")
-	by vger.kernel.org with ESMTP id S265922AbUFIU2t (ORCPT
+	Wed, 9 Jun 2004 16:29:46 -0400
+Received: from atlrel6.hp.com ([156.153.255.205]:19156 "EHLO atlrel6.hp.com")
+	by vger.kernel.org with ESMTP id S265939AbUFIU3e (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Jun 2004 16:28:49 -0400
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Wed, 9 Jun 2004 16:29:34 -0400
+Subject: Re: Unaligned accesses in net/ipv4/netfilter/arp_tables.c:184
+From: Alex Williamson <alex.williamson@hp.com>
+To: "David S. Miller" <davem@redhat.com>
+Cc: clameter@sgi.com, linux-kernel@vger.kernel.org, linux-ia64@vger.kernel.org
+In-Reply-To: <20040609130001.37a88da1.davem@redhat.com>
+References: <Pine.LNX.4.58.0406091106210.21291@schroedinger.engr.sgi.com>
+	 <1086805676.4288.16.camel@tdi>  <20040609130001.37a88da1.davem@redhat.com>
+Content-Type: text/plain
+Organization: LOSL
+Message-Id: <1086812976.4288.50.camel@tdi>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Wed, 09 Jun 2004 14:29:36 -0600
 Content-Transfer-Encoding: 7bit
-Message-ID: <16583.29432.400199.699683@alkaid.it.uu.se>
-Date: Wed, 9 Jun 2004 22:28:40 +0200
-From: Mikael Pettersson <mikpe@csd.uu.se>
-To: Chris Friesen <cfriesen@nortelnetworks.com>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Unable to totally get rid of CONFIG_INPUT options with 2.6.6
-In-Reply-To: <40C759ED.60705@nortelnetworks.com>
-References: <40C759ED.60705@nortelnetworks.com>
-X-Mailer: VM 7.17 under Emacs 20.7.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Chris Friesen writes:
- > 
- > 
- > I have a machine whose only contacts with the outside world are ethernet and 
- > serial.  For some reason, it appears to be impossible to disable CONFIG_INPUT. 
- > Is this by design?  I have everything removed from the input config screen, but 
- > after some digging it appears that CONFIG_INPUT is not actually controlled by 
- > any config files.
+On Wed, 2004-06-09 at 14:00, David S. Miller wrote:
+> On Wed, 09 Jun 2004 12:27:56 -0600
+> Alex Williamson <alex.williamson@hp.com> wrote:
+> 
+> > http://marc.theaimsgroup.com/?l=netfilter-devel&m=107814727803971&w=2
+> 
+> How can you legitimately change this structure?  It's an exported
+> userland interface, if you change it all the applications will
+> stop working.
+> 
 
-Enable CONFIG_EMBEDDED, then you'll be able to get rid of INPUT_MOUSEDEV etc.
+   Which is probably why the patch never went anywhere.  There's
+certainly an alignment issue in the usage of the struct arpt_arp in the
+code snippet Christoph pointed out.  Sounds like it'd be better to fix
+the usage than the structure alignment.
+
+	Alex
+

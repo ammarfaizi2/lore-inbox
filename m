@@ -1,41 +1,99 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132620AbRADEA5>; Wed, 3 Jan 2001 23:00:57 -0500
+	id <S129324AbRADEKc>; Wed, 3 Jan 2001 23:10:32 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132592AbRADEAs>; Wed, 3 Jan 2001 23:00:48 -0500
-Received: from tomts5.bellnexxia.net ([209.226.175.25]:64767 "EHLO
-	tomts5-srv.bellnexxia.net") by vger.kernel.org with ESMTP
-	id <S129324AbRADEAl>; Wed, 3 Jan 2001 23:00:41 -0500
-Message-ID: <3A53F647.B39C9B5A@sympatico.ca>
-Date: Wed, 03 Jan 2001 23:04:24 -0500
-From: François Isabelle <isabellf@sympatico.ca>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.0-test12 i686)
-X-Accept-Language: en
+	id <S132676AbRADEKX>; Wed, 3 Jan 2001 23:10:23 -0500
+Received: from csa.iisc.ernet.in ([144.16.67.8]:38660 "EHLO csa.iisc.ernet.in")
+	by vger.kernel.org with ESMTP id <S129324AbRADEKG>;
+	Wed, 3 Jan 2001 23:10:06 -0500
+Date: Thu, 4 Jan 2001 09:39:43 +0530 (IST)
+From: Sourav Sen <sourav@csa.iisc.ernet.in>
+To: Andi Kleen <ak@suse.de>
+cc: lkml <linux-kernel@vger.kernel.org>
+Subject: Re: is eth header is not transmitted
+In-Reply-To: <20010104044141.A16489@gruyere.muc.suse.de>
+Message-ID: <Pine.SOL.3.96.1010104091857.10702A-100000@kohinoor.csa.iisc.ernet.in>
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: 2.4.0-Prerelease :smp_num_cpus undefined while compiling without smp for 
- Athlon
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-in smp.h macro
-#define smp_num_cpus
-etc...
-have no effect on the kernel_stat.h file .
 
-if might be undefined or declared elsewhere as an int or such...I added
-#define smp_test_num_cpus
-and replaced the occurence in kernel_stat.h and it worked ok
+Ya, I also noticed if it is skb_push() it may work, but where is
+skb_push() called?? ...  the following
+is part of the  fn. call  trace for udp send :
 
-and tried to find where the smp_num_cpus define was getting screwed...
-no success.
+	in ip_build_xmit()
 
-this have the effect of unbuildable kernel with options: smp off and
-athlon on, i don't know about other problematic configurations.
-I have gcc version 2.96
-and make 3.78.1
+	sock_alloc_send_skb()  -- allocates the sk_buff
+	skb_reserve()   -- advances the data pointer to by
+			   sizeof(hard_hdr)  amt.
+	skb_put()       -- puts the ip_hdr
+	>> getfrag() --> udp_getfrag_nosum()(assuming chksum off) --
+			 sets udp_hdr.
+	memcpy_fromiovecend() --  puts the data after that.
+
+	r->u.dst.output() -- > dev_queue_xmit() -- queues the pkt.
+	
+	still the data ptr is after hh_hdr, ie. as follows :
+
+	+------------------------------------------------------+
+	| hh_hdr | ip_hdr | udp_hdr |         payload          |
+	+------------------------------------------------------+
+	^        ^                                             ^
+	|        |                                             |
+  sk->head  sk->data                                     sk->end
+
+	On a hadr_start_xmit(), ie say for rtl8129_start_xmit(), the 
+data sending takes place from skb->data and not from head. So is hh_hdr
+not transmitted?? 
+	
+	Another question is why in sock_alloc_send_skb() , 15 is added to
+length field?
+
+	Sorry to disturb u like this :)
+
+sourav
+
+On Thu, 4 Jan 2001, Andi Kleen wrote:
+
+> On Thu, Jan 04, 2001 at 09:08:06AM +0530, Sourav Sen wrote:
+> > 
+> > Hi,
+> > 	How can it be skb_put(), it only increments the tail/len ptr ??
+> 
+> Oops typo, it's skb_push() for the header.
+> 
+> 
+> 
+> -Andi
+> 
+> > sourav
+> > 
+> > On Wed, 3 Jan 2001, Andi Kleen wrote:
+> > 
+> > > On Wed, Jan 03, 2001 at 10:59:48PM +0530, Sourav Sen wrote:
+> > > > 
+> > > > Hi,
+> > > > 	In the function ip_build_xmit(), immediately after
+> > > > sk_alloc_send_skb(), skb_reserve(skb, hh_len) is called. Now
+> > > > skb_reserve(skb,len) only increment the data pointer and tail pointer by 
+> > > > len amt.
+> > > > 
+> > > > 	Now in a particular hard_start_xmit() say for rtl8139, the data
+> > > > transfer is taking place from skb->data :
+> > > > 	outl(virt_to_bus(skb->data), ioaddr + TxAddr0 + entry*4)
+> > > > 
+> > > > So, I cannot understand, if transfer starts from data and not head, is
+> > > > ethrnet header not transmitted? what I am missing? 
+> > > 
+> > > An skb_put() 
+> > > 
+> > > 
+> > > -Andi
+> > > 
+> > 
+> 
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

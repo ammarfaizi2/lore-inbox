@@ -1,69 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261695AbTCZNrQ>; Wed, 26 Mar 2003 08:47:16 -0500
+	id <S261697AbTCZNty>; Wed, 26 Mar 2003 08:49:54 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261696AbTCZNrQ>; Wed, 26 Mar 2003 08:47:16 -0500
-Received: from pc2-bahd1-3-cust72.renf.cable.ntl.com ([62.255.161.72]:64875
-	"EHLO localhost") by vger.kernel.org with ESMTP id <S261695AbTCZNrN>;
-	Wed, 26 Mar 2003 08:47:13 -0500
-Date: Wed, 26 Mar 2003 13:58:25 +0000
-From: iain d broadfoot <ibroadfo@cis.strath.ac.uk>
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: addition to visor.c
-Message-ID: <20030326135825.GC26063@localhost>
-Mail-Followup-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <20030326021847.GA21363@localhost> <20030326040505.GB20858@kroah.com>
+	id <S261699AbTCZNty>; Wed, 26 Mar 2003 08:49:54 -0500
+Received: from mango.tao-group.com ([62.255.240.131]:33806 "EHLO
+	mail.tao-group.com") by vger.kernel.org with ESMTP
+	id <S261697AbTCZNtw>; Wed, 26 Mar 2003 08:49:52 -0500
+Subject: Re: Reproducible terrible interactivity since 2.5.64bk2
+From: Andrew Ebling <aebling@tao-group.com>
+To: Michal Schmidt <schmidt@kn.vutbr.cz>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <3E81945C.4010102@kn.vutbr.cz>
+References: <3E81945C.4010102@kn.vutbr.cz>
+Content-Type: text/plain
+Organization: Tao Group
+Message-Id: <1048687681.6345.13.camel@spinel.tao.co.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030326040505.GB20858@kroah.com>
-X-Editor: Vim http://www.vim.org/
-X-Operating-System: Linux/2.4.20 (i686)
-X-Uptime: 13:55:51 up  2:53,  3 users,  load average: 0.20, 0.37, 0.47
-X-Message-Flag: Outlook viruses can be made to send private documents from your hard drive to any or all recipients from your address book. But it only happens about once a month or so, so it's okay. Just keep on using it.
-User-Agent: Mutt/1.5.4i
+X-Mailer: Ximian Evolution 1.2.1- 
+Date: 26 Mar 2003 14:08:01 +0000
+Content-Transfer-Encoding: 7bit
+Comment: Checked by Tao OGEMP
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Greg KH (greg@kroah.com) wrote:
-> On Wed, Mar 26, 2003 at 02:18:47AM +0000, iain d broadfoot wrote:
-> > First off, hi all and thanks for all the kernels. :D
-> > 
-> > I have fiddled together the following info for a sony clie nz90, which i
-> > believe should go in drivers/usb/serial/visor.{h,c}.
-> 
-> Thanks, but this device is already supported in the latest 2.5 kernel :)
+On Wed, 2003-03-26 at 11:51, Michal Schmidt wrote:
 
-ah. ok-dok. :(
+> I'm seeing serious interactivity problems in 2.5.65, 2.5.66, 2.5.65-mm4 
+> and 2.5.64-bk2.
+> I couldn't reproduce it on 2.5.64, 2.5.64-bk1.
 
-i felt so proud and manly and super-cool as well...
+I'm seeing similar on 2.5.66; xmms pauses when doing disk intensive
+tasks.
 
-> 
-> And it's in my queue of patches to send to Marcelo for 2.4, so it will
-> show up there too eventually.
+> I use Debian Woody on UP Athlon 800MHz, Asus A7V, 384MB RAM, disk WDC 
+> WD800JB-00CRA1 connected to on-board Promise 20265, nVidia Geforce2 MX, 
+> Realtek RTL-8139C, SB Live.
+> GCC is 2.95.4.
 
-sweet.
+My system details: Gentoo Linux 1.2, PIII 1Ghz, 256MB RAM, Ati Rage128,
+tulip nic, es1371 based sound card, gcc 2.95.3.
 
-i just need to remember not to bunzip the kernel source over my version
-now...
+I'd be prepared to test any proposed fixes.
 
-> 
-> > ok, it recognizes, but none of the apps i have seem to like the clie - i
-> > get 'please press hotsync button now' messages, despite the fact that
-> > the /dev/ttyUSB1 device is only there after the button has been
-> > pressed... :(
-> 
-> Try the latest version of pilot-link, from pilot-link.org.  You need
-> that.  If that doesn't work, try ttyUSB0, that might be the correct port
-> for this device.
+thanks,
 
-hmm, i've got the latest pilot-link, and i've tried both 0 and 1 (0 gets
-logged as the Generic, while 1 is logged as HotSync) so i think it's
-time to find a new list to harass. :D
+Andy
 
-cheers,
-
-iain
-
--- 
-wh33, y1p33 3tc.
+The contents of this e-mail and any attachments are confidential and may
+be legally privileged. If you have received this e-mail and you are not
+a named addressee, please inform us as soon as possible on
++44 118 901 2999 and then delete the e-mail from your system. If you are
+not a named addressee you must not copy, use, disclose, distribute,
+print or rely on this e-mail. Any views expressed in this e-mail or any
+attachments may not necessarily reflect those of Tao's management.
+Although we routinely screen for viruses, addressees should scan this
+e-mail and any attachments for viruses. Tao makes no representation or
+warranty as to the absence of viruses in this e-mail or any attachments.
+Please note that for the protection of our business, we may monitor and
+read e-mails sent to and from our server(s).

@@ -1,106 +1,85 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264883AbUAAUsm (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 1 Jan 2004 15:48:42 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264877AbUAAUCq
+	id S264936AbUAAUsD (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 1 Jan 2004 15:48:03 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265466AbUAAUqq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 1 Jan 2004 15:02:46 -0500
-Received: from amsfep16-int.chello.nl ([213.46.243.26]:7213 "EHLO
-	amsfep16-int.chello.nl") by vger.kernel.org with ESMTP
-	id S264563AbUAAUBu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 1 Jan 2004 15:01:50 -0500
-Date: Thu, 1 Jan 2004 21:01:48 +0100
-Message-Id: <200401012001.i01K1mLo031697@callisto.of.borg>
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-To: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>
-Cc: Linux Kernel Development <linux-kernel@vger.kernel.org>,
-       Geert Uytterhoeven <geert@linux-m68k.org>
-Subject: [PATCH 342] M68k head comments
+	Thu, 1 Jan 2004 15:46:46 -0500
+Received: from fw.osdl.org ([65.172.181.6]:29617 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S264947AbUAAUoa (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 1 Jan 2004 15:44:30 -0500
+Date: Thu, 1 Jan 2004 12:45:04 -0800
+From: Andrew Morton <akpm@osdl.org>
+To: Anton Blanchard <anton@samba.org>
+Cc: joneskoo@derbian.org, linux-kernel@vger.kernel.org
+Subject: Re: swapper: page allocation failure. order:3, mode:0x20
+Message-Id: <20040101124504.69c80a14.akpm@osdl.org>
+In-Reply-To: <20040101130147.GM28023@krispykreme>
+References: <20040101093553.GA24788@derbian.org>
+	<20040101101541.GJ28023@krispykreme>
+	<20040101022553.2be5f043.akpm@osdl.org>
+	<20040101130147.GM28023@krispykreme>
+X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-M68k: Update some comments (from Roman Zippel)
+Anton Blanchard <anton@samba.org> wrote:
+>
+> 
+> > So sure, ratelimit it, make it KERN_INFO and maybe add a dump_stack()?
+> 
+> Sounds good, I always end up adding a dump_stack there when debugging
+> these problems anyway.
+> 
+> > (printk_ratelimit() may be a suitable name)
+> 
+> How does this look?
 
---- linux-2.6.0/arch/m68k/kernel/head.S	13 Oct 2003 22:48:56 -0000	1.11
-+++ linux-m68k-2.6.0/arch/m68k/kernel/head.S	13 Oct 2003 22:52:41 -0000
-@@ -1250,9 +1250,9 @@
- 	mmu_map		#VIDEOMEMBASE,%d0,#VIDEOMEMSIZE,%d3
- 	/* The ROM starts at 4000 0000		    	*/
- 	mmu_map_eq	#0x40000000,#0x02000000,%d3
--	/* IO devices                               	*/
-+	/* IO devices (incl. serial port) from 5000 0000 to 5300 0000 */
- 	mmu_map_eq	#0x50000000,#0x03000000,%d3
--	/* NuBus slot space				*/
-+	/* Nubus slot space (video at 0xF0000000, rom at 0xF0F80000) */
- 	mmu_map_tt	#1,#0xf8000000,#0x08000000,%d3
- 
- 	jbra	L(mmu_init_done)
-@@ -1891,7 +1891,7 @@
- 	movel	%a4,%d5
- 	addil	#PAGESIZE<<13,%d5
- 	movel	%a0@+,%d6
--	btst	#1,%d6			/* is it a ptr? */
-+	btst	#1,%d6			/* is it a table ptr? */
- 	jbne	31f			/* yes */
- 	btst	#0,%d6			/* is it early terminating? */
- 	jbeq	1f			/* no */
-@@ -1908,9 +1908,9 @@
- 	movel	%a4,%d5
- 	addil	#PAGESIZE<<6,%d5
- 	movel	%a1@+,%d6
--	btst	#1,%d6
--	jbne	33f
--	btst	#0,%d6
-+	btst	#1,%d6			/* is it a table ptr? */
-+	jbne	33f			/* yes */
-+	btst	#0,%d6			/* is it a page descriptor? */
- 	jbeq	1f			/* no */
- 	jbsr	mmu_030_print_helper
- 	jbra	37f
-@@ -3154,7 +3154,7 @@
- 	moveml	%sp@+,%d0-%d7/%a2-%a6
- 	jbra	L(serial_putc_done)
- 2:
--#endif CONFIG_MVME16x
-+#endif /* CONFIG_MVME16x */
- 
- #ifdef CONFIG_BVME6000
- 	is_not_bvme6000(2f)
-@@ -3369,10 +3369,10 @@
- 
- 	/*
- 	 *	At this point we make a shift in register usage
--	 *	a1 = address of Lconsole_font pointer
-+	 *	a1 = address of console_font pointer
- 	 */
- 	lea	%pc@(L(console_font)),%a1
--	movel	%a0,%a1@	/* store pointer to struct font_desc in Lconsole_font */
-+	movel	%a0,%a1@	/* store pointer to struct fbcon_font_desc in console_font */
- 	tstl	%a0
- 	jeq	1f
- 
-@@ -3383,10 +3383,10 @@
- 	 *	6 x 11 also supported
- 	 */
- 		/* ASSERT: a0 = contents of Lconsole_font */
--	movel	%d3,%d0			/* screen width in pixels */
--	divul	%a0@(FONT_DESC_WIDTH),%d0		/* d0 = max num chars per row */
-+	movel	%d3,%d0				/* screen width in pixels */
-+	divul	%a0@(FONT_DESC_WIDTH),%d0	/* d0 = max num chars per row */
- 
--	movel	%d4,%d1			 /* screen height in pixels */
-+	movel	%d4,%d1				 /* screen height in pixels */
- 	divul	%a0@(FONT_DESC_HEIGHT),%d1	 /* d1 = max num rows */
- 
- 	movel	%d0,%a2@(Lconsole_struct_num_columns)
+Good.  I guess we need to make net_ratelimit() use this sometime.
 
-Gr{oetje,eeting}s,
+> +/* 
+> + * printk rate limiting, lifted from the networking subsystem.
+> + *
+> + * This enforces a rate limit: not more than one kernel message
+> + * every printk_ratelimit_jiffies to make a denial-of-service 
+> + * attack impossible.
+> + */ 
+> +int printk_ratelimit(void)
+> +{
+> +	static spinlock_t ratelimit_lock = SPIN_LOCK_UNLOCKED;
+> +	static unsigned long toks = 10*5*HZ;
+> +	static unsigned long last_msg; 
+> +	static int missed;
+> +	unsigned long flags;
+> +	unsigned long now = jiffies;
+> +
+> +	spin_lock_irqsave(&ratelimit_lock, flags);
+> +	toks += now - last_msg;
+> +	last_msg = now;
+> +	if (toks > (printk_ratelimit_burst * printk_ratelimit_jiffies))
+> +		toks = printk_ratelimit_burst * printk_ratelimit_jiffies;
+> +	if (toks >= printk_ratelimit_jiffies) {
+> +		int lost = missed;
+> +		missed = 0;
+> +		toks -= printk_ratelimit_jiffies;
+> +		spin_unlock_irqrestore(&ratelimit_lock, flags);
+> +		if (lost)
+> +			printk(KERN_WARNING "printk: %d messages suppressed.\n", lost);
+> +		return 1;
+> +	}
+> +	missed++;
+> +	spin_unlock_irqrestore(&ratelimit_lock, flags);
+> +	return 0;
+> +}
 
-						Geert
+This seems a bit odd.  It means that the further apart the message bursts
+are, the longer they are allowed to be.  Or something.
 
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+Wouldn't it be better to say "after each greater-than-five second window,
+allow up to ten printk's as long as they happen in the next five
+milliseconds"?
 
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-							    -- Linus Torvalds

@@ -1,16 +1,16 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266981AbTBTX7R>; Thu, 20 Feb 2003 18:59:17 -0500
+	id <S267346AbTBUACO>; Thu, 20 Feb 2003 19:02:14 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267319AbTBTX7R>; Thu, 20 Feb 2003 18:59:17 -0500
-Received: from palrel12.hp.com ([156.153.255.237]:32408 "EHLO palrel12.hp.com")
-	by vger.kernel.org with ESMTP id <S266981AbTBTX6y>;
-	Thu, 20 Feb 2003 18:58:54 -0500
-Date: Thu, 20 Feb 2003 16:08:59 -0800
+	id <S267331AbTBUABo>; Thu, 20 Feb 2003 19:01:44 -0500
+Received: from palrel11.hp.com ([156.153.255.246]:33511 "EHLO palrel11.hp.com")
+	by vger.kernel.org with ESMTP id <S267323AbTBUABM>;
+	Thu, 20 Feb 2003 19:01:12 -0500
+Date: Thu, 20 Feb 2003 16:11:17 -0800
 To: Jeff Garzik <jgarzik@pobox.com>,
        Linux kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: [PATCH 2.5] : irda-usb Rx path cleanup + no clear_halt
-Message-ID: <20030221000859.GD26770@bougret.hpl.hp.com>
+Subject: [PATCH 2.5] : IrNET module fix
+Message-ID: <20030221001116.GG26770@bougret.hpl.hp.com>
 Reply-To: jt@hpl.hp.com
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
@@ -23,216 +23,225 @@ From: Jean Tourrilhes <jt@bougret.hpl.hp.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ir253_usb_rx_skb-2.diff :
------------------------
-	o [CORRECT] Don't do usb_clear_halt() on USB control pipe
-	o [FEATURE] Cleanup and simplify the USB Rx path
+ir253_irnet_mod_hints-2.diff :
+----------------------------
+	o [CORRECT] Fix module refcounting (MOD_INC/DEC => .owner)
+	o [FEATURE] Add hints to discovery (control channel)
 
 
-
-diff -u -p linux/drivers/net/irda/irda-usb.d7.c linux/drivers/net/irda/irda-usb.c
---- linux/drivers/net/irda/irda-usb.d7.c	Thu Feb 20 11:01:20 2003
-+++ linux/drivers/net/irda/irda-usb.c	Thu Feb 20 15:22:52 2003
-@@ -402,7 +402,7 @@ static int irda_usb_hard_xmit(struct sk_
+diff -u -p linux/net/irda/irnet/irnet.j3.h linux/net/irda/irnet/irnet.h
+--- linux/net/irda/irnet/irnet.j3.h	Thu Feb 20 12:07:32 2003
++++ linux/net/irda/irnet/irnet.h	Thu Feb 20 13:41:10 2003
+@@ -225,6 +225,10 @@
+  *
+  * v13 - 30.5.02 - Jean II
+  *	o Update module init code
++ *
++ * v14 - 20.2.03 - Jean II
++ *	o Add discovery hint bits in the control channel.
++ *	o Remove obsolete MOD_INC/DEC_USE_COUNT in favor of .owner
+  */
  
-         usb_fill_bulk_urb(urb, self->usbdev, 
- 		      usb_sndbulkpipe(self->usbdev, self->bulk_out_ep),
--                      skb->data, IRDA_USB_MAX_MTU,
-+                      skb->data, IRDA_SKB_MAX_MTU,
-                       write_bulk_callback, skb);
- 	urb->transfer_buffer_length = skb->len;
- 	/* Note : unlink *must* be Asynchronous because of the code in 
-@@ -442,6 +442,9 @@ static int irda_usb_hard_xmit(struct sk_
- 			 * would be lost in the noise - Jean II */
- 			diff += IU_USB_MIN_RTT;
- #endif /* IU_USB_MIN_RTT */
-+			/* If the usec counter did wraparound, the diff will
-+			 * go negative (tv_usec is a long), so we need to
-+			 * correct it by one second. Jean II */
- 			if (diff < 0)
- 				diff += 1000000;
+ /***************************** INCLUDES *****************************/
+@@ -476,6 +480,7 @@ typedef struct irnet_log
+   __u32		saddr;
+   __u32		daddr;
+   char		name[NICKNAME_MAX_LEN + 1];	/* 21 + 1 */
++  __u16_host_order hints;			/* Discovery hint bits */
+ } irnet_log;
  
-@@ -701,30 +704,11 @@ static void irda_usb_submit(struct irda_
+ /*
+diff -u -p linux/net/irda/irnet/irnet_irda.j3.h linux/net/irda/irnet/irnet_irda.h
+--- linux/net/irda/irnet/irnet_irda.j3.h	Thu Feb 20 12:07:43 2003
++++ linux/net/irda/irnet/irnet_irda.h	Thu Feb 20 13:39:28 2003
+@@ -69,7 +69,8 @@ static void
+ 			 irnet_event,
+ 			 __u32,
+ 			 __u32,
+-			 char *);
++			 char *,
++			 __u16);
+ /* ----------------------- IRDA SUBROUTINES ----------------------- */
+ static inline int
+ 	irnet_open_tsap(irnet_socket *);
+diff -u -p linux/net/irda/irnet/irnet_irda.j3.c linux/net/irda/irnet/irnet_irda.c
+--- linux/net/irda/irnet/irnet_irda.j3.c	Thu Feb 20 12:07:51 2003
++++ linux/net/irda/irnet/irnet_irda.c	Thu Feb 20 13:39:28 2003
+@@ -28,7 +28,8 @@ irnet_post_event(irnet_socket *	ap,
+ 		 irnet_event	event,
+ 		 __u32		saddr,
+ 		 __u32		daddr,
+-		 char *		name)
++		 char *		name,
++		 __u16		hints)
+ {
+   unsigned long		flags;		/* For spinlock */
+   int			index;		/* In the log */
+@@ -52,6 +53,8 @@ irnet_post_event(irnet_socket *	ap,
+     strcpy(irnet_events.log[index].name, name);
+   else
+     irnet_events.log[index].name[0] = '\0';
++  /* Copy hints */
++  irnet_events.log[index].hints.word = hints;
+   /* Try to get ppp unit number */
+   if((ap != (irnet_socket *) NULL) && (ap->ppp_open))
+     irnet_events.log[index].unit = ppp_unit_number(&ap->chan);
+@@ -609,7 +612,7 @@ irda_irnet_destroy(irnet_socket *	self)
+        * doesn't exist anymore when we post the event, so we need to pass
+        * NULL as the first arg... */
+       irnet_post_event(NULL, IRNET_DISCONNECT_TO,
+-		       self->saddr, self->daddr, self->rname);
++		       self->saddr, self->daddr, self->rname, 0);
+     }
  
- 	IRDA_DEBUG(2, "%s()\n", __FUNCTION__);
+   /* Prevent various IrDA callbacks from messing up things
+@@ -862,7 +865,7 @@ irnet_connect_socket(irnet_socket *	serv
  
--	/* Check that we have an urb */
--	if (!urb) {
--		WARNING("%s(), Bug : urb == NULL\n", __FUNCTION__);
--		return;
--	}
+   /* Notify the control channel */
+   irnet_post_event(new, IRNET_CONNECT_FROM,
+-		   new->saddr, new->daddr, server->rname);
++		   new->saddr, new->daddr, server->rname, 0);
+ 
+   DEXIT(IRDA_SERV_TRACE, "\n");
+   return 0;
+@@ -893,7 +896,7 @@ irnet_disconnect_server(irnet_socket *	s
+ 
+   /* Notify the control channel (see irnet_find_socket()) */
+   irnet_post_event(NULL, IRNET_REQUEST_FROM,
+-		   self->saddr, self->daddr, self->rname);
++		   self->saddr, self->daddr, self->rname, 0);
+ 
+   /* Clean up the server to keep it in listen state */
+   irttp_listen(self->tsap);
+@@ -1108,12 +1111,12 @@ irnet_disconnect_indication(void *	insta
+   /* If we were active, notify the control channel */
+   if(test_open)
+     irnet_post_event(self, IRNET_DISCONNECT_FROM,
+-		     self->saddr, self->daddr, self->rname);
++		     self->saddr, self->daddr, self->rname, 0);
+   else
+     /* If we were trying to connect, notify the control channel */
+     if((self->tsap) && (self != &irnet_server.s))
+       irnet_post_event(self, IRNET_NOANSWER_FROM,
+-		       self->saddr, self->daddr, self->rname);
++		       self->saddr, self->daddr, self->rname, 0);
+ 
+   /* Close our IrTTP connection, cleanup tsap */
+   if((self->tsap) && (self != &irnet_server.s))
+@@ -1213,7 +1216,7 @@ irnet_connect_confirm(void *	instance,
+ 
+   /* Notify the control channel */
+   irnet_post_event(self, IRNET_CONNECT_TO,
+-		   self->saddr, self->daddr, self->rname);
++		   self->saddr, self->daddr, self->rname, 0);
+ 
+   DEXIT(IRDA_TCB_TRACE, "\n");
+ }
+@@ -1282,7 +1285,7 @@ irnet_status_indication(void *	instance,
+     {
+     case STATUS_NO_ACTIVITY:
+       irnet_post_event(self, IRNET_BLOCKED_LINK,
+-		       self->saddr, self->daddr, self->rname);
++		       self->saddr, self->daddr, self->rname, 0);
+       break;
+     default:
+       DEBUG(IRDA_CB_INFO, "Unknown status...\n");
+@@ -1648,7 +1651,8 @@ irnet_discovery_indication(discinfo_t *	
+ 
+   /* Notify the control channel */
+   irnet_post_event(NULL, IRNET_DISCOVER,
+-		   discovery->saddr, discovery->daddr, discovery->info);
++		   discovery->saddr, discovery->daddr, discovery->info,
++		   u16ho(discovery->hints));
+ 
+   DEXIT(IRDA_OCB_TRACE, "\n");
+ }
+@@ -1678,7 +1682,8 @@ irnet_expiry_indication(discinfo_t *	exp
+ 
+   /* Notify the control channel */
+   irnet_post_event(NULL, IRNET_EXPIRE,
+-		   expiry->saddr, expiry->daddr, expiry->info);
++		   expiry->saddr, expiry->daddr, expiry->info,
++		   u16ho(expiry->hints));
+ 
+   DEXIT(IRDA_OCB_TRACE, "\n");
+ }
+diff -u -p linux/net/irda/irnet/irnet_ppp.j3.h linux/net/irda/irnet/irnet_ppp.h
+--- linux/net/irda/irnet/irnet_ppp.j3.h	Thu Feb 20 12:08:09 2003
++++ linux/net/irda/irnet/irnet_ppp.h	Thu Feb 20 12:08:26 2003
+@@ -98,6 +98,7 @@ static int
+ /* Filesystem callbacks (to call us) */
+ static struct file_operations irnet_device_fops =
+ {
++	.owner		= THIS_MODULE,
+ 	.read		= dev_irnet_read,
+ 	.write		= dev_irnet_write,
+ 	.poll		= dev_irnet_poll,
+diff -u -p linux/net/irda/irnet/irnet_ppp.j3.c linux/net/irda/irnet/irnet_ppp.c
+--- linux/net/irda/irnet/irnet_ppp.j3.c	Thu Feb 20 12:07:59 2003
++++ linux/net/irda/irnet/irnet_ppp.c	Thu Feb 20 13:39:28 2003
+@@ -213,10 +213,12 @@ irnet_read_discovery_log(irnet_socket *	
+   if(ap->disco_index < ap->disco_number)
+     {
+       /* Write an event */
+-      sprintf(event, "Found %08x (%s) behind %08x\n",
++      sprintf(event, "Found %08x (%s) behind %08x {hints %02X-%02X}\n",
+ 	      ap->discoveries[ap->disco_index].daddr,
+ 	      ap->discoveries[ap->disco_index].info,
+-	      ap->discoveries[ap->disco_index].saddr);
++	      ap->discoveries[ap->disco_index].saddr,
++	      ap->discoveries[ap->disco_index].hints[0],
++	      ap->discoveries[ap->disco_index].hints[1]);
+       DEBUG(CTRL_INFO, "Writing discovery %d : %s\n",
+ 	    ap->disco_index, ap->discoveries[ap->disco_index].info);
+ 
+@@ -313,16 +315,20 @@ irnet_ctrl_read(irnet_socket *	ap,
+   switch(irnet_events.log[ap->event_index].event)
+     {
+     case IRNET_DISCOVER:
+-      sprintf(event, "Discovered %08x (%s) behind %08x\n",
++      sprintf(event, "Discovered %08x (%s) behind %08x {hints %02X-%02X}\n",
+ 	      irnet_events.log[ap->event_index].daddr,
+ 	      irnet_events.log[ap->event_index].name,
+-	      irnet_events.log[ap->event_index].saddr);
++	      irnet_events.log[ap->event_index].saddr,
++	      irnet_events.log[ap->event_index].hints.byte[0],
++	      irnet_events.log[ap->event_index].hints.byte[1]);
+       break;
+     case IRNET_EXPIRE:
+-      sprintf(event, "Expired %08x (%s) behind %08x\n",
++      sprintf(event, "Expired %08x (%s) behind %08x {hints %02X-%02X}\n",
+ 	      irnet_events.log[ap->event_index].daddr,
+ 	      irnet_events.log[ap->event_index].name,
+-	      irnet_events.log[ap->event_index].saddr);
++	      irnet_events.log[ap->event_index].saddr,
++	      irnet_events.log[ap->event_index].hints.byte[0],
++	      irnet_events.log[ap->event_index].hints.byte[1]);
+       break;
+     case IRNET_CONNECT_TO:
+       sprintf(event, "Connected to %08x (%s) on ppp%d\n",
+@@ -445,8 +451,6 @@ dev_irnet_open(struct inode *	inode,
+   ap = kmalloc(sizeof(*ap), GFP_KERNEL);
+   DABORT(ap == NULL, -ENOMEM, FS_ERROR, "Can't allocate struct irnet...\n");
+ 
+-  MOD_INC_USE_COUNT;
 -
--	/* Allocate new skb if it has not been recycled */
--	if (!skb) {
--		skb = dev_alloc_skb(IRDA_USB_MAX_MTU + 1);
--		if (!skb) {
--			/* If this ever happen, we are in deep s***.
--			 * Basically, the Rx path will stop... */
--			WARNING("%s(), Failed to allocate Rx skb\n", __FUNCTION__);
--			return;
--		}
--	} else  {
--		/* Reset recycled skb */
--		skb->data = skb->tail = skb->head;
--		skb->len = 0;
--	}
--	/* Make sure IP header get aligned (IrDA header is 5 bytes ) */
--	skb_reserve(skb, 1);
-+	/* This should never happen */
-+	ASSERT(skb != NULL, return;);
-+	ASSERT(urb != NULL, return;);
+   /* initialize the irnet structure */
+   memset(ap, 0, sizeof(*ap));
+   ap->file = file;
+@@ -469,7 +473,6 @@ dev_irnet_open(struct inode *	inode,
+     {
+       DERROR(FS_ERROR, "Can't setup IrDA link...\n");
+       kfree(ap);
+-      MOD_DEC_USE_COUNT;
+       return err;
+     }
  
--	/* Save ourselves */
-+	/* Save ourselves in the skb */
- 	cb = (struct irda_skb_cb *) skb->cb;
- 	cb->context = self;
+@@ -514,7 +517,6 @@ dev_irnet_close(struct inode *	inode,
+     }
  
-@@ -758,8 +742,10 @@ static void irda_usb_receive(struct urb 
- 	struct sk_buff *skb = (struct sk_buff *) urb->context;
- 	struct irda_usb_cb *self; 
- 	struct irda_skb_cb *cb;
--	struct sk_buff *new;
--	
-+	struct sk_buff *newskb;
-+	struct sk_buff *dataskb;
-+	int		docopy;
-+
- 	IRDA_DEBUG(2, "%s(), len=%d\n", __FUNCTION__, urb->actual_length);
- 	
- 	/* Find ourselves */
-@@ -808,39 +794,56 @@ static void irda_usb_receive(struct urb 
- 	 */
-         do_gettimeofday(&self->stamp);
+   kfree(ap);
+-  MOD_DEC_USE_COUNT;
  
--	/* Fix skb, and remove USB-IrDA header */
--	skb_put(skb, urb->actual_length);
--	skb_pull(skb, USB_IRDA_HEADER);
--
--	/* Don't waste a lot of memory on small IrDA frames */
--	if (skb->len < RX_COPY_THRESHOLD) {
--		new = dev_alloc_skb(skb->len+1);
--		if (!new) {
--			self->stats.rx_dropped++;
--			goto done;  
--		}
-+	/* Check if we need to copy the data to a new skb or not.
-+	 * For most frames, we use ZeroCopy and pass the already
-+	 * allocated skb up the stack.
-+	 * If the frame is small, it is more efficient to copy it
-+	 * to save memory (copy will be fast anyway - that's
-+	 * called Rx-copy-break). Jean II */
-+	docopy = (urb->actual_length < IRDA_RX_COPY_THRESHOLD);
-+
-+	/* Allocate a new skb */
-+	newskb = dev_alloc_skb(docopy ? urb->actual_length : IRDA_SKB_MAX_MTU);
-+	if (!newskb)  {
-+		self->stats.rx_dropped++;
-+		/* We could deliver the current skb, but this would stall
-+		 * the Rx path. Better drop the packet... Jean II */
-+		goto done;  
-+	}
-+
-+	/* Make sure IP header get aligned (IrDA header is 5 bytes) */
-+	/* But IrDA-USB header is 1 byte. Jean II */
-+	//skb_reserve(newskb, USB_IRDA_HEADER - 1);
- 
--		/* Make sure IP header get aligned (IrDA header is 5 bytes) */
--		skb_reserve(new, 1);
--		
-+	if(docopy) {
- 		/* Copy packet, so we can recycle the original */
--		memcpy(skb_put(new, skb->len), skb->data, skb->len);
--		/* We will cleanup the skb in irda_usb_submit() */
-+		memcpy(newskb->data, skb->data, urb->actual_length);
-+		/* Deliver this new skb */
-+		dataskb = newskb;
-+		/* And hook the old skb to the URB
-+		 * Note : we don't need to "clean up" the old skb,
-+		 * as we never touched it. Jean II */
- 	} else {
--		/* Deliver the original skb */
--		new = skb;
--		skb = NULL;
-+		/* We are using ZeroCopy. Deliver old skb */
-+		dataskb = skb;
-+		/* And hook the new skb to the URB */
-+		skb = newskb;
- 	}
--	
--	self->stats.rx_bytes += new->len;
--	self->stats.rx_packets++;
-+
-+	/* Set proper length on skb & remove USB-IrDA header */
-+	skb_put(dataskb, urb->actual_length);
-+	skb_pull(dataskb, USB_IRDA_HEADER);
- 
- 	/* Ask the networking layer to queue the packet for the IrDA stack */
--        new->dev = self->netdev;
--        new->mac.raw  = new->data;
--        new->protocol = htons(ETH_P_IRDA);
--        netif_rx(new);
--        self->netdev->last_rx = jiffies;
-+	dataskb->dev = self->netdev;
-+	dataskb->mac.raw  = dataskb->data;
-+	dataskb->protocol = htons(ETH_P_IRDA);
-+	netif_rx(dataskb);
-+
-+	/* Keep stats up to date */
-+	self->stats.rx_bytes += dataskb->len;
-+	self->stats.rx_packets++;
-+	self->netdev->last_rx = jiffies;
- 
- done:
- 	/* Note : at this point, the URB we've just received (urb)
-@@ -973,8 +976,17 @@ static int irda_usb_net_open(struct net_
- 
- 	/* Now that we can pass data to IrLAP, allow the USB layer
- 	 * to send us some data... */
--	for (i = 0; i < IU_MAX_ACTIVE_RX_URBS; i++)
--		irda_usb_submit(self, NULL, self->rx_urb[i]);
-+	for (i = 0; i < IU_MAX_ACTIVE_RX_URBS; i++) {
-+		struct sk_buff *skb = dev_alloc_skb(IRDA_SKB_MAX_MTU);
-+		if (!skb) {
-+			/* If this ever happen, we are in deep s***.
-+			 * Basically, we can't start the Rx path... */
-+			WARNING("%s(), Failed to allocate Rx skb\n", __FUNCTION__);
-+			return -1;
-+		}
-+		//skb_reserve(newskb, USB_IRDA_HEADER - 1);
-+		irda_usb_submit(self, skb, self->rx_urb[i]);
-+	}
- 
- 	/* Ready to play !!! */
- 	return 0;
-@@ -1167,9 +1179,6 @@ static inline int irda_usb_open(struct i
- 	spin_lock_init(&self->lock);
- 
- 	irda_usb_init_qos(self);
--	
--	/* Initialise list of skb beeing curently transmitted */
--	self->tx_list = hashbin_new(HB_NOLOCK);	/* unused */
- 
- 	/* Allocate the buffer for speed changes */
- 	/* Don't change this buffer size and allocation without doing
-@@ -1228,8 +1237,6 @@ static inline int irda_usb_close(struct 
- 		self->netdev = NULL;
- 		rtnl_unlock();
- 	}
--	/* Delete all pending skbs */
--	hashbin_delete(self->tx_list, (FREE_FUNC) &dev_kfree_skb_any);
- 	/* Remove the speed buffer */
- 	if (self->speed_buff != NULL) {
- 		kfree(self->speed_buff);
-@@ -1492,8 +1499,10 @@ static int irda_usb_probe(struct usb_int
- 		case 0:
- 			break;
- 		case -EPIPE:		/* -EPIPE = -32 */
--			usb_clear_halt(dev, usb_sndctrlpipe(dev, 0));
--			IRDA_DEBUG(0, "%s(), Clearing stall on control interface\n", __FUNCTION__);
-+			/* Martin Diehl says if we get a -EPIPE we should
-+			 * be fine and we don't need to do a usb_clear_halt().
-+			 * - Jean II */
-+			IRDA_DEBUG(0, "%s(), Received -EPIPE, ignoring...\n", __FUNCTION__);
- 			break;
- 		default:
- 			IRDA_DEBUG(0, "%s(), Unknown error %d\n", __FUNCTION__, ret);
+   DEXIT(FS_TRACE, "\n");
+   return 0;

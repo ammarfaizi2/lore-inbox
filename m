@@ -1,44 +1,50 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317494AbSFDNTt>; Tue, 4 Jun 2002 09:19:49 -0400
+	id <S317496AbSFDNVc>; Tue, 4 Jun 2002 09:21:32 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317496AbSFDNTs>; Tue, 4 Jun 2002 09:19:48 -0400
-Received: from pizda.ninka.net ([216.101.162.242]:40100 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S317494AbSFDNTs>;
-	Tue, 4 Jun 2002 09:19:48 -0400
-Date: Tue, 04 Jun 2002 06:16:40 -0700 (PDT)
-Message-Id: <20020604.061640.118624496.davem@redhat.com>
-To: jasonp@boo.net
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] page coloring for 2.4.18 kernel
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <3.0.6.32.20020407110100.007c2b70@boo.net>
-X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
+	id <S317497AbSFDNVb>; Tue, 4 Jun 2002 09:21:31 -0400
+Received: from arsenal.visi.net ([206.246.194.60]:11926 "EHLO visi.net")
+	by vger.kernel.org with ESMTP id <S317496AbSFDNVa>;
+	Tue, 4 Jun 2002 09:21:30 -0400
+X-Virus-Scanner: McAfee Virus Engine
+Date: Tue, 4 Jun 2002 09:13:32 -0400
+From: Ben Collins <bcollins@debian.org>
+To: Adrian Bunk <bunk@fs.tum.de>
+Cc: Marcelo Tosatti <marcelo@conectiva.com.br>,
+        andreas.bombe@munich.netsurf.de, linux1394-devel@lists.sourceforge.net,
+        linux-kernel@vger.kernel.org
+Subject: Re: [patch] disable CONFIG_IEEE1394_PCILYNX_PORTS config option
+Message-ID: <20020604131332.GI1250@blimpo.internal.net>
+In-Reply-To: <Pine.NEB.4.44.0206041108400.8847-100000@mimas.fachschaften.tu-muenchen.de>
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: Jason Papadopoulos <jasonp@boo.net>
-   Date: Sun, 07 Apr 2002 11:01:00 -0400
+On Tue, Jun 04, 2002 at 11:19:19AM +0200, Adrian Bunk wrote:
+> Hi Marcelo,
+> 
+> IMHO it gives a bad picture of the quality of Linux if a stable kernel
+> contains options that doesn't compile. CONFIG_IEEE1394_PCILYNX_PORTS
+> doesn't compile (the error message is at the end of the mail) and Andreas
+> Bombe stated in a private mail to me four months ago that it shouldn't
+> have been a public option.
+> 
+> My patch doesn't do any harm because currently the kernel doesn't compile
+> when this option is enabled and if someone fixes pcilynx.c it's pretty
+> trivial to revert this patch.
 
-   Hello. This is a re-diff of the 2.4.17 patch I posted
-   previously.
-   
-   www.boo.net/~jasonp/page_color-2.2.20-20020108.patch
-   www.boo.net/~jasonp/page_color-2.4.17-20020113.patch
-   www.boo.net/~jasonp/page_color-2.4.18-20020323.patch
-   
-   I'm not subscribed to LKML, so please cc responses
-   to this email address.
+We've already done this locally in our repo. Go ahead and apply this
+patch if you want.
 
-Hi Jason.  I noticed that your code assumes zones begin on well
-aligned physical addresses.  This is not true.
 
-For example, in page_color_start you use the raw
-(page - zone->zone_mem_map) index as the color.  This
-is wrong, what if the zone starts at page 1?  In such
-a case all of your colors will be computed incorrectly
-and pages with different colors in different zones can actually be of
-the same color.
+
+Ben
+
+-- 
+Debian     - http://www.debian.org/
+Linux 1394 - http://linux1394.sourceforge.net/
+Subversion - http://subversion.tigris.org/
+Deqo       - http://www.deqo.com/

@@ -1,53 +1,61 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316616AbSEPJXX>; Thu, 16 May 2002 05:23:23 -0400
+	id <S316615AbSEPJWf>; Thu, 16 May 2002 05:22:35 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316617AbSEPJXX>; Thu, 16 May 2002 05:23:23 -0400
-Received: from 167.imtp.Ilyichevsk.Odessa.UA ([195.66.192.167]:7438 "EHLO
-	Port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with ESMTP
-	id <S316616AbSEPJXS>; Thu, 16 May 2002 05:23:18 -0400
-Message-Id: <200205160919.g4G9J0Y16751@Port.imtp.ilyichevsk.odessa.ua>
-Content-Type: text/plain;
-  charset="us-ascii"
-From: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
-Reply-To: vda@port.imtp.ilyichevsk.odessa.ua
-To: Xavier Bestel <xavier.bestel@free.fr>
-Subject: Re: No Network after Compiling,2.4.19-pre8 under Debian Woody(Long Message)
-Date: Thu, 16 May 2002 12:21:25 -0200
-X-Mailer: KMail [version 1.3.2]
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <003c01c1fb9d$345e0a20$2000a8c0@metalbox> <200205160618.g4G6I5Y16037@Port.imtp.ilyichevsk.odessa.ua> <1021539953.17761.150.camel@bip>
+	id <S316616AbSEPJWe>; Thu, 16 May 2002 05:22:34 -0400
+Received: from 213-98-127-214.uc.nombres.ttd.es ([213.98.127.214]:11688 "EHLO
+	demo.mitica") by vger.kernel.org with ESMTP id <S316615AbSEPJWd>;
+	Thu, 16 May 2002 05:22:33 -0400
+To: Andrea Arcangeli <andrea@suse.de>
+Cc: Rik van Riel <riel@conectiva.com.br>, linux-kernel@vger.kernel.org
+Subject: Re: 2.4.19pre8aa3
+In-Reply-To: <20020516020134.GC1025@dualathlon.random>
+	<Pine.LNX.4.44L.0205152303500.32261-100000@imladris.surriel.com>
+	<20020516023238.GE1025@dualathlon.random>
+X-Url: http://people.mandrakesoft.com/~quintela
+From: Juan Quintela <quintela@mandrakesoft.com>
+Date: 16 May 2002 11:27:37 +0200
+Message-ID: <m2g00s8mt2.fsf@demo.mitica>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 16 May 2002 07:05, Xavier Bestel wrote:
-> Le jeu 16/05/2002 ? 13:20, Denis Vlasenko a ?crit :
-> > On 15 May 2002 14:38, Xavier Bestel wrote:
-> > > Yes, it works at 10Mbit. But the driver doesn't do speed negociation,
-> > > it doesn't even see the MII registers. However I think RTL8139 cards
-> > > have MII registers. I quickly looked at the source but didn't see
-> > > anything special.
-> >
-> > Becker's diag utils say there is *no* MII in RTL8139, just something
-> > vaguely resembling that. I have trouble persuading 8139 to work in
-> > 100mbit fdx, it insists on half duplex. :-(
->
-> How do you do this ? Mine only accepts 10Mbits ...
-> I tried with mii-diad and with rtl8139-diag.
+>>>>> "andrea" == Andrea Arcangeli <andrea@suse.de> writes:
 
-Tried too, rtl8139-diag set my nic to 10mbit and I could not boot
-with NFS root anymore. 8-]. Brought DOS-based conf utility and
-used it.
+Hi
 
-> rtl8139-diag shows "internal MII-compatible registers", then "Link
-> Partner Ability register 0x40a1" (seems what I want), but then "I'm
-> advertising 0000" and "Link partner capability is 0000".
-> I'm lost.
+andrea> I'm not using the full blown initrd of most distros that is aware of the
+andrea> mistery of life and of all the kernel bugs out there too, my own dumb
+andrea> linuxrc just says:
 
-Donald Becker's utils, while definitely useful, aren't very pretty.
-For example, one needs to read source to learn switches.
-Are they maintained?
---
-vda
+andrea> echo hello world
+
+andrea> and then returns, and ext3 gets mounted as ext2 and that's a kernel bug,
+andrea> all other fs gets mounted correctly with my initrd, only ext3 gone wrong
+andrea> until I fixed it.
+
+>> --- snip from linuxrc ----
+>> mount --ro -t $rootfs $rootdev /sysroot
+>> pivot_root /sysroot /sysroot/initrd
+>> ------
+>> 
+>> This way you can specify both the root fs and - if wanted -
+>> special mount options to the root fs. Then you pivot_root(2)
+>> to move the root fs to / and the (old) initrd to /initrd.
+
+andrea> both lines are completly superflous, very misleading as well. I
+andrea> recommend to drop such two lines from all the full blown bug-aware
+andrea> linuxrc out there (of course after you apply the ordering fix to the
+andrea> kernel).
+
+I am missing something, or how do you pass the notail option to your
+reiserfs rootfs when the initrd is ext2.
+
+
+Later, Juan.
+
+-- 
+In theory, practice and theory are the same, but in practice they 
+are different -- Larry McVoy

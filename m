@@ -1,53 +1,55 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262920AbTCKN0Y>; Tue, 11 Mar 2003 08:26:24 -0500
+	id <S262925AbTCKNek>; Tue, 11 Mar 2003 08:34:40 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262921AbTCKN0Y>; Tue, 11 Mar 2003 08:26:24 -0500
-Received: from mx12.arcor-online.net ([151.189.8.88]:8145 "EHLO
-	mx12.arcor-online.net") by vger.kernel.org with ESMTP
-	id <S262920AbTCKN0X>; Tue, 11 Mar 2003 08:26:23 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Daniel Phillips <phillips@arcor.de>
-To: Helge Hafting <helgehaf@aitel.hist.no>, Hans Reiser <reiser@namesys.com>
-Subject: Re: [RFC] Improved inode number allocation for HTree
-Date: Tue, 11 Mar 2003 14:41:06 +0100
-X-Mailer: KMail [version 1.3.2]
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <11490000.1046367063@[10.10.2.4]> <3E6DBE3B.8030007@namesys.com> <3E6DDDD2.3050709@aitel.hist.no>
-In-Reply-To: <3E6DDDD2.3050709@aitel.hist.no>
+	id <S262923AbTCKNef>; Tue, 11 Mar 2003 08:34:35 -0500
+Received: from [212.253.173.227] ([212.253.173.227]:38739 "HELO ommo.net")
+	by vger.kernel.org with SMTP id <S262921AbTCKNea> convert rfc822-to-8bit;
+	Tue, 11 Mar 2003 08:34:30 -0500
+From: "MARAMARA Erotik Market" <aysen@yahoo.com>
+Reply-To: aysen@yahoo.com
+To: linux-fsdevel@vger.kernel.org
+Date: Tue, 11 Mar 2003 15:46:00 +0200
+Subject: BU FIRSATTAN RARARLANIN.
+X-Mailer: Microsoft Outlook Express 5.00.2919.7000
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <20030311133705.2157A102100@mx12.arcor-online.net>
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Message-Id: <20030311133431Z262921-25575+28770@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue 11 Mar 03 14:00, Helge Hafting wrote:
-> Hans Reiser wrote:
-> > Let's make noatime the default for VFS.
-> >
-> > Daniel Phillips wrote:
->
-> [...]
->
-> >> If I were able to design Unix over again, I'd state that if you don't
-> >> lock a directory before traversing it then it's your own fault if
-> >> somebody changes it under you, and I would have provided an interface
-> >> to inform you about your bad luck.  Strictly wishful thinking.
-> >> (There, it feels better now.)
->
-> I'm happy nobody _can_ lock a directory like that.  Think of it - unable
-> to create or delete files while some slow-moving program is traversing
-> the directory?  Ouch.  Plenty of options for DOS attacks too.
-> And how to do "rm *.bak" if rm locks the dir for traversal?
+DIKKAT
 
-<wishful thinking>
-Now that you mention it, just locking out create and rename during directory 
-traversal would eliminate the pain.  Delete is easy enough to handle during 
-traversal.  For a B-Tree, coalescing could simply be deferred until the 
-traversal is finished, so reading the directory in physical storage order 
-would be fine.  Way, way cleaner than what we have to do now.
-</wishful thinking>
+VIDEO CD :
+Iddia ediyoruz.. Hic bir yerden temin edemeyeceginiz ses ve göruntu kalitesi ile 
+yuzlerce porno video CD. arSivimiz yenilenmistir. istemis oldugunuz video CD.ler 
+bire bir yollanir kesinlikle isteginiz harici alakasiz baSka video CD.ler yollanmaz.
 
-Regards,
+Anal. Oral. Vajinal. Grup. Zenci. FethiS. Ayak fethiS. Gay. Zenci gay. Trans. Transexual.
+Lezbiyen ve daha bircok ceSit ....  <http://www.erotik.sites.cc/>
 
-Daniel
+ZENGIN URUN CESITLERIMIZ :
+
+Sisme Bebekler ..... (Erkek & Bayan) Kesinlikle size hayir demeyecek.
+Vibratörler ........ Istediginiz boy ve ebatlarda (Vajinal/Anal/catal.Pilli.Motorlu.TitreSimli)
+Suni Vajinalar ..... Asla gerceginden ayirt edemeyeceksiniz (Gercek ten hassasiyetinde)
+Reailistik Penisler. Gercek ten hassasiyetinde ve dokusunda (Vantuzlu/Deri kemer kilotlu)
+Vakum Pompalari .... Ereksiyonu kolaylastirici ve duzenli kullanimlarda peniste irilesme saglar.
+Geciktiriciler ..... Erken boSalmayi dert etmeyin (Sprey ceSitleri/Kremler)
+Kremler ............ Anal ve Vajinal iliSkilerde kullanabileceginiz kayganlaStirici krem ceSitleri
+Uyandiricilar ...... Cinsel istek uyandirici haplar ve damlalar.
+
+Yapmaniz gereken tek Sey <http://www.erotik.sites.cc/>   TIKLAMAK ..
+
+
+
+NOT : BU MAIL REKLAM AMAcLI OLUP HIcBIR SEKILDE TARAFIMIZDA KAYDINIZ BULUNMAMAKTADIR.
+      ILGI ALANINIZIN DISINDA ISE EGER LUTFEN DIKKATE ALMAYINIZ TESEKKURLER.. 
+
+
+
+
+
+
+

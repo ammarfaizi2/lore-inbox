@@ -1,53 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287184AbRL2LDd>; Sat, 29 Dec 2001 06:03:33 -0500
+	id <S287183AbRL2LOm>; Sat, 29 Dec 2001 06:14:42 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S287194AbRL2LDY>; Sat, 29 Dec 2001 06:03:24 -0500
-Received: from vasquez.zip.com.au ([203.12.97.41]:44807 "EHLO
-	vasquez.zip.com.au") by vger.kernel.org with ESMTP
-	id <S287182AbRL2LDG>; Sat, 29 Dec 2001 06:03:06 -0500
-Message-ID: <3C2DA1C9.8EB54896@zip.com.au>
-Date: Sat, 29 Dec 2001 02:58:17 -0800
-From: Andrew Morton <akpm@zip.com.au>
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.17-pre8 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: alad@hss.hns.com
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Mapped pages handling in shrink_cache()
-In-Reply-To: <65256B31.0038FC61.00@sandesh.hss.hns.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S287186AbRL2LOc>; Sat, 29 Dec 2001 06:14:32 -0500
+Received: from [64.42.30.110] ([64.42.30.110]:4100 "HELO mail.clouddancer.com")
+	by vger.kernel.org with SMTP id <S287183AbRL2LOT>;
+	Sat, 29 Dec 2001 06:14:19 -0500
+To: linux-kernel@vger.kernel.org
+Message-Id: <20011229111337.15E827843A@phoenix.clouddancer.com>
+Date: Sat, 29 Dec 2001 03:13:37 -0800 (PST)
+From: klink@clouddancer.com (Colonel)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-alad@hss.hns.com wrote:
-> 
-> Hi, In the following code from shrink_cache()
-> 
->           if (PageDirty(page) && is_page_cache_freeable(page) && page->mapping)
-> {
->                .
->                .
->                .
-> 
->                int (*writepage)(struct page *);
-> 
->                writepage = page->mapping->a_ops->writepage;
->                if ((gfp_mask & __GFP_FS) && writepage) {
->                     ClearPageDirty(page);
->                     SetPageLaunder(page);
->                     page_cache_get(page);
->                     spin_unlock(&pagemap_lru_lock);
-> 
->                     writepage(page);
->                     page_cache_release(page);
-> 
->                     spin_lock(&pagemap_lru_lock);
->                     continue;      <<<<<<< shouldn't the page be unlocked before
->  continuing with the next page <<<<<
->                }
-> 
+From: Colonel <klink@clouddancer.com>
+To: linux-kernel@vger.kernel.org
+Subject: 2.4.17 has broken RTNETLINK
+Reply-to: klink@clouddancer.com
 
-The page is unlocked when IO completes, in interrupt context.
-See end_buffer_io_async().
+
+Previously.....
+On Tue, Dec 25, 2001 at 05:17:01PM +0100, Manfred Spraul wrote:
+> > When I went to build 2.4.17 on a dinky box (486, 16M RAM), the
+> > config option was missing.  The box is a wall mount and is not very
+> > capable of multiple kernel experimentation alas.  Can someone
+> > supply some background as to what has happened?
+>
+> It seems that RTNETLINK is now unconditionally enabled, I don't know
+> why.
+It's required by newer RedHat and MDK initscripts, perhaps others.
+ip, iproute and similar utilities use it, and so since it's commonly
+required DaveM made it unconditional...  I think the checkin comment was
+something along the lines of "make it unconditional unless Alan
+complains about kernel bloat" :)
+        Jeff
+..................................................................
+
+So I went ahead, built 2.4.17, and BIRD doesn't work.  Dropped back to
+2.4.16, enabled the RTNETLINK option and all is fine.  Something is
+amiss here.
+
+r
+

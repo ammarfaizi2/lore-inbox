@@ -1,57 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268279AbUH2T03@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268282AbUH2T16@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268279AbUH2T03 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 29 Aug 2004 15:26:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268281AbUH2T03
+	id S268282AbUH2T16 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 29 Aug 2004 15:27:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268284AbUH2T16
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 29 Aug 2004 15:26:29 -0400
-Received: from hera.cwi.nl ([192.16.191.8]:48512 "EHLO hera.cwi.nl")
-	by vger.kernel.org with ESMTP id S268279AbUH2T01 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 29 Aug 2004 15:26:27 -0400
-Date: Sun, 29 Aug 2004 21:26:17 +0200
-From: Andries Brouwer <Andries.Brouwer@cwi.nl>
-To: William Lee Irwin III <wli@holomorphy.com>,
-       mita akinobu <amgta@yacht.ocn.ne.jp>, linux-kernel@vger.kernel.org,
-       Andries Brouwer <Andries.Brouwer@cwi.nl>,
-       Alessandro Rubini <rubini@ipvvis.unipv.it>
-Subject: Re: [util-linux] readprofile ignores the last element in /proc/profile
-Message-ID: <20040829192617.GB24937@apps.cwi.nl>
-References: <200408250022.09878.amgta@yacht.ocn.ne.jp> <20040829162252.GG5492@holomorphy.com> <20040829184114.GS5492@holomorphy.com>
+	Sun, 29 Aug 2004 15:27:58 -0400
+Received: from smtp-vbr12.xs4all.nl ([194.109.24.32]:3336 "EHLO
+	smtp-vbr12.xs4all.nl") by vger.kernel.org with ESMTP
+	id S268282AbUH2T1n (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 29 Aug 2004 15:27:43 -0400
+Subject: [PATCH] 2/3: 2.6.8 zr36067 driver - use msleep() instead of
+	schedule_timeout()
+From: Ronald Bultje <rbultje@ronald.bitfreak.net>
+To: akpm@osdl.org
+Cc: linux-kernel@vger.kernel.org, Nishanth Aravamudan <nacc@us.ibm.com>,
+       mjpeg-developer@lists.sourceforge.net
+Content-Type: multipart/mixed; boundary="=-VNkRXZRobvAYw/bk/HL/"
+Message-Id: <1093807744.26498.0.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040829184114.GS5492@holomorphy.com>
-User-Agent: Mutt/1.4i
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
+Date: Sun, 29 Aug 2004 21:29:04 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Aug 29, 2004 at 11:41:14AM -0700, William Lee Irwin III wrote:
-> On Sun, Aug 29, 2004 at 09:22:52AM -0700, William Lee Irwin III wrote:
-> > Well, since I couldn't stop vomiting for hours after I looked at the
-> > code for readprofile(1), here's a reimplementation, with various
-> > misfeatures removed, included as a MIME attachment.
-> 
-> I guess I might as well write a diffprof(1) too.
 
-Thanks!
+--=-VNkRXZRobvAYw/bk/HL/
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
 
-<mutter>
-Is it really necessary to tell Alessandro Rubini, Stephane Eranian,
-Andrew Morton, Werner Almesberger, John Levon, Nikita Danilov
-that their work makes you vomit?
-Many kernel people have such unpleasant habits.
-It fully suffices to say that you considered the original code
-too ugly to fix.
-</mutter>
+Hi,
 
-<util-linux maintainer>
-Your code still requires some polishing. No localized messages, etc.
-And next, you removed some features, but do not indicate what
-replacement you see.
-For example, Andrew added the -M option that sets a frequency.
-Are you going to contribute a write_profile too?
-Or do you think nobody should wish to set a frequency?
-</util-linux maintainer>
+attached patch makes the zr36067 driver use msleep() instead of
+schedule_timeout() with uninterruptible state. Patch originally
+submitted by Nishanth Aravamudan <nacc@us.ibm.com> (7/26).
 
-Andries
+Ronald
+
+Signed-off-by: Ronald Bultje <rbultje@ronald.bitfreak.net>
+Signed-off-by: Nishanth Aravamudan <nacc@us.ibm.com>
+
+-- 
+Ronald Bultje <rbultje@ronald.bitfreak.net>
+
+--=-VNkRXZRobvAYw/bk/HL/
+Content-Disposition: attachment; filename=zoran-use-msleep.diff
+Content-Type: text/x-patch; name=zoran-use-msleep.diff; charset=UTF-8
+Content-Transfer-Encoding: 7bit
+
+Index: linux/drivers/media/video/zoran_device.c
+--- linux~zoran-use-msleep/drivers/media/video/zoran_device.c	2004-08-14 12:55:33.000000000 +0200
++++ linux/drivers/media/video/zoran_device.c	2004-08-29 18:29:06.455019400 +0200
+@@ -1105,8 +1105,7 @@
+ 			ZR36057_ISR);
+ 		btand(~ZR36057_JMC_Go_en, ZR36057_JMC);	// \Go_en
+ 
+-		current->state = TASK_UNINTERRUPTIBLE;
+-		schedule_timeout(HZ / 20);
++		msleep(50);
+ 
+ 		set_videobus_dir(zr, 0);
+ 		set_frame(zr, 1);	// /FRAME
+
+--=-VNkRXZRobvAYw/bk/HL/--
+

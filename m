@@ -1,43 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261355AbRELXy4>; Sat, 12 May 2001 19:54:56 -0400
+	id <S261353AbRELXx0>; Sat, 12 May 2001 19:53:26 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261354AbRELXyq>; Sat, 12 May 2001 19:54:46 -0400
-Received: from mail.inf.elte.hu ([157.181.161.6]:64980 "HELO mail.inf.elte.hu")
-	by vger.kernel.org with SMTP id <S261355AbRELXyc>;
-	Sat, 12 May 2001 19:54:32 -0400
-Date: Sun, 13 May 2001 01:54:30 +0200 (CEST)
-From: BERECZ Szabolcs <szabi@inf.elte.hu>
-To: Alexander Viro <viro@math.psu.edu>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: Re: mount /dev/hdb2 /usr; swapon /dev/hdb2  keeps flooding
-In-Reply-To: <Pine.GSO.4.21.0105121935570.11973-100000@weyl.math.psu.edu>
-Message-ID: <Pine.A41.4.31.0105130146200.19270-100000@pandora.inf.elte.hu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S261354AbRELXxQ>; Sat, 12 May 2001 19:53:16 -0400
+Received: from mailhost.tue.nl ([131.155.2.5]:33336 "EHLO mailhost.tue.nl")
+	by vger.kernel.org with ESMTP id <S261353AbRELXxL>;
+	Sat, 12 May 2001 19:53:11 -0400
+Message-ID: <20010513015310.A7635@win.tue.nl>
+Date: Sun, 13 May 2001 01:53:10 +0200
+From: Guest section DW <dwguest@win.tue.nl>
+To: Anton Altaparmakov <aia21@cam.ac.uk>, linux-kernel@vger.kernel.org
+Subject: Re: Linux support for Microsoft dynamic disks?
+In-Reply-To: <5.1.0.14.2.20010513000214.00ab3810@pop.cus.cam.ac.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+X-Mailer: Mutt 0.93i
+In-Reply-To: <5.1.0.14.2.20010513000214.00ab3810@pop.cus.cam.ac.uk>; from Anton Altaparmakov on Sun, May 13, 2001 at 12:06:03AM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 12 May 2001, Alexander Viro wrote:
+On Sun, May 13, 2001 at 12:06:03AM +0100, Anton Altaparmakov wrote:
 
-> > > Just what behaviour had you expected?
-> > maybe that I don't have to shutdown?
-> > I think it's a *bad* behaviour
->
-> Erm... Let me restate: what did you expect to achieve with that?
-nothing
-I have an unused partition, what I use sometimes as fs, sometimes as swap.
-that partition is /dev/hdc2
-this time I really ran out of memory (0kfree swap), so I wanted swapon as
-soon as possible, and accidentally I typed /dev/hdb2 instead of
-/dev/hdc2.
+> Is anyone working on supporting the dynamic disk format introduced with 
+> Windows 2000? If not, does anyone have the specs / any detailed info on the 
+> on disk structures involved?
 
-> Swap on device means that all contents of that device is lost.
-> Mounting fs from device generally means that you don't want the
-> loss of contents. At least until you unmount the thing.
-I know...
+I once collected some stuff from the Microsoft Knowledge Base.
+In
+	http://www.win.tue.nl/~aeb/partitions/partition_types-1.html
+(hint: additions and corrections are welcome!)
+you find partition type 42 that marks a partition table as legacy.
 
-Bye,
-Szabi
+Unfortunately I do not have Windows 2000. (But I have DOS 4.01 :-)
 
-
+Andries

@@ -1,59 +1,46 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263410AbTDMKLF (for <rfc822;willy@w.ods.org>); Sun, 13 Apr 2003 06:11:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263411AbTDMKLF (for <rfc822;linux-kernel-outgoing>);
-	Sun, 13 Apr 2003 06:11:05 -0400
-Received: from 82-41-208-76.cable.ubr12.edin.blueyonder.co.uk ([82.41.208.76]:4224
-	"EHLO savagelandz.cjb.net") by vger.kernel.org with ESMTP
-	id S263410AbTDMKLE (for <rfc822;linux-kernel@vger.kernel.org>); Sun, 13 Apr 2003 06:11:04 -0400
-Message-ID: <36716.192.18.240.6.1050229446.squirrel@savagelandz.cjb.net>
-Date: Sun, 13 Apr 2003 11:24:06 +0100 (BST)
-Subject: PCI: Device 02:04.0 not available because of resource collisions
-From: <iain@savagelandz.cjb.net>
-To: <linux-kernel@vger.kernel.org>
-X-Priority: 3
-Importance: Normal
-X-Mailer: SquirrelMail (version 1.2.11)
+	id S263414AbTDMKRa (for <rfc822;willy@w.ods.org>); Sun, 13 Apr 2003 06:17:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263415AbTDMKR3 (for <rfc822;linux-kernel-outgoing>);
+	Sun, 13 Apr 2003 06:17:29 -0400
+Received: from smtp.hccnet.nl ([62.251.0.13]:34978 "EHLO smtp.hccnet.nl")
+	by vger.kernel.org with ESMTP id S263414AbTDMKR3 (for <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 13 Apr 2003 06:17:29 -0400
+Message-ID: <3E993C54.40805@hccnet.nl>
+Date: Sun, 13 Apr 2003 12:30:44 +0200
+From: Gert Vervoort <gert.vervoort@hccnet.nl>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.1) Gecko/20021003
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+To: Robert Love <rml@tech9.net>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: 2.5.67: ppa driver & preempt == oops
+References: <3E982AAC.3060606@hccnet.nl> <1050172083.2291.459.camel@localhost>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Kernel Developers,
+>
+>
+>I guess you don't see these without kernel preemption?
+>  
+>
+I've not tried that for 2.5.67, but with previous 2.5 versions I had no 
+problems when I disabled the ppa driver or preemption.
 
-I have been trying to get this Texas Instruments PCI1410 PC card Cardbus
-Controller to work in a l440gx+ based SMP system. However whenever pcmcia
-tries to start I get the following
+>These are not errors, just warnings.  Most likely you only see them when
+>CONFIG_PREEMPT is enabled, because otherwise the kernel cannot detect
+>them.  But they still happen.
+>
+>Does anything go wrong?  Or just these errors?
+>  
+>
 
-* Starting pcmcia...
-cardmgr[5854]: no sockets found!
- * cardmgr failed to start.  Make sure that you have PCMCIA
- * modules built or support compiled into the kernel
+With 2.5.67 it is just these messages, the system continues working. 
+Because of these messages I've not tried if the zip-driver functions 
+properly.
 
-A look in the system log reveals the following
-
-Linux Kernel Card Services 3.1.22
-  options:  [pci] [cardbus] [pm]
-PCI: Device 02:04.0 not available because of resource collisions
-
-This error occurs with both 2.5.66 and 2.5.67. I submitted this query to
-David Hinds on the PCMCIA forum and he suggested that I should bring this
-to you guys.
-
-I also recieved similar errors under 2.4.20. This kernel was patched with
-the xfs patches from SGI. Ihave tried this with both the in-kernel pcmcia
-and the drivers from the the pcmcia-cs package but the same is always
-recieved.
-
-What other information do you need? I'm afraid I'm not really a programmer
-and the insides of the kernel are a bit beyond me.
-
-Anyway any help would be greatly appreciated.
-
-Cheers
-
-iain
-
+  Gert
 
 

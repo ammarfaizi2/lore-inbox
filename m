@@ -1,59 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269668AbUINUoO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269793AbUINUps@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269668AbUINUoO (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Sep 2004 16:44:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269793AbUINUmR
+	id S269793AbUINUps (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Sep 2004 16:45:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269796AbUINUol
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Sep 2004 16:42:17 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:31389 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S269668AbUINUkZ (ORCPT
+	Tue, 14 Sep 2004 16:44:41 -0400
+Received: from [195.190.190.7] ([195.190.190.7]:18860 "EHLO mail.pixelized.ch")
+	by vger.kernel.org with ESMTP id S269800AbUINUny (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Sep 2004 16:40:25 -0400
-Subject: Re: [2.6.8.1/x86] The kernel is _always_ compiled with -msoft-float
-From: Arjan van de Ven <arjanv@redhat.com>
-Reply-To: arjanv@redhat.com
-To: Denis Zaitsev <zzz@anda.ru>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20040915021418.A1621@natasha.ward.six>
-References: <20040915021418.A1621@natasha.ward.six>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-diQHIR5KxkBHTSecYg6s"
-Organization: Red Hat UK
-Message-Id: <1095194406.2698.33.camel@laptop.fenrus.com>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Tue, 14 Sep 2004 22:40:07 +0200
+	Tue, 14 Sep 2004 16:43:54 -0400
+Message-ID: <414757FD.5050209@pixelized.ch>
+Date: Tue, 14 Sep 2004 22:43:41 +0200
+From: "Giacomo A. Catenazzi" <cate@pixelized.ch>
+User-Agent: Mozilla Thunderbird 0.7.3 (X11/20040912)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Greg KH <greg@kroah.com>
+CC: Chris Friesen <cfriesen@nortelnetworks.com>,
+       "Giacomo A. Catenazzi" <cate@debian.org>, linux-kernel@vger.kernel.org,
+       Tigran Aivazian <tigran@veritas.com>, md@Linux.IT
+Subject: Re: udev is too slow creating devices
+References: <41473972.8010104@debian.org> <41474926.8050808@nortelnetworks.com> <20040914195221.GA21691@kroah.com>
+In-Reply-To: <20040914195221.GA21691@kroah.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Greg KH wrote:
+> On Tue, Sep 14, 2004 at 01:40:22PM -0600, Chris Friesen wrote:
+> 
+>>Giacomo A. Catenazzi wrote:
+>>
+>>
+>>>udev + modular microcode:
+>>>$ modprobe -r microcode
+>>>$ modprobe microcode ; microcode_ctl -u
+>>>=> microcode_ctl does NOT find the device
+>>
+>>The loading of the module triggers udev to run.  There is no guarantee that 
+>>udev runs before microcode_ctl.
+>>
+>>One workaround would be to have microcode_ctl use dnotify to get woken up 
+>>whenever /dev changes.
+> 
+> 
+> Ick, no.  Use the /etc/dev.d/ notify method I described.  That is what
+> it is there for.
+> 
 
---=-diQHIR5KxkBHTSecYg6s
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+After a brief discussion with debian udev maintainer, I've an
+other proposal/opinion.
 
-On Tue, 2004-09-14 at 22:14, Denis Zaitsev wrote:
-> Why this kernel is always compiled with the FP emulation for x86?
-> This is the line from the beginning of arch/i386/Makefile:
->=20
-> CFLAGS +=3D -pipe -msoft-float
->=20
-> And it's hardcoded, it does not depend on CONFIG_MATH_EMULATION.  So,
-> is this just a typo or not?
+The "bug" appear only in two places: at udev start and after
+a modprobe, so IMHO we should correct these two place, so that:
+- from a user side perspective it is the right thing!
+   (after a successful modprobe, I expect module and devices
+    are created sussesfully)
+- there are not many special case:
+   with udev use dev.d, else do actions now!
 
+Else every distribution should create a script for
+every init.d script that would eventually use (also
+indirectly) a kernel module.
 
-this is on purpose; this way we get an error if someone uses floating
-point in the kernel.... which is BAD
-
---=-diQHIR5KxkBHTSecYg6s
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-
-iD8DBQBBR1cmxULwo51rQBIRApt6AKCTWwCCCpUkVrtuSKUjD4wd+m0qtwCeJKvb
-MOeMnLUdyI1UeKCrOANdUEY=
-=1ANy
------END PGP SIGNATURE-----
-
---=-diQHIR5KxkBHTSecYg6s--
-
+ciao
+	cate

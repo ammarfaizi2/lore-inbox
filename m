@@ -1,37 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S279846AbRKSQJu>; Mon, 19 Nov 2001 11:09:50 -0500
+	id <S279951AbRKSQLu>; Mon, 19 Nov 2001 11:11:50 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S279934AbRKSQJl>; Mon, 19 Nov 2001 11:09:41 -0500
-Received: from mx1out.umbc.edu ([130.85.253.51]:50080 "EHLO mx1out.umbc.edu")
-	by vger.kernel.org with ESMTP id <S277012AbRKSQJ3>;
-	Mon, 19 Nov 2001 11:09:29 -0500
-Date: Mon, 19 Nov 2001 11:09:24 -0500
-From: John Jasen <jjasen1@umbc.edu>
-X-X-Sender: <jjasen1@irix2.gl.umbc.edu>
-To: Miguel Maria Godinho de Matos <Astinus@netcabo.pt>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: Hp 8xxx Cd writer
-In-Reply-To: <EXCH01SMTP01CJiLyNf000018e2@smtp.netcabo.pt>
-Message-ID: <Pine.SGI.4.31L.02.0111191108260.12469772-100000@irix2.gl.umbc.edu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S279927AbRKSQLa>; Mon, 19 Nov 2001 11:11:30 -0500
+Received: from prgy-npn1.prodigy.com ([207.115.54.37]:35338 "EHLO
+	deathstar.prodigy.com") by vger.kernel.org with ESMTP
+	id <S277012AbRKSQL2>; Mon, 19 Nov 2001 11:11:28 -0500
+Date: Mon, 19 Nov 2001 11:11:20 -0500
+Message-Id: <200111191611.fAJGBKQ30686@deathstar.prodigy.com>
+To: linux-kernel@vger.kernel.org
+Subject: Re: 2.4.14 Oops during boot (KT133A Problem?)
+X-Newsgroups: linux.kernel
+In-Reply-To: <3BF32B36.8B1375D0@neo.shinko.co.jp>
+In-Reply-To: <20011115021142.A12923@moog.heim1.tu-clausthal.de>
+Organization: TMR Associates, Schenectady NY
+From: davidsen@tmr.com (bill davidsen)
+Reply-To: davidsen@tmr.com (bill davidsen)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 19 Nov 2001, Miguel Maria Godinho de Matos wrote:
+In article <3BF32B36.8B1375D0@neo.shinko.co.jp> nakai@neo.shinko.co.jp wrote:
+>I think you'd be better compile kernel for K6, not for K7.  There is
+>something wrong with KT133 chip set and Athlon/Duron.
 
-> I have a doubt though! I have an externel cd-writer ( hp 8200 ) which is
-> supported by the kernel, but in the make xconfig menu, that options appears
-> in gray ( u can't select it ). As a lot of kernel options need some kind of
-> pre-selected items, i am asking anyone who  knows what do i have to
-> pre-select so i can choose the module for hp..... support in my usb kernel
-> configuration menu.
+There is a patch for this chipset around, which AFAIK was never put in
+the kernel because the exact function of the patch was not known WRT the
+chipset internals. None the less, without it my Athlon systems won't run
+an Athlon compiled kernel, and while a P6 kernel will boot,
+Athlon-optimized user software will hang the system. Since that's not
+acceptable I run the patch. You should be able to find it on this list
+in the archives.
 
-You probably need to say yes to experimental drivers, and if I recall the
-HP8200 correctly, various USB options.
-
---
--- John E. Jasen (jjasen1@umbc.edu)
--- In theory, theory and practise are the same. In practise, they aren't.
-
+-- 
+bill davidsen <davidsen@tmr.com>
+  His first management concern is not solving the problem, but covering
+his ass. If he lived in the middle ages he'd wear his codpiece backward.

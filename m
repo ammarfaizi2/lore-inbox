@@ -1,43 +1,43 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265400AbSL1Ckg>; Fri, 27 Dec 2002 21:40:36 -0500
+	id <S265402AbSL1Cyk>; Fri, 27 Dec 2002 21:54:40 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265402AbSL1Ckg>; Fri, 27 Dec 2002 21:40:36 -0500
-Received: from h-64-105-35-71.SNVACAID.covad.net ([64.105.35.71]:61367 "EHLO
-	freya.yggdrasil.com") by vger.kernel.org with ESMTP
-	id <S265400AbSL1Ckf>; Fri, 27 Dec 2002 21:40:35 -0500
-From: "Adam J. Richter" <adam@yggdrasil.com>
-Date: Fri, 27 Dec 2002 18:48:48 -0800
-Message-Id: <200212280248.SAA25890@adam.yggdrasil.com>
-To: david-b@pacbell.net, James.bottomley@steeleye.com,
-       linux-kernel@vger.kernel.org, manfred@colorfulllife.com
-Subject: Re: [RFT][PATCH] generic device DMA implementation
+	id <S265409AbSL1Cyk>; Fri, 27 Dec 2002 21:54:40 -0500
+Received: from lennier.cc.vt.edu ([198.82.162.213]:41994 "EHLO
+	lennier.cc.vt.edu") by vger.kernel.org with ESMTP
+	id <S265402AbSL1Cyj> convert rfc822-to-8bit; Fri, 27 Dec 2002 21:54:39 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Brad Tilley <rtilley@vt.edu>
+Reply-To: rtilley@vt.edu
+Organization: Virginia Tech
+To: Alex Goddard <agoddard@purdue.edu>
+Subject: Re: 2.5.53 make modules_install problem
+Date: Fri, 27 Dec 2002 21:45:05 -0500
+User-Agent: KMail/1.4.1
+Cc: linux-kernel@vger.kernel.org
+References: <200212270958.43939.rtilley@vt.edu> <Pine.LNX.4.50L0.0212271751380.1209-100000@dust.ebiz-gw.wintek.com>
+In-Reply-To: <Pine.LNX.4.50L0.0212271751380.1209-100000@dust.ebiz-gw.wintek.com>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <200212272145.05934.rtilley@vt.edu>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-At 2002-12-28 1:29:54 GMT, David Brownell wrote:
->Isn't the goal to make sure that for every kind of "struct device *"
->it should be possible to use those dma_*() calls, without BUGging
->out.
+> Obtain the newest module-init-tools from:
+> http://www.kernel.org/pub/linux/kernel/people/rusty/modules
+>
 
-	No.
+That package fixed the problem. Thank you for telling me about it.
 
->If that's not true ... then why were they defined?
+> You may also find it helpful in the future to find a lkml archive
+> ( http://groups.google.com keeps one under linux.kernel, IIRC.  I use
+> http://marc.theaimsgroup.com ), and search it for any problem you're
+> having.  I mention this only because someone reports this "problem" about
+> once a week, so it's been answered a bunch already.
+>
+> I don't mean that as a flame or anything.  But if whatever problem you're
+> having has already been discussed, and addressed before, a little research
+> on your part will get you your answer more quickly
 
-	So that other memory mapped busses such as ISA and sbus
-can use them.
-
-	USB devices should do DMA operations with respect to their USB
-host adapters, typically a PCI device.  For example, imagine a machine
-with two USB controllers on different bus instances.
-
-	One of these days, I'd like to add "struct device *dma_dev;" to
-struct request_queue to facilitate optional centralization of
-dma_{,un}map_sg for most hardware drivers.  PCI scsi controllers, for
-example would set dma_dev to the PCI device.  USB scsi controllers
-would set it to the USB host adapter.
-
-Adam J. Richter     __     ______________   575 Oroville Road
-adam@yggdrasil.com     \ /                  Milpitas, California 95035
-+1 408 309-6081         | g g d r a s i l   United States of America
-                         "Free Software For The Rest Of Us."
+I'm use to the 64 bit, compiled the compiler, tough guy, kernel hacker 
+attitude. So, now offense was taken ;-)

@@ -1,46 +1,88 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269987AbTHOQZs (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 15 Aug 2003 12:25:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269512AbTHOQNO
+	id S270219AbTHOQoY (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 15 Aug 2003 12:44:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267952AbTHOQl4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 15 Aug 2003 12:13:14 -0400
-Received: from zeus.kernel.org ([204.152.189.113]:59269 "EHLO zeus.kernel.org")
-	by vger.kernel.org with ESMTP id S269514AbTHOQJh (ORCPT
+	Fri, 15 Aug 2003 12:41:56 -0400
+Received: from fw1.masirv.com ([65.205.206.2]:64404 "EHLO NEWMAN.masirv.com")
+	by vger.kernel.org with ESMTP id S270496AbTHOQkM (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 15 Aug 2003 12:09:37 -0400
-Date: Fri, 15 Aug 2003 10:03:24 -0500
-From: Matt Mackall <mpm@selenic.com>
-To: Andries Brouwer <aebr@win.tue.nl>
-Cc: Val Henson <val@nmt.edu>, David Wagner <daw@mozart.cs.berkeley.edu>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [RFC][PATCH] Make cryptoapi non-optional?
-Message-ID: <20030815150324.GX325@waste.org>
-References: <20030809173329.GU31810@waste.org> <20030813032038.GA1244@think> <20030813040614.GP31810@waste.org> <20030814165320.GA2839@speare5-1-14> <bhgoj9$9ab$1@abraham.cs.berkeley.edu> <20030815001713.GD5333@speare5-1-14> <20030815093003.A2784@pclin040.win.tue.nl>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20030815093003.A2784@pclin040.win.tue.nl>
-User-Agent: Mutt/1.3.28i
+	Fri, 15 Aug 2003 12:40:12 -0400
+Message-ID: <1060912337.31243.49.camel@huykhoi>
+From: Anthony Truong <Anthony.Truong@mascorp.com>
+To: John Newbie <john_r_newbie@hotmail.com>
+Cc: vda@port.imtp.ilyichevsk.odessa.ua, linux-kernel@vger.kernel.org
+Subject: Re: ide drives performance issues, maybe related with buffer cach
+	e.
+Date: Thu, 14 Aug 2003 18:52:16 -0700
+MIME-Version: 1.0
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Aug 15, 2003 at 09:30:03AM +0200, Andries Brouwer wrote:
-> On Thu, Aug 14, 2003 at 06:17:13PM -0600, Val Henson wrote:
-> 
-> > See Matt Mackall's earlier post on correlation, excerpted at the end
-> > of this message.  Basically, with two strings x and y, the entropy of
-> > x alone or y alone is always greater than or equal to the entropy of x
-> > xored with y.
-> > 
-> > entropy(x) >= entropy(x xor y)
-> > entropy(y) >= entropy(x xor y)
-> 
-> Is this trolling? Are you serious?
-> Try to put z = x xor y and apply your insight to the strings x and z.
+On Fri, 2003-08-15 at 23:39, John Newbie wrote:
 
-Val left out the assumption that x and y are already perfectly
-distributed, in and of themselves.
+> > So question is : why when i am copying file from one HD to another
+(for
+> > simplicity from /hda to /hdb)
+> > the speed fall down ? Starting from about 27-30 MB/s (drives are in 
+>UDMA-4,
+> > hdparm -X68) it drops
+> > down to 11-12 MB/s after 4-5s. In *indows transfer rate is almost 
+>constant
+> > and about 20-22 MB/s (same hardware). Why the h#ll we suck?
+> > I feel that it's due to buffer cache, because when you use sync
+(while
+> > copying) transfer rate is so small or even 0.
+> > Drives are tuned with hdparm to highest transfer rates, readahead, 
+>multiple
+> > sector count (hdparm
+> > for details).
+> > Tried different filesystems, from classic ext2/3 to modern
+xfs/reiserfs. 
+>The
+> > same results.
+> > Pure kernel from kernel.org (2.4.{19,20,21}), vendors kernels - all
+the
 
--- 
-Matt Mackall : http://www.selenic.com : of or relating to the moon
+>How do you copy files? cp? dd? Midnight Commander? ;)
+>Does it happen with SCSI?
+>--
+>vda
+
+I've used cp & Midnight Commander (mc). Also when someone uploads big
+file 
+on server through
+samba, speed sometimes fall down to zero.
+
+Have no idea about scsi, drives are IDE.
+
+Hello,
+Let's see if we can eliminate this HW constraint:
+Do you have the 2 HDs at the same IDE port (primary or secondary) or at
+different IDE ports?
+It might be related to the fact that IDE driver can't send 2
+simultaneous cmds to 2 different drives if they are attached to the same
+IDE port.
+This is a simple point, but I hope we don't overlook it when making the
+comparison between Linux and *dows. :-)
+
+Regards,
+Anthony Dominic Truong.
+
+
+
+
+Disclaimer: The information contained in this transmission, including any
+attachments, may contain confidential information of Matsushita Avionics
+Systems Corporation.  This transmission is intended only for the use of the
+addressee(s) listed above.  Unauthorized review, dissemination or other use
+of the information contained in this transmission is strictly prohibited.
+If you have received this transmission in error or have reason to believe
+you are not authorized to receive it, please notify the sender by return
+email and promptly delete the transmission.
+
+

@@ -1,40 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317298AbSHOSJa>; Thu, 15 Aug 2002 14:09:30 -0400
+	id <S317305AbSHOSUf>; Thu, 15 Aug 2002 14:20:35 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317302AbSHOSJa>; Thu, 15 Aug 2002 14:09:30 -0400
-Received: from mikonos.cyclades.com.br ([200.230.227.67]:25350 "EHLO
-	firewall.cyclades.com.br") by vger.kernel.org with ESMTP
-	id <S317298AbSHOSJ3>; Thu, 15 Aug 2002 14:09:29 -0400
-Content-Type: text/plain;
-  charset="us-ascii"
-From: henrique <henrique@cyclades.com>
-Reply-To: henrique@cyclades.com
-Organization: Cyclades Corporation
-To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: Problem with random.c and PPC
-Date: Thu, 15 Aug 2002 15:14:51 +0000
-User-Agent: KMail/1.4.1
+	id <S317306AbSHOSUf>; Thu, 15 Aug 2002 14:20:35 -0400
+Received: from air-2.osdl.org ([65.172.181.6]:51417 "EHLO cherise.pdx.osdl.net")
+	by vger.kernel.org with ESMTP id <S317305AbSHOSUe>;
+	Thu, 15 Aug 2002 14:20:34 -0400
+Date: Thu, 15 Aug 2002 11:28:51 -0700 (PDT)
+From: Patrick Mochel <mochel@osdl.org>
+X-X-Sender: mochel@cherise.pdx.osdl.net
+To: "Grover, Andrew" <andrew.grover@intel.com>
+cc: "'colpatch@us.ibm.com'" <colpatch@us.ibm.com>,
+       Linus Torvalds <torvalds@transmeta.com>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       "Martin J. Bligh" <Martin.Bligh@us.ibm.com>,
+       <linux-kernel@vger.kernel.org>, Michael Hohnbaum <hohnbaum@us.ibm.com>,
+       Greg KH <gregkh@us.ibm.com>, <jgarzik@mandrakesoft.com>,
+       "Diefenbaugh, Paul S" <paul.s.diefenbaugh@intel.com>
+Subject: RE: [patch] PCI Cleanup
+In-Reply-To: <EDC461A30AC4D511ADE10002A5072CAD0236DD92@orsmsx119.jf.intel.com>
+Message-ID: <Pine.LNX.4.44.0208151104170.1241-100000@cherise.pdx.osdl.net>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Message-Id: <200208151514.51462.henrique@cyclades.com>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello !!!
 
-I am trying to use a program (ipsec newhostkey) that uses the random device 
-provided by the linux-kernel. In a x86 machine the program works fine but 
-when I tried to run the program in a PPC machine it doesn't work.
+> ACPI needs access to PCI config space, and it doesn't have a struct pci_dev
+> to pass to access functions. It doesn't look like your patch exposes an
+> interface that 1) doesn't require a pci_dev and 2) abstracts the PCI config
+> access method, does it?
 
-Looking carefully I have discovered that the problem is in the driver 
-random.c. When the program tries to read any amount of data it locks and 
-never returns. It happens because the variable  "random_state->entropy_count" 
-is always zero, that is, any random number is generated at all !!!??.
+I think your dependencies are backwards. IIRC, and based on a recent 
+conversation, ACPI needs to access PCI config space when ACPI finds a 
+_INI method for a device in the ACPI namespace. That assumes that it can 
+access the root bus that the device is on. 
 
-Does anyone know anything about this problem ? Any sort of help is very 
-welcomed.
+You don't have a PCI device because you haven't implement lockstep 
+enumeration yet in ACPI. With lockstep enumeration, you would add devices 
+to the device tree and let the bus drivers initialize them. With a bit a 
+glue, you would have a pointer to the PCI device correlating to the ACPI 
+namespace object, and a pointer to the PCI bus on which each PCI 
+device/namespace object resides. 
 
-Thanks
-Henrique Gobbi
+To spell it out a bit more explicitly, you would start to parse the ACPI
+namespace and find a Host/PCI bridge. You would tell the PCI subsystem to
+probe for a device at that address. It would come back successful, and you
+would obtain a pointer to that bridge device (and bus object). For all the
+subordinate devices to that bridge, you then have access to the config
+space via a real struct pci_bus.
+
+There is no need to modify the PCI interface to support a fake device. The 
+PCI driver needs to be able to add and probe for devices as dictated by 
+someone else, but it's not that difficult.
+
+If you remember, I sent you a patch that did most of this about 5 months 
+ago. It's a bit out of date, and I guarantee that it doesn't apply 
+anymore. But the concept is the same: we should fix the drivers, not hack 
+them to support a broken interface.
+
+	-pat
 

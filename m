@@ -1,103 +1,59 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281739AbRLGOtF>; Fri, 7 Dec 2001 09:49:05 -0500
+	id <S281738AbRLGOvZ>; Fri, 7 Dec 2001 09:51:25 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281738AbRLGOsz>; Fri, 7 Dec 2001 09:48:55 -0500
-Received: from ns.virtualhost.dk ([195.184.98.160]:52741 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id <S281735AbRLGOsp>;
-	Fri, 7 Dec 2001 09:48:45 -0500
-Date: Fri, 7 Dec 2001 15:48:36 +0100
-From: Jens Axboe <axboe@suse.de>
-To: rwhron@earthlink.net
-Cc: linux-kernel@vger.kernel.org, torvalds@transmeta.com
-Subject: Re: Oops on 2.5.1-pre6 doing mkreiserfs on loop device
-Message-ID: <20011207144836.GF12017@suse.de>
-In-Reply-To: <20011206233759.A173@earthlink.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20011206233759.A173@earthlink.net>
+	id <S281762AbRLGOvF>; Fri, 7 Dec 2001 09:51:05 -0500
+Received: from dsl-213-023-043-071.arcor-ip.net ([213.23.43.71]:48392 "EHLO
+	starship.berlin") by vger.kernel.org with ESMTP id <S281738AbRLGOuy>;
+	Fri, 7 Dec 2001 09:50:54 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Daniel Phillips <phillips@bonn-fries.net>
+To: Hans Reiser <reiser@namesys.com>, cs@zip.com.au
+Subject: Re: Ext2 directory index: ALS paper and benchmarks
+Date: Fri, 7 Dec 2001 15:53:03 +0100
+X-Mailer: KMail [version 1.3.2]
+Cc: linux-kernel@vger.kernel.org, reiserfs-dev@namesys.com
+In-Reply-To: <E16BjYc-0000hS-00@starship.berlin> <20011207141913.A26225@zapff.research.canon.com.au> <3C109FE3.5070107@namesys.com>
+In-Reply-To: <3C109FE3.5070107@namesys.com>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7BIT
+Message-Id: <E16CMN6-0000t8-00@starship.berlin>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Dec 06 2001, rwhron@earthlink.net wrote:
+On December 7, 2001 11:54 am, Hans Reiser wrote:
+> Cameron Simpson wrote:
 > 
-> The three commands below are what executed just before the Oops.
-> Output to console and ps show that mkreiserfs command was executing.
-> The commands are a portion of a script I've run without Oops on
-> other kernels.
+> >On Thu, Dec 06, 2001 at 06:41:17AM +0300, Hans Reiser <reiser@namesys.com> 
+wrote:
+> >| Have you ever seen an application that creates millions of files create 
+> >| them in random order?
+> >
+> >I can readily imagine one. An app which stashes things sent by random
+> >other things (usenet/email attachment trollers? security cameras taking
+> >thouands of still photos a day?). Mail services like hotmail. with a
+> >zillion mail spools, being made and deleted and accessed at random...
+> 
+> Ok, they exist, but they are the 20% not the 80% case, and for that 
+> reason preserving order in hashing is a legitimate optimization.
 
-This should fix it.
+At least, I think you ought to make a random hash the default.  You're 
+suffering badly on the 'random name' case, which I don't think is all that 
+rare.  I'll run that test again with some of your hashes and see what happens.
 
---- /opt/kernel/linux-2.5.1-pre6/mm/highmem.c	Fri Dec  7 09:16:24 2001
-+++ mm/highmem.c	Fri Dec  7 09:44:27 2001
-@@ -225,12 +225,11 @@
- 
- 		vfrom = page_address(fromvec->bv_page) + fromvec->bv_offset;
- 
--		__save_flags(flags);
--		__cli();
-+		local_irq_save(flags);
- 		vto = kmap_atomic(tovec->bv_page, KM_BOUNCE_READ);
--		memcpy(vto + tovec->bv_offset, vfrom, to->bi_size);
-+		memcpy(vto + tovec->bv_offset, vfrom, tovec->bv_len);
- 		kunmap_atomic(vto, KM_BOUNCE_READ);
--		__restore_flags(flags);
-+		local_irq_restore(flags);
- 	}
- }
- 
-@@ -263,28 +262,36 @@
- static inline int bounce_end_io (struct bio *bio, int nr_sectors)
- {
- 	struct bio *bio_orig = bio->bi_private;
--	struct page *page = bio_page(bio);
-+	struct bio_vec *bvec, *org_vec;
- 	unsigned long flags;
--	int ret;
-+	int ret, i;
- 
- 	if (test_bit(BIO_UPTODATE, &bio->bi_flags))
- 		set_bit(BIO_UPTODATE, &bio_orig->bi_flags);
- 
- 	ret = bio_orig->bi_end_io(bio_orig, nr_sectors);
- 
-+	/*
-+	 * free up bounce indirect pages used
-+	 */
- 	spin_lock_irqsave(&emergency_lock, flags);
--	if (nr_emergency_pages >= POOL_SIZE) {
--		spin_unlock_irqrestore(&emergency_lock, flags);
--		__free_page(page);
--	} else {
--		/*
--		 * We are abusing page->list to manage
--		 * the highmem emergency pool:
--		 */
--		list_add(&page->list, &emergency_pages);
--		nr_emergency_pages++;
--		spin_unlock_irqrestore(&emergency_lock, flags);
-+	bio_for_each_segment(bvec, bio, i) {
-+		org_vec = &bio_orig->bi_io_vec[0];
-+		if (bvec->bv_page == org_vec->bv_page)
-+			continue;
-+	
-+		if (nr_emergency_pages >= POOL_SIZE)
-+			__free_page(bvec->bv_page);
-+		else {
-+			/*
-+			 * We are abusing page->list to manage
-+			 * the highmem emergency pool:
-+			 */
-+			list_add(&bvec->bv_page->list, &emergency_pages);
-+			nr_emergency_pages++;
-+		}
- 	}
-+	spin_unlock_irqrestore(&emergency_lock, flags);
- 
- 	bio_put(bio);
- 	return ret;
+> If names are truly random ordered, then the only optimization that can 
+> help is compression so as to cause the working set to still fit into RAM.
 
--- 
-Jens Axboe
+You appear to be mixing up the idea of random characters in the names with 
+random processing order.  IMHO, the exact characters in a file name should 
+not affect processing efficiency at all, and I went out of my way to make 
+that true with HTree.
 
+On the other hand, the processing order of names does and will always matter 
+a great deal in terms of cache footprint.
+
+I should have done random stat benchmarks too, since we'll really see the 
+effects of processing order there.  I'll put that on my to-do list.
+
+--
+Daniel

@@ -1,50 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S272501AbRHaDdI>; Thu, 30 Aug 2001 23:33:08 -0400
+	id <S272553AbRHaDe7>; Thu, 30 Aug 2001 23:34:59 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S272553AbRHaDc6>; Thu, 30 Aug 2001 23:32:58 -0400
-Received: from smtp10.atl.mindspring.net ([207.69.200.246]:40208 "EHLO
-	smtp10.atl.mindspring.net") by vger.kernel.org with ESMTP
-	id <S272501AbRHaDcr>; Thu, 30 Aug 2001 23:32:47 -0400
-Subject: [PATCH] 2.4.9/2.4.10 Let net devices contribute entropy
-From: Robert Love <rml@tech9.net>
-To: linux-kernel@vger.kernel.org
-In-Reply-To: <998616119.9306.32.camel@phantasy>
-In-Reply-To: <998616119.9306.32.camel@phantasy>
-Content-Type: text/plain
+	id <S272595AbRHaDet>; Thu, 30 Aug 2001 23:34:49 -0400
+Received: from saturn.cs.uml.edu ([129.63.8.2]:48389 "EHLO saturn.cs.uml.edu")
+	by vger.kernel.org with ESMTP id <S272553AbRHaDea>;
+	Thu, 30 Aug 2001 23:34:30 -0400
+From: "Albert D. Cahalan" <acahalan@cs.uml.edu>
+Message-Id: <200108310334.f7V3YZm442148@saturn.cs.uml.edu>
+Subject: Re: Athlon doesn't like Athlon optimisation?
+To: david@digitalaudioresources.org (David Hollister)
+Date: Thu, 30 Aug 2001 23:34:35 -0400 (EDT)
+Cc: jan@gondor.com (Jan Niehusmann), linux-kernel@vger.kernel.org,
+        rgooch@atnf.csiro.au
+In-Reply-To: <3B8EFF67.9010409@digitalaudioresources.org> from "David Hollister" at Aug 30, 2001 08:07:19 PM
+X-Mailer: ELM [version 2.5 PL2]
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/0.12.99+cvs.2001.08.21.23.41 (Preview Release)
-Date: 30 Aug 2001 23:33:11 -0400
-Message-Id: <999228794.5832.5.camel@phantasy>
-Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Updated patches to optionally enable network devices to feed the kernel
-entropy pool are available for both 2.4.10-pre2 and 2.4.9-ac5.  The
-patches come in two parts, part one containing the new code and related
-bits and part two containing updates to (hopefully) all network devices
-to enable the new support (and remove mandatory contribution for those
-devices that do so now).
+Richard, the FAQ could use an entry about this and the other VIA problem.
 
-Apply both patches and enable the new option in `Network Devices'.
+David Hollister writes:
+> Jan Niehusmann wrote:
 
-Patches accepted for missing architectures and drivers. Comments
-desired.  For a length discussion of the patch and the entropy gatherer
-in general, see the previous threads.
+>> I have a computer with a duron 600 which doesn't like current athlon
+>> optimised kernels: It runs fairly well with an old 2.4.0-test7 kernel
+...
+>> Is it likely to be a broken CPU? 
+>> The board is an A7V with the infamous via chipset, but I don't think
+>> this looks like the typical via problems, does it?
+...
+> point is, your hardware is likely fine (fine being relative, I
+> suppose) If there are other tricks, I'm all ears.
 
-For 2.4.9-ac5:
-http://tech9.net/rml/linux/patch-rml-2.4.9-ac5-netdev-random-1
-http://tech9.net/rml/linux/patch-rml-2.4.9-ac5-netdev-random-2
+There are highly optimized memory copy/clear operations that
+run twice as fast on the Athlon, thus demanding more from the
+motherboard and power supply. You have a VIA chipset and most
+likely have a relatively weak power supply.
 
-For 2.4.10-pre2:
-http://tech9.net/rml/linux/patch-rml-2.4.10-pre2-netdev-random-1
-http://tech9.net/rml/linux/patch-rml-2.4.10-pre2-netdev-random-2
+Don't go blaming Linux when power supply upgrades sometimes
+make this problem go away. You could also try one of the
+recent SiS or ALi chipsets.
 
-Enjoy.
-
--- 
-Robert M. Love
-rml at ufl.edu
-rml at tech9.net
+I just saw a reference (maybe www.tomshardware.com) to AMD's new
+chips having trouble on VIA boards -- I'd guess that the Palimino
+core can push the motherboard too hard without fancy Athlon code.
 

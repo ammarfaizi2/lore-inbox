@@ -1,48 +1,52 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316898AbSHATXQ>; Thu, 1 Aug 2002 15:23:16 -0400
+	id <S317006AbSHATeU>; Thu, 1 Aug 2002 15:34:20 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316887AbSHATWQ>; Thu, 1 Aug 2002 15:22:16 -0400
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:7429 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S316856AbSHATVm>; Thu, 1 Aug 2002 15:21:42 -0400
-Date: Thu, 1 Aug 2002 12:25:06 -0700 (PDT)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Chris Wedgwood <cw@f00f.org>
-cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Chris Friesen <cfriesen@nortelnetworks.com>,
-       Benjamin LaHaise <bcrl@redhat.com>, Pavel Machek <pavel@elf.ucw.cz>,
-       Andrea Arcangeli <andrea@suse.de>, <linux-kernel@vger.kernel.org>,
-       <linux-aio@kvack.org>
-Subject: Re: [rfc] aio-core for 2.5.29 (Re: async-io API registration for
- 2.5.29)
-In-Reply-To: <20020801191823.GA24428@tapu.f00f.org>
-Message-ID: <Pine.LNX.4.33.0208011221380.3000-100000@penguin.transmeta.com>
+	id <S317012AbSHATeU>; Thu, 1 Aug 2002 15:34:20 -0400
+Received: from web11203.mail.yahoo.com ([216.136.131.185]:55316 "HELO
+	web11203.mail.yahoo.com") by vger.kernel.org with SMTP
+	id <S317006AbSHATeT>; Thu, 1 Aug 2002 15:34:19 -0400
+Message-ID: <20020801193747.78477.qmail@web11203.mail.yahoo.com>
+Date: Thu, 1 Aug 2002 12:37:47 -0700 (PDT)
+From: Datoda <datoda@yahoo.com>
+Subject: PTRACE_SYSCALL
+To: linux-kernel@vger.kernel.org
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
 
-On Thu, 1 Aug 2002, Chris Wedgwood wrote:
-> 
-> How about export the value via a syscall and also export an 'error'
-> which for now could just be set to 5% or something conservative and
-> refined later if necessary or cleanup on other architectures,
+   I have played with this ptrace request a bit on
+ia32 and there are a few things unclear to me. Could
+someone please answer my questions? TIA.
 
-Ugh. That sounds like overdesign, and I hate overdesign.
+o When the child enters a system call, and the parent
+regains control after issuing PTRACE_SYSCALL, where is
+the system call number stored? I guess it's either in
+%eax or in orig_eax (at 0x24(esp)) of the child, but
+values in both places seem invalid in my own
+experiments.
 
-The error is also rather hard to quantify, and only user land can do that 
-sanely anyway in the long run (ie the same reason why we have things like 
-/etc/adjtime - good guesses depend on history).
+o According to the man page, the child is interrupted
+twice for each system call, once at the entry and once
+at the exit. Intriguingly, when parent inspects the
+eip of the child at both interruptions, the two eip's
+are the same. What is the explanation for this?
+Furthermore, the eip of the child seems to always
+point at the instruction after "int". Why is that the
+case?
 
-The kernel really shouldn't be involved in something like this. 
+o Is there a good document that covers PTRACE_SYSCALL
+or ptrace in general?
 
-I seriously doubt that people really care _that_ much about a precise 
-time source for aio timeouts, and we should spend more time on making it 
-efficient and easy to use than on worrying about the precision. People who 
-do care can fall back to gettimeofday() and try to correct for it that 
-way.
+Your answers are appreciated.
 
-		Linus
 
+
+
+__________________________________________________
+Do You Yahoo!?
+Yahoo! Health - Feel better, live better
+http://health.yahoo.com

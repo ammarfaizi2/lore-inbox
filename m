@@ -1,47 +1,85 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S288124AbSA3Cu4>; Tue, 29 Jan 2002 21:50:56 -0500
+	id <S288113AbSA3Cwg>; Tue, 29 Jan 2002 21:52:36 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288113AbSA3Cuq>; Tue, 29 Jan 2002 21:50:46 -0500
-Received: from nrg.org ([216.101.165.106]:20320 "EHLO nrg.org")
-	by vger.kernel.org with ESMTP id <S288124AbSA3Cu2>;
-	Tue, 29 Jan 2002 21:50:28 -0500
-Date: Tue, 29 Jan 2002 18:50:21 -0800 (PST)
-From: Nigel Gamble <nigel@nrg.org>
-Reply-To: nigel@nrg.org
-To: Robert Love <rml@tech9.net>
-cc: Andrew Morton <akpm@zip.com.au>, Linus Torvalds <torvalds@transmeta.com>,
-        <viro@math.psu.edu>, <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] 2.5: push BKL out of llseek
-In-Reply-To: <1012357211.817.67.camel@phantasy>
-Message-ID: <Pine.LNX.4.40.0201291821030.15838-100000@cosmic.nrg.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S288173AbSA3Cw1>; Tue, 29 Jan 2002 21:52:27 -0500
+Received: from codepoet.org ([166.70.14.212]:5547 "EHLO winder.codepoet.org")
+	by vger.kernel.org with ESMTP id <S288113AbSA3CwJ>;
+	Tue, 29 Jan 2002 21:52:09 -0500
+Date: Tue, 29 Jan 2002 19:52:12 -0700
+From: Erik Andersen <andersen@codepoet.org>
+To: "Justin T. Gibbs" <gibbs@scsiguy.com>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Adaptec 1480b SlimSCSI vs hotplug
+Message-ID: <20020130025212.GA5240@codepoet.org>
+Reply-To: andersen@codepoet.org
+Mail-Followup-To: Erik Andersen <andersen@codepoet.org>,
+	"Justin T. Gibbs" <gibbs@scsiguy.com>,
+	linux-kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <20020129232629.GB937@codepoet.org> <200201300048.g0U0mrI59231@aslan.scsiguy.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200201300048.g0U0mrI59231@aslan.scsiguy.com>
+User-Agent: Mutt/1.3.24i
+X-Operating-System: Linux 2.4.16-rmk1, Rebel-NetWinder(Intel StrongARM 110 rev 3), 185.95 BogoMips
+X-No-Junk-Mail: I do not want to get *any* junk mail.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 29 Jan 2002, Robert Love wrote:
-> On Tue, 2002-01-29 at 20:26, Andrew Morton wrote:
-> > Just a little word of caution here.  Remember the
-> > apache-flock-synchronisation fiasco, where removal
-> > of the BKL halved Apache throughput on 8-way x86.
-> >
-> > This was because the BKL removal turned serialisation
-> > on a quick codepath from a spinlock into a schedule().
+On Tue Jan 29, 2002 at 05:48:53PM -0700, Justin T. Gibbs wrote:
+> >Does this look agreeable?
+> 
+> The only thing you've really changed is the class_mask.  I don't
+> understand why testing against *more bits* of the class allows your
+> card to be detected.  Can you explain why the old code fail?
 
-Yes, but the other factor to consider here is why did the extra schedule
-take place at all?  I think this is a actually a scheduler issue, and
-I'm hoping that the new scheduler will behave better in this case.  A
-call to schedule() should not happen unless the woken process has a
-higher priority than the process that did the unlock, but the old
-scheduler evidently always calculated this to be the case.  But we
-really want the process that did the unlock to continue running (until
-the end of its timeslice, if not preempted or blocked before then), just
-as it would when the lock was a spinlock.  It would be interesting to
-see whether the new scheduler gets this right.
+Exactly, the class_mask is the significant bit.  The rest I just
+tidied since I hate seeing magic numbers.  Anyways, I started off
+with the simple observation that it didn't work.  Watching
+/sbin/hotplug (diethotplug with debugging enabled) closely during
+add events showed me the following:
 
-Am I remembering the problem correctly?
 
-Nigel Gamble                                    nigel@nrg.org
-Mountain View, CA, USA.                         http://www.nrg.org/
+    Jan 29 19:34:59 sage kernel: cs: cb_alloc(bus 3): vendor 0x9004, device 0x6075
+    Jan 29 19:34:59 sage kernel: PCI: Enabling device 03:00.0 (0000 -> 0003)
+    Jan 29 19:34:59 sage hotplug: pci_handler: action = add
+    [---------snip--------]
+    Jan 29 19:34:59 sage hotplug: match_vendor: vendor = 9004, device = 6075, subvendor = 9004, subdevice = 7560
+    [---------snip--------]
+    Jan 29 19:34:59 sage hotplug: match_vendor: looking at aic7xxx
+    Jan 29 19:34:59 sage hotplug: match_vendor: loading aic7xxx
+    Jan 29 19:34:59 sage hotplug: load_module: loading module aic7xxx
+    Jan 29 19:34:59 sage hotplug: match_vendor: looking at aic7xxx
+    Jan 29 19:34:59 sage hotplug: match_vendor: vendor check failed 9005 != 9004
 
+Here we can see it is looking at aic7xxx twice, once for vendor
+0x9004, where it notices that the vendor matches, but then fails
+to match due to the 0xFFFF00 class_mask filter, and once for
+vendor 9005 which of course doesn't match.  After changing the
+class_mask to ~0 I now see:
+
+
+    Jan 29 19:44:52 sage kernel: cs: cb_alloc(bus 3): vendor 0x9004, device 0x6075
+    Jan 29 19:44:52 sage kernel: PCI: Enabling device 03:00.0 (0000 -> 0003)
+    Jan 29 19:44:52 sage hotplug: pci_handler: action = add
+    [---------snip--------]
+    Jan 29 19:44:52 sage hotplug: match_vendor: vendor = 9004, device = 6075, subvendor = 9004, subdevice = 7560
+    [---------snip--------]
+    Jan 29 19:44:52 sage hotplug: match_vendor: looking at aic7xxx
+    Jan 29 19:44:52 sage hotplug: match_vendor: loading aic7xxx
+    Jan 29 19:44:52 sage hotplug: load_module: loading module aic7xxx
+    Jan 29 19:44:52 sage hotplug: match_vendor: looking at aic7xxx
+    Jan 29 19:44:52 sage hotplug: match_vendor: vendor check failed 9005 != 9004
+    Jan 29 19:44:52 sage cardmgr[561]:   product info: "Adaptec", "APA-1480 SCSI Host Adapter", "Version 1.10       ", ""
+    Jan 29 19:44:52 sage cardmgr[561]:   manfid: 0x012f, 0xcb01  function: 8 (SCSI)
+    Jan 29 19:44:52 sage cardmgr[561]:   PCI id: 0x9004, 0x6075
+
+So let me turn the question back to you:  What is the intended 
+purpose of masking out part of the class space?
+
+ -Erik
+
+--
+Erik B. Andersen             http://codepoet-consulting.com/
+--This message was written using 73% post-consumer electrons--

@@ -1,60 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262263AbUKDPgQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262267AbUKDPif@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262263AbUKDPgQ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 4 Nov 2004 10:36:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262271AbUKDPgQ
+	id S262267AbUKDPif (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 4 Nov 2004 10:38:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262268AbUKDPif
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 4 Nov 2004 10:36:16 -0500
-Received: from zone3.gcu-squad.org ([217.19.50.74]:18953 "EHLO
-	zone3.gcu-squad.org") by vger.kernel.org with ESMTP id S262263AbUKDPgC convert rfc822-to-8bit
+	Thu, 4 Nov 2004 10:38:35 -0500
+Received: from out011pub.verizon.net ([206.46.170.135]:16818 "EHLO
+	out011.verizon.net") by vger.kernel.org with ESMTP id S262274AbUKDPhk
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 4 Nov 2004 10:36:02 -0500
-Date: Thu, 4 Nov 2004 16:30:23 +0100 (CET)
-To: degger@fhm.edu
-Subject: Re: dmi_scan on x86_64
-X-IlohaMail-Blah: khali@gcu.info
-X-IlohaMail-Method: mail() [mem]
-X-IlohaMail-Dummy: moo
-X-Mailer: IlohaMail/0.8.13 (On: webmail.gcu.info)
-Message-ID: <JwLGVeAP.1099582223.3370560.khali@gcu.info>
-In-Reply-To: <B55F1204-2E70-11D9-BF00-000A958E35DC@fhm.edu>
-From: "Jean Delvare" <khali@linux-fr.org>
-Bounce-To: "Jean Delvare" <khali@linux-fr.org>
-CC: "LKML" <linux-kernel@vger.kernel.org>
+	Thu, 4 Nov 2004 10:37:40 -0500
+Message-ID: <418A4CC0.3000206@verizon.net>
+Date: Thu, 04 Nov 2004 10:37:36 -0500
+From: Jim Nelson <james4765@verizon.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040922
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+CC: linux-kernel@vger.kernel.org, akpm@osdl.org
+Subject: Re: [PATCH 5/5] documentation: Remove drivers/char/README.cycladesZ
+References: <20041103152246.24869.2759.68945@localhost.localdomain> <20041103152314.24869.56459.88722@localhost.localdomain> <20041103133103.GB4109@logos.cnet> <41891AF3.9050800@verizon.net> <20041103150947.GA4695@logos.cnet> <418955D2.7000700@verizon.net> <20041103214530.GD4716@logos.cnet>
+In-Reply-To: <20041103214530.GD4716@logos.cnet>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Authentication-Info: Submitted using SMTP AUTH at out011.verizon.net from [68.238.31.6] at Thu, 4 Nov 2004 09:37:37 -0600
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-> > Feel free to submit a dump (using i2cdump) of that unknown chip if you
-> > want me to comment on it.
+Marcelo Tosatti wrote:
 >
-> egger@ulli:~$ sudo i2cdetect -l
-> i2c-2   unknown         SMBus2 AMD8111 adapter at c400
-> (...)
-> egger@ulli:~$ sudo i2cdetect 2
-> (...)
->      0  1  2  3  4  5  6  7  8  9  a  b  c  d  e  f
-> 00:          XX XX XX XX XX 08 XX XX XX XX XX XX XX
-> 10: XX XX XX XX XX XX XX XX XX XX XX XX XX XX XX XX
-> 20: XX XX XX XX XX XX XX XX XX XX XX XX XX XX XX XX
-> 30: XX XX XX XX XX XX XX XX XX XX XX XX XX XX XX XX
-> 40: XX XX XX XX XX XX XX XX XX XX XX XX XX XX XX XX
-> 50: XX XX XX XX XX XX XX XX XX XX XX XX XX XX XX XX
-> 60: XX XX XX XX XX XX XX XX XX XX XX XX XX XX XX XX
-> 70: XX XX XX XX XX XX XX XX
+>>My unofficial "guidelines" for what needs to be looked at more closely 
+>>include: references to 2.0, 2.1, 2.2, 2.3, or 2.5 kernels, references to 
+>>external modules, dates of 2002 or earlier, or just a "wait a minute, I 
+>>don't think that's right". Not the prettiest technique, I know.
+> 
+> 
+> I think what your intention is good, we dont want obsolete files
+> which are not pertinent to v2.6 around - but you need to be careful. 
+> 
+> Old documents are not necessarily obsolete.
+> 
+> I would suggest sending all the patches to the respective maintainers,
+> removing only the ones which are _obviously_ obsolete (like the CyclomY 
+> which talks about upgrading from 2.0 to 2.2).
+> 
+> README.ecpa and README.scc, which you remove on your patches,
+> look valid and useful documentation to me. 
+> 
 
-According to the SMBus 2.0 specs [1], page 59, address 0x08 represents
-the SMBus host itself, so it's not a client. This SMBus is empty.
+README.ecpa has been unchanged since at least 2.4.18, and the maintainer is no 
+longer maintaining it in-kernel for 2.6.  Digi has a maintained version on their 
+website.  The document details the user-space programs needed for firmware 
+loading, and the version at Digi's website is maintained.
 
-> Anything else I can try?
+README.scc is fundamentally unchanged since at least 2.2.20.  That's my reason for 
+removing it.  The file it points to was also last updated in the 2.2 kernel series 
+- I need to get a more complete LXR setup here at home to pin it down more 
+accurately.  It's for an AX.25 network adapter, and has no need to be in drivers/char.
 
-No, this bus is simply empty, no need to look any further. For some
-reason these AMD chipsets have two different SMBus. Most motherboard
-manufacturers only use the first one.
+> 
+>>>Move the rest to Documentation/serial, fine.
+> 
+> 
 
-Jean
-
-[1] http://www.smbus.org/specs/smbus20.pdf

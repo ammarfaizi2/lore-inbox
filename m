@@ -1,67 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S270728AbUJUPMg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268468AbUJUPNc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S270728AbUJUPMg (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 21 Oct 2004 11:12:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270718AbUJUPMY
+	id S268468AbUJUPNc (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 21 Oct 2004 11:13:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S270718AbUJUPNA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 21 Oct 2004 11:12:24 -0400
-Received: from math.ut.ee ([193.40.5.125]:484 "EHLO math.ut.ee")
-	by vger.kernel.org with ESMTP id S270748AbUJUPLP (ORCPT
+	Thu, 21 Oct 2004 11:13:00 -0400
+Received: from smtpq2.home.nl ([213.51.128.197]:27541 "EHLO smtpq2.home.nl")
+	by vger.kernel.org with ESMTP id S270747AbUJUPKI (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 21 Oct 2004 11:11:15 -0400
-Date: Thu, 21 Oct 2004 18:11:12 +0300 (EEST)
-From: Meelis Roos <mroos@linux.ee>
-To: Linux Kernel list <linux-kernel@vger.kernel.org>
-Subject: readcd hangs in blk_execute_rq
-Message-ID: <Pine.GSO.4.44.0410211805010.25972-100000@math.ut.ee>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Thu, 21 Oct 2004 11:10:08 -0400
+Date: Thu, 21 Oct 2004 17:10:05 +0200
+From: Han Boetes <han@mijncomputer.nl>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [patch] 2.6.9-ac1: invalid SUBLEVEL
+Message-ID: <20041021151026.GP9258@boetes.org>
+Mail-Followup-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <1098356892.17052.18.camel@localhost.localdomain> <20041021124945.GD10801@stusta.de> <1098365506.17096.23.camel@localhost.localdomain>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1098365506.17096.23.camel@localhost.localdomain>
+User-Agent: Mutt/1.5.6i
+X-AtHome-MailScanner-Information: Neem contact op met support@home.nl voor meer informatie
+X-AtHome-MailScanner: Found to be clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I'm trying to readcd a cd, in 2.6.9+todays BK snapshot.
+Alan Cox wrote:
+> On Iau, 2004-10-21 at 13:49, Adrian Bunk wrote:
+> >  VERSION = 2
+> >  PATCHLEVEL = 6
+> > -SUBLEVEL = 9-ac1
+> > -EXTRAVERSION =
+> > +SUBLEVEL = 9
+> > +EXTRAVERSION = -ac1
+> >  NAME=AC 1
+>
+> Doh I'm -amazed- that worked for me. Fixed in my tree
 
-I got an error the first time so I started it (readcd dev=/dev/hdc)
-the second time and chose c2scan. This resulted in the messages
-...
-end:    328460
-C2 in sector: 1864 first at byte: 2256 (0xF0) total:   72 errors
-C2 in sector: 1865 first at byte:   12 (0x0F) total: 2335 errors
-addr:     2499 cnt: 49
+Here is some old shell-code I wrote for my kernel updating script: It
+was especially written because you tend to forget this.
 
-And here it hangs. ps shows readcd is in D state, in blk_execute_rq.
-dmesg shows lines of
+test_version () {
+    # Sometimes Alan forgets to update the EXTRAVERSION in the Makefile;
+    # then you destroy the previous version and the script fails :S
+    cd $pwd/linux-$latest_stable
+    # if EXTRAVERSION is for mm but not the current one.
+    if [ -z "$(grep "EXTRAVERSION = -$mm_rest" Makefile)" \
+        -a -z "$(grep "EXTRAVERSION = .*mm" Makefile)" ]; then
+        warning 'Warning: I had to edit the versionnumber in the Makefile!'
+        grep "EXTRAVERSION =" Makefile
+        perl -pi -e "s#^EXTRAVERSION.*\n#EXTRAVERSION = -$mm_rest\n#" \
+            Makefile || error
+        grep "EXTRAVERSION =" Makefile
+    fi
+}
 
-hdc: lost interrupt
+> I'll go and hide in a corner for a bit.
 
-every no and then.
-
-This a IDE CD on Intel ICH2 ide controller:
-
-ide: Assuming 33MHz system bus speed for PIO modes; override with idebus=xx
-ICH2: IDE controller at PCI slot 0000:00:1f.1
-ICH2: chipset revision 2
-ICH2: not 100% native mode: will probe irqs later
-    ide0: BM-DMA at 0xffa0-0xffa7, BIOS settings: hda:DMA, hdb:pio
-    ide1: BM-DMA at 0xffa8-0xffaf, BIOS settings: hdc:DMA, hdd:pio
-
-hdc: CDU5211, ATAPI CD/DVD-ROM drive
-hdc: ATAPI 52X CD-ROM drive, 120kB Cache, UDMA(33)
-
-And after every boot it gets DMA timeout on first read and switches to
-PIO mode and works fine there reading data cd-s (even browsing the same
-CD):
-
-ide-cd: cmd 0x28 timed out
-hdc: DMA interrupt recovery
-hdc: lost interrupt
-hdc: status timeout: status=0xd0 { Busy }
-hdc: status timeout: error=0x00
-hdc: DMA disabled
-hdc: drive not ready for command
-hdc: ATAPI reset complete
+I think it is a better idea you add some checks to the script you use to
+generate that patch.
 
 
--- 
-Meelis Roos (mroos@linux.ee)
 
+# Han

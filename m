@@ -1,40 +1,59 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262686AbRFYIuo>; Mon, 25 Jun 2001 04:50:44 -0400
+	id <S262702AbRFYJGi>; Mon, 25 Jun 2001 05:06:38 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262694AbRFYIuZ>; Mon, 25 Jun 2001 04:50:25 -0400
-Received: from gnu.in-berlin.de ([192.109.42.4]:20755 "EHLO gnu.in-berlin.de")
-	by vger.kernel.org with ESMTP id <S262686AbRFYIuS>;
-	Mon, 25 Jun 2001 04:50:18 -0400
-X-Envelope-From: news@bytesex.org
-To: linux-kernel@vger.kernel.org
-Path: kraxel
-From: Gerd Knorr <kraxel@bytesex.org>
-Newsgroups: lists.linux.kernel
-Subject: Re: Annoying kernel behaviour
-Date: 25 Jun 2001 07:41:56 GMT
-Organization: [x] network byte order
-Message-ID: <slrn9jdqq4.3af.kraxel@bytesex.org>
-In-Reply-To: <3B33EFC0.D9C930D5@bigfoot.com>    <9h0r6s$fe7$1@ns1.clouddancer.com>    <20010623090542.6019D7846F@mail.clouddancer.com>    <3B35C2FA.37F57964@bigfoot.com> <9h4ft5$1ku$1@ns1.clouddancer.com>    <20010624114655.3D187784C4@mail.clouddancer.com> <3B3643A8.F3FE1E92@bigfoot.com> <9h5gbc$3mb$1@ns1.clouddancer.com> <20010625032231.930C8784C4@mail.clouddancer.com>
-NNTP-Posting-Host: localhost
-X-Trace: bytesex.org 993454916 3408 127.0.0.1 (25 Jun 2001 07:41:56 GMT)
-User-Agent: slrn/0.9.7.0 (Linux)
+	id <S262719AbRFYJG2>; Mon, 25 Jun 2001 05:06:28 -0400
+Received: from hermine.idb.hist.no ([158.38.50.15]:55313 "HELO
+	hermine.idb.hist.no") by vger.kernel.org with SMTP
+	id <S262702AbRFYJGS>; Mon, 25 Jun 2001 05:06:18 -0400
+Message-ID: <3B36FE99.1B8AE381@idb.hist.no>
+Date: Mon, 25 Jun 2001 11:04:25 +0200
+From: Helge Hafting <helgehaf@idb.hist.no>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.6-pre5 i686)
+X-Accept-Language: no, en
+MIME-Version: 1.0
+To: John Nilsson <pzycrow@hotmail.com>, linux-kernel@vger.kernel.org
+Subject: Re: Some experience of linux on a Laptop
+In-Reply-To: <F175UFyfL1QMaCAP6Ki00001f92@hotmail.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> >There are no conflicts, and PCI should be able to share anyways.
->  
->  That's the theory now for some time, has never worked.  Even hacking
->  the SCSI driver, any attempted IRQ sharing kills my systems.  Even my
->  quad ethernet is not successful at sharing IRQs with itself, in 2+ very
->  different motherboards.
+John Nilsson wrote:
+[everything else answered by others]
 
-For bttv I know that irq sharing works in some cases and not on others.
-Last not-working report was bttv sharing with a nvidia.  Moving the
-grabber board to another PCI slot (nvidia having a exclusive irq then,
-bttv shared the irq with something else) fixed it.
+> 8: A way to change kernel without rebooting. I have no diskdrive or cddrive
+> in my laptop so I often do drastic things when I install a new distribution.
 
-  Gerd
+Well, don't do drastic things then, if that cause problems!
 
--- 
-Damn lot people confuse usability and eye-candy.
+My machines have both diskette and cdrom - but I _don't_ use them when
+changing 
+kernels.  Why should you?  Here is a procedure for painless kernel
+change.
+It includes a reboot but that is not a problem:
+
+1. Get the new kernel, i.e. compile it.
+2. cp the bzImage to /boot (or wherever you want it.)  DON'T overwrite
+   the previous kernel image, you will want to keep it around.
+3. If using lilo, modify /etc/lilo.conf to load the new kernel.
+   Do this by _adding_ image=/boot/new_kernel_bzimage, not by changing
+   existing lines.  This keeps the old kernel around in case the new
+   one have trouble.
+4. run lilo
+5. reboot.
+
+The new kernel should come up.  (If the old comes up you either
+forgot (4), or you have the lilo.conf entries in a wrong order.
+Int the latter case press shift furing boot and select the
+correct kernel manually.  You may correct lilo.conf later.
+
+If the new kernel loads but crash, do reboot and use the above
+mentioned shift-trick to select the old kernel.  Then remove
+the broken kernel from lilo.conf and re-run lilo.  
+
+As you see, no need for CD's or floppies when changing kernels,
+even if the new kernel fails somehow.
+
+Helge Hafting

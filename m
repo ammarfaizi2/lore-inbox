@@ -1,32 +1,27 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131268AbRCRTI7>; Sun, 18 Mar 2001 14:08:59 -0500
+	id <S131270AbRCRUiu>; Sun, 18 Mar 2001 15:38:50 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131263AbRCRTIt>; Sun, 18 Mar 2001 14:08:49 -0500
-Received: from [200.193.161.122] ([200.193.161.122]:11762 "HELO
-	brinquedo.distro.conectiva") by vger.kernel.org with SMTP
-	id <S131267AbRCRTIc>; Sun, 18 Mar 2001 14:08:32 -0500
-Date: Sun, 18 Mar 2001 02:07:42 -0300
-From: Arnaldo Carvalho de Melo <acme@conectiva.com.br>
-To: "George R.Kasica" <georgek@netwrx1.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Where to find -pre releases?
-Message-ID: <20010318020742.B981@conectiva.com.br>
-Mail-Followup-To: Arnaldo Carvalho de Melo <acme@conectiva.com.br>,
-	George R.Kasica <georgek@netwrx1.com>, linux-kernel@vger.kernel.org
-In-Reply-To: <hkv9btco387pl701dssk4jv8cle4el5fm4@4ax.com>
+	id <S131271AbRCRUil>; Sun, 18 Mar 2001 15:38:41 -0500
+Received: from dsl-64-129-179-177.telocity.com ([64.129.179.177]:23308 "HELO
+	mail.ovits.net") by vger.kernel.org with SMTP id <S131270AbRCRUid>;
+	Sun, 18 Mar 2001 15:38:33 -0500
+Date: Sun, 18 Mar 2001 13:37:18 -0500
+From: Mordechai Ovits <movits@ovits.net>
+To: linux-kernel@vger.kernel.org
+Subject: tcp retransmit timeout?
+Message-ID: <20010318133718.A30811@ovits.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.3.14i
-In-Reply-To: <hkv9btco387pl701dssk4jv8cle4el5fm4@4ax.com>; from georgek@netwrx1.com on Sun, Mar 18, 2001 at 12:30:45PM -0600
-X-Url: http://advogato.org/person/acme
+User-Agent: Mutt/1.3.12i
+X-Satellite-Tracking: 0x4B305AFF
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Em Sun, Mar 18, 2001 at 12:30:45PM -0600, George R. Kasica escreveu:
-> Where in the ftp sites should I find the 2.4.3 -pre kernels? The
-> instructions from freshmeat are not correct and I just can't remember
-> the location...
+How can I set the timeout for retransmitting non-acknowledged packets?  I'd
+like to set linux up to more aggressive about assuming a packet didn't make
+it.
 
-http://www.kernel.org/pub/linux/kernel/testing
+Thanks!
+Mordy

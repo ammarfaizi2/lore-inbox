@@ -1,58 +1,72 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131401AbRAOUt7>; Mon, 15 Jan 2001 15:49:59 -0500
+	id <S131485AbRAOUuA>; Mon, 15 Jan 2001 15:50:00 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131485AbRAOUtt>; Mon, 15 Jan 2001 15:49:49 -0500
-Received: from www.wen-online.de ([212.223.88.39]:33555 "EHLO wen-online.de")
-	by vger.kernel.org with ESMTP id <S131483AbRAOUtb>;
-	Mon, 15 Jan 2001 15:49:31 -0500
-Date: Mon, 15 Jan 2001 21:49:16 +0100 (CET)
-From: Mike Galbraith <mikeg@wen-online.de>
-To: Zlatko Calusic <zlatko@iskon.hr>
-cc: Vlad Bolkhovitine <vladb@sw.com.sg>, linux-kernel@vger.kernel.org,
-        linux-mm@kvack.org
-Subject: Re: mmap()/VM problems in 2.4.0
-In-Reply-To: <87hf30d0ar.fsf@atlas.iskon.hr>
-Message-ID: <Pine.Linu.4.10.10101152142440.772-100000@mikeg.weiden.de>
+	id <S131483AbRAOUtu>; Mon, 15 Jan 2001 15:49:50 -0500
+Received: from neon-gw.transmeta.com ([209.10.217.66]:55824 "EHLO
+	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
+	id <S131401AbRAOUt3>; Mon, 15 Jan 2001 15:49:29 -0500
+Message-ID: <3A636231.B892D7D2@transmeta.com>
+Date: Mon, 15 Jan 2001 12:48:49 -0800
+From: "H. Peter Anvin" <hpa@transmeta.com>
+Organization: Transmeta Corporation
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.0 i686)
+X-Accept-Language: en, sv, no, da, es, fr, ja
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Hugh Dickins <hugh@veritas.com>
+CC: Linus Torvalds <torvalds@transmeta.com>,
+        "Maciej W. Rozycki" <macro@ds2.pg.gda.pl>,
+        "H. Peter Anvin" <hpa@zytor.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        Andrea Arcangeli <andrea@suse.de>,
+        Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] i386/setup.c cpuinfo notsc
+In-Reply-To: <Pine.LNX.4.21.0101152017450.1032-100000@localhost.localdomain>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 15 Jan 2001, Zlatko Calusic wrote:
-
-> "Vlad Bolkhovitine" <vladb@sw.com.sg> writes:
+Hugh Dickins wrote:
 > 
-> > Here is updated info for 2.4.1pre3:
-> > 
-> > Size is MB, BlkSz is Bytes, Read, Write, and Seeks are MB/sec
-> > 
-> > with mmap()
-> > 
-> >  File   Block  Num          Seq Read    Rand Read   Seq Write  Rand Write
-> >  Dir    Size   Size    Thr Rate (CPU%) Rate (CPU%) Rate (CPU%) Rate (CPU%)
-> > ------- ------ ------- --- ----------- ----------- ----------- -----------
-> >    .     1024   4096    2  1.089 1.24% 0.235 0.45% 1.118 4.11% 0.616 1.41%
-> > 
-> > without mmap()
-> >    
-> >  File   Block  Num          Seq Read    Rand Read   Seq Write  Rand Write
-> >  Dir    Size   Size    Thr Rate (CPU%) Rate (CPU%) Rate (CPU%) Rate (CPU%)
-> > ------- ------ ------- --- ----------- ----------- ----------- -----------
-> >    .     1024   4096    2  28.41 41.0% 0.547 1.15% 13.16 16.1% 0.652 1.46%
-> > 
-> > 
-> > Mmap() performance dropped dramatically down to almost unusable level. Plus,
-> > system was unusable during test: "vmstat 1" updated results every 1-2 _MINUTES_!
-> > 
+> That's how "notsc" used to behave, but since 2.4.0-test11
+> "notsc" has left "tsc" in /proc/cpuinfo.  setup.c has a bogus
+> "#ifdef CONFIG_TSC" which should be "#ifndef CONFIG_X86_TSC".
 > 
-> You need Marcelo's patch. Please apply and retest.
+> HPA, Maciej and I discussed that around 5 Dec 2000; but HPA
+> was of Andrea's persuasion, that we should not mask caps out
+> of (real CPU entries in) /proc/cpuinfo, so we made no change.
+> 
+> In discussion we found a more worrying error in the SMP case:
+> boot_cpu_data is supposed to be left with those x86_capabilities
+> common to all CPUs, but the code to do so was unaware that
+> boot_cpu_data is overwritten in booting each CPU.  Even if all
+> CPUs have the same features, I imagine the Linux-defined ones
+> (CXMMX, K6_MTRR, CYRIX_ARR, CENTAUR_MCR) were unintentionally
+> masked out of the final boot_cpu_data.
+> 
+> The patch below fixes both those issues, and also clears
+> "pse" from /proc/cpuinfo in the same way if "mem=nopentium".
+> Tempted to rename "tsc_disable" to "disable_x86_tsc", but resisted.
+> 
+> I think there are still anomalies in the Cyrix and Centaur TSC
+> handling - shouldn't dodgy_tsc() check Centaur too?  shouldn't
+> we set X86_CR4_TSD wherever we clear X86_FEATURE_TSC? - but I
+> don't have those CPUs to test, I'm wary of disabling TSC since
+> finding RH7.0 installed on i686 needs rdtsc to run /sbin/init,
+> and even if they are wrong then "notsc" corrects the situation:
+> not 2.4.1 material.
+> 
 
-My box thinks quite highly of that patch fwiw, but insists that he needs
-to apply Jens Axboes' blk patch first ;-)  (Not because of tiobench)
+I would personally prefer to export the global flags separately from the
+per-CPU flags.  Not only is it more correct, it would help catch these
+kinds of bugs!!!
 
-	-Mike
+	-hpa
 
+-- 
+<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
+"Unix gives you enough rope to shoot yourself in the foot."
+http://www.zytor.com/~hpa/puzzle.txt
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

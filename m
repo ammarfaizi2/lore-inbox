@@ -1,88 +1,84 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265804AbUFOSJu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265808AbUFOSMS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265804AbUFOSJu (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 15 Jun 2004 14:09:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265808AbUFOSJt
+	id S265808AbUFOSMS (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 15 Jun 2004 14:12:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265811AbUFOSMR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 15 Jun 2004 14:09:49 -0400
-Received: from tor.morecom.no ([64.28.24.90]:59091 "EHLO tor.morecom.no")
-	by vger.kernel.org with ESMTP id S265804AbUFOSJj (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 15 Jun 2004 14:09:39 -0400
-Subject: Re: mode data=journal in ext3. Is it safe to use?
-From: Petter Larsen <pla@morecom.no>
-To: ext3 <ext3-users@redhat.com>
-Cc: ext3@philwhite.org, Nicolas.Kowalski@imag.fr, linux-kernel@vger.kernel.org
-In-Reply-To: <40FB8221D224C44393B0549DDB7A5CE83E31B1@tor.lokal.lan>
-References: <40FB8221D224C44393B0549DDB7A5CE83E31B1@tor.lokal.lan>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Message-Id: <1087322976.1874.36.camel@pla.lokal.lan>
+	Tue, 15 Jun 2004 14:12:17 -0400
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:50194 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S265808AbUFOSJ5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 15 Jun 2004 14:09:57 -0400
+Date: Tue, 15 Jun 2004 19:09:51 +0100
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: Tom Rini <trini@kernel.crashing.org>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org, Linus Torvalds <torvalds@osdl.org>
+Subject: Re: [PATCH 0/5] kbuild
+Message-ID: <20040615190951.C7666@flint.arm.linux.org.uk>
+Mail-Followup-To: Tom Rini <trini@kernel.crashing.org>,
+	Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+	Linus Torvalds <torvalds@osdl.org>
+References: <20040614204029.GA15243@mars.ravnborg.org> <20040615154136.GD11113@smtp.west.cox.net> <20040615174929.GB2310@mars.ravnborg.org>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7) 
-Date: Tue, 15 Jun 2004 20:09:37 +0200
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20040615174929.GB2310@mars.ravnborg.org>; from sam@ravnborg.org on Tue, Jun 15, 2004 at 07:49:29PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello
-
-I try again.
-
-Can anybody of you acknowledge or not if mode data=journal in ext3 is
-safe to use in Linux kernel 2.6.x?
-
-Wee need to have a very consistent and integrity for our filesystem, and
-it would then be desired to journal both data and metadata.
-
-But if this mode can corrupt the filesystem as both Phil White and
-Nicolas Kowalski has experienced, it may be more advised to use mode
-data=ordered instead.
-
-Data integrity is much more important for us than speed.
-
-What do you people out there say?
-
-I also try to post this in the kernel mailing list. I have not
-subscribed to the kml so if anybody there have som advisory about this I
-would be pleased if you could CC me.
-
-Petter
- 
-On Mon, 2004-06-07 at 10:21, Petter Larsen wrote:
-> Hello
+On Tue, Jun 15, 2004 at 07:49:29PM +0200, Sam Ravnborg wrote:
+> On Tue, Jun 15, 2004 at 08:41:36AM -0700, Tom Rini wrote:
+> > On Mon, Jun 14, 2004 at 10:40:29PM +0200, Sam Ravnborg wrote:
+> > 
+> > > Hi Andrew. Here follows a number of kbuild patches.
+> > > 
+> > > The first replaces kbuild-specify-default-target-during-configuration.patch
+> > > 
+> > > They have seen ligiht testing here, but on the other hand the do not touch
+> > > any critical part of kbuild.
+> > > 
+> > > Patches:
+> > > 
+> > > default kernel image:		Specify default target at config
+> > > 				time rather then hardcode it.
+> > > 				Only enabled for i386 for now.
+> > 
+> > While I'd guess this is better than the patch it's replacing, given that
+> > most i386 kernels are 'bzImage', what's wrong with the current logic
+> > that picks out what to do for the all target now?
 > 
-> I can see several postings on this mailing-list that people have
-> problem
-> with mounting ext3 partition with mode data=journal.
-> 
-> See URL's:
-> https://www.redhat.com/archives/ext3-users/2004-March/msg00000.html
-> https://www.redhat.com/archives/ext3-users/2004-March/msg00050.html
-> 
-> We are going to use ext3 on a Compact Flash disk in true IDE mode. We
-> need this filesystem to be as safe and consistent as possible. We can
-> not tolerate any garbage in the files after a crash or sudden power
-> failures. We have then decided to use ext3 with mode data=journal.
-> 
-> Can I rely on this?
-> We use kernel 2.6.5 on PowerPC 8260, and may be using newer kernels
-> later in the project.
-> 
-> 
-> Best regards
-> --
-> Petter Larsen
-> cand. scient.
-> moreCom as
-> 913 17 222
-> 
-> 
-> _______________________________________________
-> Ext3-users mailing list
-> Ext3-users@redhat.com
-> https://www.redhat.com/mailman/listinfo/ext3-users
+> Compared to the original behaviour where the all: target picked the default
+> target for a given architecture, this patch adds the following:
+
+This isn't the case on ARM.  I've always told people 'make zImage'
+or 'make Image'.  I've never told people to use just 'make' on its
+own - in fact, I've never used 'make' on its own with the kernel.
+
+> - One has to select the default kernel image only once
+>   when configuring the kernel.
+> - There exist a possibility to add more than half a line of text
+>   describing individual targets. All relevant information can be
+>   specified in the help section in the Kconfig file
+
+You can't fit details for 500 platforms into half a line of text.
+
+> If we remove the current support for for example uboot we create an
+> additional step in between the make and copy image.
+
+uboot support on ARM was only recently added, and only happened
+because I happened to misread the patch.  Had I been more on the
+ball, the support would NOT have been merged.  However, as it did
+get merged, I didn't want to create extra noise by taking it out.
+
+Please don't take this as acceptance that throwing the uboot crap
+into the kernel for ARM was something I found agreeable.  I still
+find it distasteful that boot loaders have to define their own
+image formats and the kernel has to conform to the boot loader
+authors whims.
+
 -- 
-Petter Larsen
-cand. scient.
-moreCom as
-913 17 222
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:  2.6 PCMCIA      - http://pcmcia.arm.linux.org.uk/
+                 2.6 Serial core

@@ -1,58 +1,598 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317780AbSFSFvO>; Wed, 19 Jun 2002 01:51:14 -0400
+	id <S317781AbSFSF6d>; Wed, 19 Jun 2002 01:58:33 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317781AbSFSFvN>; Wed, 19 Jun 2002 01:51:13 -0400
-Received: from handhelds.org ([192.58.209.91]:2780 "HELO handhelds.org")
-	by vger.kernel.org with SMTP id <S317780AbSFSFvL>;
-	Wed, 19 Jun 2002 01:51:11 -0400
-From: George France <france@handhelds.org>
-To: Richard Liu <richliu@ite.techarea.org>,
-       Linux Kernel Mail List <linux-kernel@vger.kernel.org>
-Subject: Re: Does it have SD/MMC Driver?
-Date: Wed, 19 Jun 2002 01:50:44 -0400
-X-Mailer: KMail [version 1.1.99]
-Content-Type: text/plain;
-  charset="US-ASCII"
-References: <20020619105928.CD87.RICHLIU@ite.techarea.org>
-In-Reply-To: <20020619105928.CD87.RICHLIU@ite.techarea.org>
-MIME-Version: 1.0
-Message-Id: <02061901504400.06509@shadowfax.middleearth>
-Content-Transfer-Encoding: 8bit
+	id <S317782AbSFSF6c>; Wed, 19 Jun 2002 01:58:32 -0400
+Received: from mailout03.sul.t-online.com ([194.25.134.81]:61420 "EHLO
+	mailout03.sul.t-online.com") by vger.kernel.org with ESMTP
+	id <S317781AbSFSF61>; Wed, 19 Jun 2002 01:58:27 -0400
+Date: Wed, 19 Jun 2002 07:58:11 +0200
+From: Andi Kleen <ak@muc.de>
+To: linux-kernel@vger.kernel.org
+Subject: [NEW PATCH, testers needed] was Re: [PATCH] poll/select fast path
+Message-ID: <20020619075811.A2799@averell>
+References: <20020618100621.A27548@averell>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20020618100621.A27548@averell>
+User-Agent: Mutt/1.3.22.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello Richard,
+On Tue, Jun 18, 2002 at 10:06:21AM +0200, Andi Kleen wrote:
+> This patch streamlines poll and select by adding fast paths for a 
+> small number of descriptors passed. The majority of polls/selects
+> seem to be of this nature. The main saving comes from not allocating
+> two pages for wait queue and table, but from using stack allocation
+> (upto 256bytes) when only a few descriptors are needed. This makes
+> it as fast again as 2.0 and even a bit faster because the wait queue
+> page allocation is avoided too (except when the drivers overflow it) 
+> 
+> select also skips a lot faster over big holes and avoids the separate
+> pass of determining the max. number of descriptors in the bitmap.
+> 
+> a typical linux system saves a considerable amount of unswappable memory 
+> with this patch, because it usually has 10+ daemons hanging around in poll or 
+> select with each two pages allocated for data and wait queue.
+> 
+> Some other cleanups.
 
-There is a MMC driver from the kernel cvs tree at handhelds.org.  It was just 
-announced today.  Please see:
+The last version of the patch unfortunately had some problems. Here is a 
+new version that doesn't break the kde arts daemon and has some other 
+cleanups.
 
-http://handhelds.org/pipermail/ipaq/2002-June/014310.html
+Linus reports that it still breaks his bk pulls. For me it works fine
+(I run it on my desktop) 
+and I don't see anything wrong now so I would appreciate some wider review
+and testing, especially with BK.
 
-As for SD, I do not believe that it is legally possible to have an Open 
-Source SD driver.  It may be possible to have a bin only Closed Source SD 
-driver.  It is probably best that you check with a legal professional.
+The patch should apply & works for me on 2.4 too, no need to use 2.5 to test it
+(select/poll are virtually unchanged between 2.4 and 2.5) 
 
-Best Regards,
+Thanks,
+-Andi
 
+--- linux/fs/select.c	Mon Jun 17 06:25:40 2002
++++ linux-2.5.23-work/fs/select.c	Tue Jun 18 23:45:38 2002
+@@ -12,6 +12,9 @@
+  *  24 January 2000
+  *     Changed sys_poll()/do_poll() to use PAGE_SIZE chunk-based allocation 
+  *     of fds to overcome nfds < 16390 descriptors limit (Tigran Aivazian).
++ * 
++ *  Dec 2001
++ *     Stack allocation and fast path (Andi Kleen) 
+  */
+ 
+ #include <linux/slab.h>
+@@ -26,21 +29,6 @@
+ #define ROUND_UP(x,y) (((x)+(y)-1)/(y))
+ #define DEFAULT_POLLMASK (POLLIN | POLLOUT | POLLRDNORM | POLLWRNORM)
+ 
+-struct poll_table_entry {
+-	struct file * filp;
+-	wait_queue_t wait;
+-	wait_queue_head_t * wait_address;
+-};
+-
+-struct poll_table_page {
+-	struct poll_table_page * next;
+-	struct poll_table_entry * entry;
+-	struct poll_table_entry entries[0];
+-};
+-
+-#define POLL_TABLE_FULL(table) \
+-	((unsigned long)((table)->entry+1) > PAGE_SIZE + (unsigned long)(table))
+-
+ /*
+  * Ok, Peter made a complicated, but straightforward multiple_wait() function.
+  * I have rewritten this, taking some shortcuts: This code may not be easy to
+@@ -62,30 +50,39 @@
+ 		struct poll_table_page *old;
+ 
+ 		entry = p->entry;
+-		do {
++		while (entry > p->entries) {
+ 			entry--;
+ 			remove_wait_queue(entry->wait_address,&entry->wait);
+ 			fput(entry->filp);
+-		} while (entry > p->entries);
++		}
+ 		old = p;
+ 		p = p->next;
+-		free_page((unsigned long) old);
++		if (old != &pt->inline_page) 
++			free_page((unsigned long) old);
+ 	}
+ }
+ 
+ void __pollwait(struct file * filp, wait_queue_head_t * wait_address, poll_table *p)
+ {
+ 	struct poll_table_page *table = p->table;
++	struct poll_table_page *new_table = NULL;
++	int sz;
+ 
+-	if (!table || POLL_TABLE_FULL(table)) {
+-		struct poll_table_page *new_table;
+-
+-		new_table = (struct poll_table_page *) __get_free_page(GFP_KERNEL);
+-		if (!new_table) {
+-			p->error = -ENOMEM;
+-			__set_current_state(TASK_RUNNING);
+-			return;
++	if (!table) { 
++		new_table = &p->inline_page; 
++	} else { 
++		sz = (table == &p->inline_page) ? POLL_INLINE_TABLE_LEN : PAGE_SIZE; 
++		if ((char*)table->entry >= (char*)table + sz) {
++			new_table = (struct poll_table_page *)__get_free_page(GFP_KERNEL);
++			if (!new_table) {
++				p->error = -ENOMEM;
++				__set_current_state(TASK_RUNNING);
++				return;
++			}
+ 		}
++	} 
++
++	if (new_table) { 
+ 		new_table->entry = new_table->entries;
+ 		new_table->next = table;
+ 		p->table = new_table;
+@@ -113,48 +110,6 @@
+ 
+ #define BITS(fds, n)		(*__IN(fds, n)|*__OUT(fds, n)|*__EX(fds, n))
+ 
+-static int max_select_fd(unsigned long n, fd_set_bits *fds)
+-{
+-	unsigned long *open_fds;
+-	unsigned long set;
+-	int max;
+-
+-	/* handle last in-complete long-word first */
+-	set = ~(~0UL << (n & (__NFDBITS-1)));
+-	n /= __NFDBITS;
+-	open_fds = current->files->open_fds->fds_bits+n;
+-	max = 0;
+-	if (set) {
+-		set &= BITS(fds, n);
+-		if (set) {
+-			if (!(set & ~*open_fds))
+-				goto get_max;
+-			return -EBADF;
+-		}
+-	}
+-	while (n) {
+-		open_fds--;
+-		n--;
+-		set = BITS(fds, n);
+-		if (!set)
+-			continue;
+-		if (set & ~*open_fds)
+-			return -EBADF;
+-		if (max)
+-			continue;
+-get_max:
+-		do {
+-			max++;
+-			set >>= 1;
+-		} while (set);
+-		max += n * __NFDBITS;
+-	}
+-
+-	return max;
+-}
+-
+-#define BIT(i)		(1UL << ((i)&(__NFDBITS-1)))
+-#define MEM(i,m)	((m)+(unsigned)(i)/__NFDBITS)
+ #define ISSET(i,m)	(((i)&*(m)) != 0)
+ #define SET(i,m)	(*(m) |= (i))
+ 
+@@ -165,56 +120,64 @@
+ int do_select(int n, fd_set_bits *fds, long *timeout)
+ {
+ 	poll_table table, *wait;
+-	int retval, i, off;
++	int retval, off, maxoff;
+ 	long __timeout = *timeout;
+ 
+- 	read_lock(&current->files->file_lock);
+-	retval = max_select_fd(n, fds);
+-	read_unlock(&current->files->file_lock);
+-
+-	if (retval < 0)
+-		return retval;
+-	n = retval;
+-
+ 	poll_initwait(&table);
+ 	wait = &table;
+ 	if (!__timeout)
+ 		wait = NULL;
++	
+ 	retval = 0;
++	maxoff = (n+BITS_PER_LONG-1)/BITS_PER_LONG; 
+ 	for (;;) {
+ 		set_current_state(TASK_INTERRUPTIBLE);
+-		for (i = 0 ; i < n; i++) {
+-			unsigned long bit = BIT(i);
+-			unsigned long mask;
+-			struct file *file;
+-
+-			off = i / __NFDBITS;
+-			if (!(bit & BITS(fds, off)))
+-				continue;
+-			file = fget(i);
+-			mask = POLLNVAL;
+-			if (file) {
+-				mask = DEFAULT_POLLMASK;
+-				if (file->f_op && file->f_op->poll)
+-					mask = file->f_op->poll(file, wait);
+-				fput(file);
+-			}
+-			if ((mask & POLLIN_SET) && ISSET(bit, __IN(fds,off))) {
+-				SET(bit, __RES_IN(fds,off));
+-				retval++;
+-				wait = NULL;
+-			}
+-			if ((mask & POLLOUT_SET) && ISSET(bit, __OUT(fds,off))) {
+-				SET(bit, __RES_OUT(fds,off));
+-				retval++;
+-				wait = NULL;
+-			}
+-			if ((mask & POLLEX_SET) && ISSET(bit, __EX(fds,off))) {
+-				SET(bit, __RES_EX(fds,off));
+-				retval++;
+-				wait = NULL;
++		for (off = 0; off <= maxoff; off++) { 
++			unsigned long val = BITS(fds, off); 
++
++			while (val) { 
++				int k = ffz(~val), index; 
++				unsigned long mask, bit;
++				struct file *file;
++
++				bit = (1UL << k); 
++				val &= ~bit; 
++
++				index = off*BITS_PER_LONG + k;
++				if (index >= n) 
++					break;
++
++				file = fget(index);
++				mask = POLLNVAL;
++				if (file) {
++					mask = DEFAULT_POLLMASK;
++					if (file->f_op && file->f_op->poll)
++						mask = file->f_op->poll(file, wait);
++					fput(file);
++				} else { 
++					/* This error will shadow all other results. 
++					 * This matches previous linux behaviour */
++					retval = -EBADF; 
++					goto out; 
++				} 
++				if ((mask & POLLIN_SET) && ISSET(bit, __IN(fds,off))) {
++					SET(bit, __RES_IN(fds,off));
++					retval++;
++					wait = NULL;
++				}
++				if ((mask& POLLOUT_SET) && ISSET(bit,__OUT(fds,off))) {
++					SET(bit, __RES_OUT(fds,off));
++					retval++;
++					wait = NULL;
++				}
++				if ((mask & POLLEX_SET) && ISSET(bit, __EX(fds,off))) {
++					SET(bit, __RES_EX(fds,off));
++					retval++;
++					wait = NULL;
++				}
+ 			}
+ 		}
++
+ 		wait = NULL;
+ 		if (retval || !__timeout || signal_pending(current))
+ 			break;
+@@ -224,25 +187,35 @@
+ 		}
+ 		__timeout = schedule_timeout(__timeout);
+ 	}
++
++out:	
+ 	current->state = TASK_RUNNING;
+ 
+ 	poll_freewait(&table);
+ 
+ 	/*
+-	 * Up-to-date the caller timeout.
++	 * Update the caller timeout.
+ 	 */
+ 	*timeout = __timeout;
+ 	return retval;
+ }
+ 
+-static void *select_bits_alloc(int size)
+-{
+-	return kmalloc(6 * size, GFP_KERNEL);
+-}
++/*
++ * We do a VERIFY_WRITE here even though we are only reading this time:
++ * we'll write to it eventually..
++ */
+ 
+-static void select_bits_free(void *bits, int size)
++static int get_fd_set(unsigned long nr, void *ufdset, unsigned long *fdset)
+ {
+-	kfree(bits);
++	unsigned long rounded = FDS_BYTES(nr), mask; 
++	if (ufdset) {
++		int error = verify_area(VERIFY_WRITE, ufdset, rounded);
++		if (!error && __copy_from_user(fdset, ufdset, rounded))
++			error = -EFAULT;
++		return error;
++	}
++	memset(fdset, 0, rounded);
++	return 0;
+ }
+ 
+ /*
+@@ -263,6 +236,7 @@
+ 	char *bits;
+ 	long timeout;
+ 	int ret, size, max_fdset;
++	char stack_bits[FDS_BYTES(FAST_SELECT_MAX) * 6]; 
+ 
+ 	timeout = MAX_SCHEDULE_TIMEOUT;
+ 	if (tvp) {
+@@ -297,11 +271,16 @@
+ 	 * since we used fdset we need to allocate memory in units of
+ 	 * long-words. 
+ 	 */
+-	ret = -ENOMEM;
+ 	size = FDS_BYTES(n);
+-	bits = select_bits_alloc(size);
+-	if (!bits)
+-		goto out_nofds;
++	if (n < FAST_SELECT_MAX) { 
++		bits = stack_bits;
++	} else { 
++		ret = -ENOMEM;
++		bits = kmalloc(6*size, GFP_KERNEL);
++		if (!bits)
++			goto out_nofds;
++	} 
++
+ 	fds.in      = (unsigned long *)  bits;
+ 	fds.out     = (unsigned long *) (bits +   size);
+ 	fds.ex      = (unsigned long *) (bits + 2*size);
+@@ -313,9 +292,7 @@
+ 	    (ret = get_fd_set(n, outp, fds.out)) ||
+ 	    (ret = get_fd_set(n, exp, fds.ex)))
+ 		goto out;
+-	zero_fd_set(n, fds.res_in);
+-	zero_fd_set(n, fds.res_out);
+-	zero_fd_set(n, fds.res_ex);
++	memset(fds.res_in, 0, 3*size); 
+ 
+ 	ret = do_select(n, &fds, &timeout);
+ 
+@@ -326,8 +303,8 @@
+ 			usec = timeout % HZ;
+ 			usec *= (1000000/HZ);
+ 		}
+-		put_user(sec, &tvp->tv_sec);
+-		put_user(usec, &tvp->tv_usec);
++		__put_user(sec, &tvp->tv_sec);
++		__put_user(usec, &tvp->tv_usec);
+ 	}
+ 
+ 	if (ret < 0)
+@@ -344,8 +321,10 @@
+ 	set_fd_set(n, exp, fds.res_ex);
+ 
+ out:
+-	select_bits_free(bits, size);
++	if (n >= FAST_SELECT_MAX) 
++		kfree(bits);
+ out_nofds:
++
+ 	return ret;
+ }
+ 
+@@ -410,12 +389,42 @@
+ 	return count;
+ }
+ 
++static int fast_poll(poll_table *table, poll_table *wait, struct pollfd *ufds, 
++		     unsigned int nfds, long timeout)
++{ 
++	poll_table *pt = wait; 
++	struct pollfd fds[FAST_POLL_MAX];
++	int count, i; 
++
++	if (copy_from_user(fds, ufds, nfds * sizeof(struct pollfd)))
++		return -EFAULT; 
++	for (;;) { 
++		set_current_state(TASK_INTERRUPTIBLE);
++		count = 0; 
++		do_pollfd(nfds, fds, &pt, &count); 
++		pt = NULL;
++		if (count || !timeout || signal_pending(current))
++			break;
++		count = wait->error; 
++		if (count) 
++			break; 		
++		timeout = schedule_timeout(timeout);
++	} 
++	current->state = TASK_RUNNING;
++	for (i = 0; i < nfds; i++) 
++		__put_user(fds[i].revents, &ufds[i].revents);
++	poll_freewait(table);	
++	if (!count && signal_pending(current)) 
++		return -EINTR; 
++	return count; 
++} 
++
+ asmlinkage long sys_poll(struct pollfd * ufds, unsigned int nfds, long timeout)
+ {
+-	int i, j, fdcount, err;
++	int i, j, err, fdcount;
+ 	struct pollfd **fds;
+ 	poll_table table, *wait;
+-	int nchunks, nleft;
++	int nchunks, nleft; 
+ 
+ 	/* Do a sanity check on nfds ... */
+ 	if (nfds > NR_OPEN)
+@@ -429,43 +438,45 @@
+ 			timeout = MAX_SCHEDULE_TIMEOUT;
+ 	}
+ 
++
+ 	poll_initwait(&table);
+ 	wait = &table;
+ 	if (!timeout)
+ 		wait = NULL;
+ 
+-	err = -ENOMEM;
+-	fds = NULL;
+-	if (nfds != 0) {
+-		fds = (struct pollfd **)kmalloc(
+-			(1 + (nfds - 1) / POLLFD_PER_PAGE) * sizeof(struct pollfd *),
+-			GFP_KERNEL);
+-		if (fds == NULL)
+-			goto out;
+-	}
++	if (nfds < FAST_POLL_MAX) 
++		return fast_poll(&table, wait, ufds, nfds, timeout); 
+ 
++	err = -ENOMEM;
++	fds = (struct pollfd **)kmalloc(
++		(1 + (nfds - 1) / POLLFD_PER_PAGE) * sizeof(struct pollfd *),
++		GFP_KERNEL);
++	if (fds == NULL)
++		goto out;
++	
+ 	nchunks = 0;
+ 	nleft = nfds;
+-	while (nleft > POLLFD_PER_PAGE) { /* allocate complete PAGE_SIZE chunks */
++	while (nleft > POLLFD_PER_PAGE) { 
+ 		fds[nchunks] = (struct pollfd *)__get_free_page(GFP_KERNEL);
+ 		if (fds[nchunks] == NULL)
+ 			goto out_fds;
+ 		nchunks++;
+ 		nleft -= POLLFD_PER_PAGE;
+ 	}
+-	if (nleft) { /* allocate last PAGE_SIZE chunk, only nleft elements used */
++	if (nleft) { 
+ 		fds[nchunks] = (struct pollfd *)__get_free_page(GFP_KERNEL);
+ 		if (fds[nchunks] == NULL)
+ 			goto out_fds;
+-	}
+-
++	} 
++	
+ 	err = -EFAULT;
+ 	for (i=0; i < nchunks; i++)
+ 		if (copy_from_user(fds[i], ufds + i*POLLFD_PER_PAGE, PAGE_SIZE))
+ 			goto out_fds1;
++	
+ 	if (nleft) {
+ 		if (copy_from_user(fds[nchunks], ufds + nchunks*POLLFD_PER_PAGE, 
+-				nleft * sizeof(struct pollfd)))
++				   nleft * sizeof(struct pollfd)))
+ 			goto out_fds1;
+ 	}
+ 
+@@ -489,8 +500,7 @@
+ out_fds:
+ 	for (i=0; i < nchunks; i++)
+ 		free_page((unsigned long)(fds[i]));
+-	if (nfds != 0)
+-		kfree(fds);
++	kfree(fds);
+ out:
+ 	poll_freewait(&table);
+ 	return err;
+--- linux/include/linux/poll.h	Mon Jun 17 06:25:51 2002
++++ linux-2.5.23-work/include/linux/poll.h	Mon Jun 17 08:32:05 2002
+@@ -10,13 +10,32 @@
+ #include <linux/mm.h>
+ #include <asm/uaccess.h>
+ 
+-struct poll_table_page;
++#define POLL_INLINE_BYTES 256
++#define FAST_SELECT_MAX  128
++#define FAST_POLL_MAX    128
++#define POLL_INLINE_ENTRIES (1+(POLL_INLINE_BYTES / sizeof(struct poll_table_entry)))
++
++struct poll_table_entry {
++	struct file * filp;
++	wait_queue_t wait;
++	wait_queue_head_t * wait_address;
++};
++
++struct poll_table_page {
++	struct poll_table_page * next;
++	struct poll_table_entry * entry;
++	struct poll_table_entry entries[0];
++};
+ 
+ typedef struct poll_table_struct {
+ 	int error;
+ 	struct poll_table_page * table;
++	struct poll_table_page inline_page; 
++	struct poll_table_entry inline_table[POLL_INLINE_ENTRIES]; 
+ } poll_table;
+ 
++#define POLL_INLINE_TABLE_LEN (sizeof(poll_table) - offsetof(poll_table, inline_page))
++
+ extern void __pollwait(struct file * filp, wait_queue_head_t * wait_address, poll_table *p);
+ 
+ static inline void poll_wait(struct file * filp, wait_queue_head_t * wait_address, poll_table *p)
+@@ -30,6 +49,7 @@
+ 	pt->error = 0;
+ 	pt->table = NULL;
+ }
++
+ extern void poll_freewait(poll_table* pt);
+ 
+ 
+@@ -49,38 +69,11 @@
+ #define FDS_LONGS(nr)	(((nr)+FDS_BITPERLONG-1)/FDS_BITPERLONG)
+ #define FDS_BYTES(nr)	(FDS_LONGS(nr)*sizeof(long))
+ 
+-/*
+- * We do a VERIFY_WRITE here even though we are only reading this time:
+- * we'll write to it eventually..
+- *
+- * Use "unsigned long" accesses to let user-mode fd_set's be long-aligned.
+- */
+-static inline
+-int get_fd_set(unsigned long nr, void *ufdset, unsigned long *fdset)
+-{
+-	nr = FDS_BYTES(nr);
+-	if (ufdset) {
+-		int error;
+-		error = verify_area(VERIFY_WRITE, ufdset, nr);
+-		if (!error && __copy_from_user(fdset, ufdset, nr))
+-			error = -EFAULT;
+-		return error;
+-	}
+-	memset(fdset, 0, nr);
+-	return 0;
+-}
+-
+ static inline
+ void set_fd_set(unsigned long nr, void *ufdset, unsigned long *fdset)
+ {
+ 	if (ufdset)
+ 		__copy_to_user(ufdset, fdset, FDS_BYTES(nr));
+-}
+-
+-static inline
+-void zero_fd_set(unsigned long nr, unsigned long *fdset)
+-{
+-	memset(fdset, 0, FDS_BYTES(nr));
+ }
+ 
+ extern int do_select(int n, fd_set_bits *fds, long *timeout);
 
---George
-
-On Tuesday 18 June 2002 23:04, Richard Liu wrote:
-> Hi.
->     does anyone porting SD/MMC driver in linux platform?
-> I want to porting SD/MMC driver,
->
-> It's a chip which using LPC connect to south bridge.
-> I want some information about how to porting it,
-> like major/minor number, etc.
->
-> If anyone have information about this, could you give me a head?
-> --
-> Richard Liu, an Linux Device driver developer .
->
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/

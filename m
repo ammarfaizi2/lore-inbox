@@ -1,62 +1,34 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262055AbSJNR5y>; Mon, 14 Oct 2002 13:57:54 -0400
+	id <S262075AbSJNR4q>; Mon, 14 Oct 2002 13:56:46 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262039AbSJNR5y>; Mon, 14 Oct 2002 13:57:54 -0400
-Received: from 12-231-249-244.client.attbi.com ([12.231.249.244]:5638 "HELO
-	kroah.com") by vger.kernel.org with SMTP id <S262055AbSJNR5U>;
-	Mon, 14 Oct 2002 13:57:20 -0400
-Date: Mon, 14 Oct 2002 11:03:25 -0700
-From: Greg KH <greg@kroah.com>
-To: Patrick Mochel <mochel@osdl.org>
-Cc: Alexander Viro <viro@math.psu.edu>, linux-kernel@vger.kernel.org,
-       linux-usb-devel@lists.sourceforge.net
-Subject: Re: [RFC] device_initialize()
-Message-ID: <20021014180325.GC7462@kroah.com>
-References: <20021014172422.GE6955@kroah.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20021014172422.GE6955@kroah.com>
-User-Agent: Mutt/1.4i
+	id <S262080AbSJNR4q>; Mon, 14 Oct 2002 13:56:46 -0400
+Received: from MEREDITH.DEMENTIA.ORG ([128.2.120.216]:20240 "EHLO
+	meredith.dementia.org") by vger.kernel.org with ESMTP
+	id <S262075AbSJNR4p>; Mon, 14 Oct 2002 13:56:45 -0400
+Date: Mon, 14 Oct 2002 14:02:27 -0400 (EDT)
+From: Derrick J Brashear <shadow@dementia.org>
+X-X-Sender: shadow@trafford.andrew.cmu.edu
+To: Christoph Hellwig <hch@infradead.org>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: PATCH: AFS system call registration function (was Re: Two fixes
+ for 2.4.19-pre5-ac3)
+In-Reply-To: <20021014173206.A21036@infradead.org>
+Message-ID: <Pine.LNX.4.44L-027.0210141401390.18909-100000@trafford.andrew.cmu.edu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Oct 14, 2002 at 10:24:22AM -0700, Greg KH wrote:
-> +/**
->   * device_register - register a device
->   * @dev:	pointer to the device structure
->   *
-> @@ -167,15 +188,10 @@
->  	if (!dev || !strlen(dev->bus_id))
->  		return -EINVAL;
->  
-> -	INIT_LIST_HEAD(&dev->node);
-> -	INIT_LIST_HEAD(&dev->children);
-> -	INIT_LIST_HEAD(&dev->g_list);
-> -	INIT_LIST_HEAD(&dev->driver_list);
-> -	INIT_LIST_HEAD(&dev->bus_list);
-> -	INIT_LIST_HEAD(&dev->intf_list);
-> -	spin_lock_init(&dev->lock);
-> -	atomic_set(&dev->refcount,2);
-> -	dev->present = 1;
-> +	if (dev->state != DEVICE_INITIALIZED)
-> +		return -EINVAL;
-> +
-> +	get_device(dev);
->  	spin_lock(&device_lock);
->  	if (dev->parent) {
->  		get_device_locked(dev->parent);
-> @@ -212,6 +228,7 @@
->  		if (dev->parent)
->  			put_device(dev->parent);
->  	}
-> +	dev->state = DEVICE_INITIALIZED;
+On Mon, 14 Oct 2002, Christoph Hellwig wrote:
+
+> On Mon, Oct 14, 2002 at 10:31:41AM -0400, Derrick J Brashear wrote:
+> > Well, given the previous commentary I would have expected the hook to have
+> > already existed, and if it had we would have changed to conform to it
+> > months ago.
+>
+> Which hook?
+
+For this system call. The message from Alan I quoted which was from April.
 
 
-As someone just kindly pointed out to me, this should be
-DEVICE_REGISTERED.  Sorry about that.
-
-thanks,
-
-greg k-h

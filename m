@@ -1,45 +1,49 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262274AbTJAQGZ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Oct 2003 12:06:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262275AbTJAQGZ
+	id S262410AbTJAQZo (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Oct 2003 12:25:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262446AbTJAQVS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Oct 2003 12:06:25 -0400
-Received: from chaos.analogic.com ([204.178.40.224]:60288 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP id S262274AbTJAQGY
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Oct 2003 12:06:24 -0400
-Date: Wed, 1 Oct 2003 12:08:25 -0400 (EDT)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-X-X-Sender: root@chaos
-Reply-To: root@chaos.analogic.com
-To: "Lisa R. Nelson" <lisanels@cableone.net>
-cc: linux-kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: File Permissions are incorrect. Security flaw in Linux
-In-Reply-To: <1065019077.2995.22.camel@localhost.localdomain>
-Message-ID: <Pine.LNX.4.53.0310011204410.4059@chaos>
-References: <1065012013.4078.2.camel@lisaserver>  <1065044031.2158.23.camel@wynken.reefedge.com>
- <1065019077.2995.22.camel@localhost.localdomain>
+	Wed, 1 Oct 2003 12:21:18 -0400
+Received: from mx1.elte.hu ([157.181.1.137]:58600 "EHLO mx1.elte.hu")
+	by vger.kernel.org with ESMTP id S262410AbTJAQTh (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 1 Oct 2003 12:19:37 -0400
+Date: Wed, 1 Oct 2003 18:16:13 +0200 (CEST)
+From: Ingo Molnar <mingo@elte.hu>
+Reply-To: Ingo Molnar <mingo@elte.hu>
+To: Catalin BOIE <util@deuroconsult.ro>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: chstk - URL?
+In-Reply-To: <Pine.LNX.4.58.0310011223260.22797@hosting.rdsbv.ro>
+Message-ID: <Pine.LNX.4.56.0310011804050.5615@localhost.localdomain>
+References: <Pine.LNX.4.58.0310011218290.22797@hosting.rdsbv.ro>
+ <Pine.LNX.4.58.0310011223260.22797@hosting.rdsbv.ro>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 1 Oct 2003, Lisa R. Nelson wrote:
 
-> Ok, ok, I get it... It was an oversight on my part.  But I'm sure
-> surprised about some of the hostile replies I received.  So much for a
-> friendly group.  People should remember that there's ALWAYS someone that
-> knows more that YOU.
+On Wed, 1 Oct 2003, Catalin BOIE wrote:
 
-Well there were no hostile replies (yet), even though some kernel
-developers took the time and bandwidth to explain about Unix file
-permissions. And you are being unfriendly. The correct response
-would have been; "Okay. Thanks".
+> I use kernel 2.6.0-test6-mm1 with ecec-shield and X gives me sig 11.
 
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.4.22 on an i686 machine (797.90 BogoMips).
-            Note 96.31% of all statistics are fiction.
+for security reasons it's not possible to disable exec-shield for setuid
+root processes (such as X). So the solution either to upgrade X to have
+the fix or to switch off exec-shield when you start up X, and switch on
+exec-shield afterwards. A bit painful the later method ...
 
+(alternatively you can also disable the setuid-root protection in the
+kernel, remove the two 'current->personality = PER_LINUX' lines from
+fs/exec.c and recompile the kernel.)
 
+> A program must be compiled with new gcc to work with exec-shield and
+> without chstk?
+
+no. The X segmenation fault is because the X module loader malloc()s
+buffers for code and expects them to be executable. Those buffers were
+non-executable on other architectures already, so the fix is really simple
+- a oneliner #ifdef or so.
+
+	Ingo

@@ -1,62 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S266917AbUGVTTe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267170AbUGVTWU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266917AbUGVTTe (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 22 Jul 2004 15:19:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266913AbUGVTTe
+	id S267170AbUGVTWU (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 22 Jul 2004 15:22:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266921AbUGVTWU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 22 Jul 2004 15:19:34 -0400
-Received: from wblv-254-37.telkomadsl.co.za ([165.165.254.37]:9135 "EHLO
-	gateway.lan") by vger.kernel.org with ESMTP id S266917AbUGVTTS
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 22 Jul 2004 15:19:18 -0400
-Subject: Re: [PATCH] delete devfs
-From: Martin Schlemmer <azarah@nosferatu.za.org>
-Reply-To: Martin Schlemmer <azarah@nosferatu.za.org>
-To: Greg KH <greg@kroah.com>
-Cc: Linux Kernel Mailing Lists <linux-kernel@vger.kernel.org>
-In-Reply-To: <20040721212745.GC18110@kroah.com>
-References: <20040721141524.GA12564@kroah.com>
-	 <200407211626.55670.oliver@neukum.org> <20040721145208.GA13522@kroah.com>
-	 <1090444782.8033.4.camel@homer.blizzard.org>
-	 <20040721212745.GC18110@kroah.com>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-y53Rxo76nXMfCBOi51Jh"
-Message-Id: <1090524122.10205.16.camel@nosferatu.lan>
+	Thu, 22 Jul 2004 15:22:20 -0400
+Received: from cfcafwp.sgi.com ([192.48.179.6]:20531 "EHLO
+	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
+	id S267180AbUGVTVs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 22 Jul 2004 15:21:48 -0400
+Date: Thu, 22 Jul 2004 14:20:03 -0500
+From: Robin Holt <holt@sgi.com>
+To: Jesse Barnes <jbarnes@engr.sgi.com>
+Cc: Pat Gefre <pfg@sgi.com>, linux-ia64@vger.kernel.org, hch@infradead.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: Altix I/O code re-org
+Message-ID: <20040722192003.GA617@lnx-holt.americas.sgi.com>
+References: <200407221514.i6MFEVag084696@fsgi900.americas.sgi.com> <200407221357.53404.jbarnes@engr.sgi.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Thu, 22 Jul 2004 21:22:02 +0200
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200407221357.53404.jbarnes@engr.sgi.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, Jul 22, 2004 at 01:57:53PM -0400, Jesse Barnes wrote:
+> On Thursday, July 22, 2004 11:14 am, Pat Gefre wrote:
+> > We have redone the I/O layer in the Altix code.
+> >
+> > We are posting this code for review before submitting for
+> > inclusion in the 2.5 tree.
+> >
+> > The code can be seen at:
+> > ftp://oss.sgi.com/projects/sn2/sn2-update/
+> >
+> > The general changes are:
+> > o added new hardware support
+> > o ran all code thru Lindent
+> > o code cleanup (typedefs, include files, etc.)
+> > o simplified the directory structure (all files under arch/ia64/sn/io/
+> >   are deleted, new files are under arch/ia64/sn/ioif/)
+> > o code size reduced by >50%
+> > o major reorg of the code itself
+> > o copyright updates
+> 
+> One of the most important changes this patch makes is to rip out all of the 
+> SGI PCI probing code.  Our PROM now probes for I/O devices and tells the 
+> kernel where they are (similar to the ACPI model, which we may get to 
+> eventually).  The result is much more readable code with less duplication.  
+> Please take a look and let us know if you have any feedback, since we'd like 
+> to get this in as soon as we release a PROM that supports probing.
 
---=-y53Rxo76nXMfCBOi51Jh
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+I am in the process of making this into four patches that will leave me with
+a bootable system.  I need to test out the bte error handling code anyway.
 
-On Wed, 2004-07-21 at 23:27, Greg KH wrote:
-
-> As for "right now"?  Why not?  I'm just embracing the new development
-> model of the kernel :)
->=20
-
-There anything more about this in print?
-
+The first patch will handle renaming the files, second and third are the
+diffs_common* and then the fourth replaces the is the big patch.  I realize
+this doesn't satisfy Christoph's request, but it is a first step.
 
 Thanks,
-
---=20
-Martin Schlemmer
-
---=-y53Rxo76nXMfCBOi51Jh
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-
-iD8DBQBBABPaqburzKaJYLYRAg7JAJ4tJRuS4H1OHw8jaWT1/++mHYINxwCgmcj0
-OHJTIIkA3GA9Q4ApXuPnHzU=
-=R9+S
------END PGP SIGNATURE-----
-
---=-y53Rxo76nXMfCBOi51Jh--
-
+Robin

@@ -1,49 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263887AbTH1KKX (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 28 Aug 2003 06:10:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263883AbTH1KH3
+	id S263888AbTH1KH0 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 28 Aug 2003 06:07:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263883AbTH1KH0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 28 Aug 2003 06:07:29 -0400
-Received: from www.erfrakon.de ([193.197.159.57]:15621 "EHLO www.erfrakon.de")
-	by vger.kernel.org with ESMTP id S263933AbTH1JUD (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 28 Aug 2003 05:20:03 -0400
-From: Martin Konold <martin.konold@erfrakon.de>
-Organization: erfrakon
-To: Timo Sirainen <tss@iki.fi>, Jamie Lokier <jamie@shareable.org>
-Subject: Re: Lockless file reading
-Date: Thu, 28 Aug 2003 11:13:59 +0200
-User-Agent: KMail/kroupware-1.0.0
-Cc: root@chaos.analogic.com, linux-kernel@vger.kernel.org
-References: <3217CEE6-D906-11D7-A165-000393CC2E90@iki.fi>
-In-Reply-To: <3217CEE6-D906-11D7-A165-000393CC2E90@iki.fi>
+	Thu, 28 Aug 2003 06:07:26 -0400
+Received: from mail.webmaster.com ([216.152.64.131]:42690 "EHLO
+	shell.webmaster.com") by vger.kernel.org with ESMTP id S263908AbTH1JSD
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 28 Aug 2003 05:18:03 -0400
+From: "David Schwartz" <davids@webmaster.com>
+To: "Timo Sirainen" <tss@iki.fi>, <nagendra_tomar@adaptec.com>
+Cc: "Jamie Lokier" <jamie@shareable.org>, <root@chaos.analogic.com>,
+       "Martin Konold" <martin.konold@erfrakon.de>,
+       <linux-kernel@vger.kernel.org>
+Subject: RE: Lockless file reading
+Date: Thu, 28 Aug 2003 02:17:55 -0700
+Message-ID: <MDEHLPKNGKAHNMBLJOLKIEIHFLAA.davids@webmaster.com>
 MIME-Version: 1.0
 Content-Type: text/plain;
-  charset="iso-8859-1"
+	charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200308281113.59112.martin.konold@erfrakon.de>
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook IMO, Build 9.0.6604 (9.0.2911.0)
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1106
+Importance: Normal
+In-Reply-To: <1062060035.1456.222.camel@hurina>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Am Thursday 28 August 2003 05:17 am schrieb Timo Sirainen:
 
-Hi Timo,
+> That was my original plan, to just rely on such kernel behaviour. I just
+> don't know if it's such a good idea to rely on that, especially if I
+> want to keep my program portable. I'll probably fallback to that anyway
+> if my checksumming ideas won't work.
 
-> How about checksum[n] = data[n-1] ^ data[n]? That looks like it would
+	If you only have one writer, why not have the writer update an MD5 checksum
+in the file along with the datawrite? If the reader sees an invalid
+checksum, it repeats the read. This is simple, elegant, and foolproof. The
+only possible flaw would be if you found two data sets with the same MD5
+checksum. The instant fame would be well worth the inconvenience. ;)
 
-I propose you first make some benchmarks and try to figure out how big the 
-actual overhead of locking really is. I can easily assume that your 
-"solution" is actually slower than a simple mechanism/semaphore. 
+	DS
 
-Regards,
--- martin
-
-Dipl.-Phys. Martin Konold
-e r f r a k o n
-Erlewein, Frank, Konold & Partner - Beratende Ingenieure und Physiker
-Nobelstrasse 15, 70569 Stuttgart, Germany
-fon: 0711 67400963, fax: 0711 67400959
-email: martin.konold@erfrakon.de
 

@@ -1,147 +1,111 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285572AbRLSX2i>; Wed, 19 Dec 2001 18:28:38 -0500
+	id <S285566AbRLSXY3>; Wed, 19 Dec 2001 18:24:29 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S285569AbRLSX23>; Wed, 19 Dec 2001 18:28:29 -0500
-Received: from mta14-acc.tin.it ([212.216.176.45]:14320 "EHLO fep14-svc.tin.it")
-	by vger.kernel.org with ESMTP id <S285572AbRLSX2L>;
-	Wed, 19 Dec 2001 18:28:11 -0500
-Message-ID: <3C21229F.A6864423@iname.com>
-Date: Thu, 20 Dec 2001 00:28:31 +0100
-From: Luca Montecchiani <m.luca@iname.com>
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.17-rc2 i586)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Linux Kernel <linux-kernel@vger.kernel.org>
-CC: Alan Cox <alan@redhat.com>, Vojtech Pavlik <vojtech@suse.cz>
-Subject: [PATCH] Trident 4DWave DX/NX joystick support
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S285568AbRLSXYT>; Wed, 19 Dec 2001 18:24:19 -0500
+Received: from chmls05.mediaone.net ([24.147.1.143]:18587 "EHLO
+	chmls05.mediaone.net") by vger.kernel.org with ESMTP
+	id <S285566AbRLSXYK> convert rfc822-to-8bit; Wed, 19 Dec 2001 18:24:10 -0500
+Subject: Re: Poor performance during disk writes
+From: jlm <jsado@mediaone.net>
+To: linux-kernel@vger.kernel.org
+In-Reply-To: <20011218195509.U2272-100000@gerard>
+In-Reply-To: <20011218195509.U2272-100000@gerard>
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 8BIT
+X-Mailer: Evolution/0.99.2 (Preview Release)
+Date: 19 Dec 2001 18:26:52 -0500
+Message-Id: <1008804413.926.5.camel@PC2>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+On Tue, 2001-12-18 at 14:09, Gérard Roudier wrote:
+> 
+> 
+> On Tue, 18 Dec 2001, Andre Hedrick wrote:
+> 
+> > On Tue, 18 Dec 2001, Gérard Roudier wrote:
+> >
+> > >
+> > >
+> > > On Tue, 18 Dec 2001, Andre Hedrick wrote:
+> > >
+> > > > File './Bonnie.2276', size: 1073741824, volumes: 1
+> > > > Writing with putc()...  done:  72692 kB/s  83.7 %CPU
+> > > > Rewriting...            done:  25355 kB/s  12.0 %CPU
+> > > > Writing intelligently...done: 103022 kB/s  40.5 %CPU
+> > > > Reading with getc()...  done:  37188 kB/s  67.5 %CPU
+> > > > Reading intelligently...done:  40809 kB/s  11.4 %CPU
+> > > > Seeker 2...Seeker 1...Seeker 3...start
+'em...done...done...done...
+> > > >               ---Sequential Output (nosync)--- ---Sequential
+Input-- --Rnd Seek-
+> > > >               -Per Char- --Block--- -Rewrite-- -Per Char-
+--Block--- --04k (03)-
+> > > > Machine    MB K/sec %CPU K/sec %CPU K/sec %CPU K/sec %CPU K/sec
+%CPU   /sec %CPU
+> > > >        1*1024 72692 83.7 103022 40.5 25355 12.0 37188 67.5 40809
+11.4  382.1  2.4
+> > > >
+> > > > Maybe this is the kind of performance you want out your ATA
+subsystem.
+> > > > Maybe if I could get a patch in to the kernels we could all have
+stable
+> > > > and fast IO.
+I think people might be missing the issue that I'm having, here. Let me
+see if I can clarify. I'm not too concerned about write speed. I don't
+care too much if the hard drive can only write one byte per second. The
+problem is that when the kernel decides to write out to the disk, it is
+pre-empting everything else. All output to the user in X, the sound
+card, and also text typing in the console is put "on the back burner"
+while the disk is written to.
 
-Right now using the joystick with a trident sound card 
-on 2.4.x is not possible.
+It seems to me that smaller chunks of data can be written to the disk
+without disrupting my use of the computer (which is the case with
+untarring a small file, for instance), so if the kernel has got a lot to
+write to disk, just do that as a bunch of smaller writes and we should
+be fine.
 
-The joystick/pcigame give me tons of problems, like pci resource
-conflicts and oops, anyway I'll came back soon with more detailed
-data about that... 
+So I guess I don't really care what mode the hard drive is operating in
+(udma, mdma, dma or plain ide), I just don't want to have to go get a
+cup of coffee while the hard drive saves some data. Is there a "don't
+pre-empt the rest of the system" switch for the eide drives? Is there
+something fundamental/unique going on here that I'm missing?
 
-Forgetting the enhanced game port we can use the old legacy ISA ns558
-driver but is a no go because the trident sound driver doesn't enable 
-that port :(
+Thanks for listening.
+> > >
+> > > I rather see lots of wasting rather than performance, here. Bonnie
+says
+> > > that your subsystem can sustain 103 MB/s write but only 41 MB/s
+read. This
+> > > looks about 60% throughput wasted for read.
+> > >
+> > > Note that if you intend to use it only for write-only
+applications,
+> > > performance are not that bad, even if just dropping the data on
+the floor
+> > > would give you infinite throughput without any difference in
+> > > functionnality. :-)
+> >
+> > Well sense somebody paid/paying me make write performance go through
+the
+> > roof -- that is what I did.  Now if you look closely you could see
+that in
+> > writing we are doing a boat load more work than reading.  If
+somebody want
+> > me to throttle the reads more then they know how to get it done.
+> 
+> I am not the one that will pay you for that, as you can guess. :-)
+> 
+> I just was curious about the technical reasons, if any, of so large a
+> difference. Just, the CPU and the memory subsystem are certainly not
+the
+> issue. But I donnot want to prevent you from earning from such kind of
+> improvement. Hence, let me go back to free scsi.
 
-This patch allow to enable the legacy joystick port on 
-Trident 4DWave DX/NX.
-The patch adds a new trident module param (joystick)
-and a new config option.
-I didn't try with a monolithic kernel, I hope that joy driver
-driver will came after the sound driver.. 
+-- 
+MACINTOSH = Machine Always Crashes If Not The Operating System Hangs
+"Life would be so much easier if we could just look at the source code."
+- Dave Olson
 
-Before xmas I need to turn my linux server on a X11box ;)
-
-happy gaming,
-luca
-
-follow patch against 2.4.17rc2 inspired from a 1999 alsa-devel post:
-
-diff -ur linux/Documentation/Configure.help /usr/src/linux/Documentation/Configure.help
---- linux/Documentation/Configure.help  Wed Dec 19 23:17:07 2001
-+++ /usr/src/linux/Documentation/Configure.help Wed Dec 19 22:11:34 2001
-@@ -18576,7 +18576,7 @@
-
- Enable joystick
- CONFIG_SOUND_CMPCI_JOYSTICK
--  Say here in order to enable the joystick port on a sound crd using
-+  Say Y here in order to enable the joystick port on a sound card using
-   the CMI8338 or the CMI8738 chipset.  Data on these chips are
-   available at <http://www.cmedia.com.tw/>.
-
-@@ -18702,6 +18702,11 @@
-   This driver differs slightly from OSS/Free, so PLEASE READ the
-   comments at the top of <file:drivers/sound/trident.c>.
-
-+Trident Joystick Interface
-+CONFIG_SOUND_TRIDENT_JOYSTICK
-+  Say Y here in order to enable the joystick interface of the 
-+  Trident 4D Wave DX or NX.
-+
- Rockwell WaveArtist
- CONFIG_SOUND_WAVEARTIST
-   Say Y here to include support for the Rockwell WaveArtist sound
-diff -ur linux/drivers/sound/Config.in /usr/src/linux/drivers/sound/Config.in
---- linux/drivers/sound/Config.in       Wed Dec 19 23:17:11 2001
-+++ /usr/src/linux/drivers/sound/Config.in      Wed Dec 19 22:07:55 2001
-@@ -52,7 +52,9 @@
-     dep_tristate '  NEC Vrc5477 AC97 sound' CONFIG_SOUND_VRC5477 $CONFIG_SOUND
- fi
- dep_tristate '  Trident 4DWave DX/NX, SiS 7018 or ALi 5451 PCI Audio Core' CONFIG_SOUND_TRIDENT $CONFIG_SOUND
--
-+if [ "$CONFIG_SOUND_TRIDENT" = "y" -o "$CONFIG_SOUND_TRIDENT" = "m" ]; then
-+    bool '    Enable trident joystick port' CONFIG_SOUND_TRIDENT_JOYSTICK
-+fi
- dep_tristate '  Support for Turtle Beach MultiSound Classic, Tahiti, Monterey' CONFIG_SOUND_MSNDCLAS $CONFIG_SOUND
- if [ "$CONFIG_SOUND_MSNDCLAS" = "y" -o "$CONFIG_SOUND_MSNDCLAS" = "m" ]; then
-    if [ "$CONFIG_SOUND_MSNDCLAS" = "y" ]; then
-diff -ur linux/drivers/sound/trident.c /usr/src/linux/drivers/sound/trident.c
---- linux/drivers/sound/trident.c       Mon Dec 17 14:50:31 2001
-+++ /usr/src/linux/drivers/sound/trident.c      Wed Dec 19 23:08:27 2001
-@@ -36,6 +36,10 @@
-  *     Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
-  *
-  *  History
-+ *
-+ *  v0.14.9e
-+ *     December 20 2001 Luca Montecchiani <m.luca@iname.com>
-+ *     enable joystick legacy port on Trident 4Dwave DX/NX
-  *  v0.14.9d
-  *     October 8 2001 Arnaldo Carvalho de Melo <acme@conectiva.com.br>
-  *     use set_current_state, properly release resources on failure in
-@@ -180,7 +184,13 @@
-
- #include <linux/pm.h>
-
--#define DRIVER_VERSION "0.14.9d"
-+#define DRIVER_VERSION "0.14.9e"
-+
-+#ifdef CONFIG_SOUND_TRIDENT_JOYSTICK
-+static  int    joystick = 1;
-+#else
-+static  int    joystick = 0;
-+#endif
-
- /* magic numbers to protect our data structures */
- #define TRIDENT_CARD_MAGIC     0x5072696E /* "Prin" */
-@@ -4070,6 +4080,14 @@
-                printk(KERN_ERR "trident: couldn't register DSP device!\n");
-                goto out_free_irq;
-        }
-+
-+       /* enable joystick legacy port by m.luca@iname.com */
-+       if ((card->pci_id == PCI_DEVICE_ID_TRIDENT_4DWAVE_DX ||
-+             card->pci_id == PCI_DEVICE_ID_TRIDENT_4DWAVE_NX) && joystick) {
-+               pci_write_config_byte(pci_dev, 0x44, 0x20);
-+               printk(KERN_INFO "trident: joystick port enabled.\n");
-+       }
-+
-        card->mixer_regs_ready = 0;
-        /* initialize AC97 codec and register /dev/mixer */
-        if (trident_ac97_init(card) <= 0) {
-@@ -4183,6 +4201,8 @@
-        pci_set_drvdata(pci_dev, NULL);
- }
-
-+MODULE_PARM(joystick, "i");
-+MODULE_PARM_DESC(joystick, "(1/0) Enable joystick interface, still need joystick driver");
- MODULE_AUTHOR("Alan Cox, Aaron Holtzman, Ollie Lho, Ching Ling Lee");
- MODULE_DESCRIPTION("Trident 4DWave/SiS 7018/ALi 5451 and Tvia/IGST CyberPro5050 PCI Audio Driver");
- MODULE_LICENSE("GPL");
-
---
-----------------------------------------------------------
-Luca Montecchiani <m.luca@iname.com>
-http://www.geocities.com/montecchiani
-SpeakFreely:sflwl -hlwl.fourmilab.ch luca@    ICQ:17655604
--------------------=(Linux since 1995)=-------------------

@@ -1,80 +1,81 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S265969AbRGCTdl>; Tue, 3 Jul 2001 15:33:41 -0400
+	id <S265971AbRGCTjV>; Tue, 3 Jul 2001 15:39:21 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S265971AbRGCTdb>; Tue, 3 Jul 2001 15:33:31 -0400
-Received: from humbolt.nl.linux.org ([131.211.28.48]:36100 "EHLO
-	humbolt.nl.linux.org") by vger.kernel.org with ESMTP
-	id <S265969AbRGCTd2>; Tue, 3 Jul 2001 15:33:28 -0400
-Content-Type: text/plain; charset=US-ASCII
-From: Daniel Phillips <phillips@bonn-fries.net>
-To: Tom spaziani <digiphaze@deming-os.org>, linux-kernel@vger.kernel.org
-Subject: Re: Kernel Module tracing.
-Date: Tue, 3 Jul 2001 21:36:31 +0200
-X-Mailer: KMail [version 1.2]
-In-Reply-To: <3B3CF50E.65D24882@deming-os.org>
-In-Reply-To: <3B3CF50E.65D24882@deming-os.org>
+	id <S265975AbRGCTjO>; Tue, 3 Jul 2001 15:39:14 -0400
+Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:37642 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S265971AbRGCTjA>; Tue, 3 Jul 2001 15:39:00 -0400
+Subject: Re: ACPI fundamental locking problems
+To: jgarzik@mandrakesoft.com (Jeff Garzik)
+Date: Tue, 3 Jul 2001 20:39:06 +0100 (BST)
+Cc: andrew.grover@intel.com, linux-kernel@vger.kernel.org,
+        acpi@phobos.fachschaften.tu-muenchen.de
+In-Reply-To: <3B421AEA.8809D11C@mandrakesoft.com> from "Jeff Garzik" at Jul 03, 2001 03:20:10 PM
+X-Mailer: ELM [version 2.5 PL3]
 MIME-Version: 1.0
-Message-Id: <0107032136310A.00338@starship>
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E15HW0o-0008FJ-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 29 June 2001 23:37, Tom spaziani wrote:
-> I've recently been laboring over a kernel module that allows other
-> kernel modules to send messages
-> and tracing statements.  If anyone has any input on whether this would
-> be a usefull thing or not
-> please let me know. Here is a quick breakdown on how it works.
->
-> Beware, this is only a BRIEF explaination.. I'll follow up with more
-> details if anyone is intereasted.
->
-> trace.o  <- Tracing module
-> mymodule .o  <-  Client module
->
-> 1: Load tracing module
-> 2: Load a module that uses the tracing modules for reporting.
->     a. the client module requests a certain number of reporting levels.
->     b. the trace module creates a devFS entry for each of the requested
-> reporting levels.
->                     ( /dev/trace/mymodule/mymodule0
->                                                           mymodule1 ...
-> )
-> 3. Now the client module can send messages with a specific severity
-> rating and have it set
->     to the appropriate character file.
-> 4. User space programs listening on each of the character files can do
-> whatever, log the messages
->     or perform tasks depending on the message.
-> 5. When a client module is unloaded the devFS entries are removed and
-> the user programs are also
->     told to close the file.
->
-> I am using the devFS filesystem because of the abilities to easily
-> dynamically create new entries and
-> remove them..  Currently devFS does not recycle Major and Minor numbers,
-> but a co-worker of mine
-> has created a patch to fix that.
+> > That is the case here. The Global Lock is for synchronizing accesses between
+> > the OS (that's us) and the firmware (SMI). Normal spinlocks are for intra-OS
+> > locking. Here, we're synchronizing access with the BIOS. It's different.
+> 
+> I realize what the purpose of the global lock is...
+> 
+> How is the asm code in ACPI_ACQUIRE_GLOBAL_LOCK specific to interaction
+> between OS and SMI?
 
-I want this.  I've been thinking about it since your original post, and 
-having just gone through a round of development involving massive amounts of 
-kprint output (real time performance monitoring) I can say I'd prefer a more 
-flexible way to do it, not to mention more efficient.  I'd like to have the 
-option of leaving tracing code in some of my development projects all the 
-time, just disabled until I say the magic word, then have it routed to a 
-device as you describe.  Presumably you intend to use a ring buffer as printk 
-does, simplified by the fact that you don't have to parse "level" information 
-out of the string.  This will all be a lot more useful if it works from 
-interrupts etc.
+Well lets take a look at the asm shall we
 
-Perhaps you should also think about a non-devfs way of doing this, I don't 
-know, it's a matter of taste.  Here's a Rube Goldbergesque way: when the 
-client registers, export a dynamically allocated major number through proc 
-and let the user mknod a device with that major.
+1.	It doesnt have a seperate loop when it fails to take the lock
+	polling it (See intels own docs on spin locks). You do read your
+	own publications ?
 
-Please cc me when you have something to try.
+2.	It should be using rep nop  (See your own Intel PIV publications)
 
---
-Daniel
+3.	Should be asm __volatile__ or gcc can move it
+
+I am also somewhat puzzled about contexts here. What happens if you take
+an IRQ during the global lock acquire and want to do ACPI. What happens
+if you make a callback from the ACPI code - eg power management that itself
+needs to call AML code ?
+
+I am assuming the ACPI stuff has no IRQ level execution ability, but are you
+sure ACPI never calls a single code path that can require an ACPI operation
+from a callback - eg the PM layer ? Otherwise how can you be sure there won't
+be any priority inversions between the bios/acpi locking set and the kernel 
+locking set
+
+> > All this code has been working for as long as I can remember.
+> 
+> ;-)  Under Windows?  Irrelevant.  Linux uses the hardware totally
+
+Microsoft very early on in debugging Win2K problems ask people to use non
+ACPI settings. 
+
+> The difference with ACPI is that vendors can write code that is executed
+> in the kernel's context (instead of what you can consider the BIOS's
+> context).  That is a whole new can of worms.
+
+For security reasons alone we need to ensure ACPI can be firmly in the off
+position. Executing US written binary code in the Linux kernel will not be
+acceptable to european corporations, non US military bodies and most 
+Governments. They'd hate the US to get prior warning of say protestors
+walking into their top secret menwith hill base playing the mission impossible
+theme tune then chaining themselves to things..
+
+And if the NSA wants the US goverment to execute binary only chinese bios code
+on all their critical systems I am sure people will be happy.
+
+> Look at the Linux boot sequence, which Randy Dunlap documented.  We
+> collect as much information as is reasonable from BIOS at startup, so we
+> won't have to talk to it again at runtime.
+
+And we have customers who pointedly don't talk to the BIOS and kill SMI/SMM
+early on...
 

@@ -1,57 +1,83 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S279800AbRJ0KHp>; Sat, 27 Oct 2001 06:07:45 -0400
+	id <S278646AbRJ0KRG>; Sat, 27 Oct 2001 06:17:06 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S279801AbRJ0KHf>; Sat, 27 Oct 2001 06:07:35 -0400
-Received: from stingr.net ([212.193.33.37]:35083 "HELO stingray.sgu.ru")
-	by vger.kernel.org with SMTP id <S279800AbRJ0KHY>;
-	Sat, 27 Oct 2001 06:07:24 -0400
-Date: Sat, 27 Oct 2001 14:06:51 +0400
-From: Paul P Komkoff Jr <i@stingr.net>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Other computers HIGHLY degrading network performance (DoS?)
-Message-ID: <20011027140650.K41175@stingr.net>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-In-Reply-To: <20011026084328.A14814@bee.lk> <1004064922.21997.7.camel@Eleusis> <20011026090505.A15880@bee.lk> <20011026101313.A18310@bee.lk> <20011026145621.J41175@stingr.net> <20011027092802.A2651@bee.lk>
+	id <S279141AbRJ0KQ4>; Sat, 27 Oct 2001 06:16:56 -0400
+Received: from tartarus.telenet-ops.be ([195.130.132.34]:24996 "EHLO
+	tartarus.telenet-ops.be") by vger.kernel.org with ESMTP
+	id <S278646AbRJ0KQh>; Sat, 27 Oct 2001 06:16:37 -0400
+Subject: Re: Kernel 2.4.13 and ACPI not working (HP Omnibook 6000)
+From: Roel Teuwen <Roel.Teuwen@advalvas.be>
+To: Rob MacGregor <rob_macgregor@hotmail.com>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <F59K4GB7DEEbRQwGF5u0001425c@hotmail.com>
+In-Reply-To: <F59K4GB7DEEbRQwGF5u0001425c@hotmail.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/0.16.99+cvs.2001.10.18.15.19 (Preview Release)
+Date: 27 Oct 2001 12:27:04 +0200
+Message-Id: <1004178427.3496.5.camel@omniroel>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20011027092802.A2651@bee.lk>; from anuradha@gnu.org on Sat, Oct 27, 2001 at 09:28:02AM +0600
-User-Agent: Agent Orange
-X-Mailer: mIRC32 v5.91 K.Mardam-Bey
-X-RealName: Stingray Greatest Jr
-Organization: Stingray Software
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: RIPEMD160
+Hi,
 
-Replying to Anuradha Ratnaweera:
-> It is a linux based propiatory product, and we don't have control over it.
+I am seeing the exact same problem on my OB 6000, I think it's because
+of a buggy bios. I upgraded to the latest version (1.80 [1 okt 2001])
+but this doesn't help.
 
-Then pay attention to other's posts and check thru your network.
-Maybe some of devices connected to hub have full duplex on and kill the
-whole (your) network (collision domain)
+regards,
 
-maybe it is router itself, maybe some of your users think they're smart and
-'why don't use fd if my nic offer this feature'.
+Roel
 
-I've fought these idiots some time ago. But my network include switches and
-if any idiot connected to hub wish to play with duplex - then he only play
-with his own collision domain - not larger then single department.
+On Thu, 2001-10-25 at 14:56, Rob MacGregor wrote:
+> System is an HP Omnibook 6000 laptop, using the provided BIOS.  Kernel 
+> 2.4.13 with ACPI enabled as a module.
+> 
+> On boot, with the debug enabled I get:
+> 
+> tbxface-0107 [01] Acpi_load_tables      : ACPI Tables successfully loaded
+> Parsing 
+> Methods:............................................................................................................................................................................................................................................................................................................
+> 300 Control Methods found and parsed (1046 nodes total)
+> ACPI Namespace successfully loaded at root c02d03c0
+> ACPI: Core Subsystem version [20010831]
+> evregion-0217 [22] Ev_address_space_dispa: no handler for region(c184cea8) 
+> [PCIConfig]
+> exfldio-0222 [21] Ex_read_field_datum   : Region PCIConfig(2) has no handler
+> evregion-0217 [22] Ev_address_space_dispa: no handler for region(c184cea8) 
+> [PCIConfig]
+> exfldio-0597 [21] Ex_write_field_datum  : **** Region type PCIConfig(2) does 
+> not have a handler
+> ACPI: Subsystem enable failed
+> 
+> This is certainly an improvement over previous kernels, however I'd like to 
+> get it working.  Any thoughts or is this in the hands of those who 
+> understand such things?
+> 
+> Thanks.
+> 
+> Oh, I'm not on the list, but I will see any replies on the archive.  If you 
+> want a faster response you'll need to CC me.
+> 
+> --
+> Rob  |  Please ask questions the smart way:
+>                 http://www.tuxedo.org/~esr/faqs/smart-questions.html
+> 
+>     Please don't CC me on anything sent to mailing lists or send
+>         me email directly unless it's a privacy issue, thanks.
+> 
+> 
+> 
+> _________________________________________________________________
+> Get your FREE download of MSN Explorer at http://explorer.msn.com/intl.asp
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
 
-and if it is not duplex issue, then take lan tester and test your cabling
-... then hub ...
-then get rid of your "proprietary linux based product"
-:)
 
-- -- 
-Paul P 'Stingray' Komkoff 'Greatest' Jr // (icq)23200764 // (irc)Spacebar
-  PPKJ1-RIPE // (smtp)i@stingr.net // (http)stingr.net // (pgp)0xA4B4ECA4
------BEGIN PGP SIGNATURE-----
-
-iEYEAREDAAYFAjvahzkACgkQyMW8naS07KQc1wCaA+V7mh80bIA8JEOCOtdvt5xn
-PNYAoKQmotBJHdG1ri14yijbl6b7pgs8
-=v/1K
------END PGP SIGNATURE-----

@@ -1,51 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263361AbTCNPat>; Fri, 14 Mar 2003 10:30:49 -0500
+	id <S263374AbTCNP3h>; Fri, 14 Mar 2003 10:29:37 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263367AbTCNPat>; Fri, 14 Mar 2003 10:30:49 -0500
-Received: from pop.gmx.net ([213.165.65.60]:23712 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id <S263361AbTCNPas>;
-	Fri, 14 Mar 2003 10:30:48 -0500
-Message-Id: <5.2.0.9.2.20030314161055.00cf33d8@pop.gmx.net>
-X-Mailer: QUALCOMM Windows Eudora Version 5.2.0.9
-Date: Fri, 14 Mar 2003 16:46:10 +0100
-To: Charles Baylis <cb-lkml@fish.zetnet.co.uk>
-From: Mike Galbraith <efault@gmx.de>
-Subject: Re: 2.5.64-mm6, a new test case for scheduler interactivity
-  problems
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <5.2.0.9.2.20030314152115.00ce76b0@pop.gmx.net>
-References: <200303132201.02278.cb-lkml@fish.zetnet.co.uk>
+	id <S263372AbTCNP3h>; Fri, 14 Mar 2003 10:29:37 -0500
+Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:1236
+	"EHLO irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S263370AbTCNP3f>; Fri, 14 Mar 2003 10:29:35 -0500
+Subject: Re: Problem with aacraid driver in 2.5.63-bk-latest
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Mark Haverkamp <markh@osdl.org>
+Cc: Doug Ledford <dledford@redhat.com>, dougg@torque.net,
+       Christoffer Hall-Frederiksen <hall@jiffies.dk>,
+       linux-scsi@vger.kernel.org,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       linux aacraid devel <linux-aacraid-devel@dell.com>
+In-Reply-To: <1047656071.7556.12.camel@markh1.pdx.osdl.net>
+References: <20030228133037.GB7473@jiffies.dk>
+	 <1047510381.12193.28.camel@markh1.pdx.osdl.net>
+	 <1047514681.23725.35.camel@irongate.swansea.linux.org.uk>
+	 <3E6FC8D6.7090005@torque.net>
+	 <1047517604.23902.39.camel@irongate.swansea.linux.org.uk>
+	 <1047570132.30105.7.camel@markh1.pdx.osdl.net>
+	 <3E711194.9010505@redhat.com>
+	 <1047597729.30103.386.camel@markh1.pdx.osdl.net>
+	 <3E71134F.5060404@redhat.com>
+	 <1047653879.29544.9.camel@irongate.swansea.linux.org.uk>
+	 <1047656071.7556.12.camel@markh1.pdx.osdl.net>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Organization: 
+Message-Id: <1047660502.29544.43.camel@irongate.swansea.linux.org.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; format=flowed
+X-Mailer: Ximian Evolution 1.2.1 (1.2.1-4) 
+Date: 14 Mar 2003 16:48:23 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-At 03:34 PM 3/14/2003 +0100, Mike Galbraith wrote:
->At 10:01 PM 3/13/2003 +0000, Charles Baylis wrote:
->>My test case tries to reproduce this by creating a number of tasks which
->>alternate between being 'interactive' and CPU hogs. On my Celery 333 laptop
->>it can sometimes cause skips with only 1 child, and is pretty much
->>guaranteed to cause skips with more child tasks.
->
->Greetings,
->
->Nice test case.  I don't have sound capability on my linux box, but your 
->test case makes it fail the window wiggle test horribly.  I fiddled with 
->it a bit, and convinced it to "stop doing that please".  Does the attached 
->(experimental butchery) help your box's sp-sp-speach im-p-p-pediment?
+On Fri, 2003-03-14 at 15:34, Mark Haverkamp wrote:
+> Is aac_slave_configure only called for disk devices?  If its called for
+> all scsi devices, then the queue depth will always be set to something a
+> lot less than 512.  I did some searching through the scsi code and I see
+> only two places that cmd_per_lun is used. It is used to set the queue
+> depth in scsi_track_queue_full and scsi_alloc_sdev. So it seems that, if
+> aac_slave_configure gets called for all scsi devices, that setting
+> cmd_per_lun in the aacraid scsi host template to 1 would be OK.  Does
+> that make sense or did I miss something?
 
-P.S.  If you try this, change STARVATION_LIMIT from 1*HZ to 
-2*MAX_TIMESLICE.  With that, I can run a make -j5 bzImage, irman with fixed 
-mem_load, thud 3 and kasteroids with no trouble at ALL on my 128mb 
-p3/500.  The only time things get ugly is when memload fires up.  It 
-allocates 72mb and scribbles to it... a bit much for a 128mb box with 
-_this_ load ;-)  Even then, swapping like heck, kasteroids is playable most 
-of the time.
-
-Without the patch, irman's process load starves everyone to death, and thud 
-3 utterly destroys interactivity.  YMMV of course (it _is_ an experiment... 
-might even explode;)
-
-         -Mke 
+I think you are right
 

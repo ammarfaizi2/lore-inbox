@@ -1,43 +1,69 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263837AbTKXTT7 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 24 Nov 2003 14:19:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263839AbTKXTT6
+	id S263849AbTKXTOY (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 24 Nov 2003 14:14:24 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263850AbTKXTOY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 24 Nov 2003 14:19:58 -0500
-Received: from sweetums.bluetronic.net ([24.199.150.42]:20869 "EHLO
-	sweetums.bluetronic.net") by vger.kernel.org with ESMTP
-	id S263837AbTKXTT5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 24 Nov 2003 14:19:57 -0500
-Date: Mon, 24 Nov 2003 14:17:44 -0500 (EST)
-From: Ricky Beam <jfbeam@bluetronic.net>
-To: Larry McVoy <lm@bitmover.com>
-cc: Linux Kernel Mail List <linux-kernel@vger.kernel.org>
-Subject: Re: data from kernel.bkbits.net
-In-Reply-To: <20031124155034.GA13896@work.bitmover.com>
-Message-ID: <Pine.GSO.4.33.0311241405070.13188-100000@sweetums.bluetronic.net>
+	Mon, 24 Nov 2003 14:14:24 -0500
+Received: from 67-122-122-226.ded.pacbell.net ([67.122.122.226]:55944 "EHLO
+	siamese.3ware.com") by vger.kernel.org with ESMTP id S263849AbTKXTOW
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 24 Nov 2003 14:14:22 -0500
+Message-ID: <A1964EDB64C8094DA12D2271C04B8126F8C7CE@tabby>
+From: Adam Radford <aradford@3WARE.com>
+To: "'H. Peter Anvin'" <hpa@zytor.com>, Larry McVoy <lm@bitmover.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: RE: data from kernel.bkbits.net
+Date: Mon, 24 Nov 2003 11:14:15 -0800
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 24 Nov 2003, Larry McVoy wrote:
->Sorry to be short but I already said that I'd eliminated this source of
->error.  What did you think I was doing all weekend?
+This looks like glitchy power cables, drive cable or dying drive to me.
 
-Let me be equally short.  Your original message gave no details of what
-debugging steps had been taken. (I can assume you would know what you're
-doing, but frankly, I could be wrong.)  You venture a guess that the
-system had been h4x0r3d in some inventive way to prevent your attempts
-to recover data and proceed to paste error messages from the 3ware
-driver that indicate a problem with the hardware (either driver bug,
-cabling, controller, or channel on that controller) including the
-drive itself.
+-Adam
 
-Please do not attribute to hackers what is simply a half dead drive.  So,
-was the machine powered down for an extended period as I aluded? (to
-preserve the machine until someone had time to look at it.)
+-----Original Message-----
+From: H. Peter Anvin [mailto:hpa@zytor.com]
+Sent: Sunday, November 23, 2003 11:35 PM
+To: Larry McVoy
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: data from kernel.bkbits.net
 
---Ricky
+
+Larry McVoy wrote:
+> I've been trying to get all the data off the drives on the machine which
+> was broken into.  I have a feeling that whoever this was was hiding stuff
+> in the file system because both drives will not fsck clean nor will they
+> completely read.
+> 
+> I've managed to get most of the data off but not all.  Given that I've put
+> about 3 days into this I'm pretty much done.  If someone else wants to
+look
+> at the drives I can make them available, let me know.  But just reading
+the
+> main drive makes the kernel (Fedora 1) kill the tar process as below (it
+> also managed to wack the system enough that it overwrote the NVRAM with
+> garbage).  It hasn't been a fun weekend.
+> 
+
+Looks more like a 3Ware driver bug to me.  Hard to say for sure, though.
+
+	-hpa
+
+-
+To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Please read the FAQ at  http://www.tux.org/lkml/
+
+
+DISCLAIMER: The information contained in this electronic mail transmission
+is intended by 3Ware for the use of the named individual or entity to which
+it is directed and may contain information that is confidential or
+privileged and should not be disseminated without prior approval from 3ware 
 
 

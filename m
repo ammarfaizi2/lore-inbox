@@ -1,82 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S289880AbSCCWhx>; Sun, 3 Mar 2002 17:37:53 -0500
+	id <S290120AbSCCWkN>; Sun, 3 Mar 2002 17:40:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290120AbSCCWhn>; Sun, 3 Mar 2002 17:37:43 -0500
-Received: from xenial.mcc.ac.uk ([130.88.203.16]:19981 "EHLO xenial.mcc.ac.uk")
-	by vger.kernel.org with ESMTP id <S289880AbSCCWha>;
-	Sun, 3 Mar 2002 17:37:30 -0500
-Date: Sun, 3 Mar 2002 22:37:26 +0000
-From: John Levon <levon@movementarian.org>
-To: marcelo@conectiva.com.br
-Cc: linux-kernel@vger.kernel.org
-Subject: [levon@movementarian.org: [PATCH] define KBUILD_BASENAME for .i .s]
-Message-ID: <20020303223726.GA18544@compsoc.man.ac.uk>
+	id <S290184AbSCCWkD>; Sun, 3 Mar 2002 17:40:03 -0500
+Received: from ns.suse.de ([213.95.15.193]:48647 "HELO Cantor.suse.de")
+	by vger.kernel.org with SMTP id <S290120AbSCCWjy>;
+	Sun, 3 Mar 2002 17:39:54 -0500
+Date: Sun, 3 Mar 2002 23:39:52 +0100
+From: Dave Jones <davej@suse.de>
+To: Diego Calleja <DiegoCG@teleline.es>
+Cc: linux-kernel@vger.kernel.org, andrea@suse.de
+Subject: Re: 2.4.19-pre1-aa1 problems
+Message-ID: <20020303233952.A11129@suse.de>
+Mail-Followup-To: Dave Jones <davej@suse.de>,
+	Diego Calleja <DiegoCG@teleline.es>, linux-kernel@vger.kernel.org,
+	andrea@suse.de
+In-Reply-To: <20020303214135.7fb8f07c.DiegoCG@teleline.es>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="qDbXVdCdHGoSgWSk"
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.3.25i
-X-Url: http://www.movementarian.org/
-X-Record: Bendik Singers - Afrotid
-X-Toppers: N/A
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20020303214135.7fb8f07c.DiegoCG@teleline.es>; from DiegoCG@teleline.es on Sun, Mar 03, 2002 at 09:41:35PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sun, Mar 03, 2002 at 09:41:35PM +0100, Diego Calleja wrote:
+ > 
+ > Mar  3 20:39:17 localhost kernel: Unable to handle kernel paging request at virtual address 04740010
+ > Mar  3 20:39:17 localhost kernel: c01a078a
+ > Mar  3 20:39:17 localhost kernel: *pde = 00000000
+ > Mar  3 20:39:17 localhost kernel: Oops: 0000
+ > Mar  3 20:39:17 localhost kernel: CPU:    0
+ > Mar  3 20:39:17 localhost kernel: EIP:    0010:[sock_poll+30/40]    Tainted: P
 
---qDbXVdCdHGoSgWSk
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-
-
-Keith Owens has OK'd this minor cleanup
-
-thanks
-john
-
---qDbXVdCdHGoSgWSk
-Content-Type: message/rfc822
-Content-Disposition: inline
-
-Date: Sun, 3 Mar 2002 16:44:06 +0000
-From: John Levon <levon@movementarian.org>
-To: kaos@ocs.com.au
-Subject: [PATCH] define KBUILD_BASENAME for .i .s
-Message-ID: <20020303164406.GA10307@compsoc.man.ac.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.25i
-X-Url: http://www.movementarian.org/
-X-Record: Bendik Singers - Afrotid
-X-Toppers: N/A
-
-
-Probably this really doesn't matter but ...
-
-against 2.4.18
-
-regards
-john
-
---- Rules.make.old      Thu Dec 31 18:05:20 1987
-+++ Rules.make  Thu Dec 31 18:05:59 1987
-@@ -50,10 +50,10 @@
- #
- 
- %.s: %.c
--	$(CC) $(CFLAGS) $(EXTRA_CFLAGS) $(CFLAGS_$@) -S $< -o $@
-+	$(CC) $(CFLAGS) $(EXTRA_CFLAGS) -DKBUILD_BASENAME=$(subst $(comma),_,$(subst -,_,$(*F))) $(CFLAGS_$@) -S $< -o $@
- 
- %.i: %.c
--	$(CPP) $(CFLAGS) $(EXTRA_CFLAGS) $(CFLAGS_$@) $< > $@
-+	$(CPP) $(CFLAGS) $(EXTRA_CFLAGS) -DKBUILD_BASENAME=$(subst $(comma),_,$(subst -,_,$(*F))) $(CFLAGS_$@) $< > $@
- 
- %.o: %.c
-	$(CC) $(CFLAGS) $(EXTRA_CFLAGS) -DKBUILD_BASENAME=$(subst $(comma),_,$(subst -,_,$(*F))) $(CFLAGS_$@) -c -o $@ $<
-
+ Which modules do you have loaded ?
 
 -- 
-I am a complete moron for forgetting about endianness. May I be
-forever marked as such.
-
---qDbXVdCdHGoSgWSk--
+| Dave Jones.        http://www.codemonkey.org.uk
+| SuSE Labs

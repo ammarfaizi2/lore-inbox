@@ -1,66 +1,34 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284529AbRLPIuz>; Sun, 16 Dec 2001 03:50:55 -0500
+	id <S284535AbRLPI7G>; Sun, 16 Dec 2001 03:59:06 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284535AbRLPIup>; Sun, 16 Dec 2001 03:50:45 -0500
-Received: from p15.dynadsl.ifb.co.uk ([194.105.168.15]:21123 "HELO smeg")
-	by vger.kernel.org with SMTP id <S284529AbRLPIug>;
-	Sun, 16 Dec 2001 03:50:36 -0500
-From: "Lee Packham" <linux@mswinxp.net>
-To: <linux-kernel@vger.kernel.org>
-Subject: FW: Intel 810 Problems/Solutions
-Date: Sun, 16 Dec 2001 08:49:35 -0000
-Message-ID: <000601c1860e$96726cb0$0102a8c0@lee>
+	id <S284536AbRLPI64>; Sun, 16 Dec 2001 03:58:56 -0500
+Received: from www.wen-online.de ([212.223.88.39]:28175 "EHLO wen-online.de")
+	by vger.kernel.org with ESMTP id <S284535AbRLPI6s>;
+	Sun, 16 Dec 2001 03:58:48 -0500
+Date: Sun, 16 Dec 2001 10:02:56 +0100 (CET)
+From: Mike Galbraith <mikeg@wen-online.de>
+X-X-Sender: <mikeg@mikeg.weiden.de>
+To: vda <vda@port.imtp.ilyichevsk.odessa.ua>
+cc: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: pivot_root and initrd kernel panic woes
+In-Reply-To: <01121600323100.01820@manta>
+Message-ID: <Pine.LNX.4.33.0112160913360.452-100000@mikeg.weiden.de>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook, Build 10.0.2627
-Importance: Normal
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Sorry if this has appeared more than once... I mucked up!
+On Sun, 16 Dec 2001, vda wrote:
 
-> -----Original Message-----
-> From: Lee Packham [mailto:linux@mswinxp.net]
-> Sent: 16 December 2001 06:12
-> To: 'linux-kernel@vger.kernel.org''
-> Subject: Intel 810 Problems/Solutions
-> 
-> Hi,
-> 
-> I have a Sony Vaio PCG-FX103 laptop that I play around with Linux
-stuff
-> on. Sound has been an issue. With the latest kernel (plus various
-patches
-> that have appeared in linux-kernel) cause a major squeal on a DivX
-file I
-> recorded off the TV on another Linux box. The only place I get the
-squeal
-> is on the laptop. Under Windows its OK, on my other Linux box its ok,
-just
-> on this Intel 810 sound card laptop thing it squeals.
-> 
-> So, I installed ALSA and it went away but I got the chipmunk problem.
-> However, the only documentation that said about setting the ac97 codec
-> frequency to 41194 really was just tooooo slow (like groaning
-stretched
-> out sound). The default 48000 was chipmunk. I used another PC to
-calibrate
-> and came up with 47500. That little bit slows it down to the right
-speed.
-> 
-> Now I know this isn't the ALSA group, just thought this info would
-help
-> people out who are working on the Intel 810 driver in the kernel. BTW:
-if
-> you want the file its about a 200MB avi of an Eastenders episode but
-you
-> are welcome to have it to test out fixes.
-> 
-> Lee Packham
+> BTW, is it possible for you to place your initrd on some publicly accessible
+> ftp/http server?
+
+Point me at an ftp server that will allow put.  Alternately, I can mail
+you the .config and image if your mta accepts mondo messages.
+
+I can't imagine how one fs image could load/work and another not unless
+maybe your bootloader is screwing up placement.  I use loadlin.
+
+	-Mike
 

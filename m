@@ -1,93 +1,66 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262584AbRE3EMM>; Wed, 30 May 2001 00:12:12 -0400
+	id <S262585AbRE3EXy>; Wed, 30 May 2001 00:23:54 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262585AbRE3EMC>; Wed, 30 May 2001 00:12:02 -0400
-Received: from zeus.kernel.org ([209.10.41.242]:50624 "EHLO zeus.kernel.org")
-	by vger.kernel.org with ESMTP id <S262584AbRE3ELs>;
-	Wed, 30 May 2001 00:11:48 -0400
-Date: Tue, 29 May 2001 21:11:27 -0700 (PDT)
-From: Andre Hedrick <andre@linux-ide.org>
-To: linux-kernel@vger.kernel.org
-Subject: Part I of Lameness...
-Message-ID: <Pine.LNX.4.10.10105292045120.3596-100000@master.linux-ide.org>
+	id <S262589AbRE3EXe>; Wed, 30 May 2001 00:23:34 -0400
+Received: from loke.as.arizona.edu ([128.196.209.61]:37639 "EHLO
+	loke.as.arizona.edu") by vger.kernel.org with ESMTP
+	id <S262585AbRE3EX1>; Wed, 30 May 2001 00:23:27 -0400
+Date: Tue, 29 May 2001 21:24:12 -0700 (MST)
+From: Craig Kulesa <ckulesa@as.arizona.edu>
+To: <linux-kernel@vger.kernel.org>
+cc: Rik van Riel <riel@conectiva.com.br>
+Subject: Re: Plain 2.4.5 VM
+Message-ID: <Pine.LNX.4.33.0105292009310.9556-100000@loke.as.arizona.edu>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-Since this was filtered the first time...
 
-Andre Hedrick
-Linux ATA Development
+Mike Galbraith (mikeg@wen-online.de) wrote:
+>
+> Emphatic yes.  We went from cache collapse to cache bloat.
 
----------- Forwarded message ----------
-Date: Mon, 28 May 2001 23:21:57 -0700 (PDT)
-From: Andre Hedrick <andre@linux-ide.org>
-To: linux-kernel@vger.kernel.org
-Subject: Lacking Performance my ARSE!
+Rik, I think Mike deserves his beer.  ;)
 
+Agreed.  Swap reclaim doesn't seem to be the root issue here, IMHO.
+But instead: his box was capable of maintaining a modest cache
+and the desired user processes without massive allocations (and use)
+of swap space.  There was plenty of cache to reap, but VM decided to
+swapout instead.  Seems we're out of balance here (IMHO).
 
-beetle:~ # hdparm -it /dev/hda
+I see this too, and it's only a symptom of post-2.4.4 kernels.
 
-/dev/hda:
+Example: on a 128M system w/2.4.5, loading X and a simulation code of
+RSS=70M causes the system to drop 40-50M into swap...with 100M of cache
+sitting there, and some of those cache pages are fairly old. It's not
+just allocation; there is noticable disk activity associated with paging
+that causes a lag in interactivity.  In 2.4.4, there is no swap activity
+at all.
 
- Model=Maxtor 5T020H2, FwRev=TAH71DP0, SerialNo=T2J0HBRC
- Config={ Fixed }
- RawCHS=16383/16/63, TrkSize=0, SectSize=0, ECCbytes=57
- BuffType=DualPortCache, BuffSize=2048kB, MaxMultSect=16, MultSect=16
- CurCHS=16383/16/63, CurSects=16514064, LBA=yes, LBAsects=39062500
- IORDY=on/off, tPIO={min:120,w/IORDY:120}, tDMA={min:120,rec:120}
- PIO modes: pio0 pio1 pio2 pio3 pio4
- DMA modes: mdma0 mdma1 mdma2 udma0 udma1 udma2 udma3 *udma4 udma5
- Drive Supports : Reserved : ATA-1 ATA-2 ATA-3 ATA-4 ATA-5 ATA-6
- Kernel Drive Geometry LogicalCHS=2431/255/63 PhysicalCHS=38752/16/63
- Timing buffered disk reads:  64 MB in  1.75 seconds = 36.57 MB/sec
+And if the application causes heavy I/O *and* memory load (think
+StarOffice, or Quake 3), this situation gets even worse (because there's
+typically more competition/demand for cache pages).
 
-fttk:~ # hdparm -it /dev/hda
+And on low-memory systems (ex. 32M), even a basic Web browsing test w/
+Opera drops the 2.4.5 system 25M into swap where 2.4.4 barely cracks 5 MB
+on the same test (and the interactivity shows).  This is all independent
+of swap reclaim.
 
-/dev/hda:
+So is there an ideal VM balance for everyone?  I have found that low-RAM
+systems seem to benefit from being on the "cache-collapse" side of the
+curve (so I prefer the pre-2.4.5 balance more than Mike probably does) and
+those low-RAM systems are the first hit when, as now, we're favoring
+"cache bloat".  Should balance behaviors could be altered by the user
+(via sysctl's maybe?  Yeah, I hear the cringes)?  Or better, is it
+possible to dynamically choose where the watermarks in balancing should
+lie, and alter them automatically?  2.5 stuff there, no doubt.  Balancing
+seems so *fragile* (to me).
 
- Model=IBM-DTLA-307020, FwRev=TX3OA50C, SerialNo=YHDYHT9S024
- Config={ HardSect NotMFM HdSw>15uSec Fixed DTR>10Mbs }
- RawCHS=16383/16/63, TrkSize=0, SectSize=0, ECCbytes=40
- BuffType=DualPortCache, BuffSize=1916kB, MaxMultSect=16, MultSect=16
- CurCHS=16383/16/63, CurSects=16514064, LBA=yes, LBAsects=40188960
- IORDY=on/off, tPIO={min:240,w/IORDY:120}, tDMA={min:120,rec:120}
- PIO modes: pio0 pio1 pio2 pio3 pio4
- DMA modes: mdma0 mdma1 mdma2 udma0 udma1 udma2 udma3 udma4 *udma5
- Drive Supports : Reserved : ATA-2 ATA-3 ATA-4 ATA-5
- Kernel Drive Geometry LogicalCHS=2501/255/63 PhysicalCHS=39870/16/63
- Timing buffered disk reads:  64 MB in  1.81 seconds = 35.36 MB/sec
+Cheers,
 
-athy:~ # hdparm -it /dev/hda
-
-/dev/hda:
-
- Model=IBM-DTLA-307075, FwRev=TXAOA50C, SerialNo=YSDYSFA5874
- Config={ HardSect NotMFM HdSw>15uSec Fixed DTR>10Mbs }
- RawCHS=16383/16/63, TrkSize=0, SectSize=0, ECCbytes=40
- BuffType=DualPortCache, BuffSize=1916kB, MaxMultSect=16, MultSect=16
- CurCHS=16383/16/63, CurSects=16514064, LBA=yes, LBAsects=150136560
- IORDY=on/off, tPIO={min:240,w/IORDY:120}, tDMA={min:120,rec:120}
- PIO modes: pio0 pio1 pio2 pio3 pio4
- DMA modes: mdma0 mdma1 mdma2 udma0 udma1 udma2 udma3 *udma4 udma5
- Drive Supports : Reserved : ATA-2 ATA-3 ATA-4 ATA-5
- Kernel Drive Geometry LogicalCHS=9345/255/63 PhysicalCHS=148945/16/63
- Timing buffered disk reads:  64 MB in  1.78 seconds = 35.96 MB/sec
-
-
-Just because you can not configure your kernel correctly of have junk for
-hardware or any other lame reason like a distro that does not know what
-dma is..........your problem not mine.
-
-General bitching pisses me off, especially when you are dead wrong.
-
-Regards,
-
-Andre Hedrick
-Linux ATA Development
-
-
+Craig Kulesa
+ckulesa@as.arizona.edu
 

@@ -1,44 +1,35 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261426AbTATGTR>; Mon, 20 Jan 2003 01:19:17 -0500
+	id <S261375AbTATGZs>; Mon, 20 Jan 2003 01:25:48 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261448AbTATGTR>; Mon, 20 Jan 2003 01:19:17 -0500
-Received: from smtpcl1.fiducia.de ([195.200.32.50]:45546 "EHLO
-	smtpcl1.fiducia.de") by vger.kernel.org with ESMTP
-	id <S261426AbTATGTQ>; Mon, 20 Jan 2003 01:19:16 -0500
-Sensitivity: 
-Subject: Antwort: Re: [i2c-piix4.o: IBM Laptop detected; this module may corrupt
- your serial eeprom! Refusing to load module!] on xSeries 232 -Server
-To: "Ingo Oeser <ingo.oeser" <ingo.oeser@informatik.tu-chemnitz.de>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-From: "Andreas Hartmann" <andreas.hartmann@fiducia.de>
-Date: Mon, 20 Jan 2003 07:28:11 +0100
-Message-ID: <OF71CC653E.40A6F473-ON41256CB4.0022806C@fag.fiducia.de>
-MIME-Version: 1.0
-Content-type: text/plain; charset=us-ascii
+	id <S261456AbTATGZs>; Mon, 20 Jan 2003 01:25:48 -0500
+Received: from pizda.ninka.net ([216.101.162.242]:23500 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S261375AbTATGZr>;
+	Mon, 20 Jan 2003 01:25:47 -0500
+Date: Sun, 19 Jan 2003 22:24:19 -0800 (PST)
+Message-Id: <20030119.222419.37433821.davem@redhat.com>
+To: wli@holomorphy.com
+Cc: rusty@rustcorp.com.au, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] cpumask_t
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <20030120063219.GL780@holomorphy.com>
+References: <20030119213524.GH780@holomorphy.com>
+	<20030119.221013.65242960.davem@redhat.com>
+	<20030120063219.GL780@holomorphy.com>
+X-FalunGong: Information control.
+X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+   From: William Lee Irwin III <wli@holomorphy.com>
+   Date: Sun, 19 Jan 2003 22:32:19 -0800
 
-Hi,
+   I'll also attempt to get a SPARC toolchain together (as I understand it,
+   there are some divergences from mainline/current gcc/binutils) and do
+   some compiletesting-like and API conversion things there.
 
-Am 16.01.2003 18:29:20 schrieb Ingo Oeser :
-> Hi,
->
-> On Thu, Jan 16, 2003 at 02:45:12PM +0100, Andreas Hartmann wrote:
-> > I'm using kernel 2.4.19 (SuSE 8.1; k_deflt-2.4.19-174 - actual
-> > patch release) on an IBM xSeries 232 Server. When I'm trying to
-> > load the module i2c-piix4, the module claims, it would be
-> > running on an IBM Laptop. This is definitely wrong.  The old
-> > SuSE kernel (k_deflt-2.4.19-49) didn't show this problem.
->
-> Looks like those "xSeries 232 Server" are not very handy laptops ;-)
-
-You are definitely right! But the problem consists :-(.
-
-
-
-Regards,
-Andreas Hartmann
-
-
+For sparc64 we use an old CVS egcs snapshot as that is the
+only thing which builds reliable kernels, especially in 2.5.x

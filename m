@@ -1,39 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269133AbTHCTLR (ORCPT <rfc822;willy@w.ods.org>);
+	id S268737AbTHCTLR (ORCPT <rfc822;willy@w.ods.org>);
 	Sun, 3 Aug 2003 15:11:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269191AbTHCTLR
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269191AbTHCTLQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 3 Aug 2003 15:11:17 -0400
-Received: from sc-outsmtp1.homechoice.co.uk ([81.1.65.35]:25349 "HELO
-	sc-outsmtp1.homechoice.co.uk") by vger.kernel.org with SMTP
-	id S269133AbTHCTLQ convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
 	Sun, 3 Aug 2003 15:11:16 -0400
-Content-Type: text/plain;
-  charset="us-ascii"
-From: Adrian McMenamin <adrian@mcmen.demon.co.uk>
-To: linux-sh@m17n.org
-Subject: Cross compiling strangeness (EXTRAVERSION oddness)
-Date: Sun, 3 Aug 2003 20:11:22 +0100
-User-Agent: KMail/1.4.3
-Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8BIT
-Message-Id: <200308032011.22631.adrian@mcmen.demon.co.uk>
+Received: from willy.net1.nerim.net ([62.212.114.60]:53253 "EHLO
+	www.home.local") by vger.kernel.org with ESMTP id S268737AbTHCTLP
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 3 Aug 2003 15:11:15 -0400
+Date: Sun, 3 Aug 2003 21:11:02 +0200
+From: Willy Tarreau <willy@w.ods.org>
+To: bert hubert <ahu@ds9a.nl>, linux-kernel@vger.kernel.org, akpm@osdl.org,
+       devik@cdi.cz
+Subject: Re: [PATCH] Allow /dev/{,k}mem to be disabled to prevent kernel from being modified easily
+Message-ID: <20030803191102.GA29616@alpha.home.local>
+References: <20030803180950.GA11575@outpost.ds9a.nl>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030803180950.GA11575@outpost.ds9a.nl>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Has anybody else seen this problem? Is it me or is it generic?
+On Sun, Aug 03, 2003 at 08:09:50PM +0200, bert hubert wrote:
+ 
+> It blocks attempts by rootkits, such as devik's SucKIT, to hide themselves.
+> 
+> It is not a final solution but it raises the bar a lot. Please apply.
+> 
+> By default, nothing is changed, but I'd turn this feature on on servers
+> without X. Patch:
 
-I am building 2.6.0-test2 on an ia32 box for use on an SH box (Dreamcast).
+Why not make this change dynamic instead ? eg : your system boots unlocked,
+and definitely locks /dev/{,k}mem once you do something such as
 
-I am now building some modules (I am trying to write an ALSA module for the 
-Dremcast's sound card) and when I use make ... modules_install, it installs 
-them to the /lib/modules/2.6.0-test2-sh heirarchy as it should.
+  echo foo > /proc/path_to_magic_entry
 
-However, the running kernel, build with the same tools and often at the same 
-time, thinks its a plain vanilla 2.6.0-test2 kernel and so tries to load 
-modules from /lib/modules/2.6.0-test2.
+So the same config can be used with kernel with and without X, it's just a
+matter of runtime configuration. It could even be a sysctl, as long as there's
+no way to unset it.
 
-Adrian
+Regards,
+Willy
+

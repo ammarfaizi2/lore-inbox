@@ -1,40 +1,77 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262507AbTCMTYJ>; Thu, 13 Mar 2003 14:24:09 -0500
+	id <S262548AbTCMTTF>; Thu, 13 Mar 2003 14:19:05 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262509AbTCMTYJ>; Thu, 13 Mar 2003 14:24:09 -0500
-Received: from packet.digeo.com ([12.110.80.53]:7639 "EHLO packet.digeo.com")
-	by vger.kernel.org with ESMTP id <S262507AbTCMTYI>;
-	Thu, 13 Mar 2003 14:24:08 -0500
-Date: Thu, 13 Mar 2003 11:34:48 -0800
-From: Andrew Morton <akpm@digeo.com>
-To: Jeremy Fitzhardinge <jeremy@goop.org>
-Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org
-Subject: Re: 2.5.64-mm6
-Message-Id: <20030313113448.595c6119.akpm@digeo.com>
-In-Reply-To: <1047572586.1281.1.camel@ixodes.goop.org>
-References: <20030313032615.7ca491d6.akpm@digeo.com>
-	<1047572586.1281.1.camel@ixodes.goop.org>
-X-Mailer: Sylpheed version 0.8.9 (GTK+ 1.2.10; i586-pc-linux-gnu)
+	id <S262549AbTCMTTF>; Thu, 13 Mar 2003 14:19:05 -0500
+Received: from B57f7.pppool.de ([213.7.87.247]:25549 "EHLO
+	nicole.de.interearth.com") by vger.kernel.org with ESMTP
+	id <S262548AbTCMTS6>; Thu, 13 Mar 2003 14:18:58 -0500
+Subject: 2.4.20 and 2.5.64 NIC missing interrupts in APIC mode
+From: Daniel Egger <degger@fhm.edu>
+To: Linux Kernel Mailinglist <linux-kernel@vger.kernel.org>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-26gLKfvaInRTxDJtSv4i"
+Organization: 
+Message-Id: <1047581900.1513.36.camel@sonja>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 13 Mar 2003 19:34:45.0554 (UTC) FILETIME=[9A298120:01C2E997]
+X-Mailer: Ximian Evolution 1.2.2 
+Date: 13 Mar 2003 19:58:21 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jeremy Fitzhardinge <jeremy@goop.org> wrote:
->
-> On Thu, 2003-03-13 at 03:26, Andrew Morton wrote:
-> >   This means that when an executable is first mapped in, the kernel will
-> >   slurp the whole thing off disk in one hit.  Some IO changes were made to
-> >   speed this up.
-> 
-> Does this just pull in text and data, or will it pull any debug sections
-> too?  That could fill memory with a lot of useless junk.
-> 
 
-Just text, I expect.  Unless glibc is mapping debug info with PROT_EXEC ;)
+--=-26gLKfvaInRTxDJtSv4i
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-It's just a fun hack.  Should be done in glibc.
+Hija,
+
+I just bought a new motherboard "ECS L7VTA" sporting a VIA KT400 chipset
+and found an annoying bug which took me quite some time to track down:
+
+As soon as I enable the APIC mode in the BIOS the onboard PHY seems
+to ignore any packets which are thrown at it *after* the kernel
+initialised itself which is especially nasty since the system is booting
+from network effectively stopping its boot when trying to get an IP
+using DHCP or mounting a NFS volume in case the IP is fixed. The onboard
+NIC is a VIA Rhine II (VT6102).
+
+The startup process looks like:
+- POST
+- BIOS check
+- PXE BIOS initialisation
+- PXE boot into etherboot
+- Correct detection and initialisation of the NIC in etherboot
+- Boot of linux kernel
+- Correct initialisation of system including NIC (via-rhine driver from
+    Donald Becker as in the standard kernels)
+- Endless loop like the following:
+
+-------->
+eth0: Setting full-duplex based on MII #1 link partner capability of 41e1.
+Sending DCHP requests ...... timed out!
+<--------
+
+The NIC initialised itself with the correct interrupt according to the
+BIOS screen. As soon as I shut down the APIC mode, everything works as
+expected.=20
+
+Ideas?
+
+--=20
+Servus,
+       Daniel
+
+--=-26gLKfvaInRTxDJtSv4i
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: Dies ist ein digital signierter Nachrichtenteil
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
+
+iD8DBQA+cNTMchlzsq9KoIYRAl8mAJ9hJiekvCWtqxqM4h4bMF95jYmOSACgtvwS
+0mzTPS/1VgIH0AP/1aOaARM=
+=qQ01
+-----END PGP SIGNATURE-----
+
+--=-26gLKfvaInRTxDJtSv4i--
 

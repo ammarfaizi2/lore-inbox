@@ -1,42 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261778AbVBIJP2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261597AbVBIJO1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261778AbVBIJP2 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Feb 2005 04:15:28 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261776AbVBIJP2
+	id S261597AbVBIJO1 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Feb 2005 04:14:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261613AbVBIJO1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Feb 2005 04:15:28 -0500
-Received: from pentafluge.infradead.org ([213.146.154.40]:61402 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S261613AbVBIJOe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Feb 2005 04:14:34 -0500
-Date: Wed, 9 Feb 2005 09:14:33 +0000
-From: Christoph Hellwig <hch@infradead.org>
-To: Michael Renzmann <mrenzmann@web.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: How to retrieve version from kernel source (the right way)?
-Message-ID: <20050209091433.GA11690@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Michael Renzmann <mrenzmann@web.de>, linux-kernel@vger.kernel.org
-References: <4209C71F.9040102@web.de>
+	Wed, 9 Feb 2005 04:14:27 -0500
+Received: from irulan.endorphin.org ([80.68.90.107]:21766 "EHLO
+	irulan.endorphin.org") by vger.kernel.org with ESMTP
+	id S261597AbVBIJOM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 9 Feb 2005 04:14:12 -0500
+Subject: Re: [PATCH 01/04] Adding cipher mode context information to
+	crypto_tfm
+From: Fruhwirth Clemens <clemens@endorphin.org>
+To: James Morris <jmorris@redhat.com>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       michal@logix.cz, "David S. Miller" <davem@davemloft.net>,
+       "Adam J. Richter" <adam@yggdrasil.com>
+In-Reply-To: <Xine.LNX.4.44.0502081906290.1862-100000@thoron.boston.redhat.com>
+References: <Xine.LNX.4.44.0502081906290.1862-100000@thoron.boston.redhat.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Date: Wed, 09 Feb 2005 10:14:09 +0100
+Message-Id: <1107940449.14810.12.camel@ghanima>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <4209C71F.9040102@web.de>
-User-Agent: Mutt/1.4.1i
-X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+X-Mailer: Evolution 2.0.2 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Feb 09, 2005 at 09:17:35AM +0100, Michael Renzmann wrote:
-> Hi all.
+On Tue, 2005-02-08 at 19:09 -0500, James Morris wrote:
+> On Wed, 9 Feb 2005, Fruhwirth Clemens wrote:
 > 
-> (Please CC: me, I'm not subscribed - although I'm following the list 
-> through gmane.org)
+> > > You can't call kmap() in softirq context (why was it even trying?):
+> > 
+> > Why not? What's the alternative, then?
 > 
-> I'm working on Madwifi (a driver for wireless lan cards with Atheros 
-> chipset), which isn't part of the kernel (and probably won't ever be due 
-> to the binary-only HAL).
+> It can sleep in map_new_virtual().
+> 
+> The alternative is to use atomic kmaps.  For this code, unless you can 
+> point to something concrete in the existing kernel which would benefit 
+> from passing an arbitrary number of scatterlists in, just code for the 
+> case of processing two at once (input & output).
 
-Why don't you use the reverse-engineered HAL from OpenBSD?
+kmap_atomic doesn't qualify as alternative. It's limited to two free
+mappings. There must be something else to kmap in softirq. I really
+can't imagine such a limitation.
 
+Where is the documentation for the highmem stuff anyway? It's stunning
+that there is not a single useful hit in ./Documentation for kmap_atomic
+or kmap. The web is also close-lipped about that issue.
+
+I can't code for the case of two. Because, first, that's the idea of
+generic in the name "generic scatterwalk", second, I need at least 3
+scatterlists in parallel for LRW.
+
+-- 
+Fruhwirth Clemens <clemens@endorphin.org>  http://clemens.endorphin.org

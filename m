@@ -1,37 +1,33 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261577AbUBUQ6p (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 21 Feb 2004 11:58:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261581AbUBUQ6p
+	id S261580AbUBURDk (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 21 Feb 2004 12:03:40 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261587AbUBURDk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 21 Feb 2004 11:58:45 -0500
-Received: from aun.it.uu.se ([130.238.12.36]:10473 "EHLO aun.it.uu.se")
-	by vger.kernel.org with ESMTP id S261577AbUBUQ6n (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 21 Feb 2004 11:58:43 -0500
-Date: Sat, 21 Feb 2004 17:58:35 +0100 (MET)
-Message-Id: <200402211658.i1LGwZbq028010@harpo.it.uu.se>
-From: Mikael Pettersson <mikpe@csd.uu.se>
-To: perfctr-devel@lists.sourceforge.net
-Subject: perfctr-2.6.6 released
-Cc: linux-kernel@vger.kernel.org
+	Sat, 21 Feb 2004 12:03:40 -0500
+Received: from wwwb.webquarry.com ([209.211.232.3]:5046 "EHLO
+	shell1.webquarry.com") by vger.kernel.org with ESMTP
+	id S261580AbUBURDi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 21 Feb 2004 12:03:38 -0500
+Date: Sat, 21 Feb 2004 09:03:31 -0800 (PST)
+From: sford_lk@geeky-boy.com
+X-X-Sender: sford@shell1.webquarry.com
+To: linux-kernel@vger.kernel.org
+Subject: kernel: svc: bad direction [resolved]
+Message-ID: <Pine.LNX.4.44.0402210843081.27276-100000@shell1.webquarry.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Version 2.6.6 of perfctr, the Linux performance
-monitoring counters driver, is now available at the usual
-place: http://www.csd.uu.se/~mikpe/linux/perfctr/
+I had a problem with getting tons of "kernel: svc: bad direction..."
+messages.  Web searches resulted in many asked questions but few
+answers.  I hope it's OK for me to post an answer in the hope that
+it makes it into the archives.
 
-Version 2.6.6, 2004-02-21
-- Pentium-M has an undocumented local APIC quirk which can stop
-  perfctr interrupt delivery. Added workaround to prevent this.
-- Fixed a bug in x86-64's perfctr interrupt entry code in 2.4 kernels.
-  Luckily, the bug turned out to be harmless (a bogus "rip" value was
-  retrieved, but never used by the higher-level interrupt handler).
-- Added support for Pentium 4 Model 3 processors, which have slight
-  event set changes from earlier models.
-- Updated kernel support: 2.6.3, 2.4.25, 2.4.22-1.2174.nptl (FC1),
-  2.4.20-30.9 (RH9), and 2.4.21-193 (SuSE). Removed support for some
-  obsolete FC1 and RH update kernels.
+My problem turned out to be a Sun host with a DNS domain name in its
+"/etc/defaultdomain" file.  That file is supposed to contain a NIS
+domain name.  So, the Sun sat there broadcasting what I assume were
+"where are you, NIS server?" requests, which Linux didn't like for
+some reason.
 
-/ Mikael Pettersson

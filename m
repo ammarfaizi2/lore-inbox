@@ -1,39 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263205AbTDLIr4 (for <rfc822;willy@w.ods.org>); Sat, 12 Apr 2003 04:47:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263208AbTDLIr4 (for <rfc822;linux-kernel-outgoing>);
-	Sat, 12 Apr 2003 04:47:56 -0400
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:44297 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S263205AbTDLIrz (for <rfc822;linux-kernel@vger.kernel.org>); Sat, 12 Apr 2003 04:47:55 -0400
-Date: Sat, 12 Apr 2003 09:59:36 +0100
-From: Russell King <rmk@arm.linux.org.uk>
-To: shesha bhushan <bhushan_vadulas@hotmail.com>
-Cc: kernelnewbies@nl.linux.org, linux-kernel@vger.kernel.org
-Subject: Re: patch-2.4.16-rmk1-iop310.1.gz
-Message-ID: <20030412095936.A14354@flint.arm.linux.org.uk>
-Mail-Followup-To: shesha bhushan <bhushan_vadulas@hotmail.com>,
-	kernelnewbies@nl.linux.org, linux-kernel@vger.kernel.org
-References: <F139PmarHLsY0iXDlaz0001704d@hotmail.com>
+	id S263208AbTDLJBK (for <rfc822;willy@w.ods.org>); Sat, 12 Apr 2003 05:01:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263209AbTDLJBK (for <rfc822;linux-kernel-outgoing>);
+	Sat, 12 Apr 2003 05:01:10 -0400
+Received: from frankvm.xs4all.nl ([80.126.170.174]:56298 "EHLO
+	iapetus.localdomain") by vger.kernel.org with ESMTP id S263208AbTDLJBJ (for <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 12 Apr 2003 05:01:09 -0400
+Date: Sat, 12 Apr 2003 11:13:17 +0200
+From: Frank van Maarseveen <frankvm@xs4all.nl>
+To: "Perez-Gonzalez, Inaky" <inaky.perez-gonzalez@intel.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Simple Kernel-User Event Interface (Was: RE: [ANNOUNCE] udev 0.1 release)
+Message-ID: <20030412091317.GA1542@iapetus.localdomain>
+Mail-Followup-To: Frank van Maarseveen <frankvm@xs4all.nl>,
+	"Perez-Gonzalez, Inaky" <inaky.perez-gonzalez@intel.com>,
+	linux-kernel@vger.kernel.org
+References: <A46BBDB345A7D5118EC90002A5072C780BEBAB1B@orsmsx116.jf.intel.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <F139PmarHLsY0iXDlaz0001704d@hotmail.com>; from bhushan_vadulas@hotmail.com on Sun, Apr 06, 2003 at 08:20:17AM +0000
-X-Message-Flag: Your copy of Microsoft Outlook is vurnerable to viruses. See www.mutt.org for more details.
+In-Reply-To: <A46BBDB345A7D5118EC90002A5072C780BEBAB1B@orsmsx116.jf.intel.com>
+User-Agent: Mutt/1.4i
+X-Subliminal-Message: Use Linux!
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Apr 06, 2003 at 08:20:17AM +0000, shesha bhushan wrote:
-> Can any one give me the the file patch-2.4.16-rmk1-iop310.1.gz.
-> The link 
-> ftp://source.mvista.com/pub/xscale/iop310/patch-2.4.16-rmk1-iop310.1.gz is 
-> broken.
+On Fri, Apr 11, 2003 at 09:16:02PM -0700, Perez-Gonzalez, Inaky wrote:
+> 
+> The idea is you queue from the kernel a message and the user space
+> reads it -entirely, no half things-, starting with a header (unsigned
+> long size) and then the actual bytes. If the user provides a buffer
 
-You may try asking ARM-based Linux kernel questions on the linux-arm-kernel
-list - you'll probably have a better chance of a response there.
+It would be better to use an ASCII interface using \n as event
+separator. That's what I like about hotplug: it can be scripted.
 
 -- 
-Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
-             http://www.arm.linux.org.uk/personal/aboutme.html
-
+Frank

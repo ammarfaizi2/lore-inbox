@@ -1,54 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314020AbSDLO33>; Fri, 12 Apr 2002 10:29:29 -0400
+	id <S314029AbSDLOa5>; Fri, 12 Apr 2002 10:30:57 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314029AbSDLO32>; Fri, 12 Apr 2002 10:29:28 -0400
-Received: from pc-62-31-92-140-az.blueyonder.co.uk ([62.31.92.140]:37048 "EHLO
-	kushida.apsleyroad.org") by vger.kernel.org with ESMTP
-	id <S314020AbSDLO31>; Fri, 12 Apr 2002 10:29:27 -0400
-Date: Fri, 12 Apr 2002 15:29:18 +0100
-From: Jamie Lokier <lk@tantalophile.demon.co.uk>
-To: Pavel Machek <pavel@suse.cz>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: faster boots?
-Message-ID: <20020412152918.A24356@kushida.apsleyroad.org>
-In-Reply-To: <200204080048.g380mt514749@lmail.actcom.co.il> <200204080057.g380vbO00868@vindaloo.ras.ucalgary.ca> <3CB0EF0B.14D48619@zip.com.au> <20020408095717.GB27999@atrey.karlin.mff.cuni.cz> <20020408174333.A28116@kushida.apsleyroad.org> <20020408124803.A14935@redhat.com> <20020409015657.A28889@kushida.apsleyroad.org> <20020409222214.GK5148@atrey.karlin.mff.cuni.cz> <20020412114422.A24021@kushida.apsleyroad.org> <20020412114252.GB1893@atrey.karlin.mff.cuni.cz>
+	id <S314031AbSDLOa4>; Fri, 12 Apr 2002 10:30:56 -0400
+Received: from h108-129-61.datawire.net ([207.61.129.108]:10757 "HELO
+	mail.datawire.net") by vger.kernel.org with SMTP id <S314029AbSDLOaz>;
+	Fri, 12 Apr 2002 10:30:55 -0400
+Subject: Kernel panic 2.4.19-pre6 AND 2.4.19-pre5-ac3 - More info - ksymoops
+From: Shawn Starr <shawn.starr@datawire.net>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.0.2.99 Preview Release
+Date: 12 Apr 2002 09:36:28 -0400
+Message-Id: <1018618588.224.15.camel@unaropia>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Pavel Machek wrote:
-> > If I do this:
-> > 
-> >     while :; do cat /proc/stat; sleep 1; done
-> > 
-> > Then I see a few writes have occurred at nearly every iteration.  I
-> > think that is due to the atime updates, because using "noatime" there
-> > are no writes at most iterations.
-> 
-> Well, that's no problem. noflushd stops kflushd, so it should work
-> even with atime. [It works for me with atimes!]
-> 
-> > But more interesting: I only see those few-per-second atime writes while
-> > noflushd is running.  If I kill noflushd then they go away.
-> 
-> ?
 
-Another curious thing: even if the regular writes were caused by atime
-updates, there is no reason for them to be flushed every second, is
-there?
+Code: 8b 40 20 c7 40 24 00 00 00 00 a1 a0 3e 2d c0 59 89 15 c4 cf
+Using defaults from ksymoops -t elf32-i386 -a i386
 
-Yet the hard disk light flashes about once per second when (a) running
-the above shell line and (b) running noflushd, and (c) _not_ using
-"noatime" (just "nodiratime").  (Remove any of those and it stops).  And
-/proc/stat shows writes happening.
+Code;  00000000 Before first symbol
+00000000 <_EIP>:
+Code;  00000000 Before first symbol
+   0:   8b 40 20                  mov    0x20(%eax),%eax
+Code;  00000003 Before first symbol
+   3:   c7 40 24 00 00 00 00      movl   $0x0,0x24(%eax)
+Code;  0000000a Before first symbol
+   a:   a1 a0 3e 2d c0            mov    0xc02d3ea0,%eax
+Code;  0000000f Before first symbol
+   f:   59                        pop    %ecx
+Code;  00000010 Before first symbol
+  10:   89 15 c4 cf 00 00         mov    %edx,0xcfc4
 
-This is on ext3.  I wonder if journalling is causing a problem.  Pavel,
-are you running ext3?
+-- 
+Shawn Starr
+Developer Support Engineer
+Datawire Communication Networks Inc.
+10 Carlson Court, Suite 300
+Toronto, ON, M9W 6L2
+T: 416-213-2001 ext 179  F: 416-213-2008
 
-The kernel, by the way, is vanilla 2.4.18.
-
--- Jamie

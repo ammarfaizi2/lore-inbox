@@ -1,47 +1,38 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315327AbSEAHUW>; Wed, 1 May 2002 03:20:22 -0400
+	id <S315328AbSEAHU0>; Wed, 1 May 2002 03:20:26 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315328AbSEAHUV>; Wed, 1 May 2002 03:20:21 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:22798 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S315327AbSEAHUV>;
-	Wed, 1 May 2002 03:20:21 -0400
-Message-ID: <3CCF9792.8CDF274@zip.com.au>
-Date: Wed, 01 May 2002 00:21:54 -0700
-From: Andrew Morton <akpm@zip.com.au>
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-pre4 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Miles Lane <miles@megapathdsl.net>
-CC: LKML <linux-kernel@vger.kernel.org>,
-        Linus Torvalds <torvalds@transmeta.com>
-Subject: Re: 2.4.12 -- Unresolved symbols in fs/jfs/jfs.o:  block_flushpage
-In-Reply-To: <1020236572.16071.19.camel@turbulence.megapathdsl.net>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S315329AbSEAHUZ>; Wed, 1 May 2002 03:20:25 -0400
+Received: from sydney1.au.ibm.com ([202.135.142.193]:2566 "EHLO
+	wagner.rustcorp.com.au") by vger.kernel.org with ESMTP
+	id <S315328AbSEAHUY>; Wed, 1 May 2002 03:20:24 -0400
+From: Rusty Russell <rusty@rustcorp.com.au>
+To: torvalds@transmeta.com
+cc: linux-kernel@vger.kernel.org, Pavel Machek <pavel@ucw.cz>
+Subject: [PATCH] TRIVIAL 2.5.12 WP security warning
+Date: Wed, 01 May 2002 17:23:47 +1000
+Message-Id: <E172oSp-0007ot-00@wagner.rustcorp.com.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Miles Lane wrote:
-> 
-> depmod: *** Unresolved symbols in /lib/modules/2.5.12/kernel/fs/jfs/jfs.o
-> depmod:         block_flushpage
-> 
+Pavel Machek <pavel@ucw.cz>: Warn users about machines with non-working WP bit:
+  Hi!
+  
+  This might be good idea, as those machines are not safe for multiuser
+  systems.
+  
 
-block_flushpage() used to be a macro which pointed at the
-exported discard_bh_page().  I turned block_flushpage() into
-a real function but forgot the export.
-
---- linux-2.5.12/fs/buffer.c	Tue Apr 30 17:56:30 2002
-+++ 25/fs/buffer.c	Wed May  1 00:19:10 2002
-@@ -1231,6 +1231,7 @@ int block_flushpage(struct page *page, u
+--- trivial-2.5.12/arch/i386/mm/init.c.orig	Wed May  1 17:15:10 2002
++++ trivial-2.5.12/arch/i386/mm/init.c	Wed May  1 17:15:10 2002
+@@ -384,7 +384,7 @@
+ 	local_flush_tlb();
  
- 	return 1;
- }
-+EXPORT_SYMBOL(block_flushpage);
- 
- /*
-  * We attach and possibly dirty the buffers atomically wrt
+ 	if (!boot_cpu_data.wp_works_ok) {
+-		printk("No.\n");
++		printk("No (that's security hole).\n");
+ #ifdef CONFIG_X86_WP_WORKS_OK
+ 		panic("This kernel doesn't support CPU's with broken WP. Recompile it for a 386!");
+ #endif
 
-
--
+--
+  Anyone who quotes me in their sig is an idiot. -- Rusty Russell.

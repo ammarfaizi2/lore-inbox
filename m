@@ -1,67 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262411AbVC3ToI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262404AbVC3Tn0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262411AbVC3ToI (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 30 Mar 2005 14:44:08 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262418AbVC3ToH
+	id S262404AbVC3Tn0 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 30 Mar 2005 14:43:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262411AbVC3Tn0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 30 Mar 2005 14:44:07 -0500
-Received: from salmon.maths.tcd.ie ([134.226.81.11]:6921 "HELO
-	salmon.maths.tcd.ie") by vger.kernel.org with SMTP id S262411AbVC3Tno
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 30 Mar 2005 14:43:44 -0500
-To: linux-xfs@oss.sgi.com
-cc: linux-kernel@vger.kernel.org
-Subject: Directory link count wrapping on Linux/XFS/i386?
-Date: Wed, 30 Mar 2005 20:43:36 +0100
-From: David Malone <dwmalone@maths.tcd.ie>
-Message-ID: <200503302043.aa27223@salmon.maths.tcd.ie>
+	Wed, 30 Mar 2005 14:43:26 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:21680 "EHLO
+	parcelfarce.linux.theplanet.co.uk") by vger.kernel.org with ESMTP
+	id S262404AbVC3TnD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 30 Mar 2005 14:43:03 -0500
+Message-ID: <424B013B.3010109@pobox.com>
+Date: Wed, 30 Mar 2005 14:42:51 -0500
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.6) Gecko/20050328 Fedora/1.7.6-1.2.5
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Andi Kleen <ak@muc.de>
+CC: Asfand Yar Qazi <ay1204@qazi.f2s.com>, linux-kernel@vger.kernel.org
+Subject: Re: How's the nforce4 support in Linux?
+References: <4242865D.90800@qazi.f2s.com>	<20050324093032.GA14022@havoc.gtf.org>	<20050324162706.GJ17865@csclub.uwaterloo.ca>	<42432A9F.3090507@pobox.com> <m1ekdz3hz0.fsf@muc.de>
+In-Reply-To: <m1ekdz3hz0.fsf@muc.de>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I was looking around to see how Linux handles directories with a
-high link count (ie. when they have many subdirectories) and I think
-I have stumbled across a bug in the Linux xfs glue.
+Andi Kleen wrote:
+> Jeff Garzik <jgarzik@pobox.com> writes:
+> 
+>>I won't disagree with your experiences.  For me, outside of one brief
+>>moment when the r8169 driver didn't work on Athlon64, it has worked
+>>flawlessly for me.
+>>
+>>RealTek 8169 is currently my favorite gigabit chip.
+> 
+> 
+> It does not seem to support DAC (or rather it breaks with DAC enabled), 
+> which makes it not very useful on any machine with >3GB of memory.
 
-It seems that internally xfs uses a 32 bit field for the link count,
-and the stat64 syscalls use a 32 bit field. These fields are copied
-via the vattr structure in xfs_vnode.h, which uses a nlink_t for
-the link count. However, in the kernel, I think this field is
-actually of type __kernel_nlink_t which seems to be 16 bits on many
-platforms.
+Driver bug.  I can futz with it and get it to do 64-bit on my Athlon64.
 
-I've tested this on an i386 2.6.11 kernel and it seems that the
-link count presented to userland wraps after 65536 subdirectories.
-This naturally doesn't let you screw up the filesystem or anything,
-but it does let you can hide files from find/fts, as demonstrated
-below.
-
-I guess to fix it you'd change the type of nlink in struct vattr
-so that it is the same type (unsigned int) as the type in struct
-kstat. I've included the obvious patch, but I don't have a machine
-that I can test it on right now.
-
-	David.
-
-turing 2% mkdir testdir
-turing 3% cd testdir
-turing 4% ls -ld .
-drwxr-xr-x  2 dwmalone dwmalone 6 Mar 30 12:18 .
-turing 5% perl ../mk65536dirs.pl
-turing 6% ls -ld .
-drwxr-xr-x  2 dwmalone dwmalone 1056768 Mar 30 12:19 .
-turing 7% mkdir .hidden
-turing 8% touch .hidden/secret
-turing 9% find . -name secret -print
+	Jeff
 
 
---- /usr/src/linux-2.6.11/fs/xfs/linux-2.6/xfs_vnode.h	2005-03-02 07:38:33.000000000 +0000
-+++ /tmp/xfs_vnode.h	2005-03-30 18:49:22.000000000 +0100
-@@ -409,7 +409,7 @@
- 	int		va_mask;	/* bit-mask of attributes present */
- 	enum vtype	va_type;	/* vnode type (for create) */
- 	mode_t		va_mode;	/* file access mode and type */
--	nlink_t		va_nlink;	/* number of references to file */
-+	unsigned int	va_nlink;	/* number of references to file */
- 	uid_t		va_uid;		/* owner user id */
- 	gid_t		va_gid;		/* owner group id */
- 	xfs_ino_t	va_nodeid;	/* file id */
+

@@ -1,61 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263570AbTEIXFS (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 9 May 2003 19:05:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263572AbTEIXFR
+	id S263572AbTEIXFf (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 9 May 2003 19:05:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263573AbTEIXFe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 9 May 2003 19:05:17 -0400
-Received: from air-2.osdl.org ([65.172.181.6]:20623 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S263570AbTEIXFQ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 9 May 2003 19:05:16 -0400
-Date: Fri, 9 May 2003 16:17:53 -0700
-From: Stephen Hemminger <shemminger@osdl.org>
-To: Linus Torvalds <torvalds@transmeta.com>, Jens Axboe <axboe@suse.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH 2.5.69] Fix module ref counting in block/loop.c
-Message-Id: <20030509161753.75a17f2e.shemminger@osdl.org>
-Organization: Open Source Development Lab
-X-Mailer: Sylpheed version 0.8.11 (GTK+ 1.2.10; i686-pc-linux-gnu)
-X-Face: &@E+xe?c%:&e4D{>f1O<&U>2qwRREG5!}7R4;D<"NO^UI2mJ[eEOA2*3>(`Th.yP,VDPo9$
- /`~cw![cmj~~jWe?AHY7D1S+\}5brN0k*NE?pPh_'_d>6;XGG[\KDRViCfumZT3@[
+	Fri, 9 May 2003 19:05:34 -0400
+Received: from smtp.bitmover.com ([192.132.92.12]:12941 "EHLO
+	smtp.bitmover.com") by vger.kernel.org with ESMTP id S263572AbTEIXFd
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 9 May 2003 19:05:33 -0400
+Date: Fri, 9 May 2003 16:17:57 -0700
+From: Larry McVoy <lm@bitmover.com>
+To: Pavel Machek <pavel@ucw.cz>
+Cc: Larry McVoy <lm@bitmover.com>, Nicolas Pitre <nico@cam.org>,
+       Dax Kelson <dax@gurulabs.com>,
+       "Downing, Thomas" <Thomas.Downing@ipc.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Why DRM exists [was Re: Flame Linus to a crisp!]
+Message-ID: <20030509231757.GA25657@work.bitmover.com>
+Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
+	Pavel Machek <pavel@ucw.cz>, Larry McVoy <lm@bitmover.com>,
+	Nicolas Pitre <nico@cam.org>, Dax Kelson <dax@gurulabs.com>,
+	"Downing, Thomas" <Thomas.Downing@ipc.com>,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <20030430172107.GA25347@work.bitmover.com> <Pine.LNX.4.44.0304301443410.1611-100000@xanadu.home> <20030501022037.GC8676@work.bitmover.com> <20030509110414.GB2895@zaurus.ucw.cz>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20030509110414.GB2895@zaurus.ucw.cz>
+User-Agent: Mutt/1.4i
+X-MailScanner-Information: Please contact the ISP for more information
+X-MailScanner: Found to be clean
+X-MailScanner-SpamCheck: not spam, SpamAssassin (score=0.5, required 4.5,
+	DATE_IN_PAST_06_12)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Replace old MOD_INC with new __module_get.
-No need for using try_module_get, because module_get is only called in open
-routine where there must already be a ref count.
+On Fri, May 09, 2003 at 01:04:14PM +0200, Pavel Machek wrote:
+> Hi!
+> 
+> > Those people ought to consider the benefits that BK has provided, the
+> > fact that any free replacement is years away, and the fact that we could
+> > pull the plug tomorrow and shut down the free use of BK.  Balance your
+> 
+> So you are essentially blackmailing us,
+> and expect us to like it? (What's above
+> statement, if not blackmail?) Either
+> pull the plug today, or stop flaming this
+> list. Better pull the plug.
 
-diff -Nru a/drivers/block/loop.c b/drivers/block/loop.c
---- a/drivers/block/loop.c	Fri May  9 15:54:51 2003
-+++ b/drivers/block/loop.c	Fri May  9 15:54:51 2003
-@@ -651,7 +651,7 @@
- 	int		lo_flags = 0;
- 	int		error;
- 
--	MOD_INC_USE_COUNT;
-+	__module_get(THIS_MODULE);	/* already have ref we are open */
- 
- 	error = -EBUSY;
- 	if (lo->lo_state != Lo_unbound)
-@@ -751,7 +751,7 @@
-  out_putf:
- 	fput(file);
-  out:
--	MOD_DEC_USE_COUNT;
-+	module_put(THIS_MODULE);
- 	return error;
- }
- 
-@@ -824,7 +824,7 @@
- 	filp->f_dentry->d_inode->i_mapping->gfp_mask = gfp;
- 	lo->lo_state = Lo_unbound;
- 	fput(filp);
--	MOD_DEC_USE_COUNT;
-+	module_put(THIS_MODULE);
- 	return 0;
- }
- 
+Pavel, someone gave me some really good insight when he said "When's the
+last time you saw something from Pavel that wasn't a troll?"  I think
+you do post a some useful stuff but he does have a point, and I'll pass
+on rising to the bait, this troll is a little too blatant.
+
+If you really want to know how I feel on the topic, Dave stated it nicely:
+
+> From: "David S. Miller" <davem@redhat.com>
+> 
+> See, it's not about what you're allowed to do, it's about being nice to
+> people especially the ones that help you.
+

@@ -1,45 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262167AbSJNUNI>; Mon, 14 Oct 2002 16:13:08 -0400
+	id <S262114AbSJNUFw>; Mon, 14 Oct 2002 16:05:52 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262168AbSJNUNI>; Mon, 14 Oct 2002 16:13:08 -0400
-Received: from inrete-46-20.inrete.it ([81.92.46.20]:63212 "EHLO
-	pdamail1-pdamail.inrete.it") by vger.kernel.org with ESMTP
-	id <S262167AbSJNUNH>; Mon, 14 Oct 2002 16:13:07 -0400
-Message-ID: <3DAB26A5.690471@inrete.it>
-Date: Mon, 14 Oct 2002 22:18:45 +0200
-From: Daniele Lugli <genlogic@inrete.it>
-Organization: General Logic srl
-X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.18-rthal5 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: "David S. Miller" <davem@redhat.com>, linux-kernel@vger.kernel.org
-Subject: Re: unhappy with current.h
-References: <3DAB1F00.667B82B5@inrete.it> <20021014.125234.102091817.davem@redhat.com>
+	id <S262119AbSJNUFw>; Mon, 14 Oct 2002 16:05:52 -0400
+Received: from perninha.conectiva.com.br ([200.250.58.156]:31687 "EHLO
+	perninha.conectiva.com.br") by vger.kernel.org with ESMTP
+	id <S262114AbSJNUFv>; Mon, 14 Oct 2002 16:05:51 -0400
+Date: Mon, 14 Oct 2002 18:11:30 -0200
+From: Arnaldo Carvalho de Melo <acme@conectiva.com.br>
+To: Anton Altaparmakov <aia21@cantab.net>
+Cc: Linus Torvalds <torvalds@transmeta.com>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH-2.5] Compile fix for net/llc
+Message-ID: <20021014201130.GC15441@conectiva.com.br>
+Mail-Followup-To: Arnaldo Carvalho de Melo <acme@conectiva.com.br>,
+	Anton Altaparmakov <aia21@cantab.net>,
+	Linus Torvalds <torvalds@transmeta.com>,
+	Linux Kernel <linux-kernel@vger.kernel.org>
+References: <E181972-00029d-00@storm.christs.cam.ac.uk>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <E181972-00029d-00@storm.christs.cam.ac.uk>
+User-Agent: Mutt/1.4i
+X-Url: http://advogato.org/person/acme
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"David S. Miller" wrote:
+Em Mon, Oct 14, 2002 at 06:34:40PM +0100, Anton Altaparmakov escreveu:
+> Linus,
 > 
->    From: Daniele Lugli <genlogic@inrete.it>
->    Date: Mon, 14 Oct 2002 21:46:08 +0200
-> 
->    Moral of the story: in my opinion kernel developers should reduce to a
->    minimum the use of #define, and preferably use words in uppercase and/or
->    with underscores, in any case not commonly used words.
-> 
-> Or maybe you should change your datastructure to not have member names
-> the conflict with 7 year old well defined global symbols in the Linux
-> kernel?
+> I needed the below patchlet to complete compilation of net/llc in your
+> current bk tree.
 
-That's what I did.
+Thanks, Arjan already sent this one and its in DaveM's tree.
 
-What about, next time,
-
-#define i j
-
-??
-
-Regards, DL
+- Arnaldo

@@ -1,35 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262724AbTIAHwp (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 1 Sep 2003 03:52:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262725AbTIAHwp
+	id S262652AbTIAHwX (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 1 Sep 2003 03:52:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262724AbTIAHwX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 1 Sep 2003 03:52:45 -0400
-Received: from pc1-cwma1-5-cust4.swan.cable.ntl.com ([80.5.120.4]:61893 "EHLO
-	dhcp23.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id S262724AbTIAHwn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 1 Sep 2003 03:52:43 -0400
-Subject: Re: many IDE PCI cards "spurious 8259a" irq15(SMBus nforce2)
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Resident Boxholder <resid@boxho.com>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <3F52E0B3.2090001@boxho.com>
-References: <3F4EA30C.CEA49F2F@vtc.edu.hk>
-	 <1062150643.26753.4.camel@dhcp23.swansea.linux.org.uk>
-	 <3F4F5C9A.5BAA1542@vtc.edu.hk> <200308311443.55543.hpj@urpla.net>
-	 <3F5287BC.48A1BCE6@vtc.edu.hk>  <3F52E0B3.2090001@boxho.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Message-Id: <1062402710.13083.2.camel@dhcp23.swansea.linux.org.uk>
+	Mon, 1 Sep 2003 03:52:23 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:40849 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id S262652AbTIAHwR (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 1 Sep 2003 03:52:17 -0400
+Date: Mon, 1 Sep 2003 00:43:08 -0700
+From: "David S. Miller" <davem@redhat.com>
+To: Krzysztof Halasa <khc@pm.waw.pl>
+Cc: alan@lxorguk.ukuu.org.uk, jes@trained-monkey.org, zaitcev@redhat.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] RFC: kills consistent_dma_mask
+Message-Id: <20030901004308.477f8cc8.davem@redhat.com>
+In-Reply-To: <m37k4tj71h.fsf@defiant.pm.waw.pl>
+References: <m3oeynykuu.fsf@defiant.pm.waw.pl>
+	<20030818111522.A12835@devserv.devel.redhat.com>
+	<m33cfyt3x6.fsf@trained-monkey.org>
+	<1061298438.30566.29.camel@dhcp23.swansea.linux.org.uk>
+	<20030819095547.2bf549e3.davem@redhat.com>
+	<m34r0dwfrr.fsf@defiant.pm.waw.pl>
+	<m38ypl29i4.fsf@defiant.pm.waw.pl>
+	<m3isoo2taz.fsf@trained-monkey.org>
+	<m3n0dz5kfg.fsf@defiant.pm.waw.pl>
+	<20030824060057.7b4c0190.davem@redhat.com>
+	<m365kmltdy.fsf@defiant.pm.waw.pl>
+	<m365kex2rp.fsf@defiant.pm.waw.pl>
+	<20030830185007.5c61af71.davem@redhat.com>
+	<1062334374.31861.32.camel@dhcp23.swansea.linux.org.uk>
+	<20030831222233.1bd41f01.davem@redhat.com>
+	<m37k4tj71h.fsf@defiant.pm.waw.pl>
+X-Mailer: Sylpheed version 0.9.2 (GTK+ 1.2.6; sparc-unknown-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.4 (1.4.4-4) 
-Date: Mon, 01 Sep 2003 08:51:51 +0100
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Llu, 2003-09-01 at 07:01, Resident Boxholder wrote:
-> cmd680 sii680 card doesn't work either. no error logged there, just hangs.
+On 01 Sep 2003 09:34:50 +0200
+Krzysztof Halasa <khc@pm.waw.pl> wrote:
 
-See the nForce & SI680 notes on the silicon image website, there are
-some nforce boards that have problems with SI3112 at least
+> "David S. Miller" <davem@redhat.com> writes:
+> 
+> > The problem is that it works for the people it was created
+> > for, you're going to break things for them.
+> 
+> Then Documentation/DMA* should be corrected to indicate this is created
+> for PCI-64 cards only, and only to increase default 32-bit addressing
+> to 64-bit on x86-64 and ia64.
+> Such correction would be a help to driver developers.
 
+Sure, I'm fine with this as a termporary thing until we
+work out the details properly.

@@ -1,47 +1,67 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285153AbRLRUq5>; Tue, 18 Dec 2001 15:46:57 -0500
+	id <S285079AbRLRUuO>; Tue, 18 Dec 2001 15:50:14 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S285147AbRLRUqn>; Tue, 18 Dec 2001 15:46:43 -0500
-Received: from neon-gw-l3.transmeta.com ([63.209.4.196]:48649 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S285151AbRLRUpg>; Tue, 18 Dec 2001 15:45:36 -0500
-To: linux-kernel@vger.kernel.org
-From: "H. Peter Anvin" <hpa@zytor.com>
-Subject: Re: [OT] DRM OS
-Date: 18 Dec 2001 12:45:26 -0800
-Organization: Transmeta Corporation, Santa Clara CA
-Message-ID: <9vo9t6$j46$1@cesium.transmeta.com>
-In-Reply-To: <20011218121034.B23308@vitelus.com> <Pine.LNX.4.33.0112182116070.29077-100000@Appserv.suse.de>
-MIME-Version: 1.0
+	id <S285147AbRLRUt5>; Tue, 18 Dec 2001 15:49:57 -0500
+Received: from 70.191.38.66.gt-est.net ([66.38.191.70]:41993 "EHLO
+	worm.hmi.net") by vger.kernel.org with ESMTP id <S285079AbRLRUr6>;
+	Tue, 18 Dec 2001 15:47:58 -0500
 Content-Type: text/plain; charset=US-ASCII
+From: Olivier Daigle <odaigle@harfangmicro.com>
+Organization: Harfang Microtechniques
+To: Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: __get_free_pages and page_count
+Date: Tue, 18 Dec 2001 15:47:40 -0500
+X-Mailer: KMail [version 1.2]
+MIME-Version: 1.0
+Message-Id: <01121815474002.04766@hubble>
 Content-Transfer-Encoding: 7BIT
-Disclaimer: Not speaking for Transmeta in any way, shape, or form.
-Copyright: Copyright 2001 H. Peter Anvin - All Rights Reserved
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Followup to:  <Pine.LNX.4.33.0112182116070.29077-100000@Appserv.suse.de>
-By author:    Dave Jones <davej@suse.de>
-In newsgroup: linux.dev.kernel
-> 
-> Amazing, just a few days since the Sklyarov release, and
-> already people are forgetting this is a very real problem.
-> 
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-Who's forgetting?  The scary part is that corporate fascism is
-basically the political reality in the U.S. (who is pushing very hard
-to export it to the rest of the world, for obvious reasons) today.
-Note that SSSCA failed not because of any freedom concerns, but
-because Microsoft and Intel didn't want the gov't to tell them what to
-do.
+Hi all,
+  Simple question regarding __get_free_pages and (struct page*)->count. Why 
+does only the first page returned by __get_free_pages have it's count set to 
+1 and all other pages have their count set to 0?
 
-I don't say this lightly.  However, I really think that the U.S. no
-longer is classifiable as a democracy, but rather as a plutocracy.
+  Example:
 
-	-hpa
+#define ORDER 2
 
--- 
-<hpa@transmeta.com> at work, <hpa@zytor.com> in private!
-"Unix gives you enough rope to shoot yourself in the foot."
-http://www.zytor.com/~hpa/puzzle.txt	<amsp@zytor.com>
+  unsigned long p, offset=0;
+  struct page *page;
+    
+  if(!(p=__get_free_pages(SLAB_KERNEL, ORDER))) {
+    goto err;
+  }
+
+  while(offset < PAGE_SIZE<<ORDER) {
+    page=virt_to_page(p+offset);
+    SC_DEBUG("  offset: %lu, page_count is %d", offset, page_count(page));
+    offset+=PAGE_SIZE;
+  }
+
+
+Resulting output is:
+Dec 18 15:36:14 meteor kernel: sc:   offset: 0, page_count is 1 
+Dec 18 15:36:14 meteor kernel: sc:   offset: 4096, page_count is 0 
+Dec 18 15:36:14 meteor kernel: sc:   offset: 8192, page_count is 0 
+Dec 18 15:36:14 meteor kernel: sc:   offset: 12288, page_count is 0 
+
+Thanks,
+
+  Olivier
+
+- -- 
+Olivier Daigle <odaigle@harfangmicro.com>
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.0.5 (GNU/Linux)
+Comment: For info see http://www.gnupg.org
+
+iD8DBQE8H6tsOVJ6DEeRbpERAgTLAKCV6nBuOKKskB8mdhBSwIzoyPGR0gCgh0JN
+apjYQFpFixJMiDmn8JrmkXg=
+=koo5
+-----END PGP SIGNATURE-----

@@ -1,57 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S133034AbRDRG1w>; Wed, 18 Apr 2001 02:27:52 -0400
+	id <S133039AbRDRGjr>; Wed, 18 Apr 2001 02:39:47 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S133037AbRDRG1n>; Wed, 18 Apr 2001 02:27:43 -0400
-Received: from zmailer.org ([194.252.70.162]:31492 "EHLO zmailer.org")
-	by vger.kernel.org with ESMTP id <S133034AbRDRG1i>;
-	Wed, 18 Apr 2001 02:27:38 -0400
-Date: Wed, 18 Apr 2001 09:27:29 +0300
-From: Matti Aarnio <matti.aarnio@zmailer.org>
-To: David Woodhouse <dwmw2@infradead.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Your response is requested
-Message-ID: <20010418092729.P805@mea-ext.zmailer.org>
-In-Reply-To: <20010417222555.L805@mea-ext.zmailer.org> <20010417190405.PTFU6564.tomts8-srv.bellnexxia.net@mail.vger.kernel.org> <Pine.LNX.4.33.0104171212520.960-100000@batman.zarzycki.org> <20010417222555.L805@mea-ext.zmailer.org> <11637.987548621@redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <11637.987548621@redhat.com>; from dwmw2@infradead.org on Wed, Apr 18, 2001 at 12:03:41AM +0100
+	id <S133040AbRDRGjh>; Wed, 18 Apr 2001 02:39:37 -0400
+Received: from [202.54.102.148] ([202.54.102.148]:30581 "EHLO
+	Ngate.in.tatainfotech.com") by vger.kernel.org with ESMTP
+	id <S133039AbRDRGjb>; Wed, 18 Apr 2001 02:39:31 -0400
+Date: Wed, 18 Apr 2001 12:01:32 +0530 (IST)
+From: NARENDRA L JOSHI <narendra.joshi@tatainfotech.com>
+To: linux-kernel@vger.kernel.org
+Subject: boot failure with kernel 2.4.2. please help.
+Message-ID: <Pine.LNX.4.04.10104181148580.9702-100000@seepzmail.in.tatainfotech.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Apr 18, 2001 at 12:03:41AM +0100, David Woodhouse wrote:
-> matti.aarnio@zmailer.org said:
-> >   Actually not.  Either your MTA, or your MUA did that.
-> >   I got:
-> > 	From:   J. I.
-> >   This particular detail -- when to add canonical domain to e.g. From:
-> >   address, and when not -- is implemented rather fuzzily usually.. 
-> 
-> I'm in the "if it arrives unqualified by SMTP from !localhost, reject it"
-> camp. I certainly can't think of a single case where it's appropriate to
-> accept it _and_ qualify it with the local domain in that case.
 
-	I didn't look for what it was at the SMTP level while
-	incoming, but RFC 821 (SMTP) is the transport method, and
-	VGER won't accept unqualified ( + a few more rules )
+I have kernel 2.2.16 installed on my machine and trying to upgrade to
+2.4.2. Verified from 2.4.2 Documentation that I have different utilities
+(gcc, binutils, pppd etc) of the specified or the greater version.
+I am able to make bzImage for 2.4.2, but when I try to boot with
+2.4.2 option in lilo, the message is :
+Uncompressing the kernel.... Ok. Booting the kernel
 
-	What you are saying is that RFC 822 level (visible headers)
-	should be controlled for something ?
 
-	I have a surprise for you, RFC 822 data carries only incidental
-	resemblance with the message content and destination.
+and the machine hangs !
 
-	Like now, you (dwmw2) get this message twice: once from me
-	which means the "From:" might even carry some resemblance
-	to the sender (yes, resemblance, it isn't my login-id, just
-	my email address), the second one comes via the list, and
-	the Majordomo won't change the From: to be
-		linux-kernel-owner@vger.kernel.org
-	which is the real sender in that case...
+The configuration is mostly default (except for SCSI not needed, so 
+made off, soundcard off, USB off).
+On getting few hints from mailing list discussions, I did make sure that
+processor type is set correctly (and not default pentium-2/3) in .config
+file and also tried changing '-oformat' option to '--oformat' in Makefile.
+But still the machine fails to boot with 2.4.2
 
-	... and this is completely off topic ...
-> --
-> dwmw2
+I am new to kernel area.
+Requesting all of you hints for diagnosing / correcting the problem.
 
-/Matti Aarnio
+thanx & regards,
+Narendra Joshi
+
+

@@ -1,52 +1,73 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262159AbSJAQn6>; Tue, 1 Oct 2002 12:43:58 -0400
+	id <S262181AbSJARdg>; Tue, 1 Oct 2002 13:33:36 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262160AbSJAQn5>; Tue, 1 Oct 2002 12:43:57 -0400
-Received: from crack.them.org ([65.125.64.184]:15123 "EHLO crack.them.org")
-	by vger.kernel.org with ESMTP id <S262159AbSJAQnS>;
-	Tue, 1 Oct 2002 12:43:18 -0400
-Date: Tue, 1 Oct 2002 12:49:07 -0400
-From: Daniel Jacobowitz <dan@debian.org>
-To: linux-kernel@vger.kernel.org
-Subject: Capabilities-related change in 2.5.40
-Message-ID: <20021001164907.GA25307@nevyn.them.org>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.1i
+	id <S262177AbSJARcW>; Tue, 1 Oct 2002 13:32:22 -0400
+Received: from 200-184-71-82.chies.com.br ([200.184.71.82]:48252 "EHLO
+	elipse.com.br") by vger.kernel.org with ESMTP id <S262170AbSJARbT>;
+	Tue, 1 Oct 2002 13:31:19 -0400
+Message-ID: <035401c26971$9dff4b50$1c00a8c0@elipse.com.br>
+Reply-To: "Felipe W Damasio" <felipewd@elipse.com.br>
+From: "Felipe W Damasio" <felipewd@elipse.com.br>
+To: "Jeff Garzik" <jgarzik@pobox.com>, "Kent Yoder" <key@austin.ibm.com>
+Cc: <linux-kernel@vger.kernel.org>, <tsbogend@alpha.franken.de>
+References: <Pine.LNX.4.44.0210011129330.14607-100000@ennui.austin.ibm.com> <3D99D923.5080200@pobox.com>
+Subject: Re: [PATCH] pcnet32 cable status check
+Date: Tue, 1 Oct 2002 14:40:22 -0300
+Organization: Elipse Software
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2800.1106
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1106
+X-OriginalArrivalTime: 01 Oct 2002 17:40:22.0281 (UTC) FILETIME=[9DFFE790:01C26971]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-First of all, I think the LSM code is confused in its use of cap_t.  I think
-that cap_capget should be using to_cap_t instead; it's converting _to_ a
-kernel_cap_t, right?
+
+----- Original Message -----
+From: "Jeff Garzik" <jgarzik@pobox.com>
+To: "Kent Yoder" <key@austin.ibm.com>
+Cc: <linux-kernel@vger.kernel.org>; <tsbogend@alpha.franken.de>
+Sent: Tuesday, October 01, 2002 2:19 PM
+Subject: Re: [PATCH] pcnet32 cable status check
 
 
+> Kent Yoder wrote:
+> > +static void pcnet32_watchdog(struct net_device *dev)
+> > +{
+> > +    struct pcnet32_private *lp = dev->priv;
+> > +
+> > +    /* Print the link status if it has changed */
+> > +    if (lp->mii)
+> > + mii_check_media (&lp->mii_if, 1, 0);
+> > +
+> > +    mod_timer (&(lp->watchdog_timer), PCNET32_WATCHDOG_TIMEOUT);
+> > +}
+>
+>
+> Looks good ;-)
+>
+> One small thing -- since you appear to test all cases for (lp->mii)
+> before calling mod_timer, I don't think you need to test lp->mii inside
+> the timer...
+>
+> As Felipe mentioned, using the link interrupt instead of a timer is
+> preferred -- but my own preference would be to apply your patch with the
+> small remove-lp->mii-check fixup, and then investigate the support of
+> link interrupts.  The reasoning is that, pcnet32 covers a ton of chips,
+> and not all may support a link interrupt.
 
-Second of all, my login shell (as a user) gets a very bizarre response to sys_capget:
+    Sounds nice.
 
-capget(0x19980330, 0, {CAP_CHOWN | CAP_DAC_OVERRIDE | CAP_DAC_READ_SEARCH |
-  CAP_FOWNER | CAP_FSETID | CAP_KILL | CAP_SETGID | CAP_SETUID |
-  CAP_LINUX_IMMUTABLE | CAP_NET_BIND_SERVICE | CAP_NET_BROADCAST |
-  CAP_NET_ADMIN | CAP_NET_RAW | CAP_IPC_LOCK | CAP_IPC_OWNER | CAP_SYS_MODULE
-  | CAP_SYS_RAWIO | CAP_SYS_CHROOT | CAP_SYS_PTRACE | CAP_SYS_PACCT |
-  CAP_SYS_ADMIN | CAP_SYS_BOOT | CAP_SYS_NICE | CAP_SYS_RESOURCE |
-  CAP_SYS_TIME | CAP_SYS_TTY_CONFIG | 0xf8000000,
-  CAP_CHOWN | CAP_DAC_OVERRIDE
-  | CAP_DAC_READ_SEARCH | CAP_FOWNER | CAP_FSETID | CAP_KILL | CAP_SETGID |
-  CAP_SETUID | CAP_SETPCAP | CAP_LINUX_IMMUTABLE | CAP_NET_BIND_SERVICE |
-  CAP_NET_BROADCAST | CAP_NET_ADMIN | CAP_NET_RAW | CAP_IPC_LOCK |
-  CAP_IPC_OWNER | CAP_SYS_MODULE | CAP_SYS_RAWIO | CAP_SYS_CHROOT |
-  CAP_SYS_PTRACE | CAP_SYS_PACCT | CAP_SYS_ADMIN | CAP_SYS_BOOT | CAP_SYS_NICE
-  | CAP_SYS_RESOURCE | CAP_SYS_TIME | CAP_SYS_TTY_CONFIG | 0xf8000000,}) = 0
+    When identified which chips support Link Change, a bit indicating so
+could be add to the capabilities of the NIC so we could choose link
+interrupt instead of timer when appropriate.
 
-The reason?  cap_get_proc has always been broken.  But the capability set of
-task 0, swapper, has now changed.  It used to be empty.  So, I'll go report
-this to libcap.  The change in capabilities for swapper is presumably
-benign.
+    I'll try and investigate some chips soon and let you know.
 
--- 
-Daniel Jacobowitz
-MontaVista Software                         Debian GNU/Linux Developer
+Felipe
+

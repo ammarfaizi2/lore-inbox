@@ -1,50 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129847AbRA2H4d>; Mon, 29 Jan 2001 02:56:33 -0500
+	id <S129874AbRA2IVk>; Mon, 29 Jan 2001 03:21:40 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129874AbRA2H4W>; Mon, 29 Jan 2001 02:56:22 -0500
-Received: from asbestos.linuxcare.com.au ([203.17.0.30]:42734 "EHLO halfway")
-	by vger.kernel.org with ESMTP id <S129847AbRA2H4F>;
-	Mon, 29 Jan 2001 02:56:05 -0500
-From: Rusty Russell <rusty@linuxcare.com.au>
-To: torvalds@transmeta.com
-cc: linux-kernel@vger.kernel.org, netfilter@us5.samba.org
-Subject: [PATCH] ipt_TOS fix.
-Date: Mon, 29 Jan 2001 18:55:56 +1100
-Message-Id: <E14N9AL-0003qv-00@halfway>
+	id <S130281AbRA2IVa>; Mon, 29 Jan 2001 03:21:30 -0500
+Received: from snowbird.megapath.net ([216.200.176.7]:35597 "EHLO
+	megapathdsl.net") by vger.kernel.org with ESMTP id <S129874AbRA2IVU>;
+	Mon, 29 Jan 2001 03:21:20 -0500
+Message-ID: <3A75289F.FF6C9B78@snowbird.megapath.net>
+Date: Mon, 29 Jan 2001 00:23:59 -0800
+From: Miles Lane <miles@snowbird.megapath.net>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.4.0-ac12 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: 2.4.1-pre11 -- Unresolved symbols in smctr.o and comx.o (fixed in Alan's 
+ tree).
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus, please apply v2.4.0.
+Hi Linus,
 
-ipt_TOS checksum calculations were completely broken, causing bad csum
-packets.  Whoever implemented it didn't understand the code it was
-copied from.
+Do you plan to take a patch from Alan that fixes this for 2.4.1?
 
-This fixes the problem (tested in userspace against all TOS changes).
-
-Rusty.
---
-Premature optmztion is rt of all evl. --DK
-
-diff -urN -I \$.*\$ -X /tmp/kerndiff.ZtZl97 --minimal linux-2.4.0-official/net/ipv4/netfilter/ipt_TOS.c working-2.4.0/net/ipv4/netfilter/ipt_TOS.c
---- linux-2.4.0-official/net/ipv4/netfilter/ipt_TOS.c	Fri Apr 28 08:43:15 2000
-+++ working-2.4.0/net/ipv4/netfilter/ipt_TOS.c	Mon Jan 29 18:40:37 2001
-@@ -19,11 +19,11 @@
- 	const struct ipt_tos_target_info *tosinfo = targinfo;
- 
- 	if ((iph->tos & IPTOS_TOS_MASK) != tosinfo->tos) {
--		u_int8_t diffs[2];
-+		u_int16_t diffs[2];
- 
--		diffs[0] = iph->tos;
-+		diffs[0] = htons(iph->tos) ^ 0xFFFF;
- 		iph->tos = (iph->tos & IPTOS_PREC_MASK) | tosinfo->tos;
--		diffs[1] = iph->tos;
-+		diffs[1] = htons(iph->tos);
- 		iph->check = csum_fold(csum_partial((char *)diffs,
- 		                                    sizeof(diffs),
- 		                                    iph->check^0xFFFF));
+depmod: *** Unresolved symbols in
+/lib/modules/2.4.1-pre11/kernel/drivers/net/tokenring/smctr.o
+depmod: 	__bad_udelay
+depmod: *** Unresolved symbols in
+/lib/modules/2.4.1-pre11/kernel/drivers/net/wan/comx.o
+depmod: 	proc_get_inode
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,43 +1,101 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262056AbVBPP7z@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262057AbVBPQDz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262056AbVBPP7z (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 16 Feb 2005 10:59:55 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262057AbVBPP7y
+	id S262057AbVBPQDz (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 16 Feb 2005 11:03:55 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262068AbVBPQDz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 16 Feb 2005 10:59:54 -0500
-Received: from bay-bridge.veritas.com ([143.127.3.10]:8933 "EHLO
-	MTVMIME01.enterprise.veritas.com") by vger.kernel.org with ESMTP
-	id S262056AbVBPP7l (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 16 Feb 2005 10:59:41 -0500
-Date: Wed, 16 Feb 2005 15:58:45 +0000 (GMT)
-From: Hugh Dickins <hugh@veritas.com>
-X-X-Sender: hugh@goblin.wat.veritas.com
-To: Mauricio Lin <mauriciolin@gmail.com>
-cc: "Richard F. Rebel" <rrebel@whenu.com>, linux-kernel@vger.kernel.org,
-       Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-Subject: Re: /proc/*/statm, exactly what does "shared" mean?
-In-Reply-To: <3f250c7105021607022362013c@mail.gmail.com>
-Message-ID: <Pine.LNX.4.61.0502161554070.18344@goblin.wat.veritas.com>
-References: <1108161173.32711.41.camel@rebel.corp.whenu.com> 
-    <Pine.LNX.4.61.0502121158190.18829@goblin.wat.veritas.com> 
-    <1108219160.12693.184.camel@blue.obulous.org> 
-    <Pine.LNX.4.61.0502121509170.19562@goblin.wat.veritas.com> 
-    <3f250c710502160241222dce47@mail.gmail.com> 
-    <Pine.LNX.4.61.0502161142240.17264@goblin.wat.veritas.com> 
-    <3f250c7105021607022362013c@mail.gmail.com>
+	Wed, 16 Feb 2005 11:03:55 -0500
+Received: from postino4.roma1.infn.it ([141.108.26.24]:53643 "EHLO
+	postino4.roma1.infn.it") by vger.kernel.org with ESMTP
+	id S262057AbVBPQCm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 16 Feb 2005 11:02:42 -0500
+Message-ID: <42136E9F.1060804@roma1.infn.it>
+Date: Wed, 16 Feb 2005 17:02:39 +0100
+From: Davide Rossetti <davide.rossetti@roma1.infn.it>
+User-Agent: Mozilla Thunderbird  (X11/20041216)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+To: linux-kernel@vger.kernel.org
+Subject: workqueues and schedule()
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-AntiVirus: checked by Vexira Milter 1.0.6; VAE 6.29.0.5; VDF 6.29.0.128
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 16 Feb 2005, Mauricio Lin wrote:
-> 
-> Thanks by your suggestion. I did not know that kernel 2.4.29 has
-> changed the statm implementation. As I can see the statm
-> implementation is different between 2.4 and 2.6.
-> 
-> Let me see if I can use the 2.4.29 statm idea to improve the smaps for
-> kernel 2.6.11-rc.
+<environment>
+I'm authoring a (GPL) driver for a custom 3D network card.
+</environment>
 
-(2.4.29 made no changes there, I think it's unchanged between 2.4.0 and
- 2.4.29.  It was 2.5.37 and later 2.5 and 2.6 developments that changed it.)
+on calling some polling functions from within a workqueue, I'm getting 
+lockups... sysrq-p got it clear I have a workqueue thread down into 
+schedule_timeout().
+is considered polite to call schedule ? is in_softirq() capable to diff 
+workqueue/normal case ?
+
+static int __apedev_hdrring_poll_end_dma(ApeDev* apedev, struct 
+ApeHdrRing* ring)
+{
+    int ret = 0;
+    int counter;
+
+    APE_BUG_ON(0 == ring);
+    APE_BUG_ON(0 == apedev);   
+   
+    // here I poll on the rwbuf memory content till dma is done
+    ndelay(5*HZPCI);
+    APEDEV_COUNTER_INC(apedev, hdrring_poll_ndelay_cnt);
+    counter = 0;
+    while(1) {
+        if(0 != __apedev_hdrring_check_magic(apedev, ring))
+            break;
+
+        counter++;
+        ndelay(20*HZPCI);
+        if(0 == counter % 512) {
+            APEDEV_COUNTER_INC(apedev, hdrring_poll_ndelay_cnt);
+            ndelay(50*HZPCI);
+        }
+        if(counter==2048*16) { // time past is 2048*16/512*50HZPCI
+            PDEBUG("counter overflows 2048*16, delaying 1 jiffy\n");
+
+            set_current_state(TASK_UNINTERRUPTIBLE);
+            schedule_timeout(MAX(HZ/100,1));            //<----
+
+            counter = 0;
+            APEDEV_COUNTER_INC(apedev, hdrring_poll_resched_cnt);
+        }
+        if(signal_pending(current)) {
+            PERROR("GOT SIGNAL!!!\n");
+            //apedev_v3_dump_regs(apedev);
+            ret = -EINTR;
+            goto err;
+        }
+    }
+ err:
+    return ret;
+}
+
+// fast path
+static inline int apedev_hdrring_poll_end_dma(ApeDev* apedev, struct 
+ApeHdrRing* ring)
+{
+    int ret = 0;
+    int retcode;
+
+    APE_BUG_ON(0 == ring);
+    APE_BUG_ON(0 == apedev);   
+   
+    retcode = __apedev_hdrring_check_magic(apedev, ring);
+    if(retcode < 0) {
+        PERROR("error in check_magic\n");
+        ret = retcode;
+        // exit with true...
+    } else if(ret==0) {
+        ret = __apedev_hdrring_poll_end_dma(apedev, ring);
+        PDEBUG("ret=%d\n", ret);
+    }
+    return ret;
+}
+
+

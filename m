@@ -1,39 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129664AbQKQT3Q>; Fri, 17 Nov 2000 14:29:16 -0500
+	id <S130760AbQKQTbQ>; Fri, 17 Nov 2000 14:31:16 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130594AbQKQT3G>; Fri, 17 Nov 2000 14:29:06 -0500
-Received: from mhaaksma-3.dsl.speakeasy.net ([64.81.17.226]:55051 "EHLO
-	mail.neruo.com") by vger.kernel.org with ESMTP id <S129664AbQKQT2z>;
-	Fri, 17 Nov 2000 14:28:55 -0500
-Subject: Re: APM oops with Dell 5000e laptop
-From: Brad Douglas <brad@neruo.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: alan@lxorguk.ukuu.org.uk, dax@gurulabs.com, linux-kernel@vger.kernel.org
-In-Reply-To: <E13wj4s-0000U0-00@the-village.bc.nu>
-Content-Type: text/plain
-X-Mailer: Evolution 0.6 (Developer Preview)
-Date: 18 Nov 2000 02:57:16 +0800
-Mime-Version: 1.0
-Message-Id: <20001117192856Z129664-28370+57@vger.kernel.org>
+	id <S130891AbQKQTbG>; Fri, 17 Nov 2000 14:31:06 -0500
+Received: from sunik.pagi.pl ([212.69.64.193]:457 "EHLO sunik.pagi.pl")
+	by vger.kernel.org with ESMTP id <S130886AbQKQTax>;
+	Fri, 17 Nov 2000 14:30:53 -0500
+Date: Fri, 17 Nov 2000 20:05:56 +0100 (CET)
+From: Cezary Kaliszyk <kaliszyk@pagi.pl>
+To: Linux Kernel List <linux-kernel@vger.kernel.org>
+Subject: BUG with no HOTPLUG set.
+Message-ID: <Pine.Lnx.4.21.0011171951530.1303-100000@orka.wrzos>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > I don't believe doing this just to make a Dell detect properly is the right way to go (regardless of my bias).  I think the best we can do build a list of the systems that are the same, but it's certainly not a preferred way.
-> > 
-> > Any suggestions?
-> 
-> The ideal approach is to ident and version id the compal bios. The DMI tables
-> can include more useful BIOS info but rarely do (you might want to dump all the
-> DMI tables in your box and see if you have a BIOS vendor/version)
+When I try to compile 2.4.0test11pre6 without HOTPLUG make says:
 
-The BIOS revisions seem to match up, but there are already multiple versions of the BIOS for this machine already, so I initially discounted that method.  It also means a bit of upkeep, too.
-I was really hoping for a "set it and forget it" approach, but that doesn't seem possible.
+gcc -D__KERNEL__ -I/usr/src/linux-2.4/include -Wall -Wstrict-prototypes
+-O2 -fomit-frame-pointer -fno-strict-aliasing -pipe
+-mpreferred-stack-boundary=2 -march=i686    -c -o dev.o dev.c
+dev.c: In function `run_sbin_hotplug':
+dev.c:2736: `hotplug_path' undeclared (first use in this function)
+dev.c:2736: (Each undeclared identifier is reported only once
+dev.c:2736: for each function it appears in.)
+make[3]: *** [dev.o] Error 1
+make[3]: Leaving directory `/usr/src/linux-2.4/net/core'
+make[2]: *** [first_rule] Error 2
+make[2]: Leaving directory `/usr/src/linux-2.4/net/core'
+make[1]: *** [_subdir_core] Error 2
+make[1]: Leaving directory `/usr/src/linux-2.4/net'
+make: *** [_dir_net] Error 2
 
-Brad Douglas
-brad@neruo.com
-brad@tuxtops.com
-
+It looks like /net/core/dev.c should add functions like run_sbin_hotplug
+only if CONFIG_HOTPLUG is set.
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

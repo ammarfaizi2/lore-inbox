@@ -1,36 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S279067AbRJVXOC>; Mon, 22 Oct 2001 19:14:02 -0400
+	id <S279074AbRJVXTK>; Mon, 22 Oct 2001 19:19:10 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S279074AbRJVXMP>; Mon, 22 Oct 2001 19:12:15 -0400
-Received: from zero.tech9.net ([209.61.188.187]:43018 "EHLO zero.tech9.net")
-	by vger.kernel.org with ESMTP id <S279067AbRJVXLJ>;
-	Mon, 22 Oct 2001 19:11:09 -0400
-Subject: Re: [PATCH] updated preempt-kernel
-From: Robert Love <rml@tech9.net>
-To: elko <elko@home.nl>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <0110222243171D.05096@ElkOS>
-In-Reply-To: <1003562833.862.65.camel@phantasy> <01102014441400.00692@ElkOS>
-	 <0110222243171D.05096@ElkOS>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution/0.16.99+cvs.2001.10.18.15.19 (Preview Release)
-Date: 22 Oct 2001 19:11:15 -0400
-Message-Id: <1003792292.1496.65.camel@phantasy>
-Mime-Version: 1.0
+	id <S279075AbRJVXTA>; Mon, 22 Oct 2001 19:19:00 -0400
+Received: from ns1.system-techniques.com ([199.33.245.254]:7684 "EHLO
+	filesrv1.baby-dragons.com") by vger.kernel.org with ESMTP
+	id <S279074AbRJVXSu>; Mon, 22 Oct 2001 19:18:50 -0400
+Date: Mon, 22 Oct 2001 19:18:38 -0400 (EDT)
+From: "Mr. James W. Laferriere" <babydr@baby-dragons.com>
+To: "David S. Miller" <davem@redhat.com>
+cc: <sten@blinkenlights.nl>, <linux-kernel@vger.kernel.org>
+Subject: Re: INIT_MMAP on sparc64
+In-Reply-To: <20011021.181523.112610375.davem@redhat.com>
+Message-ID: <Pine.LNX.4.33.0110221917150.1522-100000@filesrv1.baby-dragons.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2001-10-22 at 16:43, elko wrote:
-> My current conclusion: this combination of kernel and patches
-> is the  most responsive I've ever used, normally, when I run
-> these command's, my systems would freeze to the point I had
-> to give them the VNP.
 
-Excellent.  Give a lot of credit to Rik too because his VM work has
-relieved a lot of thrashing/storming in high-load situations such as
-yours.
+	Hello Dave ,
 
-	Robert Love
+On Sun, 21 Oct 2001, David S. Miller wrote:
+> DRI works perfectly fine in my current sources, patches below.
+>
+> Wrt the 3.5MB size limitation, use modules man.
+  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+	Why man ! ,  Alpha does not have this limit ?  Why Sparc ?
+	THese are valid ?'s I beleive .  Tia ,  JimL
+
+       +------------------------------------------------------------------+
+       | James   W.   Laferriere | System    Techniques | Give me VMS     |
+       | Network        Engineer |     P.O. Box 854     |  Give me Linux  |
+       | babydr@baby-dragons.com | Coudersport PA 16915 |   only  on  AXP |
+       +------------------------------------------------------------------+
 

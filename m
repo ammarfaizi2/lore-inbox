@@ -1,22 +1,22 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263289AbVCEAhN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263066AbVCEAU2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263289AbVCEAhN (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 4 Mar 2005 19:37:13 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263485AbVCEA2u
+	id S263066AbVCEAU2 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 4 Mar 2005 19:20:28 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263396AbVCEARr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 4 Mar 2005 19:28:50 -0500
-Received: from fire.osdl.org ([65.172.181.4]:708 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S263183AbVCEAXf (ORCPT
+	Fri, 4 Mar 2005 19:17:47 -0500
+Received: from fire.osdl.org ([65.172.181.4]:19386 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S263264AbVCDXoB (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 4 Mar 2005 19:23:35 -0500
-Date: Fri, 4 Mar 2005 16:23:31 -0800
+	Fri, 4 Mar 2005 18:44:01 -0500
+Date: Fri, 4 Mar 2005 15:43:46 -0800
 From: Andrew Morton <akpm@osdl.org>
 To: Badari Pulavarty <pbadari@us.ibm.com>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] 2.6.11-mm1 "nobh" support for ext3 writeback mode
-Message-Id: <20050304162331.4a7dfdb8.akpm@osdl.org>
-In-Reply-To: <1109980952.7236.39.camel@dyn318077bld.beaverton.ibm.com>
-References: <1109980952.7236.39.camel@dyn318077bld.beaverton.ibm.com>
+Subject: Re: [PATCH] 2.6.11-mm1 ext3 writepages support for writeback mode
+Message-Id: <20050304154346.488b0a14.akpm@osdl.org>
+In-Reply-To: <1109978510.7236.18.camel@dyn318077bld.beaverton.ibm.com>
+References: <1109978510.7236.18.camel@dyn318077bld.beaverton.ibm.com>
 X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
@@ -26,48 +26,25 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 Badari Pulavarty <pbadari@us.ibm.com> wrote:
 >
-> @@ -1646,13 +1659,34 @@ static int ext3_block_truncate_page(hand
->  	unsigned blocksize, iblock, length, pos;
->  	struct inode *inode = mapping->host;
->  	struct buffer_head *bh;
-> -	int err;
-> +	int err = 0;
->  	void *kaddr;
->  
->  	blocksize = inode->i_sb->s_blocksize;
->  	length = blocksize - (offset & (blocksize - 1));
->  	iblock = index << (PAGE_CACHE_SHIFT - inode->i_sb->s_blocksize_bits);
->  
-> +	if (test_opt(inode->i_sb, NOBH) && !page_has_buffers(page)) {
-> +		if (!PageUptodate(page)) {
-> +			err = mpage_readpage(page, ext3_get_block);
-> +			if ((err == 0) && !PageUptodate(page))
-> +				wait_on_page_locked(page);
-> +			lock_page(page);
-> +		}
-> +		if (err == 0 && PageUptodate(page)) {
-> +			kaddr = kmap_atomic(page, KM_USER0);
-> +			memset(kaddr + offset, 0, length);
-> +			flush_dcache_page(page);
-> +			kunmap_atomic(kaddr, KM_USER0);
-> +			set_page_dirty(page);
-> +			goto unlock;
-> +		}
-> +		/* 
+> Hi Andrew,
+> 
+> Here is the 2.6.11-mm1 patch for adding writepages support
+> for ext3 writeback mode. Could you include it in -mm tree ?
 
-What's all this doing?  (It needs comments please - it's very unobvious).
+spose so.  Does it work?
 
-Dropping and reacquiring the page lock in the middle of the truncate there
-is a bit of a worry - need to think about that.
+Do you have any benchmarking results handy?
 
-Err, yes, it's buggy - page reclaim can come in, grab the page lock and
-whip the page off the mapping.  We end up with an anonymous page and we
-then start trying to write it into the file and all sorts of things.
+> +static int
+> +ext3_writeback_writepages(struct address_space *mapping, 
+> +				struct writeback_control *wbc)
+> +{
+> +	struct inode *inode = mapping->host;
+> +	handle_t *handle = NULL;
+> +	int err, ret = 0;
+> +
+> +	if (!mapping_tagged(mapping, PAGECACHE_TAG_DIRTY))
+> +		return ret;
 
-
-This bit:
-
-			if ((err == 0) && !PageUptodate(page))
-				wait_on_page_locked(page);
-
-can simply be removed.  We're about to lock the page anyway.
+Can we please add a comment explaining why this is here?  I've already
+forgotten why we put it there.

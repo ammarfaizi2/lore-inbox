@@ -1,69 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263289AbUCNFVQ (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 14 Mar 2004 00:21:16 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263290AbUCNFVQ
+	id S263290AbUCNFX0 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 14 Mar 2004 00:23:26 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263292AbUCNFX0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 14 Mar 2004 00:21:16 -0500
-Received: from [213.227.237.65] ([213.227.237.65]:19840 "EHLO
-	berloga.shadowland") by vger.kernel.org with ESMTP id S263289AbUCNFVO convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 14 Mar 2004 00:21:14 -0500
-Subject: Re: possible kernel bug in signal transit.
-From: Alex Lyashkov <shadow@psoft.net>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20040313210051.6b4a2846.akpm@osdl.org>
-References: <1079197336.13835.15.camel@berloga.shadowland>
-	 <20040313171856.37b32e52.akpm@osdl.org>
-	 <1079239159.8186.24.camel@berloga.shadowland>
-	 <20040313210051.6b4a2846.akpm@osdl.org>
-Content-Type: text/plain; charset=KOI8-R
-Content-Transfer-Encoding: 8BIT
-Organization: PSoft
-Message-Id: <1079241668.8186.33.camel@berloga.shadowland>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 (1.4.5-1) 
-Date: Sun, 14 Mar 2004 07:21:08 +0200
+	Sun, 14 Mar 2004 00:23:26 -0500
+Received: from mail023.syd.optusnet.com.au ([211.29.132.101]:19675 "EHLO
+	mail023.syd.optusnet.com.au") by vger.kernel.org with ESMTP
+	id S263290AbUCNFXX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 14 Mar 2004 00:23:23 -0500
+From: Peter Chubb <peter@chubb.wattle.id.au>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <16467.60450.471487.490560@wombat.chubb.wattle.id.au>
+Date: Sun, 14 Mar 2004 16:22:42 +1100
+To: William Lee Irwin III <wli@holomorphy.com>
+CC: Andi Kleen <ak@suse.de>, Ray Bryant <raybry@sgi.com>,
+       lse-tech@lists.sourceforge.net,
+       "linux-ia64@vger.kernel.org" <linux-ia64@vger.kernel.org>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [Lse-tech] Re: Hugetlbpages in very large memory machines.......
+In-Reply-To: <20040314000506.GE655@holomorphy.com>
+References: <40528383.10305@sgi.com>
+	<20040313034840.GF4638@wotan.suse.de>
+	<20040313054910.GA655@holomorphy.com>
+	<20040313161010.GB15118@wotan.suse.de>
+	<20040314000506.GE655@holomorphy.com>
+X-Mailer: VM 7.17 under 21.4 (patch 15) "Security Through Obscurity" XEmacs Lucid
+Comments: Hyperbole mail buttons accepted, v04.18.
+X-Face: GgFg(Z>fx((4\32hvXq<)|jndSniCH~~$D)Ka:P@e@JR1P%Vr}EwUdfwf-4j\rUs#JR{'h#
+ !]])6%Jh~b$VA|ALhnpPiHu[-x~@<"@Iv&|%R)Fq[[,(&Z'O)Q)xCqe1\M[F8#9l8~}#u$S$Rm`S9%
+ \'T@`:&8>Sb*c5d'=eDYI&GF`+t[LfDH="MP5rwOO]w>ALi7'=QJHz&y&C&TE_3j!
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-В Вск, 14.03.2004, в 07:00, Andrew Morton пишет:
-> Alex Lyashkov <shadow@psoft.net> wrote:
-> >
-> > > Thanks for checking though..
-> >  No. it can`t return final non-zero-returning group_send_sig_info() if
-> >  first call group_send_sig_info return 0.
-> 
-> you're right.   How about the nice and simple version?
-> 
-> int __kill_pg_info(int sig, struct siginfo *info, pid_t pgrp)
-> {
-> 	struct task_struct *p;
-> 	struct list_head *l;
-> 	struct pid *pid;
-> 	int retval;
-> 	int found;
-> 
-> 	if (pgrp <= 0)
-> 		return -EINVAL;
-> 
-> 	found = 0;
-> 	retval = 0;
-> 	for_each_task_pid(pgrp, PIDTYPE_PGID, p, l, pid) {
-> 		int err;
-> 
-> 		found = 1;
-> 		err = group_send_sig_info(sig, info, p);
-> 		if (!retval)
-> 			retval = err;
-> 	}
-> 	return found ? retval : -ESRCH;
-> }
-not. it error. At this code you save first non zero value err but other
-been ignored.
+>>>>> "William" == William Lee Irwin, <William> writes:
 
+William> At some point in the past, I wrote:
 
--- 
-Alex Lyashkov <shadow@psoft.net>
-PSoft
+William> On Sat, Mar 13, 2004 at 05:10:10PM +0100, Andi Kleen wrote:
+>> Redesigning the low level TLB fault handling for this would not
+>> count as "easily" in my book.
+
+William> I make no estimate of ease of implementation of long mode
+William> VHPT support.  The point of the above is that the virtual
+William> placement constraint is an artifact of the implementation and
+William> not inherent in hardware.
+
+Ther's a patch available to enable long-format VHPT at
+www.gelato.unsw.edu.au
+
+We're waiting for 2.7 to open before pushing it in. The long-format
+vpht is a prerequisite for other work we're doing on super-pagesand
+TLB sharing.
+
+--
+Dr Peter Chubb  http://www.gelato.unsw.edu.au  peterc AT gelato.unsw.edu.au
+The technical we do immediately,  the political takes *forever*

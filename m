@@ -1,33 +1,33 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261619AbUKOPSd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261621AbUKOPVJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261619AbUKOPSd (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 15 Nov 2004 10:18:33 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261618AbUKOPRk
+	id S261621AbUKOPVJ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 15 Nov 2004 10:21:09 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261623AbUKOPVJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 15 Nov 2004 10:17:40 -0500
-Received: from clock-tower.bc.nu ([81.2.110.250]:21986 "EHLO
+	Mon, 15 Nov 2004 10:21:09 -0500
+Received: from clock-tower.bc.nu ([81.2.110.250]:22754 "EHLO
 	localhost.localdomain") by vger.kernel.org with ESMTP
-	id S261619AbUKOPRD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 15 Nov 2004 10:17:03 -0500
-Subject: Re: source address for UDP broadcasts with aliased interfaces?
+	id S261622AbUKOPSt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 15 Nov 2004 10:18:49 -0500
+Subject: Re: SATA II 150 TX4 module
 From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Daniel Risacher <magnus@alum.mit.edu>
+To: Christophe Bienaime <christophe@hyp-net.com>
 Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <87lld6n3ep.fsf@m5.risacher.org>
-References: <87lld6n3ep.fsf@m5.risacher.org>
+In-Reply-To: <419696C2.7020407@hyp-net.com>
+References: <419696C2.7020407@hyp-net.com>
 Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-Message-Id: <1100528031.27202.0.camel@localhost.localdomain>
+Message-Id: <1100528138.27208.2.camel@localhost.localdomain>
 Mime-Version: 1.0
 X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Mon, 15 Nov 2004 14:13:52 +0000
+Date: Mon, 15 Nov 2004 14:15:40 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Gwe, 2004-11-12 at 21:49, Daniel Risacher wrote:
-> I'm not sure if this is a bug or a feature.
+On Sad, 2004-11-13 at 23:20, Christophe Bienaime wrote:
+> Hello,
+> I have bought a controller card Promise SATA II 150 TX4 (PDC 20265)
 
-Assuming the address provided is valid I would say bug. You should
-however post that query to netdev@oss.sgi.com - that is the networking
-list and has a lot more people on it who deal with the network layer
+Are you sure the chips on it are 20265 - the 20265 is a PATA controller
+and quite an old one.
 

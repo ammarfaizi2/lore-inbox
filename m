@@ -1,100 +1,86 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262239AbTHYV0i (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 25 Aug 2003 17:26:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262244AbTHYV0i
+	id S262244AbTHYV06 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 25 Aug 2003 17:26:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262245AbTHYV05
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 25 Aug 2003 17:26:38 -0400
-Received: from [217.16.69.3] ([217.16.69.3]:28588 "EHLO on.net.mk")
-	by vger.kernel.org with ESMTP id S262239AbTHYV0f (ORCPT
+	Mon, 25 Aug 2003 17:26:57 -0400
+Received: from 168.imtp.Ilyichevsk.Odessa.UA ([195.66.192.168]:49933 "HELO
+	127.0.0.1") by vger.kernel.org with SMTP id S262244AbTHYV0x (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 25 Aug 2003 17:26:35 -0400
-Message-ID: <3F4A7F2C.7080205@bagra.net.mk>
-Date: Mon, 25 Aug 2003 23:27:08 +0200
-From: =?UTF-8?B?0JTQsNC80ZjQsNC9INCT0LXQvtGA0LPQuNC10LLRgdC60Lg=?= 
-	<damjan@bagra.net.mk>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.5a) Gecko/20030708 Thunderbird/0.1a
-X-Accept-Language: en-us, en
+	Mon, 25 Aug 2003 17:26:53 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: insecure <insecure@mail.od.ua>
+Reply-To: insecure@mail.od.ua
+To: Jeff Garzik <jgarzik@pobox.com>, Linus Torvalds <torvalds@osdl.org>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: [PATCH] raceless request_region() fix (was Re: Linux 2.6.0-test4)
+Date: Tue, 26 Aug 2003 00:26:47 +0300
+X-Mailer: KMail [version 1.4]
+References: <Pine.LNX.4.44.0308221732170.4677-100000@home.osdl.org> <200308260020.21817.insecure@mail.od.ua>
+In-Reply-To: <200308260020.21817.insecure@mail.od.ua>
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-CC: trivial@rustcorp.com.au, dahinds@users.sourceforge.net
-Subject: Trivial patch for drivers/serial/8250_cs
-Content-Type: multipart/mixed;
- boundary="------------040202060401030800000401"
+Content-Transfer-Encoding: 7BIT
+Message-Id: <200308260026.47994.insecure@mail.od.ua>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------040202060401030800000401
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+On Tuesday 26 August 2003 00:20, insecure wrote:
+> >   o [arcnet com90io] replace check_region with temporary
+> >     request_region, in probe phase.
+>
+> check_region() is deprecated because it is racy.
+> Replacing it with request_region in probe:
+>
+> int probe() {
+> 	if(!request_region(...))
+> 		return 0;
+> 	/* probe */
+> 	release_region(...);
+> }
+>
+> int init() {
+> 	request_region(...);
+> }
+>
+> only removes 'deprecated' warning. Race remains.
 
-This patch is against 2.6.0-test4.
-It fixes the pcmcia serial driver to know its now called 8250_cs and not 
-serial_cs...
+Corrected com90io.c patch is below.
+-- 
+vda
 
-Without this patch 8250_cs compiles but doesn't work.
-All the patch does is change several "serial_cs" occurences to "8250_cs".
+--- linux-2.6.0-test4/drivers/net/arcnet/com90io.c.orig	Sat Aug 23 02:53:52 2003
++++ linux-2.6.0-test4/drivers/net/arcnet/com90io.c	Tue Aug 26 00:22:51 2003
+@@ -158,7 +158,7 @@
+ 		       "must specify the base address!\n");
+ 		return -ENODEV;
+ 	}
+-	if (!request_region(ioaddr, ARCNET_TOTAL_SIZE, "com90io probe")) {
++	if (!request_region(ioaddr, ARCNET_TOTAL_SIZE, "arcnet (COM90xx-IO)")) {
+ 		BUGMSG(D_INIT_REASONS, "IO check_region %x-%x failed.\n",
+ 		       ioaddr, ioaddr + ARCNET_TOTAL_SIZE - 1);
+ 		return -ENXIO;
+@@ -218,7 +218,6 @@
+ 			goto err_out;
+ 		}
+ 	}
+-	release_region(ioaddr, ARCNET_TOTAL_SIZE); /* end of probing */
+ 	return com90io_found(dev);
+ 
+ err_out:
+@@ -237,13 +236,9 @@
 
-PS.
-another possible sollution is to change everything (including the file 
-name) from "8250_cs" to "serial_cs" like it is in 2.4
+ 	/* Reserve the irq */
+ 	if (request_irq(dev->irq, &arcnet_interrupt, 0, "arcnet (COM90xx-IO)", dev)) {
++		release_region(dev->base_addr, ARCNET_TOTAL_SIZE);
+ 		BUGMSG(D_NORMAL, "Can't get IRQ %d!\n", dev->irq);
+ 		return -ENODEV;
+-	}
+-	/* Reserve the I/O region - guaranteed to work by check_region */
+-	if (!request_region(dev->base_addr, ARCNET_TOTAL_SIZE, "arcnet (COM90xx-IO)")) {
+-		free_irq(dev->irq, dev);
+-		return -EBUSY;
+ 	}
 
---------------040202060401030800000401
-Content-Type: text/plain;
- name="8250_cs.patch"
-Content-Transfer-Encoding: base64
-Content-Disposition: inline;
- filename="8250_cs.patch"
-
-LS0tIDgyNTBfY3MuY34JMjAwMy0wOC0yNSAyMzoxMzo1MS4wMDAwMDAwMDAgKzAyMDAKKysr
-IDgyNTBfY3MuYwkyMDAzLTA4LTI1IDIyOjQ1OjE1LjAwMDAwMDAwMCArMDIwMApAQCAtMiw3
-ICsyLDcgQEAKIAogICAgIEEgZHJpdmVyIGZvciBQQ01DSUEgc2VyaWFsIGRldmljZXMKIAot
-ICAgIHNlcmlhbF9jcy5jIDEuMTM0IDIwMDIvMDUvMDQgMDU6NDg6NTMKKyAgICA4MjUwX2Nz
-LmMgMS4xMzQgMjAwMi8wNS8wNCAwNTo0ODo1MwogCiAgICAgVGhlIGNvbnRlbnRzIG9mIHRo
-aXMgZmlsZSBhcmUgc3ViamVjdCB0byB0aGUgTW96aWxsYSBQdWJsaWMKICAgICBMaWNlbnNl
-IFZlcnNpb24gMS4xICh0aGUgIkxpY2Vuc2UiKTsgeW91IG1heSBub3QgdXNlIHRoaXMgZmls
-ZQpAQCAtNTgsNyArNTgsNyBAQAogc3RhdGljIGludCBwY19kZWJ1ZyA9IFBDTUNJQV9ERUJV
-RzsKIE1PRFVMRV9QQVJNKHBjX2RlYnVnLCAiaSIpOwogI2RlZmluZSBERUJVRyhuLCBhcmdz
-Li4uKSBpZiAocGNfZGVidWc+KG4pKSBwcmludGsoS0VSTl9ERUJVRyBhcmdzKQotc3RhdGlj
-IGNoYXIgKnZlcnNpb24gPSAic2VyaWFsX2NzLmMgMS4xMzQgMjAwMi8wNS8wNCAwNTo0ODo1
-MyAoRGF2aWQgSGluZHMpIjsKK3N0YXRpYyBjaGFyICp2ZXJzaW9uID0gIjgyNTBfY3MuYyAx
-LjEzNCAyMDAyLzA1LzA0IDA1OjQ4OjUzIChEYXZpZCBIaW5kcykiOwogI2Vsc2UKICNkZWZp
-bmUgREVCVUcobiwgYXJncy4uLikKICNlbmRpZgpAQCAtMTE2LDcgKzExNiw3IEBACiBzdGF0
-aWMgaW50IHNlcmlhbF9ldmVudChldmVudF90IGV2ZW50LCBpbnQgcHJpb3JpdHksCiAJCQll
-dmVudF9jYWxsYmFja19hcmdzX3QgKiBhcmdzKTsKIAotc3RhdGljIGRldl9pbmZvX3QgZGV2
-X2luZm8gPSAic2VyaWFsX2NzIjsKK3N0YXRpYyBkZXZfaW5mb190IGRldl9pbmZvID0gIjgy
-NTBfY3MiOwogCiBzdGF0aWMgZGV2X2xpbmtfdCAqc2VyaWFsX2F0dGFjaCh2b2lkKTsKIHN0
-YXRpYyB2b2lkIHNlcmlhbF9kZXRhY2goZGV2X2xpbmtfdCAqKTsKQEAgLTI4MSw3ICsyODEs
-NyBAQAogCQlzZXJpYWwuZmxhZ3MgfD0gVVBGX0JVR0dZX1VBUlQ7CiAJbGluZSA9IHJlZ2lz
-dGVyX3NlcmlhbCgmc2VyaWFsKTsKIAlpZiAobGluZSA8IDApIHsKLQkJcHJpbnRrKEtFUk5f
-Tk9USUNFICJzZXJpYWxfY3M6IHJlZ2lzdGVyX3NlcmlhbCgpIGF0IDB4JTA0bHgsIgorCQlw
-cmludGsoS0VSTl9OT1RJQ0UgIjgyNTBfY3M6IHJlZ2lzdGVyX3NlcmlhbCgpIGF0IDB4JTA0
-bHgsIgogCQkgICAgICAgIiBpcnEgJWQgZmFpbGVkXG4iLCAodV9sb25nKSBzZXJpYWwucG9y
-dCwgc2VyaWFsLmlycSk7CiAJCXJldHVybiAtRUlOVkFMOwogCX0KQEAgLTQwMSw3ICs0MDEs
-NyBAQAogICAgICAgZm91bmRfcG9ydDoKIAlpZiAoaSAhPSBDU19TVUNDRVNTKSB7CiAJCXBy
-aW50ayhLRVJOX05PVElDRQotCQkgICAgICAgInNlcmlhbF9jczogbm8gdXNhYmxlIHBvcnQg
-cmFuZ2UgZm91bmQsIGdpdmluZyB1cFxuIik7CisJCSAgICAgICAiODI1MF9jczogbm8gdXNh
-YmxlIHBvcnQgcmFuZ2UgZm91bmQsIGdpdmluZyB1cFxuIik7CiAJCWNzX2Vycm9yKGxpbmst
-PmhhbmRsZSwgUmVxdWVzdElPLCBpKTsKIAkJcmV0dXJuIC0xOwogCX0KQEAgLTQ5Nyw3ICs0
-OTcsNyBAQAogCWkgPSBDYXJkU2VydmljZXMoUmVxdWVzdElSUSwgbGluay0+aGFuZGxlLCAm
-bGluay0+aXJxKTsKIAlpZiAoaSAhPSBDU19TVUNDRVNTKSB7CiAJCXByaW50ayhLRVJOX05P
-VElDRQotCQkgICAgICAgInNlcmlhbF9jczogbm8gdXNhYmxlIHBvcnQgcmFuZ2UgZm91bmQs
-IGdpdmluZyB1cFxuIik7CisJCSAgICAgICAiODI1MF9jczogbm8gdXNhYmxlIHBvcnQgcmFu
-Z2UgZm91bmQsIGdpdmluZyB1cFxuIik7CiAJCWNzX2Vycm9yKGxpbmstPmhhbmRsZSwgUmVx
-dWVzdElSUSwgaSk7CiAJCWxpbmstPmlycS5Bc3NpZ25lZElSUSA9IDA7CiAJfQpAQCAtNjg2
-LDE4ICs2ODYsMTggQEAKIHN0YXRpYyBzdHJ1Y3QgcGNtY2lhX2RyaXZlciBzZXJpYWxfY3Nf
-ZHJpdmVyID0gewogCS5vd25lcgkJPSBUSElTX01PRFVMRSwKIAkuZHJ2CQk9IHsKLQkJLm5h
-bWUJPSAic2VyaWFsX2NzIiwKKwkJLm5hbWUJPSAiODI1MF9jcyIsCiAJfSwKIAkuYXR0YWNo
-CQk9IHNlcmlhbF9hdHRhY2gsCiAJLmRldGFjaAkJPSBzZXJpYWxfZGV0YWNoLAogfTsKIAot
-c3RhdGljIGludCBfX2luaXQgaW5pdF9zZXJpYWxfY3Modm9pZCkKK3N0YXRpYyBpbnQgX19p
-bml0IGluaXRfODI1MF9jcyh2b2lkKQogewogCXJldHVybiBwY21jaWFfcmVnaXN0ZXJfZHJp
-dmVyKCZzZXJpYWxfY3NfZHJpdmVyKTsKIH0KIAotc3RhdGljIHZvaWQgX19leGl0IGV4aXRf
-c2VyaWFsX2NzKHZvaWQpCitzdGF0aWMgdm9pZCBfX2V4aXQgZXhpdF84MjUwX2NzKHZvaWQp
-CiB7CiAJcGNtY2lhX3VucmVnaXN0ZXJfZHJpdmVyKCZzZXJpYWxfY3NfZHJpdmVyKTsKIApA
-QCAtNzA2LDcgKzcwNiw3IEBACiAJCXNlcmlhbF9kZXRhY2goZGV2X2xpc3QpOwogfQogCi1t
-b2R1bGVfaW5pdChpbml0X3NlcmlhbF9jcyk7Ci1tb2R1bGVfZXhpdChleGl0X3NlcmlhbF9j
-cyk7Cittb2R1bGVfaW5pdChpbml0XzgyNTBfY3MpOworbW9kdWxlX2V4aXQoZXhpdF84MjUw
-X2NzKTsKIAogTU9EVUxFX0xJQ0VOU0UoIkdQTCIpOwo=
---------------040202060401030800000401--
+ 	/* Initialize the rest of the device structure. */
 

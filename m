@@ -1,48 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S266077AbUAFGjK (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 Jan 2004 01:39:10 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266080AbUAFGjK
+	id S266081AbUAFGqV (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 Jan 2004 01:46:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S266084AbUAFGqV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 Jan 2004 01:39:10 -0500
-Received: from unthought.net ([212.97.129.88]:25311 "EHLO unthought.net")
-	by vger.kernel.org with ESMTP id S266077AbUAFGjI (ORCPT
+	Tue, 6 Jan 2004 01:46:21 -0500
+Received: from waste.org ([209.173.204.2]:25043 "EHLO waste.org")
+	by vger.kernel.org with ESMTP id S266081AbUAFGqU (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 Jan 2004 01:39:08 -0500
-Date: Tue, 6 Jan 2004 07:39:06 +0100
-From: Jakob Oestergaard <jakob@unthought.net>
-To: Bastiaan Spandaw <lkml@becobaf.com>
-Cc: Tomas Szepe <szepe@pinerecords.com>, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.1-rc1 affected?
-Message-ID: <20040106063906.GB27889@unthought.net>
-Mail-Followup-To: Jakob Oestergaard <jakob@unthought.net>,
-	Bastiaan Spandaw <lkml@becobaf.com>,
-	Tomas Szepe <szepe@pinerecords.com>, linux-kernel@vger.kernel.org
-References: <1073320318.21198.2.camel@midux> <Pine.LNX.4.58.0401050840290.21265@home.osdl.org> <1073326471.21338.21.camel@midux> <Pine.LNX.4.58.0401051027430.2115@home.osdl.org> <20040105193817.GA4366@lsc.hu> <20040105224855.GC4987@louise.pinerecords.com> <1073348624.1790.43.camel@louise3.void.org>
+	Tue, 6 Jan 2004 01:46:20 -0500
+Date: Tue, 6 Jan 2004 00:46:07 -0600
+From: Matt Mackall <mpm@selenic.com>
+To: Nick Piggin <piggin@cyberone.com.au>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>, Adrian Bunk <bunk@fs.tum.de>
+Subject: Re: 2.6.1-rc1-tiny2
+Message-ID: <20040106064607.GB18208@waste.org>
+References: <20040106054859.GA18208@waste.org> <3FFA56D6.6040808@cyberone.com.au>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1073348624.1790.43.camel@louise3.void.org>
+In-Reply-To: <3FFA56D6.6040808@cyberone.com.au>
 User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jan 06, 2004 at 01:23:44AM +0100, Bastiaan Spandaw wrote:
-...
-> Not sure if this works or not.
-> According to a slashdot comment this is proof of concept code.
+On Tue, Jan 06, 2004 at 05:33:58PM +1100, Nick Piggin wrote:
 > 
-> http://linuxfromscratch.org/~devine/mremap_poc.c
+> 
+> Matt Mackall wrote:
+> 
+> >This is the fourth release of the -tiny kernel tree. The aim of this
+> >tree is to collect patches that reduce kernel disk and memory
+> >footprint as well as tools for working on small systems. Target users
+> >are things like embedded systems, small or legacy desktop folks, and
+> >handhelds.
+> >
+> 
+> Have you considered Adrian Bunk's CPU selection rationalisation work?
 
-A few tests, all on IA32, all as non-root user:
+Vaguely aware of it.
 
-RedHat 5.2, (vanilla 2.0.39) = no effect
-RedHat 6.2, (vanilla 2.4.18) = instant reboot
-RedHat 7.2, (redhat 2.4.9-7) = instant reboot
-Debian 2.2, (vanilla 2.2.19) = no effect
-SuSE 7.3, (suse 2.4.10-4GB) = instant reboot
+> The last argument I heard against it was that there is lower hanging
+> fruit for size reduction. You seem to have got a lot of that.
 
-Cheers,
+Yes, a fair amount. Btw, what's the size differential for piggin-sched
+vs mainline?
 
- / jakob
-
+-- 
+Matt Mackall : http://www.selenic.com : Linux development and consulting

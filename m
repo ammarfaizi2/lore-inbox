@@ -1,90 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267330AbTBPTFt>; Sun, 16 Feb 2003 14:05:49 -0500
+	id <S267334AbTBPTJK>; Sun, 16 Feb 2003 14:09:10 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267334AbTBPTFt>; Sun, 16 Feb 2003 14:05:49 -0500
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:4370 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S267330AbTBPTFs>; Sun, 16 Feb 2003 14:05:48 -0500
-Date: Sun, 16 Feb 2003 19:15:43 +0000
-From: Russell King <rmk@arm.linux.org.uk>
-To: linux-kernel@vger.kernel.org, Linus Torvalds <torvalds@transmeta.com>
-Subject: Signal/gdb oddity in 2.5.61
-Message-ID: <20030216191543.D12489@flint.arm.linux.org.uk>
-Mail-Followup-To: linux-kernel@vger.kernel.org,
-	Linus Torvalds <torvalds@transmeta.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
+	id <S267335AbTBPTJK>; Sun, 16 Feb 2003 14:09:10 -0500
+Received: from dbl.q-ag.de ([80.146.160.66]:12735 "EHLO dbl.q-ag.de")
+	by vger.kernel.org with ESMTP id <S267334AbTBPTJK>;
+	Sun, 16 Feb 2003 14:09:10 -0500
+Message-ID: <3E4FE416.5040604@colorfullife.com>
+Date: Sun, 16 Feb 2003 20:18:46 +0100
+From: Manfred Spraul <manfred@colorfullife.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2) Gecko/20021202
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: "Martin J. Bligh" <mbligh@aracnet.com>
+CC: Linus Torvalds <torvalds@transmeta.com>, Anton Blanchard <anton@samba.org>,
+       Andrew Morton <akpm@digeo.com>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Zwane Mwaikambo <zwane@holomorphy.com>
+Subject: Re: Fw: 2.5.61 oops running SDET
+References: <Pine.LNX.4.44.0302161017500.2619-100000@home.transmeta.com> <26480000.1045422382@[10.10.2.4]>
+In-Reply-To: <26480000.1045422382@[10.10.2.4]>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Martin J. Bligh wrote:
 
-I'm seeing some weird behaviour with signal handling/gdb on 2.5.61:
+>Well, I did the stupid safe thing, and it hangs the box once we get up to 
+>a load of 32 with SDET. Below is what I did, the only other issue I can
+>see in here is that task_mem takes mm->mmap_sem which is now nested inside
+>the task_lock inside tasklist_lock ... but I can't see anywhere that's a
+>problem from a quick search
+>  
+>
+task_lock is actually &spin_lock(tsk->alloc_lock); mmap_sem is a 
+semaphore. Nesting means deadlock.
 
-[root@assabet /root]$cat /dev/zero > /dev/null &
-[1] 132
-[root@assabet /root]$gdb /bin/cat    
-GNU gdb 5.0
-Copyright 2000 Free Software Foundation, Inc.
-GDB is free software, covered by the GNU General Public License, and you are
-welcome to change it and/or distribute copies of it under certain conditions.
-Type "show copying" to see the conditions.
-There is absolutely no warranty for GDB.  Type "show warranty" for details.
-This GDB was configured as "armv4l-rmk-linux"...(no debugging symbols found)...
-(gdb) attach 132
-Attaching to program: /bin/cat, Pid 132
-Reading symbols from /lib/libc.so.6...(no debugging symbols found)...done.
-Loaded symbols for /lib/libc.so.6
-Reading symbols from /lib/ld-linux.so.2...(no debugging symbols found)...done.
-Loaded symbols for /lib/ld-linux.so.2
-0x20027a0 in _IO_putc ()
-(gdb) stepi
-
-Program received signal SIGSTOP, Stopped (signal).
-0x20027a0 in _IO_putc ()
-(gdb) 
-0x20027a4 in _IO_putc ()
-(gdb) 
-0x4008d154 in putc () from /lib/libc.so.6
-(gdb) quit
-
-Notice the "Program received signal SIGSTOP".
-
-Asking for the process list via <sysrq>t shows the following after
-attaching gdb:
-
-cat           T C023CE94 3263624   132    135                     (NOTLB)
-[<c023cb98>] (schedule+0x0/0x3a0)
-			from [<c024d020>] (get_signal_to_deliver+0x1c0/0x3e4)
-[<c024ce60>] (get_signal_to_deliver+0x0/0x3e4)
-			from [<c0226a00>] (do_signal+0x5c/0x13c)
-[<c02269a4>] (do_signal+0x0/0x13c)
-			from [<c0226b10>] (do_notify_resume+0x30/0x34)
-[<c0226ae0>] (do_notify_resume+0x0/0x34)
-			from [<c0222350>] (work_pending+0x1c/0x28)
-
-and after the first stepi:
-
-cat           T C023CE94 3263624   132    135                     (NOTLB)
-[<c023cb98>] (schedule+0x0/0x3a0)
-			from [<c024cbb4>] (finish_stop+0xb0/0xc8)
-[<c024cb04>] (finish_stop+0x0/0xc8)
-			from [<c024ce54>] (do_signal_stop+0x288/0x294)
-[<c024cbcc>] (do_signal_stop+0x0/0x294)
-			from [<c024d184>] (get_signal_to_deliver+0x324/0x3e4)
-[<c024ce60>] (get_signal_to_deliver+0x0/0x3e4)
-			from [<c0226a00>] (do_signal+0x5c/0x13c)
-[<c02269a4>] (do_signal+0x0/0x13c)
-			from [<c0226b10>] (do_notify_resume+0x30/0x34)
-[<c0226ae0>] (do_notify_resume+0x0/0x34)
-			from [<c0222350>] (work_pending+0x1c/0x28)
-
-subsequent stepi's appear as per the first trace above.
-
--- 
-Russell King (rmk@arm.linux.org.uk)                The developer of ARM Linux
-             http://www.arm.linux.org.uk/personal/aboutme.html
+--
+    Manfred
 

@@ -1,52 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263904AbUECT3y@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263937AbUECTcC@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263904AbUECT3y (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 3 May 2004 15:29:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263919AbUECT3y
+	id S263937AbUECTcC (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 3 May 2004 15:32:02 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263932AbUECTcC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 3 May 2004 15:29:54 -0400
-Received: from gprs214-205.eurotel.cz ([160.218.214.205]:6272 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S263904AbUECT3w (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 3 May 2004 15:29:52 -0400
-Date: Mon, 3 May 2004 21:29:41 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: Grzegorz Piotr Jaskiewicz <gj@pointblue.com.pl>
-Cc: Hamie <hamish@travellingkiwi.com>, linux-kernel@vger.kernel.org
-Subject: Re: uspend to Disk - Kernel 2.6.4 vs. r50p
-Message-ID: <20040503192940.GA3531@elf.ucw.cz>
-References: <20040429064115.9A8E814D@damned.travellingkiwi.com> <20040503123150.GA1188@openzaurus.ucw.cz> <40965DAA.4040504@pointblue.com.pl>
+	Mon, 3 May 2004 15:32:02 -0400
+Received: from phoenix.infradead.org ([213.86.99.234]:48905 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id S263937AbUECTb6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 3 May 2004 15:31:58 -0400
+Date: Mon, 3 May 2004 20:31:56 +0100
+From: Christoph Hellwig <hch@infradead.org>
+To: "Kevin P. Fleming" <kpfleming@backtobasicsmgmt.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [ANNOUNCE] linux-libc-headers 2.6.5.1
+Message-ID: <20040503203156.A14171@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	"Kevin P. Fleming" <kpfleming@backtobasicsmgmt.com>,
+	linux-kernel@vger.kernel.org
+References: <200405030111.49802.mmazur@kernel.pl> <20040503194757.A13711@infradead.org> <40969C87.4060804@backtobasicsmgmt.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <40965DAA.4040504@pointblue.com.pl>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.4i
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <40969C87.4060804@backtobasicsmgmt.com>; from kpfleming@backtobasicsmgmt.com on Mon, May 03, 2004 at 12:24:55PM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+On Mon, May 03, 2004 at 12:24:55PM -0700, Kevin P. Fleming wrote:
+> Mariusz' headers work really well; there are people building complete 
+> systems (X/KDE/GNOME/etc.) using them without any difficulties at this 
+> point.
 
-> >Use echo 4 > /proc/acpi/sleep, and vanilla kernels.
-> >
-> >			
-> >
-> What If it happends that I have T22 Thinkpad, and it doesn't work with 
-> ACPI in 2.6 (causes problems with network cards for some reason, long 
-> and not yet fixed bug in ACPI), and I don't have /proc/acpi. How can I 
-> use swsusp than ?
+The thing is they're still conceptually wrong.  Glibc should provide working
+and full-featured networking headers.
 
-I added entry to FAQ:
-
-Q: My machine doesn't work with ACPI. How can I use swsusp than ?
-
-A: Do reboot() syscall with right parameters. Warning: glibc gets in
-its way, so check with strace:
-
-reboot(LINUX_REBOOT_MAGIC1, LINUX_REBOOT_MAGIC2, 0xd000fce2)
-
-Ouch, and when you code that trivial program, send me source, I lost
-mine.
-								Pavel
--- 
-934a471f20d6580d5aad759bf0d97ddc

@@ -1,91 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263535AbUJ2U1z@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263545AbUJ2Udy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263535AbUJ2U1z (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 29 Oct 2004 16:27:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263537AbUJ2UYH
+	id S263545AbUJ2Udy (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 29 Oct 2004 16:33:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263519AbUJ2UdQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Oct 2004 16:24:07 -0400
-Received: from pfepa.post.tele.dk ([195.41.46.235]:21534 "EHLO
-	pfepa.post.tele.dk") by vger.kernel.org with ESMTP id S263521AbUJ2UMf
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Oct 2004 16:12:35 -0400
-Date: Sat, 30 Oct 2004 00:13:07 +0200
-From: Sam Ravnborg <sam@ravnborg.org>
-To: Doug Maxey <dwm@austin.ibm.com>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       linuxppc64-dev@ozlabs.org
-Subject: Re: 2.6.10-rc1-mm2
-Message-ID: <20041029221307.GB11016@mars.ravnborg.org>
-Mail-Followup-To: Doug Maxey <dwm@austin.ibm.com>,
-	Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-	linuxppc64-dev@ozlabs.org
-References: <20041029014930.21ed5b9a.akpm@osdl.org> <200410291955.i9TJtfaj014056@falcon10.austin.ibm.com>
+	Fri, 29 Oct 2004 16:33:16 -0400
+Received: from fw.osdl.org ([65.172.181.6]:9372 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S263526AbUJ2UWm (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 29 Oct 2004 16:22:42 -0400
+Date: Fri, 29 Oct 2004 13:20:16 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Chris Wright <chrisw@osdl.org>
+Cc: bunk@stusta.de, reiser@namesys.com, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.10-rc1-mm2: `key_init' multiple definition
+Message-Id: <20041029132016.272c30b2.akpm@osdl.org>
+In-Reply-To: <20041029103546.G14339@build.pdx.osdl.net>
+References: <20041029014930.21ed5b9a.akpm@osdl.org>
+	<20041029114511.GJ6677@stusta.de>
+	<20041029103546.G14339@build.pdx.osdl.net>
+X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200410291955.i9TJtfaj014056@falcon10.austin.ibm.com>
-User-Agent: Mutt/1.5.6i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Oct 29, 2004 at 02:55:41PM -0500, Doug Maxey wrote:
+Chris Wright <chrisw@osdl.org> wrote:
+>
+> * Adrian Bunk (bunk@stusta.de) wrote:
+> > On Fri, Oct 29, 2004 at 01:49:30AM -0700, Andrew Morton wrote:
+> > >...
+> > > Changes since 2.6.10-rc1-mm1:
+> > >...
+> > > +key_init-ordering-fix.patch
 > 
-> Andrew, 
+> I don't think this is needed.  The fix in Linus's tree should be
+> sufficient, which was simply:
 > 
-> having some troubles on ppc64.  It looks like the changes in
-> the scripts/Makefile.{clean,build} are expecting include/asm to
-> exist in the source tree.  I don't see any related file except the
-> include/asm-$ARCH/Kbuild
+> -subsys_initcall(key_init);
+> +security_initcall(key_init);
 
-Fix attached.
+Problem is with CONFIG_SECURITY=n, CONFIG_KEYS=y.  security_init() is a
+no-op and we go oops during the first usermodehelper call under
+driver_init().
 
-	Sam
-
-===== Makefile 1.546 vs edited =====
---- 1.546/Makefile	2004-10-27 23:00:25 +02:00
-+++ edited/Makefile	2004-10-29 23:05:42 +02:00
-@@ -761,7 +761,7 @@
- prepare1: prepare2 outputmakefile
- 
- prepare0: prepare1 include/linux/version.h include/asm include/config/MARKER
--	$(Q)$(MAKE) $(build)=$(srctree)/include/asm
-+	$(Q)$(MAKE) $(build)=include/asm-$(ARCH)
- ifneq ($(KBUILD_MODULES),)
- 	$(Q)rm -rf $(MODVERDIR)
- 	$(Q)mkdir -p $(MODVERDIR)
-===== include/asm-i386/Kbuild 1.1 vs edited =====
---- 1.1/include/asm-i386/Kbuild	2004-10-27 23:06:50 +02:00
-+++ edited/include/asm-i386/Kbuild	2004-10-29 01:44:08 +02:00
-@@ -11,7 +11,7 @@
- always  := offsets.h
- targets := offsets.s
- 
--CFLAGS_offsets.o := -I arch/i386/kernel
-+CFLAGS_offsets.o := -Iarch/i386/kernel
- 
- $(obj)/offsets.h: $(obj)/offsets.s FORCE
- 	$(call filechk,gen-asm-offsets, < $<)
-===== scripts/Makefile.build 1.51 vs edited =====
---- 1.51/scripts/Makefile.build	2004-10-27 22:49:53 +02:00
-+++ edited/scripts/Makefile.build	2004-10-29 23:04:40 +02:00
-@@ -10,7 +10,7 @@
- # Read .config if it exist, otherwise ignore
- -include .config
- 
--include $(if $(wildcard $(obj)/Kbuild), $(obj)/Kbuild, $(obj)/Makefile)
-+include $(if $(wildcard $(srctree)/$(obj)/Kbuild), $(obj)/Kbuild, $(obj)/Makefile)
- 
- include scripts/Makefile.lib
- 
-===== scripts/Makefile.clean 1.17 vs edited =====
---- 1.17/scripts/Makefile.clean	2004-10-27 22:49:53 +02:00
-+++ edited/scripts/Makefile.clean	2004-10-29 23:22:26 +02:00
-@@ -7,7 +7,7 @@
- .PHONY: __clean
- __clean:
- 
--include $(if $(wildcard $(obj)/Kbuild), $(obj)/Kbuild, $(obj)/Makefile)
-+include $(if $(wildcard $(srctree)/$(obj)/Kbuild), $(obj)/Kbuild, $(obj)/Makefile)
- 
- # Figure out what we need to build from the various variables
- # ==========================================================================

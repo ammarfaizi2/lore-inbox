@@ -1,45 +1,52 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129431AbRAZKdh>; Fri, 26 Jan 2001 05:33:37 -0500
+	id <S129143AbRAZKgr>; Fri, 26 Jan 2001 05:36:47 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131274AbRAZKd2>; Fri, 26 Jan 2001 05:33:28 -0500
-Received: from ns.virtualhost.dk ([195.184.98.160]:44816 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id <S129431AbRAZKdU>;
-	Fri, 26 Jan 2001 05:33:20 -0500
-Date: Fri, 26 Jan 2001 11:28:11 +0100
-From: Jens Axboe <axboe@suse.de>
-To: qkholland@my-deja.com
-Cc: linux-kernel@vger.kernel.org, Mark Bratcher <mbratche@rochester.rr.com>
-Subject: Re: Kernel 2.4.0 loop device still hangs
-Message-ID: <20010126112811.E12520@suse.de>
-In-Reply-To: <fa.hl5rjsv.1b78u0u@ifi.uio.no> <200101260634.AAA02715@x57.deja.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200101260634.AAA02715@x57.deja.com>; from qkholland@my-deja.com on Fri, Jan 26, 2001 at 06:34:52AM +0000
+	id <S129184AbRAZKgh>; Fri, 26 Jan 2001 05:36:37 -0500
+Received: from mailout2-0.nyroc.rr.com ([24.92.226.121]:54859 "EHLO
+	mailout2-0.nyroc.rr.com") by vger.kernel.org with ESMTP
+	id <S129143AbRAZKg1>; Fri, 26 Jan 2001 05:36:27 -0500
+Message-ID: <027801c08784$48a04630$0701a8c0@morph>
+From: "Dan Maas" <dmaas@dcine.com>
+To: "Dima Brodsky" <dima@cs.ubc.ca>
+Cc: <linux-kernel@vger.kernel.org>
+In-Reply-To: <fa.h16635v.l0uu8m@ifi.uio.no>
+Subject: Re: mapping physical memory
+Date: Fri, 26 Jan 2001 05:39:38 -0500
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 5.50.4133.2400
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4133.2400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jan 26 2001, qkholland@my-deja.com wrote:
->   Mark Bratcher <mbratche@rochester.rr.com> wrote:
-> > I saw a post dated last fall 2000 sometime about the
-> > loop device hanging when copying large amounts of data
-> > to a file mounted as, say, ext2fs.
-> 
-> I've recently reported a similar problem and told by
-> Jens Axboe at SUSE that it is still there, and appears
-> to be generic (not hardware nor kernel configuration
-> specific) problem.
+> I need to be able to obtain and pin approximately 8 MB of
+> contiguous physical memory in user space.  How would I go
+> about doing that under Linux if it is at all possible?
 
-Yes, and please try:
+The only way to allocate that much *physically* contiguous memory is by
+writing a driver that grabs it at boot-time (I think the "bootmem" API is
+used for this). This is an extreme measure and should rarely be necessary,
+except in special cases such as primitive PCI cards that lack support for
+scatter/gather DMA.
 
-*.kernel.org/pub/linux/kernel/people/axboe/patches/2.4.1-pre10/loop-3
+You can easily implement a mmap() interface to give user-space programs
+access to the memory; there are plenty of examples of how to do this in
+various character device drivers.
+(well OK, if all you need is a one-off hack, you can use the method
+developed by the Utah GLX people -- tell the kernel that you have 8MB *less*
+RAM than is actually present using a "mem=" directive at boot, then grab
+that last piece of memory by mmap'ing /dev/mem -- see
+http://utah-glx.sourceforge.net/memory-usage.html)
 
-and see if you can reproduce.
 
--- 
-* Jens Axboe <axboe@suse.de>
-* SuSE Labs
+
+Dan
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,49 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261881AbVCZAHn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261888AbVCZAR3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261881AbVCZAHn (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 25 Mar 2005 19:07:43 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261885AbVCZAHn
+	id S261888AbVCZAR3 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 25 Mar 2005 19:17:29 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261889AbVCZAR3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 25 Mar 2005 19:07:43 -0500
-Received: from rproxy.gmail.com ([64.233.170.201]:48091 "EHLO rproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261881AbVCZAHi (ORCPT
+	Fri, 25 Mar 2005 19:17:29 -0500
+Received: from mx1.redhat.com ([66.187.233.31]:52952 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S261888AbVCZARW (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 25 Mar 2005 19:07:38 -0500
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:references;
-        b=Fb1nMfAyLOvR49ZkSE6503sFbMwyz64gs1Jlt4XanaYRgV75+F9F5z5rUoWr24z3q7VWlLaPKzaAAWAGwnMGmaGokD8p8gA74JpdnPB7bPz5P3Fmy+GXoOxPEmN4fGPfZDXOcv/Xh6qJ/rFV81r2zpvWjzFBqFnmBLRyG+u61uc=
-Message-ID: <21d7e99705032516071cdd586f@mail.gmail.com>
-Date: Sat, 26 Mar 2005 11:07:38 +1100
-From: Dave Airlie <airlied@gmail.com>
-Reply-To: Dave Airlie <airlied@gmail.com>
-To: C M <thevanquisher88@gmail.com>
-Subject: Re: Feature Request Into Kernel - Savage DRM to be added as a selectable DRM module in the kernel
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <b264562605032508444ea330ec@mail.gmail.com>
+	Fri, 25 Mar 2005 19:17:22 -0500
+Date: Fri, 25 Mar 2005 19:17:02 -0500
+From: Dave Jones <davej@redhat.com>
+To: Mingming Cao <cmm@us.ibm.com>
+Cc: Andrew Morton <akpm@osdl.org>, Andrea Arcangeli <andrea@suse.de>,
+       mjbligh@us.ibm.com, linux-kernel@vger.kernel.org,
+       ext2-devel <ext2-devel@lists.sourceforge.net>
+Subject: Re: OOM problems on 2.6.12-rc1 with many fsx tests
+Message-ID: <20050326001702.GA22347@redhat.com>
+Mail-Followup-To: Dave Jones <davej@redhat.com>,
+	Mingming Cao <cmm@us.ibm.com>, Andrew Morton <akpm@osdl.org>,
+	Andrea Arcangeli <andrea@suse.de>, mjbligh@us.ibm.com,
+	linux-kernel@vger.kernel.org,
+	ext2-devel <ext2-devel@lists.sourceforge.net>
+References: <20050315204413.GF20253@csail.mit.edu> <20050316003134.GY7699@opteron.random> <20050316040435.39533675.akpm@osdl.org> <20050316183701.GB21597@opteron.random> <1111607584.5786.55.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
-References: <b264562605032508444ea330ec@mail.gmail.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1111607584.5786.55.camel@localhost.localdomain>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I was hopeing that it could be added as a selectable DRM module in the
-> kernel such as the ati rage and such are. This is a tested driver,
-> proven working for most, making it selectable in the kernel would be
-> very much appreciated and a great advancment for all savage users. The
-> savage users have for long been without opengl, now the time comes
-> when it can happen, i was sincerley hoping that this could be added
-> into the kernel. i was hoping it will become part in the list of
-> selectable DRM in the gentoo kernel, vanilla, etc.. whatever it is
-> easier to include it in. I would appericate a responce on your
-> thoughts, and im here for testing if needed.
-> 
+On Wed, Mar 23, 2005 at 11:53:04AM -0800, Mingming Cao wrote:
 
-Its on my list of things.. just not as high up as some other things..
-it needs a full code review by a few people which means a lot of time,
-it may also need to be cleaned up to kernel coding standards....
+ > The fsx command is:
+ > 
+ > ./fsx -c 10 -n -r 4096 -w 4096 /mnt/test/foo1 &
+ > 
+ > I also see fsx tests start to generating report about read bad data
+ > about the tests have run for about 9 hours(one hour before of the OOM
+ > happen). 
 
-I might submit a patch for review soon...
+Is writing to the same testfile from multiple fsx's supposed to work?
+It sounds like a surefire way to break the consistency checking that it does.
+I'm surprised it lasts 9hrs before it breaks.
 
-Dave.
+In the past I've done tests like..
+
+for i in `seq 1 100`
+do
+  fsx foo$i &
+done
+
+to make each process use a different test file.
+
+		Dave
+

@@ -1,38 +1,43 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287817AbSBSI7Y>; Tue, 19 Feb 2002 03:59:24 -0500
+	id <S290756AbSBSJDO>; Tue, 19 Feb 2002 04:03:14 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288040AbSBSI7O>; Tue, 19 Feb 2002 03:59:14 -0500
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:23052 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S287817AbSBSI6z>; Tue, 19 Feb 2002 03:58:55 -0500
-Subject: Re: Moving fasync_struct into struct file?
-To: rusty@rustcorp.com.au (Rusty Russell)
-Date: Tue, 19 Feb 2002 09:11:48 +0000 (GMT)
-Cc: davem@redhat.com, kuznet@ms2.inr.ac.ru, sfr@canb.auug.org.au,
-        linux-kernel@vger.kernel.org
-In-Reply-To: <E16d4XU-0003VI-00@wagner.rustcorp.com.au> from "Rusty Russell" at Feb 19, 2002 06:18:12 PM
-X-Mailer: ELM [version 2.5 PL6]
+	id <S290794AbSBSJDF>; Tue, 19 Feb 2002 04:03:05 -0500
+Received: from smtp02do.de.uu.net ([192.76.144.69]:55689 "EHLO
+	smtp02do.de.uu.net") by vger.kernel.org with ESMTP
+	id <S290756AbSBSJC5> convert rfc822-to-8bit; Tue, 19 Feb 2002 04:02:57 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: Tobias Wollgam <tobias.wollgam@materna.de>
+Organization: Materna GmbH
+To: linux-kernel@vger.kernel.org
+Subject: Q: use of new modules in old kernel
+Date: Tue, 19 Feb 2002 10:02:52 +0100
+X-Mailer: KMail [version 1.3.2]
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E16d6JQ-0008LI-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Transfer-Encoding: 7BIT
+X-Encoded: Changed encoding from 8bit for 7bit transmission
+Message-Id: <20020219090253.CD89D67ED@penelope.materna.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> the SIGIO.  IMVHO the best way to clean this up is to check the
-> fasync_list in sys_close, and if pid == filp->f_owner.pid and fd ==
-> fasync_list->fa_fd, unregister the SIGIO.
+Hi,
 
-We already clean up fasync structures on close, its the drivers 
-responsibility to do so.  If you wanted to be more strict you could do
-a similar helper call in the other closing callback for each fd close.
+how is it possible to use modules of newer kernels in an old kernel 
+system?
 
-> 	This means we need a move the "struct fasync_struct
-> fasync_list" into struct file (up from all the subsystems which use
-> it, eg. struct socket).
+To use new drivers, we want not recompile the kernel.
 
-Any reason for not just caching the 32bit task ident field ? Using the
-slightly confusingly p->parent_exec_id, which is basically a 32bit process
-ident for example
+I tried to load the module 8139too from 2.4.17 into a 2.4.9 kernel with 
+modprobe, but there are many unresolved symbols. 
+
+The flag "Set version information on all module symbols" is set.
+
+TIA for all information, hyperlinks are welcome too,
+
+	Tobias
+
+-- 
+Tobias Wollgam * Softwaredevelopment * Business Unit Information 
+MATERNA GmbH Information & Communications
+Vosskuhle 37 * 44141 Dortmund  
+http://www.materna.de

@@ -1,32 +1,78 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315618AbSEIF3B>; Thu, 9 May 2002 01:29:01 -0400
+	id <S315619AbSEIFb6>; Thu, 9 May 2002 01:31:58 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S315619AbSEIF3B>; Thu, 9 May 2002 01:29:01 -0400
-Received: from zok.SGI.COM ([204.94.215.101]:4542 "EHLO zok.sgi.com")
-	by vger.kernel.org with ESMTP id <S315618AbSEIF27>;
-	Thu, 9 May 2002 01:28:59 -0400
-X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
-From: Keith Owens <kaos@ocs.com.au>
-To: "P a v a n" <pavankvk@indiatimes.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: cdp Strange behavior? 
-In-Reply-To: Your message of "Thu, 09 May 2002 09:55:28 +0530."
-             <200205090428.JAA05676@WS0005.indiatimes.com> 
+	id <S315620AbSEIFb5>; Thu, 9 May 2002 01:31:57 -0400
+Received: from asooo.flowerfire.com ([63.254.226.247]:63204 "EHLO
+	asooo.flowerfire.com") by vger.kernel.org with ESMTP
+	id <S315619AbSEIFb4>; Thu, 9 May 2002 01:31:56 -0400
+Date: Thu, 9 May 2002 00:31:55 -0500
+From: Ken Brownfield <ken@irridia.com>
+To: Dan Kegel <dank@kegel.com>
+Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        "khttpd-users@lists.alt.org" <khttpd-users@alt.org>
+Subject: Re: khttpd newbie problem
+Message-ID: <20020509003155.B12672@asooo.flowerfire.com>
+In-Reply-To: <3CD402D2.E3A94CA2@kegel.com> <20020505005439.GA12430@krispykreme> <3CD4C93D.E543B188@kegel.com> <20020508222119.A12672@asooo.flowerfire.com> <3CDA0876.218285C7@kegel.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Date: Thu, 09 May 2002 15:27:43 +1000
-Message-ID: <16774.1020922063@kao2.melbourne.sgi.com>
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 09 May 2002 09:55:28 +0530, 
-"P a v a n" <pavankvk@indiatimes.com> wrote:
->yesterday i got my redhat 7.2 up and running.it had a package for palying audiocd's.its called cdp and had a text interface for a dumb terminal.inoticed a strange behavior.i was listening to the song and i gave the shutdown command..even when the system i completely halted(power down too) the cdp is still running.(i think it should as iam listening  the songs still).i have a creative cdrom.i have a doubt.are there any cdroms which are programmed to behave this way.i mean which depend on BIOS may be..i didnt make anything how its running.
+On Wed, May 08, 2002 at 10:26:14PM -0700, Dan Kegel wrote:
+| Ken Brownfield wrote:
+| > khttpd is very much production quality on IA32, and has been since
+| > 2.4.0-test1. 
+| 
+| It oopses readily on start/stop -- see 
+| http://marc.theaimsgroup.com/?l=linux-kernel&m=102068445316516&w=2
+| in which DecodeHeader is called with no buffer allocated.
+| Happened quite frequently during my tests.  Since my patch I
+| can't get it to oops on x86, but it's still oopsing on ppc405.
+| So perhaps now it's production quality... but it still needs
+| a bit too much babying on stop.  (It'd be fairly easy to fix
+| the unreliable way it senses the stop command.)
 
-Please learn to use word wrap, long lines are difficult to read.
+Hmm.  I've had it running *hard* for two years, never seen a single oops
+or glitch of any sort, kernels 2.4.0-test1 through 2.4.18.  O(1),
+preempt, low-latency all on at various times.  All static images though,
+with no pass-through.
 
-This is normal processing.  cdp just tells the cdrom to play, it is
-then outside kernel control.  You can get the same effect by starting
-cdp then killing it, the cd continues to play.
+| > TUX2 is not, however, since under load it enters a 99% CPU
+| > busy loop.
+| 
+| I checked the tux list and found the post you're taling about:
+| http://marc.theaimsgroup.com/?l=tux-list&m=101420257421009&w=2
+| Hmm.  Well, at least it doesn't oops :-)  Thanks for the warning.
 
+Heh, no prob.  The most recent version might have fixed it, although the
+last time I tried TUX2 I got a hard hang... prolly O(1) but I never had
+time to narrow it down.
+
+[...]
+| where foo_load is a hacked version of http_load (I think)
+| which is fetching a single 128KB file over and over.
+| I tried reproducing this with acme.com's http_load, 
+| without success so far.
+
+Odd, seems identical to my standard traffic, though my images are in the
+4-64k range.  What you're seeing seems to be an interaction problem --
+something different in the non-mainstream, non-x86 kernel that's
+allowing khttpd to hang itself.  No argument that khttpd is frightening.
+
+[...]
+| Yukky.  Makes me want to go work with user-mode web servers instead.
+
+Yeah, good luck tracking down X15.  I've wanted to create a
+heavily-modified apache MPM, but my time is unfortunately finite...
+
+Apache2 on top of TUX2 would be ideal, but alas neither is quite
+prime-time yet.
+-- 
+Ken.
+ken@irridia.com
+
+| 
+| - Dan

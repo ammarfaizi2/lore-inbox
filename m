@@ -1,54 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266169AbRGLQ2f>; Thu, 12 Jul 2001 12:28:35 -0400
+	id <S266166AbRGLQZp>; Thu, 12 Jul 2001 12:25:45 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S266171AbRGLQ2Z>; Thu, 12 Jul 2001 12:28:25 -0400
-Received: from mailout02.sul.t-online.com ([194.25.134.17]:23819 "EHLO
-	mailout02.sul.t-online.de") by vger.kernel.org with ESMTP
-	id <S266169AbRGLQ2M>; Thu, 12 Jul 2001 12:28:12 -0400
-Message-ID: <3B4DD05F.99C2C71@t-online.de>
-Date: Thu, 12 Jul 2001 18:29:19 +0200
-From: Gunther.Mayer@t-online.de (Gunther Mayer)
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.6-ac1 i686)
-X-Accept-Language: en
+	id <S266169AbRGLQZf>; Thu, 12 Jul 2001 12:25:35 -0400
+Received: from h24-65-193-28.cg.shawcable.net ([24.65.193.28]:45560 "EHLO
+	webber.adilger.int") by vger.kernel.org with ESMTP
+	id <S266166AbRGLQZR>; Thu, 12 Jul 2001 12:25:17 -0400
+From: Andreas Dilger <adilger@turbolinux.com>
+Message-Id: <200107121621.f6CGLrTj027296@webber.adilger.int>
+Subject: Re: [Ext2-devel] Re: Filesystem can be marked clear when it is not
+In-Reply-To: <01071201564408.00409@starship> "from Daniel Phillips at Jul 12,
+ 2001 01:56:44 am"
+To: Daniel Phillips <phillips@bonn-fries.net>
+Date: Thu, 12 Jul 2001 10:21:53 -0600 (MDT)
+CC: Andreas Dilger <adilger@turbolinux.com>, Pavel Machek <pavel@suse.cz>,
+        kernel list <linux-kernel@vger.kernel.org>, viro@math.psu.edu,
+        torvalds@transmeta.com, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        Ext2 development mailing list 
+	<ext2-devel@lists.sourceforge.net>
+X-Mailer: ELM [version 2.4ME+ PL87 (25)]
 MIME-Version: 1.0
-To: torvalds@transmeta.com
-CC: linux-kernel@vger.kernel.org, tytso@mit.edu
-Subject: Patch(2.4.6):serial unmaintained (bugfix pci timedia/sunix/exsys pci 
- cards)
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-this  one-liner fixes a longstanding bug in serial
-for Timedia/Sunix/Exsys PCI cards !
+Daniel writes:
+> I weighed in on that one too:
+> 
+>     http://marc.theaimsgroup.com/?l=ext2-devel&m=99090670900520&w=2
+> 
+> with a very simple sort-of patch, which I just made into a real patch.  
 
-The fix was sent to Ted several times since 02/2001 and
-uploaded to http://sourceforge.net/projects/serial/.
-There was no reaction.
+Ok, your patch works in this case (it is leaving sb->s_dirt = 1, however, so
+the superblock will be written out again shortly).  In fact, the whole
+thing can be replaced with a call to ext2_write_super() in my code, which
+also turns off EXT2_VALID_FS and sets s_mtime, and writes it synchronously
+to disk.  This means we can remove 2! lines from ext2_setup_super().
 
-By listing a defunct MAINTAINER the progress of linux is stuck
-as patches go to /dev/null by
-- the maintainer (who got lost for unknown, perhaps even valid reasons)
-- Linus, as he waits for approval by the maintainer.
+It makes me wonder, though, if we clear EXT2_VALID_FS synchronously in
+ext2_setup_super() if we also need it in ext2_write_super().  If people
+mount their root fs read-write e2fsck will clear EXT2_VALID_FS and we
+may never hit ext2_setup_super() again to clear it, so I guess it needs
+to stay there.
 
-Linus, can you please include this patch?
+One of the other changes from my patch is that errors are also written
+out synchronously to disk, for the same reason - in case we crash shortly
+after having an error, and before dirty buffers are flushed to disk.
 
-Regards, Gunther
-
-
-
-(Without this patch serial recognizes wrong number of serial ports!)
---- linux/drivers/char/serial.c-246     Thu Jul 12 18:12:08 2001
-+++ linux/drivers/char/serial.c Thu Jul 12 18:13:40 2001
-@@ -4193,7 +4193,7 @@
-        for (i=0; timedia_data[i].num; i++) {
-                ids = timedia_data[i].ids;
-                for (j=0; ids[j]; j++) {
--                       if (pci_get_subvendor(dev) == ids[j]) {
-+                       if (pci_get_subdevice(dev) == ids[j]) {
-                                board->num_ports = timedia_data[i].num;
-                                return 0;
-                        }
+Cheers, Andreas
+-- 
+Andreas Dilger  \ "If a man ate a pound of pasta and a pound of antipasto,
+                 \  would they cancel out, leaving him still hungry?"
+http://www-mddsp.enel.ucalgary.ca/People/adilger/               -- Dogbert

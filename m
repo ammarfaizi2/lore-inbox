@@ -1,19 +1,20 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263607AbTEEQV6 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 5 May 2003 12:21:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262567AbTEEQVm
+	id S263652AbTEEQX4 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 5 May 2003 12:23:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263479AbTEEQWE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 5 May 2003 12:21:42 -0400
-Received: from franka.aracnet.com ([216.99.193.44]:60345 "EHLO
-	franka.aracnet.com") by vger.kernel.org with ESMTP id S263607AbTEEQUZ
+	Mon, 5 May 2003 12:22:04 -0400
+Received: from franka.aracnet.com ([216.99.193.44]:55226 "EHLO
+	franka.aracnet.com") by vger.kernel.org with ESMTP id S263620AbTEEQVF
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 5 May 2003 12:20:25 -0400
-Date: Mon, 05 May 2003 09:32:23 -0700
+	Mon, 5 May 2003 12:21:05 -0400
+Date: Mon, 05 May 2003 09:33:03 -0700
 From: "Martin J. Bligh" <mbligh@aracnet.com>
 To: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: [Bug 653] New: i386 NUMA does not work on non x440/Summit
-Message-ID: <9770000.1052152343@[10.10.2.4]>
+Subject: [Bug 654] New: Floppy access locks system with endless stream of
+ errors
+Message-ID: <9950000.1052152383@[10.10.2.4]>
 X-Mailer: Mulberry/2.2.1 (Linux/x86)
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
@@ -22,25 +23,35 @@ Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-http://bugme.osdl.org/show_bug.cgi?id=653
+http://bugme.osdl.org/show_bug.cgi?id=654
 
-           Summary: i386 NUMA does not work on non x440/Summit
-    Kernel Version: 2.5.68
+           Summary: Floppy access locks system with endless stream of errors
+    Kernel Version: 2.5.68-bk11
             Status: NEW
-          Severity: normal
-             Owner: mbligh@aracnet.com
-         Submitter: ak@suse.de
+          Severity: high
+             Owner: bugme-janitors@lists.osdl.org
+         Submitter: bwindle-kbt@fint.org
 
 
-When a summit CONFIG_DISCONTIGMEM kernel is booted on a non summit/numa
-4cpu box it'll not boot, hanging before console init
+Distribution: Debian Testing
+Hardware Environment: Dell Optiplex GXa
+Problem Description:
 
-Enabling early printk shows that it gets to the numa memory init and then
-dies with an endless "unknown interrupt" loop.
+Trying to mount a floppy gives an endless stream of:
+floppy0: disk absent or changed during operation
+end_request: I/O error, dev fd0, sector 0
+floppy0: disk absent or changed during operation
+end_request: I/O error, dev fd0, sector 0
+floppy0: disk absent or changed during operation
+end_request: I/O error, dev fd0, sector 0
 
-Looks like the srat discontigmem init fallback path does not work.
+The system is non-responsive to changes to VTs, it can't be pinged, but 
+alt+sysrq prints "SysRq: Show State" but never prints anything beyond that
+(but  changing LogLevel via Sysrq works).
 
-This is also a problem with the dynamic subarchitecture path (only in -mm)
-when CONFIG_NUMA is enabled. It disallows to build a generic generic
-CONFIG_NUMA kernel.
+Ctrl+alt+delete has no effect, numlock won't turn on/off numlock light.
+
+Steps to reproduce:
+Insert floppy, try to mount it.
+
 

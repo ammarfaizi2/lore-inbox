@@ -1,22 +1,24 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262789AbTJTUvH (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 20 Oct 2003 16:51:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262791AbTJTUvH
+	id S262913AbTJTVHq (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 20 Oct 2003 17:07:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262914AbTJTVHq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 20 Oct 2003 16:51:07 -0400
-Received: from imap.gmx.net ([213.165.64.20]:2732 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S262789AbTJTUvF (ORCPT
+	Mon, 20 Oct 2003 17:07:46 -0400
+Received: from mail.gmx.net ([213.165.64.20]:16538 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S262913AbTJTVHl (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 20 Oct 2003 16:51:05 -0400
-Date: Mon, 20 Oct 2003 22:51:04 +0200 (MEST)
+	Mon, 20 Oct 2003 17:07:41 -0400
+Date: Mon, 20 Oct 2003 23:07:40 +0200 (MEST)
 From: "Svetoslav Slavtchev" <svetljo@gmx.de>
-To: "lkml " <linux-kernel@vger.kernel.org>
+To: "Carlos Fernandez Sanz" <cfs-lk@nisupu.com>
+Cc: Tomi.Orava@ncircle.nullnet.fi, linux-kernel@vger.kernel.org
 MIME-Version: 1.0
-Subject: LVM on md0: raid0_make_request bug: can't convert block across
+References: <001901c39734$8a2c2bb0$0514a8c0@HUSH>
+Subject: Re: HighPoint 374
 X-Priority: 3 (Normal)
 X-Authenticated: #20183004
-Message-ID: <17776.1066683064@www30.gmx.net>
+Message-ID: <31727.1066684060@www30.gmx.net>
 X-Mailer: WWW-Mail 1.6 (Global Message Exchange)
 X-Flags: 0001
 Content-Type: text/plain; charset="iso-8859-1"
@@ -24,12 +26,82 @@ Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-that's in there since 2.5 started & dm/md were partly
-working
+> BTW, isn't m0 supposed to reduce perfomance?
 
-http://www.google.com/search?q=raid0_make_request%20bug&sourceid=mozilla-search&start=0&start=0&ie=utf-8&oe=utf-8
+hm here it also doesn't seem to change much,
+may be it's ignored if UDMA is used
 
-svetljo
+mem is 1024Mb
+
+[root@svetljo kernel]#  hdparm -m0 /dev/hde
+
+/dev/hde:
+ setting multcount to 0
+ multcount    =  0 (off)
+
+[root@svetljo 1]# time dd if=/dev/zero of=10Gb.zeros count=20000 bs=512k
+20000+0 records in
+20000+0 records out
+0.09user 29.38system 5:44.49elapsed 8%CPU (0avgtext+0avgdata 0maxresident)k
+0inputs+0outputs (149major+40minor)pagefaults 0swaps
+[root@svetljo 1]#  hdparm -m8 /dev/hde
+
+/dev/hde:
+ setting multcount to 8
+ multcount    =  8 (on)
+[root@svetljo 1]# time dd if=/dev/zero of=10Gb.zeros count=20000 bs=512k
+20000+0 records in
+20000+0 records out
+0.10user 28.99system 5:50.44elapsed 8%CPU (0avgtext+0avgdata 0maxresident)k
+0inputs+0outputs (150major+41minor)pagefaults 0swaps
+
+root@svetljo 1]#  hdparm -m16 /dev/hde
+
+/dev/hde:
+ setting multcount to 16
+ multcount    = 16 (on)
+[root@svetljo 1]# time dd if=/dev/zero of=10Gb.zeros count=20000 bs=512k
+20000+0 records in
+20000+0 records out
+0.09user 28.83system 5:53.57elapsed 8%CPU (0avgtext+0avgdata 0maxresident)k
+0inputs+0outputs (165major+40minor)pagefaults 0swaps
+[root@svetljo 1]#
+
+> [root@fulanito wd1200jb]# time dd if=/dev/zero of=filling count=20000
+> bs=65536
+> 20000+0 records in
+> 20000+0 records out
+> 
+> real    0m33.763s
+> user    0m0.200s
+> sys     0m10.920s
+> [root@fulanito wd1200jb]# hdparm -m4 /dev/hdk
+> 
+> /dev/hdk:
+>  setting multcount to 4
+>  multcount    =  4 (on)
+> [root@fulanito wd1200jb]# time dd if=/dev/zero of=filling count=20000
+> bs=65536
+> 20000+0 records in
+> 20000+0 records out
+> 
+> real    0m30.321s
+> user    0m0.150s
+> sys     0m10.630s
+> [root@fulanito wd1200jb]# hdparm -m0 /dev/hdk
+> 
+> /dev/hdk:
+>  setting multcount to 0
+>  multcount    =  0 (off)
+> [root@fulanito wd1200jb]# time dd if=/dev/zero of=filling count=20000
+> bs=65536
+> 20000+0 records in
+> 20000+0 records out
+> 
+> real    0m30.749s
+> user    0m0.130s
+> sys     0m10.900s
+> [root@fulanito wd1200jb]#
 
 -- 
 NEU FÜR ALLE - GMX MediaCenter - für Fotos, Musik, Dateien...

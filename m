@@ -1,39 +1,47 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S269017AbTBWWoH>; Sun, 23 Feb 2003 17:44:07 -0500
+	id <S269015AbTBWWp4>; Sun, 23 Feb 2003 17:45:56 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S269018AbTBWWoH>; Sun, 23 Feb 2003 17:44:07 -0500
-Received: from palrel12.hp.com ([156.153.255.237]:18853 "EHLO palrel12.hp.com")
-	by vger.kernel.org with ESMTP id <S269017AbTBWWoG>;
-	Sun, 23 Feb 2003 17:44:06 -0500
-From: David Mosberger <davidm@napali.hpl.hp.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <15961.20756.474745.44896@napali.hpl.hp.com>
-Date: Sun, 23 Feb 2003 14:54:12 -0800
-To: David Lang <david.lang@digitalinsight.com>
-Cc: davidm@hpl.hp.com, Linus Torvalds <torvalds@transmeta.com>,
-       linux-kernel@vger.kernel.org
+	id <S269016AbTBWWp4>; Sun, 23 Feb 2003 17:45:56 -0500
+Received: from pc2-cwma1-4-cust86.swan.cable.ntl.com ([213.105.254.86]:33664
+	"EHLO irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
+	id <S269015AbTBWWpz>; Sun, 23 Feb 2003 17:45:55 -0500
 Subject: Re: Minutes from Feb 21 LSE Call
-In-Reply-To: <Pine.LNX.4.44.0302231444490.8609-100000@dlang.diginsite.com>
-References: <15961.19948.882374.766245@napali.hpl.hp.com>
-	<Pine.LNX.4.44.0302231444490.8609-100000@dlang.diginsite.com>
-X-Mailer: VM 7.07 under Emacs 21.2.1
-Reply-To: davidm@hpl.hp.com
-X-URL: http://www.hpl.hp.com/personal/David_Mosberger/
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: "Martin J. Bligh" <mbligh@aracnet.com>
+Cc: Xavier Bestel <xavier.bestel@free.fr>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <16920000.1046033458@[10.10.2.4]>
+References: <E18moa2-0005cP-00@w-gerrit2>
+	 <Pine.LNX.4.44.0302222354310.8609-100000@dlang.diginsite.com>
+	 <20030223082036.GI10411@holomorphy.com>
+	 <b3b6oa$bsj$1@penguin.transmeta.com>
+	 <1046031687.2140.32.camel@bip.localdomain.fake>
+	 <16920000.1046033458@[10.10.2.4]>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Organization: 
+Message-Id: <1046044629.2210.3.camel@irongate.swansea.linux.org.uk>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.1 (1.2.1-4) 
+Date: 23 Feb 2003 23:57:09 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> On Sun, 23 Feb 2003 14:48:48 -0800 (PST), David Lang <david.lang@digitalinsight.com> said:
+On Sun, 2003-02-23 at 20:50, Martin J. Bligh wrote:
+> >> And the baroque instruction encoding on the x86 is actually a _good_
+> >> thing: it's a rather dense encoding, which means that you win on icache. 
+> >> It's a bit hard to decode, but who cares? Existing chips do well at
+> >> decoding, and thanks to the icache win they tend to perform better - and
+> >> they load faster too (which is important - you can make your CPU have
+> >> big caches, but _nothing_ saves you from the cold-cache costs). 
+> > 
+> > Next step: hardware gzip ?
+> 
+> They did that already ... IBM were demonstrating such a thing a couple of
+> years ago. Don't see it helping with icache though, as it unpacks between
+> memory and the processory, IIRC.
 
-  David.L> I would call a 15% lead over the ia64 pretty substantial.
+I saw the L2/L3 compressed cache thing, and I thought "doh!", and I watched and
+I've not seen it for a long time. What happened to it ?
 
-Huh?  Did you misread my mail?
-
-   2 GHz Xeon:		701 SPECint
-   1 GHz Itanium 2:	810 SPECint
-
-That is, Itanium 2 is 15% faster.
-
-	--david

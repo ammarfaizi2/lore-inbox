@@ -1,74 +1,66 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262565AbUCRMVw (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 18 Mar 2004 07:21:52 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262569AbUCRMVw
+	id S262569AbUCRMXv (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 18 Mar 2004 07:23:51 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262571AbUCRMXv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 18 Mar 2004 07:21:52 -0500
-Received: from mail.dt.e-technik.Uni-Dortmund.DE ([129.217.163.1]:41695 "EHLO
-	mail.dt.e-technik.uni-dortmund.de") by vger.kernel.org with ESMTP
-	id S262565AbUCRMVt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 18 Mar 2004 07:21:49 -0500
-Date: Thu, 18 Mar 2004 13:21:45 +0100
-From: Matthias Andree <matthias.andree@gmx.de>
+	Thu, 18 Mar 2004 07:23:51 -0500
+Received: from smtp03.uc3m.es ([163.117.136.123]:39342 "EHLO smtp03.uc3m.es")
+	by vger.kernel.org with ESMTP id S262569AbUCRMXt (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 18 Mar 2004 07:23:49 -0500
+From: "Peter T. Breuer" <ptb@it.uc3m.es>
+Message-Id: <200403181223.i2ICNkE13506@oboe.it.uc3m.es>
+Subject: Re: floppy driver 2.6.3 question
+In-Reply-To: <20040318113506.GL22234@suse.de> from Jens Axboe at "Mar 18, 2004
+ 12:35:07 pm"
 To: Jens Axboe <axboe@suse.de>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>, matthias.andree@gmx.de
-Subject: Re: True  fsync() in Linux (on IDE)
-Message-ID: <20040318122145.GA9175@merlin.emma.line.org>
-Mail-Followup-To: Jens Axboe <axboe@suse.de>,
-	Linux Kernel <linux-kernel@vger.kernel.org>
-References: <1079572101.2748.711.camel@abyss.local> <20040318064757.GA1072@suse.de> <20040318113453.GB6864@merlin.emma.line.org> <20040318115544.GN22234@suse.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20040318115544.GN22234@suse.de>
-User-Agent: Mutt/1.5.5.1i
+Date: Thu, 18 Mar 2004 13:23:46 +0100 (MET)
+Cc: linux kernel <linux-kernel@vger.kernel.org>
+X-Anonymously-To: 
+Reply-To: ptb@it.uc3m.es
+X-Mailer: ELM [version 2.4ME+ PL66 (25)]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jens Axboe schrieb am 2004-03-18:
-
-> > All these ATA fsync() vs. write cache issues have been open for much too
-> > long - no reproaches, but it's a pity we haven't been able to have data
-> > consistency for data bases and fast bulk writes (that need the write
-> > cache without TCQ) in the same drive for so long. I have seen Linux
-> > introduce TCQ for PATA early in 2.5, then drop it again. Similarly,
-> > FreeBSD ventured into TCQ for ATA but appears to have dropped it again
-> > as well.
+"Also sprach Jens Axboe:"
+> > The floppy driver doesn't notice if the revalidation bio failed or not,
+> > btw (and I don't see an easy way of telling, hence my questions as to
+> > what the bi_size and bytes_done "really" mean - I can return them).  I
+> > suppose it can tell via the drive hardware what the state is. I also
+> > suppose reading the first block somehow triggers some kind of partition
+> > revision or other magic?
 > 
-> That's because PATA TCQ sucks :-)
+> One way would be ala the attached, see how bio_endio() clears
+> BIO_UPTODATE on error.
 
-True. Few drives support it, and many of these you would not want to run
-in production...
+Very good. Applied. Thanks!
 
-> > May I ask that the information whether a particular driver (file system,
-> > hardware) supports write barriers be exposed in a standard way, for
-> > instance in the Kconfig help lines?
+(do get_bio(&bio) before submit_bio(&bio) and do put_bio(&bio)
+afterwards and examine bio.flags&BIO_UPTODATE on return from
+wait_for_completion between the two).
+
+> > know.  128 requests have just previously been errored due to readahead
+> > and the check_media_changed result setting the driver request function
+> > to error out requests.  Perhaps we have run out of requests (they're
+> > all put_ as far as I can see). Maybe the block layers get tired of
+> > talking to a device that errors requests. I'm just feeling my way!
+> > Any wild ideas are welcome!
 > 
-> Since reiser is the first implementation of it, it gets to chose how
-> this works. Currently that's done by giving -o barrier=flush (=ordered
-> used to exist as well, it will probably return - right now we just
-> played with IDE).
+> If the 129th request fails, then that's a pretty good clue that you
+> aren't getting the requests freed. Perhaps you are overwriting something
+> in the request after allocating it? Always mask change ->flags (don't
+> just set it), and don't overwrite ->rl.
 
-This looks as though this was not the default and required the user to
-know what he's doing. Would it be possible to choose a sane default
-(like flush for ATA or ordered for SCSI when the underlying driver
-supports ordered tags) and leave the user just the chance to override
-this?
+Good idea. rl is inviolate, but I set at least |=REQ_NOMERGE sometimes
+on flags. And I pass ioctl information in fake requests by setting
+the bit just beyond the edge of those currently used (__REQ_BITS) to
+indicate its an ioctl and treating it specially in end request. Maybe
+on error I forgot to remove the extra bit before doing put_blk_request
+..
 
-> Only PATA core needs to support it, not the chipset drivers. md and dm
+WIll look.
 
-Hum, I know the older Promise chips were blacklisted for PATA TCQ in
-FreeBSD. Might "ordered" cause situations where similar things happen to
-Linux?  How about SCSI/libata? Is the situation the same there?
+Thanks again.
 
-> aren't a difficult to implement now that unplug/congestion already
-> iterates the device list and I added a blkdev_issue_flush() command.
-
-So this would - for SCSI - be an sd issue rather than a driver issue as
-well?
-
--- 
-Matthias Andree
-
-Encrypt your mail: my GnuPG key ID is 0x052E7D95
+Peter

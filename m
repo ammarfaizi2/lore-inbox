@@ -1,46 +1,41 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272453AbTHEKVA (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 5 Aug 2003 06:21:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272478AbTHEKVA
+	id S272407AbTHEKco (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 5 Aug 2003 06:32:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272478AbTHEKco
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 5 Aug 2003 06:21:00 -0400
-Received: from mail3.ithnet.com ([217.64.64.7]:51849 "HELO
-	heather-ng.ithnet.com") by vger.kernel.org with SMTP
-	id S272453AbTHEKU7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 5 Aug 2003 06:20:59 -0400
-X-Sender-Authentification: SMTPafterPOP by <info@euro-tv.de> from 217.64.64.14
-Date: Tue, 5 Aug 2003 12:20:56 +0200
-From: Stephan von Krawczynski <skraw@ithnet.com>
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Cc: marcelo@conectiva.com.br, green@namesys.com
-Subject: Re: decoded problem in 2.4.22-pre10
-Message-Id: <20030805122056.77fee0bd.skraw@ithnet.com>
-In-Reply-To: <20030805100040.079b1b24.skraw@ithnet.com>
-References: <20030805100040.079b1b24.skraw@ithnet.com>
-Organization: ith Kommunikationstechnik GmbH
-X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
+	Tue, 5 Aug 2003 06:32:44 -0400
+Received: from mail.gondor.com ([212.117.64.182]:44562 "EHLO moria.gondor.com")
+	by vger.kernel.org with ESMTP id S272407AbTHEKco (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 5 Aug 2003 06:32:44 -0400
+Date: Tue, 5 Aug 2003 12:32:41 +0200
+From: Jan Niehusmann <jan@gondor.com>
+To: Patrick Moor <pmoor@netpeople.ch>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: time jumps (again)
+Message-ID: <20030805103241.GA29636@gondor.com>
+References: <3F2E8B3B.3070003@netpeople.ch>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3F2E8B3B.3070003@netpeople.ch>
+X-Request-PGP: http://gondor.com/key.asc
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 5 Aug 2003 10:00:40 +0200
-Stephan von Krawczynski <skraw@ithnet.com> wrote:
+On Mon, Aug 04, 2003 at 06:35:07PM +0200, Patrick Moor wrote:
+> I'm noticing time jumps _exactly_ at the beginning of a "new" second (or 
+> at the end of an "old" one). the jump is exactly 4294 (4295) seconds 
+> into the future. Example:
 
-> Hello all,
-> 
-> the testbox crashed again this night, unfortunately I made a mistake
-> yesterday and started vmware once. Although only the usual modules were
-> loaded at crash time and not the application, the kernel was tainted of
-> course. Nevertheless I present the data:
+We had the same problem with a similar setup (ASUS board, VIA chipset,
+AMD CPU). 
 
-I re-checked the setup with vmware and found out I can shoot it down in no
-time. So you probably should just forget about this bug report, because loading
-vmware modules does obviously do harm.
+The solution is in the following thread, and AFAIK the patch went into
+2.4.21:
+http://www.ussg.iu.edu/hypermail/linux/kernel/0211.0/0330.html
 
-Sorry for bothering you.
-Regards,
-Stephan
+Jan
 

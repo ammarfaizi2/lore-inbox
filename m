@@ -1,93 +1,60 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264356AbRFTMZ2>; Wed, 20 Jun 2001 08:25:28 -0400
+	id <S264840AbRFTMca>; Wed, 20 Jun 2001 08:32:30 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264840AbRFTMZS>; Wed, 20 Jun 2001 08:25:18 -0400
-Received: from ip65.levi.spb.ru ([212.119.175.65]:47335 "EHLO
-	germes.levi.spb.ru") by vger.kernel.org with ESMTP
-	id <S264356AbRFTMZM>; Wed, 20 Jun 2001 08:25:12 -0400
-Message-ID: <3B3095FB.2060706@levi.spb.ru>
-Date: Wed, 20 Jun 2001 16:24:27 +0400
-From: Anatoly Ivanov <avi@levi.spb.ru>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.1+) Gecko/20010619
-X-Accept-Language: en-us
-MIME-Version: 1.0
-To: "Kissandrakis S. George" <kissand@phaistosnetworks.gr>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: 2.4.5 and gcc v3 final
-In-Reply-To: <3B30910F.6EDCC7A1@phaistosnetworks.gr>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S264850AbRFTMcU>; Wed, 20 Jun 2001 08:32:20 -0400
+Received: from c012-h008.c012.sfo.cp.net ([209.228.13.102]:35826 "HELO
+	c012.sfo.cp.net") by vger.kernel.org with SMTP id <S264840AbRFTMcD>;
+	Wed, 20 Jun 2001 08:32:03 -0400
+Date: 20 Jun 2001 05:32:01 -0700
+Message-ID: <20010620123201.14861.cpmta@c012.sfo.cp.net>
+X-Sent: 20 Jun 2001 12:32:01 GMT
+Content-Type: text/plain
+Content-Disposition: inline
+Mime-Version: 1.0
+To: schwab@suse.de
+From: Ralph Jones <ralph.jones@altavista.com>
+Cc: linux-kernel@vger.kernel.org
+X-Mailer: Web Mail 3.9.3.1
+Subject: Re: pivot_root from non-interactive script
+X-Sent-From: ralph.jones@altavista.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 Hi,
 
-Solution is simple:
-change line 540 from "extern struct timeval xtime;"
-to "extern volatile struct timeval xtime;"
-and have fun :)
+I was using ash from SuSE 7.1 (ash-0.2-294)
 
----
-avi
+I patched ash's input.c with 
 
-Kissandrakis S. George wrote:
+fcntl(fd, F_SETFD, FD_CLOEXEC); in setinputd.  This fixed the problem.  
 
-> Hello
-> I suppose that you allready know it
-> I have installed gcc v3 released Jun 18 and i tried to compile the
-> kernel and i got
-> these errors
-> 
-> in make dep i got several warnings that look like this
-> 
-> /usr/src/linux-2.4.5/include/asm/checksum.h:161:17: warning: multi-line
-> string literals are deprecated
-> 
-> but finally passed..
-> 
-> in make bzImage i got
-> 
-> timer.c:35: conflicting types for `xtime'
-> /usr/src/linux-2.4.5/include/linux/sched.h:540: previous declaration of
-> `xtime'
-> 
-> and compilation stops
-> if i remove the decleration of xtime in sched.h (remove the 540 line)
-> the compile
-> will go on and some compiles after...
-> 
-> time.c: In function `do_normal_gettime':
-> time.c:41: `xtime' undeclared (first use in this function)
-> 
-> and some other errors
-> if in time.c include the line 540 from sched.h (the xtime) the
-> compilation will go on
-> until the same error on another file
-> i include again the line 540 from sched.h the compilation goes on etc
-> etc and after lots
-> of errors finally i got bzImage
-> 
-> I didnt test bzImage if it boots 
-> 
-> with gcc v2.x the same kernel and kernel config it compiles,Is it a
-> kernel bug, a gcc
-> bug or something else (bad installation of gcc, my mistake etc etc)? 
-> 
-> Best Regards
-> 
-> 
-> --- 
-> Kissandrakis S. George                 [kissand@phaistosnetworks.gr]
-> Network and System Administrator       [http://www.phaistosnetworks.gr/]
-> Tel:(+30 81) 391882/Fax:(+30 892) 23206
-> Phaistos Networks S.A. - A DOL Digital Company
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
+Then I found that there is version 0.3.5-11 (on the debian site) with this fix already included.  
+
+Thanks for your help.
+
+Ralph Jones
 
 
+On Tue, 19 June 2001, Andreas Schwab wrote:
 
+> 
+> Ralph Jones <ralph.jones@altavista.com> writes:
+> 
+> |> Thanks.  Yes it looks as if this might be the case.  Do you have any ideas how I might get around this?  Or do I have to use a different shell?
+> 
+> The latter is probably the easiest.  Or fix /bin/ash to set FD_CLOEXEC on
+> the file descriptor.
+> 
+> Andreas.
+> 
+> -- 
+> Andreas Schwab                                  "And now for something
+> SuSE Labs                                        completely different."
+> Andreas.Schwab@suse.de
+> SuSE GmbH, Schanzäckerstr. 10, D-90443 Nürnberg
+> Key fingerprint = 58CA 54C7 6D53 942B 1756  01D3 44D5 214B 8276 4ED5
+
+
+Find the best deals on the web at AltaVista Shopping!
+http://www.shopping.altavista.com

@@ -1,115 +1,62 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262597AbTCZWhq>; Wed, 26 Mar 2003 17:37:46 -0500
+	id <S262598AbTCZWl5>; Wed, 26 Mar 2003 17:41:57 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S262598AbTCZWhq>; Wed, 26 Mar 2003 17:37:46 -0500
-Received: from astound-64-85-224-253.ca.astound.net ([64.85.224.253]:50180
-	"EHLO master.linux-ide.org") by vger.kernel.org with ESMTP
-	id <S262597AbTCZWho>; Wed, 26 Mar 2003 17:37:44 -0500
-Date: Wed, 26 Mar 2003 14:32:06 -0800 (PST)
-From: Andre Hedrick <andre@linux-ide.org>
-To: Lincoln Dale <ltd@cisco.com>
-cc: Jeff Garzik <jgarzik@pobox.com>, Matt Mackall <mpm@selenic.com>,
-       ptb@it.uc3m.es, Justin Cormack <justin@street-vision.com>,
-       linux kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] ENBD for 2.5.64
-In-Reply-To: <5.1.0.14.2.20030327091610.04aa7128@mira-sjcm-3.cisco.com>
-Message-ID: <Pine.LNX.4.10.10303261422580.25072-100000@master.linux-ide.org>
+	id <S262605AbTCZWl5>; Wed, 26 Mar 2003 17:41:57 -0500
+Received: from intra.cyclades.com ([64.186.161.6]:18852 "EHLO
+	intra.cyclades.com") by vger.kernel.org with ESMTP
+	id <S262598AbTCZWl4>; Wed, 26 Mar 2003 17:41:56 -0500
+Message-ID: <3E81BE5C.400@cyclades.com>
+Date: Wed, 26 Mar 2003 14:51:08 +0000
+From: Henrique Gobbi <henrique2.gobbi@cyclades.com>
+Reply-To: henrique.gobbi@cyclades.com
+Organization: Cyclades Corporation
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.9) Gecko/20020408
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: linux-kernel@vger.kernel.org
+Subject: Interpretation of termios flags on a serial driver
+References: <1046909941.1028.1.camel@gandalf.ro0tsiege.org> <20030326092010.3EDA8124023@mx12.arcor-online.net>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 27 Mar 2003, Lincoln Dale wrote:
+Hi,
 
-> while the iSCSI spec has the concept of a "network portal" that can have 
-> multiple TCP streams for i/o, in the real world, i'm yet to see anything 
-> actually use those multiple streams.
+If this is not the right forum to discuss this matter, excuse me. Please 
+point me to the right place.
 
-Want a DEMO?  It is call Sync-WAN-Raid-Relay.
+I'm having some problems understanding three flags on the termios 
+struct: PARENB, INPCK, IGNPAR. After reading the termios manual a couple 
+of times I'm still not able to understand the different purposes of 
+these flags.
 
-> the reason why goes back to how SCSI works.  take a ethereal trace of iSCSI 
-> and you'll see the way that 2 round-trips are used before any typical i/o 
-> operation (read or write op) occurs.
-> multiple TCP streams for a given iSCSI session could potentially be used to 
-> achieve greater performance when the maximum-window-size of a single TCP 
-> stream is being hit.
-> but its quite rare for this to happen.
-> 
-> in reality, if you had multiple TCP streams, its more likely you're doing 
-> it for high-availability reasons (i.e. multipathing).
-> if you're multipathing, the chances are you want to multipath down two 
-> separate paths to two different iSCSI gateways.  (assuming you're talking 
-> to traditional SAN storage and you're gatewaying into Fibre Channel).
+What I understood:
 
-Why a SAN gateway switch, they are all LAN limited.
+1 - PARENB: if this flag is set the serial chip must generate parity 
+(odd or even depending on the flag PARODD). If this flag is not set, use 
+parity none.
 
-> handling multipathing in that manner is well beyond the scope of what an 
-> iSCSI driver in the kernel should be doing.
-> determining the policy (read-preferred / write-preferred / round-robin / 
-> ratio-of-i/o / sync-preferred+async-fallback / ...) on how those paths are 
-> used is most definitely something that should NEVER be in the kernel.
+2 - IGNPAR: two cases here:
+    	2.1 - PARENB is set: if IGNPAR is set the driver should ignore 			all 
+parity and framing errors and send the problematic bytes to 		tty flip 
+buffer as normal data. If this flag is not set the 			driver must send the 
+problematic data to the tty as problematic 		data.
 
-Only "NEVER" if you are depending on classic bloated SAN
-hardware/gateways.  The very operations you are calling never, is done in
-the gateways which is nothing more or less than an embedded system on
-crack.  So if this is an initiator which can manage sequencing streams, it
-is far superior than dealing with the SAN traps of today.
+	2.2 - PARENB is not set: disregard IGNPAR
 
-> btw, the performance of iSCSI over a single TCP stream is also a moot one also.
-> from a single host (IBM x335 Server i think?) communicating with a FC disk 
-> via an iSCSI gateway:
->          mds# sh int gig2/1
->          GigabitEthernet2/1 is up
->              Hardware is GigabitEthernet, address is xxxx.xxxx.xxxx
->              Internet address is xxx.xxx.xxx.xxx/24
->              MTU 1500  bytes, BW 1000000 Kbit
->              Port mode is IPS
->              Speed is 1 Gbps
->              Beacon is turned off
->              5 minutes input rate 21968640 bits/sec, 2746080 bytes/sec, 
-> 40420 frames/sec
->              5 minutes output rate 929091696 bits/sec, 116136462 bytes/sec, 
-> 80679 frames/sec
->                                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
->              74228360 packets input, 13218256042 bytes
->                15409 multicast frames, 0 compressed
->                0 input errors, 0 frame, 0 overrun 0 fifo
->              169487726 packets output, 241066793565 bytes, 0 underruns
->                0 output errors, 0 collisions, 0 fifo
->                0 carrier errors
+What I don't understand:
 
-What do you have for real iSCSI and no FC junk not supporting 
-interoperability?
+3 - Did I really understand the items 1 and 2 ?
 
-FC is dying and nobody who has wasted money on FC junk will be interested
-in iSCSI.  They wasted piles of money and have to justify it.
+4 - INPCK flag: What's the purpose of this flag. What's the diference in 
+relation to IGNPAR;
 
-> not bad for a single TCP stream and a software iSCSI stack. :-)
-> (kernel is 2.4.20)
+5 - If the TTY knows the data status (PARITY, FRAMING, OVERRUN, NORMAL), 
+why the driver has to deal with the flag IGNPAR. Shouldn't the TTY being 
+doing it ?
 
-Nice numbers, now do it over WAN.
-
-> >>>Both iSCSI and ENBD currently have issues with pending writes during
-> >>>network outages. The current I/O layer fails to report failed writes
-> >>>to fsync and friends.
-> >
-> >...not if your iSCSI implementation is up to spec.  ;-)
-> >
-> >>these are not "iSCSI" or "ENBD" issues.  these are issues with VFS.
-> >
-> >VFS+VM.  But, agreed.
-> 
-> sure - the devil is in the details - but the issue holds true for 
-> traditional block devices at this point also.
-
-Sweet kicker here, if you only allow the current rules of SAN to apply.
-This is what the big dogs want, and no new ideas allowed.
-
-Cheers,
-
-Andre Hedrick
-LAD Storage Consulting Group
-
-PS poking back at you for fun and serious points.
+Thanks in advance
+Henrique
 

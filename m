@@ -1,37 +1,34 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S315981AbSEQNNk>; Fri, 17 May 2002 09:13:40 -0400
+	id <S315480AbSEQNQl>; Fri, 17 May 2002 09:16:41 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316155AbSEQNNj>; Fri, 17 May 2002 09:13:39 -0400
-Received: from serenity.mcc.ac.uk ([130.88.200.93]:55562 "EHLO
-	serenity.mcc.ac.uk") by vger.kernel.org with ESMTP
-	id <S315981AbSEQNNh>; Fri, 17 May 2002 09:13:37 -0400
-Date: Fri, 17 May 2002 14:13:35 +0100
-From: John Levon <movement@marcelothewonderpenguin.com>
-To: linux-kernel@vger.kernel.org
-Subject: Re: AUDIT: copy_from_user is a deathtrap.
-Message-ID: <20020517131335.GA81462@compsoc.man.ac.uk>
-In-Reply-To: <E178hJt-0006Rb-00@the-village.bc.nu> <E178hJU-0002GS-00@wagner.rustcorp.com.au>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.25i
-X-Url: http://www.movementarian.org/
-X-Record: Bendik Singers - Afrotid
-X-Toppers: N/A
+	id <S316155AbSEQNQk>; Fri, 17 May 2002 09:16:40 -0400
+Received: from bay-bridge.veritas.com ([143.127.3.10]:45720 "EHLO
+	svldns02.veritas.com") by vger.kernel.org with ESMTP
+	id <S315480AbSEQNQj>; Fri, 17 May 2002 09:16:39 -0400
+Date: Fri, 17 May 2002 14:19:30 +0100 (BST)
+From: Hugh Dickins <hugh@veritas.com>
+To: Rusty Russell <rusty@rustcorp.com.au>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Fix BUG macro 
+In-Reply-To: <E178h82-0001o6-00@wagner.rustcorp.com.au>
+Message-ID: <Pine.LNX.4.21.0205171408560.1083-100000@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, May 17, 2002 at 10:58:08PM +1000, Rusty Russell wrote:
+On Fri, 17 May 2002, Rusty Russell wrote:
+> 
+> I don't care about the size of the kernel, I care about the fact that
+> the compile is 5x slower than it needs to be because the contents of
+> every pre-processed file depends on where the kernel tree happens to
+> be (see http://ccache.samba.org)
 
-> Again, like we did 12 months ago you mean?
+All power to you, speeding up your (and others') builds.  All power
+to you, eliminating the absolute pathnames (which I abhor for making
+comparisons harder).  But some do care about the size of the kernel
+too: your additional __FUNCTION__ hurts them and doesn't help you.
 
-Adding some comments on the interface to uaccess.h might help. It's way
-more convenient than looking it up in your guide
+Hugh
 
-regards
-john
--- 
-"It is very difficult to prophesy, especially when it pertains to the
- future."
- 	- Patrick Kurzawe

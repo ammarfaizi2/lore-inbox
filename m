@@ -1,50 +1,58 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272656AbTG1E1D (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 28 Jul 2003 00:27:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272657AbTG1E1D
+	id S272664AbTG1Eyj (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 28 Jul 2003 00:54:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272665AbTG1Eyj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 28 Jul 2003 00:27:03 -0400
-Received: from fw.osdl.org ([65.172.181.6]:18870 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S272656AbTG1E1B (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 28 Jul 2003 00:27:01 -0400
-Date: Sun, 27 Jul 2003 21:42:18 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Marino Fernandez <mjferna@yahoo.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Memory runs out fast with 2.6.0-test2 (and test1)
-Message-Id: <20030727214218.5b8148fb.akpm@osdl.org>
-In-Reply-To: <200307272335.55550.mjferna@yahoo.com>
-References: <200307272117.23398.mjferna@yahoo.com>
-	<20030727205912.1bb4a635.akpm@osdl.org>
-	<200307272335.55550.mjferna@yahoo.com>
-X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
+	Mon, 28 Jul 2003 00:54:39 -0400
+Received: from adsl-67-121-153-186.dsl.pltn13.pacbell.net ([67.121.153.186]:55449
+	"EHLO triplehelix.org") by vger.kernel.org with ESMTP
+	id S272664AbTG1Eyi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 28 Jul 2003 00:54:38 -0400
+Date: Sun, 27 Jul 2003 22:09:52 -0700
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: linux-kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: PATCH: kill another EXPORT_NO_SYMBOLS
+Message-ID: <20030728050952.GA10286@triplehelix.org>
+References: <200307272009.h6RK9eQD029641@hraefn.swansea.linux.org.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="M9NhX3UHpAaciwkO"
+Content-Disposition: inline
+In-Reply-To: <200307272009.h6RK9eQD029641@hraefn.swansea.linux.org.uk>
+User-Agent: Mutt/1.5.4i
+From: Joshua Kwan <joshk@triplehelix.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Marino Fernandez <mjferna@yahoo.com> wrote:
->
-> On Sunday 27 July 2003 10:59 pm, Andrew Morton wrote:
->  > Marino Fernandez <mjferna@yahoo.com> wrote:
->  > > Everything works OK in my system... my only gripe is that I run out of
->  > > memory quickly.
->  >
->  > Please monitor /proc/meminfo and /proc/slabinfo, see if you can work out
->  > where the memory has gone and post the results.
->  >
->  > What filesystems are you using there?
-> 
->  ext3
-> 
->  The rest of the info is attached
 
-I see no problem.  There are no large unreclaimable caches, there has been
-no swapout.
+--M9NhX3UHpAaciwkO
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Either you need to describe the problem a little more completely, or the
-info which you sent was not gathered at the correct time.
+On Sun, Jul 27, 2003 at 09:09:40PM +0100, Alan Cox wrote:
+> (R Krishnakumar)
+> =0Bs
 
+Huh?
+
+-Josh
+
+--=20
+Using words to describe magic is like using a screwdriver to cut roast beef.
+		-- Tom Robbins
+
+--M9NhX3UHpAaciwkO
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.2 (GNU/Linux)
+
+iD8DBQE/JLAgT2bz5yevw+4RAnHWAJ9fntRF5sQD4DydpWXHfCkamWrGngCfccKo
+tQnJf3npNLmFa+Ssk/uGj84=
+=v+N5
+-----END PGP SIGNATURE-----
+
+--M9NhX3UHpAaciwkO--

@@ -1,117 +1,53 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S282269AbRKWWHQ>; Fri, 23 Nov 2001 17:07:16 -0500
+	id <S282261AbRKWWIq>; Fri, 23 Nov 2001 17:08:46 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282266AbRKWWHJ>; Fri, 23 Nov 2001 17:07:09 -0500
-Received: from leibniz.math.psu.edu ([146.186.130.2]:60146 "EHLO math.psu.edu")
-	by vger.kernel.org with ESMTP id <S282258AbRKWWGw>;
-	Fri, 23 Nov 2001 17:06:52 -0500
-Date: Fri, 23 Nov 2001 17:06:46 -0500 (EST)
-From: Alexander Viro <viro@math.psu.edu>
-To: linux-kernel@vger.kernel.org
-cc: Linus Torvalds <torvalds@transmeta.com>,
-        Marcelo Tosatti <marcelo@conectiva.com.br>
-Subject: Re: [PATCH][CFT] Re: 2.4.15-pre9 breakage (inode.c)
-In-Reply-To: <Pine.GSO.4.21.0111231634310.2422-100000@weyl.math.psu.edu>
-Message-ID: <Pine.GSO.4.21.0111231701440.2422-100000@weyl.math.psu.edu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S282260AbRKWWIg>; Fri, 23 Nov 2001 17:08:36 -0500
+Received: from [209.249.147.248] ([209.249.147.248]:38152 "EHLO
+	proxy1.addr.com") by vger.kernel.org with ESMTP id <S282258AbRKWWIV>;
+	Fri, 23 Nov 2001 17:08:21 -0500
+Date: Fri, 23 Nov 2001 17:05:20 -0500
+From: Daniel Gryniewicz <dang@fprintf.net>
+To: James A Sutherland <jas88@cam.ac.uk>
+Cc: war@starband.net, oliver@neukum.org, linux-kernel@vger.kernel.org
+Subject: Re: Swap vs No Swap.
+Message-Id: <20011123170520.2276b8be.dang@fprintf.net>
+In-Reply-To: <E166wSm-00063a-00@mauve.csi.cam.ac.uk>
+In-Reply-To: <3BFC5A9B.915B77DF@starband.net>
+	<01112211150302.00690@argo>
+	<3BFD214F.36A55D94@starband.net>
+	<E166wSm-00063a-00@mauve.csi.cam.ac.uk>
+X-Mailer: Sylpheed version 0.6.3 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, 22 Nov 2001 16:12:32 +0000
+James A Sutherland <jas88@cam.ac.uk> wrote:
 
+> "when it swaps" is meaningless: Linux ALWAYS swaps when there is swapspace. 
+> Do you mean when it *thrashes*? Or does your system have problems during I/O
 
-On Fri, 23 Nov 2001, Alexander Viro wrote:
+> such as not using DMA for disk access?
 
-> 	Untested fix follows.  And please, pass the brown paperbag... ;-/
+[17:03 athena] dang> free
+             total       used       free     shared    buffers     cached
+Mem:        255304     184416      70888        716      12636      77524
+-/+ buffers/cache:      94256     161048
+Swap:       128484          0     128484
+[17:03 athena] dang> uname -a
+Linux athena.fprintf.net 2.4.13-ac7-preempt-sse #1 Mon Nov 5 14:06:53 EST 2001
+i686 unknown
+[17:04 athena] dang> 
 
-... and now for something that really builds:
+Linux does not always swap.
 
-diff -urN S15/fs/inode.c S15-fix/fs/inode.c
---- S15/fs/inode.c	Fri Nov 23 06:45:43 2001
-+++ S15-fix/fs/inode.c	Fri Nov 23 17:04:05 2001
-@@ -1065,24 +1065,27 @@
- 			if (inode->i_state != I_CLEAR)
- 				BUG();
- 		} else {
--			if (!list_empty(&inode->i_hash) && sb && sb->s_root) {
-+			if (!list_empty(&inode->i_hash)) {
- 				if (!(inode->i_state & (I_DIRTY|I_LOCK))) {
- 					list_del(&inode->i_list);
- 					list_add(&inode->i_list, &inode_unused);
- 				}
- 				inodes_stat.nr_unused++;
- 				spin_unlock(&inode_lock);
--				return;
--			} else {
--				list_del_init(&inode->i_list);
-+				if (!sb || sb->s_flags & MS_ACTIVE)
-+					return;
-+				write_inode_now(inode, 1);
-+				spin_lock(&inode_lock);
-+				inodes_stat.nr_unused--;
- 				list_del_init(&inode->i_hash);
--				inode->i_state|=I_FREEING;
--				inodes_stat.nr_inodes--;
--				spin_unlock(&inode_lock);
--				if (inode->i_data.nrpages)
--					truncate_inode_pages(&inode->i_data, 0);
--				clear_inode(inode);
- 			}
-+			list_del_init(&inode->i_list);
-+			inode->i_state|=I_FREEING;
-+			inodes_stat.nr_inodes--;
-+			spin_unlock(&inode_lock);
-+			if (inode->i_data.nrpages)
-+				truncate_inode_pages(&inode->i_data, 0);
-+			clear_inode(inode);
- 		}
- 		destroy_inode(inode);
- 	}
-diff -urN S15/fs/super.c S15-fix/fs/super.c
---- S15/fs/super.c	Fri Nov 23 06:45:43 2001
-+++ S15-fix/fs/super.c	Fri Nov 23 16:56:50 2001
-@@ -462,6 +462,7 @@
- 	lock_super(s);
- 	if (!type->read_super(s, data, flags & MS_VERBOSE ? 1 : 0))
- 		goto out_fail;
-+	s->s_flags |= MS_ACTIVE;
- 	unlock_super(s);
- 	/* tell bdcache that we are going to keep this one */
- 	if (bdev)
-@@ -614,6 +615,7 @@
- 	lock_super(s);
- 	if (!fs_type->read_super(s, data, flags & MS_VERBOSE ? 1 : 0))
- 		goto out_fail;
-+	s->s_flags |= MS_ACTIVE;
- 	unlock_super(s);
- 	get_filesystem(fs_type);
- 	path_release(&nd);
-@@ -695,6 +697,7 @@
- 		lock_super(s);
- 		if (!fs_type->read_super(s, data, flags & MS_VERBOSE ? 1 : 0))
- 			goto out_fail;
-+		s->s_flags |= MS_ACTIVE;
- 		unlock_super(s);
- 		get_filesystem(fs_type);
- 		return s;
-@@ -739,6 +742,7 @@
- 	dput(root);
- 	fsync_super(sb);
- 	lock_super(sb);
-+	sb->s_flags &= ~MS_ACTIVE;
- 	invalidate_inodes(sb);	/* bad name - it should be evict_inodes() */
- 	if (sop) {
- 		if (sop->write_super && sb->s_dirt)
-diff -urN S15/include/linux/fs.h S15-fix/include/linux/fs.h
---- S15/include/linux/fs.h	Fri Nov 23 06:45:44 2001
-+++ S15-fix/include/linux/fs.h	Fri Nov 23 17:01:18 2001
-@@ -110,6 +110,7 @@
- #define MS_BIND		4096
- #define MS_REC		16384
- #define MS_VERBOSE	32768
-+#define MS_ACTIVE	(1<<30)
- #define MS_NOUSER	(1<<31)
- 
- /*
+Daniel
+
+--- 
+Recursion n.:
+        See Recursion.
+                        -- Random Shack Data Processing Dictionary
 

@@ -1,43 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S262564AbSIUQUy>; Sat, 21 Sep 2002 12:20:54 -0400
+	id <S262489AbSIUQW0>; Sat, 21 Sep 2002 12:22:26 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263334AbSIUQUy>; Sat, 21 Sep 2002 12:20:54 -0400
-Received: from modemcable166.48-200-24.mtl.mc.videotron.ca ([24.200.48.166]:34005
-	"EHLO xanadu.home") by vger.kernel.org with ESMTP
-	id <S262564AbSIUQUx>; Sat, 21 Sep 2002 12:20:53 -0400
-Date: Sat, 21 Sep 2002 12:25:59 -0400 (EDT)
-From: Nicolas Pitre <nico@cam.org>
-X-X-Sender: nico@xanadu.home
-To: lkml <linux-kernel@vger.kernel.org>
-Subject: [PATCH] fix to strchr() in lib/string.c
-Message-ID: <Pine.LNX.4.44.0209211209390.15918-100000@xanadu.home>
+	id <S263334AbSIUQW0>; Sat, 21 Sep 2002 12:22:26 -0400
+Received: from franka.aracnet.com ([216.99.193.44]:34196 "EHLO
+	franka.aracnet.com") by vger.kernel.org with ESMTP
+	id <S262489AbSIUQWZ>; Sat, 21 Sep 2002 12:22:25 -0400
+Date: Sat, 21 Sep 2002 09:25:18 -0700
+From: "Martin J. Bligh" <mbligh@aracnet.com>
+Reply-To: "Martin J. Bligh" <mbligh@aracnet.com>
+To: Florin Iucha <florin@iucha.net>
+cc: Helge Hafting <helgehaf@aitel.hist.no>, linux-kernel@vger.kernel.org
+Subject: Re: 2.5.37 won't run X?
+Message-ID: <597384533.1032600316@[10.10.2.3]>
+In-Reply-To: <20020921161702.GA709@iucha.net>
+References: <20020921161702.GA709@iucha.net>
+X-Mailer: Mulberry/2.1.2 (Win32)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+>> > X won't start on 2.5.37, but works with 2.5.36
+>> > The screen goes black as usual, but then nothing else happens.
+>> > ssh'ing in from another machine shows XFree86 using 50% cpu,
+>> > i.e. one of the two cpu's in this machine.
+>> 
+>> Looks like Linus fixed this already in his BK tree ... want
+>> to grab that and see if it fixes your problem?
+> 
+> What changeset do you think fixed this?
 
-The return value of strchr("foo",0) should be the start address of
-"foo" + 3, not NULL.
+Well, this bit looked hopeful:
 
-
---- linux/lib/string.c	Thu Aug  1 17:16:34 2002
-+++ linux/lib/string.c	Sat Sep 21 12:21:54 2002
-@@ -190,10 +190,11 @@
-  */
- char * strchr(const char * s, int c)
- {
--	for(; *s != (char) c; ++s)
--		if (*s == '\0')
--			return NULL;
--	return (char *) s;
-+	do {
-+		if (*s == (char) c)
-+			return (char *) s;
-+	} while (*s++);
-+	return NULL;
- }
- #endif
+23 hours torvalds 1.575 Fix vm86 system call interface to entry.S. 
+This has been broken since the thread_info support went in (early July), 
+and can cause lockups at X startup etc. 
  
 

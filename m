@@ -1,63 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261880AbUKVBCy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261889AbUKVBEV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261880AbUKVBCy (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 21 Nov 2004 20:02:54 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261881AbUKVBCy
+	id S261889AbUKVBEV (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 21 Nov 2004 20:04:21 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261884AbUKVBEF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 21 Nov 2004 20:02:54 -0500
-Received: from fw.osdl.org ([65.172.181.6]:48871 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S261880AbUKVBCw (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 21 Nov 2004 20:02:52 -0500
-Date: Sun, 21 Nov 2004 17:02:42 -0800 (PST)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Jan Engelhardt <jengelh@linux01.gwdg.de>
-cc: linux-os@analogic.com, Russell King <rmk+lkml@arm.linux.org.uk>,
-       Linux Kernel List <linux-kernel@vger.kernel.org>
-Subject: Re: sparse segfaults
-In-Reply-To: <Pine.LNX.4.53.0411212343340.17752@yvahk01.tjqt.qr>
-Message-ID: <Pine.LNX.4.58.0411211644200.20993@ppc970.osdl.org>
-References: <20041120143755.E13550@flint.arm.linux.org.uk>
- <Pine.LNX.4.61.0411211705480.16359@chaos.analogic.com>
- <Pine.LNX.4.58.0411211433540.20993@ppc970.osdl.org>
- <Pine.LNX.4.53.0411212343340.17752@yvahk01.tjqt.qr>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Sun, 21 Nov 2004 20:04:05 -0500
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:31414 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id S261881AbUKVBCz
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 21 Nov 2004 20:02:55 -0500
+Date: Mon, 22 Nov 2004 01:02:53 +0000
+From: Matthew Wilcox <matthew@wil.cx>
+To: Jesper Juhl <juhl-lkml@dif.dk>
+Cc: Matthew Wilcox <matthew@wil.cx>,
+       linux-fsdevel <linux-fsdevel@vger.kernel.org>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] Remove pointless <0 comparison for unsigned variable in fs/fcntl.c
+Message-ID: <20041122010253.GE25636@parcelfarce.linux.theplanet.co.uk>
+References: <Pine.LNX.4.61.0411212351210.3423@dragon.hygekrogen.localhost>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.61.0411212351210.3423@dragon.hygekrogen.localhost>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-On Sun, 21 Nov 2004, Jan Engelhardt wrote:
+On Sun, Nov 21, 2004 at 11:55:23PM +0100, Jesper Juhl wrote:
+> This patch removes a pointless comparison. "arg" is an unsigned long, thus 
+> it can never be <0, so testing that is pointless.
 > 
-> And it's specific to GCC. This kinda ruins some tries to get ICC working on the
-> kernel tree :)
+> Signed-off-by: Jesper Juhl <juhl-lkml@dif.dk>
+> 
+>  	case F_SETSIG:
+>  		/* arg == 0 restores default behaviour. */
+> -		if (arg < 0 || arg > _NSIG) {
+> +		if (arg > _NSIG) {
+>  			break;
 
-Ahh, but Intel compiler developers are cunning, and can make (and afaik, 
-_did_ make) icc compatible with the good gcc extensions.
+I've seen patches like this before.  I'm generally in favour of removing
+the unnecessary test, but Linus rejected it on the grounds the compiler
+shouldn't be warning about it and it's better to be more explicit about
+the range test.  Maybe he's changed his mind between then and now ;-)
 
-And as we all know, the definition of "good gcc extension" really is "the
-kernel uses it". (Some of the good ones turned up in C99 and are thus no
-longer extensions - obviously gcc wasn't the only compiler that
-implemented them).
-
-Good gcc extensions:
- - the inline asm syntax (which could be better, but hey, the gcc syntax
-   is certainly not the worst around either)
- - statement expressions (but dammit, it should have used "return" to 
-   return the value)
- - short conditionals
- - symbol attributes (sections, "used", asm naming, etc)
- - local labels and computed goto
- - case ranges
- - typeof and alignof.
- - void * arithmetic
-
-BAD gcc extensions:
- - nested functions (gaah)
- - extended lvalues (casts, conditionals and comma-operators as lvalues. 
-   They are just too confusing)
- - transparent unions (dammit, you could have done it with overloading
-   instead).
-
-		Linus
+-- 
+"Next the statesmen will invent cheap lies, putting the blame upon 
+the nation that is attacked, and every man will be glad of those
+conscience-soothing falsities, and will diligently study them, and refuse
+to examine any refutations of them; and thus he will by and by convince 
+himself that the war is just, and will thank God for the better sleep 
+he enjoys after this process of grotesque self-deception." -- Mark Twain

@@ -1,68 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264908AbUFTKZO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265002AbUFTK3Z@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264908AbUFTKZO (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 20 Jun 2004 06:25:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265002AbUFTKZO
+	id S265002AbUFTK3Z (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 20 Jun 2004 06:29:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265770AbUFTK3Z
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 20 Jun 2004 06:25:14 -0400
-Received: from smtp107.mail.sc5.yahoo.com ([66.163.169.227]:5290 "HELO
-	smtp107.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S264908AbUFTKZI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 20 Jun 2004 06:25:08 -0400
-Message-ID: <40D565FE.1050903@yahoo.com.au>
-Date: Sun, 20 Jun 2004 20:25:02 +1000
+	Sun, 20 Jun 2004 06:29:25 -0400
+Received: from smtp017.mail.yahoo.com ([216.136.174.114]:45976 "HELO
+	smtp017.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S265002AbUFTK3X (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 20 Jun 2004 06:29:23 -0400
+Message-ID: <40D56700.2030206@yahoo.com.au>
+Date: Sun, 20 Jun 2004 20:29:20 +1000
 From: Nick Piggin <nickpiggin@yahoo.com.au>
 User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040401 Debian/1.6-4
 X-Accept-Language: en
 MIME-Version: 1.0
-To: Geert Uytterhoeven <geert@linux-m68k.org>
-CC: Linux Kernel Development <linux-kernel@vger.kernel.org>,
-       Linux/m68k <linux-m68k@lists.linux-m68k.org>
-Subject: Re: page allocation failure. order:0, mode:0x20
-References: <Pine.GSO.4.58.0406201115470.23356@waterleaf.sonytel.be>
-In-Reply-To: <Pine.GSO.4.58.0406201115470.23356@waterleaf.sonytel.be>
+To: Matthias Schniedermeyer <ms@citd.de>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Kernel 2.6.6 & 2.6.7 sometime hang after much I/O
+References: <Pine.LNX.4.44.0406201123240.26522-100000@korben.citd.de>
+In-Reply-To: <Pine.LNX.4.44.0406201123240.26522-100000@korben.citd.de>
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Geert Uytterhoeven wrote:
-> While running 2.6.7 on my Amiga, I got:
+Matthias Schniedermeyer wrote:
+> Hi
 > 
-> | cp: page allocation failure. order:0, mode:0x20
-> | Call Trace: [<000290a8>] __alloc_pages+0x230/0x250
-> |  [<00159e9b>] sine_data+0x1142/0x1d95
-> |  [<0001c9cc>] update_wall_time+0x16/0x3a
-> |  [<000290f2>] __get_free_pages+0x2a/0x3e
-> |  [<0002bc4a>] kmem_getpages+0x24/0xc2
-> |  [<0002c54c>] cache_grow+0x7c/0x196
-> |  [<0002c7ae>] cache_alloc_refill+0x148/0x17c
-> |  [<0000220d>] init+0xc3/0xc8
-> |  [<00001000>] _stext+0x0/0x1000
-> |  [<0002cc62>] __kmalloc+0x4e/0x6a
-> |  [<000f89be>] alloc_skb+0x3e/0x102
-> |  [<000d8d90>] ariadne_rx+0xb2/0x208
-> |  [<0000f204>] scosh+0x1a8/0x540
-> |  [<000d8936>] ariadne_interrupt+0x70/0x23a
-> |  [<00001000>] _stext+0x0/0x1000
-> |  [<0000a67c>] amiga_do_irq_list+0x42/0x54
-> |  [<0000abfa>] cia_handler+0x76/0x80
-> |  [<00001000>] _stext+0x0/0x1000
-> |  [<000063c6>] process_int+0x42/0x70
-> |  [<000051de>] inthandler+0x2a/0x2c
-> |  ...
 > 
-> But it looks like there are still opportunities to allocate memory:
 > 
-> | # free
-> |              total       used       free     shared    buffers     cached
-> | Mem:         10260       9844        416          0        240       5004
-> | -/+ buffers/cache:       4600       5660
-> | Swap:        33256       3796      29460
+> First. Kernels <= 2.6.5 don't have this problem. After 2.6.6 show this
+> behaviour sometimes i downgraded to 2.6.5 as i thought that it would be
+> fixed in 2.6.7, but 2.6.7 also show this behaviour.
+> 
+> The I/O i do is split some large files (>2GB) into smaller files <= 2GB.
+> Sometimes the process that does this just hangs (currently i have such a
+> hangung process), top currently shows up to 90% I/O-Wait.
+> 
+> SOME of my "konsole"s(xterm) hang then too, but others don't (like this
+> where i type this email) starting new "konsole"s sometimes work, sometimes
+> not.
+> 
+> System is:
+> Distribution: Debian SID.
+> 2xP3-933Mhz, 3GB-RAM, Serverworks HE-SL-Chipset
+> "System"-HDD is SCSI connected via Symbios-53c1010 (Dual U160)
+> "Data"-HDD(s)(where the split-process does it's work) is connected to a
+> Highpoint RocketRAID 1540 (HPT-374 Chipset)
+> Filesystem is XFS for the Data-HDD(s) and Reiserfs for the system-HDD.
+> 
+> If other info is needed i will provide them.
 > 
 
-Not even atomic allocations memory are allowed to consume all memory.
-A small amount is reserved for memory freeing (which sometimes
-requires initial memory allocations).
+When the process has hung, press Alt + SysRq + T to get a task
+trace. Run
 
-The message should be harmless.
+	dmesg -s 1000000 > tmp
+
+and send us tmp. You'd better send your .config and dmesg too.
+
+Thanks

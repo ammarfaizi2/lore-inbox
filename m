@@ -1,45 +1,31 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S264329AbRF3Urr>; Sat, 30 Jun 2001 16:47:47 -0400
+	id <S262168AbRF3VDr>; Sat, 30 Jun 2001 17:03:47 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S264331AbRF3Uri>; Sat, 30 Jun 2001 16:47:38 -0400
-Received: from iris.kkt.bme.hu ([152.66.114.1]:21005 "HELO iris.kkt.bme.hu")
-	by vger.kernel.org with SMTP id <S264329AbRF3UrZ>;
-	Sat, 30 Jun 2001 16:47:25 -0400
-Date: Sat, 30 Jun 2001 22:47:23 +0200 (CEST)
-From: PALFFY Daniel <dpalffy@kkt.bme.hu>
-To: Jeff Garzik <jgarzik@mandrakesoft.com>,
-        Alan Cox <laughing@shared-source.org>, linux-kernel@vger.kernel.org
-Subject: 2.4.5-acX, airo_cs
-Message-ID: <Pine.LNX.4.21.0106302244420.18632-100000@iris.kkt.bme.hu>
+	id <S264421AbRF3VDi>; Sat, 30 Jun 2001 17:03:38 -0400
+Received: from perninha.conectiva.com.br ([200.250.58.156]:60431 "HELO
+	perninha.conectiva.com.br") by vger.kernel.org with SMTP
+	id <S262168AbRF3VD0>; Sat, 30 Jun 2001 17:03:26 -0400
+Date: Sat, 30 Jun 2001 16:30:29 -0300 (BRT)
+From: Marcelo Tosatti <marcelo@conectiva.com.br>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: lkml <linux-kernel@vger.kernel.org>, linux-mm@kvack.org
+Subject: Removal of PG_marker scheme from 2.4.6-pre
+Message-ID: <Pine.LNX.4.21.0106301628570.3394-100000@freak.distro.conectiva>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-Hi!
+Linus, 
 
-A small patch to airo.c to allow the module to load even if no pci or isa
-cards are found, because airo_cs needs the airo module to load.
+In pre7:
 
---- linux/drivers/net/wireless/airo.c~	Sat Jun 30 22:37:10 2001
-+++ linux/drivers/net/wireless/airo.c	Sat Jun 30 22:37:33 2001
-@@ -2988,9 +2988,7 @@
- 	 * fails with an error other than -ENODEV, instead of proceeding,
- 	 * if ISA devs are present.
- 	 */
--	if (have_isa_dev)
--		return 0;
--	return rc;
-+	return 0;
- }
- 
- static void __exit airo_cleanup_module( void )
+"me: undo page_launder() LRU changes, they have nasty side effects"
 
 
---
-Dani
-			...and Linux for all.
+Can you be more verbose about this ? 
 
+Thanks 
 

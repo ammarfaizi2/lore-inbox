@@ -1,326 +1,35 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269328AbUINOd5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269347AbUINOon@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269328AbUINOd5 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 14 Sep 2004 10:33:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269347AbUINOd5
+	id S269347AbUINOon (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 14 Sep 2004 10:44:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269357AbUINOom
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 14 Sep 2004 10:33:57 -0400
-Received: from web53501.mail.yahoo.com ([206.190.37.62]:43199 "HELO
-	web53501.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S269328AbUINOdk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 14 Sep 2004 10:33:40 -0400
-Message-ID: <20040914143339.30588.qmail@web53501.mail.yahoo.com>
-Date: Tue, 14 Sep 2004 07:33:39 -0700 (PDT)
-From: Lawrence Wong <lawrencewong72@yahoo.com>
-Subject: Kernel 2.8.6.1 & VLAN & E100
+	Tue, 14 Sep 2004 10:44:42 -0400
+Received: from rproxy.gmail.com ([64.233.170.196]:9381 "EHLO mproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S269347AbUINOol (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 14 Sep 2004 10:44:41 -0400
+Message-ID: <6dd83da040914074469c4f521@mail.gmail.com>
+Date: Tue, 14 Sep 2004 17:44:41 +0300
+From: Kostadin Karaivanov <k.karaivanov@gmail.com>
+Reply-To: Kostadin Karaivanov <k.karaivanov@gmail.com>
 To: linux-kernel@vger.kernel.org
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Subject: less
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi everyone,
+I'm slackware user
+today I upgraded mu box to kernel 2.6.9-rc2
+for surprize the command less stops to work
+after displaying of exactly one screen output it exits with following
 
-I am currently using Fedora Core 2 on a P3 w/512MB
-RAM, 2 x 18.2GB SCSI in RAID1 via an IBM ServeRAID-4M.
-Network card is an Intel 100 S controller.
-
-All except the kernel is stock FC2. The kernel is
-2.6.8.1 and compiled from the tarball found on
-ftp.kernel.org .
-
-Everything works fine until I tried to enable VLAN and
-use VLAN subinterfaces. The VLAN subinterface comes up
-fine but the moment I send traffic in/out of the
-interface (i.e. ping), a huge and neverending chunk of
-"bad scheduling while atomic" errors pop up
-immediately and does not go away until I press
-CTRL+ALT+DEL.
-
-An extract of the error can be found below. But when I
-run the system in normal non-VLAN mode, the problem
-does not occur. So I am inclined to believe it either
-has something to do with the VLAN driver or VLAN
-driver + INTEL 10/100 driver.
-
-Has anyone encountered before or know of any
-solutions?
-
-Please reply to me off-list as I am not subscribed to
-the mailing list.
-
-TIA!
-
-Sep 14 19:16:17 testserver kernel: bad: scheduling
-while atomic!
-Sep 14 19:16:17 testserver kernel:  [<c02e72e9>]
-schedule+0x499/0x4a0
-Sep 14 19:16:17 testserver kernel:  [<c0104898>]
-common_interrupt+0x18/0x20
-Sep 14 19:16:17 testserver kernel:  [<c010206b>]
-cpu_idle+0x3b/0x40
-Sep 14 19:16:17 testserver kernel:  [<c03be73d>]
-start_kernel+0x14d/0x170
-Sep 14 19:16:17 testserver kernel:  [<c03be370>]
-unknown_bootoption+0x0/0x160
-Sep 14 19:16:17 testserver kernel: bad: scheduling
-while atomic!
-Sep 14 19:16:17 testserver kernel:  [<c02e72e9>]
-schedule+0x499/0x4a0
-Sep 14 19:16:17 testserver kernel:  [<c0104898>]
-common_interrupt+0x18/0x20
-Sep 14 19:16:17 testserver kernel:  [<c010206b>]
-cpu_idle+0x3b/0x40
-Sep 14 19:16:17 testserver kernel:  [<c03be73d>]
-start_kernel+0x14d/0x170
-Sep 14 19:16:17 testserver kernel:  [<c03be370>]
-unknown_bootoption+0x0/0x160
-Sep 14 19:16:17 testserver kernel: bad: scheduling
-while atomic!
-Sep 14 19:16:17 testserver kernel:  [<c02e72e9>]
-schedule+0x499/0x4a0
-Sep 14 19:16:17 testserver kernel:  [<c0104898>]
-common_interrupt+0x18/0x20
-Sep 14 19:16:17 testserver kernel:  [<c010206b>]
-cpu_idle+0x3b/0x40
-Sep 14 19:16:17 testserver kernel:  [<c03be73d>]
-start_kernel+0x14d/0x170
-Sep 14 19:16:17 testserver kernel:  [<c03be370>]
-unknown_bootoption+0x0/0x160
-Sep 14 19:16:17 testserver kernel: bad: scheduling
-while atomic!
-Sep 14 19:16:18 testserver kernel:  [<c02e72e9>]
-schedule+0x499/0x4a0
-Sep 14 19:16:18 testserver kernel:  [<c0104898>]
-common_interrupt+0x18/0x20
-Sep 14 19:16:18 testserver kernel:  [<c010206b>]
-cpu_idle+0x3b/0x40
-Sep 14 19:16:18 testserver kernel:  [<c03be73d>]
-start_kernel+0x14d/0x170
-Sep 14 19:16:18 testserver kernel:  [<c03be370>]
-unknown_bootoption+0x0/0x160
-Sep 14 19:16:18 testserver kernel: bad: scheduling
-while atomic!
-Sep 14 19:16:18 testserver kernel:  [<c02e72e9>]
-schedule+0x499/0x4a0
-Sep 14 19:16:18 testserver kernel:  [<c0104898>]
-common_interrupt+0x18/0x20
-Sep 14 19:16:18 testserver kernel:  [<c010206b>]
-cpu_idle+0x3b/0x40
-Sep 14 19:16:18 testserver kernel:  [<c03be73d>]
-start_kernel+0x14d/0x170
-Sep 14 19:16:18 testserver kernel:  [<c03be370>]
-unknown_bootoption+0x0/0x160
-Sep 14 19:16:18 testserver kernel: bad: scheduling
-while atomic!
-Sep 14 19:16:18 testserver kernel:  [<c02e72e9>]
-schedule+0x499/0x4a0
-Sep 14 19:16:19 testserver kernel:  [<c0104898>]
-common_interrupt+0x18/0x20
-Sep 14 19:16:19 testserver kernel:  [<c010206b>]
-cpu_idle+0x3b/0x40
-Sep 14 19:16:19 testserver kernel:  [<c03be73d>]
-start_kernel+0x14d/0x170
-Sep 14 19:16:19 testserver kernel:  [<c03be370>]
-unknown_bootoption+0x0/0x160
-Sep 14 19:16:19 testserver kernel: bad: scheduling
-while atomic!
-Sep 14 19:16:19 testserver kernel:  [<c02e72e9>]
-schedule+0x499/0x4a0
-Sep 14 19:16:19 testserver kernel:  [<c0104898>]
-common_interrupt+0x18/0x20
-Sep 14 19:16:19 testserver kernel:  [<c010206b>]
-cpu_idle+0x3b/0x40
-Sep 14 19:16:19 testserver kernel:  [<c03be73d>]
-start_kernel+0x14d/0x170
-Sep 14 19:16:19 testserver kernel:  [<c03be370>]
-unknown_bootoption+0x0/0x160
-Sep 14 19:16:20 testserver kernel: bad: scheduling
-while atomic!
-Sep 14 19:16:20 testserver kernel:  [<c02e72e9>]
-schedule+0x499/0x4a0
-Sep 14 19:16:20 testserver kernel:  [<c0104898>]
-common_interrupt+0x18/0x20
-Sep 14 19:16:20 testserver kernel:  [<c010206b>]
-cpu_idle+0x3b/0x40
-Sep 14 19:16:20 testserver kernel:  [<c03be73d>]
-start_kernel+0x14d/0x170
-Sep 14 19:16:20 testserver kernel:  [<c03be370>]
-unknown_bootoption+0x0/0x160
-Sep 14 19:16:20 testserver kernel: bad: scheduling
-while atomic!
-Sep 14 19:16:20 testserver kernel:  [<c02e72e9>]
-schedule+0x499/0x4a0
-Sep 14 19:16:20 testserver kernel:  [<c0104898>]
-common_interrupt+0x18/0x20
-Sep 14 19:16:20 testserver kernel:  [<c010206b>]
-cpu_idle+0x3b/0x40
-Sep 14 19:16:20 testserver kernel:  [<c03be73d>]
-start_kernel+0x14d/0x170
-Sep 14 19:16:20 testserver kernel:  [<c03be370>]
-unknown_bootoption+0x0/0x160
-Sep 14 19:16:20 testserver kernel: bad: scheduling
-while atomic!
-Sep 14 19:16:21 testserver kernel:  [<c02e72e9>]
-schedule+0x499/0x4a0
-Sep 14 19:16:21 testserver kernel:  [<c0104898>]
-common_interrupt+0x18/0x20
-Sep 14 19:16:21 testserver kernel:  [<c010206b>]
-cpu_idle+0x3b/0x40
-Sep 14 19:16:21 testserver kernel:  [<c03be73d>]
-start_kernel+0x14d/0x170
-Sep 14 19:16:21 testserver kernel:  [<c03be370>]
-unknown_bootoption+0x0/0x160
-Sep 14 19:16:21 testserver kernel: bad: scheduling
-while atomic!
-Sep 14 19:16:21 testserver kernel:  [<c02e72e9>]
-schedule+0x499/0x4a0
-Sep 14 19:16:21 testserver kernel:  [<c0104898>]
-common_interrupt+0x18/0x20
-Sep 14 19:16:21 testserver kernel:  [<c010206b>]
-cpu_idle+0x3b/0x40
-Sep 14 19:16:21 testserver kernel:  [<c03be73d>]
-start_kernel+0x14d/0x170
-Sep 14 19:16:21 testserver kernel:  [<c03be370>]
-unknown_bootoption+0x0/0x160
-
-Sep 14 19:16:17 testserver kernel: bad: scheduling
-while atomic!
-Sep 14 19:16:17 testserver kernel:  [<c02e72e9>]
-schedule+0x499/0x4a0
-Sep 14 19:16:17 testserver kernel:  [<c0104898>]
-common_interrupt+0x18/0x20
-Sep 14 19:16:17 testserver kernel:  [<c010206b>]
-cpu_idle+0x3b/0x40
-Sep 14 19:16:17 testserver kernel:  [<c03be73d>]
-start_kernel+0x14d/0x170
-Sep 14 19:16:17 testserver kernel:  [<c03be370>]
-unknown_bootoption+0x0/0x160
-Sep 14 19:16:17 testserver kernel: bad: scheduling
-while atomic!
-Sep 14 19:16:17 testserver kernel:  [<c02e72e9>]
-schedule+0x499/0x4a0
-Sep 14 19:16:17 testserver kernel:  [<c0104898>]
-common_interrupt+0x18/0x20
-Sep 14 19:16:17 testserver kernel:  [<c010206b>]
-cpu_idle+0x3b/0x40
-Sep 14 19:16:17 testserver kernel:  [<c03be73d>]
-start_kernel+0x14d/0x170
-Sep 14 19:16:17 testserver kernel:  [<c03be370>]
-unknown_bootoption+0x0/0x160
-Sep 14 19:16:17 testserver kernel: bad: scheduling
-while atomic!
-Sep 14 19:16:17 testserver kernel:  [<c02e72e9>]
-schedule+0x499/0x4a0
-Sep 14 19:16:17 testserver kernel:  [<c0104898>]
-common_interrupt+0x18/0x20
-Sep 14 19:16:17 testserver kernel:  [<c010206b>]
-cpu_idle+0x3b/0x40
-Sep 14 19:16:17 testserver kernel:  [<c03be73d>]
-start_kernel+0x14d/0x170
-Sep 14 19:16:17 testserver kernel:  [<c03be370>]
-unknown_bootoption+0x0/0x160
-Sep 14 19:16:17 testserver kernel: bad: scheduling
-while atomic!
-Sep 14 19:16:18 testserver kernel:  [<c02e72e9>]
-schedule+0x499/0x4a0
-Sep 14 19:16:18 testserver kernel:  [<c0104898>]
-common_interrupt+0x18/0x20
-Sep 14 19:16:18 testserver kernel:  [<c010206b>]
-cpu_idle+0x3b/0x40
-Sep 14 19:16:18 testserver kernel:  [<c03be73d>]
-start_kernel+0x14d/0x170
-Sep 14 19:16:18 testserver kernel:  [<c03be370>]
-unknown_bootoption+0x0/0x160
-Sep 14 19:16:18 testserver kernel: bad: scheduling
-while atomic!
-Sep 14 19:16:18 testserver kernel:  [<c02e72e9>]
-schedule+0x499/0x4a0
-Sep 14 19:16:18 testserver kernel:  [<c0104898>]
-common_interrupt+0x18/0x20
-Sep 14 19:16:18 testserver kernel:  [<c010206b>]
-cpu_idle+0x3b/0x40
-Sep 14 19:16:18 testserver kernel:  [<c03be73d>]
-start_kernel+0x14d/0x170
-Sep 14 19:16:18 testserver kernel:  [<c03be370>]
-unknown_bootoption+0x0/0x160
-Sep 14 19:16:18 testserver kernel: bad: scheduling
-while atomic!
-Sep 14 19:16:18 testserver kernel:  [<c02e72e9>]
-schedule+0x499/0x4a0
-Sep 14 19:16:19 testserver kernel:  [<c0104898>]
-common_interrupt+0x18/0x20
-Sep 14 19:16:19 testserver kernel:  [<c010206b>]
-cpu_idle+0x3b/0x40
-Sep 14 19:16:19 testserver kernel:  [<c03be73d>]
-start_kernel+0x14d/0x170
-Sep 14 19:16:19 testserver kernel:  [<c03be370>]
-unknown_bootoption+0x0/0x160
-Sep 14 19:16:19 testserver kernel: bad: scheduling
-while atomic!
-Sep 14 19:16:19 testserver kernel:  [<c02e72e9>]
-schedule+0x499/0x4a0
-Sep 14 19:16:19 testserver kernel:  [<c0104898>]
-common_interrupt+0x18/0x20
-Sep 14 19:16:19 testserver kernel:  [<c010206b>]
-cpu_idle+0x3b/0x40
-Sep 14 19:16:19 testserver kernel:  [<c03be73d>]
-start_kernel+0x14d/0x170
-Sep 14 19:16:19 testserver kernel:  [<c03be370>]
-unknown_bootoption+0x0/0x160
-Sep 14 19:16:20 testserver kernel: bad: scheduling
-while atomic!
-Sep 14 19:16:20 testserver kernel:  [<c02e72e9>]
-schedule+0x499/0x4a0
-Sep 14 19:16:20 testserver kernel:  [<c0104898>]
-common_interrupt+0x18/0x20
-Sep 14 19:16:20 testserver kernel:  [<c010206b>]
-cpu_idle+0x3b/0x40
-Sep 14 19:16:20 testserver kernel:  [<c03be73d>]
-start_kernel+0x14d/0x170
-Sep 14 19:16:20 testserver kernel:  [<c03be370>]
-unknown_bootoption+0x0/0x160
-Sep 14 19:16:20 testserver kernel: bad: scheduling
-while atomic!
-Sep 14 19:16:20 testserver kernel:  [<c02e72e9>]
-schedule+0x499/0x4a0
-Sep 14 19:16:20 testserver kernel:  [<c0104898>]
-common_interrupt+0x18/0x20
-Sep 14 19:16:20 testserver kernel:  [<c010206b>]
-cpu_idle+0x3b/0x40
-Sep 14 19:16:20 testserver kernel:  [<c03be73d>]
-start_kernel+0x14d/0x170
-Sep 14 19:16:20 testserver kernel:  [<c03be370>]
-unknown_bootoption+0x0/0x160
-Sep 14 19:16:20 testserver kernel: bad: scheduling
-while atomic!
-Sep 14 19:16:21 testserver kernel:  [<c02e72e9>]
-schedule+0x499/0x4a0
-Sep 14 19:16:21 testserver kernel:  [<c0104898>]
-common_interrupt+0x18/0x20
-Sep 14 19:16:21 testserver kernel:  [<c010206b>]
-cpu_idle+0x3b/0x40
-Sep 14 19:16:21 testserver kernel:  [<c03be73d>]
-start_kernel+0x14d/0x170
-Sep 14 19:16:21 testserver kernel:  [<c03be370>]
-unknown_bootoption+0x0/0x160
-Sep 14 19:16:21 testserver kernel: bad: scheduling
-while atomic!
-Sep 14 19:16:21 testserver kernel:  [<c02e72e9>]
-schedule+0x499/0x4a0
-Sep 14 19:16:21 testserver kernel:  [<c0104898>]
-common_interrupt+0x18/0x20
-Sep 14 19:16:21 testserver kernel:  [<c010206b>]
-cpu_idle+0x3b/0x40
-Sep 14 19:16:21 testserver kernel:  [<c03be73d>]
-start_kernel+0x14d/0x170
-Sep 14 19:16:21 testserver kernel:  [<c03be370>]
-unknown_bootoption+0x0/0x160
-
-
-
-		
-_______________________________
-Do you Yahoo!?
-Declare Yourself - Register online to vote today!
-http://vote.yahoo.com
+here is e example 
+#man ip
+...........................
+Error executing formatting or display command.
+System command /bin/bzip2 -c -d /usr/man/cat8/ip.8.bz2 | /usr/bin/less
+-is exited with status 256.
+root@larry:~#

@@ -1,49 +1,73 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263557AbRFLVt0>; Tue, 12 Jun 2001 17:49:26 -0400
+	id <S263567AbRFLVuH>; Tue, 12 Jun 2001 17:50:07 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263567AbRFLVtG>; Tue, 12 Jun 2001 17:49:06 -0400
-Received: from [216.101.162.242] ([216.101.162.242]:30111 "EHLO
-	pizda.ninka.net") by vger.kernel.org with ESMTP id <S263557AbRFLVtB>;
-	Tue, 12 Jun 2001 17:49:01 -0400
-From: "David S. Miller" <davem@redhat.com>
+	id <S263625AbRFLVt5>; Tue, 12 Jun 2001 17:49:57 -0400
+Received: from gene.pbi.nrc.ca ([204.83.147.150]:12353 "EHLO gene.pbi.nrc.ca")
+	by vger.kernel.org with ESMTP id <S263567AbRFLVtn>;
+	Tue, 12 Jun 2001 17:49:43 -0400
+Date: Tue, 12 Jun 2001 15:48:34 -0600 (CST)
+From: <ognen@gene.pbi.nrc.ca>
+To: Davide Libenzi <davidel@xmailserver.org>
+cc: <linux-kernel@vger.kernel.org>
+Subject: Re: threading question
+In-Reply-To: <XFMail.20010612144449.davidel@xmailserver.org>
+Message-ID: <Pine.LNX.4.30.0106121546510.11222-100000@gene.pbi.nrc.ca>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <15142.36346.932239.542996@pizda.ninka.net>
-Date: Tue, 12 Jun 2001 14:47:38 -0700 (PDT)
-To: Jeff Garzik <jgarzik@mandrakesoft.com>
-Cc: Bob McElrath <rsmcelrath@students.wisc.edu>,
-        Jeff Golds <jgolds@resilience.com>, Wakko Warner <wakko@animx.eu.org>,
-        Pierfrancesco Caci <p.caci@seabone.net>, linux-kernel@vger.kernel.org
-Subject: Re: es1371 and recent kernels
-In-Reply-To: <3B268CF6.5197EA21@mandrakesoft.com>
-In-Reply-To: <873d95lnqr.fsf@paperino.int-seabone.net>
-	<20010612111503.A870@draal.physics.wisc.edu>
-	<20010612164204.A21504@animx.eu.org>
-	<3B2681A8.567992F6@resilience.com>
-	<20010612163150.C16885@draal.physics.wisc.edu>
-	<3B268CF6.5197EA21@mandrakesoft.com>
-X-Mailer: VM 6.75 under 21.1 (patch 13) "Crater Lake" XEmacs Lucid
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hello,
 
-Jeff Garzik writes:
- > > Argh, I had one of those, gave it away because it would hang my alpha
- > > hard (I'm told the card is pretty nonconformant to the PCI spec).
- > > *sigh*
- > 
- > Now you tempt me to find this card and fix the alpha problem :)
+a good suggestion was given to me to actually create as many threads as
+there are CPUs (or a bit more) and then keep them asking for work when
+they are done. This should help it (and avoid the pthread_create,
+pthread_exit). I will implement this and report my results if there is
+interest.
 
-I get instant master aborts on Sparc64 with the es1371, but I think
-this is because the card recognizes less than the full 32-bits of
-address lines on PCI.
+Thank you all,
+Ognen
 
-So the thing is basically useless to me, and I believe the alpha
-platform issues have to do with es1371's bogus handling of some WRITE
-pci transactions.
+On Tue, 12 Jun 2001, Davide Libenzi wrote:
 
-Later,
-David S. Miller
-davem@redhat.com
+>
+> On 12-Jun-2001 Christoph Hellwig wrote:
+> > In article <Pine.LNX.4.30.0106121213570.24593-100000@gene.pbi.nrc.ca> you
+> > wrote:
+> >> On dual-CPU machines the speedups are as follows: my version
+> >> is 1.88 faster than the sequential one on IRIX, 1.81 times on Solaris,
+> >> 1.8 times on OSF/1, 1.43 times on Linux 2.2.x and 1.52 times on Linux 2.4
+> >> kernel. Why are the numbers on Linux machines so much lower?
+> >
+> > Does your measurement include the time needed to actually create the
+> > threads or do you even frequently create and destroy threads?
+>
+> This is an extract of the most busy vmstat report running under his tool :
+>
+> 12  0  0  15508  40980  24880 355480   0   0     0     0  141   481 100   0   0
+> 19  0  0  15508  40248  24880 355480   0   0     0     0  142   564 100   0   0
+> 12  0  0  15508  40112  24880 355480   0   0     0     0  150   543 100   0   0
+> 11  0  0  15508  41272  24880 355480   0   0     0     0  156   594  99   1   0
+> 17  0  0  15508  40408  24880 355480   0   0     0     0  156   474  99   1   0
+> 17  0  0  15508  39840  24880 355480   0   0     0     0  135   475 100   0   0
+> 21  0  0  15508  39568  24880 355480   0   0     0     0  125   409 100   0   0
+> 21  0  0  15508  39668  24880 355480   0   0     0     0  135   420 100   0   0
+> 16  0  0  15508  39760  24880 355480   0   0     0     0  149   486 100   0   0
+>
+>
+> The context switch is very low and the user CPU utilization is 100% , I don't
+> think it's system responsibility here ( clearly a CPU bound program ).
+> Even if the runqueue is long, the context switch is low.
+> I've just close to me a dual PIII 1GHz workstation that run an MTA that uses
+> linux pthreads with context switching ranging between 5000 and 11000 with a
+> thread creation rate of about 300 thread/sec ( relaying 600000 msg/hour ).
+> No problem at all with the system even if the load avg is a bit high
+> ( about 8 ).
+
+-- 
+Ognen Duzlevski
+Plant Biotechnology Institute
+National Research Council of Canada
+Bioinformatics team
+

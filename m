@@ -1,42 +1,78 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S276956AbRJVQDl>; Mon, 22 Oct 2001 12:03:41 -0400
+	id <S276982AbRJVQTE>; Mon, 22 Oct 2001 12:19:04 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S276962AbRJVQDb>; Mon, 22 Oct 2001 12:03:31 -0400
-Received: from perninha.conectiva.com.br ([200.250.58.156]:58897 "HELO
-	perninha.conectiva.com.br") by vger.kernel.org with SMTP
-	id <S276956AbRJVQD0>; Mon, 22 Oct 2001 12:03:26 -0400
-Date: Mon, 22 Oct 2001 14:03:53 -0200 (BRST)
-From: Rik van Riel <riel@conectiva.com.br>
-X-X-Sender: <riel@duckman.distro.conectiva>
-To: <Wayne.Brown@altec.com>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: Re: Linux 2.2.20pre10
-In-Reply-To: <86256AED.0053D3A6.00@smtpnotes.altec.com>
-Message-ID: <Pine.LNX.4.33L.0110221403150.22127-100000@duckman.distro.conectiva>
-X-supervisor: aardvark@nl.linux.org
+	id <S276978AbRJVQSy>; Mon, 22 Oct 2001 12:18:54 -0400
+Received: from e21.nc.us.ibm.com ([32.97.136.227]:45263 "EHLO
+	e21.nc.us.ibm.com") by vger.kernel.org with ESMTP
+	id <S276984AbRJVQSq>; Mon, 22 Oct 2001 12:18:46 -0400
+Date: Mon, 22 Oct 2001 11:18:59 -0500
+From: Dave McCracken <dmccr@us.ibm.com>
+To: Linus Torvalds <torvalds@transmeta.com>,
+        Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: [PATCH] Fix broken reparenting in forget_original_parent()
+ (resubmit)
+Message-ID: <62470000.1003767539@baldur>
+X-Mailer: Mulberry/2.1.0 (Linux/x86)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii; FORMAT=flowed
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 22 Oct 2001 Wayne.Brown@altec.com wrote:
 
-> Speaking as a US citizen, I hope that someone outside the US
-> will grab that info as soon as it's available and make it
-> accessible to everyone.  (Not that I need it myself -- I have no
-> interest in 2.2.20 -- but I like to see crap legislation like
-> the DMCA subverted wherever possible.)
+The code in forget_original_parent() that attempts to reparent a task to 
+another task in the thread group is broken.  It's not safe to parent to any 
+task other than init because of the race condition it introduces (init is 
+only safe as long as it never dies, in fact).
 
-Yeah, lets keep up the status quo so bad laws never get
-subverted and people like Dmitry Skylarov are the only
-people suffering from bad US laws.
+The patch to change forget_original_parent() to always use init is below.
 
-NOT.
+Dave McCracken
 
-Rik
--- 
-DMCA, SSSCA, W3C?  Who cares?  http://thefreeworld.net/  (volunteers needed)
+======================================================================
+Dave McCracken          IBM Linux Base Kernel Team      1-512-838-3059
+dmccr@us.ibm.com                                        T/L   678-3059
 
-http://www.surriel.com/		http://distro.conectiva.com/
+---------------------
+
+--- linux-2.4.12/kernel/exit.c	Mon Sep 10 15:04:33 2001
++++ linux-2.4.12-signal-kdb/kernel/exit.c	Thu Oct 18 11:31:57 2001
+@@ -149,28 +149,21 @@
+ }
+
+ /*
+- * When we die, we re-parent all our children.
+- * Try to give them to another thread in our process
+- * group, and if no such member exists, give it to
++ * When we die, we re-parent all our children to
+  * the global child reaper process (ie "init")
+  */
+ static inline void forget_original_parent(struct task_struct * father)
+ {
+-	struct task_struct * p, *reaper;
++	struct task_struct * p;
+
+ 	read_lock(&tasklist_lock);
+
+-	/* Next in our thread group */
+-	reaper = next_thread(father);
+-	if (reaper == father)
+-		reaper = child_reaper;
+-
+ 	for_each_task(p) {
+ 		if (p->p_opptr == father) {
+ 			/* We dont want people slaying init */
+ 			p->exit_signal = SIGCHLD;
+ 			p->self_exec_id++;
+-			p->p_opptr = reaper;
++			p->p_opptr = child_reaper;
+ 			if (p->pdeath_signal) send_sig(p->pdeath_signal, p, 0);
+ 		}
+ 	}
+
+======================================================================
+Dave McCracken          IBM Linux Base Kernel Team      1-512-838-3059
+dmccr@us.ibm.com                                        T/L   678-3059
 

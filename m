@@ -1,90 +1,91 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S261835AbSJJS0u>; Thu, 10 Oct 2002 14:26:50 -0400
+	id <S261744AbSJJSZS>; Thu, 10 Oct 2002 14:25:18 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S261907AbSJJS0u>; Thu, 10 Oct 2002 14:26:50 -0400
-Received: from e6.ny.us.ibm.com ([32.97.182.106]:64150 "EHLO e6.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id <S261835AbSJJS0q>;
-	Thu, 10 Oct 2002 14:26:46 -0400
-Message-ID: <3DA5C6EC.7040904@us.ibm.com>
-Date: Thu, 10 Oct 2002 11:29:00 -0700
-From: Matthew Dobson <colpatch@us.ibm.com>
-Reply-To: colpatch@us.ibm.com
-Organization: IBM LTC
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.0.0) Gecko/20020607
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Andrew Morton <akpm@digeo.com>
-CC: linux-kernel <linux-kernel@vger.kernel.org>, linux-mm@kvack.org,
-       LSE <lse-tech@lists.sourceforge.net>, Martin Bligh <mjbligh@us.ibm.com>,
-       Michael Hohnbaum <hohnbaum@us.ibm.com>
-Subject: Re: [rfc][patch] Memory Binding API v0.3 2.5.41
-References: <3DA4D3E4.6080401@us.ibm.com> <3DA4EE6C.6B4184CC@digeo.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	id <S261750AbSJJSZS>; Thu, 10 Oct 2002 14:25:18 -0400
+Received: from 12-231-242-11.client.attbi.com ([12.231.242.11]:59917 "HELO
+	kroah.com") by vger.kernel.org with SMTP id <S261744AbSJJSZO>;
+	Thu, 10 Oct 2002 14:25:14 -0400
+Date: Thu, 10 Oct 2002 11:26:52 -0700
+From: Greg KH <greg@kroah.com>
+To: torvalds@transmeta.com
+Cc: linux-kernel@vger.kernel.org, johnstul@us.ibm.com
+Subject: [BK PATCH] i386 timer changes for 2.5.41
+Message-ID: <20021010182652.GA25871@kroah.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton wrote:
-> Matthew Dobson wrote:
->>Greetings & Salutations,
->>        Here's a wonderful patch that I know you're all dying for...  Memory
->>Binding!
-> Seems reasonable to me.
-Good news!
+Hi Linus,
 
-> Could you tell us a bit about the operator's view of this?
-> 
-> I assume that a typical usage scenario would be to bind a process
-> to a bunch of CPUs and to then bind that process to a bunch of
-> memblks as well? 
-> 
-> If so, then how does the operator know how to identify those
-> memblks?  To perform the (cpu list) <-> (memblk list) mapping?
-Well, that's what the super-duper In-Kernel topology API is for!  ;)  If 
-the operator wanted to ensure that all the processes memory was *only* 
-allocated from the memblks closest to her bound CPUs, she'd loop over 
-her cpu binding, and for each set bit, she'd:
-	bitmask &= 1 << __node_to_memblk(__cpu_to_node(cpu));
-I suppose that I could include a macro to do this in the patch, but I 
-was a bit afraid (and still am) that it already may be a bit large for 
-people's tastes.  I've got some suggestions on how to split it up/pare 
-it down, so we'll see.
+I've taken the i386 timer.c patches that John Stultz has been working on
+for a while, made some minor tweaks, added them to a bk tree, and tested
+them on all the boxes that I have access too.  Here's the resulting
+changesets:
 
-> Also, what advantage does this provide over the current node-local
-> allocation policy?  I'd have thought that once you'd bound a 
-> process to a CPU (or to a node's CPUs) that as long as the zone
-> fallback list was right, that process would be getting local memory
-> pretty much all the time anyway?
-Very true...  This is to specifically allow for processes that want to 
-do something *different* than the default policy.  Again, akin to CPU 
-affinity, this is not something that the average process is going to 
-ever use, or even care about.  The majority of processes don't 
-specifically bind themselves to certain CPUs or groups of CPUs, because 
-for them the default scheduler policies are fine.  For the majority of 
-processes, the default memory allocation policy works just dandy.  This 
-is for processes that want to do something different: Testing/debugging 
-apps on a large (likely NUMA) system, high-end databases, and who knows 
-what else?  There is also a plan to add a function call to bind specific 
-regions of a processes memory to certain memblks, and this would allow 
-for efficient shared memory for process groups spread across a large system.
+Please pull from bk://lsm.bkbits.net/timer-2.5
 
-> Last but not least: you got some benchmark numbers for this?
-Nope..  It is not something that is going to (on average) improve 
-benchmark numbers for something like a kernel compile...  As you 
-mentioned above, the default policy is to allocate from the local memory 
-block anyway.  This API is more useful for something where you want to 
-pin your memory close to a particular process that your process is 
-working with, or pin you memory to a different node than the one you're 
-executing on to purposely test/debug something.  If you'd like, I can do 
-some kernbench runs or something to come up with some numbers to show 
-that it doesn't negatively affect performance, but I don't know of any 
-benchmarking suites offhand that would show positive numbers.
+These split up the time.c code to handle different interrupt time
+sources, moving the code into a new arck/i386/kernel/timers directory.
+This is going to get more important as new timer sources become
+available (like IBM's Summit chipset), and removes a lot of #ifdefs from
+the existing code.
 
-> Thanks.
-My pleasure! ;)
+The differences from John's last patches are:
+	- use bk to show the history of the time.c file moves
+	- added proper documentation for struct timer_opts
+	- init() in timer_opts now returns 0 for success
+	- timer array is now static, and NULL terminated to make
+	  adding new sources an easier patch.
 
-Cheers!
+thanks,
 
--Matt
+greg k-h
+
+ arch/i386/Makefile                  |    2 
+ arch/i386/kernel/time.c             |  374 -----------------------------------
+ arch/i386/kernel/timers/Makefile    |   10 
+ arch/i386/kernel/timers/timer.c     |   39 +++
+ arch/i386/kernel/timers/timer_pit.c |  132 ++++++++++++
+ arch/i386/kernel/timers/timer_tsc.c |  382 +++++++++++++++++++++++++++++++-----
+ include/asm-i386/timer.h            |   22 ++
+ 7 files changed, 538 insertions(+), 423 deletions(-)
+-----
+
+ChangeSet@1.751, 2002-10-10 01:10:45-07:00, johnstul@us.ibm.com
+  i386 timer core: intergrate the new timer code to use the two different timer files.
+
+ arch/i386/Makefile                  |    2 
+ arch/i386/kernel/time.c             |   23 ++----
+ arch/i386/kernel/timers/Makefile    |   10 +++
+ arch/i386/kernel/timers/timer.c     |    8 +-
+ arch/i386/kernel/timers/timer_pit.c |   35 +++++++++-
+ arch/i386/kernel/timers/timer_tsc.c |  120 ++++++++++++++++++++----------------
+ include/asm-i386/timer.h            |    2 
+ 7 files changed, 128 insertions(+), 72 deletions(-)
+------
+
+ChangeSet@1.750, 2002-10-10 00:08:03-07:00, johnstul@us.ibm.com
+  i386 timer core: move code out of time.c into timers/timer_pit.c and timers/timer_tsc.c
+
+ arch/i386/kernel/time.c             |  351 ------------------------------------
+ arch/i386/kernel/timers/timer_pit.c |   97 +++++++++
+ arch/i386/kernel/timers/timer_tsc.c |  262 ++++++++++++++++++++++++++
+ 3 files changed, 359 insertions(+), 351 deletions(-)
+------
+
+ChangeSet@1.749, 2002-10-09 23:57:56-07:00, johnstul@us.ibm.com
+  i386 timer core: introduce struct timer_ops
+  
+  provides the infrastructure needed via the timer_ops structure, 
+  as well as the select_timer() function for choosing the best 
+  available timer
+
+ arch/i386/kernel/timers/timer.c |   31 +++++++++++++++++++++++++++++++
+ include/asm-i386/timer.h        |   20 ++++++++++++++++++++
+ 2 files changed, 51 insertions(+)
+------
 

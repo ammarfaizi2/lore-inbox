@@ -1,78 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267513AbTAXD3N>; Thu, 23 Jan 2003 22:29:13 -0500
+	id <S267534AbTAXDhs>; Thu, 23 Jan 2003 22:37:48 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267523AbTAXD3N>; Thu, 23 Jan 2003 22:29:13 -0500
-Received: from imap.gmx.net ([213.165.65.60]:18140 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id <S267513AbTAXD3L>;
-	Thu, 23 Jan 2003 22:29:11 -0500
-Message-Id: <5.1.1.6.2.20030124035109.00ce15f8@pop.gmx.net>
-X-Mailer: QUALCOMM Windows Eudora Version 5.1.1
-Date: Fri, 24 Jan 2003 04:35:04 +0100
-To: Bill Davidsen <davidsen@tmr.com>, Andrew Morton <akpm@digeo.com>
-From: Mike Galbraith <efault@gmx.de>
-Subject: Re: copy_from_user broken on i386 since 2.5.57
-Cc: Brice Goglin <bgoglin@ens-lyon.fr>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.3.96.1030123182133.9688A-100000@gatekeeper.tmr.co
- m>
-References: <20030122104928.769d72da.akpm@digeo.com>
+	id <S267532AbTAXDhs>; Thu, 23 Jan 2003 22:37:48 -0500
+Received: from pizda.ninka.net ([216.101.162.242]:3815 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S267530AbTAXDhq>;
+	Thu, 23 Jan 2003 22:37:46 -0500
+Date: Thu, 23 Jan 2003 19:35:40 -0800 (PST)
+Message-Id: <20030123.193540.113447969.davem@redhat.com>
+To: gibbs@scsiguy.com
+Cc: linux-scsi@vger.kernel.org, linux-kernel@vger.kernel.org,
+       torvalds@transmeta.com, alan@lxorguk.ukuu.org.uk,
+       marcelo@conectiva.com.br
+Subject: Re: Aic7xxx 6.2.28 and Aic79xx 1.3.0 Released
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <685330000.1043379905@aslan.scsiguy.com>
+References: <87730000.1043275833@aslan.btc.adaptec.com>
+	<1043380546.16483.6.camel@rth.ninka.net>
+	<685330000.1043379905@aslan.scsiguy.com>
+X-FalunGong: Information control.
+X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; format=flowed
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-At 06:22 PM 1/23/2003 -0500, Bill Davidsen wrote:
->On Wed, 22 Jan 2003, Andrew Morton wrote:
->
-> > Brice Goglin <bgoglin@ens-lyon.fr> wrote:
-> > >
-> > > Hi,
-> > >
-> > > Trying to compile a very very simple module for 2.5,
-> > > I got an error from gcc saying that assembly code
-> > > is incorrect.
-> > > This problem appeared in 2.5.57 and is still here
-> > > in 2.5.59.
-> > > I only tried on i386.
-> > >
-> > > Here's a very simple example code :
-> > >
-> > > #define __KERNEL__
-> > > #define MODULE
-> > > #include "linux/module.h"
-> > > #include "asm/uaccess.h"
-> > >
-> > > int func(void *to, const void *from) {
-> > >   return __copy_from_user(to, from, 1);
-> > > }
-> > >
-> > >
-> > > Here's gcc report :
-> > >
-> > > mp760:~/tmp% gcc user.c -c -o user.o -Ipath_to_2.5.57/include
-> > > /tmp/cceAbcRd.s: Assembler messages:
-> > > /tmp/cceAbcRd.s:120: Error: `%al' not allowed with `movl'
-> > > /tmp/cceAbcRd.s:124: Error: `%al' not allowed with `xorl'
-> > > /tmp/cceAbcRd.s:209: Warning: using `%eax' instead of `%ax' due to 
-> `l' suffix
-> > > /tmp/cceAbcRd.s:213: Warning: using `%eax' instead of `%ax' due to 
-> `l' suffix
-> > > /tmp/cceAbcRd.s:213: Warning: using `%eax' instead of `%ax' due to 
-> `l' suffix
-> >
-> > Add `-O2' to the compiler switches.
-> >
-> > No, I don't know either ;)
->
->So, does this actually fix the problem or simply optimize the suspect code
->out of existance until some later date?
+   From: "Justin T. Gibbs" <gibbs@scsiguy.com>
+   Date: Thu, 23 Jan 2003 20:45:05 -0700
 
-Compiler bug?  With -O2, gcc-2.95.3 emits movb and xorb at the same spot.
-
-gcc-3.2.1 doesn't have a problem with that code optimized or not... it flat 
-refuses to suck up any inline assembly unless you use at least -O 
--finline-limit=1580.  (why 1580?)
-
-         -Mike
-
+   > You keep doing this, I wish you'd stop :-)
+   
+   I wish you'd actually look at the changes before assuming
+   what they do and don't contain.
+   
+You deleted my change on at least two occaisions.
+If you've stopped doing that, great.

@@ -1,45 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262071AbUDDA7A (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 3 Apr 2004 19:59:00 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262078AbUDDA7A
+	id S262070AbUDDAxT (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 3 Apr 2004 19:53:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262071AbUDDAxT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 3 Apr 2004 19:59:00 -0500
-Received: from dragnfire.mtl.istop.com ([66.11.160.179]:24004 "EHLO
-	dsl.commfireservices.com") by vger.kernel.org with ESMTP
-	id S262071AbUDDA67 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 3 Apr 2004 19:58:59 -0500
-Date: Sat, 3 Apr 2004 19:59:12 -0500 (EST)
-From: Zwane Mwaikambo <zwane@linuxpower.ca>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Tom Rini <trini@kernel.crashing.org>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH][2.6-mm] early_param console_setup clobbers commandline
-In-Reply-To: <20040403122252.5b0dba14.akpm@osdl.org>
-Message-ID: <Pine.LNX.4.58.0404031958450.16677@montezuma.fsmlabs.com>
-References: <Pine.LNX.4.58.0404022026560.11690@montezuma.fsmlabs.com>
- <20040403030537.GF31152@smtp.west.cox.net> <Pine.LNX.4.58.0404031028090.11690@montezuma.fsmlabs.com>
- <20040403201450.GG31152@smtp.west.cox.net> <20040403122252.5b0dba14.akpm@osdl.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Sat, 3 Apr 2004 19:53:19 -0500
+Received: from mail020.syd.optusnet.com.au ([211.29.132.131]:12699 "EHLO
+	mail020.syd.optusnet.com.au") by vger.kernel.org with ESMTP
+	id S262070AbUDDAxR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 3 Apr 2004 19:53:17 -0500
+Date: Sun, 4 Apr 2004 10:55:58 +1000
+From: Malvineous <malvineous@optushome.com.au>
+To: Manfred Spraul <manfred@colorfullife.com>
+Cc: akpm@osdl.org, linux-kernel@vger.kernel.org, a.nielsen@optushome.com.au
+Subject: Re: [PATCH] Fix kernel lockup in RTL-8169 gigabit ethernet driver
+Message-Id: <20040404105558.2bffd4f0.malvineous@optushome.com.au>
+In-Reply-To: <406EA054.2020401@colorfullife.com>
+References: <406EA054.2020401@colorfullife.com>
+X-Mailer: Sylpheed version 0.9.10 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 3 Apr 2004, Andrew Morton wrote:
+> Adam: did you see deadlocks that disappeared after applying your
+> patch? It shouldn't deadlock - it should loop until the nic sends the
+> packet to the wire. It might take a few msecs, but then it should
+> continue. Perhaps gcc optimized away the reload from memory and loops
+> on a register. Or there is another bug that is hidden by your patch.
 
-> Tom Rini <trini@kernel.crashing.org> wrote:
-> >
-> > > What is the patch name for Rusty's patch?
-> >
-> >  I don't know, since I think once he got it working he forgot to CC lkml.
-> >  But I certainly hope it's in the next -mm since it replaced the
-> >  parse_early_options parsing code with parse_args, so all of the stupid
-> >  things my re-implementation got wrong, it doesn't.
->
-> Yup, I added Rusty's patch.  It kinda wrecked everything and needs to be
-> split up and sprintkled across the various earlier patches, but I haven't
-> done that yet.
->
-> I probably won't prepare another -mm until tomorrow though.
+Yes, it used to deadlock within a second after starting a large transfer
+across the network (e.g. copying a 1GB+ file over NFS) however smaller
+transfers (e.g. background gkrellmd traffic, web browsing, etc.) was
+less likely to cause problems (I could go for a few hours before it
+would deadlock.)
 
-Do you still want the console_setup patch?
+I initially tried to move the counters outside the loop, as I thought it
+was just the one entry in the array causing the problem, however this
+slowed network traffic down to approx 5kB/sec.  Upon looking at the
+RTL8139 code it looked like "else break" was the correct action, and
+this brought network traffic back up to full speed and it's now been 4.5
+days since I booted the kernel with the patch and it's all working
+perfectly.
+
+When it did deadlock it was more or less permanent, as any programs
+accessing the NIC (or indeed the hard drive) would immediately deadlock
+- so no program could send network data, thus it would loop forever
+waiting for more traffic.
+
+I did add a 'printk' line in to see what the variables were just to make
+sure this was the location of the bug, and as I expected none of
+the values changed at all.
+
+Cheers,
+Adam.

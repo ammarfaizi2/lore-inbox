@@ -1,40 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S292091AbSBOLJ2>; Fri, 15 Feb 2002 06:09:28 -0500
+	id <S292107AbSBOLXD>; Fri, 15 Feb 2002 06:23:03 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S292100AbSBOLJS>; Fri, 15 Feb 2002 06:09:18 -0500
-Received: from ds217-115-141-141.dedicated.hosteurope.de ([217.115.141.141]:61202
-	"HELO ds217-115-141-141.dedicated.hosteurope.de") by vger.kernel.org
-	with SMTP id <S292091AbSBOLJK>; Fri, 15 Feb 2002 06:09:10 -0500
-Date: Fri, 15 Feb 2002 12:09:08 +0100
-From: Jochen Suckfuell <jo-lkml@suckfuell.net>
-To: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: sard patch for 2.4 - again
-Message-ID: <20020215120908.A23065@ds217-115-141-141.dedicated.hosteurope.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
+	id <S292108AbSBOLWu>; Fri, 15 Feb 2002 06:22:50 -0500
+Received: from smtpzilla1.xs4all.nl ([194.109.127.137]:11533 "EHLO
+	smtpzilla1.xs4all.nl") by vger.kernel.org with ESMTP
+	id <S292107AbSBOLWr>; Fri, 15 Feb 2002 06:22:47 -0500
+Date: Fri, 15 Feb 2002 12:25:33 +0100 (CET)
+From: Roman Zippel <zippel@linux-m68k.org>
+X-X-Sender: <roman@serv>
+To: Jeff Garzik <jgarzik@mandrakesoft.com>
+cc: David Howells <dhowells@redhat.com>,
+        Linus Torvalds <torvalds@transmeta.com>, <davidm@hpl.hp.com>,
+        "David S. Miller" <davem@redhat.com>, <anton@samba.org>,
+        <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] move task_struct allocation to arch
+In-Reply-To: <3C6CDB4D.D072A7B4@mandrakesoft.com>
+Message-ID: <Pine.LNX.4.33.0202151219590.564-100000@serv>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello!
+Hi,
 
-I want to ask if the sard patch by Stephen Tweedie will be included into
-future 2.4 kernels. This patch collects hard disk statistics that are
-important figures on productive systems.
+On Fri, 15 Feb 2002, Jeff Garzik wrote:
 
-I work for a software company that uses Linux on most of the servers and
-many desktops. We're very interested in these enhanced statistics.
+> > any extra clock cycles. This led to Linus requesting that everything that
+> > entry.S needs to access be separated out into another structure (so that
+> > entry.S never accesses task_struct).
+>
+> Seems a sane enough direction...
 
-Correct me if I'm wrong, but the last release of the sard patch was for
-2.4.0. In an src.rpm by Redhat I found a version of the patch that
-applied to 2.4.18-pre7 (but still labeled 2.4.0). This updated patch
-hasn't been mentioned on this list, and I didn't find it anywhere else
-for download. But I'm sure that many others would be interested in this
-patch.
+That wouldn't be a problem, if ia32 added the needed infrastructure to
+calculate the structure offsets. It's not really that difficult, look at
+the m68k implementation, which even gets dependencies right. AFAIK Keith
+also added the needed infra structure to his new build system.
 
-
-Thanks,
-Jochen Suckfuell
+bye, Roman
 

@@ -1,67 +1,60 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S284669AbSAGSE2>; Mon, 7 Jan 2002 13:04:28 -0500
+	id <S284691AbSAGSG2>; Mon, 7 Jan 2002 13:06:28 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S284619AbSAGSEU>; Mon, 7 Jan 2002 13:04:20 -0500
-Received: from air-1.osdl.org ([65.201.151.5]:29314 "EHLO segfault.osdlab.org")
-	by vger.kernel.org with ESMTP id <S284610AbSAGSEK>;
-	Mon, 7 Jan 2002 13:04:10 -0500
-Date: Mon, 7 Jan 2002 10:05:30 -0800 (PST)
-From: Patrick Mochel <mochel@osdl.org>
-X-X-Sender: <mochel@segfault.osdlab.org>
-To: Dave Jones <davej@suse.de>
-cc: Paul Jakma <paulj@alphyra.ie>, <knobi@knobisoft.de>,
-        <linux-kernel@vger.kernel.org>
-Subject: Re: Hardware Inventory [was: Re: ISA slot detection on PCI systems?]
-In-Reply-To: <Pine.LNX.4.33.0201051807160.27113-100000@Appserv.suse.de>
-Message-ID: <Pine.LNX.4.33.0201070955480.867-100000@segfault.osdlab.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S284694AbSAGSGM>; Mon, 7 Jan 2002 13:06:12 -0500
+Received: from ns.ithnet.com ([217.64.64.10]:1289 "HELO heather.ithnet.com")
+	by vger.kernel.org with SMTP id <S284691AbSAGSF6>;
+	Mon, 7 Jan 2002 13:05:58 -0500
+Date: Mon, 7 Jan 2002 19:05:55 +0100
+From: Stephan von Krawczynski <skraw@ithnet.com>
+To: christian e <cej@ti.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: swapping,any updates ?? Just wasted money on mem upgrade performance still suck :-(
+Message-Id: <20020107190555.74ea71fe.skraw@ithnet.com>
+In-Reply-To: <3C39E11B.8010506@ti.com>
+In-Reply-To: <3C386DC9.307@ti.com>
+	<20020106170204.7e04e81f.skraw@ithnet.com>
+	<3C396B45.6040702@ti.com>
+	<20020107174450.5d20d2ad.skraw@ithnet.com>
+	<3C39E11B.8010506@ti.com>
+Organization: ith Kommunikationstechnik GmbH
+X-Mailer: Sylpheed version 0.7.0 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, 07 Jan 2002 18:55:39 +0100
+christian e <cej@ti.com> wrote:
 
-On Sat, 5 Jan 2002, Dave Jones wrote:
+> Stephan von Krawczynski wrote:
 
-> On Sat, 5 Jan 2002, Paul Jakma wrote:
->
-> > how does devicefs differ from devfs? eg, on some of my systems i mount
-> > devfs on /devfs and an ls -l of it shows all the devices that
-> > currently have drivers that registered them.
->
-> different goals. One of the reasons this has come about is for power
-> management, we need a tree like structure so that we for eg, power
-> down a network card before powering down the pci bridge it sits on.
-> (The idea being to power down from the leaves, and work your way back
-> up to the root of the tree)
->
-> devicefs is just a means of exporting this to userspace, be that for
-> usage with the userspace acpi tools, or for hinv like programs.
-> As I mentioned earlier, ACPI enumerates pretty much everything in the
-> system, even if theres no driver for it.
-> If there is a driver for it, it can register things like "I support
-> these power saving states" with driverfs for additional functionality.
->
-> It would be nice at some point to get some of the other (pre-ACPI)
-> busses registering stuff there too, for completeness.
+> > Please try a stock 2.4.17 (with the patch), otherwise we will have no idea
+what> > is going on.
+> 
+> 
+> Just patched the kernel and booted it up..To begin with it looked OK and 
+> there wasn't any swapping.Even firing up VMware didn't cause it to swap..
 
-One of the ideas that I've kicked around with some people here and the
-ACPI guys is the notion of trigger device enumeration from userspace
-completely.
+That is fine.
 
-During the initramfs stage, a program (say devmgr) figures out what type
-of system you have, where the PCI buses are, etc. It tells the kernel this
-information, which then probes for existence, then loads drivers.
+> Then all of a sudden the mouse started moving all over the screen and 
+> left and right clicking on everything on it's own. ?? Really weird..
+> Ran like that for 5 minutes then the machine crashed hard.
 
-There of course needs to be a fallback mechanism for cases where the
-hardware isn't known about, the tables are buggy, or you need to do
-things like make bios32 calls. But, that can be triggered via a procfs
-file, a system call, etc.
+This is for sure no VM issue. This is strange, is this with VMware started,
+inside XP? Does this happen under Linux-only, too (with no vmware running)?
+It doesn't even look quite like a linux issue at all. Just guessing: do you
+have a virus-checker for XP at hand? Only to make sure...
 
-But, this all fits nicely with the notion of parsing firmware tables from
-userspace, be them DMI, MPS, or ACPI tables. How they're read is
-unimportant (/dev/mem or /var/run/*), it's just that the logic to do so
-can be moved out of the kernel and consolidated.
+> I assigned 192 MB for XP that should be more than enough..And as long as 
+> Linux doesn't swap it is..
 
-	-pat
+This can be driven without swap for sure.
+
+Regards,
+Stephan
+
 

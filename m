@@ -1,16 +1,16 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261457AbULFJEp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261463AbULFJGj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261457AbULFJEp (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Dec 2004 04:04:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261430AbULFJEp
+	id S261463AbULFJGj (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Dec 2004 04:06:39 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261469AbULFJGj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Dec 2004 04:04:45 -0500
-Received: from static64-74.dsl-blr.eth.net ([61.11.64.74]:516 "EHLO
-	globaledgesoft.com") by vger.kernel.org with ESMTP id S261457AbULFJCz
+	Mon, 6 Dec 2004 04:06:39 -0500
+Received: from static64-74.dsl-blr.eth.net ([61.11.64.74]:18692 "EHLO
+	globaledgesoft.com") by vger.kernel.org with ESMTP id S261463AbULFJDe
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Dec 2004 04:02:55 -0500
-Message-ID: <41B41FB2.2020004@globaledgesoft.com>
-Date: Mon, 06 Dec 2004 14:30:34 +0530
+	Mon, 6 Dec 2004 04:03:34 -0500
+Message-ID: <41B41FDA.1030702@globaledgesoft.com>
+Date: Mon, 06 Dec 2004 14:31:14 +0530
 From: krishna <krishna.c@globaledgesoft.com>
 User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040805 Netscape/7.2
 X-Accept-Language: en-us, en
@@ -18,7 +18,7 @@ MIME-Version: 1.0
 To: Linux Kernel <linux-kernel@vger.kernel.org>
 Subject: UML debugging session
 Content-Type: multipart/mixed;
- boundary="------------080204040402090609020407"
+ boundary="------------050607050408050605070100"
 X-MDRemoteIP: 172.16.6.42
 X-Return-Path: krishna.c@globaledgesoft.com
 X-MDaemon-Deliver-To: linux-kernel@vger.kernel.org
@@ -26,8 +26,8 @@ Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 This is a multi-part message in MIME format.
---------------080204040402090609020407
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+--------------050607050408050605070100
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 
 Hi ,
@@ -45,7 +45,7 @@ I got a xtem terminal:
 GNU gdb 5.3
 Copyright 2002 Free Software Foundation, Inc.
 GDB is free software, covered by the GNU General Public License, and you are
-welcome to change it and/or distribute copies of it under certain 
+welcome to change it and/or distribute copies of it under certain
 conditions.
 Type "show copying" to see the conditions.
 There is absolutely no warranty for GDB.  Type "show warranty" for details.
@@ -56,12 +56,12 @@ This GDB was configured as "i386-slackware-linux"...
 No symbol table is loaded.  Use the "file" command.
 (gdb)
 
+Regards,
+Krishna Chaitanya
 
 
 
-
-
---------------080204040402090609020407
+--------------050607050408050605070100
 Content-Type: text/plain;
  name=".config"
 Content-Transfer-Encoding: 7bit
@@ -478,5 +478,6 @@ CONFIG_DEBUGSYM=y
 CONFIG_PT_PROXY=y
 # CONFIG_GCOV is not set
 
---------------080204040402090609020407--
+
+--------------050607050408050605070100--
 

@@ -1,60 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261189AbUK2Hxp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261231AbUK2IEf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261189AbUK2Hxp (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 29 Nov 2004 02:53:45 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261231AbUK2Hxp
+	id S261231AbUK2IEf (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 29 Nov 2004 03:04:35 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261292AbUK2IEf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 29 Nov 2004 02:53:45 -0500
-Received: from mx2.redhat.com ([66.187.237.31]:14035 "EHLO mx2.redhat.com")
-	by vger.kernel.org with ESMTP id S261189AbUK2Hxn (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 29 Nov 2004 02:53:43 -0500
-Date: Mon, 29 Nov 2004 08:51:16 +0100
-From: Arjan van de Ven <arjanv@redhat.com>
-To: Jeff Garzik <jgarzik@pobox.com>
-Cc: Linus Torvalds <torvalds@osdl.org>, Paul Mackerras <paulus@samba.org>,
-       Greg KH <greg@kroah.com>, David Woodhouse <dwmw2@infradead.org>,
-       Matthew Wilcox <matthew@wil.cx>, David Howells <dhowells@redhat.com>,
-       hch@infradead.org, aoliva@redhat.com, linux-kernel@vger.kernel.org,
-       libc-hacker@sources.redhat.com, Mariusz Mazur <mmazur@kernel.pl>
-Subject: Re: [RFC] Splitting kernel headers and deprecating __KERNEL__
-Message-ID: <20041129075116.GB29700@devserv.devel.redhat.com>
-References: <19865.1101395592@redhat.com> <20041125165433.GA2849@parcelfarce.linux.theplanet.co.uk> <1101406661.8191.9390.camel@hades.cambridge.redhat.com> <20041127032403.GB10536@kroah.com> <16810.24893.747522.656073@cargo.ozlabs.ibm.com> <Pine.LNX.4.58.0411281710490.22796@ppc970.osdl.org> <41AAA746.5000003@pobox.com>
+	Mon, 29 Nov 2004 03:04:35 -0500
+Received: from canuck.infradead.org ([205.233.218.70]:45841 "EHLO
+	canuck.infradead.org") by vger.kernel.org with ESMTP
+	id S261231AbUK2IEe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 29 Nov 2004 03:04:34 -0500
+Subject: Re: Question about /dev/mem and /dev/kmem
+From: Arjan van de Ven <arjan@infradead.org>
+To: Jim Nelson <james4765@verizon.net>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <41AA9E26.4070105@verizon.net>
+References: <41AA9E26.4070105@verizon.net>
+Content-Type: text/plain
+Message-Id: <1101715470.2814.30.camel@laptop.fenrus.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <41AAA746.5000003@pobox.com>
-User-Agent: Mutt/1.4.1i
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2.dwmw2.1) 
+Date: Mon, 29 Nov 2004 09:04:30 +0100
+Content-Transfer-Encoding: 7bit
+X-Spam-Score: 3.7 (+++)
+X-Spam-Report: SpamAssassin version 2.63 on canuck.infradead.org summary:
+	Content analysis details:   (3.7 points, 5.0 required)
+	pts rule name              description
+	---- ---------------------- --------------------------------------------------
+	1.1 RCVD_IN_DSBL           RBL: Received via a relay in list.dsbl.org
+	[<http://dsbl.org/listing?80.57.133.107>]
+	2.5 RCVD_IN_DYNABLOCK      RBL: Sent directly from dynamic IP address
+	[80.57.133.107 listed in dnsbl.sorbs.net]
+	0.1 RCVD_IN_SORBS          RBL: SORBS: sender is listed in SORBS
+	[80.57.133.107 listed in dnsbl.sorbs.net]
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by canuck.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sun, 2004-11-28 at 22:57 -0500, Jim Nelson wrote:
+> I was looking at some articles about rootkits on monolithic kernels, and had a 
+> thought.  Would a kernel config option to disable write access to /dev/mem and 
+> /dev/kmem be a workable idea?
 
-On Sun, Nov 28, 2004 at 11:36:22PM -0500, Jeff Garzik wrote:
-> >In particular, any re-organization that breaks _existing_ uses is totally
-> >pointless. If you break existing uses, you might as well _not_ re-
-> >organize, since if you consider kernel headers to be purely kernel-
-> >internal (like they should be, but hey, reality trumps any wishes we might 
-> >have), then the current organization is perfectly fine.
-> 
-> 
-> I don't think any drastic reorganization is even necessary.
+look at the -mm patch series ;-)
 
-Well, we want things to be split. However a split doesn't mean a
-reorganisation as far as userspace visibility is concerned; the filenames
-can still be the same, and the typenames etc etc, you just do the kernel
-internal additions in a different dir/header
+http://www.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.10-rc2/2.6.10-rc2-mm3/broken-out/dev-mem-restriction-patch.patch
 
-Not breaking userland ever is a dream only, anytime we touch any header,
-some userland breaks (they use our spinlock code even!)
 
-> kernel-specific stuff stripped out.  i.e. userland ABI only.  Not sure 
-> how many distros have started picking that up yet...  I think Arjan said 
-> Fedora Core had, or would.
+(fwiw this patch is also in the Fedora Core kernels for quite some time
+now)
 
-nope.
-
-Fedora has it's own set of cleaned up headers. Cleaned up in the sense that
-tehre's no #ifdef KERNEL anymore, no inlines (because that's a license trap,
-and in addition, all inlines were kernel specific anyway) and all structs
-which had spinlocks / semaphores and other kernel private structures in are
-removed as well (because they are clearly kernel internal).

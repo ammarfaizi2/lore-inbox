@@ -1,51 +1,36 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263422AbRFEXkL>; Tue, 5 Jun 2001 19:40:11 -0400
+	id <S263423AbRFEXtN>; Tue, 5 Jun 2001 19:49:13 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263423AbRFEXkC>; Tue, 5 Jun 2001 19:40:02 -0400
-Received: from w146.z064001233.sjc-ca.dsl.cnc.net ([64.1.233.146]:52180 "EHLO
-	windmill.gghcwest.com") by vger.kernel.org with ESMTP
-	id <S263422AbRFEXjs>; Tue, 5 Jun 2001 19:39:48 -0400
-Date: Tue, 5 Jun 2001 16:38:06 -0700 (PDT)
-From: "Jeffrey W. Baker" <jwbaker@acm.org>
-X-X-Sender: <jwb@heat.gghcwest.com>
-To: Derek Glidden <dglidden@illusionary.com>
-cc: <linux-kernel@vger.kernel.org>
-Subject: Re: Break 2.4 VM in five easy steps
-In-Reply-To: <3B1D5ADE.7FA50CD0@illusionary.com>
-Message-ID: <Pine.LNX.4.33.0106051634540.8311-100000@heat.gghcwest.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S263426AbRFEXtD>; Tue, 5 Jun 2001 19:49:03 -0400
+Received: from penguin.e-mind.com ([195.223.140.120]:1545 "EHLO
+	penguin.e-mind.com") by vger.kernel.org with ESMTP
+	id <S263423AbRFEXsr>; Tue, 5 Jun 2001 19:48:47 -0400
+Date: Wed, 6 Jun 2001 01:48:39 +0200
+From: Andrea Arcangeli <andrea@suse.de>
+To: Linus Torvalds <torvalds@transmeta.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: kswapd and MM overload fix
+Message-ID: <20010606014839.A24257@athlon.random>
+In-Reply-To: <20010606004450.C27651@athlon.random> <Pine.LNX.4.31.0106051612500.9908-100000@penguin.transmeta.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.31.0106051612500.9908-100000@penguin.transmeta.com>; from torvalds@transmeta.com on Tue, Jun 05, 2001 at 04:16:57PM -0700
+X-GnuPG-Key-URL: http://e-mind.com/~andrea/aa.gnupg.asc
+X-PGP-Key-URL: http://e-mind.com/~andrea/aa.asc
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, Jun 05, 2001 at 04:16:57PM -0700, Linus Torvalds wrote:
+> but I think we should also make the init code clear the zone data for
+> empty zones so that these kinds of "use uninitialized stuff" things cannot
+> happen. No?
 
+that would fix it too indeed, OTOH I think changing the empty zone
+handling in the kernel is beyond the scope of the bugfix (grep for
+zone->size in mm/*.c :). Certainly making empty zones transparent to the
+vm sounds much cleaner from a mm/*.c point of view but it may be faster
+to skip the block with a branch instead of always computing it.
 
-On Tue, 5 Jun 2001, Derek Glidden wrote:
-
->
-> After reading the messages to this list for the last couple of weeks and
-> playing around on my machine, I'm convinced that the VM system in 2.4 is
-> still severely broken.
->
-> This isn't trying to test extreme low-memory pressure, just how the
-> system handles recovering from going somewhat into swap, which is a real
-> day-to-day problem for me, because I often run a couple of apps that
-> most of the time live in RAM, but during heavy computation runs, can go
-> a couple hundred megs into swap for a few minutes at a time.  Whenever
-> that happens, my machine always starts acting up afterwards, so I
-> started investigating and found some really strange stuff going on.
-
-I reboot each of my machines every week, to take them offline for
-intrusion detection.  I use 2.4 because I need advanced features of
-iptables that ipchains lacks.  Because the 2.4 VM is so broken, and
-because my machines are frequently deeply swapped, they can sometimes take
-over 30 minutes to shutdown.  They hang of course when the shutdown rc
-script turns off the swap.  The first few times this happened I assumed
-they were dead.
-
-So, unlike what certain people like to repeatedly claim, the 2.4 VM
-problems are causing havoc in the real world.
-
--jwb
-
+Andrea

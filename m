@@ -1,52 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265349AbUFSKF6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265426AbUFSKH3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265349AbUFSKF6 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 19 Jun 2004 06:05:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265360AbUFSKF6
+	id S265426AbUFSKH3 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 19 Jun 2004 06:07:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265455AbUFSKH2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 19 Jun 2004 06:05:58 -0400
-Received: from mtvcafw.sgi.com ([192.48.171.6]:45164 "EHLO omx3.sgi.com")
-	by vger.kernel.org with ESMTP id S265349AbUFSKF4 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 19 Jun 2004 06:05:56 -0400
-X-Mailer: exmh version 2.6.3_20040314 03/14/2004 with nmh-1.0.4
-From: Keith Owens <kaos@sgi.com>
-To: William Lee Irwin III <wli@holomorphy.com>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: [patch 2.6.7] bug_smp_call_function 
-In-reply-to: Your message of "Sat, 19 Jun 2004 02:59:10 MST."
-             <20040619095910.GQ1863@holomorphy.com> 
+	Sat, 19 Jun 2004 06:07:28 -0400
+Received: from [213.146.154.40] ([213.146.154.40]:15564 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S265426AbUFSKHR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 19 Jun 2004 06:07:17 -0400
+Date: Sat, 19 Jun 2004 11:07:14 +0100
+From: Christoph Hellwig <hch@infradead.org>
+To: Brian Lazara <blazara@nvidia.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 2.6.7 and 2.4.27-pre6] new device support for forcedeth.c
+Message-ID: <20040619100714.GA3554@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Brian Lazara <blazara@nvidia.com>, linux-kernel@vger.kernel.org
+References: <1087629194.19311.24.camel@localhost.localdomain>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Date: Sat, 19 Jun 2004 20:05:13 +1000
-Message-ID: <6245.1087639513@kao2.melbourne.sgi.com>
+Content-Disposition: inline
+In-Reply-To: <1087629194.19311.24.camel@localhost.localdomain>
+User-Agent: Mutt/1.4.1i
+X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 19 Jun 2004 02:59:10 -0700, 
-William Lee Irwin III <wli@holomorphy.com> wrote:
->Keith Owens <kaos@sgi.com> wrote:
->>>  sg.c has been fixed to no longer call vfree() with interrupts disabled.
->>>  Change smp_call_function() from WARN_ON to BUG_ON when interrupts are
->>>  disabled.  It was only set to WARN_ON because of sg.c.
->
->On Sat, Jun 19, 2004 at 02:44:16AM -0700, Andrew Morton wrote:
->> I prefer the WARN_ON.  It is exceedingly unlikely that the bug will cause
->> lockups or memory/data corruption or anything else, so why nuke the user's
->> box when we can trivially continue?
->> We'll be sent the bug report either way.
->
->Calls to smp_call_function() with interrupts off or spinlocks held
->typically causes deadlocks on SMP systems. ISTR debugging such an
->issue in the scheduler a while back, i.e. mmdrop() under rq->lock
->doing vfree() of an LDT. Basically smp_call_function() will spin
->waiting for the other cpus to answer the interrupt on multiple cpus.
->It also doesn't need to be the same function doing smp_call_function();
->generally TLB flushing deadlocks against anything doing this.
+On Sat, Jun 19, 2004 at 12:13:14AM -0700, Brian Lazara wrote:
+> +#ifndef free_netdev
+> +#define free_netdev(dev) kfree(dev);
+> +#endif
 
-Agreed, that is exactly the class of problems that I spent days
-debugging.  WARN_ON() lets developers add code that breaks the rules
-and assumes that we will have to fix the bad code later.  BUG_ON()
-prevents any bad code being added because it catches the developer as
-soon as they add it.
+free_netdev isn't a macro in 2.6, so you're going to blow up nicely.
+
+> +#define PCI_DEVICE_ID_NVIDIA_NVENET_1  0x01C3
+> +#define PCI_DEVICE_ID_NVIDIA_NVENET_2  0x0066
+> +#define PCI_DEVICE_ID_NVIDIA_NVENET_3  0x00D6
+> +#define PCI_DEVICE_ID_NVIDIA_NVENET_4  0x0086
+> +#define PCI_DEVICE_ID_NVIDIA_NVENET_5  0x008C
+> +#define PCI_DEVICE_ID_NVIDIA_NVENET_6  0x00E6
+> +#define PCI_DEVICE_ID_NVIDIA_NVENET_7  0x00DF
+> +#define PCI_DEVICE_ID_NVIDIA_NVENET_8  0x0056
+> +#define PCI_DEVICE_ID_NVIDIA_NVENET_9  0x0057
+> +#define PCI_DEVICE_ID_NVIDIA_NVENET_10 0x0037
+> +#define PCI_DEVICE_ID_NVIDIA_NVENET_11 0x0038
+
+The go to include/linux/pci_ids.h
+
+> + *  Function pointers based on descriptor version
+> + */
+> +int (*nv_alloc_rx)(struct net_device *dev);
+> +int (*nv_start_xmit)(struct sk_buff *skb, struct net_device *dev);
+> +void (*nv_tx_done)(struct net_device *dev);
+> +void (*nv_rx_process)(struct net_device *dev);
+
+Better to put them into the per-device data structures or you're screwed
+if you have two of those in a system (and even if that's totally impossible
+global variables like that are still bad style.
 

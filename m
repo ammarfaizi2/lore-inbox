@@ -1,60 +1,55 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277708AbRJIDW3>; Mon, 8 Oct 2001 23:22:29 -0400
+	id <S277010AbRJID1a>; Mon, 8 Oct 2001 23:27:30 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S277706AbRJIDWU>; Mon, 8 Oct 2001 23:22:20 -0400
-Received: from ip122-15.asiaonline.net ([202.85.122.15]:64418 "EHLO
-	uranus.planet.rcn.com.hk") by vger.kernel.org with ESMTP
-	id <S277010AbRJIDWF>; Mon, 8 Oct 2001 23:22:05 -0400
-Message-ID: <3BC26BDE.45D893A6@rcn.com.hk>
-Date: Tue, 09 Oct 2001 11:15:42 +0800
-From: David Chow <davidchow@rcn.com.hk>
-Organization: Resources Computer Network Ltd.
-X-Mailer: Mozilla 4.76 [zh_TW] (X11; U; Linux 2.4.4-1DC i686)
-X-Accept-Language: zh_TW, en
-MIME-Version: 1.0
-To: Alistair Riddell <ali@gwc.org.uk>
-CC: raid@ddx.a2000.nu, linux-kernel@vger.kernel.org,
-        linux-raid@vger.kernel.org
-Subject: Re: write/read cache raid5
-In-Reply-To: <Pine.LNX.4.21.0110082213240.29428-100000@frank.gwc.org.uk>
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+	id <S277705AbRJID1T>; Mon, 8 Oct 2001 23:27:19 -0400
+Received: from hermes.toad.net ([162.33.130.251]:55448 "EHLO hermes.toad.net")
+	by vger.kernel.org with ESMTP id <S277010AbRJID1I>;
+	Mon, 8 Oct 2001 23:27:08 -0400
+Subject: [PATCH] PnPBIOS bugfix (last of the first round of cleanups)
+From: Thomas Hood <jdthood@mail.com>
+To: linux-kernel@vger.kernel.org
+Cc: alan@lxorguk.ukuu.org.uk
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution/0.15 (Preview Release)
+Date: 08 Oct 2001 23:27:06 -0400
+Message-Id: <1002598029.953.60.camel@thanatos>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alistair Riddell ¼g¹D¡G
-> 
-> On Mon, 8 Oct 2001 raid@ddx.a2000.nu wrote:
-> 
-> > So there is no way i can Speedup write to the raid5 array ?
-> > (memory will be ecc and the server will be on ups)
-> 
-> Your disks go as fast as they go, that is a physical limitation.
-> 
-> More RAM means your server can store up data blocks to be written when the
-> disks are less busy. But the data still has to be written to disk
-> sometime.
-> 
-> More RAM will certainly help by caching reads though.
-> 
-> 6 disks raided together means the bottleneck will likely be your network,
-> unless your server is on gigabit ethernet and has a ton of clients and/or
-> gigabit to the desktop.
-> 
-> --
-> Alistair Riddell - BOFH
-> IT Manager, George Watson's College, Edinburgh
-> Tel: +44 131 447 7931 Ext 176       Fax: +44 131 452 8594
-> Microsoft - because god hates us
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+This patch is required so that we don't use memory that's been
+kfree'd.  (Corrects my mistake.)  Also this makes the regionid
+a bit more informative (as it appears in /proc/ioports).
 
-Yes my server serve lots of clients and have lots of NICs even
-gigabit... how can I increase write/read cache on RAID5 ? It is better
-performed when big cache allows on top (before) raid computation work
-and physical disk writes.
+--
+Thomas
+
+The patch:
+--- linux-2.4.10-ac10/drivers/pnp/pnp_bios.c	Mon Oct  8 22:41:14 2001
++++ linux-2.4.10-ac10-fx/drivers/pnp/pnp_bios.c	Mon Oct  8 00:49:58 2001
+@@ -686,17 +686,17 @@
+ 	 * We really shouldn't just reserve these regions, though, since
+ 	 * that prevents the device drivers from claiming them.
+ 	 */
+-	regionid = pnp_bios_kmalloc(8, GFP_KERNEL);
++	regionid = pnp_bios_kmalloc(16, GFP_KERNEL);
+ 	if ( regionid == NULL )
+ 		return;
+-	memcpy(regionid,pnpid,8);
++	sprintf(regionid, "PnPBIOS %s", pnpid);
+ 	res = request_region(io,len,regionid);
+ 	if ( res == NULL )
+ 		kfree( regionid );
+ 	printk(
+-		"PnPBIOS: %s: 0x%x-0x%x %s\n",
+-		regionid, io, io+len-1,
+-		NULL != res ? "reserved" : "was already reserved"
++		"PnPBIOS: %s: 0x%x-0x%x %s reserved\n",
++		pnpid, io, io+len-1,
++		NULL != res ? "has been" : "was already"
+ 	);
+ 
+ 	return;
+

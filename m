@@ -1,204 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269170AbUJKS0k@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269181AbUJKS3w@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269170AbUJKS0k (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 11 Oct 2004 14:26:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269169AbUJKS0k
+	id S269181AbUJKS3w (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 11 Oct 2004 14:29:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269169AbUJKS0v
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 11 Oct 2004 14:26:40 -0400
-Received: from lax-gate3.raytheon.com ([199.46.200.232]:54470 "EHLO
-	lax-gate3.raytheon.com") by vger.kernel.org with ESMTP
-	id S269171AbUJKSZO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 11 Oct 2004 14:25:14 -0400
-Subject: Re: [patch] CONFIG_PREEMPT_REALTIME, 'Fully Preemptible Kernel', VP-2.6.9-rc4-mm1-T4
-To: Ingo Molnar <mingo@elte.hu>
-Cc: Andrew Morton <akpm@osdl.org>, Daniel Walker <dwalker@mvista.com>,
-       "K.R. Foley" <kr@cybsft.com>, linux-kernel@vger.kernel.org,
-       Florian Schmidt <mista.tapas@gmx.net>,
-       Fernando Pablo Lopez-Lezcano <nando@ccrma.Stanford.EDU>,
-       Lee Revell <rlrevell@joe-job.com>, Rui Nuno Capela <rncbc@rncbc.org>
-X-Mailer: Lotus Notes Release 5.0.8  June 18, 2001
-Message-ID: <OF29AF5CB7.227D041F-ON86256F2A.0062D210@raytheon.com>
-From: Mark_H_Johnson@raytheon.com
-Date: Mon, 11 Oct 2004 13:23:57 -0500
-X-MIMETrack: Serialize by Router on RTSHOU-DS01/RTS/Raytheon/US(Release 6.5.2|June 01, 2004) at
- 10/11/2004 01:24:00 PM
-MIME-Version: 1.0
-Content-type: text/plain; charset=US-ASCII
-X-SPAM: 0.00
+	Mon, 11 Oct 2004 14:26:51 -0400
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:1033 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S269196AbUJKSZw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 11 Oct 2004 14:25:52 -0400
+Date: Mon, 11 Oct 2004 20:25:18 +0200
+From: Adrian Bunk <bunk@stusta.de>
+To: Andrew Morton <akpm@osdl.org>
+Cc: joshk@triplehelix.org, linux-kernel@vger.kernel.org
+Subject: Re: Weirdness with suspending jobs in 2.6.9-rc3
+Message-ID: <20041011182518.GA1892@stusta.de>
+References: <20041005063324.GA7445@darjeeling.triplehelix.org> <20041009101552.GA3727@stusta.de> <20041009140551.58fce532.akpm@osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20041009140551.58fce532.akpm@osdl.org>
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->i've released the -T4 VP patch:
->
->
-http://redhat.com/~mingo/voluntary-preempt/voluntary-preempt-2.6.9-rc4-mm1-T4
+On Sat, Oct 09, 2004 at 02:05:51PM -0700, Andrew Morton wrote:
+> Adrian Bunk <bunk@stusta.de> wrote:
+> > On Mon, Oct 04, 2004 at 11:33:24PM -0700, Joshua Kwan wrote:
+>...
+> >  > darjeeling:~{1}% bg
+> >  > [1]  + continued  make
+> >  > make: *** wait: No child processes.  Stop.
+> >  > make: *** Waiting for unfinished jobs....
+>...
+> >  I'm also observing this problem.
+> 
+> Neither I not Roland could reproduce this.
+> 
+> >  It doesn't depend on which version I'm compiling, it depends on which 
+> >  kernel I'm actually running.
+> > 
+> >  (2.6.9-rc1 is OK, 2.6.8-rc3-mm3 is not OK.)
+> 
+> What about current -linus?
+> 
+> Is there any way in which you can do a bit of bisecting, identify the
+> offending patch?
 
+The problem seems to be surprisingly old.
 
-I would have to say this is "very rough" at this point. I had the following
-problems in the build:
- [1] kernel/ksyms.c - undefined symbols
- [2] kernel/mutex.c - obvious cut / paste problems
- [3] XFS has incompatible mutex definition
- [4] suspicious warnings
- [5] missing symbols for modules
-Details at the end.
+In -mm, I was able to reproduce it in 2.6.8.1-mm1 (several older -mm 
+kernels don't boot on my machine due to the floppy issues already 
+discussed).
 
-I booted w/ SMP and the machine threw a lot of error messages about
-sleeping in
-an invalid context. For example:
+In Linus' tree, 2.6.9-rc1 is OK, but both 2.6.9-rc2 and 2.6.9-rc4 show 
+this problem.
 
-include/linux/rwsem.h:43
-in_atomic():1 [00010001], irqs_disabled():1
-[<c011f0ea>] __might_sleep+0xca/0xe0
-[<c01390d4>] rw_mutex_read_lock+0x34/0x50
-[<c0122dbd>] profile_hook+0x1d/0x50
-[<c0123338>] profile_tick+0x68/0x70
-[<c01150ad>] smp_apic_timer_interrupt+0x5d/0xf0
-[<c0105820>] default_idle+0x0/0x40
-[<c010854a>] apic_timer_interrupt+0x1a/0x20
-[<c0105820>] default_idle+0x0/0x40
-[<c011007b>] dmi_get_system_info+0xb/0x20
-[<c010585a>] default_idle+0x3a/0x40
-[<c03b4a4d>] start_kernel+0x19d/0x1e0
-[<c03b4440>] unknown_bootoption+0x0/0x180
+What else might matter? Userspace? I'm using a Debian unstable.
 
-(somehow managed to stop the scrolling console with the above message
-displayed...)
+cu
+Adrian
 
-Finally died with a kernel BUG
-kernel BUG at kernel/latenc.c:419!
-invalid operand: 0000 [#1]
-PREEMPT SMP
-Modules linked in microcode dm_mod uhci_hcd ext3 jbd
-CPU:     1
-EIP:    0001:[<00000000>]    Not tainted VLI
-EFLAGS: c1663f38  (2.6.9-rc4-mm1-VP-T4)
-EIP is at 0x0
-eax: 00000000   ebx: c1663f54   ecx: c0109a8c   edx: c1663f78
-esi: 0000000c   edi: c1663f28   ebp: c1663f3c   esp: c1663f78
-ds: 007b   es: 07b   ss: 4f03   preempt: 00000001
-Process swapper (pid: 0, threadinfo=c1662000 task=c165e550)
- <0> Kernel panic - not syncing: Attempted to kill the idle task!
+-- 
 
-Rebooting with num_cpus=1 and appeared to make it farther but then the
-console scrolled like crazy and finally said "console shuts up ..."
-and the machine appeared to be hung. Could not scroll the window up
-or down to see the full message. Had to power off / on to get the
-machine back up. Going back to -T3 until I see some fixes.
-
-If the machine managed to record some good data in /var/log/messages
-I will send them separately to you for reference.
-
---Mark H Johnson
-  <mailto:Mark_H_Johnson@raytheon.com>
-
-Details on build problems / work arounds follow:
-
-[1] ksyms.c - I commented these lines out, to get a complete build, but
-there appears to
-be code that expects rtc_lock to be defined. See #5.
-
-arch/i386/kernel/i386_ksyms.c:166 error: `rtc_lock' undeclared here (not in
-a function)
-arch/i386/kernel/i386_ksyms.c:166 error: initializer element is not
-constant
-arch/i386/kernel/i386_ksyms.c:166 error: (near initialization for
-`__ksymtab_rtc_lock.value')
-followed by a similar error for atomic_dec_and_lock at line 177.
-
-[2] mutex.c - several symbols were defined twice, fixed by changing the
-names to
-the functions preceeding them. See lines 108, 201, 213, 297.
-
-[3] XFS compile failed as follows:
-  CC [M]  fs/xfs/quota/xfs_dquot.o
-In file included from fs/xfs/linux-2.6/xfs_linux.h:63,
-                 from fs/xfs/xfs.h:35,
-                 from fs/xfs/quota/xfs_dquot.c:33:
-fs/xfs/linux-2.6/mutex.h:45: error: conflicting types for `mutex_t'
-include/asm/spinlock.h:79: error: previous declaration of `mutex_t'
-In file included from fs/xfs/linux-2.6/xfs_linux.h:102,
-                 from fs/xfs/xfs.h:35,
-                 from fs/xfs/quota/xfs_dquot.c:33:
-fs/xfs/linux-2.6/xfs_vnode.h:578:30: macro "mutex_lock" requires 2
-arguments, but only 1 given
-fs/xfs/linux-2.6/xfs_vnode.h:585:30: macro "mutex_lock" requires 2
-arguments, but only 1 given
-fs/xfs/quota/xfs_dquot.c:1327:23: macro "mutex_lock" requires 2 arguments,
-but only 1 given
-fs/xfs/quota/xfs_dquot.c:1390:41: macro "mutex_lock" requires 2 arguments,
-but only 1 given
-fs/xfs/linux-2.6/xfs_vnode.h: In function `vn_flagset':
-fs/xfs/linux-2.6/xfs_vnode.h:578: warning: statement with no effect
-fs/xfs/linux-2.6/xfs_vnode.h: In function `vn_flagclr':
-fs/xfs/linux-2.6/xfs_vnode.h:585: warning: statement with no effect
-Turned off XFS in the build.
-
-[4] I considered the following warnings to be "suspicious" but am not sure
-if they are really problems or not.
-
-  CC      security/selinux/ss/policydb.o
-fs/dcache.c: In function `prune_dcache':
-fs/dcache.c:391: warning: passing arg 1 of `cond_resched_lock' from
-incompatible pointer type
-  CC      security/selinux/ss/services.o
-  CC      fs/inode.o
-fs/inode.c: In function `invalidate_list':
-fs/inode.c:317: warning: passing arg 1 of `cond_resched_lock' from
-incompatible pointer type
-
-[5] Several modules had undefined symbols. The messages were...
-
-Kernel: arch/i386/boot/bzImage is ready
-*** Warning: "mutex_trylock_bh" [drivers/net/ppp_synctty.ko] undefined!
-*** Warning: "del_mtd_partitions" [drivers/mtd/maps/scx200_docflash.ko]
-undefined!
-*** Warning: "add_mtd_partitions" [drivers/mtd/maps/scx200_docflash.ko]
-undefined!
-*** Warning: "i2o_msg_in_to_virt" [drivers/message/i2o/i2o_scsi.ko]
-undefined!
-*** Warning: "i2o_msg_out_to_virt" [drivers/message/i2o/i2o_core.ko]
-undefined!
-*** Warning: "i2o_msg_in_to_virt" [drivers/message/i2o/i2o_core.ko]
-undefined!
-*** Warning: "i2o_msg_in_to_virt" [drivers/message/i2o/i2o_block.ko]
-undefined!
-*** Warning: "rtc_lock" [drivers/char/nvram.ko] undefined!
-*** Warning: "rtc_lock" [drivers/char/mwave/mwave.ko] undefined!
-*** Warning: "rtc_lock" [drivers/block/floppy.ko] undefined!
-...
-if [ -r System.map ]; then /sbin/depmod -ae -F System.map -b
-/var/tmp/kernel-2.6.9rc4mm1VPT4-root -r 2.6.9-rc4-mm1-VP-T4; fi
-WARNING: /var/tmp/kernel-2.6.9
-rc4mm1VPT4-root/lib/modules/2.6.9-rc4-mm1-VP-T4/kernel/drivers/net/ppp_synctty.ko
- needs unknown symbol mutex_trylock_bh
-WARNING: /var/tmp/kernel-2.6.9
-rc4mm1VPT4-root/lib/modules/2.6.9-rc4-mm1-VP-T4/kernel/drivers/mtd/maps/scx200_docflash.ko
- needs unknown symbol del_mtd_partitions
-WARNING: /var/tmp/kernel-2.6.9
-rc4mm1VPT4-root/lib/modules/2.6.9-rc4-mm1-VP-T4/kernel/drivers/mtd/maps/scx200_docflash.ko
- needs unknown symbol add_mtd_partitions
-WARNING: /var/tmp/kernel-2.6.9
-rc4mm1VPT4-root/lib/modules/2.6.9-rc4-mm1-VP-T4/kernel/drivers/message/i2o/i2o_scsi.ko
- needs unknown symbol i2o_msg_in_to_virt
-WARNING: /var/tmp/kernel-2.6.9
-rc4mm1VPT4-root/lib/modules/2.6.9-rc4-mm1-VP-T4/kernel/drivers/message/i2o/i2o_core.ko
- needs unknown symbol i2o_msg_in_to_virt
-WARNING: /var/tmp/kernel-2.6.9
-rc4mm1VPT4-root/lib/modules/2.6.9-rc4-mm1-VP-T4/kernel/drivers/message/i2o/i2o_core.ko
- needs unknown symbol i2o_msg_out_to_virt
-WARNING: /var/tmp/kernel-2.6.9
-rc4mm1VPT4-root/lib/modules/2.6.9-rc4-mm1-VP-T4/kernel/drivers/message/i2o/i2o_block.ko
- needs unknown symbol i2o_msg_in_to_virt
-WARNING: /var/tmp/kernel-2.6.9
-rc4mm1VPT4-root/lib/modules/2.6.9-rc4-mm1-VP-T4/kernel/drivers/char/nvram.ko
- needs unknown symbol rtc_lock
-WARNING: /var/tmp/kernel-2.6.9
-rc4mm1VPT4-root/lib/modules/2.6.9-rc4-mm1-VP-T4/kernel/drivers/char/mwave/mwave.ko
- needs unknown symbol rtc_lock
-WARNING: /var/tmp/kernel-2.6.9
-rc4mm1VPT4-root/lib/modules/2.6.9-rc4-mm1-VP-T4/kernel/drivers/block/floppy.ko
- needs unknown symbol rtc_lock
-
-
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
 

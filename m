@@ -1,62 +1,56 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S311424AbSDDUEg>; Thu, 4 Apr 2002 15:04:36 -0500
+	id <S311433AbSDDUFU>; Thu, 4 Apr 2002 15:05:20 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S311418AbSDDUER>; Thu, 4 Apr 2002 15:04:17 -0500
-Received: from gateway-1237.mvista.com ([12.44.186.158]:53486 "EHLO
-	av.mvista.com") by vger.kernel.org with ESMTP id <S311424AbSDDUEE>;
-	Thu, 4 Apr 2002 15:04:04 -0500
-Message-ID: <3CACB166.F2E60ABE@mvista.com>
-Date: Thu, 04 Apr 2002 12:02:46 -0800
-From: george anzinger <george@mvista.com>
-Organization: Monta Vista Software
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.2.12-20b i686)
-X-Accept-Language: en
+	id <S311454AbSDDUFI>; Thu, 4 Apr 2002 15:05:08 -0500
+Received: from sitar.i-cable.com ([210.80.60.11]:1940 "HELO sitar.i-cable.com")
+	by vger.kernel.org with SMTP id <S311433AbSDDUE4>;
+	Thu, 4 Apr 2002 15:04:56 -0500
+Message-ID: <3CACB1DD.2040508@shaolinmicro.com>
+Date: Fri, 05 Apr 2002 04:04:45 +0800
+From: David Chow <davidchow@shaolinmicro.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.4) Gecko/20011019 Netscape6/6.2
+X-Accept-Language: en-us
 MIME-Version: 1.0
-To: Dave Hansen <haveblue@us.ibm.com>
-CC: Robert Love <rml@tech9.net>, Linus Torvalds <torvalds@transmeta.com>,
-        "Adam J. Richter" <adam@yggdrasil.com>, linux-kernel@vger.kernel.org
-Subject: Re: Patch: linux-2.5.8-pre1/kernel/exit.c change caused BUG() atboot 
- time
-In-Reply-To: <Pine.LNX.4.33.0204041113410.12895-100000@penguin.transmeta.com> <1017948383.22303.537.camel@phantasy> <3CACAC7A.4040209@us.ibm.com>
-Content-Type: text/plain; charset=us-ascii
+To: linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org
+Subject: vcd, .dat files and isofs problem
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dave Hansen wrote:
-> 
-> Robert Love wrote:
-> >       tsk->exit_code = code;
-> >       exit_notify();
-> > +     preempt_enable_no_resched();
->        * PREEMPT HERE *
-> >       schedule();
-> >       BUG();
-> 
-> Isn't there still a race here?  A preempt CAN happen after you reenable,
-> right?  Admittedly, its a small window, but it _is_ a window.
+I have problems reading the .dat files from VCD, here is the kernel 
+logs. I think it is an fs issue, since I am not the only one having the 
+same problem. In user space, read returns I/O error but I think it is an 
+fs issue or a cd-rom
+driver issue, I have tested with xine vcd player, the vcd can be played 
+by directly accessing the block device but not through the fs. I tested 
+the VCD under MS Windows using the same machine and disc and .dat files 
+can be correctly read, even  I use vcdgear win32 to convert the .dat 
+file to .mpg it is still fine. So it is sure it is not the CD or 
+hardware problem.
 
-Right, eliminate this line.  Since the task is going away it doesn't
-matter.  Actually it doesn't matter even if schedule() returns (i.e. for
-other than ZOMBIE) as long as preempt is enabled after the schedule()
-call, somewhere.  It is designed to work this way for a reason, this
-being one of them.
+Many VCD's are tested and result is the same. It is likely to be an fs 
+specific problem. I am running 2.4.17 and lsmod shows isofs is in use. 
+Here is my log messages.
 
--g
-> 
-> --
-> Dave Hansen
-> haveblue@us.ibm.com
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+kernel: hdd: command error: error=0x55
+kernel: end_request: I/O error, dev 16:40 (hdd), sector 32300
+kernel: hdd: command error: status=0x51 { DriveReady SeekComplete Error }
+kernel: hdd: command error: error=0x55
+kernel: end_request: I/O error, dev 16:40 (hdd), sector 32304
+kernel: hdd: command error: status=0x51 { DriveReady SeekComplete Error }
+kernel: hdd: command error: error=0x55
+kernel: end_request: I/O error, dev 16:40 (hdd), sector 32308
+kernel: hdd: command error: status=0x51 { DriveReady SeekComplete Error }
+kernel: hdd: command error: error=0x55
+kernel: end_request: I/O error, dev 16:40 (hdd), sector 32312
+kernel: hdd: command error: status=0x51 { DriveReady SeekComplete Error }
+kernel: hdd: command error: error=0x55
+kernel: end_request: I/O error, dev 16:40 (hdd), sector 32316
+kernel: hdd: command error: status=0x51 { DriveReady SeekComplete Error }
 
--- 
-George Anzinger   george@mvista.com
-High-res-timers:  http://sourceforge.net/projects/high-res-timers/
-Real time sched:  http://sourceforge.net/projects/rtsched/
-Preemption patch: http://www.kernel.org/pub/linux/kernel/people/rml
+regards,
+
+David
+

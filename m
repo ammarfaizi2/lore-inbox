@@ -1,57 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261557AbVCDE0X@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262398AbVCDE0W@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261557AbVCDE0X (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 3 Mar 2005 23:26:23 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261551AbVCCTmC
+	id S262398AbVCDE0W (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 3 Mar 2005 23:26:22 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261557AbVCCTlt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 3 Mar 2005 14:42:02 -0500
-Received: from mail.kroah.org ([69.55.234.183]:13269 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S262501AbVCCTTB (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 3 Mar 2005 14:19:01 -0500
-Date: Thu, 3 Mar 2005 11:18:40 -0800
-From: Greg KH <greg@kroah.com>
-To: Jeff Garzik <jgarzik@pobox.com>
-Cc: Rene Rebe <rene@exactcode.de>, torvalds@osdl.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] trivial fix for 2.6.11 raid6 compilation on ppc w/ Altivec
-Message-ID: <20050303191840.GA12916@kroah.com>
-References: <422751D9.2060603@exactcode.de> <422756DC.6000405@pobox.com>
+	Thu, 3 Mar 2005 14:41:49 -0500
+Received: from 213-239-205-147.clients.your-server.de ([213.239.205.147]:49322
+	"EHLO mail.tglx.de") by vger.kernel.org with ESMTP id S262340AbVCCTPt
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 3 Mar 2005 14:15:49 -0500
+Subject: Re: RFD: Kernel release numbering
+From: Thomas Gleixner <tglx@linutronix.de>
+Reply-To: tglx@linutronix.de
+To: Adrian Bunk <bunk@stusta.de>
+Cc: Linus Torvalds <torvalds@osdl.org>, Jeff Garzik <jgarzik@pobox.com>,
+       Greg KH <greg@kroah.com>, "David S. Miller" <davem@davemloft.net>,
+       Andrew Morton <akpm@osdl.org>, LKML <linux-kernel@vger.kernel.org>
+In-Reply-To: <20050303170808.GG4608@stusta.de>
+References: <Pine.LNX.4.58.0503021932530.25732@ppc970.osdl.org>
+	 <42268749.4010504@pobox.com> <20050302200214.3e4f0015.davem@davemloft.net>
+	 <42268F93.6060504@pobox.com> <4226969E.5020101@pobox.com>
+	 <20050302205826.523b9144.davem@davemloft.net> <4226C235.1070609@pobox.com>
+	 <20050303080459.GA29235@kroah.com> <4226CA7E.4090905@pobox.com>
+	 <Pine.LNX.4.58.0503030750420.25732@ppc970.osdl.org>
+	 <20050303170808.GG4608@stusta.de>
+Content-Type: text/plain
+Date: Thu, 03 Mar 2005 20:15:35 +0100
+Message-Id: <1109877336.4032.47.camel@tglx.tec.linutronix.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <422756DC.6000405@pobox.com>
-User-Agent: Mutt/1.5.8i
+X-Mailer: Evolution 2.0.3 (2.0.3-2) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Mar 03, 2005 at 01:26:36PM -0500, Jeff Garzik wrote:
-> Rene Rebe wrote:
-> >Hi,
-> >
-> >
-> >--- linux-2.6.11/drivers/md/raid6altivec.uc.vanilla    2005-03-02 
-> >16:44:56.407107752 +0100
-> >+++ linux-2.6.11/drivers/md/raid6altivec.uc    2005-03-02 
-> >16:45:22.424152560 +0100
-> >@@ -108,7 +108,7 @@
-> > int raid6_have_altivec(void)
-> > {
-> >     /* This assumes either all CPUs have Altivec or none does */
-> >-    return cur_cpu_spec->cpu_features & CPU_FTR_ALTIVEC;
-> >+    return cur_cpu_spec[0]->cpu_features & CPU_FTR_ALTIVEC;
-> 
-> 
-> I nominate this as a candidate for linux-2.6.11 release branch.  :)
+On Thu, 2005-03-03 at 18:08 +0100, Adrian Bunk wrote:
 
-Ok, I've fixed up the patch and applied it to a local tree that I've set
-up to catch these things (it will live at
-bk://kernel.bkbits.net:gregkh/linux-2.6.11.y until Chris Wright and I
-set up how we are going to handle all of this.)
+> This only attacks part of the problem.
 
-Feel free to start pointing stuff like this at me and chris (we'll also
-be setting up an alias for it.)
+It still does not solve the problem of "untested" releases. Users will
+still ignore the linus-tree-rcX kernels. 
 
-thanks,
+So we move the real -rcX phase after the so called stable release. 
 
-greg k-h
+Doing -rcX from the "sucker" tree up to a stable release makes much more
+sense and would have more testers and get back lost confidence.
+
+tglx
+
+

@@ -1,49 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269372AbUJRDwM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S269373AbUJRELB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S269372AbUJRDwM (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 17 Oct 2004 23:52:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269373AbUJRDwM
+	id S269373AbUJRELB (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 18 Oct 2004 00:11:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S269381AbUJRELB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 17 Oct 2004 23:52:12 -0400
-Received: from fmr12.intel.com ([134.134.136.15]:5832 "EHLO
-	orsfmr001.jf.intel.com") by vger.kernel.org with ESMTP
-	id S269372AbUJRDwH convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 17 Oct 2004 23:52:07 -0400
-X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
-Content-class: urn:content-classes:message
+	Mon, 18 Oct 2004 00:11:01 -0400
+Received: from smtp-26.ig.com.br ([200.226.132.160]:27835 "HELO
+	smtp-26.ig.com.br") by vger.kernel.org with SMTP id S269373AbUJRELA
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 18 Oct 2004 00:11:00 -0400
+Message-ID: <41733238.4010409@ig.com.br>
+Date: Mon, 18 Oct 2004 01:02:16 -0200
+From: "Olavo B D'Antonio" <olavobdantonio@ig.com.br>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040914
+X-Accept-Language: pt-br, en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Subject: RE: High pitched noise from laptop: processor.c in linux 2.6
-Date: Mon, 18 Oct 2004 11:51:55 +0800
-Message-ID: <3ACA40606221794F80A5670F0AF15F8405D3BF5B@pdsmsx403>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: High pitched noise from laptop: processor.c in linux 2.6
-Thread-Index: AcSzuw8gItsQDplwR5ew0apjz20N/ABCPc9A
-From: "Yu, Luming" <luming.yu@intel.com>
-To: "Pavel Machek" <pavel@ucw.cz>, "M" <mru@mru.ath.cx>
-Cc: <linux-kernel@vger.kernel.org>
-X-OriginalArrivalTime: 18 Oct 2004 03:51:57.0243 (UTC) FILETIME=[D07A00B0:01C4B4C5]
+To: linux-kernel@vger.kernel.org
+Subject: Framebuffer problem.
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->Hi!
->
->> >> Is there any way to stop this? I googled around and found it had 
->> >> something to do with idle frequency of 1000 Hz in 2.6 
->instead of 100Hz 
->> >> in the 2.4 kernel. I couldn't find much else on this. 
->Hunting around the 
->> >> code didn't help much, I don't know C. 
->> >
->> > Change #define HZ 1000 to #define HZ 100...
->> 
->> ... and lose all the benefits of HZ=1000.  What would happen if one
->> were to set HZ to a higher value, like 10000?
+Hi,
+   
+    I changed my GeForce FX 5200 128MB to  another GeForce FX5200 but 
+with 256MB of memory, and something had been wrong. At boot, framebuffer 
+return a error:
+    vesafb: probe of vesafb0 failed with error -6
 
-There is a similar issue filed on :
-http://bugzilla.kernel.org/show_bug.cgi?id=3406
+I found another one with same error.
+The old card was AGP revision 2.0, this new card is AGP revision 3.0.
 
+Is framebuffer incompatible with this review?
+
+Regards,
+    Olavo.

@@ -1,79 +1,64 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131305AbRCHJ3C>; Thu, 8 Mar 2001 04:29:02 -0500
+	id <S131316AbRCHJwo>; Thu, 8 Mar 2001 04:52:44 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131310AbRCHJ2x>; Thu, 8 Mar 2001 04:28:53 -0500
-Received: from mx0.gmx.net ([213.165.64.100]:50342 "HELO mx0.gmx.net")
-	by vger.kernel.org with SMTP id <S131305AbRCHJ2k>;
-	Thu, 8 Mar 2001 04:28:40 -0500
-Date: Thu, 8 Mar 2001 10:28:18 +0100 (MET)
-To: Vojtech Pavlik <vojtech@suse.cz>
-Cc: linux-kernel@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: IDE bug in 2.4.2-ac12?
-From: Konrad Stopsack <konrad_lkml@gmx.de>
-In-Reply-To: <20010308101559.A1051@suse.cz>
-Message-ID: <11313.984043698@www29.gmx.net>
+	id <S131317AbRCHJwe>; Thu, 8 Mar 2001 04:52:34 -0500
+Received: from khan.acc.umu.se ([130.239.18.139]:51639 "EHLO khan.acc.umu.se")
+	by vger.kernel.org with ESMTP id <S131316AbRCHJwP>;
+	Thu, 8 Mar 2001 04:52:15 -0500
+Date: Thu, 8 Mar 2001 10:51:41 +0100
+From: David Weinehall <tao@acc.umu.se>
+To: Jens Axboe <axboe@suse.de>
+Cc: Rik van Riel <riel@conectiva.com.br>,
+        Linus Torvalds <torvalds@transmeta.com>, linux-kernel@vger.kernel.org
+Subject: Re: 64-bit capable block device layer
+Message-ID: <20010308105140.B18769@khan.acc.umu.se>
+In-Reply-To: <20010307184749.A4653@suse.de> <Pine.LNX.4.33.0103071504250.1409-100000@duckman.distro.conectiva> <20010307195323.D4653@suse.de>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="4Ckj6UjgE2iN1+kY"
-X-Priority: 3 (Normal)
-X-Authenticated-Sender: #0009979400@gmx.net
-X-Mailer: WWW-Mail 1.5 (Global Message Exchange)
-X-Authenticated-IP: [141.76.11.162]
-X-Flags: 0001
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.4i
+In-Reply-To: <20010307195323.D4653@suse.de>; from axboe@suse.de on Wed, Mar 07, 2001 at 07:53:23PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
---4Ckj6UjgE2iN1+kY
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-
-Vojtech Pavlik wrote:
-> On Thu, Mar 08, 2001 at 10:06:57AM +0100, Konrad Stopsack wrote:
-> > Vojtech Pavlik wrote:
-> > > On Thu, Mar 08, 2001 at 09:51:43AM +0100, Konrad Stopsack wrote:
-> > > 
-> > > > > I don't see any other way how the ZIP could have impact on the 
-IDE
-> 
-> > HDD
-> > > > > on a different IDE interface.
-> > > > The 82c586b can be a chip with locked-together IDE controllers,
-> can't
-> > > it?
-> > > 
-> > > What do you mean by 'locked together'?
-> > Nasty chips whose two IDE channels aren't really separated. On one IDE 
-> > channel you either can use DMA or not. On these chips, switching off 
-DMA
-> 
-> > at the second controller also disables DMA at the first.
-> 
-> Then this is not the case of the 586b. All four IDE drive transfer
-> speeds are programmed separately.
-> 
-> > > I have two vt82c586b's here and one old vt82c586. All work fine with
-> > > different drive combinations, one even has a CD-ROM and a ZIP on the
-> > > secondary channel like yours.
+On Wed, Mar 07, 2001 at 07:53:23PM +0100, Jens Axboe wrote:
+> On Wed, Mar 07 2001, Rik van Riel wrote:
+> > > > how would you feel about having the block device layer 64-bit
+> > > > capable, so Linux can have block devices of more than 2GB in
+> > > > size ?
+> > >
+> > > I already did this here, or something similar at least. Using
+> > > a sector_t type that is 64-bit, regardless of platform. Is it
+> > > really worth it to differentiate and use 32-bit types for old
+> > > machines?
 > > 
-> > Yeah, Ok. My combination SHOULD work without any problems...
+> > Wonderful !
 > > 
-> > What else could I do? Swap CD-ROM and ZIP? Try new 2.4.2-ac14 with
-> command 
-> > line parameters "ide0=dma ide1=nodma"?
+> > I'm not sure how expensive 64-bit arithmetic would be on
+> > eg. 386, 486 or 68k machines, or how much impact the extra
+> > memory taken would have.
+> > 
+> > OTOH, I'm not sure what problems it could give to make this
+> > a compile-time option...
 > 
-> I don't know. I'm attaching the very latest driver - but I doubt it
-> changes anything.
+> Plus compile time options are nasty :-). It would probably make
+> bigger sense to completely skip all the merging etc for low end
+> machines. I think they already do this for embedded kernels (ie
+> removing ll_rw_blk.c and elevator.c). That avoids most of the
+> 64-bit arithmetic anyway.
 
-Thank you. I'll try the 2.4.2-ac14 kernel and your driver.
+My 386/486 and m68k-machines with 4/8/16 MB's of memory would be happy
+for any and all options to remove code only needed by larger machines.
+I'm pretty sure none of my 386:en will ever have 2GB of swap, 2GB of
+blockdevices or 2TB filesystems...
 
-cu Konrad
+Of course, for embedded kernels, being able to exclude block-devices
+might be an idea. Or?
 
--- 
-Konrad Stopsack - konrad@stopsack.de
 
-Sent through GMX FreeMail - http://www.gmx.net
---4Ckj6UjgE2iN1+kY--
-
+/David Weinehall
+  _                                                                 _
+ // David Weinehall <tao@acc.umu.se> /> Northern lights wander      \\
+//  Project MCA Linux hacker        //  Dance across the winter sky //
+\>  http://www.acc.umu.se/~tao/    </   Full colour fire           </

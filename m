@@ -1,56 +1,64 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S316782AbSGVLVZ>; Mon, 22 Jul 2002 07:21:25 -0400
+	id <S316535AbSGVHF0>; Mon, 22 Jul 2002 03:05:26 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316755AbSGVLUZ>; Mon, 22 Jul 2002 07:20:25 -0400
-Received: from pc2-cwma1-5-cust12.swa.cable.ntl.com ([80.5.121.12]:18173 "EHLO
-	irongate.swansea.linux.org.uk") by vger.kernel.org with ESMTP
-	id <S316821AbSGVLTj>; Mon, 22 Jul 2002 07:19:39 -0400
-Subject: Re: ECS DeskNote A929 (i-Buddie XP)  (Kernel 2.4.18 & 2.4.19rc3)
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Dave Humphreys <dave@datatone.co.uk>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <96AD56B9964DC448990E3DE3FD19A65605039C@d21.datatone.co.uk>
-References: <96AD56B9964DC448990E3DE3FD19A65605039C@d21.datatone.co.uk>
-Content-Type: text/plain
+	id <S316538AbSGVHF0>; Mon, 22 Jul 2002 03:05:26 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:5904 "EHLO
+	www.linux.org.uk") by vger.kernel.org with ESMTP id <S316535AbSGVHF0>;
+	Mon, 22 Jul 2002 03:05:26 -0400
+Message-ID: <3D3BB14F.44C93587@zip.com.au>
+Date: Mon, 22 Jul 2002 00:16:31 -0700
+From: Andrew Morton <akpm@zip.com.au>
+X-Mailer: Mozilla 4.79 [en] (X11; U; Linux 2.4.19-pre9 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Anton Altaparmakov <aia21@cantab.net>
+CC: Linus Torvalds <torvalds@transmeta.com>,
+       lkml <linux-kernel@vger.kernel.org>
+Subject: Re: [patch 13/13] lseek speedup
+References: <3D35A024.1635E12E@zip.com.au> <5.1.0.14.2.20020717185356.00ae4ec0@pop.cus.cam.ac.uk>
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-Mailer: Ximian Evolution 1.0.3 (1.0.3-6) 
-Date: 22 Jul 2002 13:35:18 +0100
-Message-Id: <1027341318.31787.11.camel@irongate.swansea.linux.org.uk>
-Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2002-07-22 at 10:29, Dave Humphreys wrote:
-> I have just aquired an ECS DeskNote A929 (i-Buddie XP). This
-> machine is supposed to be based on:
-> SiS 740 North Bridge
-> SiS 961 South Bridge
-> with integrated network interface (and graphics and other features).
+Anton Altaparmakov wrote:
 > 
-> I found that I could not make the kernel detect the network
-> card, despite the fact that I had built support for 'SiS 900/7096'
-> into the kernel.
+> At 17:49 17/07/02, Andrew Morton wrote:
+> >Anton Altaparmakov wrote:
+> > >
+> > > >  Now, why are we taking i_sem for lseek/readdir
+> > > >exclusion and not a per-file lock?
+> > >
+> > > Because it also excludes against directory modifications, etc. Just imagine
+> > > what "rm somefile" or "mv somefile otherfile" or "touch newfile" would do
+> > > to the directory contents and what a concurrent readdir() would do... A
+> > > very loud *BANG* is the only thing that springs to mind...
+> >
+> >That's different.  i_size, contents of things, yes - i_sem for
+> >those.
+> >
+> >But protection of struct file should not be via any per-inode thing.
 > 
-> I found a patch which identified a need to add the SiS 740 and
-> SiS 961 into pci.ids, and which suggested that this was all that was
-> necessary to make the 740/961 work.
-> 
-> I find that my kernel does not create /proc/pci which suggests
-> to me something quite fundamental.
-> 
-> I ran lspci -H2 and I get:
-> 
-> 00:04.0 Class 000e: 00c1:0000
-> 00:08.0 Class 000e: 00c1:0000
-> 00:0c.0 Class 0000: 0040:0000 
-> 
-> The 0000 class code worries me, as do the vendor and device ID's.
-> 
-> The machine came with a 'ThizLinux' CD which has 2.4.18 kernel,
-> so someone has made it work, but I don't have the sources.
+> Oh, I see. But that would mean adding yet another lock to an existing
+> locking scheme? So both i_sem and the "per file lock" would nead to be held
+> over readdir(). That's doable but it would have to be a semaphore based
+> lock due to readdir()...
 
-The GPL license requires they provide you the sources to the GPL'd code
-at cost. If they fail to do so they are violating copyright law.
+Adding a sleeping lock to struct file for this would make sense; using
+i_sem to protect the innards of struct file ain't right.
 
+However I'm not sure that the VFS needs to be serialising lseek
+and readdir at all.  The fs can do that if it really needs to.
 
+And does it really need to?  Setting aside the non-atomic 64-bit
+read, it may be sufficient for the fs to do what ext2_readdir
+does:  read f_pos once on entry, write it once on exit and if
+there was a concurrent lseek then its results get stomped on.
+
+Can you see any problem with that?
+
+Anyway.  It's not exactly a top-priority thing.  I'll park
+it for a while and just stop running that test ;)
+
+-

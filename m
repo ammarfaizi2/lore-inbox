@@ -1,57 +1,62 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130532AbRDFCAh>; Thu, 5 Apr 2001 22:00:37 -0400
+	id <S130768AbRDFCBS>; Thu, 5 Apr 2001 22:01:18 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130768AbRDFCAT>; Thu, 5 Apr 2001 22:00:19 -0400
-Received: from adsl-63-194-96-244.dsl.snlo01.pacbell.net ([63.194.96.244]:61445
-	"HELO alpha.dyndns.org") by vger.kernel.org with SMTP
-	id <S130532AbRDFCAF>; Thu, 5 Apr 2001 22:00:05 -0400
-Message-ID: <3ACD22E6.72143666@bigfoot.com>
-Date: Thu, 05 Apr 2001 18:59:02 -0700
-From: Mark McClelland <mmcclell@bigfoot.com>
-X-Mailer: Mozilla 4.61 [en] (OS/2; U)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Erik Gustavsson <cyrano@algonet.se>, LKML <linux-kernel@vger.kernel.org>
-CC: Thomas Speck <Thomas.Speck@univ-rennes1.fr>
-Subject: Re: ov511 problem
-In-Reply-To: <Pine.LNX.4.21.0104052311590.2324-100000@lillan>
+	id <S130791AbRDFCBI>; Thu, 5 Apr 2001 22:01:08 -0400
+Received: from [209.250.53.73] ([209.250.53.73]:17931 "EHLO
+	hapablap.dyn.dhs.org") by vger.kernel.org with ESMTP
+	id <S130768AbRDFCAw>; Thu, 5 Apr 2001 22:00:52 -0400
+Date: Thu, 5 Apr 2001 20:59:22 -0500
+From: Steven Walter <srwalter@yahoo.com>
+To: tytso@mit.edu
+Cc: linux-kernel@vger.kernel.org
+Subject: Problems with serial driver 5.05, kernel 2.4.3
+Message-ID: <20010405205922.A16574@hapablap.dyn.dhs.org>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+X-Uptime: 8:08pm  up 2 days, 23:25,  3 users,  load average: 2.79, 2.80, 2.62
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ov511 supports compression, but it doesn't always work yet. Even with
-compression, you will only get 12-15 FPS at 640x480 at most. USB just can't do
-better than that with this type of compression algorithm.
+I'm getting some interesting behavior with the 2.4.3 serial driver and
+agetty.
 
-If you want to try compression, use the "compress=1" and "ttpp=1" parameters
-with the ov511 1.35 module. You will likely get garbage, but this will give you
-an idea of what the frame rate will be like once I have it working.
+This system uses the onboard serial port (ttyS0) for a serial console
+(console=ttyS0,38400) along with the VGA port.  If I try to start an
+agetty on this line (agetty -L ttyS0 38400), it gets as far as
+outputting "Debian GNU/Linux", etc, before freezing in ioctl(0,
+SNDCTL_STOP...), this according to strace.  According to "ps -eo wchan",
+it's hanging in tty_wait_until_sent.  fd 0 is /dev/ttyS0.
+This happens if the port is connected via null-modem cable to another
+computer, a null-modem cable connected to no other computer, or no cable
+at all.
 
-Erik Gustavsson wrote:
+This seems to be a kernel problem to me, since its hanging in kernel
+space.  However, the problem can be worked around somewhat by starting
+agetty as "agetty -n -L ttyS0 38400".  In this mode of operation, the
+login prompt gets printed (though the banner doesn't), and I can log in.
+It seems to work well, except that large sustained transfers seem to
+lock the program on this end.  For example, "dmesg" will print out a
+considerable amount of text, and then simply stop.  Ctrl+C returns me to
+a bash prompt.  It stops at the same spot every time, unless I start
+typing between "dmesg" and stoppage.  It never varies by more than a few
+(10-15) characters.  Interestingly enough, characters are still echoed
+between stoppage and return to bash.
 
-> On Thu, 5 Apr 2001, Thomas Speck wrote:
->
-> IIRC the driver doesn't support compression, and there is no way you can
-> get 640x480 uncompressed at 30 fps over USB...
->
-> > I am trying to get working a Spacec@m 300 (USB) by Trust. I tried this
-> > under 2.2.18 and 2.4.3. In order to get the camera detected I can use the
-> > usb-uhci or uhci module (the result is the same). The camera gets detected
-> > (some OV7610 gets probed - I don't know if this is the correct one) and
-> > after loading the ov511 module I get the picture of the camera displayed
-> > with xawt-3.38 (resolution 640x480 - the camera is able to this).
-> > The problem I am running into is that the framerate is extremely slow
-> > (maybe 3 fps), however, from the specifications it should work with 30
-> > fps. My system is a Pentium II with 300 Mhz. Some Miro TV card with a
-> > BT848 chip works fine with the bttv driver.
-> > Do you have any idea ?
-> > If you need more info, just let me know. I am also willing to do some
-> > tests...
+I wouldn't blame the cable or the remote computer, though, as I've tried
+using an entirely different computer complete with different OS as the
+terminal, with precisely the same behavior.  I've also used the cable
+between the two other computers, in which it works correctly.  (The
+kernel used in which it works correctly is 2.2.14 on an RH 5.2 system.)
 
---
-Mark McClelland
-mmcclell@bigfoot.com
+I hope I've given you enough information to make a useful evaluation,
+and hopefully a fix.  If I've left something out, please ask, and I'll be
+happy to give you whatever I can.  I'm also willing to try out possible
+fixes.
 
-
+Thanks
+-- 
+-Steven
+Freedom is the freedom to say that two plus two equals four.

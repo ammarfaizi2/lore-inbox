@@ -1,36 +1,97 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267864AbUIPJLb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267879AbUIPJOc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267864AbUIPJLb (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Sep 2004 05:11:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267872AbUIPJLb
+	id S267879AbUIPJOc (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Sep 2004 05:14:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267876AbUIPJOb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Sep 2004 05:11:31 -0400
-Received: from colin2.muc.de ([193.149.48.15]:55815 "HELO colin2.muc.de")
-	by vger.kernel.org with SMTP id S267864AbUIPJL3 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Sep 2004 05:11:29 -0400
-Date: 16 Sep 2004 11:11:28 +0200
-Date: Thu, 16 Sep 2004 11:11:28 +0200
-From: Andi Kleen <ak@muc.de>
-To: William Lee Irwin III <wli@holomorphy.com>,
-       Albert Cahalan <albert@users.sf.net>, Jakub Jelinek <jakub@redhat.com>,
-       Albert Cahalan <albert@users.sourceforge.net>,
-       linux-kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: get_current is __pure__, maybe __const__ even
-Message-ID: <20040916091128.GA55409@muc.de>
-References: <1095288600.1174.5968.camel@cube> <20040915231518.GB31909@devserv.devel.redhat.com> <20040915232956.GE9106@holomorphy.com> <1095300619.2191.6392.camel@cube> <20040916023604.GH9106@holomorphy.com> <20040916100419.A31029@flint.arm.linux.org.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Thu, 16 Sep 2004 05:14:31 -0400
+Received: from smtp.dkm.cz ([62.24.64.34]:23303 "HELO smtp.dkm.cz")
+	by vger.kernel.org with SMTP id S267879AbUIPJOB convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 16 Sep 2004 05:14:01 -0400
+From: "Bc. Michal Semler" <cijoml@volny.cz>
+Reply-To: cijoml@volny.cz
+To: linux-kernel@vger.kernel.org
+Subject: Re: CD-ROM can't be ejected
+Date: Thu, 16 Sep 2004 11:13:55 +0200
+User-Agent: KMail/1.6.2
+References: <200409160025.35961.cijoml@volny.cz> <200409161013.35454.cijoml@volny.cz> <20040916090540.GX2300@suse.de>
+In-Reply-To: <20040916090540.GX2300@suse.de>
+MIME-Version: 1.0
 Content-Disposition: inline
-In-Reply-To: <20040916100419.A31029@flint.arm.linux.org.uk>
-User-Agent: Mutt/1.4.1i
+Content-Type: text/plain;
+  charset="iso-8859-2"
+Content-Transfer-Encoding: 8BIT
+Message-Id: <200409161113.55719.cijoml@volny.cz>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> IOW, think from a tasks point of view.  It gets into the scheduler,
-> and switch_to() is just a normal function which just happens to sleep
-> for some time.
+> > > On Thu, Sep 16 2004, Bc. Michal Semler wrote:
+> > > > notas:/home/cijoml# mount /cdrom/
+> > > > notas:/home/cijoml# umount /cdrom/
+> > > > notas:/home/cijoml# strace -o eject /dev/hdc
+> > > > eject: unable to eject, last error: Nep?ípustný argument
+> > > >
+> > > > As you can see, I dont't enter to directory...
+> > > >
+> > > > And output is included
+> > > >
+> > > > ioctl(3, CDROMEJECT, 0xbffffac8)        = -1 EIO (Input/output error)
+> > >
+> > > That's the important bit, the reason you get EINVAL passed back is
+> > > because eject tries the floppy eject as well and decides to print the
+> > > warning from that. It really should just stop of it sees -EIO, only
+> > > continue if EINVAL/ENOTTY is passed back.
+> > >
+> > > Try this little c program and report back what it tells you. Compile
+> > > with
+> > >
+> > > gcc -Wall -o eject eject.c
+> > >
+> > > and run without arguments.
+> > >
+> > > #include <stdio.h>
+> > > #include <stdlib.h>
+> > > #include <fcntl.h>
+> > > #include <string.h>
+> > > #include <sys/ioctl.h>
+> > > #include <linux/cdrom.h>
+> > >
+> > > int main(int argc, char *argv[])
+> > > {
+> > > 	int fd = open("/dev/hdc", O_RDONLY | O_NONBLOCK);
+> > > 	struct cdrom_generic_command cgc;
+> > > 	struct request_sense sense;
+> > >
+> > > 	memset(&cgc, 0, sizeof(cgc));
+> > > 	memset(&sense, 0, sizeof(sense));
+> > >
+> > > 	cgc.cmd[0] = 0x1b;
+> > > 	cgc.cmd[4] = 0x02;
+> > > 	cgc.sense = &sense;
+> > > 	cgc.data_direction = CGC_DATA_NONE;
+> > >
+> > > 	if (ioctl(fd, CDROM_SEND_PACKET, &cgc) == 0) {
+> > > 		printf("eject worked\n");
+> > > 		return 0;
+> > > 	}
+> > >
+> > > 	printf("command failed - sense %x/%x/%x\n", sense.sense_key,
+> > > sense.asc, sense.ascq); return 1;
+> > > }
+> >
+> > 2.4.27-mh1
+> > notas:~# /home/cijoml/eject
+> > ATAPI device hdc:
+> >   Error: Not ready -- (Sense key=0x02)
+> >   (reserved error code) -- (asc=0x53, ascq=0x02)
+> >   The failed "Start/Stop Unit" packet command was:
+> >   "1b 00 00 00 02 00 00 00 00 00 00 00 "
+> > command failed - sense 2/53/2
+>
+> Your tray is still locked, are you sure it isn't mounted?
 
-On x86/x86-64 the stack switch is inlined into schedule() 
+Yes I am. This is written into console and I am logged only into this console 
+and I copied whole commands from login to eject... :(
 
--Andi
+M.

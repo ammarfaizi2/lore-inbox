@@ -1,87 +1,189 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261829AbTJAAvY (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 30 Sep 2003 20:51:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261835AbTJAAvY
+	id S261813AbTI3XDE (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 30 Sep 2003 19:03:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261829AbTI3XB6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 30 Sep 2003 20:51:24 -0400
-Received: from rekin6.o2.pl ([212.126.20.11]:63384 "EHLO rekin.go2.pl")
-	by vger.kernel.org with ESMTP id S261829AbTJAAvW (ORCPT
+	Tue, 30 Sep 2003 19:01:58 -0400
+Received: from atlrel9.hp.com ([156.153.255.214]:14562 "EHLO atlrel9.hp.com")
+	by vger.kernel.org with ESMTP id S261813AbTI3XAt (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 30 Sep 2003 20:51:22 -0400
-From: kernel@o2.pl
-To: linux-kernel@vger.kernel.org
-Subject: =?iso-8859-2?Q?2.4.23-pre5=20oops,=202.4.21=20works=20fine?=
-Date: Wed, 1 Oct 2003 02:51:20 +0100
-Content-Type: text/plain; charset="iso-8859-2";
-Content-Transfer-Encoding: 8bit
-X-Mailer: first3.pl WebMailv4.01. Usluga Poczty Elektronicznej dla o2.pl
-X-Originator: 217.97.85.66
-Message-Id: <20031001005120.61197D0B03@rekin.go2.pl>
+	Tue, 30 Sep 2003 19:00:49 -0400
+From: Bjorn Helgaas <bjorn.helgaas@hp.com>
+To: rmk@arm.linux.org.uk
+Subject: Re: [PATCH] 2.6 ACPI serial discovery
+Date: Tue, 30 Sep 2003 16:54:23 -0600
+User-Agent: KMail/1.5.3
+Cc: linux-kernel@vger.kernel.org
+References: <200309220954.02713.bjorn.helgaas@hp.com>
+In-Reply-To: <200309220954.02713.bjorn.helgaas@hp.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200309301654.23310.bjorn.helgaas@hp.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Oops happens in init scripts just after the eth devices init and befor atm init, which fails. Thought it might be the ATM init problem while not module that showed up in 2.4.22 but now I see some e1000 mesg in the trace.
+On Monday 22 September 2003 9:54 am, Bjorn Helgaas wrote:
+> This patch tweaks the 8250 ACPI namespace discovery to
+> 	1) add support for UARTs in IO port space
+> 	2) add support for non-extended IRQs
+>	3) use acpi_walk_resources() to simplify processing the
+>	   _CRS data, and
+>	4) add error checking (ioremap failure, lack of MMIO
+>	   address in _CRS).
+> 
+> This patch is against the current 2.6.0-test5 BK and has been
+> tested on ia64 and x86.
 
-I hope someone will be able to find the bug here.
-Well, here it goes:
+Here's an updated version.  In addition to the above, this
+	5) uses KERN_ERR, KERN_WARNING, etc
+	6) complains if register_serial() fails (i.e., if UART_NR
+	   is too small)
 
-SMP, e1000s, atm, monolithic kernel 2.4.23-pre5
-
-ksymoops 2.4.4 on i686 2.4.21.  Options used
-     -v vmlinux (specified)
-     -k /proc/ksyms (default)
-     -l /proc/modules (default)
-     -o /lib/modules/2.4.21/ (default)
-     -m System.map (specified)
-
-Error (regular_file): read_ksyms stat /proc/ksyms failed
-No modules in ksyms, skipping objects
-No ksyms, skipping lsmod
-Oct  1 01:45:01 prowler kernel: Unable to handle kernel NULL pointer dereference at virtual address 00000010
-Oct  1 01:45:01 prowler kernel: c0239ce3
-Oct  1 01:45:01 prowler kernel: *pde = 00000000
-Oct  1 01:45:01 prowler kernel: Oops: 0002
-Oct  1 01:45:01 prowler kernel: CPU:    0
-Oct  1 01:45:01 prowler kernel: EIP:    0010:[<c0239ce3>]    Not tainted
-Using defaults from ksymoops -t elf32-i386 -a i386
-Oct  1 01:45:01 prowler kernel: EFLAGS: 00010246
-Oct  1 01:45:01 prowler kernel: eax: 00000000   ebx: f76ff600   ecx: c0283764   edx: 00000000
-Oct  1 01:45:01 prowler kernel: esi: f6ac2db4   edi: 00000000   ebp: f76ff600   esp: f6f31ef8
-Oct  1 01:45:01 prowler kernel: ds: 0018   es: 0018   ss: 0018
-Oct  1 01:45:01 prowler kernel: Process atmarpd (pid: 694, stackpage=f6f31000)
-Oct  1 01:45:01 prowler kernel: Stack: c19bf268 000001f0 090ce0c4 ffffffff f6f31f28 c023ec84 c19b8280 f73ded00
-Oct  1 01:45:01 prowler kernel:        f7163f80 f7163f80 c01c756f 00000003 f73ded00 f76ff6b0 000001f0 f6ac2db4
-Oct  1 01:45:01 prowler kernel:        00000000 3130315b c0005d32 f6ac2db4 00000000 00000014 f6ac2db4 c01c8093
-Oct  1 01:45:01 prowler kernel: Call Trace:    [<c023ec84>] [<c01c756f>] [<c01c8093>] [<c02384b5>] [<c01c7b99>]
-Oct  1 01:45:01 prowler kernel:   [<c0143987>] [<c01070c3>]
-Oct  1 01:45:01 prowler kernel: Code: f0 ff 48 10 a1 4c 4d 34 c0 8b 40 18 83 48 14 08 85 d2 75 06
-
->>EIP; c0239ce3 <prio2band+103/2a0>   <=====
-Trace; c023ec84 <large_digits.1+48c4/23f20>
-Trace; c01c756f <__lock_sock+3f/f0>
-Trace; c01c8093 <alloc_skb+153/1c0>
-Trace; c02384b5 <e1000_igp_cable_length_table+375/fa0>
-Trace; c01c7b99 <sock_def_readable+29/70>
-Trace; c0143987 <vfs_rename_dir+7/4c0>
-Trace; c01070c3 <system_call+33/38>
-Code;  c0239ce3 <prio2band+103/2a0>
-00000000 <_EIP>:
-Code;  c0239ce3 <prio2band+103/2a0>   <=====
-   0:   f0 ff 48 10               lock decl 0x10(%eax)   <=====
-Code;  c0239ce7 <prio2band+107/2a0>
-   4:   a1 4c 4d 34 c0            mov    0xc0344d4c,%eax
-Code;  c0239cec <prio2band+10c/2a0>
-   9:   8b 40 18                  mov    0x18(%eax),%eax
-Code;  c0239cef <prio2band+10f/2a0>
-   c:   83 48 14 08               orl    $0x8,0x14(%eax)
-Code;  c0239cf3 <prio2band+113/2a0>
-  10:   85 d2                     test   %edx,%edx
-Code;  c0239cf5 <prio2band+115/2a0>
-  12:   75 06                     jne    1a <_EIP+0x1a> c0239cfd <prio2band+11d/2a0>
+Bjorn
 
 
-1 error issued.  Results may not be reliable.
+===== drivers/serial/8250_acpi.c 1.2 vs edited =====
+--- 1.2/drivers/serial/8250_acpi.c	Thu Sep  4 00:40:10 2003
++++ edited/drivers/serial/8250_acpi.c	Mon Sep 29 15:24:06 2003
+@@ -18,19 +18,34 @@
+ #include <asm/io.h>
+ #include <asm/serial.h>
+ 
+-static void acpi_serial_address(struct serial_struct *req,
+-				struct acpi_resource_address32 *addr32)
++static acpi_status acpi_serial_mmio(struct serial_struct *req,
++				    struct acpi_resource_address64 *addr)
+ {
+ 	unsigned long size;
+ 
+-	size = addr32->max_address_range - addr32->min_address_range + 1;
+-	req->iomap_base = addr32->min_address_range;
++	size = addr->max_address_range - addr->min_address_range + 1;
++	req->iomap_base = addr->min_address_range;
+ 	req->iomem_base = ioremap(req->iomap_base, size);
++	if (!req->iomem_base) {
++		printk(KERN_ERR "%s: couldn't ioremap 0x%lx-0x%lx\n",
++			__FUNCTION__, addr->min_address_range,
++			addr->max_address_range);
++		return AE_ERROR;
++	}
+ 	req->io_type = SERIAL_IO_MEM;
++	return AE_OK;
++}
++
++static acpi_status acpi_serial_port(struct serial_struct *req,
++				    struct acpi_resource_io *io)
++{
++	req->port = io->min_base_address;
++	req->io_type = SERIAL_IO_PORT;
++	return AE_OK;
+ }
+ 
+-static void acpi_serial_irq(struct serial_struct *req,
+-			    struct acpi_resource_ext_irq *ext_irq)
++static acpi_status acpi_serial_ext_irq(struct serial_struct *req,
++				       struct acpi_resource_ext_irq *ext_irq)
+ {
+ 	if (ext_irq->number_of_interrupts > 0) {
+ #ifdef CONFIG_IA64
+@@ -40,45 +55,71 @@
+ 		req->irq = ext_irq->interrupts[0];
+ #endif
+ 	}
++	return AE_OK;
++}
++
++static acpi_status acpi_serial_irq(struct serial_struct *req,
++				   struct acpi_resource_irq *irq)
++{
++	if (irq->number_of_interrupts > 0) {
++#ifdef CONFIG_IA64
++		req->irq = acpi_register_irq(irq->interrupts[0],
++	                  irq->active_high_low, irq->edge_level);
++#else
++		req->irq = irq->interrupts[0];
++#endif
++	}
++	return AE_OK;
++}
++
++static acpi_status acpi_serial_resource(struct acpi_resource *res, void *data)
++{
++	struct serial_struct *serial_req = (struct serial_struct *) data;
++	struct acpi_resource_address64 addr;
++	acpi_status status;
++
++	status = acpi_resource_to_address64(res, &addr);
++	if (ACPI_SUCCESS(status))
++		return acpi_serial_mmio(serial_req, &addr);
++	else if (res->id == ACPI_RSTYPE_IO)
++		return acpi_serial_port(serial_req, &res->data.io);
++	else if (res->id == ACPI_RSTYPE_EXT_IRQ)
++		return acpi_serial_ext_irq(serial_req, &res->data.extended_irq);
++	else if (res->id == ACPI_RSTYPE_IRQ)
++		return acpi_serial_irq(serial_req, &res->data.irq);
++	return AE_OK;
+ }
+ 
+ static int acpi_serial_add(struct acpi_device *device)
+ {
+-	acpi_status result;
+-	struct acpi_buffer buffer = { ACPI_ALLOCATE_BUFFER, NULL };
++	acpi_status status;
+ 	struct serial_struct serial_req;
+-	int line, offset = 0;
++	int line;
+ 
+ 	memset(&serial_req, 0, sizeof(serial_req));
+-	result = acpi_get_current_resources(device->handle, &buffer);
+-	if (ACPI_FAILURE(result)) {
+-		result = -ENODEV;
+-		goto out;
+-	}
+ 
+-	while (offset <= buffer.length) {
+-		struct acpi_resource *res = buffer.pointer + offset;
+-		if (res->length == 0)
+-			break;
+-		offset += res->length;
+-		if (res->id == ACPI_RSTYPE_ADDRESS32) {
+-			acpi_serial_address(&serial_req, &res->data.address32);
+-		} else if (res->id == ACPI_RSTYPE_EXT_IRQ) {
+-			acpi_serial_irq(&serial_req, &res->data.extended_irq);
+-		}
++	status = acpi_walk_resources(device->handle, METHOD_NAME__CRS,
++				     acpi_serial_resource, &serial_req);
++	if (ACPI_FAILURE(status))
++		return -ENODEV;
++
++	if (!serial_req.iomem_base && !serial_req.port) {
++		printk(KERN_ERR "%s: no iomem or port address in %s _CRS\n",
++			__FUNCTION__, device->pnp.bus_id);
++		return -ENODEV;
+ 	}
+ 
+ 	serial_req.baud_base = BASE_BAUD;
+ 	serial_req.flags = ASYNC_SKIP_TEST|ASYNC_BOOT_AUTOCONF|ASYNC_AUTO_IRQ;
+ 
+-	result = 0;
+ 	line = register_serial(&serial_req);
+-	if (line < 0)
+-		result = -ENODEV;
++	if (line < 0) {
++		printk(KERN_WARNING "Couldn't register serial port %s: %d",
++			device->pnp.bus_id, line);
++		return -ENODEV;
++	}
+ 
+- out:
+-	acpi_os_free(buffer.pointer);
+-	return result;
++	return 0;
+ }
+ 
+ static int acpi_serial_remove(struct acpi_device *device, int type)
 
-
-Krzysztof

@@ -1,31 +1,54 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290215AbSAORu2>; Tue, 15 Jan 2002 12:50:28 -0500
+	id <S290216AbSAORu2>; Tue, 15 Jan 2002 12:50:28 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290212AbSAORuM>; Tue, 15 Jan 2002 12:50:12 -0500
-Received: from pizda.ninka.net ([216.101.162.242]:4773 "EHLO pizda.ninka.net")
-	by vger.kernel.org with ESMTP id <S290213AbSAORtK>;
-	Tue, 15 Jan 2002 12:49:10 -0500
-Date: Tue, 15 Jan 2002 09:47:33 -0800 (PST)
-Message-Id: <20020115.094733.111547966.davem@redhat.com>
-To: nitrax@giron.wox.org
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Why not "attach" patches?
-From: "David S. Miller" <davem@redhat.com>
-In-Reply-To: <005901c19dec$59a89e30$0201a8c0@HOMER>
-In-Reply-To: <005901c19dec$59a89e30$0201a8c0@HOMER>
-X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	id <S290213AbSAORuO>; Tue, 15 Jan 2002 12:50:14 -0500
+Received: from air-1.osdl.org ([65.201.151.5]:50568 "EHLO segfault.osdlab.org")
+	by vger.kernel.org with ESMTP id <S290214AbSAORtO>;
+	Tue, 15 Jan 2002 12:49:14 -0500
+Date: Tue, 15 Jan 2002 09:50:55 -0800 (PST)
+From: Patrick Mochel <mochel@osdl.org>
+X-X-Sender: <mochel@segfault.osdlab.org>
+To: Dave Jones <davej@suse.de>
+cc: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Defining new section for bus driver init
+In-Reply-To: <20020115025530.A11314@suse.de>
+Message-ID: <Pine.LNX.4.33.0201150941130.827-100000@segfault.osdlab.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-   From: "Martin Eriksson" <nitrax@giron.wox.org>
-   Date: Tue, 15 Jan 2002 18:44:58 +0100
 
-   Why do many of you not _attach_ patches instead of merging them
-   with the mail?
+> > What do people think about the concept?
+>
+> Well, it chops out a load of ugly ifdefs, and makes adding support
+> for a new bus less intrusive than it currently is. I quite like it.
 
-Because it allows people without mime decoders to read
-the patch without feeding the email to external programs.
+Cool. I'll change the other buses in init/main.c and post it.
+
+> > I will warn that the name is kinda clumsy, but it's the best that I could
+> > come up with (I wasted my creativity for the day on thinking about
+> > Penelope). I used "subsystem" because I have alterior motives.
+>
+> I think you hit the nail on the head with the subject line.
+> struct BusDriver also conjures up amusing[*] imagery.
+
+Yes, next I'll be adding a common set of routines for BusDrivers,
+including drive(), stop(), give_people_dirty_looks(), and swerve()...
+
+> One thing I'm wondering about though. Is it possible for a new
+> bus to be added after boot ? Docking stations etc show up as
+> children on the root PCI bus, so that shouldn't be an issue.
+
+A new bus? Sure, the bus driver just has to probe behind it.
+
+USB can do it. The PCI probe routines are all declared __devinit, so if
+you have hotplug support, you should be able to do it in theory. Greg?
+
+> Ah! hotplug PCI USB controller ?
+
+Cardbus, Hotplug PCI, docking stations..
+
+	-pat
+

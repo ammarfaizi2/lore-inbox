@@ -1,53 +1,51 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S281066AbRKLW3X>; Mon, 12 Nov 2001 17:29:23 -0500
+	id <S281084AbRKLWbd>; Mon, 12 Nov 2001 17:31:33 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S281075AbRKLW3N>; Mon, 12 Nov 2001 17:29:13 -0500
-Received: from posta2.elte.hu ([157.181.151.9]:60557 "HELO posta2.elte.hu")
-	by vger.kernel.org with SMTP id <S281066AbRKLW3C>;
-	Mon, 12 Nov 2001 17:29:02 -0500
-Date: Tue, 13 Nov 2001 00:26:45 +0100 (CET)
-From: Ingo Molnar <mingo@elte.hu>
-Reply-To: <mingo@elte.hu>
-To: Jeff Garzik <jgarzik@mandrakesoft.com>
-Cc: <linux-kernel@vger.kernel.org>, Linus Torvalds <torvalds@transmeta.com>,
-        "David S. Miller" <davem@redhat.com>,
-        Anton Blanchard <anton@samba.org>, Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: [patch] arbitrary size memory allocator, memarea-2.4.15-D6
-In-Reply-To: <3BF012BE.E82911C0@mandrakesoft.com>
-Message-ID: <Pine.LNX.4.33.0111130013510.21614-100000@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	id <S281075AbRKLWbX>; Mon, 12 Nov 2001 17:31:23 -0500
+Received: from zok.SGI.COM ([204.94.215.101]:64954 "EHLO zok.sgi.com")
+	by vger.kernel.org with ESMTP id <S281079AbRKLWbR> convert rfc822-to-8bit;
+	Mon, 12 Nov 2001 17:31:17 -0500
+Subject: Re: File System Performance
+From: Steve Lord <lord@sgi.com>
+To: Andrew Morton <akpm@zip.com.au>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <3BF04A37.29E19B1A@zip.com.au>
+In-Reply-To: <3BF03402.87D44589@zip.com.au> <3BF03402.87D44589@zip.com.au>
+	<1005600431.13303.10.camel@jen.americas.sgi.com>
+	<3BF04289.8FC8B7B7@zip.com.au> <9spg3c$7bb$1@penguin.transmeta.com> 
+	<3BF04A37.29E19B1A@zip.com.au>
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 8BIT
+X-Mailer: Evolution/0.99.1+cvs.2001.11.11.08.57 (Preview Release)
+Date: 12 Nov 2001 16:26:32 -0600
+Message-Id: <1005603992.13307.16.camel@jen.americas.sgi.com>
+Mime-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, 2001-11-12 at 16:16, Andrew Morton wrote:
 
-On Mon, 12 Nov 2001, Jeff Garzik wrote:
+> 
+> Actually, tar _is_ doing funnies with /dev/null.  Changelog says:
+> 
+> 1995-12-21  François Pinard  <pinard@iro.umontreal.ca>
+> 
+>         * buffer.c: Rename a few err variables to status.
+>         * extract.c: Rename a few check variables to status.
+> 
+>         Corrections to speed-up the sizeing pass in Amanda:
+>         * tar.h: Declare dev_null_output.
+>         * buffer.c (open_archive): Detect when archive is /dev/null.
+>         (flush_write): Avoid writing to /dev/null.
+>         * create.c (dump_file): Do not open file if archive is being
+>         written to /dev/null, nor read file nor restore times.
+>         Reported by Greg Maples and Tor Lillqvist.
+> 
+> One wonders why.
 
-> What's wrong with bigphysarea patch or bootmem?  In the realm of frame
-> grabbers this is a known and solved problem...
+For almost 6 years too - I suspect they optimized tar instead of
+fixing the way amanda works.
 
-bootmem is a limited boot-time only thing, eg. it does not work from
-modules. Nor is it generic enough to be eg. highmem-capable. It's not
-really a fully capable allocator, i wrote bootmem.c rather as a simple
-bootstap allocator, to be used to initialize the real allocator cleanly,
-and to be used in some criticial subsystems that initialize before the
-main allocator.
-
-bigphysarea is a separate allocator, while alloc_memarea() shares the page
-pool with the buddy allocator.
-
-> With bootmem you know that (for example) 100GB of physically
-> contiguous memory is likely to be available; and after boot, memory
-> get fragmented and the likelihood of alloc_memarea success decreases
-> drastically... just like bootmem.
-
-the likelyhood of alloc_memarea() succeeding should be pretty good even on
-loaded systems, once the two improvements i mentioned (zap clean pagecache
-pages, reverse-flush & zap dirty pages) are added to it. Until then it's
-indeed most effective at boot-time and deteriorates afterwards, so it
-basically has bootmem's capabilities without most of the limitations of
-bootmem.
-
-	Ingo
+Steve
 

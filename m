@@ -1,62 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261858AbVBIRbY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261859AbVBIRg1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261858AbVBIRbY (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 9 Feb 2005 12:31:24 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261859AbVBIRbX
+	id S261859AbVBIRg1 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 9 Feb 2005 12:36:27 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261861AbVBIRg1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 9 Feb 2005 12:31:23 -0500
-Received: from modemcable096.213-200-24.mc.videotron.ca ([24.200.213.96]:37768
-	"EHLO localhost.localdomain") by vger.kernel.org with ESMTP
-	id S261858AbVBIRbO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 9 Feb 2005 12:31:14 -0500
-Date: Wed, 9 Feb 2005 12:30:54 -0500 (EST)
-From: Nicolas Pitre <nico@cam.org>
-X-X-Sender: nico@localhost.localdomain
-To: Larry McVoy <lm@bitmover.com>
-cc: Alexandre Oliva <aoliva@redhat.com>, Stelian Pop <stelian@popies.net>,
-       Francois Romieu <romieu@fr.zoreil.com>, linux-kernel@vger.kernel.org
-Subject: Re: [RFC] Linux Kernel Subversion Howto
-In-Reply-To: <20050209155113.GA10659@bitmover.com>
-Message-ID: <Pine.LNX.4.61.0502091219430.7836@localhost.localdomain>
-References: <20050204183922.GC27707@bitmover.com> <20050204200507.GE5028@deep-space-9.dsnet>
- <20050204201157.GN27707@bitmover.com> <20050204214015.GF5028@deep-space-9.dsnet>
- <20050204233153.GA28731@electric-eye.fr.zoreil.com> <20050205193848.GH5028@deep-space-9.dsnet>
- <20050205233841.GA20875@bitmover.com> <20050208154343.GH3537@crusoe.alcove-fr>
- <20050208155845.GB14505@bitmover.com> <ord5vatdph.fsf@livre.redhat.lsd.ic.unicamp.br>
- <20050209155113.GA10659@bitmover.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Wed, 9 Feb 2005 12:36:27 -0500
+Received: from kludge.physics.uiowa.edu ([128.255.33.129]:27663 "EHLO
+	kludge.physics.uiowa.edu") by vger.kernel.org with ESMTP
+	id S261859AbVBIRgZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 9 Feb 2005 12:36:25 -0500
+Date: Wed, 9 Feb 2005 11:35:34 -0600
+From: Joseph Pingenot <trelane@digitasaru.net>
+To: Dmitry Torokhov <dtor_core@ameritech.net>
+Cc: Andrew Morton <akpm@osdl.org>, LKML <linux-kernel@vger.kernel.org>,
+       Peter Osterlund <petero2@telia.com>, Vojtech Pavlik <vojtech@suse.cz>
+Subject: Re: [PATCH] Fix ALPS sync loss
+Message-ID: <20050209173533.GA12011@digitasaru.net>
+Reply-To: trelane@digitasaru.net
+Mail-Followup-To: Dmitry Torokhov <dtor_core@ameritech.net>,
+	Andrew Morton <akpm@osdl.org>, LKML <linux-kernel@vger.kernel.org>,
+	Peter Osterlund <petero2@telia.com>,
+	Vojtech Pavlik <vojtech@suse.cz>
+References: <200502081840.12520.dtor_core@ameritech.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200502081840.12520.dtor_core@ameritech.net>
+X-School: University of Iowa
+X-vi-or-emacs: vi *and* emacs!
+X-MSMail-Priority: High
+X-Priority: 1 (Highest)
+X-MS-TNEF-Correlator: <AFJAUFHRUOGRESULWAOIHFEAUIOFBVHSHNRAIU.monkey@spamcentral.invalid>
+X-MimeOLE: Not Produced By Microsoft MimeOLE V5.50.4522.1200
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 9 Feb 2005, Larry McVoy wrote:
+>From Dmitry Torokhov on Tuesday, 08 February, 2005:
+>Hi,
+>Here is the promised patch. It turns out protocol validation code was
+>a bit (or rather a byte ;) ) off.
+>Please let me know if it fixes your touchpad and I believe it would be
+>nice to have it in 2.6.11.
 
-> On Wed, Feb 09, 2005 at 05:06:02AM -0200, Alexandre Oliva wrote:
-> > So you've somehow managed to trick most kernel developers into
-> > granting you power over not only the BK history
+This patch seems to be working for me too.  Thanks a million, Dmitry!
+  I owe you a beer some time.  :)
+
+-Joseph
+
+>===================================================================
+>ChangeSet@1.2147, 2005-02-08 18:12:06-05:00, dtor_core@ameritech.net
+>  Input: alps - fix protocol validation rules causing touchpad
+>         to lose sync if an absolute packet is received after
+>         a relative packet with negative Y displacement.
+>  
+>  Signed-off-by: Dmitry Torokhov <dtor@mail.ru>
+> alps.c |    4 ++--
+> 1 files changed, 2 insertions(+), 2 deletions(-)
+>===================================================================
+>diff -Nru a/drivers/input/mouse/alps.c b/drivers/input/mouse/alps.c
+>--- a/drivers/input/mouse/alps.c	2005-02-08 18:16:27 -05:00
+>+++ b/drivers/input/mouse/alps.c	2005-02-08 18:16:27 -05:00
+>@@ -198,8 +198,8 @@
+> 		return PSMOUSE_BAD_DATA;
 > 
-> It's exactly the same as a file system.  If you put some files into a
-> file system does the file system creator owe you the knowledge of how
-> those files are maintained in the file system?
+> 	/* Bytes 2 - 6 should have 0 in the highest bit */
+>-	if (psmouse->pktcnt > 1 && psmouse->pktcnt <= 6 &&
+>-	    (psmouse->packet[psmouse->pktcnt] & 0x80))
+>+	if (psmouse->pktcnt >= 2 && psmouse->pktcnt <= 6 &&
+>+	    (psmouse->packet[psmouse->pktcnt - 1] & 0x80))
+> 		return PSMOUSE_BAD_DATA;
+> 
+> 	if (psmouse->pktcnt == 6) {
 
-No, this is not a good analogy at all.
-
-If I don't want to use a certain filesystem, I mount it and copy the 
-files over to another filesystem.  What users are interested in are the 
-files themselves of course, and the efficiency with which the filesystem 
-handles those files.  BK is the efficient filesystem here, but anyone 
-should be able to freely copy files over to another filesystem without 
-any need for the filesystem internals knowledge.  If the target 
-filesystem is 8.3 without lowercase support then so be it and people 
-will need to use a separate file to hold the extra details that cannot 
-berepresented natively in the target filesystem.  But absolutely 0% of 
-the information is lost.
-
-Again, the BK value is in the efficiency and reliability it has to 
-handle a tree like the Linux kernel, not in the Linux kernel tree.  It's 
-not necessary for you to give away that value in order to provide the 
-simple information needed to reconstruct the Linux tree structure as 
-people are asking.
-
-
-Nicolas
+-- 
+Joseph===============================================trelane@digitasaru.net
+      Graduate Student in Physics, Freelance Free Software Developer

@@ -1,48 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261782AbUB0KJi (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 27 Feb 2004 05:09:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261780AbUB0KJi
+	id S261807AbUB0KQL (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 27 Feb 2004 05:16:11 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261811AbUB0KQL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 27 Feb 2004 05:09:38 -0500
-Received: from mail-07.iinet.net.au ([203.59.3.39]:45185 "HELO
-	mail.iinet.net.au") by vger.kernel.org with SMTP id S261782AbUB0KHd
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 27 Feb 2004 05:07:33 -0500
-Message-ID: <403F16E2.2040706@cyberone.com.au>
-Date: Fri, 27 Feb 2004 21:07:30 +1100
-From: Nick Piggin <piggin@cyberone.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040122 Debian/1.6-1
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Sonika Sachdeva <sonikam@magnum.barc.ernet.in>
-CC: Linux Kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: Linux scheduler Implementation details
-References: <403F0B66.A7920233@magnum.barc.ernet.in> <403F0CD7.5080305@cyberone.com.au> <403F1204.32683547@magnum.barc.ernet.in>
-In-Reply-To: <403F1204.32683547@magnum.barc.ernet.in>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Fri, 27 Feb 2004 05:16:11 -0500
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:59401 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S261807AbUB0KQG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 27 Feb 2004 05:16:06 -0500
+Date: Fri, 27 Feb 2004 10:16:02 +0000
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: Adrian Bunk <bunk@fs.tum.de>
+Cc: spyro@f2s.com, Scott Bambrough <scottb@rebel.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [2.6 patch] remove kernel 2.0 #ifdef's from arm{,26} code
+Message-ID: <20040227101602.B17462@flint.arm.linux.org.uk>
+Mail-Followup-To: Adrian Bunk <bunk@fs.tum.de>, spyro@f2s.com,
+	Scott Bambrough <scottb@rebel.com>, linux-kernel@vger.kernel.org
+References: <20040226224333.GW5499@fs.tum.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20040226224333.GW5499@fs.tum.de>; from bunk@fs.tum.de on Thu, Feb 26, 2004 at 11:43:34PM +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, Feb 26, 2004 at 11:43:34PM +0100, Adrian Bunk wrote:
+> The patch below removes #ifdef's for kernel 2.0 from 
+> arch/arm{,26}/nwfpe/fpmodule.c .
+> 
+> Please apply
 
+I've applied the ARM bit (not the ARM26).  I've also moved these
+two the end of the file, and added an appropriate MODULE_LICENSE.
 
-Sonika Sachdeva wrote:
+Thanks.
 
->Hi,
->
->I want to give the loaded system metrics(loadavg, io details etc) as the input to
->the simulator program so that it is able to calculate the priority for any new job
->that will be submitted.
->
->Then knowing the execution time of that job in a no-load system, I am able to
->compute the latency encountered becoz of the load on the system.
->
->How can I reuse the sched.c code to do this?
->
->
-
-You can use it to tell your simulator how the Linux kernel will
-schedule tasks. I'm not sure exactly what you want, execution time?
-latency?
-
+-- 
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:  2.6 PCMCIA      - http://pcmcia.arm.linux.org.uk/
+                 2.6 Serial core

@@ -1,27 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S278538AbRJSQlQ>; Fri, 19 Oct 2001 12:41:16 -0400
+	id <S278541AbRJSQrF>; Fri, 19 Oct 2001 12:47:05 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S278539AbRJSQlG>; Fri, 19 Oct 2001 12:41:06 -0400
-Received: from minus.inr.ac.ru ([193.233.7.97]:44041 "HELO ms2.inr.ac.ru")
-	by vger.kernel.org with SMTP id <S278538AbRJSQk7>;
-	Fri, 19 Oct 2001 12:40:59 -0400
-From: kuznet@ms2.inr.ac.ru
-Message-Id: <200110191640.UAA03371@ms2.inr.ac.ru>
-Subject: Re: how to see manually specified proxy arp entries using "ip neigh"
-To: cfriesen@nortelnetworks.com (Christopher Friesen)
-Date: Fri, 19 Oct 2001 20:40:21 +0400 (MSK DST)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <3BCF36BE.DE10E221@nortelnetworks.com> from "Christopher Friesen" at Oct 18, 1 04:08:30 pm
-X-Mailer: ELM [version 2.4 PL24]
+	id <S278542AbRJSQqz>; Fri, 19 Oct 2001 12:46:55 -0400
+Received: from [208.129.208.52] ([208.129.208.52]:53252 "EHLO xmailserver.org")
+	by vger.kernel.org with ESMTP id <S278541AbRJSQqp>;
+	Fri, 19 Oct 2001 12:46:45 -0400
+Date: Fri, 19 Oct 2001 09:50:10 -0700 (PDT)
+From: Davide Libenzi <davidel@xmailserver.org>
+X-X-Sender: davide@blue1.dev.mcafeelabs.com
+To: Hubertus Franke <frankeh@watson.ibm.com>
+cc: lkml <linux-kernel@vger.kernel.org>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+        Linus Torvalds <torvalds@transmeta.com>
+Subject: Re: [PATCH] A try for a more fair scheduler ...
+In-Reply-To: <20011019083141.A10035@watson.ibm.com>
+Message-ID: <Pine.LNX.4.40.0110190942350.1424-100000@blue1.dev.mcafeelabs.com>
 MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello!
+On Fri, 19 Oct 2001, Hubertus Franke wrote:
 
-> removed, then how should I be doing this?
+> Seems like a good approach. Could that be made more flexible.
+> Architectures today expose cache miss numbers, which
+> through simple markovian chains approximation allow a much better estimation
+> of the cache footprint then inferring from time.
+> Any chance to incoporate something like
+> this into your cost function flexibly or is this just too <way out there> ?
 
-Not using "ip neigh", apparently. :-)
+I just wanted to code a solution that is compatible with all architectures
+and that has the lower cost in terms of i-d/cache.
+That's why i used jiffies instead of get_cycles() and time instead of perf
+counters.
+The bottom line is that having to choose between a process that is run for
+10 ms and one that is run for 150 ms, by choosing the 150 one we have a
+very good probability to pick up the one that has a greater footprint.
+Coding more complex solutions will have the effect to add an extra cost
+that will _probably_ vanish the better behavior given by the patch.
 
-Alexey
+
+
+
+- Davide
+
+

@@ -1,46 +1,36 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261693AbUD3CZH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S265042AbUD3Chq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261693AbUD3CZH (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 29 Apr 2004 22:25:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265044AbUD3CYp
+	id S265042AbUD3Chq (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 29 Apr 2004 22:37:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265043AbUD3Chp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 29 Apr 2004 22:24:45 -0400
-Received: from holomorphy.com ([207.189.100.168]:59520 "EHLO holomorphy.com")
-	by vger.kernel.org with ESMTP id S265043AbUD3CYf (ORCPT
+	Thu, 29 Apr 2004 22:37:45 -0400
+Received: from vena.lwn.net ([206.168.112.25]:20182 "HELO lwn.net")
+	by vger.kernel.org with SMTP id S265042AbUD3Cho (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 29 Apr 2004 22:24:35 -0400
-Date: Thu, 29 Apr 2004 19:24:32 -0700
-From: William Lee Irwin III <wli@holomorphy.com>
-To: James Bottomley <James.Bottomley@steeleye.com>
-Cc: Andrew Morton <akpm@osdl.org>, Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: 2.6.6-rc2-mm2
-Message-ID: <20040430022432.GC996@holomorphy.com>
-Mail-Followup-To: William Lee Irwin III <wli@holomorphy.com>,
-	James Bottomley <James.Bottomley@steeleye.com>,
-	Andrew Morton <akpm@osdl.org>,
-	Linux Kernel <linux-kernel@vger.kernel.org>
-References: <20040426013944.49a105a8.akpm@osdl.org> <20040429184126.GB783@holomorphy.com> <20040429134546.5e9515d8.akpm@osdl.org> <20040429211825.GC783@holomorphy.com> <20040430002455.GA996@holomorphy.com> <1083290708.1804.191.camel@mulgrave>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1083290708.1804.191.camel@mulgrave>
-User-Agent: Mutt/1.5.5.1+cvs20040105i
+	Thu, 29 Apr 2004 22:37:44 -0400
+Message-ID: <20040430023742.1842.qmail@lwn.net>
+To: Chris Mason <mason@suse.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.6-rc[23] boot failure on x86_64 
+From: corbet@lwn.net (Jonathan Corbet)
+In-reply-to: Your message of "Thu, 29 Apr 2004 13:45:14 EDT."
+             <1083260713.30344.291.camel@watt.suse.com> 
+Date: Thu, 29 Apr 2004 20:37:42 -0600
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2004-04-29 at 19:24, William Lee Irwin III wrote:
->> # ChangeSet
->> #   2004/04/25 09:10:30-05:00 akpm@osdl.org 
->> #   [PATCH] aic7xxx: fix oops whe hardware is not present
->> #   From: Herbert Xu <herbert@gondor.apana.org.au>
+> Could you try reversing this one:
+> Name: Fix cpumask iterator over empty cpu set
 
-On Thu, Apr 29, 2004 at 09:05:06PM -0500, James Bottomley wrote:
-> OK, well, on inspection that patch is fairly comprehensively incorrect.
-> Can you try out the attached?  I've compiled it but have nothing to test
-> installation with.
+As I feared, reverting that patch didn't fix the problem.  It is also
+present in 2.6.6-rc1, so the regression happened somewhere between 2.6.5
+and there.  That still leaves a lot of patches to sift through.
 
-I'll give it a whirl. I've got a slow turnaround time (>= 1hr) for the
-moment, so please be patient.
+Sigh.
 
+jon
 
--- wli
+Jonathan Corbet
+Executive editor, LWN.net
+corbet@lwn.net

@@ -1,61 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261800AbVCNT7G@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261848AbVCNUAA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261800AbVCNT7G (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 14 Mar 2005 14:59:06 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261827AbVCNT7G
+	id S261848AbVCNUAA (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 14 Mar 2005 15:00:00 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261832AbVCNUAA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Mar 2005 14:59:06 -0500
-Received: from e4.ny.us.ibm.com ([32.97.182.144]:40606 "EHLO e4.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S261790AbVCNT67 (ORCPT
+	Mon, 14 Mar 2005 15:00:00 -0500
+Received: from mail.aknet.ru ([217.67.122.194]:7945 "EHLO mail.aknet.ru")
+	by vger.kernel.org with ESMTP id S261281AbVCNT7j (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 14 Mar 2005 14:58:59 -0500
-Subject: Re: [PATCH] 2.6.11-mm3 patch for ext3 writeback "nobh" option
-From: Badari Pulavarty <pbadari@us.ibm.com>
-To: Arjan van de Ven <arjan@infradead.org>
-Cc: Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       ext2-devel <ext2-devel@lists.sourceforge.net>
-In-Reply-To: <1110828554.6288.109.camel@laptopd505.fenrus.org>
-References: <1110827903.24286.275.camel@dyn318077bld.beaverton.ibm.com>
-	 <1110828554.6288.109.camel@laptopd505.fenrus.org>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1110830057.24286.284.camel@dyn318077bld.beaverton.ibm.com>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-5) 
-Date: 14 Mar 2005 11:54:17 -0800
+	Mon, 14 Mar 2005 14:59:39 -0500
+Message-ID: <4235ED35.1000405@aknet.ru>
+Date: Mon, 14 Mar 2005 22:59:49 +0300
+From: Stas Sergeev <stsp@aknet.ru>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20041020
+X-Accept-Language: ru, en-us, en
+MIME-Version: 1.0
+To: Alan Cox <alan@redhat.com>
+Cc: Linus Torvalds <torvalds@osdl.org>, Pavel Machek <pavel@ucw.cz>,
+       Linux kernel <linux-kernel@vger.kernel.org>,
+       Petr Vandrovec <vandrove@vc.cvut.cz>,
+       Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
+Subject: Re: [patch] x86: fix ESP corruption CPU bug (take 2)
+References: <42348474.7040808@aknet.ru> <20050313201020.GB8231@elf.ucw.cz> <4234A8DD.9080305@aknet.ru> <Pine.LNX.4.58.0503131306450.2822@ppc970.osdl.org> <4234B96C.9080901@aknet.ru> <20050314192943.GG18826@devserv.devel.redhat.com>
+In-Reply-To: <20050314192943.GG18826@devserv.devel.redhat.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2005-03-14 at 11:29, Arjan van de Ven wrote:
-> On Mon, 2005-03-14 at 11:18 -0800, Badari Pulavarty wrote:
-> > Hi Andrew,
-> > 
-> > Here is the 2.6.11-mm3 version of patch for adding "nobh"
-> > support for ext3 writeback mode.
-> 
-> can you explain why this is an option ? It's not like the on disk layout
-> changes or something... is there a reason to ever not want this?
+Hi!
 
-I am slowly trying to reduce the uses of "bufferhead"s in the ext3.
-We can get away not attaching a bufferheads for the pages in
-ext3 writeback mode easily. But for ordered mode, its doable
-but tricky.
+Alan Cox wrote:
+>> Alan, can you please apply that to an -ac
+>> tree?
+> Ask Andrew Morton as it belongs in the -mm tree
+Actually I tried that already. Andrew
+had nothing against that patch personally,
+as well as Linus, but after all that didn't
+work:
+http://lkml.org/lkml/2005/1/3/260
 
-There are few cases, I didn't handle in my patch (just to reduce
-the code complexity)
-	
-	- I still create bufferheads for filesystem 
-	blocksize != PAGE_SIZE
-
-	- In case of a truncate and the page is not uptodate
-	(needs to do IO to read the page) - I attach buffers.
-	I had code to eliminate this - but Andrew didn't like it :(
-
-
-I want to get more run-time before making it a default.
-
-Thanks,
-Badari
+So it can't be applied to -mm, and not
+depending on the kgdb-ga patch allowed for
+some extra optimization.
+So I have to try the -ac as the last resort.
+I realized you won't be pleased with that
+too much. If you are confident it doesn't
+fit the -ac tree by whatever means, I can
+understand that. (In that case I'll much
+appreciate the suggestion what other tree
+should I try.)
 

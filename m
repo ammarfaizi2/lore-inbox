@@ -1,56 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132138AbRAOFen>; Mon, 15 Jan 2001 00:34:43 -0500
+	id <S132195AbRAOFfJ>; Mon, 15 Jan 2001 00:35:09 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132195AbRAOFee>; Mon, 15 Jan 2001 00:34:34 -0500
-Received: from 23-97.apx-2.noc.supernet.com ([64.41.23.97]:4868 "EHLO
-	lilith.belledonna.mine.nu") by vger.kernel.org with ESMTP
-	id <S132138AbRAOFe0>; Mon, 15 Jan 2001 00:34:26 -0500
-Date: Mon, 15 Jan 2001 00:34:08 -0500
-From: James Mastros <james@rtweb.net>
-To: linux-kernel@vger.kernel.org
-Cc: james@rtweb.net
-Subject: Loopback almost-freeze?
-Message-ID: <20010115003406.A556@lilith.belledonna.mine.nu>
+	id <S132314AbRAOFen>; Mon, 15 Jan 2001 00:34:43 -0500
+Received: from adsl-209-182-168-213.value.net ([209.182.168.213]:60679 "EHLO
+	draco.foogod.com") by vger.kernel.org with ESMTP id <S132140AbRAOFef>;
+	Mon, 15 Jan 2001 00:34:35 -0500
+Date: Sun, 14 Jan 2001 21:34:27 -0800
+From: alex@foogod.com
+To: Jordan <jordang@pcc.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: can't build small enough zImage for floppy
+Message-ID: <20010114213427.A10734@draco.foogod.com>
+In-Reply-To: <3A5F7BA7.B2FF852B@pcc.net> <20010112152032.C5625@draco.foogod.com> <3A604FF7.EF3D9D51@pcc.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.3.12i
+X-Mailer: Mutt 1.0pre3us
+In-Reply-To: <3A604FF7.EF3D9D51@pcc.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hey all.  I recently noticed, while setting up a disk image for plex86, a
-bug in loopback mounting.  This happens on at least 2.4.0 and 2.4.0-ac9.
+On Sat, Jan 13, 2001 at 06:54:15AM -0600, Jordan wrote:
+> alex@foogod.com wrote:
+> 
+> > I forgot to ask.. when attempting to boot from a floppy, are you using
+> > SYSLINUX, or something else?  What version?
+> 
+> unsure.  I have booted floppies on my machine before which displayed SYSLINUX on
+> boot, but the 2.4.0 kernel I compiled (on my Red Hat 6.2 with 2.2.14-5.0 Vaio
+> Desktop) and used "make bzdisk" to make the disk, does not display SYSLINUX while
+> booting.  It displays
+> 
+> Loading.........................................
+> Uncompressing Linux...
+> 
+> invalid compressed format (err=21)
+> 
+> -- System Halted
 
-Steps for me to reproduce (as root):
-1) losetup /dev/loop0 losetup -o $((512*63)) /dev/loop0 /usr/src/emu/plex86/guest/hdd
-2) mount /dev/loop0 /mnt
-3) cp -R /chris/windows/* /mnt/windows
-After a few minutes, the copy will stop.  At this point, most new processes
-seem to hang.  Sometimes, you can get an executable to start working at
-random, from which point forward it will work fine.  Doing an ls in cp's
-/proc/nnn directory will hang as well.  Sometimes SAK (SysRq-K) will kill
-hung processes, somtimes not.  If it does, getty will run, but login won't
-normaly, so you can't log back in.
+Ah, this explains it.. the basic bootloader built into the kernel images is 
+apparently not compatible with the Z505 (possibly because it doesn't like the 
+BIOS emulation done to make the USB floppy look like a traditional floppy 
+drive during boot).  I've never attempted this form of booting a kernel 
+before, so I hadn't seen this behavior (of course this method also seems to 
+have different problems booting on my desktop system, too, so..).  Had you 
+managed to make a small enough zImage you would have had the same results.
 
-After the freeze, SysRq-U and S won't work -- they never display the
-per-device lines.
+My advice is to try using SYSLINUX 
+(http://www.kernel.org/pub/linux/utils/boot/syslinux/) to load the kernel 
+instead of writing it straight to the floppy, as this is known to work on the 
+Z505 and is more flexible anyway.
 
-Step 3 doesn't have to be a simple cp.  I did tar -cvvI /chris/windows/*
-|tar -xvvI /mnt/windows (or similar) to check once, and the same thing
-happened.
-
-This is a single-drive system, so all the files in question are on the same
-hda, a IBM IDE drive on an AMD Viper chipset.
-
-	 -=- James Mastros
-
-PS -- Please CC me on replies; I'm not subscribed.
--- 
-midendian: She never sleeps.
-mousetrout: But I do.  I just regret it after I wake up.
-AIM: theorbtwo homepage: http://www.rtweb.net/theorb/
-ICBM: 40:04:15.100 N, 76:18:53.165 W
+-alex
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

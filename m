@@ -1,39 +1,37 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S277509AbRLDAZs>; Mon, 3 Dec 2001 19:25:48 -0500
+	id <S281812AbRLDAVL>; Mon, 3 Dec 2001 19:21:11 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S282951AbRLDAZD>; Mon, 3 Dec 2001 19:25:03 -0500
-Received: from ns.suse.de ([213.95.15.193]:8718 "HELO Cantor.suse.de")
-	by vger.kernel.org with SMTP id <S280983AbRLDAW4>;
-	Mon, 3 Dec 2001 19:22:56 -0500
-Date: Tue, 4 Dec 2001 01:22:52 +0100 (CET)
-From: Dave Jones <davej@suse.de>
-To: Keith Owens <kaos@ocs.com.au>
-Cc: <esr@thyrsus.com>, <kbuild-devel@lists.sourceforge.net>,
-        <linux-kernel@vger.kernel.org>, <torvalds@transmeta.com>
-Subject: Re: [kbuild-devel] Converting the 2.5 kernel to kbuild 2.5 
-In-Reply-To: <2313.1007345012@kao2.melbourne.sgi.com>
-Message-ID: <Pine.LNX.4.33.0112040118210.3228-100000@Appserv.suse.de>
+	id <S284649AbRLDAOi>; Mon, 3 Dec 2001 19:14:38 -0500
+Received: from sunspot.csun.edu ([130.166.114.30]:49162 "HELO sunspot.csun.edu")
+	by vger.kernel.org with SMTP id <S284984AbRLCTKd>;
+	Mon, 3 Dec 2001 14:10:33 -0500
+Date: Mon, 3 Dec 2001 11:10:31 -0800 (PST)
+From: Stephen Walton <swalton@sunspot.csun.edu>
+Reply-To: <swalton@sunspot.csun.edu>
+To: Andrew Morton <akpm@zip.com.au>
+Cc: Steffen Persvold <sp@scali.no>, lkml <linux-kernel@vger.kernel.org>,
+        nfs list <nfs@lists.sourceforge.net>,
+        <ext2-devel@lists.sourceforge.net>
+Subject: Re: [NFS] Re: 2.4.9 kernel crash
+In-Reply-To: <3C07E905.DF30E497@zip.com.au>
+Message-ID: <Pine.LNX.4.33.0112031108470.14786-100000@sunspot.csun.edu>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 3 Dec 2001, Keith Owens wrote:
+[Sorry for the long list of CC's but I wasn't sure which to delete.]
 
-Hi Keith,
+> There was a bug in ext3 which was fixed around about the 2.4.9
+> timeframe.  I don't know if the fix is present in that
+> particular Red Hat kernel.  It was fixed in ext3 0.9.8.
 
-> _If_ I can get CML2 support working before 2.5.1 comes out then we go
->   2.5.2-pre1 Add kbuild 2.5 with both CML1 and CML2 support.
->   2.5.2-pre2 Remove kbuild 2.4.
+According to /usr/include/linux/ext3_fs.h, the redhat 2.4.9-13 kernel is
+running ext3 0.9.11.  I've had no trouble with my NFS-exported ext3 disks.
 
-Do you plan to fix the x2 slowdown before removing kbuild 2.4 ?
-Or is this something that will be worked on as we progress through 2.5.
-
-regards,
-Dave.
-
--- 
-| Dave Jones.        http://www.codemonkey.org.uk
-| SuSE Labs
+--
+Stephen Walton, Professor of Physics and Astronomy,
+California State University, Northridge
+stephen.walton@csun.edu
 

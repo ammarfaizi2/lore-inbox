@@ -1,56 +1,86 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268036AbUIGNbC@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268075AbUIGNkd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268036AbUIGNbC (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Sep 2004 09:31:02 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268051AbUIGNbB
+	id S268075AbUIGNkd (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Sep 2004 09:40:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268051AbUIGNkT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Sep 2004 09:31:01 -0400
-Received: from postfix4-1.free.fr ([213.228.0.62]:24550 "EHLO
-	postfix4-1.free.fr") by vger.kernel.org with ESMTP id S268036AbUIGNau
+	Tue, 7 Sep 2004 09:40:19 -0400
+Received: from as8-6-1.ens.s.bonet.se ([217.215.92.25]:2009 "EHLO
+	zoo.weinigel.se") by vger.kernel.org with ESMTP id S268048AbUIGNkF
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Sep 2004 09:30:50 -0400
-Message-ID: <413DB809.50001@free.fr>
-Date: Tue, 07 Sep 2004 15:30:49 +0200
-From: Eric Valette <eric.valette@free.fr>
-Reply-To: eric.valette@free.fr
-Organization: HOME
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040820 Debian/1.7.2-4
-X-Accept-Language: en
+	Tue, 7 Sep 2004 09:40:05 -0400
+To: Spam <spam@tnonline.net>
+Cc: Christer Weinigel <christer@weinigel.se>,
+       David Masover <ninja@slaphack.com>,
+       Horst von Brand <vonbrand@inf.utfsm.cl>,
+       Tonnerre <tonnerre@thundrix.ch>, Linus Torvalds <torvalds@osdl.org>,
+       Pavel Machek <pavel@ucw.cz>, Jamie Lokier <jamie@shareable.org>,
+       Chris Wedgwood <cw@f00f.org>, <viro@parcelfarce.linux.theplanet.co.uk>,
+       Christoph Hellwig <hch@lst.de>, Hans Reiser <reiser@namesys.com>,
+       <linux-fsdevel@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
+       Alexander Lyamin aka FLX <flx@namesys.com>,
+       ReiserFS List <reiserfs-list@namesys.com>
+Subject: Re: silent semantic changes with reiser4
+References: <200409070206.i8726vrG006493@localhost.localdomain>
+	<413D4C18.6090501@slaphack.com> <m3d60yjnt7.fsf@zoo.weinigel.se>
+	<1183150024.20040907143346@tnonline.net>
+From: Christer Weinigel <christer@weinigel.se>
+Organization: Weinigel Ingenjorsbyra AB
+Date: 07 Sep 2004 15:40:04 +0200
+In-Reply-To: <1183150024.20040907143346@tnonline.net>
+Message-ID: <m38ybmjiyz.fsf@zoo.weinigel.se>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
 MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: 2.6.9-rc1-mm4 badness in rtl8150.c ethernet driver
-References: <413DB68C.7030508@free.fr>
-In-Reply-To: <413DB68C.7030508@free.fr>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Eric Valette wrote:
-> Andrew,
-> 
-> I tried your new test kernel and it broke my USB/Ethernet adapter. 
-> Adapter is detected, ifup works but no ping using IP adress on a point 
-> to point ethernet network. I saw the file change in the diff and 
-> probably something broke (either bogus endianness fixes or changed reset 
-> code data or ...). Bitkeeper being unreachable I can hardly follow what 
-> incremental broke it but, for sure, it is broken (FYI 2.6.9-rc1-mm2 works).
-> 
-> I also have oops trace when rebooting but cannot read as machines 
-> reboots. Will try network console when the rest is fixed :-)
+Spam <spam@tnonline.net> writes:
 
-Just to confirm : reverting the rtl8150.c diff makes the card 
-functionnal again.
+> > Additionally, files-as-directores does not solve the problem of 
+> > "cp a b" losing named streams.  There is curently no copyfile syscall
+> > in the Linux kernel, "cp a b" essentially does "cat a >b".  So unless
+> > cp is modified we don't gain anything.  If cp is modified to know
+> > about named streams, it really does not matter if named streams are
+> > accessed as file-as-directories, via openat(3) or via a shared library
+> > with some other interface.
+> 
+>   One suggestion is missed. It is to provide system calls for copy.
+>   That would also solve the problem. Named streams and metas would
+>   then be handled correctly. It also allows further changes to
+>   filesystems without having to patch applications yet again.
+
+But this still solves only part of the problem.  A backup application
+won't have any use for a copyfile syscall, it will need to be taught
+about streams.
+
+>   A copy system call would also be large beneficial for networked
+>   filesystems (NFS, Samba, etc) as data wouldn't have to be
+>   transferred over the network and back.
+
+Definitely.  
+
+>   Can we make a plugin infrastructure that will let user-space plugins
+>   to be loaded for certain directories or files? If we can, then it
+>   would present a much cleaner and easier way for the user to access
+>   data he wants. In this particular example it was a tar file.
+
+In that case I'd argue that:
+
+    mount -t userfs -o driver=tarfs foo /tmp/foo
+
+is a rather good kernel interface for plugins.  userfs (or something
+based on userfs) is the plugin API and tarfs is a plugin. :-)
+
+To make this efficient, well have to allow non-root users to perform
+the mount syscall (with the limitation that they can only mount on top
+of directories they own and that the mounts have the nosuid and nodev
+flags set).
+
+  /Christer
 
 -- 
-    __
-   /  `                   	Eric Valette
-  /--   __  o _.          	6 rue Paul Le Flem
-(___, / (_(_(__         	35740 Pace
+"Just how much can I get away with and still go to heaven?"
 
-Tel: +33 (0)2 99 85 26 76	Fax: +33 (0)2 99 85 26 76
-E-mail: eric.valette@free.fr
-
-
-
+Freelance consultant specializing in device driver programming for Linux 
+Christer Weinigel <christer@weinigel.se>  http://www.weinigel.se

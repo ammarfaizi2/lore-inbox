@@ -1,42 +1,48 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S265755AbUADQ1b (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 4 Jan 2004 11:27:31 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265756AbUADQ1b
+	id S265726AbUADQdP (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 4 Jan 2004 11:33:15 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265734AbUADQdP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 4 Jan 2004 11:27:31 -0500
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:52752 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S265755AbUADQ13 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 4 Jan 2004 11:27:29 -0500
-Date: Sun, 4 Jan 2004 16:27:23 +0000
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: Amit Gurdasani <amitg@alumni.cmu.edu>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: EISA ID for PnP modem and resource allocation
-Message-ID: <20040104162723.B27227@flint.arm.linux.org.uk>
-Mail-Followup-To: Amit Gurdasani <amitg@alumni.cmu.edu>,
-	linux-kernel@vger.kernel.org
-References: <Pine.LNX.4.56.0312261610200.1798@athena>
+	Sun, 4 Jan 2004 11:33:15 -0500
+Received: from [130.57.169.10] ([130.57.169.10]:42168 "EHLO peabody.ximian.com")
+	by vger.kernel.org with ESMTP id S265726AbUADQdO (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 4 Jan 2004 11:33:14 -0500
+Subject: Re: Pentium M config option for 2.6
+From: Rob Love <rml@ximian.com>
+To: Dave Jones <davej@redhat.com>
+Cc: Mikael Pettersson <mikpe@csd.uu.se>, szepe@pinerecords.com, akpm@osdl.org,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <20040104162516.GB31585@redhat.com>
+References: <200401041227.i04CReNI004912@harpo.it.uu.se>
+	 <1073228608.2717.39.camel@fur>  <20040104162516.GB31585@redhat.com>
+Content-Type: text/plain
+Message-Id: <1073233988.5225.9.camel@fur>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <Pine.LNX.4.56.0312261610200.1798@athena>; from amitg@alumni.cmu.edu on Fri, Dec 26, 2003 at 04:51:53PM +0400
+X-Mailer: Ximian Evolution 1.4.5 (1.4.5-8) 
+Date: Sun, 04 Jan 2004 11:33:08 -0500
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Dec 26, 2003 at 04:51:53PM +0400, Amit Gurdasani wrote:
-> I have a PROLiNK 1456VH internal Rockwell-based ISA PnP K56flex fax modem
-> whose EISA ID seems not to be known to 8250_pnp.c. The ID is AEI0250 as
-> reported in /sys/devices/pnp1/01:01/01:01.00/id and adding this into the
-> pnp_dev_table[] allows the device to be found and enabled properly by the
-> 8250 serial driver.
+On Sun, 2004-01-04 at 11:25, Dave Jones wrote:
 
-Thanks, patch applied.
+> Regardless, Tomas's patch changed CONFIG_X86_L1_CACHE_SHIFT for
+> that CPU, and CONFIG_X86_L1_CACHE_SHIFT shouldn't affect this.
+> The cacheline size is determined at boottime using the code in
+> pcibios_init() and set using pci_generic_prep_mwi().
+> 
+> The config option is the default that pci_cache_line_size starts at,
+> but this gets overridden when the CPU type is determined.
 
--- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 PCMCIA      - http://pcmcia.arm.linux.org.uk/
-                 2.6 Serial core
+Yah.  I was just answering in the abstract to the "does cache line
+matter on non-SMP" question.
+
+I actually like this patch (perhaps since I have a P-M :) and think it
+ought to go in, although I agree with others that the P-M is more of a
+super-P3 than a scaled down P4.
+
+	Rob Love
+
+

@@ -1,47 +1,44 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263841AbUDFNsv (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 Apr 2004 09:48:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263838AbUDFNru
+	id S263839AbUDFN4N (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 Apr 2004 09:56:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263836AbUDFNyY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 Apr 2004 09:47:50 -0400
-Received: from mail.blenke.com ([66.152.21.46]:11274 "EHLO mailhost.blenke.com")
-	by vger.kernel.org with ESMTP id S263834AbUDFNqK (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 Apr 2004 09:46:10 -0400
-From: "Ian C. Blenke" <ian@blenke.com>
-Date: Tue, 6 Apr 2004 09:45:49 -0400
-To: Dan Aloni <da-x@colinux.org>
-Cc: Eyal Lotem <gnupeaker@yahoo.com>,
-       Cooperative Linux Development 
-	<colinux-devel@lists.sourceforge.net>,
-       Linux Kernel List <linux-kernel@vger.kernel.org>
-Subject: Re: [coLinux-devel] coLinux benchmarks
-Message-ID: <20040406134549.GA28681@fresh-install>
-References: <20040405131520.GA4395@callisto.yi.org> <20040405201139.73032.qmail@web61108.mail.yahoo.com> <20040405222256.GA17572@callisto.yi.org>
+	Tue, 6 Apr 2004 09:54:24 -0400
+Received: from delerium.kernelslacker.org ([81.187.208.145]:18352 "EHLO
+	delerium.codemonkey.org.uk") by vger.kernel.org with ESMTP
+	id S263834AbUDFNxQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 6 Apr 2004 09:53:16 -0400
+Date: Tue, 6 Apr 2004 14:50:32 +0100
+From: Dave Jones <davej@redhat.com>
+To: Bjoern Michaelsen <bmichaelsen@gmx.de>
+Cc: linux-kernel@vger.kernel.org, volker.hemmann@heim9.tu-clausthal.de
+Subject: Re: AGP problem SiS 746FX Linux 2.6.5-rc3
+Message-ID: <20040406134709.GB32405@redhat.com>
+Mail-Followup-To: Dave Jones <davej@redhat.com>,
+	Bjoern Michaelsen <bmichaelsen@gmx.de>,
+	linux-kernel@vger.kernel.org, volker.hemmann@heim9.tu-clausthal.de
+References: <20040406031949.GA8351@lord.sinclair>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20040405222256.GA17572@callisto.yi.org>
-User-Agent: Mutt/1.3.28i
+In-Reply-To: <20040406031949.GA8351@lord.sinclair>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Apr 06, 2004 at 12:22:56AM +0200, Dan Aloni wrote:
-> On Mon, Apr 05, 2004 at 01:11:39PM -0700, Eyal Lotem wrote:
-> 
-> > I think the reason may be that Windows is using the
-> > disks better and making access faster. Perhaps DMA
-> > acceleration or some other feature is turned off on
-> > the Linux host side, making disk access slower on the
-> > Linux side.
-> 
-> No Windows was involved with these benchmarks in any way. I ran 
-> coLinux on Linux.
+On Tue, Apr 06, 2004 at 05:19:49AM +0200, Bjoern Michaelsen wrote:
 
-You ran coLinux on a Linux host? Perhaps I've missed something on the list..
-is there a native Linux kernel port now? An alternative to User Mode Linux
-is a rather big thing for me.
+ > I wrote a patch against 2.6.5 to let the SiS 746 take advantage
+ > of the SiS 648 patches too.
+ > http://bugzilla.kernel.org/show_bug.cgi?id=2327
 
-- Ian C. Blenke <ian@blenke.com>
+That and a few others are in the pending queue which I'll push
+when Linus gets back. See http://www.codemonkey.org.uk/projects/bitkeeper/agpgart/
+for the patch-of-the-day from bk://linux-dj.bkbits.net/agpgart
+
+In particular theres an additional fix for SiS users, I broke
+AGPv2 support in the previous fix that went into 2.6.5
+
+		Dave
 

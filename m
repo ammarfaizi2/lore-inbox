@@ -1,74 +1,38 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261362AbTJHOAO (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Oct 2003 10:00:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261535AbTJHOAO
+	id S261460AbTJHN5c (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Oct 2003 09:57:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261546AbTJHN5c
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Oct 2003 10:00:14 -0400
-Received: from ns1.astral.ro ([193.230.240.21]:63952 "EHLO ns1.astral.ro")
-	by vger.kernel.org with ESMTP id S261362AbTJHOAI (ORCPT
+	Wed, 8 Oct 2003 09:57:32 -0400
+Received: from pizda.ninka.net ([216.101.162.242]:6865 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id S261460AbTJHN5a (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Oct 2003 10:00:08 -0400
-Date: Wed, 8 Oct 2003 17:01:17 +0300
-From: Catalin Muresan <catalin.muresan@astral.ro>
-To: linux-kernel@vger.kernel.org
-Subject: SII680 problems (IDE)
-Message-ID: <20031008140117.GA2392@astral.ro>
+	Wed, 8 Oct 2003 09:57:30 -0400
+Date: Wed, 8 Oct 2003 06:47:35 -0700
+From: "David S. Miller" <davem@redhat.com>
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: toby@cbcg.net, netdev@oss.sgi.com, linux-net@vger.kernel.org,
+       linux-kernel@vger.kernel.org, coreteam@netfilter.org,
+       netfilter@lists.netfilter.org, akpm@zip.com.au, kuznet@ms2.inr.ac.ru,
+       pekkas@netcore.fi, jmorris@intercode.com.au, yoshfuji@linux-ipv6.org
+Subject: Re: [PATCH] kfree_skb() bug in 2.4.22
+Message-Id: <20031008064735.7373227b.davem@redhat.com>
+In-Reply-To: <3F840C9C.9050704@pobox.com>
+References: <1065617075.1514.29.camel@localhost>
+	<3F840C9C.9050704@pobox.com>
+X-Mailer: Sylpheed version 0.9.2 (GTK+ 1.2.6; sparc-unknown-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4i
-X-Operating-System: Linux 2.6.0-test6-c3 i686
-Organization: ASTRAL Telecom
-X-NCC-RegID: ro.dnt
-X-RAVMilter-Version: 8.4.3(snapshot 20030212) (ns1.astral.ro)
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, 08 Oct 2003 09:09:48 -0400
+Jeff Garzik <jgarzik@pobox.com> wrote:
 
-	Hello,
+> I would prefer that you fix your code instead, to not pass NULL to 
+> kfree_skb()...
 
-	i have an IDE controller with Silicon Image 0680A chipset (Class
-0140: 1095:0680 Subsystem: 1771:1680) and have problems using any ide device
-on it (tested with Seagate and Quantum disks). i can read from the disk fine
-(hdparm -t shows about 40MB/sec at 100% sys load ?? but this is not the
-issue, first to get it working) but as soon as i try to write a single
-sector (partition table) i get:
-
-hde: dma_timer_expiry: dma status == 0x20
-hde: DMA timeout retry
-hde: timeout waiting for DMA
-hde: status error: status=0x58 { DriveReady SeekComplete DataRequest }
-
-hde: drive not ready for command
-hde: status timeout: status=0xd0 { Busy }
-
-hde: no DRQ after issuing MULTWRITE
-ide2: reset: success
- hde: hde1
- hde: hde1
-
-	(last 2 lines are because of fdisk) and it disables DMA and
-continues to work but very very slow (in PIO mode i think).
-	this is on linux-2.6.0-test6 and 2.4.22 (siimage.c ver. 1.06), this
-is the boot message:
-
-SiI680: IDE controller at PCI slot 0000:00:0d.0
-SiI680: chipset revision 2
-SiI680: BASE CLOCK == 133
-SiI680: 100% native mode on irq 10
-    ide2: MMIO-DMA at 0xf0808000-0xf0808007, BIOS settings: hde:pio, hdf:pio
-    ide3: MMIO-DMA at 0xf0808008-0xf080800f, BIOS settings: hdg:pio, hdh:pio
-hde: ST340016A, ATA DISK drive
-ide2 at 0xf0808080-0xf0808087,0xf080808a on irq 10
-hde: max request size: 64KiB
-hde: 78165360 sectors (40020 MB) w/2048KiB Cache, CHS=65535/16/63, UDMA(100)
- hde:
-
-	patches, questions, solutions are wellcome, please CC: to me as I am
-not on linux-kernel.
-
-	thank you.
-
--- 
- Catalin Muresan
+Absolutely, there is no valid reason to pass NULL into these
+routines.

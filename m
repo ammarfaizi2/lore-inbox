@@ -1,54 +1,40 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S290423AbSA3Sb4>; Wed, 30 Jan 2002 13:31:56 -0500
+	id <S290422AbSA3SjH>; Wed, 30 Jan 2002 13:39:07 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S290389AbSA3SaW>; Wed, 30 Jan 2002 13:30:22 -0500
-Received: from dsl-213-023-038-145.arcor-ip.net ([213.23.38.145]:33684 "EHLO
-	starship.berlin") by vger.kernel.org with ESMTP id <S290333AbSA3S3a>;
-	Wed, 30 Jan 2002 13:29:30 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Daniel Phillips <phillips@bonn-fries.net>
-To: Patrick Mochel <mochel@osdl.org>, <linux-kernel@vger.kernel.org>
-Subject: Re: Wanted: Volunteer to code a Patchbot
-Date: Wed, 30 Jan 2002 19:33:40 +0100
-X-Mailer: KMail [version 1.3.2]
-Cc: <smurf@osdl.org>, <jsievert@osdl.org>, <wookie@osdl.org>
-In-Reply-To: <Pine.LNX.4.33.0201300934500.800-100000@segfault.osdlab.org>
-In-Reply-To: <Pine.LNX.4.33.0201300934500.800-100000@segfault.osdlab.org>
+	id <S290419AbSA3Shu>; Wed, 30 Jan 2002 13:37:50 -0500
+Received: from [198.17.35.35] ([198.17.35.35]:51105 "HELO mx1.peregrine.com")
+	by vger.kernel.org with SMTP id <S290418AbSA3SdH>;
+	Wed, 30 Jan 2002 13:33:07 -0500
+Message-ID: <B51F07F0080AD511AC4A0002A52CAB445B2B2F@ottonexc1.ottawa.loran.com>
+From: Dana Lacoste <dana.lacoste@peregrine.com>
+To: "'Larry McVoy'" <lm@bitmover.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: RE: A modest proposal -- We need a patch penguin
+Date: Wed, 30 Jan 2002 10:33:08 -0800
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <E16VzYC-0000Gt-00@starship.berlin>
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On January 30, 2002 06:46 pm, Patrick Mochel wrote:
-> As promised yesterday, a Sourceforge project has been started for a Linux 
-> Kernel Patch Management System (lk-pms). The page is at:
-> 
-> http://sourceforge.net/projects/lk-pms/
+> The whole point of the pristine tree is to give yourself a tree into 
+> which you can import Linus patches.  If you start putting extra stuff
+> in there you will get patch rejects.
 
-OK, we have competing patchbot projects:
+or in the opposite direction : your changesets sent to linus have to be
+patches against the pristine tree, not against your-working-tree-with-
+several-patches-that-linus-doesn't-have.
 
-   http://killeri.net/cgi-bin/alias/ezmlm-cgi
+(tying your response to Ingo into this one :)
 
-I don't see a single thing wrong with that, it gives us twice as many chances 
-for one to succeed.
+it makes sense : any submitted patches should be against a known-clean
+state, which means that the 'linear' element that people complain about
+is actually bk enforcing some rather logical development practices.
 
-> A mailing has been set up for discussion of the development of the 
-> project. We would like to move the discussion off of linux-kernel onto 
-> this new mailing list and begin to formalize the concept and the design.
-> 
-> We (OSDL) are volunteering resources for the development of the project: 
-> developer time, hardware, and bandwidth. We are willing to host it on our 
-> servers, and would like to eventually integrate such a system with our 
-> automated test system (STP). Any and all feedback is welcome, preferably 
-> on the list, though private mail is also welcome. 
+but if linus isn't going to accept changesets (only patches) anyways,
+then i guess it really doesn't matter :)
 
-Ah, yum, we are jealous.
-
-But not very ;-)
-
-May the best bot win...
-
--- 
-Daniel
+dana lacoste
+ottawa, canada

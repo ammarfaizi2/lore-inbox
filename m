@@ -1,47 +1,45 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S272442AbTHNQdw (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 14 Aug 2003 12:33:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272449AbTHNQdw
+	id S272276AbTHNQlP (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 14 Aug 2003 12:41:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S272415AbTHNQlP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 14 Aug 2003 12:33:52 -0400
-Received: from waste.org ([209.173.204.2]:36751 "EHLO waste.org")
-	by vger.kernel.org with ESMTP id S272442AbTHNQds (ORCPT
+	Thu, 14 Aug 2003 12:41:15 -0400
+Received: from code.and.org ([63.113.167.33]:26289 "EHLO mail.and.org")
+	by vger.kernel.org with ESMTP id S272276AbTHNQlI (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 14 Aug 2003 12:33:48 -0400
-Date: Thu, 14 Aug 2003 11:33:25 -0500
-From: Matt Mackall <mpm@selenic.com>
-To: Robert Love <rml@tech9.net>
-Cc: Jeff Garzik <jgarzik@pobox.com>, James Morris <jmorris@intercode.com.au>,
-       "David S. Miller" <davem@redhat.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] cryptoapi: Fix sleeping
-Message-ID: <20030814163325.GL325@waste.org>
-References: <20030813233957.GE325@waste.org> <3F3AD5F1.8000901@pobox.com> <1060821251.4709.449.camel@lettuce> <20030814015820.GH325@waste.org> <1060878560.4709.474.camel@lettuce>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1060878560.4709.474.camel@lettuce>
-User-Agent: Mutt/1.3.28i
+	Thu, 14 Aug 2003 12:41:08 -0400
+To: "Theodore Ts'o" <tytso@mit.edu>
+Cc: linux-kernel@vger.kernel.org, ext2-devel@lists.sourceforge.net
+Subject: Re: [Ext2-devel] Re: [RFC] file extents for EXT3
+References: <m3ptjcabey.fsf@bzzz.home.net> <3F3791C8.4090903@pobox.com>
+	<20030811095518.T7752@schatzie.adilger.int>
+	<3F37C2EB.5050503@pobox.com> <20030813043218.GC1244@think>
+From: James Antill <james@and.org>
+Content-Type: text/plain; charset=US-ASCII
+Date: 14 Aug 2003 12:41:01 -0400
+In-Reply-To: <20030813043218.GC1244@think>
+Message-ID: <m31xvombtu.fsf@code.and.org>
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) XEmacs/21.4 (Honest Recruiter)
+MIME-Version: 1.0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Aug 14, 2003 at 09:29:20AM -0700, Robert Love wrote:
-> On Wed, 2003-08-13 at 18:58, Matt Mackall wrote:
-> 
-> > This is part of cryptoapi and given the large chunks of work you could
-> > potentially hand to it, it's probably a good idea for it to work this
-> > way. You hand it a long list of sg segments, it does the transform and
-> > reschedules if it thinks it's safe. But its test of when it was safe
-> > was not complete.
-> 
-> Right.  My concern is that you said sometimes it is called when
-> preemption is disabled.
+Theodore Ts'o <tytso@mit.edu> writes:
 
-Sure, but it's called here rather indirectly. Apparently I'm the first
-person to try using cryptoapi with per_cpu. And at present there's
-nothing in the api to tell it "don't do that" - but see my followup
-patch.
- 
+> I would like to add "no journal" support to ext3, and then rename it
+> to ext2.  At some level, the only reason why we called it ext3 was
+> mainly for the code stability issue.  (Well, that and in case people
+> wanted a slightly smaller variant of ext2/3 --- but the people who
+> care about size issues will likely be in embedded applications, and in
+> those applications they will probably want to use something like jffs2
+> anyway.)
+
+ I presume that this option to ext3 would also restore the ext2
+behaviour for fsync()?
+
 -- 
-Matt Mackall : http://www.selenic.com : of or relating to the moon
+# James Antill -- james@and.org
+:0:
+* ^From: .*james@and\.org
+/dev/null

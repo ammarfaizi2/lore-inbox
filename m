@@ -1,56 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131825AbRARTx0>; Thu, 18 Jan 2001 14:53:26 -0500
+	id <S131270AbRART75>; Thu, 18 Jan 2001 14:59:57 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132205AbRARTxQ>; Thu, 18 Jan 2001 14:53:16 -0500
-Received: from neon-gw.transmeta.com ([209.10.217.66]:60686 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S131825AbRARTxM>; Thu, 18 Jan 2001 14:53:12 -0500
-Date: Thu, 18 Jan 2001 11:52:33 -0800 (PST)
-From: Linus Torvalds <torvalds@transmeta.com>
-To: Ingo Molnar <mingo@elte.hu>
-cc: Andrea Arcangeli <andrea@suse.de>, Rick Jones <raj@cup.hp.com>,
-        Linux Kernel List <linux-kernel@vger.kernel.org>,
-        Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>,
-        "David S. Miller" <davem@redhat.com>
+	id <S131427AbRART7q>; Thu, 18 Jan 2001 14:59:46 -0500
+Received: from minus.inr.ac.ru ([193.233.7.97]:50962 "HELO ms2.inr.ac.ru")
+	by vger.kernel.org with SMTP id <S131270AbRART7a>;
+	Thu, 18 Jan 2001 14:59:30 -0500
+From: kuznet@ms2.inr.ac.ru
+Message-Id: <200101181959.WAA08376@ms2.inr.ac.ru>
 Subject: Re: [Fwd: [Fwd: Is sendfile all that sexy? (fwd)]]
-In-Reply-To: <Pine.LNX.4.30.0101182041240.1009-100000@elte.hu>
-Message-ID: <Pine.LNX.4.10.10101181146190.18387-100000@penguin.transmeta.com>
+To: andrea@suse.DE (Andrea Arcangeli)
+Date: Thu, 18 Jan 2001 22:59:11 +0300 (MSK)
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20010118203802.D28276@athlon.random> from "Andrea Arcangeli" at Jan 18, 1 10:45:00 pm
+X-Mailer: ELM [version 2.4 PL24]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hello!
+
+> I'm all for TCP_CORK but it has the disavantage of two syscalls for doing the
+
+MSG_MORE was invented to allow to collapse this to 0 of syscalls. 8)
 
 
-On Thu, 18 Jan 2001, Ingo Molnar wrote:
-> 
-> i believe a network-conscious application should use MSG_MORE - that has
-> no system-call overhead.
+> A new ioctl on the socket should be able to do that (and ioctl looks ligther
+> than a setsockopt, ok ignoring actually the VFS is grabbing the big lock
+> until we relase it in sock_ioctl, ugly, but I feel good ignoring this fact as
+> it will gets fixed eventually and this is userspace API that will stay longer).
 
-I think Andrea was thinking more of the case of the anonymous IO
-generator, and having the "controller" program thgat keeps the socket
-always in CORK mode, but uses SIOCPUSH when it doesn't know what teh
-future access patterns will be. 
+setsockopt() exists, which does not have the flaw. (SOL_SOCKET, TCP_DOPUSH)
+or something like this. Actually, I would convert TCP_CORK to set of flags
+(1 is reserved for current corking), but I feel this operation is more generic
+and should be moved to SOL_SOCKET level.
 
-Basically, it could use SIOCPUSH whenever its request queue is empty,
-instead of uncorking (and re-corking when the next request comes in).
+BTW I see no reasons not to move BKL down for ioctl().
+It is not a rocket science, plain dumb edit.
 
-Again, the actual data _senders_ may not be aware of the network issues.
-They are the worker bees, and they may not know or care that they are
-pushing out data to the network. 
-
-Ingo, you should realize that people actually _want_ to use things like
-stdio. Not everything is a Tux web-server. There are specialized servers
-out there, and there are tons of people who prefer to use "fprintf()"
-and letting the library handle buffering etc.
-
-Very few people want to use send() directly.
-
-Mantra: "everything is a stream of bytes". Repeat until enlightened.
-
-		Linus
-
+Alexey
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

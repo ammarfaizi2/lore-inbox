@@ -1,106 +1,65 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262543AbTIEXRk (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 5 Sep 2003 19:17:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262674AbTIEXRk
+	id S265109AbTIEXW5 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 5 Sep 2003 19:22:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265135AbTIEXW5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 5 Sep 2003 19:17:40 -0400
-Received: from lidskialf.net ([62.3.233.115]:59084 "EHLO beyond.lidskialf.net")
-	by vger.kernel.org with ESMTP id S262543AbTIEXRJ (ORCPT
+	Fri, 5 Sep 2003 19:22:57 -0400
+Received: from hera.cwi.nl ([192.16.191.8]:56505 "EHLO hera.cwi.nl")
+	by vger.kernel.org with ESMTP id S265109AbTIEXWv (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 5 Sep 2003 19:17:09 -0400
-From: Andrew de Quincey <adq_dvb@lidskialf.net>
-To: Jeff Garzik <jgarzik@pobox.com>
-Subject: [PATCH] 2.4.23-pre3 ACPI fixes series (2/3)
-Date: Sat, 6 Sep 2003 01:15:36 +0100
-User-Agent: KMail/1.5.3
-Cc: torvalds@osdl.org, lkml <linux-kernel@vger.kernel.org>,
-       acpi-devel@lists.sourceforge.net, linux-acpi@intel.com
-References: <200309051958.02818.adq_dvb@lidskialf.net> <200309060016.16545.adq_dvb@lidskialf.net> <3F590E28.6090101@pobox.com>
-In-Reply-To: <3F590E28.6090101@pobox.com>
-MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200309060115.36772.adq_dvb@lidskialf.net>
+	Fri, 5 Sep 2003 19:22:51 -0400
+From: Andries.Brouwer@cwi.nl
+Date: Sat, 6 Sep 2003 01:22:44 +0200 (MEST)
+Message-Id: <UTC200309052322.h85NMi903303.aeb@smtp.cwi.nl>
+To: akpm@osdl.org, torvalds@osdl.org, vojtech@suse.cz
+Subject: [PATCH] more keyboard stuff
+Cc: linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch retries IRQ programming with an extended IRQ resource descriptor
-if using a standard IRQ descriptor fails.
+I looked a bit more at the keyboard code and find a bug
+and a probable bug.
+
+(i) In case a synaptics touchpad has been detected, the comment
+says "disable AUX". But we do not set the disable bit, but
+instead .and. with the bit - no doubt getting zero.
+This must be a bug.
+
+(ii) Directly above this is the suspicious comment
+"keyboard translation seems to be always off".
+But every machine comes always up in translated scancode 2.
+Translation is never off. But wait! by mistake the above .and.
+cleared the XLATE bit.
+
+So, I think bug (i) explains mystery (ii).
+
+However, note that this is code reading only.
+I do not have the hardware, so cannot test.
+
+Andries
+
+[line numbers will be off]
 
 
---- linux-2.4.23-pre3.picmode/drivers/acpi/pci_link.c	2003-09-05 23:54:45.522947816 +0100
-+++ linux-2.4.23-pre3.extirq/drivers/acpi/pci_link.c	2003-09-05 23:54:59.945755216 +0100
-@@ -290,7 +290,8 @@
- 	struct acpi_buffer	buffer = {sizeof(resource)+1, &resource};
- 	int			i = 0;
- 	int			valid = 0;
+diff -u --recursive --new-file -X /linux/dontdiff a/drivers/input/serio/i8042.c b/drivers/input/serio/i8042.c
+--- a/drivers/input/serio/i8042.c	Sat Aug  9 22:16:42 2003
++++ b/drivers/input/serio/i8042.c	Sat Sep  6 02:05:34 2003
+@@ -618,16 +619,10 @@
+ 		(~param >> 4) & 0xf, ~param & 0xf);
+ 
+ /*
+- * In MUX mode the keyboard translation seems to be always off.
+- */
+- 
+-	i8042_direct = 1;
 -
-+	int			resource_type = 0;
-+   
- 	ACPI_FUNCTION_TRACE("acpi_pci_link_set");
+-/*
+  * Disable all muxed ports by disabling AUX.
+  */
  
- 	if (!link || !irq)
-@@ -312,13 +313,24 @@
- 			return_VALUE(-EINVAL);
- 		}
- 	}
-+ 
-+	/* If IRQ<=15, first try with a "normal" IRQ descriptor. If that fails, try with
-+	 * an extended one */
-+	if (irq <= 15) {
-+		resource_type = ACPI_RSTYPE_IRQ;
-+	} else {
-+		resource_type = ACPI_RSTYPE_EXT_IRQ;
-+	}
-+
-+retry_programming:
-    
- 	memset(&resource, 0, sizeof(resource));
+-	i8042_ctr &= I8042_CTR_AUXDIS;
++	i8042_ctr |= I8042_CTR_AUXDIS;
+ 	i8042_ctr &= ~I8042_CTR_AUXINT;
  
- 	/* NOTE: PCI interrupts are always level / active_low / shared. But not all
- 	   interrupts > 15 are PCI interrupts. Rely on the ACPI IRQ definition for 
- 	   parameters */
--	if (irq <= 15) {	
-+	switch(resource_type) {
-+	case ACPI_RSTYPE_IRQ:
- 		resource.res.id = ACPI_RSTYPE_IRQ;
- 		resource.res.length = sizeof(struct acpi_resource);
- 		resource.res.data.irq.edge_level = link->irq.edge_level;
-@@ -326,8 +338,9 @@
- 		resource.res.data.irq.shared_exclusive = ACPI_SHARED;
- 		resource.res.data.irq.number_of_interrupts = 1;
- 		resource.res.data.irq.interrupts[0] = irq;
--	}
--	else {
-+		break;
-+	 
-+	case ACPI_RSTYPE_EXT_IRQ:
- 		resource.res.id = ACPI_RSTYPE_EXT_IRQ;
- 		resource.res.length = sizeof(struct acpi_resource);
- 		resource.res.data.extended_irq.producer_consumer = ACPI_CONSUMER;
-@@ -337,11 +350,21 @@
- 		resource.res.data.extended_irq.number_of_interrupts = 1;
- 		resource.res.data.extended_irq.interrupts[0] = irq;
- 		/* ignore resource_source, it's optional */
-+		break;
- 	}
- 	resource.end.id = ACPI_RSTYPE_END_TAG;
- 
- 	/* Attempt to set the resource */
- 	status = acpi_set_current_resources(link->handle, &buffer);
-+   
-+	/* if we failed and IRQ <= 15, try again with an extended descriptor */
-+	if (ACPI_FAILURE(status) && (resource_type == ACPI_RSTYPE_IRQ)) {
-+                resource_type = ACPI_RSTYPE_EXT_IRQ;
-+                printk(PREFIX "Retrying with extended IRQ descriptor\n");
-+                goto retry_programming;
-+	}
-+
-+	/* check for total failure */
- 	if (ACPI_FAILURE(status)) {
- 		ACPI_DEBUG_PRINT((ACPI_DB_ERROR, "Error evaluating _SRS\n"));
- 		return_VALUE(-ENODEV);
-
+ 	if (i8042_command(&i8042_ctr, I8042_CMD_CTL_WCTR))

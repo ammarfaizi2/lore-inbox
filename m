@@ -1,48 +1,66 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129851AbRBAA2d>; Wed, 31 Jan 2001 19:28:33 -0500
+	id <S129816AbRBAAcd>; Wed, 31 Jan 2001 19:32:33 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129815AbRBAA2X>; Wed, 31 Jan 2001 19:28:23 -0500
-Received: from Hell.WH8.TU-Dresden.De ([141.30.225.3]:16904 "EHLO
-	Hell.WH8.TU-Dresden.De") by vger.kernel.org with ESMTP
-	id <S129851AbRBAA2I>; Wed, 31 Jan 2001 19:28:08 -0500
-From: Gregor Jasny <gjasny@wh8.tu-dresden.de>
-Organization: Netzwerkadministrator WH8/DD
-To: linux-kernel@vger.kernel.org
-Subject: Problems compiling hdparm with string.h (2.4.x)
-Date: Thu, 1 Feb 2001 01:28:07 +0100
-X-Mailer: KMail [version 1.1.99]
-Content-Type: text/plain; charset=US-ASCII
-X-PGP-fingerprint: B0FA 69E5 D8AC 02B3 BAEF  E307 BD3A E495 93DD A233
-X-PGP-public-key: finger gjasny@hell.wh8.tu-dresden.de
-MIME-Version: 1.0
-Message-Id: <01020101280700.16535@backfire>
-Content-Transfer-Encoding: 7BIT
+	id <S129863AbRBAAcX>; Wed, 31 Jan 2001 19:32:23 -0500
+Received: from deliverator.sgi.com ([204.94.214.10]:41794 "EHLO
+	deliverator.sgi.com") by vger.kernel.org with ESMTP
+	id <S129816AbRBAAcP>; Wed, 31 Jan 2001 19:32:15 -0500
+X-Mailer: exmh version 2.1.1 10/15/1999
+From: Keith Owens <kaos@ocs.com.au>
+To: LA Walsh <law@sgi.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Power usage Q and parallel make question (separate issues) 
+In-Reply-To: Your message of "Wed, 31 Jan 2001 11:44:28 -0800."
+             <3A786B1C.F6A3CE83@sgi.com> 
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Thu, 01 Feb 2001 11:32:00 +1100
+Message-ID: <9806.980987520@kao2.melbourne.sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I've just tried to compile hdparm v3.9 with a vanilla 2.4.1 tree.
-Gcc complained about serveral parse errors in /usr/include/linux/string.h.
-Compiling with an >=ac6 release works fine.
-Why isn't the little string.h fix not included in 2.4.1?
+On Wed, 31 Jan 2001 11:44:28 -0800, 
+LA Walsh <law@sgi.com> wrote:
+>So, just about anyone I know uses make -j X [-l Y] bzImage modules, but I noticed that
+>make modules_install isn't parallel safe in 2.4 -- since it takes much longer than the
+>old, it would make sense to want to run it in parallel as well, but it has a 
+>delete-old, <multiple sub-dirs>, index-new for deps.  Those "3" steps can't be done
+>in parallel safely.  Was this intentional or would a 'fix' be desired?
 
-Regards, Gregor
+The only bit that could run in parallel is this one.
 
-PS: Is this normal: (ac-12, 1xPIII, iBX , IO-, UP- and LOCAL-APIC=y)
-/proc/interrupts
-           CPU0
-  0:    9997185          XT-PIC  timer
-  1:      51952          XT-PIC  keyboard
-  2:          0          XT-PIC  cascade
-  7:     482976          XT-PIC  parport0
-  9:    8270642          XT-PIC  eth0, EMU10K1
- 10:     932284          XT-PIC  bttv
- 12:     930300          XT-PIC  PS/2 Mouse
- 14:      77025          XT-PIC  ide0
- 15:          4          XT-PIC  ide1
-NMI:    9995269
-LOC:    9996969
-ERR:          0
+.PHONY: $(patsubst %, _modinst_%, $(SUBDIRS))
+$(patsubst %, _modinst_%, $(SUBDIRS)) :
+        $(MAKE) -C $(patsubst _modinst_%, %, $@) modules_install
+
+The erase must be done first (serial), then make modules_install in
+every subdir (parallel), then depmod (serial).
+
+>Is it the intention of the Makefile maintainers to allow a parallel or distributed
+>make?  I know for me it makes a noticable difference even on a 1 CPU machine
+>(CPU overlap with disk I/O), and with multi CPU machines, it's even more noticable.
+>
+>Is a make of the kernel and/or the modules designed to be parallel safe?  Is it 
+>something I should 'rely' on?  If it isn't, should it be?
+
+make dep, make clean and the various install targets are not parallel
+safe in 2.4.  Most of the make vmlinux, bzImage, modules is parallel
+safe but even in those phases there are known problems because the 2.4
+makefiles do not make it easy to handle cross directory dependencies.
+The recommended sequence for 2.4 is
+
+  make xxxconfig
+  make dep
+  make clean <if necessary>
+  make -j n bzImage modules
+  make modules_install
+
+The makefile rewrite for 2.5 will fix these parallelism problems.  The
+2.4 system is too fragile with too many special cases, nobody is game
+to fix the parallelism and guarantee that it will not break anything
+else.  modules_install in 2.5 will be fast!
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

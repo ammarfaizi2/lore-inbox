@@ -1,59 +1,47 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267859AbRGRLhJ>; Wed, 18 Jul 2001 07:37:09 -0400
+	id <S267862AbRGRLtn>; Wed, 18 Jul 2001 07:49:43 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267860AbRGRLg7>; Wed, 18 Jul 2001 07:36:59 -0400
-Received: from mail.gris.uni-tuebingen.de ([134.2.176.16]:42767 "HELO
-	mail.gris.uni-tuebingen.de") by vger.kernel.org with SMTP
-	id <S267859AbRGRLgr>; Wed, 18 Jul 2001 07:36:47 -0400
-Date: Wed, 18 Jul 2001 13:36:49 +0200 (CEST)
-From: Alexander Ehlert <alexander.ehlert@uni-tuebingen.de>
-To: <linux-kernel@vger.kernel.org>
-Subject: Right Semantics for ioremap, remap_page_range
-Message-ID: <Pine.LNX.4.32.0107181334442.809-100000@frodo.sau98.de>
+	id <S267861AbRGRLte>; Wed, 18 Jul 2001 07:49:34 -0400
+Received: from mailserv.intranet.GR ([146.124.14.106]:24748 "EHLO
+	mailserv.intranet.gr") by vger.kernel.org with ESMTP
+	id <S267860AbRGRLtX>; Wed, 18 Jul 2001 07:49:23 -0400
+Content-Type: text/plain; charset=US-ASCII
+From: anpol <anpol@intracom.gr>
+Organization: INTRACOM S.A.
+To: linux-kernel@vger.kernel.org
+Subject: Delayed acks in Linux 2.2.14
+Date: Wed, 18 Jul 2001 14:52:59 -0400
+X-Mailer: KMail [version 1.2]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Message-Id: <01071814525900.00834@patdpd21.intranet.gr>
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Hi everyone,
 
-I'm currently trying to write a linux kernel driver for an experimental
-graphics board we're developing at our institute. It's fitted
-with an plx9054 and got some sdram on board connected to the plx.
-Now I come this far, that I actually detect the board, set some modes
-and do an ioremap on pci_resource_start(pdev,2) which is the
-base for 64Mb Ram Onboard. After ioremap() I actually like
-to do remap_page_range through fileops/mmap call. I just copied
-that code from drivers/char/mem.c, but just using the ioremapped
-address as offset in remap_page_range, doesn't seem to work, instead
-I think I just mmap some totally different area... Now, what do I have to
-use for that offset? What I currently do in the init function is
-something like that:
+I am studying delayed acks in linux 2.2.14 and i come to the following 
+conclusions.
 
-...
-priv.pcibar2 = (char*)ioremap(pci_resource_start(pdev,2),
-                              pci_resource_len(pdev,2));
-...
+In bulk data transfer between two linux boxes i never saw a delayed ack. The 
+server sends an ack every 2 full sized segments. This is fine but in 
+transactional data transfer (e.g. a telnet session) i also do not see a 
+delayed ack. What i see is this:
 
-and later on in the mmap method I do:
+1. Client sends a character
+2. Server echoes the character
+3. Client sends an ack for the echo
 
-static int mmap_plx9054(file, vma) {
-unsigned long pcibase = (unsigned long)priv.pcibar2;
-...
-remap_page_range(vma->vma_start, pcibase, len, vma->vm_page_prot);
-...
-}
+The time between segment 2 and 3 is never above 20ms even when i have a large 
+RTT (say 560 ms). This is a small delay(??) but its not enough to say that 
+the ack is delayed. I also could never see the max delay of HZ/2 on an ACK. 
+So delaying an ack does not depend on the RTT of the connection. Is that 
+correct? And if yes where does it depend? Has anyone seen the HZ/2 delay on 
+an ACK?
 
-I just use pcibase as offset, anything wrong here?
+Thank you in advance
 
-Cheers, Alex
+Tasos
 
-PS: Is there someone who knows about the plx9054?
-
--- 
-
-Small things make base men proud.
-		-- William Shakespeare, "Henry VI"
-
-
+p.s. please Cc your answer to my e-mail address <anpol@intracom.gr>

@@ -1,32 +1,42 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S132587AbRDQUDS>; Tue, 17 Apr 2001 16:03:18 -0400
+	id <S132557AbRDQUFd>; Tue, 17 Apr 2001 16:05:33 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S132585AbRDQUCY>; Tue, 17 Apr 2001 16:02:24 -0400
-Received: from router-100M.swansea.linux.org.uk ([194.168.151.17]:19217 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S132580AbRDQUCP>; Tue, 17 Apr 2001 16:02:15 -0400
-Subject: Re: Your response is requested
-To: dave@zarzycki.org (Dave Zarzycki)
-Date: Tue, 17 Apr 2001 21:03:59 +0100 (BST)
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.33.0104171212520.960-100000@batman.zarzycki.org> from "Dave Zarzycki" at Apr 17, 2001 12:18:48 PM
-X-Mailer: ELM [version 2.5 PL1]
+	id <S132585AbRDQUDe>; Tue, 17 Apr 2001 16:03:34 -0400
+Received: from 216-21-153-1.ip.van.radiant.net ([216.21.153.1]:26375 "HELO
+	innerfire.net") by vger.kernel.org with SMTP id <S132580AbRDQUD1>;
+	Tue, 17 Apr 2001 16:03:27 -0400
+Date: Tue, 17 Apr 2001 13:03:58 -0700 (PDT)
+From: Gerhard Mack <gmack@innerfire.net>
+To: Matti Aarnio <matti.aarnio@zmailer.org>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: That leaked spam...
+In-Reply-To: <20010417222221.K805@mea-ext.zmailer.org>
+Message-ID: <Pine.LNX.4.10.10104171301410.19572-100000@innerfire.net>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-Id: <E14pbhi-000376-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> On Tue, 17 Apr 2001 J.I.@thor.sbay.org wrote:
->                     ^^^^^^^^^^^^^^^^^^
+On Tue, 17 Apr 2001, Matti Aarnio wrote:
+
+>   Oops, something leaked thru, now I added couple filters which should
+>   bite on this, and one other mutation of the same kind...
+>   (Naturally I had to remove trap key-phrases from the text..)
 > 
-> Arrggg!!! Mumble... grumble... F*cking spammer using my hostname as the
-> from address for sending spam...
+> /Matti Aarnio
+> 
 
-Its variously called 'fraud' and 'obtaining services by deception' in most
-jurisdictions and as a criminal matter can be reported to interested parties.
+Is it possiblt to filter based on whether it has a domain name on the from
+field ?
 
-Generally the mailing list isnt an interested party 8)
+	Gerhard
+
+
+--
+Gerhard Mack
+
+gmack@innerfire.net
+
+<>< As a computer I find your faith in technology amusing.
+

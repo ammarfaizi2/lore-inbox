@@ -1,39 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131155AbQJ1Rbe>; Sat, 28 Oct 2000 13:31:34 -0400
+	id <S131162AbQJ1Rhh>; Sat, 28 Oct 2000 13:37:37 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131177AbQJ1RbY>; Sat, 28 Oct 2000 13:31:24 -0400
-Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:22034 "EHLO
-	the-village.bc.nu") by vger.kernel.org with ESMTP
-	id <S131155AbQJ1RbT>; Sat, 28 Oct 2000 13:31:19 -0400
-Subject: Re: Linux-2.4.0-test9 not Open Source
-To: greg@linuxpower.cx (Gregory Maxwell)
-Date: Sat, 28 Oct 2000 18:32:14 +0100 (BST)
-Cc: alan@lxorguk.ukuu.org.uk (Alan Cox),
-        markster@linux-support.net (Mark Spencer),
-        linux-kernel@vger.kernel.org
-In-Reply-To: <20001028132421.A21038@xi.linuxpower.cx> from "Gregory Maxwell" at Oct 28, 2000 01:24:21 PM
-X-Mailer: ELM [version 2.5 PL1]
+	id <S131166AbQJ1Rh1>; Sat, 28 Oct 2000 13:37:27 -0400
+Received: from panic.ohr.gatech.edu ([130.207.47.194]:49169 "EHLO
+	havoc.gtf.org") by vger.kernel.org with ESMTP id <S131162AbQJ1RhQ>;
+	Sat, 28 Oct 2000 13:37:16 -0400
+Message-ID: <39FB0EAB.C87F816C@mandrakesoft.com>
+Date: Sat, 28 Oct 2000 13:36:43 -0400
+From: Jeff Garzik <jgarzik@mandrakesoft.com>
+Organization: MandrakeSoft
+X-Mailer: Mozilla 4.75 [en] (X11; U; Linux 2.4.0-test10 i686)
+X-Accept-Language: en
 MIME-Version: 1.0
+To: Remi Turk <remi@a2zis.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: No IRQ known for interrupt pin A of device 00:0f.0
+In-Reply-To: <39FB024B.220A025C@a2zis.com>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-Id: <E13pZq3-0005TZ-00@the-village.bc.nu>
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> In this case, Debian (or any organization who isn't big enough not to fear
-> M-systems) may not ship the standard kernel because it has additional patent
-> restrictions.
+Remi Turk wrote:
+> Uniform Multi-Platform E-IDE driver Revision: 6.31
+> ide: Assuming 33MHz system bus speed for PIO modes; override with
+> idebus=xx
+> ALI15X3: IDE controller on PCI bus 00 dev 78
+> PCI: No IRQ known for interrupt pin A of device 00:0f.0. Please try
+> using pci=biosirq.
 
-Why. There are no distribution restrictions
+test10-pre6 gives this warning?
 
-> There is a clear ability here for the author of the driver and m-systems to
-> conspire to retroactively revoke anyones privilege to use, modify, or
-> distribute the stock kernel because of this code.
+Can you post the output of dump_pirq, from the pcmcia_cs package?  (if
+you don't have it already, http://pcmcia-cs.sourceforge.net/)
 
-I fail to see how
-
+-- 
+Jeff Garzik             | "Mind if I drive?"  -Sam
+Building 1024           | "Not if you don't mind me clawing at the
+MandrakeSoft            |  dash and shrieking like a cheerleader."
+                        |                     -Max
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

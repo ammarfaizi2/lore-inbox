@@ -1,58 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261259AbVBVVei@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261256AbVBVVis@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261259AbVBVVei (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 22 Feb 2005 16:34:38 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261260AbVBVVeh
+	id S261256AbVBVVis (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 22 Feb 2005 16:38:48 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261261AbVBVVir
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 22 Feb 2005 16:34:37 -0500
-Received: from vanessarodrigues.com ([192.139.46.150]:47336 "EHLO
-	jaguar.mkp.net") by vger.kernel.org with ESMTP id S261259AbVBVVeZ
+	Tue, 22 Feb 2005 16:38:47 -0500
+Received: from vanessarodrigues.com ([192.139.46.150]:49640 "EHLO
+	jaguar.mkp.net") by vger.kernel.org with ESMTP id S261256AbVBVVin
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 22 Feb 2005 16:34:25 -0500
-To: Andrew Morton <akpm@osdl.org>
-Cc: Matthew Wilcox <matthew@wil.cx>, linux-ia64@vger.kernel.org,
-       linux-kernel@vger.kernel.org
+	Tue, 22 Feb 2005 16:38:43 -0500
+To: Dave Hansen <haveblue@us.ibm.com>
+Cc: Andrew Morton <akpm@osdl.org>, Matthew Wilcox <matthew@wil.cx>,
+       linux-ia64@vger.kernel.org,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
 Subject: Re: [patch -mm series] ia64 specific /dev/mem handlers
 References: <16923.193.128608.607599@jaguar.mkp.net>
 	<20050222020309.4289504c.akpm@osdl.org>
 	<yq0ekf8lksf.fsf@jaguar.mkp.net>
 	<20050222175225.GK28741@parcelfarce.linux.theplanet.co.uk>
 	<20050222112513.4162860d.akpm@osdl.org>
+	<1109100938.25666.44.camel@localhost>
 From: Jes Sorensen <jes@wildopensource.com>
-Date: 22 Feb 2005 16:34:23 -0500
-In-Reply-To: <20050222112513.4162860d.akpm@osdl.org>
-Message-ID: <yq0acpwl1nk.fsf@jaguar.mkp.net>
+Date: 22 Feb 2005 16:38:42 -0500
+In-Reply-To: <1109100938.25666.44.camel@localhost>
+Message-ID: <yq0650kl1gd.fsf@jaguar.mkp.net>
 User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> "Andrew" == Andrew Morton <akpm@osdl.org> writes:
+>>>>> "Dave" == Dave Hansen <haveblue@us.ibm.com> writes:
 
-Andrew> Matthew Wilcox <matthew@wil.cx> wrote:
->> 
->> On Tue, Feb 22, 2005 at 09:41:04AM -0500, Jes Sorensen wrote:
->> > >> + if (page->flags & PG_uncached)
->> > 
->> > Andrew> dude.  That ain't gonna work ;)
->> > 
->> > Pardon my lack of clue, but why not?
+Dave> I was talking with Nigel Cunningham about doing something a
+Dave> little different from the classic page flag bits when the number
+Dave> of users is restricted and performance isn't ultra-critical.
+Dave> Would something like this work for you, instead of using a real
+Dave> page->flags bit for PG_cached?
 
-Andrew> 	if (page->flags & (1<<PG_uncached))
+Just took a quick look at this and it looks a bit heavy for our
+use. We are only looking at a small number of pages. However I could
+imagine future cases where performance may be more critical.
 
-Andrew> would have been correcter.
-
-DOH!
-
-Desperately seeking a bulk supply of those brown paper bags!
-
->> I think you're supposed to always use test_bit() to check page
->> flags
-
-Andrew> Yup.  Add PageUncached macros to page-flags.h.
-
-Mmmmm another butt ugly StUdLyCaPs macro coming soon.
-
-Thanks,
+Cheers,
 Jes

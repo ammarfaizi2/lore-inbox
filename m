@@ -1,53 +1,45 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129810AbQLNB4E>; Wed, 13 Dec 2000 20:56:04 -0500
+	id <S129860AbQLNB4F>; Wed, 13 Dec 2000 20:56:05 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129860AbQLNBzz>; Wed, 13 Dec 2000 20:55:55 -0500
-Received: from [204.244.205.25] ([204.244.205.25]:53864 "HELO post.gateone.com")
-	by vger.kernel.org with SMTP id <S129810AbQLNBzl>;
-	Wed, 13 Dec 2000 20:55:41 -0500
-From: Michael Peddemors <michael@linuxmagic.com>
-Organization: LinuxMagic Inc.
-To: Joseph Cheek <joseph@cheek.com>, linux-kernel@vger.kernel.org
-Subject: Re: test12: eth0 trasmit timed out after one hour uptime
-Date: Wed, 13 Dec 2000 18:34:11 -0800
-X-Mailer: KMail [version 1.1.95.0]
-Content-Type: text/plain
-In-Reply-To: <3A37FFC9.19F05305@cheek.com>
-In-Reply-To: <3A37FFC9.19F05305@cheek.com>
+	id <S131001AbQLNBzy>; Wed, 13 Dec 2000 20:55:54 -0500
+Received: from swan.prod.itd.earthlink.net ([207.217.120.123]:1768 "EHLO
+	swan.prod.itd.earthlink.net") by vger.kernel.org with ESMTP
+	id <S129860AbQLNBzl>; Wed, 13 Dec 2000 20:55:41 -0500
+Content-Type: text/plain; charset=US-ASCII
+From: dep <dennispowell@earthlink.net>
+To: linux-kernel@vger.kernel.org
+Subject: Re: test12 lockups -- need feedback
+Date: Wed, 13 Dec 2000 20:28:04 -0500
+X-Mailer: KMail [version 1.2]
+In-Reply-To: <3A3804CA.E07FDBB1@haque.net> <xy7hf47n95t.fsf@mdj.nada.kth.se> <xy7d7evn8ud.fsf@mdj.nada.kth.se>
+In-Reply-To: <xy7d7evn8ud.fsf@mdj.nada.kth.se>
 MIME-Version: 1.0
-Message-Id: <0012131834110F.19494@mistress>
-Content-Transfer-Encoding: 8bit
+Message-Id: <00121320280401.03451@depoffice.localdomain>
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I wasted time trying to track something similar down, replaced the card 
-instead :> My first clue was when smacking the box, it started working 
-again... (j/k)
+On Wednesday 13 December 2000 19:29, Mikael Djurfeldt wrote:
 
-You didna' mention the card type ...
+| > I downloaded the full test12 and have lockups after using X
+| > (upstream version 4.0.1Z) 15-45 mins.  For me, SysRq+u works, but
+| > if I then press SysRq+b, nothing happens.  There are no signs in
+| > the syslog.
+|
+| I should add that I didn't have these lockups in test12-pre8.
 
-On Wed, 13 Dec 2000, Joseph Cheek wrote:
-> hi all,
->
-> after about an hour of uptime [and heavy HD usage] my ethernet just
-> died.  couldn't ping a thing.  syslog showed:
->
-> Dec 13 14:51:46 sanfrancisco kernel: NETDEV WATCHDOG: eth0: transmit
-> timed out
-> Dec 13 14:51:46 sanfrancisco kernel: eth0: transmit timed out, tx_status
-> 00 status e680.
-
+just for statistical purposes, test12 has been running problem-free 
+here on a k6-2-550 (running at 500), glibc-2.2, built with 
+gcc-2.95-2, since about an hour after it was announced. no anomalies 
+at all, and the cd reader has become reliable again. in X the entire 
+time, and heavy system activity with a wide variety of applications.
 -- 
---------------------------------------------------------
-Michael Peddemors - Senior Consultant
-Unix Administration - WebSite Hosting
-Network Services - Programming
-Wizard Internet Services http://www.wizard.ca
-Linux Support Specialist - http://www.linuxmagic.com
---------------------------------------------------------
-(604) 589-0037 Beautiful British Columbia, Canada
---------------------------------------------------------
+dep
+--
+bipartisanship: an illogical construct not unlike the idea that
+if half the people like red and half the people like blue, the 
+country's favorite color is purple.
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

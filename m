@@ -1,51 +1,65 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S131086AbRCGPy7>; Wed, 7 Mar 2001 10:54:59 -0500
+	id <S131095AbRCGP5t>; Wed, 7 Mar 2001 10:57:49 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S131090AbRCGPyt>; Wed, 7 Mar 2001 10:54:49 -0500
-Received: from chaos.analogic.com ([204.178.40.224]:49281 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP
-	id <S131086AbRCGPyl>; Wed, 7 Mar 2001 10:54:41 -0500
-Date: Wed, 7 Mar 2001 10:52:43 -0500 (EST)
-From: "Richard B. Johnson" <root@chaos.analogic.com>
-Reply-To: root@chaos.analogic.com
-To: "Justin T. Gibbs" <gibbs@scsiguy.com>
-cc: Christoph Hellwig <hch@caldera.de>, linux-kernel@vger.kernel.org
-Subject: Re: yacc dependency of aic7xxx driver 
-In-Reply-To: <200103071529.f27FTjO26978@aslan.scsiguy.com>
-Message-ID: <Pine.LNX.3.95.1010307104914.18192A-100000@chaos.analogic.com>
+	id <S131099AbRCGP5j>; Wed, 7 Mar 2001 10:57:39 -0500
+Received: from colorfullife.com ([216.156.138.34]:44811 "EHLO colorfullife.com")
+	by vger.kernel.org with ESMTP id <S131095AbRCGP53>;
+	Wed, 7 Mar 2001 10:57:29 -0500
+Message-ID: <000201c0a71f$3a48fae0$5517fea9@local>
+From: "Manfred Spraul" <manfred@colorfullife.com>
+To: "Jamie Lokier" <lk@tantalophile.demon.co.uk>
+Cc: <linux-kernel@vger.kernel.org>
+Subject: Re: Hashing and directories
+Date: Wed, 7 Mar 2001 16:56:36 +0100
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 5.50.4133.2400
+X-MimeOLE: Produced By Microsoft MimeOLE V5.50.4133.2400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 7 Mar 2001, Justin T. Gibbs wrote:
+Jamie wrote:
 
-> >What about simply removing the firmware source and assembler from the
-> >kernel tree?  We have lots of firmware in the kernel tree for which
-> >there isn't even firmware  avaible...
-> 
-> What, and not allow others to fix my bugs for me? :-)
-> 
-> Lots of people have embedded this driver just because it is completely
-> open source.  I'd like to have all distributions be "complete"
-> distributions.
-> 
-> --
-> Justin
+> Linus Torvalds wrote:
+> > The long-term solution for this is to create the new VM space for
+the
+> > new process early, and add it to the list of mm_struct's that the
+> > swapper knows about, and then just get rid of the
+pages[MAX_ARG_PAGES]
+> > array completely and instead just populate the new VM directly. That
+> > way the destination is swappable etc, and you can also remove the
+> > "put_dirty_page()" loop later on, as the pages will already be in
+their
+> > right places.
+> >
+> > It's definitely not a one-liner, but if somebody really feels
+strongly
+> > about this, then I can tell already that the above is the only way
+to do
+> > it sanely.
 
-alias yacc='bison -y'
+>  Yup. We discussed this years ago, and it nobody thought it important
 
-If you don't have one of these, you don't have the tools necessary
-to do kernel development.
+> enough. mm->mmlist didn't exist then, and creating it it _just_ for
 
-Cheers,
-Dick Johnson
+> this feature seemed too intrusive. I agree it's the only sane way to
 
-Penguin : Linux version 2.4.1 on an i686 machine (799.53 BogoMips).
+> completely remove the limit.
 
-"Memory is like gasoline. You use it up when you are running. Of
-course you get it all back when you reboot..."; Actual explanation
-obtained from the Micro$oft help desk.
+I'm not sure that this is the right way: It means that every exec() must
+call dup_mmap(), and usually only to copy a few hundert bytes. But I
+don't see a sane alternative. I won't propose to create a temporary file
+in a kernel tmpfs mount ;-)
+
+--
+
+    Manfred
+
+
 
 

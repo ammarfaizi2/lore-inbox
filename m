@@ -1,103 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268658AbUHaOVP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S268660AbUHaOXz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S268658AbUHaOVP (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 31 Aug 2004 10:21:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268660AbUHaOVO
+	id S268660AbUHaOXz (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 31 Aug 2004 10:23:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S268408AbUHaOXz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 31 Aug 2004 10:21:14 -0400
-Received: from [139.30.44.16] ([139.30.44.16]:2434 "EHLO
-	gockel.physik3.uni-rostock.de") by vger.kernel.org with ESMTP
-	id S268658AbUHaOVL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 31 Aug 2004 10:21:11 -0400
-Date: Tue, 31 Aug 2004 16:19:40 +0200 (CEST)
-From: Tim Schmielau <tim@physik3.uni-rostock.de>
-To: Jay Lan <jlan@engr.sgi.com>
-cc: Guillaume Thouvenin <guillaume.thouvenin@bull.net>,
-       Arthur Corliss <corliss@digitalmages.com>,
-       Andrew Morton <akpm@osdl.org>, lkml <linux-kernel@vger.kernel.org>,
-       erikj@dbear.engr.sgi.com, limin@engr.sgi.com,
-       lse-tech@lists.sourceforge.net, ? <kernel@ragnark.vestdata.no>,
-       Yoshitaka ISHIKAWA <y.ishikawa@soft.fujitsu.com>
-Subject: Re: [PATCH] new CSA patchset for 2.6.8
-In-Reply-To: <20040830122614.GA2518@frec.bull.fr>
-Message-ID: <Pine.LNX.4.53.0408311611080.9018@gockel.physik3.uni-rostock.de>
-References: <412D2E10.8010406@engr.sgi.com> <20040825221842.72dd83a4.akpm@osdl.org>
- <Pine.LNX.4.53.0408261821090.14826@gockel.physik3.uni-rostock.de>
- <Pine.LNX.4.58.0408261111520.22750@bifrost.nevaeh-linux.org>
- <Pine.LNX.4.53.0408262133190.8515@broiler.physik3.uni-rostock.de>
- <412E4C27.1010805@engr.sgi.com> <Pine.LNX.4.58.0408271727020.1075@bifrost.nevaeh-linux.org>
- <20040830122614.GA2518@frec.bull.fr>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Tue, 31 Aug 2004 10:23:55 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:51909 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S268660AbUHaOXw (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 31 Aug 2004 10:23:52 -0400
+Date: Tue, 31 Aug 2004 10:23:35 -0400
+From: Alan Cox <alan@redhat.com>
+To: torvalds@osdl.org, linux-kernel@vger.kernel.org, axboe@suse.dk
+Subject: Nasty IDE crasher in 2.6.9rc1
+Message-ID: <20040831142335.GA15841@devserv.devel.redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 30 Aug 2004, Guillaume Thouvenin wrote:
+You never never issue unknown commands to drives. Thats how Mandrake destroyed 
+CD-ROM drives. I knew this was in -mm and supposed to be getting sorted I was
+somewhat horrified to find it in 2.6.9rc1.
 
->   Thus, to be clear, the enhanced accounting can be divided into
-> three parts:
-> 
->     1) A common data collection method in the kernel.
->        We could start from BSD-accounting and add CSA information. Could
->        it be something like BSD version4?
+This patch crashes two of my CF cards (one so badly you have to reformat it
+to get it back) and anything attached to an IT8212 controller. The correct
+fix is to do what the standard actually says and always check for cache
+flush. Contrary to the comment in the patch drives do report this correctly
+its just that some of them nop unknown commands.
 
-I've had a quick look at the CSA data collection patches. To get the 
-discussion started, here are my comments:
+Please fix this patch segment for rc2, its not just wrong, its dangerous.
 
-> --- linux.orig/drivers/block/ll_rw_blk.c        2004-08-13 22:36:16.000000000 -0700
-> +++ linux/drivers/block/ll_rw_blk.c     2004-08-18 12:07:10.000000000 -0700
-> @@ -1948,10 +1950,12 @@
->  
->         if (rw == READ) {
->                 disk_stat_add(rq->rq_disk, read_sectors, nr_sectors);
-> +               current->rblk += nr_sectors;
->                 if (!new_io)
->                         disk_stat_inc(rq->rq_disk, read_merges);
->         } else if (rw == WRITE) {
->                 disk_stat_add(rq->rq_disk, write_sectors, nr_sectors);
-> +               current->wblk += nr_sectors;
->                 if (!new_io)
->                         disk_stat_inc(rq->rq_disk, write_merges);
->         }
+Another problem with barrier is that it can take several minutes worst case
+for the command to complete on a large modern drive (timings c/o friendly
+ide drive engineer). That causes two problems I've pointed out to Jens that
+we need to fix before barriers are IMHO production grade
 
-Andi Kleen's comment on the ELSA patch also applies here - most writes
-will get accounted to pdflushd. See
+1.	Anything based on fairness and latency is screwed. Throughput 
+	apparently is up so it makes sense for some users, and probably
+	for others we should write cache off as Jens suggested.
 
-http://www.lib.uaa.alaska.edu/linux-kernel/archive/2004-Week-31/0047.html
+2.	The timeouts on the command issue appear to be too small, and
+	we will time out and reset the drive in loaded situations. 
 
-for his comment.
+Thankfully next generation ATA has both cache bypass writes and tagging.
 
-> --- /dev/null   1970-01-01 00:00:00.000000000 +0000
-> +++ linux/include/linux/csa_internal.h  2004-08-19 15:19:05.000000000 -0700
-[...]
-> +#else  /* CONFIG_CSA || CONFIG_CSA_MODULE */
-> +
-> +#define csa_update_integrals()         do { } while (0);
-> +#define csa_clear_integrals(task)      do { } while (0);
-> +#endif /* CONFIG_CSA || CONFIG_CSA_MODULE */
-
-I suppose the semicolons are unintentional.
-
-> --- linux.orig/include/linux/sched.h    2004-08-19 15:17:52.000000000 -0700
-> +++ linux/include/linux/sched.h 2004-08-19 15:19:05.000000000 -0700
-[...]
-> @@ -525,6 +527,10 @@
->  
->  /* i/o counters(bytes read/written, blocks read/written, #syscalls, waittime */
->          unsigned long rchar, wchar, rblk, wblk, syscr, syscw, bwtime;
-> +#if defined(CONFIG_CSA) || defined(CONFIG_CSA_MODULE)
-> +       unsigned long csa_rss_mem1, csa_vm_mem1;
-> +       clock_t csa_stimexpd;
-> +#endif
-
-These probably need to be u64, otherwise they might easily overflow within
-a view seconds on 32 bit platforms.
-
-> --- /dev/null   1970-01-01 00:00:00.000000000 +0000
-> +++ linux/include/linux/acct_eop.h      2004-08-19 18:48:44.000000000 -0700
-
-This should probably be unified with BSD accounting to a general accounting
-hook.
-
-
-Tim
+diff -Nru a/drivers/ide/ide-disk.c b/drivers/ide/ide-disk.c
+--- a/drivers/ide/ide-disk.c	2004-08-24 00:04:06 -07:00
++++ b/drivers/ide/ide-disk.c	2004-08-24 00:04:06 -07:00
+@@ -1543,6 +1608,27 @@
+ 		drive->wcache = 1;
+ 
+ 	write_cache(drive, 1);
++
++	/*
++	 * decide if we can sanely support flushes and barriers on
++	 * this drive. unfortunately not all drives advertise FLUSH_CACHE
++	 * support even if they support it. So assume FLUSH_CACHE is there
++	 * always. LBA48 drives are newer, so expect it to flag support
++	 * properly. We can safely support FLUSH_CACHE on lba48, if capacity
++	 * doesn't exceed lba28
++	 */
++	barrier = 1;
++	if (drive->addressing == 1) {
++		if (capacity > (1ULL << 28) && !ide_id_has_flush_cache_ext(id))
++			barrier = 0;
++	}
++
++	printk("%s: cache flushes %ssupported\n",
++		drive->name, barrier ? "" : "not ");
++	if (barrier) {
++		blk_queue_ordered(drive->queue, 1);
++		blk_queue_issue_flush_fn(drive->queue, idedisk_issue_flush);
++	}
+ }
+ 
+ static void ide_cacheflush_p(ide_drive_t *drive)

@@ -1,98 +1,57 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S291620AbSCMBNF>; Tue, 12 Mar 2002 20:13:05 -0500
+	id <S291640AbSCMBR4>; Tue, 12 Mar 2002 20:17:56 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S291625AbSCMBM4>; Tue, 12 Mar 2002 20:12:56 -0500
-Received: from rwcrmhc51.attbi.com ([204.127.198.38]:40148 "EHLO
-	rwcrmhc51.attbi.com") by vger.kernel.org with ESMTP
-	id <S291620AbSCMBMp>; Tue, 12 Mar 2002 20:12:45 -0500
-Message-ID: <3C8EA775.3000306@didntduck.org>
-Date: Tue, 12 Mar 2002 20:12:21 -0500
-From: Brian Gerst <bgerst@didntduck.org>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:0.9.9) Gecko/20020311
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Linus Torvalds <torvalds@transmeta.com>
-CC: Linux-Kernel <linux-kernel@vger.kernel.org>
-Subject: [PATCH] correction to super_block cleanups
-Content-Type: multipart/mixed;
- boundary="------------030508020701050200070404"
+	id <S291745AbSCMBRp>; Tue, 12 Mar 2002 20:17:45 -0500
+Received: from pizda.ninka.net ([216.101.162.242]:43393 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S291640AbSCMBRb>;
+	Tue, 12 Mar 2002 20:17:31 -0500
+Date: Tue, 12 Mar 2002 17:15:09 -0800 (PST)
+Message-Id: <20020312.171509.08315746.davem@redhat.com>
+To: beezly@beezly.org.uk
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Dropped packets on SUN GEM
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <1015981634.2652.82.camel@monkey>
+In-Reply-To: <1015979767.2652.77.camel@monkey>
+	<20020312.165609.18574402.davem@redhat.com>
+	<1015981634.2652.82.camel@monkey>
+X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------030508020701050200070404
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+   From: Beezly <beezly@beezly.org.uk>
+   Date: 13 Mar 2002 01:07:14 +0000
+   
+   It doesn't appear to :(
+...   
+   eth0: Pause is disabled
 
-I forgot to zero out the newly allocated memory in the previous patches. 
-  First patch is for the changes included in 2.5.7-pre1, second is 
-incremental to the ext2 and ncp patches.
+Some day I will learn how to program, you do have
+Pause enabled I just don't know how to print that
+our properly from the driver :-)
 
--- 
-
-						Brian Gerst
-
---------------030508020701050200070404
-Content-Type: text/plain;
- name="sb-zeroing-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="sb-zeroing-1"
-
-diff -ruN linux/fs/cramfs/inode.c linux2/fs/cramfs/inode.c
---- linux/fs/cramfs/inode.c	Tue Mar 12 17:35:10 2002
-+++ linux2/fs/cramfs/inode.c	Tue Mar 12 20:01:37 2002
-@@ -201,6 +201,7 @@
- 	if (!sbi)
- 		return -ENOMEM;
- 	sb->u.generic_sbp = sbi;
-+	memset(sbi, 0, sizeof(struct cramfs_sb_info));
+--- drivers/net/sungem.c.~2~	Tue Mar 12 16:53:44 2002
++++ drivers/net/sungem.c	Tue Mar 12 17:14:26 2002
+@@ -1213,15 +1213,15 @@
  
- 	sb_set_blocksize(sb, PAGE_CACHE_SIZE);
+ 	if (netif_msg_link(gp)) {
+ 		if (pause) {
+-			printk(KERN_INFO "%s: Pause is disabled\n",
+-			       gp->dev->name);
+-		} else {
+ 			printk(KERN_INFO "%s: Pause is enabled "
+ 			       "(rxfifo: %d off: %d on: %d)\n",
+ 			       gp->dev->name,
+ 			       gp->rx_fifo_sz,
+ 			       gp->rx_pause_off,
+ 			       gp->rx_pause_on);
++		} else {
++			printk(KERN_INFO "%s: Pause is disabled\n",
++			       gp->dev->name);
+ 		}
+ 	}
  
-diff -ruN linux/fs/minix/inode.c linux2/fs/minix/inode.c
---- linux/fs/minix/inode.c	Tue Mar 12 17:35:10 2002
-+++ linux2/fs/minix/inode.c	Tue Mar 12 20:01:10 2002
-@@ -178,6 +178,7 @@
- 	if (!sbi)
- 		return -ENOMEM;
- 	s->u.generic_sbp = sbi;
-+	memset(sbi, 0, sizeof(struct minix_sb_info));
- 
- 	/* N.B. These should be compile-time tests.
- 	   Unfortunately that is impossible. */
-
---------------030508020701050200070404
-Content-Type: text/plain;
- name="sb-zeroing-2"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="sb-zeroing-2"
-
-diff -ruN linux/fs/ext2/super.c linux2/fs/ext2/super.c
---- linux/fs/ext2/super.c	Tue Mar 12 19:59:57 2002
-+++ linux2/fs/ext2/super.c	Tue Mar 12 20:03:16 2002
-@@ -469,6 +469,7 @@
- 	if (!sbi)
- 		return -ENOMEM;
- 	sb->u.generic_sbp = sbi;
-+	memset(sbi, 0, sizeof(struct ext2_super_block));
- 
- 	/*
- 	 * See what the current blocksize for the device is, and
-diff -ruN linux/fs/ncpfs/inode.c linux2/fs/ncpfs/inode.c
---- linux/fs/ncpfs/inode.c	Tue Mar 12 19:59:51 2002
-+++ linux2/fs/ncpfs/inode.c	Tue Mar 12 20:04:09 2002
-@@ -319,6 +319,8 @@
- 	if (!server)
- 		return -ENOMEM;
- 	sb->u.generic_sbp = server;
-+	memset(server, 0, sizeof(struct ncp_server));
-+
- 	error = -EFAULT;
- 	if (raw_data == NULL)
- 		goto out;
-
---------------030508020701050200070404--
-

@@ -1,42 +1,41 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129839AbRCGOxp>; Wed, 7 Mar 2001 09:53:45 -0500
+	id <S129759AbRCGOwe>; Wed, 7 Mar 2001 09:52:34 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129854AbRCGOxg>; Wed, 7 Mar 2001 09:53:36 -0500
-Received: from t2.redhat.com ([199.183.24.243]:59640 "EHLO
-	passion.cambridge.redhat.com") by vger.kernel.org with ESMTP
-	id <S129839AbRCGOxN>; Wed, 7 Mar 2001 09:53:13 -0500
-X-Mailer: exmh version 2.2 06/23/2000 with nmh-1.0.4
-From: David Woodhouse <dwmw2@infradead.org>
-X-Accept-Language: en_GB
-In-Reply-To: <3AA3E63E.80101@AnteFacto.com> 
-In-Reply-To: <3AA3E63E.80101@AnteFacto.com>  <Pine.LNX.4.30.0102191626090.29121-100000@sparrow.websense.net> 
-To: Padraig Brady <Padraig@AnteFacto.com>
-Cc: William Stearns <wstearns@pobox.com>,
-        ML-linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [OFFTOPIC] Hardlink utility - reclaim drive space 
+	id <S129854AbRCGOwZ>; Wed, 7 Mar 2001 09:52:25 -0500
+Received: from jalon.able.es ([212.97.163.2]:34020 "EHLO jalon.able.es")
+	by vger.kernel.org with ESMTP id <S129564AbRCGOwN>;
+	Wed, 7 Mar 2001 09:52:13 -0500
+Date: Wed, 7 Mar 2001 15:51:24 +0100
+From: "J . A . Magallon" <jamagallon@able.es>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: "J . A . Magallon" <jamagallon@able.es>,
+        Phil Oester <kernel@theoesters.com>, linux-kernel@vger.kernel.org
+Subject: Re: Error compiling aic7xxx driver on 2.4.2-ac13
+Message-ID: <20010307155124.A3283@werewolf.able.es>
+In-Reply-To: <20010307010423.A1132@werewolf.able.es> <E14aSAu-0001pw-00@the-village.bc.nu>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Wed, 07 Mar 2001 14:52:19 +0000
-Message-ID: <12975.983976739@redhat.com>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+In-Reply-To: <E14aSAu-0001pw-00@the-village.bc.nu>; from alan@lxorguk.ukuu.org.uk on Wed, Mar 07, 2001 at 01:51:29 +0100
+X-Mailer: Balsa 1.1.2
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-Padraig@AnteFacto.com said:
-> Wouldn't it be cool to have an extended attribute for files called
-> "Copy on Write", so then you could hardlink all duplicate files
-> together, but when a file is modified a copy is transparently created.
+On 03.07 Alan Cox wrote:
+> 
+> Im not too worried about this right now since as Al Viro pointed out the
+> libdb use is unneeded. 
+> 
 
-> The only problem I see with this is that you wouldn't have enough
-> space to store a copy of a file, what would you do in this case, just
-> return an error on write? 
+The real fact is if aicasm is needed, not how to implement aicasm.
+Is it possible to distribute in kernel just the output of aicasm, the sequencer
+code, and that the author packages the assembler in a separate tgz ?
 
-Yep. write(2) is allowed to return -ENOSPC, even when you're not extending
-the file you're writing to. Think about holes and log-structured
-filesystems.
+-- 
+J.A. Magallon                                                      $> cd pub
+mailto:jamagallon@able.es                                          $> more beer
 
---
-dwmw2
-
+Linux werewolf 2.4.2-ac13 #3 SMP Wed Mar 7 00:09:17 CET 2001 i686
 

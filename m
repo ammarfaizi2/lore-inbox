@@ -1,37 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S130266AbRCGGNG>; Wed, 7 Mar 2001 01:13:06 -0500
+	id <S130271AbRCGG2H>; Wed, 7 Mar 2001 01:28:07 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S130260AbRCGGM5>; Wed, 7 Mar 2001 01:12:57 -0500
-Received: from neon-gw.transmeta.com ([209.10.217.66]:52494 "EHLO
-	neon-gw.transmeta.com") by vger.kernel.org with ESMTP
-	id <S130145AbRCGGMt>; Wed, 7 Mar 2001 01:12:49 -0500
-To: linux-kernel@vger.kernel.org
-From: torvalds@transmeta.com (Linus Torvalds)
-Subject: Re: Kernel 2.4.3 and new aic7xxx
-Date: 6 Mar 2001 22:11:45 -0800
-Organization: Transmeta Corporation
-Message-ID: <984jf1$1hj$1@penguin.transmeta.com>
-In-Reply-To: <3AA5CA13.8C19FC7E@neuronet.pitt.edu> <200103070546.f275keO22502@aslan.scsiguy.com>
+	id <S130425AbRCGG15>; Wed, 7 Mar 2001 01:27:57 -0500
+Received: from sgi.SGI.COM ([192.48.153.1]:5664 "EHLO sgi.com")
+	by vger.kernel.org with ESMTP id <S130271AbRCGG1t>;
+	Wed, 7 Mar 2001 01:27:49 -0500
+X-Mailer: exmh version 2.1.1 10/15/1999
+From: Keith Owens <kaos@ocs.com.au>
+To: Frank Davis <fdavis112@juno.com>
+cc: alan@lxorguk.ukuu.org.uk, linux-kernel@vger.kernel.org
+Subject: Re: 2.4.2-ac13 make modules_install error 
+In-Reply-To: Your message of "Wed, 07 Mar 2001 00:04:08 CDT."
+             <381411025.983941453617.JavaMail.root@web124-wra.mail.com> 
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Wed, 07 Mar 2001 17:26:57 +1100
+Message-ID: <1534.983946417@kao2.melbourne.sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <200103070546.f275keO22502@aslan.scsiguy.com>,
-Justin T. Gibbs <gibbs@scsiguy.com> wrote:
->>I've a Super P6SBS motherboard with a builtin dual channel Adaptec 7890
->>Ultra II scsi controller. I'm attaching the console grab when booting
->>2.4.3-pre2. The controller BIOS is configured to boot off the disk with
->>scsi id 0 on channel B.
->
->It looks like Doug was right to think that the functions can be
->presented to the device driver in reverse order.  I should have
->a patch for you early tomorrow.
+On Wed, 7 Mar 2001 00:04:08 -0500 (EST), 
+Frank Davis <fdavis112@juno.com> wrote:
+>make[2]: Entering directory '/usr/src/linux/drivers/atm'
+>mkdir -p /lib/modules/2.4.2-ac13/kernel/$(shell ($CONFIG_SHELL) $(TOPDIR)/scripts/pathdown.sh)
+>/bin/sh: CONFIG_SHELL: command not found
+>/bin/sh: TOPDIR: command not found
 
-It should be easy enough to make the PCI layer sort the devices, and you
-might not be the only driver that wants to see subfunction 0 before
-subfunction 1.
+Against 2.4.2-ac13.  You need the same patch on 2.4.3-pre2.
 
-I suspect it's easier to just make the PCI layer call the probe function
-in that order, instead of working around it in your driver. Jeff?
+Index: 2.26/Rules.make
+--- 2.26/Rules.make Tue, 06 Mar 2001 13:01:59 +1100 kaos (linux-2.4/T/c/47_Rules.make 1.1.1.2 644)
++++ 2.26(w)/Rules.make Wed, 07 Mar 2001 17:25:40 +1100 kaos (linux-2.4/T/c/47_Rules.make 1.1.1.2 644)
+@@ -150,7 +150,7 @@ endif
+ #
+ ALL_MOBJS = $(filter-out $(obj-y), $(obj-m))
+ ifneq "$(strip $(ALL_MOBJS))" ""
+-MOD_DESTDIR ?= $(shell $(CONFIG_SHELL) $(TOPDIR)/scripts/pathdown.sh)
++MOD_DESTDIR := $(shell $(CONFIG_SHELL) $(TOPDIR)/scripts/pathdown.sh)
+ endif
+ 
+ unexport MOD_DIRS
 
-		Linus

@@ -1,43 +1,39 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S293402AbSCSAnF>; Mon, 18 Mar 2002 19:43:05 -0500
+	id <S293380AbSCSAmf>; Mon, 18 Mar 2002 19:42:35 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S293390AbSCSAm4>; Mon, 18 Mar 2002 19:42:56 -0500
-Received: from x35.xmailserver.org ([208.129.208.51]:24973 "EHLO
-	x35.xmailserver.org") by vger.kernel.org with ESMTP
-	id <S293379AbSCSAml>; Mon, 18 Mar 2002 19:42:41 -0500
-X-AuthUser: davidel@xmailserver.org
-Date: Mon, 18 Mar 2002 16:47:17 -0800 (PST)
-From: Davide Libenzi <davidel@xmailserver.org>
-X-X-Sender: davide@blue1.dev.mcafeelabs.com
-To: "David S. Miller" <davem@redhat.com>
-cc: Linus Torvalds <torvalds@transmeta.com>, <Dieter.Nuetzel@hamburg.de>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+	id <S293379AbSCSAmP>; Mon, 18 Mar 2002 19:42:15 -0500
+Received: from pizda.ninka.net ([216.101.162.242]:13758 "EHLO pizda.ninka.net")
+	by vger.kernel.org with ESMTP id <S293380AbSCSAl7>;
+	Mon, 18 Mar 2002 19:41:59 -0500
+Date: Mon, 18 Mar 2002 16:38:38 -0800 (PST)
+Message-Id: <20020318.163838.29962146.davem@redhat.com>
+To: cort@fsmlabs.com
+Cc: torvalds@transmeta.com, linux-kernel@vger.kernel.org
 Subject: Re: 7.52 second kernel compile
-In-Reply-To: <20020318.162031.98995076.davem@redhat.com>
-Message-ID: <Pine.LNX.4.44.0203181641050.1606-100000@blue1.dev.mcafeelabs.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+From: "David S. Miller" <davem@redhat.com>
+In-Reply-To: <20020318173635.Q4783@host110.fsmlabs.com>
+X-Mailer: Mew version 2.1 on Emacs 21.1 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 18 Mar 2002, David S. Miller wrote:
+   From: Cort Dougan <cort@fsmlabs.com>
+   Date: Mon, 18 Mar 2002 17:36:35 -0700
 
->    From: Linus Torvalds <torvalds@transmeta.com>
->    Date: Mon, 18 Mar 2002 14:46:04 -0800 (PST)
->
->    Or maybe the program is just flawed, and the interesting 1/8 pattern comes
->    from something else altogether.
->
-> I think the weird Athlon behavior has to do with the fact that
-> you've made your little test program as much of a cache tester
-> as a TLB tester :-)
-
-Uhm, it's moving to different pages and it does it consecutively. I think
-Linus was trying to prove the multiple tlb entries fill for single miss ...
+   The structure of the program you suggested with more portable timing.
+   
+Oh, just something like:
 
 
+	gettimeofday(&stamp1);
+	for (A MILLION TIMES) {
+		TLB miss;
+	}
+	gettimeofday(&stamp2);
 
-- Davide
-
-
+Franks a lot,
+David S. Miller
+davem@redhat.com

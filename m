@@ -1,38 +1,35 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S287827AbSANSnD>; Mon, 14 Jan 2002 13:43:03 -0500
+	id <S288787AbSANSqF>; Mon, 14 Jan 2002 13:46:05 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S288787AbSANSm5>; Mon, 14 Jan 2002 13:42:57 -0500
-Received: from [66.89.142.2] ([66.89.142.2]:39975 "EHLO starship.berlin")
-	by vger.kernel.org with ESMTP id <S287827AbSANSlr>;
-	Mon, 14 Jan 2002 13:41:47 -0500
-Content-Type: text/plain; charset=US-ASCII
-From: Daniel Phillips <phillips@bonn-fries.net>
-To: yodaiken@fsmlabs.com, Momchil Velikov <velco@fadata.bg>
-Subject: Re: [2.4.17/18pre] VM and swap - it's really unusable
-Date: Mon, 14 Jan 2002 19:43:59 +0100
-X-Mailer: KMail [version 1.3.2]
-Cc: yodaiken@fsmlabs.com, Arjan van de Ven <arjan@fenrus.demon.nl>,
-        Roman Zippel <zippel@linux-m68k.org>, linux-kernel@vger.kernel.org
-In-Reply-To: <E16PZbb-0003i6-00@the-village.bc.nu> <87k7ukyjme.fsf@fadata.bg> <20020114030925.A1363@viejo.fsmlabs.com>
-In-Reply-To: <20020114030925.A1363@viejo.fsmlabs.com>
+	id <S288784AbSANSpj>; Mon, 14 Jan 2002 13:45:39 -0500
+Received: from lightning.swansea.linux.org.uk ([194.168.151.1]:21766 "EHLO
+	the-village.bc.nu") by vger.kernel.org with ESMTP
+	id <S288801AbSANSpG>; Mon, 14 Jan 2002 13:45:06 -0500
+Subject: Re: [linux-lvm] Re: [RFLART] kdev_t in ioctls
+To: hch@caldera.de (Christoph Hellwig)
+Date: Mon, 14 Jan 2002 18:56:44 +0000 (GMT)
+Cc: linux-lvm@sistina.com, viro@math.psu.edu (Alexander Viro),
+        torvalds@transmeta.com (Linus Torvalds), linux-kernel@vger.kernel.org
+In-Reply-To: <20020114191342.A3731@caldera.de> from "Christoph Hellwig" at Jan 14, 2002 07:13:42 PM
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Message-Id: <E16QC5P-0000nO-00@starship.berlin>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-Id: <E16QCHl-0002XJ-00@the-village.bc.nu>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On January 14, 2002 10:09 am, yodaiken@fsmlabs.com wrote:
-> UNIX generally tries to ensure liveness. So you know that
-> 	cat lkarchive | grep feel | wc
-> will complete and not just that, it will run pretty reasonably because
-> for UNIX _every_ process is important and gets cpu and IO time.
-> When you start trying to add special low latency tasks, you endanger
-> liveness.  And preempt is especially corrosive because one of the 
-> mechanisms UNIX uses to assure liveness is to make sure that once a 
-> process starts it can do a significant chunk of work.
+> > Glibc disagrees with you (bits/types.h):
+> > 
+> > typedef __u_quad_t __dev_t;             /* Type of device numbers.  */
+> > 
+> > We'd have to use __kernel_dev_t instead which again pulls kernel
+> > headers in..
+> 
+> Argg.  That's also non-funny:
 
-You're claiming that preemption by nature is not Unix-like?
-
---
-Daniel
+glibc is meant to disagree. glibc provides a virtualised dev_t to user space
+so that the kernel one can be expanded in future without application
+breakage.

@@ -1,42 +1,37 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264231AbUDSBJ5 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 18 Apr 2004 21:09:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264234AbUDSBJ5
+	id S264243AbUDSCMh (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 18 Apr 2004 22:12:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264251AbUDSCMh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 18 Apr 2004 21:09:57 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:36557 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S264231AbUDSBJ4 (ORCPT
+	Sun, 18 Apr 2004 22:12:37 -0400
+Received: from [61.149.137.10] ([61.149.137.10]:21495 "EHLO exavio.com.cn")
+	by vger.kernel.org with ESMTP id S264243AbUDSCMg (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 18 Apr 2004 21:09:56 -0400
-Date: Sun, 18 Apr 2004 18:08:11 -0700
-From: "David S. Miller" <davem@redhat.com>
-To: Andreas Jochens <aj@andaco.de>
-Cc: linux-kernel@vger.kernel.org, jgarzik@pobox.com
-Subject: Re: [PATCH] tg3 driver - make use of binary-only firmware optional
-Message-Id: <20040418180811.0b2e2567.davem@redhat.com>
-In-Reply-To: <20040418135534.GA6142@andaco.de>
-References: <20040418135534.GA6142@andaco.de>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; sparc-unknown-linux-gnu)
-X-Face: "_;p5u5aPsO,_Vsx"^v-pEq09'CU4&Dc1$fQExov$62l60cgCc%FnIwD=.UF^a>?5'9Kn[;433QFVV9M..2eN.@4ZWPGbdi<=?[:T>y?SD(R*-3It"Vj:)"dP
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Sun, 18 Apr 2004 22:12:36 -0400
+Message-ID: <40833514.3080200@exavio.com.cn>
+Date: Mon, 19 Apr 2004 10:10:28 +0800
+From: Peter Yao <peter@exavio.com.cn>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040113
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: How to get individual -ac patches?
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+X-Authenticated-Sender: peter@exavio.com.cn
+X-Spam-Processed: exavio.com.cn, Mon, 19 Apr 2004 10:11:07 +0800
+	(not processed: message from valid local sender)
+X-Return-Path: peter@exavio.com.cn
+X-MDaemon-Deliver-To: linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 18 Apr 2004 15:55:34 +0200
-Andreas Jochens <aj@andaco.de> wrote:
+Hi,
+Is there a repository that stores individual -ac patches for 2.4 but not
+a big patch set? What I mean is a lot small patches that can be applied
+one by one. I tried kernel.org and others but found only big patch sets.
+Thanks.
 
-> The Debian distribution recently removed the tg3 Gigabit Ethernet driver
-> from its 2.6 kernels because it contains binary-only firmware, 
-> i.e. software without source code, which violates the 
-> Debian Free Software Guildelines.
+Peter
 
-The debian folks can ship the tg3 driver in whatever form
-they want to meet their political agenda.
-
-However, that in no way means that Jeff and myself have to split
-the firmware out of the driver either.  In fact, I do not want to
-as I like keeping all of the network drivers I write in single
-foo.c and foo.h files.

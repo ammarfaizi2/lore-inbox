@@ -1,65 +1,44 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S285134AbSAAO0F>; Tue, 1 Jan 2002 09:26:05 -0500
+	id <S286272AbSAAObz>; Tue, 1 Jan 2002 09:31:55 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S286272AbSAAOZz>; Tue, 1 Jan 2002 09:25:55 -0500
-Received: from inreach-gw1.idiom.com ([209.209.13.26]:3339 "EHLO
-	smile.idiom.com") by vger.kernel.org with ESMTP id <S285134AbSAAOZo>;
-	Tue, 1 Jan 2002 09:25:44 -0500
-Message-ID: <3C31C62F.FFF175A9@obviously.com>
-Date: Tue, 01 Jan 2002 09:22:39 -0500
-From: Bryce Nesbitt <bryce@obviously.com>
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.4.2-2 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org
-CC: Lionel Bouton <Lionel.Bouton@free.fr>, Andries.Brouwer@cwi.nl
-Subject: Re: Why would a valid DVD show zero files on Linux?
-In-Reply-To: <E16LMQj-0008Hv-00@the-village.bc.nu>
+	id <S286275AbSAAObp>; Tue, 1 Jan 2002 09:31:45 -0500
+Received: from adsl-212-59-30-243.takas.lt ([212.59.30.243]:61684 "EHLO
+	gintaras.vetrunge.lt.eu.org") by vger.kernel.org with ESMTP
+	id <S286272AbSAAObg>; Tue, 1 Jan 2002 09:31:36 -0500
+Date: Tue, 1 Jan 2002 16:31:31 +0200
+From: Marius Gedminas <mgedmin@centras.lt>
+To: linux-kernel@vger.kernel.org,
+        Linux Frame Buffer Device Development 
+	<linux-fbdev-devel@lists.sourceforge.net>
+Subject: Re: [patch] Re: Framebuffer...Why oh Why???
+Message-ID: <20020101143131.GB1381@gintaras>
+Mail-Followup-To: linux-kernel@vger.kernel.org,
+	Linux Frame Buffer Device Development <linux-fbdev-devel@lists.sourceforge.net>
+In-Reply-To: <Pine.LNX.4.33.0112301618310.1011-100000@penguin.transmeta.com> <20020101054301.YWGP617.femail27.sdc1.sfba.home.com@there>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <20020101054301.YWGP617.femail27.sdc1.sfba.home.com@there>
+User-Agent: Mutt/1.3.24i
+X-URL: http://ice.dammit.lt/~mgedmin/
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox wrote:
-> 
-> > Understood.   However, why can't that combination "just work"?  Changing
-> > ... every time I switch between sticking in a CD-ROM and DVD-ROM is not cool.
-> > Certainly that "other operating system" does not make me do that.
-> 
-> man fstab
-> man ln
-> 
-> Its not a hard problem to solve that one
+On Mon, Dec 31, 2001 at 04:41:19PM -0500, Rob Landley wrote:
+> X11 isn't always an improvement.  I've got an X hang on my laptop (about once 
+> a week) that freezes the keyboard and ignores mouse clicks.  Numlock doesn't 
+> change the keyboard LEDs, CTRL-ALT-BACKSPACE won't do a thing, and although I 
+> can ssh in and run top (and see the CPU-eating loop), kill won't take X down 
+> and kill-9 leaves the video display up so the console that thinks it's in 
+> text mode, but isn't, is still useless.  (And that's assuming I'm plugged 
+> into the network and have another box around to ssh in from...)
 
-My vision of Linux extends to people who don't have the ability, desire or
-time to "man fstab" *.
+I sometimes get a similar problem on my desktop when switching between
+text and X11 virtual consoles.  Keyboard + mouse die (PS/2 counter
+becomes stuck according to /proc/interrupts).  ssh followed by chvt
+helps.
 
-
-> > Are there any cases where udf filesystems are present on cdrom's that should
-> > be read as iso9660?  Someone mentioned it's a hard heuristic to figure out
-> > which fake filename the empty iso9660 filesystem uses.  How about, instead,
-> > pick the larger of the two filesystems if both are present.
-> 
-> Now you've made the behaviour effectively random which is even worse. On
-> a standard DVD the two file systems are the same. Some copy protected CD's
-> have a UDF file system on them that isnt interesting. Some DVD's have an
-> ISO fs that isnt interesting.
-
-Windows, somehow, detects the difference.  Whatever method used by Windows
-will be the one tested by the makers of most DVD/CDROM's.
-
-Right now the behavior is deterministic from the Kernel's point of view,
-but random from the users point of view (e.g. "the last 5 DVD-ROM's I bought
-just worked, this one does not work").  Can detection be automated?  How
-does Windows do it?  Can Linux do it even better?
-
-
-If the distinction is something that can be automated well, then what is
-the argument against doing it?
-
-			-Bryce
-
-
-* I fit under "desire".  Once I learned that udf existed (it's not in 
-"man fstab"), I knew what to do.  I'd rather not know or care :-)!
+Marius Gedminas
+-- 
+Of course I use Microsoft. Setting up a stable unix network is no challenge ;p

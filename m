@@ -1,35 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264762AbUGGAFf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264767AbUGGAHL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264762AbUGGAFf (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 6 Jul 2004 20:05:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264767AbUGGAFf
+	id S264767AbUGGAHL (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 6 Jul 2004 20:07:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264774AbUGGAHL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 6 Jul 2004 20:05:35 -0400
-Received: from fw.osdl.org ([65.172.181.6]:58582 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S264762AbUGGAFe (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 6 Jul 2004 20:05:34 -0400
-Date: Tue, 6 Jul 2004 17:08:38 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Gene Heskett <gene.heskett@verizon.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: crash city this morning
-Message-Id: <20040706170838.5e69d9b4.akpm@osdl.org>
-In-Reply-To: <200407061142.56009.gene.heskett@verizon.net>
-References: <200407061142.56009.gene.heskett@verizon.net>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i586-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Tue, 6 Jul 2004 20:07:11 -0400
+Received: from web41112.mail.yahoo.com ([66.218.93.28]:33929 "HELO
+	web41112.mail.yahoo.com") by vger.kernel.org with SMTP
+	id S264767AbUGGAGM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 6 Jul 2004 20:06:12 -0400
+Message-ID: <20040707000612.39528.qmail@web41112.mail.yahoo.com>
+Date: Tue, 6 Jul 2004 17:06:12 -0700 (PDT)
+From: tom st denis <tomstdenis@yahoo.com>
+Subject: Re: 0xdeadbeef vs 0xdeadbeefL
+To: linux-kernel@vger.kernel.org
+In-Reply-To: <20040706215622.GA9505@havoc.gtf.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Gene Heskett <gene.heskett@verizon.net> wrote:
->
-> While running 2.6.7-mm6, my mouse usb has now powered itself down 2 
-> times, requireing a reboot to recover, and this last time I rebooted 
-> to 2.6.7 plain, but have had at least 3 pieces of kde do an exit 
-> since doing so.
+--- David Eger <eger@havoc.gtf.org> wrote:
+> Is there a reason to add the 'L' to such a 32-bit constant like this?
+> There doesn't seem a great rhyme to it in the headers...
 
-Please retest without the nvidia driver, then include
-linux-usb-devel@lists.sourceforge.net in the bug report.
+IIRC it should have the L [probably UL instead] since numerical
+constants are of type ``int'' by default.  
+
+Normally this isn't a problem since int == long on most platforms that
+run Linux.  However, by the standard 0xdeadbeef is not a valid unsigned
+long constant.
+
+Consider the following...
+
+#include <stdio.h>
+int main(void)
+{
+  unsigned int x;
+  x = 4;
+  if (x < 0xdeadbeef) printf("hello");
+  return 0;
+}
+
+If you run splint on that you get 
+
+---
+Splint 3.1.1 --- 13 Jun 2004
+
+test2.c: (in function main)
+test2.c:7:7: Operands of < have incompatible types (unsigned int, int):
+                x < 0xdeadbeef
+  To ignore signs in type comparisons use +ignoresigns
+
+Finished checking --- 1 code warning
+---
+
+As far as I know splint follows C99 which means that it thinks the
+constant is "int".  
+
+Tom
+
+
+	
+		
+__________________________________
+Do you Yahoo!?
+New and Improved Yahoo! Mail - 100MB free storage!
+http://promotions.yahoo.com/new_mail 

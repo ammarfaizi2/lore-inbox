@@ -1,90 +1,63 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S266693AbTBDRPz>; Tue, 4 Feb 2003 12:15:55 -0500
+	id <S266640AbTBDRak>; Tue, 4 Feb 2003 12:30:40 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267285AbTBDRPz>; Tue, 4 Feb 2003 12:15:55 -0500
-Received: from h-64-105-35-85.SNVACAID.covad.net ([64.105.35.85]:55207 "EHLO
-	freya.yggdrasil.com") by vger.kernel.org with ESMTP
-	id <S266693AbTBDRPx>; Tue, 4 Feb 2003 12:15:53 -0500
-From: "Adam J. Richter" <adam@yggdrasil.com>
-Date: Tue, 4 Feb 2003 09:25:17 -0800
-Message-Id: <200302041725.JAA16768@adam.yggdrasil.com>
-To: linux-kernel@vger.kernel.org, zippel@linux-m68k.org
-Subject: Re: [PATCH] Module alias and device table support.
+	id <S267292AbTBDRak>; Tue, 4 Feb 2003 12:30:40 -0500
+Received: from air-2.osdl.org ([65.172.181.6]:13751 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id <S266640AbTBDRaj>;
+	Tue, 4 Feb 2003 12:30:39 -0500
+Date: Tue, 4 Feb 2003 09:37:49 -0800 (PST)
+From: "Randy.Dunlap" <rddunlap@osdl.org>
+X-X-Sender: <rddunlap@dragon.pdx.osdl.net>
+To: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
+cc: Matti Aarnio <matti.aarnio@zmailer.org>,
+       Tim Schmielau <tim@physik3.uni-rostock.de>,
+       lkml <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH *] use 64 bit jiffies
+In-Reply-To: <200302040643.h146gps10473@Port.imtp.ilyichevsk.odessa.ua>
+Message-ID: <Pine.LNX.4.33L2.0302040935230.6174-100000@dragon.pdx.osdl.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Roman Zippel wrote:
->Currently the kernel has two mechanisms to request a module (modprobe and 
->hotplug) and these also have different ways to map the request to a module 
->name.
+On Tue, 4 Feb 2003, Denis Vlasenko wrote:
 
-	I don't know if I'm disagreeing with you, but I'd like to
-bring up the following point.
+| On 3 February 2003 10:28, Matti Aarnio wrote:
+| >
+| > You don't need to have 64-bit jiffy for things like internal
+| > timers, nor for uptime tracking.
+| >
+| > Timers have well behaving constructs to use 32-bit jiffy quite
+| > successfully, and 64-bit values, especially atomicish, in 32-bit
+| > register-poor machines (i386) are damn difficult.
+| >
+| > I do have a number of machines with 100 to 300 day uptimes, all
+| > with "mere" 32-bit jiffy.  With 1000 Hz clock that means at least
+| > one full wrap-around of jiffy.
+|
+| Your processes will show strange start times, CPU times etc.
+| This will happen in 2.5 pretty soon (after 50 days uptime).
+|
+| However, this is a bit cosmetic. There is a much more serious problem:
+|
+| 		Jiffy Wrap Bugs
+|
+| There were reports of machines hanging on jiffy wrap.
+| This is typically a result of incorrect jiffy use in some driver.
+| Ask Tim - he is hunting those problems regularly, but he is outnumbered
+| by buggy driver authors. :(
+|
+| There is a better solution to ensure correct jiffy wrap handling in
+| *ALL* kernel code: make jiffy wrap in first five minutes of uptime.
+| Tim has a patch for such config option. This is almost right.
+| This MUST NOT be a config option, it MUST be mandatory in every
+| kernel. Driver writers would be bitten by their own bugs and will
+| fix it themself. Tim, what do you think?
 
-	The kernel notifying the user level that a new device has been
-plugged is a often a separate event from the kernel needing a module
-for that device.
+I like it too.  We should take advantage of easy-to-force/find/fix
+problems like this.
 
-	When a USB disk is detected, the computer should update its
-list of devices to check when an attempt it made to access an
-undefined disk, put a new icon on the desktop, and see if there are
-any user defined scripts for the event, which would probably include a
-default script to update the desktop user interface with this
-information.  There is not necessarily any need at that point to load
-a module at that point as you don't know that the user is going to
-actually access the disk (it may just have been attached when the USB
-controller was detected, and might not be accessed at all before the
-computer is shut down).
+-- 
+~Randy
 
-	When a program attempts to access an undefined disk, including
-testing the existence of a partition, then the system should start
-loading modules for the unbound devices that potentially may have disk
-drives.
-
-	It is also possible that the appropriate kernel module is
-already compiled in or loaded, but the user interface should be
-notified that a new device has been plugged in, say, to pop up a video
-window by default whenever a USB camera is plugged in.
-
-	Granted, some users may want a policy of immediately loading
-all potentially relevant kernel modules when hardware is detected,
-just for the user interface benefits of the kernel printk's and devfs
-entries, and they should easily be able to set that, and that should
-probably be the default policy for the case where a kernel module is
-matched, but the hotplug system does not see that the device is of a
-class that will automatically be loaded later by some subsequent
-event such as a specific devfs lookup or an attempt to access an
-undefined networking interface.
-
-	For some devices, the events set in motion by hotplug may
-never result in a kernel module being loaded.  For example, plugging
-in a video card might result in invocation of an X server that just
-maps in the card's IO registers and a memory window, or some USB devices
-may be controlled by user level programs through /proc/bus/usb.
-
-	That said, we could perhaps should shave a few lines from the
-kernel by unifying the call_usermodehelper clients a bit more
-(hotplug, request_module and my mini-devfs if and when that goes in),
-but something like hotplug should be the surviving interface rather
-than request_module, because hotplug passes other important
-information, such as the type of event and the type of facility being
-requested.
-
-	The additional information in the hotplug interface makes it
-much easier to write scripts that can do useful things for event types
-or module types that haven't been written yet and can help security by
-ensuring that only modules of the appropriate type are loaded (so that
-a user cannot do something like "ifconfig scsi_debug" to get the kernel
-to load an arbitrary module).  As an example of extensibility, imagine
-that if we define a new "suspend" hotplug event for device type
-"ieee1394", the hotplug handler might know enough to exec
-"/usr/libexec/hotplug/drivers/ieee1934 suspend /proc/sys/ieee1394/dev2342",
-or the user interface might know enough to recognized the "suspend"
-event and change the color of some icon, even though it doesn't know
-what ieee1394 is.
-
-Adam J. Richter     __     ______________   575 Oroville Road
-adam@yggdrasil.com     \ /                  Milpitas, California 95035
-+1 408 309-6081         | g g d r a s i l   United States of America
-                         "Free Software For The Rest Of Us."

@@ -1,99 +1,37 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S317119AbSFFSqW>; Thu, 6 Jun 2002 14:46:22 -0400
+	id <S317129AbSFFSt2>; Thu, 6 Jun 2002 14:49:28 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S317112AbSFFSpI>; Thu, 6 Jun 2002 14:45:08 -0400
-Received: from keen.esi.ac.at ([193.170.117.2]:33043 "EHLO keen.esi.ac.at")
-	by vger.kernel.org with ESMTP id <S317110AbSFFSoJ>;
-	Thu, 6 Jun 2002 14:44:09 -0400
-Date: Thu, 6 Jun 2002 20:44:06 +0200 (CEST)
-From: Gerald Teschl <gerald@esi.ac.at>
-To: linux-kernel@vger.kernel.org
-cc: zwane@linux.realnet.co.sz, <alan@redhat.com>,
-        <linux-sound@vger.kernel.org>
-Subject: [PATCH] opl3sa2 isapnp activation fix
-Message-ID: <Pine.LNX.4.44.0206062030340.9347-100000@keen.esi.ac.at>
+	id <S317114AbSFFSsD>; Thu, 6 Jun 2002 14:48:03 -0400
+Received: from wsip68-14-236-254.ph.ph.cox.net ([68.14.236.254]:24555 "EHLO
+	mail.labsysgrp.com") by vger.kernel.org with ESMTP
+	id <S317096AbSFFSqa>; Thu, 6 Jun 2002 14:46:30 -0400
+Message-ID: <000701c20d8a$7234b520$66aca8c0@kpfhome>
+From: "Kevin P. Fleming" <kevin@labsysgrp.com>
+To: <linux-kernel@vger.kernel.org>
+Subject: kbuild-2.5 2.4.19-pre10-ac2 "automatic" make installable?
+Date: Thu, 6 Jun 2002 11:46:19 -0700
+Organization: Laboratory Systems Group, Inc.
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2600.0000
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Now here is the new version of the opl3sa2 activation fix. This new
-version now adds the fix as a quirk to isapnp. Zwane Mwaikambo and
-I have discussed this very carefully and we now both agree that this
-is the best way to fix the problem. The patch is against 2.4.19-pre10
-and requires the previous isapnp_dma0.patch.
+I unpacked a new kernel tree, patched up to 2.4.19-pre10-ac2. I then applied
+the kbuild-2.5 patch for this version (from stingr), and did a make
+oldconfig/make installable/make install. Everything went just fine.
 
-It now loops over all acceptable dma_resources and only allows dma0
-if dma channel 0 is the ONLY value accepted by the card. In
-addition, it also fixes the problem that a card would not get
-deactivated upon removal of the module.
-
-Gerald
-
-opl3sa2_dma0.patch:
--------------------------
---- linux.orig/drivers/pnp/quirks.c	Thu Jun  6 18:04:43 2002
-+++ linux/drivers/pnp/quirks.c	Thu Jun  6 18:07:25 2002
-@@ -102,6 +102,28 @@
- 	return;
- }
- 
-+extern int isapnp_allow_dma0;
-+static void __init quirk_opl3sax_resources(struct pci_dev *dev)
-+{
-+	/* This really isn't a device quirk but isapnp core code
-+	 * doesn't allow a DMA channel of 0, afflicted card is an
-+	 * OPL3Sax where x=4.
-+	 */
-+	struct isapnp_resources *res;
-+	int max;
-+	res = (struct isapnp_resources *)dev->sysdata;
-+	max = res->dma->map;
-+	for (res = res->alt; res; res = res->alt) {
-+		if (res->dma->map > max)
-+			max = res->dma->map;
-+	}
-+	if (max == 1 && isapnp_allow_dma0 == -1) {
-+		printk(KERN_INFO "isapnp: opl3sa4 quirk: Allowing dma 0.\n");
-+		isapnp_allow_dma0 = 1;
-+	}
-+	return;
-+}
-+
- /*
-  *  ISAPnP Quirks
-  *  Cards or devices that need some tweaking due to broken hardware
-@@ -133,6 +155,8 @@
- 		quirk_sb16audio_resources },
- 	{ ISAPNP_VENDOR('C','T','L'), ISAPNP_DEVICE(0x0045),
- 		quirk_sb16audio_resources },
-+	{ ISAPNP_VENDOR('Y','M','H'), ISAPNP_DEVICE(0x0021),
-+		quirk_opl3sax_resources },
- 	{ 0 }
- };
- 
---- linux.orig/drivers/sound/opl3sa2.c	Thu Jun  6 18:04:44 2002
-+++ linux/drivers/sound/opl3sa2.c	Thu Jun  6 18:07:25 2002
-@@ -57,6 +57,7 @@
-  *                         (Jan 7, 2001)
-  * Zwane Mwaikambo	   Added PM support. (Dec 4 2001)
-  * Zwane Mwaikambo	   Code, data structure cleanups. (Feb 15 2002)
-+ * Gerald Teschl	   ISA PnP activate fix. (Jun 02 2002)
-  *
-  */
- 
-@@ -873,10 +874,11 @@
- 	}
- 	else {
- 		if(dev->activate(dev) < 0) {
--			printk(KERN_WARNING PFX "ISA PnP activate failed\n");
-+			printk(KERN_WARNING PFX "ISA PnP activate failed.\n");
- 			opl3sa2_state[card].activated = 0;
- 			return -ENODEV;
- 		}
-+		opl3sa2_state[card].activated = 1;
- 
- 		printk(KERN_DEBUG
- 		       PFX "Activated ISA PnP card %d (active=%d)\n",
+I rebooted, and decided to make some changes to the config. I went back into
+the source tree, and renamed Makefile to Makefile-2.4 and Makefile-2.5 to
+Makefile (so I don't have to keep specifying -f Makefile-2.5). I then did
+"make menuconfig", and turned on loadable module support and the kernel
+module loader. After the configuration got saved, kbuild automatically
+started a "make installable" pass! Although I was planning on doing this
+anyway, I don't think was expected behavior.
 

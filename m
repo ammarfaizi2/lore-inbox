@@ -1,64 +1,42 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263777AbUAPBF7 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 15 Jan 2004 20:05:59 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263564AbUAPBF7
+	id S265210AbUAPBUa (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 15 Jan 2004 20:20:30 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S265211AbUAPBU2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 15 Jan 2004 20:05:59 -0500
-Received: from fw.osdl.org ([65.172.181.6]:20625 "EHLO mail.osdl.org")
-	by vger.kernel.org with ESMTP id S264446AbUAPBF4 (ORCPT
+	Thu, 15 Jan 2004 20:20:28 -0500
+Received: from mail.kroah.org ([65.200.24.183]:22478 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S265210AbUAPBUT (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 15 Jan 2004 20:05:56 -0500
-Date: Thu, 15 Jan 2004 17:06:24 -0800
-From: Andrew Morton <akpm@osdl.org>
-To: Paul Jackson <pj@sgi.com>
-Cc: joe.korty@ccur.com, paulus@samba.org, linux-kernel@vger.kernel.org
-Subject: Re: seperator error in __mask_snprintf_len
-Message-Id: <20040115170624.2851e19a.akpm@osdl.org>
-In-Reply-To: <20040115145357.1033d65a.pj@sgi.com>
-References: <20040107165607.GA11483@rudolph.ccur.com>
-	<20040107113207.3aab64f5.akpm@osdl.org>
-	<20040108051111.4ae36b58.pj@sgi.com>
-	<16381.57040.576175.977969@cargo.ozlabs.ibm.com>
-	<20040108225929.GA24089@tsunami.ccur.com>
-	<16381.61618.275775.487768@cargo.ozlabs.ibm.com>
-	<20040114150331.02220d4d.pj@sgi.com>
-	<20040115002703.GA20971@tsunami.ccur.com>
-	<20040114204009.3dc4c225.pj@sgi.com>
-	<20040115081533.63c61d7f.akpm@osdl.org>
-	<20040115145357.1033d65a.pj@sgi.com>
-X-Mailer: Sylpheed version 0.9.7 (GTK+ 1.2.10; i586-pc-linux-gnu)
+	Thu, 15 Jan 2004 20:20:19 -0500
+Date: Thu, 15 Jan 2004 16:54:34 -0800
+From: Greg KH <greg@kroah.com>
+To: linux-kernel@vger.kernel.org, henrique.gobbi@cyclades.com,
+       support@stallion.oz.au, R.E.Wolff@BitWizard.nl, paulus@samba.org,
+       elfert@de.ibm.com, felfert@millenux.com, gerg@snapgear.com,
+       kuba@mareimbrium.org
+Subject: Re: [2/3]
+Message-ID: <20040116005434.GH23253@kroah.com>
+References: <Pine.LNX.4.44.0401131148070.18661-100000@eloth> <20040113113650.A2975@flint.arm.linux.org.uk> <20040113114948.B2975@flint.arm.linux.org.uk> <20040113171544.B7256@flint.arm.linux.org.uk> <20040113173352.D7256@flint.arm.linux.org.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20040113173352.D7256@flint.arm.linux.org.uk>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Paul Jackson <pj@sgi.com> wrote:
->
-> Andrew wrote:
-> > Gad.
-> 
-> Could you elaborate a bit on this critique, Andrew?
+On Tue, Jan 13, 2004 at 05:33:52PM +0000, Russell King wrote:
+> ===== drivers/usb/serial/ftdi_sio.c 1.55 vs edited =====
+> --- 1.55/drivers/usb/serial/ftdi_sio.c	Tue Oct 28 13:44:01 2003
+> +++ edited/drivers/usb/serial/ftdi_sio.c	Tue Jan 13 14:16:51 2004
 
-The code seems very complex for such a conceptually simple problem.
+Yeah, this ended up here due to a bad merge a few kernel releases ago.
+I have the fix for this driver in my queue of USB patches to send off to
+Linus soon.
 
-And doubts remain whether it is correct on particular wordsize/endianness
-machines.
+Sorry about this.
 
-It seems that there is a layering violation in which this code is poking
-around inside representations which should known only to the particular
-architecture.  Hence, if we can find a way to provide this function using
-existing architecture API's (test_bit) then everything is solved.
+Nice job in fixing up all of the other drivers, that was a big effort.
 
-If this code needs some arch-provided support function then so be it. 
-That's better than adding a tangle of ifdefs in generic code.
-
-> Did I provide too many comments?
-
-You can never provide too many comments!
-
-Anyway, please wake me up again when you and Joe have finished.  (I agree
-that making that function take a number of bits is better than taking a
-number of bytes btw).
-
+greg k-h

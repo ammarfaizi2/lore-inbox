@@ -1,45 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261786AbUKVMNv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262058AbUKVMPi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261786AbUKVMNv (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 22 Nov 2004 07:13:51 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262047AbUKVMNv
+	id S262058AbUKVMPi (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 22 Nov 2004 07:15:38 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262035AbUKVMPh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 22 Nov 2004 07:13:51 -0500
-Received: from grendel.digitalservice.pl ([217.67.200.140]:5309 "HELO
-	mail.digitalservice.pl") by vger.kernel.org with SMTP
-	id S261786AbUKVMNu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 22 Nov 2004 07:13:50 -0500
-From: "Rafael J. Wysocki" <rjw@sisk.pl>
-To: linux-kernel@vger.kernel.org
-Subject: Re: swsusp bigdiff [was Re: [PATCH] Software Suspend split to two stage V2.]
-Date: Mon, 22 Nov 2004 12:54:40 +0100
-User-Agent: KMail/1.6.2
-Cc: Pavel Machek <pavel@ucw.cz>, hugang@soulinfo.com
-References: <20041119194007.GA1650@hugang.soulinfo.com> <20041122103240.GA11323@hugang.soulinfo.com> <20041122110247.GB1063@elf.ucw.cz>
-In-Reply-To: <20041122110247.GB1063@elf.ucw.cz>
-MIME-Version: 1.0
+	Mon, 22 Nov 2004 07:15:37 -0500
+Received: from omx1-ext.sgi.com ([192.48.179.11]:29570 "EHLO
+	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
+	id S262049AbUKVMOj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 22 Nov 2004 07:14:39 -0500
+Date: Mon, 22 Nov 2004 06:14:15 -0600
+From: Robin Holt <holt@sgi.com>
+To: "Deepak Kumar Gupta, Noida" <dkumar@hcltech.com>
+Cc: "'lilbilchow@yahoo.com'" <lilbilchow@yahoo.com>,
+       "'ananth@sgi.com'" <ananth@sgi.com>,
+       "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>,
+       "'linux-ia64@vger.kernel.org'" <linux-ia64@vger.kernel.org>
+Subject: Re: smp_call_function/flush_tlb_all hang on large memory system
+Message-ID: <20041122121415.GA13845@lnx-holt.americas.sgi.com>
+References: <267988DEACEC5A4D86D5FCD780313FBB2BFBB4@exch-03.noida.hcltech.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-2"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200411221254.40732.rjw@sisk.pl>
+In-Reply-To: <267988DEACEC5A4D86D5FCD780313FBB2BFBB4@exch-03.noida.hcltech.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 22 of November 2004 12:02, Pavel Machek wrote:
-> Hi!
+On Mon, Nov 22, 2004 at 03:15:00PM +0530, Deepak Kumar Gupta, Noida wrote:
+> Hi William/Rajagopal
 > 
-> > > Yes, I'd like to get rid of "too many continuous pages" problem
-> > > before. Small problem is that it needs to update x86-64 too, but I
-> > I have not x86-64, so I have no chance to do it.
+> I saw your posting related to problem on internet. Just curious to ask you
+> have you got any solution for that or not.. as i am facing same problem on
+> SGI Propack 3 (based on kernel 2.4.18)on 2 CPU IA64 machine..
 > 
-> I have access to x86-64, so I can do it...
+> If you got any solution for this then pls let me know..
+> 
+> Any help in this regard is appreciated.
+> 
+> posting: http://www.cs.helsinki.fi/linux/linux-kernel/2003-11/1153.html
+> 
 
-Please, let me know when you have it done.  I'd like to test ... ;-)
+Can you provide the output from an L2 "leds" command?  This will tell us
+what the cpus are doing and whether they have interrupts enabled.  Have you
+contacted your support people yet?  I did not see an open case for this,
+but have no idea how your support person exactly filed it.
 
-RJW
-
--- 
-- Would you tell me, please, which way I ought to go from here?
-- That depends a good deal on where you want to get to.
-		-- Lewis Carroll "Alice's Adventures in Wonderland"
+Thanks,
+Robin Holt

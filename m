@@ -1,69 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262040AbULPVrP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262037AbULPVvp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262040AbULPVrP (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 16 Dec 2004 16:47:15 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262038AbULPVrO
+	id S262037AbULPVvp (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 16 Dec 2004 16:51:45 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262038AbULPVvp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 16 Dec 2004 16:47:14 -0500
-Received: from mail.kroah.org ([69.55.234.183]:16537 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S262034AbULPVqz (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 16 Dec 2004 16:46:55 -0500
-Date: Thu, 16 Dec 2004 13:46:19 -0800
-From: Greg KH <greg@kroah.com>
-To: Andrew Walrond <andrew@walrond.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.6.10-rc2 start_udev very slow
-Message-ID: <20041216214619.GA9827@kroah.com>
-References: <Pine.LNX.4.58.0411141835150.2222@ppc970.osdl.org> <200412162057.25244.andrew@walrond.org> <20041216211137.GA9475@kroah.com> <200412162120.33995.andrew@walrond.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200412162120.33995.andrew@walrond.org>
-User-Agent: Mutt/1.5.6i
+	Thu, 16 Dec 2004 16:51:45 -0500
+Received: from brmea-mail-4.Sun.COM ([192.18.98.36]:59583 "EHLO
+	brmea-mail-4.sun.com") by vger.kernel.org with ESMTP
+	id S262037AbULPVvm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 16 Dec 2004 16:51:42 -0500
+Date: Thu, 16 Dec 2004 16:51:18 -0500
+From: Mike Waychison <Michael.Waychison@Sun.COM>
+Subject: Re: debugfs in the namespace
+In-reply-to: <20041216190835.GE5654@kroah.com>
+To: Greg KH <greg@kroah.com>
+Cc: Pete Zaitcev <zaitcev@redhat.com>, linux-kernel@vger.kernel.org
+Message-id: <41C20356.4010900@sun.com>
+MIME-version: 1.0
+Content-type: text/plain; charset=ISO-8859-1
+Content-transfer-encoding: 7BIT
+X-Accept-Language: en-us, en
+User-Agent: Mozilla Thunderbird 0.8 (X11/20040926)
+X-Enigmail-Version: 0.86.1.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+References: <20041216110002.3e0ddf52@lembas.zaitcev.lan>
+ <20041216190835.GE5654@kroah.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Dec 16, 2004 at 09:20:33PM +0000, Andrew Walrond wrote:
-> On Thursday 16 Dec 2004 21:11, Greg KH wrote:
-> >
-> > Then I don't really know what to recommend.  As the udev startup logic
-> > is very tightly tied to how the distro is set up, I recommend using
-> > whatever they do, and ignore what I say :)
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
+
+Greg KH wrote:
+> On Thu, Dec 16, 2004 at 11:00:02AM -0800, Pete Zaitcev wrote:
 > 
-> They is me; My distro is Rubyx :)
-
-Heh, ok.  Then stick with what you are doing, as long as you rely on
-udevstart to create your device nodes, and not try to do it with a bash
-script (which is what the original start_udev did), you should be fine.
-
-> > > Is that list of  'extra nodes not exported by sysfs likely to change?'
-> >
-> > What does that list contain?
+>>Hi Greg,
+>>
+>>what is the canonic place to mount debugfs: /debug, /debugfs, or anything
+>>else? The reason I'm asking is that USBMon has to find it somewhere and
+>>I'd really hate to see it varying from distro to distro.
 > 
-> make_extra_nodes () {
->         # there are a few things that sysfs does not export for us.
->         # these things go here (and remember to remove them in
->         # remove_extra_nodes()
->         #
->         # Thanks to Gentoo for the initial list of these.
->         ln -snf /proc/self/fd $udev_root/fd
->         ln -snf /proc/self/fd/0 $udev_root/stdin
->         ln -snf /proc/self/fd/1 $udev_root/stdout
->         ln -snf /proc/self/fd/2 $udev_root/stderr
->         ln -snf /proc/kcore $udev_root/core
+> 
+> Hm, in my testing I've been putting it in /dbg, but I don't like vowels :)
+> 
+> Anyway, I don't really know.  /dev/debug/ ?  /proc/debug ?  /debug ?
+> 
+> What do people want?  I guess it's time to write up a LSB proposal :(
+> 
 
-Those aren't nodes, they are symlinks.  No way for udev to know about
-them :)
+I thought debugfs was meant for just debugging.  As there is no plans
+for standardizing its namespace, why are we allowing ourselves to rely
+on it being mounted at all?
 
->         mkdir $udev_root/pts
->         mkdir $udev_root/shm
+AFAICT, there should be no excuse for userspace to actually rely on any
+of the data within debugfs.  Otherwise we end up with yet another
+filesystem whose role is: Chaotic hodgepodge of magic files created by
+drivers that couldn't bother to be well-organized.
 
-Subdirs for mounting file systems on, again, no way udev can know about
-them.
+Please, let's not make debugfs part of userspace.  Keep it for what it
+is, debugging purposes only.
 
-So, it looks like udev is really creating every device node you need.
 
-thanks,
+- --
+Mike Waychison
+Sun Microsystems, Inc.
+1 (650) 352-5299 voice
+1 (416) 202-8336 voice
 
-greg k-h
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+NOTICE:  The opinions expressed in this email are held by me,
+and may not represent the views of Sun Microsystems, Inc.
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.5 (GNU/Linux)
+Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
+
+iD8DBQFBwgNWdQs4kOxk3/MRAslqAJwPnra30/EBuZxuXkdpo67SZJXJUQCaAtC1
+OeMH0Xiww/8xV9tIfqyzmE4=
+=Aa8I
+-----END PGP SIGNATURE-----

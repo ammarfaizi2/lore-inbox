@@ -1,45 +1,50 @@
 Return-Path: <linux-kernel-owner@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S129412AbQJaGon>; Tue, 31 Oct 2000 01:44:43 -0500
+	id <S129159AbQJaG7U>; Tue, 31 Oct 2000 01:59:20 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S129439AbQJaGoe>; Tue, 31 Oct 2000 01:44:34 -0500
-Received: from fe4.rdc-kc.rr.com ([24.94.163.51]:53262 "EHLO mail4.kc.rr.com")
-	by vger.kernel.org with ESMTP id <S129412AbQJaGo1>;
-	Tue, 31 Oct 2000 01:44:27 -0500
-To: subterfugue-announce@lists.sourceforge.net
-Cc: linux-kernel@vger.kernel.org
-Subject: [ANNOUNCE] SUBTERFUGUE 0.1.99a (bugfix)
-In-Reply-To: <m13qCYf-001qifC@microdog>
-From: Mike Coleman <mcoleman2@kc.rr.com>
-Date: 31 Oct 2000 00:44:25 -0600
-In-Reply-To: mkc@users.sourceforge.net's message of "Mon, 30 Oct 2000 04:52:53 -0600 (CST)"
-Message-ID: <878zr5fr1y.fsf@kc.net>
-User-Agent: Gnus/5.0807 (Gnus v5.8.7) Emacs/20.7
+	id <S129273AbQJaG7K>; Tue, 31 Oct 2000 01:59:10 -0500
+Received: from chiara.elte.hu ([157.181.150.200]:21511 "HELO chiara.elte.hu")
+	by vger.kernel.org with SMTP id <S129159AbQJaG7A>;
+	Tue, 31 Oct 2000 01:59:00 -0500
+Date: Tue, 31 Oct 2000 09:08:47 +0100 (CET)
+From: Ingo Molnar <mingo@elte.hu>
+Reply-To: mingo@elte.hu
+To: "Jeff V. Merkey" <jmerkey@timpanogas.org>
+Cc: Andrea Arcangeli <andrea@suse.de>, linux-kernel@vger.kernel.org
+Subject: Re: 2.2.18Pre Lan Performance Rocks!
+In-Reply-To: <39FDB6ED.FAFDBEEB@timpanogas.org>
+Message-ID: <Pine.LNX.4.21.0010310847430.1075-100000@elte.hu>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
 
-This mini-release just fixes a bug that could allow processes to escape
-tracing under certain circumstances.  If you plan to make use of 'sf', you
-should upgrade.
+On Mon, 30 Oct 2000, Jeff V. Merkey wrote:
 
-- --Mike
+> Ingo's helping me get the info together on this for putting a MARS-NWE
+> tux module in the kernel. [...]
 
+TUX modules are user-space, so i certainly cannot help you in 'putting
+MARS-NWE in the kernel'. While you (apparently) are trying to move server
+applications into ring0, i agree with Andrea and i'm trying to move kernel
+functionality out to user-space.
 
-See http://subterfugue.org for info on SUBTERFUGUE.
+> He had to go do some things this week he told me before he would be
+> ready to look at it. He did point me over to the info, and I agreed we
+> would attempt to implement it as something to look at. If it performs
+> well enough, I will have something reasonable to send out to Novell
+> Resellers (CNEs) and Cutomers.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.0.4 (GNU/Linux)
-Comment: Processed by Mailcrypt 3.5.5 and Gnu Privacy Guard <http://www.gnupg.org/>
+All i did was to inform you that the next release of TUX is imminent and
+that you might want to take a look at the new code. You interpreted that
+in a very interesting way. You are certainly free and welcome to take a
+look at any code and documentation released, but as visible in the past
+couple of email exchanges, our technical views about Linux networking
+scalability differ in fundamental ways.
 
-iD8DBQE5/mo0HxpYi0vMj/QRAmE6AJ9N/V57LZ6qUzYdSOsiAihqACQIEgCfVm7h
-KShS58o2uzOWHyMUtUg5U9A=
-=YKmp
------END PGP SIGNATURE-----
+	Ingo
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

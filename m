@@ -1,87 +1,141 @@
 Return-Path: <linux-kernel-owner+akpm=40zip.com.au@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S314643AbSEHQk6>; Wed, 8 May 2002 12:40:58 -0400
+	id <S314680AbSEHQmc>; Wed, 8 May 2002 12:42:32 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S314680AbSEHQk5>; Wed, 8 May 2002 12:40:57 -0400
-Received: from gateway-1237.mvista.com ([12.44.186.158]:17150 "EHLO
-	av.mvista.com") by vger.kernel.org with ESMTP id <S314643AbSEHQkx>;
-	Wed, 8 May 2002 12:40:53 -0400
-Message-ID: <3CD954F5.F8D7E84B@mvista.com>
-Date: Wed, 08 May 2002 09:40:21 -0700
-From: george anzinger <george@mvista.com>
-Organization: Monta Vista Software
-X-Mailer: Mozilla 4.77 [en] (X11; U; Linux 2.2.12-20b i686)
-X-Accept-Language: en
+	id <S314685AbSEHQmb>; Wed, 8 May 2002 12:42:31 -0400
+Received: from tmr-02.dsl.thebiz.net ([216.238.38.204]:16657 "EHLO
+	gatekeeper.tmr.com") by vger.kernel.org with ESMTP
+	id <S314680AbSEHQm3>; Wed, 8 May 2002 12:42:29 -0400
+Date: Wed, 8 May 2002 12:39:14 -0400 (EDT)
+From: Bill Davidsen <davidsen@tmr.com>
+To: Linux-Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: O(1) scheduler gives big boost to tbench 192
+Message-ID: <Pine.LNX.3.96.1020508122517.3449A-100000@gatekeeper.tmr.com>
 MIME-Version: 1.0
-To: "Serguei I. Ivantsov" <admin@gsc-game.kiev.ua>
-CC: Der Herr Hofrat <der.herr@mail.hofr.at>, linux-gcc@vger.kernel.org,
-        linux-kernel@vger.kernel.org
-Subject: Re: Measure time
-In-Reply-To: <200205081200.g48C0a805476@hofr.at> <004401c1f6a7$98f06ff0$e310f43e@manowar>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Serguei I. Ivantsov" wrote:
-> 
-> Is there any function like GetTickCount() in M$ Win32 that retrieves time in
-> milliseconds?
+Forgive me if you feel I've clipped too much from your posting, I'm trying
+to capture the points made by various folks without responding to each
+message.
 
-The kernel provides gettimeofday() which give micro seconds AND is
-usually quite accurate.  On machines of about 800 MHZ and better you
-can, sometimes, even get the same value on back to back readings.
+---------- Forwarded message ----------
+From: Mike Kravetz <kravetz@us.ibm.com>
+Date: Tue, 7 May 2002 15:13:56 -0700
 
-The high-res-timers patch (see sig. below) implements the POSIX clocks
-and timers which return values in nanoseconds, but the resolution, due
-to jitter and such is still in the range of micro seconds.
+I have experimented with reintroducing '__wake_up_sync' support
+into the O(1) scheduler.  The modifications are limited to the
+'try_to_wake_up' routine as they were before.  If the 'synchronous'
+flag is set, then 'try_to_wake_up' trys to put the awakened task
+on the same runqueue as the caller without forcing a reschedule.
+If the task is not already on a runqueue, this is easy.  If not,
+we give up.  Results, restore previous bandwidth results.
 
-If, on the other hand, you are trying to measure execution time of some
-task that blocks during that time, you are in a world of hurt.  The
-kernel allocates 1/HZ chunks of elapsed time to what ever task it finds
-running at the 1/HZ tick.  There is NO attempt by the kernel to refine
-this measurement.
+BEFORE
+------
+Pipe latency:    6.5185 microseconds
+Pipe bandwidth: 86.35 MB/sec
 
-George
-> 
-> --
->  Regards,
->   Serguei I. Ivantsov
-> 
-> ----- Original Message -----
-> From: "Der Herr Hofrat" <der.herr@mail.hofr.at>
-> To: "Serguei I. Ivantsov" <administrator@svitonline.com>
-> Cc: <linux-gcc@vger.kernel.org>; <linux-kernel@vger.kernel.org>
-> Sent: Wednesday, May 08, 2002 3:00 PM
-> Subject: Re: Measure time
-> 
-> > > Hello!
-> > >
-> > > Is there any function for high precision time measuring.
-> > > time() returns only in second. I need nanoseconds.
-> > >
-> > you can directly read the TSC but that will not realy give you nanoseconds
-> > resolution as the actual read access even on a PIII/1GHz is going to take
-> > up to a few 100 nanoseconds, and depending on what you want to time
-> > stamp the overall jitter of that code can easaly be in the
-> > range of a microsecond.
-> >
-> > There are some hard-realtime patches to the Linux kernel that will
-> > allow time precission of aprox. 1us (the TSC has a precission of 32ns)
-> > but I don't think you can get below that without dedicated hardware.
-> >
-> > for RTLinux check at ftp://ftp.rtlinux.org/pub/rtlinux/
-> >
-> > hofrat
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+AFTER
+-----
+Pipe latency:     6.5723 microseconds
+Pipe bandwidth: 540.13 MB/sec
+
+---------- Forwarded message ----------
+From: Andrea Arcangeli <andrea@suse.de>
+
+So my hypothesis about the sync wakeup in the below email proven to be right:
+
+	http://marc.theaimsgroup.com/?l=linux-kernel&m=102050009725367&w=2
+
+Many thanks for verifying this.
+
+Personally if the two tasks ends blocking waiting each other, then I
+prefer them to be in the same cpu. That was the whole point of the
+optimization. If the pipe buffer is large enough not to require reader
+or writer to block, then we don't do the sync wakeup just now (there's a
+detail with the reader that may block simply because the writer is slow
+at writing, but it probably doesn't matter much). There are many cases
+where a PAGE_SIZE of buffer gets filled in much less then a timeslice,
+and for all those cases rescheduling the two tasks one after the other
+in the same cpu is a win, just like the benchmark shows.  Think the
+normal pipes we do from the shell, like a "| grep something", they are
+very common and they all wants to be handled as a sync wakeups.  In
+short when loads of data pass through the pipe with max bandwith, the
+sync-wakeup is a definitive win. If the pipe never gets filled then the
+writer never sync-wakeup, it just returns the write call asynchronously,
+but of course the pipe doesn't get filled because it's not a
+max-bandiwth scenario, and so the producer and the consumer are allowed
+to scale in multiple cpus by the design of the workload.
+
+Comments?
+
+I would like if you could pass over your changes to the O(1) scheduler
+to resurrect the sync-wakeup.
+
+---------- Forwarded message ----------
+From: Mike Kravetz <kravetz@us.ibm.com>
+Date: Tue, 7 May 2002 15:43:22 -0700
+
+I'm not sure if 'synchronous' is still being passed all the way
+down to try_to_wake_up in your tree (since it was removed in 2.5).
+This is based off a back port of O(1) to 2.4.18 that Robert Love
+did.  The rest of try_to_wake_up (the normal/common path) remains
+the same.
+
+---------- Forwarded message ----------
+From: Robert Love <rml@tech9.net>
+Date: 07 May 2002 16:39:34 -0700
+
+Hm, interesting.  When Ingo removed the sync variants of wake_up he did
+it believing the load balancer would handle the case.  Apparently, at
+least in this case, that assumption was wrong.
+
+I agree with your earlier statement, though - this benchmark may be a
+case where it shows up negatively but in general the balancing is
+preferred.  I can think of plenty of workloads where that is the case. 
+I also wonder if over time the load balancer would end up putting the
+tasks on the same CPU.  That is something the quick pipe benchmark would
+not show.
+
+---------- Forwarded message ----------
+From: Mike Kravetz <kravetz@us.ibm.com>
+Date: Tue, 7 May 2002 16:48:57 -0700
+
+On Tue, May 07, 2002 at 04:39:34PM -0700, Robert Love wrote:
+> It is just for pipes we previously used sync, no?
+
+That's the only thing I know of that used it.
+
+I'd really like to know if there are any real workloads that
+benefited from this feature, rather than just some benchmark.
+I can do some research, but was hoping someone on this list
+might remember.  If there is a valid workload, I'll propose
+a patch.  However, I don't think we should be adding patches/
+features just to help some benchmark that is unrelated to
+real world use.
+
+==== start original material ====
+
+Got to change mailers...
+
+Consider the command line:
+  grep pattern huge_log_file | cut -f1-2,5,7 | sed 's/stuff/things/' |
+  tee extract.tmp | less
+
+Ideally I would like the pipes to run as fast as possible since I'm
+waiting for results, using cache and one CPU where that is best, and using
+all the CPUs needed if the machine is SMP and processing is complex. I
+believe that the original code came closer to that ideal than the recent
+code, and obviously I think the example is "valid workload" since I do
+stuff like that every time I look for/at server problems.
+
+I believe the benchmark shows a performance issue which will occur in
+normal usage.
 
 -- 
-George Anzinger   george@mvista.com
-High-res-timers:  http://sourceforge.net/projects/high-res-timers/
-Real time sched:  http://sourceforge.net/projects/rtsched/
-Preemption patch: http://www.kernel.org/pub/linux/kernel/people/rml
+bill davidsen <davidsen@tmr.com>
+  CTO, TMR Associates, Inc
+Doing interesting things with little computers since 1979.
+

@@ -1,82 +1,67 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261202AbUB0LSf (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 27 Feb 2004 06:18:35 -0500
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261559AbUB0LSd
+	id S261223AbUB0LcT (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 27 Feb 2004 06:32:19 -0500
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261232AbUB0LcT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 27 Feb 2004 06:18:33 -0500
-Received: from zadnik.org ([194.12.244.90]:6873 "EHLO lugburz.zadnik.org")
-	by vger.kernel.org with ESMTP id S261202AbUB0LSb (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 27 Feb 2004 06:18:31 -0500
-Date: Fri, 27 Feb 2004 13:18:12 +0200 (EET)
-From: Grigor Gatchev <grigor@zadnik.org>
-To: Mike Fedyk <mfedyk@matchmail.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: A Layered Kernel: Proposal
-In-Reply-To: <403E47B4.8080507@matchmail.com>
-Message-ID: <Pine.LNX.4.44.0402271151040.26240-100000@lugburz.zadnik.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Fri, 27 Feb 2004 06:32:19 -0500
+Received: from phoenix.infradead.org ([213.86.99.234]:28420 "EHLO
+	phoenix.infradead.org") by vger.kernel.org with ESMTP
+	id S261223AbUB0LcR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 27 Feb 2004 06:32:17 -0500
+Date: Fri, 27 Feb 2004 11:32:02 +0000
+From: Christoph Hellwig <hch@infradead.org>
+To: Stephen Rothwell <sfr@canb.auug.org.au>
+Cc: Christoph Hellwig <hch@lst.de>, akpm@osdl.org, linus@osdl.org,
+       anton@samba.org, paulus@samba.org, axboe@suse.de,
+       piggin@cyberone.com.au, viro@parcelfarce.linux.theplanet.co.uk,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] iSeries virtual disk
+Message-ID: <20040227113202.A31176@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Stephen Rothwell <sfr@canb.auug.org.au>,
+	Christoph Hellwig <hch@lst.de>, akpm@osdl.org, linus@osdl.org,
+	anton@samba.org, paulus@samba.org, axboe@suse.de,
+	piggin@cyberone.com.au, viro@parcelfarce.linux.theplanet.co.uk,
+	linux-kernel@vger.kernel.org
+References: <20040123163504.36582570.sfr@canb.auug.org.au> <20040122221136.174550c3.akpm@osdl.org> <20040226172325.3a139f73.sfr@canb.auug.org.au> <20040226095156.GA25423@lst.de> <20040227120451.0e3c43bd.sfr@canb.auug.org.au>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20040227120451.0e3c43bd.sfr@canb.auug.org.au>; from sfr@canb.auug.org.au on Fri, Feb 27, 2004 at 12:04:51PM +1100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> > it to the maximum value and then reset it in a magic even handler?
+> > I think that logic needs some clarification.
+> 
+> The "magic event handler" is synchronous with the probe_disk routine.  I
+> agree it is a bit confusing, but, at least I have the comment there about
+> the side effects of the probe_disk routine.  Changed slightly.
 
+The code that is in Linus' tree is still b0rked:
 
-On Thu, 26 Feb 2004, Mike Fedyk wrote:
+ - you set viodasd_max_disk in viodasd_open which looks completely bogus:
+    o the value is never used after module_init, and as long as module_init
+      and blkdev ->open under BKL they are serialized.
+    o even if they weren't you wouldn't ever get an open call for a device
+      > viodasd_max_disk
+    o that means if you actually got there it would either be the same or
+      decreased
+    o if it was decreased in parallel to module_init your loop in
+      module_init would be totally screwed.
+  - now to that loop in module_init:
+    o they only thing that it actually archives is that it breaks out of
+      the loop if a probe_disk fails - but you could archive that much
+      more easier by just returning an error from the probe_disk and
+      use a break out of the loop.  The >= MAX_DISKNO check could then
+      easily happen on the i used as loop counter.
 
-> Grigor Gatchev wrote:
-> > I don't see the need for starting a project.
-> >
-> > First, if unsuccssful, no reason to start it. And if successful, it will
-> > fork the kernel development, with all negative implications following.
-> > I see no sense in doing what eventually will damage the kernel
-> > development, instead of improving it.
->
-> If you start a project, that doesn't mean the "fork" is bad as long as
-> the intention is to integrate the work back into the base.
+> > for lowend configurations (remember we have a 32bit dev_t now)
+> 
+> Can I leave this for now?
 
-Typically, yes. But what I am trying to discuss is a kernel model
-improvement. Such a project, when taken to the point where it works well,
-will be very hard, if possible at all, to integrate into the base. If it
-wasn't so,I would be the happiest man around, being able to test all
-doubts in practice, without meddling in other people's work.
-
-> What you are asking for is for people to add to their list of things to
-> code.  You should be adding code yourself.
-
-Not true. I would be doing that if I was thoroughly convinced that the
-layered model is good, and that it is exactly the kernel model needed.
-
-Currenly, it seems to me a good idea. That is why, after some months of
-gnawing at it, I dared to post here. However, I have also seen a lot of
-"great" ideas that are actually bad - and am afraid that this may turn one
-of these. My judgement is not subscribed for the eternal truth, after all.
-
-Currently we talk not already coding, but still designing. And what I am
-asking for is people to add to _my_ list to work on. If they would like to
-contribute some design work, that will be nice, but a simple "It is weak
-here, see to improve it" will be already excellent help.
-
-> Linux has many groups of people pushing and pulling it in numerous
-> directions.  Very rarely does a direction succeed if the people who want
-> that specific direction don't submit code.
->
-> Useful discussion would be asking for implementation suggestions to get
-> to your goal.  Oh wait, I think there are already some of those in this
-> thread.
-
-Wait, wait a bit :-) I am still trying to see if that attractively looking
-model is really good. After (rather, _if_) it is proven good, I would be
-asking for implementation suggestions. But let's see first if it is worth
-implementing.
-
-As for directions and adding code: Nobody ever, AFAIK, has intentionally
-pushed the kernel towards this layered model. And the kernel source is
-already structured in a way convenient to go with it, and for the last
-three years was going exactly in this direction! That is why it seems
-to me that this is the internal logic of the kernel development.
-
-
-Grigor
+It's really awkwards.  And IBM will most likely want lots of disks soon
+anyway :)
 

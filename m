@@ -1,88 +1,66 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S313558AbSHZQEb>; Mon, 26 Aug 2002 12:04:31 -0400
+	id <S317611AbSHZQNK>; Mon, 26 Aug 2002 12:13:10 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S316530AbSHZQEb>; Mon, 26 Aug 2002 12:04:31 -0400
-Received: from matav-3.matav.hu ([145.236.252.34]:11044 "EHLO
-	Milos.fw.matav.hu") by vger.kernel.org with ESMTP
-	id <S313558AbSHZQEa>; Mon, 26 Aug 2002 12:04:30 -0400
-Date: Mon, 26 Aug 2002 18:00:40 +0200 (CEST)
-From: Narancs v1 <narancs@narancs.tii.matav.hu>
-X-X-Sender: narancs@helka
-To: Aurelien Jarno <aurelien@aurel32.net>
-Cc: herbert@debian.org, <srivasta@debian.org>, <aurel32@debian.org>,
-       <noodles@earth.li>, <rmayr@debian.org>, <johnf@debian.org>,
-       <linux-kernel@vger.kernel.org>
-Subject: Where is apa1480_cb gone?
-In-Reply-To: <E17hBWU-0001hz-00@localhost>
-Message-ID: <Pine.LNX.4.44.0208261755230.32250-100000@helka>
+	id <S317872AbSHZQNK>; Mon, 26 Aug 2002 12:13:10 -0400
+Received: from pD9E2394F.dip.t-dialin.net ([217.226.57.79]:46257 "EHLO
+	hawkeye.luckynet.adm") by vger.kernel.org with ESMTP
+	id <S317611AbSHZQNJ> convert rfc822-to-8bit; Mon, 26 Aug 2002 12:13:09 -0400
+Date: Mon, 26 Aug 2002 10:17:20 -0600 (MDT)
+From: Thunder from the hill <thunder@lightweight.ods.org>
+X-X-Sender: thunder@hawkeye.luckynet.adm
+To: Reinhard Moosauer <rm@moosauer.de>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Want to test a patch: H323-masquerading in Linux 2.4 (SuSE 8.0)
+In-Reply-To: <200208261757.53371.rm@moosauer.de>
+Message-ID: <Pine.LNX.4.44.0208261013250.3234-100000@hawkeye.luckynet.adm>
+X-Location: Dorndorf/Steudnitz; Germany
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=iso-8859-2
+Content-Type: TEXT/PLAIN; charset=iso-8859-1
 Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all on linux-kernel!
+Hi,
 
-Is it true that the PCMCIA Cardbus Adaptec SlimSCSI 1480A/B
-support is removed from kernel?
+tr << MESSAGE
 
-how can use such a card?
+On Mon, 26 Aug 2002, Reinhard Moosauer wrote:
+> Hallo,
+> 
+> Unter 
+> 
+> http://m1b.de/content/know/linux/nat_h323_suse80.html
+> 
+> habe ich einen Patch, den ich auf der Seite von
+> David Hildenhagen (http://www.hildenhagen.de/netmeeting.htm) gefunden habe auf 
+> den Kernel 2.4.18 von SuSE80 portiert.
+> (Ich habe dazu einfach alle Rejects des Original-Patches manuell aufgelöst.)
+> 
+> Es funktioniert für mich. Vielleicht hat jemand Interesse daran, die Sache bei 
+> sich zu testen. Ich bin für Hinweise sehr dankbar.
+> Schöne Grüße,
+> 
+> Reinhard
 
-On Tue, 20 Aug 2002, Aurelien Jarno wrote:
+Hello,
 
-> Le Mardi 20 Août 2002 12:58, vous avez écrit :
-> > Hi all!
-> >
-> > Please help, I have a notebook + Adaptec SlimSCSI 1480A Cardbus
-> > PCcard.
-> >
-> > I have debian sid uptodate
-> >
-> > If I compile a custom kernel with kernel-package, although the driver
-> > is listed in Documentation/Configure.help, I cannot choose it with
-> > *config.
-> >
-> > If I write it in by hand CONFIG_?_APA1480=m, it doesn't compile, and
-> > I cannot find the .c source file neither. Nor in 2.4.18.
-> >
-> > kernel-package 8.007
-> > kernel-source-2.4.19-1
-> > kernel-patch-freeswan 1.96-1.2
-> > kernel-patch-mppe 1.1-1
-> > kernel-patch-2.4-grsecurity 1.9.6-1
-> > kernel-patch-preempt-2.4 20020620-2
-> >
-> > Can you help where this driver has gone?
-> > maybe some of the patches removes?
-> You can try to remove the patches to see if it come from one of them.
-> However, I checked in kernel-patch-preempt-2.4, and it doesn't come
-> from it.
->
-> > maybe it's removed from mainstream?
-> It seems it is the answer. On a fresh untared vanilla 2.4.19 kernel,
-> there is the option in the documentation, but the .c source doesn't
-> exist.
-> However looking up in drivers/pci/pci.ids, you can see that the
-> APA-1480 and AIC-1480 are the same PCI card. Morever looking in
-> drivers/scsi/aic7xxx/aic7xxx_pci.c, there is a function named
-> ahc_apa1480_setup.
-> I suggest you to try to enable the module "Adaptec AIC7xxx support" in
-> "SCSI support ---> SCSI low-level drivers ---> Adaptec AIC7xxx support".
->
-> - Aurelien
->
+I've put a patch by David Hildeshagen (url...) at 
+<URL:http://m1b.de/content/know/linux/nat_h323_suse80.html> which was 
+ported to Linux Kernel 2.4.18, as from SuSE 8.0. (I've manually resolved 
+all the rejects.)
 
-well, I have that module compiled , but when I insert the card it doesn't
-load or if I load by hand it doesn't find the card.
+Works for me. Maybe somebody is interested in testing the whole thing. I'm 
+looking forward to comments.
 
-any idea?
+Kind regards, Reinhard.
 
-thanks!
+That's the translation, for the interested...
 
--------------------------
-Narancs v1
-IT Security Administrator
-Warning: This is a really short .sig! Vigyazat: ez egy nagyon rovid szig!
-
+			Thunder
+-- 
+--./../...-/. -.--/---/..-/.-./..././.-../..-. .---/..-/.../- .-
+--/../-./..-/-/./--..-- ../.----./.-../.-.. --./../...-/. -.--/---/..-
+.- -/---/--/---/.-./.-./---/.--/.-.-.-
+--./.-/-.../.-./.././.-../.-.-.-
 

@@ -1,44 +1,53 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S267185AbSLaIGV>; Tue, 31 Dec 2002 03:06:21 -0500
+	id <S261368AbSLaIYN>; Tue, 31 Dec 2002 03:24:13 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S267188AbSLaIGU>; Tue, 31 Dec 2002 03:06:20 -0500
-Received: from comtv.ru ([217.10.32.4]:28579 "EHLO comtv.ru")
-	by vger.kernel.org with ESMTP id <S267185AbSLaIGU>;
-	Tue, 31 Dec 2002 03:06:20 -0500
-To: lkml <linux-kernel@vger.kernel.org>
-Cc: Marc-Christian Petersen <m.c.p@wolk-project.de>
-Subject: [ANNOUNCE] fast access to process list
-From: Alex Tomas <bzzz@tmi.comex.ru>
-Organization: HOME
-Date: 31 Dec 2002 11:06:09 +0300
-Message-ID: <m3n0mmzk7i.fsf@lexa.home.net>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.2
+	id <S262528AbSLaIYN>; Tue, 31 Dec 2002 03:24:13 -0500
+Received: from softers.net ([213.139.168.106]:3712 "EHLO mail.softers.net")
+	by vger.kernel.org with ESMTP id <S261368AbSLaIYN>;
+	Tue, 31 Dec 2002 03:24:13 -0500
+Message-ID: <3E11562D.421CAE73@softers.net>
+Date: Tue, 31 Dec 2002 10:32:45 +0200
+From: Jarmo =?iso-8859-1?Q?J=E4rvenp=E4=E4?= 
+	<Jarmo.Jarvenpaa@softers.net>
+Organization: Softers Oy
+X-Mailer: Mozilla 4.8 [en] (Windows NT 5.0; U)
+X-Accept-Language: en
 MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: Ide problems
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi
 
-Good day!
+I've been buggered with multiple lockups of an med/heavily loaded 2.4.19
+(also rc-series) and same server with 2.4.20. Machine is running
+normally for a week or two, then IDE light is lit and processes are
+stuck in D state (if any disk activity is required -> freezed process).
+I'm using (ide-) software raid 1 and 5, tested with raid 1 alone and
+same lockup-problem appears.
 
-I'd like to present 2nd version of fastps.
+So, IDE-light is continuously lit but the disks are not reading nor
+writing. Emergency sync nor the unmount is working. I'm guessing the
+IDE-code (eh, raid too) might be cause of this.
+- No OOM situation have been observed, there's been lots of free ram at
+the time of each lockup.
+- Processes with no disk activity are not affected (for examples vmstat
+1 runs ok if started before lockup)
 
-Changes at kernel side:
-  - common codebase for 2.4 and 2.5
-  - filters incorporated (ability to select processes to be retreived)
-  - possible deadlock removed
-  - usage of for_each_task() reduced
-  - O(1)-compatibility
+Currently I'm thinking of falling back to .18 with hopes of no more
+problems.
 
-Changes in userspace tool fps:
-  - ability to select processes to be shown (see fps -h)
-  - cleanups in output format
-  - fps looks for System.map in several dirs
-
-Patches against 2.4.20/2.5.53 and userspace tool may be found at
-http://tmi.comex.ru/fps/
+Any similar experiences?
 
 
-with best regards, Alex
+Regards,
+Jarmo
 
+
+PS. An extremely useful feature would be a method to freeze raid resync
+until fsck is finished. Now, when both are running at the same time
+server's boot speed is miserable.

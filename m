@@ -1,58 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267678AbUIJR4a@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S267646AbUIJR4a@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S267678AbUIJR4a (ORCPT <rfc822;willy@w.ods.org>);
+	id S267646AbUIJR4a (ORCPT <rfc822;willy@w.ods.org>);
 	Fri, 10 Sep 2004 13:56:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267739AbUIJR4L
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S267721AbUIJR4C
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Sep 2004 13:56:11 -0400
-Received: from e2.ny.us.ibm.com ([32.97.182.102]:27359 "EHLO e2.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S267696AbUIJRzX (ORCPT
+	Fri, 10 Sep 2004 13:56:02 -0400
+Received: from mail.tmr.com ([216.238.38.203]:2323 "EHLO gatekeeper.tmr.com")
+	by vger.kernel.org with ESMTP id S267689AbUIJRx4 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Sep 2004 13:55:23 -0400
-Date: Fri, 10 Sep 2004 10:54:37 -0700
-From: "Martin J. Bligh" <mbligh@aracnet.com>
-To: Nathan Bryant <nbryant@optonline.net>,
-       "Alexander E. Patrakov" <patrakov@ums.usu.ru>
-cc: linux-kernel@vger.kernel.org
+	Fri, 10 Sep 2004 13:53:56 -0400
+To: linux-kernel@vger.kernel.org
+Path: not-for-mail
+From: Bill Davidsen <davidsen@tmr.com>
+Newsgroups: mail.linux-kernel
 Subject: Re: [PATCH 1/3] Separate IRQ-stacks from 4K-stacks option
-Message-ID: <6330000.1094838877@flay>
-In-Reply-To: <4141D415.6050705@optonline.net>
-References: <20040909232532.GA13572@taniwha.stupidest.org> <1094798428.2800.3.camel@laptop.fenrus.com> <1094807650.17041.3.camel@localhost.localdomain> <593560000.1094826651@[10.10.2.4]> <chsivd$827$1@sea.gmane.org> <4141D415.6050705@optonline.net>
-X-Mailer: Mulberry/2.1.2 (Linux/x86)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Date: Fri, 10 Sep 2004 13:54:16 -0400
+Organization: TMR Associates, Inc
+Message-ID: <chspak$bla$1@gatekeeper.tmr.com>
+References: <1094807650.17041.3.camel@localhost.localdomain><1094807650.17041.3.camel@localhost.localdomain> <593560000.1094826651@[10.10.2.4]>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+X-Trace: gatekeeper.tmr.com 1094838421 11946 192.168.12.100 (10 Sep 2004 17:47:01 GMT)
+X-Complaints-To: abuse@tmr.com
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040803
+X-Accept-Language: en-us, en
+In-Reply-To: <593560000.1094826651@[10.10.2.4]>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>> Its probably appropriate to drop gcc 2.x support at that point too since
->>>> it's the major cause of remaining problems
->>> 
->>> 
->>> What problems does it cause? 2.95.4 still seems to work fine for me.
->> 
->> 
->> The latest gcc2 on the ftp.gnu.org site is gcc 2.95.3. There is 
->> officially no such thing as "gcc 2.95.4". Probably you are talking about 
->> a patched version of some gcc2 cvs snapshot - that's what distros 
->> provide. Please specify exactly what gcc version you are talking about.
+Martin J. Bligh wrote:
+> --Alan Cox <alan@lxorguk.ukuu.org.uk> wrote (on Friday, September 10, 2004 10:14:11 +0100):
 > 
-> 2.95.4, if I remember correctly, contained fixes that went onto the gcc 2.95 branch after 2.95.3 was released. Some of the fixes were for Linux-2.2/2.4 and glibc2.2 compatibility. This compiler was distributed by Debian, I think.
 > 
->> 
->> And there _is_ problem with gcc-2.95.3-compiled kernel: latest cvs glibc 
->> testsuite segfaults in nptl tests. There are no failures with the kernel 
->> identically configured, but compiled with gcc 3.3.4 or 3.4.1. So gcc 
->> 2.95.3 as supplied by gnu.org miscompiles the kernel (futexes?). Either 
->> fix the kernel or drop gcc2 support.
+>>On Gwe, 2004-09-10 at 07:40, Arjan van de Ven wrote:
+>>
+>>>Well I always assumed the future plan was to remove 8k stacks entirely;
+>>>4k+irqstacks and 8k basically have near comparable stack space, with
+>>>this patch you create an option that has more but that is/should be
+>>>deprecated. I'm not convinced that's a good idea.
+>>
+>>Its probably appropriate to drop gcc 2.x support at that point too since
+>>it's the major cause of remaining problems
+> 
+> 
+> What problems does it cause? 2.95.4 still seems to work fine for me.
 
-If 2.95.3 is broken, then drop that. Before dropping gcc2 support entirely,
-you should prove all versions are broken.
+The RH7.3 remnant 2.96 seems to work for me on my expendable test box, 
+and I don't really have space for an upgrade. I haven't seen any 
+problems, other than old systems being dog slow. And gcc3 is even slower 
+it seems, although my machines running that have enough CPU to pretty 
+much overpower the bloat.
+> 
+> I agree about killing anything but 4K stacks though - having the single
+> page is very compelling - not only can we allocate it easier, but we can
+> also use cache-hot pages from the hot list.
 
-And yes, the 2.95.4 I've been using happily for about 4 years is Debian.
-Not only does it compile about twice as quickly, it produces better code
-than anything else I've tested (though 3.x is finally getting close).
+I have no problems with making 4k the default, but I'd really like the 
+option of going back to 8k when I see problems, just to eliminate that 
+as a possible cause of hangs or other instances of evil.
 
-M.
+Is everyone claiming that everything in the kernel is 4k safe now? Or is 
+"stable" total fiction? The 8k code doesn't take up that much space, it 
+is well tested, and if you make 4k the default most people will try it 
+with 4k anyway.
 
+-- 
+    -bill davidsen (davidsen@tmr.com)
+"The secret to procrastination is to put things off until the
+  last possible moment - but no longer"  -me

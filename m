@@ -1,21 +1,21 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263348AbUDMFQm (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 13 Apr 2004 01:16:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263354AbUDMFQl
+	id S263240AbUDMFQa (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 13 Apr 2004 01:16:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263348AbUDMFQa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 13 Apr 2004 01:16:41 -0400
-Received: from web02-imail.bloor.is.net.cable.rogers.com ([66.185.86.76]:4843
+	Tue, 13 Apr 2004 01:16:30 -0400
+Received: from web02-imail.bloor.is.net.cable.rogers.com ([66.185.86.76]:59370
 	"EHLO web02-imail.rogers.com") by vger.kernel.org with ESMTP
-	id S263348AbUDMFQi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 13 Apr 2004 01:16:38 -0400
+	id S263240AbUDMFQ2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 13 Apr 2004 01:16:28 -0400
 From: "Shawn Starr" <shawn.starr@rogers.com>
 To: "'Jeff Garzik'" <jgarzik@pobox.com>
 Cc: "'Len Brown'" <len.brown@intel.com>, <linux-kernel@vger.kernel.org>,
        <netdev@oss.sgi.com>
 Subject: RE: [BUG][2.6.5 final][e100/ee100pro] NETDEV_WATCHDOG Timeout -Related to i2c interface?
-Date: Tue, 13 Apr 2004 01:16:43 -0400
-Message-ID: <000101c42116$82b8e910$0200080a@panic>
+Date: Tue, 13 Apr 2004 01:16:33 -0400
+Message-ID: <000001c42116$7d00fb70$0200080a@panic>
 MIME-Version: 1.0
 Content-Type: text/plain;
 	charset="us-ascii"

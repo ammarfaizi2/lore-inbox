@@ -1,39 +1,60 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261284AbTIVRqK (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 22 Sep 2003 13:46:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261345AbTIVRqK
+	id S261642AbTIVSA5 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 22 Sep 2003 14:00:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261643AbTIVSA4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 22 Sep 2003 13:46:10 -0400
-Received: from mail.ncsa.uiuc.edu ([141.142.2.28]:22757 "EHLO
-	mail.ncsa.uiuc.edu") by vger.kernel.org with ESMTP id S261284AbTIVRqI
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 22 Sep 2003 13:46:08 -0400
-X-Envelope-From: hjafri@ncsa.uiuc.edu
-Message-Id: <5.1.0.14.2.20030922124433.0748c478@mail.ncsa.uiuc.edu>
-X-Mailer: QUALCOMM Windows Eudora Version 5.1
-Date: Mon, 22 Sep 2003 12:46:07 -0500
-To: linux-kernel@vger.kernel.org
-From: "Hassan M. Jafri" <hjafri@ncsa.uiuc.edu>
-Subject: TCP connections dropped
+	Mon, 22 Sep 2003 14:00:56 -0400
+Received: from fw.osdl.org ([65.172.181.6]:39584 "EHLO mail.osdl.org")
+	by vger.kernel.org with ESMTP id S261642AbTIVSAz (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 22 Sep 2003 14:00:55 -0400
+Date: Mon, 22 Sep 2003 10:53:57 -0700
+From: "Randy.Dunlap" <rddunlap@osdl.org>
+To: akpm <akpm@osdl.org>
+Cc: lkml <linux-kernel@vger.kernel.org>
+Subject: [PATCH] ikconfig: remove unneeded include files
+Message-Id: <20030922105357.0c84657c.rddunlap@osdl.org>
+Organization: OSDL
+X-Mailer: Sylpheed version 0.9.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
+X-Face: +5V?h'hZQPB9<D&+Y;ig/:L-F$8p'$7h4BBmK}zo}[{h,eqHI1X}]1UhhR{49GL33z6Oo!`
+ !Ys@HV,^(Xp,BToM.;N_W%gT|&/I#H@Z:ISaK9NqH%&|AO|9i/nB@vD:Km&=R2_?O<_V^7?St>kW
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; format=flowed
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Kernel 2.4.19
-glibc 2.2.5
 
-I am running a parallel program on 170 nodes, with 2 processes on each
-nodes. so 340 total processes. Each process has a TCP connection
-established with every other process. So each process has 339 sockets in
-ESTABLISHED state. The problem occurs when I try to write() on these
-socket. The TCP connection gets dropped for some of the sockets of a few
-processes as soon as they try to write to those socket. This problem,
-however, does not occur, if I reduce the number of processes to less than
-306 (305 TCP sockets/connections for each process).
+Hi,
+Please merge this small patch.
 
-Any ideas why connections are getting dropped?
+--
+~Randy
 
--Hassan
 
+patch_name:	includes_rm.patch
+patch_version:	2003-09-22.11:02:58
+author:		Randy.Dunlap <rddunlap@osdl.org>
+description:	remove 2 unneeded header files, so that configs.o
+		isn't rebuilt on every 'make bzImage';
+product:	Linux
+product_versions: 2.6.0-922
+maintainer:	Randy.Dunlap <rddunlap@osdl.org>
+diffstat:	=
+ kernel/configs.c |    2 --
+ 1 files changed, 2 deletions(-)
+
+
+diff -Naurp ./kernel/configs.c~includes ./kernel/configs.c
+--- ./kernel/configs.c~includes	2003-09-22 08:45:15.000000000 -0700
++++ ./kernel/configs.c	2003-09-22 11:00:40.000000000 -0700
+@@ -29,8 +29,6 @@
+ #include <linux/proc_fs.h>
+ #include <linux/seq_file.h>
+ #include <linux/init.h>
+-#include <linux/compile.h>
+-#include <linux/version.h>
+ #include <asm/uaccess.h>
+ 
+ /**************************************************/

@@ -1,81 +1,57 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263315AbSJCM6C>; Thu, 3 Oct 2002 08:58:02 -0400
+	id <S263309AbSJCMq1>; Thu, 3 Oct 2002 08:46:27 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263314AbSJCM6B>; Thu, 3 Oct 2002 08:58:01 -0400
-Received: from 213-187-164-2.dd.nextgentel.com ([213.187.164.2]:3718 "EHLO
-	mail.pronto.tv") by vger.kernel.org with ESMTP id <S263312AbSJCM57> convert rfc822-to-8bit;
-	Thu, 3 Oct 2002 08:57:59 -0400
-Content-Type: text/plain;
-  charset="iso-8859-1"
-From: Roy Sigurd Karlsbakk <roy@karlsbakk.net>
-Organization: ProntoTV AS
-To: Jakob Oestergaard <jakob@unthought.net>
-Subject: Re: AARGH! Please help. IDE controller fsckup
-Date: Thu, 3 Oct 2002 15:13:28 +0200
-User-Agent: KMail/1.4.1
-Cc: Kernel mailing list <linux-kernel@vger.kernel.org>,
-       linux-raid@vger.kernel.org
-References: <200210021516.46668.roy@karlsbakk.net> <200210031225.11283.roy@karlsbakk.net> <20021003114020.GD7350@unthought.net>
-In-Reply-To: <20021003114020.GD7350@unthought.net>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8BIT
-Message-Id: <200210031513.28459.roy@karlsbakk.net>
+	id <S263310AbSJCMq1>; Thu, 3 Oct 2002 08:46:27 -0400
+Received: from twilight.ucw.cz ([195.39.74.230]:37084 "EHLO twilight.ucw.cz")
+	by vger.kernel.org with ESMTP id <S263309AbSJCMqZ>;
+	Thu, 3 Oct 2002 08:46:25 -0400
+Date: Thu, 3 Oct 2002 14:51:42 +0200
+From: Vojtech Pavlik <vojtech@suse.cz>
+To: Jon Portnoy <portnoy@tellink.net>
+Cc: Tobias Ringstrom <tori@ringstrom.mine.nu>,
+       Vojtech Pavlik <vojtech@suse.cz>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: 2.5.40: AT keyboard input problem
+Message-ID: <20021003145142.A38898@ucw.cz>
+References: <Pine.LNX.4.44.0210030846180.11746-100000@boris.prodako.se> <Pine.LNX.4.44.0210030847200.24905-100000@localhost.localdomain>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <Pine.LNX.4.44.0210030847200.24905-100000@localhost.localdomain>; from portnoy@tellink.net on Thu, Oct 03, 2002 at 08:48:19AM -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > I have used presistent superblocks, but md0,1,2,3 will be differently
-> > ordered if I change the disk order... At least I think so. It surely
-> > didn't work.
->
-> No. md0 would stay md0.  This is another effect of using superblocks,
-> and in fact this is also (ironically) more or less the only argument
-> *against* using them   :)
->
-> (Imagine inserting a disk which knows that it is disk 0 of md0 into some
-> machine that already has a perfectly fine md0 running)
+On Thu, Oct 03, 2002 at 08:48:19AM -0400, Jon Portnoy wrote:
 
-ok. so. theoretically - as long as the system finds all 16 drives, I should be 
-able to shuffle them around and attach them to whichever controller there is? 
-right?
+> Reproduced with an AT keyboard here, too.
 
-ok.
+I know where the problem is now - it's pressing two keys, one with
+scancode 'e0 xx', the other 'yy' where xx == yy at the same time. 
 
-now, I've replaced the faulty controller, and booting up. the new controller 
-is also (like the old one) a CMD649...
+Now I'm looking for a nice clean way to fix it.
 
-hæ?
-
-it works. but it surely didn't work last time...
-
-thanks
-
-> > But ... with persistent superblock - is it possible to fsckup the raid?
->
-> You're root, it is indeed possible  :)
-
-er - yes. I more meant like 'automagically'
-
-> But you would not need to perform any of the special operations that you
-> need to now.
->
-> Persistent superblocks saves you from a number of "bad" situations you
-> can encounter with normal production systems (such as replacing a
-> controller or moving disks around).
->
-> One should be careful when moving disks with persistent superblocks
-> between systems though. You don't want the kernel to autodetect the
-> "wrong" md0 on boot   :)    I consider this problem nonexistent in the
-> production environment that I administer, but I know that some people
-> feel differently about it.  You should consider these pros and cons in
-> relation to your environment and make a decision based on that.
-
+> On Thu, 3 Oct 2002, Tobias Ringstrom wrote:
+> 
+> [snip]
+> > 
+> > If I press and hold my left Alt key, press and release the right AltGr
+> > key, and then release the left Alt key, I get one of the following
+> > messages in dmesg:
+> > 
+> > atkbd.c: Unknown key (set 2, scancode 0x1b8, on isa0060/serio0) pressed.
+> [snip]
+> > 
+> > The left Alt key is now stuck until I press and release it again.
+> > 
+> > The same thing happens for a few other combinations as well. I happens 
+> > both in X and in the console.
+> > 
+> > Please let me know if you need more info.
+> > 
+> > /Tobias
 
 -- 
-Roy Sigurd Karlsbakk, Datavaktmester
-ProntoTV AS - http://www.pronto.tv/
-Tel: +47 9801 3356
-
-Computers are like air conditioners.
-They stop working when you open Windows.
-
+Vojtech Pavlik
+SuSE Labs

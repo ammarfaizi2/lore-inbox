@@ -1,44 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264501AbUFNVaL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S264430AbUFNVbZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S264501AbUFNVaL (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 14 Jun 2004 17:30:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264492AbUFNVaL
+	id S264430AbUFNVbZ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 14 Jun 2004 17:31:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S264432AbUFNVbY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 14 Jun 2004 17:30:11 -0400
-Received: from arnor.apana.org.au ([203.14.152.115]:38925 "EHLO
-	arnor.apana.org.au") by vger.kernel.org with ESMTP id S264443AbUFNVaG
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 14 Jun 2004 17:30:06 -0400
-Date: Tue, 15 Jun 2004 07:29:39 +1000
-To: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
-Cc: Christoph Hellwig <hch@infradead.org>, linux-ide@vger.kernel.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] IDE update for 2.6.7-rc3 [1/12]
-Message-ID: <20040614212939.GA19812@gondor.apana.org.au>
-References: <E1BZQSC-0006vd-00@gondolin.me.apana.org.au> <200406132001.44262.bzolnier@elka.pw.edu.pl> <20040613221840.GA31354@gondor.apana.org.au> <200406141637.27492.bzolnier@elka.pw.edu.pl>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200406141637.27492.bzolnier@elka.pw.edu.pl>
-User-Agent: Mutt/1.5.5.1+cvs20040105i
-From: Herbert Xu <herbert@gondor.apana.org.au>
+	Mon, 14 Jun 2004 17:31:24 -0400
+Received: from mailadmin.WKU.EDU ([161.6.18.52]:48323 "EHLO mailadmin.wku.edu")
+	by vger.kernel.org with ESMTP id S264430AbUFNVbN (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 14 Jun 2004 17:31:13 -0400
+From: "Bikram Assal" <bikram.assal@wku.edu>
+Subject: eepro100 NIC driver. any bug ?
+To: linux-kernel@vger.kernel.org
+X-Mailer: CommuniGate Pro WebUser Interface v.4.1.8
+Date: Mon, 14 Jun 2004 16:31:09 -0500
+Message-ID: <web-68980662@mailadmin.wku.edu>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jun 14, 2004 at 04:37:27PM +0200, Bartlomiej Zolnierkiewicz wrote:
-> 
-> I'm lost now, so what is your change exactly supposed to do?
+Hi,
 
-The change is only effective when IDE is built as a module.  It allows
-you the option to have the same probing order as if IDE was built-in.
+Would you suggest ee100 over eepro100 driver for an INTEL NIC ?
 
-Without the patch it always probes the device as soon as each PCI driver
-is loaded.  And you can still do that as long as ide-generic is loaded
-before the PCI drivers.
+Currently, we are using eepro100 driver on one of our servers that have INTEL NICs installed.
 
-Cheers,
--- 
-Visit Openswan at http://www.openswan.org/
-Email:  Herbert Xu ~{PmV>HI~} <herbert@gondor.apana.org.au>
-Home Page: http://gondor.apana.org.au/~herbert/
-PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt
+I have come across a situation three times when I had to reboot the server because it hanged and wouldn't respond and next time when I rebooted the server, I did not find any messages in the /var/log/messages file.
+
+On one of these occasions, I could see errors saying, 
+
+
+kernel: NETDEV WATCHDOG: eth1: transmit timed out
+Jun 2 12:56:24 kernel: eth1: Transmit timed out: status f048 0c00 at 1703794288/1703794348 command 200ca000.
+Jun 2 12:57:06 kernel: NETDEV WATCHDOG: eth1: transmit timed out
+Jun 2 12:57:06 kernel: eth1: Transmit timed out: status f088 0c00 at 1703794348/1703794410 command 0001a000.
+Jun 2 12:57:58 kernel: NETDEV WATCHDOG: eth1: transmit timed out
+Jun 2 12:57:58 kernel: eth1: Transmit timed out: status f088 0c00 at 1703794410/1703794471 command 0001a000.
+
+
+I have read documentation on the net mentioning that eepro100 is a deprecated driver and isntead ee100 should be used.
+
+I dont know if I should relate the other hangs on our server with the one when we had these "transmit timed out" errors  show up in the /var/log/messages file.
+
+Please suggest me on this.
+
+Thanks for your help.
+
+- Bikram 
+OCA ( Oracle Certified Associate )
+Database Specialist, WKU
+http://www.wku.edu/~bikram.assal/

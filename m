@@ -1,58 +1,74 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S318032AbSHKSkL>; Sun, 11 Aug 2002 14:40:11 -0400
+	id <S318069AbSHKSnF>; Sun, 11 Aug 2002 14:43:05 -0400
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S318042AbSHKSkL>; Sun, 11 Aug 2002 14:40:11 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:4880 "EHLO
-	www.linux.org.uk") by vger.kernel.org with ESMTP id <S318032AbSHKSkK>;
-	Sun, 11 Aug 2002 14:40:10 -0400
-Date: Sun, 11 Aug 2002 19:43:56 +0100
-From: "Dr. David Alan Gilbert" <gilbertd@treblig.org>
-To: linux-kernel@vger.kernel.org, debian-alpha@lists.debian.org
-Subject: Re: 2.4.19 eat my disc (contents)
-Message-ID: <20020811184356.GC755@gallifrey>
-References: <20020811175252.GB755@gallifrey> <20020811182832.GA21639@wurtel.net>
+	id <S318075AbSHKSnF>; Sun, 11 Aug 2002 14:43:05 -0400
+Received: from bitmover.com ([192.132.92.2]:28105 "EHLO bitmover.com")
+	by vger.kernel.org with ESMTP id <S318069AbSHKSnE>;
+	Sun, 11 Aug 2002 14:43:04 -0400
+Date: Sun, 11 Aug 2002 11:46:33 -0700
+From: Larry McVoy <lm@bitmover.com>
+To: Andrew Morton <akpm@zip.com.au>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Linus Torvalds <torvalds@transmeta.com>,
+       lkml <linux-kernel@vger.kernel.org>
+Subject: Re: [patch 4/21] fix ARCH_HAS_PREFETCH
+Message-ID: <20020811114633.A17310@work.bitmover.com>
+Mail-Followup-To: Larry McVoy <lm@work.bitmover.com>,
+	Andrew Morton <akpm@zip.com.au>,
+	Alan Cox <alan@lxorguk.ukuu.org.uk>,
+	Linus Torvalds <torvalds@transmeta.com>,
+	lkml <linux-kernel@vger.kernel.org>
+References: <3D56147E.15E7A98@zip.com.au> <1029095396.16216.18.camel@irongate.swansea.linux.org.uk> <3D56B13A.D3F741D1@zip.com.au>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20020811182832.GA21639@wurtel.net>
-User-Agent: Mutt/1.4i
-X-Chocolate: 70 percent or better cocoa solids preferably
-X-Operating-System: Linux/2.4.18 (i686)
-X-Uptime: 19:42:46 up  8:29,  1 user,  load average: 2.23, 2.26, 2.18
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <3D56B13A.D3F741D1@zip.com.au>; from akpm@zip.com.au on Sun, Aug 11, 2002 at 11:47:22AM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Paul Slootman (paul@debian.org) wrote:
-> On Sun 11 Aug 2002, Dr. David Alan Gilbert wrote:
+On Sun, Aug 11, 2002 at 11:47:22AM -0700, Andrew Morton wrote:
+> Alan Cox wrote:
+> > 
+> > On Sun, 2002-08-11 at 08:38, Andrew Morton wrote:
+> > > This information loss is unfortunate.  Examples:
+> > >
+> > >       for (i = 0; i < N; i++)
+> > >               prefetch(foo[i]);
+> > >
+> > >    Problem is, if `prefetch' is a no-op, the compiler will still
+> > >    generate an empty busy-wait loop.  Which it must do.
+> > 
+> > Why - nothing there is volatile
 > 
-> >   I've just lost the contents of my disc on my Alpha to 2.4.19 - be
+> Because the compiler sees:
 > 
-> That's not absolutely sure...
+> 	for (i = 0; i < N; i++)
+> 		;
 > 
-> > All tools were from Debian/unstable; updated immediatly prior to the 
-> > kernel build.
+> and it says "ah ha.  A busy wait delay loop" and leaves it alone.
 > 
-> It could of course be that during the update something trashed some
-> part of the disk, which only made itself apparent after the reboot.
-> 
-> Golden rule: only change one thing at a time...
+> It's actually a special-case inside the compiler to not optimise
+> away such constructs.
 
-Sure; it was just a standard apt-get dist-upgrade (since I'd not run the
-upgrade for a few weeks); not a major potato->woody transition or
-anything.
+Good lord.  If anyone depends all versions of GCC to not optimize this away,
+they are going to hate life.  Since GCC doesn't seem to do cross file 
+optimization (does it?) I've found the following works well:
 
-> My alpha's been running 2.4.19-rc2 for more than 3 weeks now without any
-> problems (the kernel also has my patches against unaligned accesses in
-> the kernel, for the packet filter and for netfilter).  I don't think
-> anything big would have been changed between rc2 and the final release,
-> so unless it's specific to the IDE driver (I use SCSI) I doubt the
-> kernel is the culprit.
+	cat > use_result.c
+	int dummy;	// can't be static, the compiler will see it's not read
 
-I suspect the IDE driver; but that is difficult to tell.
+	use_result(int i)
+	{
+		dummy = i;
+	}
+	^D
 
-Dave
- ---------------- Have a happy GNU millennium! ----------------------   
-/ Dr. David Alan Gilbert    | Running GNU/Linux on Alpha,68K| Happy  \ 
-\ gro.gilbert @ treblig.org | MIPS,x86,ARM, SPARC and HP-PA | In Hex /
- \ _________________________|_____ http://www.treblig.org   |_______/
+	for (i = 0; i < N; ++i) use_result(i);
+
+I'm positive we do stuff like this in LMbench, which is fairly well supported
+on a pile of different platforms/compilers.
+-- 
+---
+Larry McVoy            	 lm at bitmover.com           http://www.bitmover.com/lm 

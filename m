@@ -1,53 +1,50 @@
 Return-Path: <linux-kernel-owner+willy=40w.ods.org@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id <S263081AbTCSOyZ>; Wed, 19 Mar 2003 09:54:25 -0500
+	id <S263058AbTCSPEL>; Wed, 19 Mar 2003 10:04:11 -0500
 Received: (majordomo@vger.kernel.org) by vger.kernel.org
-	id <S263082AbTCSOyY>; Wed, 19 Mar 2003 09:54:24 -0500
-Received: from [213.171.53.133] ([213.171.53.133]:14350 "EHLO gulipin.miee.ru")
-	by vger.kernel.org with ESMTP id <S263081AbTCSOyX>;
-	Wed, 19 Mar 2003 09:54:23 -0500
-Date: Wed, 19 Mar 2003 18:09:23 +0300
-From: "Ruslan U. Zakirov" <cubic@wr.miee.ru>
-X-Mailer: The Bat! (v1.61)
-Reply-To: "Ruslan U. Zakirov" <cubic@wr.miee.ru>
-Organization: CITL MIEE
-X-Priority: 3 (Normal)
-Message-ID: <861563974656.20030319180923@wr.miee.ru>
-To: Adam Belay <ambx1@neo.rr.com>
-CC: linux-kernel@vger.kernel.org, greg@kroah.com
-Subject: Re: [PATCH 2.5.65] pnp api changes to sound/isa/sb/es968.c
-In-Reply-To: <Pine.LNX.4.53.0303190650530.28260@quinn.larvalstage.com>
-References: <Pine.LNX.4.53.0303190650530.28260@quinn.larvalstage.com>
+	id <S263059AbTCSPEK>; Wed, 19 Mar 2003 10:04:10 -0500
+Received: from mx0.gmx.net ([213.165.64.100]:53491 "HELO mx0.gmx.net")
+	by vger.kernel.org with SMTP id <S263058AbTCSPEJ>;
+	Wed, 19 Mar 2003 10:04:09 -0500
+Date: Wed, 19 Mar 2003 16:15:03 +0100 (MET)
+From: micklweiss@gmx.net
+To: linux-kernel@vger.kernel.org
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Subject: Re: Linux on 16-bit systems
+X-Priority: 3 (Normal)
+X-Authenticated-Sender: #0014467546@gmx.net
+X-Authenticated-IP: [172.129.153.126]
+Message-ID: <27515.1048086903@www36.gmx.net>
+X-Mailer: WWW-Mail 1.6 (Global Message Exchange)
+X-Flags: 0001
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-JK> Following patch is to make ESS968 driver to work with PNP API.
-[SNIP]
-JK> +static int __devinit snd_es968_pnp_detect(struct pnp_card_link *card,
-[SNIP]
-      Hello, Adam, Greg and other.
-As I think in this section of kernel it's not necessarily to use
-__devinit and __devexit.
-Soundcards(and other devices) can't be HotPlug as I know.
-And if we look at #define of this attributes, then we see that
-it useless with not HotPlug devices.
+Yes you are all correct, uclinux doesn't cost $200
 
-180 #ifdef CONFIG_HOTPLUG
-181 #define __devinit
-182 #define __devinitdata
-183 #define __devexit
-184 #define __devexitdata
-185 #else
-186 #define __devinit __init
-187 #define __devinitdata __initdata
-188 #define __devexit __exit
-189 #define __devexitdata __exitdata
-190 #endif
-And with changes from __init to __devinit and enabled CONFIG_HOTPLUG
-we loose advantage of __init.
-May be I've missed something?
-       Best regards, Ruslan.
+I mixed it up with the cost of an SDK for embedded systems. *oops*
+
+thanks to all who helped me out. It means a lot. :o)
+
+And Alan, hopefully you will come down to Florida again. I missed it when
+you went to the Orlando Linux User Group a few weeks ago. 
+
+Regards, 
+
+- Mick
+
+(o> Web developer / designer
+( )     UNIX Systems Admin
+---   ~ www.mickweiss.com ~
+
+/* Ignore the footer hereafter */
+
+
+ 
+
+-- 
++++ GMX - Mail, Messaging & more  http://www.gmx.net +++
+Bitte lächeln! Fotogalerie online mit GMX ohne eigene Homepage!
 
